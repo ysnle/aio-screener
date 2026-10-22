@@ -97,7 +97,9 @@ class Element {
 function descendants(node) { return node.children.flatMap((child) => [child, ...descendants(child)]); }
 const host = new Element('section'); const next = new Element('nav');
 const doc = { createElement: (tag) => new Element(tag), createTextNode: (text) => { const node = new Element('#text'); node.textContent = text; return node; }, getElementById: (id) => id === 'fund-flow' ? host : id === 'fund-next' ? next : null };
-const root = { _aioSecFiscalHistory: { AEHR: compact }, _aioSecQuarterHistory: {}, _aioGetCanonicalScreenerRows: () => [{ sym: 'AEHR', sector: 'Technology' }] };
+// v58.64 (M1): this root already holds a fresh history. Without the timestamp it fell back to the real fetch, whose
+// late failure repainted AEHR over the race below once roots stopped sharing one name-keyed artifact store.
+const root = { _aioSecFiscalHistory: { AEHR: compact }, _aioSecFiscalHistoryAt: Date.now(), _aioSecQuarterHistory: {}, _aioGetCanonicalScreenerRows: () => [{ sym: 'AEHR', sector: 'Technology' }] };
 renderFiscalRead({ documentRef: doc, root, state: { id: 'AEHR', fundamentals: fixture } });
 const nodes = descendants(host);
 // 2026-10-13 review S20: the table reads in B/T/M units like the paragraph; the exact signed amount stays in the cell title.

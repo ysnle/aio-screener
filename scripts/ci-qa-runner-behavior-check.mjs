@@ -263,6 +263,39 @@ try {
   const emptyRerun = run('rerun-failed');
   if (emptyRerun.status !== 2 || !/FAIL gate가 없습니다/.test(emptyRerun.stderr)) fail('rerun-failed did not refuse an empty failure batch with an explicit cause', emptyRerun);
 
+  // v58.63 (architecture audit A25): same identity PASS -> --no-cache FAIL -> rerun-failed must run the gate for real.
+  const togglePath = join(cacheDir, 'toggle-state.txt');
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    groups: { fixture: { phase: 0, kind: 'static', inputs: [fixtureScript], gates: [
+      { id: 'toggle-gate', script: fixtureScript, args: ['--mode', 'toggle', '--path', '{cacheDir}/toggle-state.txt'] }
+    ] } },
+    profiles: { test: ['fixture'] }
+  }, null, 2));
+  writeFileSync(togglePath, 'pass');
+  const togglePass = run('test');
+  if (togglePass.status !== 0) fail('A25 toggle fixture did not pass first', togglePass);
+  writeFileSync(togglePath, 'fail');
+  const toggleFail = run('test', '--no-cache');
+  if (toggleFail.status !== 1) fail('A25 toggle fixture did not fail under --no-cache', toggleFail);
+  const cacheAfterFail = JSON.parse(readFileSync(join(cacheDir, 'success-cache.json'), 'utf8'));
+  if (cacheAfterFail.gates?.['toggle-gate']) fail('A25 a failing gate kept its cached success', toggleFail);
+  const toggleRetry = run('rerun-failed');
+  const toggleRetryReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
+  if (toggleRetry.status !== 1 || toggleRetryReport.counts?.CACHED) fail('A25 rerun-failed resolved a failure from an older cached success instead of running the gate', toggleRetry);
+  // v58.63 (architecture audit A26): a failed id that no longer names a gate makes the retry refuse, not exit 0 with nothing run.
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    groups: { fixture: { phase: 0, kind: 'static', inputs: [fixtureScript], gates: [
+      { id: 'toggle-gate-renamed', script: fixtureScript, args: ['--mode', 'pass'] }
+    ] } },
+    profiles: { test: ['fixture'] }
+  }, null, 2));
+  const orphanRetry = run('rerun-failed');
+  if (orphanRetry.status !== 2 || !/현재 manifest에 없습니다/.test(orphanRetry.stderr)) fail('A26 rerun-failed with an unresolved failed id did not exit 2 with its cause', orphanRetry);
+  writeFileSync(togglePath, 'pass');
+  rmSync(join(cacheDir, 'failed-batch.json'), { force: true });
+
   writeFileSync(join(cacheDir, 'success-cache.json'), '{corrupt-json');
   const corruptCacheRun = run('test');
   if (corruptCacheRun.status !== 0) fail('run under a corrupt success cache failed', corruptCacheRun);

@@ -1357,6 +1357,7 @@ async function handleRelay(request, env, origin) {
     ownedReservation = !reservation.duplicate;
   } catch { return errorResponse('Relay quota unavailable', 503, origin, null, env); }
 
+  let dispatched = false;
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -1364,6 +1365,10 @@ async function handleRelay(request, env, origin) {
     let response;
     let rawBody;
     try {
+      // v58.63 (architecture audit SEC01/D4): once the request is sent the provider may have counted the key call, so an
+      // uncertain failure after this point (stream cut, timeout, oversize) keeps the reservation — only a failure before
+      // dispatch returns it. Releasing it let a provider that broke every body be called without bound under the cap.
+      dispatched = true;
       // A relay hop may only stay on the provider's own host over https.
       response = await fetchUpstream(providerUrl, {
         method: 'GET',
@@ -1391,7 +1396,7 @@ async function handleRelay(request, env, origin) {
       },
     });
   } catch (error) {
-    if (ownedReservation) await releaseQuota(env, dayKey, requestId);
+    if (ownedReservation && !dispatched) await releaseQuota(env, dayKey, requestId);
     const kind = transportFailureMessage(error);
     return errorResponse(kind === 'timeout' ? 'Relay timeout' : kind === 'too-large' ? 'Response too large' : kind === 'redirect-refused' ? 'Relay redirect refused' : 'Relay upstream error', 502, origin, null, env);
   }

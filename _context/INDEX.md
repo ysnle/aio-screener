@@ -1,6 +1,6 @@
 ---
 verified_by: generated-workspace-contract + P1313/R659 ledger routing
-last_verified: 2026-09-28
+last_verified: 2026-10-22
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -34,7 +34,7 @@ target_version: version.json
 
 ## Task routing
 
-Latest review handoff: [`HANDOFF.md`](../_artifacts/codex-reform-audit-20261015/HANDOFF.md) (2026-10-15, v57.82 개편 이후 코드·실브라우저·라이브 감사). Detailed findings and priorities: [`REVIEW.md`](../_artifacts/codex-reform-audit-20261015/REVIEW.md); this is an audit, not an applied-fix or release certification. Previous continuation: [`NEXT-SESSION-20261001.md`](../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md), with historical findings in [`REPORT.md`](../_artifacts/codex-semantic-audit-20260930/REPORT.md). Foundation handoff (2026-09-27 full audit, supersedes the August handoffs): [`HANDOFF.md`](../_artifacts/full-audit-20260927/HANDOFF.md), progress/history in [`EXECUTION-STATUS.md`](../_artifacts/full-audit-20260927/EXECUTION-STATUS.md), target design in `FOUNDATION-DESIGN.md` / `V2-BLUEPRINT.md` beside it. Inventory coverage, semantic review, local browser checks and deployed certification are explicitly separate.
+Latest review handoff: [`통합 HANDOFF.md`](../_artifacts/architecture-quality-audit/HANDOFF.md) (2026-10-22, 날짜별 Architecture 감사 통합·핸드오프 재검토). 파일별 범위·근거·과거 발견의 상태 연결은 이 단일 진입점을 따른다. 전체 전문 감사·제품 수정·릴리스 인증을 뜻하지 않는다. Earlier reform review: [`2026-10-15 HANDOFF.md`](../_artifacts/codex-reform-audit-20261015/HANDOFF.md). Previous continuation: [`NEXT-SESSION-20261001.md`](../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md), with historical findings in [`REPORT.md`](../_artifacts/codex-semantic-audit-20260930/REPORT.md). Foundation handoff (2026-09-27 full audit, supersedes the August handoffs): [`HANDOFF.md`](../_artifacts/full-audit-20260927/HANDOFF.md), progress/history in [`EXECUTION-STATUS.md`](../_artifacts/full-audit-20260927/EXECUTION-STATUS.md), target design in `FOUNDATION-DESIGN.md` / `V2-BLUEPRINT.md` beside it. Inventory coverage, semantic review, local browser checks and deployed certification are explicitly separate.
 
 Latest desktop journey evidence and open boundaries: [`user-flow-remediation-20260830.md`](../_artifacts/user-flow-remediation-20260830.md). The route walkthrough is not whole-content semantic or deployment certification (P1010/R572).
 
@@ -70,7 +70,7 @@ The exact classification for every `_context/*.md|json` file is in `CONTEXT-CATA
 
 - Earlier all-line/history audit (historical): `../_artifacts/exhaustive-audit-20260831/REPORT.md` and `coverage-summary.json`. Inventory/parse coverage is separate from semantic completion; unresolved work is not closed by a passing gate.
 
-- **Latest audit handoff: [`HANDOFF.md`](../_artifacts/codex-reform-audit-20261015/HANDOFF.md)** — 개편 이후 재현 결함·보안/운영 경계·8개 화면 의견·후속 수정 순서. [상세 검토](../_artifacts/codex-reform-audit-20261015/REVIEW.md)와 [마감 증거](../_artifacts/codex-reform-audit-20261015/CLOSEOUT.md)를 함께 읽는다. 이전 수정 이력은 `../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md`와 `../_artifacts/full-audit-20260927/EXECUTION-STATUS.md`에 보존한다.
+- **Latest audit handoff: [`통합 HANDOFF.md`](../_artifacts/architecture-quality-audit/HANDOFF.md)** — Architecture 감사의 단일 진입점이다. [과거 발견 상태](../_artifacts/architecture-quality-audit/FINDINGS-HISTORY.md)와 [검토·정정 기록](../_artifacts/architecture-quality-audit/REVIEW-CORRECTIONS.md)을 함께 읽는다. 이전 수정 이력은 `../_artifacts/codex-semantic-audit-20260930/NEXT-SESSION-20261001.md`와 `../_artifacts/full-audit-20260927/EXECUTION-STATUS.md`에 보존한다.
 
 - **데이터 의미·정합성 전수 감사 (2026-09-18): `../_artifacts/data-semantic-consistency-20260918/REPORT.md`** — 상위 23개 산출물(§1~§9, P1096~P1108/R614)에 이어 **중첩 산출물까지 전부** 검사했다(§10, P1109~P1114/R615): 8,908개 참조·37개 매니저 농도 재계산·629 객체 해시·퇴역 범위 정리·중첩 신선도 측정면 신설·미사용 sw 등록부 삭제. 전환 면제 만료는 **2026-10-18**. 남은 OPEN: 날짜 없는 중첩 산출물 12건, `objects/**` 592/629 미참조 blob 보존 정책, 실제 소비 산출물의 캐시 라우팅 누락, `factorObservedAt` 계층별 이름 분리.
 

@@ -286,6 +286,16 @@ try {
     };
     changeOnlyRejected('entry with a rule', { ...changeOnly(), r: { title: 't', rule: 'r', validation: 'v' } }, /r requires p/);
     changeOnlyRejected('entry using {P}', { ...changeOnly(), changelog: ['**Lead ({P}):** text.'] }, /change-only entry/);
+    // v58.63 (architecture audit A27): bump-version writes a ".00" release as the major alone ("v99"); record-fix must
+    // accept the same canonical form, and still refuse a malformed one.
+    const dMajor = makeRoot({ mutate: (root) => {
+      const vj = JSON.parse(readFileSync(join(root, 'version.json'), 'utf8'));
+      writeFileSync(join(root, 'version.json'), `${JSON.stringify({ ...vj, version: 'v99' })}\n`);
+      writeFileSync(join(root, 'CHANGELOG.md'), readFileSync(join(root, 'CHANGELOG.md'), 'utf8').replace('## v99.1 (2026-10-01)', '## v99 (2026-10-01)'));
+    } });
+    const rMajor = run(dMajor, { ...changeOnly(), version: 'v99', changelog: ['**Fixture feature (v99):** major-only release.'], note: 'v99 — major-only fixture note.' });
+    check('v58.63 A27 record-fix accepts the canonical major-only version bump-version writes', rMajor.code === 0, rMajor.err || rMajor.out);
+    changeOnlyRejected('malformed version', { ...changeOnly(), version: 'v99.' }, /version must be canonical/);
   }
 
   // ── independence from postmortem frontmatter fields ───────────────────────

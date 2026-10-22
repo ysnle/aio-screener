@@ -1,0 +1,62 @@
+Browser tab: 1, Title: "브리핑 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#briefing".
+1 AXWebArea 브리핑 · AIO Screener, URL: ysnle.github.io/aio-screener/#briefing
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	29 container
+		30 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		33 text 종가
+		405 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			406 text 10/20 마감 · 시세 16종 · 실시간 관측 17종 10/20 마감
+		35 text v58.52
+		36 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		37 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	38 container main-content
+		39 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			407 button 대시보드
+			408 button 브리핑
+			409 button 뉴스
+		410 container 브리핑, ID: page-briefing
+			411 heading 브리핑, Value: 1, ID: page-briefing-label
+				412 text 브리핑
+			413 text 2026-10-21 (수)
+			414 container 오늘의 시장 해석, ID: briefing-read
+				415 heading 오늘의 시장 해석, Value: 2, ID: briefing-read-title
+					416 text 오늘의 시장 해석
+				417 text 종가 기록을 불러오는 중입니다.
+				418 container briefing-ai-wrap
+					419 text AI 해설
+					420 container briefing-ai-analysis
+						421 text 코스피 -3.73%로 10/20 종가에 급락했고, 10/20 S&P 500 +0.28%로 소폭 반등했다.
+						422 text 10/19 WTI +2.22%와 5거래일 +10.58%는 유가 부담을 더했고, 10년물 금리 -1.9bp는 5.117% 수준에서 소폭 되돌림을 보였다;.
+						423 text 큰 코스피 하락의 배경으로 연합뉴스는 반도체·방산 동반 약세를 보도했다; 다만 시장 해석은 AI 투자 기대와 신용 부담까지 함께 살펴야 한다.
+						424 button (collapsed) Secondary Actions: Expand
+			425 container 자산별 흐름, ID: briefing-drivers
+				426 heading 자산별 흐름, Value: 2, ID: briefing-drivers-title
+					427 text 자산별 흐름
+			428 container 다음 확인 포인트, ID: briefing-checks
+				429 heading 다음 확인 포인트, Value: 2, ID: briefing-checks-title
+					430 text 다음 확인 포인트
+				431 container
+					432 text 자동 해석은 종가 기록끼리의 관계를 설명할 뿐 매매 권고가 아닙니다. 주요 뉴스는 
+					433 link Description: 뉴스, Value: ysnle.github.io/aio-screener/#market-news
+					434 text  화면에서 봅니다.
+			435 container 앞으로 7일 일정 한국 시간, ID: briefing-schedule
+				436 heading 앞으로 7일 일정 한국 시간, Value: 2, ID: briefing-schedule-title
+					437 text 앞으로 7일 일정 한국 시간
+				438 text 일정 확인 중
+			439 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				440 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-briefing-title
+					441 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				442 content list
+					443 container
+						444 text 속지 말 것 하루 반등·하루 급락 하루의 큰 움직임은 흐름이 바뀌었다는 증거가 되기 어렵습니다. 약세장에서도 큰 반등은 자주 나오고, 강세장에서도 큰 하락이 섞입니다. 근거: 지금 시장 흐름은 '소수 주도 → 동반 약세 전환 확인 중'입니다 — 하루 반등만으로는 이 흐름이 끝났는지 알 수 없습니다.
+						445 button 하루 반등·하루 급락 — 리서치 라이브러리에서 개념 배우기
+					446 container
+						447 text 속지 말 것 헤드라인과 확인 안 된 소문 자극적인 헤드라인과 출처가 불분명한 소문은 빠르게 퍼지지만 대부분 가격에 오래 남지 않습니다. 공식 발표·실제 수치로 확인될 때까지는 판단의 근거가 아니라 확인할 거리입니다. 왜: 확인되지 않은 정보로 움직이면 정보가 사실로 밝혀지기 전의 변동만 떠안게 됩니다.
+						448 button 헤드라인과 확인 안 된 소문 — 리서치 라이브러리에서 개념 배우기
+					449 container
+						450 text 전략 · 기법 발표 전에는 예측보다 준비 가격을 움직이는 것은 발표 숫자 자체가 아니라 기대와의 차이(서프라이즈)입니다. 발표 전에 결과별 대응을 정해 두고, 결과는 확인한 뒤 반영합니다. 왜: 기대가 이미 가격에 들어가 있어, 좋은 숫자에도 떨어지고 나쁜 숫자에도 오를 수 있습니다.
+						451 button 발표 전에는 예측보다 준비 — 리서치 라이브러리에서 개념 배우기
+			452 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				453 text 데이터 출처
+
+The focused UI element is 411 heading 브리핑, Value: 1, ID: page-briefing-label

@@ -1,0 +1,19 @@
+{
+  "startedAt": "2026-10-21T13:38:39.631Z",
+  "finishedAt": "2026-10-21T13:39:09.148Z",
+  "exe": "node",
+  "args": [
+    "scripts/qa-runner.mjs",
+    "rerun-failed",
+    "--report",
+    ".cache/aio-qa/runs/2026-10-21T13-37-02-542Z-22468-cnva4x.json",
+    "--session",
+    "architecture-quality-20261021-v5859",
+    "--files",
+    "_artifacts/architecture-quality-audit-20261021-v5859/HANDOFF.md",
+    "--no-cache"
+  ],
+  "temporaryDirectory": "C:\\Projects\\AIO\\.cache\\architecture-audit-temp",
+  "exitCode": 0,
+  "scope": "rerun only the one failed gate with workspace-scoped temporary storage; original failure retained"
+}

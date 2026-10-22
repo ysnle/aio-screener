@@ -353,7 +353,7 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
       // Codex browser audit H86: the previous lesson in the contents was labelled "먼저 읽을 레슨" (O5 tax costs
       // → O4 Korean power policy). Order and prerequisite are separate: declared prerequisites first, then the
       // neighbouring lessons named as contents order.
-      const prereqIds = (lesson.prerequisites || lesson.metadata?.prerequisites || []).map((item) => String(item).split(' ')[0]).filter((id) => /^[A-O]d{1,2}$/.test(id));
+      const prereqIds = (lesson.prerequisites || lesson.metadata?.prerequisites || []).map((item) => String(item).split(' ')[0]).filter((id) => /^[A-O]\d{1,2}$/.test(id)); // v58.63 (audit UI-01): `d` was a literal letter, so D2/D3 never linked
       const prereqs = prereqIds.map((id) => (data.lessons || []).find((item) => item.id === id)).filter(Boolean);
       if (prereqs.length) { const box = block('먼저 알아둘 레슨'); prereqs.forEach((item) => box.appendChild(lessonButton(item))); aside.appendChild(box); }
       if (at > 0 || (at >= 0 && at < siblings.length - 1)) {

@@ -1,0 +1,150 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "fileReceipts": [
+    {
+      "path": "cloudflare-worker-proxy.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "dae4adec1cd29c7e1a3a097678fe27c481ef801efaaf6744383bfe63f15ad633",
+      "status": "FULL",
+      "read_ranges": "1-1625",
+      "reason": "fixed blob full text read; working bytes SHA256 identical"
+    },
+    {
+      "path": "worker/openai-budget.mjs",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "8b2a8c8ecb272a12713a9178fbd09563c42faf2deecd11dd64169e6ec3272afb",
+      "status": "FULL",
+      "read_ranges": "1-179",
+      "reason": "fixed blob full text read; working bytes SHA256 identical"
+    },
+    {
+      "path": "worker/openai-usage.mjs",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "3155c718672f9d0bc12ed485467fcd69b59249c696f7186c1713aa9f9364bc00",
+      "status": "FULL",
+      "read_ranges": "1-55",
+      "reason": "fixed blob full text read; working bytes SHA256 identical"
+    },
+    {
+      "path": "worker/openai-contract.test.mjs",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "5b3c4c62370100338ceb06ae94fb13af75c34a7b1496a3cc9d0bc7d15345996a",
+      "status": "FULL",
+      "read_ranges": "1-436",
+      "reason": "fixed blob full text read; working bytes SHA256 identical"
+    },
+    {
+      "path": "src/ai/policy/conduct.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "a09315745aec74445e072800e19849a2134781007d2d1b3620ff0166ee5912b4",
+      "status": "FULL",
+      "read_ranges": "1-155",
+      "reason": "fixed blob full text read; working bytes SHA256 identical"
+    },
+    {
+      "path": "src/ai/response/publication.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "8f480e1a378a62223705299e6e904ca14f0eb7772525f15f9c919ba458f30a93",
+      "status": "FULL",
+      "read_ranges": "1-246",
+      "reason": "fixed blob full text read; working bytes SHA256 identical"
+    },
+    {
+      "path": "src/ai/orchestrator/answer-orchestrator.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "b70927bd7e52472a4519c62be85f95387b6b35f74f995ccc21cf2ea740cbb5a3",
+      "status": "FULL",
+      "read_ranges": "1-106",
+      "reason": "fixed blob full text read; working bytes SHA256 identical"
+    }
+  ],
+  "network": "all global fetch requests stubbed or denied; fake secret only",
+  "relay": {
+    "cap": 1,
+    "statuses": [
+      502,
+      502,
+      502
+    ],
+    "fetchCalls": 3,
+    "persistedDayCount": 0
+  },
+  "publication": {
+    "event": "연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+    "structuredSummary": "",
+    "fallback": "연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+    "pipeline": {
+      "request": {
+        "entrypoint": "chat",
+        "query": "시장 상황"
+      },
+      "pipelineVersion": "fixture",
+      "validatorVersion": "fixture",
+      "blockPolicyVersion": "fixture",
+      "entrypoint": "chat",
+      "text": "※ 확인 안 된 부분이 있어 조건부로 설명합니다\n\n연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+      "blocked": false,
+      "reasons": [
+        "market-session-evidence-unavailable"
+      ],
+      "limitations": [
+        "market-session-evidence-unavailable"
+      ],
+      "limitationNotes": [
+        "시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다."
+      ],
+      "closeBasisDates": [],
+      "otherPublishedClaims": 0,
+      "actionGate": {
+        "blocked": false,
+        "text": "※ 확인 안 된 부분이 있어 조건부로 설명합니다\n\n연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+        "reasons": [
+          "market-session-evidence-unavailable"
+        ],
+        "degraded": true,
+        "limitations": [
+          "market-session-evidence-unavailable"
+        ],
+        "limitationNotes": [
+          "시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다."
+        ]
+      },
+      "claimAudit": {
+        "status": "unavailable",
+        "blocked": false,
+        "claims": [],
+        "validCount": 0,
+        "issues": []
+      },
+      "conductAudit": {
+        "status": "unavailable",
+        "blocked": false,
+        "reasons": []
+      },
+      "publishAudit": null,
+      "conversationAudit": null,
+      "streamAudit": null,
+      "toolAudit": null,
+      "rightsAudit": null,
+      "analysisAudit": null,
+      "evidence": [],
+      "evidenceStatus": null,
+      "asOf": null,
+      "retrievalAudit": null,
+      "contextBudgetAudit": null,
+      "questionPlan": null,
+      "answerPlanAudit": {
+        "status": "not-structured",
+        "plan": null
+      },
+      "answerPlanBindingAudit": {
+        "ok": true,
+        "evidenceCount": 0,
+        "unboundEvidenceIds": [],
+        "droppedClaims": []
+      },
+      "followUps": [],
+      "citations": []
+    }
+  }
+}

@@ -41,7 +41,20 @@ export const QUOTE_IDENTITIES = Object.freeze([
 
 export const TIER_0_REQUIRED = TIER_0_INSTRUMENTS.length;
 
-const INSTRUMENT_BY_ID = new Map(TIER_0_INSTRUMENTS.map((row) => [row.instrumentId, row]));
+// Live 2026-10-21: the market reading explained KOSPI +3.3% only as "AI 투자심리 회복" while Nasdaq 100 futures were
+// +0.99% and semis led — none of those moves was evidence it could cite. These rows are evidence-only: published in
+// `evidenceQuotes` beside the Tier-0 quotes, never required for publication (a missing or stale row is simply absent)
+// and never read by the Tier-0 consumers. Like Tier 0 they are market-level reference values, not the per-symbol
+// quote plane P715 stopped redistributing.
+export const EVIDENCE_TIER_INSTRUMENTS = Object.freeze([
+  { instrumentId: 'SMH', metricId: 'market.sector.semis', unit: 'USD', valueKind: 'price' },
+  { instrumentId: 'ES=F', metricId: 'market.futures.sp500', unit: 'index', valueKind: 'index' },
+  { instrumentId: 'NQ=F', metricId: 'market.futures.nasdaq100', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^N225', metricId: 'market.index.nikkei225', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^HSI', metricId: 'market.index.hangseng', unit: 'index', valueKind: 'index' }
+]);
+
+const INSTRUMENT_BY_ID = new Map([...TIER_0_INSTRUMENTS, ...EVIDENCE_TIER_INSTRUMENTS].map((row) => [row.instrumentId, row]));
 
 /**
  * P1183: the registry is itself the identity 정본, so it validates itself before
@@ -148,6 +161,7 @@ function normalizeQuote(quote = {}) {
 export function createMarketSnapshot(input = {}) {
   const coverage = normalizeCoverage(input.coverage);
   const quotes = Array.isArray(input.quotes) ? input.quotes.map(normalizeQuote) : [];
+  const evidenceQuotes = Array.isArray(input.evidenceQuotes) ? input.evidenceQuotes.map(normalizeQuote) : [];
   return Object.freeze({
     schemaVersion: String(input.schemaVersion || 'market-snapshot-v2'),
     status: MARKET_SNAPSHOT_STATUS.includes(input.status) ? input.status : 'unavailable',
@@ -159,7 +173,8 @@ export function createMarketSnapshot(input = {}) {
     coverage,
     quality: input.quality && typeof input.quality === 'object' ? Object.freeze({ ...input.quality }) : Object.freeze({}),
     errors: Array.isArray(input.errors) ? Object.freeze(input.errors.map(String)) : Object.freeze([]),
-    quotes: Object.freeze(quotes)
+    quotes: Object.freeze(quotes),
+    evidenceQuotes: Object.freeze(evidenceQuotes)
   });
 }
 
@@ -230,7 +245,33 @@ export function validateMarketSnapshot(snapshot, options = {}) {
       if (quote?.[field] && Number.isNaN(Date.parse(quote[field]))) errors.push(`quote_${field}_invalid`);
     }
   }
+  errors.push(...validateEvidenceQuotes(snapshot?.evidenceQuotes));
   return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)], audit });
+}
+
+/**
+ * Evidence-tier rows carry the same identity tuple as Tier 0 against their own registry. Absence is never an error
+ * (the tier is optional); a row that is present must be a known, unique, well-formed, publishable observation.
+ */
+export function validateEvidenceQuotes(rows, { instruments = EVIDENCE_TIER_INSTRUMENTS } = {}) {
+  const errors = [];
+  if (rows == null) return errors;
+  if (!Array.isArray(rows)) return ['evidence_quotes_not_array'];
+  const registry = new Map(instruments.map((row) => [row.instrumentId, row]));
+  const seen = new Set();
+  for (const quote of rows) {
+    const instrumentId = String(quote?.instrumentId || '');
+    const entry = registry.get(instrumentId);
+    if (!entry) { errors.push(`evidence_quote_unknown:${instrumentId}`); continue; }
+    if (seen.has(instrumentId)) errors.push(`evidence_quote_duplicate:${instrumentId}`);
+    seen.add(instrumentId);
+    if (quote.metricId !== entry.metricId || quote.unit !== entry.unit || quote.valueKind !== entry.valueKind) errors.push(`evidence_quote_identity_mismatch:${instrumentId}`);
+    for (const field of ['evidenceId', 'source', 'sourceKind', 'observedAt', 'fetchedAt']) if (!quote?.[field]) errors.push(`evidence_quote_${field}_missing:${instrumentId}`);
+    if (typeof quote?.value !== 'number' || !Number.isFinite(quote.value) || quote.value <= 0) errors.push(`evidence_quote_value_invalid:${instrumentId}`);
+    if (quote?.changePct != null && (typeof quote.changePct !== 'number' || !Number.isFinite(quote.changePct))) errors.push(`evidence_quote_change_pct_invalid:${instrumentId}`);
+    if (!['CURRENT', 'CLOSED_CURRENT', 'DELAYED'].includes(quote?.quality)) errors.push(`evidence_quote_quality_unpublishable:${instrumentId}:${quote?.quality}`);
+  }
+  return errors;
 }
 
 /**

@@ -1,0 +1,150 @@
+{
+  "observedAt": "2026-10-20T23:05:34.894Z",
+  "version": "v58.52",
+  "head": "d36bb256ddf60468d6c7a134628053c5796be6be",
+  "runs": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-search-race.mjs",
+        "chunk_id": "a8b6c1",
+        "wall_time_seconds": 5.6621863,
+        "exit_code": 0,
+        "original_token_count": 202,
+        "output": "{\n  \"observedAt\": \"2026-10-20T23:05:22.400Z\",\n  \"boundary\": \"Actual imported function with minimal DOM and deferred fetch stub; not browser UI certification\",\n  \"sourceSha256\": \"f54b63424cde53f8a3b9647bfb86fab3c6b606bec17c2ac159bc417f56d379fd\",\n  \"cases\": [\n    {\n      \"clearEvent\": null,\n      \"fetches\": 1,\n      \"afterClear\": 1,\n      \"afterResponse\": 2,\n      \"candidates\": [\n        \"Acme Holdings · ACME (Nasdaq)\"\n      ]\n    },\n    {\n      \"clearEvent\": \"input\",\n      \"fetches\": 1,\n      \"afterClear\": 0,\n      \"afterResponse\": 1,\n      \"candidates\": [\n        \"Acme Holdings · ACME (Nasdaq)\"\n      ]\n    },\n    {\n      \"clearEvent\": \"reset\",\n      \"fetches\": 1,\n      \"afterClear\": 0,\n      \"afterResponse\": 1,\n      \"candidates\": [\n        \"Acme Holdings · ACME (Nasdaq)\"\n      ]\n    }\n  ]\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-cache-identity.mjs",
+        "chunk_id": "06e6a3",
+        "wall_time_seconds": 5.160027,
+        "exit_code": 1,
+        "original_token_count": 155,
+        "output": "file:///C:/Projects/AIO/_artifacts/architecture-quality-audit-20261021/reproduce-cache-identity.mjs:17\r\nconst rawGate = group.gates.find(gate => gate.id === 'knowledge-repository');\r\n                      ^\r\n\r\nTypeError: Cannot read properties of undefined (reading 'gates')\r\n    at file:///C:/Projects/AIO/_artifacts/architecture-quality-audit-20261021/reproduce-cache-identity.mjs:17:23\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\r\n    at async node:internal/modules/esm/loader:643:26\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\r\n\r\nNode.js v24.18.0\r\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-domain-contracts.mjs",
+        "chunk_id": "32af9b",
+        "wall_time_seconds": 5.3656207,
+        "exit_code": 1,
+        "original_token_count": 285,
+        "output": "node:internal/modules/esm/resolve:271\r\n    throw new ERR_MODULE_NOT_FOUND(\r\n          ^\r\n\r\nError [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\\Projects\\AIO\\src\\domain\\screener\\regime.js' imported from C:\\Projects\\AIO\\_artifacts\\architecture-quality-audit-20261021\\reproduce-domain-contracts.mjs\r\n    at finalizeResolution (node:internal/modules/esm/resolve:271:11)\r\n    at moduleResolve (node:internal/modules/esm/resolve:865:10)\r\n    at defaultResolve (node:internal/modules/esm/resolve:992:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)\r\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)\r\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)\r\n    at #resolve (node:internal/modules/esm/loader:683:17)\r\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)\r\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33)\r\n    at ModuleJob.link (node:internal/modules/esm/module_job:253:17) {\r\n  code: 'ERR_MODULE_NOT_FOUND',\r\n  url: 'file:///C:/Projects/AIO/src/domain/screener/regime.js'\r\n}\r\n\r\nNode.js v24.18.0\r\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-answer-visuals.mjs",
+        "chunk_id": "a84d7f",
+        "wall_time_seconds": 5.4722662,
+        "exit_code": 0,
+        "original_token_count": 286,
+        "output": "{\n  \"evidence\": \"Actual renderer functions with synthetic inputs and a minimal DOM seam; real DOM/browser/live not certified\",\n  \"missingIncome\": {\n    \"zeroPercentLabels\": 4,\n    \"caption\": \"막대는 매출(미국 달러), 기간 아래 숫자는 그 기간의 순이익률입니다. 2025-09-30 → 2026-06-30 매출 +0%. 공시 기준이며 마지막 기간 종료일은 2026-06-30입니다.\"\n  },\n  \"positiveControlActualZero\": {\n    \"zeroPercentLabels\": 4,\n    \"caption\": \"막대는 매출(미국 달러), 기간 아래 숫자는 그 기간의 순이익률입니다. 2025-09-30 → 2026-06-30 매출 +0%. 공시 기준이며 마지막 기간 종료일은 2026-06-30입니다.\"\n  },\n  \"relative\": {\n    \"firstSeriesDates\": [\n      \"2026-07-01\",\n      \"2026-07-20\"\n    ],\n    \"secondSeriesDates\": [\n      \"2026-07-02\",\n      \"2026-07-21\"\n    ],\n    \"caption\": \"2026-07-01~2026-07-20 완료된 일봉 종가 기준입니다. 통화·시장이 다르면 각 시장의 현지 가격으로 계산했습니다.\",\n    \"secondSeriesEndDisclosed\": false\n  },\n  \"sourceSha256\": \"f773fa35b4eec2333882450695a5d7e18306d5da6115b55d7a428f447a4edd0b\"\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-sw-activation.mjs",
+        "chunk_id": "f95b5f",
+        "wall_time_seconds": 5.3327933,
+        "exit_code": 0,
+        "original_token_count": 145,
+        "output": "{\n  \"evidence\": \"Actual SW activate callback with synthetic CacheStorage; no browser or real cache mutation\",\n  \"sourceSha256\": \"dc5200e79cd9f6b46a3c21cd0a3e218b561d37d8626d4cc0d9b238d9c3e291ce\",\n  \"names\": [\n    \"aio-shell-old-audit\",\n    \"aio-data-old-audit\",\n    \"another-app-v4\",\n    \"aio-shell-v58.52-local\",\n    \"aio-data-v58.52\"\n  ],\n  \"deleted\": [\n    \"aio-shell-old-audit\",\n    \"aio-data-old-audit\",\n    \"another-app-v4\"\n  ],\n  \"unrelatedCacheDeleted\": true,\n  \"currentShell\": \"aio-shell-v58.52-local\",\n  \"currentData\": \"aio-data-v58.52\",\n  \"currentCachesKept\": true\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-verification-helper.mjs",
+        "chunk_id": "124480",
+        "wall_time_seconds": 5.3911292,
+        "exit_code": 0,
+        "original_token_count": 125,
+        "output": "{\n  \"evidence\": \"Actual expectText with serialized browser predicates in a minimal DOM VM; no real browser certification\",\n  \"hidden\": {\n    \"hidden\": true,\n    \"accepted\": true,\n    \"observed\": {\n      \"#audit-hidden\": \"\"\n    }\n  },\n  \"visiblePositiveControl\": {\n    \"hidden\": false,\n    \"accepted\": true,\n    \"observed\": {\n      \"#audit-hidden\": \"실제 내용처럼 보이는 숨겨진 텍스트\"\n    }\n  },\n  \"sourceSha256\": \"c2be4cb63b87af791c7a1161bcfa4748ad091416dad71399d5e29b931d9ff669\"\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-market-reading.mjs",
+        "chunk_id": "273ebb",
+        "wall_time_seconds": 5.3633654,
+        "exit_code": 0,
+        "original_token_count": 466,
+        "output": "{\n  \"evidence\": \"Actual buildMarketRead with synthetic dated inputs; no provider/browser/live occurrence certified\",\n  \"decliningRealYield\": {\n    \"id\": \"real-yield-led\",\n    \"weight\": 78,\n    \"text\": \"10년물 5일 변화 중 실질금리 -20bp·기대인플레 -1bp(실질금리 1.50%).\",\n    \"reading\": \"물가보다 실질금리가 금리를 움직여, 주식 밸류에이션(PER)에 더 직접적인 부담입니다.\",\n    \"axis\": \"rates\",\n    \"check\": \"실질금리 상승이 멈추는지 — 멈추지 않으면 성장주 밸류에이션 부담 지속\"\n  },\n  \"risingPositiveControl\": {\n    \"id\": \"real-yield-led\",\n    \"weight\": 78,\n    \"text\": \"10년물 5일 변화 중 실질금리 +20bp·기대인플레 +1bp(실질금리 1.50%).\",\n    \"reading\": \"물가보다 실질금리가 금리를 움직여, 주식 밸류에이션(PER)에 더 직접적인 부담입니다.\",\n    \"axis\": \"rates\",\n    \"check\": \"실질금리 상승이 멈추는지 — 멈추지 않으면 성장주 밸류에이션 부담 지속\"\n  },\n  \"staleRateHistory\": {\n    \"threw\": true,\n    \"error\": \"Cannot read properties of null (reading 'yearPosition')\"\n  },\n  \"currentRatePositiveControl\": {\n    \"threw\": false,\n    \"rates\": {\n      \"id\": \"rates\",\n      \"title\": \"금리\",\n      \"state\": \"burden\",\n      \"stateLabel\": \"부담\",\n      \"read\": \"장기금리가 20거래일 +100bp 오른 구간 — 주식 할인율 부담.\",\n      \"flip\": \"10년물 20일 변화 +25bp 미만(현재 +100bp)이고, 1년 범위 위치가 80% 아래로 내려오거나 20일 상승이 +10bp 아래로 줄면 중립으로 바뀜\",\n      \"evidence\": [\n        [\n          \"미 10년물\",\n          \"6.95% (5거래일 +25bp, 20일 +100bp)\"\n        ]\n      ],\n      \"basis\": \"10/15\",\n      \"basisStatus\": \"aligned\"\n    }\n  },\n  \"sourceSha256\": \"34287e4b42b469ab9bd0289af0c1288f66f3756277e6eba50d5c03df3bf1fca4\"\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-chart-fallback.mjs",
+        "chunk_id": "e03d8d",
+        "wall_time_seconds": 4.7938755,
+        "exit_code": 0,
+        "original_token_count": 254,
+        "output": "{\n  \"evidence\": \"Actual inline coordinator with simulated CDN error events and a canvas recorder; no browser/layout/live certification\",\n  \"parsedInlineScripts\": [\n    {\n      \"index\": 1,\n      \"startLine\": 3555,\n      \"chars\": 1440,\n      \"status\": \"PARSED_NOT_EXECUTED\"\n    },\n    {\n      \"index\": 2,\n      \"startLine\": 4063,\n      \"chars\": 1688,\n      \"status\": \"PARSED_NOT_EXECUTED\"\n    },\n    {\n      \"index\": 3,\n      \"startLine\": 6731,\n      \"chars\": 9780,\n      \"status\": \"PARSED_NOT_EXECUTED\"\n    }\n  ],\n  \"missingValue\": {\n    \"fallbackInstalled\": true,\n    \"points\": [\n      [\n        12,\n        80\n      ],\n      [\n        160,\n        142\n      ],\n      [\n        308,\n        18\n      ]\n    ]\n  },\n  \"actualZeroPositiveControl\": {\n    \"fallbackInstalled\": true,\n    \"points\": [\n      [\n        12,\n        80\n      ],\n      [\n        160,\n        142\n      ],\n      [\n        308,\n        18\n      ]\n    ]\n  },\n  \"sourceSha256\": \"6709475e3c88bd42b1f542d798e7816b107699429b66992d1f83a9489009e9a3\"\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-csp-coverage.mjs",
+        "chunk_id": "a09f64",
+        "wall_time_seconds": 5.6110217,
+        "exit_code": 0,
+        "original_token_count": 134,
+        "output": "{\n  \"evidence\": \"Actual collector with real read-only directory listing and actual read-only gate execution; no source mutation\",\n  \"sourceSha256\": \"b1f16a7aa12ae41112a203d33678115f739c5bee4a2e4a8777ec2d38837016fa\",\n  \"emptyPathJoin\": \".\",\n  \"collected\": [\n    \"index.html\"\n  ],\n  \"expectedJsFiles\": 400,\n  \"collectedInnerHTMLAssignments\": 0,\n  \"expectedAdditionalInnerHTMLAssignments\": 210,\n  \"gateOutput\": \"CSP sink ratchet check OK: innerHTML assignments=0/450, unsafe eval=0, live header status=operator-observation-required.\"\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-gate-oracles.mjs",
+        "chunk_id": "51e572",
+        "wall_time_seconds": 5.2403501,
+        "exit_code": 0,
+        "original_token_count": 366,
+        "output": "{\n  \"evidence\": \"Actual gate code with mocked fetch/process/fs boundaries. No browser/live/generator execution.\",\n  \"fastPlane\": {\n    \"zeroCoverageAndNoQuotes\": {\n      \"accepted\": true,\n      \"logs\": [\n        \"{\\\"ok\\\":true,\\\"endpoint\\\":\\\"https://audit.example.invalid\\\",\\\"healthStatus\\\":200,\\\"quoteStatus\\\":200,\\\"revision\\\":\\\"audit\\\",\\\"coverage\\\":\\\"0/0\\\",\\\"soak\\\":\\\"operator-required\\\"}\"\n      ]\n    },\n    \"declaredCompleteButNoQuotes\": {\n      \"accepted\": true,\n      \"logs\": [\n        \"{\\\"ok\\\":true,\\\"endpoint\\\":\\\"https://audit.example.invalid\\\",\\\"healthStatus\\\":200,\\\"quoteStatus\\\":200,\\\"revision\\\":\\\"audit\\\",\\\"coverage\\\":\\\"16/16\\\",\\\"soak\\\":\\\"operator-required\\\"}\"\n      ]\n    },\n    \"incompleteCoverageNegativeControl\": {\n      \"accepted\": false,\n      \"error\": \"[fast-plane-live] health coverage is incomplete: {\\\"status\\\":200,\\\"coverage\\\":{\\\"required\\\":16,\\\"observed\\\":15}}\"\n    }\n  },\n  \"parity\": {\n    \"exitCode\": 1,\n    \"filesAfter\": [\n      {\n        \"path\": \"architecture/asset-manifest.json\",\n        \"text\": \"{\\\"revision\\\":\\\"new\\\"}\\n\"\n      },\n      {\n        \"path\": \"architecture/release-manifest.json\",\n        \"text\": \"{\\\"revision\\\":\\\"new\\\"}\\n\"\n      }\n    ],\n    \"restored\": false\n  },\n  \"sources\": {\n    \"scripts/ci-fast-plane-live-check.mjs\": \"3f56f1eeee6edff530b51522f314f10c2c39c5fdb302d8aa65b8b5127bbdaf59\",\n    \"scripts/ci-generated-release-parity-check.mjs\": \"319cd5825ad9db2f821bd310244234c8eaf12b81b38ea8e8b4ad36266f53f812\"\n  }\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-session-samples.mjs",
+        "chunk_id": "a12906",
+        "wall_time_seconds": 5.4797734,
+        "exit_code": 0,
+        "original_token_count": 245,
+        "output": "{\n  \"evidence\": \"Actual pure modules with synthetic complete/sparse calendar histories; not provider/live incidence\",\n  \"stress\": {\n    \"rows\": 201,\n    \"valid20SessionWindows\": 1,\n    \"windows\": [\n      {\n        \"from\": \"2026-01-05\",\n        \"to\": \"2026-02-02\"\n      }\n    ],\n    \"result\": {\n      \"pct\": -2.0000000000000018,\n      \"from\": \"2026-01-05\",\n      \"to\": \"2026-02-02\",\n      \"sessions\": 20,\n      \"record\": 201\n    }\n  },\n  \"benchmark\": {\n    \"full\": {\n      \"ret1m\": 9.633027522935777,\n      \"ret3m\": 35.79545454545454,\n      \"ret6m\": 111.50442477876106\n    },\n    \"withMissing\": {\n      \"ret1m\": 9.633027522935777,\n      \"ret3m\": 35.79545454545454,\n      \"ret6m\": 111.50442477876106\n    },\n    \"same63SessionReturn\": true\n  },\n  \"sources\": {\n    \"src/domain/portfolio/kr-stress.js\": \"7c0d988faa7aa8631db4381e882d0119600dc44ed26d148401ddfe0d795c02c2\",\n    \"src/domain/market/benchmarks.js\": \"1e6beb13f2734fa584dc6b01d885c9a4e0b2f2aff1727a8cb8fb326bebdf51db\"\n  }\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-ui-pages.mjs",
+        "chunk_id": "423f1d",
+        "wall_time_seconds": 5.4184912,
+        "exit_code": 0,
+        "original_token_count": 248,
+        "output": "{\"case\":\"D6 prerequisites\",\"declared\":[\"D2 명목·실질금리\",\"D3 기준금리와 시장금리\"],\"renderedPrerequisiteHeading\":false}\n{\"case\":\"cross-currency ticker pnl\",\"holding\":{\"symbol\":\"AAPL\",\"shares\":1,\"avgCost\":140000,\"costCurrency\":\"KRW\",\"currency\":\"USD\"},\"quoteUsd\":100,\"displayed\":\"-$139,900 (-99.9%)\",\"mathematicallyValidWithoutFx\":false}\n{\"case\":\"screener read invalidation\",\"publishedRowSets\":2,\"renderCount\":1,\"previousHealth\":\"상위 20% 중 100%가 50일선보다 하루 평균 변동폭 이상 위에 있고, 100%가 52주 고점 5% 이내.\",\"updatedDomainHealth\":\"상위 20% 중 50%가 50일선보다 하루 평균 변동폭 이상 위에 있고, 50%가 52주 고점 5% 이내.\"}\n{\"case\":\"atlas onFrame navigation\",\"selected\":\"memory-optics\",\"finalUrl\":\"https://example.test/aio/#principles\",\"parsedMode\":null,\"parsedNode\":null}\n{\"case\":\"atlas onConcept navigation\",\"selected\":\"hbm\",\"finalUrl\":\"https://example.test/aio/#principles\",\"parsedMode\":null,\"parsedNode\":null}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "reproduce-boundaries.mjs",
+        "chunk_id": "bcc8e8",
+        "wall_time_seconds": 3.9528095,
+        "exit_code": 0,
+        "original_token_count": 91,
+        "output": "REPRODUCED watchlist async target drift: requested list A, persisted list B (deferred symbol UFPT)\nPASS Worker class fixture: 100 concurrent admissions bounded; settle/release refund; started spend retained\nPASS native boundary fixture: future/failed cycle rejected; revision mismatch stale; SA CPI not promoted; unverified prose withheld; stale screener partial\n"
+      }
+    }
+  ]
+}

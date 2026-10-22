@@ -117,9 +117,18 @@ function bookOf(surface) {
   const rows = Array.isArray(surface?.rows) ? surface.rows : [];
   const total = Number(surface?.totalAssets);
   const weights = Number.isFinite(total) && total > 0 ? rows.filter((row) => Number(row.value) > 0).map((row) => ({ symbol: row.symbol, pct: row.value / total * 100 })) : [];
-  const losses = rows.filter((row) => Number(row.price) > 0 && Number(row.avgCost) > 0 && (!row.costCurrency || !row.currency || row.costCurrency === row.currency))
-    .map((row) => ({ symbol: row.symbol, pnlPct: (row.price / row.avgCost - 1) * 100 }));
-  return { weights, cashPct: Number.isFinite(Number(surface?.cashPct)) ? Number(surface.cashPct) : null, losses };
+  // v58.63 (architecture audit UI-D02): an undeclared price currency fell through `!row.currency`, so a KRW cost was divided
+  // into a USD close ("-99.9% 손절 위반") while the surface held that P&L. The price side uses the listing currency as the
+  // surface does; a cost in another currency is not compared.
+  const losses = rows.filter((row) => {
+    const priceCurrency = row.currency || row.listingCurrency || null;
+    return Number(row.price) > 0 && Number(row.avgCost) > 0 && (!row.costCurrency || row.costCurrency === priceCurrency);
+  }).map((row) => ({ symbol: row.symbol, pnlPct: (row.price / row.avgCost - 1) * 100 }));
+  // v58.63 (UI-D01): Number(null) is 0, so an unentered cash balance read "지금 현금 0.0% — 벗어남"; and the holding count
+  // came from valued rows only ("지금 0개" with two holdings awaiting a value). Missing stays missing; the count is the book's.
+  const cashPct = surface?.cashPct == null || !Number.isFinite(Number(surface.cashPct)) ? null : Number(surface.cashPct);
+  const holdingCount = Number.isFinite(Number(surface?.holdingCount)) ? Number(surface.holdingCount) : rows.length;
+  return { weights, cashPct, losses, holdingCount };
 }
 
 function renderDynamic(doc, root, host, surface) {

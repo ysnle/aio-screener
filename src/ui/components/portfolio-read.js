@@ -7,9 +7,9 @@ import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { buildCloseSeries, koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { el } from './dom.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { estimateBookSensitivities, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
-import { bondCushion, BOND_ETF_MAP, BOND_KIND_LABEL, ASSET_CLASS_MAP_VERSION } from '../../domain/portfolio/asset-class.js';
+import { bondCushion, assetClassOf, BOND_ETF_MAP, BOND_KIND_LABEL, ASSET_CLASS_MAP_VERSION } from '../../domain/portfolio/asset-class.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —
 // bars on one scale, the total underneath, then what the arithmetic does not claim.
@@ -139,7 +139,7 @@ function requestSp500Weights(root, onReady) {
   sp500Requested = true;
   const fetchFn = root?.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return;
-  loadJsonArtifact(fetchFn.bind(root || globalThis), './public-data/sp500-weights.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 })
+  loadJsonArtifact(stableFetcher(root || globalThis), './public-data/sp500-weights.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 })
     .then((data) => { if (data && Array.isArray(data.rows)) { sp500Weights = data; onReady?.(); } })
     .catch(() => {});
 }
@@ -158,9 +158,13 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
     if (est.available && est.fits?.equity) { beta = est.fits.equity.beta; betaNote = `${est.weeks}주 주간 수익률 · 설명력 R² ${est.fits.equity.r2 == null ? '—' : est.fits.equity.r2.toFixed(2)}`; }
     else betaNote = est.reason === 'weeks-insufficient' ? `겹치는 가격 기록 ${est.weeks}주 — ${STRESS_MIN_WEEKS}주 이상 필요` : '가격 기록이 있는 종목이 80%에 못 미침';
   }
-  // Sector shares of the stock part (the same rows and values as the weights; cash is not needed for this reading).
+  // Sector shares of the stock part. v58.63 (architecture audit A09): the denominator is the stock part itself — bond
+  // ETFs from the fixed asset-class list are left out, so NVDA 500 + TLT 500 reads Technology 100% of the stock part,
+  // not 50% under a "주식 평가액" label.
+  const stockRows = rows.filter((row) => !assetClassOf(String(row.symbol || '').toUpperCase()));
+  const stockTotal = stockRows.reduce((sum, row) => sum + Number(row.value), 0);
   const sectorShares = new Map();
-  for (const row of rows) { const name = row.sector || 'Unclassified'; sectorShares.set(name, (sectorShares.get(name) || 0) + Number(row.value) / total * 100); }
+  if (stockTotal > 0) for (const row of stockRows) { const name = row.sector || 'Unclassified'; sectorShares.set(name, (sectorShares.get(name) || 0) + Number(row.value) / stockTotal * 100); }
   const topSector = [...sectorShares.entries()].map(([name, pct]) => ({ name, pct })).sort((a, b) => b.pct - a.pct).find((item) => item.name !== 'Unclassified') || null;
   let index = null;
   if (sp500?.rows?.length) {
@@ -175,7 +179,15 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
     };
   }
   const bonds = bondCushion({ rows, stressInput, baseCurrency: surface?.baseCurrency || null, history });
-  return { available: true, holdings: rows.length, effectiveN, beta, betaNote, topSector: topSector ? { name: sectorLabel(topSector.name), pct: topSector.pct } : null, index, bonds };
+  // v58.63 (architecture audit A10): β is fitted on the holdings alone (weights normalised over valued holdings, local
+  // listing-currency prices). It is named as the holdings' sensitivity; the whole-account figure scales it by the
+  // invested share only when cash and the total are known, and a foreign-listed holding in another base currency is
+  // flagged (the exchange-rate move is outside this fit).
+  const exposurePct = Number.isFinite(Number(surface?.exposurePct)) && surface?.exposurePct != null ? Number(surface.exposurePct) : null;
+  const accountBeta = beta != null && exposurePct != null ? beta * exposurePct / 100 : null;
+  const base = String(surface?.baseCurrency || '').toUpperCase();
+  const fxOutside = !!base && rows.some((row) => { const ccy = String(row.currency || row.listingCurrency || '').toUpperCase(); return ccy && ccy !== base; });
+  return { available: true, holdings: rows.length, effectiveN, beta, betaNote, accountBeta, exposurePct, fxOutside, topSector: topSector ? { name: sectorLabel(topSector.name), pct: topSector.pct } : null, stockHoldings: stockRows.length, index, bonds };
 }
 
 // v58.55 개편 v2 (3g) 채권 완충: the bond share of the holdings (0% is a reading too) and, with price records, how the bond
@@ -224,7 +236,7 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
   set('pf-effective-n', `${lens.effectiveN.toFixed(1)}개`);
   set('pf-effective-n-note', `평가액 있는 ${lens.holdings}종목 · 1 ÷ Σ비중²`);
   set('pf-beta', lens.beta == null ? '없음' : lens.beta.toFixed(2));
-  set('pf-beta-note', lens.beta == null ? lens.betaNote : `시장 1% 움직일 때 평균 ${lens.beta.toFixed(2)}% · ${lens.betaNote}`);
+  set('pf-beta-note', lens.beta == null ? lens.betaNote : `보유 종목 부분(현금 제외): 시장 1% 움직일 때 평균 ${lens.beta.toFixed(2)}%${lens.accountBeta != null ? ` · 현금 포함 계좌 약 ${lens.accountBeta.toFixed(2)}%` : ''} · ${lens.betaNote}`);
   if (!aside) return lens;
   const card = (title, value, tone, text) => {
     const node = el(doc, 'section', null, 'pf-reading-card');
@@ -239,12 +251,13 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
     const spread = lens.effectiveN < lens.holdings - 0.5
       ? ` 실질 종목 수가 ${lens.effectiveN.toFixed(1)}개로 보유 수(${lens.holdings}개)보다 적은 것은 비중이 몇 종목에 몰려 있기 때문입니다.`
       : ` 비중이 고르게 나뉘어 실질 종목 수(${lens.effectiveN.toFixed(1)}개)가 보유 수와 비슷합니다.`;
-    cards.push(card(`${lens.topSector.name} 비중`, `${lens.topSector.pct.toFixed(0)}%`, heavy ? 'burden' : null, `가장 큰 섹터가 주식 평가액의 ${lens.topSector.pct.toFixed(0)}%입니다${heavy ? '(내부 구간 40% 초과)' : ''}.${spread}`));
+    const bondNote = lens.stockHoldings < lens.holdings ? ' 채권 ETF는 이 섹터 비중의 분모에서 뺐습니다.' : '';
+    cards.push(card(`${lens.topSector.name} 비중`, `${lens.topSector.pct.toFixed(0)}%`, heavy ? 'burden' : null, `가장 큰 섹터가 주식 부분 평가액의 ${lens.topSector.pct.toFixed(0)}%입니다${heavy ? '(내부 구간 40% 초과)' : ''}.${bondNote}${spread}`));
   }
   if (lens.index || lens.beta != null) {
     const parts = [];
     if (lens.index) parts.push(`보유액의 ${lens.index.memberShare.toFixed(0)}%가 S&P 500 구성 종목이고, 지수 비중 상위 10종목(지수의 ${lens.index.top10IndexWeight.toFixed(0)}%)에 ${lens.index.top10Share.toFixed(0)}%가 있습니다.`);
-    if (lens.beta != null) parts.push(`과거 주간 기준으로 보유 시장 지수가 1% 움직일 때 이 계좌는 평균 ${lens.beta.toFixed(2)}% 움직였습니다 — 예측이 아니라 지난 관계입니다.`);
+    if (lens.beta != null) parts.push(`과거 주간 기준으로 보유 시장 지수가 1% 움직일 때 보유 종목 부분(현금 제외)은 평균 ${lens.beta.toFixed(2)}% 움직였습니다${lens.accountBeta != null ? ` — 현금을 포함한 계좌 전체(투자 비중 ${lens.exposurePct.toFixed(0)}%)로는 약 ${lens.accountBeta.toFixed(2)}%입니다` : ' — 현금 입력이 없어 계좌 전체 기준은 계산하지 않습니다'}${lens.fxOutside ? '. 상장 통화 가격 기준이라 기준 통화로 바꿀 때의 환율 움직임은 이 값에 들어 있지 않습니다' : ''}. 예측이 아니라 지난 관계입니다.`);
     else parts.push(`시장 민감도 β는 없음 — ${lens.betaNote}.`);
     cards.push(card('지수와의 관계', lens.beta != null ? `β ${lens.beta.toFixed(2)}` : lens.index ? `상위 10 ${lens.index.top10Share.toFixed(0)}%` : '없음', null, parts.join(' ')));
   }

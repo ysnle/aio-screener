@@ -349,7 +349,11 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(state2.eventOutcomes.length, state1.eventOutcomes.length, 'P1743: releases are not re-scored');
   const moved = JSON.parse(JSON.stringify(state1));
   moved.crossroads.leadId = moved.crossroads.items.find((item) => item.id !== state1.crossroads.leadId).id;
-  moved.themes[0].state = moved.themes[0].state === 'leading' ? 'weak' : 'leading';
+  // Live 2026-10-21: a held theme (state null, 판정 보류) is not a stage move by design, and the first live theme was one;
+  // the fixture moves the first theme that has a stage.
+  const stagedTheme = moved.themes.find((row) => row.state);
+  assert.ok(stagedTheme, 'P1743: the live state has at least one staged theme');
+  stagedTheme.state = stagedTheme.state === 'leading' ? 'weak' : 'leading';
   const diffs = diffSnapshots(moved, state1, 'T');
   assert.ok(diffs.some((row) => row.kind === 'lead') && diffs.some((row) => row.kind === 'theme'), 'P1743: lead and theme-stage changes are logged');
   const rotationNow = { rotation: { top: { strong: 'a', weak: 'b', scope: '미국' } } };

@@ -166,6 +166,9 @@ function collectDefinitionRowKeys(definition) {
     if (node.field) addField(node.field);
     if (Array.isArray(node.fields)) node.fields.forEach(addField);
     if (Array.isArray(node.children)) node.children.forEach(walk);
+    // v58.63 (architecture audit SCR01/C03): evaluateNode reads a NOT node's `child`; the walker must see the same
+    // edge, or a price read under NOT changed the result hash while the calculation input id stayed the same.
+    if (node.child) walk(node.child);
   };
   walk(definition?.filtersAST);
   if (Array.isArray(definition?.hardGates)) definition.hardGates.forEach(walk);

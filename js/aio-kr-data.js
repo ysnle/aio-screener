@@ -12,16 +12,24 @@
 
 // v53.7 (P725): the KR page chat chips left with their pages (no chat-kr-* chip container remains);
 // evidence-first contexts are defined in js/aio-chat.js.
+// v58.63 (architecture audit LEGACY02): the two filters only set inline display on the current cards, so a live-quote
+// re-render brought every card back while the buttons still showed a selection, and the second filter overwrote the
+// first. Both selections are state; one predicate (heat AND sector) runs after every card render.
+var _krThemeFilter = { heat: 'all', sector: 'all' };
+function _krApplyThemeFilter() {
+  var allowed = _krThemeFilter.sector === 'all' ? null : _KR_SECTOR_MAP[_krThemeFilter.sector];
+  document.querySelectorAll('#kr-theme-container .kr-theme-card').forEach(function(card) {
+    var heatOk = _krThemeFilter.heat === 'all' || card.getAttribute('data-heat') === _krThemeFilter.heat;
+    var sectorOk = !allowed || allowed.indexOf(card.getAttribute('data-theme-id')) >= 0;
+    card.style.display = heatOk && sectorOk ? '' : 'none';
+  });
+}
 function filterKrThemes(btn, heat) {
   var tabBar = btn.parentElement;
   if (tabBar) tabBar.querySelectorAll('.kr-tab').forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-pressed', 'false'); });
   btn.classList.add('active'); btn.setAttribute('aria-pressed', 'true'); // v57.77 (a11y 4.1.2)
-  var cards = document.querySelectorAll('#kr-theme-container .kr-theme-card');
-  cards.forEach(function(card) {
-    if (heat === 'all') { card.style.display = ''; return; }
-    var h = card.getAttribute('data-heat');
-    card.style.display = (h === heat) ? '' : 'none';
-  });
+  _krThemeFilter.heat = heat || 'all';
+  _krApplyThemeFilter();
 }
 
 // v57.77: the card badge, the filter key and the detail header name the weighted intraday move in plain bands.
@@ -83,13 +91,8 @@ function filterKrSector(btn, sector) {
   var tabBar = btn.parentElement;
   if (tabBar) tabBar.querySelectorAll('.kr-sector-tab').forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-pressed', 'false'); });
   btn.classList.add('active'); btn.setAttribute('aria-pressed', 'true'); // v57.77 (a11y 4.1.2)
-  var cards = document.querySelectorAll('#kr-theme-container .kr-theme-card');
-  var allowed = sector === 'all' ? null : _KR_SECTOR_MAP[sector];
-  cards.forEach(function(card) {
-    if (!allowed) { card.style.display = ''; return; }
-    var tid = card.getAttribute('data-theme-id');
-    card.style.display = allowed.indexOf(tid) >= 0 ? '' : 'none';
-  });
+  _krThemeFilter.sector = sector || 'all';
+  _krApplyThemeFilter();
 }
 
 // v53.7 (P725): krSupplyTab 퇴역 — kr-supply 페이지 삭제
@@ -141,11 +144,11 @@ function initKoreaThemes() {
   // 1. pill: 종목명 · 가격 · 등락률 명확 표시
   document.querySelectorAll('#kr-integrated-themes .kr-ticker-pill[data-live-symbol]').forEach(function(pill) {
     var sym = pill.getAttribute('data-live-symbol'), d = ld[sym];
-    if (d && d.price !== undefined) {
+    if (d && d.price != null && isFinite(d.price)) { // v58.64 (A05 class): a null price threw in toFixed and stopped the render
       var priceEl = pill.querySelector('.pill-price');
       if (priceEl) { priceEl.textContent = d.price >= 1000 ? Math.round(d.price).toLocaleString() : d.price.toLocaleString(); }
       var pctEl = pill.querySelector('.pill-pct');
-      if (pctEl && d.pct !== undefined) {
+      if (pctEl && d.pct != null) {
         pctEl.textContent = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
         pctEl.style.color = d.pct >= 0 ? 'var(--green)' : 'var(--red)';
       }
@@ -169,7 +172,7 @@ function initKoreaThemes() {
       tmap.forEach(function(t) {
         var sym = krTickerToYahoo(t.code);
         var d = ld[sym];
-        if (d && d.pct !== undefined) { vSum += d.pct * t.w; wSum += t.w; }
+        if (d && d.pct != null) { vSum += d.pct * t.w; wSum += t.w; }
       });
       if (quoteCoverage.validThemeIds.indexOf(themeId) >= 0 && wSum > 0) avg = vSum / wSum;
       else return; // 데이터 없음
@@ -180,7 +183,7 @@ function initKoreaThemes() {
       tickers.forEach(function(t) {
         var sym = t.getAttribute('data-live-price');
         var d = ld[sym];
-        if (d && d.pct !== undefined) pcts.push(d.pct);
+        if (d && d.pct != null) pcts.push(d.pct);
       });
       if (pcts.length === 0) return;
       avg = pcts.reduce(function(a,b){return a+b;}, 0) / pcts.length;
@@ -328,7 +331,18 @@ function renderKrThemeCardsFromMap() {
     '</div>';
   });
 
+  // v58.63 (LEGACY02): the re-render replaces every card; the focused control inside a card is found again by its theme
+  // and role after the swap, and the reader's filter selection is re-applied.
+  var focusedEl = document.activeElement && container.contains(document.activeElement) ? document.activeElement : null;
+  var focusedCard = focusedEl && focusedEl.closest ? focusedEl.closest('[data-theme-id]') : null;
+  var focusKey = focusedCard ? { id: focusedCard.getAttribute('data-theme-id'), self: focusedEl === focusedCard, cls: focusedEl.className, tag: focusedEl.tagName } : null;
   container.innerHTML = html;
+  _krApplyThemeFilter();
+  if (focusKey) {
+    var newCard = container.querySelector('[data-theme-id="' + String(focusKey.id).replace(/"/g, '') + '"]');
+    var target = newCard && (focusKey.self ? newCard : Array.prototype.find.call(newCard.querySelectorAll(focusKey.tag), function(node) { return node.className === focusKey.cls; }));
+    if (target && typeof target.focus === 'function') target.focus();
+  }
   if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
     window.AIO.annotateLiveDataSinks(container, { reason: 'kr-theme-render', force: true });
   }
@@ -357,7 +371,7 @@ function renderKrThemePerfBars(ld) {
   refreshKrThemeRuntimeWeights();
   var c = document.getElementById('kr-theme-perf-bars'); if (!c||!ld||Object.keys(ld).length<5) return;
   var N={};Object.keys(window.AIO_KR_THEME_LABELS||{}).forEach(function(k){N[k]=window.AIO_KR_THEME_LABELS[k].split(' / ')[0];}); // P1327: one label owner
-  var res=[];for(var tid in KR_THEME_MAP){var t=KR_THEME_MAP[tid],ws=0,vs=0;t.forEach(function(s){var d=ld[krTickerToYahoo(s.code)];if(d&&d.pct!==undefined&&s.w>0){vs+=d.pct*s.w;ws+=s.w;}});if(ws>0)res.push({id:tid,name:N[tid]||tid,perf:vs/ws});}
+  var res=[];for(var tid in KR_THEME_MAP){var t=KR_THEME_MAP[tid],ws=0,vs=0;t.forEach(function(s){var d=ld[krTickerToYahoo(s.code)];if(d&&d.pct != null&&s.w>0){vs+=d.pct*s.w;ws+=s.w;}});if(ws>0)res.push({id:tid,name:N[tid]||tid,perf:vs/ws});}
   if(!res.length)return;res.sort(function(a,b){return b.perf-a.perf;});var mx=Math.max.apply(null,res.map(function(r){return Math.abs(r.perf);}));if(mx<0.01)mx=1;
   var h='';res.forEach(function(r,i){var p=r.perf>=0,bw=Math.min(Math.abs(r.perf)/mx*100,100),cl=p?'var(--data-green)':'var(--data-red)',rk=i<3?'<b style="color:'+cl+';">'+(i+1)+'</b> ':'';
     h+='<div class="krl-pb-row'+(i%2===0?' is-alt':'')+'" data-action="showKrThemeDetail" data-arg="'+escHtml(r.id)+'"><div class="krl-pb-name">'+rk+r.name+'</div><div class="krl-pb-track">'+(p?'<div class="krl-pb-fill is-pos" style="width:'+(bw/2)+'%;background:'+cl+';"></div>':'<div class="krl-pb-fill is-neg" style="width:'+(bw/2)+'%;background:'+cl+';"></div>')+'<div class="krl-pb-mid"></div></div><div class="krl-pb-val" style="color:'+cl+';">'+(p?'+':'')+r.perf.toFixed(2)+'%</div></div>';});
@@ -370,20 +384,28 @@ function showKrThemeDetail(themeId) {
   var CN=window.AIO_KR_THEME_LABELS||{}; // P1327: one label owner (src/domain/themes/kr-themes.js)
   var cat=_krCatalystReferenceText(KR_THEME_CATALYSTS[themeId]||'');
   // 테마 통계 계산
+  // v58.63 (architecture audit A05): a stock without a received change (pct null/undefined) used to count as +0.00%, so a
+  // theme with no quotes read "+0.00% · 상승 비율 0%" and the deep read diagnosed "하락 0개 > 상승 0개". A missing quote is
+  // missing: it is left out of every count, the averages show "—" and the diagnosis waits.
+  var hasPct=function(d){return !!d&&d.pct!=null&&isFinite(Number(d.pct));};
   var ws=0,vs=0,upCnt=0,dnCnt=0,topStock=null,topPct=-999,botStock=null,botPct=999;
   tmap.forEach(function(t){
     var info=KR_STOCK_DB[t.code]||{},sym=krTickerToYahoo(t.code),d=ld[sym];
-    if(d&&d.pct!==undefined&&t.w>0){vs+=d.pct*t.w;ws+=t.w;if(d.pct>=0)upCnt++;else dnCnt++;}
-    if(d&&d.pct!==undefined){if(d.pct>topPct){topPct=d.pct;topStock=info.name||t.code;}if(d.pct<botPct){botPct=d.pct;botStock=info.name||t.code;}}
+    if(!hasPct(d))return;
+    var p=Number(d.pct);
+    if(t.w>0){vs+=p*t.w;ws+=t.w;}
+    if(p>=0)upCnt++;else dnCnt++;
+    if(p>topPct){topPct=p;topStock=info.name||t.code;}if(p<botPct){botPct=p;botStock=info.name||t.code;}
   });
-  var avg=ws>0?vs/ws:0,ip=avg>=0,cc=ip?'var(--data-green)':'var(--data-red)';
-  var totalStocks=tmap.length,upRatio=totalStocks>0?Math.round(upCnt/totalStocks*100):0;
+  var avg=ws>0?vs/ws:null,ip=avg!=null&&avg>=0,cc=avg==null?'var(--text-muted)':ip?'var(--data-green)':'var(--data-red)';
+  var avgText=avg==null?'—':(ip?'+':'')+avg.toFixed(2)+'%';
+  var totalStocks=tmap.length,quoted=upCnt+dnCnt,upRatio=quoted>0?Math.round(upCnt/quoted*100):null;
 
   // v57.77: 등락 구간 표기 (카드와 같은 구간, 등급 아님)
   var strength=ws>0?_krThemeMoveBand(avg).label:'시세 미수신',strengthCol=ws>0&&avg>=1?'var(--data-green)':ws>0&&avg<=-1?'var(--data-red)':'var(--text-muted)';
 
   // 종목 테이블 (등락률 순 정렬)
-  var sorted=tmap.slice().sort(function(a,b){var da=ld[krTickerToYahoo(a.code)],db=ld[krTickerToYahoo(b.code)];return(db?db.pct!=null?db.pct:0:0)-(da?da.pct!=null?da.pct:0:0);});
+  var sorted=tmap.slice().sort(function(a,b){var da=ld[krTickerToYahoo(a.code)],db=ld[krTickerToYahoo(b.code)],ha=hasPct(da),hb=hasPct(db);if(ha!==hb)return ha?-1:1;return ha?Number(db.pct)-Number(da.pct):0;});
   var rows='';sorted.forEach(function(t,idx){
     var info=KR_STOCK_DB[t.code]||{},sym=krTickerToYahoo(t.code),d=ld[sym];
     var price=d&&d.price!=null&&isFinite(Number(d.price))?Number(d.price):null,pct=d&&d.pct!=null?d.pct:null,pCol=pct!==null?(pct>=0?'var(--data-green)':'var(--data-red)'):'var(--text-muted)';
@@ -400,16 +422,16 @@ function showKrThemeDetail(themeId) {
     // 헤더: 테마명 + 수익률 + 강도
     '<div class="krl-d-head">'+
       '<div><div class="krl-d-title">'+escHtml(CN[themeId]||themeId)+'</div>'+
-        '<div class="krl-d-sub">구성종목 '+totalStocks+'개 · 상승 '+upCnt+' · 하락 '+dnCnt+'</div></div>'+
+        '<div class="krl-d-sub">구성종목 '+totalStocks+'개 · 상승 '+upCnt+' · 하락 '+dnCnt+(quoted<totalStocks?' · 시세 미수신 '+(totalStocks-quoted):'')+'</div></div>'+
       '<div class="krl-d-end">'+
-        '<div class="krl-d-avg" style="color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div>'+
+        '<div class="krl-d-avg" style="color:'+cc+';">'+avgText+'</div>'+
         '<div class="krl-d-band" style="color:'+strengthCol+';">'+strength+'</div></div></div>'+
 
     // 요약 카드 4개
     '<div class="krl-d-stats">'+
       '<div class="krl-d-stat">'+
         '<div class="krl-d-stat-l">상승 비율</div>'+
-        '<div class="krl-d-stat-v" style="color:'+(upRatio>=60?'var(--data-green)':upRatio<=40?'var(--data-red)':'var(--text-muted)')+';">'+upRatio+'%</div></div>'+
+        '<div class="krl-d-stat-v" style="color:'+(upRatio==null?'var(--text-muted)':upRatio>=60?'var(--data-green)':upRatio<=40?'var(--data-red)':'var(--text-muted)')+';">'+(upRatio==null?'—':upRatio+'%')+'</div></div>'+
       '<div class="krl-d-stat">'+
         '<div class="krl-d-stat-l">최고 종목</div>'+
         '<div class="krl-d-stat-name is-up">'+escHtml(topStock||'—')+'</div><div class="krl-d-stat-pct is-up">'+(topStock?(topPct>=0?'+':'')+topPct.toFixed(2)+'%':'—')+'</div></div>'+
@@ -418,7 +440,7 @@ function showKrThemeDetail(themeId) {
         '<div class="krl-d-stat-name is-down">'+escHtml(botStock||'—')+'</div><div class="krl-d-stat-pct is-down">'+(botStock?(botPct>=0?'+':'')+botPct.toFixed(2)+'%':'—')+'</div></div>'+
       '<div class="krl-d-stat">'+
         '<div class="krl-d-stat-l">가중평균</div>'+
-        '<div class="krl-d-stat-v is-fig" style="color:'+cc+';">'+(ip?'+':'')+avg.toFixed(2)+'%</div></div>'+
+        '<div class="krl-d-stat-v is-fig" style="color:'+cc+';">'+avgText+'</div></div>'+
     '</div>'+
 
     // 촉매
@@ -456,6 +478,8 @@ function showKrThemeDetail(themeId) {
 function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, topPct, botStock, botPct, sorted, ld, tmap) {
   var h = '<div class="krl-deep">';
   h += '<div class="krl-deep-t">심층 분석</div>';
+  // v58.63 (A05): no received change, no diagnosis.
+  if (avg == null || upCnt + dnCnt === 0) return h + '<div class="krl-deep-p">구성 종목 시세를 아직 받지 못해 테마 진단을 보류합니다. 시세가 들어오면 다시 계산합니다.</div></div>';
   var ss = [];
 
   // 1) 테마 온도 진단
@@ -485,11 +509,11 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
     var top3Avg = 0, bot3Avg = 0, top3Cnt = 0, bot3Cnt = 0;
     for (var ti = 0; ti < 3; ti++) {
       var td = ld[krTickerToYahoo(sorted[ti].code)];
-      if (td && td.pct !== undefined) { top3Avg += td.pct; top3Cnt++; }
+      if (td && td.pct != null) { top3Avg += td.pct; top3Cnt++; }
     }
     for (var bi = sorted.length - 3; bi < sorted.length; bi++) {
       var bd = ld[krTickerToYahoo(sorted[bi].code)];
-      if (bd && bd.pct !== undefined) { bot3Avg += bd.pct; bot3Cnt++; }
+      if (bd && bd.pct != null) { bot3Avg += bd.pct; bot3Cnt++; }
     }
     if (top3Cnt > 0 && bot3Cnt > 0) {
       top3Avg /= top3Cnt;
@@ -1555,12 +1579,12 @@ function initKoreaMacro() {
 
   // Update KRW exchange rate
   var krw = ld['KRW=X'];
-  if (krw && krw.price !== undefined) {
+  if (krw && krw.price != null && isFinite(krw.price)) {
     var el = document.getElementById('kr-macro-krw');
     if (el) {
       el.textContent = krw.price.toFixed(2);
       var chgEl = el.parentElement && el.parentElement.querySelector('.kr-idx-chg');
-      if (chgEl && krw.pct !== undefined) {
+      if (chgEl && krw.pct != null) {
         chgEl.textContent = (krw.pct >= 0 ? '+' : '') + krw.pct.toFixed(2) + '%';
         chgEl.className = krw.pct >= 0 ? 'pnl pos' : 'pnl neg';
       }
@@ -1569,12 +1593,12 @@ function initKoreaMacro() {
 
   // Update US 10Y bond yield
   var tnx = ld['^TNX'];
-  if (tnx && tnx.price !== undefined) {
+  if (tnx && tnx.price != null && isFinite(tnx.price)) {
     var el = document.getElementById('kr-macro-us10y');
     if (el) {
       el.textContent = tnx.price.toFixed(2) + '%';
       var chgEl = el.parentElement && el.parentElement.querySelector('.kr-idx-chg');
-      if (chgEl && tnx.pct !== undefined) {
+      if (chgEl && tnx.pct != null) {
         chgEl.textContent = (tnx.pct >= 0 ? '+' : '') + tnx.pct.toFixed(2) + '%';
         chgEl.className = tnx.pct >= 0 ? 'pnl pos' : 'pnl neg';
       }
@@ -1623,7 +1647,7 @@ function _generateKrMacroAnalysis(ld) {
     t += '<br>';
   }
   // v38.5: 환율 스트레스 인덱스 (KRW 등락률 + VIX 조합)
-  if (krw && krw.pct !== undefined && vix && vix.price) {
+  if (krw && krw.pct != null && vix && vix.price) {
     var krwStress = Math.abs(krw.pct != null ? krw.pct : 0) * 1.5 + (vix.price > 20 ? (vix.price - 20) * 0.3 : 0);
     var stressLevel = krwStress > 5 ? '위험' : krwStress > 2.5 ? '주의' : '안정';
     var stressColor = krwStress > 5 ? 'var(--red)' : krwStress > 2.5 ? 'var(--yellow)' : 'var(--green)';
@@ -1640,7 +1664,7 @@ function _generateKrMacroAnalysis(ld) {
   }
 
   // v38.5: 수출 경기 서프라이즈 (KOSPI vs 원/달러 역상관 깨짐 감지)
-  if (kospi && kospi.pct !== undefined && krw && krw.pct !== undefined) {
+  if (kospi && kospi.pct != null && krw && krw.pct != null) {
     var kospiChg = kospi.pct != null ? kospi.pct : 0;
     var krwChg = krw.pct != null ? krw.pct : 0; // 양수 = 원화 약세(달러 강세)
     t += '<br><b>【수출 경기 서프라이즈 진단】</b> ';
@@ -1660,7 +1684,7 @@ function _generateKrMacroAnalysis(ld) {
 
   // v38.5: 한국 시장 체력 진단 (KOSPI/KOSDAQ 디커플링)
   var kosdaq = ld['^KQ11'] || ld['KOSDAQ'];
-  if (kospi && kospi.pct !== undefined && kosdaq && kosdaq.pct !== undefined) {
+  if (kospi && kospi.pct != null && kosdaq && kosdaq.pct != null) {
     var kspChg = kospi.pct != null ? kospi.pct : 0;
     var ksdqChg = kosdaq.pct != null ? kosdaq.pct : 0;
     var gapPct = kspChg - ksdqChg;
@@ -1814,7 +1838,7 @@ function _generateKrThemesAnalysis(ld) {
   var perfs = [];
   for (var tid in KR_THEME_MAP) {
     var t = KR_THEME_MAP[tid], ws = 0, vs = 0;
-    t.forEach(function(s) { var d = ld[krTickerToYahoo(s.code)]; if (d && d.pct !== undefined && s.w > 0) { vs += d.pct * s.w; ws += s.w; } });
+    t.forEach(function(s) { var d = ld[krTickerToYahoo(s.code)]; if (d && d.pct != null && s.w > 0) { vs += d.pct * s.w; ws += s.w; } });
     if (validIds.indexOf(tid) >= 0 && ws > 0) perfs.push({ id: tid, name: CN[tid] || tid, perf: vs / ws });
   }
   if (!perfs.length) { el.textContent = '실시간 데이터 대기 중...'; return; }
@@ -1872,7 +1896,7 @@ function _generateKrThemesAnalysis(ld) {
     var link = usThemeLinks[p.id];
     if (link) {
       var usD = usLd[link.us];
-      if (usD && usD.pct !== undefined) {
+      if (usD && usD.pct != null) {
         var gap = p.perf - usD.pct;
         if (Math.abs(gap) > 1.5) {
           linkAnalysis.push({ kr: p.name, us: link.name, krPct: p.perf, usPct: usD.pct, gap: gap });

@@ -19,6 +19,10 @@ for (const article of articles) {
   if (article.deepArticle?.status !== 'RECONSTRUCTION_REQUIRED') failures.push(`${article.articleId}: draft boundary changed without review`);
 }
 const collisions = [...signatures.values()].filter((ids) => ids.length > 1);
+// v58.63 (architecture audit A23/GV02): an exact seed collision was counted and printed but the gate still passed. Two
+// articles with one seed are the same source material; the gate the name promises fails on it (and on a count gap).
+for (const ids of collisions) failures.push(`identical draft seed shared by ${ids.join(', ')}`);
+if (articles.length !== expectedArticleCount) failures.push(`articles ${articles.length} !== lessons ${expectedArticleCount}`);
 const report = {
   status: failures.length ? 'FAIL' : 'PASS_WITH_BOUNDARY',
   articles: articles.length,
@@ -30,4 +34,4 @@ const report = {
   failures
 };
 console.log(JSON.stringify(report, null, 2));
-if (failures.length || articles.length !== expectedArticleCount) process.exit(1);
+if (failures.length) process.exit(1);

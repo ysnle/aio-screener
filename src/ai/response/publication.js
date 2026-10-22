@@ -124,10 +124,19 @@ export function stripUnverifiedCurrentEventSentences(value) {
   return { text: text, dropped: dropped };
 }
 
-export function extractAnswerFallback(rawText, currentSensitive) {
+// v58.63 (architecture audit SEC02): the fallback path (a plan that failed to parse) stripped only unverified numbers, so
+// "연준이 금리를 인하했고 신용 스트레스도 해소됐다" was dropped from a structured plan but published from the same text when
+// the plan block broke. With zero publishable evidence on a current-sensitive question, the fallback applies the same
+// current-event rule as the plan path. `options.evidenceCount` omitted keeps the old two-argument behaviour.
+function guardFallback(text, currentSensitive, options) {
+  if (!currentSensitive) return text;
+  var out = stripUnverifiedCurrentNumericSentences(text);
+  return options && options.evidenceCount === 0 ? stripUnverifiedCurrentEventSentences(out).text : out;
+}
+export function extractAnswerFallback(rawText, currentSensitive, options) {
   var raw = String(rawText || '');
   var hasControlBlock = /\[\/?AI_ANSWER_PLAN\]/i.test(raw);
-  if (!hasControlBlock) return currentSensitive ? stripUnverifiedCurrentNumericSentences(raw) : raw.trim();
+  if (!hasControlBlock) return currentSensitive ? guardFallback(raw, true, options) : raw.trim();
   var values = [];
   var fieldRe = /"(?:summary|body)"\s*:\s*("(?:\\.|[^"\\])*")/g;
   var match;
@@ -138,7 +147,7 @@ export function extractAnswerFallback(rawText, currentSensitive) {
     } catch (_) {}
   }
   var fallback = values.join('\n\n').trim();
-  return currentSensitive ? stripUnverifiedCurrentNumericSentences(fallback) : fallback;
+  return guardFallback(fallback, currentSensitive, options);
 }
 
 // v57.48 review #19: an answer opened with up to five "※" notices, three of them in English ("decision-grade",

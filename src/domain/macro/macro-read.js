@@ -9,7 +9,8 @@
 // Rates, credit and oil/dollar reuse the 시장 상태 axes, so the two screens never disagree.
 // What a regime has tended to mean for stocks is labelled 해석 (a historical tendency, not a forecast).
 
-import { buildCloseSeries, closeBasis, creditCause, creditState, hyDelta20Bp, hyWidening20Record, sessionPointBack as closeSessionPointBack } from '../briefing/market-read.js';
+import { creditCause, creditState, hyDelta20Bp, hyWidening20Record } from '../briefing/market-read.js';
+import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { brentWtiCheck } from './liquidity-growth.js';
 import { inflationDirection, oilDivergence, MACRO_SIGNAL_RULES } from './macro-signals.js';
@@ -293,7 +294,8 @@ function policyAxis({ macro, inflationState, growthState = null }) {
     // a forecast of hikes (premia are not separated).
     headline: pricing == null ? null : pricing >= P.pricedMovePp ? `2년물이 기준금리보다 ${pricing.toFixed(2)}%p 높음` : pricing <= -P.pricedMovePp ? `2년물이 기준금리보다 ${Math.abs(pricing).toFixed(2)}%p 낮음` : '2년물이 기준금리와 비슷함',
     evidence: [
-      ['연준 목표 범위', upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`],
+      // v58.63 (architecture audit M01): only the upper bound arriving threw on lower.toFixed and stopped the whole macro read.
+      ['연준 목표 범위', upper == null || lower == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`],
       ['2년물 − 기준금리 중간값', pricing == null ? null : `${signed(pricing, 2, '%p')} (${pricingText} 수준)`],
       ['실질 기준금리 (중간값 − 근원 PCE)', realPolicy == null ? null : `${realPolicy.toFixed(1)}% (중립 약 ${P.neutralRealPct}%)`]
     ],

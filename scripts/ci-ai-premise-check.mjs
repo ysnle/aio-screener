@@ -34,7 +34,11 @@ assert.equal(evaluate([{ ...row, allowedUse: 'reference' }]).status, 'UNVERIFIED
 assert.equal(evaluate([{ ...row, currentClaim: false }]).status, 'UNVERIFIED');
 assert.equal(evaluate([{ ...row, qualityStatus: 'unknown' }]).status, 'UNVERIFIED');
 assert.equal(evaluate([{ ...row, freshnessStatus: 'stale' }]).status, 'UNVERIFIED');
-assert.equal(evaluate([{ ...row, freshnessMaxAgeMs: 1, observedAt: '2026-09-07T20:00:00Z' }]).status, 'UNVERIFIED');
+// v58.63 (architecture audit C2): the old case kept freshnessMs (which wins) and moved observedAt out of the period, so it
+// failed for the period and never exercised the SLA. Only the SLA changes here, once on each field name.
+assert.equal(evaluate([{ ...row, freshnessMs: 1 }]).status, 'UNVERIFIED', 'v58.63 C2 an expired freshness SLA alone must unverify the premise');
+{ const { freshnessMs: _sla, ...aliasRow } = row; assert.equal(evaluate([{ ...aliasRow, freshnessMaxAgeMs: 1 }]).status, 'UNVERIFIED', 'v58.63 C2 the freshnessMaxAgeMs alias applies when freshnessMs is absent'); }
+assert.equal(evaluate([{ ...row, freshnessMs: 2 * 60 * 60 * 1000 }]).status, 'VERIFIED', 'v58.63 C2 positive control: an SLA the observation meets keeps it verified');
 assert.equal(evaluate([{ ...row, value: 2 }]).status, 'CONTRADICTED');
 assert.equal(evaluate([{ ...row, value: 0 }]).observedDirection, 'flat');
 assert.equal(evaluate([{ ...row, value: 0 }]).status, 'CONTRADICTED');

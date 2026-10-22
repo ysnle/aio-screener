@@ -1,0 +1,305 @@
+Browser tab: 2, Title: "개념·분석 · AIO Screener", URL: "http://127.0.0.1:8795/?mode=frames#principles".
+0 AXWebArea 개념·분석 · AIO Screener, URL: 127.0.0.1:8795/?mode=frames#principles
+	1 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/?mode=frames#main-content
+	2 container Description: 메인 네비게이션, ID: aio-navigation
+		3 container
+			4 text AIO Investment Screener
+		5 text 데일리
+		6 button 오늘 페이지
+		7 text 시장
+		8 button 시장 상태 페이지
+		9 button 거시 · 금리 페이지
+		10 button 테마 · 섹터 페이지
+		11 text 내 투자
+		12 button 종목 페이지
+		13 button 스크리너 페이지
+		14 button 포트폴리오 페이지
+		15 text 리서치
+		16 button 리서치 라이브러리 페이지
+		17 button 용어 사전 페이지
+		18 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			19 text 라이트 모드로 전환
+		20 text AI 도우미
+		21 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		22 text GPT-6 Luna · 공용 AI 연결
+		23 text 개인 AI 키 입력 없이 이용합니다.
+		24 button (collapsed) 연결 상태, Secondary Actions: Expand
+			25 text 연결 상태
+		26 button (collapsed) 보안 설정, Secondary Actions: Expand
+			27 text 보안 설정
+	28 container
+		29 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		30 container breadcrumb
+			39 text 리서치 라이브러리 / 개념·분석
+		32 text 종가
+		33 text 10/19 마감 · 시세 16종 · 실시간 관측 18종
+		34 text v58.50
+		35 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		36 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	37 container main-content
+		38 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			40 button 개념·분석
+			41 button 산업 지도
+			42 button 대가 보유 종목
+		43 container 개념·분석, ID: page-principles
+			44 text 개념·분석
+			45 container 개념·분석
+				46 container
+					47 heading 개념·분석, Value: 1
+						48 text 개념·분석
+					49 text 쟁점별 분석 노트, 개념 정의, 원리 레슨, 칼럼
+					50 search text field (settable) 리서치 라이브러리 통합 검색
+					51 button (expanded) 서가 436편 · 7개 컬렉션 · 83개 주제 · 3편 읽음 접기, Secondary Actions: Collapse
+						52 text 서가
+						53 text 436
+						54 text 편
+						55 text  · 
+						56 text 7
+						57 text 개 컬렉션
+						58 text  · 
+						59 text 83
+						60 text 개 주제
+						61 text  · 
+						62 text 3
+						63 text 편 읽음
+						64 text 접기
+					65 text 처음이라면
+					66 button 돈은 숫자가 아니라 미래의 선택권이다
+					67 button 물가가 오르면 돈이 줄지 않아도 가난해진다
+					68 button 금리는 기다림과 위험에 붙는 가격이다
+					69 button 중앙은행은 금리로 경제의 속도를 바꾼다
+					70 button 미국채 금리는 금융시스템의 기준점이다
+					71 text 다음 발표(FOMC 회의)와 이어지는 글
+					72 button 정책금리 인하 국면의 장기채 약세 — 기간 프리미엄
+					73 button 금리 인상기의 주가 — 왜 오르는지가 수준보다 중요하다
+					74 button 금리 상승기 은행 순이자이익 감소 요인
+					75 button 같은 TGA 증가가 역레포 잔고에 따라 금리에 다르게 번지는 구조
+					76 container 컬렉션
+						77 checkbox 전체 436, Value: 0
+						78 checkbox 분석 노트 71, Value: 1
+						79 checkbox 칼럼 12, Value: 0
+						80 checkbox 원리 레슨 112, Value: 0
+						81 checkbox 개념 지도 60, Value: 0
+						82 checkbox 산업 지도 95, Value: 0
+						83 checkbox AI 기초 48, Value: 0
+						84 checkbox 대가 보유 종목 38, Value: 0
+					85 container 정렬
+						86 checkbox 주제, Value: 1
+						87 checkbox 제목, Value: 0
+						88 checkbox 안 읽은 글, Value: 0
+					89 text 같은 색 묶음 = 같은 주제
+					90 container 책장 — 화살표 키로 이동, Enter로 책 펼치기
+						91 button 실적 상회에도 주가가 하락하는 구조 — 기대 대비 결과 — 분석 노트 · 주제 가격·기대
+						92 button 시가총액 가중 지수의 비중 변화와 실제 매수 흐름 — 분석 노트 · 주제 가격·기대
+						93 button 성장률보다 성장의 지속에 붙는 주가배수 — 분석 노트 · 주제 가격·기대
+						94 button 낮은 PER과 넓은 일드갭이 상승으로 이어지지 않는 이유 — 이익 정점 의심 — 분석 노트 · 주제 가격·기대
+						95 button 진입 위치·교체·추가 매수·현금 — 같은 종목에서 결과가 갈리는 이유 — 분석 노트 · 주제 가격·기대
+						96 button 분석의 개수와 판단의 질을 구분하는 사고 순서 — 분석 노트 · 주제 가격·기대
+						97 button 섹터 조정·시장 폭과 AI 병목 전이의 구분 — 분석 노트 · 주제 가격·기대
+						98 button 주가 조정·이익 정점·산업 둔화의 구분과 병목 해소의 이익 경로 — 분석 노트 · 주제 가격·기대
+						99 button 지수 신고가 아래의 좁은 참여, 포지션 쏠림, 투매의 흔적 — 분석 노트 · 주제 가격·기대
+						100 button 지수 신호와 참여 종목 신호가 엇갈릴 때의 판독 순서 — 분석 노트 · 주제 가격·기대
+						101 button 조정의 질을 낙폭이 아니라 그 사이 이익 추정치 방향으로 판정 — 분석 노트 · 주제 가격·기대
+						102 button 이익 상향 속 주가 무반응에서 시작되는 고점의 순서 — 분석 노트 · 주제 가격·기대
+						103 button 지수 안정 뒤의 순환·주도 반전과 피난성 이동의 구분 — 분석 노트 · 주제 가격·기대
+						104 button 정책금리 인하 국면의 장기채 약세 — 기간 프리미엄 — 분석 노트 · 주제 금리·채권·환율
+						105 button 국채 급변의 주식 전이 — 담보와 레버리지 축소 — 분석 노트 · 주제 금리·채권·환율
+						106 button 금리 인상기의 주가 — 왜 오르는지가 수준보다 중요하다 — 분석 노트 · 주제 금리·채권·환율
+						107 button 원화 약세의 업종 내 차별적 영향 — 분석 노트 · 주제 금리·채권·환율
+						108 button 주식·금·금리·달러가 함께 움직이는 방향이 알려 주는 충격의 종류 — 분석 노트 · 주제 금리·채권·환율
+						109 button 헤드라인보다 선박·보험·선적 데이터로 공급 충격의 크기를 재는 방법 — 분석 노트 · 주제 금리·채권·환율
+						110 button 제한 충격과 구조 충격을 관측 신호로 가르고, 재고가 문턱 아래로 내려가는 시점을 확인 — 분석 노트 · 주제 금리·채권·환율
+						111 button 보유 자산이 어떤 성장·물가 환경에 기대는지와 금리·달러·에너지가 함께 조이는지 — 분석 노트 · 주제 금리·채권·환율
+						112 button 산술평균 수익률과 실현 복리 수익률의 괴리 — 분석 노트 · 주제 금융수학·통계
+						113 button 명목·실질·상대 성과의 구분 — 분석 노트 · 주제 금융수학·통계
+						114 button 많이 시험할수록 그럴듯한 가짜 우위가 쉬워지는 다중 검정 문제 — 분석 노트 · 주제 금융수학·통계
+						115 button 분석과 브리핑이 확증 편향으로 흐르지 않게 하는 기록 방식 — 분석 노트 · 주제 금융수학·통계
+						116 button 하루 등락·조정 폭·급락 뒤 반등을 기대 범위와 과거 빈도에 놓기 — 분석 노트 · 주제 금융수학·통계
+						117 button 자극적인 시장·AI 헤드라인을 원문·정의·공식 채널로 되짚는 순서 — 분석 노트 · 주제 금융수학·통계
+						118 button AI 설비투자 확대기의 잉여현금흐름 감소와 ROIC — 분석 노트 · 주제 기업 수익 구조
+						119 button 거래 관계의 중첩과 법인별 손실 책임 — 분석 노트 · 주제 기업 수익 구조
+						120 button 설비투자 대비 매출, 자금 조달, 주문으로 이어지는 시차 — 분석 노트 · 주제 기업 수익 구조
+						121 button 백로그는 현금이 아니라 조건부 계약 — 누가 어떤 돈으로 짓는가 — 분석 노트 · 주제 기업 수익 구조
+						122 button 매출 전 테마주의 서사를 다음 분기 공시 항목과 폐기 조건으로 시험 — 분석 노트 · 주제 기업 수익 구조
+						123 button 가격 인상과 매출 감소 — 가격 탄력성 — 분석 노트 · 주제 미시경제 기초
+						124 button 개인 생산성과 기업·경제 산출 사이의 조직 재설계 시차와 그 사이 투자 수요 — 분석 노트 · 주제 미시경제 기초
+						125 button 수율 개선이 원가·생산능력에 미치는 영향 — 분석 노트 · 주제 산업별 수익 모델
+						126 button HBM과 광 인터커넥트의 역할 분담 — 분석 노트 · 주제 산업별 수익 모델
+						127 button 기술의 필요성과 공급자 수익성의 분리 — 분석 노트 · 주제 산업별 수익 모델
+						128 button 금리 상승기 은행 순이자이익 감소 요인 — 분석 노트 · 주제 산업별 수익 모델
+						129 button 손해보험의 보험료 성장과 언더라이팅 손익의 괴리 — 분석 노트 · 주제 산업별 수익 모델
+						130 button 순영업소득 증가와 자산가치 하락 — 자본환원율 — 분석 노트 · 주제 산업별 수익 모델
+						131 button 매출 성장의 가격·물량·믹스 분해 — 분석 노트 · 주제 산업별 수익 모델
+						132 button 사용자 증가와 수익성 부재 — 유닛 이코노믹스 — 분석 노트 · 주제 산업별 수익 모델
+						133 button 임상 성공에서 매출 인식까지의 시차와 희석 — 분석 노트 · 주제 산업별 수익 모델
+						134 button 유가 상승의 밸류체인별 차별적 영향 — 스프레드 — 분석 노트 · 주제 산업별 수익 모델
+						135 button 고운임의 지속성과 공급 증설 사이클 — 분석 노트 · 주제 산업별 수익 모델
+						136 button 곡물 가격 상승의 수혜·피해 구조 — 가격 전가 — 분석 노트 · 주제 산업별 수익 모델
+						137 button 발표·샘플·양산·수율·고객 인증·점유율과 제품 시장의 구분 — 분석 노트 · 주제 산업별 수익 모델
+						138 button 그리드에서 칩까지 전압 계층과 마지막 몇 센티미터의 손실 — 분석 노트 · 주제 산업별 수익 모델
+						139 button 랙 안·랙 사이·데이터센터 사이 구간별로 갈리는 연결 기술 — 분석 노트 · 주제 산업별 수익 모델
+						140 button AI 노출 비중보다 기존 고객의 가격민감도가 가격 인상을 정하는 구조 — 분석 노트 · 주제 산업별 수익 모델
+						141 button 후발 파운드리와 웨이퍼급 칩의 수율 주장을 원가로 읽기 — 분석 노트 · 주제 산업별 수익 모델
+						142 button 메모리 가격 수준과 주가의 선후 — 변화율·재고·추정치 수정 — 분석 노트 · 주제 산업별 수익 모델
+						143 button 이익 증가와 현금 부족의 공존 — 운전자본과 설비투자 — 분석 노트 · 주제 재무제표·회계
+						144 button 측정 기준 변경과 실제 실적 변화의 구분 — 분석 노트 · 주제 재무제표·회계
+						145 button 소진·흡수·청산 연쇄·고갈형 바닥과 각각의 확인 지점 — 분석 노트 · 주제 차트·셋업 읽기
+						146 button 이동평균에서 너무 멀어진 가격과 긴 상승 끝의 소진 신호 — 분석 노트 · 주제 차트·셋업 읽기
+						147 button 셋업 모양보다 돌파 뒤의 지속과 베이스 순번이 중요한 이유 — 분석 노트 · 주제 차트·셋업 읽기
+						148 button 반전 확장에서 소진 확장까지, 지금 어느 단계인지 읽는 틀 — 분석 노트 · 주제 차트·셋업 읽기
+						149 button 13편 더 보기
+					150 container 개념·분석 목차
+						151 button (expanded) 분석 노트 71, Secondary Actions: Collapse
+						152 button (collapsed) 칼럼 · 돈에서 주식시장까지 12, Secondary Actions: Expand
+						153 button (collapsed) 개념 사전 89, Secondary Actions: Expand
+						154 button (collapsed) 원리 레슨 112, Secondary Actions: Expand
+						155 button (collapsed) 개념 지도, Secondary Actions: Expand
+						156 text 금융수학·통계
+						157 checkbox 산술평균 수익률과 실현 복리 수익률의 괴리, Value: 1
+						158 checkbox 명목·실질·상대 성과의 구분, Value: 0
+						159 checkbox 많이 시험할수록 그럴듯한 가짜 우위가 쉬워지는 다중 검정 문제, Value: 0
+						160 checkbox 분석과 브리핑이 확증 편향으로 흐르지 않게 하는 기록 방식, Value: 0
+						161 checkbox 하루 등락·조정 폭·급락 뒤 반등을 기대 범위와 과거 빈도에 놓기, Value: 0
+						162 checkbox 자극적인 시장·AI 헤드라인을 원문·정의·공식 채널로 되짚는 순서, Value: 0
+						163 text 재무제표·회계
+						164 checkbox 이익 증가와 현금 부족의 공존, Value: 0
+						165 checkbox 측정 기준 변경과 실제 실적 변화의 구분, Value: 0
+						166 text 미시경제 기초
+						167 checkbox 가격 인상과 매출 감소, Value: 0
+						168 checkbox 기술의 필요성과 공급자 수익성의 분리, Value: 0
+						169 checkbox 개인 생산성과 기업·경제 산출 사이의 조직 재설계 시차와 그 사이 투자 수요, Value: 0
+						170 text 통화·신용·물가
+						171 checkbox 은행 신용 창출과 통화량, Value: 0
+						172 checkbox 디스인플레이션 국면의 높은 물가 수준, Value: 0
+						173 checkbox 위기 대응의 분배 효과, Value: 0
+						174 checkbox 미국 급락에 대한 연준·재정 대응이 막는 것과 막지 못하는 것, Value: 0
+						175 checkbox 평균이 감추는 신용 분산과 차환의 시간차, Value: 0
+						176 checkbox 같은 TGA 증가가 역레포 잔고에 따라 금리에 다르게 번지는 구조, Value: 0
+						177 checkbox 자금 이동, 신용 창출, 담보 수요를 구분해야 하는 이유, Value: 0
+						178 checkbox 분기 환매 한도가 만드는 느린 뱅크런과 장부가가 늦게 움직이는 구조, Value: 0
+						179 checkbox 해고형과 이직형 충격, 공통 물가와 개별 물가, 실업률의 분자와 분모, Value: 0
+						180 checkbox 레버리지 청산·담보·위험 한도가 만든 하락을 현금흐름 재평가와 구분, Value: 0
+						181 checkbox AI 클라우드 발행사의 신용 악화가 업종·전체 신용으로 번지는 단계, Value: 0
+						182 text 금리·채권·환율
+						183 checkbox 정책금리 인하 국면의 장기채 약세, Value: 0
+						184 checkbox 국채 급변의 주식 전이, Value: 0
+						185 checkbox 금리 인상기의 주가, Value: 0
+						186 checkbox 원화 약세의 업종 내 차별적 영향, Value: 0
+						187 checkbox 주식·금·금리·달러가 함께 움직이는 방향이 알려 주는 충격의 종류, Value: 0
+						188 checkbox 헤드라인보다 선박·보험·선적 데이터로 공급 충격의 크기를 재는 방법, Value: 0
+						189 checkbox 제한 충격과 구조 충격을 관측 신호로 가르고, 재고가 문턱 아래로 내려가는 시점을 확인, Value: 0
+						190 checkbox 보유 자산이 어떤 성장·물가 환경에 기대는지와 금리·달러·에너지가 함께 조이는지, Value: 0
+						191 text 기업 수익 구조
+						192 checkbox AI 설비투자 확대기의 잉여현금흐름 감소와 ROIC, Value: 0
+						193 checkbox 이익 증가와 현금 부족의 공존, Value: 0
+						194 checkbox 거래 관계의 중첩과 법인별 손실 책임, Value: 0
+						195 checkbox 설비투자 대비 매출, 자금 조달, 주문으로 이어지는 시차, Value: 0
+						196 checkbox 백로그는 현금이 아니라 조건부 계약, Value: 0
+						197 checkbox 매출 전 테마주의 서사를 다음 분기 공시 항목과 폐기 조건으로 시험, Value: 0
+						198 text 산업별 수익 모델
+						199 checkbox 수율 개선이 원가·생산능력에 미치는 영향, Value: 0
+						200 checkbox HBM과 광 인터커넥트의 역할 분담, Value: 0
+						201 checkbox 발표·샘플·양산·수율·고객 인증·점유율과 제품 시장의 구분, Value: 0
+						202 checkbox Description: 은행 — 금리 상승기 순이자이익, Value: 0
+						203 checkbox Description: 보험 — 손해보험 합산비율, Value: 0
+						204 checkbox Description: 부동산·리츠·건설 — 임대 부동산 가치와 자본환원율, Value: 0
+						205 checkbox Description: 소비·유통 — 가격·물량·믹스 분해, Value: 0
+						206 checkbox Description: 소프트웨어·플랫폼 — 구독 유닛 이코노믹스, Value: 0
+						207 checkbox Description: 바이오·의료 — 신약 임상·허가와 자금 소진, Value: 0
+						208 checkbox Description: 에너지·화학·소재 — 유가와 정유·화학 스프레드, Value: 0
+						209 checkbox Description: 운송·물류 — 컨테이너 해운 운임과 선복 공급, Value: 0
+						210 checkbox Description: 농업·식품 — 곡물 가격과 식품 기업 가격 전가, Value: 0
+						211 checkbox 원화 약세의 업종 내 차별적 영향, Value: 0
+						212 checkbox 그리드에서 칩까지 전압 계층과 마지막 몇 센티미터의 손실, Value: 0
+						213 checkbox 랙 안·랙 사이·데이터센터 사이 구간별로 갈리는 연결 기술, Value: 0
+						214 checkbox AI 노출 비중보다 기존 고객의 가격민감도가 가격 인상을 정하는 구조, Value: 0
+						215 checkbox 후발 파운드리와 웨이퍼급 칩의 수율 주장을 원가로 읽기, Value: 0
+						216 checkbox 메모리 가격 수준과 주가의 선후, Value: 0
+						217 text 가격·기대
+						218 checkbox 실적 상회에도 주가가 하락하는 구조, Value: 0
+						219 checkbox 성장률보다 성장의 지속에 붙는 주가배수, Value: 0
+						220 checkbox 낮은 PER과 넓은 일드갭이 상승으로 이어지지 않는 이유, Value: 0
+						221 checkbox 진입 위치·교체·추가 매수·현금, Value: 0
+						222 checkbox 시가총액 가중 지수의 비중 변화와 실제 매수 흐름, Value: 0
+						223 checkbox 분석의 개수와 판단의 질을 구분하는 사고 순서, Value: 0
+						224 checkbox 섹터 조정·시장 폭과 AI 병목 전이의 구분, Value: 0
+						225 checkbox 주가 조정·이익 정점·산업 둔화의 구분과 병목 해소의 이익 경로, Value: 0
+						226 checkbox 지수 신고가 아래의 좁은 참여, 포지션 쏠림, 투매의 흔적, Value: 0
+						227 checkbox 지수 신호와 참여 종목 신호가 엇갈릴 때의 판독 순서, Value: 0
+						228 checkbox 조정의 질을 낙폭이 아니라 그 사이 이익 추정치 방향으로 판정, Value: 0
+						229 checkbox 이익 상향 속 주가 무반응에서 시작되는 고점의 순서, Value: 0
+						230 checkbox 지수 안정 뒤의 순환·주도 반전과 피난성 이동의 구분, Value: 0
+						231 text 차트·셋업 읽기
+						232 checkbox 소진·흡수·청산 연쇄·고갈형 바닥과 각각의 확인 지점, Value: 0
+						233 checkbox 이동평균에서 너무 멀어진 가격과 긴 상승 끝의 소진 신호, Value: 0
+						234 checkbox 셋업 모양보다 돌파 뒤의 지속과 베이스 순번이 중요한 이유, Value: 0
+						235 checkbox 반전 확장에서 소진 확장까지, 지금 어느 단계인지 읽는 틀, Value: 0
+						236 checkbox 하락 종가일의 초과수익과 RS선 다이버전스로 리더 후보를 찾는 방법, Value: 0
+						237 checkbox 하방 과확장 뒤의 반등을 되돌림 셋업으로 읽고 추세 전환과 구분, Value: 0
+					238 container
+						239 text 금융수학·통계
+						240 heading 산술평균 수익률과 실현 복리 수익률의 괴리, Value: 2
+							241 text 산술평균 수익률과 실현 복리 수익률의 괴리
+						242 text 어느 펀드가 "지난 2년 평균 수익률 0%"라고 광고한다. 본전은 지켰다는 말처럼 들린다. 그런데 계좌를 열어 보면 100만 원이 75만 원이 되어 있다. 광고가 거짓말을 한 것은 아니다. 평균을 내는 방법이 하나가 아닐 뿐이다. 첫해 50% 오르고 이듬해 50% 떨어졌다고 하자. 두 숫자를 더해 둘로 나누면 0%다. 하지만 돈은 더해지지 않고 곱해진다. 100만 원은 150만 원이 됐다가, 그 150만 원의 절반을 잃고 75만 원이 된다. 잃은 50%는 불어난 금액 위에서, 번 50%는 작은 금액 위에서 계산됐다. 같은 크기의 오르내림이라도 하락이 더 큰 돈을 깎는다. 그래서 흔들림이 클수록 실제로 쌓이는 성장(기하평균)은 산술평균보다 낮아진다. 이 간격을 변동성 손실이라고 부른다. 성과를 비교할 때 연평균 복리 수익률과 최대 낙폭을 함께 보는 이유가 여기에 있다. 평균 하나로는 그 사이 계좌가 얼마나 흔들렸는지, 결국 얼마가 남았는지 알 수 없다. 흔들림의 비용은 대략 셈할 수 있다. 연 변동성(표준편차)이 σ이면 실제로 쌓이는 연 수익률은 산술평균보다 약 σ²/2 낮다. 변동성 20%면 약 2%p, 40%면 약 8%p다. 손실을 메우는 길도 비대칭이다. −10%는 +11.1%, −30%는 +42.9%, −50%는 +100%, −70%는 +233%가 있어야 본전이다.
+						243 heading 흐름으로 보면, Value: 3
+							244 text 흐름으로 보면
+						245 content list
+							246 text 100
+							247 text →
+							248 text +50% → 150
+							249 text →
+							250 text −50% → 75
+							251 text →
+							252 text 산술평균 0% · 실제 −25%
+						253 heading 숫자로 따라가 보면, Value: 3
+							254 text 숫자로 따라가 보면
+						255 definition list
+							256 container 전제
+								257 text 전제
+							258 text 1년차 +50% · 2년차 −50%
+							259 container 계산
+								260 text 계산
+							261 text 산술평균 = (50 − 50) ÷ 2 = 0%
+							262 text 실제 = 1.5 × 0.5 = 0.75
+							263 text 기하평균 = √0.75 − 1 ≈ −13.4%/년
+							264 container 결과
+								265 text 결과
+							266 text 평균 0%라고 들어도 실제 자산은 25% 줄었습니다.
+						267 heading 자주 빗나가는 해석, Value: 3
+							268 text 자주 빗나가는 해석
+						269 text 흔들림이 작으면 두 평균은 거의 겹친다. 매년 10%와 12%를 번갈아 낸 계좌는 산술평균 11%, 실제 연평균 약 10.995%로 사실상 같다. 문제는 평균 자체가 아니라, 평균이 감춘 흔들림의 크기다.
+						270 button (collapsed) 근거와 가정 보기, Secondary Actions: Expand
+							271 text 근거와 가정 보기
+					272 container 연결
+						273 text 확인할 변수
+						274 text 연평균 복리 수익률(CAGR)
+						275 text 최대 낙폭
+						276 text 회복 기간
+						277 text 변동성
+						278 text 실제 데이터에서 확인
+						279 button 포트폴리오 펀드·전략 성과는 연평균 복리 수익률(CAGR)과 최대 낙폭을 함께 확인
+							280 text 포트폴리오
+							281 text 펀드·전략 성과는 연평균 복리 수익률(CAGR)과 최대 낙폭을 함께 확인
+						282 text 먼저 알아둘 개념
+						283 button 산술평균과 기하평균 수익률 해마다 +50%와 −50%를 번갈아 내면 산술평균은 0%지만 실제 자산은 1.5 × 0.5 = 0.75로 25% 줄어든다. 실…
+							284 text 산술평균과 기하평균 수익률
+							285 text 해마다 +50%와 −50%를 번갈아 내면 산술평균은 0%지만 실제 자산은 1.5 × 0.5 = 0.75로 25% 줄어든다. 실…
+						286 button 복리 이전 기간의 수익에도 다시 수익이 붙는 구조. 연 7%로 10년이면 1.07^10 ≈ 1.97배로 약 두 배가 된다. 수익률이…
+							287 text 복리
+							288 text 이전 기간의 수익에도 다시 수익이 붙는 구조. 연 7%로 10년이면 1.07^10 ≈ 1.97배로 약 두 배가 된다. 수익률이…
+						289 button %와 %p(퍼센트포인트) %는 전체를 100으로 본 비율이다. 비율이 변한 정도는 두 가지로 말한다 — %p는 두 비율의 차이, 변화율(%)은 처음 비…
+							290 text %와 %p(퍼센트포인트)
+							291 text %는 전체를 100으로 본 비율이다. 비율이 변한 정도는 두 가지로 말한다 — %p는 두 비율의 차이, 변화율(%)은 처음 비…
+						292 text 같은 원리를 쓰는 다른 노트
+						293 button 명목·실질·상대 성과의 구분
+							294 text 명목·실질·상대 성과의 구분
+						295 button 진입 위치·교체·추가 매수·현금
+							296 text 진입 위치·교체·추가 매수·현금
+						297 button 측정 기준 변경과 실제 실적 변화의 구분
+							298 text 측정 기준 변경과 실제 실적 변화의 구분
+						299 button 하루 등락·조정 폭·급락 뒤 반등을 기대 범위와 과거 빈도에 놓기
+							300 text 하루 등락·조정 폭·급락 뒤 반등을 기대 범위와 과거 빈도에 놓기
+			301 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				302 text 데이터 출처
+
+The focused UI element is 0 AXWebArea 개념·분석 · AIO Screener, URL: 127.0.0.1:8795/?mode=frames#principles

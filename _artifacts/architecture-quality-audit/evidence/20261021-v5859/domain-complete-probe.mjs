@@ -1,0 +1,30 @@
+import {execFileSync} from 'node:child_process';
+import {SourceTextModule} from 'node:vm';
+import {posix} from 'node:path';
+import {createHash} from 'node:crypto';
+import {writeFileSync} from 'node:fs';
+const ref='7e2411432f6ca0e5f02528b209b013bf5f7ff2dc';
+const get=p=>execFileSync('git',['show',`${ref}:${p}`],{encoding:'utf8',maxBuffer:32*1024*1024});
+const mods=new Map();globalThis.__domainCompleteSpecs=[];
+function moduleFor(p){if(!mods.has(p)){let src=get(p);if(p==='src/domain/briefing/market-read.js')src=src.replace("  if (!(state in STATE_RANK)","  globalThis.__domainCompleteSpecs.push({state,levers,stateAt,assumptions});\n  if (!(state in STATE_RANK)");mods.set(p,new SourceTextModule(src,{identifier:p}));}return mods.get(p);}
+async function load(p){const m=moduleFor(p);if(m.status==='unlinked')await m.link((s,f)=>{if(!s.startsWith('.'))throw Error('external import forbidden');return moduleFor(posix.normalize(posix.join(posix.dirname(f.identifier),s)));});if(m.status!=='evaluated')await m.evaluate();return m.namespace;}
+const {buildMarketRegime,buildMarketRead,alignMarketInputs}=await load('src/domain/briefing/market-read.js');
+const data=JSON.parse(get('public-data/data.json')),history=JSON.parse(get('public-data/history.json')),macroHistory=JSON.parse(get('public-data/macro-history.json'));
+const m=data.macro,num=x=>typeof x==='number'&&Number.isFinite(x)?x:null;
+const rates=Object.fromEntries(['realYield10','realYield10Delta5','breakeven10Delta5','dgs2Delta5','dgs10Delta5'].map(k=>[k,num(m[k])]));
+Object.assign(rates,{asOf:m._asOf_realYield10||m._asOf_dgs10,realAsOf:m._asOf_realYield10,breakevenAsOf:m._asOf_breakeven10});
+const input={history,macroHistory,now:Date.parse('2026-10-21T03:00:00Z'),rates,credit:{hyBp:num(m.hyOAS)*100,hyAsOf:m._asOf_hyOAS,hyDelta5Bp:num(m.hyOASDelta5)==null?null:m.hyOASDelta5*100,pcr:num(data.putCall?.totalPutCall),pcrAsOf:data.putCall?.asOf,fg:num(data.fearGreed?.score),fgAsOf:data.fearGreed?.asOf}};
+const regime=buildMarketRegime(input);
+const captures=globalThis.__domainCompleteSpecs.slice();
+const ui=get('src/ui/components/daily-loop.js');const heroSource=ui.slice(ui.indexOf('const FLIP_ORDER ='),ui.indexOf('function flipDistanceLine'));
+const helper=new SourceTextModule(heroSource);await helper.link(()=>{throw Error('unexpected import');});await helper.evaluate();
+const top=helper.namespace.heroFlipRows(regime);
+const details=top.map(row=>{const d=row.distance;if(!d)return {id:row.id,unmeasured:true};const spec=captures.find(s=>s.levers.some(l=>l.key===d.lever&&l.current===d.current)&&s.state===row.state);const base=Object.fromEntries(spec.levers.map(l=>[l.key,l.current]));const dir=Math.sign(d.threshold-d.current)||1;const eps=Math.max(Math.abs(d.threshold)*1e-9,1e-9);const at=v=>spec.stateAt({...base,[d.lever]:v},new Set());return {id:row.id,state:row.state,distance:d,exact:at(d.threshold),below:at(d.threshold-eps),above:at(d.threshold+eps),towardAfterCross:at(d.threshold+dir*eps)};});
+const trend=regime.axes.find(a=>a.id==='trend');const tspec=captures.find(s=>s.levers.some(l=>l.key==='spx'));const aline=alignMarketInputs(input).s.spx;
+const trendAround50=[-1e-5,0,1e-5].map(delta=>({delta,price:aline.ma50+delta,state:tspec.stateAt({spx:aline.ma50+delta},new Set())}));
+const receipt=['src/domain/briefing/market-read.js','src/domain/entity/stock-read.js'].map(path=>({path,status:'FULL',sha256:createHash('sha256').update(get(path)).digest('hex'),lines:get(path).split('\n').length,reason:'고정 REF 전문 직접 의미 검토; 이번 후속 전문 완료'}));
+writeFileSync(new URL('./domain-complete-reading.tsv',import.meta.url),'path\tstatus\tsha256\tlines\treason\n'+receipt.map(r=>[r.path,r.status,r.sha256,r.lines,r.reason].join('\t')).join('\n')+'\n');
+const actualMarketRead=buildMarketRead(input);
+const out={ref,notes:'actual pinned artifacts; explicit review clock; probe injects only spec capture, not rule mutations',basis:regime.asOf,overall:regime.overall,leadershipBreak:regime.leadershipBreak,trendState:trend.state,trendRead:trend.read,ma50:aline.ma50,trendAround50,top:details,allAxes:regime.axes.map(a=>({id:a.id,state:a.state,flipDistance:a.flipDistance})),actualRateSplit:actualMarketRead.statements.filter(r=>r.id==='real-yield-led'||r.id==='breakeven-led'),receipt};
+writeFileSync(new URL('./domain-complete-result.json',import.meta.url),JSON.stringify(out,null,2)+'\n');
+console.log(JSON.stringify({basis:out.basis,leadershipBreak:out.leadershipBreak,trendAround50,top:details,actualRateSplit:out.actualRateSplit},null,2));

@@ -1,0 +1,3 @@
+function marketAnalysisRegimeInput(data, history = [], macroHistory = readPublishedMacroHistory()) {
+  return regimeInputFromArtifacts(data, history, macroHistory); // owner 2026-10-19: moved to scripts/lib/market-interpretation-inputs.mjs
+}

@@ -1,0 +1,143 @@
+Browser tab: 2, Title: "금리 · 환율 · AIO Screener", URL: "http://127.0.0.1:8795/#fxbond".
+0 AXWebArea 금리 · 환율 · AIO Screener, URL: 127.0.0.1:8795/#fxbond
+	4 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/#main-content
+	5 container Description: 메인 네비게이션, ID: aio-navigation
+		6 container
+			7 text AIO Investment Screener
+		8 text 데일리
+		9 button 오늘 페이지
+		10 text 시장
+		11 button 시장 상태 페이지
+		12 button 거시 · 금리 페이지
+		13 button 테마 · 섹터 페이지
+		14 text 내 투자
+		15 button 종목 페이지
+		16 button 스크리너 페이지
+		17 button 포트폴리오 페이지
+		18 text 리서치
+		19 button 리서치 라이브러리 페이지
+		20 button 용어 사전 페이지
+		21 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			22 text 라이트 모드로 전환
+		23 text AI 도우미
+		46 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		25 text GPT-6 Luna · 공용 AI 연결
+		26 text 개인 AI 키 입력 없이 이용합니다.
+		39 button (collapsed) 연결 상태, Secondary Actions: Expand
+			40 text 연결 상태
+		27 button (collapsed) 보안 설정, Secondary Actions: Expand
+			28 text 보안 설정
+	29 container
+		30 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		31 container breadcrumb
+			50 text 거시 · 금리 / 금리 · 환율
+		48 text 종가
+		49 text 서버 10/19 마감 · 시세 16종
+		43 text v58.50
+		36 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		37 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	44 container main-content
+		45 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			51 button 거시 경제
+			52 button 금리 · 환율
+		53 container 금리 · 환율, ID: page-fxbond
+			54 container
+				55 heading 금리 · 환율, Value: 1, ID: page-fxbond-label
+					56 text 금리 · 환율
+				57 text 10/19 미국 종가 기준 · 국채 금리 10/19 공식 고시 기준
+			58 container 미 국채 수익률 곡선 재무부 공식 곡선 · 10/19 기준
+				59 heading 미 국채 수익률 곡선 재무부 공식 곡선 · 10/19 기준, Value: 2, ID: rates-treasury-title
+					60 text 미 국채 수익률 곡선
+					61 text 재무부 공식 곡선 · 10/19 기준
+				62 container rates-yields
+					63 text 2년 4.77% 1일 +3bp · 1주 −3bp 5년 4.94% 1일 +5bp · 1주 −8bp
+					64 text 20년 5.53% 1일 +6bp · 1주 −12bp 30년 5.48% 1일 +5bp · 1주 −12bp
+				65 container 미 국채 수익률 곡선: 3개월 4.27%, 2년 4.77%, 5년 4.94%, 10년 5.15%, 20년 5.53%, 30년 5.48%
+				66 container rates-spreads
+					67 text 2년–10년 (10년 − 2년) +0.38%p 5년–30년 (30년 − 5년) +0.54%p
+				68 text 10년물이 2년물보다 0.38%p 높습니다 (양의 기울기). 3개월물은 같은 날 10년물에서 10년–3개월 금리차를 빼서 구한 값입니다.
+				69 text 10년–3개월 금리차 +0.88%p (10/19 — 뉴욕 연준 경기침체 확률 모형이 쓰는 금리차)
+			70 button (collapsed) 수익률 곡선 읽는 법, Secondary Actions: Expand
+				71 text 수익률 곡선 읽는 법
+			72 container 실질금리 · 기대인플레이션 · 신용
+				73 heading 실질금리 · 기대인플레이션 · 신용, Value: 2, ID: rates-levels-title
+					74 text 실질금리 · 기대인플레이션 · 신용
+				75 container rates-levels
+					76 container 출처: FRED
+						77 heading 3
+						78 image
+					79 container 출처: FRED
+						80 heading 3
+						81 image
+					82 container 출처: FRED
+						83 heading 3
+						84 image
+					85 container 출처: FRED THREEFYTP10 (연준 이사회 모형)
+						86 heading 3
+						87 image
+			88 container 환율이 증시에 주는 영향
+				89 heading 환율이 증시에 주는 영향, Value: 2, ID: rates-axes-title
+					90 text 환율이 증시에 주는 영향
+				91 container
+					92 text 통화정책·금리·유가·신용이 증시에 주는 영향은 
+					93 button 거시 경제의 6요인 판정
+					94 text 에서 함께 봅니다.
+				95 container
+					96 heading 3
+					97 button (collapsed) Secondary Actions: Expand
+			98 container 달러 · 원화 · 엔화 · 10년물 — 최근 6개월
+				99 heading 달러 · 원화 · 엔화 · 10년물 — 최근 6개월, Value: 2, ID: rates-fx-title
+					100 text 달러 · 원화 · 엔화 · 10년물 — 최근 6개월
+				101 container rates-fx-grid
+					102 container
+						103 heading 3
+					104 container
+						105 heading 3
+					106 container
+						107 heading 3
+					108 container
+						109 heading 3
+			110 container 그 밖의 통화 참고 환율 · 10/20 고시 · 하루 1회 갱신, 등락 없음
+				111 heading 그 밖의 통화 참고 환율 · 10/20 고시 · 하루 1회 갱신, 등락 없음, Value: 2, ID: rates-other-title
+					112 text 그 밖의 통화 참고 환율 · 10/20 고시 · 하루 1회 갱신, 등락 없음
+				113 text EUR/USD
+				114 text 1.1217
+				115 image Description: 시세 상태: reference:fx:open.er-api · 갱신 지연, Help: reference:fx:open.er-api · 갱신 지연
+				116 text GBP/USD
+				117 text 1.3314
+				118 image Description: 시세 상태: reference:fx:open.er-api · 갱신 지연, Help: reference:fx:open.er-api · 갱신 지연
+				119 text USD/CNY
+				120 text 6.6937
+				121 image Description: 시세 상태: reference:fx:open.er-api · 갱신 지연, Help: reference:fx:open.er-api · 갱신 지연
+				122 text AUD/USD
+				123 text 0.6981
+				124 image Description: 시세 상태: reference:fx:open.er-api · 갱신 지연, Help: reference:fx:open.er-api · 갱신 지연
+			125 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				126 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-fxbond-title
+					127 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				128 content list
+					129 container
+						130 text 속지 말 것 '금리 인하는 무조건 호재' 물가가 잡혀서 내리는 금리와 경기가 꺾여서 내리는 금리는 다릅니다. 뒤의 경우에는 이익 감소가 금리 하락의 효과를 압도하기 쉽습니다. 근거: '고용 급랭' 조건 충족 1/4 · 'AI 투자 꺾임' 조건 충족 3/4 — 금리는 내려도 이익이 꺾이는 시나리오입니다.
+						131 button '금리 인하는 무조건 호재' — 리서치 라이브러리에서 개념 배우기
+					132 container
+						133 text 믿을 것 신용 스프레드 주가는 기대로 움직이지만, 회사채 금리 차이(신용 스프레드)는 실제로 돈을 빌려주는 사람들이 매기는 위험의 값입니다. 주가와 신용이 다른 말을 할 때는 신용 쪽을 더 무겁게 봅니다. 근거: 오늘 신용 지표가 부담입니다 — 약세의 원인이 자금 쪽에 있는지 보는 신호입니다.
+						134 button 신용 스프레드 — 리서치 라이브러리에서 개념 배우기
+					135 container
+						136 text 전략 · 기법 금리는 어느 쪽 끝이 움직였는지로 읽기 "금리가 내렸다"만으로는 좋고 나쁨을 알 수 없습니다. 2년물(정책 기대)과 10년물(성장·물가·기간 프리미엄) 중 어느 쪽이 더 움직였는지가 이유를 알려 줍니다. 왜: 단기금리가 더 내리면 인하 기대(경기 둔화 또는 물가 안정), 장기금리가 더 오르면 재정·물가·기간 프리미엄 부담입니다. 같은 금리 하락도 이유에 따라 주식에 반대로 작용합니다.
+						137 button 금리는 어느 쪽 끝이 움직였는지로 읽기 — 리서치 라이브러리에서 개념 배우기
+			138 container Description: 이어서 볼 곳, ID: fxbond-next
+				139 heading 이어서 볼 곳, Value: 2
+				140 content list
+					141 container
+						142 button
+					143 container
+						144 button
+					145 container
+						146 button
+					147 container
+						148 button
+			149 text 금리와 환율은 주식의 할인율과 해외 자금 흐름을 읽는 배경 자료이며 매매 신호가 아닙니다.
+			150 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				151 text 데이터 출처
+
+The focused UI element is 55 heading 금리 · 환율, Value: 1, ID: page-fxbond-label

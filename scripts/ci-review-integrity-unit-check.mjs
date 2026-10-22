@@ -76,7 +76,7 @@ if (buildPeerRead({ symbol: 'ME', sector: 'Technology', peers: ['P1', 'P2'], ser
 const synthetic = Array.from({ length: 60 }, (_, i) => ({ _z_momentum: i, _z_trend: i * 2 + 1, _z_lowvol: (i * 37) % 61, _z_kalman: (i * 17) % 59 }));
 const overlap = measureFactorOverlap(synthetic, ['momentum', 'trend', 'lowvol', 'kalman']);
 if (!overlap || overlap.pairs[0].label !== '모멘텀–추세' || overlap.pairs[0].rho !== 1 || !(overlap.effective > 2 && overlap.effective < 3.2)) fail(`P1468 overlap measurement drifted: ${JSON.stringify(overlap)}`);
-if (!/독립된 신호 약/.test(overlapSentence(overlap)) || measureFactorOverlap(synthetic.slice(0, 10), ['momentum', 'trend'])) fail('P1468 overlap sentence or minimum sample drifted');
+if (!/겹치지 않는 정보 약/.test(overlapSentence(overlap)) || measureFactorOverlap(synthetic.slice(0, 10), ['momentum', 'trend'])) fail('P1468 overlap sentence or minimum sample drifted');
 
 // P1469: the term premium comes from the official FRED series and is named by its model.
 if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim-Wright/.test(read('src/ui/components/macro-board.js'))) fail('P1469 term premium series or model label missing');

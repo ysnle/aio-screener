@@ -18,8 +18,10 @@ if (operations.planes.fast.health?.status === 'CURRENT' && operations.planes.fas
 for (const blocker of ['fast_plane_soak_and_rights_review_required', 'provider_rights_review_required']) {
   if (!operations.blockers?.includes(blocker)) fail(`missing blocker ${blocker}`);
 }
-if (reconciliation.overall === 'MATCH' || reconciliation.closure?.complete === true) fail('reconciliation cannot report complete while unresolved categories exist');
 const unresolved = reconciliation.categories.filter((category) => category.status !== 'MATCH').map((category) => category.categoryId).sort();
+// v58.63 (architecture audit A24/GV03): the rule is "no completion while categories are unresolved"; it used to refuse
+// completion unconditionally, so a fully reconciled state (every category MATCH) could never pass.
+if ((reconciliation.overall === 'MATCH' || reconciliation.closure?.complete === true) && unresolved.length) fail('reconciliation cannot report complete while unresolved categories exist');
 if (JSON.stringify(unresolved) !== JSON.stringify([...(reconciliation.closure?.unresolvedCategories || [])].sort())) fail('reconciliation closure drift');
 const operatorCriteria = readiness.criteria?.filter((criterion) => ['live-revision', 'edge-security-headers', 'thirty-day-slo', 'provider-rights'].includes(criterion.id)) || [];
 if (operatorCriteria.length !== 4 || operatorCriteria.some((criterion) => !['OPERATOR_REQUIRED', 'REVIEW_REQUIRED', 'PASS'].includes(criterion.status))) fail('public readiness operator criteria are not explicit');

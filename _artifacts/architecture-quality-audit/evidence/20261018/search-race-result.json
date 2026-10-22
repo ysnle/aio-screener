@@ -1,0 +1,34 @@
+{
+  "observedAt": "2026-10-18T09:11:28.987Z",
+  "boundary": "Actual imported function with minimal DOM and deferred fetch stub; not browser UI certification",
+  "sourceSha256": "d1773ad503b03909707c64ea5298a393b93757cf010032ac7fce8aa5c7467e1d",
+  "cases": [
+    {
+      "clearEvent": null,
+      "fetches": 1,
+      "afterClear": 1,
+      "afterResponse": 2,
+      "candidates": [
+        "Acme Holdings · ACME (Nasdaq)"
+      ]
+    },
+    {
+      "clearEvent": "input",
+      "fetches": 1,
+      "afterClear": 0,
+      "afterResponse": 1,
+      "candidates": [
+        "Acme Holdings · ACME (Nasdaq)"
+      ]
+    },
+    {
+      "clearEvent": "reset",
+      "fetches": 1,
+      "afterClear": 0,
+      "afterResponse": 1,
+      "candidates": [
+        "Acme Holdings · ACME (Nasdaq)"
+      ]
+    }
+  ]
+}

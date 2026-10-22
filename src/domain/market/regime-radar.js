@@ -3,7 +3,7 @@
 // observed series — 100 is the most supportive reading of the past year, 0 the least. There is no
 // composite score: the AGENTS rule against uncalibrated n/100 composites applies, so the radar shows
 // which axes moved, not a total.
-import { alignInput, buildCloseSeries, isUsable } from '../briefing/market-read.js';
+import { alignInput, buildCloseSeries, isUsable } from './close-series.js';
 
 const subject = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return `${word}${code >= 0 && code < 11172 && code % 28 ? '이' : '가'}`; };
 const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;

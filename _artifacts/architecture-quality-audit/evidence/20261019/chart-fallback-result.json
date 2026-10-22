@@ -1,0 +1,58 @@
+{
+  "evidence": "Actual inline coordinator with simulated CDN error events and a canvas recorder; no browser/layout/live certification",
+  "parsedInlineScripts": [
+    {
+      "index": 1,
+      "startLine": 3555,
+      "chars": 1440,
+      "status": "PARSED_NOT_EXECUTED"
+    },
+    {
+      "index": 2,
+      "startLine": 4063,
+      "chars": 1688,
+      "status": "PARSED_NOT_EXECUTED"
+    },
+    {
+      "index": 3,
+      "startLine": 6731,
+      "chars": 9516,
+      "status": "PARSED_NOT_EXECUTED"
+    }
+  ],
+  "missingValue": {
+    "fallbackInstalled": true,
+    "points": [
+      [
+        12,
+        80
+      ],
+      [
+        160,
+        142
+      ],
+      [
+        308,
+        18
+      ]
+    ]
+  },
+  "actualZeroPositiveControl": {
+    "fallbackInstalled": true,
+    "points": [
+      [
+        12,
+        80
+      ],
+      [
+        160,
+        142
+      ],
+      [
+        308,
+        18
+      ]
+    ]
+  },
+  "sourceSha256": "c1eab1d1ba12fcf4390c42390d070c116926ed8ff897c651d1769761e0935324"
+}

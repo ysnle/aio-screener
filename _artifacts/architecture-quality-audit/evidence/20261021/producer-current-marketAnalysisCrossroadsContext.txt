@@ -1,0 +1,10 @@
+function marketAnalysisCrossroadsContext(interpretation, state = null) {
+  try {
+    // P1743: the previous refresh's scenario state (scripts/build-scenario-state.mjs runs after this producer) adds the
+    // automated record — what changed, how the latest releases scored — and every theme's stage under the same branches.
+    // Owner 2026-10-19: the shared market guide (the 오늘 card) so the narrative explains with the same synthesis.
+    const { crossroads, guide } = interpretation || {};
+    if (!crossroads) return '';
+    return [renderMacroCrossroadsContext(crossroads, { state }), scenarioStateThemeLines(state), guide ? renderMarketGuideContext(guide) : ''].filter(Boolean).join('\n');
+  } catch (_) { return ''; }
+}

@@ -1,0 +1,558 @@
+{
+  "observedAt": "2026-10-22T13:27:12.218Z",
+  "status": "PASS_WITH_BOUNDARY",
+  "originalFiles": 482,
+  "rawEvidenceUnchanged": 325,
+  "markdownReviewed": 49,
+  "syntaxFiles": 128,
+  "parsedJson": 150,
+  "checkedMarkdownLinks": 289,
+  "coverage": {
+    "full": 429,
+    "canonicalMirrors": 13,
+    "unfinished": 408
+  },
+  "relativeImports": {
+    "observedAt": "2026-10-22T13:26:26.505Z",
+    "inputs": [
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/analyze.mjs",
+        "sha256": "8447e18b648797970a459f4188e22cf90281a886f90141600db363066f0d5578"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/assemble-reading-ledger.mjs",
+        "sha256": "b754a563b460566c36ad363b3e38f412e9011c3ff7b175e8905e29aea5fc79f8"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/capture.mjs",
+        "sha256": "7b90b3112d7b28fe635b9a80155b7304704c66088afdd82ec4b42340c9892891"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/check-cache-inputs.mjs",
+        "sha256": "bb3894b9f2cef8317cddbeb123bab74265945ac285e0cd64f5b8e92203dec136"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-answer-visuals.mjs",
+        "sha256": "99424d7f17b5d3c51a5ad8b9f61f8852d1ac47646fa8626a2979dd5ef8339852"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-cache-identity.mjs",
+        "sha256": "1b0c0d2abe3321fa8476e441d265e985937716ab4934e08f819379898909788d"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-chart-fallback.mjs",
+        "sha256": "63d9513dc7d896673b6af4f2b19e7166478d0e25ca0710332f48be3974d48e10"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-csp-coverage.mjs",
+        "sha256": "116b4ba6235aacccfa8e0777f3be3f55f563afbd10ed5701e9f5959d183b81d6"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-domain-contracts.mjs",
+        "sha256": "9b096f1c7a734b3e5416068d9d9d14270c21115640556cc4f55e14992aae72e1"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-market-reading.mjs",
+        "sha256": "75bb6e00d5befe9756880e061b14420bfdd6114aac6ce23967d86e05307b1d13"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-search-race.mjs",
+        "sha256": "fea9c62fb7c245dfd7d8b7bdf880211527716c5b932e8da9f361e5fb00089292"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-sw-activation.mjs",
+        "sha256": "3b78b0e8167d3cb957d84d5c6e6699ce07dfc89ff4b030b30d6a5c2a453943b2"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-verification-helper.mjs",
+        "sha256": "794870c919feb8437c3af65dcb5fc551218de09a0ae4b9e29147ba7576c517b1"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/analyze.mjs",
+        "sha256": "cd7f4f93b9bf3800f87e2df361c55e0273bb13c38d29a9ffc336e17e13e130aa"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/assemble.mjs",
+        "sha256": "4bd9db3206a42b1da344796d86f9a9978496a5ea0fa71f83448b17d9c7f65129"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/capture.mjs",
+        "sha256": "69b125540491b2588197db081f658a55b799c9ea32930965093b9d3941874cad"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/check-cache-inputs.mjs",
+        "sha256": "ab927541cba4f7b0dfe54d75c6471b1228330ac995250553594613535bec4ebf"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-answer-visuals.mjs",
+        "sha256": "a3fe555476f21c24723878f8f3d577ff93ca6670127cc80d579d3455dae62d6d"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-boundaries.mjs",
+        "sha256": "0bc0063d1fa4ff7734009f1610dc357bf5060291ca77a3c027aefdec85fa6598"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-cache-identity.mjs",
+        "sha256": "5a58d0947636dcb7e14addbdb18526fc0f696b93e7c8018acd5a141348c9cf21"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-chart-fallback.mjs",
+        "sha256": "c6ca394742f9265dced162e883faaae14c103e3358043ac5c3388ba08d577717"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-csp-coverage.mjs",
+        "sha256": "a5847dc14af1fae54cccac20dc9153e983a7fbd61de53bf97347707d8ed473ed"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-domain-contracts.mjs",
+        "sha256": "467c573eff379cf35e06c0d746deda0d7c51044de5dbaab6727b4f7e428f4647"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-gate-oracles.mjs",
+        "sha256": "ac97a20bf63bbad9307cfaa2b2e0b28ae4a5ad559506f4fa79324e9828711768"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-market-reading.mjs",
+        "sha256": "c1a5064db15b8876cf462bf6987cc6fd7307e7a94777aa08f0645d5bd135bedd"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-search-race.mjs",
+        "sha256": "fea9c62fb7c245dfd7d8b7bdf880211527716c5b932e8da9f361e5fb00089292"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-session-samples.mjs",
+        "sha256": "e79fd49fe98f26fc0f95e396d74a55ae7afb1248722478f26aaca4bd7afe0219"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-sw-activation.mjs",
+        "sha256": "c8c25d92d9f3f3fd594bf004ec197f49e31bdde907cf7309ad93442dbb44ee14"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-ui-pages.mjs",
+        "sha256": "cd099871aba61ca6664cf3855946cb91d1c5bb8da71c76707a8c668102aaecbe"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-verification-helper.mjs",
+        "sha256": "e2043b9450461de0110a4eab1eb5c0d92c3341465135e056200fa36cedc42720"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261019/resume.mjs",
+        "sha256": "43223a256487f4c64ea7d708ff9c7d3e941ae11202c8c56ec4de409fe341b290"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/analyze.mjs",
+        "sha256": "991bdf41551f26df9c424dd04bce49ad808e3f30d7b013f1dcf273d0735d4463"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/assemble.mjs",
+        "sha256": "b542f75ff170f091262d658e2bc9df2e5f6119689e37a6139a2a323a55a30665"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/capture.mjs",
+        "sha256": "1de01ac8604dc68cd90b6599bfb9b9c05d386f0c35eff9ec956abe3f3ba21382"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/check-cache-inputs.mjs",
+        "sha256": "6aca0dc58711839dad47f856628a278bb9738d8feb73d3cb3fc4fa2e4cd76cdc"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-answer-visuals.mjs",
+        "sha256": "bf771874e1e7cc17b11c5be51737acfd71ad2e8cd6cbabefccbba880a26a8780"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-boundaries.mjs",
+        "sha256": "0bc0063d1fa4ff7734009f1610dc357bf5060291ca77a3c027aefdec85fa6598"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-cache-identity.mjs",
+        "sha256": "6df104ed847599e4f1cf3deb402052f251bae72f3d0e37e2b08836af54b78163"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-chart-fallback.mjs",
+        "sha256": "6699d9142c34fac6cd38c4827e82919b9cd56b7b5c867c0f836f31ec85008b11"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-csp-coverage.mjs",
+        "sha256": "3ddce20cf4e1a24015ee821c2f4c489e116ad3f1a25b0e2569e15af3665f6d21"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-domain-contracts.mjs",
+        "sha256": "64c5144415ded941d86ca6d57728af0eeb1d9fc24c47a96fb17e33cf28b9f8b5"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-gate-oracles.mjs",
+        "sha256": "501771969e9a8f2a8d64fa0a3d223018b9b5e4303884f3b96aae14a7389e10f7"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-market-reading.mjs",
+        "sha256": "08f7c42f016c03a51150d2ad1cc584c1c6fc5b69088ea28014c8c81cae40c92e"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-search-race.mjs",
+        "sha256": "fea9c62fb7c245dfd7d8b7bdf880211527716c5b932e8da9f361e5fb00089292"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-session-samples.mjs",
+        "sha256": "827969ea8e5b0e7af00de31fa29efd203593b4e5a02ee60ae37a8cfcf2d189da"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-sw-activation.mjs",
+        "sha256": "244febd92a25c1b975a66eb3fcfefafaf880a5abe420d89e6c6e0c94d3592fe3"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-ui-pages.mjs",
+        "sha256": "cd099871aba61ca6664cf3855946cb91d1c5bb8da71c76707a8c668102aaecbe"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-verification-helper.mjs",
+        "sha256": "5f1a2bada362b705413ce3264f97b5f30a6a213d7b983516e6489ef4e4931bd9"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261020/resume-current.mjs",
+        "sha256": "1502e53e9853f21819f88bb61a2c68eaeb2d27290968339a92c88047f3572196"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/analyze.mjs",
+        "sha256": "53dc7c9c3ce182e1399d74c942d8cbceb25ee09845146b5cd911b96e544cc582"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/assemble.mjs",
+        "sha256": "ff1336530d5d269f5265c3b8b64b0f9997602b85442bfaca46fa4397088017e2"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/capture.mjs",
+        "sha256": "6f359478b20b3bea3d6e06f8988ac681790f38ae166bdca1f6111043b5a21911"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/check-cache-inputs.mjs",
+        "sha256": "cc4c9c1277e0b2571886faed5791a6bb48a72a188da48a4c04ddaa88a9aea024"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/financial-delta-probe.mjs",
+        "sha256": "c7c154a713d4df24117414eaa8d1432584f29b9deb8574564f48fe455807e7e1"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/interpretation-probe.mjs",
+        "sha256": "80ca1da43c29266c55595eb2ce5a0b9e2807f41f1024d2bb57f1b96215241f06"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/prepare-ledger.mjs",
+        "sha256": "c11b300d745c78c249270c47d5f4d7f8a12ef82f449c21d583daa9abbafa024f"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/prepare.mjs",
+        "sha256": "d90fd9b3cb4f7d863f5708bb0013540ce1fd4404e9032f91522913bb31d82e6c"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/producer-isolated-check.mjs",
+        "sha256": "77c2bf15dec43a23ddf66d9c98eeeaa28b4e0313cba304e35323207bb83a1a0a"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/producer-static-audit.mjs",
+        "sha256": "efbff8ce1d9d692b9aaa5ee048668e5e2f019b76dce4b096c4b1be5accacabf6"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-answer-visuals.mjs",
+        "sha256": "86e3e22712a86765cc58abdf889aeba89671a590f47e31fe7c8933f5a9422673"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-boundaries.mjs",
+        "sha256": "0bc0063d1fa4ff7734009f1610dc357bf5060291ca77a3c027aefdec85fa6598"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-cache-identity.mjs",
+        "sha256": "cb814f963545d98c740efd5a909af55a68a67c9fe8515153de7b30b5c415dade"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-chart-fallback.mjs",
+        "sha256": "d2008b832d18fcf631709ed66980af85bdc7365e1051532878d941f54583a5a3"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-csp-coverage.mjs",
+        "sha256": "9d053f1773ec6503c82eaf3596a126b5572b0185cce0a225f901a48be30adc6a"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-domain-contracts.mjs",
+        "sha256": "b7363e23456af83d07560e05ea6103c3dddfdf11d8e0f1708ea8bd35a62f91e8"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-gate-oracles.mjs",
+        "sha256": "536e2d889076d8ebb1ab92f0323bc9c2a85a72e9a76d3f30ab5e88c07ba3be8e"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-legacy-core-hwm.mjs",
+        "sha256": "9c3769cbc841fe9434d6ab7d1cf7b61ea7449e72128bc8c58e00e6d0aeb0fd86"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-legacy-latest.mjs",
+        "sha256": "a2f57738e0af7ab9f6b9538c98326d86c1b2cfa6fbb6563a87630aff3d2b9386"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-market-reading.mjs",
+        "sha256": "278e3e27b713f7ba2baa6f1c5712e65a9d51a2fccece22a0fefef52b3a349a76"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-search-race.mjs",
+        "sha256": "fea9c62fb7c245dfd7d8b7bdf880211527716c5b932e8da9f361e5fb00089292"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-session-samples.mjs",
+        "sha256": "5d75e3345e82c23947edd7a1a1b3bacc76155b8dbd9c65f4b89b85ef5d3a80e2"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-sw-activation.mjs",
+        "sha256": "d347c0d149cb4620a004fe55e4de876557f1bf18c61a25d760006958b97e62fc"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-ui-pages.mjs",
+        "sha256": "cd099871aba61ca6664cf3855946cb91d1c5bb8da71c76707a8c668102aaecbe"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-verification-helper.mjs",
+        "sha256": "0604dae4f1b215d19f0cb27ca22ca7f0bfe1241be437169830e8a658415d80b6"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/ui-delta-ledger.mjs",
+        "sha256": "0c2a768be8e3b49437b288e9e1d53019cdcf2ad0acac2c5cd485583e5189416c"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021/ui-delta-repro.mjs",
+        "sha256": "3e3af212b17520636357243b3ff0a8d167e1d6a709dafd5d726ffd9f78050399"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/analyze.mjs",
+        "sha256": "1db35e1c6c1d34b020eb78dd9bf5cf6ec16b76f25d3ba0513d10c8bbaf21cf1b"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/artifact-integrity.mjs",
+        "sha256": "a40f62798fe0e03223aaa687778f59c2c81e943bb4ae80fa6fad6086500a57e1"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/assemble.mjs",
+        "sha256": "d832732b697cc945b2d6f1f7abad991ca4c0f2bdb475465708e9b58be0342205"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/capture.mjs",
+        "sha256": "76d33a162104253684306b2fe092582618631939e7b824ebecc74f5d04aeab4c"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/chat-probe-boundaries.mjs",
+        "sha256": "c0e21807698bdb22dfc38d364858e783a0f6eb64eb2efca19d3a5d632e1e2226"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/check-cache-inputs.mjs",
+        "sha256": "96260725144a3d49df0186f335d5d857d701cbf23db85c5b639dadfdf41bd850"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/closeout-qa.mjs",
+        "sha256": "d2fd0c5517030e5379247ccde5f8e5aed7505c4030f5609be0b302d6b3218f73"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/domain-complete-probe.mjs",
+        "sha256": "a6195b2aa99a4ae58a591f2dcfafd72992837df7356eef861ae28069f36b7121"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/domain-ledger.mjs",
+        "sha256": "68686beebd196fbefbd2dd9fa2e97786e42f49e7ccce07ad533e20aa9eebc95d"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/domain-probe.mjs",
+        "sha256": "747b0e5ae9819c97555b7353184e632a03e19963273df278f87ccc1307f9ba78"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/latest-delta-probe.mjs",
+        "sha256": "4269ebf6ffc6779d5c2bb035b8e2b6ea79d6d9eb599c72eb4ba0da54bfbbb3f4"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/prepare.mjs",
+        "sha256": "143937a3d0e51a644aaca792e032b9080e4d6ea176c3fa74c64df0befce186f0"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/probe-legacy-core.mjs",
+        "sha256": "ec90968b0da48e1c325f72d391f39087e97b4b3c9bc1b4fc48de80f73d774b55"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/probe-tooling.mjs",
+        "sha256": "631457a98085a42882aaad8598011e55ffce20a4caad8d60831e64e1a05e8f5e"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/qa-runner-probe-repro.mjs",
+        "sha256": "ca8bcae08d470a02a5091c4c1db625d7b98d06567fc5ac04ad05e29210e5ae1e"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/remaining-closeout.mjs",
+        "sha256": "172f2c2551b2af9f60e8259c187476669b0b1b7aca0708206d65039329e8dec8"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/remaining-governance-probe.mjs",
+        "sha256": "4e4e00ab7a4a542a07adf123c4e0b68e9ea01c01f4e8951a20323be92c9cea8d"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/remaining-root-receipt.mjs",
+        "sha256": "fc8a30fefd845b138fc57e21756b42bae4790e9c182de09521838b4460e6d308"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/remaining-working-delta.mjs",
+        "sha256": "2cc2a7a6ba44d125069f29ff89c9c804fb1a3426184c589f1f17cffe225c3dbc"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-answer-visuals.mjs",
+        "sha256": "a8df3c965f0a5535a8f076d07d4c8a557a04f2a25e71cfce4f60492d24bc50b3"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-boundaries.mjs",
+        "sha256": "439dd1a8772a34fd1bc4257a799c4cd9ea4bc023e514a61eba8f3c3c19af5d22"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-cache-identity.mjs",
+        "sha256": "fecc11869922fe8cc33007da6e9cafca30f85ff0ec4ed567fa797792ac9a630b"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-chart-fallback.mjs",
+        "sha256": "cc7f11cfb0bb9e6ad80cb9b7ffe573c510fbf1b923ffad8524a373fa64ac59b0"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-csp-coverage.mjs",
+        "sha256": "145ed18d5f3c12d0634b75417881dc7e082a9c5841accfa993de4b0dd49c5c17"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-domain-contracts.mjs",
+        "sha256": "e89ee54e6f48a437a25f184db1bc19133e5b9fa8d1f8ba17573b69a982fee51e"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-gate-oracles.mjs",
+        "sha256": "b9f7be9006e6de5b04fa35f8f9485f0c153fa127b21704e6990af283d22e93e3"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-legacy-core-hwm.mjs",
+        "sha256": "f835bfca2f6e9090017419a203dfc52e943b029df7af8e65db75804d7da15442"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-legacy-latest.mjs",
+        "sha256": "3ef4cf3b7128629e217b6034667b5daed573c9813fdcd33ec31334bf1ab57b4d"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-market-reading.mjs",
+        "sha256": "a8bdd590c2464913eb2629f18acfe1a4a5fe0f90557921ce03a680c821de075a"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-search-race.mjs",
+        "sha256": "fea9c62fb7c245dfd7d8b7bdf880211527716c5b932e8da9f361e5fb00089292"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-session-samples.mjs",
+        "sha256": "b4a87f8a92834f4fd1a6f633e40bffc75461451dc4bfe5678c581c9465b78c84"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-sw-activation.mjs",
+        "sha256": "f7d79e2ee5c8c32e9ef6d4ce91ccf9187a5675fca2c673bd9d1189acaa0c1fd2"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-ui-pages.mjs",
+        "sha256": "a7499707e361c68bb159abbfe5bc42d00464b746264cf6d972a7b881fa870d16"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-verification-helper.mjs",
+        "sha256": "e7e388482d2d3d74c776034e31100083e9a8f81930a909e4513c1038f8eb134c"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/retry-qa.mjs",
+        "sha256": "73e12f72e018529696360442c9dc71017e025cfb5274eb384bd3858e77ce9967"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/root-receipt.mjs",
+        "sha256": "d473f68b22cd1790c071a09232d496c9fdee08c7e4476f02a87d96be09c578bf"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/ui-delta-repro.mjs",
+        "sha256": "0dd18a3c16ab4f3394de780c06f8a6c7712cf07ce8634ffc178396f3c8d0a396"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/ui-ledger.mjs",
+        "sha256": "e29de493f936a9557585ea9172d984318933e776cf476dcaab7dc1f2225c62da"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/ui-shell-probe-repro.mjs",
+        "sha256": "20fc8f2d1931127d3c6bd18596abe9fda3e5580dea6212d6e6505a00008d8a59"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/workflow-probe-review.mjs",
+        "sha256": "ee5ba764f856d3db1bc9b872bb91a038467470d5dabedda3156d1ab7e31fa761"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/workspace-tool-probe-review.mjs",
+        "sha256": "6dd587daf6ac1b132a2be885dce8df8c99c2232740a9ce1a753c413bcfcc4b98"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/legacy-probe-runtime.mjs",
+        "sha256": "a9332d3b46e51f00718a28c384b285baa63d9becd97c2d91c529d124d5df9a24"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-probe.mjs",
+        "sha256": "5d5e1c3c4dbfcf8b83fcd2afc58178ea360801cd8a3bc543d9267a6fa9b0e7ff"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-receipts.mjs",
+        "sha256": "a4ff05d1a35bc1c50ecaada38e5e58f0a19be0d5a40cb6b28dae7c6c65a324a4"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-probe-boundaries.mjs",
+        "sha256": "5e93480731ad97d44d497952fe677dc8661b8a15dc79dc98eef847cf4095041c"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-probe-chart.mjs",
+        "sha256": "b9ded8c7b2d54db0d35c1303c1a9c75e333f02bfc78d1cfa89bb9ec40ccea06e"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/tools/build-handoff.mjs",
+        "sha256": "7d53d15aa9a3534d0feda94e4627c338e05d0c510cb69d691610fdff91b92c71"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/tools/check-relative-imports.mjs",
+        "sha256": "2aad8378169e3938bf547f45e6618eca2e5801797b5e95396f2ed8c88c7d91cf"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/tools/continue-review.mjs",
+        "sha256": "6a9bcead4f7202f019ce08f637a2424e2ebf0a8cc21ce9ca4e3fcfa9feeded7a"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/tools/relocate-references.mjs",
+        "sha256": "12a91a731bc95473c783b834a76faf22c8db39a931bb8cd368a52dad8e73d598"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/tools/repair-relative-imports.mjs",
+        "sha256": "54cb8f2fd24aad767e0bd19511f6cf7f2ceb9c09127ea60a49b686c2def18234"
+      },
+      {
+        "path": "_artifacts/architecture-quality-audit/tools/verify.mjs",
+        "sha256": "a533620bd8e03846b4f32411e8e3ca2b05aadb9c2036527fb178b1405d214e75"
+      }
+    ],
+    "references": 109,
+    "introducedMissing": [],
+    "historicallyMissing": [
+      {
+        "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-domain-contracts.mjs",
+        "specifier": "../../../../src/domain/screener/regime.js",
+        "exists": false
+      },
+      {
+        "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-domain-contracts.mjs",
+        "specifier": "../../../../src/domain/screener/regime.js",
+        "exists": false
+      },
+      {
+        "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-domain-contracts.mjs",
+        "specifier": "../../../../src/domain/screener/regime.js",
+        "exists": false
+      }
+    ]
+  },
+  "repeatRepairGuard": {
+    "attempted": true,
+    "rejected": true,
+    "evidenceBytesUnchanged": true
+  },
+  "failures": [],
+  "boundary": "Consolidation preservation and continuation ledger integrity; reported document/source readings are distinct from product/live/browser/producer certification. This verifier regenerates documentation-review.json and verification.json."
+}

@@ -1,5 +1,7 @@
 # 내부 정책·지시 전문 검토
 
+> 최초 v57.91 판정이다. 새 가족용 정책과 지침 수정은 [v57.98 재대조](./LATEST-STATUS-v57.98.md)를 우선한다. 역사 규칙을 현재 강제로 복원하지 않는다.
+
 역사 전문 211블록(210 unique ID), canonical SKILL9개·command16개·agent4개를 독립 독자가 읽었다. 끊긴 출력은 재분할했다. [역사 개별 판정](./historical-review.tsv)은 당시 내용의 논리 평가다. 현재 강제 규칙 또는 실행 결함으로 자동 승격하지 않는다. 현행 R1–708 본문 검토는 앞선 [정책 감사](../policy-criteria-review-20261016/HANDOFF.md), R709–716은 [내부 품질 감사](../internal-quality-review-20261016/HANDOFF.md)에 있다. R717은 아래 별도 검토했다.
 
 ## 현행에서 고칠 가치가 있는 지시

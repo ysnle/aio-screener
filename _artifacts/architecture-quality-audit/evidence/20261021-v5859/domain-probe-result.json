@@ -1,0 +1,152 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "dupont": {
+    "state": "ready",
+    "basis": "average",
+    "columns": [
+      {
+        "periodEnd": "2024-12-31",
+        "label": "FY2024",
+        "basis": "average",
+        "margin": 0.1,
+        "turnover": 1,
+        "leverage": 2,
+        "roe": 0.2
+      },
+      {
+        "periodEnd": "2025-12-31",
+        "label": "FY2025",
+        "basis": "average",
+        "margin": 0.13999999999999999,
+        "turnover": 0.8,
+        "leverage": 1.5217391304347827,
+        "roe": 0.17043478260869566
+      }
+    ],
+    "driver": "margin",
+    "sentence": "ROE가 20.0%에서 17.0%로 내린 데는 순이익률 변화(10.0% → 14.0%)가 가장 크게 작용했습니다."
+  },
+  "factors": [
+    {
+      "id": "margin",
+      "log": 0.33647223662121273
+    },
+    {
+      "id": "turnover",
+      "log": -0.2231435513142097
+    },
+    {
+      "id": "leverage",
+      "log": -0.2732933349996813
+    }
+  ],
+  "actualFiscal": [
+    {
+      "symbol": "LDOS",
+      "lastRecord": "2026-01-02:17174:1448:4916:1750:125::126.393"
+    },
+    {
+      "symbol": "SNA",
+      "lastRecord": "2026-01-03:5156.1:1016.9:5931.8:1081.7::1186.4:51.913"
+    },
+    {
+      "symbol": "TXT",
+      "lastRecord": "2026-01-03:14799:921:7875:1312:383::174.162"
+    },
+    {
+      "symbol": "SWK",
+      "lastRecord": "2026-01-03:15130.4:401.9:9054.6:971.2:283.3:4703.3:155.079"
+    }
+  ],
+  "fiscalLabels": {
+    "existing": "FY2025",
+    "dupont": "FY2026",
+    "rd": "FY2026",
+    "dcf": "FY2026"
+  },
+  "actualLdosDcf": {
+    "state": "ready",
+    "fcf": 1625000000,
+    "periodEnd": "2026-01-02",
+    "label": "FY2026",
+    "ocf": 1750000000,
+    "capex": 125000000,
+    "shares": 100,
+    "sharesObservedAt": "2026-02-01",
+    "price": 100,
+    "priceDate": "2026-10-20",
+    "marketValue": 10000
+  },
+  "krAge5": {
+    "state": "ok",
+    "source": "한국은행 경제통계시스템(ECOS)",
+    "generatedAt": null,
+    "unit": "억원",
+    "markets": [
+      {
+        "id": "kospi",
+        "label": "코스피",
+        "date": "2026-10-16",
+        "stale": false,
+        "ageDays": 5,
+        "rows": [
+          {
+            "id": "foreign",
+            "label": "외국인",
+            "value": 123,
+            "date": "2026-10-16"
+          }
+        ],
+        "trends": [
+          {
+            "id": "foreign",
+            "label": "외국인",
+            "points": [
+              {
+                "date": "2026-10-16",
+                "value": 123
+              }
+            ],
+            "sum5": null,
+            "sum20": null,
+            "sessions": 1
+          }
+        ]
+      }
+    ],
+    "missing": [
+      "개인",
+      "기관"
+    ]
+  },
+  "actualReferenceConflicts": [],
+  "portfolioFx": {
+    "localEquityFit": {
+      "beta": 0,
+      "se": 0,
+      "r2": null,
+      "n": 35
+    },
+    "krwBookEquityFit": {
+      "beta": 1.000000000000002,
+      "se": 0,
+      "r2": 1,
+      "n": 35
+    },
+    "dates": 180
+  },
+  "loaded": [
+    "src/domain/fundamental/analysis-read.js",
+    "src/domain/fundamental/period.js",
+    "src/domain/content/korean-particle.js",
+    "src/domain/market/kr-investor-flows.js",
+    "src/domain/masters/ticker-exact.js",
+    "src/domain/portfolio/stress-sensitivity.js",
+    "src/domain/briefing/market-read.js",
+    "src/domain/rules/thresholds.js",
+    "src/domain/market/market-calendar.js",
+    "src/domain/content/date-labels.js",
+    "src/domain/market/history-session.js",
+    "src/domain/macro/macro-signals.js"
+  ]
+}

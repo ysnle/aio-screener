@@ -120,6 +120,9 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     _fundamentalFiledAt: row?._fundamentalFiledAt || null,
     _fundamentalFetchedAt: row?._fundamentalFetchedAt || null,
     _fundamentalAccession: row?._fundamentalAccession || null,
+    // v58.63 (architecture audit SCR03/C06): the provider's canonical valuation close; consensus-read, index-earnings
+    // and the stock page read it first, so dropping it here turned a Forward PER of 20 into "없음" after normalisation.
+    _valuationPrice: finite(row?._valuationPrice),
     _valuationPePrice: finite(row?._valuationPePrice),
     _valuationPePriceBasis: row?._valuationPePriceBasis || null,
     _valuationPeEarningsBasis: row?._valuationPeEarningsBasis || null,

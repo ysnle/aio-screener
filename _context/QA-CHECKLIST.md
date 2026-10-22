@@ -1,8 +1,32 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-21
+last_verified: 2026-10-23
 confidence: medium
 ---
+
+## v58.64 아키텍처 감사 후속 v58.64 (2026-10-23)
+
+- [x] QA-ARCH-AUDIT-10: P1969: 같은 관측의 반복·겹치는 결과 창·결과 창 미상 표본은 READY가 되지 않는다. verify_by: node scripts/ci-conditional-evidence-contract.mjs
+- [x] QA-ARCH-AUDIT-11: P1970: 같은 이름의 fetch를 가진 두 루트는 캐시를 공유하지 않고, 강제 새로고침은 지식 화면 산출물까지 같은 저장소에서 비운다. verify_by: node scripts/ci-artifact-cache-check.mjs
+- [x] QA-ARCH-AUDIT-12: P1971: 같은 거시 축의 시나리오를 복제해도 가이드의 선택이 바뀌지 않고, 헤드라인은 '유리하다고 가장 많이 적힌 선택'으로만 말한다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs; node scripts/ci-market-guide-fixture.mjs
+- [x] QA-ARCH-AUDIT-13: P1972: computeCrossAssetCorrelation과 crossAssetCorr 감사 항목·채팅 헤더 줄이 남아 있지 않다. verify_by: rg -n computeCrossAssetCorrelation js src index.html (0건)
+- [x] QA-ARCH-AUDIT-14: P1973: CIK 표 전체가 SEC 요약 산출물과 일치하고(XOM 전신 예외), 포트폴리오 추가 대기 중 입력한 내용은 저장 후에도 남는다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
+
+## v58.63 아키텍처 품질 감사 v58.63 (2026-10-22)
+
+- [x] QA-ARCH-AUDIT-01: P1960: 근거 0건 현재성 질문의 폴백 답변은 미확인 현재 사건 문장을 게시하지 않고 일반 설명은 남긴다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
+- [x] QA-ARCH-AUDIT-02: P1961: CIK 대조표의 감사 10개 티커가 SEC 값과 일치하고, 응답 tickers에 요청 티커가 없으면 사업 설명·8-K를 보류한다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
+- [x] QA-ARCH-AUDIT-03: P1962: NOT 하위 가격 참조가 계산 식별자에 들어가고, 상수 팩터는 겹침 측정에서 제외되며, OR·반대 방향·원화 단위 문장은 아무 조건도 적용하지 않는다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
+- [x] QA-ARCH-AUDIT-04: P1963: 시세·가격 이력·추정이 없는 입력은 0이나 외삽 값이 아니라 보류·'—'·미수신 건수로 표시되고, 스트레스 하한은 정확한 비중첩 창으로 센다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-ARCH-AUDIT-05: P1964: 검토 필요·거부·차단·철회 권리 id는 판단 자료가 아니고, 실적 주간은 뉴욕 날짜로 열리며, 즉석 종목 결과는 유니버스가 바뀌면 다시 계산한다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-ARCH-AUDIT-06: P1965: 티커 확인 중 목록을 바꿔도 원래 목록에만 추가되고, 한국 테마 카드 갱신 뒤 필터·포커스가 유지되며, 늦게 끝난 위험 계산은 바뀐 보유 화면을 덮지 않는다. v58.64 로컬 브라우저 확인. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs
+- [x] QA-ARCH-AUDIT-07: P1966/R720: 실패한 게이트 재요청은 캐시를 쓰지 않고, 없는 게이트 id는 exit 2, 의존 모듈 변경은 캐시 지문을 바꾸며, CSP 래칫은 js/·src/ 전체를 센다. verify_by: node scripts/ci-qa-runner-behavior-check.mjs; node scripts/ci-csp-ratchet-check.mjs
+- [x] QA-ARCH-AUDIT-08: P1967: 상류로 보낸 뒤 실패한 호출은 쿼터 예약을 돌려받지 않고, 보내기 전 실패만 돌려받는다. v58.64 오프라인 회귀 검사 추가(라이브는 Worker 재배포 후). verify_by: node scripts/ci-worker-relay-check.mjs
+- [x] QA-ARCH-AUDIT-09: P1968: 2년치 시계열에서도 클라이맥스 '연중' 신호와 베이스 수 리셋은 최근 252세션으로 판정한다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
+
+## v58.62 시장 해석 증거 계층 (2026-10-21)
+
+- [ ] QA-VERIFY-60: v58.62 push 뒤 첫 refresh-data 산출물에서 market-snapshot.json evidenceQuotes에 SMH·ES=F·NQ=F·^N225·^HSI 중 발행 가능한 행이 실리고(coverage.tier1Observed), status가 Tier 0만으로 정해지며, 평일 해석 프롬프트 로그에 CROSS_MARKET_INTRADAY가 나오는지 확인한다. ES=F 변화율의 기준(전 정산가)이 NQ=F와 같은 방식으로 잡히는지도 본다 (P1959). verify_by: push 뒤 다음 refresh-data 산출물 public-data/market-snapshot.json evidenceQuotes·coverage와 로그 grep CROSS_MARKET_INTRADAY
 
 ## v58.59 실화면 점검 반영 2026-10-21 (2026-10-21)
 

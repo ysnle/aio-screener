@@ -1,0 +1,478 @@
+- link "메인 콘텐츠로 건너뛰기":
+  - /url: "#main-content"
+- navigation "주요 화면":
+  - button "오늘"
+  - button "시장"
+  - button "스크리너"
+  - button "종목"
+  - button "더보기"
+- banner:
+  - button "메뉴 열기": ☰
+  - generic "미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 17:21 KST)":
+    - generic: 종가
+  - generic "10/20 마감 · 시세 16종 · 실시간 관측 61종 · 한국 10/21 마감 — 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 17:21 KST)": 10/20 마감 · 시세 16종 · 실시간 관측 61종 · 한국 10/21 마감 10/20 종가 기준
+  - button "도움말"
+  - button "AI 도우미 열기/닫기": AI 도우미
+- main:
+  - text: 펼치기 ⌄ ⌄ › ⌄ · 큰 폭 · 큰 폭 · 큰 폭 · 큰 폭 ▲ ▲ ▲ ▼ ▼ ▲ ▼ ▲ ▼ ▲ ▲ › › › ⌄ ⌄ ⌄ ⌄ ⌄ ⌃ ⌄ ⌄ ⌄ ⌄ ⌄ ⌄ ⌄ ⌄ 펼치기 ⌄ ⌄ ⌃ ⌄ ⌄ ⌄ ⌄ ⌄ ▾ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ▸ ⌄ ⌄ ⌄ ⌄ ⌄ ⌄ ⌄ ⌄ 펼치기 ⌄ ⌄ ▼ 펼치기 › + 펼치기 닫기 펼치기 닫기 펼치기 ▲ ▼ ▼ ▲ ▲ + ▼ ▼ ▲ ▲ ▲ ▲ ▲ + ▲ ▲ ▲ ▲ ▲ ▲ ▲ ▲ ▲ ▲ ▲ ● ▲ ▲ ▲ ▼ + ▲ ● ▲ ▲ ▼ ▲ ▼ + ▼ ▲ ▲ ▲ ▲ ▲ + ▲ ▲ ▲ ▲ ▲ ▼ ▲ ▲ ▲ ▲ ▲ + ▲ ▼ ▼ ▼ ▲ ▲ + ▲ ▲ ▲ ▼ ▲ ▲ ▼ ▲ ▲ ▼ + ▲ ▲ ▲ ▲ ▼ ▼ ▲ ▲ ▼ + ▼ ▼ ▼ ▼ ▲ ▼ ▼ ▼ ▼ ● ▼ + ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ ▼ + ▼ ▼ ▲ ▲ ▲ ▲ ▲ ▼ + ● ▼ ● ▲ ● ▼ + ▲ ▼ ▼ ▲ ▲ ▲ ▼ ▼ ▼ ▼ + ▼ ▼ ▼ ▼ ▲ ▼ ▲ ▲ ▼ ▼ ▼ ▲ ▲ ▲ ▲ ▲ + ▲ ▼ ▲ ▼ ▼ ▼ ▼ ▲ ▲ ▼ ▲ ▼ ▲ ▼ ▲ ▼ ▼ ▼ ▲ ▼ + ▲ ▲ ▲ ▲ ▲ ▲ ▼ ▲ ▲ ▼ ▲ ▲ ▲ ▼ ▼ ▼ ▲ ▼ ▲ ▲ ▲ ▼ ▲ ▲ + ▲ ▲ ▲ ▲ ▲ ▲ + ▲ ▲ ▼ ▲ ▼ ▲ ▲ ▼ + ▲ ▼ › › › 펼치기 펼치기 펼치기 펼치기 ⌄ ⌃ 펼치기 › › › › 펼치기
+  - region "스크리너":
+    - heading "스크리너" [level=1]
+    - generic: 904종목 수집 · 899종목 필수 필드 충족 ·
+    - generic: 팩터 관측 10-20 22:30 KST | 가격 15:30 KST
+    - tablist "스크리너 보기":
+      - tab "순위" [selected]
+      - tab "사후 검증"
+      - tab "맞춤 조건"
+    - text: ⌄
+    - tabpanel "순위":
+      - note:
+        - generic: 검증 미통과
+        - generic: 판단 불가
+        - generic: 지금 가중치와 다른 모델로 계산된 기록입니다. 과거 6회 시점에서 상위 20%가 하위 20%보다 앞선 건 3회, 평균 −0.80%p(비용 반영)입니다. 표본 6회로는 우연과 구별되지 않아 판단 불가입니다. 순위는 결론이 아니라 확인할 후보입니다.
+        - button "검증 보기 ›"
+      - group "조건 화면 — 종목을 거르는 규칙, 직접 저장한 화면 포함":
+        - button "균형 상대 순위" [pressed]:
+          - generic: 균형 상대 순위
+        - button "모멘텀 지속":
+          - generic: 모멘텀 지속
+        - button "추세 정렬":
+          - generic: 추세 정렬
+        - button "저변동 방어":
+          - generic: 저변동 방어
+        - button "퀄리티 결합":
+          - generic: 퀄리티 결합
+        - button "돌파 관찰":
+          - generic: 돌파 관찰
+      - combobox "섹터 필터":
+        - option "전체 섹터" [selected]
+        - option "통신"
+        - option "경기소비재"
+        - option "필수소비재"
+        - option "ETF"
+        - option "에너지"
+        - option "금융"
+        - option "헬스케어"
+        - option "산업재"
+        - option "소재"
+        - option "부동산"
+        - option "기술"
+        - option "유틸리티"
+      - text: ⌄
+      - button "+ 조건 추가"
+      - searchbox "스크리너 티커 이름 메모 검색"
+      - status: 341종목
+      - text: 주식 시장
+      - combobox "주식 시장":
+        - option "미국" [selected]
+        - option "한국"
+      - text: 종목 범위
+      - combobox "종목 범위":
+        - option "기본 (904종목)" [selected]
+        - option "확장 — 러셀2000·나스닥 전체"
+      - text: 정렬 기준
+      - combobox "정렬 기준":
+        - option "시가총액 큰 순(시총 확인된 종목 먼저)"
+        - option "조건 순위 · 선택 비중의 팩터 백분위 높은 순" [selected]
+        - option "선택 비중의 팩터 백분위"
+        - option "추세 팩터"
+        - option "3개월 수익률"
+        - option "모멘텀 팩터"
+        - option "저변동 팩터"
+      - combobox "시장 지수 필터":
+        - option "전체 지수" [selected]
+        - option "미국예탁증서(ADR)"
+        - option "ETF"
+        - option "나스닥"
+        - option "나스닥100"
+        - option "뉴욕증권거래소(NYSE)"
+        - option "장외 거래(OTC)"
+        - option "러셀2000"
+        - option "S&P 400"
+        - option "S&P 500"
+        - option "도쿄 상장(TSE)"
+        - option "대만 상장(TWSE)"
+      - combobox "시가총액 필터":
+        - option "전체 시총" [selected]
+        - option "초대형 ($1T 이상)"
+        - option "대형 ($10B~1T)"
+        - option "중형 ($2~10B)"
+        - option "소형 (<$2B)"
+      - generic: 컬럼
+      - combobox "스크리너 컬럼 프리셋":
+        - option "기본" [selected]
+        - option "발견"
+        - option "펀더멘털"
+        - option "추세·셋업"
+        - option "리스크"
+        - option "이벤트"
+        - option "전체"
+      - button "컬럼 선택"
+      - button "표 범위 좁히기"
+      - button "표 넓게 보기"
+      - generic: 균형 상대 순위 조건 통과 341종목 · 조건 순위 순
+      - generic "조건에서 빠진 대형주 8개 보기 ›"
+      - region "스크리너 결과 표 가로 스크롤 영역":
+        - table "스크리너 결과 표":
+          - rowgroup:
+            - row "순서로 정렬 종목로 정렬 가격로 정렬 1개월로 정렬 3개월로 정렬 52주 위치로 정렬 전체 순위 정렬 오름차순 백분위로 정렬 관심":
+              - columnheader "순서로 정렬":
+                - button "순서로 정렬": "#"
+              - columnheader "종목로 정렬":
+                - button "종목로 정렬": 종목
+              - columnheader "가격로 정렬":
+                - button "가격로 정렬": 가격
+              - columnheader "1개월로 정렬":
+                - button "1개월로 정렬": 1개월
+              - columnheader "3개월로 정렬":
+                - button "3개월로 정렬": 3개월
+              - columnheader "52주 위치로 정렬":
+                - button "52주 위치로 정렬": 52주 위치
+              - columnheader "전체 순위 정렬 오름차순":
+                - button "전체 순위 정렬 오름차순":
+                  - text: 전체 순위
+                  - generic: ▲
+              - columnheader "백분위로 정렬":
+                - button "백분위로 정렬": 백분위
+              - columnheader "관심"
+          - rowgroup:
+            - row "TEAM 선정 행. Enter로 Why 보기" [selected]:
+              - cell "1"
+              - cell "TEAM Atlassian":
+                - generic: TEAM
+                - generic: Atlassian
+              - cell "$221.11":
+                - generic: $221.11
+              - cell "+13.0%"
+              - cell "+158.9%"
+              - cell "52주 범위의 98% 지점":
+                - img "52주 범위의 98% 지점"
+              - cell "1"
+              - cell "100":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 100 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "100"
+              - cell "워치리스트 추가 TEAM":
+                - button "워치리스트 추가 TEAM": ☆
+            - row "HST 선정 행. Enter로 Why 보기":
+              - cell "2"
+              - cell "HST Host Hotels & Resorts":
+                - generic: HST
+                - generic: Host Hotels & Resorts
+              - cell "$24.80":
+                - generic: $24.80
+              - cell "+12.2%"
+              - cell "+2.1%"
+              - cell "52주 범위의 91% 지점":
+                - img "52주 범위의 91% 지점"
+              - cell "1"
+              - cell "100":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 100 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "100"
+              - cell "워치리스트 추가 HST":
+                - button "워치리스트 추가 HST": ☆
+            - row "VEEV 선정 행. Enter로 Why 보기":
+              - cell "3"
+              - cell "VEEV Veeva Systems":
+                - generic: VEEV
+                - generic: Veeva Systems
+              - cell "$318.67":
+                - generic: $318.67
+              - cell "+21.9%"
+              - cell "+72.7%"
+              - cell "52주 범위의 98% 지점":
+                - img "52주 범위의 98% 지점"
+              - cell "1"
+              - cell "100":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 100 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "100"
+              - cell "워치리스트 추가 VEEV":
+                - button "워치리스트 추가 VEEV": ☆
+            - row "SN 선정 행. Enter로 Why 보기":
+              - cell "4"
+              - cell "SN SharkNinja":
+                - generic: SN
+                - generic: SharkNinja
+              - cell "$198.72":
+                - generic: $198.72
+              - cell "+18.6%"
+              - cell "+35.1%"
+              - cell "52주 범위의 100% 지점":
+                - img "52주 범위의 100% 지점"
+              - cell "1"
+              - cell "100":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 100 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "100"
+              - cell "워치리스트 추가 SN":
+                - button "워치리스트 추가 SN": ☆
+            - row "APPN 선정 행. Enter로 Why 보기":
+              - cell "5"
+              - cell "APPN Appian":
+                - generic: APPN
+                - generic: Appian
+              - cell "$44.51":
+                - generic: $44.51
+              - cell "+15.3%"
+              - cell "+96.6%"
+              - cell "52주 범위의 94% 지점":
+                - img "52주 범위의 94% 지점"
+              - cell "1"
+              - cell "100":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 100 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "100"
+              - cell "워치리스트 추가 APPN":
+                - button "워치리스트 추가 APPN": ☆
+            - row "MRNA 선정 행. Enter로 Why 보기":
+              - cell "6"
+              - cell "MRNA Moderna":
+                - generic: MRNA
+                - generic: Moderna
+              - cell "$242.08":
+                - generic: $242.08
+              - cell "+40.0%"
+              - cell "+316.9%"
+              - cell "52주 범위의 99% 지점":
+                - img "52주 범위의 99% 지점"
+              - cell "6"
+              - cell "99":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 99 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "99"
+              - cell "워치리스트 추가 MRNA":
+                - button "워치리스트 추가 MRNA": ☆
+            - row "GTLB 선정 행. Enter로 Why 보기":
+              - cell "7"
+              - cell "GTLB GitLab":
+                - generic: GTLB
+                - generic: GitLab
+              - cell "$55.00":
+                - generic: $55.00
+              - cell "+10.5%"
+              - cell "+75.4%"
+              - cell "52주 범위의 93% 지점":
+                - img "52주 범위의 93% 지점"
+              - cell "6"
+              - cell "99":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 99 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "99"
+              - cell "워치리스트 추가 GTLB":
+                - button "워치리스트 추가 GTLB": ☆
+            - row "AMC 선정 행. Enter로 Why 보기":
+              - cell "8"
+              - cell "AMC AMC Entertainment":
+                - generic: AMC
+                - generic: AMC Entertainment
+              - cell "$3.08":
+                - generic: $3.08
+              - cell "+6.6%"
+              - cell "+36.9%"
+              - cell "52주 범위의 87% 지점":
+                - img "52주 범위의 87% 지점"
+              - cell "6"
+              - cell "99":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 99 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "99"
+              - cell "워치리스트 추가 AMC":
+                - button "워치리스트 추가 AMC": ☆
+            - row "MPC 선정 행. Enter로 Why 보기":
+              - cell "9"
+              - cell "MPC Marathon Petroleum":
+                - generic: MPC
+                - generic: Marathon Petroleum
+              - cell "$475.04":
+                - generic: $475.04
+              - cell "+18.1%"
+              - cell "+50.8%"
+              - cell "52주 범위의 94% 지점":
+                - img "52주 범위의 94% 지점"
+              - cell "6"
+              - cell "99":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 99 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "99"
+              - cell "워치리스트 추가 MPC":
+                - button "워치리스트 추가 MPC": ☆
+            - row "PAYC 선정 행. Enter로 Why 보기":
+              - cell "10"
+              - cell "PAYC Paycom":
+                - generic: PAYC
+                - generic: Paycom
+              - cell "$262.32":
+                - generic: $262.32
+              - cell "+15.9%"
+              - cell "+88.6%"
+              - cell "52주 범위의 99% 지점":
+                - img "52주 범위의 99% 지점"
+              - cell "6"
+              - cell "99":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 99 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "99"
+              - cell "워치리스트 추가 PAYC":
+                - button "워치리스트 추가 PAYC": ☆
+            - row "RELX 선정 행. Enter로 Why 보기":
+              - cell "11"
+              - cell "RELX RELX plc":
+                - generic: RELX
+                - generic: RELX plc
+              - cell "$39.39":
+                - generic: $39.39
+              - cell "+17.9%"
+              - cell "+21.3%"
+              - cell "52주 범위의 60% 지점":
+                - img "52주 범위의 60% 지점"
+              - cell "6"
+              - cell "99":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 99 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "99"
+              - cell "워치리스트 추가 RELX":
+                - button "워치리스트 추가 RELX": ☆
+            - row "ELF 선정 행. Enter로 Why 보기":
+              - cell "12"
+              - cell "ELF e.l.f. Beauty":
+                - generic: ELF
+                - generic: e.l.f. Beauty
+              - cell "$114.74":
+                - generic: $114.74
+              - cell "+17.3%"
+              - cell "+45.2%"
+              - cell "52주 범위의 74% 지점":
+                - img "52주 범위의 74% 지점"
+              - cell "6"
+              - cell "99":
+                - generic "미국 시장의 계산 가능한 종목 중 백분위 99 · 기본 종목 범위 — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.":
+                  - generic: "99"
+              - cell "워치리스트 추가 ELF":
+                - button "워치리스트 추가 ELF": ☆
+      - generic: 미국 · 341종목 중 12개 표시
+      - button "12개 더 보기"
+      - dialog "TEAM" [active]:
+        - generic: TEAM
+        - generic: Atlassian
+        - generic: 전체 1위 / 838
+        - button "근거 패널 닫기": 닫기
+        - generic: $221.11
+        - generic: 1개월 +13.0%
+        - generic "필터 통과 · 순위 계산됨 · 표시 순위 1 · 팩터 원값 100.00 · 팩터 근거 97% (수익확률 아님)": 조건 통과 · 순위 계산 가능 · 조건 통과 종목 중 1위 · 전체 백분위 100 · 표시 항목 자료 75.7% 수신
+        - generic: 종가가 50일선과 200일선 위에 있습니다. 3개월 수익률(+158.9%)은 S&P 500보다 155.8%p 높습니다. 빠진 필수값 없음 · 걸린 반대 조건 없음.
+        - region "점수를 만든 요인 같은 섹터 안 상대 점수 0~100 · 비중":
+          - heading "점수를 만든 요인 같은 섹터 안 상대 점수 0~100 · 비중" [level=4]:
+            - text: 점수를 만든 요인
+            - generic: 같은 섹터 안 상대 점수 0~100 · 비중
+          - generic "팩터 정규화 점수 막대와 값":
+            - generic "1개월 40%·3개월 40%·6개월 20% 수익률 · 정규화 점수 100.0 · 적용 가중치 0.421 · 가중 기여 44.94":
+              - generic: 모멘텀 · 1개월 40%·3개월 40%·6개월 20% 수익률
+              - generic: "100"
+              - paragraph: 비중 45% · 기여 44.9 — 중기(3~12개월) 승자가 이후에도 앞서던 경향(Jegadeesh·Titman 1993) — 여기서는 1·3·6개월 수익률을 섞어 씁니다
+            - generic "50일선 거리 60%·200일선 거리 40% · 정규화 점수 98.0 · 적용 가중치 0.263 · 가중 기여 27.53":
+              - generic: 추세 · 50일선 거리 60%·200일선 거리 40%
+              - generic: "98"
+              - paragraph: 비중 28% · 기여 27.5
+            - generic "칼만 필터로 추정한 최근 90거래일 추세의 하루 속도(불확실성만큼 소폭 할인) · 정규화 점수 75.0 · 적용 가중치 0.105 · 가중 기여 8.43":
+              - generic: 추세 속도 · 칼만 필터로 추정한 최근 90거래일 추세의 하루 속도(불확실성만큼 소폭 할인)
+              - generic: "75"
+              - paragraph: 비중 11% · 기여 8.4
+            - generic "실현 변동성의 역순 · 정규화 점수 30.0 · 적용 가중치 0.084 · 가중 기여 2.70":
+              - generic: 저변동 · 실현 변동성의 역순
+              - generic: "30"
+              - paragraph: 비중 9% · 기여 2.7 — 변동성이 낮은 종목의 위험 대비 수익이 더 높던 저변동 이상 현상(Ang 외 2006, Frazzini·Pedersen 2014)
+            - generic "ROE·마진·매출성장 — 최근 연간(FY) 공시 기준 · 정규화 점수 42.0 · 적용 가중치 0.063 · 가중 기여 2.83":
+              - generic: 퀄리티 · ROE·마진·매출성장 — 최근 연간(FY) 공시 기준
+              - generic: "42"
+              - paragraph:
+                - text: 비중 7% · 기여 2.8 — 수익성이 높은 기업이 장기 초과수익을 내던 경향(Novy-Marx 2013, 매출총이익 기준) — 여기서는
+                - button "ROE"
+                - text: ·마진·매출성장
+            - generic "점수 계산 순서 · 요인 겹침"
+        - region "S&P 500 대비 수익률":
+          - heading "S&P 500 대비 수익률" [level=4]
+          - generic "1개월 종목 +13.0% · S&P 500(SPY) -0.6%":
+            - generic: 1개월
+            - generic: +13.6%p
+          - generic "3개월 종목 +158.9% · S&P 500(SPY) +3.1%":
+            - generic: 3개월
+            - generic: +155.8%p
+          - generic "6개월 종목 +210.5% · S&P 500(SPY) +9.8%":
+            - generic: 6개월
+            - generic: +200.7%p
+          - paragraph: 진한 막대 = 종목 · 옅은 막대 = S&P 500(SPY) · 오른쪽 = 차이 · 둘 다 10/20 종가
+        - region "52주 범위 안 위치":
+          - heading "52주 범위 안 위치" [level=4]
+          - img "52주 저점과 고점 사이 98% 지점"
+          - generic: 저점 대비 +294.8%
+          - generic: 98% 지점
+          - generic: 고점 대비 -1.2%
+        - generic "반대 근거 · 빠진 자료 · 가격 기준"
+        - button "종목 분석 열기"
+        - button "관심 종목 추가"
+        - button "비교 추가"
+      - paragraph:
+        - text: 단기 추세·모멘텀 중심 · 총 904종목 · 조건 통과 341 ·
+        - text: 그중 팩터
+        - button "백분위"
+        - text: 80 이상(반올림) 173
+        - text: · 사용 팩터 6 · ☆ 관심종목 · + 동일 기준 비교 · ‘—’는 값 없음
+      - generic "순위가 계산되는 방식"
+      - paragraph: 미국 순위 계산 838종목(기본 종목 범위) · 표시 341개 · 조건 순위 · 선택 비중의 팩터 백분위 높은 순 · 비중 모멘텀 42% / 추세 26% / 저변동 8% / 밸류 6% / 퀄리티 6% / 추세 속도 11%
+      - generic "순위 밖 66종목"
+      - generic "읽는 법 · 추세 속도 · 수축 구조 · 사용 원칙 ⌄":
+        - generic: 읽는 법 · 추세 속도 · 수축 구조 · 사용 원칙
+        - text: ⌄
+      - button "팩터 비중 · 시장 상태 사후 검증 보기 ›":
+        - generic: 팩터 비중 · 시장 상태
+        - generic: 사후 검증 보기 ›
+      - button "조건별 과거 통계 사후 검증 보기 ›":
+        - generic: 조건별 과거 통계
+        - generic: 사후 검증 보기 ›
+      - button "과거 검증 검증 미통과 · 판단 불가 ›":
+        - generic: 과거 검증
+        - generic: 검증 미통과 · 판단 불가 ›
+    - generic "순위 가중치 바꾸기 — 과거 검증은 기본(균형) 비중만 했습니다"
+    - generic "데이터 기준 · 검증 상태"
+    - region "이 화면을 볼 때 — 속지 말 것과 원칙":
+      - heading "이 화면을 볼 때 — 속지 말 것과 원칙" [level=2]
+      - list:
+        - generic: 속지 말 것
+        - strong: "'순위가 높으면 오른다'"
+        - paragraph: 스크리너의 순위는 조건에 맞는 정도를 정렬한 것이지 앞으로의 수익을 예측한 점수가 아닙니다. 순위가 수익과 같은 방향이었는지는 순위를 먼저 적어 두고 나중에 결과를 채운 기록으로만 말할 수 있습니다.
+        - paragraph: "근거: 순위를 먼저 적어 두는 기록의 결과가 아직 없어(겹치지 않는 기록 12개부터 판단) 기본 가중치 미국 순위가 수익과 같은 방향인지는 아직 모릅니다."
+        - button "'순위가 높으면 오른다' — 리서치 라이브러리에서 개념 배우기": 개념 배우기 →
+        - generic: 속지 말 것
+        - strong: 이미 멀리 달아난 뒤의 진입
+        - paragraph: 평균선에서 평소 변동폭의 여러 배만큼 떨어진 뒤에는 작은 되돌림에도 손실 폭이 커집니다. 좋은 종목이어도 늘어난 자리는 좋은 자리가 아닐 수 있습니다.
+        - paragraph: "왜: 가격은 평균선 쪽으로 되돌아가려는 경향이 있어, 멀어질수록 되돌림의 크기도 커집니다."
+        - button "이미 멀리 달아난 뒤의 진입 — 리서치 라이브러리에서 개념 배우기": 개념 배우기 →
+        - generic: 속지 말 것
+        - strong: "'과거에 이랬으니 이번에도'"
+        - paragraph: 과거 비슷한 때의 결과는 참고일 뿐입니다. 표본이 적으면 우연일 수 있고, 전체 기간의 평균(기준선)과 다르지 않으면 그 조건만의 정보도 아닙니다.
+        - paragraph: "왜: 과거 빈도는 늘 같은 기록 전체의 기준선과 표본 수를 함께 봐야 의미가 생깁니다."
+        - button "'과거에 이랬으니 이번에도' — 리서치 라이브러리에서 개념 배우기": 개념 배우기 →
+    - navigation "이어서 볼 곳":
+      - heading "이어서 볼 곳" [level=2]
+      - list:
+        - button "테마 시나리오 →"
+        - generic: 이 단계 테마의 구성 종목을 차트·재무로 직접 확인
+        - button "거시 시나리오 →"
+        - generic: 금리·경기 시나리오가 상위권 업종에 수혜인지 부담인지
+        - button "표 첫 행 TEAM →"
+        - generic: 지금 표(조건·표시 필터·정렬)의 맨 위 종목을 요약·차트·재무로 확인
+        - button "시장 상태 →"
+        - generic: 순위가 놓인 환경 — 다소 부담
+    - generic "데이터 출처"
+  - text: ⌄ ⌄ ⌄ ⌄ ⌄
+  - paragraph:
+    - text: 모든 수치는 참고용이며 투자 권유가 아닙니다 ·
+    - button "면책 고지"
+    - text: · v58.59
+- complementary:
+  - generic: AI 도우미 · 스크리너 리서치
+  - button: 새 대화
+  - button: ×
+  - text: 지금 보는 화면의 수치와 근거를 읽고 질문에 답합니다.
+  - generic: 답변 범위
+  - text: AI 도우미 · 읽기 전용 리서치 · 투자·법률·세무 조건부 분석과 숫자 시나리오로 답합니다. 불법 실행 절차·주문 실행·확정적 보장은 하지 않습니다.
+  - generic: 맥락 기준 · 시세 10/21 17:21 관측 · 종가 10/20 · 뉴스 10/21 08:00까지 + 장중 속보 6건
+  - generic: 현재 화면의 데이터를 근거로 질의할 수 있습니다
+  - button: 조건이 고른 이유
+  - button: 섹터 쏠림 점검
+  - button: 결측·저신뢰 종목
+  - button: 검증 결과 읽기
+  - textbox:
+    - /placeholder: 궁금한 것을 물어보세요
+  - button: 전송
+  - status

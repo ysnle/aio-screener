@@ -1,6 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { renderScreenerValidation, readValidationState, renderValidationHero } from '../components/screener-validation.js';
 import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
@@ -1571,7 +1571,9 @@ function describeFilterAst(definition) {
       text = `${label} ${parts.join(' · ') || '범위 미지정'}`;
     } else if (node.type === 'enum') text = `${label} ∈ ${(node.values || []).join('·')}`;
     else if (node.type === 'exists') text = `${label} 존재`;
-    else if (node.type === 'and' || node.type === 'or' || node.type === 'not') text = `${String(node.type).toUpperCase()} 하위 조건 ${(node.children ? node.children.length : 0)}개`;
+    // v58.64 (SCR01 class): a NOT node carries `child`, not `children`, so it read "NOT 하위 조건 0개".
+    else if (node.type === 'not') text = node.child && typeof node.child === 'object' ? `제외: ${FILTER_FIELD_LABELS.get(node.child.field) || node.child.field || node.child.type} 조건` : '제외 조건(내용 없음)';
+    else if (node.type === 'and' || node.type === 'or') text = `${String(node.type).toUpperCase()} 하위 조건 ${(node.children ? node.children.length : 0)}개`;
     else text = `${label} (${node.type})`;
     return { label, text, origin: node.origin || null };
   }).filter(Boolean);
@@ -2325,11 +2327,17 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       renderKnowledgeArrival({ documentRef, root, routeId: 'screener' });
       // P1437: the lead reading of the ranking — recomputed only when the ranked set or validation changes.
       let readSignature = '';
+      // v58.63 (architecture audit UI-03): the signature samples only the first five ranks, so new rows with the same top
+      // five (other top-quintile trend/high data changed) kept the old reading. The store replaces the rows array on
+      // every update; a different array is a different input.
+      let readRowsRef = null;
       const renderRead = () => {
-        const rows = scopedRows(selectScreenerState(store?.getState?.() || {})?.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US');
+        const sourceRows = selectScreenerState(store?.getState?.() || {})?.rows || [];
+        const rows = scopedRows(sourceRows, selectedValue(documentRef, 'scr-listing-market') || 'US');
         const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}|${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
-        if (signature === readSignature) return;
+        if (signature === readSignature && sourceRows === readRowsRef) return;
         readSignature = signature;
+        readRowsRef = sourceRows;
         const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
         const validation = documentRef.getElementById('screener-validation');
         if (validation) validation.hidden = listingMarket === 'KR';
@@ -2362,12 +2370,12 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         const fetchFn = root?.fetch || globalThis.fetch;
         if (typeof fetchFn === 'function') {
           Promise.all([
-            loadJsonArtifact(fetchFn.bind(root), './public-data/backtest-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
-            loadJsonArtifact(fetchFn.bind(root), './public-data/model-validation-status.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 256 * 1024 }).catch(() => null),
-            loadJsonArtifact(fetchFn.bind(root), './public-data/factor-backtest-longrun.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
-            loadJsonArtifact(fetchFn.bind(root), './public-data/screener-candidate-archive.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
+            loadJsonArtifact(stableFetcher(root), './public-data/backtest-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
+            loadJsonArtifact(stableFetcher(root), './public-data/model-validation-status.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 256 * 1024 }).catch(() => null),
+            loadJsonArtifact(stableFetcher(root), './public-data/factor-backtest-longrun.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
+            loadJsonArtifact(stableFetcher(root), './public-data/screener-candidate-archive.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
             // 개편 v2 (3c/5h): the validation gate's status and blockers drive the banner before the table.
-            loadJsonArtifact(fetchFn.bind(root), './public-data/screener-validation-gate.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 64 * 1024 }).catch(() => null)
+            loadJsonArtifact(stableFetcher(root), './public-data/screener-validation-gate.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 64 * 1024 }).catch(() => null)
           ]).then(([history, status, longrun, candidates, gate]) => {
             if (gate && typeof gate === 'object') root._aioScreenerValidationGate = gate;
             if (candidates && typeof candidates === 'object') root._aioCandidateArchive = candidates; // P1465: forward candidate record
@@ -2787,6 +2795,21 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          selectedSymbols.clear();
          selectedSymbols.add(symbol);
          renderWhyDrawer(row);
+         return true;
+       };
+       // v58.63 (architecture audit A12): the inspector shows the selected symbol's row from the CURRENT result. A preset,
+       // run or data refresh replaces the row objects, so the held row is re-read by symbol on every render (NVDA stayed at
+       // 308위 beside a table that said 249위 until the row was clicked again). A symbol that left the result releases the
+       // selection: wide screens fall back to the first row, an open phone/tablet sheet closes.
+       const refreshInspector = () => {
+         if (!activeRow || !whyDrawerNode) return false;
+         const symbol = activeRow.sym || activeRow.symbol;
+         const pool = activeRows || activePreview?.rows || selectScreenerState(store.getState())?.rows || [];
+         const fresh = symbol ? pool.find((item) => (item.sym || item.symbol) === symbol) : null;
+         if (fresh === activeRow) return false;
+         if (fresh) { activeRow = fresh; renderWhyDrawer(fresh); return false; }
+         activeRow = null; autoInspected = false; selectedSymbols.clear();
+         if (narrowWhy() && !whyDrawerNode.hidden) closeWhyDrawer();
          return true;
        };
        // 개편 v2: one route, three views (순위 · 사후 검증 · 맞춤 조건) on #page-screener[data-scr-view]. The tab panels keep
@@ -3211,8 +3234,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          renderBuilderConditions(documentRef, readBuilderConditions());
          const renderArgs = { documentRef, root, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, onExplain: explainRow, onCompare: (row) => toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); syncWhyWatchlist(activeRow?.sym || activeRow?.symbol || ''); }, rowsOverride: activeRows || preview?.rows || null, workbenchResult: activeResult, previewResult: preview, onDataChange: () => renderNow() };
          render(renderArgs);
+         const released = refreshInspector();
          // 개편 v2 (3c): the first wide render selects the first row for the inspector, then marks it in the table once.
-         if (autoInspect()) render(renderArgs);
+         if (autoInspect() || released) render(renderArgs);
          // P1165 (12 U01): 실행 전 상태 줄도 선택한 정의의 미리보기를 인용한다 — 파이프라인 기본
          // 수치를 '선택한 정의의 통과'로 읽히게 두지 않는다. 실행하면 activeResult가 대신한다.
          if (!activeResult && preview && workbenchStatus) {

@@ -1,0 +1,73 @@
+{
+  "observedAt": "2026-10-21T08:17:29.154Z",
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "runs": {
+    "initial": [
+      {
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "8049c5",
+          "wall_time_seconds": 3.0506517,
+          "exit_code": 0,
+          "original_token_count": 42,
+          "output": "{\n  \"ok\": true,\n  \"bootFiles\": 42,\n  \"rawBytes\": 1496044,\n  \"gzipBytes\": 544662,\n  \"budget\": {\n    \"rawBytes\": 1500000,\n    \"gzipBytes\": 548000\n  },\n  \"failures\": []\n}\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "ad4a5a",
+          "wall_time_seconds": 4.8251603,
+          "exit_code": 0,
+          "original_token_count": 1618,
+          "output": "Warning: truncated output (original token count: 1618)\nTotal output lines: 270\n\n{\n  \"boundary\": \"Syntax parsed with Node SourceTextModule. Static import/export specifiers are parser-derived; literal dynamic imports are regex-derived. No tree-shaking, transferred-byte, global-consumer or runtime correctness certification.\",\n  \"parser\": {\n    \"files\": 792,\n    \"errors\": []\n  },\n  \"browserGraph\": {\n    \"modules\": 392,\n    \"edges\": 1050,\n    \"staticBootModules\": 275,\n    \"staticB…1418 tokens truncated… [\n    \"src/data/contracts/operations.js\",\n    \"src/data/contracts/reconciliation.js\",\n    \"src/data/contracts/source-registry.js\",\n    \"src/domain/market/breadth-signals.js\",\n    \"src/domain/news/report-verification.js\"\n  ]\n}\n(node:33424) ExperimentalWarning: VM Modules is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "2b68e6",
+          "wall_time_seconds": 2.4113156,
+          "exit_code": 0,
+          "original_token_count": 840,
+          "output": "{\n  \"evidence\": \"Actual buildMarketRead with synthetic dated inputs; no provider/browser/live occurrence certified\",\n  \"decliningRealYield\": {\n    \"id\": \"real-yield-led\",\n    \"weight\": 78,\n    \"text\": \"10년물 5일 변화 중 실질금리 -20bp·기대인플레 -1bp(실질금리 1.50%).\",\n    \"reading\": \"물가보다 실질금리가 금리를 움직여, 주식 밸류에이션(PER)에 더 직접적인 부담입니다.\",\n    \"axis\": \"rates\",\n    \"check\": \"실질금리 상승이 멈추는지 — 멈추지 않으면 성장주 밸류에이션 부담 지속\"\n  },\n  \"risingPositiveControl\": {\n    \"id\": \"real-yield-led\",\n    \"weight\": 78,\n    \"text\": \"10년물 5일 변화 중 실질금리 +20bp·기대인플레 +1bp(실질금리 1.50%).\",\n    \"reading\": \"물가보다 실질금리가 금리를 움직여, 주식 밸류에이션(PER)에 더 직접적인 부담입니다.\",\n    \"axis\": \"rates\",\n    \"check\": \"실질금리 상승이 멈추는지 — 멈추지 않으면 성장주 밸류에이션 부담 지속\"\n  },\n  \"staleRateHistory\": {\n    \"threw\": true,\n    \"error\": \"Cannot read properties of null (reading 'yearPosition')\"\n  },\n  \"currentRatePositiveControl\": {\n    \"threw\": false,\n    \"rates\": {\n      \"id\": \"rates\",\n      \"title\": \"금리\",\n      \"state\": \"burden\",\n      \"stateLabel\": \"부담\",\n      \"read\": \"장기금리가 20거래일 +100bp 오른 구간 — 주식 할인율 부담.\",\n      \"flip\": \"10년물 20일 변화 +25bp 미만(현재 +100bp)이고, 1년 범위 위치가 80% 아래로 내려오거나 20일 상승이 +10bp 아래로 줄면 중립으로 바뀜\",\n      \"evidence\": [\n        [\n          \"미 10년물\",\n          \"6.95% (5거래일 +25bp, 20일 +100bp)\"\n        ]\n      ],\n      \"basis\": \"10/15\",\n      \"basisStatus\": \"aligned\",\n      \"flipDistance\": {\n        \"toward\": \"neutral\",\n        \"lever\": \"tnx\",\n        \"subject\": \"10년물 20일 변화가\",\n        \"short\": \"20일 +10bp · 6.05%\",\n        \"threshold\": 6.05,\n        \"current\": 6.95,\n        \"value\": -90,\n        \"unit\": \"bp\",\n        \"text\": \"−90bp\",\n        \"condition\": \"10년물 20일 변화가 +10bp(6.05%) 아래로 내려가면\",\n        \"parts\": {\n          \"subject\": \"10년물 20일 변화가\",\n          \"mark\": \"+10bp(6.05%)\",\n          \"verb\": \"아래로 내려가면\"\n        },\n        \"sessions\": 18,\n        \"also\": [],\n        \"needsMore\": false,\n        \"direction\": \"improve\",\n        \"towardLabel\": \"중립\",\n        \"label\": \"중립까지 −90bp\"\n      },\n      \"flipDistances\": [\n        {\n          \"toward\": \"neutral\",\n          \"lever\": \"tnx\",\n          \"subject\": \"10년물 20일 변화가\",\n          \"short\": \"20일 +10bp · 6.05%\",\n          \"threshold\": 6.05,\n          \"current\": 6.95,\n          \"value\": -90,\n          \"unit\": \"bp\",\n          \"text\": \"−90bp\",\n          \"condition\": \"10년물 20일 변화가 +10bp(6.05%) 아래로 내려가면\",\n          \"parts\": {\n            \"subject\": \"10년물 20일 변화가\",\n            \"mark\": \"+10bp(6.05%)\",\n            \"verb\": \"아래로 내려가면\"\n          },\n          \"sessions\": 18,\n          \"also\": [],\n          \"needsMore\": false,\n          \"direction\": \"improve\",\n          \"towardLabel\": \"중립\",\n          \"label\": \"중립까지 −90bp\"\n        }\n      ]\n    }\n  },\n  \"sourceSha256\": \"382d1b6476d5dacedd1e3f42587eaf151fb38d0d40ffcbb039c38985e318543a\"\n}\n"
+        }
+      }
+    ],
+    "follow": [
+      {
+        "status": "fulfilled",
+        "value": {
+          "script": "reproduce-cache-identity.mjs",
+          "chunk_id": "3f551f",
+          "wall_time_seconds": 3.3610817,
+          "exit_code": 0,
+          "original_token_count": 172,
+          "output": "{\n  \"evidence\": \"Isolated execution of actual runner fingerprint functions, in-memory input mutation; no gate/producer execution\",\n  \"runnerSha256\": \"09dd872f76a2c7df3471924529e1124e2598118b199a65ab93c94cba815ae4b1\",\n  \"gate\": \"data-continuity\",\n  \"script\": \"scripts/ci-data-continuity-check.mjs\",\n  \"dependency\": \"src/domain/screener/price-factors.js\",\n  \"baseline\": \"5048c7ee2a44207895d297fcbc94eeb8c5e7192dc32ae9bd805e1328829e131b\",\n  \"dependencyChanged\": \"5048c7ee2a44207895d297fcbc94eeb8c5e7192dc32ae9bd805e1328829e131b\",\n  \"gateChanged\": \"4f7c0f9a5dd6029c70de069bf9713d20c69eff388da51a09b308cb06924f8d21\",\n  \"dependencyMutationDetected\": false,\n  \"positiveControlDetected\": true\n}\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "script": "reproduce-legacy-latest.mjs",
+          "chunk_id": "5d3a6f",
+          "wall_time_seconds": 2.6272323,
+          "exit_code": 0,
+          "original_token_count": 235,
+          "output": "{\n  \"ref\": \"7e2411432f6ca0e5f02528b209b013bf5f7ff2dc\",\n  \"evidence\": \"isolated real-source VM; stub DOM and snapshot; no network/browser\",\n  \"observations\": [\n    {\n      \"case\": \"LD-02\",\n      \"hourKst\": 8,\n      \"headers\": [\n        \"월 19 · 오늘\",\n        \"화 20\",\n        \"수 21\",\n        \"목 22\",\n        \"금 23\"\n      ],\n      \"mondayColumn\": 1,\n      \"fridayColumn\": -1,\n      \"status\": \"2건 어닝 + 0IPO · 10-18~10-22 (저장 스냅샷 10-19~10-23)\"\n    },\n    {\n      \"case\": \"LD-02\",\n      \"hourKst\": 9,\n      \"headers\": [\n        \"월 19 · 오늘\",\n        \"화 20\",\n        \"수 21\",\n        \"목 22\",\n        \"금 23\"\n      ],\n      \"mondayColumn\": 0,\n      \"fridayColumn\": 4,\n      \"status\": \"2건 어닝 + 0IPO · 10-19~10-23 (저장 스냅샷 10-19~10-23)\"\n    },\n    {\n      \"case\": \"LD-01\",\n      \"quotes\": 0,\n      \"zeroReturn\": true,\n      \"noQuotesLabel\": true,\n      \"falseDeclinerClaim\": true\n    }\n  ]\n}\n"
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "script": "reproduce-legacy-core-hwm.mjs",
+          "chunk_id": "62eef9",
+          "wall_time_seconds": 2.6548335,
+          "exit_code": 0,
+          "original_token_count": 429,
+          "output": "{\n  \"ref\": \"7e2411432f6ca0e5f02528b209b013bf5f7ff2dc\",\n  \"evidence\": \"real core fetch function + exact chat consumer in VM; supplied HPE response fixture; no external request\",\n  \"requestedTicker\": \"HWM\",\n  \"requestedUrl\": \"https://data.sec.gov/submissions/CIK0001645590.json\",\n  \"returned\": {\n    \"ticker\": \"HWM\",\n    \"available\": true,\n    \"source\": \"SEC EDGAR\",\n    \"cik\": \"0001645590\",\n    \"companyName\": \"Hewlett Packard Enterprise Co\",\n    \"sic\": \"3570\",\n    \"sicDescription\": \"COMPUTER & OFFICE EQUIPMENT\",\n    \"latest10K\": {\n      \"filingDate\": \"2025-12-15\",\n      \"reportDate\": \"2025-10-31\",\n      \"accession\": \"0001645590-25-000001\",\n      \"primaryDoc\": \"hpe-20251031.htm\"\n    },\n    \"businessDescriptionUrl\": \"https://www.sec.gov/Archives/edgar/data/1645590/000164559025000001/hpe-20251031.htm\",\n    \"note\": \"10-K Item 1 (Business) + Item 1A (Risk Factors) 직접 링크 — AI가 fetch+요약 가능\"\n  },\n  \"chatPrompt\": \"  [SEC 10-K · source data.sec.gov/submissions] Hewlett Packard Enterprise Co · SIC: COMPUTER & OFFICE EQUIPMENT · Filed: 2025-12-15 · https://www.sec.gov/Archives/edgar/data/1645590/000164559025000001/hpe-20251031.htm\\n  [SEC 10-K 사용 가이드] Item 1 (Business) + Item 1A (Risk Factors)는 위 URL에서 직접 fetch 가능. 비즈니스 구조/사업 모델/공급망/리스크/경쟁 등 정성 분석은 이 출처를 인용하여 답변. AI 학습 데이터로 환각 금지.\",\n  \"wrongIssuerAccepted\": true,\n  \"officialIdentitySourcesProvidedByLead\": [\n    \"https://www.sec.gov/Archives/edgar/data/4281/000000428126000025/0000004281-26-000025-index.htm\",\n    \"https://www.sec.gov/Archives/edgar/data/1645590/000164559026000072/0001645590-26-000072-index.htm\"\n  ]\n}\n"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "ref": "d36bb256ddf60468d6c7a134628053c5796be6be",
+  "evidence": "isolated real-source VM; stub DOM and snapshot; no network/browser",
+  "observations": [
+    {
+      "case": "LD-02",
+      "hourKst": 8,
+      "headers": [
+        "월 19 · 오늘",
+        "화 20",
+        "수 21",
+        "목 22",
+        "금 23"
+      ],
+      "mondayColumn": 1,
+      "fridayColumn": -1,
+      "status": "2건 어닝 + 0IPO · 10-18~10-22 (저장 스냅샷 10-19~10-23)"
+    },
+    {
+      "case": "LD-02",
+      "hourKst": 9,
+      "headers": [
+        "월 19 · 오늘",
+        "화 20",
+        "수 21",
+        "목 22",
+        "금 23"
+      ],
+      "mondayColumn": 0,
+      "fridayColumn": 4,
+      "status": "2건 어닝 + 0IPO · 10-19~10-23 (저장 스냅샷 10-19~10-23)"
+    },
+    {
+      "case": "LD-01",
+      "quotes": 0,
+      "zeroReturn": true,
+      "noQuotesLabel": true,
+      "falseDeclinerClaim": true
+    }
+  ]
+}

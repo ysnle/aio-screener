@@ -131,7 +131,9 @@ function validateEntry(entry) {
   const errors = [];
   if (!isObject(entry)) return ['entry.json must be a JSON object'];
   scanControlChars(entry, 'entry', errors);
-  if (!/^v\d+\.\d+$/.test(entry.version || '')) errors.push('version must look like "v56.80"');
+  // v58.63 (architecture audit A27): the same canonical grammar bump-version writes — a ".00" patch is the major alone
+  // ("v59"), so a major-only release was blocked here though bump-version and CI accept it.
+  if (!/^v\d{1,3}(?:\.\d{1,2})?$/.test(entry.version || '')) errors.push('version must be canonical like "v56.80" or "v59"');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.date || '')) errors.push('date must be YYYY-MM-DD');
   if (entry.p == null) {
     // Change-only entry: nothing goes into the defect ledger.

@@ -1,0 +1,220 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "identity": [
+    {
+      "path": "js/aio-workspace.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "blob": "8a1b67a02e299ac647edc195706e5643fe59d015",
+      "sha256": "c142499fda32db4450436a13b39dddc39febf9a60a3ff61658e67d4ff0d6b58d",
+      "currentSha256": "c142499fda32db4450436a13b39dddc39febf9a60a3ff61658e67d4ff0d6b58d",
+      "lineCountWithTerminalBlank": 2462,
+      "diff": ""
+    },
+    {
+      "path": "js/aio-pages.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "blob": "ae65be39236e520d1bb0923c68e0cd2d0140cc8e",
+      "sha256": "59936058bc063ca5da3305c0e8aefa8f9143bac43dd9e02629534ccd04cf9652",
+      "currentSha256": "59936058bc063ca5da3305c0e8aefa8f9143bac43dd9e02629534ccd04cf9652",
+      "lineCountWithTerminalBlank": 1803,
+      "diff": ""
+    },
+    {
+      "path": "js/aio-kr-data.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "blob": "4120ffdd269cb1ded1ab539a07e80cac59251642",
+      "sha256": "6a1c7965f61a1de6a5876315bc720bc7895bd0d13c002da61c8de5a1ea9ce602",
+      "currentSha256": "6a1c7965f61a1de6a5876315bc720bc7895bd0d13c002da61c8de5a1ea9ce602",
+      "lineCountWithTerminalBlank": 1941,
+      "diff": ""
+    }
+  ],
+  "watchlist": {
+    "switched": {
+      "requested": "A",
+      "active": "B",
+      "lists": [
+        {
+          "id": "A",
+          "name": "A",
+          "tickers": []
+        },
+        {
+          "id": "B",
+          "name": "B",
+          "tickers": [
+            {
+              "sym": "UFPT",
+              "note": "A note",
+              "addedAt": 1792674628638
+            }
+          ]
+        }
+      ],
+      "draftTicker": "",
+      "draftNote": "",
+      "renders": 2
+    },
+    "unchanged": {
+      "requested": "A",
+      "active": "A",
+      "lists": [
+        {
+          "id": "A",
+          "name": "A",
+          "tickers": [
+            {
+              "sym": "UFPT",
+              "note": "A note",
+              "addedAt": 1792674628640
+            }
+          ]
+        },
+        {
+          "id": "B",
+          "name": "B",
+          "tickers": []
+        }
+      ],
+      "draftTicker": "",
+      "draftNote": "",
+      "renders": 2
+    },
+    "rejected": {
+      "requested": "A",
+      "active": "B",
+      "lists": [
+        {
+          "id": "A",
+          "name": "A",
+          "tickers": []
+        },
+        {
+          "id": "B",
+          "name": "B",
+          "tickers": []
+        }
+      ],
+      "draftTicker": "MSFT",
+      "draftNote": "B draft",
+      "renders": 1
+    },
+    "removed": {
+      "requested": "A",
+      "active": "B",
+      "lists": [
+        {
+          "id": "B",
+          "name": "B",
+          "tickers": [
+            {
+              "sym": "UFPT",
+              "note": "A note",
+              "addedAt": 1792674628642
+            }
+          ]
+        }
+      ],
+      "draftTicker": "",
+      "draftNote": "",
+      "renders": 2
+    },
+    "symbolEvidence": {
+      "symbol": "UFPT",
+      "listingIndex": 11517,
+      "listingName": "UFP Technologies, Inc.",
+      "universeLiteral": false
+    }
+  },
+  "kr": {
+    "heatBefore": [
+      "defense",
+      "space"
+    ],
+    "heatAfter": [
+      "defense",
+      "semi",
+      "shipbuilding",
+      "ai-sw",
+      "power-grid",
+      "nuclear",
+      "battery",
+      "bio",
+      "kbeauty",
+      "kcontent",
+      "auto",
+      "robot",
+      "finance",
+      "kfood",
+      "crypto",
+      "telecom",
+      "construction",
+      "retail",
+      "steel_chem",
+      "logistics",
+      "medtech_kr",
+      "energy_kr",
+      "photonics_kr",
+      "wind_solar",
+      "quantum",
+      "uam",
+      "hydrogen",
+      "space"
+    ],
+    "heatPressed": "true",
+    "sectorBefore": [
+      "semi",
+      "ai-sw",
+      "robot",
+      "photonics_kr",
+      "quantum"
+    ],
+    "sectorAfter": [
+      "defense",
+      "semi",
+      "shipbuilding",
+      "ai-sw",
+      "power-grid",
+      "nuclear",
+      "battery",
+      "bio",
+      "kbeauty",
+      "kcontent",
+      "auto",
+      "robot",
+      "finance",
+      "kfood",
+      "crypto",
+      "telecom",
+      "construction",
+      "retail",
+      "steel_chem",
+      "logistics",
+      "medtech_kr",
+      "energy_kr",
+      "photonics_kr",
+      "wind_solar",
+      "quantum",
+      "uam",
+      "hydrogen",
+      "space"
+    ],
+    "sectorPressed": "true",
+    "combined": [
+      "semi",
+      "ai-sw",
+      "robot",
+      "photonics_kr",
+      "quantum"
+    ],
+    "focusBefore": "kr-theme-header",
+    "focusAfter": "BODY"
+  },
+  "risk": {
+    "currentHolding": "B",
+    "newerResponse": "<div class=\"wsl-msg is-warn\">조정주가·날짜 이력이 없는 종목이 있어 리스크 계산을 보류합니다: B.</div>",
+    "finalResponse": "실제 계좌 이력 · 분모 주식 부분 · RF 미입력 — Sharpe 보류 · 표본 5일 계산 식별자 path undefined · rebalance 미선언 · scope invested_sleeve · lineage — · snapshot book:A @ — 1일 VaR (95%) · 주식 부분 · 최근 5거래일 표본 — 과거 표본 95% 손실 경계(초과 가능) · 표본 5일 중 하위 1번째 손실 표본 최악일 (1일 손실) · 주식 부분 · 최근 5거래일 표본 — 표본 5일이라 99% 꼬리 관측이 1개뿐 — 99% 경계가 아니라 표본 최악일입니다 Sharpe Ratio · 주식 부분 · 최근 5거래일 표본 — 표본 부족 · 보류 (5거래일 — 250일 미만이면 연율화 값이 표본 구간에 크게 좌우됩니다) 표본 기간 최대낙폭 (MDD) · 주식 부분 · 최근 5거래일 표본 — 데이터 부족 역사적 시뮬레이션 VaR — 주식 부분 범위의 과거 수익률 기준입니다. 실제 손실은 이보다 클 수 있습니다. 실제 계좌 성과(TWR/MWR)는 원장 성과 요약에서 시세 이력과 무관하게 표시합니다.",
+    "finalSnapshotTicker": "A"
+  },
+  "evidenceLevel": "isolated VM and Chromium DOM; no live product/account/network/AI action"
+}

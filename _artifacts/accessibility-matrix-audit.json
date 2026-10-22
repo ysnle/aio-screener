@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-21T03:17:04.320Z",
-  "appRevision": "v58.59",
-  "gitHead": "427e893eb21e87e33a68a35700720b82732c3a4e",
+  "observedAt": "2026-10-22T15:16:58.589Z",
+  "appRevision": "v58.64",
+  "gitHead": "659ffbad252f9eeacfa49a6ad1b895df87f66597",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -92,8 +92,30 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 3,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "bp",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "VIX",
+          "width": 19,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "RSI",
+          "width": 20,
+          "height": 29,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": [
         {
@@ -192,8 +214,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": [
         {
@@ -255,7 +285,7 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 1,
+      "canvasCount": 0,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],

@@ -71,6 +71,16 @@ export function measureFactorOverlap(rows = [], activeFactors = []) {
   const complete = (rows || []).filter((row) => factors.every((factor) => finite(row?.[`_z_${factor}`]) != null));
   if (complete.length < 30) return null;
   const column = (factor) => complete.map((row) => row[`_z_${factor}`]);
+  // v58.63 (architecture audit SCR02/C04): a factor with one value on every row carries no ranking information; its
+  // undefined correlation used to become 0, so two constant columns read as "two independent signals". Constant
+  // factors are named and left out; with fewer than two varying factors nothing is measured.
+  const constant = factors.filter((factor) => { const values = column(factor); return values.every((value) => value === values[0]); });
+  const varying = factors.filter((factor) => !constant.includes(factor));
+  if (varying.length < 2) return { n: complete.length, factors: varying, constant, pairs: [], effective: null };
+  return measureVarying(complete.length, varying, constant, column);
+}
+
+function measureVarying(n, factors, constant, column) {
   const matrix = factors.map((a) => factors.map((b) => (a === b ? 1 : spearmanPairs(column(a), column(b)) ?? 0)));
   const pairs = [];
   for (let i = 0; i < factors.length; i += 1) {
@@ -81,8 +91,9 @@ export function measureFactorOverlap(rows = [], activeFactors = []) {
   const sumSq = eigen.reduce((a, b) => a + b * b, 0);
   const effective = sumSq > 0 ? sum * sum / sumSq : null;
   return {
-    n: complete.length,
+    n,
     factors,
+    constant,
     pairs: pairs.sort((x, y) => Math.abs(y.rho) - Math.abs(x.rho)),
     effective: effective == null ? null : Math.round(effective * 10) / 10
   };
@@ -90,7 +101,9 @@ export function measureFactorOverlap(rows = [], activeFactors = []) {
 
 export function overlapSentence(overlap) {
   if (!overlap) return '모멘텀·추세·추세 속도(칼만)는 같은 가격 움직임에서 계산돼 서로 겹칠 수 있습니다(오늘 표본으로는 측정하지 못했습니다).';
+  const flat = overlap.constant?.length ? ` 오늘 모든 종목이 같은 값인 지표(${overlap.constant.map((factor) => FACTOR_LABELS[factor]).join('·')})는 순위에 정보를 더하지 않아 제외했습니다.` : '';
+  if (!overlap.pairs.length) return `오늘 ${overlap.n}종목에서 값이 움직이는 지표가 둘 미만이라 겹침을 재지 못했습니다.${flat}`;
   const strongest = overlap.pairs[0];
   const high = overlap.pairs.filter((pair) => Math.abs(pair.rho) >= 0.6).map((pair) => `${pair.label} ${pair.rho.toFixed(2)}`);
-  return `오늘 ${overlap.n}종목에서 잰 순위 상관: ${high.length ? high.join(' · ') : `가장 높은 쌍 ${strongest.label} ${strongest.rho.toFixed(2)}`} — 지표 ${overlap.factors.length}개가 실질적으로는 독립된 신호 약 ${overlap.effective?.toFixed(1) ?? '—'}개만큼의 정보입니다. 함께 높다고 근거가 그 수만큼 쌓인 것은 아닙니다.`;
+  return `오늘 ${overlap.n}종목에서 잰 순위 상관: ${high.length ? high.join(' · ') : `가장 높은 쌍 ${strongest.label} ${strongest.rho.toFixed(2)}`} — 지표 ${overlap.factors.length}개가 실질적으로는 겹치지 않는 정보 약 ${overlap.effective?.toFixed(1) ?? '—'}개 분량입니다(순위 상관으로 잰 유효 개수이며, 서로 독립이라는 증명은 아닙니다). 함께 높다고 근거가 그 수만큼 쌓인 것은 아닙니다.${flat}`;
 }

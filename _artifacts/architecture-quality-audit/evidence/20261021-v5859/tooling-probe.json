@@ -1,0 +1,47 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "evidence": "Extracted pure sections/functions in VM; repository gates were not executed; no product writes or external calls",
+  "ledger": {
+    "originalMax": 719,
+    "deletedRuleHeading": "## R719. 원인 지지는 방향 일치만 (v57.93, P1907)",
+    "originalErrors": [],
+    "afterRemovingHighestRuleErrors": [],
+    "remainingMax": 718,
+    "manifestMax": 710
+  },
+  "textPins": [
+    {
+      "name": "direct",
+      "pins": 1,
+      "source": "const source = read('src/ui/pages/home.js');\ncheck('v58.59 x', source.includes('x'));"
+    },
+    {
+      "name": "alias",
+      "pins": 0,
+      "source": "const source = read('src/ui/pages/home.js');\nconst alias = source;\ncheck('v58.59 x', alias.includes('x'));"
+    },
+    {
+      "name": "multiline",
+      "pins": 0,
+      "source": "const source = read('src/ui/pages/home.js');\ncheck('v58.59 x', /x/.test(\n source));"
+    }
+  ],
+  "traceFixtures": [
+    {
+      "name": "literal",
+      "source": "check('untraceable new assertion', condition)",
+      "labels": [
+        "untraceable new assertion"
+      ]
+    },
+    {
+      "name": "variable",
+      "source": "const label='untraceable new assertion'; check(label, condition)",
+      "labels": []
+    }
+  ],
+  "freshness": {
+    "newPathReplacingOldStalePathPasses": true,
+    "comparison": "staleDocs.length <= Number(freshnessBaseline.staleCount ?? 0)"
+  }
+}

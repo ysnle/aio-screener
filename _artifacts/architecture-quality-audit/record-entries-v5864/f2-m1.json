@@ -1,0 +1,18 @@
+{
+  "version": "v58.64", "date": "2026-10-23",
+  "p": {
+    "title": "산출물 캐시가 소유자를 fetch 함수 이름으로 식별해 루트 간 혼합·강제 새로고침 누락",
+    "symptom": "bind된 fetch는 모두 'bound fetch'라는 같은 이름이라 다른 transport·테스트 루트가 같은 저장소를 공유할 수 있었다(M1). 지식 화면(atlas·principles·masters)은 bind하지 않은 root.fetch로 별도 저장소를 써서, 수동 강제 새로고침이 그 캐시를 비우지 못했다.",
+    "root_cause": "호출마다 새 bind 함수를 만들어 정체성 키가 무의미해졌고, 이를 이름 키로 보완했다.",
+    "fix": "artifact-cache에 stableFetcher(root)를 두어 루트마다 하나의 bound fetch를 재사용하고 저장소는 함수 정체성으로만 키를 잡는다. 모든 호출부(bootstrap 강제 새로고침, shared-artifacts, us-listings, fiscal/portfolio/stock-read, screener, atlas, principles, masters)를 전환했다.",
+    "violated_rule": "R632 입력/읽기 계약 일치",
+    "prevention": "scripts/ci-artifact-cache-check.mjs: 같은 루트 재사용·강제 재조회·지우기, 같은 이름 fetch를 가진 두 루트의 저장소 분리.",
+    "verification": "artifact-cache-check PASS."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-11", "text": "{P}: 같은 이름의 fetch를 가진 두 루트는 캐시를 공유하지 않고, 강제 새로고침은 지식 화면 산출물까지 같은 저장소에서 비운다.", "verify_by": "node scripts/ci-artifact-cache-check.mjs", "done": true }],
+  "qa_section": "아키텍처 감사 후속 v58.64",
+  "changelog": ["**캐시 소유자 ({P}):** 산출물 캐시를 함수 이름이 아니라 루트별 고정 fetch(stableFetcher)로 식별해, 루트 간 혼합과 지식 화면 캐시의 강제 새로고침 누락을 없앴다(M1)."],
+  "note": "아키텍처 감사 후속: 결정 항목 권장안 적용(SCR05·M1·M2·I02·DOMAIN #8), 유사 결함 클래스 전수 확인·수정, 레거시 화면 브라우저 확인. 로컬 검증; commit/push/deploy 미실행, Worker 재배포는 push 후.",
+  "status": null
+}

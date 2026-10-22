@@ -1,0 +1,75 @@
+function reconcileKrExchangeCloses(rows, exchangeRows, { nullCloseDates = [], maxDeviation = KR_EXCHANGE_CLOSE_MAX_DEVIATION, fetchedAt = new Date().toISOString(), nowMs = Date.now() } = {}) {
+  const base = Array.isArray(rows) ? rows.filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || ''))) : [];
+  const gaps = Array.isArray(nullCloseDates) ? [...nullCloseDates] : [];
+  const report = { source: KR_EXCHANGE_CLOSE_SOURCE, status: 'unavailable', reason: null, compared: 0, correctedCloses: 0, correctedRanges: 0, filledSessions: 0, filledDates: [], maxDeviationPct: null, providerMissingSessions: gaps };
+  // An in-session exchange bar (KST trading hours) is a live print, not a close: it neither corrects, fills nor
+  // enters the basis-mismatch comparison (an intraday 15% move must not reject the whole year's reconciliation).
+  const byDate = new Map((Array.isArray(exchangeRows) ? exchangeRows : []).filter((row) => row && isSessionComplete(row.date, 'kr', nowMs)).map((row) => [row.date, row]));
+  if (!base.length || !byDate.size) {
+    report.reason = !base.length ? 'provider-series-empty' : 'exchange-series-unavailable';
+    return { rows: base, nullCloseDates: gaps, report };
+  }
+  let maxDev = 0;
+  for (const row of base) {
+    const x = byDate.get(row.date);
+    if (!x || !(row.close > 0)) continue;
+    report.compared += 1;
+    maxDev = Math.max(maxDev, Math.abs(x.close / row.close - 1));
+  }
+  report.maxDeviationPct = report.compared ? round(maxDev * 100, 2) : null;
+  if (!report.compared) { report.reason = 'no-overlapping-sessions'; return { rows: base, nullCloseDates: gaps, report }; }
+  // A split or a different adjustment basis shows up as a large uniform gap; a closing auction does not.
+  if (maxDev > maxDeviation) { report.status = 'rejected'; report.reason = 'adjustment-basis-mismatch'; return { rows: base, nullCloseDates: gaps, report }; }
+  const ratioOf = (row) => row && row.close > 0 && typeof row.adjClose === 'number' && row.adjClose > 0 ? row.adjClose / row.close : null;
+  const out = base.map((row) => {
+    const x = byDate.get(row.date);
+    if (!x || !(row.close > 0)) return row;
+    const closeChanged = x.close !== row.close;
+    const rangeChanged = x.high !== row.high || x.low !== row.low;
+    if (!closeChanged && !rangeChanged) return row;
+    if (closeChanged) report.correctedCloses += 1;
+    if (rangeChanged) report.correctedRanges += 1;
+    const ratio = ratioOf(row);
+    return { ...row, close: round(x.close, 2), high: round(x.high, 2), low: round(x.low, 2), adjClose: ratio == null ? row.adjClose : round(x.close * ratio, 2), closeSource: KR_EXCHANGE_CLOSE_SOURCE };
+  });
+  const have = new Set(out.map((row) => row.date));
+  const firstDate = out[0].date;
+  for (const x of byDate.values()) {
+    if (x.date < firstDate || have.has(x.date)) continue;
+    const prev = [...out].reverse().find((row) => row.date < x.date) || null;
+    const next = out.find((row) => row.date > x.date) || null;
+    const prevRatio = ratioOf(prev), nextRatio = ratioOf(next);
+    // The adjusted/raw ratio of a filled session is known only when both neighbours agree (no ex-date in
+    // between) or, for a new latest session, when the previous bar carries no pending adjustment.
+    // Tolerance covers the two-decimal rounding of both series relative to the price (a 1,000원 stock's rounding moves
+    // the ratio by ~1e-5), still far below any real dividend step. An unknown ratio leaves the session unfilled rather
+    // than adding a null adjusted close that breadth and SMA windows would misread.
+    const tol = Math.max(1e-6, 0.011 / Math.max(1, Math.min(prev?.close || Infinity, next?.close || Infinity)));
+    const ratio = next ? (prevRatio != null && nextRatio != null && Math.abs(prevRatio - nextRatio) < tol ? nextRatio : null)
+      : (prevRatio != null && Math.abs(prevRatio - 1) < tol ? 1 : null);
+    if (ratio == null) continue;
+    const template = prev || next;
+    out.push({
+      date: x.date,
+      observedAt: `${x.date}T00:00:00.000Z`,
+      instrumentId: template?.instrumentId || null,
+      timeframe: template?.timeframe || null,
+      currency: template?.currency || 'KRW',
+      close: round(x.close, 2),
+      adjClose: round(x.close * ratio, 2),
+      high: round(x.high, 2),
+      low: round(x.low, 2),
+      volume: x.volume == null ? null : Math.round(x.volume),
+      fetchedAt,
+      closeSource: KR_EXCHANGE_CLOSE_SOURCE,
+    });
+    have.add(x.date);
+    report.filledSessions += 1;
+    report.filledDates.push(x.date);
+  }
+  out.sort((a, b) => a.date.localeCompare(b.date));
+  const filled = new Set(report.filledDates);
+  report.providerMissingSessions = gaps.filter((date) => !filled.has(date));
+  report.status = 'reconciled';
+  return { rows: out, nullCloseDates: report.providerMissingSessions, report };
+}

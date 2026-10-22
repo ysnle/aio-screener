@@ -5,7 +5,8 @@
 import { isDefensiveSector } from '../interpretation/concepts.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
-import { recordPercentile, RECORD_FULL_YEAR, recoveryCheck } from '../briefing/market-read.js';
+import { recoveryCheck } from '../briefing/market-read.js';
+import { recordPercentile, RECORD_FULL_YEAR } from './close-series.js';
 import { rrgRecentReading } from '../themes/recent-check.js';
 
 const last = (series) => (Array.isArray(series) && series.length ? series[series.length - 1] : null);
@@ -305,7 +306,9 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   // D15: a group with fewer than four members is reference only; it never names the strongest/weakest sub-theme.
   // A group without a measured 3-month return cannot be named strongest/weakest either (it read "통합 메이저(—)").
   const headline = mine.filter((group) => group.smallSample !== true && group.ret3m != null);
-  const byThree = [...(headline.length ? headline : mine)].sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9));
+  // v58.63 (architecture audit M03): with every group a small sample the fallback to `mine` revived exactly the groups D15
+  // holds back; no headline group means no strongest/weakest sentence.
+  const byThree = [...headline].sort((a, b) => (b.ret3m ?? -1e9) - (a.ret3m ?? -1e9));
   const strongest = byThree[0];
   const weakest = byThree[byThree.length - 1];
   const improving = mine.filter((group) => group.direction === 'improving');

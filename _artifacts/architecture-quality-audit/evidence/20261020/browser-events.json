@@ -1,0 +1,236 @@
+[
+  {
+    "observedAt": "2026-10-20T10:43:15.402Z",
+    "name": "desktop-home",
+    "action": "초기 고지 닫기 → 종가 및 카드 로딩 확인",
+    "url": "http://127.0.0.1:8795/#home",
+    "title": "대시보드 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-home.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-home.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:43:16.325Z",
+    "name": "desktop-signal",
+    "action": "주 메뉴 시장 상태 선택",
+    "url": "http://127.0.0.1:8795/#signal",
+    "title": "국면 판정 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-signal.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-signal.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:43:23.638Z",
+    "name": "desktop-breadth",
+    "action": "시장 상태 → 시장 폭",
+    "url": "http://127.0.0.1:8795/#breadth",
+    "title": "시장 폭 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-breadth.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-breadth.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:43:24.192Z",
+    "name": "desktop-sentiment",
+    "action": "시장 폭 → 투자 심리",
+    "url": "http://127.0.0.1:8795/#sentiment",
+    "title": "투자 심리 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-sentiment.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-sentiment.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:44:30.892Z",
+    "name": "desktop-macro",
+    "action": "주 메뉴 거시 · 금리 선택",
+    "url": "http://127.0.0.1:8795/#macro",
+    "title": "거시 경제 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-macro.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-macro.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:44:38.384Z",
+    "name": "desktop-fxbond",
+    "action": "거시 경제 → 금리 · 환율",
+    "url": "http://127.0.0.1:8795/#fxbond",
+    "title": "금리 · 환율 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-fxbond.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-fxbond.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:44:41.072Z",
+    "name": "desktop-themes",
+    "action": "주 메뉴 테마 · 섹터 선택",
+    "url": "http://127.0.0.1:8795/#themes",
+    "title": "테마 · 섹터 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-themes.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-themes.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:44:52.898Z",
+    "name": "desktop-themes-settled",
+    "action": "테마 자료 로딩 후 상태 확인",
+    "url": "http://127.0.0.1:8795/#themes",
+    "title": "테마 · 섹터 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-themes-settled.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-themes-settled.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:45:11.125Z",
+    "name": "desktop-korea-expanded",
+    "action": "한국 테마 펼치기",
+    "url": "http://127.0.0.1:8795/#themes",
+    "title": "테마 · 섹터 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-korea-expanded.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-korea-expanded.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:45:16.896Z",
+    "name": "desktop-korea-intraday",
+    "action": "장중 실시간 테마 등락 보기 펼치기",
+    "url": "http://127.0.0.1:8795/#themes",
+    "title": "테마 · 섹터 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-korea-intraday.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-korea-intraday.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:45:21.644Z",
+    "name": "desktop-korea-missing-detail",
+    "action": "시세 미수신 K-방산 카드 상세 클릭",
+    "url": "http://127.0.0.1:8795/#themes",
+    "title": "테마 · 섹터 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-korea-missing-detail.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-korea-missing-detail.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:45:48.063Z",
+    "name": "desktop-ticker",
+    "action": "주 메뉴 종목 선택",
+    "url": "http://127.0.0.1:8795/#ticker",
+    "title": "종목 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-ticker.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-ticker.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:45:55.255Z",
+    "name": "desktop-aapl",
+    "action": "추천 검색 AAPL 선택",
+    "url": "http://127.0.0.1:8795/#ticker?sym=AAPL",
+    "title": "Apple Inc. (AAPL) · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-aapl.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-aapl.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:46:03.406Z",
+    "name": "desktop-technical",
+    "action": "AAPL 요약 → 차트",
+    "url": "http://127.0.0.1:8795/#technical",
+    "title": "차트 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-technical.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-technical.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:46:10.824Z",
+    "name": "desktop-fundamental",
+    "action": "AAPL 차트 → 재무 공시",
+    "url": "http://127.0.0.1:8795/#fundamental",
+    "title": "재무 공시 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-fundamental.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-fundamental.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:46:14.554Z",
+    "name": "desktop-screener",
+    "action": "주 메뉴 스크리너 선택",
+    "url": "http://127.0.0.1:8795/#screener",
+    "title": "스크리너 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-screener.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-screener.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:46:51.512Z",
+    "name": "desktop-portfolio",
+    "action": "주 메뉴 포트폴리오 선택",
+    "url": "http://127.0.0.1:8795/#portfolio",
+    "title": "포트폴리오 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-portfolio.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-portfolio.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:46:55.185Z",
+    "name": "desktop-principles",
+    "action": "주 메뉴 리서치 라이브러리 선택",
+    "url": "http://127.0.0.1:8795/?mode=frames#principles",
+    "title": "개념·분석 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-principles.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-principles.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:47:02.925Z",
+    "name": "desktop-atlas",
+    "action": "리서치 → 산업 지도",
+    "url": "http://127.0.0.1:8795/?mode=taxonomy&node=cloud-hyperscaler&domain=domain-cloud-platform&view=domain#atlas",
+    "title": "산업 지도 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-atlas.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-atlas.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:47:40.597Z",
+    "name": "desktop-atlas-hbm",
+    "action": "메모리 지도 → DRAM·HBM 세부 영역",
+    "url": "http://127.0.0.1:8795/?mode=taxonomy&node=memory-dram-hbm&domain=domain-memory-storage&topic=deep-memory-storage#atlas",
+    "title": "산업 지도 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-atlas-hbm.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-atlas-hbm.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:47:48.639Z",
+    "name": "desktop-atlas-related-note",
+    "action": "DRAM·HBM → 관련 분석 노트 HBM과 광 인터커넥트의 역할 분담",
+    "url": "http://127.0.0.1:8795/?mode=frames#principles",
+    "title": "개념·분석 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-atlas-related-note.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-atlas-related-note.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:48:02.386Z",
+    "name": "desktop-masters",
+    "action": "리서치 → 대가 보유 종목",
+    "url": "http://127.0.0.1:8795/?mode=changes&manager=berkshire-hathaway#masters",
+    "title": "대가 보유 종목 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-masters.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-masters.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:48:20.995Z",
+    "name": "desktop-glossary",
+    "action": "주 메뉴 용어 사전 열기",
+    "url": "http://127.0.0.1:8795/?mode=changes&manager=berkshire-hathaway#masters",
+    "title": "대가 보유 종목 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-glossary.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-glossary.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:48:31.361Z",
+    "name": "desktop-glossary-search",
+    "action": "용어 사전 ROE 검색",
+    "url": "http://127.0.0.1:8795/?mode=changes&manager=berkshire-hathaway#masters",
+    "title": "대가 보유 종목 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-glossary-search.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-glossary-search.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:48:37.618Z",
+    "name": "desktop-ai-open",
+    "action": "상단 AI 도우미 열기, 메시지 전송 없음",
+    "url": "http://127.0.0.1:8795/?mode=changes&manager=berkshire-hathaway#masters",
+    "title": "대가 보유 종목 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-ai-open.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-ai-open.png"
+  },
+  {
+    "observedAt": "2026-10-20T10:48:43.645Z",
+    "name": "desktop-ai-input",
+    "action": "비민감 질문 입력만 확인, 전송하지 않음",
+    "url": "http://127.0.0.1:8795/?mode=changes&manager=berkshire-hathaway#masters",
+    "title": "대가 보유 종목 · AIO Screener",
+    "ariaFile": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-ai-input.aria.txt",
+    "screenshot": "C:/Projects/AIO/_artifacts/architecture-quality-audit-20261020/browser-desktop-ai-input.png"
+  }
+]

@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import { createMarketSnapshot, TIER_0_INSTRUMENTS, tier0Coverage, validateMarketSnapshot } from '../src/data/contracts/market-snapshot.js';
+import { createMarketSnapshot, EVIDENCE_TIER_INSTRUMENTS, TIER_0_INSTRUMENTS, tier0Coverage, validateMarketSnapshot } from '../src/data/contracts/market-snapshot.js';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { isLatestUsRegularClose, latestCompletedKrSession } from '../src/ai/time/market-session.js';
 
@@ -72,23 +72,31 @@ function minuteOfDay(parts) { return parts ? parts.hour * 60 + parts.minute : nu
 function isWeekday(weekday) { return !['Sat', 'Sun'].includes(weekday); }
 
 function isContinuousInstrument(symbol) {
-  return /(?:=X$|(?:CL|BZ|GC|SI)=F$|DX-Y\.NYB$)/i.test(symbol);
+  return /(?:=X$|(?:CL|BZ|GC|SI|ES|NQ)=F$|DX-Y\.NYB$)/i.test(symbol);
 }
+
+// Evidence tier (2026-10-21): SMH trades the US regular session; Tokyo and Hong Kong indices keep their own venue
+// hours (no holiday calendar — a holiday fails toward a missing evidence row, never toward a mislabelled close).
+const ASIA_VENUE_SESSIONS = Object.freeze({
+  '^N225': { zone: 'Asia/Tokyo', open: 9 * 60, close: 15 * 60 + 30 },
+  '^HSI': { zone: 'Asia/Hong_Kong', open: 9 * 60 + 30, close: 16 * 60 + 10 }
+});
 
 function scheduledSession(symbol, observedMs, nowMs) {
   const isKorea = /^\^(KS11|KQ11)$/.test(symbol);
-  const isUsSession = /^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)$/.test(symbol);
+  const isUsSession = /^(?:\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)|SMH)$/.test(symbol);
+  const asia = ASIA_VENUE_SESSIONS[symbol] || null;
   if (isContinuousInstrument(symbol)) {
     const nowUtc = zoneParts(nowMs, 'UTC');
     if (nowUtc && !isWeekday(nowUtc.weekday)) return 'MARKET_CLOSED';
     return null;
   }
-  if (!isKorea && !isUsSession) return null;
-  const zone = isKorea ? 'Asia/Seoul' : 'America/New_York';
+  if (!isKorea && !isUsSession && !asia) return null;
+  const zone = asia ? asia.zone : isKorea ? 'Asia/Seoul' : 'America/New_York';
   const observedLocal = zoneParts(observedMs, zone);
   const nowLocal = zoneParts(nowMs, zone);
-  const openMinutes = isKorea ? 9 * 60 : 9 * 60 + 30;
-  const closeMinutes = isKorea ? 15 * 60 + 30 : 16 * 60;
+  const openMinutes = asia ? asia.open : isKorea ? 9 * 60 : 9 * 60 + 30;
+  const closeMinutes = asia ? asia.close : isKorea ? 15 * 60 + 30 : 16 * 60;
   const nowMinute = minuteOfDay(nowLocal);
   const observedMinute = minuteOfDay(observedLocal);
   if (!nowLocal || !isWeekday(nowLocal.weekday)) return 'MARKET_CLOSED';
@@ -115,6 +123,13 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   const ageMs = Math.max(0, nowMs - observedMs);
   const provider = String(providerSession || '').toUpperCase();
   if (isLatestUsRegularClose({ instrumentId: symbol, observedAt, now: nowMs })) return 'MARKET_CLOSED';
+  // Evidence tier (SMH, Tokyo, Hong Kong): the chart meta keeps the regular-session price and flags PRE/POST outside
+  // the session, so the venue schedule — not the extended-hours flag — decides whether it is a completed close.
+  if ((symbol === 'SMH' || ASIA_VENUE_SESSIONS[symbol]) && ['PREPRE', 'PRE', 'POST', 'POSTPOST'].includes(provider)) {
+    const scheduled = scheduledSession(symbol, observedMs, nowMs);
+    if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+    if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= DAY_MS ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+  }
   if (provider === 'PRE') return 'PREMARKET';
   if (provider === 'POST' || provider === 'POSTPOST') return 'AFTER_HOURS';
   // v57.50 (CI on the 10/13 08:03Z data commit): ^VIX prints in Cboe global trading hours. A 03:46 ET value (15.53) was
@@ -200,7 +215,7 @@ function quoteQuality(raw, nowMs, session = null) {
 
 export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toISOString(), source = 'github-actions', now = Date.now() } = {}) {
   const bySymbol = new Map((Array.isArray(quotes) ? quotes : []).map((quote) => [String(quote?.symbol || quote?.instrumentId || ''), quote]));
-  const rows = TIER_0_INSTRUMENTS.map((instrument) => {
+  const toRow = (instrument) => {
     const raw = bySymbol.get(instrument.instrumentId);
     if (!raw) return null;
     const value = Number(raw.regularMarketPrice ?? raw.value ?? raw.price);
@@ -251,7 +266,10 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       delayedByMs: Number.isFinite(Number(raw.delayedByMs)) ? Number(raw.delayedByMs) : null,
       venue: raw.venue || raw.fullExchangeName || null
     };
-  }).filter(Boolean);
+  };
+  const rows = TIER_0_INSTRUMENTS.map(toRow).filter(Boolean);
+  // Evidence tier: only publishable observations are kept, and none of them decides `complete` (Tier 0 alone does).
+  const evidenceRows = EVIDENCE_TIER_INSTRUMENTS.map(toRow).filter((row) => row && PUBLISHABLE_QUALITIES.has(row.quality));
 
   const coverage = tier0Coverage(rows);
   const blockedRows = rows.filter((row) => !PUBLISHABLE_QUALITIES.has(row.quality));
@@ -269,14 +287,17 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       required: coverage.required,
       observed: coverage.observed,
       tier0Required: coverage.required,
-      tier0Observed: coverage.observed
+      tier0Observed: coverage.observed,
+      tier1Required: EVIDENCE_TIER_INSTRUMENTS.length,
+      tier1Observed: evidenceRows.length
     },
     quality: { gate: complete ? 'QG-01_PASS' : 'QG-01_BLOCKED', maxAgeMs: DAY_MS },
     errors: complete ? [] : [
       ...(coverage.observed === coverage.required ? [] : [`tier0_coverage:${coverage.observed}/${coverage.required}`]),
       ...blockedRows.map((row) => `tier0_quality:${row.instrumentId}:${row.quality}:${row.session}`)
     ],
-    quotes: rows
+    quotes: rows,
+    evidenceQuotes: evidenceRows
   });
   const validation = validateMarketSnapshot(snapshot);
   if (!validation.ok) throw new Error(`MARKET_SNAPSHOT_INVALID:${validation.errors.join(',')}`);

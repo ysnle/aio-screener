@@ -6,7 +6,7 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSyn
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { StringDecoder } from 'node:string_decoder';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateBrowserEvidence, evidenceDigest } from './lib/browser-evidence.mjs';
 import { failureCauseLines } from './lib/qa-failure-cause.mjs';
@@ -402,6 +402,13 @@ if (requestedGateIds || changedGateIds.length) {
   };
   (requestedGateIds || selectedGates.map((gate) => gate.id)).forEach(visit);
   selectedGates = allGates.filter((gate) => expanded.has(gate.id));
+  // v58.63 (architecture audit A26/QR02): a failed id that no longer names a gate (renamed or retired) was skipped by
+  // visit(), so a retry could select nothing and exit 0. Every requested failure must resolve to a gate to be retried.
+  const unresolvedIds = (requestedGateIds || []).filter((id) => !byId.has(id));
+  if (unresolvedIds.length) {
+    console.error(`[qa] rerun-failed: 실패했던 gate가 현재 manifest에 없습니다: ${unresolvedIds.join(', ')} — 이름이 바뀌었거나 퇴역했다면 대응 gate를 직접 실행해 확인하세요. 실패 배치는 그대로 둡니다.`);
+    process.exit(2);
+  }
 }
 selectedGroups = [...new Set(selectedGates.map((gate) => gate.group))];
 if (requestedGateIds) {
@@ -446,12 +453,39 @@ function inputFingerprint(patterns) {
   return digest;
 }
 
+// v58.63 (architecture audit A06): the fingerprint hashed the gate script but not the local modules it imports, so a
+// change in an imported checker or src/ module left the cache key unchanged and an old PASS was reused. The static
+// relative-import closure of the script (import ... from './x', import('./x'), export ... from './x') joins the key.
+const importClosureCache = new Map();
+const IMPORT_SPEC = /(?:\bimport\s*(?:[^'"()]*?\bfrom\s*)?|\bexport\s+[^'";]*?\bfrom\s*|\bimport\s*\(\s*)['"](\.{1,2}\/[^'"]+)['"]/g;
+function importClosure(entry) {
+  if (importClosureCache.has(entry)) return importClosureCache.get(entry);
+  const seen = new Set();
+  const stack = [entry];
+  while (stack.length) {
+    const file = stack.pop();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    let text = '';
+    try { text = readFileSync(join(root, file), 'utf8'); } catch { continue; }
+    for (const match of text.matchAll(IMPORT_SPEC)) {
+      const target = relative(root, resolve(dirname(join(root, file)), match[1])).replace(/\\/g, '/');
+      if (!target.startsWith('..') && /\.(?:mjs|js|cjs|json)$/.test(target)) stack.push(target);
+    }
+  }
+  seen.delete(entry);
+  const closure = [...seen].sort();
+  importClosureCache.set(entry, closure);
+  return closure;
+}
+
 function gateFingerprint(gate) {
   const hash = createHash('sha256');
   hash.update(JSON.stringify({ cacheVersion: manifest.cacheVersion, id: gate.id, script: gate.script, args: gate.args || [], env: gate.env || {}, platform: process.platform, node: process.versions.node.split('.')[0] }));
   hash.update(`\0${gate.script}\0`);
   try { hash.update(readFileSync(join(root, gate.script))); } catch { hash.update('MISSING'); }
   hash.update(inputFingerprint(gate.inputs));
+  for (const file of importClosure(gate.script)) hash.update(`\0import\0${file}\0${fileDigest(file) || 'MISSING'}`);
   return hash.digest('hex');
 }
 
@@ -644,7 +678,9 @@ function terminateChildTree(child) {
 function runGate(gate) {
   return new Promise((resolveResult) => {
     const fingerprint = gateFingerprint(gate);
-    const cached = gate.cache && !noCache && successCache.gates[gate.id]?.fingerprint === fingerprint;
+    // v58.63 (architecture audit A25/QR01): a gate being retried after a failure runs for real — an older success with the
+    // same fingerprint cannot resolve a later failure.
+    const cached = gate.cache && !noCache && !(requestedGateIds && requestedGateIds.includes(gate.id)) && successCache.gates[gate.id]?.fingerprint === fingerprint;
     if (cached) {
       const durationMs = Number(successCache.gates[gate.id]?.durationMs || 0);
       console.log(`[qa] CACHED ${gate.id} (${durationMs}ms prior)`);
@@ -776,6 +812,13 @@ function runGate(gate) {
           console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
         } else {
           console.error(`[qa] FAIL ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})`);
+          // v58.63 (A25): a failure invalidates this gate's cached success (from this run's view and on disk).
+          const fresh = readJson(cachePath, null);
+          if (successCache.gates[gate.id] || fresh?.gates?.[gate.id]) {
+            delete successCache.gates[gate.id];
+            if (fresh && fresh.gates) { successCache.gates = { ...fresh.gates, ...successCache.gates }; delete successCache.gates[gate.id]; }
+            writeJsonAtomic(cachePath, successCache);
+          }
           // v57.54: the failing lines first — the 30-line tail can be all warnings (data-lineage printed 30 NESTED-WARN
           // rows after its one FAIL row), which sent the reader into a 34KB failure file to find the cause.
           const causes = failureCauseLines(redactText([stdout, stderr].filter(Boolean).join('\n'), secrets));

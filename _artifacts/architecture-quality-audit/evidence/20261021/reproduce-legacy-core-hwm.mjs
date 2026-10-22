@@ -1,0 +1,26 @@
+import { execFileSync } from 'node:child_process';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+import { writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+const ref = 'd36bb256ddf60468d6c7a134628053c5796be6be';
+const read = path => execFileSync('git', ['show', `${ref}:${path}`], { encoding: 'utf8', maxBuffer: 5e6 });
+const core = read('js/aio-core.js'), chat = read('js/aio-chat.js');
+const start = core.indexOf('window.AIO.fetchSECBusinessDescription = async function('), end = core.indexOf('// v49.34 신규 fetch: fetchSECRiskFactors', start);
+assert(start >= 0 && end > start);
+const requests = [];
+const ctx = { window: { AIO: {} }, fetchViaProxy: async url => { requests.push(url); return { cik: '1645590', name: 'Hewlett Packard Enterprise Co', tickers: ['HPE'], sic: '3570', sicDescription: 'COMPUTER & OFFICE EQUIPMENT', filings: { recent: { form: ['10-K'], filingDate: ['2025-12-15'], reportDate: ['2025-10-31'], accessionNumber: ['0001645590-25-000001'], primaryDocument: ['hpe-20251031.htm'] } } }; } };
+vm.createContext(ctx); vm.runInContext(core.slice(start, end), ctx);
+const sec = await ctx.window.AIO.fetchSECBusinessDescription('HWM');
+assert.equal(sec.ticker, 'HWM'); assert.equal(sec.available, true); assert.equal(sec.companyName, 'Hewlett Packard Enterprise Co'); assert.equal(sec.cik, '0001645590');
+assert(requests[0].includes('CIK0001645590.json'));
+// Execute the exact chat consumer block, preserving its available-only condition.
+const consumerStart = chat.indexOf('      try {\n        var sec = secPromise ? await secPromise : null;');
+const consumerEnd = chat.indexOf('      try {\n        var wiki =', consumerStart);
+assert(consumerStart >= 0 && consumerEnd > consumerStart);
+const consumer = vm.runInNewContext('(async function(secPromise,t) { var results=[]; ' + chat.slice(consumerStart, consumerEnd) + '; return results.join("\\n"); })');
+const prompt = await consumer(Promise.resolve(sec), 'HWM');
+assert(prompt.includes('Hewlett Packard Enterprise Co')); assert(prompt.includes('/1645590/')); assert(prompt.includes('이 출처를 인용하여 답변'));
+const output = { ref, evidence: 'real core fetch function + exact chat consumer in VM; supplied HPE response fixture; no external request', requestedTicker: 'HWM', requestedUrl: requests[0], returned: sec, chatPrompt: prompt, wrongIssuerAccepted: true, officialIdentitySourcesProvidedByLead: ['https://www.sec.gov/Archives/edgar/data/4281/000000428126000025/0000004281-26-000025-index.htm', 'https://www.sec.gov/Archives/edgar/data/1645590/000164559026000072/0001645590-26-000072-index.htm'] };
+writeFileSync(fileURLToPath(new URL('./legacy-core-hwm-repro.json', import.meta.url)), JSON.stringify(output, null, 2) + '\n');
+console.log(JSON.stringify(output, null, 2));

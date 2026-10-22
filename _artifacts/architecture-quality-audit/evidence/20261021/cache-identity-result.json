@@ -1,0 +1,12 @@
+{
+  "evidence": "Isolated execution of actual runner fingerprint functions, in-memory input mutation; no gate/producer execution",
+  "runnerSha256": "c061cf7ab2ef842b1d3f18ed779ef1527465a20299ccb4c3d03cd29a5b2d16c5",
+  "gate": "data-continuity",
+  "script": "scripts/ci-data-continuity-check.mjs",
+  "dependency": "src/domain/screener/price-factors.js",
+  "baseline": "f0b52a94f544d9056aa1908fa60ebb052f3606be9708ef3f1cd54e05c472570a",
+  "dependencyChanged": "f0b52a94f544d9056aa1908fa60ebb052f3606be9708ef3f1cd54e05c472570a",
+  "gateChanged": "a6800dfadca967262a492070d8c1bccf7cdf65e891793e4f980853ec4149c0b4",
+  "dependencyMutationDetected": false,
+  "positiveControlDetected": true
+}

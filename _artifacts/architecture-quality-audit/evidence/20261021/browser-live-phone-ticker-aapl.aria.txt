@@ -1,0 +1,107 @@
+Browser tab: 1, Title: "Apple Inc. (AAPL) $339.50 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#ticker?sym=AAPL".
+1 AXWebArea Apple Inc. (AAPL) $339.50 · AIO Screener, URL: ysnle.github.io/aio-screener/#ticker?sym=AAPL
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	3 container
+		4 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		5 text 종가
+		6 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			7 text 10/20 마감 · 시세 16종 · 실시간 관측 41종 10/20 마감
+		8 text v58.52
+		9 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		10 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	11 container main-content
+		12 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			69 button 요약
+			70 button 차트
+			71 button 재무 공시
+			72 text AAPL
+			73 text Apple Inc.
+		17 container AAPL, ID: page-ticker
+			18 heading 종목 · Apple (AAPL), Value: 1, ID: ticker-page-title
+				74 text 종목 · Apple (AAPL)
+			75 container Description: 종목, ID: ticker-breadcrumb-main
+				76 text 종목
+			22 container ticker-detail-name
+				23 heading AAPL, Value: 2, ID: ticker-hero-name
+					77 text AAPL
+				78 text Apple Inc.
+			79 text $339.50
+			80 text 정규장 관측가 · 2026-10-21 05:00 한국 시간
+			81 text ▼ 1.00%
+			28 container ticker-hero-pnl
+				29 text 내 손익 
+				82 text 보유 종목 아님
+			31 heading 종목 검색, Value: 2
+				32 text 종목 검색
+			33 text field (settable) Description: 종목 티커 검색, Value: AAPL, ID: ticker-direct-search
+			34 button 분석 →
+			35 button NVDA
+			36 button AAPL
+			37 button MSFT
+			38 button 삼성전자
+			39 button SK하이닉스
+			83 container ticker-company-analysis
+				84 heading 기업 요약, Value: 2
+				85 button 차트 분석 (기술적) 추세·이동평균 정배열·셋업·거래량을 주기별로
+				86 button 재무 분석 (펀더멘탈) 매출·이익률·현금흐름·부채를 공시 원문 기준으로
+				87 button AI로 기업 분석
+				88 container
+					89 button (expanded) Secondary Actions: Collapse
+					90 heading 3
+					91 button (collapsed) Secondary Actions: Expand
+					92 heading 3
+					93 button
+			94 container ticker-price-panel
+				95 heading 가격 흐름, Value: 2
+					96 text 가격 흐름
+				97 container Description: 가격 이력 기간, ID: ticker-chart-period-tabs
+					98 checkbox 1개월, Value: 1
+					99 checkbox 3개월, Value: 0
+					100 checkbox 6개월, Value: 0
+					101 checkbox (disabled) 1년, Help: 확보된 가격 이력이 364일분입니다 — 1년 관측 요구(365일)를 채우지 못해 비활성화했습니다(선택 기간과 확보 기간을 구분합니다)., Value: 0
+				102 text 1개월 · 22개 관측 · 2026-09-21 ~ 2026-10-20 · 배당 제외 가격 · 요약 수익률은 배당 포함
+				103 image Description: 1개월 · 22개 관측 · 2026-09-21 ~ 2026-10-20 · 배당 제외 가격 · 요약 수익률은 배당 포함, ID: ticker-price-chart
+			104 container Description: 이 종목의 지금, ID: ticker-read
+				105 heading 이 종목의 지금, Value: 2
+				106 text 52주 위치
+				107 text 52주 저점 92% 52주 고점 수익률 — AAPL vs S&P 500 1개월
+				108 text +0.1%
+				109 text -0.7% 3개월
+				110 text +4.3%
+				111 text +2.8% 6개월
+				112 text +27.8%
+				113 text +9.2%
+				114 text AAPL
+				115 text S&P 500
+				116 button (collapsed) Secondary Actions: Expand
+			117 button (collapsed) 섹터 대비 성격 (참고) 펼치기, Secondary Actions: Expand
+				118 text 섹터 대비 성격 (참고)
+				119 text 펼치기
+			54 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				55 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-ticker-title
+					56 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				57 content list
+					58 container
+						59 text 속지 말 것 '많이 빠졌으니 싸다' 가격이 내렸다고 싸진 것은 아닙니다. 이익 전망이 함께 내려가면 가격이 내려도 밸류에이션은 그대로이거나 오히려 비싸집니다. 왜: 싸다는 판단은 가격이 아니라 가격 ÷ 앞으로의 이익으로 합니다. 하락 추세에서는 그 이익이 아직 내려가는 중일 수 있습니다.
+						60 button '많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기
+					61 container
+						62 text 속지 말 것 뉴스로 생긴 갭 뉴스로 크게 뛰거나 빠진 갭은 첫날 움직임이 과장되기 쉽습니다. 갭이 며칠 동안 메워지지 않고 유지되는지가 진짜 변화인지 가르는 기준입니다. 왜: 첫 반응은 감정과 포지션 정리가 섞여 있고, 며칠 뒤에야 새 정보가 가격에 자리를 잡습니다.
+						63 button 뉴스로 생긴 갭 — 리서치 라이브러리에서 개념 배우기
+					64 container
+						65 text 속지 말 것 헤드라인과 확인 안 된 소문 자극적인 헤드라인과 출처가 불분명한 소문은 빠르게 퍼지지만 대부분 가격에 오래 남지 않습니다. 공식 발표·실제 수치로 확인될 때까지는 판단의 근거가 아니라 확인할 거리입니다. 왜: 확인되지 않은 정보로 움직이면 정보가 사실로 밝혀지기 전의 변동만 떠안게 됩니다.
+						66 button 헤드라인과 확인 안 된 소문 — 리서치 라이브러리에서 개념 배우기
+			120 container Description: 이어서 볼 곳, ID: ticker-next
+				121 heading 이어서 볼 곳, Value: 2
+				122 content list
+					123 container
+						124 button
+					125 container
+						126 button
+					127 container
+						128 button
+			129 button (collapsed) 이 종목의 메모 · 당시 근거 저장, Secondary Actions: Expand
+				130 text 이 종목의 메모 · 당시 근거 저장
+			67 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				68 text 데이터 출처
+
+The focused UI element is 23 heading AAPL, Value: 2, ID: ticker-hero-name

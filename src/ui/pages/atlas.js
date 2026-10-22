@@ -1,12 +1,12 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { createEvidenceRegistry } from '../../domain/knowledge/evidence.js';
 import { createKnowledgeCapabilityBatchLoader } from '../knowledge/capability-loader.js';
-import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
+import { navigateKnowledgeRoute, navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../../ui/knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../../ui/knowledge/learning-controls.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { createSuppliedMaterialBridge } from '../../ui/knowledge/supplied-material-bridge.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { createIntegratedFrameworkSpine } from '../../ui/knowledge/integrated-framework-spine.js';
@@ -861,8 +861,10 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
              syncSharedState();
              render();
            },
-           onFrame: (id) => { root.history?.pushState?.(null, '', `${root.location.pathname}?mode=frames&node=${encodeURIComponent(id)}#principles`); route('principles'); },
-           onConcept: (id) => { root.history?.pushState?.(null, '', `${root.location.pathname}?mode=concept&node=${encodeURIComponent(id)}#principles`); route('principles'); }
+           // v58.63 (architecture audit UI-04): pushState then route() lost mode/node — the legacy showPage clears the query
+           // of a plain route first. The shared knowledge navigator carries them through, as research-shell does.
+           onFrame: (id) => { navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'frames', node: id } }); },
+           onConcept: (id) => { navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'concept', node: id } }); }
          });
          const arrival = createAtlasArrivalContext(documentRef, state.arrivalContext, () => {
            if (typeof root?.history?.back === 'function') root.history.back();
@@ -990,7 +992,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             page.dataset.aioReviewedAt = [state.research?.reviewedAt, state.foundations?.reviewedAt, state.foundationLessons?.reviewedAt, state.taxonomyCoverage?.reviewedAt, state.deepTaxonomy?.reviewedAt, state.relationshipGuides?.reviewedAt, REVIEWED_AT].filter(Boolean).sort().at(-1) || REVIEWED_AT;
           };
           const capabilityLoader = createKnowledgeCapabilityBatchLoader({
-            fetchFn,
+            fetchFn: stableFetcher(root),
             state,
             dataset: page.dataset,
             datasetMap,
@@ -1027,7 +1029,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             state.loadingArticleIds.add(moduleId);
             render();
             try {
-              const article = await loadJsonArtifact(fetchFn, `./public-data/knowledge/articles/atlas-foundations/${encodeURIComponent(moduleId)}.json`, { signal: scope?.signal });
+              const article = await loadJsonArtifact(stableFetcher(root), `./public-data/knowledge/articles/atlas-foundations/${encodeURIComponent(moduleId)}.json`, { signal: scope?.signal });
               if (article?.articleId !== `atlas-foundations:${moduleId}` || article?.surface !== 'atlas-foundations' || article?.lessonId !== moduleId) throw new Error(`article identity mismatch: ${moduleId}`);
               if (!isAlive()) return;
               state.knowledgeArticles = { articles: [...state.knowledgeArticles.articles, article] };

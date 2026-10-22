@@ -1,0 +1,31 @@
+path	status	sha256	read_lines	judgment
+src/ui/knowledge/capability-loader.js	FULL	ada7b2806b9db66eed73150b1fb79f841fcdd1d06eb31c92d16b0e55c962bf98	1-45	입증 결함 없음: pending key 중복 방지·isActive 후 state commit·finally loading 회수 확인
+src/ui/knowledge/evidence.js	FULL	21f5699b1a8fbbf04f373cc28aee5e74ef53821f0650946b1325cf21f7e3d86d	1-28	입증 결함 없음: textContent 렌더; source registry URL 신뢰 계약은 caller 미검증
+src/ui/knowledge/graph.js	FULL	1f103ffd92c3d2632b5562a188807c7453f90aefbc4ef103b4add18423c3bd8e	1-21	입증 결함 없음: 노드 map 기준 edge 관계 텍스트 대안 생성; 문자열은 textContent
+src/ui/knowledge/path.js	FULL	ee1491ca6dfbf5e0d76d186758df1b0009a46206998cc3437de1c6f7b6f2263c	1-25	입증 결함 없음: active step aria-current·버튼 콜백·누락 node ID fallback 확인
+src/ui/knowledge/tree.js	FULL	ae4c56496f85cc498c9f6386b5cc7e9115bf50952cb2b794e9c1715f64a52c55	1-25	입증 결함 없음: 네이티브 버튼·선택 aria-pressed·section 구조 확인
+src/ui/knowledge/safe-external-link.js	FULL	042febeb75a31293f04eccbec4f5d55a730ab5ec00e813d74c7fca18298dbae3	1-28	입증 결함 없음: HTTPS allowlist·무효 링크 href 제거·noopener 확인
+src/ui/knowledge/supplied-material-bridge.js	FULL	42c34c0579dfb0872ab27ad6b71c271dcd2087514043c46e74acfe81cfc0158c	1-45	입증 결함 없음: 내부 metadata만 hidden mount; 현재 수치/출처를 시각 주장하지 않음
+src/ui/knowledge/learning-controls.js	FULL	53e6167a3023531a3f1ba7f81e67f7a46a69a03ed55e636245a9296ca0d3ecd0	1-61	입증 결함 없음: WeakMap session draft·saved note·bookmark 재렌더 연속성 확인
+src/ui/knowledge/lesson.js	FULL	59f5ca11dd66582643f08cfde9600a97b6170985dd0b1ea3affc13029a47e846	1-76	입증 결함 없음: 정의/작동경로/사례/실패경계 textContent 표시·route target 전달 확인
+src/ui/knowledge/managers-view.js	FULL	507b2aee7843e4ce76ab7d8d5e19d60241b18610dd5cfb093dfa4755ca9a9c9a	1-81	입증 결함 없음: catalog/registry ID join·13F 범위/분기 지연 설명·운용방식 구분 확인
+src/ui/knowledge/current-observations.js	FULL	678acb36f5e72608eb39ae587465b212167e351a4c341a907aa3f06f45083a5f	1-142	입증 결함 없음: live replacement가 date/value/source lineage 함께 교체; CPI _fieldTs 의미는 producer 미검증
+src/ui/knowledge/integrated-framework-spine.js	FULL	a04ea60a1106f41c0da82cdb5d140d48571efd75bb9c9b9e43a527165ba41ecd	1-99	입증 결함 없음: 정적 교육 프레임과 현재 수치 분리·구조 질문/반증·링크 확인
+src/ui/knowledge/reference-curriculum.js	FULL	745d2f3ec3b3624666b07df67d934815988e156b394fc39799dc9489a9fafe22	1-115	입증 결함 없음: stages/lessons 선택·출처 safe link·구조 교육 경계 확인; keyboard browser 미실시
+src/ui/knowledge/glossary-bridge.js	FULL	62cef3824e7c195c64194933799fd4bd56093901f2bee85f5140399c8e590ed3	1-179	입증 결함 없음: concept merge·ranked search·query 재확인·navigation helper·observer 재진입 가드 확인
+src/ui/pages/sentiment.js	FULL	622b6e0ea808e2792a8b9c55c05d2df3e1db0716020ae86f7a253d7e26a0c730	1-73	입증 결함 없음: microtask coalesce·slice subscribe·active 이후 async redraw·dispose 확인
+src/ui/pages/analysis.js	FULL	ae0de49746c6bc311497b3f0b7a55dbaab02430b293edb0ff1ad83f57b9561c5	1-201	입증 결함 없음: home F&G close alignment·reference Korea tally 분리·route subscribe/cleanup 확인
+src/ui/pages/guide.js	FULL	cefb8593fd56f513e1b7fe63ad3e0123421112159084e874e0be16e14a1f0a22	1-222	입증 결함 없음: RULES 수치 기반 설명·search text walker·jump focus·capability 상태 구분 확인
+src/ui/knowledge/analysis-frames.js	FULL	5b6a3b9a01875ee32ba508a44bab910b0d90e648ff7a546efb1ecc9e452c829e	1-316	입증 결함 없음: flow/fanout/branches/forces 구별·가정/근거 fold·단위/음수 bar 처리 확인
+src/ui/pages/market.js	FULL	e76f8852ddb0b80162e95e8c39844bcbc2b4f6b082dc7d39ad8828600a43bb16	1-394	입증 결함 없음: quote lineage·변화율 coherent 신호 구분·macro snapshot·구독/async alive 확인
+src/ui/knowledge/concepts-view.js	FULL	b6f1b762014b213d8aeb906b37eb04acc285441595cb89fd8e5b2d5d93383b7a	1-316	PRE-EXISTING warning UI-01: D6의 D2/D3 선행레슨을 오탈자 정규식이 제거; 실제 module headless 재현
+src/ui/knowledge/industry-view.js	FULL	eb05fb9751425777c7a11eeee636190a4e25e6a1c4d1e2e9112904d77db05b6c	1-397	입증 결함 없음: product 연결과 기업 역할 분리·typed relation·dated observation 문맥 연결 확인
+src/ui/knowledge/research-shell.js	FULL	27a0b2a7aed058b1870a6be490466e6457f816a04bbb20c3072d602e7d9e6444	1-724	입증 결함 없음: query 재확인·shelf keyboard·읽음 상태·same page navigation 확인; scroll listener는 다음 scroll에서 회수하므로 즉시 teardown 미보장은 잔여 위험
+src/ui/pages/portfolio.js	FULL	5d9a30908f0ee2e729eb6e9896362606826c48051b4a942bce0efaebccf3e228	1-729	입증 결함 없음: domain surface 소비·통화/미수신/partial 총액 보류·도넛 입력 signature·quote retry 확인
+src/ui/pages/news.js	FULL	e40941a63b7711d6332ef458fec9264dad1609e2391a08b949f3cec8b70882c2	1-702	입증 결함 없음: safe URL·title/summary textContent·news key pending 갱신/사용자 focus 보호·teardown 확인
+src/ui/pages/entity.js	FULL	2e09027a3a97326ae499a82631532389e9a2fc830430eaad60f380a39f6cdab5	1-1047	PRE-EXISTING warning UI-02: renderTickerActivity가 원가 통화 KRW를 USD 시세에서 직접 차감; 실제 module headless 재현
+src/ui/pages/principles.js	FULL	9939da62fb820527d13b4d5e153c2a479ae10ac358427f2e3119581e50034a64	1-814	입증 결함 없음: URL selection·capability loading·article identity·map/column/lesson render 책임 확인; UI-01 caller 확인
+src/ui/pages/atlas.js	FULL	1f55e4e4cb9f00c173ef3bda4be86a535e3367e2127dc180943299cd26495044	1-938	전문 검토 완료: UI-04 선택소실 재현 유지; 정적 정의/typed 관계/기준일/출처 계약 추가 입증 결함 없음
+src/ui/pages/masters.js	FULL	0cf0b36b72242641606844ecc9a62cb5d5fcfd8c40e688f6456607d585d62c16	1-1520	df6f0b33 전문 검토 완료: UI-05 서로 다른 보고분기 impliedPrice 비교로 잘못된 신고 괴리 표시; 실제 artifact 확인
+src/ui/pages/themes.js	FULL	a444801402a2bb026fdce847e11d893f076ae70776313a998c3e8e93103b902a	1-1386	df6f0b33 전문 검토 완료: RRG/기간수익률·단위·detail selection 일치·출처·결측 처리 확인; 추가 입증 결함 없음
+src/ui/pages/screener.js	FULL	c3bf24b22fdfe27c90b8eaa37dab68ac5b076618de5d26b2e64c142c72e62345	1-2905	df6f0b33 전문 검토 완료: UI-03 sampled signature 재현; workbench preview/run/replay·drawer·필터/정렬·캐시·teardown 계약 확인

@@ -279,7 +279,13 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   let timer = null;
   input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 120); });
   input.addEventListener('keydown', (event) => { if (event.key === 'Escape') { results.hidden = true; input.blur(); } });
-  input.addEventListener('blur', () => setTimeout(() => { results.hidden = true; }, 180));
+  // v58.63 (architecture audit A13): the list closes only when focus leaves the whole search box. Tab from the input
+  // into a result button kept the old 180ms blur timer, which hid the list and dropped focus to BODY.
+  search.addEventListener('focusout', (event) => {
+    if (event.relatedTarget && search.contains(event.relatedTarget)) return;
+    setTimeout(() => { if (!search.contains(doc.activeElement)) results.hidden = true; }, 180);
+  });
+  results.addEventListener('keydown', (event) => { if (event.key === 'Escape') { results.hidden = true; input.focus(); } });
   search.append(input, results);
   head.append(titleBox, search);
   const grid = el(doc, 'div', 'rl-grid');

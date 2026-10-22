@@ -514,9 +514,11 @@ jobs:
       # artifact clock alone kept the daily lane "due" on every 30-minute cycle. It is written only after the daily
       # poll succeeded and its result passed every gate and the commit step (a no-change commit counts) — a failed
       # cycle leaves the marker where it was, so the lane stays due.
+      # v58.63 (architecture audit A21/WF01): a commit step that lost a main race exits 0 with collision=true and publishes
+      # nothing; that poll's evidence was discarded, so it must not stamp the lane as polled (the retry would skip it).
       - name: Record daily-lane poll marker
         id: daily-lane-marker-write
-        if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' && steps.masters.outcome == 'success' && steps.commit.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' && steps.masters.outcome == 'success' && steps.commit.outcome == 'success' && steps.commit.outputs.collision != 'true' }}
         continue-on-error: true
         run: node scripts/daily-lane-age.mjs --write-marker
 

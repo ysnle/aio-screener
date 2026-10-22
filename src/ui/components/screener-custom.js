@@ -5,7 +5,7 @@
  * re-render, reset and result counts handle them like any other control (filterRows reads that value). This panel
  * only edits the value and shows, per condition, how many rows pass and how many carry its data.
  */
-import { CUSTOM_CONDITIONS, CUSTOM_RECIPES, conditionLabel, normalizeConditions, parseConditionValue, parseConditionText } from '../../domain/screener/custom-conditions.js';
+import { CUSTOM_CONDITIONS, CUSTOM_RECIPES, conditionLabel, conditionTemplate, normalizeConditions, parseConditionValue } from '../../domain/screener/custom-conditions.js';
 
 // Conditions last for the session (a screen change remounts the panel); the UI layer keeps no browser storage.
 let sessionConditions = [];
@@ -82,11 +82,12 @@ export function installCustomConditions(documentRef) {
     if (search && searchFromPanel && search.value === searchFromPanel) { search.value = ''; search.dispatchEvent(new Event('change', { bubbles: true })); }
     searchFromPanel = '';
   };
+  // v58.63 (SCR04): a strict bound (미만/초과) is part of the chip's identity, so "PER 20 미만" rebuilds a "PER 20 이하" chip.
+  const chipKey = (condition) => `${condition.id}${condition.strict ? ':strict' : ''}`;
   const buildChip = (condition) => {
     const chip = el(documentRef, 'span', 'scr-custom-chip');
-    chip.dataset.chip = condition.id;
-    const template = CUSTOM_CONDITIONS.find((item) => item.id === condition.id);
-    const [before, after] = template.label.split('{n}');
+    chip.dataset.chip = chipKey(condition);
+    const [before, after] = conditionTemplate(condition).split('{n}');
     chip.append(before);
     if (after != null) {
       const value = el(documentRef, 'input');
@@ -105,7 +106,7 @@ export function installCustomConditions(documentRef) {
   // v57.61 WCAG 2.4.3: chips are keyed by condition id and only rebuilt when the set or order changes; otherwise the
   // values and counts are synced in place so a focused chip input or 빼기 button keeps focus across screener renders.
   const renderChips = () => {
-    const ids = current.map((condition) => condition.id);
+    const ids = current.map(chipKey);
     const chips = [...list.children];
     if (chips.length !== ids.length || chips.some((chip, index) => chip.dataset.chip !== ids[index])) {
       const active = documentRef.activeElement;
@@ -116,12 +117,12 @@ export function installCustomConditions(documentRef) {
       if (focusKey) findIn(focusKey[0], focusKey[1])?.focus();
     }
     current.forEach((condition) => {
-      const chip = findIn('chip', condition.id);
+      const chip = findIn('chip', chipKey(condition));
       if (!chip) return;
       const value = chip.querySelector('input[data-condition]');
       if (value) {
         if (documentRef.activeElement !== value && value.value !== String(condition.value)) value.value = String(condition.value);
-        value.setAttribute('aria-label', `${conditionLabel({ id: condition.id, value: condition.value })} 기준값`);
+        value.setAttribute('aria-label', `${conditionLabel(condition)} 기준값`);
       }
       const remove = chip.querySelector('button[data-remove]');
       remove.setAttribute('aria-label', `${conditionLabel(condition)} 조건 빼기`);
@@ -140,17 +141,28 @@ export function installCustomConditions(documentRef) {
     renderChips();
     input.dispatchEvent(new Event('change', { bubbles: true }));
   };
+  const applySentence = (parsed, sentence) => {
+    // v58.63 (SCR04): OR, an inverted direction or a won amount applies nothing and keeps the sentence, instead of a silently different screen.
+    if (parsed.unsupported?.length) {
+      parseNote = `'${parsed.unsupported.join("', '")}'는 적용하지 않았습니다. 조건은 모두 '그리고'로 묶이며, 반대 방향(예: PER 이상)은 목록에 없는 조건이고, 거래대금은 달러 백만 단위(예: 거래대금 20백만)로 적습니다. 문장을 고쳐 다시 적용해 주세요.`;
+      note.textContent = parseNote;
+      return;
+    }
+    parseNote = !parsed.conditions.length ? '알아들은 조건이 없습니다. 아래 목록에서 골라 주세요.'
+      : parsed.unknown ? `'${parsed.unknown}'는 조건으로 읽지 못해 이름·업종 검색에 넣었습니다.` : '';
+    if (parsed.unknown && parsed.conditions.length) {
+      const search = documentRef.getElementById('scr-text-search');
+      if (search) { search.value = parsed.unknown; searchFromPanel = parsed.unknown; search.dispatchEvent(new Event('change', { bubbles: true })); }
+    }
+    if (parsed.conditions.length) { if (text.value === sentence) text.value = ''; commit([...current, ...parsed.conditions]); } else note.textContent = parseNote;
+  };
   const onClick = (event) => {
     const target = event.target;
     if (target === apply) {
-      const parsed = parseConditionText(text.value);
-      parseNote = !parsed.conditions.length ? '알아들은 조건이 없습니다. 아래 목록에서 골라 주세요.'
-        : parsed.unknown ? `'${parsed.unknown}'는 조건으로 읽지 못해 이름·업종 검색에 넣었습니다.` : '';
-      if (parsed.unknown && parsed.conditions.length) {
-        const search = documentRef.getElementById('scr-text-search');
-        if (search) { search.value = parsed.unknown; searchFromPanel = parsed.unknown; search.dispatchEvent(new Event('change', { bubbles: true })); }
-      }
-      if (parsed.conditions.length) { text.value = ''; commit([...current, ...parsed.conditions]); } else note.textContent = parseNote;
+      // v58.63: the sentence parser loads on the click (boot budget); the picker below works without it.
+      const sentence = text.value;
+      import('../../domain/screener/condition-text-parser.js').then(({ parseConditionText }) => applySentence(parseConditionText(sentence), sentence))
+        .catch(() => { note.textContent = '문장 해석을 불러오지 못했습니다. 아래 목록에서 골라 주세요.'; });
     } else if (target === add && select.value) {
       commit([...current, { id: select.value }]);
       select.value = '';

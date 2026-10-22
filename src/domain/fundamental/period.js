@@ -40,6 +40,12 @@ export function fiscalYearLabel(periodEnd) {
   const [y, m, d] = end.split('-').map(Number);
   return `FY${m === 1 && d <= 7 ? y - 1 : y}`;
 }
+// v58.63 (architecture audit A08): the short axis label ("FY25") comes from the same rule, so a chart axis and the card
+// beside it never name one filing by two years. Every fiscal-year label in src/ goes through these two functions.
+export function fiscalYearShortLabel(periodEnd) {
+  const label = fiscalYearLabel(periodEnd);
+  return label ? `FY${label.slice(-2)}` : null;
+}
 export function annualFilingStatus(periodEnd, asOf) {
   const end = String(periodEnd || '').slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(end)) return null;

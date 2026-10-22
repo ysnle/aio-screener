@@ -10,205 +10,17 @@
 // the observation (text) apart from the interpretation (reading), which is worded as a hypothesis.
 
 import { RULES } from '../rules/thresholds.js';
-import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession, resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
 import { shortDate } from '../content/date-labels.js';
-import { historyFieldSessionDate } from '../market/history-session.js';
 import { brentWtiFromSeries } from '../macro/macro-signals.js';
 
 const DAY_MS = 86400000;
 
-function finite(value) {
-  if (value == null || typeof value === 'boolean') return null; // Number(null) is 0, not a reading
-  const number = typeof value === 'string' && value.trim() === '' ? NaN : Number(value);
-  return Number.isFinite(number) ? number : null;
-}
+// v58.64 (DOMAIN #8): the close series lives in domain/market/close-series.js; these names stay exported from here.
+import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile } from '../market/close-series.js';
+export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
-// A date-only stamp (YYYY-MM-DD or midnight UTC) already names the trading date; converting
-// midnight UTC to New York would move it to the previous day.
-// P1432: toLocaleDateString builds a time-zone formatter on every call, and this runs for every
-// row × field of the close history on each render (≈0.5 s per regime build); one shared formatter
-// plus a small memo keeps the same result at a fraction of the cost.
-const NY_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
-const NY_DATE_MEMO = new Map();
-function nyDate(iso) {
-  const text = String(iso || '');
-  if (/^\d{4}-\d{2}-\d{2}$/.test(text) || /^\d{4}-\d{2}-\d{2}T00:00:00(\.000)?Z$/.test(text)) return text.slice(0, 10);
-  if (NY_DATE_MEMO.has(text)) return NY_DATE_MEMO.get(text);
-  const ms = Date.parse(text);
-  const date = Number.isFinite(ms) ? NY_DATE.format(new Date(ms)) : null;
-  if (NY_DATE_MEMO.size > 20000) NY_DATE_MEMO.clear();
-  NY_DATE_MEMO.set(text, date);
-  return date;
-}
-
-// T01/M01 (expert review 2026-10-13): a field's dates are the sessions of the market that closes it. 24-hour assets
-// (won, yen, DXY, WTI, gold) also trade on Sunday evening and US holidays; that tick (about Friday's close) became its
-// own "close", so "20일" spanned 16-17 sessions and the basis chip read 10/11(일). Korean indices use the KRX calendar,
-// 24/7 crypto none, everything else the NYSE calendar. An unregistered year falls back to weekdays.
-const KR_CLOSE_FIELDS = new Set(['kospi', 'kosdaq']);
-const ALL_DAY_FIELDS = new Set(['btc']);
-export const closeSessionMarket = (field) => KR_CLOSE_FIELDS.has(field) ? 'KR' : ALL_DAY_FIELDS.has(field) ? null : 'US';
-const SESSION_MEMO = new Map();
-export function isCloseSessionDate(date, market) {
-  if (!market) return true;
-  const key = `${market}:${date}`;
-  if (!SESSION_MEMO.has(key)) {
-    const status = resolveMarketCalendarSession({ market, date }).status;
-    const weekday = new Date(`${date}T12:00:00Z`).getUTCDay();
-    if (SESSION_MEMO.size > 5000) SESSION_MEMO.clear();
-    SESSION_MEMO.set(key, status === 'open' || (status === 'unknown' && /^\d{4}-\d{2}-\d{2}$/.test(String(date)) && weekday !== 0 && weekday !== 6));
-  }
-  return SESSION_MEMO.get(key);
-}
-
-// v57.50 C11: New York wall-clock minute at which each field's session settles. Two observations can share one NY
-// date — the 16:59:59 ET won settlement (1,340.02) and an evening tick at 23:30 ET (1,340.90) were both "10/9", and the
-// later row won. With a settle time known for both stamps, the observation at or just before the settle is kept; one
-// after it is used only when nothing earlier exists. Fields without an entry (breadth counts, F&G, Korean indices,
-// crypto) and date-only stamps keep the former rule: the later row wins.
-const SESSION_CLOSE_NY_MINUTE = Object.freeze({
-  spx: 960, nasdaq: 960, ndx: 960, dow: 960, rut: 960, tlt: 960, // NYSE/Nasdaq close 16:00 ET
-  vix: 975, vix3m: 975, vvix: 975, // Cboe volatility indices settle 16:15 ET
-  tnx: 900, // the 10-year yield index stops at 15:00 ET
-  dxy: 1020, wti: 1020, brent: 1020, gold: 1020, usdkrw: 1020, usdjpy: 1020 // FX and futures trading day ends 17:00 ET (P1726: Brent futures too)
-});
-const NY_CLOCK = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-const NY_MINUTE_MEMO = new Map();
-function nyMinute(iso) {
-  const text = String(iso || '');
-  if (!/T\d{2}:\d{2}/.test(text) || /T00:00:00(\.000)?Z$/.test(text)) return null; // date-only stamps carry no time of day
-  if (NY_MINUTE_MEMO.has(text)) return NY_MINUTE_MEMO.get(text);
-  const ms = Date.parse(text);
-  let minute = null;
-  if (Number.isFinite(ms)) {
-    const parts = Object.fromEntries(NY_CLOCK.formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
-    minute = Number(parts.hour) * 60 + Number(parts.minute);
-  }
-  if (NY_MINUTE_MEMO.size > 20000) NY_MINUTE_MEMO.clear();
-  NY_MINUTE_MEMO.set(text, minute);
-  return minute;
-}
-// Lower is closer to the settle: at/before it by distance, after it only behind every earlier stamp.
-const settleRank = (minute, close) => minute <= close ? close - minute : 10000 + minute - close;
-
-// One value per trading date. The producer stamps a close either near the bell or at its bar start,
-// and a later row can carry a late-settling bar (DXY/WTI); key by the observation's own NY date and
-// let the later row win unless C11's settle-time preference decides. Carried-forward weekend copies are not
-// observations, and neither is an observation dated on a day its market was closed (T01). `through` drops
-// observations after the basis date.
-// P1755: history arrays are replaced wholesale on reload (never mutated in place), and one render reads the same
-// (field, through) series many times, so results are memoised per array identity (+ length guard) and options.
-// Callers always receive fresh point objects, so a consumer that edits its copy cannot alter the memo.
-const CLOSE_SERIES_MEMO = new WeakMap();
-const copyPoints = (points) => points.map((point) => ({ ...point }));
-export function buildCloseSeries(history = [], field, { through = null, includeProvenance = false, market = closeSessionMarket(field) } = {}) {
-  if (!Array.isArray(history)) return computeCloseSeries(history, field, { through, includeProvenance, market });
-  let memo = CLOSE_SERIES_MEMO.get(history);
-  if (!memo || memo.length !== history.length) {
-    memo = { length: history.length, series: new Map() };
-    CLOSE_SERIES_MEMO.set(history, memo);
-  }
-  const key = JSON.stringify([field, through ?? null, !!includeProvenance, market ?? null]);
-  let series = memo.series.get(key);
-  if (!series) {
-    series = computeCloseSeries(history, field, { through, includeProvenance, market });
-    memo.series.set(key, series);
-  }
-  return copyPoints(series);
-}
-function computeCloseSeries(history, field, { through, includeProvenance, market }) {
-  const byDate = new Map();
-  const rankOf = new Map();
-  const close = SESSION_CLOSE_NY_MINUTE[field] ?? null;
-  const rows = [...(Array.isArray(history) ? history : [])].sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
-  for (const row of rows) {
-    const value = finite(row?.[field]);
-    if (value == null || (value <= 0 && !/^(breadth|advance|distribution)/.test(field))) continue; // a 0 yield/price is a producer gap, not a close (a 0 count is real)
-    const meta = row.fieldMeta?.[field];
-    if (meta?.observationRelation === 'carried-forward') continue;
-    // v57.70: a previous close stamped at the next bar's 00:00 ET boundary carries its own session date.
-    // v57.81: rows written before v57.70 carry none — their previous close is dated from its bar stamp and fetch time
-    // (historyFieldSessionDate), so the 10/13 WTI close on the 10/14 row is no longer read as a second 10/14 value.
-    const sessionDate = historyFieldSessionDate(meta, field);
-    const sessionDated = !!sessionDate;
-    const date = sessionDated ? sessionDate : meta?.observedAt ? nyDate(meta.observedAt) : row.date;
-    if (!date || (through && date > through) || !isCloseSessionDate(date, market)) continue;
-    const minute = close != null && meta?.observedAt ? nyMinute(meta.observedAt) : null;
-    // A session-dated previous close is that session's completed bar — as close to the settle as a stamp can be.
-    // v57.81: only a previous close; a session-dated backfill bar or closing print keeps C11's settle-time rank.
-    const previousClose = meta?.observationRelation === 'previous-completed-close' || meta?.valueBasis === 'previous-completed-close';
-    const rank = sessionDated && previousClose && close != null ? 0 : minute == null ? null : settleRank(minute, close);
-    const held = rankOf.get(date);
-    if (byDate.has(date) && rank != null && held != null && rank > held) continue; // C11: an earlier stamp sits closer to the settle
-    rankOf.set(date, rank);
-    byDate.set(date, includeProvenance ? { value, observedAt: meta?.observedAt || row.date, source: meta?.source || null, ...(Number.isFinite(meta?.eligible) ? { eligible: meta.eligible } : {}) } : value);
-  }
-  return [...byDate.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([date, value]) => includeProvenance ? { date, ...value } : { date, value });
-}
-
-// The common reference: the S&P 500's last completed close.
-export function closeBasis(history = []) {
-  const spx = buildCloseSeries(history, 'spx');
-  return spx.length ? spx[spx.length - 1].date : null;
-}
-
-// P1533: US sessions after `from` up to `to` on the registered exchange calendar. Weekday-only counting read a market
-// holiday as a missed session (2026-07-01 -> 07-06 counted 3 and dropped a one-session-old input as stale).
 const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
-
-/** How one input's observation date relates to the basis: aligned · lagged · stale · ahead · missing. */
-export function alignInput(date, basis, maxLag = 2) {
-  const day = date ? nyDate(date) : null;
-  if (!day) return { status: 'missing', date: null, lag: null };
-  if (!basis) return { status: 'aligned', date: day, lag: 0 };
-  if (day > basis) return { status: 'ahead', date: day, lag: 0 };
-  const lag = sessionsBetween(day, basis);
-  return { status: lag === 0 ? 'aligned' : lag <= maxLag ? 'lagged' : 'stale', date: day, lag };
-}
-
-export const isUsable = (alignment) => alignment?.status === 'aligned' || alignment?.status === 'lagged';
-
-/** One short basis chip per card: "9/30", "9/29 · 1거래일 전", "9/24 · 오래됨(판정 제외)". */
-export function alignmentLabel(alignment) {
-  if (!alignment || alignment.status === 'missing') return '미수신';
-  const day = shortDate(alignment.date);
-  if (alignment.status === 'aligned') return day;
-  if (alignment.status === 'lagged') return `${day} · ${alignment.lag}거래일 전`;
-  if (alignment.status === 'ahead') return `${day} 장중 · 판정 제외`;
-  return `${day} · 오래됨(판정 제외)`;
-}
-
-// P1428 (Codex review): n observations are n sessions only when no day is missing. If the session span
-// to that point exceeds n plus holiday slack, the producer skipped days and the "5일/20일" change is
-// withheld rather than silently covering a longer period. T19: a Korean series counts KRX sessions.
-// T01: "n일" is n sessions, not n rows — the point is the first observation at least n sessions back (a missing
-// session falls back to the next earlier one inside the slack). A complete series gives the same point as before.
-// v57.50 C12: exported so every "n거래일 변화" (home KPI trend, rates/FX) counts sessions the same way.
-export function sessionPointBack(series, n, market = 'US') {
-  const last = Array.isArray(series) ? series[series.length - 1] : null;
-  if (!last) return null;
-  for (let index = series.length - 2; index >= 0; index -= 1) {
-    const gap = countOpenSessionsBetween(series[index].date, last.date, market);
-    if (gap >= n) return gap > n + Math.max(2, Math.ceil(n * 0.15)) ? null : series[index];
-  }
-  return null;
-}
-
-// v57.50 D05/D20: where a value sits in AIO's own recorded history of that series (mid-rank percentile, the regime
-// radar's convention), with the record length. A fixed textbook line (분배일 5회, 시장 폭 40/60%) can be crossed on half
-// of all recorded days; the percentile says how unusual today is in this sample. Fewer than 252 records is provisional.
-export const RECORD_FULL_YEAR = 252;
-export function recordPercentile(series, value = null, { window = RECORD_FULL_YEAR } = {}) {
-  const points = (Array.isArray(series) ? series : []).filter((point) => Number.isFinite(point?.value)).slice(-window);
-  const current = finite(value) ?? points.at(-1)?.value ?? null;
-  if (current == null || points.length < 20) return { n: points.length, pct: null, provisional: true };
-  const below = points.filter((point) => point.value < current).length;
-  const equal = points.filter((point) => point.value === current).length;
-  const pct = Math.round((below + Math.max(0, equal - 1) / 2) / Math.max(1, points.length - 1) * 100);
-  // v57.81: 1 of 252 rounds to 0%, which read as 최저 for the second-lowest value; the extremes are rank facts.
-  const above = points.filter((point) => point.value > current).length;
-  return { n: points.length, pct, provisional: points.length < RECORD_FULL_YEAR, lowest: below === 0, highest: above === 0, lowRank: below + 1, highRank: above + 1 };
-}
 
 function stats(series, market = 'US') {
   if (!series.length) return null;
@@ -701,10 +513,18 @@ export function buildMarketRead(input = {}) {
   // Nominal ≈ real + breakeven, so the split itself is arithmetic, not a guess.
   if (real5 != null && bei5 != null && Math.abs(real5 + bei5) >= B.rateMove5dBp) {
     const realLed = Math.abs(real5) >= Math.abs(bei5);
+    // v58.63 (architecture audit A03): the reading follows the leading component's own sign — a real-yield fall
+    // eases the multiple instead of repeating the rising-yield burden sentence.
+    const lead = realLed ? real5 : bei5;
+    const reading = realLed
+      ? (lead > 0 ? '물가보다 실질금리가 금리를 움직여, 주식 밸류에이션(PER)에 더 직접적인 부담입니다.' : '물가보다 실질금리 하락이 금리를 끌어내려, 주식 밸류에이션(PER) 부담을 덜어 주는 방향입니다.')
+      : (lead > 0 ? '유가·물가 기대가 금리를 움직이는 구간입니다.' : '유가·물가 기대가 낮아지며 금리를 끌어내리는 구간입니다.');
+    const check = realLed
+      ? (lead > 0 ? '실질금리 상승이 멈추는지 — 멈추지 않으면 성장주 밸류에이션 부담 지속' : '실질금리 하락이 이어지는지 — 성장 둔화가 함께인지는 경기 지표로 따로 확인')
+      : (lead > 0 ? '유가와 다음 물가 지표가 기대인플레를 더 밀어 올리는지' : '유가와 다음 물가 지표가 기대인플레 하락을 이어 가는지');
     add(realLed ? 'real-yield-led' : 'breakeven-led', 78,
       `10년물 5일 변화 중 실질금리 ${signed(real5, 0, 'bp')}·기대인플레 ${signed(bei5, 0, 'bp')}${r.realYield10 != null ? `(실질금리 ${fmt(r.realYield10)}%)` : ''}.`, 'rates',
-      { reading: realLed ? '물가보다 실질금리가 금리를 움직여, 주식 밸류에이션(PER)에 더 직접적인 부담입니다.' : '유가·물가 기대가 금리를 움직이는 구간입니다.',
-        check: realLed ? '실질금리 상승이 멈추는지 — 멈추지 않으면 성장주 밸류에이션 부담 지속' : '유가와 다음 물가 지표가 기대인플레를 더 밀어 올리는지' });
+      { reading, check });
   }
   // (b) short vs long end — policy expectations or the long end itself;
   // v57.50 C10: the page quotes one 10-year series. The 10-year side is the same close series as "10년물 금리 5일"
@@ -1447,7 +1267,9 @@ export function buildMarketRegime(input = {}) {
     });
     const entersBurden = (point) => (point.d20 != null && point.d20 >= R.move20dBp) || (point.position != null && point.position >= R.rangeHighAt && point.d5 != null && point.d5 > 0);
     const latch = latchedState(daily, entersBurden, (point) => !entersBurden(point) && ((point.position == null || point.position < R.rangeExitAt) || point.d20 == null || point.d20 < R.exit20dBp));
-    const held = latch.on && !(tnx20 >= R.move20dBp || (atHigh && tnx5 != null && tnx5 > 0));
+    // v58.63 (architecture audit A02): the latch reads the raw close series, which can still hold a rate history the
+    // aligned inputs have withheld as stale — a held read needs today's aligned 10-year, or the axis stays unknown.
+    const held = !!tnx && tnx20 != null && latch.on && !(tnx20 >= R.move20dBp || (atHigh && tnx5 != null && tnx5 > 0));
     let state = 'neutral';
     if (!tnx || tnx20 == null) state = 'unknown';
     else if (latch.on) state = 'burden';
@@ -1481,7 +1303,7 @@ export function buildMarketRegime(input = {}) {
     const rateMove = tnx20 != null && tnx20 >= RULES.rates.move20dBp
       ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} 오른 구간${tnx5 != null && tnx5 < 0 ? `(최근 5일은 ${signed(tnx5, 0, 'bp')} 되돌림)` : ''}${atHigh ? ' · 1년 범위 상단' : ''}`
       : `1년 범위 상단에서 최근 5일 ${signed(tnx5, 0, 'bp')} 오른 장기금리`;
-    const heldRead = held ? `장기금리가 1년 범위 상단(${fmt(tnx.yearPosition * 100, 0)}%)에서 20거래일 ${signed(tnx20, 0, 'bp')}이고 최근 5일은 ${signed(tnx5, 0, 'bp')}${tnx5 != null && tnx5 < 0 ? ' 되돌렸지만' : '였지만'}, 범위 ${R.rangeExitAt * 100}% 아래로 내려오거나 20거래일 상승이 +${R.exit20dBp}bp 아래로 줄기 전까지는 할인율 부담으로 봅니다.${latch.since ? ` 부담 판정은 ${shortDate(latch.since)}부터 이어지고 있습니다.` : ''}` : null;
+    const heldRead = held ? `장기금리가 ${tnx.yearPosition == null ? '' : `1년 범위 상단(${fmt(tnx.yearPosition * 100, 0)}%)에서 `}20거래일 ${signed(tnx20, 0, 'bp')}이고 최근 5일은 ${signed(tnx5, 0, 'bp')}${tnx5 != null && tnx5 < 0 ? ' 되돌렸지만' : '였지만'}, 범위 ${R.rangeExitAt * 100}% 아래로 내려오거나 20거래일 상승이 +${R.exit20dBp}bp 아래로 줄기 전까지는 할인율 부담으로 봅니다.${latch.since ? ` 부담 판정은 ${shortDate(latch.since)}부터 이어지고 있습니다.` : ''}` : null;
     const read = heldRead || state === 'burden' ? heldRead || `${rateMove} — 주식 할인율 부담${realLed ? '. 실질금리 주도 여부는 5일 관측 기준이며(20일 전체를 분해한 자료는 없습니다), 최근 5일 상승분 대부분이 실질금리였습니다' : ''}.`
       : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
         : state === 'unknown' ? (tnx ? '10년물 20일 변화를 계산할 기록이 부족합니다.' : staleRead('금리', alignments.tnx))

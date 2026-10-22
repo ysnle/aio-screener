@@ -1,0 +1,203 @@
+{
+  "schemaVersion": "aio-qa-run.v1",
+  "runId": "2026-10-17T05-21-04-213Z-37808-p8qp47",
+  "manifestVersion": "aio-qa-pipeline.v1",
+  "profile": "affected",
+  "groups": [
+    "preflight"
+  ],
+  "changeSource": "explicit-files",
+  "changedFiles": [
+    "_artifacts/codex-reform-audit-20261015/HANDOFF.md",
+    "_artifacts/exhaustive-quality-audit-20261016/2026-10-17T05-14-54-664Z-11836-u8f57b.json",
+    "_artifacts/exhaustive-quality-audit-20261016/2026-10-17T05-15-04-353Z-14360-hxzhw3.json",
+    "_artifacts/exhaustive-quality-audit-20261016/BROWSER-LIVE.md",
+    "_artifacts/exhaustive-quality-audit-20261016/CLOSEOUT.md",
+    "_artifacts/exhaustive-quality-audit-20261016/CONTENT.md",
+    "_artifacts/exhaustive-quality-audit-20261016/FINANCIAL.md",
+    "_artifacts/exhaustive-quality-audit-20261016/GOVERNANCE.md",
+    "_artifacts/exhaustive-quality-audit-20261016/HANDOFF.md",
+    "_artifacts/exhaustive-quality-audit-20261016/LATEST-STATUS-v57.98.md",
+    "_artifacts/exhaustive-quality-audit-20261016/READING-BOUNDARIES.md",
+    "_artifacts/exhaustive-quality-audit-20261016/WORKFLOWS.md",
+    "_artifacts/exhaustive-quality-audit-20261016/assemble-latest.mjs",
+    "_artifacts/exhaustive-quality-audit-20261016/dossier-review-v57.98.json",
+    "_artifacts/exhaustive-quality-audit-20261016/dossier-review-v57.98.tsv",
+    "_artifacts/exhaustive-quality-audit-20261016/external-pipeline-v57.99.json",
+    "_artifacts/exhaustive-quality-audit-20261016/financial-counterexamples-v57.98.json",
+    "_artifacts/exhaustive-quality-audit-20261016/glossary-exceptions.tsv",
+    "_artifacts/exhaustive-quality-audit-20261016/glossary-review-v57.98.json",
+    "_artifacts/exhaustive-quality-audit-20261016/glossary-review-v57.98.tsv",
+    "_artifacts/exhaustive-quality-audit-20261016/latest-source-receipt.json",
+    "_artifacts/exhaustive-quality-audit-20261016/latest-validation.json",
+    "_artifacts/exhaustive-quality-audit-20261016/live-operations-observed.json",
+    "_artifacts/exhaustive-quality-audit-20261016/probe-read-freeze.mjs",
+    "_artifacts/exhaustive-quality-audit-20261016/registry-review.tsv",
+    "_artifacts/exhaustive-quality-audit-20261016/reproduce-financial.mjs",
+    "_artifacts/exhaustive-quality-audit-20261016/worked-review-v57.98.tsv",
+    "_artifacts/exhaustive-quality-audit-20261016/workspace-checks.json",
+    "_artifacts/internal-quality-review-20261016/HANDOFF.md",
+    "_artifacts/policy-criteria-review-20261016/HANDOFF.md"
+  ],
+  "startedAt": "2026-10-17T05:21:04.245Z",
+  "completedAt": "2026-10-17T05:21:08.866Z",
+  "durationMs": 4621,
+  "noCache": false,
+  "keepGoing": false,
+  "concurrency": {
+    "static": 4,
+    "browser": 1,
+    "external": 2
+  },
+  "counts": {
+    "CACHED": 11,
+    "PASS": 3
+  },
+  "targets": {},
+  "results": [
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 13321,
+      "fingerprint": "4df3147b46c3ec3a247c15f1840676d5ce32f591889f216ce030147f125c13bd"
+    },
+    {
+      "id": "version",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 204,
+      "fingerprint": "023b698a55e64df7dbe48620f16dcb1710a0eb956428370aad6da24dd66a19fe"
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 1305,
+      "fingerprint": "1d5e2372b0f4711ebfc09b62a601a73ab47ebe4e11ba459a8f73d773d10145ef"
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 317,
+      "fingerprint": "e774c2f4ebf09ab1d86aa51ad736da3ca7325cffeea0fa65b9bd9c4db16e0820"
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 176,
+      "fingerprint": "3d191ca4f87590800708b32ced7c43dc025e822b58cd2defb6b0b2ab4b909091"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 175,
+      "fingerprint": "ffa26e0ad07fbb0a47b38bd443221676090aa07dac2a762a96c0c058d5837454"
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 191,
+      "fingerprint": "899dad54d651030b6d380a7576bed99bcdbb5153c5edb0802ae1b9629bf70ec9"
+    },
+    {
+      "id": "route-registry",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 165,
+      "fingerprint": "8cfecf45e0d18de54d022ed6e0da5e2eb0cc177df63b7f65cf2030c49c6b37c0"
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 697,
+      "fingerprint": "b19229264a61b6ffa77c83c15c2ec8d95d3e8553b1b123ad44780654492dc215"
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 3411,
+      "fingerprint": "ebee02cc93182e454d990879517d4a7b4d4be8b8eeca5433f5f3fbcc569f2806"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 21583,
+      "fingerprint": "8677cca26c6cc108ee6cf4b286f171ceb437c1dd9f3839716823f9934df81afa"
+    },
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 234,
+      "fingerprint": "6fbd231150ef27fbf3cf45a1eab26f9ed5590d958a5049006724353bd7742f94",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Product charter OK: self-directed-investment-research-and-decision-support, 7 trust planes, 14 audited domains, execution=NONE.",
+      "error": ""
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 166,
+      "fingerprint": "3295451997f869010ae9aa9929c3f4da1dff18f2e689c60d852a79ba6f511df8",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "{\n  \"ok\": true,\n  \"version\": \"v57.98\",\n  \"workflowCount\": 13,\n  \"actionCount\": 61,\n  \"routeCount\": 19,\n  \"stateCount\": 5,\n  \"routeSoak\": \"pending\",\n  \"errors\": []\n}",
+      "error": ""
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 2512,
+      "fingerprint": "823811a40a23f5857c66ec1165aeb79398783cd502d8410baf4d59a3ffda083b",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "evidenceLevel": "static",
+      "output": "Control character check OK: 13 workflow YAML(s) clean+parseable, 0 file(s) with baseline-tracked pre-existing control chars, 0 regressions.",
+      "error": ""
+    }
+  ]
+}

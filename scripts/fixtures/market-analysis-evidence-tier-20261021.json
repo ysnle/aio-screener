@@ -1,0 +1,54 @@
+{
+  "about": "Evidence tier (v58.62): Yahoo chart values for the refresh-data run of 2026-10-21 02:21Z (the run in market-analysis-20261021.json), retrieved after the fact from the 5-minute and daily bars. NQ=F / ^N225 / ^HSI: the 02:10Z 5-minute bar close against the previous daily bar close (the producer fetchQuote basis); SMH: the 10/20 regular close (history.json smh 546.36) against 10/19 (548.46). ES=F is left out: its 10/20 daily bar has no close in the provider series, so its change basis is unknown — the tier is optional and a missing row must not matter. marketState is the provider flag expected at that time (REGULAR in session, CLOSED for SMH after the US close).",
+  "nowMs": "2026-10-21T02:21:39.000Z",
+  "quotes": [
+    {
+      "symbol": "SMH",
+      "regularMarketPrice": 546.36,
+      "regularMarketPreviousClose": 548.46,
+      "regularMarketChangePercent": -0.3829,
+      "observedAt": "2026-10-20T20:00:00.000Z",
+      "fetchedAt": "2026-10-21T02:21:10.358Z",
+      "marketState": "CLOSED",
+      "source": "Yahoo chart",
+      "sourceKind": "T3_PUBLIC_DELAYED",
+      "venue": "NasdaqGM"
+    },
+    {
+      "symbol": "NQ=F",
+      "regularMarketPrice": 29970.25,
+      "regularMarketPreviousClose": 29675.25,
+      "regularMarketChangePercent": 0.9941,
+      "observedAt": "2026-10-21T02:10:00.000Z",
+      "fetchedAt": "2026-10-21T02:21:10.358Z",
+      "marketState": "REGULAR",
+      "source": "Yahoo chart",
+      "sourceKind": "T3_PUBLIC_DELAYED",
+      "venue": "CME"
+    },
+    {
+      "symbol": "^N225",
+      "regularMarketPrice": 64789.89,
+      "regularMarketPreviousClose": 64075.42,
+      "regularMarketChangePercent": 1.115,
+      "observedAt": "2026-10-21T02:10:00.000Z",
+      "fetchedAt": "2026-10-21T02:21:10.358Z",
+      "marketState": "REGULAR",
+      "source": "Yahoo chart",
+      "sourceKind": "T3_PUBLIC_DELAYED",
+      "venue": "Osaka"
+    },
+    {
+      "symbol": "^HSI",
+      "regularMarketPrice": 23922.98,
+      "regularMarketPreviousClose": 23867.74,
+      "regularMarketChangePercent": 0.2314,
+      "observedAt": "2026-10-21T02:10:00.000Z",
+      "fetchedAt": "2026-10-21T02:21:10.358Z",
+      "marketState": "REGULAR",
+      "source": "Yahoo chart",
+      "sourceKind": "T3_PUBLIC_DELAYED",
+      "venue": "HKSE"
+    }
+  ]
+}

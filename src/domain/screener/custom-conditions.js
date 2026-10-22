@@ -75,6 +75,17 @@ export const CUSTOM_CONDITIONS = Object.freeze([
 
 const BY_ID = new Map(CUSTOM_CONDITIONS.map((item) => [item.id, item]));
 
+// v58.63 (architecture audit SCR04): "PER 20 미만" became "PER 20 이하" and "ROE 15 초과" became "15 이상", so a row exactly
+// at the threshold passed a strict request. Each one-field threshold names the field it bounds and its direction; a
+// strict condition ({ strict: true }) excludes the boundary value, and its label says 미만/초과.
+export const CONDITION_BOUNDS = Object.freeze({
+  tight: ['adrPct', 'max'], 'adr-min': ['adrPct', 'min'], rvol: ['rvol20', 'min'], 'few-heavy-down': ['heavyDownDays25', 'max'],
+  'early-base': ['baseCount', 'max'], 'down-day-hold': ['downDayHoldPct', 'min'], 'pe-max': ['pe', 'max'], 'fwdpe-max': ['fwdPe', 'max'],
+  'pb-max': ['pb', 'max'], 'roe-min': ['roe', 'min'], 'margin-min': ['margin', 'min'], 'growth-min': ['revGrowth', 'min'],
+  'liquidity-min': ['dollarVolume30d', 'min', 1e6]
+});
+const BOUNDS = CONDITION_BOUNDS;
+
 // One-click combinations for the examples readers ask for most.
 export const CUSTOM_RECIPES = Object.freeze([
   ['단기 정배열 + 신고가', [{ id: 'ma-short' }, { id: 'new-high' }]],
@@ -87,11 +98,18 @@ export const CUSTOM_RECIPES = Object.freeze([
   ['포켓 피벗 + 확장 전', [{ id: 'pocket-pivot' }, { id: 'not-extended', value: 4 }, { id: 'no-climax' }]]
 ].map(([label, conditions]) => Object.freeze({ label, conditions: Object.freeze(conditions) })));
 
+/** The template label with 이하/이상 turned into 미만/초과 for a strict condition ({n} left in place). */
+export function conditionTemplate(condition) {
+  const template = BY_ID.get(condition?.id);
+  if (!template) return '';
+  return condition.strict === true && BOUNDS[template.id] ? template.label.replace(/이하|이상/, (word) => (word === '이하' ? '미만' : '초과')) : template.label;
+}
+
 export function conditionLabel(condition) {
   const template = BY_ID.get(condition?.id);
   if (!template) return '';
   const n = finite(condition.value) ?? template.value;
-  return template.label.replace('{n}', n == null ? '' : String(n));
+  return conditionTemplate(condition).replace('{n}', n == null ? '' : String(n));
 }
 
 /** Keeps known ids with a finite threshold where one is needed; drops duplicates (the later one wins). */
@@ -102,7 +120,8 @@ export function normalizeConditions(list) {
     if (!template) continue;
     const raw = item.value === '' || item.value == null ? null : Number(item.value);
     const value = template.value == null ? undefined : (finite(raw) ?? template.value);
-    out.set(template.id, value === undefined ? { id: template.id } : { id: template.id, value });
+    const strict = item.strict === true && BOUNDS[template.id] ? { strict: true } : {};
+    out.set(template.id, value === undefined ? { id: template.id } : { id: template.id, value, ...strict });
   }
   return [...out.values()];
 }
@@ -122,7 +141,10 @@ export function evaluateCondition(condition, row, read) {
     values[key] = value;
   }
   for (const key of template.optional || []) values[key] = read(row, key);
-  return template.test(values, finite(condition.value) ?? template.value) === true;
+  const n = finite(condition.value) ?? template.value;
+  const bound = condition.strict === true ? BOUNDS[template.id] : null;
+  if (bound && Number(values[bound[0]]) === n * (bound[2] || 1)) return false;
+  return template.test(values, n) === true;
 }
 
 /** Ids of conditions that at least one row can be judged on (a market without the data greys them out). */
@@ -149,57 +171,4 @@ export function conditionCoverage(rows, conditions, read) {
     }
     return { id: condition.id, pass, withData };
   });
-}
-
-// Sentence → conditions. Rules run longest-phrase first and consume what they match; the rest is reported back
-// so a reader sees what was not understood instead of a silently wider result.
-const NUM = '(\\d+(?:\\.\\d+)?)';
-const PARSE_RULES = [
-  // v57.87: the follow-through phrases first (more specific than the ADR / VCP rules below).
-  [/포켓\s*피벗/i, () => ({ id: 'pocket-pivot' })],
-  [new RegExp(`${NUM}\\s*번째\\s*베이스\\s*(?:이하|까지)?`), (m) => ({ id: 'early-base', value: +m[1] })],
-  [/(?:초기|첫|이른)\s*베이스/, () => ({ id: 'early-base', value: 2 })],
-  [/(?:지수\s*)?하락일(?:에)?\s*(?:버틴|강한|덜\s*빠진)|덜\s*빠진|상대\s*회복력?/, () => ({ id: 'down-day-hold', value: 60 })],
-  [/(?:클라이맥스|과열\s*징후)\s*(?:없는|없음|제외)/, () => ({ id: 'no-climax' })],
-  // v57.88 (review): the numeric form first — otherwise the rvol rule below took "거래량 실린" and inverted the request.
-  [new RegExp(`(?:거래량\\s*실린\\s*)?하락일\\s*${NUM}\\s*일\\s*(?:이하|미만|까지)`), (m) => ({ id: 'few-heavy-down', value: +m[1] })],
-  [/(?:거래량\s*실린\s*)?하락일\s*(?:적은|적게)/, () => ({ id: 'few-heavy-down', value: 4 })],
-  [/하방\s*과?\s*확장|과매도\s*확장|50\s*일선\s*(?:아래로?|밑으로?)\s*(?:멀리|크게)/, () => ({ id: 'down-extended', value: 4 })],
-  [/확장\s*(?:전(?![체부])|안\s*된|되지\s*않은)|50\s*일선\s*(?:근처|가까운)/, () => ({ id: 'not-extended', value: 4 })],
-  [new RegExp(`(?:adr|변동폭)\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는|넘게|보다\\s*큰)`, 'i'), (m) => ({ id: 'adr-min', value: +m[1] })],
-  [new RegExp(`(?:forward|포워드|선행)\\s*per\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'fwdpe-max', value: +m[1] })],
-  [new RegExp(`per\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'pe-max', value: +m[1] })],
-  [/저\s*per|저평가/i, () => ({ id: 'pe-max', value: 15 })],
-  [new RegExp(`pbr\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'pb-max', value: +m[1] })],
-  [new RegExp(`roe\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는)?`, 'i'), (m) => ({ id: 'roe-min', value: +m[1] })],
-  [new RegExp(`(?:매출\\s*)?성장(?:률)?\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는)?`), (m) => ({ id: 'growth-min', value: +m[1] })],
-  [new RegExp(`(?:순?이익률|마진)\\s*${NUM}\\s*%?\\s*(?:이상|초과)?`), (m) => ({ id: 'margin-min', value: +m[1] })],
-  [new RegExp(`거래대금\\s*\\$?${NUM}\\s*(?:백만|m)?\\s*(?:달러)?\\s*(?:이상)?`, 'i'), (m) => ({ id: 'liquidity-min', value: +m[1] })],
-  [new RegExp(`거래량\\s*${NUM}\\s*배\\s*(?:이상)?`), (m) => ({ id: 'rvol', value: +m[1] })],
-  [/거래량\s*(?:급증|증가|실린|터진|많은)(?!\s*하락)/, () => ({ id: 'rvol', value: 1.5 })],
-  [new RegExp(`(?:adr|변동폭)\\s*${NUM}\\s*%?\\s*(?:이하|미만)?`, 'i'), (m) => ({ id: 'tight', value: +m[1] })],
-  [/vcp\s*돌파|피벗\s*돌파/i, () => ({ id: 'vcp-breakout' })],
-  [/vcp(?:\s*패턴)?|수렴|변동성\s*(?:축소|수축)/i, () => ({ id: 'vcp' })],
-  [new RegExp(`(?:52\\s*주\\s*)?(?:신고가|고점)\\s*(?:근처|부근|대비)\\s*${NUM}\\s*%?\\s*(?:이내)?`), (m) => ({ id: 'near-high', value: +m[1] })],
-  [/(?:52\s*주\s*)?(?:신고가|고점)\s*(?:근처|부근)/, () => ({ id: 'near-high', value: 5 })],
-  [/(?:52\s*주\s*)?신고가/, () => ({ id: 'new-high' })],
-  [/(?:50\s*일?선?\s*[/·,\s]*\s*200\s*일?선?|중기|장기)\s*(?:이동평균\s*)?(?:일선?\s*)?정배열/, () => ({ id: 'ma-long' })],
-  [/(?:5\s*[/·,]\s*10\s*[/·,]\s*20|단기)\s*(?:일선?\s*)?(?:이동평균\s*)?정배열|(?:\d+\s*일선?\s*)*정배열/, () => ({ id: 'ma-short' })]
-];
-const FILLER = /(?:이면서|이고|이며|면서|그리고|및|또는|하는|하고|있는|중인|종목들?|주식|찾아\s*줘|보여\s*줘|[,·/+&]|\s)+/g;
-const STOP_WORDS = /^(?:[을를이가은는의에도로와과인한]|으로|보여주고|보여주는|보이는|나타나는|나타내는|만족하는|있고|하고|중|등|등등|패턴을?|조건)$/;
-
-export function parseConditionText(text) {
-  let rest = ` ${String(text || '')} `;
-  const conditions = [];
-  for (const [pattern, build] of PARSE_RULES) {
-    let match = rest.match(pattern);
-    while (match) {
-      conditions.push(build(match));
-      rest = `${rest.slice(0, match.index)} ${rest.slice(match.index + match[0].length)}`;
-      match = rest.match(pattern);
-    }
-  }
-  const unknown = rest.replace(FILLER, ' ').split(' ').filter((word) => word && !STOP_WORDS.test(word)).join(' ');
-  return { conditions: normalizeConditions(conditions), unknown };
 }

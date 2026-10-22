@@ -9,7 +9,8 @@ const status = JSON.parse(fs.readFileSync(path.join(root, 'public-data/reconcili
 const readJson = (name) => JSON.parse(fs.readFileSync(path.join(root, 'public-data', name), 'utf8'));
 const validation = validateReconciliationStatus(status);
 if (!validation.ok) throw new Error(`[reconciliation-contract] ${validation.errors.join(',')}`);
-if (status.overall === 'MATCH') throw new Error('[reconciliation-contract] unresolved categories cannot report overall MATCH');
+// v58.63 (architecture audit A24): overall MATCH is refused only while a category is unresolved, not unconditionally.
+if (status.overall === 'MATCH' && status.categories.some((category) => category.status !== 'MATCH')) throw new Error('[reconciliation-contract] unresolved categories cannot report overall MATCH');
 if (status.schemaVersion !== 'reconciliation-status-v2') throw new Error(`[reconciliation-contract] schema must be v2, got ${status.schemaVersion}`);
 if (!Array.isArray(status.closure?.sourceArtifacts) || status.closure.sourceArtifacts.length !== 4) throw new Error('[reconciliation-contract] source artifact lineage missing');
 for (const category of status.categories) {

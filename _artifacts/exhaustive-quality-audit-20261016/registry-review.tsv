@@ -1,0 +1,201 @@
+kind|id|판정|개별 사유
+branch|foundry-mature|보완|감가종료=저원가·고신뢰 일반화
+branch|foundry-7-5-4|양호|공정명 한계·비용성능 절충
+branch|foundry-3nm|양호|회사별 구조·변형·미공개수율 구별
+branch|foundry-2nm|보완|GAA·후면전력 필수묶음 표현
+branch|foundry-18a|외부미인증|자체·외부고객 구별·현재공정 미검증
+branch|foundry-yield|양호|결함·기능·특성·최종수율 분모 구별
+branch|lithography-optics|양호|이론해상도·양산수율·처리량 구별
+branch|lithography-duv|양호|액침·다중pattern·EUV병존 설명
+branch|lithography-euv|양호|진공·반사·손실·처리량 제약
+branch|lithography-high-na|양호|해상도와 면적·처리량 대가
+branch|lithography-china|양호|시제품·평가·출하·양산 구별
+branch|wafer-process-flow|양호|전공정 반복·노광외 장비 설명
+branch|package-flow|양호|조기검출·최종수율 구별
+branch|package-2-5d-branch|양호|대역·면적·열·조립 제약
+branch|package-3d-branch|양호|수직연결·열·검사·수리 구별
+branch|package-substrate-branch|양호|배선·휨·납기·매출외삽 한계
+branch|package-glass-branch|양호|재료장점·가공·인증·대량생산 구별
+branch|photonics-physics|보완|모든도파로 구속을 전반사로 일반화
+branch|photonics-components|양호|광원·변조·검출·처리 역할분리
+branch|photonics-platform|양호|재료성능·공정·생태계 구별
+branch|photonics-module|양호|레인·port속도·매출증가 구별
+branch|photonics-architecture|양호|전력·교체·열·인증 절충
+branch|open-definition|양호|가중치공개·opensource 범위 구별
+branch|open-model-family|양호|계열·version·license·운영비 구별
+branch|open-china-strategy|양호|정책·효율의 단일원인화 방지
+branch|open-economics|양호|token가격·업무비용·가치포착 구별
+branch|open-alliances|외부미인증|목적구분 타당·현재명칭역할 미인증
+branch|memory-hierarchy|양호|용량·지연·대역·전력·원가 절충
+branch|memory-hbm-branch|양호|성능·적층·인증·package 제약
+branch|memory-nand-ssd|양호|NAND·controller·KV하위저장 구별
+branch|memory-cxl-branch|보완|CXL을 서버밖 공유memory로 축소
+branch|memory-economics|양호|bit공급·wafer배분·가격계약 구별
+branch|aidc-demand|양호|가동·밀도·열제거 경로 연결
+branch|aidc-grid|양호|전력계약·실접속·보호설비 구별
+branch|aidc-supply|양호|발전별 시점·신뢰·허가 구별
+branch|aidc-contract|보완|PPA의 가격·공급 전망 확정 암시
+branch|aidc-constraints|양호|수요·완공·가동·자본수익 구별
+branch|cloud-stack|양호|cloud전체·AI매출 범위 구별
+branch|cloud-capex|양호|지출·가용시점·감가 시차
+branch|neocloud-economics|양호|임대·가동·조달·잔존가치 구별
+branch|cloud-roic|양호|수요강세·자본수익 차이 조건화
+branch|physical-loop|양호|불확실·지연·구동·안전 조건
+branch|world-model|양호|상태·행동·예측·시험 역할
+branch|edge-ai|양호|기기제약·cloud분담 조건
+branch|physical-economics|양호|가치·통합·개입·정비·회수비
+branch|defense-mission|양호|제원·임무전체 성공 구별
+branch|defense-production|보완|인증·예산·계약→반복매출 자동전이 암시
+branch|space-stack|양호|발사물리·운영·data계약 구별
+branch|space-reuse|양호|회수·신뢰성·비행원가 구별
+branch|artemis|외부미인증|역할·계약 구별·현재구성 미인증
+player|nvidia|기준일공백|역할·제품군 명확·사업시점 없음
+player|amd|기준일공백|설계역할 구별·현재제품비중 미인증
+player|google-cloud|주체보완|사업부·법인·상장주체 혼합
+player|aws|주체보완|서비스·법인·상장모회사 혼합
+player|tsmc|출처보완|자체sources의 PS01미해소·전역확인 필요
+player|asml|기준일공백|장비·서비스 구별·제품시점 없음
+player|micron|출처보완|자체sources의 PS02미해소·전역확인 필요
+player|kioxia|출처보완|자체sources의 PS03~05미해소
+player|sandisk|기준일공백|계약·현금지표 시점·공시 미인증
+player|synopsys|기준일공백|EDA·IP 구별·현재구성 미인증
+player|broadcom|기준일공백|반도체·software 병기·시점 없음
+player|coherent|기준일공백|광부품·module 역할·인증상태 미인증
+player|vertiv|범위보완|transformer 연결 직접관계 부족
+player|tesla|범위보완|로봇·차량·에너지 상업단계 혼재
+player|shield-ai|기준일공백|계약경계·현재배포 자격 없음
+player|rocket-lab|범위보완|운영발사·개발계열 상태 미분리
+player|palantir|기준일공백|KPI적합·제품사업시점 없음
+player|mp-materials|상태보완|채굴·정제·자석 상업단계 미분리
+player|samsung-electronics|상태보완|사업별 인증·양산단계 미분리
+player|ibm|범위보완|양자·광compute 연결 제품근거 부족
+player|siemens|기준일공백|모델구별·사업구성 시점 없음
+product|nvidia-gpu-accelerator-platform|상태공백|세대·생산상태·기준일 없음
+product|amd-instinct-accelerator-family|상태공백|작업·이전비용 적합·제품상태 없음
+product|cloud-tpu-family|상태공백|관리서비스 적합·version/제공상태 없음
+product|aws-trainium-family|범위보완|학습·추론 기능·세대가 뭉쳐짐
+product|tsmc-3dfabric-family|출처보완|PS01자체미해소·전역확인 필요
+product|asml-euv-lithography-family|상태공백|pattern출력 적합·세대상태 없음
+product|micron-hbm-family|출처보완|HBM역할 적합·PS02자체미해소
+product|kioxia-enterprise-ssd-family|출처보완|SSD기능 적합·PS03~05자체미해소
+product|sandisk-bics-enterprise-ssd-family|상태공백|계약·양산·인증시점 없음
+product|sandisk-hbf-roadmap|상태보완|roadmap서술·productionStatus 공백
+product|synopsys-eda-flow|상태공백|설계·검증 산출물 명확·version상태 없음
+product|broadcom-ethernet-switch-family|상태공백|packet전송 적합·세대상태 없음
+product|coherent-optical-module-family|상태공백|거리·전력·오류 적합·인증상태 없음
+product|vertiv-thermal-power-solutions|범위보완|시설PUE를 개별제품 기술지표로 배치
+product|tesla-optimus-and-autonomy-stack|범위보완|차량·로봇 제품·배포단계 통합
+product|shield-ai-hivemind-autonomy|상태공백|임무·개입·통신KPI 적합·상태 없음
+product|rocket-lab-electron-neutron-space-systems|범위보완|서로다른 발사체·부품 상태 혼재
+product|palantir-aip|상태공백|권한·검토·감사 산출물·version없음
+product|mp-materials-rare-earth-magnetics|상태보완|정제·자성·인증공급 단계 미구별
+product|samsung-hbm-family|상태공백|인증출력·고객·세대·시점 없음
+product|ibm-quantum-platform|양호|연구실험용 경계·상업과장 방지
+product|siemens-industrial-copilot|양호|초안·사람승인 산출물 경계
+framework|nathan-liquidity-extremes|양호|동일창 담보·조달·청산 증거 요구
+framework|nathan-leverage-survival|양호|배수·금융·청산·회복비용 구별
+framework|nathan-forecast-falsifiability|보완|사전무효화 없으면 예측품질 증거없음 단정
+framework|nathan-policy-second-order|보완|이차경로가 직접효과보다 중요 일반화
+framework|nathan-etf-flow-channel|보완|투자자거래→AP생성환매 자동연결 암시
+framework|nathan-market-structure-execution|양호|방향·체결·조달·청산 구별
+framework|nathan-retail-flow-edge-decay|양호|약화가능·표본밖·비용 검증 명시
+framework|nathan-bubble-diagnostics|보완|5축동시과열을 확인조건 고정
+framework|nathan-crypto-fundamentals|양호|TVL·수급·가격·실사용·수익 구별
+framework|nathan-tokenomics-value-link|양호|제품사용·token가치 독립검증
+framework|nathan-counterparty-custody|양호|가격·보관·권리·결제·회수 구별
+framework|nathan-investor-protection|양호|위험공개·이해상충·보장 구별
+framework|nathan-credit-stress-gates|양호|가격조합을 확정 아닌 가설로 제한
+framework|nathan-product-monetization|양호|사용·전환·유지·이익 구별
+framework|nathan-treasury-supply-demand|양호|수급·성장·물가 분리·현재값복사 금지
+framework|nathan-macro-risk-asset-divergence|양호|가격실물 괴리는 곧 하락신호 아님
+framework|nathan-nonbank-regulatory-arbitrage|양호|위험이전·효율분산 반대효과
+framework|nathan-etf-nav-basket-integrity|양호|basket·평가·AP·유동성 역할구별
+framework|nathan-market-impersonal-tail-risk|양호|분산한계·현금·담보·회복가능성
+framework|nathan-research-provenance|양호|권위·설득·사실·출처·추론 구별
+framework|nathan-specialized-edge-luck|양호|전문·network와 운·시기 구별
+framework|nathan-problem-friction-opportunity|양호|문제·채택·비용·수익 구별
+framework|nathan-analysis-workflow-clarity|양호|입력·수식·누락·출력 독립재현
+framework|nathan-asset-class-allocation|양호|자산군명·공통위험 중첩 구별
+framework|nathan-relative-value-hedging|양호|헤지존재·실상쇄·담보·유동성 구별
+framework|nathan-institutional-intermediation|양호|명성보다 법적역할·수익·담보 검토
+framework|nathan-valuation-price-formation|양호|평가·실현·가치·multiple 구별
+framework|nathan-regulation-market-access|양호|초안·소송·신청·승인 상태구별
+guide|ai-era|양호|model성능·생산system·현금화 구별
+guide|ai-workload|양호|학습추론 처리량·지연·memory 구별
+guide|compute|양호|이론FLOPS·실처리량 구별
+guide|memory-hbm|양호|대역·용량·열·수율·인증 연결
+guide|advanced-packaging|양호|연결·전력·열·시험 비용 설명
+guide|storage|양호|용량·지연·내구·원가 구별
+guide|power-cooling|보완|접속지연 매출영향 장비/운영사 다름
+guide|ai-capex|양호|투자·가동·경제수명·회수 구별
+guide|visibility|양호|계약·예약·실사용·갱신해지 구별
+guide|financing|양호|만기·조달비의 투자선택권 경로
+guide|geo-rates|양호|정책·환율·원가·할인 다중경로
+guide|evaluation|양호|시점·단위·대체설명·반증 분리
+guide|scarcity-choice|양호|선택산출·포기대안 가치 구별
+guide|productivity-wealth|양호|투자액·산출효율 구별
+guide|capitalism-engine|양호|경쟁권리·지대방어 반대경로
+guide|money-purchasing-power|양호|잔액·소득·평균품목 구매력 구별
+guide|inflation-deflation|양호|상대가격·기준효과·지속물가 구별
+guide|credit-banks-debt|보완|예금조달·대출창조 연결 설명 부족
+guide|interest-central-bank|양호|정책·시장금리·조건 시차
+guide|bonds-dollar-currency|양호|달러방향으로 복수충격 원인 대체안함
+guide|government-fiscal|양호|승인집행·단기수요·장기공급 구별
+guide|company-stock-valuation|양호|성장·마진·투자·희석 경로
+guide|market-price-discovery|양호|체결·가치·실적·새정보 구별
+guide|cycles-allocation|양호|지표시차·수준·변화 구별
+guide|investment-risk|보완|근거→확률 보정·검증 방법 없음
+guide|industry-value-chain|양호|단계별 병목·교섭·회수 구별
+guide|power-electricity-system|양호|전력량·용량·위치·시간·품질
+guide|power-generation-market|양호|급전·용량·평균peak가격 구별
+guide|grid-transmission-distribution|양호|발전소·실접속전력 구별
+guide|energy-storage|양호|MWh·peak·효율·열화·수익 구별
+guide|data-center-power-demand|양호|계약·server·시설·사용량 구별
+guide|industrial-energy-efficiency|양호|단위효율·총사용량 상쇄 설명
+guide|critical-minerals|양호|매장·정제·인증·판매물량 구별
+guide|robotics-automation|양호|demo·통합·작업량·유지비 구별
+guide|defense-space|양호|시연정책수주·반복인도운영 구별
+guide|biotech-healthcare|양호|전임상·허가·제조·급여 실패 구별
+guide|finance-software-consumer|보완|이질산업 위험을 한틀로 묶음
+guide|us-korea-market|양호|동종산업·통화·시장구조 차이
+guide|krw-dollar-foreign-flow|양호|외국인수급·헤지·global포지션 구별
+guide|korea-semiconductor-policy|양호|정책·수요·기술·가동 구별
+guide|tax-accounting-cashflow|수정필요|부채만기를 FCF생성요인에 포함
+guide|physical-ai-perception|양호|센서수·동기·좌표·불확실 구별
+guide|physical-ai-planning|양호|경로최적·안전·복구·오차 구별
+guide|physical-ai-control|양호|평균성공·희귀치명실패·안정 구별
+guide|robot-unit-economics|양호|가격·유효작업·개입·유지비 구별
+guide|defense-autonomy|양호|속도·오판·승인·운용허가 구별
+guide|defense-procurement|양호|총계약·옵션·발주·매출 구별
+guide|space-launch-economics|양호|예약·완료·반복·원가 구별
+guide|space-systems-economics|양호|궤도수·유료서비스·회수 구별
+guide|enterprise-ai-workflow|양호|model호출·권한·검수·실행·매출
+guide|ai-workflow-adoption|양호|login절감·교육·검수·도입비 구별
+guide|application-roi-evidence|양호|성공선정표본·전체기준선 구별
+guide|rare-earths-supply-chain|양호|광산·정제·자석·인증납품 구별
+guide|refining-qualification|양호|pilot순도·상업반복수율·인증 구별
+guide|materials-policy|양호|발표·요건·집행·수익 구별
+guide|hbm-system-bottleneck|양호|chip수·package·열·시험 제약
+guide|chiplet-economics|양호|die수율·연결열검증 비용 절충
+guide|quantum-platform|양호|qubit·회로·오류·비용 구별
+guide|photonic-link-economics|양호|link성능·전력·양산·유지 구별
+guide|data-center-lease-burden|양호|소유CAPEX·임차전력약정 구별
+domain-guide|domain-cloud-platform|출처범위|cloud계약·가동률에 DOE전력자료만 연결
+domain-guide|domain-neocloud-finance|양호|예약·실사용·지급·리스·잔존 구별
+domain-guide|domain-compute-silicon|양호|workload종단·peak 구별
+domain-guide|domain-memory-storage|양호|용량·이동·대역 수요 차이 질문
+domain-guide|domain-foundry-equipment|양호|공정이름·양산·양품능력 구별
+domain-guide|domain-packaging-substrate|양호|성능·조립·열·검사 비용 연결
+domain-guide|domain-network-photonics|양호|link속도·응용확장효율 차이 질문
+domain-guide|domain-aidc-cooling|양호|서버설치·전력냉각 서비스능력 구별
+domain-guide|domain-power-grid|양호|계약·접속·가동 시점 구별
+domain-guide|domain-on-device-physical-ai|보완|cloud왕복부재를 필수검증조건 암시
+domain-guide|domain-ai-economics|양호|성장·단위경제·회수·자본수익 구별
+domain-guide|domain-physical-ai-robotics|양호|simulation·demo·현장경제 구별
+domain-guide|domain-drone-defense|양호|임무·생산정비·조달지속 구별
+domain-guide|domain-space-aerospace|출처범위|우주항공 전체를 Artemis로 지지
+domain-guide|domain-ai-applications|양호|사용token·기준선대비 성과 구별
+domain-guide|domain-resources-materials|양호|매장·정제·인증공급 구별
+domain-guide|domain-geopolitics-policy-security|양호|발표·시행·허가·비용 시점 구별
+domain-guide|domain-capital-markets-company-map|양호|역할·실회수·자본구조 대조
+domain-guide|domain-adjacent-future-tech|출처범위|미래기술전체를 IBMQuantum으로 지지

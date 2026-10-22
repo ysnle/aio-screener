@@ -1,0 +1,15 @@
+path	status	baseSha256	sha256	reason
+scripts/lib/pages-bundle-config.mjs	FULL	595a92987ce7028b981055e024fc00820b02cb415ea8b2e4e4a93d0957f68733	595a92987ce7028b981055e024fc00820b02cb415ea8b2e4e4a93d0957f68733	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/ci-boot-bundle-budget-check.mjs	FULL	33cbf31766a0dfb7c0b15931a417bfec899c93c0d94c3c1fcc71fba14c31a37e	33cbf31766a0dfb7c0b15931a417bfec899c93c0d94c3c1fcc71fba14c31a37e	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/build-pages-bundle.mjs	FULL	a7718cb1a3946b2fd351853716a1ed7e9f78198f4bfbcfc974782602037af499	a7718cb1a3946b2fd351853716a1ed7e9f78198f4bfbcfc974782602037af499	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/lib/producer-dry-run-fetch.mjs	FULL	436f435fa31318f17bef8e5bc2025089e3e2c8ec73ee85b98e8b2ff2a91f4fc0	436f435fa31318f17bef8e5bc2025089e3e2c8ec73ee85b98e8b2ff2a91f4fc0	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+.github/workflows/pages-deploy.yml	FULL	28d894fde324ab6ada7483b4cf4d983222dcc462354ee89ed457266235cae6fd	28d894fde324ab6ada7483b4cf4d983222dcc462354ee89ed457266235cae6fd	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/ci-generated-release-parity-check.mjs	FULL	319cd5825ad9db2f821bd310244234c8eaf12b81b38ea8e8b4ad36266f53f812	319cd5825ad9db2f821bd310244234c8eaf12b81b38ea8e8b4ad36266f53f812	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/sync-data-release-manifests.mjs	FULL	8836d07865241dd3a748b5473c74ee1863bd0568772b0d970e9f69102dd11fb4	8836d07865241dd3a748b5473c74ee1863bd0568772b0d970e9f69102dd11fb4	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/ci-fast-plane-live-check.mjs	FULL	3f56f1eeee6edff530b51522f314f10c2c39c5fdb302d8aa65b8b5127bbdaf59	3f56f1eeee6edff530b51522f314f10c2c39c5fdb302d8aa65b8b5127bbdaf59	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/ci-csp-ratchet-check.mjs	FULL	b1f16a7aa12ae41112a203d33678115f739c5bee4a2e4a8777ec2d38837016fa	b1f16a7aa12ae41112a203d33678115f739c5bee4a2e4a8777ec2d38837016fa	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+src/domain/market/benchmarks.js	FULL	1e6beb13f2734fa584dc6b01d885c9a4e0b2f2aff1727a8cb8fb326bebdf51db	1e6beb13f2734fa584dc6b01d885c9a4e0b2f2aff1727a8cb8fb326bebdf51db	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+src/domain/market/session-time.js	FULL	f3e02053df7d5b627281d59f74b5ba2c26a966814a42203c214e211089d7d6a0	f3e02053df7d5b627281d59f74b5ba2c26a966814a42203c214e211089d7d6a0	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+src/domain/portfolio/kr-stress.js	FULL	7c0d988faa7aa8631db4381e882d0119600dc44ed26d148401ddfe0d795c02c2	7c0d988faa7aa8631db4381e882d0119600dc44ed26d148401ddfe0d795c02c2	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/start-local-node.mjs	FULL	5ef42cbca759c8d05a1e104b9a95bfc55905cf035f76aeed79e7979e7083f13e	5ef42cbca759c8d05a1e104b9a95bfc55905cf035f76aeed79e7979e7083f13e	동일 SHA의 root 전문 읽기 재사용; 생성/게시·I/O·부분입력 경계 검토
+scripts/ci-producer-dry-run.mjs	FULL	b93f2604682aefb1406cbe578456652784d628b70ff4ca8373b49728df02c132	030feccc9d42f6e81d5374e4917b180a23fe8d67ed296607f3a600136196bbd5	v58.50 전문 + v58.52 모든 diff 검토: Windows junction 변경; 실행하지 않음

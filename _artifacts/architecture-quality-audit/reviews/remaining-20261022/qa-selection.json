@@ -1,0 +1,156 @@
+{
+  "profile": "affected",
+  "groups": [
+    "preflight"
+  ],
+  "changeSource": "explicit-files",
+  "changedFiles": [
+    "_artifacts/architecture-quality-audit/FINDINGS-HISTORY.md",
+    "_artifacts/architecture-quality-audit/HANDOFF.md",
+    "_artifacts/architecture-quality-audit/coverage.json",
+    "_artifacts/architecture-quality-audit/documentation-review.json",
+    "_artifacts/architecture-quality-audit/reading-ledger.json",
+    "_artifacts/architecture-quality-audit/reading-ledger.tsv",
+    "_artifacts/architecture-quality-audit/relative-import-check.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/CLOSEOUT.md",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/LEDGER-REVIEW.md",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/LEGACY.md",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/ROOT-REVIEW.md",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/SCREENER.md",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/SECURITY.md",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/SHELL.md",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/browser-or.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/browser-or.png",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/browser-or.snapshot.txt",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/browser-strict.png",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/browser-strict.snapshot.txt",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/continuation.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/legacy-probe-runtime.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/legacy-probe-runtime.log",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/legacy-probe-runtime.mjs",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/legacy-reading.tsv",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/qa-closeout.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/qa-closeout.log",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/qa-owned-files.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/qa-selection.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-probe-result.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-probe.mjs",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-receipts.mjs",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-probe-boundaries.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-probe-boundaries.log",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-probe-boundaries.mjs",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-probe-contract.log",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-reading.tsv",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-probe-chart-result.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-probe-chart.mjs",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-probe-source-receipt.json",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+    "_artifacts/architecture-quality-audit/reviews/remaining-20261022/source-preservation.json",
+    "_artifacts/architecture-quality-audit/tools/build-handoff.mjs",
+    "_artifacts/architecture-quality-audit/tools/check-relative-imports.mjs",
+    "_artifacts/architecture-quality-audit/tools/continue-review.mjs",
+    "_artifacts/architecture-quality-audit/tools/verify.mjs",
+    "_artifacts/architecture-quality-audit/verification.json"
+  ],
+  "gates": [
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-syntax-check.mjs"
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-control-char-check.mjs"
+    },
+    {
+      "id": "version",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-version-check.mjs"
+    },
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-product-charter-contract-check.mjs"
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-architecture-contract-check.mjs"
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-native-decision-evidence-check.mjs"
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-vertical-slice-contract-check.mjs"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-capability-claim-contract-check.mjs"
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-operations-contract-check.mjs"
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-reference-curriculum-contract-check.mjs"
+    },
+    {
+      "id": "route-registry",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/generate-route-registry.mjs"
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/generate-workspace-state.mjs"
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-workspace-contract-check.mjs"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "script": "scripts/ci-qa-runner-behavior-check.mjs"
+    }
+  ]
+}

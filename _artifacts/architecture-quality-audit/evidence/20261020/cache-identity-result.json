@@ -1,0 +1,12 @@
+{
+  "evidence": "Isolated execution of actual runner fingerprint functions, in-memory input mutation; no gate/producer execution",
+  "runnerSha256": "c061cf7ab2ef842b1d3f18ed779ef1527465a20299ccb4c3d03cd29a5b2d16c5",
+  "gate": "knowledge-repository",
+  "script": "scripts/ci-knowledge-repository-contract.mjs",
+  "dependency": "src/data/knowledge/repository.js",
+  "baseline": "1a5ee012bada2c35a4a95b32aedacfe226222736e3b1ab858c88a70678576b0d",
+  "dependencyChanged": "1a5ee012bada2c35a4a95b32aedacfe226222736e3b1ab858c88a70678576b0d",
+  "gateChanged": "bc4698dfa78750f12038862c68edbeade2065eba864cbdd527ed4f43eec0e170",
+  "dependencyMutationDetected": false,
+  "positiveControlDetected": true
+}

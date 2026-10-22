@@ -1,0 +1,22 @@
+async function getScreenerUniverse() {
+  try {
+    const raw = await readFile(`${REPO_ROOT}/public-data/screener-universe.json`, 'utf8');
+    const j = JSON.parse(raw);
+    const syms = (j.universe || []).map(r => r && r.sym).filter(Boolean);
+    return {
+      symbols: [...new Set(syms)],
+      // P1443: the backtest ranks with the live model, which normalizes within sectors.
+      sectors: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, r.sector || null])),
+      // P1449: breadth contributors must say which entries are ETFs (asset type), not silently
+      // mix them into "미국 주식" counts — ETFs are already inside the screener universe.
+      assetType: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, screenerAssetType(r)])),
+      shareClassOf: Object.fromEntries((j.universe || []).filter(r => r && r.sym && r.shareClassOf).map(r => [r.sym, r.shareClassOf])),
+      meta: j.meta && typeof j.meta === 'object' ? j.meta : {},
+      generatedFrom: j.generatedFrom || 'unknown',
+      generatedBy: j.generatedBy || 'unknown'
+    };
+  } catch (e) {
+    console.warn('[fetch-data] screener-universe.json 읽기 실패:', e && e.message);
+    return { symbols: [], meta: {}, generatedFrom: null, generatedBy: null };
+  }
+}

@@ -1,0 +1,180 @@
+async function enrichScreener() {
+  // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
+  if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
+    try {
+      const prev = JSON.parse(await readFile(SCREENER_OUT, 'utf8'));
+      if (prev && prev.asOf && (Date.now() - new Date(prev.asOf).getTime()) < 6 * 3600 * 1000) {
+        return { skipped: true, count: Object.keys(prev.data || {}).length };
+      }
+    } catch { /* 최초 실행 */ }
+  }
+  const universeInfo = await getScreenerUniverse();
+  const syms = universeInfo.symbols;
+  if (!syms.length) return { skipped: true, count: 0, reason: 'no-symbols' };
+  // The configured catalogue is a current membership snapshot, not a point-in-time
+  // research universe. Preserve its lineage beside every derived result so consumers
+  // cannot mistake retrospective ranking for a predictive, survivorship-correct test.
+  const universeLineage = {
+    ...(universeInfo.meta || {}),
+    generatedFrom: universeInfo.generatedFrom || 'public-data/screener-universe.json',
+    generatedBy: universeInfo.generatedBy || null,
+    membershipPolicy: 'current-configured-universe-applied-retrospectively',
+    lookaheadBias: 'historical-membership-not-available',
+    survivorshipBias: 'uncontrolled-current-membership-only',
+    allowedUse: 'research-reference-not-predictive-validation'
+  };
+
+  // 1단계: 가격 팩터 계산
+  const { data, results, ok, computedAt } = await _enrichPriceFactors(syms);
+  { const kr = summarizeKrCloseReconciliation(results); console.log(`[fetch-data] KR exchange close: ${JSON.stringify(kr.byStatus)} rows ${kr.rows} · closes corrected ${kr.correctedCloses} · sessions filled ${kr.filledSessions}`); }
+
+  // 2단계: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 없으면 4팩터 폴백)
+  let fmpResult = { data: null, hasKey: false, ok: 0, total: 0, planError: false };
+  try {
+    fmpResult = await enrichFundamentals(syms);
+    if (fmpResult && fmpResult.data) {
+      for (const sym in fmpResult.data) {
+        if (data[sym]) Object.assign(data[sym], fmpResult.data[sym]);
+      }
+    }
+  } catch (e) { console.warn('[fetch-data] fundamentals 병합 실패(무시):', e && e.message || e); }
+
+  // 3단계: 무료 공식 SEC annual facts를 FMP 결측 필드에 병합.
+  // SEC는 annual filing facts이고 FMP는 TTM이므로 서로 같은 모델처럼 섞지 않는다.
+  const secResult = await enrichSecFundamentals(syms, data, results, universeInfo.assetType || {}); // F08: ETFs excluded
+  mergeSecIntoFactorRows(data, secResult.data);
+
+  // 4단계: 개별 종목 뉴스 메모 (지수/선물/FX/크립토/KR 제외)
+  const prioSyms = syms.filter(s => !/^\^|=F$|=X$|-USD$|\.KS$|\.KQ$/i.test(s));
+  let tickerNewsOk = 0;
+  try { tickerNewsOk = await _enrichTickerNews(prioSyms, data); }
+  catch (e) { console.warn('[fetch-data] ticker news 실패(무시):', e && e.message || e); }
+  console.log(`[fetch-data] ticker news: ${tickerNewsOk}종목 뉴스 메모 수집`);
+
+  // 5단계: 횡단면 팩터 백테스트(closes 재사용 — 1패스)
+  let backtest = null;
+  try {
+    backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148), {
+      universeMeta: universeLineage,
+      sectorOf: (sym) => universeInfo.sectors?.[sym] ?? null // P1443: live-model parity (sector-relative z-scores)
+    });
+  }
+  catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
+  const assetTypeOf = (sym) => universeInfo.assetType?.[sym] ?? null;
+  let sp500Weights = null;
+  try { sp500Weights = JSON.parse(await readFile(new URL('../public-data/sp500-weights.json', import.meta.url), 'utf8')); } catch { /* not collected yet */ }
+  // v57.51 V09: a secondary share class (GOOG→GOOGL, FOX→FOXA, NWS→NWSA) is one issuer; equal-weight breadth counts it once.
+  const secondaryClass = new Set(Object.keys(universeInfo.shareClassOf || {}));
+  const breadthSyms = syms.filter((sym) => !secondaryClass.has(sym));
+  const breadthResults = (results || []).filter((row) => !secondaryClass.has(row?.sym));
+  const breadth = computeScreenerBreadth(breadthSyms, breadthResults, assetTypeOf, { sp500Members: sp500MemberSet(sp500Weights) });
+  // P1449: breadth contributors carry each symbol's asset type so the drilldown can say which
+  // single-day moves need a corporate-action check. v57.50 D21: ETFs are no longer in the breadth population.
+  const breadthHistory = computeScreenerBreadthHistory(breadthSyms, breadthResults, undefined, Date.now(), assetTypeOf);
+  // P1416: distribution days need the index's own volume; one extra daily-bar request.
+  let distribution = null;
+  try {
+    const spxBars = await fetchHistory('^GSPC', '6mo');
+    distribution = { series: distributionDaySeries((spxBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
+  } catch (e) { console.warn('[fetch-data] distribution-day bars unavailable:', e && e.message || e); }
+  const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now(), distribution);
+  await writeBreadthContributors(breadthHistory, Date.now());
+  const usUniverse = syms.filter(s => listingMarketOfSymbol(s) === 'US').length;
+  const fundamentalCount = syms.filter(sym => {
+    const row = data[sym] || {};
+    return ['pe','pb','roe','margin','revGrowth'].some(key => typeof row[key] === 'number' && Number.isFinite(row[key]));
+  }).length;
+  const fundamentalCoveragePct = usUniverse ? round(fundamentalCount / usUniverse * 100, 1) : 0;
+
+  // v51.91 P586/C2: IC/spread/hitRate 시계열 누적(별도 아티팩트) — 매 실행 덮어쓰기로 드리프트가
+  // 안 보이던 문제 시정. screener.json 자체는 계속 최신 1개 스냅샷만 유지(기존 소비자 영향 없음).
+  let backtestHistInfo = null;
+  try { backtestHistInfo = await updateBacktestHistory(backtest); }
+  catch (e) { console.warn('[fetch-data] backtest history 실패(무시):', e && e.message || e); }
+  if (backtestHistInfo) console.log(`[fetch-data] backtest history: ${backtestHistInfo.days}일 누적 (${backtestHistInfo.upsert})`);
+
+  // P715 (사용자 결정 "클라이언트 직접 fetch 전환"의 스크리너 축): 공개 아티팩트에서 종목별
+  // 원시 현재가를 재배포하지 않는다 — 파생 지표(수익률/RSI/SMA대비%/kalman/VCP)만 공개한다.
+  // 내부 계산(breadth/backtest)은 위에서 이미 closes를 소비했고, 클라이언트 현재가 컬럼은
+  // data-live-price 라이브 갱신 경로로만 채워진다(미커버 종목은 '—').
+  for (const sym in data) { if (data[sym] && 'price' in data[sym]) delete data[sym].price; }
+
+  // P1170 (15 D04): 혼합 시장의 전역 max 하나는 개별 종목의 최신성을 대표하지 못한다. 시장별로
+  // barStart 범위와 세션 기준일을 남기고, 값의 시간 기저를 basis로 표시한다.
+  const factorScopes = factorScopesByMarket(data);
+  // 2026-10-13 S&P 500 map: the member weights refreshed just before this step (fetch-sp500-weights.mjs) travel
+  // inside the screener artifact, so the page needs no extra request and a missing file is simply an absent field.
+  let indexWeights = null;
+  try {
+    const weights = sp500Weights;
+    if (weights?.schemaVersion === 'sp500-weights.v1' && Array.isArray(weights.rows) && weights.rows.length >= 450) {
+      indexWeights = { index: 'SP500', asOf: weights.asOf || null, source: weights.source, basis: weights.basis, columns: ['sym', 'sector', 'weight', 'name'], rows: weights.rows.map((row) => [row.sym, row.sector, row.weight, row.name]) };
+    }
+  } catch { /* weights not collected yet: the map falls back to shares x close */ }
+
+  const payload = {
+    asOf: new Date().toISOString(),
+    factorObservedAt: breadth.segments.all.observedAt,
+    // factorObservedAt은 그 세션 일봉의 **바 시작**이며 종가 기반 팩터의 관측시각이 아니다.
+    factorTimeBasis: 'bar-start',
+    factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
+    factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
+    factorComputedAt: computedAt,
+    source: 'github-actions:yahoo-1y',
+    universe: syms.length,
+    ok,
+    // P1589: a universe symbol whose history failed this run is listed, not silently absent
+    // (WBD/ET appeared in some runs and vanished in others with no trace).
+    unfetchedSymbols: syms.filter((sym) => !data[sym]).sort(),
+    fmpHasKey: fmpResult.hasKey,
+    fmpOk: fmpResult.ok > 0,
+    fmpCount: fmpResult.ok,
+    fmpPlanError: fmpResult.planError,
+    secFundamentalsOk: secResult.ok > 0,
+    secFundamentalsCount: secResult.ok,
+    secFundamentalsStored: secResult.stored,
+    secFundamentalsEligible: secResult.eligible,
+    secFundamentalsModel: secResult.model,
+    secFundamentalsGeneratedAt: secResult.generatedAt,
+    fundamentalCount,
+    fundamentalCoveragePct,
+    fundamentalCoverageDenominator: usUniverse,
+    fundamentalModels: ['fmp-ttm', 'sec-fy-normalized-v2'],
+    fundamentalCoverageScope: 'US screener universe; mixed fundamental fields, separate from SEC-only coverage',
+    krCloseReconciliation: summarizeKrCloseReconciliation(results),
+    breadth,
+    breadthHistory: {
+      status: breadthHistoryInfo.updated ? 'CURRENT' : 'BLOCKED',
+      rows: breadthHistoryInfo.rows,
+      artifact: 'public-data/history.json',
+      source: 'AIO universe adjusted-close history',
+      allowedUse: 'research-history-not-official-exchange'
+    },
+    indexWeights,
+    rankingContract: {
+      allowedUse: 'research-relative-ranking-only',
+      tradingSignal: false,
+      predictiveValidation: 'not-established',
+      liveModelParity: false,
+      validationReadiness: backtest && backtest.validationReadiness || { status: 'BLOCKED', blockers: ['backtest-not-produced'] },
+      reason: 'long-run composite IC is not positive/stable; backtest covers only fixed NEUTRAL momentum/trend/lowvol/kalman subset and excludes unpromoted proposal tilts',
+      evidenceArtifact: 'public-data/factor-backtest-longrun.json',
+      weightPolicy: 'fixed-neutral-until-explicit-promotion',
+      universePolicy: backtest && backtest.universePolicy || universeLineage,
+      executionModel: backtest && backtest.executionModel || null,
+      liquidityPolicy: backtest && backtest.liquidity || null
+    },
+    universeLineage,
+    data,
+    backtest,
+  };
+  // v57.95: rows are written in the row-defaults encoding (shared lineage once per file); readers expand it.
+  await atomicWriteFile(SCREENER_OUT, JSON.stringify(encodeScreenerArtifact(payload)));
+  // P1465: record today's default-profile candidates (the page's own ranking path on the files just
+  // written) and fill the outcomes of entries whose 21-session window has closed. Non-fatal.
+  try {
+    const archiveInfo = await updateCandidateArchive({ root: new URL('../', import.meta.url), results, write: (url, text) => atomicWriteFile(fileURLToPath(url), text) });
+    console.log(`[fetch-data] candidate archive: ${archiveInfo.action} ${archiveInfo.date || '-'} · entries ${archiveInfo.entries} · measured ${archiveInfo.measured} (+${archiveInfo.filled})`);
+  } catch (e) { console.warn('[fetch-data] candidate archive 실패(무시):', e && e.message || e); }
+  return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError, secFundamentalsOk: secResult.ok > 0, secFundamentalsCount: secResult.ok, fundamentalCount, fundamentalCoveragePct };
+}

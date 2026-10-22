@@ -1,0 +1,18 @@
+{
+  "version": "v58.63", "date": "2026-10-22",
+  "p": {
+    "title": "Worker가 이미 상류로 보낸 요청의 실패에도 쿼터 예약을 되돌림",
+    "symptom": "상류 호출이 시작된 뒤 예외가 나면 예약한 월 쿼터가 반환돼, 비용이 발생한 호출이 예산에 잡히지 않았다(SEC01).",
+    "root_cause": "catch가 '보내기 전 실패'와 '보낸 뒤 실패'를 구분하지 않았다.",
+    "fix": "fetchUpstream 직전에 dispatched=true를 두고, catch는 소유한 예약이면서 아직 보내지 않았을 때만 반환한다.",
+    "violated_rule": "공용 AI 월예산 정책(AGENTS 2026-10-11)",
+    "prevention": "worker 오프라인 계약 테스트 대상; 라이브 반영은 Worker 재배포 후.",
+    "verification": "node --check PASS. Worker 재배포 전이라 라이브 미반영."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-08", "text": "{P}: 상류로 보낸 뒤 실패한 호출은 쿼터 예약을 돌려받지 않고, 보내기 전 실패만 돌려받는다.", "verify_by": "node worker/openai-contract.test.mjs", "done": false }],
+  "qa_section": "아키텍처 품질 감사 v58.63",
+  "changelog": ["**Worker 쿼터 ({P}):** 상류로 보낸 뒤 실패한 호출은 월 쿼터 예약을 되돌리지 않는다(SEC01). Worker 재배포가 필요하다."],
+  "note": "아키텍처 품질 감사(Codex) 전 항목 재검증·구조 수정 + 미점검 영역 확장 점검. 로컬 검증; commit/push/deploy 미실행, Worker 재배포 필요(SEC01).",
+  "status": null
+}

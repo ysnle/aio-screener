@@ -27,6 +27,12 @@ export async function expectText(page, sel, { pattern = null, min = 1, timeout =
   await page.waitForFunction(({ s, p, m, ph }) => {
     const el = document.querySelector(s);
     if (!el) return false;
+    // v58.63 (architecture audit C10): innerText of a hidden element is its textContent, so hidden text passed as
+    // "real content" while the returned visible text was empty. The element must be rendered and visible.
+    const shown = typeof el.checkVisibility === 'function'
+      ? el.checkVisibility({ visibilityProperty: true, opacityProperty: true })
+      : el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+    if (!shown) return false;
     const t = el.innerText.trim();
     if (t.length < m || new RegExp(ph).test(t)) return false;
     return p ? new RegExp(p).test(t) : true;

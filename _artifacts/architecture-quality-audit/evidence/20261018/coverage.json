@@ -1,0 +1,77 @@
+{
+  "observedAt": "2026-10-18T10:38:54.997Z",
+  "version": "v57.98",
+  "head": "8baf2f0f072e6da8d70cb086e5dbb4fba799165b",
+  "scope": "Tracked first-party executable/configuration source; historical audit outputs, dependencies, caches and generated market/knowledge JSON are separate data surfaces",
+  "total": 783,
+  "counts": {
+    "EXACT_MIRROR_REUSE": 14,
+    "FULL_READ": 308,
+    "NOT_SEMANTICALLY_REVIEWED": 423,
+    "EXACT_PRIOR_REUSE": 33,
+    "PARTIAL_READ": 5
+  },
+  "sourceDrift": [],
+  "boundary": "FULL_READ is static semantic review, not runtime PASS. EXACT_PRIOR_REUSE is separate. PARTIAL/unreviewed remain open. A failed reader turn never upgrades coverage.",
+  "continuationState": "IN_PROGRESS. Three readers resumed after the account usage reset; only saved or explicit completion receipts count. Tooling/legacy/index and remaining UI/domain sources remain open.",
+  "categories": {
+    "generated-agent-mirror": {
+      "EXACT_MIRROR_REUSE": 14
+    },
+    "canonical-agent-tooling": {
+      "FULL_READ": 14
+    },
+    "root-or-other": {
+      "NOT_SEMANTICALLY_REVIEWED": 6,
+      "FULL_READ": 1,
+      "PARTIAL_READ": 1
+    },
+    "workflows": {
+      "NOT_SEMANTICALLY_REVIEWED": 1,
+      "EXACT_PRIOR_REUSE": 13
+    },
+    "legacy": {
+      "NOT_SEMANTICALLY_REVIEWED": 10,
+      "FULL_READ": 1
+    },
+    "tooling": {
+      "NOT_SEMANTICALLY_REVIEWED": 302,
+      "FULL_READ": 24,
+      "PARTIAL_READ": 1
+    },
+    "src/ai": {
+      "FULL_READ": 42
+    },
+    "src/app": {
+      "FULL_READ": 19
+    },
+    "src/data": {
+      "FULL_READ": 58
+    },
+    "src/domain": {
+      "NOT_SEMANTICALLY_REVIEWED": 70,
+      "FULL_READ": 59,
+      "PARTIAL_READ": 3,
+      "EXACT_PRIOR_REUSE": 20
+    },
+    "src/legacy": {
+      "FULL_READ": 2
+    },
+    "src/platform": {
+      "FULL_READ": 3
+    },
+    "src/state": {
+      "FULL_READ": 17
+    },
+    "src/storage": {
+      "FULL_READ": 5
+    },
+    "src/ui": {
+      "FULL_READ": 57,
+      "NOT_SEMANTICALLY_REVIEWED": 34
+    },
+    "worker": {
+      "FULL_READ": 6
+    }
+  }
+}

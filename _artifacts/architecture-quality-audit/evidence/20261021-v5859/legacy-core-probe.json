@@ -1,0 +1,1393 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "sha256": "01fafc2a104ca8af0151f0dc2e5425bbd565900c337eaee60cf9a9ec505b50bc",
+  "utf16Chars": 1042074,
+  "oldRef": "d36bb256ddf60468d6c7a134628053c5796be6be",
+  "unchangedDiffRunsVerified": true,
+  "changes": [
+    {
+      "oldStart": 1,
+      "oldCount": 1,
+      "newStart": 1,
+      "newCount": 1
+    },
+    {
+      "oldStart": 3206,
+      "oldCount": 0,
+      "newStart": 3206,
+      "newCount": 12
+    },
+    {
+      "oldStart": 3210,
+      "oldCount": 2,
+      "newStart": 3222,
+      "newCount": 4
+    },
+    {
+      "oldStart": 18158,
+      "oldCount": 1,
+      "newStart": 18172,
+      "newCount": 1
+    },
+    {
+      "oldStart": 18352,
+      "oldCount": 1,
+      "newStart": 18366,
+      "newCount": 1
+    }
+  ],
+  "cikMap": {
+    "count": 180,
+    "matched": 168,
+    "mismatches": [
+      {
+        "symbol": "XOM",
+        "legacyCik": "0000034088",
+        "canonicalCik": "0002115436",
+        "entityName": "ExxonMobil Holdings Corp",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "BWXT",
+        "legacyCik": "0001581809",
+        "canonicalCik": "0001486957",
+        "entityName": "BWX Technologies, Inc.",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "DUK",
+        "legacyCik": "0000017797",
+        "canonicalCik": "0001326160",
+        "entityName": "Duke Energy CORP",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "LUNR",
+        "legacyCik": "0001844507",
+        "canonicalCik": "0001844452",
+        "entityName": "Intuitive Machines, Inc.",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "PL",
+        "legacyCik": "0001801169",
+        "canonicalCik": "0001836833",
+        "entityName": "Planet Labs PBC",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "AFRM",
+        "legacyCik": "0001820302",
+        "canonicalCik": "0001820953",
+        "entityName": "Affirm Holdings, Inc.",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "AAOI",
+        "legacyCik": "0001070235",
+        "canonicalCik": "0001158114",
+        "entityName": "APPLIED OPTOELECTRONICS, INC.",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "IREN",
+        "legacyCik": "0001878685",
+        "canonicalCik": "0001878848",
+        "entityName": "IREN Ltd",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "NXT",
+        "legacyCik": "0001948544",
+        "canonicalCik": "0001852131",
+        "entityName": "Nextpower Inc.",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "APP",
+        "legacyCik": "0001823144",
+        "canonicalCik": "0001751008",
+        "entityName": "AppLovin Corp",
+        "status": "mismatch"
+      },
+      {
+        "symbol": "HWM",
+        "legacyCik": "0001645590",
+        "canonicalCik": "0000004281",
+        "entityName": "Howmet Aerospace Inc.",
+        "status": "mismatch"
+      }
+    ],
+    "notCovered": [
+      {
+        "symbol": "BRK.A",
+        "legacyCik": "0001067983",
+        "canonicalCik": null,
+        "entityName": null,
+        "status": "not-covered"
+      }
+    ]
+  },
+  "comparisons": [
+    {
+      "symbol": "NVDA",
+      "legacyCik": "0001045810",
+      "canonicalCik": "0001045810",
+      "entityName": "NVIDIA CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "AAPL",
+      "legacyCik": "0000320193",
+      "canonicalCik": "0000320193",
+      "entityName": "Apple Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "MSFT",
+      "legacyCik": "0000789019",
+      "canonicalCik": "0000789019",
+      "entityName": "MICROSOFT CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "GOOGL",
+      "legacyCik": "0001652044",
+      "canonicalCik": "0001652044",
+      "entityName": "Alphabet Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "GOOG",
+      "legacyCik": "0001652044",
+      "canonicalCik": "0001652044",
+      "entityName": "Alphabet Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "AMZN",
+      "legacyCik": "0001018724",
+      "canonicalCik": "0001018724",
+      "entityName": "AMAZON COM INC",
+      "status": "match"
+    },
+    {
+      "symbol": "META",
+      "legacyCik": "0001326801",
+      "canonicalCik": "0001326801",
+      "entityName": "Meta Platforms, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "TSLA",
+      "legacyCik": "0001318605",
+      "canonicalCik": "0001318605",
+      "entityName": "Tesla, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "QCOM",
+      "legacyCik": "0000804328",
+      "canonicalCik": "0000804328",
+      "entityName": "QUALCOMM INC/DE",
+      "status": "match"
+    },
+    {
+      "symbol": "AMD",
+      "legacyCik": "0000002488",
+      "canonicalCik": "0000002488",
+      "entityName": "ADVANCED MICRO DEVICES INC",
+      "status": "match"
+    },
+    {
+      "symbol": "INTC",
+      "legacyCik": "0000050863",
+      "canonicalCik": "0000050863",
+      "entityName": "INTEL CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "AVGO",
+      "legacyCik": "0001730168",
+      "canonicalCik": "0001730168",
+      "entityName": "Broadcom Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "TSM",
+      "legacyCik": "0001046179",
+      "canonicalCik": "0001046179",
+      "entityName": "TAIWAN SEMICONDUCTOR MANUFACTURING CO LTD",
+      "status": "match"
+    },
+    {
+      "symbol": "MU",
+      "legacyCik": "0000723125",
+      "canonicalCik": "0000723125",
+      "entityName": "MICRON TECHNOLOGY INC",
+      "status": "match"
+    },
+    {
+      "symbol": "ARM",
+      "legacyCik": "0001973239",
+      "canonicalCik": "0001973239",
+      "entityName": "ARM HOLDINGS PLC /UK",
+      "status": "match"
+    },
+    {
+      "symbol": "SMCI",
+      "legacyCik": "0001375365",
+      "canonicalCik": "0001375365",
+      "entityName": "Super Micro Computer, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "PLTR",
+      "legacyCik": "0001321655",
+      "canonicalCik": "0001321655",
+      "entityName": "Palantir Technologies Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "NFLX",
+      "legacyCik": "0001065280",
+      "canonicalCik": "0001065280",
+      "entityName": "NETFLIX INC",
+      "status": "match"
+    },
+    {
+      "symbol": "JPM",
+      "legacyCik": "0000019617",
+      "canonicalCik": "0000019617",
+      "entityName": "JPMORGAN CHASE & CO",
+      "status": "match"
+    },
+    {
+      "symbol": "BAC",
+      "legacyCik": "0000070858",
+      "canonicalCik": "0000070858",
+      "entityName": "BANK OF AMERICA CORP /DE/",
+      "status": "match"
+    },
+    {
+      "symbol": "WFC",
+      "legacyCik": "0000072971",
+      "canonicalCik": "0000072971",
+      "entityName": "WELLS FARGO & COMPANY/MN",
+      "status": "match"
+    },
+    {
+      "symbol": "C",
+      "legacyCik": "0000831001",
+      "canonicalCik": "0000831001",
+      "entityName": "CITIGROUP INC",
+      "status": "match"
+    },
+    {
+      "symbol": "GS",
+      "legacyCik": "0000886982",
+      "canonicalCik": "0000886982",
+      "entityName": "GOLDMAN SACHS GROUP INC",
+      "status": "match"
+    },
+    {
+      "symbol": "MS",
+      "legacyCik": "0000895421",
+      "canonicalCik": "0000895421",
+      "entityName": "MORGAN STANLEY",
+      "status": "match"
+    },
+    {
+      "symbol": "V",
+      "legacyCik": "0001403161",
+      "canonicalCik": "0001403161",
+      "entityName": "VISA INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "MA",
+      "legacyCik": "0001141391",
+      "canonicalCik": "0001141391",
+      "entityName": "Mastercard Inc",
+      "status": "match"
+    },
+    {
+      "symbol": "JNJ",
+      "legacyCik": "0000200406",
+      "canonicalCik": "0000200406",
+      "entityName": "JOHNSON & JOHNSON",
+      "status": "match"
+    },
+    {
+      "symbol": "PFE",
+      "legacyCik": "0000078003",
+      "canonicalCik": "0000078003",
+      "entityName": "PFIZER INC",
+      "status": "match"
+    },
+    {
+      "symbol": "UNH",
+      "legacyCik": "0000731766",
+      "canonicalCik": "0000731766",
+      "entityName": "UNITEDHEALTH GROUP INC",
+      "status": "match"
+    },
+    {
+      "symbol": "WMT",
+      "legacyCik": "0000104169",
+      "canonicalCik": "0000104169",
+      "entityName": "Walmart Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "PG",
+      "legacyCik": "0000080424",
+      "canonicalCik": "0000080424",
+      "entityName": "PROCTER & GAMBLE Co",
+      "status": "match"
+    },
+    {
+      "symbol": "KO",
+      "legacyCik": "0000021344",
+      "canonicalCik": "0000021344",
+      "entityName": "COCA COLA CO",
+      "status": "match"
+    },
+    {
+      "symbol": "PEP",
+      "legacyCik": "0000077476",
+      "canonicalCik": "0000077476",
+      "entityName": "PEPSICO INC",
+      "status": "match"
+    },
+    {
+      "symbol": "XOM",
+      "legacyCik": "0000034088",
+      "canonicalCik": "0002115436",
+      "entityName": "ExxonMobil Holdings Corp",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "CVX",
+      "legacyCik": "0000093410",
+      "canonicalCik": "0000093410",
+      "entityName": "CHEVRON CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "COP",
+      "legacyCik": "0001163165",
+      "canonicalCik": "0001163165",
+      "entityName": "CONOCOPHILLIPS",
+      "status": "match"
+    },
+    {
+      "symbol": "BA",
+      "legacyCik": "0000012927",
+      "canonicalCik": "0000012927",
+      "entityName": "BOEING CO",
+      "status": "match"
+    },
+    {
+      "symbol": "CAT",
+      "legacyCik": "0000018230",
+      "canonicalCik": "0000018230",
+      "entityName": "CATERPILLAR INC",
+      "status": "match"
+    },
+    {
+      "symbol": "GE",
+      "legacyCik": "0000040545",
+      "canonicalCik": "0000040545",
+      "entityName": "GENERAL ELECTRIC CO",
+      "status": "match"
+    },
+    {
+      "symbol": "HON",
+      "legacyCik": "0000773840",
+      "canonicalCik": "0000773840",
+      "entityName": "HONEYWELL INTERNATIONAL INC",
+      "status": "match"
+    },
+    {
+      "symbol": "DIS",
+      "legacyCik": "0001744489",
+      "canonicalCik": "0001744489",
+      "entityName": "Walt Disney Co",
+      "status": "match"
+    },
+    {
+      "symbol": "NKE",
+      "legacyCik": "0000320187",
+      "canonicalCik": "0000320187",
+      "entityName": "NIKE, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "MCD",
+      "legacyCik": "0000063908",
+      "canonicalCik": "0000063908",
+      "entityName": "MCDONALDS CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "COST",
+      "legacyCik": "0000909832",
+      "canonicalCik": "0000909832",
+      "entityName": "COSTCO WHOLESALE CORP /NEW",
+      "status": "match"
+    },
+    {
+      "symbol": "HD",
+      "legacyCik": "0000354950",
+      "canonicalCik": "0000354950",
+      "entityName": "HOME DEPOT, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "LOW",
+      "legacyCik": "0000060667",
+      "canonicalCik": "0000060667",
+      "entityName": "LOWES COMPANIES INC",
+      "status": "match"
+    },
+    {
+      "symbol": "CRM",
+      "legacyCik": "0001108524",
+      "canonicalCik": "0001108524",
+      "entityName": "Salesforce, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "ORCL",
+      "legacyCik": "0001341439",
+      "canonicalCik": "0001341439",
+      "entityName": "ORACLE CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "ADBE",
+      "legacyCik": "0000796343",
+      "canonicalCik": "0000796343",
+      "entityName": "ADOBE INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "NOW",
+      "legacyCik": "0001373715",
+      "canonicalCik": "0001373715",
+      "entityName": "ServiceNow, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "SHOP",
+      "legacyCik": "0001594805",
+      "canonicalCik": "0001594805",
+      "entityName": "SHOPIFY INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "COIN",
+      "legacyCik": "0001679788",
+      "canonicalCik": "0001679788",
+      "entityName": "Coinbase Global, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "BRK.B",
+      "legacyCik": "0001067983",
+      "canonicalCik": "0001067983",
+      "entityName": "BERKSHIRE HATHAWAY INC",
+      "status": "match"
+    },
+    {
+      "symbol": "BRK.A",
+      "legacyCik": "0001067983",
+      "canonicalCik": null,
+      "entityName": null,
+      "status": "not-covered"
+    },
+    {
+      "symbol": "AMAT",
+      "legacyCik": "0000006951",
+      "canonicalCik": "0000006951",
+      "entityName": "APPLIED MATERIALS INC /DE",
+      "status": "match"
+    },
+    {
+      "symbol": "LRCX",
+      "legacyCik": "0000707549",
+      "canonicalCik": "0000707549",
+      "entityName": "LAM RESEARCH CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "KLAC",
+      "legacyCik": "0000319201",
+      "canonicalCik": "0000319201",
+      "entityName": "KLA CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "SNPS",
+      "legacyCik": "0000883241",
+      "canonicalCik": "0000883241",
+      "entityName": "SYNOPSYS INC",
+      "status": "match"
+    },
+    {
+      "symbol": "CDNS",
+      "legacyCik": "0000813672",
+      "canonicalCik": "0000813672",
+      "entityName": "CADENCE DESIGN SYSTEMS INC",
+      "status": "match"
+    },
+    {
+      "symbol": "MRVL",
+      "legacyCik": "0001835632",
+      "canonicalCik": "0001835632",
+      "entityName": "Marvell Technology, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "MCHP",
+      "legacyCik": "0000827054",
+      "canonicalCik": "0000827054",
+      "entityName": "MICROCHIP TECHNOLOGY INC",
+      "status": "match"
+    },
+    {
+      "symbol": "ON",
+      "legacyCik": "0001097864",
+      "canonicalCik": "0001097864",
+      "entityName": "ON SEMICONDUCTOR CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "NET",
+      "legacyCik": "0001477333",
+      "canonicalCik": "0001477333",
+      "entityName": "Cloudflare, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "ESTC",
+      "legacyCik": "0001707753",
+      "canonicalCik": "0001707753",
+      "entityName": "Elastic N.V.",
+      "status": "match"
+    },
+    {
+      "symbol": "DDOG",
+      "legacyCik": "0001561550",
+      "canonicalCik": "0001561550",
+      "entityName": "Datadog, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "SNOW",
+      "legacyCik": "0001640147",
+      "canonicalCik": "0001640147",
+      "entityName": "Snowflake Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "MDB",
+      "legacyCik": "0001441816",
+      "canonicalCik": "0001441816",
+      "entityName": "MongoDB, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "GTLB",
+      "legacyCik": "0001653482",
+      "canonicalCik": "0001653482",
+      "entityName": "Gitlab Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "CRWD",
+      "legacyCik": "0001535527",
+      "canonicalCik": "0001535527",
+      "entityName": "CrowdStrike Holdings, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "ZS",
+      "legacyCik": "0001713683",
+      "canonicalCik": "0001713683",
+      "entityName": "Zscaler, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "OKTA",
+      "legacyCik": "0001660134",
+      "canonicalCik": "0001660134",
+      "entityName": "Okta, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "FTNT",
+      "legacyCik": "0001262039",
+      "canonicalCik": "0001262039",
+      "entityName": "Fortinet, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "PANW",
+      "legacyCik": "0001327567",
+      "canonicalCik": "0001327567",
+      "entityName": "Palo Alto Networks Inc",
+      "status": "match"
+    },
+    {
+      "symbol": "IBM",
+      "legacyCik": "0000051143",
+      "canonicalCik": "0000051143",
+      "entityName": "INTERNATIONAL BUSINESS MACHINES CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "LLY",
+      "legacyCik": "0000059478",
+      "canonicalCik": "0000059478",
+      "entityName": "ELI LILLY & Co",
+      "status": "match"
+    },
+    {
+      "symbol": "VKTX",
+      "legacyCik": "0001607678",
+      "canonicalCik": "0001607678",
+      "entityName": "Viking Therapeutics, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "MRNA",
+      "legacyCik": "0001682852",
+      "canonicalCik": "0001682852",
+      "entityName": "Moderna, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "REGN",
+      "legacyCik": "0000872589",
+      "canonicalCik": "0000872589",
+      "entityName": "REGENERON PHARMACEUTICALS, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "VRTX",
+      "legacyCik": "0000875320",
+      "canonicalCik": "0000875320",
+      "entityName": "VERTEX PHARMACEUTICALS INC / MA",
+      "status": "match"
+    },
+    {
+      "symbol": "AMGN",
+      "legacyCik": "0000318154",
+      "canonicalCik": "0000318154",
+      "entityName": "AMGEN INC",
+      "status": "match"
+    },
+    {
+      "symbol": "ABBV",
+      "legacyCik": "0001551152",
+      "canonicalCik": "0001551152",
+      "entityName": "AbbVie Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "MRK",
+      "legacyCik": "0000310158",
+      "canonicalCik": "0000310158",
+      "entityName": "Merck & Co., Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "CEG",
+      "legacyCik": "0001868275",
+      "canonicalCik": "0001868275",
+      "entityName": "Constellation Energy Corp",
+      "status": "match"
+    },
+    {
+      "symbol": "VST",
+      "legacyCik": "0001692819",
+      "canonicalCik": "0001692819",
+      "entityName": "Vistra Corp.",
+      "status": "match"
+    },
+    {
+      "symbol": "NRG",
+      "legacyCik": "0001013871",
+      "canonicalCik": "0001013871",
+      "entityName": "NRG ENERGY, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "BWXT",
+      "legacyCik": "0001581809",
+      "canonicalCik": "0001486957",
+      "entityName": "BWX Technologies, Inc.",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "EXC",
+      "legacyCik": "0001109357",
+      "canonicalCik": "0001109357",
+      "entityName": "EXELON CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "AEP",
+      "legacyCik": "0000004904",
+      "canonicalCik": "0000004904",
+      "entityName": "AMERICAN ELECTRIC POWER CO INC",
+      "status": "match"
+    },
+    {
+      "symbol": "DUK",
+      "legacyCik": "0000017797",
+      "canonicalCik": "0001326160",
+      "entityName": "Duke Energy CORP",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "RKLB",
+      "legacyCik": "0001819994",
+      "canonicalCik": "0001819994",
+      "entityName": "Rocket Lab Corp",
+      "status": "match"
+    },
+    {
+      "symbol": "ASTS",
+      "legacyCik": "0001780312",
+      "canonicalCik": "0001780312",
+      "entityName": "AST SpaceMobile, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "LUNR",
+      "legacyCik": "0001844507",
+      "canonicalCik": "0001844452",
+      "entityName": "Intuitive Machines, Inc.",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "PL",
+      "legacyCik": "0001801169",
+      "canonicalCik": "0001836833",
+      "entityName": "Planet Labs PBC",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "RDW",
+      "legacyCik": "0001819810",
+      "canonicalCik": "0001819810",
+      "entityName": "Redwire Corp",
+      "status": "match"
+    },
+    {
+      "symbol": "IONQ",
+      "legacyCik": "0001824920",
+      "canonicalCik": "0001824920",
+      "entityName": "IonQ, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "RGTI",
+      "legacyCik": "0001838359",
+      "canonicalCik": "0001838359",
+      "entityName": "Rigetti Computing, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "QUBT",
+      "legacyCik": "0001758009",
+      "canonicalCik": "0001758009",
+      "entityName": "Quantum Computing Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "QBTS",
+      "legacyCik": "0001907982",
+      "canonicalCik": "0001907982",
+      "entityName": "D-Wave Quantum Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "MSTR",
+      "legacyCik": "0001050446",
+      "canonicalCik": "0001050446",
+      "entityName": "Strategy Inc",
+      "status": "match"
+    },
+    {
+      "symbol": "RIOT",
+      "legacyCik": "0001167419",
+      "canonicalCik": "0001167419",
+      "entityName": "Riot Platforms, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "MARA",
+      "legacyCik": "0001507605",
+      "canonicalCik": "0001507605",
+      "entityName": "MARA Holdings, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "HOOD",
+      "legacyCik": "0001783879",
+      "canonicalCik": "0001783879",
+      "entityName": "Robinhood Markets, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "PYPL",
+      "legacyCik": "0001633917",
+      "canonicalCik": "0001633917",
+      "entityName": "PayPal Holdings, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "SOFI",
+      "legacyCik": "0001818874",
+      "canonicalCik": "0001818874",
+      "entityName": "SoFi Technologies, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "AFRM",
+      "legacyCik": "0001820302",
+      "canonicalCik": "0001820953",
+      "entityName": "Affirm Holdings, Inc.",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "NU",
+      "legacyCik": "0001691493",
+      "canonicalCik": "0001691493",
+      "entityName": "Nu Holdings Ltd.",
+      "status": "match"
+    },
+    {
+      "symbol": "LITE",
+      "legacyCik": "0001633978",
+      "canonicalCik": "0001633978",
+      "entityName": "Lumentum Holdings Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "CIEN",
+      "legacyCik": "0000936395",
+      "canonicalCik": "0000936395",
+      "entityName": "CIENA CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "AAOI",
+      "legacyCik": "0001070235",
+      "canonicalCik": "0001158114",
+      "entityName": "APPLIED OPTOELECTRONICS, INC.",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "GLW",
+      "legacyCik": "0000024741",
+      "canonicalCik": "0000024741",
+      "entityName": "CORNING INC /NY",
+      "status": "match"
+    },
+    {
+      "symbol": "ANET",
+      "legacyCik": "0001596532",
+      "canonicalCik": "0001596532",
+      "entityName": "Arista Networks, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "VIAV",
+      "legacyCik": "0000912093",
+      "canonicalCik": "0000912093",
+      "entityName": "VIAVI SOLUTIONS INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "RIVN",
+      "legacyCik": "0001874178",
+      "canonicalCik": "0001874178",
+      "entityName": "Rivian Automotive, Inc. / DE",
+      "status": "match"
+    },
+    {
+      "symbol": "LCID",
+      "legacyCik": "0001811210",
+      "canonicalCik": "0001811210",
+      "entityName": "Lucid Group, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "GM",
+      "legacyCik": "0001467858",
+      "canonicalCik": "0001467858",
+      "entityName": "General Motors Co",
+      "status": "match"
+    },
+    {
+      "symbol": "F",
+      "legacyCik": "0000037996",
+      "canonicalCik": "0000037996",
+      "entityName": "FORD MOTOR CO",
+      "status": "match"
+    },
+    {
+      "symbol": "MBLY",
+      "legacyCik": "0001910139",
+      "canonicalCik": "0001910139",
+      "entityName": "Mobileye Global Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "APTV",
+      "legacyCik": "0001521332",
+      "canonicalCik": "0001521332",
+      "entityName": "Aptiv PLC",
+      "status": "match"
+    },
+    {
+      "symbol": "SYM",
+      "legacyCik": "0001837240",
+      "canonicalCik": "0001837240",
+      "entityName": "Symbotic Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "PATH",
+      "legacyCik": "0001734722",
+      "canonicalCik": "0001734722",
+      "entityName": "UiPath, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "ISRG",
+      "legacyCik": "0001035267",
+      "canonicalCik": "0001035267",
+      "entityName": "INTUITIVE SURGICAL INC",
+      "status": "match"
+    },
+    {
+      "symbol": "EQIX",
+      "legacyCik": "0001101239",
+      "canonicalCik": "0001101239",
+      "entityName": "EQUINIX INC",
+      "status": "match"
+    },
+    {
+      "symbol": "DLR",
+      "legacyCik": "0001297996",
+      "canonicalCik": "0001297996",
+      "entityName": "DIGITAL REALTY TRUST, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "VRT",
+      "legacyCik": "0001674101",
+      "canonicalCik": "0001674101",
+      "entityName": "Vertiv Holdings Co",
+      "status": "match"
+    },
+    {
+      "symbol": "ETN",
+      "legacyCik": "0001551182",
+      "canonicalCik": "0001551182",
+      "entityName": "Eaton Corp plc",
+      "status": "match"
+    },
+    {
+      "symbol": "IREN",
+      "legacyCik": "0001878685",
+      "canonicalCik": "0001878848",
+      "entityName": "IREN Ltd",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "CIFR",
+      "legacyCik": "0001819989",
+      "canonicalCik": "0001819989",
+      "entityName": "Cipher Digital Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "WULF",
+      "legacyCik": "0001083301",
+      "canonicalCik": "0001083301",
+      "entityName": "TERAWULF INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "DELL",
+      "legacyCik": "0001571996",
+      "canonicalCik": "0001571996",
+      "entityName": "Dell Technologies Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "HPE",
+      "legacyCik": "0001645590",
+      "canonicalCik": "0001645590",
+      "entityName": "Hewlett Packard Enterprise Co",
+      "status": "match"
+    },
+    {
+      "symbol": "FSLR",
+      "legacyCik": "0001274494",
+      "canonicalCik": "0001274494",
+      "entityName": "FIRST SOLAR, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "ENPH",
+      "legacyCik": "0001463101",
+      "canonicalCik": "0001463101",
+      "entityName": "Enphase Energy, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "RUN",
+      "legacyCik": "0001469367",
+      "canonicalCik": "0001469367",
+      "entityName": "Sunrun Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "SEDG",
+      "legacyCik": "0001419612",
+      "canonicalCik": "0001419612",
+      "entityName": "SOLAREDGE TECHNOLOGIES, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "NXT",
+      "legacyCik": "0001948544",
+      "canonicalCik": "0001852131",
+      "entityName": "Nextpower Inc.",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "BE",
+      "legacyCik": "0001664703",
+      "canonicalCik": "0001664703",
+      "entityName": "Bloom Energy Corp",
+      "status": "match"
+    },
+    {
+      "symbol": "PLUG",
+      "legacyCik": "0001093691",
+      "canonicalCik": "0001093691",
+      "entityName": "PLUG POWER INC",
+      "status": "match"
+    },
+    {
+      "symbol": "FCEL",
+      "legacyCik": "0000886128",
+      "canonicalCik": "0000886128",
+      "entityName": "FUELCELL ENERGY INC",
+      "status": "match"
+    },
+    {
+      "symbol": "WBD",
+      "legacyCik": "0001437107",
+      "canonicalCik": "0001437107",
+      "entityName": "Warner Bros. Discovery, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "SPOT",
+      "legacyCik": "0001639920",
+      "canonicalCik": "0001639920",
+      "entityName": "Spotify Technology S.A.",
+      "status": "match"
+    },
+    {
+      "symbol": "ROKU",
+      "legacyCik": "0001428439",
+      "canonicalCik": "0001428439",
+      "entityName": "ROKU, INC",
+      "status": "match"
+    },
+    {
+      "symbol": "TTD",
+      "legacyCik": "0001671933",
+      "canonicalCik": "0001671933",
+      "entityName": "Trade Desk, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "APP",
+      "legacyCik": "0001823144",
+      "canonicalCik": "0001751008",
+      "entityName": "AppLovin Corp",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "SNAP",
+      "legacyCik": "0001564408",
+      "canonicalCik": "0001564408",
+      "entityName": "Snap Inc",
+      "status": "match"
+    },
+    {
+      "symbol": "SLB",
+      "legacyCik": "0000087347",
+      "canonicalCik": "0000087347",
+      "entityName": "SLB LIMITED/NV",
+      "status": "match"
+    },
+    {
+      "symbol": "EOG",
+      "legacyCik": "0000821189",
+      "canonicalCik": "0000821189",
+      "entityName": "EOG RESOURCES INC",
+      "status": "match"
+    },
+    {
+      "symbol": "FANG",
+      "legacyCik": "0001539838",
+      "canonicalCik": "0001539838",
+      "entityName": "Diamondback Energy, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "DVN",
+      "legacyCik": "0001090012",
+      "canonicalCik": "0001090012",
+      "entityName": "DEVON ENERGY CORP/DE",
+      "status": "match"
+    },
+    {
+      "symbol": "MPC",
+      "legacyCik": "0001510295",
+      "canonicalCik": "0001510295",
+      "entityName": "Marathon Petroleum Corp",
+      "status": "match"
+    },
+    {
+      "symbol": "VLO",
+      "legacyCik": "0001035002",
+      "canonicalCik": "0001035002",
+      "entityName": "VALERO ENERGY CORP/TX",
+      "status": "match"
+    },
+    {
+      "symbol": "PSX",
+      "legacyCik": "0001534701",
+      "canonicalCik": "0001534701",
+      "entityName": "Phillips 66",
+      "status": "match"
+    },
+    {
+      "symbol": "RTX",
+      "legacyCik": "0000101829",
+      "canonicalCik": "0000101829",
+      "entityName": "RTX Corp",
+      "status": "match"
+    },
+    {
+      "symbol": "LMT",
+      "legacyCik": "0000936468",
+      "canonicalCik": "0000936468",
+      "entityName": "LOCKHEED MARTIN CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "NOC",
+      "legacyCik": "0001133421",
+      "canonicalCik": "0001133421",
+      "entityName": "NORTHROP GRUMMAN CORP /DE/",
+      "status": "match"
+    },
+    {
+      "symbol": "GD",
+      "legacyCik": "0000040533",
+      "canonicalCik": "0000040533",
+      "entityName": "GENERAL DYNAMICS CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "HII",
+      "legacyCik": "0001501585",
+      "canonicalCik": "0001501585",
+      "entityName": "HUNTINGTON INGALLS INDUSTRIES, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "LDOS",
+      "legacyCik": "0001336920",
+      "canonicalCik": "0001336920",
+      "entityName": "Leidos Holdings, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "HWM",
+      "legacyCik": "0001645590",
+      "canonicalCik": "0000004281",
+      "entityName": "Howmet Aerospace Inc.",
+      "status": "mismatch"
+    },
+    {
+      "symbol": "SBUX",
+      "legacyCik": "0000829224",
+      "canonicalCik": "0000829224",
+      "entityName": "STARBUCKS CORP",
+      "status": "match"
+    },
+    {
+      "symbol": "LULU",
+      "legacyCik": "0001397187",
+      "canonicalCik": "0001397187",
+      "entityName": "lululemon athletica inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "BKNG",
+      "legacyCik": "0001075531",
+      "canonicalCik": "0001075531",
+      "entityName": "Booking Holdings Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "ABNB",
+      "legacyCik": "0001559720",
+      "canonicalCik": "0001559720",
+      "entityName": "Airbnb, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "UBER",
+      "legacyCik": "0001543151",
+      "canonicalCik": "0001543151",
+      "entityName": "Uber Technologies, Inc",
+      "status": "match"
+    },
+    {
+      "symbol": "DASH",
+      "legacyCik": "0001792789",
+      "canonicalCik": "0001792789",
+      "entityName": "DoorDash, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "DAL",
+      "legacyCik": "0000027904",
+      "canonicalCik": "0000027904",
+      "entityName": "DELTA AIR LINES, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "UAL",
+      "legacyCik": "0000100517",
+      "canonicalCik": "0000100517",
+      "entityName": "United Airlines Holdings, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "CCL",
+      "legacyCik": "0000815097",
+      "canonicalCik": "0000815097",
+      "entityName": "Carnival Corp Ltd.",
+      "status": "match"
+    },
+    {
+      "symbol": "TMUS",
+      "legacyCik": "0001283699",
+      "canonicalCik": "0001283699",
+      "entityName": "T-Mobile US, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "TMO",
+      "legacyCik": "0000097745",
+      "canonicalCik": "0000097745",
+      "entityName": "THERMO FISHER SCIENTIFIC INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "ABT",
+      "legacyCik": "0000001800",
+      "canonicalCik": "0000001800",
+      "entityName": "ABBOTT LABORATORIES",
+      "status": "match"
+    },
+    {
+      "symbol": "GILD",
+      "legacyCik": "0000882095",
+      "canonicalCik": "0000882095",
+      "entityName": "GILEAD SCIENCES, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "BMY",
+      "legacyCik": "0000014272",
+      "canonicalCik": "0000014272",
+      "entityName": "BRISTOL MYERS SQUIBB CO",
+      "status": "match"
+    },
+    {
+      "symbol": "EA",
+      "legacyCik": "0000712515",
+      "canonicalCik": "0000712515",
+      "entityName": "ELECTRONIC ARTS INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "TTWO",
+      "legacyCik": "0000946581",
+      "canonicalCik": "0000946581",
+      "entityName": "TAKE TWO INTERACTIVE SOFTWARE INC",
+      "status": "match"
+    },
+    {
+      "symbol": "RBLX",
+      "legacyCik": "0001315098",
+      "canonicalCik": "0001315098",
+      "entityName": "Roblox Corp",
+      "status": "match"
+    },
+    {
+      "symbol": "PINS",
+      "legacyCik": "0001506293",
+      "canonicalCik": "0001506293",
+      "entityName": "PINTEREST, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "RDDT",
+      "legacyCik": "0001713445",
+      "canonicalCik": "0001713445",
+      "entityName": "Reddit, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "AI",
+      "legacyCik": "0001577526",
+      "canonicalCik": "0001577526",
+      "entityName": "C3.ai, Inc.",
+      "status": "match"
+    },
+    {
+      "symbol": "SOUN",
+      "legacyCik": "0001840856",
+      "canonicalCik": "0001840856",
+      "entityName": "SOUNDHOUND AI, INC.",
+      "status": "match"
+    },
+    {
+      "symbol": "CSCO",
+      "legacyCik": "0000858877",
+      "canonicalCik": "0000858877",
+      "entityName": "CISCO SYSTEMS, INC.",
+      "status": "match"
+    }
+  ]
+}

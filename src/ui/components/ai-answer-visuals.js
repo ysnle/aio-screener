@@ -119,8 +119,11 @@ export async function buildFundamentalsVisual({ documentRef: doc, root, symbol }
   let rows = [];
   let unit = '분기';
   if (typeof quarterText === 'string') {
+    // v58.63 (architecture audit C07): Number('') is 0, so a quarter with no reported net income drew "순이익률 0%" exactly
+    // like a real break-even quarter. An empty cell is missing, not zero.
+    const cell = (value) => (value == null || String(value).trim() === '' ? null : finite(Number(value)));
     rows = quarterText.split(';').map((part) => part.split(':')).filter((cells) => /^\d{4}-\d{2}-\d{2}$/.test(cells[0] || ''))
-      .map(([periodEnd, revenue, netIncome]) => ({ periodEnd, revenue: finite(Number(revenue)), netIncome: finite(Number(netIncome)) }));
+      .map(([periodEnd, revenue, netIncome]) => ({ periodEnd, revenue: cell(revenue), netIncome: cell(netIncome) }));
   }
   if (rows.filter((row) => row.revenue != null).length < 4) {
     const annual = root._aioSecFiscalHistory?.[symbol];
@@ -158,8 +161,19 @@ export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
   const series = (await Promise.all(symbols.slice(0, 3).map(async (symbol) => ({ symbol, bars: (await loadBars(root, symbol, '6mo')).slice(-63) }))))
     .filter((item) => item.bars.length >= 20);
   if (series.length < 2) return null;
-  const span = Math.min(...series.map((item) => item.bars.length));
-  const lines = series.map((item) => { const bars = item.bars.slice(-span); return { ...item, values: bars.map((bar) => bar.close / bars[0].close * 100), from: bars[0].time, to: bars[bars.length - 1].time }; });
+  // v58.63 (architecture audit C08): the lines were aligned by position, so two series ending on different sessions
+  // (a holiday in one market) put 7/1 and 7/2 on the same x and the caption named only the first line's dates. The
+  // lines now share the completed sessions every series has, each rebased on the same first common date.
+  const dayOf = (bar) => String(bar.time ?? '').slice(0, 10);
+  const common = series.map((item) => new Set(item.bars.map(dayOf))).reduce((acc, set) => new Set([...acc].filter((day) => set.has(day))));
+  const days = [...common].sort().slice(-63);
+  const span = days.length;
+  if (span < 20) return null;
+  const lines = series.map((item) => {
+    const byDay = new Map(item.bars.map((bar) => [dayOf(bar), bar.close]));
+    const closes = days.map((day) => byDay.get(day));
+    return { ...item, values: closes.map((close) => close / closes[0] * 100), from: days[0], to: days[span - 1] };
+  });
   const all = lines.flatMap((line) => line.values);
   const min = Math.min(...all, 100), max = Math.max(...all, 100);
   const W = 400, H = 190, top = 10, bottom = 26;

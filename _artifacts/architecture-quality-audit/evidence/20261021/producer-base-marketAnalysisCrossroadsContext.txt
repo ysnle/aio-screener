@@ -1,0 +1,15 @@
+function marketAnalysisCrossroadsContext(data, input, regime) {
+  try {
+    let schedules = {};
+    try { schedules = JSON.parse(readFileSync(MACRO_CALENDAR_OUT, 'utf8'))?.schedules || {}; } catch (_) { schedules = {}; }
+    const read = buildMacroRead({ macro: data?.macro || null, macroHistory: input.macroHistory, regime: regime?.available ? regime : null, history: input.history });
+    // P1743: the previous refresh's scenario state (scripts/build-scenario-state.mjs runs after this producer) adds the
+    // automated record — what changed, how the latest releases scored — and every theme's stage under the same branches.
+    let state = null, outcomes = null;
+    try { state = JSON.parse(readFileSync(SCENARIO_STATE_OUT, 'utf8')); } catch (_) { state = null; }
+    try { outcomes = JSON.parse(readFileSync(SCENARIO_OUTCOMES_OUT, 'utf8')); } catch (_) { outcomes = null; }
+    const breadthState = regime?.axes?.find((axis) => axis.id === 'breadth')?.state || null;
+    const model = buildMacroCrossroads({ read: read ? { ...read, breadthState } : read, macroHistory: input.macroHistory, history: input.history, events: upcomingMacroEvents({ schedules }), outcomes, previousLeadId: state?.crossroads?.leadId || null });
+    return [renderMacroCrossroadsContext(model, { state }), scenarioStateThemeLines(state)].filter(Boolean).join('\n');
+  } catch (_) { return ''; }
+}

@@ -1,0 +1,349 @@
+{
+  "observedAt": "2026-10-22T13:16:23.589Z",
+  "fixedRef": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "receipts": [
+    {
+      "path": "src/domain/screener/factor-overlap.js",
+      "sha256": "a308463e1e9429821c306565dcf7d3a06b8b2fe849e082779c1a1491eb05b4d2",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-97"
+    },
+    {
+      "path": "src/domain/screener/model-fingerprint.js",
+      "sha256": "34274c1593634ef25b31f7d43d27a12c214a637fce53516c95a246d474531b7a",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-110"
+    },
+    {
+      "path": "src/domain/screener/factor-weights.js",
+      "sha256": "35e4bf3275615bbd0bc595aa90b726ceb5132b5b418debfc5140ec07fb49f2f8",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-103"
+    },
+    {
+      "path": "src/domain/screener/row-presentation.js",
+      "sha256": "59cd73a8e4fb8fa184605f68c7e843acdf0cc5083a003d829f283c5df9a67f3c",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-130"
+    },
+    {
+      "path": "src/domain/screener/candidate-record.js",
+      "sha256": "94e58231c142c5195713cd773d1ebd0ee762ceb6f5973ab8cba8fc30085eeba3",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-86"
+    },
+    {
+      "path": "src/domain/screener/screener-read.js",
+      "sha256": "0cd96c4bc4ef2f8c7a9e4257397ec3d7ca9a9f63de3a124f4c1ddbba1503b960",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-131"
+    },
+    {
+      "path": "src/domain/screener/setup-profile.js",
+      "sha256": "cc62d6e1adf21fc7c592355af185ff4f6b6bb7f1635c11d30764fea98d1fe712",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-162"
+    },
+    {
+      "path": "src/domain/screener/conditional-evidence.js",
+      "sha256": "f662e106c6507eec4c7485eb44191b191b6303d93692ee2478ab7b71c5d47a71",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-260"
+    },
+    {
+      "path": "src/domain/screener/custom-conditions.js",
+      "sha256": "df54c76554061be78643cdcaa454b35a2b7b4a32862fba2890288356079db2bb",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-206"
+    },
+    {
+      "path": "src/domain/screener/screen-engine.js",
+      "sha256": "bd6fa9bd8a50806455def1467e9dfe18fc60342f10e044cb23b4d987ba747823",
+      "priorStatus": "REUSED_FULL_STATIC_REVIEW",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-334"
+    },
+    {
+      "path": "src/data/normalize/screener.js",
+      "sha256": "8e23ba6030408fba6884307c29d8b0661d4f19aa5c38493192e7622b851db2b8",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-183"
+    },
+    {
+      "path": "src/domain/fundamental/consensus-read.js",
+      "sha256": "cbefe607497ee409614fd81c500b81c44aaa7d6f1cb03fcdeb6f736a945b8168",
+      "priorStatus": "REUSED_FULL_STATIC_REVIEW",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-86"
+    },
+    {
+      "path": "src/domain/screener/evidence-lineage.js",
+      "sha256": "b366dc226265da29d48dd6498793807b295b1afda357bc26757a31d290a45c4f",
+      "priorStatus": "REUSED_FULL_STATIC_REVIEW",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-98"
+    },
+    {
+      "path": "src/ui/components/screener-custom.js",
+      "sha256": "41dc0a0db8f806a66d38f1110090afabef1f6912613750b5fb4dca81b69ca352",
+      "priorStatus": "CHANGED_REVIEW_REQUIRED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/screener-reading.tsv",
+      "reader": "screener",
+      "range": "1-222"
+    },
+    {
+      "path": "cloudflare-worker-proxy.js",
+      "sha256": "dae4adec1cd29c7e1a3a097678fe27c481ef801efaaf6744383bfe63f15ad633",
+      "priorStatus": "PARTIAL_PRIOR_READ",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-reading.tsv",
+      "reader": "security",
+      "range": "1-1625"
+    },
+    {
+      "path": "worker/openai-budget.mjs",
+      "sha256": "8b2a8c8ecb272a12713a9178fbd09563c42faf2deecd11dd64169e6ec3272afb",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-reading.tsv",
+      "reader": "security",
+      "range": "1-179"
+    },
+    {
+      "path": "worker/openai-usage.mjs",
+      "sha256": "3155c718672f9d0bc12ed485467fcd69b59249c696f7186c1713aa9f9364bc00",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-reading.tsv",
+      "reader": "security",
+      "range": "1-55"
+    },
+    {
+      "path": "worker/openai-contract.test.mjs",
+      "sha256": "5b3c4c62370100338ceb06ae94fb13af75c34a7b1496a3cc9d0bc7d15345996a",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-reading.tsv",
+      "reader": "security",
+      "range": "1-436"
+    },
+    {
+      "path": "src/ai/policy/conduct.js",
+      "sha256": "a09315745aec74445e072800e19849a2134781007d2d1b3620ff0166ee5912b4",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-reading.tsv",
+      "reader": "security",
+      "range": "1-155"
+    },
+    {
+      "path": "src/ai/response/publication.js",
+      "sha256": "8f480e1a378a62223705299e6e904ca14f0eb7772525f15f9c919ba458f30a93",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-reading.tsv",
+      "reader": "security",
+      "range": "1-246"
+    },
+    {
+      "path": "src/ai/orchestrator/answer-orchestrator.js",
+      "sha256": "b70927bd7e52472a4519c62be85f95387b6b35f74f995ccc21cf2ea740cbb5a3",
+      "priorStatus": "NOT_SEMANTICALLY_REVIEWED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/security-reading.tsv",
+      "reader": "security",
+      "range": "1-106"
+    },
+    {
+      "path": "js/aio-workspace.js",
+      "sha256": "c142499fda32db4450436a13b39dddc39febf9a60a3ff61658e67d4ff0d6b58d",
+      "priorStatus": "DIFF_ONLY_CURRENT_REVIEW",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/legacy-reading.tsv",
+      "reader": "legacy",
+      "range": "1-2462"
+    },
+    {
+      "path": "js/aio-pages.js",
+      "sha256": "59936058bc063ca5da3305c0e8aefa8f9143bac43dd9e02629534ccd04cf9652",
+      "priorStatus": "DIFF_ONLY_CURRENT_REVIEW",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/legacy-reading.tsv",
+      "reader": "legacy",
+      "range": "1-1803"
+    },
+    {
+      "path": "js/aio-kr-data.js",
+      "sha256": "6a1c7965f61a1de6a5876315bc720bc7895bd0d13c002da61c8de5a1ea9ce602",
+      "priorStatus": "PARTIAL_PRIOR_READ",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/legacy-reading.tsv",
+      "reader": "legacy",
+      "range": "1-1941"
+    },
+    {
+      "path": "index.html",
+      "sha256": "13e44cc8bf13b6d788b1cdb99504265ada4b2f1b49186e7ea40b36d54542ff22",
+      "priorStatus": "CHANGED_REVIEW_REQUIRED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "reader": "shell",
+      "range": "1-7230"
+    },
+    {
+      "path": "src/ui/components/responsive-shell.js",
+      "sha256": "a6abf1172b73a7eada821e09c69dcbcb27a6be0598c9e0f7ab3a9d30612691ff",
+      "priorStatus": "CHANGED_REVIEW_REQUIRED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "reader": "shell",
+      "range": "1-173"
+    },
+    {
+      "path": "src/ui/components/color-theme.js",
+      "sha256": "542048fe1a052b6131225f6d76b449c9ec8ae364e0b716fee96d2e9e031ba429",
+      "priorStatus": "REUSED_FULL_STATIC_REVIEW",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "reader": "shell",
+      "range": "1-30"
+    },
+    {
+      "path": "src/ui/panels/connections.js",
+      "sha256": "9e331f15078bbe9a3e5ff638c8108c249df08748b00823d6552fb942e0325608",
+      "priorStatus": "CHANGED_REVIEW_REQUIRED",
+      "readingReceipt": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "reader": "shell",
+      "range": "1-44"
+    }
+  ],
+  "ignoredPartialOrWorktreeReceipts": [
+    {
+      "file": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "path": "index.html",
+      "ref": "WORKTREE-v58.62",
+      "sha256": "60e1d8d885e8b1bfaf632e105c93acb4e43b8c39fa5983136836e226d47f6227",
+      "status": "FULL_BASE_PLUS_DIFF",
+      "read_ranges": "1-7230 + FULL_DIFF(14 changed lines)",
+      "reason": "고정 전문과 현행 전체 diff; 14줄 모두 버전 치환만",
+      "fixed_blob_sha": "b98994a205c84bb7a357d301dd965009d032dcd1"
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "path": "js/aio-core.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "01fafc2a104ca8af0151f0dc2e5425bbd565900c337eaee60cf9a9ec505b50bc",
+      "status": "PARTIAL",
+      "read_ranges": "1716-1735;1791-1830;3371-3375",
+      "reason": "고정 caller 반증 구간만 직접 읽음; 현행 1700-1843/3368-3384 추가 확인 ; WORKTREE_DIFF_NOT_FULLY_READ",
+      "fixed_blob_sha": "9fca9b6bba966722b01f349417dd81fc1b9ffa0d"
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "path": "js/aio-ui.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "5fb244f82c49219b3f34afdded788bc3356696ea687e0deafc99a7a8079a44bd",
+      "status": "PARTIAL",
+      "read_ranges": "851-1036;2285-2401",
+      "reason": "현행 구간 읽음; 고정과 파일 SHA 동일; 전체 전문 아님; WORKTREE_BYTES_EQUAL",
+      "fixed_blob_sha": "48c3fa8c10fff09c3e2b34d8c75a22180e035032"
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "path": "js/aio-chat.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "b52abcc16cfa72aec353c99116d70c1d529156f5bf012e4f163803830173f34f",
+      "status": "PARTIAL",
+      "read_ranges": "4952-4978;5123-5146",
+      "reason": "현행 재무 차트 caller 읽음; 고정과 SHA 동일; 전체 전문 아님; WORKTREE_BYTES_EQUAL",
+      "fixed_blob_sha": "2fb565448b69851e8f5bcd8fc6e4192d9b83bb7c"
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "path": "src/app/bootstrap.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "e6d24b6b42ea0242787c334ff1c5bc8b059ae68af6d97758482a4876bd887caa",
+      "status": "PARTIAL",
+      "read_ranges": "878-919",
+      "reason": "현행 skip-link caller 반증; 고정과 SHA 동일; 전체 전문 아님; WORKTREE_BYTES_EQUAL",
+      "fixed_blob_sha": "794238c1da7ea4296d03cecd946b220da37e064d"
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "path": "src/ui/styles/regime-quality.css",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "0e2377513c27976f7993d4ec9cffe649b1a609db0a7afc8de1cc9629569512b5",
+      "status": "PARTIAL",
+      "read_ranges": "338-345",
+      "reason": "현행 빈 닫기 버튼 반증 구간; 고정과 SHA 동일; WORKTREE_BYTES_EQUAL",
+      "fixed_blob_sha": "aead48075dbbb7ca477c40e272d87ec3135e629b"
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "path": "src/ui/pages/entity.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "1141f328c38b424093d7507094e8014e1d544da5d4ed8a3f9f4b9fcb5cd112d9",
+      "status": "PARTIAL",
+      "read_ranges": "401-451",
+      "reason": "현행 ChartConstructor caller만; 일반 가격 차트 null 도달성은 미인증; WORKTREE_BYTES_EQUAL",
+      "fixed_blob_sha": "2b78e49b7ebd65bddaf52df139ced031f07c9154"
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/reviews/remaining-20261022/shell-reading.tsv",
+      "path": "src/ui/pages/portfolio.js",
+      "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+      "sha256": "5f43a4e30a449c01ee482af8570073b09c4ecf0f567eaa156976c38843250129",
+      "status": "PARTIAL",
+      "read_ranges": "636-676",
+      "reason": "현행 doughnut ChartConstructor caller만; 전체 전문 아님; WORKTREE_BYTES_EQUAL",
+      "fixed_blob_sha": "e1267610e75060e177788d12532d6b18920ec8ee"
+    }
+  ],
+  "baseline": {
+    "full": 405,
+    "mirrors": 13,
+    "unfinished": 432
+  },
+  "current": {
+    "full": 429,
+    "mirrors": 13,
+    "unfinished": 408
+  },
+  "newlyFull": [
+    "src/domain/screener/factor-overlap.js",
+    "src/domain/screener/model-fingerprint.js",
+    "src/domain/screener/factor-weights.js",
+    "src/domain/screener/row-presentation.js",
+    "src/domain/screener/candidate-record.js",
+    "src/domain/screener/screener-read.js",
+    "src/domain/screener/setup-profile.js",
+    "src/domain/screener/conditional-evidence.js",
+    "src/domain/screener/custom-conditions.js",
+    "src/data/normalize/screener.js",
+    "src/ui/components/screener-custom.js",
+    "cloudflare-worker-proxy.js",
+    "worker/openai-budget.mjs",
+    "worker/openai-usage.mjs",
+    "worker/openai-contract.test.mjs",
+    "src/ai/policy/conduct.js",
+    "src/ai/response/publication.js",
+    "src/ai/orchestrator/answer-orchestrator.js",
+    "js/aio-workspace.js",
+    "js/aio-pages.js",
+    "js/aio-kr-data.js",
+    "index.html",
+    "src/ui/components/responsive-shell.js",
+    "src/ui/panels/connections.js"
+  ],
+  "boundary": "Receipts assert actual whole-source reading. SHA and continuous declared range are checked; dependency copies/probes/partial callers do not become FULL. Fixed source ledger is distinct from current diff and live evidence."
+}

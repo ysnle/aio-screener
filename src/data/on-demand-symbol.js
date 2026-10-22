@@ -145,9 +145,20 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
   const entries = new Map();
   const queueState = { active: 0, waiting: [] };
   const enqueue = queueFor(queueState);
+  // v58.63 (architecture audit D3): a ready / in-universe record was kept for the whole session, so after the next
+  // published close or universe refresh a symbol kept its old row, SEC summary and placement against the old peers.
+  // Records carry the universe they were read against (row count + latest completed session) and are read again
+  // once that changes.
+  const universeKey = () => {
+    let rows = [];
+    try { rows = universeRows() || []; } catch (_) { rows = []; }
+    let latest = '';
+    for (const row of rows) { const day = row?.factorSessionDate; if (day && day > latest) latest = day; }
+    return `${rows.length}:${latest}`;
+  };
   const remember = (id, record) => {
     entries.delete(id);
-    entries.set(id, { at: now(), record, promise: null });
+    entries.set(id, { at: now(), record, promise: null, universe: universeKey() });
     while (entries.size > MAX_ENTRIES) entries.delete(entries.keys().next().value);
     try { onRecord(record); } catch (_) { /* a consumer's render error does not poison the cache */ }
     return record;
@@ -200,8 +211,8 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
       if (!id) return Promise.resolve(null);
       const saved = entries.get(id);
       if (saved?.promise) return saved.promise;
-      if (saved?.record && (saved.record.status === 'ready' || saved.record.status === 'in-universe'
-        || (saved.record.status !== 'universe-unavailable' && now() - saved.at < RETRY_AFTER_MS))) return Promise.resolve(saved.record);
+      if (saved?.record && (((saved.record.status === 'ready' || saved.record.status === 'in-universe') && saved.universe === universeKey())
+        || (saved.record.status !== 'universe-unavailable' && saved.record.status !== 'ready' && saved.record.status !== 'in-universe' && now() - saved.at < RETRY_AFTER_MS))) return Promise.resolve(saved.record);
       const promise = enqueue(() => read(id)).catch(() => ({ symbol: id, model: ON_DEMAND_MODEL_VERSION, status: 'unavailable', reason: 'read-failed' }))
         .then((record) => remember(id, record));
       entries.set(id, { at: now(), record: saved?.record || null, promise });

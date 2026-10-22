@@ -1,0 +1,128 @@
+Browser tab: 2, Title: "Apple Inc. (AAPL) · AIO Screener", URL: "http://127.0.0.1:8795/#ticker?sym=AAPL".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 38, 40-43, 46, 48, 51-52
+~0 AXWebArea Apple Inc. (AAPL) · AIO Screener, URL: 127.0.0.1:8795/#ticker?sym=AAPL
++			79 text 종목 / 요약
++			80 button 요약
++			81 button 차트
++			82 button 재무 공시
++			83 text AAPL
++			84 text Apple Inc.
+~		44 container AAPL, ID: page-ticker
+~			45 heading 종목 · Apple (AAPL), Value: 1, ID: ticker-page-title
++				85 text 종목 · Apple (AAPL)
++				86 text 종목
+~				50 heading AAPL, Value: 2, ID: ticker-hero-name
++					87 text AAPL
++				88 text Apple Inc.
++			89 text $342.94
++			90 text 현재 시세 불러오는 중
++			91 text 10/19 종가
++			92 container ticker-hero-pnl
++				93 text 내 손익 
++				94 text 보유 종목 아님
+~			55 text field (settable) Description: 종목 티커 검색, Value: AAPL, ID: ticker-direct-search
++			95 container ticker-company-analysis
++				96 heading 기업 요약, Value: 2
++					97 text 기업 요약
++				98 container
++					99 text Apple — 연간 공시 FY2025 매출 +6.4% · 순이익률 26.9% · 
++					100 pop up button (collapsed) ROE, Secondary Actions: Expand
++					101 text  171.4%(평균 자기자본 기준)
++				102 container
++					103 text 시총 약 $5.07T(10/19 종가) · 직전 4개 분기 
++					104 pop up button (collapsed) PER, Secondary Actions: Expand
++					105 text  39.8배(조정 EPS) · 
++					106 pop up button (collapsed) Forward PER, Secondary Actions: Expand
++					107 text  37.2배(예상치 10/19)
++				108 button 차트 분석 (기술적) 추세·이동평균 정배열·셋업·거래량을 주기별로
++					109 text 차트 분석 (기술적)
++					110 text 추세·이동평균 정배열·셋업·거래량을 주기별로
++				111 button 재무 분석 (펀더멘탈) 매출·이익률·현금흐름·부채를 공시 원문 기준으로
++					112 text 재무 분석 (펀더멘탈)
++					113 text 매출·이익률·현금흐름·부채를 공시 원문 기준으로
++				114 button AI로 기업 분석
++				115 container
++					116 button (expanded) 사업·재무 카드, Secondary Actions: Collapse
++						117 text 사업·재무 카드
++					118 heading 분류·연결 테마, Value: 3
++						119 text 분류·연결 테마
++					120 text 참고
++					121 text Apple (AAPL) · 미국
++					122 button (collapsed) 사업·분류 근거, Secondary Actions: Expand
++						123 text 사업·분류 근거
++					124 heading 실적·현금·재무 구조, Value: 3
++						125 text 실적·현금·재무 구조
++					126 text 참고
++					127 content list
++						128 container
++							129 AXListMarker • 
++							130 text 매출 흐름  최근 회계연도 매출 $416.2B(+6.4%) · 약 5년 연평균 +8.7%. 2년 연속 증가입니다.
++						131 container
++							132 AXListMarker • 
++							133 text 수익성  순이익률 26.9%(2022 회계연도 25.3%)
++						134 container
++							135 AXListMarker • 
++							136 text 자본 효율  ROE 171.4%(평균 자기자본 기준)
++					137 button AAPL 재무 공시 화면에서 전체 재무 흐름 보기
++			138 container ticker-price-panel
++				139 heading 가격 흐름, Value: 2
++					140 text 가격 흐름
++				141 text AAPL 1개월 가격 이력을 불러오는 중입니다.
++			142 container Description: 이 종목의 지금, ID: ticker-read
++				143 heading 이 종목의 지금, Value: 2
++					144 text 이 종목의 지금
++				145 text Apple — 상승 추세 · 52주 범위 95% 지점 · 3개월 지수 대비 +2.3%p · 섹터 후행
++				146 text 아래 위치·수익률은 10/19 종가 기준입니다 — 위 현재가와 시점이 다를 수 있습니다.
++				147 text 52주 위치
++				148 text 52주 저점 95% 52주 고점 수익률 — AAPL vs S&P 500 1개월
++				149 text +2.0%
++				150 text +0.5% 3개월
++				151 text +4.7%
++				152 text +2.4% 6개월
++				153 text +25.8%
++				154 text +8.2%
++				155 text ← 하락 · 공통 0% 기준 · 상승 →
++				156 text AAPL
++				157 text S&P 500
++				158 content list
++					159 container
++						160 text 이동평균 위치
++						161 pop up button (collapsed) 50일선, Secondary Actions: Expand
++						162 text (+5.1%)과 
++						163 pop up button (collapsed) 200일선, Secondary Actions: Expand
++						164 text (+17.2%) 위 — 단기·장기 추세가 모두 위쪽입니다.
++					165 container
++						166 text 50일선과의 거리 50일선보다 5.1% 위, 일평균 변동폭의 2.8배 — 50일선 가까이(2배 이하)와 확장(4배 이상) 사이입니다.
++					167 container
++						168 text 단기 과열
++						169 pop up button (collapsed) RSI, Secondary Actions: Expand
++						170 text  61.2 — 과열도 과매도도 아닌 구간입니다.
++					171 container
++						172 text 섹터·테마 섹터 기술(XLK)은 후행(10/19 종가까지 몇 주의 상대 흐름) — 시장 대비 상대가격이 50일 평균보다 낮고, 10거래일 전보다 그 격차가 커짐(최근 5거래일 상대강도 -3.9%). 섹터 흐름이 약한데 종목만 강한 개별 강세입니다.
++					173 container
++						174 text 시장 환경 시장 상태는 ‘부담 우세’이고 시장 폭이 좁습니다(50일선 위 종목이 적음). 이 종목은 그 적은 수의 상승 추세 종목에 속합니다. 지수에 얼마나 기여했는지는 이 화면 자료로 계산하지 않습니다.
++					175 container
++						176 text 순위 가격 흐름 순위 62/809.
++				177 button (collapsed) 위 그림의 수치를 문장으로 읽기, Secondary Actions: Expand
++					178 text 위 그림의 수치를 문장으로 읽기
++			179 button (collapsed) 섹터 대비 성격 (참고) 펼치기, Secondary Actions: Expand
++				180 text 섹터 대비 성격 (참고)
++				181 text 펼치기
++			182 container Description: 이어서 볼 곳, ID: ticker-next
++				183 heading 이어서 볼 곳, Value: 2
++					184 text 이어서 볼 곳
++				185 content list
++					186 container
++						187 button 차트 →
++						188 text 상승 추세의 셋업 — 이동평균·피벗·거래량으로 지금 자리가 돌파 전인지 확인
++					189 container
++						190 button 재무 공시 →
++						191 text 이 추세를 매출·이익·현금흐름이 뒷받침하는지
++					192 container
++						193 button 스크리너 →
++						194 text 같은 섹터(기술)에서 상대 순위가 높은 종목과 비교
++					195 container
++						196 button 대가 보유 종목 →
++						197 text 이 종목을 신고한 운용사 — 13F 역조회 원장 49개 종목 범위, 분기 지연 신고
+The focused UI element is 50 heading AAPL, Value: 2, ID: ticker-hero-name

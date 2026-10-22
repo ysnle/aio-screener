@@ -1,0 +1,139 @@
+{
+  "ref": "d36bb256ddf60468d6c7a134628053c5796be6be",
+  "cases": [
+    {
+      "id": "stale-consensus",
+      "stockView": null,
+      "indexView": {
+        "available": true,
+        "asOf": "2020-01-01",
+        "oldestAsOf": "2020-01-01",
+        "weightsAsOf": "2026-10-20",
+        "members": 1,
+        "memberTotal": 1,
+        "coveragePct": 100,
+        "up": 10,
+        "down": 0,
+        "netUp": 1,
+        "netDown": 0,
+        "breadth": 1,
+        "earningsYield": 0.05,
+        "forwardPe": 20,
+        "growth": 0.25,
+        "realYield10": 2,
+        "realYieldAsOf": null,
+        "erp": 3,
+        "sectors": []
+      }
+    },
+    {
+      "id": "stale-price",
+      "stockView": null,
+      "indexView": {
+        "available": true,
+        "asOf": "2026-10-20",
+        "oldestAsOf": "2026-10-20",
+        "weightsAsOf": "2026-10-20",
+        "members": 1,
+        "memberTotal": 1,
+        "coveragePct": 100,
+        "up": 10,
+        "down": 0,
+        "netUp": 1,
+        "netDown": 0,
+        "breadth": 1,
+        "earningsYield": 0.05,
+        "forwardPe": 20,
+        "growth": 0.25,
+        "realYield10": 2,
+        "realYieldAsOf": null,
+        "erp": 3,
+        "sectors": []
+      }
+    },
+    {
+      "id": "short-inversion-at-history-boundary",
+      "actual": {
+        "asOf": "2026-09-25",
+        "from": "2026-09-05",
+        "shortBp": 0,
+        "longBp": 0,
+        "spreadBp": 0,
+        "kind": null,
+        "label": "기울기 변화가 10bp 미만이라 방향을 붙이지 않습니다",
+        "fact": "9/5→9/25 20거래일: 2년 ±0bp, 10년 ±0bp, 2년–10년 금리차 ±0bp.",
+        "reading": null,
+        "uninverted": true,
+        "inversion": {
+          "start": null,
+          "firstObserved": "2026-09-01",
+          "end": "2026-09-02"
+        },
+        "uninverted3m": false,
+        "inversion3m": null,
+        "uninversion3mText": null,
+        "uninversionReading": "2년–10년 금리차가 자료가 시작되는 2026년 9월 1일 이전부터 역전돼 있다가 2026년 9월 2일에 양(+)으로 돌아섰습니다. 과거 미국 경기침체는 역전 자체보다 역전이 풀리며 다시 가팔라지는 시점과 더 가까웠습니다. 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다."
+      }
+    },
+    {
+      "id": "missing-slot-move",
+      "actual": {
+        "label": "S&P 500",
+        "text": "0.00%",
+        "direction": "flat"
+      }
+    },
+    {
+      "id": "prior-M01",
+      "error": "Cannot read properties of null (reading 'toFixed')"
+    },
+    {
+      "id": "prior-M02",
+      "leadId": "reflation",
+      "met": 4,
+      "known": 4,
+      "fit": "조건 충족 4/4",
+      "condition": [
+        "10년물 상승 + 장단기 금리차 확대, 기간 프리미엄은 오르지 않음 (성장 기대형 금리 상승, 각각 평소 변동 범위 밖)",
+        true
+      ]
+    },
+    {
+      "id": "prior-M03",
+      "actual": {
+        "read": "3개월 기준 가장 강한 곳은 One(+20.0%), 가장 약한 곳은 Two(-5.0%)입니다.",
+        "rows": [
+          {
+            "themeId": "a",
+            "name": "One",
+            "smallSample": true,
+            "ret3m": 20
+          },
+          {
+            "themeId": "a",
+            "name": "Two",
+            "smallSample": true,
+            "ret3m": -5
+          }
+        ],
+        "next": [
+          {
+            "route": "screener",
+            "label": "스크리너",
+            "why": "One 등 세부 테마 종목을 모멘텀·추세 순위로 비교"
+          },
+          {
+            "route": "breadth",
+            "label": "시장 폭",
+            "why": "이 테마의 강세가 시장 전체 참여 종목 확대와 같은 방향인지"
+          }
+        ]
+      }
+    }
+  ],
+  "artifactConsensus": {
+    "latest": "2026-10-20T12:22:08.428Z",
+    "oldest": "2026-10-19T07:26:53.997Z",
+    "staleAtReview": 0
+  }
+}

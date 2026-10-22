@@ -1,0 +1,268 @@
+{
+  "boundary": "Syntax parsed with Node SourceTextModule. Static import/export specifiers are parser-derived; literal dynamic imports are regex-derived. No tree-shaking, transferred-byte, global-consumer or runtime correctness certification.",
+  "parser": {
+    "files": 781,
+    "errors": []
+  },
+  "browserGraph": {
+    "modules": 385,
+    "edges": 1018,
+    "staticBootModules": 272,
+    "staticBootSourceBytes": 2767190,
+    "cycles": [],
+    "fanIn": [
+      {
+        "path": "src/domain/briefing/market-read.js",
+        "count": 35
+      },
+      {
+        "path": "src/ui/components/dom.js",
+        "count": 28
+      },
+      {
+        "path": "src/domain/rules/thresholds.js",
+        "count": 27
+      },
+      {
+        "path": "src/domain/market/market-calendar.js",
+        "count": 26
+      },
+      {
+        "path": "src/domain/shared/number.js",
+        "count": 25
+      },
+      {
+        "path": "src/data/shared-artifacts.js",
+        "count": 15
+      },
+      {
+        "path": "src/app/lifecycle.js",
+        "count": 14
+      },
+      {
+        "path": "src/ui/components/page-flow.js",
+        "count": 14
+      },
+      {
+        "path": "src/domain/content/korean-particle.js",
+        "count": 13
+      },
+      {
+        "path": "src/data/selectors/interpretation.js",
+        "count": 12
+      },
+      {
+        "path": "src/domain/content/date-labels.js",
+        "count": 11
+      },
+      {
+        "path": "src/domain/themes/recent-check.js",
+        "count": 11
+      },
+      {
+        "path": "src/ui/knowledge/supplied-material-bridge.js",
+        "count": 11
+      },
+      {
+        "path": "src/domain/fundamental/sec-report.js",
+        "count": 10
+      },
+      {
+        "path": "src/data/artifact-cache.js",
+        "count": 10
+      },
+      {
+        "path": "src/ui/components/market-regime.js",
+        "count": 10
+      },
+      {
+        "path": "src/domain/fundamental/period.js",
+        "count": 10
+      },
+      {
+        "path": "src/app/knowledge-route-state.js",
+        "count": 10
+      },
+      {
+        "path": "src/domain/market/macro-crossroads.js",
+        "count": 9
+      },
+      {
+        "path": "src/data/contracts/screener.js",
+        "count": 9
+      },
+      {
+        "path": "src/data/contracts/source-kind.js",
+        "count": 8
+      },
+      {
+        "path": "src/data/contracts/evidence.js",
+        "count": 8
+      },
+      {
+        "path": "src/domain/technical/definitions.js",
+        "count": 8
+      },
+      {
+        "path": "src/domain/screener/market-scope.js",
+        "count": 8
+      },
+      {
+        "path": "src/domain/scenarios/analogs.js",
+        "count": 8
+      }
+    ],
+    "fanOut": [
+      {
+        "path": "src/app/bootstrap.js",
+        "count": 130
+      },
+      {
+        "path": "src/app/compatibility-globals.js",
+        "count": 47
+      },
+      {
+        "path": "src/ui/pages/screener.js",
+        "count": 34
+      },
+      {
+        "path": "src/ui/pages/themes.js",
+        "count": 20
+      },
+      {
+        "path": "src/ui/pages/entity.js",
+        "count": 18
+      },
+      {
+        "path": "src/ui/pages/atlas.js",
+        "count": 17
+      },
+      {
+        "path": "src/ui/components/macro-board.js",
+        "count": 16
+      },
+      {
+        "path": "src/ui/components/market-regime.js",
+        "count": 16
+      },
+      {
+        "path": "src/ui/components/stock-read.js",
+        "count": 16
+      },
+      {
+        "path": "src/ui/pages/principles.js",
+        "count": 16
+      },
+      {
+        "path": "src/ui/pages/portfolio.js",
+        "count": 14
+      },
+      {
+        "path": "src/ai/context/market-content.js",
+        "count": 13
+      },
+      {
+        "path": "src/domain/interpretation/market-interpretation.js",
+        "count": 13
+      },
+      {
+        "path": "src/ui/pages/analysis.js",
+        "count": 13
+      },
+      {
+        "path": "src/ui/components/briefing-read.js",
+        "count": 12
+      },
+      {
+        "path": "src/ui/components/company-analysis.js",
+        "count": 12
+      },
+      {
+        "path": "src/ui/components/sentiment-board.js",
+        "count": 12
+      },
+      {
+        "path": "src/ui/pages/masters.js",
+        "count": 12
+      },
+      {
+        "path": "src/ui/pages/news.js",
+        "count": 12
+      },
+      {
+        "path": "src/ai/orchestrator/answer-orchestrator.js",
+        "count": 11
+      },
+      {
+        "path": "src/data/providers/screener.js",
+        "count": 11
+      },
+      {
+        "path": "src/data/runtime-readers.js",
+        "count": 11
+      },
+      {
+        "path": "src/ai/orchestrator/question-planner.js",
+        "count": 10
+      },
+      {
+        "path": "src/data/orchestrators/screener.js",
+        "count": 10
+      },
+      {
+        "path": "src/ui/components/fiscal-read.js",
+        "count": 10
+      }
+    ]
+  },
+  "unresolved": [],
+  "domainCrossLayer": [
+    {
+      "from": "src/domain/entity/company-analysis.js",
+      "to": "src/data/contracts/screener.js",
+      "kind": "static"
+    },
+    {
+      "from": "src/domain/interpretation/market-interpretation.js",
+      "to": "src/data/contracts/screener.js",
+      "kind": "static"
+    },
+    {
+      "from": "src/domain/market/korea-participation.js",
+      "to": "src/data/contracts/screener.js",
+      "kind": "static"
+    },
+    {
+      "from": "src/domain/screener/factor-ranks.js",
+      "to": "src/data/contracts/evidence.js",
+      "kind": "static"
+    },
+    {
+      "from": "src/domain/screener/factor-ranks.js",
+      "to": "src/data/contracts/source-kind.js",
+      "kind": "static"
+    },
+    {
+      "from": "src/domain/screener/row-presentation.js",
+      "to": "src/data/contracts/screener.js",
+      "kind": "static"
+    },
+    {
+      "from": "src/domain/screener/saved-screens.js",
+      "to": "src/data/contracts/screener.js",
+      "kind": "static"
+    },
+    {
+      "from": "src/domain/screener/screen-engine.js",
+      "to": "src/data/contracts/screener.js",
+      "kind": "static"
+    }
+  ],
+  "notInBrowserBootstrap": [
+    "src/data/contracts/operations.js",
+    "src/data/contracts/reconciliation.js",
+    "src/data/contracts/source-registry.js",
+    "src/domain/market/breadth-signals.js",
+    "src/domain/news/report-verification.js"
+  ]
+}

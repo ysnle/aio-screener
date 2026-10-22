@@ -1,0 +1,54 @@
+{
+  "ref": "659ffbad252f9eeacfa49a6ad1b895df87f66597",
+  "scope": "v58.60 delta only; pinned pure modules and static artifact reads; no producer/network/AI call",
+  "restoredAvailability": {
+    "AAPL": {
+      "symbol": "AAPL",
+      "acceptedAt": "2026-07-29T20:30:00.000Z",
+      "availableAt": "2026-07-29T20:30:00.000Z"
+    },
+    "MSFT": {
+      "symbol": "MSFT",
+      "acceptedAt": "2026-07-29T20:30:00.000Z",
+      "availableAt": "2026-07-30T00:00:00.000Z"
+    }
+  },
+  "normalizedLabels": "코스피는 10/21 종가 +3.29%[market.index.kospi:fbdb5f95], WTI는 -1.80%[regime-context], 장중 -3.37%였다.",
+  "leakedPreviousReused": null,
+  "projection": {
+    "bytes": 1046755,
+    "bound": 1048576,
+    "rows": 837,
+    "missingAvailableWithAccepted": 2
+  },
+  "marketAnalysis": {
+    "status": "verified",
+    "semanticStatus": "verified",
+    "generatedAt": "2026-10-21T13:09:00.349Z",
+    "semanticIssues": []
+  },
+  "loaded": [
+    "src/data/providers/entity.js",
+    "scripts/lib/market-analysis-validate.mjs",
+    "scripts/lib/producer-math.mjs",
+    "scripts/lib/market-analysis-numbers.mjs",
+    "src/domain/market/session-time.js",
+    "src/domain/briefing/market-read.js",
+    "src/ai/response/publication.js",
+    "src/domain/rules/thresholds.js",
+    "src/domain/screener/price-factors.js",
+    "src/domain/market/market-calendar.js",
+    "src/domain/content/date-labels.js",
+    "src/domain/market/history-session.js",
+    "src/domain/macro/macro-signals.js",
+    "src/domain/screener/factor-ranks.js",
+    "src/domain/technical/definitions.js",
+    "src/domain/technical/follow-through.js",
+    "src/data/contracts/evidence.js",
+    "src/data/contracts/source-kind.js",
+    "src/domain/screener/factor-weights.js",
+    "src/domain/screener/market-scope.js",
+    "src/domain/fundamental/period.js",
+    "src/domain/shared/number.js"
+  ]
+}

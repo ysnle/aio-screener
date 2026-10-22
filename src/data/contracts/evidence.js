@@ -69,6 +69,13 @@ export function hasObservedPast(evidence, now = Date.now()) {
 const INVALID_RIGHTS_IDS = new Set(['', 'UNKNOWN', 'UNSPECIFIED', 'NULL', 'NONE']);
 const DECISION_QUALITY_STATUSES = new Set(['CURRENT', 'FRESH', 'LIVE', 'VERIFIED_CURRENT', 'verified_current']);
 
+// v58.63 (architecture audit D5): isValidRightsId says a rights id is present and well formed; DENIED / BLOCKED / REVOKED /
+// REVIEW_REQUIRED are valid ids that grant nothing. The decision checks in the runtime readers and the screener live
+// overlay used the presence test as eligibility; every decision gate now reads this one helper.
+const INELIGIBLE_RIGHTS = ['REVIEW_REQUIRED', 'DENIED', 'BLOCKED', 'REVOKED'];
+export function isDecisionEligibleRightsId(value) {
+  return isValidRightsId(value) && !INELIGIBLE_RIGHTS.includes(String(value).trim().toUpperCase());
+}
 export function isValidRightsId(value) {
   const rightsId = String(value ?? '').trim();
   return !!rightsId && !INVALID_RIGHTS_IDS.has(rightsId.toUpperCase());
@@ -200,7 +207,7 @@ export function validateEvidence(evidence, { now = Date.now() } = {}) {
     if (!evidence.allowedUseExplicit) errors.push('decision_use_not_explicit');
     if (!evidence.allowedUseCeilingExplicit) errors.push('decision_ceiling_not_explicit');
     if (!isDecisionEligibleSourceKind(sourceTier)) errors.push('decision_source_tier_ineligible');
-    if (!isValidRightsId(evidence.rightsId) || ['REVIEW_REQUIRED', 'DENIED', 'BLOCKED', 'REVOKED'].includes(String(evidence.rightsId).toUpperCase())) errors.push('decision_rights_ineligible');
+    if (!isDecisionEligibleRightsId(evidence.rightsId)) errors.push('decision_rights_ineligible');
     if (!evidence.qualityExplicit || !isDecisionQuality(evidence.quality, evidence.qualityStatus)) errors.push('decision_quality_invalid');
     if (!hasObservedPast(evidence, now)) errors.push('decision_observed_time_invalid');
     const freshnessMs = Number(evidence.freshnessMs ?? evidence.metadata?.maxAgeMs);

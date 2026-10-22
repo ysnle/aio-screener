@@ -1,5 +1,7 @@
 # 내용의 질·정의·추론 심층 검토
 
+> v57.90~91 최초 읽기 판정이다. 이후 수정 여부는 [v57.98 재대조](./LATEST-STATUS-v57.98.md)를 우선한다. 특히 M8 PUE는 최신 로컬98·배포99 본문에서 수정 노출을 확인했다.
+
 전편 독서는 source 원문 자체가 옳다는 인증이 아니다. [생성 원고160행](./article-review.tsv), [실제 원리112행](./active-lessons-review.tsv), [분석노트59·칼럼12행](./active-notes-review.tsv), [신규claim114행](./claim-new-review.tsv), [도메인19행](./domain-review.tsv)을 개별 판정으로 남겼다. 중복된 내용을 합산해 고유 검토 건수를 부풀리지 않는다. claims의 원고와 같은160개는 definition+공백+mechanism equality로 재사용하되 원고의 fact 연결 문제를 claim statement 오류로 기계 승계하지 않는다.
 
 ## 바로 고칠 수 있는 내용 문제

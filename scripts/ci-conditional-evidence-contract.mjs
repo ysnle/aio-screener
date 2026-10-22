@@ -27,6 +27,7 @@ const observations = Array.from({ length: 40 }, (_, index) => {
     rightsId: 'fixture-rights-1',
     rightsStatus: 'LICENSED',
     observedAt: `${year}-01-${day}T21:00:00.000Z`,
+    outcomeEndAt: `${year}-01-${day}T21:00:00.000Z`,
     fetchedAt: '2026-09-11T23:00:00.000Z',
     availableAt: '2026-09-11T23:05:00.000Z',
     revisionId: 'fixture-revision-1',
@@ -59,6 +60,18 @@ assert.equal(result.distribution.count, 20);
 assert.equal(result.lineage.usableRecords, 40);
 assert.equal(result.decisionEligible, false);
 assert.equal(result.disclaimer, CONDITIONAL_EVIDENCE_DISCLAIMER);
+
+// v58.64 SCR05: one observation repeated is one sample unit; overlapping or unknown outcome windows are not READY.
+const repeated = evaluateConditionalEvidence({ observations: Array.from({ length: 30 }, () => observations[0]), now, minSampleRefuse: 1 });
+assert.notEqual(repeated.status, 'READY', 'v58.64 SCR05 a repeated observation is not a READY sample');
+assert.equal(repeated.sample.trials, 1, 'v58.64 SCR05 a repeated unit counts once');
+assert.equal(repeated.independence.duplicateUnits, 29, 'v58.64 SCR05 duplicates are reported');
+const noWindow = evaluateConditionalEvidence({ observations: observations.map(({ outcomeEndAt, ...row }) => row), now });
+assert.equal(noWindow.status, 'INDEPENDENCE_UNVERIFIED', 'v58.64 SCR05 without outcome windows the sample is not READY');
+const overlapping = evaluateConditionalEvidence({ observations: observations.map((row) => ({ ...row, outcomeEndAt: '2026-12-31T21:00:00.000Z' })), now, minSampleRefuse: 1 });
+assert.equal(overlapping.sample.trials, 1, 'v58.64 SCR05 rows inside an earlier outcome window are left out');
+assert.equal(overlapping.independence.overlappingWindows, 39, 'v58.64 SCR05 overlapping windows are reported');
+assert.equal(result.independence.status, 'VERIFIED', 'v58.64 SCR05 positive control: distinct sessions with closed windows stay READY');
 
 const future = evaluateConditionalEvidence({
   observations: [{ ...observations[0], availableAt: '2026-10-01T00:00:00.000Z' }],

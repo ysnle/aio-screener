@@ -1,0 +1,26 @@
+function marketAnalysisRegimeInput(data, history = [], macroHistory = readPublishedMacroHistory()) {
+  const macro = data?.macro || {};
+  const num = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+  const hy = num(macro.hyOAS);
+  const hyDelta5 = num(macro.hyOASDelta5);
+  // v57.50 C03: the screen's credit axis also reads the Cboe total put/call (briefing-read collectMarketInputs);
+  // the narrative gets the same value and observation date, or the two surfaces judge credit on different inputs.
+  const putCall = data?.putCall && !data.putCall.error ? data.putCall : null;
+  const pcr = num(putCall?.totalPutCall);
+  const pcrAsOf = pcr != null && /^\d{4}-\d{2}-\d{2}$/.test(String(putCall?.asOf || '')) ? putCall.asOf : null;
+  return {
+    history: Array.isArray(history) ? history : [],
+    macroHistory: macroHistory || null,
+    now: Date.now(), // M05: the narrative uses the same latest-session admission as the screen
+    credit: {
+      hyBp: hy == null ? null : Math.round(hy * 100), hyAsOf: macro._asOf_hyOAS || null,
+      hyDelta5Bp: hyDelta5 == null ? null : Math.round(hyDelta5 * 100),
+      fg: num(data?.fearGreed?.score), fgAsOf: data?.fearGreed?.asOf || null, pcr: pcrAsOf ? pcr : null, pcrAsOf, aaiiAsOf: null
+    },
+    rates: {
+      realYield10: num(macro.realYield10), realYield10Delta5: num(macro.realYield10Delta5),
+      breakeven10Delta5: num(macro.breakeven10Delta5), dgs2Delta5: num(macro.dgs2Delta5), dgs10Delta5: num(macro.dgs10Delta5),
+      asOf: macro._asOf_realYield10 || macro._asOf_dgs10 || null, realAsOf: macro._asOf_realYield10 || null, breakevenAsOf: macro._asOf_breakeven10 || null
+    }
+  };
+}

@@ -1,0 +1,29 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "evidence": "real core fetch function + exact chat consumer in VM; supplied HPE response fixture; no external request",
+  "requestedTicker": "HWM",
+  "requestedUrl": "https://data.sec.gov/submissions/CIK0001645590.json",
+  "returned": {
+    "ticker": "HWM",
+    "available": true,
+    "source": "SEC EDGAR",
+    "cik": "0001645590",
+    "companyName": "Hewlett Packard Enterprise Co",
+    "sic": "3570",
+    "sicDescription": "COMPUTER & OFFICE EQUIPMENT",
+    "latest10K": {
+      "filingDate": "2025-12-15",
+      "reportDate": "2025-10-31",
+      "accession": "0001645590-25-000001",
+      "primaryDoc": "hpe-20251031.htm"
+    },
+    "businessDescriptionUrl": "https://www.sec.gov/Archives/edgar/data/1645590/000164559025000001/hpe-20251031.htm",
+    "note": "10-K Item 1 (Business) + Item 1A (Risk Factors) 직접 링크 — AI가 fetch+요약 가능"
+  },
+  "chatPrompt": "  [SEC 10-K · source data.sec.gov/submissions] Hewlett Packard Enterprise Co · SIC: COMPUTER & OFFICE EQUIPMENT · Filed: 2025-12-15 · https://www.sec.gov/Archives/edgar/data/1645590/000164559025000001/hpe-20251031.htm\n  [SEC 10-K 사용 가이드] Item 1 (Business) + Item 1A (Risk Factors)는 위 URL에서 직접 fetch 가능. 비즈니스 구조/사업 모델/공급망/리스크/경쟁 등 정성 분석은 이 출처를 인용하여 답변. AI 학습 데이터로 환각 금지.",
+  "wrongIssuerAccepted": true,
+  "officialIdentitySourcesProvidedByLead": [
+    "https://www.sec.gov/Archives/edgar/data/4281/000000428126000025/0000004281-26-000025-index.htm",
+    "https://www.sec.gov/Archives/edgar/data/1645590/000164559026000072/0001645590-26-000072-index.htm"
+  ]
+}

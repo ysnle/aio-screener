@@ -1,0 +1,90 @@
+{
+  "relay": {
+    "cap": 1,
+    "statuses": [
+      502,
+      502,
+      502
+    ],
+    "fetchCalls": 3,
+    "persistedDayCount": 0
+  },
+  "publication": {
+    "event": "연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+    "structuredSummary": "",
+    "fallback": "연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+    "pipeline": {
+      "request": {
+        "entrypoint": "chat",
+        "query": "시장 상황"
+      },
+      "pipelineVersion": "fixture",
+      "validatorVersion": "fixture",
+      "blockPolicyVersion": "fixture",
+      "entrypoint": "chat",
+      "text": "※ 확인 안 된 부분이 있어 조건부로 설명합니다\n\n연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+      "blocked": false,
+      "reasons": [
+        "market-session-evidence-unavailable"
+      ],
+      "limitations": [
+        "market-session-evidence-unavailable"
+      ],
+      "limitationNotes": [
+        "시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다."
+      ],
+      "closeBasisDates": [],
+      "otherPublishedClaims": 0,
+      "actionGate": {
+        "blocked": false,
+        "text": "※ 확인 안 된 부분이 있어 조건부로 설명합니다\n\n연준이 금리를 인하했고 신용 스트레스도 해소됐다.",
+        "reasons": [
+          "market-session-evidence-unavailable"
+        ],
+        "degraded": true,
+        "limitations": [
+          "market-session-evidence-unavailable"
+        ],
+        "limitationNotes": [
+          "시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다."
+        ]
+      },
+      "claimAudit": {
+        "status": "unavailable",
+        "blocked": false,
+        "claims": [],
+        "validCount": 0,
+        "issues": []
+      },
+      "conductAudit": {
+        "status": "unavailable",
+        "blocked": false,
+        "reasons": []
+      },
+      "publishAudit": null,
+      "conversationAudit": null,
+      "streamAudit": null,
+      "toolAudit": null,
+      "rightsAudit": null,
+      "analysisAudit": null,
+      "evidence": [],
+      "evidenceStatus": null,
+      "asOf": null,
+      "retrievalAudit": null,
+      "contextBudgetAudit": null,
+      "questionPlan": null,
+      "answerPlanAudit": {
+        "status": "not-structured",
+        "plan": null
+      },
+      "answerPlanBindingAudit": {
+        "ok": true,
+        "evidenceCount": 0,
+        "unboundEvidenceIds": [],
+        "droppedClaims": []
+      },
+      "followUps": [],
+      "citations": []
+    }
+  }
+}

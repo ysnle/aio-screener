@@ -1,0 +1,32 @@
+[qa] RUN syntax
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] PASS version (280ms)
+[qa] RUN architecture
+[qa] PASS product-charter (373ms)
+[qa] RUN native-decision
+[qa] PASS native-decision (361ms)
+[qa] RUN vertical-slice
+[qa] PASS vertical-slice (232ms)
+[qa] RUN capability-claims
+[qa] PASS capability-claims (230ms)
+[qa] RUN operations-contract
+[qa] PASS operations-contract (312ms)
+[qa] RUN reference-curriculum
+[qa] PASS reference-curriculum (255ms)
+[qa] RUN route-registry
+[qa] PASS route-registry (233ms)
+[qa] RUN generated-state
+[qa] PASS architecture (2041ms)
+[qa] RUN workspace-contract
+[qa] PASS generated-state (687ms)
+[qa] RUN qa-runner-behavior
+[qa] PASS workflow-yaml (6132ms)
+[qa] PASS workspace-contract (4798ms)
+[qa] PASS syntax (18448ms)
+[qa] PASS qa-runner-behavior (34243ms)
+[qa] SUMMARY profile=affected run=2026-10-21T14-03-08-269Z-10948-zgajo5 groups=preflight pass=14 cached=0 fail=0 skip=0 duration=42s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-21T14-03-08-269Z-10948-zgajo5.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+

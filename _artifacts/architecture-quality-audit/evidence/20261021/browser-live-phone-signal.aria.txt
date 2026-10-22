@@ -1,0 +1,344 @@
+Browser tab: 1, Title: "국면 판정 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#signal".
+1 AXWebArea 국면 판정 · AIO Screener, URL: ysnle.github.io/aio-screener/#signal
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	3 container
+		4 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		5 text 종가
+		6 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			7 text 10/20 마감 · 시세 16종 · 실시간 관측 29종 10/20 마감
+		8 text v58.52
+		9 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		10 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	11 container main-content
+		12 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			13 button 국면 판정
+			14 button 시장 폭
+			15 button 투자 심리
+		16 container 국면 판정, ID: page-signal
+			17 container
+				18 heading 국면 판정, Value: 1, ID: page-signal-label
+					19 text 국면 판정
+				20 text 10/20 미국 종가 기준 · 6개 지표의 상태와 판정이 바뀌는 조건
+			21 container 미국 시장 판정: 다소 부담
+				22 heading Description: 미국 시장 판정: 다소 부담, Value: 2, ID: regime-overall
+					23 text 다소 부담
+				24 text 양호 0 · 중립 4 · 부담 2
+				25 text 나스닥 100 5거래일 -3.7% · 반도체(SMH) 5거래일 -7.1%(1년 고점 대비 -18.3%) · S&P 500 -1.2%. AI·반도체 주도 영역이 지수보다 크게 밀렸고 시장 전반의 확인 신호도 4개 중 3개가 겹쳐, 주도주 조정이 지금 시장의 중심 변수입니다.
+				26 content list regime-conflicts
+					27 container
+						28 AXListMarker • 
+						29 text 주도 영역이 꺾이는 신호 — 나스닥 100 5거래일 -3.7% · 50일선 -1.1% · 1년 고점 대비 -5.4% · 신저가 40, 신고가 28(10/14) · S&P 500 분배일 7일(10/16) · 러셀 2000 200일선 대비 -0.8%(확인 3/4·최근 5거래일, 2개 이상이면 판정). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.
+					30 container
+						31 AXListMarker • 
+						32 text 바닥 확인 조건 — 소진 2/4(신저가 40(10/14) → 15 · 20일선 위 24%(9/30) → 63%) · 회복 확인 1/4(4% 상승 29 / 하락 6) · 남은 확인: 반도체(SMH)가 50일선 위, 하이일드 스프레드 5일 확대 멈춤. 매도 소진 신호는 쌓였지만 회복 확인은 아직이라, 바닥을 단정하지 않고 확인 신호가 붙는지 보는 구간입니다. 관례적 조건의 개수이며 바닥 예측이 아닙니다.
+			33 heading 미국 시장 6개 지표 — 1년 중 지금 위치, Value: 2
+				34 text 미국 시장 6개 지표 — 1년 중 지금 위치
+			35 container regime-radar
+				36 text 숫자 = 최근 1년(최대 252거래일) 중 지금 위치(0~100, 클수록 양호) — 아래 카드의 양호·중립·부담 판정과는 다른 잣대
+				37 text 5거래일 전보다 변동성(-38)·추세(-33) 쪽이 내려갔습니다. 20거래일 전과 비교하면 신용 · 위험선호가 -90로 가장 크게 내려갔습니다.
+				38 text 판정과 지난 기록 속 위치가 엇갈리는 지표: 추세(판정 중립 · 위치 13), 달러 · 원자재(판정 중립 · 위치 4). 위치가 바닥권인 쪽(추세, 달러 · 원자재)을 다음 갱신에서 먼저 확인합니다.
+				39 container 시장 레이더: 추세 13, 시장 폭 24, 변동성 46, 금리 6, 신용 · 위험선호 1, 달러 · 원자재 4
+				40 content list
+					41 text 오늘 (10/20)
+					42 text 5거래일 전 (10/13)
+					43 text 20거래일 전 (9/22)
+				44 definition list
+					45 container 추세 · 판정 중립
+						46 text 추세 · 판정 중립
+					47 text 13 · 5일 -33 · 20일 -41
+					48 container 시장 폭 · 판정 중립
+						49 text 시장 폭 · 판정 중립
+					50 text 24 · 5일 +6 · 20일 +14
+					51 container 변동성 · 판정 중립
+						52 text 변동성 · 판정 중립
+					53 text 46 · 5일 -38 · 20일 -52
+					54 container 금리 · 판정 부담
+						55 text 금리 · 판정 부담
+					56 text 6 · 5일 +2 · 20일 +5
+					57 container 신용 · 위험선호 · 판정 부담
+						58 text 신용 · 위험선호 · 판정 부담
+					59 text 1 · 5일 -8 · 20일 -90
+					60 container 달러 · 원자재 · 판정 중립
+						61 text 달러 · 원자재 · 판정 중립
+					62 text 4 · 5일 -8 · 20일 -12
+				63 button (collapsed) 숫자 읽는 법, Secondary Actions: Expand
+					64 text 숫자 읽는 법
+			65 container regime-board
+				66 container 출처: S&P 500·나스닥 100·나스닥 종합·러셀 2000 일봉 종가 (Yahoo Finance)
+					67 heading 추세, Value: 3
+						68 text 추세
+					69 text 중립
+					70 text 10/19~10/20
+					71 text S&P 500이 50일선보다 0.1% 위 — 50일선 근처에서 버티는 구간입니다. 50일선보다 1% 이상 위에서 마감하면 양호로, 1% 넘게 아래면 약화로 봅니다.
+					72 button (collapsed) 이어서 읽기 — 추세, Secondary Actions: Expand
+						73 text 이어서 읽기
+						74 text — 추세
+					75 container 같은 지표의 관측 차트 선택
+						76 checkbox S&P 500 종가, Value: 1
+						77 checkbox 나스닥 100 종가, Value: 0
+						78 checkbox 러셀 2000 종가, Value: 0
+					79 text S&P 500 종가 · 세로축 지수 pt · 2026-04-22~2026-10-20
+					80 container S&P 500 종가 (지수 pt) 26.04.22~26.10.20 추이, 최근 7,713
+					81 text 지수의 확정 종가 추이. 이동평균 위치와 방향은 아래 근거에서 함께 확인합니다.
+					82 definition list
+						83 container S&P 500
+							84 text S&P 500
+						85 text 7,712.57 (20일 -0.7%) · 10/20
+					86 heading 상태가 바뀌는 조건, Value: 4
+						87 text 상태가 바뀌는 조건
+					88 text S&P 500이 상승하는 50일선보다 1% 이상 위(7,781 이상)에서 마감하고 50일선이 200일선 위면 양호 (러셀 2000이 200일선을 되찾거나 나스닥 100의 5거래일 낙폭이 3% 안으로 줄어야 함) · 200일선보다 1% 넘게 아래(7,207 미만)이거나 하락하는 50일선보다 1% 넘게 아래(7,627 미만)면 부담
+					89 button (collapsed) 추세 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						90 text 추세 더 깊이 보기 · 원리와 읽는 법
+				91 container 출처: 스크리너 유니버스 구성 종목의 수정 종가로 자체 계산
+					92 heading 시장 폭, Value: 3
+						93 text 시장 폭
+					94 text 중립
+					95 text 10/20
+					96 text 참여 종목 비율이 중간 — 확산도 위축도 뚜렷하지 않습니다. 50일선 위 비율 47%는 AIO 자체 기록 244일 중 27백분위입니다(기록 252거래일 미만 · 잠정). 단기(20일선 위 63%) 참여가 중기(47%)보다 높습니다 — 20일선 위 비율이 20거래일 동안 30%p 늘어 단기 참여가 먼저 회복하고 있습니다.
+					97 container 같은 지표의 관측 차트 선택
+						98 checkbox 20일선 위 종목 비율 (단기), Value: 1
+						99 checkbox 50일선 위 종목 비율, Value: 0
+						100 checkbox 200일선 위 종목 비율, Value: 0
+					101 text 20일선 위 종목 비율 (단기) · 세로축 % · 2026-04-22~2026-10-20
+					102 container 20일선 위 종목 비율 (단기) (%) 26.04.22~26.10.20 추이, 최근 62.9%
+					103 text 단기 참여도. 50일선 비율보다 먼저 움직여 참여가 넓어지거나 줄어드는 방향을 먼저 보여 줍니다.
+					104 definition list
+						105 container 20일선 위 종목 (단기)
+							106 text 20일선 위 종목 (단기)
+						107 text 63%
+					108 heading 상태가 바뀌는 조건, Value: 4
+						109 text 상태가 바뀌는 조건
+					110 text 50일선·200일선 위 종목 비율이 모두 60% 이상이면 양호, 하나라도 40% 아래면 부담
+					111 button (collapsed) 시장 폭 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						112 text 시장 폭 더 깊이 보기 · 원리와 읽는 법
+				113 container 출처: VIX·VIX3M (Cboe 지수, Yahoo Finance 경유)
+					114 heading 변동성, Value: 3
+						115 text 변동성
+					116 text 중립
+					117 text 10/20
+					118 text VIX 17.31는 18 아래지만 5일 +13% 올라 단기 불안이 커지는 중입니다 — 양호로 보지 않습니다.
+					119 container 같은 지표의 관측 차트 선택
+						120 checkbox VIX, Value: 1
+						121 checkbox VIX / 3개월 VIX, Value: 0
+					122 text VIX · 세로축 지수 pt · 2026-04-22~2026-10-20
+					123 container VIX (지수 pt) 26.04.22~26.10.20 추이, 최근 17.3
+					124 definition list
+						125 container VIX
+							126 text VIX
+						127 text 17.31 (5일 +13%)
+					128 heading 상태가 바뀌는 조건, Value: 4
+						129 text 상태가 바뀌는 조건
+					130 text VIX 17 미만(또는 18 미만에서 5일 하락)이고 5일 상승이 +10% 미만, VIX/3개월 VIX 0.95 미만이면 양호 · VIX 25 이상, 역전, 5일 +25% 급등 중 하나면 부담
+					131 button (collapsed) 변동성 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						132 text 변동성 더 깊이 보기 · 원리와 읽는 법
+				133 container 출처: 미 국채 수익률 (미 재무부 공시 par curve · FRED DGS2/DGS10)
+					134 heading 금리, Value: 3
+						135 text 금리
+					136 text 부담
+					137 text 10/19~10/20
+					138 text 장기금리가 1년 범위 상단(86%)에서 20거래일 +15bp이고 최근 5일은 -10bp 되돌렸지만, 범위 80% 아래로 내려오거나 20거래일 상승이 +10bp 아래로 줄기 전까지는 할인율 부담으로 봅니다. 부담 판정은 8/31부터 이어지고 있습니다.
+					139 container 같은 지표의 관측 차트 선택
+						140 checkbox 미 10년물 명목금리, Value: 1
+						141 checkbox 10년 실질금리(TIPS), Value: 0
+						142 checkbox 10년 기대인플레이션, Value: 0
+					143 text 미 10년물 명목금리 · 세로축 % · 2026-04-22~2026-10-20
+					144 container 미 10년물 명목금리 (%) 26.04.22~26.10.20 추이, 최근 5.1%
+					145 definition list
+						146 container 미 10년물
+							147 text 미 10년물
+						148 text 5.12% (5거래일 -10bp, 20일 +15bp) · 10/20
+					149 heading 상태가 바뀌는 조건, Value: 4
+						150 text 상태가 바뀌는 조건
+					151 text 10년물 20일 변화 +25bp 미만(현재 +15bp)이고, 1년 범위 위치가 80% 아래로 내려오거나 20일 상승이 +10bp 아래로 줄면 중립으로 바뀜
+					152 button (collapsed) 금리 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						153 text 금리 더 깊이 보기 · 원리와 읽는 법
+				154 container 출처: ICE BofA 하이일드 OAS (FRED BAMLH0A0HYM2) · CNN Fear & Greed
+					155 heading 신용 · 위험선호, Value: 3
+						156 text 신용 · 위험선호
+					157 text 부담
+					158 text 10/19~10/20
+					159 text 수준(329bp)은 450bp 아래지만 20거래일 동안 +63bp 넓어졌습니다(지난 247번의 20거래일 변화 중 가장 큰 폭, 최근 5일 +18bp) — 확대 폭이 드문 수준이라 부담으로 봅니다.
+					160 container 같은 지표의 관측 차트 선택
+						161 checkbox 하이일드 스프레드(OAS), Value: 1
+						162 checkbox 최하위(CCC)·B 등급 가산금리 격차, Value: 0
+					163 text 하이일드 스프레드(OAS) · 세로축 bp · 2026-04-22~2026-10-19
+					164 container 하이일드 스프레드(OAS) (bp) 26.04.22~26.10.19 추이, 최근 329
+					165 text 하이일드 스프레드는 수준과 5거래일 확대·축소를 구분해서 읽습니다.
+					166 definition list
+						167 container 하이일드 스프레드
+							168 text 하이일드 스프레드
+						169 text 329bp (5거래일 +18bp, 20거래일 +63bp) · 10/19
+					170 heading 상태가 바뀌는 조건, Value: 4
+						171 text 상태가 바뀌는 조건
+					172 text 하이일드 스프레드가 450bp 아래이고 5일 확대가 +25bp 미만이며 20거래일 확대가 +25bp 아래로 줄면 중립으로 바뀜
+					173 button (collapsed) 신용 · 위험선호 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						174 text 신용 · 위험선호 더 깊이 보기 · 원리와 읽는 법
+				175 container 출처: WTI 선물·금 선물·달러 인덱스 (Yahoo Finance)
+					176 heading 달러 · 원자재, Value: 3
+						177 text 달러 · 원자재
+					178 text 중립
+					179 text 10/19 · 1거래일 전
+					180 text 유가·달러가 중립 범위입니다.
+					181 container 같은 지표의 관측 차트 선택
+						182 checkbox WTI 선물, Value: 1
+						183 checkbox 달러 인덱스, Value: 0
+					184 text WTI 선물 · 세로축 USD / 배럴 · 2026-04-22~2026-10-19
+					185 container WTI 선물 (USD / 배럴) 26.04.22~26.10.19 추이, 최근 $103.7
+					186 definition list
+						187 container WTI
+							188 text WTI
+						189 text 103.66달러 (20일 +8.2%)
+					190 heading 상태가 바뀌는 조건, Value: 4
+						191 text 상태가 바뀌는 조건
+					192 text WTI 20일 -5% 이하이면서 달러 20일 하락이면 양호 · WTI 1년 범위 85% 이상, WTI 20일 +10%, 달러 20일 +2.5%(1년 범위 80% 이상이면 +2%) 중 하나면 부담
+					193 button (collapsed) 달러 · 원자재 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						194 text 달러 · 원자재 더 깊이 보기 · 원리와 읽는 법
+			195 container regime-structure
+				196 heading 지금 시장 흐름 — 세 가지 중 어디에 가까운가, Value: 2
+					197 text 지금 시장 흐름 — 세 가지 중 어디에 가까운가
+				198 text 2026-10-20 종가 기준 · 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.
+				199 text 소수 종목 주도의 전제였던 주도 영역이 꺾여, 지금은 '소수 주도 → 동반 약세 전환 확인 중'으로 읽습니다(조건 충족 1/3 · 동반 약세 조건 중 추세 부담·시장 폭 부담 이 아직 빠짐).
+				200 container
+					201 heading 고른 상승, Value: 3
+						202 text 고른 상승
+					203 text 조건 충족 1/4 · 아직 성립 아님
+					204 text 이 흐름이라면 상승이 소수 대형주를 넘어 다수 종목으로 퍼지는 국면입니다. 그동안 뒤처졌던 업종과 중소형주의 참여가 함께 늘어나는지가 이 해석을 확인하는 근거입니다. 반증: 50일선·200일선 위 비율이 60% 아래로 다시 내려오거나 하이일드 스프레드가 넓어지면 확산 해석을 다시 봅니다. 섹터 회전(약 50일 기준)에서 개선 중: 
+					205 button 부동산, Help: 테마 · 섹터 화면에서 보기
+					206 text  ·  선도: 
+					207 button 경기소비재, Help: 테마 · 섹터 화면에서 보기
+					208 button 에너지, Help: 테마 · 섹터 화면에서 보기
+					209 button 헬스케어, Help: 테마 · 섹터 화면에서 보기
+					210 button 필수소비재, Help: 테마 · 섹터 화면에서 보기
+					211 button (collapsed) 확인할 것 · 조심할 것 · 넘겨도 되는 것, Secondary Actions: Expand
+						212 text 확인할 것 · 조심할 것 · 넘겨도 되는 것
+				213 container
+					214 heading 소수 종목 주도, Value: 3
+						215 text 소수 종목 주도
+					216 text 조건 충족 1/5 · 아직 성립 아님
+					217 text 이 흐름이라면 지수는 소수 주도 영역이 끌어올리고 나머지 종목의 참여는 약한 상태입니다. 주도 영역의 상대강도가 유지되는 동안 지수는 버틸 수 있지만, 주도 영역이 꺾이면 지수 전체가 함께 흔들릴 수 있습니다. 반증: 참여 비율이 다시 넓어지면 확산 쪽, 주도 섹터가 약화로 바뀌고 분배일이 늘면 약화 쪽을 확인합니다. 상대강도 선도(RRG·약 50일 기준): 
+					218 button 경기소비재, Help: 테마 · 섹터 화면에서 보기
+					219 button 에너지, Help: 테마 · 섹터 화면에서 보기
+					220 button 헬스케어, Help: 테마 · 섹터 화면에서 보기
+					221 button 필수소비재, Help: 테마 · 섹터 화면에서 보기
+					222 text  ·  3개월 상위 테마: 
+					223 button 엔터프라이즈 SaaS, Help: 엔터프라이즈 SaaS 테마 상세
+					224 button 정유, Help: 정유 테마 상세
+					225 button 데이터/AI 플랫폼, Help: 데이터/AI 플랫폼 테마 상세
+					226 button (collapsed) 확인할 것 · 조심할 것 · 넘겨도 되는 것, Secondary Actions: Expand
+						227 text 확인할 것 · 조심할 것 · 넘겨도 되는 것
+				228 container
+					229 heading 소수 주도 → 동반 약세 전환 확인 중, Value: 3
+						230 text 소수 주도 → 동반 약세 전환 확인 중
+					231 text 동반 약세 조건 충족 1/3 · 아직 성립 아님
+					232 text 주도 영역(나스닥 100)과 중소형주·시장 폭이 함께 약해져, 소수 종목이 받치던 흐름이 동반 약세로 넘어가는지 확인하는 단계입니다. 확인: 추세가 부담으로 바뀌거나(S&P 500 200일선 이탈, 또는 하락하는 50일선 아래) HY 확대·VIX 급등이 겹치면 동반 약세 쪽입니다. 반증: 나스닥 100의 5거래일 낙폭이 3% 안으로 줄고 신고가가 신저가보다 다시 많아지면 소수 주도로 되돌아간 것으로 봅니다. 다음 확인: 10/21 미국 확정 종가. 상대적으로 버티는 방어 섹터: 
+					233 button 헬스케어, Help: 테마 · 섹터 화면에서 보기
+					234 button 필수소비재, Help: 테마 · 섹터 화면에서 보기
+					235 button (collapsed) 확인할 것 · 조심할 것 · 넘겨도 되는 것, Secondary Actions: Expand
+						236 text 확인할 것 · 조심할 것 · 넘겨도 되는 것
+				237 button 다음 발표별 시나리오 → 거시
+			238 heading 한국 시장 참고 · 위 6개 지표 합계 제외, Value: 2
+				239 text 한국 시장 참고 · 위 6개 지표 합계 제외
+			240 container regime-board-kr
+				241 container
+					242 heading 코스피, Value: 3
+						243 text 코스피
+					244 text 한국 대형주 중심 지수 · 2026-10-20 5,552.74 지수 pt 최근 20거래일(한국) -17.3% · 하루 -3.7% · 5거래일 -8.0%. 이 지수 안 종목들이 같은 방향인지 한국 시장 폭과 함께 확인합니다. 코스피 · 세로축 지수 pt · 2026-04-14~2026-10-20
+					245 container 코스피 (지수 pt) 26.04.14~26.10.20 추이, 최근 5,553
+					246 text 미국장 기준일과 분리해 읽습니다. 지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지 다음 한국 종가에서 확인합니다.
+				247 container
+					248 heading 코스닥, Value: 3
+						249 text 코스닥
+					250 text 코스닥 상장 종목 지수 · 2026-10-20 781.97 지수 pt 최근 20거래일(한국) -4.2% · 하루 -3.3% · 5거래일 -6.6%. 이 지수 안 종목들이 같은 방향인지 한국 시장 폭과 함께 확인합니다. 코스닥 · 세로축 지수 pt · 2026-04-14~2026-10-20
+					251 container 코스닥 (지수 pt) 26.04.14~26.10.20 추이, 최근 782
+					252 text 미국장 기준일과 분리해 읽습니다. 지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지 다음 한국 종가에서 확인합니다.
+				253 container
+					254 heading 원 / 달러, Value: 3
+						255 text 원 / 달러
+					256 text 외환 관측일 · 뉴욕 날짜 · 2026-10-19 1,330.61 KRW / USD 20거래일 -3.9%(20일 평균 -1.1%). 같은 달러에 필요한 원화가 줄어 원화 강세 방향입니다. 외국인 수급이나 수출 실적의 실제 변화는 별도 자료로 확인합니다. 원 / 달러 · 세로축 KRW / USD · 2026-04-20~2026-10-19
+					257 container 원 / 달러 (KRW / USD) 26.04.20~26.10.19 추이, 최근 1,331
+					258 text 환율 움직임과 한국 주가를 같은 날짜·기간으로 확인합니다. 서로 관측일이 다르면 직접적인 인과나 상대강도로 단정하지 않습니다.
+					259 button (collapsed) 원·엔 연결 근거와 관찰, Secondary Actions: Expand
+						260 text 원·엔 연결 근거와 관찰
+			261 container regime-kr-participation
+				262 heading 한국 종목의 참여도와 3개월 수익률 상위 테마, Value: 2
+					263 text 한국 종목의 참여도와 3개월 수익률 상위 테마
+				264 text 코스피 10/20 -3.7% vs AIO 추적 종목(한국) 239개 하루 수익률 중앙값 -3.3%(-3% 이하 127개 · 하락 221개) — 표본의 92%가 내려 표본 전반으로 번진 하락입니다. 5거래일은 지수 -8.0% · 표본 중앙값 -3.8%로, 표본의 68%가 내려 표본 전반으로 번진 하락입니다 — 지수 하락 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 하락이 더 몰렸습니다.
+				265 text AIO 추적 종목(한국) 239개 중 50일선 위 21.8% · 3개월 수익률 중앙값 -4.7%.
+				266 text 2026-10-20 한국 종가 · 참고 · AIO 추적 종목(한국) 239개 모두
+				267 definition list
+					268 container 50일선 위
+						269 text 50일선 위
+					270 text 21.8% (52/239개)
+					271 container 200일선 위
+						272 text 200일선 위
+					273 text 23.4% (56/239개)
+					274 container 1개월 수익률 중앙값
+						275 text 1개월 수익률 중앙값
+					276 text -8.6%
+				277 heading 3개월 수익률 상위 한국 테마 · 표본 중앙값, Value: 3
+					278 text 3개월 수익률 상위 한국 테마 · 표본 중앙값
+				279 content list
+					280 container
+						281 AXListMarker • 
+						282 text 에너지 / 정유 3개월 +14.7% · 1개월 +0.7% · 4/4개
+						283 text SK이노베이션 · S-Oil · GS · SK가스
+					284 container
+						285 AXListMarker • 
+						286 text K-푸드 / 식품 3개월 +12.3% · 1개월 +0.6% · 8/8개
+						287 text 삼양식품 · CJ제일제당 · 오리온 · 농심 · 오뚜기 · 롯데웰푸드 · 빙그레 · 하이트진로
+					288 container
+						289 AXListMarker • 
+						290 text K-뷰티 / 화장품 3개월 +3.6% · 1개월 -7.7% · 11/11개 최근 1개월은 3개월과 반대 방향(하락)입니다.
+						291 text 아모레퍼시픽 · LG생활건강 · 코스맥스 · 에이피알(APR) · 실리콘투 · 한국콜마 · 브이티 · 클리오 · 클래시스 · 마녀공장 · 코스맥스BTI
+						292 text 거래대금 상위 3종목의 1개월 수익률 중앙값은 -14.3%(에이피알(APR) -14.3% · 한국콜마 -12.0% · 실리콘투 -24.9%)로, 동일가중 테마 중앙값 -7.7%보다 훨씬 약합니다 — 거래대금이 큰 종목의 움직임이 중앙값에 가려져 있습니다.
+					293 container
+						294 AXListMarker • 
+						295 text 광통신 / 포토닉스 3개월 +2.3% · 1개월 +5.3% · 4/4개
+						296 text 쏠리드 · 케이엠더블유 · RFHIC · 오이솔루션
+					297 container
+						298 AXListMarker • 
+						299 text 2차전지 / 배터리 3개월 +1.7% · 1개월 -1.4% · 10/10개 최근 1개월은 3개월과 반대 방향(하락)입니다.
+						300 text LG에너지솔루션 · 삼성SDI · POSCO홀딩스 · SK이노베이션 · LG화학 · 에코프로비엠 · 에코프로 · 포스코퓨처엠 · 엘앤에프 · 한화솔루션
+						301 text 거래대금 상위 3종목의 1개월 수익률 중앙값은 +4.5%(삼성SDI +1.6% · SK이노베이션 +4.5% · LG에너지솔루션 +13.3%)로, 동일가중 테마 중앙값 -1.4%와 방향이 반대입니다 — 거래대금이 큰 종목의 움직임이 중앙값에 가려져 있습니다.
+				302 button (collapsed) 다음에 관찰할 연결, Secondary Actions: Expand
+					303 text 다음에 관찰할 연결
+				304 button (collapsed) 표본 기준과 빠진 자료, Secondary Actions: Expand
+					305 text 표본 기준과 빠진 자료
+			306 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				307 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-signal-title
+					308 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				309 content list
+					310 container
+						311 text 전략 · 기법 지수보다 참여와 주도 영역 보기 지수는 시가총액이 큰 몇 종목이 끌고 갈 수 있습니다. 얼마나 많은 종목이 함께 오르는지(시장 폭)와 주도 영역이 버티는지가 흐름의 체력을 보여 줍니다. 근거: 주도 영역이 꺾이는 신호가 확인됐습니다(나스닥 100 5거래일 -3.7% · 50일선 -1.1% · 1년 고점 대비 -5.4% · 신저가 40, 신고가 28(10/14) · S&P 500 분배일 7일(10/16) · 러셀 2000 200일선 대비 -0.8%).
+						312 button 지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기
+					313 container
+						314 text 속지 말 것 하루 반등·하루 급락 하루의 큰 움직임은 흐름이 바뀌었다는 증거가 되기 어렵습니다. 약세장에서도 큰 반등은 자주 나오고, 강세장에서도 큰 하락이 섞입니다. 근거: 지금 시장 흐름은 '소수 주도 → 동반 약세 전환 확인 중'입니다 — 하루 반등만으로는 이 흐름이 끝났는지 알 수 없습니다.
+						315 button 하루 반등·하루 급락 — 리서치 라이브러리에서 개념 배우기
+					316 container
+						317 text 태도 공포에 팔고 환호에 사지 않기 많은 사람이 겁낼 때 가격은 이미 나쁜 소식을 상당 부분 반영하고, 모두가 낙관할 때는 좋은 소식이 이미 들어가 있습니다. 감정이 가장 강할 때가 판단이 가장 흐린 때입니다. 근거: 바닥 확인 조건 중 매도 소진 2/4 · 회복 확인 1/4입니다 — 소진과 확인은 따로 셉니다.
+						318 button 공포에 팔고 환호에 사지 않기 — 리서치 라이브러리에서 개념 배우기
+			319 container Description: 이어서 볼 곳, ID: regime-next
+				320 heading 이어서 볼 곳, Value: 2
+					321 text 이어서 볼 곳
+				322 content list
+					323 container
+						324 button 금리 · 환율 →
+						325 text 금리 부담 — 실질금리와 수익률 곡선 중 어디에서 오는지
+					326 container
+						327 button 투자 심리 →
+						328 text 신용 부담 — 공포 심리와 함께 움직이는지
+					329 container
+						330 button S&P 500 차트 →
+						331 text 추세 중립 — 일봉과 50·200일선 위치
+					332 container
+						333 button 시장 폭 →
+						334 text 시장 폭 중립 — 참여 종목의 6개월 추이와 빠지거나 들어온 종목
+					335 container
+						336 button 거시 경제 →
+						337 text 유가·달러 중립 — 물가와 금리 경로에 주는 압력
+					338 container
+						339 button 테마 · 섹터 →
+						340 text 섹터 회전의 상대강도(약 50일 기준) 선도 경기소비재·에너지·헬스케어·필수소비재 · 개선 부동산 — 6개 지표의 판정이 어느 업종에서 나타나는지
+			341 text 각 지표는 종가 기록의 상태를 설명할 뿐 매매 권고가 아닙니다.
+
+The focused UI element is 18 heading 국면 판정, Value: 1, ID: page-signal-label

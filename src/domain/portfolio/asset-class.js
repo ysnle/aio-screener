@@ -4,7 +4,7 @@
 // listed here is not a bond fund for this reading. KRX-listed bond ETFs are added only by exact 6-digit code once they
 // appear in the app's Korean registry (js/aio-kr-data.js KR_STOCK_DB holds no bond ETF as of this version).
 import { STRESS_MIN_WEEKS } from './stress-sensitivity.js';
-import { buildCloseSeries } from '../briefing/market-read.js';
+import { buildCloseSeries } from '../market/close-series.js';
 
 export const ASSET_CLASS_MAP_VERSION = '2026-10-20.v1';
 

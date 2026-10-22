@@ -1,0 +1,61 @@
+path	status	reason	sha256	read_range	lines	chars
+scripts/ci-13f-currentness-check.mjs	FULL_READ_ADVISORY	13F 선택·amendment fixture는 행동 검사; workflow·페이지의 문자열/들여쓰기 pin은 동작 인증과 구별해야 함	b7462bf24fd0e9ab503cb341c0f5c0df26af5e0a21f11fcc4c50b30af952b700	chars:0-10136;lines:1-108	108	10136
+scripts/ci-13f-semantic-hash-check.mjs	FULL_READ_ADEQUATE	clock-only·의미변경·ownership 실패LKG·sync/async 실제 writer bytes를 fixture로 검사; producer wiring 일부는 소스 문자열 검사	f969adc5dc251dca7066ec28eefb1374c9d3cbca777c5755d36b23eddbd24dd4	chars:0-20196;lines:1-379	379	20196
+scripts/ci-accessibility-matrix-check.mjs	FULL_READ_DEFECT_C1	accessible name을 options/text/value로 추정하여 label 없는 select·checkbox를 PASS시킬 수 있고 aria-labelledby는 누락; target slice80 뒤 판정도 후순위 위반 누락	6a5b3df7042b6ba052390ddcb5e1b91becc856654d32d2da176cda4b9c41fe96	chars:0-9127;lines:1-102	102	9127
+scripts/ci-ai-analysis-evidence-check.mjs	FULL_READ_ADEQUATE	typed adapter 실제 함수의 entity·단위·시각·충돌 부정fixture와 no fabricated quality score를 검증	f8734741ebefef2498c31f714a70713259784e039b3a50b50e770347f3963b4a	chars:0-4409;lines:1-70	70	4409
+scripts/ci-ai-budget-scope-check.mjs	FULL_READ_ADVISORY	production 경로를 js/src/workflow/일부producer로 제한한 문자열 scanner라 모든 실행 scripts의 paid-call 부재 인증은 아님; config파생 fixture는 행동검사	198c419ffd1d909bbe2ac82b0b6b32340cccc018d95fea6e9a11e91404677500	chars:0-4503;lines:1-63	63	4503
+scripts/ci-ai-chat-analysis-integration-check.mjs	FULL_READ_ADEQUATE	production helper slice를 VM에서 실행하고 premise·period·conflict를 검사; unified wiring·chip은 regex 보조검사	3e62a2a204c7e19311498ae55b243ab56c4eb21c2e73d60f97f2e92216568f1e	chars:0-8133;lines:1-143	143	8133
+scripts/ci-ai-chat-public-route-browser-check.mjs	FULL_READ_ADEQUATE	health/OpenAI를 모두 intercept한 브라우저 fixture이며 실제 채팅/번역·강등·truncation·module없음 경로를 구동; production readiness 인증 아님	8ec15d0897746f4db7b2046e63e5ef11bd819d6e1ed38597566b11002f8b2864	chars:0-13590;lines:1-169	169	13590
+scripts/ci-ai-chat-reliability-contract-check.mjs	FULL_READ_ADVISORY	정적 wiring/config계약을 명시하나 다수 exact text·offset pin은 동등한 리팩토링을 막고 provider 현재성은 인증하지 않음	2c189576cf56fce865e080e02947379719ebfbf0e3dadb0f68b2b50e51afe36b	chars:0-10109;lines:1-107	107	10109
+scripts/ci-ai-intelligence-contract-check.mjs	FULL_READ_ADVISORY	routing·publication·conduct·knowledge·session 실제fixture는 유용; legacy VM slice·소스pin이 혼재하고 이미 은퇴한 portfolio simulation도 유지	2b87f8be22cf6fc16dc1bcf5725ed03034cc41e2b0696312e57fc2b3764830e7	chars:0-90732;lines:1-838	838	90732
+scripts/ci-ai-premise-check.mjs	FULL_READ_DEFECT_C2	freshnessMaxAgeMs=1 negative fixture는 freshnessMs=24h가 우선하고 observedAt도 기간 이전이라 SLA검증 제거시에도 다른조건으로 PASS	f2562ee3774f50b5d1980980b46eb48fb81281078c89e494aaebe60c8e86f18e	chars:0-4663;lines:1-70	70	4663
+scripts/ci-ai-provider-stream-check.mjs	FULL_READ_ADEQUATE	실제 callSharedAi와 request-store slice를 fake stream으로 실행; EOF·malformed·filter·providerfail·abort·timer정리를 검증	466f4217cacedbfc5c82a8d48e29d6eb18e1b88ca7a59e1e931c169e0ce4a751	chars:0-7530;lines:1-110	110	7530
+scripts/ci-ai-quote-evidence-check.mjs	FULL_READ_ADEQUATE	실제 producer helper의 observation/source/unit/currency·mismatch·duplicate rejection을 fixture로 검사; wiring은 별도 소스pin	2b63ee00de66b59a3bb854e712292989ecaa35a98c94a56d8be42ae94fc100c4	chars:0-9523;lines:1-165	165	9523
+scripts/ci-architecture-browser-check.mjs	FULL_READ_DEFECT_C5	다수 실제 offline DOM·route·fixture 검증은 유효; QA-CRED-05 source-label 검사는 이미 retired로 assert하는 macro-2y-value의 빈값에 조건부라 영구 vacuous	bad41e6795c2faa0c23bcf78cf320e23c73d849b3a7b837a8a700758e9b70ab1	chars:0-75585;lines:1-847	847	75585
+scripts/ci-architecture-contract-check.mjs	FULL_READ_DEFECT_C3	route ownership·도메인 fixture·store perf를 검사하지만 실행과 무관한 fence 주석·구체 함수문자열을 강제해 동등 리팩토링 false FAIL; DOM lookup을write로 근사	4900dc98d5e5f5aa82337c64e9d1f38c38afaf5c71a20e15aab4f5ffe153a7b1	chars:0-76959;lines:1-828	828	76959
+scripts/ci-artifact-cache-check.mjs	FULL_READ_ADVISORY	cache 취소·공유·무결성·strict constraint·late abort는 행동검사; bound 같은 이름 다른owner 격리 부정fixture 없어 DATA-AI M1을 못검출	15241c046528e6bc210adbab74459bdf1f3384dae37f6b037b748d697b91c3b9	chars:0-8910;lines:1-129	129	8910
+scripts/ci-artifact-semantics-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	84ae5ef009d590ab64984e7e105cfe371b853b36c6d50312ea0ba571b57808bd	none	516	34321
+scripts/ci-artifact-size-headroom-check.mjs	FULL_READ_ADVISORY	실제 disk bytes·ledger 예외를 검사; BUDGETS를 다른 budget gate와 수동복제하여 drift 가능; 존재검증은 의도범위 밖	01d306e9151c7f466f09b84fd27bc83b4f436789487d3efb7ac81c665a5fdc8c	chars:0-5724;lines:1-85	85	5724
+scripts/ci-assertion-trace-check.mjs	FULL_READ_DEFECT_C4	literal-first check/_assert만 수집하여 범위 내 assert.equal·assert.ok fixture 및 condition-first check의 assertion은 새 trace검사를 우회	346fb1c87c27e8fc6d1ec24bb33af119f84daa95269215c8dd1cfbe52c57720d	chars:0-7410;lines:1-143	143	7410
+scripts/ci-atlas-browser-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	1699b9e153f7521fe4fd1007af1e9dce663f1e5b5a236f88dd8c4ece14671d12	none	131	10778
+scripts/ci-atlas-contract-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	05269dea8980b9596e27d2b56317e433eb076cc9d443944fe0d56abb46b84271	none	276	36698
+scripts/ci-baseline-contract-check.mjs	FULL_READ_ADEQUATE	route 수·소유권 어휘·local/release/live lane 정합성의 제한된 정적 계약	79d25800803c50d04249219afaa9dd868c22eb50f4a0c81a534e8c19a331e3a2	chars:0-1371;lines:1-13	13	1371
+scripts/ci-boot-interaction-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	ecd33ab488cda03fb2cdeff6aedc4ff297aedab6b35aff2b219812f71bb665ff	none	206	13345
+scripts/ci-candidate-archive-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	f45dc1b4b9df4241c30567ec19ed756bd118ae35c1e93e5e5a28d84774b53640	none	108	8925
+scripts/ci-capability-claim-contract-check.mjs	FULL_READ_ADVISORY	manifest·UI marker·금지문구 pin과 실제 audit 부정fixture를 혼합; marker존재는 실제 rendered claim 감사를 대체하지 않음	7bd217da60cc04a38faa88842cb251bd29786e4627a07cb250b39a18275437f4	chars:0-3277;lines:1-51	51	3277
+scripts/ci-chart-scenarios-fixture.mjs	NOT_READ	아직 전문 의미 검토하지 않음	03118639583e7dc43288c4545108c39fc2dd734311bf857714ff5b3faeea3c9a	none	104	11733
+scripts/ci-chat-resilience-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	98fae44839a020606542c4ca414f51c264dc4b2f32e52db289a8f96776c2bc05	none	146	15470
+scripts/ci-chat-response-layout-browser-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	a1bc2e483e5817355aa5035f0acdc85c0d4b002b3a4045f23aab84189ac08a7b	none	266	15069
+scripts/ci-chat-ui-state-browser-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	385b7199d90d32e359c413348701ee778f52fbf8669ef2da89a4562bf4160094	none	90	5797
+scripts/ci-cloudflare-deployment-contract-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	3f9bbdaa4dae2f01b73d956b310e644acd7e4d884127add1229a6d03eb5b484a	none	308	29032
+scripts/ci-codex-structure-regression-fixture.mjs	NOT_READ	아직 전문 의미 검토하지 않음	0f325dc123a6ca9ccd4db0a226f07ced2d3a69e17ed3d47db228590edaf0bda1	none	256	25819
+scripts/ci-company-analysis-fixture.mjs	FULL_READ_ADEQUATE	다른 issuer quote/fiscal 차단·ETF/KR/missing 계약을 행동fixture로 검증	fd779fdfd5cb35de39949e71dc0e91ca0588a1b641a4f7b1696b8b362fcfb612	chars:0-1947;lines:1-19	19	1947
+scripts/ci-conditional-evidence-contract.mjs	NOT_READ	아직 전문 의미 검토하지 않음	6637619563ebe1e2e081925efddb003bf2ff311423160476ec1369c4b4907611	none	111	4831
+scripts/ci-connection-access-check.mjs	FULL_READ_ADEQUATE	실제 keyless AI helper와 entity provider 공유load·SEC availability·동일 issuer earnings·health 계약을 fixture로 검증	26281f79a315b31e9d4e5740e41a1e1c7d13198ac6619b13429efccfa26c2ddf	chars:0-4076;lines:1-41	41	4076
+scripts/ci-control-char-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	b627c5dcaf64f2b7fcbe6e048039998fee2eecc206e24a686e25b1de00614ae6	none	220	10410
+scripts/ci-crash-replay-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	74d39a88a4bef2ab393e55aaaa1b7ac55fac9449726d19f29821953616e0082d	none	285	19888
+scripts/ci-critical10-human-surface-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	3d8efc8985a122475190dc05d8eab96a1d8d93757339fcdc7e82f0974b21bdb0	none	98	5514
+scripts/ci-csp-ratchet-check.mjs	FULL_READ_DEFECT_C8	path.startsWith('js'+join('',''))의 join결과가 '.'여서 js./src. 접두사를 찾고 실제 모든 js/src 소스가 수집되지 않음	b1f16a7aa12ae41112a203d33678115f739c5bee4a2e4a8777ec2d38837016fa	chars:0-2009;lines:1-31	31	2009
+scripts/ci-data-continuity-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	224540e9df51862453d93549f560d284a6fc26de461d217c9975696ad0418f90	none	304	18204
+scripts/ci-data-lineage-audit.mjs	NOT_READ	아직 전문 의미 검토하지 않음	884d62519f8c363d55295003cc09c2edca13c67de203f936e6ef4ab6433805e4	none	387	23636
+scripts/ci-data-pipeline-contract-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	c204cbd6365041e8a6a4915b82dcacbf7e67e4e3f4927b7a2165c9f57471b08c	none	2074	205377
+scripts/ci-data-plane-contract-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	df54f94d0ebde40d934c75c754139a7281c7f4160ab59345ab474f14ebef951b	none	301	26142
+scripts/ci-data-refresh-audit.mjs	NOT_READ	아직 전문 의미 검토하지 않음	17687b31476d981906f6fe55966f1f9e31436b8b616ec9fd66fb42ab339a5d04	none	823	49390
+scripts/ci-deployment-convergence-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	a765e172d3c9a93f4695770d2bda5f08fa9aabeec19332e2512e735889bf89a0	none	53	5721
+scripts/ci-desktop-continuity-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	a0868bdaa5e47408870f718b0d19c98a2eb1181b8ae33f8d48d7cc33e469f4e3	none	253	22512
+scripts/ci-desktop-scope-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	24a1e8bd3a75449f05f28be03b85b0c76fb3972778dbcdd89939ce94318873be	none	84	5119
+scripts/ci-doc-currency-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	a3df9cf2d116d78b9cc9c23d147deb161807870c4397ad17f04baed990f1612c	none	78	4761
+scripts/ci-domain-parity-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	262711a4551665d8ff7a9561a21a4b297387064a3d0df794e18a288dda98f473	none	394	31818
+scripts/ci-entity-quality-browser-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	81908ddc3a7fb2187cc11549add24361c35f17849dfba7deec8c716ba6e60a24	none	251	22335
+scripts/ci-entity-summary-fixture.mjs	NOT_READ	아직 전문 의미 검토하지 않음	be54ef6acb8ff66f89443f1c3ed5d3c94005cd60c1496ceec9da326575ac9593	none	71	6330
+scripts/ci-esm-core-unit-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	946b29daeb5a3cd2a61a8cc7c12b65e60d3b32b64076a5d4417c2d7d9f52f3a0	none	4887	471287
+scripts/ci-extension-api-runtime-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	e9a9dbb151f001b222e1114eba3479629c7a24e375def4ec8bcf3988c8048d20	none	111	11239
+scripts/ci-external-pipeline-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	784f26c251880b84d3a4293f8b32a38f44fa00d7bc05b192b2a046fbcf49b119	none	233	19241
+scripts/ci-fast-plane-consumer-gate.mjs	NOT_READ	아직 전문 의미 검토하지 않음	bd5070e6f52dacd963f6d469ac7a72ec25e24a6fcc550322553be4cd2f13f1f6	none	161	12217
+scripts/ci-fast-plane-live-check.mjs	FULL_READ_DEFECT_C7	quotes 배열·실측Tier0·타임스탬프 검증 없음; coverage field 누락시 undefined<undefined=false로 published/revision만 있어도 quotes검사 통과	3f56f1eeee6edff530b51522f314f10c2c39c5fdb302d8aa65b8b5127bbdaf59	chars:0-1958;lines:1-36	36	1958
+scripts/ci-fiscal-quality-fixture.mjs	NOT_READ	아직 전문 의미 검토하지 않음	9fe1e0e1e4c78a26e41a2113dc4177df2c1dcacacbcce4e31ce39fc828004263	none	129	13684
+scripts/ci-fundamental-watchlist-timeline-check.mjs	NOT_READ	아직 전문 의미 검토하지 않음	a6787c6a9c661ff1b5fcbaf213bac9841900ebe8e29873eef31cbf0171eeb143	none	43	3526
+scripts/ci-generated-conflict-fixture.mjs	NOT_READ	아직 전문 의미 검토하지 않음	3c05f9b9b102bc4895552149ef2442714e28ae58fb81ef24f005c4e8ac337683	none	136	8944
+scripts/ci-generated-release-parity-check.mjs	FULL_READ_DEFECT_C6	작업트리에서 실제 sync-data-release-manifests를 실행한 뒤 바이트변경을 fail하나 원본복구 없어 실패한 검사가 generated 파일을 수정	319cd5825ad9db2f821bd310244234c8eaf12b81b38ea8e8b4ad36266f53f812	chars:0-968;lines:1-20	20	968
+scripts/ci-headless-group-lifecycle-check.mjs	FULL_READ_ADVISORY	그룹 등록·선택·rerun wiring을 소스pin으로 검사; 출력 lifecycle 문구는 실제 fresh-browser 구동 증거가 아님	a5904f9f9f3d5def6f8ebbe4bbc6e2f0bc18fc44ce847373c9327eb522918a16	chars:0-1777;lines:1-16	16	1777
+scripts/ci-headless-tests.mjs	NOT_READ	아직 전문 의미 검토하지 않음	4e21aa097445aa4e83c8e82ce79fbe2d0578f32c540bdae0bffbac3c92d2193d	none	353	16914

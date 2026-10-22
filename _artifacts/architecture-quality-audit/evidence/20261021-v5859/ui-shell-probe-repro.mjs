@@ -1,0 +1,27 @@
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
+import vm from 'node:vm';
+const ref='7e2411432f6ca0e5f02528b209b013bf5f7ff2dc';
+const bytes=execFileSync('git',['show',`${ref}:js/aio-ui.js`]);
+const source=bytes.toString('utf8');
+const events=[];
+const ctx={console,URLSearchParams,Intl,Date,Promise,Object,Number,String,Array,Math,JSON,Map,Set, document:{body:{},querySelector:()=>null,querySelectorAll:()=>[],getElementById:()=>null,addEventListener:(t)=>events.push(t)},location:{hash:'',protocol:'file:',hostname:'',href:'file:///app',pathname:'/app',search:''},history:{replaceState:()=>{}},navigator:{},localStorage:{getItem:()=>{throw new Error('SecurityError: storage blocked');}},setTimeout:()=>0,clearTimeout:()=>{},addEventListener:(t)=>events.push(`window:${t}`),dispatchEvent:()=>{},CustomEvent:function(t){this.type=t;}};
+ctx.window=ctx;
+let error;try{vm.runInNewContext(source,ctx,{filename:'js/aio-ui.js'});}catch(e){error={message:e.message,line:e.stack};}
+const storage={error,events,lateStockSearchRegistered:typeof ctx._aioOpenStockSearch==='function',keyboardDocumentHandlers:events.filter(x=>x==='keydown').length};
+const normalEvents=[];
+const normal={...ctx,document:{...ctx.document,addEventListener:t=>normalEvents.push(t)},localStorage:{getItem:k=>k==='aio_disclaimer_ack_v1'?'1':null,setItem:()=>{},removeItem:()=>{}},addEventListener:t=>normalEvents.push(`window:${t}`)};
+normal.window=normal;
+vm.runInNewContext(source,normal,{filename:'js/aio-ui.js'});
+storage.control={lateStockSearchRegistered:typeof normal._aioOpenStockSearch==='function',keyboardDocumentHandlers:normalEvents.filter(x=>x==='keydown').length};
+const texts=[];
+const canvasContext=new Proxy({}, {get(t,k){if(k==='fillText')return text=>texts.push(text);return ()=>{};},set(t,k,v){t[k]=v;return true;}});
+const canvas={parentElement:{offsetWidth:600},getContext:()=>canvasContext};
+const benchmarkCtx={window:{_liveData:{NVDA:{price:200}}},document:{getElementById:id=>id==='pf-benchmark-chart'?canvas:null,body:{}},getPortfolioData:()=>[{ticker:'NVDA',qty:1,cost:100}],getComputedStyle:()=>({getPropertyValue:()=>''}),fetchViaProxy:async url=>url.includes('/SPY?')?{ok:true,json:async()=>({chart:{result:[{indicators:{quote:[{close:[100,100,100,100,100]}]}}]}})}:{ok:false},console};
+const fn=source.slice(source.indexOf('async function updateBenchmarkChart()'),source.indexOf('// P1736:',source.indexOf('async function updateBenchmarkChart()')));
+vm.runInNewContext(fn,benchmarkCtx);
+await benchmarkCtx.updateBenchmarkChart();
+const report={ref,path:'js/aio-ui.js',sha256:createHash('sha256').update(bytes).digest('hex'),storageBlocked:storage,missingBenchmarkHistory:{input:{NVDA:{qty:1,cost:100,currentPrice:200,monthlyHistory:null},SPY:[100,100,100,100,100]},canvasTexts:texts},boundary:'격리 VM·stub DOM·mock fetch만 실행. 외부 네트워크·실제 AI·producer·브라우저 실행 없음.'};
+writeFileSync('_artifacts/architecture-quality-audit/evidence/20261021-v5859/ui-shell-probe-results.json',JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify(report,null,2));

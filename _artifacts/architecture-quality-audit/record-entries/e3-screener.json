@@ -1,0 +1,18 @@
+{
+  "version": "v58.63", "date": "2026-10-22",
+  "p": {
+    "title": "스크리너 의미 오류: NOT 하위 필드 식별, 상수 팩터 '독립 신호', 평가 가격, 문장 조건의 OR·반대 방향·원화 단위",
+    "symptom": "NOT 아래 가격 조건이 계산 식별자에 들어가지 않았고(SCR01), 모든 종목이 같은 값인 두 팩터가 '독립 신호 2개'로 읽혔다(SCR02). 포트폴리오가 평가 가격 대신 다른 가격을 읽었고(SCR03), 'PER 15 이상'은 'PER 15 이하'로, '또는'은 '그리고'로, '미만'은 '이하'로, '거래대금 50억'은 $50M + 이름 검색 '억 이상'으로 적용됐다(SCR04). 검증 t값이 IC 전용 t와 섞였고(A11) 검사 패널·행 캐시가 같은 배열 갱신을 놓쳤다(A12, UI-03).",
+    "root_cause": "AST 워커와 평가기가 다른 간선을 읽었고, 상관 0을 '결측 상관'의 대체값으로 썼으며, 문장 파서가 알아듣지 못한 방향·접속어·단위를 버리고 남은 조건만 적용했다.",
+    "fix": "collectDefinitionRowKeys가 node.child를 순회. 상수 팩터는 제외·명시하고 가변 팩터 2개 미만이면 측정하지 않으며 문장은 '유효 개수, 독립 증명 아님'. 정규화에 _valuationPrice 유지. 파서는 OR·반대 방향·원화 단위를 unsupported로 보고하고 패널은 아무것도 적용하지 않은 채 문장을 남긴다. strict(미만/초과)는 경계값을 제외하고 라벨도 미만/초과. meanTStat/icT 분리, 검사 패널 갱신, readRowsRef 비교.",
+    "violated_rule": "R586 결측 팩터는 중립값이 아니다, R628 결측은 조건을 만족시키지 않는다",
+    "prevention": "scripts/ci-architecture-audit-regression-fixture.mjs SCR01·SCR02·SCR04·원화 단위 반례와 양성 대조, ci-esm-core-unit-check D11 icOnly.",
+    "verification": "fixture PASS; HEAD 대조에서 상수 팩터 effective=2, '50억'→$50M 재현 확인."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-03", "text": "{P}: NOT 하위 가격 참조가 계산 식별자에 들어가고, 상수 팩터는 겹침 측정에서 제외되며, OR·반대 방향·원화 단위 문장은 아무 조건도 적용하지 않는다.", "verify_by": "node scripts/ci-architecture-audit-regression-fixture.mjs", "done": true }],
+  "qa_section": "아키텍처 품질 감사 v58.63",
+  "changelog": ["**스크리너 의미 ({P}):** NOT 하위 필드 식별, 상수 팩터 겹침 측정 제외, 평가 가격 유지, 문장 조건의 OR·반대 방향·미만·원화 단위 처리, 검증 t값 분리와 검사 패널 갱신을 고쳤다(SCR01–SCR04, A11, A12, UI-03)."],
+  "note": "아키텍처 품질 감사(Codex) 전 항목 재검증·구조 수정 + 미점검 영역 확장 점검. 로컬 검증; commit/push/deploy 미실행, Worker 재배포 필요(SEC01).",
+  "status": null
+}

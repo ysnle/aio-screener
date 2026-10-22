@@ -1,0 +1,102 @@
+Browser tab: 2, Title: "시장 폭 · AIO Screener", URL: "http://127.0.0.1:8795/#breadth".
+0 AXWebArea 시장 폭 · AIO Screener, URL: 127.0.0.1:8795/#breadth
+	4 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/#main-content
+	5 container Description: 메인 네비게이션, ID: aio-navigation
+		6 container
+			7 text AIO Investment Screener
+		8 text 데일리
+		9 button 오늘 페이지
+		10 text 시장
+		11 button 시장 상태 페이지
+		12 button 거시 · 금리 페이지
+		13 button 테마 · 섹터 페이지
+		14 text 내 투자
+		15 button 종목 페이지
+		16 button 스크리너 페이지
+		17 button 포트폴리오 페이지
+		18 text 리서치
+		19 button 리서치 라이브러리 페이지
+		20 button 용어 사전 페이지
+		21 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			22 text 라이트 모드로 전환
+		23 text AI 도우미
+		38 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		25 text GPT-6 Luna · 공용 AI 연결
+		26 text 개인 AI 키 입력 없이 이용합니다.
+		39 button (collapsed) 연결 상태, Secondary Actions: Expand
+			40 text 연결 상태
+		27 button (collapsed) 보안 설정, Secondary Actions: Expand
+			28 text 보안 설정
+	29 container
+		30 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		31 container breadcrumb
+			46 text 시장 상태 / 시장 폭
+		41 text 종가
+		42 text 서버 10/19 마감 · 시세 16종
+		43 text v58.50
+		36 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		37 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	44 container main-content
+		45 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			47 button 국면 판정
+			48 button 시장 폭
+			49 button 투자 심리
+		50 container 시장 폭, ID: page-breadth
+			51 container
+				52 heading 시장 폭, Value: 1, ID: page-breadth-label
+					53 text 시장 폭
+				54 text 10/19 미국 종가 기준 · 판정 대상 839개 종목
+			55 container 시장 폭 판정
+				56 heading 시장 폭 판정, Value: 2, ID: breadth-state-title
+					57 text 시장 폭 판정
+				58 text 부담
+				59 text 지수는 고점권(-1.6%)이지만 AIO 추적 종목(미국) 가운데 이동평균선 위 비율이 낮은(S&P 500 구성 종목은 50일선 위 44%) 좁은 장세에서, 최근에는 주도 영역(나스닥 100 5거래일 -3.7%)까지 밀려 소수 종목이 지수를 받치는 힘도 약해지고 있습니다. 50일선 위 비율 39%는 AIO 자체 기록 243일 중 19백분위입니다(기록 252거래일 미만 · 잠정). 단기(20일선 위 56%) 참여가 중기(39%)보다 높습니다 — 20일선 위 비율이 20거래일 동안 25%p 늘어 단기 참여가 먼저 회복하고 있습니다.
+				60 text 전환 조건: 50일선·200일선 위 종목 비율이 모두 45% 이상이면 중립(40% 아래로 내려간 뒤에는 45%까지 회복해야 함), 모두 60% 이상이면 양호
+			61 container breadth-chart-grid
+				62 heading 참여도 — 이동평균 위 종목 비율, Value: 2
+				63 container
+					64 heading 3
+				65 button (collapsed) Secondary Actions: Expand
+				66 heading 강한 종목 수 — 신고가·신저가, 급등락, Value: 2
+				67 container
+					68 heading 3
+					69 button (collapsed) Secondary Actions: Expand
+				70 button (collapsed) Secondary Actions: Expand
+				71 heading 지수 확인 — 분배일과 S&P 500, Value: 2
+				72 container
+					73 heading 3
+				74 button (collapsed) Secondary Actions: Expand
+				75 button (collapsed) Secondary Actions: Expand
+			76 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				77 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-breadth-title
+					78 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				79 content list
+					80 container
+						81 text 전략 · 기법 지수보다 참여와 주도 영역 보기 지수는 시가총액이 큰 몇 종목이 끌고 갈 수 있습니다. 얼마나 많은 종목이 함께 오르는지(시장 폭)와 주도 영역이 버티는지가 흐름의 체력을 보여 줍니다. 근거: 주도 영역이 꺾이는 신호가 확인됐습니다(나스닥 100 5거래일 -3.7% · 
+						82 pop up button (collapsed) 50일선, Secondary Actions: Expand
+						83 text  -1.1% · 1년 고점 대비 -5.4% · 신저가 40, 신고가 28(10/14) · S&P 500 
+						84 pop up button (collapsed) 분배일, Secondary Actions: Expand
+						85 text  6일 · 러셀 2000 
+						86 pop up button (collapsed) 200일선, Secondary Actions: Expand
+						87 text  대비 -2.4%).
+						88 button 지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기
+					89 container
+						90 text 속지 말 것 하루 반등·하루 급락 하루의 큰 움직임은 흐름이 바뀌었다는 증거가 되기 어렵습니다. 약세장에서도 큰 반등은 자주 나오고, 강세장에서도 큰 하락이 섞입니다. 근거: 지금 시장 흐름은 '동반 약세'입니다 — 하루 반등만으로는 이 흐름이 끝났는지 알 수 없습니다.
+						91 button 하루 반등·하루 급락 — 리서치 라이브러리에서 개념 배우기
+					92 container
+						93 text 속지 말 것 '지수 신고가 = 시장 전체가 강함' 지수가 신고가여도 대부분 종목은 내리고 있을 수 있습니다. 지수는 큰 종목의 무게가 크기 때문입니다. 왜: 시가총액 가중 지수는 상위 몇 종목이 전체 방향을 정할 수 있습니다.
+						94 button '지수 신고가 = 시장 전체가 강함' — 리서치 라이브러리에서 개념 배우기
+			95 container Description: 이어서 볼 곳, ID: breadth-next
+				96 heading 이어서 볼 곳, Value: 2
+				97 content list
+					98 container
+						99 button
+					100 container
+						101 button
+					102 container
+						103 button
+					104 container
+						105 button
+			106 text AIO가 추적하는 미국 종목의 1년 조정 종가로 계산한 값이며 거래소 공식 통계가 아닙니다.
+
+The focused UI element is 52 heading 시장 폭, Value: 1, ID: page-breadth-label

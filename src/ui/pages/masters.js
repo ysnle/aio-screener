@@ -3,7 +3,7 @@ import { renderManagersPage } from '../knowledge/managers-view.js';
 import { ensureFrameStyle } from '../knowledge/analysis-frames.js';
 import { createResourceBag } from '../../app/lifecycle.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { detectValueScaleSuspects, withholdSuspectValues, withholdManagerValues, managersUnderScaleReview, describeValueScaleReview, describeValueScaleCarryover } from '../../domain/masters/value-scale.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -227,8 +227,15 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           return { managerId, period, latest, shares: direct.reduce((sum, row) => sum + (Number(row.shares) || 0), 0), value: direct.reduce((sum, row) => sum + (Number(row.value) || 0), 0), direct: direct.length, options };
         }).sort((a, b) => (b.value || 0) - (a.value || 0) || b.shares - a.shares);
         const rows = element(documentRef, 'ul', 'masters-ticker-lookup-rows');
-        const impliedPrices = summaries.filter((summary) => summary.shares > 0 && summary.value > 0 && !summary.latest.some((row) => row.valueScaleStatus === 'SCALE_REVIEW')).map((summary) => summary.value / summary.shares).sort((a, b) => a - b);
-        const medianImplied = impliedPrices.length >= 3 ? impliedPrices[Math.floor(impliedPrices.length / 2)] : null;
+        // v58.63 (architecture audit UI-05): each filer's latest quarter differs (Pershing 2026-03-31 beside others' 06-30), and
+        // one median across quarters flagged a normal price change as "다른 신고보다 12.6% 낮음". The value-per-share check
+        // compares filers of the same reportPeriod only, and needs three of them.
+        const impliedOf = (summary) => (summary.shares > 0 && summary.value > 0 && !summary.latest.some((row) => row.valueScaleStatus === 'SCALE_REVIEW') ? summary.value / summary.shares : null);
+        const medianByPeriod = new Map();
+        for (const period of new Set(summaries.map((summary) => summary.period))) {
+          const prices = summaries.filter((summary) => summary.period === period).map(impliedOf).filter((value) => value != null).sort((x, y) => x - y);
+          medianByPeriod.set(period, prices.length >= 3 ? prices[Math.floor(prices.length / 2)] : null);
+        }
         let priceGaps = 0;
         summaries.forEach((summary) => {
           const manager = registryById.get(summary.managerId);
@@ -239,8 +246,9 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           // F38: for the same stock and quarter the filed value per share should agree across filers. A filer whose
           // implied price is more than 1% off the others is marked, so the gap is visible without a column of prices.
           const implied = !withheldValue && summary.shares > 0 && summary.value > 0 ? summary.value / summary.shares : null;
+          const medianImplied = medianByPeriod.get(summary.period) || null;
           const gap = implied && medianImplied ? implied / medianImplied - 1 : 0;
-          const perShare = Math.abs(gap) > 0.01 ? ` (주당 약 $${implied.toFixed(2)}, 다른 신고보다 ${Math.abs(gap * 100).toFixed(1)}% ${gap < 0 ? '낮음' : '높음'})` : '';
+          const perShare = Math.abs(gap) > 0.01 ? ` (주당 약 $${implied.toFixed(2)}, 같은 분기 다른 신고보다 ${Math.abs(gap * 100).toFixed(1)}% ${gap < 0 ? '낮음' : '높음'})` : '';
           if (perShare) priceGaps += 1;
           const holding = summary.direct ? `${summary.shares.toLocaleString('en-US')}주 · ${withheldValue ? '금액 단위 확인 중' : formatReportedValue(summary.value)}${perShare}` : '직접 보유 없음';
           const detail = element(documentRef, 'details', 'masters-ticker-lookup-detail');
@@ -1399,14 +1407,14 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
          }
       };
       const fetchFn = root?.fetch || globalThis.fetch;
-      const loadJson = (url) => loadJsonArtifact(fetchFn, url, { signal: scope?.signal });
+      const loadJson = (url) => loadJsonArtifact(stableFetcher(root), url, { signal: scope?.signal });
       const loadOptionalArtifact = async (key, url, options = {}) => {
         if (!isAlive() || state[key] != null || state.loadingCapabilities.has(key)) return;
         state.loadingCapabilities.add(key);
         state[`${key}Error`] = false;
         page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'loading';
         try {
-          state[key] = await loadJsonArtifact(fetchFn, url, { signal: scope?.signal, ...options });
+          state[key] = await loadJsonArtifact(stableFetcher(root), url, { signal: scope?.signal, ...options });
           if (!isAlive()) return;
           page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'connected';
         } catch (error) {
@@ -1426,7 +1434,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         state.managerRowErrors.delete(managerId);
         render();
         try {
-          const artifact = await loadJsonArtifact(fetchFn, descriptor.url, { signal: scope?.signal, integrity: descriptor.sha256, maxBytes: descriptor.bytes });
+          const artifact = await loadJsonArtifact(stableFetcher(root), descriptor.url, { signal: scope?.signal, integrity: descriptor.sha256, maxBytes: descriptor.bytes });
           if (!isAlive()) return;
           if (artifact?.managerId !== managerId || artifact?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || artifact?.holdings?.length !== descriptor.projectionRows || artifact?.comparisons?.length !== descriptor.comparisonProjectionRows || artifact?.fullRowsAvailable !== descriptor.fullRows || artifact?.fullComparisonsAvailable !== descriptor.comparisonRows || artifact?.latestFiling?.accession !== descriptor.accession) {
             throw new Error(`manager shard integrity mismatch: ${managerId}`);

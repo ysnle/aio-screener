@@ -1,0 +1,349 @@
+{
+  "schemaVersion": "aio-external-pipeline.v1",
+  "observedAt": "2026-10-17T05:15:04.640Z",
+  "mode": "watchdog",
+  "localVersion": "v57.98",
+  "pagesBase": "https://ysnle.github.io/aio-screener",
+  "status": "FAIL",
+  "checks": [
+    {
+      "id": "pages-deployment-identity",
+      "ok": true,
+      "severity": "error",
+      "detail": "{\"version\":\"v57.99\",\"sourceSha\":\"5557853fc15774180288bdcbded1c7247b0a4302\",\"attestationRunId\":39005158258,\"deploymentRunId\":39005397385,\"configRevision\":\"v57.99\",\"dataAgeMinutes\":54,\"screenerAgeMinutes\":7,\"telegramAgeMinutes\":54,\"snapshotRevision\":\"market-snapshot:2026-10-17T04:20:46.476Z:b3043e37\"}"
+    },
+    {
+      "id": "pages-version-config",
+      "ok": true,
+      "severity": "error",
+      "detail": "version=v57.99 config=v57.99"
+    },
+    {
+      "id": "pages-repository-revision",
+      "ok": false,
+      "severity": "error",
+      "detail": "live=v57.99 local=v57.98"
+    },
+    {
+      "id": "pages-data-freshness",
+      "ok": true,
+      "severity": "error",
+      "detail": "age=54m max=360m"
+    },
+    {
+      "id": "pages-data-quality",
+      "ok": true,
+      "severity": "error",
+      "detail": "symbols=79 news=37"
+    },
+    {
+      "id": "pages-screener-freshness",
+      "ok": true,
+      "severity": "error",
+      "detail": "age=7m ok=1142/1143"
+    },
+    {
+      "id": "pages-telegram-freshness",
+      "ok": true,
+      "severity": "error",
+      "detail": "age=54m max=360m"
+    },
+    {
+      "id": "pages-market-snapshot",
+      "ok": true,
+      "severity": "error",
+      "detail": "status=published coverage=16/16"
+    },
+    {
+      "id": "pages-operations",
+      "ok": true,
+      "severity": "error",
+      "detail": "overall=OPERATOR_REQUIRED"
+    },
+    {
+      "id": "pages-reconciliation",
+      "ok": true,
+      "severity": "error",
+      "detail": "categories=22"
+    },
+    {
+      "id": "pages-telegram-coverage",
+      "ok": true,
+      "severity": "error",
+      "detail": "count=2366 channels=4"
+    },
+    {
+      "id": "proxy-health",
+      "ok": true,
+      "severity": "error",
+      "detail": "{\"revision\":\"v57.99\",\"sourceSha\":\"dc9e04e53022baf142fce6c11c54fa6a3e419d03\",\"ready\":true,\"authority\":\"us\"}"
+    },
+    {
+      "id": "proxy-exact-source-identity",
+      "ok": true,
+      "severity": "error",
+      "detail": "sourceSha=dc9e04e53022baf142fce6c11c54fa6a3e419d03"
+    },
+    {
+      "id": "proxy-source-revision",
+      "ok": false,
+      "severity": "error",
+      "detail": "live=v57.99 source=v57.98"
+    },
+    {
+      "id": "fast-plane-health",
+      "ok": true,
+      "severity": "error",
+      "detail": "{\"revision\":\"fast-quotes:e3571458\",\"sourceSha\":\"4aa691309f57cf1488ebe3044deacf5435d88bd3\",\"coverage\":\"16/16\"}"
+    },
+    {
+      "id": "fast-plane-exact-source-identity",
+      "ok": true,
+      "severity": "error",
+      "detail": "sourceSha=4aa691309f57cf1488ebe3044deacf5435d88bd3"
+    },
+    {
+      "id": "fast-plane-refresh-dispatcher (P1578)",
+      "ok": true,
+      "severity": "warning",
+      "detail": "schedulerDispatch={\"configured\":true,\"workflow\":\"refresh-data.yml\",\"slotMinutes\":[20,50],\"lastObservation\":{\"schemaVersion\":\"refresh-dispatch-receipt.v1\",\"observedAt\":\"2026-10-17T04:50:17.000Z\",\"dispatched\":false,\"reason\":\"recent-success\",\"runId\":39002190189,\"executionStatus\":\"NOT_OBSERVED\"},\"screenerDispatch\":{\"workflow\":\"refresh-screener.yml\",\"slotTimesUtc\":[\"07:25\",\"22:25\"],\"lastObservation\":{\"schemaVersion\":\"refresh-dispatch-receipt.v1\",\"observedAt\":\"2026-10-16T22:25:17.000Z\",\"dispatched\":false,\"reason\":\"recent-success\",\"runId\":38971558592,\"executionStatus\":\"NOT_OBSERVED\"}}} (set repository secret AIO_REFRESH_DISPATCH_TOKEN)"
+    },
+    {
+      "id": "fast-plane-refresh-dispatch-observation (P1595)",
+      "ok": true,
+      "severity": "warning",
+      "detail": "reason=recent-success age=25m; acceptance is not execution"
+    },
+    {
+      "id": "github-ci-latest-completed",
+      "ok": true,
+      "severity": "error",
+      "detail": "conclusion=success run=https://github.com/ysnle/aio-screener/actions/runs/39005158258"
+    },
+    {
+      "id": "github-pages-latest-completed",
+      "ok": true,
+      "severity": "error",
+      "detail": "conclusion=success run=https://github.com/ysnle/aio-screener/actions/runs/39005397385"
+    },
+    {
+      "id": "github-refreshMarket-cadence (P1596)",
+      "ok": true,
+      "severity": "warning",
+      "detail": "{\"ok\":true,\"ageMinutes\":15,\"latestGapMinutes\":40,\"reason\":\"observed-arrivals\"}"
+    },
+    {
+      "id": "github-refreshMarket-latest-completed",
+      "ok": true,
+      "severity": "error",
+      "detail": "conclusion=success run=https://github.com/ysnle/aio-screener/actions/runs/39004674607"
+    },
+    {
+      "id": "github-refreshScreener-latest-completed",
+      "ok": true,
+      "severity": "error",
+      "detail": "conclusion=success run=https://github.com/ysnle/aio-screener/actions/runs/39004829572"
+    },
+    {
+      "id": "github-watchdog-cadence (P1596)",
+      "ok": false,
+      "severity": "warning",
+      "detail": "{\"ok\":false,\"ageMinutes\":280,\"latestGapMinutes\":192,\"reason\":\"observed-arrivals\"}"
+    },
+    {
+      "id": "github-watchdog-latest-completed",
+      "ok": true,
+      "severity": "warning",
+      "detail": "conclusion=success run=https://github.com/ysnle/aio-screener/actions/runs/39005514564"
+    },
+    {
+      "id": "github-deployProxy-latest-completed",
+      "ok": true,
+      "severity": "error",
+      "detail": "conclusion=success run=https://github.com/ysnle/aio-screener/actions/runs/39003879043"
+    },
+    {
+      "id": "github-deployFast-latest-completed",
+      "ok": true,
+      "severity": "error",
+      "detail": "conclusion=success run=https://github.com/ysnle/aio-screener/actions/runs/39003879034"
+    },
+    {
+      "id": "pages-source-matches-attested-ci",
+      "ok": true,
+      "severity": "error",
+      "detail": "run=39005158258 sha=5557853fc15774180288bdcbded1c7247b0a4302 conclusion=success status=completed"
+    },
+    {
+      "id": "pages-deployment-run-provenance",
+      "ok": true,
+      "severity": "error",
+      "detail": "run=39005397385 sha=5557853fc15774180288bdcbded1c7247b0a4302 conclusion=success status=completed"
+    }
+  ],
+  "warnings": [],
+  "pages": {
+    "version": "v57.99",
+    "sourceSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+    "attestationRunId": 39005158258,
+    "deploymentRunId": 39005397385,
+    "configRevision": "v57.99",
+    "dataAgeMinutes": 54,
+    "screenerAgeMinutes": 7,
+    "telegramAgeMinutes": 54,
+    "snapshotRevision": "market-snapshot:2026-10-17T04:20:46.476Z:b3043e37"
+  },
+  "proxy": {
+    "revision": "v57.99",
+    "sourceSha": "dc9e04e53022baf142fce6c11c54fa6a3e419d03",
+    "ready": true,
+    "authority": "us"
+  },
+  "fast": {
+    "revision": "fast-quotes:e3571458",
+    "sourceSha": "4aa691309f57cf1488ebe3044deacf5435d88bd3",
+    "coverage": "16/16"
+  },
+  "github": {
+    "ci": {
+      "latest": {
+        "id": 39005158258,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39005158258",
+        "updatedAt": "2026-10-17T05:12:05Z"
+      },
+      "lastCompleted": {
+        "id": 39005158258,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39005158258",
+        "updatedAt": "2026-10-17T05:12:05Z"
+      }
+    },
+    "pages": {
+      "latest": {
+        "id": 39005511805,
+        "conclusion": "skipped",
+        "status": "completed",
+        "headSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39005511805",
+        "updatedAt": "2026-10-17T05:14:11Z"
+      },
+      "lastCompleted": {
+        "id": 39005397385,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39005397385",
+        "updatedAt": "2026-10-17T05:12:49Z"
+      }
+    },
+    "refreshMarket": {
+      "latest": {
+        "id": 39004674607,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "dc9e04e53022baf142fce6c11c54fa6a3e419d03",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39004674607",
+        "updatedAt": "2026-10-17T05:00:44Z"
+      },
+      "lastCompleted": {
+        "id": 39004674607,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "dc9e04e53022baf142fce6c11c54fa6a3e419d03",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39004674607",
+        "updatedAt": "2026-10-17T05:00:44Z"
+      },
+      "cadence": {
+        "ok": true,
+        "ageMinutes": 15,
+        "latestGapMinutes": 40,
+        "reason": "observed-arrivals"
+      }
+    },
+    "refreshScreener": {
+      "latest": {
+        "id": 39004829572,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "dc9e04e53022baf142fce6c11c54fa6a3e419d03",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39004829572",
+        "updatedAt": "2026-10-17T05:12:20Z"
+      },
+      "lastCompleted": {
+        "id": 39004829572,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "dc9e04e53022baf142fce6c11c54fa6a3e419d03",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39004829572",
+        "updatedAt": "2026-10-17T05:12:20Z"
+      }
+    },
+    "watchdog": {
+      "latest": {
+        "id": 39005514335,
+        "conclusion": "cancelled",
+        "status": "completed",
+        "headSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39005514335",
+        "updatedAt": "2026-10-17T05:14:15Z"
+      },
+      "lastCompleted": {
+        "id": 39005514564,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39005514564",
+        "updatedAt": "2026-10-17T05:14:50Z"
+      },
+      "cadence": {
+        "ok": false,
+        "ageMinutes": 280,
+        "latestGapMinutes": 192,
+        "reason": "observed-arrivals"
+      }
+    },
+    "deployProxy": {
+      "latest": {
+        "id": 39005511802,
+        "conclusion": "skipped",
+        "status": "completed",
+        "headSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39005511802",
+        "updatedAt": "2026-10-17T05:14:11Z"
+      },
+      "lastCompleted": {
+        "id": 39003879043,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "dc9e04e53022baf142fce6c11c54fa6a3e419d03",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39003879043",
+        "updatedAt": "2026-10-17T04:48:59Z"
+      }
+    },
+    "deployFast": {
+      "latest": {
+        "id": 39005511797,
+        "conclusion": "skipped",
+        "status": "completed",
+        "headSha": "5557853fc15774180288bdcbded1c7247b0a4302",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39005511797",
+        "updatedAt": "2026-10-17T05:14:11Z"
+      },
+      "lastCompleted": {
+        "id": 39003879034,
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "dc9e04e53022baf142fce6c11c54fa6a3e419d03",
+        "url": "https://github.com/ysnle/aio-screener/actions/runs/39003879034",
+        "updatedAt": "2026-10-17T04:48:22Z"
+      }
+    }
+  },
+  "gateStatus": "FAIL",
+  "attempt": 1
+}

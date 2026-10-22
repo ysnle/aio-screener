@@ -1,0 +1,20 @@
+async function _enrichTickerNews(prioSyms, data) {
+  let universeRows = [];
+  try { universeRows = JSON.parse(await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8')).universe || []; } catch (_) { universeRows = []; }
+  const meta = new Map(universeRows.filter((row) => row && row.sym).map((row) => [row.sym, row]));
+  const names = Object.fromEntries([...meta].map(([sym, row]) => [sym, row.name || '']));
+  // Universe order (largest names first) is the rotation order; ETFs and rows without a name are not covered.
+  // v57.51: the same ETF rule as breadth and SEC (sector SPDRs carry a GICS sector but index 'ETF').
+  const eligible = prioSyms.filter((sym) => data[sym] && meta.has(sym) && screenerAssetType(meta.get(sym)) !== 'ETF' && names[sym]);
+  let previous = {};
+  try { previous = expandScreenerArtifact(JSON.parse(await readFile(SCREENER_OUT, 'utf8'))).data || {}; } catch (_) { previous = {}; }
+  const nowMs = Date.now();
+  const plan = planTickerNewsTargets(eligible, nowMs);
+  const tickerNewsResults = await mapLimit(plan.targets, 3, async (sym) => {
+    const fetched = await fetchTickerNewsItems(sym, names[sym], 3);
+    return { sym, items: fetched.items, error: fetched.error, fetchedAt: new Date().toISOString() };
+  });
+  const counts = applyTickerNewsResults(data, { eligible, targets: plan.targets, results: tickerNewsResults, previous, names, nowMs });
+  console.log(`[fetch-data] ticker news rotation: ${plan.targets.length}/${eligible.length} targets (offset ${plan.offset}, ${plan.cycleRuns} runs/cycle) · ${JSON.stringify(counts)}`);
+  return counts.collected + counts.retained;
+}

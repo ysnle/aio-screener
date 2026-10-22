@@ -1,0 +1,4 @@
+path	status	sha256	utf16_chars	read_ranges	verdict
+js/aio-data.js	PARTIAL	9cf7bfc1423726daf379cec1ba2383f0140c9b3b62cbf4e0ca15268fe76bd6da	806316	utf16:[0,496000); 이전 boundary-reading.tsv의 line ranges 및 diff 전체 재사용	전문 검토 진행 중
+js/aio-kr-data.js	FULL	81d3d690cf7263b6694cfc8cb9c126874a59d4fa00e0c225efbf67be76e34dd6	105534	utf16:[0,105534); lines1-1940	전문 완료; native/legacy 실제 caller 경계 검토 중
+js/aio-pages.js	FULL	419b7411cb24cac4f4e2502423eda23524f235b86c3f2cf580c807f720fdb779	110919	utf16:[0,110919); lines1-1799	전문 완료; earning calendar 시간대 후보 검증 예정

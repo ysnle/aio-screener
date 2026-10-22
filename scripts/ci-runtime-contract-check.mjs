@@ -1295,7 +1295,7 @@ check('P875: quote change/value basis survives snapshot bridge, PriceStore, lega
 check('P1105: the history series feeds the field metadata its chart consumes',
   /valueBasis: meta\.valueBasis \|\| null/.test(data) &&
   /fieldMeta: arr\[i\]\.fieldMeta \|\| null/.test(data) &&
-  /row\.fieldMeta\?\.\[field\]/.test(read('src/domain/briefing/market-read.js'))); // P1425: close series read per-field metadata
+  /row\.fieldMeta\?\.\[field\]/.test(read('src/domain/market/close-series.js'))); // P1425: close series read per-field metadata (v58.64 DOMAIN #8: moved from briefing/market-read.js)
 // P1106: the FRED series table declares each series' display unit. Three series
 // were declared twice, so the earlier declaration was silently dead — editing it
 // had no effect. Every series must also declare the unit key explicitly, even
@@ -1535,7 +1535,7 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   const screener = read('src/ui/pages/screener.js');
   const terms = read('src/ui/components/term-marks.js');
   const entity = read('src/ui/pages/entity.js');
-  check('v57.61 맞춤 조건 chips keep focus across renders, the count note is a status and the chip list is not a live region', /chip\.dataset\.chip = condition\.id/.test(custom) && /findIn\(focusKey\[0\], focusKey\[1\]\)\?\.focus\(\)/.test(custom) && /\(removes\[index\] \|\| removes\[index - 1\] \|\| select\)\.focus\(\)/.test(custom) && /note\.setAttribute\('role', 'status'\)/.test(custom) && !/aria-live/.test(custom) && /signature !== lastSignature/.test(custom)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 맞춤 조건 chips keep focus across renders, the count note is a status and the chip list is not a live region', /chip\.dataset\.chip = chipKey\(condition\)/.test(custom) && /findIn\(focusKey\[0\], focusKey\[1\]\)\?\.focus\(\)/.test(custom) && /\(removes\[index\] \|\| removes\[index - 1\] \|\| select\)\.focus\(\)/.test(custom) && /note\.setAttribute\('role', 'status'\)/.test(custom) && !/aria-live/.test(custom) && /signature !== lastSignature/.test(custom)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 screener sort returns focus to the header button, non-sortable headers carry no aria-sort, hints reach assistive tech, search is debounced', /node\.dataset\.scrSort === column\)\?\.focus\?\.\(\)/.test(screener) && !/th\.setAttribute\('aria-sort', 'none'\);\n\s*\}/.test(screener) && !/정렬 적용|'적용'\}`\)/.test(screener) && /\$\{column\.label\}로 정렬/.test(screener) && /setAttribute\('aria-describedby', hintId\)/.test(screener) && /setTimeout\(\(\) => \{ searchTimer = null;[^}]*\}, 150\)/.test(screener)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 KR theme card header is keyboard operable', /kr-theme-header" role="button" tabindex="0"/.test(krData) && /e\.key === 'Enter' \|\| e\.key === ' '/.test(krData)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 term popover returns focus to its mark, exposes aria-expanded and closes when focus leaves', /mark\.setAttribute\('aria-expanded', 'false'\)/.test(terms) && /restore && hadFocus && mark\?\.isConnected/.test(terms) && /addEventListener\('focusout'/.test(terms)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour

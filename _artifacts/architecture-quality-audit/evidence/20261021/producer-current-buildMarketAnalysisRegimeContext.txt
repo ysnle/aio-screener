@@ -1,0 +1,34 @@
+function buildMarketAnalysisRegimeContext(data, history = []) {
+  try {
+    // Owner 2026-10-19: one shared interpretation (scripts/lib/market-interpretation-inputs.mjs), the same stages the
+    // screens and scenario-state.json read.
+    const input = marketAnalysisRegimeInput(data, history);
+    const readJson = (file) => { try { return JSON.parse(readFileSync(file, 'utf8')); } catch (_) { return null; } };
+    const state = readJson(SCENARIO_STATE_OUT);
+    const interpretation = interpretationFromArtifacts({ data, history, macroHistory: input.macroHistory, calendar: readJson(MACRO_CALENDAR_OUT), outcomes: readJson(SCENARIO_OUTCOMES_OUT), previous: state, nowMs: input.now });
+    const { regime, scenarios, outlook } = interpretation;
+    if (!regime?.available) return '';
+    const axes = (regime.axes || []).map((axis) => `${axis.label || axis.id}: ${axis.state}${axis.read ? ` — ${axis.read}` : ''}`).join('\n');
+    // v57.81 (owner 2026-10-15): the trend state with the Nasdaq-100 / Russell 2000 evidence rows and the leadership-break
+    // flag travel as their own lines, so the narrative cannot call the trend 양호 or say semis lead while the flag is on.
+    const trend = (regime.axes || []).find((axis) => axis.id === 'trend');
+    const trendLine = trend ? `추세 판정: ${trend.stateLabel || trend.state}${trend.testing ? ' (50일선 시험 구간)' : ''}${trend.capped ? ' (나스닥 100·러셀 2000 동반 약세로 중립 상한)' : ''} · 근거: ${(trend.evidence || []).map(([label, value]) => `${label} ${value}`).join('; ')}` : '';
+    const leadership = regime.leadership;
+    const leadershipLine = leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${leadership.summary}. 반도체·AI가 지금도 주도한다고 쓰지 말고, 최근 하락을 함께 적을 것.`
+      // v57.83: leaders weak without market-wide confirmation is not "아니오" — the narrative must not say they still lead.
+      : leadership?.state === 'weak' ? `주도 영역 이탈(leadershipBreak): 확산 미확인 — ${leadership.summary}. 반도체·AI가 지금도 주도한다고 쓰지 말고, 최근 하락을 함께 적을 것.`
+      : leadership?.state === 'holding' ? '주도 영역 이탈(leadershipBreak): 아니오.' : '주도 영역 이탈(leadershipBreak): 확인 불가.';
+    const conflicts = (regime.conflicts || []).length ? `엇갈리는 신호: ${regime.conflicts.join(' ')}` : '';
+    // Owner 2026-10-18: the semiconductor drawdown travels on its own line so the day's tension is weighed against oil and
+    // rates by the size of the move, not by how many headlines a topic got.
+    const smhRow = (trend?.evidence || []).find(([label]) => label === '반도체 (SMH)');
+    const semisLine = smhRow ? `반도체·AI 주도주: SMH ${smhRow[1]} — 오늘의 긴장을 고를 때 이 하락폭을 유가·금리 변화와 같은 기준(움직임의 크기와 판정 변화)으로 비교할 것.` : '';
+    // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
+    const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
+    const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
+    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, conflicts, axes,
+      renderMarketScenarioModel(scenarios), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(interpretation, state)].filter(Boolean).join('\n');
+  } catch (error) {
+    return '';
+  }
+}

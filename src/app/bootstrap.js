@@ -22,7 +22,7 @@ import { createPortfolioCommands } from './commands/portfolio.js';
 import { createScreenerCommands } from './commands/screener.js';
 import { selectSentimentSummary } from '../state/selectors/sentiment.js';
 import { createEvidenceStore } from '../data/evidence-store.js';
-import { clearArtifactCache } from '../data/artifact-cache.js';
+import { clearArtifactCache, stableFetcher } from '../data/artifact-cache.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
@@ -791,7 +791,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const forced = event?.detail?.forceRefresh === true;
       // v57.79: a manual refresh also drops the held validation/fiscal artifacts (maxAgeMs up to 6h) so a remounted
       // tab reads the newly published files instead of the pre-refresh copies.
-      if (forced && typeof root.fetch === 'function') clearArtifactCache(root.fetch.bind(root), { abortInFlight: false });
+      if (forced && typeof root.fetch === 'function') clearArtifactCache(stableFetcher(root), { abortInFlight: false });
       const due = forced || screenerArtifactReadDue();
       // A quotes-only run (the screener's own visible-row request) re-derives nothing here: quotes that arrived were
       // already announced by aio:liveQuotes below, and a run that got none (offline, unquoted 확장 names) changed

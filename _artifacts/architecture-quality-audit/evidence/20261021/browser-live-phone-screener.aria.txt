@@ -1,0 +1,103 @@
+Browser tab: 1, Title: "스크리너 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#screener".
+1 AXWebArea 스크리너 · AIO Screener, URL: ysnle.github.io/aio-screener/#screener
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	3 container
+		4 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		5 text 종가
+		6 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			7 text 10/20 마감 · 시세 16종 · 실시간 관측 29종 10/20 마감
+		8 text v58.52
+		9 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		10 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	11 container 스크리너, ID: page-screener
+		12 heading 스크리너, Value: 1, ID: page-screener-label
+			13 text 스크리너
+		14 text 가격 흐름과 공시 재무로 매긴 상대 순위와, 그 순위가 과거에 통했는지
+		15 text 팩터 관측 10-20 22:30 KST | 가격 08:11 KST
+		16 container Description: 지금 순위가 말하는 것, ID: screener-read
+		17 container screener-workbench
+			18 text 찾는 조건
+			19 text 실행 전 미리보기
+			20 checkbox 표 넓게 보기, Help: 왼쪽 메뉴를 접어 표를 넓게 봅니다, Value: 0
+			21 button 새 화면
+			22 button 저장
+			23 button 조건 실행
+			24 container Description: 조건 화면 — 종목을 거르는 규칙, 직접 저장한 화면 포함, ID: scr-workbench-presets
+			25 button (collapsed) 조건 직접 조합 · 결과 범위 · 실행 기록, Secondary Actions: Expand
+				26 text 조건 직접 조합 · 결과 범위 · 실행 기록
+		27 text 기본 균형 비중으로 합산
+		28 text  ·  총 
+		29 text —
+		30 text 종목 · 조건 통과 
+		31 text —
+		32 text  ·  그중 팩터 백분위 80 이상(반올림) 
+		33 text —
+		34 text  · 사용 팩터 
+		35 text —
+		36 button 표 범위 좁히기, Help: 조건·순위 결과는 그대로 두고 표에 보이는 행만 줄입니다
+		37 tab group 스크리너 보조 분석
+			38 tab (selected, settable, boolean) 랭킹, Value: 1, ID: scr-tab-button-ranking
+			39 tab (selectable, settable, boolean) 팩터·국면, Value: 0, ID: scr-tab-button-factors
+			40 tab (selectable, settable, boolean) 과거 검증, Help: 정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값, Value: 0, ID: scr-tab-button-backtest
+			41 tab (selectable, settable, boolean) 조건별 과거 통계, Value: 0, ID: scr-tab-button-evidence
+		42 container Description: 랭킹, ID: scr-tab-ranking
+			43 pop up button (collapsed, settable) Description: 시장 지수 필터, Value: 전체 지수, ID: scr-market, Secondary Actions: Expand
+				44 menu
+					45 (selected) 전체 지수
+			46 pop up button (collapsed, settable) Description: 섹터 필터, Value: 전체 섹터, ID: scr-sector, Secondary Actions: Expand
+				47 menu
+					48 (selected) 전체 섹터
+			49 pop up button (collapsed, settable) Description: 시가총액 필터, Value: 전체 시총, ID: scr-cap, Secondary Actions: Expand
+				50 menu
+					51 (selected) 전체 시총
+					52 초대형 ($1T 이상)
+					53 대형 ($10B~1T)
+					54 중형 ($2~10B)
+					55 소형 (<$2B)
+			56 text field (settable) Description: 스크리너 티커 이름 메모 검색, ID: scr-text-search
+			57 text 컬럼
+			58 pop up button (collapsed, settable) Description: 스크리너 컬럼 프리셋, Value: 발견, ID: scr-column-preset, Secondary Actions: Expand
+				59 menu
+					60 (selected) 발견
+					61 펀더멘털
+					62 추세·셋업
+					63 리스크
+					64 이벤트
+					65 전체
+			66 button 컬럼 선택, ID: scr-col-toggle-btn
+			67 container
+				68 text 0
+				69 text 종목
+			70 container 스크리너 결과 표 가로 스크롤 영역
+				71 table Description: 스크리너 결과 표, ID: screener-results-table
+					72 row
+						73 cell
+							74 text 순위 자료를 불러오는 중입니다.
+			75 text ★ 관심종목 · + 동일 기준 비교 · 행 선택으로 순위 근거 확인 · ‘—’는 값 없음
+			76 text 읽는 법
+			77 text 추세 속도 칼만 필터로 잡음을 걸러 낸 최근 추세의 하루 속도(+ 상승, − 하락). 확신도가 아니라 속도입니다. 예측력이 검증되지 않은 연구 지표라 상대 비교에만 씁니다 — 매매 신호가 아닙니다.
+			78 text 수축 구조(VCP)
+			79 text 변동성 수축과 피벗 근접도를 설명하는 가격 구조 지표. 이후 수익률이나 돌파 성공을 보장하지 않음 사용 원칙 상대 순위는 조사 후보를 좁히는 도구이며, 주문·포지션 결정에는 별도 검증이 필요 과거 검증
+			80 button 과거 검증 보기
+			81 text 과거 검증 탭에서 팩터별 검증 상세 확인
+		82 button (collapsed) 순위 가중치 바꾸기 — 과거 검증은 기본(균형) 비중만 했습니다, Secondary Actions: Expand
+			83 text 순위 가중치 바꾸기 — 과거 검증은 기본(균형) 비중만 했습니다
+		84 button (collapsed) 데이터 기준 · 검증 상태, Secondary Actions: Expand
+			85 text 데이터 기준 · 검증 상태
+		86 container 이 화면을 볼 때 — 속지 말 것과 원칙
+			87 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-screener-title
+				88 text 이 화면을 볼 때 — 속지 말 것과 원칙
+			89 content list
+				90 container
+					91 text 속지 말 것 '순위가 높으면 오른다' 스크리너의 순위는 조건에 맞는 정도를 정렬한 것이지 앞으로의 수익을 예측한 점수가 아닙니다. 순위가 수익과 같은 방향이었는지는 순위를 먼저 적어 두고 나중에 결과를 채운 기록으로만 말할 수 있습니다. 왜: 과거 데이터로 만든 순위는 살아남은 종목만 보는 편향과 우연에 쉽게 속습니다. 순위는 살펴볼 후보를 줄이는 도구입니다.
+					92 button '순위가 높으면 오른다' — 리서치 라이브러리에서 개념 배우기
+				93 container
+					94 text 속지 말 것 이미 멀리 달아난 뒤의 진입 평균선에서 평소 변동폭의 여러 배만큼 떨어진 뒤에는 작은 되돌림에도 손실 폭이 커집니다. 좋은 종목이어도 늘어난 자리는 좋은 자리가 아닐 수 있습니다. 왜: 가격은 평균선 쪽으로 되돌아가려는 경향이 있어, 멀어질수록 되돌림의 크기도 커집니다.
+					95 button 이미 멀리 달아난 뒤의 진입 — 리서치 라이브러리에서 개념 배우기
+				96 container
+					97 text 속지 말 것 '과거에 이랬으니 이번에도' 과거 비슷한 때의 결과는 참고일 뿐입니다. 표본이 적으면 우연일 수 있고, 전체 기간의 평균(기준선)과 다르지 않으면 그 조건만의 정보도 아닙니다. 왜: 과거 빈도는 늘 같은 기록 전체의 기준선과 표본 수를 함께 봐야 의미가 생깁니다.
+					98 button '과거에 이랬으니 이번에도' — 리서치 라이브러리에서 개념 배우기
+		99 button (collapsed) 데이터 출처, Secondary Actions: Expand
+			100 text 데이터 출처
+
+The focused UI element is 12 heading 스크리너, Value: 1, ID: page-screener-label

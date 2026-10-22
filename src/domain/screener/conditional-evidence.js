@@ -154,6 +154,7 @@ function normalizeObservation(row = {}) {
     eligible: row.eligible === true,
     success: typeof row.success === 'boolean' ? row.success : null,
     value: finite(row.value),
+    outcomeEndAtMs: timestampMs(row.outcomeEndAt),
     observedAt: lineage.observedAt,
     lineage
   });
@@ -171,6 +172,33 @@ function aggregatePerYear(rows, successPredicate, options) {
     buckets.get(year).push(row);
   });
   return Object.freeze(Object.fromEntries([...buckets.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([year, bucket]) => [year, rateSummary(bucket, successPredicate, options)])));
+}
+
+// v58.64 (architecture audit SCR05): READY counted lineage-passing rows as they came, so one past observation sent 30
+// times read READY 30/30. The sample unit is one instrument on one session: a repeated unit counts once, a row without
+// both ids cannot be a unit, and a later row of the same instrument that starts before the kept row's outcome window
+// ended overlaps it and is left out. Without an outcome end the overlap cannot be judged, so the sample is not READY.
+function independentSample(rows) {
+  const seen = new Set();
+  const lastEnd = new Map();
+  const kept = [];
+  let duplicateUnits = 0;
+  let missingUnits = 0;
+  let overlappingWindows = 0;
+  let unknownWindows = 0;
+  for (const row of rows) {
+    if (!row.instrumentId || !row.sessionId) { missingUnits += 1; continue; }
+    const unit = `${row.instrumentId}|${row.sessionId}`;
+    if (seen.has(unit)) { duplicateUnits += 1; continue; }
+    seen.add(unit);
+    const start = row.lineage.observedAtMs;
+    const previousEnd = lastEnd.get(row.instrumentId);
+    if (previousEnd != null && start != null && start < previousEnd) { overlappingWindows += 1; continue; }
+    if (row.outcomeEndAtMs == null) unknownWindows += 1;
+    lastEnd.set(row.instrumentId, row.outcomeEndAtMs ?? start);
+    kept.push(row);
+  }
+  return { rows: kept, duplicateUnits, missingUnits, overlappingWindows, unknownWindows, status: unknownWindows ? 'UNVERIFIED' : 'VERIFIED' };
 }
 
 export function evaluateConditionalEvidence({
@@ -206,7 +234,8 @@ export function evaluateConditionalEvidence({
     .filter(({ lineage }) => lineage.status === 'CURRENT_CANDIDATE')
     .sort((a, b) => (a.row.lineage.observedAtMs || 0) - (b.row.lineage.observedAtMs || 0))
     .map(({ row }) => row);
-  const eligibleRows = usableRows.filter((row) => safePredicate(eligible, row, false));
+  const independence = independentSample(usableRows);
+  const eligibleRows = independence.rows.filter((row) => safePredicate(eligible, row, false));
   const successRows = eligibleRows.filter((row) => safePredicate(success, row, false));
   const full = rateSummary(eligibleRows, success, options);
   const midpoint = Math.ceil(eligibleRows.length / 2);
@@ -234,7 +263,7 @@ export function evaluateConditionalEvidence({
         ? 'LOW_SAMPLE_BLOCKED'
         : full.trials < options.minSampleWarn
           ? 'LOW_SAMPLE'
-          : 'READY';
+          : independence.status !== 'VERIFIED' ? 'INDEPENDENCE_UNVERIFIED' : 'READY';
   return Object.freeze({
     version: CONDITIONAL_EVIDENCE_VERSION,
     lineageVersion: EVIDENCE_LINEAGE_VERSION,
@@ -252,6 +281,7 @@ export function evaluateConditionalEvidence({
     distribution: distribution(values),
     lineage,
     blockedReasons: Object.freeze([...blockedReasons]),
+    independence: Object.freeze({ status: independence.status, duplicateUnits: independence.duplicateUnits, missingUnits: independence.missingUnits, overlappingWindows: independence.overlappingWindows, unknownWindows: independence.unknownWindows }),
     excludedObservationCount: Math.max(0, normalizedRows.length - usableRows.length),
     lastObservedAt: usableRows.at(-1)?.observedAt || null,
     disclaimer: CONDITIONAL_EVIDENCE_DISCLAIMER

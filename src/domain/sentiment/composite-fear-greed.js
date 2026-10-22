@@ -7,7 +7,7 @@
 // Inputs are the published artifacts only: public-data/history.json rows (spx, vix, tlt, pcr,
 // advanceRatio, breadthNewHighs/Lows) and public-data/macro-history.json (hyOas, igOas).
 
-import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../briefing/market-read.js';
+import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../market/close-series.js';
 
 export const COMPOSITE_FEAR_GREED_VERSION = 'aio-sentiment-composite.v1';
 const RANK_WINDOW = 252;

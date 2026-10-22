@@ -803,6 +803,16 @@
           "script": "scripts/ci-codex-structure-regression-fixture.mjs"
         },
         {
+          "id": "architecture-audit-regression-fixture",
+          "script": "scripts/ci-architecture-audit-regression-fixture.mjs",
+          "inputs": [
+            "js/**",
+            "src/**",
+            "scripts/ci-architecture-audit-regression-fixture.mjs",
+            "public-data/sec-fundamentals-summary.json"
+          ]
+        },
+        {
           "id": "fiscal-quality-fixture",
           "script": "scripts/ci-fiscal-quality-fixture.mjs"
         },
@@ -1606,7 +1616,12 @@
         },
         {
           "id": "ledger-integrity",
-          "script": "scripts/ci-ledger-integrity-check.mjs"
+          "script": "scripts/ci-ledger-integrity-check.mjs",
+          "inputs": [
+            "_context/**",
+            "CHANGELOG.md",
+            "scripts/ci-ledger-integrity-check.mjs"
+          ]
         },
         {
           "id": "record-fix",
@@ -2915,6 +2930,15 @@
       "groups": [],
       "gates": [
         "assertion-trace"
+      ]
+    },
+    {
+      "patterns": [
+        "CHANGELOG.md"
+      ],
+      "groups": [],
+      "gates": [
+        "ledger-integrity"
       ]
     },
     {

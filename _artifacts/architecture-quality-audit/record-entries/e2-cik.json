@@ -1,0 +1,18 @@
+{
+  "version": "v58.63", "date": "2026-10-22",
+  "p": {
+    "title": "SEC CIK 대조표 10건이 다른 발행사를 가리켜 사업 설명·8-K가 남의 회사 자료로 표시",
+    "symptom": "BWXT·DUK·LUNR·PL·AFRM·AAOI·IREN·NXT·APP·HWM의 CIK가 SEC company tickers 값과 달라, 종목 화면의 사업 설명과 8-K가 다른 회사 공시를 읽었다(A01).",
+    "root_cause": "손으로 관리한 CIK_MAP과 SEC 응답의 tickers를 대조하지 않았다.",
+    "fix": "10건을 SEC 값으로 교정(XOM은 전신 CIK 유지, 승계 발행사는 별도). fetchSECBusinessDescription이 응답 tickers에 요청 티커가 없으면 '다른 회사로 확인됨'으로 보류하고 8-K도 같은 결과를 상속한다. AIO_DEBUG 저장소 읽기도 try 안으로.",
+    "violated_rule": "R663 종목은 정확한 등록 일치로만 해석하고 추측하지 않는다",
+    "prevention": "scripts/ci-architecture-audit-regression-fixture.mjs A01 대조(10개 티커 = SEC 값).",
+    "verification": "fixture PASS; SEC submissions 요약 값과 수기 대조."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-02", "text": "{P}: CIK 대조표의 감사 10개 티커가 SEC 값과 일치하고, 응답 tickers에 요청 티커가 없으면 사업 설명·8-K를 보류한다.", "verify_by": "node scripts/ci-architecture-audit-regression-fixture.mjs", "done": true }],
+  "qa_section": "아키텍처 품질 감사 v58.63",
+  "changelog": ["**발행사 식별 ({P}):** CIK 10건을 SEC 값으로 교정하고, SEC 응답의 티커가 요청과 다르면 사업 설명·8-K를 다른 회사 자료로 표시하지 않고 보류한다(A01)."],
+  "note": "아키텍처 품질 감사(Codex) 전 항목 재검증·구조 수정 + 미점검 영역 확장 점검. 로컬 검증; commit/push/deploy 미실행, Worker 재배포 필요(SEC01).",
+  "status": null
+}

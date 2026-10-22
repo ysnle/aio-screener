@@ -158,7 +158,7 @@ export function journalReview(closed = [], rules = {}) {
 }
 
 /** The reader's rules against the current book (weights in % of total assets incl. cash). Factual gaps only. */
-export function rulesMirror(rules = {}, { weights = [], cashPct = null, losses = [] } = {}) {
+export function rulesMirror(rules = {}, { weights = [], cashPct = null, losses = [], holdingCount = null } = {}) {
   const r = normalizeRules(rules);
   const rows = [];
   if (r.maxPositionPct != null) {
@@ -167,7 +167,7 @@ export function rulesMirror(rules = {}, { weights = [], cashPct = null, losses =
       text: !weights.length ? '평가액이 있는 보유 종목이 없습니다' : over.length ? `넘은 종목 ${over.map((row) => `${row.symbol} ${row.pct.toFixed(1)}%`).join(' · ')}` : `가장 큰 종목 ${weights.reduce((a, b) => (a.pct > b.pct ? a : b)).symbol} ${Math.max(...weights.map((row) => row.pct)).toFixed(1)}%` });
   }
   if (r.minCashPct != null) rows.push({ id: 'min-cash', label: `현금 최소 ${r.minCashPct}%`, ok: cashPct == null ? null : cashPct >= r.minCashPct, text: cashPct == null ? '현금이 입력되지 않았습니다' : `지금 현금 ${cashPct.toFixed(1)}%` });
-  if (r.maxPositions != null) rows.push({ id: 'max-positions', label: `보유 종목 최대 ${r.maxPositions}개`, ok: weights.length <= r.maxPositions, text: `지금 ${weights.length}개` });
+  if (r.maxPositions != null) { const count = holdingCount ?? weights.length; rows.push({ id: 'max-positions', label: `보유 종목 최대 ${r.maxPositions}개`, ok: count <= r.maxPositions, text: `지금 ${count}개` }); }
   if (r.stopLossPct != null) {
     const deep = losses.filter((row) => row.pnlPct <= -r.stopLossPct);
     rows.push({ id: 'stop-loss', label: `손절 -${r.stopLossPct}%`, ok: losses.length ? deep.length === 0 : null,

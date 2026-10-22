@@ -1,0 +1,43 @@
+{
+  "evidence": "Actual buildMarketRead with synthetic dated inputs; no provider/browser/live occurrence certified",
+  "decliningRealYield": {
+    "id": "real-yield-led",
+    "weight": 78,
+    "text": "10년물 5일 변화 중 실질금리 -20bp·기대인플레 -1bp(실질금리 1.50%).",
+    "reading": "물가보다 실질금리가 금리를 움직여, 주식 밸류에이션(PER)에 더 직접적인 부담입니다.",
+    "axis": "rates",
+    "check": "실질금리 상승이 멈추는지 — 멈추지 않으면 성장주 밸류에이션 부담 지속"
+  },
+  "risingPositiveControl": {
+    "id": "real-yield-led",
+    "weight": 78,
+    "text": "10년물 5일 변화 중 실질금리 +20bp·기대인플레 +1bp(실질금리 1.50%).",
+    "reading": "물가보다 실질금리가 금리를 움직여, 주식 밸류에이션(PER)에 더 직접적인 부담입니다.",
+    "axis": "rates",
+    "check": "실질금리 상승이 멈추는지 — 멈추지 않으면 성장주 밸류에이션 부담 지속"
+  },
+  "staleRateHistory": {
+    "threw": true,
+    "error": "Cannot read properties of null (reading 'yearPosition')"
+  },
+  "currentRatePositiveControl": {
+    "threw": false,
+    "rates": {
+      "id": "rates",
+      "title": "금리",
+      "state": "burden",
+      "stateLabel": "부담",
+      "read": "장기금리가 20거래일 +100bp 오른 구간 — 주식 할인율 부담.",
+      "flip": "10년물 20일 변화 +25bp 미만(현재 +100bp)이고, 1년 범위 위치가 80% 아래로 내려오거나 20일 상승이 +10bp 아래로 줄면 중립으로 바뀜",
+      "evidence": [
+        [
+          "미 10년물",
+          "6.95% (5거래일 +25bp, 20일 +100bp)"
+        ]
+      ],
+      "basis": "10/15",
+      "basisStatus": "aligned"
+    }
+  },
+  "sourceSha256": "4b060e595ee2fe83b2e236902d59acfa3aa4f44c8ae778fe949a95ea79c105df"
+}

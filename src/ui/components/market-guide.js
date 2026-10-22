@@ -84,7 +84,9 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
     library.append(el(doc, 'h4', LESSON_KINDS[kind], 'xr-h4'), group);
   }
   box.replaceChildren(
-    title, el(doc, 'p', guide.headline, 'xr-lead'), situation,
+    title, el(doc, 'p', guide.headline, 'xr-lead'),
+    ...(guide.pastConflicts || []).map((text) => el(doc, 'p', `과거 표본과 어긋남: ${text}`, 'xr-reading mg-past-conflict')),
+    situation,
     el(doc, 'h3', '여러 시나리오를 함께 놓고 보면', 'xr-h4'), choiceTable(doc, d), el(doc, 'p', d.text, 'xr-reading'),
     ...(costs ? [el(doc, 'p', '이 판단이 빗나갈 때의 기회비용', 'mg-costs-label'), costs] : []),
     stance,

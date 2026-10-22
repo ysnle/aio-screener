@@ -1,0 +1,231 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "fixedBlob": "b98994a205c84bb7a357d301dd965009d032dcd1",
+  "fixedSha256": "13e44cc8bf13b6d788b1cdb99504265ada4b2f1b49186e7ea40b36d54542ff22",
+  "currentSha256": "60e1d8d885e8b1bfaf632e105c93acb4e43b8c39fa5983136836e226d47f6227",
+  "evidence": "pure VM; DOM, canvas, timers and external script requests stubbed; no browser or real CDN claim",
+  "versions": [
+    {
+      "name": "fixed",
+      "classicInlineParsed": 3,
+      "missing": {
+        "points": [
+          [
+            "M",
+            12,
+            80
+          ],
+          [
+            "L",
+            160,
+            142
+          ],
+          [
+            "L",
+            308,
+            18
+          ]
+        ],
+        "text": [
+          "간이 표시 · 차트 도구를 불러오지 못했습니다"
+        ],
+        "requests": [
+          "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        ],
+        "timerDelays": [
+          5000
+        ],
+        "fallback": true,
+        "instanceReal": true
+      },
+      "zero": {
+        "points": [
+          [
+            "M",
+            12,
+            80
+          ],
+          [
+            "L",
+            160,
+            142
+          ],
+          [
+            "L",
+            308,
+            18
+          ]
+        ],
+        "text": [
+          "간이 표시 · 차트 도구를 불러오지 못했습니다"
+        ],
+        "requests": [
+          "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        ],
+        "timerDelays": [
+          5000
+        ],
+        "fallback": true,
+        "instanceReal": true
+      },
+      "valid": {
+        "points": [
+          [
+            "M",
+            12,
+            142
+          ],
+          [
+            "L",
+            160,
+            80
+          ],
+          [
+            "L",
+            308,
+            18
+          ]
+        ],
+        "text": [
+          "간이 표시 · 차트 도구를 불러오지 못했습니다"
+        ],
+        "requests": [
+          "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        ],
+        "timerDelays": [
+          5000
+        ],
+        "fallback": true,
+        "instanceReal": true
+      },
+      "missingEqualsZero": true,
+      "hanging": {
+        "points": [],
+        "text": [],
+        "requests": [
+          "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        ],
+        "timerDelays": [
+          5000
+        ],
+        "fallback": false,
+        "instanceReal": false
+      }
+    },
+    {
+      "name": "current",
+      "classicInlineParsed": 3,
+      "missing": {
+        "points": [
+          [
+            "M",
+            12,
+            80
+          ],
+          [
+            "L",
+            160,
+            142
+          ],
+          [
+            "L",
+            308,
+            18
+          ]
+        ],
+        "text": [
+          "간이 표시 · 차트 도구를 불러오지 못했습니다"
+        ],
+        "requests": [
+          "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        ],
+        "timerDelays": [
+          5000
+        ],
+        "fallback": true,
+        "instanceReal": true
+      },
+      "zero": {
+        "points": [
+          [
+            "M",
+            12,
+            80
+          ],
+          [
+            "L",
+            160,
+            142
+          ],
+          [
+            "L",
+            308,
+            18
+          ]
+        ],
+        "text": [
+          "간이 표시 · 차트 도구를 불러오지 못했습니다"
+        ],
+        "requests": [
+          "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        ],
+        "timerDelays": [
+          5000
+        ],
+        "fallback": true,
+        "instanceReal": true
+      },
+      "valid": {
+        "points": [
+          [
+            "M",
+            12,
+            142
+          ],
+          [
+            "L",
+            160,
+            80
+          ],
+          [
+            "L",
+            308,
+            18
+          ]
+        ],
+        "text": [
+          "간이 표시 · 차트 도구를 불러오지 못했습니다"
+        ],
+        "requests": [
+          "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        ],
+        "timerDelays": [
+          5000
+        ],
+        "fallback": true,
+        "instanceReal": true
+      },
+      "missingEqualsZero": true,
+      "hanging": {
+        "points": [],
+        "text": [],
+        "requests": [
+          "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+          "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        ],
+        "timerDelays": [
+          5000
+        ],
+        "fallback": false,
+        "instanceReal": false
+      }
+    }
+  ]
+}

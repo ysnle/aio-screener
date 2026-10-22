@@ -296,18 +296,17 @@ try {
   // 표시되고, (b) 개인 키를 실은 URL은 공유 Worker로 중계되지 않으며 PRIVATE_ROUTE_REQUIRED
   // 사유 힌트로 거부된다 — 릴레이 2순위 배선이 개인 키를 공유 Worker에 넘기지 않는다는 것을
   // 브라우저에서 확인한다.
+  // v58.63 (architecture audit C5): half (a) read #macro-2y-value, retired above, so it was skipped on every run; source
+  // names also moved off the numbers into the folded 데이터 출처 (owner 2026-10-06). Only the live half (b) is asserted.
   const cred05 = await page.evaluate(async () => {
-    const sourceLabel = document.getElementById('macro-2y-source')?.textContent || '';
-    const twoYearValue = document.getElementById('macro-2y-value')?.textContent || '';
     let failure = null;
     try {
       await window.fetchViaProxy('https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=PERSONAL_KEY', { timeout: 1500, parseJson: true });
     } catch (err) {
       failure = { code: (err && err.code) || null, hint: (err && err.hint) || '' };
     }
-    return { sourceLabel, twoYearValue, failure };
+    return { failure };
   });
-  if (cred05.twoYearValue.trim() && !/FRED|DGS2/.test(cred05.sourceLabel)) throw new Error(`QA-CRED-05 FRED source label missing on the macro route: ${JSON.stringify(cred05)}`);
   if (!cred05.failure || cred05.failure.code !== 'PRIVATE_ROUTE_REQUIRED' || !/개인 키/.test(cred05.failure.hint) || !/공유 Worker/.test(cred05.failure.hint)) {
     throw new Error(`QA-CRED-05 a credential-bearing URL must be rejected with PRIVATE_ROUTE_REQUIRED and a reason hint under shared-worker-only routing: ${JSON.stringify(cred05)}`);
   }

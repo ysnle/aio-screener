@@ -1,0 +1,66 @@
+C:\Program Files\nodejs\node.exe .cache/audit-consolidation-20261022/run-affected.mjs
+[qa] RUN syntax
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] PASS version (233ms)
+[qa] RUN architecture
+[qa] PASS product-charter (328ms)
+[qa] RUN native-decision
+[qa] PASS native-decision (368ms)
+[qa] RUN vertical-slice
+[qa] PASS vertical-slice (208ms)
+[qa] RUN capability-claims
+[qa] PASS capability-claims (217ms)
+[qa] RUN operations-contract
+[qa] PASS operations-contract (311ms)
+[qa] RUN reference-curriculum
+[qa] PASS reference-curriculum (196ms)
+[qa] RUN route-registry
+[qa] PASS route-registry (180ms)
+[qa] RUN generated-state
+[qa] PASS architecture (2188ms)
+[qa] RUN workspace-contract
+[qa] PASS generated-state (652ms)
+[qa] RUN qa-runner-behavior
+[qa] PASS workflow-yaml (6805ms)
+[qa] PASS workspace-contract (4173ms)
+[qa] PASS syntax (16325ms)
+[qa] PASS qa-runner-behavior (31517ms)
+[qa] RUN knowledge-lint
+[qa] RUN workflow-compaction
+[qa] RUN skill-contract
+[qa] RUN skill-evals
+[qa] PASS skill-evals (109ms)
+[qa] RUN agent-profiles
+[qa] PASS agent-profiles (107ms)
+[qa] RUN agent-skills
+[qa] PASS skill-contract (275ms)
+[qa] RUN live-header-policy
+[qa] PASS workflow-compaction (305ms)
+[qa] RUN operator-provisioning
+[qa] PASS live-header-policy (104ms)
+[qa] RUN doc-currency
+[qa] PASS agent-skills (226ms)
+[qa] RUN ledger-integrity
+[qa] PASS operator-provisioning (170ms)
+[qa] RUN record-fix
+[qa] PASS doc-currency (119ms)
+[qa] RUN generated-conflict-fixture
+[qa] PASS ledger-integrity (132ms)
+[qa] RUN assertion-trace
+[qa] PASS knowledge-lint (812ms)
+[qa] RUN text-pin-ratchet
+[qa] PASS assertion-trace (779ms)
+[qa] RUN qa-pipeline-contract
+[qa] PASS text-pin-ratchet (772ms)
+[qa] PASS qa-pipeline-contract (1036ms)
+[qa] PASS record-fix (6344ms)
+[qa] PASS generated-conflict-fixture (6729ms)
+[qa] SUMMARY profile=affected run=2026-10-22T00-59-07-343Z-1892-2a294l groups=preflight,workspace pass=29 cached=0 fail=0 skip=0 duration=52.2s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-22T00-59-07-343Z-1892-2a294l.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+
+
+git diff --check -- _artifacts/architecture-quality-audit _context/INDEX.md _context/CONTEXT-CATALOG.json _context/CURRENT-STATE.md
+

@@ -1,0 +1,10 @@
+{
+  "observedAt": "2026-10-20T23:16:50.688Z",
+  "version": "v58.52",
+  "url": "https://ysnle.github.io/aio-screener/?mode=frames#principles",
+  "action": "HBM 검색 결과 표시 후 검색 입력에서 Tab",
+  "before": "10개 검색 결과 표시됨",
+  "after": "결과 목록 사라짐, document.activeElement=BODY",
+  "source": "src/ui/knowledge/research-shell.js:276 blur 시 180ms 뒤 results.hidden=true",
+  "boundary": "실제 Pages 브라우저의 키보드 경로. 다른 브라우저/보조기술 전수 인증 아님"
+}

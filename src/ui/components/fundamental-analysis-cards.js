@@ -3,6 +3,7 @@
 // collected says "수집 대기 · 다음 SEC 갱신 후 표시"; a filer that does not tag an item says so — never a zero.
 import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, REVERSE_DCF_DEFAULTS } from '../../domain/fundamental/analysis-read.js';
 import { formatUsdShort } from '../../domain/fundamental/fiscal-read.js';
+import { fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { el } from './dom.js';
 
 export const COLLECTION_PENDING_LABEL = '수집 대기 · 다음 SEC 갱신 후 표시';
@@ -221,7 +222,7 @@ export function rdCard(doc, history) {
     const bar = el(doc, 'span', null, `v2-fiscal-trend__bar${year.ratio == null ? ' is-na' : ''}`);
     bar.style.height = `${year.ratio == null ? 4 : Math.max(6, year.ratio / max * 100).toFixed(1)}%`;
     col.title = `${year.periodEnd} ${year.ratio == null ? 'R&D 공시 없음' : `R&D ${formatUsdShort(year.rd)} · 매출의 ${pct(year.ratio)}`}`;
-    col.append(el(doc, 'span', year.ratio == null ? '—' : pct(year.ratio), 'v2-fiscal-trend__value'), bar, el(doc, 'span', `FY${year.periodEnd.slice(2, 4)}`, 'v2-fiscal-trend__year'));
+    col.append(el(doc, 'span', year.ratio == null ? '—' : pct(year.ratio), 'v2-fiscal-trend__value'), bar, el(doc, 'span', fiscalYearShortLabel(year.periodEnd), 'v2-fiscal-trend__year'));
     trend.append(col);
   }
   const lede = `${read.latest.label} 연구개발비 ${formatUsdShort(read.latest.rd)} — 매출의 ${pct(read.latest.ratio)}${read.deltaPp != null ? ` (${read.first.label} ${pct(read.first.ratio)}에서 ${Math.abs(read.deltaPp) < 0.5 ? '비슷한 수준' : `${read.deltaPp > 0 ? '+' : '−'}${Math.abs(read.deltaPp).toFixed(1)}%p`})` : ''}.${read.latestIsNewest ? '' : ' 최근 회계연도에는 R&D가 따로 표시되지 않았습니다.'}`;

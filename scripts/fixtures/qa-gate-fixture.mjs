@@ -15,6 +15,14 @@ if (mode === 'timed') {
   await new Promise((resolve) => setTimeout(resolve, 150));
   appendFileSync(record, JSON.stringify({ id, event: 'end' }) + '\n');
 }
+// v58.63 (A25): the outcome comes from a file outside the gate identity, so the same fingerprint can pass then fail.
+if (mode === 'toggle') {
+  const { readFileSync } = await import('node:fs');
+  const path = args[args.indexOf('--path') + 1];
+  let state = 'pass';
+  try { state = readFileSync(path, 'utf8').trim(); } catch {}
+  if (state === 'fail') { console.error('intentional toggle fail'); process.exit(1); }
+}
 if (mode.startsWith('fail')) {
   console.error(`intentional ${mode}`);
   process.exit(1);

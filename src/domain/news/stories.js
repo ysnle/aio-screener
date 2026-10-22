@@ -15,7 +15,11 @@ export function newsArticleKey(row) {
 // P1730: the provisional post-08:00 slot. The 08:00 bundle stays canonical; this slot holds only headlines published at
 // or after that bundle's end that the bundle does not already carry (same link or title), newest first, at most `max`.
 // A headline that a newer bundle absorbs leaves the slot because its time falls before that bundle's end.
-export function selectIntradayNews(rows = [], { cycleEndMs = null, canonical = [], max = 6, nowMs = Date.now() } = {}) {
+// Live audit 2026-10-21: six slots covered the whole day after the 08:00 cut (Korean session, US pre-market and session);
+// at 22:00 KST the rebound's US-Iran and SpaceX coverage competed with gold and French bonds for them. One limit for the
+// producer, the page and the AI context.
+export const NEWS_INTRADAY_MAX = 12;
+export function selectIntradayNews(rows = [], { cycleEndMs = null, canonical = [], max = NEWS_INTRADAY_MAX, nowMs = Date.now() } = {}) {
   if (!Number.isFinite(cycleEndMs)) return [];
   const linkOf = (row) => value(row?.link || row?.url).replace(/[?#].*$/, '').replace(/\/$/, '').toLowerCase();
   const titleOf = (row) => value(row?.title || row?.headline).replace(/\s+/g, ' ').toLowerCase();

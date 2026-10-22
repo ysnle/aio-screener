@@ -1,0 +1,107 @@
+Browser tab: 2, Title: "테마 · 섹터 · AIO Screener", URL: "http://127.0.0.1:8795/#themes".
+0 AXWebArea 테마 · 섹터 · AIO Screener, URL: 127.0.0.1:8795/#themes
+	4 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/#main-content
+	5 container Description: 메인 네비게이션, ID: aio-navigation
+		6 container
+			7 text AIO Investment Screener
+		8 text 데일리
+		9 button 오늘 페이지
+		10 text 시장
+		11 button 시장 상태 페이지
+		12 button 거시 · 금리 페이지
+		13 button 테마 · 섹터 페이지
+		14 text 내 투자
+		15 button 종목 페이지
+		16 button 스크리너 페이지
+		17 button 포트폴리오 페이지
+		18 text 리서치
+		19 button 리서치 라이브러리 페이지
+		20 button 용어 사전 페이지
+		21 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			22 text 라이트 모드로 전환
+		23 text AI 도우미
+		46 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		25 text GPT-6 Luna · 공용 AI 연결
+		26 text 개인 AI 키 입력 없이 이용합니다.
+		39 button (collapsed) 연결 상태, Secondary Actions: Expand
+			40 text 연결 상태
+		27 button (collapsed) 보안 설정, Secondary Actions: Expand
+			28 text 보안 설정
+	29 container
+		30 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		50 text 테마 · 섹터
+		48 text 종가
+		49 text 서버 10/19 마감 · 시세 16종
+		43 text v58.50
+		36 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		37 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	51 container 테마 · 섹터, ID: page-themes
+		52 heading 테마 · 섹터, Value: 1, ID: page-themes-label
+			53 text 테마 · 섹터
+		54 text 어느 업종·테마의 가격이 시장보다 앞서는지 — 섹터 상대강도 회전과 세부 테마 순위
+		55 container Description: 산점도 범위, ID: rrg-view-tabs
+			56 button 11섹터
+			57 button 세부 업종
+			58 button 전체
+		59 text — 경기 국면 확인 중
+		60 container 섹터 회전 판정, ID: themes-verdict
+			61 heading 섹터 회전 판정, Value: 2, ID: themes-verdict-title
+				62 text 섹터 회전 판정
+			63 text 섹터 상대강도 기록을 읽는 중입니다.
+			64 container rrg-chart-block
+				65 text 시세 수신 대기... (26개 수신)
+				66 image Description: 섹터 상대강도 산점도 — 가로축 시장 대비 상대강도, 세로축 상대강도 변화 속도. 사분면별 섹터 목록은 아래 접힌 칸에 있습니다., ID: rrg-canvas
+			67 button (collapsed) 사분면별 섹터, Secondary Actions: Expand
+				68 text 사분면별 섹터
+		69 text 섹터 1일·1주 등락 성과와 사분면 상태
+		70 button (collapsed) Description: 섹터 RS 설명, Secondary Actions: Expand
+		71 container Description: 막대 범위, ID: sector-perf-view-tabs
+			72 button 11섹터
+			73 button +세부 업종
+		74 container Description: 기간, ID: sector-perf-tabs
+			75 button 1일
+			76 button 1주
+		77 container sector-perf-bars
+			78 text XLK 기술
+			79 text — ●대기 XLF 금융
+			80 text — ●대기 XLE 에너지
+			81 text — ●대기 XLV 헬스케어
+			82 text — ●대기 XLI 산업재
+			83 text — ●대기 XLY 소비재
+			84 text — ●대기 XLP 필수소비
+			85 text — ●대기 XLRE 부동산
+			86 text — ●대기 XLB 원자재
+			87 text — ●대기 XLU 유틸리티
+			88 text — ●대기 XLC 통신
+			89 text — ●대기
+		90 container Description: S&P 500 지도, ID: sector-map
+			91 text 스크리너 수익률 수신 대기
+		92 container Description: 세부 테마 상대강도 순위, ID: theme-strength-board
+			93 text 스크리너 수익률 수신 대기
+		94 container Description: AI 설비투자 흐름, ID: ai-capex-flow
+		95 button (collapsed) 한국 시장 — 국내 테마 (KRX 28개 테마) 펼치기, ID: kr-themes-summary, Secondary Actions: Expand
+			96 text 한국 시장 — 국내 테마 (KRX 28개 테마)
+			97 text 펼치기
+		98 container 이 화면을 볼 때 — 속지 말 것과 원칙
+			99 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-themes-title
+				100 text 이 화면을 볼 때 — 속지 말 것과 원칙
+			101 content list
+				102 container
+					103 text 전략 · 기법 지수보다 참여와 주도 영역 보기 지수는 시가총액이 큰 몇 종목이 끌고 갈 수 있습니다. 얼마나 많은 종목이 함께 오르는지(시장 폭)와 주도 영역이 버티는지가 흐름의 체력을 보여 줍니다. 근거: 주도 영역이 꺾이는 신호가 확인됐습니다(나스닥 100 5거래일 -3.7% · 
+					104 pop up button (collapsed) 50일선, Secondary Actions: Expand
+					105 text  -1.1% · 1년 고점 대비 -5.4% · 신저가 40, 신고가 28(10/14) · S&P 500 
+					106 pop up button (collapsed) 분배일, Secondary Actions: Expand
+					107 text  6일 · 러셀 2000 
+					108 pop up button (collapsed) 200일선, Secondary Actions: Expand
+					109 text  대비 -2.4%).
+					110 button 지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기
+				111 container
+					112 text 속지 말 것 '많이 빠졌으니 싸다' 가격이 내렸다고 싸진 것은 아닙니다. 이익 전망이 함께 내려가면 가격이 내려도 밸류에이션은 그대로이거나 오히려 비싸집니다. 근거: 오늘 추세가 부담이거나 주도 영역이 꺾이는 중입니다.
+					113 button '많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기
+				114 container
+					115 text 속지 말 것 '과거에 이랬으니 이번에도' 과거 비슷한 때의 결과는 참고일 뿐입니다. 표본이 적으면 우연일 수 있고, 전체 기간의 평균(기준선)과 다르지 않으면 그 조건만의 정보도 아닙니다. 근거: 'AI 투자 꺾임'의 과거 비교는 73번이지만 전체 기준선과 구별되지 않아, 이 움직임만으로는 방향을 말할 수 없습니다.
+					116 button '과거에 이랬으니 이번에도' — 리서치 라이브러리에서 개념 배우기
+		117 button (collapsed) 데이터 출처, Secondary Actions: Expand
+			118 text 데이터 출처
+
+The focused UI element is 52 heading 테마 · 섹터, Value: 1, ID: page-themes-label

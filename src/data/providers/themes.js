@@ -149,7 +149,30 @@ export function createThemesProvider({
         .find((theme) => String(theme?.id || '') === String(selectedId || '')) || null;
       let selectedDetail = null;
       if (selectedTheme) {
-        const quotePct = (symbol) => runtimeQuote(live, symbol).pct ?? selectProducedRotation(producedArtifact, symbol, observationNow)?.dailyPct ?? null;
+        const detailSymbols = new Set();
+        [selectedTheme.etf, selectedTheme.compositeBase, ...(selectedTheme.leaders || []), ...(selectedTheme.leaderHighlight || [])].forEach((symbol) => {
+          if (symbol) detailSymbols.add(String(symbol));
+        });
+        (selectedTheme.subThemes || []).forEach((sub) => {
+          if (sub?.etf) detailSymbols.add(String(sub.etf));
+          (sub?.tickers || []).forEach((symbol) => detailSymbols.add(String(symbol)));
+        });
+        const liveQuotes = Object.fromEntries([...detailSymbols].map((symbol) => [symbol, runtimeQuote(live, symbol)]));
+        // v57.70 (2026-10-15 audit): live quotes are polled for the core symbols only, so a theme's 48 constituents stayed
+        // "시세 대기" while the screener held their completed-close moves. One basis per detail: live when it covers at
+        // least 60% of the constituents, else the published completed-close move of the session most of them share.
+        const closeRows = readScreenerRows();
+        const closeBasis = closeQuotesFor([...detailSymbols], closeRows);
+        const liveCovered = [...detailSymbols].filter((symbol) => liveQuotes[symbol].pct != null).length;
+        const useClose = closeBasis.session && liveCovered < Math.ceil(detailSymbols.size * 0.6);
+        // v58.63 (architecture audit D2): in completed-close mode a constituent without that session's close is missing —
+        // it is no longer filled with a live quote, and the hero move and breadth come from the same close set as the
+        // rows (the hero move used to be computed live-first before the basis was chosen).
+        const missingClose = { price: null, pct: null, rawPct: null, currency: null, observedAt: null, fetchedAt: null, revision: null, changeBasis: 'completed-close', directionCompatible: false, closeBased: true, missing: true };
+        const quotes = useClose ? Object.fromEntries([...detailSymbols].map((symbol) => [symbol, closeBasis.quotes[symbol] || missingClose])) : liveQuotes;
+        const quotePct = useClose
+          ? (symbol) => { const close = closeQuotesFor([symbol], closeRows).quotes[symbol]; return close && close.observedAt === closeBasis.session ? close.pct : null; }
+          : (symbol) => runtimeQuote(live, symbol).pct ?? selectProducedRotation(producedArtifact, symbol, observationNow)?.dailyPct ?? null;
         const etfPct = selectedTheme.etf ? quotePct(selectedTheme.etf) : null;
         const basePct = selectedTheme.compositeBase ? quotePct(selectedTheme.compositeBase) : null;
         const leaderPcts = (selectedTheme.leaders || []).map(quotePct).filter((value) => value != null);
@@ -170,22 +193,6 @@ export function createThemesProvider({
           : basePct != null ? selectedTheme.compositeBase
           : weightedPct != null ? 'weighted-leaders'
           : leaderPcts.length ? 'leader-average' : 'quote-missing';
-        const detailSymbols = new Set();
-        [selectedTheme.etf, selectedTheme.compositeBase, ...(selectedTheme.leaders || []), ...(selectedTheme.leaderHighlight || [])].forEach((symbol) => {
-          if (symbol) detailSymbols.add(String(symbol));
-        });
-        (selectedTheme.subThemes || []).forEach((sub) => {
-          if (sub?.etf) detailSymbols.add(String(sub.etf));
-          (sub?.tickers || []).forEach((symbol) => detailSymbols.add(String(symbol)));
-        });
-        const liveQuotes = Object.fromEntries([...detailSymbols].map((symbol) => [symbol, runtimeQuote(live, symbol)]));
-        // v57.70 (2026-10-15 audit): live quotes are polled for the core symbols only, so a theme's 48 constituents stayed
-        // "시세 대기" while the screener held their completed-close moves. One basis per detail: live when it covers at
-        // least 60% of the constituents, else the published completed-close move of the session most of them share.
-        const closeBasis = closeQuotesFor([...detailSymbols], readScreenerRows());
-        const liveCovered = [...detailSymbols].filter((symbol) => liveQuotes[symbol].pct != null).length;
-        const useClose = closeBasis.session && liveCovered < Math.ceil(detailSymbols.size * 0.6);
-        const quotes = useClose ? Object.fromEntries([...detailSymbols].map((symbol) => [symbol, closeBasis.quotes[symbol] || liveQuotes[symbol]])) : liveQuotes;
         const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => quotes[symbol]).filter((quote) => quote && (quote.price != null || quote.closeBased) && quote.directionCompatible && quote.pct != null && Number.isFinite(Number(quote.pct))); // P1575: a leader without a move is not counted as down
         const breadth = pricedLeaders.length >= Math.max(2, Math.ceil((selectedTheme.leaders || []).length * 0.6))
           ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct) > 0).length / pricedLeaders.length * 100)

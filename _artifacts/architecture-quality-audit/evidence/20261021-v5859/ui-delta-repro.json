@@ -1,0 +1,50 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "proofLevel": "isolated-functions; not browser",
+  "productionSha256": {
+    "portfolio": "612a6c3ad89e6cf96a8c6fa3750d8bd460b4b009711b84fb6dfd044f64a4f964",
+    "screener": "ad6f0f9449f3c99e556e90df8c7cbde6ed51712dc1da9cf35de2d1b5d29f9e04"
+  },
+  "capResult": [
+    {
+      "symbol": "SMALL",
+      "tablePosition": 1,
+      "displayedHash": 2
+    },
+    {
+      "symbol": "LARGE",
+      "tablePosition": 2,
+      "displayedHash": 1
+    }
+  ],
+  "mixedBondStockSector": {
+    "displayedPct": 50,
+    "actualPctOfStockPart": 100,
+    "note": "renderPortfolioLens says 주식 평가액 but denominator includes TLT, an exact bond ETF in the pinned asset-class map"
+  },
+  "missingPrice": {
+    "actualHoldings": 2,
+    "lensHoldings": 1,
+    "effectiveN": 1,
+    "note": "hero note says 평가액 있는 1종목; excluded-price count is not a separate defect"
+  },
+  "icVsSpread": {
+    "crossSections": 12,
+    "rowsEach": 100,
+    "icT": 61408.78204887533,
+    "spreadT": 1.1212121212121209,
+    "displayedState": "favorable",
+    "displayedDistinguishable": true,
+    "note": "same-model fingerprint stub only avoids importing unrelated model constants; IC/spread are computed from the same return rows"
+  },
+  "accountBasis": {
+    "positionValue": 100,
+    "cash": 9900,
+    "totalAssets": 10000,
+    "exposurePct": 1,
+    "displayedBeta": 1,
+    "accountBetaWithConstantSameCurrencyCash": 0.01,
+    "weeks": "35주 주간 수익률 · 설명력 R² 1.00",
+    "note": "pinned derivePortfolioSurface + cash/fx + estimateBookSensitivities; history-reader schema adapter only, no FX; bond card unused stub"
+  }
+}

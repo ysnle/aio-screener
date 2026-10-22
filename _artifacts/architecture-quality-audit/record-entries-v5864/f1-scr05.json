@@ -1,0 +1,18 @@
+{
+  "version": "v58.64", "date": "2026-10-23",
+  "p": {
+    "title": "조건부 통계 READY가 같은 표본의 반복·겹치는 결과 창을 독립 표본으로 셈",
+    "symptom": "같은 과거 관측 1개를 30번 넘기면 READY·30/30·100%가 됐다(SCR05). 같은 종목의 결과 창이 겹친 관측도 각각 셌다. 현재 화면 소비자는 없고 계약 게이트만 읽는 잠복 결함이다.",
+    "root_cause": "표본 단위(종목·세션)와 비중첩 조건이 정의되지 않아 lineage 통과 행을 그대로 셌다.",
+    "fix": "표본 단위를 종목+세션으로 정하고, 반복 단위는 한 번, 두 식별자 중 하나라도 없으면 제외, 같은 종목에서 앞선 결과 창(outcomeEndAt) 안에 시작한 관측은 제외한다. 결과 창 끝을 모르면 READY 대신 INDEPENDENCE_UNVERIFIED. 결과에 independence(중복·누락·겹침·미상 창 수)를 싣는다.",
+    "violated_rule": "R706 과거 빈도는 겹치지 않는 사례로 센다",
+    "prevention": "scripts/ci-conditional-evidence-contract.mjs SCR05 반례(반복·창 미상·겹침)와 양성 대조, ci-architecture-audit-regression-fixture.",
+    "verification": "conditional-evidence-contract PASS(35 checks), fixture PASS."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-10", "text": "{P}: 같은 관측의 반복·겹치는 결과 창·결과 창 미상 표본은 READY가 되지 않는다.", "verify_by": "node scripts/ci-conditional-evidence-contract.mjs", "done": true }],
+  "qa_section": "아키텍처 감사 후속 v58.64",
+  "changelog": ["**조건부 통계 독립성 ({P}):** 표본 단위를 종목·세션으로 정하고 반복·겹치는 결과 창을 제외하며, 결과 창 끝을 모르면 READY로 올리지 않는다(SCR05)."],
+  "note": "아키텍처 감사 후속: 결정 항목 권장안 적용(SCR05·M1·M2·I02·DOMAIN #8), 유사 결함 클래스 전수 확인·수정, 레거시 화면 브라우저 확인. 로컬 검증; commit/push/deploy 미실행, Worker 재배포는 push 후.",
+  "status": null
+}

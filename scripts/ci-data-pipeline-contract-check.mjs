@@ -636,7 +636,8 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     check('P1688/T08 the commentary prompt carries completed closes only and an in-session value needs 장중 + its time',
       !timed.issues.length && untimed.issues.includes('intraday-time-missing:market.kospi')
         && /const promptEvidence = metricEvidence\.filter\(\(row\) => !row\.session \|\| MARKET_ANALYSIS_CLOSED_SESSIONS\.includes\(row\.session\)\)/.test(source)
-        && /promptEvidence\.slice\(0, 16\)/.test(source) && /금리\(10Y\)의 변화는 bp로만/.test(source) && !/현금 비중을 두는 쪽이 유리할 가능성/.test(source),
+        // v58.62: 24 rows — the evidence tier (5) plus Tier 0, macro and F&G no longer fit in 16.
+        && /promptEvidence\.slice\(0, 24\)/.test(source) && /금리\(10Y\)의 변화는 bp로만/.test(source) && !/현금 비중을 두는 쪽이 유리할 가능성/.test(source),
       JSON.stringify({ timed: timed.issues, untimed: untimed.issues }));
   }
 }
@@ -1094,10 +1095,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     row('Nvidia shares fall as chip stocks slide', 'CNBC', h(8), { topic: 'semi', country: 'us' }),
     row('Wall Street futures slip; S&P 500 eyes CPI', 'CNBC', h(8.5), { topic: 'macro', country: 'us' }),
     row('Copper falls on China demand worries', 'Bloomberg', h(9), { topic: 'fxbond', country: 'global' })
-  ], { cycleEndMs: end, nowMs: now, canonical: [{ title: 'Gold hits record as investors seek safety', link: 'x', source: 'FT' }] });
+  ], { cycleEndMs: end, nowMs: now, max: 6, canonical: [{ title: 'Gold hits record as investors seek safety', link: 'x', source: 'FT' }] });
   const titles = picked.map((item) => item.title);
   check('P1720 intraday slot: after the cut, tier 1-2, filters, one per event (bundle included), <=2 per publisher, Korean first, max 6',
-    picked.length === NEWS_INTRADAY_MAX && picked.filter((item) => item.market === 'kr').length === 2
+    NEWS_INTRADAY_MAX === 12 && picked.length === 6 && picked.filter((item) => item.market === 'kr').length === 2
       && picked.every((item) => item.tier <= 2 && Date.parse(item.publishedAt) >= end && item.provisional === true && item.source && item.topic && item.market)
       && !titles.some((t) => /next Nvidia|Old bundle|Gold hits|1,340원대/.test(t)) && titles.filter((t) => /코스피 5% 급락/.test(t)).length === 1
       && picked.filter((item) => item.source === 'CNBC').length <= 2
@@ -2447,6 +2448,62 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && /WTI 장중 \d\d:\d\d KST 기준 -2\.62%/.test(prompt) && /^- 확인·반증: 다음 대형주 실적\(10\/21, 미국 시각\): 장 전 TMO \/ 장 마감 후 META·TSLA·LRCX/m.test(prompt)
       && /Stocks Make a U-Turn on Hopes of U\.S\.-Iran Diplomacy \[WSJ\] date=10\/21/.test(prompt) && /직전 미국 장 마감\(10\/20 16:00 ET\) 뒤/.test(prompt)
       && nextEarningsLine({ earnings: [] }, '2026-10-20') === '', prompt.match(/^MARKET_DRIVERS[\s\S]{0,900}/m)?.[0] || 'no MARKET_DRIVERS');
+}
+
+{
+  // v58.62 (live 2026-10-21): the reading explained KOSPI +3.3% only as "AI 투자심리 회복" while Nasdaq 100 futures were
+  // +0.99% after SpaceX's AI-capex headline — semis, US futures and Asia were not evidence it could cite. The snapshot now
+  // carries an optional evidence tier (SMH, ES=F, NQ=F, ^N225, ^HSI). Fixture: the same 02:21Z run, with the tier's
+  // provider values for that minute built through the real snapshot builder; no model call.
+  const fx = JSON.parse(readFileSync(join(root, 'scripts/fixtures/market-analysis-20261021.json'), 'utf8'));
+  const tier = JSON.parse(readFileSync(join(root, 'scripts/fixtures/market-analysis-evidence-tier-20261021.json'), 'utf8'));
+  const va = await import('./lib/market-analysis-validate.mjs');
+  const { buildMarketSnapshot } = await import('./build-market-snapshot.mjs');
+  const { genMarketAnalysis } = await import('./producer/market-narrative.mjs');
+  const nowMs = Date.parse(tier.nowMs);
+  const built = buildMarketSnapshot({ quotes: tier.quotes, attemptedAt: tier.nowMs, source: 'fixture', now: nowMs });
+  const snapshot = { ...fx.snapshot, evidenceQuotes: built.snapshot.evidenceQuotes };
+  const opts = { context: fx.context, history: fx.history };
+  const issuesOf = (text, snap = snapshot) => va.validateMarketAnalysisText(text, fx.data, snap, opts).issues;
+  const evidence = va.buildMarketAnalysisEvidence(fx.data, { snapshot });
+  check('v58.62 the evidence tier reaches the reading only from the snapshot (SMH closed, NQ/Nikkei/Hang Seng in session); without the tier there is no such row',
+    ['market.semis', 'market.nasdaq100-futures', 'market.nikkei', 'market.hangseng'].every((id) => evidence.some((row) => row.metricId === id))
+      && evidence.find((row) => row.metricId === 'market.semis')?.session === 'MARKET_CLOSED'
+      && !va.buildMarketAnalysisEvidence(fx.data, { snapshot: fx.snapshot }).some((row) => va.EVIDENCE_TIER_METRIC_IDS.includes(row.metricId)),
+    JSON.stringify(evidence.map((row) => `${row.metricId}:${row.session}`)));
+  const reading = ['코스피는 10/20 종가 -3.73%(5거래일 -8.00%)로 밀렸고, WTI는 10/20 종가 -1.80%였지만 5거래일로는 +8.13% 올라 있었다[regime-context].',
+    '10/20 블룸버그 보도에 따르면 코어위브 채권 급락이 AI 인프라 자금 조달 우려로 번졌다 — 반도체·대형 기술주에 부담이 몰린 배경으로 거론됐다.',
+    '지금은 코스피 장중 11:01 KST 기준 +4.48%로 반대 방향이며, 10/21 연합뉴스 속보(잠정)에 따르면 매수 사이드카가 발동됐다.',
+    '10/21 Business Insider 보도에 따르면 SpaceX의 AI 설비투자 확대 전망이 반도체 반등을 이끌었고, 10/21 WSJ 보도에 따르면 미국·이란 외교 기대가 증시의 방향을 돌렸다.',
+    '같은 시각 나스닥 100 선물은 장중 11:10 KST 기준 +0.99%, 닛케이 225는 장중 11:10 KST 기준 +1.12%로 함께 올랐고, 반도체 ETF(SMH)는 10/20 종가 -0.38%로 아직 반등 전이었다.',
+    '시장 상태는 다소 부담이고 지금 흐름은 「소수 주도 → 동반 약세 전환 확인 중」 — 조건 충족 2/3이며, 추세 부담 조건은 아직 빠져 있다[regime-context].'].join('\n');
+  const futuresAlone = '나스닥 100 선물은 +0.99% 올랐다.';
+  const variants = {
+    reading: issuesOf(reading),
+    wrongFutures: issuesOf(reading.replace('+0.99%', '+1.99%')),
+    wrongSemis: issuesOf(reading.replace('-0.38%', '+2.40%')),
+    futuresNoTime: issuesOf(reading.replace('추세 부담 조건은 아직 빠져 있다[regime-context].', `추세 부담 조건은 아직 빠져 있다[regime-context].\n${futuresAlone}`)),
+    // Before v58.62 "S&P 500 선물" was read as the S&P 500 itself and checked against its +0.28% close.
+    spxFutures: issuesOf(reading.replace('나스닥 100 선물은', 'S&P 500 선물은 장중 11:10 KST 기준 +0.58%, 나스닥 100 선물은'))
+  };
+  check('v58.62 a reading that cites the NQ futures and Nikkei moves (장중 + KST time) and the SMH close publishes; a wrong futures or semis change, an untimed futures move, or futures read as the cash index block',
+    !variants.reading.length && variants.wrongFutures.includes('metric-change-mismatch:market.nasdaq100-futures') && variants.wrongSemis.includes('metric-change-mismatch:market.semis')
+      && variants.futuresNoTime.includes('intraday-time-missing:market.nasdaq100-futures') && !variants.spxFutures.some((issue) => /market\.spx/.test(issue)),
+    JSON.stringify(variants));
+  const prompts = [];
+  const stub = async (prompt) => { prompts.push(prompt); return { text: `${reading}\n${va.MARKET_SENTENCE_LABEL} 오늘의 반등은 AI 투자 기대의 복귀인가, 하락 뒤 숨 고르기인가?` }; };
+  const warn = console.warn; const log = console.log; console.warn = () => {}; console.log = () => {};
+  let run;
+  try { run = await genMarketAnalysis(fx.data, snapshot, { previous: null, request: stub, nowMs, history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings }); } finally { console.warn = warn; console.log = log; }
+  const prompt = prompts[0] || '';
+  // The run builds its own REGIME_CONTEXT from the history tail, so its other verdict checks differ from the fixture
+  // context; only the evidence tier's own issues are asserted absent here.
+  check('v58.62 the prompt carries the SMH close in METRIC_EVIDENCE and the futures/Asian in-session moves under CROSS_MARKET_INTRADAY',
+    /^METRIC_EVIDENCE:[\s\S]*?^- market\.sector\.semis:\w+ SMH=546\.36 USD change=-0\.38% vs previous close/m.test(prompt)
+      && /^CROSS_MARKET_INTRADAY [^\n]*\n(?:- [^\n]*\n)*?- market\.futures\.nasdaq100:\w+ NQ=29970\.25 index change=\+0\.99% vs previous close 장중 11:10 KST/m.test(prompt)
+      && /- market\.index\.nikkei225:\w+ Nikkei=64789\.89 index change=\+1\.1\d% vs previous close 장중 11:10 KST/.test(prompt)
+      && !(run?.semanticIssues || []).some((issue) => /market\.(?:semis|nasdaq100-futures|nikkei|hangseng)/.test(issue)),
+    JSON.stringify({ status: run?.status, issues: run?.semanticIssues, cross: prompt.match(/^CROSS_MARKET_INTRADAY[\s\S]{0,700}/m)?.[0] || 'no CROSS_MARKET_INTRADAY' }));
 }
 
 if (errors.length) {

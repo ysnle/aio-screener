@@ -1,0 +1,105 @@
+{
+  "assembledAtUtc": "2026-10-17 05:20:36 UTC",
+  "note": "Command output receipts assembled after execution; no exact per-process start timestamp is claimed.",
+  "results": [
+    {
+      "cmd": "node scripts/generate-workspace-state.mjs --check",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "add956",
+        "wall_time_seconds": 3.5835435,
+        "exit_code": 0,
+        "original_token_count": 16,
+        "output": "Workspace state OK: v57.98, 19 routes, 77 context documents.\n"
+      }
+    },
+    {
+      "cmd": "node scripts/ci-workspace-contract-check.mjs",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "17de41",
+        "wall_time_seconds": 5.3404426,
+        "exit_code": 0,
+        "original_token_count": 23,
+        "output": "Workspace contract OK: v57.98, 77 context docs, 9 skills, 4 agent profiles, 13 workflows.\n"
+      }
+    },
+    {
+      "cmd": "node scripts/ci-knowledge-lint-check.mjs",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "694463",
+        "wall_time_seconds": 4.0820421,
+        "exit_code": 0,
+        "original_token_count": 184,
+        "output": "Knowledge lint warnings:\n - _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md contains replacement-character encoding damage: historical evidence remains explicit-only until recovered from Git history\n - _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md contains replacement-character encoding damage: historical evidence remains explicit-only until recovered from Git history\n - _context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md last_verified is 56d old: threshold=45d\n - _context/RESEARCH-INTEGRATION-SUPPLIED-MATERIALS-2026-08-29.md last_verified is 49d old: threshold=45d\nKnowledge lint OK: 77 context documents, 39 prescriptive surfaces, 4 warning(s). Mechanical PASS does not certify semantic truth.\n"
+      }
+    },
+    {
+      "cmd": "node scripts/ci-skill-contract-check.mjs",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "8a9534",
+        "wall_time_seconds": 3.5481633,
+        "exit_code": 0,
+        "original_token_count": 15,
+        "output": "Skill contract check OK: 9 skill(s), 9 command wrapper(s).\n"
+      }
+    },
+    {
+      "cmd": "node scripts/ci-skill-eval-fixture-check.mjs",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "44023a",
+        "wall_time_seconds": 3.4020033,
+        "exit_code": 0,
+        "original_token_count": 25,
+        "output": "Skill eval fixtures OK: 9 skills, 27 cases; behavioral execution remains a separate evidence level.\n"
+      }
+    },
+    {
+      "cmd": "node scripts/ci-ledger-integrity-check.mjs",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "a5d631",
+        "wall_time_seconds": 3.43518,
+        "exit_code": 0,
+        "original_token_count": 52,
+        "output": "[ledger-integrity] QA open items: 195 | without verify_by: 100 (baseline 100) | RULES R719, gaps 5\nLedger integrity OK: R gap set is frozen and every new open QA item must declare how it will be re-verified.\n"
+      }
+    },
+    {
+      "cmd": "node scripts/ci-assertion-trace-check.mjs",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "167ff0",
+        "wall_time_seconds": 3.8477904,
+        "exit_code": 0,
+        "original_token_count": 25,
+        "output": "Assertion trace OK: 3334 labelled assertions, 1057 grandfathered (baseline 1109), 0 new untraced.\n"
+      }
+    },
+    {
+      "cmd": "node scripts/sync-agent-profiles.mjs --check",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "2e1398",
+        "wall_time_seconds": 3.3631320000000002,
+        "exit_code": 0,
+        "original_token_count": 17,
+        "output": "Agent profiles verified: 4 profile(s), Claude and Codex surfaces.\n"
+      }
+    },
+    {
+      "cmd": "node scripts/sync-agent-skills.mjs --check",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "3b560c",
+        "wall_time_seconds": 3.4895262000000002,
+        "exit_code": 0,
+        "original_token_count": 12,
+        "output": "Agent skill mirror OK: 53 file(s) synchronized.\n"
+      }
+    }
+  ]
+}

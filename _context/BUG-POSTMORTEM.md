@@ -1,10 +1,154 @@
 ---
-last_verified: 2026-10-21
+last_verified: 2026-10-23
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P1973 - v58.64 - 감사 결함 클래스의 다른 발생: NOT 조건 설명, 포트폴리오 입력 삭제, 한국 시세 null 예외, CIK 전체 대조 부재 (2026-10-23)
+
+- symptom/reproduction: 스크리너 조건 설명이 NOT 노드를 'NOT 하위 조건 0개'로 표시했다(SCR01 클래스: child 간선 누락). 미등록 티커 확인을 기다리는 동안 입력한 다음 보유 종목이 저장 후 지워졌다(BND01 클래스). 한국 테마 칩·원달러·미국 10년물 칸은 가격이 null이면 toFixed에서 예외가 나 렌더가 끊겼다(A05 클래스). CIK 표는 감사에서 찾은 10건만 검사했다(A01 클래스).
+- root_cause: 각 결함을 발견된 위치에서만 고치고 같은 클래스의 다른 위치를 찾지 않았다.
+- fix: NOT 노드는 '제외: <필드> 조건'으로 설명. 포트폴리오 추가는 제출 시점 입력을 저장해 같을 때만 비우고 입력 패널을 닫는다. 가격 null·비유한 검사로 바꾼다. 회귀 픽스처가 CIK 표 전체(179개)를 SEC 요약 산출물과 대조하고, 의도적 전신 CIK(XOM)만 이름으로 예외 처리한다.
+- violated_rule: R628 결측은 0도 조건 충족도 관측값도 아니다; R663 종목은 정확한 등록 일치로만
+- prevention: ci-architecture-audit-regression-fixture CIK 전체 대조(gate inputs에 public-data/sec-fundamentals-summary.json), 로컬 브라우저 포트폴리오·관심목록 흐름 확인.
+- verification/residual: fixture PASS. 브라우저에서 저장 중 입력 MSFT 유지·입력 불변 시 정리 확인, 사용자 데이터 복원.
+
+## P1972 - v58.64 - AI 채팅 헤더의 자산 간 상관(computeCrossAssetCorrelation)이 항상 '데이터 부족'인 죽은 계산 (2026-10-23)
+
+- symptom/reproduction: _priceHistory 항목은 숫자인데 함수는 p.price를 읽어 모든 시계열이 비었고, 매번 insufficient_data를 돌려 AI 헤더의 'Cross-Asset 국면' 줄은 한 번도 나오지 않았다. 입력도 30초 틱이라 이름과 달리 '30일 상관'이 될 수 없었고, 상수 시계열은 상관 0으로 반환했다(SCR02와 같은 클래스).
+- root_cause: 수집기(숫자 배열)와 소비자(객체 배열) 형식이 어긋났고, 테스트는 함수 존재와 상태 문자열만 확인했다.
+- fix: 함수와 채팅 헤더 줄, 감사 사이드바 항목, T660/T661/T668, 마크업을 퇴역했다. 자산 간 읽기는 네이티브 시장 해석 모델이 맡는다.
+- violated_rule: R628 결측은 조건도 구간도 관측값도 만족시키지 않는다(존재 검사만으로 통과시키지 않는다)
+- prevention: 퇴역 — 소비자·테스트·마크업 참조 0건 확인.
+- verification/residual: 참조 grep 0건, node --check PASS, 브라우저 콘솔 예외 없음.
+
+## P1971 - v58.64 - 시장 가이드가 분기 수 집계를 '비용이 작은 쪽'으로 표현하고, 같은 원인을 나눠 쓴 분기에 선택이 흔들림 (2026-10-23)
+
+- symptom/reproduction: softland·oilshock에서 hold가 뽑히다가, 같은 축(원자재)의 oilshock를 두 번 더 쓰면 시장 사실 변화 없이 wait로 바뀌었다(I02). 헤드라인과 대응 문장은 이 집계를 '비용이 작은 쪽'으로 불러 최소 기대비용처럼 읽혔다. 시나리오 상태 생산자의 변경 기록도 같은 표현을 썼다.
+- root_cause: 분기 수를 독립 근거처럼 셌고, 집계의 의미보다 강한 결론 문구를 붙였다.
+- fix: 같은 거시 축을 공유하는 분기는 하나의 근거 묶음으로 묶어(axisClusters) 점수를 낸다. 헤드라인·대응·생산자 문구는 '유리하다고 가장 많이 적힌 선택'으로 한정하고 '확률이나 최소 비용의 증명은 아님'을 붙였다. 시나리오가 없을 때도 '틀렸을 때 비용이 작다'는 일반화를 빼고 기본 자세로만 말한다.
+- violated_rule: R265 외부 도구·이론과 같다고 주장하면 그 정의와 정확히 일치
+- prevention: ci-architecture-audit-regression-fixture I02(같은 축 복제는 선택 불변, 다른 축은 별도 묶음), HEAD 대조에서 hold→wait 재현.
+- verification/residual: fixture·market-guide-fixture PASS, 로컬 브라우저 오늘 화면 헤드라인 문구 확인.
+
+## P1970 - v58.64 - 산출물 캐시가 소유자를 fetch 함수 이름으로 식별해 루트 간 혼합·강제 새로고침 누락 (2026-10-23)
+
+- symptom/reproduction: bind된 fetch는 모두 'bound fetch'라는 같은 이름이라 다른 transport·테스트 루트가 같은 저장소를 공유할 수 있었다(M1). 지식 화면(atlas·principles·masters)은 bind하지 않은 root.fetch로 별도 저장소를 써서, 수동 강제 새로고침이 그 캐시를 비우지 못했다.
+- root_cause: 호출마다 새 bind 함수를 만들어 정체성 키가 무의미해졌고, 이를 이름 키로 보완했다.
+- fix: artifact-cache에 stableFetcher(root)를 두어 루트마다 하나의 bound fetch를 재사용하고 저장소는 함수 정체성으로만 키를 잡는다. 모든 호출부(bootstrap 강제 새로고침, shared-artifacts, us-listings, fiscal/portfolio/stock-read, screener, atlas, principles, masters)를 전환했다.
+- violated_rule: R632 입력/읽기 계약 일치
+- prevention: scripts/ci-artifact-cache-check.mjs: 같은 루트 재사용·강제 재조회·지우기, 같은 이름 fetch를 가진 두 루트의 저장소 분리.
+- verification/residual: artifact-cache-check PASS.
+
+## P1969 - v58.64 - 조건부 통계 READY가 같은 표본의 반복·겹치는 결과 창을 독립 표본으로 셈 (2026-10-23)
+
+- symptom/reproduction: 같은 과거 관측 1개를 30번 넘기면 READY·30/30·100%가 됐다(SCR05). 같은 종목의 결과 창이 겹친 관측도 각각 셌다. 현재 화면 소비자는 없고 계약 게이트만 읽는 잠복 결함이다.
+- root_cause: 표본 단위(종목·세션)와 비중첩 조건이 정의되지 않아 lineage 통과 행을 그대로 셌다.
+- fix: 표본 단위를 종목+세션으로 정하고, 반복 단위는 한 번, 두 식별자 중 하나라도 없으면 제외, 같은 종목에서 앞선 결과 창(outcomeEndAt) 안에 시작한 관측은 제외한다. 결과 창 끝을 모르면 READY 대신 INDEPENDENCE_UNVERIFIED. 결과에 independence(중복·누락·겹침·미상 창 수)를 싣는다.
+- violated_rule: R706 과거 빈도는 겹치지 않는 사례로 센다
+- prevention: scripts/ci-conditional-evidence-contract.mjs SCR05 반례(반복·창 미상·겹침)와 양성 대조, ci-architecture-audit-regression-fixture.
+- verification/residual: conditional-evidence-contract PASS(35 checks), fixture PASS.
+
+## P1968 - v58.63 - follow-through의 '연중'·'52주 저점'이 2년치 생산자 시계열 전체로 계산됨 (2026-10-22)
+
+- symptom/reproduction: 스크리너 생산자는 2년치 종가(FACTOR_HISTORY_RANGE '2y')를 넘기는데, climaxSigns의 연중 최대 상승일·거래량과 상승 폭 기준 저점, baseCount의 '52주 신저점 리셋'이 2년 전체로 계산됐다. 1년 전 급등이 최근 10일의 최대 상승·거래량 신호를 가렸고, 52주 신저점(2년 저점 위)에서는 베이스 수가 리셋되지 않았다.
+- root_cause: 정의(R713 임계값 문서, 함수 주석)는 52주인데 함수가 입력 길이를 그대로 창으로 썼고, 단위 테스트가 1년 미만 시계열만 썼다.
+- fix: climaxSigns는 마지막 rangeSessions(252) 세션만, baseCount는 직전 252세션 이동 최저 종가(단조 큐)로 리셋을 판정한다.
+- violated_rule: R713 판정 이름은 그 이름을 정의하는 조건이 있을 때만 붙인다
+- prevention: scripts/ci-architecture-audit-regression-fixture.mjs 2년 시계열 반례(climax·base)와 양성 대조.
+- verification/residual: fixture PASS, ci-esm-core-unit-check PASS. HEAD 대조에서 climax=['run-up-days'], base=1 재현. 생산자 값은 다음 갱신부터 바뀐다.
+
+## P1967 - v58.63 - Worker가 이미 상류로 보낸 요청의 실패에도 쿼터 예약을 되돌림 (2026-10-22)
+
+- symptom/reproduction: 상류 호출이 시작된 뒤 예외가 나면 예약한 월 쿼터가 반환돼, 비용이 발생한 호출이 예산에 잡히지 않았다(SEC01).
+- root_cause: catch가 '보내기 전 실패'와 '보낸 뒤 실패'를 구분하지 않았다.
+- fix: fetchUpstream 직전에 dispatched=true를 두고, catch는 소유한 예약이면서 아직 보내지 않았을 때만 반환한다.
+- violated_rule: 공용 AI 월예산 정책(AGENTS 2026-10-11)
+- prevention: worker 오프라인 계약 테스트 대상; 라이브 반영은 Worker 재배포 후.
+- verification/residual: node --check PASS. Worker 재배포 전이라 라이브 미반영.
+
+## P1966 - v58.63 - 게이트 오라클 결함: 결함을 재현한 입력에서도 통과하던 QA 러너·원장·CSP·접근성·추적·생산자 게이트 (2026-10-22)
+
+- symptom/reproduction: qa-runner 캐시 지문이 import한 파일을 보지 않아 의존 모듈만 바뀌면 이전 통과를 재사용했고(A06), 실패한 게이트를 다시 요청해도 캐시 통과를 썼으며(A25), 없는 게이트 id는 조용히 0개 실행으로 끝났다(A26). 원장 게이트는 R 번호 결손을 CHANGELOG 인용에서 보지 못했고(A14), record-fix는 'v59' 같은 주 버전을 거절했다(A27). CSP 래칫은 index.html만 셌고(C14, 실제 210건), 접근성 게이트는 select의 옵션 목록을 이름으로 읽고 80건 뒤 위반을 잘랐다(C1). 추적 게이트는 node:assert·조건 먼저 check 메시지를 보지 않았고(C4), 생산자·지식 게이트는 0건 필수·검증 안 된 시세(C7), 매니페스트 원복 누락(C6), unitId 일대일(A22), 시드 충돌(A23), 미해결 범주(A24)를 통과시켰다. 드라이버 expectText는 숨은 텍스트로 통과했고(C10) 워크플로 마커는 충돌 커밋에도 기록됐다(A21).
+- root_cause: 게이트를 만들 때 막으려는 결함이 실제로 그 게이트를 실패시키는지(음성 대조)를 확인하지 않았다.
+- fix: import 폐포 지문, 실패 게이트 캐시 무효·삭제, 미해결 id exit 2, CHANGELOG R 인용 포함 최대 R, 주 버전(v59)도 받는 버전 형식, CSP는 js/·src/ 전체(기준 450→210), 접근성 이름 계산·전체 판정 뒤 표본, 추적 게이트 메시지 호출·무메시지 래칫, 생산자 health required>0·validateMarketSnapshot, 매니페스트 원복, unitId 일대일, 충돌 실패, 미해결 범주만 거절, checkVisibility, collision 시 마커 미기록. 텍스트 고정 단언(P789·P790·P797–P799·P831·P859)은 행동 단언만 남기고 제거(C3).
+- violated_rule: R712 게이트 지표는 서식 변경으로 만족되지 않는다
+- prevention: ci-qa-runner-behavior-check A25·A26 사례(HEAD 러너로 음성 대조 실패 확인), ci-record-fix-check v99 사례, ci-ledger-integrity R719 삭제 음성 대조.
+- verification/residual: qa-runner-behavior·record-fix-check(78)·ledger-integrity·csp(210/210)·architecture-contract·premise PASS. 접근성·브라우저 게이트는 실행 안 함.
+
+## P1965 - v58.63 - 레거시 UI 상태 경쟁: 관심목록 대상, 한국 테마 필터, 위험 패널 재진입, 포커스, 힌트 데이터, 저장소 예외, SW 캐시 범위 (2026-10-22)
+
+- symptom/reproduction: 티커 확인 중 목록을 바꾸면 다른 목록에 추가되거나 입력이 지워졌다(BND01). 한국 테마 카드가 다시 그려지면 열기·업종 필터가 풀리고 포커스를 잃었다(LEGACY02). 보유 종목이 바뀐 뒤 늦게 끝난 위험 계산이 새 화면을 덮었다(LEGACY03). 포커스 이탈 처리(A13), 지운 힌트의 listingQuery(C01), 저장소 차단 시 부팅 예외(A19), 다른 앱의 aio- 이외 캐시 삭제(C09)도 있었다.
+- root_cause: 비동기 완료 시점에 요청 당시 상태를 다시 확인하지 않았고, 다시 그리기가 필터 상태를 DOM에만 두었다.
+- fix: 관심목록 요청이 listId·입력값을 들고 가서 원래 목록에만 쓰고 입력이 그대로일 때만 비운다. 한국 테마 필터는 {heat, sector} 상태로 다시 그린 뒤 재적용·포커스 복원. 위험 계산은 epoch·보유 스냅샷이 같을 때만 반영. 힌트 dataset 삭제, 저장소 읽기 try, SW는 aio-shell/aio-data 접두만 정리.
+- violated_rule: R628 (5) 한 렌더러의 예외가 다음 렌더를 취소하지 않도록 호출 경계를 둔다
+- prevention: 레거시 경로는 브라우저 흐름(verify-aio)로 확인 대상. ci-architecture-contract-check 행동 단언 유지.
+- verification/residual: node --check PASS; 브라우저 상호작용은 미확인(다음 browser QA 대상).
+
+## P1964 - v58.63 - 기준·범위 불일치: 시장 읽기, 실적 주간, 회계연도, 포트폴리오 읽기, 즉석 종목 캐시, 권리, 거시 갈림길, 화면 연결 (2026-10-22)
+
+- symptom/reproduction: 시장 읽기(A02, A03)와 분석 읽기(A07, A08)가 다른 기준일 값을 섞었고, 회계연도 표기가 화면마다 달랐다. 실적 주간 달력이 브라우저 시간대·주말에 다른 주를 열었다(A04). 포트폴리오 읽기가 범위를 벗어난 값을 썼고(A09, A10), 즉석 종목 결과가 유니버스 갱신 뒤에도 재사용됐다(D3). 검토 필요·거부 권리 id가 판단 자료로 통과했고 가격 권리 grant가 빠졌다(D5, D6). 리플레이션 조건이 일부 신호만 봤고(M02) 3분할 흐름이 다른 필드를 섞었다(M03). 개념 id 정규식, 통화가 다른 원가의 손익(UI-02), 지도 이동 경로(UI-04), 대가 신고 비교 기간(UI-05), 과거 충돌 문장 누락(I01)도 어긋났다.
+- root_cause: 기준일·시장 시간대·권리 상태·유니버스 버전 같은 기준이 생산자와 소비자에 각각 다시 정의돼 있었다.
+- fix: 공용 fiscalYearShortLabel, 뉴욕 날짜 기준 실적 주간(주말엔 다음 주), 유니버스 키(행 수+factorSessionDate)로 즉석 캐시 무효화, isDecisionEligibleRightsId, priceAllowedUseGrant 전달, 리플레이션 all(), byThree는 headline만, 개념 id는 A~O 뒤 1~2자리 숫자, 통화 불일치 손익 보류, 지도는 navigateKnowledgeRoute, 대가 비교는 같은 분기 중앙값(3건 이상), 과거 충돌 문장 출력.
+- violated_rule: R671 현재성 라벨은 관측·달력에서 한 presenter로, R340 필수 입력의 의미·기준일·coverage가 갖춰질 때만 결론 표시
+- prevention: scripts/ci-architecture-audit-regression-fixture.mjs D5 권리 반례·양성 대조, ci-esm-core-unit-check, ci-review-integrity-unit-check.
+- verification/residual: fixture·esm-core·review-integrity PASS. 레거시 실적 달력(A04)은 브라우저 미확인.
+
+## P1963 - v58.63 - 결측·부분 자료가 0 또는 외삽 값으로 표시되는 클래스(한국 테마, 포트폴리오 30일, 차트, 테마 등락, 지수 실적, 매매일지, 코스피 스트레스, 기준금리) (2026-10-22)
+
+- symptom/reproduction: 시세 미수신 한국 종목이 0%로 평균·상승 비율·정렬에 들어갔고(A05), 가격 이력이 없는 보유 종목은 30일 비교에서 선형으로 지어졌다(A20). AI 답변 차트가 빈 칸을 0으로 그렸고 상대 선이 다른 날짜끼리 맞춰졌으며(C07, C08), 폴백 차트는 공백을 잇고(C13), 테마 종가 모드 등락이 다른 세션 가격을 섞었다(D2). 지수 실적은 만료된 추정·지난 가격을 썼고(F-DELTA-01), 매매일지는 통화 미상 손실·현금 null을 0으로(UI-D01/D02), 코스피 스트레스는 행 수로 표본 하한을 셌으며(DOMAIN #6), 기준금리 구간은 한쪽 경계로 근거를 만들었다(M01).
+- root_cause: `Number(null)===0`, `!== undefined` 비교, 커버리지 비율 대신 전체 가중치 분모 같은 결측→0 경로가 여러 렌더러에 따로 남아 있었다.
+- fix: 한국 테마는 시세 수신 종목만 집계하고 '시세 미수신 N'을 표시, 평균 없음은 '—'. 30일 비교는 이력 확보 비중으로 나누고 없으면 보류. 차트는 null 슬롯과 끊긴 선, 상대 선은 공통 날짜 정렬. 테마 등락은 같은 세션 종가만. 지수 실적은 CONSENSUS 만료·현재 종가만. 매매일지는 상장 통화 폴백, null 유지. 스트레스는 정확한 n세션 비중첩 창 수로 하한. 목표 구간은 양쪽 경계가 모두 있을 때만.
+- violated_rule: R628 결측은 조건도 구간도 관측값도 만족시키지 않는다, R706 과거 빈도는 겹치지 않는 사례로 센다
+- prevention: scripts/ci-architecture-audit-regression-fixture.mjs kr-stress 창 하한, ci-esm-core-unit-check 지수 실적 만료·stale 사례.
+- verification/residual: fixture PASS, ci-esm-core-unit-check PASS. 레거시 렌더러(A05·A20·C13)는 브라우저 미확인.
+
+## P1962 - v58.63 - 스크리너 의미 오류: NOT 하위 필드 식별, 상수 팩터 '독립 신호', 평가 가격, 문장 조건의 OR·반대 방향·원화 단위 (2026-10-22)
+
+- symptom/reproduction: NOT 아래 가격 조건이 계산 식별자에 들어가지 않았고(SCR01), 모든 종목이 같은 값인 두 팩터가 '독립 신호 2개'로 읽혔다(SCR02). 포트폴리오가 평가 가격 대신 다른 가격을 읽었고(SCR03), 'PER 15 이상'은 'PER 15 이하'로, '또는'은 '그리고'로, '미만'은 '이하'로, '거래대금 50억'은 $50M + 이름 검색 '억 이상'으로 적용됐다(SCR04). 검증 t값이 IC 전용 t와 섞였고(A11) 검사 패널·행 캐시가 같은 배열 갱신을 놓쳤다(A12, UI-03).
+- root_cause: AST 워커와 평가기가 다른 간선을 읽었고, 상관 0을 '결측 상관'의 대체값으로 썼으며, 문장 파서가 알아듣지 못한 방향·접속어·단위를 버리고 남은 조건만 적용했다.
+- fix: collectDefinitionRowKeys가 node.child를 순회. 상수 팩터는 제외·명시하고 가변 팩터 2개 미만이면 측정하지 않으며 문장은 '유효 개수, 독립 증명 아님'. 정규화에 _valuationPrice 유지. 파서는 OR·반대 방향·원화 단위를 unsupported로 보고하고 패널은 아무것도 적용하지 않은 채 문장을 남긴다. strict(미만/초과)는 경계값을 제외하고 라벨도 미만/초과. meanTStat/icT 분리, 검사 패널 갱신, readRowsRef 비교.
+- violated_rule: R586 결측 팩터는 중립값이 아니다, R628 결측은 조건을 만족시키지 않는다
+- prevention: scripts/ci-architecture-audit-regression-fixture.mjs SCR01·SCR02·SCR04·원화 단위 반례와 양성 대조, ci-esm-core-unit-check D11 icOnly.
+- verification/residual: fixture PASS; HEAD 대조에서 상수 팩터 effective=2, '50억'→$50M 재현 확인.
+
+## P1961 - v58.63 - SEC CIK 대조표 10건이 다른 발행사를 가리켜 사업 설명·8-K가 남의 회사 자료로 표시 (2026-10-22)
+
+- symptom/reproduction: BWXT·DUK·LUNR·PL·AFRM·AAOI·IREN·NXT·APP·HWM의 CIK가 SEC company tickers 값과 달라, 종목 화면의 사업 설명과 8-K가 다른 회사 공시를 읽었다(A01).
+- root_cause: 손으로 관리한 CIK_MAP과 SEC 응답의 tickers를 대조하지 않았다.
+- fix: 10건을 SEC 값으로 교정(XOM은 전신 CIK 유지, 승계 발행사는 별도). fetchSECBusinessDescription이 응답 tickers에 요청 티커가 없으면 '다른 회사로 확인됨'으로 보류하고 8-K도 같은 결과를 상속한다. AIO_DEBUG 저장소 읽기도 try 안으로.
+- violated_rule: R663 종목은 정확한 등록 일치로만 해석하고 추측하지 않는다
+- prevention: scripts/ci-architecture-audit-regression-fixture.mjs A01 대조(10개 티커 = SEC 값).
+- verification/residual: fixture PASS; SEC submissions 요약 값과 수기 대조.
+
+## P1960 - v58.63 - AI 답변 경계: 계획 파싱 실패 경로의 현재 사건 문장, 행동 제안 게이트, 상태 확인·취소·종가 기준 전달 (2026-10-22)
+
+- symptom/reproduction: 구조화 계획이 깨지면 근거 0건에서도 '연준이 금리를 인하했다' 같은 미확인 현재 사건 문장이 그대로 게시됐다(SEC02). 영어·조건절 행동 문장이 행동 게이트를 우회했고(A15), 상태 확인이 외부 타임아웃보다 먼저 끝나지 않았으며(A16), 해제 뒤 읽은 사용자 취소 표시가 사라졌다(A17). 종가 기준일·다른 게시 주장이 검증 단계로 전달되지 않았다(A18).
+- root_cause: 계획 경로와 폴백 경로가 서로 다른 게시 규칙을 썼고, 행동 게이트가 한국어 단일 절만 읽었으며, 타임아웃·취소 상태를 비동기 경계 뒤에서 읽었다.
+- fix: publication.js guardFallback가 근거 0건이면 현재 사건 문장 제거 규칙을 폴백에도 적용(aio-chat.js가 evidenceCount 전달). 행동 게이트는 영어·한정어·절 분리를 읽고, 상태 확인 12초 + 외부 +500ms, 취소 표시는 해제 전에 캡처, closeBasisDates·otherPublishedClaims 전달.
+- violated_rule: R628 계열 정직성(미확인 현재 값·사건은 게시하지 않는다), AI 답변 단일 파이프라인 규칙
+- prevention: scripts/ci-architecture-audit-regression-fixture.mjs SEC02 반례·양성 대조, ci-ai-premise-check SLA 단언.
+- verification/residual: architecture-audit-regression-fixture PASS, ci-ai-premise-check PASS. HEAD 대조에서 폴백 문장 유지 확인.
+
+## P1959 - v58.62 - 시장 해석이 반도체·미국 지수 선물·아시아 움직임을 근거로 쓸 수 없었다 (2026-10-21)
+
+- symptom/reproduction: 2026-10-21 시장 해석은 코스피 +3.3% 반등을 'AI 투자심리 회복'으로만 설명했다. 같은 시각 나스닥 100 선물은 SpaceX의 AI 설비투자 확대 보도 뒤 전 정산가 대비 +0.99%, 닛케이 225는 장중 +1.1%였지만, 해석 프롬프트의 METRIC_EVIDENCE에는 그런 행이 없었다. 검증기는 'S&P 500 선물'을 S&P 500 현물로 읽어 현물의 +0.28% 종가와 대조했다.
+- root_cause: 해석의 근거는 market-snapshot.json의 Tier-0 16개뿐이다(P1093: 근거는 발행 산출물 안에서 해석되어야 한다). quotes.mjs는 SMH·^N225·^HSI를 이미 수집하지만 data.json 시세 평면은 P715로 비워 발행하므로 근거가 될 수 없었고, ES=F·NQ=F는 수집 목록에도 없었다. 게다가 프롬프트는 완료 종가만 받는데(T08) 지수 선물은 평일 내내 장중이라 넣을 자리도 없었다. 검증기의 지표 이름 표에는 선물·반도체·아시아가 없어 현물 이름 패턴이 선물 문장을 가져갔다.
+- fix: src/data/contracts/market-snapshot.js에 증거 전용 계층 EVIDENCE_TIER_INSTRUMENTS(SMH, ES=F, NQ=F, ^N225, ^HSI)를 두고, build-market-snapshot.mjs가 발행 가능한 품질의 행만 snapshot.evidenceQuotes에 싣는다(coverage tier1Required/tier1Observed 선언). Tier-0 발행 판정·TIER_0_REQUIRED·Tier-0 quotes 목록과 그 소비자(홈·브리핑·브리지)는 바뀌지 않는다 — 계층이 없거나 낡아도 발행은 그대로다. 세션: SMH는 미국 정규장 일정, 도쿄·홍콩은 각 거래소 시간, 선물은 연속 거래로 판정한다. quotes.mjs에 ES=F·NQ=F 추가. 검증기는 snapshotEvidenceRows로 계층을 읽고, 정의(snapshotOnly — 스냅샷 행이 없으면 근거가 아님)·한국어 이름(나스닥 100 선물·S&P 500 선물·반도체 ETF·닛케이·항셍)·변화율·장중 시각 검사를 붙였다. 선물 이름은 현물보다 먼저 맞춰지고, 현물 라벨 뒤 '선물'은 현물 수준으로 읽지 않는다. 프롬프트는 완료된 행을 METRIC_EVIDENCE(상한 16→24)에, 장중 행을 CROSS_MARKET_INTRADAY(장중 + KST 시각)에 싣는다. 유지 재검증의 허용 이동은 이 계층도 주가지수(1%)로 본다.
+- violated_rule: P1093(근거는 발행 산출물에서) 자체는 지켰지만, 해석이 설명해야 할 시장의 근거가 그 산출물에 없었다 — 설명 대상과 근거 집합이 어긋난 연결 결손(소유자 2026-10-21: 정보·데이터 연결이 계속 빠진다).
+- prevention: ci-market-snapshot-contract-check: 계층은 Tier-0 발행·목록을 바꾸지 않고, 낡은 행은 빠지며, 잘못된 정체성·모르는 심볼은 거부된다. ci-data-pipeline-contract-check: 10/21 02:21Z 실제 공급자 값(scripts/fixtures/market-analysis-evidence-tier-20261021.json)을 실제 스냅샷 빌더로 통과시켜, 나스닥 100 선물·닛케이 장중 움직임과 SMH 종가를 인용한 해석이 통과하고 틀린 변화율·시각 없는 선물·현물로 읽힌 선물이 막히며 프롬프트에 두 구역이 실리는지 단언한다.
+- verification/residual: node scripts/ci-market-snapshot-contract-check.mjs OK, node scripts/ci-data-pipeline-contract-check.mjs OK, qa-runner affected. AI 호출 없음(스텁). 실제 계층 발행은 push 뒤 첫 refresh에서 확인(QA).
+
+## P1958 - v58.61 - 뉴스 피드 'Google News - Market movers'가 10/19부터 68회 연속 0건 — 시장 움직임 설명 기사가 묶음에 들어오지 못함 (2026-10-21)
+
+- symptom/reproduction: newsFeedHealth에서 Market movers 피드가 parsed 0, missStreak 68, lastHealthyAt 10/19(처음 본 시각)였다. 시장이 왜 움직였는지 설명하는 'Markets Wrap'류 기사는 다른 피드 순위에 의존했다.
+- root_cause: 검색어가 열두 단어를 공백(AND)으로 이은 'Reuters Bloomberg CNBC market moving stocks S&P 500 Nasdaq Federal Reserve Treasury yields oil'이라 Google News가 결과를 하나도 주지 않았다. 감시 경고(24시간)는 났지만 실패 기준(72시간) 전이라 아무도 고치지 않았다.
+- fix: 검색어를 시장 움직임 표현의 OR 묶음("stocks rally" OR "stocks fall" OR "stocks surge" OR "stocks slide" OR "market selloff" OR "markets wrap" OR "stock market today")으로 바꿨다. 로컬 확인에서 96건을 돌려줬고 'US Stocks Edge Higher as SpaceX Soothes AI Worries: Markets Wrap' 같은 기사가 들어온다.
+- violated_rule: 피드는 매 실행 사용 가능한 기사를 내야 한다(P1504 피드 상태)
+- prevention: 기존 감시(dataSourceWarnings 24h·deadNewsFeeds 72h)가 다시 잡는다. 이번 수정은 실제 Google News 응답으로 확인.
+- verification/residual: 로컬에서 새 검색어 96건 응답 확인. 다음 갱신의 newsFeedHealth에서 Market movers parsed>0 확인 필요.
 
 ## P1957 - v58.60 - 검증 통과한 시장 해석에 '(METRIC_EVIDENCE:', '(REGIME_CONTEXT)', '(MARKET_DRIVERS)' 같은 프롬프트 내부 표기가 그대로 보임 (2026-10-21)
 

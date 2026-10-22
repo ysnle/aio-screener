@@ -164,6 +164,12 @@ async function main() {
     globalThis.fetch = async () => new Response(new ReadableStream({ start(controller) { for (let i = 0; i < 6; i += 1) controller.enqueue(new Uint8Array(1024 * 1024)); controller.close(); } }), { status: 200 });
     const oversized = await worker.fetch(relayRequest(BOK_QUERY), relayEnv());
     check('P1413 a streamed body over 5MB without Content-Length is refused', oversized.status === 502 && /too large/i.test(await oversized.text()), oversized.status);
+    // P1967: once the request is sent the provider may have counted the key call, so a body cut after dispatch keeps
+    // the reservation; the HEAD handler released it and let a provider that broke every body be called without bound.
+    const cutQuota = atomicQuota();
+    globalThis.fetch = async () => new Response(new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(16)); controller.error(new Error('cut')); } }), { status: 200 });
+    const cut = await worker.fetch(relayRequest(BOK_QUERY), { BOK_API_KEY: SECRET, AIO_QUOTA_DO: cutQuota });
+    check('P1967 a relay body cut after dispatch keeps the reservation counted', cut.status === 502 && cutQuota.count === 1, `${cut.status} ${cutQuota.count}`);
     let hop = 0;
     globalThis.fetch = async (url) => { hop += 1; return hop === 1 ? new Response('', { status: 301, headers: { location: String(url) + '/' } }) : new Response(JSON.stringify({ StatisticSearch: { row: [] } }), { status: 200 }); };
     const sameHost = await worker.fetch(relayRequest(BOK_QUERY), relayEnv());

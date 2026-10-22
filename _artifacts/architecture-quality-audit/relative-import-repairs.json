@@ -1,0 +1,635 @@
+{
+  "boundary": "Only restore the original target of relative module/file-URL literals after directory relocation. Missing retired targets remain explicit, never replaced with a stub.",
+  "repairs": [
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-answer-visuals.mjs",
+      "originalSpecifier": "../../src/ui/components/ai-answer-visuals.js",
+      "relocatedSpecifier": "../../../../src/ui/components/ai-answer-visuals.js",
+      "target": "src/ui/components/ai-answer-visuals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/screen-engine.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/screen-engine.js",
+      "target": "src/domain/screener/screen-engine.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/contracts/screener.js",
+      "relocatedSpecifier": "../../../../src/data/contracts/screener.js",
+      "target": "src/data/contracts/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/factor-overlap.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/factor-overlap.js",
+      "target": "src/domain/screener/factor-overlap.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/regime.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/regime.js",
+      "target": "src/domain/screener/regime.js",
+      "existsAtMigration": false
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/normalize/screener.js",
+      "relocatedSpecifier": "../../../../src/data/normalize/screener.js",
+      "target": "src/data/normalize/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/fundamental/consensus-read.js",
+      "relocatedSpecifier": "../../../../src/domain/fundamental/consensus-read.js",
+      "target": "src/domain/fundamental/consensus-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/briefing/market-read.js",
+      "relocatedSpecifier": "../../../../src/domain/briefing/market-read.js",
+      "target": "src/domain/briefing/market-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/app/compatibility-globals.js",
+      "relocatedSpecifier": "../../../../src/app/compatibility-globals.js",
+      "target": "src/app/compatibility-globals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/data/us-listings.js",
+      "relocatedSpecifier": "../../../../src/data/us-listings.js",
+      "target": "src/data/us-listings.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261018/reproduce-verification-helper.mjs",
+      "originalSpecifier": "../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "relocatedSpecifier": "../../../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "target": ".claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-answer-visuals.mjs",
+      "originalSpecifier": "../../src/ui/components/ai-answer-visuals.js",
+      "relocatedSpecifier": "../../../../src/ui/components/ai-answer-visuals.js",
+      "target": "src/ui/components/ai-answer-visuals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../cloudflare-worker-proxy.js",
+      "relocatedSpecifier": "../../../../cloudflare-worker-proxy.js",
+      "target": "cloudflare-worker-proxy.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-data.js",
+      "relocatedSpecifier": "../../../../src/data/server-data.js",
+      "target": "src/data/server-data.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-macro.js",
+      "relocatedSpecifier": "../../../../src/data/server-macro.js",
+      "target": "src/data/server-macro.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-market-analysis.js",
+      "relocatedSpecifier": "../../../../src/data/server-market-analysis.js",
+      "target": "src/data/server-market-analysis.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/page-completeness.js",
+      "relocatedSpecifier": "../../../../src/data/page-completeness.js",
+      "target": "src/data/page-completeness.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/screen-engine.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/screen-engine.js",
+      "target": "src/domain/screener/screen-engine.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/contracts/screener.js",
+      "relocatedSpecifier": "../../../../src/data/contracts/screener.js",
+      "target": "src/data/contracts/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/factor-overlap.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/factor-overlap.js",
+      "target": "src/domain/screener/factor-overlap.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/regime.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/regime.js",
+      "target": "src/domain/screener/regime.js",
+      "existsAtMigration": false
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/normalize/screener.js",
+      "relocatedSpecifier": "../../../../src/data/normalize/screener.js",
+      "target": "src/data/normalize/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/fundamental/consensus-read.js",
+      "relocatedSpecifier": "../../../../src/domain/fundamental/consensus-read.js",
+      "target": "src/domain/fundamental/consensus-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/briefing/market-read.js",
+      "relocatedSpecifier": "../../../../src/domain/briefing/market-read.js",
+      "target": "src/domain/briefing/market-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/app/compatibility-globals.js",
+      "relocatedSpecifier": "../../../../src/app/compatibility-globals.js",
+      "target": "src/app/compatibility-globals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/data/us-listings.js",
+      "relocatedSpecifier": "../../../../src/data/us-listings.js",
+      "target": "src/data/us-listings.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/portfolio/kr-stress.js",
+      "relocatedSpecifier": "../../../../src/domain/portfolio/kr-stress.js",
+      "target": "src/domain/portfolio/kr-stress.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/market/benchmarks.js",
+      "relocatedSpecifier": "../../../../src/domain/market/benchmarks.js",
+      "target": "src/domain/market/benchmarks.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261019/reproduce-verification-helper.mjs",
+      "originalSpecifier": "../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "relocatedSpecifier": "../../../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "target": ".claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-answer-visuals.mjs",
+      "originalSpecifier": "../../src/ui/components/ai-answer-visuals.js",
+      "relocatedSpecifier": "../../../../src/ui/components/ai-answer-visuals.js",
+      "target": "src/ui/components/ai-answer-visuals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../cloudflare-worker-proxy.js",
+      "relocatedSpecifier": "../../../../cloudflare-worker-proxy.js",
+      "target": "cloudflare-worker-proxy.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-data.js",
+      "relocatedSpecifier": "../../../../src/data/server-data.js",
+      "target": "src/data/server-data.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-macro.js",
+      "relocatedSpecifier": "../../../../src/data/server-macro.js",
+      "target": "src/data/server-macro.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-market-analysis.js",
+      "relocatedSpecifier": "../../../../src/data/server-market-analysis.js",
+      "target": "src/data/server-market-analysis.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/page-completeness.js",
+      "relocatedSpecifier": "../../../../src/data/page-completeness.js",
+      "target": "src/data/page-completeness.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/screen-engine.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/screen-engine.js",
+      "target": "src/domain/screener/screen-engine.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/contracts/screener.js",
+      "relocatedSpecifier": "../../../../src/data/contracts/screener.js",
+      "target": "src/data/contracts/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/factor-overlap.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/factor-overlap.js",
+      "target": "src/domain/screener/factor-overlap.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/regime.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/regime.js",
+      "target": "src/domain/screener/regime.js",
+      "existsAtMigration": false
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/normalize/screener.js",
+      "relocatedSpecifier": "../../../../src/data/normalize/screener.js",
+      "target": "src/data/normalize/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/fundamental/consensus-read.js",
+      "relocatedSpecifier": "../../../../src/domain/fundamental/consensus-read.js",
+      "target": "src/domain/fundamental/consensus-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/briefing/market-read.js",
+      "relocatedSpecifier": "../../../../src/domain/briefing/market-read.js",
+      "target": "src/domain/briefing/market-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/app/compatibility-globals.js",
+      "relocatedSpecifier": "../../../../src/app/compatibility-globals.js",
+      "target": "src/app/compatibility-globals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/data/us-listings.js",
+      "relocatedSpecifier": "../../../../src/data/us-listings.js",
+      "target": "src/data/us-listings.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/portfolio/kr-stress.js",
+      "relocatedSpecifier": "../../../../src/domain/portfolio/kr-stress.js",
+      "target": "src/domain/portfolio/kr-stress.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/market/benchmarks.js",
+      "relocatedSpecifier": "../../../../src/domain/market/benchmarks.js",
+      "target": "src/domain/market/benchmarks.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261020/reproduce-verification-helper.mjs",
+      "originalSpecifier": "../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "relocatedSpecifier": "../../../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "target": ".claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-answer-visuals.mjs",
+      "originalSpecifier": "../../src/ui/components/ai-answer-visuals.js",
+      "relocatedSpecifier": "../../../../src/ui/components/ai-answer-visuals.js",
+      "target": "src/ui/components/ai-answer-visuals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../cloudflare-worker-proxy.js",
+      "relocatedSpecifier": "../../../../cloudflare-worker-proxy.js",
+      "target": "cloudflare-worker-proxy.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-data.js",
+      "relocatedSpecifier": "../../../../src/data/server-data.js",
+      "target": "src/data/server-data.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-macro.js",
+      "relocatedSpecifier": "../../../../src/data/server-macro.js",
+      "target": "src/data/server-macro.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-market-analysis.js",
+      "relocatedSpecifier": "../../../../src/data/server-market-analysis.js",
+      "target": "src/data/server-market-analysis.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/page-completeness.js",
+      "relocatedSpecifier": "../../../../src/data/page-completeness.js",
+      "target": "src/data/page-completeness.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/screen-engine.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/screen-engine.js",
+      "target": "src/domain/screener/screen-engine.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/contracts/screener.js",
+      "relocatedSpecifier": "../../../../src/data/contracts/screener.js",
+      "target": "src/data/contracts/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/factor-overlap.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/factor-overlap.js",
+      "target": "src/domain/screener/factor-overlap.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/normalize/screener.js",
+      "relocatedSpecifier": "../../../../src/data/normalize/screener.js",
+      "target": "src/data/normalize/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/fundamental/consensus-read.js",
+      "relocatedSpecifier": "../../../../src/domain/fundamental/consensus-read.js",
+      "target": "src/domain/fundamental/consensus-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/briefing/market-read.js",
+      "relocatedSpecifier": "../../../../src/domain/briefing/market-read.js",
+      "target": "src/domain/briefing/market-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/app/compatibility-globals.js",
+      "relocatedSpecifier": "../../../../src/app/compatibility-globals.js",
+      "target": "src/app/compatibility-globals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/data/us-listings.js",
+      "relocatedSpecifier": "../../../../src/data/us-listings.js",
+      "target": "src/data/us-listings.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/portfolio/kr-stress.js",
+      "relocatedSpecifier": "../../../../src/domain/portfolio/kr-stress.js",
+      "target": "src/domain/portfolio/kr-stress.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/market/benchmarks.js",
+      "relocatedSpecifier": "../../../../src/domain/market/benchmarks.js",
+      "target": "src/domain/market/benchmarks.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021/reproduce-verification-helper.mjs",
+      "originalSpecifier": "../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "relocatedSpecifier": "../../../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "target": ".claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-answer-visuals.mjs",
+      "originalSpecifier": "../../src/ui/components/ai-answer-visuals.js",
+      "relocatedSpecifier": "../../../../src/ui/components/ai-answer-visuals.js",
+      "target": "src/ui/components/ai-answer-visuals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../cloudflare-worker-proxy.js",
+      "relocatedSpecifier": "../../../../cloudflare-worker-proxy.js",
+      "target": "cloudflare-worker-proxy.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-data.js",
+      "relocatedSpecifier": "../../../../src/data/server-data.js",
+      "target": "src/data/server-data.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-macro.js",
+      "relocatedSpecifier": "../../../../src/data/server-macro.js",
+      "target": "src/data/server-macro.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/server-market-analysis.js",
+      "relocatedSpecifier": "../../../../src/data/server-market-analysis.js",
+      "target": "src/data/server-market-analysis.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-boundaries.mjs",
+      "originalSpecifier": "../../src/data/page-completeness.js",
+      "relocatedSpecifier": "../../../../src/data/page-completeness.js",
+      "target": "src/data/page-completeness.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/screen-engine.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/screen-engine.js",
+      "target": "src/domain/screener/screen-engine.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/contracts/screener.js",
+      "relocatedSpecifier": "../../../../src/data/contracts/screener.js",
+      "target": "src/data/contracts/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/screener/factor-overlap.js",
+      "relocatedSpecifier": "../../../../src/domain/screener/factor-overlap.js",
+      "target": "src/domain/screener/factor-overlap.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/data/normalize/screener.js",
+      "relocatedSpecifier": "../../../../src/data/normalize/screener.js",
+      "target": "src/data/normalize/screener.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-domain-contracts.mjs",
+      "originalSpecifier": "../../src/domain/fundamental/consensus-read.js",
+      "relocatedSpecifier": "../../../../src/domain/fundamental/consensus-read.js",
+      "target": "src/domain/fundamental/consensus-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/briefing/market-read.js",
+      "relocatedSpecifier": "../../../../src/domain/briefing/market-read.js",
+      "target": "src/domain/briefing/market-read.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-market-reading.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/app/compatibility-globals.js",
+      "relocatedSpecifier": "../../../../src/app/compatibility-globals.js",
+      "target": "src/app/compatibility-globals.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-search-race.mjs",
+      "originalSpecifier": "../../src/data/us-listings.js",
+      "relocatedSpecifier": "../../../../src/data/us-listings.js",
+      "target": "src/data/us-listings.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/market/market-calendar.js",
+      "relocatedSpecifier": "../../../../src/domain/market/market-calendar.js",
+      "target": "src/domain/market/market-calendar.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/portfolio/kr-stress.js",
+      "relocatedSpecifier": "../../../../src/domain/portfolio/kr-stress.js",
+      "target": "src/domain/portfolio/kr-stress.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-session-samples.mjs",
+      "originalSpecifier": "../../src/domain/market/benchmarks.js",
+      "relocatedSpecifier": "../../../../src/domain/market/benchmarks.js",
+      "target": "src/domain/market/benchmarks.js",
+      "existsAtMigration": true
+    },
+    {
+      "file": "_artifacts/architecture-quality-audit/evidence/20261021-v5859/reproduce-verification-helper.mjs",
+      "originalSpecifier": "../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "relocatedSpecifier": "../../../../.claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "target": ".claude/skills/verify-aio/scripts/lib/drive.mjs",
+      "existsAtMigration": true
+    }
+  ]
+}

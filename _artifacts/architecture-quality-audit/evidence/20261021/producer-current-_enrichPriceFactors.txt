@@ -1,0 +1,67 @@
+async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
+  const computedAt = new Date().toISOString();
+  const fetchOne = async (sym) => {
+    // P1442 (review 2026-10-04): factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
+    // US open used the in-progress daily bar for returns, volume, ranges and VCP. Only bars whose session
+    // has closed (isSessionComplete, the same guard the breadth path uses) enter any factor.
+    let fetched = await fetchHistory(_yhSym(sym), FACTOR_HISTORY_RANGE);
+    const providerMeta = fetched?.meta || null;
+    const market = sessionSegmentOfSymbol(sym);
+    let providerNullCloseDates = fetched?.nullCloseDates || [];
+    let closeReconciliation = null;
+    if (market === 'kr' && Array.isArray(fetched) && fetched.length) {
+      const exchange = await fetchKrExchangeDaily(sym, fetched[0].date);
+      const reconciled = reconcileKrExchangeCloses(fetched, exchange.rows, { nullCloseDates: providerNullCloseDates });
+      if (exchange.error && reconciled.report.status !== 'reconciled') reconciled.report.reason = exchange.error;
+      fetched = reconciled.rows;
+      providerNullCloseDates = reconciled.nullCloseDates;
+      closeReconciliation = reconciled.report;
+    }
+    // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
+    return priceHistoryFromRows(sym, fetched, { providerMeta, nullCloseDates: providerNullCloseDates, closeReconciliation, market });
+  };
+  const results = await mapLimit(syms, concurrency, fetchOne);
+  // 2026-10-19 data audit: the extended run lost one alphabetical block every time (STLN..UNFI 260, STKE..UNTY 265,
+  // S–V on 10/17-18) — throttling late in the job, with nothing retrying it. Failed symbols get one slower second
+  // pass; a block of 20+ waits first so the throttle can lift.
+  const priceMissing = (r) => !r || r.__error || !(Array.isArray(r.closes) && r.closes.length);
+  const failedAt = results.map((r, i) => (priceMissing(r) ? i : -1)).filter((i) => i >= 0);
+  if (failedAt.length) {
+    if (failedAt.length >= 20) await new Promise((resolve) => setTimeout(resolve, 45000));
+    const retried = await mapLimit(failedAt.map((i) => syms[i]), 2, (sym) => fetchOne(sym).catch(() => null));
+    let recovered = 0;
+    failedAt.forEach((i, k) => { if (!priceMissing(retried[k])) { results[i] = retried[k]; recovered += 1; } });
+    console.log(`[fetch-data] price factors retry: ${recovered}/${failedAt.length} recovered`);
+  }
+  // 2026-10-13 F13: non-USD traded value is converted session by session at that currency's daily USD
+  // close (one 1y FX series per currency), so KR/JP/TW rows carry a USD figure with its basis instead of null.
+  const quoteCurrencyOf = (r) => listingCurrencyOf(r?.sym, r?.providerMeta);
+  const fxSeries = new Map();
+  for (const currency of new Set(results.filter((r) => r && !r.__error && r.closes).map(quoteCurrencyOf).filter((c) => c && c !== 'USD'))) {
+    try {
+      const bars = await fetchHistory(`${currency}=X`, '1y');
+      const series = (bars || []).filter((bar) => bar && bar.close > 0).map((bar) => ({ date: bar.date, close: bar.close }));
+      if (series.length) fxSeries.set(currency, series);
+    } catch { /* conversion stays unavailable for this currency */ }
+  }
+  // v57.87: index one-session returns for the down-day resilience field — S&P 500 for US listings, KOSPI / KOSDAQ for
+  // Korean ones — on completed sessions only (the same guard as the factor histories).
+  const indexReturns = new Map();
+  for (const [key, symbol, segment] of [['us', '^GSPC', 'us'], ['kr', '^KS11', 'kr'], ['kq', '^KQ11', 'kr']]) {
+    try {
+      const bars = (await fetchHistory(symbol, '1y') || []).filter((bar) => bar && bar.close > 0 && bar.date && isSessionComplete(bar.date, segment));
+      if (bars.length > 60) indexReturns.set(key, indexReturnsByDate({ dates: bars.map((bar) => bar.date), closes: bars.map((bar) => bar.close) }));
+    } catch { /* resilience stays unavailable for this market */ }
+  }
+  const data = {};
+  let ok = 0;
+  for (const r of results) {
+    if (!r || r.__error || !r.closes) continue;
+    // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
+    const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns });
+    if (f) {
+      data[r.sym] = f; ok++;
+    }
+  }
+  return { data, results, ok, computedAt };
+}

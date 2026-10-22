@@ -1,0 +1,8 @@
+path	status	baseSha256	sha256	reason
+js/aio-data.js	FULL_DIFF_REVIEW	899a41c2bacbdf6cc687fa72bc4224ac30380d9b4fec498837eb99bb4e6c8a2a	ccf4f09b7a6815f42a4a0a6144ee9e6357d7657fe4755a184814ff00102977aa	이전 d36bb256 전문 원장+현재 전체1줄 변경(home 표시 이름) 검토; 기준 SHA 일치; 이번 전문 재독 아님
+js/aio-chat.js	DIFF_ONLY	c39ce88b4a4b1168542562684d3e5eee3402163a738248b7a6a3cf4ba5ffbed0	b52abcc16cfa72aec353c99116d70c1d529156f5bf012e4f163803830173f34f	d36bb256→고정 REF 전체1줄 변경(home 화면명)만 검토; 기준 전문 없음
+js/aio-pages.js	DIFF_ONLY	12a1fee4a65413a4681bfdae124cd8ec2d39e1539f3fff956d4b751e2b13c5fe	59936058bc063ca5da3305c0e8aefa8f9143bac43dd9e02629534ccd04cf9652	d36bb256→고정 REF 전체7줄 변경(상세 listener mount 전 theme id 보존) 검토; 기준 전문 없음
+js/aio-workspace.js	DIFF_ONLY	9b1e05fc543a2617adb490a94cf6c9a29a80d9ec949169890fec479b820b164a	c142499fda32db4450436a13b39dddc39febf9a60a3ff61658e67d4ff0d6b58d	d36bb256→고정 REF 전체6줄 변경(표 열수/일일열 및 stress input publish) 검토; 기준 전문 없음
+src/ui/components/stock-read.js	FULL		b20abf45cfe0dc319a1607cfbddcf8c7f5004800f37671f3a0676feb82347ae2	root 전문 1–405행 연속 읽기; FY helper·on-demand·rank/benchmark·async symbol guard·분석 signature와 caller 경계; ROOT-FOLLOWUP.md
+src/ui/components/daily-loop.js	FULL		765c70edd37273efc177f2be8687ea27d46b77ed176cb4b26ac5e867d2158bcf	root 전문 1–470행 연속 읽기(1–155,156–315,316–470); 현재/종가·한국 기준·내 종목/일정/뉴스·거리 renderer·접힘 상태 의미 검토; ROOT-FOLLOWUP.md
+src/ui/knowledge/research-shell.js	PARTIAL		1c22fdb5274fe9b39a002b619a8ef38201c63b60ea9827d7b24a7f3f3fad23cd	검색 blur/results 관련 구간 및 실제 browser Tab 타이머 이후 관측; 전문 재독 아님

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.60';
+const APP_VERSION = 'v58.64';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -8310,8 +8310,7 @@ window.AIO.assertChatFunctionCoverage = function() {
     'fetchFMP5YQuarterly': true,             // fundamentals 페이지 장기 재무 차트 전용
     'fetchKRQuarterly': true,                // KR fundamentals 페이지 전용
     'fetchQuarterlyFinancials': true,        // fundamentals 페이지 차트 파이프라인 전용
-    'computeMarketState': true,              // 전역 시장 두뇌: 채팅 시장 헤더가 캐시된 marketState를 소비
-    'computeCrossAssetCorrelation': true     // 채팅 시장 헤더에서 직접 소비, ticker fetch 내부 함수는 아님
+    'computeMarketState': true              // 전역 시장 두뇌: 채팅 시장 헤더가 캐시된 marketState를 소비
   };
   var deadCode = chatRelevantFns.filter(function(fn) {
     if (knownExempt[fn]) return false;
@@ -8408,20 +8407,20 @@ window.AIO.fetchSECBusinessDescription = async function(ticker, opts) {
     'ABBV': '0001551152', 'MRK':  '0000310158',
     // ── v49.57 확장: 원전/전력 (7) ──
     'CEG':  '0001868275', 'VST':  '0001692819', 'NRG':  '0001013871',
-    'BWXT': '0001581809', 'EXC':  '0001109357', 'AEP':  '0000004904',
-    'DUK':  '0000017797',
+    'BWXT': '0001486957', 'EXC':  '0001109357', 'AEP':  '0000004904',
+    'DUK':  '0001326160',
     // ── v49.57 확장: 우주/위성 (5) ──
-    'RKLB': '0001819994', 'ASTS': '0001780312', 'LUNR': '0001844507',
-    'PL':   '0001801169', 'RDW':  '0001819810',
+    'RKLB': '0001819994', 'ASTS': '0001780312', 'LUNR': '0001844452',
+    'PL':   '0001836833', 'RDW':  '0001819810',
     // ── v49.57 확장: 양자컴퓨팅 (4) ──
     'IONQ': '0001824920', 'RGTI': '0001838359', 'QUBT': '0001758009',
     'QBTS': '0001907982',
     // ── v49.57 확장: 크립토/핀테크 (8) ──
     'MSTR': '0001050446', 'RIOT': '0001167419', 'MARA': '0001507605',
     'HOOD': '0001783879', 'PYPL': '0001633917', 'SOFI': '0001818874',
-    'AFRM': '0001820302', 'NU':   '0001691493',
+    'AFRM': '0001820953', 'NU':   '0001691493',
     // ── v49.57 확장: 광통신/네트워킹 (6) ──
-    'LITE': '0001633978', 'CIEN': '0000936395', 'AAOI': '0001070235',
+    'LITE': '0001633978', 'CIEN': '0000936395', 'AAOI': '0001158114',
     'GLW':  '0000024741', 'ANET': '0001596532', 'VIAV': '0000912093',
     // ── v49.57 확장: EV/Auto (6) ──
     'RIVN': '0001874178', 'LCID': '0001811210', 'GM':   '0001467858',
@@ -8430,15 +8429,15 @@ window.AIO.fetchSECBusinessDescription = async function(ticker, opts) {
     'SYM':  '0001837240', 'PATH': '0001734722', 'ISRG': '0001035267',
     // ── v49.57 확장: 데이터센터/Neocloud (9) ──
     'EQIX': '0001101239', 'DLR':  '0001297996', 'VRT':  '0001674101',
-    'ETN':  '0001551182', 'IREN': '0001878685', 'CIFR': '0001819989',
+    'ETN':  '0001551182', 'IREN': '0001878848', 'CIFR': '0001819989',
     'WULF': '0001083301', 'DELL': '0001571996', 'HPE':  '0001645590',
     // ── v49.57 확장: 태양광/수소 (8) ──
     'FSLR': '0001274494', 'ENPH': '0001463101', 'RUN':  '0001469367',
-    'SEDG': '0001419612', 'NXT':  '0001948544', 'BE':   '0001664703',
+    'SEDG': '0001419612', 'NXT':  '0001852131', 'BE':   '0001664703',
     'PLUG': '0001093691', 'FCEL': '0000886128',
     // ── v49.57 확장: 스트리밍/광고 (6) ──
     'WBD':  '0001437107', 'SPOT': '0001639920', 'ROKU': '0001428439',
-    'TTD':  '0001671933', 'APP':  '0001823144', 'SNAP': '0001564408',
+    'TTD':  '0001671933', 'APP':  '0001751008', 'SNAP': '0001564408',
     // ── v49.57 확장: 에너지/석유 (7) ──
     'SLB':  '0000087347', 'EOG':  '0000821189', 'FANG': '0001539838',
     'DVN':  '0001090012', 'MPC':  '0001510295', 'VLO':  '0001035002',
@@ -8446,7 +8445,7 @@ window.AIO.fetchSECBusinessDescription = async function(ticker, opts) {
     // ── v49.57 확장: 방산 (7) ──
     'RTX':  '0000101829', 'LMT':  '0000936468', 'NOC':  '0001133421',
     'GD':   '0000040533', 'HII':  '0001501585', 'LDOS': '0001336920',
-    'HWM':  '0001645590',
+    'HWM':  '0000004281',
     // ── v49.57 확장: 소비/리테일/여행 (10) ──
     'SBUX': '0000829224', 'LULU': '0001397187', 'BKNG': '0001075531',
     'ABNB': '0001559720', 'UBER': '0001543151', 'DASH': '0001792789',
@@ -8472,6 +8471,13 @@ window.AIO.fetchSECBusinessDescription = async function(ticker, opts) {
       try {
         var raw = await fetchViaProxy(url, { parseJson: true, timeout: 10000 });
         if (raw) {
+          // v58.63 (architecture audit A01): HWM was mapped to HPE's CIK and the AI read HPE's 10-K as Howmet's business.
+          // The EDGAR answer names its own tickers; a filer that lists tickers without this one is another company.
+          // An empty list (a predecessor issuer after a reorganisation, e.g. XOM's old CIK) is not a contradiction.
+          var filerTickers = Array.isArray(raw.tickers) ? raw.tickers.map(function(t) { return String(t || '').toUpperCase().replace(/[.\-]/g, ''); }) : [];
+          if (filerTickers.length && filerTickers.indexOf(ticker.replace(/[.\-]/g, '')) < 0) {
+            return { ticker: ticker, available: false, reason: 'SEC CIK가 다른 회사(' + filerTickers.join('/') + ')로 확인됨 — 사업 설명을 쓰지 않음' };
+          }
           if (raw && raw.filings && raw.filings.recent) {
             var rec = raw.filings.recent;
             var idx10K = (rec.form || []).indexOf('10-K');
@@ -9059,90 +9065,9 @@ window.AIO.getMacroReleaseStaleAudit = function() {
 };
 
 
-// ─────────────────────────────────────────────────────────────────
-// v49.83 P444/R173: computeCrossAssetCorrelation — 자산 간 30일 rolling Pearson correlation
-// _priceHistory (collectPriceHistory 누적) 활용. 충분한 데이터가 없으면 status:'insufficient_data'.
-// 자산 셋: SPY/QQQ/IWM/TLT/GLD/DXY/USO/VIX (US risk-asset matrix)
-// 반환: { matrix: { 'SPY-QQQ': 0.92, 'SPY-TLT': -0.35, ... }, regime: 'risk-on/off' }
-// ─────────────────────────────────────────────────────────────────
-window.AIO.computeCrossAssetCorrelation = function(opts) {
-  opts = opts || {};
-  var assets = opts.assets || ['SPY', 'QQQ', 'IWM', 'TLT', 'GLD', 'CL=F', '^VIX'];
-  var hist = window._priceHistory || {};
-  var pricesPerAsset = {};
-  var minLen = Infinity;
-  assets.forEach(function(a) {
-    var h = hist[a];
-    if (Array.isArray(h) && h.length >= 5) {
-      var seq = h.map(function(p){return p && p.price ? p.price : null;}).filter(function(v){return v != null && isFinite(v);});
-      pricesPerAsset[a] = seq;
-      if (seq.length < minLen) minLen = seq.length;
-    }
-  });
-  var availableAssets = Object.keys(pricesPerAsset);
-  if (availableAssets.length < 2 || minLen < 5) {
-    return {
-      status: 'insufficient_data',
-      message: '_priceHistory 누적 데이터 부족 (need >= 5 prices for 2+ assets, got ' + availableAssets.length + ' assets, minLen=' + (minLen === Infinity ? 0 : minLen) + ')',
-      availableAssets: availableAssets,
-      requiredAssets: assets,
-      generatedAt: new Date().toISOString()
-    };
-  }
-  // 모든 자산 동일 length로 trim (가장 짧은 시퀀스 기준)
-  var L = Math.min(minLen, 30); // 30일 cap
-  var returns = {};
-  availableAssets.forEach(function(a) {
-    var seq = pricesPerAsset[a].slice(-L);
-    var rets = [];
-    for (var i = 1; i < seq.length; i++) {
-      if (seq[i-1] && seq[i-1] !== 0) rets.push((seq[i] - seq[i-1]) / seq[i-1]);
-    }
-    returns[a] = rets;
-  });
-  // Pearson correlation
-  function pearson(x, y) {
-    var n = Math.min(x.length, y.length);
-    if (n < 3) return null;
-    var mx = 0, my = 0;
-    for (var i = 0; i < n; i++) { mx += x[i]; my += y[i]; }
-    mx /= n; my /= n;
-    var num = 0, dx = 0, dy = 0;
-    for (var j = 0; j < n; j++) {
-      var a = x[j] - mx, b = y[j] - my;
-      num += a * b; dx += a * a; dy += b * b;
-    }
-    var denom = Math.sqrt(dx * dy);
-    if (denom < 1e-12) return 0;
-    return num / denom;
-  }
-  var matrix = {};
-  for (var i = 0; i < availableAssets.length; i++) {
-    for (var j = i + 1; j < availableAssets.length; j++) {
-      var a = availableAssets[i], b = availableAssets[j];
-      var c = pearson(returns[a], returns[b]);
-      if (c != null) matrix[a + '-' + b] = Math.round(c * 100) / 100;
-    }
-  }
-  // Regime classification (간단 휴리스틱)
-  var spyQqq = matrix['SPY-QQQ'];
-  var spyTlt = matrix['SPY-TLT'];
-  var spyVix = matrix['SPY-^VIX'];
-  var regime = 'mixed';
-  if (spyQqq != null && spyQqq > 0.85 && spyTlt != null && spyTlt < -0.2) regime = 'risk-on';
-  else if (spyVix != null && spyVix < -0.6 && spyTlt != null && spyTlt > 0.3) regime = 'risk-off';
-  else if (spyQqq != null && spyQqq < 0.5) regime = 'decoupled';
-  return {
-    status: 'ok',
-    availableAssets: availableAssets,
-    sampleSize: L - 1,
-    matrix: matrix,
-    regime: regime,
-    note: 'v49.83 R173: 30일 rolling Pearson. _priceHistory (collectPriceHistory) 누적 데이터.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
+// v58.64: computeCrossAssetCorrelation retired. It read p.price from _priceHistory entries that are plain numbers,
+// so every call returned insufficient_data, and the inputs are 30-second ticks, not the 30 daily closes it named.
+// The cross-asset read lives in the native market interpretation.
 
 // ─────────────────────────────────────────────────────────────────
 // v49.30 M5 근본 수정: KR_MACRO_RELEASE — 한국 거시 발표 캘린더
@@ -14204,7 +14129,8 @@ const T = {
 
 // v34.5: 프로덕션 로그 억제 — console.log만 조건부 억제, warn/error는 유지
 // URL에 ?debug=1 추가 시 전체 로그 활성화 (개발 모드)
-const AIO_DEBUG = (location.search.indexOf('debug=1') !== -1) || (localStorage.getItem('aio_debug') === '1');
+// v58.63 (A19 class): a refused storage must not stop aio-core.js at its top level.
+const AIO_DEBUG = (location.search.indexOf('debug=1') !== -1) || (function() { try { return localStorage.getItem('aio_debug') === '1'; } catch (_) { return false; } })();
 if (!AIO_DEBUG) {
   var _origLog = console.log;
   console.log = function() {

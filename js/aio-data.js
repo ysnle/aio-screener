@@ -4850,7 +4850,7 @@ async function _aioLoadServerData() {
       try { _aioApplyNewsBackstop(false); } catch(_) {}
     }
     // P1729/P1730: post-08:00 provisional headlines (producer P1720) — a separate slot, never merged into the 08:00 bundle.
-    window._serverNewsIntraday = Array.isArray(d.newsIntraday) ? d.newsIntraday.slice(0, 6) : [];
+    window._serverNewsIntraday = Array.isArray(d.newsIntraday) ? d.newsIntraday.slice(0, 12) : []; // NEWS_INTRADAY_MAX (src/domain/news/stories.js)
     // 2026-10-13 boot payload review: the 1MB Telegram digest was awaited here, so the market analysis, AI briefing
     // and every step below waited on a channel feed no first screen needs. It now loads beside them; the feeds
     // repaint themselves when it lands (_aioApplyTelegramDigestPayload) and the meta is filled in then.

@@ -1,6 +1,7 @@
 // P1628: observed six-axis conditions, shared by the market screen and AI context.
 // This is a conditional reading of completed observations, never a forecast or a trade instruction.
-import { alignMarketInputs, buildCloseSeries, buildMarketRegime, usdKrwWindow } from '../briefing/market-read.js';
+import { alignMarketInputs, buildMarketRegime, usdKrwWindow } from '../briefing/market-read.js';
+import { buildCloseSeries } from './close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { latestCompletedKrSession, resolveMarketCalendarSession, countOpenSessionsBetween } from './market-calendar.js';
 import { historyFieldSessionDate, isHeldHistoryValue } from './history-session.js';

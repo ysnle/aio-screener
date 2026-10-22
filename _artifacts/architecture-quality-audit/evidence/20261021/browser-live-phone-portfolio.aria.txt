@@ -1,0 +1,167 @@
+Browser tab: 1, Title: "포트폴리오 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#portfolio".
+0 AXWebArea 포트폴리오 · AIO Screener, URL: ysnle.github.io/aio-screener/#portfolio
+	1 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	2 container
+		3 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		4 text 종가
+		5 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			6 text 10/20 마감 · 시세 16종 · 실시간 관측 545종 10/20 마감
+		7 text v58.52
+		8 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		9 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	10 container 포트폴리오, ID: page-portfolio
+		11 heading 포트폴리오, Value: 1, ID: page-portfolio-label
+			12 text 포트폴리오
+		13 container
+			14 text 보유 자산의 비중·손익·위험을 시장과 함께 읽습니다. 
+			15 button (collapsed) 저장·전송 범위, Secondary Actions: Expand
+				16 text 저장·전송 범위
+		17 button 종목 추가
+		18 button 내보내기
+		19 button 백업 파일에서 포트폴리오 가져오기
+		20 text 보유 종목이나 현금을 넣으면 총 자산·손익·현금 비중·변동성 구간이 여기에 계산됩니다.
+		21 container pf-main
+			22 container pf-holdings-table-section
+				23 text 보유 종목
+				24 button ⟳ 시세 갱신
+				25 button (disabled) 전체 삭제
+				26 container 자료 표 가로 스크롤
+					27 table 보유 종목 data table 3
+						28 row
+							29 cell pf-th-ticker
+								30 text 종목
+							31 cell pf-th-qty
+								32 text 수량
+							33 cell pf-th-cost
+								34 text 매수 단가
+							35 cell pf-th-price
+								36 text 현재가
+							37 cell pf-th-pnl
+								38 text 손익 (기준 통화)
+							39 cell pf-th-pct
+								40 text 수익률
+							41 cell Help: 직접 적어 둔 값만 표시합니다 — 앱이 정하거나 채우지 않습니다, ID: pf-th-target
+								42 text 목표가(내 메모)
+							43 cell pf-th-weight
+								44 text 주식 중 비중
+							45 cell pf-th-manage
+								46 text 관리
+						47 row
+							48 cell
+								49 text 포트폴리오가 비어 있습니다
+								50 text 종목을 추가하면 변동성·섹터 쏠림·시장 상태와의 연결이 여기에 나타납니다.
+								51 button 첫 종목 추가
+								52 text 보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN을 설정하면 암호화해 저장합니다.
+			53 button (collapsed) AI 메모 · 매매 돌아보기 펼치기, Secondary Actions: Expand
+				54 text AI 메모 · 매매 돌아보기
+				55 text 펼치기
+			56 container pf-allocation-section
+				57 text 비중 현황 · 섹터 배분
+				58 text 비중 현황
+				59 text 가용 현금
+				60 container
+					61 text 원화 ₩
+					62 stepper (settable) Description: 원화 현금 금액, ID: pf-cash-krw-input
+				63 container
+					64 text 달러 $
+					65 stepper (settable) Description: 달러 현금 금액, ID: pf-cash-usd-input
+				66 container
+					67 text 섹터 배분(현금 포함 자산 비중)
+					68 button (collapsed) Description: 섹터 배분 설명, Secondary Actions: Expand
+				69 text 종목을 추가하면 섹터 비중이 표시됩니다
+			70 container Description: 매매일지와 복기, ID: pf-trades
+				71 heading 매매일지 · 복기, Value: 2
+					72 text 매매일지 · 복기
+				73 text 사고판 기록을 이유와 함께 남기면, 끝난 거래의 손익과 내 매매 습관을 내 기록으로 보여 줍니다. 무엇을 사고팔지 권하지 않고, 내가 정한 원칙과 지금 상태의 차이만 보여 줍니다.
+				74 container pf-trade-form
+					75 button (expanded) 거래 기록하기, Secondary Actions: Collapse
+						76 text 거래 기록하기
+					77 container
+						78 text 날짜
+						79 date field (settable) Description: 날짜, Value: 2026-10-21, ID: pf-trade-date
+							80 container
+								81 stepper
+								82 stepper
+								83 stepper
+							84 pop up button 날짜 선택도구 표시 날짜 선택도구 표시
+					85 container
+						86 text 구분
+						87 pop up button (collapsed, settable) Description: 구분, Value: 매수, ID: pf-trade-side, Secondary Actions: Expand
+							88 menu
+								89 (selected) 매수
+								90 매도
+					91 container
+						92 text 종목
+						93 text field (settable) Description: 종목, ID: pf-trade-symbol
+					94 container
+						95 text 수량
+						96 stepper (settable) Description: 수량, ID: pf-trade-qty
+					97 container
+						98 text 가격
+						99 stepper (settable) Description: 가격, ID: pf-trade-price
+					100 container
+						101 text 수수료·세금
+						102 stepper (settable) Description: 수수료·세금, ID: pf-trade-fee
+					103 container
+						104 text 이유
+						105 pop up button (collapsed, settable) Description: 이유, Value: 추세 추종, ID: pf-trade-reason, Secondary Actions: Expand
+							106 menu
+								107 (selected) 추세 추종
+								108 돌파
+								109 눌림 매수
+								110 가치·저평가
+								111 실적·이벤트
+								112 테마·뉴스
+								113 비중 조절
+								114 손절
+								115 목표가 도달
+								116 기타
+					117 container
+						118 text 그때 마음
+						119 pop up button (collapsed, settable) Description: 그때 마음, Value: 적지 않음, ID: pf-trade-mood, Secondary Actions: Expand
+							120 menu
+								121 (selected) 적지 않음
+								122 계획대로
+								123 놓칠까 봐
+								124 불안·공포
+								125 만회하려고
+								126 습관·지루함
+					127 container
+						128 text 손절 가격(매수 시)
+						129 stepper (settable) Description: 손절 가격(매수 시), ID: pf-trade-stop
+					130 container
+						131 text 목표 가격(매수 시)
+						132 stepper (settable) Description: 목표 가격(매수 시), ID: pf-trade-target
+					133 container
+						134 text 메모
+						135 text entry area (settable) Description: 거래 메모, ID: pf-trade-note
+					136 button 기록
+					137 text 기록은 보유 종목과 같은 방식(PIN 설정 시 암호화)으로 이 브라우저에만 저장됩니다.
+				138 button (collapsed) 내 원칙, Secondary Actions: Expand
+					139 text 내 원칙
+				140 container
+					141 heading 끝난 거래의 결과, Value: 3
+						142 text 끝난 거래의 결과
+					143 text 아직 기록이 없습니다. 위 "거래 기록하기"에서 매수와 매도를 적어 보세요.
+			144 button (collapsed) 관심종목 리스트 · 위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도) 펼치기, Secondary Actions: Expand
+				145 text 관심종목 리스트 · 위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)
+				146 text 펼치기
+		147 container 이 화면을 볼 때 — 속지 말 것과 원칙
+			148 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-portfolio-title
+				149 text 이 화면을 볼 때 — 속지 말 것과 원칙
+			150 content list
+				151 container
+					152 text 전략 · 기법 '틀렸다'의 기준을 먼저 정하기 어떤 판단이든 "무엇이 나오면 이 생각이 틀린 것인가"가 미리 정해져 있으면, 손실이 감정이 아니라 조건으로 관리됩니다. 기준이 없으면 버티는 이유를 나중에 지어내게 됩니다. 근거: 지금 중심 시나리오 'AI 투자 꺾임'이 빗나가는 조건: 토큰 단가 하락보다 사용량 증가가 빨라 총지출이 늘어남.
+					153 button '틀렸다'의 기준을 먼저 정하기 — 리서치 라이브러리에서 개념 배우기
+				154 container
+					155 text 태도 기다림도 선택이다 현금은 수익이 0인 상태가 아니라 다음 기회를 고를 수 있는 선택권입니다. 기다림에도 비용(놓친 상승)이 있고, 그 비용은 현금성 자산의 이자만큼 줄어듭니다. 근거: 지금 살아 있는 시나리오에서는 서두르는 쪽의 비용이 더 크게 적혀 있습니다 · 현금성 자산 이자(
+					156 pop up button (collapsed) SOFR, Secondary Actions: Expand
+					157 text ) 3.87%.
+					158 button 기다림도 선택이다 — 리서치 라이브러리에서 개념 배우기
+				159 container
+					160 text 태도 수익보다 먼저 살아남기 큰 손실은 회복에 더 큰 수익이 필요합니다(-50%를 메우려면 +100%). 부담 신호가 많은 때일수록 얼마를 벌지보다 얼마까지 잃을 수 있는지가 결과를 가릅니다. 왜: 손실과 회복은 비대칭이라, 시장에 오래 남아 있는 것 자체가 복리의 조건입니다.
+					161 button 수익보다 먼저 살아남기 — 리서치 라이브러리에서 개념 배우기
+		162 button (collapsed) 데이터 출처, Secondary Actions: Expand
+			163 text 데이터 출처
+
+The focused UI element is 11 heading 포트폴리오, Value: 1, ID: page-portfolio-label

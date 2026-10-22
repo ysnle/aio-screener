@@ -1,0 +1,41 @@
+async function translateHeadlines(items, { previous = [], request = null, translate = null } = {}) {
+  const list = (Array.isArray(items) ? items : []).filter((item) => item && typeof item.title === 'string' && item.title.trim());
+  const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && isCleanKoreanTitle(item.titleKo)).map((item) => [item.title, item.titleKo]));
+  let reused = 0;
+  for (const item of list) {
+    if (hasHangul(item.title) || item.titleKo) continue;
+    if (known.has(item.title)) { item.titleKo = known.get(item.title); reused += 1; }
+  }
+  const pending = list.filter((item) => !hasHangul(item.title) && !item.titleKo).slice(0, HEADLINE_TRANSLATION_MAX);
+  const accept = (strings) => {
+    let count = 0;
+    pending.forEach((item, index) => {
+      const ko = typeof strings[index] === 'string' ? strings[index].replace(/\s+/g, ' ').trim() : '';
+      if (isCleanKoreanTitle(ko) && ko.length <= 200) { item.titleKo = ko; count += 1; }
+    });
+    return count;
+  };
+  // 2026-10-14: Workers AI first (free daily allowance on the Worker); a refusal or a short answer falls to the shared model.
+  let freeReason = null;
+  if (pending.length && typeof translate === 'function') {
+    let free = null;
+    try { free = await translate(pending.map((item) => item.title.slice(0, 300))); } catch (_) { free = null; }
+    if (Array.isArray(free?.translations) && free.translations.length === pending.length) {
+      const translated = accept(free.translations);
+      if (translated >= Math.ceil(pending.length * 0.8)) return { reused, translated, pending: pending.length, provider: 'workers-ai', model: free.model || null, reason: null };
+      pending.forEach((item) => { delete item.titleKo; });
+      freeReason = 'workers-ai-low-yield';
+    } else freeReason = free?.reason || 'workers-ai-unavailable';
+  }
+  if (!pending.length || typeof request !== 'function') return { reused, translated: 0, pending: pending.length, reason: pending.length ? 'no-request' : null, ...(freeReason ? { freeReason } : {}) };
+  const prompt = ['다음 영어 금융 뉴스 헤드라인을 자연스러운 한국어 기사 제목으로 옮겨라. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 마라.',
+    `출력은 JSON 문자열 배열 하나만, 입력과 같은 순서로 정확히 ${pending.length}개.`,
+    JSON.stringify(pending.map((item) => item.title.slice(0, 300)))].join('\n');
+  let result = null;
+  try { result = await request(prompt); } catch (_) { result = null; }
+  const text = String(result?.text || '');
+  let parsed = null;
+  try { parsed = JSON.parse(text.slice(text.indexOf('['), text.lastIndexOf(']') + 1)); } catch (_) { parsed = null; }
+  if (!Array.isArray(parsed) || parsed.length !== pending.length) return { reused, translated: 0, pending: pending.length, reason: result?.reason || 'unparsed', ...(freeReason ? { freeReason } : {}) };
+  return { reused, translated: accept(parsed), pending: pending.length, provider: 'shared-openai', reason: null, ...(freeReason ? { freeReason } : {}) };
+}

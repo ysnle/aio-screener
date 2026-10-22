@@ -1,4 +1,4 @@
-import { isDecisionQuality, isValidRightsId, normalizeAllowedUse, hasObservedPast, parseEvidenceTime } from './contracts/evidence.js';
+import { isDecisionEligibleRightsId, isDecisionQuality, isValidRightsId, normalizeAllowedUse, hasObservedPast, parseEvidenceTime } from './contracts/evidence.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/source-kind.js';
 import { QUOTE_IDENTITIES } from './contracts/market-snapshot.js';
 import { readPortfolioAssumptions } from './portfolio-assumptions.js';
@@ -100,7 +100,7 @@ function quoteObservation(root, symbol, nowMs = Date.now()) {
     && isDecisionEligibleSourceKind(sourceTier)
     && allowedUse === 'decision'
     && allowedUseCeiling === 'decision'
-    && isValidRightsId(rightsId)
+    && isDecisionEligibleRightsId(rightsId)
     && quality
     && isDecisionQuality(quality, envelope.qualityStatus)
     && hasObservedPast({ observedAt: observed })
@@ -440,7 +440,7 @@ function decisionEvidenceForRow(row, nowMs = Date.now()) {
   const age = Number.isFinite(observedMs) ? nowMs - observedMs : NaN;
   const ok = !!(sourceTier && isDecisionEligibleSourceKind(sourceTier)
     && allowedUse === 'decision' && allowedUseCeiling === 'decision'
-    && isValidRightsId(evidence.rightsId)
+    && isDecisionEligibleRightsId(evidence.rightsId)
     && isDecisionQuality(evidence.quality, evidence.qualityStatus)
     && hasObservedPast(evidence, nowMs)
     && !!evidence.revisionId

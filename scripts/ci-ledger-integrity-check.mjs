@@ -44,7 +44,12 @@ if (!defined.size) errors.push('RULES.md declares no R headings; the ledger pars
 const seenIds = new Set();
 const duplicateIds = occurrences.filter((n) => (seenIds.has(n) ? true : (seenIds.add(n), false)));
 check('v57.84 one R number names one rule (a reused number makes every citation ambiguous)', duplicateIds.length === 0, `duplicated: ${[...new Set(duplicateIds)].map((n) => `R${n}`).join(', ')}`);
-const maxR = Math.max(...defined);
+// v58.63 (architecture audit A14): the scan ceiling was the highest R still in RULES.md, so deleting the newest rule
+// (R719) shrank the ceiling with it and no gap appeared. The ceiling is also held by the highest rule the CHANGELOG
+// records as added ("P1907/R719") and by the manifest, so the newest rule cannot vanish without a new gap.
+const changelogMaxR = Math.max(0, ...[...read('CHANGELOG.md').matchAll(/\bP\d+\/R(\d+)\b/g)].map((match) => Number(match[1])));
+const priorManifestMaxR = existsSync(join(root, RULE_GAP_PATH)) ? Number(JSON.parse(read(RULE_GAP_PATH)).maxR) || 0 : 0;
+const maxR = Math.max(...defined, changelogMaxR, priorManifestMaxR);
 const actualGaps = [];
 for (let n = 1; n <= maxR; n += 1) if (!defined.has(n)) actualGaps.push(n);
 

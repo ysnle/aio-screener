@@ -1,0 +1,105 @@
+{
+  "startedAt": "2026-10-22T00:59:07.127Z",
+  "finishedAt": "2026-10-22T01:00:00.369Z",
+  "selectedOwnedPaths": 990,
+  "wrapperBoundary": "A file-backed Node argv wrapper passes the complete explicit --files list to the unmodified qa-runner to avoid Windows command-line length limits; qa-selection.json records the actual selection.",
+  "tempDirectory": "C:\\Projects\\AIO\\.cache\\audit-consolidation-20261022\\temp",
+  "selectedGroups": [
+    "preflight",
+    "workspace"
+  ],
+  "selectedGates": 29,
+  "reused": [
+    {
+      "args": [
+        "scripts/generate-workspace-state.mjs",
+        "--check"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/ci-workspace-contract-check.mjs"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/ci-knowledge-lint-check.mjs"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/ci-skill-contract-check.mjs"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/ci-skill-eval-fixture-check.mjs"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/ci-ledger-integrity-check.mjs"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/ci-assertion-trace-check.mjs"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/sync-agent-profiles.mjs",
+        "--check"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/sync-agent-skills.mjs",
+        "--check"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    },
+    {
+      "args": [
+        "scripts/ci-workflow-compaction-check.mjs"
+      ],
+      "evidence": "Already executed successfully in the same affected preflight; not repeated."
+    }
+  ],
+  "results": [
+    {
+      "exe": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        ".cache/audit-consolidation-20261022/run-affected.mjs"
+      ],
+      "exitCode": 0,
+      "durationMs": 53121,
+      "output": "[qa] RUN syntax\n[qa] RUN workflow-yaml\n[qa] RUN version\n[qa] RUN product-charter\n[qa] PASS version (233ms)\n[qa] RUN architecture\n[qa] PASS product-charter (328ms)\n[qa] RUN native-decision\n[qa] PASS native-decision (368ms)\n[qa] RUN vertical-slice\n[qa] PASS vertical-slice (208ms)\n[qa] RUN capability-claims\n[qa] PASS capability-claims (217ms)\n[qa] RUN operations-contract\n[qa] PASS operations-contract (311ms)\n[qa] RUN reference-curriculum\n[qa] PASS reference-curriculum (196ms)\n[qa] RUN route-registry\n[qa] PASS route-registry (180ms)\n[qa] RUN generated-state\n[qa] PASS architecture (2188ms)\n[qa] RUN workspace-contract\n[qa] PASS generated-state (652ms)\n[qa] RUN qa-runner-behavior\n[qa] PASS workflow-yaml (6805ms)\n[qa] PASS workspace-contract (4173ms)\n[qa] PASS syntax (16325ms)\n[qa] PASS qa-runner-behavior (31517ms)\n[qa] RUN knowledge-lint\n[qa] RUN workflow-compaction\n[qa] RUN skill-contract\n[qa] RUN skill-evals\n[qa] PASS skill-evals (109ms)\n[qa] RUN agent-profiles\n[qa] PASS agent-profiles (107ms)\n[qa] RUN agent-skills\n[qa] PASS skill-contract (275ms)\n[qa] RUN live-header-policy\n[qa] PASS workflow-compaction (305ms)\n[qa] RUN operator-provisioning\n[qa] PASS live-header-policy (104ms)\n[qa] RUN doc-currency\n[qa] PASS agent-skills (226ms)\n[qa] RUN ledger-integrity\n[qa] PASS operator-provisioning (170ms)\n[qa] RUN record-fix\n[qa] PASS doc-currency (119ms)\n[qa] RUN generated-conflict-fixture\n[qa] PASS ledger-integrity (132ms)\n[qa] RUN assertion-trace\n[qa] PASS knowledge-lint (812ms)\n[qa] RUN text-pin-ratchet\n[qa] PASS assertion-trace (779ms)\n[qa] RUN qa-pipeline-contract\n[qa] PASS text-pin-ratchet (772ms)\n[qa] PASS qa-pipeline-contract (1036ms)\n[qa] PASS record-fix (6344ms)\n[qa] PASS generated-conflict-fixture (6729ms)\n[qa] SUMMARY profile=affected run=2026-10-22T00-59-07-343Z-1892-2a294l groups=preflight,workspace pass=29 cached=0 fail=0 skip=0 duration=52.2s\n[qa] REPORT C:\\Projects\\AIO\\.cache\\aio-qa\\runs\\2026-10-22T00-59-07-343Z-1892-2a294l.json\n[qa] REPORT C:\\Projects\\AIO\\.cache\\aio-qa\\last-run.json\n\n",
+      "error": null
+    },
+    {
+      "exe": "git",
+      "args": [
+        "diff",
+        "--check",
+        "--",
+        "_artifacts/architecture-quality-audit",
+        "_context/INDEX.md",
+        "_context/CONTEXT-CATALOG.json",
+        "_context/CURRENT-STATE.md"
+      ],
+      "exitCode": 0,
+      "durationMs": 119,
+      "output": "\n",
+      "error": null
+    }
+  ]
+}

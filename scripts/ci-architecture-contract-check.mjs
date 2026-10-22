@@ -34,6 +34,12 @@ const forbiddenByLayer = {
   ui: [/\bfetch\s*\(/, /localStorage|sessionStorage|indexedDB/],
   ai: [/\bfetch\s*\(/, /localStorage|sessionStorage|indexedDB/]
 };
+// v58.64 (architecture audit M2): AI context once imported its market models from UI components, tying the AI load graph
+// to screen code. Models live below the UI; ai, domain and data never import from src/ui.
+const UI_IMPORT = /(?:from\s*|import\s*\(\s*)['"][^'"]*\/ui\//;
+for (const layer of ['ai', 'domain', 'data']) {
+  forbiddenByLayer[layer] = [...(forbiddenByLayer[layer] || []), UI_IMPORT];
+}
 for (const [layer, patterns] of Object.entries(forbiddenByLayer)) {
   const dir = path.join(root, 'src', layer);
   if (!fs.existsSync(dir)) continue;
@@ -537,7 +543,7 @@ if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_SURFACE_MODEL_V
 // absence checks stay on index.html because they guard the shell against reintroduction.
 // P1136/R620: broaden the reintroduction guard to the workspace module that now owns the legacy
 // portfolio writers — pinned to the shell alone it would have gone vacuous.
-if ((indexHtmlSource + workspaceSource).includes("document.getElementById('pf-holding-count')") || (indexHtmlSource + workspaceSource).includes("document.getElementById('pf-sector-breakdown')") || !pagesSource.includes('P831: sector allocation is owned by src/ui/pages/portfolio.js.')) fail('legacy portfolio surface writer retirement missing');
+if ((indexHtmlSource + workspaceSource).includes("document.getElementById('pf-holding-count')") || (indexHtmlSource + workspaceSource).includes("document.getElementById('pf-sector-breakdown')")) fail('legacy portfolio surface writer retirement missing');
 // P1130/R619: the options renderer moved from index.html's inline block E into js/aio-ui.js, so the
 // fence is now consulted there. The marker's owner must move with it — an assertion pinned to the old
 // file would either fail loudly (as this one did) or, worse, keep passing against a stale copy.
@@ -593,8 +599,9 @@ for (const marker of ['theme-detail-native-summary', 'theme-detail-native-compos
   // by the renderer that moved to js/aio-pages.js — accept either owner.
   if (!(htmlSource.includes(marker) || pagesSource.includes(marker))) fail(`theme-detail legacy/native child boundary missing: ${marker}`);
 }
-if (!pagesSource.includes('P789: sub-theme composition and breadth are owned by the native child surface.')) fail('theme-detail legacy composition fence missing');
-if (!pagesSource.includes('P790: detailed leader cards are owned by the native child surface.')) fail('theme-detail legacy leader fence missing');
+// v58.63 (architecture audit C3): the P789/P790/P797/P798/P799/P859 checks also required the wording of fence comments,
+// so deleting a comment failed the release gate while the code, the fence condition and the native ownership were the
+// same (the reason P791-P796 pins were already dropped). Only the executable fence conditions are asserted.
 // P1129/R619: P791~P796 were fence comments INSIDE the retired deep-analysis writer. That
 // writer has now been deleted outright, and "the fence comment still exists" stops being a
 // meaningful invariant once the fenced code is gone — keeping the assertion would have forced
@@ -602,14 +609,14 @@ if (!pagesSource.includes('P790: detailed leader cards are owned by the native c
 // writer cannot come back, which is what these lines now assert. The native ownership of the
 // six sections is still covered by the `theme-detail-native-*` markers asserted above.
 if (indexHtmlSource.includes('_retiredThemeDeepAnalysis')) fail('theme-detail retired deep-analysis writer returned after P797/P1129 deletion');
-if (!pagesSource.includes('P797: all visible theme-detail content is owned by the native child surfaces.') || !pagesSource.includes('legacyContainer.replaceChildren()') || pagesSource.includes('legacyContainer.innerHTML = html')) fail('theme-detail legacy visible writer retirement missing');
+if (!pagesSource.includes('legacyContainer.replaceChildren()') || pagesSource.includes('legacyContainer.innerHTML = html')) fail('theme-detail legacy visible writer retirement missing');
 
 // P798-P799: the RRG status and canvas are native projections of the normalized themes slice.
 // Legacy drawRRG remains only as a compatibility fallback and must fence both surfaces.
 for (const marker of ['renderRRGStatus', 'renderRRGCanvas', 'rrg-chart-status', 'rrg-canvas', 'aioRrgStatusRenderer', 'aioRrgChartRenderer']) {
   if (!themesPageSource.includes(marker)) fail(`native RRG surface marker missing: ${marker}`);
 }
-if (!pagesSource.includes('P798: RRG chart-status is owned by the native themes state projection; the canvas remains legacy.') || !pagesSource.includes('P799: native themes owns the RRG canvas from normalized quadrant evidence.') || !pagesSource.includes("st.dataset.aioRrgStatusRenderer !== 'native'") || !pagesSource.includes("dataset.aioRrgChartRenderer === 'native'")) fail('RRG legacy writer fences missing');
+if (!pagesSource.includes("st.dataset.aioRrgStatusRenderer !== 'native'") || !pagesSource.includes("dataset.aioRrgChartRenderer === 'native'")) fail('RRG legacy writer fences missing');
 
 // P800: the themes slice must be fed by the native provider/orchestrator rather than
 // the legacy facade projection; legacy theme events remain compatibility notifications.
@@ -643,7 +650,7 @@ if (/function generateSectorAnalysis\s*\(|sector-perf-analysis/.test(pagesSource
 for (const marker of ['renderThemePerformanceBars', 'sector-perf-bars', 'aioThemePerformanceBarsRenderer', 'weeklyPct']) {
   if (!themesPageSource.includes(marker) && marker !== 'sector-perf-bars' && marker !== 'weeklyPct') fail(`native theme performance-bars marker missing: ${marker}`);
 }
-if (!pagesSource.includes('P859: native themes owns the bounded sector-performance bars') || !pagesSource.includes("container.dataset.aioThemePerformanceBarsRenderer === 'native'")) fail('theme performance-bars legacy writer fence missing');
+if (!pagesSource.includes("container.dataset.aioThemePerformanceBarsRenderer === 'native'")) fail('theme performance-bars legacy writer fence missing');
 
 // AG-DOM-WRITER (RM-01): src/ui/pages/* may only write ids/helpers that no legacy file also
 // writes. This is deliberately id-based (getElementById + the setText/text(documentRef, id, …)

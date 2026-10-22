@@ -1,0 +1,18 @@
+{
+  "version": "v58.63", "date": "2026-10-22",
+  "p": {
+    "title": "기준·범위 불일치: 시장 읽기, 실적 주간, 회계연도, 포트폴리오 읽기, 즉석 종목 캐시, 권리, 거시 갈림길, 화면 연결",
+    "symptom": "시장 읽기(A02, A03)와 분석 읽기(A07, A08)가 다른 기준일 값을 섞었고, 회계연도 표기가 화면마다 달랐다. 실적 주간 달력이 브라우저 시간대·주말에 다른 주를 열었다(A04). 포트폴리오 읽기가 범위를 벗어난 값을 썼고(A09, A10), 즉석 종목 결과가 유니버스 갱신 뒤에도 재사용됐다(D3). 검토 필요·거부 권리 id가 판단 자료로 통과했고 가격 권리 grant가 빠졌다(D5, D6). 리플레이션 조건이 일부 신호만 봤고(M02) 3분할 흐름이 다른 필드를 섞었다(M03). 개념 id 정규식, 통화가 다른 원가의 손익(UI-02), 지도 이동 경로(UI-04), 대가 신고 비교 기간(UI-05), 과거 충돌 문장 누락(I01)도 어긋났다.",
+    "root_cause": "기준일·시장 시간대·권리 상태·유니버스 버전 같은 기준이 생산자와 소비자에 각각 다시 정의돼 있었다.",
+    "fix": "공용 fiscalYearShortLabel, 뉴욕 날짜 기준 실적 주간(주말엔 다음 주), 유니버스 키(행 수+factorSessionDate)로 즉석 캐시 무효화, isDecisionEligibleRightsId, priceAllowedUseGrant 전달, 리플레이션 all(), byThree는 headline만, 개념 id는 A~O 뒤 1~2자리 숫자, 통화 불일치 손익 보류, 지도는 navigateKnowledgeRoute, 대가 비교는 같은 분기 중앙값(3건 이상), 과거 충돌 문장 출력.",
+    "violated_rule": "R671 현재성 라벨은 관측·달력에서 한 presenter로, R340 필수 입력의 의미·기준일·coverage가 갖춰질 때만 결론 표시",
+    "prevention": "scripts/ci-architecture-audit-regression-fixture.mjs D5 권리 반례·양성 대조, ci-esm-core-unit-check, ci-review-integrity-unit-check.",
+    "verification": "fixture·esm-core·review-integrity PASS. 레거시 실적 달력(A04)은 브라우저 미확인."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-05", "text": "{P}: 검토 필요·거부·차단·철회 권리 id는 판단 자료가 아니고, 실적 주간은 뉴욕 날짜로 열리며, 즉석 종목 결과는 유니버스가 바뀌면 다시 계산한다.", "verify_by": "node scripts/ci-architecture-audit-regression-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs", "done": true }],
+  "qa_section": "아키텍처 품질 감사 v58.63",
+  "changelog": ["**기준·범위 일치 ({P}):** 시장·분석 읽기 기준일, 회계연도 표기, 뉴욕 기준 실적 주간, 포트폴리오 읽기 범위, 즉석 종목 유니버스 키, 권리 판단 자격과 가격 grant, 리플레이션 조건, 3분할 흐름, 개념 id, 통화 불일치 손익, 지도 이동, 대가 비교 기간, 과거 충돌 문장을 고쳤다(A02–A04, A07–A10, D3, D5, D6, M02, M03, UI-01, UI-02, UI-04, UI-05, I01)."],
+  "note": "아키텍처 품질 감사(Codex) 전 항목 재검증·구조 수정 + 미점검 영역 확장 점검. 로컬 검증; commit/push/deploy 미실행, Worker 재배포 필요(SEC01).",
+  "status": null
+}

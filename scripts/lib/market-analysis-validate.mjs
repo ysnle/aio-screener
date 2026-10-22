@@ -17,7 +17,19 @@ const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: 'CL=F', metricId: 'market.wti', label: 'WTI', unit: 'USD/barrel', aliases: ['oil'] },
   { symbol: 'GC=F', metricId: 'market.gold', label: 'Gold', unit: 'USD/oz', aliases: [] },
   { symbol: '^KS11', metricId: 'market.kospi', label: 'KOSPI', unit: 'index', aliases: [], zone: 'Asia/Seoul' },
+  // Live 2026-10-21: KOSPI +3.3% was read only as "AI 투자심리 회복" — semis, US futures and Asia were not evidence. These come
+  // from the snapshot's evidence tier only (snapshotOnly): an id that does not resolve in market-snapshot.json is not cited.
+  { symbol: 'SMH', metricId: 'market.semis', label: 'SMH', unit: 'USD', aliases: ['반도체 ETF', '반도체ETF'], snapshotOnly: true },
+  { symbol: 'ES=F', metricId: 'market.sp500-futures', label: 'ES', unit: 'index', aliases: ['ES=F', 'S&P 500 선물', 'S&P500 선물', 'S&P 선물'], snapshotOnly: true },
+  { symbol: 'NQ=F', metricId: 'market.nasdaq100-futures', label: 'NQ', unit: 'index', aliases: ['NQ=F', '나스닥 100 선물', '나스닥100 선물', '나스닥 선물', 'Nasdaq 100 futures'], snapshotOnly: true },
+  { symbol: '^N225', metricId: 'market.nikkei', label: 'Nikkei', unit: 'index', aliases: ['Nikkei 225', '닛케이', '닛케이 225', '닛케이225'], zone: 'Asia/Tokyo', snapshotOnly: true },
+  { symbol: '^HSI', metricId: 'market.hangseng', label: 'HSI', unit: 'index', aliases: ['Hang Seng', '항셍', '항셍지수'], zone: 'Asia/Hong_Kong', snapshotOnly: true },
 ];
+export const EVIDENCE_TIER_METRIC_IDS = Object.freeze(MARKET_ANALYSIS_QUOTE_DEFS.filter((def) => def.snapshotOnly).map((def) => def.metricId));
+/** Tier-0 quotes and the evidence tier (market-snapshot.json `evidenceQuotes`) — every row the reading may cite. */
+export function snapshotEvidenceRows(snapshot) {
+  return [...(snapshot?.quotes || []), ...(snapshot?.evidenceQuotes || [])];
+}
 // v57.81: the completed-close series in history.json for each quote (see buildCompletedCloseBasis).
 const MARKET_ANALYSIS_HISTORY_FIELDS = Object.freeze({ 'market.spx': 'spx', 'market.vix': 'vix', 'market.us10y': 'tnx', 'market.dxy': 'dxy', 'market.wti': 'wti', 'market.gold': 'gold', 'market.kospi': 'kospi' });
 const MARKET_ANALYSIS_MACRO_DEFS = [
@@ -46,12 +58,13 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
   // market-snapshot.json). Prefer the canonical snapshot rows so unit, metricId and
   // evidenceId all resolve inside the published artifact.
   const snapshotQuotes = new Map();
-  for (const row of (options.snapshot?.quotes || [])) {
+  for (const row of snapshotEvidenceRows(options.snapshot)) {
     if (row && row.instrumentId) snapshotQuotes.set(row.instrumentId, row);
   }
   const quotes = new Map((data?.quotes || []).filter(row => row && row.symbol).map(row => [row.symbol, row]));
   for (const def of MARKET_ANALYSIS_QUOTE_DEFS) {
     const canonical = snapshotQuotes.get(def.symbol) || null;
+    if (def.snapshotOnly && !canonical) continue;
     const row = quotes.get(def.symbol);
     const value = Number(canonical ? canonical.value : row?.regularMarketPrice);
     const asOf = _validIsoDate(canonical ? canonical.observedAt : (row?.observedAt || row?.fetchedAt));
@@ -191,6 +204,13 @@ export function marketAnalysisLargeMoveDirection(metricEvidence = [], changes = 
 // passed to the prompt as a close; PREVIOUS_CLOSE_EXPECTED (venue open, value is the prior close) is a completed close.
 export const MARKET_ANALYSIS_CLOSED_SESSIONS = Object.freeze(['MARKET_CLOSED', 'CLOSED_CURRENT', 'COMPLETED', 'CLOSED', 'PREVIOUS_CLOSE_EXPECTED']);
 const MARKET_ANALYSIS_MENTIONS = Object.freeze({
+  // 2026-10-21 evidence tier. Listed before the cash indices: at one position the first alternative wins, so
+  // "S&P 500 선물 +0.6%" is checked against the futures row, never against the S&P 500 close.
+  'market.sp500-futures': ['ES=F', 'S&P\\s?500\\s?(?:지수\\s?)?선물', 'S&P\\s?선물', '에스앤피\\s?(?:오백|500)\\s?선물'],
+  'market.nasdaq100-futures': ['NQ=F', 'Nasdaq\\s?(?:100\\s?)?futures', '나스닥\\s?(?:100\\s?)?(?:지수\\s?)?선물'],
+  'market.semis': ['SMH', '반도체\\s?ETF'],
+  'market.nikkei': ['Nikkei(?:\\s?225)?', '닛케이(?:\\s?225)?(?:\\s?지수)?', '니케이(?:\\s?225)?'],
+  'market.hangseng': ['Hang\\s?Seng', '항셍(?:\\s?지수)?'],
   'market.spx': ['S&P\\s?500', 'SPX', 'S&P', '에스앤피\\s?(?:오백|500)'],
   'market.vix': ['VIX', '변동성\\s?지수', '공포\\s?지수'],
   'market.us10y': ['US 10Y', '10Y', 'Treasury', '(?:미(?:국)?\\s?)?(?:10년물|10년\\s?국채|국채\\s?10년물?)(?:\\s?(?:금리|수익률))?',
@@ -544,7 +564,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   if (!body) issues.push('empty');
   if (PROMPT_SECTION_LABEL.test(body)) issues.push('prompt-label-leak');
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
-  const changes = new Map((snapshot?.quotes || []).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
+  const changes = new Map(snapshotEvidenceRows(snapshot).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
   const closedBasis = buildCompletedCloseBasis(metricEvidence, history);
   const levelTolerance = (unit, value) => Math.max(unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(value)) * 0.02);
   issues.push(...validateAnalysisAdmission(body, { changes, context }));
@@ -759,7 +779,8 @@ export function buildMarketAnalysisHeadlineContext(data) {
   const seen = new Set();
   const ranked = rows
     .filter(row => row && row.title && row.source && _validIsoDate(row.eventTime || row.pubDate))
-    .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
+    // Live audit 2026-10-21: a tier-3 live blog (The Sunday Guardian) held a seat the wires covered; tier 1-2 rank first.
+    .sort((a, b) => (Number(a.tier || 3) <= 2 ? 0 : 1) - (Number(b.tier || 3) <= 2 ? 0 : 1) || Number(b.score || 0) - Number(a.score || 0))
     .filter(row => {
       const key = String(row.link || row.title).slice(0, 120);
       if (seen.has(key)) return false;
@@ -954,7 +975,9 @@ export function retainedReadingIssues(previous, result) {
     const after = metricId ? now.get(metricId) : null;
     if (!before || !after || before.evidenceId === after.evidenceId) return true;
     const moved = Math.abs(Number(after.value) / Number(before.value) - 1) * 100;
-    const limit = metricId === 'market.spx' || metricId === 'market.kospi' ? MARKET_ANALYSIS_RETAIN_DRIFT_PCT.equity : MARKET_ANALYSIS_RETAIN_DRIFT_PCT.other;
+    // The evidence tier (semis, index futures, Asian indices) is equity too.
+    const equity = metricId === 'market.spx' || metricId === 'market.kospi' || EVIDENCE_TIER_METRIC_IDS.includes(metricId);
+    const limit = equity ? MARKET_ANALYSIS_RETAIN_DRIFT_PCT.equity : MARKET_ANALYSIS_RETAIN_DRIFT_PCT.other;
     return !(Number.isFinite(moved) && moved < limit);
   });
 }
@@ -993,7 +1016,8 @@ export function lastVerifiedMarketAnalysis(previous, nowMs = Date.now()) {
 const MARKET_ANALYSIS_PLAIN_NAMES = Object.freeze({
   'market.spx': 'S&P 500', 'market.vix': 'VIX(변동성 지수)', 'market.us10y': '미국 10년물 금리', 'market.dxy': '달러 지수',
   'market.wti': 'WTI 유가', 'market.gold': '금', 'market.kospi': '코스피', 'macro.cpi': '미국 소비자물가(전년비)',
-  'macro.fed-rate': '미국 실효 연방기금금리(월평균)', 'macro.fed-target-upper': '연준 목표 범위 상단', 'macro.nfp-mom': '미국 비농업 고용 증감', 'sentiment.fear-greed': '공포·탐욕 지수'
+  'macro.fed-rate': '미국 실효 연방기금금리(월평균)', 'macro.fed-target-upper': '연준 목표 범위 상단', 'macro.nfp-mom': '미국 비농업 고용 증감', 'sentiment.fear-greed': '공포·탐욕 지수',
+  'market.semis': '반도체 ETF(SMH)', 'market.sp500-futures': 'S&P 500 선물', 'market.nasdaq100-futures': '나스닥 100 선물', 'market.nikkei': '닛케이 225', 'market.hangseng': '항셍 지수'
 });
 const _plainNumber = (value, unit) => {
   const text = Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 });

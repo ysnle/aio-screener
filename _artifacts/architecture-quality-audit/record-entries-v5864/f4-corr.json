@@ -1,0 +1,18 @@
+{
+  "version": "v58.64", "date": "2026-10-23",
+  "p": {
+    "title": "AI 채팅 헤더의 자산 간 상관(computeCrossAssetCorrelation)이 항상 '데이터 부족'인 죽은 계산",
+    "symptom": "_priceHistory 항목은 숫자인데 함수는 p.price를 읽어 모든 시계열이 비었고, 매번 insufficient_data를 돌려 AI 헤더의 'Cross-Asset 국면' 줄은 한 번도 나오지 않았다. 입력도 30초 틱이라 이름과 달리 '30일 상관'이 될 수 없었고, 상수 시계열은 상관 0으로 반환했다(SCR02와 같은 클래스).",
+    "root_cause": "수집기(숫자 배열)와 소비자(객체 배열) 형식이 어긋났고, 테스트는 함수 존재와 상태 문자열만 확인했다.",
+    "fix": "함수와 채팅 헤더 줄, 감사 사이드바 항목, T660/T661/T668, 마크업을 퇴역했다. 자산 간 읽기는 네이티브 시장 해석 모델이 맡는다.",
+    "violated_rule": "R628 결측은 조건도 구간도 관측값도 만족시키지 않는다(존재 검사만으로 통과시키지 않는다)",
+    "prevention": "퇴역 — 소비자·테스트·마크업 참조 0건 확인.",
+    "verification": "참조 grep 0건, node --check PASS, 브라우저 콘솔 예외 없음."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-13", "text": "{P}: computeCrossAssetCorrelation과 crossAssetCorr 감사 항목·채팅 헤더 줄이 남아 있지 않다.", "verify_by": "rg -n computeCrossAssetCorrelation js src index.html (0건)", "done": true }],
+  "qa_section": "아키텍처 감사 후속 v58.64",
+  "changelog": ["**죽은 상관 계산 퇴역 ({P}):** 형식이 어긋나 항상 '데이터 부족'이던 자산 간 상관 함수와 그 채팅 헤더 줄·감사 항목·테스트를 제거했다."],
+  "note": "아키텍처 감사 후속: 결정 항목 권장안 적용(SCR05·M1·M2·I02·DOMAIN #8), 유사 결함 클래스 전수 확인·수정, 레거시 화면 브라우저 확인. 로컬 검증; commit/push/deploy 미실행, Worker 재배포는 push 후.",
+  "status": null
+}

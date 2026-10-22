@@ -2,7 +2,7 @@
 // KOSDAQ, US listings with the S&P 500 — over the same 1/3/6-month windows (21/63/126 completed sessions).
 // Index returns come from the completed-close history (price index, no dividends); the screener's stock
 // returns use adjusted closes (dividends included), so a dividend payer gains ~0.5-1%/quarter in comparison.
-import { buildCloseSeries, sessionPointBack } from '../briefing/market-read.js';
+import { buildCloseSeries, sessionPointBack } from './close-series.js';
 
 const WINDOWS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
 

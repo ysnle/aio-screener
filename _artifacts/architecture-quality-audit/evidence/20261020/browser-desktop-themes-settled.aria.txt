@@ -1,0 +1,688 @@
+Browser tab: 2, Title: "테마 · 섹터 · AIO Screener", URL: "http://127.0.0.1:8795/#themes".
+0 AXWebArea 테마 · 섹터 · AIO Screener, URL: 127.0.0.1:8795/#themes
+	4 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/#main-content
+	5 container Description: 메인 네비게이션, ID: aio-navigation
+		6 container
+			7 text AIO Investment Screener
+		8 text 데일리
+		9 button 오늘 페이지
+		10 text 시장
+		11 button 시장 상태 페이지
+		12 button 거시 · 금리 페이지
+		13 button 테마 · 섹터 페이지
+		14 text 내 투자
+		15 button 종목 페이지
+		16 button 스크리너 페이지
+		17 button 포트폴리오 페이지
+		18 text 리서치
+		19 button 리서치 라이브러리 페이지
+		20 button 용어 사전 페이지
+		21 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			22 text 라이트 모드로 전환
+		23 text AI 도우미
+		46 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		25 text GPT-6 Luna · 공용 AI 연결
+		26 text 개인 AI 키 입력 없이 이용합니다.
+		39 button (collapsed) 연결 상태, Secondary Actions: Expand
+			40 text 연결 상태
+		27 button (collapsed) 보안 설정, Secondary Actions: Expand
+			28 text 보안 설정
+	29 container
+		30 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		50 text 테마 · 섹터
+		48 text 종가
+		49 text 서버 10/19 마감 · 시세 16종
+		43 text v58.50
+		36 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		37 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	51 container 테마 · 섹터, ID: page-themes
+		52 heading 테마 · 섹터, Value: 1, ID: page-themes-label
+			53 text 테마 · 섹터
+		54 text 어느 업종·테마의 가격이 시장보다 앞서는지 — 섹터 상대강도 회전과 세부 테마 순위
+		55 container Description: 산점도 범위, ID: rrg-view-tabs
+			56 button 11섹터
+			57 button 세부 업종
+			58 button 전체
+		119 text 섹터 상대강도 · 선도·개선 9/11 · 약화·후행 1/11 · 기준선 부근 1/11
+		60 container 섹터 회전 판정, ID: themes-verdict
+			61 heading 섹터 회전 판정, Value: 2, ID: themes-verdict-title
+				62 text 섹터 회전 판정
+			120 text 약 50일 상대강도 기준 선도 필수소비·헬스케어·에너지 · 개선 원자재·통신·산업재·금융·부동산·유틸리티. 선도·개선 9개 중 방어 업종(유틸리티·필수소비재·헬스케어·부동산) 3개, 경기 민감 업종 6개입니다. 약화 0개, 후행 1개입니다. 소비재는 100 근처(기준선 부근)라 사분면을 정하지 않았습니다.
+			64 container rrg-chart-block
+				121 text 선도 3 · 개선 6 · 약화 0 · 후행 1 · 기준선 부근 1 · 약 50일 상대강도 · 10/19 미국 종가 기준
+				66 image Description: 섹터 상대강도 산점도 — 가로축 시장 대비 상대강도, 세로축 상대강도 변화 속도. 사분면별 섹터 목록은 아래 접힌 칸에 있습니다., ID: rrg-canvas
+			67 button (collapsed) 사분면별 섹터, Secondary Actions: Expand
+				122 text 사분면별 섹터
+		69 text 섹터 1일·1주 등락 성과와 사분면 상태
+		70 button (collapsed) Description: 섹터 RS 설명, Secondary Actions: Expand
+		71 container Description: 막대 범위, ID: sector-perf-view-tabs
+			72 button 11섹터
+			73 button +세부 업종
+		74 container Description: 기간, ID: sector-perf-tabs
+			75 button 1일
+			76 button 1주
+		77 container sector-perf-bars
+			123 text 10/19 미국 종가 기준 · 값이 없는 섹터는 대기
+			124 text XLY 경기소비재 +1.78% 기준선 부근 XLK 기술 +1.36% 후행 XLB 소재 +0.06% 개선 XLC 통신 -0.21% 개선 XLP 필수소비재 -0.47% 선도 XLV 헬스케어 -0.60% 선도 XLI 산업재 -0.64% 개선 XLE 에너지 -0.64% 선도 XLF 금융 -0.83% 개선 XLRE 부동산 -1.16% 개선 XLU 유틸리티 -2.01% 개선
+		90 container Description: S&P 500 지도, ID: sector-map
+			125 heading S&P 500 지도, Value: 2
+				126 text S&P 500 지도
+			127 container 수익률 기간
+				128 checkbox 1일, Value: 1
+				129 checkbox 1주, Value: 0
+				130 checkbox 1개월, Value: 0
+				131 checkbox 3개월, Value: 0
+			132 text 넓이 = 지수 비중(503종목 · 10/16 보유 비중) · 색 = 1일 수익률 · 10/19 미국 종가 기준 · 섹터 평균은 지도에 그린 종목의 비중 가중이라 섹터 ETF 수익률과 다를 수 있습니다
+			133 text 지도 전체 평균(기간 시작 비중 가중) +0.41% · 502종목 중 175개 상승 · 11개 섹터 중 4개 상승. 가장 강한 섹터는 경기소비재(+2.73%), 가장 약한 섹터는 유틸리티(-1.98%)입니다. 시가총액 상위 10개 기업(지도 면적 40%)은 +1.25%로 나머지(-0.15%)보다 1.4%p 강했습니다. 종목마다 같은 비중을 두면 평균 -0.34%입니다.
+			134 container S&P 500 섹터 지도, 1일 수익률. 지도 전체 평균(기간 시작 비중 가중) +0.41% · 502종목 중 175개 상승 · 11개 섹터 중 4개 상승. 가장 강한 섹터는 경기소비재(+2.73%), 가장 약한 섹터는 유틸리티(-1.98%)입니다. 시가총액 상위 10개 기업(지도 면적 40%)은 +1.25%로 나머지(-0.15%)보다 1.4%p 강했습니다. 종목마다 같은 비중을 두면 평균 -0.34%입니다. 섹터별 숫자와 종목 이동은 아래 '섹터별 숫자'에서 볼 수 있습니다.
+			135 text 1일 가장 크게 오른 종목 WDC(기술) +6.09% · 가장 크게 내린 종목 MOS(소재) -4.78%
+			136 button (collapsed) 섹터별 숫자, Secondary Actions: Expand
+				137 text 섹터별 숫자
+			138 button (collapsed) 지도 읽는 법, Secondary Actions: Expand
+				139 text 지도 읽는 법
+		140 container Description: S&P 500 이익 전망과 밸류에이션, ID: index-earnings
+			141 heading S&P 500 이익 전망과 밸류에이션 컨센서스 10/19~10/20 · 지수 비중 10/16 · 487개 기업(비중 98%), Value: 2
+				142 text S&P 500 이익 전망과 밸류에이션 컨센서스 10/19~10/20 · 지수 비중 10/16 · 487개 기업(비중 98%)
+			143 text 최근 4주 애널리스트들은 S&P 500 기업의 향후 4개 분기 이익 전망을 올리는 쪽이 우세합니다 (상향 우위 +14%, 수정 건수 기준).
+			144 content list
+				145 container
+					146 AXListMarker • 
+					147 text 전망 수정 1,539건 상향 · 1,164건 하향 (기업별로 보면 상향이 많은 곳 196, 하향이 많은 곳 148).
+				148 container
+					149 AXListMarker • 
+					150 text 선행 
+					151 pop up button (collapsed) PER, Secondary Actions: Expand
+					152 text  20.0배 — 향후 4개 분기 컨센서스 이익을 각 종목 직전 종가로 나눠 지수 비중으로 합산(이익수익률 5.0%).
+				153 container
+					154 AXListMarker • 
+					155 text 향후 4개 분기 이익이 직전 4개 분기보다 +20% (이익 규모 가중).
+				156 container
+					157 AXListMarker • 
+					158 text 주식위험프리미엄 2.3%p — 이익수익률 5.0%에서 10년 실질금리 2.74%(10/16)를 뺀 값.
+			159 container
+				160 text 해석  이익 전망 수정의 방향은 지수 이익 추세보다 먼저 움직이는 편이라, 가격보다 펀더멘털 쪽 흐름을 먼저 보여 줍니다. 위험프리미엄이 낮을수록 같은 이익 실망에 주가가 더 크게 반응할 여지가 있고, 실질금리가 오르면 프리미엄이 줄어 밸류에이션 부담이 커집니다. 이 화면에는 아직 과거 기록이 없어 지금 값이 역사적으로 높은지 낮은지는 말하지 않습니다.
+			161 button (collapsed) 섹터별 4주 상향 우위 (구성 기업 8개 이상) +, Secondary Actions: Expand
+				162 text 섹터별 4주 상향 우위 (구성 기업 8개 이상)
+				163 text +
+			164 text 상향 우위 = (상향 건수 − 하향 건수) ÷ (상향 + 하향) — 이익이 몇 % 바뀌었는지가 아니라 수정 방향의 쏠림입니다. 보통주 두 종류(GOOG·GOOGL 등)는 한 기업으로 셉니다. 지수 비중 80% 이상이 모여야 지수 값을 냅니다. 출처: Nasdaq·Zacks 컨센서스(조정 EPS 기준, 참고용), iShares IVV 보유 비중, FRED DFII10.
+		165 container 테마 시나리오 — 단계와 거시 영향
+			166 heading 테마 시나리오 — 단계와 거시 영향, Value: 2, ID: theme-playbook-title
+				167 text 테마 시나리오 — 단계와 거시 영향
+			168 container theme-playbook
+				169 text 최근 1개월(9/18~10/19) 미국 테마는 강한 쪽 필수소비재(+6.6%, 5거래일 +4.0%), 에너지(+5.6%), 헬스케어(+4.7%) · 약한 쪽 크립토/블록체인(-20.6%, 5거래일 -10.2%), 유틸리티(-11.0%, 5거래일 -7.6%), 방산/항공우주(-8.3%, 5거래일 -3.1%)입니다.
+				170 text 미국 10/19 · 한국 10/20 확정 종가 · 테마 46개 · 중심 시나리오 'AI 투자 꺾임' 기준. 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500 · 한국 코스피)와 비교해 정하고(1개월 ±4.3%p, 6개월 ±10.6%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.
+				171 container 테마 46개의 긴 추세와 최근 1개월 움직임 지도
+				172 text 수혜 부담 혼재 영향 작음 원: 미국 · 네모: 한국 · 중심 시나리오 기준
+				173 text 성격마다 테마가 5개 미만이라 힘이 어느 쪽으로 옮겨 갔는지는 판단하지 않습니다. 한국은 강한 쪽 광통신(+3.6%)·에너지(+1.2%), 약한 쪽 원전(-28.6%)·조선(-28.0%)입니다. 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.
+				174 text 거시 부담에도 주도하는 테마(6개월·1개월 지수 대비, 최근 5거래일 확인): 미국 소프트웨어/클라우드(5거래일 -1.4%), 미국 에너지(5거래일 +1.3%), 한국 광통신(5거래일 -6.3%) — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.
+				175 text 거시 수혜에도 약세인 테마: 미국 방산/항공우주 — 업종 고유의 문제가 있는지 먼저 봅니다.
+				176 button (collapsed) 주도 지속 (긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음) · 5개, Secondary Actions: Expand
+					177 text 주도 지속 (긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음) · 5개
+				178 button (collapsed) 추세 약화 확인 중 (긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음) · 3개, Secondary Actions: Expand
+					179 text 추세 약화 확인 중 (긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음) · 3개
+				180 button (collapsed) 추세 속 조정 (긴 추세는 앞서나 1개월은 뒤처짐) · 2개, Secondary Actions: Expand
+					181 text 추세 속 조정 (긴 추세는 앞서나 1개월은 뒤처짐) · 2개
+				182 button (collapsed) 상대 방어 (지수보다 앞서지만 긴 추세 수익률이 0 이하 — 덜 하락한 것, 1개월도 뒤처지지 않음) · 16개, Secondary Actions: Expand
+					183 text 상대 방어 (지수보다 앞서지만 긴 추세 수익률이 0 이하 — 덜 하락한 것, 1개월도 뒤처지지 않음) · 16개
+				184 button (collapsed) 동행 (긴 추세가 지수와 비슷함) · 6개, Secondary Actions: Expand
+					185 text 동행 (긴 추세가 지수와 비슷함) · 6개
+				186 button (collapsed) 약세 지속 (긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함) · 8개, Secondary Actions: Expand
+					187 text 약세 지속 (긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함) · 8개
+				188 button (collapsed) 판정 보류 · 6개, Secondary Actions: Expand
+					189 text 판정 보류 · 6개
+				190 text 세부 종목 선택은 테마 상세·차트·재무 공시·스크리너에서 직접 합니다.
+		92 container Description: 세부 테마 상대강도 순위, ID: theme-strength-board
+			191 heading 미국 세부 테마 상대강도 순위, Value: 2
+				192 text 미국 세부 테마 상대강도 순위
+			193 checkbox 1개월, Value: 0
+			194 checkbox 3개월, Value: 1
+			195 checkbox 6개월, Value: 0
+			196 text 3개월 상위는 엔터프라이즈 SaaS · 정유 · 생명과학/진단입니다. 그중 엔터프라이즈 SaaS · 금 광산은 1개월 순위가 3개월 순위보다 크게 밀려 강세가 식는 중입니다. 반대로 생활용품 · 관리의료/보험 · 산업가스/화학/도료는 1개월 순위가 크게 올라 최근 강해지는 곳입니다. 상위 5개 중 2개는 구성 종목 대부분이 50일선 위입니다.
+			197 text 10/19 미국 종가 기준 · 구성 종목 3개월 수익률의 중앙값으로 순위 · S&P 500 3개월 +2.4% · 1주 = 최근 5거래일 · 순위 변화: 1개월 순위가 3개월 순위보다 크게 오르면 '최근 강해짐', 크게 밀리면 '최근 식음'
+			198 container 세부 테마 상대강도 순위 표, 가로 스크롤
+				199 table
+					200 row
+						201 cell
+							202 text 순위
+						203 cell
+							204 text 세부 테마
+						205 cell
+							206 text 1주
+						207 cell
+							208 text 1개월
+						209 cell
+							210 text 3개월
+						211 cell
+							212 text 6개월
+						213 cell
+							214 text S&P 대비
+						215 cell
+							216 text 50일선 위
+						217 cell
+							218 text 순위 변화(3개월→1개월)
+						219 cell
+							220 text 구성 종목 전체
+					221 row
+						222 cell
+							223 text 1
+						224 cell
+							225 text 엔터프라이즈 SaaS  소프트웨어/클라우드 · 7종목
+							226 button (collapsed) Description: 엔터프라이즈 SaaS 구성 종목끼리 비교, Secondary Actions: Expand
+						227 cell
+							228 text +3.6%
+						229 cell
+							230 text +1.9%
+						231 cell
+							232 text +38.3%
+						233 cell
+							234 text +30.7%
+						235 cell
+							236 text +35.9%p
+						237 cell
+							238 text 71%
+						239 cell
+							240 text 최근 식음
+						241 cell
+							242 button ORCL, Help: Oracle
+							243 button CRM, Help: Salesforce
+							244 button NOW, Help: ServiceNow
+							245 button INTU, Help: Intuit
+							246 button ADBE, Help: Adobe
+							247 button WDAY, Help: Workday
+							248 button TEAM, Help: Atlassian
+					249 row
+						250 cell
+							251 text 2
+						252 cell
+							253 text 정유  에너지 · 4종목
+							254 button (collapsed) Description: 정유 구성 종목끼리 비교, Secondary Actions: Expand
+						255 cell
+							256 text +1.3%
+						257 cell
+							258 text +5.6%
+						259 cell
+							260 text +37.9%
+						261 cell
+							262 text +96.3%
+						263 cell
+							264 text +35.5%p
+						265 cell
+							266 text 100%
+						267 cell
+							268 text 큰 변화 없음
+						269 cell
+							270 button MPC, Help: Marathon Petroleum
+							271 button PSX, Help: Phillips 66
+							272 button VLO, Help: Valero Energy
+							273 button DK, Help: Delek US Holdings
+					274 row
+						275 cell
+							276 text 3
+						277 cell
+							278 text 생명과학/진단  헬스케어 · 5종목
+							279 button (collapsed) Description: 생명과학/진단 구성 종목끼리 비교, Secondary Actions: Expand
+						280 cell
+							281 text +1.5%
+						282 cell
+							283 text +6.1%
+						284 cell
+							285 text +25.6%
+						286 cell
+							287 text +29.4%
+						288 cell
+							289 text +23.2%p
+						290 cell
+							291 text 100%
+						292 cell
+							293 text 큰 변화 없음
+						294 cell
+							295 button TMO, Help: Thermo Fisher
+							296 button DHR, Help: Danaher
+							297 button A, Help: Agilent Technologies
+							298 button WAT, Help: Waters Corp
+							299 button IDXX, Help: IDEXX Laboratories
+					300 row
+						301 cell
+							302 text 4
+						303 cell
+							304 text 데이터/AI 플랫폼  소프트웨어/클라우드 · 6종목
+							305 button (collapsed) Description: 데이터/AI 플랫폼 구성 종목끼리 비교, Secondary Actions: Expand
+						306 cell
+							307 text -7.8%
+						308 cell
+							309 text +8.2%
+						310 cell
+							311 text +23.7%
+						312 cell
+							313 text +63.1%
+						314 cell
+							315 text +21.3%p
+						316 cell
+							317 text 67%
+						318 cell
+							319 text 큰 변화 없음
+						320 cell
+							321 button PLTR, Help: Palantir
+							322 button SNOW, Help: Snowflake
+							323 button DDOG, Help: Datadog
+							324 button MDB, Help: MongoDB
+							325 button ESTC, Help: Elastic
+							326 button AI, Help: C3.ai
+					327 row
+						328 cell
+							329 text 5
+						330 cell
+							331 text 금 광산  소재 · 5종목
+							332 button (collapsed) Description: 금 광산 구성 종목끼리 비교, Secondary Actions: Expand
+						333 cell
+							334 text -0.3%
+						335 cell
+							336 text -6.7%
+						337 cell
+							338 text +20.2%
+						339 cell
+							340 text -11.3%
+						341 cell
+							342 text +17.8%p
+						343 cell
+							344 text 0%
+						345 cell
+							346 text 최근 식음
+						347 cell
+							348 button NEM, Help: Newmont Corp
+							349 button AEM, Help: Agnico Eagle Mines
+							350 button B, Help: Barrick Mining
+							351 button WPM, Help: Wheaton Precious Metals
+							352 button KGC, Help: Kinross Gold
+					353 row
+						354 cell
+							355 text 6
+						356 cell
+							357 text 통합 메이저  에너지 · 4종목
+							358 button (collapsed) Description: 통합 메이저 구성 종목끼리 비교, Secondary Actions: Expand
+						359 cell
+							360 text +4.0%
+						361 cell
+							362 text +9.9%
+						363 cell
+							364 text +19.9%
+						365 cell
+							366 text +23.5%
+						367 cell
+							368 text +17.4%p
+						369 cell
+							370 text 100%
+						371 cell
+							372 text 큰 변화 없음
+						373 cell
+							374 button XOM, Help: Exxon Mobil
+							375 button CVX, Help: Chevron
+							376 button SU, Help: Suncor Energy
+							377 button SHEL, Help: Shell plc
+					378 row
+						379 cell
+							380 text 7
+						381 cell
+							382 text 서버/HW  AI 인프라/데이터센터 · 4종목
+							383 button (collapsed) Description: 서버/HW 구성 종목끼리 비교, Secondary Actions: Expand
+						384 cell 평소 1주 움직임의 2배를 넘는 하락
+							385 text -20.1%
+						386 cell
+							387 text -13.8%
+						388 cell
+							389 text +16.3%
+						390 cell
+							391 text +56.7%
+						392 cell
+							393 text +13.9%p
+						394 cell
+							395 text 0%
+						396 cell
+							397 text 최근 식음
+						398 cell
+							399 button DELL, Help: Dell Technologies
+							400 button SMCI, Help: Super Micro Computer
+							401 button HPE, Help: Hewlett Packard Enterprise
+							402 button CLS, Help: Celestica
+					403 row
+						404 cell
+							405 text 8
+						406 cell
+							407 text 사이버보안  소프트웨어/클라우드 · 7종목
+							408 button (collapsed) Description: 사이버보안 구성 종목끼리 비교, Secondary Actions: Expand
+						409 cell 평소 1주 움직임의 2배를 넘는 하락
+							410 text -13.3%
+						411 cell
+							412 text -3.5%
+						413 cell
+							414 text +15.4%
+						415 cell
+							416 text +104.6%
+						417 cell
+							418 text +13.0%p
+						419 cell
+							420 text 43%
+						421 cell
+							422 text 최근 식음
+						423 cell
+							424 button PANW, Help: Palo Alto Networks
+							425 button CRWD, Help: CrowdStrike
+							426 button FTNT, Help: Fortinet
+							427 button ZS, Help: Zscaler
+							428 button NET, Help: Cloudflare
+							429 button S, Help: SentinelOne
+							430 button RBRK, Help: Rubrik
+					431 row
+						432 cell
+							433 text 9
+						434 cell
+							435 text 바이오텍  헬스케어 · 9종목
+							436 button (collapsed) Description: 바이오텍 구성 종목끼리 비교, Secondary Actions: Expand
+						437 cell
+							438 text +1.8%
+						439 cell
+							440 text -0.4%
+						441 cell
+							442 text +14.9%
+						443 cell
+							444 text +14.0%
+						445 cell
+							446 text +12.5%p
+						447 cell
+							448 text 44%
+						449 cell
+							450 text 최근 식음
+						451 cell
+							452 button VRTX, Help: Vertex Pharma
+							453 button REGN, Help: Regeneron
+							454 button AMGN, Help: Amgen
+							455 button GILD, Help: Gilead Sciences
+							456 button MRNA, Help: Moderna
+							457 button BIIB, Help: Biogen
+							458 button ALNY, Help: Alnylam Pharma
+							459 button ARGX, Help: argenx SE
+							460 button VKTX, Help: Viking Therapeutics
+					461 row
+						462 cell
+							463 text 10
+						464 cell
+							465 text 의료기기  헬스케어 · 10종목
+							466 button (collapsed) Description: 의료기기 구성 종목끼리 비교, Secondary Actions: Expand
+						467 cell
+							468 text +1.8%
+						469 cell
+							470 text +4.7%
+						471 cell
+							472 text +13.1%
+						473 cell
+							474 text +6.9%
+						475 cell
+							476 text +10.6%p
+						477 cell
+							478 text 50%
+						479 cell
+							480 text 큰 변화 없음
+						481 cell
+							482 button ISRG, Help: Intuitive Surgical
+							483 button ABT, Help: Abbott Laboratories
+							484 button SYK, Help: Stryker Corp
+							485 button BSX, Help: Boston Scientific
+							486 button MDT, Help: Medtronic
+							487 button EW, Help: Edwards Lifesciences
+							488 button BDX, Help: BD (Becton Dickinson)
+							489 button DXCM, Help: DexCom
+							490 button RMD, Help: ResMed
+							491 button GEHC, Help: GE HealthCare
+					492 row
+						493 cell
+							494 text 11
+						495 cell
+							496 text 병원/유통/서비스  헬스케어 · 5종목
+							497 button (collapsed) Description: 병원/유통/서비스 구성 종목끼리 비교, Secondary Actions: Expand
+						498 cell
+							499 text +4.6%
+						500 cell
+							501 text +10.1%
+						502 cell
+							503 text +12.4%
+						504 cell
+							505 text +17.9%
+						506 cell
+							507 text +10.0%p
+						508 cell
+							509 text 100%
+						510 cell
+							511 text 큰 변화 없음
+						512 cell
+							513 button HCA, Help: HCA Healthcare
+							514 button MCK, Help: McKesson
+							515 button COR, Help: Cencora
+							516 button CAH, Help: Cardinal Health
+							517 button DVA, Help: DaVita
+					518 row
+						519 cell
+							520 text 12
+						521 cell
+							522 text E&P(탐사/생산)  에너지 · 7종목
+							523 button (collapsed) Description: E&P(탐사/생산) 구성 종목끼리 비교, Secondary Actions: Expand
+						524 cell
+							525 text +4.1%
+						526 cell
+							527 text +6.6%
+						528 cell
+							529 text +11.5%
+						530 cell
+							531 text +16.2%
+						532 cell
+							533 text +9.1%p
+						534 cell
+							535 text 86%
+						536 cell
+							537 text 큰 변화 없음
+						538 cell
+							539 button COP, Help: ConocoPhillips
+							540 button EOG, Help: EOG Resources
+							541 button CNQ, Help: Canadian Natural Res
+							542 button OXY, Help: Occidental Petroleum
+							543 button DVN, Help: Devon Energy
+							544 button FANG, Help: Diamondback Energy
+							545 button TPL, Help: Texas Pacific Land
+					546 row
+						547 cell
+							548 text 13
+						549 cell
+							550 text 광업/금속  소재 · 4종목
+							551 button (collapsed) Description: 광업/금속 구성 종목끼리 비교, Secondary Actions: Expand
+						552 cell
+							553 text -1.7%
+						554 cell
+							555 text +0.4%
+						556 cell
+							557 text +10.5%
+						558 cell
+							559 text +4.6%
+						560 cell
+							561 text +8.1%p
+						562 cell
+							563 text 50%
+						564 cell
+							565 text 최근 식음
+						566 cell
+							567 button SCCO, Help: Southern Copper
+							568 button FCX, Help: Freeport-McMoRan
+							569 button NUE, Help: Nucor
+							570 button AA, Help: Alcoa Corp
+					571 row
+						572 cell
+							573 text 14
+						574 cell
+							575 text 할인/식료품 유통  필수소비재 · 6종목
+							576 button (collapsed) Description: 할인/식료품 유통 구성 종목끼리 비교, Secondary Actions: Expand
+						577 cell
+							578 text +4.2%
+						579 cell
+							580 text +9.7%
+						581 cell
+							582 text +8.2%
+						583 cell
+							584 text +3.3%
+						585 cell
+							586 text +5.8%p
+						587 cell
+							588 text 83%
+						589 cell
+							590 text 큰 변화 없음
+						591 cell
+							592 button COST, Help: Costco
+							593 button WMT, Help: Walmart
+							594 button TGT, Help: Target
+							595 button KR, Help: Kroger
+							596 button DG, Help: Dollar General
+							597 button DLTR, Help: Dollar Tree
+					598 row
+						599 cell
+							600 text 15
+						601 cell
+							602 text 음료  필수소비재 · 4종목
+							603 button (collapsed) Description: 음료 구성 종목끼리 비교, Secondary Actions: Expand
+						604 cell
+							605 text +5.3%
+						606 cell
+							607 text +5.3%
+						608 cell
+							609 text +7.3%
+						610 cell
+							611 text +23.2%
+						612 cell
+							613 text +4.9%p
+						614 cell
+							615 text 75%
+						616 cell
+							617 text 큰 변화 없음
+						618 cell
+							619 button KO, Help: Coca-Cola
+							620 button PEP, Help: PepsiCo
+							621 button MNST, Help: Monster Beverage
+							622 button KDP, Help: Keurig Dr Pepper
+			623 button 전체 89개 보기
+			624 text 수익률이 있는 구성 종목이 3개 미만인 1개 세부 테마는 순위에서 제외 · 3종목 세부 테마 19개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시
+			625 button (collapsed) 순위 밖 테마의 전체 구성 보기, Secondary Actions: Expand
+				626 text 순위 밖 테마의 전체 구성 보기
+		94 container Description: AI 설비투자 흐름, ID: ai-capex-flow
+			627 heading AI 설비투자 100달러는 어디로 가나, Value: 2
+				628 text AI 설비투자 100달러는 어디로 가나
+			629 text 2026-08 공개 리서치 인용 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 3개월 기준 · 테마 값은 세부 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)
+			630 container 반도체 50, 전력 20, 네트워크 15, 냉각 7.5, 시설·건설 7.5
+			631 text 반도체 $50 전력 $20 네트워크 $15 냉각 $7.5 시설·건설 $7.5
+			632 text 각 카드 아래 막대는 관련 부품·장비의 납기 범위(최소~최대)입니다. 모든 카드가 같은 0~420주 축이라 길이를 서로 비교할 수 있습니다.
+			633 container
+				634 heading 반도체, Value: 3
+					635 text 반도체
+				636 text $50 / $100
+				637 text 100달러 중 인용 배분 · 가속기 25 · 메모리 15 · CPU·서버 10 (이 중 반도체 장비 약 8)
+				638 button 반도체 -9.8%, Help: 세부 테마 6개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)
+				639 content list
+					640 container
+						641 text 니어라인 HDD
+						642 text 50~104주
+					643 container
+						644 text CoWoS 패키징
+						645 text 40~60주
+					646 container
+						647 text ABF 기판
+						648 text 48~56주
+					649 container
+						650 text HBM
+						651 text 40~52주
+					652 container
+						653 text DRAM
+						654 text 20~40주
+					655 container
+						656 text GPU 시스템
+						657 text 20~30주 · 원활
+					658 container
+						659 text NAND
+						660 text 16~26주
+					661 container
+						662 text MLCC
+						663 text 12~30주
+			664 container
+				665 heading 전력, Value: 3
+					666 text 전력
+				667 text $20 / $100
+				668 text 100달러 중 인용 배분 · 계통 연결·자가발전 10 · 전력 분배 6.5 · 현장 배전 3.5
+				669 button 유틸리티 -23.1%, Help: 세부 테마 5개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)
+				670 button 전력장비/그리드 -3.2%
+				671 content list
+					672 container
+						673 text 가스터빈
+						674 text 260~420주
+					675 container
+						676 text 변압기
+						677 text 104~260주
+					678 container
+						679 text MW급 스위치기어
+						680 text 52~104주
+			681 container
+				682 heading 네트워크, Value: 3
+					683 text 네트워크
+				684 text $15 / $100
+				685 text 100달러 중 인용 배분 · 광 트랜시버 5.5 · 스위치 4.5 · 네트워크 칩 3 · 케이블 2
+				686 button 광통신/포토닉스 -15.8%, Help: 세부 테마 3개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)
+				687 content list
+					688 container
+						689 text 800G 광 모듈
+						690 text 40~60주
+			691 container
+				692 heading 냉각, Value: 3
+					693 text 냉각
+				694 text $7.5 / $100
+				695 text 100달러 중 인용 배분 · 액체·공랭 냉각 설비
+				696 button AI 인프라/데이터센터 -5.7%, Help: 세부 테마 5개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)
+			697 container
+				698 heading 시설·건설, Value: 3
+					699 text 시설·건설
+				700 text $7.5 / $100
+				701 text 100달러 중 인용 배분 · 데이터센터 건물·부지·건설
+				702 button AI 인프라/데이터센터 -5.7%, Help: 세부 테마 5개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)
+				703 button 산업재 -4.8%, Help: 세부 테마 6개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)
+			704 text 납기: 2026-09-14 기준 — 칩은 제때 오지만 데이터센터를 짓고 전력을 잇는 단계가 병목입니다. 공급사는 원 자료에 나온 곳만 표시합니다.
+		95 button (collapsed) 한국 테마 (28개 중 28개를 10/20 확정 종가로 비교) 펼치기, ID: kr-themes-summary, Secondary Actions: Expand
+			705 text 한국 테마 (28개 중 28개를 10/20 확정 종가로 비교)
+			706 text 펼치기
+		98 container 이 화면을 볼 때 — 속지 말 것과 원칙
+			99 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-themes-title
+				100 text 이 화면을 볼 때 — 속지 말 것과 원칙
+			101 content list
+				102 container
+					103 text 전략 · 기법 지수보다 참여와 주도 영역 보기 지수는 시가총액이 큰 몇 종목이 끌고 갈 수 있습니다. 얼마나 많은 종목이 함께 오르는지(시장 폭)와 주도 영역이 버티는지가 흐름의 체력을 보여 줍니다. 근거: 주도 영역이 꺾이는 신호가 확인됐습니다(나스닥 100 5거래일 -3.7% · 
+					104 pop up button (collapsed) 50일선, Secondary Actions: Expand
+					105 text  -1.1% · 1년 고점 대비 -5.4% · 신저가 40, 신고가 28(10/14) · S&P 500 
+					106 pop up button (collapsed) 분배일, Secondary Actions: Expand
+					107 text  6일 · 러셀 2000 
+					108 pop up button (collapsed) 200일선, Secondary Actions: Expand
+					109 text  대비 -2.4%).
+					110 button 지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기
+				111 container
+					112 text 속지 말 것 '많이 빠졌으니 싸다' 가격이 내렸다고 싸진 것은 아닙니다. 이익 전망이 함께 내려가면 가격이 내려도 밸류에이션은 그대로이거나 오히려 비싸집니다. 근거: 오늘 추세가 부담이거나 주도 영역이 꺾이는 중입니다.
+					113 button '많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기
+				114 container
+					115 text 속지 말 것 '과거에 이랬으니 이번에도' 과거 비슷한 때의 결과는 참고일 뿐입니다. 표본이 적으면 우연일 수 있고, 전체 기간의 평균(기준선)과 다르지 않으면 그 조건만의 정보도 아닙니다. 근거: 'AI 투자 꺾임'의 과거 비교는 73번이지만 전체 기준선과 구별되지 않아, 이 움직임만으로는 방향을 말할 수 없습니다.
+					116 button '과거에 이랬으니 이번에도' — 리서치 라이브러리에서 개념 배우기
+		707 container Description: 이어서 볼 곳, ID: themes-next
+			708 heading 이어서 볼 곳, Value: 2
+				709 text 이어서 볼 곳
+			710 content list
+				711 container
+					712 button 스크리너 →
+					713 text 개선 사분면(원자재·통신·산업재·금융·부동산·유틸리티)에서 상대강도가 먼저 오르는 종목 — 원자재 섹터부터
+				714 container
+					715 button 시장 폭 →
+					716 text 섹터 쏠림이 참여 종목 수(시장 폭 부담)에도 나타나는지
+				717 container
+					718 button 거시 경제 →
+					719 text 금리·유가·달러가 어느 업종에 유리한 국면인지
+		117 button (collapsed) 데이터 출처, Secondary Actions: Expand
+			118 text 데이터 출처
+
+The focused UI element is 52 heading 테마 · 섹터, Value: 1, ID: page-themes-label

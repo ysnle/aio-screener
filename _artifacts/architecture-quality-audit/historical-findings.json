@@ -1,0 +1,513 @@
+{
+  "boundary": "Past findings and tradeoffs retain their own source/ref. No automatic closure or sum with A01–A27.",
+  "rows": [
+    {
+      "id": "C01 / F01",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "검색 clear 후 지연 응답",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "검색 clear race와 관심목록 저장 대상 race는 별개"
+    },
+    {
+      "id": "C02",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "QA 의존 입력",
+      "status": "COVERED_BY_A06",
+      "note": "현행 gate로 옮겨 재현"
+    },
+    {
+      "id": "C03",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "NOT 입력 identity",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "결과와 입력 식별자 불일치"
+    },
+    {
+      "id": "C04",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "상수 팩터 독립성",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "분산0과 무상관 구별"
+    },
+    {
+      "id": "C05",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "미연결 regime hold 시계",
+      "status": "RETIRED_CODE",
+      "note": "후속에서 코드 삭제 확인"
+    },
+    {
+      "id": "C06 / D1 / F-FIN-01",
+      "source": "evidence/20261019/FINANCIAL.md",
+      "title": "가격 필드 정규화 누락",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "PER·보유 평가의 같은 클래스"
+    },
+    {
+      "id": "C07",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "빈 이익의0% 표시",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "결측과 실제0 구별"
+    },
+    {
+      "id": "C08",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "상대 차트 날짜 결합",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "원가손익 기간 창작과 별개"
+    },
+    {
+      "id": "C09",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "SW 타 앱 캐시 삭제",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "실제 피해는 미측정"
+    },
+    {
+      "id": "C10",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "숨김 텍스트 성공 판정",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "가시성 oracle"
+    },
+    {
+      "id": "C11",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "실질금리 설명 부호",
+      "status": "COVERED_BY_A03",
+      "note": "A03로 포함"
+    },
+    {
+      "id": "C12",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "금리 결측 예외",
+      "status": "COVERED_BY_A02",
+      "note": "A02로 포함"
+    },
+    {
+      "id": "C13",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "차트 fallback null→0",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "CDN 실패 격리 반례"
+    },
+    {
+      "id": "C14 / CI-C8",
+      "source": "evidence/20261018/REPRODUCED.md",
+      "title": "CSP 수집 경로",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "sink 수를 취약점 수로 확대 금지"
+    },
+    {
+      "id": "D2",
+      "source": "evidence/20261018/DATA-AI.md",
+      "title": "테마 종가/live 혼합",
+      "status": "PAST_STATIC_RECHECK_NEEDED",
+      "note": "당시 정적 caller 확인"
+    },
+    {
+      "id": "D3",
+      "source": "evidence/20261018/DATA-AI.md",
+      "title": "유니버스 밖 종목의 세션 캐시",
+      "status": "PAST_STATIC_RECHECK_NEEDED",
+      "note": "주기·revision 실효 경계"
+    },
+    {
+      "id": "D4",
+      "source": "evidence/20261018/DATA-AI.md",
+      "title": "relay 불확실 실패의 예약 해제",
+      "status": "PAST_STATIC_RECHECK_NEEDED",
+      "note": "OpenAI 월 예산과 별개"
+    },
+    {
+      "id": "D5 / D6",
+      "source": "evidence/20261018/DATA-AI.md",
+      "title": "권리·허용 용도 전달",
+      "status": "POTENTIAL_REACHABILITY_OPEN",
+      "note": "당시T3 차단·도달성 미확정"
+    },
+    {
+      "id": "M1 / M2",
+      "source": "evidence/20261018/DATA-AI.md",
+      "title": "캐시 소유권·AI/UI 의존",
+      "status": "CONSIDER",
+      "note": "유지보수 의견"
+    },
+    {
+      "id": "CI-C1..C7",
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "title": "CI별 oracle·쓰기 부작용",
+      "status": "PAST_FINDINGS_RECHECK_NEEDED",
+      "note": "60대상 중25 FULL로 정정"
+    },
+    {
+      "id": "UI-01",
+      "source": "evidence/20261019/UI-PAGES.md",
+      "title": "선수 레슨 소실",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "D6의 D2/D3 연결"
+    },
+    {
+      "id": "UI-02",
+      "source": "evidence/20261019/UI-PAGES.md",
+      "title": "종목 손익의 통화 불일치",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "domain E01 해소와 별개 UI"
+    },
+    {
+      "id": "UI-03",
+      "source": "evidence/20261019/UI-PAGES.md",
+      "title": "스크리너 설명 signature",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "A12 inspector와 별개"
+    },
+    {
+      "id": "UI-04",
+      "source": "evidence/20261019/UI-PAGES.md",
+      "title": "산업 지도 선택 소실",
+      "status": "PAST_BROWSER_RECHECK_NEEDED",
+      "note": "과거 브라우저와 최신 증거 구별"
+    },
+    {
+      "id": "UI-05",
+      "source": "evidence/20261019/UI-PAGES.md",
+      "title": "13F 혼합 분기 비교",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "같은 reportPeriod 비교 필요"
+    },
+    {
+      "id": "BND-01",
+      "source": "evidence/20261019/BOUNDARIES.md",
+      "title": "비동기 관심목록 저장 대상",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "검색 후보 표시 race와 별개"
+    },
+    {
+      "id": "LD-01 / LD-02",
+      "source": "evidence/20261019/LEGACY-DATA.md",
+      "title": "한국 결측·KST 실적 날짜",
+      "status": "COVERED_BY_A05_A04",
+      "note": "A05/A04로 포함"
+    },
+    {
+      "id": "M01 / M02 / M03",
+      "source": "evidence/20261019/MACRO-MARKET.md",
+      "title": "거시3건",
+      "status": "LAST_REPRO_V5852_RECHECK_NEEDED",
+      "note": "최종 재현v58.52, 최신 지속 재검증"
+    },
+    {
+      "id": "F-DELTA-01",
+      "source": "evidence/20261021/FINANCIAL-DELTA.md",
+      "title": "지수 이익의 만료 계약",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "현재 실제 stale 발생 미확인"
+    },
+    {
+      "id": "I01",
+      "source": "evidence/20261021/INTERPRETATION.md",
+      "title": "과거 표본 충돌 유실",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "요약·AI 경계"
+    },
+    {
+      "id": "I02",
+      "source": "evidence/20261021/INTERPRETATION.md",
+      "title": "분기 개수의 비용 최적성 표현",
+      "status": "CONSIDER",
+      "note": "의견/외부 실증 미검증"
+    },
+    {
+      "id": "trade-journal follow-up",
+      "source": "evidence/20261021/UI-DELTA.md",
+      "title": "매매일지 손익·현금 설명",
+      "status": "PAST_REPRO_RECHECK_NEEDED",
+      "note": "A09/A10과 다른 consumer"
+    }
+  ],
+  "sectionIndex": [
+    {
+      "source": "evidence/20261018/DATA-AI.md",
+      "line": 14,
+      "heading": "D1 · P2 — 정규화가 `_valuationPrice`를 버림",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/DATA-AI.md",
+      "line": 23,
+      "heading": "D2 · P2 — 종가 기준 테마 상세에 실시간 등락 혼합",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/DATA-AI.md",
+      "line": 32,
+      "heading": "D3 · P2 — 유니버스 밖 종목 성공 결과의 영구 세션 캐시",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/DATA-AI.md",
+      "line": 41,
+      "heading": "D4 · P2 — relay의 불확실한 upstream 실패를 release",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/DATA-AI.md",
+      "line": 50,
+      "heading": "D5 · P2, 잠재 경로 — 복제 decision 판정의 권한 거부 누락",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/DATA-AI.md",
+      "line": 59,
+      "heading": "D6 · P2, 잠재 경로 — live quote allowed-use property 불일치",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/DATA-AI.md",
+      "line": 70,
+      "heading": "M1 — fetch 함수 이름을 cache owner ID로 사용",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/DATA-AI.md",
+      "line": 79,
+      "heading": "M2 — AI context의 UI component 직접 import",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/FOUNDATIONS.md",
+      "line": 11,
+      "heading": "F01 — 검색 초기화가 이전 비동기 후보를 무효화하지 않음",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/FOUNDATIONS.md",
+      "line": 17,
+      "heading": "F02 — native 화면 소유자와 원본 데이터 writer는 다름",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/FOUNDATIONS.md",
+      "line": 21,
+      "heading": "F03 — compatibility facade와 runtime reader의 중복 projection",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/FOUNDATIONS.md",
+      "line": 25,
+      "heading": "F04 — app lifetime와 start/stop lifetime를 명시",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/FOUNDATIONS.md",
+      "line": 29,
+      "heading": "F05 — 비동기 event callback의 오류 경계",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/FOUNDATIONS.md",
+      "line": 33,
+      "heading": "F06 — 실사용 Vault와 미연결 일반 repository 구분",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "line": 9,
+      "heading": "C5 — architecture browser source-label 검사의 은퇴 DOM 참조",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "line": 13,
+      "heading": "C6 — generated parity gate가 실패한 작업트리를 변경",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "line": 17,
+      "heading": "C7 — fast-plane live gate가 불완전 quotes를 complete로 PASS 가능",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "line": 21,
+      "heading": "C8 — CSP ratchet가 js/src 파일을 수집하지 않음 (실행 재현은 root)",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "line": 29,
+      "heading": "C3 — architecture gate가 실행과 무관한 fence 주석을 강제",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "line": 37,
+      "heading": "C4 — assertion trace 수집기가 실제 assertion API 일부를 전혀 수집하지 않음",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "line": 45,
+      "heading": "C2 — premise SLA negative fixture가 원래 검증을 시험하지 않음",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261018/TOOLING-CI-1.md",
+      "line": 53,
+      "heading": "C1 — 접근성 gate의 accessible-name oracle와 잘린 target 판정",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/BOUNDARIES.md",
+      "line": 10,
+      "heading": "BND-01 — [PRE-EXISTING][warning] 비동기 심볼 확인 중 목록을 바꾸면 다른 관심목록에 저장됨",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/LEGACY-DATA.md",
+      "line": 7,
+      "heading": "LD-01 [PRE-EXISTING][warning] KR 시세 미수신 상세가 0% 및 하락 우세 판단으로 바뀜",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/LEGACY-DATA.md",
+      "line": 17,
+      "heading": "LD-02 [PRE-EXISTING][warning] KST 오전 실적 캘린더가 날짜 열을 하루 뒤로 배치함",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/MACRO-MARKET.md",
+      "line": 17,
+      "heading": "M01 — [PRE-EXISTING][warning] 목표금리 상단만 도착하면 거시 읽기 전체가 예외로 중단됨",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/MACRO-MARKET.md",
+      "line": 26,
+      "heading": "M02 — [PRE-EXISTING][warning] 기간 프리미엄이 없어도 '오르지 않음' 조건을 충족시킴",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/MACRO-MARKET.md",
+      "line": 36,
+      "heading": "M03 — [PRE-EXISTING][warning] 세부 테마가 전부 소표본이면 대표 비교 보류를 우회함",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/UI-PAGES.md",
+      "line": 9,
+      "heading": "UI-01 [warning] 선행 레슨을 모두 제거하는 정규식",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/UI-PAGES.md",
+      "line": 17,
+      "heading": "UI-02 [warning] 종목 요약 손익이 원가 통화를 무시",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/UI-PAGES.md",
+      "line": 29,
+      "heading": "UI-03 [warning] 스크리너 해석의 샘플 signature가 유효 입력 변경을 무시",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/UI-PAGES.md",
+      "line": 37,
+      "heading": "UI-04 [warning] 산업 지도에서 개념/분석 노트 이동 시 선택이 소실",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261019/UI-PAGES.md",
+      "line": 68,
+      "heading": "UI-05 [warning] 종목 역조회가 서로 다른 분기 신고가치를 같은 가격으로 대조",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021/FINANCIAL-DELTA.md",
+      "line": 17,
+      "heading": "F-DELTA-01 — [ACT ON][medium] 지수 이익 stage가 개별 종목의 컨센서스·가격 만료 계약을 우회함",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021/INTERPRETATION.md",
+      "line": 15,
+      "heading": "I01 — [ACT ON][medium] 알려진 과거 표본 충돌이 가이드 요약에서 사라짐",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021/INTERPRETATION.md",
+      "line": 24,
+      "heading": "I02 — [CONSIDER] 편집된 분기 개수 순위를 최소비용 판단으로 올릴 근거가 없음",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021/LEGACY-DATA-CONTINUED.md",
+      "line": 24,
+      "heading": "LD-01 [PRE-EXISTING][medium] KR 시세 미수신 상세의 0%·하락 우세 오표시 — 유지",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021/LEGACY-DATA-CONTINUED.md",
+      "line": 28,
+      "heading": "LD-02 [PRE-EXISTING][medium] KST 오전 실적 캘린더 날짜 열 불일치 — 유지",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021/UI-DELTA.md",
+      "line": 15,
+      "heading": "ACT ON UI-D01 — 결측 평가정보를 원칙 위반/준수로 변환",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021/UI-DELTA.md",
+      "line": 23,
+      "heading": "ACT ON UI-D02 — 손익 보류 원가/시세를 다시 비교해 -99.9% 손절 위반 생성",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021-v5859/DOMAIN-DELTA.md",
+      "line": 17,
+      "heading": "D59-01 — [ACT ON][medium] DuPont 설명이 ROE 변화를 상쇄한 요인을 하락 원인으로 제시",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021-v5859/DOMAIN-DELTA.md",
+      "line": 31,
+      "heading": "D59-02 — [ACT ON][low] 신규 분석 카드가 52/53주 회계연도를 달력 연도로 잘못 표시",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021-v5859/UI-DELTA.md",
+      "line": 17,
+      "heading": "ACT ON UI-59-01 [medium] — 채권이 섞이면 섹터 카드가 다른 분모를 주식 비중으로 설명",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021-v5859/UI-DELTA.md",
+      "line": 25,
+      "heading": "CONSIDER UI-59-02 [low] — 시총 오름차순에서 #가 현재 행 순서와 반대",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021-v5859/UI-DELTA.md",
+      "line": 33,
+      "heading": "ACT ON UI-59-03 [medium] — IC의 t로 수익률 차이에 판단 가능/긍정 색상을 부여",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021-v5859/UI-DELTA.md",
+      "line": 41,
+      "heading": "ACT ON UI-59-04 [medium] — 프리셋을 바꿔도 자동 inspector의 이전 순위 근거가 남음",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    },
+    {
+      "source": "evidence/20261021-v5859/UI-DELTA.md",
+      "line": 50,
+      "heading": "ACT ON UI-59-05 [medium] — 현금 제외 보유 부분의 β를 계좌 전체 움직임으로 설명",
+      "boundary": "Section locator only; not a unique current defect count or an ACT ON classification."
+    }
+  ]
+}

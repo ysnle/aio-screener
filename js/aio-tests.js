@@ -3375,14 +3375,6 @@
     _assert('T659 macro_calendar_dry_run_v4983: dryRun 호출 시 status returned',
       mc && (mc.status === 'ok' || mc.status === 'stale') && mc.advancedCount === 0,
       mc ? 'status=' + mc.status + ' advancedCount=' + mc.advancedCount : 'no result');
-    // T660 R173/P444: computeCrossAssetCorrelation
-    _assert('T660 cross_asset_corr_defined_v4983: AIO.computeCrossAssetCorrelation fn 정의',
-      window.AIO && typeof window.AIO.computeCrossAssetCorrelation === 'function',
-      typeof (window.AIO && window.AIO.computeCrossAssetCorrelation));
-    var corr = window.AIO && window.AIO.computeCrossAssetCorrelation && window.AIO.computeCrossAssetCorrelation();
-    _assert('T661 cross_asset_corr_returns_v4983: status returned (ok / insufficient_data)',
-      corr && (corr.status === 'ok' || corr.status === 'insufficient_data'),
-      corr ? 'status=' + corr.status : 'no result');
     // T662 R174/P445: assertQuantitativeRatioAudit
     _assert('T662 quant_ratio_audit_defined_v4983: AIO.assertQuantitativeRatioAudit fn 정의',
       window.AIO && typeof window.AIO.assertQuantitativeRatioAudit === 'function',
@@ -3411,9 +3403,6 @@
       chatSendSrc.indexOf('window.AIO.attachAnswerVisuals({ parent: _bubbleParent') >= 0 && typeof window._aioBuildSparklineSvg === 'function',
       'srcLen=' + chatSendSrc.length);
     // T668 사이드바 16/17/18축 DOM
-    _assert('T668 sidebar_16_corr_v4983: [data-audit-key="crossAssetCorr"] DOM',
-      !!document.querySelector('[data-audit-key="crossAssetCorr"]'),
-      'present check');
     _assert('T669 sidebar_17_quant_v4983: [data-audit-key="quantRatio"] DOM',
       !!document.querySelector('[data-audit-key="quantRatio"]'),
       'present check');

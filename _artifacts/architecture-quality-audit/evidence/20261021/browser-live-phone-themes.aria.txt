@@ -1,0 +1,316 @@
+Browser tab: 1, Title: "테마 · 섹터 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#themes".
+1 AXWebArea 테마 · 섹터 · AIO Screener, URL: ysnle.github.io/aio-screener/#themes
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	3 container
+		4 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		5 text 종가
+		6 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			7 text 10/20 마감 · 시세 16종 · 실시간 관측 41종 10/20 마감
+		8 text v58.52
+		9 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		10 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	11 container 테마 · 섹터, ID: page-themes
+		12 heading 테마 · 섹터, Value: 1, ID: page-themes-label
+			13 text 테마 · 섹터
+		14 text 어느 업종·테마의 가격이 시장보다 앞서는지 — 섹터 상대강도 회전과 세부 테마 순위
+		15 container Description: 산점도 범위, ID: rrg-view-tabs
+			16 button 11섹터
+			17 button 세부 업종
+			18 button 전체
+		19 text 섹터 상대강도 · 선도·개선 9/11 · 약화·후행 1/11 · 기준선 부근 1/11
+		20 container 섹터 회전 판정, ID: themes-verdict
+			21 heading 섹터 회전 판정, Value: 2, ID: themes-verdict-title
+				22 text 섹터 회전 판정
+			23 text 약 50일 상대강도 기준 선도 헬스케어·필수소비·에너지 · 개선 부동산·유틸리티·금융·소재·통신·산업재. 선도·개선 9개 중 방어 업종(유틸리티·필수소비재·헬스케어) 3개, 경기 민감 업종 6개입니다. 약화 0개, 후행 1개입니다. 소비재는 100 근처(기준선 부근)라 사분면을 정하지 않았습니다.
+			24 container rrg-chart-block
+				25 text 선도 3 · 개선 6 · 약화 0 · 후행 1 · 기준선 부근 1 · 약 50일 상대강도 · 10/20 미국 종가 기준
+				26 image Description: 섹터 상대강도 산점도 — 가로축 시장 대비 상대강도, 세로축 상대강도 변화 속도. 사분면별 섹터 목록은 아래 접힌 칸에 있습니다., ID: rrg-canvas
+			27 button (collapsed) 사분면별 섹터, Secondary Actions: Expand
+				28 text 사분면별 섹터
+		29 text 섹터 1일·1주 등락 성과와 사분면 상태
+		30 button (collapsed) Description: 섹터 RS 설명, Secondary Actions: Expand
+		31 container Description: 막대 범위, ID: sector-perf-view-tabs
+			32 button 11섹터
+			33 button +세부 업종
+		34 container Description: 기간, ID: sector-perf-tabs
+			35 button 1일
+			36 button 1주
+		37 container sector-perf-bars
+			38 text XLV 헬스케어 +2.38% 선도 XLRE 부동산 +1.70% 개선 XLU 유틸리티 +1.26% 개선 XLF 금융 +1.20% 개선 XLY 경기소비재 +0.92% 기준선 부근 XLP 필수소비재 +0.62% 선도 XLB 소재 +0.55% 개선 XLE 에너지 +0.25% 선도 XLC 통신 +0.09% 개선 XLI 산업재 +0.07% 개선 XLK 기술 -0.27% 후행
+		39 container Description: S&P 500 지도, ID: sector-map
+			40 heading S&P 500 지도, Value: 2
+			41 container 수익률 기간
+				42 checkbox 1
+				43 checkbox 0
+				44 checkbox 0
+				45 checkbox 0
+			46 container S&P 500 섹터 지도, 1일 수익률. 지도 전체 평균(기간 시작 비중 가중) +0.28% · 502종목 중 403개 상승 · 11개 섹터 중 9개 상승. 가장 강한 섹터는 헬스케어(+2.33%), 가장 약한 섹터는 통신(-0.89%)입니다. 시가총액 상위 10개 기업(지도 면적 40%)은 -0.38%로 나머지(+0.73%)보다 1.1%p 약했습니다. 종목마다 같은 비중을 두면 평균 +1.14%입니다. 섹터별 숫자와 종목 이동은 아래 '섹터별 숫자'에서 볼 수 있습니다. (showing 0-500 of 514 items)
+			47 button (collapsed) Secondary Actions: Expand
+			48 button (collapsed) Secondary Actions: Expand
+		49 container S&P 500 이익 전망과 밸류에이션
+			50 heading 2
+			51 button (collapsed) Secondary Actions: Expand
+		52 container 테마 시나리오 — 단계와 거시 영향
+			53 heading 2
+			54 container
+				55 image
+				56 image
+				57 image
+				58 image
+				59 image
+				60 image
+				61 image
+				62 image
+				63 image
+				64 image
+				65 image
+				66 image
+				67 image
+				68 image
+				69 image
+				70 image
+				71 image
+				72 image
+				73 image
+				74 image
+				75 image
+				76 image
+				77 image
+				78 image
+				79 image
+				80 image
+				81 image
+				82 image
+				83 image
+				84 image
+				85 image
+				86 image
+				87 image
+				88 image
+				89 image
+				90 image
+				91 image
+				92 image
+				93 image
+				94 image
+				95 image
+				96 image
+				97 image
+				98 image
+				99 image
+				100 image
+				101 button (collapsed) Secondary Actions: Expand
+				102 button (collapsed) Secondary Actions: Expand
+				103 button (collapsed) Secondary Actions: Expand
+				104 button (collapsed) Secondary Actions: Expand
+				105 button (collapsed) Secondary Actions: Expand
+				106 button (collapsed) Secondary Actions: Expand
+				107 button (collapsed) Secondary Actions: Expand
+		108 container Description: 세부 테마 상대강도 순위, ID: theme-strength-board
+			109 heading 미국 세부 테마 상대강도 순위, Value: 2
+			110 checkbox 1개월, Value: 0
+			111 checkbox 3개월, Value: 1
+			112 checkbox 6개월, Value: 0
+			113 table
+				114 row
+					115 cell
+						116 button (collapsed) Secondary Actions: Expand
+					117 cell
+						118 button
+						119 button
+						120 button
+						121 button
+						122 button
+						123 button
+						124 button
+				125 row
+					126 cell
+						127 button (collapsed) Secondary Actions: Expand
+					128 cell
+						129 button
+						130 button
+						131 button
+						132 button
+				133 row
+					134 cell
+						135 button (collapsed) Secondary Actions: Expand
+					136 cell
+						137 button
+						138 button
+						139 button
+						140 button
+						141 button
+						142 button
+				143 row
+					144 cell
+						145 button (collapsed) Secondary Actions: Expand
+					146 cell
+						147 button
+						148 button
+						149 button
+						150 button
+						151 button
+				152 row
+					153 cell
+						154 button (collapsed) Secondary Actions: Expand
+					155 cell
+						156 button
+						157 button
+						158 button
+						159 button
+						160 button
+						161 button
+						162 button
+				163 row
+					164 cell
+						165 button (collapsed) Secondary Actions: Expand
+					166 cell
+						167 button
+						168 button
+						169 button
+						170 button
+						171 button
+						172 button
+						173 button
+						174 button
+						175 button
+				176 row
+					177 cell
+						178 button (collapsed) Secondary Actions: Expand
+					179 cell
+						180 button
+						181 button
+						182 button
+						183 button
+				184 row
+					185 cell
+						186 button (collapsed) Secondary Actions: Expand
+					187 cell
+						188 button
+						189 button
+						190 button
+						191 button
+						192 button
+				193 row
+					194 cell
+						195 button (collapsed) Secondary Actions: Expand
+					196 cell
+						197 button
+						198 button
+						199 button
+						200 button
+						201 button
+				202 row
+					203 cell
+						204 button (collapsed) Secondary Actions: Expand
+					205 cell
+						206 button
+						207 button
+						208 button
+						209 button
+						210 button
+						211 button
+						212 button
+						213 button
+						214 button
+						215 button
+				216 row
+					217 cell
+						218 button (collapsed) Secondary Actions: Expand
+					219 cell
+						220 button
+						221 button
+						222 button
+						223 button
+						224 button
+						225 button
+						226 button
+				227 row
+					228 cell
+						229 button (collapsed) Secondary Actions: Expand
+					230 cell
+						231 button
+						232 button
+						233 button
+						234 button
+				235 row
+					236 cell
+						237 button (collapsed) Secondary Actions: Expand
+					238 cell
+						239 button
+						240 button
+						241 button
+						242 button
+						243 button
+						244 button
+				245 row
+					246 cell
+						247 button (collapsed) Secondary Actions: Expand
+					248 cell
+						249 button
+						250 button
+						251 button
+						252 button
+						253 button
+						254 button
+				255 row
+					256 cell
+						257 button (collapsed) Secondary Actions: Expand
+					258 cell
+						259 button
+						260 button
+						261 button
+						262 button
+			263 button 전체 89개 보기
+			264 text 수익률이 있는 구성 종목이 3개 미만인 1개 세부 테마는 순위에서 제외 · 3종목 세부 테마 19개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시
+			265 button (collapsed) Secondary Actions: Expand
+		266 container Description: AI 설비투자 흐름, ID: ai-capex-flow
+			267 heading AI 설비투자 100달러는 어디로 가나, Value: 2
+			268 image 반도체 50, 전력 20, 네트워크 15, 냉각 7.5, 시설·건설 7.5
+			269 text 반도체 $50 전력 $20 네트워크 $15 냉각 $7.5 시설·건설 $7.5
+			270 container
+				271 heading 3
+				272 button
+			273 container
+				274 heading 3
+				275 button
+				276 button
+			277 container
+				278 heading 3
+				279 button
+			280 container
+				281 heading 3
+				282 button
+			283 container
+				284 heading 3
+				285 button
+				286 button
+		287 button (collapsed) 한국 테마 (28개 중 28개를 10/20 확정 종가로 비교) 펼치기, ID: kr-themes-summary, Secondary Actions: Expand
+			288 text 한국 테마 (28개 중 28개를 10/20 확정 종가로 비교)
+			289 text 펼치기
+		290 container 이 화면을 볼 때 — 속지 말 것과 원칙
+			291 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-themes-title
+				292 text 이 화면을 볼 때 — 속지 말 것과 원칙
+			293 content list
+				294 container
+					295 text 전략 · 기법 지수보다 참여와 주도 영역 보기 지수는 시가총액이 큰 몇 종목이 끌고 갈 수 있습니다. 얼마나 많은 종목이 함께 오르는지(시장 폭)와 주도 영역이 버티는지가 흐름의 체력을 보여 줍니다. 근거: 주도 영역이 꺾이는 신호가 확인됐습니다(나스닥 100 5거래일 -3.7% · 50일선 -1.1% · 1년 고점 대비 -5.4% · 신저가 40, 신고가 28(10/14) · S&P 500 분배일 7일(10/16) · 러셀 2000 200일선 대비 -0.8%).
+					296 button 지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기
+				297 container
+					298 text 속지 말 것 '많이 빠졌으니 싸다' 가격이 내렸다고 싸진 것은 아닙니다. 이익 전망이 함께 내려가면 가격이 내려도 밸류에이션은 그대로이거나 오히려 비싸집니다. 근거: 오늘 추세가 부담이거나 주도 영역이 꺾이는 중입니다.
+					299 button '많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기
+				300 container
+					301 text 속지 말 것 '과거에 이랬으니 이번에도' 과거 비슷한 때의 결과는 참고일 뿐입니다. 표본이 적으면 우연일 수 있고, 전체 기간의 평균(기준선)과 다르지 않으면 그 조건만의 정보도 아닙니다. 근거: 'AI 투자 꺾임'의 과거 비교는 73번이지만 전체 기준선과 구별되지 않아, 이 움직임만으로는 방향을 말할 수 없습니다.
+					302 button '과거에 이랬으니 이번에도' — 리서치 라이브러리에서 개념 배우기
+		303 container Description: 이어서 볼 곳, ID: themes-next
+			304 heading 이어서 볼 곳, Value: 2
+			305 content list
+				306 container
+					307 button
+				308 container
+					309 button
+				310 container
+					311 button
+		312 button (collapsed) 데이터 출처, Secondary Actions: Expand
+			313 text 데이터 출처
+
+The focused UI element is 12 heading 테마 · 섹터, Value: 1, ID: page-themes-label

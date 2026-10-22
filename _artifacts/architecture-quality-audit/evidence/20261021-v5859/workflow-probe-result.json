@@ -1,0 +1,25 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "evidenceLevel": "isolated real helper plus source-derived workflow condition; no live run",
+  "dailyMarker": {
+    "markerCondition": "if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' && steps.masters.outcome == 'success' && steps.commit.outcome == 'success' }}",
+    "collision": {
+      "due": true,
+      "mastersOutcome": "success",
+      "commitOutcome": "success",
+      "commitChanged": false,
+      "commitCollision": true
+    },
+    "actualMarkerRuns": true,
+    "publishedAgeWithoutMarker": 48,
+    "publishedAgeWithUnpublishedMarker": 0,
+    "nextLaneDue": false
+  },
+  "dispatchRace": {
+    "testedSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "workflowHeadSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "driverExit": 0,
+    "driverOutput": "[convergence] AWAITING_CI_ATTESTATION target=aaaaaaaaaaaa notes=waited 0.00002min for an attested CI run without success; the next scheduled cycle converges",
+    "note": "old A is stale against B and must not deploy; this is a transient handoff inefficiency, not an untested deployment"
+  }
+}

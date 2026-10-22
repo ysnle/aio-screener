@@ -1,0 +1,88 @@
+Browser tab: 1, Title: "차트 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#technical".
+1 AXWebArea 차트 · AIO Screener, URL: ysnle.github.io/aio-screener/#technical
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	3 container
+		4 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		5 text 종가
+		6 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			7 text 10/20 마감 · 시세 16종 · 실시간 관측 41종 10/20 마감
+		8 text v58.52
+		9 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		10 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	11 container main-content
+		12 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			13 button 요약
+			14 button 차트
+			15 button 재무 공시
+			16 text AAPL
+			17 text Apple Inc.
+			18 button 다른 종목
+		19 container 차트, ID: page-technical
+			20 heading 차트, Value: 1, ID: page-technical-label
+				21 text 차트
+			22 text 이 종목의 추세·셋업과, 그 셋업이 놓인 시장 상태
+			23 container AAPL 일봉, ID: stock-chart-section
+				24 heading AAPL 일봉, Value: 2, ID: stock-chart-title
+					25 text AAPL 일봉
+				26 text 2026-10-20 종가 $339.50 (-1.00%)
+				27 text 뚜렷한 패턴 없음
+				28 container Description: 봉 주기, ID: stock-chart-intervals
+					29 checkbox 5분, Value: 0
+					30 checkbox 15분, Value: 0
+					31 checkbox 30분, Value: 0
+					32 checkbox 1시간, Value: 0
+					33 checkbox 4시간, Value: 0
+					34 checkbox 일, Value: 1
+					35 checkbox 주, Value: 0
+					36 checkbox 월, Value: 0
+				37 container Description: 일봉 캔들 차트와 이동평균·피벗·거래량, ID: stock-chart-canvas
+				38 text ━ 8일 EMA ━ 21일 EMA ━ 50일선 ┅ 200일선 ━ 피벗(마지막 수축 고점) ▲▼ 수축 저점·8일선 이탈/회복·거래량 갭·변동성 압축·과열
+				39 container Description: 차트 근거, ID: stock-chart-evidence
+					40 text Weinstein 단계 (30주선)
+					41 text 미너비니 템플릿(변형: 6개월 S&P 초과) 8/8
+					42 button (collapsed) Secondary Actions: Expand
+					43 container
+						44 heading 3
+						45 heading 4
+						46 heading 4
+						47 heading 4
+					48 container
+						49 heading 3
+					50 button (collapsed) Secondary Actions: Expand
+				51 text 셋업 상태는 공개된 기법(미너비니 VCP·추세 템플릿, 오닐 피벗 돌파, 와일더 ADX)으로 계산한 설명이며 매매 권고가 아닙니다.
+			52 container Description: 시장 상태 요약, ID: tech-regime-summary
+				53 text 다소 부담
+				54 text 10/20 미국 종가 기준 · 양호 0 · 중립 4 · 부담 2
+				55 button 시장 상태에서 근거 보기
+				56 container tech-regime-chips
+					57 text 추세 중립 시장 폭 중립 변동성 중립 금리 부담 신용 · 위험선호 부담 달러 · 원자재 중립
+					58 text 참고 · 환율(원·엔) 중립
+			59 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				60 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-technical-title
+					61 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				62 content list
+					63 container
+						64 text 속지 말 것 거래량 없는 돌파 가격이 저항선을 넘어도 거래량이 평소보다 늘지 않으면 참여가 얇은 돌파라 다시 밀려 내려오기 쉽습니다. 왜: 돌파의 힘은 새로 사려는 사람의 수에서 나오고, 그 수는 거래량으로 드러납니다.
+						65 button 거래량 없는 돌파 — 리서치 라이브러리에서 개념 배우기
+					66 container
+						67 text 속지 말 것 이미 멀리 달아난 뒤의 진입 평균선에서 평소 변동폭의 여러 배만큼 떨어진 뒤에는 작은 되돌림에도 손실 폭이 커집니다. 좋은 종목이어도 늘어난 자리는 좋은 자리가 아닐 수 있습니다. 왜: 가격은 평균선 쪽으로 되돌아가려는 경향이 있어, 멀어질수록 되돌림의 크기도 커집니다.
+						68 button 이미 멀리 달아난 뒤의 진입 — 리서치 라이브러리에서 개념 배우기
+					69 container
+						70 text 전략 · 기법 큰 흐름이 작은 흐름을 거른다 주봉이 내려가는 중의 일봉 돌파는 큰 흐름을 거스르는 신호라 실패가 잦습니다. 일봉 신호는 주봉 방향과 같을 때 더 믿을 만합니다. 왜: 더 긴 시간대에는 더 많은 참여자의 결정이 쌓여 있어, 짧은 시간대의 신호를 이기는 경우가 많습니다.
+						71 button 큰 흐름이 작은 흐름을 거른다 — 리서치 라이브러리에서 개념 배우기
+			72 container Description: 이어서 볼 곳, ID: technical-next
+				73 heading 이어서 볼 곳, Value: 2
+				74 content list
+					75 container
+						76 button
+					77 container
+						78 button
+					79 container
+						80 button
+			81 button (collapsed) 한국 시장 — 코스피·코스닥 추세와 한국 종목 (한국 종가 기준) 펼치기, Secondary Actions: Expand
+				82 text 한국 시장 — 코스피·코스닥 추세와 한국 종목 (한국 종가 기준)
+				83 text 펼치기
+			84 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				85 text 데이터 출처
+
+The focused UI element is 20 heading 차트, Value: 1, ID: page-technical-label

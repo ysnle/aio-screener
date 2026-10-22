@@ -1,0 +1,25 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "evidence": "actual fixed version parser and record-fix validator in VM; no CLI mutation or generation",
+  "versions": [
+    {
+      "input": "v59",
+      "canonical": "v59",
+      "recordValidation": [
+        "version must look like \"v56.80\""
+      ]
+    },
+    {
+      "input": "v59.00",
+      "canonical": "v59",
+      "recordValidation": [
+        "version must look like \"v56.80\""
+      ]
+    },
+    {
+      "input": "v59.01",
+      "canonical": "v59.01",
+      "recordValidation": []
+    }
+  ]
+}

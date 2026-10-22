@@ -1,0 +1,108 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "path": "js/aio-chat.js",
+  "sha256": "b52abcc16cfa72aec353c99116d70c1d529156f5bf012e4f163803830173f34f",
+  "bytes": 453270,
+  "evidenceLevel": "isolated-production-functions; transport and DOM boundary stubbed; no browser/live/paid evidence",
+  "disclosure": {
+    "actual": {
+      "label": "AI 도우미 · 교육/리서치 보조",
+      "status": "확인 필요",
+      "asOf": "미확인",
+      "source": "원천 확인 필요",
+      "text": "AI 도우미 · 교육/리서치 보조 · 기준시각: 미확인 · 근거 상태: 확인 필요 · 원천: 원천 확인 필요 · 원문 재확인 필요"
+    },
+    "withReturnedFields": {
+      "label": "AI 도우미 · 교육/리서치 보조",
+      "status": "종가 기준 근거",
+      "asOf": "2026-10-20 종가",
+      "source": "완료된 종가 기록",
+      "text": "AI 도우미 · 교육/리서치 보조 · 기준시각: 2026-10-20 종가 · 근거 상태: 종가 기준 근거 · 원천: 완료된 종가 기록 · 원문 재확인 필요"
+    }
+  },
+  "directives": {
+    "unfiltered": {
+      "blocked": false,
+      "text": "NVDA를 지금 매수하세요 그리고 손절하지 마세요.",
+      "reasons": []
+    },
+    "positiveControl": {
+      "blocked": false,
+      "text": "[개별 매매 지시는 제공하지 않습니다. 조건과 근거를 확인해 직접 판단하세요.]",
+      "reasons": [
+        "directive-sentence-replaced"
+      ],
+      "replacedSentences": 1
+    },
+    "englishUnfiltered": {
+      "blocked": false,
+      "text": "You should buy NVDA now.",
+      "reasons": []
+    },
+    "downstreamConduct": {
+      "version": "probe-version-does-not-affect-decision",
+      "status": "allowed",
+      "permission": "conditional",
+      "blocked": false,
+      "reasons": [],
+      "limitations": [],
+      "personalizedActionLimited": false,
+      "disclosure": null,
+      "conduct": null,
+      "conductAudit": {
+        "version": "ai-conduct.v2",
+        "requestMode": "EDUCATIONAL",
+        "status": "EDUCATIONAL_ALLOWED",
+        "severity": "NONE",
+        "categories": [],
+        "execution": false,
+        "educational": true,
+        "personalized": false,
+        "directAction": false,
+        "legalReviewRequired": false,
+        "reasons": [],
+        "responseCompliance": {
+          "mode": "COMPLIANT",
+          "directive": false,
+          "requestMode": "EDUCATIONAL"
+        }
+      },
+      "actionLike": true,
+      "personalized": false,
+      "evidence": {
+        "count": 0,
+        "hasLive": false,
+        "referenceOnly": false
+      }
+    }
+  },
+  "health": {
+    "configuredInnerTimeoutMs": 12000,
+    "actualAwaitTimeoutMs": 7500,
+    "simulatedResponseMs": 8500,
+    "observedError": {
+      "name": "Error",
+      "code": "RESEARCH_TIMEOUT",
+      "message": "RESEARCH_TIMEOUT"
+    },
+    "laterHealthResult": {
+      "ok": true,
+      "reason": "READY",
+      "target": {
+        "workerUrl": "mock://worker",
+        "healthUrl": "mock://worker/health",
+        "serverKey": true
+      },
+      "checkedAt": 1792591067328,
+      "health": {
+        "ai": {
+          "ready": true
+        }
+      }
+    },
+    "fetchCalls": 1,
+    "routeErrorNotices": 0
+  },
+  "externalCalls": 0,
+  "paidCalls": 0
+}

@@ -3510,22 +3510,6 @@ window._aioRenderAuditWidget = function() {
         }
       } catch(e) { krtEl.textContent = 'krTickerMapping error'; }
     }
-    // v49.83 P444/R173: 자산 간 30일 correlation (16축)
-    var corrEl = container.querySelector('[data-audit-key="crossAssetCorr"]');
-    if (corrEl) {
-      try {
-        var corr = window.AIO && window.AIO.computeCrossAssetCorrelation && window.AIO.computeCrossAssetCorrelation();
-        if (corr) {
-          var iconCo = corr.status === 'ok' ? '✓' : corr.status === 'insufficient_data' ? '…' : '!';
-          var colorCo = corr.status === 'ok' ? 'var(--data-green)' : corr.status === 'insufficient_data' ? 'var(--text-muted)' : 'var(--data-amber)';
-          if (corr.status === 'ok') {
-            corrEl.innerHTML = '<span style="color:' + colorCo + ';">' + iconCo + '</span> 자산 <b>' + corr.availableAssets.length + '</b> · regime <b>' + corr.regime + '</b> · n=' + corr.sampleSize;
-          } else {
-            corrEl.innerHTML = '<span style="color:' + colorCo + ';">' + iconCo + '</span> 자산 데이터 누적 중 (need ≥5)';
-          }
-        }
-      } catch(e) { corrEl.textContent = 'crossAssetCorr error'; }
-    }
     // v49.83 P445/R174: 답변 정량 비율 (17축)
     var qrEl = container.querySelector('[data-audit-key="quantRatio"]');
     if (qrEl) {

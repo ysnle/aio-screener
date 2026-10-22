@@ -1,0 +1,174 @@
+Browser tab: 2, Title: "투자 심리 · AIO Screener", URL: "http://127.0.0.1:8795/#sentiment".
+0 AXWebArea 투자 심리 · AIO Screener, URL: 127.0.0.1:8795/#sentiment
+	4 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/#main-content
+	5 container Description: 메인 네비게이션, ID: aio-navigation
+		6 container
+			7 text AIO Investment Screener
+		8 text 데일리
+		9 button 오늘 페이지
+		10 text 시장
+		11 button 시장 상태 페이지
+		12 button 거시 · 금리 페이지
+		13 button 테마 · 섹터 페이지
+		14 text 내 투자
+		15 button 종목 페이지
+		16 button 스크리너 페이지
+		17 button 포트폴리오 페이지
+		18 text 리서치
+		19 button 리서치 라이브러리 페이지
+		20 button 용어 사전 페이지
+		21 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			22 text 라이트 모드로 전환
+		23 text AI 도우미
+		38 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		25 text GPT-6 Luna · 공용 AI 연결
+		26 text 개인 AI 키 입력 없이 이용합니다.
+		39 button (collapsed) 연결 상태, Secondary Actions: Expand
+			40 text 연결 상태
+		27 button (collapsed) 보안 설정, Secondary Actions: Expand
+			28 text 보안 설정
+	29 container
+		30 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		31 container breadcrumb
+			46 text 시장 상태 / 투자 심리
+		41 text 종가
+		42 text 서버 10/19 마감 · 시세 16종
+		43 text v58.50
+		36 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		37 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	44 container main-content
+		45 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			47 button 국면 판정
+			48 button 시장 폭
+			49 button 투자 심리
+		50 container 투자 심리, ID: page-sentiment
+			51 container
+				52 heading 투자 심리, Value: 1, ID: page-sentiment-label
+					53 text 투자 심리
+				54 text 10/19 미국 종가 기준 · 날짜가 다른 지표는 카드에 표시 · 공포·탐욕, 변동성 구조, 신용, 옵션, 개인 설문
+			55 container 심리 종합
+				56 heading 심리 종합, Value: 2, ID: sentiment-synthesis-title
+					57 text 심리 종합
+				58 text 공포·탐욕 지수(F&G) 23(극단 공포)의 비관과 함께 신용 스프레드(331bp, 5일 +20bp, 20거래일 +63bp)도 빠르게 확대(수준은 350bp 아래) — 위험 회피가 심리 지표를 넘어 퍼지는 모습입니다. F&G는 20거래일 전보다 11 낮아져 비관 쪽으로 움직였습니다. 5거래일 전보다 23 낮아져 최근 비관 쪽으로 크게 움직였습니다. AAII 약세 응답 41.6%는 장기 평균(31.0%)보다 +10.6%p입니다.
+				59 text 하이일드 스프레드 331bp는 시장 상태 '신용 · 위험선호' 지표(부담)의 근거, VIX 단기 불안 비율 0.94는 '변동성' 지표(중립)의 근거입니다. 공포·탐욕과 AAII는 6개 지표에 넣지 않는 참고 지표라, 가격에서 나온 심리가 자금 시장까지 번졌는지를 신용·변동성 두 지표로 확인합니다.
+			60 container sentiment-card-grid
+				61 container
+					62 heading 공포·탐욕 지수 (F&G), Value: 3
+						63 text 공포·탐욕 지수 (F&G)
+					64 text 23 극단 공포 10/19 전일 +5 · 5일 -23 · 20일 -11 (확정 종가 기준)
+					65 container 공포·탐욕 지수 (F&G) 26.04.21~26.10.19 추이, 최근 23
+					66 text VIX·풋콜·정크본드 수요·시장 폭·모멘텀 등 7개 지표를 합친 지수 — 다른 지표와 겹치므로 단독 판단에 쓰지 않음
+					67 button (collapsed) 공포·탐욕 지수 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						68 text 공포·탐욕 지수 더 깊이 보기 · 원리와 읽는 법
+				69 container
+					70 heading 단기 불안 비율 (VIX ÷ 3개월 VIX), Value: 3
+						71 text 단기 불안 비율 (VIX ÷ 3개월 VIX)
+					72 text 0.94 정상 10/19 5일 +0.09 · VIX 18.4 → S&P 500 하루 약 ±1.2% (1표준편차·정규 가정)
+					73 container 단기 불안 비율 (VIX ÷ 3개월 VIX) 26.04.21~26.10.19 추이, 최근 0.94
+					74 text 1 미만이면 단기 공포가 중기보다 작은 정상 상태, 1을 넘으면 당장의 충격을 크게 반영하는 역전
+					75 button (collapsed) 단기 불안 비율 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						76 text 단기 불안 비율 더 깊이 보기 · 원리와 읽는 법
+				77 container
+					78 heading 하이일드 스프레드, Value: 3
+						79 text 하이일드 스프레드
+					80 text 331bp 부담 10/16 · 1거래일 전 5일 +20bp · 20거래일 +63bp
+					81 container 하이일드 스프레드 26.04.27~26.10.16 추이, 최근 331bp
+					82 text 신용등급이 낮은 회사채가 국채보다 더 받는 금리 — 돈 빌리기가 어려워질수록 커지며, 시장 상태 신용 지표와 같은 판정
+					83 button (collapsed) 하이일드 스프레드 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						84 text 하이일드 스프레드 더 깊이 보기 · 원리와 읽는 법
+			85 container sentiment-mini-grid
+				86 container
+					87 heading 풋/콜 비율, Value: 3
+						88 text 풋/콜 비율
+					89 text 0.87 중립 10/19 미국 상장 옵션 전체에서 하락에 대비하는 풋옵션 거래가 콜옵션보다 얼마나 많은지 — 높을수록 방어적 · 1.1 이상 헤지 수요 높음, 0.7 미만 낙관
+					90 button (collapsed) 풋/콜 비율 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						91 text 풋/콜 비율 더 깊이 보기 · 원리와 읽는 법
+				92 container
+					93 heading AAII 개인 설문, Value: 3
+						94 text AAII 개인 설문
+					95 text 약세 41.6% 약세 장기 평균 대비 +10.6%p 10/14 · 3거래일 전 주간 강세 38.7% (평균 대비 +1.2%p) · 장기 평균 강세 37.5% / 약세 31.0% 주간 발표 — 개인 투자자의 6개월 전망 설문 — 공포·탐욕 구간을 정하지 않고 장기 평균과의 차이로만 읽음
+					96 button (collapsed) AAII 개인 설문 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						97 text AAII 개인 설문 더 깊이 보기 · 원리와 읽는 법
+				98 container
+					99 heading 공포·탐욕 구성 요소 순위 (참고), Value: 3
+						100 text 공포·탐욕 구성 요소 순위 (참고)
+					101 text 1~79 요소 간 차이 큼 10/19 기준 · 7개 중 6개 반영 시장 모멘텀 20 · 주가 강도 21 · 상승 종목 흐름 79 · 풋·콜 비율 기록 부족(60일 중 3일) · 변동성 15 · 안전자산 수요 47 · 정크본드 수요 1 요소 간 차이 큼: 최저 정크본드 수요 1, 최고 상승 종목 흐름 79 · 7개 요소의 1년 백분위를 나란히 놓은 참고값으로, 공포·탐욕 지수 값과 다릅니다
+					102 button (collapsed) 공포·탐욕 구성 요소 순위 더 깊이 보기 · 원리와 읽는 법, Secondary Actions: Expand
+						103 text 공포·탐욕 구성 요소 순위 더 깊이 보기 · 원리와 읽는 법
+			104 container Description: 출처: Yahoo Finance 일봉 종가 (^GSPC, ^IXIC, ^KS11, ^KQ11, ^N225) · 코스피·코스닥 최근 종가는 거래소 일봉으로 보정, ID: sentiment-temperature
+				105 heading 지수별 가격 온도 (참고), Value: 2
+					106 text 지수별 가격 온도 (참고)
+				107 text 각 지수의 가격이 최근 3년 안에서 얼마나 차갑거나 뜨거운지입니다 — 위 카드가 미국 투자자의 설문·옵션·신용을 본다면 이 표는 가격 자체를 봅니다. 지금 과열·냉각 구간: 코스피(강한 냉각 7거래일째).
+				108 container 지수 선택
+					109 text 미국
+					110 checkbox Description: S&P 500: 보통 범위 — 다섯 요소 순위 19~86, Value: 1
+						111 text S&P 500
+						112 text 보통 범위
+						113 text 10/19 종가 +0.4%
+					114 checkbox Description: 나스닥 종합: 보통 범위 — 다섯 요소 순위 14~65, Value: 0
+						115 text 나스닥 종합
+						116 text 보통 범위
+						117 text 10/19 종가 +1.1%
+					118 text 한국 · 일본 (보조)
+					119 checkbox Description: 코스피: 5개 요소 중 3개가 최근 3년 하위 10% — 강한 냉각 7거래일째, Value: 0
+						120 text 코스피
+						121 text 강한 냉각 7일째
+						122 text 10/20 종가 −3.7%
+					123 checkbox Description: 코스닥: 보통 범위 — 다섯 요소 순위 8~26(하위 10% 1개 · 상위 10% 0개), Value: 0
+						124 text 코스닥
+						125 text 보통 범위
+						126 text 10/20 종가 −3.3%
+					127 checkbox Description: 닛케이 225: 보통 범위 — 다섯 요소 순위 7~36(하위 10% 2개 · 상위 10% 0개), Value: 0
+						128 text 닛케이 225
+						129 text 보통 범위
+						130 text 10/20 종가 −1.3%
+				131 text S&P 500 7,690.73
+				132 text 10/19 종가 · 전일 대비 +0.41%
+				133 content list
+					134 container 125일선 거리: 종가 ÷ 125거래일 평균 − 1 · 최근 3년(756거래일) 안에서의 순위
+						135 text 125일선 거리 19
+					136 container 52주 범위 위치: (종가 − 52주 최저) ÷ (52주 최고 − 52주 최저) · 최근 3년(756거래일) 안에서의 순위
+						137 text 52주 범위 위치 33
+					138 container RSI 14일: 14거래일 상대강도지수(와일더 평활) · 최근 3년(756거래일) 안에서의 순위
+						139 text RSI 14일 20
+					140 container 낮은 변동성: 20거래일 일간 로그수익률 표준편차, 낮을수록 높은 순위 · 최근 3년(756거래일) 안에서의 순위
+						141 text 낮은 변동성 86
+					142 container 20일 수익률: 종가 ÷ 20거래일 전 종가 − 1 · 최근 3년(756거래일) 안에서의 순위
+						143 text 20일 수익률 20
+				144 text S&P 500 2년 종가 강한 냉각 강한 과열
+				145 container S&P 500 2년 종가와 과열·냉각 구간 24.10.15~26.10.19 추이, 최근 7,691
+				146 text 보통 범위 — 다섯 요소 순위 19~86. 하위·상위 10% 요소 수는 1주 전(10/12) 0·0개, 1달 전(9/18) 0·0개였습니다.
+				147 button (collapsed) 더 깊이 보기 · 온도를 재는 방법과 과거 결과, Secondary Actions: Expand
+					148 text 더 깊이 보기 · 온도를 재는 방법과 과거 결과
+			149 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				150 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-sentiment-title
+					151 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				152 content list
+					153 container
+						154 text 태도 공포에 팔고 환호에 사지 않기 많은 사람이 겁낼 때 가격은 이미 나쁜 소식을 상당 부분 반영하고, 모두가 낙관할 때는 좋은 소식이 이미 들어가 있습니다. 감정이 가장 강할 때가 판단이 가장 흐린 때입니다. 근거: 바닥 확인 조건 중 매도 소진 3/4 · 회복 확인 0/4입니다 — 소진과 확인은 따로 셉니다.
+						155 button 공포에 팔고 환호에 사지 않기 — 리서치 라이브러리에서 개념 배우기
+					156 container
+						157 text 속지 말 것 하루 반등·하루 급락 하루의 큰 움직임은 흐름이 바뀌었다는 증거가 되기 어렵습니다. 약세장에서도 큰 반등은 자주 나오고, 강세장에서도 큰 하락이 섞입니다. 근거: 지금 시장 흐름은 '동반 약세'입니다 — 하루 반등만으로는 이 흐름이 끝났는지 알 수 없습니다.
+						158 button 하루 반등·하루 급락 — 리서치 라이브러리에서 개념 배우기
+					159 container
+						160 text 믿을 것 신용 스프레드 주가는 기대로 움직이지만, 회사채 금리 차이(신용 스프레드)는 실제로 돈을 빌려주는 사람들이 매기는 위험의 값입니다. 주가와 신용이 다른 말을 할 때는 신용 쪽을 더 무겁게 봅니다. 근거: 오늘 신용 지표가 부담입니다 — 약세의 원인이 자금 쪽에 있는지 보는 신호입니다.
+						161 button 신용 스프레드 — 리서치 라이브러리에서 개념 배우기
+			162 container Description: 이어서 볼 곳, ID: sentiment-next
+				163 heading 이어서 볼 곳, Value: 2
+					164 text 이어서 볼 곳
+				165 content list
+					166 container
+						167 button 금리 · 환율 →
+						168 text 하이일드 스프레드 확대가 실질금리·달러와 같은 방향인지
+					169 container
+						170 button 시장 폭 →
+						171 text 심리와 별개로 참여 종목이 줄고 있는지(시장 폭 부담)
+					172 container
+						173 button 시장 상태 →
+						174 text 공포·탐욕과 AAII를 넣지 않은 6개 지표(변동성·신용 포함)의 전체 판정
+					175 container
+						176 button 거시 시나리오 →
+						177 text 지금의 심리가 다음 발표로 갈릴 시나리오(신용 경색·변동성 충격 등) 가운데 어느 쪽과 같은 방향인지
+			178 text 심리 지표는 과열·냉각을 가늠하는 참고이며 매매 시점을 알려 주지 않습니다.
+
+The focused UI element is 52 heading 투자 심리, Value: 1, ID: page-sentiment-label

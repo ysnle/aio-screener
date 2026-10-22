@@ -1,0 +1,287 @@
+{
+  "observedAt": "2026-10-17T05:19:53.434Z",
+  "version": "v57.98",
+  "head": "8baf2f0f072e6da8d70cb086e5dbb4fba799165b",
+  "dossierBundleSha256": "5dc2fc7a57b94e49ad9308ad2a688459990d48a6943e12670404bfda32d0d9e9",
+  "workedSha256": "15ad0bc9dcbad8f498263eae0af92ca310301bbfd5f2fb3926171d7f6132fc23",
+  "glossarySha256": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+  "researchFactsSha256": "1f0ab209af8bdb24c3556f4c3227c1c65e8da2bf65e089ed76ec2b2ee85c513b",
+  "files": [
+    {
+      "path": "version.json",
+      "sha256": "d907cf9bd3dc992d255f27c6cc449d20d64c6097de0a073e2cb9312139209805",
+      "previousSha256": "fee546e672834fe68772a4b99c0920036e614079c1ae9f2cf530bd2b5684cda2",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "_context/RULES.md",
+      "sha256": "fafde8b74122746633d393bdbf69a28e302cc3b82fc775022f8052a51740da93",
+      "previousSha256": "9714a67420a8b9336a9601535f54f1d0cc500422276049f84eacae20c660f9b4",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "public-data/principles/lesson-library.json",
+      "sha256": "15ad0bc9dcbad8f498263eae0af92ca310301bbfd5f2fb3926171d7f6132fc23",
+      "previousSha256": "a3756cc5938124cf299bc4d954c66c4d53e8e32c780899d51c1ff6beb31bd3f5",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "public-data/principles/narrative-journey.json",
+      "sha256": "0cb3c4efab134d385aa6ba94e786badc507f76cc8c615d655737c8e7343b0708",
+      "previousSha256": "ceba160eaae24952e8f6bdab83544bd9d03a441c2e5e147697bb9734c925fd97",
+      "changedSinceV5791": true
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "437aefc5ae36ef35d9f428d28ea3f082fac265911cdd753953aa7a1099987a7c",
+      "previousSha256": "437aefc5ae36ef35d9f428d28ea3f082fac265911cdd753953aa7a1099987a7c",
+      "changedSinceV5791": false
+    },
+    {
+      "path": ".github/workflows/data-watchdog.yml",
+      "sha256": "14792ca29f36c15f4f92157e29fe45647a8dd34e599be7bbab15d8a19e140d6d",
+      "previousSha256": "14792ca29f36c15f4f92157e29fe45647a8dd34e599be7bbab15d8a19e140d6d",
+      "changedSinceV5791": false
+    },
+    {
+      "path": ".github/workflows/deploy-ai-proxy.yml",
+      "sha256": "38898e9c2ffa774c73ebe681aa95d9fb32916039deef27f87a50d1cb128851da",
+      "previousSha256": "7c1a9687540de3219407a32d239309d30dbfc640c37153ea55fd7043238294ba",
+      "changedSinceV5791": true
+    },
+    {
+      "path": ".github/workflows/deploy-data-plane.yml",
+      "sha256": "24a4418c35ceea4881ed9fb77c075c752f20980236d1edefb77c7ab47c0ebd94",
+      "previousSha256": "24a4418c35ceea4881ed9fb77c075c752f20980236d1edefb77c7ab47c0ebd94",
+      "changedSinceV5791": false
+    },
+    {
+      "path": ".github/workflows/exchange-calendar-review.yml",
+      "sha256": "53f99efffc0974410c0906299497bdcc4ccb7ed60da0621aa40e049d1bf52f06",
+      "previousSha256": "53f99efffc0974410c0906299497bdcc4ccb7ed60da0621aa40e049d1bf52f06",
+      "changedSinceV5791": false
+    },
+    {
+      "path": ".github/workflows/knowledge-build-candidate.yml",
+      "sha256": "dd20e97cfddb9777d88d4857291fba61c67d50798da15495b22ac6fc88f347aa",
+      "previousSha256": "dd20e97cfddb9777d88d4857291fba61c67d50798da15495b22ac6fc88f347aa",
+      "changedSinceV5791": false
+    },
+    {
+      "path": ".github/workflows/knowledge-lint.yml",
+      "sha256": "c4ca6a3b5a5b30ee599a106ce575b408c48721fa24f39707211702acd119172d",
+      "previousSha256": "c4ca6a3b5a5b30ee599a106ce575b408c48721fa24f39707211702acd119172d",
+      "changedSinceV5791": false
+    },
+    {
+      "path": ".github/workflows/macro-calendar-review.yml",
+      "sha256": "2e48d47e48f4f7660ad52c82cfb653e4a06e59567b114a4af7d562e68ab0babc",
+      "previousSha256": "2e48d47e48f4f7660ad52c82cfb653e4a06e59567b114a4af7d562e68ab0babc",
+      "changedSinceV5791": false
+    },
+    {
+      "path": ".github/workflows/operations-alert.yml",
+      "sha256": "f04b59ac69f5cf26946b3e18577e7476d5abb5f932751bd7ef0f6f642f4b9425",
+      "previousSha256": "bddfa06b763f4b94f7c98d8d46074d09e31aa53fea86e61b1c92c8da1e0acfd8",
+      "changedSinceV5791": true
+    },
+    {
+      "path": ".github/workflows/pages-deploy.yml",
+      "sha256": "d54b965ac6b5fea831f769f24a8f01fb8dca587c70f6a2adf9502396793bae59",
+      "previousSha256": "8f0075c0b1ca18c93d87265b6a479d3a577cde91ac03ac174a4da13215885823",
+      "changedSinceV5791": true
+    },
+    {
+      "path": ".github/workflows/refresh-data.yml",
+      "sha256": "c344bf3e6124cd201e0cd65a23a2507864b91521a9b7f0aa2fe000436f089569",
+      "previousSha256": "c3a6b3318bbb830b375fa54d986bca9321518507ed190c8f2977ba5cec627c39",
+      "changedSinceV5791": true
+    },
+    {
+      "path": ".github/workflows/refresh-screener.yml",
+      "sha256": "5a5d67eba9dc2cf243373eb3f10803f229efcc55f4452c11dbbc8261d3a7f783",
+      "previousSha256": "5a5d67eba9dc2cf243373eb3f10803f229efcc55f4452c11dbbc8261d3a7f783",
+      "changedSinceV5791": false
+    },
+    {
+      "path": ".github/workflows/universe-review.yml",
+      "sha256": "e79dc8afc8fdc5af1983ae54b47954013820f58cd024111988ccdd9373c37d8e",
+      "previousSha256": "e79dc8afc8fdc5af1983ae54b47954013820f58cd024111988ccdd9373c37d8e",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/atlas-relations.js",
+      "sha256": "35fb68e0716c82f1aff722e13b3b606d25cede92cc16a528abca6e9bace1179b",
+      "previousSha256": "35fb68e0716c82f1aff722e13b3b606d25cede92cc16a528abca6e9bace1179b",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/concept-core.js",
+      "sha256": "004964ca09c5e1fd8dcbf3c1806f21e6e36e81851d41b7eb06776939e03c6dab",
+      "previousSha256": "bed7cb62d8d0b7bd92ed3ebda8a52107fec3079aa0bb0a5105b5a92f577f7d2c",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/concept-stories.js",
+      "sha256": "d66eb7ae8395a076179010b554753f462f69c278424d60be9229fb502ba47fe9",
+      "previousSha256": "1e6dd1455802c201e487dd44b6b96a37213107143252009009d41339528d023c",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/concept-surfaces.js",
+      "sha256": "ca1b18cad6ac9bbaa83bc0d7cc632ee3023335fa9cff82824e7d29536adb7bdf",
+      "previousSha256": "ca1b18cad6ac9bbaa83bc0d7cc632ee3023335fa9cff82824e7d29536adb7bdf",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/evidence.js",
+      "sha256": "1a8f881d632c8b260f0d0b77925a680b75fdd19b715ffe7cbc335e265bd042b3",
+      "previousSha256": "1a8f881d632c8b260f0d0b77925a680b75fdd19b715ffe7cbc335e265bd042b3",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/foundation-stories.js",
+      "sha256": "687184add0b6dc563e0b9493df4f77baf18a2adbbaaaaa5effd87a94ea1450b1",
+      "previousSha256": "a1db2f37bb174cde1f3f636e453119ee227150dba22faf1e25384f9dd1da3558",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/graph.js",
+      "sha256": "58ffc798d7ee1bf5f9e88a25ad6bcce55f56d03e48922fb760084623eb636205",
+      "previousSha256": "58ffc798d7ee1bf5f9e88a25ad6bcce55f56d03e48922fb760084623eb636205",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/industry-domain-stories.js",
+      "sha256": "ac49915456bc78de63f2d627381e747c59527abaff3ac7188e515108e67f56dd",
+      "previousSha256": "277d162bfead124001fab46256472a570ea6c474a096ffce3435fd4642e03c29",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/industry-node-stories-1.js",
+      "sha256": "2802f6f254fde427110b19453ebd4ac12a451adf7fa5e98aa123a36f7d3c0512",
+      "previousSha256": "44e335bbf8338ba712b6ad97713dc3b3cde446f150181c1d7eaa574a3e43055f",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/industry-node-stories-2.js",
+      "sha256": "e57b4a8438f2ae2f473ce8f5076070df5018bf08f136bfcb2cb5cb170be9a6c4",
+      "previousSha256": "56766129001dc62cb21d16a4ad711d55ee864fc546a0e86395809cde88f56aab",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/industry-node-stories-3.js",
+      "sha256": "10615b41a5f5a15d62828c8285da82093c102a8cc48356a83294bfba2183b3ca",
+      "previousSha256": "71c77124c5a09817e3cc0724b4ede4bd51c216283bf8e487153da2a096bc061e",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/industry-node-stories.js",
+      "sha256": "200b7a7b2bf96b6f70b641747e9e9cd96be3c12f9b53bcabe6e276e32c61cb7c",
+      "previousSha256": "200b7a7b2bf96b6f70b641747e9e9cd96be3c12f9b53bcabe6e276e32c61cb7c",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+      "sha256": "1984c01bf5742cc317bdc5c2ae8e9ebf8be8bc46ae0e9add47d8609c8dec2825",
+      "previousSha256": "1984c01bf5742cc317bdc5c2ae8e9ebf8be8bc46ae0e9add47d8609c8dec2825",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/knowledge-cadence.js",
+      "sha256": "7f0961f8d4aa6cf3dfb94df86cffc2989cfa7da4d52dcbac5c1029b8facc02a8",
+      "previousSha256": "7f0961f8d4aa6cf3dfb94df86cffc2989cfa7da4d52dcbac5c1029b8facc02a8",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/learning-core.js",
+      "sha256": "a649d91580d05048211af52e42e77898b550ebf9c37117a21f7af20b1161f1f3",
+      "previousSha256": "c26b233771d9f48d8169accd947998ff4386dd6b218daa68dfc65c8e36f688b9",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/learning-state.js",
+      "sha256": "10472d61085204fa6a85122d4a9021cb29396132c6d645948b7f7a7eefb8dfe0",
+      "previousSha256": "10472d61085204fa6a85122d4a9021cb29396132c6d645948b7f7a7eefb8dfe0",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/nathan-framework-pack.js",
+      "sha256": "0828707de23c36264b570060c8f3e107d2b5e384df8ce2a9ffa716c1db59e4c3",
+      "previousSha256": "0828707de23c36264b570060c8f3e107d2b5e384df8ce2a9ffa716c1db59e4c3",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/ontology.js",
+      "sha256": "3dc515b7a2b89463e1fb9b385ed62c66c1ee63cfb1002034a6f3c2f9f8310604",
+      "previousSha256": "3dc515b7a2b89463e1fb9b385ed62c66c1ee63cfb1002034a6f3c2f9f8310604",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/order.js",
+      "sha256": "3af76a191ab8f8d7eea053b4e86e64778c2dd07537b10fba462959d8614cd285",
+      "previousSha256": "3af76a191ab8f8d7eea053b4e86e64778c2dd07537b10fba462959d8614cd285",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/principles-edge-semantics.js",
+      "sha256": "6566bc8a8966f135171ca65d816cefe3c262acd9c2183f2527754a5aaebf2968",
+      "previousSha256": "6566bc8a8966f135171ca65d816cefe3c262acd9c2183f2527754a5aaebf2968",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/route-bridge.js",
+      "sha256": "e54337d5710843570239299b00777e8d26bb02c1b04b2b127a76f23f4c27623e",
+      "previousSha256": "e54337d5710843570239299b00777e8d26bb02c1b04b2b127a76f23f4c27623e",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/knowledge/screen-term-additions.js",
+      "sha256": "830c260e4e62c87fe855f5e9686aa73e33aa2a73828519138e889d829555e68d",
+      "previousSha256": "595326fa13fc00c6cbece5211368add6ec214251c8c739504d42bd2251b364ce",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/knowledge/selectors.js",
+      "sha256": "476eb3c10dd1ee00c24596a945bd23b799078ae177899dd188678223ea6899c0",
+      "previousSha256": "476eb3c10dd1ee00c24596a945bd23b799078ae177899dd188678223ea6899c0",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/research/nathan-previous-threads.js",
+      "sha256": "f0fa528bb6357fc63e78d654dadd580a7cf9898b0c1c7077c7393eb62817fea8",
+      "previousSha256": "f0fa528bb6357fc63e78d654dadd580a7cf9898b0c1c7077c7393eb62817fea8",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/research/packet-20261011.js",
+      "sha256": "d37aec0975875f748d634ae18047686bc4f005082cd0c27777ce1f53422d8756",
+      "previousSha256": "d37aec0975875f748d634ae18047686bc4f005082cd0c27777ce1f53422d8756",
+      "changedSinceV5791": false
+    },
+    {
+      "path": "src/domain/research/packet-20261014.js",
+      "sha256": "0b333c905d8ab33ba66bbc4c5f38916813ac7f31b52320fd8fab04ea4a80113c",
+      "previousSha256": "4b1251b7f4c5e1f2a967dced40be4028526bbfa1479340fab1ddf19136647b31",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/research/packet-20261015.js",
+      "sha256": "8c9c759933f0d939cb57e3deef40eb8920f64947995d142d0eff0ecf0e105e53",
+      "previousSha256": "786c3323ae348b3cc3a147253dc3d8fe4a837c1b46be908cd86f4afdff1bca7d",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/research/packet-20261016-x-bookmarks.js",
+      "sha256": "e143c156670fbf9bf10c05f5131da6d6c4d958bbcb76a0d80e8c4fa2ab3f14cc",
+      "previousSha256": "859799ea013af5c89fe41be09fd722b30fd15a60ded8324d90c2a3c20e3ae6cd",
+      "changedSinceV5791": true
+    },
+    {
+      "path": "src/domain/research/supplied-materials.js",
+      "sha256": "07b66be48cd9e787c706e6ff9db67958f1447f382297c4326d40d9e8be1dc2f2",
+      "previousSha256": "07b66be48cd9e787c706e6ff9db67958f1447f382297c4326d40d9e8be1dc2f2",
+      "changedSinceV5791": false
+    }
+  ]
+}

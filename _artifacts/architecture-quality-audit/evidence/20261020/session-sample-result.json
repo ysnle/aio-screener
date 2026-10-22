@@ -1,0 +1,37 @@
+{
+  "evidence": "Actual pure modules with synthetic complete/sparse calendar histories; not provider/live incidence",
+  "stress": {
+    "rows": 201,
+    "valid20SessionWindows": 1,
+    "windows": [
+      {
+        "from": "2026-01-05",
+        "to": "2026-02-02"
+      }
+    ],
+    "result": {
+      "pct": -2.0000000000000018,
+      "from": "2026-01-05",
+      "to": "2026-02-02",
+      "sessions": 20,
+      "record": 201
+    }
+  },
+  "benchmark": {
+    "full": {
+      "ret1m": 9.633027522935777,
+      "ret3m": 35.79545454545454,
+      "ret6m": 111.50442477876106
+    },
+    "withMissing": {
+      "ret1m": 9.633027522935777,
+      "ret3m": 35.79545454545454,
+      "ret6m": 111.50442477876106
+    },
+    "same63SessionReturn": true
+  },
+  "sources": {
+    "src/domain/portfolio/kr-stress.js": "7c0d988faa7aa8631db4381e882d0119600dc44ed26d148401ddfe0d795c02c2",
+    "src/domain/market/benchmarks.js": "1e6beb13f2734fa584dc6b01d885c9a4e0b2f2aff1727a8cb8fb326bebdf51db"
+  }
+}

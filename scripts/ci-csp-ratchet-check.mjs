@@ -10,7 +10,9 @@ async function collect(directory) {
   for (const entry of await readdir(join(rootPath, directory), { withFileTypes: true })) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) await collect(path);
-    else if (path.startsWith('js' + join('', '')) && path.endsWith('.js') || path.startsWith('src' + join('', '')) && path.endsWith('.js')) files.push(relative(rootPath, join(rootPath, path)));
+    // v58.63 (architecture audit C14): the old prefix test compared against 'js' + join('', '') === 'js.', which no path
+    // matches, so only index.html was ever counted. collect() walks js/ and src/ only, so every .js file it reaches counts.
+    else if (path.endsWith('.js')) files.push(relative(rootPath, join(rootPath, path)));
   }
 }
 await collect('js');

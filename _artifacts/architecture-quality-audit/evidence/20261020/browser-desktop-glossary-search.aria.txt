@@ -1,0 +1,11 @@
+Browser tab: 2, Title: "대가 보유 종목 · AIO Screener", URL: "http://127.0.0.1:8795/?mode=changes&manager=berkshire-hathaway#masters".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 361-687
+~				344 text field (settable) Description: 투자 용어 검색, Value: ROE, ID: glossary-search
+~					355 text ROE (자기자본이익률) 기초
+~					356 text Return on Equity = 순이익 ÷ 자기자본(기초·기말 평균을 쓰면 기간 중 변화가 반영됨). 같은 ROE라도 이익률이 높아서인지, 자산 회전이 빨라서인지, 부채가 많아서인지에 따라 의미가 다릅니다(듀퐁 분해: 순이익률 × 자산회전율 × 재무 레버리지). 자사주 매입·배당으로 자기자본이 작아져도 높아지므로, 15% 같은 단일 기준선으로 우수 기업을 판정하지 않고 같은 업종·여러 해로 비교합니다.
+~					357 text ROIC (투하자본이익률) 기초
+~					358 text 세후 영업이익(NOPAT) ÷ 투하자본(영업에 들어간 순운전자본 + 설비 등 영업자산, 또는 자기자본 + 순차입금)이다. 예: 세후 영업이익 120억, 투하자본 1,000억이면 ROIC 12%. 자본비용(WACC)이 9%라면 3%p만큼 가치를 만들고 있다는 뜻이다. 다만 이것은 이미 깔린 사업의 평균이다. 성장이 가치를 만드는지는 새로 넣는 돈의 수익률, 즉 한계 ROIC가 자본비용보다 높은지로 판단한다. 부채 비율의 영향을 덜 받는다는 점이 ROE와 다르다.
+~					359 text PBR (P/B Ratio) 기초
+~					360 text 주가순자산비율 = 주가 ÷ 주당순자산(장부상 자기자본). 장부가치가 자산을 잘 대표하는 은행·제조업에서 주로 쓰이고, 브랜드·소프트웨어처럼 무형자산이 큰 기업은 장부에 잘 잡히지 않아 해석이 약합니다. PBR이 낮아도 ROE가 낮다면 싼 것이 아니라 자본으로 버는 힘이 약한 것일 수 있습니다.
+The focused UI element is 344 text field (settable) Description: 투자 용어 검색, Value: ROE, ID: glossary-search

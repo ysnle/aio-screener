@@ -1,0 +1,81 @@
+Browser tab: 2, Title: "종목 · AIO Screener", URL: "http://127.0.0.1:8795/#ticker".
+0 AXWebArea 종목 · AIO Screener, URL: 127.0.0.1:8795/#ticker
+	1 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/#main-content
+	2 container Description: 메인 네비게이션, ID: aio-navigation
+		3 container
+			4 text AIO Investment Screener
+		5 text 데일리
+		6 button 오늘 페이지
+		7 text 시장
+		8 button 시장 상태 페이지
+		9 button 거시 · 금리 페이지
+		10 button 테마 · 섹터 페이지
+		11 text 내 투자
+		12 button 종목 페이지
+		13 button 스크리너 페이지
+		14 button 포트폴리오 페이지
+		15 text 리서치
+		16 button 리서치 라이브러리 페이지
+		17 button 용어 사전 페이지
+		18 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			19 text 라이트 모드로 전환
+		20 text AI 도우미
+		21 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		22 text GPT-6 Luna · 공용 AI 연결
+		23 text 개인 AI 키 입력 없이 이용합니다.
+		24 button (collapsed) 연결 상태, Secondary Actions: Expand
+			25 text 연결 상태
+		26 button (collapsed) 보안 설정, Secondary Actions: Expand
+			27 text 보안 설정
+	28 container
+		29 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		37 container breadcrumb
+			38 text 종목 / 요약
+		31 text 종가
+		32 text 10/19 마감 · 시세 16종 · 실시간 관측 17종
+		33 text v58.50
+		34 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		35 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	36 container main-content
+		39 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			40 button 요약
+			41 button 차트
+			42 button 재무 공시
+			43 text 종목을 고르면 세 탭이 같은 종목을 보여줍니다
+		44 container 종목 분석, ID: page-ticker
+			45 heading 종목, Value: 1, ID: ticker-page-title
+				46 text 종목
+			47 container Description: 종목, ID: ticker-breadcrumb-main
+				48 text 종목
+			49 container ticker-detail-name
+				50 heading 종목 분석, Value: 2, ID: ticker-hero-name
+					51 text 종목 분석
+				52 text 종목을 검색하세요
+			53 heading 종목 검색, Value: 2
+				54 text 종목 검색
+			55 text field (settable) Description: 종목 티커 검색, ID: ticker-direct-search
+			56 button 분석 →
+			57 button NVDA
+			58 button AAPL
+			59 button MSFT
+			60 button 삼성전자
+			61 button SK하이닉스
+			62 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				63 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-ticker-title
+					64 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				65 content list
+					66 container
+						67 text 속지 말 것 '많이 빠졌으니 싸다' 가격이 내렸다고 싸진 것은 아닙니다. 이익 전망이 함께 내려가면 가격이 내려도 밸류에이션은 그대로이거나 오히려 비싸집니다. 왜: 싸다는 판단은 가격이 아니라 가격 ÷ 앞으로의 이익으로 합니다. 하락 추세에서는 그 이익이 아직 내려가는 중일 수 있습니다.
+						68 button '많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기
+					69 container
+						70 text 속지 말 것 뉴스로 생긴 갭 뉴스로 크게 뛰거나 빠진 갭은 첫날 움직임이 과장되기 쉽습니다. 갭이 며칠 동안 메워지지 않고 유지되는지가 진짜 변화인지 가르는 기준입니다. 왜: 첫 반응은 감정과 포지션 정리가 섞여 있고, 며칠 뒤에야 새 정보가 가격에 자리를 잡습니다.
+						71 button 뉴스로 생긴 갭 — 리서치 라이브러리에서 개념 배우기
+					72 container
+						73 text 속지 말 것 헤드라인과 확인 안 된 소문 자극적인 헤드라인과 출처가 불분명한 소문은 빠르게 퍼지지만 대부분 가격에 오래 남지 않습니다. 공식 발표·실제 수치로 확인될 때까지는 판단의 근거가 아니라 확인할 거리입니다. 왜: 확인되지 않은 정보로 움직이면 정보가 사실로 밝혀지기 전의 변동만 떠안게 됩니다.
+						74 button 헤드라인과 확인 안 된 소문 — 리서치 라이브러리에서 개념 배우기
+			75 button (collapsed) 이 종목의 메모 · 당시 근거 저장, Secondary Actions: Expand
+				76 text 이 종목의 메모 · 당시 근거 저장
+			77 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				78 text 데이터 출처
+
+The focused UI element is 50 heading 종목 분석, Value: 2, ID: ticker-hero-name

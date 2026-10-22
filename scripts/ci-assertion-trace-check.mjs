@@ -36,6 +36,31 @@ const EVIDENCE = /(?:^|[^A-Za-z0-9])(?:R\d{2,4}|P\d{3,4}|QA-[A-Z0-9-]+|T\d{3,5}|
 
 const LABEL_RE = /\b(?:check|_assert)\(\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|`((?:[^`\\]|\\.)*)`)/g;
 
+// v58.63 (architecture audit C4): only label-first check and _assert calls were collected, so node:assert calls
+// (assert.equal(a, b, 'message'), assert(ok, 'message')) and condition-first check(cond, 'message') never reached the
+// trace rule. Those calls are read with a small argument scanner: the message is the last top-level string argument.
+// A call with no message cannot be traced at all; those are counted per file and may not grow.
+const CALL_RE = /(?<![\w.$])(assert(?:\.[A-Za-z]+)?|check)\(/g;
+function callArguments(source, open) {
+  const args = [];
+  let depth = 0, start = open + 1, quote = null;
+  for (let i = open + 1; i < source.length; i += 1) {
+    const ch = source[i];
+    if (quote) {
+      if (ch === '\\') { i += 1; continue; }
+      if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') { quote = ch; continue; }
+    if (ch === '(' || ch === '[' || ch === '{') depth += 1;
+    else if (ch === ')' || ch === ']' || ch === '}') {
+      if (depth === 0) { args.push(source.slice(start, i).trim()); return args; }
+      depth -= 1;
+    } else if (ch === ',' && depth === 0) { args.push(source.slice(start, i).trim()); start = i + 1; }
+  }
+  return null;
+}
+const STRING_ARG = /^(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|`((?:[^`\\]|\\.)*)`)$/s;
 function collectLabels(source) {
   const labels = [];
   LABEL_RE.lastIndex = 0;
@@ -45,6 +70,23 @@ function collectLabels(source) {
     if (label) labels.push(label);
   }
   return labels;
+}
+function collectMessageCalls(source) {
+  const labels = [];
+  let messageless = 0;
+  CALL_RE.lastIndex = 0;
+  let match;
+  while ((match = CALL_RE.exec(source))) {
+    const args = callArguments(source, match.index + match[0].length - 1);
+    if (!args || !args.length || (args.length === 1 && !args[0])) continue;
+    // A label-first check call is the form collectLabels already reads.
+    if (match[1] === 'check' && STRING_ARG.test(args[0])) continue;
+    if (match[1] === 'check' && args.length < 2) continue;
+    const last = args[args.length - 1].match(STRING_ARG);
+    const label = last ? (last[1] ?? last[2] ?? last[3] ?? '').trim() : '';
+    if (label && args.length > 1) labels.push(label); else if (match[1] !== 'check') messageless += 1;
+  }
+  return { labels, messageless };
 }
 
 const targets = [
@@ -80,13 +122,17 @@ function unresolvedLedgerOnly(label) {
 }
 
 const unlabeled = {};
+const messageless = {};
 const dangling = [];
 let total = 0;
 let unlabeledTotal = 0;
 for (const file of targets) {
   const path = join(root, file);
   if (!existsSync(path)) continue;
-  const labels = collectLabels(read(file));
+  const source = read(file);
+  const messageCalls = collectMessageCalls(source);
+  if (messageCalls.messageless) messageless[file] = messageCalls.messageless;
+  const labels = [...collectLabels(source), ...messageCalls.labels];
   total += labels.length;
   const missing = labels.filter((label) => !hasEvidence(label));
   unlabeledTotal += missing.length;
@@ -106,6 +152,7 @@ if (write) {
     totalLabels: total,
     unlabeledLabels: unlabeledTotal,
     unlabeled,
+    messageless,
   }, null, 2)}\n`, 'utf8');
   console.log(`[assertion-trace] wrote ${BASELINE_PATH}: ${unlabeledTotal}/${total} labels lack a ledger id`);
   process.exit(0);
@@ -122,6 +169,13 @@ const untraced = [];
 for (const [file, hashes] of Object.entries(unlabeled)) {
   const allowed = new Set(known[file] || []);
   for (const id of hashes) if (!allowed.has(id)) untraced.push(`${file}#${id}`);
+}
+// v58.63 (C4): an assertion without any message cannot cite evidence; the count per file is a ratchet.
+const knownMessageless = baseline.messageless || null;
+if (knownMessageless) {
+  for (const [file, count] of Object.entries(messageless)) {
+    if (count > (knownMessageless[file] || 0)) untraced.push(`${file}: ${count - (knownMessageless[file] || 0)} new assertion(s) without a message`);
+  }
 }
 
 if (dangling.length) {

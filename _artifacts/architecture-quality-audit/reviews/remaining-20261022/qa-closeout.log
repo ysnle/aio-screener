@@ -1,0 +1,32 @@
+[qa] RUN syntax
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] PASS version (251ms)
+[qa] RUN architecture
+[qa] PASS product-charter (334ms)
+[qa] RUN native-decision
+[qa] PASS native-decision (337ms)
+[qa] RUN vertical-slice
+[qa] PASS vertical-slice (247ms)
+[qa] RUN capability-claims
+[qa] PASS capability-claims (277ms)
+[qa] RUN operations-contract
+[qa] PASS operations-contract (402ms)
+[qa] RUN reference-curriculum
+[qa] PASS reference-curriculum (257ms)
+[qa] RUN route-registry
+[qa] PASS route-registry (319ms)
+[qa] RUN generated-state
+[qa] PASS architecture (2357ms)
+[qa] RUN workspace-contract
+[qa] PASS generated-state (804ms)
+[qa] RUN qa-runner-behavior
+[qa] PASS workspace-contract (4876ms)
+[qa] PASS workflow-yaml (8110ms)
+[qa] PASS syntax (17491ms)
+[qa] PASS qa-runner-behavior (31968ms)
+[qa] SUMMARY profile=affected run=2026-10-22T13-22-56-859Z-27476-xzfktf groups=preflight pass=14 cached=0 fail=0 skip=0 duration=40.3s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\runs\2026-10-22T13-22-56-859Z-27476-xzfktf.json
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json
+

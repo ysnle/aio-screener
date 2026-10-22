@@ -5,11 +5,12 @@ import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { buildQuarterRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
+import { fiscalYearLabel, fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
@@ -43,7 +44,7 @@ export function requestFiscalHistory(root, onReady, key = 'default') {
   const fetchFn = root?.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return;
   root._aioSecFiscalHistoryRequested = true;
-  const load = (url, maxBytes) => loadJsonArtifact(fetchFn.bind(root), url, { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes });
+  const load = (url, maxBytes) => loadJsonArtifact(stableFetcher(root), url, { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes });
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
   load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
     .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
@@ -261,13 +262,13 @@ function earningsQualityCard(doc, read, analysis) {
   if (plotted.filter((item) => item.ratio != null).length >= 2) {
     trend = el(doc, 'div', null, 'v2-fiscal-trend');
     trend.setAttribute('role', 'img');
-    trend.setAttribute('aria-label', `영업현금흐름 ÷ 순이익 ${plotted.length}개 회계연도: ${plotted.map((item) => `${item.year.periodEnd.slice(0, 4)} ${item.ratio == null ? '해당 없음' : item.ratio.toFixed(2)}`).join(', ')}`);
+    trend.setAttribute('aria-label', `영업현금흐름 ÷ 순이익 ${plotted.length}개 회계연도: ${plotted.map((item) => `${fiscalYearLabel(item.year.periodEnd)} ${item.ratio == null ? '해당 없음' : item.ratio.toFixed(2)}`).join(', ')}`);
     for (const item of plotted) {
       const col = el(doc, 'span', null, 'v2-fiscal-trend__col');
       const bar = el(doc, 'span', null, `v2-fiscal-trend__bar${item.ratio == null ? ' is-na' : item.ratio < 0.8 ? ' is-low' : ''}`);
       bar.style.height = `${item.ratio == null ? 4 : Math.max(6, Math.min(item.ratio, 2) / 2 * 100).toFixed(1)}%`;
       col.title = `${item.year.periodEnd} ${item.ratio == null ? '순이익 또는 영업현금흐름이 마이너스 — 비율 해당 없음' : item.ratio.toFixed(2)}`;
-      col.append(el(doc, 'span', item.ratio == null ? '—' : item.ratio.toFixed(2), 'v2-fiscal-trend__value'), bar, el(doc, 'span', `FY${item.year.periodEnd.slice(2, 4)}`, 'v2-fiscal-trend__year'));
+      col.append(el(doc, 'span', item.ratio == null ? '—' : item.ratio.toFixed(2), 'v2-fiscal-trend__value'), bar, el(doc, 'span', fiscalYearShortLabel(item.year.periodEnd), 'v2-fiscal-trend__year'));
       trend.append(col);
     }
   }

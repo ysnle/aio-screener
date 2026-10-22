@@ -1,0 +1,54 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "path": "js/aio-ui.js",
+  "sha256": "5fb244f82c49219b3f34afdded788bc3356696ea687e0deafc99a7a8079a44bd",
+  "storageBlocked": {
+    "error": {
+      "message": "SecurityError: storage blocked",
+      "line": "file:///C:/Projects/AIO/_artifacts/architecture-quality-audit-20261021-v5859/ui-shell-probe-repro.mjs:9\nconst ctx={console,URLSearchParams,Intl,Date,Promise,Object,Number,String,Array,Math,JSON,Map,Set, document:{body:{},querySelector:()=>null,querySelectorAll:()=>[],getElementById:()=>null,addEventListener:(t)=>events.push(t)},location:{hash:'',protocol:'file:',hostname:'',href:'file:///app',pathname:'/app',search:''},history:{replaceState:()=>{}},navigator:{},localStorage:{getItem:()=>{throw new Error('SecurityError: storage blocked');}},setTimeout:()=>0,clearTimeout:()=>{},addEventListener:(t)=>events.push(`window:${t}`),dispatchEvent:()=>{},CustomEvent:function(t){this.type=t;}};\n                                                                                                                                                                                                                                                                                                                                                                                                     ^\n\nError: SecurityError: storage blocked\n    at Object.getItem (file:///C:/Projects/AIO/_artifacts/architecture-quality-audit-20261021-v5859/ui-shell-probe-repro.mjs:9:396)\n    at js/aio-ui.js:3387:21\n    at js/aio-ui.js:3393:3\n    at Script.runInContext (node:vm:149:12)\n    at Script.runInNewContext (node:vm:154:17)\n    at Object.runInNewContext (node:vm:310:38)\n    at file:///C:/Projects/AIO/_artifacts/architecture-quality-audit-20261021-v5859/ui-shell-probe-repro.mjs:11:18\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)"
+    },
+    "events": [
+      "DOMContentLoaded",
+      "DOMContentLoaded",
+      "DOMContentLoaded",
+      "window:online",
+      "window:offline",
+      "window:aio:refresh:start",
+      "window:aio:refresh:progress",
+      "window:aio:refresh:done",
+      "DOMContentLoaded",
+      "window:aio:marketStateUpdated"
+    ],
+    "lateStockSearchRegistered": false,
+    "keyboardDocumentHandlers": 0,
+    "control": {
+      "lateStockSearchRegistered": true,
+      "keyboardDocumentHandlers": 1
+    }
+  },
+  "missingBenchmarkHistory": {
+    "input": {
+      "NVDA": {
+        "qty": 1,
+        "cost": 100,
+        "currentPrice": 200,
+        "monthlyHistory": null
+      },
+      "SPY": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    "canvasTexts": [
+      "SPY 30일 실데이터 조회 중...",
+      "내 포트폴리오: +100.0% (30일)",
+      "SPY: +0.0% (30일)",
+      "Alpha: +100.0%p",
+      "일별 실데이터 커버리지: 0% · Yahoo 30일"
+    ]
+  },
+  "boundary": "격리 VM·stub DOM·mock fetch만 실행. 외부 네트워크·실제 AI·producer·브라우저 실행 없음."
+}

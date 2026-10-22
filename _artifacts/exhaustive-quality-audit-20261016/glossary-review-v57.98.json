@@ -1,0 +1,2248 @@
+{
+  "boundary": "280 definitions and 72 numeric-source rows fully read; selective primary-source checks only; judgments are not all confirmed defects",
+  "source": "js/aio-glossary.js",
+  "sourceSha256": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+  "numericSourceRows": 72,
+  "rows": [
+    {
+      "ordinal": 1,
+      "term": "RRG (상대회전그래프)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 2,
+      "term": "OAS / HY 스프레드",
+      "verdict": "보완",
+      "reason": "OAS를 같은만기 단순금리차처럼 시작",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 3,
+      "term": "OPEX (옵션 만기일)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 4,
+      "term": "소르티노 비율(Sortino)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 5,
+      "term": "피오트로스키 F-점수",
+      "verdict": "보완",
+      "reason": "점수와 부실위험 판정을 혼합",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 6,
+      "term": "ZBT (브레드쓰 스러스트)",
+      "verdict": "수정필요",
+      "reason": "상승비율의10일 EMA 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 7,
+      "term": "VaR (Value at Risk)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 8,
+      "term": "최대낙폭(MDD)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 9,
+      "term": "TWR(시간가중수익률)",
+      "verdict": "보완",
+      "reason": "수익률 아닌 성장계수 곱 명시 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 10,
+      "term": "MWR(금액가중수익률)",
+      "verdict": "보완",
+      "reason": "복수해·해없음 가능성 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 11,
+      "term": "13F (기관 보유 공시)",
+      "verdict": "수정필요",
+      "reason": "신고기한과 정보연령 혼동",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 12,
+      "term": "CUSIP",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 13,
+      "term": "ROIC (투하자본이익률)",
+      "verdict": "보완",
+      "reason": "평균회계 ROIC의 가치판정 과장",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 14,
+      "term": "주식(Stock)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 15,
+      "term": "ETF",
+      "verdict": "보완",
+      "reason": "액티브 ETF를 추종형 정의에서 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 16,
+      "term": "시가총액(Market Cap)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 17,
+      "term": "배당(Dividend)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 18,
+      "term": "PER (P/E Ratio)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 19,
+      "term": "PBR (P/B Ratio)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 20,
+      "term": "EPS",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 21,
+      "term": "거래량(Volume)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 22,
+      "term": "호가(Bid/Ask)",
+      "verdict": "보완",
+      "reason": "스프레드만으로 유동성 판정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 23,
+      "term": "시장가/지정가 주문",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 24,
+      "term": "롱/숏(Long/Short)",
+      "verdict": "범위보완",
+      "reason": "무차입 현물 롱 조건 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 25,
+      "term": "포트폴리오",
+      "verdict": "보완",
+      "reason": "위험을 상관관계만으로 설명",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 26,
+      "term": "손절(Stop Loss)",
+      "verdict": "범위검토",
+      "reason": "정의에서 ATR 실행방법까지 확장",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 27,
+      "term": "익절(Take Profit)",
+      "verdict": "범위검토",
+      "reason": "분할매도·손절상향 예시 포함",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 28,
+      "term": "구조 분류(강세 구조·약세 구조·관찰·중립)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 29,
+      "term": "ROE (자기자본이익률)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 30,
+      "term": "ROA (총자산이익률)",
+      "verdict": "보완",
+      "reason": "기간평균 자산 사용 설명 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 31,
+      "term": "매출(Revenue)",
+      "verdict": "보완",
+      "reason": "인식매출을 받은 금액으로 정의",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 32,
+      "term": "영업이익(Operating Income)",
+      "verdict": "보완",
+      "reason": "일회성손익은 모두 제외한다고 표현",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 33,
+      "term": "순이익(Net Income)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 34,
+      "term": "잉여현금흐름(FCF)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 35,
+      "term": "부채비율(D/E Ratio)",
+      "verdict": "보완",
+      "reason": "총부채와 이자부채 영문정의 혼재",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 36,
+      "term": "유동비율(Current Ratio)",
+      "verdict": "보완",
+      "reason": "영업주기 예외를1년으로 축소",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 37,
+      "term": "자사주 매입(Buyback)",
+      "verdict": "보완",
+      "reason": "주당이익 상승을 무조건화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 38,
+      "term": "IPO",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 39,
+      "term": "스플릿(Stock Split)",
+      "verdict": "보완",
+      "reason": "유동성 개선을 유일목적처럼 표현",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 40,
+      "term": "블루칩(Blue Chip)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 41,
+      "term": "펀더멘털(Fundamentals)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 42,
+      "term": "Forward PER",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 43,
+      "term": "PEG Ratio",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 44,
+      "term": "EV/EBITDA",
+      "verdict": "보완",
+      "reason": "우선주·비지배지분 등 EV 조정 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 45,
+      "term": "52주 신고가/신저가",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 46,
+      "term": "베타(Beta)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 47,
+      "term": "알파(Alpha)",
+      "verdict": "보완",
+      "reason": "단순초과수익과 위험조정 알파 혼재",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 48,
+      "term": "샤프비율(Sharpe Ratio)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 49,
+      "term": "RSI",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 50,
+      "term": "MACD",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 51,
+      "term": "이동평균선(MA)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 52,
+      "term": "골든크로스/데드크로스",
+      "verdict": "보완",
+      "reason": "데드크로스 정의를 실제로 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 53,
+      "term": "볼린저 밴드",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 54,
+      "term": "지지선/저항선",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 55,
+      "term": "캔들차트",
+      "verdict": "보완",
+      "reason": "색상은 전일대비 아닌 시가대비",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 56,
+      "term": "거래량 분석",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 57,
+      "term": "피보나치 되돌림",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 58,
+      "term": "VCP 패턴",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 59,
+      "term": "상대강도(RS)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 60,
+      "term": "ATR",
+      "verdict": "범위검토",
+      "reason": "정의보다 손절·목표 활용 강조",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 61,
+      "term": "상대강도 순위(RS Rank)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 62,
+      "term": "누적/분배(Acc/Dist)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 63,
+      "term": "다이버전스(Divergence)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 64,
+      "term": "모멘텀(Momentum)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 65,
+      "term": "OBV (거래량 균형)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 66,
+      "term": "스토캐스틱(Stochastic)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 67,
+      "term": "ADX (추세 강도)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 68,
+      "term": "일목균형표(Ichimoku)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 69,
+      "term": "엘리엇 파동(Elliott Wave)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 70,
+      "term": "갭(Gap)",
+      "verdict": "보완",
+      "reason": "갭의 원인을 정보발생으로 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 71,
+      "term": "헤드앤숄더(Head & Shoulders)",
+      "verdict": "보완",
+      "reason": "목표거리의 기준점 설명 불명확",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 72,
+      "term": "더블 탑/바텀",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 73,
+      "term": "컵 앤 핸들(Cup & Handle)",
+      "verdict": "보완",
+      "reason": "대표기간·깊이를 정의처럼 고정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 74,
+      "term": "VWAP",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 75,
+      "term": "파라볼릭 SAR",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 76,
+      "term": "이격도(Disparity)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 77,
+      "term": "추세선(Trendline)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 78,
+      "term": "Weinstein Stage Analysis",
+      "verdict": "보완",
+      "reason": "방법론과 실제화면 계산 대조 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 79,
+      "term": "SEPA (Specific Entry Point Analysis)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 80,
+      "term": "DMI (방향운동지수)",
+      "verdict": "보완",
+      "reason": "DI 우위를 실제 추세로 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 81,
+      "term": "윌리엄스 %R",
+      "verdict": "보완",
+      "reason": "RSI보다 민감하다는 비교조건 없음",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 82,
+      "term": "매물대(Volume Profile)",
+      "verdict": "보완",
+      "reason": "과거거래를 현재보유 원가로 혼동",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 83,
+      "term": "GDP (국내총생산)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 84,
+      "term": "실질GDP vs 명목GDP",
+      "verdict": "보완",
+      "reason": "연쇄가중 실질을 고정기준가격으로 단순화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 85,
+      "term": "GNP (국민총생산)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 86,
+      "term": "기준금리(Base Rate)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 87,
+      "term": "CPI (소비자물가지수)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 88,
+      "term": "PPI (생산자물가지수)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 89,
+      "term": "PCE (개인소비지출 · PCE 물가지수)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 90,
+      "term": "인플레이션(Inflation)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 91,
+      "term": "디플레이션(Deflation)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 92,
+      "term": "스태그플레이션",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 93,
+      "term": "경기침체(Recession)",
+      "verdict": "보완",
+      "reason": "NBER를 정부 공식판정처럼 표현",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 94,
+      "term": "경기순환(Business Cycle)",
+      "verdict": "외부미인증",
+      "reason": "전후 평균기간의 표본 미기재",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 95,
+      "term": "실업률(Unemployment Rate)",
+      "verdict": "보완",
+      "reason": "U-6 한계근로자 범위 단순화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 96,
+      "term": "비농업고용(NFP)",
+      "verdict": "보완",
+      "reason": "첫 금요일 발표 예외 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 97,
+      "term": "실업수당 청구건수",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 98,
+      "term": "PMI (구매관리자지수)",
+      "verdict": "보완",
+      "reason": "종합PMI와 단일확산지수 정의 혼재",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 99,
+      "term": "소비자신뢰지수",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 100,
+      "term": "소매판매(Retail Sales)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 101,
+      "term": "산업생산(Industrial Production)",
+      "verdict": "수정후보",
+      "reason": "동행지표를 후행으로 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 102,
+      "term": "주택착공/건축허가",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 103,
+      "term": "연준(Federal Reserve/Fed)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 104,
+      "term": "FOMC",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 105,
+      "term": "양적완화(QE)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 106,
+      "term": "양적긴축(QT)",
+      "verdict": "보완",
+      "reason": "자산감소를 준비금 감소와 일대일화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 107,
+      "term": "테이퍼링(Tapering)",
+      "verdict": "보완",
+      "reason": "QE부터 QT까지 순서를 필연화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 108,
+      "term": "재정정책(Fiscal Policy)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 109,
+      "term": "통화정책(Monetary Policy)",
+      "verdict": "보완",
+      "reason": "완화·긴축을 금리방향으로 축소",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 110,
+      "term": "국가부채/GDP비율",
+      "verdict": "출처불일치",
+      "reason": "본문 일본240과 출처조건250 불일치",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 111,
+      "term": "무역수지",
+      "verdict": "보완",
+      "reason": "통화강세 효과의 조건 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 112,
+      "term": "경상수지",
+      "verdict": "보완",
+      "reason": "상품수지와 무역수지 구분 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 113,
+      "term": "Yield Curve (수익률 곡선)",
+      "verdict": "중복",
+      "reason": "한국어 수익률곡선 항목과 의미 중복",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 114,
+      "term": "테일러 룰(Taylor Rule)",
+      "verdict": "보완",
+      "reason": "준칙 산출값을 적정금리로 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 115,
+      "term": "Sahm Rule",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 116,
+      "term": "필립스 곡선",
+      "verdict": "보완",
+      "reason": "조건부 관계를 반비례로 정의",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 117,
+      "term": "중립금리(r*)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 118,
+      "term": "잭슨홀 미팅",
+      "verdict": "보완",
+      "reason": "지역·개최시점 고정의 예외 가능",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 119,
+      "term": "환율(Exchange Rate)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 120,
+      "term": "DXY (달러 인덱스)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 121,
+      "term": "기축통화(Reserve Currency)",
+      "verdict": "외부미인증",
+      "reason": "2025년 분기·집계기준 미특정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 122,
+      "term": "통화쌍(Currency Pair)",
+      "verdict": "보완",
+      "reason": "기준통화 상승을 상대통화 조건 없이 설명",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 123,
+      "term": "메이저 통화쌍",
+      "verdict": "보완",
+      "reason": "유동성·스프레드의 시간별 예외 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 124,
+      "term": "캐리 트레이드(Carry Trade)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 125,
+      "term": "원/달러 환율(USD/KRW)",
+      "verdict": "보완",
+      "reason": "수출유리·수입불리의 통화구조 예외 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 126,
+      "term": "엔/달러(USD/JPY)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 127,
+      "term": "위안/달러(USD/CNY)",
+      "verdict": "보완",
+      "reason": "절하의 수출효과를 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 128,
+      "term": "외환보유고",
+      "verdict": "외부미인증",
+      "reason": "기준연도만 있고 기준월 없음",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 129,
+      "term": "핫머니(Hot Money)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 130,
+      "term": "통화 절하/절상",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 131,
+      "term": "고정환율/변동환율제",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 132,
+      "term": "NDF (역외선물환)",
+      "verdict": "보완",
+      "reason": "거래소 선물 아닌 선도계약",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 133,
+      "term": "스왑포인트(Swap Point)",
+      "verdict": "보완",
+      "reason": "금리차의 방향·베이시스 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 134,
+      "term": "플라자 합의",
+      "verdict": "외부미인증",
+      "reason": "일본버블 인과기여 원문 미검증",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 135,
+      "term": "외환위기",
+      "verdict": "보완",
+      "reason": "전형적 결과를 필수증상처럼 표현",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 136,
+      "term": "실질실효환율(REER)",
+      "verdict": "보완",
+      "reason": "고평가 판정에는 별도 기준 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 137,
+      "term": "채권(Bond)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 138,
+      "term": "국채(Government Bond)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 139,
+      "term": "회사채(Corporate Bond)",
+      "verdict": "보완",
+      "reason": "등급과 금리의 일대일 대응 과장",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 140,
+      "term": "쿠폰(Coupon)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 141,
+      "term": "만기수익률(YTM)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 142,
+      "term": "듀레이션(Duration)",
+      "verdict": "보완",
+      "reason": "장기채일수록 크다는 예외 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 143,
+      "term": "컨벡시티(Convexity)",
+      "verdict": "보완",
+      "reason": "음의볼록성과 동일조건 비교 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 144,
+      "term": "수익률 곡선(Yield Curve)",
+      "verdict": "보완",
+      "reason": "평탄화를 경기둔화와 등치",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 145,
+      "term": "장단기 금리차(Term Spread)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 146,
+      "term": "신용등급(Credit Rating)",
+      "verdict": "보완",
+      "reason": "평가기관별 등급기호 차이 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 147,
+      "term": "신용스프레드(Credit Spread)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 148,
+      "term": "HY 스프레드",
+      "verdict": "중복",
+      "reason": "동의 용어 두 항목과 부분중복",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 149,
+      "term": "TLT",
+      "verdict": "외부미인증",
+      "reason": "낙폭 기준일·배당 포함 여부 없음",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 150,
+      "term": "TIPS (물가연동국채)",
+      "verdict": "보완",
+      "reason": "디플레 원금조정·만기바닥 예외 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 151,
+      "term": "BEI (기대인플레이션)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 152,
+      "term": "MBS (주택저당증권)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 153,
+      "term": "MOVE 지수",
+      "verdict": "보완",
+      "reason": "내재변동성과 불안을 단정적으로 등치",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 154,
+      "term": "채권 가격과 금리의 관계",
+      "verdict": "보완",
+      "reason": "고정현금흐름·동일조건 전제 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 155,
+      "term": "제로쿠폰채(Zero Coupon)",
+      "verdict": "보완",
+      "reason": "음수수익률에서는 수정듀레이션 예외",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 156,
+      "term": "콜러블 채권(Callable Bond)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 157,
+      "term": "전환사채(CB)",
+      "verdict": "보완",
+      "reason": "신용위험을 안정성이라는 표현으로 축소",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 158,
+      "term": "채권 래더(Bond Ladder)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 159,
+      "term": "VIX (공포지수)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 160,
+      "term": "Fear & Greed Index",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 161,
+      "term": "시장 폭(Breadth)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 162,
+      "term": "Put/Call 비율",
+      "verdict": "보완",
+      "reason": "풋은 헤지·콜은 상승이라는 역할 단순화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 163,
+      "term": "NAAIM",
+      "verdict": "수정필요",
+      "reason": "노출범위를0~100%로 잘못 한정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 164,
+      "term": "AAII",
+      "verdict": "외부미인증",
+      "reason": "장기평균의 산출종료일 없음",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 165,
+      "term": "NYSE 비율(NYSE Ratio)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 166,
+      "term": "시장 국면(Market Regime · 레짐)",
+      "verdict": "수정필요",
+      "reason": "축 이름 일곱을 여섯이라 셈",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 167,
+      "term": "상관관계(Correlation)",
+      "verdict": "보완",
+      "reason": "선형관계·크기와 방향동행 혼재",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 168,
+      "term": "리스크 온/오프",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 169,
+      "term": "유동성(Liquidity)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 170,
+      "term": "M2 통화량",
+      "verdict": "보완",
+      "reason": "현행 미국 통화구성의 분류시점 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 171,
+      "term": "역RP (Reverse Repo)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 172,
+      "term": "달러 밀크셰이크 이론",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 173,
+      "term": "구리/금 비율(Cu/Au Ratio)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 174,
+      "term": "BDI (발틱건화물지수)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 175,
+      "term": "OECD 선행지수(CLI)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 176,
+      "term": "McClellan Oscillator",
+      "verdict": "보완",
+      "reason": "규모조정 여부 없이 절대문턱 제시",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 177,
+      "term": "Advance-Decline Line",
+      "verdict": "보완",
+      "reason": "괴리를 위험판정으로 바로 연결",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 178,
+      "term": "하이일드 스프레드",
+      "verdict": "중복",
+      "reason": "OAS·HY 스프레드와 동의중복",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 179,
+      "term": "연준 대차대조표",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 180,
+      "term": "글로벌 유동성 사이클",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 181,
+      "term": "콜옵션(Call)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 182,
+      "term": "풋옵션(Put)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 183,
+      "term": "행사가(Strike Price)",
+      "verdict": "보완",
+      "reason": "만기손익과 만기전 옵션손익 구분 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 184,
+      "term": "프리미엄",
+      "verdict": "보완",
+      "reason": "만기전 순익에도 손익분기 가격을 적용",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 185,
+      "term": "내재변동성(IV)",
+      "verdict": "보완",
+      "reason": "큰 IV가 비싸다는 비교기준 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 186,
+      "term": "IV Rank / IV Percentile",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 187,
+      "term": "그릭스(Greeks)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 188,
+      "term": "Delta",
+      "verdict": "보완",
+      "reason": "작은변화 근사와 다른조건 고정 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 189,
+      "term": "Gamma",
+      "verdict": "보완",
+      "reason": "ATM 최대의 만기·모형 조건 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 190,
+      "term": "Theta",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 191,
+      "term": "Vega",
+      "verdict": "단위보완",
+      "reason": "IV1%가 아닌1%포인트 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 192,
+      "term": "GEX (Gamma Exposure)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 193,
+      "term": "Skew (스큐)",
+      "verdict": "보완",
+      "reason": "행사가·델타·만기 비교조건 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 194,
+      "term": "Contango/Backwardation",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 195,
+      "term": "커버드콜(Covered Call)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 196,
+      "term": "프로텍티브 풋(Protective Put)",
+      "verdict": "보완",
+      "reason": "보호기간·행사가·순비용 조건 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 197,
+      "term": "스트래들(Straddle)",
+      "verdict": "보완",
+      "reason": "동일만기·프리미엄 손익조건 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 198,
+      "term": "아이언 콘도르(Iron Condor)",
+      "verdict": "보완",
+      "reason": "낮은 실현변동과 낮은 IV 혼동 가능",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 199,
+      "term": "0DTE (당일만기옵션)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 200,
+      "term": "옵션 체인(Option Chain)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 201,
+      "term": "미결제약정(Open Interest)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 202,
+      "term": "맥스 페인(Max Pain)",
+      "verdict": "보완",
+      "reason": "실제손실과 OI 내재가치 모델 혼동",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 203,
+      "term": "변동성 매매(Vol Trading)",
+      "verdict": "범위검토",
+      "reason": "낮은 IV 매수·높은 IV 매도를 처방",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 204,
+      "term": "풋/콜 패리티",
+      "verdict": "수정필요",
+      "reason": "유럽형·동일조건·배당 가정 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 205,
+      "term": "KOSPI",
+      "verdict": "보완",
+      "reason": "유가증권시장 지수와 대형주중심 혼재",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 206,
+      "term": "KOSDAQ",
+      "verdict": "보완",
+      "reason": "시장을 기술주 전용처럼 단순화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 207,
+      "term": "코리아 디스카운트",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 208,
+      "term": "외국인/기관/개인",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 209,
+      "term": "신용잔고",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 210,
+      "term": "공매도",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 211,
+      "term": "예탁금",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 212,
+      "term": "ADR (등락비율)",
+      "verdict": "보완",
+      "reason": "일간비율과 기간누적 관행 구분 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 213,
+      "term": "금통위",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 214,
+      "term": "밸류업 프로그램",
+      "verdict": "외부미인증",
+      "reason": "현행 정책범위·시점 미검증",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 215,
+      "term": "프로그램 매매",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 216,
+      "term": "서킷브레이커(Circuit Breaker)",
+      "verdict": "법규미검증",
+      "reason": "추가 낙폭조건 등 원규정 대조 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 217,
+      "term": "사이드카(Sidecar)",
+      "verdict": "법규미검증",
+      "reason": "서킷브레이커보다 먼저라는 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 218,
+      "term": "밴드/기간 수익률",
+      "verdict": "보완",
+      "reason": "양수 동반을 강한 모멘텀으로 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 219,
+      "term": "대차잔고",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 220,
+      "term": "기관 순매수 연속일",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 221,
+      "term": "개인 신용융자",
+      "verdict": "보완",
+      "reason": "융자잔액과 매입주식 평가총액 혼동",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 222,
+      "term": "공모주/IPO 청약",
+      "verdict": "보완",
+      "reason": "청약 신청과 실제배정 구분 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 223,
+      "term": "분산투자",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 224,
+      "term": "DCA (적립식 투자)",
+      "verdict": "보완",
+      "reason": "정작 적립식 방법 정의가 없음",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 225,
+      "term": "리밸런싱",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 226,
+      "term": "섹터 로테이션",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 227,
+      "term": "모멘텀 투자",
+      "verdict": "출처보완",
+      "reason": "연구자 이름이 원출처와 불일치",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 228,
+      "term": "가치 투자",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 229,
+      "term": "포지션 사이징",
+      "verdict": "범위검토",
+      "reason": "계좌1~2% 손실예시 포함",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 230,
+      "term": "리스크/리워드 비율",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 231,
+      "term": "와인스타인 스테이지",
+      "verdict": "중복",
+      "reason": "영문 Stage Analysis와 동의중복",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 232,
+      "term": "시장 상태(양호·부담 축)",
+      "verdict": "수정필요",
+      "reason": "일곱 축 명칭과 여섯 개수 불일치",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 233,
+      "term": "성장주 vs 가치주",
+      "verdict": "보완",
+      "reason": "가치주를 성숙·고배당으로 제한",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 234,
+      "term": "바벨 전략(Barbell)",
+      "verdict": "보완",
+      "reason": "양극위험 구조를 국채·주식 조합으로 축소",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 235,
+      "term": "손익비와 기대값",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 236,
+      "term": "켈리 기준(Kelly Criterion)",
+      "verdict": "보완",
+      "reason": "이항베팅 조건·기호 정의 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 237,
+      "term": "피라미딩(Pyramiding)",
+      "verdict": "범위검토",
+      "reason": "추가비중 감소를 실행예시로 제시",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 238,
+      "term": "페어 트레이딩(Pair Trading)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 239,
+      "term": "미국 주식시장 구조",
+      "verdict": "보완",
+      "reason": "정규 조기폐장·거래서비스 차이 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 240,
+      "term": "S&P 500",
+      "verdict": "보완",
+      "reason": "회사500과 증권종목수 차이 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 241,
+      "term": "나스닥(NASDAQ)",
+      "verdict": "수정후보",
+      "reason": "나스닥100의 비금융 선정조건 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 242,
+      "term": "다우존스(DJIA)",
+      "verdict": "수정후보",
+      "reason": "가장 오래된 지수라는 절대표현",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 243,
+      "term": "러셀 2000",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 244,
+      "term": "시장 참여자",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 245,
+      "term": "마켓메이커(MM)",
+      "verdict": "보완",
+      "reason": "상시호가·수익을 무조건화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 246,
+      "term": "다크풀(Dark Pool)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 247,
+      "term": "PFOF (주문흐름결제)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 248,
+      "term": "11대 섹터(GICS)",
+      "verdict": "보완",
+      "reason": "통신서비스·임의소비재 명칭 축약",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 249,
+      "term": "실적 시즌(Earnings Season)",
+      "verdict": "보완",
+      "reason": "대표발표월과 전체시즌 구분 필요",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 250,
+      "term": "위스퍼 넘버(Whisper Number)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 251,
+      "term": "가이던스(Guidance)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 252,
+      "term": "금/원자재",
+      "verdict": "보완",
+      "reason": "금의 물가헤지 역할을 일반화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 253,
+      "term": "비트코인/암호화폐",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 254,
+      "term": "블랙스완(Black Swan)",
+      "verdict": "보완",
+      "reason": "예상불가능성과 사후설명 속성 누락",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 255,
+      "term": "평균회귀(Mean Reversion)",
+      "verdict": "보완",
+      "reason": "비정상 가격수준에도 회귀를 일반화",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 256,
+      "term": "복리 효과(Compound Interest)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 257,
+      "term": "72의 법칙(Rule of 72)",
+      "verdict": "보완",
+      "reason": "본문에서 근사·양의수익 조건 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 258,
+      "term": "생존 편향(Survivorship Bias)",
+      "verdict": "보완",
+      "reason": "상장폐지가 항상 통계에서 빠진다 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 259,
+      "term": "확증 편향(Confirmation Bias)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 260,
+      "term": "FOMO/FUD",
+      "verdict": "보완",
+      "reason": "FUD 자체를 패닉매도 실수로 정의",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 261,
+      "term": "감정 다스리기",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 262,
+      "term": "세금과 수수료",
+      "verdict": "법규미검증",
+      "reason": "2026 세율은 현행 원법 미대조",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 263,
+      "term": "마진/레버리지",
+      "verdict": "보완",
+      "reason": "이자·강제청산 없는 두배식 단정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 264,
+      "term": "ETF vs 개별주",
+      "verdict": "범위보완",
+      "reason": "단일종목 ETF 정의와 바구니 표현 긴장",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 265,
+      "term": "국면 전환(Regime Change · 레짐 체인지)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 266,
+      "term": "꼬리 위험(Tail Risk)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 267,
+      "term": "승자의 저주",
+      "verdict": "보완",
+      "reason": "입찰모형의 조건·추정오차 생략",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 268,
+      "term": "앵커링 효과",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 269,
+      "term": "손실 회피(Loss Aversion)",
+      "verdict": "보완",
+      "reason": "연구별2배를 보편상수처럼 제시",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 270,
+      "term": "처분 효과(Disposition Effect)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 271,
+      "term": "과잉 자신감(Overconfidence)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 272,
+      "term": "항복 매도(Capitulation)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 273,
+      "term": "예측보다 대응(Respond, Don’t Predict)",
+      "verdict": "범위검토",
+      "reason": "개인 계좌별 노출조정까지 확장",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 274,
+      "term": "논점 무효화(Thesis Invalidation)",
+      "verdict": "범위검토",
+      "reason": "반증정의와 손절실행을 혼합",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 275,
+      "term": "물타기(Averaging Down)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 276,
+      "term": "주도주(Leader)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 277,
+      "term": "에코챔버(Echo Chamber)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 278,
+      "term": "지수 바스켓(Index Basket)",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 279,
+      "term": "액티브·패시브·벤치마크",
+      "verdict": "보완",
+      "reason": "액티브 목표를 초과수익에만 한정",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    },
+    {
+      "ordinal": 280,
+      "term": "담보비율·반대매매",
+      "verdict": "양호",
+      "reason": "정의·조건·예외의 내부 의미 검토에서 중대 문제 미발견",
+      "sourceHash": "69a6b24dd3c2e14190f7e68244d7eba3c6ef4686c93c5ad6ea9608c2692e7b9e",
+      "externalCertified": false
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 // load, so a long-open tab mixed new closes with the first macro or breadth drilldown it ever saw. One owner decides
 // when to reload: no copy yet, the copy is older than its TTL, or the server data was regenerated after the copy
 // was loaded. Concurrent callers share one request; a failed load keeps the last good copy and may retry later.
-import { loadJsonArtifact } from './artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
 
 const stateOf = (root) => (root.__aioSharedArtifacts ||= {});
 
@@ -25,7 +25,7 @@ export function refreshSharedArtifact(root, { key, url, schemas, maxAgeMs = 60 *
   if (now - entry.failedAt < 60000) return Promise.resolve({ payload: root[key] || null, changed: false });
   const fetchFn = root.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return Promise.resolve({ payload: root[key] || null, changed: false });
-  entry.inFlight = loadJsonArtifact(fetchFn.bind(root), url, { maxAgeMs: 0, force: true, maxBytes })
+  entry.inFlight = loadJsonArtifact(stableFetcher(root), url, { maxAgeMs: 0, force: true, maxBytes })
     .then((payload) => {
       if (!schemas.includes(payload?.schemaVersion)) throw new Error('schema');
       const previous = root[key];

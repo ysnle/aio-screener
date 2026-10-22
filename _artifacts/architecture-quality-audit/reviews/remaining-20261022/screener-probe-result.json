@@ -1,0 +1,306 @@
+{
+  "observedAt": "2026-10-22T13:08:24.273Z",
+  "fixedRef": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "boundary": "Pinned pure-module execution with synthetic inputs only. Dependency traversal/copy is not full semantic reading. No browser/live/provider/paid AI.",
+  "notIdentity": {
+    "before": "passed",
+    "after": "rejected",
+    "sameCalculationInputId": true,
+    "resultChanged": true,
+    "directPriceControlChangesId": true,
+    "unreferencedPriceControlKeepsId": true
+  },
+  "overlap": {
+    "constant": {
+      "n": 30,
+      "factors": [
+        "momentum",
+        "trend"
+      ],
+      "pairs": [
+        {
+          "a": "momentum",
+          "b": "trend",
+          "label": "모멘텀–추세",
+          "rho": 0
+        }
+      ],
+      "effective": 2
+    },
+    "constantSentence": "오늘 30종목에서 잰 순위 상관: 가장 높은 쌍 모멘텀–추세 0.00 — 지표 2개가 실질적으로는 독립된 신호 약 2.0개만큼의 정보입니다. 함께 높다고 근거가 그 수만큼 쌓인 것은 아닙니다.",
+    "identicalVaryingControl": {
+      "n": 30,
+      "factors": [
+        "momentum",
+        "trend"
+      ],
+      "pairs": [
+        {
+          "a": "momentum",
+          "b": "trend",
+          "label": "모멘텀–추세",
+          "rho": 1
+        }
+      ],
+      "effective": 1
+    },
+    "mixed": {
+      "n": 30,
+      "factors": [
+        "momentum",
+        "trend"
+      ],
+      "pairs": [
+        {
+          "a": "momentum",
+          "b": "trend",
+          "label": "모멘텀–추세",
+          "rho": 0
+        }
+      ],
+      "effective": 2
+    }
+  },
+  "valuation": {
+    "before": {
+      "price": 100,
+      "priceDate": "2026-10-16",
+      "asOf": "2026-10-16",
+      "fwdEps": 5,
+      "trailingEps": -1,
+      "fwdPe": 20,
+      "trailingPe": null,
+      "growth": null,
+      "basisGap": false,
+      "minEstimates": null,
+      "up4w": 0,
+      "down4w": 0,
+      "spread": null
+    },
+    "after": null,
+    "peFallbackControl": {
+      "price": 100,
+      "priceDate": "2026-10-16",
+      "asOf": "2026-10-16",
+      "fwdEps": 5,
+      "trailingEps": -1,
+      "fwdPe": 20,
+      "trailingPe": null,
+      "growth": null,
+      "basisGap": false,
+      "minEstimates": null,
+      "up4w": 0,
+      "down4w": 0,
+      "spread": null
+    },
+    "missingPriceControl": null
+  },
+  "parseCases": [
+    {
+      "text": "PER 20 이하 또는 ROE 15% 이상",
+      "conditions": [
+        {
+          "id": "pe-max",
+          "value": 20
+        },
+        {
+          "id": "roe-min",
+          "value": 15
+        }
+      ],
+      "unknown": "",
+      "rowPe10Roe5Passes": false,
+      "rowPe20Roe15Passes": true
+    },
+    {
+      "text": "PER 20 이하 ROE 15% 이상",
+      "conditions": [
+        {
+          "id": "pe-max",
+          "value": 20
+        },
+        {
+          "id": "roe-min",
+          "value": 15
+        }
+      ],
+      "unknown": "",
+      "rowPe10Roe5Passes": false,
+      "rowPe20Roe15Passes": true
+    },
+    {
+      "text": "PER 20 미만",
+      "conditions": [
+        {
+          "id": "pe-max",
+          "value": 20
+        }
+      ],
+      "unknown": "",
+      "rowPe10Roe5Passes": true,
+      "rowPe20Roe15Passes": true
+    },
+    {
+      "text": "ROE 15% 초과",
+      "conditions": [
+        {
+          "id": "roe-min",
+          "value": 15
+        }
+      ],
+      "unknown": "",
+      "rowPe10Roe5Passes": false,
+      "rowPe20Roe15Passes": true
+    },
+    {
+      "text": "PER 20 이상",
+      "conditions": [
+        {
+          "id": "pe-max",
+          "value": 20
+        }
+      ],
+      "unknown": "이상",
+      "rowPe10Roe5Passes": true,
+      "rowPe20Roe15Passes": true
+    }
+  ],
+  "dormantConditionalEvidence": {
+    "duplicate": {
+      "status": "READY",
+      "sample": {
+        "trials": 30,
+        "successes": 30,
+        "estimate": 1,
+        "confidenceInterval": {
+          "low": 0.8864866068260312,
+          "high": 0.9999999999999999,
+          "method": "wilson-95",
+          "confidence": 0.95
+        },
+        "status": "READY"
+      },
+      "lineage": {
+        "version": "evidence-lineage.v2",
+        "status": "CURRENT_CANDIDATE",
+        "totalRecords": 30,
+        "usableRecords": 30,
+        "blockedRecords": 0,
+        "sourceIds": [
+          "audit"
+        ],
+        "rightsIds": [
+          "audit"
+        ],
+        "calendarIds": [
+          "audit"
+        ],
+        "blockedReasons": []
+      },
+      "distribution": {
+        "count": 30,
+        "p25": 1,
+        "median": 1,
+        "p75": 1,
+        "p90": 1
+      }
+    },
+    "singleControl": {
+      "status": "LOW_SAMPLE_BLOCKED",
+      "sample": {
+        "trials": 1,
+        "successes": 1,
+        "estimate": null,
+        "confidenceInterval": null,
+        "status": "REFUSE"
+      }
+    }
+  },
+  "dependencies": [
+    {
+      "path": "src/domain/screener/screen-engine.js",
+      "fixedSha256": "bd6fa9bd8a50806455def1467e9dfe18fc60342f10e044cb23b4d987ba747823",
+      "currentSha256": "bd6fa9bd8a50806455def1467e9dfe18fc60342f10e044cb23b4d987ba747823"
+    },
+    {
+      "path": "src/data/contracts/screener.js",
+      "fixedSha256": "40bca519278d44a30623c855d0b8101f426aab4f91cb7c3f9371740f9eb08963",
+      "currentSha256": "40bca519278d44a30623c855d0b8101f426aab4f91cb7c3f9371740f9eb08963"
+    },
+    {
+      "path": "src/data/contracts/source-kind.js",
+      "fixedSha256": "328fbff12ff8c5da6aae6b7b830468b6567c7618518ba3b518e6a1749ca57b43",
+      "currentSha256": "328fbff12ff8c5da6aae6b7b830468b6567c7618518ba3b518e6a1749ca57b43"
+    },
+    {
+      "path": "src/ai/time/market-session.js",
+      "fixedSha256": "dcfe654b3ec7c02f847c573e27345c16e4836e66a7fa169a1626a936d00d7941",
+      "currentSha256": "dcfe654b3ec7c02f847c573e27345c16e4836e66a7fa169a1626a936d00d7941"
+    },
+    {
+      "path": "src/domain/market/market-calendar.js",
+      "fixedSha256": "d54ba057e0e9a073ba1b0788ef3917baecfb0cd181eca79757668d23e249dcb3",
+      "currentSha256": "d54ba057e0e9a073ba1b0788ef3917baecfb0cd181eca79757668d23e249dcb3"
+    },
+    {
+      "path": "src/domain/market/session-time.js",
+      "fixedSha256": "f3e02053df7d5b627281d59f74b5ba2c26a966814a42203c214e211089d7d6a0",
+      "currentSha256": "f3e02053df7d5b627281d59f74b5ba2c26a966814a42203c214e211089d7d6a0"
+    },
+    {
+      "path": "src/domain/shared/number.js",
+      "fixedSha256": "574ca589e6e9c4670f34fa37f2469e21ce0c822b8ff6247f40d537e95755e22d",
+      "currentSha256": "574ca589e6e9c4670f34fa37f2469e21ce0c822b8ff6247f40d537e95755e22d"
+    },
+    {
+      "path": "src/domain/fundamental/period.js",
+      "fixedSha256": "5a05069665e453fb27d906de52c010f3d63c87389c27560e52fddae7a89ca5d8",
+      "currentSha256": "5a05069665e453fb27d906de52c010f3d63c87389c27560e52fddae7a89ca5d8"
+    },
+    {
+      "path": "src/domain/screener/factor-overlap.js",
+      "fixedSha256": "a308463e1e9429821c306565dcf7d3a06b8b2fe849e082779c1a1491eb05b4d2",
+      "currentSha256": "a308463e1e9429821c306565dcf7d3a06b8b2fe849e082779c1a1491eb05b4d2"
+    },
+    {
+      "path": "src/domain/screener/row-presentation.js",
+      "fixedSha256": "59cd73a8e4fb8fa184605f68c7e843acdf0cc5083a003d829f283c5df9a67f3c",
+      "currentSha256": "59cd73a8e4fb8fa184605f68c7e843acdf0cc5083a003d829f283c5df9a67f3c"
+    },
+    {
+      "path": "src/data/normalize/screener.js",
+      "fixedSha256": "8e23ba6030408fba6884307c29d8b0661d4f19aa5c38493192e7622b851db2b8",
+      "currentSha256": "8e23ba6030408fba6884307c29d8b0661d4f19aa5c38493192e7622b851db2b8"
+    },
+    {
+      "path": "src/domain/fundamental/consensus-read.js",
+      "fixedSha256": "cbefe607497ee409614fd81c500b81c44aaa7d6f1cb03fcdeb6f736a945b8168",
+      "currentSha256": "cbefe607497ee409614fd81c500b81c44aaa7d6f1cb03fcdeb6f736a945b8168"
+    },
+    {
+      "path": "src/domain/screener/custom-conditions.js",
+      "fixedSha256": "df54c76554061be78643cdcaa454b35a2b7b4a32862fba2890288356079db2bb",
+      "currentSha256": "df54c76554061be78643cdcaa454b35a2b7b4a32862fba2890288356079db2bb"
+    },
+    {
+      "path": "src/domain/technical/definitions.js",
+      "fixedSha256": "431ed6bf6131506835229473e055ec15885af12c292c11df8bc7aa3dddb5becc",
+      "currentSha256": "431ed6bf6131506835229473e055ec15885af12c292c11df8bc7aa3dddb5becc"
+    },
+    {
+      "path": "src/domain/rules/thresholds.js",
+      "fixedSha256": "e241d6c67a3a2ca8be5f7945799f0aac820b40b1b264319353e9842621b8e73b",
+      "currentSha256": "e241d6c67a3a2ca8be5f7945799f0aac820b40b1b264319353e9842621b8e73b"
+    },
+    {
+      "path": "src/domain/screener/conditional-evidence.js",
+      "fixedSha256": "f662e106c6507eec4c7485eb44191b191b6303d93692ee2478ab7b71c5d47a71",
+      "currentSha256": "f662e106c6507eec4c7485eb44191b191b6303d93692ee2478ab7b71c5d47a71"
+    },
+    {
+      "path": "src/domain/screener/evidence-lineage.js",
+      "fixedSha256": "b366dc226265da29d48dd6498793807b295b1afda357bc26757a31d290a45c4f",
+      "currentSha256": "b366dc226265da29d48dd6498793807b295b1afda357bc26757a31d290a45c4f"
+    }
+  ]
+}

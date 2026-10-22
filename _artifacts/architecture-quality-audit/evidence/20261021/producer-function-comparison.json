@@ -1,0 +1,392 @@
+[
+  {
+    "path": "scripts/producer/ai-usage.mjs",
+    "name": "createAiUsage",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/ai-usage.mjs",
+    "name": "marketAnalysisOutcome",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/fred.mjs",
+    "name": "fetchFred",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/fred.mjs",
+    "name": "monthsBetween",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/fred.mjs",
+    "name": "deriveFredPlane",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "histValueWithinPlausibility",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "normalizeHistoryRows",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "missingRecentUsSessions",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "backfillHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "carryForwardHistoryEvidence",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "holdRepeatedSessions",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "usPreOpenIndexPrint",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "continuousReopenPrint",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "updateHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/history.mjs",
+    "name": "boundPreviousCloseToCut",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/kr-exchange.mjs",
+    "name": "parseKrDailySeries",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/kr-exchange.mjs",
+    "name": "reconcileKrExchangeCloses",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/kr-exchange.mjs",
+    "name": "summarizeKrCloseReconciliation",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/kr-exchange.mjs",
+    "name": "_krTodayDate",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/kr-exchange.mjs",
+    "name": "fetchKrExchangeDaily",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/macro-history.mjs",
+    "name": "parseFredObservations",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/macro-history.mjs",
+    "name": "collectMacroLongHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/macro-history.mjs",
+    "name": "writeMacroHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/macro-history.mjs",
+    "name": "writeMacroCalendar",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/macro-merge.mjs",
+    "name": "mergeMacroPlanes",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/macro-merge.mjs",
+    "name": "buildMarketSurveys",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "buildMarketAnalysisFallback",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "readPublishedMacroHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "marketAnalysisRegimeInput",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "buildMarketAnalysisRegimeContext",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "priorSessionMoveLines",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "marketAnalysisCrossroadsContext",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "scenarioStateThemeLines",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "readHistoryRows",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "translateHeadlines",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "genMarketAnalysis",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/market-narrative.mjs",
+    "name": "applyMarketAnalysis",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "exchangeLocalDate",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "previousCloseBarIndex",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "fetchQuote",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "FX_WEEKDAY_SESSION",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "fxCloseAtCut",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "_quoteVerifyTol",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "_quoteOk",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "fetchQuoteTwelveData",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "mapLimit",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "fetchCoinGeckoCrossCheck",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "fetchHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/quotes.mjs",
+    "name": "collectVerifiedQuotes",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/receipts.mjs",
+    "name": "buildDomainReceipts",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/run-meta.mjs",
+    "name": "readOfficialReferencesCheckedAt",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/run-meta.mjs",
+    "name": "buildCollectionMeta",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/run-meta.mjs",
+    "name": "applySnapshotCycleMeta",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/screener-breadth.mjs",
+    "name": "computeScreenerBreadthHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener-breadth.mjs",
+    "name": "buildBreadthContributorSessions",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener-breadth.mjs",
+    "name": "writeBreadthContributors",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener-breadth.mjs",
+    "name": "updateScreenerBreadthHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener-extended.mjs",
+    "name": "extendedRefreshDue",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener-extended.mjs",
+    "name": "buildExtendedShardPayload",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener-extended.mjs",
+    "name": "sicDescriptionMap",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener-extended.mjs",
+    "name": "enrichScreenerExtended",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "screenerAssetType",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "getScreenerUniverse",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "updateBacktestHistory",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "enrichFundamentals",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "enrichSecFundamentals",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "_enrichPriceFactors",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "computeScreenerBreadth",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "sp500MemberSet",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "applyTickerNewsResults",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "_enrichTickerNews",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "mergeSecIntoFactorRows",
+    "status": "EXACT"
+  },
+  {
+    "path": "scripts/producer/screener.mjs",
+    "name": "enrichScreener",
+    "status": "CHANGED"
+  },
+  {
+    "path": "scripts/producer/source-planes.mjs",
+    "name": "planeFresh",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/source-planes.mjs",
+    "name": "readPreviousPlanes",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/source-planes.mjs",
+    "name": "sourcePlanes",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/producer/source-planes.mjs",
+    "name": "collectSourcePlanes",
+    "status": "NEW"
+  },
+  {
+    "path": "scripts/fetch-data.mjs",
+    "name": "main",
+    "status": "CHANGED"
+  }
+]

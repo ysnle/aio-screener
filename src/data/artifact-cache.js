@@ -1,10 +1,20 @@
 const storesByFetch = new WeakMap();
-// v57.77 perf: callers pass `root.fetch.bind(root)`, a new function on every call, so an identity-keyed store was
-// always empty and `maxAgeMs` never applied (every screen visit re-downloaded its artifacts). A bound function's
-// target cannot be read back, so bound fetchers share one store per bound name ('bound fetch' for the window fetch);
-// unbound functions keep their own identity-keyed store.
-const storesByBoundName = new Map();
-const boundNameOf = (fetchFn) => (typeof fetchFn?.name === 'string' && fetchFn.name.startsWith('bound ') ? fetchFn.name : null);
+// v57.77 perf: callers passed `root.fetch.bind(root)`, a new function on every call, so an identity-keyed store was
+// always empty and `maxAgeMs` never applied. v57.77 shared one store per bound *name*; v58.64 (architecture audit M1):
+// a name cannot tell two transports or test roots apart (both read 'bound fetch'), and pages that passed the unbound
+// root.fetch kept a second store that a forced refresh never cleared. stableFetcher(root) hands out one bound fetch
+// per root, so the store is keyed by an identity that really is the owner.
+const fetchersByRoot = new WeakMap();
+export function stableFetcher(root = globalThis) {
+  const owner = root && typeof root.fetch === 'function' ? root : globalThis;
+  const source = owner.fetch;
+  if (typeof source !== 'function') return null;
+  const known = fetchersByRoot.get(owner);
+  if (known && known.source === source) return known.bound;
+  const bound = source.bind(owner);
+  fetchersByRoot.set(owner, { source, bound });
+  return bound;
+}
 
 function createAbortError() {
   try { return new DOMException('Artifact request aborted', 'AbortError'); }
@@ -12,17 +22,14 @@ function createAbortError() {
 }
 
 function existingStoreFor(fetchFn) {
-  const boundName = boundNameOf(fetchFn);
-  return boundName ? storesByBoundName.get(boundName) : storesByFetch.get(fetchFn);
+  return storesByFetch.get(fetchFn);
 }
 
 function storeFor(fetchFn) {
   let store = existingStoreFor(fetchFn);
   if (!store) {
     store = { resolved: new Map(), inFlight: new Map(), hits: 0, misses: 0, shared: 0, evictions: 0 };
-    const boundName = boundNameOf(fetchFn);
-    if (boundName) storesByBoundName.set(boundName, store);
-    else storesByFetch.set(fetchFn, store);
+    storesByFetch.set(fetchFn, store);
   }
   return store;
 }
@@ -148,9 +155,7 @@ export function clearArtifactCache(fetchFn, { abortInFlight = true } = {}) {
     // v57.79: a manual refresh drops held entries but lets requests already in flight finish for their callers.
     if (!abortInFlight) { store?.resolved?.clear?.(); return; }
     for (const entry of store?.inFlight?.values?.() || []) entry.controller.abort();
-    const boundName = boundNameOf(fetchFn);
-    if (boundName) storesByBoundName.delete(boundName);
-    else storesByFetch.delete(fetchFn);
+    storesByFetch.delete(fetchFn);
   }
 }
 

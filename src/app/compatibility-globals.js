@@ -276,7 +276,9 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
       hint.className = 'ticker-search-hint'; // src/ui/styles/entity-quality.css
       hint.setAttribute('role', 'status');
       row.insertAdjacentElement('afterend', hint);
-      const clear = () => hint.replaceChildren();
+      // v58.63 (architecture audit C01): clearing also retires the pending listing lookup, or a late answer for the
+      // cleared query re-attached its candidates under an empty box.
+      const clear = () => { hint.replaceChildren(); delete hint.dataset.listingQuery; };
       input.addEventListener('input', clear);
       document.addEventListener('aio:tickerViewReset', clear);
     }

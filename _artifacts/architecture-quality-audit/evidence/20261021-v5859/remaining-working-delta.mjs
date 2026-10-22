@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+const dir = '_artifacts/architecture-quality-audit/evidence/20261021-v5859';
+const paths = ['scripts/lib/news-selection.mjs', 'src/domain/news/stories.js', 'scripts/lib/market-analysis-validate.mjs', 'js/aio-data.js'];
+const sha = p => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const before = Object.fromEntries(paths.map(p => [p, sha(p)]));
+const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const diff = execFileSync('git', ['diff', head, '--', ...paths], { encoding: 'utf8' });
+const after = Object.fromEntries(paths.map(p => [p, sha(p)]));
+const result = { observedAt: new Date().toISOString(), head, workingVersion: JSON.parse(fs.readFileSync('version.json', 'utf8')), files: paths.map(p => ({ path: p, sha256: before[p], unchangedDuringCapture: before[p] === after[p], status: 'DIFF_ONLY_CURRENT_WORKTREE_REVIEW' })), boundary: 'Four selected working diffs read; no full latest-version or full changed-file certification. Review inventory remains pinned v58.59. Product changes belong to concurrent work.' };
+fs.writeFileSync(`${dir}/remaining-working-delta.diff`, diff);
+fs.writeFileSync(`${dir}/remaining-working-delta.json`, JSON.stringify(result, null, 2) + '\n');
+if (result.files.some(f => !f.unchangedDuringCapture)) throw new Error('Selected working files changed during capture');
+console.log(JSON.stringify(result, null, 2));

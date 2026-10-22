@@ -34,6 +34,8 @@ export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, un
   for (const label of body.matchAll(mentions)) {
     // Live 2026-10-21: "CPI 3.7%, 근원 CPI 2.6%" read 2.6 as headline CPI. A qualified label is a different series.
     if (/(?:근원|core)\s?$/i.test(body.slice(Math.max(0, label.index - 6), label.index))) continue;
+    // 2026-10-21 evidence tier: "S&P 500 선물 7,050" is the futures contract, not the cash index's level.
+    if (/^(?:S&P|SPX|Nasdaq|나스닥)/i.test(label[0]) && /^\s?(?:지수\s?)?(?:선물|futures)/i.test(body.slice(label.index + label[0].length))) continue;
     let clause = body.slice(label.index + label[0].length, label.index + label[0].length + 80);
     const nextMetric = clause.search(new RegExp(labelPattern(allLabels), 'i'));
     if (nextMetric >= 0) clause = clause.slice(0, nextMetric);

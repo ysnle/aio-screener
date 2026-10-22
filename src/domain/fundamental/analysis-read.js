@@ -2,7 +2,7 @@
 // the Sloan (1996) accrual ratio and a reverse DCF calculator. Pure: the parsed SEC fiscal history (sec-fiscal-history.json,
 // newest last) and the screener/SEC facts in, plain reading objects out. Nothing here is a score or a verdict; a missing
 // input returns a state ('pending' = not yet collected, 'unreported' = the filer does not tag it) instead of a number.
-import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
+import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fiscalYearLabel } from './period.js';
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
 
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
@@ -17,7 +17,9 @@ export function assetChainState(history) {
   return rows.some((year) => year.assetChain) ? 'collected' : 'pending';
 }
 
-const fyLabel = (periodEnd) => `FY${String(periodEnd).slice(0, 4)}`;
+// v58.63 (architecture audit A08): the shared 52/53-week rule — LDOS's year ended 2026-01-02 is its FY2025, as the
+// company summary beside these cards already says.
+const fyLabel = (periodEnd) => fiscalYearLabel(periodEnd) || '연간 공시';
 
 // Average of this year-end and the prior fiscal year-end when both exist, else null.
 function averageOf(rows, index, field) {
@@ -93,12 +95,20 @@ export function buildDupontRead(history, { fundamentals = null, nowMs = Date.now
   else if (prev.margin > 0 && now.margin > 0) {
     // ln ROE = ln 순이익률 + ln 회전율 + ln 레버리지, so each factor's share of the change is its own log change.
     const moves = DUPONT_FACTORS.map((factor) => ({ ...factor, from: prev[factor.id], to: now[factor.id], log: Math.log(now[factor.id] / prev[factor.id]) }));
-    driver = moves.slice().sort((a, b) => Math.abs(b.log) - Math.abs(a.log))[0];
+    const largest = moves.slice().sort((a, b) => Math.abs(b.log) - Math.abs(a.log))[0];
     const roeDelta = (now.roe - prev.roe) * 100;
     const fmt = (factor, value) => (factor.id === 'margin' ? `${(value * 100).toFixed(1)}%` : value.toFixed(Math.abs(value) < 0.1 ? 3 : 2));
+    // v58.63 (architecture audit A07): the cause of a rise or fall is the largest factor moving the SAME way as ROE; a
+    // factor moving against it offset the change and is named as such (margin +40% under a falling ROE was printed as
+    // the reason it fell).
+    const sign = Math.sign(roeDelta);
+    const along = moves.filter((move) => Math.sign(move.log) === sign).sort((a, b) => Math.abs(b.log) - Math.abs(a.log));
+    const against = moves.filter((move) => Math.sign(move.log) === -sign && Math.abs(move.log) > 1e-9).sort((a, b) => Math.abs(b.log) - Math.abs(a.log));
+    driver = Math.abs(roeDelta) < 1 || !along.length ? largest : along[0];
+    const offset = against.length ? ` — ${against[0].label}${against[0].log > 0 ? ' 상승' : ' 하락'}(${fmt(against[0], against[0].from)} → ${fmt(against[0], against[0].to)})은 이 변화를 일부 상쇄했습니다` : '';
     sentence = Math.abs(roeDelta) < 1
       ? `ROE는 ${(prev.roe * 100).toFixed(1)}%에서 ${(now.roe * 100).toFixed(1)}%로 거의 같고, 세 요인 중 ${subject(driver.label)} 가장 많이 움직였습니다(${fmt(driver, driver.from)} → ${fmt(driver, driver.to)}).`
-      : `ROE가 ${(prev.roe * 100).toFixed(1)}%에서 ${(now.roe * 100).toFixed(1)}%로 ${roeDelta > 0 ? '오른' : '내린'} 데는 ${driver.label} 변화(${fmt(driver, driver.from)} → ${fmt(driver, driver.to)})가 가장 크게 작용했습니다.`;
+      : `ROE가 ${(prev.roe * 100).toFixed(1)}%에서 ${(now.roe * 100).toFixed(1)}%로 ${roeDelta > 0 ? '오른' : '내린'} 데는 ${driver.label} 변화(${fmt(driver, driver.from)} → ${fmt(driver, driver.to)})가 가장 크게 작용했습니다${offset}.`;
   } else sentence = `${withTopicParticle(prev.margin <= 0 ? prev.label : now.label)} 순손실이라 ROE 변화를 세 요인의 기여로 나누지 않습니다 — 각 요인의 값만 나란히 봅니다.`;
   return { state: 'ready', basis, columns, driver: driver ? driver.id : null, sentence };
 }

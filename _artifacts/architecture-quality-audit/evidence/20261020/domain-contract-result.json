@@ -1,0 +1,92 @@
+{
+  "evidence": "Isolated execution of actual pure modules with synthetic fixtures; no browser/live certification",
+  "notIdentity": {
+    "before": "passed",
+    "after": "rejected",
+    "sameInputId": true,
+    "resultChanged": true,
+    "positiveControlDirectPriceDetected": true
+  },
+  "overlap": {
+    "constant": {
+      "n": 30,
+      "factors": [
+        "momentum",
+        "trend"
+      ],
+      "pairs": [
+        {
+          "a": "momentum",
+          "b": "trend",
+          "label": "모멘텀–추세",
+          "rho": 0
+        }
+      ],
+      "effective": 2
+    },
+    "positiveControlIdenticalVarying": {
+      "n": 30,
+      "factors": [
+        "momentum",
+        "trend"
+      ],
+      "pairs": [
+        {
+          "a": "momentum",
+          "b": "trend",
+          "label": "모멘텀–추세",
+          "rho": 1
+        }
+      ],
+      "effective": 1
+    }
+  },
+  "regime": {
+    "dailyStates": [
+      "NEUTRAL",
+      "NEUTRAL",
+      "NEUTRAL",
+      "NEUTRAL",
+      "NEUTRAL",
+      "NEUTRAL"
+    ],
+    "dailyHold": [
+      "minimum-hold",
+      "minimum-hold",
+      "minimum-hold",
+      "minimum-hold",
+      "minimum-hold",
+      "minimum-hold"
+    ],
+    "sparseStates": [
+      "NEUTRAL",
+      "RISK_ON"
+    ]
+  },
+  "valuation": {
+    "before": {
+      "price": 100,
+      "priceDate": "2026-10-16",
+      "asOf": "2026-10-16",
+      "fwdEps": 5,
+      "trailingEps": -1,
+      "fwdPe": 20,
+      "trailingPe": null,
+      "growth": null,
+      "basisGap": false,
+      "minEstimates": null,
+      "up4w": 0,
+      "down4w": 0,
+      "spread": null
+    },
+    "after": null,
+    "fieldPreserved": false
+  },
+  "sources": {
+    "src/domain/screener/screen-engine.js": "bd6fa9bd8a50806455def1467e9dfe18fc60342f10e044cb23b4d987ba747823",
+    "src/domain/screener/factor-overlap.js": "a308463e1e9429821c306565dcf7d3a06b8b2fe849e082779c1a1491eb05b4d2",
+    "src/domain/screener/regime.js": "04543c02e404fffe591c8b51c461998a2b6803fbbe9e50615dfb903a63275760",
+    "src/data/normalize/screener.js": "8e23ba6030408fba6884307c29d8b0661d4f19aa5c38493192e7622b851db2b8",
+    "src/domain/fundamental/consensus-read.js": "3fdf460f5231fc91d416202c0dc9f1de8ab1b18addec5856087bfeec87719866"
+  }
+}

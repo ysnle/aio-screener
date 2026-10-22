@@ -1,0 +1,108 @@
+path	status	reason
+cloudflare-worker-proxy.js	FULL_READ_결함D4	AI admission·stream·settlement·인증·proxy 전문 확인; relay의 dispatch 후 예외 release가 호출한도를 되돌림
+src/ai/analysis/causal.js	FULL_READ_적정	시간 정렬·교차자산 방향·대안 원인을 분리하고 근거 부족을 partial로 유지
+src/ai/analysis/company.js	FULL_READ_적정	주입된 품질·가치 입력만 요약; 실제 adapter는 임의 quality score를 만들지 않음
+src/ai/analysis/evidence-inputs.js	FULL_READ_적정	동일 entity·시각·단위·ID 충돌을 검사하고 인과관계·구성종목을 관측값에서 추정하지 않음
+src/ai/analysis/macro-fx.js	FULL_READ_적정	명시적 전달 edge만 채택; 관측값만 있으면 partial
+src/ai/analysis/registry.js	FULL_READ_적정	intent별 pure analysis dispatch 책임이 명확
+src/ai/analysis/sector.js	FULL_READ_적정	주입 구성종목으로 breadth를 계산하고 traceability 부족을 partial로 구분
+src/ai/analysis/technical.js	FULL_READ_적정	유효 범위의 지표 조건만 계산하고 방향 확률을 만들지 않음
+src/ai/context-builder.js	FULL_READ_주의	근거와 policy를 분리하지만 policy.js의 축소된 evaluator 의미를 함께 유지해야 함
+src/ai/context/close-basis-evidence.js	FULL_READ_적정	화면의 완료 종가 정렬을 재사용하고 날짜·단위·metric·ID를 보존
+src/ai/context/manifest.js	FULL_READ_적정	문맥 provenance의 제한된 projection 책임
+src/ai/context/market-content.js	FULL_READ_제안M2	화면과 동일 모델을 쓰지만 AI→UI component import와 DOM 조건 수집이 결합됨
+src/ai/context/panel-contexts.js	FULL_READ_적정	기존 panel registry에 두 context만 추가하는 호환 경계
+src/ai/context/policy-lines.js	FULL_READ_적정	정책·한국 macro·예정 발표를 날짜와 함께 전달하고 수출 만료를 보류
+src/ai/context/portfolio-simulation.js	FULL_READ_주의	기준통화·결측 평가액 보류는 명확; 현행 호출 검색에서는 legacy simulator가 은퇴해 활성 기능으로 단정하지 않음
+src/ai/context/sec-fundamentals.js	FULL_READ_적정	공시 이용가능시각·current report를 확인하고 annual과 TTM을 구분
+src/ai/entity/chat-tickers.js	FULL_READ_적정	질문 plan·명시 ticker·직전 지시대상을 합쳐 데이터 주입용 종목을 제한
+src/ai/entity/resolver.js	FULL_READ_적정	토큰 경계·등록명 확인·미확인 symbol 표시를 분리하여 임의 issuer 치환을 피함
+src/ai/eval/benchmark.js	FULL_READ_적정	benchmark 설정과 실제 routing corpus 측정을 분리
+src/ai/inference.js	FULL_READ_적정	검색 추론을 reference로 제한하고 exact numeric value를 금지
+src/ai/intent/taxonomy.js	FULL_READ_적정	페이지 문맥과 명시 질문 축을 가중하되 개인화 실행 의도를 별도 구분
+src/ai/orchestrator/answer-orchestrator.js	FULL_READ_적정	계획·legacy 실행 adapter·domain 분석·publication 도구를 연결; 실행 성공은 provider 품질 인증과 구분
+src/ai/orchestrator/capability-planner.js	FULL_READ_적정	evidence 요구를 tool 요구로 변환하고 portfolio action을 별도 제한
+src/ai/orchestrator/premise.js	FULL_READ_적정	동일 entity·기간·방향·explicit grant가 있는 관측만 질문 전제와 비교
+src/ai/orchestrator/question-planner.js	FULL_READ_적정	이름 해석 후 intent를 분류하고 composite evidence·research·conduct plan을 함께 보존
+src/ai/policies/budget.js	FULL_READ_적정	클라이언트 검색 통계만 기록하며 monetary admission을 Worker에 남김
+src/ai/policy.js	FULL_READ_주의	AI 용도 판정은 canonical evaluator보다 좁은 필드 검사; 새 권한 경계로 확대 재사용하지 않아야 함
+src/ai/policy/conduct.js	FULL_READ_적정	요청 분류와 응답 감사가 분리되고 방어 교육·실행·법률 전제를 구별
+src/ai/policy/suitability.js	FULL_READ_적정	개인화 실행 요청에만 profile·current evidence 요구를 적용
+src/ai/research/capability.js	FULL_READ_적정	research 필요성과 route/auth/tool/quota readiness를 독립 계약으로 표현
+src/ai/research/decision.js	FULL_READ_적정	현재성·인과·명시검색·내부 snapshot 적격성을 분리하여 research 요구를 계산
+src/ai/research/evidence.js	FULL_READ_주의	문서·인용·request binding·freshness 축을 분리; ready와 currentClaimsAllowed를 동일시하면 안 되는 계약
+src/ai/research/native-search.js	FULL_READ_적정	내부 근거 우선·budget saver·최대 두 검색·deep context 조건을 명시
+src/ai/research/plan.js	FULL_READ_적정	출처 도메인과 primary authority를 구분하고 issuer IR는 검증 registry만 허용
+src/ai/response/answer-modes.js	FULL_READ_적정	질문 의도별 답변 구조를 선택하며 조건·기회비용과 개인 거래 지시를 구분
+src/ai/response/answer-principles.js	FULL_READ_적정	날짜·주입 근거·검색 여부를 명시하고 retry 시 검색 사용 문구를 변경
+src/ai/response/claim-ledger.js	FULL_READ_적정	typed numeric claim·traceability·확률 calibration을 구조화하고 잘못된 plan도 publication에서 개별 강등 가능
+src/ai/response/publication.js	FULL_READ_주의	typed claim의 값·단위·entity·시각 tuple을 결속; prose의 정규식 필터는 의미 인증과 구분해야 함
+src/ai/response/renderer.js	FULL_READ_적정	검증 이후 plan을 텍스트로 표현하는 책임; 자체 근거 검증을 중복하지 않음
+src/ai/retrieval/evidence.js	FULL_READ_적정	evidence store의 제한된 read projection
+src/ai/retrieval/knowledge.js	FULL_READ_적정	구조 reference corpus를 bounded lexical retrieval하며 공유 load와 소비자 취소를 분리
+src/ai/session/chat-sessions.js	FULL_READ_주의	동의·세션/문자 상한·오래된 기록 절삭은 명확; load 시 turn 내부 schema는 저장 정상형을 신뢰
+src/ai/time/market-session.js	FULL_READ_적정	도메인 calendar를 재사용하고 open 상태에는 별도 session 근거를 요구
+src/data/artifact-cache.js	FULL_READ_제안M1	consumer별 취소·공유 in-flight·무결성·크기·LRU는 명확하나 bound 함수 이름을 캐시 소유자로 사용
+src/data/consensus-estimates.js	FULL_READ_적정	shared artifact lifecycle을 재사용하고 종목별 조회만 소유
+src/data/contracts/evidence.js	FULL_READ_적정	권한 ceiling·quality·관측시각·SLA를 fail-closed로 검증하는 정본
+src/data/contracts/market-snapshot.js	FULL_READ_적정	선언 coverage를 신뢰하지 않고 identity·metric·unit·valueKind와 실제 Tier0 구성을 재측정
+src/data/contracts/operations.js	FULL_READ_적정	운영 status·상태코드·rights·feature availability·domain receipt를 별도 어휘로 유지
+src/data/contracts/page-timeline.js	FULL_READ_주의	news cycle은 발행 경계 기반; macro·quote 고정 day budget은 source cadence 정본과 별도라 drift 가능
+src/data/contracts/reconciliation.js	FULL_READ_적정	카테고리 근거·refresh 계약·closure의 unresolved 집합 일치를 검사
+src/data/contracts/screener.js	FULL_READ_적정	field readiness·observation·definition·run identity를 공유; session 예외와 async hash 취소를 구현
+src/data/contracts/source-kind.js	FULL_READ_적정	명시 provider label만 canonical tier로 변환하고 임의 official 형용사를 승격하지 않음
+src/data/contracts/source-registry.js	FULL_READ_주의	producer·cadence·artifact·consumer 정본 역할; 은퇴 provider와 전문서비스 gap 설명은 실제 기능 차단과 구분 필요
+src/data/evidence-store.js	FULL_READ_적정	관측시각·collection chronology·source 우선순위를 나눠 replacement와 권한 회복을 판단
+src/data/knowledge/load-capabilities.js	FULL_READ_적정	artifact별 실패를 개별 capability fallback으로 표현하고 공유 cache를 사용
+src/data/knowledge/repository.js	FULL_READ_적정	정적 지식 artifact 정의와 읽기 API를 중앙화
+src/data/macro-calendar.js	FULL_READ_적정	FRED union과 FOMC/ISM covered-period 교체를 구분; 실패 시 수동 기준으로 복귀
+src/data/market-snapshot-loader.js	FULL_READ_적정	fast plane이 불가·부적격·오래되면 durable로 순서대로 강등
+src/data/normalize/analysis.js	FULL_READ_적정	계산 모델과 실제 score mode를 보존하고 presentation만 부족분을 파생
+src/data/normalize/entity.js	FULL_READ_적정	quote·history·SEC watchlist의 제한된 canonical shape로 변환
+src/data/normalize/market.js	FULL_READ_적정	quote 시각·출처·change basis와 macro 값의 projection
+src/data/normalize/news.js	FULL_READ_적정	텍스트 entity를 한 번 해독하고 feed topic과 article topic의 직접성을 분리
+src/data/normalize/portfolio.js	FULL_READ_적정	결측 가격과 0% target weight를 구별하고 통화·FX leg·readState를 보존
+src/data/normalize/screener.js	FULL_READ_결함D1	대부분 provenance를 전달하지만 provider의 _valuationPrice가 whitelist에서 누락
+src/data/normalize/sentiment.js	FULL_READ_주의	숫자 결측과 지표 identity를 보존; weekly AAII 정의의 null SLA는 orchestrator에서 하루로 대체됨
+src/data/normalize/themes.js	FULL_READ_적정	theme detail의 quoteBasis·membership·하위테마·근거시각을 보존
+src/data/on-demand-symbol.js	FULL_READ_결함D3	생산자 normalizer 재사용·동시성2개·listing 확인은 명확하나 ready 캐시가 session 안에서 영구 고정
+src/data/orchestrators/analysis.js	FULL_READ_적정	synchronous provider→normalize→command의 단일 흐름
+src/data/orchestrators/entity.js	FULL_READ_적정	비동기 read 후 generation·scope·dispose로 늦은 결과 게시를 억제
+src/data/orchestrators/market.js	FULL_READ_적정	market projection을 normalize한 뒤 command로 게시
+src/data/orchestrators/news.js	FULL_READ_적정	빈 feed·collection 시각 누락·예정 refresh 만료를 별도 판단
+src/data/orchestrators/portfolio.js	FULL_READ_적정	portfolio provider 결과를 canonical normalize 경계로 통과
+src/data/orchestrators/screener.js	FULL_READ_적정	generation guard 후 rank·screen run·history를 게시하며 pipeline run을 사용자 실행과 구분
+src/data/orchestrators/sentiment.js	FULL_READ_주의	명시 patch·snapshot fallback을 구분하나 field별 SLA 없는 경우 하루 fallback의 의미를 관리해야 함
+src/data/orchestrators/themes.js	FULL_READ_적정	동기 theme provider projection과 command 게시를 연결
+src/data/portfolio-assumptions.js	FULL_READ_적정	통화·rate·exposure·rebalance 미선언을 추정하지 않고 invalid enum을 별도 표시
+src/data/portfolio-backup.js	FULL_READ_적정	개인 section을 versioned bundle로 정규화하고 secrets·PIN을 export shape에서 제외
+src/data/portfolio-cash.js	FULL_READ_적정	통화별 현금과 legacy migration을 읽기 전용으로 처리하고 readback 후 legacy key 제거
+src/data/portfolio-declarations-store.js	FULL_READ_적정	Vault/runtime cache를 우선하며 memory 적용과 durable persist 성공을 구별
+src/data/portfolio-ledger.js	FULL_READ_주의	원장 입력·coverage를 분리; 날짜는 ISO 모양만 검사하므로 downstream의 실제 날짜 검증을 유지할 필요
+src/data/providers/analysis.js	FULL_READ_적정	주입 reader의 얇은 읽기 adapter
+src/data/providers/earnings.js	FULL_READ_적정	공개 earnings의 실제 제공 주간 안에서만 조회하고 짧은 shared load를 사용
+src/data/providers/entity.js	FULL_READ_적정	SEC table load는 provider가 소유하고 transient 실패는 즉시 재시도 가능; on-demand는 누락 종목만 보완
+src/data/providers/market.js	FULL_READ_적정	주입 market read의 제한된 projection
+src/data/providers/news.js	FULL_READ_적정	게시시각·수집시각·cycleId·다음 refresh를 별도 전달
+src/data/providers/personal-transport.js	FULL_READ_주의	외부 abort와 header fetch timeout을 연결; body deadline을 보장하는 공용 gateway와 의미가 다른 legacy seam
+src/data/providers/portfolio.js	FULL_READ_적정	Vault-aware runtime 하나를 source로 사용하고 빈 holdings를 별도 fallback으로 부활시키지 않음
+src/data/providers/publication-set.js	FULL_READ_적정	서로 다른 cadence를 허용하면서 schema·universe·부분 rollout 불일치를 명시
+src/data/providers/quote-contract.js	FULL_READ_적정	가격·통화·동일 listing 증명을 함께 판정하고 미완전 quote를 진단으로 남김
+src/data/providers/screener.js	FULL_READ_결함D5_D6	live eligibility의 권한 거부와 allowed-use property 전달이 정본과 어긋남; 나머지 publication·row·snapshot lineage 전문 확인
+src/data/providers/sentiment.js	FULL_READ_적정	주입 sentiment와 현재 확인시각의 얇은 projection
+src/data/providers/themes.js	FULL_READ_결함D2	completed-close detail에서도 live fallback과 선택 전 pct 계산으로 basis가 혼합
+src/data/quality/freshness.js	FULL_READ_주의	현재성으로 권한을 승격하지 않음; freshnessMs가 이 모듈에서는 age이고 canonical decision에서는 SLA여서 의미 충돌 관리 필요
+src/data/research-snapshots.js	FULL_READ_적정	개인 계좌를 제외한 immutable capture·content hash·60개 한도·unreadable 보존을 구현
+src/data/runtime-readers.js	FULL_READ_결함D5	legacy mutable state의 명시 읽기 경계와 종가 선택은 명확하나 복제 decision grant의 rights 판정이 불완전
+src/data/screener-extended.js	FULL_READ_적정	core/extended 계약·membership·lossless row-default encoding을 공유하며 확대 artifact는 lazy
+src/data/screener-row-policy.js	FULL_READ_적정	게시된 empty native 상태를 우선하고 bundled fallback을 게시 전 명시 intent에 한정
+src/data/selectors/evidence.js	FULL_READ_적정	display·decision·last-known 목적을 분리하고 decision은 canonical evaluator를 사용
+src/data/selectors/market-inputs.js	FULL_READ_적정	briefing·regime·AI가 같은 macro·credit·breadth 관측시각을 읽도록 중앙화
+src/data/shared-artifacts.js	FULL_READ_적정	공유 payload TTL·서버 regeneration·in-flight·실패 backoff와 마지막 정상값 보존을 소유
+src/data/us-listings.js	FULL_READ_적정	정확 symbol lookup·class separator·선택형 name 후보·derivative 제외·bounded directory cache를 구현
+worker/data-plane.js	FULL_READ_적정	Tier0 측정 publish·KV write 절감·heartbeat·인증 admin·Actions backup dispatch 책임을 확인
+worker/openai-budget.mjs	FULL_READ_주의	허용 모델·요청형태·정수예산·usage settlement가 fail-closed; search content allowance는 명시된 정책적 예약 추정
+worker/openai-contract.test.mjs	FULL_READ_적정	실제 handler·DO concurrency·오류·취소·usage·월/일 rollover·검색절약을 fixture로 검사; 이번에는 읽기만 수행
+worker/openai-usage.mjs	FULL_READ_적정	원본 JSON/SSE bytes를 변조하지 않고 bounded receipt만 관측하며 불완전 응답은 환불하지 않음
+worker/wrangler.example.toml	FULL_READ_적정	data-plane cron·KV·origin·secret 주입 경계를 선언
+worker/wrangler.proxy.toml	FULL_READ_적정	월20달러·공유DO·클라이언트/day cap·Workers AI binding·위치별 limiter와 Secrets를 선언

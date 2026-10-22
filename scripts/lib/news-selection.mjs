@@ -5,7 +5,7 @@
 import { reportIsUnconfirmed } from '../../src/domain/news/report-verification.js';
 import { round } from './producer-math.mjs';
 import { _fetchRss, _fetchRssWithRetry } from './producer-http.mjs';
-import { newsArticleKey, issuerNameMentioned } from '../../src/domain/news/stories.js';
+import { newsArticleKey, issuerNameMentioned, NEWS_INTRADAY_MAX } from '../../src/domain/news/stories.js';
 
 // ── WO-6 (ops): 서버측 뉴스 백스톱 (브라우저 CORS 프록시 전멸 대비) ──
 // 왜: 클라이언트 뉴스는 제3자 프록시(allorigins 등, 자주 죽음)에 의존. 서버(Actions)는 CORS가
@@ -75,7 +75,9 @@ export function getKst0800NewsCycle(nowMs = Date.now()) {
 }
 
 export const NEWS_FEEDS = [
-  { query: 'Reuters Bloomberg CNBC market moving stocks S&P 500 Nasdaq Federal Reserve Treasury yields oil when:2d', source: 'Google News - Market movers', topic: 'macro', country: 'us', tier: 1 },
+  // Live audit 2026-10-21: the original query (twelve AND-ed words) returned no item in 68 runs since 10/19. The market's own
+  // move explainers ("Stocks climb as SpaceX results reignite AI trade", "Markets Wrap") are what the reading needs first.
+  { query: '"stocks rally" OR "stocks fall" OR "stocks surge" OR "stocks slide" OR "market selloff" OR "markets wrap" OR "stock market today" when:2d', source: 'Google News - Market movers', topic: 'macro', country: 'us', tier: 1 },
   // 2026-10-19 data audit: the "Market movers" query names Reuters/Bloomberg/CNBC as words, which matches any outlet
   // quoting them; wire and tier-1 publishers held 3-6 of 32-40 slots across 10/16-10/19. This feed restricts the
   // publisher itself, so the bundle's tier-1 share no longer depends on aggregators reposting the wires.
@@ -569,7 +571,9 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
     if (it.carried) carriedRows.add(out[out.length - 1]);
   }
   // 한국 뉴스 최대 3슬롯 먼저 예약
-  const KR_SLOTS = 3;
+  // Live audit 2026-10-21: three of forty slots for the Korean session (22 in-window Korean items, 0 placed from the Korea
+  // feed on a +3.3% sidecar day). US leads; Korea keeps five reserved seats.
+  const KR_SLOTS = 5;
   // v57.87 (10/16 audit): three won-dollar headlines filled all three Korean slots on the KOSPI −7.6% day. Inside the
   // reserved slots one headline per Korean topic (환율 · 지수 움직임); further ones compete in the score-ordered fill.
   const krTopicTaken = new Set();
@@ -624,9 +628,9 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
 // P1720 (coordinator N14, 2026-10-13): the completed 08:00 KST bundle left a Korean session's events out until the next
 // morning (KOSPI -5.46% on 10/13 had no headline all day). Articles published after the cut get a separate, provisional
 // slot: tier 1-2 publishers only, the same clickbait/not-article/off-topic/stale filters and topic cap as the bundle,
-// one slot per event (including events already in the bundle), at most two per publisher, at most six. When the next
+// one slot per event (including events already in the bundle), at most two per publisher, at most NEWS_INTRADAY_MAX (12 since 2026-10-21; was six). When the next
 // 08:00 bundle is cut, these articles fall inside its window and leave this slot by construction.
-export const NEWS_INTRADAY_MAX = 6;
+export { NEWS_INTRADAY_MAX };
 export const NEWS_INTRADAY_POLICY = 'kst-0800-after-provisional';
 export const NEWS_INTRADAY_LABEL = '08:00 이후 장중 속보 · 잠정';
 export function selectNewsIntraday(candidates, { cycleEndMs, nowMs = Date.now(), canonical = [], max = NEWS_INTRADAY_MAX } = {}) {
@@ -646,7 +650,7 @@ export function selectNewsIntraday(candidates, { cycleEndMs, nowMs = Date.now(),
   const perSource = new Map();
   const topicCap = createNewsTopicCap();
   const picked = [];
-  // As in the bundle (KR_SLOTS), Korean-session items take up to two slots first; the rest is score order.
+  // As in the bundle (KR_SLOTS), Korean-session items take up to three slots first; the rest is score order.
   const take = (it) => {
     if (picked.length >= max) return;
     const title = cleanNewsTitle(it.title, it.source, it._sourceRaw);
@@ -665,7 +669,7 @@ export function selectNewsIntraday(candidates, { cycleEndMs, nowMs = Date.now(),
       ...(it.verification ? { verification: it.verification } : {}),
     });
   };
-  for (const it of krIndexStoryFirst(scored.filter((row) => row.country === 'kr'))) if (picked.length < 2) take(it);
+  for (const it of krIndexStoryFirst(scored.filter((row) => row.country === 'kr'))) if (picked.length < 3) take(it);
   for (const it of scored) take(it);
   return picked.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }

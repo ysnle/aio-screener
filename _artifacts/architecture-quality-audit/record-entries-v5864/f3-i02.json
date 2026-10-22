@@ -1,0 +1,18 @@
+{
+  "version": "v58.64", "date": "2026-10-23",
+  "p": {
+    "title": "시장 가이드가 분기 수 집계를 '비용이 작은 쪽'으로 표현하고, 같은 원인을 나눠 쓴 분기에 선택이 흔들림",
+    "symptom": "softland·oilshock에서 hold가 뽑히다가, 같은 축(원자재)의 oilshock를 두 번 더 쓰면 시장 사실 변화 없이 wait로 바뀌었다(I02). 헤드라인과 대응 문장은 이 집계를 '비용이 작은 쪽'으로 불러 최소 기대비용처럼 읽혔다. 시나리오 상태 생산자의 변경 기록도 같은 표현을 썼다.",
+    "root_cause": "분기 수를 독립 근거처럼 셌고, 집계의 의미보다 강한 결론 문구를 붙였다.",
+    "fix": "같은 거시 축을 공유하는 분기는 하나의 근거 묶음으로 묶어(axisClusters) 점수를 낸다. 헤드라인·대응·생산자 문구는 '유리하다고 가장 많이 적힌 선택'으로 한정하고 '확률이나 최소 비용의 증명은 아님'을 붙였다. 시나리오가 없을 때도 '틀렸을 때 비용이 작다'는 일반화를 빼고 기본 자세로만 말한다.",
+    "violated_rule": "R265 외부 도구·이론과 같다고 주장하면 그 정의와 정확히 일치",
+    "prevention": "ci-architecture-audit-regression-fixture I02(같은 축 복제는 선택 불변, 다른 축은 별도 묶음), HEAD 대조에서 hold→wait 재현.",
+    "verification": "fixture·market-guide-fixture PASS, 로컬 브라우저 오늘 화면 헤드라인 문구 확인."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-12", "text": "{P}: 같은 거시 축의 시나리오를 복제해도 가이드의 선택이 바뀌지 않고, 헤드라인은 '유리하다고 가장 많이 적힌 선택'으로만 말한다.", "verify_by": "node scripts/ci-architecture-audit-regression-fixture.mjs; node scripts/ci-market-guide-fixture.mjs", "done": true }],
+  "qa_section": "아키텍처 감사 후속 v58.64",
+  "changelog": ["**시장 가이드 집계 ({P}):** 같은 거시 축의 시나리오를 한 묶음으로 세고, '비용이 작은 쪽' 대신 '유리하다고 가장 많이 적힌 선택'으로 표현을 한정했다(I02)."],
+  "note": "아키텍처 감사 후속: 결정 항목 권장안 적용(SCR05·M1·M2·I02·DOMAIN #8), 유사 결함 클래스 전수 확인·수정, 레거시 화면 브라우저 확인. 로컬 검증; commit/push/deploy 미실행, Worker 재배포는 push 후.",
+  "status": null
+}

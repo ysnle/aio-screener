@@ -1,0 +1,12 @@
+{
+  "evidence": "Actual collector with real read-only directory listing and actual read-only gate execution; no source mutation",
+  "sourceSha256": "b1f16a7aa12ae41112a203d33678115f739c5bee4a2e4a8777ec2d38837016fa",
+  "emptyPathJoin": ".",
+  "collected": [
+    "index.html"
+  ],
+  "expectedJsFiles": 398,
+  "collectedInnerHTMLAssignments": 0,
+  "expectedAdditionalInnerHTMLAssignments": 210,
+  "gateOutput": "CSP sink ratchet check OK: innerHTML assignments=0/450, unsafe eval=0, live header status=operator-observation-required."
+}

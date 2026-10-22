@@ -1,0 +1,35 @@
+path	status	sha256	read_range	judgment
+src/domain/macro/indicators.js	FULL	0ba5bc85f439d3d0fd85f8c3b377323c07b5def5b696da7f76e871826cd584c8	1-198 @df6f0b33	공식 지표·단위·월/발표일·YoY/MoM 시각화 검토
+src/domain/macro/liquidity-growth.js	FULL	ec80ba06ec782f4d8290720bafcd9ac771c83a31f5f6f23a3096b0cec975d9f4	1-262 @df6f0b33	유동성 USD billion 통일·주/월/분기 창·GDP/PPI·원유 basis 검토
+src/domain/macro/long-history.js	FULL	69113c0495392f5beccfe63d5d5c7a299e1411bdcbd17c5b282c107a8dc8d2f2	1-58 @df6f0b33	완료 월평균·백분위·record 범위 검토
+src/domain/macro/macro-read.js	FULL	2d0b40431d5d5bedefa6793f8cffb873514694a2e3c881ff84b9ca578131dacf	1-604 @df6f0b33	Sahm/payroll·물가 방향·정책·전달경로 전문 검토; M01 부분범위 예외
+src/domain/macro/macro-signals.js	FULL	c03c5267a1d1829799d97df1d30da3c78688fb1d92b8654a2f4327d0e9e503f0	1-167 @df6f0b33	dead zone·인플레 합의·Brent/WTI 충돌 보류 검토
+src/domain/macro/rates-fx.js	FULL	d6d6aea422c0bb1a900af605166f3952ef109f3f3073a3fa799b1e857670ecee	1-221 @df6f0b33	공식 curve cut·FRED delta 정렬·US session·FX부호 검토
+src/domain/macro/treasury-curve.js	FULL	a43f0fbac7c8f23c905d9c66f4faa051ae92605d099761ca05b924a0c6ea6ae5	1-203 @df6f0b33	동일cut/명목곡선/부분관측 검토; null→0 points는 NOTED
+src/domain/market/benchmarks.js	ROOT_REUSE	1e6beb13f2734fa584dc6b01d885c9a4e0b2f2aff1727a8cb8fb326bebdf51db	FULL(root)	root 전문 검토 결과 재사용; 본 검토자 재독 없음
+src/domain/market/breadth-signals.js	FULL	8273908a87a5a2b3fd6314472a7d226e94f2afd49dbf98921ae98aca822beb42	1-110 @df6f0b33	조정 고저·분모·분배일25세션/5%retire 검토
+src/domain/market/breadth-snapshot.js	FULL	46d84668e39463ba855f4e418373ab4047e4cd90cca14f564305fa8373868f74	1-40 @df6f0b33	하나의종가·날짜·직전session지연표시 검토
+src/domain/market/breadth.js	FULL	2985ee9ab8708dcf355b9892abd7a8b6a6bf8f6926d48734114ee46d1884669f	1-38 @df6f0b33	범위·결측·참여수준/방향 판정 검토
+src/domain/market/history-session.js	FULL	bd0bfeebc24b23c905e113e31f49f17914c3d354e2708c8c645de315b181e805	1-159 @df6f0b33	UTC수집일vs관측session·barzone·휴장·held중복배제 검토
+src/domain/market/instrument-registry.js	FULL	3f84e26f6b59b514d4ce718059543b95257cc78963b631fa43fb23e50e7c3938	1-102 @df6f0b33	정확 선언·유효근거·UNKNOWN·fund eligibility 검토
+src/domain/market/korea-participation.js	FULL	dd3a3c6e86f94842442492f9c7fd9ec189554b5703458e1557d4b446cef8b79c	1-85 @df6f0b33	KR종가·부분표본·지수대중앙값·전파설명 검토
+src/domain/market/kr-index-record.js	FULL	1d79f6a5d208618d2d4daaec60b29534514a752420d05266c9cdf08d872d35b2	1-41 @df6f0b33	KR exact session span·기록백분위 검토
+src/domain/market/macro-crossroads.js	FULL	da40db3c77a072c814c317c897a47db663fdcc6a2788a034d293ded4ffc5ae5a	1-530 @df6f0b33 (원문동일구간+git diff 삭제행 재확인)	조건gate·missing·시나리오전달/기회비용·동률유지·결과연결 검토; M02 누락프리미엄
+src/domain/market/market-calendar.js	FULL	d54ba057e0e9a073ba1b0788ef3917baecfb0cd181eca79757668d23e249dcb3	1-327 @df6f0b33	US/KR 독립종가·DST/halfday·unknown calendar·ordinal세션수 검토
+src/domain/market/moving-average.js	FULL	8e2ea75efa0d491efbd841a65c0e5b4d096a497fd3659138833f92221ea2771e	1-35 @df6f0b33	관측세션dedup·충돌보류·200개분모 검토
+src/domain/market/page-flow.js	FULL	dbb1e4245129cd525a79bd73ac5763e2e8829ab3bec39ded06854c5613d463f4	1-349 @df6f0b33 (원문동일구간+git diff 삭제행 재확인)	페이지이어서보기·20/5관측창·sector/group반증 검토; M03 소표본 fallback
+src/domain/market/quote-currentness.js	FULL	bd57e1b5ea862810f63454be5c962d8869b8adb902076dc615abf22e40ceaa96	1-56 @df6f0b33	핵심US관측·regular session·lastcompletedclose와badge 구분 검토
+src/domain/market/quote-presentation.js	FULL	210bc1fc537b6dc61c209f4a260c3fd3288af891bdeeb8332fd5dba5ef43e5f2	1-82 @df6f0b33	envelope우선·value dispute·quality·observed/received구분 검토
+src/domain/market/regime-radar.js	FULL	c03dd7442f34754998fb949c8049279c7c9849caadbdbb72bfa74fd2d6ccb82b	1-97 @df6f0b33	동일표본창·정렬·다축 결측·invert백분위 검토
+src/domain/market/regime-scenarios.js	FULL	c647a1c0f7adc075752e659835bfcbd207ca9f3e156ab23557f0c19c05a9d85f	1-213 @df6f0b33 (원문동일구간+git diff 삭제행 재확인)	필수관측보류·구조정의·leadership전환·KR세션 검토
+src/domain/market/scenario-outlook.js	FULL	80fcf645f3aa118f483feaf70a19b0d020a2b7992905cd7aba6f830eb4b34d4c	1-174 @df6f0b33	조건충족수·핵심정의·선도약화/Border·transition 검토
+src/domain/market/screener-breadth.js	FULL	40ad399c10edb5b83c1ea284dbdf48d9bab238087cf40dbab3b235e92aa8dd9e	1-62 @df6f0b33	US/KR별표본 coverage·시간·범위 검토
+src/domain/market/sector-map.js	FULL	56677b394c5f5d895d0c7688b38c08e639d3f669a897c3a54e95dce5aef10487	1-266 @df6f0b33	기간시작역산·issuer합산·missing/stale회색·면적/반환분리 검토
+src/domain/market/session-time.js	ROOT_REUSE	f3e02053df7d5b627281d59f74b5ba2c26a966814a42203c214e211089d7d6a0	FULL(root)	root 전문 검토 결과 재사용; 본 검토자 재독 없음
+src/ui/components/macro-board.js	PARTIAL	42d819a1726f53de3be552329dee6efbb7760bb2e3cf5b9037417ac8ba0c4d71	456-480; buildMacroRead caller 검색 @df6f0b33	도달성/fixture용 부분 읽기; 전문 인증 아님
+src/ui/components/macro-crossroads.js	PARTIAL	01a64b75406fabfc935b2ec258fb1b8c5cdce8efc42073ec6adf15fb91016aff	buildMacroRead caller line26 검색만 @df6f0b33	도달성/fixture용 부분 읽기; 전문 인증 아님
+src/ui/pages/themes.js	PARTIAL	a444801402a2bb026fdce847e11d893f076ae70776313a998c3e8e93103b902a	606-660 @df6f0b33	도달성/fixture용 부분 읽기; 전문 인증 아님
+src/domain/themes/group-strength.js	PARTIAL	0ba768c1cbcfc12664210b69317328a02546e1a5a62b03672b895c74dd11bcae	36-115; smallSample 관련 검색 @df6f0b33	도달성/fixture용 부분 읽기; 전문 인증 아님
+scripts/lib/macro-sources.mjs	PARTIAL	60e51bd55ae2cb22de26c215ac9dc7e8297137bddefe0b7b8f11e2d3c92a9a26	426-470; DFEDTARL/DFEDTARU 관련 검색 @df6f0b33	도달성/fixture용 부분 읽기; 전문 인증 아님
+js/aio-core.js	PARTIAL	0622ae7a067536ee827190c7f5ec92906cec60dd2bf48dddd24d159109f877a9	15137-15211 @df6f0b33	도달성/fixture용 부분 읽기; 전문 인증 아님
+js/aio-pages.js	PARTIAL	419b7411cb24cac4f4e2502423eda23524f235b86c3f2cf580c807f720fdb779	THEME_MAP literal만 추출/사용; 주변 미독 @df6f0b33	도달성/fixture용 부분 읽기; 전문 인증 아님

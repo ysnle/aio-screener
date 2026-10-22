@@ -1,0 +1,26 @@
+{
+  "prefixMappings": [
+    {
+      "from": "_artifacts/architecture-quality-audit-20261021-v5859",
+      "to": "_artifacts/architecture-quality-audit/evidence/20261021-v5859"
+    },
+    {
+      "from": "_artifacts/architecture-quality-audit-20261018",
+      "to": "_artifacts/architecture-quality-audit/evidence/20261018"
+    },
+    {
+      "from": "_artifacts/architecture-quality-audit-20261019",
+      "to": "_artifacts/architecture-quality-audit/evidence/20261019"
+    },
+    {
+      "from": "_artifacts/architecture-quality-audit-20261020",
+      "to": "_artifacts/architecture-quality-audit/evidence/20261020"
+    },
+    {
+      "from": "_artifacts/architecture-quality-audit-20261021",
+      "to": "_artifacts/architecture-quality-audit/evidence/20261021"
+    }
+  ],
+  "originals": "original-files.json",
+  "rule": "Replace a matched path prefix; preserve its remaining filename. Raw JSON/log/TSV evidence retains historical strings; canonical reading-ledger is a separately labelled derived view."
+}

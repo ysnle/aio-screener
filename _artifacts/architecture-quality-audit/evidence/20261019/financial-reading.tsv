@@ -1,0 +1,33 @@
+"path"	"status"	"sha256"	"read_range"	"judgment"
+"src/domain/fundamental/period.js"	"FULL"	"5a05069665e453fb27d906de52c010f3d63c87389c27560e52fddae7a89ca5d8"	"1-58"	"기간·결측·연간 공시 상태 경계 검토; 잘못된 날짜 입력은 caller 계약 확인 범위 밖"
+"src/domain/fundamental/quarter-read.js"	"FULL"	"a4be5a9160a186371fc77ab2b54ca20fc039db6f4aa2f8af52662b98b0674d07"	"1-49"	"분기 단위(백만 달러→USD)·전년비·추세 분기 검토"
+"src/domain/fundamental/consensus-read.js"	"FULL"	"3fdf460f5231fc91d416202c0dc9f1de8ab1b18addec5856087bfeec87719866"	"1-79"	"소비자 자체 계산 검토 완료; F-FIN-01 상류 가격 필드 소실 확인"
+"src/domain/fundamental/peer-read.js"	"FULL"	"5b6a52f7d3dbfd6d66d0588b28ad15ee3ab96701d7ce0ff93c5ca9457bd7be10"	"1-92"	"연도 정렬·연간 비교·양의 자본·금융 FCF 보류·백분위 분모 검토"
+"src/domain/fundamental/sec-row-fields.js"	"FULL"	"36a80cb982edc4f3dab4550b7c07307a3ae1e8d0c87f94d29178ba6041815e15"	"1-95"	"공시/주가 단위·share trust·P/E TTM/common·기한 보류 검토"
+"src/domain/fundamental/sic-sector.js"	"FULL"	"8a29f5a9df6ccc1ac5bb2d965eb40b825c36d9389d037474e758d163f2b33312"	"1-55"	"고정 SIC 매핑과 미분류 보류 검토; 분류 정확도 외부 원문 미검증"
+"src/domain/fundamental/sec-statements.js"	"FULL"	"67e7efc6fee552d3b7ae63b4b34c191437760c7ebdf00d566e04981a86698ba9"	"1-104"	"동일 통화·기간·concept anchor·ROE/FCF·주가비율 검토"
+"src/domain/portfolio/cash.js"	"FULL"	"76f55ab160caee6a80f6ee87ba0a3c6327fc610f5d0f185feb5ffc0291c82074"	"1-71"	"현금 통화별 합계·환산 실패 보류·completed FX close 창 검토"
+"src/domain/portfolio/fx.js"	"FULL"	"a595d80678b1ec8770d6d7e57c0a9abd94b3419e3eba2ed80a5afaff9e1861fe"	"1-133"	"직접/역방향 leg·시점/나이·결측 금액 거부·시장 기본 통화 검토"
+"src/domain/portfolio/kr-stress.js"	"FULL"	"7c0d988faa7aa8631db4381e882d0119600dc44ed26d148401ddfe0d795c02c2"	"1-37"	"세션 간격·최악 5/20세션·최소 표본 바운드 검토"
+"src/domain/portfolio/attribution.js"	"FULL"	"38797a49fc726a4a896622dc0870dd0a5b350fba4faf85ae43d297f9ab75b101"	"1-113"	"시작가치 역산·현금 sleeve 스케일·분해 항등식 검토; 섹터 기준일 후보는 현재 도달성 UNPROVEN"
+"src/domain/portfolio/return-stats.js"	"FULL"	"19471092ef46dbaa363a0741ef4999d3675251374485969e41a8db5527b94e16"	"1-234"	"Sharpe/MDD/상관·R7 tail·bootstrap/sensitivity·CVaR 별도 인증 검토"
+"src/domain/fundamental/sec-earnings.js"	"FULL"	"ad6bf9d0c3dc33e341d96ad9093a360a0b5f665fc2cadda963381e42628ab6e0"	"1-171"	"TTM 연속분기·FY-Q1Q2Q3·공통주 이익·평균자본 heal 검토"
+"src/domain/fundamental/fiscal-read.js"	"FULL"	"7ac53e8b76b7226878397bd856953178ba00a7e305b12278127facdd35e6da7f"	"1-241"	"USD 금액·CAGR/YoY/ROE/PEG·분기 basis·금융 OCF 보류·share 변화 검토"
+"src/domain/fundamental/sec-normalize.js"	"FULL"	"f20ed5625f13640567a861ff586d14301913f2a03a7f065124b89529cac0dfc8"	"1-678"	"US-GAAP/IFRS·native currency·PIT·share split/class·annual selection 전문 검토"
+"src/domain/fundamental/sec-report.js"	"FULL"	"164f4981aae57fcaa0e67b1bc978cf8792999209f8932ff5b0825bf9032d526f"	"1-405"	"PIT cut·reconciliation·share trust·freshness·metric quarantine 검토; PIT runtime caller 없음"
+"src/domain/portfolio/checks.js"	"FULL"	"4137fc2e5245eb7aff7f0fb52fb85bccaa276ed3713940f41f0bb88945bf9be5"	"1-104"	"통화 환산 보류·부분 가격 분모·종목/통화/현금 비중 검토"
+"src/domain/portfolio/concentration.js"	"FULL"	"afcb8b314d3182a079202c7d182d395a98c7e8e93dac79a1f81715745b3d1af9"	"1-156"	"quantity×price 단일 분모·원가 배제·누락/음수·부분 분모 disclosure 검토"
+"src/domain/portfolio/portfolio-read.js"	"FULL"	"fa560bc89fdbbf396d47fc02b5f4976f5884a4293153afa8108c79318503a5be"	"1-242"	"추세 subset·sector US/KR 분모·attribution 연결·AI 수량/원가 제외 검토"
+"src/domain/portfolio/surface.js"	"FULL"	"efd9c1f180f3cc1b33b939c2ec77dfb5adb9c1124632ee7cc7a2c051054f6c22"	"1-476"	"valuation provenance·선언/시장 통화·현금/원가 독립 환산·P&L/일간 분모 검토; F-FIN-01 caller 연결"
+"src/domain/portfolio/risk.js"	"FULL"	"d300ceba38bfb0ccc67c648502d5847ca6f6535648d34f3ebdd93f62ae52b6cb"	"1-643"	"snapshot·전략 drift/rebalance·cash path·RF·계좌 TWR/MWR 경계 검토"
+"src/domain/portfolio/backtest.js"	"FULL"	"6deb64030bace0a5c5eebb38ab8e3e15f12aa53bb403008599d49634c62d40fe"	"1-934"	"월말 정렬/연속 grid·배분·realized weights·CAGR/Sharpe/기여도·FX 반환 검토; FX 가상경로 확장 후보 NOTED"
+src/data/providers/screener.js	PARTIAL	51d6a9841eccb67ec2de5b7a93c234e2c86be3048a3c6e81d43a812b4d948d04	1-55;576-630	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+src/data/normalize/screener.js	PARTIAL	d713a400fd85984f5b4556fc036c218128e212629edb72d117422c66825466df	1-30;91-145	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+src/data/orchestrators/screener.js	PARTIAL	d045d918432d3e770351bbbb877b2b661166d6b24de6ae6ec166418fb48f6463	1-63	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+src/ui/pages/portfolio.js	PARTIAL	5d9a30908f0ee2e729eb6e9896362606826c48051b4a942bce0efaebccf3e228	176-240;검색 결과만 추가 확인	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+src/ui/components/portfolio-read.js	PARTIAL	20f6a3d494ca5fe3c1959f4ae0d40d254b3d02fd373919c2f4cfc5a3622e91b4	1-95	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+src/ui/panels/portfolio-risk-input.js	PARTIAL	607b0da34b8a73c12101e0fb8c585b55f4af843bb438eca7c8ec076b48ed4617	106-190	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+js/aio-workspace.js	PARTIAL	648d5274b8c0201f28c6dfadd3133fe93bc5256d05c570623bf05ddaa76469c6	166-245;951-1025;1501-1612	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+js/aio-chat.js	PARTIAL	3dcc584b7a181f603de2ea6ec3cf7ee3185ac68c058009db73dfc4fb386000f9	5001-5105;추가 rg 검색만	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+js/aio-ui.js	PARTIAL	1ee5d4eae93c96079b3eafe04a9e48a7c5bb77f68e2b0f11b120574340d5b307	2121-2190;추가 rg 검색만	필요 caller 체인만 부분 검토; 파일 전체 인증 아님
+scripts/fetch-data.mjs	PARTIAL	0d19942236ed8b2b3fd291b4510348a2264028502e161ae5191caac50b8c3ff8	1651-1705;추가 rg 검색만	필요 caller 체인만 부분 검토; 파일 전체 인증 아님

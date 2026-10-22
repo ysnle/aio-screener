@@ -3,7 +3,8 @@
 // same day a record. Both cards now read one record per index: the 1- and 5-session change and, when it sits in the
 // tail (KR_SHOCK_TAIL_PCT), its position in AIO's own record. KOSPI is the briefing's koreaMoveRecord itself; KOSDAQ is
 // measured by the same rule (exact KRX session spans, the last 252 changes). One month is KR_MONTH_SESSIONS everywhere.
-import { buildCloseSeries, koreaMoveRecord, koreaRecordText, krSessionThrough, recordPercentile, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
+import { koreaMoveRecord, koreaRecordText, krSessionThrough, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
+import { buildCloseSeries, recordPercentile } from './close-series.js';
 import { countOpenSessionsBetween } from './market-calendar.js';
 
 export const KR_MONTH_SESSIONS = 20;

@@ -3383,9 +3383,16 @@ document.querySelectorAll('.insight-box').forEach(function(el) {
   el.addEventListener('click', function() { this.classList.toggle('box-collapsed'); });
 });
 // v38.8: 첫 방문 시 insight-box를 펼친 상태로 표시 (핵심 설명 노출)
+// v58.63 (architecture audit A19): a browser that refuses storage threw from this top-level IIFE and stopped the rest of
+// the file — the keyboard listener, theme restore and _aioOpenStockSearch were never registered. Only the visit record
+// and the old-key cleanup are skipped when storage is refused.
 (function() {
-  if (!localStorage.getItem('aio_visited')) {
-    localStorage.setItem('aio_visited', '1');
+  var firstVisit = false;
+  try {
+    firstVisit = !localStorage.getItem('aio_visited');
+    if (firstVisit) localStorage.setItem('aio_visited', '1');
+  } catch (_) { firstVisit = false; }
+  if (firstVisit) {
     document.querySelectorAll('.insight-box.box-collapsed').forEach(function(el) {
       el.classList.remove('box-collapsed');
     });
@@ -3393,8 +3400,10 @@ document.querySelectorAll('.insight-box').forEach(function(el) {
 })();
 // 이전 localStorage 키 정리
 (function() {
-  if (localStorage.getItem('aio_beginner')) localStorage.removeItem('aio_beginner');
-  if (localStorage.getItem('aio_analysis_level')) localStorage.removeItem('aio_analysis_level');
+  try {
+    if (localStorage.getItem('aio_beginner')) localStorage.removeItem('aio_beginner');
+    if (localStorage.getItem('aio_analysis_level')) localStorage.removeItem('aio_analysis_level');
+  } catch (_) {}
 })();
 
 // v38.8: 로딩 상태 타임아웃 — 15초 후에도 "로딩 중"이면 안내 메시지 표시
@@ -4124,8 +4133,6 @@ async function updateBenchmarkChart() {
   });
   var tickerSeries = await Promise.all(seriesPromises);
   tickerSeries = tickerSeries.filter(function(s){ return s !== null; });
-  var coveredSymSet = {};
-  tickerSeries.forEach(function(s){ coveredSymSet[s.ticker] = true; });
 
   // 포트폴리오 현재가 기준 총 가치 (weight 계산용)
   let ld = window._liveData || {};
@@ -4153,21 +4160,18 @@ async function updateBenchmarkChart() {
       pfPct[i] += pct * weight;
     }
   });
-  // 미커버 부분: 현재 누적 수익률 / 30일 선형 분포
-  if (coveredWeight < 0.999) {
-    var uncovTotal = 0, uncovInvested = 0;
-    pfData.forEach(function(p){
-      if (coveredSymSet[p.ticker]) return;
-      var cur = (ld[p.ticker] && ld[p.ticker].price > 0) ? ld[p.ticker].price : p.cost;
-      uncovTotal += cur * p.qty;
-      uncovInvested += p.cost * p.qty;
-    });
-    var uncovReturn = uncovInvested > 0 ? ((uncovTotal - uncovInvested) / uncovInvested * 100) : 0;
-    var uncovWeight = 1 - coveredWeight;
-    for (var j = 0; j < L; j++) {
-      pfPct[j] += uncovReturn * (j / (L - 1)) * uncovWeight;
-    }
+  // v58.63 (architecture audit A20): holdings without a daily history used to get their whole cost-basis P&L spread in a
+  // straight line over 30 days, so a position bought years ago printed as "+100% (30일)" and an Alpha. A period that was
+  // not observed is not drawn: the line is the 30-day return of the holdings whose daily closes arrived (re-weighted to
+  // that part), the label names that share, and with no history at all the comparison waits.
+  ctx.clearRect(0, 0, W, H);
+  if (!(coveredWeight > 0)) {
+    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#8a8271'; ctx.textAlign = 'left';
+    ctx.fillText('보유 종목의 일별 가격 이력을 받지 못해 30일 비교를 보류합니다.', 10, 16);
+    return;
   }
+  for (var j = 0; j < L; j++) pfPct[j] = pfPct[j] / coveredWeight;
+  var partial = coveredWeight < 0.999;
 
   // 렌더
   ctx.clearRect(0, 0, W, H);
@@ -4210,7 +4214,7 @@ async function updateBenchmarkChart() {
   var alphaColor = alpha >= 0 ? '#22754c' : '#b13a30';
   ctx.textAlign = 'left';
   ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#22754c';
-  ctx.fillText('내 포트폴리오: ' + (pfFinal>=0?'+':'') + pfFinal.toFixed(1) + '% (30일)', 10, 16);
+  ctx.fillText((partial ? '이력 확보 종목(' + (coveredWeight * 100).toFixed(0) + '% 비중): ' : '내 포트폴리오: ') + (pfFinal>=0?'+':'') + pfFinal.toFixed(1) + '% (30일)', 10, 16);
   ctx.fillStyle = (getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#211d16');
   ctx.fillText('SPY: ' + (spyFinal>=0?'+':'') + spyFinal.toFixed(1) + '% (30일)', 10, 32);
   ctx.fillStyle = alphaColor;
@@ -4218,7 +4222,7 @@ async function updateBenchmarkChart() {
 
   // 커버리지 표시 — v48.61 P37+R43
   ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#8a8271'; ctx.textAlign = 'right';
-  ctx.fillText('일별 실데이터 커버리지: ' + (coveredWeight * 100).toFixed(0) + '% · Yahoo 30일', W - 10, H - 8);
+  ctx.fillText(partial ? '일별 이력 없는 종목은 제외 — 계좌 전체 수익률 아님' : '보유 종목 일별 종가 기준', W - 10, H - 8);
 }
 
 

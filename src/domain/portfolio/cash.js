@@ -8,7 +8,7 @@
  * rate and never 1.
  */
 import { convertWithDeclaredRates } from './fx.js';
-import { buildCloseSeries, closeBasis } from '../briefing/market-read.js';
+import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 
 const md = (date) => (/^\d{4}-\d{2}-\d{2}$/.test(String(date || '')) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');
 

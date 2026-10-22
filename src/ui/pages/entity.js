@@ -241,13 +241,19 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
     .find((item) => String(item?.symbol || '').toUpperCase() === String(id || '').toUpperCase());
   const shares = finite(holding?.shares);
   const avgCost = finite(holding?.avgCost);
-  const pnl = price != null && shares != null && avgCost != null ? (price - avgCost) * shares : null;
+  // v58.63 (architecture audit UI-02): a KRW cost basis was subtracted from a USD quote ("-$139,900"). A cost recorded in
+  // another currency than the quote has no conversion here, so the P&L waits — as the portfolio surface does.
+  const costCurrency = String(holding?.costCurrency || '').trim().toUpperCase() || null;
+  const currencyConflict = !!(costCurrency && currency && costCurrency !== String(currency).toUpperCase());
+  const pnl = !currencyConflict && price != null && shares != null && avgCost != null ? (price - avgCost) * shares : null;
   const pnlPct = pnl != null && avgCost > 0 ? (price - avgCost) / avgCost * 100 : null;
   const valueNode = tickerElement(documentRef, 'ticker-hero-value');
   const pnlNode = tickerElement(documentRef, 'ticker-hero-pnl');
   const hasPosition = !!holding && shares != null && avgCost != null;
   if (valueNode) {
-    valueNode.textContent = !hasPosition ? '보유 종목 아님' : pnl == null
+    valueNode.textContent = !hasPosition ? '보유 종목 아님' : currencyConflict
+      ? `원가 통화(${costCurrency})가 시세 통화와 달라 손익은 포트폴리오에서 환산합니다`
+      : pnl == null
       ? '손익 계산 대기'
       : `${pnl >= 0 ? '+' : '-'}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`}`;
     valueNode.dataset.aioTickerPnlRenderer = 'native';

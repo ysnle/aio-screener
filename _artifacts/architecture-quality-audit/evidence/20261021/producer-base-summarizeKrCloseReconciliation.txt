@@ -1,0 +1,19 @@
+function summarizeKrCloseReconciliation(results) {
+  const reports = (Array.isArray(results) ? results : []).filter((r) => r && r.closeReconciliation).map((r) => [r.sym, r.closeReconciliation]);
+  const byStatus = {};
+  let correctedCloses = 0, filledSessions = 0;
+  for (const [, report] of reports) {
+    byStatus[report.status] = (byStatus[report.status] || 0) + 1;
+    correctedCloses += report.correctedCloses || 0;
+    filledSessions += report.filledSessions || 0;
+  }
+  return {
+    source: KR_EXCHANGE_CLOSE_SOURCE,
+    basis: 'exchange daily close/high/low replace provider values on matching sessions; provider adjusted/raw ratio kept',
+    rows: reports.length,
+    byStatus,
+    correctedCloses,
+    filledSessions,
+    notReconciled: reports.filter(([, report]) => report.status !== 'reconciled').map(([sym, report]) => [sym, report.reason || report.status]).slice(0, 40),
+  };
+}

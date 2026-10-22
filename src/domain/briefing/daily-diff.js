@@ -3,7 +3,8 @@ import { deriveQuotePresentation } from '../market/quote-presentation.js';
 // answers "what changed since the last session" and "what happened to my names" before anything else.
 // Pure functions over the completed-close history and the published screener rows — no live quote is
 // promoted to a close, and a measure missing on either session is left out rather than read as zero.
-import { buildCloseSeries, buildMarketRegime, closeBasis, krSessionThrough } from './market-read.js';
+import { buildMarketRegime, krSessionThrough } from './market-read.js';
+import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/market-calendar.js';
 

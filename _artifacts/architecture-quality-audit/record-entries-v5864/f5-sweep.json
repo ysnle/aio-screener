@@ -1,0 +1,18 @@
+{
+  "version": "v58.64", "date": "2026-10-23",
+  "p": {
+    "title": "감사 결함 클래스의 다른 발생: NOT 조건 설명, 포트폴리오 입력 삭제, 한국 시세 null 예외, CIK 전체 대조 부재",
+    "symptom": "스크리너 조건 설명이 NOT 노드를 'NOT 하위 조건 0개'로 표시했다(SCR01 클래스: child 간선 누락). 미등록 티커 확인을 기다리는 동안 입력한 다음 보유 종목이 저장 후 지워졌다(BND01 클래스). 한국 테마 칩·원달러·미국 10년물 칸은 가격이 null이면 toFixed에서 예외가 나 렌더가 끊겼다(A05 클래스). CIK 표는 감사에서 찾은 10건만 검사했다(A01 클래스).",
+    "root_cause": "각 결함을 발견된 위치에서만 고치고 같은 클래스의 다른 위치를 찾지 않았다.",
+    "fix": "NOT 노드는 '제외: <필드> 조건'으로 설명. 포트폴리오 추가는 제출 시점 입력을 저장해 같을 때만 비우고 입력 패널을 닫는다. 가격 null·비유한 검사로 바꾼다. 회귀 픽스처가 CIK 표 전체(179개)를 SEC 요약 산출물과 대조하고, 의도적 전신 CIK(XOM)만 이름으로 예외 처리한다.",
+    "violated_rule": "R628 결측은 0도 조건 충족도 관측값도 아니다; R663 종목은 정확한 등록 일치로만",
+    "prevention": "ci-architecture-audit-regression-fixture CIK 전체 대조(gate inputs에 public-data/sec-fundamentals-summary.json), 로컬 브라우저 포트폴리오·관심목록 흐름 확인.",
+    "verification": "fixture PASS. 브라우저에서 저장 중 입력 MSFT 유지·입력 불변 시 정리 확인, 사용자 데이터 복원."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-14", "text": "{P}: CIK 표 전체가 SEC 요약 산출물과 일치하고(XOM 전신 예외), 포트폴리오 추가 대기 중 입력한 내용은 저장 후에도 남는다.", "verify_by": "node scripts/ci-architecture-audit-regression-fixture.mjs", "done": true }],
+  "qa_section": "아키텍처 감사 후속 v58.64",
+  "changelog": ["**같은 결함 클래스 전수 ({P}):** NOT 조건 설명, 포트폴리오 입력 보존, 한국 시세 null 예외를 고치고, CIK 표 전체를 SEC 산출물과 대조하는 게이트를 더했다(SCR01·BND01·A05·A01 클래스)."],
+  "note": "아키텍처 감사 후속: 결정 항목 권장안 적용(SCR05·M1·M2·I02·DOMAIN #8), 유사 결함 클래스 전수 확인·수정, 레거시 화면 브라우저 확인. 로컬 검증; commit/push/deploy 미실행, Worker 재배포는 push 후.",
+  "status": null
+}

@@ -6,7 +6,10 @@
 // next-four-quarter consensus EPS with 4-week up/down revision counts (consensus-estimates.json), each member's completed
 // close (screener row valuationPrice) and FRED DFII10. Nothing here is a forecast or a grade.
 
+import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from '../fundamental/consensus-read.js';
+
 // A whole-index figure needs most of the index behind it; below this share of index weight it is withheld.
+const DAY_MS = 86400000;
 export const INDEX_EARNINGS_MIN_WEIGHT_PCT = 80;
 // A sector line needs enough members that one company cannot set its sign.
 export const SECTOR_MIN_MEMBERS = 8;
@@ -31,7 +34,13 @@ function revisionOf(stats) {
   return total > 0 ? (stats.up - stats.down) / total : null;
 }
 
-export function buildIndexEarnings({ rows = [], weights = null, consensus = null, realYield10 = null, realYieldAsOf = null } = {}) {
+// v58.63 (architecture audit F-DELTA-01): the index stage read every member's consensus and close without the age limits
+// the stock card applies (consensusView: estimates within 21 days, closes within 10), so an outage kept publishing "최근 4주"
+// breadth and a forward PER on old inputs. The same limits apply per member; an expired member leaves the coverage.
+export function buildIndexEarnings({ rows = [], weights = null, consensus = null, realYield10 = null, realYieldAsOf = null, now = Date.now() } = {}) {
+  const nowMs = Number.isFinite(Number(now)) ? Number(now) : Date.now();
+  const estimateCurrent = (asOf) => { const ms = Date.parse(asOf || ''); return Number.isFinite(ms) && nowMs - ms <= CONSENSUS_MAX_AGE_DAYS * DAY_MS && ms - nowMs <= DAY_MS; };
+  const closeCurrent = (row) => { const day = String(row?.factorSessionDate || '').slice(0, 10); const ms = day ? Date.parse(`${day}T00:00:00Z`) : NaN; return Number.isFinite(ms) && nowMs - ms <= CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS; };
   const members = weightRows(weights);
   const estimates = consensus?.rows && typeof consensus.rows === 'object' ? consensus.rows : null;
   if (!members.length || !estimates) return { available: false, reason: !members.length ? '지수 구성 비중이 아직 없습니다.' : '컨센서스 자료를 불러오는 중입니다.' };
@@ -45,7 +54,7 @@ export function buildIndexEarnings({ rows = [], weights = null, consensus = null
     const sym = String(member.sym).toUpperCase();
     const est = estimates[sym] || estimates[sym.replace('-', '.')] || estimates[sym.replace('.', '-')];
     const fwd = est?.fwd;
-    if (!fwd) continue;
+    if (!fwd || !estimateCurrent(est.asOf)) continue;
     if (est.asOf && (!latest || est.asOf > latest)) latest = est.asOf;
     if (est.asOf && (!oldest || est.asOf < oldest)) oldest = est.asOf;
     const secondClass = Object.hasOwn(SHARE_CLASS_OF, sym) && members.some((row) => String(row.sym).toUpperCase() === SHARE_CLASS_OF[sym]);
@@ -58,7 +67,8 @@ export function buildIndexEarnings({ rows = [], weights = null, consensus = null
     }
     if (up > down) all.netUp += 1; else if (down > up) all.netDown += 1;
     sectors.set(sector, bucket);
-    const price = priceOf(bySym.get(sym));
+    const priceRow = bySym.get(sym);
+    const price = closeCurrent(priceRow) ? priceOf(priceRow) : null;
     const eps = finite(fwd.eps);
     if (price > 0 && eps != null) {
       yieldWeight += member.weight;

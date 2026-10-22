@@ -68,9 +68,17 @@ export function baseCount(closes) {
   let yearLow = values[0];
   let lastBaseLow = null;
   const restart = (close) => { count = 0; high = close; pullbackStart = null; pullbackLow = Infinity; lastBaseLow = null; };
+  // v58.63: the producer passes two years of closes (FACTOR_HISTORY_RANGE), so the lowest close seen so far was a
+  // two-year low and a new 52-week low above it never restarted the count. The low is the trailing rangeSessions span.
+  const span = RULES.technical.rangeSessions;
+  const lowIndex = [];
   for (let i = 1; i < values.length; i += 1) {
     const close = values[i];
-    if (close < yearLow) { yearLow = close; restart(close); continue; }
+    while (lowIndex.length && values[lowIndex[lowIndex.length - 1]] >= values[i - 1]) lowIndex.pop();
+    lowIndex.push(i - 1);
+    while (lowIndex[0] < i - span) lowIndex.shift();
+    yearLow = values[lowIndex[0]];
+    if (close < yearLow) { restart(close); continue; }
     if (lastBaseLow != null && close < lastBaseLow) { restart(close); continue; }
     if (close > high) {
       if (pullbackStart != null && (high - pullbackLow) / high * 100 >= F.basePullbackPct && i - pullbackStart >= F.baseMinSessions) { count += 1; lastBaseLow = pullbackLow; }
@@ -98,15 +106,18 @@ export function baseCount(closes) {
 export function climaxSigns(closes, volumes) {
   const n = Math.min(closes?.length || 0, volumes?.length || 0);
   if (n < RULES.technical.fullYearSessions) return null;
-  const c = closes.slice(-n);
-  const v = volumes.slice(-n);
+  // v58.63: "of the year" and the 52-week low are the last rangeSessions sessions — the two-year producer series made a
+  // year-old gain or volume spike outrank the latest ten sessions and measured the run from a two-year low.
+  const m = Math.min(n, RULES.technical.rangeSessions);
+  const c = closes.slice(-m);
+  const v = volumes.slice(-m);
   if (!c.every(ok)) return null;
-  const last = c[n - 1];
+  const last = c[m - 1];
   const yearLow = Math.min(...c);
   if ((last / yearLow - 1) * 100 < F.climaxMinRunPct) return [];
   const signs = [];
   let ups = 0;
-  for (let i = n - 10; i < n; i += 1) if (c[i] > c[i - 1]) ups += 1;
+  for (let i = m - 10; i < m; i += 1) if (c[i] > c[i - 1]) ups += 1;
   if (ups >= F.climaxUpDays) signs.push('run-up-days');
   const gains = c.map((value, i) => (i ? value / c[i - 1] - 1 : -Infinity));
   const maxGain = Math.max(...gains);

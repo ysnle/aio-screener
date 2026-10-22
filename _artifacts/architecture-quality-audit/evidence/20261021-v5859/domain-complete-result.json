@@ -1,0 +1,308 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "notes": "actual pinned artifacts; explicit review clock; probe injects only spec capture, not rule mutations",
+  "basis": "2026-10-20",
+  "overall": "다소 부담",
+  "leadershipBreak": true,
+  "trendState": "neutral",
+  "trendRead": "S&P 500이 50일선보다 0.1% 위 — 50일선 근처에서 버티는 구간입니다. 50일선보다 1% 이상 위에서 마감하면 양호로, 주도 영역 이탈이 확인된 지금은 50일선 아래로 마감하면 바로 부담으로 봅니다. 나스닥 100이 5거래일 -3.5% 밀렸고 러셀 2000은 200일선 아래(-0.8%)라, 주도 대형주와 중소형주가 함께 약해지는 중입니다 — S&P 500 하나만 보고 추세가 양호하다고 읽지 않습니다. 단기(5·10·20일)는 혼조, 장기(20·50·100·200일)는 정배열 — 두 기간의 방향이 달라 단기 흐름이 장기 추세로 이어지는지 확인할 구간입니다.",
+  "ma50": 7704.267200000001,
+  "trendAround50": [
+    {
+      "delta": -0.00001,
+      "price": 7704.267190000001,
+      "state": "burden"
+    },
+    {
+      "delta": 0,
+      "price": 7704.267200000001,
+      "state": "neutral"
+    },
+    {
+      "delta": 0.00001,
+      "price": 7704.267210000001,
+      "state": "neutral"
+    }
+  ],
+  "top": [
+    {
+      "id": "trend",
+      "state": "neutral",
+      "distance": {
+        "toward": "burden",
+        "lever": "spx",
+        "subject": "S&P 500이",
+        "short": "50일선 7,704",
+        "threshold": 7704.267200000001,
+        "current": 7712.57,
+        "value": -0.1,
+        "unit": "%",
+        "text": "−0.1%",
+        "condition": "S&P 500이 7,704(50일선) 아래로 마감하면",
+        "parts": {
+          "subject": "S&P 500이",
+          "mark": "7,704(50일선)",
+          "verb": "아래로 마감하면"
+        },
+        "sessions": 0.2,
+        "also": [],
+        "needsMore": false,
+        "direction": "worsen",
+        "towardLabel": "부담",
+        "label": "부담까지 −0.1%"
+      },
+      "exact": "neutral",
+      "below": "burden",
+      "above": "neutral",
+      "towardAfterCross": "burden"
+    },
+    {
+      "id": "volatility",
+      "state": "neutral",
+      "distance": {
+        "toward": "favorable",
+        "lever": "vix",
+        "subject": "VIX가",
+        "short": "5일 +10% · 16.80",
+        "threshold": 16.797,
+        "current": 17.31,
+        "value": -0.5,
+        "unit": "pt",
+        "text": "−0.5pt",
+        "condition": "VIX가 16.80(5거래일 +10%) 아래로 내려가면",
+        "parts": {
+          "subject": "VIX가",
+          "mark": "16.80(5거래일 +10%)",
+          "verb": "아래로 내려가면"
+        },
+        "sessions": 0.7,
+        "also": [],
+        "needsMore": false,
+        "direction": "improve",
+        "towardLabel": "양호",
+        "label": "양호까지 −0.5pt"
+      },
+      "exact": "neutral",
+      "below": "favorable",
+      "above": "neutral",
+      "towardAfterCross": "favorable"
+    },
+    {
+      "id": "commodities",
+      "state": "neutral",
+      "distance": {
+        "toward": "burden",
+        "lever": "wti",
+        "subject": "WTI 20일 변화가",
+        "short": "WTI 20일 +10% · 104.05",
+        "threshold": 104.049,
+        "current": 101.79,
+        "value": 2.4,
+        "unit": "%p",
+        "text": "+2.4%p",
+        "condition": "WTI 20일 변화가 +10%(104.05) 이상이면",
+        "parts": {
+          "subject": "WTI 20일 변화가",
+          "mark": "+10%(104.05)",
+          "verb": "이상이면"
+        },
+        "sessions": 1.3,
+        "also": [],
+        "needsMore": false,
+        "direction": "worsen",
+        "towardLabel": "부담",
+        "label": "부담까지 +2.4%p"
+      },
+      "exact": "burden",
+      "below": "neutral",
+      "above": "burden",
+      "towardAfterCross": "burden"
+    }
+  ],
+  "allAxes": [
+    {
+      "id": "trend",
+      "state": "neutral",
+      "flipDistance": {
+        "toward": "burden",
+        "lever": "spx",
+        "subject": "S&P 500이",
+        "short": "50일선 7,704",
+        "threshold": 7704.267200000001,
+        "current": 7712.57,
+        "value": -0.1,
+        "unit": "%",
+        "text": "−0.1%",
+        "condition": "S&P 500이 7,704(50일선) 아래로 마감하면",
+        "parts": {
+          "subject": "S&P 500이",
+          "mark": "7,704(50일선)",
+          "verb": "아래로 마감하면"
+        },
+        "sessions": 0.2,
+        "also": [],
+        "needsMore": false,
+        "direction": "worsen",
+        "towardLabel": "부담",
+        "label": "부담까지 −0.1%"
+      }
+    },
+    {
+      "id": "breadth",
+      "state": "burden",
+      "flipDistance": {
+        "toward": "neutral",
+        "lever": "b50",
+        "subject": "50일선 위 종목이",
+        "short": "50일선 위 45%",
+        "threshold": 45,
+        "current": 39.3,
+        "value": 6,
+        "unit": "%p",
+        "text": "+6%p",
+        "condition": "50일선 위 종목이 45% 이상이면",
+        "parts": {
+          "subject": "50일선 위 종목이",
+          "mark": "45%",
+          "verb": "이상이면"
+        },
+        "sessions": 2.3,
+        "also": [],
+        "needsMore": false,
+        "direction": "improve",
+        "towardLabel": "중립",
+        "label": "중립까지 +6%p"
+      }
+    },
+    {
+      "id": "volatility",
+      "state": "neutral",
+      "flipDistance": {
+        "toward": "favorable",
+        "lever": "vix",
+        "subject": "VIX가",
+        "short": "5일 +10% · 16.80",
+        "threshold": 16.797,
+        "current": 17.31,
+        "value": -0.5,
+        "unit": "pt",
+        "text": "−0.5pt",
+        "condition": "VIX가 16.80(5거래일 +10%) 아래로 내려가면",
+        "parts": {
+          "subject": "VIX가",
+          "mark": "16.80(5거래일 +10%)",
+          "verb": "아래로 내려가면"
+        },
+        "sessions": 0.7,
+        "also": [],
+        "needsMore": false,
+        "direction": "improve",
+        "towardLabel": "양호",
+        "label": "양호까지 −0.5pt"
+      }
+    },
+    {
+      "id": "rates",
+      "state": "burden",
+      "flipDistance": {
+        "toward": "neutral",
+        "lever": "tnx",
+        "subject": "10년물이",
+        "short": "1년 범위 80% · 5.04%",
+        "threshold": 5.038,
+        "current": 5.12,
+        "value": -8,
+        "unit": "bp",
+        "text": "−8bp",
+        "condition": "10년물이 1년 범위 80%(5.04%) 아래로 내려가면",
+        "parts": {
+          "subject": "10년물이",
+          "mark": "1년 범위 80%(5.04%)",
+          "verb": "아래로 내려가면"
+        },
+        "sessions": 2.1,
+        "also": [],
+        "needsMore": false,
+        "direction": "improve",
+        "towardLabel": "중립",
+        "label": "중립까지 −8bp"
+      }
+    },
+    {
+      "id": "credit",
+      "state": "burden",
+      "flipDistance": {
+        "toward": "favorable",
+        "lever": "hy",
+        "subject": "하이일드 스프레드가",
+        "short": "20일 +25bp · 291bp",
+        "threshold": 291,
+        "current": 329,
+        "value": -38,
+        "unit": "bp",
+        "text": "−38bp",
+        "condition": "하이일드 스프레드가 291bp(20거래일 +25bp) 아래로 내려가면",
+        "parts": {
+          "subject": "하이일드 스프레드가",
+          "mark": "291bp(20거래일 +25bp)",
+          "verb": "아래로 내려가면"
+        },
+        "sessions": 6.1,
+        "also": [],
+        "needsMore": false,
+        "direction": "improve",
+        "towardLabel": "양호",
+        "label": "양호까지 −38bp"
+      }
+    },
+    {
+      "id": "commodities",
+      "state": "neutral",
+      "flipDistance": {
+        "toward": "burden",
+        "lever": "wti",
+        "subject": "WTI 20일 변화가",
+        "short": "WTI 20일 +10% · 104.05",
+        "threshold": 104.049,
+        "current": 101.79,
+        "value": 2.4,
+        "unit": "%p",
+        "text": "+2.4%p",
+        "condition": "WTI 20일 변화가 +10%(104.05) 이상이면",
+        "parts": {
+          "subject": "WTI 20일 변화가",
+          "mark": "+10%(104.05)",
+          "verb": "이상이면"
+        },
+        "sessions": 1.3,
+        "also": [],
+        "needsMore": false,
+        "direction": "worsen",
+        "towardLabel": "부담",
+        "label": "부담까지 +2.4%p"
+      }
+    },
+    {
+      "id": "korea",
+      "state": "neutral",
+      "flipDistance": null
+    }
+  ],
+  "actualRateSplit": [],
+  "receipt": [
+    {
+      "path": "src/domain/briefing/market-read.js",
+      "status": "FULL",
+      "sha256": "382d1b6476d5dacedd1e3f42587eaf151fb38d0d40ffcbb039c38985e318543a",
+      "lines": 1759,
+      "reason": "고정 REF 전문 직접 의미 검토; 이번 후속 전문 완료"
+    },
+    {
+      "path": "src/domain/entity/stock-read.js",
+      "status": "FULL",
+      "sha256": "38bc41c79ebb73711e236bebf1aad74ef50058f126bfa04a05af857f9bee5585",
+      "lines": 335,
+      "reason": "고정 REF 전문 직접 의미 검토; 이번 후속 전문 완료"
+    }
+  ]
+}

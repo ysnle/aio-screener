@@ -8,7 +8,7 @@ import { benchmarkRowFor } from '../../domain/market/benchmarks.js';
 import { marketRows, screenerMarket } from '../../domain/screener/market-scope.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { latestCompletedKrSession, latestCompletedUsSession, countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
@@ -19,6 +19,7 @@ import { buildOutOfUniverseRead } from '../../domain/entity/out-of-universe-read
 import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 import { isLendingFinancial, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
+import { fiscalYearLabel } from '../../domain/fundamental/period.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -45,7 +46,7 @@ function thirteenFFor(root, sym, onLoaded) {
   const fetchFn = root?.fetch || globalThis.fetch;
   if (root && !root._aioTickerIndexReferenceRequested && typeof fetchFn === 'function') {
     root._aioTickerIndexReferenceRequested = true;
-    loadJsonArtifact(fetchFn.bind(root), TICKER_INDEX_REFERENCE_URL, { timeoutMs: 8000 })
+    loadJsonArtifact(stableFetcher(root), TICKER_INDEX_REFERENCE_URL, { timeoutMs: 8000 })
       .then((value) => { if (value && typeof value === 'object') { root._aioTickerIndexReference = value; onLoaded?.(); } })
       .catch(() => {});
   }
@@ -175,7 +176,7 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
     const fy = String(own?.fiscalPeriodEnd || '').slice(0, 10);
     const stale = !!own?.quality?.stale;
     if (growth != null || margin != null) {
-      tiles.push(checkTile(doc, { name: '재무', chip: fy ? `FY${fy.slice(0, 4)}` : 'SEC', stale,
+      tiles.push(checkTile(doc, { name: '재무', chip: fy ? (fiscalYearLabel(fy) || 'SEC') : 'SEC', stale,
         value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,
         detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%` : null, fy ? `${fy} 마감` : null].filter(Boolean).join(' · ') }));
     } else if (fundamentalsState === 'loading') tiles.push(checkTile(doc, { name: '재무', chip: '불러오는 중', value: 'SEC 연간 공시', detail: '공시 요약을 불러오는 중입니다' }));

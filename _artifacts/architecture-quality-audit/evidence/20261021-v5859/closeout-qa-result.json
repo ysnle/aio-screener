@@ -1,0 +1,141 @@
+{
+  "startedAt": "2026-10-21T13:37:02.188Z",
+  "finishedAt": "2026-10-21T13:37:23.647Z",
+  "command": {
+    "exe": "node",
+    "args": [
+      "scripts/qa-runner.mjs",
+      "affected",
+      "--session",
+      "architecture-quality-20261021-v5859",
+      "--files",
+      "_artifacts/architecture-quality-audit-20261021-v5859/BROWSER.md,_artifacts/architecture-quality-audit-20261021-v5859/DECISION-QUALITY.md,_artifacts/architecture-quality-audit-20261021-v5859/DOMAIN-DELTA.md,_artifacts/architecture-quality-audit-20261021-v5859/HANDOFF.md,_artifacts/architecture-quality-audit-20261021-v5859/LATEST-DELTA-v5860.md,_artifacts/architecture-quality-audit-20261021-v5859/LEGACY-CORE.md,_artifacts/architecture-quality-audit-20261021-v5859/OFFICIAL-CROSSCHECK.md,_artifacts/architecture-quality-audit-20261021-v5859/ROOT-FOLLOWUP.md,_artifacts/architecture-quality-audit-20261021-v5859/UI-DELTA.md,_artifacts/architecture-quality-audit-20261021-v5859/VALIDATION.md,_artifacts/architecture-quality-audit-20261021-v5859/analyze.mjs,_artifacts/architecture-quality-audit-20261021-v5859/assemble.mjs,_artifacts/architecture-quality-audit-20261021-v5859/audit-ledger-review.md,_artifacts/architecture-quality-audit-20261021-v5859/browser-events.json,_artifacts/architecture-quality-audit-20261021-v5859/browser-inspector-observation.json,_artifacts/architecture-quality-audit-20261021-v5859/browser-inspector-positive-control.json,_artifacts/architecture-quality-audit-20261021-v5859/browser-inspector-positive-control.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-inspector-positive-control.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-home.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-home.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-ldos-dcf.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-ldos-dcf.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-library.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-library.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-macro.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-macro.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-market.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-market.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-portfolio.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-portfolio.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-screener.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-screener.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-themes.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-themes.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-ticker.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-phone-ticker.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-screener-after.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-screener-after.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-screener-before.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-screener-filtered.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-search-after-tab.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-search-after-tab.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-search-before.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-search-keyboard-observation.json,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-escape.json,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-inspector-closed.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-inspector-closed.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-inspector-open.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-inspector-open.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-library.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-library.txt,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-screener.png,_artifacts/architecture-quality-audit-20261021-v5859/browser-tablet-screener.txt,_artifacts/architecture-quality-audit-20261021-v5859/cache-identity-result.json,_artifacts/architecture-quality-audit-20261021-v5859/cache-input-review.json,_artifacts/architecture-quality-audit-20261021-v5859/capture.mjs,_artifacts/architecture-quality-audit-20261021-v5859/check-cache-inputs.mjs,_artifacts/architecture-quality-audit-20261021-v5859/closeout-qa.mjs,_artifacts/architecture-quality-audit-20261021-v5859/code-imports.json,_artifacts/architecture-quality-audit-20261021-v5859/coverage.json,_artifacts/architecture-quality-audit-20261021-v5859/domain-complete-probe.mjs,_artifacts/architecture-quality-audit-20261021-v5859/domain-complete-reading.tsv,_artifacts/architecture-quality-audit-20261021-v5859/domain-complete-result.json,_artifacts/architecture-quality-audit-20261021-v5859/domain-complete.md,_artifacts/architecture-quality-audit-20261021-v5859/domain-ledger.mjs,_artifacts/architecture-quality-audit-20261021-v5859/domain-probe-result.json,_artifacts/architecture-quality-audit-20261021-v5859/domain-probe.mjs,_artifacts/architecture-quality-audit-20261021-v5859/domain-reading.tsv,_artifacts/architecture-quality-audit-20261021-v5859/latest-delta-probe.mjs,_artifacts/architecture-quality-audit-20261021-v5859/latest-delta-result.json,_artifacts/architecture-quality-audit-20261021-v5859/legacy-core-hwm-repro.json,_artifacts/architecture-quality-audit-20261021-v5859/legacy-core-probe.json,_artifacts/architecture-quality-audit-20261021-v5859/legacy-core-reading.tsv,_artifacts/architecture-quality-audit-20261021-v5859/legacy-latest-repro.json,_artifacts/architecture-quality-audit-20261021-v5859/market-reading-result.json,_artifacts/architecture-quality-audit-20261021-v5859/module-graph.json,_artifacts/architecture-quality-audit-20261021-v5859/parse-ledger.json,_artifacts/architecture-quality-audit-20261021-v5859/prepare.mjs,_artifacts/architecture-quality-audit-20261021-v5859/probe-legacy-core.mjs,_artifacts/architecture-quality-audit-20261021-v5859/probe-tooling.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reading-ledger.json,_artifacts/architecture-quality-audit-20261021-v5859/reading-ledger.tsv,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-answer-visuals.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-boundaries.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-cache-identity.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-chart-fallback.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-csp-coverage.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-domain-contracts.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-gate-oracles.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-legacy-core-hwm.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-legacy-latest.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-market-reading.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-search-race.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-session-samples.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-sw-activation.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-ui-pages.mjs,_artifacts/architecture-quality-audit-20261021-v5859/reproduce-verification-helper.mjs,_artifacts/architecture-quality-audit-20261021-v5859/root-executions.json,_artifacts/architecture-quality-audit-20261021-v5859/root-reading.tsv,_artifacts/architecture-quality-audit-20261021-v5859/root-receipt.mjs,_artifacts/architecture-quality-audit-20261021-v5859/search-indicators.json,_artifacts/architecture-quality-audit-20261021-v5859/source-inventory.json,_artifacts/architecture-quality-audit-20261021-v5859/structural-analysis.json,_artifacts/architecture-quality-audit-20261021-v5859/tooling-probe.json,_artifacts/architecture-quality-audit-20261021-v5859/tooling-reading.tsv,_artifacts/architecture-quality-audit-20261021-v5859/tooling-review.md,_artifacts/architecture-quality-audit-20261021-v5859/ui-delta-repro.json,_artifacts/architecture-quality-audit-20261021-v5859/ui-delta-repro.mjs,_artifacts/architecture-quality-audit-20261021-v5859/ui-ledger.mjs,_artifacts/architecture-quality-audit-20261021-v5859/ui-reading.tsv",
+      "--no-cache"
+    ]
+  },
+  "ownedFiles": 110,
+  "artifactSyntax": [
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/analyze.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/assemble.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/capture.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/check-cache-inputs.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/closeout-qa.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/domain-complete-probe.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/domain-ledger.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/domain-probe.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/latest-delta-probe.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/prepare.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/probe-legacy-core.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/probe-tooling.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-answer-visuals.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-boundaries.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-cache-identity.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-chart-fallback.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-csp-coverage.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-domain-contracts.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-gate-oracles.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-legacy-core-hwm.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-legacy-latest.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-market-reading.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-search-race.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-session-samples.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-sw-activation.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-ui-pages.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/reproduce-verification-helper.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/root-receipt.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/ui-delta-repro.mjs",
+      "status": "PASS"
+    },
+    {
+      "path": "_artifacts/architecture-quality-audit-20261021-v5859/ui-ledger.mjs",
+      "status": "PASS"
+    }
+  ],
+  "exitCode": 1,
+  "scope": "explicit audit artifacts only; selected preflight is not full product or deployed certification"
+}

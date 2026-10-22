@@ -4,7 +4,7 @@
 // Exact symbol match only (P1339). The one rewrite is the documented class-share separator (BRK.B / BRK/B -> BRK-B,
 // the form the universe, quotes and SEC use). Company names are never resolved automatically (R663); since v57.83 a
 // name search offers listing candidates for the reader to choose from (searchUsListingNames), nothing more.
-import { loadJsonArtifact } from './artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
 
 export const US_LISTINGS_URL = './public-data/us-listings.json';
 export const US_LISTINGS_SCHEMA = 'us-listings.v1';
@@ -61,7 +61,7 @@ export async function loadUsListings({ fetch: fetchFn = null, force = false } = 
   if (!force && state.index && now - state.loadedAt < MAX_AGE_MS) return state.index;
   if (state.inFlight) return state.inFlight;
   if (!force && !state.index && now - state.failedAt < RETRY_AFTER_FAILURE_MS) return null;
-  const transport = fetchFn || (typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : null);
+  const transport = fetchFn || stableFetcher(globalThis);
   if (!transport) return state.index;
   state.inFlight = loadJsonArtifact(transport, US_LISTINGS_URL, { maxAgeMs: 0, force: true, maxBytes: MAX_BYTES, timeoutMs: 20_000 })
     .then((payload) => {

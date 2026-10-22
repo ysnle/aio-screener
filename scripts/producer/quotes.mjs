@@ -13,6 +13,8 @@ export const SYMBOLS = [
   '^TNX','^TYX','^FVX','^IRX',
   // 원자재·환율 (v50.40: GBPUSD/CNY/AUDUSD 추가 — fxbond 페이지 "—" unavailable 해소, 클라이언트 LIVE_SYMBOLS와 정합)
   'CL=F','BZ=F','GC=F','SI=F','DX-Y.NYB','KRW=X','EURUSD=X','JPY=X','GBPUSD=X','CNY=X','AUDUSD=X',
+  // 미국 지수 선물 (2026-10-21: 시황 해석의 증거 계층 — market-snapshot evidenceQuotes. 공개 시세 평면이 아니다, P715)
+  'ES=F','NQ=F',
   // 신용·핵심 ETF (breadth/리스크 입력)
   'HYG','LQD','TLT','SPY','QQQ','IWM','RSP','DIA','SMH','XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLU','XLRE','XLB','XLC',
   // 한국 지수

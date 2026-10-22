@@ -5,7 +5,7 @@
 // as growth rates, not index levels), the range under it uses the value's own format, the date names the period the
 // observation covers (월 "8월분", 분기 "26년 2분기", 주 "10/7 주", 일 "10/6"), and a series past its cadence's normal
 // delay carries a stale chip.
-import { buildCloseSeries, closeBasis } from '../briefing/market-read.js';
+import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { sessionPointBack } from './rates-fx.js';
 import { BRENT_WTI_SPREAD_HOLD_USD, brentWtiFromSeries, changeOverDays, MACRO_SIGNAL_RULES } from './macro-signals.js';

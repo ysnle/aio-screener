@@ -2198,7 +2198,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // ── domain/technical/follow-through.js (v57.87) ─────────────────────────────────────────────
 {
   const ft = await load('src/domain/technical/follow-through.js');
-  const conditions = await load('src/domain/screener/custom-conditions.js');
+  const conditions = { ...await load('src/domain/screener/custom-conditions.js'), ...await load('src/domain/screener/condition-text-parser.js') }; // v58.63 parser split
   const presentation = await load('src/domain/screener/row-presentation.js');
   // Pocket pivot: the last up close on more volume than any down close in the 10 sessions before it.
   const pcl = Array.from({ length: 30 }, (_, i) => 100 + (i % 2 ? -1 : 1));
@@ -2405,7 +2405,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const krxClose = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: 0 }, liveData: { XYZ: krxQuote(20) }, vix: null, now: quoteNow, closeOf: () => ({ price: 25, date: '2026-10-13' }) });
   if (krxOld.rows[0].value != null || krxSnap.rows[0].value != null || krxClose.rows[0].sourceKind !== 'completed-close') fail('v57.58: an old or snapshot quote must not value a holding, and a completed close keeps priority over a delayed quote');
   // v57.58 custom screener conditions: sentence parsing, MA order from distances, missing data never passes.
-  const custom = await load('src/domain/screener/custom-conditions.js');
+  const custom = { ...await load('src/domain/screener/custom-conditions.js'), ...await load('src/domain/screener/condition-text-parser.js') }; // v58.63 parser split
   const parsedCustom = custom.parseConditionText('5/10/20 정배열이면서 신고가 종목, PER 20 이하 반도체');
   if (parsedCustom.conditions.map((item) => item.id).sort().join() !== 'ma-short,new-high,pe-max' || parsedCustom.unknown !== '반도체') fail(`v57.58: custom condition parser, got ${JSON.stringify(parsedCustom)}`);
   const screenWords = custom.parseConditionText('52주 신고가 · 50일선 200일선 정배열');
@@ -4178,7 +4178,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const rows = [row(-5, 'before cut', 'https://a/1'), row(30, 'kept one', 'https://a/2'), row(60, 'in bundle', 'https://a/3?utm=x'),
     row(90, 'dup title', 'https://a/4'), ...Array.from({ length: 8 }, (_, i) => row(100 + i, `extra ${i}`, `https://b/${i}`))];
   const canonical = [{ title: 'other', link: 'https://a/3' }, { title: 'Dup  Title', link: 'https://c/9' }];
-  const picked = selectIntradayNews(rows, { cycleEndMs: end, canonical, nowMs: end + 6 * 3600000 });
+  const picked = selectIntradayNews(rows, { cycleEndMs: end, canonical, nowMs: end + 6 * 3600000, max: 6 });
   if (picked.length !== 6 || picked.some((item) => ['before cut', 'in bundle', 'dup title'].includes(item.title)) || picked[0].title !== 'extra 7') fail(`P1730 intraday slot selection wrong: ${picked.map((item) => item.title).join(',')}`);
   if (selectIntradayNews(rows, { cycleEndMs: NaN }).length || selectIntradayNews(null, { cycleEndMs: end }).length) fail('P1730 no bundle end or no rows must hide the slot');
   const newsPage = readFileSync(path.join(root, 'src/ui/pages/news.js'), 'utf8');
@@ -4212,8 +4212,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { summarizeValidation } = await load('src/ui/components/screener-validation.js');
   const sample = summarizeValidation([{ date: '2026-09-30', n: 800, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 } }, { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: -3.27, netHitRate: 33.3, transactionCostPct: 0.23, ic: { composite: -0.039 } }], { status: 'BLOCKED', predictiveValidation: 'not-established' });
   if (sample.wins !== 2 || sample.tone !== 'neutral' || sample.distinguishable !== false || !/아직 우연과 구별 안 됨\(표본 6회\)/.test(sample.undecided) || sample.series.length !== 2 || !/생존 편향/.test(sample.validation)) fail(`P1419/D11 a 6-rebalance record without |t|>=2 must read as undecided, not 뒤처짐: ${JSON.stringify(sample)}`);
-  const decided = summarizeValidation([{ date: '2026-10-01', n: 845, dates: 12, quantileSpreadNet: -3.27, netHitRate: 25, transactionCostPct: 0.23, ic: { composite: -0.039, compositeT: -2.4 } }], null);
-  if (decided.tone !== 'burden' || decided.distinguishable !== true) fail(`D11 12 rebalances with |t|>=2 keep the sign verdict: ${JSON.stringify(decided)}`);
+  // v58.63 (architecture audit A11): the verdict needs the spread's own per-rebalance t; an IC t alone no longer decides.
+  const decided = summarizeValidation([{ date: '2026-10-01', n: 845, dates: 12, quantileSpreadNet: -3.27, quantileSpreadNetByDate: [-3.1, -3.4, -2.9, -3.6, -3.0, -3.3, -3.2, -3.5, -2.8, -3.7, -3.3, -3.0], netHitRate: 25, transactionCostPct: 0.23, ic: { composite: -0.039, compositeT: -2.4 } }], null);
+  if (decided.tone !== 'burden' || decided.distinguishable !== true) fail(`D11 12 rebalances with a spread |t|>=2 keep the sign verdict: ${JSON.stringify(decided)}`);
+  const icOnly = summarizeValidation([{ date: '2026-10-01', n: 845, dates: 12, quantileSpreadNet: -3.27, netHitRate: 25, transactionCostPct: 0.23, ic: { composite: -0.039, compositeT: -2.4 } }], null);
+  if (icOnly.tone !== 'neutral' || icOnly.distinguishable !== false) fail(`v58.63 A11: an IC t without the spread series must not colour the spread: ${JSON.stringify(icOnly)}`);
   if (summarizeValidation([], null).available) fail('P1419 no history must not read as a result');
 }
 
@@ -5211,11 +5214,17 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const weights = { asOf: '2026-10-15', rows: [['AAA', 'Energy', 50], ['GOOGL', 'Communication Services', 25], ['GOOG', 'Communication Services', 20], ['ZZZ', 'Energy', 5]] };
   const est = (eps, trailing, up, down) => ({ asOf: '2026-10-18T00:00:00Z', fwd: { eps, up4w: up, down4w: down }, trailing: { eps: trailing } });
   const consensus = { rows: { AAA: est(5, 4, 3, 1), GOOGL: est(10, 8, 4, 0), GOOG: est(10, 8, 4, 0) } };
-  const rows = [{ sym: 'AAA', valuationPrice: 100 }, { sym: 'GOOGL', valuationPrice: 200 }, { sym: 'GOOG', valuationPrice: 200 }];
-  const index = buildIndexEarnings({ rows, weights, consensus, realYield10: 2 });
+  const rows = [{ sym: 'AAA', valuationPrice: 100, factorSessionDate: '2026-10-17' }, { sym: 'GOOGL', valuationPrice: 200, factorSessionDate: '2026-10-17' }, { sym: 'GOOG', valuationPrice: 200, factorSessionDate: '2026-10-17' }];
+  const indexNow = Date.parse('2026-10-20T00:00:00Z');
+  const index = buildIndexEarnings({ rows, weights, consensus, realYield10: 2, now: indexNow });
   if (!index.available || index.up !== 7 || index.down !== 1 || index.members !== 2) fail(`index earnings: a dual share class must count once: ${JSON.stringify(index)}`);
   if (Math.abs(index.earningsYield - 0.05) > 1e-9 || Math.abs(index.forwardPe - 20) > 1e-9 || Math.abs(index.erp - 3) > 1e-9) fail(`index earnings: weighted yield / P/E / ERP: ${index.earningsYield} ${index.forwardPe} ${index.erp}`);
-  if (buildIndexEarnings({ rows, weights: { rows: [...weights.rows, ['BIG', 'Energy', 100]] }, consensus, realYield10: 2 }).breadth !== null) fail('index earnings: under 80% of index weight must withhold the index figure');
+  if (buildIndexEarnings({ rows, weights: { rows: [...weights.rows, ['BIG', 'Energy', 100]] }, consensus, realYield10: 2, now: indexNow }).breadth !== null) fail('index earnings: under 80% of index weight must withhold the index figure');
+  // v58.63 (architecture audit F-DELTA-01): the stock card's age limits apply per member — an estimate older than 21 days
+  // leaves the coverage and a close older than 10 days leaves the forward P/E, the same inputs consensusView refuses.
+  const staleEstimates = buildIndexEarnings({ rows, weights, consensus, realYield10: 2, now: Date.parse('2026-11-20T00:00:00Z') });
+  const staleCloses = buildIndexEarnings({ rows: rows.map((row) => ({ ...row, factorSessionDate: '2020-01-02' })), weights, consensus, realYield10: 2, now: indexNow });
+  if (staleEstimates.available !== false || staleCloses.forwardPe != null || staleCloses.breadth == null) fail(`v58.63 F-DELTA-01 index earnings must drop expired estimates and closes: ${JSON.stringify({ staleEstimates, pe: staleCloses.forwardPe, breadth: staleCloses.breadth })}`);
 
   const { parseSecStatements } = await load('src/domain/fundamental/sec-statements.js');
   const fy = (val) => ({ val, end: '2025-12-31', filed: '2026-02-10', form: '10-K' });

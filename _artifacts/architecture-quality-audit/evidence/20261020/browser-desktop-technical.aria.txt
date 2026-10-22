@@ -1,0 +1,97 @@
+Browser tab: 2, Title: "차트 · AIO Screener", URL: "http://127.0.0.1:8795/#technical".
+0 AXWebArea 차트 · AIO Screener, URL: 127.0.0.1:8795/#technical
+	1 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/#main-content
+	2 container Description: 메인 네비게이션, ID: aio-navigation
+		3 container
+			4 text AIO Investment Screener
+		5 text 데일리
+		6 button 오늘 페이지
+		7 text 시장
+		8 button 시장 상태 페이지
+		9 button 거시 · 금리 페이지
+		10 button 테마 · 섹터 페이지
+		11 text 내 투자
+		12 button 종목 페이지
+		13 button 스크리너 페이지
+		14 button 포트폴리오 페이지
+		15 text 리서치
+		16 button 리서치 라이브러리 페이지
+		17 button 용어 사전 페이지
+		18 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			19 text 라이트 모드로 전환
+		20 text AI 도우미
+		40 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		22 text GPT-6 Luna · 공용 AI 연결
+		23 text 개인 AI 키 입력 없이 이용합니다.
+		24 button (collapsed) 연결 상태, Secondary Actions: Expand
+			25 text 연결 상태
+		26 button (collapsed) 보안 설정, Secondary Actions: Expand
+			27 text 보안 설정
+	28 container
+		29 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		37 container breadcrumb
+			41 text 종목 / 차트
+		42 text 종가
+		43 text 10/19 마감 · 시세 16종 · 실시간 관측 19종
+		33 text v58.50
+		34 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		35 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	36 container main-content
+		39 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			44 button 요약
+			45 button 차트
+			46 button 재무 공시
+			47 text AAPL
+			48 text Apple Inc.
+			49 button 다른 종목
+		50 container 차트, ID: page-technical
+			51 heading 차트, Value: 1, ID: page-technical-label
+				52 text 차트
+			53 text 이 종목의 추세·셋업과, 그 셋업이 놓인 시장 상태
+			54 container AAPL 일봉, ID: stock-chart-section
+				55 heading AAPL 일봉, Value: 2, ID: stock-chart-title
+					56 text AAPL 일봉
+				57 text 불러오는 중…
+				58 text 판정 대기
+				59 container Description: 봉 주기, ID: stock-chart-intervals
+					60 checkbox 5분, Value: 0
+					61 checkbox 15분, Value: 0
+					62 checkbox 30분, Value: 0
+					63 checkbox 1시간, Value: 0
+					64 checkbox 4시간, Value: 0
+					65 checkbox 일, Value: 1
+					66 checkbox 주, Value: 0
+					67 checkbox 월, Value: 0
+				68 image Description: 일봉 캔들 차트와 이동평균·피벗·거래량, ID: stock-chart-canvas
+				69 text ━ 8일 EMA ━ 21일 EMA ━ 50일선 ┅ 200일선 ━ 피벗(마지막 수축 고점) ▲▼ 수축 저점·8일선 이탈/회복·거래량 갭·변동성 압축·과열
+				70 container Description: 차트 근거, ID: stock-chart-evidence
+					71 container
+						72 text AAPL 일봉을 불러오는 중입니다 시세 제공처에서 일봉을 받아오는 중입니다.
+				73 text 셋업 상태는 공개된 기법(미너비니 VCP·추세 템플릿, 오닐 피벗 돌파, 와일더 ADX)으로 계산한 설명이며 매매 권고가 아닙니다.
+			74 container Description: 시장 상태 요약, ID: tech-regime-summary
+				75 text 부담 우세
+				76 text 10/19 미국 종가 기준 · 양호 0 · 중립 2 · 부담 4
+				77 button 시장 상태에서 근거 보기
+				78 container tech-regime-chips
+					79 text 추세 부담 시장 폭 부담 변동성 중립 금리 부담 신용 · 위험선호 부담 달러 · 원자재 중립
+					80 text 참고 · 환율(원·엔) 중립
+			81 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				82 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-technical-title
+					83 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				84 content list
+					85 container
+						86 text 속지 말 것 거래량 없는 돌파 가격이 저항선을 넘어도 거래량이 평소보다 늘지 않으면 참여가 얇은 돌파라 다시 밀려 내려오기 쉽습니다. 왜: 돌파의 힘은 새로 사려는 사람의 수에서 나오고, 그 수는 거래량으로 드러납니다.
+						87 button 거래량 없는 돌파 — 리서치 라이브러리에서 개념 배우기
+					88 container
+						89 text 속지 말 것 이미 멀리 달아난 뒤의 진입 평균선에서 평소 변동폭의 여러 배만큼 떨어진 뒤에는 작은 되돌림에도 손실 폭이 커집니다. 좋은 종목이어도 늘어난 자리는 좋은 자리가 아닐 수 있습니다. 왜: 가격은 평균선 쪽으로 되돌아가려는 경향이 있어, 멀어질수록 되돌림의 크기도 커집니다.
+						90 button 이미 멀리 달아난 뒤의 진입 — 리서치 라이브러리에서 개념 배우기
+					91 container
+						92 text 전략 · 기법 큰 흐름이 작은 흐름을 거른다 주봉이 내려가는 중의 일봉 돌파는 큰 흐름을 거스르는 신호라 실패가 잦습니다. 일봉 신호는 주봉 방향과 같을 때 더 믿을 만합니다. 왜: 더 긴 시간대에는 더 많은 참여자의 결정이 쌓여 있어, 짧은 시간대의 신호를 이기는 경우가 많습니다.
+						93 button 큰 흐름이 작은 흐름을 거른다 — 리서치 라이브러리에서 개념 배우기
+			94 button (collapsed) 한국 시장 — 코스피·코스닥 추세와 한국 종목 (한국 종가 기준) 펼치기, Secondary Actions: Expand
+				95 text 한국 시장 — 코스피·코스닥 추세와 한국 종목 (한국 종가 기준)
+				96 text 펼치기
+			97 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				98 text 데이터 출처
+
+The focused UI element is 51 heading 차트, Value: 1, ID: page-technical-label

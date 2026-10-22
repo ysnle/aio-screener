@@ -1,0 +1,22 @@
+{
+  "version": "v58.63", "date": "2026-10-22",
+  "p": {
+    "title": "게이트 오라클 결함: 결함을 재현한 입력에서도 통과하던 QA 러너·원장·CSP·접근성·추적·생산자 게이트",
+    "symptom": "qa-runner 캐시 지문이 import한 파일을 보지 않아 의존 모듈만 바뀌면 이전 통과를 재사용했고(A06), 실패한 게이트를 다시 요청해도 캐시 통과를 썼으며(A25), 없는 게이트 id는 조용히 0개 실행으로 끝났다(A26). 원장 게이트는 R 번호 결손을 CHANGELOG 인용에서 보지 못했고(A14), record-fix는 'v59' 같은 주 버전을 거절했다(A27). CSP 래칫은 index.html만 셌고(C14, 실제 210건), 접근성 게이트는 select의 옵션 목록을 이름으로 읽고 80건 뒤 위반을 잘랐다(C1). 추적 게이트는 node:assert·조건 먼저 check 메시지를 보지 않았고(C4), 생산자·지식 게이트는 0건 필수·검증 안 된 시세(C7), 매니페스트 원복 누락(C6), unitId 일대일(A22), 시드 충돌(A23), 미해결 범주(A24)를 통과시켰다. 드라이버 expectText는 숨은 텍스트로 통과했고(C10) 워크플로 마커는 충돌 커밋에도 기록됐다(A21).",
+    "root_cause": "게이트를 만들 때 막으려는 결함이 실제로 그 게이트를 실패시키는지(음성 대조)를 확인하지 않았다.",
+    "fix": "import 폐포 지문, 실패 게이트 캐시 무효·삭제, 미해결 id exit 2, CHANGELOG R 인용 포함 최대 R, 주 버전(v59)도 받는 버전 형식, CSP는 js/·src/ 전체(기준 450→210), 접근성 이름 계산·전체 판정 뒤 표본, 추적 게이트 메시지 호출·무메시지 래칫, 생산자 health required>0·validateMarketSnapshot, 매니페스트 원복, unitId 일대일, 충돌 실패, 미해결 범주만 거절, checkVisibility, collision 시 마커 미기록. 텍스트 고정 단언(P789·P790·P797–P799·P831·P859)은 행동 단언만 남기고 제거(C3).",
+    "violated_rule": "R712 게이트 지표는 서식 변경으로 만족되지 않는다",
+    "prevention": "ci-qa-runner-behavior-check A25·A26 사례(HEAD 러너로 음성 대조 실패 확인), ci-record-fix-check v99 사례, ci-ledger-integrity R719 삭제 음성 대조.",
+    "verification": "qa-runner-behavior·record-fix-check(78)·ledger-integrity·csp(210/210)·architecture-contract·premise PASS. 접근성·브라우저 게이트는 실행 안 함."
+  },
+  "r": {
+    "title": "게이트는 자신이 막는 결함을 재현한 입력에서 실패함을 보인 뒤에만 통과 근거가 된다",
+    "rule": "새 게이트·단언이나 게이트 수정은 (1) 막으려는 결함을 재현한 입력(또는 수정 전 코드)에서 실패하고 (2) 올바른 입력에서 통과함을 함께 보인다. 측정 대상 집합이 비었거나 일부만 읽히면(0개 파일, 0개 필수 항목, 잘린 표본) 통과가 아니라 실패다. 실패한 게이트를 다시 요청하면 캐시 통과를 쓰지 않으며, 캐시 지문은 그 게이트가 읽는 모든 파일(import 폐포 포함)을 덮는다.",
+    "validation": "node scripts/ci-qa-runner-behavior-check.mjs; node scripts/ci-record-fix-check.mjs; node scripts/ci-architecture-audit-regression-fixture.mjs (각 반례에 양성 대조)"
+  },
+  "qa": [{ "id": "QA-ARCH-AUDIT-07", "text": "{P}/{R}: 실패한 게이트 재요청은 캐시를 쓰지 않고, 없는 게이트 id는 exit 2, 의존 모듈 변경은 캐시 지문을 바꾸며, CSP 래칫은 js/·src/ 전체를 센다.", "verify_by": "node scripts/ci-qa-runner-behavior-check.mjs; node scripts/ci-csp-ratchet-check.mjs", "done": true }],
+  "qa_section": "아키텍처 품질 감사 v58.63",
+  "changelog": ["**게이트 오라클 ({P}/{R}):** QA 러너 import 지문·실패 캐시·미해결 id, 원장 R 결손, record-fix 주 버전, CSP 전체 집계(210), 접근성 이름·표본, 추적 게이트 메시지, 생산자·지식 게이트, 드라이버 가시성, 충돌 마커를 고치고 텍스트 고정 단언을 행동 단언으로 줄였다(A06, A14, A21–A27, C1–C7, C10, C14)."],
+  "note": "아키텍처 품질 감사(Codex) 전 항목 재검증·구조 수정 + 미점검 영역 확장 점검. 로컬 검증; commit/push/deploy 미실행, Worker 재배포 필요(SEC01).",
+  "status": null
+}

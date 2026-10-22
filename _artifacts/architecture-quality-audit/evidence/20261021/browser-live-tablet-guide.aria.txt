@@ -1,0 +1,238 @@
+Browser tab: 1, Title: "도움말 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/?view=domain#guide".
+0 AXWebArea 도움말 · AIO Screener, URL: ysnle.github.io/aio-screener/?view=domain#guide
+	1 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/?view=domain#main-content
+	2 container
+		3 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		102 container breadcrumb
+			105 text 도움말 / 화면 안내
+		4 text 종가
+		104 text 10/20 마감 · 시세 16종 · 실시간 관측 545종
+		7 text v58.52
+		8 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		9 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	106 container 도움말, ID: page-guide
+		107 heading 도움말, Value: 1, ID: page-guide-label
+			108 text 도움말
+		109 text 화면 안내 · 판단 기준 · 주의사항 · 용어
+		110 search text field (settable) Description: 설명서 검색, ID: guide-search-input
+		111 button 검색
+		112 button 메뉴 지도
+		113 button 판정 기준표
+		114 button 데이터 출처
+		115 button 유의사항
+		116 button FAQ
+		117 button 용어 사전
+		118 container 메뉴 지도, ID: guide-screens
+			119 heading 메뉴 지도, Value: 2, ID: guide-screens-title
+				120 text 메뉴 지도
+			121 container guide-screen-cards
+				122 container
+					123 heading 오늘, Value: 3
+						124 text 오늘
+					125 text 오늘 시장은 어떤 상태이고, 무엇이 달라졌나?
+					126 button 대시보드
+					127 button 브리핑
+					128 button 뉴스
+				129 container
+					130 heading 시장 상태, Value: 3
+						131 text 시장 상태
+					132 text 지금 주식시장의 바탕(추세·참여·변동성·금리·신용·유가와 달러)은 우호적인가, 부담인가?
+					133 button 국면 판정
+					134 button 시장 폭
+					135 button 투자 심리
+				136 container
+					137 heading 거시 · 금리, Value: 3
+						138 text 거시 · 금리
+					139 text 경기·물가·금리·환율이 어느 방향으로 움직이고, 그것이 주가에 어떻게 전달되나?
+					140 button 거시 경제
+					141 button 금리 · 환율
+				142 container
+					143 heading 테마 · 섹터, Value: 3
+						144 text 테마 · 섹터
+					145 text 어떤 산업·테마의 가격이 시장보다 강하고, 그 안에서 누가 앞서나?
+					146 button 테마 · 섹터
+				147 container
+					148 heading 종목, Value: 3
+						149 text 종목
+					150 text 이 회사는 어떤 회사이고, 차트는 어떤 상태인가?
+					151 button 요약
+					152 button 차트
+					153 button 재무 공시
+				154 container
+					155 heading 스크리너, Value: 3
+						156 text 스크리너
+					157 text 조건에 맞는 종목은 무엇이고, 그 순위는 과거에 실제로 통했나?
+					158 button 스크리너
+				159 container
+					160 heading 포트폴리오, Value: 3
+						161 text 포트폴리오
+					162 text 내 보유 종목의 비중과 위험은 어떤가?
+					163 button 포트폴리오
+				164 container
+					165 heading 리서치 라이브러리, Value: 3
+						166 text 리서치 라이브러리
+					167 text 개념의 정의와 전달 경로, 산업의 수익 구조, 운용사의 방식과 13F에 보이는 것은 무엇인가?
+					168 button 개념·분석
+					169 button 산업 지도
+					170 button 대가 보유 종목
+		171 container 판정 기준표 시장 상태 · 투자 심리 · 거시 · 금리 · 환율이 함께 쓰는 기준
+			172 heading 판정 기준표 시장 상태 · 투자 심리 · 거시 · 금리 · 환율이 함께 쓰는 기준, Value: 2, ID: guide-rules-title
+				173 text 판정 기준표 시장 상태 · 투자 심리 · 거시 · 금리 · 환율이 함께 쓰는 기준
+			174 container guide-methodology
+				175 text 양호 중립 부담 판정 보류 판정 기준은 관행값이며 예측력이 검증된 값이 아닙니다 · 기준일 칩은 관측일 · 상위 N%는 같은 조건 안의 상대 위치 · 시장 판정은 미국 정규장 종가 기준
+				176 container 자료 표 가로 스크롤
+					177 table 도움말 data table 6
+						178 row
+							179 cell
+								180 text 영역
+							181 cell
+								182 text 지표
+							183 cell
+								184 text 양호
+							185 cell
+								186 text 부담
+							187 cell
+								188 text 근거
+						189 container guide-rules-table
+							190 row
+								191 cell
+									192 text 시장 상태
+								193 cell
+									194 text 추세 (S&P 500)
+								195 cell
+									196 text 오르는 50일선보다 1% 이상 위 · 50일선 > 200일선 (한 번 양호면 50일선 아래로 마감하기 전까지 유지, 그 밖의 ±1% 안은 중립)
+								197 cell
+									198 text 200일선보다 1% 넘게 아래 또는 하락하는 50일선보다 1% 넘게 아래
+								199 cell
+									200 text 이동평균 추세
+							201 row
+								202 cell
+									203 text 시장 상태
+								204 cell
+									205 text 시장 폭 (50·200일선 위 종목 비율)
+								206 cell
+									207 text 둘 다 60% 이상
+								208 cell
+									209 text 하나라도 40% 미만
+								210 cell
+									211 text 참여 폭
+							212 row
+								213 cell
+									214 text 시장 상태
+								215 cell
+									216 text 변동성 (VIX · VIX÷3개월 VIX)
+								217 cell
+									218 text VIX 18 미만 · 비율 0.95 미만
+								219 cell
+									220 text VIX 25 이상 또는 비율 1 이상 또는 5일 +25%
+								221 cell
+									222 text 기간 구조 역전
+							223 row
+								224 cell
+									225 text 시장 상태 · 금리
+								226 cell
+									227 text 10년물 20일 변화
+								228 cell
+									229 text −25bp 이하
+								230 cell
+									231 text +25bp 이상 또는 1년 범위 90% 위에서 상승
+								232 cell
+									233 text 할인율
+							234 row
+								235 cell
+									236 text 시장 상태 · 신용
+								237 cell
+									238 text 하이일드 스프레드 (ICE BofA)
+								239 cell
+									240 text 350bp 미만 · 5일 축소
+								241 cell
+									242 text 450bp 이상 또는 5일 +25bp
+								243 cell
+									244 text 신용 스트레스
+							245 row
+								246 cell
+									247 text 시장 상태
+								248 cell
+									249 text 유가 · 달러 (20일)
+								250 cell
+									251 text WTI -5% 이하 · 달러 하락
+								252 cell
+									253 text WTI +10% 또는 1년 범위 85% 또는 달러 +2%
+								254 cell
+									255 text 물가·금융 여건
+							256 row
+								257 cell
+									258 text 한국 참고
+								259 cell
+									260 text 원/달러 · 엔/달러 (20일)
+								261 cell
+									262 text 원/달러 −2% 이하
+								263 cell
+									264 text 원/달러 +2% 또는 엔 3% 이상 강세
+								265 cell
+									266 text 2024년 8월 엔 캐리 청산
+							267 row
+								268 cell
+									269 text 거시 · 성장
+								270 cell
+									271 text Sahm 지표 · 일자리 3개월 평균
+								272 cell
+									273 text Sahm 0.3%p 미만 · 10만 명 이상
+								274 cell
+									275 text Sahm 0.5%p 이상 또는 3개월 평균 감소
+								276 cell
+									277 text Sahm (2019)
+							278 row
+								279 cell
+									280 text 거시 · 물가
+								281 cell
+									282 text 근원 PCE (전년 대비 · 3개월 속도)
+								283 cell
+									284 text 2.5% 이하 · 속도 둔화
+								285 cell
+									286 text 3% 이상 또는 속도 +0.5%p 재가속
+								287 cell
+									288 text FOMC 목표 2%
+							289 row
+								290 cell
+									291 text 거시 · 정책
+								292 cell
+									293 text 2년물 − 기준금리 · 실질 기준금리
+								294 cell
+									295 text −0.25%p 이하
+								296 cell
+									297 text +0.25%p 이상 또는 실질 2% 이상
+								298 cell
+									299 text FOMC 장기 금리 전망
+							300 row
+								301 cell
+									302 text 투자 심리
+								303 cell
+									304 text CNN 공포·탐욕 (참고 지표)
+								305 cell
+									306 text 판정에 넣지 않음
+								307 cell
+									308 text 판정에 넣지 않음
+								309 cell
+									310 text 참고 구간: 극단 공포 <25 · 공포 <45 · 탐욕 >55 · 극단 탐욕 >75
+		311 button (collapsed) 데이터 출처 +, Secondary Actions: Expand
+			312 text 데이터 출처
+			313 text +
+		314 button (collapsed) 반드시 읽어야 할 유의사항 +, Secondary Actions: Expand
+			315 text 반드시 읽어야 할 유의사항
+			316 text +
+		317 button (collapsed) 자주 묻는 질문 (FAQ) +, Secondary Actions: Expand
+			318 text 자주 묻는 질문 (FAQ)
+			319 text +
+		320 button (collapsed) AIO가 알려 주는 것과 아닌 것, Secondary Actions: Expand
+			321 text AIO가 알려 주는 것과 아닌 것
+		322 button (collapsed) 투자 배경지식 +, Secondary Actions: Expand
+			323 text 투자 배경지식
+			324 text +
+		325 button (collapsed) 차트 셋업 방법론 — Qullamaggie · Minervini (저자 방법론 요약) +, Secondary Actions: Expand
+			326 text 차트 셋업 방법론 — Qullamaggie · Minervini (저자 방법론 요약)
+			327 text +
+		328 button (collapsed) 이용 정책 · 개인정보 · 문의, Secondary Actions: Expand
+			329 text 이용 정책 · 개인정보 · 문의
+
+The focused UI element is 0 AXWebArea 도움말 · AIO Screener, URL: ysnle.github.io/aio-screener/?view=domain#guide

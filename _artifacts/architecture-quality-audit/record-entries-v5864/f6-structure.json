@@ -1,0 +1,13 @@
+{
+  "version": "v58.64", "date": "2026-10-23",
+  "changelog": [
+    "**구조 개편 (v58.64):** 종가 시계열·세션 도우미를 briefing/market-read.js에서 domain/market/close-series.js로 옮기고(재수출 유지), 이것만 쓰던 도메인 모듈 10개는 briefing 의존을 끊었다(DOMAIN #8). ai·domain·data가 src/ui를 import하면 실패하는 경계 게이트를 더했다(M2 — 현재 위반 0건). 릴레이 쿼터 수정(P1967)에 '전송 뒤 본문 실패 시 예약 유지' 회귀 검사를 더했고 HEAD Worker로 실패를 확인했다. 감사 QA-ARCH-AUDIT-06의 레거시 흐름(관심목록·한국 테마 필터·포커스·실적 주간)을 로컬 브라우저로 확인했다."
+  ],
+  "qa": [
+    { "id": "QA-ARCH-AUDIT-06", "text": "P1965: 티커 확인 중 목록을 바꿔도 원래 목록에만 추가되고, 한국 테마 카드 갱신 뒤 필터·포커스가 유지되며, 늦게 끝난 위험 계산은 바뀐 보유 화면을 덮지 않는다. v58.64 로컬 브라우저 확인.", "verify_by": "node .claude/skills/verify-aio/scripts/verify-aio.mjs", "done": true, "update": true },
+    { "id": "QA-ARCH-AUDIT-08", "text": "P1967: 상류로 보낸 뒤 실패한 호출은 쿼터 예약을 돌려받지 않고, 보내기 전 실패만 돌려받는다. v58.64 오프라인 회귀 검사 추가(라이브는 Worker 재배포 후).", "verify_by": "node scripts/ci-worker-relay-check.mjs", "done": true, "update": true }
+  ],
+  "qa_section": "아키텍처 감사 후속 v58.64",
+  "note": "아키텍처 감사 후속: 결정 항목 권장안 적용(SCR05·M1·M2·I02·DOMAIN #8), 유사 결함 클래스 전수 확인·수정, 레거시 화면 브라우저 확인. 로컬 검증; commit/push/deploy 미실행, Worker 재배포는 push 후.",
+  "status": null
+}

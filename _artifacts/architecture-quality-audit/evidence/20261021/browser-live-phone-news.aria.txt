@@ -1,0 +1,173 @@
+Browser tab: 1, Title: "뉴스 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#market-news".
+1 AXWebArea 뉴스 · AIO Screener, URL: ysnle.github.io/aio-screener/#market-news
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	29 container
+		30 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		33 text 종가
+		405 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			406 text 10/20 마감 · 시세 16종 · 실시간 관측 17종 10/20 마감
+		35 text v58.52
+		36 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		37 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	38 container main-content
+		39 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			407 button 대시보드
+			408 button 브리핑
+			409 button 뉴스
+		410 container 뉴스, ID: page-market-news
+			411 heading 뉴스, Value: 1, ID: page-market-news-label
+				412 text 뉴스
+			413 text 직전 수집본 · 10/19 08:00 ~ 10/20 08:00 KST 기사 — 이번 10/21 08:00 수집본은 아직 없습니다
+			414 button Description: 새로고침, ID: news-refresh-btn
+			415 text 24시간 수집
+			416 text 36
+			417 text 23개 출처
+			418 text 조건에 맞는 기사 36건 · 같은 사건 묶은 뒤 31건 중 12건 표시 · 중요 사건 5건 · 필터 없음
+			419 text 수집 지연 · 마지막 수집 10/21 07:40
+			420 container 08:00 이후 속보 · 잠정 10/20 08:00 이후 헤드라인 · 다음 08:00 수집본 전까지
+				421 heading 2
+				422 content list
+					423 container
+						424 link yna.co.kr/view/AKR20261021013100091
+					425 container
+						426 link news.google.com/rss/articles/CBMiZEFVX3lxTFBleUVzUDRycy1NVnFrck9XZ0VKQlVYOWRBQ2hlYUI0RDRGNGtBMXZVbFMycHVIWmlNRzRBa29YWHNHNXRvaEc5YzVCLWl5ejFqaC1ZeFJHb0R4VERpUDNrRmV3dVY?oc=5
+					427 container
+						428 link news.google.com/rss/articles/CBMitwFBVV95cUxQZUhvSE55TG9UNnhIY2FfRTNHWFhUNC0xU3pReEdrUWg5VmctM3VrTGpfNEZJT004VVpvdWE2WVBKTDVpMWtQZl9pX0JBZEI1QWY0VGtEN1FoLWNPMXpoaHdFYWlEMXItVWI2YzdFRHJaRnB5QUV4bHMtbHBJQ3h0dDdVXy1EcTN5TW54YmF0eG1iSnNMaUZpUkFUMXBQY2tuSUNROVk1eWdsZlpiSFJnakdDNzNTWXM?oc=5
+					429 container
+						430 link news.google.com/rss/articles/CBMivgFBVV95cUxPdExJMmgyOWNFMk45X3Q4S0dZMHBiMDRCdXcxaUtfV2JDczhSX3NRYmJPek14VjRfOGF0WWJjU3VlUHQ4SzAtakRQYWZDYTVTaWs3bC1LOUdFcmU0Z2o4NER2UFJHNkJ1ZnFtdUxfMnFKY0VsTjR3c2w1Yy1MNTFaU09odEpVYXY1T3FMTmF0T2s1LVpmUU1JZ21sR0ZUMkZQUExMcUdLbVdPYlJmeS16d28ybGVreWxINXg4b29B?oc=5
+					431 container
+						432 link news.google.com/rss/articles/CBMipwFBVV95cUxQdjFnVTgwSHVqSHFzTS1uWmpTdDMxWGpBaDVneE5JVXJkOW1OUXU0aDdjLWJXRkNYbUFFTno5ZXZ2WktKUWZLaVVROTFwQ3Y2SzVkRWhsOEs0UDlGei0tclJjWWRvSU1vdlEzWEFjTnNMZTdhY2tfcUhuS2FET1VMSzE2Y0ZaelYzU09SS0tra1BERk1xMm50YXN3WkVNUXhBYW1hRDZVaw?oc=5
+					433 container
+						434 link yna.co.kr/view/AKR20261020133400008
+			435 container 중요 뉴스 주제별 핵심 · 10/20 08:00 KST까지 24시간, ID: news-important
+				436 heading 중요 뉴스 주제별 핵심 · 10/20 08:00 KST까지 24시간, Value: 2, ID: news-important-title
+					437 text 중요 뉴스 주제별 핵심 · 10/20 08:00 KST까지 24시간
+				438 container news-important-list
+					439 container
+						440 button
+						441 link …
+						442 button (collapsed) Secondary Actions: Expand
+					443 container
+						444 link news.google.com/rss/articles/CBMisAFBVV95cUxPX21NdVRPSTJNSUZiZ201OEo3U1Q0Rk9XVFJGaHVEWG1pczBSZzNpZVI2UXEwdEljb0F1UjJTUFRQOXBSTF9zQTNtRnhUcjBKRG9pVktwU1JXeWNiS0ZSZjBZaUhhakJEaU5YbEpBWG14MkUwTjhLX1RzU2NnY2ZvRER6VkVvNUVzemcwU0JzSWE4SmMzM3loLUdFR2JsMG9BbE9hS0ZrZFRGRVUtQ3BYYw?oc=5
+						445 button (collapsed) Secondary Actions: Expand
+					446 container
+						447 link …
+						448 button (collapsed) Secondary Actions: Expand
+					449 container
+						450 link …
+						451 button (collapsed) Secondary Actions: Expand
+					452 container
+						453 link …
+						454 button (collapsed) Secondary Actions: Expand
+			455 text 전체 뉴스 정렬:
+			456 button 최신순, ID: sort-time-btn
+			457 button 중요도순, ID: sort-score-btn
+			458 text 번역·해석 중...
+			459 container Description: 뉴스 필터, ID: news-filter-row
+				460 container Description: 국가, ID: news-country-chips
+					461 checkbox 전체 국가, Value: 1
+					462 checkbox 미국, Value: 0
+					463 checkbox 한국, Value: 0
+					464 checkbox 아시아, Value: 0
+					465 checkbox 유럽, Value: 0
+					466 checkbox 텔레그램, Value: 0
+				467 container Description: 주제, ID: news-topic-chips
+					468 checkbox 전체 주제, Value: 1
+					469 checkbox 기업, Help: 특정 기업이 기사의 당사자인 뉴스(실적·애널리스트 의견 포함), Value: 0
+					470 checkbox 거시, Value: 0
+					471 checkbox 주식, Value: 0
+					472 checkbox 반도체·AI, Value: 0
+					473 checkbox 지정학, Value: 0
+					474 checkbox 에너지, Value: 0
+					475 checkbox 채권·금리, Value: 0
+					476 checkbox 외환, Value: 0
+					477 checkbox 크립토, Value: 0
+			478 container live-news-feed
+				479 container
+					480 link …
+					481 button (collapsed) Secondary Actions: Expand
+				482 container
+					483 link …
+					484 button (collapsed) Secondary Actions: Expand
+				485 container
+					486 button
+					487 link …
+					488 button (collapsed) Secondary Actions: Expand
+				489 container
+					490 link …
+					491 button (collapsed) Secondary Actions: Expand
+				492 container
+					493 link …
+					494 button (collapsed) Secondary Actions: Expand
+				495 container
+					496 link …
+					497 button (collapsed) Secondary Actions: Expand
+				498 container
+					499 link …
+					500 button (collapsed) Secondary Actions: Expand
+				501 container
+					502 link …
+					503 button (collapsed) Secondary Actions: Expand
+				504 container
+					505 link …
+					506 button (collapsed) Secondary Actions: Expand
+				507 container
+					508 link …
+					509 button (collapsed) Secondary Actions: Expand
+				510 container
+					511 button
+					512 button
+					513 button
+					514 button
+					515 link …
+					516 button (collapsed) Secondary Actions: Expand
+				517 container
+					518 button
+					519 button
+					520 button
+					521 link …
+					522 button (collapsed) Secondary Actions: Expand
+			523 container Help: 아래 사건 31건 중 아직 표시하지 않은 사건을 펼칩니다., ID: news-load-more-wrap
+				524 text 기사 36건 · 아래 사건 31건 중 12건 표시
+				525 button 12개 더 보기
+			526 text 채널 소식
+			527 container tg-feed-market-news
+				528 text 정상 수신 · 텔레그램 공개 채널 4곳 · 지난 24시간 · 글마다 원문 링크
+				529 text 텔레그램 전체 피드
+				530 text 10-20 · 12건 · 수집 당시 24시간 자료
+				531 link Value: …, Description: 반도체 @HANAchina · 중국·신흥국 · 10-20 >>인텔 CEO 립부 탄: TSMC 추격하려면 수년간 투자 필요… “중국과 기술 격차 크지 않다” (대만경제일보) •인텔 CEO 립부 탄은 대규모 구조조정이 약 80% 완료됐지만, 파운드리 사업을 재… TSM SK하이닉스
+				532 link Value: …, Description: 실적 @bornlupin · 한국 반도체·증권사 자료 · 10-20 한국투자證 "비나텍, 블룸에너지발 수주 확대…목표가 11만2000원 상향 " 한국투자증권은 20일 비나텍에 대해 예상보다 빠른 증설로 슈퍼커패시터 사업의 성장 속도가 빨라질 것이라고 분석 했다… BE
+				533 link Value: …, Description: 한국장 @HANAchina · 중국·신흥국 · 10-20 •대만 달러 환율이 32.5대만달러 선을 위협받자, 대만 중앙은행은 이례적인 구두개입과 장 후반 시장 개입을 단행해 종가를 32.4대만달러(-0.33%)로 방어 •글로벌 기술주 조정 여파와 외국인 대규모 자금...
+				534 link Value: …, Description: 실적 @aetherjapanresearch · 일본·아시아 반도체 · 10-20 261020_SK Hynix 3Q26 Preview: Expect Solid 3Q Earnings despite FX Headwinds - CITI [Key Takeaways] (1) 부정적인 FX 및... SK하이닉스
+				535 link Value: …, Description: 시장소식 @HANAchina · 중국·신흥국 · 10-20 >>S&P 글로벌 경고: 미국 빅테크의 AI 관련 부채, 알려진 규모를 넘어설 가능성 •S&P 글로벌의 디지털 인프라 부문 책임자는 미국 하이퍼스케일 클라우드 서비스 업체들이 상당한 규…
+				536 link Value: …, Description: 시장소식 @insidertracking · 미국 속보 · 10-20 ** 2027년, 빅테크 현금흐름 '최악의 해' 온다(MS) 모건스탠리에 따르면 하이퍼스케일러(대형 클라우드 기업)와 네오클라우드(코어위브 같은 AI 전문 클라우드)의 FCF은 2027년에 가장 큰 마이너스를...
+				537 link Description: 신용·자금 @HANAchina · 중국·신흥국 · 10-20 •CITI : 인도네시아는 MSCI 등급 하향을 피하기 위해 지속적으로 법 집행을 강화해야 함, Value: …
+				538 link Value: …, Description: 반도체 @HANAchina · 중국·신흥국 · 10-20 >>엔비디아가 지원하는 Nscale, Anthropic과 450억 달러 규모 대형 계약 협상 보도에 IPO 전망 개선 •계약이 성사되면 양사의 협력 규모는 총 900억 달러에 달할 전망임. 이번 협상… NVDA
+				539 link Value: …, Description: 반도체 @bornlupin · 한국 반도체·증권사 자료 · 10-20 엔스케일(Nscale), 앤트로픽(Anthropic)과 450억 달러 규모의 신규 AI 클라우드 계약 논의 중 ​신규 계약 추진: 데이터센터 개발업체 엔스케일(Nscale)이 AI 챗봇... NVDA
+				540 link Value: …, Description: 신용·자금 @HANAchina · 중국·신흥국 · 10-20 >>피치, 미국 국가신용등급 강등 위험 지목… 선진국 시장 부채 이자 3.3조 달러 돌파 •2026 회계연도 미국 연방정부 재정적자는 1조 9,900억 달러로 전년 대비 12% 확대됐으며, 순이자 지…
+				541 link Value: …, Description: 반도체 @HANAchina · 중국·신흥국 · 10-20 >>엔비디아, 중대한 돌파구 발표: 8,000개 이상의 GPU 활용해 기록적인 양자 내결함성 컴퓨팅 시뮬레이션 구현, 필요한 물리적 큐비트 90% 감소 •엔비디아 연구진은 엔비디아 GH200 GPU... NVDA
+				542 link Value: …, Description: 반도체 @insidertracking · 미국 속보 · 10-20 10월 20일 미주인 브리핑 • 나스닥 1.11% 상승 · 반도체 8거래일 만에 반등 • 엔비디아 서버 CPU 시장 진출 · AI 사업 확장 • 앤트로픽 최대 450억 달러 클라우드 계약 협상 • 아마존... NVDA AMZN
+			543 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				544 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-market-news-title
+					545 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				546 content list
+					547 container
+						548 text 속지 말 것 하루 반등·하루 급락 하루의 큰 움직임은 흐름이 바뀌었다는 증거가 되기 어렵습니다. 약세장에서도 큰 반등은 자주 나오고, 강세장에서도 큰 하락이 섞입니다. 근거: 지금 시장 흐름은 '소수 주도 → 동반 약세 전환 확인 중'입니다 — 하루 반등만으로는 이 흐름이 끝났는지 알 수 없습니다.
+						549 button 하루 반등·하루 급락 — 리서치 라이브러리에서 개념 배우기
+					550 container
+						551 text 속지 말 것 헤드라인과 확인 안 된 소문 자극적인 헤드라인과 출처가 불분명한 소문은 빠르게 퍼지지만 대부분 가격에 오래 남지 않습니다. 공식 발표·실제 수치로 확인될 때까지는 판단의 근거가 아니라 확인할 거리입니다. 왜: 확인되지 않은 정보로 움직이면 정보가 사실로 밝혀지기 전의 변동만 떠안게 됩니다.
+						552 button 헤드라인과 확인 안 된 소문 — 리서치 라이브러리에서 개념 배우기
+					553 container
+						554 text 속지 말 것 뉴스로 생긴 갭 뉴스로 크게 뛰거나 빠진 갭은 첫날 움직임이 과장되기 쉽습니다. 갭이 며칠 동안 메워지지 않고 유지되는지가 진짜 변화인지 가르는 기준입니다. 왜: 첫 반응은 감정과 포지션 정리가 섞여 있고, 며칠 뒤에야 새 정보가 가격에 자리를 잡습니다.
+						555 button 뉴스로 생긴 갭 — 리서치 라이브러리에서 개념 배우기
+			556 container Description: 이어서 볼 곳, ID: news-next
+				557 heading 이어서 볼 곳, Value: 2
+				558 content list
+					559 container
+						560 button
+					561 container
+						562 button
+			563 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				564 text 데이터 출처
+
+The focused UI element is 411 heading 뉴스, Value: 1, ID: page-market-news-label

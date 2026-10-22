@@ -298,13 +298,9 @@ async function loadEarningsCalendar() {
 
   // 주간 범위 계산 (Mon~Fri + 주 shift)
   var weekOffset = window._aioEarnCalWeekOffset || 0;
-  var now = new Date();
-  var dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ...
-  var daysToMon = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
-  var monday = new Date(now.getTime() + (daysToMon + weekOffset * 7) * 86400000);
-  var friday = new Date(monday.getTime() + 4 * 86400000);
-  var fromStr = monday.toISOString().slice(0, 10);
-  var toStr = friday.toISOString().slice(0, 10);
+  var week = _aioEarningsWeekDays(new Date(), weekOffset);
+  var fromStr = week[0];
+  var toStr = week[4];
 
   body.innerHTML = '<div class="pgl-ec-msg is-wait"><span class="aio-spinner pgl-ec-spin"></span>어닝 캘린더 요청 중… (' + fromStr + ' ~ ' + toStr + ')</div>';
 
@@ -313,7 +309,7 @@ async function loadEarningsCalendar() {
   try {
     var snapshot = await _fetchEarningsCalendarSnapshot();
     if (snapshot && (snapshot.earnings.length > 0 || snapshot.ipos.length > 0)) {
-      _renderEarningsCalendarWeekly(body, snapshot.earnings, snapshot.ipos, monday, friday);
+      _renderEarningsCalendarWeekly(body, snapshot.earnings, snapshot.ipos, week);
       var snapSt = document.getElementById('earn-cal-status');
       if (snapSt) {
         snapSt.textContent = snapshot.earnings.length + '건 어닝 + ' + snapshot.ipos.length + 'IPO · '
@@ -333,8 +329,26 @@ async function loadEarningsCalendar() {
   }
 }
 
+// v58.63 (architecture audit A04): the week was a local-time instant printed as a UTC date, so before 09:00 KST every
+// column moved back a day (Monday's reports sat under Tuesday and Friday's vanished). Earnings dates are US exchange
+// calendar dates: "today" is the New York calendar date and the five columns are date-only strings from it.
+function _aioNyDate(now) {
+  try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now); }
+  catch (_) { return now.toISOString().slice(0, 10); }
+}
+function _aioEarningsWeekDays(now, weekOffset) {
+  var parts = _aioNyDate(now).split('-').map(Number);
+  var base = Date.UTC(parts[0], parts[1] - 1, parts[2]);
+  var dow = new Date(base).getUTCDay();
+  // Same window rule as scripts/fetch-earnings-calendar.mjs: a weekend opens the coming week.
+  var monday = base + ((dow === 0 ? 1 : dow === 6 ? 2 : 1 - dow) + (weekOffset || 0) * 7) * 86400000;
+  var out = [];
+  for (var i = 0; i < 5; i++) out.push(new Date(monday + i * 86400000).toISOString().slice(0, 10));
+  return out;
+}
+
 // v48.56: 주간 어닝 캘린더 렌더러 (EarningsHub 스타일)
-function _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday) {
+function _renderEarningsCalendarWeekly(body, earnings, ipos, week) {
   // 정렬: 날짜 + BMO/AMC + marketCap
   earnings.sort(function(a, b) {
     if (a.date !== b.date) return a.date > b.date ? 1 : -1;
@@ -345,9 +359,10 @@ function _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday) {
   // 요일별 그룹화
   var dayLabels = ['일','월','화','수','목','금','토'];
   var days = [];
+  var todayYmd = _aioNyDate(new Date());
   for (var i = 0; i < 5; i++) {
-    var d = new Date(monday.getTime() + i * 86400000);
-    var ymd = d.toISOString().slice(0,10);
+    var ymd = week[i];
+    var d = new Date(ymd + 'T00:00:00Z');
     var dayEarn = earnings.filter(function(e) { return e.date === ymd; });
     var dayIpo = ipos.filter(function(p) { return p.date === ymd; });
     days.push({ date: d, ymd: ymd, bmo: dayEarn.filter(function(e){return (e.hour||'').toLowerCase()==='bmo';}),
@@ -358,9 +373,9 @@ function _renderEarningsCalendarWeekly(body, earnings, ipos, monday, friday) {
   var MAX_VISIBLE = 9; // 섹션당 표시 개수
   var html = '';
   days.forEach(function(day, idx) {
-    var isToday = new Date().toISOString().slice(0,10) === day.ymd;
+    var isToday = todayYmd === day.ymd;
     var dayColor = isToday ? 'var(--data-green)' : 'var(--text-muted)';
-    var dayLabel = dayLabels[day.date.getDay()] + ' ' + day.date.getDate();
+    var dayLabel = dayLabels[day.date.getUTCDay()] + ' ' + day.date.getUTCDate();
 
     html += '<div class="aio-earn-day pgl-ec-day">';
     html += '<div class="pgl-ec-dayhd' + (isToday ? ' is-today' : '') + '">' + dayLabel + (isToday ? ' · 오늘' : '') + '</div>';

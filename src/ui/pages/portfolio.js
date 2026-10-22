@@ -189,7 +189,8 @@ function withOnDemandHoldings(root, bySymbol, holdings) {
 function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
   return (symbol) => {
     const row = bySymbol.get(String(symbol || '').toUpperCase()) || bySymbol.get(quoteSymbolOf(root, symbol));
-    const price = finite(row?._valuationPePrice ?? row?._valuationPbPrice ?? row?.valuationPrice ?? row?.pePrice);
+    // v58.63 (SCR03): the canonical valuation close first, as every other close reader does.
+    const price = finite(row?._valuationPrice ?? row?._valuationPePrice ?? row?._valuationPbPrice ?? row?.valuationPrice ?? row?.pePrice);
     const own = onDemand.get(String(symbol || '').toUpperCase())?.lastClose;
     if ((price == null || price <= 0) && own) return { price: own.price, date: own.date };
     if (price != null && price > 0) return { price, date: row?.factorSessionDate || null };

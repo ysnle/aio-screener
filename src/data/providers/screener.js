@@ -1,7 +1,7 @@
 import { buildFieldReadiness, createInstrumentRef, LIVE_QUOTE_DERIVED_ROW_KEYS, SCREENER_FIELD_REGISTRY, stableHashAsync, validateInstrumentRef } from '../contracts/screener.js';
 import { INSTRUMENT_REGISTRY, analysisEligibilityFor, resolveInstrument } from '../../domain/market/instrument-registry.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from '../contracts/source-kind.js';
-import { isValidRightsId } from '../contracts/evidence.js';
+import { isDecisionEligibleRightsId } from '../contracts/evidence.js';
 import { createPublicationPolicy, evaluatePublicationSet } from './publication-set.js';
 import { evaluateQuoteContract } from './quote-contract.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../../domain/fundamental/period.js';
@@ -201,6 +201,9 @@ function liveEnrichment(symbol, liveData) {
     priceSource: source,
     priceSourceKind: sourceKind,
     priceAllowedUse: explicitDecisionUse,
+    // v58.63 (architecture audit D6): the row keeps the envelope's own grant (an allowed-use enum); priceAllowedUse above is
+    // the boolean eligibility. The row used to read live.allowedUse / live.allowedUseCeiling, which this object never had.
+    priceAllowedUseGrant: allowedUse,
     priceAllowedUseCeiling: allowedUseCeiling,
     priceQualityDecisionUse: qualityDecisionUse,
     priceQuality: quality,
@@ -437,7 +440,7 @@ export function createScreenerProvider({
         const liveEvidenceEligible = live.priceAllowedUse === true && live.priceQualityDecisionUse === true
           && live.priceAllowedUseCeiling === 'decision'
           && isDecisionEligibleSourceKind(live.priceSourceKind)
-          && isValidRightsId(live.priceRightsId)
+          && isDecisionEligibleRightsId(live.priceRightsId)
           && live.priceEnvelopeComplete === true
           && !!live.priceRevision
           && Number.isFinite(livePriceTime) && livePriceTime <= now && now - livePriceTime <= LIVE_QUOTE_MAX_AGE_MS;
@@ -484,8 +487,8 @@ export function createScreenerProvider({
           priceFetchedAt: useLivePrice ? live.priceFetchedAt : useArtifactPrice ? (factor.fetchedAt || rowArtifact.asOf || null) : null,
           priceSource: useLivePrice ? live.priceSource : useArtifactPrice ? (factor.source || rowArtifact.source || 'screener-artifact') : null,
           priceSourceKind: useLivePrice ? live.priceSourceKind : factor.sourceKind || null,
-          priceAllowedUse: useLivePrice ? live.allowedUse : factor.allowedUse || null,
-          priceAllowedUseCeiling: useLivePrice ? live.allowedUseCeiling : factor.allowedUseCeiling || null,
+          priceAllowedUse: useLivePrice ? live.priceAllowedUseGrant : factor.allowedUse || null,
+          priceAllowedUseCeiling: useLivePrice ? live.priceAllowedUseCeiling : factor.allowedUseCeiling || null,
           priceQuality: useLivePrice ? live.priceQuality : factor.factorQuality || factor.quality || null,
           priceRightsId: useLivePrice ? live.priceRightsId : factor.rightsId || null,
           factorObservedAt: factor.factorObservedAt || factor.observedAt || null,

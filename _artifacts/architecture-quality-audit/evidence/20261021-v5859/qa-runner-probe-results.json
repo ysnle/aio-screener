@@ -1,0 +1,358 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "sha256": "09dd872f76a2c7df3471924529e1124e2598118b199a65ab93c94cba815ae4b1",
+  "boundary": "Pinned full runner evaluated in VM. Virtual FS and virtual child completion only; no real gates, subprocess commands beyond git show, producers or external services.",
+  "cacheRetry": {
+    "pass": {
+      "exitCode": 0,
+      "logs": [
+        "[qa] RUN a",
+        "[qa] PASS a (3ms)",
+        "[qa] SUMMARY profile=test run=2026-10-21T13-59-07-290Z-87710-wzz8x8 groups=fixture pass=1 cached=0 fail=0 skip=0 duration=0s",
+        "[qa] REPORT /cache/runs/2026-10-21T13-59-07-290Z-87710-wzz8x8.json",
+        "[qa] REPORT /cache/last-run.json"
+      ],
+      "report": {
+        "schemaVersion": "aio-qa-run.v1",
+        "runId": "2026-10-21T13-59-07-290Z-87710-wzz8x8",
+        "manifestVersion": "fixture.v1",
+        "profile": "test",
+        "groups": [
+          "fixture"
+        ],
+        "changeSource": "working-tree-vs-head",
+        "changedFiles": [
+          "scripts/fixture.mjs"
+        ],
+        "startedAt": "2026-10-21T13:59:07.293Z",
+        "completedAt": "2026-10-21T13:59:07.297Z",
+        "durationMs": 4,
+        "noCache": false,
+        "keepGoing": false,
+        "concurrency": {
+          "static": 4,
+          "browser": 2,
+          "external": 2
+        },
+        "counts": {
+          "PASS": 1
+        },
+        "targets": {},
+        "results": [
+          {
+            "id": "a",
+            "group": "fixture",
+            "phase": 0,
+            "kind": "static",
+            "status": "PASS",
+            "durationMs": 3,
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3",
+            "exitCode": 0,
+            "signal": null,
+            "timedOut": false,
+            "evidenceLevel": "static",
+            "output": "",
+            "error": ""
+          }
+        ]
+      },
+      "failedBatch": null,
+      "cache": {
+        "schemaVersion": "fixture.v1",
+        "cacheVersion": 1,
+        "gates": {
+          "a": {
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3",
+            "passedAt": "2026-10-21T13:59:07.297Z",
+            "durationMs": 3
+          }
+        }
+      },
+      "childSpawns": 1
+    },
+    "fail": {
+      "exitCode": 1,
+      "logs": [
+        "[qa] RUN a",
+        "[qa] FAIL a (1ms)",
+        "[qa] FAILURE-OUTPUT /cache/runs/2026-10-21T13-59-07-298Z-89743-upawwg/failure-output/a-ca978112ca.stdout.txt /cache/runs/2026-10-21T13-59-07-298Z-89743-upawwg/failure-output/a-ca978112ca.stderr.txt",
+        "[qa] FAILED-BATCH preserved (1): a",
+        "[qa] SUMMARY profile=test run=2026-10-21T13-59-07-298Z-89743-upawwg groups=fixture pass=0 cached=0 fail=1 skip=0 duration=0s",
+        "[qa] REPORT /cache/runs/2026-10-21T13-59-07-298Z-89743-upawwg.json",
+        "[qa] REPORT /cache/last-run.json"
+      ],
+      "report": {
+        "schemaVersion": "aio-qa-run.v1",
+        "runId": "2026-10-21T13-59-07-298Z-89743-upawwg",
+        "manifestVersion": "fixture.v1",
+        "profile": "test",
+        "groups": [
+          "fixture"
+        ],
+        "changeSource": "working-tree-vs-head",
+        "changedFiles": [
+          "scripts/fixture.mjs"
+        ],
+        "startedAt": "2026-10-21T13:59:07.298Z",
+        "completedAt": "2026-10-21T13:59:07.302Z",
+        "durationMs": 4,
+        "noCache": true,
+        "keepGoing": false,
+        "concurrency": {
+          "static": 4,
+          "browser": 2,
+          "external": 2
+        },
+        "counts": {
+          "FAIL": 1
+        },
+        "targets": {},
+        "results": [
+          {
+            "id": "a",
+            "group": "fixture",
+            "phase": 0,
+            "kind": "static",
+            "status": "FAIL",
+            "durationMs": 1,
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3",
+            "exitCode": 1,
+            "signal": null,
+            "timedOut": false,
+            "evidenceLevel": "static",
+            "output": "",
+            "error": "",
+            "failureOutput": {
+              "stdout": "/cache/runs/2026-10-21T13-59-07-298Z-89743-upawwg/failure-output/a-ca978112ca.stdout.txt",
+              "stderr": "/cache/runs/2026-10-21T13-59-07-298Z-89743-upawwg/failure-output/a-ca978112ca.stderr.txt"
+            }
+          }
+        ]
+      },
+      "failedBatch": {
+        "schemaVersion": "aio-qa-failed-batch.v1",
+        "runId": "2026-10-21T13-59-07-298Z-89743-upawwg",
+        "recordedAt": "2026-10-21T13:59:07.302Z",
+        "profile": "test",
+        "reportPath": "/cache/runs/2026-10-21T13-59-07-298Z-89743-upawwg.json",
+        "gateIds": [
+          "a"
+        ]
+      },
+      "cache": {
+        "schemaVersion": "fixture.v1",
+        "cacheVersion": 1,
+        "gates": {
+          "a": {
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3",
+            "passedAt": "2026-10-21T13:59:07.297Z",
+            "durationMs": 3
+          }
+        }
+      },
+      "childSpawns": 2
+    },
+    "retry": {
+      "exitCode": 0,
+      "logs": [
+        "[qa] rerun-failed: batch 2026-10-21T13-59-07-298Z-89743-upawwg (1 gate(s))",
+        "[qa] CACHED a (3ms prior)",
+        "[qa] FAILED-BATCH resolved by this run (2026-10-21T13-59-07-298Z-89743-upawwg) — cleared",
+        "[qa] SUMMARY profile=rerun-failed run=2026-10-21T13-59-07-303Z-53505-cdoanw groups=fixture pass=0 cached=1 fail=0 skip=0 duration=0s",
+        "[qa] REPORT /cache/runs/2026-10-21T13-59-07-303Z-53505-cdoanw.json",
+        "[qa] REPORT /cache/last-run.json"
+      ],
+      "report": {
+        "schemaVersion": "aio-qa-run.v1",
+        "runId": "2026-10-21T13-59-07-303Z-53505-cdoanw",
+        "manifestVersion": "fixture.v1",
+        "profile": "rerun-failed",
+        "groups": [
+          "fixture"
+        ],
+        "changeSource": "working-tree-vs-head",
+        "changedFiles": [
+          "scripts/fixture.mjs"
+        ],
+        "startedAt": "2026-10-21T13:59:07.303Z",
+        "completedAt": "2026-10-21T13:59:07.303Z",
+        "durationMs": 0,
+        "noCache": false,
+        "keepGoing": false,
+        "concurrency": {
+          "static": 4,
+          "browser": 2,
+          "external": 2
+        },
+        "counts": {
+          "CACHED": 1
+        },
+        "targets": {},
+        "results": [
+          {
+            "id": "a",
+            "group": "fixture",
+            "phase": 0,
+            "kind": "static",
+            "status": "CACHED",
+            "durationMs": 3,
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3"
+          }
+        ]
+      },
+      "failedBatch": null,
+      "cache": {
+        "schemaVersion": "fixture.v1",
+        "cacheVersion": 1,
+        "gates": {
+          "a": {
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3",
+            "passedAt": "2026-10-21T13:59:07.297Z",
+            "durationMs": 3
+          }
+        }
+      },
+      "childSpawns": 2
+    }
+  },
+  "removedGateRetry": {
+    "failedAgain": {
+      "exitCode": 1,
+      "logs": [
+        "[qa] RUN a",
+        "[qa] FAIL a (0ms)",
+        "[qa] FAILURE-OUTPUT /cache/runs/2026-10-21T13-59-07-304Z-55959-hgx4pv/failure-output/a-ca978112ca.stdout.txt /cache/runs/2026-10-21T13-59-07-304Z-55959-hgx4pv/failure-output/a-ca978112ca.stderr.txt",
+        "[qa] FAILED-BATCH preserved (1): a",
+        "[qa] SUMMARY profile=test run=2026-10-21T13-59-07-304Z-55959-hgx4pv groups=fixture pass=0 cached=0 fail=1 skip=0 duration=0s",
+        "[qa] REPORT /cache/runs/2026-10-21T13-59-07-304Z-55959-hgx4pv.json",
+        "[qa] REPORT /cache/last-run.json"
+      ],
+      "report": {
+        "schemaVersion": "aio-qa-run.v1",
+        "runId": "2026-10-21T13-59-07-304Z-55959-hgx4pv",
+        "manifestVersion": "fixture.v1",
+        "profile": "test",
+        "groups": [
+          "fixture"
+        ],
+        "changeSource": "working-tree-vs-head",
+        "changedFiles": [
+          "scripts/fixture.mjs"
+        ],
+        "startedAt": "2026-10-21T13:59:07.304Z",
+        "completedAt": "2026-10-21T13:59:07.305Z",
+        "durationMs": 1,
+        "noCache": true,
+        "keepGoing": false,
+        "concurrency": {
+          "static": 4,
+          "browser": 2,
+          "external": 2
+        },
+        "counts": {
+          "FAIL": 1
+        },
+        "targets": {},
+        "results": [
+          {
+            "id": "a",
+            "group": "fixture",
+            "phase": 0,
+            "kind": "static",
+            "status": "FAIL",
+            "durationMs": 0,
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3",
+            "exitCode": 1,
+            "signal": null,
+            "timedOut": false,
+            "evidenceLevel": "static",
+            "output": "",
+            "error": "",
+            "failureOutput": {
+              "stdout": "/cache/runs/2026-10-21T13-59-07-304Z-55959-hgx4pv/failure-output/a-ca978112ca.stdout.txt",
+              "stderr": "/cache/runs/2026-10-21T13-59-07-304Z-55959-hgx4pv/failure-output/a-ca978112ca.stderr.txt"
+            }
+          }
+        ]
+      },
+      "failedBatch": {
+        "schemaVersion": "aio-qa-failed-batch.v1",
+        "runId": "2026-10-21T13-59-07-304Z-55959-hgx4pv",
+        "recordedAt": "2026-10-21T13:59:07.305Z",
+        "profile": "test",
+        "reportPath": "/cache/runs/2026-10-21T13-59-07-304Z-55959-hgx4pv.json",
+        "gateIds": [
+          "a"
+        ]
+      },
+      "cache": {
+        "schemaVersion": "fixture.v1",
+        "cacheVersion": 1,
+        "gates": {
+          "a": {
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3",
+            "passedAt": "2026-10-21T13:59:07.297Z",
+            "durationMs": 3
+          }
+        }
+      },
+      "childSpawns": 3
+    },
+    "removedRetry": {
+      "exitCode": 0,
+      "logs": [
+        "[qa] rerun-failed: batch 2026-10-21T13-59-07-304Z-55959-hgx4pv (1 gate(s))",
+        "[qa] NOTE failed batch 2026-10-21T13-59-07-304Z-55959-hgx4pv preserved: this run did not cover every gate in it",
+        "[qa] SUMMARY profile=rerun-failed run=2026-10-21T13-59-07-306Z-6312-il1mvi groups= pass=0 cached=0 fail=0 skip=0 duration=0s",
+        "[qa] REPORT /cache/runs/2026-10-21T13-59-07-306Z-6312-il1mvi.json",
+        "[qa] REPORT /cache/last-run.json"
+      ],
+      "report": {
+        "schemaVersion": "aio-qa-run.v1",
+        "runId": "2026-10-21T13-59-07-306Z-6312-il1mvi",
+        "manifestVersion": "fixture.v1",
+        "profile": "rerun-failed",
+        "groups": [],
+        "changeSource": "working-tree-vs-head",
+        "changedFiles": [
+          "scripts/fixture.mjs"
+        ],
+        "startedAt": "2026-10-21T13:59:07.306Z",
+        "completedAt": "2026-10-21T13:59:07.306Z",
+        "durationMs": 0,
+        "noCache": false,
+        "keepGoing": false,
+        "concurrency": {
+          "static": 4,
+          "browser": 2,
+          "external": 2
+        },
+        "counts": {},
+        "targets": {},
+        "results": []
+      },
+      "failedBatch": {
+        "schemaVersion": "aio-qa-failed-batch.v1",
+        "runId": "2026-10-21T13-59-07-304Z-55959-hgx4pv",
+        "recordedAt": "2026-10-21T13:59:07.305Z",
+        "profile": "test",
+        "reportPath": "/cache/runs/2026-10-21T13-59-07-304Z-55959-hgx4pv.json",
+        "gateIds": [
+          "a"
+        ]
+      },
+      "cache": {
+        "schemaVersion": "fixture.v1",
+        "cacheVersion": 1,
+        "gates": {
+          "a": {
+            "fingerprint": "23f8be7449c289a56bf80e9e51c4e56c1b528a3856f732bf0efb117bfb16a1a3",
+            "passedAt": "2026-10-21T13:59:07.297Z",
+            "durationMs": 3
+          }
+        }
+      },
+      "childSpawns": 3
+    }
+  }
+}

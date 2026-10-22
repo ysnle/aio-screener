@@ -10,7 +10,7 @@ import { createKnowledgeLearningControls } from '../../ui/knowledge/learning-con
 import { createReferenceCurriculum } from '../../ui/knowledge/reference-curriculum.js';
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
-import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { createSuppliedMaterialBridge } from '../../ui/knowledge/supplied-material-bridge.js';
 import { createIntegratedFrameworkSpine } from '../../ui/knowledge/integrated-framework-spine.js';
 
@@ -738,7 +738,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             });
           };
           const capabilityLoader = createKnowledgeCapabilityBatchLoader({
-            fetchFn,
+            fetchFn: stableFetcher(root),
             state,
             dataset: page.dataset,
             datasetMap,
@@ -784,7 +784,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             state.loadingArticleIds.add(lessonId);
             render();
             try {
-              const article = await loadJsonArtifact(fetchFn, `./public-data/knowledge/articles/principles/${encodeURIComponent(lessonId)}.json`, { signal: scope?.signal });
+              const article = await loadJsonArtifact(stableFetcher(root), `./public-data/knowledge/articles/principles/${encodeURIComponent(lessonId)}.json`, { signal: scope?.signal });
               if (article?.articleId !== `principles:${lessonId}` || article?.surface !== 'principles' || article?.lessonId !== lessonId) throw new Error(`article identity mismatch: ${lessonId}`);
               if (!isAlive()) return;
               state.knowledgeArticles = { articles: [...state.knowledgeArticles.articles, article] };

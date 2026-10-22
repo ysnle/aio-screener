@@ -251,9 +251,9 @@ function _aioHasCurrentNumericContent(value) {
   return publication ? publication.hasCurrentNumericContent(value) : true;
 }
 
-function _aioExtractAIAnswerFallback(rawText, currentSensitive) {
+function _aioExtractAIAnswerFallback(rawText, currentSensitive, options) {
   var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
-  return publication ? publication.extractAnswerFallback(rawText, currentSensitive) : '';
+  return publication ? publication.extractAnswerFallback(rawText, currentSensitive, options) : '';
 }
 
 function _aioBuildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive) {
@@ -289,7 +289,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   } else if (isPartialStream) {
     visible = 'AI 답변을 구성하고 근거를 검증하는 중…';
   } else {
-    visible = _aioExtractAIAnswerFallback(raw, currentSensitive);
+    visible = _aioExtractAIAnswerFallback(raw, currentSensitive, { evidenceCount: bindingIds.size });
   }
   if (!visible && !isPartialStream) visible = '답변 형식이 완성되지 않아 검증 가능한 문장을 복구하지 못했습니다. 같은 질문을 다시 보내면 간결한 형식으로 재시도합니다.';
   if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
@@ -549,13 +549,29 @@ function _aioApplyAIActionGate(text, meta) {
   var opportunity = /(?:매수|매도|진입|매집|저가\s*매수|추가\s*매수)\s*(?:의\s*)?(?:기회|적기|타이밍)\s*(?:로|으로|입니다|이다|라고|가\s*될|일\s*수)/;
   var indirect = /(?:다는|라는)\s*것(?:이|은)\s*[^,.]{0,30}(?:원칙|규칙|격언|주장|철학|방식)|(?:한다|하라|해라|하세요|된다|합니다)\s*(?:고|라고|는|라는)\s*(?:봤|보았|했|말했|주장했|강조했|설명했|조언했|권했|가르쳤|규칙|원칙|격언)|(?:라는|이라는|다는)\s*(?:규칙|원칙|격언)|(?:하는|한|권장하는|추천하는|권하는)\s*(?:이유|까닭|배경)/;
   var negated = /(?:아닙니다|아니다|않습니다|않는다|금지|하지\s*마|하지\s*않|제공하지|드리지|지시가\s*아|지시 아님)/;
+  // v58.63 (architecture audit A15): English directives are directives too ("You should buy NVDA now." passed untouched).
+  var english = /\b(?:you\s+(?:should|must|need\s+to|ought\s+to)|i\s+(?:recommend|suggest|advise)(?:\s+(?:you|that\s+you))?|we\s+recommend(?:\s+(?:you|that\s+you))?|it(?:'s|\s+is)\s+time\s+to)\s+(?:buy|sell|short|add\s+to|trim|dump|load\s+up\s+on|go\s+long|go\s+short|exit)\b|(?:^|[.!?]\s*)(?:buy|sell|short)\s+(?:[A-Z]{1,5}\b|shares|the\s+stock|it\s+now|now)|\bstrong\s+(?:buy|sell)\b/i;
+  var englishIndirect = /\b(?:said|argued|wrote|believed|taught|advised|warned)\s+(?:that\s+)?(?:you|investors|traders)\b|\bthe\s+(?:rule|principle|maxim)\s+(?:is|says)\b/i;
+  var patterns = [recommend, imperative, colloquial, weight, opportunity, tickerAction, english];
+  // v58.63 (A15): a negation exempts a directive only when it binds to that directive — inside the matched words or right
+  // after/before them ("매수를 추천하지 않습니다", "not a buy"). A negation elsewhere in the sentence ("매수하세요 그리고 손절하지
+  // 마세요") no longer clears the buy instruction beside it.
+  var bound = function(clause, re) {
+    var m = re.exec(clause);
+    if (!m) return false;
+    var tail = clause.slice(m.index + m[0].length, m.index + m[0].length + 16);
+    var next = tail.search(new RegExp(action)); // the window ends where the next action word starts
+    if (next >= 0) tail = tail.slice(0, next);
+    var head = clause.slice(Math.max(0, m.index - 12), m.index);
+    return negated.test(m[0]) || negated.test(tail) || /^\s*(?:is\s+not|isn't|not)\b/i.test(tail) || /\b(?:not|never|don't|do\s+not)\s+$/i.test(head);
+  };
   var sentences = raw.match(/[^.!?。\n]+(?:[.!?。]+|\n|$)\s*/g) || [raw];
   var replaced = 0;
   var out = sentences.map(function(sentence) {
     // A negation counts only inside the clause that carries the directive ("지금 매수하세요, 이것은 지시가 아닙니다" is replaced).
-    var directive = sentence.trim().split(/[,，;；]+|\s(?:그러나|하지만|다만)\s/).some(function(clause) {
+    var directive = sentence.trim().split(/[,，;；]+|\s(?:그러나|하지만|다만|그리고|또한|그러면서|그다음|그\s*후)\s|\s(?:and|but|then)\s/i).some(function(clause) {
       clause = clause.trim();
-      return !!clause && !negated.test(clause) && !indirect.test(clause) && [recommend, imperative, colloquial, weight, opportunity, tickerAction].some(function(re) { return re.test(clause); });
+      return !!clause && !indirect.test(clause) && !englishIndirect.test(clause) && patterns.some(function(re) { return re.test(clause) && !bound(clause, re); });
     });
     if (!directive) return sentence;
     replaced += 1;
@@ -1841,6 +1857,10 @@ function _aioSetChatRuntimeState(name, value) {
   }
   return value;
 }
+// v58.63 (architecture audit A16): one health lifetime. The fetch (and its one quiet retry) aborts at this bound, and the
+// wait around it lasts slightly longer, so an 8.5s healthy answer on a slow phone is no longer a RESEARCH_TIMEOUT that
+// the cache then records as READY a moment later.
+var _AIO_HEALTH_TIMEOUT_MS = 12000;
 async function _aioEnsureClaudeRoute(apiKey) {
   var routeOptions = arguments.length > 1 ? arguments[1] || {} : {};
   var routeSignal = routeOptions.signal;
@@ -1862,7 +1882,7 @@ async function _aioEnsureClaudeRoute(apiKey) {
   if (!_aioWorkerHealthInFlight[target.workerUrl]) {
     _aioWorkerHealthInFlight[target.workerUrl] = (async function() {
       var ctrl = new AbortController();
-      var timer = setTimeout(function() { ctrl.abort(); }, 12000); // P1653: slow mobile networks timed out at 7s and refused the question
+      var timer = setTimeout(function() { ctrl.abort(); }, _AIO_HEALTH_TIMEOUT_MS); // P1653: slow mobile networks timed out at 7s and refused the question
       try {
         var _healthInit = { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal }; var response = await fetch(target.healthUrl, _healthInit).catch(async function(firstError) { if (ctrl.signal.aborted) throw firstError; await new Promise(function(resolve) { setTimeout(resolve, 1200); }); return fetch(target.healthUrl, _healthInit); }); // one quiet retry for a dropped mobile connection
         var payload = await response.json().catch(function() { return null; });
@@ -1884,7 +1904,7 @@ async function _aioEnsureClaudeRoute(apiKey) {
     })();
   }
   var checked;
-  try { checked = await _aioRunChatTask(function() { return _aioWorkerHealthInFlight[target.workerUrl]; }, { signal: routeSignal, timeoutMs: 7500 }); }
+  try { checked = await _aioRunChatTask(function() { return _aioWorkerHealthInFlight[target.workerUrl]; }, { signal: routeSignal, timeoutMs: _AIO_HEALTH_TIMEOUT_MS + 500 }); }
   catch (error) { if (routeSignal && routeSignal.aborted) throw _aioChatAbortError(routeSignal.reason || 'aborted'); throw error; }
   _aioThrowIfChatAborted(routeSignal);
   _aioSetChatRuntimeState('_aioLastClaudeRouteState', checked);
@@ -2668,8 +2688,7 @@ function _fetchDomainContextForChat(ctxId) {
       else if (hyg != null) lines.push('• 크레딧(HYG 가격, OAS 미수신): ' + hyg.toFixed(2) + ' — 절대 스프레드 수준 아님, 방향 참고만');
       var kr3 = num(pick('krBond3y','kr-bond-3y','krBond3Y')), kr10 = num(pick('krBond10y','kr-bond-10y','krBond10Y'));
       if (kr3 != null || kr10 != null) lines.push('• 한국 금리(스냅샷): ' + (kr3 != null ? '3Y ' + kr3 + '%' : '') + (kr10 != null ? (kr3 != null ? ' · ' : '') + '10Y ' + kr10 + '%' : ''));
-      try { if (window.AIO && typeof window.AIO.computeCrossAssetCorrelation === 'function') { var ca = window.AIO.computeCrossAssetCorrelation(); if (ca && (ca.regime || ca.verdict)) lines.push('• Cross-Asset 국면: ' + (ca.regime || ca.verdict)); } } catch(_) {}
-      if (lines.length) { lines.unshift('【외환·채권 도메인 혼합 데이터 (DXY/금리/크레딧 라이브 + KR 금리 스냅샷 + Cross-Asset) · ' + timeLabel + '】'); }
+      if (lines.length) { lines.unshift('【외환·채권 도메인 혼합 데이터 (DXY/금리/크레딧 라이브 + KR 금리 스냅샷) · ' + timeLabel + '】'); }
     } else if (ctxId === 'themes' || ctxId === 'theme-detail') {
       var secNames = { XLK:'기술', XLF:'금융', XLE:'에너지', XLV:'헬스케어', XLI:'산업재', XLY:'임의소비', XLP:'필수소비', XLRE:'부동산', XLB:'소재', XLU:'유틸', XLC:'커뮤니케이션' };
       var rows = Object.keys(secNames).map(function(s) { return { s: s, pct: liveNum(s, 'pct') }; }).filter(function(x) { return x.pct != null; }).sort(function(a, b) { return b.pct - a.pct; });
@@ -5528,8 +5547,11 @@ async function chatSendUnified(_aioDispatchOptions) {
       : { ok: typeof _aioHasClaudeRoute === 'function' ? _aioHasClaudeRoute(_uniClaudeKey) : !!_uniClaudeKey, reason: 'NO_ROUTE' };
   } catch (_uniRouteError) {
     if (_isCurrentUnifiedRun()) {
+      // v58.63 (architecture audit A17): read the user's cancel BEFORE cleanup — _releaseUnifiedRun aborts the controller
+      // with 'completed', so checking afterwards always looked cancelled and a timeout ended with no notice at all.
+      var _uniUserCancelled = !!(_uniSignal && _uniSignal.aborted);
       _releaseUnifiedRun();
-      if (!(_uniSignal && _uniSignal.aborted)) _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice('WORKER_NOT_READY') : 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
+      if (!_uniUserCancelled) _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice('WORKER_NOT_READY') : 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
     }
     return;
   }
@@ -6040,7 +6062,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
       _bubbleParent.appendChild(badgeEl);
       if (typeof _aioAppendAIPublicDisclosure === 'function') {
-        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate, evidence: _uniDoneResult.evidence });
+        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate, evidence: _uniDoneResult.evidence, closeBasisDates: _uniDoneResult.closeBasisDates, otherPublishedClaims: _uniDoneResult.otherPublishedClaims }); // v58.63 (architecture audit A18): the published close dates the pipeline returned label the answer
       }
 
       // AIQ-P0-04: blocked model text cannot be followed by an actionable card or

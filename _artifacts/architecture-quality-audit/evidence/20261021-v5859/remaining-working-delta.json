@@ -1,0 +1,36 @@
+{
+  "observedAt": "2026-10-21T13:56:34.759Z",
+  "head": "659ffbad252f9eeacfa49a6ad1b895df87f66597",
+  "workingVersion": {
+    "version": "v58.62",
+    "built": "2026-10-21T22:52:00+09:00",
+    "note": "v58.62: 시장 해석 증거 계층(SMH·지수 선물·아시아, P1959)"
+  },
+  "files": [
+    {
+      "path": "scripts/lib/news-selection.mjs",
+      "sha256": "613402f34cffca28ca91f0ba8840a9658dd3965d110914e20fb148ffd2f280a0",
+      "unchangedDuringCapture": true,
+      "status": "DIFF_ONLY_CURRENT_WORKTREE_REVIEW"
+    },
+    {
+      "path": "src/domain/news/stories.js",
+      "sha256": "b801e5758cb907fea8cc9d5dea778ba39e849ec3eb2dcba2fc354722de5835ca",
+      "unchangedDuringCapture": true,
+      "status": "DIFF_ONLY_CURRENT_WORKTREE_REVIEW"
+    },
+    {
+      "path": "scripts/lib/market-analysis-validate.mjs",
+      "sha256": "4f40c6906875ba54134484b36244381b2e3b3d61c02a4d7d4c2b52dbb3328fde",
+      "unchangedDuringCapture": true,
+      "status": "DIFF_ONLY_CURRENT_WORKTREE_REVIEW"
+    },
+    {
+      "path": "js/aio-data.js",
+      "sha256": "9b50af01a01a43ae2ae2421bb5afc50b4eea92b61ae716de53379fde791d6aa8",
+      "unchangedDuringCapture": true,
+      "status": "DIFF_ONLY_CURRENT_WORKTREE_REVIEW"
+    }
+  ],
+  "boundary": "Four selected working diffs read; no full latest-version or full changed-file certification. Review inventory remains pinned v58.59. Product changes belong to concurrent work."
+}

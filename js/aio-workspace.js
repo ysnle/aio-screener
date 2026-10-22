@@ -461,7 +461,12 @@ window._aioTogglePortfolioEntry = function(forceOpen) {
 
 // Add/Edit Position
 // E3/P1181 (11 P11-01): 완료 알림은 durable ack 뒤에 온다 — persist가 거부되면 '완료'를 말하지 않는다.
+// v58.64 (BND01 class): the unlisted-ticker check awaits the network; a reader who typed the next holding meanwhile
+// lost it, because the form was cleared after the save. The form is cleared (and the entry panel closed) only while it
+// still holds what was submitted.
+function _pfFormSnapshot() { return JSON.stringify(['pf-add-ticker', 'pf-add-qty', 'pf-add-cost', 'pf-add-target', 'pf-add-cost-currency', 'pf-add-memo'].map(function(id) { var el = document.getElementById(id); return el ? String(el.value) : ''; })); }
 var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 review (B4-F2/F6): one-shot confirm for an unlisted six-digit code or a won-sized USD cost
+  const pfFormAtSubmit = _pfFormSnapshot();
   // P1592 (F14): '005930.KS' / '000660.KQ' (the screener's own format) is the same listed code — keep the six digits.
   const pfRawTicker = (document.getElementById('pf-add-ticker').value || '').trim(), pfHolding = typeof window._aioResolveHoldingInput === 'function' ? window._aioResolveHoldingInput(pfRawTicker) : null; // v57.81: shared symbol owner with the ticker route — ticker-shaped input kept as typed; only a name ("스엑") resolves, by exact registry match (P1339)
   let ticker = ((pfHolding && pfHolding.symbol) || pfRawTicker.toUpperCase()).replace(/^(\d{6})\.K[SQ]$/, '$1');
@@ -504,9 +509,8 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
       // 폼이 소유한 필드만 덮어쓰고 나머지는 보존한다.
       positions[existing] = { ...positions[existing], ticker, qty, cost, target, memo, costCurrency, updatedAt: Date.now() };
       const saved = await savePortfolioData(positions);
-      clearPortfolioForm();
+      if (_pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
       renderPortfolio();
-      window._aioTogglePortfolioEntry(false);
       showToast(saved.ok ? ticker + ' 업데이트 완료' : '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.');
     }, '');
     return;
@@ -514,9 +518,8 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
     positions.push({ ticker, qty, cost, target, memo, costCurrency, addedAt: Date.now(), updatedAt: Date.now() });
   }
   const saved = await savePortfolioData(positions);
-  clearPortfolioForm();
+  if (_pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
   renderPortfolio();
-  window._aioTogglePortfolioEntry(false);
   // v48.3 신규 추가 토스트 → E3/P1181: 완료 문구는 durable ack 성공 뒤에만 노출된다.
   if (typeof showToast === 'function') {
     showToast(saved.ok
@@ -1006,6 +1009,10 @@ function refreshPortfolioLedgerPerformance() {
   return accountPerf;
 }
 
+// v58.63 (architecture audit LEGACY03): a calculation for holdings A that finished after the holdings changed to B
+// replaced B's hold message with A's metrics and _lastPortfolioRiskEstimate. Each run takes a number and the holdings it
+// read; after the history wait it publishes only if it is still the latest run for the same holdings.
+var _pfRiskEpoch = 0;
 async function refreshPortfolioRisk() {
   // P1449: 원장 계좌 성과는 시세 이력 게이트와 독립 계산 — 어떤 보류에서도 항상 갱신한다.
   try { refreshPortfolioLedgerPerformance(); } catch(e) {}
@@ -1017,6 +1024,8 @@ async function refreshPortfolioRisk() {
     return;
   }
   el.innerHTML = '<div class="wsl-msg">가격 데이터 요청 중...</div>';
+  const riskEpoch = ++_pfRiskEpoch;
+  const riskHoldings = JSON.stringify(positions);
 
   const tickers = positions.map(function(p) { return p.ticker; });
   const historyMap = {};
@@ -1044,6 +1053,8 @@ async function refreshPortfolioRisk() {
       }
     } catch(_) {}
   }));
+  // Everything after this wait is synchronous, so one check covers every hold and publish below.
+  if (riskEpoch !== _pfRiskEpoch || JSON.stringify(getPortfolioData()) !== riskHoldings) return;
 
   const validTickers = positions.map(function(p) { return p.ticker; }).filter(function(t) { return historyMap[t]; });
   const missingHistory = tickers.filter(function(t) { return !historyMap[t]; });
@@ -1850,20 +1861,30 @@ function switchWatchlist() {
   updateWatchlistButtons();
 }
 
-function addToWatchlist(ticker, note) {
-  var activeId = getActiveWatchlistId();
+// v58.63 (architecture audit BND01): the symbol check is asynchronous. The retry used to re-read the active list and
+// clear the inputs, so a request made on list A landed on list B (selected meanwhile) and wiped B's draft. The request
+// now carries the list it was made on and what was typed; it writes only to that list (cancelled if the list was
+// deleted) and clears the inputs only while they still show that request.
+function addToWatchlist(ticker, note, accepted, request) {
+  var activeId = request ? request.listId : getActiveWatchlistId();
   if (!activeId) { showToast('먼저 워치리스트를 선택하세요.'); return; }
+  var fromInputs = request ? request.fromInputs : false;
+  var typed = request ? request.typed : null;
   // 인자 없으면 입력 필드에서 가져오기
   if (!ticker) {
     var inp = document.getElementById('wl-add-ticker');
     ticker = (inp ? inp.value : '').trim().toUpperCase();
     var noteInp = document.getElementById('wl-add-note');
     note = noteInp ? noteInp.value.trim() : '';
+    fromInputs = true;
+    typed = { ticker: inp ? inp.value : '', note: noteInp ? noteInp.value : '' };
   }
-  if (!ticker) { showToast('티커를 입력하세요.'); return; } if (arguments[2] !== true && typeof window._aioAcceptSymbol === 'function') { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') addToWatchlist(r.id || ticker, note, true); else window._aioToastWithNameHint(ticker, ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // v57.81: known or US-listed (listing directory) symbols only; accepted ones join the quote request set
+  if (!ticker) { showToast('티커를 입력하세요.'); return; }
+  var pending = { listId: activeId, fromInputs: fromInputs, typed: typed };
+  if (accepted !== true && typeof window._aioAcceptSymbol === 'function') { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') addToWatchlist(r.id || ticker, note, true, pending); else window._aioToastWithNameHint(ticker, ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // v57.81: known or US-listed (listing directory) symbols only; accepted ones join the quote request set
   var lists = getWatchlists();
   var wl = lists.find(function(l) { return l.id === activeId; });
-  if (!wl) return;
+  if (!wl) { if (request) showToast(ticker + ': 추가하려던 워치리스트가 삭제되어 추가하지 않았습니다.'); return; }
   // 중복 체크
   if (wl.tickers.some(function(t) { return t.sym === ticker; })) {
     showToast(ticker + '는 이미 이 리스트에 있습니다.');
@@ -1871,11 +1892,15 @@ function addToWatchlist(ticker, note) {
   }
   wl.tickers.push({ sym: ticker, note: note || '', addedAt: Date.now() });
   saveWatchlists(lists);
-  // 입력 필드 초기화
-  var inp = document.getElementById('wl-add-ticker');
-  if (inp) inp.value = '';
-  var noteInp = document.getElementById('wl-add-note');
-  if (noteInp) noteInp.value = '';
+  if (activeId !== getActiveWatchlistId()) showToast(ticker + '를 "' + (wl.name || '이전 목록') + '" 목록에 추가했습니다.');
+  // 입력 필드 초기화 — 이 요청을 입력한 그대로일 때만
+  var inp2 = document.getElementById('wl-add-ticker');
+  var noteInp2 = document.getElementById('wl-add-note');
+  var unchanged = fromInputs && activeId === getActiveWatchlistId() && (!typed || ((inp2 ? inp2.value : '') === typed.ticker && (noteInp2 ? noteInp2.value : '') === typed.note));
+  if (unchanged) {
+    if (inp2) inp2.value = '';
+    if (noteInp2) noteInp2.value = '';
+  }
   renderWatchlistContent();
 }
 

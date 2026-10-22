@@ -1,0 +1,24 @@
+{
+  "evidence": "Actual renderer functions with synthetic inputs and a minimal DOM seam; real DOM/browser/live not certified",
+  "missingIncome": {
+    "zeroPercentLabels": 4,
+    "caption": "막대는 매출(미국 달러), 기간 아래 숫자는 그 기간의 순이익률입니다. 2025-09-30 → 2026-06-30 매출 +0%. 공시 기준이며 마지막 기간 종료일은 2026-06-30입니다."
+  },
+  "positiveControlActualZero": {
+    "zeroPercentLabels": 4,
+    "caption": "막대는 매출(미국 달러), 기간 아래 숫자는 그 기간의 순이익률입니다. 2025-09-30 → 2026-06-30 매출 +0%. 공시 기준이며 마지막 기간 종료일은 2026-06-30입니다."
+  },
+  "relative": {
+    "firstSeriesDates": [
+      "2026-07-01",
+      "2026-07-20"
+    ],
+    "secondSeriesDates": [
+      "2026-07-02",
+      "2026-07-21"
+    ],
+    "caption": "2026-07-01~2026-07-20 완료된 일봉 종가 기준입니다. 통화·시장이 다르면 각 시장의 현지 가격으로 계산했습니다.",
+    "secondSeriesEndDisclosed": false
+  },
+  "sourceSha256": "e8c512c889967237074cbbb03f26287630dd6dc35165e2589e0c67ffec4a85a8"
+}

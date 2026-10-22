@@ -13,6 +13,17 @@ const failures = [];
 const assert = (condition, message) => { if (!condition) failures.push(message); };
 assert(index.schemaVersion === 'knowledge-research-dossiers.v1', 'index schemaVersion');
 assert(index.dossiers.length === matrix.units.length, `dossier count ${index.dossiers.length} !== coverage units ${matrix.units.length}`);
+// v58.63 (architecture audit A22/GV01): a matching row count let one unit lose its dossier while another unit had two.
+// Every coverage unit must have exactly one dossier, and every dossier must name a coverage unit.
+const unitIds = new Set(matrix.units.map((unit) => unit.unitId));
+const dossierUnits = index.dossiers.map((dossier) => dossier.contentUnitId);
+const seenUnits = new Set();
+for (const unitId of dossierUnits) {
+  assert(unitIds.has(unitId), `dossier names unknown coverage unit ${unitId}`);
+  assert(!seenUnits.has(unitId), `coverage unit ${unitId} has more than one dossier`);
+  seenUnits.add(unitId);
+}
+for (const unitId of unitIds) assert(seenUnits.has(unitId), `coverage unit ${unitId} has no dossier`);
 const ids = new Set();
 for (const dossier of index.dossiers) {
   assert(!ids.has(dossier.dossierId), `duplicate dossier ${dossier.dossierId}`);

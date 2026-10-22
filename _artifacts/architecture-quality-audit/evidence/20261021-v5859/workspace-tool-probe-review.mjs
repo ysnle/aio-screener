@@ -1,0 +1,23 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+const ref='7e2411432f6ca0e5f02528b209b013bf5f7ff2dc';
+const dir=new URL('.',import.meta.url);
+const files=['generate-workspace-state','sync-agent-profiles','sync-agent-skills','bump-version','record-fix','ci-record-fix-check','ensure-live-convergence','daily-lane-age','refresh-cadence','worker-deploy-impact'].map(n=>`scripts/${n}.mjs`);
+const blob=p=>execFileSync('git',['show',`${ref}:${p}`],{maxBuffer:32*1024*1024});
+const text=p=>blob(p).toString('utf8');
+fs.writeFileSync(new URL('remaining-workspace-tools-reading.tsv',dir),'fixedRef\tblobSHA256\tpath\tstatus\treason\n'+files.map((p,i)=>`${ref}\t${createHash('sha256').update(blob(p)).digest('hex')}\t${p}\tFULL\t${i<6?'workspace 추가 범위 고정 blob 전문 직접 읽음; CLI validation, 생성 범위, 실패 복구, 테스트 oracle 검토':'workflow 추적에서 고정 blob 전체 직접 읽음; 배포 수렴/marker/시장 cadence/Worker 변경 경계 검토'}`).join('\n')+'\n');
+const bump=text('scripts/bump-version.mjs');
+const parser=bump.slice(bump.indexOf('const VERSION_INPUT_RE'),bump.indexOf('const newVerInput'));
+const versions=vm.runInNewContext(`${parser};['v59','v59.00','v59.01'].map(input=>({input,canonical:canonicalizeVersion(input)}))`);
+// Evaluate actual pure computation with read-only fixture bindings. CLI is never invoked.
+const record=text('scripts/record-fix.mjs').replace(/^#![^\n]*\n/,'').replace(/^import .*;\r?\n/gm,'').replace(/^export /gm,'').replaceAll('import.meta.url','"file:///repo/scripts/record-fix.mjs"');
+const context={process:{argv:[]},resolve:()=>'',console};
+vm.createContext(context);
+vm.runInContext(record+';globalThis.compute=computeRecord;globalThis.validate=validateEntry;',context);
+const results=versions.map(({input,canonical})=>({input,canonical,recordValidation:context.validate({version:canonical,date:'2026-10-21',changelog:['fixture'],note:'fixture'})}));
+if(!results[0].recordValidation.length||!results[1].recordValidation.length||results[2].recordValidation.length)throw new Error('version contract mismatch probe did not reproduce');
+const report={ref,evidence:'actual fixed version parser and record-fix validator in VM; no CLI mutation or generation',versions:results};
+fs.writeFileSync(new URL('workspace-tool-probe-result.json',dir),JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify(report,null,2));

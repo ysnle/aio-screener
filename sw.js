@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v58.60';
-const SW_BUILD = '2026-10-21T22:09:00+09:00';
+const SW_VERSION = 'v58.64';
+const SW_BUILD = '2026-10-23T00:06:00+09:00';
 // v57.54 review: code can ship without a version bump (post-deploy fixes), so the cache-first shell is also keyed
 // on the shipped code. pages-deploy.yml replaces 'local' with a hash of the staged index.html + js/ + src/; a data-only
 // deploy keeps the same hash (no cache churn), a code change renames SHELL_CACHE and the old one is deleted on activate.
@@ -222,7 +222,9 @@ self.addEventListener('activate', function(event) {
     caches.keys().then(function(keys) {
       return Promise.all(keys.map(function(k) {
         // 이전 버전 캐시 삭제 — 새 버전 활성화 시 자동 정리
-        if (k !== SHELL_CACHE && k !== DATA_CACHE) {
+        // v58.63 (architecture audit C09): CacheStorage is shared by every app on this origin (github.io serves other
+        // repositories' pages here), so only this app's own older caches (aio-shell-* / aio-data-*) are removed.
+        if (/^aio-(?:shell|data)-/.test(k) && k !== SHELL_CACHE && k !== DATA_CACHE) {
           return caches.delete(k);
         }
       }));

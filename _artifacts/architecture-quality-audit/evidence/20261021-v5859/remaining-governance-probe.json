@@ -1,0 +1,105 @@
+{
+  "ref": "7e2411432f6ca0e5f02528b209b013bf5f7ff2dc",
+  "evidence": "Actual pinned gate bodies in VM; pinned read-only artifacts; in-memory mutations only; no producers, external I/O or product writes.",
+  "sourceHashes": {
+    "scripts/ci-knowledge-article-uniqueness.mjs": "c858a00b279594fe428ea0f48928e2b3a60d912c8814e9871aa6a29b10ab2246",
+    "scripts/ci-knowledge-web-research-dossier.mjs": "cbc6ee3915572bb98dd0492f6a67d7ca26c8fe9d21bdf4ebb8f54c33b909594c",
+    "scripts/ci-operator-readiness-check.mjs": "cd83b661b967775fec00d3a85c47cb7a515b8c0cdbd732e5b4901bc0795b1184"
+  },
+  "uniqueness": {
+    "baseline": {
+      "requestedProcessExitCode": null,
+      "evaluationCompleted": true,
+      "thrown": null,
+      "logs": [
+        {
+          "status": "PASS_WITH_BOUNDARY",
+          "articles": 160,
+          "expectedArticles": 160,
+          "uniqueDraftSeeds": 160,
+          "exactCollisions": 0,
+          "completionReady": false,
+          "boundary": "Unique draft seeds preserve source-specific authoring material; they do not certify human-reviewed article uniqueness.",
+          "failures": []
+        }
+      ]
+    },
+    "duplicateSeed": {
+      "requestedProcessExitCode": null,
+      "evaluationCompleted": true,
+      "thrown": null,
+      "logs": [
+        {
+          "status": "PASS_WITH_BOUNDARY",
+          "articles": 160,
+          "expectedArticles": 160,
+          "uniqueDraftSeeds": 159,
+          "exactCollisions": 1,
+          "completionReady": false,
+          "boundary": "Unique draft seeds preserve source-specific authoring material; they do not certify human-reviewed article uniqueness.",
+          "failures": []
+        }
+      ]
+    }
+  },
+  "dossierCoverage": {
+    "omittedUnit": "principles-lesson:A2",
+    "uniqueContentUnits": 454,
+    "rows": 455,
+    "baseline": {
+      "requestedProcessExitCode": null,
+      "evaluationCompleted": true,
+      "thrown": null,
+      "logs": [
+        {
+          "status": "PASS_WITH_BOUNDARY",
+          "total": 455,
+          "researched": 227,
+          "inProgress": 52,
+          "researchRequired": 176,
+          "completionReady": false,
+          "failures": []
+        }
+      ]
+    },
+    "duplicateUnit": {
+      "requestedProcessExitCode": null,
+      "evaluationCompleted": true,
+      "thrown": null,
+      "logs": [
+        {
+          "status": "PASS_WITH_BOUNDARY",
+          "total": 455,
+          "researched": 227,
+          "inProgress": 52,
+          "researchRequired": 176,
+          "completionReady": false,
+          "failures": []
+        }
+      ]
+    }
+  },
+  "readiness": {
+    "baseline": {
+      "requestedProcessExitCode": null,
+      "evaluationCompleted": true,
+      "thrown": null,
+      "logs": [
+        {
+          "ok": true,
+          "durable": "CURRENT",
+          "fast": "OPERATOR_REQUIRED",
+          "unresolvedCategories": 15,
+          "publicBetaDecision": "BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE"
+        }
+      ]
+    },
+    "allReconciled": {
+      "requestedProcessExitCode": null,
+      "evaluationCompleted": false,
+      "thrown": "[operator-readiness] reconciliation cannot report complete while unresolved categories exist",
+      "logs": []
+    },
+    "scope": "Top-level closure and category states are changed consistently for the gate under review. This is a gate-condition probe, not certification of the detailed evidence in each category or the whole pipeline."
+  }
+}

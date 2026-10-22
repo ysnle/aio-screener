@@ -1,0 +1,4 @@
+path	ref	sha256	utf16_chars	read_ranges	status	reason
+js/aio-data.js	d36bb256ddf60468d6c7a134628053c5796be6be	899a41c2bacbdf6cc687fa72bc4224ac30380d9b4fec498837eb99bb4e6c8a2a	805793	inherited df6f0b33:[0,384000) + full diff; latest:[382000,805793)	FULL	Old hash matches frozen ledger; all diff hunks read; shifted boundary overlaps; truncation repaired by overlap; semantic tail review complete; no additional verified reachable findings
+js/aio-pages.js	d36bb256ddf60468d6c7a134628053c5796be6be	12a1fee4a65413a4681bfdae124cd8ec2d39e1539f3fff956d4b751e2b13c5fe	105213	lines271-425	TARGETED	LD-02 latest real renderer VM repro; 08 KST counterexample and 09 KST control; not whole-file review
+js/aio-kr-data.js	d36bb256ddf60468d6c7a134628053c5796be6be	6a1c7965f61a1de6a5876315bc720bc7895bd0d13c002da61c8de5a1ea9ce602	101184	lines1-105,331-580	TARGETED	LD-01 latest actual detail/deep analysis VM repro; not whole-file review

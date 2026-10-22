@@ -1,0 +1,599 @@
+Browser tab: 2, Title: "스크리너 · AIO Screener", URL: "http://127.0.0.1:8795/#screener".
+0 AXWebArea 스크리너 · AIO Screener, URL: 127.0.0.1:8795/#screener
+	1 link Description: 메인 콘텐츠로 건너뛰기, Value: 127.0.0.1:8795/#main-content
+	2 container Description: 메인 네비게이션, ID: aio-navigation
+		3 container
+			4 text AIO Investment Screener
+		5 text 데일리
+		6 button 오늘 페이지
+		7 text 시장
+		8 button 시장 상태 페이지
+		9 button 거시 · 금리 페이지
+		10 button 테마 · 섹터 페이지
+		11 text 내 투자
+		12 button 종목 페이지
+		13 button 스크리너 페이지
+		14 button 포트폴리오 페이지
+		15 text 리서치
+		16 button 리서치 라이브러리 페이지
+		17 button 용어 사전 페이지
+		18 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			19 text 라이트 모드로 전환
+		20 text AI 도우미
+		40 text AI 연결 안 됨 · 잠시 뒤 다시 시도
+		22 text GPT-6 Luna · 공용 AI 연결
+		23 text 개인 AI 키 입력 없이 이용합니다.
+		24 button (collapsed) 연결 상태, Secondary Actions: Expand
+			25 text 연결 상태
+		26 button (collapsed) 보안 설정, Secondary Actions: Expand
+			27 text 보안 설정
+	28 container
+		29 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		44 text 스크리너
+		42 text 종가
+		43 text 10/19 마감 · 시세 16종 · 실시간 관측 19종
+		33 text v58.50
+		34 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		35 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	45 container 스크리너, ID: page-screener
+		46 heading 스크리너, Value: 1, ID: page-screener-label
+			47 text 스크리너
+		48 text 가격 흐름과 공시 재무로 매긴 상대 순위와, 그 순위가 과거에 통했는지
+		49 text 미국 10/19 종가 기준 · 10/20 계산
+		50 container scr-market-scope
+			51 container
+				52 text 주식 시장
+				53 pop up button (collapsed, settable) Description: 주식 시장, Value: 미국, ID: scr-listing-market, Secondary Actions: Expand
+					54 menu
+						55 (selected) 미국
+						56 한국
+			57 container
+				58 text 종목 범위
+				59 pop up button (collapsed, settable) Description: 종목 범위, Value: 기본 (904종목), ID: scr-universe-scope, Secondary Actions: Expand
+					60 menu
+						61 (selected) 기본 (904종목)
+						62 확장 — 러셀2000·나스닥 전체
+			63 container
+				64 text 정렬 기준
+				65 pop up button (collapsed, settable) Description: 정렬 기준, Value: 시가총액 큰 순(시총 확인된 종목 먼저), ID: scr-order, Secondary Actions: Expand
+					66 menu
+						67 (selected) 시가총액 큰 순(시총 확인된 종목 먼저)
+						68 조건 순위 · 선택 비중의 팩터 백분위 높은 순
+						69 선택 비중의 팩터 백분위
+						70 추세 팩터
+						71 3개월 수익률
+						72 모멘텀 팩터
+						73 저변동 팩터
+			74 text 미국 순위 계산 809종목(기본 종목 범위) · 표시 328개 · 시가총액 큰 순(시총 확인된 종목 먼저) · 비중 모멘텀 29% / 추세 22% / 저변동 17% / 밸류 11% / 퀄리티 10% / 추세 속도 11%
+			75 button (collapsed) 순위 밖 95종목, Secondary Actions: Expand
+				76 text 순위 밖 95종목
+			77 button (collapsed) 순위가 계산되는 방식, Secondary Actions: Expand
+				78 text 순위가 계산되는 방식
+		79 container Description: 지금 순위가 말하는 것, ID: screener-read
+			80 heading 지금 순위가 말하는 것, Value: 2
+				81 text 지금 순위가 말하는 것
+			82 text 상위 20% 구성은 기술 쏠림 · 순위의 과거 성과는 아직 우연과 구별 안 됨(6회 중 비용 후 3회 앞섬) — 순위 계산 809종목 중 상위 20%(162종목)
+			83 button 결과 표로 바로 가기 ↓
+			84 text 상위 20%와 전체의 업종 비중 기술 25% 20% 산업재 20% 15% 금융 13% 13% 경기소비재 11% 9% 헬스케어 7% 11% 소재 6% 6%
+			85 text 상위 20%
+			86 text 전체 유니버스
+			87 content list
+				88 container
+					89 text 상위권 구성 상위 20%(162종목)는 기술 25%(전체 20%)로 쏠려 있습니다 — 순위가 개별 종목보다 업종 흐름을 먼저 반영하고 있다는 뜻입니다.
+				90 container
+					91 text 섹터 회전과 기술 후행 — 쏠린 업종이 섹터 회전에서는 뒤처지는 쪽이라, 순위가 지난 강세를 늦게 반영하고 있을 수 있습니다. 순위와 섹터 회전은 같은 가격 상대강도 정보에서 나온 결과라, 둘이 같은 방향이어도 서로를 확인하는 독립 근거는 아닙니다.
+				92 container
+					93 text 상위권 추세 상위 20% 중 73%가 50일선보다 하루 평균 변동폭 이상 위에 있고, 33%가 52주 고점 5% 이내, 4%는 최근 5거래일에 하루 평균 변동폭의 2배 넘게 하락. 순위 계산에 추세 팩터가 들어 있어 상위권이 50일선 위에 많은 것은 계산 방식상 예상되는 결과입니다 — 시장 전체는 50일선 위 종목이 적습니다(시장 폭 부담).
+				94 container
+					95 text 순위의 과거 성과 아직 우연과 구별 안 됨(표본 6회) — 같은 순위를 과거 6번 시점에 매겼을 때 상위 20%가 하위 20%보다 평균 1.31%p 뒤졌지만, 표본 6회로는 우연과 구별되지 않습니다. 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.
+				96 container
+					97 text 상위권의 테마 단계 상위 20% 중 테마에 속한 74종목의 테마 단계: 주도 지속 17종목 · 추세 속 조정 1종목 · 동행 40종목 · 약세 지속 19종목. 단계는 종목이 아니라 테마 전체의 흐름입니다.
+		98 container screener-workbench
+			99 text 찾는 조건
+			100 container Description: preset-balanced · f9d167c7 · 조건 실행을 누르면 이 입력으로 고정합니다, ID: scr-workbench-status
+				101 text 균형 상대 순위 미리보기 · 대상 904종목 중 조건 통과 328 · 조건 판단 자료 부족 90
+			102 checkbox 표 넓게 보기, Help: 왼쪽 메뉴를 접어 표를 넓게 봅니다, Value: 0
+			103 button 새 화면
+			104 button 저장
+			105 button 조건 실행
+			106 container Description: 조건 화면 — 종목을 거르는 규칙, 직접 저장한 화면 포함, ID: scr-workbench-presets
+				107 checkbox 균형 상대 순위, Value: 0
+				108 checkbox 모멘텀 지속, Value: 0
+				109 checkbox 추세 정렬, Value: 0
+				110 checkbox 저변동 방어, Value: 0
+				111 checkbox 퀄리티 결합, Value: 0
+				112 checkbox 돌파 관찰, Value: 0
+			113 container 맞춤 조건, ID: scr-custom
+				114 text 맞춤 조건
+				115 text 고른 조건을 모두 만족하는 종목만 표에 남깁니다.
+				116 text field (settable) Description: 조건을 문장으로 입력, ID: scr-custom-text
+				117 button 조건 적용
+				118 text 예시 조합
+				119 button 단기 정배열 + 신고가
+				120 button VCP 수렴 + 중기 정배열
+				121 button 거래량 실린 신고가
+				122 button 이익 대비 싼 우량주
+				123 button 성장 + 적정 Forward PER
+				124 button 초기 베이스의 수축
+				125 button 지수 하락일에 버틴 추세주
+				126 button 포켓 피벗 + 확장 전
+				127 pop up button (collapsed, settable) Description: 추가할 맞춤 조건, Value: 조건 고르기, Secondary Actions: Expand
+					128 menu
+						129 (selected) 조건 고르기
+						130 container 추세
+							131 단기 정배열 (종가 > 5 > 10 > 20일선)
+							132 중기 정배열 (종가 > 50 > 200일선)
+							133 52주 신고가 (오늘 종가가 1년 최고 종가)
+							134 52주 고점 대비 5% 이내
+						135 container 패턴
+							136 VCP 수렴 중 (흔들림이 2번 이상 줄어듦 · 피벗 근처는 마지막 흔들림이 직전보다 작을 때만)
+							137 VCP 돌파 (피벗 위 · 거래량 평소의 1.4배 이상)
+							138 하루 평균 변동폭(ADR) 3% 이하
+							139 거래량 20일 평균의 1.5배 이상
+							140 하루 평균 변동폭(ADR) 3% 이상 (충분히 움직이는 종목)
+							141 50일선 부근~위 변동폭의 4배 이내 (확장 전)
+							142 50일선 아래로 변동폭의 4배 이상 (하방 과확장 · 바닥 신호 아님)
+						143 container 후속·회복
+							144 최근 10거래일 안 포켓 피벗 (상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많음)
+							145 초기 베이스 (추세가 다시 시작된 뒤 2번째 베이스 이하)
+							146 최근 25거래일 거래량 실린 하락일 4일 이하
+							147 지수 하락일에 지수보다 덜 빠진 날 60% 이상 (최근 60거래일)
+							148 클라이맥스 징후 없음 (긴 상승 뒤 연속 급등·연중 최대 상승폭·최대 거래량·200일선 +70%)
+						149 container 밸류에이션
+							150 PER 20배 이하 (최근 회계연도 이익 · 적자 제외 · 미국)
+							151 Forward PER 25배 이하 (컨센서스 · 미국)
+							152 PBR 3배 이하 (미국)
+						153 container 수익성·성장
+							154 ROE 15% 이상 (미국)
+							155 순이익률 10% 이상 (미국)
+							156 매출 성장률 10% 이상 (최근 회계연도 · 미국)
+						157 container 거래
+							158 하루 거래대금 $20백만 이상 (30일 평균)
+				159 button 추가
+				160 button 모두 지우기
+			161 button (collapsed) 조건 직접 조합 · 결과 범위 · 실행 기록, Secondary Actions: Expand
+				162 text 조건 직접 조합 · 결과 범위 · 실행 기록
+		163 text 기본 균형 비중으로 합산
+		164 text  ·  총 
+		165 text 904
+		166 text 종목 · 조건 통과 
+		167 text 328
+		168 text  ·  그중 팩터 백분위 80 이상(반올림) 
+		169 text 166
+		170 text  · 사용 팩터 
+		171 text 6
+		172 button 표 범위 좁히기, Help: 조건·순위 결과는 그대로 두고 표에 보이는 행만 줄입니다
+		173 tab group 스크리너 보조 분석
+			174 tab (selected, settable, boolean) 랭킹, Value: 1, ID: scr-tab-button-ranking
+			175 tab (selectable, settable, boolean) 팩터·국면, Value: 0, ID: scr-tab-button-factors
+			176 tab (selectable, settable, boolean) 과거 검증, Help: 정보계수(IC): 팩터 순위와 이후 수익률 순위가 얼마나 같은 방향이었는지 과거 자료로 잰 값, Value: 0, ID: scr-tab-button-backtest
+			177 tab (selectable, settable, boolean) 조건별 과거 통계, Value: 0, ID: scr-tab-button-evidence
+		178 container Description: 랭킹, ID: scr-tab-ranking
+			179 pop up button (collapsed, settable) Description: 시장 지수 필터, Value: 전체 지수, ID: scr-market, Secondary Actions: Expand
+				180 menu
+					181 (selected) 전체 지수
+					182 Help: 해외 기업 주식을 미국 시장에서 거래하도록 만든 예탁증서, Value: 미국예탁증서(ADR)
+					183 ETF
+					184 나스닥
+					185 나스닥100
+					186 Help: 미국 뉴욕증권거래소 상장 종목, Value: 뉴욕증권거래소(NYSE)
+					187 Help: 거래소 정규 상장이 아닌 장외 시장에서 거래되는 종목, Value: 장외 거래(OTC)
+					188 러셀2000
+					189 S&P 400
+					190 S&P 500
+					191 Help: 도쿄증권거래소 상장 — 미국에서는 예탁증서 등으로 거래, Value: 도쿄 상장(TSE)
+					192 Help: 대만증권거래소 상장 — 미국에서는 예탁증서 등으로 거래, Value: 대만 상장(TWSE)
+			193 pop up button (collapsed, settable) Description: 섹터 필터, Value: 전체 섹터, ID: scr-sector, Secondary Actions: Expand
+				194 menu
+					195 (selected) 전체 섹터
+					196 통신
+					197 경기소비재
+					198 필수소비재
+					199 ETF
+					200 에너지
+					201 금융
+					202 헬스케어
+					203 산업재
+					204 소재
+					205 부동산
+					206 기술
+					207 유틸리티
+			208 pop up button (collapsed, settable) Description: 시가총액 필터, Value: 전체 시총, ID: scr-cap, Secondary Actions: Expand
+				209 menu
+					210 (selected) 전체 시총
+					211 초대형 ($1T 이상)
+					212 대형 ($10B~1T)
+					213 중형 ($2~10B)
+					214 소형 (<$2B)
+			215 text field (settable) Description: 스크리너 티커 이름 메모 검색, ID: scr-text-search
+			216 text 컬럼
+			217 pop up button (collapsed, settable) Description: 스크리너 컬럼 프리셋, Value: 발견, ID: scr-column-preset, Secondary Actions: Expand
+				218 menu
+					219 (selected) 발견
+					220 펀더멘털
+					221 추세·셋업
+					222 리스크
+					223 이벤트
+					224 전체
+			225 button 컬럼 선택, ID: scr-col-toggle-btn
+			226 container
+				227 text 328
+				228 text 종목
+			229 container 스크리너 결과 표 가로 스크롤 영역
+				230 table Description: 스크리너 결과 표, ID: screener-results-table
+					231 row
+						232 cell
+							233 text 관심·비교
+						234 cell
+							235 button 백분위로 정렬
+						236 cell
+							237 button 종목로 정렬
+						238 cell
+							239 button 가격로 정렬
+							240 text 10/19 종가
+						241 cell
+							242 button 52주 고점 대비로 정렬
+						243 cell
+							244 button 1개월로 정렬
+						245 cell
+							246 button 3개월로 정렬
+						247 cell
+							248 button RSI로 정렬
+						249 cell
+							250 button 50일선 거리(변동폭 배수)로 정렬
+						251 cell VCP(변동성 수축 패턴): 조정 폭이 차례로 줄며 바닥을 다지는 가격 구조 — 충족도는 그 조건을 얼마나 채웠는지
+							252 button 수축 구조(VCP)·충족도로 정렬
+							253 text  연구
+						254 cell
+							255 text 후속 확인  연구
+					256 container screener-results-body
+						257 row NVDA 선정 행. Enter로 Why 보기
+							258 cell
+								259 button Description: 워치리스트 추가 NVDA, Help: 워치리스트에 추가
+								260 checkbox Description: NVDA 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							261 cell
+								262 text 79
+							263 cell
+								264 text NVDA
+								265 text NVIDIA
+							266 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								267 text $217.09
+							268 cell
+								269 text -10.8%
+							270 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								271 text -2.3%
+							272 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								273 text +4.8%
+							274 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								275 text 41.5
+							276 cell
+								277 text -1.2배
+							278 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								279 text 이동평균 배열 미충족 · 충족도 0
+							280 cell
+								281 text 베이스 2번째(형성 중) · 포켓 피벗 9일 전 · 하락일 버팀 42%
+						282 row AAPL 선정 행. Enter로 Why 보기
+							283 cell
+								284 button Description: 워치리스트 추가 AAPL, Help: 워치리스트에 추가
+								285 checkbox Description: AAPL 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							286 cell
+								287 text 92
+							288 cell
+								289 text AAPL
+								290 text Apple
+							291 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								292 text $342.94
+							293 cell
+								294 text -1.5%
+							295 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								296 text +2.0%
+							297 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								298 text +4.7%
+							299 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								300 text 61.2
+							301 cell
+								302 text 2.8배
+							303 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								304 text 이동평균 배열 충족 · 충족도 40
+							305 cell
+								306 text 베이스 4번째 · 포켓 피벗 1일 전 · 하락일 버팀 67%
+						307 row MSFT 선정 행. Enter로 Why 보기
+							308 cell
+								309 button Description: 워치리스트 추가 MSFT, Help: 워치리스트에 추가
+								310 checkbox Description: MSFT 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							311 cell
+								312 text 94
+							313 cell
+								314 text MSFT
+								315 text Microsoft
+							316 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								317 text $533.52
+							318 cell
+								319 text -3.6%
+							320 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								321 text +8.1%
+							322 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								323 text +34.4%
+							324 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								325 text 59.6
+							326 cell
+								327 text 2.5배
+							328 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								329 text 이동평균 배열 충족 · 충족도 40
+							330 cell
+								331 text 베이스 1번째 · 포켓 피벗 2일 전 · 하락일 버팀 52%
+						332 row META 선정 행. Enter로 Why 보기
+							333 cell
+								334 button Description: 워치리스트 추가 META, Help: 워치리스트에 추가
+								335 checkbox Description: META 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							336 cell
+								337 text 63
+							338 cell
+								339 text META
+								340 text Meta Platforms
+							341 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								342 text $705.44
+							343 cell
+								344 text -9.5%
+							345 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								346 text +6.0%
+							347 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								348 text +9.7%
+							349 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								350 text 49.3
+							351 cell
+								352 text 2.3배
+							353 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								354 text 이동평균 배열 미충족 · 충족도 34
+							355 cell
+								356 text 베이스 1번째(형성 중) · 포켓 피벗 4일 전 · 하락일 버팀 67%
+						357 row LLY 선정 행. Enter로 Why 보기
+							358 cell
+								359 button Description: 워치리스트 추가 LLY, Help: 워치리스트에 추가
+								360 checkbox Description: LLY 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							361 cell
+								362 text 74
+							363 cell
+								364 text LLY
+								365 text Eli Lilly
+							366 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								367 text $1,240.34
+							368 cell
+								369 text -4.0%
+							370 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								371 text +7.6%
+							372 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								373 text +5.7%
+							374 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								375 text 63.4
+							376 cell
+								377 text 1.7배
+							378 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								379 text 피벗 근접 · 충족도 75
+							380 cell
+								381 text 베이스 3번째(형성 중) · 포켓 피벗 2일 전 · 하락일 버팀 64%
+						382 row MU 선정 행. Enter로 Why 보기
+							383 cell
+								384 button Description: 워치리스트 추가 MU, Help: 워치리스트에 추가
+								385 checkbox Description: MU 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							386 cell
+								387 text 80
+							388 cell
+								389 text MU
+								390 text Micron Technology
+							391 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								392 text $904.90
+							393 cell
+								394 text -27.9%
+							395 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								396 text -10.9%
+							397 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								398 text -6.8%
+							399 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								400 text 38.4
+							401 cell
+								402 text -2.0배
+							403 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								404 text 이동평균 배열 미충족 · 충족도 55
+							405 cell
+								406 text 베이스 1번째(형성 중) · 포켓 피벗 2일 전 · 하락일 버팀 48%
+						407 row AMD 선정 행. Enter로 Why 보기
+							408 cell
+								409 button Description: 워치리스트 추가 AMD, Help: 워치리스트에 추가
+								410 checkbox Description: AMD 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							411 cell
+								412 text 62
+							413 cell
+								414 text AMD
+								415 text Advanced Micro Devices
+							416 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								417 text $538.05
+							418 cell
+								419 text -18.3%
+							420 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								421 text -3.9%
+							422 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								423 text -1.2%
+							424 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								425 text 40.5
+							426 cell
+								427 text -0.0배
+							428 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								429 text 이동평균 배열 미충족 · 충족도 0
+							430 cell
+								431 text 베이스 4번째(형성 중) · 포켓 피벗 9일 전 · 하락일 버팀 48%
+						432 row V 선정 행. Enter로 Why 보기
+							433 cell
+								434 button Description: 워치리스트 추가 V, Help: 워치리스트에 추가
+								435 checkbox Description: V 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							436 cell
+								437 text 99
+							438 cell
+								439 text V
+								440 text Visa
+							441 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								442 text $402.92
+							443 cell
+								444 text -0.4%
+							445 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								446 text +9.4%
+							447 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								448 text +13.4%
+							449 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								450 text 73.8
+							451 cell
+								452 text 4.5배
+							453 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								454 text 이동평균 배열 충족 · 충족도 25
+							455 cell
+								456 text 베이스 전 · 포켓 피벗 2일 전 · 하락일 버팀 58%
+						457 row XOM 선정 행. Enter로 Why 보기
+							458 cell
+								459 button Description: 워치리스트 추가 XOM, Help: 워치리스트에 추가
+								460 checkbox Description: XOM 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							461 cell
+								462 text 60
+							463 cell
+								464 text XOM
+								465 text Exxon Mobil
+							466 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								467 text $178.28
+							468 cell
+								469 text -0.6%
+							470 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								471 text +9.0%
+							472 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								473 text +18.3%
+							474 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								475 text 71.1
+							476 cell
+								477 text 4.9배
+							478 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								479 text 이동평균 배열 충족 · 충족도 25
+							480 cell
+								481 text 베이스 2번째 · 포켓 피벗 1일 전 · 하락일 버팀 76%
+						482 row MA 선정 행. Enter로 Why 보기
+							483 cell
+								484 button Description: 워치리스트 추가 MA, Help: 워치리스트에 추가
+								485 checkbox Description: MA 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							486 cell
+								487 text 99
+							488 cell
+								489 text MA
+								490 text Mastercard
+							491 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								492 text $616.40
+							493 cell
+								494 text -1.0%
+							495 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								496 text +9.2%
+							497 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								498 text +14.7%
+							499 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								500 text 74.3
+							501 cell
+								502 text 4.0배
+							503 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								504 text 이동평균 배열 미충족 · 충족도 0
+							505 cell
+								506 text 베이스 1번째 · 포켓 피벗 1일 전 · 하락일 버팀 67%
+						507 row ABBV 선정 행. Enter로 Why 보기
+							508 cell
+								509 button Description: 워치리스트 추가 ABBV, Help: 워치리스트에 추가
+								510 checkbox Description: ABBV 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							511 cell
+								512 text 72
+							513 cell
+								514 text ABBV
+								515 text AbbVie
+							516 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								517 text $282.68
+							518 cell
+								519 text -3.0%
+							520 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								521 text +7.8%
+							522 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								523 text +11.1%
+							524 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								525 text 67.5
+							526 cell
+								527 text 3.5배
+							528 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								529 text 이동평균 배열 충족 · 충족도 25
+							530 cell
+								531 text 베이스 2번째 · 포켓 피벗 2일 전 · 하락일 버팀 70% · 클라이맥스 징후 1
+						532 row PLTR 선정 행. Enter로 Why 보기
+							533 cell
+								534 button Description: 워치리스트 추가 PLTR, Help: 워치리스트에 추가
+								535 checkbox Description: PLTR 비교 목록, Help: 비교 목록에 넣기, Value: 0
+							536 cell
+								537 text 84
+							538 cell
+								539 text PLTR
+								540 text Palantir
+							541 cell runtime-quote · 관측 시각 미확인 · 관측 시각 미확인
+								542 text $194.15
+							543 cell
+								544 text -8.8%
+							545 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								546 text +9.3%
+							547 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								548 text +46.4%
+							549 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								550 text 53.6
+							551 cell
+								552 text 1.7배
+							553 cell Yahoo chart 1y adjusted-close history · 관측 2026-10-19 · 지연된 종가 기준
+								554 text 이동평균 배열 미충족 · 충족도 15
+							555 cell
+								556 text 베이스 3번째(형성 중) · 포켓 피벗 6일 전 · 하락일 버팀 58%
+			557 text ★ 관심종목 · + 동일 기준 비교 · 행 선택으로 순위 근거 확인 · ‘—’는 값 없음
+			558 container scr-load-more-wrap
+				559 text 미국 · 328종목 중 12개 표시
+				560 button 12개 더 보기
+			561 text 읽는 법
+			562 text 추세 속도 칼만 필터로 잡음을 걸러 낸 최근 추세의 하루 속도(+ 상승, − 하락). 확신도가 아니라 속도입니다. 예측력이 검증되지 않은 연구 지표라 상대 비교에만 씁니다 — 매매 신호가 아닙니다.
+			563 text 수축 구조(VCP)
+			564 text 변동성 수축과 피벗 근접도를 설명하는 가격 구조 지표. 이후 수익률이나 돌파 성공을 보장하지 않음 사용 원칙 상대 순위는 조사 후보를 좁히는 도구이며, 주문·포지션 결정에는 별도 검증이 필요 과거 검증
+			565 button 과거 검증 보기
+			566 text 과거 검증 탭에서 팩터별 검증 상세 확인
+		567 button (collapsed) 순위 가중치 바꾸기 — 과거 검증은 기본(균형) 비중만 했습니다, Secondary Actions: Expand
+			568 text 순위 가중치 바꾸기 — 과거 검증은 기본(균형) 비중만 했습니다
+		569 button (collapsed) 데이터 기준 · 검증 상태, Secondary Actions: Expand
+			570 text 데이터 기준 · 검증 상태
+		571 container 이 화면을 볼 때 — 속지 말 것과 원칙
+			572 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-screener-title
+				573 text 이 화면을 볼 때 — 속지 말 것과 원칙
+			574 content list
+				575 container
+					576 text 속지 말 것 '순위가 높으면 오른다' 스크리너의 순위는 조건에 맞는 정도를 정렬한 것이지 앞으로의 수익을 예측한 점수가 아닙니다. 순위가 수익과 같은 방향이었는지는 순위를 먼저 적어 두고 나중에 결과를 채운 기록으로만 말할 수 있습니다. 근거: 순위를 먼저 적어 두는 기록의 결과가 아직 없어(겹치지 않는 기록 12개부터 판단) 기본 가중치 미국 순위가 수익과 같은 방향인지는 아직 모릅니다.
+					577 button '순위가 높으면 오른다' — 리서치 라이브러리에서 개념 배우기
+				578 container
+					579 text 속지 말 것 이미 멀리 달아난 뒤의 진입 평균선에서 평소 변동폭의 여러 배만큼 떨어진 뒤에는 작은 되돌림에도 손실 폭이 커집니다. 좋은 종목이어도 늘어난 자리는 좋은 자리가 아닐 수 있습니다. 왜: 가격은 평균선 쪽으로 되돌아가려는 경향이 있어, 멀어질수록 되돌림의 크기도 커집니다.
+					580 button 이미 멀리 달아난 뒤의 진입 — 리서치 라이브러리에서 개념 배우기
+				581 container
+					582 text 속지 말 것 '과거에 이랬으니 이번에도' 과거 비슷한 때의 결과는 참고일 뿐입니다. 표본이 적으면 우연일 수 있고, 전체 기간의 평균(기준선)과 다르지 않으면 그 조건만의 정보도 아닙니다. 왜: 과거 빈도는 늘 같은 기록 전체의 기준선과 표본 수를 함께 봐야 의미가 생깁니다.
+					583 button '과거에 이랬으니 이번에도' — 리서치 라이브러리에서 개념 배우기
+		584 container Description: 이어서 볼 곳, ID: screener-next
+			585 heading 이어서 볼 곳, Value: 2
+				586 text 이어서 볼 곳
+			587 content list
+				588 container
+					589 button 테마 · 섹터 →
+					590 text 기술 쏠림이 섹터 회전에서 어떤 단계인지
+				591 container
+					592 button 테마 시나리오 →
+					593 text 이 단계 테마의 구성 종목을 차트·재무로 직접 확인
+				594 container
+					595 button 거시 시나리오 →
+					596 text 금리·경기 시나리오가 상위권 업종에 수혜인지 부담인지
+				597 container
+					598 button 표 첫 행 NVDA →
+					599 text 지금 표(조건·표시 필터·정렬)의 맨 위 종목을 요약·차트·재무로 확인
+				600 container
+					601 button 시장 상태 →
+					602 text 순위가 놓인 환경 — 부담 우세
+		603 button (collapsed) 데이터 출처, Secondary Actions: Expand
+			604 text 데이터 출처
+
+The focused UI element is 46 heading 스크리너, Value: 1, ID: page-screener-label

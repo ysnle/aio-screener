@@ -1,0 +1,39 @@
+{
+  "evidence": "Actual gate code with mocked fetch/process/fs boundaries. No browser/live/generator execution.",
+  "fastPlane": {
+    "zeroCoverageAndNoQuotes": {
+      "accepted": true,
+      "logs": [
+        "{\"ok\":true,\"endpoint\":\"https://audit.example.invalid\",\"healthStatus\":200,\"quoteStatus\":200,\"revision\":\"audit\",\"coverage\":\"0/0\",\"soak\":\"operator-required\"}"
+      ]
+    },
+    "declaredCompleteButNoQuotes": {
+      "accepted": true,
+      "logs": [
+        "{\"ok\":true,\"endpoint\":\"https://audit.example.invalid\",\"healthStatus\":200,\"quoteStatus\":200,\"revision\":\"audit\",\"coverage\":\"16/16\",\"soak\":\"operator-required\"}"
+      ]
+    },
+    "incompleteCoverageNegativeControl": {
+      "accepted": false,
+      "error": "[fast-plane-live] health coverage is incomplete: {\"status\":200,\"coverage\":{\"required\":16,\"observed\":15}}"
+    }
+  },
+  "parity": {
+    "exitCode": 1,
+    "filesAfter": [
+      {
+        "path": "architecture/asset-manifest.json",
+        "text": "{\"revision\":\"new\"}\n"
+      },
+      {
+        "path": "architecture/release-manifest.json",
+        "text": "{\"revision\":\"new\"}\n"
+      }
+    ],
+    "restored": false
+  },
+  "sources": {
+    "scripts/ci-fast-plane-live-check.mjs": "3f56f1eeee6edff530b51522f314f10c2c39c5fdb302d8aa65b8b5127bbdaf59",
+    "scripts/ci-generated-release-parity-check.mjs": "319cd5825ad9db2f821bd310244234c8eaf12b81b38ea8e8b4ad36266f53f812"
+  }
+}

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { artifactCacheSnapshot, clearArtifactCache, loadJsonArtifact } from '../src/data/artifact-cache.js';
+import { artifactCacheSnapshot, clearArtifactCache, loadJsonArtifact, stableFetcher } from '../src/data/artifact-cache.js';
 
 let calls = 0;
 let release;
@@ -107,22 +107,29 @@ completions[1]({ ok: true, json: async () => ({ revision: 'new' }) });
 assert.deepEqual(await newPending, { revision: 'new' });
 assert.deepEqual(await loadJsonArtifact(ignoresAbort, './retry.json'), { revision: 'new' });
 
-// v57.77: callers pass `root.fetch.bind(root)` (a new function per call). Bound fetchers share one store per bound
-// name, so `maxAgeMs` applies across calls; `force` still re-reads; clearing through any bind clears that store.
+// v57.77 / v58.64 (architecture audit M1): callers take one fetcher per root from stableFetcher(root), so `maxAgeMs`
+// applies across calls, `force` still re-reads and a clear reaches the same store. Two roots whose fetchers share a
+// name keep separate stores (the v57.77 name-keyed store mixed them).
 let boundCalls = 0;
-const boundRoot = { boundOwnerFetch(url) { boundCalls += 1; return Promise.resolve({ ok: true, json: async () => ({ url, boundCalls }) }); } };
-const boundFirst = await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json');
-const boundSecond = await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json');
-assert.equal(boundCalls, 1, 'v57.77: a fresh bind of the same fetcher must reuse the cached artifact within maxAgeMs');
-assert.equal(boundSecond, boundFirst, 'v57.77: the bound cache hit returns the cached object');
-await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json', { force: true });
-assert.equal(boundCalls, 2, 'v57.77: force still re-reads through a bound fetcher');
-assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch.bind(boundRoot)).hits, 1, 'v57.77: snapshots read the shared bound store');
-clearArtifactCache(boundRoot.boundOwnerFetch.bind(boundRoot), { abortInFlight: false });
-await loadJsonArtifact(boundRoot.boundOwnerFetch.bind(boundRoot), './bound.json');
+const boundRoot = { fetch(url) { boundCalls += 1; return Promise.resolve({ ok: true, json: async () => ({ url, boundCalls }) }); } };
+assert.equal(stableFetcher(boundRoot), stableFetcher(boundRoot), 'v58.64 M1 stableFetcher returns one fetcher per root');
+const boundFirst = await loadJsonArtifact(stableFetcher(boundRoot), './bound.json');
+const boundSecond = await loadJsonArtifact(stableFetcher(boundRoot), './bound.json');
+assert.equal(boundCalls, 1, 'v57.77: the same root reuses the cached artifact within maxAgeMs');
+assert.equal(boundSecond, boundFirst, 'v57.77: the cache hit returns the cached object');
+await loadJsonArtifact(stableFetcher(boundRoot), './bound.json', { force: true });
+assert.equal(boundCalls, 2, 'v57.77: force still re-reads through the root fetcher');
+assert.equal(artifactCacheSnapshot(stableFetcher(boundRoot)).hits, 1, 'v57.77: snapshots read the root store');
+clearArtifactCache(stableFetcher(boundRoot), { abortInFlight: false });
+await loadJsonArtifact(stableFetcher(boundRoot), './bound.json');
 assert.equal(boundCalls, 3, 'v57.79: a manual-refresh clear (no abort) makes the next read fetch the published file again');
-clearArtifactCache(boundRoot.boundOwnerFetch.bind(boundRoot));
-assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch.bind(boundRoot)).resolved, 0, 'v57.77: clearing through a new bind clears the shared bound store');
-assert.equal(artifactCacheSnapshot(boundRoot.boundOwnerFetch).resolved, 0, 'v57.77: the unbound fetcher keeps its own identity store');
+let otherCalls = 0;
+const otherRoot = { fetch(url) { otherCalls += 1; return Promise.resolve({ ok: true, json: async () => ({ url, other: true }) }); } };
+const otherValue = await loadJsonArtifact(stableFetcher(otherRoot), './bound.json');
+assert.equal(otherCalls, 1, 'v58.64 M1 a second root with a same-named fetcher does not read the first root store');
+assert.equal(otherValue.other, true, 'v58.64 M1 the second root gets its own response');
+clearArtifactCache(stableFetcher(boundRoot));
+assert.equal(artifactCacheSnapshot(stableFetcher(boundRoot)).resolved, 0, 'v57.77: clearing the root fetcher clears its store');
+assert.equal(artifactCacheSnapshot(stableFetcher(otherRoot)).resolved, 1, 'v58.64 M1 clearing one root leaves the other root store');
 
 console.log(JSON.stringify({ ok: true, calls, isolatedCalls, timeoutAborted, allConsumersAborted, integrity: true, byteBudget: true, constraintCalls, abortedRetryIsolation: true, boundCalls, contract: 'artifact-cache.v5' }));

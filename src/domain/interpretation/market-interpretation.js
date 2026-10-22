@@ -80,7 +80,7 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
   const crossroads = stage('crossroads', () => buildMacroCrossroads({ read: macroRead ? { ...macroRead, breadthState } : macroRead, macroHistory: inputs.macroHistory || null, history: inputs.history, events, outcomes, previousLeadId: previous?.crossroads?.leadId || null }));
   const scenarios = regime ? stage('scenarios', () => buildMarketScenarios(inputs, { regime })) : null;
   const rows = screenerRows ? typedScreenerRows(screenerRows) : null;
-  const indexEarnings = earningsInput ? stage('indexEarnings', () => buildIndexEarnings({ rows: rows || [], ...earningsInput })) : null;
+  const indexEarnings = earningsInput ? stage('indexEarnings', () => buildIndexEarnings({ rows: rows || [], now: nowMs, ...earningsInput })) : null;
   const groups = rows ? stage('groups', () => buildGroupStrength({ themes: themeMaps?.usThemes || [], rows, sortKey: 'ret3m', now: nowMs }).groups || []) : null;
   // X03 (2026-10-13): "현재 주도" may name only themes measured on the latest completed session.
   const leadingThemes = (groups || []).filter((group) => group.ret3m != null && group.rankable !== false && group.current)

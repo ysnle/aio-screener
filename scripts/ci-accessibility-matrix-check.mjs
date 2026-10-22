@@ -53,7 +53,24 @@ async function main() {
         const target = id === 'theme-detail' ? 'themes' : id;
         const root = document.getElementById('page-' + target);
         const visible = (el) => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; };
-        const name = (el) => (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || el.value || '').replace(/\s+/g, ' ').trim();
+        // v58.63 (architecture audit C1): the old oracle read textContent/value for every control, so an unlabeled select
+        // was "named" by its option list and an unlabeled checkbox by value="on", while an input named through
+        // aria-labelledby or <label for> read as nameless. This follows the accessible-name order for those cases.
+        const clean = (text) => String(text || '').replace(/\s+/g, ' ').trim();
+        const name = (el) => {
+          const labelledby = (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean).map((ref) => clean(document.getElementById(ref)?.textContent)).filter(Boolean).join(' ');
+          if (labelledby) return labelledby;
+          const aria = clean(el.getAttribute('aria-label'));
+          if (aria) return aria;
+          const field = /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName);
+          if (field) {
+            const type = String(el.getAttribute('type') || '').toLowerCase();
+            if (el.tagName === 'INPUT' && /^(button|submit|reset)$/.test(type)) return clean(el.value) || clean(el.getAttribute('title'));
+            const labels = el.labels ? Array.from(el.labels).map((label) => clean(label.textContent)).filter(Boolean).join(' ') : '';
+            return labels || clean(el.getAttribute('title')) || (el.tagName !== 'SELECT' ? clean(el.getAttribute('placeholder')) : '');
+          }
+          return clean(el.textContent) || clean(el.getAttribute('title')) || clean(el.querySelector?.('img[alt]')?.getAttribute('alt'));
+        };
         const controls = root ? Array.from(root.querySelectorAll('button,a[href],input,select,textarea,[role="button"],[data-action]')).filter(visible) : [];
         const nameless = controls.filter((el) => !name(el)).map((el) => el.outerHTML.slice(0, 180));
         const selectsWithoutName = controls.filter((el) => el.tagName === 'SELECT' && !name(el)).map((el) => el.id || el.outerHTML.slice(0, 120));
@@ -71,11 +88,15 @@ async function main() {
           // P1658: a clipped keyboard-only control is not a pointer target until focus, when it renders full size.
           const focusOnlyException = /rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(getComputedStyle(el).clip) && el.classList.contains('aio-basis-btn');
           return { id:el.id || '', text:name(el).slice(0, 60), width:Math.round(r.width), height:Math.round(r.height), exception:inlineTextException ? 'wcag-inline-text' : focusOnlyException ? 'keyboard-focus-only' : null };
-        }).slice(0, 80);
-        const smallTargetViolations = smallTargets.filter((row) => !row.exception);
-        const smallTargetExceptions = smallTargets.filter((row) => !!row.exception);
+        });
+        // v58.63 (C1): judge every small target, then keep a bounded sample for the report — slicing first let 80 exceptions
+        // hide the 81st real violation.
+        const smallTargetViolationsAll = smallTargets.filter((row) => !row.exception);
+        const smallTargetExceptionsAll = smallTargets.filter((row) => !!row.exception);
+        const smallTargetViolations = smallTargetViolationsAll.slice(0, 80);
+        const smallTargetExceptions = smallTargetExceptionsAll.slice(0, 80);
         const modalContracts = Array.from(document.querySelectorAll('[role="dialog"],.modal,[id*="modal"]')).filter(visible).map((el) => ({ id:el.id || '', labelled:!!(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) }));
-        return { routeId:id, active:!!root && (id === 'theme-detail' ? !!document.getElementById('page-themes')?.classList.contains('active') : root.classList.contains('active')), nameless, selectCount:controls.filter((el) => el.tagName === 'SELECT').length, selectsWithoutName, positiveTabindex, canvasCount:canvases.length, unnamedCanvas, fontUnder10Count:fontUnder10.length, fontUnder10, smallTargetViolationCount:smallTargetViolations.length, smallTargetViolations, smallTargetExceptionCount:smallTargetExceptions.length, smallTargetExceptions, skipLink:!!document.querySelector('.skip-link[href="#main-content"]'), modalContracts };
+        return { routeId:id, active:!!root && (id === 'theme-detail' ? !!document.getElementById('page-themes')?.classList.contains('active') : root.classList.contains('active')), nameless, selectCount:controls.filter((el) => el.tagName === 'SELECT').length, selectsWithoutName, positiveTabindex, canvasCount:canvases.length, unnamedCanvas, fontUnder10Count:fontUnder10.length, fontUnder10, smallTargetViolationCount:smallTargetViolationsAll.length, smallTargetViolations, smallTargetExceptionCount:smallTargetExceptionsAll.length, smallTargetExceptions, skipLink:!!document.querySelector('.skip-link[href="#main-content"]'), modalContracts };
       }, routeKey);
       result.routes.push(audit);
     }

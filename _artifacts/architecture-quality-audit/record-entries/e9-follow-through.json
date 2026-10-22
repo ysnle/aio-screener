@@ -1,0 +1,18 @@
+{
+  "version": "v58.63", "date": "2026-10-22",
+  "p": {
+    "title": "follow-through의 '연중'·'52주 저점'이 2년치 생산자 시계열 전체로 계산됨",
+    "symptom": "스크리너 생산자는 2년치 종가(FACTOR_HISTORY_RANGE '2y')를 넘기는데, climaxSigns의 연중 최대 상승일·거래량과 상승 폭 기준 저점, baseCount의 '52주 신저점 리셋'이 2년 전체로 계산됐다. 1년 전 급등이 최근 10일의 최대 상승·거래량 신호를 가렸고, 52주 신저점(2년 저점 위)에서는 베이스 수가 리셋되지 않았다.",
+    "root_cause": "정의(R713 임계값 문서, 함수 주석)는 52주인데 함수가 입력 길이를 그대로 창으로 썼고, 단위 테스트가 1년 미만 시계열만 썼다.",
+    "fix": "climaxSigns는 마지막 rangeSessions(252) 세션만, baseCount는 직전 252세션 이동 최저 종가(단조 큐)로 리셋을 판정한다.",
+    "violated_rule": "R713 판정 이름은 그 이름을 정의하는 조건이 있을 때만 붙인다",
+    "prevention": "scripts/ci-architecture-audit-regression-fixture.mjs 2년 시계열 반례(climax·base)와 양성 대조.",
+    "verification": "fixture PASS, ci-esm-core-unit-check PASS. HEAD 대조에서 climax=['run-up-days'], base=1 재현. 생산자 값은 다음 갱신부터 바뀐다."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-ARCH-AUDIT-09", "text": "{P}: 2년치 시계열에서도 클라이맥스 '연중' 신호와 베이스 수 리셋은 최근 252세션으로 판정한다.", "verify_by": "node scripts/ci-architecture-audit-regression-fixture.mjs", "done": true }],
+  "qa_section": "아키텍처 품질 감사 v58.63",
+  "changelog": ["**follow-through 52주 창 ({P}):** 클라이맥스 신호와 베이스 수 리셋을 2년 생산자 시계열 전체가 아니라 최근 252세션으로 판정한다(Codex 미점검 영역에서 발견)."],
+  "note": "아키텍처 품질 감사(Codex) 전 항목 재검증·구조 수정 + 미점검 영역 확장 점검. 로컬 검증; commit/push/deploy 미실행, Worker 재배포 필요(SEC01).",
+  "status": null
+}

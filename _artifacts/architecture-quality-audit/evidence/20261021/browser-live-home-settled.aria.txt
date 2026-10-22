@@ -1,0 +1,407 @@
+Browser tab: 1, Title: "대시보드 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#home".
+1 AXWebArea 대시보드 · AIO Screener, URL: ysnle.github.io/aio-screener/#home
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	3 container Description: 메인 네비게이션, ID: aio-navigation
+		4 container
+			5 text AIO Investment Screener
+		6 text 데일리
+		7 button 오늘 페이지
+		8 text 시장
+		9 button 시장 상태 페이지
+		10 button 거시 · 금리 페이지
+		11 button 테마 · 섹터 페이지
+		12 text 내 투자
+		13 button 종목 페이지
+		14 button 스크리너 페이지
+		15 button 포트폴리오 페이지
+		16 text 리서치
+		17 button 리서치 라이브러리 페이지
+		18 button 용어 사전 페이지
+		19 button 라이트 모드로 전환, ID: sidebar-theme-btn
+			20 text 라이트 모드로 전환
+		21 text AI 도우미
+		22 text ON
+		23 text GPT-6 Luna · 공용 AI 연결
+		24 text 개인 AI 키 입력 없이 이용합니다.
+		25 button (collapsed) 연결 상태, Secondary Actions: Expand
+			26 text 연결 상태
+		27 button (collapsed) 보안 설정, Secondary Actions: Expand
+			28 text 보안 설정
+	29 container
+		30 button (expanded) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Collapse
+		31 container breadcrumb
+			32 text 오늘 / 대시보드
+		33 text 종가
+		34 text 10/20 마감 · 시세 16종 · 실시간 관측 17종
+		35 text v58.52
+		36 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		37 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	38 container main-content
+		39 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			40 button 대시보드
+			41 button 브리핑
+			42 button 뉴스
+		43 container 대시보드, ID: page-home
+			44 container
+				45 text 오늘의 한 문장 10/20 오늘의 하락은 AI 투자 기대의 흔들림인가, 동반 약세의 시작인가?
+			46 heading 대시보드, Value: 1, ID: page-home-label
+				47 text 대시보드
+			48 text 2026.10.21 (수) KST
+			49 container home-score-hero
+				50 container
+					51 link Description: 시장 상태 →, Value: ysnle.github.io/aio-screener/#signal
+					52 text 다소 부담
+				53 text 10/20 미국 종가 기준 · 미국 6개 지표 양호 0 · 중립 4 · 부담 2
+				54 text 한국장 10/20 마감 · 코스피 5,552.74 (-3.7% · 5거래일 -8.0%) · 코스닥 781.97 (-3.3% · 5거래일 -6.6%) — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.
+				55 text 주도 영역이 꺾이는 신호 — 나스닥 100 5거래일 -3.7% · 50일선 -1.1% · 1년 고점 대비 -5.4% · 신저가 40, 신고가 28(10/14) · S&P 500 분배일 7일(10/16) · 러셀 2000 200일선 대비 -0.8%(확인 3/4·최근 5거래일, 2개 이상이면 판정). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.
+				56 container home-hero-components
+					57 text 추세 중립 시장 폭 중립 변동성 중립 금리 부담 신용 · 위험선호 부담 달러 · 원자재 중립
+					58 container 한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다
+						59 text 환율 (원 · 엔) · 참고 중립
+			60 container Description: 지난 마감 이후 변화, ID: home-daily-changes
+				61 heading 지난 마감 이후 변화 미국 종가 10/19 → 10/20, Value: 2
+					62 text 지난 마감 이후 변화 미국 종가 10/19 → 10/20
+				63 text 추세 부담 → 중립 · 시장 폭 부담 → 중립 — 시장 상태 판정에 들어가는 지표가 바뀌었습니다.
+				64 text S&P 500 +0.28% 나스닥 종합 -0.02% VIX -1.1pt 17.3 미 10년물 -2bp 5.12% 50일선 위 종목  · 큰 폭 +7.3%p 47% 공포·탐욕 +6점 27 코스피  · 큰 폭 -3.73% 한국 10/19 → 10/20 코스닥  · 큰 폭 -3.33% 한국 10/19 → 10/20
+				65 text 비교 제외: 달러 인덱스(최근 종가 10/19) · WTI(최근 종가 10/19) · 원/달러(최근 종가 10/19)
+			66 container Description: 지수와 참여 종목 — 같은 기간, ID: home-participation
+				67 text 지수와 참여 종목 · 같은 기간
+				68 text 62거래일 동안 S&P 500 +4.1% · 같은 기간 50일선 위 종목 54% → 47% — 지수는 올랐지만 참여 종목은 줄었습니다 (최근 20거래일은 36% → 47%로 다시 넓어지는 중)
+				69 text S&P 500 종가
+				70 container S&P 500 종가 26.07.23~26.10.20 추이, 최근 7713
+				71 text 50일선 위 종목 비율(%) · AIO 추적 종목(미국) 기준
+				72 container 50일선 위 종목 비율 26.07.23~26.10.20 추이, 최근 47%
+				73 button (collapsed) 집계 기준, Secondary Actions: Expand
+					74 text 집계 기준
+				75 button 시장 폭 자세히 →
+			76 container home-crossroads
+				77 heading 지금 흐름과 다음 발표, Value: 2
+					78 text 지금 흐름과 다음 발표
+				79 container
+					80 text 지금 시장 흐름 '소수 주도 → 동반 약세 전환 확인 중' 조건 충족 1/3 · 동반 약세 조건 중 추세 부담·시장 폭 부담 이 아직 빠짐  주도 영역(나스닥 100)과 중소형주·시장 폭이 함께 약해져, 소수 종목이 받치던 흐름이 동반 약세로 넘어가는지 확인하는 단계입니다.
+				81 text 반증: 나스닥 100의 5거래일 낙폭이 3% 안으로 줄고 신고가가 신저가보다 다시 많아지면 소수 주도로 되돌아간 것으로 봅니다. 다음 확인: 10/21 미국 확정 종가.
+				82 container
+					83 text 상대적으로 버티는 방어 섹터: 
+					84 button 헬스케어, Help: 테마 · 섹터 화면에서 보기
+					85 button 필수소비재, Help: 테마 · 섹터 화면에서 보기
+				86 button 세 가지 시장 흐름 보기 →
+				87 text 다음 발표에 달린 시나리오 · 10/28 FOMC 회의 — 지금은 'AI 투자 꺾임' 쪽 조건이 더 맞습니다.
+				88 text AI 설비투자 기대 후퇴 → 반도체·데이터센터 이익 하향 → 투자·고용 둔화 → 금리 인하 압력 + 신용 스프레드 확대 → 정책 대응은 연쇄를 막아도 이익 전망은 못 바꿈
+				89 container AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 매수의 비용이 크고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.
+					90 text 조건이 더 맞는 시나리오
+					91 text 'AI 투자 꺾임'
+					92 text 조건 충족 3/4 시장 가격은 조건에 포함
+					93 definition list
+						94 container 유리한 대응
+							95 text 유리한 대응
+						96 container AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 매수의 비용이 크고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.
+							97 text 관망 (현금 · 
+							98 pop up button (collapsed) 단기채, Secondary Actions: Expand
+							99 text ) · 방어 전환
+						100 container 이후 시장 흐름
+							101 text 이후 시장 흐름
+						102 text '동반 약세'
+					103 text 이 시나리오의 수혜 테마(현재 강약과 별개)
+					104 button 방산/항공우주 →, Help: 테마 상세 · 구성 종목
+					105 button 필수소비재 →, Help: 테마 상세 · 구성 종목
+					106 button 헬스케어 →, Help: 테마 상세 · 구성 종목
+					107 button 한국 K-푸드·통신 →, Help: 테마 화면의 한국 테마 단계
+				108 container 유가 충격은 물가와 성장을 함께 누르므로, 유가가 꺾이는 것을 확인하기 전 서두르는 쪽의 비용이 큽니다.
+					109 text 대안 시나리오
+					110 text '유가 충격'
+					111 text 조건 충족 2/4 시장 가격은 중립
+					112 definition list
+						113 container 유리한 대응
+							114 text 유리한 대응
+						115 text 관망 (현금 · 단기채)
+						116 container 이후 시장 흐름
+							117 text 이후 시장 흐름
+						118 text '소수 종목 주도'
+					119 text 이 시나리오의 수혜 테마(현재 강약과 별개)
+					120 button 한국 에너지 →, Help: 테마 화면의 한국 테마 단계
+				121 text '유리한 대응'은 그 시나리오가 실제로 이어질 때의 비용 비교이며, 따라 하라는 뜻은 아닙니다.
+				122 text 테마: 최근 1개월(9/21~10/20) 미국 테마는 강한 쪽 에너지(+9.9%), 필수소비재(+7.7%, 5거래일 +4.9%), 헬스케어(+4.5%) · 약한 쪽 크립토/블록체인(-24.2%, 5거래일 -9.4%), AI 인프라/데이터센터(-13.1%, 5거래일 -11.4%), 반도체(-12.1%, 5거래일 -9.1%)입니다. 성격마다 테마가 5개 미만이라 힘이 어느 쪽으로 옮겨 갔는지는 판단하지 않습니다. 한국은 강한 쪽 광통신(+5.3%)·의료기기(+1.1%, 5거래일 +1.0%), 약한 쪽 원전(-27.6%)·조선(-27.6%)입니다. 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.
+				123 button 모든 시나리오와 선택지 →
+				124 button 모든 테마의 단계 →
+			125 container 오늘의 가이드 — 상황 · 시나리오 · 대응 · 배울 것, ID: home-guide
+				126 heading 오늘의 가이드 — 상황 · 시나리오 · 대응 · 배울 것, Value: 2, ID: home-guide-title
+					127 text 오늘의 가이드 — 상황 · 시나리오 · 대응 · 배울 것
+				128 text 다소 부담 환경에서 'AI 투자 꺾임' 쪽 조건이 가장 많이 맞고, 핵심 조건을 갖춘 시나리오를 함께 보면 비용이 작은 쪽은 '관망'입니다 — 다음 갈림길 10/28 FOMC 회의.
+				129 definition list
+					130 container 시장 체력
+						131 text 시장 체력
+					132 text 미국 6개 지표 다소 부담 (양호 0 · 중립 4 · 부담 2) — 나쁜 쪽 지표가 더 많아, 좋은 소식보다 나쁜 소식에 더 민감한 환경입니다.
+					133 container 지금 흐름
+						134 text 지금 흐름
+					135 text '소수 주도 → 동반 약세 전환 확인 중' (조건 충족 1/3) — 주도 영역(나스닥 100)과 중소형주·시장 폭이 함께 약해져, 소수 종목이 받치던 흐름이 동반 약세로 넘어가는지 확인하는 단계입니다.
+					136 container 움직이는 힘
+						137 text 움직이는 힘
+					138 text 'AI 투자 꺾임' 쪽 조건이 가장 많이 맞습니다(조건 충족 3/4) — 이익과 고용이 함께 식는 시나리오입니다.
+					139 container 다음 갈림길
+						140 text 다음 갈림길
+					141 text 10/28 FOMC 회의 — '신용 경색'·'달러 급등'·'물가 재가속' 쪽을 가릅니다.
+				142 heading 여러 시나리오를 함께 놓고 보면, Value: 3
+					143 text 여러 시나리오를 함께 놓고 보면
+				144 container 선택지별 집계 — 핵심 조건을 갖춘 시나리오마다 적힌 비용 비교를 센 것(확률 아님) 가로 스크롤
+					145 table 선택지별 집계 — 핵심 조건을 갖춘 시나리오마다 적힌 비용 비교를 센 것(확률 아님)
+						146 text 선택지별 집계 — 핵심 조건을 갖춘 시나리오마다 적힌 비용 비교를 센 것(확률 아님)
+						147 row
+							148 cell
+								149 text 선택지
+							150 cell
+								151 text 상대적으로 유리
+							152 cell
+								153 text 비용이 큼
+						154 row
+							155 cell
+								156 text 관망 (현금 · 단기채)
+							157 cell
+								158 text 2 · 'AI 투자 꺾임' '유가 충격'
+							159 cell
+								160 text 0
+						161 row
+							162 cell
+								163 text 분할 접근
+							164 cell
+								165 text 0
+							166 cell
+								167 text 2 · 'AI 투자 꺾임' '유가 충격'
+						168 row
+							169 cell
+								170 text 보유 유지
+							171 cell
+								172 text 0
+							173 cell
+								174 text 0
+						175 row
+							176 cell
+								177 text 방어 전환
+							178 cell
+								179 text 1 · 'AI 투자 꺾임'
+							180 cell
+								181 text 0
+				182 text 핵심 조건을 갖춘 시나리오 2개 중 2개에서 '관망'이 상대적으로 유리하고, 비용이 크다고 적힌 곳은 없습니다. 핵심 조건만 빠진 시나리오 중 가장 가까운 '신용 경색'(조건 충족 3/4)도 '관망'을 유리하게 적습니다.
+				183 container
+					184 text 이 판단이 빗나갈 때의 
+					185 pop up button (collapsed) 기회비용, Secondary Actions: Expand
+				186 content list
+					187 container
+						188 AXListMarker • 
+						189 text '물가 둔화 + 고용 완만'(조건 충족 1/4) 쪽으로 가면 — 금리 하락은 발표 직후 가격에 먼저 반영되는 경향이 있어, 확인을 끝까지 기다리는 동안의 기회비용이 커지는 시나리오입니다. 확인: 11/10 CPI (소비자물가) — 근원 CPI 전월 대비 0.2% 이하 (연율 약 2.4%, 목표 부근)
+					190 container
+						191 AXListMarker • 
+						192 text '성장 재가속'(조건 충족 1/4) 쪽으로 가면 — 이익이 함께 오르는 시나리오에서는 기다림의 기회비용이 큽니다. 확인: 11/6 고용보고서 — 일자리 20만 명 이상
+				193 heading 지향할 것, Value: 3
+					194 text 지향할 것
+				195 content list
+					196 container
+						197 AXListMarker • 
+						198 text 관망: AI 투자 기대가 꺾이는 동안 기다리는 비용은 작습니다. 이익 하향은 몇 분기에 걸쳐 확인되는 경향이 있어 서둘러 놓치는 것이 적습니다.
+					199 container
+						200 AXListMarker • 
+						201 text 'AI 투자 꺾임'에서 강해지는 쪽(경기 방어)이 실제로 버티는지 테마·섹터에서 확인
+					202 container
+						203 AXListMarker • 
+						204 text 다음 확인 신호를 미리 적어 두기: 11/6 고용보고서 — 일자리 5만~7.5만 명 (채용 둔화)
+				205 heading 지양할 것, Value: 3
+					206 text 지양할 것
+				207 content list
+					208 container
+						209 AXListMarker • 
+						210 text 서두른 '
+						211 pop up button (collapsed) 분할 접근, Secondary Actions: Expand
+						212 text ' — 'AI 투자 꺾임'·'유가 충격'에서 비용이 크게 적혀 있습니다
+					213 container
+						214 AXListMarker • 
+						215 text 'AI 투자 꺾임'에서 약해지는 쪽(AI 설비투자 사이클, 장기 성장 · 고
+						216 pop up button (collapsed) PER, Secondary Actions: Expand
+						217 text  (할인율 민감), 유동성 · 위험 선호, 경기 민감)에 한 번에 몰기
+					218 container
+						219 AXListMarker • 
+						220 text '많이 빠졌으니 싸다'에 속기
+					221 container
+						222 AXListMarker • 
+						223 text 하루 반등·하루 급락에 속기
+				224 heading 오늘 해당하는 원칙, Value: 3
+					225 text 오늘 해당하는 원칙
+				226 content list
+					227 container
+						228 text 태도 맞히기보다 조건으로 생각하기 "앞으로 오를까"를 맞히려 하기보다 "이 조건이 나오면 이렇게, 저 조건이 나오면 저렇게"를 미리 정해 두면, 어느 쪽으로 가도 당황하지 않습니다. 근거: 다음 갈림길은 10/28 FOMC 회의입니다 — 결과별로 무엇이 달라지는지는 시나리오에 적혀 있습니다.
+						229 button 맞히기보다 조건으로 생각하기 — 리서치 라이브러리에서 개념 배우기
+					230 container
+						231 text 태도 기다림도 선택이다 현금은 수익이 0인 상태가 아니라 다음 기회를 고를 수 있는 선택권입니다. 기다림에도 비용(놓친 상승)이 있고, 그 비용은 현금성 자산의 이자만큼 줄어듭니다. 근거: 지금 살아 있는 시나리오에서는 서두르는 쪽의 비용이 더 크게 적혀 있습니다 · 현금성 자산 이자(
+						232 pop up button (collapsed) SOFR, Secondary Actions: Expand
+						233 text ) 3.87%.
+						234 button 기다림도 선택이다 — 리서치 라이브러리에서 개념 배우기
+					235 container
+						236 text 전략 · 기법 '틀렸다'의 기준을 먼저 정하기 어떤 판단이든 "무엇이 나오면 이 생각이 틀린 것인가"가 미리 정해져 있으면, 손실이 감정이 아니라 조건으로 관리됩니다. 기준이 없으면 버티는 이유를 나중에 지어내게 됩니다. 근거: 지금 중심 시나리오 'AI 투자 꺾임'이 빗나가는 조건: 토큰 단가 하락보다 사용량 증가가 빨라 총지출이 늘어남.
+						237 button '틀렸다'의 기준을 먼저 정하기 — 리서치 라이브러리에서 개념 배우기
+					238 container
+						239 text 전략 · 기법 지수보다 참여와 주도 영역 보기 지수는 시가총액이 큰 몇 종목이 끌고 갈 수 있습니다. 얼마나 많은 종목이 함께 오르는지(시장 폭)와 주도 영역이 버티는지가 흐름의 체력을 보여 줍니다. 근거: 주도 영역이 꺾이는 신호가 확인됐습니다(나스닥 100 5거래일 -3.7% · 50일선 -1.1% · 1년 고점 대비 -5.4% · 신저가 40, 신고가 28(10/14) · S&P 500 
+						240 pop up button (collapsed) 분배일, Secondary Actions: Expand
+						241 text  7일(10/16) · 러셀 2000 
+						242 pop up button (collapsed) 200일선, Secondary Actions: Expand
+						243 text  대비 -0.8%).
+						244 button 지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기
+					245 container
+						246 text 속지 말 것 '많이 빠졌으니 싸다' 가격이 내렸다고 싸진 것은 아닙니다. 이익 전망이 함께 내려가면 가격이 내려도 밸류에이션은 그대로이거나 오히려 비싸집니다. 근거: 오늘 추세가 부담이거나 주도 영역이 꺾이는 중입니다.
+						247 button '많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기
+					248 container
+						249 text 속지 말 것 하루 반등·하루 급락 하루의 큰 움직임은 흐름이 바뀌었다는 증거가 되기 어렵습니다. 약세장에서도 큰 반등은 자주 나오고, 강세장에서도 큰 하락이 섞입니다. 근거: 지금 시장 흐름은 '소수 주도 → 동반 약세 전환 확인 중'입니다 — 하루 반등만으로는 이 흐름이 끝났는지 알 수 없습니다.
+						250 button 하루 반등·하루 급락 — 리서치 라이브러리에서 개념 배우기
+					251 container
+						252 text 믿을 것 신용 스프레드 주가는 기대로 움직이지만, 회사채 금리 차이(신용 스프레드)는 실제로 돈을 빌려주는 사람들이 매기는 위험의 값입니다. 주가와 신용이 다른 말을 할 때는 신용 쪽을 더 무겁게 봅니다. 근거: 최근 신용 지표(
+						253 pop up button (collapsed) 하이일드 스프레드, Secondary Actions: Expand
+						254 text 는 하루 이틀 늦게 발표)가 부담입니다 — 약세의 원인이 자금 쪽에 있는지 보는 신호입니다.
+						255 button 신용 스프레드 — 리서치 라이브러리에서 개념 배우기
+				256 button (collapsed) 시장에 참여하는 원칙 전체 (28개) — 태도 · 전략 · 속지 말 것 · 믿을 것, Secondary Actions: Expand
+					257 text 시장에 참여하는 원칙 전체 (28개) — 태도 · 전략 · 속지 말 것 · 믿을 것
+				258 text '유리한 쪽'은 각 시나리오에 적힌 비용 비교를 센 것이며, 확률이나 따라 하라는 지시가 아닙니다. 세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다.
+			259 heading 지금 시세 (실시간·지연), Help: 등락은 각 시세의 전일 대비입니다, Value: 2, ID: home-quote-basis
+				260 text 지금 시세 (실시간·지연)
+			261 container home-kpi-strip
+				262 button Help: S&P 500 선물(ES, CME) — 거의 24시간 거래 · 현물 종가는 아래 줄, S&P 500 선물 7,776.50 시세 상태: live:yahoo-proxy · 갱신 지연 ▲ +21.25 (+0.27%) 현물 7,712.57 시세 상태: live:yahoo-proxy · 갱신 지연 ▲ +0.28% 20거래일 -0.7%
+					263 text S&P 500 선물
+					264 container
+						265 text 7,776.50
+						266 image Description: 시세 상태: live:yahoo-proxy · 갱신 지연, Help: live:yahoo-proxy · 갱신 지연
+					267 container 참고용 값 · 관측 10. 21. 오전 08:07 — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.
+						268 text ▲  +21.25 (+0.27%)
+					269 container
+						270 text 현물 
+						271 text 7,712.57
+						272 image Description: 시세 상태: live:yahoo-proxy · 갱신 지연, Help: live:yahoo-proxy · 갱신 지연
+						273 container 지연된 값 · 관측 10. 21. 오전 05:45 — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.
+							274 text ▲  +0.28%
+					275 container S&P 500 2026-09-22 종가 → 2026-10-20 종가 (20거래일) · 기간 저점 7652 · 고점 7819 · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다
+						276 text 20거래일 -0.7%
+				277 button Help: 나스닥 100 선물(NQ, CME) · 현물은 Nasdaq-100(NDX) · 증권앱과 비교할 때 월물·시각 확인, 나스닥 100 선물 29,916.25 시세 상태: live:yahoo-proxy · 갱신 지연 ▲ +240.96 (+0.81%) 나스닥 100 현물 29,490.28 시세 상태: live:yahoo-proxy · 갱신 지연 ▼ -0.13% 20거래일 -3.1%
+					278 text 나스닥 100 선물
+					279 container
+						280 text 29,916.25
+						281 image Description: 시세 상태: live:yahoo-proxy · 갱신 지연, Help: live:yahoo-proxy · 갱신 지연
+					282 container 참고용 값 · 관측 10. 21. 오전 08:07 — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.
+						283 text ▲  +240.96 (+0.81%)
+					284 container
+						285 text 나스닥 100 현물 
+						286 text 29,490.28
+						287 image Description: 시세 상태: live:yahoo-proxy · 갱신 지연, Help: live:yahoo-proxy · 갱신 지연
+						288 container 참고용 값 · 관측 10. 21. 오전 08:07 — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.
+							289 text ▼  -0.13%
+					290 container 나스닥 100 현물 2026-09-21 종가 → 2026-10-19 종가 (20거래일) · 기간 저점 29188 · 고점 31224 · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다
+						291 text 20거래일 -3.1%
+				292 button WTI 원유 선물($) 98.17 시세 상태: live:yahoo-proxy · 갱신 지연 ▲ +0.35 (+0.36%) 20거래일 +8.2%, Help: WTI 원유 선물
+					293 text WTI 원유 선물($)
+					294 container
+						295 text 98.17
+						296 image Description: 시세 상태: live:yahoo-proxy · 갱신 지연, Help: live:yahoo-proxy · 갱신 지연
+					297 container 지연된 값 · 관측 10. 21. 오전 07:30 — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.
+						298 text ▲  +0.35 (+0.36%)
+					299 container WTI 2026-09-21 종가 → 2026-10-19 종가 (20거래일) · 기간 저점 88.28 · 고점 103.66 · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다
+						300 text 20거래일 +8.2%
+			301 container home-cross-assets
+				302 button 달러 지수 101.73 시세 상태: live:yahoo-proxy · 갱신 지연 ▲ +0.03%, Help: 달러 인덱스(DXY) — 주요 6개 통화 대비 달러 가치
+					303 text 달러 지수
+					304 text 101.73
+					305 image Description: 시세 상태: live:yahoo-proxy · 갱신 지연, Help: live:yahoo-proxy · 갱신 지연
+					306 container 지연된 값 · 관측 10. 21. 오전 07:04 — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.
+						307 text ▲  +0.03%
+				308 button 금 4,139.20 시세 상태: live:yahoo-proxy · 갱신 지연 ▼ -0.08%, Help: 금 가격
+					309 text 금
+					310 text 4,139.20
+					311 image Description: 시세 상태: live:yahoo-proxy · 갱신 지연, Help: live:yahoo-proxy · 갱신 지연
+					312 container 지연된 값 · 관측 10. 21. 오전 07:30 — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.
+						313 text ▼  -0.08%
+				314 button 코스피 10/20 종가 5,552.74 ▼ -3.73%, Help: 한국 정규장 확정 종가 · 등락은 그 전 거래일 종가 대비, ID: home-kospi-chip
+					315 text 코스피 10/20 종가
+					316 text 5,552.74
+					317 container home-kospi-chg
+						318 text ▼  -3.73%
+				319 container 비트코인 — 24시간 거래 자산이라 미국 정규장 종가 개념이 없습니다 · 연결된 분석 화면 없음
+					320 text BTC
+					321 text 82,972.00
+					322 image Description: 시세 상태: live:coingecko · 18초 전, Help: live:coingecko · 18초 전
+					323 container 지연된 값 · 관측 10. 21. 오전 07:40 — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.
+						324 text ▲  +1.20%
+					325 text 24시간 시세
+			326 container home-daily-loop
+				327 container Description: 내 종목, ID: home-my-names
+					328 heading 내 종목, Value: 2
+						329 text 내 종목
+					330 container
+						331 text 관심·보유 종목이 없습니다 스크리너나 종목 화면에서 관심 종목(워치리스트)에 추가한 종목이 여기에서 매일 정리됩니다.
+				332 container Description: 다가오는 일정, ID: home-schedule
+					333 heading 다가오는 일정 3일 · 한국 시간, Value: 2
+						334 text 다가오는 일정 3일 · 한국 시간
+					335 content list
+						336 container
+							337 text 10/21 미국 장 마감 후 (시각 미정) Meta Platforms (META) 실적
+						338 container
+							339 text 10/21 미국 장 마감 후 (시각 미정) Tesla (TSLA) 실적
+						340 container
+							341 text 10/21 미국 장 마감 후 (시각 미정) Lam Research (LRCX) 실적
+						342 container
+							343 text 10/22(목) 10:00 KST 한국은행 기준금리 결정 원화·한국 금리의 기준
+						344 container
+							345 text 10/22 미국 장 전 (시각 미정) Procter & Gamble (PG) 실적
+					346 text 외 61건은 생략했습니다 — 브리핑의 7일 일정에 더 많은 일정이 있습니다.
+					347 button 7일 일정과 시장 해석 → 브리핑
+			348 container home-sector-moves
+				349 heading 섹터 등락, Value: 2
+					350 text 섹터 등락
+				351 text 10/20 종가 · 미국 섹터 ETF 11개
+				352 text 헬스케어(+2.38%)가 가장 강했고 기술(-0.27%)이 가장 약했습니다. 10개 섹터가 올랐습니다.
+				353 content list
+					354 container 헬스케어 (XLV) · 1일 2.38% · 1주 5.99% · 회전 선도(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						355 text 헬스케어
+						356 text +2.38%
+						357 text 선도
+					358 container 부동산 (XLRE) · 1일 1.70% · 1주 1.31% · 회전 개선(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						359 text 부동산
+						360 text +1.70%
+						361 text 개선
+					362 container 유틸리티 (XLU) · 1일 1.26% · 1주 0.02% · 회전 개선(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						363 text 유틸리티
+						364 text +1.26%
+						365 text 개선
+					366 container 금융 (XLF) · 1일 1.20% · 1주 1.64% · 회전 개선(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						367 text 금융
+						368 text +1.20%
+						369 text 개선
+					370 container 경기소비재 (XLY) · 1일 0.92% · 1주 2.80% · 회전 기준선 부근(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						371 text 경기소비재
+						372 text +0.92%
+						373 text 기준선 부근
+					374 container 필수소비재 (XLP) · 1일 0.62% · 1주 4.23% · 회전 선도(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						375 text 필수소비재
+						376 text +0.62%
+						377 text 선도
+					378 container 소재 (XLB) · 1일 0.55% · 1주 3.04% · 회전 개선(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						379 text 소재
+						380 text +0.55%
+						381 text 개선
+					382 container 에너지 (XLE) · 1일 0.25% · 1주 1.15% · 회전 선도(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						383 text 에너지
+						384 text +0.25%
+						385 text 선도
+					386 container 통신 (XLC) · 1일 0.09% · 1주 -1.86% · 회전 개선(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						387 text 통신
+						388 text +0.09%
+						389 text 개선
+					390 container 산업재 (XLI) · 1일 0.07% · 1주 -1.11% · 회전 개선(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						391 text 산업재
+						392 text +0.07%
+						393 text 개선
+					394 container 기술 (XLK) · 1일 -0.27% · 1주 -5.51% · 회전 후행(약 50일 기준) · 섹터 ETF 일봉 종가로 계산
+						395 text 기술
+						396 text -0.27%
+						397 text 후행
+				398 text 오른쪽 표시는 S&P 500 대비 상대강도 회전(선도·개선·약화·후행, 약 50일 기준)이며, 기준선(100) 근처는 '기준선 부근'으로 적습니다. 선도 섹터의 최근 5거래일 상대강도가 평소 5일 움직임의 2배 넘게 꺾였으면 회전 위치 대신 5일 상대 변화를 적습니다. 테마 단계는 1개월과 3~6개월 수익률로 따로 판정하므로 같은 섹터가 다르게 불릴 수 있습니다.
+			399 text AI에게 묻기
+			400 button 오늘 시장 환경 요약
+			401 button 우선 확인할 것
+			402 button 흐름별 확인할 것
+			403 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				404 text 데이터 출처
+
+The focused UI element is 46 heading 대시보드, Value: 1, ID: page-home-label

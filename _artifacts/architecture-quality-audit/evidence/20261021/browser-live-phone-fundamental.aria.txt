@@ -1,0 +1,189 @@
+Browser tab: 1, Title: "재무 공시 · AIO Screener", URL: "https://ysnle.github.io/aio-screener/#fundamental".
+1 AXWebArea 재무 공시 · AIO Screener, URL: ysnle.github.io/aio-screener/#fundamental
+	2 link Description: 메인 콘텐츠로 건너뛰기, Value: ysnle.github.io/aio-screener/#main-content
+	3 container
+		4 button (collapsed) Description: 메뉴 열기, Help: 사이드바 열기/닫기, ID: sidebar-toggle-btn, Secondary Actions: Expand
+		5 text 종가
+		6 container Help: 미국 정규장 마감 · 10/20 종가 기준 (최신 관측 10/21 06:15 KST), ID: live-quote-ts
+			7 text 10/20 마감 · 시세 16종 · 실시간 관측 41종 10/20 마감
+		8 text v58.52
+		9 button 도움말, Help: 도움말 · 화면 안내와 판정 기준, ID: topbar-help-btn
+		10 button (collapsed) Description: AI 도우미 열기/닫기, Help: AI 도우미 · 교육/리서치 보조 사이드바, ID: topbar-ai-btn, Secondary Actions: Expand
+	11 container main-content
+		12 container Description: 화면 안 하위 메뉴, ID: aio-hub-tabs
+			13 button 요약
+			14 button 차트
+			15 button 재무 공시
+			16 text AAPL
+			17 text Apple Inc.
+			18 button 다른 종목
+		19 container 재무 공시, ID: page-fundamental
+			20 heading 재무 공시, Value: 1, ID: page-fundamental-label
+				21 text 재무 공시
+			22 text 공시 재무(미국 SEC · 한국 DART) — 매출·이익·현금흐름이 같은 기간에 어떻게 움직였는지
+			23 text ● SEC 연간 공시 · 회계연도 말 2025-09-27
+			24 text field (settable) Description: 기업 분석 종목 티커 입력, Value: AAPL, ID: fund-search-input
+			25 button 기업 분석
+			26 text 최근 검색
+			27 container fund-recent-searches
+				28 text AAPL NVDA ZZZZINVALID
+			29 container Description: 재무 흐름, ID: fund-flow
+				30 heading 재무 흐름 SEC 연간 · 6개 회계연도, Value: 2
+					31 text 재무 흐름 SEC 연간 · 6개 회계연도
+				32 container
+					33 text 연간 공시 · 회계연도 말 2025-09-27 · 회계연도 말로부터 388일 · 제출 2025-10-31 · 금액 USD  · 
+					34 link Description: 이 연간 공시 원문 확인, Value: sec.gov/Archives/edgar/data/320193/000032019325000079/0000320193-25-000079-index.html
+				35 text AAPL — FY2025 매출 +6.4% · 순이익률 26.9% · ROE 171.4%(평균 자기자본 기준)
+				36 container 연간 매출과 순이익 차트, 가로 스크롤
+					37 text 매출 $274.5B
+					38 text 순이익 $57.4B
+					39 container
+						40 text 0
+					41 text 연간 2020-09-26
+					42 text 순이익률 20.9%
+					43 text 매출 $365.8B
+					44 text 순이익 $94.7B
+					45 text 연간 2021-09-25
+					46 text 순이익률 25.9%
+					47 text 매출 $394.3B
+					48 text 순이익 $99.8B
+					49 text 연간 2022-09-24
+					50 text 순이익률 25.3%
+					51 text 매출 $383.3B
+					52 text 순이익 $97.0B
+					53 text 연간 2023-09-30
+					54 text 순이익률 25.3%
+					55 text 매출 $391.0B
+					56 text 순이익 $93.7B
+					57 text 연간 2024-09-28
+					58 text 순이익률 24.0%
+					59 text 매출 $416.2B
+					60 text 순이익 $112.0B
+					61 text 연간 2025-09-27
+					62 text 순이익률 26.9%
+				63 text 매출
+				64 text 순이익 0선 위 이익 · 아래 손실, 같은 금액 척도
+				65 button (collapsed) 연간 금액표 보기 · 6개 회계연도, Secondary Actions: Expand
+					66 text 연간 금액표 보기 · 6개 회계연도
+				67 text 분기 흐름 · 최근 8개 분기
+				68 text 최근 분기(2026-06 마감) 매출은 전년 같은 분기보다 +16.4% — 전년 대비 성장률이 비슷하게 유지된다.
+				69 container 분기 매출과 순이익 차트, 가로 스크롤
+					70 text 매출 $94.9B
+					71 text 순이익 $14.7B
+					72 container
+						73 text 0
+					74 text 분기 2024-09-28*
+					75 text 순이익률 15.5%
+					76 text 전년 같은 분기 없음
+					77 text 매출 $124.3B
+					78 text 순이익 $36.3B
+					79 text 분기 2024-12-28
+					80 text 순이익률 29.2%
+					81 text 전년 같은 분기 없음
+					82 text 매출 $95.4B
+					83 text 순이익 $24.8B
+					84 text 분기 2025-03-29
+					85 text 순이익률 26.0%
+					86 text 전년 같은 분기 없음
+					87 text 매출 $94.0B
+					88 text 순이익 $23.4B
+					89 text 분기 2025-06-28
+					90 text 순이익률 24.9%
+					91 text 전년 같은 분기 없음
+					92 text 매출 $102.5B
+					93 text 순이익 $27.5B
+					94 text 분기 2025-09-27*
+					95 text 순이익률 26.8%
+					96 text 매출 전년비 +7.9%
+					97 text 매출 $143.8B
+					98 text 순이익 $42.1B
+					99 text 분기 2025-12-27
+					100 text 순이익률 29.3%
+					101 text 매출 전년비 +15.7%
+					102 text 매출 $111.2B
+					103 text 순이익 $29.6B
+					104 text 분기 2026-03-28
+					105 text 순이익률 26.6%
+					106 text 매출 전년비 +16.6%
+					107 text 매출 $109.4B
+					108 text 순이익 $29.8B
+					109 text 분기 2026-06-27
+					110 text 순이익률 27.2%
+					111 text 매출 전년비 +16.4%
+				112 text 매출
+				113 text 순이익 0선 위 이익 · 아래 손실, 같은 금액 척도
+				114 text 각 3개월의 실적이며 연간 금액과 구분합니다. * 분기는 연간 실적에서 1~3분기를 뺀 계산값입니다.
+				115 button (collapsed) 분기 금액표 보기 · 8개 분기, Secondary Actions: Expand
+					116 text 분기 금액표 보기 · 8개 분기
+				117 content list
+					118 container
+						119 text 매출 흐름 최근 회계연도 매출 $416.2B(+6.4%) · 약 5년 연평균 +8.7%. 2년 연속 증가입니다.
+					120 container
+						121 text 수익성 순이익률 26.9%(2022 회계연도 25.3%) — 수익성이 비슷하게 유지됩니다.
+					122 container
+						123 text 이익과 가격 순이익 $112.0B(+19.5%), PER 38.9배(최근 4개 분기 공시 순이익 합 · 2026-06 분기까지), PEG 약 1.30(최근 4개 분기 PER ÷ 그 전 4개 분기 대비 순이익 성장률). PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.
+					124 container
+						125 text 자본 효율 ROE 171.4%(평균 자기자본 기준)
+						126 button (collapsed) 해석과 확인할 조건, Secondary Actions: Expand
+							127 text 해석과 확인할 조건
+					128 container
+						129 text 현금 전환 영업현금흐름 $111.5B(순이익의 100%), 설비투자 $12.7B를 뺀 잉여현금흐름 $98.8B(매출의 23.7%) — 이익이 현금으로 들어오고 있습니다.
+					130 container
+						131 text 부채 장기부채 $78.3B(전년 대비 -8.7%) · 자기자본 대비 106%.
+					132 container
+						133 text 주식 수 5년 동안 발행 주식 수 -13.1% — 남은 주주의 지분 비율이 커졌습니다(주당 가치가 커졌는지는 매입 가격과 쓴 현금에 달림).
+					134 container
+						135 text 주가와 실적의 기간 주가는 최근 6개월 +27.8%, 매출은 2025-09에 끝난 회계연도에 +6.4%입니다. 두 숫자는 기간이 달라 직접 비교하지 않습니다 — 주가가 반영하는 것은 앞으로의 실적이고, 다음 분기 공시가 그 기대를 확인합니다.
+					136 container
+						137 text 시장 기대(컨센서스) Forward PER 약 36.9배 · 직전 4개 분기 조정 기준 39.4배 · 예상 이익 +7%
+						138 button (collapsed) 해석과 확인할 조건, Secondary Actions: Expand
+							139 text 해석과 확인할 조건
+				140 text 같은 섹터와 비교 · Technology 153곳
+				141 text 같은 섹터 SEC 공시 기업 153곳과 비교: 상위 25% 안 — 순이익률 · ROE(평균 자기자본) / 하위 25% 안 — 매출 성장.
+				142 text 매출 성장
+				143 text 6.4% · 중앙값 15.6% · 상위 79% 순이익률
+				144 text 26.9% · 중앙값 10.2% · 상위 15% 잉여현금 마진
+				145 text 23.7% · 중앙값 18.5% · 상위 34% ROE(평균 자기자본)
+				146 text 171.4% · 중앙값 10.4% · 상위 1%
+				147 button (collapsed) 비교 범위와 계산 기준, Secondary Actions: Expand
+					148 text 비교 범위와 계산 기준
+			149 button (collapsed) SEC 연간 공시 요약 · Apple Inc., ID: fund-native-sec-title, Secondary Actions: Expand
+				150 text SEC 연간 공시 요약 · Apple Inc.
+			151 container 이 화면을 볼 때 — 속지 말 것과 원칙
+				152 heading 이 화면을 볼 때 — 속지 말 것과 원칙, Value: 2, ID: screen-lessons-fundamental-title
+					153 text 이 화면을 볼 때 — 속지 말 것과 원칙
+				154 content list
+					155 container
+						156 text 속지 말 것 '많이 빠졌으니 싸다' 가격이 내렸다고 싸진 것은 아닙니다. 이익 전망이 함께 내려가면 가격이 내려도 밸류에이션은 그대로이거나 오히려 비싸집니다. 왜: 싸다는 판단은 가격이 아니라 가격 ÷ 앞으로의 이익으로 합니다. 하락 추세에서는 그 이익이 아직 내려가는 중일 수 있습니다.
+						157 button '많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기
+					158 container
+						159 text 믿을 것 이익 전망이 고쳐지는 방향 주가는 기대보다 먼저 흔들리지만, 애널리스트가 이익 전망을 올리는 회사가 많은지 내리는 회사가 많은지는 기업 현장의 변화를 더 꾸준히 보여 줍니다. 왜: 주가는 결국 이익을 따라갑니다. 전망을 내리는 회사가 늘어나는 동안의 반등은 오래가기 어렵고, 올리는 회사가 늘면 조정이 와도 바탕이 남습니다.
+						160 button 이익 전망이 고쳐지는 방향 — 리서치 라이브러리에서 개념 배우기
+					161 container
+						162 text 믿을 것 숫자는 기대·자기 역사와 비교해서 "물가 3%", "실업률 4%" 같은 수준 하나로는 좋고 나쁨을 알 수 없습니다. 시장이 기대했던 값, 그 지표의 과거 범위, 다른 시장의 같은 지표와 비교했을 때 비로소 의미가 생깁니다. 왜: 가격은 이미 기대를 반영하고 있어, 기대와의 차이와 평소 범위를 벗어난 정도가 움직임을 만듭니다.
+						163 button 숫자는 기대·자기 역사와 비교해서 — 리서치 라이브러리에서 개념 배우기
+			164 container Description: 이어서 볼 곳, ID: fund-next
+				165 heading 이어서 볼 곳, Value: 2
+					166 text 이어서 볼 곳
+				167 content list
+					168 container
+						169 button 요약 →
+						170 text 실적 흐름과 주가 추세·섹터 회전이 같은 방향인지
+					171 container
+						172 button 차트 →
+						173 text 실적이 뒷받침하는 추세에서 지금이 셋업 구간인지
+					174 container
+						175 button 뉴스 →
+						176 text AAPL 실적 발표·가이던스 소식
+					177 container
+						178 button 테마 시나리오 →
+						179 text 이 회사가 속한 테마가 지금 어느 단계이고 거시와 어떤 방향인지
+					180 container
+						181 button 거시 시나리오 →
+						182 text 금리·경기 시나리오에서 이 실적 흐름이 수혜인지 부담인지
+			183 button (collapsed) 추가 시세·외부 지표 (일부 항목 없음 · 재무 수치는 위 공시 기준), Secondary Actions: Expand
+				184 text 추가 시세·외부 지표 (일부 항목 없음 · 재무 수치는 위 공시 기준)
+			185 button (collapsed) 데이터 출처, Secondary Actions: Expand
+				186 text 데이터 출처
+
+The focused UI element is 20 heading 재무 공시, Value: 1, ID: page-fundamental-label

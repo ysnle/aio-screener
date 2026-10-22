@@ -7,7 +7,7 @@
 //   2. recent contradiction: when the last five sessions move against the verdict by more than twice the series' own
 //      typical weekly move (median absolute 5-session move), the label says so and drops present-tense direction words.
 // The RRG neutral band (경계) also lives here so every reader of sector rotation (테마·섹터, the market screens) shares it.
-import { buildCloseSeries } from '../briefing/market-read.js';
+import { buildCloseSeries } from '../market/close-series.js';
 import { classifyRRG, RRG_QUADRANT_WORDS } from './rrg.js';
 
 export const RECENT_SESSIONS = 5;

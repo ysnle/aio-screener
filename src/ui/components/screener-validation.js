@@ -11,6 +11,18 @@ import { el } from './dom.js';
 export const VALIDATION_MIN_REBALANCES = 12;
 export const VALIDATION_MIN_ABS_T = 2;
 
+// v58.63 (architecture audit A11): the colour and 판단 가능 of the top-minus-bottom spread come from the spread's own
+// per-rebalance series (one-sample t of its mean), never from the composite IC t — a rank correlation can be steady while
+// the return gap is carried by one date (IC t 61408 beside a spread t of 1.1).
+export function meanTStat(values) {
+  const xs = (Array.isArray(values) ? values : []).map(Number).filter(Number.isFinite);
+  const n = xs.length;
+  if (n < 2) return null;
+  const mean = xs.reduce((sum, x) => sum + x, 0) / n;
+  const sd = Math.sqrt(xs.reduce((sum, x) => sum + (x - mean) ** 2, 0) / (n - 1));
+  return sd > 0 ? mean / (sd / Math.sqrt(n)) : null;
+}
+
 const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(value)) ? '—' : `${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(digits)}%`);
 
 export function summarizeValidation(history = [], status = null, liveWeights = null) {
@@ -28,9 +40,11 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
   // v57.50 D11: six rebalances with a composite IC t of about -0.26 were read as "뒤처졌습니다" in a burden colour.
   // A sign is a finding only with |t| >= 2 on at least 12 rebalances; otherwise the record says it cannot tell yet.
   // t is the record's own statistic when it carries one (ic.compositeT / icT); it is never estimated from the pooled n.
-  const tStat = Number.isFinite(Number(last?.ic?.compositeT)) ? Number(last.ic.compositeT) : Number.isFinite(Number(last?.icT)) ? Number(last.icT) : null;
+  const icT = Number.isFinite(Number(last?.ic?.compositeT)) ? Number(last.ic.compositeT) : Number.isFinite(Number(last?.icT)) ? Number(last.icT) : null;
+  const spreadSeries = Array.isArray(last?.quantileSpreadNetByDate) ? last.quantileSpreadNetByDate.map(Number).filter(Number.isFinite) : [];
+  const tStat = meanTStat(spreadSeries);
   const samples = Number.isFinite(Number(last?.dates)) ? Number(last.dates) : null;
-  const distinguishable = samples != null && samples >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
+  const distinguishable = spreadSeries.length >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
   const tone = !last || !Number.isFinite(Number(last.quantileSpreadNet)) ? 'unknown' : !distinguishable ? 'neutral' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
   const undecided = `아직 우연과 구별 안 됨(표본 ${samples ?? '—'}회${tStat != null ? `, t=${tStat.toFixed(2)}` : ''})`;
   // P1449: stored rows must carry the model fingerprint. A mismatch — or no fingerprint at all
@@ -55,6 +69,7 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
     modelMatch,
     tone,
     tStat,
+    icT,
     distinguishable,
     undecided,
     verdict: !last ? '사후 검증 기록 수신 대기'
@@ -128,8 +143,7 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   const wins = rate == null ? null : Math.round(rate / 100 * samples);
   // Review fix: t comes only from the record that supplies the sample count (the screener artifact's backtest); without it
   // the sample cannot decide.
-  const tStat = finiteOrNull(backtest.ic?.compositeT);
-  const distinguishable = samples >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
+  const icT = finiteOrNull(backtest.ic?.compositeT);
   const liveFingerprint = liveScreenerModelFingerprint(metadata?.ranking?.appliedFactorWeights);
   const modelMatch = backtest.modelFingerprint != null && liveFingerprint != null && backtest.modelFingerprint === liveFingerprint;
   const icByDate = Array.isArray(backtest.icByDate?.composite) ? backtest.icByDate.composite : [];
@@ -147,6 +161,9 @@ export function readValidationState({ metadata = null, root = null, listingMarke
     bottom: finiteOrNull(byDate('bottomQuintileMeanByDate')[index]),
     cost: finiteOrNull(byDate('transactionCostByDate')[index])
   })).filter((point) => point.gross != null && point.top != null && point.bottom != null);
+  const spreadNets = spreadPoints.map((point) => point.net).filter((value) => value != null);
+  const tStat = meanTStat(spreadNets);
+  const distinguishable = spreadNets.length >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
   const sentence = [
     modelMatch ? null : '지금 가중치와 다른 모델로 계산된 기록입니다.',
     `과거 ${samples}회 시점에서 상위 20%가 하위 20%보다 앞선 건 ${wins == null ? '—' : `${wins}회`}, 평균 ${signedPp(net)}(비용 반영)입니다.`,
@@ -158,7 +175,7 @@ export function readValidationState({ metadata = null, root = null, listingMarke
     state: distinguishable ? (net > 0 ? 'favorable' : 'burden') : 'undecided',
     chips: [gateChip, distinguishable ? null : '판단 불가'].filter(Boolean),
     sentence,
-    samples, net, wins, winsBasis: netRate != null ? '비용 후' : '비용 전', tStat, distinguishable, modelMatch,
+    samples, net, wins, winsBasis: netRate != null ? '비용 후' : '비용 전', tStat, icT, distinguishable, modelMatch,
     fwdDays: finiteOrNull(backtest.fwdDays) ?? 21,
     asOf: backtest.asOf ? String(backtest.asOf).slice(0, 10) : null,
     points: icDates.map((date, index) => ({ date, ic: finiteOrNull(icByDate[index]) })).filter((point) => point.ic != null),
@@ -181,7 +198,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
     kpis.append(
       tile('상위 − 하위 평균', signedPp(read.net), `비용 반영 · ${read.fwdDays}거래일 뒤 · 같은 비중`, read.distinguishable ? `is-${read.state}` : ''),
       tile('상위가 앞선 횟수', read.wins == null ? '—' : `${read.wins} / ${read.samples}`, read.wins == null ? '기록 없음' : `${read.winsBasis} · 동전 던지기 기댓값 ${Number.isInteger(half) ? half : half.toFixed(1)}회${read.wins < half ? '보다 적음' : read.wins > half ? '보다 많음' : '와 같음'}`),
-      tile('표본 판단', read.distinguishable ? '판단 가능' : '판단 불가', `시점 ${read.samples}회 · ${read.tStat != null ? `t ${read.tStat.toFixed(2)}` : 't 미계산'} · ${VALIDATION_MIN_REBALANCES}회·|t| ${VALIDATION_MIN_ABS_T} 이상에서 판단`)
+      tile('표본 판단', read.distinguishable ? '판단 가능' : '판단 불가', `시점 ${read.samples}회 · ${read.tStat != null ? `차이의 t ${read.tStat.toFixed(2)}` : '차이의 t 미계산'} · ${VALIDATION_MIN_REBALANCES}회·|t| ${VALIDATION_MIN_ABS_T} 이상에서 판단`)
     );
     parts.push(kpis);
   } else {

@@ -7,7 +7,8 @@
 // Likelihood has three evidence lines only (AGENTS 2026-10-13): met-condition count, the direction market prices
 // lean, and past frequency (long history from scenario-outcomes.json when published, else AIO's own closes) with its
 // sample size. Never a probability percentage, a price, a size, a date to act or a named stock.
-import { buildCloseSeries, sessionPointBack, dollarRiseBurden } from '../briefing/market-read.js';
+import { dollarRiseBurden } from '../briefing/market-read.js';
+import { buildCloseSeries, sessionPointBack } from './close-series.js';
 import { releaseAtMs } from '../briefing/schedule.js';
 import { seriesOf, yoySeries, annualised3m } from '../macro/macro-read.js';
 import { RULES } from '../rules/thresholds.js';
@@ -305,7 +306,7 @@ export const BRANCHES = Object.freeze([
     costly: ['stage'],
     explore: [['fxbond', '금리 · 환율', '달러·원화·엔화 추이'], ['themes', '테마 · 섹터', '한국 수출 테마의 상대강도']] },
   { id: 'reflation', shape: 'expansion', axes: ['growth', 'rates'], title: '성장 재가속 — 금리와 이익이 함께 오르는 시나리오',
-    gate: [0], conditions: [[`일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이며 그 전 3개월보다 많음`, (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 >= G.payrollSolidK && s.payroll3 > s.payrollPrior3 : null], ['소매판매 전년 대비 3% 이상', (s) => has(s.retailYoy) ? s.retailYoy >= 3 : null], ['10년물 상승 + 장단기 금리차 확대, 기간 프리미엄은 오르지 않음 (성장 기대형 금리 상승, 각각 평소 변동 범위 밖)', (s) => all(s.tnx20, s.curve20) ? rose(s, 'tnx20') && rose(s, 'curve20') && !rose(s, 'termPremium20') : null], ['시장 폭 양호', (s) => s.breadth == null ? null : s.breadth === 'favorable']],
+    gate: [0], conditions: [[`일자리 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이며 그 전 3개월보다 많음`, (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 >= G.payrollSolidK && s.payroll3 > s.payrollPrior3 : null], ['소매판매 전년 대비 3% 이상', (s) => has(s.retailYoy) ? s.retailYoy >= 3 : null], ['10년물 상승 + 장단기 금리차 확대, 기간 프리미엄은 오르지 않음 (성장 기대형 금리 상승, 각각 평소 변동 범위 밖)', (s) => all(s.tnx20, s.curve20, s.termPremium20) ? rose(s, 'tnx20') && rose(s, 'curve20') && !rose(s, 'termPremium20') : null] /* v58.63 (audit M02): an unmeasured term premium is unknown, not "did not rise" */, ['시장 폭 양호', (s) => s.breadth == null ? null : s.breadth === 'favorable']],
     chain: ['고용·소비 재가속', '이익 추정치 상향', '성장 기대로 금리 상승', '경기민감·금융 이익 개선', '방어·배당주 상대 부진'],
     firmer: ['cyclical', 'financials', 'energy', 'consumer'], weaker: ['defensive', 'yield'],
     triggers: [['us-nfp', '일자리 20만 명 이상', (a) => a.payroll >= 200], ['us-retail', '소매판매 전월 대비 +0.5% 이상', (a) => a.mom >= 0.5]],
