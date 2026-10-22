@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-22T12:51:42.490Z",
-  "attemptedAt": "2026-10-22T12:51:42.490Z",
-  "lastSuccessfulAt": "2026-10-22T12:51:42.490Z",
+  "generatedAt": "2026-10-22T13:09:40.308Z",
+  "attemptedAt": "2026-10-22T13:09:40.308Z",
+  "lastSuccessfulAt": "2026-10-22T13:09:40.308Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-08T12:51:37.181Z",
-  "until": "2026-10-22T12:51:37.181Z",
+  "since": "2026-10-08T13:09:33.786Z",
+  "until": "2026-10-22T13:09:33.786Z",
   "current24hWindow": {
     "start": "2026-10-20T23:00:00.000Z",
     "end": "2026-10-21T23:00:00.000Z",
@@ -90,11 +90,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1196,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 1148,
       "selectedCount": 120,
       "error": null,
@@ -105,9 +105,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 223,
+      "count": 221,
       "freshCount": 20,
-      "eligibleTextCount": 223,
+      "eligibleTextCount": 221,
       "selectedCount": 95,
       "error": null,
       "lastPostId": 20768
@@ -117,16 +117,16 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 704,
+      "count": 706,
       "freshCount": 39,
-      "eligibleTextCount": 704,
+      "eligibleTextCount": 706,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70853
+      "lastPostId": 70855
     }
   ],
   "count": 2385,
-  "retainedItemCount": 457,
+  "retainedItemCount": 441,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -136,7 +136,7 @@
     "eligibleTextCount": 2326,
     "mediaOnlyCount": 59,
     "highSignalCount": 521,
-    "broadSignalCount": 1063,
+    "broadSignalCount": 1064,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
     "selectedRawCoveragePct": 17.3,
@@ -144,15 +144,15 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "earnings": 499,
-    "geo": 347,
-    "macro": 794,
-    "kr-market": 169,
-    "equity": 169,
-    "power": 339,
-    "credit": 113,
+    "macro": 796,
+    "geo": 348,
+    "credit": 114,
     "semi": 597,
-    "healthcare": 136,
+    "power": 339,
+    "equity": 169,
+    "earnings": 498,
+    "kr-market": 169,
+    "healthcare": 134,
     "japan": 145,
     "market-note": 801,
     "ai-policy": 179,
@@ -163,6 +163,9 @@
     "crypto": 6
   },
   "tickerCounts": {
+    "MSFT": 50,
+    "AVGO": 20,
+    "ORCL": 8,
     "BE": 19,
     "META": 17,
     "NVDA": 133,
@@ -177,7 +180,6 @@
     "AMZN": 40,
     "AMD": 41,
     "CRWV": 21,
-    "MSFT": 49,
     "WDC": 8,
     "028050.KS": 1,
     "SHOP": 2,
@@ -189,13 +191,11 @@
     "SMCI": 6,
     "LITE": 14,
     "005930.KS": 51,
-    "ORCL": 7,
     "DELL": 1,
     "T": 6,
     "COHR": 7,
     "SNDK": 6,
     "ADBE": 2,
-    "AVGO": 19,
     "2454.TW": 3,
     "UMC": 1,
     "STX": 6,
@@ -242,14 +242,14 @@
     "CRWD": 1
   },
   "themes": [
-    "Market Notes (801 posts in 14-day research window): 테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한...",
-    "Macro/Rates (794 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
+    "Market Notes (801 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
+    "Macro/Rates (796 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
     "Semiconductors/Memory (597 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
-    "Earnings/Corporate (499 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
-    "Geopolitics (347 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
+    "Earnings/Corporate (498 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
+    "Geopolitics (348 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
     "AI Power/Grid (339 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "AI Policy/Export Controls (179 posts in 14-day research window): 오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
-    "Korea Market (169 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
+    "Equity/Analyst (169 posts in 14-day research window): SpaceX 2026년 3분기 어닝콜 Q&A 세션 중 테라팹(Terafab) : 내년(2027년) 5~6월경 오스틴 리서치 팹에서 라인 테스트용 첫 기능성 테스트 칩(SRAM 등)을 가동하는 것이 목표 ...."
   ],
   "catalysts": [
     {
@@ -270,7 +270,7 @@
     {
       "key": "TSLA",
       "count": 61,
-      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
+      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     },
     {
       "key": "000660.KS",
@@ -284,8 +284,8 @@
     },
     {
       "key": "MSFT",
-      "count": 49,
-      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
+      "count": 50,
+      "text": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가. 여기에는 데이터센터 임대 계약 3,557억 달러와 클라우드 컴퓨팅 등 관련 계약 4,545억달러 포함 •목요일..."
     },
     {
       "key": "MU",
@@ -308,9 +308,9 @@
       "text": "중신증권: 코어위브(CoreWeave)에 대한 시장 우려는 과도, 네오클라우드 기업의 단기 자금 부족분은 ‘여전히 감당 가능’ 중신증권은 10월 19일 최신 보고서 《네오클라우드(Neocloud)의 부채..."
     },
     {
-      "key": "BE",
-      "count": 19,
-      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
+      "key": "AVGO",
+      "count": 20,
+      "text": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가. 여기에는 데이터센터 임대 계약 3,557억 달러와 클라우드 컴퓨팅 등 관련 계약 4,545억달러 포함 •목요일..."
     }
   ],
   "categories": [
@@ -320,7 +320,7 @@
       "topics": [
         "macro"
       ],
-      "count": 794,
+      "count": 796,
       "focus": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
     },
     {
@@ -329,7 +329,7 @@
       "topics": [
         "geo"
       ],
-      "count": 347,
+      "count": 348,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀...."
     },
     {
@@ -338,8 +338,8 @@
       "topics": [
         "credit"
       ],
-      "count": 113,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI 플랫폼 구축을 넘어 미국 전역의 신규 고객 확보로 협력 범위를 확대할 계획. • 엔비디아 (NVDA) —..."
+      "count": 114,
+      "focus": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가. 여기에는 데이터센터 임대 계약 3,557억 달러와 클라우드 컴퓨팅 등 관련 계약 4,545억달러 포함 •목요일..."
     },
     {
       "id": "semi",
@@ -410,7 +410,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 499,
+      "count": 498,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 136,
+      "count": 134,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · AMN Healthcare Services · Avantor · BeOne Medicines · Cardinal..."
     },
     {
@@ -456,7 +456,7 @@
         "market-note"
       ],
       "count": 801,
-      "focus": "테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한..."
+      "focus": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     }
   ],
   "pageMap": {
@@ -700,6 +700,28 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "HANAchina/70854",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70854",
+      "datetime": "2026-10-22T13:06:33.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "AVGO",
+        "ORCL"
+      ],
+      "summary": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가...."
+    },
+    {
       "id": "insidertracking/67021",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67021",
@@ -826,26 +848,18 @@
       "datetime": "2026-10-22T05:15:32.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
       "tickers": [
         "NVDA",
         "TSLA",
         "MSFT",
         "BE",
         "WDC"
-      ],
-      "summary": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
+      ]
     },
     {
       "id": "insidertracking/66971",
@@ -1609,27 +1623,46 @@
         "NVDA",
         "CRWV"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25856",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25856",
-      "datetime": "2026-10-15T07:03:19.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "JP모건 Data Assets & Alpha Group의 10월 15일자 모닝 브리핑 중 테크와 한국 관련 내용을 정리 브리핑은 \"모든 것은 테크에 달려 있다\"는 진단으로 시작합니다. 오늘 아침 아시아태평양...",
-      "tickers": [
-        "MU",
-        "TSM",
-        "SNDK"
-      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/70855",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70855",
+      "datetime": "2026-10-22T13:08:24.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>사우디 아람코: 에너지 시장이 전례 없는 충격을 받고 있음 •사우디 아람코의 아민 나세르 사장 겸 CEO는 사우디 언론과의 인터뷰에서 현재 중동 정세가 에너지 시장에 전례 없는 충격을 주고 있다고 밝힘...."
+    },
+    {
+      "id": "HANAchina/70854",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70854",
+      "datetime": "2026-10-22T13:06:33.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "AVGO",
+        "ORCL"
+      ],
+      "summary": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가...."
+    },
     {
       "id": "insidertracking/67023",
       "channel": "insidertracking",
@@ -2071,17 +2104,14 @@
       "datetime": "2026-10-22T08:14:48.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "power",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "머스크, 테슬라·스페이스X 합병 추진 가능성…역대 최대 기업 합병 주목 일론 머스크가 테슬라(TSLA)와 스페이스X(SpaceX)의 사업 통합 가능성을 검토하면서 역사상 최대 규모의 기업 합병이 성사될지...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "머스크, 테슬라·스페이스X 합병 추진 가능성…역대 최대 기업 합병 주목 일론 머스크가 테슬라(TSLA)와 스페이스X(SpaceX)의 사업 통합 가능성을 검토하면서 역사상 최대 규모의 기업 합병이 성사될지..."
+      ]
     },
     {
       "id": "insidertracking/66998",
@@ -2090,15 +2120,14 @@
       "datetime": "2026-10-22T08:14:35.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
         "equity"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "저커버그, 억만장자세 논란에도 캘리포니아 잔류 결정 메타(META)의 최고경영자 마크 저커버그가 캘리포니아주의 억만장자세 도입 가능성에도 불구하고 향후 8년간 캘리포니아에 거주하기로 결정함. 앞서 저커버그는...",
       "tickers": [
         "META"
-      ],
-      "summary": "저커버그, 억만장자세 논란에도 캘리포니아 잔류 결정 메타(META)의 최고경영자 마크 저커버그가 캘리포니아주의 억만장자세 도입 가능성에도 불구하고 향후 8년간 캘리포니아에 거주하기로 결정함. 앞서 저커버그는..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25982",
@@ -2187,14 +2216,14 @@
       "datetime": "2026-10-22T06:01:12.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
+      "summary": "로이터에 따르면 일론 머스크가 이번 주 스페이스X와 테슬라의 합병 검토 사실을 공개적으로 확인하고 지지 의사를 밝히면서 합병 협상이 수주간 지연될 가능성 제기. 협상에 참여한 일부 관계자들은 머스크의 공개...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "로이터에 따르면 일론 머스크가 이번 주 스페이스X와 테슬라의 합병 검토 사실을 공개적으로 확인하고 지지 의사를 밝히면서 합병 협상이 수주간 지연될 가능성 제기. 협상에 참여한 일부 관계자들은 머스크의 공개..."
+      ]
     },
     {
       "id": "HANAchina/70836",
@@ -2265,26 +2294,18 @@
       "datetime": "2026-10-22T05:15:32.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "japan"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
       "tickers": [
         "NVDA",
         "TSLA",
         "MSFT",
         "BE",
         "WDC"
-      ],
-      "summary": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
+      ]
     },
     {
       "id": "insidertracking/66985",
@@ -2293,16 +2314,14 @@
       "datetime": "2026-10-22T05:15:24.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "semi"
+        "geo"
       ],
       "score": 83,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 22일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국과 이스라엘은 11월 3일 중간선거 이후 이란에 대한 추가 군사 공격을 계획 중이라고 NYT가 보도....",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 22일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국과 이스라엘은 11월 3일 중간선거 이후 이란에 대한 추가 군사 공격을 계획 중이라고 NYT가 보도...."
+      ]
     },
     {
       "id": "insidertracking/66983",
@@ -7350,36 +7369,6 @@
       "score": 91,
       "hasText": true,
       "summary": ">>급락을 정확히 예측한 BofA의 하트넷: ‘매도 신호’ 종료, 투자자들은 ‘11월 중순 기술주로 복귀’할 것… 핵심은 ‘반도체 가격’ •BofA는 ‘매도 신호’가 종료됐지만, 이것이 결코 저점 매수 신호는...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/70601",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70601",
-      "datetime": "2026-10-18T06:25:32.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "market-note"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": ">>주식·채권 동반 급락한 CoreWeave, 이번 AI 붕괴의 ‘태풍의 눈’ •CoreWeave 주가는 한 주 동안 25% 폭락했고, 투기등급 채권 수익률은 15%까지 급등했으며, 부도 확률은 60%를...",
-      "tickers": [
-        "CRWV"
-      ]
-    },
-    {
-      "id": "HANAchina/70600",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70600",
-      "datetime": "2026-10-18T06:24:53.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "macro"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": ">>미국과 유럽이 금융 리스크의 근원이 될 때 •과거에는 연준의 금리 인상과 달러 유동성 긴축을 논의할 때 자본의 미국 회귀를 출발점으로 삼아 대외부채가 많고 외환보유액이 부족한 신흥국을 살펴보는 경우가...",
       "tickers": []
     },
     {
