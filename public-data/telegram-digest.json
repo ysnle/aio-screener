@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-22T05:51:45.972Z",
-  "attemptedAt": "2026-10-22T05:51:45.972Z",
-  "lastSuccessfulAt": "2026-10-22T05:51:45.972Z",
+  "generatedAt": "2026-10-22T06:21:40.660Z",
+  "attemptedAt": "2026-10-22T06:21:40.660Z",
+  "lastSuccessfulAt": "2026-10-22T06:21:40.660Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-08T05:51:39.127Z",
-  "until": "2026-10-22T05:51:39.127Z",
+  "since": "2026-10-08T06:21:34.247Z",
+  "until": "2026-10-22T06:21:34.247Z",
   "current24hWindow": {
     "start": "2026-10-20T23:00:00.000Z",
     "end": "2026-10-21T23:00:00.000Z",
@@ -93,12 +93,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1190,
+      "count": 1191,
       "freshCount": 37,
-      "eligibleTextCount": 1144,
+      "eligibleTextCount": 1145,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66988
+      "lastPostId": 66990
     },
     {
       "channel": "bornlupin",
@@ -117,26 +117,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 705,
+      "count": 709,
       "freshCount": 39,
-      "eligibleTextCount": 705,
+      "eligibleTextCount": 709,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 70837
+      "lastPostId": 70841
     }
   ],
-  "count": 2380,
-  "retainedItemCount": 460,
+  "count": 2385,
+  "retainedItemCount": 459,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2380,
-    "eligibleTextCount": 2323,
+    "observedCount": 2385,
+    "eligibleTextCount": 2328,
     "mediaOnlyCount": 57,
-    "highSignalCount": 519,
-    "broadSignalCount": 1056,
+    "highSignalCount": 520,
+    "broadSignalCount": 1059,
     "selectedRawCount": 403,
     "selectedEligibleCount": 403,
     "selectedRawCoveragePct": 17.3,
@@ -144,28 +144,29 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "semi": 603,
+    "power": 339,
+    "healthcare": 137,
+    "macro": 786,
     "market-note": 801,
+    "geo": 345,
+    "equity": 164,
+    "earnings": 487,
     "credit": 113,
-    "macro": 785,
-    "semi": 601,
-    "earnings": 486,
     "media-only": 57,
     "optical": 53,
-    "power": 338,
     "ai-policy": 181,
-    "healthcare": 136,
     "japan": 143,
-    "geo": 344,
     "kr-market": 173,
-    "equity": 163,
     "flows": 158,
     "insider": 40,
     "crypto": 6
   },
   "tickerCounts": {
+    "AMD": 41,
+    "TSLA": 56,
     "NVDA": 130,
     "CRWV": 21,
-    "TSLA": 55,
     "MSFT": 50,
     "BE": 19,
     "WDC": 8,
@@ -192,7 +193,6 @@
     "COHR": 7,
     "SNDK": 6,
     "ADBE": 2,
-    "AMD": 40,
     "AVGO": 20,
     "2454.TW": 3,
     "UMC": 1,
@@ -243,11 +243,11 @@
   },
   "themes": [
     "Market Notes (801 posts in 14-day research window): 2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10,...",
-    "Macro/Rates (785 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가...",
-    "Semiconductors/Memory (601 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
-    "Earnings/Corporate (486 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
-    "Geopolitics (344 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
-    "AI Power/Grid (338 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "Macro/Rates (786 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가...",
+    "Semiconductors/Memory (603 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
+    "Earnings/Corporate (487 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
+    "Geopolitics (345 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
+    "AI Power/Grid (339 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "AI Policy/Export Controls (181 posts in 14-day research window): OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
     "Korea Market (173 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
   ],
@@ -274,7 +274,7 @@
     },
     {
       "key": "TSLA",
-      "count": 55,
+      "count": 56,
       "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
     },
     {
@@ -293,14 +293,14 @@
       "text": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
+      "key": "AMD",
+      "count": 41,
+      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
+    },
+    {
       "key": "AMZN",
       "count": 40,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 🇺🇸 아메리카 • 트럼프 대통령은 러시아가 우크라이나 종전 협상을 원하고 있다며 젤렌스키 대통령도 합의에 나서야 한다고 강조. 푸틴과 젤렌스키가 직접 만나지..."
-    },
-    {
-      "key": "AMD",
-      "count": 40,
-      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
     },
     {
       "key": "CRWV",
@@ -320,7 +320,7 @@
       "topics": [
         "macro"
       ],
-      "count": 785,
+      "count": 786,
       "focus": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
     },
     {
@@ -329,7 +329,7 @@
       "topics": [
         "geo"
       ],
-      "count": 344,
+      "count": 345,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀...."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "semi"
       ],
-      "count": 601,
+      "count": 603,
       "focus": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에..."
     },
     {
@@ -365,7 +365,7 @@
       "topics": [
         "power"
       ],
-      "count": 338,
+      "count": 339,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "equity"
       ],
-      "count": 163,
+      "count": 164,
       "focus": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 중 테라팹(Terafab) : 내년(2027년) 5~6월경 오스틴 리서치 팹에서 라인 테스트용 첫 기능성 테스트 칩(SRAM 등)을 가동하는 것이 목표 ...."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 486,
+      "count": 487,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 136,
+      "count": 137,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · AMN Healthcare Services · Avantor · BeOne Medicines · Cardinal..."
     },
     {
@@ -1629,6 +1629,54 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/70841",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70841",
+      "datetime": "2026-10-22T06:16:25.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "semi",
+        "power",
+        "healthcare"
+      ],
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "AMD"
+      ],
+      "summary": ">>TrendForce : 2027년 서버 CPU 출하량 전년 대비 40% 이상 증가, Arm 기반 제품의 시장점유율 지속 확대 •TrendForce의 최신 AI 서버 산업 보고서, AI 서비스 업체들이 AI..."
+    },
+    {
+      "id": "HANAchina/70840",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70840",
+      "datetime": "2026-10-22T06:05:38.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "semi"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "•중국 반도체 빠르게 낙폭 축소 •CXMT -4.5%에서 약보합까지 만회 •정부 개입 추정 자금은 계속 유입"
+    },
+    {
+      "id": "insidertracking/66990",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66990",
+      "datetime": "2026-10-22T06:01:12.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "macro"
+      ],
+      "score": 56,
+      "hasText": true,
+      "tickers": [
+        "TSLA"
+      ],
+      "summary": "로이터에 따르면 일론 머스크가 이번 주 스페이스X와 테슬라의 합병 검토 사실을 공개적으로 확인하고 지지 의사를 밝히면서 합병 협상이 수주간 지연될 가능성 제기. 협상에 참여한 일부 관계자들은 머스크의 공개..."
+    },
     {
       "id": "HANAchina/70836",
       "channel": "HANAchina",
@@ -3224,13 +3272,12 @@
       "datetime": "2026-10-21T05:22:01.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "power",
         "earnings"
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "• CATL: 3분기 매출 증가에도 불구하고 저부가가치 제품의 인도 비중 확대와 세금·비용 부담으로 수익성이 악화. 매출총이익률은 2분기 23.15%에서 3분기 20.69%로 하락했으며, 지배주주 귀속..."
+      "summary": "• CATL: 3분기 매출 증가에도 불구하고 저부가가치 제품의 인도 비중 확대와 세금·비용 부담으로 수익성이 악화. 매출총이익률은 2분기 23.15%에서 3분기 20.69%로 하락했으며, 지배주주 귀속...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66869",
@@ -6769,20 +6816,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/66623",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66623",
-      "datetime": "2026-10-18T21:33:03.000Z",
-      "localDateKst": "2026-10-19",
-      "tags": [
-        "macro"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "마이클 버리는 S&P 500 지수가 사상 최고치를 기록하고 있지만, 개별 종목의 약세가 지수 상승에 가려져 있다고 경고. 과도한 밸류에이션과 AI 관련 부채 증가, 인플레이션 상승이 장기 약세장의 배경이 될...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/25919",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25919",
@@ -7247,38 +7280,6 @@
         "2454.TW",
         "000660.KS"
       ]
-    },
-    {
-      "id": "HANAchina/70574",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70574",
-      "datetime": "2026-10-17T09:35:10.000Z",
-      "localDateKst": "2026-10-17",
-      "tags": [
-        "semi",
-        "japan"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>TSMC 구마모토 2공장 3나노 생산 승인, 일본 정부 보조금 지원 대상 포함 (대만공상시보) •일본 경제산업성은 TSMC가 구마모토 제2공장에서 3나노 첨단 반도체를 생산하는 계획을 승인. 일본내 3나노...",
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/70571",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70571",
-      "datetime": "2026-10-17T08:41:08.000Z",
-      "localDateKst": "2026-10-17",
-      "tags": [
-        "macro",
-        "flows"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>금값 27% 폭락, 은값 반토막! 더 큰 귀금속 위기 다가오나? •금과 은 가격이 1월 고점 이후 큰 폭으로 하락한 가운데, 실물시장의 구조적 수급 불균형은 심화. 중앙은행들은 금값 하락기에 사상 최대...",
-      "tickers": []
     },
     {
       "id": "bornlupin/20677",
@@ -9351,13 +9352,12 @@
       "datetime": "2026-10-21T05:22:01.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "power",
         "earnings"
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "• CATL: 3분기 매출 증가에도 불구하고 저부가가치 제품의 인도 비중 확대와 세금·비용 부담으로 수익성이 악화. 매출총이익률은 2분기 23.15%에서 3분기 20.69%로 하락했으며, 지배주주 귀속..."
+      "summary": "• CATL: 3분기 매출 증가에도 불구하고 저부가가치 제품의 인도 비중 확대와 세금·비용 부담으로 수익성이 악화. 매출총이익률은 2분기 23.15%에서 3분기 20.69%로 하락했으며, 지배주주 귀속...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66869",
