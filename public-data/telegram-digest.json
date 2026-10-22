@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-22T20:52:03.590Z",
-  "attemptedAt": "2026-10-22T20:52:03.590Z",
-  "lastSuccessfulAt": "2026-10-22T20:52:03.590Z",
+  "generatedAt": "2026-10-22T21:21:43.692Z",
+  "attemptedAt": "2026-10-22T21:21:43.692Z",
+  "lastSuccessfulAt": "2026-10-22T21:21:43.692Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-08T20:51:57.245Z",
-  "until": "2026-10-22T20:51:57.245Z",
+  "since": "2026-10-08T21:21:38.013Z",
+  "until": "2026-10-22T21:21:38.013Z",
   "current24hWindow": {
     "start": "2026-10-20T23:00:00.000Z",
     "end": "2026-10-21T23:00:00.000Z",
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1227,
-      "freshCount": 60,
-      "eligibleTextCount": 1177,
+      "count": 1228,
+      "freshCount": 40,
+      "eligibleTextCount": 1178,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67055
+      "lastPostId": 67057
     },
     {
       "channel": "bornlupin",
@@ -125,18 +125,18 @@
       "lastPostId": 70858
     }
   ],
-  "count": 2412,
-  "retainedItemCount": 457,
+  "count": 2413,
+  "retainedItemCount": 430,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2412,
-    "eligibleTextCount": 2351,
+    "observedCount": 2413,
+    "eligibleTextCount": 2352,
     "mediaOnlyCount": 61,
-    "highSignalCount": 529,
-    "broadSignalCount": 1077,
+    "highSignalCount": 530,
+    "broadSignalCount": 1078,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
     "selectedRawCoveragePct": 17.1,
@@ -144,13 +144,13 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "macro": 808,
+    "geo": 359,
+    "semi": 605,
+    "earnings": 508,
     "market-note": 804,
-    "geo": 358,
-    "macro": 807,
-    "semi": 604,
     "media-only": 61,
     "power": 342,
-    "earnings": 507,
     "kr-market": 171,
     "equity": 170,
     "flows": 153,
@@ -163,13 +163,14 @@
     "crypto": 6
   },
   "tickerCounts": {
+    "AMD": 41,
+    "BE": 22,
     "TSM": 116,
     "NVDA": 134,
     "TSLA": 63,
     "009150.KS": 14,
     "MU": 46,
     "MSFT": 51,
-    "BE": 21,
     "AVGO": 20,
     "ORCL": 8,
     "META": 16,
@@ -178,7 +179,6 @@
     "RDDT": 1,
     "PINS": 1,
     "AMZN": 40,
-    "AMD": 40,
     "CRWV": 21,
     "WDC": 8,
     "028050.KS": 1,
@@ -242,11 +242,11 @@
     "CRWD": 1
   },
   "themes": [
-    "Macro/Rates (807 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION TECHN-CL A (12.20%) 3위: DIREXION SHARES ETF TRUST DAILY...",
+    "Macro/Rates (808 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION TECHN-CL A (12.20%) 3위: DIREXION SHARES ETF TRUST DAILY...",
     "Market Notes (804 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
-    "Semiconductors/Memory (604 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
-    "Earnings/Corporate (507 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
-    "Geopolitics (358 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
+    "Semiconductors/Memory (605 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
+    "Earnings/Corporate (508 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
+    "Geopolitics (359 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
     "AI Power/Grid (342 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "AI Policy/Export Controls (179 posts in 14-day research window): 오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
     "Korea Market (171 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
@@ -293,18 +293,18 @@
       "text": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
+      "key": "AMD",
+      "count": 41,
+      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
+    },
+    {
       "key": "AMZN",
       "count": 40,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 🇺🇸 아메리카 • 트럼프 대통령은 러시아가 우크라이나 종전 협상을 원하고 있다며 젤렌스키 대통령도 합의에 나서야 한다고 강조. 푸틴과 젤렌스키가 직접 만나지..."
     },
     {
-      "key": "AMD",
-      "count": 40,
-      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
-    },
-    {
       "key": "BE",
-      "count": 21,
+      "count": 22,
       "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     },
     {
@@ -320,7 +320,7 @@
       "topics": [
         "macro"
       ],
-      "count": 807,
+      "count": 808,
       "focus": "2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION TECHN-CL A (12.20%) 3위: DIREXION SHARES ETF TRUST DAILY..."
     },
     {
@@ -329,8 +329,8 @@
       "topics": [
         "geo"
       ],
-      "count": 358,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀...."
+      "count": 359,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에..."
     },
     {
       "id": "credit",
@@ -347,7 +347,7 @@
       "topics": [
         "semi"
       ],
-      "count": 604,
+      "count": 605,
       "focus": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에..."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 507,
+      "count": 508,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용..."
     },
     {
@@ -1663,6 +1663,26 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/67057",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67057",
+      "datetime": "2026-10-22T21:16:44.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "earnings"
+      ],
+      "score": 82,
+      "hasText": true,
+      "tickers": [
+        "AMD",
+        "BE"
+      ],
+      "summary": "10월 23일 미주인 브리핑 (재업로드) • 나스닥 2.60% 급락 · 반도체지수 장중 7% 이상 하락 • AMD·인텔 급락 · AI 투자비용과 밸류에이션 부담 확대 • 美 10년물 4.95% · 금리..."
+    },
+    {
       "id": "insidertracking/67051",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67051",
@@ -2428,13 +2448,12 @@
       "datetime": "2026-10-22T10:22:38.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
         "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": "록히드마틴, 2026년 3분기 실적 발표. 매출액과 주당순이익 모두 시장 예상치 상회, 사상 최대 수주잔고 기록 및 연간 가이던스 상향 조정. > 2026년 3분기 주요 실적 • 매출액: 207억 1,000만..."
+      "summary": "록히드마틴, 2026년 3분기 실적 발표. 매출액과 주당순이익 모두 시장 예상치 상회, 사상 최대 수주잔고 기록 및 연간 가이던스 상향 조정. > 2026년 3분기 주요 실적 • 매출액: 207억 1,000만...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67005",
@@ -2448,8 +2467,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "하니웰, 2026년 3분기 실적 발표 및 연간 가이던스 상향 조정. • 매출액: 49억 9,000만 달러, 전년 대비 1.3% 증가 • 산업 자동화 부문 매출: 11억 2,000만 달러 • 빌딩 자동화 부문..."
+      "summary": "하니웰, 2026년 3분기 실적 발표 및 연간 가이던스 상향 조정. • 매출액: 49억 9,000만 달러, 전년 대비 1.3% 증가 • 산업 자동화 부문 매출: 11억 2,000만 달러 • 빌딩 자동화 부문...",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25983",
@@ -2562,17 +2581,14 @@
       "datetime": "2026-10-22T08:14:48.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "power",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "머스크, 테슬라·스페이스X 합병 추진 가능성…역대 최대 기업 합병 주목 일론 머스크가 테슬라(TSLA)와 스페이스X(SpaceX)의 사업 통합 가능성을 검토하면서 역사상 최대 규모의 기업 합병이 성사될지...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "머스크, 테슬라·스페이스X 합병 추진 가능성…역대 최대 기업 합병 주목 일론 머스크가 테슬라(TSLA)와 스페이스X(SpaceX)의 사업 통합 가능성을 검토하면서 역사상 최대 규모의 기업 합병이 성사될지..."
+      ]
     },
     {
       "id": "insidertracking/66998",
@@ -2581,15 +2597,14 @@
       "datetime": "2026-10-22T08:14:35.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
         "equity"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "저커버그, 억만장자세 논란에도 캘리포니아 잔류 결정 메타(META)의 최고경영자 마크 저커버그가 캘리포니아주의 억만장자세 도입 가능성에도 불구하고 향후 8년간 캘리포니아에 거주하기로 결정함. 앞서 저커버그는...",
       "tickers": [
         "META"
-      ],
-      "summary": "저커버그, 억만장자세 논란에도 캘리포니아 잔류 결정 메타(META)의 최고경영자 마크 저커버그가 캘리포니아주의 억만장자세 도입 가능성에도 불구하고 향후 8년간 캘리포니아에 거주하기로 결정함. 앞서 저커버그는..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25982",
@@ -6477,29 +6492,6 @@
         "GOOG",
         "AMZN",
         "ORCL"
-      ]
-    },
-    {
-      "id": "insidertracking/66714",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66714",
-      "datetime": "2026-10-19T20:46:17.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 20일 미국 증시 브리핑 미국 증시는 기술주와 반도체 중심의 매수세가 유입되며 나스닥 1.11%, S&P500 0.41%, 러셀2000 0.25% 상승한 반면 다우지수는 0.07% 하락...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "TSLA",
-        "AVGO",
-        "AMZN",
-        "MU",
-        "000660.KS"
       ]
     },
     {
