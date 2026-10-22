@@ -1,11 +1,11 @@
 {
- "generatedAt": "2026-10-22T19:51:45.529Z",
+ "generatedAt": "2026-10-22T20:21:34.046Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.",
  "summary": {
   "n5d": 282,
-  "corr5d": -0.278,
+  "corr5d": -0.274,
   "n21d": 266,
-  "corr21d": -0.43,
+  "corr21d": -0.429,
   "sampleSizeSufficient": true,
   "significanceStatus": "UNKNOWN",
   "statisticallyMeaningful": false
@@ -3646,7 +3646,7 @@
     "macro": 45
    },
    "fwd5dReturn": -1.2080405530713616,
-   "fwd21dReturn": -0.09620536174246655,
+   "fwd21dReturn": -1.3034731809845663,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -4149,7 +4149,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.4952752580017525,
+   "fwd5dReturn": -0.7191401928243945,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4309,9 +4309,9 @@
   },
   {
    "date": "2026-10-22",
-   "reconstructedScore": 62,
+   "reconstructedScore": 57,
    "subScores": {
-    "vol": 78,
+    "vol": 62,
     "mom": 70,
     "trend": 59,
     "breadth": null,
