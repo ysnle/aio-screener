@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-22T07:51:48.471Z",
-  "attemptedAt": "2026-10-22T07:51:48.471Z",
-  "lastSuccessfulAt": "2026-10-22T07:51:48.471Z",
+  "generatedAt": "2026-10-22T08:21:51.393Z",
+  "attemptedAt": "2026-10-22T08:21:51.393Z",
+  "lastSuccessfulAt": "2026-10-22T08:21:51.393Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-08T07:51:43.571Z",
-  "until": "2026-10-22T07:51:43.571Z",
+  "since": "2026-10-08T08:21:43.294Z",
+  "until": "2026-10-22T08:21:43.294Z",
   "current24hWindow": {
     "start": "2026-10-20T23:00:00.000Z",
     "end": "2026-10-21T23:00:00.000Z",
@@ -78,27 +78,27 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 261,
-      "freshCount": 19,
+      "freshCount": 39,
       "eligibleTextCount": 250,
       "selectedCount": 66,
       "error": null,
-      "lastPostId": 25981
+      "lastPostId": 25982
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1193,
-      "freshCount": 19,
-      "eligibleTextCount": 1147,
+      "count": 1196,
+      "freshCount": 39,
+      "eligibleTextCount": 1150,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 66995
+      "lastPostId": 66999
     },
     {
       "channel": "bornlupin",
@@ -117,26 +117,26 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 707,
+      "count": 705,
       "freshCount": 20,
-      "eligibleTextCount": 707,
+      "eligibleTextCount": 705,
       "selectedCount": 121,
       "error": null,
       "lastPostId": 70846
     }
   ],
-  "count": 2382,
-  "retainedItemCount": 440,
+  "count": 2383,
+  "retainedItemCount": 467,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2382,
-    "eligibleTextCount": 2325,
+    "observedCount": 2383,
+    "eligibleTextCount": 2326,
     "mediaOnlyCount": 57,
-    "highSignalCount": 518,
-    "broadSignalCount": 1056,
+    "highSignalCount": 517,
+    "broadSignalCount": 1057,
     "selectedRawCount": 403,
     "selectedEligibleCount": 403,
     "selectedRawCoveragePct": 17.3,
@@ -144,38 +144,38 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "earnings": 487,
-    "macro": 784,
-    "ai-policy": 182,
+    "macro": 785,
+    "power": 339,
+    "equity": 164,
+    "earnings": 488,
     "market-note": 801,
+    "ai-policy": 181,
     "geo": 346,
     "kr-market": 172,
-    "semi": 599,
-    "power": 339,
+    "semi": 597,
     "healthcare": 137,
-    "equity": 162,
     "credit": 113,
     "media-only": 57,
-    "optical": 53,
+    "optical": 52,
     "japan": 143,
-    "flows": 156,
+    "flows": 155,
     "insider": 40,
     "crypto": 6
   },
   "tickerCounts": {
+    "TSLA": 57,
+    "META": 15,
+    "GOOG": 73,
     "AMD": 41,
-    "TSLA": 56,
     "NVDA": 129,
     "CRWV": 21,
-    "MSFT": 50,
+    "MSFT": 49,
     "BE": 19,
     "WDC": 8,
-    "GOOG": 73,
-    "AMZN": 40,
-    "MU": 44,
-    "TSM": 117,
+    "AMZN": 39,
+    "MU": 43,
+    "TSM": 116,
     "009150.KS": 11,
-    "META": 14,
     "028050.KS": 1,
     "SHOP": 2,
     "MS": 5,
@@ -242,13 +242,13 @@
     "PINS": 1
   },
   "themes": [
-    "Market Notes (801 posts in 14-day research window): 테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한...",
-    "Macro/Rates (784 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가...",
-    "Semiconductors/Memory (599 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
-    "Earnings/Corporate (487 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
+    "Market Notes (801 posts in 14-day research window): 2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10,...",
+    "Macro/Rates (785 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가...",
+    "Semiconductors/Memory (597 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
+    "Earnings/Corporate (488 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용...",
     "Geopolitics (346 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 20일 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 대통령과 우크라이나 전쟁 종식을 협상 중이며, 시진핑 중국 국가주석과도 우크라이나 문제를 논의할 의향이 있다고 밝혀....",
     "AI Power/Grid (339 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-    "AI Policy/Export Controls (182 posts in 14-day research window): OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
+    "AI Policy/Export Controls (181 posts in 14-day research window): OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
     "Korea Market (172 posts in 14-day research window): JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
   ],
   "catalysts": [
@@ -259,7 +259,7 @@
     },
     {
       "key": "TSM",
-      "count": 117,
+      "count": 116,
       "text": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
@@ -268,14 +268,14 @@
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용..."
     },
     {
+      "key": "TSLA",
+      "count": 57,
+      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
+    },
+    {
       "key": "000660.KS",
       "count": 57,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
-    },
-    {
-      "key": "TSLA",
-      "count": 56,
-      "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
     },
     {
       "key": "005930.KS",
@@ -284,22 +284,22 @@
     },
     {
       "key": "MSFT",
-      "count": 50,
+      "count": 49,
       "text": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
     },
     {
       "key": "MU",
-      "count": 44,
+      "count": 43,
       "text": "2026년 10월 20일 미국 레딧 베스트 게시물 분석 > MU / TSMC / STX - 반도체·메모리 카지노 재점화 · MU 0DTE $880 calls YOLO 등장 · TSMC call YOLO도 바로..."
     },
     {
       "key": "AMD",
       "count": 41,
-      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
+      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된..."
     },
     {
       "key": "AMZN",
-      "count": 40,
+      "count": 39,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 🇺🇸 아메리카 • 트럼프 대통령은 러시아가 우크라이나 종전 협상을 원하고 있다며 젤렌스키 대통령도 합의에 나서야 한다고 강조. 푸틴과 젤렌스키가 직접 만나지..."
     },
     {
@@ -310,7 +310,7 @@
     {
       "key": "AVGO",
       "count": 20,
-      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
+      "text": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두 번째 수십억 달러 규모 계약을 협상 중이라고 소식통이 CNBC에 전했습니다. 이번 계약은 지난 8월 보도된..."
     }
   ],
   "categories": [
@@ -320,7 +320,7 @@
       "topics": [
         "macro"
       ],
-      "count": 784,
+      "count": 785,
       "focus": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물 -0.52% 기록. VIX는 18.75로 2.81% 상승하며 위험회피 심리 확대. 아시아 증시에서도 한국 코스피가..."
     },
     {
@@ -339,7 +339,7 @@
         "credit"
       ],
       "count": 113,
-      "focus": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정 EBITDA 39억 달러 (예상 37.1억), 전년 대비 -8% GAAP 매출총이익률 19.6% , 전년 대비..."
+      "focus": "메타(META) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장과 이용자 참여도 개선. 3분기 전체 매출은 646억달러로 전년 대비 26% 증가했으며 Family of Apps 매출은 642억달러로 전년 대비 26% 성장. 광고 노출 수는 10%, 평균 광고 단가는 14% 증가하면서 인스타그램,..."
     },
     {
       "id": "semi",
@@ -347,7 +347,7 @@
       "topics": [
         "semi"
       ],
-      "count": 599,
+      "count": 597,
       "focus": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "optical"
       ],
-      "count": 53,
+      "count": 52,
       "focus": "모건스탠리, 광학엔진(OE) 출하량 및 FAU 시장 규모 전망 상향 Largan Precision·Genius Electronic Optical 목표주가 동반 상향 모건스탠리(Morgan Stanley)는..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 182,
+      "count": 181,
       "focus": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "equity"
       ],
-      "count": 162,
+      "count": 164,
       "focus": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 중 테라팹(Terafab) : 내년(2027년) 5~6월경 오스틴 리서치 팹에서 라인 테스트용 첫 기능성 테스트 칩(SRAM 등)을 가동하는 것이 목표 ...."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 487,
+      "count": 488,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 인사이트 엔터프라이즈 (NSIT) — 오픈AI의 '어드밴스드 파트너'로 선정. 중견기업 고객을 대상으로 생성형 AI 도입과 기업용..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "flows"
       ],
-      "count": 156,
+      "count": 155,
       "focus": "2026년 10월 21일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (11.95%) 2위: PROSHARES ULTRA QQQ ETF (7.48%)..."
     },
     {
@@ -456,7 +456,7 @@
         "market-note"
       ],
       "count": 801,
-      "focus": "테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한..."
+      "focus": "2026년 10월 21일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 상승세. 나스닥100 선물은 0.71% 상승한 29,700.90, S&P500 선물은 0.29% 오른 7,735.10,..."
     }
   ],
   "pageMap": {
@@ -762,16 +762,20 @@
       "datetime": "2026-10-22T00:58:11.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "credit",
         "macro",
+        "ai-policy",
+        "kr-market",
         "equity",
-        "earnings"
+        "earnings",
+        "healthcare"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "메타(META) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장과 이용자 참여도 개선. 3분기 전체 매출은 646억달러로 전년 대비 26% 증가했으며 Family of Apps 매출은...",
       "tickers": [
         "META"
-      ]
+      ],
+      "summary": "메타(META) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장과 이용자 참여도 개선. 3분기 전체 매출은 646억달러로 전년 대비 26% 증가했으며 Family of Apps 매출은..."
     },
     {
       "id": "insidertracking/66970",
@@ -780,14 +784,19 @@
       "datetime": "2026-10-22T00:56:18.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "equity",
+        "earnings",
+        "healthcare"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한...",
       "tickers": [
         "TSLA"
-      ]
+      ],
+      "summary": "테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한..."
     },
     {
       "id": "bornlupin/20760",
@@ -1175,18 +1184,22 @@
       "datetime": "2026-10-20T14:23:22.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
     },
     {
       "id": "aetherjapanresearch/25949",
@@ -1195,15 +1208,19 @@
       "datetime": "2026-10-20T11:27:43.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "credit",
         "macro",
-        "power"
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를...",
       "tickers": [
         "ORCL"
-      ]
+      ],
+      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를..."
     },
     {
       "id": "aetherjapanresearch/25944",
@@ -1212,16 +1229,17 @@
       "datetime": "2026-10-20T05:56:02.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "credit",
         "semi",
         "kr-market",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) SK하이닉스 (000660.KS) 3Q26 프리뷰: 환율 역풍에도 불구하고 견조한 3분기 실적 예상 씨티의 견해 당사는 SK하이닉스가 환율 역풍과 HBM4 관련 잡음에도 불구하고, 시장 컨센서스인...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "Citi) SK하이닉스 (000660.KS) 3Q26 프리뷰: 환율 역풍에도 불구하고 견조한 3분기 실적 예상 씨티의 견해 당사는 SK하이닉스가 환율 역풍과 HBM4 관련 잡음에도 불구하고, 시장 컨센서스인..."
     },
     {
       "id": "insidertracking/66771",
@@ -1621,6 +1639,60 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/66999",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66999",
+      "datetime": "2026-10-22T08:14:48.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "macro",
+        "power",
+        "equity",
+        "earnings"
+      ],
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "TSLA"
+      ],
+      "summary": "머스크, 테슬라·스페이스X 합병 추진 가능성…역대 최대 기업 합병 주목 일론 머스크가 테슬라(TSLA)와 스페이스X(SpaceX)의 사업 통합 가능성을 검토하면서 역사상 최대 규모의 기업 합병이 성사될지..."
+    },
+    {
+      "id": "insidertracking/66998",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/66998",
+      "datetime": "2026-10-22T08:14:35.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "macro",
+        "equity"
+      ],
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "META"
+      ],
+      "summary": "저커버그, 억만장자세 논란에도 캘리포니아 잔류 결정 메타(META)의 최고경영자 마크 저커버그가 캘리포니아주의 억만장자세 도입 가능성에도 불구하고 향후 8년간 캘리포니아에 거주하기로 결정함. 앞서 저커버그는..."
+    },
+    {
+      "id": "aetherjapanresearch/25982",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25982",
+      "datetime": "2026-10-22T08:09:34.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "macro",
+        "equity",
+        "earnings"
+      ],
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "GOOG"
+      ],
+      "summary": "JP모건) 메타; 뮤즈 에이전트 및 엔터프라이즈 경로 구체화; 비중확대(Overweight) 의견 및 목표주가 940달러 재확인 내용 요약 메타는 3분기에 매출(전년 대비 +26%), 영업이익(소송 관련 법률..."
+    },
+    {
       "id": "HANAchina/70846",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70846",
@@ -1971,12 +2043,14 @@
       "tags": [
         "macro",
         "semi",
-        "earnings"
+        "power",
+        "earnings",
+        "healthcare"
       ],
       "score": 77,
       "hasText": true,
-      "summary": "텍사스 인스트루먼트(TXN) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장과 전방산업 수요 회복. 3분기 매출은 61억달러로 전분기 대비 11%, 전년 대비 28% 증가. 아날로그 반도체...",
-      "tickers": []
+      "tickers": [],
+      "summary": "텍사스 인스트루먼트(TXN) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장과 전방산업 수요 회복. 3분기 매출은 61억달러로 전분기 대비 11%, 전년 대비 28% 증가. 아날로그 반도체..."
     },
     {
       "id": "insidertracking/66973",
@@ -1986,12 +2060,16 @@
       "localDateKst": "2026-10-22",
       "tags": [
         "macro",
-        "earnings"
+        "semi",
+        "power",
+        "insider",
+        "earnings",
+        "healthcare"
       ],
       "score": 77,
       "hasText": true,
-      "summary": "램리서치(LRCX) Q1 2027 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 수익성 달성. 1분기 매출은 82억2,000만달러로 전분기 대비 22%, 전년 대비 54% 증가. 매출총이익률 52.4%,...",
-      "tickers": []
+      "tickers": [],
+      "summary": "램리서치(LRCX) Q1 2027 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 수익성 달성. 1분기 매출은 82억2,000만달러로 전분기 대비 22%, 전년 대비 54% 증가. 매출총이익률 52.4%,..."
     },
     {
       "id": "insidertracking/66972",
@@ -2000,14 +2078,16 @@
       "datetime": "2026-10-22T01:00:24.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "macro",
+        "ai-policy",
         "earnings"
       ],
       "score": 79,
       "hasText": true,
-      "summary": "IBM(IBM) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장과 수익성 개선. 3분기 매출은 전년 대비 6% 증가했으며 영업 기준 세전이익률은 70bp 개선. 영업 기준 희석 EPS는 11%...",
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "IBM(IBM) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장과 수익성 개선. 3분기 매출은 전년 대비 6% 증가했으며 영업 기준 세전이익률은 70bp 개선. 영업 기준 희석 EPS는 11%..."
     },
     {
       "id": "insidertracking/66971",
@@ -2016,16 +2096,20 @@
       "datetime": "2026-10-22T00:58:11.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "credit",
         "macro",
+        "ai-policy",
+        "kr-market",
         "equity",
-        "earnings"
+        "earnings",
+        "healthcare"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "메타(META) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장과 이용자 참여도 개선. 3분기 전체 매출은 646억달러로 전년 대비 26% 증가했으며 Family of Apps 매출은...",
       "tickers": [
         "META"
-      ]
+      ],
+      "summary": "메타(META) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장과 이용자 참여도 개선. 3분기 전체 매출은 646억달러로 전년 대비 26% 증가했으며 Family of Apps 매출은..."
     },
     {
       "id": "insidertracking/66970",
@@ -2034,14 +2118,19 @@
       "datetime": "2026-10-22T00:56:18.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "equity",
+        "earnings",
+        "healthcare"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한...",
       "tickers": [
         "TSLA"
-      ]
+      ],
+      "summary": "테슬라(TSLA) Q3 2026 어닝콜 요약 > 긍정 요인: • 차량 인도량 및 수주잔고. 2개 분기 연속 약 40만 8,000대의 차량을 인도했으며 수주잔고는 최근 4년 중 최고 수준 기록. 이는 강한..."
     },
     {
       "id": "HANAchina/70820",
@@ -2087,8 +2176,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "한국은행, 예상대로 기준금리를 3.00%로 동결.",
-      "tickers": []
+      "tickers": [],
+      "summary": "한국은행, 예상대로 기준금리를 3.00%로 동결."
     },
     {
       "id": "HANAchina/70819",
@@ -2141,12 +2230,13 @@
       "datetime": "2026-10-22T00:25:39.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro"
+        "macro",
+        "semi"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "받받) 관계자들에 따르면 양사는 트럼프 대통령의 현 임기 내 합병을 완료하기 위해 관련 절차를 추진 중이며, 합병 이후 기업의 총 시가총액은 약 3조 7,000억 달러에 달할 전망. 이번 합병은 정치·금융...",
-      "tickers": []
+      "tickers": [],
+      "summary": "받받) 관계자들에 따르면 양사는 트럼프 대통령의 현 임기 내 합병을 완료하기 위해 관련 절차를 추진 중이며, 합병 이후 기업의 총 시가총액은 약 3조 7,000억 달러에 달할 전망. 이번 합병은 정치·금융..."
     },
     {
       "id": "aetherjapanresearch/25975",
@@ -3312,14 +3402,15 @@
       "datetime": "2026-10-21T04:40:53.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
+        "macro",
         "power",
         "earnings",
         "healthcare"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를..."
     },
     {
       "id": "HANAchina/70795",
@@ -3344,12 +3435,13 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러...",
-      "tickers": []
+      "tickers": [],
+      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러..."
     },
     {
       "id": "insidertracking/66856",
@@ -4018,18 +4110,22 @@
       "datetime": "2026-10-20T14:23:22.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "CNBC) 앤트로픽, 네오클라우드 엔스케일과 두 번째 수십억 달러 규모 계약 협상 중이라고 소식통이 CNBC에 밝혀 내용 요약 앤트로픽이 영국 네오클라우드 기업 엔스케일과 미국 내 컴퓨팅 용량 임대를 위한 두..."
     },
     {
       "id": "HANAchina/70773",
@@ -4173,10 +4269,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "삼성전자, 모뎀도 2나노 간다...올해 4나노 M2700은 MX 테스트 통과 < 반도체 < 기사본문 - 디일렉(THE ELEC)",
       "tickers": [
         "005930.KS"
-      ]
+      ],
+      "summary": "삼성전자, 모뎀도 2나노 간다...올해 4나노 M2700은 MX 테스트 통과 < 반도체 < 기사본문 - 디일렉(THE ELEC)"
     },
     {
       "id": "HANAchina/70766",
@@ -4296,15 +4392,19 @@
       "datetime": "2026-10-20T11:27:43.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "credit",
         "macro",
-        "power"
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를...",
       "tickers": [
         "ORCL"
-      ]
+      ],
+      "summary": "Citi) 오라클 (ORCL.K); 오라클 AI 월드 프리뷰: 목표치의 상향 조정을 기대. TP $330 씨티의 견해 오라클의 AI 월드 및 애널리스트 데이(10/28)는 금리 상승과 데이터센터 지연 리스크를..."
     },
     {
       "id": "HANAchina/70761",
@@ -4605,16 +4705,17 @@
       "datetime": "2026-10-20T05:56:02.000Z",
       "localDateKst": "2026-10-20",
       "tags": [
+        "credit",
         "semi",
         "kr-market",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) SK하이닉스 (000660.KS) 3Q26 프리뷰: 환율 역풍에도 불구하고 견조한 3분기 실적 예상 씨티의 견해 당사는 SK하이닉스가 환율 역풍과 HBM4 관련 잡음에도 불구하고, 시장 컨센서스인...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "Citi) SK하이닉스 (000660.KS) 3Q26 프리뷰: 환율 역풍에도 불구하고 견조한 3분기 실적 예상 씨티의 견해 당사는 SK하이닉스가 환율 역풍과 HBM4 관련 잡음에도 불구하고, 시장 컨센서스인..."
     },
     {
       "id": "aetherjapanresearch/25941",
@@ -6774,37 +6875,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/66625",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66625",
-      "datetime": "2026-10-18T21:34:57.000Z",
-      "localDateKst": "2026-10-19",
-      "tags": [
-        "market-note"
-      ],
-      "score": 83,
-      "hasText": true,
-      "summary": "2026년 10월 19일 미국 레딧 베스트 게시물 분석 > CRWV / Neoclouds - 공포의 중심 · CoreWeave Bear thesis 계속 강화 · “Purpose of CoreWeave is...",
-      "tickers": [
-        "MSFT",
-        "CRWV"
-      ]
-    },
-    {
-      "id": "insidertracking/66624",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66624",
-      "datetime": "2026-10-18T21:33:12.000Z",
-      "localDateKst": "2026-10-19",
-      "tags": [
-        "market-note"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": "앤트로픽이 AI의 사회적 영향에 대응하고 자선 활동을 지원하기 위해 회사 지분 5%를 공익기금에 출연하겠다고 발표. 향후 기업가치가 50% 상승할 때마다 지분 2%를 추가 출연하는 방안도 추진. 앤트로픽은...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/25919",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25919",
@@ -8333,22 +8403,6 @@
       "hasText": true,
       "summary": "AI 클라우드업체 코어위브 회사채 가격 급락…'부실영역' 진입",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/25847",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25847",
-      "datetime": "2026-10-14T23:29:08.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "macro",
-        "equity",
-        "earnings"
-      ],
-      "score": 75,
-      "hasText": true,
-      "summary": "앤트로픽이 11월 기업공개(IPO)를 앞두고 투자자 지지를 끌어모으기 위해, 3분기 매출이 전 분기 대비 50% 늘어난 168억 달러를 기록했으며 회사가 흑자를 내고 있다고 투자자들에게 밝혔습니다. 기업가치...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -9334,14 +9388,15 @@
       "datetime": "2026-10-21T04:40:53.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
+        "macro",
         "power",
         "earnings",
         "healthcare"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를..."
     },
     {
       "id": "HANAchina/70795",
@@ -9366,12 +9421,13 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러...",
-      "tickers": []
+      "tickers": [],
+      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러..."
     },
     {
       "id": "insidertracking/66856",
