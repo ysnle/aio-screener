@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-10-23T07:39:23.972Z",
+  "generatedAt": "2026-10-23T12:17:11.335Z",
   "appRevision": "v58.71",
   "dataRevision": "market-snapshot:2026-10-23T07:25:55.503Z:aed72736",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -73,7 +73,7 @@
     },
     "screener-extended": {
       "availability": "AVAILABLE",
-      "asOf": "2026-10-22T22:38:28.631Z",
+      "asOf": "2026-10-23T07:47:01.206Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -199,9 +199,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-10-23T07:25:55.503Z",
-        "ageHours": 0.22,
+        "ageHours": 4.85,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-10-23T07:39:23.972Z",
+        "evaluatedAt": "2026-10-23T12:17:11.335Z",
         "reason": null
       },
       "readiness": {
@@ -228,7 +228,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-23T07:39:23.972Z"
+        "evidenceEvaluatedAt": "2026-10-23T12:17:11.335Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -296,7 +296,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-23T07:39:23.972Z"
+        "evidenceEvaluatedAt": "2026-10-23T12:17:11.335Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -339,8 +339,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 12,
-      "MATCH": 7,
+      "PARTIAL": 13,
+      "MATCH": 6,
       "BLOCKED": 3
     },
     "closure": {
@@ -360,6 +360,7 @@
         "news",
         "commodities-fx",
         "global-indices",
+        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -374,7 +375,8 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices"
+        "global-indices",
+        "crypto"
       ],
       "operatorRequiredCategories": [
         "naaim",
