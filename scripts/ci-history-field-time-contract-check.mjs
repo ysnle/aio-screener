@@ -215,6 +215,12 @@ if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('m
   const snapshot = JSON.stringify(rows);
   const second = holdRepeatedSessions(rows, { at: '2026-10-15T08:30:00Z' });
   if (second.held.length || second.revised.length || JSON.stringify(rows) !== snapshot) fail('v57.81 holding repeated sessions is idempotent');
+  // v58.71: today's row is rewritten each run; a value the owner already replaced does not come back, and a previous-close
+  // read does not revise a settled latest-close owner.
+  const today = (value, extra) => ({ date: '2026-10-14', usdkrw: value, dow: 52495.9, fieldMeta: { usdkrw: meta('2026-10-11T23:00:00Z', '2026-10-14T09:00:00Z', { ...prevClose, sessionDate: '2026-10-09' }), dow: meta('2026-10-13T13:30:00Z', '2026-10-14T09:00:00Z', { ...prevClose, sessionDate: '2026-10-13' }), ...extra } });
+  const owned = [rows[0], { date: '2026-10-13', dow: 52495.88, fieldMeta: { dow: meta('2026-10-13T20:46:03Z', '2026-10-13T23:54:00Z', { observationRelation: 'latest-completed-close', observedAtSource: 'provider-current', sessionDate: '2026-10-13' }) } }];
+  const flip = holdRepeatedSessions([...owned, today(1340.84)], { at: '2026-10-15T09:00:00Z' });
+  if (rows[0].usdkrw !== 1341.63 || owned[1].dow !== 52495.88 || flip.revised.length || flip.held.length !== 2) fail(`v58.71 a replaced value or a previous-close read does not flip the owner back: ${JSON.stringify(flip)}`);
   // An evening reopen print of futures/FX/DXY is not a completed close; a Friday settle print is.
   if (!continuousReopenPrint('CL=F', '2026-10-11T23:01:22Z') || !continuousReopenPrint('DX-Y.NYB', '2026-10-04T23:26:48Z') || continuousReopenPrint('CL=F', '2026-10-09T20:59:58Z') || continuousReopenPrint('^GSPC', '2026-10-11T23:01:22Z')) fail('v57.81 a Sunday-evening futures/DXY print belongs to a session that has not completed');
 }

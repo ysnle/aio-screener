@@ -10,7 +10,7 @@ import { round } from '../lib/producer-math.mjs';
 import { isSessionComplete } from '../../src/domain/screener/price-factors.js';
 import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
 import { HIST } from './paths.mjs';
-import { mapLimit, fetchHistory } from './quotes.mjs';
+import { mapLimit, fetchHistory, fetchHourlySessionClose } from './quotes.mjs';
 
 // history.json 레코드 필드 ↔ Yahoo 심볼 매핑 (백필 대상). F&G/IV는 과거 무료 소스 없어 제외(해당 일자 null).
 const HIST_SYMBOLS = {
@@ -153,6 +153,24 @@ async function backfillHistory(hist) {
         sessionDate, // v57.81: the bar's own session (its open stamp's local date)
       };
     }
+    // v58.69: a US session the daily chart lists with an empty close takes that session's last hourly close, marked
+    // closeApproximate (measured 10/20-10/22: S&P 500 within 0.01% of the daily close). Korea is left empty — the
+    // hourly bars miss KRX's closing auction (KOSPI 10/21 5,703 hourly vs 5,736 daily).
+    if (continuous || /^\^?(KS|KQ)/.test(r.sym)) continue;
+    const recent = Date.now() - 21 * 86400000;
+    for (const date of r.rows.nullCloseDates || []) {
+      if (Date.parse(`${date}T12:00:00Z`) < recent || byDate[date]?.[field] != null || !isSessionComplete(date, 'us')) continue;
+      const filled = await fetchHourlySessionClose(r.sym, date, 'America/New_York').catch(() => null);
+      if (!filled || !histValueWithinPlausibility(field, filled.close)) continue;
+      if (!byDate[date]) byDate[date] = { date };
+      byDate[date][field] = round(filled.close, 2);
+      byDate[date].fieldMeta = byDate[date].fieldMeta || {};
+      byDate[date].fieldMeta[field] = {
+        observedAt: filled.openAt, fetchedAt: new Date().toISOString(), lastSuccessfulAt: new Date().toISOString(),
+        source: 'Yahoo chart (60m)', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'research-history',
+        observationRelation: 'latest-completed-close', observedAtSource: 'provider-current', sessionDate: date, closeApproximate: true,
+      };
+    }
   }
   return mergeBackfillBars(hist, byDate, HIST_FIELDS);
 }
@@ -246,7 +264,12 @@ export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fiel
       const owner = owners.get(session);
       if (!owner) { owners.set(session, row); continue; }
       const ownerMeta = owner.fieldMeta[field];
-      if (owner[field] !== value) {
+      // v58.71 (pipeline audit): today's row is rewritten every run, so two reads of one bar alternated as revisions
+      // (usdkrw 1341.64/1341.17, dow 52495.88/52495.9). A previous-close read does not revise a settled latest-close
+      // owner, and a value the owner already replaced never comes back.
+      const settledOwner = ownerMeta.observationRelation === 'latest-completed-close' && meta.observationRelation === 'previous-completed-close';
+      const replacedBefore = Array.isArray(ownerMeta.revisions) && ownerMeta.revisions.some((entry) => entry?.value === value);
+      if (owner[field] !== value && !settledOwner && !replacedBefore) {
         if (!dated(ownerMeta) || !dated(meta)) continue;
         ownerMeta.revisions = [...(Array.isArray(ownerMeta.revisions) ? ownerMeta.revisions : []),
           { value: owner[field], observedAt: ownerMeta.observedAt || null, fetchedAt: ownerMeta.fetchedAt || null, revisedAt: at, revisedFromRow: row.date }].slice(-5);
@@ -268,6 +291,36 @@ export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fiel
   return { held, revised };
 }
 
+// v58.71 (pipeline audit): today's row holds the previous session's close until this session's close arrives, and the
+// same-row upsert then overwrote it. The session survived only if some run had written it into its own row in a narrow
+// window (FX one hour), so the 10/21-22 outage left no row owning usdkrw 10/21. Before the upsert, a field whose current
+// session is about to be replaced by another session, and that no other row owns, is written into the row of its own
+// session date (only where that row has no value for the field). Returns the displaced fields it kept.
+export function keepDisplacedSessions(hist, today, rec, { fields = HIST_MARKET_FIELDS } = {}) {
+  const rows = Array.isArray(hist) ? hist : [];
+  const current = rows.find((row) => row?.date === today);
+  if (!current) return [];
+  const sessionOf = (meta, field) => (meta?.observedAt ? historyFieldSessionDate(meta, field) || observationSessionDate(field, meta.observedAt) : null);
+  const kept = [];
+  for (const field of fields) {
+    const value = current[field];
+    const meta = current.fieldMeta?.[field];
+    if (typeof value !== 'number' || !Number.isFinite(value) || !meta || meta.observationRelation === 'carried-forward') continue;
+    const session = sessionOf(meta, field);
+    const incoming = sessionOf(rec?.fieldMeta?.[field], field);
+    if (!session || !incoming || incoming === session || !/^\d{4}-\d{2}-\d{2}$/.test(session) || session >= today) continue;
+    const owned = rows.some((row) => row !== current && typeof row?.[field] === 'number' && row.fieldMeta?.[field]?.observationRelation !== 'carried-forward' && sessionOf(row.fieldMeta?.[field], field) === session);
+    if (owned) continue;
+    let target = rows.find((row) => row?.date === session);
+    if (target && typeof target[field] === 'number' && Number.isFinite(target[field])) continue;
+    if (!target) { target = { date: session, fieldMeta: {} }; rows.push(target); }
+    target[field] = value;
+    target.fieldMeta = { ...(target.fieldMeta || {}), [field]: { ...meta, sessionDate: session, keptFromRow: today } };
+    kept.push({ field, session, value });
+  }
+  return kept;
+}
+
 export function usPreOpenIndexPrint(symbol, observedAt) {
   if (!/^\^(VIX|VIX3M|VVIX|GSPC|IXIC|NDX|DJI|RUT|TNX)$/.test(String(symbol || ''))) return false;
   const at = Date.parse(observedAt || '');
@@ -280,12 +333,15 @@ export function usPreOpenIndexPrint(symbol, observedAt) {
 // v57.81: futures, DXY and FX reopen at 18:00 ET for the next trading day. A print from that evening (the 10/04 and 10/11
 // Sunday 23:01-23:26Z WTI/DXY/gold/won prints filed as MARKET_CLOSED) belongs to a session that has not completed, so
 // it is never a completed close; the history takes the previous completed close instead.
+// v58.71 (pipeline audit): spot FX reopens at 17:00 ET, an hour before futures — the Sunday 21:17Z (17:17 EDT) won and
+// yen prints of 10/18 were filed as a completed "Sunday session" and became Monday's base.
 export function continuousReopenPrint(symbol, observedAt) {
   if (!/(=F|=X)$|^DX-Y\.NYB$/.test(String(symbol || ''))) return false;
   const at = Date.parse(observedAt || '');
   if (!Number.isFinite(at)) return false;
   const day = new Date(at).toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
-  return !['Fri', 'Sat'].includes(day) && nyParts(at).minute >= 18 * 60;
+  const reopenMinute = /=X$/.test(String(symbol)) ? 17 * 60 : 18 * 60;
+  return !['Fri', 'Sat'].includes(day) && nyParts(at).minute >= reopenMinute;
 }
 
 // ── WO-7 (ops): 일별 히스토리 축적 (public-data/history.json) ──
@@ -312,7 +368,8 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       // is that session's pre-open value, not a completed close (10/12 07:01 ET VIX 15.48 was filed as one).
       // v57.81: an evening reopen print of a futures/FX/DXY session is the same case (continuousReopenPrint).
       const preOpenPrint = !isOpenPoint && (usPreOpenIndexPrint(q.symbol, q.observedAt) || continuousReopenPrint(q.symbol, q.observedAt));
-      const usePreviousClose = (isOpenPoint || preOpenPrint) && Number.isFinite(previousClose) && previousClose > 0;
+      // v58.69: an hourly stand-in for an empty daily bar (quotes.mjs previousCloseApproximate) prices the change, not history.
+      const usePreviousClose = (isOpenPoint || preOpenPrint) && Number.isFinite(previousClose) && previousClose > 0 && !q.previousCloseApproximate;
       // P1576: in session without a previous close there is no completed close to record; the
       // intraday price must not be written as one (fail closed, like P1095's timestamp rule).
       bySym[q.symbol] = usePreviousClose ? previousClose : (isOpenPoint || preOpenPrint) ? null : q.regularMarketPrice;
@@ -472,6 +529,8 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       try { const bf = await backfillHistory(hist); hist = bf.hist; backfilled = bf.added; } catch (e) { console.warn('[fetch-data] backfill 실패(무시):', e && e.message || e); }
     }
     hist = carryForwardHistoryEvidence(hist);
+    const displaced = keepDisplacedSessions(hist, today, rec);
+    if (displaced.length) console.log(`[fetch-data] history: kept ${displaced.length} session close(s) in their own rows before the upsert (${displaced.map((row) => `${row.field} ${row.session}`).join(', ')})`);
     const idx = hist.findIndex(h => h && h.date === today);
     if (idx >= 0) hist[idx] = { ...hist[idx], ...rec, fieldMeta: { ...(hist[idx].fieldMeta || {}), ...fieldMeta } }; else hist.push(rec); // 같은 날 = upsert
     // v57.81: a session already recorded on an earlier row is held on this one, never a second observation.

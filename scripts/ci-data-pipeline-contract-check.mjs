@@ -129,6 +129,55 @@ const fetchData = readProducerSource();
     check('P1799 Seoul-session previous close is the last bar before the current session even when today\'s bar is not printed yet',
       krBars[atOpen]?.close === 6008.81 && withToday === 1 && afterClose === 1 && us === 0,
       JSON.stringify({ atOpen, withToday, afterClose, us }));
+    // v58.69 (live 2026-10-23): fetchQuote keeps empty bars, so an empty previous session is found as empty (and priced
+    // from its last hourly close or left missing) instead of the bar two sessions back (KOSPI −5.75% for −2.3%).
+    const holed = [bar('2026-10-20T00:00:00Z', 5552.74), bar('2026-10-21T00:00:00Z', null), bar('2026-10-22T00:00:00Z', null), bar('2026-10-23T00:00:00Z', 5406.01)];
+    const krHole = previousCloseBarIndex(holed, { ...kst, regularMarketTime: Date.parse('2026-10-23T00:31:10Z') / 1000 });
+    const usHole = previousCloseBarIndex([bar('2026-10-20T13:30:00Z', 7712.57), bar('2026-10-21T13:30:00Z', null), bar('2026-10-22T13:30:00Z', 7663.43)], { exchangeTimezoneName: 'America/New_York', gmtoffset: -14400, regularMarketTime: Date.parse('2026-10-22T20:31:48Z') / 1000 });
+    const quoteSource = readFileSync(new URL('./producer/quotes.mjs', import.meta.url), 'utf8');
+    check('v58.69 an empty previous-session bar is that session (hourly fallback or missing), never the session before it',
+      krHole === 2 && holed[krHole].close === null && usHole === 1
+        && /\.filter\(\(bar\) => Number\.isFinite\(bar\.timestamp\)\)/.test(quoteSource) && /previousCloseApproximate/.test(readFileSync(new URL('./producer/history.mjs', import.meta.url), 'utf8')),
+      JSON.stringify({ krHole, usHole }));
+    // v58.69: the history backfill fills a US daily hole from that session's last hourly close (10/21 S&P 500 7,757.22),
+    // keyed at the session's first hourly stamp; empty hourly closes and other sessions are skipped. Korea is not filled.
+    const { hourlySessionClose } = await import('./producer/quotes.mjs');
+    const hourlyRes = { timestamp: ['2026-10-20T19:30:00Z', '2026-10-21T13:30:00Z', '2026-10-21T18:30:00Z', '2026-10-21T19:30:00Z', '2026-10-22T13:30:00Z'].map((iso) => Date.parse(iso) / 1000),
+      indicators: { quote: [{ close: [7711.7, 7730.1, 7757.22, null, 7700] }] } };
+    const filled = hourlySessionClose(hourlyRes, '2026-10-21', 'America/New_York');
+    const historySource = readFileSync(new URL('./producer/history.mjs', import.meta.url), 'utf8');
+    // v58.70 (owner 2026-10-23): a failing degradable lane goes back to the last publish and is declared; others publish.
+    const { applyLaneQuarantine, readLaneQuarantine } = await import('./lib/lane-quarantine.mjs');
+    const previousData = { meta: { generatedAt: '2026-10-23T00:51:12Z', newsCount: 2, newsIntradayCount: 1, newsCycleEnd: 'old-cut', marketAnalysisOk: true, laneQuarantine: [{ lane: 'narrative', since: '2026-10-22T23:50:00Z', check: 'x' }] },
+      news: ['a', 'b'], newsIntraday: ['c'], marketAnalysis: { summary: 'old', generatedAt: '2026-10-23T00:50:00Z' }, quotes: ['old-q'] };
+    const producedData = { meta: { generatedAt: '2026-10-23T01:21:00Z', newsCount: 3, newsIntradayCount: 7, newsCycleEnd: 'new-cut', marketAnalysisOk: true },
+      news: ['x', 'y', 'z'], newsIntraday: Array(7).fill('n'), marketAnalysis: { summary: 'new' }, quotes: ['new-q'] };
+    const quarantined = applyLaneQuarantine(producedData, previousData, [{ lane: 'news', check: 'P1982 count=7' }, { lane: 'narrative', check: 'lineage' }],
+      { nowIso: '2026-10-23T01:21:30Z', retainNarrative: (analysis) => ({ ...analysis, retained: { from: '2026-10-23T00:51:12Z' } }) });
+    const laneEntries = readLaneQuarantine(quarantined.meta);
+    const flagged = applyLaneQuarantine(producedData, null, [{ lane: 'news', check: 'c' }], { nowIso: 'now' });
+    const unretained = applyLaneQuarantine(producedData, previousData, [{ lane: 'narrative', check: 'c' }], { nowIso: 'now' });
+    const { laneQuarantineNotices } = await import('../src/data/server-data.js');
+    const notices = laneQuarantineNotices(quarantined.meta.laneQuarantine);
+    let unknownLaneRefused = false;
+    try { applyLaneQuarantine(producedData, previousData, [{ lane: 'quotes', check: 'c' }]); } catch (_) { unknownLaneRefused = true; }
+    const refreshYaml = readFileSync(new URL('../.github/workflows/refresh-data.yml', import.meta.url), 'utf8');
+    const stepAt = (name) => refreshYaml.indexOf(`- name: ${name}`);
+    // v58.71 (pipeline audit): the restored news keeps its own cycle label, and a reading the retention rule refuses is not republished.
+    check('v58.70 a failing degradable lane is restored from the last publish and declared, the rest of the refresh stays new',
+      quarantined.quotes[0] === 'new-q' && quarantined.news.length === 2 && quarantined.newsIntraday.length === 1 && quarantined.meta.newsIntradayCount === 1
+        && quarantined.meta.newsCycleEnd === 'old-cut' && quarantined.marketAnalysis.summary === 'old' && quarantined.meta.marketAnalysisRetained?.from === '2026-10-23T00:51:12Z'
+        && laneEntries.lanes.size === 2 && laneEntries.lanes.get('narrative').since === '2026-10-22T23:50:00Z' && laneEntries.lanes.get('news').since === '2026-10-23T01:21:30Z'
+        && unretained.marketAnalysis === null && quarantined.meta.laneQuarantine.find((row) => row.lane === 'news').previousGeneratedAt === '2026-10-23T00:51:12Z'
+        && notices.length === 2 && /^뉴스 묶음 낡음$/.test(notices.find((row) => /뉴스/.test(row.text))?.text || '') && /^10\/23 10:21부터 /.test(notices.find((row) => /뉴스/.test(row.text)).detail) && laneQuarantineNotices(undefined).length === 0
+        && flagged.meta.laneQuarantine[0].remedy === 'flag' && flagged.newsIntraday.length === 7 && unknownLaneRefused
+        && stepAt('Install gate dependencies') < stepAt('Contain a failing degradable lane') && stepAt('Contain a failing degradable lane') < stepAt('Reject silent artifact degradation')
+        && stepAt('Contain a failing degradable lane') < stepAt('Validate evidence-derived 22-category reconciliation'),
+      JSON.stringify(quarantined.meta.laneQuarantine));
+    check('v58.69 a US daily-close hole is filled from the session\'s last hourly close and marked approximate; Korea is not',
+      filled?.close === 7757.22 && filled.openAt === '2026-10-21T13:30:00.000Z' && hourlySessionClose(hourlyRes, '2026-10-19', 'America/New_York') === null
+        && /closeApproximate: true/.test(historySource) && /if \(continuous \|\| \/\^\\\^\?\(KS\|KQ\)\/\.test\(r\.sym\)\) continue;/.test(historySource),
+      JSON.stringify(filled));
   }
   {
     // v58.20 review B1: quote verification keeps real spike days and low-rate moves. ^VIX +65% (2024-08-05) and +116%
@@ -685,6 +734,16 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && expired.status === 'blocked' && retainVerifiedMarketAnalysis({ ...previous, semanticIssues: ['x'] }, { nowMs: now }) === null
       && /08:00 이후 장중 속보\(잠정\)/.test(prompts[0] || ''),
     JSON.stringify({ retried: retried?.status, retained: retained?.retained, expired: expired?.status, prompts: prompts.length }));
+  {
+    // v58.71 (pipeline audit): a blocked attempt records its input key; the same inputs on the next run make no model call.
+    const before = prompts.length;
+    console.warn = () => {};
+    let again;
+    try { again = await genMarketAnalysis(withIntraday, snapshot, { previous: retained, request: stub([good]), nowMs: now + 30 * 60000, history: [] }); } finally { console.warn = warn; }
+    check('v58.71 unchanged inputs after a blocked attempt make no model call and keep the retained reading',
+      typeof retained?.blockedAttemptKey === 'string' && prompts.length === before && again?.blockedAttemptKey === retained.blockedAttemptKey && again?.retained?.from === previous.generatedAt,
+      JSON.stringify({ key: retained?.blockedAttemptKey, calls: prompts.length - before, again: again?.retained }));
+  }
   {
     // Unchanged evidence and headlines reuse a verified <12h analysis without a model call; any change, an older
     // analysis, or a flagged one calls again.
@@ -2509,6 +2568,163 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && /- market\.index\.nikkei225:\w+ Nikkei=64789\.89 index change=\+1\.1\d% vs previous close 장중 11:10 KST/.test(prompt)
       && !(run?.semanticIssues || []).some((issue) => /market\.(?:semis|nasdaq100-futures|nikkei|hangseng)/.test(issue)),
     JSON.stringify({ status: run?.status, issues: run?.semanticIssues, cross: prompt.match(/^CROSS_MARKET_INTRADAY[\s\S]{0,700}/m)?.[0] || 'no CROSS_MARKET_INTRADAY' }));
+}
+
+// v58.71 (owner 2026-10-23): research-channel numbers (analyst actions, quarters against estimates, economic releases,
+// retail net-buy lists) are extracted from the full post text, published as digest `signals`, and read by the market
+// reading's NARRATIVE_CONTEXT, the screener's 리서치 채널 conditions and the news screen's 채널 데이터 block.
+{
+  const ts = await import('./lib/telegram-signals.mjs');
+  const universe = ts.buildUniverseIndex([{ sym: 'META', name: 'Meta Platforms' }, { sym: 'GOOGL', name: 'Alphabet' }, { sym: 'E', name: 'Eni' },
+    { sym: 'BE', name: 'Bloom Energy' }, { sym: 'CRWV', name: 'CoreWeave' }, { sym: 'CLF', name: 'Cleveland-Cliffs' }, { sym: 'IBM', name: 'IBM' },
+    { sym: '028050.KS', name: '삼성E&A' }, { sym: '089890.KQ', name: '코세스' }, { sym: '000660.KS', name: 'SK하이닉스' }]);
+  const meta = { universe, date: '2026-10-22', postId: 'ch/1' };
+  const pt = (text) => ts.extractAnalystActions(text, meta);
+  const fromTo = pt("Rosenblatt, 메타(Meta, $META), 투자의견 '매수(Buy)'를 유지, 목표주가를 886달러에서 900달러로 상향")[0];
+  const previous = pt('시티즌스(Citizens)의 애널리스트는 알파벳(NASDAQ: GOOGL)의 목표주가를 450.00달러(기존 515.00달러)로 하향 조정하면서 시장수익률 상회 의견은 유지')[0];
+  const krList = pt('[시그널랩 리서치] 10/23 오늘의 목표주가 상향\n<삼성E&A[028050] 반복되는 서프라이즈>\niM증권 배세호\nㆍ 투자의견 Buy 유지 목표주가 78,000원으로 상향\n<삼성E&A[028050] 레벨업>\n유안타증권 이창민\nㆍ 투자의견 BUY, 목표주가 77,000으로 상향');
+  const manwon = pt('▶️코세스(089890/KQ) / 매수(유지) / TP 5.5만원 (상향, Upside 74.6%)')[0];
+  const mover = pt('2026년 10월 19일 프리마켓 주요 종목 동향\n\nCRWV (+6.71%)\nGoldman Sachs가 투자의견을 Buy로 상향하고 목표주가 $106 제시.')[0];
+  const customer = pt('한국투자證 "비나텍, 블룸에너지발 수주 확대…목표가 11만2000원 상향"\n투자의견 매수를 유지하고 목표주가를 기존 9만4400원에서 11만2000원으로 상향');
+  const ratingTarget = pt("• 메타 (META) — BMO캐피털이 투자의견을 '시장수익률'에서 '시장수익률 상회'로 상향하고 목표주가를 85달러에서 101달러로 조정.")[0];
+  check('v58.71 analyst actions: X에서 Y로, Y(기존 X), a KR list post with its title code, 만원 and a mover line each give the ticker, price change and broker',
+    fromTo?.ticker === 'META' && fromTo.ptFrom === 886 && fromTo.ptTo === 900 && fromTo.direction === 'raise' && fromTo.broker === 'Rosenblatt' && fromTo.rating === 'buy'
+      && previous?.ticker === 'GOOGL' && previous.ptFrom === 515 && previous.ptTo === 450 && previous.direction === 'cut'
+      && krList.length === 2 && krList.every((s) => s.ticker === '028050.KS' && s.currency === 'KRW') && krList[0].ptTo === 78000 && krList[0].broker === 'iM증권' && krList[1].ptTo === 77000 && krList[1].broker === '유안타증권'
+      && manwon?.ticker === '089890.KQ' && manwon.ptTo === 55000 && manwon.direction === 'raise'
+      && mover?.ticker === 'CRWV' && mover.ptTo === 106 && mover.ratingAction === 'upgrade' && mover.rating === 'buy',
+    JSON.stringify({ fromTo, previous, krList, manwon, mover }));
+  check('v58.71 no ticker is guessed: a customer named in the title is not the rated company, "(E)" is not Eni, and a rating change reads the rating it moved to',
+    customer.length === 0 && ts.writtenTickers('NAND 가격은 2027년(E)까지 견조', universe).length === 0 && ratingTarget?.rating === 'buy' && ratingTarget.ratingAction === 'upgrade',
+    JSON.stringify({ customer, ratingTarget }));
+  const quarter = ts.extractEarnings('IBM 2026년 3분기 실적 발표.\n\n• 매출 171억 달러로 시장 예상치 168억 3,000만 달러 상회.\n\n• 조정 주당순이익(EPS) 2.95달러로 시장 예상치 2.86달러 상회.', meta)[0];
+  const korean = ts.extractEarnings('에르메스의 2026년 3분기 실적\n• 매출: 41억 유로, 시장 예상치 41억 2,000만 유로 하회.', meta)[0];
+  const moverQuarter = ts.extractEarnings('프리마켓 주요 종목 동향\n\nCLF (+12.87%)\nEPS 예상치를 $0.07 상회했으나 매출은 예상치 하회.', meta)[0];
+  const preview = ts.extractEarnings('JP모건) HDD 프리뷰: …\n• 매출 42억 달러(컨센서스 41억 달러) 상회할 것으로 예상', meta);
+  check('v58.71 reported quarters: verdicts against estimates, a mover line, the possessive dropped from a Korean name, and a preview is not a result',
+    quarter?.ticker === 'IBM' && quarter.revenue === 'beat' && quarter.eps === 'beat' && quarter.quarter === '2026Q3'
+      && korean?.ticker === null && korean.name === '에르메스' && korean.revenue === 'miss'
+      && moverQuarter?.ticker === 'CLF' && moverQuarter.eps === 'beat' && moverQuarter.revenue === 'miss' && preview.length === 0,
+    JSON.stringify({ quarter, korean, moverQuarter, preview }));
+  const release = ts.extractMacroReleases('🚨 경제 지표 발표 🚨\n\n🔴 미국 신규 실업수당청구건수\n(Initial Jobless Claims)\n\nㆍ실제치(Actual): 194,000건 🔴\nㆍ예상치(Forecast): 200,000건\nㆍ이전치(Previous): 200,000건', meta)[0];
+  const retail = ts.extractRetailFlows('2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50\n\n1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%)\n2위: SPACE EXPLORATION TECHN-CL A (12.20%)\n3위: PROSHARES ULTRAPRO SHORT QQQ (1.00%)\n4위: PROSHARES ULTRA QQQ ETF (3.36%)', meta)[0];
+  check('v58.71 economic releases keep actual, forecast and previous; the retail list sums leveraged long and inverse shares without inferring tickers',
+    release?.name === '미국 신규 실업수당청구건수' && release.nameEn === 'Initial Jobless Claims' && release.actual === 194000 && release.forecast === 200000 && release.previous === 200000 && release.surprise === -6000
+      && retail?.date === '2026-10-22' && retail.leveragedLongShare === 22.41 && retail.inverseShare === 1 && retail.top.every((row) => !('ticker' in row)),
+    JSON.stringify({ release, retail }));
+  const merged = ts.mergeSignals([{ kind: 'pt', key: 'pt|A|x|2026-10-01', date: '2026-10-01' }, { kind: 'pt', key: 'pt|B|x|2026-10-20', date: '2026-10-20', ptTo: 1 }, { kind: 'note', key: 'n', date: '2026-10-21' }],
+    [{ kind: 'pt', key: 'pt|B|x|2026-10-20', date: '2026-10-20', ptTo: 2 }], { sinceDate: '2026-10-09' });
+  check('v58.71 signals merge by key inside the window (new wins, old and unknown kinds drop) and each kind is capped',
+    merged.length === 1 && merged[0].ptTo === 2 && Object.values(ts.SIGNAL_LIMITS).every((n) => n > 0 && n <= 240), JSON.stringify(merged));
+  check('v58.71 the producer extracts signals from fresh full text, keeps data posts in the lists, never republishes text, and seeds the window once',
+    /extractPostSignals\(\{ id: post, text, datetime: date\.toISOString\(\), localDateKst: kstDate\(date\) \}, UNIVERSE\)/.test(fetchTelegram)
+      && /scoreItem\(text, tags, \[\.\.\.tickers, \.\.\.roles\.listTickers, \.\.\.roles\.relatedTickers\], signals\.length > 0\)/.test(fetchTelegram)
+      && /const \{ text, signals: _signals, \.\.\.rest \} = it;/.test(fetchTelegram)
+      && /mergeSignals\(previousDigest\?\.signals, freshItems\.flatMap\(it => it\.signals \|\| \[\]\)/.test(fetchTelegram)
+      && /if \(!Array\.isArray\(prev\.signals\)\) previousLastPostId\.clear\(\);/.test(fetchTelegram)
+      && /^\s*signals,$/m.test(fetchTelegram));
+  check('v58.71 the classifier no longer tags every dollar price as macro or a buyback as an insider trade',
+    !/payrolls\|달러\|금리/.test(fetchTelegram) && /달러\\s\*\(\?:강세\|약세/.test(fetchTelegram) && !/임원 매수\|자사주/.test(fetchTelegram));
+  const nc = await import('./lib/narrative-context.mjs');
+  const at = Date.parse('2026-10-23T01:00:00.000Z');
+  const digest = { signals: [release, retail, { ...retail, key: 'retail|순매수|2026-10-21', date: '2026-10-21', leveragedLongShare: 10.84 }, fromTo, previous, quarter, { ...fromTo, key: 'old', date: '2026-10-01' }] };
+  const narrative = nc.buildNarrativeContext({ telegramDigest: digest, nowMs: at });
+  check('v58.71 NARRATIVE_CONTEXT carries a CHANNEL_DATA block (release vs forecast, retail leverage vs the prior list, analyst and earnings tallies) marked not METRIC_EVIDENCE; a new release or list changes the signature',
+    /채널 데이터 \(리서치 채널이 전한 수치[^\n]*METRIC_EVIDENCE가 아니다\)/.test(narrative.text) && /미국 신규 실업수당청구건수 \(Initial Jobless Claims\): 예상보다 낮음/.test(narrative.text)
+      && /레버리지 롱 상품 22\.41% \(직전 2026-10-21 10\.84%\)/.test(narrative.text) && /목표주가 상향 1건 · 하향 1건/.test(narrative.text) && /예상 상회 1곳\(IBM\)/.test(narrative.text)
+      && narrative.signature === '#macro|Initial Jobless Claims|2026-10-22,2026-10-22' && nc.buildNarrativeContext({ nowMs: at }).text === '',
+    `${narrative.signature}\n${narrative.text}`);
+  const cs = await import('../src/domain/screener/channel-signals.js');
+  const cc = await import('../src/domain/screener/custom-conditions.js');
+  const parser = await import('../src/domain/screener/condition-text-parser.js');
+  const signals = [fromTo, { ...fromTo, key: 'k2', broker: 'Citi' }, previous, quarter, mover];
+  const readSignal = (row, key) => cs.channelSignalValue(signals, row, key);
+  const raise = { id: 'tg-pt-raise', value: 2 };
+  // The screener's own reader takes the signals js/aio-data.js publishes on the window.
+  const { customRead } = await import('../src/ui/pages/screener.js');
+  const savedSignals = globalThis.AIO_TELEGRAM_SIGNALS;
+  globalThis.AIO_TELEGRAM_SIGNALS = signals;
+  const screenerRead = (row, key) => customRead(row, key);
+  check('v58.71 screener: a row reads only its own reported signals, an unmentioned row has no data (not zero), and the 리서치 채널 conditions and phrases resolve',
+    cc.evaluateCondition(raise, { sym: 'META' }, readSignal) === true && cc.evaluateCondition(raise, { sym: 'GOOGL' }, readSignal) === false && cc.evaluateCondition(raise, { sym: 'AAPL' }, readSignal) === null
+      && cc.evaluateCondition({ id: 'tg-earnings-beat' }, { sym: 'IBM' }, readSignal) === true && cc.evaluateCondition({ id: 'tg-upgrade' }, { sym: 'CRWV' }, readSignal) === true
+      && parser.parseConditionText('목표주가 상향 + 실적 서프라이즈').conditions?.map((c) => c.id).join(',') === 'tg-pt-raise,tg-earnings-beat'
+      && screenerRead({ sym: 'META' }, 'tgPtRaises') === 2 && screenerRead({ sym: 'AAPL' }, 'tgPtRaises') === null,
+    JSON.stringify(parser.parseConditionText('목표주가 상향 + 실적 서프라이즈')));
+  // v58.71 (data audit): Yahoo left 10/22 daily bars empty for WTI and others, so the briefing showed their 10/21 session
+  // beside the S&P 500's 10/22 one with no date. Each move row carries its close date; a row on another date names it.
+  const { buildMarketRead } = await import('../src/domain/briefing/market-read.js');
+  const sessions = ['2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22'].map((date, i) => ({ date, spx: 6000 + i, wti: i === 3 ? null : 80 + i }));
+  const moveRows = buildMarketRead({ history: sessions }).moves || [];
+  check('v58.71 briefing move rows carry their own close date (WTI on its last bar, the S&P 500 on the latest session)',
+    moveRows.find((row) => row.label === 'S&P 500')?.asOf === '2026-10-22' && moveRows.find((row) => row.label === 'WTI')?.asOf === '2026-10-21', JSON.stringify(moveRows));
+  const chatCtx = await import('../src/ai/context/channel-signals.js');
+  const chatText = chatCtx.formatChannelSignalEvidence(digest.signals, { tickers: ['META'], market: true });
+  const relayed = ts.mergeSignals([], [{ ...fromTo, key: 'a', date: '2026-10-21' }, { ...fromTo, key: 'b', date: '2026-10-22' }]);
+  check('v58.71 chat: a ticker question gets its reported actions, a market question the releases and retail leverage, attributed as channel reports; one report relayed twice counts once',
+    /\[2026-10-22 META\] Rosenblatt 목표주가 886 USD → 900 USD 상향/.test(chatText) && /서학개미 순매수\] 상위 10종목/.test(chatText) && /리서치 채널 보도에 따르면/.test(chatText)
+      && chatCtx.formatChannelSignalEvidence(digest.signals, { tickers: ['AAPL'] }) === '' && relayed.length === 1 && relayed[0].date === '2026-10-21',
+    chatText);
+  const cd = await import('../src/ui/components/channel-data.js');
+  const panel = cd.channelDataModel(digest.signals);
+  check('v58.71 the news screen 채널 데이터 block: one reading, the leverage share by day, the rows in a fold',
+    /10\/22 서학개미 순매수에서 레버리지 롱 상품 비중은 22\.41%로 직전\(10\.84%\)보다 늘었습니다\./.test(panel?.reading || '') && panel.leverage.map((row) => row.date).join(',') === '2026-10-21,2026-10-22'
+      && panel.actions.some((row) => row === '10/22 META · Rosenblatt · $886 → $900 상향 · 매수') && panel.releases.length === 1 && cd.channelDataModel([]) === null,
+    JSON.stringify(panel));
+  if (savedSignals === undefined) delete globalThis.AIO_TELEGRAM_SIGNALS; else globalThis.AIO_TELEGRAM_SIGNALS = savedSignals;
+}
+// v58.71 (pipeline audit): the remaining audit fixes, one behaviour each.
+{
+  const { backtestFactors } = await import('./lib/factors.mjs');
+  const dates = [];
+  for (let day = Date.parse('2026-01-02T00:00:00Z'); dates.length < 200; day += 86400000) { const weekday = new Date(day).getUTCDay(); if (weekday && weekday < 6) dates.push(new Date(day).toISOString().slice(0, 10)); }
+  const holiday = dates[150];
+  const stock = (sym, skip) => { const ds = dates.filter((date) => date !== skip); let price = 100; const closes = ds.map((_, index) => (price *= 1 + Math.sin(index + sym.length) * 0.01)); return { sym, dates: ds, closes, adjCloses: closes.slice(), volumes: ds.map(() => 1e6), highs: closes, lows: closes }; };
+  const bt = backtestFactors([...Array.from({ length: 10 }, (_, index) => stock(`U${index}`)), ...Array.from({ length: 3 }, (_, index) => stock(`00593${index}.KS`, holiday))]);
+  check('v58.71 the backtest calendar keeps a US session that is a KRX holiday (coverage judged within the largest market)',
+    bt.dateAlignment?.calendarMarket === 'US' && bt.dateAlignment?.calendarDates?.includes(holiday), JSON.stringify(bt.dateAlignment?.calendarMarket));
+
+  const { retainMarketRows } = await import('./producer/screener.mjs');
+  const fresh = { AAPL: { sym: 'AAPL' }, MSFT: { sym: 'MSFT' } };
+  const kept = retainMarketRows({ data: fresh, syms: ['AAPL', 'MSFT', '005930.KS', '000660.KS'], previous: { asOf: '2026-10-22T22:00:00Z', data: { '005930.KS': { factorSessionDate: '2026-10-22' }, '000660.KS': { factorSessionDate: '2026-10-22' } } } });
+  const notNeeded = retainMarketRows({ data: { ...fresh, '005930.KS': {}, '000660.KS': {} }, syms: ['AAPL', 'MSFT', '005930.KS', '000660.KS'], previous: { data: {} } });
+  check('v58.71 a KR outage keeps the last published KR rows, declared, instead of refusing the whole screener',
+    kept?.carried === 2 && fresh['005930.KS']?.retainedFrom === '2026-10-22T22:00:00Z' && fresh['005930.KS']?.factorSessionDate === '2026-10-22' && notNeeded === null, JSON.stringify(kept));
+
+  const { keepDisplacedSessions } = await import('./producer/history.mjs');
+  const fxMeta = (observedAt, sessionDate) => ({ observedAt, fetchedAt: observedAt, source: 'Yahoo chart', observationRelation: 'previous-completed-close', sessionDate });
+  const hist = [{ date: '2026-10-20', usdkrw: 1325.9, fieldMeta: { usdkrw: fxMeta('2026-10-20T21:00:00Z', '2026-10-20') } }, { date: '2026-10-22', usdkrw: 1331.2, fieldMeta: { usdkrw: fxMeta('2026-10-21T21:00:00Z', '2026-10-21') } }];
+  const displaced = keepDisplacedSessions(hist, '2026-10-22', { fieldMeta: { usdkrw: fxMeta('2026-10-22T21:00:00Z', '2026-10-22') } }, { fields: ['usdkrw'] });
+  check('v58.71 a session close that only today\'s row held is written into its own row before the upsert replaces it',
+    displaced.length === 1 && hist.find((row) => row.date === '2026-10-21')?.usdkrw === 1331.2 && keepDisplacedSessions(hist, '2026-10-22', { fieldMeta: { usdkrw: fxMeta('2026-10-22T21:00:00Z', '2026-10-22') } }, { fields: ['usdkrw'] }).length === 0,
+    JSON.stringify(displaced));
+
+  const { parseFredHyOasCsv } = await import('./lib/macro-sources.mjs');
+  const { mergeMacroPlanes } = await import('./producer/macro-merge.mjs');
+  const hy = parseFredHyOasCsv(['observation_date,BAMLH0A0HYM2', '2026-10-14,2.80', '2026-10-15,2.82', '2026-10-16,2.85', '2026-10-19,2.90', '2026-10-20,2.95', '2026-10-21,3.00', '2026-10-22,3.10'].join('\n'));
+  const merged = mergeMacroPlanes({ macroRaw: { hyOAS: 3.0, hyOASDelta: 0.05, hyOASDelta5: 0.18, _asOf_hyOAS: '2026-10-21' }, previousMacro: {}, bls: {}, bea: {}, treasury: {}, fredHyOas: hy });
+  check('v58.71 a newer public-CSV HY OAS date brings its own one-day and five-session deltas',
+    merged._asOf_hyOAS === '2026-10-22' && merged.hyOASDelta === 0.1 && merged.hyOASDelta5 === 0.28, JSON.stringify({ d: merged.hyOASDelta, d5: merged.hyOASDelta5 }));
+
+  const { previousCloseBarIndex } = await import('./fetch-data.mjs');
+  const bar = (iso, close) => ({ timestamp: Date.parse(iso) / 1000, close });
+  const tokyo = previousCloseBarIndex([bar('2026-10-20T00:00:00Z', 1), bar('2026-10-21T00:00:00Z', 2)], { exchangeTimezoneName: 'Asia/Tokyo', gmtoffset: 32400, regularMarketTime: Date.parse('2026-10-22T00:05:00Z') / 1000 }, '^N225');
+  const fx = previousCloseBarIndex([bar('2026-10-20T23:00:00Z', 1), bar('2026-10-21T23:00:00Z', 2), bar('2026-10-22T23:00:00Z', 3)], { exchangeTimezoneName: 'Europe/London', gmtoffset: 3600, regularMarketTime: Date.parse('2026-10-22T23:10:00Z') / 1000 }, 'KRW=X');
+  check('v58.71 an exchange opening before its bar prints compares with the last session (Tokyo), continuous FX keeps the bar before last',
+    tokyo === 1 && fx === 1, JSON.stringify({ tokyo, fx }));
+
+  const { parsePeriodicFilers } = await import('./fetch-sec-fundamentals.mjs');
+  const filers = parsePeriodicFilers(['Form Type   Company Name      CIK         Date Filed  File Name', '10-Q        APPLE INC         320193      20261022    edgar/data/320193/0000320193-26-000105.txt', '8-K         APPLE INC         320193      20261023    edgar/data/320193/0000320193-26-000106.txt', '10-K/A      AGILENT TECH      1090872     20261021    edgar/data/1090872/0001090872-26-000050.txt'].join('\r\n'));
+  check('v58.71 the EDGAR daily form index names periodic filers by CIK and filing date (8-K is not a periodic report)',
+    filers.get('0000320193') === '2026-10-22' && filers.get('0001090872') === '2026-10-21' && filers.size === 2, JSON.stringify([...filers]));
+}
+// v58.71 (pipeline audit): the 00:16Z run of 10/22 published US 10/20 over a 10/21 artifact; a market moving backwards keeps the last publish.
+{
+  const { sessionRegressions } = await import('./producer/screener.mjs');
+  const back = sessionRegressions({ US: '2026-10-21', KR: '2026-10-21' }, { US: { sessionDate: '2026-10-20' }, KR: { sessionDate: '2026-10-21' }, INTL: { sessionDate: '2026-10-21' } });
+  check('v58.71 a screener run whose market session moves backwards is held, an advancing or new market is not',
+    back.join('|') === 'US 2026-10-21->2026-10-20' && sessionRegressions({ US: '2026-10-21' }, { US: { sessionDate: '2026-10-22' }, KR: { sessionDate: '2026-10-22' } }).length === 0 && sessionRegressions(null, { US: { sessionDate: '2026-10-20' } }).length === 0,
+    JSON.stringify(back));
 }
 
 if (errors.length) {

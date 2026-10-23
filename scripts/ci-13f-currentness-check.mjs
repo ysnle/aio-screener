@@ -24,6 +24,12 @@ const fixture = {
 if (recentSubmissionRows(fixture).length !== 4) fail('fixture form discovery failed');
 const ownershipRows = recentOwnershipRows(fixture);
 if (ownershipRows.length !== 2 || ownershipRows[0].form !== 'SC 13G/A') fail('Schedule 13D/G ownership-event discovery failed');
+// v58.71: structured Schedules filed since 2024-12-18 carry the full 'SCHEDULE 13G' form name.
+const structuredOwnership = recentOwnershipRows({ filings: { recent: { form: ['SCHEDULE 13G/A', 'SCHEDULE 13D', 'SC 13G'], accessionNumber: ['0000000002-26-000003', '0000000002-26-000002', '0000000002-24-000001'], filingDate: ['2026-10-20', '2026-09-30', '2024-12-10'] } } });
+if (structuredOwnership.map((row) => row.form).join('|') !== 'SCHEDULE 13G/A|SCHEDULE 13D|SC 13G') fail('structured SCHEDULE 13D/G forms must be discovered');
+// v58.71: a lagging manager's newer-period 13F-NT does not take the holdings amendment's original out of its period group.
+const lagging = select13fFilings({ filings: { recent: { form: ['13F-NT', '13F-HR/A', '13F-HR'], accessionNumber: ['0000000003-26-000003', '0000000003-26-000002', '0000000003-26-000001'], filingDate: ['2026-08-14', '2026-07-01', '2026-05-15'], reportDate: ['2026-06-30', '2026-03-31', '2026-03-31'] } } });
+if (lagging.latestPeriodSubmissions.map((row) => row.form).join('|') !== '13F-HR/A|13F-HR') fail('latest holdings period group must be keyed on the holdings period, not a newer notice');
 const selected = select13fFilings(fixture);
 if (selected.latestSubmission.form !== '13F-NT') fail('latest notice must outrank same-period holdings by filed date');
 if (selected.latestHoldings.form !== '13F-HR/A') fail('latest holdings amendment must be retained');

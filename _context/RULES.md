@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-22
+last_verified: 2026-10-23
 confidence: medium
 target_version: v57.79
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
@@ -18,6 +18,18 @@ target_version: v57.79
 - **수집·신선도**: R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+
+## R722. 채널 글의 분류·선별은 글이 담은 수치를 기준으로도 판단한다 (v58.71, P1984)
+
+**Rule**: 텔레그램 분류 정규식에는 그 주제를 단독으로 가리키는 말만 둔다(통화 단위·기업 행위 일반어 금지). 목표주가·실적·경제지표·순매수 목록처럼 구조화된 수치를 담은 글은 문체와 상관없이 읽기 목록에 남기고, 그 수치는 signals로 따로 게시한다.
+
+**Validation**: node scripts/ci-data-pipeline-contract-check.mjs
+
+## R721. 보조 레인 실패는 그 레인만 격리하고, 데이터 전용 커밋은 데이터 검사로 인증한다 (v58.70, P1983)
+
+**Rule**: 데이터 산출물 검사 중 뉴스·AI 해설·거시 신선도처럼 하나의 레인에 속한 항목은 레인을 붙이고, 실패하면 그 레인만 직전 게시본으로 되돌리거나 표시하고 data.meta.laneQuarantine과 해당 화면(뉴스 '갱신 보류 · 마지막 수집', AI 해설 '직전 검증본')에 낡음을 밝힌 뒤 나머지를 게시한다. 시세·종가·시각·조정 상태처럼 숫자 무결성을 지키는 항목은 레인을 붙이지 않고 전체를 막는다. 데이터 갱신 출처의 커밋은 브라우저 셰이드 없이 코어·데이터·지식 검사로 인증하되, 그 아래 코드가 전체 push CI를 통과했어야 한다.
+
+**Validation**: node scripts/ci-data-pipeline-contract-check.mjs; node scripts/ci-artifact-semantics-check.mjs; node scripts/ci-qa-pipeline-contract-check.mjs
 
 ## R720. 게이트는 자신이 막는 결함을 재현한 입력에서 실패함을 보인 뒤에만 통과 근거가 된다 (v58.63, P1966)
 

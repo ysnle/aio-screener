@@ -10,7 +10,12 @@ on:
     # v57.54: one run right after the US close (daily: the SLO window derives runs/day only from daily crons) (16:00 ET = 20:00 UTC EDT / 21:00 UTC EST) so home breadth reaches
     # the new session in about an hour instead of waiting up to ~4h for the 00:53 slot.
     - cron: '53 21 * * *'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      retry:
+        description: 'collision = one re-run from the new main after a push conflict (v58.71)'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -182,8 +187,26 @@ jobs:
 
       - name: Commit only validated screener artifacts
         id: commit
+        # v58.71 (pipeline audit): a rebase conflict on a shared derived file (operations-status.json, run 39876749238)
+        # ended the run red and dropped the cycle. As in refresh-data, the validated candidate is not republished
+        # unvalidated: the run dispatches one re-run from the new main and ends; a second collision fails loudly.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCH_RETRY: ${{ inputs.retry }}
         run: |
           set -euo pipefail
+          collision_retry() {
+            reason="$1"
+            git rebase --abort >/dev/null 2>&1 || true
+            if [[ "${DISPATCH_RETRY:-}" == "collision" ]]; then
+              echo "::error::${reason} again on the collision retry; not retrying further."
+              exit 1
+            fi
+            gh workflow run refresh-screener.yml --ref main -f retry=collision
+            echo "::warning::${reason}; this cycle is re-run from the new main by a dispatched collision retry."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
           stage_if_exists() {
@@ -235,10 +258,10 @@ jobs:
               exit 1
             fi
             git fetch origin main
-            git rebase origin/main
-            node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-screener-candidate.json"
+            git rebase origin/main || collision_retry "rebase conflict on $(git diff --name-only --diff-filter=U | tr '\n' ' ')"
+            node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-screener-candidate.json" || collision_retry "the rebased tree no longer matches the validated candidate"
             attempt=$((attempt + 1))
-            sleep $((attempt * 3))
+            sleep $((attempt * 3 + RANDOM % 5))
           done
           echo "changed=true" >> "$GITHUB_OUTPUT"
 

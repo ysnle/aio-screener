@@ -88,6 +88,53 @@ function moverMemos(screener, { nowMs, windowHours }) {
   return out.sort((a, b) => b.score - a.score).slice(0, 40);
 }
 
+// v58.71 (owner 2026-10-23): the channels also relay numbers the reading never saw — economic releases against the
+// forecast, analyst target-price and rating actions, reported quarters against estimates and the daily list of what
+// Korean retail investors bought in US stocks (signals extracted by scripts/lib/telegram-signals.mjs). They join the
+// context as one CHANNEL_DATA block: still secondary, still not METRIC_EVIDENCE.
+const fmtNumber = (value) => (Number.isFinite(value) ? value.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '?');
+const kstDay = (ms) => new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
+export function channelData(digest, { nowMs, windowHours }) {
+  const signals = Array.isArray(digest?.signals) ? digest.signals : [];
+  const since = kstDay(nowMs - windowHours * 3600000);
+  const inWindow = (signal) => String(signal.date || '') >= since && String(signal.date || '') <= kstDay(nowMs);
+  const lines = [];
+  const releases = signals.filter((signal) => signal.kind === 'macro' && inWindow(signal));
+  for (const release of releases.slice(0, 4)) {
+    const side = release.actual > release.forecast ? '예상보다 높음' : release.actual < release.forecast ? '예상보다 낮음' : '예상과 같음';
+    const unit = release.unit || '';
+    lines.push(`   - [경제지표 ${release.date}] ${release.name}${release.nameEn ? ` (${release.nameEn})` : ''}: ${side} — 실제 ${fmtNumber(release.actual)}${unit} · 예상 ${fmtNumber(release.forecast)}${unit}${release.previous != null ? ` · 이전 ${fmtNumber(release.previous)}${unit}` : ''}`);
+  }
+  const retail = signals.filter((signal) => signal.kind === 'retail' && signal.side === 'buy').sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const latestRetail = retail[0] && inWindow(retail[0]) ? retail[0] : null;
+  if (latestRetail) {
+    const prior = retail[1];
+    lines.push(`   - [서학개미 순매수 ${latestRetail.date}] 상위 10종목 비중 ${latestRetail.top10Share}% · 레버리지 롱 상품 ${latestRetail.leveragedLongShare}%${prior ? ` (직전 ${prior.date} ${prior.leveragedLongShare}%)` : ''} · 1위 ${clip(latestRetail.top?.[0]?.name, 40)} — 개인 매수의 쏠림과 레버리지 비중을 보여 주는 자료`);
+  }
+  const actions = signals.filter((signal) => signal.kind === 'pt' && inWindow(signal));
+  if (actions.length) {
+    const count = (direction) => actions.filter((signal) => signal.direction === direction).length;
+    const tally = new Map();
+    for (const signal of actions.filter((item) => item.direction === 'raise')) tally.set(signal.ticker, (tally.get(signal.ticker) || 0) + 1);
+    const crowded = [...tally].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([ticker, n]) => `${ticker} ${n}곳`);
+    const rated = actions.filter((signal) => signal.ratingAction).slice(0, 6).map((signal) => `${signal.ticker} ${signal.ratingAction === 'upgrade' ? '상향' : '하향'}(${signal.broker || '증권사'})`);
+    lines.push(`   - [애널리스트 ${since}~] 목표주가 상향 ${count('raise')}건 · 하향 ${count('cut')}건 · 신규 ${count('initiate')}건${crowded.length ? ` · 여러 곳이 올린 종목: ${crowded.join(', ')}` : ''}${rated.length ? ` · 투자의견 변경: ${rated.join(', ')}` : ''}`);
+  }
+  const reports = signals.filter((signal) => signal.kind === 'earnings' && inWindow(signal));
+  if (reports.length) {
+    const label = (signal) => signal.ticker || signal.name;
+    const beat = reports.filter((signal) => [signal.revenue, signal.eps].includes('beat') && ![signal.revenue, signal.eps].includes('miss')).map(label);
+    const miss = reports.filter((signal) => [signal.revenue, signal.eps].includes('miss')).map(label);
+    lines.push(`   - [실적 ${since}~] 예상 상회 ${beat.length}곳${beat.length ? `(${beat.slice(0, 8).join(', ')})` : ''} · 예상 하회 포함 ${miss.length}곳${miss.length ? `(${miss.slice(0, 8).join(', ')})` : ''}`);
+  }
+  return {
+    text: lines.length ? ['채널 데이터 (리서치 채널이 전한 수치 · 2차 자료 — 어느 주제에 무게를 둘지 고르는 참고이며 METRIC_EVIDENCE가 아니다):', ...lines].join('\n') : '',
+    // A new release or a new retail list is worth a fresh reading; target-price counts move every refresh and are not.
+    signature: [releases[0]?.key, latestRetail?.date].filter(Boolean).join(','),
+    counts: { macro: releases.length, analystActions: actions.length, earnings: reports.length, retail: retail.filter(inWindow).length }
+  };
+}
+
 const lessonById = new Map(LESSONS.map((lesson) => [lesson.id, lesson]));
 function frameLine(frameIds) {
   const frame = frameIds.map((id) => lessonById.get(id)).find((lesson) => lesson && Array.isArray(lesson.steps) && lesson.steps.length);
@@ -101,6 +148,7 @@ function frameLine(frameIds) {
  */
 export function buildNarrativeContext({ telegramDigest = null, screener = null, nowMs = Date.now(), windowHours = NARRATIVE_WINDOW_HOURS } = {}) {
   const posts = telegramPosts(telegramDigest, { nowMs, windowHours });
+  const data = channelData(telegramDigest, { nowMs, windowHours });
   const movers = moverMemos(screener, { nowMs, windowHours });
   const recentSince = nowMs - NARRATIVE_RECENT_HOURS * 3600000;
   const themes = [];
@@ -130,11 +178,11 @@ export function buildNarrativeContext({ telegramDigest = null, screener = null, 
   ].filter(Boolean).join('\n'));
   return {
     themes: top,
-    text: lines.join('\n'),
+    text: [...lines, data.text].filter(Boolean).join('\n'),
     // The reuse check compares the set of leading themes, not the counts (which move every refresh).
     // Order-insensitive and only the leading three, so a 4th/5th-place swap does not buy another model call.
-    signature: top.slice(0, 3).map((theme) => theme.id).sort().join('|'),
-    counts: { telegramPosts: posts.length, moverMemos: movers.length, themesMatched: themes.length }
+    signature: top.slice(0, 3).map((theme) => theme.id).sort().join('|') + (data.signature ? `#${data.signature}` : ''),
+    counts: { telegramPosts: posts.length, moverMemos: movers.length, themesMatched: themes.length, channelData: data.counts }
   };
 }
 

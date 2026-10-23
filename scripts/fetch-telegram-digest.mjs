@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { classifyPostTickers, LIST_POST_TICKER_THRESHOLD, KR_INSTITUTIONAL_FLOW } from './lib/telegram-tickers.mjs';
 import { COMMON_WORD_ISSUER_NAMES } from '../src/domain/news/stories.js';
 import { cleanTelegramText } from './lib/telegram-text.mjs';
+import { buildUniverseIndex, extractPostSignals, mergeSignals } from './lib/telegram-signals.mjs';
 
 const CHANNEL_CATALOG = [
   { slug:'aetherjapanresearch', role:'asia-semi-flow', region:'jp-us', evidence:'secondary-public-mirror' },
@@ -123,6 +124,9 @@ if (outPath && existsSync(outPath)) {
       for (const ch of (prev.channels || [])) {
         if (ch.channel && Number.isFinite(ch.lastPostId)) previousLastPostId.set(ch.channel, ch.lastPostId);
       }
+      // v58.71: signals are read from full text, which carried posts no longer have; the first run with signals walks
+      // the whole window once so the 14-day signal set starts complete instead of filling in over two weeks.
+      if (!Array.isArray(prev.signals)) previousLastPostId.clear();
       const prevObservedIds = new Set((prev.observedItems || []).map(x => x && x.id).filter(Boolean));
       const prevSeen = new Set();
       for (const it of [...(prev.topItems || []), ...(prev.broadItems || [])]) {
@@ -199,7 +203,7 @@ function classify(text) {
   const tags = [];
   const add = v => { if (!tags.includes(v)) tags.push(v); };
   if (/corporate bond|company bond|investment grade|ig credit|\boas\b|\blqd\b|\bhyg\b|credit spread|project finance|rating downgrade|rating downshift|downgrade.*rating|funding cost|debt financing|capex funding|bond market|company debt|회사채|투자등급|크레딧|신용스프레드|스프레드|프로젝트\s*파이낸스|자금조달|조달비용|등급\s*하향|신용등급|신용공여/i.test(raw)) add('credit');
-  if (/\bboj\b|bank of japan|\bfomc\b|\bfed\b|federal reserve|\bcpi\b|\bppi\b|\bpce\b|\bgdp\b|\bgdpnow\b|treasury|10y|yield|rate cut|rate hike|inflation|deflation|recession|stagflation|tariff|\boil\b|crude|\bspr\b|\becb\b|employment|unemployment|payrolls|달러|금리|물가|인플레|경기침체|유가|중앙은행|관세|연준|고용|실업|국채|입찰/i.test(raw)) add('macro');
+  if (/\bboj\b|bank of japan|\bfomc\b|\bfed\b|federal reserve|\bcpi\b|\bppi\b|\bpce\b|\bgdp\b|\bgdpnow\b|treasury|10y|yield|rate cut|rate hike|inflation|deflation|recession|stagflation|tariff|\boil\b|crude|\bspr\b|\becb\b|employment|unemployment|payrolls|달러\s*(?:강세|약세|인덱스|지수|가치)|원[·/\s]*달러|달러[·/\s]*원|금리|물가|인플레|경기침체|유가|중앙은행|관세|연준|고용|실업|국채|입찰/i.test(raw)) add('macro');
   if (/\biran\b|\bisrael\b|hormuz|middle east|\bwar\b|sanction|reconstruction|jcpoa|geopolitic|conflict|strait|호르무즈|이란|이스라엘|중동|전쟁|제재|지정학/i.test(raw)) add('geo');
   if (/nvidia|nvda|\bamd\b|tsmc|\bhbm\b|dram|nand|micron|broadcom|avgo|marvell|mrvl|\bgpu\b|\bcpu\b|\basic\b|cowos|socamm|hbm4|hbm4e|semiconductor|memory (?:chips?|prices?|market|makers?|cycle|demand|supply)|sk hynix|samsung electronics|반도체|메모리|하이닉스|삼성전자|엔비디아|마이크론/i.test(raw)) add('semi');
   if (/\bcpo\b|\bnpo\b|optical|laser|\beml\b|cw laser|coherent corp|\bcohr\b|lumentum|aaoi|mtsi|\bsivers\b|photonics/i.test(raw)) add('optical');
@@ -209,7 +213,7 @@ function classify(text) {
   if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|코스피|코스닥|국장|한국장|코스피\s*선물|환율/i.test(raw) || KR_INSTITUTIONAL_FLOW.test(raw)) add('kr-market');
   if (/spacex|prime day|amazon|adobe|\bsmci\b|\bmeta\b|murata|\bipo\b|\bbuy\b|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
   if (/crypto|bitcoin|ethereum|coinbase/i.test(raw)) add('crypto');
-  if (/insider (?:buy|purchase|sale|selling|transaction)|open.market (?:buy|purchase)|form 4|director bought|executive bought|내부자|임원 매수|자사주/i.test(raw)) add('insider');
+  if (/insider (?:buy|purchase|sale|selling|transaction)|open.market (?:buy|purchase)|form 4|director bought|executive bought|내부자|임원 매수/i.test(raw)) add('insider');
   if (/earnings|revenue|\beps\b|guidance|operating profit|quarterly results|실적|매출|영업이익|가이던스|컨센서스/i.test(raw)) add('earnings');
   if (/fund flow|etf flow|positioning|short interest|gamma|option flow|foreign buying|institutional buying|수급|외국인|순매수|포지셔닝/i.test(raw) || KR_INSTITUTIONAL_FLOW.test(raw)) add('flows');
   if (/healthcare|pharma|biotech|glp.?1|wegovy|ozempic|mounjaro|novo nordisk|eli lilly|비만약|제약|바이오/i.test(raw)) add('healthcare');
@@ -281,9 +285,12 @@ function isLowSignalPost(text) {
   return false;
 }
 
-function scoreItem(text, tags, tickers) {
+// v58.71: a post carrying extracted data (target-price change, reported quarter against estimates, economic release
+// against forecast, retail net-buy list) is kept in the reading lists even when its wording scores low.
+const DATA_POST_BONUS = 20;
+function scoreItem(text, tags, tickers, dataPost = false) {
   if (isLowSignalPost(text)) return 20;
-  let score = 35;
+  let score = 35 + (dataPost ? DATA_POST_BONUS : 0);
   score += Math.min(20, tickers.length * 4);
   if (tags.includes('macro')) score += 12;
   if (tags.includes('credit')) score += 12;
@@ -302,6 +309,13 @@ function scoreItem(text, tags, tickers) {
   return Math.max(0, Math.min(100, score));
 }
 
+const kstDate = (date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit' }).format(date);
+function loadUniverse() {
+  try { return buildUniverseIndex(JSON.parse(readFileSync(join(ROOT, 'public-data/screener-universe.json'), 'utf8')).universe || []); }
+  catch (e) { console.warn(`[fetch-telegram-digest] screener universe read failed (signals keep $-written tickers only): ${e.message}`); return buildUniverseIndex([]); }
+}
+const UNIVERSE = loadUniverse();
+
 function parsePage(html, channel) {
   const out = [];
   const re = /<div class="tgme_widget_message[^>]*data-post="([^"]+)"[\s\S]*?<div class="tgme_widget_message_bubble">([\s\S]*?)(?=<\/div><\/div><div class="tgme_widget_message_wrap|<\/section>)/g;
@@ -317,20 +331,22 @@ function parsePage(html, channel) {
     const tags = text ? classify(text) : ['media-only'];
     const roles = text ? extractTickers(text) : { tickers: [], relatedTickers: [], listTickers: [] };
     const tickers = roles.tickers;
+    const signals = text ? extractPostSignals({ id: post, text, datetime: date.toISOString(), localDateKst: kstDate(date) }, UNIVERSE) : [];
     out.push({
       id: post,
       channel,
       url: `https://t.me/${post}`,
       datetime: date.toISOString(),
-      localDateKst: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit' }).format(date),
+      localDateKst: kstDate(date),
       tags,
       tickers,
       ...(roles.relatedTickers.length ? { relatedTickers: roles.relatedTickers } : {}),
       ...(roles.listTickers.length ? { listTickers: roles.listTickers } : {}),
       // Selection score still counts every named or inferred company, as before the split (selection unchanged).
-      score: text ? scoreItem(text, tags, [...tickers, ...roles.listTickers, ...roles.relatedTickers]) : 0,
+      score: text ? scoreItem(text, tags, [...tickers, ...roles.listTickers, ...roles.relatedTickers], signals.length > 0) : 0,
       hasText: !!text,
       text,
+      ...(signals.length ? { signals } : {}),
     });
   }
   return out;
@@ -362,6 +378,9 @@ async function scrapeChannel(channel) {
     const url = `https://t.me/s/${channel}${before ? `?before=${before}` : ''}`;
     const html = await fetchText(url);
     const pageItems = parsePage(html, channel);
+    // v58.71 (pipeline audit): the public preview always lists the latest posts, so an empty first page is a block or
+    // a markup change, not a quiet channel; counting it as collected hid the outage behind status 'ok'.
+    if (!pageItems.length && pages === 1) throw new Error('first page parsed no posts');
     if (!pageItems.length) break;
     for (const item of pageItems) {
       const d = new Date(item.datetime);
@@ -483,7 +502,7 @@ function previewText(text, max = 180) {
 // 인용 수준의 짧은 summary만 담는다 — 소스 채널 원문 재배포를 중단하는 권리 정직화 + 아티팩트
 // 대폭 경량화. 분류/카운트/태그/티커 lineage는 전부 유지된다.
 function toSummaryItem(it) {
-  const { text, ...rest } = it;
+  const { text, signals: _signals, ...rest } = it;
   return { ...rest, summary: previewText(text, 120) };
 }
 
@@ -541,6 +560,11 @@ const broadItems = (function() {
   }
   return out;
 })();
+// v58.71: structured numbers from the research channels (see lib/telegram-signals.mjs), merged with the previous run's
+// by key inside the same window. A signal is a reported observation, not this app's measurement.
+const signals = mergeSignals(previousDigest?.signals, freshItems.flatMap(it => it.signals || []), { sinceDate: kstDate(since) });
+const signalCounts = signals.reduce((acc, signal) => { acc[signal.kind] = (acc[signal.kind] || 0) + 1; return acc; }, {});
+console.log(`[telegram] signals: ${JSON.stringify(signalCounts)}`);
 const selectedRawIds = new Set([...topItems, ...broadItems].map(it => it.id));
 const eligibleTextCount = observedItems.filter(it => it.hasText).length;
 // The selection is drawn from every observed post, while the text-eligible
@@ -609,6 +633,9 @@ const digest = {
   // broadItems: score>=50, 梨꾨꼸??理쒕? 120媛? ?꾩껜 理쒕? 400媛? datetime ?대┝李⑥닚 (?댁뒪?쇰뱶)
   broadItems: broadItems.map(toSummaryItem), // P715: summary-only
   current24hItems: current24hItems.map(toSummaryItem),
+  signalsNote:'Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.',
+  signalCounts,
+  signals,
   // Phase 3 [A1/B3] P598: `items` (the full merged/deduped set, ~1.04MB / 46% of this file's
   // pre-fix size) used to be included here too, even though the "previousMergePool" logic just
   // above (P571/R262) already documents "the digest we write never persists the full raw item

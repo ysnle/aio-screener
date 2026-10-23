@@ -1,0 +1,17 @@
+{
+  "version": "v58.71", "date": "2026-10-23",
+  "p": {
+    "title": "history 필드 수정 기록이 두 읽기 사이를 왕복함",
+    "symptom": "history.json의 10/15 원/달러가 1341.64→1341.17→1341.64로, 10/19 다우가 51966.03↔51966으로 실행마다 오가며 revisions가 쌓였다(14개 필드).",
+    "root_cause": "오늘 행은 실행마다 새로 쓰이는데, 같은 세션을 이전 종가로 읽은 값과 최신 종가로 읽은 값이 번갈아 소유 행을 수정했다.",
+    "fix": "이전 종가 읽기는 최신 종가로 정해진 소유 값을 수정하지 않고, 이미 대체된 값으로는 되돌리지 않는다. 행은 계속 이월 표시된다.",
+    "violated_rule": "R423",
+    "prevention": "ci-history-field-time-contract-check: 대체된 값과 이전 종가 읽기가 소유 값을 바꾸지 않음을 확인한다.",
+    "verification": "node scripts/ci-history-field-time-contract-check.mjs 통과."
+  },
+  "qa": [{ "id": "QA-HIST-REV-01", "text": "{P}: 같은 세션의 두 읽기가 소유 값을 왕복 수정하지 않는다.", "verify_by": "node scripts/ci-history-field-time-contract-check.mjs", "done": true }],
+  "qa_section": "데이터 v58.71",
+  "changelog": ["**history 수정 왕복 차단 ({P}):** 같은 세션의 두 읽기가 번갈아 값을 바꾸던 것을 멈췄다."],
+  "note": "파이프라인 전수 검토(2026-10-23).",
+  "status": null
+}

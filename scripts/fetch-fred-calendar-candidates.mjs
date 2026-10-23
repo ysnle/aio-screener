@@ -261,6 +261,10 @@ async function main() {
   for (const release of RELEASES) {
     const payload = await getJson('release/dates', {
       release_id: release.releaseId,
+      // v58.71 (pipeline audit): release/dates defaults realtime_start to Jan 1 of the current year, so an early-January
+      // run lost the lookback dates; the window is passed as the producer does (macro-history.mjs).
+      realtime_start: startDate,
+      realtime_end: endDate,
       limit: 10000,
       sort_order: 'desc',
       include_release_dates_with_no_data: 'true'

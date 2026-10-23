@@ -1,0 +1,27 @@
+{
+ "version": "v58.71",
+ "date": "2026-10-23",
+ "qa_section": "데이터 v58.71",
+ "note": "파이프라인 전수 검토 후속(2026-10-23, 소유자: 남은 작업 모두 진행).",
+ "status": null,
+ "p": {
+  "title": "breadth가 미국 장 없는 날에 빈 행을 만들고, 지난 세션 종목을 오늘 등락에 섞음",
+  "symptom": "한국만 연 날이나 미국 마감 전 실행에서 history.json에 미국 breadth가 모두 비어 있는 행이 생겼고, 스냅숏 등락·이동평균 상회 수는 각 종목의 마지막 두 봉을 날짜와 무관하게 셌다.",
+  "root_cause": "breadth 이력이 모든 행 날짜로 버킷을 만들었고, 스냅숏은 observedAt만 대표 세션으로 고치고 집계는 그대로였다.",
+  "fix": "미국 표본이 0인 날은 이력에 쓰지 않고, 스냅숏 집계는 대표 세션 날의 행만 센다(sessionRows로 밝힘).",
+  "violated_rule": "R423",
+  "prevention": "생산자 경로 수정, 계약 검사 통과.",
+  "verification": "현재 screener.json 검증기와 계약 검사 통과."
+ },
+ "qa": [
+  {
+   "id": "QA-BREADTH-SESSION-01",
+   "text": "{P}: push 뒤 history.json에 미국 breadth가 모두 빈 행이 새로 생기지 않는다.",
+   "verify_by": "public-data/history.json 최근 행의 breadth20/advanceRatio 확인",
+   "done": false
+  }
+ ],
+ "changelog": [
+  "**breadth 세션 정리 ({P}):** 미국 장 없는 날의 빈 breadth 행을 만들지 않고, 지난 세션에 머문 종목을 오늘 등락에 섞지 않는다."
+ ]
+}

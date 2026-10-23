@@ -1,0 +1,27 @@
+{
+ "version": "v58.71",
+ "date": "2026-10-23",
+ "qa_section": "데이터 v58.71",
+ "note": "파이프라인 전수 검토 후속(2026-10-23, 소유자: 남은 작업 모두 진행).",
+ "status": null,
+ "p": {
+  "title": "한국 데이터 장애 하나가 스크리너 전체 갱신을 막음",
+  "symptom": "한국 239종목 이력이 모두 실패하면 행 903/1142(79%)와 한국 breadth 0%로 검증기가 산출물 전체를 거부해, 미국 팩터·SEC·지수 비중까지 한국이 돌아올 때까지 멈추는 구조였다(커밋된 수치로 계산).",
+  "root_cause": "검증기가 전체 행 80%와 시장별 breadth 80%를 한 번에 요구했고, 생산자는 실패한 시장을 이전 게시로 이어 줄 수단이 없었다.",
+  "fix": "한 시장의 가져온 행이 80% 아래면 그 시장의 직전 게시 행(각자 세션 날짜 유지, retainedFrom 표시)과 breadth 구간을 이어 쓰고 marketRetained에 밝힌다. 검증기는 이어 쓴 시장이 있을 때만 혼합 'all' 구간 커버리지를 면제하고, retained 구간은 marketRetained와 짝이 맞아야 한다.",
+  "violated_rule": "R721",
+  "prevention": "ci-data-pipeline-contract-check: 한국 행이 비면 직전 행이 표시와 함께 이어지고, 충분하면 이어 쓰지 않는다.",
+  "verification": "계약 검사 통과, 현재 screener.json 검증기 통과."
+ },
+ "qa": [
+  {
+   "id": "QA-SCR-KR-RETAIN-01",
+   "text": "{P}: 한국 시장 수집이 80% 아래로 떨어진 실행도 미국 부분을 게시하고 한국 행은 직전 게시로 표시된다.",
+   "verify_by": "node scripts/ci-data-pipeline-contract-check.mjs",
+   "done": true
+  }
+ ],
+ "changelog": [
+  "**한국 장애 격리 ({P}):** 한국 데이터만 실패한 실행은 한국 행을 직전 게시로 이어 쓰고 나머지를 게시한다."
+ ]
+}

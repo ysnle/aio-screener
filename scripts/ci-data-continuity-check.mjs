@@ -174,7 +174,9 @@ function runProducerChecks() {
   check('P1204 refresh workflows fail closed while staging published artifacts',
     screenerCommitBlock.includes('set -euo pipefail')
     && screenerCommitBlock.includes('stage_if_exists()')
-    && !screenerCommitBlock.includes('|| true'),
+    // v58.71: the collision retry's cleanup of a half-applied rebase is the one allowed `|| true` (as in refresh-data).
+    && !screenerCommitBlock.replace('git rebase --abort >/dev/null 2>&1 || true', '').includes('|| true')
+    && /git rebase origin\/main \|\| collision_retry/.test(screenerWorkflow),
     screenerCommitBlock);
   check('producer:market-snapshot-uses-atomic-writes', snapshot.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_STATUS_OUT')

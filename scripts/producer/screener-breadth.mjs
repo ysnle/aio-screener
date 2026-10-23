@@ -191,7 +191,8 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
   }
   for (const point of rows) {
     const segment = point?.us;
-    if (!segment || !point?.date) continue;
+    // v58.71 (pipeline audit): a date that only KR (or another market) traded has no US breadth; it must not add an all-null row.
+    if (!segment || !point?.date || !(Number(segment.eligible) > 0)) continue;
     let target = history.find((row) => row?.date === point.date);
     if (!target) { target = { date: point.date, fieldMeta: {} }; history.push(target); }
     target.fieldMeta = target.fieldMeta || {};

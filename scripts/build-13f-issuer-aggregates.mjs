@@ -7,13 +7,23 @@ import { atomicWriteFileSync } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChangedSync } from './lib/13f-semantic-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const reviewedAt = process.env.MASTERS_REVIEW_DATE || '2026-08-18';
 const readJson = (file) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
 const writeJson = (file, value) => writeJsonIfSemanticallyChangedSync(path.join(root, file), value, { writer: atomicWriteFileSync });
 
 const current = readJson('public-data/masters/holdings.json');
 const history = readJson('public-data/masters/history-holdings.json');
-const rows = [...(history.rows || []), ...(current.allHoldings || [])];
+// v58.71 (pipeline audit): the page showed this file's date as 기준일, and it was the literal '2026-08-18'.
+const reviewedAt = process.env.MASTERS_REVIEW_DATE || current.reviewedAt || null;
+// v58.71 (pipeline audit): history rows stop two quarters back and allHoldings is the latest quarter only, so the prior
+// quarter was in neither (Berkshire AAPL went 2025-12-31 -> 2026-06-30 with sharesDelta 0 and periodCount one short).
+// The verified prior-period side of each comparison is that quarter's position; it is added unless history has it.
+const historyPeriods = new Set((history.rows || []).map((row) => `${row.managerId}|${row.reportPeriod}`));
+const priorRows = (current.comparisons || [])
+  .filter((row) => row.comparisonStatus === 'VERIFIED_PRIOR_PERIOD' && row.priorReportPeriod && !historyPeriods.has(`${row.managerId}|${row.priorReportPeriod}`)
+    && (Number(row.priorShares) > 0 || Number(row.priorValue) > 0))
+  .map((row) => ({ managerId: row.managerId, cik: row.cik, reportPeriod: row.priorReportPeriod, filedAt: null, issuer: row.issuer, titleOfClass: row.titleOfClass,
+    cusip: row.cusip, cusipNormalized: row.cusipNormalized, shareType: row.shareType, putCall: row.putCall, value: Number(row.priorValue) || 0, shares: Number(row.priorShares) || 0, sourceUrl: null }));
+const rows = [...(history.rows || []), ...priorRows, ...(current.allHoldings || [])];
 const keyFor = (row) => [row.managerId, row.cusipNormalized || row.cusip, row.shareType || '', row.putCall || ''].join('|');
 const byKey = new Map();
 for (const row of rows) {

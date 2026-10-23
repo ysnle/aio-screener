@@ -1,0 +1,27 @@
+{
+ "version": "v58.71",
+ "date": "2026-10-23",
+ "qa_section": "데이터 v58.71",
+ "note": "파이프라인 전수 검토 후속(2026-10-23, 소유자: 남은 작업 모두 진행).",
+ "status": null,
+ "p": {
+  "title": "HY 스프레드 수준과 변화폭의 날짜가 어긋나고, 거시 증거 출처가 모두 FRED로 표시되며, 코스피·WTI 큰 움직임 줄이 세션을 건너뜀",
+  "symptom": "공개 CSV가 더 새 HY OAS 날짜를 올리면 변화폭은 API의 이전 날짜 값으로 남았다. 해설 증거는 국채·BEA·이월 값도 'FRED'로 적었고 FRED 실패 시 정책금리 행이 사라졌다. 코스피·WTI 줄은 빠진 행이 있으면 두 세션 변화를 'M/D 종가'로 썼다. FRED 일정 미리보기는 1월 초에 지난 날짜를 잃었다.",
+  "root_cause": "CSV는 수준만 넘겼고, 증거 출처가 FRED 실행 단위 표시를 썼으며, 연속 세션 확인이 미국 계열에만 있었고, release/dates 호출에 realtime 창이 없었다.",
+  "fix": "CSV가 자기 1일·5세션 변화폭을 계산해 함께 승격하고, 증거 출처는 필드별 _source_로, 신선도는 freshness로 싣는다. 코스피는 KRX, WTI는 미국 달력으로 1일·5세션을 확인한다. 미리보기 도구에 realtime_start/end를 넘긴다.",
+  "violated_rule": "R332",
+  "prevention": "ci-data-pipeline-contract-check: 새 CSV 날짜가 자기 변화폭을 가져온다.",
+  "verification": "계약 검사 통과."
+ },
+ "qa": [
+  {
+   "id": "QA-MACRO-EDGE-02",
+   "text": "{P}: HY OAS 수준과 변화폭이 같은 날짜다.",
+   "verify_by": "node scripts/ci-data-pipeline-contract-check.mjs",
+   "done": true
+  }
+ ],
+ "changelog": [
+  "**거시 경계 보정 ({P}):** HY 변화폭 날짜 일치, 증거 출처 표시, 코스피·WTI 연속 세션 확인, FRED 일정 창."
+ ]
+}

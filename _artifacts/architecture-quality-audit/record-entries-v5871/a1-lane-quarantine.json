@@ -1,0 +1,17 @@
+{
+  "version": "v58.71", "date": "2026-10-23",
+  "p": {
+    "title": "레인 격리가 되돌린 뉴스에 새 주기 이름을 붙이고, 검증되지 않은 AI 해설을 '직전 검증본'으로 다시 게시할 수 있었음",
+    "symptom": "v58.70 레인 격리는 뉴스 레인을 직전 게시본으로 되돌리면서 주기 끝·이름(newsCycleEnd/Label)은 이번 실행 값을 남겨, 어제 기사가 '오늘 08:00 ~' 주기로 표시될 수 있었다. AI 해설 레인은 보존 규칙이 거부한 직전 해설도 그대로 되살려 '직전 검증본'으로 게시할 수 있었다.",
+    "root_cause": "뉴스 메타 복원 목록이 주기 식별자 두 개를 제외했고, 해설 복원에 `|| previous[key]` 폴백이 있었다.",
+    "fix": "뉴스는 /^news/ 메타 전부(주기 시작·끝·이름·다음 갱신)를 기사와 함께 되돌리고, 해설은 보존 규칙(검증·나이)이 받아들인 것만 되돌리며 아니면 비운다.",
+    "violated_rule": "R721",
+    "prevention": "ci-data-pipeline-contract-check v58.70 레인 격리 검사가 복원 뉴스의 주기 이름(old-cut)과 보존 거부 해설의 null을 확인한다.",
+    "verification": "node scripts/ci-data-pipeline-contract-check.mjs 통과."
+  },
+  "qa": [{ "id": "QA-LANE-02", "text": "{P}: 격리로 되돌린 뉴스는 자기 주기 이름을 유지하고, 보존 규칙이 거부한 해설은 다시 게시되지 않는다.", "verify_by": "node scripts/ci-data-pipeline-contract-check.mjs", "done": true }],
+  "qa_section": "데이터 v58.71",
+  "changelog": ["**레인 격리 보정 ({P}):** 되돌린 뉴스는 자기 주기 이름을 함께 되돌리고, 보존 기준을 넘긴 AI 해설은 다시 게시하지 않는다."],
+  "note": "파이프라인 전수 검토(2026-10-23).",
+  "status": null
+}

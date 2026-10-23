@@ -7,6 +7,10 @@ import { CONDITION_BOUNDS as BOUNDS, normalizeConditions } from './custom-condit
 // so a reader sees what was not understood instead of a silently wider result.
 const NUM = '(\\d+(?:\\.\\d+)?)';
 const PARSE_RULES = [
+  // v58.71: research-channel reports, before the 실적/성장 rules below.
+  [/목표\s*(?:주)?가\s*(?:상향|올린|올라간)/, () => ({ id: 'tg-pt-raise', value: 1 })],
+  [/(?:투자\s*)?의견\s*상향|업그레이드/, () => ({ id: 'tg-upgrade' })],
+  [/(?:실적|어닝)\s*(?:서프라이즈|예상\s*상회|컨센서스\s*상회|비트)|(?:예상|컨센서스)\s*(?:를\s*)?(?:상회|웃돈)\s*실적/, () => ({ id: 'tg-earnings-beat' })],
   // v57.87: the follow-through phrases first (more specific than the ADR / VCP rules below).
   [/포켓\s*피벗/i, () => ({ id: 'pocket-pivot' })],
   [new RegExp(`${NUM}\\s*번째\\s*베이스\\s*(?:이하|까지)?`), (m) => ({ id: 'early-base', value: +m[1] })],

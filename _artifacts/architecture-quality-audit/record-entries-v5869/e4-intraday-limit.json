@@ -1,0 +1,18 @@
+{
+  "version": "v58.69", "date": "2026-10-23",
+  "p": {
+    "title": "장중 뉴스 상한을 12로 올렸는데 데이터 산출물 검사가 6에 고정돼 데이터 갱신이 막힘",
+    "symptom": "2026-10-23 01:20Z refresh-data가 'P1720 newsIntraday carries at most six ... count=7'로 실패해 새 데이터를 게시하지 못했다.",
+    "root_cause": "v58.63에서 NEWS_INTRADAY_MAX를 6에서 12로 올렸지만 ci-artifact-semantics-check는 숫자 6을 따로 들고 있었다. 08:00 KST 컷 이후 헤드라인이 처음 7개가 되자 검사가 실패했다.",
+    "fix": "검사가 src/domain/news/stories.js의 NEWS_INTRADAY_MAX를 가져와 쓴다(생산자·화면·AI 컨텍스트·검사가 한 상한).",
+    "violated_rule": "R720 수정마다 HEAD에서 실패하는 음성 대조와 양성 대조를 둔다",
+    "prevention": "검사 문구와 조건이 상수 이름을 쓰므로 상한을 다시 바꿔도 검사가 따라간다.",
+    "verification": "HEAD 검사는 7개 산출물에서 실패했고(01:20Z 실행 로그), 수정 후 현재 산출물로 ci-artifact-semantics-check가 통과한다."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-NEWS-INTRADAY-MAX-01", "text": "{P}: 장중 뉴스 개수 검사는 NEWS_INTRADAY_MAX를 상한으로 쓴다.", "verify_by": "node scripts/ci-artifact-semantics-check.mjs", "done": true }],
+  "qa_section": "시장 v58.69",
+  "changelog": ["**데이터 갱신 차단 해소 ({P}):** 장중 뉴스 개수 검사가 생산자와 같은 상한(12)을 쓴다. 10/23 01:20Z부터 헤드라인 7개에서 갱신이 막혀 있었다."],
+  "note": "push·배포 확인 중 발견.",
+  "status": null
+}

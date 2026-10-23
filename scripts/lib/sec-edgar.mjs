@@ -1,6 +1,7 @@
 const PLACEHOLDER_CONTACT = /(?:example\.com|contact@|research@|your[-_.]?email|localhost)/i;
 const SEC_FORMS = /^(13F-(?:HR|NT))(?:\/A)?$/;
-const OWNERSHIP_FORMS = /^SC 13(?:D|G)(?:\/A)?$/;
+// v58.71 (pipeline audit): EDGAR files structured Schedules as 'SCHEDULE 13D/G' since 2024-12-18; the old 'SC' prefix alone froze discovery at 2024-12-17.
+const OWNERSHIP_FORMS = /^(?:SC|SCHEDULE) 13(?:D|G)(?:\/A)?$/;
 
 export function requireSecUserAgent(env = process.env) {
   const value = String(env.SEC_USER_AGENT || '').trim();
@@ -60,8 +61,10 @@ export function select13fFilings(payload) {
   const holdingsRows = rows.filter((row) => row.baseForm === '13F-HR');
   const latestHoldings = holdingsRows[0] || null;
   const priorHoldings = holdingsRows.find((row) => row.periodOfReport < String(latestHoldings?.periodOfReport || '')) || null;
+  // v58.71 (pipeline audit): keyed on the holdings period. A lagging manager's newer-period 13F-NT used to leave the latest
+  // holdings amendment composed without its original.
   const latestPeriodSubmissions = latestHoldings
-    ? rows.filter((row) => row.periodOfReport === latestSubmission.periodOfReport)
+    ? rows.filter((row) => row.periodOfReport === latestHoldings.periodOfReport)
     : [];
   const priorPeriodSubmissions = priorHoldings
     ? rows.filter((row) => row.periodOfReport === priorHoldings.periodOfReport)
@@ -93,14 +96,23 @@ export function createSecClient({ userAgent = requireSecUserAgent(), minInterval
     if (delay) await wait(delay);
     lastRequestAt = Date.now();
     for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
-      const response = await fetchFn(url, {
-        headers: {
-          'User-Agent': userAgent,
-          'Accept-Encoding': 'gzip, deflate',
-          Accept: accept
-        },
-        signal: AbortSignal.timeout(requestTimeoutMs)
-      });
+      // v58.71 (pipeline audit): a dropped connection is retried like a 5xx; a request that hit its own deadline is not
+      // (four 60 s waits would hold the lane), so a timeout still fails at once.
+      let response;
+      try {
+        response = await fetchFn(url, {
+          headers: {
+            'User-Agent': userAgent,
+            'Accept-Encoding': 'gzip, deflate',
+            Accept: accept
+          },
+          signal: AbortSignal.timeout(requestTimeoutMs)
+        });
+      } catch (error) {
+        if (error?.name === 'TimeoutError' || error?.name === 'AbortError' || attempt === maxRetries) throw error;
+        await wait(500 * (2 ** attempt));
+        continue;
+      }
       if (response.ok) return response;
       if (![403, 429, 500, 502, 503, 504].includes(response.status) || attempt === maxRetries) {
         throw new Error(`${response.status} ${url}`);

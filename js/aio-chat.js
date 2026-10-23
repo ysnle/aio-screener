@@ -4049,7 +4049,7 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
           });
         }
       }
-    } catch(_) {}
+    } catch(_) {} if (window.AIO && window.AIO.formatChannelSignalEvidence) tgLines += window.AIO.formatChannelSignalEvidence(window.AIO_TELEGRAM_SIGNALS, { tickers: tickers, market: needsThemeNews || /^(home|signal|breadth|sentiment|briefing|macro|fxbond)$/.test(lowerCtx) }); // v58.71: src/ai/context/channel-signals.js
 
     return '\n\n[AIO Integrated Answer Pipeline v50.60]\n' +
       'special_edge: This screener chat is not a generic LLM. It must combine AIO page data, 현재 시장(live/stale-labeled market context), quant screener/technical signals, qualitative news/filings, and user portfolio/page intent into one answer.\n' +

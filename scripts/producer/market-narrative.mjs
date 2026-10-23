@@ -3,6 +3,7 @@
 // every name it exported before.
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from '../lib/ai-shared-analysis.mjs';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
@@ -113,13 +114,15 @@ export function priorSessionMoveLines(history = []) {
   // semiconductor drop. The US lines come first, the Nasdaq 100 and SMH join at the leadership 급락일 edges, and a US
   // one-session change is written only across consecutive sessions (a missing 10/21 row made 10/20→10/22 look like a day).
   const L = RULES.leadership;
-  for (const [field, label, edge, us] of [['spx', 'S&P 500', PRIOR_SESSION_MOVE_1D_PCT, true], ['ndx', '나스닥 100', L.shockNdx1dPct, true], ['smh', '반도체(SMH)', L.shockSemis1dPct, true], ['kospi', '코스피', PRIOR_SESSION_MOVE_1D_PCT, false], ['wti', 'WTI', PRIOR_SESSION_MOVE_1D_PCT, false]]) {
+  // v58.71 (pipeline audit): KOSPI is checked on the KRX calendar and WTI on the US one (CME follows US holidays), and a
+  // five-session change needs exactly five sessions; a missing row made a two-session change read as "M/D 종가".
+  for (const [field, label, edge, market] of [['spx', 'S&P 500', PRIOR_SESSION_MOVE_1D_PCT, 'US'], ['ndx', '나스닥 100', L.shockNdx1dPct, 'US'], ['smh', '반도체(SMH)', L.shockSemis1dPct, 'US'], ['kospi', '코스피', PRIOR_SESSION_MOVE_1D_PCT, 'KR'], ['wti', 'WTI', PRIOR_SESSION_MOVE_1D_PCT, 'US']]) {
     const series = buildCloseSeries(history, field).filter((point) => Number(point?.value) > 0);
     if (series.length < 2) continue;
     const last = series.at(-1), prior = series.at(-2), back5 = series.length >= 6 ? series.at(-6) : null;
-    const consecutive = !us || countOpenSessionsBetween(prior.date, last.date, 'US') === 1;
+    const consecutive = countOpenSessionsBetween(prior.date, last.date, market) === 1;
     const d1 = consecutive ? (last.value / prior.value - 1) * 100 : null;
-    const d5 = back5 ? (last.value / back5.value - 1) * 100 : null;
+    const d5 = back5 && countOpenSessionsBetween(back5.date, last.date, market) === 5 ? (last.value / back5.value - 1) * 100 : null;
     if (!((d1 != null && Math.abs(d1) >= edge) || (d5 != null && Math.abs(d5) >= PRIOR_SESSION_MOVE_5D_PCT))) continue;
     lines.push(`${label} ${md(last.date)} 종가${d1 != null ? ` ${signed(d1)}` : ''}${d5 != null ? ` (5거래일 ${signed(d5)})` : ''}`);
   }
@@ -291,10 +294,22 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
   // day's sentence could not be written until the evidence happened to change. The first run of a day whose sentence
   // is still yesterday's writes afresh once (a reading generated earlier that same day is reusable again).
   const sentenceDayOpen = previous?.sentence?.day !== marketSentenceDay(nowMs) && marketSentenceDay(Date.parse(previous?.generatedAt || '') || 0) !== marketSentenceDay(nowMs);
-  const reused = sentenceDayOpen ? null : reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext: buildMarketAnalysisHeadlineContext(data), narrativeSignature: narrativeContext.signature, nowMs });
+  const headlineContext = buildMarketAnalysisHeadlineContext(data);
+  const reused = sentenceDayOpen ? null : reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext, narrativeSignature: narrativeContext.signature, nowMs });
   if (reused) {
     console.log(`[fetch-data] marketAnalysis evidence and headlines unchanged — reusing verified analysis from ${reused.generatedAt} (no AI call)`);
     return reused;
+  }
+  // v58.71 (pipeline audit): a blocked attempt kept the old signature, so unchanged inputs never matched the reuse check and
+  // every 30-minute run (nights and weekends too) spent two model calls on the same material for up to 12 h. The blocked
+  // attempt's inputs (evidence, news, headlines, themes, sentence day) are kept as a key; the same key does not call again.
+  const evidenceIds = (rows) => [...new Set((Array.isArray(rows) ? rows : []).map((row) => String(row?.evidenceId || '')))].sort().join(',');
+  const attemptKey = createHash('sha1').update([evidenceIds(metricEvidence), evidenceIds(newsEvidence), evidenceIds(headlineContext), String(narrativeContext.signature || ''), marketSentenceDay(nowMs)].join('|')).digest('hex').slice(0, 16);
+  if (previous?.blockedAttemptKey === attemptKey) {
+    const reason = previous.retained?.reason || previous.reason || 'analysis-blocked';
+    const again = retainVerifiedMarketAnalysis(previous, { reason, nowMs });
+    console.log(`[fetch-data] marketAnalysis inputs unchanged since the blocked attempt — no AI call (${again ? 'retained' : 'fallback'})`);
+    return { ...(again || buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence, keep)), blockedAttemptKey: attemptKey };
   }
   // `request` is a fixture seam (ci contract); production always uses the shared Worker.
   if (!request && !resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence, keep);
@@ -352,8 +367,8 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate) });
     const macroNow = data?.macro || {};
     const signed = (value) => `${Number(value) >= 0 ? '+' : ''}${value}`;
-    const inflationLine = Number.isFinite(Number(macroNow.cpi)) && Number.isFinite(Number(macroNow.cpiDelta))
-      ? `INFLATION_DIRECTION: 미국 CPI 전년비 ${macroNow.cpi}% (직전 달 대비 ${signed(macroNow.cpiDelta)}%p)${Number.isFinite(Number(macroNow.coreCpi)) ? `, 근원 ${macroNow.coreCpi}% (${signed(macroNow.coreCpiDelta)}%p)` : ''}, 기준월 ${String(macroNow._asOf_cpi || '').slice(0, 7) || '미확인'}. `
+    const inflationLine = Number.isFinite(Number(macroNow.cpi)) && macroNow.cpiDelta != null && Number.isFinite(Number(macroNow.cpiDelta))
+      ? `INFLATION_DIRECTION: 미국 CPI 전년비 ${macroNow.cpi}% (직전 달 대비 ${signed(macroNow.cpiDelta)}%p)${Number.isFinite(Number(macroNow.coreCpi)) ? `, 근원 ${macroNow.coreCpi}%${macroNow.coreCpiDelta != null && Number.isFinite(Number(macroNow.coreCpiDelta)) ? ` (${signed(macroNow.coreCpiDelta)}%p)` : ''}` : ''}, 기준월 ${String(macroNow._asOf_cpi || '').slice(0, 7) || '미확인'}. `
         + (Number(macroNow.cpiDelta) > 0 || Number(macroNow.coreCpiDelta) > 0 ? '물가는 오르는 중이다 — "물가 둔화"라고 쓰지 마라.' : '물가 방향을 이 값 밖에서 추정하지 마라.')
       : '';
     const model = SHARED_AI_MODEL;
@@ -438,7 +453,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
         if (!semantic.ok) logRejected('attempt-2', text, semantic.issues);
       }
     }
-    if (!text || !semantic.ok) return retainOrFallback(semantic.issues.join(','));
+    if (!text || !semantic.ok) return { ...retainOrFallback(semantic.issues.join(',')), blockedAttemptKey: attemptKey };
     return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove, largeMoveDirection,
       narrativeSignature: narrativeContext.signature, narrativeThemes: narrativeContext.themes.map(({ id, label, telegramCount, recentCount, tickerCount }) => ({ id, label, telegramCount, recentCount, tickerCount })) };
   } catch (error) {

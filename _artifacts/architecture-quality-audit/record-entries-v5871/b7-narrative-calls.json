@@ -1,0 +1,27 @@
+{
+ "version": "v58.71",
+ "date": "2026-10-23",
+ "qa_section": "데이터 v58.71",
+ "note": "파이프라인 전수 검토 후속(2026-10-23, 소유자: 남은 작업 모두 진행).",
+ "status": null,
+ "p": {
+  "title": "막힌 해설이 같은 입력으로 30분마다 모델을 두 번씩 다시 부름",
+  "symptom": "10/23 00:51Z 해설이 metric-value-mismatch로 막혀 직전 해설이 유지된 뒤, 입력이 같아도 매 실행(야간·주말 포함)이 모델 호출 2회를 썼다(aiUsage requests=2).",
+  "root_cause": "유지된 해설은 이전 서명·생성 시각을 지녀 재사용 검사에 맞지 않았고, 막힌 시도의 입력을 기억하지 않았다.",
+  "fix": "막힌 시도의 입력 키(지표·뉴스·헤드라인 증거, 주제 서명, 문장 날짜)를 blockedAttemptKey로 남기고, 같은 키면 호출 없이 유지 해설(또는 대체문)을 낸다. 날이 바뀌면 키가 달라져 한 번 다시 쓴다.",
+  "violated_rule": "없음 — 비용 결함",
+  "prevention": "ci-data-pipeline-contract-check: 막힌 뒤 같은 입력이면 모델 호출이 0회다.",
+  "verification": "계약 검사 통과."
+ },
+ "qa": [
+  {
+   "id": "QA-AI-REPEAT-01",
+   "text": "{P}: 막힌 해설 뒤 같은 입력의 실행은 모델을 부르지 않는다.",
+   "verify_by": "node scripts/ci-data-pipeline-contract-check.mjs",
+   "done": true
+  }
+ ],
+ "changelog": [
+  "**해설 반복 호출 차단 ({P}):** 막힌 해설과 입력이 같으면 모델을 다시 부르지 않는다."
+ ]
+}

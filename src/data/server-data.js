@@ -68,6 +68,17 @@ export function assessServerCycle(meta = {}, now = Date.now()) {
 }
 
 // The window._serverDataMeta record the legacy screens read.
+// v58.70: a lane that failed its check on this refresh is held at the last published value (scripts/lib/lane-quarantine.mjs);
+// the shell's 주의 항목 bar names it as stale while the rest of the data is current.
+export function laneQuarantineNotices(entries) {
+  return (Array.isArray(entries) ? entries : []).filter((lane) => lane && lane.lane).map((lane) => {
+    const sinceMs = Date.parse(lane.since || '');
+    const kst = Number.isFinite(sinceMs) ? new Date(sinceMs + 9 * 3600000) : null; // KST, the site's clock
+    const since = kst ? `${kst.getUTCMonth() + 1}/${kst.getUTCDate()} ${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}` : '';
+    return { icon: '', text: `${lane.label || lane.lane} 낡음`, detail: `${since ? `${since}부터 갱신 검사를 통과하지 못해 ` : ''}${lane.notice || '직전 게시본을 보여 줍니다'}. 나머지 데이터는 정상 갱신됩니다.`, color: '#f59e0b' };
+  });
+}
+
 export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}) {
   const m = d.meta;
   const macro = d.macro || {};
@@ -98,6 +109,8 @@ export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}
     newsCycleEnd: m.newsCycleEnd || null,
     newsCycleLabel: m.newsCycleLabel || null,
     newsNextRefresh: m.newsNextRefresh || null,
+    laneQuarantine: Array.isArray(m.laneQuarantine) ? m.laneQuarantine : [], // v58.70: lanes held at the last published value
+    pipelineNotices: laneQuarantineNotices(m.laneQuarantine),
     marketSnapshotRevision: m.marketSnapshotRevision || null,
     marketSnapshotAttemptRevision: m.marketSnapshotAttemptRevision || null,
     marketSnapshotAttemptedAt: m.marketSnapshotAttemptedAt || null,

@@ -1,0 +1,17 @@
+{
+  "version": "v58.71", "date": "2026-10-23",
+  "p": {
+    "title": "스크리너 갱신이 공유 파생 파일 충돌로 실패하고 그 주기를 버림",
+    "symptom": "실행 39876749238(10/23 00:12Z)은 push 재시도 중 rebase에서 public-data/operations-status.json 충돌로 빨갛게 끝나, 그 주기 스크리너 갱신이 다음 슬롯까지 사라졌다.",
+    "root_cause": "refresh-data에는 충돌 시 새 main에서 한 번 다시 돌리는 collision_retry가 있지만 refresh-screener의 push 루프는 rebase 실패를 그대로 오류로 끝냈다.",
+    "fix": "refresh-screener에 retry 입력과 collision_retry를 넣어, rebase 충돌이나 rebase 뒤 후보 불일치 시 새 main에서 한 번 다시 돌리고 끝낸다. 재시도에서 또 충돌하면 크게 실패한다.",
+    "violated_rule": "R255",
+    "prevention": "워크플로 YAML 구문 확인과 refresh-data와 같은 충돌 경로.",
+    "verification": "YAML 파싱 확인. 실제 충돌 경로는 다음 충돌 발생 시 Actions 로그로 확인."
+  },
+  "qa": [{ "id": "QA-SCR-COLLISION-01", "text": "{P}: refresh-screener의 rebase 충돌은 collision 재실행 1회로 이어지고, 재실행 충돌은 실패로 끝난다.", "verify_by": "다음 충돌 발생 시 refresh-screener 실행 로그의 'collision retry' 경고 확인", "done": false }],
+  "qa_section": "데이터 v58.71",
+  "changelog": ["**스크리너 push 충돌 재실행 ({P}):** 공유 파일 충돌로 실패하던 스크리너 갱신이 새 main에서 한 번 다시 돈다."],
+  "note": "파이프라인 전수 검토(2026-10-23).",
+  "status": null
+}

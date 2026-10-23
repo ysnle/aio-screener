@@ -41,6 +41,12 @@ const DEFAULT_BATCH_LIMIT = 24;
 // the core ledger in about 12 runs (2-3 days). The extra slots never take failures, new issuers or regular refreshes.
 export const SEC_BACKFILL_EXTRA_DEFAULT = 48;
 const REFRESH_AFTER_MS = 28 * 86400000;
+// v58.71 (pipeline audit): a stored record waited up to 28 days after its issuer filed a new 10-Q/10-K, so TTM P/E and
+// quarters showed the previous quarter as current through earnings season. EDGAR's daily form index (one small file per
+// business day) names every periodic filer; an issuer that filed on or after its record's fetch date is due now.
+const SEC_DAILY_INDEX_BASE = 'https://www.sec.gov/Archives/edgar/daily-index';
+const SEC_PERIODIC_FORMS = new Set(['10-Q', '10-K', '10-Q/A', '10-K/A', '20-F', '20-F/A', '40-F', '40-F/A', '10-KT', '10-QT']);
+export const SEC_FILING_LOOKBACK_DAYS = 7;
 const FAILURE_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 const USER_AGENT = process.env.SEC_USER_AGENT || '';
 
@@ -69,6 +75,39 @@ async function fetchJSON(url, tries = 3, as = 'json') {
     }
   }
   throw lastError;
+}
+
+// Pure (v58.71): the form-type daily index as cik -> latest filing date (YYYY-MM-DD) for periodic report forms.
+export function parsePeriodicFilers(indexText, into = new Map()) {
+  for (const line of String(indexText || '').split(/\r?\n/)) {
+    const form = line.slice(0, 12).trim();
+    if (!SEC_PERIODIC_FORMS.has(form)) continue;
+    const match = line.match(/\s(\d{8})\s+edgar\/data\/(\d+)\//);
+    if (!match) continue;
+    const date = `${match[1].slice(0, 4)}-${match[1].slice(4, 6)}-${match[1].slice(6, 8)}`;
+    const cik = match[2].padStart(10, '0');
+    if (!into.has(cik) || into.get(cik) < date) into.set(cik, date);
+  }
+  return into;
+}
+
+// The last few business days of periodic filers; a missing day (holiday, not yet published) or a failed read is skipped,
+// so the age rule alone still governs when EDGAR is unreachable.
+async function recentPeriodicFilers(nowMs, days = SEC_FILING_LOOKBACK_DAYS) {
+  const filers = new Map();
+  let read = 0;
+  for (let back = 1; back <= days; back++) {
+    const day = new Date(nowMs - back * 86400000);
+    if ([0, 6].includes(day.getUTCDay())) continue;
+    const ymd = day.toISOString().slice(0, 10).replace(/-/g, '');
+    const quarter = Math.floor(day.getUTCMonth() / 3) + 1;
+    try {
+      parsePeriodicFilers(await fetchJSON(`${SEC_DAILY_INDEX_BASE}/${ymd.slice(0, 4)}/QTR${quarter}/form.${ymd}.idx`, 1, 'text'), filers);
+      read++;
+    } catch { /* not published or unreachable */ }
+    await new Promise(resolve => setTimeout(resolve, 150));
+  }
+  return { filers, read };
 }
 
 // F08: same reading as the screener universe (fetch-data getScreenerUniverse assetType): an explicit assetType,
@@ -257,6 +296,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   const limit = fullRebuild ? Math.max(1, eligible.length) : Number.isFinite(batchLimit) && batchLimit > 0 ? Math.floor(batchLimit) : Math.max(1, Math.min(100, Number(process.env.SEC_BATCH_LIMIT) || DEFAULT_BATCH_LIMIT));
   const force = process.env.SEC_REFRESH === '1';
   const retryFailedNow = process.env.SEC_RETRY_FAILED === '1';
+  const periodic = force || fullRebuild ? { filers: new Map(), read: 0 } : await recentPeriodicFilers(now);
+  console.log(`[sec-fundamentals:${scope}] periodic filers in the last ${SEC_FILING_LOOKBACK_DAYS} days: ${periodic.filers.size} (${periodic.read} daily indexes read)`);
   const previousFailureRecords = new Map((previous.failures || []).map(row => [row && row.symbol, row]).filter(([symbol]) => symbol));
   const previousFailureAt = new Map([...previousFailureRecords.entries()].map(([symbol, row]) => [
     symbol,
@@ -281,6 +322,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       // P1798: a stored record without a share count leaves market cap, P/E and the value factor blank (GOOGL/META
       // waited 2-5 days behind 700 outdated records), so it is refreshed first among the due records.
       // 2026-10-17: a count withheld by policy (non-USD report, 20-F ordinary shares) is not missing — a re-read cannot fill it.
+      newFiling: Boolean(previous.data?.[symbol]?.fetchedAt && (periodic.filers.get(tickerMap.get(tickerKey(symbol))?.cik) || '') >= String(previous.data[symbol].fetchedAt).slice(0, 10)),
       sharesMissing: Boolean(previous.data && previous.data[symbol] && !(Number(previous.data[symbol].sharesOutstanding) > 0)
         && !['reporting-currency-differs', 'foreign-share-basis-unverified'].includes(previous.data[symbol].sharesCheck)),
       lastFailureAt: previousFailureAt.get(symbol) || null,
@@ -297,7 +339,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       if (successor && row.priorFailure && row.priorFailure.successorVersion !== successor.version) return true;
       if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported && !conceptSetChanged) return false;
       if (conceptSetChanged) return true;
-      const dataDue = !row.fetchedAt || row.cashChainMissing || row.normalizerOutdated || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
+      const dataDue = !row.fetchedAt || row.newFiling || row.cashChainMissing || row.normalizerOutdated || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
       const retryDue = retryFailedNow || !row.lastFailureAt || now - new Date(row.lastFailureAt).getTime() >= FAILURE_RETRY_AFTER_MS;
       return dataDue && retryDue;
     })
@@ -306,7 +348,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     // 2026-10-16: a failure recorded under an older concept set is rechecked FIRST. It sorted last behind every due
     // record, and a normalizer bump makes ~750 records due at 24 per run, so GS/CRWD/VLO/ODFL/KHC/ARE/SJM (normalizable
     // since v3/v4) sat a month as failures. Each recheck stamps the current version, so this set is bounded.
-    .sort((a, b) => Number(b.conceptSetChanged) - Number(a.conceptSetChanged) || Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol));
+    .sort((a, b) => Number(b.conceptSetChanged) - Number(a.conceptSetChanged) || Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.newFiling) - Number(a.newFiling) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol));
   const targets = selectSecBatch(dueTargets, limit, fullRebuild || force ? 0 : backfillExtra, now, REFRESH_AFTER_MS);
 
   const data = { ...(previous.data || {}) };
@@ -421,8 +463,11 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   let etfPruned = 0;
   // v57.81: the extended ledger follows its universe — a symbol that left it (moved into the core or delisted) is dropped.
   const universeSymbols = new Set(symbols);
+  // v58.71 (pipeline audit): the core ledger kept AVB, BRK.B, PSKY, WBD and EA after they left the universe (EA last read
+  // 08-14), inflating `stored`. The core follows its universe too, unless the universe read came back implausibly small.
+  const pruneLeavers = scope !== 'core' || universeSymbols.size >= 500;
   for (const [symbol, record] of Object.entries(data)) {
-    if (etfSymbols.has(symbol) || (scope !== 'core' && !universeSymbols.has(symbol))) { delete data[symbol]; etfPruned++; continue; }
+    if (etfSymbols.has(symbol) || (pruneLeavers && !universeSymbols.has(symbol))) { delete data[symbol]; etfPruned++; continue; }
     const healed = reconcileSecRecord(record); // + 2026-10-17 D1/D2/D7 earnings basis
     if (healed !== record) { data[symbol] = healed; healedCount++; }
   }

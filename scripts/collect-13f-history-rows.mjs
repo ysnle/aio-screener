@@ -124,33 +124,42 @@ async function resolveInformationTableUrl(period) {
 }
 
 let historicalRows = [];
+// v58.71 (pipeline audit): which submissions each composed period was built from, and its cover totals. The history index
+// is rebuilt every run, so the cover totals it held were lost (all 70 historical periods published countReconciled null),
+// and the recomposition check read a row field that never existed, so a later amendment was never composed in.
+let periodComposition = {};
 try {
   const partial = JSON.parse(await fs.readFile(partialRowsPath, 'utf8'));
   if (Array.isArray(partial.rows)) historicalRows = partial.rows;
+  if (partial.periodComposition && typeof partial.periodComposition === 'object') periodComposition = partial.periodComposition;
 } catch {}
-if (!historicalRows.length) {
-  try {
-    const existing = JSON.parse(await fs.readFile(historyRowsPath, 'utf8'));
-    historicalRows = Array.isArray(existing.rows) ? existing.rows : [];
-  } catch {}
-}
+try {
+  const existing = JSON.parse(await fs.readFile(historyRowsPath, 'utf8'));
+  if (!historicalRows.length) historicalRows = Array.isArray(existing.rows) ? existing.rows : [];
+  if (!Object.keys(periodComposition).length && existing.periodComposition && typeof existing.periodComposition === 'object') periodComposition = existing.periodComposition;
+} catch {}
+const indexAccessions = (manager, period) => buildSubmissions(manager, period).map((submission) => submission.accession).filter(Boolean);
 // P1449: periodsImported는 "이번에 새로 수집한 편수"가 아니라 결과 아티팩트에 남아 있는 관측
 // 분기 수(담당 매니저·분기 distinct)로 정의한다 — 게이트가 아티팩트 자체와 검산할 수 있게.
 const periodKeyCount = () => new Set(historicalRows.map((row) => `${row.managerId}|${row.reportPeriod}`)).size;
 let importedPeriods = periodKeyCount();
 const writeCheckpoint = async () => {
-  await atomicWriteFile(partialRowsPath, `${JSON.stringify({ importedPeriods, rows: historicalRows }, null, 2)}\n`, 'utf8');
+  await atomicWriteFile(partialRowsPath, `${JSON.stringify({ importedPeriods, periodComposition, rows: historicalRows }, null, 2)}\n`, 'utf8');
 };
 
 // P1449: 같은 분기의 모든 제출(원본+정정)을 R499/P948 정책으로 합성한다. 이미 행이 있는 분기도
 // (1) 저장 행에 filingRole이 없는 구형(v1) 행이거나 (2) index가 2개 이상 제출을 보존하면 다시
 // 합성한다. 그 외에 행이 있는 분기는 저장 행에서만 총계를 다시 계산한다.
 const knownKeys = new Set(historicalRows.map((row) => `${row.managerId}|${row.reportPeriod}`));
-const needsRecomposition = (periodKey) => {
+const needsRecomposition = (periodKey, accessions = []) => {
   if (!knownKeys.has(periodKey)) return true;
   const rowSample = historicalRows.find((row) => `${row.managerId}|${row.reportPeriod}` === periodKey);
   if (rowSample && !rowSample.filingRole) return true;
-  return Number(rowSample?.submissionCount || 0) > 1;
+  // v58.71: a submission the index lists that the stored composition did not use (a later amendment) recomposes the
+  // period; a multi-submission period composed before this record existed is recomposed once to record it.
+  const recorded = periodComposition[periodKey]?.submissions;
+  if (Array.isArray(recorded)) return accessions.some((accession) => !recorded.includes(accession));
+  return accessions.length > 1;
 };
 
 for (const manager of history.managers) {
@@ -185,7 +194,20 @@ for (const manager of history.managers) {
       continue;
     }
     const periodKey = `${manager.managerId}|${period.periodOfReport}`;
-    if (knownKeys.has(periodKey) && !needsRecomposition(periodKey)) {
+    const accessions = indexAccessions(manager, period);
+    if (knownKeys.has(periodKey) && !needsRecomposition(periodKey, accessions)) {
+      // v58.71: a single-submission period stored before its cover totals were recorded reads its cover once.
+      if (!periodComposition[periodKey] && accessions.length === 1) {
+        const [submission] = buildSubmissions(manager, period);
+        try {
+          const cover = parseCover(await fetchText(`${archiveBase(manager.cik, submission.accession)}/${submission.primaryDocument}`));
+          periodComposition[periodKey] = { submissions: accessions, coverEntryTotal: cover.tableEntryTotal ?? null, coverValueTotal: cover.tableValueTotal ?? null };
+        } catch { /* cover unreadable this run: reconciliation stays unknown */ }
+      }
+      if (periodComposition[periodKey]) {
+        period.coverEntryTotal = periodComposition[periodKey].coverEntryTotal ?? null;
+        period.coverValueTotal = periodComposition[periodKey].coverValueTotal ?? null;
+      }
       // Reconciliation must stay honest: a composite cover carries the summed sub-filing
       // totals, so the row count equals the cover sum only when every sub-filing row is present.
       const existingRows = historicalRows.filter((row) => `${row.managerId}|${row.reportPeriod}` === periodKey);
@@ -285,6 +307,7 @@ for (const manager of history.managers) {
       period.informationTableHtml = period.informationTableXml?.replace(/\.xml$/i, '.html') || null;
       period.coverEntryTotal = composed.cover.tableEntryTotal;
       period.coverValueTotal = composed.cover.tableValueTotal;
+      periodComposition[periodKey] = { submissions: accessions, coverEntryTotal: composed.cover.tableEntryTotal ?? null, coverValueTotal: composed.cover.tableValueTotal ?? null };
       period.countReconciled = composed.cover.tableEntryTotal == null ? null : composed.cover.tableEntryTotal === composed.rows.length;
       period.rowImportStatus = 'IMPORTED_HISTORICAL';
       period.shareHistoryStatus = 'CONNECTED_TO_HISTORY_ROWS';
@@ -306,6 +329,7 @@ for (const manager of history.managers) {
       period.reportedSharesTotal = null;
       period.countReconciled = false;
       historicalRows = historicalRows.filter((row) => `${row.managerId}|${row.reportPeriod}` !== periodKey);
+      delete periodComposition[periodKey];
       importedPeriods = periodKeyCount();
       console.warn(JSON.stringify({ managerId: manager.managerId, period: period.periodOfReport, status: 'REVIEW_REQUIRED', reason: String(error?.message || error) }));
     }
@@ -336,6 +360,7 @@ const historyRowsArtifact = {
   compositionPolicy: 'ORIGINAL_PLUS_NEW_HOLDINGS_OR_LATEST_RESTATEMENT (scripts/lib/13f-compose.mjs)',
   periodsImported: importedPeriods,
   rowsImported: historicalRows.length,
+  periodComposition: Object.fromEntries(Object.entries(periodComposition).filter(([key]) => knownKeys.has(key)).sort(([a], [b]) => a.localeCompare(b))),
   rows: historicalRows
 };
 await writeJsonIfSemanticallyChanged(historyRowsPath, historyRowsArtifact, { writer: atomicWriteFile });

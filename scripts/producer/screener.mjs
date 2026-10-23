@@ -358,7 +358,12 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null, option
     rows.forEach(r => { const day = String(r.observedAt || '').slice(0, 10); if (day) dayCount.set(day, (dayCount.get(day) || 0) + 1); });
     const sessionDay = [...dayCount.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0]?.[0] || null;
     let observedAt = null;
+    let sessionRows = 0;
     rows.forEach(r => {
+      // v58.71 (pipeline audit): only rows on the counted session enter the counts; a row still on an earlier session
+      // compared that session's two bars and mixed two days into one advance/decline reading.
+      if (sessionDay && String(r.observedAt || '').slice(0, 10) !== sessionDay) return;
+      sessionRows++;
       const c = r.adjCloses;
       const last = c[c.length - 1], prev = c[c.length - 2];
       if (last > prev) advances++; else if (last < prev) declines++; else unchanged++;
@@ -376,6 +381,7 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null, option
       universe: segmentSymbols.length,
       eligible: rows.length,
       coveragePct: pct(rows.length, segmentSymbols.length),
+      sessionRows,
       observedAt,
       above5: pct(counts.above5, counts.eligible5),
       above20: pct(counts.above20, counts.eligible20),
@@ -512,6 +518,30 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
   return data;
 }
 
+// Markets whose newly read session date is older than the one already published.
+export function sessionRegressions(previousSessions, nextScopes) {
+  return Object.entries(nextScopes || {})
+    .filter(([market, scope]) => scope?.sessionDate && previousSessions?.[market] && scope.sessionDate < previousSessions[market])
+    .map(([market, scope]) => `${market} ${previousSessions[market]}->${scope.sessionDate}`);
+}
+
+// v58.71 (pipeline audit): with every KR history failing, the run had 903/1142 rows and the KR breadth segment fell
+// under 80%, so the validator refused the whole artifact and US factors, SEC and weights froze until KRX came back.
+// A market whose fetched rows fall under the floor keeps its last published rows (each with its own session date)
+// and its breadth segment, both declared under marketRetained; the rest of the run publishes.
+export const MARKET_RETAIN_FLOOR = 0.8;
+export function retainMarketRows({ data, syms, previous, market = 'KR', floor = MARKET_RETAIN_FLOOR } = {}) {
+  const inMarket = (sym) => listingMarketOfSymbol(sym) === market;
+  const universe = (syms || []).filter(inMarket);
+  const fetched = universe.filter((sym) => data?.[sym]).length;
+  if (!universe.length || fetched / universe.length >= floor) return null;
+  const prevRows = previous?.data || {};
+  const carried = universe.filter((sym) => !data[sym] && prevRows[sym]);
+  if (!carried.length) return null;
+  for (const sym of carried) data[sym] = { ...prevRows[sym], retainedFrom: previous?.asOf || null };
+  return { market, from: previous?.asOf || null, fetched, universe: universe.length, carried: carried.length, reason: `fetched ${fetched}/${universe.length} below ${Math.round(floor * 100)}%` };
+}
+
 export async function enrichScreener() {
   // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
   if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
@@ -540,6 +570,19 @@ export async function enrichScreener() {
 
   // 1단계: 가격 팩터 계산
   const { data, results, ok, computedAt } = await _enrichPriceFactors(syms);
+  // v58.71 (pipeline audit): runs near 00:xx UTC and 17:xx UTC read daily charts that briefly lacked the newest
+  // session and published US 10/20 over a 10/21 artifact (and replaced the candidate archive day). A market whose
+  // session would move backwards keeps the last publish; the next run picks the session up again.
+  let previousArtifact = null;
+  try { previousArtifact = JSON.parse(await readFile(SCREENER_OUT, 'utf8')); } catch { /* first run */ }
+  const regressed = sessionRegressions(previousArtifact?.factorSessionDateByMarket || null, factorScopesByMarket(data));
+  if (regressed.length) {
+    console.warn(`[fetch-data] screener kept the last publish: session moved backwards ${regressed.join(', ')}`);
+    return { skipped: true, count: ok, reason: `session-regressed:${regressed.join(',')}` };
+  }
+  let krRetained = null;
+  try { krRetained = previousArtifact ? retainMarketRows({ data, syms, previous: expandScreenerArtifact(previousArtifact), market: 'KR' }) : null; } catch (e) { console.warn('[fetch-data] KR retention unavailable:', e && e.message || e); }
+  if (krRetained) console.warn(`[fetch-data] KR rows kept from the last publish (${krRetained.reason}; ${krRetained.carried} rows from ${krRetained.from})`);
   { const kr = summarizeKrCloseReconciliation(results); console.log(`[fetch-data] KR exchange close: ${JSON.stringify(kr.byStatus)} rows ${kr.rows} · closes differing from the portal ${kr.divergentCloses} · sessions filled ${kr.filledSessions}`); }
 
   // 2단계: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 없으면 4팩터 폴백)
@@ -582,6 +625,7 @@ export async function enrichScreener() {
   const breadthSyms = syms.filter((sym) => !secondaryClass.has(sym));
   const breadthResults = (results || []).filter((row) => !secondaryClass.has(row?.sym));
   const breadth = computeScreenerBreadth(breadthSyms, breadthResults, assetTypeOf, { sp500Members: sp500MemberSet(sp500Weights) });
+  if (krRetained && previousArtifact?.breadth?.segments?.kr) breadth.segments.kr = { ...previousArtifact.breadth.segments.kr, retained: { from: krRetained.from, reason: krRetained.reason } };
   // P1449: breadth contributors carry each symbol's asset type so the drilldown can say which
   // single-day moves need a corporate-action check. v57.50 D21: ETFs are no longer in the breadth population.
   const breadthHistory = computeScreenerBreadthHistory(breadthSyms, breadthResults, undefined, Date.now(), assetTypeOf);
@@ -636,10 +680,12 @@ export async function enrichScreener() {
     factorComputedAt: computedAt,
     source: 'github-actions:yahoo-1y',
     universe: syms.length,
-    ok,
+    // v58.71: rows carried for a retained market count as published rows; marketRetained names them.
+    ok: Object.keys(data).length,
+    ...(krRetained ? { marketRetained: { KR: krRetained } } : {}),
     // P1589: a universe symbol whose history failed this run is listed, not silently absent
     // (WBD/ET appeared in some runs and vanished in others with no trace).
-    unfetchedSymbols: syms.filter((sym) => !data[sym]).sort(),
+    unfetchedSymbols: syms.filter((sym) => !data[sym] || data[sym].retainedFrom).sort(),
     fmpHasKey: fmpResult.hasKey,
     fmpOk: fmpResult.ok > 0,
     fmpCount: fmpResult.ok,

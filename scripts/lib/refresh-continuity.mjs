@@ -5,7 +5,9 @@ export function isObservedNumber(value) {
 
 export function deriveFredCycle({ configured, expected, current = {}, previous = {}, previousMeta = {}, attemptedAt }) {
   const successful = expected.filter((field) => isObservedNumber(current[field]));
-  const missing = expected.filter((field) => !successful.includes(field));
+  // v58.71: a series whose comparator month the source never published is not missing (scripts/producer/fred.mjs).
+  const gaps = new Set(current._comparatorGapSeries || []);
+  const missing = expected.filter((field) => !successful.includes(field) && !gaps.has(field));
   const failed = [...new Set([...(current._failedSeries || []), ...missing])];
   const complete = !!configured && expected.length > 0 && !failed.length;
   const priorSuccess = previousMeta.fredLastSuccessfulAt || previous._lastKnownGoodAt || null;

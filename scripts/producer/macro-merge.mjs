@@ -52,12 +52,21 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
     const currentObservedAt = String(macro._asOf_hyOAS || '');
     if (!currentObservedAt || String(fredHyOas.observedAt || '') >= currentObservedAt) {
       promote(macro, 'hyOAS', Number(fredHyOas.value), fredHyOas.observedAt, 'fred-official-public-csv');
+      // v58.71: a newer CSV date brings its own deltas; the API deltas belong to the older date and go.
+      if (currentObservedAt !== String(fredHyOas.observedAt || '')) {
+        for (const [suffix, value] of [['Delta', fredHyOas.delta], ['Delta5', fredHyOas.delta5]]) {
+          if (value != null && Number.isFinite(Number(value))) macro[`hyOAS${suffix}`] = Number(value);
+          else delete macro[`hyOAS${suffix}`];
+        }
+      }
     }
   }
   if (planeFresh('treasury', treasury) && treasury.values) {
     for (const field of ['dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y']) {
       if (!Number.isFinite(Number(treasury.values[field]))) continue;
       const fredAsOf = String(macro[`_asOf_${field}`] || '');
+      // v58.71 (pipeline audit): like BLS and HY OAS above, an older official date never replaces a newer FRED one.
+      if (fredAsOf && String(treasury.observedAt || '') < fredAsOf) continue;
       promote(macro, field, Number(treasury.values[field]), treasury.observedAt, 'us-treasury-official-primary');
       if (field === 't10y2y') continue;
       const official = officialTreasuryDeltas(treasury, field);
@@ -70,11 +79,13 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
     }
   }
   // BEA promotes only a collection of this run (not 'cached-fresh'), as before the split.
+  // v58.71: and only when its month is not older than the FRED month (the release page can still link the last month).
+  const beaNotOlder = (field) => !macro[`_asOf_${field}`] || String(bea.observedAt || '') >= String(macro[`_asOf_${field}`]);
   if (bea.status === 'ok' && bea.values) {
-    if (Number.isFinite(bea.values.pce)) {
+    if (Number.isFinite(bea.values.pce) && beaNotOlder('pce')) {
       promote(macro, 'pce', bea.values.pce, bea.observedAt, 'bea-official-primary');
     }
-    if (Number.isFinite(bea.values.corePce)) {
+    if (Number.isFinite(bea.values.corePce) && beaNotOlder('corePce')) {
       promote(macro, 'corePce', bea.values.corePce, bea.observedAt, 'bea-official-primary');
     }
   }

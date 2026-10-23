@@ -173,12 +173,15 @@ export function alignmentLabel(alignment) {
 // T01: "n일" is n sessions, not n rows — the point is the first observation at least n sessions back (a missing
 // session falls back to the next earlier one inside the slack). A complete series gives the same point as before.
 // v57.50 C12: exported so every "n거래일 변화" (home KPI trend, rates/FX) counts sessions the same way.
+// v58.69 (live 2026-10-23): a one-session change needs the previous session itself. The two-session slack let "1일"
+// read 10/20→10/22 when the 10/21 close was missing (briefing S&P 500 −0.6% for −1.21%, Nasdaq −1.6% for −2.6%).
 export function sessionPointBack(series, n, market = 'US') {
   const last = Array.isArray(series) ? series[series.length - 1] : null;
   if (!last) return null;
+  const slack = n === 1 ? 0 : Math.max(2, Math.ceil(n * 0.15));
   for (let index = series.length - 2; index >= 0; index -= 1) {
     const gap = countOpenSessionsBetween(series[index].date, last.date, market);
-    if (gap >= n) return gap > n + Math.max(2, Math.ceil(n * 0.15)) ? null : series[index];
+    if (gap >= n) return gap > n + slack ? null : series[index];
   }
   return null;
 }

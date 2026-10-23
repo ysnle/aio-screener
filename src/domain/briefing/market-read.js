@@ -19,6 +19,7 @@ const DAY_MS = 86400000;
 // v58.64 (DOMAIN #8): the close series lives in domain/market/close-series.js; these names stay exported from here.
 import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile } from '../market/close-series.js';
 import { buildLeadershipVerdict } from '../market/leadership-verdict.js';
+import { fearGreedBand } from '../sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
 const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
@@ -641,21 +642,21 @@ export function buildMarketRead(input = {}) {
   // v57.81: a 20-session widening at the top of its own record is the credit axis's 부담 — not "경계선 아래".
   const fearBelow = RULES.fearGreed.fearBelow; // v57.84: one fear line with the F&G band (was a separate 35)
   if (fg != null && fg < fearBelow && hyBp != null && c.hy20Stress) {
-    add('fear-with-credit-widening', 80, `F&G ${fmt(fg, 0)}(공포)와 함께 하이일드 스프레드가 20거래일 ${signed(c.hy20, 0, 'bp')} 넓어졌습니다(${fmt(hyBp, 0)}bp${c.hy20Record?.pct != null ? `, ${hyRecordText(c.hy20Record)}` : ''}).`, 'risk', {
+    add('fear-with-credit-widening', 80, `F&G ${fmt(fg, 0)}(${fearGreedBand(fg).label})와 함께 하이일드 스프레드가 20거래일 ${signed(c.hy20, 0, 'bp')} 넓어졌습니다(${fmt(hyBp, 0)}bp${c.hy20Record?.pct != null ? `, ${hyRecordText(c.hy20Record)}` : ''}).`, 'risk', {
       reading: hyBp < RULES.credit.tightBelowBp ? '수준은 아직 낮지만 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중인지 확인할 단계입니다.' : '수준도 경계선을 넘었고 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중입니다.',
-      check: `하이일드 스프레드의 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄어드는지, 양호 기준 ${RULES.credit.tightBelowBp}bp를 넘는지(현재 ${fmt(hyBp, 0)}bp)`
+      check: `하이일드 스프레드의 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄어드는지, 수준이 경계선 ${RULES.credit.tightBelowBp}bp 위로 올라서는지(현재 ${fmt(hyBp, 0)}bp)`
     });
   } else if (fg != null && fg < fearBelow && hyBp != null && hyBp < RULES.credit.tightBelowBp && vix && vix.value < RULES.volatility.calmBelow) {
     const widening = hyWeek != null && hyWeek >= RULES.credit.widen5dBp / 2;
     const widening20 = c.hy20 != null && c.hy20 >= RULES.credit.widen20dBp; // T05
-    add('fear-without-credit-stress', 80, `F&G ${fmt(fg, 0)}(공포)인데 하이일드 스프레드 ${fmt(hyBp, 0)}bp·VIX ${fmt(vix.value)}는 경계선 아래입니다${hyWeek != null ? ` (하이일드 5일 ${signed(hyWeek, 0, 'bp')}${c.hy20 != null ? `, 20거래일 ${signed(c.hy20, 0, 'bp')}` : ''})` : ''}.`, 'risk', {
+    add('fear-without-credit-stress', 80, `F&G ${fmt(fg, 0)}(${fearGreedBand(fg).label})인데 하이일드 스프레드 ${fmt(hyBp, 0)}bp·VIX ${fmt(vix.value)}는 경계선 아래입니다${hyWeek != null ? ` (하이일드 5일 ${signed(hyWeek, 0, 'bp')}${c.hy20 != null ? `, 20거래일 ${signed(c.hy20, 0, 'bp')}` : ''})` : ''}.`, 'risk', {
       reading: widening || widening20
         ? `아직 ${RULES.credit.tightBelowBp}bp 아래지만 ${widening ? `5일 ${signed(hyWeek, 0, 'bp')}` : `20거래일 ${signed(c.hy20, 0, 'bp')}`} 확대됐습니다 — 공포가 신용으로 번지지 않았다고 말하려면 확대가 멈추는지 확인이 필요합니다.`
         : creditState({ hyBp, hy5: hyWeek, hy20: c.hy20, pcr: c.pcr, hy20Stress: c.hy20Stress }) === 'favorable' ? '공포가 아직 신용 시장으로 번지지 않았습니다.' : `아직 ${RULES.credit.tightBelowBp}bp 아래지만 5일 변화가 줄지 않아 신용 판정이 양호는 아닙니다 — 번지는지 확인할 단계입니다.`, /* v57.84: 'not spread' only when the shared credit verdict is 양호 */
       check: `하이일드 스프레드가 ${RULES.credit.tightBelowBp}bp(신용 지표가 양호에서 벗어나는 선)를 넘는지(현재 ${fmt(hyBp, 0)}bp), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
     });
   } else if (fg != null && fg > RULES.fearGreed.extremeGreedAbove && vix && vix.value < RULES.volatility.complacentBelow) {
-    add('complacency', 60, `F&G ${fmt(fg, 0)}(탐욕)·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });
+    add('complacency', 60, `F&G ${fmt(fg, 0)}(${fearGreedBand(fg).label})·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });
   }
   if (hyWeek != null && hyWeek >= RULES.credit.widenWatch5dBp && hyBp != null && hyBp < RULES.credit.stressAtBp) add('credit-widening', 72, `하이일드 스프레드 5일 ${signed(hyWeek, 0, 'bp')} 확대(${fmt(hyBp, 0)}bp).`, 'risk', { reading: hyWeek >= RULES.credit.widen5dBp ? '자금 조달 여건이 빠듯해지는 신호입니다.' : '자금 조달 여건이 빠듯해지는지 지켜볼 움직임입니다.', check: '하이일드 스프레드 확대가 이어지는지 — 이어지면 주식보다 신용이 먼저 위험을 반영' });
   if (hyBp != null && hyBp >= RULES.credit.stressAtBp) add('credit-stress', 85, `하이일드 스프레드 ${fmt(hyBp, 0)}bp(${RULES.credit.stressAtBp}bp 이상 스트레스 구간).`, 'risk', { reading: '신용 시장이 위험을 가격에 반영하고 있습니다.' });
@@ -723,8 +724,10 @@ export function buildMarketRead(input = {}) {
   // moves in basis points and is kept apart so the two units never share a scale.
   const moves = [
     ['S&P 500', spx], ['나스닥 종합', s.nasdaq], ['달러 인덱스', s.dxy], ['WTI', s.wti], ['금', s.gold], ['코스피', s.kospi], ['원/달러', s.usdkrw]
-  ].map(([label, stat]) => ({ label, unit: '%', neutral: label === '달러 인덱스' || label === '원/달러', d1: stat ? pct(stat.value, stat.d1) : null, d5: stat ? pct(stat.value, stat.d5) : null }))
-    .concat(tnx ? [{ label: '미 10년물', unit: 'bp', d1: bp(tnx.value, tnx.d1), d5: tnx5 }] : [])
+  // v58.71: each row carries its own close date — futures, dollar and won close a session later than the S&P 500, and a
+  // provider gap (Yahoo's empty 10/22 WTI·gold·won bars) can hold one back further; the chart names a date that differs.
+  ].map(([label, stat]) => ({ label, unit: '%', neutral: label === '달러 인덱스' || label === '원/달러', asOf: stat?.date || null, d1: stat ? pct(stat.value, stat.d1) : null, d5: stat ? pct(stat.value, stat.d5) : null }))
+    .concat(tnx ? [{ label: '미 10년물', unit: 'bp', asOf: tnx.date || null, d1: bp(tnx.value, tnx.d1), d5: tnx5 }] : [])
     .filter((row) => Number.isFinite(row.d1) || Number.isFinite(row.d5));
   // v57.77: the move chart above the cards already draws each asset's 1-day and 5-day move, so a card for an asset
   // in `moves` carries only its level. The archived facts have no chart, so they keep the level with its moves

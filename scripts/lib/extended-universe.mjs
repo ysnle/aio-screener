@@ -220,7 +220,8 @@ export function buildExtendedUniverse({ iwm = null, iwmError = null, nasdaq = nu
       index: membership[0],
       membership,
       exchange: listed.exchange || russell.exchange || prior.exchange || null,
-      ...(listed.financialStatus ? { nasdaqFinancialStatus: listed.financialStatus } : {})
+      // v58.71 (pipeline audit): a RETAINED Nasdaq source hands back previous rows, which store the status as nasdaqFinancialStatus.
+      ...((listed.financialStatus || listed.nasdaqFinancialStatus || prior.nasdaqFinancialStatus) ? { nasdaqFinancialStatus: listed.financialStatus || listed.nasdaqFinancialStatus || prior.nasdaqFinancialStatus } : {})
     });
   }
   const anyUsable = [r2000Source, nasdaqSource].some((source) => source.status !== 'UNAVAILABLE');

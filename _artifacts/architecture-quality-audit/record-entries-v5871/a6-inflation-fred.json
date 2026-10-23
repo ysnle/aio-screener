@@ -1,0 +1,17 @@
+{
+  "version": "v58.71", "date": "2026-10-23",
+  "p": {
+    "title": "물가 지표의 비교 달 공백이 FRED 전체를 낡게 만들고, 오래된 변화폭과 3개월 연율 인용이 해설을 막음",
+    "symptom": "FRED에는 CPI 4계열의 2025-10 지수가 없다(2025-09→2025-11 공백). 비교 달이 이 공백에 걸리는 동안 4계열이 매 실행 실패로 집계돼 FRED 평면 전체의 마지막 성공 시각이 한 달 멈추고, cpiDelta는 이전 달 값(+0.3%p)으로 남아 '직전 달 대비' 문장과 물가 방향 판단에 쓰일 수 있었다. 별도로 10/23 00:51Z AI 해설은 근원 CPI 3개월 연율 인용을 전년비 수준과 비교한 검증기 때문에 'metric-value-mismatch:macro.core-cpi'로 막혀 직전 해설이 유지됐다.",
+    "root_cause": "전년비 계산이 원천에 비교 달이 없는 경우와 수집 실패를 구분하지 않았고, 변화폭을 못 구해도 이전 변화폭을 지우지 않았다. 검증기는 '3개월·연율' 문맥을 구분하지 않았다.",
+    "fix": "비교 달이 구조적으로 없는 계열은 _comparatorGapSeries로 따로 두고 실패·완결성 계산에서 뺀다. 수준은 있는데 변화폭을 못 구하면 변화폭을 null로 쓰고, 물가 문장은 변화폭이 있을 때만 쓴다. 검증기는 3개월·석 달·연율 문맥의 근원 CPI 수치를 전년비 수준과 비교하지 않는다.",
+    "violated_rule": "R332",
+    "prevention": "생산자·검증기 경로 수정. 변화폭 null과 비교 달 공백 분리는 다음 CPI 발표 주기(11/10~12/10) 실행에서 fredFailedSeries가 비는지로 확인한다.",
+    "verification": "2025-10 공백은 public-data/macro-history.json에서 확인했고 수정 경로는 코드로 추적했다(node --check 통과). 실제 동작은 QA-FRED-GAP-01과 다음 해설 실행의 retained 사유로 확인한다."
+  },
+  "qa": [{ "id": "QA-FRED-GAP-01", "text": "{P}: CPI 비교 달 공백 기간에 fredFailedSeries가 비고 cpiDelta가 이전 값으로 남지 않는다.", "verify_by": "push 뒤 12/10 이전 refresh-data 실행의 public-data/data.json meta.fredFailedSeries·macro.cpiDelta 확인", "done": false }],
+  "qa_section": "데이터 v58.71",
+  "changelog": ["**물가 지표 공백·검증 보정 ({P}):** 원천의 비교 달 공백이 FRED 전체를 낡게 만들지 않고, 못 구한 변화폭은 비우며, 근원 CPI 3개월 연율 인용이 AI 해설을 막지 않는다."],
+  "note": "파이프라인 전수 검토(2026-10-23).",
+  "status": null
+}

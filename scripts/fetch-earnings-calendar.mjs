@@ -118,7 +118,8 @@ async function main() {
   }
   const [weekRows, ipos] = await Promise.all([
     fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : [])),
-    fetchJSON(`${FINNHUB_BASE}/calendar/ipo?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.ipoCalendar) ? d.ipoCalendar : []))
+    // v58.71 (pipeline audit): a failed IPO call no longer throws away the earnings week with it.
+    fetchJSON(`${FINNHUB_BASE}/calendar/ipo?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.ipoCalendar) ? d.ipoCalendar : [])).catch(() => [])
   ]);
   // 2026-10-19 data audit: the week query came back with 526 rows and without INTC, KO, NOW, BA, CAT or SAP in their
   // reporting week — a capped response. One query per day (8 more calls, well inside 60/min) fills it; a failed day

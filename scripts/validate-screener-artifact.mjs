@@ -33,7 +33,12 @@ if (!breadth || !breadth.all || !breadth.us || !breadth.kr) errors.push('all/us/
 for (const key of ['all', 'us', 'kr']) {
   const segment = breadth && breadth[key];
   if (!segment) continue;
-  if (!Number.isFinite(Number(segment.coveragePct)) || Number(segment.coveragePct) < 80) errors.push(`${key} breadth coverage below 80%`);
+  // v58.71: a market kept from the last publish (marketRetained) carries its own segment; the mixed `all` segment then
+  // counts only the fetched markets, so its coverage is not judged. Every other key still needs 80%.
+  const retainedMarkets = payload.marketRetained && typeof payload.marketRetained === 'object' ? Object.keys(payload.marketRetained) : [];
+  if (segment.retained && !(segment.retained.from && retainedMarkets.includes(key.toUpperCase()))) errors.push(`${key} breadth is retained without a matching marketRetained entry`);
+  const coverageExempt = key === 'all' && retainedMarkets.length > 0;
+  if (!coverageExempt && (!Number.isFinite(Number(segment.coveragePct)) || Number(segment.coveragePct) < 80)) errors.push(`${key} breadth coverage below 80%`);
   if (!segment.observedAt || !Number.isFinite(new Date(segment.observedAt).getTime())) errors.push(`${key} breadth observedAt missing`);
 }
 if (!contract || contract.allowedUse !== 'research-relative-ranking-only' || contract.tradingSignal !== false) errors.push('research-only ranking contract missing');

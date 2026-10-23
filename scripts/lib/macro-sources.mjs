@@ -71,7 +71,11 @@ const BLS_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const FRED_HY_OAS_CSV_URL = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2';
 const FRED_HY_OAS_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const treasuryMonth = new Date().toISOString().slice(0, 7).replace('-', '');
-const TREASURY_CURVE_URL = `https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value_month=${treasuryMonth}`;
+const treasuryUrlFor = (month) => `https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value_month=${month}`;
+const TREASURY_CURVE_URL = treasuryUrlFor(treasuryMonth);
+// v58.71 (pipeline audit): the feed is per month, so for the first sessions of a month the series held fewer than six
+// days (no 1-week change, and on the 1st no curve at all); the previous month's feed is read with it.
+const previousTreasuryMonth = (() => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); return d.toISOString().slice(0, 7).replace('-', ''); })();
 const TREASURY_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const AAII_SENTIMENT_URL = 'https://www.aaii.com/sentimentsurvey/sent_results?adv=yes';
 const AAII_READER_URL = `https://r.jina.ai/${AAII_SENTIMENT_URL}`;
@@ -97,6 +101,10 @@ export function parseFredHyOasCsv(csv, fetchedAt = new Date().toISOString()) {
     observedAt: latest.observedAt,
     fetchedAt,
     value: latest.value,
+    // v58.71 (pipeline audit): the one-day and five-session changes of this same series, so a promoted newer date never
+    // sits next to the FRED API's deltas from an older date (the credit axis paired a level and a delta of two sessions).
+    delta: observations[1] ? Math.round((latest.value - observations[1].value) * 1000) / 1000 : null,
+    delta5: observations[5] ? Math.round((latest.value - observations[5].value) * 1000) / 1000 : null,
     unit: 'percent',
     allowedUse: 'official-relay-observation-with-publication-lag',
     decisionUse: false
@@ -329,8 +337,9 @@ export async function fetchTreasuryYieldCurve(previous = null) {
     return { ...previous, attemptedAt: nowIso, status: 'cached-fresh', cacheHit: true };
   }
   try {
-    const xml = await _fetchRss(TREASURY_CURVE_URL, 35000);
-    const parsed = parseTreasuryYieldCurveXml(xml, nowIso);
+    const [xml, earlierXml] = await Promise.all([_fetchRss(TREASURY_CURVE_URL, 35000).catch(() => ''), _fetchRss(treasuryUrlFor(previousTreasuryMonth), 35000).catch(() => '')]);
+    const parsed = parseTreasuryYieldCurveXml(`${xml}
+${earlierXml}`, nowIso);
     if (!parsed) throw new Error('official Treasury XML feed contained no complete five-point curve');
     return { ...parsed, attemptedAt: nowIso, cacheHit: false };
   } catch (error) {

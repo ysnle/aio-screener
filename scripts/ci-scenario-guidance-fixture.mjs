@@ -870,7 +870,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // Rotation headline: dated window, no tag claim on thin tags, a broken strong side carries its week.
   assert.match(pb.rotation.text, /^최근 1개월\(9\/15~10\/14\) 미국 테마/, `v57.81 the rotation names its window (${pb.rotation.text})`);
   const thin = rotationOf([1, 2, 3, 4].flatMap((i) => [{ market: 'US', id: `g${i}`, label: `g${i}`, ret1m: 9 - i, tags: ['growth'] }, { market: 'US', id: `e${i}`, label: `e${i}`, ret1m: -9 + i, tags: ['energy'] }]));
-  assert.ok(!/힘이 옮겨 갔습니다/.test(thin.text) && /개 미만이라 힘이 어느 쪽으로 옮겨 갔는지는 판단하지 않습니다/.test(thin.text), 'v57.81 four themes per tag do not make a rotation claim');
+  assert.ok(!/힘이 옮겨 갔습니다/.test(thin.text) && /개 미만이라 한 달 동안 힘이 어느 성격으로 옮겨 갔는지는 판단하지 않습니다/.test(thin.text), 'v57.81 four themes per tag do not make a rotation claim');
   // RRG: neutral band and the five-session reversal against the series' own noise.
   const wiggle = Array.from({ length: 95 }, (_, i) => 100 + Math.sin(i / 2) * 0.8);
   const xlkLine = [...wiggle, ...[0.991, 0.982, 0.973, 0.964, 0.955].map((f) => wiggle.at(-1) * f)];

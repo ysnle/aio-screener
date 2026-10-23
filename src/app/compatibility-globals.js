@@ -98,6 +98,8 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.AIO = window.AIO || {};
   window.AIO.describeSharedConnection = describeSharedConnection;
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
+  // v58.71: research-channel numbers in the chat context; loaded after boot (the chat checks that it exists).
+  import('../ai/context/channel-signals.js').then((module) => { window.AIO.formatChannelSignalEvidence = module.formatChannelSignalEvidence; }).catch(() => {});
   window.AIO.parseSecStatements = parseSecStatements; // 2026-10-17 D8: replaces js/aio-chat.js _parseSECFinancials
   window.AIO.buildMarketContentContext = buildMarketContentContext;
   window.AIO.buildQuestionDomainContext = buildQuestionDomainContext;

@@ -10,6 +10,7 @@ import { briefingWindowKST, deriveNewsSummary, isNewsAnalysisEligible, isNewsHea
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 import { newsFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from '../components/page-flow.js';
+import { renderChannelData } from '../components/channel-data.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -89,7 +90,11 @@ function renderNewsSummary(documentRef, root, model, status) {
   else if (newsWindow.start != null) set('news-window-label', `${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
   const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
   if (importantNote) importantNote.textContent = `주제별 핵심 · ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간`;
-  set('last-fetch-time', cut?.status === 'stale' || status === 'stale'
+  // v58.70: a quarantined news lane is an earlier publish (scripts/lib/lane-quarantine.mjs); name that collection time.
+  const heldNews = (root?._serverDataMeta?.laneQuarantine || []).find((lane) => lane?.lane === 'news');
+  const heldStamp = heldNews?.previousGeneratedAt ? compactKstTime(heldNews.previousGeneratedAt) : null;
+  if (heldNews) set('last-fetch-time', `뉴스 갱신 보류 · 마지막 수집 ${heldStamp ? `${heldStamp.date} ${heldStamp.time}` : '확인 필요'}`);
+  else set('last-fetch-time', cut?.status === 'stale' || status === 'stale'
     ? `수집 지연 · 마지막 수집 ${generatedLabel || '확인 필요'}`
     : generatedLabel ? `마지막 수집 ${generatedLabel}` : (status === 'current' ? '정상 수신' : '수신 대기'));
 }
@@ -591,6 +596,7 @@ function render({ documentRef, root, store, route }) {
   renderTickerFocusNote(documentRef, root, container, tickerFocus, Array.isArray(model?.eligibleItems) ? model.eligibleItems.length : (model?.items || []).length);
   const tgScope = documentRef?.getElementById('news-tg-scope');
   if (tgScope) tgScope.textContent = describeNewsScope(controls).channel;
+  renderChannelData(documentRef, documentRef?.getElementById('news-tg-card'), root?.AIO_TELEGRAM_SIGNALS); // v58.71
   const important = pickImportantNews(groupNewsStories(importantModel?.eligibleItems || importantModel?.items || []));
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {

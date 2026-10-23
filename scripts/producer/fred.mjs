@@ -83,6 +83,12 @@ export async function fetchFred(key) {
         if (curYoY !== null) {
           out[field] = curYoY;
           succeeded = true;
+        } else if (!yoy && obs.some(o => monthsBetween(o.d, cur.d) > 12) && obs.some(o => monthsBetween(o.d, cur.d) < 12 && o !== cur)) {
+          // v58.71 (pipeline audit): the source never published the comparator month (no 2025-10 CPI after the 2025
+          // shutdown), so this month has no year-over-year value. That is not a failed fetch: the last value stays with
+          // its own month, and the cycle is not marked stale for a month the source will never fill.
+          out._comparatorGapSeries = [...(out._comparatorGapSeries || []), field];
+          continue;
         }
         // MoM delta in YoY rate: 이번 달 YoY - 지난 달 YoY (인플레이션 속도 변화)
         if (obs.length >= 2) {
@@ -91,6 +97,9 @@ export async function fetchFred(key) {
           const prevYoY = (yoyPrev && yoyPrev.v !== 0 && yoyPrev.d !== yoy?.d)
             ? round((prev.v / yoyPrev.v - 1) * 100, 1) : null;
           if (curYoY !== null && prevYoY !== null) out[field + 'Delta'] = round(curYoY - prevYoY, 1);
+          // v58.71: a new level without its change clears the change; the merge with the last run would otherwise keep
+          // the previous month's change beside the new level (and the reading would call inflation rising or easing on it).
+          else if (curYoY !== null) out[field + 'Delta'] = null;
         }
       } else if (spec.kind === 'mom_diff') {
         if (obs.length >= 2 && Number.isFinite(obs[0].v - obs[1].v)) {

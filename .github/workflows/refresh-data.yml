@@ -192,6 +192,11 @@ jobs:
       - name: Refresh weekly SEC 13F and daily 13D-G discovery
         id: masters
         if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' }}
+        # v58.71 (pipeline audit): a 13F failure (an unguarded SEC read, a contract check in this step) dropped the market,
+        # news and Telegram commit too, and the lane stayed due, so the next cycles repeated the block. The step is now a
+        # degradable lane: on failure its files go back to HEAD below and the rest of the cycle publishes; the poll marker
+        # is not written, so the lane is retried next cycle.
+        continue-on-error: true
         env:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
           MASTERS_MODE: ${{ steps.daily-lane.outputs.mode }}
@@ -226,6 +231,16 @@ jobs:
           fi
           node scripts/ci-13f-currentness-check.mjs
           node scripts/ci-masters-contract-check.mjs
+
+      - name: Restore 13F files after a failed 13F lane (v58.71)
+        id: masters-restore
+        if: ${{ !cancelled() && steps.masters.outcome == 'failure' }}
+        run: |
+          set -euo pipefail
+          # Tracked files go back to HEAD; files the failed run created are removed so nothing half-written is staged.
+          git checkout -- public-data/masters public-data/objects/masters
+          git ls-files --others --exclude-standard -z -- public-data/masters public-data/objects/masters | xargs -0 -r rm -f --
+          echo "::warning::13F lane failed this cycle; its files stay at the last publish and the lane is retried next cycle."
 
       - name: Prepare official-reference ledger key (P1734)
         # The lane runs only when this cycle can actually publish; its call ledger lives in the Actions cache
@@ -278,6 +293,23 @@ jobs:
         if: ${{ !cancelled() }}
         run: node scripts/sync-data-release-manifests.mjs
 
+      - name: Install gate dependencies
+        # The data QA group includes gates that parse workflow YAML (js-yaml). No browsers are downloaded.
+        id: gate-deps
+        if: ${{ !cancelled() }}
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm ci --no-audit --no-fund
+
+      - name: Contain a failing degradable lane
+        # v58.70 (owner 2026-10-23): when every artifact-semantics failure belongs to a degradable lane (news, narrative,
+        # macro freshness markers), that lane goes back to the last published value or is flagged, data.meta.laneQuarantine
+        # says so, and the rest of the refresh publishes. Any untagged failure leaves data.json as produced, and the gates
+        # below refuse the refresh as before (34 of 100 refreshes 10/21-10/23 were refused on one lane).
+        id: lane-quarantine
+        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' }}
+        run: node scripts/quarantine-degradable-lanes.mjs
+
       - name: Reject silent artifact degradation
         id: degradation-gate
         if: ${{ !cancelled() }}
@@ -287,14 +319,6 @@ jobs:
         id: continuity-gate
         if: ${{ !cancelled() }}
         run: node scripts/ci-data-continuity-check.mjs
-
-      - name: Install gate dependencies
-        # The data QA group includes gates that parse workflow YAML (js-yaml). No browsers are downloaded.
-        id: gate-deps
-        if: ${{ !cancelled() }}
-        env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
-        run: npm ci --no-audit --no-fund
 
       - name: Validate evidence-derived 22-category reconciliation
         id: reconciliation-gate
@@ -349,6 +373,7 @@ jobs:
               `| Treasury curve | ${m.treasuryStatus === 'ok' || m.treasuryStatus === 'cached-fresh' ? 'OK' : 'WARN'} | status=${m.treasuryStatus || 'unavailable'} observed=${m.treasuryObservedAt || 'none'} same-date 10Y-2Y only |`,
               `| AAII weekly | ${m.aaiiStatus === 'current-reference' ? 'REFERENCE' : 'WARN'} | observed=${m.aaiiObservedAt || 'none'} relay=${m.aaiiRelayUsed ? 'bounded-reader' : 'direct/none'} decisionUse=false |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
+              `| Lane quarantine | ${(m.laneQuarantine || []).length ? 'DEGRADED' : 'OK'} | ${(m.laneQuarantine || []).map((e) => `${e.lane} ${e.remedy} since ${e.since}`).join(', ').replace(/[|\r\n]/g, ' ') || 'none'} |`,
               `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : marketAnalysisDiagnostic(d).replace(/[|\r\n]/g, ' ')} |`,
               `| Fundamentals | ${Number(m.fundamentalCoveragePct || 0) >= 80 ? 'OK' : 'PARTIAL'} | free SEC companyfacts=${m.secFundamentalsCount || 0} coverage=${m.fundamentalCoveragePct || 0}% · paid FMP not required |`,
               `| Elapsed | ${elapsedStatus} | ${Number.isFinite(elapsedMs) ? elapsedMs : 'n/a'}ms |`,
@@ -373,7 +398,7 @@ jobs:
         # failed on an A1 CRITICAL freshness breach, and the bot pushed 85d05825 anyway, leaving
         # main permanently red and Pages unable to deploy. The comment above claimed publication
         # "stays deliberately fail-closed"; nothing enforced it. Now it does.
-        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' && steps.fetch-telegram.outcome == 'success' && (steps.masters.outcome == 'success' || steps.masters.outcome == 'skipped') && steps.degradation-gate.outcome == 'success' && steps.continuity-gate.outcome == 'success' && steps.reconciliation-gate.outcome == 'success' && steps.promotion-gate.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' && steps.fetch-telegram.outcome == 'success' && (steps.masters.outcome == 'success' || steps.masters.outcome == 'skipped' || steps.masters-restore.outcome == 'success') && steps.degradation-gate.outcome == 'success' && steps.continuity-gate.outcome == 'success' && steps.reconciliation-gate.outcome == 'success' && steps.promotion-gate.outcome == 'success' }}
         # P564/R255: this used to `git push` once with no pull/rebase beforehand. main is also
         # updated directly by humans (e.g. editing operator-note.json via the GitHub web UI)
         # and by other sessions/workflows while this job's two fetch steps run for minutes —

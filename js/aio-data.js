@@ -1461,7 +1461,7 @@ function _aioApplyTelegramDigestPayload(raw) {
     window.AIO_TELEGRAM_CATEGORY_REGISTRY = AIO_TELEGRAM_CATEGORY_REGISTRY;
     window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP = AIO_TELEGRAM_PAGE_INTEGRATION_MAP;
     window.AIO_TELEGRAM_BROAD_ITEMS = merged.rawBroadItems || merged.rawTopItems || [];
-    window.AIO_TELEGRAM_CURRENT_ITEMS = merged.rawCurrent24hItems || [];
+    window.AIO_TELEGRAM_CURRENT_ITEMS = merged.rawCurrent24hItems || []; window.AIO_TELEGRAM_SIGNALS = raw && Array.isArray(raw.signals) ? raw.signals : null; // v58.71: screener conditions
     var _collectionStatus = raw && raw.collectionStatus || 'unknown';
     window._aioTelegramDigestMeta = {
       status: _collectionStatus === 'failed' ? 'cached_after_collection_failure' : 'ready',
@@ -5402,7 +5402,7 @@ function _aioRenderPipelineStatus() {
     var meta = window._serverDataMeta;
     if (!meta) { bar.style.display = 'none'; return; }
 
-    var msgs = [];
+    var msgs = Array.isArray(meta.pipelineNotices) ? meta.pipelineNotices.slice() : []; // v58.70: src/data/server-data.js
     if (meta.marketCyclePublished !== true) {
       msgs.push({ icon: '', text: '시장 스냅샷 미발행', detail: '최근 refresh 시도는 완전한 시장 cycle로 발행되지 않았습니다. 현재 시세는 마지막 성공본 참고자료입니다.', color: '#ef4444' });
     }
@@ -5424,7 +5424,6 @@ function _aioRenderPipelineStatus() {
     if (meta.fredHasKey && meta.fredFetchOk === false) {
       msgs.push({ icon: '', text: 'FRED 거시 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
     }
-
     var reconciliation = meta.reconciliation || null;
     if (!reconciliation || reconciliation.status === 'unavailable') {
       msgs.push({ icon: '!', text: '데이터 범주 상태 미수신', detail: '22개 데이터 범주의 자동 조정 상태를 불러오지 못했습니다.', color: '#ef4444' });

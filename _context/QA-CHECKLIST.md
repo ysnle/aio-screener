@@ -4,6 +4,44 @@ last_verified: 2026-10-23
 confidence: medium
 ---
 
+## v58.71 데이터 v58.71 (2026-10-23)
+
+- [x] QA-TG-SIGNAL-01: P1984: 분류기는 맨 달러·자사주로 태그하지 않고, 수치 추출 글은 선별 하한 위에 남는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-TG-SIGNAL-02: v58.71: 채널 signals 추출(목표가·실적·지표·순매수)과 해설·스크리너·뉴스·채팅 연결이 계약대로 동작한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-TG-SIGNAL-03: v58.71: push 후 첫 refresh-data의 telegram-digest.json에 signals와 signalCounts가 생기고(첫 실행은 14일 창 전체 재수집), 뉴스 화면에 채널 데이터 블록이 보인다. verify_by: gh run view (refresh-data) + 라이브 뉴스 화면
+- [x] QA-BRF-DATE-01: P1985: 브리핑 등락 막대에서 S&P 500과 다른 날 종가인 행은 날짜를 붙인다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-LANE-02: P1986: 격리로 되돌린 뉴스는 자기 주기 이름을 유지하고, 보존 규칙이 거부한 해설은 다시 게시되지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-13DG-01: P1987: 구조화 서식(SCHEDULE 13D/G)이 대량 보유 이벤트로 수집된다. verify_by: node scripts/ci-13f-currentness-check.mjs
+- [ ] QA-13DG-02: P1987: push 뒤 첫 13F 발견 실행에서 2024-12-18 이후 13D/G 이벤트가 들어온다. verify_by: public-data/masters/filing-discovery.json의 13D/G filedAt 최댓값 확인
+- [x] QA-SCR-SESSION-01: P1988: 스크리너 실행에서 시장 세션이 이전 게시보다 뒤로 가면 이전 게시가 유지된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-SCR-COLLISION-01: P1989: refresh-screener의 rebase 충돌은 collision 재실행 1회로 이어지고, 재실행 충돌은 실패로 끝난다. verify_by: 다음 충돌 발생 시 refresh-screener 실행 로그의 'collision retry' 경고 확인
+- [x] QA-HIST-REV-01: P1990: 같은 세션의 두 읽기가 소유 값을 왕복 수정하지 않는다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
+- [ ] QA-FRED-GAP-01: P1991: CPI 비교 달 공백 기간에 fredFailedSeries가 비고 cpiDelta가 이전 값으로 남지 않는다. verify_by: push 뒤 12/10 이전 refresh-data 실행의 public-data/data.json meta.fredFailedSeries·macro.cpiDelta 확인
+- [ ] QA-MACRO-EDGE-01: P1992: push 뒤 refresh-data 실행에서 국채·BEA 값이 FRED보다 오래된 관측으로 덮이지 않는다. verify_by: public-data/data.json macro 필드의 fieldMeta 관측일과 FRED 관측일 비교
+- [ ] QA-TG-EMPTY-01: P1993: 첫 페이지가 빈 채널은 오류로 기록되고 collectionStatus가 ok가 아니다. verify_by: 다음 차단 발생 시 telegram-digest.json channels[].error 확인
+- [x] QA-SCR-KR-RETAIN-01: P1994: 한국 시장 수집이 80% 아래로 떨어진 실행도 미국 부분을 게시하고 한국 행은 직전 게시로 표시된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-SEC-FILING-01: P1995: push 뒤 refresh-screener 로그에 periodic filers 수가 찍히고 새 공시 발행사가 갱신된다. verify_by: gh run view (refresh-screener) 로그의 '[sec-fundamentals:core] periodic filers' 줄
+- [x] QA-BT-CAL-01: P1996: 한국 휴일인 미국 거래일이 백테스트 달력에 남는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-PROD-SMALL-01: P1997: 13F 기간 묶음은 보유 보고서 기간 기준이다. verify_by: node scripts/ci-13f-currentness-check.mjs
+- [ ] QA-BREADTH-SESSION-01: P1998: push 뒤 history.json에 미국 breadth가 모두 빈 행이 새로 생기지 않는다. verify_by: public-data/history.json 최근 행의 breadth20/advanceRatio 확인
+- [x] QA-MACRO-EDGE-02: P1999: HY OAS 수준과 변화폭이 같은 날짜다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-AI-REPEAT-01: P2000: 막힌 해설 뒤 같은 입력의 실행은 모델을 부르지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-LANE-13F-01: P2001: 13F 단계가 실패한 주기도 시장·뉴스를 게시하고 13F 파일은 직전 게시로 남는다. verify_by: 다음 13F 실패 시 refresh-data 로그의 'Restore 13F files' 단계 확인
+- [ ] QA-13F-AGG-01: P2002: 다음 13F 전체 실행 뒤 issuer-aggregates에 직전 분기가 들어가고 이력 분기의 countReconciled가 채워진다. verify_by: public-data/masters/issuer-aggregates.json periods와 history-index.json countReconciled 확인
+- [x] QA-QUOTE-SESSION-01: P2003: 서울 외 거래소도 마지막 세션과 비교하고, 밀려난 세션 종가는 자기 행에 남는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+
+## v58.70 데이터 v58.70 (2026-10-23)
+
+- [x] QA-DATA-LANE-01: P1983: 보조 레인 실패는 그 레인만 직전 게시본으로 되돌려 낡음으로 표시하고 나머지를 게시하며, 데이터 갱신 커밋은 브라우저 셰이드 없이 인증된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-DATA-LANE-02: P1983: push 후 첫 refresh-data 실행 요약에 Lane quarantine 행이 나오고, 데이터 커밋 CI가 Browser 잡을 건너뛴 채 Attest가 성공한다. verify_by: gh run view (refresh-data, ci workflow_dispatch)
+
+## v58.69 시장 v58.69 (2026-10-23)
+
+- [x] QA-MKT-QUOTE-HOLE-01: P1980: 직전 세션 일봉 종가가 비면 그 세션의 시간봉 마지막 종가(근사 표시) 또는 빈 값으로 변화를 계산하고, 두 세션 전 종가를 쓰지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-MKT-SESSION-HOLE-01: P1981: 미국 일봉이 빈 세션은 시간봉 마지막 종가로 채워 근사 표시하고, 1일 변화는 직전 세션이 없으면 비운다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-MKT-WORDING-01: v58.69: 공포·탐욕 문장은 fearGreedBand 이름을 쓰고, 브리핑 등락은 −0.0%를 쓰지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-NEWS-INTRADAY-MAX-01: P1982: 장중 뉴스 개수 검사는 NEWS_INTRADAY_MAX를 상한으로 쓴다. verify_by: node scripts/ci-artifact-semantics-check.mjs
+
 ## v58.68 시장 v58.68 (2026-10-23)
 
 - [x] QA-HIST-BACKFILL-01: P1978: 다른 세션 관측으로 남은 history 값은 백필 일봉으로 교체되고, 같은 세션의 확정 기록은 유지된다. verify_by: node scripts/ci-history-field-time-contract-check.mjs

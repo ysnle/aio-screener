@@ -469,3 +469,11 @@ body.aio-term-pop-open #scroll-top-btn { display: none !important; }
 /* Section headings with a trailing note (속보 · 잠정, 한국 시장 참고) squeezed both into half-width columns on phones and broke
    the heading mid-phrase; let the note drop to its own line instead. */
 .page .briefing-h2 { flex-wrap: wrap; row-gap: 2px; }
+
+/* v58.71: research-channel numbers above the channel notes (src/ui/components/channel-data.js). */
+.tg-data { border-bottom: 1px solid var(--border); padding: 2px 0 14px; margin-bottom: 14px; }
+.tg-data-head, .tg-data-sub { font-size: 12px; color: var(--text-muted); margin: 6px 0 4px; }
+.tg-data-reading { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin: 4px 0 8px; }
+.tg-data-leverage { max-width: 420px; }
+.tg-data-list { margin: 0 0 6px; padding-left: 18px; font-size: 12px; line-height: 1.7; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.tg-data-fold > summary { font-size: 12px; color: var(--text-muted); cursor: pointer; margin-top: 6px; }

@@ -103,13 +103,17 @@ jobs:
     name: Browser / ${{ matrix.group }}
     # 2026-10-12: browser shards start beside the ~20 s contract shards instead of after them; attest still needs both.
     needs: preflight
+    # v58.70 (owner 2026-10-23): a refresh commit changes only generated data on top of source code that already passed
+    # the full push CI (the attest guard below proves it), so it is attested by the data/core/knowledge contracts alone.
+    # Its browser shards depended on the apt mirror and held 10/22 04:50Z-23:20Z of data off the live site.
+    if: inputs.origin != 'refresh-data' && inputs.origin != 'refresh-screener'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 6
       matrix:
-        group: ${{ fromJSON(inputs.origin == 'refresh-data' && '["browser-unit","browser-runtime","browser-knowledge","browser-viewport"]' || inputs.origin == 'refresh-screener' && '["browser-unit","browser-runtime"]' || '["browser-unit","browser-runtime","browser-knowledge","browser-resilience","browser-viewport","browser-surface"]') }}
+        group: ["browser-unit","browser-runtime","browser-knowledge","browser-resilience","browser-viewport","browser-surface"]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -179,7 +183,11 @@ jobs:
 
   attest:
     name: Attest exact tested release
-    if: github.event_name != 'pull_request' && github.ref_name == 'main'
+    # v58.70: a skipped browser job counts only for a refresh origin; every other run still needs it to succeed.
+    if: >-
+      !cancelled() && github.event_name != 'pull_request' && github.ref_name == 'main'
+      && needs.preflight.result == 'success' && needs.contracts.result == 'success'
+      && (needs.browser.result == 'success' || (needs.browser.result == 'skipped' && (inputs.origin == 'refresh-data' || inputs.origin == 'refresh-screener')))
     needs: [preflight, contracts, browser]
     runs-on: ubuntu-latest
     timeout-minutes: 15

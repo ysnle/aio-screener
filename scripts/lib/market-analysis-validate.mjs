@@ -90,6 +90,7 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
     });
   }
   const macro = data?.macro || {};
+  const MACRO_FIELD_SOURCE_LABELS = { 'fred-official-primary': 'FRED', 'fred-official-public-csv': 'FRED', 'us-treasury-official-primary': 'U.S. Treasury', 'bea-official-primary': 'BEA', 'bls-official-primary': 'BLS' };
   for (const def of MARKET_ANALYSIS_MACRO_DEFS) {
     const bls = macro._bls?.series?.[def.blsMetricId || def.key];
     const value = Number(macro[def.key]);
@@ -100,7 +101,10 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
     const blsDefinitionMatches = !expectedAdjustment || String(bls?.seasonalAdjustment || '').toUpperCase() === expectedAdjustment;
     const blsMatchesValue = bls?.status === 'ok' && blsDefinitionMatches && Number.isFinite(Number(bls.value)) && Number(bls.value) === value;
     const asOf = _validIsoDate(blsMatchesValue ? bls.observedAt : macro[`_asOf_${def.key}`]);
-    const source = blsMatchesValue ? bls.source : (macro._source === 'fred' ? 'FRED' : null);
+    // v58.71 (pipeline audit): the label follows the field's own source. Every non-BLS value was called 'FRED' (a Treasury,
+    // BEA or carried value included), and when the FRED plane itself failed the FedRate/FedTarget rows vanished.
+    const fieldSource = MACRO_FIELD_SOURCE_LABELS[macro[`_source_${def.key}`]] || (macro._source === 'fred' ? 'FRED' : null);
+    const source = blsMatchesValue ? bls.source : fieldSource;
     if (!Number.isFinite(value) || !asOf || !source) continue;
     evidence.push({
       evidenceId: `market-analysis:${def.metricId}:${asOf}`,
@@ -117,6 +121,7 @@ export function buildMarketAnalysisEvidence(data, options = {}) {
       sourceKind: blsMatchesValue ? (bls.sourceKind || 'T1_OFFICIAL') : 'T1_OFFICIAL',
       allowedUse: blsMatchesValue ? (bls.allowedUse || 'macro-evidence-with-observation-date') : 'macro-evidence-with-observation-date',
       status: 'observed',
+      freshness: blsMatchesValue ? 'observed' : (macro[`_freshness_${def.key}`] || null),
     });
   }
   const fgValue = Number(data?.fearGreed?.score);
@@ -670,7 +675,12 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   }
   // Live 2026-10-21: core CPI is no longer read as headline CPI (analysisLevelsAfterLabels); it is checked against its own value.
   if (Number.isFinite(Number(macroNow.coreCpi))) {
-    const coreLevels = [...body.replace(/\[[^\]]*\]/g, ' ').matchAll(/(?:근원|core)\s?(?:CPI|소비자물가)(?:는|은|가|이|도)?\s?(?:전년\s?대비\s?)?(\d+(?:\.\d+)?)\s?%(?!p|포인트)/gi)].map((m) => Number(m[1]));
+    // v58.71 (pipeline audit; live 10/23 block): REGIME_CONTEXT also carries the 3-month annualised pace ("근원 CPI 3개월
+    // 속도 3.4%"), so a level written with that pace label beside it is not the year-over-year value.
+    const prose = body.replace(/\[[^\]]*\]/g, ' ');
+    const coreLevels = [...prose.matchAll(/(?:근원|core)\s?(?:CPI|소비자물가)(?:는|은|가|이|도)?\s?(?:전년\s?대비\s?)?(\d+(?:\.\d+)?)\s?%(?!p|포인트)/gi)]
+      .filter((m) => !/3\s?개월|석\s?달|속도|연율|annuali[sz]ed|3[- ]?month/i.test(prose.slice(Math.max(0, m.index - 12), m.index + m[0].length + 16)))
+      .map((m) => Number(m[1]));
     if (coreLevels.some((level) => Math.abs(level - Number(macroNow.coreCpi)) > 0.15)) issues.push('metric-value-mismatch:macro.core-cpi');
   }
   // v57.81: while REGIME_CONTEXT carries the leadership break, "semis/AI lead" needs the recent drop in the same sentence.

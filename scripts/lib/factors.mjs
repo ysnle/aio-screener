@@ -113,8 +113,15 @@ export function backtestFactors(stockData, opts) {
   // and require each symbol to have both the exact rebalance and target date.
   var minDateCoverage = isNum(Number(opts.minDateCoverage))
     ? Math.max(0, Math.min(1, Number(opts.minDateCoverage))) : 0.8;
+  // v58.71 (pipeline audit): coverage is judged within the largest market. Over the mixed universe a US session on a KRX
+  // holiday reached 903/1142 = 79% and fell out of the calendar, so "T+21" spanned 22-23 US sessions around Korean holidays.
+  var marketOfRecord = function(record) { return /\.(KS|KQ)$/i.test(String(record.stock.sym || '')) ? 'KR' : 'US'; };
+  var marketSizes = new Map();
+  datedStocks.forEach(function(record) { var m = marketOfRecord(record); marketSizes.set(m, (marketSizes.get(m) || 0) + 1); });
+  var calendarMarket = Array.from(marketSizes.entries()).sort(function(a, b) { return b[1] - a[1]; })[0];
+  var calendarStocks = calendarMarket ? datedStocks.filter(function(record) { return marketOfRecord(record) === calendarMarket[0]; }) : [];
   var dateCounts = new Map();
-  datedStocks.forEach(function(record) {
+  calendarStocks.forEach(function(record) {
     record.dates.forEach(function(date) { dateCounts.set(date, (dateCounts.get(date) || 0) + 1); });
   });
   var suppliedCalendarDates = Array.isArray(opts.calendarDates)
@@ -123,7 +130,7 @@ export function backtestFactors(stockData, opts) {
   var calendarDates = suppliedCalendarDates && suppliedCalendarDates.length
     ? Array.from(new Set(suppliedCalendarDates)).sort()
     : Array.from(dateCounts.entries())
-      .filter(function(entry) { return datedStocks.length > 0 && entry[1] / datedStocks.length >= minDateCoverage; })
+      .filter(function(entry) { return calendarStocks.length > 0 && entry[1] / calendarStocks.length >= minDateCoverage; })
       .map(function(entry) { return entry[0]; })
       .sort();
   var calendarDateSet = new Set(calendarDates);
@@ -365,6 +372,8 @@ export function backtestFactors(stockData, opts) {
       calendarPolicy: suppliedCalendarDates && suppliedCalendarDates.length ? 'supplied-calendar' : 'minimum-coverage',
       minimumDateCoverage: minDateCoverage,
       dateCoverage: Object.fromEntries(calendarDates.map(function(date) { return [date, dateCounts.get(date) || 0]; })),
+      calendarMarket: calendarMarket ? calendarMarket[0] : null,
+      calendarMarketStocks: calendarStocks.length,
       requestedCount: requestedRebalanceDates.length,
       usedCount: rebalanceDates.length,
       droppedRequestedDates: droppedRebalanceDates,

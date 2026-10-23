@@ -70,7 +70,15 @@ export const CUSTOM_CONDITIONS = Object.freeze([
   { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 회계연도 · 미국)', value: 10, unit: '%', fields: ['revGrowth'],
     test: ({ revGrowth }, n) => revGrowth >= n },
   { id: 'liquidity-min', group: '거래', label: '하루 거래대금 ${n}백만 이상 (30일 평균)', value: 20, unit: '$M', fields: ['dollarVolume30d'],
-    test: ({ dollarVolume30d: a }, n) => a >= n * 1e6 }
+    test: ({ dollarVolume30d: a }, n) => a >= n * 1e6 },
+  // v58.71 (owner 2026-10-23): what the research channels reported in the last 14 days (domain/screener/channel-signals.js).
+  // A stock the channels never mentioned has no data here, so these conditions only keep reported names.
+  { id: 'tg-pt-raise', group: '리서치 채널', label: '최근 14일 목표주가 상향 {n}건 이상 · 하향 없음 (채널 보도)', value: 1, unit: '건', fields: ['tgPtRaises', 'tgPtCuts'],
+    test: ({ tgPtRaises: a, tgPtCuts: b }, n) => a >= n && b === 0 },
+  { id: 'tg-upgrade', group: '리서치 채널', label: '최근 14일 투자의견 상향 (채널 보도)', fields: ['tgUpgrades'],
+    test: ({ tgUpgrades: a }) => a >= 1 },
+  { id: 'tg-earnings-beat', group: '리서치 채널', label: '최근 실적이 예상 상회 · 하회 항목 없음 (매출·EPS · 채널 보도)', fields: ['tgEarnings'],
+    test: ({ tgEarnings }) => tgEarnings === 'beat' }
 ].map((item) => Object.freeze(item)));
 
 const BY_ID = new Map(CUSTOM_CONDITIONS.map((item) => [item.id, item]));

@@ -46,9 +46,12 @@ export function exchangeLocalDate(ms, timeZone) {
   if (!Number.isFinite(ms) || !timeZone) return null;
   try { return new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms)); } catch (_) { return null; }
 }
-export function previousCloseBarIndex(closeBars, meta) {
+// v58.71 (pipeline audit): the same rule for every exchange session (Tokyo, Hong Kong, London opened against two sessions
+// back too); continuous futures/FX/DXY/crypto keep the bar-before-last, since their "day" holds the next evening's hours.
+const CONTINUOUS_QUOTE = /(=F|=X)$|^DX-Y\.NYB$|-USD$/;
+export function previousCloseBarIndex(closeBars, meta, symbol = '') {
   const bars = Array.isArray(closeBars) ? closeBars : [];
-  if (meta?.exchangeTimezoneName !== 'Asia/Seoul' || !Number.isFinite(meta?.regularMarketTime) || !Number.isFinite(meta?.gmtoffset)) return bars.length >= 2 ? bars.length - 2 : -1;
+  if (CONTINUOUS_QUOTE.test(String(symbol || meta?.symbol || '')) || !meta?.exchangeTimezoneName || !Number.isFinite(meta?.regularMarketTime) || !Number.isFinite(meta?.gmtoffset)) return bars.length >= 2 ? bars.length - 2 : -1;
   const localDay = (seconds) => new Date((seconds + meta.gmtoffset) * 1000).toISOString().slice(0, 10);
   const sessionDay = localDay(meta.regularMarketTime);
   return bars.map((bar) => Number.isFinite(bar.timestamp) && localDay(bar.timestamp) < sessionDay).lastIndexOf(true);
@@ -65,18 +68,34 @@ export async function fetchQuote(symbol) {
       const price = m.regularMarketPrice;
 
       // OHLCV 배열에서 실제 전일 종가 추출 (주말 수집 시에도 정확한 trading-day 기준)
+      // v58.69 (live 2026-10-23): the bars are kept with their empty closes. Dropping them made "the previous bar" two
+      // sessions old whenever Yahoo left a day empty — KOSPI 10/23 read −5.75% against the 10/21 close (−2.3% against
+      // 10/22), SMH −4.21% against 10/20 (−6.0%), and the published reading said KOSPI fell 5.37% that morning. The
+      // previous session is the bar before the current one; when its daily close is empty, its last hourly close is used
+      // and marked approximate (history does not record it as a completed close); otherwise the change stays missing.
       const rawCloses = res?.indicators?.quote?.[0]?.close || [];
       const rawTimestamps = res?.timestamp || [];
       const closeBars = rawCloses
-        .map((close, index) => ({ close, timestamp: rawTimestamps[index] }))
-        .filter((bar) => bar.close != null && isFinite(bar.close) && bar.close > 0);
-      const closes = closeBars.map((bar) => bar.close);
-      const prevIndex = previousCloseBarIndex(closeBars, m);
-      let prev, pct, pctSource;
-      if (prevIndex >= 0) {
-        prev = closes[prevIndex];               // 실제 전일 거래일 종가
+        .map((close, index) => ({ close: close != null && isFinite(close) && close > 0 ? close : null, timestamp: rawTimestamps[index] }))
+        .filter((bar) => Number.isFinite(bar.timestamp));
+      const prevIndex = previousCloseBarIndex(closeBars, m, symbol);
+      const prevBar = prevIndex >= 0 ? closeBars[prevIndex] : null;
+      let prev, pct, pctSource, previousCloseApproximate = false;
+      if (prevBar?.close) {
+        prev = prevBar.close;                   // 실제 전일 거래일 종가
         pct  = ((price - prev) / prev) * 100;
         pctSource = 'ohlcv-daily';
+      } else if (prevBar && ['INDEX', 'EQUITY', 'ETF'].includes(String(m.instrumentType || '').toUpperCase()) && !/(=F|=X)$|^DX-Y\.NYB$|-USD$/.test(symbol) && !/^\^K[SQ]\d|\.K[SQ]$/.test(symbol)) {
+        // Exchange sessions only: a futures/FX/DXY/crypto "day" in exchange time also holds the next session's evening hours
+        // (history.mjs continuousReopenPrint), so its last hourly close is the current price.
+        // v58.71 (pipeline audit): Seoul is excluded too — its hourly bars miss the closing auction (KOSPI 10/21: 5,703 vs
+        // 5,736, −0.6%, history.mjs backfill note), and the approximate mark is not shown, so the change stays missing.
+        prev = await hourlyLastClose(host, symbol, exchangeLocalDate(prevBar.timestamp * 1000, m.exchangeTimezoneName), m.exchangeTimezoneName).catch(() => null);
+        pct = prev ? ((price - prev) / prev) * 100 : null;
+        pctSource = prev ? 'hourly-last-close' : 'previous-session-close-missing';
+        previousCloseApproximate = !!prev;
+      } else if (prevBar) {
+        prev = null; pct = null; pctSource = 'previous-session-close-missing';
       } else {
         // P1581: with range=5d, chartPreviousClose is the close BEFORE the 5-day window, so using it
         // printed a multi-day change as the daily change (the P545 class). Only meta.previousClose is a
@@ -115,6 +134,7 @@ export async function fetchQuote(symbol) {
           ? exchangeLocalDate(closeBars[prevIndex].timestamp * 1000, m.exchangeTimezoneName)
           : null,
         _pctSource: pctSource,
+        previousCloseApproximate,
         _source: 'live:yahoo-gh',
         // Observation lineage: generatedAt is fetch time, not necessarily market observation time.
         regularMarketTime: Number.isFinite(m.regularMarketTime) ? m.regularMarketTime : null,
@@ -167,6 +187,7 @@ export async function fetchQuote(symbol) {
             // before 19:00 ET) so a later read of the same cut is recognised as the same session, not a new one.
             quote.previousCloseSessionDate = exchangeLocalDate(Date.parse(cut.observedAt || ''), 'America/New_York');
             quote._pctSource = 'fx-hourly-cut-close';
+            quote.previousCloseApproximate = false;
           }
         } catch (_) { /* daily path stays */ }
       }
@@ -174,6 +195,39 @@ export async function fetchQuote(symbol) {
     } catch (e) { lastErr = e; }
   }
   throw lastErr;
+}
+
+// v58.69: the last hourly close of one exchange-local session (the fallback when that session's daily close is empty).
+// v58.69: also the session's first hourly stamp, so the history backfill can key a filled hole like a daily bar.
+export function hourlySessionClose(res, date, timeZone) {
+  const stamps = res?.timestamp || [], closes = res?.indicators?.quote?.[0]?.close || [];
+  let close = null, openAt = null;
+  stamps.forEach((stamp, index) => {
+    if (exchangeLocalDate(stamp * 1000, timeZone) !== date) return;
+    if (openAt == null) openAt = new Date(stamp * 1000).toISOString();
+    const value = Number(closes[index]);
+    if (closes[index] != null && Number.isFinite(value) && value > 0) close = value;
+  });
+  return close == null ? null : { close, openAt };
+}
+
+async function fetchHourly(host, symbol, range = '5d') {
+  const hourly = await fetchJSON(host + '/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=60m&range=' + range, {}, 1);
+  return hourly?.chart?.result?.[0] || null;
+}
+
+async function hourlyLastClose(host, symbol, date, timeZone) {
+  if (!date || !timeZone) return null;
+  return hourlySessionClose(await fetchHourly(host, symbol), date, timeZone)?.close ?? null;
+}
+
+// v58.69: a session the daily chart lists with an empty close (Yahoo ^GSPC/^IXIC/SMH 2026-10-21) stays a permanent hole
+// in history, and every 1-day change after it is read across two sessions. The history backfill fills it from hourly bars.
+export async function fetchHourlySessionClose(symbol, date, timeZone) {
+  for (const host of YAHOO_HOSTS) {
+    try { return hourlySessionClose(await fetchHourly(host, symbol, '1mo'), date, timeZone); } catch (_) { /* 호스트 폴백 */ }
+  }
+  return null;
 }
 
 // P1721: FX trades Sunday 22:00Z to Friday ~21:00Z; Saturday/Sunday (UTC) keep the daily-bar path (a Friday close).
@@ -373,6 +427,19 @@ export async function collectVerifiedQuotes(quotesRaw, { twelveDataKey = process
     log(`[fetch-data] verify-retry: ${toRetry.length}개 재시도 (에러 또는 비정상 변동폭): ${toRetry.join(',')}`);
     const retried = await mapLimit(toRetry, 3, sym => fetchQuote(sym).catch(() => ({ __error: true, item: sym })));
     pass2 = retried.filter(q => _quoteOk(q));
+    // v58.71 (pipeline audit): a real move beyond the band (MSTR, COIN, PLTR on earnings) failed the retry the same way and
+    // the symbol went missing for the run. Two independent reads that agree on the price and the previous close are a
+    // move, not a bad read: the quote is kept and marked.
+    const firstBySymbol = new Map(quotesRaw.filter(q => q && !q.__error && q.symbol).map(q => [q.symbol, q]));
+    for (const q of retried) {
+      if (!q || q.__error || _quoteOk(q) || !q.symbol) continue;
+      const first = firstBySymbol.get(q.symbol);
+      const prevOf = (x) => x?.regularMarketPreviousClose || x?.chartPreviousClose;
+      const agree = (a, b) => a > 0 && b > 0 && Math.abs(a - b) / b <= 0.005;
+      if (first && q.regularMarketPrice > 0 && agree(q.regularMarketPrice, first.regularMarketPrice) && agree(prevOf(q), prevOf(first))) {
+        pass2.push({ ...q, largeMoveConfirmed: true });
+      }
+    }
     log(`[fetch-data] verify-result: ${pass2.length}/${toRetry.length} 복구`);
   }
   const yahooFailed = toRetry.filter(s => !pass2.find(q => q && q.symbol === s));

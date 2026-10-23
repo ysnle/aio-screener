@@ -51,6 +51,7 @@ import { consensusView, PE_MEANINGFUL_MAX } from '../../domain/fundamental/conse
 import { parseConditionValue, matchesConditions, conditionCoverage, availableConditionIds, conditionLabel } from '../../domain/screener/custom-conditions.js';
 import { installCustomConditions } from '../components/screener-custom.js';
 import { requestConsensusEstimates, consensusRowFor, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
+import { CHANNEL_SIGNAL_KEYS, channelSignalValue } from '../../domain/screener/channel-signals.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { themeStagesFor, scenarioStateCurrent } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
@@ -442,6 +443,7 @@ const FILING_STATUSES = new Set(['CURRENT', 'DELAYED', 'INFERRED', 'STALE', 'LAS
 const FIELD_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.map((definition) => [definition.rowKey, definition.fieldId]));
 export function customRead(row, key) {
   if (key === 'fwdPe') return forwardPe(row);
+  if (CHANNEL_SIGNAL_KEYS.includes(key)) return channelSignalValue(consensusRoot?.AIO_TELEGRAM_SIGNALS, row, key); // v58.71 (js/aio-data.js sets it)
   const fieldId = FIELD_BY_ROW_KEY.get(key);
   // Annual filing figures (PER·PBR·ROE·이익률·성장률) share the rank's 456-day budget (2026-10-16); a filter labelled
   // '최근 회계연도' still reads an older STALE figure as the table displays it, but never a CONFLICT value.
@@ -1927,8 +1929,8 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const scopeRows = scopedRows(rows, listingMarket);
   // v57.59: a condition the market has no data for (e.g. SEC financials for 한국) is greyed out instead of returning 0.
   // Forward PER loads on demand, so it stays offered for 미국 even before the estimates arrive.
-  if (availableCache.rows !== scopeRows.length || availableCache.market !== listingMarket || availableCache.source !== rows) {
-    availableCache = { rows: scopeRows.length, market: listingMarket, source: rows, ids: availableConditionIds(scopeRows, customRead) };
+  if (availableCache.rows !== scopeRows.length || availableCache.market !== listingMarket || availableCache.source !== rows || availableCache.signals !== root?.AIO_TELEGRAM_SIGNALS) {
+    availableCache = { rows: scopeRows.length, market: listingMarket, source: rows, signals: root?.AIO_TELEGRAM_SIGNALS, ids: availableConditionIds(scopeRows, customRead) };
     if (listingMarket === 'US') availableCache.ids.add('fwdpe-max');
   }
   const coverageCounts = conditionCoverage(scopeRows, custom, customRead);

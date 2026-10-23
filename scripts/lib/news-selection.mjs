@@ -210,7 +210,9 @@ export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
   if (!match) return false;
   const named = NEWS_MONTHS.indexOf(match[1]);
   const current = new Date(nowMs).getUTCMonth();
-  return ((current - named + 12) % 12) >= 2 && ((current - named + 12) % 12) <= 9;
+  // v58.71 (pipeline audit): a month three or more ahead ("Fed eyes January 27 meeting" in October) read as 9 months
+  // back and was dropped; only 2-6 months back counts as a repost.
+  return ((current - named + 12) % 12) >= 2 && ((current - named + 12) % 12) <= 6;
 }
 const SERVER_NEWS_POLITICS_MARKET_RE = /\b(stocks?|markets?|investors?|wall street|economy|economic|tax(?:es)?|spending|deficit|tariffs?|data cent(?:er|re)s?|energy|oil|fed)\b/i;
 export function scoreServerNewsItem(item) {

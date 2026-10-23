@@ -1,0 +1,17 @@
+{
+  "version": "v58.71", "date": "2026-10-23",
+  "p": {
+    "title": "텔레그램 채널의 첫 페이지가 비어도 수집 성공으로 집계됨",
+    "symptom": "t.me 공개 미리보기가 차단되거나 마크업이 바뀌어 첫 페이지에서 글을 하나도 읽지 못해도, 그 채널은 오류 없이 끝나 collectionStatus가 'ok'로 남을 수 있었다.",
+    "root_cause": "빈 페이지를 '더 이전 글 없음'과 같은 정상 종료로 처리했다.",
+    "fix": "첫 페이지에서 글을 하나도 읽지 못하면 그 채널을 오류로 기록해 상태가 partial/failed로 드러나게 했다(공개 미리보기는 늘 최신 글을 보여 준다).",
+    "violated_rule": "R441",
+    "prevention": "scrapeChannel 첫 페이지 빈 결과 경로가 오류를 던진다.",
+    "verification": "node --check 통과. 차단 상황은 실행 로그의 채널 오류로 확인."
+  },
+  "qa": [{ "id": "QA-TG-EMPTY-01", "text": "{P}: 첫 페이지가 빈 채널은 오류로 기록되고 collectionStatus가 ok가 아니다.", "verify_by": "다음 차단 발생 시 telegram-digest.json channels[].error 확인", "done": false }],
+  "qa_section": "데이터 v58.71",
+  "changelog": ["**텔레그램 빈 페이지 오류 처리 ({P}):** 첫 페이지에서 글을 못 읽은 채널은 성공이 아니라 오류로 남긴다."],
+  "note": "파이프라인 전수 검토(2026-10-23).",
+  "status": null
+}

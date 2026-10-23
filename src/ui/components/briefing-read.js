@@ -199,9 +199,12 @@ function renderMoveChart(doc, anchor, moves) {
     const max = Math.max(...rows.flatMap((row) => [Math.abs(row.d1 || 0), Math.abs(row.d5 || 0)]), unit === '%' ? 0.5 : 2);
     const block = el(doc, 'div', null, 'briefing-move-block');
     block.append(el(doc, 'div', unit === '%' ? '가격 등락(%) · 진한 막대 1일, 옅은 막대 5일 · 달러·환율은 회색(좋고 나쁨 없음)' : '금리 변화(bp) — 다른 단위라 따로 표시', 'briefing-move-head'));
+    // v58.71: a row closed on another date than the S&P 500 (the first row) names its date.
+    const baseDate = moves[0]?.asOf || null;
     for (const row of rows) {
       const line = el(doc, 'div', null, 'briefing-move-row');
-      line.append(el(doc, 'span', row.label, 'briefing-move-label'));
+      const [, mm, dd] = String(row.asOf || '').split('-').map(Number);
+      line.append(el(doc, 'span', row.asOf && baseDate && row.asOf !== baseDate && mm && dd ? `${row.label} · ${mm}/${dd}` : row.label, 'briefing-move-label'));
       const track = el(doc, 'span', null, 'briefing-move-track');
       for (const [key, cls] of [['d5', 'is-5d'], ['d1', 'is-1d']]) {
         const value = row[key];
@@ -223,5 +226,8 @@ function renderMoveChart(doc, anchor, moves) {
 function fmtMove(value, unit) {
   if (!Number.isFinite(value)) return '—';
   const digits = unit === 'bp' ? 0 : 1;
-  return `${value > 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+  // v58.69: 원/달러 -0.03% printed "-0.0%"; a move that rounds to zero is printed unsigned.
+  const text = value.toFixed(digits);
+  if (Number(text) === 0) return `${(0).toFixed(digits)}${unit}`;
+  return `${value > 0 ? '+' : ''}${text}${unit}`;
 }

@@ -6,6 +6,222 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2003 - v58.71 - 실제 30% 넘는 급등락 종목이 빠지고, 서울 외 거래소 전일 종가가 두 세션 전이 되며, 세션 종가가 자기 행을 놓치면 사라짐 (2026-10-23)
+
+- symptom/reproduction: 실적일 MSTR·COIN·PLTR 같은 30% 넘는 실제 움직임은 재시도도 같은 이유로 실패해 그 실행에서 빠졌다. 도쿄·홍콩·런던은 당일 봉이 찍히기 전 개장 시 두 세션 전 종가와 비교했다. history는 다음 세션 종가가 오면 오늘 행의 이전 세션 값을 덮어써, 10/21-22 장애 뒤 usdkrw 10/21 세션을 가진 행이 없었다.
+- root_cause: 범위 검사가 두 번의 일치하는 읽기도 거부했고, 세션 날짜 규칙이 서울에만 있었으며, 같은 날 행 upsert가 다른 행이 갖지 않은 세션을 보존하지 않았다.
+- fix: 재시도 읽기가 첫 읽기와 가격·전일 종가 모두 0.5% 안에서 일치하면 largeMoveConfirmed로 받는다. 연속 시장(선물·외환·DXY·코인)을 뺀 모든 거래소에 세션 날짜 규칙을 쓴다. upsert 전에 다른 행이 갖지 않은 세션 값은 그 세션 날짜의 행에 남긴다.
+- violated_rule: R423
+- prevention: ci-data-pipeline-contract-check: 도쿄 개장 비교, 외환 유지, 밀려난 세션 보존.
+- verification/residual: 계약 검사 통과.
+
+## P2002 - v58.71 - 13F 발행사 집계가 직전 분기를 빠뜨리고 날짜가 고정되며, 이력 분기는 정정 재합성·대조가 되지 않음 (2026-10-23)
+
+- symptom/reproduction: 버크셔 AAPL이 2025-12-31에서 2026-06-30으로 건너뛰며 수량 변화 0, 분기 수가 하나 모자랐고, 기준일은 '2026-08-18' 고정값이었다. 이력 70개 분기는 모두 countReconciled null이었고 분기가 이력이 된 뒤 낸 정정은 합성되지 않았다.
+- root_cause: 집계 입력이 이력 행(두 분기 전까지)과 최신 분기뿐이었다. 이력 색인은 매번 다시 만들어져 표지 총계를 잃었고, 재합성 판정은 행에 없는 submissionCount 필드를 읽었다.
+- fix: 비교의 검증된 직전 분기 쪽을 그 분기 보유로 더하고(이력에 없을 때만) 기준일은 holdings.reviewedAt을 쓴다. 이력 행 파일에 분기별 합성 제출 accession과 표지 총계(periodComposition)를 남겨, 색인의 새 제출이 생기면 재합성하고 대조값을 계산한다(기록 이전 분기는 표지를 한 번 읽는다).
+- violated_rule: R439
+- prevention: 수집기 구문 확인. 집계·대조 결과는 다음 13F 전체 실행에서 확인.
+- verification/residual: node --check 통과. 실제 산출은 QA-13F-AGG-01로 확인.
+
+## P2001 - v58.71 - 13F 단계 실패가 시장·뉴스 커밋까지 막고, 격리 레인은 기한 없이 이어짐 (2026-10-23)
+
+- symptom/reproduction: 13F 단계의 어떤 실패도 그 주기의 시장·뉴스·텔레그램 커밋을 함께 버렸고, 레인이 기한을 넘겨도 다음 주기가 같은 막힘을 되풀이했다. 뉴스·해설 격리는 하루가 넘어도 경고 하나로만 남았다.
+- root_cause: 13F 단계가 커밋 조건에 묶인 비격리 단계였고, 격리 레인에 나이 상한이 없었다.
+- fix: 13F 단계는 continue-on-error로 두고 실패 시 그 파일만 HEAD로 되돌린 뒤 나머지를 게시한다(표식은 쓰지 않아 다음 주기 재시도). 격리가 24시간을 넘으면 overdue로 표시하고 Actions 오류로 올린다.
+- violated_rule: R721
+- prevention: 워크플로 YAML 구문 확인과 격리 스크립트 구문 확인.
+- verification/residual: YAML 파싱 확인. 실제 경로는 다음 13F 실패 때 Actions 로그로 확인.
+
+## P2000 - v58.71 - 막힌 해설이 같은 입력으로 30분마다 모델을 두 번씩 다시 부름 (2026-10-23)
+
+- symptom/reproduction: 10/23 00:51Z 해설이 metric-value-mismatch로 막혀 직전 해설이 유지된 뒤, 입력이 같아도 매 실행(야간·주말 포함)이 모델 호출 2회를 썼다(aiUsage requests=2).
+- root_cause: 유지된 해설은 이전 서명·생성 시각을 지녀 재사용 검사에 맞지 않았고, 막힌 시도의 입력을 기억하지 않았다.
+- fix: 막힌 시도의 입력 키(지표·뉴스·헤드라인 증거, 주제 서명, 문장 날짜)를 blockedAttemptKey로 남기고, 같은 키면 호출 없이 유지 해설(또는 대체문)을 낸다. 날이 바뀌면 키가 달라져 한 번 다시 쓴다.
+- violated_rule: 없음 — 비용 결함
+- prevention: ci-data-pipeline-contract-check: 막힌 뒤 같은 입력이면 모델 호출이 0회다.
+- verification/residual: 계약 검사 통과.
+
+## P1999 - v58.71 - HY 스프레드 수준과 변화폭의 날짜가 어긋나고, 거시 증거 출처가 모두 FRED로 표시되며, 코스피·WTI 큰 움직임 줄이 세션을 건너뜀 (2026-10-23)
+
+- symptom/reproduction: 공개 CSV가 더 새 HY OAS 날짜를 올리면 변화폭은 API의 이전 날짜 값으로 남았다. 해설 증거는 국채·BEA·이월 값도 'FRED'로 적었고 FRED 실패 시 정책금리 행이 사라졌다. 코스피·WTI 줄은 빠진 행이 있으면 두 세션 변화를 'M/D 종가'로 썼다. FRED 일정 미리보기는 1월 초에 지난 날짜를 잃었다.
+- root_cause: CSV는 수준만 넘겼고, 증거 출처가 FRED 실행 단위 표시를 썼으며, 연속 세션 확인이 미국 계열에만 있었고, release/dates 호출에 realtime 창이 없었다.
+- fix: CSV가 자기 1일·5세션 변화폭을 계산해 함께 승격하고, 증거 출처는 필드별 _source_로, 신선도는 freshness로 싣는다. 코스피는 KRX, WTI는 미국 달력으로 1일·5세션을 확인한다. 미리보기 도구에 realtime_start/end를 넘긴다.
+- violated_rule: R332
+- prevention: ci-data-pipeline-contract-check: 새 CSV 날짜가 자기 변화폭을 가져온다.
+- verification/residual: 계약 검사 통과.
+
+## P1998 - v58.71 - breadth가 미국 장 없는 날에 빈 행을 만들고, 지난 세션 종목을 오늘 등락에 섞음 (2026-10-23)
+
+- symptom/reproduction: 한국만 연 날이나 미국 마감 전 실행에서 history.json에 미국 breadth가 모두 비어 있는 행이 생겼고, 스냅숏 등락·이동평균 상회 수는 각 종목의 마지막 두 봉을 날짜와 무관하게 셌다.
+- root_cause: breadth 이력이 모든 행 날짜로 버킷을 만들었고, 스냅숏은 observedAt만 대표 세션으로 고치고 집계는 그대로였다.
+- fix: 미국 표본이 0인 날은 이력에 쓰지 않고, 스냅숏 집계는 대표 세션 날의 행만 센다(sessionRows로 밝힘).
+- violated_rule: R423
+- prevention: 생산자 경로 수정, 계약 검사 통과.
+- verification/residual: 현재 screener.json 검증기와 계약 검사 통과.
+
+## P1997 - v58.71 - 수집기 작은 결함 다섯 건(이탈 종목 잔류, 네트워크 재시도, 13F 기간 묶음, IPO 실패, Nasdaq 상태 유실) (2026-10-23)
+
+- symptom/reproduction: SEC 요약에 유니버스를 떠난 AVB·BRK.B·PSKY·WBD·EA가 남았고(EA는 08-14 수집), SEC 요청은 연결 끊김에 재시도하지 않았다. 늦게 내는 운용사의 새 분기 13F-NT가 직전 보유 정정의 원본을 기간 묶음에서 빼 합성이 실패할 수 있었고, IPO 달력 호출 실패가 실적 주간 전체를 버렸으며, 확장 유니버스가 Nasdaq 원천을 RETAINED로 쓸 때 재무 상태가 사라졌다.
+- root_cause: 코어 원장만 정리 대상에서 빠져 있었고, SEC 클라이언트는 HTTP 상태만 재시도했으며, 기간 묶음 키가 최신 제출(통지 포함)이었고, IPO 호출이 같은 Promise.all에 있었고, 이전 행의 필드 이름(nasdaqFinancialStatus)을 읽지 않았다.
+- fix: 코어도 유니버스 이탈 종목을 정리(유니버스가 500 미만이면 보류), 연결 오류는 재시도(시간 초과는 즉시 실패), 기간 묶음은 최신 보유 보고서 기간으로, IPO 호출은 실패 시 빈 목록, 이전 행 상태를 이어 받는다.
+- violated_rule: 없음 — 개별 결함
+- prevention: ci-13f-currentness-check: 늦은 13F-NT가 보유 기간 묶음을 바꾸지 않는다.
+- verification/residual: node -e 재현(연결 실패 1회 뒤 성공, 기간 묶음)과 ci-13f-currentness-check 통과.
+
+## P1996 - v58.71 - 백테스트 달력이 한국 휴일인 미국 거래일을 빠뜨림 (2026-10-23)
+
+- symptom/reproduction: 날짜는 전체 종목의 80%가 가져야 달력에 들어갔는데, 미국+해외 행은 903/1142=79%라 한국 휴일의 미국 거래일이 빠졌고 'T+21'이 실제 22~23 거래일이 됐다.
+- root_cause: 혼합 유니버스 전체를 분모로 커버리지를 쟀다.
+- fix: 커버리지는 가장 큰 시장 안에서 판단하고 dateAlignment에 calendarMarket을 밝힌다.
+- violated_rule: R423
+- prevention: ci-data-pipeline-contract-check: 한국 휴일인 미국 거래일이 달력에 남는다.
+- verification/residual: 계약 검사 통과.
+
+## P1995 - v58.71 - SEC 재무가 새 10-Q·10-K 공시를 최대 28일 늦게 반영함 (2026-10-23)
+
+- symptom/reproduction: 저장 기록은 마지막 수집 후 28일이 지나야 다시 읽혀, 10/20에 읽은 발행사가 10/24에 분기 보고서를 내도 TTM P/E·분기 수치가 11월 중순까지 이전 분기로 '현재'처럼 보였다.
+- root_cause: 갱신 대상 판정이 수집 나이·정규화 버전만 보고 새 공시를 신호로 쓰지 않았다.
+- fix: EDGAR 일일 서식 색인(영업일당 파일 1개, 최근 7일)에서 정기 보고서(10-Q/10-K/20-F/40-F와 정정) 제출 CIK를 읽어, 기록의 수집일 이후에 제출한 발행사를 바로 갱신 대상으로 올리고 앞에 세운다. 색인을 못 읽으면 기존 나이 규칙만 적용된다.
+- violated_rule: 없음 — 갱신 신호 부재
+- prevention: ci-data-pipeline-contract-check: 일일 색인 파서가 정기 보고서 제출자만 CIK·날짜로 읽는다.
+- verification/residual: 파서 계약 검사 통과. 실제 색인 읽기는 다음 screener 실행 로그의 'periodic filers' 줄로 확인.
+
+## P1994 - v58.71 - 한국 데이터 장애 하나가 스크리너 전체 갱신을 막음 (2026-10-23)
+
+- symptom/reproduction: 한국 239종목 이력이 모두 실패하면 행 903/1142(79%)와 한국 breadth 0%로 검증기가 산출물 전체를 거부해, 미국 팩터·SEC·지수 비중까지 한국이 돌아올 때까지 멈추는 구조였다(커밋된 수치로 계산).
+- root_cause: 검증기가 전체 행 80%와 시장별 breadth 80%를 한 번에 요구했고, 생산자는 실패한 시장을 이전 게시로 이어 줄 수단이 없었다.
+- fix: 한 시장의 가져온 행이 80% 아래면 그 시장의 직전 게시 행(각자 세션 날짜 유지, retainedFrom 표시)과 breadth 구간을 이어 쓰고 marketRetained에 밝힌다. 검증기는 이어 쓴 시장이 있을 때만 혼합 'all' 구간 커버리지를 면제하고, retained 구간은 marketRetained와 짝이 맞아야 한다.
+- violated_rule: R721
+- prevention: ci-data-pipeline-contract-check: 한국 행이 비면 직전 행이 표시와 함께 이어지고, 충분하면 이어 쓰지 않는다.
+- verification/residual: 계약 검사 통과, 현재 screener.json 검증기 통과.
+
+## P1993 - v58.71 - 텔레그램 채널의 첫 페이지가 비어도 수집 성공으로 집계됨 (2026-10-23)
+
+- symptom/reproduction: t.me 공개 미리보기가 차단되거나 마크업이 바뀌어 첫 페이지에서 글을 하나도 읽지 못해도, 그 채널은 오류 없이 끝나 collectionStatus가 'ok'로 남을 수 있었다.
+- root_cause: 빈 페이지를 '더 이전 글 없음'과 같은 정상 종료로 처리했다.
+- fix: 첫 페이지에서 글을 하나도 읽지 못하면 그 채널을 오류로 기록해 상태가 partial/failed로 드러나게 했다(공개 미리보기는 늘 최신 글을 보여 준다).
+- violated_rule: R441
+- prevention: scrapeChannel 첫 페이지 빈 결과 경로가 오류를 던진다.
+- verification/residual: node --check 통과. 차단 상황은 실행 로그의 채널 오류로 확인.
+
+## P1992 - v58.71 - 오래된 공식값이 더 새 FRED 값을 덮고, 세션 경계·달 경계·먼 달 뉴스에서 판정이 어긋남 (2026-10-23)
+
+- symptom/reproduction: 거시 병합에서 국채 곡선·BEA 값은 관측일이 FRED보다 오래돼도 FRED 값을 덮었다. 국채 곡선은 달 첫 영업일에 그 달 XML만 읽어 직전일 비교가 없었다. 원/달러·엔화는 일요일 17:00 ET 재개장 직후 인쇄가 완성 종가로 읽힐 수 있었고(재개장 기준을 18:00 ET로 봄), 한국 지수·종목은 빈 일봉의 시간봉 대체 경로를 타 장중 값이 종가로 들어갈 수 있었다. 뉴스 선별은 10월에 '1월'을 말하는 다가올 일정 기사를 9개월 지난 기사로 보고 뺐다.
+- root_cause: 병합이 원천 우선순위만 보고 관측일을 비교하지 않았고, 국채 수집이 한 달 파일만 읽었다. 재개장 시각이 선물·외환 공통 상수였고, 시간봉 대체가 시장을 가리지 않았다. 월 지난 판정의 상한이 9개월이었다.
+- fix: 국채·BEA는 FRED 관측일보다 오래되지 않을 때만 승격한다. 국채는 이번 달과 지난달 XML을 함께 읽는다. =X 외환의 재개장은 17:00 ET로 본다. 한국 지수·종목은 시간봉 대체에서 뺀다. 지난 달 판정 상한을 6개월로 줄였다.
+- violated_rule: R423
+- prevention: 각 생산자 함수 수정과 node -e 재현(KRW=X 일요일 21:17Z는 재개장 인쇄, 10월의 '1월'은 지난 달 아님, 7월은 지난 달).
+- verification/residual: node -e 재현 통과. 실제 병합 결과는 push 뒤 refresh-data 실행에서 확인.
+
+## P1991 - v58.71 - 물가 지표의 비교 달 공백이 FRED 전체를 낡게 만들고, 오래된 변화폭과 3개월 연율 인용이 해설을 막음 (2026-10-23)
+
+- symptom/reproduction: FRED에는 CPI 4계열의 2025-10 지수가 없다(2025-09→2025-11 공백). 비교 달이 이 공백에 걸리는 동안 4계열이 매 실행 실패로 집계돼 FRED 평면 전체의 마지막 성공 시각이 한 달 멈추고, cpiDelta는 이전 달 값(+0.3%p)으로 남아 '직전 달 대비' 문장과 물가 방향 판단에 쓰일 수 있었다. 별도로 10/23 00:51Z AI 해설은 근원 CPI 3개월 연율 인용을 전년비 수준과 비교한 검증기 때문에 'metric-value-mismatch:macro.core-cpi'로 막혀 직전 해설이 유지됐다.
+- root_cause: 전년비 계산이 원천에 비교 달이 없는 경우와 수집 실패를 구분하지 않았고, 변화폭을 못 구해도 이전 변화폭을 지우지 않았다. 검증기는 '3개월·연율' 문맥을 구분하지 않았다.
+- fix: 비교 달이 구조적으로 없는 계열은 _comparatorGapSeries로 따로 두고 실패·완결성 계산에서 뺀다. 수준은 있는데 변화폭을 못 구하면 변화폭을 null로 쓰고, 물가 문장은 변화폭이 있을 때만 쓴다. 검증기는 3개월·석 달·연율 문맥의 근원 CPI 수치를 전년비 수준과 비교하지 않는다.
+- violated_rule: R332
+- prevention: 생산자·검증기 경로 수정. 변화폭 null과 비교 달 공백 분리는 다음 CPI 발표 주기(11/10~12/10) 실행에서 fredFailedSeries가 비는지로 확인한다.
+- verification/residual: 2025-10 공백은 public-data/macro-history.json에서 확인했고 수정 경로는 코드로 추적했다(node --check 통과). 실제 동작은 QA-FRED-GAP-01과 다음 해설 실행의 retained 사유로 확인한다.
+
+## P1990 - v58.71 - history 필드 수정 기록이 두 읽기 사이를 왕복함 (2026-10-23)
+
+- symptom/reproduction: history.json의 10/15 원/달러가 1341.64→1341.17→1341.64로, 10/19 다우가 51966.03↔51966으로 실행마다 오가며 revisions가 쌓였다(14개 필드).
+- root_cause: 오늘 행은 실행마다 새로 쓰이는데, 같은 세션을 이전 종가로 읽은 값과 최신 종가로 읽은 값이 번갈아 소유 행을 수정했다.
+- fix: 이전 종가 읽기는 최신 종가로 정해진 소유 값을 수정하지 않고, 이미 대체된 값으로는 되돌리지 않는다. 행은 계속 이월 표시된다.
+- violated_rule: R423
+- prevention: ci-history-field-time-contract-check: 대체된 값과 이전 종가 읽기가 소유 값을 바꾸지 않음을 확인한다.
+- verification/residual: node scripts/ci-history-field-time-contract-check.mjs 통과.
+
+## P1989 - v58.71 - 스크리너 갱신이 공유 파생 파일 충돌로 실패하고 그 주기를 버림 (2026-10-23)
+
+- symptom/reproduction: 실행 39876749238(10/23 00:12Z)은 push 재시도 중 rebase에서 public-data/operations-status.json 충돌로 빨갛게 끝나, 그 주기 스크리너 갱신이 다음 슬롯까지 사라졌다.
+- root_cause: refresh-data에는 충돌 시 새 main에서 한 번 다시 돌리는 collision_retry가 있지만 refresh-screener의 push 루프는 rebase 실패를 그대로 오류로 끝냈다.
+- fix: refresh-screener에 retry 입력과 collision_retry를 넣어, rebase 충돌이나 rebase 뒤 후보 불일치 시 새 main에서 한 번 다시 돌리고 끝낸다. 재시도에서 또 충돌하면 크게 실패한다.
+- violated_rule: R255
+- prevention: 워크플로 YAML 구문 확인과 refresh-data와 같은 충돌 경로.
+- verification/residual: YAML 파싱 확인. 실제 충돌 경로는 다음 충돌 발생 시 Actions 로그로 확인.
+
+## P1988 - v58.71 - 스크리너가 UTC 자정 무렵 실행에서 하루 전 세션을 다시 게시함 (2026-10-23)
+
+- symptom/reproduction: 10/22 00:16Z 실행이 10/21 22:33Z에 게시된 미국 10/21 세션을 10/20으로 되돌렸고(10/21 00:16Z도 같은 모양), 후보 기록 날짜도 10/20으로 바꿔 썼다. 10/22 17:39Z 실행은 한국·해외 세션을 10/22에서 10/21로 되돌렸다.
+- root_cause: 그 시각 원천 일봉에 최신 세션이 잠시 빠져 다수 행이 이전 세션을 갖는데, 생산자는 이전 게시본과 시장 세션을 비교하지 않고 덮어썼다.
+- fix: 가격 팩터를 읽은 직후 시장별 세션을 이전 게시본과 비교해, 한 시장이라도 뒤로 가면 이번 실행은 쓰지 않고 이전 게시를 유지한다(다음 실행이 다시 읽는다).
+- violated_rule: R423
+- prevention: ci-data-pipeline-contract-check: 세션이 뒤로 간 시장만 보류 사유로 잡고, 앞으로 가거나 새로 생긴 시장은 막지 않는다.
+- verification/residual: git 이력의 screener.json factorSessionDateByMarket 14개 커밋으로 후퇴를 확인했고, 계약 검사 통과.
+
+## P1987 - v58.71 - 대량 보유(13D/G) 공시 수집이 2024-12-17에서 멈춤 (2026-10-23)
+
+- symptom/reproduction: masters/filing-discovery.json의 13D/G 249건 중 가장 최근 제출일이 2024-12-17이었다. 그 뒤 거장들이 낸 대량 보유 공시는 하나도 수집되지 않았다.
+- root_cause: SEC는 2024-12-18부터 구조화 서식을 'SCHEDULE 13D/G'라는 서식명으로 받는데, 서식 필터가 옛 'SC 13D/G'만 받았다.
+- fix: 서식 필터를 /^(?:SC|SCHEDULE) 13(?:D|G)(?:/A)?$/로 넓혔다. 보유 비율은 새 서식의 XML(classPercent/percentOfClass)과 HTML 표기 모두에서 기존 파서가 읽는다.
+- violated_rule: 없음 — 원천(SEC) 서식명 변경
+- prevention: ci-13f-currentness-check: 'SCHEDULE 13G/A'·'SCHEDULE 13D'·'SC 13G'가 모두 발견되는지 확인한다.
+- verification/residual: node scripts/ci-13f-currentness-check.mjs 통과. 다음 13F 발견 실행 뒤 새 서식 이벤트가 들어오는지 확인 필요.
+
+## P1986 - v58.71 - 레인 격리가 되돌린 뉴스에 새 주기 이름을 붙이고, 검증되지 않은 AI 해설을 '직전 검증본'으로 다시 게시할 수 있었음 (2026-10-23)
+
+- symptom/reproduction: v58.70 레인 격리는 뉴스 레인을 직전 게시본으로 되돌리면서 주기 끝·이름(newsCycleEnd/Label)은 이번 실행 값을 남겨, 어제 기사가 '오늘 08:00 ~' 주기로 표시될 수 있었다. AI 해설 레인은 보존 규칙이 거부한 직전 해설도 그대로 되살려 '직전 검증본'으로 게시할 수 있었다.
+- root_cause: 뉴스 메타 복원 목록이 주기 식별자 두 개를 제외했고, 해설 복원에 `|| previous[key]` 폴백이 있었다.
+- fix: 뉴스는 /^news/ 메타 전부(주기 시작·끝·이름·다음 갱신)를 기사와 함께 되돌리고, 해설은 보존 규칙(검증·나이)이 받아들인 것만 되돌리며 아니면 비운다.
+- violated_rule: R721
+- prevention: ci-data-pipeline-contract-check v58.70 레인 격리 검사가 복원 뉴스의 주기 이름(old-cut)과 보존 거부 해설의 null을 확인한다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과.
+
+## P1985 - v58.71 - 브리핑 등락 막대가 다른 날의 종가를 같은 날처럼 나란히 보여 줌 (2026-10-23)
+
+- symptom/reproduction: 10/22 장에서 Yahoo가 WTI·금·브렌트·비트코인·원/달러·엔화의 일봉을 비워, 브리핑 등락 막대의 WTI −4.6%는 10/21 장의 값이었는데 S&P 500의 10/22 값 옆에 날짜 없이 나왔다. 10/22 유가 급등은 보이지 않았다.
+- root_cause: 등락 행은 각 자산의 마지막 완성 종가를 쓰지만 그 날짜를 행에 싣지 않았고, 차트도 날짜를 표시하지 않았다.
+- fix: 각 행이 자기 종가 날짜(asOf)를 싣고, 첫 행(S&P 500)과 날짜가 다른 행은 이름 옆에 'M/D'를 붙인다.
+- violated_rule: R683
+- prevention: ci-data-pipeline-contract-check: 등락 행이 asOf를 싣고 차트가 다른 날짜를 표시하는지 확인한다.
+- verification/residual: 로컬 미리보기 브리핑에서 WTI 행이 'WTI · 10/21'로 표시됨.
+
+## P1984 - v58.71 - 텔레그램 분류기가 달러 가격 글을 모두 거시로, 자사주 매입을 내부자 거래로 분류하고 수치 데이터 글이 선별 하한 아래로 빠짐 (2026-10-23)
+
+- symptom/reproduction: 14일 창 관찰 2,411건 중 800건이 '거시'로 분류돼 최상위 분류가 됐다. 목표주가·실적 글처럼 '달러'가 들어간 글은 모두 거시가 붙었고, 증권사 리포트 목록의 '자사주 매입 소각'은 내부자 거래로 분류됐다. 반대로 골드만삭스의 코어위브 투자의견 상향(47점), 유진투자증권의 삼성E&A 목표가 상향(49점), 발레로 실적(47점)처럼 수치가 든 글이 선별 하한 50점에 못 미쳐 읽기 목록에서 빠졌다.
+- root_cause: 거시 정규식에 맨 '달러'가, 내부자 정규식에 '자사주'가 들어 있었다. 점수는 키워드 태그 가산뿐이라, 짧고 건조하게 쓴 수치 글은 태그가 적어 낮게 나왔다.
+- fix: 거시는 달러 강세·약세·인덱스·원달러처럼 환율을 말할 때만, 내부자는 임원·내부자 거래만 남겼다(14일 창 재수집에서 거시 382건, 내부자 7건). 목표주가·실적·지표·서학개미 목록에서 수치를 뽑아 낸 글은 20점을 더해 선별 하한 위에 남긴다.
+- violated_rule: R722 채널 글의 분류·선별은 글이 담은 수치를 기준으로도 판단한다
+- prevention: ci-data-pipeline-contract-check: 분류기에 맨 '달러'와 '자사주'가 없고, 수치 추출 글이 가산점을 받아 선별되는지 확인한다.
+- verification/residual: 생산자 드라이런(--out 없음, 쓰기 없음): 14일 창 2,176건에서 거시 800→382건, 내부자 44→7건. 표본에서 하한 미만이던 수치 글 4건(47·47·48·49점)은 새 규칙으로 계산하면 55~69점.
+
+## P1983 - v58.70 - 보조 레인 검사 하나나 브라우저 CI 설치 장애가 데이터 게시 전체를 막음 (2026-10-23)
+
+- symptom/reproduction: 10/21 00:58Z~10/23 01:20Z refresh-data 100회 중 86회가 실패했다. 34회는 산출물 검사에서 뉴스 개수·AI 해설 근거·거시 신선도 표시 중 하나 때문에 전체가 거부됐고, 52회는 데이터가 커밋됐지만 그 커밋의 CI 브라우저 셰이드(apt 설치)가 실패해 라이브 배포가 거부됐다. 10/22 04:50Z~23:20Z 동안 라이브 데이터가 멈췄다.
+- root_cause: artifact-semantics의 모든 항목이 같은 무게로 전체 게시를 막았고, 데이터 갱신 커밋의 CI도 브라우저 셰이드를 요구했다. 데이터만 바뀐 커밋인데도 브라우저 설치 장애가 배포를 막았다.
+- fix: 뉴스·AI 해설·거시 신선도 검사에 레인을 붙였다. 실패가 레인 항목뿐이면 그 레인을 직전 게시본으로 되돌리거나(뉴스·해설) 표시만 하고(거시), data.meta.laneQuarantine에 기록한 뒤 나머지를 게시한다. 뉴스 화면은 '뉴스 갱신 보류 · 마지막 수집 시각'을, AI 해설은 '직전 검증본' 시각을 보여 준다. 레인 없는 실패는 기존처럼 전체를 막는다. 데이터 갱신 출처의 CI는 브라우저 셰이드를 건너뛰고 코어·데이터·지식 검사로 인증하며, 그 코드가 전체 push CI를 통과했는지는 기존 인증 단계가 확인한다.
+- violated_rule: R721 보조 레인 실패는 그 레인만 격리하고, 데이터 전용 커밋은 데이터 검사로 인증한다
+- prevention: ci-data-pipeline-contract-check: 레인 격리가 직전 게시본으로 되돌리고 시작 시각을 이어가며, 미등록 레인을 거부하고, 워크플로 단계 순서를 확인한다. ci-artifact-semantics-check: 등록되지 않은 격리 선언을 거부한다. ci-qa-pipeline-contract-check: 데이터 갱신 출처 CI만 브라우저를 건너뛰고 인증이 그 경우에만 건너뜀을 허용하는지 확인한다.
+- verification/residual: 현재 데이터로 시뮬레이션: 뉴스 개수 불일치는 뉴스만 되돌리고 검사 통과, 해설 근거 위조는 직전 검증 해설로 되돌리고 통과, 레인 없는 실패(시세 개수)가 섞이면 아무것도 격리하지 않고 검사 실패, 'quotes' 격리 선언은 검사 실패. HEAD에는 lane-quarantine 모듈이 없어 새 확인이 실패한다.
+
+## P1982 - v58.69 - 장중 뉴스 상한을 12로 올렸는데 데이터 산출물 검사가 6에 고정돼 데이터 갱신이 막힘 (2026-10-23)
+
+- symptom/reproduction: 2026-10-23 01:20Z refresh-data가 'P1720 newsIntraday carries at most six ... count=7'로 실패해 새 데이터를 게시하지 못했다.
+- root_cause: v58.63에서 NEWS_INTRADAY_MAX를 6에서 12로 올렸지만 ci-artifact-semantics-check는 숫자 6을 따로 들고 있었다. 08:00 KST 컷 이후 헤드라인이 처음 7개가 되자 검사가 실패했다.
+- fix: 검사가 src/domain/news/stories.js의 NEWS_INTRADAY_MAX를 가져와 쓴다(생산자·화면·AI 컨텍스트·검사가 한 상한).
+- violated_rule: R720 수정마다 HEAD에서 실패하는 음성 대조와 양성 대조를 둔다
+- prevention: 검사 문구와 조건이 상수 이름을 쓰므로 상한을 다시 바꿔도 검사가 따라간다.
+- verification/residual: HEAD 검사는 7개 산출물에서 실패했고(01:20Z 실행 로그), 수정 후 현재 산출물로 ci-artifact-semantics-check가 통과한다.
+
+## P1981 - v58.69 - 미국 일봉이 빈 세션이 history에 영구 구멍으로 남고, 1일 변화가 2거래일 변화로 표시됨 (2026-10-23)
+
+- symptom/reproduction: 브리핑 자산별 흐름의 S&P 500 '1일'이 −0.6%, 나스닥이 −1.6%였다(10/22 실제 −1.21%, −2.59%). 10/21 일봉이 Yahoo에서 비어 history 10/21 행이 10/20 값의 이월로 남았다.
+- root_cause: 백필은 일봉 종가만 썼고 빈 일봉 세션은 채우지 않았다. sessionPointBack은 n=1에도 2세션 여유를 둬 10/20 점을 '1일 전'으로 받아들였고, 오늘 화면 선물 칸은 series.at(-2)를 썼다.
+- fix: 미국 세션의 빈 일봉은 그 세션 마지막 시간봉 종가로 채우고 closeApproximate로 표시한다(한국은 시간봉이 장 마감 동시호가를 놓쳐 채우지 않음). 1일 변화는 직전 세션 그 자체만 쓰고 없으면 비운다. 선물 칸도 같은 함수를 쓴다.
+- violated_rule: R423 일별 시계열에는 완료된 시장 세션 값만 저장한다
+- prevention: ci-data-pipeline-contract-check: 시간봉 응답에서 해당 세션의 마지막 종가와 첫 시각을 고르고 다른 날·빈 종가는 건너뛰며, 한국 심볼은 채우지 않는지 확인한다.
+- verification/residual: 실제 시간봉: S&P 500 10/20 7,711.70(일봉 7,712.57), 10/22 7,663.43(일봉과 같음), 10/21 7,757.22. 현재 history에 10/21을 병합하면 S&P 500 1일이 −1.21%로 계산된다. 코스피 시간봉은 일봉과 최대 0.6% 차이라 제외했다.
+
+## P1980 - v58.69 - 시세 생산자가 빈 일봉을 버려 직전 종가를 두 세션 전 값으로 잡음 (2026-10-23)
+
+- symptom/reproduction: 10/23 장중 코스피 하루 변화가 −5.75%로 나왔다(실제 약 −1.4%). 10/22 SMH·S&P 500·나스닥도 10/21 일봉이 비어 10/20 종가 대비로 계산됐고, history 10/23 행에는 코스피 10/21 종가(5,735.66)가 다시 들어갔다.
+- root_cause: fetchQuote가 종가가 null인 일봉을 걸러낸 뒤 '직전 봉'을 찾았다. 직전 세션의 일봉이 비면 그보다 한 세션 앞 봉이 직전 종가가 됐다.
+- fix: 빈 일봉을 남긴 채 직전 세션을 찾는다. 그 세션 종가가 비어 있으면 지수·주식·ETF는 그 세션의 마지막 시간봉 종가로 변화를 계산하고 previousCloseApproximate로 표시하며, 선물·환율·달러 인덱스·코인은 변화를 비운다. history는 근사값을 종가로 기록하지 않는다.
+- violated_rule: R423 일별 시계열에는 완료된 시장 세션 값만 저장한다
+- prevention: ci-data-pipeline-contract-check: 빈 봉이 있는 한국·미국 막대에서 직전 세션 인덱스가 빈 봉 자체를 가리키고, 생산자 원문이 빈 봉을 남기며 history가 근사값을 건너뛰는지 확인한다.
+- verification/residual: HEAD 코드로는 krHole이 0(두 세션 전)이라 실패하고 수정 후 통과한다. 실제 Yahoo 응답으로 코스피 −1.41%, SMH −5.99%, S&P 500 −1.21%, 나스닥 −2.59%를 확인했다.
+
 ## P1979 - v58.68 - 시황 생성기의 직전 세션 큰 움직임이 코스피·WTI만 다루고, 빠진 세션을 하루 변화로 계산함 (2026-10-23)
 
 - symptom/reproduction: 10/22 시황 첫 줄이 '코스피 −3.52%, WTI −4.56%'로 시작했고, 나스닥 100과 반도체(SOXX −6.8%, SMH −6.0%)의 급락은 첫 두 줄에 나오지 않았다.

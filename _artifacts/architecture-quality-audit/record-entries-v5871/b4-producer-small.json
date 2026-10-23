@@ -1,0 +1,27 @@
+{
+ "version": "v58.71",
+ "date": "2026-10-23",
+ "qa_section": "데이터 v58.71",
+ "note": "파이프라인 전수 검토 후속(2026-10-23, 소유자: 남은 작업 모두 진행).",
+ "status": null,
+ "p": {
+  "title": "수집기 작은 결함 다섯 건(이탈 종목 잔류, 네트워크 재시도, 13F 기간 묶음, IPO 실패, Nasdaq 상태 유실)",
+  "symptom": "SEC 요약에 유니버스를 떠난 AVB·BRK.B·PSKY·WBD·EA가 남았고(EA는 08-14 수집), SEC 요청은 연결 끊김에 재시도하지 않았다. 늦게 내는 운용사의 새 분기 13F-NT가 직전 보유 정정의 원본을 기간 묶음에서 빼 합성이 실패할 수 있었고, IPO 달력 호출 실패가 실적 주간 전체를 버렸으며, 확장 유니버스가 Nasdaq 원천을 RETAINED로 쓸 때 재무 상태가 사라졌다.",
+  "root_cause": "코어 원장만 정리 대상에서 빠져 있었고, SEC 클라이언트는 HTTP 상태만 재시도했으며, 기간 묶음 키가 최신 제출(통지 포함)이었고, IPO 호출이 같은 Promise.all에 있었고, 이전 행의 필드 이름(nasdaqFinancialStatus)을 읽지 않았다.",
+  "fix": "코어도 유니버스 이탈 종목을 정리(유니버스가 500 미만이면 보류), 연결 오류는 재시도(시간 초과는 즉시 실패), 기간 묶음은 최신 보유 보고서 기간으로, IPO 호출은 실패 시 빈 목록, 이전 행 상태를 이어 받는다.",
+  "violated_rule": "없음 — 개별 결함",
+  "prevention": "ci-13f-currentness-check: 늦은 13F-NT가 보유 기간 묶음을 바꾸지 않는다.",
+  "verification": "node -e 재현(연결 실패 1회 뒤 성공, 기간 묶음)과 ci-13f-currentness-check 통과."
+ },
+ "qa": [
+  {
+   "id": "QA-PROD-SMALL-01",
+   "text": "{P}: 13F 기간 묶음은 보유 보고서 기간 기준이다.",
+   "verify_by": "node scripts/ci-13f-currentness-check.mjs",
+   "done": true
+  }
+ ],
+ "changelog": [
+  "**수집기 작은 결함 ({P}):** SEC 이탈 종목 정리, 연결 끊김 재시도, 13F 기간 묶음, IPO 실패 격리, Nasdaq 상태 유지."
+ ]
+}

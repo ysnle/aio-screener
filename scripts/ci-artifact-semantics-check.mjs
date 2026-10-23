@@ -18,18 +18,30 @@
 // 무조건 단언으로 좁힌다.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { RECONCILIATION_STATUS } from '../src/data/contracts/reconciliation.js';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { snapshotEvidenceRows } from './lib/market-analysis-validate.mjs';
+import { NEWS_INTRADAY_MAX } from '../src/domain/news/stories.js';
+import { readLaneQuarantine } from './lib/lane-quarantine.mjs'; // P1982: one limit for producer, page, AI and this check
 
 const read = (path) => readFileSync(path, 'utf8');
 const json = (path) => JSON.parse(read(path).replace(/^\uFEFF/, ''));
 const readIf = (path) => (existsSync(path) ? json(path) : null);
 
 const errors = [];
-const check = (label, ok, detail = '') => { if (!ok) errors.push(detail ? `${label}: ${detail}` : label); };
+// v58.70: a check tagged with a degradable lane (scripts/lib/lane-quarantine.mjs) is reported per lane, and skipped while the
+// published data.meta.laneQuarantine declares that lane. Untagged checks always block.
+const laneFailures = [];
+let quarantinedLanes = new Map();
+const check = (label, ok, detail = '', lane = null) => {
+  if (ok) return;
+  const text = detail ? `${label}: ${detail}` : label;
+  if (lane && quarantinedLanes.has(lane)) { console.log(`[artifact-semantics] QUARANTINED lane ${lane} (since ${quarantinedLanes.get(lane).since}): ${text}`); return; }
+  errors.push(text);
+  if (lane) laneFailures.push({ lane, check: text });
+};
 
 // A producer fix reaches the published artifact only on the next refresh cycle,
 // so the artifact assertions below are gated for one cycle. That gate must
@@ -52,6 +64,11 @@ const data = readIf('public-data/data.json');
 const snapshot = readIf('public-data/market-snapshot.json');
 const operations = readIf('public-data/operations-status.json');
 const reconciliation = readIf('public-data/reconciliation-status.json');
+{
+  const declared = readLaneQuarantine(data?.meta);
+  quarantinedLanes = declared.lanes;
+  check('v58.70 a lane quarantine names a registered degradable lane, its start and the failing check', declared.invalid.length === 0, declared.invalid.join(' | '));
+}
 
 // ── P1090 / P1095 : producer contracts ──────────────────────────────────────
 check('macro freshness is refreshed when a field recovers, not only set', /merged\[`_freshness_\$\{field\}`\] = 'observed'/.test(fetchData));
@@ -101,13 +118,13 @@ if (data?.macro) {
       // not a fresh observation. Any live primary source beside a stale marker is a lie.
       if (source && source !== 'last-known-good' && source !== 'unknown') contradictions.push(`${field}(source=${source})`);
     }
-    check('published _freshness_* never marks a freshly sourced field stale', contradictions.length === 0, contradictions.join(', '));
+    check('published _freshness_* never marks a freshly sourced field stale', contradictions.length === 0, contradictions.join(', '), 'macro');
     check('macro publishes an explicit freshness marker for every sourced field',
       Object.keys(data.macro).filter((k) => /^_source_/.test(k)).every((k) => {
         const field = k.replace(/^_source_/, '');
         if (data.macro[k] === 'last-known-good') return data.macro[`_freshness_${field}`] === 'stale-reference';
         return data.macro[`_freshness_${field}`] === 'observed';
-      }), 'source/freshness pairs disagree');
+      }), 'source/freshness pairs disagree', 'macro');
   }
 }
 
@@ -256,7 +273,7 @@ if (data?.marketAnalysis) {
       unresolved.push(id);
     }
   }
-  check('narrative claim evidence resolves in the published artifact set', unresolved.length === 0, unresolved.slice(0, 3).join(', '));
+  check('narrative claim evidence resolves in the published artifact set', unresolved.length === 0, unresolved.slice(0, 3).join(', '), 'narrative');
 
   // Canonical (post-P1093) rows must agree with the snapshot on unit and metricId.
   // v58.65 (live 2026-10-22 23:50Z): the reading may cite the evidence tier (SMH, index futures, Nikkei, HSI) that the
@@ -271,7 +288,7 @@ if (data?.marketAnalysis) {
   // (P1108).
   if (canonicalRows.length === 0 && !inTransition('narrative evidence predates P1093 canonical rows')) {
     check('narrative evidence publishes rows that resolve against the snapshot', false,
-      `${(data.marketAnalysis.metricEvidence || []).length} metricEvidence rows carry no canonicalMetricId`);
+      `${(data.marketAnalysis.metricEvidence || []).length} metricEvidence rows carry no canonicalMetricId`, 'narrative');
   }
   const unitDefs = new Map();
   for (const [, row] of snapshotByInstrument) unitDefs.set(row.metricId, row.unit);
@@ -285,9 +302,9 @@ if (data?.marketAnalysis) {
     if (row.unit !== canonical.unit) disagreements.push(`${row.label} unit ${row.unit} != snapshot ${canonical.unit}`);
     if (!retained && Number(row.value) !== Number(canonical.value)) disagreements.push(`${row.label} value ${row.value} != snapshot ${canonical.value}`);
   }
-  check('canonical narrative evidence agrees with the snapshot row it cites', disagreements.length === 0, disagreements.join(', '));
+  check('canonical narrative evidence agrees with the snapshot row it cites', disagreements.length === 0, disagreements.join(', '), 'narrative');
   check('narrative evidence uses the snapshot unit rather than a duplicated table',
-    canonicalRows.every((row) => unitDefs.get(row.canonicalMetricId) === row.unit));
+    canonicalRows.every((row) => unitDefs.get(row.canonicalMetricId) === row.unit), '', 'narrative');
 }
 
 // ── P1094 : the visible breakdown must reconstruct the visible total ────────
@@ -331,9 +348,9 @@ if (data) {
   if (data.meta?.newsFeedCount === undefined && inTransition('news counts predate P1097')) {
     // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
   } else {
-    check('newsCount matches the published news payload', Number(data.meta?.newsCount) === news.length, `meta=${data.meta?.newsCount} payload=${news.length}`);
-    check('newsPublisherCount matches the published outlets', Number(data.meta?.newsPublisherCount) === publishers.size, `meta=${data.meta?.newsPublisherCount} payload=${publishers.size}`);
-    check('the feed count is published under a feed name', Number.isFinite(Number(data.meta?.newsFeedCount)) && data.meta?.newsSourceCount === undefined, 'ambiguous newsSourceCount is still published');
+    check('newsCount matches the published news payload', Number(data.meta?.newsCount) === news.length, `meta=${data.meta?.newsCount} payload=${news.length}`, 'news');
+    check('newsPublisherCount matches the published outlets', Number(data.meta?.newsPublisherCount) === publishers.size, `meta=${data.meta?.newsPublisherCount} payload=${publishers.size}`, 'news');
+    check('the feed count is published under a feed name', Number.isFinite(Number(data.meta?.newsFeedCount)) && data.meta?.newsSourceCount === undefined, 'ambiguous newsSourceCount is still published', 'news');
   }
   check('reported quote counts reconcile with the cycle manifest',
     Number(data.meta?.symbolsOk) + Number(data.meta?.symbolsFail) === Number(cycle.requiredQuoteCount),
@@ -346,9 +363,10 @@ if (data && Array.isArray(data.newsIntraday)) {
   const intraday = data.newsIntraday;
   const bad = intraday.filter((item) => !item?.title || !item?.source || !(Number(item?.tier) <= 2) || item?.provisional !== true
     || !Number.isFinite(Date.parse(item?.publishedAt || '')) || (Number.isFinite(cutMs) && Date.parse(item.publishedAt) < cutMs));
-  check('P1720 newsIntraday carries at most six post-cut tier 1-2 provisional headlines and its count is reported',
-    intraday.length <= 6 && bad.length === 0 && Number(data.meta?.newsIntradayCount) === intraday.length,
-    `count=${intraday.length} meta=${data.meta?.newsIntradayCount} bad=${bad.slice(0, 3).map((item) => item?.title).join(' | ')}`);
+  // P1982 (live 2026-10-23): v58.63 raised the slot to 12 but this check kept 6, so the first 7-headline cut blocked refresh-data.
+  check('P1982 newsIntraday carries at most NEWS_INTRADAY_MAX post-cut tier 1-2 provisional headlines and its count is reported',
+    intraday.length <= NEWS_INTRADAY_MAX && bad.length === 0 && Number(data.meta?.newsIntradayCount) === intraday.length,
+    `count=${intraday.length} meta=${data.meta?.newsIntradayCount} bad=${bad.slice(0, 3).map((item) => item?.title).join(' | ')}`, 'news');
 }
 
 // ── P1100 : the fear-greed daily series must be joinable by calendar day ────
@@ -419,6 +437,12 @@ if (telegram?.coverage) {
   check('telegram observed lineage count matches the published payload',
     observed === (Array.isArray(lineageRows) ? lineageRows.length : -1),
     `coverage=${observed} items=${lineageRows?.length ?? 'missing'}`);
+}
+// v58.71: digest `signals` are numbers read from the posts, never the post text (P715); each has a known kind and key.
+if (Array.isArray(telegram?.signals)) {
+  const longest = (value) => (typeof value === 'string' ? value.length : value && typeof value === 'object' ? Math.max(0, ...Object.values(value).map(longest)) : 0);
+  const bad = telegram.signals.filter((signal) => !['pt', 'earnings', 'macro', 'retail'].includes(signal?.kind) || !signal.key || longest(signal) > 160);
+  check('v58.71 telegram signals carry known kinds and no post text', bad.length === 0, bad.slice(0, 3).map((signal) => signal?.key || signal?.kind).join(' '));
 }
 
 // ── P1109 : published references must resolve, retired scopes must stay retired
@@ -534,6 +558,8 @@ for (const retired of ['public-data/knowledge/quantitative-labs.json', 'public-d
   check('no tracked file contains an unresolved merge-conflict marker', files.length === 0, files.join(', '));
 }
 
+// v58.70: the refresh lane-quarantine step reads which failures are lane-tagged (scripts/quarantine-degradable-lanes.mjs).
+if (process.env.AIO_LANE_REPORT) writeFileSync(process.env.AIO_LANE_REPORT, JSON.stringify({ errors, laneFailures }, null, 2) + '\n');
 if (errors.length) {
   console.error('Artifact semantics check failed:');
   errors.forEach((error) => console.error(` - ${error}`));

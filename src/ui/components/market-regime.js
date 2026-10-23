@@ -4,7 +4,7 @@ import { renderHomeGuide } from './market-guide.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveLinks } from './deep-dive.js';
-import { alignInput, buildCloseSeries, closeBasis, isUsable, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT } from '../../domain/briefing/market-read.js';
+import { alignInput, buildCloseSeries, closeBasis, isUsable, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { previousRegime } from '../../domain/briefing/daily-diff.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
@@ -589,7 +589,7 @@ function paintFuturesCell(doc, root, cellId, futures, field, label) {
   const history = root._aioHistory || [];
   const series = buildCloseSeries(history, field, { through: closeBasis(history) });
   const last = series[series.length - 1];
-  const prev = series[series.length - 2];
+  const prev = sessionPointBack(series, 1); // v58.69: the previous session itself, not the point before a missing close
   if (!last) { fallback.hidden = true; return; }
   const change = prev ? (last.value / prev.value - 1) * 100 : null;
   const [, month, day] = last.date.split('-').map(Number);
