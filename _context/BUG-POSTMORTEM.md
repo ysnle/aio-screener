@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2004 - v58.71 - history 검사가 비어 있는 전일 종가를 0으로 읽어 새 코드의 첫 데이터 갱신을 막음 (2026-10-23)
+
+- symptom/reproduction: v58.71 배포 뒤 첫 refresh-data(실행 39897161172, 03:53Z)가 history-time 검사에서 'latest row 2026-10-23 field btc: 84011.97 != BTC-USD completed value 0'으로 거부됐다. Yahoo가 BTC 10/22 일봉 종가를 비워 스냅숏 previousValue가 null이었다.
+- root_cause: 검사가 스냅숏 값을 Number()로 읽어 null을 0으로 바꿨고, 값이 없는 경우를 비교 대상에서 빼지 않았다.
+- fix: 스냅숏 값이 null이거나 비어 있으면 NaN으로 읽어 비교하지 않는다(값이 있을 때만 0.02 허용 오차로 비교).
+- violated_rule: R720
+- prevention: ci-history-field-time-contract-check 수정. 다음 refresh-data 실행 통과로 확인.
+- verification/residual: 로컬 history-time 검사 통과. fetchQuote('BTC-USD') 재현으로 previous-session-close-missing 확인.
+
 ## P2003 - v58.71 - 실제 30% 넘는 급등락 종목이 빠지고, 서울 외 거래소 전일 종가가 두 세션 전이 되며, 세션 종가가 자기 행을 놓치면 사라짐 (2026-10-23)
 
 - symptom/reproduction: 실적일 MSTR·COIN·PLTR 같은 30% 넘는 실제 움직임은 재시도도 같은 이유로 실패해 그 실행에서 빠졌다. 도쿄·홍콩·런던은 당일 봉이 찍히기 전 개장 시 두 세션 전 종가와 비교했다. history는 다음 세션 종가가 오면 오늘 행의 이전 세션 값을 덮어써, 10/21-22 장애 뒤 usdkrw 10/21 세션을 가진 행이 없었다.

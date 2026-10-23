@@ -29,6 +29,7 @@ confidence: medium
 - [ ] QA-LANE-13F-01: P2001: 13F 단계가 실패한 주기도 시장·뉴스를 게시하고 13F 파일은 직전 게시로 남는다. verify_by: 다음 13F 실패 시 refresh-data 로그의 'Restore 13F files' 단계 확인
 - [ ] QA-13F-AGG-01: P2002: 다음 13F 전체 실행 뒤 issuer-aggregates에 직전 분기가 들어가고 이력 분기의 countReconciled가 채워진다. verify_by: public-data/masters/issuer-aggregates.json periods와 history-index.json countReconciled 확인
 - [x] QA-QUOTE-SESSION-01: P2003: 서울 외 거래소도 마지막 세션과 비교하고, 밀려난 세션 종가는 자기 행에 남는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-HIST-NULLPREV-01: P2004: 스냅숏 전일 종가가 비어 있어도 history-time 검사가 0과 비교하지 않는다. verify_by: push 뒤 refresh-data 실행의 history-time 단계 통과 확인
 
 ## v58.70 데이터 v58.70 (2026-10-23)
 

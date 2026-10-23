@@ -1,0 +1,17 @@
+{
+ "version": "v58.71", "date": "2026-10-23",
+ "p": {
+  "title": "history 검사가 비어 있는 전일 종가를 0으로 읽어 새 코드의 첫 데이터 갱신을 막음",
+  "symptom": "v58.71 배포 뒤 첫 refresh-data(실행 39897161172, 03:53Z)가 history-time 검사에서 'latest row 2026-10-23 field btc: 84011.97 != BTC-USD completed value 0'으로 거부됐다. Yahoo가 BTC 10/22 일봉 종가를 비워 스냅숏 previousValue가 null이었다.",
+  "root_cause": "검사가 스냅숏 값을 Number()로 읽어 null을 0으로 바꿨고, 값이 없는 경우를 비교 대상에서 빼지 않았다.",
+  "fix": "스냅숏 값이 null이거나 비어 있으면 NaN으로 읽어 비교하지 않는다(값이 있을 때만 0.02 허용 오차로 비교).",
+  "violated_rule": "R720",
+  "prevention": "ci-history-field-time-contract-check 수정. 다음 refresh-data 실행 통과로 확인.",
+  "verification": "로컬 history-time 검사 통과. fetchQuote('BTC-USD') 재현으로 previous-session-close-missing 확인."
+ },
+ "qa": [{ "id": "QA-HIST-NULLPREV-01", "text": "{P}: 스냅숏 전일 종가가 비어 있어도 history-time 검사가 0과 비교하지 않는다.", "verify_by": "push 뒤 refresh-data 실행의 history-time 단계 통과 확인", "done": false }],
+ "qa_section": "데이터 v58.71",
+ "changelog": ["**history 검사 null 처리 ({P}):** 원천이 전일 종가를 비운 자산을 0과 비교해 데이터 갱신을 막던 검사를 고쳤다."],
+ "note": "v58.71 배포 후 첫 갱신 실패 대응(2026-10-23).",
+ "status": null
+}

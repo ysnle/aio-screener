@@ -117,7 +117,10 @@ for (const [field, symbol] of Object.entries(fieldSymbols)) {
   // The session is re-derived from the observation with the producer's own classifier, so a snapshot written before the
   // classifier learned about extended-hours prints is judged by today's rule.
   const session = deriveMarketSession({ instrumentId: symbol, observedAt: quote.observedAt, now: Date.parse(quote.fetchedAt || snapshot.generatedAt || '') }) || quote.session;
-  const expected = ['CURRENT_SESSION','DELAYED_IN_SESSION','PREMARKET','AFTER_HOURS'].includes(session) || ['CURRENT_SESSION','DELAYED_IN_SESSION'].includes(quote.session) ? Number(quote.previousValue) : Number(quote.value);
+  // v58.71 (live 2026-10-23 03:53Z): Yahoo left BTC's 10/22 daily close empty, the snapshot published previousValue null,
+  // and Number(null) = 0 made this check refuse the refresh ("84011.97 != 0"). A missing value has nothing to compare.
+  const numberOrNaN = (value) => (value == null || value === '' ? NaN : Number(value));
+  const expected = ['CURRENT_SESSION','DELAYED_IN_SESSION','PREMARKET','AFTER_HOURS'].includes(session) || ['CURRENT_SESSION','DELAYED_IN_SESSION'].includes(quote.session) ? numberOrNaN(quote.previousValue) : numberOrNaN(quote.value);
   const tolerance = 0.02;
   if (Number.isFinite(expected) && Math.abs(Number(latest[field]) - expected) > tolerance) {
     errors.push(`latest row ${latest.date} field ${field}: ${latest[field]} != ${symbol} completed value ${expected} (${quote.session})`);
