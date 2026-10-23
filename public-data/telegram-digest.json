@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-23T15:05:49.018Z",
-  "attemptedAt": "2026-10-23T15:05:49.018Z",
-  "lastSuccessfulAt": "2026-10-23T15:05:49.018Z",
+  "generatedAt": "2026-10-23T15:51:57.797Z",
+  "attemptedAt": "2026-10-23T15:51:57.797Z",
+  "lastSuccessfulAt": "2026-10-23T15:51:57.797Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-09T15:05:45.652Z",
-  "until": "2026-10-23T15:05:45.652Z",
+  "since": "2026-10-09T15:51:51.569Z",
+  "until": "2026-10-23T15:51:51.569Z",
   "current24hWindow": {
     "start": "2026-10-21T23:00:00.000Z",
     "end": "2026-10-22T23:00:00.000Z",
@@ -78,15 +78,15 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 268,
-      "freshCount": 20,
-      "eligibleTextCount": 256,
+      "count": 271,
+      "freshCount": 40,
+      "eligibleTextCount": 259,
       "selectedCount": 69,
       "error": null,
-      "lastPostId": 26012
+      "lastPostId": 26015
     },
     {
       "channel": "insidertracking",
@@ -125,36 +125,36 @@
       "lastPostId": 70919
     }
   ],
-  "count": 2435,
-  "retainedItemCount": 440,
+  "count": 2438,
+  "retainedItemCount": 445,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2435,
-    "eligibleTextCount": 2372,
+    "observedCount": 2438,
+    "eligibleTextCount": 2375,
     "mediaOnlyCount": 63,
     "highSignalCount": 475,
-    "broadSignalCount": 1034,
+    "broadSignalCount": 1035,
     "selectedRawCount": 403,
     "selectedEligibleCount": 403,
     "selectedRawCoveragePct": 17,
-    "selectedOfObservedPct": 16.6,
+    "selectedOfObservedPct": 16.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "market-note": 871,
+    "earnings": 519,
+    "power": 339,
+    "equity": 179,
     "semi": 606,
     "kr-market": 163,
     "flows": 141,
-    "power": 338,
     "ai-policy": 179,
     "healthcare": 138,
-    "market-note": 870,
     "geo": 349,
     "macro": 436,
-    "equity": 178,
-    "earnings": 517,
     "media-only": 63,
     "credit": 115,
     "japan": 152,
@@ -163,6 +163,8 @@
     "insider": 8
   },
   "tickerCounts": {
+    "AMZN": 41,
+    "T": 6,
     "NVDA": 176,
     "TSLA": 91,
     "BE": 34,
@@ -181,7 +183,6 @@
     "267250.KS": 1,
     "017670.KS": 3,
     "032640.KS": 1,
-    "AMZN": 40,
     "SHOP": 4,
     "TCOM": 2,
     "CVX": 1,
@@ -197,7 +198,6 @@
     "SPOT": 1,
     "COHR": 7,
     "SNDK": 7,
-    "T": 5,
     "TSM": 113,
     "MSFT": 50,
     "AVGO": 20,
@@ -248,14 +248,14 @@
     "EBAY": 1
   },
   "themes": [
-    "Market Notes (870 posts in 14-day research window): 2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물...",
+    "Market Notes (871 posts in 14-day research window): 2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물...",
     "Semiconductors/Memory (606 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION...",
-    "Earnings/Corporate (517 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
+    "Earnings/Corporate (519 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
     "Macro/Rates (436 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가 78,000원으로 상향 ㆍ 14개 분기 연속 일회성 이익, 이익 추정치 상향 ㆍ 6,900억원의 자사주 매입 소각...",
-    "Geopolitics (349 posts in 14-day research window): 블룸버그) SK 데이터센터 부문, 3,500억 달러 규모 AI 인프라 구축 자금 조달 협의 중 SK그룹이 지난 7월 SK텔레콤 산하에 설립한 데이터센터 자회사 SK하이퍼가 3,500억 달러 규모의 데이터센터 구축 자금을 마련하기 위해 빅테크 기업 및 재무적 투자자들과 협의하고 있습니다. 정석근 SK하이퍼 CEO는...",
-    "AI Power/Grid (338 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-    "AI Policy/Export Controls (179 posts in 14-day research window): 앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를...",
-    "Equity/Analyst (178 posts in 14-day research window): >>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가...."
+    "Geopolitics (349 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
+    "AI Power/Grid (339 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "Equity/Analyst (179 posts in 14-day research window): >>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가....",
+    "AI Policy/Export Controls (179 posts in 14-day research window): 앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
   ],
   "catalysts": [
     {
@@ -300,7 +300,7 @@
     },
     {
       "key": "AMZN",
-      "count": 40,
+      "count": 41,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 21일 🇺🇸 아메리카 • 트럼프 대통령은 러시아가 우크라이나 종전 협상을 원하고 있다며 젤렌스키 대통령도 합의에 나서야 한다고 강조. 푸틴과 젤렌스키가 직접 만나지..."
     },
     {
@@ -336,7 +336,7 @@
         "geo"
       ],
       "count": 349,
-      "focus": "블룸버그) SK 데이터센터 부문, 3,500억 달러 규모 AI 인프라 구축 자금 조달 협의 중 SK그룹이 지난 7월 SK텔레콤 산하에 설립한 데이터센터 자회사 SK하이퍼가 3,500억 달러 규모의 데이터센터 구축 자금을 마련하기 위해 빅테크 기업 및 재무적 투자자들과 협의하고 있습니다. 정석근 SK하이퍼 CEO는..."
+      "focus": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
     },
     {
       "id": "credit",
@@ -371,7 +371,7 @@
       "topics": [
         "power"
       ],
-      "count": 338,
+      "count": 339,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -398,7 +398,7 @@
       "topics": [
         "equity"
       ],
-      "count": 178,
+      "count": 179,
       "focus": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가...."
     },
     {
@@ -416,7 +416,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 517,
+      "count": 519,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI..."
     },
     {
@@ -435,7 +435,7 @@
         "japan"
       ],
       "count": 152,
-      "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
+      "focus": "메타 Muse 일본 출시, 북미 외 첫 해외 시장 진출 : 메타가 10월 23일부터 개인 AI 에이전트 Muse를 일본에서 정식 제공. 지난 9월 미국·캐나다 출시 이후 첫 해외 시장 진출로,..."
     },
     {
       "id": "flows",
@@ -461,7 +461,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 870,
+      "count": 871,
       "focus": "2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물..."
     }
   ],
@@ -923,16 +923,19 @@
       "datetime": "2026-10-22T11:49:26.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "geo",
+        "semi",
+        "ai-policy",
         "equity",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을...",
       "tickers": [
         "NVDA",
         "PLTR"
-      ]
+      ],
+      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을..."
     },
     {
       "id": "aetherjapanresearch/25981",
@@ -941,11 +944,16 @@
       "datetime": "2026-10-22T05:17:28.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -954,7 +962,8 @@
         "AMZN",
         "MU",
         "009150.KS"
-      ]
+      ],
+      "summary": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의..."
     },
     {
       "id": "insidertracking/66986",
@@ -1631,6 +1640,23 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/26014",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26014",
+      "datetime": "2026-10-23T15:48:36.000Z",
+      "localDateKst": "2026-10-24",
+      "tags": [
+        "earnings"
+      ],
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "AMZN",
+        "T"
+      ],
+      "summary": "스페이스X, 신규 네트워크 구축 위해 8만 개 기지국 접근 협상 중 내용 요약 스페이스X는 미국 전역에서 최소 8만 개의 기지국을 확보해 네 번째 전국 단위 무선통신사를 구축하려 하고 있으며, 아메리칸 타워,..."
+    },
     {
       "id": "HANAchina/70919",
       "channel": "HANAchina",
@@ -2596,10 +2622,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "SK하이닉스, 솔리다임 상장 전격중단…\"시장여건 고려\"(종합) | 연합뉴스",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "SK하이닉스, 솔리다임 상장 전격중단…\"시장여건 고려\"(종합) | 연합뉴스"
     },
     {
       "id": "aetherjapanresearch/25990",
@@ -2612,10 +2638,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "SK하이닉스 솔라다임 상장 검토 중단",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "SK하이닉스 솔라다임 상장 검토 중단"
     },
     {
       "id": "HANAchina/70871",
@@ -3100,12 +3126,16 @@
       "datetime": "2026-10-22T14:52:38.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "credit",
+        "macro",
+        "earnings",
+        "flows",
         "japan"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
       "id": "HANAchina/70858",
@@ -3128,12 +3158,13 @@
       "datetime": "2026-10-22T14:02:10.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "semi",
         "earnings"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "Citi) 디스코(6146.T) 2분기 결산 - 예상 범위 내. 그러나 생산 지원 확대 예정(100명→200명)은 호감을 얻을 가능성이 있을 것 씨티의 견해 실적 및 가이던스는 대체로 예상 범위 내입니다....",
-      "tickers": []
+      "tickers": [],
+      "summary": "Citi) 디스코(6146.T) 2분기 결산 - 예상 범위 내. 그러나 생산 지원 확대 예정(100명→200명)은 호감을 얻을 가능성이 있을 것 씨티의 견해 실적 및 가이던스는 대체로 예상 범위 내입니다...."
     },
     {
       "id": "HANAchina/70855",
@@ -3330,12 +3361,13 @@
       "datetime": "2026-10-22T11:52:23.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "power",
         "earnings"
       ],
       "score": 63,
       "hasText": true,
-      "summary": "Citi) 노키아(NOKIA.HE) 3분기 예상치 상회, 2026년 가이던스 유지, 2027년 수주잔고 확대. TP EUR4.65(유지), 매도의견. 씨티의 견해 노키아는 3Q26 실적에서 매출이 2%,...",
-      "tickers": []
+      "tickers": [],
+      "summary": "Citi) 노키아(NOKIA.HE) 3분기 예상치 상회, 2026년 가이던스 유지, 2027년 수주잔고 확대. TP EUR4.65(유지), 매도의견. 씨티의 견해 노키아는 3Q26 실적에서 매출이 2%,..."
     },
     {
       "id": "aetherjapanresearch/25986",
@@ -3344,16 +3376,19 @@
       "datetime": "2026-10-22T11:49:26.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "geo",
+        "semi",
+        "ai-policy",
         "equity",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을...",
       "tickers": [
         "NVDA",
         "PLTR"
-      ]
+      ],
+      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을..."
     },
     {
       "id": "insidertracking/67017",
@@ -3392,17 +3427,19 @@
       "datetime": "2026-10-22T10:38:24.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "geo",
+        "kr-market",
         "equity",
         "earnings"
       ],
       "score": 93,
       "hasText": true,
-      "summary": "Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서...",
       "tickers": [
         "GOOG",
         "RDDT",
         "PINS"
-      ]
+      ],
+      "summary": "Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서..."
     },
     {
       "id": "aetherjapanresearch/25984",
@@ -3411,14 +3448,14 @@
       "datetime": "2026-10-22T10:24:25.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "market-note"
+        "earnings"
       ],
       "score": 74,
       "hasText": true,
-      "summary": "시티즌스(Citizens)의 애널리스트 앤드루 분(Andrew Boone)은 알파벳(NASDAQ: GOOGL)의 목표주가를 450.00달러(기존 515.00달러)로 하향 조정하면서 시장수익률 상회(Market...",
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "시티즌스(Citizens)의 애널리스트 앤드루 분(Andrew Boone)은 알파벳(NASDAQ: GOOGL)의 목표주가를 450.00달러(기존 515.00달러)로 하향 조정하면서 시장수익률 상회(Market..."
     },
     {
       "id": "insidertracking/67007",
@@ -3455,12 +3492,13 @@
       "datetime": "2026-10-22T09:10:49.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro"
+        "macro",
+        "geo"
       ],
       "score": 62,
       "hasText": true,
-      "summary": "노무라 경고: 현재 AI 신용위험은 닷컴버블 & 리먼 사태 이전과 놀랄만큼 유사. 모든 것은 유가에 달려 있음 • '10년 신용 사이클' 프레임워크 구축. 현재 AI 기술 & 프랑스 신용 불안을 '2차...",
-      "tickers": []
+      "tickers": [],
+      "summary": "노무라 경고: 현재 AI 신용위험은 닷컴버블 & 리먼 사태 이전과 놀랄만큼 유사. 모든 것은 유가에 달려 있음 • '10년 신용 사이클' 프레임워크 구축. 현재 AI 기술 & 프랑스 신용 불안을 '2차..."
     },
     {
       "id": "HANAchina/70851",
@@ -3670,11 +3708,16 @@
       "datetime": "2026-10-22T05:17:28.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -3683,7 +3726,8 @@
         "AMZN",
         "MU",
         "009150.KS"
-      ]
+      ],
+      "summary": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의..."
     },
     {
       "id": "insidertracking/66986",
@@ -3789,12 +3833,14 @@
       "datetime": "2026-10-22T03:10:10.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "kr-market"
       ],
       "score": 87,
       "hasText": true,
-      "summary": "신현송 한국은행 총재 • 이번 동결은 호미질의 결실(선제적 연속 인상 대응으로 정책효과를 지켜볼 수 있는 시간을 확보). 연속 인상은 관행을 벗어난 결정이었지만 비용을 줄이는데 도움이 되었다고 생각 • 성장,...",
-      "tickers": []
+      "tickers": [],
+      "summary": "신현송 한국은행 총재 • 이번 동결은 호미질의 결실(선제적 연속 인상 대응으로 정책효과를 지켜볼 수 있는 시간을 확보). 연속 인상은 관행을 벗어난 결정이었지만 비용을 줄이는데 도움이 되었다고 생각 • 성장,..."
     },
     {
       "id": "aetherjapanresearch/25979",
@@ -3803,12 +3849,12 @@
       "datetime": "2026-10-22T02:52:08.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "market-note"
+        "power"
       ],
       "score": 53,
       "hasText": true,
-      "summary": "제목: 마크 저커버그, 억만장자세 주민투표 법안에도 불구하고 캘리포니아에 남기로 합의 메타가 수요일 공개한 규제 당국 제출 서류에 따르면, 마크 저커버그 CEO는 9월 9일 이사회 멤버들과의 저녁 자리에서...",
-      "tickers": []
+      "tickers": [],
+      "summary": "제목: 마크 저커버그, 억만장자세 주민투표 법안에도 불구하고 캘리포니아에 남기로 합의 메타가 수요일 공개한 규제 당국 제출 서류에 따르면, 마크 저커버그 CEO는 9월 9일 이사회 멤버들과의 저녁 자리에서..."
     },
     {
       "id": "HANAchina/70823",
@@ -3852,16 +3898,18 @@
       "datetime": "2026-10-22T01:37:28.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "semi",
+        "earnings",
+        "flows"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "JP모건) 이비덴 (4062); NVIDIA와 수십억 달러 규모의 생산능력 예약 선급금 계약 체결 미국 시간 10월 21일 NVIDIA가 이비덴, Unimicron, SEMCO, Amkor, SPIL,...",
       "tickers": [
         "NVDA",
         "MU",
         "009150.KS"
-      ]
+      ],
+      "summary": "JP모건) 이비덴 (4062); NVIDIA와 수십억 달러 규모의 생산능력 예약 선급금 계약 체결 미국 시간 10월 21일 NVIDIA가 이비덴, Unimicron, SEMCO, Amkor, SPIL,..."
     },
     {
       "id": "insidertracking/66974",
@@ -3963,14 +4011,15 @@
       "localDateKst": "2026-10-22",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "equity"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을...",
       "tickers": [
         "MU"
-      ]
+      ],
+      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을..."
     },
     {
       "id": "insidertracking/66969",
@@ -4021,12 +4070,14 @@
       "datetime": "2026-10-22T00:38:11.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "그록, 차세대 칩에 'D램 3차원 적층' 도입 추진…S램 한계 넘는다 속도 빠르지만 용량 작은 S램 중심 설계서 탈피 시도…업계 \"용량 강점\" 20일 반도체 업계에 따르면 그록은 차세대 칩에 3D 패키징...",
-      "tickers": []
+      "tickers": [],
+      "summary": "그록, 차세대 칩에 'D램 3차원 적층' 도입 추진…S램 한계 넘는다 속도 빠르지만 용량 작은 S램 중심 설계서 탈피 시도…업계 \"용량 강점\" 20일 반도체 업계에 따르면 그록은 차세대 칩에 3D 패키징..."
     },
     {
       "id": "insidertracking/66968",
@@ -8273,20 +8324,6 @@
       "hasText": true,
       "summary": "9월 PPI • 헤드라인은 에너지 충격 2차 효과 발현, 다만 3개월 평균은 봄철 1차 충격 때보다 낮은 수준. 9월 PPI는 전월비 +1.3%(예상 0.5%), 전년비 6.3%로 2022년 12월 이후 최대...",
       "tickers": []
-    },
-    {
-      "id": "aetherjapanresearch/25874",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25874",
-      "datetime": "2026-10-15T12:30:14.000Z",
-      "localDateKst": "2026-10-15",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "ㅈ망 PPI MoM 1.3%/0.6%(컨센) PPI YoY 6.3%/5.3%(컨센)",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8773,12 +8810,16 @@
       "datetime": "2026-10-22T14:52:38.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "credit",
+        "macro",
+        "earnings",
+        "flows",
         "japan"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
       "id": "HANAchina/70858",
@@ -8801,12 +8842,13 @@
       "datetime": "2026-10-22T14:02:10.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "semi",
         "earnings"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "Citi) 디스코(6146.T) 2분기 결산 - 예상 범위 내. 그러나 생산 지원 확대 예정(100명→200명)은 호감을 얻을 가능성이 있을 것 씨티의 견해 실적 및 가이던스는 대체로 예상 범위 내입니다....",
-      "tickers": []
+      "tickers": [],
+      "summary": "Citi) 디스코(6146.T) 2분기 결산 - 예상 범위 내. 그러나 생산 지원 확대 예정(100명→200명)은 호감을 얻을 가능성이 있을 것 씨티의 견해 실적 및 가이던스는 대체로 예상 범위 내입니다...."
     },
     {
       "id": "HANAchina/70855",
@@ -9003,12 +9045,13 @@
       "datetime": "2026-10-22T11:52:23.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "power",
         "earnings"
       ],
       "score": 63,
       "hasText": true,
-      "summary": "Citi) 노키아(NOKIA.HE) 3분기 예상치 상회, 2026년 가이던스 유지, 2027년 수주잔고 확대. TP EUR4.65(유지), 매도의견. 씨티의 견해 노키아는 3Q26 실적에서 매출이 2%,...",
-      "tickers": []
+      "tickers": [],
+      "summary": "Citi) 노키아(NOKIA.HE) 3분기 예상치 상회, 2026년 가이던스 유지, 2027년 수주잔고 확대. TP EUR4.65(유지), 매도의견. 씨티의 견해 노키아는 3Q26 실적에서 매출이 2%,..."
     },
     {
       "id": "aetherjapanresearch/25986",
@@ -9017,16 +9060,19 @@
       "datetime": "2026-10-22T11:49:26.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "geo",
+        "semi",
+        "ai-policy",
         "equity",
         "earnings"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을...",
       "tickers": [
         "NVDA",
         "PLTR"
-      ]
+      ],
+      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을..."
     },
     {
       "id": "insidertracking/67017",
@@ -9065,17 +9111,19 @@
       "datetime": "2026-10-22T10:38:24.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
+        "geo",
+        "kr-market",
         "equity",
         "earnings"
       ],
       "score": 93,
       "hasText": true,
-      "summary": "Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서...",
       "tickers": [
         "GOOG",
         "RDDT",
         "PINS"
-      ]
+      ],
+      "summary": "Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서..."
     },
     {
       "id": "aetherjapanresearch/25984",
@@ -9084,14 +9132,14 @@
       "datetime": "2026-10-22T10:24:25.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "market-note"
+        "earnings"
       ],
       "score": 74,
       "hasText": true,
-      "summary": "시티즌스(Citizens)의 애널리스트 앤드루 분(Andrew Boone)은 알파벳(NASDAQ: GOOGL)의 목표주가를 450.00달러(기존 515.00달러)로 하향 조정하면서 시장수익률 상회(Market...",
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": "시티즌스(Citizens)의 애널리스트 앤드루 분(Andrew Boone)은 알파벳(NASDAQ: GOOGL)의 목표주가를 450.00달러(기존 515.00달러)로 하향 조정하면서 시장수익률 상회(Market..."
     },
     {
       "id": "insidertracking/67007",
@@ -9128,12 +9176,13 @@
       "datetime": "2026-10-22T09:10:49.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro"
+        "macro",
+        "geo"
       ],
       "score": 62,
       "hasText": true,
-      "summary": "노무라 경고: 현재 AI 신용위험은 닷컴버블 & 리먼 사태 이전과 놀랄만큼 유사. 모든 것은 유가에 달려 있음 • '10년 신용 사이클' 프레임워크 구축. 현재 AI 기술 & 프랑스 신용 불안을 '2차...",
-      "tickers": []
+      "tickers": [],
+      "summary": "노무라 경고: 현재 AI 신용위험은 닷컴버블 & 리먼 사태 이전과 놀랄만큼 유사. 모든 것은 유가에 달려 있음 • '10년 신용 사이클' 프레임워크 구축. 현재 AI 기술 & 프랑스 신용 불안을 '2차..."
     },
     {
       "id": "HANAchina/70851",
@@ -9343,11 +9392,16 @@
       "datetime": "2026-10-22T05:17:28.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare",
+        "japan"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9356,7 +9410,8 @@
         "AMZN",
         "MU",
         "009150.KS"
-      ]
+      ],
+      "summary": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의..."
     },
     {
       "id": "insidertracking/66986",
@@ -9462,12 +9517,28 @@
       "datetime": "2026-10-22T03:10:10.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "kr-market"
       ],
       "score": 87,
       "hasText": true,
-      "summary": "신현송 한국은행 총재 • 이번 동결은 호미질의 결실(선제적 연속 인상 대응으로 정책효과를 지켜볼 수 있는 시간을 확보). 연속 인상은 관행을 벗어난 결정이었지만 비용을 줄이는데 도움이 되었다고 생각 • 성장,...",
-      "tickers": []
+      "tickers": [],
+      "summary": "신현송 한국은행 총재 • 이번 동결은 호미질의 결실(선제적 연속 인상 대응으로 정책효과를 지켜볼 수 있는 시간을 확보). 연속 인상은 관행을 벗어난 결정이었지만 비용을 줄이는데 도움이 되었다고 생각 • 성장,..."
+    },
+    {
+      "id": "aetherjapanresearch/25979",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25979",
+      "datetime": "2026-10-22T02:52:08.000Z",
+      "localDateKst": "2026-10-22",
+      "tags": [
+        "power"
+      ],
+      "score": 53,
+      "hasText": true,
+      "tickers": [],
+      "summary": "제목: 마크 저커버그, 억만장자세 주민투표 법안에도 불구하고 캘리포니아에 남기로 합의 메타가 수요일 공개한 규제 당국 제출 서류에 따르면, 마크 저커버그 CEO는 9월 9일 이사회 멤버들과의 저녁 자리에서..."
     },
     {
       "id": "HANAchina/70823",
@@ -9511,16 +9582,18 @@
       "datetime": "2026-10-22T01:37:28.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "semi",
+        "earnings",
+        "flows"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "JP모건) 이비덴 (4062); NVIDIA와 수십억 달러 규모의 생산능력 예약 선급금 계약 체결 미국 시간 10월 21일 NVIDIA가 이비덴, Unimicron, SEMCO, Amkor, SPIL,...",
       "tickers": [
         "NVDA",
         "MU",
         "009150.KS"
-      ]
+      ],
+      "summary": "JP모건) 이비덴 (4062); NVIDIA와 수십억 달러 규모의 생산능력 예약 선급금 계약 체결 미국 시간 10월 21일 NVIDIA가 이비덴, Unimicron, SEMCO, Amkor, SPIL,..."
     },
     {
       "id": "insidertracking/66974",
@@ -9622,14 +9695,15 @@
       "localDateKst": "2026-10-22",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "equity"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을...",
       "tickers": [
         "MU"
-      ]
+      ],
+      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을..."
     },
     {
       "id": "insidertracking/66969",
@@ -9680,12 +9754,14 @@
       "datetime": "2026-10-22T00:38:11.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "그록, 차세대 칩에 'D램 3차원 적층' 도입 추진…S램 한계 넘는다 속도 빠르지만 용량 작은 S램 중심 설계서 탈피 시도…업계 \"용량 강점\" 20일 반도체 업계에 따르면 그록은 차세대 칩에 3D 패키징...",
-      "tickers": []
+      "tickers": [],
+      "summary": "그록, 차세대 칩에 'D램 3차원 적층' 도입 추진…S램 한계 넘는다 속도 빠르지만 용량 작은 S램 중심 설계서 탈피 시도…업계 \"용량 강점\" 20일 반도체 업계에 따르면 그록은 차세대 칩에 3D 패키징..."
     },
     {
       "id": "insidertracking/66968",
