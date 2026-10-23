@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1977 - v58.66 - 의미 게이트가 증거 계층(evidenceQuotes)을 읽지 않아, 해석이 SMH·지수 선물을 인용하면 갱신 전체가 거부됨 (2026-10-23)
+
+- symptom/reproduction: v58.63–65 push 뒤 23:50Z와 00:10Z 갱신이 'market.sector.semis not in snapshot, market.futures.sp500 …'로 실패해, 10/22 23:22Z 이후 데이터가 게시되지 않았다.
+- root_cause: 증거 계층 기능(SMH·ES=F·NQ=F·닛케이·항셍을 market-snapshot evidenceQuotes로 게시하고 해석이 인용하도록 함)은 생산자와 검증기에는 반영됐다. 그러나 ci-artifact-semantics-check는 snapshot.quotes만 대조했다. 로컬 데이터는 이전 생산자가 만든 것이라 QA에서 드러나지 않았다.
+- fix: 의미 게이트도 검증기와 같은 snapshotEvidenceRows(quotes + evidenceQuotes)로 인용 id와 단위·값을 대조한다.
+- violated_rule: R720 게이트는 실제 산출물 형태로 음성 대조를 확인해야 한다
+- prevention: 로컬 데이터에 증거 계층 행과 그 인용을 넣어 재생했다. HEAD 게이트는 운영과 같은 오류로 실패하고, 수정본은 통과한다.
+- verification/residual: 음성 대조(HEAD): 'market.sector.semis not in snapshot'. 수정본: Artifact semantics OK. 데이터 파일은 복원했다.
+
 ## P1976 - v58.65 - 본문에 괄호 없이 쓰인 프롬프트 라벨(METRIC_EVIDENCE id)이 정리되지 않아 시장 해석 전체가 차단됨 (2026-10-23)
 
 - symptom/reproduction: 10/22 23:22Z 갱신에서 해석이 prompt-label-leak으로 차단돼, 화면에는 지표 대체 문구만 나왔다.

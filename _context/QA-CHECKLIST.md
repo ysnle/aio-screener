@@ -4,6 +4,10 @@ last_verified: 2026-10-23
 confidence: medium
 ---
 
+## v58.66 운영 v58.65 (2026-10-23)
+
+- [ ] QA-OPS-EVTIER-01: P1977: 해석이 증거 계층(SMH·지수 선물)을 인용한 갱신이 의미 게이트를 통과해 게시된다. verify_by: gh run list --workflow refresh-data.yml --limit 3
+
 ## v58.65 운영 v58.65 (2026-10-23)
 
 - [ ] QA-OPS-CI-01: P1974: 브라우저 샤드 설치가 timeout된 뒤 재시도가 dpkg 잠금 때문에 2초 만에 실패하지 않는다. verify_by: gh run view <CI run> --log | grep 'playwright install attempt'

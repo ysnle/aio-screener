@@ -22,6 +22,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { RECONCILIATION_STATUS } from '../src/data/contracts/reconciliation.js';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
+import { snapshotEvidenceRows } from './lib/market-analysis-validate.mjs';
 
 const read = (path) => readFileSync(path, 'utf8');
 const json = (path) => JSON.parse(read(path).replace(/^\uFEFF/, ''));
@@ -245,7 +246,7 @@ if (reconciliation) {
 // ── P1093 : narrative evidence must resolve inside the published artifacts ──
 if (data?.marketAnalysis) {
   const resolvable = new Set();
-  for (const row of (snapshot?.quotes || [])) if (row?.evidenceId) resolvable.add(row.evidenceId);
+  for (const row of snapshotEvidenceRows(snapshot)) if (row?.evidenceId) resolvable.add(row.evidenceId);
   for (const row of (data.marketAnalysis.metricEvidence || [])) if (row?.evidenceId) resolvable.add(row.evidenceId);
   const legacyNamespace = /^market-analysis:.*:\d{4}-\d{2}-\d{2}T/;
   const unresolved = [];
@@ -258,7 +259,10 @@ if (data?.marketAnalysis) {
   check('narrative claim evidence resolves in the published artifact set', unresolved.length === 0, unresolved.slice(0, 3).join(', '));
 
   // Canonical (post-P1093) rows must agree with the snapshot on unit and metricId.
-  const snapshotByInstrument = new Map((snapshot?.quotes || []).map((row) => [row.instrumentId, row]));
+  // v58.65 (live 2026-10-22 23:50Z): the reading may cite the evidence tier (SMH, index futures, Nikkei, HSI) that the
+  // snapshot publishes in `evidenceQuotes`; reading only `quotes` called those rows "not in snapshot" and refused the refresh.
+  const snapshotRows = snapshotEvidenceRows(snapshot);
+  const snapshotByInstrument = new Map(snapshotRows.map((row) => [row.instrumentId, row]));
   const disagreements = [];
   const canonicalRows = (data.marketAnalysis.metricEvidence || []).filter((row) => row?.canonicalMetricId);
   // The legacy-namespace exemption above must expire together with the producer
@@ -276,7 +280,7 @@ if (data?.marketAnalysis) {
   const retainedAt = Date.parse(data.marketAnalysis.retained?.from || '');
   const retained = Number.isFinite(retainedAt) && Date.parse(data.meta?.generatedAt || data.generatedAt || '') - retainedAt <= 12 * 3600000;
   for (const row of canonicalRows) {
-    const canonical = (snapshot?.quotes || []).find((entry) => entry.metricId === row.canonicalMetricId);
+    const canonical = snapshotRows.find((entry) => entry.metricId === row.canonicalMetricId);
     if (!canonical) { disagreements.push(`${row.canonicalMetricId} not in snapshot`); continue; }
     if (row.unit !== canonical.unit) disagreements.push(`${row.label} unit ${row.unit} != snapshot ${canonical.unit}`);
     if (!retained && Number(row.value) !== Number(canonical.value)) disagreements.push(`${row.label} value ${row.value} != snapshot ${canonical.value}`);
