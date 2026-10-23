@@ -127,6 +127,14 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ms-playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Cache Chromium OS packages
+        # v58.68 (CI 2026-10-23): the Azure apt mirror served ~50 kB/s, so the 26 MB of Chromium libraries outlasted every
+        # attempt. The downloaded .deb files are kept between jobs; apt then installs from disk and fetches only what changed.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/aio-apt-archives
+          key: aio-apt-archives-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-v1
+          restore-keys: aio-apt-archives-${{ runner.os }}-
       - name: Install dependencies and Chromium
         env:
           PLAYWRIGHT_BROWSERS_CACHED: ${{ steps.playwright-cache.outputs.cache-hit }}
@@ -140,8 +148,11 @@ jobs:
           # v58.67 (CI 2026-10-23): a stalled mirror connection kept apt-get alive for 6+ minutes. apt now gives up a
           # stalled connection after 20 s and retries it itself, so one slow shard costs seconds, not the attempt.
           printf 'Acquire::Retries "3";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' | sudo tee /etc/apt/apt.conf.d/99aio-network >/dev/null
+          # v58.68: apt reads and keeps its archives in the cached folder (the cache step above).
+          mkdir -p "$HOME/.cache/aio-apt-archives/partial"
+          printf 'Dir::Cache::Archives "%s/.cache/aio-apt-archives/";\nAPT::Keep-Downloaded-Packages "true";\nBinary::apt::APT::Keep-Downloaded-Packages "true";\n' "$HOME" | sudo tee /etc/apt/apt.conf.d/98aio-archives >/dev/null
           for attempt in 1 2 3; do
-            if timeout 150 npx playwright $install_args; then break; fi
+            if timeout 240 npx playwright $install_args; then break; fi
             [ "$attempt" = 3 ] && { echo "::error::playwright install failed 3 times"; exit 1; }
             echo "::warning::playwright install attempt $attempt timed out or failed; retrying"
             # v58.65/67: timeout stops npx, not the sudo apt-get it started, and that apt kept the dpkg lock — every
@@ -151,6 +162,8 @@ jobs:
             for _ in $(seq 1 30); do sudo fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock >/dev/null 2>&1 || break; sleep 2; done
             sudo dpkg --configure -a || true
           done
+          # apt wrote the archives as root; the cache step saves them as the runner user.
+          sudo chown -R "$(id -u):$(id -g)" "$HOME/.cache/aio-apt-archives" || true
       - name: Run all gates in shard
         env:
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa

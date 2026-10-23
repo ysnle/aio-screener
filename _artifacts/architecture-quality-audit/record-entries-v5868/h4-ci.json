@@ -1,0 +1,8 @@
+{
+  "version": "v58.68", "date": "2026-10-23",
+  "changelog": ["**CI apt 캐시 (P1974 보강):** Azure apt 미러가 약 50kB/s로 느려 26MB의 Chromium 라이브러리가 세 번의 시도를 모두 넘겼다. 내려받은 .deb를 작업 사이에 캐시해 디스크에서 설치하고, 시도당 제한은 240초로 늘렸다."],
+  "qa": [{ "id": "QA-OPS-CI-01", "text": "P1974: 브라우저 샤드 설치가 timeout된 뒤의 재시도가 dpkg 잠금 때문에 실패하지 않는다. v58.67: apt 네트워크 timeout·재시도 설정, 재시도 전 남은 apt 정리. v58.68: apt 아카이브 캐시, 시도당 240초.", "verify_by": "gh run view <CI run> --log | grep 'playwright install attempt'", "done": false, "update": true }],
+  "qa_section": "운영 v58.65",
+  "note": "v58.67 CI(39878372032)의 browser-knowledge 샤드가 느린 미러 때문에 세 번 모두 timeout.",
+  "status": null
+}

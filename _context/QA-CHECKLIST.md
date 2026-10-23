@@ -4,13 +4,20 @@ last_verified: 2026-10-23
 confidence: medium
 ---
 
+## v58.68 시장 v58.68 (2026-10-23)
+
+- [x] QA-HIST-BACKFILL-01: P1978: 다른 세션 관측으로 남은 history 값은 백필 일봉으로 교체되고, 같은 세션의 확정 기록은 유지된다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
+- [x] QA-MKT-LEAD-01: v58.68: 반도체 하루 −6%는 '이탈 · 급락일'로 표시되고, 직전 세션이 빠지면 하루 변화를 생략하며, 20/63거래일 종가 신저가 수는 창 전체가 있는 종목만 센다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MKT-READ-US-01: P1979: 시황 컨텍스트의 직전 세션 큰 움직임은 미국(S&P 500·나스닥 100·SMH)을 먼저 쓰고, 빠진 세션을 하루 변화로 계산하지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MKT-FLOW-01: v58.68: 방어 +2.2%·성장 −3.6%는 '방어 업종으로 이동', 9개 업종 하락은 '업종 전반 하락'이다. 다른 세션의 10년물 변화는 쓰지 않는다. 같은 업종 세부 테마가 ±1% 이상·4%p 이상 갈리면 갈림으로 표시한다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+
 ## v58.66 운영 v58.65 (2026-10-23)
 
 - [ ] QA-OPS-EVTIER-01: P1977: 해석이 증거 계층(SMH·지수 선물)을 인용한 갱신이 의미 게이트를 통과해 게시된다. verify_by: gh run list --workflow refresh-data.yml --limit 3
 
 ## v58.65 운영 v58.65 (2026-10-23)
 
-- [ ] QA-OPS-CI-01: P1974: 브라우저 샤드 설치가 timeout된 뒤의 재시도가 dpkg 잠금 때문에 실패하지 않는다. v58.67: apt 네트워크 timeout·재시도 설정, 재시도 전 남은 apt 정리. verify_by: gh run view <CI run> --log | grep 'playwright install attempt'
+- [ ] QA-OPS-CI-01: P1974: 브라우저 샤드 설치가 timeout된 뒤의 재시도가 dpkg 잠금 때문에 실패하지 않는다. v58.67: apt 네트워크 timeout·재시도 설정, 재시도 전 남은 apt 정리. v58.68: apt 아카이브 캐시, 시도당 240초. verify_by: gh run view <CI run> --log | grep 'playwright install attempt'
 - [x] QA-OPS-MACRO-01: P1975: FRED가 실패하고 BLS·BEA·재무부가 성공한 런은 공식 출처 필드를 observed로 게시하고 갱신이 통과한다. verify_by: node scripts/ci-artifact-semantics-check.mjs
 - [x] QA-OPS-LABEL-01: P1976: 본문에 괄호 없이 쓰인 프롬프트 라벨은 인용으로 바뀌거나 사라지고, 해석이 차단되지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 

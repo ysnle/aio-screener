@@ -1019,7 +1019,8 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const crashTitle = '코스피 7% 폭락…사이드카 발동';
     const ranked = krIndexStoryFirst([{ title: '증시 폭락에 원·달러 환율 급등' }, { title: crashTitle }]);
     check('v57.87 a large completed close reaches the prompt dated and must be named; the KOSPI move headline takes the first Korean slot',
-      /직전 완료 세션의 큰 움직임: 코스피 10\/15 종가 -7\.5\d%/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
+      // v58.68: US lines (here SMH's 5-session −9.7%) come first; the KOSPI close still follows on the same line.
+      /직전 완료 세션의 큰 움직임: 반도체\(SMH\) [^\n]* · 코스피 10\/15 종가 -7\.5\d%/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
         && priorSessionMoveIssues('코스피 장중 13:05 KST 기준 +3.2% 반등', { context: ctx }).includes('prior-session-move-omitted')
         && ranked[0].title === crashTitle && /ko-index-move\+14/.test(scoreServerNewsItem({ title: crashTitle, source: '연합뉴스', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason),
       JSON.stringify({ line: ctx.match(/직전 완료 세션[^\n]*/)?.[0] || null, ranked: ranked.map((row) => row.title) }));

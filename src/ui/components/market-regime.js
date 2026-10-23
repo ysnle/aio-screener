@@ -417,9 +417,11 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   // The tally bar's legend carries the counts; this line stays for a held verdict (its reason) only.
   set('regime-counts', regime.available ? (regime.holdReason || (doc.getElementById('regime-tally') ? '' : summaryLine(regime))) : '');
   const breadthRow = (regime.axes || []).find((row) => row.id === 'breadth');
-  set('regime-shape', regime.leadershipBreak ? '주도 영역 이탈 확인' : breadthRow?.narrow ? '좁은 장세 · 소수 종목이 지수를 받침' : '');
+  // v58.68: the leadership break is told by its own line (regime-leaders) below the headline.
+  set('regime-shape', !regime.leadershipBreak && breadthRow?.narrow ? '좁은 장세 · 소수 종목이 지수를 받침' : '');
   const read = interpretation.marketRead;
   set('regime-headline', read?.headline ? `${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : '');
+  paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow);
   heroSide(doc, regime, previous);
   comboAndWatch(doc, root, regime, interpretation);
   const board = doc.getElementById('regime-board');
@@ -511,6 +513,48 @@ function koreaIndexParts(history) {
   return { kospi: part('kospi', '코스피'), kosdaq: part('kosdaq', '코스닥') };
 }
 
+// v58.68 (owner 2026-10-23): the AI·semiconductor leaders' own verdict, shown under the six-axis verdict on 오늘 and
+// 시장 상태 (domain/market/leadership-verdict.js). It names the leaders' state; the six-axis count is unchanged.
+// The money-flow part (domain/market/market-flow.js) follows it: where the session's money went across sectors and
+// sub-themes, with the 10-year yield and fear on the same session.
+function linePart(doc, { title, state, burden = false, read, evidence, tip }) {
+  const part = el(doc, 'div', null, 'leaders-line__part');
+  const head = el(doc, 'div', null, 'leaders-line__head');
+  const chip = el(doc, 'span', state, 'leaders-line__state');
+  if (burden) chip.classList.add('is-burden');
+  head.append(el(doc, 'span', title, 'leaders-line__label'), chip, el(doc, 'span', read, 'leaders-line__read'));
+  part.append(head, ...(evidence ? [el(doc, 'div', evidence, 'leaders-line__evidence')] : []));
+  part.title = tip;
+  return part;
+}
+function paintLeadershipLine(doc, id, verdict, flow = null) {
+  const node = doc.getElementById(id);
+  if (!node) return;
+  const parts = [];
+  if (verdict?.available) {
+    parts.push(linePart(doc, { title: '주도 영역 (AI·반도체)', state: verdict.label, burden: verdict.state === 'break' || verdict.state === 'weak' || verdict.shock, read: verdict.read, evidence: verdict.line,
+      tip: '반도체 ETF(SMH)·나스닥 100의 추세와 하루 변화, 미국 종목의 최근 종가 신저가 수로 냅니다. 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않습니다.' }));
+  }
+  if (flow?.available) {
+    const part = linePart(doc, { title: '자금 흐름', state: flow.label, read: flow.read, evidence: flow.line,
+      tip: '미국 섹터 ETF의 하루 등락, 같은 날 10년물 금리 변화와 공포·탐욕 지수로 냅니다. 성장(기술·통신·반도체)과 방어(필수소비재·유틸리티·헬스케어) 업종의 평균 차이가 3%p 이상이면 한쪽으로의 이동으로 봅니다.' });
+    const themes = flow.themes;
+    if (themes?.available) {
+      if (themes.splitLines.length) part.append(el(doc, 'div', `같은 업종 안에서 갈린 곳 · ${themes.splitLines.slice(0, 2).join(' / ')}`, 'leaders-line__evidence'));
+      const more = el(doc, 'details', null, 'leaders-line__more');
+      const list = el(doc, 'ul', null, 'leaders-line__list');
+      for (const text of [themes.strongLine, themes.weakLine, ...themes.splitLines.map((line) => `갈림 · ${line}`)].filter(Boolean)) list.append(el(doc, 'li', text));
+      more.append(el(doc, 'summary', `테마 ${themes.groups}개 하루 흐름`), list);
+      part.append(more);
+    }
+    parts.push(part);
+  }
+  if (!parts.length) { node.hidden = true; node.replaceChildren(); return; }
+  node.replaceChildren(...parts);
+  node.dataset.state = verdict?.available ? verdict.state : 'unknown';
+  node.hidden = false;
+}
+
 function paintKoreaLine(doc, root) {
   const headline = doc.getElementById('home-hero-headline');
   if (!headline) return;
@@ -586,6 +630,7 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
   // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
   set('home-hero-desc', regime.heroLine || '');
+  paintLeadershipLine(doc, 'home-hero-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow);
   const why = doc.getElementById('home-hero-why');
   const whyList = doc.getElementById('home-hero-why-list');
   if (why && whyList) {

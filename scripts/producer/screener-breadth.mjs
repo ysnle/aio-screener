@@ -30,7 +30,9 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
   };
   const blank = () => ({ eligible: 0, advances: 0, declines: 0, unchanged: 0, observedAt: null, above: { 20: 0, 40: 0, 50: 0, 200: 0 }, eligibleByWindow: { 20: 0, 40: 0, 50: 0, 200: 0 },
     // P1416: StockBee 4% movers, 52-week highs/lows; each with its own eligible denominator.
-    up4: 0, down4: 0, moverEligible: 0, newHighs: 0, newLows: 0, highLowEligible: 0, contributors: { up4: [], down4: [], newHigh: [], newLow: [] } });
+    up4: 0, down4: 0, moverEligible: 0, newHighs: 0, newLows: 0, highLowEligible: 0, contributors: { up4: [], down4: [], newHigh: [], newLow: [] },
+    // v58.68: recent closing lows (20 / 63 sessions), each with its own eligible denominator.
+    low20: 0, low20Eligible: 0, low63: 0, low63Eligible: 0 });
   const getBucket = (date) => {
     if (!buckets.has(date)) buckets.set(date, { all: blank(), us: blank(), kr: blank() });
     return buckets.get(date);
@@ -39,6 +41,7 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     if (!signal) return;
     if (signal.above40Eligible) { bucket.eligibleByWindow[40] += 1; if (signal.above40) bucket.above[40] += 1; }
     if (signal.moverEligible) bucket.moverEligible += 1;
+    for (const window of [20, 63]) if (signal[`low${window}Eligible`]) { bucket[`low${window}Eligible`] += 1; if (signal[`low${window}`]) bucket[`low${window}`] += 1; }
     const change = signal.change == null ? null : round(signal.change * 100, 2);
     // P1449: contributors carry their asset type; a ≥20% one-day move is flagged as
     // possibly corporate-action-affected (spin-off etc.) — the audit source does not exist yet,
@@ -113,7 +116,9 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       breadthDown4: bucket.moverEligible > 0 ? bucket.down4 : null,
       breadthNewHighs: bucket.highLowEligible > 0 ? bucket.newHighs : null,
       breadthNewLows: bucket.highLowEligible > 0 ? bucket.newLows : null,
-      signalEligible: { movers: bucket.moverEligible, highLow: bucket.highLowEligible },
+      breadthLow20: bucket.low20Eligible > 0 ? bucket.low20 : null,
+      breadthLow63: bucket.low63Eligible > 0 ? bucket.low63 : null,
+      signalEligible: { movers: bucket.moverEligible, highLow: bucket.highLowEligible, low20: bucket.low20Eligible, low63: bucket.low63Eligible },
       contributors: bucket.contributors,
       breadth50: pct(bucket.above[50], bucket.eligibleByWindow[50]),
       breadth200: pct(bucket.above[200], bucket.eligibleByWindow[200]),
@@ -169,13 +174,14 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
   let history = [];
   try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) history = raw; } catch { /* first producer run */ }
   const fetchedAt = new Date().toISOString();
-  const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline', 'breadth40', 'breadthUp4', 'breadthDown4', 'breadthNewHighs', 'breadthNewLows'];
+  const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline', 'breadth40', 'breadthUp4', 'breadthDown4', 'breadthNewHighs', 'breadthNewLows', 'breadthLow20', 'breadthLow63'];
   // P1416: each count is judged against its own eligible population.
   const eligibleFor = (segment, field) => {
     const window = /^breadth(20|40|50|200)$/.exec(field)?.[1];
     if (window) return Number(segment.eligibleByWindow?.[window]);
     if (field === 'breadthUp4' || field === 'breadthDown4') return Number(segment.signalEligible?.movers);
     if (field === 'breadthNewHighs' || field === 'breadthNewLows') return Number(segment.signalEligible?.highLow);
+    if (field === 'breadthLow20' || field === 'breadthLow63') return Number(segment.signalEligible?.[field === 'breadthLow20' ? 'low20' : 'low63']);
     return Number(segment.eligible);
   };
   // P1399: an earlier in-session run may have written today's partial breadth; clear it.

@@ -13,4 +13,8 @@ export const creditStable = (credit) => (credit == null || credit === 'unknown' 
  * market turns defensive. The 테마 rotation reading counted it while the structure outlook did not (2026-10-19).
  */
 export const DEFENSIVE_SECTORS = Object.freeze(new Set(['XLV', 'XLP', 'XLU']));
+export const SECTOR_ETF_LABELS = Object.freeze({
+  XLK: '기술', XLC: '통신', XLY: '경기소비재', XLF: '금융', XLI: '산업재', XLB: '소재', XLE: '에너지',
+  XLV: '헬스케어', XLP: '필수소비재', XLU: '유틸리티', XLRE: '부동산'
+});
 export const isDefensiveSector = (symbol) => DEFENSIVE_SECTORS.has(String(symbol || '').toUpperCase());

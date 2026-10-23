@@ -64,7 +64,7 @@ const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
 // deleted the key when a window had too few eligible symbols. Rows then had
 // different key sets and a one-row breadth lag was indistinguishable from
 // "unavailable" (P1101). Both lanes now publish every column; absence is null.
-const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline','breadth40','breadthUp4','breadthDown4','breadthNewHighs','breadthNewLows','distributionDays']; // P1416
+const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline','breadth40','breadthUp4','breadthDown4','breadthNewHighs','breadthNewLows','breadthLow20','breadthLow63','distributionDays']; // P1416 · v58.68 recent closing lows
 const HIST_SENTIMENT_FIELDS = ['pcr']; // P1586 put/call accumulates only on Cboe trading dates; every other row carries null
 const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS, ...HIST_SENTIMENT_FIELDS];
 // Per-row cycle metadata. Rows seeded by the historical backfill never carried
@@ -154,24 +154,35 @@ async function backfillHistory(hist) {
       };
     }
   }
+  return mergeBackfillBars(hist, byDate, HIST_FIELDS);
+}
+
+// P1656: a backfill only fills gaps. It runs whenever any field is thin, so overwriting every row replaced the
+// producer's completed-close record (valueBasis, close-time observedAt) with a daily bar stamped at its bar start, and
+// the score's close-basis selector then rejected that day's VIX/SPX.
+// v58.68 (live 2026-10-21/22): a "completed record" only counts for its own session. After the 14-hour refresh outage
+// the 10/21 row still held the 10/20 close the morning cut had recorded (valueBasis previous-completed-close), so the
+// backfill kept it, the 10/21 US close never entered history, and every 1-day change on 10/22 was read against 10/20.
+// A value whose own session differs from the bar's session is not that session's close and is replaced.
+export function mergeBackfillBars(hist, byDate, fields = HIST_FIELDS) {
   let added = 0;
   for (const date of Object.keys(byDate)) {
     const existing = hist.find(h => h && h.date === date);
     if (existing) {
-      // P1656: a backfill only fills gaps. It runs whenever any field is thin, so overwriting every row
-      // replaced the producer's completed-close record (valueBasis, close-time observedAt) with a daily bar
-      // stamped at its bar start, and the score's close-basis selector then rejected that day's VIX/SPX.
       existing.fieldMeta = existing.fieldMeta || {};
-      for (const f of HIST_FIELDS) {
+      for (const f of fields) {
         if (byDate[date][f] == null) continue;
-        if (Number.isFinite(Number(existing[f])) && existing.fieldMeta[f]?.valueBasis) continue;
+        const meta = existing.fieldMeta[f];
+        const ownSession = meta ? (historyFieldSessionDate(meta, f) || observationSessionDate(f, meta.observedAt)) : null;
+        const barSession = byDate[date].fieldMeta?.[f]?.sessionDate || date;
+        if (Number.isFinite(Number(existing[f])) && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
         existing[f] = byDate[date][f];
         if (byDate[date].fieldMeta?.[f]) existing.fieldMeta[f] = byDate[date].fieldMeta[f];
       }
       continue;
     }
     const base = { date, fieldMeta: byDate[date].fieldMeta || {} };
-    for (const f of HIST_FIELDS) base[f] = (byDate[date][f] != null ? byDate[date][f] : null);
+    for (const f of fields) base[f] = (byDate[date][f] != null ? byDate[date][f] : null);
     hist.push(base);
     added++;
   }

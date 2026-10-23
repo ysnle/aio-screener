@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v58.67 — 올인원 투자 터미널</title>
+  <title>AIO Screener v58.68 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -30,13 +30,13 @@
   <!-- P1756: the same v1.3.9 font as unicode-range subsets — only the ranges a page draws download (the single file was 2 MB). -->
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=58.67" defer></script>
-<script src="./js/aio-kr-data.js?v=58.67" defer></script>
-<script src="./js/aio-pages.js?v=58.67" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=58.67">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=58.67">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.67">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.67">
+<script src="./js/aio-workspace.js?v=58.68" defer></script>
+<script src="./js/aio-kr-data.js?v=58.68" defer></script>
+<script src="./js/aio-pages.js?v=58.68" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=58.68">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=58.68">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.68">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.68">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -3595,7 +3595,7 @@ button[data-filter-active="true"] {
           </div>
         </div>
       </div>
-      <button type="button" class="sx-sidebar-search" data-action="_aioOpenStockSearch" aria-label="종목 검색 (Ctrl+K)">종목 검색<kbd>⌘K</kbd></button>
+      <button type="button" class="sx-sidebar-search" data-action="_aioOpenStockSearch" aria-label="종목 검색 (Ctrl+K)">종목 검색<kbd id="sx-search-kbd">Ctrl K</kbd></button>
 
       <!-- P715 IA 재편 (사용자 결정 "3축 재편 착수"): 5그룹 20항목 병렬 나열 → 사용자 여정
            3축(데일리→시장 분석→학습) + 내 투자·도구, 한국 시장은 접힘(데이터 공백 B1 안내 겸).
@@ -3641,7 +3641,11 @@ button[data-filter-active="true"] {
       </div>
 
       <div class="sidebar-footer">
-        <div class="llm-panel">
+          <!-- v58.68 (owner 2026-10-23): the sidebar 'AI 도우미 · 사용 가능' card is gone. AI is always on (P1653) and the
+               top bar opens it, so a state line carried no decision. The portfolio PIN moved to the portfolio's 저장·보안
+               fold; what stays here (Pages sync, AI state/model/quota, connection check, self-hosted proxy, self-audit) is
+               operator-only (dev mode). -->
+        <div class="llm-panel aio-operator-control">
 
           <!-- GitHub Pages 연동 행 -->
           <div class="aio-operator-control sh-shell-sidebar-row-between">
@@ -3666,8 +3670,7 @@ button[data-filter-active="true"] {
             </div>
           </div>
 
-          <details class="sidebar-settings" id="sidebar-settings"><summary>연결·보안 설정</summary><div class="sidebar-settings-body">
-          <div class="llm-key-row" style="font-size:11px;color:var(--text-muted);line-height:1.5;">GPT-6 Luna · 공용 AI 연결<br>개인 AI 키 입력 없이 이용합니다.</div>
+          <div class="llm-key-row" id="llm-connection-anchor" style="font-size:11px;color:var(--text-muted);line-height:1.5;">GPT-6 Luna · 공용 AI 연결<br>개인 AI 키 입력 없이 이용합니다.</div>
           <!-- 모델 선택 + 할당량 패널 -->
           <div class="llm-quota-panel aio-operator-control">
             <!-- P1421: One shared GPT-6 Luna provider for all AI tasks. -->
@@ -3691,38 +3694,6 @@ button[data-filter-active="true"] {
             <div class="llm-budget-note">웹검색 포함 공용 AI 월예산 $20<br>채팅·번역·자동 분석이 같은 한도를 사용합니다. 검색은 기존 자료로 부족할 때 보강하며, 비용 예약액은 실제 청구액과 다를 수 있습니다.</div>
           </div>
 
-          <!-- Optional personal connections stay out of the primary research path. -->
-          <details class="sidebar-connection-settings sh-shell-sidebar-fold">
-            <summary style="cursor:pointer;font-size:11px;color:var(--text-muted);margin-bottom:6px;">보안 설정</summary>
-            <!-- v30.11: Vault PIN 보안 설정 -->
-            <div style="font-size:11px;color:var(--data-purple);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(var(--ink-rgb),0.08);border:1px solid rgba(var(--ink-rgb),0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
-               저장 데이터 암호화 (PIN) <span id="vault-status-badge" style="font-size:11px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
-            </div>
-            <div style="display:none;margin-bottom:6px;">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">이 브라우저에 저장한 포트폴리오 기록과 자체 프록시 주소를 PIN으로 보호합니다. 공용 AI 연결 설정과는 별개입니다.</div>
-              <div id="vault-set-panel">
-                <div class="llm-key-row sh-mb2">
-                  <input type="password" id="vault-pin-input" class="llm-key-input" placeholder="PIN (4자리 이상)" style="font-size:11px;" maxlength="20">
-                </div>
-                <div class="llm-key-row sh-mb2">
-                  <input type="password" id="vault-pin-confirm" class="llm-key-input" placeholder="PIN 확인" style="font-size:11px;" maxlength="20">
-                  <button class="llm-key-save btn-vault" data-action="_vaultSetPin">설정</button>
-                </div>
-                <div id="vault-pin-msg" style="font-size:11px;color:var(--text-muted);min-height:12px;"></div>
-              </div>
-              <div id="vault-unlock-panel" style="display:none;">
-                <div class="llm-key-row sh-mb2">
-                  <input type="password" id="vault-unlock-input" class="llm-key-input" placeholder="PIN 입력" style="font-size:11px;" maxlength="20">
-                  <button class="llm-key-save btn-vault" data-action="_vaultUnlock">해제</button>
-                </div>
-                <div id="vault-unlock-msg" style="font-size:11px;color:var(--text-muted);min-height:12px;"></div>
-              </div>
-              <div class="sh-shell-sidebar-mt3">
-                <label style="font-size:11px;color:var(--text-muted);cursor:pointer;"><input type="checkbox" id="vault-public-mode" aria-label="공용 PC 모드" data-on-change="_aioVaultPublicMode" class="sh-shell-sidebar-vault-public-field"> 공용 PC 모드 (탭을 닫으면 잠근 데이터 삭제)</label>
-                <span id="vault-public-label" style="font-size:11px;color:var(--data-amber);margin-left:4px;"></span>
-              </div>
-            </div>
-
             <div style="font-size:11px;color:var(--data-cyan);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(var(--ink-rgb),0.08);border:1px solid rgba(var(--ink-rgb),0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
                고급: 자체 서버 주소 (선택) <span class="arrow">▼</span>
             </div>
@@ -3734,8 +3705,6 @@ button[data-filter-active="true"] {
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_cf_worker_url" data-arg2="aio_cf_worker_input" data-pass-el="1">저장</button>
               </div>
             </div>
-          </details>
-          </div></details><!-- /#sidebar-settings -->
 
           <!-- ═══ v49.58 P322/R108: 시스템 자가 진단 위젯 + web_search 토글 + 키 백업 ═══ -->
           <div class="aio-audit-widget sh-shell-sidebar-audit-block-panel" id="aio-audit-widget">
@@ -3916,6 +3885,8 @@ button[data-filter-active="true"] {
       <span class="sx-kicker" id="home-hero-kicker">지금 시장은</span>
       <span id="home-hero-total" class="sx-verdict home-hero-verdict">판정 대기</span>
       <div id="home-hero-desc" class="sx-lede home-hero-lede"></div>
+      <!-- v58.68 (owner 2026-10-23): the AI·semiconductor leaders get their own verdict line beside the six-axis verdict. -->
+      <div id="home-hero-leaders" class="leaders-line" hidden></div>
       <div id="home-hero-headline" class="home-hero-basis">종가 기록을 불러오는 중입니다.</div>
       <div id="home-hero-components" class="regime-chips home-hero-chips"></div>
       <!-- v58.56 (re-audit #2): the hero reads one plain line; the conflict sentences with their numbers and rules sit here. -->
@@ -4025,6 +3996,7 @@ button[data-filter-active="true"] {
     <div class="mk-hero__main">
       <div class="mk-hero__verdict-row"><h2 class="mk-hero__verdict" id="regime-overall">판정 대기</h2><span class="mk-hero__shape" id="regime-shape"></span></div>
       <p class="sx-lede mk-hero__lede" id="regime-headline"></p>
+      <div id="regime-leaders" class="leaders-line" hidden></div>
     </div>
     <div class="mk-hero__side">
       <div class="mk-tally" id="regime-tally"></div>
@@ -5330,7 +5302,37 @@ button[data-filter-active="true"] {
       <h1 class="page-title">포트폴리오</h1>
       <!-- LC-43: the separate #pf-freshness-strip is hidden in the public 기본 화면, so the intro must
            not promise it. The visible evidence is the per-row price cell (통화·관측시각·출처 툴팁). -->
-      <div class="page-subtitle">보유 자산의 비중·손익·위험을 시장과 함께 읽습니다. <details class="pf-privacy sh-portfolio-fold"><summary class="sh-portfolio-toggle">저장·전송 범위</summary><span class="sh-portfolio-box">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 누를 때만 종목명·섹터·비중·수익률이 전송되고(수량·매수가·메모 제외, 처음 한 번 동의 확인), 브라우저 기록을 지우거나 기기를 바꾸면 백업 파일로만 되살릴 수 있습니다.</span></details></div>
+      <div class="page-subtitle">보유 자산의 비중·손익·위험을 시장과 함께 읽습니다. <details class="pf-privacy sh-portfolio-fold"><summary class="sh-portfolio-toggle">저장·보안</summary><span class="sh-portfolio-box">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 누를 때만 종목명·섹터·비중·수익률이 전송되고(수량·매수가·메모 제외, 처음 한 번 동의 확인), 브라우저 기록을 지우거나 기기를 바꾸면 백업 파일로만 되살릴 수 있습니다.</span>
+        <!-- v58.68: moved from the sidebar card — the PIN protects the portfolio this page stores. -->
+            <!-- v30.11: Vault PIN 보안 설정 -->
+            <div style="font-size:11px;color:var(--data-purple);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(var(--ink-rgb),0.08);border:1px solid rgba(var(--ink-rgb),0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
+               저장 데이터 암호화 (PIN) <span id="vault-status-badge" style="font-size:11px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
+            </div>
+            <div style="display:none;margin-bottom:6px;">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">이 브라우저에 저장한 포트폴리오 기록과 자체 프록시 주소를 PIN으로 보호합니다. 공용 AI 연결 설정과는 별개입니다.</div>
+              <div id="vault-set-panel">
+                <div class="llm-key-row sh-mb2">
+                  <input type="password" id="vault-pin-input" class="llm-key-input" placeholder="PIN (4자리 이상)" style="font-size:11px;" maxlength="20">
+                </div>
+                <div class="llm-key-row sh-mb2">
+                  <input type="password" id="vault-pin-confirm" class="llm-key-input" placeholder="PIN 확인" style="font-size:11px;" maxlength="20">
+                  <button class="llm-key-save btn-vault" data-action="_vaultSetPin">설정</button>
+                </div>
+                <div id="vault-pin-msg" style="font-size:11px;color:var(--text-muted);min-height:12px;"></div>
+              </div>
+              <div id="vault-unlock-panel" style="display:none;">
+                <div class="llm-key-row sh-mb2">
+                  <input type="password" id="vault-unlock-input" class="llm-key-input" placeholder="PIN 입력" style="font-size:11px;" maxlength="20">
+                  <button class="llm-key-save btn-vault" data-action="_vaultUnlock">해제</button>
+                </div>
+                <div id="vault-unlock-msg" style="font-size:11px;color:var(--text-muted);min-height:12px;"></div>
+              </div>
+              <div class="sh-shell-sidebar-mt3">
+                <label style="font-size:11px;color:var(--text-muted);cursor:pointer;"><input type="checkbox" id="vault-public-mode" aria-label="공용 PC 모드" data-on-change="_aioVaultPublicMode" class="sh-shell-sidebar-vault-public-field"> 공용 PC 모드 (탭을 닫으면 잠근 데이터 삭제)</label>
+                <span id="vault-public-label" style="font-size:11px;color:var(--data-amber);margin-left:4px;"></span>
+              </div>
+            </div>
+      </details></div>
     </div>
     <div class="sh-portfolio-row">
       <button class="aio-btn-table primary is-interactive sh-portfolio-btn" data-action="_aioTogglePortfolioEntry">종목 추가</button>
@@ -7077,15 +7079,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=58.67" defer></script>
-  <script src="./js/aio-data.js?v=58.67" defer></script>
-  <script src="./js/aio-ui.js?v=58.67" defer></script>
+  <script src="./js/aio-core.js?v=58.68" defer></script>
+  <script src="./js/aio-data.js?v=58.68" defer></script>
+  <script src="./js/aio-ui.js?v=58.68" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=58.67" defer></script>
+<script src="./js/aio-chat.js?v=58.68" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더)는 js/aio-macro-tech.js를 거쳐 네이티브 ESM으로 옮겨졌고, 그 파일은 퇴역했다. -->
 
@@ -7136,7 +7138,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=58.67" defer></script>
+<script src="./js/aio-glossary.js?v=58.68" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -7144,7 +7146,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다 · <button type="button" data-action="_aioShowDisclaimer">면책 고지</button> · <span class="sx-page-foot-version" id="app-version-badge">v58.67</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다 · <button type="button" data-action="_aioShowDisclaimer">면책 고지</button> · <span class="sx-page-foot-version" id="app-version-badge">v58.68</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

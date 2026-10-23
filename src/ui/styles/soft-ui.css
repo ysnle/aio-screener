@@ -62,6 +62,8 @@ body { background: var(--bg-base) !important; font-family: var(--font-sans); col
 }
 .sx-sidebar-search:hover { background: var(--sx-ink-a08); color: var(--text-secondary); }
 .sx-sidebar-search kbd { font: inherit; font-size: 12px; color: var(--text-muted); }
+/* v58.68 (owner 2026-10-23): a shortcut hint is noise where there is no keyboard (phone, tablet). */
+@media (hover: none) and (pointer: coarse) { .sx-sidebar-search kbd { display: none; } }
 
 .nav-section { display: flex; flex-direction: column; gap: 2px; padding: 0 !important; margin: 0 !important; border: 0 !important; }
 .nav-section + .nav-section { border-top: 0 !important; margin-top: 0 !important; }

@@ -12,10 +12,9 @@ import { rsRecentCheck, rrgSettledQuadrant } from '../themes/recent-check.js';
 
 export const SCENARIO_OUTLOOK_VERSION = 'scenario-outlook.v1';
 
-export const SECTOR_ETF_LABELS = Object.freeze({
-  XLK: '기술', XLC: '통신', XLY: '경기소비재', XLF: '금융', XLI: '산업재', XLB: '소재', XLE: '에너지',
-  XLV: '헬스케어', XLP: '필수소비재', XLU: '유틸리티', XLRE: '부동산'
-});
+// v58.68: the label map lives with the defensive set in concepts.js (a leaf module the money-flow line can import without
+// a cycle through market-read); this re-export keeps every existing reader.
+export { SECTOR_ETF_LABELS } from '../interpretation/concepts.js';
 // The defensive set and the credit rule are the shared concepts (src/domain/interpretation/concepts.js).
 
 const join = (items) => items.filter(Boolean).join(' · ');

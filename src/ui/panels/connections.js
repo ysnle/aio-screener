@@ -6,7 +6,8 @@ export function installConnectionPanel(root, documentRef) {
   // P1630: operator status and budget notes are details on demand. P1653: web search is automatic (owner 2026-10-12) —
   // the AI decides when existing evidence is not enough, so there is no user toggle.
   // v58.56 (re-audit #26): the model line now opens the sidebar's 연결·보안 설정 fold; the older shell kept it under the header.
-  const anchor = documentRef.querySelector?.('.sidebar-settings-body > .llm-key-row, .llm-panel-header + .llm-key-row');
+  // v58.68: the card is operator-only and the fold is gone; the model line carries its own id.
+  const anchor = documentRef.getElementById?.('llm-connection-anchor') || documentRef.querySelector?.('.llm-panel-header + .llm-key-row');
   const panel = documentRef.createElement?.('div');
   if (anchor && panel) {
     panel.className = 'cnp-panel'; // src/ui/styles/connection-panel.css

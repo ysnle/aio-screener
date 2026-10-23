@@ -4061,6 +4061,65 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const rows = computeScreenerBreadthHistory(['AAA'], [{ sym: 'AAA', dates, closes, adjCloses: closes, highs, lows, volumes }], 252, Date.parse('2027-01-01T00:00:00Z'));
   const point = rows[rows.length - 1].us;
   if (point.breadthUp4 !== 1 || point.breadthNewHighs !== 1 || point.contributors.up4[0][0] !== 'AAA' || point.breadth40 == null) fail(`P1416 producer aggregation wrong: ${JSON.stringify({ up4: point.breadthUp4, nh: point.breadthNewHighs, b40: point.breadth40 })}`);
+  // v58.68 (owner 2026-10-23): recent closing lows. A close below every one of the prior 20 (63) closes counts; a gap in
+  // the window is unknown, not "no low"; the +5% last session is no low; a close under the last 20 closes after a long rise is a 20-session
+  // low but not a 63-session one while the window still holds the earlier trough.
+  const dip = closes.slice(0, n - 1).concat([closes[n - 2] * 0.5]);
+  const dipSig = evaluateSymbolSignals({ closes: dip, adjCloses: dip, highs, lows, volumes })[n - 1];
+  const rise = Array.from({ length: 100 }, (_, i) => (i < 40 ? 100 - i : 60 + (i - 40)));
+  rise[99] = 90; // below the last 20 closes (99..118), above the 63-session trough (60)
+  const riseSig = evaluateSymbolSignals({ closes: rise, adjCloses: rise })[99];
+  const gap = rise.slice(); gap[90] = null;
+  const gapSig = evaluateSymbolSignals({ closes: gap, adjCloses: gap })[99];
+  if (last.low20 || !last.low20Eligible || !dipSig.low20 || !dipSig.low63 || !riseSig.low20 || riseSig.low63 || !riseSig.low63Eligible || gapSig.low20Eligible || gapSig.low20)
+    fail(`v58.68 recent closing lows wrong: ${JSON.stringify({ last: [last.low20, last.low20Eligible], dip: [dipSig.low20, dipSig.low63], rise: [riseSig.low20, riseSig.low63], gap: [gapSig.low20Eligible, gapSig.low20] })}`);
+  const dipRows = computeScreenerBreadthHistory(['AAA', 'BBB'], [{ sym: 'AAA', dates, closes: dip, adjCloses: dip, highs, lows, volumes }, { sym: 'BBB', dates, closes, adjCloses: closes, highs, lows, volumes }], 252, Date.parse('2027-01-01T00:00:00Z'));
+  const dipPoint = dipRows[dipRows.length - 1].us;
+  if (dipPoint.breadthLow20 !== 1 || dipPoint.breadthLow63 !== 1 || dipPoint.signalEligible.low20 !== 2 || dipPoint.signalEligible.low63 !== 2)
+    fail(`v58.68 producer recent-low aggregation wrong: ${JSON.stringify({ l20: dipPoint.breadthLow20, l63: dipPoint.breadthLow63, eligible: dipPoint.signalEligible })}`);
+}
+
+// v58.68 (owner 2026-10-23): the leaders' verdict line — a 6% semiconductor session is named 급락일 beside the break state,
+// a missing previous session leaves the day out (no change across a gap), and the six-axis count is not its input.
+{
+  const { buildLeadershipVerdict } = await import(pathToFileURL(path.join(root, 'src/domain/market/leadership-verdict.js')).href);
+  const leadership = { available: true, state: 'break', drop5: -4.1 };
+  const rows = [{ date: '2026-10-20', smh: 400, ndx: 25000 }, { date: '2026-10-21', smh: 400, ndx: 25000 }, { date: '2026-10-22', smh: 376, ndx: 24350, breadthLow20: 189, fieldMeta: { breadthLow20: { eligible: 900 } } }];
+  const day = buildLeadershipVerdict({ history: rows, leadership, basis: '2026-10-22' });
+  const gapped = buildLeadershipVerdict({ history: rows.filter((row) => row.date !== '2026-10-21'), leadership, basis: '2026-10-22' });
+  const none = buildLeadershipVerdict({ history: rows, leadership: { available: false } });
+  if (!day.shock || day.label !== '이탈 · 급락일' || Math.round(day.semis1d) !== -6 || day.low20 !== 189 || !/20거래일 종가 신저가 189개\(21%\)/.test(day.line)
+    || gapped.semis1d !== null || gapped.shock || !/하루 변화는 일부 생략/.test(gapped.line) || none.available)
+    fail(`v58.68 leadership verdict wrong: ${JSON.stringify({ day: [day.label, day.semis1d, day.line], gapped: [gapped.label, gapped.semis1d, gapped.line], none: none.available })}`);
+}
+
+// v58.68 (owner 2026-10-23): the money-flow line — defensives up and growth down by 3pp+ is a move into defensives, nine
+// sectors down is a market-wide fall, a 10-year change of another session is left out, and a sector whose sub-themes
+// moved apart (regulated utilities up, nuclear power down) is named as a split.
+{
+  const { buildMarketFlow, buildThemeFlow } = await import(pathToFileURL(path.join(root, 'src/domain/market/market-flow.js')).href);
+  const session = '2026-10-22', nowMs = Date.parse('2026-10-23T01:00:00Z');
+  const rotation = (daily) => ({ schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: session,
+    items: Object.fromEntries(Object.entries(daily).map(([symbol, pct]) => [symbol, { status: 'CURRENT', sessionDate: session, rsRatio: 101, rsMomentum: 101, quadrant: 'Leading', dailyPct: pct, weeklyPct: pct, alignedSessionCount: 60, observedAt: '2026-10-22T20:00:00.000Z', fetchedAt: '2026-10-22T20:20:00.000Z' }])) });
+  const day = { XLP: 3.3, XLU: 2.1, XLV: 1.3, XLF: 1.1, XLRE: 1.1, XLB: 0.7, XLY: -0.5, XLE: -0.9, XLI: -1, XLC: -1.4, XLK: -3.3, SMH: -6 };
+  const macro = { dgs10Delta: -0.17, _asOf_dgs10: '2026-10-22' };
+  const flow = buildMarketFlow({ rotationHistory: rotation(day), macro, history: [{ date: session, fg: 19.8 }], nowMs });
+  const broad = buildMarketFlow({ rotationHistory: rotation(Object.fromEntries(Object.keys(day).map((symbol) => [symbol, -1.5]))), macro: { dgs10Delta: -0.17, _asOf_dgs10: '2026-10-21' }, nowMs });
+  const themes = [{ id: 'utilities', nameKr: '유틸리티', subThemes: [{ name: '규제 유틸리티', tickers: ['A1', 'A2', 'A3'] }, { name: '원전/독립발전', tickers: ['B1', 'B2', 'B3'] }] },
+    ...Array.from({ length: 8 }, (_, i) => ({ id: `t${i}`, nameKr: `테마${i}`, subThemes: [{ name: `세부${i}`, tickers: [`C${i}a`, `C${i}b`, `C${i}c`] }] }))];
+  const rows = [['A1', 2.6], ['A2', 3], ['A3', 2], ['B1', -9.8], ['B2', -5.4], ['B3', -5.7], ...Array.from({ length: 8 }, (_, i) => [[`C${i}a`, 0.1 * i], [`C${i}b`, 0.1 * i], [`C${i}c`, 0.1 * i]]).flat()]
+    .map(([sym, ret1d]) => ({ sym, ret1d, factorSessionDate: session }));
+  const split = buildThemeFlow({ themes, rows, session });
+  const stale = buildThemeFlow({ themes, rows: rows.map((row) => ({ ...row, factorSessionDate: '2026-10-21' })), session });
+  if (flow.kind !== 'defensive' || flow.tenYearBp !== -17 || !/미국 10년물 −17bp/.test(flow.line) || !/공포·탐욕 20\(극단 공포\)/.test(flow.line) || !/채권/.test(flow.read)
+    || broad.kind !== 'broadDown' || broad.tenYearBp !== null
+    || split.splits[0]?.theme !== '유틸리티' || !/규제 유틸리티 \+2\.6% · 원전\/독립발전 −5\.7%/.test(split.splitLines[0]) || stale.available)
+    fail(`v58.68 market flow wrong: ${JSON.stringify({ flow: [flow.kind, flow.line, flow.read], broad: [broad.kind, broad.tenYearBp], split: split.splitLines, stale: stale.available })}`);
+  const { priorSessionMoveLines } = await import('./fetch-data.mjs');
+  const us = priorSessionMoveLines([['2026-10-20', 546.36, 7712], ['2026-10-21', 557, 7757], ['2026-10-22', 523.35, 7663]].map(([date, smh, spx]) => ({ date, smh, spx })));
+  const gapped = priorSessionMoveLines([['2026-10-20', 557], ['2026-10-22', 523.35]].map(([date, smh]) => ({ date, smh })));
+  if (!/^직전 완료 세션의 큰 움직임: 반도체\(SMH\) 10\/22 종가 -6\.04%/.test(us) || gapped)
+    fail(`v58.68 US-first prior-session lines wrong: ${JSON.stringify({ us, gapped })}`);
 }
 
 // ── P1417: sub-theme relative strength — medians, exclusion, direction (no composite rating) ──

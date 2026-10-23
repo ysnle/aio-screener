@@ -6,6 +6,10 @@ import { readFileSync } from 'node:fs';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from '../lib/ai-shared-analysis.mjs';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
+import { countOpenSessionsBetween } from '../../src/domain/market/market-calendar.js';
+import { buildMarketFlow } from '../../src/domain/market/market-flow.js';
+import { expandScreenerArtifact } from '../../src/data/screener-extended.js';
+import { loadThemeMaps } from '../build-scenario-state.mjs';
 import { readNarrativeContext } from '../lib/narrative-context.mjs';
 import { renderMarketScenarioModel } from '../../src/domain/market/regime-scenarios.js';
 import { renderScenarioOutlookContext } from '../../src/domain/market/scenario-outlook.js';
@@ -14,7 +18,8 @@ import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
-import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT } from './paths.mjs';
+import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
+const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
 
 // v57.81: plain Korean values with their session ("10/14 종가"), never "SPX=… (ISO)"; the last verified reading rides along
@@ -68,9 +73,28 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
     const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
-    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, conflicts, axes,
+    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, marketFlowContext(data, input.history, input.now), conflicts, axes,
       renderMarketScenarioModel(scenarios), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(interpretation, state)].filter(Boolean).join('\n');
   } catch (error) {
+    return '';
+  }
+}
+
+// v58.68 (owner 2026-10-23): "the screens show the surface" — the packet carried the indices and the semiconductor drop
+// but not where the money went. The same money-flow reading 오늘 and 시장 상태 draw (domain/market/market-flow.js): sector
+// ETFs, the 10-year yield, fear, the strongest and weakest sub-themes and the sectors whose sub-themes split.
+export function marketFlowContext(data, history = [], nowMs = Date.now(), { screener = null, themes = null } = {}) {
+  try {
+    const readJson = (file) => { try { return JSON.parse(readFileSync(file, 'utf8')); } catch (_) { return null; } };
+    const scr = screener || readJson(SCREENER_OUT);
+    const rows = scr ? Object.entries(expandScreenerArtifact(scr)?.data || {}).map(([sym, row]) => ({ sym, ...row })) : null;
+    const flow = buildMarketFlow({ rotationHistory: data?.rotationHistory || null, macro: data?.macro || null, history, themes: themes || loadThemeMaps().usThemes, rows, nowMs });
+    if (!flow?.available) return '';
+    const t = flow.themes?.available ? flow.themes : null;
+    return [`자금 흐름(미국 ${mdOf(flow.session)} 종가): ${flow.label} — ${flow.line}. ${flow.read}`,
+      t ? [t.strongLine, t.weakLine, t.splitLines.length ? `같은 업종 안에서 갈린 곳: ${t.splitLines.slice(0, 4).join(' / ')}` : ''].filter(Boolean).join(' · ') : '',
+      '— 지수의 움직임이 어느 업종·테마에 몰렸고 돈이 어디로 옮겨갔는지(버틴 쪽과 밀린 쪽)를 압력 단락에서 한 번 쓸 것. 업종 이동을 정치·선거 같은 원인으로 단정하지 말 것; 원인은 HEADLINE_CONTEXT 보도로만 붙인다.'].filter(Boolean).join('\n');
+  } catch (_) {
     return '';
   }
 }
@@ -85,14 +109,19 @@ export function priorSessionMoveLines(history = []) {
   const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
   const lines = [];
   // WTI too (10/16 audit): its in-session row is dropped from METRIC_EVIDENCE, so a +3% oil close never reached the prompt.
-  for (const [field, label] of [['spx', 'S&P 500'], ['kospi', '코스피'], ['wti', 'WTI']]) {
+  // v58.68 (owner 2026-10-23, US first): the 10/22 reading opened with KOSPI and never named the Nasdaq 100 or the
+  // semiconductor drop. The US lines come first, the Nasdaq 100 and SMH join at the leadership 급락일 edges, and a US
+  // one-session change is written only across consecutive sessions (a missing 10/21 row made 10/20→10/22 look like a day).
+  const L = RULES.leadership;
+  for (const [field, label, edge, us] of [['spx', 'S&P 500', PRIOR_SESSION_MOVE_1D_PCT, true], ['ndx', '나스닥 100', L.shockNdx1dPct, true], ['smh', '반도체(SMH)', L.shockSemis1dPct, true], ['kospi', '코스피', PRIOR_SESSION_MOVE_1D_PCT, false], ['wti', 'WTI', PRIOR_SESSION_MOVE_1D_PCT, false]]) {
     const series = buildCloseSeries(history, field).filter((point) => Number(point?.value) > 0);
     if (series.length < 2) continue;
     const last = series.at(-1), prior = series.at(-2), back5 = series.length >= 6 ? series.at(-6) : null;
-    const d1 = (last.value / prior.value - 1) * 100;
+    const consecutive = !us || countOpenSessionsBetween(prior.date, last.date, 'US') === 1;
+    const d1 = consecutive ? (last.value / prior.value - 1) * 100 : null;
     const d5 = back5 ? (last.value / back5.value - 1) * 100 : null;
-    if (!(Math.abs(d1) >= PRIOR_SESSION_MOVE_1D_PCT || (d5 != null && Math.abs(d5) >= PRIOR_SESSION_MOVE_5D_PCT))) continue;
-    lines.push(`${label} ${md(last.date)} 종가 ${signed(d1)}${d5 != null ? ` (5거래일 ${signed(d5)})` : ''}`);
+    if (!((d1 != null && Math.abs(d1) >= edge) || (d5 != null && Math.abs(d5) >= PRIOR_SESSION_MOVE_5D_PCT))) continue;
+    lines.push(`${label} ${md(last.date)} 종가${d1 != null ? ` ${signed(d1)}` : ''}${d5 != null ? ` (5거래일 ${signed(d5)})` : ''}`);
   }
   return lines.length ? `직전 완료 세션의 큰 움직임: ${lines.join(' · ')} — 이후 장중 반등·하락과 별개로, 해석의 첫 두 줄 안에 이 종가 변화를 날짜(M/D)와 함께 한 번 쓸 것.` : '';
 }

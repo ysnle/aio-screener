@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1979 - v58.68 - 시황 생성기의 직전 세션 큰 움직임이 코스피·WTI만 다루고, 빠진 세션을 하루 변화로 계산함 (2026-10-23)
+
+- symptom/reproduction: 10/22 시황 첫 줄이 '코스피 −3.52%, WTI −4.56%'로 시작했고, 나스닥 100과 반도체(SOXX −6.8%, SMH −6.0%)의 급락은 첫 두 줄에 나오지 않았다.
+- root_cause: priorSessionMoveLines가 S&P 500·코스피·WTI만 3% 기준으로 확인했다. 나스닥 100과 반도체는 대상이 아니었다. 또 미국 지수의 직전 점이 이틀 전(10/20)이어도 그대로 하루 변화로 계산했다.
+- fix: 미국을 앞에 두고(S&P 500 → 나스닥 100 → SMH → 코스피 → WTI), 나스닥 100은 2.5%, SMH는 4%(주도 영역 급락일 기준)에서 넣는다. 미국 하루 변화는 연속 세션일 때만 쓴다.
+- violated_rule: R720 수정마다 HEAD에서 실패하는 음성 대조와 양성 대조를 둔다
+- prevention: ci-esm-core-unit-check: SMH −6.04%가 첫 항목으로 나오고, 세션이 빠지면 하루 변화를 쓰지 않는다. ci-data-pipeline-contract-check의 v57.87 확인은 미국 줄 다음에 코스피 줄이 이어지는지 본다.
+- verification/residual: HEAD에서는 SMH가 대상이 아니라 실패하고, 수정 후 통과한다. 10/21 백필을 모사한 history에서 '반도체(SMH) 10/22 종가 -5.99%'가 첫 항목이다.
+
+## P1978 - v58.68 - history 백필이 장중 컷으로 남은 행을 확정 종가로 덮지 않아 10/21 미국 종가가 빠짐 (2026-10-23)
+
+- symptom/reproduction: 10/21 갱신 장애 뒤 history의 10/21 행에는 장중 시점 값만 남았고, 백필은 값이 이미 있다는 이유로 그 행을 건너뛰었다. 10/22 반도체·나스닥의 하루 변화를 계산할 직전 세션이 없어 급락일이 판정 줄에 나오지 못했다.
+- root_cause: backfillHistory는 기존 값에 valueBasis가 있으면 무조건 보존했다. 그 값이 다른 세션(장중 컷)의 관측인지는 확인하지 않았다.
+- fix: mergeBackfillBars가 기존 값의 세션(fieldMeta.sessionDate 또는 관측 시각의 세션)과 일봉 세션이 같을 때만 보존하고, 다르면 확정 일봉으로 바꾼다.
+- violated_rule: R720 수정마다 HEAD에서 실패하는 음성 대조와 양성 대조를 둔다
+- prevention: ci-history-field-time-contract-check: 10/21 장중 컷 행은 일봉으로 교체되고, 같은 세션의 확정 기록은 유지된다.
+- verification/residual: HEAD에서는 mergeBackfillBars가 없어 실패, 수정 후 통과. 지수(^GSPC/^NDX)는 Yahoo 10/21 일봉 자체가 비어 있어 채워지지 않고 SMH 등 ETF만 채워진다.
+
 ## P1977 - v58.66 - 의미 게이트가 증거 계층(evidenceQuotes)을 읽지 않아, 해석이 SMH·지수 선물을 인용하면 갱신 전체가 거부됨 (2026-10-23)
 
 - symptom/reproduction: v58.63–65 push 뒤 23:50Z와 00:10Z 갱신이 'market.sector.semis not in snapshot, market.futures.sp500 …'로 실패해, 10/22 23:22Z 이후 데이터가 게시되지 않았다.

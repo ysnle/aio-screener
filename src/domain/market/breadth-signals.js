@@ -11,7 +11,11 @@
 //     session; the count covers the latest 25 sessions.
 // Every count carries its own eligible denominator; a missing input is unknown, never a zero.
 
-export const BREADTH_SIGNAL_MODEL_VERSION = 'breadth-signals.v2';
+export const BREADTH_SIGNAL_MODEL_VERSION = 'breadth-signals.v3';
+// v58.68 (owner 2026-10-23): a 52-week low missed the sell-off the owner saw — on 10/22 30 of ~900 names made a
+// 52-week closing low but 189 a 20-session one (semis 41 of 65). Recent closing lows (adjusted close below every
+// close of the prior 20 / 63 sessions, all finite) are counted beside the 52-week count.
+export const RECENT_LOW_WINDOWS = Object.freeze([20, 63]);
 export const MOVER_THRESHOLD = 0.04;
 export const MOVER_MIN_VOLUME = 100000;
 export const NEW_HIGH_LOW_MIN_PRIOR = 240;
@@ -26,7 +30,7 @@ const finite = (value) => (value == null || value === '' ? null : Number.isFinit
 /**
  * Per-session signals for one symbol.
  * @param {{ closes?: number[], adjCloses: number[], highs?: number[], lows?: number[], volumes?: number[] }} series
- * @returns {Array<{ mover: 'up'|'down'|null, moverEligible: boolean, change: number|null, newHigh: boolean, newLow: boolean, highLowEligible: boolean, above40: boolean, above40Eligible: boolean }>}
+ * @returns {Array<{ mover: 'up'|'down'|null, moverEligible: boolean, change: number|null, newHigh: boolean, newLow: boolean, highLowEligible: boolean, above40: boolean, above40Eligible: boolean, low20: boolean, low20Eligible: boolean, low63: boolean, low63Eligible: boolean }>}
  */
 export function evaluateSymbolSignals({ closes = [], adjCloses = [], highs = [], lows = [], volumes = [] } = {}) {
   const n = adjCloses.length;
@@ -44,7 +48,17 @@ export function evaluateSymbolSignals({ closes = [], adjCloses = [], highs = [],
     if (adj[i] != null) { sum40 += adj[i]; count40 += 1; }
     if (i >= 40 && adj[i - 40] != null) { sum40 -= adj[i - 40]; count40 -= 1; }
     const above40Eligible = i >= 39 && count40 === 40;
-    const row = { mover: null, moverEligible: false, change: null, newHigh: false, newLow: false, highLowEligible: false, above40: false, above40Eligible };
+    const row = { mover: null, moverEligible: false, change: null, newHigh: false, newLow: false, highLowEligible: false, above40: false, above40Eligible,
+      low20: false, low20Eligible: false, low63: false, low63Eligible: false };
+    for (const window of RECENT_LOW_WINDOWS) {
+      if (i < window || adj[i] == null) continue;
+      let lowest = Infinity;
+      let complete = true;
+      for (let j = i - window; j < i; j += 1) { if (adj[j] == null) { complete = false; break; } if (adj[j] < lowest) lowest = adj[j]; }
+      if (!complete) continue;
+      row[`low${window}Eligible`] = true;
+      row[`low${window}`] = adj[i] < lowest;
+    }
     if (above40Eligible) row.above40 = adj[i] > sum40 / 40;
     if (i > 0 && adj[i] != null && adj[i - 1] != null && adj[i - 1] > 0) {
       row.change = adj[i] / adj[i - 1] - 1;

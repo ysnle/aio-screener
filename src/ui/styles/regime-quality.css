@@ -132,6 +132,19 @@ button[data-basis], a[data-basis] { cursor: pointer; }
 [data-basis]:focus-visible, .regime-radar-value:focus-visible { outline: 2px solid var(--accent, #2a64c8); outline-offset: 2px; border-radius: 2px; }
 /* P1651: latest completed KRX session line under the US regime summary. */
 .home-kr-line{font-size:13px;color:var(--text-secondary);line-height:1.6;margin:0 0 7px}
+/* v58.68: the AI·semiconductor leaders' verdict line under the six-axis verdict (오늘 and 시장 상태). */
+.leaders-line { margin: 4px 0 10px; padding: 8px 0 8px 12px; border-left: 3px solid var(--border); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.leaders-line[data-state="break"], .leaders-line[data-state="weak"] { border-left-color: var(--data-amber); }
+.leaders-line__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.leaders-line__label { font-weight: 600; color: var(--text-primary); }
+.leaders-line__state { font-weight: 600; color: var(--text-secondary); }
+.leaders-line__state.is-burden { color: var(--data-amber); }
+.leaders-line__read { color: var(--text-secondary); flex-basis: 100%; }
+.leaders-line__evidence { margin-top: 2px; font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.leaders-line__part + .leaders-line__part { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
+.leaders-line__more { margin-top: 4px; font-size: 13px; }
+.leaders-line__more summary { cursor: pointer; color: var(--text-secondary); min-height: 32px; display: flex; align-items: center; }
+.leaders-line__list { margin: 4px 0 0; padding-left: 18px; color: var(--text-secondary); line-height: 1.6; font-variant-numeric: tabular-nums; }
 
 /* P1661: past outcomes by VIX band */
 /* v57.76: a fold inside the 변동성 card — the value line goes under the label and bar so the bar keeps its width in a half-width card. */

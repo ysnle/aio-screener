@@ -325,6 +325,23 @@ if (!/const officialDate = String\(officialFx\?\.observedAt/.test(fetchDataSourc
   fail('fetch-data must compare the official observation against the aligned provider close, not the latest value');
 }
 
+// v58.68 (live 2026-10-21/22): after the refresh outage the 10/21 row held the 10/20 close (valueBasis previous-completed-close),
+// the backfill kept it, and the 10/21 US close never entered history. A bar replaces a value from another session; a
+// completed record of the bar's own session still wins (P1656).
+{
+  const { mergeBackfillBars } = await import('./producer/history.mjs');
+  const morningCut = { observedAt: '2026-10-20T13:30:00.000Z', valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', sessionDate: '2026-10-20' };
+  const closeRecord = { observedAt: '2026-10-22T20:31:48.000Z', valueBasis: 'provider-current-value', observationRelation: 'latest-completed-close' };
+  const hist = [
+    { date: '2026-10-21', spx: 7712.57, fieldMeta: { spx: morningCut } },
+    { date: '2026-10-22', spx: 7663.43, fieldMeta: { spx: closeRecord } }
+  ];
+  const bar = (date, value) => ({ date, spx: value, fieldMeta: { spx: { observedAt: `${date}T13:30:00.000Z`, observationRelation: 'latest-completed-close', observedAtSource: 'provider-current', sessionDate: date } } });
+  mergeBackfillBars(hist, { '2026-10-21': bar('2026-10-21', 7757.17), '2026-10-22': bar('2026-10-22', 7663.4) }, ['spx']);
+  if (hist[0].spx !== 7757.17 || hist[0].fieldMeta.spx.sessionDate !== '2026-10-21') fail(`v58.68 a backfill bar must replace a value from another session: ${JSON.stringify(hist[0])}`);
+  if (hist[1].spx !== 7663.43 || hist[1].fieldMeta.spx.valueBasis !== 'provider-current-value') fail('P1656/v58.68 a completed record of the same session as the bar must not be overwritten');
+}
+
 console.log(JSON.stringify({
   ok: true,
   rows: history.length,

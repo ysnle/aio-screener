@@ -18,6 +18,7 @@ const DAY_MS = 86400000;
 
 // v58.64 (DOMAIN #8): the close series lives in domain/market/close-series.js; these names stay exported from here.
 import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile } from '../market/close-series.js';
+import { buildLeadershipVerdict } from '../market/leadership-verdict.js';
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
 const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
@@ -1573,6 +1574,8 @@ export function buildMarketRegime(input = {}) {
     // v57.81: the leadership-break test and the trend cap travel with the regime (scenario rules, outlook, AI context).
     leadership,
     leadershipBreak: !!leadership.break,
+    // v58.68 (owner 2026-10-23): the AI·semiconductor leaders' own line beside the six-axis verdict.
+    leadershipVerdict: buildLeadershipVerdict({ history: input.history, leadership, smh: s.smh, basis }),
     trendCap,
     bottomWatch,
     axes
