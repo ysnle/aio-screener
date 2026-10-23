@@ -1090,7 +1090,12 @@ export function normalizePromptLabels(text) {
   return String(text || '')
     .replace(/\s*\(\s*(?:METRIC_EVIDENCE|NEWS_EVIDENCE|HEADLINE_CONTEXT)\s*[:：]\s*([^)]+?)\s*\)/g, (_, ids) => `[${ids}]`)
     .replace(/\s*\(\s*REGIME_CONTEXT\s*\)/g, '[regime-context]')
-    .replace(/\s*\(\s*(?:METRIC_EVIDENCE|REGIME_CONTEXT|MARKET_DRIVERS|HEADLINE_CONTEXT|NEWS_EVIDENCE)\s*\)/g, '');
+    .replace(/\s*\(\s*(?:METRIC_EVIDENCE|REGIME_CONTEXT|MARKET_DRIVERS|HEADLINE_CONTEXT|NEWS_EVIDENCE)\s*\)/g, '')
+    // v58.65 (live 2026-10-22 23:22Z): the label also arrived bare in prose ("… METRIC_EVIDENCE de7c55ec로 확인된다"), which
+    // the parenthesised forms above missed, so the whole reading was blocked. A cited id becomes a bracket citation.
+    .replace(/\b(?:METRIC_EVIDENCE|NEWS_EVIDENCE|HEADLINE_CONTEXT)\s*[:：]?\s*([A-Za-z0-9][\w.:-]*[A-Za-z0-9])/g, (_, id) => `[${id}]`)
+    .replace(/\bREGIME_CONTEXT\b/g, '[regime-context]')
+    .replace(/\s*\b(?:METRIC_EVIDENCE|MARKET_DRIVERS|HEADLINE_CONTEXT|NEWS_EVIDENCE)\b/g, '');
 }
 export function splitMarketSentence(text) {
   const lines = normalizePromptLabels(text).split('\n');

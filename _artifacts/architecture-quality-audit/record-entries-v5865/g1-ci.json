@@ -1,0 +1,18 @@
+{
+  "version": "v58.65", "date": "2026-10-23",
+  "p": {
+    "title": "CI 브라우저 샤드의 Playwright 설치 재시도가 남은 apt 잠금에 막혀 10/21 17:48 이후 어떤 커밋도 배포되지 않음",
+    "symptom": "브라우저 샤드에서 1회차 설치가 100초 timeout에 걸리면, 2·3회차는 2초 만에 apt 종료코드 100으로 실패했다. CI가 attested 성공을 남기지 못해 convergence가 배포를 거부했고, 라이브는 v58.60과 10/21 14:51Z 데이터에 멈췄다.",
+    "root_cause": "timeout이 npx만 종료하고, npx가 sudo로 띄운 apt-get은 계속 실행되며 dpkg 잠금을 쥐고 있었다. 재시도는 같은 잠금에 걸려 즉시 실패했다.",
+    "fix": "재시도 전에 dpkg 잠금이 풀릴 때까지(최대 180초) 기다려, 남아 있는 apt가 설치를 끝내게 한다.",
+    "violated_rule": "R720 게이트는 음성 대조로 실패를 확인해야 한다(재시도 경로가 실제로 다시 시도하는지 확인되지 않았다)",
+    "prevention": "CI 로그 확인: 재시도 실패 시간이 2초면 잠금 교착이다.",
+    "verification": "dd6a3a0a CI에서 재실행 2회 모두 같은 2초 실패를 재현했다. 수정 후 결과는 push 뒤 CI에서 확인."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-OPS-CI-01", "text": "{P}: 브라우저 샤드 설치가 timeout된 뒤 재시도가 dpkg 잠금 때문에 2초 만에 실패하지 않는다.", "verify_by": "gh run view <CI run> --log | grep 'playwright install attempt'", "done": false }],
+  "qa_section": "운영 v58.65",
+  "changelog": ["**CI 배포 교착 ({P}):** Playwright 설치 재시도가 남은 apt의 dpkg 잠금에 막혀 10/21 이후 배포가 멈추던 문제를 고쳤다."],
+  "note": "10/22 미국 종가 반영 점검: 라이브가 10/21 14:51Z 데이터에 멈춤 — CI 브라우저 설치 교착, 10/21 FRED 장애 때 거시 신선도 표시 불일치로 14시간 갱신 중단, 해석 본문 라벨 노출 차단을 고쳤다.",
+  "status": null
+}

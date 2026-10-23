@@ -6,6 +6,33 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P1976 - v58.65 - 본문에 괄호 없이 쓰인 프롬프트 라벨(METRIC_EVIDENCE id)이 정리되지 않아 시장 해석 전체가 차단됨 (2026-10-23)
+
+- symptom/reproduction: 10/22 23:22Z 갱신에서 해석이 prompt-label-leak으로 차단돼, 화면에는 지표 대체 문구만 나왔다.
+- root_cause: P1957 정규화는 괄호로 감싼 라벨만 바꿨다. 모델이 문장 안에 'METRIC_EVIDENCE de7c55ec로 확인된다'처럼 쓰면 라벨이 남았고, 검증기가 이를 누출로 판정했다.
+- fix: 괄호 없이 쓰인 라벨도 정리한다. 인용 id가 붙은 라벨은 [id] 인용으로 바꾸고, REGIME_CONTEXT는 [regime-context]로 바꾸며, 나머지 라벨은 지운다.
+- violated_rule: R720 같은 결함 클래스의 다른 형태까지 음성 대조로 확인한다
+- prevention: ci-data-pipeline-contract-check에 괄호 없는 라벨 사례를 추가했다. HEAD 정규화에서는 실패한다.
+- verification/residual: 음성 대조(HEAD)는 실패, 수정본은 PASS.
+
+## P1975 - v58.65 - FRED 장애 때 공식 1차 출처가 값을 바꿔도 신선도 표시가 stale로 남아 14시간 동안 시장 데이터 게시가 막힘 (2026-10-23)
+
+- symptom/reproduction: 2026-10-21 14:52Z부터 10-22 04:53Z까지 시장·뉴스 갱신이 모두 실패했다. 그 결과 10/21 미국 종가가 history에서 빠졌고, 그 사이 시세·해석도 게시되지 않았다.
+- root_cause: FRED가 HTML을 돌려주자 last-known-good이 모든 필드를 stale-reference로 표시했다. 이어서 BLS·BEA·재무부가 값과 _source_*를 공식 출처로 바꿨지만 _freshness_*는 그대로 두었다. artifact-semantics 게이트가 이 출처-신선도 모순을 이유로 갱신 전체를 거부했다.
+- fix: 공식 1차 출처로 승격할 때 값, 날짜, 출처, 신선도(observed)를 promote() 한 함수에서 함께 바꾸고, _originSource_*는 지운다.
+- violated_rule: R628 결측·대체값은 출처와 상태가 함께 이동해야 한다
+- prevention: ci-artifact-semantics-check가 FRED 장애에 공식 출처가 있는 런을 실제 병합 함수로 재생한다. HEAD 코드에서는 cpi, pce, dgs10 모순으로 실패한다.
+- verification/residual: 음성 대조(HEAD macro-merge)는 cpi·pce·dgs10 모순으로 실패, 수정본은 PASS.
+
+## P1974 - v58.65 - CI 브라우저 샤드의 Playwright 설치 재시도가 남은 apt 잠금에 막혀 10/21 17:48 이후 어떤 커밋도 배포되지 않음 (2026-10-23)
+
+- symptom/reproduction: 브라우저 샤드에서 1회차 설치가 100초 timeout에 걸리면, 2·3회차는 2초 만에 apt 종료코드 100으로 실패했다. CI가 attested 성공을 남기지 못해 convergence가 배포를 거부했고, 라이브는 v58.60과 10/21 14:51Z 데이터에 멈췄다.
+- root_cause: timeout이 npx만 종료하고, npx가 sudo로 띄운 apt-get은 계속 실행되며 dpkg 잠금을 쥐고 있었다. 재시도는 같은 잠금에 걸려 즉시 실패했다.
+- fix: 재시도 전에 dpkg 잠금이 풀릴 때까지(최대 180초) 기다려, 남아 있는 apt가 설치를 끝내게 한다.
+- violated_rule: R720 게이트는 음성 대조로 실패를 확인해야 한다(재시도 경로가 실제로 다시 시도하는지 확인되지 않았다)
+- prevention: CI 로그 확인: 재시도 실패 시간이 2초면 잠금 교착이다.
+- verification/residual: dd6a3a0a CI에서 재실행 2회 모두 같은 2초 실패를 재현했다. 수정 후 결과는 push 뒤 CI에서 확인.
+
 ## P1973 - v58.64 - 감사 결함 클래스의 다른 발생: NOT 조건 설명, 포트폴리오 입력 삭제, 한국 시세 null 예외, CIK 전체 대조 부재 (2026-10-23)
 
 - symptom/reproduction: 스크리너 조건 설명이 NOT 노드를 'NOT 하위 조건 0개'로 표시했다(SCR01 클래스: child 간선 누락). 미등록 티커 확인을 기다리는 동안 입력한 다음 보유 종목이 저장 후 지워졌다(BND01 클래스). 한국 테마 칩·원달러·미국 10년물 칸은 가격이 null이면 toFixed에서 예외가 나 렌더가 끊겼다(A05 클래스). CIK 표는 감사에서 찾은 10건만 검사했다(A01 클래스).

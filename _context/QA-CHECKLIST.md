@@ -4,6 +4,12 @@ last_verified: 2026-10-23
 confidence: medium
 ---
 
+## v58.65 운영 v58.65 (2026-10-23)
+
+- [ ] QA-OPS-CI-01: P1974: 브라우저 샤드 설치가 timeout된 뒤 재시도가 dpkg 잠금 때문에 2초 만에 실패하지 않는다. verify_by: gh run view <CI run> --log | grep 'playwright install attempt'
+- [x] QA-OPS-MACRO-01: P1975: FRED가 실패하고 BLS·BEA·재무부가 성공한 런은 공식 출처 필드를 observed로 게시하고 갱신이 통과한다. verify_by: node scripts/ci-artifact-semantics-check.mjs
+- [x] QA-OPS-LABEL-01: P1976: 본문에 괄호 없이 쓰인 프롬프트 라벨은 인용으로 바뀌거나 사라지고, 해석이 차단되지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+
 ## v58.64 아키텍처 감사 후속 v58.64 (2026-10-23)
 
 - [x] QA-ARCH-AUDIT-10: P1969: 같은 관측의 반복·겹치는 결과 창·결과 창 미상 표본은 READY가 되지 않는다. verify_by: node scripts/ci-conditional-evidence-contract.mjs

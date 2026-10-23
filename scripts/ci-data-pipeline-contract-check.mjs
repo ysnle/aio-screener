@@ -879,6 +879,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('v58.60 (live 2026-10-21) prompt section names never reach the reading: cited ids become bracket citations and a leaked reading is not reused',
     cleaned === '코스피는 10/21 종가 +3.29%[market.index.kospi:fbdb5f95], WTI는 -1.80%[regime-context], 장중 -3.37%였다.'
       && reusableMarketAnalysis(leakedPrevious, { metricEvidence: [{ evidenceId: 'a' }] }) === null, cleaned);
+  // v58.65 (live 2026-10-22 23:22Z): a bare label in prose blocked the whole reading as prompt-label-leak.
+  const bare = normalizePromptLabels('코스피 종가 변화는 METRIC_EVIDENCE de7c55ec로 확인된다. 흐름은 REGIME_CONTEXT 기준이고 MARKET_DRIVERS 순서다.');
+  check('v58.65 (live 2026-10-22) a bare prompt label in prose becomes a citation or disappears, so it no longer blocks the reading',
+    bare === '코스피 종가 변화는 [de7c55ec]로 확인된다. 흐름은 [regime-context] 기준이고 순서다.' && !/[A-Z]{4,}_[A-Z]{4,}/.test(bare), bare);
   const { NEWS_FEEDS } = await import('./lib/news-selection.mjs');
   const split = splitMarketSentence('S&P 500은 1.11% 하락했다.\n코스피는 장중 급락했다.\n오늘의 한 문장: "누군가는 이날을 기다렸고, 누군가는 이날을 기점으로 떠날 것이다."');
   const at = (iso) => Date.parse(iso);

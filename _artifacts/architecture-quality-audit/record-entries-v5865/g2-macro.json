@@ -1,0 +1,18 @@
+{
+  "version": "v58.65", "date": "2026-10-23",
+  "p": {
+    "title": "FRED 장애 때 공식 1차 출처가 값을 바꿔도 신선도 표시가 stale로 남아 14시간 동안 시장 데이터 게시가 막힘",
+    "symptom": "2026-10-21 14:52Z부터 10-22 04:53Z까지 시장·뉴스 갱신이 모두 실패했다. 그 결과 10/21 미국 종가가 history에서 빠졌고, 그 사이 시세·해석도 게시되지 않았다.",
+    "root_cause": "FRED가 HTML을 돌려주자 last-known-good이 모든 필드를 stale-reference로 표시했다. 이어서 BLS·BEA·재무부가 값과 _source_*를 공식 출처로 바꿨지만 _freshness_*는 그대로 두었다. artifact-semantics 게이트가 이 출처-신선도 모순을 이유로 갱신 전체를 거부했다.",
+    "fix": "공식 1차 출처로 승격할 때 값, 날짜, 출처, 신선도(observed)를 promote() 한 함수에서 함께 바꾸고, _originSource_*는 지운다.",
+    "violated_rule": "R628 결측·대체값은 출처와 상태가 함께 이동해야 한다",
+    "prevention": "ci-artifact-semantics-check가 FRED 장애에 공식 출처가 있는 런을 실제 병합 함수로 재생한다. HEAD 코드에서는 cpi, pce, dgs10 모순으로 실패한다.",
+    "verification": "음성 대조(HEAD macro-merge)는 cpi·pce·dgs10 모순으로 실패, 수정본은 PASS."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-OPS-MACRO-01", "text": "{P}: FRED가 실패하고 BLS·BEA·재무부가 성공한 런은 공식 출처 필드를 observed로 게시하고 갱신이 통과한다.", "verify_by": "node scripts/ci-artifact-semantics-check.mjs", "done": true }],
+  "qa_section": "운영 v58.65",
+  "changelog": ["**14시간 갱신 중단 ({P}):** FRED 장애 때 공식 출처로 바꾼 거시 값이 stale 표시를 유지해 의미 게이트가 갱신 전체를 막던 문제를 고쳤다(10/21 미국 종가 누락의 원인)."],
+  "note": "10/22 미국 종가 반영 점검: 라이브가 10/21 14:51Z 데이터에 멈춤 — CI 브라우저 설치 교착, 10/21 FRED 장애 때 거시 신선도 표시 불일치로 14시간 갱신 중단, 해석 본문 라벨 노출 차단을 고쳤다.",
+  "status": null
+}

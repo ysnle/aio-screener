@@ -1,0 +1,18 @@
+{
+  "version": "v58.65", "date": "2026-10-23",
+  "p": {
+    "title": "본문에 괄호 없이 쓰인 프롬프트 라벨(METRIC_EVIDENCE id)이 정리되지 않아 시장 해석 전체가 차단됨",
+    "symptom": "10/22 23:22Z 갱신에서 해석이 prompt-label-leak으로 차단돼, 화면에는 지표 대체 문구만 나왔다.",
+    "root_cause": "P1957 정규화는 괄호로 감싼 라벨만 바꿨다. 모델이 문장 안에 'METRIC_EVIDENCE de7c55ec로 확인된다'처럼 쓰면 라벨이 남았고, 검증기가 이를 누출로 판정했다.",
+    "fix": "괄호 없이 쓰인 라벨도 정리한다. 인용 id가 붙은 라벨은 [id] 인용으로 바꾸고, REGIME_CONTEXT는 [regime-context]로 바꾸며, 나머지 라벨은 지운다.",
+    "violated_rule": "R720 같은 결함 클래스의 다른 형태까지 음성 대조로 확인한다",
+    "prevention": "ci-data-pipeline-contract-check에 괄호 없는 라벨 사례를 추가했다. HEAD 정규화에서는 실패한다.",
+    "verification": "음성 대조(HEAD)는 실패, 수정본은 PASS."
+  },
+  "r": null,
+  "qa": [{ "id": "QA-OPS-LABEL-01", "text": "{P}: 본문에 괄호 없이 쓰인 프롬프트 라벨은 인용으로 바뀌거나 사라지고, 해석이 차단되지 않는다.", "verify_by": "node scripts/ci-data-pipeline-contract-check.mjs", "done": true }],
+  "qa_section": "운영 v58.65",
+  "changelog": ["**해석 차단 ({P}):** 본문 속 괄호 없는 프롬프트 라벨을 인용으로 정리해, 라벨 하나 때문에 시장 해석 전체가 대체 문구로 바뀌던 문제를 고쳤다."],
+  "note": "10/22 미국 종가 반영 점검: 라이브가 10/21 14:51Z 데이터에 멈춤 — CI 브라우저 설치 교착, 10/21 FRED 장애 때 거시 신선도 표시 불일치로 14시간 갱신 중단, 해석 본문 라벨 노출 차단을 고쳤다.",
+  "status": null
+}

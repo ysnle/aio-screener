@@ -141,6 +141,10 @@ jobs:
             if timeout 100 npx playwright $install_args; then break; fi
             [ "$attempt" = 3 ] && { echo "::error::playwright install failed 3 times"; exit 1; }
             echo "::warning::playwright install attempt $attempt timed out or failed; retrying"
+            # v58.65 (CI 2026-10-22): timeout stops npx, not the sudo apt-get it started. That apt kept the dpkg lock, so
+            # every retry failed in two seconds (apt exit 100) and no commit since 10/21 17:48 deployed. Let the
+            # leftover apt finish (its download is the slow part) before retrying on the same lock.
+            for _ in $(seq 1 90); do sudo fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock >/dev/null 2>&1 || break; sleep 2; done
           done
       - name: Run all gates in shard
         env:

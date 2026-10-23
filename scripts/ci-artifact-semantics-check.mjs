@@ -58,6 +58,29 @@ check('history declares the observation relation and timestamp source', /observa
 check('previous-completed-close does not fall back to the current observation time', !/observedAt: usePreviousClose \? \(previousObservedAt \|\|/.test(fetchData));
 check('market analysis evidence prefers the canonical snapshot', /buildMarketAnalysisEvidence\(data, \{ snapshot \}\)/.test(fetchData) && /snapshotQuotes/.test(fetchData));
 
+// v58.65 (live 2026-10-21 14:52Z–10-22 04:53Z): FRED answered HTML, last-known-good marked the fields stale, and the
+// official publishers replaced value and source but not the marker — the gate below then refused 14 hours of refreshes.
+// Replay that run through the real merge: every official promotion must publish as observed.
+{
+  const { mergeMacroPlanes } = await import(pathToFileURL(new URL('./producer/macro-merge.mjs', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')).href);
+  const previousMacro = { cpi: 3.6, _source_cpi: 'fred-official-primary', _freshness_cpi: 'observed', _asOf_cpi: '2026-08-01',
+    pce: 2.7, _source_pce: 'fred-official-primary', _freshness_pce: 'observed', _asOf_pce: '2026-08-01',
+    dgs10: 4.1, _source_dgs10: 'fred-official-primary', _freshness_dgs10: 'observed', _asOf_dgs10: '2026-10-20',
+    unemployment: 4.3, _source_unemployment: 'fred-official-primary', _freshness_unemployment: 'observed' };
+  const merged = mergeMacroPlanes({
+    macroRaw: { _source: 'fred', _failedSeries: ['cpi', 'pce', 'dgs10', 'unemployment'] }, previousMacro,
+    bls: { status: 'ok', values: { blsCpiYoY: 3.7 }, series: { cpi: { status: 'ok', observedAt: '2026-09-01' } } },
+    bea: { status: 'ok', values: { pce: 2.8 }, observedAt: '2026-09-01' },
+    treasury: { status: 'ok', values: { dgs10: 4.2 }, observedAt: '2026-10-21' },
+    fredHyOas: null
+  });
+  const disagree = Object.keys(merged).filter((k) => /^_source_/.test(k)).map((k) => k.slice(8))
+    .filter((field) => (merged[`_source_${field}`] === 'last-known-good') !== (merged[`_freshness_${field}`] === 'stale-reference'));
+  check('v58.65 a FRED outage with official primaries publishes observed markers beside official sources (last-known-good stays stale)',
+    disagree.length === 0 && merged._freshness_cpi === 'observed' && merged._freshness_pce === 'observed' && merged._freshness_dgs10 === 'observed'
+      && merged._freshness_unemployment === 'stale-reference' && !merged._originSource_cpi, JSON.stringify(disagree));
+}
+
 // ── P1090 : published macro freshness must not contradict its own source ─────
 // Transition: a committed data.json predates the producer fix and carries only the
 // old sticky markers. The producer contract above is enforced unconditionally; the

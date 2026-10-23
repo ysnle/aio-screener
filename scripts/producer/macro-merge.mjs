@@ -5,6 +5,18 @@
 import { FRED_SERIES, mergeMacroLastKnownGood, officialTreasuryDeltas } from '../lib/macro-sources.mjs';
 import { planeFresh } from './source-planes.mjs';
 
+// v58.65 (live 2026-10-21 14:52Z–10-22 04:53Z): when FRED answered HTML, last-known-good marked every field
+// `stale-reference`; BLS/BEA/Treasury then replaced the values and the source but left that marker, so the artifact
+// semantics gate refused the refresh and no quote, close or reading was published for 14 hours. A promoted official
+// observation is a fresh observation: value, date, source and freshness move together.
+function promote(macro, field, value, observedAt, source) {
+  macro[field] = value;
+  macro[`_asOf_${field}`] = observedAt;
+  macro[`_source_${field}`] = source;
+  macro[`_freshness_${field}`] = 'observed';
+  delete macro[`_originSource_${field}`];
+}
+
 export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, fredHyOas }) {
   const macro = mergeMacroLastKnownGood(macroRaw, previousMacro);
   for (const field of Object.keys(FRED_SERIES)) {
@@ -29,9 +41,7 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
       if (seriesEvidence?.status !== 'ok' || !Number.isFinite(value)) continue;
       // 2026-10-19 data audit: as for HY OAS below, an older BLS month never replaces a newer FRED month (release-day lag).
       if (macro[`_asOf_${macroField}`] && String(seriesEvidence.observedAt || '') < String(macro[`_asOf_${macroField}`])) continue;
-      macro[macroField] = value;
-      macro[`_asOf_${macroField}`] = seriesEvidence.observedAt || null;
-      macro[`_source_${macroField}`] = 'bls-official-primary';
+      promote(macro, macroField, value, seriesEvidence.observedAt || null, 'bls-official-primary');
     }
   }
   macro._bls = bls;
@@ -41,18 +51,14 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
   if (planeFresh('fredHyOas', fredHyOas) && Number.isFinite(Number(fredHyOas.value))) {
     const currentObservedAt = String(macro._asOf_hyOAS || '');
     if (!currentObservedAt || String(fredHyOas.observedAt || '') >= currentObservedAt) {
-      macro.hyOAS = Number(fredHyOas.value);
-      macro._asOf_hyOAS = fredHyOas.observedAt;
-      macro._source_hyOAS = 'fred-official-public-csv';
+      promote(macro, 'hyOAS', Number(fredHyOas.value), fredHyOas.observedAt, 'fred-official-public-csv');
     }
   }
   if (planeFresh('treasury', treasury) && treasury.values) {
     for (const field of ['dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y']) {
       if (!Number.isFinite(Number(treasury.values[field]))) continue;
       const fredAsOf = String(macro[`_asOf_${field}`] || '');
-      macro[field] = Number(treasury.values[field]);
-      macro[`_asOf_${field}`] = treasury.observedAt;
-      macro[`_source_${field}`] = 'us-treasury-official-primary';
+      promote(macro, field, Number(treasury.values[field]), treasury.observedAt, 'us-treasury-official-primary');
       if (field === 't10y2y') continue;
       const official = officialTreasuryDeltas(treasury, field);
       const fredSameDate = fredAsOf === String(treasury.observedAt || '');
@@ -66,14 +72,10 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
   // BEA promotes only a collection of this run (not 'cached-fresh'), as before the split.
   if (bea.status === 'ok' && bea.values) {
     if (Number.isFinite(bea.values.pce)) {
-      macro.pce = bea.values.pce;
-      macro._asOf_pce = bea.observedAt;
-      macro._source_pce = 'bea-official-primary';
+      promote(macro, 'pce', bea.values.pce, bea.observedAt, 'bea-official-primary');
     }
     if (Number.isFinite(bea.values.corePce)) {
-      macro.corePce = bea.values.corePce;
-      macro._asOf_corePce = bea.observedAt;
-      macro._source_corePce = 'bea-official-primary';
+      promote(macro, 'corePce', bea.values.corePce, bea.observedAt, 'bea-official-primary');
     }
   }
   return macro;
