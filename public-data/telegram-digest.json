@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-23T00:21:58.663Z",
-  "attemptedAt": "2026-10-23T00:21:58.663Z",
-  "lastSuccessfulAt": "2026-10-23T00:21:58.663Z",
+  "generatedAt": "2026-10-23T00:52:00.082Z",
+  "attemptedAt": "2026-10-23T00:52:00.082Z",
+  "lastSuccessfulAt": "2026-10-23T00:52:00.082Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-09T00:21:53.020Z",
-  "until": "2026-10-23T00:21:53.020Z",
+  "since": "2026-10-09T00:51:55.882Z",
+  "until": "2026-10-23T00:51:55.882Z",
   "current24hWindow": {
     "start": "2026-10-21T23:00:00.000Z",
     "end": "2026-10-22T23:00:00.000Z",
@@ -78,11 +78,11 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 265,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 254,
       "selectedCount": 67,
       "error": null,
@@ -93,21 +93,21 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1210,
+      "count": 1212,
       "freshCount": 40,
-      "eligibleTextCount": 1160,
+      "eligibleTextCount": 1162,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67072
+      "lastPostId": 67074
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 220,
-      "freshCount": 39,
-      "eligibleTextCount": 220,
+      "count": 219,
+      "freshCount": 20,
+      "eligibleTextCount": 219,
       "selectedCount": 93,
       "error": null,
       "lastPostId": 20774
@@ -117,52 +117,55 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 712,
+      "count": 715,
       "freshCount": 40,
-      "eligibleTextCount": 712,
+      "eligibleTextCount": 715,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 70877
+      "lastPostId": 70881
     }
   ],
-  "count": 2407,
-  "retainedItemCount": 471,
+  "count": 2411,
+  "retainedItemCount": 454,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2407,
-    "eligibleTextCount": 2346,
+    "observedCount": 2411,
+    "eligibleTextCount": 2350,
     "mediaOnlyCount": 61,
-    "highSignalCount": 526,
+    "highSignalCount": 528,
     "broadSignalCount": 1070,
     "selectedRawCount": 403,
     "selectedEligibleCount": 403,
-    "selectedRawCoveragePct": 17.2,
+    "selectedRawCoveragePct": 17.1,
     "selectedOfObservedPct": 16.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "earnings": 504,
-    "media-only": 61,
-    "market-note": 807,
-    "equity": 171,
-    "insider": 43,
     "macro": 800,
+    "semi": 603,
+    "insider": 44,
+    "earnings": 506,
+    "power": 339,
+    "market-note": 809,
+    "ai-policy": 174,
+    "equity": 172,
+    "media-only": 61,
     "geo": 349,
-    "semi": 602,
     "kr-market": 169,
     "japan": 148,
     "flows": 151,
     "credit": 115,
-    "power": 338,
     "healthcare": 136,
-    "ai-policy": 174,
     "optical": 49,
     "crypto": 6
   },
   "tickerCounts": {
+    "WDC": 9,
+    "GOOG": 75,
+    "BE": 25,
     "028050.KS": 3,
     "068270.KS": 1,
     "016360.KS": 2,
@@ -170,8 +173,6 @@
     "039490.KS": 1,
     "TSLA": 64,
     "NVDA": 135,
-    "GOOG": 74,
-    "BE": 24,
     "MS": 6,
     "009150.KS": 15,
     "000660.KS": 61,
@@ -191,7 +192,6 @@
     "PINS": 1,
     "AMZN": 40,
     "CRWV": 21,
-    "WDC": 8,
     "SHOP": 2,
     "DB": 2,
     "WMT": 2,
@@ -246,14 +246,14 @@
     "CRWD": 1
   },
   "themes": [
-    "Market Notes (807 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
+    "Market Notes (809 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
     "Macro/Rates (800 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가 78,000원으로 상향 ㆍ 14개 분기 연속 일회성 이익, 이익 추정치 상향 ㆍ 6,900억원의 자사주 매입 소각...",
-    "Semiconductors/Memory (602 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
-    "Earnings/Corporate (504 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
+    "Semiconductors/Memory (603 posts in 14-day research window): Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에...",
+    "Earnings/Corporate (506 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
     "Geopolitics (349 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
-    "AI Power/Grid (338 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-    "AI Policy/Export Controls (174 posts in 14-day research window): OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
-    "Equity/Analyst (171 posts in 14-day research window): 2026년 10월 21일 미국 레딧 베스트 게시물 분석 > NBIS / CRWV / APLD - AI 인프라 Dip Buy 반격 · NBIS $246K YOLO 등장 · CRWV도 “let’s go” Bull..."
+    "AI Power/Grid (339 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "AI Policy/Export Controls (174 posts in 14-day research window): 앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를...",
+    "Equity/Analyst (172 posts in 14-day research window): SpaceX 2026년 3분기 어닝콜 Q&A 세션 중 테라팹(Terafab) : 내년(2027년) 5~6월경 오스틴 리서치 팹에서 라인 테스트용 첫 기능성 테스트 칩(SRAM 등)을 가동하는 것이 목표 ...."
   ],
   "catalysts": [
     {
@@ -268,7 +268,7 @@
     },
     {
       "key": "GOOG",
-      "count": 74,
+      "count": 75,
       "text": "블룸에너지 ( $BE ) 2026년 3분기 어닝콜 Q&A 세션 Q1. 프리몬트 부지 확장(10GW 증설 여부) 및 매출총이익률 전망 (JPMorgan) 질문: 지금 프리몬트 공장 부지를 확장하는 이유와 신규 시설 가동 시 연 10GW 이상이 되는지 궁금합니다. 또한 매출 가이던스 상향에도 연간 매출총이익률..."
     },
     {
@@ -308,7 +308,7 @@
     },
     {
       "key": "BE",
-      "count": 24,
+      "count": 25,
       "text": "블룸에너지 ( $BE ) 2026년 3분기 어닝콜 Q&A 세션 Q1. 프리몬트 부지 확장(10GW 증설 여부) 및 매출총이익률 전망 (JPMorgan) 질문: 지금 프리몬트 공장 부지를 확장하는 이유와 신규 시설 가동 시 연 10GW 이상이 되는지 궁금합니다. 또한 매출 가이던스 상향에도 연간 매출총이익률..."
     },
     {
@@ -351,7 +351,7 @@
       "topics": [
         "semi"
       ],
-      "count": 602,
+      "count": 603,
       "focus": "Citi) 엔비디아 (NVDA.O); GTC 베를린 – 공급 준비 태세와 AI 에이전트 보안에 초점 씨티의 견해 젠슨 황(CEO)은 오늘 GTC 베를린에서 기조연설을 했습니다. 젠슨의 핵심 메시지는 AI의 구속적 제약 요인은 여전히 수요가 아니라 제조 및 배포 속도라는 것이었습니다. 엔비디아는 공급 문제에..."
     },
     {
@@ -369,7 +369,7 @@
       "topics": [
         "power"
       ],
-      "count": 338,
+      "count": 339,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -379,7 +379,7 @@
         "ai-policy"
       ],
       "count": 174,
-      "focus": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게..."
+      "focus": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
     },
     {
       "id": "kr-market",
@@ -396,8 +396,8 @@
       "topics": [
         "equity"
       ],
-      "count": 171,
-      "focus": "2026년 10월 21일 미국 레딧 베스트 게시물 분석 > NBIS / CRWV / APLD - AI 인프라 Dip Buy 반격 · NBIS $246K YOLO 등장 · CRWV도 “let’s go” Bull..."
+      "count": 172,
+      "focus": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 중 테라팹(Terafab) : 내년(2027년) 5~6월경 오스틴 리서치 팹에서 라인 테스트용 첫 기능성 테스트 칩(SRAM 등)을 가동하는 것이 목표 ...."
     },
     {
       "id": "crypto",
@@ -414,7 +414,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 504,
+      "count": 506,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI..."
     },
     {
@@ -450,7 +450,7 @@
       "topics": [
         "insider"
       ],
-      "count": 43,
+      "count": 44,
       "focus": ">>CXMT·Biwin Storage·Piotech 주도, 과창판 주요 기업들 자사주 매입 잇따라 발표 •10월 8~17일 일주일간 CXMT, Biwin Storage, Piotech, Orbbec,..."
     },
     {
@@ -459,7 +459,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 807,
+      "count": 809,
       "focus": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     }
   ],
@@ -1313,17 +1313,12 @@
       "datetime": "2026-10-20T23:04:20.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "credit",
-        "macro",
         "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "healthcare"
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 Q1. 아담 조나스 (Morgan Stanley) - 테라팹(Terafab) 및 자체 반도체 제조 질문: 첫째, 안전한 역내(Onshore)에서 막대한 칩을...",
       "tickers": [],
       "relatedTickers": [
         "AVGO"
@@ -1335,8 +1330,7 @@
         "GS",
         "MS",
         "DB"
-      ],
-      "summary": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 Q1. 아담 조나스 (Morgan Stanley) - 테라팹(Terafab) 및 자체 반도체 제조 질문: 첫째, 안전한 역내(Onshore)에서 막대한 칩을..."
+      ]
     },
     {
       "id": "insidertracking/66823",
@@ -1682,6 +1676,44 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/67074",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67074",
+      "datetime": "2026-10-23T00:36:17.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "macro",
+        "semi",
+        "insider",
+        "earnings"
+      ],
+      "score": 73,
+      "hasText": true,
+      "tickers": [
+        "WDC"
+      ],
+      "summary": "웨스턴디지털(WDC) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 1분기 매출은 44억달러로 전년 대비 55% 증가. 매출총이익률은 58.1%로 전년 대비 약..."
+    },
+    {
+      "id": "insidertracking/67073",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67073",
+      "datetime": "2026-10-23T00:35:01.000Z",
+      "localDateKst": "2026-10-23",
+      "tags": [
+        "macro",
+        "power",
+        "earnings"
+      ],
+      "score": 73,
+      "hasText": true,
+      "tickers": [
+        "GOOG",
+        "BE"
+      ],
+      "summary": "블룸에너지(BE) Q3 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 수익성 개선. 3분기 매출은 12억4,000만달러로 전년 대비 138% 증가했으며 영업이익은 2억8,600만달러로 500%..."
+    },
     {
       "id": "bornlupin/20773",
       "channel": "bornlupin",
@@ -2956,16 +2988,14 @@
       "datetime": "2026-10-22T06:16:25.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "semi"
       ],
       "score": 69,
       "hasText": true,
+      "summary": ">>TrendForce : 2027년 서버 CPU 출하량 전년 대비 40% 이상 증가, Arm 기반 제품의 시장점유율 지속 확대 •TrendForce의 최신 AI 서버 산업 보고서, AI 서비스 업체들이 AI...",
       "tickers": [
         "AMD"
-      ],
-      "summary": ">>TrendForce : 2027년 서버 CPU 출하량 전년 대비 40% 이상 증가, Arm 기반 제품의 시장점유율 지속 확대 •TrendForce의 최신 AI 서버 산업 보고서, AI 서비스 업체들이 AI..."
+      ]
     },
     {
       "id": "HANAchina/70840",
@@ -2978,8 +3008,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 반도체 빠르게 낙폭 축소 •CXMT -4.5%에서 약보합까지 만회 •정부 개입 추정 자금은 계속 유입"
+      "summary": "•중국 반도체 빠르게 낙폭 축소 •CXMT -4.5%에서 약보합까지 만회 •정부 개입 추정 자금은 계속 유입",
+      "tickers": []
     },
     {
       "id": "insidertracking/66990",
@@ -3478,16 +3508,14 @@
       "datetime": "2026-10-22T00:04:23.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를...",
       "tickers": [
         "SHOP"
-      ],
-      "summary": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
+      ]
     },
     {
       "id": "bornlupin/20760",
@@ -3594,8 +3622,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "NBC뉴스에 따르면 미군이 최근 이란에 대한 군사작전 확대 가능성에 대비해 요르단, 카타르, 쿠웨이트 등 중동 지역 여러 군사기지의 주둔 병력을 비공개로 감축 중. 미국 관리 2명과 관련 사안에 정통한 소식통..."
+      "summary": "NBC뉴스에 따르면 미군이 최근 이란에 대한 군사작전 확대 가능성에 대비해 요르단, 카타르, 쿠웨이트 등 중동 지역 여러 군사기지의 주둔 병력을 비공개로 감축 중. 미국 관리 2명과 관련 사안에 정통한 소식통...",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25969",
@@ -3606,18 +3634,17 @@
       "tags": [
         "macro",
         "semi",
-        "ai-policy",
         "equity",
         "earnings",
         "healthcare"
       ],
       "score": 90,
       "hasText": true,
+      "summary": "#Meta FY3Q26 실적 발표 컨퍼런스콜 주요 코멘트 및 Q&A 요약 _한투 반도체 고영민, 김연준 Q. Muse 사용자 증가의 제약 요인은? (역량, 모델 효율, CAPA 등) - 최대 제약은 컴퓨트...",
       "tickers": [
         "WMT",
         "SHOP"
-      ],
-      "summary": "#Meta FY3Q26 실적 발표 컨퍼런스콜 주요 코멘트 및 Q&A 요약 _한투 반도체 고영민, 김연준 Q. Muse 사용자 증가의 제약 요인은? (역량, 모델 효율, CAPA 등) - 최대 제약은 컴퓨트..."
+      ]
     },
     {
       "id": "HANAchina/70810",
@@ -4079,11 +4106,11 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "제프리스, 루멘텀(Lumentum, $LITE ) 목표주가 1,200달러에서 1,250달러로 상향 , 투자의견 '매수(Buy)'를 유지 루멘텀이 알파벳(GOOGL)의 광회선 스위치(OCS, Optical...",
       "tickers": [
         "GOOG",
         "LITE"
-      ],
-      "summary": "제프리스, 루멘텀(Lumentum, $LITE ) 목표주가 1,200달러에서 1,250달러로 상향 , 투자의견 '매수(Buy)'를 유지 루멘텀이 알파벳(GOOGL)의 광회선 스위치(OCS, Optical..."
+      ]
     },
     {
       "id": "insidertracking/66912",
@@ -4115,15 +4142,14 @@
       "datetime": "2026-10-21T12:14:30.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "credit",
         "ai-policy"
       ],
       "score": 71,
       "hasText": true,
+      "summary": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
       "tickers": [
         "GOOG"
-      ],
-      "summary": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스..."
+      ]
     },
     {
       "id": "bornlupin/20753",
@@ -4132,15 +4158,14 @@
       "datetime": "2026-10-21T12:14:02.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "JP모건, 스페이스X( $SPCX ) 목표주가 240달러에서 500달러로 상향, 투자의견 비중확대(Overweight) 유지 1. 스페이스X–테슬라 합병 가능성 일론 머스크는 스페이스X와 테슬라(TSLA)가...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "JP모건, 스페이스X( $SPCX ) 목표주가 240달러에서 500달러로 상향, 투자의견 비중확대(Overweight) 유지 1. 스페이스X–테슬라 합병 가능성 일론 머스크는 스페이스X와 테슬라(TSLA)가..."
+      ]
     },
     {
       "id": "HANAchina/70807",
@@ -4168,20 +4193,16 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "semi",
-        "optical",
-        "power",
-        "ai-policy",
-        "earnings"
+        "semi"
       ],
       "score": 99,
       "hasText": true,
+      "summary": "NVIDIA GTC 베를린 키노트 - 젠슨 황 CEO 유럽 AI 생태계와 차세대 풀스택 아키텍처 1. 유럽 AI 경제 구축 및 파트너십 지난 1년간 유럽 내 스타트업 및 파트너십에 약 100억 달러 투자(누적...",
       "tickers": [
         "NVDA",
         "MSFT",
         "TSM"
-      ],
-      "summary": "NVIDIA GTC 베를린 키노트 - 젠슨 황 CEO 유럽 AI 생태계와 차세대 풀스택 아키텍처 1. 유럽 AI 경제 구축 및 파트너십 지난 1년간 유럽 내 스타트업 및 파트너십에 약 100억 달러 투자(누적..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25966",
@@ -4190,20 +4211,16 @@
       "datetime": "2026-10-21T11:59:45.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "healthcare",
-        "japan"
+        "semi"
       ],
       "score": 89,
       "hasText": true,
+      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] 엔비디아, 공급망 파트너와 AI 인프라 생산능력 확대 발표 확대 개요 - GTC Berlin서 암코·이비덴·KYEC·삼성전기·SPIL·유니마이크론 등과...",
       "tickers": [
         "NVDA",
         "MU",
         "009150.KS"
-      ],
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] 엔비디아, 공급망 파트너와 AI 인프라 생산능력 확대 발표 확대 개요 - GTC Berlin서 암코·이비덴·KYEC·삼성전기·SPIL·유니마이크론 등과..."
+      ]
     },
     {
       "id": "insidertracking/66904",
@@ -4273,20 +4290,16 @@
       "datetime": "2026-10-21T11:41:10.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "healthcare",
-        "japan"
+        "semi"
       ],
       "score": 99,
       "hasText": true,
+      "summary": "엔비디아 및 공급망 파트너, AI 인프라 구축 가속화를 위한 생산 능력(Capacity) 대폭 확대 엔비디아는 가속 컴퓨팅 및 풀스택 AI 팩토리 플랫폼의 폭발적인 수요에 대응하기 위해 글로벌 주요 공급망...",
       "tickers": [
         "NVDA",
         "MU",
         "009150.KS"
-      ],
-      "summary": "엔비디아 및 공급망 파트너, AI 인프라 구축 가속화를 위한 생산 능력(Capacity) 대폭 확대 엔비디아는 가속 컴퓨팅 및 풀스택 AI 팩토리 플랫폼의 폭발적인 수요에 대응하기 위해 글로벌 주요 공급망..."
+      ]
     },
     {
       "id": "insidertracking/66899",
@@ -4334,10 +4347,10 @@
       ],
       "score": 66,
       "hasText": true,
+      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇..."
+      ]
     },
     {
       "id": "HANAchina/70806",
@@ -4507,19 +4520,15 @@
       "datetime": "2026-10-21T06:35:01.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "kr-market",
         "earnings"
       ],
       "score": 93,
       "hasText": true,
+      "summary": "블룸버그) AI 네오클라우드 기업 '엘리스(Elice)' CEO, 주가 반등 속 올해 매출 2배 증가 전망 한국의 AI 인프라(네오클라우드) 기업인 엘리스(Elice Inc.)가 상장 첫날의 혹독한 주가...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "블룸버그) AI 네오클라우드 기업 '엘리스(Elice)' CEO, 주가 반등 속 올해 매출 2배 증가 전망 한국의 AI 인프라(네오클라우드) 기업인 엘리스(Elice Inc.)가 상장 첫날의 혹독한 주가..."
+      ]
     },
     {
       "id": "HANAchina/70798",
@@ -4579,15 +4588,14 @@
       "datetime": "2026-10-21T04:40:53.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "macro",
         "power",
         "earnings",
         "healthcare"
       ],
       "score": 73,
       "hasText": true,
-      "tickers": [],
-      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를..."
+      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70795",
@@ -4612,13 +4620,12 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "score": 73,
       "hasText": true,
-      "tickers": [],
-      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러..."
+      "summary": "스페이스X 사업 업데이트 및 전망 AI 데이터센터 2027년 AI 컴퓨트 용량 5~10GW → 7.5~13GW 상향. AI 컴퓨트 거래가격도 지난 분기 와트당 30~50달러 수익화 예상에서 와트당 50달러...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66856",
@@ -4676,8 +4683,8 @@
       ],
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": "[SK증권 반도체 한동희, 손 건] 10월 1~20일 반도체 수출액 잠정치 DRAM 109.5억달러 (+3% MoM, +25% QoQ) DRAM 모듈 47.5억달러 (-43% MoM, +53% QoQ)..."
+      "summary": "[SK증권 반도체 한동희, 손 건] 10월 1~20일 반도체 수출액 잠정치 DRAM 109.5억달러 (+3% MoM, +25% QoQ) DRAM 모듈 47.5억달러 (-43% MoM, +53% QoQ)...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66848",
@@ -4720,8 +4727,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "[속보] 10월 1~20일 수출 105.4% 증가⋯반도체 222.5%↑"
+      "summary": "[속보] 10월 1~20일 수출 105.4% 증가⋯반도체 222.5%↑",
+      "tickers": []
     },
     {
       "id": "bornlupin/20740",
@@ -4735,10 +4742,10 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "엔비디아(NVDA), 호주 AI 클라우드 기업 퍼머스에 수억 달러 투자 논의",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아(NVDA), 호주 AI 클라우드 기업 퍼머스에 수억 달러 투자 논의"
+      ]
     },
     {
       "id": "HANAchina/70785",
@@ -4778,16 +4785,14 @@
       "datetime": "2026-10-20T23:33:08.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "semi"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "엔비디아 젠슨 황 CEO의 GTC Berlin 2026 기조연설 오늘 10월 21일(수요일), 한국시간 오후 6시~8시 Nebius( $NBIS ) 창업자 Arkady Volozh AI 팩토리 분야의 공식...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 젠슨 황 CEO의 GTC Berlin 2026 기조연설 오늘 10월 21일(수요일), 한국시간 오후 6시~8시 Nebius( $NBIS ) 창업자 Arkady Volozh AI 팩토리 분야의 공식..."
+      ]
     },
     {
       "id": "HANAchina/70784",
@@ -4813,19 +4818,16 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "score": 82,
       "hasText": true,
+      "summary": "앤스로픽, IPO 앞두고 컴퓨팅 파워에 7,500억 달러 지출 가능성-WSJ 1. 천문학적인 컴퓨팅 인프라 투자 계획 월스트리트저널(WSJ)이 입수한 IPO 투자설명서 초안에 따르면, 기업공개(IPO)를 준비...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "앤스로픽, IPO 앞두고 컴퓨팅 파워에 7,500억 달러 지출 가능성-WSJ 1. 천문학적인 컴퓨팅 인프라 투자 계획 월스트리트저널(WSJ)이 입수한 IPO 투자설명서 초안에 따르면, 기업공개(IPO)를 준비..."
+      ]
     },
     {
       "id": "HANAchina/70782",
@@ -4850,21 +4852,17 @@
       "datetime": "2026-10-20T23:12:48.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
         "equity"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 중 테라팹(Terafab) : 내년(2027년) 5~6월경 오스틴 리서치 팹에서 라인 테스트용 첫 기능성 테스트 칩(SRAM 등)을 가동하는 것이 목표 ....",
       "tickers": [
         "TSLA"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 중 테라팹(Terafab) : 내년(2027년) 5~6월경 오스틴 리서치 팹에서 라인 테스트용 첫 기능성 테스트 칩(SRAM 등)을 가동하는 것이 목표 ...."
+      ]
     },
     {
       "id": "bornlupin/20736",
@@ -4873,17 +4871,12 @@
       "datetime": "2026-10-20T23:04:20.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "credit",
-        "macro",
         "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "healthcare"
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 Q1. 아담 조나스 (Morgan Stanley) - 테라팹(Terafab) 및 자체 반도체 제조 질문: 첫째, 안전한 역내(Onshore)에서 막대한 칩을...",
       "tickers": [],
       "relatedTickers": [
         "AVGO"
@@ -4895,8 +4888,7 @@
         "GS",
         "MS",
         "DB"
-      ],
-      "summary": "SpaceX 2026년 3분기 어닝콜 Q&A 세션 Q1. 아담 조나스 (Morgan Stanley) - 테라팹(Terafab) 및 자체 반도체 제조 질문: 첫째, 안전한 역내(Onshore)에서 막대한 칩을..."
+      ]
     },
     {
       "id": "HANAchina/70780",
@@ -4922,16 +4914,13 @@
       "localDateKst": "2026-10-21",
       "tags": [
         "macro",
-        "semi",
-        "power",
         "equity",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 77,
       "hasText": true,
-      "tickers": [],
-      "summary": "SpaceX 2026년 3분기 어닝콜 중 초지능(SI, Super Intelligence) 부문: 3분기 최대 성장 동력으로, 부문 매출은 76억 달러 기록 (전 분기 대비 50억 달러 증가, 전년 동기 대비..."
+      "summary": "SpaceX 2026년 3분기 어닝콜 중 초지능(SI, Super Intelligence) 부문: 3분기 최대 성장 동력으로, 부문 매출은 76억 달러 기록 (전 분기 대비 50억 달러 증가, 전년 동기 대비...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70779",
@@ -6652,57 +6641,6 @@
       "hasText": true,
       "summary": "로이터에 따르면 트럼프 대통령의 신규 대러시아 제재 해제 결정으로 인도의 러시아산 원유 구매가 용이해졌으며, 미국과 인도 간 무역협정 체결 가능성도 높아진 것으로 평가. 앞서 인도는 러시아산 원유 구매와...",
       "tickers": []
-    },
-    {
-      "id": "insidertracking/66732",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66732",
-      "datetime": "2026-10-19T21:03:49.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "market-note"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": "유럽 천연가스 가격이 4년 만에 최고치를 기록한 가운데, 카타르산 액화천연가스(LNG)를 실은 운반선이 홍해를 통과해 유럽으로 향하는 중. 블룸버그는 선박 추적 데이터를 인용해 카타르산 LNG를 적재한...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/66724",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66724",
-      "datetime": "2026-10-19T20:55:26.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi",
-        "flows"
-      ],
-      "score": 97,
-      "hasText": true,
-      "summary": "2026년 10월 19일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.88%) 2위: DIREXION SHARES...",
-      "tickers": [],
-      "listTickers": [
-        "TSM",
-        "ORCL",
-        "RKLB",
-        "000660.KS",
-        "COST",
-        "MRK",
-        "TMO",
-        "BAC",
-        "NKE",
-        "MRNA",
-        "IONQ",
-        "RGTI",
-        "CLS",
-        "SHOP",
-        "AMC",
-        "GRMN",
-        "QQQ",
-        "SOXX",
-        "GDX",
-        "IVZ"
-      ]
     },
     {
       "id": "HANAchina/70696",
@@ -9673,16 +9611,14 @@
       "datetime": "2026-10-22T06:16:25.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "semi"
       ],
       "score": 69,
       "hasText": true,
+      "summary": ">>TrendForce : 2027년 서버 CPU 출하량 전년 대비 40% 이상 증가, Arm 기반 제품의 시장점유율 지속 확대 •TrendForce의 최신 AI 서버 산업 보고서, AI 서비스 업체들이 AI...",
       "tickers": [
         "AMD"
-      ],
-      "summary": ">>TrendForce : 2027년 서버 CPU 출하량 전년 대비 40% 이상 증가, Arm 기반 제품의 시장점유율 지속 확대 •TrendForce의 최신 AI 서버 산업 보고서, AI 서비스 업체들이 AI..."
+      ]
     },
     {
       "id": "HANAchina/70840",
@@ -9695,8 +9631,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 반도체 빠르게 낙폭 축소 •CXMT -4.5%에서 약보합까지 만회 •정부 개입 추정 자금은 계속 유입"
+      "summary": "•중국 반도체 빠르게 낙폭 축소 •CXMT -4.5%에서 약보합까지 만회 •정부 개입 추정 자금은 계속 유입",
+      "tickers": []
     },
     {
       "id": "insidertracking/66990",
@@ -10195,16 +10131,14 @@
       "datetime": "2026-10-22T00:04:23.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를...",
       "tickers": [
         "SHOP"
-      ],
-      "summary": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
+      ]
     },
     {
       "id": "bornlupin/20760",
@@ -10311,8 +10245,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "NBC뉴스에 따르면 미군이 최근 이란에 대한 군사작전 확대 가능성에 대비해 요르단, 카타르, 쿠웨이트 등 중동 지역 여러 군사기지의 주둔 병력을 비공개로 감축 중. 미국 관리 2명과 관련 사안에 정통한 소식통..."
+      "summary": "NBC뉴스에 따르면 미군이 최근 이란에 대한 군사작전 확대 가능성에 대비해 요르단, 카타르, 쿠웨이트 등 중동 지역 여러 군사기지의 주둔 병력을 비공개로 감축 중. 미국 관리 2명과 관련 사안에 정통한 소식통...",
+      "tickers": []
     }
   ]
 }
