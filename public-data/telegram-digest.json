@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-23T16:21:42.635Z",
-  "attemptedAt": "2026-10-23T16:21:42.635Z",
-  "lastSuccessfulAt": "2026-10-23T16:21:42.635Z",
+  "generatedAt": "2026-10-23T16:52:17.888Z",
+  "attemptedAt": "2026-10-23T16:52:17.888Z",
+  "lastSuccessfulAt": "2026-10-23T16:52:17.888Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-09T16:21:37.882Z",
-  "until": "2026-10-23T16:21:37.882Z",
+  "since": "2026-10-09T16:52:12.804Z",
+  "until": "2026-10-23T16:52:12.804Z",
   "current24hWindow": {
     "start": "2026-10-21T23:00:00.000Z",
     "end": "2026-10-22T23:00:00.000Z",
@@ -114,44 +114,44 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 716,
-      "freshCount": 19,
-      "eligibleTextCount": 716,
+      "count": 719,
+      "freshCount": 38,
+      "eligibleTextCount": 719,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70919
+      "lastPostId": 70922
     }
   ],
-  "count": 2438,
-  "retainedItemCount": 441,
+  "count": 2441,
+  "retainedItemCount": 453,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2438,
-    "eligibleTextCount": 2375,
+    "observedCount": 2441,
+    "eligibleTextCount": 2378,
     "mediaOnlyCount": 63,
-    "highSignalCount": 475,
-    "broadSignalCount": 1035,
+    "highSignalCount": 476,
+    "broadSignalCount": 1036,
     "selectedRawCount": 403,
     "selectedEligibleCount": 403,
-    "selectedRawCoveragePct": 17,
+    "selectedRawCoveragePct": 16.9,
     "selectedOfObservedPct": 16.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 871,
+    "semi": 608,
+    "ai-policy": 180,
+    "equity": 180,
+    "market-note": 872,
     "earnings": 519,
     "power": 339,
-    "equity": 179,
-    "semi": 606,
     "kr-market": 163,
     "flows": 141,
-    "ai-policy": 179,
     "healthcare": 138,
     "geo": 349,
     "macro": 436,
@@ -163,9 +163,10 @@
     "insider": 8
   },
   "tickerCounts": {
+    "NVDA": 177,
+    "AVGO": 21,
     "AMZN": 41,
     "T": 6,
-    "NVDA": 176,
     "TSLA": 91,
     "BE": 34,
     "WDC": 13,
@@ -200,7 +201,6 @@
     "SNDK": 7,
     "TSM": 113,
     "MSFT": 50,
-    "AVGO": 20,
     "META": 15,
     "PLTR": 8,
     "RDDT": 1,
@@ -248,19 +248,19 @@
     "EBAY": 1
   },
   "themes": [
-    "Market Notes (871 posts in 14-day research window): 2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물...",
-    "Semiconductors/Memory (606 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION...",
+    "Market Notes (872 posts in 14-day research window): 2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물...",
+    "Semiconductors/Memory (608 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION...",
     "Earnings/Corporate (519 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
     "Macro/Rates (436 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가 78,000원으로 상향 ㆍ 14개 분기 연속 일회성 이익, 이익 추정치 상향 ㆍ 6,900억원의 자사주 매입 소각...",
     "Geopolitics (349 posts in 14-day research window): 블룸버그) SK 데이터센터 부문, 3,500억 달러 규모 AI 인프라 구축 자금 조달 협의 중 SK그룹이 지난 7월 SK텔레콤 산하에 설립한 데이터센터 자회사 SK하이퍼가 3,500억 달러 규모의 데이터센터 구축 자금을 마련하기 위해 빅테크 기업 및 재무적 투자자들과 협의하고 있습니다. 정석근 SK하이퍼 CEO는...",
     "AI Power/Grid (339 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-    "Equity/Analyst (179 posts in 14-day research window): >>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가....",
-    "AI Policy/Export Controls (179 posts in 14-day research window): 앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
+    "AI Policy/Export Controls (180 posts in 14-day research window): 앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를...",
+    "Equity/Analyst (180 posts in 14-day research window): >>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가...."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 176,
+      "count": 177,
       "text": ">>Bernstein, 대만 AI주 중 Delta Electronics 최선호주 선정, Unimicron 목표주가 28.2% 상향 (대만경제일보) •Bernstein은 자금조달 우려, 금리 인상 우려, 지정학적 리스크에도 대만 AI 공급망이 미국 및 기타 아시아 국가보다 높은 회복력을 보이고 있다고 평가..."
     },
     {
@@ -353,7 +353,7 @@
       "topics": [
         "semi"
       ],
-      "count": 606,
+      "count": 608,
       "focus": "2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION..."
     },
     {
@@ -380,7 +380,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 179,
+      "count": 180,
       "focus": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
     },
     {
@@ -398,7 +398,7 @@
       "topics": [
         "equity"
       ],
-      "count": 179,
+      "count": 180,
       "focus": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가...."
     },
     {
@@ -461,7 +461,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 871,
+      "count": 872,
       "focus": "2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물..."
     }
   ],
@@ -1632,6 +1632,25 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/70921",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70921",
+      "datetime": "2026-10-23T16:33:02.000Z",
+      "localDateKst": "2026-10-24",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "equity"
+      ],
+      "score": 65,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AVGO"
+      ],
+      "summary": ">>CoreWeave에서 Anthropic까지, 칩 담보 금융이 AI 부채 시장을 재편 •칩 담보 금융은 2023년 Blackstone이 CoreWeave에 제공한 23억 달러 규모의 사모 신용 대출에서..."
+    },
+    {
       "id": "aetherjapanresearch/26014",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26014",
@@ -2125,8 +2144,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "•상해종합 오후장 -2%에서 플러스 전환 •반도체 과창50 -4%에서 플러스 전환 •유니트리 +15% 최상위, 로봇 강세 •CXMT +6%, CATL +5.8% •다시 정부 자금 유입 소식 (*26일...",
-      "tickers": []
+      "tickers": [],
+      "summary": "•상해종합 오후장 -2%에서 플러스 전환 •반도체 과창50 -4%에서 플러스 전환 •유니트리 +15% 최상위, 로봇 강세 •CXMT +6%, CATL +5.8% •다시 정부 자금 유입 소식 (*26일..."
     },
     {
       "id": "insidertracking/67089",
@@ -2191,12 +2210,16 @@
       "datetime": "2026-10-23T05:05:29.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "equity",
+        "earnings",
+        "flows"
       ],
       "score": 64,
       "hasText": true,
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 중국, 다시 돈을 돌리는 방법 : 마진율-재정-주식부양 자료: • 하반기 중국 ‘돈의 흐름’...",
-      "tickers": []
+      "tickers": [],
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 중국, 다시 돈을 돌리는 방법 : 마진율-재정-주식부양 자료: • 하반기 중국 ‘돈의 흐름’..."
     },
     {
       "id": "bornlupin/20779",
@@ -2251,12 +2274,14 @@
       "datetime": "2026-10-23T04:13:21.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "macro"
+        "macro",
+        "ai-policy",
+        "equity"
       ],
       "score": 57,
       "hasText": true,
-      "summary": ">>노무라: AI 성장 우려가 인플레이션 논리를 대체하면서 미국 국채의 헤지 기능이 되살아남 •미국 국채와 기술주의 ‘시소 효과’가 극적으로 되살아남. 노무라의 전략가는 시장의 초점이 인플레이션에서 AI 성장...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>노무라: AI 성장 우려가 인플레이션 논리를 대체하면서 미국 국채의 헤지 기능이 되살아남 •미국 국채와 기술주의 ‘시소 효과’가 극적으로 되살아남. 노무라의 전략가는 시장의 초점이 인플레이션에서 AI 성장..."
     },
     {
       "id": "HANAchina/70892",
@@ -2265,12 +2290,14 @@
       "datetime": "2026-10-23T04:08:03.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "power"
+        "semi",
+        "power",
+        "equity"
       ],
       "score": 55,
       "hasText": true,
-      "summary": ">>미국 투자자들은 무엇을 우려하고 있나? (화타이증권) •중국 화타이증권은 AI 발전의 핵심 과제가 기술적 난제에서 ‘자금은 어디서 조달하고 전력은 어디서 확보할 것인가’로 옮겨가고 있다고 분석함....",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 투자자들은 무엇을 우려하고 있나? (화타이증권) •중국 화타이증권은 AI 발전의 핵심 과제가 기술적 난제에서 ‘자금은 어디서 조달하고 전력은 어디서 확보할 것인가’로 옮겨가고 있다고 분석함...."
     },
     {
       "id": "aetherjapanresearch/25996",
@@ -2301,12 +2328,14 @@
       "datetime": "2026-10-23T03:50:52.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
+        "macro",
+        "kr-market",
         "japan"
       ],
       "score": 60,
       "hasText": true,
-      "summary": ">>AI 붕괴·프랑스 위기 속 골드만삭스의 헤지 전략: 엔화에 주목 •골드만삭스 FICC팀은 AI 밸류에이션 붕괴, 프랑스 채권 위기, 엔화 저평가라는 세 가지 흐름을 하나의 거시경제 시나리오로 연결함. 미국...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 붕괴·프랑스 위기 속 골드만삭스의 헤지 전략: 엔화에 주목 •골드만삭스 FICC팀은 AI 밸류에이션 붕괴, 프랑스 채권 위기, 엔화 저평가라는 세 가지 흐름을 하나의 거시경제 시나리오로 연결함. 미국..."
     },
     {
       "id": "HANAchina/70888",
@@ -2315,12 +2344,13 @@
       "datetime": "2026-10-23T03:49:07.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "market-note"
+        "macro",
+        "ai-policy"
       ],
       "score": 62,
       "hasText": true,
-      "summary": ">>AI 붕괴 시나리오의 최종 전망: 거품은 2028년초에 터질 수 있으며, 기술주가 40% 급락할 가능성 (TS Lombard) •TS Lombard는 AI 호황의 근본적인 논리가 매우 취약해지고 있으며,...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 붕괴 시나리오의 최종 전망: 거품은 2028년초에 터질 수 있으며, 기술주가 40% 급락할 가능성 (TS Lombard) •TS Lombard는 AI 호황의 근본적인 논리가 매우 취약해지고 있으며,..."
     },
     {
       "id": "bornlupin/20777",
@@ -2464,11 +2494,11 @@
       ],
       "score": 58,
       "hasText": true,
-      "summary": ">>CITI : 중국 인터넷 업종의 밸류에이션은 매력적 •CITI는 최근 중국 주식의 매도세가 시장 심리가 극도로 비관적인 수준에 근접했거나 이미 도달했음을 보여준다고 평가함. 그럼에도 중국 인터넷 업종의...",
       "tickers": [
         "BABA",
         "PDD"
-      ]
+      ],
+      "summary": ">>CITI : 중국 인터넷 업종의 밸류에이션은 매력적 •CITI는 최근 중국 주식의 매도세가 시장 심리가 극도로 비관적인 수준에 근접했거나 이미 도달했음을 보여준다고 평가함. 그럼에도 중국 인터넷 업종의..."
     },
     {
       "id": "insidertracking/67074",
@@ -7586,20 +7616,6 @@
         "COST",
         "ULTA"
       ]
-    },
-    {
-      "id": "HANAchina/70638",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70638",
-      "datetime": "2026-10-19T00:28:42.000Z",
-      "localDateKst": "2026-10-19",
-      "tags": [
-        "market-note"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>UBS 트레이딩 데스크: 지난주 미국 증시 흐름, ‘Situational Awareness’ 강제청산 사태와 매우 유사 •UBS 트레이딩 데스크는 전주 미국 증시의 움직임이 본질적으로 ‘위험 회피’가 아닌...",
-      "tickers": []
     },
     {
       "id": "bornlupin/20690",
