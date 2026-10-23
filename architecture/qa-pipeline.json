@@ -940,6 +940,14 @@
           "script": "scripts/ci-history-field-time-contract-check.mjs"
         },
         {
+          "id": "history-session-model",
+          "script": "scripts/ci-history-session-model-check.mjs"
+        },
+        {
+          "id": "narrative-lifecycle-model",
+          "script": "scripts/ci-narrative-lifecycle-model-check.mjs"
+        },
+        {
           "id": "data-plane",
           "script": "scripts/ci-data-plane-contract-check.mjs",
           "inputs": [

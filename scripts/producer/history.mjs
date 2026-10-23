@@ -255,20 +255,27 @@ export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fiel
   const dated = (meta) => /^\d{4}-\d{2}-\d{2}$/.test(String(meta?.sessionDate || ''));
   for (const field of fields) {
     const owners = new Map();
+    // v58.72 (ci-history-session-model-check): a settled read held in a later row, in this run or an earlier one, also
+    // settles its session; before, only the owner row's own relation was checked.
+    const settled = new Set();
     for (const row of rows) {
       const value = row[field];
       const meta = row.fieldMeta?.[field];
-      if (typeof value !== 'number' || !Number.isFinite(value) || !meta?.observedAt || meta.observationRelation === 'carried-forward') continue;
+      if (typeof value !== 'number' || !Number.isFinite(value) || !meta?.observedAt) continue;
       const session = historyFieldSessionDate(meta, field) || observationSessionDate(field, meta.observedAt);
-      if (!session) continue;
+      const wasSettled = settled.has(session);
+      if (session && (meta.observationRelation === 'latest-completed-close' || meta.heldRelation === 'latest-completed-close')) settled.add(session);
+      if (!session || meta.observationRelation === 'carried-forward') continue;
       const owner = owners.get(session);
       if (!owner) { owners.set(session, row); continue; }
       const ownerMeta = owner.fieldMeta[field];
       // v58.71 (pipeline audit): today's row is rewritten every run, so two reads of one bar alternated as revisions
-      // (usdkrw 1341.64/1341.17, dow 52495.88/52495.9). A previous-close read does not revise a settled latest-close
-      // owner, and a value the owner already replaced never comes back.
-      const settledOwner = ownerMeta.observationRelation === 'latest-completed-close' && meta.observationRelation === 'previous-completed-close';
-      const replacedBefore = Array.isArray(ownerMeta.revisions) && ownerMeta.revisions.some((entry) => entry?.value === value);
+      // (usdkrw 1341.64/1341.17, dow 52495.88/52495.9). A previous-close read does not revise a settled session, and a
+      // value the owner already replaced never comes back.
+      const settledOwner = wasSettled && meta.observationRelation === 'previous-completed-close';
+      // The first settled read of a session wins even over a value a previous-close read had displaced.
+      const firstSettled = !wasSettled && meta.observationRelation === 'latest-completed-close';
+      const replacedBefore = !firstSettled && Array.isArray(ownerMeta.revisions) && ownerMeta.revisions.some((entry) => entry?.value === value);
       if (owner[field] !== value && !settledOwner && !replacedBefore) {
         if (!dated(ownerMeta) || !dated(meta)) continue;
         ownerMeta.revisions = [...(Array.isArray(ownerMeta.revisions) ? ownerMeta.revisions : []),

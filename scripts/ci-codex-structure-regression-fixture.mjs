@@ -170,6 +170,7 @@ assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation
   assert.equal(strip('지수가 올랐습니다 [market.index.spx, market.index.kospi]. 다음'), '지수가 올랐습니다. 다음', 'v57.83: a comma list of evidence ids is removed');
   assert.equal(strip('단일 [market.index.spx] 해시 [90b7eec7] 출처 [headline:https://x.com/a] 끝'), '단일 해시 출처 끝', 'v57.83: single ids, hashes and headline citations are removed');
   assert.equal(strip('정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%'), '정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%', 'v57.83: ordinary brackets, parentheses and links are kept');
+  assert.equal(strip('S&P 500 -1.21%([market.index.spx:75cea69c]); 헤드라인'), 'S&P 500 -1.21%; 헤드라인', 'v58.72: an id wrapped in parentheses leaves no empty "()"');
   assert.ok(core.includes("window._aioStripEvidenceIds(txt)"), 'v57.83: the legacy analysis sink uses the native stripper (P1847)');
 }
 

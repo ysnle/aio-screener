@@ -144,8 +144,11 @@ function pairedObservations(macroHistory, shortKey, longKey) {
     .filter((row) => isoDate(row.date) && row.long != null && row.short != null);
 }
 
-export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE) {
+// v58.72: `latest` is the official curve's cut ({ date, short, long }). FRED trails the Treasury feed by a session, so
+// without it the 20-session move ended a day before the curve drawn beside it (10/21 +17bp next to a 10/22 curve).
+export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE, latest = null) {
   const rows = pairedObservations(macroHistory, 'dgs2', 'dgs10');
+  if (latest && isoDate(latest.date) && finite(latest.short) != null && finite(latest.long) != null && (!rows.length || latest.date > rows[rows.length - 1].date)) rows.push({ date: latest.date, long: finite(latest.long), short: finite(latest.short) });
   if (rows.length <= rule.sessions) return null;
   const last = rows[rows.length - 1];
   const from = rows[rows.length - 1 - rule.sessions];
@@ -320,7 +323,8 @@ function fxCard(history, basis, spec) {
 export function buildRatesFx({ macro = null, history = [], macroHistory = null } = {}) {
   const m = macro && typeof macro === 'object' ? macro : {};
   const curve = treasury(m);
-  curve.dynamics = curveDynamics(macroHistory);
+  const officialLeg = (id) => curve.sameCut ? curve.yields.find((row) => row.id === id)?.value : null;
+  curve.dynamics = curveDynamics(macroHistory, undefined, curve.sameCut ? { date: curve.asOf, short: officialLeg('dgs2'), long: officialLeg('dgs10') } : null);
   // v58.56 (re-audit #9): 1개월·3개월·6개월·1년·3년·7년 join the curve on the official cut's date (sorted by maturity).
   // The 3-month point is derived from T10Y3M only when neither the feed nor DGS3MO has it for that date.
   const extras = curve.sameCut ? extraTenorPoints(m, macroHistory, curve.asOf) : [];

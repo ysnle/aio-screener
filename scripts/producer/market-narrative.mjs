@@ -146,6 +146,10 @@ export function nextEarningsLine(calendar, afterDate, { max = 6 } = {}) {
   const groups = ['bmo', 'amc', null].map((hour) => [hour, day.filter((row) => (when[row.hour] ? row.hour : null) === hour).map((row) => row.symbol)]).filter(([, symbols]) => symbols.length);
   return `다음 대형주 실적(${mdOf(date)}, 미국 시각): ${groups.map(([hour, symbols]) => `${hour ? when[hour] : '시간 미정'} ${symbols.join('·')}`).join(' / ')}`;
 }
+// v58.72 (live review 10/23): with no market in session the fallback read "장중 큰 움직임 없음", and the 16:27 KST reading
+// wrote "장중 큰 움직임은 없고" on a day KOSPI fell 4% intraday and closed +0.30%. The packet has no completed session's
+// intraday range, so the fallback says only that no session is open now and forbids the claim.
+export const NO_SESSION_ROW_NOW = '지금 진행 중인 장의 장중 값 없음 — 가장 최근 완료 종가로 쓰고, 완료된 세션의 장중 등락은 이 자료에 없으니 "장중 큰 움직임이 없었다"고 쓰지 말 것(장중 흐름은 그 날짜 헤드라인이 전할 때만 헤드라인에 귀속해 쓴다)';
 export function marketDriversContext({ history = [], reversal = null, intradayRows = [], earningsLine = '' } = {}) {
   const prior = priorSessionMoveLines(history).replace(/^직전 완료 세션의 큰 움직임: /, '').replace(/ — .*$/, '');
   const kst = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16);
@@ -156,7 +160,7 @@ export function marketDriversContext({ history = [], reversal = null, intradayRo
   return [
     'MARKET_DRIVERS (해석의 뼈대 — 아래 세 칸을 이 순서로 채운다. 숫자는 METRIC_EVIDENCE·REGIME_CONTEXT·KOREA_LARGE_INTRADAY_MOVE와 아래 장중 값만 쓴다):',
     `- 압력: ${prior || '직전 완료 세션의 큰 움직임 없음 — 가장 최근 완료 종가의 변화'} — 이 움직임에 대해 보도된 이유를 서로 다른 것으로 2~3개 쓴다. 이유마다 "10/20 WSJ 보도에 따르면 …"처럼 HEADLINE_CONTEXT 헤드라인의 날짜(M/D, date= 값)와 출처를 같은 문장에 붙이고, 그 이유가 무엇을 거쳐 어느 쪽(반도체·대형 기술주, 유가, 신용 등)에 닿았는지 한 구절로 잇는다.`,
-    `- 지금: ${[now, intraday].filter(Boolean).join(' · ') || '장중 큰 움직임 없음 — 가장 최근 세션'} — 이 움직임에 대해 보도된 이유를 1~3개, 같은 형식(날짜·출처)으로 쓴다. 장중 움직임의 이유는 08:00 이후 장중 속보(잠정)나 그 직전 미국 장 마감 뒤 헤드라인에서만 고르고 잠정이면 "잠정"을 쓴다. 압력의 이유와 지금의 이유를 한 문장에 섞지 않는다.`,
+    `- 지금: ${[now, intraday].filter(Boolean).join(' · ') || NO_SESSION_ROW_NOW} — 이 움직임에 대해 보도된 이유를 1~3개, 같은 형식(날짜·출처)으로 쓴다. 장중 움직임의 이유는 08:00 이후 장중 속보(잠정)나 그 직전 미국 장 마감 뒤 헤드라인에서만 고르고 잠정이면 "잠정"을 쓴다. 압력의 이유와 지금의 이유를 한 문장에 섞지 않는다.`,
     `- 확인·반증: ${earningsLine || '다음 대형주 실적 일정 미수집'} — 지금 움직임이 이어지려면 무엇이 확인돼야 하고(예: 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 유가·신용이 같은 방향인지) 무엇이 나오면 되돌림으로 보는지 쓴다. 매매 지시·목표가 없이.`,
     '보도된 이유가 헤드라인에 없으면 지어내지 말고 "보도된 이유 미수집"이라고 쓴다. 헤드라인은 원인을 확정하지 않는다 — 한 가지 해석으로 쓴다.'
   ].join('\n');
@@ -231,8 +235,12 @@ const titleAmounts = (title) => [...String(title || '').matchAll(/\$\s?(\d+(?:\.
 const koreanAmounts = (ko) => [...String(ko || '').matchAll(/(?:(\d[\d,]*(?:\.\d+)?)\s*조\s*)?(?:(\d[\d,]*(?:\.\d+)?)\s*억\s*)?(?:(\d[\d,]*)\s*만\s*)?달러/g)]
   .filter((m) => m[1] || m[2] || m[3]).map((m) => [m[1], m[2], m[3]].map((v) => Number(String(v || '0').replace(/,/g, ''))))
   .map(([jo, eok, man]) => jo * 10000 + eok + man / 10000);
+// v58.72 (live review 10/23): "Bessent dismisses AI bubble fears" came back as "... AI 버블 우려 bác함" (Vietnamese). An
+// accented Latin word is kept only when the source title has it too (Nestlé, Société Générale).
+const ACCENTED_WORD = /[A-Za-zÀ-ɏḀ-ỿ]*[À-ɏḀ-ỿ][A-Za-zÀ-ɏḀ-ỿ]*/g;
 export const isFaithfulKoreanTitle = (title, ko) => {
   if (!isCleanKoreanTitle(ko)) return false;
+  if ((String(ko || '').match(ACCENTED_WORD) || []).some((word) => !String(title || '').includes(word))) return false;
   if (!HEADLINE_NAMES.every(([en, kr]) => !en.test(String(title || '')) || kr.test(String(ko || '')))) return false;
   if (/multi-?billion|\bbillions?\b/i.test(String(title || '')) && !/trillion/i.test(String(title || '')) && /수천억|수조/.test(String(ko || ''))) return false;
   const stated = titleAmounts(title);

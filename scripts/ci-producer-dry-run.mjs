@@ -97,6 +97,14 @@ try {
     writeFileSync(full, JSON.stringify(parsed));
     return parsed.universe.length;
   };
+  // v58.72: the synthetic charts end on the session before the pinned clock, so the copied screener.json's sessions (a
+  // KR close the same day) read as newer and the P1988 regression guard kept the last publish instead of writing.
+  const screenerFile = path.join(scratch, 'public-data', 'screener.json');
+  if (existsSync(screenerFile)) {
+    const previous = JSON.parse(readFileSync(screenerFile, 'utf8'));
+    delete previous.factorSessionDateByMarket;
+    writeFileSync(screenerFile, JSON.stringify(previous));
+  }
   const coreSample = sampleUniverse('screener-universe.json', 40);
   const extendedSample = sampleUniverse('screener-extended-universe.json', 40);
   for (const [lane, laneEnv, artifact] of [

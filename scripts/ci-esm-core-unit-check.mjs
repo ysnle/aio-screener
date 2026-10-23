@@ -5268,6 +5268,9 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const truncated = spreadRun([...flat(5, -0.2), ...flat(30, 0.2)]);
   if (!truncated.uninverted || truncated.inversion.start !== null || !/이전부터/.test(truncated.uninversionReading)) fail('curve: a run that starts with the history has an unknown start');
   if (spreadRun([...flat(30, -0.2), ...flat(200, 0.2)]).uninverted) fail('curve: an inversion that ended long ago is not news');
+  const withCut = curveDynamics(curve(flat(30, 4), flat(30, 4.3)), undefined, { date: day(30), short: 3.8, long: 4.3 });
+  if (withCut.asOf !== day(30) || withCut.shortBp !== -20) fail(`v58.72: the official curve cut extends the FRED window to the curve's date: ${JSON.stringify({ asOf: withCut.asOf, shortBp: withCut.shortBp })}`);
+  if (curveDynamics(curve(flat(30, 4), flat(30, 4.3)), undefined, { date: day(10), short: 3, long: 4 }).asOf !== day(29)) fail('v58.72: an older official cut does not replace the FRED tail');
 
   const { buildIndexEarnings } = await load('src/domain/market/index-earnings.js');
   const weights = { asOf: '2026-10-15', rows: [['AAA', 'Energy', 50], ['GOOGL', 'Communication Services', 25], ['GOOG', 'Communication Services', 20], ['ZZZ', 'Energy', 5]] };

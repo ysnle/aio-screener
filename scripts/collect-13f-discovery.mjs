@@ -37,8 +37,10 @@ async function enrichFilingDocuments(cik, filing) {
   throw new Error(`13F information table XML not found for ${enriched.accession}`);
 }
 
-async function writeAtomic(file, value) {
-  await writeJsonIfSemanticallyChanged(file, value, { writer: atomicWriteFile });
+// v58.72: the browser-loaded discovery artifact is written compact. Indented, the resumed 13D/G events
+// (10 per manager) pushed filing-discovery.json past its 460 KB lazy-load budget and stopped the data refresh.
+async function writeAtomic(file, value, { pretty = true } = {}) {
+  await writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile });
 }
 
 const filerProfiles = catalog.managers.filter((manager) => manager.type !== 'METHOD_ONLY' && manager.cik);
@@ -57,7 +59,7 @@ if (ownershipOnly) {
   });
   // P1309: the daily poll reads submissions JSON only; issuer/percent come from the cache of earlier full runs.
   await enrichOwnershipEvents({ artifact, previous: previousDiscovery, fetchText: null, archiveBaseFor: archiveBase });
-  await writeAtomic(discoveryPath, artifact);
+  await writeAtomic(discoveryPath, artifact, { pretty: false });
   console.log(JSON.stringify({
     ok: artifact.coverage.ownershipBlocked === 0,
     output: 'public-data/masters/filing-discovery.json',
@@ -227,7 +229,7 @@ const artifact = {
 };
 
 await enrichOwnershipEvents({ artifact, previous: previousDiscovery, fetchText: client ? (url) => client.text(url) : null, archiveBaseFor: archiveBase });
-await writeAtomic(discoveryPath, artifact);
+await writeAtomic(discoveryPath, artifact, { pretty: false });
 if (offline) {
   console.log(JSON.stringify({ ok: false, blocked: true, output: 'public-data/masters/filing-discovery.json', coverage: artifact.coverage }));
   process.exit(0);

@@ -1,0 +1,27 @@
+{
+ "version": "v58.72",
+ "date": "2026-10-23",
+ "note": "실사이트 시장 반영 점검(2026-10-23 KST 22시, 한국 마감·미국 프리마켓) 중 발견.",
+ "status": null,
+ "p": {
+  "title": "producer-dry-run 스크리너 레인이 직전 게시본의 세션 날짜에 막혀 데이터 갱신 전체를 멈춤",
+  "symptom": "10/23 08:20Z 이후 refresh-data 12회 연속 실패: 'P1256 the screener lane rewrote screener.json :: 2026-10-23T12:17:07.915Z'. 브리핑에 '18:00 회차 집계가 늦어지고 있습니다'가 남았다.",
+  "root_cause": "dry-run의 합성 일봉은 고정 시각 전날에 끝나고, 복사된 screener.json에는 한국 10/23 세션이 있어 P1988 세션 역행 보호가 쓰기를 건너뛰었다. 로컬은 data.json이 오래돼 고정 시각이 screener.json보다 앞서 우연히 통과했다.",
+  "fix": "dry-run이 스크리너 레인 전에 scratch screener.json의 factorSessionDateByMarket을 지워 쓰기 경로를 끝까지 실행한다.",
+  "violated_rule": "R720",
+  "prevention": "asOf를 과거로 바꾼 입력에서 수정 전 실패·수정 후 통과를 재현했다.",
+  "verification": "로컬 재현: 수정 전 'rewrote screener.json :: 2026-10-01' 실패, 수정 후 통과."
+ },
+ "qa": [
+  {
+   "id": "QA-DRYRUN-SESSION-01",
+   "text": "{P}: 직전 게시본의 세션이 합성 일봉보다 새로워도 dry-run 스크리너 레인이 screener.json을 다시 쓴다.",
+   "verify_by": "push 뒤 refresh-data의 producer-dry-run 단계 통과",
+   "done": false
+  }
+ ],
+ "qa_section": "데이터 v58.72",
+ "changelog": [
+  "**dry-run 스크리너 레인 ({P}):** 직전 게시본의 한국 세션 날짜 때문에 검사용 레인이 쓰기를 건너뛰어 데이터 갱신 전체가 멈추던 문제를 고쳤다."
+ ]
+}

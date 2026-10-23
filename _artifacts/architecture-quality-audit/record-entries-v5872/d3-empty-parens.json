@@ -1,0 +1,27 @@
+{
+ "version": "v58.72",
+ "date": "2026-10-23",
+ "note": "실사이트 시장 반영 점검(2026-10-23 KST 22시, 한국 마감·미국 프리마켓) 중 발견.",
+ "status": null,
+ "p": {
+  "title": "AI 해설에 증거 id를 지운 자리의 빈 괄호 '()'가 남음",
+  "symptom": "브리핑 AI 해설 첫 줄 'S&P 500 -1.21%();'.",
+  "root_cause": "모델이 '([market.index.spx:75cea69c])'처럼 괄호 안에 대괄호 id를 썼고, 표시용 정리기가 대괄호만 지워 빈 괄호가 남았다.",
+  "fix": "stripEvidenceIds가 id 제거 뒤 남은 빈 괄호를 지운다.",
+  "violated_rule": "R718",
+  "prevention": "codex-structure 회귀 픽스처에 괄호로 감싼 id 사례 추가.",
+  "verification": "픽스처 통과."
+ },
+ "qa": [
+  {
+   "id": "QA-EVID-PAREN-01",
+   "text": "{P}: 괄호로 감싼 증거 id가 지워진 뒤 빈 괄호가 화면에 남지 않는다.",
+   "verify_by": "node scripts/ci-codex-structure-regression-fixture.mjs",
+   "done": true
+  }
+ ],
+ "qa_section": "데이터 v58.72",
+ "changelog": [
+  "**AI 해설 빈 괄호 ({P}):** 증거 id를 지운 자리에 남던 '()'를 없앴다."
+ ]
+}

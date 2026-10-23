@@ -1,0 +1,27 @@
+{
+ "version": "v58.72",
+ "date": "2026-10-23",
+ "note": "실사이트 시장 반영 점검(2026-10-23 KST 22시, 한국 마감·미국 프리마켓) 중 발견.",
+ "status": null,
+ "p": {
+  "title": "history 세션 정리가 뒤쪽 행의 확정 종가를 보지 못해 전일 종가 읽기가 확정 값을 덮을 수 있음",
+  "symptom": "새 모델 검사(history 행 3개 상태 405개 전수)에서 두 경로가 나왔다. (1) 세션 대표 행이 전일 종가 읽기이고 확정 종가가 뒤 행(같은 회차 또는 이전 회차에 보류된 행)에 있으면, 값이 다른 전일 종가 읽기가 대표 값을 덮었다(같은 회차 4건, 다음 회차 56건). (2) 전일 종가 읽기끼리 대표 값이 바뀐 뒤 도착한 확정 종가가 '한 번 밀려난 값은 돌아오지 않는다' 보호에 막혔다. 현재 history.json에는 발현 0건이다.",
+  "root_cause": "holdRepeatedSessions의 v58.71 왕복 방지가 대표 행 자신의 관계(latest-completed-close)만 확정으로 봤고, 보류된 행의 heldRelation과 뒤 행의 확정 읽기는 세지 않았다. 밀려난 값 차단도 첫 확정 읽기를 예외로 두지 않았다. keepDisplacedSessions가 전일 종가 메타를 그 세션 행으로 옮기므로 이 상태에 도달할 수 있다.",
+  "fix": "세션별로 확정 읽기(현재 관계 또는 heldRelation이 latest-completed-close)를 본 적이 있는지 기록해, 확정된 세션은 전일 종가 읽기가 바꾸지 못하고 그 세션의 첫 확정 읽기는 밀려난 값이어도 반영되게 했다.",
+  "violated_rule": "R423",
+  "prevention": "ci-history-session-model-check(v58.72): 실제 mergeBackfillBars·holdRepeatedSessions·다음 회차 전이를 작은 상태 전수에 돌려 멱등·세션당 대표 하나·확정 불변·값 보존·백필 세션 규칙을 검사한다. 수정 전 실패, 수정 후 통과.",
+  "verification": "모델 검사 405상태·4,860전이 통과, ci-history-field-time-contract-check 통과, 실제 history.json에 적용 시 보류·수정 0건(값 변화 없음)."
+ },
+ "qa": [
+  {
+   "id": "QA-HIST-MODEL-01",
+   "text": "{P}: 세션의 어느 행이든 확정 종가가 기록되면 전일 종가 읽기가 그 세션 값을 바꾸지 않고, 첫 확정 읽기는 반영된다.",
+   "verify_by": "node scripts/ci-history-session-model-check.mjs",
+   "done": true
+  }
+ ],
+ "qa_section": "데이터 v58.72",
+ "changelog": [
+  "**history 세션 모델 검사 ({P}):** 작은 history 상태를 모두 실제 세션 정리 함수에 넣어 보는 검사를 추가했고, 그 검사가 찾은 확정 종가 덮어쓰기 경로 두 가지를 고쳤다."
+ ]
+}

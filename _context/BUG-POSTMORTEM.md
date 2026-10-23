@@ -6,6 +6,69 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2011 - v58.72 - history 세션 정리가 뒤쪽 행의 확정 종가를 보지 못해 전일 종가 읽기가 확정 값을 덮을 수 있음 (2026-10-23)
+
+- symptom/reproduction: 새 모델 검사(history 행 3개 상태 405개 전수)에서 두 경로가 나왔다. (1) 세션 대표 행이 전일 종가 읽기이고 확정 종가가 뒤 행(같은 회차 또는 이전 회차에 보류된 행)에 있으면, 값이 다른 전일 종가 읽기가 대표 값을 덮었다(같은 회차 4건, 다음 회차 56건). (2) 전일 종가 읽기끼리 대표 값이 바뀐 뒤 도착한 확정 종가가 '한 번 밀려난 값은 돌아오지 않는다' 보호에 막혔다. 현재 history.json에는 발현 0건이다.
+- root_cause: holdRepeatedSessions의 v58.71 왕복 방지가 대표 행 자신의 관계(latest-completed-close)만 확정으로 봤고, 보류된 행의 heldRelation과 뒤 행의 확정 읽기는 세지 않았다. 밀려난 값 차단도 첫 확정 읽기를 예외로 두지 않았다. keepDisplacedSessions가 전일 종가 메타를 그 세션 행으로 옮기므로 이 상태에 도달할 수 있다.
+- fix: 세션별로 확정 읽기(현재 관계 또는 heldRelation이 latest-completed-close)를 본 적이 있는지 기록해, 확정된 세션은 전일 종가 읽기가 바꾸지 못하고 그 세션의 첫 확정 읽기는 밀려난 값이어도 반영되게 했다.
+- violated_rule: R423
+- prevention: ci-history-session-model-check(v58.72): 실제 mergeBackfillBars·holdRepeatedSessions·다음 회차 전이를 작은 상태 전수에 돌려 멱등·세션당 대표 하나·확정 불변·값 보존·백필 세션 규칙을 검사한다. 수정 전 실패, 수정 후 통과.
+- verification/residual: 모델 검사 405상태·4,860전이 통과, ci-history-field-time-contract-check 통과, 실제 history.json에 적용 시 보류·수정 0건(값 변화 없음).
+
+## P2010 - v58.72 - 번역 헤드라인에 베트남어 단어가 섞여 게시됨 (2026-10-23)
+
+- symptom/reproduction: 뉴스 '미 재무장관 베센트, AI 버블 우려 bác함'.
+- root_cause: 번역 검사가 한자·가나·태국어 등 다른 문자만 막고, 악센트가 붙은 라틴 문자 단어는 통과시켰다.
+- fix: 악센트 라틴 단어는 원문 제목에 같은 단어가 있을 때만(Nestlé 등) 허용한다. 이전 번역 재사용도 같은 검사를 거쳐 다음 실행에서 다시 번역한다.
+- violated_rule: R702
+- prevention: data-pipeline 계약 검사에 베트남어 혼입·고유명 허용 사례 추가.
+- verification/residual: 계약 검사 통과.
+
+## P2009 - v58.72 - AI 해설이 코스피 장중 4% 급락 뒤 반등한 날을 '장중 큰 움직임은 없고'라고 씀 (2026-10-23)
+
+- symptom/reproduction: 10/23 16:27 KST 해설: '장중 큰 움직임은 없고 코스피는 10/23 종가 +0.30%' — 코스피는 장중 -4%에서 회복했다.
+- root_cause: 장이 열린 시장이 없을 때 MARKET_DRIVERS '지금' 칸의 대체 문구가 '장중 큰 움직임 없음'이라는 사실 주장을 넣었다. 패킷에는 완료된 세션의 장중 등락이 없다.
+- fix: 대체 문구를 '진행 중인 장의 장중 값 없음'으로 바꾸고, 완료된 세션에 장중 움직임이 없었다고 쓰지 말라는 지시를 붙였다.
+- violated_rule: R713
+- prevention: data-pipeline 계약 검사에 대체 문구 검사 추가.
+- verification/residual: 계약 검사 통과.
+
+## P2008 - v58.72 - 금리·환율의 곡선 움직임 20거래일 구간이 옆에 그린 공식 곡선보다 하루 늦게 끝남 (2026-10-23)
+
+- symptom/reproduction: 10/22 공식 곡선 옆에 '9/22→10/21 20거래일: 10년 +17bp'가 표시돼, 같은 화면의 '10년물 20일 −21bp'와 반대로 읽혔다.
+- root_cause: curveDynamics가 FRED 2년·10년만 읽어, 재무부 원천보다 하루 늦은 10/21에서 구간이 끝났다.
+- fix: 공식 곡선이 같은 날짜로 모두 있으면 그 2년·10년 값을 FRED 뒤에 붙여 구간을 곡선 날짜로 끝낸다(더 오래된 값은 무시).
+- violated_rule: R715
+- prevention: esm-core 단위 검사에 공식 곡선 연장·오래된 곡선 무시 사례 추가.
+- verification/residual: 현재 데이터로 '9/23→10/22: 2년 −20bp, 10년 −15bp' 확인; 단위 검사 통과.
+
+## P2007 - v58.72 - AI 해설에 증거 id를 지운 자리의 빈 괄호 '()'가 남음 (2026-10-23)
+
+- symptom/reproduction: 브리핑 AI 해설 첫 줄 'S&P 500 -1.21%();'.
+- root_cause: 모델이 '([market.index.spx:75cea69c])'처럼 괄호 안에 대괄호 id를 썼고, 표시용 정리기가 대괄호만 지워 빈 괄호가 남았다.
+- fix: stripEvidenceIds가 id 제거 뒤 남은 빈 괄호를 지운다.
+- violated_rule: R718
+- prevention: codex-structure 회귀 픽스처에 괄호로 감싼 id 사례 추가.
+- verification/residual: 픽스처 통과.
+
+## P2006 - v58.72 - 재개된 13D/G 이벤트로 filing-discovery.json이 용량 예산을 넘어 데이터 갱신을 막음 (2026-10-23)
+
+- symptom/reproduction: artifact-headroom: masters-ownership 464,303 / 460,000 bytes (101%) — refresh-data 실패.
+- root_cause: v58.71이 SCHEDULE 13D/G 탐지를 되살려 관리자당 최대 10건의 이벤트가 늘었고, 파일이 들여쓰기 JSON으로 쓰여 이벤트 상한(37×10)에서도 예산을 넘을 수 있었다.
+- fix: collect-13f-discovery가 filing-discovery.json만 압축 JSON으로 쓴다(의미 해시는 같아 변경 판정에 영향 없음). 현재 파일도 압축해 319KB.
+- violated_rule: R717
+- prevention: 이벤트 상한 기준 최대 크기(약 414KB 압축)가 예산 460KB 안에 든다.
+- verification/residual: 압축 후 319,208 bytes; masters 계약 검사 통과.
+
+## P2005 - v58.72 - producer-dry-run 스크리너 레인이 직전 게시본의 세션 날짜에 막혀 데이터 갱신 전체를 멈춤 (2026-10-23)
+
+- symptom/reproduction: 10/23 08:20Z 이후 refresh-data 12회 연속 실패: 'P1256 the screener lane rewrote screener.json :: 2026-10-23T12:17:07.915Z'. 브리핑에 '18:00 회차 집계가 늦어지고 있습니다'가 남았다.
+- root_cause: dry-run의 합성 일봉은 고정 시각 전날에 끝나고, 복사된 screener.json에는 한국 10/23 세션이 있어 P1988 세션 역행 보호가 쓰기를 건너뛰었다. 로컬은 data.json이 오래돼 고정 시각이 screener.json보다 앞서 우연히 통과했다.
+- fix: dry-run이 스크리너 레인 전에 scratch screener.json의 factorSessionDateByMarket을 지워 쓰기 경로를 끝까지 실행한다.
+- violated_rule: R720
+- prevention: asOf를 과거로 바꾼 입력에서 수정 전 실패·수정 후 통과를 재현했다.
+- verification/residual: 로컬 재현: 수정 전 'rewrote screener.json :: 2026-10-01' 실패, 수정 후 통과.
+
 ## P2004 - v58.71 - history 검사가 비어 있는 전일 종가를 0으로 읽어 새 코드의 첫 데이터 갱신을 막음 (2026-10-23)
 
 - symptom/reproduction: v58.71 배포 뒤 첫 refresh-data(실행 39897161172, 03:53Z)가 history-time 검사에서 'latest row 2026-10-23 field btc: 84011.97 != BTC-USD completed value 0'으로 거부됐다. Yahoo가 BTC 10/22 일봉 종가를 비워 스냅숏 previousValue가 null이었다.

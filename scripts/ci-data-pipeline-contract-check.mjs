@@ -819,6 +819,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     !isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '인간형 AI와 Nscale, 2번째 수천억 달러 규모 거래 협상 중')
       && !isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '앤트로픽과 Nscale, 2번째 수천억 달러 규모 거래 협상 중')
       && isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '앤트로픽과 Nscale, 두 번째 수십억 달러 규모 거래 협상 중')
+      // v58.72: a Vietnamese word in the Korean line is rejected; an accented name the title carries is kept
+      && !isFaithfulKoreanTitle('Bessent dismisses AI bubble fears', '미 재무장관 베센트, AI 버블 우려 bác함')
+      && isFaithfulKoreanTitle('Nestlé cuts outlook', 'Nestlé, 연간 전망 하향')
       && !isFaithfulKoreanTitle('Nscale, Anthropic in Talks for $45 Billion Cloud Computing Deal', 'Nscale, 앤트로픽과 4,500억 달러 클라우드 계약 협상')
       && isFaithfulKoreanTitle('Nscale, Anthropic in Talks for $45 Billion Cloud Computing Deal', 'Nscale, 앤트로픽과 450억 달러 클라우드 계약 협상')
       && isFaithfulKoreanTitle('A $1.5 Trillion Anthropic IPO Still Pays Off for Google', '1.5조 달러 앤트로픽 IPO, 구글엔 여전히 이득')
@@ -1100,6 +1103,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && krSlotTopic('환율 1,353원 치솟으며') === 'fx' && krSlotTopic(crashTitle) === 'index-move' && krSlotTopic('Samsung wonders') === null
         && scoreServerNewsItem({ title: 'UAL Stock Quote Price and Forecast | CNN', source: 'CNN', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason === 'not-article-filter',
       priorSessionMoveLines(oilHistory));
+    const { marketDriversContext } = await import('./producer/market-narrative.mjs');
+    const idle = marketDriversContext({ history: oilHistory });
+    check('v58.72 with no market in session the drivers block does not claim the completed session had no intraday move',
+      !/장중 큰 움직임 없음/.test(idle) && /장중 큰 움직임이 없었다"고 쓰지 말 것/.test(idle), idle.match(/- 지금:[^\n]*/)?.[0] || idle.slice(0, 300));
   }
   // (c) the last verified reading is kept, labelled with its time, while later attempts are blocked — also across a run
   // whose own fallback carried it — and dropped once the market has moved past a large move since it was written.

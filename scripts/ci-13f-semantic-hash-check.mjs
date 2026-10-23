@@ -269,7 +269,8 @@ check('P1309/R654/QA-DATA-51 full-discovery-failure-path-preserves-ownership-lkg
   collectorSource.includes('ownershipFailureFields(previousOwnership, generatedAt, reason)'));
 
 const producerWiring = [
-  ['collect-13f-discovery.mjs', ['writeJsonIfSemanticallyChanged(file, value, { writer: atomicWriteFile })']],
+  // v58.72 (P2006): the discovery writer passes `pretty` through (filing-discovery.json is written compact).
+  ['collect-13f-discovery.mjs', ['writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile })']],
   ['collect-13f-reference.mjs', ['writeJsonIfSemanticallyChanged(file, value, { writer: atomicWriteFile })']],
   ['collect-13f-history-index.mjs', ['writeJsonIfSemanticallyChanged(outputPath, result, { writer: atomicWriteFile })']],
   ['collect-13f-history-rows.mjs', [

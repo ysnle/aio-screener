@@ -15,5 +15,7 @@ export function stripEvidenceIds(text) {
     .replace(/\s*\(\d{4}-\d{2}-\d{2}T[\d:.]+Z\)/g, '')
     .replace(ID_LIST, '')
     .replace(DOTTED_LIST, '')
+    // v58.72: "-1.21%([market.index.spx:75cea69c])" left an empty "()" once the bracketed id was removed.
+    .replace(/[ \t]*\(\s*\)/g, '')
     .replace(/[ \t]{2,}/g, ' ').replace(/[ \t]+([.,;])/g, '$1');
 }

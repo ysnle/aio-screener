@@ -4,6 +4,17 @@ last_verified: 2026-10-23
 confidence: medium
 ---
 
+## v58.72 데이터 v58.72 (2026-10-23)
+
+- [ ] QA-DRYRUN-SESSION-01: P2005: 직전 게시본의 세션이 합성 일봉보다 새로워도 dry-run 스크리너 레인이 screener.json을 다시 쓴다. verify_by: push 뒤 refresh-data의 producer-dry-run 단계 통과
+- [ ] QA-13DG-SIZE-01: P2006: 13D/G 이벤트가 늘어도 filing-discovery.json이 460KB 예산 안에 있다. verify_by: push 뒤 refresh-data의 artifact-headroom 단계 통과
+- [x] QA-EVID-PAREN-01: P2007: 괄호로 감싼 증거 id가 지워진 뒤 빈 괄호가 화면에 남지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-CURVE-CUT-01: P2008: 곡선 움직임 문장의 끝 날짜가 화면의 공식 국채 곡선 날짜와 같다. verify_by: push 뒤 #fxbond '곡선 움직임' 날짜 확인
+- [ ] QA-NARR-IDLE-01: P2009: 장이 닫힌 시간의 해설이 근거 없이 '장중 큰 움직임이 없었다'고 쓰지 않는다. verify_by: push 뒤 다음 한국 마감 후 AI 해설 확인
+- [ ] QA-HEADLINE-LANG-01: P2010: 원문에 없는 악센트 라틴 단어가 섞인 번역 헤드라인은 게시되지 않는다. verify_by: push 뒤 뉴스 화면에서 'bác' 미노출 확인
+- [x] QA-HIST-MODEL-01: P2011: 세션의 어느 행이든 확정 종가가 기록되면 전일 종가 읽기가 그 세션 값을 바꾸지 않고, 첫 확정 읽기는 반영된다. verify_by: node scripts/ci-history-session-model-check.mjs
+- [x] QA-NARR-MODEL-01: v58.72: AI 시황 해설 게시 수명주기(검증·재사용·유지·막힘·레인 격리 복원)를 연속 3회 모든 조합으로 돌려도 미검증 게시·12시간 초과·유지 중첩·막힌 입력 재호출·새 날 무호출이 없다. verify_by: node scripts/ci-narrative-lifecycle-model-check.mjs
+
 ## v58.71 데이터 v58.71 (2026-10-23)
 
 - [x] QA-TG-SIGNAL-01: P1984: 분류기는 맨 달러·자사주로 태그하지 않고, 수치 추출 글은 선별 하한 위에 남는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs

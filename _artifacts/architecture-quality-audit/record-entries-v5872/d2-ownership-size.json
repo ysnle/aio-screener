@@ -1,0 +1,27 @@
+{
+ "version": "v58.72",
+ "date": "2026-10-23",
+ "note": "실사이트 시장 반영 점검(2026-10-23 KST 22시, 한국 마감·미국 프리마켓) 중 발견.",
+ "status": null,
+ "p": {
+  "title": "재개된 13D/G 이벤트로 filing-discovery.json이 용량 예산을 넘어 데이터 갱신을 막음",
+  "symptom": "artifact-headroom: masters-ownership 464,303 / 460,000 bytes (101%) — refresh-data 실패.",
+  "root_cause": "v58.71이 SCHEDULE 13D/G 탐지를 되살려 관리자당 최대 10건의 이벤트가 늘었고, 파일이 들여쓰기 JSON으로 쓰여 이벤트 상한(37×10)에서도 예산을 넘을 수 있었다.",
+  "fix": "collect-13f-discovery가 filing-discovery.json만 압축 JSON으로 쓴다(의미 해시는 같아 변경 판정에 영향 없음). 현재 파일도 압축해 319KB.",
+  "violated_rule": "R717",
+  "prevention": "이벤트 상한 기준 최대 크기(약 414KB 압축)가 예산 460KB 안에 든다.",
+  "verification": "압축 후 319,208 bytes; masters 계약 검사 통과."
+ },
+ "qa": [
+  {
+   "id": "QA-13DG-SIZE-01",
+   "text": "{P}: 13D/G 이벤트가 늘어도 filing-discovery.json이 460KB 예산 안에 있다.",
+   "verify_by": "push 뒤 refresh-data의 artifact-headroom 단계 통과",
+   "done": false
+  }
+ ],
+ "qa_section": "데이터 v58.72",
+ "changelog": [
+  "**13D/G 파일 용량 ({P}):** 되살린 13D/G 이벤트로 용량 예산을 넘던 소유 공시 파일을 압축 JSON으로 쓴다."
+ ]
+}
