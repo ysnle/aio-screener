@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-23T05:51:57.047Z",
-  "attemptedAt": "2026-10-23T05:51:57.047Z",
-  "lastSuccessfulAt": "2026-10-23T05:51:57.047Z",
+  "generatedAt": "2026-10-23T06:22:28.506Z",
+  "attemptedAt": "2026-10-23T06:22:28.506Z",
+  "lastSuccessfulAt": "2026-10-23T06:22:28.506Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-09T05:51:52.155Z",
-  "until": "2026-10-23T05:51:52.155Z",
+  "since": "2026-10-09T06:22:24.463Z",
+  "until": "2026-10-23T06:22:24.463Z",
   "current24hWindow": {
     "start": "2026-10-21T23:00:00.000Z",
     "end": "2026-10-22T23:00:00.000Z",
@@ -78,11 +78,11 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 268,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 257,
       "selectedCount": 66,
       "error": null,
@@ -90,23 +90,23 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1219,
-      "freshCount": 39,
-      "eligibleTextCount": 1169,
+      "count": 1214,
+      "freshCount": 19,
+      "eligibleTextCount": 1164,
       "selectedCount": 120,
       "error": null,
       "lastPostId": 67092
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 225,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 225,
       "selectedCount": 95,
       "error": null,
@@ -117,26 +117,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 716,
+      "count": 714,
       "freshCount": 39,
-      "eligibleTextCount": 716,
+      "eligibleTextCount": 714,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 70901
+      "lastPostId": 70902
     }
   ],
-  "count": 2428,
-  "retainedItemCount": 482,
+  "count": 2421,
+  "retainedItemCount": 443,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2428,
-    "eligibleTextCount": 2367,
+    "observedCount": 2421,
+    "eligibleTextCount": 2360,
     "mediaOnlyCount": 61,
-    "highSignalCount": 477,
-    "broadSignalCount": 1038,
+    "highSignalCount": 476,
+    "broadSignalCount": 1037,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
     "selectedRawCoveragePct": 17,
@@ -144,16 +144,16 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 610,
-    "macro": 438,
-    "market-note": 859,
-    "power": 345,
+    "market-note": 856,
+    "semi": 609,
+    "macro": 437,
+    "power": 344,
     "earnings": 513,
-    "geo": 353,
-    "kr-market": 161,
+    "geo": 351,
+    "kr-market": 160,
     "credit": 114,
     "ai-policy": 177,
-    "flows": 140,
+    "flows": 139,
     "healthcare": 139,
     "equity": 178,
     "japan": 153,
@@ -249,14 +249,14 @@
     "P": 1
   },
   "themes": [
-    "Market Notes (859 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
-    "Semiconductors/Memory (610 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION...",
+    "Market Notes (856 posts in 14-day research window): 2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물...",
+    "Semiconductors/Memory (609 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION...",
     "Earnings/Corporate (513 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 데이터 분석 기업 애플로스 데이터를 최고 파트너 등급인 '뱅가드: 엘리트'로 승격. 기존 고객 대상 AI...",
-    "Macro/Rates (438 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가 78,000원으로 상향 ㆍ 14개 분기 연속 일회성 이익, 이익 추정치 상향 ㆍ 6,900억원의 자사주 매입 소각...",
-    "Geopolitics (353 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
-    "AI Power/Grid (345 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "Macro/Rates (437 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가 78,000원으로 상향 ㆍ 14개 분기 연속 일회성 이익, 이익 추정치 상향 ㆍ 6,900억원의 자사주 매입 소각...",
+    "Geopolitics (351 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
+    "AI Power/Grid (344 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "Equity/Analyst (178 posts in 14-day research window): >>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가....",
-    "AI Policy/Export Controls (177 posts in 14-day research window): Meta, 퍼스널 AI 에이전트 'Muse' 일본에서 제공 개시 Meta는 10월 23일(일본 시간)부터 퍼스널 AI 에이전트 'Muse'의 일본 서비스를 시작합니다. 일본은 올해 9월 선행 출시된 북미 외 지역 중 최초의 출시 국가입니다. Muse는 누구나 쉽게 이용할 수 있도록 설계된 세계 최초의 퍼스널 AI..."
+    "AI Policy/Export Controls (177 posts in 14-day research window): 앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
   ],
   "catalysts": [
     {
@@ -327,7 +327,7 @@
       "topics": [
         "macro"
       ],
-      "count": 438,
+      "count": 437,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가 78,000원으로 상향 ㆍ 14개 분기 연속 일회성 이익, 이익 추정치 상향 ㆍ 6,900억원의 자사주 매입 소각..."
     },
     {
@@ -336,7 +336,7 @@
       "topics": [
         "geo"
       ],
-      "count": 353,
+      "count": 351,
       "focus": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
     },
     {
@@ -354,7 +354,7 @@
       "topics": [
         "semi"
       ],
-      "count": 610,
+      "count": 609,
       "focus": "2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION..."
     },
     {
@@ -372,7 +372,7 @@
       "topics": [
         "power"
       ],
-      "count": 345,
+      "count": 344,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -382,7 +382,7 @@
         "ai-policy"
       ],
       "count": 177,
-      "focus": "Meta, 퍼스널 AI 에이전트 'Muse' 일본에서 제공 개시 Meta는 10월 23일(일본 시간)부터 퍼스널 AI 에이전트 'Muse'의 일본 서비스를 시작합니다. 일본은 올해 9월 선행 출시된 북미 외 지역 중 최초의 출시 국가입니다. Muse는 누구나 쉽게 이용할 수 있도록 설계된 세계 최초의 퍼스널 AI..."
+      "focus": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
     },
     {
       "id": "kr-market",
@@ -390,7 +390,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 161,
+      "count": 160,
       "focus": "JP모건 코멘트; 코스피가 반등할 수 있다 보는 3가지 이유 i) 기술적 논쟁 한국 코스피는 다시 한번 고통의 진원지가 되었으며, 어제 -7%를 기록하며 7거래일 연속 하락했고, 지난 2주간 -22%..."
     },
     {
@@ -444,7 +444,7 @@
       "topics": [
         "flows"
       ],
-      "count": 140,
+      "count": 139,
       "focus": "2026년 10월 21일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (11.95%) 2위: PROSHARES ULTRA QQQ ETF (7.48%)..."
     },
     {
@@ -462,7 +462,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 859,
+      "count": 856,
       "focus": "2026년 10월 22일 미국 증시 프리마켓 브리핑 미국 증시 선물은 기술주 중심으로 하락세. 나스닥100 선물 -1.34%, S&P500 선물 -0.67%, 다우 선물 -0.34%, 러셀2000 선물..."
     }
   ],
@@ -990,20 +990,17 @@
       "datetime": "2026-10-21T23:23:32.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "테슬라 ( $TSLA ) 2026년 3분기 어닝콜 Q&A세션 Q. 사이버캡의 오스틴 외 지역 확장 계획과 규제 승인 경로는? A (아쇼크 엘루스와미): 기존 차량(모델 3·Y 등)의 데이터 학습 덕분에 적은...",
       "tickers": [
         "NVDA",
         "TSLA",
         "MS",
         "DB"
-      ],
-      "summary": "테슬라 ( $TSLA ) 2026년 3분기 어닝콜 Q&A세션 Q. 사이버캡의 오스틴 외 지역 확장 계획과 규제 승인 경로는? A (아쇼크 엘루스와미): 기존 차량(모델 3·Y 등)의 데이터 학습 덕분에 적은..."
+      ]
     },
     {
       "id": "bornlupin/20759",
@@ -1012,14 +1009,12 @@
       "datetime": "2026-10-21T23:13:07.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "ai-policy",
         "equity",
-        "earnings",
         "healthcare"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "메타(Meta) Q3 2026 어닝콜 Q&A 세션 1. 브라이언 노왁 (Morgan Stanley)Q. Muse 사용자 성장의 제약 요인과 메타 엔터프라이즈의 비전은 무엇인가요? 마크 저커버그 (CEO):...",
       "tickers": [],
       "listTickers": [
         "WMT",
@@ -1028,8 +1023,7 @@
         "MS",
         "SHOP",
         "BCS"
-      ],
-      "summary": "메타(Meta) Q3 2026 어닝콜 Q&A 세션 1. 브라이언 노왁 (Morgan Stanley)Q. Muse 사용자 성장의 제약 요인과 메타 엔터프라이즈의 비전은 무엇인가요? 마크 저커버그 (CEO):..."
+      ]
     },
     {
       "id": "bornlupin/20756",
@@ -1038,20 +1032,14 @@
       "datetime": "2026-10-21T20:24:16.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "earnings",
-        "healthcare",
-        "japan"
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정..."
+      ]
     },
     {
       "id": "insidertracking/66931",
@@ -1733,7 +1721,7 @@
       "score": 52,
       "hasText": true,
       "tickers": [],
-      "summary": "•상해종합 오후장 -2%에서 플러스 전환 •반도체 과창50 -4%에서 플러스 전환 •유니트리 +15% 최상위, 로봇 강세 •CXMT +6%, CATL +5.8% •다시 정부 자금 유입 소식 **26일..."
+      "summary": "•상해종합 오후장 -2%에서 플러스 전환 •반도체 과창50 -4%에서 플러스 전환 •유니트리 +15% 최상위, 로봇 강세 •CXMT +6%, CATL +5.8% •다시 정부 자금 유입 소식 (*26일..."
     },
     {
       "id": "insidertracking/67089",
@@ -2302,10 +2290,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "미국 레딧 관심도 메타→나스닥→모더나→마이크론 그리고 웨스턴 디지털",
       "tickers": [
         "MU"
-      ],
-      "summary": "미국 레딧 관심도 메타→나스닥→모더나→마이크론 그리고 웨스턴 디지털"
+      ]
     },
     {
       "id": "insidertracking/67062",
@@ -2314,16 +2302,15 @@
       "datetime": "2026-10-22T22:09:53.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "macro",
         "kr-market",
         "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "스포티파이(SPOT) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장 및 가입자 확대. 3분기 매출은 50억유로로 고정환율 기준 전년 대비 14% 증가. 월간 활성 사용자(MAU)는 7억...",
       "tickers": [
         "SPOT"
-      ],
-      "summary": "스포티파이(SPOT) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장 및 가입자 확대. 3분기 매출은 50억유로로 고정환율 기준 전년 대비 14% 증가. 월간 활성 사용자(MAU)는 7억..."
+      ]
     },
     {
       "id": "insidertracking/67063",
@@ -2332,15 +2319,12 @@
       "datetime": "2026-10-22T22:09:53.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "geo",
-        "kr-market",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 63,
       "hasText": true,
-      "tickers": [],
-      "summary": "프록터 앤드 갬블(PG) Q1 2027 어닝콜 요약 > 긍정 요인: • 유기적 매출 성장 및 판매량 회복. 1분기 유기적 매출은 전년 대비 4.0% 증가했으며 판매량 증가가 2.4%p, 가격 인상이 0.4%p..."
+      "summary": "프록터 앤드 갬블(PG) Q1 2027 어닝콜 요약 > 긍정 요인: • 유기적 매출 성장 및 판매량 회복. 1분기 유기적 매출은 전년 대비 4.0% 증가했으며 판매량 증가가 2.4%p, 가격 인상이 0.4%p...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70867",
@@ -2411,10 +2395,10 @@
       ],
       "score": 52,
       "hasText": true,
+      "summary": "블룸에너지 3분기 실적 요약 (140초) • 3분기 매출 12억 3,580만 달러 · 전년 대비 138% 급증 • 제품 매출 179% 증가 · 데이터센터 전력 수요 확대 • 영업이익 2억 2,540만 달러 ·...",
       "tickers": [
         "BE"
-      ],
-      "summary": "블룸에너지 3분기 실적 요약 (140초) • 3분기 매출 12억 3,580만 달러 · 전년 대비 138% 급증 • 제품 매출 179% 증가 · 데이터센터 전력 수요 확대 • 영업이익 2억 2,540만 달러 ·..."
+      ]
     },
     {
       "id": "HANAchina/70859",
@@ -2438,17 +2422,15 @@
       "localDateKst": "2026-10-23",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 82,
       "hasText": true,
+      "summary": "10월 23일 미주인 브리핑 (재업로드) • 나스닥 2.60% 급락 · 반도체지수 장중 7% 이상 하락 • AMD·인텔 급락 · AI 투자비용과 밸류에이션 부담 확대 • 美 10년물 4.95% · 금리...",
       "tickers": [
         "AMD",
         "BE"
-      ],
-      "summary": "10월 23일 미주인 브리핑 (재업로드) • 나스닥 2.60% 급락 · 반도체지수 장중 7% 이상 하락 • AMD·인텔 급락 · AI 투자비용과 밸류에이션 부담 확대 • 美 10년물 4.95% · 금리..."
+      ]
     },
     {
       "id": "insidertracking/67051",
@@ -3673,15 +3655,14 @@
       "localDateKst": "2026-10-22",
       "tags": [
         "semi",
-        "power",
-        "equity"
+        "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을...",
       "tickers": [
         "MU"
-      ],
-      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을..."
+      ]
     },
     {
       "id": "insidertracking/66969",
@@ -3732,14 +3713,12 @@
       "datetime": "2026-10-22T00:38:11.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "그록, 차세대 칩에 'D램 3차원 적층' 도입 추진…S램 한계 넘는다 속도 빠르지만 용량 작은 S램 중심 설계서 탈피 시도…업계 \"용량 강점\" 20일 반도체 업계에 따르면 그록은 차세대 칩에 3D 패키징..."
+      "summary": "그록, 차세대 칩에 'D램 3차원 적층' 도입 추진…S램 한계 넘는다 속도 빠르지만 용량 작은 S램 중심 설계서 탈피 시도…업계 \"용량 강점\" 20일 반도체 업계에 따르면 그록은 차세대 칩에 3D 패키징...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66968",
@@ -3762,17 +3741,14 @@
       "datetime": "2026-10-22T00:22:48.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "equity"
       ],
       "score": 87,
       "hasText": true,
+      "summary": "JPM) 스페이스X, AI특이점의 도래. TP $500 JPMorgan은 SpaceX(SPCX)에 대해 비중확대 의견을 유지하고 목표주가를 240달러에서 500달러로 상향했으며, 이는 2028년 예상 GAAP...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "JPM) 스페이스X, AI특이점의 도래. TP $500 JPMorgan은 SpaceX(SPCX)에 대해 비중확대 의견을 유지하고 목표주가를 240달러에서 500달러로 상향했으며, 이는 2028년 예상 GAAP..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25973",
@@ -3781,20 +3757,16 @@
       "datetime": "2026-10-22T00:19:02.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "kr-market",
-        "equity",
         "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "JP모건 APAC 시장 코멘트: 걱정의 벽을 타고 오르기 (연말까지) 최근 며칠간 투자자 피드백은 실적·성장 전망에 대해 \"약세\"라기보다는, 변동성 속에서 \"확신이 낮다\"는 쪽에 가깝습니다. 시장이 더...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "JP모건 APAC 시장 코멘트: 걱정의 벽을 타고 오르기 (연말까지) 최근 며칠간 투자자 피드백은 실적·성장 전망에 대해 \"약세\"라기보다는, 변동성 속에서 \"확신이 낮다\"는 쪽에 가깝습니다. 시장이 더..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25972",
@@ -3803,16 +3775,14 @@
       "datetime": "2026-10-22T00:04:23.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를...",
       "tickers": [
         "SHOP"
-      ],
-      "summary": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
+      ]
     },
     {
       "id": "bornlupin/20760",
@@ -3821,20 +3791,17 @@
       "datetime": "2026-10-21T23:23:32.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "테슬라 ( $TSLA ) 2026년 3분기 어닝콜 Q&A세션 Q. 사이버캡의 오스틴 외 지역 확장 계획과 규제 승인 경로는? A (아쇼크 엘루스와미): 기존 차량(모델 3·Y 등)의 데이터 학습 덕분에 적은...",
       "tickers": [
         "NVDA",
         "TSLA",
         "MS",
         "DB"
-      ],
-      "summary": "테슬라 ( $TSLA ) 2026년 3분기 어닝콜 Q&A세션 Q. 사이버캡의 오스틴 외 지역 확장 계획과 규제 승인 경로는? A (아쇼크 엘루스와미): 기존 차량(모델 3·Y 등)의 데이터 학습 덕분에 적은..."
+      ]
     },
     {
       "id": "bornlupin/20759",
@@ -3843,14 +3810,12 @@
       "datetime": "2026-10-21T23:13:07.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "ai-policy",
         "equity",
-        "earnings",
         "healthcare"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "메타(Meta) Q3 2026 어닝콜 Q&A 세션 1. 브라이언 노왁 (Morgan Stanley)Q. Muse 사용자 성장의 제약 요인과 메타 엔터프라이즈의 비전은 무엇인가요? 마크 저커버그 (CEO):...",
       "tickers": [],
       "listTickers": [
         "WMT",
@@ -3859,8 +3824,7 @@
         "MS",
         "SHOP",
         "BCS"
-      ],
-      "summary": "메타(Meta) Q3 2026 어닝콜 Q&A 세션 1. 브라이언 노왁 (Morgan Stanley)Q. Muse 사용자 성장의 제약 요인과 메타 엔터프라이즈의 비전은 무엇인가요? 마크 저커버그 (CEO):..."
+      ]
     },
     {
       "id": "HANAchina/70812",
@@ -3905,8 +3869,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "NBC뉴스에 따르면 미군이 최근 이란에 대한 군사작전 확대 가능성에 대비해 요르단, 카타르, 쿠웨이트 등 중동 지역 여러 군사기지의 주둔 병력을 비공개로 감축 중. 미국 관리 2명과 관련 사안에 정통한 소식통..."
+      "summary": "NBC뉴스에 따르면 미군이 최근 이란에 대한 군사작전 확대 가능성에 대비해 요르단, 카타르, 쿠웨이트 등 중동 지역 여러 군사기지의 주둔 병력을 비공개로 감축 중. 미국 관리 2명과 관련 사안에 정통한 소식통...",
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25969",
@@ -3917,18 +3881,17 @@
       "tags": [
         "macro",
         "semi",
-        "ai-policy",
         "equity",
         "earnings",
         "healthcare"
       ],
       "score": 90,
       "hasText": true,
+      "summary": "#Meta FY3Q26 실적 발표 컨퍼런스콜 주요 코멘트 및 Q&A 요약 _한투 반도체 고영민, 김연준 Q. Muse 사용자 증가의 제약 요인은? (역량, 모델 효율, CAPA 등) - 최대 제약은 컴퓨트...",
       "tickers": [
         "WMT",
         "SHOP"
-      ],
-      "summary": "#Meta FY3Q26 실적 발표 컨퍼런스콜 주요 코멘트 및 Q&A 요약 _한투 반도체 고영민, 김연준 Q. Muse 사용자 증가의 제약 요인은? (역량, 모델 효율, CAPA 등) - 최대 제약은 컴퓨트..."
+      ]
     },
     {
       "id": "HANAchina/70810",
@@ -3992,11 +3955,11 @@
       ],
       "score": 75,
       "hasText": true,
+      "summary": "팔란티어(Palantir)가 엔비디아(NVIDIA)와 협력하여 주요 기업들에 ‘소버린 AI(Sovereign AI)’ 도입을 가속화 주요 고객사별 핵심 성과 1. L3해리스 (L3Harris - 방위산업)...",
       "tickers": [
         "NVDA",
         "PLTR"
-      ],
-      "summary": "팔란티어(Palantir)가 엔비디아(NVIDIA)와 협력하여 주요 기업들에 ‘소버린 AI(Sovereign AI)’ 도입을 가속화 주요 고객사별 핵심 성과 1. L3해리스 (L3Harris - 방위산업)..."
+      ]
     },
     {
       "id": "bornlupin/20757",
@@ -4005,14 +3968,12 @@
       "datetime": "2026-10-21T21:04:52.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "ai-policy",
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "메타 3분기 어닝콜 중 저커버그: \"MUSE는 명확한 제품·시장 적합성(Product-Market Fit)을 확보했으며, 이제 대규모 확장 단계에 진입했다.\" - MUSE는 메타가 추진하는 개인..."
+      "summary": "메타 3분기 어닝콜 중 저커버그: \"MUSE는 명확한 제품·시장 적합성(Product-Market Fit)을 확보했으며, 이제 대규모 확장 단계에 진입했다.\" - MUSE는 메타가 추진하는 개인...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66943",
@@ -4085,20 +4046,14 @@
       "datetime": "2026-10-21T20:24:16.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "earnings",
-        "healthcare",
-        "japan"
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정..."
+      ]
     },
     {
       "id": "insidertracking/66932",
@@ -4284,16 +4239,15 @@
       "datetime": "2026-10-21T20:07:38.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
         "equity",
         "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "메타 플랫폼스(META) 2026년 3분기 실적 (시간외 +4%) 매출: 646억 달러 (예상 633.3억 달러), 전년 대비 26% 증가 주당순이익(EPS): 3.83달러 (예상 5.89달러), 전년 대비...",
       "tickers": [
         "META"
-      ],
-      "summary": "메타 플랫폼스(META) 2026년 3분기 실적 (시간외 +4%) 매출: 646억 달러 (예상 633.3억 달러), 전년 대비 26% 증가 주당순이익(EPS): 3.83달러 (예상 5.89달러), 전년 대비..."
+      ]
     },
     {
       "id": "insidertracking/66918",
@@ -4368,11 +4322,11 @@
       ],
       "score": 71,
       "hasText": true,
+      "summary": "제프리스, 루멘텀(Lumentum, $LITE ) 목표주가 1,200달러에서 1,250달러로 상향 , 투자의견 '매수(Buy)'를 유지 루멘텀이 알파벳(GOOGL)의 광회선 스위치(OCS, Optical...",
       "tickers": [
         "GOOG",
         "LITE"
-      ],
-      "summary": "제프리스, 루멘텀(Lumentum, $LITE ) 목표주가 1,200달러에서 1,250달러로 상향 , 투자의견 '매수(Buy)'를 유지 루멘텀이 알파벳(GOOGL)의 광회선 스위치(OCS, Optical..."
+      ]
     },
     {
       "id": "insidertracking/66912",
@@ -4404,15 +4358,14 @@
       "datetime": "2026-10-21T12:14:30.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "credit",
         "ai-policy"
       ],
       "score": 71,
       "hasText": true,
+      "summary": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스...",
       "tickers": [
         "GOOG"
-      ],
-      "summary": "오픈AI가 구글 클라우드를 통해 GPT-6 아스트라 등 최첨단 AI 모델과 코덱스(Codex) 코딩 에이전트 서비스를 제공할 예정. 10월 21일 양사는 향후 몇 주 안에 오픈AI의 최신 AI 모델과 코덱스..."
+      ]
     },
     {
       "id": "bornlupin/20753",
@@ -4421,14 +4374,14 @@
       "datetime": "2026-10-21T12:14:02.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "earnings"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "JP모건, 스페이스X( $SPCX ) 목표주가 240달러에서 500달러로 상향, 투자의견 비중확대(Overweight) 유지 1. 스페이스X–테슬라 합병 가능성 일론 머스크는 스페이스X와 테슬라(TSLA)가...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "JP모건, 스페이스X( $SPCX ) 목표주가 240달러에서 500달러로 상향, 투자의견 비중확대(Overweight) 유지 1. 스페이스X–테슬라 합병 가능성 일론 머스크는 스페이스X와 테슬라(TSLA)가..."
+      ]
     },
     {
       "id": "HANAchina/70807",
@@ -4455,20 +4408,16 @@
       "datetime": "2026-10-21T12:09:00.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "semi",
-        "optical",
-        "power",
-        "ai-policy",
-        "earnings"
+        "semi"
       ],
       "score": 87,
       "hasText": true,
+      "summary": "NVIDIA GTC 베를린 키노트 - 젠슨 황 CEO 유럽 AI 생태계와 차세대 풀스택 아키텍처 1. 유럽 AI 경제 구축 및 파트너십 지난 1년간 유럽 내 스타트업 및 파트너십에 약 100억 달러 투자(누적...",
       "tickers": [
         "NVDA",
         "MSFT",
         "TSM"
-      ],
-      "summary": "NVIDIA GTC 베를린 키노트 - 젠슨 황 CEO 유럽 AI 생태계와 차세대 풀스택 아키텍처 1. 유럽 AI 경제 구축 및 파트너십 지난 1년간 유럽 내 스타트업 및 파트너십에 약 100억 달러 투자(누적..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25966",
@@ -4477,19 +4426,16 @@
       "datetime": "2026-10-21T11:59:45.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "semi",
-        "optical",
-        "healthcare",
-        "japan"
+        "semi"
       ],
       "score": 77,
       "hasText": true,
+      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] 엔비디아, 공급망 파트너와 AI 인프라 생산능력 확대 발표 확대 개요 - GTC Berlin서 암코·이비덴·KYEC·삼성전기·SPIL·유니마이크론 등과...",
       "tickers": [
         "NVDA",
         "MU",
         "009150.KS"
-      ],
-      "summary": "[SK증권 반도체 한동희, 손 건/해외주식 박제민] 엔비디아, 공급망 파트너와 AI 인프라 생산능력 확대 발표 확대 개요 - GTC Berlin서 암코·이비덴·KYEC·삼성전기·SPIL·유니마이크론 등과..."
+      ]
     },
     {
       "id": "insidertracking/66904",
@@ -4559,19 +4505,16 @@
       "datetime": "2026-10-21T11:41:10.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "semi",
-        "optical",
-        "healthcare",
-        "japan"
+        "semi"
       ],
       "score": 87,
       "hasText": true,
+      "summary": "엔비디아 및 공급망 파트너, AI 인프라 구축 가속화를 위한 생산 능력(Capacity) 대폭 확대 엔비디아는 가속 컴퓨팅 및 풀스택 AI 팩토리 플랫폼의 폭발적인 수요에 대응하기 위해 글로벌 주요 공급망...",
       "tickers": [
         "NVDA",
         "MU",
         "009150.KS"
-      ],
-      "summary": "엔비디아 및 공급망 파트너, AI 인프라 구축 가속화를 위한 생산 능력(Capacity) 대폭 확대 엔비디아는 가속 컴퓨팅 및 풀스택 AI 팩토리 플랫폼의 폭발적인 수요에 대응하기 위해 글로벌 주요 공급망..."
+      ]
     },
     {
       "id": "insidertracking/66899",
@@ -4619,10 +4562,10 @@
       ],
       "score": 66,
       "hasText": true,
+      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇..."
+      ]
     },
     {
       "id": "HANAchina/70806",
@@ -4777,18 +4720,15 @@
       "datetime": "2026-10-21T06:35:01.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "semi",
-        "power",
-        "kr-market",
         "earnings"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "블룸버그) AI 네오클라우드 기업 '엘리스(Elice)' CEO, 주가 반등 속 올해 매출 2배 증가 전망 한국의 AI 인프라(네오클라우드) 기업인 엘리스(Elice Inc.)가 상장 첫날의 혹독한 주가...",
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "블룸버그) AI 네오클라우드 기업 '엘리스(Elice)' CEO, 주가 반등 속 올해 매출 2배 증가 전망 한국의 AI 인프라(네오클라우드) 기업인 엘리스(Elice Inc.)가 상장 첫날의 혹독한 주가..."
+      ]
     },
     {
       "id": "HANAchina/70798",
@@ -4853,8 +4793,8 @@
       ],
       "score": 61,
       "hasText": true,
-      "tickers": [],
-      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를..."
+      "summary": "JP모건) 스페이스X 3Q26 실적이 시사하는 바: AI 인프라 모멘텀을 재확인하고 제약 우려를 완화할 것 스페이스X(더그 앤머스 커버)는 3Q26 실적을 발표하고 데이터센터 구축에 관한 여러 업데이트를...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70795",
@@ -4926,8 +4866,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "[SK증권 반도체 한동희, 손 건] 10월 1~20일 반도체 수출액 잠정치 DRAM 109.5억달러 (+3% MoM, +25% QoQ) DRAM 모듈 47.5억달러 (-43% MoM, +53% QoQ)..."
+      "summary": "[SK증권 반도체 한동희, 손 건] 10월 1~20일 반도체 수출액 잠정치 DRAM 109.5억달러 (+3% MoM, +25% QoQ) DRAM 모듈 47.5억달러 (-43% MoM, +53% QoQ)...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66846",
@@ -8448,10 +8388,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "미국 레딧 관심도 메타→나스닥→모더나→마이크론 그리고 웨스턴 디지털",
       "tickers": [
         "MU"
-      ],
-      "summary": "미국 레딧 관심도 메타→나스닥→모더나→마이크론 그리고 웨스턴 디지털"
+      ]
     },
     {
       "id": "insidertracking/67062",
@@ -8460,16 +8400,15 @@
       "datetime": "2026-10-22T22:09:53.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "macro",
         "kr-market",
         "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "스포티파이(SPOT) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장 및 가입자 확대. 3분기 매출은 50억유로로 고정환율 기준 전년 대비 14% 증가. 월간 활성 사용자(MAU)는 7억...",
       "tickers": [
         "SPOT"
-      ],
-      "summary": "스포티파이(SPOT) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장 및 가입자 확대. 3분기 매출은 50억유로로 고정환율 기준 전년 대비 14% 증가. 월간 활성 사용자(MAU)는 7억..."
+      ]
     },
     {
       "id": "insidertracking/67063",
@@ -8478,15 +8417,12 @@
       "datetime": "2026-10-22T22:09:53.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "geo",
-        "kr-market",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 63,
       "hasText": true,
-      "tickers": [],
-      "summary": "프록터 앤드 갬블(PG) Q1 2027 어닝콜 요약 > 긍정 요인: • 유기적 매출 성장 및 판매량 회복. 1분기 유기적 매출은 전년 대비 4.0% 증가했으며 판매량 증가가 2.4%p, 가격 인상이 0.4%p..."
+      "summary": "프록터 앤드 갬블(PG) Q1 2027 어닝콜 요약 > 긍정 요인: • 유기적 매출 성장 및 판매량 회복. 1분기 유기적 매출은 전년 대비 4.0% 증가했으며 판매량 증가가 2.4%p, 가격 인상이 0.4%p...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70867",
@@ -8557,10 +8493,10 @@
       ],
       "score": 52,
       "hasText": true,
+      "summary": "블룸에너지 3분기 실적 요약 (140초) • 3분기 매출 12억 3,580만 달러 · 전년 대비 138% 급증 • 제품 매출 179% 증가 · 데이터센터 전력 수요 확대 • 영업이익 2억 2,540만 달러 ·...",
       "tickers": [
         "BE"
-      ],
-      "summary": "블룸에너지 3분기 실적 요약 (140초) • 3분기 매출 12억 3,580만 달러 · 전년 대비 138% 급증 • 제품 매출 179% 증가 · 데이터센터 전력 수요 확대 • 영업이익 2억 2,540만 달러 ·..."
+      ]
     },
     {
       "id": "HANAchina/70859",
@@ -8584,17 +8520,15 @@
       "localDateKst": "2026-10-23",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 82,
       "hasText": true,
+      "summary": "10월 23일 미주인 브리핑 (재업로드) • 나스닥 2.60% 급락 · 반도체지수 장중 7% 이상 하락 • AMD·인텔 급락 · AI 투자비용과 밸류에이션 부담 확대 • 美 10년물 4.95% · 금리...",
       "tickers": [
         "AMD",
         "BE"
-      ],
-      "summary": "10월 23일 미주인 브리핑 (재업로드) • 나스닥 2.60% 급락 · 반도체지수 장중 7% 이상 하락 • AMD·인텔 급락 · AI 투자비용과 밸류에이션 부담 확대 • 美 10년물 4.95% · 금리..."
+      ]
     },
     {
       "id": "insidertracking/67051",
@@ -9805,15 +9739,14 @@
       "localDateKst": "2026-10-22",
       "tags": [
         "semi",
-        "power",
-        "equity"
+        "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을...",
       "tickers": [
         "MU"
-      ],
-      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을..."
+      ]
     },
     {
       "id": "insidertracking/66969",
@@ -9864,14 +9797,12 @@
       "datetime": "2026-10-22T00:38:11.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "그록, 차세대 칩에 'D램 3차원 적층' 도입 추진…S램 한계 넘는다 속도 빠르지만 용량 작은 S램 중심 설계서 탈피 시도…업계 \"용량 강점\" 20일 반도체 업계에 따르면 그록은 차세대 칩에 3D 패키징..."
+      "summary": "그록, 차세대 칩에 'D램 3차원 적층' 도입 추진…S램 한계 넘는다 속도 빠르지만 용량 작은 S램 중심 설계서 탈피 시도…업계 \"용량 강점\" 20일 반도체 업계에 따르면 그록은 차세대 칩에 3D 패키징...",
+      "tickers": []
     },
     {
       "id": "insidertracking/66968",
@@ -9894,17 +9825,14 @@
       "datetime": "2026-10-22T00:22:48.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
+        "equity"
       ],
       "score": 87,
       "hasText": true,
+      "summary": "JPM) 스페이스X, AI특이점의 도래. TP $500 JPMorgan은 SpaceX(SPCX)에 대해 비중확대 의견을 유지하고 목표주가를 240달러에서 500달러로 상향했으며, 이는 2028년 예상 GAAP...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "JPM) 스페이스X, AI특이점의 도래. TP $500 JPMorgan은 SpaceX(SPCX)에 대해 비중확대 의견을 유지하고 목표주가를 240달러에서 500달러로 상향했으며, 이는 2028년 예상 GAAP..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25973",
@@ -9913,20 +9841,16 @@
       "datetime": "2026-10-22T00:19:02.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "geo",
-        "kr-market",
-        "equity",
         "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "JP모건 APAC 시장 코멘트: 걱정의 벽을 타고 오르기 (연말까지) 최근 며칠간 투자자 피드백은 실적·성장 전망에 대해 \"약세\"라기보다는, 변동성 속에서 \"확신이 낮다\"는 쪽에 가깝습니다. 시장이 더...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "JP모건 APAC 시장 코멘트: 걱정의 벽을 타고 오르기 (연말까지) 최근 며칠간 투자자 피드백은 실적·성장 전망에 대해 \"약세\"라기보다는, 변동성 속에서 \"확신이 낮다\"는 쪽에 가깝습니다. 시장이 더..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25972",
@@ -9935,16 +9859,14 @@
       "datetime": "2026-10-22T00:04:23.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "ai-policy",
-        "earnings"
+        "ai-policy"
       ],
       "score": 76,
       "hasText": true,
+      "summary": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를...",
       "tickers": [
         "SHOP"
-      ],
-      "summary": "앤스로픽, AI에이전트 시대에 합류하다. 개인용 AI에이전트 Claude Duet 공개 Anthropic은 미국 Pro 및 Max 구독자를 대상으로 대기자 명단을 통해 Claude Duet의 리서치 프리뷰를..."
+      ]
     },
     {
       "id": "bornlupin/20760",
@@ -9953,20 +9875,17 @@
       "datetime": "2026-10-21T23:23:32.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "테슬라 ( $TSLA ) 2026년 3분기 어닝콜 Q&A세션 Q. 사이버캡의 오스틴 외 지역 확장 계획과 규제 승인 경로는? A (아쇼크 엘루스와미): 기존 차량(모델 3·Y 등)의 데이터 학습 덕분에 적은...",
       "tickers": [
         "NVDA",
         "TSLA",
         "MS",
         "DB"
-      ],
-      "summary": "테슬라 ( $TSLA ) 2026년 3분기 어닝콜 Q&A세션 Q. 사이버캡의 오스틴 외 지역 확장 계획과 규제 승인 경로는? A (아쇼크 엘루스와미): 기존 차량(모델 3·Y 등)의 데이터 학습 덕분에 적은..."
+      ]
     },
     {
       "id": "bornlupin/20759",
@@ -9975,14 +9894,12 @@
       "datetime": "2026-10-21T23:13:07.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "ai-policy",
         "equity",
-        "earnings",
         "healthcare"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "메타(Meta) Q3 2026 어닝콜 Q&A 세션 1. 브라이언 노왁 (Morgan Stanley)Q. Muse 사용자 성장의 제약 요인과 메타 엔터프라이즈의 비전은 무엇인가요? 마크 저커버그 (CEO):...",
       "tickers": [],
       "listTickers": [
         "WMT",
@@ -9991,8 +9908,7 @@
         "MS",
         "SHOP",
         "BCS"
-      ],
-      "summary": "메타(Meta) Q3 2026 어닝콜 Q&A 세션 1. 브라이언 노왁 (Morgan Stanley)Q. Muse 사용자 성장의 제약 요인과 메타 엔터프라이즈의 비전은 무엇인가요? 마크 저커버그 (CEO):..."
+      ]
     },
     {
       "id": "HANAchina/70812",
@@ -10037,8 +9953,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "NBC뉴스에 따르면 미군이 최근 이란에 대한 군사작전 확대 가능성에 대비해 요르단, 카타르, 쿠웨이트 등 중동 지역 여러 군사기지의 주둔 병력을 비공개로 감축 중. 미국 관리 2명과 관련 사안에 정통한 소식통..."
+      "summary": "NBC뉴스에 따르면 미군이 최근 이란에 대한 군사작전 확대 가능성에 대비해 요르단, 카타르, 쿠웨이트 등 중동 지역 여러 군사기지의 주둔 병력을 비공개로 감축 중. 미국 관리 2명과 관련 사안에 정통한 소식통...",
+      "tickers": []
     }
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
