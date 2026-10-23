@@ -10,7 +10,7 @@ confidence: medium
 
 ## v58.65 운영 v58.65 (2026-10-23)
 
-- [ ] QA-OPS-CI-01: P1974: 브라우저 샤드 설치가 timeout된 뒤 재시도가 dpkg 잠금 때문에 2초 만에 실패하지 않는다. verify_by: gh run view <CI run> --log | grep 'playwright install attempt'
+- [ ] QA-OPS-CI-01: P1974: 브라우저 샤드 설치가 timeout된 뒤의 재시도가 dpkg 잠금 때문에 실패하지 않는다. v58.67: apt 네트워크 timeout·재시도 설정, 재시도 전 남은 apt 정리. verify_by: gh run view <CI run> --log | grep 'playwright install attempt'
 - [x] QA-OPS-MACRO-01: P1975: FRED가 실패하고 BLS·BEA·재무부가 성공한 런은 공식 출처 필드를 observed로 게시하고 갱신이 통과한다. verify_by: node scripts/ci-artifact-semantics-check.mjs
 - [x] QA-OPS-LABEL-01: P1976: 본문에 괄호 없이 쓰인 프롬프트 라벨은 인용으로 바뀌거나 사라지고, 해석이 차단되지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 

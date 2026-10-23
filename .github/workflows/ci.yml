@@ -137,14 +137,19 @@ jobs:
           # A cache hit already holds the browser build; only the OS libraries (apt) are installed then, because
           # the runner image does not persist them between jobs.
           if [ "$PLAYWRIGHT_BROWSERS_CACHED" = "true" ]; then install_args="install-deps chromium"; else install_args="install --with-deps chromium"; fi
+          # v58.67 (CI 2026-10-23): a stalled mirror connection kept apt-get alive for 6+ minutes. apt now gives up a
+          # stalled connection after 20 s and retries it itself, so one slow shard costs seconds, not the attempt.
+          printf 'Acquire::Retries "3";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' | sudo tee /etc/apt/apt.conf.d/99aio-network >/dev/null
           for attempt in 1 2 3; do
-            if timeout 100 npx playwright $install_args; then break; fi
+            if timeout 150 npx playwright $install_args; then break; fi
             [ "$attempt" = 3 ] && { echo "::error::playwright install failed 3 times"; exit 1; }
             echo "::warning::playwright install attempt $attempt timed out or failed; retrying"
-            # v58.65 (CI 2026-10-22): timeout stops npx, not the sudo apt-get it started. That apt kept the dpkg lock, so
-            # every retry failed in two seconds (apt exit 100) and no commit since 10/21 17:48 deployed. Let the
-            # leftover apt finish (its download is the slow part) before retrying on the same lock.
-            for _ in $(seq 1 90); do sudo fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock >/dev/null 2>&1 || break; sleep 2; done
+            # v58.65/67: timeout stops npx, not the sudo apt-get it started, and that apt kept the dpkg lock — every
+            # retry failed in two seconds (apt exit 100) and nothing deployed after 10/21 17:48. Stop the leftover apt,
+            # wait for the lock, and let dpkg finish any half-configured package before retrying.
+            sudo pkill -x apt-get || true
+            for _ in $(seq 1 30); do sudo fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock >/dev/null 2>&1 || break; sleep 2; done
+            sudo dpkg --configure -a || true
           done
       - name: Run all gates in shard
         env:
