@@ -107,7 +107,13 @@ try {
         await page.waitForTimeout(300);
         const card = await page.evaluate(() => { const el = document.getElementById('aio-basis-card'); const box = el?.getBoundingClientRect(); return el && { visible: !el.hidden && box.width > 0, left: box.left, right: box.right, top: box.top, bottom: box.bottom, text: el.textContent.slice(0, 60) }; });
         check(!!card?.visible && card.left >= 0 && card.right <= viewport.width + 1 && card.top >= 0 && card.bottom <= viewport.height + 1, `${viewport.name}: a tap on an explained ${name} element must leave #aio-basis-card visible in the viewport (v57.81)`, card);
-        await page.touchscreen.tap(4, viewport.height - 4);
+        // v58.75: the bottom-left corner sits on the sidebar's 단축키 button on tablet1024 (CI fonts are taller), so the
+        // outside tap goes to the first corner whose hit target is not interactive and not the card.
+        const outside = await page.evaluate(({ w, h }) => [[4, h - 4], [w - 4, h - 4], [w / 2, h - 4], [w - 4, 80]].find(([x, y]) => {
+          const hit = document.elementFromPoint(x, y);
+          return hit && !hit.closest('a,button,input,select,textarea,summary,label,[role="button"],[tabindex],#aio-basis-card');
+        }) || [4, h - 4], { w: viewport.width, h: viewport.height });
+        await page.touchscreen.tap(outside[0], outside[1]);
         await page.waitForTimeout(150);
         check(await page.evaluate(() => document.getElementById('aio-basis-card')?.hidden === true), `${viewport.name}: a tap outside must close the basis card (v57.81)`);
       }
