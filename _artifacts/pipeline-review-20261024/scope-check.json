@@ -1,0 +1,115 @@
+{
+  "capturedAt": "2026-10-24T01:26:17.288Z",
+  "baselineHead": "07ecac5735aa09e2363a60d61e3fce05d740bdc2",
+  "currentHead": "14ad21b0c3ad91c42722eeff52379ee00075e096",
+  "existingFilesChanged": [
+    "CHANGELOG.md",
+    "_artifacts/route-soak-report.json",
+    "_context/CONTEXT-CATALOG.json",
+    "_context/QA-CHECKLIST.md",
+    "architecture/asset-manifest.json",
+    "architecture/release-manifest.json",
+    "public-config.json",
+    "public-data/atlas/index.json",
+    "public-data/backtest-history.json",
+    "public-data/breadth-contributors.json",
+    "public-data/consensus-estimates.json",
+    "public-data/data.json",
+    "public-data/earnings-calendar.json",
+    "public-data/history.json",
+    "public-data/macro-calendar.json",
+    "public-data/macro-history.json",
+    "public-data/market-snapshot-status.json",
+    "public-data/market-snapshot.json",
+    "public-data/market-temperature.json",
+    "public-data/masters/filing-discovery.json",
+    "public-data/official-references.json",
+    "public-data/operations-status.json",
+    "public-data/reconciliation-status.json",
+    "public-data/scenario-state.json",
+    "public-data/score-backtest-history.json",
+    "public-data/screener-candidate-archive.json",
+    "public-data/screener-extended-universe.json",
+    "public-data/screener-extended.json",
+    "public-data/screener.json",
+    "public-data/sec-fiscal-history.json",
+    "public-data/sec-fundamentals-extended.json",
+    "public-data/sec-fundamentals-summary.json",
+    "public-data/sec-fundamentals-summary.manifest.json",
+    "public-data/sp500-weights.json",
+    "public-data/telegram-digest.json",
+    "public-data/telegram-observed.json",
+    "version.json"
+  ],
+  "unexpectedNewFiles": [],
+  "actionableCount": 12,
+  "actionable": [
+    "DATA-01",
+    "DATA-02",
+    "DATA-03",
+    "DATA-04",
+    "DATA-05",
+    "OPS-01",
+    "OPS-02",
+    "RUNTIME-01",
+    "AI-01",
+    "AI-02",
+    "KNOW-01",
+    "QA-01"
+  ],
+  "brokenLocalLinks": [],
+  "directChecks": [
+    {
+      "command": "node scripts/ci-qa-pipeline-contract-check.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/ci-release-manifest-contract.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/ci-operations-contract-check.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/ci-operations-alert-policy-check.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/ci-operations-alert-source-check.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/ci-cloudflare-deployment-contract-check.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/ci-deployment-convergence-check.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/ci-knowledge-currentness-separation.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/ci-knowledge-core-semantic-check.mjs",
+      "exitCode": 0
+    }
+  ],
+  "artifactFiles": [
+    "affected-qa-initial.json",
+    "affected-qa-retry.json",
+    "audit.mjs",
+    "checks.json",
+    "data-reproductions.json",
+    "HANDOFF.md",
+    "inventory.json",
+    "reproduce-convergence.mjs",
+    "reproduce-data.mjs",
+    "reproduce-operations.mjs",
+    "reproduce-runtime-knowledge.mjs",
+    "reproductions.json",
+    "runtime-knowledge-reproductions.json",
+    "WORKFLOWS.md"
+  ]
+}

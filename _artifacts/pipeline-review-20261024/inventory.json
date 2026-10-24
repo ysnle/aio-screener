@@ -5674,621 +5674,844 @@
   "qaGroups": {
     "preflight": [
       {
-        "id": "syntax"
+        "id": "syntax",
+        "script": "scripts/ci-syntax-check.mjs"
       },
       {
-        "id": "workflow-yaml"
+        "id": "workflow-yaml",
+        "script": "scripts/ci-control-char-check.mjs"
       },
       {
-        "id": "version"
+        "id": "version",
+        "script": "scripts/ci-version-check.mjs"
       },
       {
-        "id": "product-charter"
+        "id": "product-charter",
+        "script": "scripts/ci-product-charter-contract-check.mjs"
       },
       {
-        "id": "architecture"
+        "id": "architecture",
+        "script": "scripts/ci-architecture-contract-check.mjs"
       },
       {
-        "id": "native-decision"
+        "id": "native-decision",
+        "script": "scripts/ci-native-decision-evidence-check.mjs"
       },
       {
-        "id": "vertical-slice"
+        "id": "vertical-slice",
+        "script": "scripts/ci-vertical-slice-contract-check.mjs"
       },
       {
-        "id": "capability-claims"
+        "id": "capability-claims",
+        "script": "scripts/ci-capability-claim-contract-check.mjs"
       },
       {
-        "id": "operations-contract"
+        "id": "operations-contract",
+        "script": "scripts/ci-operations-contract-check.mjs"
       },
       {
-        "id": "reference-curriculum"
+        "id": "reference-curriculum",
+        "script": "scripts/ci-reference-curriculum-contract-check.mjs"
       },
       {
-        "id": "route-registry"
+        "id": "route-registry",
+        "script": "scripts/generate-route-registry.mjs",
+        "args": [
+          "--check"
+        ]
       },
       {
-        "id": "generated-state"
+        "id": "generated-state",
+        "script": "scripts/generate-workspace-state.mjs",
+        "args": [
+          "--check"
+        ]
       },
       {
-        "id": "workspace-contract"
+        "id": "workspace-contract",
+        "script": "scripts/ci-workspace-contract-check.mjs"
       },
       {
-        "id": "qa-runner-behavior"
+        "id": "qa-runner-behavior",
+        "script": "scripts/ci-qa-runner-behavior-check.mjs"
       }
     ],
     "core": [
       {
-        "id": "market-session"
+        "id": "market-session",
+        "script": "scripts/ci-market-session-contract-check.mjs"
       },
       {
-        "id": "boot-budget"
+        "id": "boot-budget",
+        "script": "scripts/ci-boot-bundle-budget-check.mjs"
       },
       {
-        "id": "inline-style-ratchet"
+        "id": "inline-style-ratchet",
+        "script": "scripts/ci-inline-style-ratchet-check.mjs"
       },
       {
-        "id": "research-reference-index"
+        "id": "research-reference-index",
+        "script": "scripts/build-research-reference-index.mjs",
+        "args": [
+          "--check"
+        ]
       },
       {
-        "id": "decomposition"
+        "id": "decomposition",
+        "script": "scripts/ci-decomp-hotspot-check.mjs"
       },
       {
-        "id": "baseline"
+        "id": "baseline",
+        "script": "scripts/ci-baseline-contract-check.mjs"
       },
       {
-        "id": "esm-core"
+        "id": "esm-core",
+        "script": "scripts/ci-esm-core-unit-check.mjs"
       },
       {
-        "id": "page-decision-reference"
+        "id": "page-decision-reference",
+        "script": "scripts/ci-page-decision-reference-check.mjs"
       },
       {
-        "id": "rotation-history"
+        "id": "rotation-history",
+        "script": "scripts/ci-rotation-history-check.mjs"
       },
       {
-        "id": "fundamental-watchlist-timeline"
+        "id": "fundamental-watchlist-timeline",
+        "script": "scripts/ci-fundamental-watchlist-timeline-check.mjs"
       },
       {
-        "id": "artifact-cache"
+        "id": "artifact-cache",
+        "script": "scripts/ci-artifact-cache-check.mjs"
       },
       {
-        "id": "headless-group-lifecycle"
+        "id": "headless-group-lifecycle",
+        "script": "scripts/ci-headless-group-lifecycle-check.mjs"
       },
       {
-        "id": "service-worker-cache-policy"
+        "id": "service-worker-cache-policy",
+        "script": "scripts/ci-service-worker-cache-policy-check.mjs"
       },
       {
-        "id": "ai-intelligence"
+        "id": "ai-intelligence",
+        "script": "scripts/ci-ai-intelligence-contract-check.mjs"
       },
       {
-        "id": "ai-premise"
+        "id": "ai-premise",
+        "script": "scripts/ci-ai-premise-check.mjs"
       },
       {
-        "id": "ai-analysis-evidence"
+        "id": "ai-analysis-evidence",
+        "script": "scripts/ci-ai-analysis-evidence-check.mjs"
       },
       {
-        "id": "ai-chat-analysis-integration"
+        "id": "ai-chat-analysis-integration",
+        "script": "scripts/ci-ai-chat-analysis-integration-check.mjs"
       },
       {
-        "id": "ai-quote-evidence"
+        "id": "ai-quote-evidence",
+        "script": "scripts/ci-ai-quote-evidence-check.mjs"
       },
       {
-        "id": "domain-parity"
+        "id": "domain-parity",
+        "script": "scripts/ci-domain-parity-check.mjs"
       },
       {
-        "id": "research-model"
+        "id": "research-model",
+        "script": "scripts/ci-research-model-contract-check.mjs"
       },
       {
-        "id": "research-flow"
+        "id": "research-flow",
+        "script": "scripts/ci-research-flow-contract-check.mjs"
       },
       {
-        "id": "proxy-continuity"
+        "id": "proxy-continuity",
+        "script": "scripts/ci-proxy-continuity-check.mjs"
       },
       {
-        "id": "data-continuity"
+        "id": "data-continuity",
+        "script": "scripts/ci-data-continuity-check.mjs"
       },
       {
-        "id": "desktop-continuity"
+        "id": "desktop-continuity",
+        "script": "scripts/ci-desktop-continuity-check.mjs"
       },
       {
-        "id": "chat-resilience"
+        "id": "chat-resilience",
+        "script": "scripts/ci-chat-resilience-check.mjs"
       },
       {
-        "id": "ai-provider-stream"
+        "id": "ai-provider-stream",
+        "script": "scripts/ci-ai-provider-stream-check.mjs"
       },
       {
-        "id": "storage-migration"
+        "id": "storage-migration",
+        "script": "scripts/ci-storage-migration-check.mjs"
       },
       {
-        "id": "release-manifest"
+        "id": "release-manifest",
+        "script": "scripts/ci-release-manifest-contract.mjs"
       },
       {
-        "id": "deployment-convergence"
+        "id": "deployment-convergence",
+        "script": "scripts/ci-deployment-convergence-check.mjs"
       },
       {
-        "id": "retirement"
+        "id": "retirement",
+        "script": "scripts/ci-retirement-contract.mjs"
       },
       {
-        "id": "inference"
+        "id": "inference",
+        "script": "scripts/ci-inference-contract-check.mjs"
       },
       {
-        "id": "csp"
+        "id": "csp",
+        "script": "scripts/ci-csp-ratchet-check.mjs"
       },
       {
-        "id": "structural"
+        "id": "structural",
+        "script": "scripts/ci-structural-check.mjs"
       },
       {
-        "id": "default-ux"
+        "id": "default-ux",
+        "script": "scripts/ci-ux-default-path-check.mjs"
       },
       {
-        "id": "desktop-scope"
+        "id": "desktop-scope",
+        "script": "scripts/ci-desktop-scope-check.mjs"
       },
       {
-        "id": "runtime"
+        "id": "runtime",
+        "script": "scripts/ci-runtime-contract-check.mjs"
       },
       {
-        "id": "ai-chat-reliability"
+        "id": "ai-chat-reliability",
+        "script": "scripts/ci-ai-chat-reliability-contract-check.mjs"
       },
       {
-        "id": "data-pipeline"
+        "id": "data-pipeline",
+        "script": "scripts/ci-data-pipeline-contract-check.mjs"
       },
       {
-        "id": "page-timeline"
+        "id": "page-timeline",
+        "script": "scripts/ci-page-data-timeline-contract-check.mjs"
       },
       {
-        "id": "reference-adoption-contract"
+        "id": "reference-adoption-contract",
+        "script": "scripts/ci-reference-adoption-contract-check.mjs"
       },
       {
-        "id": "semantic-review"
+        "id": "semantic-review",
+        "script": "scripts/ci-semantic-review-check.mjs"
       },
       {
-        "id": "connection-access"
+        "id": "connection-access",
+        "script": "scripts/ci-connection-access-check.mjs"
       },
       {
-        "id": "conditional-native-search"
+        "id": "conditional-native-search",
+        "script": "scripts/ci-native-search-check.mjs"
       },
       {
-        "id": "entity-summary-fixture"
+        "id": "entity-summary-fixture",
+        "script": "scripts/ci-entity-summary-fixture.mjs"
       },
       {
-        "id": "screener-market-fixture"
+        "id": "screener-market-fixture",
+        "script": "scripts/ci-screener-market-fixture.mjs"
       },
       {
-        "id": "chart-scenarios-fixture"
+        "id": "chart-scenarios-fixture",
+        "script": "scripts/ci-chart-scenarios-fixture.mjs"
       },
       {
-        "id": "scenario-guidance-fixture"
+        "id": "scenario-guidance-fixture",
+        "script": "scripts/ci-scenario-guidance-fixture.mjs"
       },
       {
-        "id": "market-guide-fixture"
+        "id": "market-guide-fixture",
+        "script": "scripts/ci-market-guide-fixture.mjs"
       },
       {
-        "id": "interpretation-boundary-check"
+        "id": "interpretation-boundary-check",
+        "script": "scripts/ci-interpretation-boundary-check.mjs"
       },
       {
-        "id": "crash-replay-check"
+        "id": "crash-replay-check",
+        "script": "scripts/ci-crash-replay-check.mjs"
       },
       {
-        "id": "codex-structure-regression-fixture"
+        "id": "codex-structure-regression-fixture",
+        "script": "scripts/ci-codex-structure-regression-fixture.mjs"
       },
       {
-        "id": "architecture-audit-regression-fixture"
+        "id": "architecture-audit-regression-fixture",
+        "script": "scripts/ci-architecture-audit-regression-fixture.mjs"
       },
       {
-        "id": "fiscal-quality-fixture"
+        "id": "fiscal-quality-fixture",
+        "script": "scripts/ci-fiscal-quality-fixture.mjs"
       },
       {
-        "id": "company-analysis-fixture"
+        "id": "company-analysis-fixture",
+        "script": "scripts/ci-company-analysis-fixture.mjs"
       },
       {
-        "id": "korea-participation-fixture"
+        "id": "korea-participation-fixture",
+        "script": "scripts/ci-korea-participation-fixture.mjs"
       },
       {
-        "id": "kr-investor-flows-fixture"
+        "id": "kr-investor-flows-fixture",
+        "script": "scripts/ci-kr-investor-flows-fixture.mjs"
       },
       {
-        "id": "13f-figi-ticker-fixture"
+        "id": "13f-figi-ticker-fixture",
+        "script": "scripts/ci-13f-figi-ticker-fixture.mjs"
       },
       {
-        "id": "regime-scenarios-fixture"
+        "id": "regime-scenarios-fixture",
+        "script": "scripts/ci-regime-scenarios-fixture.mjs"
       },
       {
-        "id": "ui-vocabulary"
+        "id": "ui-vocabulary",
+        "script": "scripts/ci-ui-vocabulary-check.mjs"
       }
     ],
     "data": [
       {
-        "id": "macro-calendar-review"
+        "id": "macro-calendar-review",
+        "script": "scripts/ci-macro-calendar-review-contract-check.mjs"
       },
       {
-        "id": "official-references"
+        "id": "official-references",
+        "script": "scripts/ci-official-references-check.mjs"
       },
       {
-        "id": "screener-workbench"
+        "id": "screener-workbench",
+        "script": "scripts/ci-screener-workbench-contract.mjs"
       },
       {
-        "id": "screener-extended"
+        "id": "screener-extended",
+        "script": "scripts/ci-screener-extended-contract-check.mjs"
       },
       {
-        "id": "conditional-evidence"
+        "id": "conditional-evidence",
+        "script": "scripts/ci-conditional-evidence-contract.mjs"
       },
       {
-        "id": "screener-benchmark"
+        "id": "screener-benchmark",
+        "script": "scripts/benchmark-screener-workbench.mjs",
+        "args": [
+          "--out",
+          "{cacheDir}/screener-scale-benchmark.json"
+        ]
       },
       {
-        "id": "market-snapshot"
+        "id": "market-snapshot",
+        "script": "scripts/ci-market-snapshot-contract-check.mjs"
       },
       {
-        "id": "history-time"
+        "id": "history-time",
+        "script": "scripts/ci-history-field-time-contract-check.mjs"
       },
       {
-        "id": "history-session-model"
+        "id": "history-session-model",
+        "script": "scripts/ci-history-session-model-check.mjs"
       },
       {
-        "id": "narrative-lifecycle-model"
+        "id": "narrative-lifecycle-model",
+        "script": "scripts/ci-narrative-lifecycle-model-check.mjs"
       },
       {
-        "id": "data-plane"
+        "id": "data-plane",
+        "script": "scripts/ci-data-plane-contract-check.mjs"
       },
       {
-        "id": "operations-status"
+        "id": "operations-status",
+        "script": "scripts/ci-operations-status-check.mjs"
       },
       {
-        "id": "operations-alert-policy"
+        "id": "operations-alert-policy",
+        "script": "scripts/ci-operations-alert-policy-check.mjs"
       },
       {
-        "id": "fast-plane-consumer"
+        "id": "fast-plane-consumer",
+        "script": "scripts/ci-fast-plane-consumer-gate.mjs"
       },
       {
-        "id": "operations-slo"
+        "id": "operations-slo",
+        "script": "scripts/ci-operations-slo-window-check.mjs"
       },
       {
-        "id": "human-validation"
+        "id": "human-validation",
+        "script": "scripts/ci-human-validation-contract-check.mjs"
       },
       {
-        "id": "reconciliation"
+        "id": "reconciliation",
+        "script": "scripts/ci-reconciliation-contract-check.mjs"
       },
       {
-        "id": "source-registry"
+        "id": "source-registry",
+        "script": "scripts/ci-source-registry-contract-check.mjs"
       },
       {
-        "id": "professional-gap"
+        "id": "professional-gap",
+        "script": "scripts/ci-professional-data-gap-check.mjs"
       },
       {
-        "id": "operator-readiness"
+        "id": "operator-readiness",
+        "script": "scripts/ci-operator-readiness-check.mjs"
       },
       {
-        "id": "data-lineage"
+        "id": "data-lineage",
+        "script": "scripts/ci-data-lineage-audit.mjs"
       },
       {
-        "id": "sec-runtime-projection"
+        "id": "sec-runtime-projection",
+        "script": "scripts/ci-sec-runtime-projection-check.mjs"
       },
       {
-        "id": "sec-ledger-store"
+        "id": "sec-ledger-store",
+        "script": "scripts/ci-sec-ledger-store-check.mjs"
       },
       {
-        "id": "candidate-archive"
+        "id": "candidate-archive",
+        "script": "scripts/ci-candidate-archive-check.mjs"
       },
       {
-        "id": "us-listings"
+        "id": "us-listings",
+        "script": "scripts/ci-us-listings-check.mjs"
       },
       {
-        "id": "review-integrity"
+        "id": "review-integrity",
+        "script": "scripts/ci-review-integrity-unit-check.mjs"
       },
       {
-        "id": "static-data"
+        "id": "static-data",
+        "script": "scripts/ci-static-data-contract-check.mjs"
       },
       {
-        "id": "artifact-semantics"
+        "id": "artifact-semantics",
+        "script": "scripts/ci-artifact-semantics-check.mjs"
       },
       {
-        "id": "static-db-expiry"
+        "id": "static-db-expiry",
+        "script": "scripts/ci-static-db-expiry-check.mjs"
       },
       {
-        "id": "manual-reference-expiry"
+        "id": "manual-reference-expiry",
+        "script": "scripts/ci-manual-reference-expiry-check.mjs"
       },
       {
-        "id": "data-refresh"
+        "id": "data-refresh",
+        "script": "scripts/ci-data-refresh-audit.mjs"
       },
       {
-        "id": "refresh-integrity"
+        "id": "refresh-integrity",
+        "script": "scripts/ci-refresh-artifact-integrity-check.mjs"
       },
       {
-        "id": "producer-dry-run"
+        "id": "producer-dry-run",
+        "script": "scripts/ci-producer-dry-run.mjs"
       },
       {
-        "id": "release-revision"
+        "id": "release-revision",
+        "script": "scripts/ci-release-revision-check.mjs"
       },
       {
-        "id": "release-generated-parity"
+        "id": "release-generated-parity",
+        "script": "scripts/ci-generated-release-parity-check.mjs"
       },
       {
-        "id": "13f-currentness"
+        "id": "13f-currentness",
+        "script": "scripts/ci-13f-currentness-check.mjs"
       },
       {
-        "id": "13f-semantic-noop"
+        "id": "13f-semantic-noop",
+        "script": "scripts/ci-13f-semantic-hash-check.mjs"
       },
       {
-        "id": "artifact-headroom"
+        "id": "artifact-headroom",
+        "script": "scripts/ci-artifact-size-headroom-check.mjs"
       }
     ],
     "knowledge": [
       {
-        "id": "principles-lesson-parity"
+        "id": "principles-lesson-parity",
+        "script": "scripts/ci-principles-lesson-parity-contract-check.mjs"
       },
       {
-        "id": "knowledge-generated-parity"
+        "id": "knowledge-generated-parity",
+        "script": "scripts/ci-knowledge-generated-parity-check.mjs"
       },
       {
-        "id": "integrated-framework"
+        "id": "integrated-framework",
+        "script": "scripts/ci-integrated-framework-contract.mjs"
       },
       {
-        "id": "knowledge-ontology"
+        "id": "knowledge-ontology",
+        "script": "scripts/ci-knowledge-ontology-contract.mjs"
       },
       {
-        "id": "knowledge-core"
+        "id": "knowledge-core",
+        "script": "scripts/ci-knowledge-core-semantic-check.mjs"
       },
       {
-        "id": "knowledge-articles"
+        "id": "knowledge-articles",
+        "script": "scripts/ci-knowledge-article-contract.mjs"
       },
       {
-        "id": "knowledge-learning"
+        "id": "knowledge-learning",
+        "script": "scripts/ci-knowledge-learning-state-contract.mjs"
       },
       {
-        "id": "knowledge-routes"
+        "id": "knowledge-routes",
+        "script": "scripts/ci-knowledge-route-bridge-contract.mjs"
       },
       {
-        "id": "knowledge-renderer"
+        "id": "knowledge-renderer",
+        "script": "scripts/ci-knowledge-renderer-contract.mjs"
       },
       {
-        "id": "knowledge-coverage"
+        "id": "knowledge-coverage",
+        "script": "scripts/ci-knowledge-full-corpus-coverage.mjs"
       },
       {
-        "id": "knowledge-web"
+        "id": "knowledge-web",
+        "script": "scripts/ci-knowledge-web-research-dossier.mjs"
       },
       {
-        "id": "knowledge-sector"
+        "id": "knowledge-sector",
+        "script": "scripts/ci-knowledge-sector-domain-depth.mjs"
       },
       {
-        "id": "knowledge-unique"
+        "id": "knowledge-unique",
+        "script": "scripts/ci-knowledge-article-uniqueness.mjs"
       },
       {
-        "id": "knowledge-transmission"
+        "id": "knowledge-transmission",
+        "script": "scripts/ci-knowledge-market-transmission.mjs"
       },
       {
-        "id": "knowledge-currentness"
+        "id": "knowledge-currentness",
+        "script": "scripts/ci-knowledge-currentness-separation.mjs"
       },
       {
-        "id": "knowledge-current-observations"
+        "id": "knowledge-current-observations",
+        "script": "scripts/ci-knowledge-current-observations-check.mjs"
       },
       {
-        "id": "six-doc-coverage"
+        "id": "six-doc-coverage",
+        "script": "scripts/ci-six-doc-coverage-check.mjs"
       },
       {
-        "id": "atlas-contract"
+        "id": "atlas-contract",
+        "script": "scripts/ci-atlas-contract-check.mjs"
       },
       {
-        "id": "principles-contract"
+        "id": "principles-contract",
+        "script": "scripts/ci-principles-contract-check.mjs"
       },
       {
-        "id": "masters-contract"
+        "id": "masters-contract",
+        "script": "scripts/ci-masters-contract-check.mjs"
       },
       {
-        "id": "masters-manager-store"
+        "id": "masters-manager-store",
+        "script": "scripts/ci-masters-manager-store-check.mjs"
       },
       {
-        "id": "knowledge-review"
+        "id": "knowledge-review",
+        "script": "scripts/ci-knowledge-review-check.mjs"
       }
     ],
     "workspace": [
       {
-        "id": "knowledge-lint"
+        "id": "knowledge-lint",
+        "script": "scripts/ci-knowledge-lint-check.mjs"
       },
       {
-        "id": "workflow-compaction"
+        "id": "workflow-compaction",
+        "script": "scripts/ci-workflow-compaction-check.mjs"
       },
       {
-        "id": "skill-contract"
+        "id": "skill-contract",
+        "script": "scripts/ci-skill-contract-check.mjs"
       },
       {
-        "id": "skill-evals"
+        "id": "skill-evals",
+        "script": "scripts/ci-skill-eval-fixture-check.mjs"
       },
       {
-        "id": "agent-profiles"
+        "id": "agent-profiles",
+        "script": "scripts/sync-agent-profiles.mjs",
+        "args": [
+          "--check"
+        ]
       },
       {
-        "id": "agent-skills"
+        "id": "agent-skills",
+        "script": "scripts/sync-agent-skills.mjs",
+        "args": [
+          "--check"
+        ]
       },
       {
-        "id": "live-header-policy"
+        "id": "live-header-policy",
+        "script": "scripts/ci-live-header-policy-contract-check.mjs"
       },
       {
-        "id": "operator-provisioning"
+        "id": "operator-provisioning",
+        "script": "scripts/ci-operator-secrets-contract-check.mjs"
       },
       {
-        "id": "doc-currency"
+        "id": "doc-currency",
+        "script": "scripts/ci-doc-currency-check.mjs"
       },
       {
-        "id": "ledger-integrity"
+        "id": "ledger-integrity",
+        "script": "scripts/ci-ledger-integrity-check.mjs"
       },
       {
-        "id": "record-fix"
+        "id": "record-fix",
+        "script": "scripts/ci-record-fix-check.mjs"
       },
       {
-        "id": "generated-conflict-fixture"
+        "id": "generated-conflict-fixture",
+        "script": "scripts/ci-generated-conflict-fixture.mjs"
       },
       {
-        "id": "assertion-trace"
+        "id": "assertion-trace",
+        "script": "scripts/ci-assertion-trace-check.mjs"
       },
       {
-        "id": "text-pin-ratchet"
+        "id": "text-pin-ratchet",
+        "script": "scripts/ci-text-pin-ratchet-check.mjs"
       },
       {
-        "id": "qa-pipeline-contract"
+        "id": "qa-pipeline-contract",
+        "script": "scripts/ci-qa-pipeline-contract-check.mjs"
       }
     ],
     "cloudflare": [
       {
-        "id": "worker-anthropic"
+        "id": "worker-anthropic",
+        "script": "scripts/ci-worker-anthropic-check.mjs"
       },
       {
-        "id": "extension-api-runtime"
+        "id": "extension-api-runtime",
+        "script": "scripts/ci-extension-api-runtime-check.mjs"
       },
       {
-        "id": "ai-budget-scope"
+        "id": "ai-budget-scope",
+        "script": "scripts/ci-ai-budget-scope-check.mjs"
       },
       {
-        "id": "worker-relay"
+        "id": "worker-relay",
+        "script": "scripts/ci-worker-relay-check.mjs"
       },
       {
-        "id": "operations-alert-source"
+        "id": "operations-alert-source",
+        "script": "scripts/ci-operations-alert-source-check.mjs"
       },
       {
-        "id": "cloudflare-deployment"
+        "id": "cloudflare-deployment",
+        "script": "scripts/ci-cloudflare-deployment-contract-check.mjs"
       }
     ],
     "browser-unit": [
       {
-        "id": "headless"
+        "id": "headless",
+        "script": "scripts/ci-headless-tests.mjs",
+        "args": [
+          "--shard=1/1"
+        ]
       }
     ],
     "browser-runtime": [
       {
-        "id": "browser-ai-public"
+        "id": "browser-ai-public",
+        "script": "scripts/ci-ai-chat-public-route-browser-check.mjs"
       },
       {
-        "id": "browser-chat-ui-state"
+        "id": "browser-chat-ui-state",
+        "script": "scripts/ci-chat-ui-state-browser-check.mjs"
       },
       {
-        "id": "browser-chat-response-layout"
+        "id": "browser-chat-response-layout",
+        "script": "scripts/ci-chat-response-layout-browser-check.mjs"
       },
       {
-        "id": "browser-market-epoch"
+        "id": "browser-market-epoch",
+        "script": "scripts/ci-page-market-epoch-browser-check.mjs"
       },
       {
-        "id": "browser-screener-refresh"
+        "id": "browser-screener-refresh",
+        "script": "scripts/ci-screener-auto-refresh-browser-check.mjs"
       },
       {
-        "id": "browser-screener-extended"
+        "id": "browser-screener-extended",
+        "script": "scripts/ci-screener-extended-browser-check.mjs"
       },
       {
-        "id": "browser-boot"
+        "id": "browser-boot",
+        "script": "scripts/ci-boot-interaction-check.mjs"
       },
       {
-        "id": "browser-architecture"
+        "id": "browser-architecture",
+        "script": "scripts/ci-architecture-browser-check.mjs"
       },
       {
-        "id": "browser-vertical"
+        "id": "browser-vertical",
+        "script": "scripts/ci-vertical-slice-browser-check.mjs"
       }
     ],
     "browser-knowledge": [
       {
-        "id": "artifact-budget"
+        "id": "artifact-budget",
+        "script": "scripts/ci-three-page-artifact-budget-check.mjs"
       },
       {
-        "id": "browser-atlas"
+        "id": "browser-atlas",
+        "script": "scripts/ci-atlas-browser-check.mjs"
       },
       {
-        "id": "browser-principles"
+        "id": "browser-principles",
+        "script": "scripts/ci-principles-browser-check.mjs"
       },
       {
-        "id": "browser-masters"
+        "id": "browser-masters",
+        "script": "scripts/ci-masters-browser-check.mjs"
       },
       {
-        "id": "browser-user-journey"
+        "id": "browser-user-journey",
+        "script": "scripts/ci-user-journey-quality-check.mjs"
       },
       {
-        "id": "browser-reference-adoption"
+        "id": "browser-reference-adoption",
+        "script": "scripts/ci-reference-adoption-browser-check.mjs"
       },
       {
-        "id": "browser-theme-research"
+        "id": "browser-theme-research",
+        "script": "scripts/ci-theme-research-browser-check.mjs"
       },
       {
-        "id": "browser-learning-flow"
+        "id": "browser-learning-flow",
+        "script": "scripts/ci-three-page-learning-flow-check.mjs"
       }
     ],
     "browser-resilience": [
       {
-        "id": "browser-route-soak"
+        "id": "browser-route-soak",
+        "script": "scripts/ci-route-soak-check.mjs"
       },
       {
-        "id": "browser-sa02"
+        "id": "browser-sa02",
+        "script": "scripts/ci-sa-02-outage-browser-fixture.mjs"
       },
       {
-        "id": "browser-sa03"
+        "id": "browser-sa03",
+        "script": "scripts/ci-sa-03-sw-controller-fixture.mjs"
       },
       {
-        "id": "browser-sa04"
+        "id": "browser-sa04",
+        "script": "scripts/ci-sa-04-boot-network-budget.mjs"
       }
     ],
     "browser-viewport": [
       {
-        "id": "browser-viewport"
+        "id": "browser-viewport",
+        "script": "scripts/ci-viewport-matrix-check.mjs"
       },
       {
-        "id": "browser-responsive"
+        "id": "browser-responsive",
+        "script": "scripts/ci-responsive-browser-check.mjs"
       },
       {
-        "id": "browser-entity-quality"
+        "id": "browser-entity-quality",
+        "script": "scripts/ci-entity-quality-browser-check.mjs"
       },
       {
-        "id": "browser-touch-ergonomics"
+        "id": "browser-touch-ergonomics",
+        "script": "scripts/ci-touch-ergonomics-browser-check.mjs"
       },
       {
-        "id": "browser-out-of-universe-ticker"
+        "id": "browser-out-of-universe-ticker",
+        "script": "scripts/ci-out-of-universe-ticker-browser-check.mjs"
       }
     ],
     "browser-surface": [
       {
-        "id": "browser-critical"
+        "id": "browser-critical",
+        "script": "scripts/ci-critical10-human-surface-check.mjs"
       },
       {
-        "id": "browser-vault"
+        "id": "browser-vault",
+        "script": "scripts/ci-portfolio-vault-e2e.mjs"
       },
       {
-        "id": "browser-a11y"
+        "id": "browser-a11y",
+        "script": "scripts/ci-accessibility-matrix-check.mjs"
       },
       {
-        "id": "browser-ui-render-hygiene"
+        "id": "browser-ui-render-hygiene",
+        "script": "scripts/ci-ui-render-hygiene-check.mjs"
       }
     ],
     "watchdog-local": [
       {
-        "id": "watchdog-market-snapshot"
+        "id": "watchdog-market-snapshot",
+        "script": "scripts/ci-market-snapshot-contract-check.mjs"
       },
       {
-        "id": "watchdog-operations"
+        "id": "watchdog-operations",
+        "script": "scripts/ci-operations-status-check.mjs"
       },
       {
-        "id": "watchdog-reconciliation"
+        "id": "watchdog-reconciliation",
+        "script": "scripts/ci-reconciliation-contract-check.mjs"
       },
       {
-        "id": "watchdog-source-registry"
+        "id": "watchdog-source-registry",
+        "script": "scripts/ci-source-registry-contract-check.mjs"
       },
       {
-        "id": "watchdog-professional-gap"
+        "id": "watchdog-professional-gap",
+        "script": "scripts/ci-professional-data-gap-check.mjs"
       },
       {
-        "id": "watchdog-static-data"
+        "id": "watchdog-static-data",
+        "script": "scripts/ci-static-data-contract-check.mjs"
       },
       {
-        "id": "watchdog-manual-reference-expiry"
+        "id": "watchdog-manual-reference-expiry",
+        "script": "scripts/ci-manual-reference-expiry-check.mjs"
       },
       {
-        "id": "watchdog-web-research"
+        "id": "watchdog-web-research",
+        "script": "scripts/ci-web-research-contract-check.mjs"
       },
       {
-        "id": "watchdog-data-refresh"
+        "id": "watchdog-data-refresh",
+        "script": "scripts/ci-data-refresh-audit.mjs"
       },
       {
-        "id": "watchdog-artifact-headroom"
+        "id": "watchdog-artifact-headroom",
+        "script": "scripts/ci-artifact-size-headroom-check.mjs"
       }
     ],
     "external": [
       {
-        "id": "external-pipeline"
+        "id": "external-pipeline",
+        "script": "scripts/ci-external-pipeline-check.mjs",
+        "args": [
+          "--mode",
+          "watchdog"
+        ]
       },
       {
-        "id": "live-invariants"
+        "id": "live-invariants",
+        "script": "scripts/ci-live-invariant-check.mjs"
       }
     ]
   },

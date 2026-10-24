@@ -3282,7 +3282,7 @@
         : null;
       t866ok = !!(delta866 && delta866.textContent === '0pp' && /is-flat/.test(delta866.className || '') &&
         !/±/.test(delta866.textContent || '') &&
-        regime866 && /#ff5b50/i.test(regime866.color || '') && /공포/.test(regime866.label || ''));
+        regime866 && /#ec5d5e/i.test(regime866.color || '') && /공포/.test(regime866.label || ''));
       t866detail = JSON.stringify({
         delta: delta866 && delta866.textContent,
         deltaClass: delta866 && delta866.className,
@@ -6505,7 +6505,7 @@
         ctx828.indexOf('Qualitative answer') >= 0 &&
         ctx828.indexOf('Page linkage') >= 0 &&
         ctx828.indexOf('퀀트 스크리너') >= 0 &&
-        ctx828.indexOf('종목 · 차트') >= 0 && // v57.55: current screen names (was 차트·기술 분석)
+        ctx828.indexOf('종목, 차트') >= 0 && // v58.73 separator; v57.55: current screen names (was 차트·기술 분석)
         ctx828.indexOf('브리핑·뉴스') >= 0 &&
         csSrc828.indexOf('sysPrompt += _buildAioIntegratedAnswerContext(ctxId, q') >= 0);
       t828detail = JSON.stringify({
