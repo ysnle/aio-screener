@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-24T15:21:34.973Z",
-  "attemptedAt": "2026-10-24T15:21:34.973Z",
-  "lastSuccessfulAt": "2026-10-24T15:21:34.973Z",
+  "generatedAt": "2026-10-24T16:25:42.353Z",
+  "attemptedAt": "2026-10-24T16:25:42.353Z",
+  "lastSuccessfulAt": "2026-10-24T16:25:42.353Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-10T15:21:29.062Z",
-  "until": "2026-10-24T15:21:29.062Z",
+  "since": "2026-10-10T16:25:36.639Z",
+  "until": "2026-10-24T16:25:36.639Z",
   "current24hWindow": {
     "start": "2026-10-22T23:00:00.000Z",
     "end": "2026-10-23T23:00:00.000Z",
@@ -84,7 +84,7 @@
       "eligibleTextCount": 39,
       "selectedCount": 22,
       "error": null,
-      "lastPostId": 26022
+      "lastPostId": 26024
     },
     {
       "channel": "insidertracking",
@@ -94,9 +94,9 @@
       "count": 40,
       "freshCount": 40,
       "eligibleTextCount": 38,
-      "selectedCount": 5,
+      "selectedCount": 3,
       "error": null,
-      "lastPostId": 67202
+      "lastPostId": 67205
     },
     {
       "channel": "bornlupin",
@@ -134,36 +134,37 @@
     "eligibleTextCount": 116,
     "mediaOnlyCount": 3,
     "highSignalCount": 23,
-    "broadSignalCount": 53,
-    "selectedRawCount": 53,
-    "selectedEligibleCount": 53,
-    "selectedRawCoveragePct": 45.7,
-    "selectedOfObservedPct": 44.5,
+    "broadSignalCount": 51,
+    "selectedRawCount": 51,
+    "selectedEligibleCount": 51,
+    "selectedRawCoveragePct": 44,
+    "selectedOfObservedPct": 42.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 39,
-    "geo": 21,
+    "ai-policy": 10,
+    "kr-market": 6,
+    "equity": 11,
+    "earnings": 31,
+    "market-note": 41,
+    "geo": 19,
     "media-only": 3,
     "semi": 26,
-    "ai-policy": 11,
-    "earnings": 31,
     "power": 19,
-    "kr-market": 6,
     "flows": 4,
     "credit": 5,
-    "macro": 10,
-    "equity": 9,
+    "macro": 9,
     "japan": 6,
     "healthcare": 2
   },
   "tickerCounts": {
+    "GOOG": 5,
+    "META": 1,
     "NVDA": 6,
     "AMD": 1,
     "INTC": 1,
     "AMZN": 4,
     "TSLA": 4,
-    "GOOG": 6,
     "MU": 2,
     "005930.KS": 3,
     "PANW": 1,
@@ -183,14 +184,14 @@
     "PINS": 1
   },
   "themes": [
-    "Market Notes (39 posts in 14-day research window): 아마존 CEO : 클라우드 용량 2027년까지 매진 앤디 재시(Andy Jassy) 아마존 CEO는 인공지능(AI) 인프라 수요 급증으로 인해 아마존웹서비스(AWS)의 클라우드 컴퓨팅 용량이 2027년까지 대부분 매진되었으며, 2028년 물량도 상당 부분 계약이 완료되었다고 밝혔습니다. 폭발적인 AI 인프라 수요:...",
+    "Market Notes (41 posts in 14-day research window): 아마존 CEO : 클라우드 용량 2027년까지 매진 앤디 재시(Andy Jassy) 아마존 CEO는 인공지능(AI) 인프라 수요 급증으로 인해 아마존웹서비스(AWS)의 클라우드 컴퓨팅 용량이 2027년까지 대부분 매진되었으며, 2028년 물량도 상당 부분 계약이 완료되었다고 밝혔습니다. 폭발적인 AI 인프라 수요:...",
     "Earnings/Corporate (31 posts in 14-day research window): 다음주 일정 26일: 중국 5중 전회(~29일), VZ 실적(장전), CLS, CDNS, RMBS, AMKR 실적(장전), Oracle AI World(~28일 ), IBM TechXchange 2026(~29일), OpenAI DevDay Exchange 베를린 27일: 연준 FOMC (~28일), 미국 10월...",
     "Semiconductors/Memory (26 posts in 14-day research window): BofA , 데이터 센터 지출, 2028년까지 2조 1천억 달러로 두 배 이상 증가할 것 뱅크오브아메리카(BofA) 글로벌 리서치는 금요일(23일) 보고서를 통해, AI 서비스에 대한 수요 증가와 기술 개발에 힘입어 전 세계 데이터 센터 지출이 2026년 1조 달러에 달하고, 2028년에는 두 배 이상 증가한 2조...",
-    "Geopolitics (21 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
+    "Geopolitics (19 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
     "AI Power/Grid (19 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을 상회했으며, 예상보다 강한 전분기 대비 마진 확대는 서비스가 아닌 제품 부문이 주도했고, 매출 가이던스는 11%...",
-    "AI Policy/Export Controls (11 posts in 14-day research window): >>AI 거래 붕괴, Anthropic은 ‘초대형 IPO’를 연기할까? 11월 중순 ‘예정 상장일’이 얼마 남지 않았음 (중국언론) •시간적 여유가 매우 부족한 상황. SEC 규정에 따르면 늦어도 다음 주까지 S-1 서류를 제출해야 하며, 예측시장에서는 연내 상장 확률을 약 80%로 제시함. AI 관련주 매도세로...",
-    "Macro/Rates (10 posts in 14-day research window): 모건스탠리, 블룸에너지( $BE ) 목표주가 $310에서 $335로 상향, 투자의견 비중확대(Overweight)를 유지 블룸에너지의 생산능력 확대와 확보된 수요 파이프라인을 실제 매출로 전환할 수 있는 능력에 대한 확신이 높아짐에 따라, 주로 출하량 전망치를 상향 조정 한 것을 반영해 목표주가를 기존...",
-    "Equity/Analyst (9 posts in 14-day research window): >>‘역대 최대 규모 소환장’! 민주당은 전투 태세, 머스크는 중간선거 이후 ‘전면적인 보복’에 직면할 전망 (중국언론) •민주당은 세 가지 주요 조사 방향을 명확히 설정함. 머스크 산하 기업들이 연방정부 계약을 통해 얻은 이익과 관련한 이해충돌, 머스크가 DOGE를 이끌 당시 남긴 ‘파괴적인 유산’, 그리고..."
+    "Equity/Analyst (11 posts in 14-day research window): 웰스파고) Meta Platforms, Inc. 3Q:26 EPS 리뷰: 견조한 매출, 자본 조달 및 FY27 OpEx/CapEx 전망에 대한 의문은 여전 비중확대(Overweight), 목표주가: $995.00 당사 의견 핵심 광고 부문이 2Q:21 이후 가장 빠른 UCAN 광고 성장에 힘입어 다시 한번 예상을...",
+    "AI Policy/Export Controls (10 posts in 14-day research window): BofA) 메타; AI 스토리는 계속 개선 중이며 뮤즈(Muse)에 대해 생각해볼 거리가 많음; 매수 의견 재확인. TP $845. 1. 3Q 매출 상회, 일회성 비용 제외 시 EPS 상회; 견조한 4Q 전망 3Q 매출/EPS는 $64.6bn/$3.83로, 시장 예상치 $63.3bn/$5.52 대비 혼조세를...",
+    "Macro/Rates (9 posts in 14-day research window): 모건스탠리, 블룸에너지( $BE ) 목표주가 $310에서 $335로 상향, 투자의견 비중확대(Overweight)를 유지 블룸에너지의 생산능력 확대와 확보된 수요 파이프라인을 실제 매출로 전환할 수 있는 능력에 대한 확신이 높아짐에 따라, 주로 출하량 전망치를 상향 조정 한 것을 반영해 목표주가를 기존..."
   ],
   "catalysts": [
     {
@@ -205,7 +206,7 @@
     },
     {
       "key": "GOOG",
-      "count": 6,
+      "count": 5,
       "text": "Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서 905달러로 상향했습니다. Citi는 Meta가 여러 수익화 동력을 갖춘 AI 제품 슈퍼사이클에 진입하고 있다고..."
     },
     {
@@ -249,9 +250,9 @@
       "text": "JP모건) 웨스턴 디지털, F1Q27 리뷰: 가격 모멘텀과 EB 회복이 긍정적 이익 추정치 상향을 뒷받침, 설비투자 우려는 과도 웨스턴 디지털(WDC)은 F1Q27(9월 말 종료)에 매출 43억 8,000만 달러를 기록해 JP모건 추정치(41억 7,000만 달러), 컨센서스(41억 5,000만 달러), 회사..."
     },
     {
-      "key": "AMD",
+      "key": "META",
       "count": 1,
-      "text": ">>AI 군비 경쟁, 공급망 후방산업 확산 : Intel·Nvidia·AMD, 고급 IC 기판 생산능력 확보 위해 1,000억 대만달러 이상 선급금 지급 보도 •Nvidia, Intel, AMD가 50억 달러의 선급금을 투입해 대만의 고급 IC 기판 생산능력 확보 경쟁에 나섬. 이 같은 ‘자금 선투입을 통한 주문..."
+      "text": "웰스파고) Meta Platforms, Inc. 3Q:26 EPS 리뷰: 견조한 매출, 자본 조달 및 FY27 OpEx/CapEx 전망에 대한 의문은 여전 비중확대(Overweight), 목표주가: $995.00 당사 의견 핵심 광고 부문이 2Q:21 이후 가장 빠른 UCAN 광고 성장에 힘입어 다시 한번 예상을..."
     }
   ],
   "categories": [
@@ -261,7 +262,7 @@
       "topics": [
         "macro"
       ],
-      "count": 10,
+      "count": 9,
       "focus": "모건스탠리, 블룸에너지( $BE ) 목표주가 $310에서 $335로 상향, 투자의견 비중확대(Overweight)를 유지 블룸에너지의 생산능력 확대와 확보된 수요 파이프라인을 실제 매출로 전환할 수 있는 능력에 대한 확신이 높아짐에 따라, 주로 출하량 전망치를 상향 조정 한 것을 반영해 목표주가를 기존..."
     },
     {
@@ -270,7 +271,7 @@
       "topics": [
         "geo"
       ],
-      "count": 21,
+      "count": 19,
       "focus": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
     },
     {
@@ -315,8 +316,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 11,
-      "focus": ">>AI 거래 붕괴, Anthropic은 ‘초대형 IPO’를 연기할까? 11월 중순 ‘예정 상장일’이 얼마 남지 않았음 (중국언론) •시간적 여유가 매우 부족한 상황. SEC 규정에 따르면 늦어도 다음 주까지 S-1 서류를 제출해야 하며, 예측시장에서는 연내 상장 확률을 약 80%로 제시함. AI 관련주 매도세로..."
+      "count": 10,
+      "focus": "BofA) 메타; AI 스토리는 계속 개선 중이며 뮤즈(Muse)에 대해 생각해볼 거리가 많음; 매수 의견 재확인. TP $845. 1. 3Q 매출 상회, 일회성 비용 제외 시 EPS 상회; 견조한 4Q 전망 3Q 매출/EPS는 $64.6bn/$3.83로, 시장 예상치 $63.3bn/$5.52 대비 혼조세를..."
     },
     {
       "id": "kr-market",
@@ -333,8 +334,8 @@
       "topics": [
         "equity"
       ],
-      "count": 9,
-      "focus": ">>‘역대 최대 규모 소환장’! 민주당은 전투 태세, 머스크는 중간선거 이후 ‘전면적인 보복’에 직면할 전망 (중국언론) •민주당은 세 가지 주요 조사 방향을 명확히 설정함. 머스크 산하 기업들이 연방정부 계약을 통해 얻은 이익과 관련한 이해충돌, 머스크가 DOGE를 이끌 당시 남긴 ‘파괴적인 유산’, 그리고..."
+      "count": 11,
+      "focus": "웰스파고) Meta Platforms, Inc. 3Q:26 EPS 리뷰: 견조한 매출, 자본 조달 및 FY27 OpEx/CapEx 전망에 대한 의문은 여전 비중확대(Overweight), 목표주가: $995.00 당사 의견 핵심 광고 부문이 2Q:21 이후 가장 빠른 UCAN 광고 성장에 힘입어 다시 한번 예상을..."
     },
     {
       "id": "crypto",
@@ -396,7 +397,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 39,
+      "count": 41,
       "focus": "아마존 CEO : 클라우드 용량 2027년까지 매진 앤디 재시(Andy Jassy) 아마존 CEO는 인공지능(AI) 인프라 수요 급증으로 인해 아마존웹서비스(AWS)의 클라우드 컴퓨팅 용량이 2027년까지 대부분 매진되었으며, 2028년 물량도 상당 부분 계약이 완료되었다고 밝혔습니다. 폭발적인 AI 인프라 수요:..."
     }
   ],
@@ -860,6 +861,43 @@
       "summary": "\"1분 만에 동났다\" 폴더블 아이폰 곳곳 오픈런…애플 잔칫날 갤럭시도 '축포' 아이폰 사전 예약, 1분 만에 종료 명동 매장, 쌀쌀한 날씨 속 오픈런 갤Z폴드8, 유럽서 판매량 45% 증가 애플의 첫 폴더블..."
     },
     {
+      "id": "aetherjapanresearch/26024",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26024",
+      "datetime": "2026-10-24T16:11:58.000Z",
+      "localDateKst": "2026-10-25",
+      "tags": [
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "earnings"
+      ],
+      "score": 77,
+      "hasText": true,
+      "tickers": [
+        "GOOG"
+      ],
+      "summary": "BofA) 메타; AI 스토리는 계속 개선 중이며 뮤즈(Muse)에 대해 생각해볼 거리가 많음; 매수 의견 재확인. TP $845. 1. 3Q 매출 상회, 일회성 비용 제외 시 EPS 상회; 견조한 4Q 전망..."
+    },
+    {
+      "id": "aetherjapanresearch/26023",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26023",
+      "datetime": "2026-10-24T16:10:58.000Z",
+      "localDateKst": "2026-10-25",
+      "tags": [
+        "equity",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 77,
+      "hasText": true,
+      "tickers": [
+        "META"
+      ],
+      "summary": "웰스파고) Meta Platforms, Inc. 3Q:26 EPS 리뷰: 견조한 매출, 자본 조달 및 FY27 OpEx/CapEx 전망에 대한 의문은 여전 비중확대(Overweight), 목표주가:..."
+    },
+    {
       "id": "aetherjapanresearch/25997",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25997",
@@ -890,39 +928,6 @@
       "hasText": true,
       "tickers": [],
       "summary": "BofA , 데이터 센터 지출, 2028년까지 2조 1천억 달러로 두 배 이상 증가할 것 뱅크오브아메리카(BofA) 글로벌 리서치는 금요일(23일) 보고서를 통해, AI 서비스에 대한 수요 증가와 기술 개발에..."
-    },
-    {
-      "id": "aetherjapanresearch/25984",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25984",
-      "datetime": "2026-10-22T10:24:25.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "earnings"
-      ],
-      "score": 74,
-      "hasText": true,
-      "tickers": [
-        "GOOG"
-      ],
-      "summary": "시티즌스(Citizens)의 애널리스트 앤드루 분(Andrew Boone)은 알파벳(NASDAQ: GOOGL)의 목표주가를 450.00달러(기존 515.00달러)로 하향 조정하면서 시장수익률 상회(Market..."
-    },
-    {
-      "id": "insidertracking/67164",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67164",
-      "datetime": "2026-10-24T02:22:33.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "geo",
-        "ai-policy",
-        "kr-market",
-        "earnings"
-      ],
-      "score": 73,
-      "hasText": true,
-      "tickers": [],
-      "summary": "아메리칸 익스프레스(AXP) Q3 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 이익 성장. 3분기 매출은 201억달러로 전년 대비 9% 증가. 조정 EPS는 4.68달러(+13%), GAAP..."
     },
     {
       "id": "bornlupin/20793",
@@ -1069,6 +1074,43 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/26024",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26024",
+      "datetime": "2026-10-24T16:11:58.000Z",
+      "localDateKst": "2026-10-25",
+      "tags": [
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "earnings"
+      ],
+      "score": 77,
+      "hasText": true,
+      "tickers": [
+        "GOOG"
+      ],
+      "summary": "BofA) 메타; AI 스토리는 계속 개선 중이며 뮤즈(Muse)에 대해 생각해볼 거리가 많음; 매수 의견 재확인. TP $845. 1. 3Q 매출 상회, 일회성 비용 제외 시 EPS 상회; 견조한 4Q 전망..."
+    },
+    {
+      "id": "aetherjapanresearch/26023",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26023",
+      "datetime": "2026-10-24T16:10:58.000Z",
+      "localDateKst": "2026-10-25",
+      "tags": [
+        "equity",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 77,
+      "hasText": true,
+      "tickers": [
+        "META"
+      ],
+      "summary": "웰스파고) Meta Platforms, Inc. 3Q:26 EPS 리뷰: 견조한 매출, 자본 조달 및 FY27 OpEx/CapEx 전망에 대한 의문은 여전 비중확대(Overweight), 목표주가:..."
+    },
     {
       "id": "aetherjapanresearch/26022",
       "channel": "aetherjapanresearch",
@@ -1310,39 +1352,6 @@
       "hasText": true,
       "tickers": [],
       "summary": ">>데이터센터에 ‘신용등급 하향’ 경고, S&P가 AI 부채 위기를 더욱 악화시킬 가능성 •S&P는 전력망 용량 제한, 환경 지속가능성 논란, 용도지역 계획 변경에 따른 프로젝트 지연이 데이터센터 프로젝트의..."
-    },
-    {
-      "id": "insidertracking/67164",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67164",
-      "datetime": "2026-10-24T02:22:33.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "geo",
-        "ai-policy",
-        "kr-market",
-        "earnings"
-      ],
-      "score": 73,
-      "hasText": true,
-      "tickers": [],
-      "summary": "아메리칸 익스프레스(AXP) Q3 2026 어닝콜 요약 > 긍정 요인: • 사상 최대 매출 및 이익 성장. 3분기 매출은 201억달러로 전년 대비 9% 증가. 조정 EPS는 4.68달러(+13%), GAAP..."
-    },
-    {
-      "id": "insidertracking/67163",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67163",
-      "datetime": "2026-10-24T02:04:37.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "ai-policy"
-      ],
-      "score": 54,
-      "hasText": true,
-      "tickers": [
-        "GOOG"
-      ],
-      "summary": "영국 정부가 인공지능(AI) 관련 생물학적 위협에 대응하기 위해 1억 파운드(약 1억 3,400만 달러)를 투입해 AI 생물안전 연구소를 설립한다고 10월 24일 발표. 이번 프로젝트에는 오픈AI, 앤트로픽,..."
     },
     {
       "id": "HANAchina/70936",
@@ -1960,37 +1969,6 @@
         "PINS"
       ],
       "summary": "Citi) 메타; 뮤즈 도입 확대와 핵심 광고 모멘텀 지속으로 AI 순풍 가속화; 투자 동향 주시 Citi는 Meta의 3Q26 실적 발표 이후 투자의견 매수(Buy)를 유지하고 목표주가를 895달러에서..."
-    },
-    {
-      "id": "aetherjapanresearch/25984",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25984",
-      "datetime": "2026-10-22T10:24:25.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "earnings"
-      ],
-      "score": 74,
-      "hasText": true,
-      "tickers": [
-        "GOOG"
-      ],
-      "summary": "시티즌스(Citizens)의 애널리스트 앤드루 분(Andrew Boone)은 알파벳(NASDAQ: GOOGL)의 목표주가를 450.00달러(기존 515.00달러)로 하향 조정하면서 시장수익률 상회(Market..."
-    },
-    {
-      "id": "aetherjapanresearch/25983",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25983",
-      "datetime": "2026-10-22T09:10:49.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "score": 62,
-      "hasText": true,
-      "tickers": [],
-      "summary": "노무라 경고: 현재 AI 신용위험은 닷컴버블 & 리먼 사태 이전과 놀랄만큼 유사. 모든 것은 유가에 달려 있음 • '10년 신용 사이클' 프레임워크 구축. 현재 AI 기술 & 프랑스 신용 불안을 '2차..."
     }
   ],
   "current24hItems": [
@@ -2372,12 +2350,26 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 89,
+    "pt": 90,
     "earnings": 31,
     "macro": 3,
     "retail": 8
   },
   "signals": [
+    {
+      "kind": "pt",
+      "key": "pt|META|Wells Fargo|2026-10-25",
+      "ticker": "META",
+      "broker": "Wells Fargo",
+      "ptFrom": null,
+      "ptTo": 995,
+      "currency": "USD",
+      "direction": "set",
+      "rating": "buy",
+      "ratingAction": null,
+      "date": "2026-10-25",
+      "post": "aetherjapanresearch/26023"
+    },
     {
       "kind": "pt",
       "key": "pt|ASTS|-|2026-10-24",
