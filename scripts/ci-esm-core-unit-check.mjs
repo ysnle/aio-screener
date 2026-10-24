@@ -4031,6 +4031,53 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const season = buildBriefingSchedule({ earnings: [...small, ...big], names, nowMs: Date.parse('2026-10-20T08:00:00Z'), days: 3, maxEarnings: 3 });
   const kept = season.filter((row) => row.kind === 'earnings').map((row) => row.label.split(' ')[0]);
   if (kept.join('|') !== 'EFX|NFLX|META' || season.omittedEarnings !== 3) fail(`v58.52 earnings rows are picked by index weight and listed by time, got ${JSON.stringify({ kept, omitted: season.omittedEarnings })}`);
+  // v58.75 (persona review): perDay keeps each date's heaviest reports beside the week's heaviest (KO on 10/27 was cut
+  // behind the next week's megacaps), and the estimate shows without a provider name, with the revenue estimate.
+  const week2 = buildBriefingSchedule({ earnings: [{ symbol: 'KO', date: '2026-10-27', hour: 'bmo', indexWeight: 0.5, epsEstimate: 0.9071, revenueEstimate: 13307860929 }, ...['MSFT', 'GOOGL', 'AMZN'].map((symbol) => ({ symbol, date: '2026-10-29', hour: 'amc', indexWeight: 5 }))],
+    names: { KO: 'Coca-Cola', MSFT: 'MSFT', GOOGL: 'GOOGL', AMZN: 'AMZN' }, nowMs: Date.parse('2026-10-24T03:00:00Z'), days: 7, maxEarnings: 2, perDay: 1 });
+  const ko = week2.find((row) => row.label.startsWith('Coca-Cola'));
+  if (!ko || ko.last !== 'EPS 예상 0.91, 매출 예상 133억 달러' || week2.filter((row) => row.kind === 'earnings').length !== 3) fail(`v58.75 per-day earnings and estimate line wrong: ${JSON.stringify(week2.map((row) => [row.label, row.last]))}`);
+}
+// v58.75 (persona review): a mover's headline names the company exactly (ticker word or proper name), never a guess; a
+// channel post needs the ticker in its extracted list and in the text shown.
+{
+  const { headlineForCompany, companyMatcher, pickImportantNews } = await load('src/domain/briefing/news-picks.js');
+  const window = { start: Date.parse('2026-10-23T00:00:00Z'), end: Date.parse('2026-10-24T12:00:00Z') };
+  const at = '2026-10-23T15:00:00Z';
+  const news = [{ title: 'Stocks slide as oil jumps', pubDate: at }, { title: 'Credo Technology shares sink after guidance cut', pubDate: at, source: 'Reuters' }, { title: 'Now is the time for AI', pubDate: at }];
+  const credo = headlineForCompany({ symbol: 'CRDO', name: 'Credo Technology Group' }, { news, span: window });
+  const telegram = [{ datetime: at, tickers: ['WDC'], summary: '프리마켓 동향 • SBAC (+9.3%) 상회 • Western Digital 목표주가 하향', url: 'https://t.me/x/1', channel: 'x' }];
+  const wdc = headlineForCompany({ symbol: 'WDC', name: 'Western Digital' }, { news, telegram, span: window });
+  if (credo?.row?.source !== 'Reuters' || headlineForCompany({ symbol: 'NOW', name: 'ServiceNow' }, { news, span: window }) || wdc?.text !== 'Western Digital 목표주가 하향'
+    || companyMatcher('AI', '')?.test('AI stocks') || pickImportantNews([{ topic: 'macro', score: 60 }, { topic: 'macro', score: 70 }, { topic: 'geo', score: 55 }, { topic: 'semi', score: 40 }], 3).length !== 2)
+    fail(`v58.75 move headlines must match the company exactly: ${JSON.stringify({ credo: credo?.row?.title, wdc: wdc?.text })}`);
+}
+// v58.75 ('고르는 법' E): the event chain names a live branch only from the headline's words; today's checks read the flip,
+// the 36-hour schedule and the lead's next trigger; the earnings week ranks by market value and keeps watched names; a
+// beat-and-fell quarter leads the reaction cases; the free translator's known misreadings follow the glossary.
+{
+  const { newsImpactChain, todayChecks, eventPreviews, buildEarningsWeek, earningsReactionCases } = await load('src/domain/briefing/event-guide.js');
+  const { fixKoreanTerms } = await load('src/domain/briefing/headline-terms.js');
+  const lead = { id: 'aibust', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — x', fit: '조건 충족 3/4', weaker: ['aicapex', 'growth', 'liquidity'], firmer: ['defensive'],
+    conditions: [['a', true], ['일자리 둔화', false]], triggers: [{ id: 'us-nfp', when: '11/6 고용보고서', text: '일자리 5만~7.5만 명' }], checks: [] };
+  const xr = { leadId: 'aibust', altId: null, items: [lead], events: [{ id: 'us-nfp', when: '11/6 고용보고서', name: '고용보고서', atMs: Date.parse('2026-11-06T13:30:00Z') }], rateHub: {} };
+  const chain = newsImpactChain('Meta falls as AI spending fears rattle markets', xr);
+  const none = newsImpactChain('OpenAI trains models offline after cyber incidents', xr);
+  const checks = todayChecks({ flip: { text: 'WTI 조건', sub: '지금 -1.9%p' }, schedule: [{ kind: 'macro', when: '10/25 21:30 KST', label: 'CPI', atMs: Date.parse('2026-10-25T12:30:00Z'), passed: false }], xr, nowMs: Date.parse('2026-10-24T12:00:00Z') });
+  const previews = eventPreviews({ xr, nowMs: Date.parse('2026-10-30T00:00:00Z'), earnings: [{ symbol: 'MSFT', date: '2026-10-31', hour: 'amc', indexWeight: 5, epsEstimate: 4.82, revenueEstimate: 92500000000 }], names: { MSFT: 'Microsoft' },
+    themeMap: [{ id: 'software', nameKr: '소프트웨어', subThemes: [{ tickers: ['MSFT'] }] }] });
+  const week = buildEarningsWeek({ earnings: [{ symbol: 'AAA', date: '2026-10-27', hour: 'bmo' }, { symbol: 'BIG', date: '2026-10-27', hour: 'bmo' }, { symbol: 'KO', date: '2026-10-27', hour: 'bmo' }],
+    rows: [{ sym: 'BIG', mcap: 9e11 }, { sym: 'AAA', mcap: 1e9 }, { sym: 'KO', mcap: 1e8 }], watched: new Set(['KO']), perSession: 1, weekStart: '2026-10-26', weekEnd: '2026-11-02' });
+  const cases = earningsReactionCases({ session: '2026-10-23', signals: [{ kind: 'earnings', ticker: 'BE', revenue: 'beat', eps: 'beat', guidance: 'raise', post: 'c/1' }, { kind: 'earnings', ticker: 'OLD', revenue: 'beat', eps: 'beat', post: 'c/2' }],
+    posts: [{ id: 'c/1', datetime: '2026-10-22T22:00:00Z' }, { id: 'c/2', datetime: '2026-10-20T22:00:00Z' }], rows: [{ sym: 'BE', ret1d: -11.2, factorSessionDate: '2026-10-23' }, { sym: 'OLD', ret1d: 2, factorSessionDate: '2026-10-23' }] });
+  const msft = previews.find((row) => row.kind === 'earnings');
+  if (!chain || chain.text !== "AI 투자 → 'AI 투자 꺾임'(선두, 조건 충족 3/4) → 부담: AI 설비투자 사이클, 장기 성장 등 → 수혜: 경기 방어 → 확인: 11/6 고용보고서, 일자리 5만~7.5만 명" || none
+    || checks.map((row) => row.kind).join('|') !== 'flip|event|scenario' || !/일자리 5만~7.5만 명이면/.test(checks[2].text)
+    || !previews.some((row) => row.id === 'us-nfp' && row.branches.length === 1) || !msft || msft.expect.join(', ') !== 'EPS 예상 4.82, 매출 예상 925억 달러' || !/부담 쪽/.test(msft.branches[0] || '')
+    || week.days[0].sessions[0].rows.map((row) => row.symbol).join('|') !== 'BIG|KO' || week.mine.length !== 1
+    || cases.length !== 1 || cases[0].kind !== 'beat-fell'
+    || fixKoreanTerms('Apple earnings may push it over the top', '다가오는 수익으로, 수익률은') !== '다가오는 실적으로, 수익률은' || fixKoreanTerms('Stocks rally', '주식 집회') !== '주식 랠리' || fixKoreanTerms('Stocks rise', '수익 증가') !== '수익 증가')
+    fail(`v58.75 event guide wrong: ${JSON.stringify({ chain: chain?.text, checks, previews, week: week.days[0]?.sessions[0]?.rows.map((row) => row.symbol), cases })}`);
 }
 
 // ── P1416: breadth signals — 4% movers, 52-week highs/lows, 40-day ratio, distribution days ────

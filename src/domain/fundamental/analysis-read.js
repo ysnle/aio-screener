@@ -4,6 +4,10 @@
 // input returns a state ('pending' = not yet collected, 'unreported' = the filer does not tag it) instead of a number.
 import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fiscalYearLabel } from './period.js';
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
+import { trailingQuarters } from './fiscal-read.js';
+import { fiscalMetrics as fiscalMetricsOf } from './peer-read.js';
+import { countOpenSessionsBetween, dateInTimezone } from '../market/market-calendar.js';
+import { consensusView } from './consensus-read.js';
 
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
 // v58.74 (text audit): the DuPont sentence names the driver; one clause says what that driver's change means.
@@ -201,4 +205,148 @@ export function reverseDcfInputs({ history, fundamentals, close, financial = fal
   const price = finite(close?.value);
   if (!(price > 0) || !/^\d{4}-\d{2}-\d{2}$/.test(String(close?.date || ''))) return { state: 'missing', reason: '날짜가 확인된 종가가 아직 없어 계산하지 않습니다.' };
   return { state: 'ready', fcf, periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), ocf, capex, shares, sharesObservedAt: fundamentals?.sharesObservedAt || null, price, priceDate: close.date, marketValue: price * shares };
+}
+
+// ── v58.75 (persona review): 재무 공시 for fundamental investors and traders ─────────────────────────────────────────────
+// The latest four consecutive fiscal quarters summed (sec-fiscal-history `quarters`), beside the same four quarters a year
+// earlier. Null unless all four are consecutive and carry both revenue and net income; the prior span only when it is the
+// eight-quarter run directly before. A derived fourth quarter (FY − Q1..Q3) counts, as everywhere else on the page.
+export function buildTrailingYearRead(quarters = []) {
+  const span = trailingQuarters(quarters, 4);
+  if (!span || !span.every((q) => finite(q.revenue) != null)) return null;
+  const sum = (rows, field) => rows.reduce((total, q) => total + q[field], 0);
+  const revenue = sum(span, 'revenue');
+  const netIncome = sum(span, 'netIncome');
+  const run = trailingQuarters(quarters, 8);
+  const prior = run && run.slice(0, 4).every((q) => finite(q.revenue) != null) ? run.slice(0, 4) : null;
+  const priorRevenue = prior ? sum(prior, 'revenue') : null;
+  const priorIncome = prior ? sum(prior, 'netIncome') : null;
+  return {
+    from: span[0].periodEnd, through: span[3].periodEnd, revenue, netIncome, margin: revenue > 0 ? netIncome / revenue * 100 : null,
+    revenueYoy: priorRevenue > 0 ? (revenue / priorRevenue - 1) * 100 : null,
+    netIncomeYoy: priorIncome > 0 ? (netIncome / priorIncome - 1) * 100 : null,
+    priorMargin: priorRevenue > 0 ? priorIncome / priorRevenue * 100 : null,
+    hasDerived: span.some((q) => q.derived)
+  };
+}
+
+// The next report: the provider calendar's dated row (the week rows or the six-week `upcoming` map) when one is on or after
+// today (New York date), else the last reported date from the consensus row and "not yet scheduled". No date is projected
+// from the last report (no "+91 days").
+const HOUR_LABELS = Object.freeze({ bmo: '장 시작 전', amc: '장 마감 후', dmh: '장중' });
+const monthDay = (iso) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}`;
+export function usDateFromSlash(text) {
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(text || '').trim());
+  return m ? `${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}` : null;
+}
+export function buildEarningsSchedule({ symbol, calendar = null, consensus = null, nowMs = Date.now() } = {}) {
+  const sym = String(symbol || '').trim().toUpperCase();
+  if (!sym || /\.K[SQ]$/.test(sym)) return null;
+  const today = dateInTimezone(nowMs, 'America/New_York');
+  const key = sym.replace(/[./]/g, '-');
+  const usable = !!calendar && calendar.status !== 'operator-key-required';
+  const candidates = [];
+  if (usable) {
+    const mapped = String(calendar.upcoming?.[key] || '').split('|');
+    if (/^\d{4}-\d{2}-\d{2}$/.test(mapped[0] || '')) candidates.push({ date: mapped[0], hour: mapped[1] || null });
+    for (const row of Array.isArray(calendar.earnings) ? calendar.earnings : []) {
+      if (String(row?.symbol || '').toUpperCase().replace(/[./]/g, '-') === key && /^\d{4}-\d{2}-\d{2}$/.test(String(row?.date || ''))) candidates.push({ date: row.date, hour: row.hour || null });
+    }
+  }
+  const next = candidates.filter((item) => today && item.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0] || null;
+  const lastReported = usDateFromSlash(consensus?.trailing?.lastReportedAt);
+  const windowEnd = String(calendar?.upcomingWindow?.to || calendar?.weekEnd || '').slice(0, 10) || null;
+  // v58.75 review: days the producer failed to read are listed; a missing date then is not "no report in the window".
+  const gaps = Array.isArray(calendar?.upcomingGaps) ? calendar.upcomingGaps.length : 0;
+  if (next) {
+    const sessions = next.date === today ? 0 : countOpenSessionsBetween(today, next.date, 'US');
+    const hour = HOUR_LABELS[next.hour] || null;
+    return { state: 'scheduled', date: next.date, hour, sessions, lastReported,
+      text: `다음 실적 ${next.date === today ? '오늘' : monthDay(next.date)}${hour ? `(${hour})` : ''}${next.date === today ? '' : `, ${sessions}거래일 후`}` };
+  }
+  return { state: usable ? 'unconfirmed' : 'unknown', date: null, lastReported, windowEnd,
+    text: `${lastReported ? `직전 발표 ${monthDay(lastReported)}, ` : ''}다음 실적 일정 미확정`,
+    title: usable && windowEnd ? `실적 일정 목록(${windowEnd}까지)에 아직 날짜가 없습니다${gaps ? `. 이번 수집에서 ${gaps}일치 일정을 받지 못해 그날 발표가 빠졌을 수 있습니다` : ''}. 지난 발표일로 날짜를 추정하지 않습니다.` : '실적 일정 자료를 받지 못했습니다.' };
+}
+
+// Reported adjusted EPS against the consensus that stood before each report (consensus-estimates `hist`, newest first in the
+// artifact, oldest first here). Reference only: it never enters a score.
+export function buildSurpriseRead(consensus = null) {
+  const rows = String(consensus?.hist || '').split(';').map((part) => part.split(':'))
+    .filter((cells) => /^\d{4}-\d{2}$/.test(cells[0] || '') && finite(cells[1]) != null && finite(cells[2]) != null)
+    .map(([quarter, eps, est]) => {
+      const actual = finite(eps), estimate = finite(est);
+      return { quarter, actual, estimate, surprise: estimate !== 0 ? (actual - estimate) / Math.abs(estimate) * 100 : null };
+    }).reverse();
+  if (!rows.length) return null;
+  const beats = rows.filter((row) => row.actual > row.estimate).length;
+  const misses = rows.filter((row) => row.actual < row.estimate).length;
+  const surprises = rows.map((row) => row.surprise).filter((value) => value != null);
+  const average = surprises.length ? surprises.reduce((a, b) => a + b, 0) / surprises.length : null;
+  return { rows, beats, misses, average, latest: rows.at(-1), asOf: String(consensus?.asOf || '').slice(0, 10) || null };
+}
+
+// Gross → operating → net margin, net cash and the capital-return line from the latest year that carries the v58.75 columns.
+// 'pending' = the issuer's record predates them; a column the filer does not tag is null (never zero).
+export function buildMarginCashRead(history = []) {
+  const rows = sorted(history);
+  if (!rows.length) return { state: 'none' };
+  const latest = rows.filter((year) => year.capitalChain).at(-1);
+  if (!latest) return { state: 'pending' };
+  const revenue = finite(latest.revenue);
+  const ratio = (value) => (revenue > 0 && finite(value) != null ? finite(value) / revenue * 100 : null);
+  const prior = rows.filter((year) => year.capitalChain && year.periodEnd < latest.periodEnd).at(-1) || null;
+  const priorRevenue = finite(prior?.revenue);
+  const priorRatio = (field) => (prior && priorRevenue > 0 && finite(prior[field]) != null ? finite(prior[field]) / priorRevenue * 100 : null);
+  const ladder = [
+    { id: 'gross', label: '매출총이익률', value: ratio(latest.grossProfit), prior: priorRatio('grossProfit') },
+    { id: 'operating', label: '영업이익률', value: ratio(latest.operatingIncome), prior: priorRatio('operatingIncome') },
+    { id: 'net', label: '순이익률', value: ratio(latest.netIncome), prior: priorRatio('netIncome') }
+  ];
+  const cash = finite(latest.cash);
+  const sti = finite(latest.shortTermInvestments);
+  const debt = finite(latest.longTermDebt);
+  const liquid = cash != null ? cash + (sti ?? 0) : null;
+  const ocf = finite(latest.operatingCashFlow), capex = finite(latest.capex);
+  const fcf = ocf != null && capex != null ? ocf - capex : null;
+  const buybacks = finite(latest.buybacks), dividends = finite(latest.dividends), sbc = finite(latest.shareBasedCompensation);
+  const returned = buybacks != null || dividends != null ? (buybacks ?? 0) + (dividends ?? 0) : null;
+  return {
+    state: 'ready', periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), priorLabel: prior ? fyLabel(prior.periodEnd) : null, ladder,
+    cash: liquid == null ? null : { cash, shortTermInvestments: sti, liquid, debt, net: debt != null ? liquid - debt : null },
+    capital: { sbc, sbcRatio: ratio(sbc), buybacks, dividends, returned, fcf, returnedShareOfFcf: returned != null && fcf > 0 ? returned / fcf * 100 : null }
+  };
+}
+
+// Same-theme companies by name (AIO themes: the smallest sub-themes holding this listing first, then the theme leaders),
+// with the numbers a reader compares across a peer group. Only issuers with a SEC fiscal series; at most `max`.
+export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = () => null, consensusFor = () => null, max = 8 } = {}) {
+  const sym = String(symbol || '').toUpperCase();
+  const norm = (value) => String(value || '').toUpperCase();
+  const subs = [];
+  let theme = null;
+  for (const item of Array.isArray(themes) ? themes : []) {
+    for (const sub of item?.subThemes || []) if ((sub.tickers || []).some((ticker) => norm(ticker) === sym)) { subs.push(sub); theme ||= item; }
+    if (!theme && (item?.leaders || []).some((ticker) => norm(ticker) === sym)) theme = item;
+  }
+  if (!theme) return null;
+  subs.sort((a, b) => (a.tickers || []).length - (b.tickers || []).length);
+  const ordered = [...new Set([...subs.flatMap((sub) => (sub.tickers || []).map(norm)), ...(theme.leaders || []).map(norm)])].filter((ticker) => ticker !== sym);
+  const byRow = new Map((Array.isArray(rows) ? rows : []).map((row) => [norm(row?.sym), row]));
+  const line = (ticker, self = false) => {
+    const metrics = fiscalMetricsOf(seriesFor(ticker));
+    if (!metrics) return null;
+    const row = byRow.get(ticker) || null;
+    const pe = finite(row?.pe);
+    // v58.75 ('고르는 법' B2): FCF margin, the consensus forward PER and the 3-month return feed the strengths/weaknesses facts.
+    const fwdPe = consensusView(row, consensusFor(ticker))?.fwdPe ?? null;
+    return { sym: ticker, name: row?.name || ticker, self, periodEnd: metrics.periodEnd, growth: metrics.growth, margin: metrics.margin, roe: metrics.roe, pe: pe != null && pe > 0 ? pe : null,
+      fcfMargin: metrics.fcfMargin, fwdPe: fwdPe != null && fwdPe > 0 ? fwdPe : null, ret3m: finite(row?.ret3m) };
+  };
+  const own = line(sym, true);
+  if (!own) return null;
+  const peers = [];
+  for (const ticker of ordered) { if (peers.length >= max) break; const item = line(ticker); if (item) peers.push(item); }
+  if (peers.length < 3) return null;
+  return { themeId: theme.id, themeName: theme.nameKr || theme.name || theme.id, subNames: [...new Set(subs.map((sub) => sub.name))], rows: [own, ...peers] };
 }

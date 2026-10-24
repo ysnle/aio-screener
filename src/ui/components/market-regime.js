@@ -272,6 +272,14 @@ function distanceCell(doc, row) {
   return cell;
 }
 
+// The screens that render an axis's AXIS_DEEP_DIVES teaching blocks in full (breadth-board deepDiveFold, macro-board axisCard).
+const AXIS_PRINCIPLE_HOME = Object.freeze({
+  breadth: { route: 'breadth', label: '시장 폭' },
+  rates: { route: 'macro', label: '거시 경제' },
+  credit: { route: 'macro', label: '거시 경제' },
+  commodities: { route: 'macro', label: '거시 경제' }
+});
+
 function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, open }) {
   const card = el(doc, 'details', null, 'regime-axis sx-disclosure mk-axis');
   card.dataset.axis = row.id;
@@ -299,8 +307,20 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   const readNow = cardOf('지금 읽기', ...readingNodes(doc, row.read, 'regime-read', row.title));
   // P1399: one basis chip per axis — its own observation date against the close basis.
   if (row.basis) readNow.append(el(doc, 'span', row.basis, `basis-chip${row.basisStatus === 'aligned' ? '' : ' is-off'}`));
-  body.append(cardOf('원리', el(doc, 'p', blocks[0]?.[1] || '', 'sx-disclosure__text')), readNow,
-    cardOf('읽는 법, 함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
+  // v58.75 (persona review): an axis whose principle text is already the teaching block of its own screen (시장 폭 page;
+  // the 거시 factor cards for rates, credit, oil·dollar) points there instead of repeating it word for word; the verdict,
+  // its evidence, the thresholds and dates below stay.
+  const home = AXIS_PRINCIPLE_HOME[row.id];
+  if (home) {
+    const go = el(doc, 'button', `${home.label}에서 원리 보기`, 'flow-next-link');
+    go.type = 'button';
+    go.dataset.action = 'showPage';
+    go.dataset.arg = home.route;
+    body.append(readNow, cardOf('원리, 읽는 법', el(doc, 'p', `이 지표가 무엇을 재고 전문가가 어떻게 읽는지는 ${home.label} 화면에 있습니다. 여기서는 판정과 기준, 근거 숫자만 봅니다.`, 'sx-disclosure__text'), go));
+  } else {
+    body.append(cardOf('원리', el(doc, 'p', blocks[0]?.[1] || '', 'sx-disclosure__text')), readNow,
+      cardOf('읽는 법, 함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
+  }
   // The chart, every evidence row and the flip condition stay one level down in the opened row.
   const detail = el(doc, 'div', null, 'mk-axis__detail');
   const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
@@ -428,8 +448,19 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const read = interpretation.marketRead;
   set('regime-headline', read?.headline ? `${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : '');
   paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow);
+  // v58.75 (persona review): the distribution-day strip is a lazy chunk (not first-paint critical; boot budget).
+  if (regime.available) import('./distribution-strip.js').then(({ distributionStrip }) => {
+    const node = doc.getElementById('regime-leaders');
+    if (!node) return;
+    node.querySelector(':scope > .leaders-line__dist')?.remove();
+    const strip = distributionStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
+    if (strip) { node.append(strip); node.hidden = false; }
+  }).catch(() => {});
   heroSide(doc, regime, previous);
   comboAndWatch(doc, root, regime, interpretation);
+  // v58.75 (persona review, spec F1): the four choices' conditional costs and the nearest flips, under the axis table (lazy).
+  const axesCard = doc.getElementById('regime-board')?.closest?.('section');
+  if (axesCard) import('./regime-choices.js').then(({ renderRegimeChoices }) => renderRegimeChoices({ documentRef: doc, guide: interpretation.guide, axes: regime.available ? regime.axes : [], anchor: axesCard })).catch(() => {});
   const board = doc.getElementById('regime-board');
   const boardKr = doc.getElementById('regime-board-kr');
   if (board) {

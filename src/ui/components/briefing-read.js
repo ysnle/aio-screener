@@ -9,13 +9,14 @@ import { briefingFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';
-import { renderMarketTimeline } from './market-timeline.js';
+import { moveNewsList, moveNewsRows, renderMarketTimeline, symbolNames } from './market-timeline.js';
 import { renderSectorMoves } from './sector-moves.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 // v57.60: the market-input reader moved to the data layer (the AI context imported it from this ui file);
 // re-exported here so existing importers keep working.
 export { collectMarketInputs } from '../../data/selectors/market-inputs.js';
-import { marketInterpretation } from '../../data/selectors/interpretation.js';
+import { marketInterpretation, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
+import { buildEarningsWeek, earningsReactionCases, eventPreviews } from '../../domain/briefing/event-guide.js';
 
 // Only S&P 500 members: the weekly calendar lists hundreds of micro-caps.
 function universeNames(root) {
@@ -38,17 +39,167 @@ function statementNode(doc, tag, { text, reading }, className) {
   return node;
 }
 
-export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() }) {
+// v58.75 (persona review): "왜 움직였나" — after the sector bars, the session's named movers (the stocks and themes 오늘
+// shows) with the headline that named each the same day, or '같은 날 관련 보도 없음'. No movers, no section.
+function renderMoveNews(doc, root, store, flow) {
+  let section = doc.getElementById('briefing-move-news');
+  const rows = moveNewsRows(root, store, flow);
+  if (!rows.length) { if (section) section.hidden = true; return; }
+  // The matched rows are on the face; the movers without a same-day headline sit in one fold.
+  const list = moveNewsList(doc, root, rows);
+  const missing = rows.filter((row) => !row.headline);
+  if (!section) {
+    const pair = doc.getElementById('briefing-pair');
+    if (!pair) return;
+    section = el(doc, 'section', null, 'aio-section briefing-block');
+    section.id = 'briefing-move-news';
+    section.setAttribute('aria-labelledby', 'briefing-move-news-title');
+    pair.after(section);
+  }
+  const heading = el(doc, 'h2', '왜 움직였나 ', 'briefing-h2');
+  heading.id = 'briefing-move-news-title';
+  heading.append(el(doc, 'span', `${shortDate(flow.session)} 미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마`, 'briefing-h2-note'));
+  const matched = rows.filter((row) => row.headline).length;
+  const lead = el(doc, 'p', matched
+    ? `${rows.length}곳 중 ${matched}곳은 같은 날 이름이 나온 보도나 채널 글이 있습니다. 보도는 같은 날 나왔다는 사실이며 원인을 확정하지는 않습니다.`
+    : `${rows.length}곳 모두 같은 날 이름이 나온 보도를 찾지 못했습니다.`, 'briefing-read-reading');
+  const nodes = [heading, lead, ...(list ? [list] : [])];
+  if (missing.length) {
+    const fold = el(doc, 'details', null, 'sx-disclosure');
+    fold.append(el(doc, 'summary', `같은 날 보도를 찾지 못한 ${missing.length}곳`), moveNewsList(doc, root, missing, { showMissing: true }));
+    nodes.push(fold);
+  }
+  section.replaceChildren(...nodes);
+  section.hidden = false;
+}
+
+const kstMd = (iso) => { const [, m, d] = String(iso || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
+const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
+function mySymbols(root, store) {
+  let watched = [];
+  try { watched = typeof root?._aioWatchlistGet === 'function' ? root._aioWatchlistGet() || [] : []; } catch (_) { watched = []; }
+  const holdings = store?.getState?.()?.portfolio?.holdings;
+  const norm = (list) => new Set(list.map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean));
+  return { watched: norm(Array.isArray(watched) ? watched : []), held: norm(Array.isArray(holdings) ? holdings.map((row) => row?.symbol || row?.sym) : []) };
+}
+
+// v58.75 (persona review): the collected earnings week (1,000+ reports) was visible only in the 재무 공시 developer grid.
+// The 7-day schedule now says how many reports the week holds and opens a native list — per US date and session, largest
+// market value first, consensus EPS and revenue, watched and held names marked. The legacy grid stays as it is.
+function renderEarningsWeek(doc, root, store, snapshot) {
+  const section = doc.getElementById('briefing-schedule');
+  if (!section) return;
+  let box = doc.getElementById('briefing-earnings-week');
+  const earnings = Array.isArray(snapshot?.earnings) ? snapshot.earnings : [];
+  if (!earnings.length) { if (box) box.hidden = true; return; }
+  const { watched, held } = mySymbols(root, store);
+  const week = buildEarningsWeek({ earnings, weekStart: snapshot.weekStart, weekEnd: snapshot.weekEnd, rows: screenerRowsForRoot(root, store),
+    names: symbolNames(root), watched, held });
+  if (!week.total) { if (box) box.hidden = true; return; }
+  if (!box) {
+    box = el(doc, 'div', null, 'briefing-earnings-week');
+    box.id = 'briefing-earnings-week';
+    section.append(box);
+  }
+  const wasOpen = !!box.querySelector('details')?.open;
+  const range = week.weekStart && week.weekEnd ? `${kstMd(week.weekStart)}~${kstMd(week.weekEnd)} ` : '';
+  const lead = el(doc, 'p', `이번 주 ${range}실적 발표 ${week.total.toLocaleString('en-US')}건, 그중 S&P 500 ${week.sp500}건${watched.size || held.size ? `, 관심·보유 ${week.mine.length}건` : ''}`, 'briefing-earnings-lead');
+  const fold = el(doc, 'details', null, 'sx-disclosure briefing-earnings-fold');
+  fold.open = wasOpen;
+  fold.append(el(doc, 'summary', '날짜별 실적 발표, 시가총액 큰 순'));
+  for (const day of week.days) {
+    const weekday = WEEKDAY[new Date(`${day.date}T12:00:00Z`).getUTCDay()];
+    fold.append(el(doc, 'h3', `${kstMd(day.date)}(${weekday}) 미국, ${day.count}건`, 'briefing-earnings-day'));
+    for (const session of day.sessions) {
+      const group = el(doc, 'div', null, 'briefing-earnings-session');
+      group.append(el(doc, 'div', `${session.label} ${session.count}건${session.hidden > 0 ? `, 큰 순 ${session.rows.length}건 표시` : ''}`, 'briefing-earnings-session-head'));
+      const ul = el(doc, 'ul', null, 'briefing-earnings-list');
+      for (const row of session.rows) {
+        const li = el(doc, 'li', null, `briefing-earnings-row${row.watched || row.held ? ' is-mine' : ''}`);
+        li.append(el(doc, 'b', row.symbol, 'briefing-earnings-sym'));
+        const facts = [row.name, row.eps != null ? `EPS 예상 ${row.eps.toFixed(2)}` : null, row.revenue ? `매출 예상 ${row.revenue}` : null, row.reported ? '발표 완료' : null].filter(Boolean).join(', ');
+        li.append(el(doc, 'span', facts, 'briefing-earnings-facts'));
+        if (row.held || row.watched) li.append(el(doc, 'span', row.held ? '보유' : '관심', 'briefing-earnings-tag'));
+        ul.append(li);
+      }
+      group.append(ul);
+      fold.append(group);
+    }
+  }
+  fold.append(el(doc, 'p', '예상치는 수집한 실적 일정 자료의 컨센서스이며, 발표 시각은 회사가 알린 장 전·장 마감 후 구분만 있습니다.', 'briefing-event-meta'));
+  if (snapshot.source) fold.title = `일정·예상치: ${snapshot.source}`;
+  box.replaceChildren(lead, fold);
+  box.hidden = false;
+}
+
+// v58.75 ('고르는 법' E2·E3): the next market events — what is priced (where collected), what each live scenario needs from
+// the result — and, folded, how to read a result against the price, with the latest recorded reactions.
+function renderEventPreview(doc, root, store, { xr, schedule, flow, nowMs }) {
+  const anchor = doc.getElementById('briefing-schedule');
+  if (!anchor) return;
+  let section = doc.getElementById('briefing-events');
+  const previews = eventPreviews({ xr, schedule, earnings: root._aioEarningsSnapshot?.earnings || [], names: universeNames(root), themeMap: root.THEME_MAP, nowMs });
+  const posts = [...(Array.isArray(root.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : []), ...(Array.isArray(root.AIO_TELEGRAM_BROAD_ITEMS) ? root.AIO_TELEGRAM_BROAD_ITEMS : [])];
+  const cases = flow?.session ? earningsReactionCases({ signals: root.AIO_TELEGRAM_SIGNALS || [], posts, rows: screenerRowsForRoot(root, store), session: flow.session }) : [];
+  if (!previews.length) { if (section) section.hidden = true; return; }
+  if (!section) {
+    section = el(doc, 'section', null, 'aio-section briefing-block');
+    section.id = 'briefing-events';
+    section.setAttribute('aria-labelledby', 'briefing-events-title');
+    anchor.before(section);
+  }
+  const wasOpen = !!section.querySelector('details.briefing-result-guide')?.open;
+  const heading = el(doc, 'h2', '다음 이벤트 미리보기 ', 'briefing-h2');
+  heading.id = 'briefing-events-title';
+  heading.append(el(doc, 'span', '시장이 예상하는 것, 결과 갈래, 지금 시나리오와의 연결', 'briefing-h2-note'));
+  const first = previews[0];
+  const lead = el(doc, 'p', `가장 가까운 큰 이벤트는 ${first.when} ${first.title}입니다.${first.branches.length > 1 ? ' 결과에 따라 지금 시나리오가 갈립니다.' : ''}`, 'briefing-read-reading');
+  const list = el(doc, 'div', null, 'briefing-events-list');
+  for (const preview of previews) {
+    const card = el(doc, 'div', null, 'briefing-event-preview');
+    card.dataset.kind = preview.kind;
+    card.append(el(doc, 'div', `${preview.when}, ${preview.title}`, 'briefing-event-preview-title'));
+    if (preview.expect.length) card.append(el(doc, 'div', `예상: ${preview.expect.join(', ')}`, 'briefing-event-preview-line'));
+    for (const branch of preview.branches) card.append(el(doc, 'div', branch, 'briefing-event-preview-line is-branch'));
+    if (preview.note) card.title = preview.note;
+    list.append(card);
+  }
+  const guide = el(doc, 'details', null, 'sx-disclosure briefing-result-guide');
+  guide.open = wasOpen;
+  guide.append(el(doc, 'summary', '결과 해석 가이드'));
+  const rules = el(doc, 'ul', null, 'briefing-result-rules');
+  for (const line of [
+    '실적은 EPS 상회보다 가이던스·매출 성장·마진이 반응을 더 좌우하는 경향이 있습니다. 대부분의 회사가 예상치를 넘기 때문에, 시장은 다음 분기 전망이 바뀌었는지를 봅니다.',
+    '좋은 결과에도 내리면 이미 기대가 가격에 들어가 있었을 수 있습니다("소문에 사고 뉴스에 판다"). 부진한 결과에도 오르면 더 나쁜 결과가 반영돼 있었을 수 있습니다.',
+    '경제지표는 숫자 자체보다 예상과의 차이, 그리고 그 차이가 금리 경로 기대(2년물)를 바꿨는지가 중요합니다.',
+    '하루 반응 한 번은 원인을 확정하지 않습니다. 며칠에 걸쳐 같은 방향이 이어지는지, 같은 업종이 함께 움직였는지 확인합니다.'
+  ]) rules.append(el(doc, 'li', line));
+  guide.append(rules);
+  if (cases.length) {
+    guide.append(el(doc, 'div', `최근 사례, ${shortDate(flow.session)} 미국 종가 반응 (채널이 전한 실적 결과 기준)`, 'briefing-result-sub'));
+    const ul = el(doc, 'ul', null, 'briefing-result-cases');
+    for (const row of cases) {
+      const reading = row.kind === 'beat-fell' ? '좋은 결과에도 하락, 기대가 먼저 반영됐을 수 있는 사례' : row.kind === 'miss-rose' ? '부진한 결과에도 상승, 더 나쁜 결과가 반영돼 있었을 수 있는 사례' : '결과와 가격이 같은 방향';
+      ul.append(el(doc, 'li', `${row.ticker}${row.name && row.name !== row.ticker ? ` (${row.name})` : ''}: ${row.verdict} → ${row.move > 0 ? '+' : ''}${row.move.toFixed(1)}%, ${reading}`));
+    }
+    guide.append(ul);
+  }
+  section.replaceChildren(heading, lead, list, guide);
+  section.hidden = false;
+}
+
+export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs = Date.now() }) {
   const page = doc?.getElementById('page-briefing');
   if (!page) return;
   const snapshot = root.DATA_SNAPSHOT || {};
   // T05/P1685: the credit axis needs the 20-session HY change; load it like 시장 상태 does and redraw once it lands.
   if (sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) {
     refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => {
-      if (changed && page.classList?.contains('active')) renderBriefingRead({ documentRef: doc, root });
+      if (changed && page.classList?.contains('active')) renderBriefingRead({ documentRef: doc, root, store });
     }).catch(() => {});
   }
-  const read = marketInterpretation(root).marketRead || { available: false, statements: [], drivers: [] }; // owner 2026-10-19: the shared read
+  const interpretation = marketInterpretation(root);
+  const read = interpretation.marketRead || { available: false, statements: [], drivers: [] }; // owner 2026-10-19: the shared read
   ensureResearchSnapshots({ documentRef: doc, root, host: page, kind: 'briefing', collect: () => ({
     kind: 'briefing', sessionDate: read.asOf, publishedAt: root._serverDataMeta?.generatedAt || null,
     version: root.AIO?.version || null, headline: read.headline || (read.available ? '두드러진 교차 신호 없음' : null),
@@ -67,7 +218,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       if (snap && !root._aioEarningsSnapshot) root._aioEarningsSnapshot = snap;
     }).catch(() => {}).finally(() => {
       root._aioBriefingEarningsRequested = false;
-      if (root._aioEarningsSnapshot && page.classList?.contains('active')) renderBriefingRead({ documentRef: doc, root });
+      if (root._aioEarningsSnapshot && page.classList?.contains('active')) renderBriefingRead({ documentRef: doc, root, store });
     });
   }
   const schedule = buildBriefingSchedule({
@@ -79,7 +230,8 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     earnings: root._aioEarningsSnapshot?.earnings || [],
     earningsMeta: root._aioEarningsSnapshot || {},
     names: universeNames(root),
-    nowMs
+    nowMs,
+    perDay: 2 // v58.75 (persona review): each US date keeps its two heaviest reports (home's KO was missing here)
   });
   const scheduleRows = doc.getElementById('briefing-schedule-rows');
   if (scheduleRows) {
@@ -97,8 +249,9 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       return item;
     }) : [el(doc, 'div', '7일 안에 예정된 주요 일정이 없습니다.', 'briefing-empty')]));
     // v58.52: say how many reports the S&P-weight cut left out, instead of dropping them silently.
-    if (schedule.omittedEarnings > 0) scheduleRows.append(el(doc, 'div', `실적 발표는 S&P 500 비중이 큰 것만 시간순으로 보여 주고, 나머지 ${schedule.omittedEarnings}건은 생략했습니다.`, 'briefing-event-meta'));
+    if (schedule.omittedEarnings > 0) scheduleRows.append(el(doc, 'div', `실적 발표는 S&P 500 비중이 큰 것(날짜마다 상위 2곳 포함)만 시간순으로 보여 줍니다. 나머지 ${schedule.omittedEarnings}건은 아래 이번 주 실적 발표 목록에 있습니다.`, 'briefing-event-meta'));
   }
+  renderEarningsWeek(doc, root, store, root._aioEarningsSnapshot);
 
   // 2. Read
   const basis = doc.getElementById('briefing-read-basis');
@@ -113,6 +266,8 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
   // 2b. 2026-10-19 cadence: six-hour market slots beside the 24h read; v58.53 (5a) the day's sector bars sit beside them.
   renderSectorMoves({ documentRef: doc, root, host: doc.getElementById('briefing-sector-moves'), nowMs });
   renderMarketTimeline({ documentRef: doc, root, nowMs });
+  renderMoveNews(doc, root, store, interpretation?.flow);
+  renderEventPreview(doc, root, store, { xr: interpretation?.crossroads, schedule, flow: interpretation?.flow, nowMs });
 
   // 3. Drivers
   const drivers = doc.getElementById('briefing-driver-rows');

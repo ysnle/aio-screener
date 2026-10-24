@@ -302,8 +302,9 @@
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li:hover { background: var(--sx-ink-a03); }
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li::after { content: '›'; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-link { color: var(--text-primary); font-weight: 500; }
-/* the whole row answers the click: the button's hit area stretches over its row */
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-link::before { content: ''; position: absolute; inset: 0; }
+/* the whole row answers the click: the button's hit area stretches over its row (only inside the positioned row;
+   v58.75: a bare link elsewhere stretched over the whole viewport and swallowed every click above it) */
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-list li .flow-next-link::before { content: ''; position: absolute; inset: 0; }
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .flow-next-why { font-size: 12px; color: var(--text-muted); }
 
 /* ═══ 6. Shared reading rows on the stock and theme screens ════════════ */
@@ -318,6 +319,86 @@
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail) .regime-state.is-unknown { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.14); color: var(--text-muted); }
 #page-fundamental .stock-read-bar.is-burden { background: var(--data-amber); }
 #page-technical .chart-template-dot.is-fail { background: var(--sx-warn-bg); color: var(--amber-12); }
+
+/* ═══ 6b. '고르는 법' blocks (v58.75 persona review) ═════════════════════
+   종목 요약: market line + memo/watch entry, setup tiles, strengths/weaknesses, '계속 볼 것'.
+   재무 공시: margin ladder, EPS surprise, theme peers, lens table, thesis template, situations. Tokens only (light/dark). */
+#page-ticker #ticker-context[hidden], #page-ticker #ticker-strength[hidden], #page-ticker #ticker-setup[hidden] { display: none; }
+#page-ticker #ticker-context.v2-stock-context {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  margin: 0 0 14px; padding: 12px 16px; border-radius: 12px; background: var(--sx-ink-a03);
+}
+.v2-stock-context__line {
+  flex: 1 1 360px; min-width: 0; margin: 0; padding-left: 12px; border-left: 3px solid rgba(var(--ink-rgb), 0.14);
+  font-size: 14px; line-height: 1.6; color: var(--text-primary); text-wrap: pretty;
+}
+.v2-stock-context__line.is-burden { border-left-color: var(--data-amber); }
+.v2-stock-context__line.is-favorable { border-left-color: var(--data-green); }
+.v2-stock-context__actions { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 0 auto; }
+.v2-stock-context__actions > .aio-btn-table { min-height: 32px; padding: 0 14px; border-radius: 999px; }
+#page-ticker #ticker-setup.v2-stock-setup { margin: 0 0 14px; }
+#page-ticker #ticker-setup .v2-stock-checks { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+#page-ticker #ticker-strength.v2-stock-strength { margin: 0 0 18px; }
+.v2-stock-strength .v2-stock-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.v2-stock-strength .v2-stock-card > .sx-card__head { padding: 0; flex-wrap: wrap; }
+.v2-peer-strengths .stock-read-vis-title { display: block; margin: 4px 0 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.page .v2-peer-strengths .stock-read-point { grid-template-columns: 96px minmax(0, 1fr); row-gap: 6px; }
+.page .v2-peer-strengths .stock-read-point > .stock-read-track {
+  grid-column: 2; margin-top: 0; min-width: 0; height: 6px; border-radius: 999px; background: var(--sx-ink-a05); overflow: hidden;
+}
+.page .v2-peer-strengths .stock-read-point > .stock-read-track > .stock-read-bar { height: 6px; border-radius: 999px; }
+.page .v2-peer-strengths .stock-read-bar.is-burden { background: var(--data-amber); }
+.page .v2-stock-watch .stock-read-point { grid-template-columns: 96px minmax(0, 1fr); }
+.v2-stock-strength .stock-read-point-text { min-width: 0; overflow-wrap: anywhere; line-height: 1.6; }
+
+/* 재무 공시: ladders and paired bars share one label column wide enough for '최근 4개 분기 매출 성장'. */
+.page :is(.v2-margin-ladder, .v2-thesis-bars) { display: flex; flex-direction: column; gap: 8px; }
+.page :is(.v2-margin-ladder, .v2-thesis-bars) .stock-read-bars { grid-template-columns: 148px minmax(0, 1fr); margin: 0; }
+.page :is(.v2-margin-ladder, .v2-thesis-bars) .stock-read-track { margin-top: 0; min-width: 0; height: 9px; border-radius: 4px; background: var(--sx-ink-a05); }
+.page :is(.v2-margin-ladder, .v2-thesis-bars) .stock-read-bar-value { flex: 0 0 auto; min-width: 72px; text-align: right; }
+.v2-margin-cash__lines, .v2-lens-list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
+.v2-margin-cash__lines > li, .v2-lens-list > li { overflow-wrap: anywhere; }
+.v2-margin-cash__lines > li::marker, .v2-lens-list > li::marker { color: var(--text-muted); }
+.page .v2-theme-peers .fiscal-amount-table tr.is-self > * { background: var(--sx-ink-a03); font-weight: 600; color: var(--text-primary); }
+.page .v2-surprise .fiscal-bars { min-height: 160px; }
+
+/* Lens table: the why column wraps instead of scrolling the card sideways. */
+.page .v2-stock-lens .fiscal-amount-table { table-layout: auto; }
+.page .v2-stock-lens .fiscal-amount-table :is(td, thead th) { text-align: left; }
+.page .v2-stock-lens .fiscal-amount-table td:nth-child(2) { white-space: normal; min-width: 180px; color: var(--text-primary); }
+.page .v2-stock-lens .fiscal-amount-table td:nth-child(3) { white-space: nowrap; }
+.page .v2-stock-lens .fiscal-amount-table td:nth-child(4) { white-space: normal; min-width: 240px; line-height: 1.6; }
+.page .v2-stock-lens .fiscal-amount-table td.is-muted { color: var(--text-muted); }
+
+/* Thesis and situations: three (or two) soft blocks side by side. */
+.v2-thesis-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.v2-thesis-grid.is-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.v2-thesis-block { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 14px 16px; border-radius: 12px; background: var(--sx-ink-a03); border-left: 3px solid rgba(var(--ink-rgb), 0.14); }
+.v2-thesis-block.is-favorable { border-left-color: var(--data-green); }
+.v2-thesis-block.is-burden { border-left-color: var(--data-amber); }
+.v2-thesis-block .stock-read-vis-title { display: block; margin: 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.v2-thesis-block .v2-lens-list { font-size: 13px; }
+.v2-lens-short { display: flex; flex-direction: column; gap: 6px; }
+.v2-lens-more > summary { cursor: pointer; min-height: 28px; display: flex; align-items: center; font-size: 12px; color: var(--text-secondary); }
+.v2-lens-more > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.v2-lens-more[open] > summary { margin-bottom: 6px; }
+.v2-thesis > .aio-btn-table { align-self: flex-start; min-height: 32px; padding: 0 14px; border-radius: 999px; }
+@media (max-width: 1023px) {
+  .v2-thesis-grid { grid-template-columns: minmax(0, 1fr); }
+  .v2-thesis-grid.is-pair { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 743px) {
+  #page-ticker #ticker-context.v2-stock-context { padding: 12px 14px; }
+  .v2-stock-context__line { flex-basis: 100%; }
+  .v2-stock-context__actions { width: 100%; }
+  .v2-stock-context__actions > .aio-btn-table { flex: 1 1 0; min-height: 44px; }
+  .v2-thesis > .aio-btn-table { align-self: stretch; min-height: 44px; }
+  .page :is(.v2-peer-strengths, .v2-stock-watch) .stock-read-point { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .page .v2-peer-strengths .stock-read-point > .stock-read-track { grid-column: 1; }
+  .page :is(.v2-margin-ladder, .v2-thesis-bars) .stock-read-bars { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .page :is(.v2-margin-ladder, .v2-thesis-bars) .stock-read-bar-value { min-width: 0; }
+  .v2-lens-more > summary { min-height: 44px; }
+}
 
 /* ═══ 7. Breakpoints (4a) ═══════════════════════════════════════════════ */
 @media (max-width: 1279px) {

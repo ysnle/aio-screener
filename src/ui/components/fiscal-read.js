@@ -14,7 +14,12 @@ import { fiscalYearLabel, fiscalYearShortLabel } from '../../domain/fundamental/
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 import { signedText } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 
+// The provider earnings calendar (week rows + the v58.75 six-week `upcoming` map), shared with the company summary.
+export const EARNINGS_CALENDAR = Object.freeze({ key: '_aioEarningsCalendarArtifact', url: './public-data/earnings-calendar.json', schemas: ['earnings-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 });
+
+const CAPITAL_COLUMNS = ['grossProfit', 'operatingIncome', 'cash', 'shortTermInvestments', 'shareBasedCompensation', 'buybacks', 'dividends'];
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
 export function parseFiscalHistory(text) {
   // P1446: periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions (USD millions).
@@ -25,7 +30,9 @@ export function parseFiscalHistory(text) {
     .map(([periodEnd, revenue, netIncome, equity, operatingCashFlow, capex, longTermDebt, shares, ...rest]) => ({
       periodEnd, revenue: num(revenue), netIncome: num(netIncome), equity: num(equity), operatingCashFlow: num(operatingCashFlow),
       capex: num(capex), longTermDebt: num(longTermDebt), shares: num(shares),
-      ...(rest.length >= 2 ? { assetChain: true, totalAssets: num(rest[0]), researchAndDevelopment: num(rest[1]) } : {})
+      ...(rest.length >= 2 ? { assetChain: true, totalAssets: num(rest[0]), researchAndDevelopment: num(rest[1]) } : {}),
+      // v58.75 (persona review): the latest two years carry seven capital columns once read with them (absent = not yet collected).
+      ...(rest.length >= 9 ? { capitalChain: true, ...Object.fromEntries(CAPITAL_COLUMNS.map((field, i) => [field, num(rest[2 + i])])) } : {})
     }));
 }
 
@@ -50,7 +57,7 @@ export function requestFiscalHistory(root, onReady, key = 'default') {
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
   load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
     .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
-    .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; })
+    .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; root._aioSecIssuerSic = artifact?.issuerSic && typeof artifact.issuerSic === 'object' ? artifact.issuerSic : null; })
     .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = null; })
     .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = Object.values(root._aioSecFiscalHistoryOnReady || {}); delete root._aioSecFiscalHistoryOnReady; ready.forEach((fn) => fn?.()); });
 }
@@ -361,7 +368,10 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
   const quarterText = root?._aioSecQuarterHistory?.[symbol];
   const read = buildFiscalRead({ symbol, fundamentals, row, quarters: quarterText ? parseQuarterHistory(quarterText) : [] });
   // v57.54: the forward view (consensus, reference only) follows the reported reading.
-  if (!/\.K[SQ]$/.test(symbol)) requestConsensusEstimates(root, () => renderFiscalRead({ documentRef: doc, root, state }));
+  if (!/\.K[SQ]$/.test(symbol)) {
+    requestConsensusEstimates(root, () => renderFiscalRead({ documentRef: doc, root, state }));
+    refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed && doc.getElementById('fund-flow')?.dataset.fiscalSymbol === symbol) renderFiscalRead({ documentRef: doc, root, state }); }).catch(() => {});
+  }
   const consensusPoint = buildConsensusPoint(row, consensusRowFor(root, symbol));
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
   if (!read.available) {
@@ -383,6 +393,9 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     const annualSource = sourceLink(doc, fundamentals);
     if (annualSource) basis.append(doc.createTextNode(', '), annualSource);
     if (read.headline) hero.append(el(doc, 'p', `${symbol} — ${read.headline}`, 'briefing-read-headline v2-stock-lede'));
+    // v58.75 (persona review): the last four filed quarters and the next report date under the (possibly old) annual line.
+    const extra = analysis ? analysis.fiscalExtras(doc, { root, symbol, quarters: quarterText ? parseQuarterHistory(quarterText) : [], history: read.history, consensus: consensusRowFor(root, symbol), calendar: root?.[EARNINGS_CALENDAR.key], rows, fundamentals, series: !!series, financial: read.points.some((point) => point.id === 'bank') }) : null;
+    if (extra) hero.append(...extra.hero);
     hero.append(basis);
     host.append(hero);
     const chartCard = el(doc, 'div', null, 'sx-card v2-fiscal-chart');
@@ -406,6 +419,7 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     // v58.55 (5g): R&D ÷ revenue beside the cash reading's years (US filers with a fiscal series only).
     const rd = series && analysis ? analysis.rdCard(doc, read.history) : null;
     if (rd) host.append(rd);
+    if (extra) host.append(...extra.cards); // v58.75: margin ladder · net cash · capital return, EPS against consensus
     const quarterBox = quarterSection(doc, root, symbol);
     if (quarterBox) { quarterBox.classList.add('sx-card'); host.append(quarterBox); }
     // Codex browser audit H35: "최신" annual data is not the latest company state. Without quarters the gap after
@@ -434,9 +448,16 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
       list.append(li);
     }
     readingCard.append(readingHead, list);
-    host.append(readingCard);
+    host.append(readingCard, ...(extra?.after || []));
+    // v58.75 (persona review): same-theme companies by name first; the broad-sector percentile folds under it.
+    const themePeers = extra?.themePeers || null;
+    if (themePeers) host.append(themePeers);
     const peerBox = peerSection(doc, root, symbol, row, rows, fundamentals);
-    if (peerBox) { peerBox.classList.add('sx-card'); host.append(peerBox); }
+    if (peerBox && themePeers) {
+      const fold = el(doc, 'details', null, 'fiscal-method-details fiscal-peer-fold');
+      fold.append(el(doc, 'summary', `넓은 섹터 안 위치 보기, ${sectorLabel(row.sector)}`), ...[...peerBox.children]);
+      host.append(fold);
+    } else if (peerBox) { peerBox.classList.add('sx-card'); host.append(peerBox); }
   }
   renderNextSteps(doc, next, [
     { action: 'showTicker', arg: symbol, route: 'ticker', label: '요약', why: '실적 흐름과 주가 추세·섹터 회전이 같은 방향인지' },

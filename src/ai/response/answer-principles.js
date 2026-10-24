@@ -1,7 +1,7 @@
 // P1740: one principles block chosen by the question. The old tail appended a training-cutoff claim for another
 // model ("2025년 초"), a stock-only 6-step memo and six trend rules to every question (a PER definition got them too),
 // and judged web search by grepping the prompt for "웹검색" while the real search decision came later.
-export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = false, hasTrend = false, liveStatus = '', newsInjected = false, webSearch = false, snapAgeHours = null } = {}) {
+export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = false, hasTrend = false, liveStatus = '', newsInjected = false, webSearch = false, snapAgeHours = null, teachBlock = '' } = {}) {
   const lines = [
     '\n\n【오늘 날짜와 지식의 경계】',
     `• 오늘: ${today} (한국 시간)`,
@@ -18,6 +18,8 @@ export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = f
         ? '4. 종목 분석은 질문에 필요한 축만 골라 구성한다(전부 채울 필요 없음): 지금 이 종목에서 가장 중요한 한 가지 → 사업·성장 동력·경쟁 우위 → 실적·밸류에이션(주입 수치, 동종 대비 "왜 그 수준인가") → 낙관·비관 시나리오와 각각의 조건 → 다음 촉매와 판단을 바꿀 신호.'
         : '4. 사실 확인형 질문은 묻는 사실에 먼저 답하고, 그 사실을 해석하는 데 필요한 맥락만 덧붙인다.');
   }
+  // v58.75 (persona review): the teach-and-check order (choosing-blocks.js teachAndCheckBlock), chosen by the caller.
+  if (teachBlock) lines.push('', teachBlock);
   lines.push('', '【데이터 상태】', `• 실시간 시세: ${liveStatus}`);
   if (hasTickers) {
     lines.push(`• 주가 추이(5거래일/20거래일/3개월, 완료 종가): ${hasTrend ? '주입됨' : '미주입 — 추세 단정 금지'}`,

@@ -33,7 +33,6 @@ import { registerInterpretationStore } from '../data/selectors/interpretation.js
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
 import { installShellOverlays } from '../ui/components/shell-overlays.js';
-import { openMarketChart } from '../ui/components/stock-chart.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
 import { installConnectionPanel } from '../ui/panels/connections.js';
 import { installAskPanel } from '../ui/panels/ask-panel.js';
@@ -919,7 +918,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopScrollMemory = installRouteScrollMemory({ root, documentRef, activeRoute: () => router.active() }); // v57.81: back restores scroll
     const stopShellOverlays = installShellOverlays({ root, documentRef }); // v57.81: banner/disclaimer offsets, glossary backdrop
     installScreenShortcuts({ root, documentRef }); // v57.54: ? help rows and 1..8 keys from ROUTE_HUBS
-    root.aioOpenMarketChart = (symbol) => openMarketChart(root, symbol); // P1430: 오늘 index cards → that index's chart
+    // P1430: 오늘 index cards → that index's chart. v58.75: stock-chart.js loads with the 차트 route (analysis.js) instead of
+    // the boot module set; the click imports it (the same chunk the route needs anyway). If the import fails, the request
+    // is set the way openMarketChart sets it and the route renders it when it loads.
+    root.aioOpenMarketChart = (symbol) => import('../ui/components/stock-chart.js')
+      .then(({ openMarketChart }) => openMarketChart(root, symbol))
+      .catch(() => { root._aioChartRequest = String(symbol || 'SPY').toUpperCase(); root.showPage?.('technical'); });
     const initialRoute = resolveInitialRoute({ root });
     router.start();
     if (!router.active()) {

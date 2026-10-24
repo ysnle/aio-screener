@@ -141,7 +141,9 @@ if (outPath && existsSync(outPath)) {
           const fixed = { ...it, ...(it.summary ? { summary: redecodeNumericEntities(it.summary) } : {}), ...(it.text ? { text: redecodeNumericEntities(it.text) } : {}) };
           const keptText = fixed.text || fixed.summary || '';
           const carried = fixed.text || !fixed.summary ? fixed : { ...fixed, text: fixed.summary };
-          previousMergePool.push(keptText ? { ...carried, tags: classify(keptText) } : carried);
+          const { lead: _staleLead, ...carriedRest } = carried;
+          const retag = keptText ? classifyPost(keptText) : null;
+          previousMergePool.push(retag ? { ...carriedRest, tags: retag.tags, ...(retag.lead ? { lead: retag.lead } : {}) } : carried);
           if (!prevObservedIds.has(it.id)) {
             previousObservedPool.push({ id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst, score:Number(it.score || 0), tags:it.tags || [], tickers:it.tickers || [], ...(it.relatedTickers?.length ? { relatedTickers:it.relatedTickers } : {}), ...(it.listTickers?.length ? { listTickers:it.listTickers } : {}), hasText:!!String(it.text || it.summary || '').trim() });
           }
@@ -198,8 +200,32 @@ function redecodeNumericEntities(s) {
 // AI-risk post 전력 ("the power of AI"), and a link to blog.naver.com tagged NAVER. Links are removed before any
 // tag or company match, and the bare words memory/power/선물 no longer stand for an industry by themselves.
 function stripLinks(text) { return String(text || '').replace(/https?:\/\/\S+|\b[\w.-]+\.(?:com|net|co\.kr|kr|io|me)\/\S*/gi, ' '); }
-function classify(text) {
-  const raw = stripLinks(text);
+// v58.75 (persona review): a whole post was tagged by every rule its body touched (up to 8 tags), in rule order, so a
+// Netanyahu statement read as 한국장 and a long digest sat under every topic. The lead sentence decides the first tags
+// (ordered by TAG_PRIORITY, the renderer's order; `lead` says how many came from it), the body adds the rest, at most
+// TAG_LIMIT in all. A negated topic ("실적 제외", "excluding earnings") does not tag the post.
+const TAG_PRIORITY = Object.freeze(['insider', 'geo', 'macro', 'earnings', 'semi', 'optical', 'power', 'healthcare', 'ai-policy', 'crypto', 'credit', 'japan', 'kr-market', 'flows', 'equity', 'market-note']);
+const TAG_LIMIT = 4;
+const NEGATED_TOPIC = /(?:실적|어닝)\s*(?:발표\s*)?(?:은|을|를|은\s*)?\s*(?:제외|빼고|무관)|(?:excluding|ex-|aside from|apart from)\s*earnings/gi;
+function leadSentence(text) {
+  for (const part of String(text || '').split(/\n|\s>\s|(?<=[.!?다])\s+/)) {
+    const lead = part.replace(/^[\s>·•\-–—]+/, '').trim();
+    if (lead.length >= 10) return lead.slice(0, 160);
+  }
+  return '';
+}
+function classifyPost(text) {
+  const raw = stripLinks(text).replace(NEGATED_TOPIC, ' ');
+  const lead = leadSentence(raw);
+  const byPriority = (a, b) => TAG_PRIORITY.indexOf(a) - TAG_PRIORITY.indexOf(b);
+  const leadTags = lead && lead.length < raw.trim().length ? classifyRules(lead).sort(byPriority) : [];
+  const allTags = classifyRules(raw);
+  const tags = [...leadTags, ...allTags.filter((tag) => !leadTags.includes(tag))].slice(0, TAG_LIMIT);
+  // allTags (every rule, unordered) keeps the selection score as it was; only the published tags are capped.
+  return tags.length ? { tags, lead: Math.min(leadTags.length, TAG_LIMIT), allTags } : { tags: ['market-note'], lead: 0, allTags: ['market-note'] };
+}
+function classify(text) { return classifyPost(text).tags; }
+function classifyRules(raw) {
   const tags = [];
   const add = v => { if (!tags.includes(v)) tags.push(v); };
   if (/corporate bond|company bond|investment grade|ig credit|\boas\b|\blqd\b|\bhyg\b|credit spread|project finance|rating downgrade|rating downshift|downgrade.*rating|funding cost|debt financing|capex funding|bond market|company debt|회사채|투자등급|크레딧|신용스프레드|스프레드|프로젝트\s*파이낸스|자금조달|조달비용|등급\s*하향|신용등급|신용공여/i.test(raw)) add('credit');
@@ -219,7 +245,7 @@ function classify(text) {
   if (/fund flow|etf flow|positioning|short interest|gamma|option flow|foreign buying|institutional buying|수급|외국인|순매수|포지셔닝/i.test(raw) || KR_INSTITUTIONAL_FLOW.test(raw)) add('flows');
   if (/healthcare|pharma|biotech|glp.?1|wegovy|ozempic|mounjaro|novo nordisk|eli lilly|비만약|제약|바이오/i.test(raw)) add('healthcare');
   if (/\bjapan\b|nikkei|topix|\byen\b|\bjgb\b|tokyo stock|일본|닛케이|토픽스|엔화|일은/i.test(raw)) add('japan');
-  return tags.length ? tags : ['market-note'];
+  return tags;
 }
 
 function escapeRegex(s) { return String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -329,7 +355,8 @@ function parsePage(html, channel) {
     const textMatch = block.match(/<div class="tgme_widget_message_text js-message_text"[^>]*>([\s\S]*?)<\/div>/);
     const text = decodeEntities(textMatch ? textMatch[1] : '');
     const date = new Date(tm[1]);
-    const tags = text ? classify(text) : ['media-only'];
+    const classified = text ? classifyPost(text) : null;
+    const tags = classified ? classified.allTags : ['media-only']; // every matched rule: the selection score below
     const roles = text ? extractTickers(text) : { tickers: [], relatedTickers: [], listTickers: [] };
     const tickers = roles.tickers;
     const signals = text ? extractPostSignals({ id: post, text, datetime: date.toISOString(), localDateKst: kstDate(date) }, UNIVERSE) : [];
@@ -339,7 +366,8 @@ function parsePage(html, channel) {
       url: `https://t.me/${post}`,
       datetime: date.toISOString(),
       localDateKst: kstDate(date),
-      tags,
+      tags: classified ? classified.tags : tags, // v58.75: the published tags, lead first and capped
+      ...(classified?.lead ? { lead: classified.lead } : {}),
       tickers,
       ...(roles.relatedTickers.length ? { relatedTickers: roles.relatedTickers } : {}),
       ...(roles.listTickers.length ? { listTickers: roles.listTickers } : {}),

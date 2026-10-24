@@ -11,6 +11,9 @@ import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { estimateBookSensitivities, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { bondCushion, assetClassOf, BOND_ETF_MAP, BOND_KIND_LABEL, ASSET_CLASS_MAP_VERSION } from '../../domain/portfolio/asset-class.js';
 import { signedText } from '../../domain/shared/number.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
+import { BRANCHES } from '../../domain/market/macro-crossroads.js';
+import { US_THEME_PROFILES, windFor } from '../../domain/scenarios/exposures.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —
 // bars on one scale, the total underneath, then what the arithmetic does not claim.
@@ -42,6 +45,65 @@ function attributionBox(doc, attribution) {
   if (attribution.fxHoldingsPct > 0) notes.push(`환율 효과는 기준 통화로 환산한 보유액 ${attribution.fxHoldingsPct.toFixed(0)}%의 원/달러 3개월 변동${attribution.fxAsOf ? `(${md(attribution.fxAsOf)} 종가까지)` : ''}`);
   notes.push('지금 비중을 3개월 동안 들고 있었다고 가정한 계산이라 실제 계좌 성과와 다릅니다');
   box.append(el(doc, 'p', `${notes.join(', ')}.`, 'theme-strength-basis'));
+  return box;
+}
+
+// v58.75 (persona review): the holdings read against the branch whose conditions fit best now. Each holding takes the
+// exposure tags of its US themes (THEME_MAP membership) or, failing that, of the theme its sector maps to; bond ETFs and
+// broad ETFs carry no tag. The value share on each side of that branch (scenarios/exposures.js windFor) is one bar.
+// The tags are reviewed hypotheses, not measured sensitivities, and the bar is not a probability or an instruction.
+const SECTOR_PROFILE = Object.freeze({ Technology: 'software', 'Communication Services': 'comm', Consumer: 'consumer_disc', Healthcare: 'healthcare', 'Consumer Defensive': 'staples',
+  Financials: 'financials', Energy: 'energy', Industrials: 'industrials', Utilities: 'utilities', Materials: 'materials', 'Real Estate': 'reits' });
+const WIND_TONE = Object.freeze({ head: 'down', mixed: 'pullback', tail: 'up' });
+
+export function scenarioExposure({ rows = [], branch = null, themeMap = [] } = {}) {
+  if (!branch) return { available: false };
+  const valued = rows.filter((row) => Number(row?.value) > 0);
+  const total = valued.reduce((sum, row) => sum + Number(row.value), 0);
+  if (!(total > 0)) return { available: false };
+  const tagsOf = (row) => {
+    const symbol = String(row.symbol || '').toUpperCase();
+    if (assetClassOf(symbol)) return [];
+    const themes = themeMap.filter((theme) => (Array.isArray(theme?.leaders) && theme.leaders.includes(symbol)) || (theme?.subThemes || []).some((sub) => Array.isArray(sub.tickers) && sub.tickers.includes(symbol)));
+    const ids = themes.length ? themes.map((theme) => theme.id) : [SECTOR_PROFILE[row.sector]].filter(Boolean);
+    return [...new Set(ids.flatMap((id) => US_THEME_PROFILES[id]?.tags || []))];
+  };
+  const share = { head: 0, mixed: 0, tail: 0, none: 0 };
+  for (const row of valued) share[windFor(tagsOf(row), branch)] += Number(row.value) / total * 100;
+  return { available: true, holdings: valued.length, share };
+}
+
+// The exposure against the branch whose conditions fit best now (shared by the read box and the 점검 기준 list).
+export function leadScenarioExposure(root, surface) {
+  let crossroads = null;
+  try { crossroads = marketInterpretation(root).crossroads || null; } catch (_) { crossroads = null; }
+  const lead = crossroads?.leadId ? crossroads.items?.find((item) => item.id === crossroads.leadId) : null;
+  const branch = lead ? BRANCHES.find((item) => item.id === lead.id) : null;
+  const model = scenarioExposure({ rows: surface?.rows || [], branch, themeMap: Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [] });
+  return model.available ? { ...model, name: String(lead.title || '').split(' — ')[0], fit: lead.fit } : null;
+}
+
+function scenarioExposureBox(doc, root, surface) {
+  const model = leadScenarioExposure(root, surface);
+  if (!model) return null;
+  const box = el(doc, 'div', null, 'pf-trend-mix pf-scenario-exposure');
+  box.append(el(doc, 'span', `가설 태그로 본 시나리오 노출, '${model.name}'(${model.fit})`, 'stock-read-vis-title'));
+  const bar = el(doc, 'div', null, 'pf-trend-bar');
+  bar.setAttribute('role', 'img');
+  bar.setAttribute('aria-label', `평가액 중 부담 쪽 ${model.share.head.toFixed(0)}%, 혼재 ${model.share.mixed.toFixed(0)}%, 수혜 쪽 ${model.share.tail.toFixed(0)}%, 태그 없음 ${model.share.none.toFixed(0)}%`);
+  const legend = el(doc, 'div', null, 'pf-trend-legend');
+  for (const [wind, label] of [['head', '부담 쪽'], ['mixed', '혼재'], ['tail', '수혜 쪽'], ['none', '태그 없음·영향 작음']]) {
+    const pct = model.share[wind];
+    if (pct > 0) {
+      const seg = el(doc, 'span', pct >= 12 ? `${pct.toFixed(0)}%` : '', `pf-trend-seg${WIND_TONE[wind] ? ` is-${WIND_TONE[wind]}` : ''}`);
+      seg.style.width = `${pct.toFixed(1)}%`;
+      if (!WIND_TONE[wind]) { seg.style.background = 'rgba(var(--ink-rgb),0.22)'; seg.style.color = 'var(--text-primary)'; }
+      seg.title = `${label} ${pct.toFixed(1)}%`;
+      bar.append(seg);
+    }
+    legend.append(el(doc, 'span', `${label} ${pct.toFixed(0)}%`, WIND_TONE[wind] ? `is-${WIND_TONE[wind]}` : null));
+  }
+  box.append(bar, legend, el(doc, 'p', `지금 조건이 가장 많이 맞는 시나리오에서 업종·테마의 가설 태그로 보면 평가액의 ${model.share.head.toFixed(0)}%가 부담 쪽, ${model.share.tail.toFixed(0)}%가 수혜 쪽 영역입니다. 태그는 사람이 정한 민감도 가설이라 측정값이 아니며, 조건 충족 수는 시나리오가 일어날 확률이 아닙니다. 채권·광범위 ETF와 분류되지 않은 종목은 태그 없음으로 둡니다.`, 'theme-strength-basis'));
   return box;
 }
 
@@ -116,6 +178,8 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
     visuals.append(box);
   }
   if (read.attribution?.available) visuals.append(attributionBox(doc, read.attribution));
+  const exposureBox = scenarioExposureBox(doc, root, surface);
+  if (exposureBox) visuals.append(exposureBox);
   if (visuals.childNodes.length) host.append(visuals);
   const list = el(doc, 'ul', null, 'stock-read-points');
   for (const point of read.points) {

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v58.74 — 올인원 투자 터미널</title>
+  <title>AIO Screener v58.75 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -30,13 +30,13 @@
   <!-- P1756: the same v1.3.9 font as unicode-range subsets — only the ranges a page draws download (the single file was 2 MB). -->
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=58.74" defer></script>
-<script src="./js/aio-kr-data.js?v=58.74" defer></script>
-<script src="./js/aio-pages.js?v=58.74" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=58.74">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=58.74">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.74">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.74">
+<script src="./js/aio-workspace.js?v=58.75" defer></script>
+<script src="./js/aio-kr-data.js?v=58.75" defer></script>
+<script src="./js/aio-pages.js?v=58.75" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=58.75">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=58.75">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.75">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.75">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -3638,6 +3638,8 @@ button[data-filter-active="true"] {
         <button data-action="toggleTheme" id="sidebar-theme-btn" class="sidebar-action-btn btn-ghost">
           <span id="sidebar-theme-label">다크 모드로 전환</span>
         </button>
+        <!-- v58.75 (persona review): the 1~8 / R / ? keys were only findable by pressing ?; one quiet entry point. -->
+        <button type="button" data-action="openKbdHelp" id="sidebar-kbd-btn" class="sidebar-action-btn btn-ghost" aria-keyshortcuts="?">단축키 보기 (?)</button>
       </div>
 
       <div class="sidebar-footer">
@@ -5022,9 +5024,9 @@ button[data-filter-active="true"] {
   </section>
 
     <!-- P1431: 같은 11개 섹터의 1일·1주 성과 — RRG 사분면 바로 아래에서 같은 섹터를 숫자로 확인 -->
-    <!-- ══ SECTION 2: GICS 11섹터 + 서브섹터 1일·1주 등락 ══════════ -->
+    <!-- ══ SECTION 2: GICS 11섹터 + 서브섹터 기간별 등락 (v58.75: 1일~12개월 탭, SPY 대비) ══ -->
     <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">섹터 1일·1주 등락</span></div>
+    <div class="aio-section-hd"><span class="aio-section-label">섹터 기간별 등락, SPY 대비</span></div>
     <div class="sh-themes-panel">
       <div class="sh-themes-row-between">
         <span class="sh-themes-lead">성과와 사분면 상태<span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="섹터 RS 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 RS (Relative Strength)</span>SPY 대비 각 섹터 ETF의 상대가격. 100 = SPY와 같은 흐름, 100 위 = 최근 평균보다 SPY 대비 강함, 100 아래 = 약함. 기준인 SPY가 시가총액 가중이라 소수 대형주가 지수를 끌면 많은 섹터가 100 아래에 놓입니다. 경기 국면을 판정하지 않습니다.</span></span></span>
@@ -5115,6 +5117,9 @@ button[data-filter-active="true"] {
     <details class="kr-themes-live" id="kr-themes-live">
     <summary class="sh-themes-live-toggle">장중 실시간 테마 등락 보기, 국내 시세가 들어올 때만 계산</summary>
 
+  <!-- v58.75 (persona review): the live-quote blocks sit in #kr-themes-live-body, hidden by themes.js while no Korean
+       live quote covers any theme ("시세 미수신", "수집 대기…", "유효 테마 0/28"); the detail panel below stays reachable. -->
+    <div id="kr-themes-live-body">
   <!-- ═══ v48.46: KR 테마 심층 해설 ═══ -->
     <div class="row mb-4 sh-themes-live-box">
       <div>
@@ -5161,16 +5166,22 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /aio-section 테마퍼포먼스 -->
 
-    <!-- ═══ 테마 종목 상세 분석 패널 ═══ -->
-    <div id="kr-theme-detail-panel" style="display:none;background:var(--bg-card);border:0.5px solid var(--accent);border-radius:4px;padding:18px;margin-bottom:14px;position:relative;">
-      <button data-action="_aioCloseThemeDetailPanel" aria-label="닫기" class="sh-themes-detail-btn">×</button>
-      <div id="kr-theme-detail-content"></div>
-    </div>
-
     <!-- v37.8: kr-themes 동적 테마 분석 -->
     <div class="aio-widget sh-mb12">
       <div class="widget-title">테마 동향 자동 분석</div>
       <div id="kr-themes-analysis-text" class="sh-soft-text-loose">테마 데이터 수집 대기...</div>
+    </div>
+    </div><!-- /kr-themes-live-body -->
+
+    <!-- ═══ 테마 종목 상세 분석 패널 ═══ -->
+    <!-- v58.75 (persona review): the completed-close member table (themes.js) leads; the live-quote detail folds under it. -->
+    <div id="kr-theme-detail-panel" style="display:none;background:var(--bg-card);border:0.5px solid var(--accent);border-radius:4px;padding:18px;margin-bottom:14px;position:relative;">
+      <button data-action="_aioCloseThemeDetailPanel" aria-label="닫기" class="sh-themes-detail-btn">×</button>
+      <div id="kr-theme-close-detail" class="kr-theme-close-detail" hidden></div>
+      <details id="kr-theme-live-detail-fold" class="kr-theme-live-detail-fold" open>
+        <summary>장중 시세 기준 상세</summary>
+        <div id="kr-theme-detail-content"></div>
+      </details>
     </div>
     </details>
 
@@ -5578,7 +5589,7 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 보유종목AI차트분석 -->
 
     <!-- v52.73 아이보리 4a: 시안엔 없는 백테스트 도구 — details로 압축 -->
-    <details class="aio-page-advanced-toggle sh-mb14">
+    <details id="pf-backtest-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold><!-- v58.75: user fold, shown once there are holdings (portfolio.js empty state hides it) -->
       <summary>과거 성과 시뮬레이션</summary>
       <div class="aio-page-advanced-body">
     <!-- v51.79: Portfolio Visualizer-style 장기 백테스트 Lab -->
@@ -5621,73 +5632,48 @@ button[data-filter-active="true"] {
     </details>
 
     <!-- ══ v48.47: 위험/보상 계산기 (포지션 연동) — from technical ══ -->
-    <details class="aio-page-advanced-toggle sh-mb14">
-      <summary>손익비 계산기 (R:R)</summary>
+    <!-- v58.75 (owner 2026-10-24): the R:R calculator generated 1R/2R/3R target prices and a 2%-rule share count. The app does
+         not propose prices or sizes; it now checks the plan the user typed (entry, stop, optional target, amount, capital). -->
+    <details id="pf-rr-fold" class="aio-page-advanced-toggle sh-mb14" data-user-fold>
+      <summary>내 계획 점검 (손절·목표 가격)</summary>
       <div class="aio-page-advanced-body">
     <div class="sh-portfolio-panel">
       <div class="sh-between-row">
-        <div class="sh-portfolio-text">
-          손익비 계산기 (R:R)
-          <span class="aio-tooltip" data-action="_aioTooltipToggle" data-pass-el="1" data-pass-event="1" aria-expanded="false" role="button" tabindex="0" aria-label="R:R 비율 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">R:R 비율이란?</span>진입가 대비 손절(위험)과 목표가(보상)의 비율. 기대값은 승률·R:R·거래 비용을 함께 계산해야 합니다(예: 비용을 무시하면 승률 40%·R:R 3:1의 1회당 기대값은 0.4×3−0.6×1=+0.6). 한 번의 거래에서 잃을 수 있는 한도를 미리 정해 두는 방식도 있습니다.</span></span>
-        </div>
+        <div class="sh-portfolio-text">내 계획 점검</div>
         <div class="sh-portfolio-row-middle">
-          <select id="rr-position-select" aria-label="보유 포지션에서 가져오기" data-on-change="_aioRRFillFromPosition" class="sh-portfolio-rr-position-field">
-            <option value="">포지션에서 자동 입력...</option>
+          <select id="rr-position-select" aria-label="보유 포지션에서 진입가 가져오기" data-on-change="_aioRRFillFromPosition" class="sh-portfolio-rr-position-field">
+            <option value="">보유 종목에서 진입가 채우기...</option>
           </select>
         </div>
       </div>
-      <div class="sh-portfolio-note">입력한 가정값(진입가, 무효화 가격, 투자금)으로 손실 폭과 1R·2R·3R 도달 가격을 계산하는 산술 도구입니다. 매매 제안이 아니며, 보유 종목을 고르면 현재 단가만 자동 입력됩니다.</div>
-      <div class="sh-portfolio-cols">
+      <div class="sh-portfolio-note">내가 정한 가격과 금액을 넣으면 위험 폭과 손실액을 계산합니다. 앱은 가격이나 금액을 제안하지 않습니다.</div>
+      <div class="sh-portfolio-cols pf-rr-cols">
         <div>
-          <div class="sh-muted-note-mb3">가정 진입가 ($)</div>
-          <input id="rr-entry" type="number" step="0.01" placeholder="150.00" aria-label="진입가 입력" class="sh-ink-field-digits">
+          <div class="sh-muted-note-mb3">가정 진입가</div>
+          <input id="rr-entry" type="number" step="any" min="0" aria-label="가정 진입가" class="sh-ink-field-digits">
         </div>
         <div>
-          <div class="sh-muted-note-mb3">손절 기준가 ($)</div>
-          <input id="rr-stop" type="number" step="0.01" placeholder="145.00" aria-label="손절가 입력" class="sh-ink-field-digits">
+          <div class="sh-muted-note-mb3">손절 가격</div>
+          <input id="rr-stop" type="number" step="any" min="0" aria-label="내가 정한 손절 가격" class="sh-ink-field-digits">
         </div>
         <div>
-          <div class="sh-muted-note-mb3">투자금 ($)</div>
-          <input id="rr-capital" type="number" step="100" placeholder="10000" value="10000" aria-label="투자금 입력" class="sh-ink-field-digits">
+          <div class="sh-muted-note-mb3">목표 가격 (선택)</div>
+          <input id="rr-target" type="number" step="any" min="0" aria-label="내가 정한 목표 가격 (선택)" class="sh-ink-field-digits">
         </div>
-        <button data-action="calculateRR" class="btn-cta">계산</button>
+        <div>
+          <div class="sh-muted-note-mb3">투입 금액</div>
+          <input id="rr-capital" type="number" step="any" min="0" aria-label="이 계획에 넣을 금액" class="sh-ink-field-digits">
+        </div>
+        <div>
+          <div class="sh-muted-note-mb3">전체 자본 (선택)</div>
+          <input id="rr-total" type="number" step="any" min="0" aria-label="전체 자본 (선택)" class="sh-ink-field-digits">
+        </div>
+        <button data-action="calculateRR" class="btn-cta">점검</button>
       </div>
-      <div id="rr-result" style="display:none;margin-top:12px;">
-        <div class="sh-portfolio-rr-result-cols">
-          <div class="sh-portfolio-rr-result-panel">
-            <div class="sh-red-note">감수 손실 (1R)</div>
-            <div id="rr-risk" class="sh-portfolio-rr-risk-lead">—</div>
-          </div>
-          <div class="sh-portfolio-rr-result-panel-green">
-            <div class="sh-green-note">손실폭 1배 이익 가격 (1R)</div>
-            <div id="rr-1r" class="sh-green-lead">—</div>
-          </div>
-          <div class="sh-portfolio-rr-result-panel-centered">
-            <div class="sh-green-note">2R 도달 가격</div>
-            <div id="rr-2r" class="sh-green-lead">—</div>
-          </div>
-          <div class="sh-portfolio-rr-result-panel-pad8">
-            <div class="sh-green-note">손실폭 3배 이익 가격 (3R)</div>
-            <div id="rr-3r" class="sh-green-lead">—</div>
-          </div>
-        </div>
-        <div class="sh-portfolio-rr-result-tint">
-          <div id="rr-risk-bar" class="sh-portfolio-rr-risk-tint"></div>
-          <div id="rr-reward-bar" class="sh-portfolio-rr-reward-tint"></div>
-          <div class="sh-portfolio-rr-ratio-label" id="rr-ratio-text">—</div>
-        </div>
-        <div class="sh-portfolio-rr-result-cols-two">
-          <div class="sh-portfolio-rr-result-panel-base">
-            <div class="sh-muted-note">살 수량 (자산 2% 손실 한도)</div>
-            <div id="rr-position" class="sh-portfolio-rr-position-text">—</div>
-            <div class="sh-muted-note-mt2">총 자산의 2%만 위험에 노출</div>
-          </div>
-          <div class="sh-portfolio-rr-result-panel-base">
-            <div class="sh-muted-note">2% 한도로 계산한 수량</div>
-            <div id="rr-shares" class="sh-portfolio-rr-position-text">—</div>
-            <div class="sh-muted-note-mt2">손절 기준가에서 손실 = 투자금의 2%</div>
-          </div>
-        </div>
+      <div id="rr-result" hidden>
+        <ul id="rr-lines" class="pf-rr-lines"></ul>
+        <p class="sh-muted-note">진입가와 손절 가격 사이를 그대로 지난다고 가정한 계산입니다. 장 사이의 갭, 수수료·세금, 체결 미끄러짐은 넣지 않았습니다.</p>
+        <p class="sh-muted-note">이 종목의 지지·저항 후보와 함께 보려면 <button type="button" class="flow-next-link" data-action="showPage" data-arg="technical">차트 화면의 가격 레벨과 내 계획</button>에서 확인합니다.</p>
       </div>
     </div>
       </div>
@@ -6013,6 +5999,32 @@ button[data-filter-active="true"] {
     <span id="last-fetch-time" class="sh-news-last-fetch-text">수신 대기...</span>
   </div>
   <span id="live-dot" style="display:none;"></span><span id="live-btn-label" style="display:none;"></span>
+  <!-- v58.75 (persona review): the country/topic/내 종목 filters sit right under the summary pills — they narrow the important
+       list and the full feed alike, and below the important list they were out of the first screen. -->
+  <!-- v57.77: country and topic share one compact wrapping row; the 전체/시장/기업/카테고리 type tabs left —
+         their one distinct filter (기업: a named company is the subject) is the 기업 topic chip. -->
+    <div id="news-filter-row" class="news-filter-row" role="group" aria-label="뉴스 필터">
+        <div class="sh-wrap-row" id="news-country-chips" role="group" aria-label="국가">
+          <span class="chip sh-news-country-chips-chip" data-action="filterNewsByCountry" data-arg="all" data-pass-el="1">전체 국가</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="us" data-pass-el="1">미국</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="kr" data-pass-el="1">한국</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="asia" data-pass-el="1">아시아</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="eu" data-pass-el="1">유럽</span>
+          <span class="chip sh-news-country-chips-chip-cyan" data-action="filterNewsByTelegramOnly" data-pass-el="1">텔레그램</span>
+        </div>
+        <div class="sh-wrap-row" id="news-topic-chips" role="group" aria-label="주제">
+          <span class="chip sh-news-country-chips-chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1">전체 주제</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="company" data-pass-el="1" title="특정 기업이 기사의 당사자인 뉴스(실적·애널리스트 의견 포함)">기업</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="macro" data-pass-el="1">거시</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="equity" data-pass-el="1">주식</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="semi" data-news-topic="semi" data-pass-el="1">반도체·AI</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="geo" data-news-topic="geo" data-pass-el="1">지정학</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="energy" data-pass-el="1">에너지</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="bond" data-news-topic="bond" data-pass-el="1">채권·금리</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="fx" data-news-topic="fx" data-pass-el="1">외환</span>
+          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="crypto" data-pass-el="1">크립토</span>
+        </div>
+    </div>
 
     <!-- ═══ v48.46: 시장 뉴스 심층 해설 ═══ -->
 
@@ -6043,31 +6055,6 @@ button[data-filter-active="true"] {
       <button class="news-sort-btn" id="sort-score-btn" data-action="setNewsSortMode" data-arg="score" data-pass-el="1"> 중요도순</button>
       <span class="sh-news-box"></span>
       <span id="translate-status" class="sh-news-translate-status-note">자동 한국어 번역</span>
-    </div>
-
-    <!-- v57.77: country and topic share one compact wrapping row; the 전체/시장/기업/카테고리 type tabs left —
-         their one distinct filter (기업: a named company is the subject) is the 기업 topic chip. -->
-    <div id="news-filter-row" class="news-filter-row" role="group" aria-label="뉴스 필터">
-        <div class="sh-wrap-row" id="news-country-chips" role="group" aria-label="국가">
-          <span class="chip sh-news-country-chips-chip" data-action="filterNewsByCountry" data-arg="all" data-pass-el="1">전체 국가</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="us" data-pass-el="1">미국</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="kr" data-pass-el="1">한국</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="asia" data-pass-el="1">아시아</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="eu" data-pass-el="1">유럽</span>
-          <span class="chip sh-news-country-chips-chip-cyan" data-action="filterNewsByTelegramOnly" data-pass-el="1">텔레그램</span>
-        </div>
-        <div class="sh-wrap-row" id="news-topic-chips" role="group" aria-label="주제">
-          <span class="chip sh-news-country-chips-chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1">전체 주제</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="company" data-pass-el="1" title="특정 기업이 기사의 당사자인 뉴스(실적·애널리스트 의견 포함)">기업</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="macro" data-pass-el="1">거시</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="equity" data-pass-el="1">주식</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="semi" data-news-topic="semi" data-pass-el="1">반도체·AI</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="geo" data-news-topic="geo" data-pass-el="1">지정학</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="energy" data-pass-el="1">에너지</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="bond" data-news-topic="bond" data-pass-el="1">채권·금리</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="fx" data-news-topic="fx" data-pass-el="1">외환</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="crypto" data-pass-el="1">크립토</span>
-        </div>
     </div>
 
     <!-- 로딩 프로그레스 바 -->
@@ -7072,15 +7059,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=58.74" defer></script>
-  <script src="./js/aio-data.js?v=58.74" defer></script>
-  <script src="./js/aio-ui.js?v=58.74" defer></script>
+  <script src="./js/aio-core.js?v=58.75" defer></script>
+  <script src="./js/aio-data.js?v=58.75" defer></script>
+  <script src="./js/aio-ui.js?v=58.75" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=58.74" defer></script>
+<script src="./js/aio-chat.js?v=58.75" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더)는 js/aio-macro-tech.js를 거쳐 네이티브 ESM으로 옮겨졌고, 그 파일은 퇴역했다. -->
 
@@ -7131,7 +7118,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=58.74" defer></script>
+<script src="./js/aio-glossary.js?v=58.75" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -7139,7 +7126,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.74</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.75</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->
@@ -7195,7 +7182,7 @@ button[data-filter-active="true"] {
 .ai-msg.ai .ai-msg-content > *{width:100%;}
 .ai-msg.user .ai-msg-content{width:auto;max-width:100%;align-self:flex-end;}
 .ai-msg.user .ai-msg-content > *{width:auto;}
-.ai-bubble{width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.7;word-break:break-word;overflow-wrap:anywhere;white-space:normal;}
+.ai-bubble{width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:10px 14px;border-radius:8px;font-size:15px;line-height:1.6;word-break:break-word;overflow-wrap:anywhere;white-space:normal;}
 .ai-bubble pre,.ai-msg-content pre{max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:pre;word-break:normal;}
 .ai-bubble table,.ai-msg-content table{display:block;max-width:100%;overflow-x:auto;white-space:normal;}
 .ai-bubble img,.ai-msg-content img{max-width:100%;height:auto;}

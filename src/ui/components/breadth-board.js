@@ -15,6 +15,7 @@ import { createTrendChart, seriesChange } from './trend-chart.js';
 import { breadthFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps, sectionLead } from './page-flow.js';
 import { el } from './dom.js';
+import { RULES } from '../../domain/rules/thresholds.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
@@ -75,7 +76,7 @@ export function buildBreadthCards(history = []) {
       latest: lastOf(highs) && lastOf(lows) ? `신고가 ${count(lastOf(highs).value)}, 신저가 ${count(lastOf(lows).value)}` : null, drill: ['newHigh', 'newLow'] },
     { id: 'mv', group: 'leadership', title: '4% 이상 상승 − 하락 종목 수 (5일 합계)', note: '거래량이 늘며 하루 4% 넘게 움직인 종목 — 5일 합계에서 상승·하락 중 어느 쪽이 우세한지 봄', series: rolling(difference(up4, down4), 5, { sum: true }).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
       latest: lastOf(up4) && lastOf(down4) ? `${lastOf(up4).date.slice(5).replace('-', '/')} 상승 ${count(lastOf(up4).value)}, 하락 ${count(lastOf(down4).value)}` : null, drill: ['up4', 'down4'] },
-    { id: 'dd', group: 'index', title: 'S&P 500 매도 우위일(분배일, 최근 25거래일)', note: '지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 봄', series: pctSeries('distributionDays'), refLines: [5], format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
+    { id: 'dd', group: 'index', title: 'S&P 500 매도 우위일(분배일, 최근 25거래일)', note: `지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 보고, 시장 상태는 ${RULES.leadership.distributionDaysAt}회 이상을 주도 영역 확인 신호로 셈`, series: pctSeries('distributionDays'), refLines: [RULES.leadership.distributionDaysAt] /* v58.75 (persona review): same line as 시장 상태 */, format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
     { id: 'spx', group: 'index', title: 'S&P 500 (같은 기간 비교)', series: spx, refLines: [], format: count, changeUnit: '%', percentChange: true }
   ];
 }

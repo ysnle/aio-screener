@@ -88,7 +88,7 @@ renderRegimePage({ documentRef: doc, root });
 assert.equal(ids.get('regime-board').children.length, 6, 'P1628 US regime board must preserve six distinct axis cards');
 assert.equal(descendants(ids.get('regime-board')).filter(node => node.tagName === 'svg').length, 6, 'P1628 each populated axis must actually render a labelled history chart');
 const breadthCard = ids.get('regime-board').children.find(card => card.dataset.axis === 'breadth');
-const selectors = descendants(breadthCard).filter(node => node.tagName === 'button');
+const selectors = descendants(breadthCard).filter(node => node.tagName === 'button' && node.dataset.action !== 'showPage'); // v58.75: the row's 원리 link to 시장 폭 is not a chart selector
 selectors[1].listeners.click();
 assert.equal(descendants(breadthCard).find(node => node.className === 'regime-axis-plot').dataset.historySeries, 'breadth200', 'P1628 switching SMA50/200 must render the chosen actual series');
 assert.equal(selectors[1].attributes['aria-pressed'], 'true', 'P1628 chart selection must expose its active state');

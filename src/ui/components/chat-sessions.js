@@ -5,13 +5,14 @@
 import { appendTurn, consentState, deleteSession, loadSessions, newSessionId, sessionMessages, sessionWhen, setConsent, ACTIVE_KEY } from '../../ai/session/chat-sessions.js';
 import { el } from './dom.js';
 
-const SCREEN = { home: '오늘', briefing: '브리핑', macro: '거시', fxbond: '금리·환율', themes: '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
+const SCREEN = { home: '오늘', briefing: '브리핑', macro: '거시', fxbond: '금리·환율', themes: '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', 'theme-detail': '테마', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
 
 // The device store is handed in by the app layer (ui/ai modules never open browser storage themselves).
 export function installChatSessions(root = globalThis, doc = root.document, { storage = null } = {}) {
   if (!doc || root.__aioChatSessions) return root.__aioChatSessions || null;
   const shared = { messages: [], streaming: false, _chatSendEntered: 0, _requestEpoch: 0, _activeRequest: null, _retryCount: 0 };
-  const api = { shared, sessionId: null };
+  // v58.75 (persona review): screenLabel names the screen an answer was asked on (the answer's basis line).
+  const api = { shared, sessionId: null, screenLabel: (ctx) => SCREEN[ctx] || '' };
   root.__aioChatSessions = api;
   // (1) One conversation for the whole panel.
   if (typeof root.getChatState === 'function') root.getChatState = () => shared;
@@ -28,6 +29,21 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
     if (page && typeof root.updateAIPanelContext === 'function') { try { root.updateAIPanelContext(page); } catch (_) {} }
   };
   const cancel = (reason) => { try { root._aioCancelChatRequest?.(root._aiCurrentCtx, reason); } catch (_) {} };
+
+  // v58.75 (persona review): panel glue moved out of js/aio-chat.js. (a) Moving to another AI screen while an answer is
+  // being written keeps it (one shared conversation): the classic panel asks before cancelling and repainting.
+  root._aioKeepRunningAnswer = (fromCtx, toCtx, contexts) => !!(fromCtx && toCtx && contexts?.[toCtx] && shared._activeRequest?.entrypoint === 'unified-chat');
+  // (b) The portfolio chips open the consent preview that attaches the redacted holdings (_aioPortfolioAsk) instead of
+  // sending bare text; (c) that prompt is marked so the turn tells the model the holdings are in the question.
+  const PORTFOLIO_CHIPS = { '포트폴리오 종합 분석': 'overview', '보유 종목 점검': 'ticker', '매매 복기': 'journal', '다음 학습 과제': 'lesson' };
+  const originalChip = root.aiChipClick;
+  if (typeof originalChip === 'function') root.aiChipClick = function (chip) {
+    const kind = root._aiCurrentCtx === 'portfolio' ? PORTFOLIO_CHIPS[String(chip?.textContent || '').trim()] : null;
+    return kind && typeof root._aioPortfolioAsk === 'function' ? root._aioPortfolioAsk(kind) : originalChip.apply(this, arguments);
+  };
+  let portfolioPrompt = null;
+  root._aioMarkPortfolioPrompt = (prompt) => { portfolioPrompt = String(prompt || ''); };
+  root._aioTakePortfolioPrompt = () => { const prompt = portfolioPrompt; portfolioPrompt = null; return prompt; };
 
   // (2) Record each completed turn; ask once, after the first answer, whether to keep conversations on this device.
   const pending = [];

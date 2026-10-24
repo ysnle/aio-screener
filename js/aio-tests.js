@@ -5413,7 +5413,7 @@
       // v57.62: the per-page badge-upgrade branch was retired with chatSend; the unified panel renders this request's
       // native citations (engine:'claude') under the answer.
       var csSrc2 = (typeof chatSendUnified === 'function') ? String(chatSendUnified) : '';
-      var badgeUpgradeOk = csSrc2.indexOf('_aioAIRequestCitations(_uniRequestId)') >= 0 && csSrc2.indexOf("engine:'claude'") >= 0 && csSrc2.indexOf('AI 웹검색') >= 0;
+      var badgeUpgradeOk = csSrc2.indexOf('_aioAIRequestCitations(_uniRequestId)') >= 0 && csSrc2.indexOf("engine:'claude'") >= 0 && (csSrc2.indexOf('AI 웹검색') >= 0 || csSrc2.indexOf('aiWeb: _uniUseClaudeWebSearch') >= 0); // v58.75: the used-evidence badge row (with 'AI 웹검색') is built by choosing-blocks.sourceBadge
       var ccFn = (typeof callSharedAi === 'function') ? callSharedAi : (typeof window.callSharedAi === 'function' ? window.callSharedAi : null);
       // P1245 (05 A05): 수집기는 공유 전역이 아니라 이 스트림이 시작할 때 받은 요청 id의 기록에 쓴다.
       var ccSrc = ccFn ? String(ccFn) : '';
@@ -5955,7 +5955,7 @@
       var nonDomain = domFn ? window._fetchDomainContextForChat('fundamental') : 'x'; // 도메인 무관 → ''
       var macroNonEmpty = typeof macroBlock === 'string' && macroBlock.indexOf('거시 도메인') >= 0; // DATA_SNAPSHOT cpi/coreCpi 정적 → 항상 채워짐
       var csSrc811 = typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : ''; // v57.62: per-page chatSend retired
-      var wired811 = csSrc811.indexOf('_aioDomainContextForQuestion(ctxId, q)') >= 0 && csSrc811.indexOf("_wrapUnifiedExternal('DOMAIN_LIVE_DATA', _uniDomainStr") >= 0 &&typeof window.AIO?.buildQuestionDomainContext === 'function' && window.AIO.buildQuestionDomainContext({ctxId:'macro',root:window,readDomain:window._fetchDomainContextForChat}).indexOf(macroBlock)>=0; // P1621 native shared context executes the original source reader.
+      var wired811 = /_aioDomainContextForQuestion\(ctxId, q(?:, detectedTickers)?\)/.test(csSrc811) && csSrc811.indexOf("_wrapUnifiedExternal('DOMAIN_LIVE_DATA', _uniDomainStr") >= 0 &&typeof window.AIO?.buildQuestionDomainContext === 'function' && window.AIO.buildQuestionDomainContext({ctxId:'macro',root:window,readDomain:window._fetchDomainContextForChat}).indexOf(macroBlock)>=0; // P1621 native shared context executes the original source reader.
       var gate811 = (nonDomain === ''); // 도메인 무관 ctx는 빈 문자열(자기 게이팅)
       t811ok = domFn && macroNonEmpty && wired811 && gate811;
       t811detail = 'fn=' + domFn + ' macroLen=' + (macroBlock ? macroBlock.length : 0) + ' fxLen=' + (fxBlock ? fxBlock.length : 0) + ' themeLen=' + (themeBlock ? themeBlock.length : 0) + ' wired=' + wired811 + ' gate=' + gate811;
@@ -7042,9 +7042,9 @@
       if (!page) { failures869.push(id + ':missing'); return; }
       if (page.querySelectorAll('.aio-fund').length) failures869.push(id + ':fund');
       Array.prototype.forEach.call(page.querySelectorAll('.aio-page-advanced-toggle'), function(el) { var uf869 = el.hasAttribute('data-user-fold'); // P1327/R672 -> v57.81: data-user-fold folds are shown to everyone, the rest stay developer-only
-        if (uf869 ? getComputedStyle(el).display === 'none' : getComputedStyle(el).display !== 'none') failures869.push(id + ':' + (el.id || 'fold') + (uf869 ? ':user-fold-hidden' : ':advanced-visible'));
+        if (uf869 ? (getComputedStyle(el).display === 'none' && !el.dataset.pfEmptyHidden) : getComputedStyle(el).display !== 'none') failures869.push(id + ':' + (el.id || 'fold') + (uf869 ? ':user-fold-hidden' : ':advanced-visible'));
       });
-    }); ['kr-integrated-technical','kr-integrated-macro','kr-integrated-themes','pf-ai-notes-fold','pf-watchlist-risk-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || getComputedStyle(n).display === 'none') failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds
+    }); ['kr-integrated-technical','kr-integrated-macro','kr-integrated-themes','pf-ai-notes-fold','pf-watchlist-risk-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden
     try {
       ['guide','kr-home','kr-supply','kr-themes','kr-macro','kr-technical'].forEach(function(id) {
         if (typeof _aioPolishRemainingPages === 'function') _aioPolishRemainingPages(id);

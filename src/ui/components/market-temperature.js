@@ -57,6 +57,16 @@ export function extremeSpans(history = [], rules = TEMPERATURE_RULES) {
   return spans;
 }
 
+// Today's raw reading per component (producer field `raw`): ratios print as %, RSI as a number, calm as the daily sd.
+function rawText(row) {
+  const v = row?.raw;
+  if (!Number.isFinite(v)) return '';
+  if (row.id === 'rsi') return `RSI ${Math.round(v)}`;
+  if (row.id === 'range') return `${Math.round(v * 100)}% 지점`;
+  if (row.id === 'calm') return `일간 ${(Math.abs(v) * 100).toFixed(2)}%`;
+  return pct(v * 100);
+}
+
 function componentBars(doc, market, rules) {
   const list = el(doc, 'div', null, 'temp-bars');
   list.setAttribute('role', 'list');
@@ -69,8 +79,11 @@ function componentBars(doc, market, rules) {
     const fill = el(doc, 'span', null, `temp-bar${tone}`);
     fill.style.width = `${Math.max(2, Math.round(row.score || 0))}%`;
     track.append(fill);
-    item.append(el(doc, 'span', row.label, 'temp-bar-label'), track, el(doc, 'span', Number.isFinite(row.score) ? `${Math.round(row.score)}${tone ? (tone === ' is-cold' ? ', 하위 10%' : ', 상위 10%') : ''}` : '—', 'temp-bar-value'));
-    if (def) item.title = `${def.label}: ${def.basis}, 최근 3년(756거래일) 안에서의 순위`;
+    // v58.75 (persona review): the bar is a 3-year rank, not the reading itself — "RSI 14일 11" read as RSI 11.
+    // The value now shows today's raw reading first and the rank as "순위 n/100".
+    const raw = rawText(row);
+    item.append(el(doc, 'span', row.label, 'temp-bar-label'), track, el(doc, 'span', Number.isFinite(row.score) ? `${raw ? `${raw} · ` : ''}순위 ${Math.round(row.score)}/100${tone ? (tone === ' is-cold' ? ', 하위 10%' : ', 상위 10%') : ''}` : '—', 'temp-bar-value'));
+    if (def) item.title = `${def.label}: ${def.basis}. 앞 숫자는 오늘 값, 순위는 최근 3년(756거래일) 안에서의 위치(0 가장 낮음, 100 가장 높음)`;
     list.append(item);
   }
   return list;

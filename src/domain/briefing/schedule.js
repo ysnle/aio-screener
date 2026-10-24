@@ -143,6 +143,13 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
   return rows;
 }
 
+// v58.75 (persona review): calendar revenue (dollars) in 억/조 달러; zero or missing is left out.
+export function formatUsdRevenue(value) {
+  const n = value == null || value === '' ? NaN : Number(value);
+  if (!(n > 0)) return null;
+  return n >= 1e12 ? `${Number((n / 1e12).toFixed(2))}조 달러` : n >= 1e8 ? `${Math.round(n / 1e8).toLocaleString('en-US')}억 달러` : `${Math.round(n / 1e4).toLocaleString('en-US')}만 달러`;
+}
+
 /**
  * @returns {Array<{ id, kind, atMs, when, label, why, last, today, passed, status }>} the next `days` days
  */
@@ -153,7 +160,7 @@ export function sp500NameMap(rows = []) {
   return names;
 }
 
-export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], earningsMeta = {}, names = {}, nowMs = Date.now(), days = 7, maxEarnings = 8, fomcDecisions = null } = {}) {
+export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], earningsMeta = {}, names = {}, nowMs = Date.now(), days = 7, maxEarnings = 8, perDay = 0, fomcDecisions = null } = {}) {
   const rows = [];
   const today = kstParts(nowMs).date;
   if (Array.isArray(fomcDecisions)) {
@@ -202,7 +209,11 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
   // dropped 3M, Netflix, Meta and Tesla on 10/20.
   const weightOf = ({ row }) => (Number.isFinite(Number(row.indexWeight)) && Number(row.indexWeight) > 0 ? Number(row.indexWeight) : 0);
   const revenueOf = ({ row }) => Number(row.revenueEstimate) || 0;
-  const keptEarnings = [...earningRows].sort((a, b) => weightOf(b) - weightOf(a) || revenueOf(b) - revenueOf(a) || a.atMs - b.atMs).slice(0, maxEarnings);
+  const ranked = [...earningRows].sort((a, b) => weightOf(b) - weightOf(a) || revenueOf(b) - revenueOf(a) || a.atMs - b.atMs);
+  const keptEarnings = ranked.slice(0, maxEarnings);
+  // v58.75 (persona review): perDay also keeps each US date's heaviest reports (KO 10/27 hid behind next week's megacaps).
+  const byDate = {};
+  if (perDay > 0) for (const e of ranked) if ((byDate[e.row.date] = (byDate[e.row.date] || 0) + 1) <= perDay && !keptEarnings.includes(e)) keptEarnings.push(e);
   rows.omittedEarnings = Math.max(0, earningRows.length - keptEarnings.length);
   earningRows.length = 0;
   earningRows.push(...keptEarnings.sort((a, b) => a.atMs - b.atMs));
@@ -210,12 +221,15 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     const when = formatKstWhen(atMs);
     const session = row.hour === 'bmo' ? '장 전' : row.hour === 'amc' ? '장 마감 후' : '시간 미정';
     const estimateSource = row.estimateSource || earningsMeta.source || null;
-    const est = estimateSource && row.epsEstimate != null && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
+    // v58.75 (persona review): the estimate no longer waits for a provider name (that stays in the hover).
+    const est = row.epsEstimate != null && row.epsEstimate !== '' && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
     const actual = row.epsActual != null && Number.isFinite(Number(row.epsActual)) ? Number(row.epsActual) : null;
     const estimate = actual != null ? `EPS ${actual.toFixed(2)}${est != null ? ` (예상 ${est.toFixed(2)})` : ''}` : est != null ? `EPS 예상 ${est.toFixed(2)}` : null;
+    const revA = formatUsdRevenue(row.revenueActual), revE = formatUsdRevenue(row.revenueEstimate);
+    const revenue = revA ? `매출 ${revA}${revE ? ` (예상 ${revE})` : ''}` : revE ? `매출 예상 ${revE}` : null;
     // T15: the provider name moves to the hover (sourceTitle) and a missing currency or period is left out, not printed
     // as '미제공'; the fiscal period is already the row's comparisonBasis.
-    const epsContext = estimate ? [estimate, row.currency ? `주당 ${row.currency}` : null].filter(Boolean).join(', ') : null;
+    const epsContext = estimate || revenue ? [estimate, estimate && row.currency ? `주당 ${row.currency}` : null, revenue].filter(Boolean).join(', ') : null;
     // Codex browser audit H20: the calendar only says before-open / after-close; "21:00" was our placeholder hour
     // shown as if the company had announced it. Earnings rows show the US date and session, not a clock time.
     const usDate = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}`;

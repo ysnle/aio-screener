@@ -107,7 +107,12 @@ export function journalStats(closed = []) {
     .sort((a, b) => b.n - a.n);
   const byMood = Object.entries(closed.filter((row) => row.entryMood).reduce((map, row) => { (map[row.entryMood] ||= []).push(row); return map; }, {}))
     .map(([mood, rows]) => ({ mood, label: TRADE_MOODS[mood] || mood, n: rows.length, wins: rows.filter((row) => row.pnl > 0).length, avgPct: mean(rows.map((row) => row.pnlPct)) }));
+  // v58.75 (persona review, spec F6): stop adherence on the reader's own record — of the closed lots bought with a stop price,
+  // how many were sold at or above that stop (a sale below it went past the plan; a gap or slippage also counts as below).
+  const withStop = closed.filter((row) => Number.isFinite(row.stop) && row.stop > 0);
+  const stopKept = { n: withStop.length, kept: withStop.filter((row) => row.sellPrice >= row.stop).length };
   return {
+    stopKept,
     n: closed.length, wins: wins.length, losses: losses.length,
     winRate: closed.length ? wins.length / closed.length * 100 : null,
     avgWinPct: avgWin, avgLossPct: avgLoss,

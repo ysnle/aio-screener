@@ -6,6 +6,9 @@ import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '..
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../domain/screener/candidate-record.js';
 import { renderScreenLessons } from '../components/screen-lessons.js';
 import { compileScreenDefinition } from '../../domain/screener/screen-engine.js';
+import { PRESET_LESSONS, presetMarketLine } from '../../domain/screener/preset-lessons.js';
+import { readMarketRegime } from '../components/market-regime.js';
+import { setStockSubject } from '../navigation/route-hubs.js';
 import { measureFactorOverlap, overlapSentence } from '../../domain/screener/factor-overlap.js';
 
 // Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
@@ -75,13 +78,7 @@ const INDEX_CODE_LABELS = Object.freeze({
 // the top fifth by stage. Nothing is attached when the per-refresh scenario state is not current.
 function withThemeStages(root, rows) {
   if (!scenarioStateCurrent(root?._aioScenarioState)) return rows; // v57.81: the producer's 'current' (theme-stage.js)
-  const membership = new Map();
-  const add = (sym, id) => { if (!sym || !id) return; const key = String(sym).toUpperCase(); if (!membership.has(key)) membership.set(key, new Set()); membership.get(key).add(id); };
-  for (const theme of Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []) {
-    for (const sym of theme.leaders || []) add(sym, theme.id);
-    for (const sub of theme.subThemes || []) for (const sym of sub.tickers || []) add(sym, theme.id);
-  }
-  for (const group of koreanThemeGroups(root?.KR_THEME_MAP || {}, rows)) for (const sub of group.subThemes) for (const sym of sub.tickers) add(sym, group.id);
+  const membership = themeMembership(root, rows); // v58.75: shared with the 테마 단계 column
   return rows.map((row) => {
     const ids = membership.get(String(row?.sym || '').toUpperCase());
     return ids && Number.isFinite(row?.screenRank) ? { ...row, themeStages: themeStagesFor(root, { symbol: row.sym, themeIds: [...ids] }) } : row;
@@ -131,25 +128,45 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'lowvol', label: '저변동', sortable: true, align: 'right', width: 78, group: 'factor' },
   { key: 'value', label: '밸류', sortable: true, align: 'right', width: 70, group: 'factor' },
   { key: 'quality', label: '퀄리티', sortable: true, align: 'right', width: 78, group: 'factor' },
+  // v58.75 (persona review): the raw filing figures behind 밸류·퀄리티 — a fundamental reader sorts by the number itself.
+  { key: 'pe', label: 'PER', hint: '시가총액 ÷ 순이익(SEC 공시, 최근 4개 분기 합 또는 최근 회계연도) — 적자·비정상 값은 비움, 칸에 기간 표시', sortable: true, align: 'right', width: 70, group: 'fundamental' },
+  { key: 'pb', label: 'PBR', hint: '시가총액 ÷ 자기자본(SEC 공시, 최근 회계연도) — 자본잠식·비정상 값은 비움', sortable: true, align: 'right', width: 66, group: 'fundamental' },
+  { key: 'roe', label: 'ROE', hint: '순이익 ÷ 자기자본(SEC 공시, 최근 회계연도)', sortable: true, align: 'right', width: 66, group: 'fundamental' },
+  { key: 'margin', label: '순이익률', hint: '순이익 ÷ 매출(SEC 공시, 최근 회계연도)', sortable: true, align: 'right', width: 78, group: 'fundamental' },
+  { key: 'revGrowth', label: '매출 성장', hint: '최근 회계연도 매출의 전년 대비 증가율(SEC 공시)', sortable: true, align: 'right', width: 80, group: 'fundamental' },
   // v57.54: forward multiple on analyst consensus (reference only; the 밸류 factor stays on reported earnings).
   { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 아직 실적이 발표되지 않은 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
   { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
   // 개편 v2 (3c): where the last close sits between the 52-week low and high (both distances come from the artifact).
   { key: 'range52', label: '52주 위치', hint: '52주 저점(왼쪽)과 고점(오른쪽) 사이에서 마지막 종가의 위치 — 같은 산출물의 저점·고점 대비 거리로 계산', sortable: true, align: 'left', width: 120, group: 'market' },
+  // v58.75 (persona review): one week — the move a swing trader checks first (ret5d is already in the artifact).
+  { key: 'ret5d', label: '1주', hint: '최근 5거래일 수익률, 완료된 종가 기준', sortable: true, align: 'right', width: 64, group: 'market' },
   { key: 'ret1m', label: '1개월', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret3m', label: '3개월', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret6m', label: '6M', sortable: true, align: 'right', width: 70, group: 'market' },
+  // v58.75 (persona review): market-wide relative strength — the percentile of the plain return among every row of the same
+  // market loaded now (before the display filters). One fact's percentile, not a score; 모멘텀 is ranked inside the sector.
+  { key: 'rs6m', label: 'RS 백분위(6개월)', hint: '같은 시장에서 지금 불러온 종목 전체(표시 필터 적용 전, ETF·SPAC 등 순위 제외 종목 빼고) 중 6개월 수익률의 백분위 — 99는 상위 1%. 섹터 안에서 비교하는 모멘텀 점수와 달리 시장 전체와 비교한 한 가지 사실값이며 앞으로의 수익을 뜻하지 않습니다', sortable: true, align: 'right', width: 96, group: 'market' },
+  { key: 'rs12m', label: 'RS 백분위(12개월)', hint: '같은 시장에서 지금 불러온 종목 전체(표시 필터 적용 전, ETF·SPAC 등 순위 제외 종목 빼고) 중 12개월 수익률의 백분위 — 99는 상위 1%. 섹터 안에서 비교하는 모멘텀 점수와 다른 시장 전체 기준이며 앞으로의 수익을 뜻하지 않습니다', sortable: true, align: 'right', width: 100, group: 'market' },
   { key: 'rsi', label: 'RSI', sortable: true, align: 'right', width: 64, group: 'market' },
   { key: 'pctSma50', label: 'vs 50MA', sortable: true, align: 'right', width: 82, group: 'market' },
+  // v58.75 (persona review): volume, range and liquidity as plain facts — "which names traded heavily today" could not be sorted.
+  { key: 'rvol20', label: '거래량 배수', hint: '마지막 거래일 거래량 ÷ 그 직전 20거래일 평균 거래량 — 1.0이 평소 수준, 1.4는 평소보다 40% 많음, 0.7은 30% 적음', sortable: true, align: 'right', width: 84, group: 'market' },
+  { key: 'adrPct', label: '일평균 변동폭', hint: '최근 20거래일 하루 변동폭((고가 − 저가) ÷ 종가)의 평균 — 이 종목이 하루에 보통 얼마나 움직이는지', sortable: true, align: 'right', width: 92, group: 'market' },
+  { key: 'dollarVolume30d', label: '거래대금(30일)', hint: '최근 30거래일 하루 거래대금(종가 × 거래량)의 평균 — 유동성, 한국 종목은 각 거래일 환율로 달러 환산(환산값이 없으면 원화)', sortable: true, align: 'right', width: 98, group: 'market' },
   // P1507: the same 50-day distance in units of the stock's own average daily range — how late an entry would be.
   { key: 'extension', label: '50일선 거리(변동폭 배수)', sortable: true, align: 'right', width: 118, group: 'setup' },
   { key: 'kalman', label: '추세 속도', hint: '칼만 필터로 잡음을 걸러 낸 최근 추세의 하루 속도(같은 섹터 안 정규화 점수) — 확신도가 아니며, 연구 지표·매매 신호 아님', sortable: true, align: 'right', width: 102, group: 'market', researchOnly: true },
   { key: 'vcpScore', label: '수축 구조(VCP)·충족도', hint: 'VCP(변동성 수축 패턴): 조정 폭이 차례로 줄며 바닥을 다지는 가격 구조 — 충족도는 그 조건을 얼마나 채웠는지', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
+  // v58.75 (persona review): where the last close sits against the pivot — the number a breakout watch list is sorted by.
+  { key: 'pivotDist', label: '피벗 대비', hint: '마지막 확정 종가 ÷ 피벗(마지막 수축 구간의 고점) − 1 — 음수는 피벗 아래, 양수는 위. 피벗이 계산되지 않은 종목은 비움', sortable: true, align: 'right', width: 84, group: 'setup' },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
   { key: 'entry', label: '상대 상태', sortable: false, align: 'center', width: 118, group: 'setup', researchOnly: true },
   // v57.87: base number, pocket pivot, index down-day resilience, heavy down days and climax signs (technical/follow-through.js).
   { key: 'followThrough', label: '후속 확인', hint: '베이스 순번·포켓 피벗·지수 하락일 버팀·거래량 실린 하락·클라이맥스 징후 — 종가 기준 관찰, 매매 신호 아님', sortable: false, align: 'left', width: 176, group: 'setup', researchOnly: true },
+  // v58.75 (persona review): the stage of the stock's themes, the same rows the 테마 시나리오 and the stock summary read.
+  { key: 'themeStage', label: '테마 단계', hint: '이 종목이 속한 테마의 지금 단계 — 테마 시나리오·종목 요약과 같은 값. 테마 상태 자료가 최신일 때만 표시', sortable: false, align: 'left', width: 150, group: 'evidence' },
   { key: 'news', label: '최신뉴스·근거', sortable: false, align: 'left', width: 190, group: 'evidence' }
 ]);
 
@@ -164,15 +181,18 @@ const COLUMN_PRESETS = Object.freeze({
   // 개편 v2 (3c): the first screen — order, name, close, 1·3-month returns, 52-week position, percentile; 관심·비교 last.
   // v58.56 (#3): 시총 순서 first (the default order), 전체 순위 beside 백분위.
   overview: ['capOrder', 'sym', 'price', 'ret1m', 'ret3m', 'range52', 'screenRank', 'rank', 'watchlist'],
-  discovery: ['watchlist', 'rank', 'sym', 'price', 'pctFrom52wHigh', 'ret1m', 'ret3m', 'rsi', 'extension', 'vcpScore', 'followThrough'],
-  fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'fwdPe', 'price', 'pctFrom52wHigh', 'ret3m', 'news'],
-  trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'extension', 'kalman', 'vcpScore', 'followThrough', 'entry'],
-  risk: ['watchlist', 'rank', 'sym', 'lowvol', 'rsi', 'pctSma50', 'mcap', 'entry', 'news'],
-  events: ['watchlist', 'rank', 'sym', 'entry', 'vcpScore', 'followThrough', 'news'],
+  // v58.75 (persona review): the chart-trader views lead with pivot distance, the volume multiple, a one-week move and
+  // market-wide RS (RSI, 1-month and the research-only 추세 속도 move to 전체/직접 고른 컬럼); the fundamental view shows the
+  // filing figures themselves; 위험 adds the daily range and liquidity; 이벤트 adds the theme stage.
+  discovery: ['watchlist', 'rank', 'sym', 'price', 'pivotDist', 'rvol20', 'pctFrom52wHigh', 'ret5d', 'ret3m', 'rs6m', 'extension', 'vcpScore', 'followThrough'],
+  fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'pe', 'pb', 'roe', 'margin', 'revGrowth', 'fwdPe', 'price', 'pctFrom52wHigh', 'news'],
+  trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'rs6m', 'rs12m', 'ret1m', 'ret3m', 'pctSma50', 'extension', 'rvol20', 'dollarVolume30d', 'followThrough', 'entry'],
+  risk: ['watchlist', 'rank', 'sym', 'lowvol', 'adrPct', 'dollarVolume30d', 'rsi', 'pctSma50', 'mcap', 'entry', 'news'],
+  events: ['watchlist', 'rank', 'sym', 'entry', 'themeStage', 'vcpScore', 'followThrough', 'news'],
   all: SCREENER_COLUMN_REGISTRY.map((column) => column.key)
 });
 
-const PRESET_SHORT_LABELS = Object.freeze({ 'preset-balanced': '균형', 'preset-momentum': '모멘텀', 'preset-trend': '추세', 'preset-lowvol': '저변동', 'preset-quality': '퀄리티', 'preset-breakout-observation': '돌파' });
+const PRESET_SHORT_LABELS = Object.freeze({ 'preset-balanced': '균형', 'preset-momentum': '모멘텀', 'preset-trend': '추세', 'preset-lowvol': '저변동', 'preset-quality': '퀄리티', 'preset-pivot-quiet': '피벗', 'preset-breakout-volume': '돌파' });
 
 const FILTER_LABELS = Object.freeze({
   'scr-market': '지수',
@@ -423,6 +443,177 @@ export function extensionMultiple(row) {
   return pct != null && adr != null && adr > 0 ? pct / adr : null;
 }
 
+// v58.75 (persona review): the last completed close on the VCP pivot's own series. dollarVolume ÷ lastVolume is that raw
+// close (both come from the same bar in price-factors); a non-USD listing falls back to the valuation close in its own
+// currency. Only the percentage is shown — no price is republished (P715).
+function lastCloseOf(row) {
+  const currency = String(row?.instrumentRef?.currency || row?.currency || '').trim().toUpperCase();
+  const dollarVolume = finite(row?.dollarVolume);
+  const lastVolume = finite(row?.lastVolume);
+  if (currency === 'USD' && !row?.dollarVolumeFx && dollarVolume > 0 && lastVolume > 0) return dollarVolume / lastVolume;
+  const valuation = finite(row?._valuationPePrice ?? row?._valuationPbPrice ?? row?._valuationPrice ?? row?.valuationPrice);
+  return valuation > 0 ? valuation : null;
+}
+export function pivotDistancePct(row) {
+  const pivot = finite(row?.vcpPivot);
+  const close = lastCloseOf(row);
+  return pivot > 0 && close > 0 ? (close / pivot - 1) * 100 : null;
+}
+
+// v58.75 (persona review): market-wide return percentiles over every row of the same market handed to render (before the
+// display filters). Rows the ranking excludes (funds, SPACs, thin or foreign listings) are left out; a stale return
+// (not CALCULABLE) is not compared with current ones. Fewer than 20 comparable rows → no percentile.
+const RS_RETURN_FIELDS = Object.freeze({ rs6m: ['ret6m', 'price.ret6m'], rs12m: ['ret12m', 'price.ret12m'] });
+const rsPercentileCache = new WeakMap();
+let currentRsPercentiles = new Map();
+export function marketReturnPercentiles(rows) {
+  if (!Array.isArray(rows)) return new Map();
+  if (rsPercentileCache.has(rows)) return rsPercentileCache.get(rows);
+  const out = new Map();
+  for (const [key, [rowKey, fieldId]] of Object.entries(RS_RETURN_FIELDS)) {
+    const byMarket = new Map();
+    for (const row of rows) {
+      const symbol = row?.sym || row?.symbol;
+      if (!symbol || row?.populationExclusion) continue;
+      const value = row.fieldReadiness ? fieldValueForPurpose(row, fieldId, 'calculation') : finite(row[rowKey]);
+      if (finite(value) == null) continue;
+      const market = screenerMarket(row);
+      if (!byMarket.has(market)) byMarket.set(market, []);
+      byMarket.get(market).push({ symbol, value });
+    }
+    for (const list of byMarket.values()) {
+      if (list.length < 20) continue;
+      list.sort((a, b) => a.value - b.value);
+      let start = 0;
+      while (start < list.length) {
+        let end = start;
+        while (end + 1 < list.length && list[end + 1].value === list[start].value) end += 1;
+        // Equal returns share the midpoint of their positions; 0 = lowest, 100 = highest.
+        const pct = Math.round(((start + end) / 2) / (list.length - 1) * 100);
+        for (let i = start; i <= end; i++) {
+          const entry = out.get(list[i].symbol) || {};
+          entry[key] = pct;
+          entry[`${key}Count`] = list.length;
+          out.set(list[i].symbol, entry);
+        }
+        start = end + 1;
+      }
+    }
+  }
+  rsPercentileCache.set(rows, out);
+  return out;
+}
+
+// v58.75 (persona review): theme membership as withThemeStages builds it, cached per rows array and scenario state, so the
+// 테마 단계 column shows the same stages as the reading and the stock summary.
+let themeMembershipCache = { rows: null, scenario: null, map: null };
+function themeMembership(root, rows) {
+  const scenario = root?._aioScenarioState || null;
+  if (themeMembershipCache.rows === rows && themeMembershipCache.scenario === scenario && themeMembershipCache.map) return themeMembershipCache.map;
+  const membership = new Map();
+  const add = (sym, id) => { if (!sym || !id) return; const key = String(sym).toUpperCase(); if (!membership.has(key)) membership.set(key, new Set()); membership.get(key).add(id); };
+  for (const theme of Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []) {
+    for (const sym of theme.leaders || []) add(sym, theme.id);
+    for (const sub of theme.subThemes || []) for (const sym of sub.tickers || []) add(sym, theme.id);
+  }
+  for (const group of koreanThemeGroups(root?.KR_THEME_MAP || {}, Array.isArray(rows) ? rows : [])) for (const sub of group.subThemes) for (const sym of sub.tickers) add(sym, group.id);
+  themeMembershipCache = { rows, scenario, map: membership };
+  return membership;
+}
+let themeStageRoot = null;
+let themeStageRows = null;
+function rowThemeStages(row) {
+  if (!themeStageRoot || !scenarioStateCurrent(themeStageRoot._aioScenarioState)) return null;
+  const ids = themeMembership(themeStageRoot, themeStageRows).get(String(row?.sym || row?.symbol || '').toUpperCase());
+  return ids ? themeStagesFor(themeStageRoot, { symbol: row.sym || row.symbol, themeIds: [...ids] }) : [];
+}
+
+// v58.75 (teach-and-check D5): one folded block under the screen buttons — why this screen's condition is used, where it
+// tends to work and not, its common failure, the columns that show it (their header hints carry the formulas), and one
+// line on today's shared market state. The open/closed state survives re-renders.
+function renderPresetLesson(documentRef, root, presetsHost, screenId, screenName) {
+  const lesson = PRESET_LESSONS[screenId];
+  let block = documentRef.getElementById('scr-preset-lesson');
+  if (!lesson) { if (block) block.hidden = true; return; }
+  if (!block) {
+    block = documentRef.createElement('details');
+    block.id = 'scr-preset-lesson';
+    block.className = 'sx-disclosure scr-preset-lesson';
+    presetsHost.insertAdjacentElement('afterend', block);
+  }
+  block.hidden = false;
+  const open = block.open;
+  const name = screenName || '이 조건';
+  const summary = documentRef.createElement('summary');
+  summary.textContent = `${name}: 이 조건을 왜 보나 — ${lesson.principle}`;
+  const columnLabels = lesson.columns.map((key) => SCREENER_COLUMN_REGISTRY.find((column) => column.key === key)?.label).filter(Boolean);
+  const rows = [
+    ['잘 통하는 환경', lesson.works],
+    ['잘 안 통하는 환경', lesson.fails],
+    ['흔한 실패', lesson.failure],
+    ['표에서 볼 컬럼', `${columnLabels.join(' · ')} — 머리글에 마우스를 올리면 계산 기준이 나옵니다(컬럼 선택에서 켤 수 있습니다).`],
+    ['지금 시장', presetMarketLine(lesson, readMarketRegime(root))]
+  ];
+  const list = documentRef.createElement('dl');
+  list.className = 'regime-evidence';
+  rows.forEach(([label, value]) => { const dt = documentRef.createElement('dt'); dt.textContent = label; const dd = documentRef.createElement('dd'); dd.textContent = value; list.append(dt, dd); });
+  const note = documentRef.createElement('p');
+  note.className = 'theme-strength-basis';
+  note.textContent = '조건을 고르는 기준과 원리를 적은 것이며, 이 조건으로 고른 종목이 오른다는 뜻이 아닙니다.';
+  block.replaceChildren(summary, list, note);
+  block.open = open;
+}
+
+// v58.75 (teach-and-check D7): the chosen screen's own conditions against one row — each range/enum condition with the
+// row's value, and the ones whose value sits within a field-sized margin of the threshold ('아슬아슬'), so the Why panel
+// says not only that a stock passed but how close it was to dropping out (or getting in).
+const NEAR_MARGIN_BY_UNIT = Object.freeze({ percent: 2, score: 5, ratio: 0.15, multiple: 1, USD: 0, USD_bn: 1 });
+export function conditionMargins(definition, row) {
+  const out = [];
+  const walk = (node, negated = false) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'and' || node.type === 'or') { (node.children || []).forEach((child) => walk(child, negated)); return; }
+    if (node.type === 'not') { walk(node.child, !negated); return; }
+    // The market/listing scope is the table's own selection, not a screening condition worth a margin.
+    if ((node.type !== 'range' && node.type !== 'enum') || String(node.field || '').startsWith('identity.')) return;
+    const field = SCREENER_FIELD_REGISTRY.get(node.field);
+    const label = node.field === 'rank' ? '팩터 백분위' : field?.label || node.field;
+    const raw = node.field === 'rank' ? finite(row?.rank) : field ? (row?.fieldReadiness ? fieldValueForPurpose(row, node.field, 'calculation') : row?.[field.rowKey]) : null;
+    if (node.type === 'enum') {
+      const value = raw == null ? null : String(raw);
+      const shown = node.field === 'technical.vcpStage' ? (value ? vcpStageLabel(value) : null) : value;
+      const wanted = node.values.map((item) => (node.field === 'technical.vcpStage' ? vcpStageLabel(item) : item)).join('·');
+      out.push({ label, rule: `${wanted}${negated ? ' 아님' : ''}`, value: shown, pass: value == null ? null : node.values.map(String).includes(value) !== negated, near: false, distance: null });
+      return;
+    }
+    const value = finite(raw);
+    const unit = node.field === 'rank' ? 'score' : field?.unit;
+    const margin = NEAR_MARGIN_BY_UNIT[unit] ?? 0;
+    const bounds = [node.min != null ? ['min', node.min] : null, node.max != null ? ['max', node.max] : null].filter(Boolean);
+    const rule = bounds.map(([side, bound]) => `${bound}${side === 'min' ? ' 이상' : ' 이하'}`).join(', ');
+    const pass = value == null ? null : bounds.every(([side, bound]) => (side === 'min' ? value >= bound : value <= bound)) !== negated;
+    const distance = value == null || !bounds.length ? null : Math.min(...bounds.map(([, bound]) => Math.abs(value - bound)));
+    out.push({ label, rule: `${rule}${negated ? ' 아님' : ''}`, value, unit, pass, near: distance != null && margin > 0 && distance <= margin, distance });
+  };
+  walk(definition?.filtersAST);
+  return out;
+}
+function conditionMarginText(items) {
+  if (!items.length) return '이 화면은 별도 조건 없이 순위만 매깁니다.';
+  const show = (item) => (item.value == null ? '값 없음' : typeof item.value === 'number' ? (item.unit === 'percent' ? returnText(item.value) : numberText(item.value, item.unit === 'ratio' ? 2 : 1)) : item.value);
+  const line = (item) => `${item.label} ${item.rule}(현재 ${show(item)}${item.distance != null ? `, 경계까지 ${numberText(item.distance, item.unit === 'ratio' ? 2 : 1)}` : ''})`;
+  const passed = items.filter((item) => item.pass === true);
+  const failed = items.filter((item) => item.pass === false);
+  const unknown = items.filter((item) => item.pass == null);
+  const near = items.filter((item) => item.near);
+  return [
+    passed.length ? `통과한 조건: ${passed.map(line).join(', ')}.` : null,
+    failed.length ? `못 넘은 조건: ${failed.map(line).join(', ')}.` : null,
+    unknown.length ? `값이 없어 판정 못 한 조건: ${unknown.map((item) => item.label).join(', ')}.` : null,
+    near.length ? `경계에 가까운 조건(아슬아슬): ${near.map((item) => `${item.label}(경계까지 ${numberText(item.distance, item.unit === 'ratio' ? 2 : 1)})`).join(', ')} — 다음 갱신에서 결과가 바뀔 수 있습니다.` : '경계에 아슬아슬하게 걸친 조건은 없습니다.'
+  ].filter(Boolean).join(' ');
+}
+
 // 개편 v2 (3c): 0 = at the 52-week low, 1 = at the high. pctFrom52wHigh ≤ 0 and pctFrom52wLow ≥ 0 are distances from the
 // last close, so low/close = 1/(1+L) and high/close = 1/(1+H); no price is needed. Missing or inconsistent → null.
 export function range52Position(row) {
@@ -472,6 +663,10 @@ function sortKey(row, sortColumn, readLiveData) {
   if (sortColumn === 'rank') return visibleRank({ screenStatus: displayValue(row, 'screenStatus'), rank: displayValue(row, 'rank') });
   if (sortColumn === 'range52') return range52Position({ pctFrom52wHigh: displayValue(row, 'pctFrom52wHigh'), pctFrom52wLow: displayValue(row, 'pctFrom52wLow') });
   if (FACTOR_SORT_COLUMNS.has(sortColumn)) return displayValue(row, 'factorScores')?.[sortColumn];
+  // v58.75 (persona review): the computed fact columns sort by the value their cell shows.
+  if (sortColumn === 'pivotDist') return pivotDistancePct(row);
+  if (sortColumn === 'rs6m' || sortColumn === 'rs12m') return currentRsPercentiles.get(row.sym || row.symbol)?.[sortColumn];
+  if (sortColumn === 'dollarVolume30d') return displayValue(row, 'dollarVolume30d') ?? finite(row.tradedValue30d);
   return displayValue(row, sortColumn);
 }
 
@@ -673,6 +868,76 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     return node;
   }
   if (key === 'pctFrom52wHigh') return returnText(row.pctFrom52wHigh);
+  // v58.75 (persona review): trader and fundamental fact columns. Each cell says what it was computed from on hover.
+  if (key === 'ret5d') {
+    const node = text(documentRef, returnText(row.ret5d));
+    node.style.color = returnColor(row.ret5d);
+    return node;
+  }
+  if (key === 'rvol20') {
+    const value = finite(row.rvol20);
+    const node = text(documentRef, value == null ? '—' : `${value.toFixed(2)}배`);
+    node.title = value == null ? '거래량 자료 없음' : `마지막 거래일 거래량이 직전 20거래일 평균의 ${value.toFixed(2)}배${row.factorSessionDate ? ` (${row.factorSessionDate} 종가 기준)` : ''}`;
+    if (value == null) node.style.color = 'var(--text-muted)';
+    return node;
+  }
+  if (key === 'adrPct') {
+    const value = finite(row.adrPct);
+    const node = text(documentRef, value == null ? '—' : `${value.toFixed(1)}%`);
+    if (value == null) node.style.color = 'var(--text-muted)';
+    return node;
+  }
+  if (key === 'dollarVolume30d') {
+    const usd = finite(row.dollarVolume30d);
+    const native = usd == null ? finite(row.tradedValue30d) : null;
+    const nativeCurrency = String(row.tradedValueCurrency || '').toUpperCase();
+    const label = usd != null ? (usd >= 1e9 ? `$${(usd / 1e9).toFixed(1)}B` : `$${Math.round(usd / 1e6)}M`)
+      : native != null && nativeCurrency === 'KRW' ? `${Math.round(native / 1e8).toLocaleString('ko-KR')}억원` : '—';
+    const node = text(documentRef, label);
+    if (label === '—') node.style.color = 'var(--text-muted)';
+    return node;
+  }
+  if (key === 'pivotDist') {
+    const pct = pivotDistancePct(row);
+    const node = text(documentRef, pct == null ? '—' : returnText(pct));
+    node.title = pct == null ? '피벗이 계산되지 않았거나 종가 자료가 없는 종목' : `마지막 확정 종가가 피벗(마지막 수축 구간의 고점)보다 ${Math.abs(pct).toFixed(1)}% ${pct >= 0 ? '위' : '아래'}${row.vcpStage ? `, 구조: ${vcpStageLabel(row.vcpStage)}` : ''} — 관찰 위치이며 매수 지점이 아닙니다`;
+    node.style.color = pct == null ? 'var(--text-muted)' : 'var(--text-primary)';
+    return node;
+  }
+  if (key === 'rs6m' || key === 'rs12m') {
+    const entry = currentRsPercentiles.get(row.sym || row.symbol);
+    const pct = finite(entry?.[key]);
+    const node = text(documentRef, pct == null ? '—' : String(pct));
+    const months = key === 'rs6m' ? 6 : 12;
+    const ret = finite(row[key === 'rs6m' ? 'ret6m' : 'ret12m']);
+    node.title = pct == null ? `${months}개월 수익률이 없거나 순위 비교 대상이 아닌 종목` : `${months}개월 수익률 ${returnText(ret)} — 같은 시장 ${entry[`${key}Count`]}종목 중 백분위 ${pct}`;
+    if (pct == null) node.style.color = 'var(--text-muted)';
+    return node;
+  }
+  if (FILING_KEYS.has(key)) {
+    const value = finite(row[key]);
+    const multiple = key === 'pe' || key === 'pb';
+    const label = value == null ? '—' : key === 'pe' && value > PE_MEANINGFUL_MAX ? `${PE_MEANINGFUL_MAX}배 초과` : multiple ? `${numberText(value, 1)}배` : key === 'revGrowth' ? returnText(value) : numberText(value, 1, '%');
+    const node = text(documentRef, label);
+    const period = row._fundamentalPeriodEnd || null;
+    const filed = row._fundamentalFiledAt ? String(row._fundamentalFiledAt).slice(0, 10) : null;
+    const earnings = key === 'pe' && row._valuationPeEarningsThrough ? `, 이익 ${row._valuationPeEarningsBasis === 'ttm' ? '최근 4개 분기 합' : '최근 회계연도'}(${row._valuationPeEarningsThrough}까지)` : '';
+    node.title = value == null ? '공시 자료가 없거나 비정상 값이라 비움' : `${period ? `회계기간 종료 ${period}` : '회계기간 미확인'}${filed ? `, 공시 ${filed}` : ''}${earnings}`;
+    if (value == null) node.style.color = 'var(--text-muted)';
+    return node;
+  }
+  if (key === 'themeStage') {
+    const stages = rowThemeStages(row);
+    if (!stages?.length) {
+      const node = text(documentRef, '—');
+      node.style.color = 'var(--text-muted)';
+      node.title = stages == null ? '테마 상태 자료가 최신이 아니라 표시하지 않습니다' : '추적하는 테마에 들어 있지 않은 종목';
+      return node;
+    }
+    const node = text(documentRef, `${stages[0].label}, ${stages[0].stateLabel}${stages.length > 1 ? ` 외 ${stages.length - 1}` : ''}`);
+    node.title = stages.map((stage) => `${stage.label}: ${stage.stateLabel}`).join('\n');
+    return node;
+  }
   if (key === 'vcpScore') {
     const node = documentRef.createElement('span');
     // Codex browser audit H46: a green/red 0–100 number read as a validated buy score. The structure stage comes
@@ -755,6 +1020,8 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   return row[key] ?? '—';
 }
 
+const MONO_COLUMNS = new Set(['price', 'pctFrom52wHigh', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap', 'fwdPe',
+  'ret5d', 'rs6m', 'rs12m', 'rvol20', 'adrPct', 'dollarVolume30d', 'pivotDist', 'pe', 'pb', 'roe', 'margin', 'revGrowth']); // v58.75: the new fact columns
 function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold, capOrder } = {}) {
   const tr = documentRef.createElement('tr');
   const symbol = row.sym || row.symbol;
@@ -780,7 +1047,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
     td.style.textAlign = column.align;
     td.style.minWidth = `${column.width}px`;
     if (column.sticky) td.style.left = `${stickyLeft}px`;
-    if (['price', 'pctFrom52wHigh', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap', 'fwdPe'].includes(column.key)) {
+    if (MONO_COLUMNS.has(column.key)) {
       td.style.fontFamily = 'var(--font-mono)';
       td.style.fontVariantNumeric = 'tabular-nums';
     }
@@ -1703,6 +1970,9 @@ function tableRowInputs(row, { readLiveData, readWatchlist, selectedSymbols, com
     const estimates = consensusRoot?.[CONSENSUS_KEY];
     inputs.push(estimates, consensusRowFor(consensusRoot, symbol), estimates?.coverage?.covered, estimates?.coverage?.universeUs);
   }
+  // v58.75: the RS percentiles come from the whole dataset and the theme stages from the scenario state, not the row.
+  if (visibleColumns.some((column) => column.key === 'rs6m' || column.key === 'rs12m')) inputs.push(currentRsPercentiles.get(symbol));
+  if (visibleColumns.some((column) => column.key === 'themeStage')) inputs.push(themeStageRoot?._aioScenarioState, themeStageRows);
   return inputs;
 }
 function tableRowNodes(documentRef, body, rows, options) {
@@ -1913,6 +2183,10 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   if (!page) return;
   const rows = rowsOverride || state?.rows || [];
   syncScreenerControlAvailability(documentRef, { rows: currentState.rows || [], listingMarket, ranking: currentState.metadata.ranking, profiles: root?.AIO_TRADER_PROFILES || null });
+  // v58.75 (persona review): RS percentiles over the whole loaded set (before display filters) and the theme-stage inputs.
+  currentRsPercentiles = marketReturnPercentiles(rows);
+  themeStageRoot = root;
+  themeStageRows = currentState.rows || rows;
   const filtered = filterAndSortRows(rows, documentRef, { readWatchlist, readAliases, sortState, readLiveData });
   const chosenDefinition = workbenchResult?.definition || preview?.definition || state?.screenDefinition;
   const presetOrder = documentRef.getElementById('scr-order')?.querySelector('option[value="screenRank"]');
@@ -2334,6 +2608,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         // A sector comparison starts from that sector alone, not from the previous visit's search word.
         const search = pendingSector && handoff.context.q == null ? documentRef.getElementById('scr-text-search') : null;
         if (search) search.value = '';
+        // v58.75 (persona review): '이 테마 종목을 스크리너에서 보기' asks for the theme's members — with 실행 통과만 on, 3 of 33
+        // semiconductor rows showed. A search handoff opens on every matching row; the status line says how many passed.
+        const passedOnly = handoff.context.q ? documentRef.getElementById('scr-passed-only') : null;
+        if (passedOnly) passedOnly.checked = false;
       }
       // v57.50 I05: what a research document sent the reader here to check, and the way back.
       renderKnowledgeArrival({ documentRef, root, routeId: 'screener' });
@@ -2375,7 +2653,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         }
       };
       // 2026-10-14 audit #5: theme stage rows for the reading's "상위권의 테마 단계" (nothing renders until status is ok).
-      refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && mountActive) { readSignature = ''; renderRead(); } }).catch(() => {});
+      // v58.75: the table's 테마 단계 column reads the same state, so the table redraws too.
+      refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && mountActive) { readSignature = ''; renderRead(); renderNow(); } }).catch(() => {});
       // P1419: post-hoc validation of the default ranking (small daily artifacts, read once per mount).
       renderScreenerValidation({ documentRef, root });
       {
@@ -2534,6 +2813,23 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           if (statusEl) statusEl.title = `${filterLabel}, ${rankingLabel}, ${rankText}, 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`;
          const uncheckedNote = modelContrary.unchecked.length ? ` 자료가 없어 점검하지 못한 항목: ${modelContrary.unchecked.join(', ')}.` : '';
          setText('scr-why-contrary', `${contrary.length ? contrary.join(', ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 등록 조건 판단을 보류했고, 모델 점검(5거래일 낙폭, 20·50·200일선, RSI)에는 걸리지 않았습니다.' : '모델 점검(5거래일 낙폭, 20·50·200일선, RSI)과 등록된 반대 조건 모두에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다.'}${uncheckedNote}`);
+          // v58.75 (teach-and-check D7): the chosen screen's conditions with this row's values and the near-threshold ones.
+          {
+            let conditionDefinition = activeResult?.definition || activeDefinition;
+            try { conditionDefinition = activeResult?.definition || buildVisualDefinition() || activeDefinition; } catch (_) {}
+            const contraryNode = documentRef.getElementById('scr-why-contrary');
+            let conditionNode = documentRef.getElementById('scr-why-conditions');
+            if (!conditionNode && contraryNode?.parentElement) {
+              const heading = documentRef.createElement('h4');
+              heading.textContent = '조건과 경계';
+              conditionNode = documentRef.createElement('p');
+              conditionNode.id = 'scr-why-conditions';
+              const firstHeading = contraryNode.parentElement.querySelector('h4');
+              contraryNode.parentElement.insertBefore(heading, firstHeading);
+              contraryNode.parentElement.insertBefore(conditionNode, firstHeading);
+            }
+            if (conditionNode) conditionNode.textContent = `${conditionDefinition?.name ? `${conditionDefinition.name} — ` : ''}${conditionMarginText(conditionMargins(conditionDefinition, row))}`;
+          }
           const structureEvidence = row.setupProfile?.structureEvidence || {};
           const structureNote = structureEvidence.postEarningsBreakout === 'unavailable'
             ? '선택 근거 — 실적 후 돌파 확인 자료는 아직 받지 못했습니다'
@@ -2630,6 +2926,17 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          }
          const ticker = documentRef.querySelector('[data-aio-screener-action="open-ticker"]');
          if (ticker) ticker.dataset.aioScreenerArg = row.sym || row.symbol || '';
+         // v58.75 (teach-and-check D6): the next step of the top-down flow — this stock's chart, level map and plan check.
+         if (ticker && !documentRef.querySelector('[data-aio-screener-action="open-chart-levels"]')) {
+           const levelsButton = documentRef.createElement('button');
+           levelsButton.type = 'button';
+           levelsButton.className = 'sx-btn';
+           levelsButton.dataset.aioScreenerAction = 'open-chart-levels';
+           levelsButton.textContent = '차트·가격 레벨·내 계획 점검';
+           ticker.insertAdjacentElement('afterend', levelsButton);
+         }
+         const levelsLink = documentRef.querySelector('[data-aio-screener-action="open-chart-levels"]');
+         if (levelsLink) levelsLink.dataset.aioScreenerArg = row.sym || row.symbol || '';
          syncWhyCompare(row.sym || row.symbol || '');
          syncWhyWatchlist(row.sym || row.symbol || '');
          drawer.hidden = false;
@@ -3028,6 +3335,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              }
              workbenchPresets.appendChild(button);
            });
+           { const lessonId = activeScreenId || activeDefinition?.screenId || screens[0]?.definition?.screenId || null; renderPresetLesson(documentRef, root, workbenchPresets, lessonId, screens.find((screen) => screen.definition.screenId === lessonId)?.label); }
          }
          const screenSelect = documentRef.getElementById('scr-screen-select');
          if (screenSelect) {
@@ -3470,6 +3778,14 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            renderNow();
          } else if (action === 'open-ticker') {
            tickerHandler(argument || activeRow?.sym || activeRow?.symbol);
+         } else if (action === 'open-chart-levels') {
+           // v58.75 (D6): name the 종목 screen's company, open its chart and land on the level map.
+           const symbol = argument || activeRow?.sym || activeRow?.symbol;
+           if (symbol) {
+             setStockSubject({ root, documentRef, symbol });
+             root.__aioChartScrollTo = 'chart-levels';
+             root.showPage?.('technical');
+           }
          } else if (action === 'why-compare') {
            const symbol = argument || activeRow?.sym || activeRow?.symbol;
            toggleCompare(symbol);

@@ -12,6 +12,13 @@ import { buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { deriveQuotePresentation } from '../../domain/market/quote-presentation.js';
 import { formatScreenerPrice, screenerMarket } from '../../domain/screener/market-scope.js';
 import { signedText } from '../../domain/shared/number.js';
+import { pickImportantNews } from '../../domain/briefing/news-picks.js';
+import { groupNewsStories } from '../../domain/news/stories.js';
+import { selectNewsItems } from '../../state/selectors/news.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
+import { moveNewsList, moveNewsRows } from './market-timeline.js';
+import { newsImpactChain, todayChecks } from '../../domain/briefing/event-guide.js';
+import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
 
 function call(root, name, arg, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn(arg) ?? fallback) : fallback; } catch (_) { return fallback; }
@@ -268,7 +275,7 @@ function renderSchedule(doc, host, root) {
   if (!schedule.length) {
     host.append(el(doc, 'p', !macroKnown ? '발표 일정 자료를 아직 받지 못했습니다. 잠시 뒤 다시 확인합니다.'
       : earningsKnown ? `${days}일 안에 예정된 주요 발표가 없습니다.` : `${days}일 안에 예정된 주요 경제 발표가 없습니다. 실적 발표 일정은 아직 받는 중입니다.`, 'daily-empty'));
-    return;
+    return fullSchedule;
   }
   const list = el(doc, 'ul', null, 'daily-schedule');
   for (const row of schedule.slice(0, 5)) {
@@ -296,6 +303,143 @@ function renderSchedule(doc, host, root) {
   more.dataset.action = 'showPage';
   more.dataset.arg = 'briefing';
   host.append(more);
+  return fullSchedule;
+}
+
+// v58.75 (persona review): a news reader opens 오늘 for what happened overnight. One block heads the daily loop: the news
+// screen's top three event clusters (pickImportantNews over the same 24h window and grouping, so both screens agree) with
+// their publication times, then — when any exist — the same-day headlines that named a stock or theme 오늘 lists as a
+// mover (moveNewsRows), then one link to the news screen. No picked story and no matched mover, no block.
+let overnightMemo = { items: null, at: 0, picked: [] };
+function overnightPicks(root, items, nowMs) {
+  if (overnightMemo.items === items && nowMs - overnightMemo.at < 60000) return overnightMemo.picked;
+  let picked = [];
+  try {
+    const model = root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'score', nowMs });
+    picked = pickImportantNews(groupNewsStories(model?.eligibleItems || model?.items || []), 3);
+  } catch (_) { picked = []; }
+  overnightMemo = { items, at: nowMs, picked };
+  return picked;
+}
+const kstClock = (ms) => { const d = new Date(ms + 9 * 3600000); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`; };
+
+function renderOvernight(doc, loop, root, store) {
+  let host = doc.getElementById('home-overnight');
+  const nowMs = Date.now();
+  const picked = overnightPicks(root, selectNewsItems(store?.getState?.() || {}), nowMs);
+  let moves = [];
+  let xr = null;
+  try { const interpretation = marketInterpretation(root); xr = interpretation.crossroads; moves = moveNewsRows(root, store, interpretation.flow).filter((row) => row.headline); } catch (_) { moves = []; }
+  if (!picked.length && !moves.length) { if (host) host.hidden = true; return; }
+  if (!host) {
+    host = el(doc, 'section', null, 'daily-block');
+    host.id = 'home-overnight';
+    host.setAttribute('aria-labelledby', 'home-overnight-title');
+    loop.prepend(host);
+  }
+  host.hidden = false;
+  const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
+  const title = el(doc, 'h2', picked.length ? `밤사이 핵심 ${picked.length}건` : '움직인 종목의 같은 날 보도', 'briefing-h2 sx-card__title');
+  title.id = 'home-overnight-title';
+  head.append(title, el(doc, 'span', '같은 사건은 한 건으로, 한국 시간', 'sx-card__meta'));
+  const nodes = [head];
+  const untranslated = [];
+  if (picked.length) {
+    const list = el(doc, 'ul', null, 'daily-news');
+    for (const item of picked) {
+      const li = el(doc, 'li', null, 'daily-news-item');
+      const ms = Date.parse(item?.publishedAt || item?.pubDate || '');
+      li.append(el(doc, 'span', Number.isFinite(ms) ? kstClock(ms) : '', 'daily-news-symbol'));
+      const shown = call(root, 'getDisplayTitle', item, '') || item?.title || '제목 없음';
+      // The producer's translation (titleKo) stands in when the browser has none cached yet.
+      const text = fixKoreanTerms(item?.title, !/[가-힣]/.test(shown) && /[가-힣]/.test(item?.titleKo || '') ? item.titleKo : shown);
+      const related = Array.isArray(item?.storyArticles) && item.storyArticles.length > 1 ? `, 관련 기사 ${item.storyArticles.length}건` : '';
+      const link = String(item?.link || item?.url || '');
+      const node = el(doc, /^https?:\/\//.test(link) ? 'a' : 'span', `${text}${related}`, 'daily-news-link');
+      if (node.tagName === 'A') { node.href = link; node.target = '_blank'; node.rel = 'noopener noreferrer'; }
+      node.title = [item?.source, item?.title !== text ? item?.title : null].filter(Boolean).join(', ');
+      if (!/[가-힣]/.test(text) && item?.title) untranslated.push([item, node, related]);
+      // v58.75 ('고르는 법' E1): a story whose words are a live scenario's subject carries its chain in one small line.
+      const chain = newsImpactChain(`${item?.title || ''} ${text}`, xr);
+      if (chain) {
+        const box = el(doc, 'span', null, 'daily-news-body');
+        box.append(node, el(doc, 'span', chain.text, 'daily-news-chain'));
+        li.append(box);
+      } else li.append(node);
+      list.append(li);
+    }
+    nodes.push(list);
+  }
+  const moveList = moves.length ? moveNewsList(doc, root, moves, { max: 3, listClass: 'daily-news', timeClass: 'daily-news-symbol', titleClass: 'daily-news-link' }) : null;
+  if (moveList) {
+    for (const li of moveList.children) li.className = 'daily-news-item';
+    nodes.push(el(doc, 'p', '움직인 종목·테마와 같은 날 나온 보도 (원인을 확정하지는 않습니다)', 'daily-headline'), moveList);
+  }
+  const more = el(doc, 'button', '전체 뉴스와 채널 소식 → 뉴스', 'flow-next-link daily-card-more');
+  more.type = 'button';
+  more.dataset.action = 'showPage';
+  more.dataset.arg = 'market-news';
+  nodes.push(more);
+  host.replaceChildren(...nodes);
+  requestOvernightTranslation(root, untranslated);
+}
+
+// v58.75 (persona review): the news page asks the shared translator for its English headlines; 밤사이 핵심 showed the
+// same story in English when the home screen was opened first. The same request (autoTranslateNews, deferred during
+// boot) runs once per headline and the line is swapped in place when a Korean title arrives.
+const overnightAsked = new Set();
+function requestOvernightTranslation(root, rows) {
+  const pending = rows.filter(([item]) => !overnightAsked.has(item.title));
+  if (!pending.length || typeof root?.autoTranslateNews !== 'function') return;
+  for (const [item] of pending) overnightAsked.add(item.title);
+  let job;
+  try { job = root.autoTranslateNews(pending.map(([item]) => item)); } catch (_) { return; }
+  Promise.resolve(job).then(() => {
+    for (const [item, node, related] of pending) {
+      const shown = call(root, 'getDisplayTitle', item, '');
+      if (node.isConnected && /[가-힣]/.test(shown)) node.textContent = `${fixKoreanTerms(item.title, shown)}${related}`;
+    }
+  }).catch(() => {});
+}
+
+// v58.75 ('고르는 법' E4): 오늘 확인할 3가지 — the nearest flip condition (the hero tile's first row), the release or report
+// due within 36 hours, and what would confirm the lead scenario, read from the models the page already built
+// (src/domain/briefing/event-guide.js todayChecks). It sits beside 밤사이 핵심; nothing to check, no block.
+function flipCheck(regime) {
+  const row = heroFlipRows(regime, 1)[0];
+  if (!row) return null;
+  const d = row.distance;
+  if (!d) return { text: `${row.title} ${row.stateLabel}: ${row.flip}`, sub: null };
+  const lead = d.parts ? `${d.parts.subject} ${d.parts.mark} ${d.parts.verb}` : d.condition;
+  return { text: `${lead} ${row.title} → ${d.towardLabel}`, sub: [`지금 ${d.text}`, d.sessions != null ? `평소 하루 변동의 ${d.sessions}배` : null].filter(Boolean).join(', ') };
+}
+function renderTodayChecks(doc, loop, root, regime, schedule) {
+  let host = doc.getElementById('home-checks');
+  let xr = null;
+  try { xr = marketInterpretation(root).crossroads; } catch (_) { xr = null; }
+  const rows = todayChecks({ flip: flipCheck(regime), schedule, xr, nowMs: Date.now() });
+  if (!rows.length) { if (host) host.hidden = true; return; }
+  if (!host) {
+    host = el(doc, 'section', null, 'daily-block');
+    host.id = 'home-checks';
+    host.setAttribute('aria-labelledby', 'home-checks-title');
+    const overnight = doc.getElementById('home-overnight');
+    if (overnight) overnight.after(host); else loop.prepend(host);
+  }
+  host.hidden = false;
+  const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
+  const title = el(doc, 'h2', `오늘 확인할 ${rows.length}가지`, 'briefing-h2 sx-card__title');
+  title.id = 'home-checks-title';
+  head.append(title);
+  const list = el(doc, 'ol', null, 'home-checks');
+  for (const row of rows) {
+    const li = el(doc, 'li', null, 'home-check');
+    li.dataset.kind = row.kind;
+    li.append(el(doc, 'span', row.label, 'home-check-label'), el(doc, 'span', row.text, 'home-check-text'));
+    if (row.sub) li.append(el(doc, 'span', row.sub, 'home-check-sub'));
+    list.append(li);
+  }
+  host.replaceChildren(head, list);
 }
 
 function renderMyNews(doc, host, root, store, names) {
@@ -399,7 +543,12 @@ function renderHeroFlips(doc, regime) {
       const chip = el(doc, 'span', row.distance.text, 'home-flip-chip');
       chip.title = `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준, 지금 ${row.title} ${row.stateLabel}, 기준까지 ${row.distance.text}${row.distance.sessions != null ? `, 최근 20거래일 평균 하루 변동폭의 ${row.distance.sessions}배` : ''}${row.distance.needsMore ? ', 숫자로 잴 수 없는 조건이 함께 필요' : ''}`;
       li.dataset.direction = row.distance.direction;
-      li.append(badge, flipDistanceLine(doc, row), chip);
+      // v58.75 (persona review): the "how far in ordinary days" measure lived only in the hover (no way to see it on a
+      // phone); it sits under the chip in small type.
+      const dist = el(doc, 'span', null, 'home-flip-dist');
+      dist.append(chip);
+      if (row.distance.sessions != null) dist.append(el(doc, 'span', `평소 하루 변동의 ${row.distance.sessions}배`, 'home-flip-sessions'));
+      li.append(badge, flipDistanceLine(doc, row), dist);
     } else {
       const [mark, tone, words] = FLIP_MARK[row.state];
       const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
@@ -468,8 +617,10 @@ export function renderDailyLoop({ documentRef: doc, root, store, regime = null }
   renderHeroFlips(doc, regime || readMarketRegime(root));
   foldHomeDepth(doc);
   const names = parts.names ? renderMyNames(doc, parts.names, root, store, regime) : null;
-  if (parts.schedule) renderSchedule(doc, parts.schedule, root);
+  const schedule = parts.schedule ? renderSchedule(doc, parts.schedule, root) : [];
   if (parts.news) renderMyNews(doc, parts.news, root, store, names?.names || []);
+  renderOvernight(doc, host, root, store); // v58.75 (persona review)
+  renderTodayChecks(doc, host, root, regime || readMarketRegime(root), schedule); // v58.75 ('고르는 법' E4)
   host.dataset.aioDailyLoopRenderer = 'native';
   return { changes, names };
 }

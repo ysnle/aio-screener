@@ -1,7 +1,9 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { GUIDE_SCREEN_TEXT } from '../../domain/content/guide-screens.js';
 import { ROUTE_HUBS } from '../navigation/route-hubs.js';
+import { SCREEN_SHORTCUTS } from '../navigation/screen-shortcuts.js';
 import { RULES } from '../../domain/rules/thresholds.js';
+import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
 import { CAPABILITY_MANIFEST_VERSION, auditCapabilityClaims } from '../../domain/content/capability-manifest.js';
 
 function closestAction(element, selector) {
@@ -83,6 +85,8 @@ function searchGuide(documentRef, guidePage, result, keyword, onJump) {
 function renderScreenCards(documentRef) {
   const host = documentRef?.getElementById('guide-screen-cards');
   if (!host) return;
+  // v58.75 (persona review): each card names its number key, and one line under the grid opens the full key list.
+  const keyOf = new Map(SCREEN_SHORTCUTS.map((entry) => [entry.label, entry.key]));
   host.replaceChildren(...ROUTE_HUBS.map((hub) => {
     const text = GUIDE_SCREEN_TEXT[hub.id] || {};
     const card = documentRef.createElement('article');
@@ -91,6 +95,7 @@ function renderScreenCards(documentRef) {
     const title = documentRef.createElement('h3');
     title.className = 'guide-screen-title';
     title.textContent = hub.label;
+    if (keyOf.has(hub.label)) { const key = documentRef.createElement('span'); key.className = 'briefing-h2-note'; key.textContent = ` 단축키 ${keyOf.get(hub.label)}`; title.append(key); }
     const question = documentRef.createElement('p');
     question.className = 'guide-screen-question';
     question.textContent = text.question || '';
@@ -108,6 +113,19 @@ function renderScreenCards(documentRef) {
     card.append(title, question, tabs);
     return card;
   }));
+  let keys = documentRef.getElementById('guide-shortcut-line');
+  if (!keys) {
+    keys = documentRef.createElement('p');
+    keys.id = 'guide-shortcut-line';
+    keys.className = 'theme-strength-basis';
+    host.after(keys);
+  }
+  const open = documentRef.createElement('button');
+  open.type = 'button';
+  open.className = 'aio-btn-table';
+  open.dataset.action = 'openKbdHelp';
+  open.textContent = '단축키 전체 보기 (?)';
+  keys.replaceChildren(documentRef.createTextNode('키보드: 숫자 1~8은 위 순서대로 화면 이동, R은 데이터 새로고침, Ctrl+K는 검색, ?는 단축키 목록입니다. '), open);
 }
 
 // P1428 + owner 2026-10-04: the guide's judgement section is the rule table itself, generated from the
@@ -121,7 +139,7 @@ export function guideRuleRows(R = RULES) {
   return guideRuleRowsRaw(R).map(([area, metric, favorable, burden, basis]) => [area, metric, favorable, burden === '—' ? burden : anyOf(burden), basis]);
 }
 
-function guideRuleRowsRaw(R) {
+function guideRuleRowsRaw(R, levelBufferPp = MACRO_SIGNAL_RULES.inflationLevelBufferPp) {
   return [
     ['시장 상태', '추세 (S&P 500)', `오르는 ${R.trend.maShort}일선보다 ${R.trend.bufferPct}% 이상 위, ${R.trend.maShort}일선 > ${R.trend.maLong}일선 (한 번 양호면 ${R.trend.maShort}일선 아래로 마감하기 전까지 유지, 그 밖의 ±${R.trend.bufferPct}% 안은 중립)`, `${R.trend.maLong}일선보다 ${R.trend.bufferPct}% 넘게 아래, 하락하는 ${R.trend.maShort}일선보다 ${R.trend.bufferPct}% 넘게 아래, 주도 영역 이탈(나스닥 100이 5거래일 -${R.trend.leaderDrop5dPct}% 이상 또는 ${R.trend.maShort}일선 아래 + 신저가 우위·분배일 등 확인 신호)`, '이동평균 추세'], // v58.74 (audit): 10/23 read 부담 by the leadership rule the table left out
     ['시장 상태', `시장 폭 (${R.trend.maShort}·${R.trend.maLong}일선 위 종목 비율)`, `둘 다 ${R.breadth.broadAtLeast}% 이상`, `하나라도 ${R.breadth.weakBelow}% 미만`, '참여 폭'],
@@ -131,7 +149,9 @@ function guideRuleRowsRaw(R) {
     ['시장 상태', '유가, 달러 (20일)', `WTI ${R.oil.fall20dPct}% 이하, 달러 하락`, `WTI +${R.oil.rise20dPct}%, 1년 범위 ${R.oil.rangeHighAt * 100}%, 달러 +${R.dollar.rise20dPct + R.dollar.bufferPct}%(1년 범위 ${R.dollar.rangeHighAt * 100}% 위면 +${R.dollar.rise20dPct}%)`, '물가·금융 여건'],
     ['한국 참고', '원/달러, 엔/달러 (20일)', `원/달러 -${R.fx.krwMove20dPct}% 이하`, `원/달러 +${R.fx.krwMove20dPct}%, 엔 ${R.fx.yenRally20dPct}% 이상 강세`, '2024년 8월 엔 캐리 청산'],
     ['거시, 성장', 'Sahm 지표, 일자리 3개월 평균', `Sahm ${R.growth.sahmWatchAt}%p 미만, ${R.growth.payrollSolidK / 10}만 명 이상`, `Sahm ${R.growth.sahmRecessionAt}%p 이상, 3개월 평균 감소`, 'Sahm (2019)'],
-    ['거시, 물가', '근원 PCE (전년 대비, 3개월 속도)', `${R.inflation.nearTargetPct}% 이하, 속도 둔화`, `${R.inflation.missPct}% 이상, 속도 +${R.inflation.reaccelPp}%p 재가속`, `FOMC 목표 ${R.inflation.targetPct}%`],
+    // v58.75 (persona review): the row said "3% 이상 부담"; the axis (macro-read inflationAxis) needs 3% + the level buffer, or a
+    // re-acceleration that core PCE and core CPI agree on from 2.5% — derived from the same constants.
+    ['거시, 물가', '근원 PCE (전년 대비), 근원 PCE·CPI 3개월 속도', `${R.inflation.nearTargetPct}% 이하, 3개월 속도가 1년치 이하, 근원 PCE·CPI 어느 쪽도 재가속 아님`, `${(R.inflation.missPct + levelBufferPp).toFixed(1)}% 이상(${R.inflation.missPct}% 선 + ${levelBufferPp}%p), ${R.inflation.nearTargetPct}% 이상에서 근원 PCE·CPI가 함께 재가속(3개월 속도가 1년치보다 ${R.inflation.reaccelPp}%p 이상 빠름, 한쪽만이면 엇갈림)`, `FOMC 목표 ${R.inflation.targetPct}%`],
     ['거시, 정책', '2년물 − 기준금리, 실질 기준금리', `-${R.policy.pricedMovePp}%p 이하`, `+${R.policy.pricedMovePp}%p 이상, 실질 ${R.policy.restrictiveRealPct}% 이상`, 'FOMC 장기 금리 전망'],
     ['투자 심리', 'CNN 공포·탐욕 (참고 지표)', '판정에 넣지 않음', '판정에 넣지 않음', `참고 구간: 극단 공포 <${R.fearGreed.extremeFearBelow}, 공포 <${R.fearGreed.fearBelow}, 탐욕 >${R.fearGreed.greedAbove}, 극단 탐욕 >${R.fearGreed.extremeGreedAbove}`]
   ];

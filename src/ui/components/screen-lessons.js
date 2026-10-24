@@ -26,6 +26,18 @@ function rankEvidenceForRoot(root) {
   try { return root?._aioCandidateArchive?.entries ? summarizeCandidateArchive(root._aioCandidateArchive).independent || null : null; } catch (_) { return null; }
 }
 
+// v58.75 (persona review): the same lesson text closed three market screens ("하루 반등·하루 급락" on 시장 상태, 시장 폭 and
+// 투자 심리). On the market screens each lesson now closes only the screen whose subject it is: the flow lesson where the flow
+// is (시장 상태), participation on 시장 폭, fear and chasing on 투자 심리, the curve and rate cuts on 금리·환율, releases and
+// scenario conditions on 거시. Other screens keep the registry list (domain/guide/lessons.js SCREEN_LESSON_IDS) as is.
+const SCREEN_TOPIC_LESSONS = Object.freeze({
+  signal: new Set(['one-day-move', 'trust-credit', 'earnings-revisions']),
+  breadth: new Set(['watch-participation', 'index-high', 'trust-closes']),
+  sentiment: new Set(['fear-is-not-a-signal', 'no-chasing']),
+  fxbond: new Set(['read-the-curve', 'rate-cut-good']),
+  macro: new Set(['level-vs-expectation', 'confirm-after-release', 'conditions-not-forecasts', 'count-not-probability', 'past-repeats', 'trust-base-rate'])
+});
+
 // v58.56 (re-audit #16): 거시 · 시장 상태 · 시장 폭 · 투자 심리 run 2,000-6,000px; their closing lessons fold.
 const FOLDED_ROUTES = new Set(['macro', 'signal', 'breadth', 'sentiment']);
 
@@ -36,7 +48,8 @@ export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = nul
   if (!ctx && root && !root[CONSENSUS_KEY] && SCREEN_LESSON_IDS[routeId].includes('earnings-revisions')) {
     requestConsensusEstimates(root, () => renderScreenLessons({ documentRef: doc, root, routeId }));
   }
-  const lessons = selectScreenLessons(routeId, ctx || lessonContext(root), { limit: 3 });
+  const topic = SCREEN_TOPIC_LESSONS[routeId];
+  const lessons = selectScreenLessons(routeId, ctx || lessonContext(root), { limit: 99 }).filter((lesson) => !topic || topic.has(lesson.id)).slice(0, 3);
   if (!lessons.length) return null;
   const id = `screen-lessons-${routeId}`;
   let box = page.querySelector(`[data-aio-screen-lessons="${routeId}"]`);
@@ -48,6 +61,7 @@ export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = nul
   // Before "이어서 볼 곳" and the source notes, so the screen still ends on where to go next.
   const before = [...page.children].find((node) => node !== box && (node.classList?.contains('flow-next') || node.classList?.contains('page-sources')));
   if (before) { if (box.nextElementSibling !== before) page.insertBefore(box, before); } else if (box.parentElement !== page) page.appendChild(box);
+  box.hidden = routeId === 'portfolio' && page.dataset.pfEmpty === 'true'; // v58.75: principles follow the first holding
   const title = el(doc, 'h2', '이 화면을 볼 때 — 속지 말 것과 원칙', 'xr-h3');
   title.id = `${id}-title`;
   const list = el(doc, 'ul', null, 'mg-lessons');

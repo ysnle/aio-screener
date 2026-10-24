@@ -383,6 +383,17 @@ export function createNewsTopicCap() {
   };
 }
 
+// v58.75 (persona review): the published topic is the feed's query topic, so "Hedge Funds Lift Bearish Euro Bets ..., CFTC
+// Data Shows" (positioning feed) read 신용 and "Dollar Tree, Dollar General Stocks Slide" (market-movers feed) read 거시.
+// Only these clear cases are corrected on the published row; selection, floors and scores still use the feed topic.
+export function newsDisplayTopic(title, topic) {
+  const text = String(title || '');
+  if (/\bDollar (?:Tree|General)\b/.test(text) && ['macro', 'fxbond'].includes(topic)) return 'equity';
+  if (topic === 'credit' && /\b(?:euro|yen|dollar|yuan|sterling|pound|currenc(?:y|ies)|forex|FX)\b/i.test(text)
+    && /\b(?:bets?|positions?|positioning|CFTC|speculators?|shorts?)\b/i.test(text) && !/credit|bonds?|spreads?|debt|default|loans?/i.test(text)) return 'fxbond';
+  return topic;
+}
+
 // P1373 floors by feed topic; owner 2026-10-18 adds the two narrative feeds by feed name (their topics reuse the news
 // screen's labels, semi/credit, so the floor cannot key on topic alone).
 export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2]]);
@@ -556,7 +567,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
     out.push({
       title: cleanTitle(it), link: it.link, source: it.source,
       guid: it.guid, sourceArticleId: it.sourceArticleId, fetchedAt: it.fetchedAt, evidenceKind: it.evidenceKind,
-      pubDate: it.pubDate, topic: it.topic, country: it.country,
+      pubDate: it.pubDate, topic: newsDisplayTopic(cleanTitle(it), it.topic), country: it.country,
       tier: it.tier, score: it.score, selectionReason: it.selectionReason,
       feedSource: it.feedSource,
       ...(it.verification ? { verification: it.verification } : {}),
@@ -666,7 +677,7 @@ export function selectNewsIntraday(candidates, { cycleEndMs, nowMs = Date.now(),
     topicCap.add(title);
     picked.push({
       title, link: it.link, source: it.source, publishedAt: new Date(it.ts).toISOString(),
-      topic: it.topic, market: it.country, tier: it.tier, sourceTierLabel: serverNewsSourceTierLabel(it.tier),
+      topic: newsDisplayTopic(title, it.topic), market: it.country, tier: it.tier, sourceTierLabel: serverNewsSourceTierLabel(it.tier),
       score: it.score, selectionReason: it.selectionReason, contentDepth: 'headline-only', provisional: true,
       ...(it.verification ? { verification: it.verification } : {}),
     });

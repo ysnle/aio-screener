@@ -301,23 +301,37 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   // the collection, a spine opens a card with the excerpt, and the card opens the document or asks AI.
   const shelf = el(doc, 'details', 'rl-shelf');
   const prefs = createStorageGateway({ prefix: 'aio' });
-  const shelfPref = prefs.get('research_shelf');
   // X17 (2026-10-13): browsing and reading are different moments. With no document chosen the shelf is the
   // way in (remembered open/closed); once a document is open the text comes first and the shelf folds to its
   // one-line summary — on a phone it otherwise pushed the chosen document several screens down.
   // P1681: the graph view (mode=graph&node=…) is browsing, not reading — it keeps the shelf.
   // 2026-10-14 audit: on a phone the shelf starts folded unless the reader opened it before. A bare mode=frames is not
   // a chosen document (mount rewrites a fresh #principles to it), so the shelf stays the way in there.
-  const documentOpen = researchDocumentOpen(root);
-  let narrowView = false;
-  try { narrowView = Boolean(root?.matchMedia?.('(max-width: 720px)')?.matches); } catch (_) { narrowView = false; }
-  shelf.open = documentOpen ? false : shelfPref ? shelfPref === 'open' : !narrowView;
-  shelf.addEventListener('toggle', () => { if (!documentOpen) prefs.set('research_shelf', shelf.open ? 'open' : 'closed'); });
+  // v58.75 (persona review): the open shelf sat above the 원칙 · 대가 · 아틀라스 text on desktop by default, so each screen
+  // opened on the whole library. The shelf now starts folded everywhere (one line), and three documents of this screen
+  // sit above it — the open document's own topic group when one is open, else the first of this screen's collection.
+  shelf.open = false;
   const shelfTitle = el(doc, 'summary', null, '서가, 컬렉션 불러오는 중');
   const shelfBody = el(doc, 'div', 'rl-shelf-body');
   shelf.append(shelfTitle, shelfBody);
-  loadIndex(root).then((index) => renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries: index?.entries || [], currentPage: route, onLocal }));
-  shell.append(head, shelf, grid);
+  const related = el(doc, 'div', 'rl-picks rl-related');
+  related.hidden = true;
+  loadIndex(root).then((index) => {
+    const entries = index?.entries || [];
+    renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, currentPage: route, onLocal });
+    const items = relatedEntries(entries, route, root?.location?.search);
+    if (!items.length) return;
+    const row = el(doc, 'div', 'rl-picks-row');
+    row.append(el(doc, 'span', 'rl-picks-label', '이 화면 관련 글'), ...items.map((entry) => {
+      const go = el(doc, 'button', 'rl-picks-item', entry.title);
+      go.type = 'button';
+      go.addEventListener('click', () => openResearchRoute(root, entry.route, { currentPage: route, onLocal }));
+      return go;
+    }));
+    related.replaceChildren(row);
+    related.hidden = false;
+  });
+  shell.append(head, related, shelf, grid);
   attachSelectionAsk(doc, root, main, route);
   revealActiveNav(nav); // runs after this task, once the view has filled the TOC
   return { shell, nav, main, aside, input };
@@ -462,6 +476,14 @@ function legacyViewed(root) {
   try { return createAppKnowledgeLearningState(root).snapshot().progress || {}; } catch (_) { return {}; }
 }
 // The document the page has open, from the same URL params the search index routes to.
+// Three documents of this screen: the open document's topic group (itself excluded), else the screen's first entries.
+export function relatedEntries(entries, page, search, limit = 3) {
+  const docs = (entries || []).filter((entry) => entry?.route?.page === page && entry.title);
+  const open = openEntry(docs, page, search);
+  const pool = open ? docs.filter((entry) => entry.id !== open.id && entry.surface === open.surface && entry.group === open.group) : [];
+  return (pool.length ? pool : docs.filter((entry) => entry.id !== open?.id)).slice(0, limit);
+}
+
 function openEntry(entries, page, search) {
   const params = new URLSearchParams(search || '');
   return entries

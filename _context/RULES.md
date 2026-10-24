@@ -19,6 +19,12 @@ target_version: v57.79
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
 
+## R724. 앱은 종목·가격·비중·시점을 고르지 않고, 고르는 법을 가르친다 (v58.75, P2037)
+
+**Rule**: 화면과 AI는 매수가·손절가·목표가·비중·시점·종목을 제안하지 않는다. 대신 레벨 지도(지지·저항 후보, 거래 집중 가격대, 이동평균, 변동폭 거리), 전문가가 테마·종목·손절·목표를 고르는 방법과 장단점, 기준별 충족 개수와 값(가능성·등급 아님), 데이터로 확인되는 원인 사슬, 사용자가 입력한 자기 계획의 사실 점검을 준다. 앱이 계산한 목표가(1R/2R/3R 자동 생성 등)와 자본 대비 비중 계산은 두지 않는다.
+
+**Validation**: node scripts/ci-ai-intelligence-contract-check.mjs; node scripts/ci-fiscal-quality-fixture.mjs; node scripts/ci-scenario-guidance-fixture.mjs
+
 ## R723. 화면 숫자·조사·단위는 공용 헬퍼로 만들고, 렌더된 문구 린트가 지킨다 (v58.74, P2025)
 
 **Rule**: 화면에 나가는 부호 있는 숫자는 signedText(반올림 뒤 부호, ASCII 마이너스, 0은 부호 없음), 사람 수는 peopleText, 조사는 korean-particle.js 헬퍼로 만든다. '(으)로'·'이(가)' 같은 자리표시자와 숫자 앞 U+2212를 화면 문장에 남기지 않는다. 장문 지식·연구 본문과 연산자 표기('2년물 − 기준금리')는 예외다. 새 화면 문구는 렌더된 문구 린트를 통과해야 한다.
@@ -2708,6 +2714,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ## R132. AI 채팅 사용자 투자 프로필 메모리 의무 (v49.70 추가, P371 근본)
 ## R131. AI 채팅 거시 시나리오 동적 시뮬레이션 + 약어/별명 fuzzy 매칭 의무 (v49.69 추가, P368~P369 근본)
 **Rule**: Korean names and nicknames resolve only through an exact alias registry; there is no similarity matching (P1339). (v57.79 rewrite)
+P1339 scope (v58.75): "no ticker guessing" means typed text is never turned into another issuer. A company the reader selected on 종목·재무·차트 is observed screen state, so a question without its own company may use it, labelled "보고 있는 X 기준" (`src/ai/entity/chat-tickers.js` screenTicker).
 ## R130. AI 채팅 자동 페이지 이동 + 포트폴리오 동적 시뮬레이션 의무 (v49.69 추가, P366~P367 근본)
 ## R129. AI 채팅 후속 질문 자동 제안 의무 (v49.69 추가, P365 근본)
 ## R128. AI 채팅 시각 단서 표준 + 데이터 소스 우선순위 + 출처 타임스탬프 (v49.68 추가, P361~P363 근본)

@@ -644,7 +644,7 @@ export function buildMarketRead(input = {}) {
   if (fg != null && fg < fearBelow && hyBp != null && c.hy20Stress) {
     add('fear-with-credit-widening', 80, `공포·탐욕 ${fmt(fg, 0)}(${fearGreedBand(fg).label})와 함께 하이일드 스프레드가 20거래일 ${signed(c.hy20, 0, 'bp')} 넓어졌습니다(${fmt(hyBp, 0)}bp${c.hy20Record?.pct != null ? `, ${hyRecordText(c.hy20Record)}` : ''}).`, 'risk', {
       reading: hyBp < RULES.credit.tightBelowBp ? '수준은 아직 낮지만 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중인지 확인할 단계입니다.' : '수준도 경계선을 넘었고 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중입니다.',
-      check: `하이일드 스프레드의 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄어드는지(현재 ${signed(c.hy20, 0, 'bp')}), 수준이 양호 기준선 ${RULES.credit.tightBelowBp}bp를 넘는지(현재 ${fmt(hyBp, 0)}bp)`
+      check: `하이일드 스프레드의 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄어드는지(현재 ${signed(c.hy20, 0, 'bp')}), ${hyBp < RULES.credit.tightBelowBp ? `수준이 ${RULES.credit.tightBelowBp}bp 위로 올라서는지(현재 ${fmt(hyBp, 0)}bp, 올라서면 양호 조건 상실)` : `수준이 ${RULES.credit.tightBelowBp}bp 아래로 내려오는지(현재 ${fmt(hyBp, 0)}bp, 내려와야 양호 조건 충족)`}` // v58.75 (persona review): "350bp를 넘는지" had no direction
     });
   } else if (fg != null && fg < fearBelow && hyBp != null && hyBp < RULES.credit.tightBelowBp && vix && vix.value < RULES.volatility.calmBelow) {
     const widening = hyWeek != null && hyWeek >= RULES.credit.widen5dBp / 2;
@@ -653,7 +653,7 @@ export function buildMarketRead(input = {}) {
       reading: widening || widening20
         ? `아직 ${RULES.credit.tightBelowBp}bp 아래지만 ${widening ? `5일 ${signed(hyWeek, 0, 'bp')}` : `20거래일 ${signed(c.hy20, 0, 'bp')}`} 확대됐습니다 — 공포가 신용으로 번지지 않았다고 말하려면 확대가 멈추는지 확인이 필요합니다.`
         : creditState({ hyBp, hy5: hyWeek, hy20: c.hy20, pcr: c.pcr, hy20Stress: c.hy20Stress }) === 'favorable' ? '공포가 아직 신용 시장으로 번지지 않았습니다.' : `아직 ${RULES.credit.tightBelowBp}bp 아래지만 5일 변화가 줄지 않아 신용 판정이 양호는 아닙니다 — 번지는지 확인할 단계입니다.`, /* v57.84: 'not spread' only when the shared credit verdict is 양호 */
-      check: `하이일드 스프레드가 ${RULES.credit.tightBelowBp}bp(신용 지표가 양호에서 벗어나는 선)를 넘는지(현재 ${fmt(hyBp, 0)}bp), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
+      check: `하이일드 스프레드가 ${RULES.credit.tightBelowBp}bp 위로 올라서는지(현재 ${fmt(hyBp, 0)}bp, 올라서면 양호 조건 상실), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
     });
   } else if (fg != null && fg > RULES.fearGreed.extremeGreedAbove && vix && vix.value < RULES.volatility.complacentBelow) {
     add('complacency', 60, `공포·탐욕 ${fmt(fg, 0)}(${fearGreedBand(fg).label})·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });
@@ -865,7 +865,7 @@ function leadershipSessionOf(s = {}, basis = null) {
   const confirmations = [
     { id: 'newLows', label: '52주 신저가가 신고가보다 많음', ok: highs && lows ? lows.value > highs.value : null, value: highs && lows ? `신저가 ${fmt(lows.value, 0)}, 신고가 ${fmt(highs.value, 0)}` : null },
     { id: 'advance', label: `마감일 상승 종목 ${fmt(rule.advanceRatioWeakBelow * 100, 0)}% 미만`, ok: advRatio == null ? null : advRatio < rule.advanceRatioWeakBelow, value: advRatio == null ? null : `상승 종목 ${fmt(advRatio * 100, 0)}%`, ratio: advRatio },
-    { id: 'distribution', label: `S&P 500 분배일 ${rule.distributionDaysAt}회 이상`, ok: dist ? dist.value >= rule.distributionDaysAt : null, value: dist ? `S&P 500 분배일 ${fmt(dist.value, 0)}회` : null },
+    { id: 'distribution', label: `S&P 500 분배일 ${rule.distributionDaysAt}회 이상`, ok: dist ? dist.value >= rule.distributionDaysAt : null, value: dist ? `S&P 500 분배일 ${fmt(dist.value, 0)}회` : null, count: dist ? dist.value : null },
     { id: 'smallcaps', label: '러셀 2000이 200일선 아래', ok: rut?.ma200 != null ? rut.value < rut.ma200 : null, value: rut?.ma200 != null ? `러셀 2000 200일선 대비 ${signed(pct(rut.value, rut.ma200))}` : null }
   ];
   return { date: ndx.date, ndx, drop5, belowMa50, offHigh, proxyWeak, confirmations };
@@ -909,6 +909,19 @@ function windowedConfirmations(seq, k, window) {
       const mean = ratios.length >= window - 1 ? ratios.reduce((sum, value) => sum + value, 0) / ratios.length : null;
       return { ...item, label: `상승 종목 비율 ${window}거래일 평균 ${fmt(rule.advanceRatioWeakBelow * 100, 0)}% 미만`, ok: mean == null ? null : mean < rule.advanceRatioWeakBelow,
         value: mean == null ? null : `상승 종목 ${window}거래일 평균 ${fmt(mean * 100, 1)}%`, ratio: mean };
+    }
+    // v58.75 (persona review): "분배일 6회(10/19 기록)" beside the breadth board's 5 read as two current counts. The held
+    // distribution confirmation states today's count first and the window's peak with its date (same any-session rule).
+    if (item.id === 'distribution' && window > 1) {
+      let peak = null;
+      for (let j = Math.max(0, k - window + 1); j <= k; j += 1) {
+        const seen = seq[j].confirmations[index];
+        if (seen?.count != null && (!peak || seen.count >= peak.count)) peak = { count: seen.count, date: seq[j].date };
+      }
+      if (!peak || peak.count < rule.distributionDaysAt) return item;
+      if (peak.date === seq[k].date || peak.count === item.count) return { ...item, ok: true };
+      return { ...item, ok: true, peakDate: peak.date, peak: peak.count,
+        value: `S&P 500 분배일 현재 ${item.count == null ? '미확인' : `${fmt(item.count, 0)}회`}, 최근 ${window}거래일 중 최대 ${fmt(peak.count, 0)}회(${shortDate(peak.date)})` };
     }
     for (let j = k; j >= Math.max(0, k - window + 1); j -= 1) {
       const seen = seq[j].confirmations[index];
@@ -1104,7 +1117,7 @@ export function buildMarketRegime(input = {}) {
       ['반도체 (SMH)', indexPositionText(s.smh, s.smh ? `5거래일 ${signed(pct(s.smh.value, s.smh.d5))}` : ''), alignments.smh],
       ['나스닥 종합 20일', nd20 == null ? null : signed(nd20), alignments.nasdaq],
       // P1416: O'Neil distribution days — evidence only; the trend rule is unchanged.
-      ['분배일 (최근 25거래일)', s.distributionDays ? `${fmt(s.distributionDays.value, 0)}일` : null, alignments.distributionDays]
+      ['분배일 (최근 25거래일)', s.distributionDays ? `${fmt(s.distributionDays.value, 0)}회` : null, alignments.distributionDays]
     ];
     axes.push(axis('trend', '추세', state, rows.map(([label, value]) => [label, value]), read, flip, alignments.spx, rows.map((row) => row[2])));
     axes[axes.length - 1].testing = state === 'neutral' && testing;

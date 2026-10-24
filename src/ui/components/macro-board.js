@@ -7,7 +7,8 @@
 //   금리 · 환율 (route fxbond) — Treasury curve, real yield / breakeven / HY spread, and the dollar,
 //                              won, yen and 10Y on the completed-close basis with six-month charts.
 // Observations only: the fixed-threshold storyline, risk pill and four-axis bull/bear count are retired.
-import { alignInput, alignmentLabel, buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
+import { alignInput, alignmentLabel, buildCloseSeries, closeBasis, closeSessionMarket, sessionPointBack as closePointBack } from '../../domain/briefing/market-read.js';
+import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { macroNextSteps, ratesNextSteps, seriesOf } from '../../domain/macro/macro-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { readMarketRegime } from './market-regime.js';
@@ -229,6 +230,16 @@ const MACRO_REFS = Object.freeze({
   credit: ['Gilchrist·Zakrajšek 2012', 'ICE BofA 하이일드 OAS (FRED)']
 });
 const MACRO_OPEN_FIRST = ['inflation', 'policy', 'rates', 'growth', 'credit', 'commodities'];
+// v58.75 (persona review, spec F2): how each factor's numbers lead or lag the cycle, and why the gap to expectations and a
+// turn in direction move prices more than the level. One line per card, read before the numbers.
+const AXIS_TIMING = Object.freeze({
+  growth: '선행·후행 섞임 — 실업수당 청구는 먼저 움직이고, 일자리·소매판매는 경기와 같이, 실업률은 꺾인 뒤 늦게 오릅니다. 발표 날 가격은 수준보다 예상과의 차이에 반응합니다.',
+  inflation: '후행 — 물가는 경기보다 늦게 움직입니다. 예상된 숫자는 이미 가격에 들어가 있어, 예상과의 차이와 3개월 속도의 방향 전환이 금리를 움직입니다.',
+  policy: '기준금리는 후행, 2년물 금리는 선행 — 연준은 자료를 보고 움직이고, 2년물은 그 결정을 미리 가격에 넣습니다. 결정 자체보다 예상과 달랐는지가 중요합니다.',
+  rates: '선행 — 10년물은 성장·물가 기대를 매일 가격에 넣습니다. 수준보다 빠른 방향 전환이 주식의 할인율을 바꿉니다.',
+  commodities: '동행, 물가에는 선행 — 유가는 지금 수요와 공급을 보여 주고, 몇 달 뒤 헤드라인 물가로 이어집니다. 꾸준한 수준보다 급한 변화가 부담입니다.',
+  credit: '선행에 가까움 — 신용 시장은 주식보다 먼저 위험을 가격에 넣는 경향이 있습니다. 스프레드 수준보다 빠르게 넓어지는지가 신호입니다.'
+});
 const CHIP = Object.freeze({ favorable: 'good', burden: 'warn', neutral: 'neutral', unknown: 'neutral' });
 
 function axisCard(doc, row, root = null, open = false) {
@@ -250,6 +261,7 @@ function axisCard(doc, row, root = null, open = false) {
   body.append(cardOf('원리', deep?.blocks?.[0] ? el(doc, 'p', deep.blocks[0][1], 'sx-disclosure__text') : null), now,
     cardOf('주식에 주는 영향', row.link ? el(doc, 'p', row.link, 'sx-disclosure__text macro-axis-link') : el(doc, 'p', '—', 'sx-disclosure__text')));
   const facts = el(doc, 'div', null, 'mk-maxis__facts');
+  if (AXIS_TIMING[row.id]) facts.append(el(doc, 'p', `읽는 법: ${AXIS_TIMING[row.id]}`, 'regime-flip macro-axis-timing'));
   // P1427: the threshold gauge spans the full row width under the three cards (in a card column it shrank past legibility).
   const bar = gaugeBar(doc, row.gauge);
   if (bar) {
@@ -683,6 +695,29 @@ function renderCommodities(doc, root, oil = null) {
   );
 }
 
+// v58.75 (persona review): no producer publishes Korea's manufacturing PMI or quarterly GDP (DATA_SNAPSHOT keeps them
+// null), so the 경기지표 card showed two '—' rows whenever the export reference made it visible. A row still on '—'
+// is hidden and the card names what is not collected in one line; a value that arrives later shows its row again.
+const KR_UNCOLLECTED = Object.freeze([['kr-manuf-pmi', '제조업 PMI'], ['kr-gdp-qoq', 'GDP 성장률(전분기 대비)']]);
+function syncUncollectedKorea(doc) {
+  const missing = [];
+  let card = null;
+  for (const [snap, label] of KR_UNCOLLECTED) {
+    const cell = doc.querySelector(`#kr-integrated-macro [data-snap="${snap}"]`);
+    if (!cell) continue;
+    card = card || cell.closest('.aio-widget');
+    const empty = /^(—|-|.*미수신)?$/.test(String(cell.textContent || '').trim());
+    const row = cell.parentElement;
+    if (row) row.hidden = empty;
+    if (empty) missing.push(label);
+  }
+  if (!card) return;
+  let note = card.querySelector('.kr-uncollected-note');
+  if (!missing.length) { note?.remove(); return; }
+  if (!note) { note = el(doc, 'p', null, 'sh-muted-note kr-uncollected-note'); card.querySelector('.widget-title')?.after(note); }
+  note.textContent = `아직 수집하지 않는 자료: 한국 ${missing.join(', ')}`;
+}
+
 // Expert review M11: the 한국 시장 fold's 1-year range and 3-month move of the won, from the completed-close history.
 function renderKoreaWon(doc, root) {
   const range = doc.getElementById('kr-macro-krw-range');
@@ -727,7 +762,8 @@ function renderKoreaWon(doc, root) {
 function macroThroughLine(read, crossroads) {
   const axes = read?.axes || [];
   if (!axes.length) return null;
-  const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title.replace(/ \(.*\)$/, ''));
+  // v58.75 (persona review): "부담은 3개(통화정책, 유가, 달러, 신용)" read as four — a comma inside one factor name is '·'.
+  const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title.replace(/ \(.*\)$/, '').replace(/,\s*/g, '·'));
   const weigh = burden.length ? `거시 6요인 중 부담은 ${burden.length}개(${burden.join(', ')})` : '거시 6요인 중 부담 요인은 없고';
   const quadrant = read.regime?.available ? `국면은 '${read.regime.label}'` : '성장·물가 국면은 방향 보류';
   const lead = crossroads?.leadId ? crossroads.items?.find((item) => item.id === crossroads.leadId) : null;
@@ -797,6 +833,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   }
   renderCommodities(doc, root, read.oil);
   renderKoreaWon(doc, root);
+  syncUncollectedKorea(doc);
   renderNextSteps(doc, doc.getElementById('macro-next'), macroNextSteps(read)); // v57.50 I04
   host.dataset.aioMacroBoardRenderer = 'native';
   return { board, read };
@@ -975,7 +1012,9 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   if (levels) {
     // P1427: each level card carries its one-year daily line from the FRED history (text + picture).
     const historyField = { realYield10: 'realYield10', breakeven10: 'breakeven10', hyOAS: 'hyOas' };
-    levels.replaceChildren(...[...model.real, model.credit].map((row) => {
+    // v58.75 (persona review): the high-yield spread card was the fourth copy of the same series (시장 상태 credit axis with
+    // its chart, the 거시 credit factor, 투자 심리's card); here it is one dated line pointing to the judgement on 시장 상태.
+    levels.replaceChildren(...model.real.map((row) => {
       const full = seriesOf(root._aioMacroHistory, historyField[row.id]).map((point) => ({ date: point.date, value: row.id === 'hyOAS' ? point.value * 100 : point.value }));
       const daily = full.slice(-260);
       const year = yearChange(full);
@@ -1053,10 +1092,156 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     grid.replaceChildren(...cards);
   }
   renderRatesSummary(doc, model, read);
+  renderCreditLink(doc, model.credit, regime);
+  renderErpLine(doc, root);
+  renderAssetPerformance(doc, root, model.basis);
   syncOtherCurrencyNote(doc, root);
   renderNextSteps(doc, doc.getElementById('fxbond-next'), ratesNextSteps({ read, carry: model.carry })); // v57.50 I04
   page.dataset.aioRatesBoardRenderer = 'native';
   return model;
+}
+
+// v58.75 (persona review): an asset allocator reads rates and FX against what the asset classes did. One line (the
+// strongest and weakest of the investable rows over 3 months, and the stock-bond correlation), the S&P 500–TLT 60-session
+// correlation line over the record the TLT series has, and a 1M/3M/YTD table from the daily closes in history.json.
+const ASSET_ROWS = Object.freeze([
+  ['spx', 'S&P 500', true], ['ndx', '나스닥 100', true], ['rut', '러셀 2000', true], ['rsp', 'S&P 500 동일가중 (RSP)', true],
+  ['tlt', '미 장기채 (TLT)', true], ['gold', '금', true], ['dxy', '달러 인덱스', false], ['wti', 'WTI 원유', true],
+  ['kospi', '한국 코스피', true], ['usdkrw', '한국 원/달러 (오르면 원화 약세)', false]
+]);
+const CORR_WINDOW = 60;
+
+export function buildAssetPerformance(history = [], basis = closeBasis(history)) {
+  const year = String(basis || '').slice(0, 4);
+  const rows = ASSET_ROWS.map(([field, label, investable]) => {
+    const series = buildCloseSeries(history, field, { through: basis });
+    const last = series.at(-1) || null;
+    if (!last) return { field, label, investable, last: null, m1: null, m3: null, ytd: null, ytdFrom: null };
+    const market = closeSessionMarket(field) || 'US';
+    const back = (n) => { const point = closePointBack(series, n, market); return point ? (last.value / point.value - 1) * 100 : null; };
+    const prevYear = year ? series.filter((point) => point.date < `${year}-01-01`).at(-1) : null;
+    return { field, label, investable, last, m1: back(21), m3: back(63), ytd: prevYear ? (last.value / prevYear.value - 1) * 100 : null, ytdFrom: prevYear?.date || null };
+  });
+  // Daily simple returns on the dates both US closes exist, then a trailing 60-session Pearson correlation.
+  const spx = buildCloseSeries(history, 'spx', { through: basis });
+  const tltBy = new Map(buildCloseSeries(history, 'tlt', { through: basis }).map((point) => [point.date, point.value]));
+  const joint = spx.filter((point) => tltBy.has(point.date)).map((point) => ({ date: point.date, a: point.value, b: tltBy.get(point.date) }));
+  const returns = joint.slice(1).map((point, i) => ({ date: point.date, a: point.a / joint[i].a - 1, b: point.b / joint[i].b - 1 }));
+  const corr = [];
+  for (let i = CORR_WINDOW - 1; i < returns.length; i += 1) {
+    const win = returns.slice(i - CORR_WINDOW + 1, i + 1);
+    const ma = win.reduce((sum, row) => sum + row.a, 0) / CORR_WINDOW, mb = win.reduce((sum, row) => sum + row.b, 0) / CORR_WINDOW;
+    let sab = 0, saa = 0, sbb = 0;
+    for (const row of win) { sab += (row.a - ma) * (row.b - mb); saa += (row.a - ma) ** 2; sbb += (row.b - mb) ** 2; }
+    if (saa > 0 && sbb > 0) corr.push({ date: returns[i].date, value: Number((sab / Math.sqrt(saa * sbb)).toFixed(3)) });
+  }
+  return { basis, rows, corr, corrFrom: joint[0]?.date || null, jointSessions: joint.length };
+}
+
+function renderAssetPerformance(doc, root, basis) {
+  let host = doc.getElementById('rates-assets');
+  if (!host) {
+    const anchor = doc.getElementById('rates-fx-grid')?.closest('section');
+    if (!anchor) return;
+    host = el(doc, 'section', null, 'briefing-block rates-block');
+    host.id = 'rates-assets';
+    host.setAttribute('aria-labelledby', 'rates-assets-title');
+    anchor.after(host);
+  }
+  const model = buildAssetPerformance(root._aioHistory || [], basis || undefined);
+  const title = el(doc, 'h2', '자산군 성과와 주식·채권 상관', 'briefing-h2');
+  title.id = 'rates-assets-title';
+  if (model.basis) title.append(el(doc, 'span', `${shortDate(model.basis)} 종가 기준`, 'briefing-h2-note'));
+  const ranked = model.rows.filter((row) => row.investable && row.m3 != null).sort((a, b) => b.m3 - a.m3);
+  if (!ranked.length) { host.replaceChildren(title, el(doc, 'div', '자산별 종가 기록을 불러오는 중입니다.', 'briefing-empty')); return; }
+  const nowCorr = model.corr.at(-1) || null;
+  const corrText = nowCorr ? ` S&P 500과 미 장기채의 최근 ${CORR_WINDOW}거래일 상관은 ${nowCorr.value.toFixed(2)}입니다.` : '';
+  const lead = el(doc, 'p', `최근 3개월 가장 강한 자산은 ${ranked[0].label}(${signed(ranked[0].m3, 1, '%')}), 가장 약한 자산은 ${ranked.at(-1).label}(${signed(ranked.at(-1).m3, 1, '%')})입니다.${corrText}`, 'rates-curve-fact');
+  const table = el(doc, 'table', null, 'macro-regime-inputs');
+  const head = el(doc, 'tr');
+  const ytdFrom = model.rows.find((row) => row.field === 'spx')?.ytdFrom;
+  ['자산', '최근 종가', '1개월', '3개월', `올해${ytdFrom ? ` (${shortDate(ytdFrom)} 대비)` : ''}`].forEach((label) => head.append(el(doc, 'th', label)));
+  table.append(head);
+  const cell = (value) => el(doc, 'td', value == null ? '—' : signed(value, 1, '%'));
+  for (const row of model.rows) {
+    const tr = el(doc, 'tr');
+    tr.append(el(doc, 'td', row.label), el(doc, 'td', row.last ? `${row.last.value.toLocaleString('en-US', { maximumFractionDigits: 2 })} (${shortDate(row.last.date)})` : '—'), cell(row.m1), cell(row.m3), cell(row.ytd));
+    table.append(tr);
+  }
+  const fold = el(doc, 'details', null, 'aio-comp-secondary');
+  fold.open = true;
+  fold.append(el(doc, 'summary', '자산별 1개월·3개월·올해 수익률'), table,
+    el(doc, 'p', '각 자산의 일별 종가로 계산한 가격 변화이며 배당·이자는 넣지 않았습니다. 1개월은 21거래일, 3개월은 63거래일 전 종가 대비이고, 코스피는 한국 거래일 기준입니다. 원/달러와 달러 인덱스는 환율이라 가장 강한·약한 자산 비교에서 뺐습니다.', 'briefing-footnote'));
+  const parts = [title, lead, fold];
+  if (model.corr.length >= 5) {
+    parts.push(el(doc, 'h3', `S&P 500 – 미 장기채(TLT) ${CORR_WINDOW}거래일 상관`, 'trend-card-title'),
+      createTrendChart(doc, { series: model.corr, refLines: [0], domain: [-1, 1], format: (value) => value.toFixed(2), label: `S&P 500과 TLT의 ${CORR_WINDOW}거래일 일간 수익률 상관` }),
+      el(doc, 'p', `표본: 두 종가가 모두 있는 ${model.jointSessions}거래일(${shortDate(model.corrFrom)}부터), 상관 ${model.corr.length}개 시점. 일간 수익률의 피어슨 상관이며 TLT 기록이 쌓인 만큼만 그립니다.`, 'trend-card-note'));
+  } else parts.push(el(doc, 'p', `S&P 500과 TLT가 함께 기록된 날이 ${model.jointSessions}거래일이라 ${CORR_WINDOW}거래일 상관은 아직 그리지 않습니다.`, 'briefing-empty'));
+  const reading = el(doc, 'p', null, 'briefing-read-reading');
+  reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(' 상관이 0보다 크면 주식과 장기채가 같은 방향으로 움직여, 주식이 내릴 때 채권이 받쳐 주는 분산 효과가 줄어든 상태입니다. 0보다 작으면 채권이 완충 역할을 하는 쪽입니다. 물가·금리 충격이 주도하는 시기에는 양(+)으로, 성장 둔화 걱정이 주도하는 시기에는 음(−)으로 기우는 경향이 알려져 있지만, 이 값은 지난 60거래일의 관계일 뿐 앞으로를 보장하지 않습니다.'));
+  parts.push(reading, allocationPrinciples(doc, root, model, nowCorr));
+  host.replaceChildren(...parts);
+}
+
+// v58.75 (persona review, spec F3): three allocation principles read against today's numbers — what the stock–bond
+// correlation sign means for a bond cushion (the conclusion of the chart above), the dollar's and gold's roles, and the
+// option value of cash at the cash-like rate (SOFR, the rate the scenarios already quote). Principles, not weights.
+function allocationPrinciples(doc, root, model, nowCorr) {
+  const box = el(doc, 'details', null, 'aio-comp-secondary rates-allocation');
+  const row = (field) => model.rows.find((item) => item.field === field) || null;
+  const m3 = (field) => { const r = row(field); return r?.m3 == null ? null : `${r.label} 3개월 ${signed(r.m3, 1, '%')}`; };
+  let cash = null;
+  try { cash = marketInterpretation(root).crossroads?.cash || null; } catch (_) { cash = null; }
+  const corrLine = nowCorr == null ? '상관 기록이 쌓이면 지금 채권이 완충 쪽인지 표시합니다.'
+    : nowCorr.value > 0 ? `지금은 ${nowCorr.value.toFixed(2)}로 0보다 커, 주식이 내리는 날 장기채도 함께 내리기 쉬운 쪽입니다 — 채권을 들고 있어도 분산 효과가 평소보다 작습니다.`
+      : `지금은 ${nowCorr.value.toFixed(2)}로 0보다 작아, 주식이 내리는 날 장기채가 받쳐 주는 쪽입니다.`;
+  const items = [
+    ['주식·채권 상관의 부호', `채권이 주식의 완충이 되는지는 상관의 부호가 정합니다. ${corrLine}`],
+    ['달러의 역할', `위험 회피 때 달러가 오르는 경향이 있어, 원화로 계산하는 미국 자산은 주가 하락 일부가 환율로 상쇄되곤 합니다. 반대로 원화가 강해지면 환차손이 납니다.${m3('dxy') ? ` 지금 ${m3('dxy')}.` : ''}`],
+    ['금의 역할', `금은 이자가 없어 실질금리가 오르면 부담이고, 통화 가치 불안이나 지정학 위험 때 수요가 몰립니다. 주식과 다른 이유로 움직이는 자산입니다.${m3('gold') ? ` 지금 ${m3('gold')}.` : ''}`],
+    ['현금의 선택권', `현금은 수익이 0이 아니라 기다리는 동안 이자를 받으며 다음 기회를 고를 수 있는 선택권입니다.${cash ? ` 지금 현금성 금리(SOFR)는 연 ${cash.value.toFixed(2)}%(${shortDate(cash.date)})로, 기다림의 비용을 그만큼 줄여 줍니다.` : ' 현금성 금리는 아직 확인되지 않았습니다.'}`]
+  ];
+  box.append(el(doc, 'summary', '자산배분 원리 — 채권·달러·금·현금이 하는 일'));
+  const list = el(doc, 'dl', null, 'regime-evidence');
+  for (const [label, text] of items) list.append(el(doc, 'dt', label), el(doc, 'dd', text));
+  box.append(list, el(doc, 'p', '각 자산의 역할을 설명하는 원리이며, 얼마를 담을지는 내 목표와 원칙으로 정합니다.', 'briefing-footnote'));
+  return box;
+}
+
+function renderCreditLink(doc, credit, regime) {
+  const levels = doc.getElementById('rates-levels');
+  if (!levels) return;
+  let line = doc.getElementById('rates-credit-link');
+  if (!line) { line = el(doc, 'p', null, 'rates-curve-fact'); line.id = 'rates-credit-link'; levels.after(line); }
+  const axis = regime?.available ? regime.axes.find((row) => row.id === 'credit') : null;
+  if (!credit || credit.value == null) { line.hidden = true; line.replaceChildren(); return; }
+  const go = el(doc, 'button', '시장 상태의 신용 지표', 'flow-next-link');
+  go.type = 'button';
+  go.dataset.action = 'showPage';
+  go.dataset.arg = 'signal';
+  line.replaceChildren(el(doc, 'strong', `${credit.label} ${credit.valueText}`),
+    doc.createTextNode(`${credit.asOf ? ` (${shortDate(credit.asOf)})` : ''}${credit.weekText ? `, ${credit.weekText}` : ''}${axis ? ` — 판정 ${axis.stateLabel}` : ''}. 1년 추이와 판정 기준은 `), go, doc.createTextNode('에서 봅니다.'));
+  line.hidden = false;
+}
+
+// v58.75 (persona review): the equity risk premium (S&P 500 forward earnings yield − 10-year real yield) sits beside the
+// real-yield card it depends on — the same indexEarnings stage the themes screen renders (src/domain/market/index-earnings.js).
+function renderErpLine(doc, root) {
+  const levels = doc.getElementById('rates-levels');
+  if (!levels) return;
+  let line = doc.getElementById('rates-erp');
+  if (!line) { line = el(doc, 'p', null, 'rates-curve-fact'); line.id = 'rates-erp'; levels.after(line); }
+  if (!root[CONSENSUS_KEY]) requestConsensusEstimates(root, () => renderErpLine(doc, root));
+  const model = marketInterpretation(root).indexEarnings;
+  if (!model?.available || model.erp == null) { line.hidden = true; line.replaceChildren(); return; }
+  const link = el(doc, 'button', '테마 화면의 S&P 500 이익 전망', 'flow-next-link');
+  link.type = 'button';
+  link.dataset.action = 'showPage';
+  link.dataset.arg = 'themes';
+  line.replaceChildren(el(doc, 'strong', `주식위험프리미엄 ${model.erp.toFixed(1)}%p`),
+    doc.createTextNode(` — S&P 500 선행 이익수익률 ${(model.earningsYield * 100).toFixed(1)}%에서 10년 실질금리 ${model.realYield10.toFixed(2)}%${model.realYieldAsOf ? `(${shortDate(model.realYieldAsOf)})` : ''}를 뺀 값입니다. 실질금리가 오르면 같은 이익에서 이 차이가 줄어듭니다. 이익 전망 수정은 `), link, doc.createTextNode('에서 함께 봅니다.'));
+  line.hidden = false;
 }
 
 // v58.53 개편 v2 (5e): three tiles beside the curve — 원/달러, 엔/달러 (close-basis cards below) and 2년물 − 기준금리 (the

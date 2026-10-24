@@ -1607,8 +1607,13 @@ function _aioProcessTelegramItem(it) {
   // 2) 1차 카테고리
   // P1503: the card label is the most specific tag, not the first matched — a revenue note matched credit,
   // macro and earnings in that order and read as 자금조달.
+  // v58.75 (persona review): a war statement read as 한국장 and a market wrap as 실적 — geo and macro now rank ahead of
+  // earnings, health care and Korea; a producer that marks its lead-sentence tags (`lead`) is read from those first, and a
+  // negated topic ("실적 제외") never labels the card.
   var _tgTags = it.tags || ['market-note'];
-  var primaryTag = ['earnings','insider','semi','optical','power','healthcare','ai-policy','crypto','kr-market','japan','credit','geo','flows','equity','macro','market-note'].find(function(t) { return _tgTags.indexOf(t) >= 0; }) || _tgTags[0] || 'market-note';
+  var _tgPool = typeof it.lead === 'number' && it.lead > 0 ? _tgTags.slice(0, it.lead) : _tgTags;
+  if (_tgPool.length > 1 && /(?:실적|어닝)\s*(?:발표\s*)?(?:은|을|를)?\s*(?:제외|빼고|무관)|excluding earnings/i.test(raw)) _tgPool = _tgPool.filter(function(t) { return t !== 'earnings'; });
+  var primaryTag = ['insider','geo','macro','earnings','semi','optical','power','healthcare','ai-policy','crypto','credit','japan','kr-market','flows','equity','market-note'].find(function(t) { return _tgPool.indexOf(t) >= 0; }) || _tgPool[0] || 'market-note';
   var cat = _TG_CAT_MAP[primaryTag] || { label: primaryTag, cls: 'tg-cat-other' };
 
   // 3) 헤드라인 추출: 첫 의미 있는 문장(개행·대시 기준, ≥10자)

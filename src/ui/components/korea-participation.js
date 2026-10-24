@@ -135,6 +135,8 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
       : view.state === 'pending' ? '코스피·코스닥 외국인 순매수(한국은행 발표)가 들어오면 날짜와 함께 여기에 보여 드립니다. 개인·기관은 공개 출처가 없어 표시하지 않습니다.'
       : view.reason === 'fetch-failed' ? '외국인 순매수를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다.'
       : '이번에는 한국은행 자료에서 외국인 순매수를 찾지 못해 비워 둡니다.';
+    // v58.75 (persona review): before the first collection the card was a heading over an empty slot; it is one line now.
+    if (view.state === 'pending') { host.replaceChildren(el(doc, 'p', '아직 수집하지 않는 자료: 코스피·코스닥 외국인 순매수(한국은행 발표, 들어오면 날짜와 함께 이 자리에 표시). 개인·기관은 공개 출처가 없어 표시하지 않습니다.', 'kr-flows-empty')); return view; }
     host.replaceChildren(head, el(doc, 'p', text, 'kr-flows-empty'));
     return view;
   }

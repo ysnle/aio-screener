@@ -11,6 +11,10 @@ import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { el } from './dom.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { signedText } from '../../domain/shared/number.js';
+// v58.75: the bar helpers live in chart-bars.js so boot-time readers (AI visuals, compatibility globals) can import
+// them without pulling the chart module into the boot set; re-exported here for existing importers.
+import { barsFromYahoo, completedBars } from './chart-bars.js';
+export { barsFromYahoo, completedBars };
 // v57.91 (visual audit): the loading card spans the whole evidence grid instead of sitting in its last column.
 const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; return node; };
 
@@ -83,32 +87,6 @@ function cssVar(root, name, fallback) {
   try { return root.getComputedStyle(root.document.body).getPropertyValue(name).trim() || fallback; } catch (_) { return fallback; }
 }
 
-// P1428 (Codex review): during the session Yahoo's last daily bar is still moving; it was analysed and
-// labelled 종가. A bar dated today in the exchange's zone is kept only after the close (+20 minutes for the
-// official print); the regular-session end comes from the payload when present (16:00 by default).
-export function completedBars(bars, payload, nowMs = Date.now()) {
-  if (!bars.length) return { bars, droppedLive: false };
-  const tz = payload?.meta?.exchangeTimezoneName || 'America/New_York';
-  const today = new Date(nowMs).toLocaleDateString('en-CA', { timeZone: tz });
-  const last = bars[bars.length - 1];
-  if (last.time !== today) return { bars, droppedLive: false };
-  const end = Number(payload?.meta?.currentTradingPeriod?.regular?.end) * 1000;
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(nowMs)).map((p) => [p.type, p.value]));
-  const minutes = Number(parts.hour) * 60 + Number(parts.minute);
-  const closeMinutes = tz === 'Asia/Seoul' ? 15 * 60 + 30 : tz === 'America/New_York' ? 16 * 60 : null;
-  const closed = Number.isFinite(end) && end > 0 ? nowMs >= end + 20 * 60000 : closeMinutes != null && minutes >= closeMinutes + 20;
-  return closed ? { bars, droppedLive: false } : { bars: bars.slice(0, -1), droppedLive: true };
-}
-
-export function barsFromYahoo(payload) {
-  if (!payload || !Array.isArray(payload.timestamps)) return [];
-  const tz = payload.meta?.exchangeTimezoneName || 'America/New_York';
-  return payload.timestamps.map((ts, i) => ({
-    time: new Date(ts * 1000).toLocaleDateString('en-CA', { timeZone: tz }),
-    open: payload.opens?.[i], high: payload.highs?.[i], low: payload.lows?.[i], close: payload.closes?.[i], volume: payload.volumes?.[i]
-  })).filter((bar) => [bar.open, bar.high, bar.low, bar.close].every((v) => typeof v === 'number' && Number.isFinite(v) && v > 0));
-}
-
 // Screen audit 2026-10-20: a Korean listing's axis read "400000.00" and the phone's last date tick read "9일" with no month.
 // Won prices are whole numbers with separators; a day tick carries its month (M/D).
 function chartLocalization(kr) {
@@ -122,6 +100,36 @@ function dayTickFormatter(time, type) {
   const parts = typeof time === 'string' ? time.split('-').map(Number).slice(1) : typeof time === 'object' && time ? [time.month, time.day]
     : (() => { const d = new Date(Number(time) * 1000); return [d.getUTCMonth() + 1, d.getUTCDate()]; })();
   return parts.every(Number.isFinite) ? `${parts[0]}/${parts[1]}` : null;
+}
+// v58.75 (persona review): RS line points rebased to 100 at the first comparable session, and the one-year-high sessions of
+// the last 130 bars (the range the chart opens on). Fewer than 60 comparable sessions draws nothing.
+const RS_LINE_COLOR = '#5b5bd6';
+export function rsLineSeries(analysis) {
+  const line = Array.isArray(analysis?.rsLine) ? analysis.rsLine : [];
+  const base = line.find((value) => value != null && value > 0);
+  if (!base || line.filter((value) => value != null).length < 60) return null;
+  const points = analysis.bars.map((bar, i) => line[i] == null ? null : { time: bar.time, value: line[i] / base * 100 }).filter(Boolean);
+  // A run of consecutive new highs is one dot (its first day) plus the latest bar when it is still a new high, so a steady
+  // climb does not bury the line under dots.
+  const from = analysis.bars.length - 130;
+  const set = new Set(analysis.rsNewHighs || []);
+  const last = analysis.bars.length - 1;
+  const highs = [...set].filter((i) => i >= from && (!set.has(i - 1) || i === last)).map((i) => analysis.bars[i].time);
+  return { points, highs };
+}
+function syncRsLegend(doc, shown, benchmarkLabel) {
+  const legend = doc.querySelector?.('#stock-chart-section .stock-chart-legend');
+  if (!legend) return;
+  legend.querySelector('.lg-rs')?.remove();
+  if (!shown) return;
+  // Only the line glyph takes the series colour (as the other legend items colour their first letter); the words keep the
+  // legend's text colour for contrast in both themes.
+  const item = el(doc, 'span', null, 'lg-rs');
+  const glyph = el(doc, 'span', '━');
+  glyph.style.color = RS_LINE_COLOR;
+  glyph.setAttribute('aria-hidden', 'true');
+  item.append(glyph, doc.createTextNode(` 상대강도선(종목 ÷ ${benchmarkLabel}, 아래 칸, 점은 1년 신고가)`));
+  legend.append(item);
 }
 function drawChart(root, host, analysis, previous, kr = false) {
   const LWC = root.LightweightCharts;
@@ -155,8 +163,19 @@ function drawChart(root, host, analysis, previous, kr = false) {
   line(analysis.lines.sma50, '#ad7f58', 1.5);
   line(analysis.lines.sma200, '#953ea3', 1.5, 2);
   const volume = chart.addHistogramSeries({ priceScaleId: 'volume', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
-  chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+  // v58.75 (persona review): the relative-strength line (close ÷ index, rebased to 100) in its own band between the price and
+  // the volume, with its one-year highs dotted. Without an index series the chart keeps its previous layout.
+  const rs = rsLineSeries(analysis);
+  chart.priceScale('volume').applyOptions({ scaleMargins: rs ? { top: 0.86, bottom: 0 } : { top: 0.82, bottom: 0 } });
   volume.setData(analysis.bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? 'rgba(220,62,66,0.35)' : 'rgba(40,112,189,0.35)' })));
+  if (rs) {
+    chart.priceScale('right').applyOptions({ scaleMargins: { top: 0.06, bottom: 0.34 } });
+    const rsSeries = chart.addLineSeries({ priceScaleId: 'rs', color: RS_LINE_COLOR, lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, priceFormat: { type: 'price', precision: 1, minMove: 0.1 } });
+    chart.priceScale('rs').applyOptions({ scaleMargins: { top: 0.69, bottom: 0.16 } });
+    rsSeries.setData(rs.points);
+    // The legend names the dots; a label on the last bar was clipped at the chart's right edge.
+    if (rs.highs.length) rsSeries.setMarkers(rs.highs.map((time) => ({ time, position: 'inBar', color: RS_LINE_COLOR, shape: 'circle', size: 0.6 })));
+  }
   const priceLine = (price, color, title, style = 2) => { if (price != null) candles.createPriceLine({ price, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true, title }); };
   priceLine(analysis.pivot, '#ad7f58', '피벗', 0);
   priceLine(analysis.prev.high, text, '전일 고가', 1);
@@ -178,10 +197,26 @@ function drawChart(root, host, analysis, previous, kr = false) {
   const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, analysis.bars.length - 130), to: analysis.bars.length + 3 });
   showRecent();
   (root.requestAnimationFrame || setTimeout)(showRecent); // autoSize lays out after the first frame
-  return { chart, applyTheme: (palette) => {
+  // v58.75 (owner decision 2026-10-24): the price-level map draws its zones as thin dotted lines (no axis label, so the
+  // pivot and prior-day labels stay readable); the section's toggle swaps the nearest four for all of them.
+  let levelLines = [];
+  const setLevels = (levels = []) => {
+    levelLines.forEach((item) => { try { candles.removePriceLine(item); } catch (_) {} });
+    levelLines = levels.map((level) => candles.createPriceLine({ price: level.price, color: LEVEL_LINE_COLOR, lineWidth: 1, lineStyle: 1, axisLabelVisible: false, title: '' }));
+  };
+  return { chart, setLevels, applyTheme: (palette) => {
     chart.applyOptions({ layout: { textColor: palette.text }, grid: { vertLines: { color: palette.grid }, horzLines: { color: palette.grid } }, rightPriceScale: { borderColor: palette.grid }, timeScale: { borderColor: palette.grid } });
     candles.applyOptions({ upColor: palette.up, downColor: palette.down, borderUpColor: palette.up, borderDownColor: palette.down, wickUpColor: palette.up, wickDownColor: palette.down });
   } };
+}
+
+// v58.75: the teaching sections (stock-chart-coach.js) load once with the first daily chart, not at boot; a failed load
+// retries on the next chart.
+const LEVEL_LINE_COLOR = '#978365';
+let chartToolsPromise = null;
+function loadChartTools() {
+  if (!chartToolsPromise) chartToolsPromise = import('./stock-chart-coach.js').catch(() => { chartToolsPromise = null; return null; });
+  return chartToolsPromise;
 }
 
 // 2026-10-14 audit #6: with no bars there is nothing for the legend (8일 EMA …) or the setup chip to describe. The
@@ -270,13 +305,32 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   }
   setChartEmpty(doc, false);
   const change = analysis.prev ? (analysis.last.close / analysis.prev.close - 1) * 100 : null;
-  root.__aioStockChartAnalysis = { symbol: sym, analysis };
+  const coach = await loadChartTools();
+  const tools = coach?.tools || null;
+  if (ticket !== root.__aioStockChartTicket) return null;
+  // v58.75: the level map uses the chart's own pivot and contraction low, so the table and the drawn pivot agree.
+  const levels = tools ? tools.buildPriceLevels(analysis.bars, { pivot: analysis.pivot, contractionLow: analysis.vcp?.contractions?.at(-1)?.low ?? null }) : { available: false };
+  root.__aioStockChartAnalysis = { symbol: sym, analysis, levels };
+  // v58.75: the AI panel reads the same map the screen shows (null for another symbol or before the daily chart loads).
+  root._aioPriceLevelsFor = (symbolArg) => {
+    const cached = root.__aioStockChartAnalysis;
+    const want = String(symbolArg || '').trim().toUpperCase();
+    if (!cached?.levels?.available || (want && want !== cached.symbol)) return null;
+    const pick = (level) => ({ price: level.price, low: level.low, high: level.high, kinds: [...level.kinds], pct: level.pct, adrMultiple: level.adrMultiple, reactions: level.reactions });
+    return { symbol: cached.symbol, asOf: cached.levels.asOf, close: cached.levels.close, adrPct: cached.levels.adrPct, atr: cached.levels.atr, resistanceCandidates: cached.levels.above.map(pick), supportCandidates: cached.levels.below.map(pick), swingLowBelow: cached.levels.swingLowBelow, pivot: cached.levels.pivot, contractionLow: cached.levels.contractionLow, base: cached.levels.base, note: '관찰할 가격대이며 지지·저항 보장이나 매매 가격 제안이 아님' };
+  };
   set('stock-chart-status', `${analysis.asOf} 종가 ${formatScreenerPrice(analysis.last.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${signedText(change, 2)}%)${droppedLive ? ', 장중인 오늘 봉은 분석에서 제외' : ''}`);
   const badge = doc.getElementById('stock-chart-state');
   if (badge) { badge.textContent = analysis.stateLabel; badge.className = `regime-state is-${STATE_TONE[analysis.state] || 'neutral'}`; }
   await library;
   if (ticket !== root.__aioStockChartTicket) return null;
   root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance, kr);
+  syncRsLegend(doc, !!(root.__aioStockChartInstance && rsLineSeries(analysis)), analysis.benchmarkLabel);
+  {
+    const legend = doc.querySelector?.('#stock-chart-section .stock-chart-legend');
+    legend?.querySelector('.lg-levels')?.remove();
+    if (legend && root.__aioStockChartInstance && levels.available) legend.append(el(doc, 'span', '┈ 가격 레벨(아래 \'가격 레벨과 내 계획\', 기본은 가까운 위·아래 2개씩)', 'lg-levels'));
+  }
   const regime = readMarketRegime(root); // v57.55 review (E1-02): the same regime reader (and credit history) as 시장 상태
   // P1435: reading first (state → why → market → flip), two pictures (Weinstein stage, trend template),
   // and the full evidence list folded underneath.
@@ -320,6 +374,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const body = el(doc, 'div', null, 'v2-chart-body');
   body.append(read, visuals, more);
   panel.replaceChildren(...(readCards ? [readCards] : []), body);
+  if (tools) panel.append(coach.setupCoachSection(doc, root, sym, analysis, regime, tools, levels.available));
   const forward = buildChartScenarios(analysis, { currency: kr ? 'KRW' : payload?.meta?.currency || null });
   if (forward.available) {
     const section = el(doc, 'section', null, 'chart-scenarios');
@@ -331,6 +386,13 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
       card.append(el(doc, 'h4', scenario.title), el(doc, 'p', scenario.text)); section.append(card);
     }
     panel.append(section);
+  }
+  if (levels.available) {
+    const currency = kr ? 'KRW' : payload?.meta?.currency || null;
+    root.__aioStockChartInstance?.setLevels?.(coach.nearestLevels(levels));
+    panel.append(coach.priceLevelSection(doc, root, sym, levels, currency, root.__aioStockChartInstance, tools.checkPricePlan));
+    // v58.75 (D6): the screener's '차트·가격 레벨' link lands here once.
+    if (root.__aioChartScrollTo === 'chart-levels') { root.__aioChartScrollTo = null; doc.getElementById('chart-levels')?.scrollIntoView?.({ block: 'start' }); }
   }
   const profile = buildVolumeByPrice(analysis.bars);
   if (profile.available) {
@@ -350,6 +412,8 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const logic = el(doc, 'details', null, 'chart-analysis-logic');
   logic.append(el(doc, 'summary', '차트를 읽는 순서와 계산 기준'));
   logic.append(el(doc, 'p', '① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다.'));
+  // v58.75 (persona review): how the RS line under the price is computed.
+  if (rsLineSeries(analysis)) logic.append(el(doc, 'p', `상대강도선: 각 거래일 종가를 같은 날(없으면 3일 이내 직전) ${analysis.benchmarkLabel} 종가로 나눈 값을 첫 비교일 100으로 맞춰 가격 아래 칸에 그립니다. 선이 오르면 지수보다 강했다는 뜻이고, 점은 직전 1년(252거래일, 비교값 240개 이상) 중 가장 높은 값을 새로 쓴 날입니다. 가격이 고점 아래인데 선이 먼저 신고가를 쓰면 지수 대비 강세가 가격보다 앞선 것으로 읽습니다. 지수 기록이 1년에 못 미치면 점은 찍지 않습니다.`));
   panel.append(logic);
   // P1435: where the chart's question continues.
   const isIndex = /^(SPY|QQQ|DIA|IWM)$/.test(sym);
@@ -536,6 +600,7 @@ export function installStockChart({ documentRef: doc, root }) {
   const show = (value) => {
     const sym = normalize(value) || 'SPY';
     section.dataset.aioStockChartEntity = sym;
+    if (root) root._aioChartSubject = sym; // v58.75 (persona review): the AI panel reads the charted symbol without a DOM lookup
     section.dataset.aioStockChartAt = String(Date.now());
     section.dataset.aioStockChartMark = historyMark();
     renderStockChart({ documentRef: doc, root, symbol: sym });

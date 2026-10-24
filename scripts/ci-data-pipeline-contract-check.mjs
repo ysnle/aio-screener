@@ -830,6 +830,21 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && isFaithfulKoreanTitle('A $1.5 Trillion Anthropic IPO Still Pays Off for Google', '1.5조 달러 앤트로픽 IPO, 구글엔 여전히 이득')
       && isFaithfulKoreanTitle('Deal worth $1.2 trillion', '1조 2,000억 달러 규모 거래') && isFaithfulKoreanTitle('$500 million and $2 billion raised', '5억 달러와 20억 달러 조달')
       && isFaithfulKoreanTitle('Firm sells 1.5 billion shares', '15억주 매각'), 'name/magnitude guard');
+  // v58.75 (persona review): the shared prompt carries the market glossary; a guidance headline must come back as 가이던스/전망,
+  // and two clear feed-topic misreads are corrected on the published row.
+  {
+    const { HEADLINE_GLOSSARY } = await import('./producer/market-narrative.mjs');
+    const { newsDisplayTopic } = await import('./lib/news-selection.mjs');
+    check('v58.75 headline glossary, guidance term, and published topic corrections',
+      /earnings → 실적/.test(HEADLINE_GLOSSARY) && /bearish bets → 약세 베팅/.test(HEADLINE_GLOSSARY)
+        && !isFaithfulKoreanTitle('Nike cuts guidance', '나이키, 지침 하향') && isFaithfulKoreanTitle('Nike cuts guidance', '나이키, 가이던스 하향')
+        && !isFaithfulKoreanTitle('Hedge Funds Lift Bearish Euro Bets to Most Since 2020', '헤지 펀드, 2020년 이후 가장 많은 유로 매도 건으로 상승')
+        && isFaithfulKoreanTitle('Hedge Funds Lift Bearish Euro Bets to Most Since 2020', '헤지펀드, 유로 약세 베팅 2020년 이후 최대로 늘려')
+        && newsDisplayTopic('Hedge Funds Lift Bearish Euro Bets to Most Since 2020, CFTC Data Shows', 'credit') === 'fxbond'
+        && newsDisplayTopic('Dollar Tree, Dollar General Stocks Slide as Their Core Shoppers Get Squeezed', 'macro') === 'equity'
+        && newsDisplayTopic('Hedge funds pile into private credit bets', 'credit') === 'credit' && newsDisplayTopic('Dollar slides as Fed bets rise', 'fxbond') === 'fxbond',
+      'glossary/topic');
+  }
 
   const end = Date.parse('2026-10-14T23:00:00.000Z');
   const kr = (title, source, hours) => ({ title: `${title} - ${source}`, link: `https://news.example/${encodeURIComponent(title)}`, source, _sourceRaw: source, ts: end + hours * 3600000, topic: 'kr', country: 'kr', feedTier: 2 });

@@ -7,6 +7,7 @@ import { vixBand } from '../../domain/sentiment/narrative.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
 import { renderPortfolioRead, renderPortfolioLens } from '../components/portfolio-read.js';
+import { renderPortfolioCriteria, renderThesisCheck } from '../components/portfolio-checklist.js';
 import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio/portfolio-read.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
@@ -207,6 +208,7 @@ let holdingQuoteRequestedAt = 0;
 // Korean holdings stayed 가격 없음. A run that leaves a requested symbol without a quote retries.
 const unquoted = (root, symbols) => symbols.filter((symbol) => !(Number(root?._liveData?.[symbol]?.price) > 0));
 let portfolioMounted = false;
+let rerenderPortfolio = null; // v58.75: the empty state's preview buttons repaint the mounted page
 function requestHoldingQuotes(root, rows, attempt = 0) { // attempt > 0: a retry, which alone passes the throttle
   const symbols = [...new Set((rows || []).filter((row) => row?.sourceKind !== 'live-quote').map((row) => quoteSymbolOf(root, row?.symbol)).filter(Boolean))].slice(0, 60);
   if (!symbols.length) return;
@@ -444,7 +446,7 @@ function holdingDetailRow(documentRef, { symbol, holding, items, detailId, expan
   return row;
 }
 
-function renderPortfolioTable(documentRef, page, state, surface) {
+function renderPortfolioTable(documentRef, page, state, surface, { preview = false, root = null } = {}) {
   const tbody = page?.querySelector?.('#pf-positions-tbody');
   if (!tbody) return;
   const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
@@ -486,7 +488,22 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     privacy.className = 'pfp-privacy'; // v57.91 (visual audit): one ~850px grey line became a readable block
     // v58.74 (text audit): the same notice sits in the page header's 저장·보안 fold; the empty state points to it.
     privacy.textContent = '저장 범위와 보안은 위 \'저장·보안\'에 있습니다.';
-    cell.append(heading, body, addButton, privacy);
+    // v58.75 (persona review): the empty state's three ways in — add, import a backup, or a memory-only sample preview.
+    const importButton = documentRef.createElement('button');
+    importButton.type = 'button';
+    importButton.className = 'aio-btn-table pfp-add';
+    importButton.setAttribute('data-action', '_aioTriggerPortfolioImport');
+    importButton.textContent = '백업 가져오기';
+    const previewButton = documentRef.createElement('button');
+    previewButton.type = 'button';
+    previewButton.className = 'aio-btn-table pfp-add';
+    previewButton.textContent = '예시로 미리 보기 (저장 안 함)';
+    previewButton.addEventListener('click', () => { if (root) root.__aioPortfolioPreview = true; rerenderPortfolio?.(); });
+    // One wrapping block, so the phone rule (portfolio-page.css: each direct child sticky within the viewport) wraps the buttons.
+    const actions = documentRef.createElement('div');
+    actions.className = 'pfp-empty-actions';
+    actions.append(addButton, importButton, previewButton);
+    cell.append(heading, body, actions, privacy);
     row.appendChild(cell);
     tbody.appendChild(row);
     return;
@@ -609,7 +626,7 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     const manageCell = documentRef.createElement('td');
     manageCell.setAttribute('headers', 'pf-th-manage');
     manageCell.className = 'pfp-manage';
-    [['차트', '_aioTechnicalTicker'], ['수정', '_aioEditPosition'], ['삭제', '_aioRemovePosition']].forEach(([label, action]) => {
+    (preview ? [['차트', '_aioTechnicalTicker']] : [['차트', '_aioTechnicalTicker'], ['수정', '_aioEditPosition'], ['삭제', '_aioRemovePosition']]).forEach(([label, action]) => {
       const button = documentRef.createElement('button');
       button.setAttribute('data-action', action);
       button.setAttribute('data-arg', symbol);
@@ -711,6 +728,28 @@ function render({ root, documentRef, store, charts }) {
   const onDemand = withOnDemandHoldings(root, bySymbol, state?.holdings);
   if (root) root._aioPortfolioOnDemandRows = [...onDemand.values()].map((record) => record.row); // v57.81: 포트폴리오 해석 rows
   const surface = derivePortfolioSurface({ state, liveData: liveDataFor(root, state?.holdings, liveData), vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol, onDemand), cashFx });
+  // v58.75 (persona review): an empty portfolio offers 종목 추가 · 가져오기 · 예시로 미리 보기 only. The preview is a memory-only
+  // state rendered through the same surface (never written to the store, storage or the root hand-offs the AI and legacy
+  // panels read), with no cost basis, so it shows weights and links but no invented P&L.
+  const empty = surface.readState === 'ready' && surface.valuationState === 'empty';
+  if (!empty && root) root.__aioPortfolioPreview = false;
+  const preview = empty && root?.__aioPortfolioPreview === true;
+  if (preview) {
+    const shownState = previewPortfolioState();
+    const shown = derivePortfolioSurface({ state: shownState, liveData: {}, vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol), cashFx });
+    renderPortfolioSurface(documentRef, page, shown);
+    renderPortfolioHero(documentRef, shown);
+    renderPortfolioStatus(documentRef, shownState, shown);
+    renderPortfolioTable(documentRef, page, shownState, shown, { preview: true, root });
+    renderPortfolioChart({ root, page, surface: shown, charts });
+    const shownChecks = renderPortfolioChecks(documentRef, root, shown);
+    renderPortfolioLens({ documentRef, root, surface: shown, checks: shownChecks, sectorLabel: portfolioSectorLabel });
+    renderPortfolioRead({ documentRef, root, surface: shown });
+    renderPortfolioCriteria({ documentRef, root, surface: shown, checks: shownChecks, sectorLabel: portfolioSectorLabel });
+    renderThesisCheck({ documentRef, root, surface: shown, holdings: shownState.holdings, bySymbol });
+    syncEmptyState(documentRef, root, page, { empty: true, preview: true });
+    return;
+  }
   requestHoldingQuotes(root, surface.rows);
   if (root) root._aioPortfolioSurface = surface; // P1445: legacy exposure/stress panels share these base-currency values
   if (root) root._aioPortfolioSectorLabel = portfolioSectorLabel; // v57.50 review R1: one sector vocabulary for the legacy exposure panel
@@ -719,12 +758,59 @@ function render({ root, documentRef, store, charts }) {
   renderPortfolioSurface(documentRef, page, surface);
   renderPortfolioHero(documentRef, surface);
   renderPortfolioStatus(documentRef, state, surface);
-  renderPortfolioTable(documentRef, page, state, surface);
+  renderPortfolioTable(documentRef, page, state, surface, { root });
   renderPortfolioChart({ root, page, surface, charts });
   const checks = renderPortfolioChecks(documentRef, root, surface);
   renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel }); // 개편 v2 (3g)
   renderPortfolioRead({ documentRef, root, surface }); // P1438
+  // v58.75 (persona review, spec F4·F5): criteria met (a count, not a score) and the per-holding thesis check, facts only.
+  renderPortfolioCriteria({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel });
+  renderThesisCheck({ documentRef, root, surface: empty ? null : surface, holdings: state?.holdings || [], bySymbol, rerender: () => rerenderPortfolio?.() });
   renderTradeJournal({ documentRef, root, surface }); // v58.52
+  syncEmptyState(documentRef, root, page, { empty, preview: false });
+}
+
+// v58.75 (persona review): six large caps from different sectors of the screener universe (ETFs carry no published
+// valuation close there), valued at their published closes; shares only (no cost), so no return is shown. A preview of
+// the screen, not a suggested allocation.
+const PREVIEW_HOLDINGS = Object.freeze([['MSFT', 10], ['NVDA', 20], ['JPM', 12], ['XOM', 20], ['JNJ', 15], ['PG', 20]]);
+function previewPortfolioState() {
+  return { status: 'ready', readState: 'ready', holdingsKnown: true, cashKnown: true, cashBalances: [], holdings: PREVIEW_HOLDINGS.map(([symbol, shares]) => ({ symbol, shares })) };
+}
+
+// Sections that need holdings: hidden while the portfolio is empty (a journal or note that already holds entries stays).
+const EMPTY_HIDDEN_IDS = Object.freeze(['pf-freshness-strip', 'pf-ai-notes-fold', 'pf-trades', 'pf-backtest-fold', 'pf-rr-fold', 'pf-watchlist-risk-fold', 'pf-ledger-section', 'pf-fx-section']);
+const EMPTY_KEEP = Object.freeze({
+  'pf-trades': (node) => Boolean(node.querySelector('[data-trade-id]')),
+  'pf-ai-notes-fold': (node) => Boolean(node.querySelector('#pf-journal-note')?.value?.trim())
+});
+function syncEmptyState(documentRef, root, page, { empty, preview }) {
+  if (!page || !documentRef) return;
+  page.dataset.pfEmpty = String(empty);
+  for (const id of EMPTY_HIDDEN_IDS) {
+    const node = documentRef.getElementById(id);
+    if (!node) continue;
+    const hide = empty && !EMPTY_KEEP[id]?.(node);
+    if (hide) { if (!node.hidden) { node.hidden = true; node.dataset.pfEmptyHidden = '1'; } } else if (node.dataset.pfEmptyHidden) { node.hidden = false; delete node.dataset.pfEmptyHidden; }
+  }
+  page.querySelector('[data-aio-screen-lessons="portfolio"]')?.toggleAttribute('hidden', empty);
+  const section = documentRef.getElementById('pf-holdings-table-section');
+  let note = documentRef.getElementById('pf-preview-note');
+  if (!preview) { note?.remove(); return; }
+  if (!note && section) {
+    note = documentRef.createElement('div');
+    note.id = 'pf-preview-note';
+    note.className = 'briefing-empty';
+    note.setAttribute('role', 'status');
+    section.prepend(note);
+  }
+  if (!note) return;
+  const stop = documentRef.createElement('button');
+  stop.type = 'button';
+  stop.className = 'aio-btn-table';
+  stop.textContent = '미리 보기 끝내기';
+  stop.addEventListener('click', () => { root.__aioPortfolioPreview = false; rerenderPortfolio?.(); });
+  note.replaceChildren(documentRef.createTextNode(`예시 미리 보기 — ${PREVIEW_HOLDINGS.map(([symbol]) => symbol).join(', ')}를 최근 종가로 평가한 화면입니다. 저장되지 않고, 추천 구성이 아니며, 매수가가 없어 손익은 비워 둡니다. `), stop);
 }
 
 // P1418: 점검 — only rules with a published default carry a verdict; the rest are shares.
@@ -750,7 +836,11 @@ function renderPortfolioChecks(documentRef, root, surface) {
     host.append(el('p', result.reason === 'currency-unconverted' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.' : '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
     return result;
   }
-  host.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? `, 평가액이 없는 ${result.excluded}종목 제외` : ''}, 한 종목은 내부 구간(10~25% 참고, 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
+  // v58.75 (persona review, spec F4): the criteria list (portfolio-checklist.js) leads; the share cards fold under it.
+  const fold = el('details', null, 'pf-checks-fold');
+  fold.dataset.userFold = '';
+  fold.append(el('summary', '비중 세부 (종목·통화·지역·유형·섹터·현금)'));
+  fold.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? `, 평가액이 없는 ${result.excluded}종목 제외` : ''}, 한 종목은 내부 구간(10~25% 참고, 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
   const list = el('div', null, 'pf-checks-list');
   for (const check of result.checks) {
     const card = el('section', null, 'pf-check');
@@ -762,7 +852,8 @@ function renderPortfolioChecks(documentRef, root, surface) {
     card.append(head, el('div', check.value, 'pf-check-value'), el('p', check.detail, 'pf-check-detail'), el('span', check.basis, 'pf-check-basis'));
     list.append(card);
   }
-  host.append(list);
+  fold.append(list);
+  host.append(fold);
   return result;
 }
 
@@ -776,6 +867,8 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       const charts = createChartRegistry({ maxCanvasHeight: 260 });
       bag.add(charts.dispose);
       const renderNow = () => render({ root, documentRef, store, charts });
+      rerenderPortfolio = renderNow;
+      bag.add(() => { if (rerenderPortfolio === renderNow) rerenderPortfolio = null; if (root) root.__aioPortfolioPreview = false; });
       renderNow();
       bag.add(installTradeJournal({ documentRef, root, getSurface: () => root?._aioPortfolioSurface || null }));
       // v57.50 I05: what a research document sent the reader here to check (each entry to this route mounts again).

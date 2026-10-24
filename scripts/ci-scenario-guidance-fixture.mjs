@@ -86,7 +86,7 @@ const tierMacro = { series: { cccOas: { observations: rows.slice(-130).map((row)
 const tiers = buildRegimeAxisHistory({ history: rows, credit: {}, rates: {} }, { macroHistory: tierMacro });
 const gap = tiers.axes.credit.find((item) => item.id === 'ccc-b');
 assert.ok(gap && gap.series.every((point) => point.value === 900), 'P1638: CCC-B gap in bp');
-assert.match(readProducerSource(), /cccOas:\s+\{ id: 'BAMLH0A3HYC'/, 'P1638: producer requests the CCC series');
+assert.match(readProducerSource(), /cccOas:\s+\x7b id: 'BAMLH0A3HYC'/, 'P1638: producer requests the CCC series');
 
 // P1639: chart evidence adds ATR extension, distance from the 52-week low and the 5/20 EMA order.
 const { analyzeChart } = await import('../src/domain/technical/chart-analysis.js');
@@ -143,7 +143,7 @@ assert.equal(basisAge('', 0), null);
   assert.equal(basisAge('2026-01-25', at, { cadence: 'annual' }).stale, false, 'v57.83: a fiscal-year end nine months ago is not 갱신 지연');
   assert.equal(basisAge('2025-01-25', at, { cadence: 'annual' }).stale, true);
   assert.equal(basisAge('2026-10-01', at, { freshness: 'current' }).stale, false, 'v57.83: the consumer freshness verdict wins');
-  assert.ok(/data-cadence', 'annual'/.test(readFileSync(new URL('../src/ui/pages/entity.js', import.meta.url), 'utf8')), 'v57.83: SEC fiscal-year dates declare the annual cadence');
+  assert.ok(/data-cadence\x27, \x27annual\x27/.test(readFileSync(new URL('../src/ui/pages/entity.js', import.meta.url), 'utf8')), 'v57.83: SEC fiscal-year dates declare the annual cadence');
 }
 const bootstrapSource = readFileSync(new URL('../src/app/bootstrap.js', import.meta.url), 'utf8');
 assert.match(bootstrapSource, /installValueBasis\(documentRef/, 'P1643: the basis card is installed at boot');
@@ -344,6 +344,25 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(state1.crossroads.items.length, BRANCHES.length, 'P1743: the state carries every branch');
   assert.ok(state1.themes.length >= 20, `P1743: the state reads every measured theme (${state1.themes.length})`);
   assert.ok(state1.eventOutcomes.length >= 3 && state1.eventOutcomes.every((row) => row.actualText && Array.isArray(row.matched)), 'P1743: releases scored on the first run');
+  // v58.75 (persona review): 거시 printed scenario-state.json's rotation (written by the group-median rule, 크립토 -25.1%) while
+  // 테마 recomputed it with pooled members (-44.7%). The state stamps its playbook version, every reader goes through
+  // themeRotationRead (live first, a mismatched artifact never), and a same-version artifact on the same US close must
+  // carry the numbers the live pipeline computes from the same files.
+  {
+    const { themeRotationRead, THEME_PLAYBOOK_VERSION } = await import('../src/domain/scenarios/theme-playbook.js');
+    assert.equal(state1.playbookVersion, THEME_PLAYBOOK_VERSION, 'v58.75: the state stamps the playbook version of its theme rows');
+    const liveModel = { available: true, rotation: { text: 'LIVE' }, highlights: { structuralPullbacks: [{ market: 'US', id: 'a', label: 'A', ret1m: -1 }] } };
+    const sameVersion = { playbookVersion: THEME_PLAYBOOK_VERSION, rotation: { text: 'ART' }, themes: [{ market: 'US', id: 'b', label: 'B', ret1m: 2 }], highlights: { structuralPullbacks: ['US:b'] } };
+    assert.equal(themeRotationRead({ live: liveModel, artifact: sameVersion }).text, 'LIVE', 'v58.75: the live playbook wins over the artifact');
+    assert.deepEqual(themeRotationRead({ artifact: sameVersion }).pullbacks.map((row) => row.id), ['b'], 'v58.75: a same-version artifact stands in before the live read exists');
+    assert.equal(themeRotationRead({ artifact: { ...sameVersion, playbookVersion: undefined } }).source, null, 'v58.75: an artifact without the current version is not printed');
+    const published = JSON.parse(readFileSync(new URL('../public-data/scenario-state.json', import.meta.url), 'utf8'));
+    if (published.playbookVersion === THEME_PLAYBOOK_VERSION && published.basis?.themeAsOfByMarket?.US && published.basis.themeAsOfByMarket.US === state1.basis.themeAsOfByMarket?.US) {
+      const recomputed = new Map(state1.themes.filter((row) => row.market === 'US').map((row) => [row.id, row.ret1m]));
+      const drift = published.themes.filter((row) => row.market === 'US' && recomputed.has(row.id) && row.ret1m != null && recomputed.get(row.id) != null && Math.abs(row.ret1m - recomputed.get(row.id)) > 0.2);
+      assert.equal(drift.length, 0, `v58.75: scenario-state.json US theme 1-month values match the live pipeline on the same close (${drift.map((row) => row.id + ' ' + row.ret1m + ' vs ' + recomputed.get(row.id)?.toFixed(2)).join(', ')})`);
+    } else console.log(`scenario-state.json playbook ${published.playbookVersion || 'unstamped'} / US ${published.basis?.themeAsOfByMarket?.US || '?'}: same-close comparison waits for the next refresh`);
+  }
   const state2 = buildScenarioState({ data, history: rows, macroHistory, calendar, screener, themeMaps: maps, previous: state1, nowMs: now + 3600000 });
   assert.equal(state2.transitions.length, state1.transitions.length, 'P1743: an unchanged market adds no transitions');
   assert.equal(state2.eventOutcomes.length, state1.eventOutcomes.length, 'P1743: releases are not re-scored');
@@ -886,7 +905,26 @@ console.log('scenario guidance fixture (basis card): PASS');
   const sub = (id, name, ret5d, direction) => ({ id, name, direction, above50Pct: 40, recent: recentMove({ ret5d, noise }) });
   const lead = themeStrengthLead({ windowLabel: '3개월', groups: [sub('a', '정유', 1, 'steady'), sub('b', '서버', 1, 'steady'), sub('c', '소프트', 1, 'steady'), sub('d', '네트워킹', -13.8, 'improving'), sub('e', '전력장비', 1.0, 'improving')] });
   assert.ok(/전력장비는 1개월 순위가 크게 올라 최근 강해지는 곳입니다/.test(lead) && /네트워킹\(최근 5거래일 -13\.8%\)은 1개월 순위는 올랐지만/.test(lead), `v57.81 sub-theme lead (${lead})`);
-  const detail = themeDetailFlow({ themeId: 't', groups: [{ ...sub('x', '장비/소재', -12.9, 'improving'), themeId: 't', ret3m: -14.6 }, { ...sub('y', '테스트', 1, 'steady'), themeId: 't', ret3m: 11.6 }] });
+  assert.ok(!/상위는/.test(lead), `v58.75 the sub-theme lead does not repeat the top names the table shows (${lead})`);
+  {
+    // v58.75 (persona review, teach-and-check A-4·5): six criteria as a count with values, roles by the theme medians,
+    // and the theme→screener link searched by the theme name.
+    const { themeCriteria, memberRoles } = await import('../src/domain/scenarios/theme-criteria.js');
+    const m = (sym, ret1m, ret3m, pctSma50, pctFrom52wHigh) => ({ sym, row: { ret1m, ret3m, ret5d: 1, pctSma50, adrPct: 2, pctFrom52wHigh, dollarVolume30d: sym === 'D' ? 5e6 : 5e8 } });
+    const members = [m('A', 10, 30, 8, -3), m('B', 5, 20, 4, -10), m('C', 2, 5, 2, -20), m('D', -8, -15, -6, -40), m('E', 1, 6, 1, -18)];
+    const criteria = themeCriteria({ row: { ret1m: 5, ret3m: 12, ret6m: 20, above50: 80, wind: { lead: 'head' } }, members, benchmark: { ret1m: 1, ret3m: 2, ret6m: 5, name: '지수' },
+      consensus: { rows: { A: { fwd: { up4w: 3, down4w: 0 } }, B: { fwd: { up4w: 2, down4w: 1 } }, C: { fwd: { up4w: 0, down4w: 1 } } } }, calendar: null, lead: { title: '시나리오 — 설명' } });
+    assert.equal(criteria.items.length, 6, 'v58.75 six theme criteria');
+    assert.ok(criteria.items.every((item) => typeof item.label === 'string' && typeof item.value === 'string' && typeof item.principle === 'string' && [true, false, null].includes(item.met)), 'v58.75 criteria item shape');
+    assert.deepEqual(criteria.items.map((item) => item.met), [true, true, true, null, true, false], 'v58.75 criteria results (calendar missing = null)');
+    assert.match(criteria.headline, /^6개 중 4개 충족\(가능성 아님\), 확인 가능 5개 — 미충족: 시황·선두 시나리오 적합$/, 'v58.75 criteria headline is a met count, never a likelihood');
+    const { roles } = memberRoles(members);
+    assert.deepEqual(['A', 'B', 'C', 'D', 'E'].map((sym) => roles.get(sym).role), ['leader', 'leader', 'laggard', 'dropout', null], 'v58.75 member roles (E sits at the 3개월 median: middle)');
+    assert.equal(roles.get('D').thin, true, 'v58.75 thin liquidity flag');
+    const linked = themeDetailFlow({ themeId: 't', themeName: '반도체', groups: [{ ...sub('x', '장비', 1, 'steady'), themeId: 't', ret3m: 5 }] });
+    assert.deepEqual(linked.next[0].ctx, { q: '반도체' }, 'v58.75 theme detail opens the screener searched by the theme name');
+  }
+  const detail = themeDetailFlow({ themeId: 't', groups: [{ ...sub('x', '장비/소재', -12.9, 'improving'), themeId: 't', ret3m: -14.6 },{ ...sub('y', '테스트', 1, 'steady'), themeId: 't', ret3m: 11.6 }] });
   assert.ok(/1개월 순위는 장비\/소재가 올랐지만 최근 5거래일 -12\.9%로 크게 밀렸습니다/.test(detail.read) && !/옮겨 가는 중/.test(detail.read), `v57.81 theme detail (${detail.read})`);
   // Stage chips: the producer's 'current' status renders them.
   const state = { status: SCENARIO_STATE_CURRENT, themes: [{ market: 'US', id: 'semiconductor', label: '반도체', state: 'fading', windLead: 'head', favored: ['wait'] }] };

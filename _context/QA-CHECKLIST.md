@@ -4,6 +4,24 @@ last_verified: 2026-10-24
 confidence: medium
 ---
 
+## v58.75 v58.75 사용자 유형 검토 (2026-10-24) (2026-10-24)
+
+- [x] QA-AI-SCREEN-01: P2036: 종목·재무·차트 화면의 종목명 없는 질문이 화면 종목 기준으로 답하고 그 사실을 밝힌다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [ ] QA-AI-PF-CONSENT-01: P2036: 포트폴리오 질문은 동의 뒤에만 보유 행을 보내고, 보내지 않았으면 모델에 미전송을 알린다. verify_by: push 뒤 AI 패널 포트폴리오 칩 → 동의 창 → 답 확인
+- [x] QA-AI-PRICED-IMP-01: P2037: 가격이 붙은 손절·목표 명령문은 치환되고, 지지·저항 후보 설명은 남는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-BRIEF-EPS-01: P2038: 브리핑 실적 행에 EPS·매출 예상이 보이고, 날짜마다 대형 실적이 최소 2건 남는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NEWS-SCN-TAG-01: P2039: 뉴스 시나리오 꼬리표는 제목에 그 시나리오 핵심어가 있을 때만 붙는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-TG-LEAD-01: P2040: 채널 글의 대표 꼬리표가 첫 문장 주제를 따르고, 부정 표현은 꼬리표가 되지 않는다. verify_by: push 뒤 뉴스 채널 피드 대표 꼬리표 확인
+- [x] QA-TEMP-RANK-01: P2041: 가격 온도 요소는 원값과 3년 순위를 구분해 보여 준다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-GUIDE-PCE-01: P2042: 도움말 PCE 기준이 규칙 상수(버퍼·동반 재가속)와 같고, 거시 부담 개수가 목록 수와 같게 읽힌다. verify_by: node scripts/ci-capability-claim-contract-check.mjs
+- [x] QA-DIST-DAYS-01: P2043: 분배일은 두 화면에서 현재값과 최근 최대값을 같은 문장으로 보여 준다. verify_by: node scripts/ci-regime-scenarios-fixture.mjs
+- [x] QA-THEME-ROT-01: P2044: 테마 회전 문장의 1개월 값이 화면 계산과 같다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-SCR-PIVOT-01: P2045: 피벗 근접 프리셋은 거래량 조건 없이 near_pivot 종목을 거래 적은 순으로, 돌파 프리셋은 거래 증가 종목만 보여 준다. verify_by: node scripts/ci-screener-workbench-contract.mjs
+- [ ] QA-HIDDEN-TOOLS-01: P2046: 백테스트(보유 시)·내 계획 점검·이번 주 실적·테마 상세 AI 칩이 일반 모드에서 보인다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive today
+- [x] QA-PERSONA-LEVELS-01: v58.75 가격 레벨과 내 계획: 차트 화면에 지지·저항 후보 표(거리·변동폭 배수·반응 횟수), 전문가의 손절·목표 방법, 사용자가 입력한 가격의 사실 점검이 있고 앱이 고른 가격은 없다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-PERSONA-CHOOSE-01: v58.75 고르는 법: 테마 기준 6개·종목 렌즈·논지 틀·돌파 전 점검표·포트폴리오 점검 기준이 충족 개수와 값만 보이고 점수·확률·목표가가 없다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-PERSONA-LIVE-01: v58.75 라이브: 실제 시세로 차트 레벨 지도·셋업 점검표·RS선, 생산자 갱신 뒤 마진·서프라이즈·6주 실적 일정이 나온다. verify_by: push 뒤 라이브 #technical·#fundamental NVDA 확인
+
 ## v58.74 데이터 v58.74 (2026-10-24)
 
 - [ ] QA-FX-FRIDAY-01: P2012: 금요일 17시(ET) 이후 환율·선물 시세가 휴장 종가로 분류된다. verify_by: 다음 금요일 21Z 이후 refresh-data history-time 단계 통과

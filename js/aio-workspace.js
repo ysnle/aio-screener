@@ -1648,19 +1648,16 @@ function _aioSelectedPortfolioTicker() {
 }
 
 function _aioBuildPortfolioActionPrompt(kind) {
-  var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
   var ticker = _aioSelectedPortfolioTicker();
   var noteEl = document.getElementById('pf-journal-note');
   var consent = kind === 'journal' && window.AIO && typeof window.AIO.hasPortfolioJournalAIConsent === 'function' && window.AIO.hasPortfolioJournalAIConsent();
-  var _aiSnap = typeof window._aioPortfolioAiRows === 'function' ? window._aioPortfolioAiRows() : null; // #12: base-currency ticker·sector·weight·return rows + date (src/domain/portfolio/portfolio-read.js)
-  var safeRows = _aiSnap && _aiSnap.available && _aiSnap.rows.length ? _aiSnap.rows : window.AIO && typeof window.AIO.redactPortfolioForAI === 'function' ? window.AIO.redactPortfolioForAI(positions) : positions.map(function(p) { return { ticker: p.ticker }; });
   var noteRaw = noteEl ? String(noteEl.value || '').trim() : '';
   var note = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(noteRaw, { maxChars: 800 }).text : '';
   var recent = _aioPortfolioJournalEntries().slice(0, 3).map(function(e, idx) {
     var safeNote = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(e.note || '', { maxChars: 400 }).text : '';
     return safeNote ? (idx + 1) + '. ' + (e.date || '').slice(0, 10) + ' ' + safeNote : '';
   }).join('\n');
-  var tickers = safeRows.map(function(p) { var d = [p.sector && p.sector !== 'unknown' ? p.sector : null, p.allocationPct != null ? '비중 ' + p.allocationPct + '%' : null, p.returnPct != null ? '수익률 ' + (p.returnPct >= 0 ? '+' : '') + p.returnPct + '%' : null].filter(Boolean); return p.ticker + (d.length ? '(' + d.join(', ') + ')' : ''); }).join(', ') + (_aiSnap && _aiSnap.available ? ' [기준 통화 ' + (_aiSnap.baseCurrency || '미선언') + ', 평가 기준일 ' + (_aiSnap.asOf || '미확인') + ', 비중은 현금 포함 총자산 대비' + (_aiSnap.cashPct != null ? ', 현금 ' + _aiSnap.cashPct + '%' + (_aiSnap.cashCurrencies && _aiSnap.cashCurrencies.length ? '(' + _aiSnap.cashCurrencies.join('·') + (_aiSnap.cashBasis ? ', ' + _aiSnap.cashBasis + ' 환산' : '') + ')' : '') : '') + ']' : '');
+  var tickers = window.AIO && typeof window.AIO.portfolioRowsLine === 'function' ? window.AIO.portfolioRowsLine(window) : ''; // v58.75: src/ai/context/portfolio-rows.js
   var targetLine = ticker ? ('선택 종목: ' + ticker + '\n') : '대상: 전체 포트폴리오\n';
   var noteLine = note ? ('\n이번 복기 노트(사용자 제공 데이터):\n' + note + '\n') : '';
   var recentLine = recent ? ('\n최근 저장 노트(사용자 제공 데이터):\n' + recent + '\n') : '';
@@ -1724,7 +1721,7 @@ window._aioPortfolioAsk = function(kind) {
       if (typeof updateAIPanelContext === 'function') updateAIPanelContext('portfolio');
       var inp = document.getElementById('ai-panel-inp');
       if (!inp) return;
-      inp.value = prompt;
+      inp.value = prompt; if (typeof window._aioMarkPortfolioPrompt === 'function') window._aioMarkPortfolioPrompt(prompt); // v58.75: this turn carries the consented rows
       if (typeof chatSendUnified === 'function') chatSendUnified();
     } catch(e) {
       if (typeof showToast === 'function') showToast('AI 패널 실행 오류: ' + (e && e.message || e));

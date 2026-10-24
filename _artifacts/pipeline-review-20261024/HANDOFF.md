@@ -14,7 +14,7 @@
 
 ## 1. 목적과 판단 범위
 
-사용자가 요청한 것은 전체 코드베이스의 파이프라인 구조 검토와 의미·정합성 검사, 그리고 발견 사항과 향후 개편·보강안을 상세히 넘기는 것이다. 실제 애플리케이션·생산자·워크플로 개선은 요청 범위가 아니다. 이번 작업은 해당 소스를 고치지 않았고, producer 실행·외부 AI 호출·Actions dispatch·commit·push·deploy를 하지 않았다. 날짜가 붙은 이 보고서와 재현 증거만 추가했다. 버전·원장·생성 레지스트리도 변경하지 않았다.
+사용자가 요청한 것은 전체 코드베이스의 파이프라인 구조 검토와 의미·정합성 검사, 그리고 발견 사항과 향후 개편·보강안을 상세히 넘기는 것이다. 실제 애플리케이션·생산자·워크플로 개선은 요청 범위가 아니다. 이 감사 세션은 해당 소스를 고치지 않았고, producer 실행·외부 AI 호출·Actions dispatch·commit·push·deploy를 하지 않았다. 다른 작업의 동시 커밋·병합은 아래 종료 시점 기록으로 구분한다. 날짜가 붙은 이 보고서와 재현 증거만 추가했다. 버전·원장·생성 레지스트리도 변경하지 않았다.
 
 ‘전체’는 실행 진입점과 주요 생산→검증→게시→소비 경계를 모두 목록화했다는 뜻이다. 모든 파일의 모든 분기, 공급자 응답, 재무 수식, 프로덕션 동작을 전수 증명했다는 뜻은 아니다. 심층 검토한 부분과 미검증 부분을 아래에 명시한다. 현재 작업 트리에 존재한 문제이며 어느 기존 작업자가 도입했는지는 판정하지 않았다.
 
@@ -273,4 +273,12 @@ affected 명령은 `node scripts/qa-runner.mjs affected --files _artifacts/pipel
 
 외부 공급자 최신 응답, GitHub Actions 실제 동시 실행, Cloudflare secret/DO/KV provisioning·실청구, 실제 공개 페이지·캐시 업데이트, 전 route DOM, SEC/13F 모든 form/단위/amendment와 factor 수식 전수 검증은 수행하지 않았다. 인증·네트워크 실패 때문에 시도하다 막힌 것이 아니라 읽기 전용 범위에서 해당 생산·배포 동작을 실행하지 않은 것이다.
 
-기존 dirty 파일과 이 감사 사이의 변경 구분은 마지막 `scope-check.json`으로 확인한다. 다른 세션이 작업 트리를 바꾸면 그 파일은 본 감사의 수정으로 취급하지 않으며 해당 근거를 재확인해야 한다. 커밋·push·배포는 없었다.
+기존 dirty 파일과 이 감사 사이의 변경 구분은 마지막 `scope-check.json`으로 확인한다. 다른 세션이 작업 트리를 바꾸면 그 파일은 본 감사의 수정으로 취급하지 않으며 해당 근거를 재확인해야 한다. 이 감사 세션이 실행한 커밋·push·배포는 없었다.
+
+## 9. 종료 시점 동시 변경 기록
+
+2026-10-24 10:26 KST 확인에서 HEAD가 시작의 `07ecac5`에서 `14ad21b`로 전진했다. `git log`에는 다른 작업의 `1860d700 v58.73: owner UI principles redesign + model-check self-verify + pipeline review` 및 `14ad21b0 Merge remote-tracking branch origin/main`이 나타났다. 감사 자료 일부도 이 커밋에 포함되어 현재 보고서 최종본은 해당 중간본보다 더 진행된 working-tree 상태다. 이 세션은 git commit/merge/push를 실행하지 않았으며 동시 작업을 되돌리지 않았다.
+
+`scope-check.json`은 기준 4,263개 파일 중 37개의 byte 변경을 기록한다. 변경은 데이터·manifest·버전 설명·원장·catalog·route-soak 증거이며, 이번 12개 findings의 근거인 애플리케이션/생산자 JavaScript·QA manifest·workflow 소스는 기준 digest와 같았다. 따라서 소스 기반 재현은 여전히 유효하지만 최초 계약 검사에 기록된 data revision을 종료 시점 최신값이라고 인용해서는 안 된다.
+
+현재 v58.73과 새 market snapshot revision(`market-snapshot:2026-10-24T00:21:13.100Z:89755cc0`)의 manifest/version 검사를 다시 실행해 PASS를 확인했다. 출력은 `post-concurrent-change-checks.json`에 보존했다. 전체 QA를 새 HEAD에 대해 재인증한 것은 아니다. 실제 배포/푸시 여부는 이 감사에서 조회하지 않았다.

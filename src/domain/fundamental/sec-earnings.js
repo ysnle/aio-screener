@@ -19,12 +19,27 @@ export const SEC_COMMON_INCOME_CONCEPT = 'NetIncomeLossAvailableToCommonStockhol
 // purchased IPR&D; the plain concept is preferred, the software variant is the last fallback. ResearchAndDevelopmentInProcess
 // (purchased IPR&D alone) is not ongoing R&D and is not read.
 export const SEC_RD_CONCEPTS = Object.freeze(['ResearchAndDevelopmentExpense', 'ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost', 'ResearchAndDevelopmentExpenseSoftwareExcludingAcquiredInProcessCost']);
+// v58.75 (persona review): US-GAAP concepts for the margin ladder, net cash and capital return, in preference order. Cash is
+// cash and equivalents only (restricted cash is a different total); short-term investments are read as their own column.
+export const SEC_CAPITAL_CONCEPTS = Object.freeze({
+  grossProfit: ['GrossProfit'],
+  operatingIncome: ['OperatingIncomeLoss'],
+  cash: ['CashAndCashEquivalentsAtCarryingValue'],
+  shortTermInvestments: ['ShortTermInvestments', 'MarketableSecuritiesCurrent', 'AvailableForSaleSecuritiesDebtSecuritiesCurrent'],
+  shareBasedCompensation: ['ShareBasedCompensation', 'AllocatedShareBasedCompensationExpense'],
+  buybacks: ['PaymentsForRepurchaseOfCommonStock'],
+  dividends: ['PaymentsOfDividends', 'PaymentsOfDividendsCommonStock']
+});
+// The IFRS lines for the same items (an IFRS filer has no separate short-term investments concept here).
+export const SEC_IFRS_CAPITAL_CONCEPTS = Object.freeze({ grossProfit: ['GrossProfit'], operatingIncome: ['ProfitLossFromOperatingActivities'], cash: ['CashAndCashEquivalents'], shortTermInvestments: [],
+  shareBasedCompensation: ['AdjustmentsForSharebasedPayments'], buybacks: ['PaymentsToAcquireOrRedeemEntitysShares'], dividends: ['DividendsPaidClassifiedAsFinancingActivities'] });
 export const SEC_FIELD_CONCEPT_PREFERENCE = Object.freeze({
   netIncome: ['NetIncomeLoss', 'ProfitLossAttributableToOwnersOfParent', 'ProfitLoss'],
   operatingCashFlow: ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations', 'CashFlowsFromUsedInOperatingActivities'],
   capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets', 'PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'],
   longTermDebt: ['LongTermDebtNoncurrent', 'LongTermDebt'],
-  researchAndDevelopment: SEC_RD_CONCEPTS
+  researchAndDevelopment: SEC_RD_CONCEPTS,
+  ...Object.fromEntries(Object.entries(SEC_CAPITAL_CONCEPTS).map(([field, list]) => [field, [...list, ...(SEC_IFRS_CAPITAL_CONCEPTS[field] || [])]]))
 });
 
 const rowEnd = (row) => row?.periodEnd ?? row?.end ?? null;

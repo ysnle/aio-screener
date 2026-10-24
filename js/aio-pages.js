@@ -283,6 +283,9 @@ async function _fetchEarningsCalendarSnapshot() {
       weekStart: d.weekStart || null,
       weekEnd: d.weekEnd || null,
       generatedAt: d.generatedAt || null,
+      // v58.75 (persona review): the provider travels with the rows, so the schedule's estimate hover can name it.
+      source: d.source || null,
+      sourceUrl: d.sourceUrl || null,
       // v57.51 N19: large caps the provider window does not list are 'schedule unconfirmed', never "no report".
       unconfirmed: d.largeCapCoverage && Array.isArray(d.largeCapCoverage.unconfirmed) ? d.largeCapCoverage.unconfirmed : []
     };

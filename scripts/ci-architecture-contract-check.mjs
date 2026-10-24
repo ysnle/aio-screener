@@ -232,7 +232,7 @@ if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fa
 // news screen owns the article feed); news.js routes to it and the retired feed helpers stay gone.
 {
   const briefingReadSource = read('src/ui/components/briefing-read.js');
-  if (!newsPageSource.includes("import { renderBriefingRead } from '../components/briefing-read.js'") || !newsPageSource.includes('renderBriefingRead({ documentRef, root })')) fail('news.js must route the briefing to the native briefing read owner');
+  if (!newsPageSource.includes("import { renderBriefingRead } from '../components/briefing-read.js'") || !newsPageSource.includes('renderBriefingRead({ documentRef, root, store })')) fail('news.js must route the briefing to the native briefing read owner');
   if (!briefingReadSource.includes("page.dataset.aioBriefingRenderer = 'native-read'")) fail('briefing-read.js native briefing read marker missing');
   for (const retired of ['appendBriefingNews', 'getBriefingWindow']) if (newsPageSource.includes(retired)) fail(`news.js retired briefing feed helper returned: ${retired}`);
   // P1411: the hidden legacy digest (and its page-shown / live-quote hooks) must not come back.

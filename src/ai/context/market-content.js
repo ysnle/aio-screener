@@ -15,7 +15,7 @@ import { conditionLabel, parseConditionValue } from '../../domain/screener/custo
 import { signedText } from '../../domain/shared/number.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
-export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '' } = {}) {
+export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '', tickers = [], blocks = null } = {}) {
   const contexts = new Set();
   if (/^(macro|fxbond|themes|theme-detail)$/.test(ctxId)) contexts.add(ctxId); // v57.54: kr-macro/kr-themes are no longer chat contexts
   const text = String(query || '');
@@ -66,6 +66,8 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
     try {
       // Owner 2026-10-19: the same theme stages the 테마 screen draws (shared interpretation, same rows).
       const { playbook } = marketInterpretation(root);
+      const focused = blocks ? blocks.focusedThemeContext({ root, ctxId, query: text, playbook, rows: screenerRows || root.SCREENER_DB || [] }) : '';
+      if (focused) parts.push(focused);
       const themesBlock = renderThemePlaybookContext(playbook, { query: text });
       if (themesBlock) parts.push(themesBlock);
     } catch (_) {}
@@ -86,8 +88,20 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
     if (scenarios.available) parts.push(`화면과 동일한 ${cached.symbol} 완료 일봉 기준 ${scenarios.asOf}. 조건부 흐름(예측 확률/목표가가 아님):\n${scenarios.scenarios.map(item => `${item.title}: ${item.text}`).join('\n')}`);
     if (profile.available) parts.push(`일봉 추정 거래 집중 가격대: ${profile.zones.map(zone => `${zone.low.toFixed(2)}~${zone.high.toFixed(2)} (${zone.share.toFixed(1)}%)`).join(', ')}. ${profile.start}~${profile.end}. 거래량을 일봉 저가~고가에 균등 배분한 참고치이며 실제 가격별 체결 매물대/보유원가/매수·매도 우위가 아님.`);
   }
+  // v58.75 (persona review): level map, setup coach and stock lens blocks (choosing-blocks.js, loaded when a question
+  // is asked; without it the answer goes on without them).
+  if (blocks) parts.push(...blocks.questionBlocks({ ctxId, text, root, subjects: (Array.isArray(tickers) && tickers.length ? tickers : requested) }));
   return parts.join('\n');
 }
+
+// v58.75 (persona review, boot budget): the answer-shaping blocks live in choosing-blocks.js and load on the first
+// question. Exposed on the function because window.AIO.buildQuestionDomainContext is the chat's only handle here.
+let choosingBlocks = null;
+export function loadChoosingBlocks() {
+  if (!choosingBlocks) choosingBlocks = import('./choosing-blocks.js').catch(() => { choosingBlocks = null; return null; });
+  return choosingBlocks;
+}
+buildQuestionDomainContext.loadBlocks = loadChoosingBlocks;
 
 export function buildMarketContentContext({ query = '', history = [], themes = [], rows = [] } = {}) {
   const parts = [];

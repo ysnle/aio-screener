@@ -165,7 +165,9 @@ function renderDynamic(doc, root, host, surface) {
       card('승률', s.winRate == null ? '—' : `${s.winRate.toFixed(0)}%`, review.small ? `${s.n}건 기록, 표본 적음` : null),
       card('평균 이익, 손실', `${pct(s.avgWinPct)}, ${pct(s.avgLossPct)}`, s.payoff == null ? null : `손익비 ${s.payoff.toFixed(2)}`),
       card('실현 손익', Object.entries(s.pnlByCurrency).map(([currency, amount]) => money(amount, currency)).join(', ') || '—', '수수료·세금 반영'),
-      card('보유 기간 중앙값', `이익 ${s.holdWinDays ?? '—'}일, 손실 ${s.holdLossDays ?? '—'}일`, null)
+      card('보유 기간 중앙값', `이익 ${s.holdWinDays ?? '—'}일, 손실 ${s.holdLossDays ?? '—'}일`, null),
+      // v58.75 (spec F6): shown only when some closed lot carried a stop price.
+      ...(s.stopKept?.n ? [card('손절 가격 지킴', `${s.stopKept.kept}/${s.stopKept.n}건`, '매수 때 적은 손절 가격 이상에서 판 비율')] : [])
     );
     summary.append(cards);
     if (review.notes.length) {
@@ -182,6 +184,16 @@ function renderDynamic(doc, root, host, surface) {
       fold.append(list);
       summary.append(fold);
     }
+    // v58.75 (spec F6): results by the mood written at the buy, from the reader's own record (hidden with no mood written).
+    if (s.byMood.length) {
+      const fold = el(doc, 'details', null, 'pf-trade-fold');
+      fold.append(el(doc, 'summary', '매수할 때 마음별 결과'));
+      const list = el(doc, 'ul', null, 'pf-trade-notes');
+      for (const row of s.byMood) list.append(el(doc, 'li', `${row.label} — ${row.n}건, 이익 ${row.wins}건, 평균 ${pct(row.avgPct)}`));
+      fold.append(list);
+      summary.append(fold);
+    }
+    summary.append(el(doc, 'p', `비중을 다시 맞추는 방법은 두 갈래입니다. 정해 둔 날짜마다 맞추는 정기 방식은 단순하지만 그 사이 쏠림을 놔두고, 정해 둔 범위를 벗어날 때만 맞추는 밴드 방식은 거래가 적지만 범위를 스스로 정해야 합니다. 어느 쪽이든 내 원칙에 적어 두면 위 '내 원칙과 지금 상태'에서 비교됩니다.`, 'theme-strength-basis'));
   }
   parts.push(summary);
   if (journal.trades.length) {

@@ -552,7 +552,8 @@ function _aioApplyAIActionGate(text, meta) {
   // v58.63 (architecture audit A15): English directives are directives too ("You should buy NVDA now." passed untouched).
   var english = /\b(?:you\s+(?:should|must|need\s+to|ought\s+to)|i\s+(?:recommend|suggest|advise)(?:\s+(?:you|that\s+you))?|we\s+recommend(?:\s+(?:you|that\s+you))?|it(?:'s|\s+is)\s+time\s+to)\s+(?:buy|sell|short|add\s+to|trim|dump|load\s+up\s+on|go\s+long|go\s+short|exit)\b|(?:^|[.!?]\s*)(?:buy|sell|short)\s+(?:[A-Z]{1,5}\b|shares|the\s+stock|it\s+now|now)|\bstrong\s+(?:buy|sell)\b/i;
   var englishIndirect = /\b(?:said|argued|wrote|believed|taught|advised|warned)\s+(?:that\s+)?(?:you|investors|traders)\b|\bthe\s+(?:rule|principle|maxim)\s+(?:is|says)\b/i;
-  var patterns = [recommend, imperative, colloquial, weight, opportunity, tickerAction, english];
+  var pricedImperative = new RegExp('(?:' + action + '|손절가|목표가|매수가|매도가|진입가|익절가)\\s*(?:은|는|을|를)?\\s*\\$?\\d[\\d,.]*\\s*(?:달러|원)?\\s*(?:에서|에|으로|로|부근에서|근처에서)\\s*(?:하세요|하십시오|하라|두세요|잡으세요|거세요|설정하세요|정하세요|하시기\\s*바랍니다)'); // v58.75: priced imperatives ("손절은 178달러에서 하세요")
+  var patterns = [recommend, imperative, colloquial, weight, opportunity, tickerAction, english, pricedImperative];
   // v58.63 (A15): a negation exempts a directive only when it binds to that directive — inside the matched words or right
   // after/before them ("매수를 추천하지 않습니다", "not a buy"). A negation elsewhere in the sentence ("매수하세요 그리고 손절하지
   // 마세요") no longer clears the buy instruction beside it.
@@ -2388,7 +2389,7 @@ function _extractTickers(text) {
 function _aioResolveChatTickers(q, questionPlan, state, options) {
   var resolve = window.AIO && window.AIO.resolveChatTickers;
   if (typeof resolve !== 'function') return _extractTickers(q);
-  return resolve({ query: q, questionPlan: questionPlan, state: state, companiesOnly: !!(options && options.companiesOnly), extract: _extractTickers, fuzzy: typeof _resolveTickerFromFuzzy === 'function' ? _resolveTickerFromFuzzy : null });
+  return resolve({ query: q, questionPlan: questionPlan, state: state, companiesOnly: !!(options && options.companiesOnly), extract: _extractTickers, fuzzy: typeof _resolveTickerFromFuzzy === 'function' ? _resolveTickerFromFuzzy : null, root: window, ctxId: (options && options.ctxId) || '' }); // v58.75: the screen's company (chat-tickers.js screenSubjectTicker)
 }
 
 // v48.11: 주가 추이 자동 분석 — 5D/20D/3M 변동 + 추세 라벨 + 52주 위치
@@ -2709,8 +2710,8 @@ function _fetchDomainContextForChat(ctxId) {
 window._fetchDomainContextForChat = _fetchDomainContextForChat;
 
 // P1621: questions can cross page boundaries; select existing domain summaries without paid retrieval.
-function _aioDomainContextForQuestion(ctxId, query) {
-  return window.AIO && typeof window.AIO.buildQuestionDomainContext === 'function' ? window.AIO.buildQuestionDomainContext({ ctxId: ctxId, query: query, root: window, readDomain: _fetchDomainContextForChat }) : _fetchDomainContextForChat(ctxId);
+function _aioDomainContextForQuestion(ctxId, query, tickers) {
+  return window.AIO && typeof window.AIO.buildQuestionDomainContext === 'function' ? window.AIO.buildQuestionDomainContext({ ctxId: ctxId, query: query, root: window, readDomain: _fetchDomainContextForChat, tickers: tickers || [], blocks: window._aioChoosing || null }) : _fetchDomainContextForChat(ctxId);
 }
 
 // v50.37 트랙2: 채팅 데이터 소스 레지스트리 — 종목 답변에 주입되는 모든 데이터 소스의 단일 선언 카탈로그.
@@ -3614,40 +3615,9 @@ var _CTX_TOPIC_MAP = {
   'mentor':      ['macro','equity','semi','earnings','healthcare']
 };
 
-// P1729: the 08:00 KST window boundary and the provisional post-08:00 slot. The canonical bundle closes at 08:00, so
-// a Korean session's events reach it only the next morning; the model is told which window it reads and whether any
-// post-08:00 headline exists, so an empty slot is not read as "nothing happened".
-function _aioNewsWindowContext() {
-  var meta = window._serverDataMeta || {};
-  var fmt = function(iso) {
-    var ms = Date.parse(iso || '');
-    if (!isFinite(ms)) return null;
-    var k = new Date(ms + 9 * 3600000).toISOString();
-    return k.slice(5, 10).replace('-', '/') + ' ' + k.slice(11, 16);
-  };
-  var start = fmt(meta.newsCycleStart), end = fmt(meta.newsCycleEnd);
-  var out = '\n\n【뉴스 수집 창】\n' + (start && end
-    ? '정식 묶음: ' + start + ' ~ ' + end + ' KST(08:00 마감 24시간). 08:00 이후 사건은 이 묶음에 없고 다음 08:00 수집본에 들어간다.'
-    : '정식 묶음 창 미확인 — 기사 시각을 직접 확인하라.') + '\n';
-  var endMs = Date.parse(meta.newsCycleEnd || '');
-  var intraday = (Array.isArray(window._serverNewsIntraday) ? window._serverNewsIntraday : []).filter(function(it) {
-    var ms = Date.parse(it && it.publishedAt || '');
-    return it && it.title && isFinite(ms) && (!isFinite(endMs) || ms >= endMs);
-  }).slice(0, 6);
-  if (intraday.length) {
-    out += '【08:00 이후 장중 속보 (잠정)】 헤드라인만 수집된 미확정 기사다. 인용 시 "잠정"과 시각을 밝히고 본문 내용을 추정하지 마라.\n'
-      + intraday.map(function(it, i) {
-        return (i + 1) + '. [' + (fmt(it.publishedAt) || '시각 미확인') + ' KST, ' + (it.source || '출처 미확인') + (it.market ? ', ' + it.market : '') + '] ' + String(it.title).substring(0, 140);
-      }).join('\n') + '\n';
-  } else {
-    out += '08:00 이후 장중 속보 칸: 수집된 기사 없음. 오늘 한국장 시간대 사건(급락·발표 등)은 이 맥락에 없을 수 있으니 "기사 없음"을 "사건 없음"으로 단정하지 마라.\n';
-  }
-  return out;
-}
-
 function _buildNewsContext(ctxId, query) {
   var _windowCtx = '';
-  try { _windowCtx = _aioNewsWindowContext(); } catch (_) { _windowCtx = ''; }
+  try { _windowCtx = window._aioChoosing ? window._aioChoosing.newsWindowContext(window) : ''; } catch (_) { _windowCtx = ''; } // P1729 window (choosing-blocks.js)
   if (!newsCache || newsCache.length === 0) return _windowCtx;
 
   var topics = _CTX_TOPIC_MAP[ctxId] || ['macro','geo','energy'];
@@ -3655,11 +3625,12 @@ function _buildNewsContext(ctxId, query) {
   var queryWords = q.split(/\s+/).map(function(w) { return w.replace(/[^0-9a-z가-힣]/gi, ''); }).filter(function(w) { return w.length > 2; });
   var now = Date.now();
   var H24 = 24 * 3600000;
+  var span = window._aioChoosing ? window._aioChoosing.newsWindow(query, now) : null; // v58.75: "이번 주" reads up to 7 days
 
   // 24시간 이내 뉴스만
   var recent = newsCache.filter(function(it) {
     if (!it.pubDate) return false;
-    return (now - new Date(it.pubDate).getTime()) < H24;
+    return (now - new Date(it.pubDate).getTime()) < (span ? span.windowMs : H24);
   });
 
   // 관련도 스코어링: 토픽 매칭 + 질문 키워드 매칭 + 기존 score
@@ -3686,7 +3657,7 @@ function _buildNewsContext(ctxId, query) {
   scored.sort(function(a, b) { return b.rel - a.rel; });
 
   // 상위 5건 (토큰 절약)
-  var top = scored.slice(0, 5);
+  var top = scored.slice(0, span ? span.limit : 5);
   if (top.length === 0) return _windowCtx;
 
   // v48.12: 제목 + 본문 요약(desc 또는 summary) 120자까지 주입 — "왜 올랐나/내렸나" 맥락 제공
@@ -3730,7 +3701,7 @@ function _buildNewsContext(ctxId, query) {
     tickerSummary = '【뉴스 언급 티커 (상위 ' + Math.min(15, mentionedTickers.size) + ')】\n' + tkrList + '\n\n';
   }
 
-  return '\n\n【최근 시장 뉴스 (자동 수집, 24h 이내)】\n' +
+  return '\n\n' + (span ? span.header(recent) : '【최근 시장 뉴스 (자동 수집, 24h 이내)】\n') +
     '아래는 스크리너가 자동 수집한 관련 뉴스 헤드라인 + 요약이다. 각 뉴스의 시간(Nh전)을 확인하고, 주가 추이와 교차 검증 후 답변하라. 제목만으로 과도한 해석 금지, 단 요약의 사실 근거(숫자·기관명·인용)는 적극 활용. 각 뉴스의 [$TICKER] 태그로 관련 기업 식별 가능.\n' +
     lines.join('\n') + '\n\n' +
     tickerSummary + _windowCtx;
@@ -5219,6 +5190,7 @@ function toggleSidebar() {
 
 // v40.4: 통합 AI 사이드 패널 로직
 var _aiCurrentCtx = null;
+var _aioChoosing = null; // v58.75: src/ai/context/choosing-blocks.js, loaded on the first question
 // v47.8: AI 분석가 패널 지원 페이지
 // v48.14 (Agent P1-4): signal/theme-detail/briefing 복구 — 이들 페이지 내러티브 강화돼 AI 분석 가치 ↑
 // 제거 유지: breadth/sentiment — technical/themes 내용과 중복
@@ -5366,7 +5338,8 @@ function updateAIPanelContext(pageId) {
   // 자동채움 프롬프트(예: fundamental "NVDA 종합 기업 분석해줘...")가 다른 페이지까지 따라다니던 문제 수정.
   // 같은 페이지 내 재호출(_ctxChanged=false)에서는 사용자가 입력 중인 값을 건드리지 않음.
   var _ctxChanged = (_aiCurrentCtx !== ctxId);
-  if (_ctxChanged && _aiCurrentCtx && typeof window._aioCancelChatRequest === 'function') {
+  var _keepRunningAnswer = !!(window._aioKeepRunningAnswer && window._aioKeepRunningAnswer(_aiCurrentCtx, ctxId, chatContexts)); // v58.75: one conversation across screens (chat-sessions.js)
+  if (_ctxChanged && _aiCurrentCtx && !_keepRunningAnswer && typeof window._aioCancelChatRequest === 'function') {
     // This also covers callers that switch the panel context directly without
     // going through the document pageShown event.
     window._aioCancelChatRequest(_aiCurrentCtx, 'context-changed');
@@ -5397,7 +5370,7 @@ function updateAIPanelContext(pageId) {
   _aioRenderAiPanelBasis(); // P1729
   // 메시지 이력 복원
   var msgsEl = document.getElementById('ai-panel-msgs');
-  if (msgsEl) {
+  if (msgsEl && !_keepRunningAnswer) {
     msgsEl.innerHTML = '';
     var state = getChatState(ctxId);
     state.messages.forEach(function(m) {
@@ -5605,6 +5578,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniKnowledgeAudit = null;
   var _uniUseClaudeWebSearch = false;
   var _uniWsDecided = false;
+  var _uniScreenSubject = '', _uniPortfolioData = false;
   // P1740: one decision used before the status blocks are written (and again only if preparation threw before it).
   var _uniDecideWebSearch = function() {
     try {
@@ -5675,7 +5649,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       }
     }
     // 1. 티커 감지 + 실시간 시세 (8s 타임아웃)
-    var detectedTickers = _aioResolveChatTickers(q, _uniQuestionPlan, state, { companiesOnly: true });
+    try { _aioChoosing = await _withTimeout(window.AIO.buildQuestionDomainContext.loadBlocks(), 4000, 'choosing-blocks'); } catch (cbe) { if (!_isCurrentUnifiedRun() || (cbe && cbe.name === 'AbortError')) throw cbe; } // v58.75: lazy choosing-blocks.js
+    var detectedTickers = _aioResolveChatTickers(q, _uniQuestionPlan, state, { companiesOnly: true, ctxId: ctxId });
+    if (detectedTickers.source === 'screen' && _aioChoosing) sysPrompt += _aioChoosing.screenSubjectPrompt(_uniScreenSubject = detectedTickers[0]); // v58.75
     var _uniFreshPreflight = null;
     if (window.AIO && typeof window.AIO.ensureFreshChatAnswerData === 'function') {
       try {
@@ -5715,7 +5691,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (typeof _fetchTechnicalDataForChat === 'function') {
       try {
         var _uniTechTickers = detectedTickers.length > 0
-          ? detectedTickers
+          ? detectedTickers : detectedTickers.screenProxy ? [detectedTickers.screenProxy]
           : (typeof _aioTechnicalSymbolsForChat === 'function' ? _aioTechnicalSymbolsForChat(ctxId, q, detectedTickers) : []);
         if (_uniTechTickers && _uniTechTickers.length) {
           var _uniTechnicalStr = await _withTimeout(_fetchTechnicalDataForChat(_uniTechTickers, {
@@ -5753,7 +5729,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     // 1d. 페이지 도메인 데이터 — macro/fxbond/themes/KR 페이지의 라이브 요약을 통합 패널에도 주입
     if (typeof _aioDomainContextForQuestion === 'function') {
       try {
-        var _uniDomainStr = _aioDomainContextForQuestion(ctxId, q);
+        var _uniDomainStr = _aioDomainContextForQuestion(ctxId, q, detectedTickers);
         if (!_isCurrentUnifiedRun()) throw (typeof _aioChatAbortError === 'function' ? _aioChatAbortError('stale') : new Error('stale'));
         if (_uniDomainStr) { sysPrompt += _wrapUnifiedExternal('DOMAIN_LIVE_DATA', _uniDomainStr, { maxChars: 24000 }); _uniDomainData = true; }
       } catch(de2) {
@@ -5838,6 +5814,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       if (newsCtx && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') newsCtx = window.AIO.buildAIUntrustedBlock(newsCtx.indexOf('텔레그램') >= 0 ? 'NEWS_TELEGRAM' : 'NEWS', newsCtx);
       if (newsCtx) { sysPrompt += newsCtx; _uniNewsCtx = true; }
     }
+    if (ctxId === 'portfolio' && _aioChoosing) { // v58.75: holdings only after consent (choosing-blocks.js portfolioTurn)
+      var _uniPf = _aioChoosing.portfolioTurn({ root: window, query: q, pending: window._aioTakePortfolioPrompt ? window._aioTakePortfolioPrompt() : null, wrap: _wrapUnifiedExternal });
+      _uniPortfolioData = _uniPf.data; sysPrompt += _uniPf.prompt; if (_uniPf.notice) _appendAIMsg('ai', '<span class="lch-muted" role="status">' + _uniPf.notice + '</span>'); }
     // P1740: decide hosted web search before the status blocks are written. It used to be decided after them, so a
     // searched answer still told the model "웹검색: 미실행 … MISS — 추측하지 말고 제한사항으로 밝혀라".
     _uniDecideWebSearch();
@@ -5853,7 +5832,7 @@ async function chatSendUnified(_aioDispatchOptions) {
         webSearch: !!_uniWebResult || _uniUseClaudeWebSearch,
         news: _uniNewsCtx,
         freshness: !!_uniFreshPreflight,
-        portfolioData: ctxId === 'portfolio'
+        portfolioData: _uniPortfolioData
       });
     }
     if (typeof _buildChatAnswerCoverageContext === 'function') {
@@ -5868,7 +5847,7 @@ async function chatSendUnified(_aioDispatchOptions) {
         webSearch: !!_uniWebResult || _uniUseClaudeWebSearch,
         news: _uniNewsCtx,
         freshness: !!_uniFreshPreflight,
-        portfolioData: ctxId === 'portfolio'
+        portfolioData: _uniPortfolioData
       });
     }
     if (typeof _buildAioIntegratedAnswerContext === 'function') {
@@ -5883,7 +5862,7 @@ async function chatSendUnified(_aioDispatchOptions) {
         webSearch: !!_uniWebResult || _uniUseClaudeWebSearch,
         news: _uniNewsCtx,
         freshness: !!_uniFreshPreflight,
-        portfolioData: ctxId === 'portfolio'
+        portfolioData: _uniPortfolioData
       });
     }
     if (typeof _buildChatMemoryContext === 'function') {
@@ -5946,7 +5925,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   try { _uniPolicy = typeof _aioChatAnswerPolicy === 'function' ? _aioChatAnswerPolicy(q, ctxId, detectedTickers, _uniScreenerResult) : null; } catch(_) { _uniPolicy = null; }
   var _uniMode = window.AIO && typeof window.AIO.chooseAnswerMode === 'function' ? window.AIO.chooseAnswerMode(_uniPolicy) : 'analysis';
 
-  if (window.AIO && typeof window.AIO.buildAnswerPrinciples === 'function') sysPrompt += window.AIO.buildAnswerPrinciples({ today: _todayStr, mode: _uniMode, hasTickers: detectedTickers.length > 0, hasTrend: _pHasTrend, liveStatus: _liveStatus, newsInjected: !!_uniNewsCtx, webSearch: _uniUseClaudeWebSearch, snapAgeHours: _pSnapAge });
+  if (window.AIO && typeof window.AIO.buildAnswerPrinciples === 'function') sysPrompt += window.AIO.buildAnswerPrinciples({ today: _todayStr, mode: _uniMode, hasTickers: detectedTickers.length > 0, hasTrend: _pHasTrend, liveStatus: _liveStatus, newsInjected: !!_uniNewsCtx, webSearch: _uniUseClaudeWebSearch, snapAgeHours: _pSnapAge, teachBlock: _aioChoosing ? _aioChoosing.teachForTurn({ ctxId: ctxId, query: q, tickers: detectedTickers, mode: _uniMode, prompt: sysPrompt }) : '' });
 
   // 7. 모델 자동 선택 (질문 복잡도 기반)
   var selectedModelKey = 'luna';
@@ -6021,6 +6000,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     var visible = (_uniResearchRequired && !_uniWebResult)
       ? '최신·인과성 주장에 필요한 Web Research 근거를 검증 중입니다. 검증 전 수치와 원인 단정은 표시하지 않습니다.'
       : _uniChunkResult.text;
+    if (_aioChoosing) visible = _aioChoosing.answerHead(_uniScreenSubject, _uniChunkResult.actionGate, visible); // v58.75
     if (aiBubble) aiBubble.innerHTML = _uniSafeRender(visible) + '<span class="lch-caret">|</span>';
     var msgsEl = document.getElementById('ai-panel-msgs');
     if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
@@ -6040,6 +6020,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = _uniDoneResult.text;
     var _publicGate = _uniDoneResult.actionGate;
+    if (_aioChoosing) visible = _aioChoosing.answerHead(_uniScreenSubject, _publicGate, visible); // v58.75: the screen company the answer read
     if (_uniResearchRequired && !_uniResearchGate.ready) {
       _publicGate = Object.assign({}, _publicGate || {}, {
         degraded: true,
@@ -6077,19 +6058,8 @@ async function chatSendUnified(_aioDispatchOptions) {
       // v46.10: 데이터 신뢰도 배지
       var _srcBadge = document.createElement('div');
       _srcBadge.style.cssText = 'font-size:12px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
-      var _bItems = [];
-      var _uniHasFundamentals = /PER:|FCF Yield|Balance Sheet|EV\/EBITDA|Segments|income statement|재무제표/i.test(tickerDataStr || '');
-      _bItems.push(_uniTickerData ? '<span class="lch-src-on">종목 데이터</span>' : '<span class="lch-src-off">종목 데이터</span>');
-      _bItems.push(_uniHasFundamentals ? '<span class="lch-src-on">재무</span>' : '<span class="lch-src-off">재무</span>');
-      if (_uniTechnicalData) _bItems.push('<span class="lch-src-cyan">기술</span>');
-      if (_uniScreenerStr) _bItems.push('<span class="lch-src-amber">스크리너</span>');
-      if (_uniDomainData) _bItems.push('<span class="lch-src-on">페이지 데이터</span>');
-      _bItems.push(_uniNewsCtx ? '<span class="lch-src-on">뉴스</span>' : '<span class="lch-src-off">뉴스</span>');
-      if (_uniWebResult) _bItems.push('<span class="lch-src-purple">웹검색</span>');
-      if (_uniUseClaudeWebSearch) _bItems.push('<span class="lch-src-purple">AI 웹검색</span>');
-      if (_uniDeepData) _bItems.push('<span class="lch-src-cyan">심층</span>');
-      _srcBadge.innerHTML = _bItems.join('');
-      _bubbleParent.appendChild(_srcBadge);
+      _srcBadge.innerHTML = _aioChoosing ? _aioChoosing.sourceBadge(window, ctxId, { ticker: _uniTickerData, tickerText: tickerDataStr, technical: _uniTechnicalData, screener: !!_uniScreenerStr, domain: _uniDomainData, news: _uniNewsCtx, portfolio: _uniPortfolioData, web: !!_uniWebResult, aiWeb: _uniUseClaudeWebSearch, deep: _uniDeepData }) : ''; // v58.75: used evidence only
+      if (_srcBadge.innerHTML) _bubbleParent.appendChild(_srcBadge);
 
       // P1741: figures drawn by the app from completed bars and filings (never from the model's numbers), placed
       // directly under the answer text. Not drawn when the gate blocked the answer (returned above).
@@ -6152,9 +6122,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       var _retryNote = modelOpts.webSearch === true ? ', 웹 검색 없이' : ''; // P1756: retries run without web search — each searched attempt is billed and reserves search budget even on a timeout/5xx; the first attempt keeps search.
       if (_retried >= 1 && _currentIdx >= 0 && _currentIdx < _fallbackOrder.length - 1) {
         nextModel = _fallbackOrder[_currentIdx + 1];
-        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--data-amber);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">⟳ 응답 지연 — ' + (typeof getModelConfig === 'function' ? getModelConfig(nextModel).label : nextModel) + '로 재시도 중' + _retryNote + '...</div>');
+        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--data-amber);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">응답이 늦어 ' + (typeof getModelConfig === 'function' ? getModelConfig(nextModel).label : nextModel) + '로 다시 시도합니다' + _retryNote + '...</div>');
       } else {
-        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--data-amber);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">⟳ 재시도 중' + _retryNote + '... (' + (_retried+1) + '/2)</div>');
+        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--data-amber);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">다시 시도합니다' + _retryNote + ' (' + (_retried+1) + '/2)</div>');
       }
       _uniRun.retryTimer = setTimeout(function() {
         if (_uniRun) _uniRun.retryTimer = null;

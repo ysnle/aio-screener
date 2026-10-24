@@ -2,7 +2,71 @@
 // the six-hour KST slots (06·12·18·24시) — the one in progress first, then each sealed slot, newest open and the rest
 // folded — so a slot the reader missed is still there after the next one lands. No data, no section.
 import { buildMarketTimelineView } from '../../domain/market/market-timeline.js';
+import { moveHeadlineRows } from '../../domain/briefing/news-picks.js';
+import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
+import { selectNewsItems } from '../../state/selectors/news.js';
+import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
+
+// v58.75 (persona review): "왜 움직였나" — beside the stocks and themes 오늘 names as the session's movers, the headline
+// that named the company the same day (src/domain/briefing/news-picks.js), with its time; the publisher sits in the hover.
+// Shared by 오늘 (matched rows only) and 브리핑 (every mover, '관련 보도 없음' when none). One owner for both lists.
+// v58.75 review: symbol → company name, rebuilt when SCREENER_DB arrives or changes — an empty map cached before the
+// universe loaded kept name matching off for the whole session.
+export function symbolNames(root) {
+  const db = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : null;
+  if (root?._aioSymNamesFor === db && root?._aioSymNames) return root._aioSymNames;
+  const names = Object.fromEntries((db || []).filter((row) => row?.sym && row?.name).map((row) => [row.sym, row.name]));
+  if (root) { root._aioSymNames = names; root._aioSymNamesFor = db; }
+  return names;
+}
+
+export function moveNewsRows(root, store, flow) {
+  if (!flow?.available || !flow.themes?.available) return [];
+  const timeline = root?._serverMarketTimeline || {};
+  const news = [...selectNewsItems(store?.getState?.() || {}), ...(Array.isArray(root?._serverNewsIntraday) ? root._serverNewsIntraday : []),
+    ...(timeline.current?.headlines || []), ...(Array.isArray(timeline.slots) ? timeline.slots : []).flatMap((slot) => slot?.headlines || [])];
+  const names = symbolNames(root);
+  return moveHeadlineRows(flow.themes, { session: flow.session, news, telegram: Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [], names });
+}
+
+const kstStamp = (ms) => {
+  const d = new Date(ms + 9 * 3600000);
+  return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+};
+
+/** One list of mover rows; `showMissing` keeps a mover without a headline as '관련 보도 없음'. Returns the list or null. */
+export function moveNewsList(doc, root, rows, { showMissing = false, max = 8, listClass = 'market-slot-news', timeClass = 'market-slot-news-time', titleClass = 'market-slot-news-title' } = {}) {
+  const shown = rows.filter((row) => showMissing || row.headline).slice(0, max);
+  if (!shown.length) return null;
+  const list = el(doc, 'ul', null, listClass);
+  for (const row of shown) {
+    const item = el(doc, 'li');
+    const move = `${row.label} ${signedText(row.move, 1, '%')}`;
+    item.append(el(doc, 'span', move, timeClass));
+    const hit = row.headline;
+    if (!hit) {
+      item.append(el(doc, 'span', '같은 날 관련 보도 없음', titleClass));
+      list.append(item);
+      continue;
+    }
+    const isChannel = hit.kind === 'telegram';
+    let text = isChannel ? hit.text : '';
+    if (!isChannel) {
+      try { text = typeof root?.getDisplayTitle === 'function' ? root.getDisplayTitle(hit.row) : ''; } catch (_) { text = ''; }
+      if (!/[가-힣]/.test(text) && /[가-힣]/.test(hit.row.titleKo || hit.row.ko_title || '')) text = hit.row.titleKo || hit.row.ko_title;
+      text = fixKoreanTerms(hit.row.title, text || hit.row.title || '');
+    }
+    const member = row.kind === 'theme' && row.symbol ? `구성 종목 ${row.symbol}${Number.isFinite(row.memberMove) ? ` ${signedText(row.memberMove, 1, '%')}` : ''}, ` : '';
+    const href = safeUrl(isChannel ? hit.row.url : hit.row.link || hit.row.url);
+    const title = el(doc, href ? 'a' : 'span', `${kstStamp(hit.publishedMs)} ${member}${isChannel ? '채널 글, ' : ''}${text}`, titleClass);
+    if (href) { title.href = href; title.target = '_blank'; title.rel = 'noopener noreferrer'; }
+    title.title = isChannel ? `텔레그램 공개 채널 @${hit.row.channel || ''}, 앱이 확인한 사실이 아닙니다` : [hit.row.source, hit.row.title].filter(Boolean).join(', ');
+    item.append(title);
+    list.append(item);
+  }
+  return list;
+}
 
 // v58.53 개편 v2: the slot styles moved from an injected <style> into src/ui/styles/v2-today.css (12px floor, soft cards).
 

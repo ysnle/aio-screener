@@ -9,6 +9,7 @@ import { CHOICES, SHAPES, COUNT_WORDS, EVENT_NAMES, fomcDecisionDate } from '../
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
+import { themeRotationRead } from '../../domain/scenarios/theme-playbook.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -325,13 +326,15 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
 
 // P1743: the theme side of the same picture, from the per-refresh state (every theme read by one rule).
 function themeLines(doc, root) {
-  const state = root?.[SCENARIO_STATE.key];
-  const themes = state?.themes || [];
-  if (!themes.length) return [];
-  const byKey = new Map(themes.map((row) => [`${row.market}:${row.id}`, row]));
-  const pullbacks = (state.highlights?.structuralPullbacks || []).map((key) => byKey.get(key)).filter(Boolean).slice(0, 4);
+  // v58.75 (persona review): the rotation sentence came from scenario-state.json while 테마 recomputed it live; a state built
+  // by the older group-median rule printed 크립토 -25.1% here and -44.7% there. One read (themeRotationRead): live first.
+  let live = null;
+  try { live = marketInterpretation(root).playbook || null; } catch (_) { live = null; }
+  const read = themeRotationRead({ live, artifact: root?.[SCENARIO_STATE.key] || null });
+  if (!read.source) return [];
+  const pullbacks = read.pullbacks.slice(0, 4);
   const lines = [];
-  if (state.rotation?.text) lines.push(el(doc, 'p', `테마: ${state.rotation.text}`, 'xr-reading'));
+  if (read.text) lines.push(el(doc, 'p', `테마: ${read.text}`, 'xr-reading'));
   const ret1m = (value) => (Number.isFinite(value) ? `1개월 ${signedText(value, 1)}%` : '1개월 —');
   // v57.81 (audit): the line names the condition exactly (the lead branch's wind is not a headwind) and carries no action
   // suggestion — "분할 접근의 부담이 비교적 작은 경우" read as one.

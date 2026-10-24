@@ -643,6 +643,13 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   detail('#13 directive gate: weight, opportunity and cross-clause negation directives are replaced',
     replaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify(replaced.map(gate)));
 
+  // v58.75 (persona review): price-level method explanations and facts about the reader's own price stay; a priced
+  // imperative ("손절은 178달러에서 하세요") is replaced.
+  const levelKept = ['구조 기준 손절은 직전 스윙 저점 아래에 두는 방식으로, 논리가 분명하다는 장점이 있습니다.', '말씀하신 손절가 178달러는 스윙 저점 아래입니다.', '목표 방식은 다음 저항 후보, 측정 이동폭, R 배수 세 가지가 있습니다.', '익절은 R 배수 2배 지점에서 일부 하는 방식도 있습니다.'];
+  const levelReplaced = ['손절은 178달러에서 하세요.', '목표가는 210달러로 잡으세요.', '손절가는 178달러에 두세요.'];
+  detail('v58.75 directive gate: level methods kept, priced imperatives replaced',
+    levelKept.every((text) => gate(text).text === text) && levelReplaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify([...levelKept, ...levelReplaced].map(gate)));
+
   // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
   // the old chat simulator must stay retired.
   detail('#4 retired chat portfolio simulator stays retired', !/현재 총 가치: \$'/.test(chatSource) && !/_pfSim\b/.test(chatSource), 'chat source still carries the old simulator');
@@ -670,6 +677,63 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     && resolveChatTickers({ query: '나스닥은?', companiesOnly: true, fuzzy }).length === 0
     && resolveChatTickers({ query: '이 종목 밸류에이션은?', state: chatState, fuzzy }).join() === '000660.KS'
     && resolveChatTickers({ query: '밸류에이션은?', state: chatState, fuzzy }).length === 0);
+  // v58.75 (persona review): a question without its own company on 종목·재무·차트 reads the screen's company (observed state,
+  // not a guess); a market question, a typed company and the previous turn's "그 종목" keep their own meaning.
+  const screenState = () => ({ _lastChatTickers: ['AMD'] });
+  const onScreen = resolveChatTickers({ query: '투자 논지 점검', companiesOnly: true, screenTicker: 'NVDA', fuzzy });
+  check('v58.75 chat tickers: screen company for company-less questions only',
+    onScreen.join() === 'NVDA' && onScreen.source === 'screen'
+    && resolveChatTickers({ query: '이 종목 어때?', state: screenState(), companiesOnly: true, screenTicker: 'NVDA', fuzzy }).join() === 'NVDA'
+    && resolveChatTickers({ query: '그 종목 실적은?', state: screenState(), companiesOnly: true, screenTicker: 'NVDA', fuzzy }).join() === 'AMD'
+    && resolveChatTickers({ query: '시장 전체 흐름은?', companiesOnly: true, screenTicker: 'NVDA', fuzzy }).length === 0
+    && resolveChatTickers({ query: '하이닉스는?', companiesOnly: true, screenTicker: 'NVDA', fuzzy }).source === 'query'
+    && resolveChatTickers({ query: '추세 설명', companiesOnly: true, screenTicker: '^GSPC', fuzzy }).length === 0);
+  // v58.75 (persona review): level questions read the chart's level map or say how to get one; theme/stock/portfolio
+  // analysis answers follow criteria -> count met -> cause -> branches, and quick facts do not.
+  // v58.75 boot budget: the blocks load lazily through buildQuestionDomainContext.loadBlocks (choosing-blocks.js).
+  const { buildQuestionDomainContext: domainCtxRaw } = await import('../src/ai/context/market-content.js');
+  const choosing = await domainCtxRaw.loadBlocks();
+  const { priceLevelContext, teachAndCheckBlock } = choosing;
+  const domainCtx = (args) => domainCtxRaw({ ...args, blocks: choosing });
+  const lv = (price, kinds) => ({ price, low: price - 1, high: price + 1, kinds, pct: (price / 200 - 1) * 100, adrMultiple: (price / 200 - 1) * 100 / 2.5, reactions: 3 });
+  const levelMap = { symbol: 'NVDA', asOf: '2026-10-23', close: 200, adrPct: 2.5, atr: 5, resistanceCandidates: [lv(210, ['스윙 고점'])], supportCandidates: [lv(190, ['스윙 저점'])], swingLowBelow: { price: 188, time: '2026-10-01' }, pivot: 212, contractionLow: 191, base: null, note: '관찰할 가격대이며 지지·저항 보장이나 매매 가격 제안이 아님' };
+  const levelText = priceLevelContext(levelMap, '185달러에 손절 잡으면 어때?');
+  const noMap = domainCtx({ ctxId: 'technical', query: 'NVDA 손절 어디?', root: {} });
+  check('v58.75 level map: candidates, the typed price checked against them, no price picked; missing map is said',
+    /저항 후보.*210\.00/.test(levelText) && /사용자가 말한 185\.00: 현재가 대비 -7\.5%.*바로 위 레벨 190\.00.*스윙 저점보다 아래/.test(levelText) && /앱은 가격을 고르지 않는다/.test(levelText)
+    && /차트 화면에서 이 종목 일봉을 열면/.test(noMap));
+  check('v58.75 teach-and-check: criteria, met count, cause, branches for analysis answers only',
+    /기준과 원리[\s\S]*N개 중 M개 충족[\s\S]*이유[\s\S]*조건부 시나리오/.test(teachAndCheckBlock('theme', 'analysis')) && teachAndCheckBlock('stock', 'quick') === '' && teachAndCheckBlock(null, 'analysis') === '');
+  // v58.75 (persona review): setup coach and stock lens reach their own question types only; the theme criteria reader
+  // is optional (absent or malformed -> nothing); injected tables replace the generic criteria list.
+  const { setupCoachContext, stockLensBlock, themeCriteriaBlock } = choosing;
+  check('v58.75 boot budget: without the lazy blocks the domain context goes on without them', !/가격 레벨|셋업 점검표/.test(domainCtxRaw({ ctxId: 'technical', query: 'NVDA 손절 어디? 셋업은?', root: {} })));
+  const coach = { symbol: 'NVDA', asOf: '2026-10-23', lifecycle: { stage: 'pivot', headline: '피벗 접근', check: '거래 감소' }, checklist: { headline: '6개 중 4개 충족 — 충족 개수이며 성공 확률이 아닙니다.', items: [{ label: '거래 마름', met: true, value: '72%', principle: '매물 소화' }], failedRule: '' }, alignment: { headline: '주봉 상승 / 일봉 베이스' }, pastBreakouts: '과거 돌파 4건', market: '시장 다소 부담' };
+  const lensRoot = { _aioStockLensFor: (sym) => ({ symbol: sym, marketLink: '선두 시나리오에서 부담', lens: { name: '반도체', basis: '공시', metrics: [{ metric: '매출총이익률', value: '75%', trend: '상승', why: '가격 결정력' }] }, strengths: ['순이익률 1위'], weaknesses: [], peers: null, situation: null, thesis: { conditions: ['성장 유지'], breaks: ['이익률 하락'], checks: [], paths: [] }, watch: [], note: '사실' }), _aioSetupCoachFor: () => coach };
+  const lensCtx = domainCtx({ ctxId: 'home', query: 'NVDA 논지 점검해줘', root: lensRoot, tickers: ['NVDA'] });
+  const setupCtx = domainCtx({ ctxId: 'technical', query: '셋업 상태 어때?', root: lensRoot, tickers: ['NVDA'] });
+  const macroCtx = domainCtx({ ctxId: 'home', query: '금리 인하 의미', root: lensRoot, tickers: [] });
+  check('v58.75 setup coach / stock lens: question-type blocks, missing coach said, theme criteria optional',
+    /6개 중 4개 충족[\s\S]*거래 마름: 충족/.test(setupCoachContext(coach)) && /【셋업 점검표/.test(setupCtx) && !/【종목 렌즈/.test(setupCtx)
+    && /【종목 렌즈 — NVDA[\s\S]*매출총이익률 75%[\s\S]*논지가 틀렸다는 신호: 이익률 하락/.test(lensCtx) && !/【셋업|【종목 렌즈/.test(macroCtx)
+    && /차트 화면에서 이 종목 일봉을 열면 셋업 점검표/.test(domainCtx({ ctxId: 'technical', query: '돌파 패턴인가?', root: {}, tickers: ['NVDA'] }))
+    && stockLensBlock(null) === '' && themeCriteriaBlock({}, 'energy') === '' && themeCriteriaBlock({ _aioThemeCriteriaFor: () => ({ junk: 1 }) }, 'energy') === ''
+    && /2개 중 1개 충족/.test(themeCriteriaBlock({ _aioThemeCriteriaFor: () => ({ items: [{ label: '참여 폭', met: true, value: '64%' }, { label: '이익 전망', met: false }] }) }, 'energy'))
+    && /주입된 종목 렌즈/.test(teachAndCheckBlock('stock', 'analysis', ['【종목 렌즈'])) && !/후보: /.test(teachAndCheckBlock('stock', 'analysis', ['【종목 렌즈'])));
+  // v58.75 R620: the panel's per-turn pieces live in src/ (choosing-blocks.js, chat-tickers.js) — holdings only after
+  // consent, the screen company named and heading the answer, used-evidence badges, index charts as screenProxy.
+  const { screenSubjectTicker } = await import('../src/ai/entity/chat-tickers.js');
+  const pfNo = choosing.portfolioTurn({ root: { AIO: { hasPortfolioAIConsent: () => false } }, query: '내 포트폴리오 점검' });
+  const pfYes = choosing.portfolioTurn({ root: { AIO: { hasPortfolioAIConsent: () => true, portfolioRowsLine: () => 'NVDA(비중 40%)' } }, query: '보유 종목 어때', wrap: (kind, text) => `[${kind}] ${text}` });
+  const badge = choosing.sourceBadge({ __aioChatSessions: { screenLabel: () => '차트' }, _aioChatCloseMarketBasis: () => ({ asOf: '2026-10-23' }) }, 'technical', { technical: true, news: false });
+  check('v58.75 panel pieces in src: consent-gated holdings, screen company, used-only badges, index chart proxy',
+    pfNo.data === false && /전송되지 않았다/.test(pfNo.prompt) && /동의가 필요합니다/.test(pfNo.notice) && pfYes.data === true && /\[PORTFOLIO_ROWS\] .*NVDA/.test(pfYes.prompt)
+    && choosing.portfolioTurn({ root: {}, query: 'q', pending: 'q ' }).data === true
+    && choosing.answerHead('NVDA', null, 'x') === '보고 있는 NVDA 기준\n\nx' && choosing.answerHead('NVDA', { blocked: true }, 'x') === 'x'
+    && /차트 화면 기준, 종가 10\/23, 사용한 근거/.test(badge) && /차트 지표/.test(badge) && !/뉴스/.test(badge)
+    && screenSubjectTicker({ _aioChartSubject: 'amd' }, 'technical') === 'AMD' && screenSubjectTicker({ _currentTickerId: 'NVDA' }, 'ticker') === 'NVDA' && screenSubjectTicker({ _currentTickerId: 'NVDA' }, 'home') === ''
+    && resolveChatTickers({ query: '추세 설명', companiesOnly: true, root: { _aioChartSubject: '^GSPC' }, ctxId: 'technical', fuzzy }).screenProxy === '^GSPC'
+    && resolveChatTickers({ query: '투자 논지 점검', companiesOnly: true, root: { _currentTickerId: 'NVDA' }, ctxId: 'ticker', fuzzy }).source === 'screen');
   check('P1740 topic words stay topics', companyEntitySymbols(createQuestionPlan({ query: '반도체 코스피 어때', route: 'home', root: {}, now: new Date('2026-10-13T03:00:00Z') })).length === 0);
   check('P1740 conditional thresholds are rules, observations are not',
     ['VIX가 20을 넘으면 변동성 국면으로 본다.', 'RSI 70 이상이면 과매수로 해석한다.', '10년물이 5%를 웃돌면 밸류에이션 부담이 커진다.'].every(answerPublication.isConditionalNumericSentence)
@@ -710,7 +774,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const unified = chat.slice(chat.indexOf('async function chatSendUnified('));
   check('P1740 web search is decided before the status blocks are written', unified.indexOf('_uniWsDecided = true') > 0 && unified.indexOf('_uniWsDecided = true') < unified.indexOf('_buildChatIntentContext(ctxId, q'));
   check('P1740 unified panel resolves company names and a knowledge timeout cannot skip data injection',
-    /_aioResolveChatTickers\(q, _uniQuestionPlan, state, \{ companiesOnly: true \}\)/.test(unified) && /지식 참고 검색 실패\/타임아웃/.test(unified));
+    /_aioResolveChatTickers\(q, _uniQuestionPlan, state, \{ companiesOnly: true[,}]/.test(unified) && /지식 참고 검색 실패\/타임아웃/.test(unified));
   check('P1740 reference frameworks are question-selected and static text precedes runtime values',
     /_aioAIInfraCycleContext\(focus, activeQuery\)/.test(chat) && /framework \+ supplied \+ aiInfra \+ marketLearning \+ '\\n\\n【현재 관측】\\n' \+ liveLines/.test(chat));
   check('P1740 an unsaved profile is not sent as the user profile', /미설정 — 위험 성향·투자 기간을 가정하지 말고/.test(chat));

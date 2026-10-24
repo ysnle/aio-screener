@@ -3809,45 +3809,33 @@ function analyzeKrTickerDeep(ticker) {
 
 // P1430: calculateEntryQualityLocal retired with the ticker 가격·추세 위치 점검 calculator.
 
-// Risk/Reward Calculator
+// v58.75 (owner 2026-10-24): '내 계획 점검' — the app proposes no price or size. It states facts about the plan the user
+// typed: risk width, reward-to-risk multiple when a target is given, the loss at the stop and its share of total capital.
+// The former 1R/2R/3R target prices and the 2%-rule share count were app-generated levels and sizes, so they are gone.
 function calculateRR() {
-  var entry = parseFloat(document.getElementById('rr-entry').value);
-  var stop = parseFloat(document.getElementById('rr-stop').value);
-  var capital = parseFloat(document.getElementById('rr-capital').value) || 10000;
-
-  if (!entry || !stop || entry <= stop) {
-    showToast('유효한 값을 입력하세요 (가정 진입가 > 손절 기준가)');
-    return;
+  var num = function(id) { var el = document.getElementById(id); var v = el ? parseFloat(el.value) : NaN; return isFinite(v) && v > 0 ? v : null; };
+  var entry = num('rr-entry'), stop = num('rr-stop'), target = num('rr-target'), amount = num('rr-capital'), total = num('rr-total');
+  if (entry == null || stop == null || stop >= entry) { showToast('가정 진입가와 그보다 낮은 손절 가격을 넣으세요'); return; }
+  if (target != null && target <= entry) { showToast('목표 가격은 진입가보다 높게 넣거나 비워 두세요'); return; }
+  var fmt = function(v, d) { return Number(v).toLocaleString('en-US', { maximumFractionDigits: d == null ? 2 : d }); };
+  var riskPct = (entry - stop) / entry * 100;
+  var lines = ['위험 폭: 진입가에서 손절 가격까지 -' + riskPct.toFixed(1) + '% (' + fmt(entry - stop) + ')'];
+  if (target != null) {
+    var rewardPct = (target - entry) / entry * 100;
+    lines.push('보상 폭: 목표 가격까지 +' + rewardPct.toFixed(1) + '%, 위험 1 대비 보상 ' + ((target - entry) / (entry - stop)).toFixed(2) + '배');
+  } else lines.push('목표 가격을 넣지 않아 위험 대비 보상 배수는 계산하지 않았습니다.');
+  if (amount != null) {
+    var loss = amount * (entry - stop) / entry;
+    lines.push('손절 가격에 닿으면 손실액: ' + fmt(loss, 0) + (total != null ? ' (전체 자본의 ' + (loss / total * 100).toFixed(1) + '%)' : ''));
+    if (total != null) lines.push('투입 금액은 전체 자본의 ' + (amount / total * 100).toFixed(1) + '%입니다.');
+  } else lines.push('투입 금액을 넣으면 손절 시 손실액을 계산합니다.');
+  var list = document.getElementById('rr-lines');
+  if (list) {
+    list.innerHTML = '';
+    lines.forEach(function(text) { var li = document.createElement('li'); li.textContent = text; list.appendChild(li); });
   }
-
-  var risk = entry - stop;
-  var riskPct = (risk / entry * 100).toFixed(1);
-  var r1 = entry + risk;
-  var r2 = entry + risk * 2;
-  var r3 = entry + risk * 3;
-
-  document.getElementById('rr-result').style.display = 'block';
-  document.getElementById('rr-risk').textContent = '-$' + risk.toFixed(2) + ' (' + riskPct + '%)';
-  document.getElementById('rr-1r').textContent = '$' + r1.toFixed(2);
-  document.getElementById('rr-2r').textContent = '$' + r2.toFixed(2);
-  document.getElementById('rr-3r').textContent = '$' + r3.toFixed(2);
-
-  // Visual R:R bar
-  var totalRange = risk * 4; // risk + 3R reward
-  var riskWidth = (risk / totalRange * 100);
-  var rewardWidth = (risk * 3 / totalRange * 100);
-  document.getElementById('rr-risk-bar').style.width = riskWidth + '%';
-  var rwBar = document.getElementById('rr-reward-bar');
-  rwBar.style.left = riskWidth + '%';
-  rwBar.style.width = rewardWidth + '%';
-  document.getElementById('rr-ratio-text').textContent = '위험 1 : 보상 3 (R:R = 1:3)';
-
-  // Position sizing (2% rule)
-  var maxRisk = capital * 0.02;
-  var shares = Math.floor(maxRisk / risk);
-  var positionSize = (shares * entry).toFixed(0);
-  document.getElementById('rr-position').textContent = '$' + Number(positionSize).toLocaleString();
-  document.getElementById('rr-shares').textContent = shares + '주 (최대 손실 $' + (shares * risk).toFixed(0) + ')';
+  var box = document.getElementById('rr-result');
+  if (box) box.hidden = false;
 }
 
 // ══════════════════════════════════════════════════════════════════

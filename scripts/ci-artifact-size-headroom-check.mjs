@@ -38,7 +38,13 @@ const BUDGETS = [
   { id: 'screener-extended-universe', bytes: size('public-data/screener-extended-universe.json'), budget: 1_000_000 },
   { id: 'sec-fundamentals-extended-ledger', bytes: size('public-data/sec-fundamentals-extended.json'), budget: 20_000_000 },
   // The core artifact stays the size it was (v57.81 keeps the extended rows out of it).
-  { id: 'screener-core', bytes: size('public-data/screener.json'), budget: 5_000_000 }
+  { id: 'screener-core', bytes: size('public-data/screener.json'), budget: 5_000_000 },
+  // v58.75 (persona review): the stock page artifacts that grew this pass, at their client read caps — fiscal history (capital
+  // columns on the latest two years + issuer SIC; src/ui/components/fiscal-read.js 1 MiB), the earnings calendar (six-week
+  // universe map; fiscal-read.js EARNINGS_CALENDAR 512 KiB) and consensus estimates (surprise history; 1 MiB).
+  { id: 'sec-fiscal-history', bytes: size('public-data/sec-fiscal-history.json'), budget: 1_048_576 },
+  { id: 'earnings-calendar', bytes: size('public-data/earnings-calendar.json'), budget: 524_288 },
+  { id: 'consensus-estimates', bytes: size('public-data/consensus-estimates.json'), budget: 1_048_576 }
 ];
 
 const failures = [];

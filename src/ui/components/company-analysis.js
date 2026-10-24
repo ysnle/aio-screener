@@ -1,7 +1,9 @@
 import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
-import { parseFiscalHistory, requestFiscalHistory, dartLink } from './fiscal-read.js';
+import { parseFiscalHistory, requestFiscalHistory, dartLink, EARNINGS_CALENDAR } from './fiscal-read.js';
+import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
+import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { MARKET_LABELS } from '../../domain/screener/market-scope.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
@@ -11,11 +13,10 @@ import { consensusView, peMultipleText } from '../../domain/fundamental/consensu
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 
-const EARNINGS_CALENDAR = Object.freeze({ key: '_aioEarningsCalendarArtifact', url: './public-data/earnings-calendar.json', schemas: ['earnings-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 });
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : ''; };
 // v57.55 review (8m, semi-expert panel): the numbers a reader looks for first, on one line, each with its own date. US
 // listings only (Korean listings have their own OpenDART block); a value that is not there is left out, never estimated.
-export function keyMetricsLine(row, consensus, earnings = [], today = new Date().toISOString().slice(0, 10)) {
+export function keyMetricsLine(row, consensus, earnings = [], today = new Date().toISOString().slice(0, 10), schedule = null) {
   if (!row) return null;
   const parts = [];
   const close = mdOf(row.factorSessionDate);
@@ -27,7 +28,9 @@ export function keyMetricsLine(row, consensus, earnings = [], today = new Date()
   if (view?.fwdPe != null) parts.push(`Forward PER ${peMultipleText(view.fwdPe)}(예상치 ${mdOf(view.asOf)})`);
   const symbol = String(row.sym || row.symbol || '').toUpperCase();
   const next = (Array.isArray(earnings) ? earnings : []).filter((item) => String(item?.symbol || '').toUpperCase() === symbol && String(item?.date || '') >= today).sort((a, b) => String(a.date).localeCompare(String(b.date)))[0];
-  if (next) parts.push(`다음 실적 발표 ${mdOf(next.date)}`);
+  // v58.75 (persona review): the schedule read (next date with session count, or the last report and "미확정") when loaded.
+  if (schedule?.text) parts.push(schedule.text);
+  else if (next) parts.push(`다음 실적 발표 ${mdOf(next.date)}`);
   return parts.length ? parts.join(', ') : null;
 }
 
@@ -72,9 +75,10 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   if (!/\.K[SQ]$/.test(id)) {
     requestConsensusEstimates(root, () => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); });
     refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); }).catch(() => {});
-    keys = keyMetricsLine(row, consensusRowFor(root, id), root?.[EARNINGS_CALENDAR.key]?.earnings);
+    const analysis = loadFundamentalAnalysis(() => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); });
+    keys = keyMetricsLine(row, consensusRowFor(root, id), root?.[EARNINGS_CALENDAR.key]?.earnings, undefined, analysis?.buildEarningsSchedule({ symbol: id, calendar: root?.[EARNINGS_CALENDAR.key], consensus: consensusRowFor(root, id) }));
   }
-  const signature=`${keys || ''}|${JSON.stringify(model)}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}`; // stage chips follow a new scenario state
+  const signature=`${keys || ''}|${root?._aioSecIssuerSic?.[id] || ''}|${fundamentals?.accession || ''}|${JSON.stringify(model)}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}`; // stage chips follow a new scenario state
   if (host.dataset.signature===signature && host.childElementCount) return model;
   const wasOpen=host.querySelector('.company-analysis-expanded')?.open||false;
   const observationsOpen=host.querySelector('.company-analysis-observations')?.open||false;
@@ -114,7 +118,12 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
     for (const theme of model.associations) { const stage=stages.find(row=>row.id===theme.id); const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? `, ${theme.subThemes.join(' / ')}` : ''}${stage ? `, 테마 단계: ${stage.stateLabel}` : ''}`); button.type='button'; button.addEventListener('click',()=>openThemeDetail(root,theme.id,{symbol:id})); themes.append(button); }
     identity.append(element(doc,'p','연결된 테마, AIO 분류','company-analysis-meta'), themes);
   }
-  identity.append(detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'}, 상품 유형 ${({ VERIFIED: '확인', VERIFIED_LISTING: '확인' })[meta.verification] || '미확인'}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source));
+  // v58.75 (persona review): the issuer's SEC industry classification and its latest annual report, inside the fold (links stay off the face).
+  const [sicCode, sicName] = String(root?._aioSecIssuerSic?.[id] || '').split('|');
+  const annualUrl = /^10-K/.test(String(fundamentals?.form || '')) ? secFilingUrl(fundamentals?.cik, fundamentals?.accession) : null;
+  const basisBox = detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'}, 상품 유형 ${({ VERIFIED: '확인', VERIFIED_LISTING: '확인' })[meta.verification] || '미확인'}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',/^\d{3,4}$/.test(sicCode || '') ? `SEC 산업분류 SIC ${sicCode}${sicName ? ` ${sicName}` : ''}` : null,model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source);
+  if (annualUrl) { const link=element(doc,'a',`최신 연간 보고서(10-K) 원문${fundamentals?.filedAt ? `, ${fundamentals.filedAt} 제출` : ''}`); link.href=annualUrl; link.target='_blank'; link.rel='noopener noreferrer'; basisBox.append(link); }
+  identity.append(basisBox);
   grid.append(identity);
   const krFundamental=model.financial.status==='kr-disclosure-required' ? krFundamentalPoints(root?._aioKrFundamentals?.companies?.[id]) : null;
   const financial=card(doc,'실적·현금·재무 구조',krFundamental ? '공시' : model.financial.status==='reference' ? '참고' : model.financial.status==='not-applicable' ? '기업 재무 대상 아님' : '자료 없음');

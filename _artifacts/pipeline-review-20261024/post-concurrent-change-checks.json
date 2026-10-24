@@ -1,0 +1,17 @@
+{
+  "head": "951b03a90509882b299341cfe74b0c22db4abb09",
+  "results": [
+    {
+      "command": "node scripts/ci-release-manifest-contract.mjs",
+      "exitCode": 0,
+      "stdout": "{\"ok\":true,\"appRevision\":\"v58.74\",\"dataRevision\":\"market-snapshot:2026-10-24T00:21:13.100Z:89755cc0\",\"evidenceRevision\":\"evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1\",\"workerRevision\":\"sw:v58.74\",\"rollback\":\"revision-pinned\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/ci-version-check.mjs",
+      "exitCode": 0,
+      "stdout": "Version sync OK: v58.74 (12 cachebusters)\n",
+      "stderr": ""
+    }
+  ]
+}

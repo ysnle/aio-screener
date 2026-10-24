@@ -192,6 +192,14 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rsFromHigh = rsNow != null && rsHigh ? (rsNow / rsHigh - 1) * 100 : null;
   const rsAtHigh = rsFromHigh != null && rsFromHigh >= -0.5;
   const rsLeadsPrice = rsAtHigh && fromHigh <= -TECH.nearHighPct;
+  // v58.75 (persona review): the sessions where the RS line set a one-year high — at or above every value of the trailing
+  // 252 sessions, counted only once the window holds a full year (240+ values); the chart marks them.
+  const rsNewHighs = [];
+  for (let i = 0; i <= n; i++) {
+    if (rsLine[i] == null) continue;
+    const trailing = rsLine.slice(Math.max(0, i - TECH.rangeSessions + 1), i).filter((value) => value != null);
+    if (trailing.length + 1 >= TECH.fullYearSessions && rsLine[i] >= Math.max(...trailing)) rsNewHighs.push(i);
+  }
   const signals = signalHistory({ events, closes, rsLine });
   const templatePass = templateChecks.filter(([, ok]) => ok === true).length;
   const lastContraction = vcp.contractions[vcp.contractions.length - 1] || null;
@@ -205,6 +213,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const heavyUpAbove = (i, ceiling = false) => isBreakoutDay({ closes, volumes, i, pivot, ceiling });
   const ceilingPct = 1 + TECH.breakout.maxAbovePct / 100;
   const brokeOut = pivot != null && vcp.valid && Array.from({ length: 10 }, (_, k) => n - 9 + k).some((i) => i > 0 && heavyUpAbove(i) && bars[i - 1].close <= pivot * ceilingPct);
+  // v58.75 (teach-and-check D1): the latest counted breakout day of the last 10 sessions, for the setup life-cycle band.
+  const breakoutIndex = brokeOut ? Array.from({ length: 10 }, (_, k) => n - k).find((i) => i > 0 && heavyUpAbove(i) && bars[i - 1].close <= pivot * ceilingPct) ?? null : null;
   if (sma200[n] != null && (last.close < sma200[n] || (sma50[n] < sma200[n] && last.close < sma50[n]))) state = 'downtrend';
   else if (pivot != null && brokeOut && last.close < pivot) state = 'failed';
   // P1428 (Codex review): the heavy-volume day must itself close up and above the pivot — a heavy sell-off
@@ -273,6 +283,11 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     rsFromHigh,
     rsAtHigh,
     rsLeadsPrice,
+    rsLine,
+    rsNewHighs,
+    brokeOut,
+    breakoutIndex,
+    volRatio,
     timeframeConflict,
     signals,
     benchmarkLabel,

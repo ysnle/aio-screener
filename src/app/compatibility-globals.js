@@ -12,6 +12,7 @@ import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.j
 import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } from '../ai/response/answer-principles.js';
 import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
 import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
+import { portfolioRowsLine } from '../ai/context/portfolio-rows.js'; // v58.75: redacted holdings line (workbench + AI panel)
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
 import { isKnownSymbol, resolveHoldingInput, resolveRegisteredName, searchCandidates } from '../domain/ticker/resolve-name.js';
 import { hasFinalConsonant } from '../domain/content/korean-particle.js';
@@ -38,7 +39,7 @@ import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker
 import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
 import { KR_THEME_LABELS } from '../domain/themes/kr-themes.js';
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
-import { completedBars } from '../ui/components/stock-chart.js';
+import { completedBars } from '../ui/components/chart-bars.js';
 import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
 import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
 import { installPageCompleteness } from '../data/page-completeness.js';
@@ -107,7 +108,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.AIO.chooseAnswerVisuals = chooseAnswerVisuals;
 window.AIO.attachAnswerVisuals = attachAnswerVisuals;
 // P1740: chat prompt pieces moved out of js/aio-chat.js (answer shape, principles, policy lines, ticker resolver).
-Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, buildChatPolicyLines, resolveChatTickers });
+Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, buildChatPolicyLines, resolveChatTickers, portfolioRowsLine });
   window.AIO.selectNativeSearch = selectNativeSearch;
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;

@@ -222,7 +222,8 @@ async function run() {
     && filterRows(tickerRows, techDocument('apple')).map((row) => row.sym).join(',') === 'AAPL', 'v58.52 G-SCR-SEARCH: a short Latin query is a ticker prefix or a name word start, applied inside the other filters');
   const presetsA = createDefaultScreenDefinitions();
   const presetsB = createDefaultScreenDefinitions();
-  assert(presetsA.length === 6 && stableHash(presetsA) === stableHash(presetsB), 'G-SCR-PRESET: six deterministic presets are registered');
+  // v58.75 (persona review): 돌파 관찰 split into 피벗 근접·거래 적은 순 and 돌파·거래 증가 — seven presets.
+  assert(presetsA.length === 7 && stableHash(presetsA) === stableHash(presetsB), 'G-SCR-PRESET (v58.75, P2045): seven deterministic presets are registered');
   const mutableAST = { type: 'range', field: 'rank', min: 60 };
   const immutable = createScreenDefinition({ screenId: 'immutable-fixture', filtersAST: mutableAST });
   mutableAST.min = 80;
@@ -648,7 +649,9 @@ async function run() {
     };
     const presetRows = [goodRow, badRow, gapRow];
     for (const preset of createDefaultScreenDefinitions()) {
-      const input = { definition: preset, rows: presetRows, snapshotId: 'preset-valid-set', providerSet: ['fixture'] };
+      // v58.75: the breakout preset admits only the breakout stage, so its passing fixture is a breakout row (rvol20 1.4).
+      const rowsFor = preset.screenId === 'preset-breakout-volume' ? [{ ...goodRow, vcpStage: 'breakout' }, badRow, gapRow] : presetRows;
+      const input = { definition: preset, rows: rowsFor, snapshotId: 'preset-valid-set', providerSet: ['fixture'] };
       const preview = runScreen(input);
       const executed = runScreen(input);
       assert(preview.resultHash === executed.resultHash && preview.run.calculationInputId === executed.run.calculationInputId,

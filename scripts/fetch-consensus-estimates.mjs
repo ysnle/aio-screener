@@ -37,7 +37,7 @@ export const nasdaqSymbol = (sym) => String(sym || '').toUpperCase().replace(/-/
 // Builds one row from the two payloads; returns null when either side cannot give four quarters.
 export function buildConsensusRow(forecast, surprise, asOf) {
   const reported = (surprise?.earningsSurpriseTable?.rows || [])
-    .map((row) => ({ fe: fiscalMonth(row.fiscalQtrEnd), eps: num(row.eps), reportedAt: row.dateReported || null }))
+    .map((row) => ({ fe: fiscalMonth(row.fiscalQtrEnd), eps: num(row.eps), est: num(row.consensusForecast), reportedAt: row.dateReported || null }))
     .filter((row) => row.fe && row.eps != null)
     .sort((a, b) => b.fe.localeCompare(a.fe));
   const lastReported = reported[0]?.fe || null;
@@ -54,8 +54,19 @@ export function buildConsensusRow(forecast, surprise, asOf) {
     asOf,
     fwd: { from: ahead[0].fe, to: ahead[3].fe, eps: sum(ahead, 'eps'), hi: ahead.every((r) => r.hi != null) ? sum(ahead, 'hi') : null, lo: ahead.every((r) => r.lo != null) ? sum(ahead, 'lo') : null,
       minEstimates: Math.min(...ahead.map((r) => r.n ?? 0)), up4w: ahead.reduce((t, r) => t + r.up, 0), down4w: ahead.reduce((t, r) => t + r.down, 0) },
-    trailing: { from: trailing[3].fe, to: trailing[0].fe, eps: sum(trailing, 'eps'), lastReportedAt: trailing[0].reportedAt }
+    trailing: { from: trailing[3].fe, to: trailing[0].fe, eps: sum(trailing, 'eps'), lastReportedAt: trailing[0].reportedAt },
+    ...(() => { const hist = surpriseHistory(reported); return hist ? { hist } : {}; })()
   };
+}
+
+// v58.75 (persona review): the same earnings-surprise answer already carries each reported quarter's consensus forecast
+// (Nasdaq returns the latest four). They were dropped; the newest SURPRISE_QUARTERS are kept as one compact string
+// "fiscalMonth:actualEps:consensusEps;…" (newest first, ~80 bytes a row). The surprise % is derived by the reader.
+export const SURPRISE_QUARTERS = 8;
+export const SURPRISE_HISTORY_FORMAT = 'fiscalMonth:reportedEps:consensusEps;… newest first (adjusted EPS, Nasdaq earnings surprise)';
+export function surpriseHistory(reported = []) {
+  const rows = reported.filter((row) => row.fe && row.eps != null && row.est != null).slice(0, SURPRISE_QUARTERS);
+  return rows.length ? rows.map((row) => `${row.fe}:${row.eps}:${row.est}`).join(';') : null;
 }
 
 async function getJson(url) {
@@ -161,6 +172,7 @@ async function main() {
     allowedUse: 'reference',
     basis: 'adjusted-eps-consensus',
     note: '향후 4개 분기 컨센서스 EPS 합과 같은 기준(조정 EPS)의 직전 4개 분기 실적 합. 점수에 쓰지 않는 참고값.',
+    histFormat: SURPRISE_HISTORY_FORMAT,
     coverage: { universeUs: symbols.length, covered, unavailable: Object.values(rows).filter((row) => row?.unavailable).length, refreshedThisRun: refreshed, keptThisRun: kept, failedThisRun: failed },
     rows
   };

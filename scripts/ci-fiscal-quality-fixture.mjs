@@ -155,7 +155,9 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.ok(Array.isArray(bare.pit.observations.totalAssets) && bare.pit.observations.researchAndDevelopment.length === 0, 'v58.55 a filer without the items gets empty arrays (not reported), not missing ones (not yet collected)');
   const line = sandbox.fiscal(obs);
   const legacy = sandbox.fiscal({ ...obs, totalAssets: undefined, researchAndDevelopment: undefined });
-  assert.ok(line.split(';').every((row) => row.split(':').length === 10), 'v58.55 a record read with assets/R&D ships the two extra columns');
+  assert.ok(sandbox.fiscal({ ...obs, grossProfit: undefined }).split(';').every((row) => row.split(':').length === 10), 'v58.55 a record read with assets/R&D ships the two extra columns');
+  // v58.75: a record read by the v58.75 normalizer also carries the seven capital columns on its latest two years only.
+  assert.deepEqual(line.split(';').map((row) => row.split(':').length), [10, 17, 17], 'v58.75 the capital columns ride the latest two fiscal years only (artifact size)');
   assert.ok(legacy.split(';').every((row) => row.split(':').length === 8), 'v58.55 a record written before keeps the 8-column row (= not yet collected)');
   const parsed = parseFiscalHistory(line);
   assert.equal(parsed.at(-1).totalAssets, 130e9, 'v58.55 total assets parse from USD millions');
@@ -233,4 +235,163 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.ok(descendants(fiscalHost).some((node) => node.dataset?.analysis === 'rd' && node.dataset.state === 'ready'), 'v58.55 재무 공시 renders the R&D card from the collected series');
 }
 
-console.log('[fiscal-quality] PASS P1627: signed zero line, precise same-period annual receipt, strict ROE/gap, amount table, source links, missing quarters, compact peers, pending-issuer race; v58.55 assets/R&D columns, DuPont, R&D, Sloan, reverse DCF, backfill batch, pending state. Offline; producer not executed.');
+// ── v58.75 (persona review): capital columns → margin ladder · net cash · capital return; the last four quarters; the next
+// report date; reported EPS against consensus; same-theme peers by name. Offline (fixtures only, no provider call).
+{
+  const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
+  const read = await import('../src/domain/fundamental/analysis-read.js');
+  const cards = await import('../src/ui/components/fundamental-analysis-cards.js');
+  const { buildConsensusRow } = await import('./fetch-consensus-estimates.mjs');
+  const { upcomingEarningsMap, upcomingCalendarDays } = await import('./fetch-earnings-calendar.mjs');
+  const fy = (year, val) => ({ start: `${year}-01-01`, end: `${year}-12-31`, val, form: '10-K', fp: 'FY', fy: year + 1, filed: `${year + 1}-02-20`, accn: `0000000000-${String(year).slice(2)}-000001` });
+  const inst = (year, val) => ({ end: `${year}-12-31`, val, form: '10-K', fp: 'FY', fy: year + 1, filed: `${year + 1}-02-20`, accn: `0000000000-${String(year).slice(2)}-000001` });
+  const units = (rows) => ({ units: { USD: rows } });
+  const base = {
+    Revenues: units([fy(2023, 100e9), fy(2024, 120e9), fy(2025, 150e9)]),
+    NetIncomeLoss: units([fy(2023, 10e9), fy(2024, 15e9), fy(2025, 24e9)]),
+    StockholdersEquity: units([inst(2022, 45e9), inst(2023, 50e9), inst(2024, 55e9), inst(2025, 65e9)]),
+    Assets: units([inst(2023, 100e9), inst(2024, 110e9), inst(2025, 130e9)]),
+    LongTermDebtNoncurrent: units([inst(2024, 30e9), inst(2025, 28e9)]),
+    NetCashProvidedByUsedInOperatingActivities: units([fy(2023, 12e9), fy(2024, 14e9), fy(2025, 20e9)]),
+    PaymentsToAcquirePropertyPlantAndEquipment: units([fy(2023, 2e9), fy(2024, 2e9), fy(2025, 3e9)])
+  };
+  const capital = {
+    GrossProfit: units([fy(2023, 55e9), fy(2024, 70e9), fy(2025, 90e9)]),
+    OperatingIncomeLoss: units([fy(2023, 14e9), fy(2024, 20e9), fy(2025, 33e9)]),
+    CashAndCashEquivalentsAtCarryingValue: units([inst(2024, 12e9), inst(2025, 15e9)]),
+    MarketableSecuritiesCurrent: units([inst(2024, 8e9), inst(2025, 20e9)]),
+    ShareBasedCompensation: units([fy(2024, 4e9), fy(2025, 6e9)]),
+    PaymentsForRepurchaseOfCommonStock: units([fy(2024, 5e9), fy(2025, 9e9)]),
+    PaymentsOfDividends: units([fy(2024, 1e9), fy(2025, 2e9)])
+  };
+  const obs = normalizeSecCompanyFacts('CAPX', { cik: 3, facts: { 'us-gaap': { ...base, ...capital } } }, 50, null).pit.observations;
+  assert.ok(obs.grossProfit.length === 3 && obs.cash.length === 2 && obs.cash.every((row) => !row.periodStart), 'v58.75 annual gross profit and year-end cash are collected');
+  assert.equal(obs.shortTermInvestments[0].concept, 'MarketableSecuritiesCurrent', 'v58.75 short-term investments fall back to the current marketable securities concept');
+  const bareObs = normalizeSecCompanyFacts('BARE', { cik: 4, facts: { 'us-gaap': base } }, 50, null).pit.observations;
+  assert.ok(Array.isArray(bareObs.grossProfit) && bareObs.grossProfit.length === 0 && bareObs.dividends.length === 0, 'v58.75 a filer without the items gets empty arrays (not reported)');
+  const parsed = parseFiscalHistory(sandbox.fiscal(obs));
+  assert.ok(parsed.at(-1).capitalChain && parsed.at(-1).grossProfit === 90e9 && parsed.at(-1).shortTermInvestments === 20e9 && !parsed[0].capitalChain, 'v58.75 the capital columns parse on the latest years');
+  const margin = read.buildMarginCashRead(parsed);
+  assert.equal(margin.state, 'ready');
+  assert.deepEqual(margin.ladder.map((step) => Math.round(step.value)), [60, 22, 16], 'v58.75 gross 90/150, operating 33/150, net 24/150');
+  assert.equal(margin.cash.net, 15e9 + 20e9 - 28e9, 'v58.75 net cash = cash + short-term investments - long-term debt');
+  assert.ok(Math.abs(margin.capital.returnedShareOfFcf - (9e9 + 2e9) / 17e9 * 100) < 1e-9 && Math.abs(margin.capital.sbcRatio - 4) < 1e-9, 'v58.75 buybacks + dividends over FCF, stock compensation over revenue');
+  assert.equal(read.buildMarginCashRead(parseFiscalHistory(sandbox.fiscal({ ...obs, grossProfit: undefined }))).state, 'pending', 'v58.75 a record read before the capital items waits instead of computing');
+  const bareMargin = read.buildMarginCashRead(parseFiscalHistory(sandbox.fiscal(bareObs)));
+  assert.ok(bareMargin.state === 'ready' && bareMargin.ladder[0].value == null && bareMargin.cash == null && bareMargin.capital.returned == null, 'v58.75 an untagged line is missing, never zero');
+
+  // The last four quarters, only when consecutive.
+  const q = (end, revenue, netIncome, derived = false) => ({ periodEnd: end, revenue, netIncome, derived });
+  const run = [q('2024-09-30', 20, 2), q('2024-12-31', 22, 2), q('2025-03-31', 24, 3), q('2025-06-30', 26, 3), q('2025-09-30', 30, 4), q('2025-12-31', 32, 4, true), q('2026-03-31', 34, 5), q('2026-06-30', 36, 5)];
+  const ttm = read.buildTrailingYearRead(run);
+  assert.ok(ttm.revenue === 132 && ttm.netIncome === 18 && Math.abs(ttm.revenueYoy - (132 / 92 - 1) * 100) < 1e-9 && ttm.hasDerived, 'v58.75 four quarters summed against the four before them');
+  assert.equal(read.buildTrailingYearRead([...run.slice(0, 6), q('2026-09-30', 36, 5)].filter((row) => row.periodEnd !== '2026-03-31')), null, 'v58.75 a gap in the last four quarters omits the line');
+  assert.ok(cards.trailingYearLine(ttm).startsWith('최근 4개 분기(2026-06 분기까지)'), 'v58.75 the line names the last quarter it covers');
+
+  // The next report: a dated calendar row, else the last report and "not scheduled" — never a projected date.
+  const day = (offset) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
+  const consensus = { asOf: new Date().toISOString(), trailing: { lastReportedAt: '8/26/2026' }, hist: '2026-07:2.22:2.09;2026-04:1.87:1.7;2026-01:1.4:1.45' };
+  const scheduled = read.buildEarningsSchedule({ symbol: 'CAPX', calendar: { status: 'current-reference', upcoming: { CAPX: `${day(20)}|amc` }, earnings: [] }, consensus });
+  assert.ok(scheduled.state === 'scheduled' && /거래일 후$/.test(scheduled.text) && scheduled.text.includes('장 마감 후'), 'v58.75 a dated row reads with its session count');
+  const unconfirmed = read.buildEarningsSchedule({ symbol: 'CAPX', calendar: { status: 'current-reference', upcoming: {}, earnings: [{ symbol: 'CAPX', date: day(-30) }], weekEnd: day(5) }, consensus });
+  assert.equal(unconfirmed.text, '직전 발표 8/26, 다음 실적 일정 미확정', 'v58.75 without a dated row the last report is stated and no date is projected');
+  assert.equal(read.buildEarningsSchedule({ symbol: '005930.KS', calendar: null, consensus: null }), null, 'v58.75 Korean listings are not read from the US calendar');
+  const map = upcomingEarningsMap([{ symbol: 'CAPX', date: '2026-11-19', hour: 'amc' }, { symbol: 'CAPX', date: '2026-12-01' }, { symbol: 'BRK.B', date: '2026-11-02' }, { symbol: 'OTHER', date: '2026-11-02' }], new Set(['CAPX', 'BRK-B']), '2026-10-24');
+  assert.deepEqual(map, { 'BRK-B': '2026-11-02|', CAPX: '2026-11-19|amc' }, 'v58.75 the upcoming map keeps the earliest universe date per listing');
+  const days = upcomingCalendarDays('2026-11-02', '2026-10-26');
+  assert.ok(days[0] === '2026-11-03' && days.at(-1) === '2026-12-04' && days.every((d) => ![0, 6].includes(new Date(`${d}T00:00:00Z`).getUTCDay())), 'v58.75 six weeks of weekdays after the week window');
+
+  // Reported EPS against consensus: kept by the producer from the response it already reads.
+  const forecast = { quarterlyForecast: { rows: ['Oct 2026', 'Jan 2027', 'Apr 2027', 'Jul 2027'].map((fiscalEnd) => ({ fiscalEnd, consensusEPSForecast: 2, highEPSForecast: 2.2, lowEPSForecast: 1.8, noOfEstimates: 9 })) } };
+  const surpriseRows = [['Jul 2026', 2.22, '2.09'], ['Apr 2026', 1.87, '1.7'], ['Jan 2026', 1.57, '1.45'], ['Oct 2025', 1.24, '1.18']].map(([fiscalQtrEnd, eps, consensusForecast]) => ({ fiscalQtrEnd, eps, consensusForecast, dateReported: '8/26/2026' }));
+  assert.equal(buildConsensusRow(forecast, { earningsSurpriseTable: { rows: surpriseRows } }, 'now').hist, '2026-07:2.22:2.09;2026-04:1.87:1.7;2026-01:1.57:1.45;2025-10:1.24:1.18', 'v58.75 the producer keeps each quarter\'s consensus beside the reported EPS');
+  const surprise = read.buildSurpriseRead(consensus);
+  assert.ok(surprise.rows[0].quarter === '2026-01' && surprise.beats === 2 && surprise.misses === 1, 'v58.75 oldest first; beats and misses counted');
+
+  // Same-theme peers by name.
+  const series = (growth) => [{ periodEnd: '2024-12-31', revenue: 100, netIncome: 10, equity: 50 }, { periodEnd: '2025-12-31', revenue: 100 + growth, netIncome: 12, equity: 60 }];
+  const histories = { CAPX: series(20), PA: series(10), PB: series(5), PC: series(30), PD: series(1) };
+  const themes = [{ id: 'semi', nameKr: '반도체', leaders: ['CAPX', 'PD'], subThemes: [{ name: '큰 묶음', tickers: ['CAPX', 'PA', 'PB', 'PC', 'PD', 'PX'] }, { name: '작은 묶음', tickers: ['CAPX', 'PC', 'PA'] }] }];
+  const peers = read.buildThemePeers({ symbol: 'CAPX', themes, rows: [{ sym: 'PA', name: 'Peer A', pe: 30 }], seriesFor: (sym) => histories[sym] || null });
+  assert.deepEqual(peers.rows.map((row) => row.sym), ['CAPX', 'PC', 'PA', 'PB', 'PD'], 'v58.75 the smallest shared sub-theme comes first, issuers without a series drop out');
+  assert.equal(read.buildThemePeers({ symbol: 'CAPX', themes, seriesFor: (sym) => (sym === 'CAPX' || sym === 'PA' ? histories[sym] : null) }), null, 'v58.75 fewer than three named peers shows no table');
+
+  // Through the real renderer.
+  const v75Host = new Element('section');
+  const v75Doc = { ...doc, getElementById: (id) => id === 'fund-flow' ? v75Host : id === 'fund-next' ? next : null };
+  const quarterText = run.map((row) => [row.periodEnd, row.revenue, row.netIncome, row.derived ? 'd' : 'r'].join(':')).join(';');
+  const v75Root = { _aioSecFiscalHistory: { CAPX: sandbox.fiscal(obs), PA: sandbox.fiscal(obs), PB: sandbox.fiscal(obs), PC: sandbox.fiscal(obs) }, _aioSecQuarterHistory: { CAPX: quarterText }, _aioSecFiscalHistoryAt: Date.now(),
+    _aioGetCanonicalScreenerRows: () => [{ sym: 'CAPX', sector: 'Technology' }], THEME_MAP: themes,
+    _aioConsensusEstimates: { rows: { CAPX: consensus } }, _aioEarningsCalendarArtifact: { status: 'current-reference', upcoming: { CAPX: `${day(20)}|bmo` }, earnings: [] } };
+  renderFiscalRead({ documentRef: v75Doc, root: v75Root, state: { id: 'CAPX', fundamentals: null } });
+  for (let tick = 0; tick < 12; tick += 1) await new Promise((resolve) => setImmediate(resolve));
+  renderFiscalRead({ documentRef: v75Doc, root: v75Root, state: { id: 'CAPX', fundamentals: null } });
+  const v75 = descendants(v75Host);
+  for (const id of ['margin-cash', 'surprise', 'theme-peers', 'lens', 'thesis']) assert.ok(v75.some((node) => node.dataset?.analysis === id), `v58.75 재무 공시 renders the ${id} card`);
+  assert.ok(v75Host.textContent.includes('최근 4개 분기(2026-06 분기까지)') && v75Host.textContent.includes('장 시작 전'), 'v58.75 the hero carries the last four quarters and the next report date');
+}
+
+// ── v58.75 (persona review): the stock lens layer — lens registry, peer facts, situations, thesis template, watch list,
+// market link. Pure builders; no price instruction, probability, grade or invented number.
+{
+  const lens = await import('../src/domain/fundamental/stock-lens.js');
+  assert.equal(lens.lensIdFor({ sic: 3674 }).id, 'semis', 'v58.75 SEC SIC 3674 selects the semiconductor lens');
+  assert.equal(lens.lensIdFor({ themeIds: ['software'] }).id, 'software', 'v58.75 the AIO theme is the second lens basis');
+  assert.equal(lens.lensIdFor({ sector: 'Energy' }).id, 'energy', 'v58.75 the sector is the third lens basis');
+  assert.equal(lens.lensIdFor({}).id, 'general', 'v58.75 no classification falls back to the general lens');
+  for (const [id, def] of Object.entries(lens.STOCK_LENSES)) {
+    assert.ok(def.metrics.length >= 4 && def.metrics.length <= 6, `v58.75 lens ${id} tracks 4-6 metrics`);
+    assert.ok(def.why && def.metrics.every((metric) => metric.why), `v58.75 lens ${id} explains every metric`);
+  }
+  const empty = lens.buildLensRead({ lens: { id: 'semis', basis: 'SEC 산업분류 SIC 3674' } });
+  assert.equal(empty.known, 0, 'v58.75 an empty context fills no lens value');
+  assert.ok(empty.rows.every((row) => row.value == null && row.check), 'v58.75 missing lens values say where to check instead of inventing a number');
+  const filled = lens.buildLensRead({ lens: { id: 'semis', basis: 'x' }, history: [{ periodEnd: '2024-12-31', revenue: 100 }, { periodEnd: '2025-12-31', revenue: 130 }], trailing: { revenueYoy: 40 } });
+  assert.ok(filled.rows.find((row) => row.id === 'revenueGrowth').value.includes('+40.0%'), 'v58.75 the lens reads the real trailing growth');
+
+  const peerRows = [{ sym: 'SELF', self: true, growth: 40, margin: 30, roe: 35, fcfMargin: 25, fwdPe: 18, ret3m: -8 },
+    ...[10, 15, 20, 25, 30].map((g, i) => ({ sym: `P${i}`, growth: g, margin: 10 + i, roe: 10 + i, fcfMargin: 8 + i, fwdPe: 25 + i, ret3m: 5 + i }))];
+  const sw = lens.buildPeerStrengths(peerRows);
+  assert.ok(sw.strengths.length === 3 && sw.strengths.every((fact) => fact.rank === 1), 'v58.75 three strengths are first-ranked facts');
+  assert.ok(sw.weaknesses.some((fact) => fact.id === 'ret3m'), 'v58.75 the weakest relative fact becomes a weakness');
+  assert.ok(sw.facts.find((fact) => fact.id === 'fwdPe').text.includes('가벼운 편'), 'v58.75 a lower forward PER is the lighter price burden');
+  assert.equal(lens.buildPeerStrengths(peerRows.slice(0, 3)), null, 'v58.75 fewer than four values gives no peer fact');
+
+  const scenario = { status: 'current', crossroads: { leadId: 'aibust', items: [{ id: 'aibust', fit: '조건 충족 3/4' }] } };
+  const situation = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], scenario });
+  assert.ok(situation.favour.length && situation.burden.length && situation.now.includes('부담'), 'v58.75 AI capex exposure is burdened by the AI-bust branch');
+  assert.equal(lens.buildSituationRead({ themes: [{ id: 'no-such-theme', label: 'x' }] }), null, 'v58.75 a theme without exposure tags shows no situation read');
+  const stale = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], scenario: { ...scenario, status: 'stale' } });
+  assert.equal(stale.now, null, 'v58.75 a stale scenario artifact does not name a lead branch');
+
+  const bench = [], bars = [];
+  for (let i = 0; i < 200; i += 1) {
+    const date = new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+    const b = 100 * (1 + 0.01 * Math.sin(i));
+    bench.push({ date, value: b });
+    bars.push({ date, close: 50 * (1 + 0.02 * Math.sin(i)) });
+  }
+  assert.ok(Math.abs(lens.dailyBeta(bars, bench).value - 2) < 0.2, 'v58.75 daily beta of a doubled move is about 2');
+  assert.equal(lens.dailyBeta(bars.slice(0, 60), bench), null, 'v58.75 fewer than 120 shared sessions gives no beta');
+
+  const frame = lens.buildThesisFrame({ implied: { state: 'ready', growth: 0.12 }, trailing: { revenueYoy: 20, margin: 25 }, consensus: { fwd: { up4w: 3, down4w: 1 } },
+    schedule: { text: '11/19(장 마감 후)' }, levels: { supportCandidates: [{ price: 90, pct: -5 }], resistanceCandidates: [{ price: 110, pct: 6 }] }, peerPe: { value: 20, median: 25 }, situation });
+  assert.ok(frame.priced.includes('12.0%') && frame.priced.includes('+20.0%'), 'v58.75 the thesis compares the reverse-DCF growth with trailing growth');
+  assert.ok(frame.conditions.length === 3 && frame.checks.length === 3 && frame.breaks.length >= 4 && frame.paths.length === 2, 'v58.75 the thesis has conditions, checks, break signals and two paths');
+  const frameText = JSON.stringify(frame);
+  assert.ok(!/매수가|손절|목표가|비중|확률|%\s*가능성/.test(frameText), 'v58.75 the thesis frame carries no price instruction or probability');
+  assert.ok(frameText.includes('보장이 아님'), 'v58.75 price levels are framed as observation, not a guarantee');
+  const bare = lens.buildThesisFrame({});
+  assert.ok(bare.priced == null && bare.conditions.length === 0 && bare.checks.length === 1, 'v58.75 without data the thesis invents nothing and points to the chart level map');
+
+  const watch = lens.buildWatchList({ schedule: { text: '11/19' }, consensus: { fwd: { up4w: 2, down4w: 0 } }, trailing: { margin: 30, priorMargin: 25 }, row: { ret3m: 7.5 }, benchmarkRet3m: 2.8,
+    levels: { supportCandidates: [{ price: 90 }] }, stage: { label: '반도체', stateLabel: '동행' } });
+  assert.deepEqual(watch.map((item) => item.id), ['earnings', 'revisions', 'margin', 'relative', 'levels', 'theme'], 'v58.75 the watch list keeps six named checks');
+  assert.deepEqual(lens.buildWatchList({}), [], 'v58.75 an empty watch list stays empty');
+
+  const link = lens.buildMarketLink({ regime: { available: true, overall: '다소 부담' }, scenario, themeLabel: '반도체', tags: ['aicapex', 'cyclical', 'growth'], stage: { stateLabel: '동행' } });
+  assert.ok(link.text.includes("'다소 부담'") && link.text.includes('AI') && link.text.includes('부담 쪽'), 'v58.75 the market line joins the regime, lead branch and theme wind');
+  assert.equal(lens.buildMarketLink({}), null, 'v58.75 no regime or scenario gives no market line');
+}
+
+console.log('[fiscal-quality] PASS P1627: signed zero line, precise same-period annual receipt, strict ROE/gap, amount table, source links, missing quarters, compact peers, pending-issuer race; v58.55 assets/R&D columns, DuPont, R&D, Sloan, reverse DCF, backfill batch, pending state; v58.75 capital columns, margin ladder, net cash, last four quarters, next report date, EPS surprise, theme peers, stock lens/peer facts/situations/thesis frame/watch list/market line. Offline; producer not executed.');

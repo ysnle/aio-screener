@@ -9,6 +9,7 @@ import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from '.
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
 import { countOpenSessionsBetween } from '../../src/domain/market/market-calendar.js';
 import { buildMarketFlow } from '../../src/domain/market/market-flow.js';
+import { HEADLINE_GLOSSARY_PAIRS } from '../../src/domain/briefing/headline-terms.js';
 import { expandScreenerArtifact } from '../../src/data/screener-extended.js';
 import { loadThemeMaps } from '../build-scenario-state.mjs';
 import { readNarrativeContext } from '../lib/narrative-context.mjs';
@@ -259,8 +260,15 @@ const ACCENTED_WORD = /[A-Za-zÀ-ɏḀ-ỿ]*[À-ɏḀ-ỿ][A-Za-zÀ-ɏḀ-ỿ]*/
 // keeps no titleKo, so the browser translates it with the shared model instead of showing a wrong meaning.
 const HEADLINE_TERMS = Object.freeze([
   [/\bTreasur(?:y|ies)\b(?!\s+(?:Secretary|Department))/, /국채|미 국채|재무부/], [/\bhaven\b/i, /안전/], [/\bFed\b/, /연준|연방준비/],
-  [/\bbearish\b/i, /약세|하락|매도|비관/], [/\bbullish\b/i, /강세|상승|매수|낙관/], [/\bselloff\b|\bsell-off\b/i, /매도|급락|하락/]
+  [/\bbearish\b/i, /약세|하락|매도|비관/], [/\bbullish\b/i, /강세|상승|매수|낙관/], [/\bselloff\b|\bsell-off\b/i, /매도|급락|하락/],
+  // v58.75 (persona review): "guidance" came back as 지침/안내; a company outlook is 가이던스 or 전망.
+  [/\bguidance\b/i, /가이던스|전망/],
+  // "Bearish Euro Bets" passed as "유로 매도 건으로 상승" (매도 satisfied the bearish term); a bet is a 베팅/포지션.
+  [/\b(?:bearish|bullish)\b(?:\s+\S+){0,2}\s+bets?\b/i, /(?:약세|강세|하락|상승|매도|매수|숏|롱)\s*(?:베팅|포지션)|공매도/]
 ]);
+// v58.75 (persona review): the shared model is told the market words up front (the validator above only rejects a miss
+// afterwards). The free Workers AI path takes no instructions; its misses fall to this prompt through the validator.
+export const HEADLINE_GLOSSARY = HEADLINE_GLOSSARY_PAIRS.map(([en, ko]) => `${en} → ${ko}`).join(', '); // shared with the browser's after-translation fixes
 export const isFaithfulKoreanTitle = (title, ko) => {
   if (!isCleanKoreanTitle(ko)) return false;
   if (!HEADLINE_TERMS.every(([en, kr]) => !en.test(String(title || '')) || kr.test(String(ko || '')))) return false;
@@ -301,6 +309,7 @@ export async function translateHeadlines(items, { previous = [], request = null,
   }
   if (!pending.length || typeof request !== 'function') return { reused, translated: 0, pending: pending.length, reason: pending.length ? 'no-request' : null, ...(freeReason ? { freeReason } : {}) };
   const prompt = ['다음 영어 금융 뉴스 헤드라인을 자연스러운 한국어 기사 제목으로 옮겨라. 고유명사·티커·숫자는 그대로 두고, 뜻을 더하거나 빼지 마라.',
+    `시장 용어는 다음처럼 옮긴다: ${HEADLINE_GLOSSARY}.`,
     `출력은 JSON 문자열 배열 하나만, 입력과 같은 순서로 정확히 ${pending.length}개.`,
     JSON.stringify(pending.map((item) => item.title.slice(0, 300)))].join('\n');
   let result = null;

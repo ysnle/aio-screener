@@ -135,6 +135,8 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
     schemaVersion: SCENARIO_STATE_SCHEMA, status: SCENARIO_STATE_CURRENT, generatedAt: at,
     sourceLabel: 'AIO 공개 산출물(거시 기록·확정 종가·스크리너)로 갱신마다 재계산',
     basis: { macroAsOf: crossroads.asOf || null, themeAsOf: themeDay || null, themeAsOfByMarket: playbook.asOfByMarket || null, outcomesAt: outcomes?.generatedAt || null },
+    // v58.75 (persona review): the rule the theme rows and rotation text were built with (screens skip a mismatched copy).
+    playbookVersion: playbook.version || null,
     ...snapshot,
     transitions: transitions.slice(-MAX_TRANSITIONS), eventOutcomes, lastScored,
     themeHistory: themeHistory.sort((a, b) => a.date.localeCompare(b.date)).slice(-MAX_THEME_DAYS)

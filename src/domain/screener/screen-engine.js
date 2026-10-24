@@ -324,13 +324,19 @@ export function createDefaultScreenDefinitions() {
   return Object.freeze([
     preset('preset-balanced', '균형 상대 순위', 'balanced-research', { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }, ['price.ret3m', 'price.pctSma200', 'price.rsi14']),
     // v57.84 review: the presets were the composite rank filtered four ways (모멘텀 지속 274/274 inside 균형). Each now sorts by
-    // its own signal, uses thresholds that select (분포 기준), and 돌파 관찰 needs an actual breakout/near-pivot stage.
+    // its own signal, uses thresholds that select (분포 기준), and the pivot presets need an actual breakout/near-pivot stage.
     preset('preset-momentum', '모멘텀 지속', 'momentum-research', { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'unknown' }, { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }] }, ['price.ret1m', 'price.ret3m', 'technical.kalmanVelocity'], { field: 'price.ret3m', direction: 'desc' }),
     // v57.86 (live review): 추세 정렬 sorted by the composite rank (its top 12 were 균형's, in order) — it sorts by the long trend;
     // 저변동 방어 listed seven bond ETFs (no rank) — a stock preset needs a ranked row.
     preset('preset-trend', '추세 정렬', 'trend-research', { type: 'and', children: [{ type: 'range', field: 'price.pctSma50', min: 0, nullPolicy: 'unknown' }, { type: 'range', field: 'price.pctSma200', min: 0, nullPolicy: 'unknown' }] }, ['price.pctSma50', 'price.pctSma200'], { field: 'price.pctSma200', direction: 'desc' }),
     preset('preset-lowvol', '저변동 방어', 'low-volatility-research', { type: 'and', children: [{ type: 'range', field: 'price.volatility', max: 25, nullPolicy: 'unknown' }, { type: 'range', field: 'rank', min: 0, nullPolicy: 'reject' }] }, ['price.volatility', 'price.rsi14'], { field: 'price.volatility', direction: 'asc' }),
     preset('preset-quality', '퀄리티 결합', 'quality-research', { type: 'and', children: [{ type: 'range', field: 'quality.roe', min: 15, nullPolicy: 'unknown' }, { type: 'range', field: 'quality.margin', min: 10, nullPolicy: 'unknown' }] }, ['quality.roe', 'quality.margin']),
-    preset('preset-breakout-observation', '돌파 관찰', 'breakout-observation', { type: 'and', children: [{ type: 'enum', field: 'technical.vcpStage', values: ['breakout', 'near_pivot'], nullPolicy: 'unknown' }, { type: 'range', field: 'price.rvol20', min: 1.4, nullPolicy: 'unknown' }] }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'])
+    // v58.75 (persona review): '돌파 관찰' required near_pivot AND rvol20 >= 1.4, so the quiet names just under the pivot (the
+    // watch list a breakout trader keeps) were dropped and 3 rows remained. Split: near the pivot, quietest volume first; and
+    // the breakout itself on heavy volume. A stored run keeps its own definition, so replay is unaffected.
+    // The near-pivot list is not filtered on volume (a ±3% band name with heavy volume is still worth seeing); its name says
+    // it is ordered by the quietest volume rather than claiming every row is drying up.
+    preset('preset-pivot-quiet', '피벗 근접·거래 적은 순', 'pivot-quiet-observation', { type: 'enum', field: 'technical.vcpStage', values: ['near_pivot'], nullPolicy: 'unknown' }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'], { field: 'price.rvol20', direction: 'asc' }),
+    preset('preset-breakout-volume', '돌파·거래 증가', 'breakout-volume-observation', { type: 'and', children: [{ type: 'enum', field: 'technical.vcpStage', values: ['breakout'], nullPolicy: 'unknown' }, { type: 'range', field: 'price.rvol20', min: 1.4, nullPolicy: 'unknown' }] }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'], { field: 'price.rvol20', direction: 'desc' })
   ]);
 }

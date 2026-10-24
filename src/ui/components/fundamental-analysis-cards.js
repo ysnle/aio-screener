@@ -1,10 +1,13 @@
 // v58.55 (개편 v2 3d/5g): the analysis cards v58.53 left out — 듀폰 분해 and 역 DCF on 종목 요약, R&D 비율 on 재무 공시.
 // Readings come from src/domain/fundamental/analysis-read.js; this file only draws them. A card whose inputs are not yet
 // collected says "수집 대기 · 다음 SEC 갱신 후 표시"; a filer that does not tag an item says so — never a zero.
-import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, REVERSE_DCF_DEFAULTS } from '../../domain/fundamental/analysis-read.js';
-import { formatUsdShort } from '../../domain/fundamental/fiscal-read.js';
+import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, REVERSE_DCF_DEFAULTS, buildTrailingYearRead, buildEarningsSchedule, buildSurpriseRead, buildMarginCashRead, buildThemePeers } from '../../domain/fundamental/analysis-read.js';
+import { formatUsdShort, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { el } from './dom.js';
+import { fiscalBarGeometry, parseFiscalHistory } from './fiscal-read.js';
+import { peMultipleText } from '../../domain/fundamental/consensus-read.js';
+import { stockLensContext, lensCard, thesisCard, situationCard } from './stock-lens-cards.js';
 import { signedText } from '../../domain/shared/number.js';
 
 export const COLLECTION_PENDING_LABEL = '수집 대기, 다음 SEC 갱신 후 표시';
@@ -37,11 +40,11 @@ function disclosure(doc, summary, boxes) {
 }
 
 // The honest waiting state: the item is designed and its producer is wired, the issuer's record predates it.
-export function pendingNote(doc, what) {
+export function pendingNote(doc, what, items = '총자산·R&D') {
   const box = el(doc, 'div', null, 'v2-analysis-pending');
   box.setAttribute('role', 'status');
   box.append(el(doc, 'span', COLLECTION_PENDING_LABEL, 'sx-chip sx-chip--sm sx-chip--date'),
-    el(doc, 'p', `${what}에 필요한 총자산·R&D 항목을 SEC 연간 공시에서 새로 수집하고 있습니다. 공시 갱신은 하루 다섯 번, 회차마다 일부 기업씩 진행되며 이 기업 차례가 오면 자동으로 표시됩니다. 그 전까지 값을 추정하지 않습니다.`, 'v2-analysis-pending__text'));
+    el(doc, 'p', `${what}에 필요한 ${items} 항목을 SEC 연간 공시에서 새로 수집하고 있습니다. 공시 갱신은 하루 다섯 번, 회차마다 일부 기업씩 진행되며 이 기업 차례가 오면 자동으로 표시됩니다. 그 전까지 값을 추정하지 않습니다.`, 'v2-analysis-pending__text'));
   return box;
 }
 
@@ -257,4 +260,185 @@ export function rdCard(doc, history) {
   ]));
   card.append(el(doc, 'p', '근거, Lev·Sougiannis(1996) R&D 자본화와 수익률, 데이터, SEC EDGAR XBRL 연간 공시', 'sx-evidence'));
   return card;
+}
+
+// ── v58.75 (persona review): recent four quarters, earnings surprise, margin ladder · net cash · capital return, theme peers ──
+const usd2 = (value) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(2)}`;
+
+// One line under the annual headline: the last four filed quarters against the same four a year earlier (null = omit).
+export function trailingYearLine(read) {
+  if (!read) return null;
+  const yoy = [read.revenueYoy != null ? `매출 ${signedText(read.revenueYoy, 1, '%')}` : null, read.netIncomeYoy != null ? `순이익 ${signedText(read.netIncomeYoy, 1, '%')}` : null].filter(Boolean);
+  return `최근 4개 분기(${read.through.slice(0, 7)} 분기까지) 매출 ${formatUsdShort(read.revenue)}, 순이익 ${formatUsdShort(read.netIncome)}, 순이익률 ${read.margin == null ? '—' : `${read.margin.toFixed(1)}%`}`
+    + `${yoy.length ? ` — 전년 같은 4개 분기 대비 ${yoy.join(', ')}${read.priorMargin != null && read.margin != null ? `, 순이익률 ${read.priorMargin.toFixed(1)}%에서 ${read.margin.toFixed(1)}%` : ''}` : ''}.${read.hasDerived ? ' (4분기 하나는 연간에서 1~3분기를 뺀 값)' : ''}`;
+}
+
+// Reported adjusted EPS against the consensus before each report: paired bars on one zero line, the surprise under each.
+export function surpriseCard(doc, read) {
+  if (!read?.rows?.length) return null;
+  const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-surprise');
+  card.dataset.analysis = 'surprise';
+  card.setAttribute('aria-label', '실적 발표, 예상 대비 실제 EPS');
+  card.append(cardHead(doc, '예상 대비 실제 EPS', `최근 ${read.rows.length}개 분기, 조정 EPS`));
+  const n = read.rows.length;
+  const lede = `최근 ${n}개 분기 중 ${read.beats}번 예상보다 높았고 ${read.misses}번 낮았습니다${read.average != null ? `, 차이 평균 ${signedText(read.average, 1, '%')}` : ''}. 직전 분기(${read.latest.quarter}) 실제 ${usd2(read.latest.actual)}, 예상 ${usd2(read.latest.estimate)}.`;
+  card.append(el(doc, 'p', lede, 'v2-analysis-lede'));
+  const scale = fiscalBarGeometry(read.rows.flatMap((row) => [row.estimate, row.actual]));
+  const box = el(doc, 'div', null, 'fiscal-bars');
+  box.style.setProperty('--fiscal-zero', `${scale.baseline.toFixed(3)}%`);
+  for (const row of read.rows) {
+    const col = el(doc, 'div', null, 'fiscal-col');
+    const values = el(doc, 'div', null, 'fiscal-values');
+    values.append(el(doc, 'span', `예상 ${usd2(row.estimate)}`, 'fiscal-value'), el(doc, 'span', `실제 ${usd2(row.actual)}`, `fiscal-value${row.actual < 0 ? ' is-loss' : ''}`));
+    const stack = el(doc, 'div', null, 'fiscal-stack');
+    for (const [field, label, className] of [['estimate', '예상', 'is-revenue'], ['actual', '실제', 'is-income']]) {
+      const geometry = scale.rect(row[field]);
+      if (!geometry) continue;
+      const bar = el(doc, 'div', null, `fiscal-bar ${className}${row[field] < 0 ? ' is-loss' : ''}`);
+      bar.style.top = `${geometry.top.toFixed(3)}%`;
+      bar.style.height = `${geometry.height.toFixed(3)}%`;
+      bar.title = `${row.quarter} 분기 ${label} EPS ${usd2(row[field])}`;
+      stack.append(bar);
+    }
+    col.append(values, stack, el(doc, 'span', `${row.quarter} 분기`, 'fiscal-year'),
+      el(doc, 'span', row.surprise == null ? '차이 계산 불가' : `차이 ${signedText(row.surprise, 1, '%')}`, `fiscal-margin${row.actual < row.estimate ? ' is-loss' : ''}`));
+    box.append(col);
+  }
+  const scroll = el(doc, 'div', null, 'fiscal-chart-scroll');
+  scroll.tabIndex = 0;
+  scroll.setAttribute('role', 'region');
+  scroll.setAttribute('aria-label', '분기별 예상과 실제 EPS 차트, 가로 스크롤');
+  scroll.append(box);
+  const legend = el(doc, 'div', null, 'fiscal-legend');
+  legend.append(el(doc, 'span', '예상', 'is-revenue'), el(doc, 'span', '실제', 'is-income'), el(doc, 'span', '발표 직전 컨센서스와 발표된 조정 EPS', 'is-note'));
+  const chart = el(doc, 'div', null, 'fiscal-chart fiscal-quality-chart');
+  chart.append(scroll, legend);
+  card.append(chart);
+  card.append(disclosure(doc, '원리, 실적 서프라이즈', [
+    ['원리', '애널리스트 예상(컨센서스)보다 높은 실적이 발표되면 주가가 그 뒤로도 같은 방향으로 움직이는 경향(실적 발표 후 표류)이 오래 관측됐습니다. 예상을 자주 넘는 회사는 회사가 보수적으로 안내하는 경우도 많아, 넘은 폭이 줄어드는지도 함께 봅니다.'],
+    ['지금 읽기', `${read.beats === n ? `${n}개 분기 모두 예상보다 높았습니다.` : read.misses === n ? `${n}개 분기 모두 예상보다 낮았습니다.` : `넘은 분기와 못 미친 분기가 섞여 있습니다.`} 숫자는 일회성 항목을 뺀 조정 EPS이며 SEC 공시 순이익과 기준이 다릅니다.`],
+    ['한계, 함께 볼 것', `점수에 쓰지 않는 참고값입니다. 매출 서프라이즈와 다음 분기 가이던스는 이 자료에 없어 실적 발표 자료에서 확인합니다.${read.asOf ? ` 자료 기준 ${read.asOf}.` : ''}`]
+  ]));
+  return card;
+}
+
+// Margin ladder (gross → operating → net) for the latest fiscal year carrying those lines, with net cash and capital return.
+export function marginCashCard(doc, read, { financial = false } = {}) {
+  if (!read || read.state === 'none') return null;
+  const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-margin-cash');
+  card.dataset.analysis = 'margin-cash';
+  card.dataset.state = read.state;
+  card.setAttribute('aria-label', '이익률 단계와 현금');
+  card.append(cardHead(doc, '이익률 단계와 현금', read.state === 'ready' ? `${read.label} 연간` : '연간 공시'));
+  if (read.state === 'pending') { card.append(pendingNote(doc, '이익률 단계와 순현금', '매출총이익·영업이익·현금·주식보상·자사주·배당')); return card; }
+  const [gross, operating, net] = read.ladder;
+  const steps = read.ladder.filter((step) => step.value != null);
+  const lede = gross.value != null && operating.value != null && net.value != null
+    ? `매출 100달러 중 ${gross.value.toFixed(0)}달러가 원가를 뺀 이익, ${operating.value.toFixed(0)}달러가 영업비용까지 뺀 이익, ${net.value.toFixed(0)}달러가 이자·세금 뒤 순이익입니다(${read.label}).`
+    : `${read.label} ${steps.map((step) => `${step.label} ${step.value.toFixed(1)}%`).join(', ')}${gross.value == null ? ', 매출총이익은 따로 공시되지 않았습니다' : ''}.`;
+  card.append(el(doc, 'p', lede, 'v2-analysis-lede'));
+  const bars = el(doc, 'div', null, 'v2-margin-ladder');
+  for (const step of read.ladder) {
+    const line = el(doc, 'div', null, 'stock-read-bars');
+    line.append(el(doc, 'span', step.label, 'stock-read-bar-label'));
+    const item = el(doc, 'div', null, 'stock-read-bar-row');
+    if (step.value == null) item.append(el(doc, 'span', step.id === 'gross' ? '따로 공시 없음' : '자료 없음', 'stock-read-bar-value'));
+    else {
+      const track = el(doc, 'div', null, 'stock-read-track');
+      const bar = el(doc, 'div', null, `stock-read-bar is-${step.value < 0 ? 'burden' : 'neutral'}`);
+      bar.style.width = `${Math.max(step.value > 0 ? 2 : 0, Math.min(100, step.value)).toFixed(1)}%`;
+      track.append(bar);
+      const change = step.prior != null ? `, ${read.priorLabel} ${step.prior.toFixed(1)}%` : '';
+      item.append(track, el(doc, 'span', `${step.value.toFixed(1)}%${change}`, 'stock-read-bar-value'));
+    }
+    line.append(item);
+    bars.append(line);
+  }
+  card.append(bars);
+  const lines = el(doc, 'ul', null, 'v2-margin-cash__lines');
+  const cash = read.cash;
+  if (cash && !financial) {
+    const what = cash.shortTermInvestments != null ? '현금·단기투자' : '현금성 자산';
+    lines.append(el(doc, 'li', cash.debt == null ? `${what} ${formatUsdShort(cash.liquid)}, 장기부채 자료 없음`
+      : `${what} ${formatUsdShort(cash.liquid)} 대 장기부채 ${formatUsdShort(cash.debt)} — ${cash.net >= 0 ? `순현금 ${formatUsdShort(cash.net)}` : `순부채 ${formatUsdShort(-cash.net)}`}(${read.label} 말)`));
+  }
+  const cap = read.capital;
+  const capital = [cap.sbcRatio != null ? `주식보상 매출의 ${cap.sbcRatio.toFixed(1)}%` : null, cap.buybacks != null ? `자사주 매입 ${formatUsdShort(cap.buybacks)}` : null, cap.dividends != null ? `배당 ${formatUsdShort(cap.dividends)}` : null].filter(Boolean);
+  if (capital.length) lines.append(el(doc, 'li', `${capital.join(', ')}${cap.returnedShareOfFcf != null ? ` — 매입과 배당 합이 잉여현금흐름의 ${cap.returnedShareOfFcf.toFixed(0)}%` : ''}.`));
+  if (lines.childElementCount) card.append(lines);
+  card.append(disclosure(doc, '원리, 이익률 단계와 현금', [
+    ['원리', '매출총이익률은 가격 결정력과 원가, 영업이익률은 판매·연구 비용을 쓴 뒤의 본업 수익성, 순이익률은 이자·세금·일회성 항목까지 반영한 결과입니다. 세 단계의 간격이 어디서 벌어지는지가 비용 구조를 보여 줍니다.'],
+    ['지금 읽기', `${operating.value != null && net.value != null ? (net.value > operating.value ? '순이익률이 영업이익률보다 높아 이자 수익·투자 이익 같은 영업 밖 이익이 있었던 해입니다.' : `영업이익률과 순이익률의 차이 ${(operating.value - net.value).toFixed(1)}%p는 이자·세금·영업 밖 손익입니다.`) : '세 단계 중 공시된 값만 표시했습니다.'}${cap.sbcRatio != null && cap.sbcRatio >= 10 ? ' 주식보상이 매출의 10% 이상이라, 현금흐름에 더해지는 비현금 비용이지만 주식 수를 늘리는 실제 비용으로 함께 봅니다.' : ''}`],
+    ['한계, 함께 볼 것', `순현금은 현금성 자산(단기투자 포함 시 표기)에서 장기부채만 뺀 값이며, 1년 안에 갚을 부채와 리스 부채는 빠져 있습니다.${financial ? ' 은행·대출 금융사는 현금과 부채가 영업 자산이라 순현금 줄을 표시하지 않습니다.' : ''} 매출총이익을 따로 표시하지 않는 업종(금융·서비스 일부)은 첫 단계가 비어 있습니다.`]
+  ]));
+  card.append(el(doc, 'p', '데이터, SEC EDGAR XBRL 연간 공시(최근 2개 회계연도)', 'sx-evidence'));
+  return card;
+}
+
+// Same-theme companies by name. The broad-sector percentile stays below it, folded.
+export function themePeerCard(doc, read, { onOpen = null } = {}) {
+  if (!read?.rows?.length) return null;
+  const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-theme-peers');
+  card.dataset.analysis = 'theme-peers';
+  card.setAttribute('aria-label', `같은 테마 기업 비교, ${read.themeName}`);
+  card.append(cardHead(doc, '같은 테마 기업과 비교', `${read.themeName}${read.subNames.length ? `, ${read.subNames.join(' / ')}` : ''}`));
+  const own = read.rows[0];
+  const peers = read.rows.slice(1);
+  const median = (field) => { const values = peers.map((row) => row[field]).filter((v) => v != null).sort((a, b) => a - b); if (!values.length) return null; const m = Math.floor(values.length / 2); return values.length % 2 ? values[m] : (values[m - 1] + values[m]) / 2; };
+  const parts = [['growth', '매출 성장'], ['margin', '순이익률'], ['roe', 'ROE']].map(([field, label]) => {
+    const mid = median(field);
+    return own[field] != null && mid != null ? `${label} ${own[field].toFixed(1)}%(같은 테마 중앙값 ${mid.toFixed(1)}%)` : null;
+  }).filter(Boolean);
+  if (parts.length) card.append(el(doc, 'p', `${own.name} ${parts.join(', ')}.`, 'v2-analysis-lede'));
+  const region = el(doc, 'div', null, 'fiscal-table-scroll');
+  region.tabIndex = 0;
+  region.setAttribute('role', 'region');
+  region.setAttribute('aria-label', '같은 테마 기업 비교표, 가로 스크롤');
+  const table = el(doc, 'table', null, 'fiscal-amount-table');
+  table.append(el(doc, 'caption', '각 회사의 최근 회계연도, 자료 없음은 0이 아닙니다'));
+  const head = el(doc, 'thead'); const headRow = el(doc, 'tr');
+  for (const label of ['기업', '회계연도', '매출 성장', '순이익률', 'ROE', 'PER']) { const th = el(doc, 'th', label); th.scope = 'col'; headRow.append(th); }
+  head.append(headRow); table.append(head);
+  const body = el(doc, 'tbody');
+  const pctCell = (value) => (value == null ? '—' : `${value.toFixed(1)}%`);
+  for (const row of read.rows) {
+    const tr = el(doc, 'tr', null, row.self ? 'is-self' : null);
+    const name = el(doc, 'th', null);
+    name.scope = 'row';
+    if (!row.self && typeof onOpen === 'function') {
+      const go = el(doc, 'button', row.name === row.sym ? row.sym : `${row.name} (${row.sym})`, 'stock-read-point-link');
+      go.type = 'button';
+      go.addEventListener('click', () => onOpen(row.sym));
+      name.append(go);
+    } else name.textContent = `${row.name === row.sym ? row.sym : `${row.name} (${row.sym})`}${row.self ? ', 이 종목' : ''}`;
+    tr.append(name, el(doc, 'td', fiscalYearShortLabel(row.periodEnd) || row.periodEnd || '—'),
+      el(doc, 'td', pctCell(row.growth), row.growth < 0 ? 'is-loss' : null), el(doc, 'td', pctCell(row.margin), row.margin < 0 ? 'is-loss' : null),
+      el(doc, 'td', pctCell(row.roe), row.roe < 0 ? 'is-loss' : null), el(doc, 'td', row.pe == null ? '—' : peMultipleText(row.pe)));
+    body.append(tr);
+  }
+  table.append(body); region.append(table);
+  card.append(region, el(doc, 'p', '테마는 AIO의 투자 분류이며 사업 비중이 같다는 뜻은 아닙니다. 회계연도 마감 시점이 회사마다 달라, 차이가 큰 회사는 같은 시기로 읽지 않습니다. PER은 스크리너의 공시 이익 기준이며 적자 회사는 표시하지 않습니다.', 'theme-strength-basis'));
+  return card;
+}
+
+// v58.75: everything 재무 공시 adds for this pass, built here so the boot-loaded fiscal-read.js stays small. hero = lines
+// under the annual headline; cards = margin/cash (only with a fiscal series) and the EPS surprise; themePeers = the table.
+export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, calendar, rows, fundamentals, series = false, financial = false }) {
+  const hero = [];
+  const recent = trailingYearLine(buildTrailingYearRead(quarters));
+  if (recent) hero.push(el(doc, 'p', recent, 'fiscal-period-basis v2-fiscal-recent'));
+  const schedule = buildEarningsSchedule({ symbol, calendar, consensus });
+  if (schedule) { const line = el(doc, 'p', schedule.text, 'fiscal-period-basis sx-meta v2-fiscal-schedule'); if (schedule.title) line.title = schedule.title; hero.push(line); }
+  const cards = [series ? marginCashCard(doc, buildMarginCashRead(history), { financial }) : null, surpriseCard(doc, buildSurpriseRead(consensus))].filter(Boolean);
+  const fiscal = root?._aioSecFiscalHistory;
+  const themePeers = fiscal ? themePeerCard(doc, buildThemePeers({ symbol, themes: root?.THEME_MAP, rows,
+    seriesFor: (sym) => (fiscal[sym] ? reconcileFiscalHistory(parseFiscalHistory(fiscal[sym]), sym === symbol ? fundamentals : null, sym) : null) }),
+  { onOpen: typeof root?.showTicker === 'function' ? (sym) => root.showTicker(sym) : null }) : null;
+  // v58.75 ('고르는 법' B1/B3/B4): the business lens leads the analysis cards; the thesis template and the favourable/unfavourable
+  // situations follow the reading.
+  const lensCtx = series ? stockLensContext(root, symbol, { fundamentals, bars: root?._aioEntitySummaries?.[symbol]?.history || null }) : null;
+  const lens = lensCtx ? lensCard(doc, lensCtx.lensRead) : null;
+  if (lens) cards.unshift(lens);
+  const after = lensCtx ? [thesisCard(doc, root, lensCtx), situationCard(doc, lensCtx)].filter(Boolean) : [];
+  return { hero, cards, themePeers, after };
 }

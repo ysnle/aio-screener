@@ -73,10 +73,23 @@ const source = JSON.parse(sourceText);
 // v58.55: two more columns — year-end total assets and annual R&D expense (DuPont, Sloan accruals, R&D ÷ revenue). They are
 // written only for a record whose observations were read by the v58.55 normalizer (the arrays exist, even empty), so the
 // page can tell "not yet collected" (8 columns) from "not reported" (10 columns, empty cell).
-const FY_FIELDS = ['revenue', 'netIncome', 'equity', 'operatingCashFlow', 'capex', 'longTermDebt', 'totalAssets', 'researchAndDevelopment'];
-const DURATION_FIELDS = new Set(['revenue', 'netIncome', 'operatingCashFlow', 'capex', 'researchAndDevelopment']);
-export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions[:totalAssets:researchAndDevelopment] (USD millions; the bracketed columns are present once the issuer was read with total assets and R&D — absent = not yet collected, empty = not reported)';
+// v58.75 (persona review): seven more columns — gross profit, operating income, cash, short-term investments, stock-based
+// compensation, buybacks and dividends (margin ladder, net cash, capital return). To keep the artifact well inside the
+// client's 1 MiB read they are written on the latest CAPITAL_YEARS rows only, and only for a record read by the v58.75
+// normalizer (the arrays exist), so 10 columns on a recent row means "not yet collected" and an empty cell "not reported".
+const FY_FIELDS = ['revenue', 'netIncome', 'equity', 'operatingCashFlow', 'capex', 'longTermDebt', 'totalAssets', 'researchAndDevelopment',
+  'grossProfit', 'operatingIncome', 'cash', 'shortTermInvestments', 'shareBasedCompensation', 'buybacks', 'dividends'];
+const CAPITAL_FIELDS = FY_FIELDS.slice(8);
+export const CAPITAL_YEARS = 2;
+const DURATION_FIELDS = new Set(['revenue', 'netIncome', 'operatingCashFlow', 'capex', 'researchAndDevelopment', 'grossProfit', 'operatingIncome', 'shareBasedCompensation', 'buybacks', 'dividends']);
+export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions[:totalAssets:researchAndDevelopment[:grossProfit:operatingIncome:cash:shortTermInvestments:shareBasedCompensation:buybacks:dividends]] (USD millions; the first bracket is present once the issuer was read with total assets and R&D, the second on the latest two fiscal years once it was read with the capital items — absent = not yet collected, empty = not reported)';
 const usdReport = (record) => !record?.reportingCurrency || record.reportingCurrency === 'USD';
+export const ISSUER_SIC_FORMAT = 'sic|SEC description (submissions sic / sicDescription)';
+// Only issuers the projection ships; a code without a 3-4 digit SIC is left out.
+export function issuerSicMap(issuerSic = {}, data = {}) {
+  return Object.fromEntries(Object.entries(issuerSic || {}).filter(([symbol, row]) => data?.[symbol] && /^\d{3,4}$/.test(String(row?.sic || '')))
+    .map(([symbol, row]) => [symbol, `${row.sic}|${String(row.description || '').replace(/[|;]/g, ' ').trim()}`]));
+}
 function fiscalHistory(observations = {}) {
   const byEnd = new Map();
   for (const field of FY_FIELDS) {
@@ -126,13 +139,15 @@ function fiscalHistory(observations = {}) {
   };
   const m = compactFiscalMillions;
   const assetChain = Array.isArray(observations.totalAssets);
-  return [...byEnd.values()]
+  const capitalChain = assetChain && Array.isArray(observations.grossProfit);
+  const rows = [...byEnd.values()]
     .filter((entry) => entry.revenue != null || entry.netIncome != null)
     .sort((x, y) => x.periodEnd.localeCompare(y.periodEnd))
-    .slice(-6)
-    // One compact line per issuer (see FISCAL_HISTORY_FORMAT; empty = not reported).
-    .map((entry) => [entry.periodEnd, m(entry.revenue), m(entry.netIncome), m(entry.equity), m(entry.operatingCashFlow), m(entry.capex), m(entry.longTermDebt), m(sharesAfter(entry.periodEnd)),
-      ...(assetChain ? [m(entry.totalAssets), m(entry.researchAndDevelopment)] : [])].join(':'))
+    .slice(-6);
+  // One compact line per issuer (see FISCAL_HISTORY_FORMAT; empty = not reported).
+  return rows.map((entry, index) => [entry.periodEnd, m(entry.revenue), m(entry.netIncome), m(entry.equity), m(entry.operatingCashFlow), m(entry.capex), m(entry.longTermDebt), m(sharesAfter(entry.periodEnd)),
+    ...(assetChain ? [m(entry.totalAssets), m(entry.researchAndDevelopment)] : []),
+    ...(capitalChain && index >= rows.length - CAPITAL_YEARS ? CAPITAL_FIELDS.map((field) => m(entry[field])) : [])].join(':'))
     .join(';');
 }
 // P1449: the page projection is the shipped path. reconcileSecEquity (P1402) repairs top-level
@@ -203,7 +218,10 @@ const fiscal = {
   // v6 (2026-10-16): the series are USD millions, so a non-USD report (TSM TWD, ASML EUR) is left out rather than relabelled.
   data: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, fiscalHistory(record?.pit?.observations)]).filter(([, value]) => value)),
   quarterFormat: QUARTER_FORMAT,
-  quarters: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, quarterlyHistory(record?.pit?.observations)]).filter(([, value]) => value))
+  quarters: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, quarterlyHistory(record?.pit?.observations)]).filter(([, value]) => value)),
+  // v58.75 (persona review): the issuer's SEC industry classification for the company card's '사업·분류 근거' (~40 KB).
+  issuerSicFormat: ISSUER_SIC_FORMAT,
+  issuerSic: issuerSicMap(source.issuerSic, source.data)
 };
 await writeFile(new URL(`${FISCAL.pathname}.tmp`, FISCAL), `${JSON.stringify(fiscal)}
 `, 'utf8');

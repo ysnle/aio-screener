@@ -98,8 +98,25 @@ function renderCard(doc, host, def, facts) {
   host.replaceChildren(head, tags, position, chart, reading);
 }
 
+// v58.75 (persona review): the 차트 screen is about the selected stock; the Korean market fold under it read as off-topic for a
+// US listing. It opens when the subject becomes a KRX listing and closes to a one-line link for any other subject; between
+// subject changes the reader's own open/close stands.
+export const KR_FOLD_SUMMARY = Object.freeze({ kr: '한국 시장 — 코스피·코스닥 추세와 한국 종목 (한국 종가 기준)', other: '한국 시장 추세 보기 (코스피·코스닥)' });
+export function syncKrTechnicalFold(doc, root) {
+  const fold = doc?.getElementById?.('kr-integrated-technical');
+  const summary = fold?.querySelector?.('summary');
+  if (!fold || !summary) return null;
+  const subject = String(root?._aioLastOpenedSymbol || '').toUpperCase();
+  const kr = /\.K[SQ]$/.test(subject);
+  const text = kr ? KR_FOLD_SUMMARY.kr : KR_FOLD_SUMMARY.other;
+  if (summary.textContent !== text) summary.textContent = text;
+  if (fold.dataset.krFoldSubject !== subject) { fold.dataset.krFoldSubject = subject; fold.open = kr; }
+  return kr;
+}
+
 /** Draws both cards from root._aioHistory. Re-renders only when the last close or the record length changes. */
 export function renderKrIndexTrends({ documentRef: doc, root, now = Date.now() } = {}) {
+  syncKrTechnicalFold(doc, root);
   const history = Array.isArray(root?._aioHistory) ? root._aioHistory : [];
   const through = krSessionThrough(now);
   let drawn = 0;

@@ -3,7 +3,7 @@
 // only AI entry point (owner 2026-10-12) and had no visual at all; the sparkline/diagram code lived on the retired
 // per-page chat path. Each figure states its basis date; a figure whose data is missing is not drawn.
 import { analyzeChart } from '../../domain/technical/chart-analysis.js';
-import { barsFromYahoo, completedBars } from './stock-chart.js';
+import { barsFromYahoo, completedBars } from './chart-bars.js';
 import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
 import { crossroadsForRoot } from './macro-crossroads.js';
 import { themePlaybookForRoot } from './theme-playbook.js';

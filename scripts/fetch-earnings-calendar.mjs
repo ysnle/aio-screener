@@ -2,7 +2,8 @@
 // The browser earnings calendar (index.html loadEarningsCalendar) only renders
 // when a user key exists. This producer fills public-data/earnings-calendar.json
 // so keyless clients still see the coming week's schedule as reference data.
-// Finnhub free: 60 calls/min. Ten calls per run (week + 8 single days of earnings, IPO) — no quota risk.
+// Finnhub free: 60 calls/min. Eleven calls per run (week + 9 single days of earnings, IPO), then ~25 paced weekday calls
+// for the next weeks' universe dates (v58.75, ~1.1 s apart) — inside the quota.
 // Without FINNHUB_API_KEY the artifact is preserved with status operator-key-required.
 
 import { readFile } from 'node:fs/promises';
@@ -62,6 +63,32 @@ export function largeCapScheduleGaps(earningsRows = [], { sp500Rows = [], univer
     unconfirmed,
     semantics: 'unconfirmed = not listed in this provider window; the issuer may or may not report in it (schedule unconfirmed, not "no report").'
   };
+}
+
+// v58.75 (persona review): the stock page asks "when is the next report?" and the week window answered only for names
+// reporting in the next 8 days. The same endpoint takes any from/to range (the week and day queries above already use it),
+// so the weekdays after the week window up to UPCOMING_WEEKS weeks from its Monday are read one day at a time (the week
+// query was found capped) — ~25 more calls paced under Finnhub's 60/min free limit — and only universe listings are kept,
+// as one compact map { SYM: "YYYY-MM-DD|hour" } (earliest date from the window start), ~15 KB. A day that fails is listed in
+// upcomingGaps, so a missing symbol never reads as "no report". No date is inferred.
+export const UPCOMING_WEEKS = 6;
+export const UPCOMING_PAUSE_MS = 1100;
+export function upcomingCalendarDays(weekEnd, monday, weeks = UPCOMING_WEEKS) {
+  const end = isoDay(new Date(Date.parse(`${monday}T00:00:00Z`) + (weeks * 7 - 1) * 86400000));
+  const start = isoDay(new Date(Date.parse(`${weekEnd}T00:00:00Z`) + 86400000));
+  return start <= end ? earningsCalendarDays(start, end).filter((day) => ![0, 6].includes(new Date(`${day}T00:00:00Z`).getUTCDay())) : [];
+}
+export function upcomingEarningsMap(rows = [], universe = null, from = '') {
+  const norm = (sym) => String(sym || '').trim().toUpperCase().replace(/[./]/g, '-');
+  const keep = universe instanceof Set ? universe : null;
+  const map = {};
+  for (const row of [...(Array.isArray(rows) ? rows : [])].sort((a, b) => String(a?.date).localeCompare(String(b?.date)))) {
+    const sym = norm(row?.symbol);
+    const date = String(row?.date || '');
+    if (!sym || !/^\d{4}-\d{2}-\d{2}$/.test(date) || date < from || map[sym] || (keep && !keep.has(sym))) continue;
+    map[sym] = `${date}|${['bmo', 'amc', 'dmh'].includes(row?.hour) ? row.hour : ''}`;
+  }
+  return map;
 }
 
 export function earningsCalendarDays(from, to) {
@@ -134,6 +161,19 @@ async function main() {
   console.log(`[earnings-calendar] week query ${weekRows.length} rows, day queries ${dayRows.length}, merged ${earnings.length}`);
   const sp500 = await readJsonIf(`${ROOT}/public-data/sp500-weights.json`);
   const universe = await readJsonIf(`${ROOT}/public-data/screener-universe.json`);
+  // v58.75 (persona review): the weeks after this window, one weekday per call, paced; universe listings only.
+  const upcomingDays = upcomingCalendarDays(to, from);
+  const upcomingRows = [];
+  const upcomingGaps = [];
+  for (const day of upcomingDays) {
+    await new Promise((done) => setTimeout(done, UPCOMING_PAUSE_MS));
+    const rows = await fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${day}&to=${day}&token=${FINNHUB_KEY}`)
+      .then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : null)).catch(() => null);
+    if (rows) upcomingRows.push(...rows); else upcomingGaps.push(day);
+  }
+  const universeSymbols = new Set((Array.isArray(universe?.universe) ? universe.universe : []).map((row) => String(row?.sym || '').trim().toUpperCase().replace(/[./]/g, '-')).filter((sym) => sym && !/-(KS|KQ|T|TW)$/.test(sym)));
+  const upcoming = upcomingEarningsMap([...earnings, ...upcomingRows], universeSymbols.size ? universeSymbols : null, isoDay(now));
+  console.log(`[earnings-calendar] upcoming ${upcomingDays.length} day queries (${upcomingGaps.length} failed), ${Object.keys(upcoming).length} universe listings dated`);
   // v58.52: S&P 500 weight per row so the briefing schedule keeps the market-moving reports (META, TSLA, NFLX) when a
   // single session carries dozens of names; the screen used to keep the first six by clock time and name.
   const indexWeightOf = new Map((Array.isArray(sp500?.rows) ? sp500.rows : []).filter((r) => r?.sym && Number.isFinite(Number(r.weight))).map((r) => [r.sym, Number(r.weight)]));
@@ -148,6 +188,9 @@ async function main() {
     weekEnd: to,
     generatedAt: new Date().toISOString(),
     largeCapCoverage: largeCapScheduleGaps(earnings, { sp500Rows: sp500?.rows, universeRows: universe?.universe }),
+    upcomingWindow: { from: isoDay(now), to: upcomingDays.at(-1) || to, weeks: UPCOMING_WEEKS, scope: 'screener universe (US listings)', format: 'SYM: date|hour (bmo before open, amc after close, dmh during hours, empty unknown)' },
+    upcomingGaps,
+    upcoming,
     earnings: earnings.map((row) => ({
       symbol: row.symbol || null,
       date: row.date || null,

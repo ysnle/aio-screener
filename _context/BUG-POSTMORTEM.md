@@ -6,6 +6,105 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2046 - v58.75 - 접어 두려던 도구들이 개발자 모드에서만 보였다 (2026-10-24)
+
+- symptom/reproduction: 과거 성과 시뮬레이션, 손익비 계산기, 이번 주 실적 캘린더(1,141건), 테마 상세 "AI에게 묻기"가 일반 사용자에게 보이지 않았다.
+- root_cause: v52.87 P702 CSS가 data-user-fold 없는 .aio-page-advanced-toggle을 모두 숨겼고(주석의 의도는 details로 압축), 실적 캘린더는 dev-mode 전용 목록에 있었다. 테마 상세 AI 칩은 router가 theme-detail을 themes로 바꿔 열리지 않는 페이지 안에 있었다.
+- fix: 백테스트는 보유가 있을 때 접힌 행으로 공개한다. 손익비 계산기는 앱이 1R·2R·3R 목표가를 자동 생성하던 것을 없애고 사용자 계획의 사실 점검("내 계획 점검")으로 바꿔 공개한다. 실적 캘린더는 브리핑 7일 일정의 "이번 주 실적 발표 N건" 펼침으로 네이티브 구현한다. AI 칩은 네이티브 테마 상세 패널에 다시 만든다.
+- violated_rule: R705
+- prevention: 숨은 기능 전수 조사(1440·390px, 접힘·숨김·호버 전용)를 감사 절차에 포함.
+- verification/residual: 로컬 포트폴리오·브리핑·테마 상세 확인.
+
+## P2045 - v58.75 - "돌파 관찰" 프리셋이 피벗 근접 감시 목록을 통째로 뺐다 (2026-10-24)
+
+- symptom/reproduction: 돌파 관찰이 vcpStage(breakout|near_pivot) AND rvol20≥1.4라 33종목 중 3종목만 남았고, 거래가 마르는 피벗 근접 30종목이 빠졌다.
+- root_cause: 거래가 줄어야 하는 피벗 근접 단계와 거래가 늘어야 하는 돌파 단계를 한 조건에 묶었다.
+- fix: "피벗 근접·거래 적은 순"(near_pivot, rvol20 오름차순)과 "돌파·거래 증가"(breakout, rvol20≥1.4)로 나눴다. 저장된 실행 기록은 자기 정의를 담고 있어 리플레이가 깨지지 않는다.
+- violated_rule: 없음
+- prevention: ci-screener-workbench-contract 프리셋 7개·통과 행 검사.
+- verification/residual: 로컬 스크리너: 피벗 근접 31종목, 돌파 2종목.
+
+## P2044 - v58.75 - 같은 테마의 1개월 수익률이 생산자 문장과 화면 계산에서 달랐다 (2026-10-24)
+
+- symptom/reproduction: 시나리오 상태 문장은 크립토 -25.1%, 화면은 -44.7%였다.
+- root_cause: scenario-state.json이 v58.74 이전 규칙(세부 테마 중앙값의 중앙값)으로 만들어졌고, 버전이 같아 옛 산출물을 거를 수 없었다.
+- fix: 플레이북 버전을 theme-playbook.v2로 올리고 생산자가 playbookVersion을 기록한다. themeRotationRead가 화면 계산을 우선하고 같은 버전 산출물만 대체로 쓴다.
+- violated_rule: R603
+- prevention: ci-scenario-guidance-fixture: 같은 종가일이면 산출물과 화면 계산 대조.
+- verification/residual: 로컬 오늘 화면 -44.7% 일치.
+
+## P2043 - v58.75 - 분배일 수가 시장 상태와 시장 폭에서 다르게 나왔다 (2026-10-24)
+
+- symptom/reproduction: 같은 날 시장 상태는 "분배일 6회(10/19 기록)", 시장 폭은 "5회"였다.
+- root_cause: 한쪽은 최근 5거래일 중 최대값, 다른 쪽은 현재값을 썼고 기준선도 5와 6으로 달랐다.
+- fix: 두 화면 모두 "현재 5회, 최근 5거래일 중 최대 6회(10/19)"로 표기하고 기준선을 규칙값 6으로 맞췄다. 시장 상태에 25거래일 분배일 막대를 상시 표시한다.
+- violated_rule: R723
+- prevention: ci-regime-scenarios-fixture 분배일 문장 검사.
+- verification/residual: 로컬 시장 상태·시장 폭 확인.
+
+## P2042 - v58.75 - 도움말 기준표와 거시 문장이 실제 판정 규칙과 다르게 읽혔다 (2026-10-24)
+
+- symptom/reproduction: 도움말은 "근원 PCE 3% 이상 부담"인데 실제 규칙은 3.1%(버퍼 0.1%p) 또는 PCE·CPI 동반 재가속이라 3.0%가 중립으로 나왔다. 거시 첫 줄 "부담 3개(통화정책, 유가, 달러, 신용)"는 4개로 읽혔고, "350bp를 넘는지"는 방향이 모호했다.
+- root_cause: 기준표가 규칙 상수와 따로 쓰였고, 요인 이름 안의 쉼표가 목록 구분자와 같았다.
+- fix: 기준표 PCE 행을 규칙 상수에서 만든다. 요인 이름 안 쉼표를 "·"로, 350bp 문장은 "위로 올라서는지(올라서면 양호 조건 상실)"로 바꿨다.
+- violated_rule: R723
+- prevention: ci-capability-claim-contract-check, ci-regime-scenarios-fixture.
+- verification/residual: 로컬 도움말·거시·시장 상태 화면 확인.
+
+## P2041 - v58.75 - 투자 심리 가격 온도의 "RSI 14일 11"이 실제 RSI로 읽혔다 (2026-10-24)
+
+- symptom/reproduction: 가격 온도 막대가 3년 중 순위(11/100)를 "RSI 14일 11"로 표시해 극단 과매도로 오독됐다.
+- root_cause: 온도 요소 값 칸이 원값 대신 순위만 RSI 라벨로 썼다.
+- fix: "RSI 42 · 순위 11/100"처럼 원값과 3년 순위를 따로 표시한다(다섯 요소 모두).
+- violated_rule: R670
+- prevention: ci-esm-core-unit-check 온도 라벨 검사.
+- verification/residual: 로컬 투자 심리 화면 확인.
+
+## P2040 - v58.75 - 텔레그램 글의 대표 꼬리표가 내용과 다르게 나왔다 (2026-10-24)
+
+- symptom/reproduction: 네타냐후 성명이 "한국장", 에너지 52주 신고가 글이 "헬스케어", "실적 제외" 글이 "실적"으로 표시됐다.
+- root_cause: 렌더러 우선순위에서 earnings·healthcare·kr-market이 geo·macro보다 앞섰고, 생산자가 한 글에 꼬리표를 최대 8개 붙이며 부정 표현을 처리하지 않았다.
+- fix: 렌더러는 geo·macro를 앞에 두고 "실적 제외"를 실적에서 뺀다. 생산자는 첫 문장 꼬리표를 앞에 두고(lead) 최대 4개만 붙이며 부정 표현을 제외한다. 선별 점수는 그대로.
+- violated_rule: R722
+- prevention: ci-data-pipeline-contract-check 꼬리표 검사.
+- verification/residual: 생산자 갱신 뒤 채널 피드 대표 꼬리표 확인 필요.
+
+## P2039 - v58.75 - 뉴스에 관련 없는 시나리오 꼬리표가 붙었고, 첫 로드 때는 하나도 붙지 않았다 (2026-10-24)
+
+- symptom/reproduction: Dollar Tree·애플 시총 기사에 "관련 시나리오 AI 투자 꺾임"이 붙었다. 데이터 도착 전 빈 결과가 60초 캐시돼 꼬리표가 안 보이는 경우도 있었다.
+- root_cause: macro 주제면 growth 축 시나리오로 일괄 매칭했다. 빈 결과를 캐시했다.
+- fix: 시나리오별 핵심어가 제목에 있을 때만 꼬리표를 붙이고, 빈 결과는 캐시하지 않는다.
+- violated_rule: R697
+- prevention: ci-esm-core-unit-check 시나리오 꼬리표 검사.
+- verification/residual: 로컬 뉴스 화면에서 무관 기사 꼬리표 없음.
+
+## P2038 - v58.75 - 브리핑 7일 일정의 실적 행에 EPS 예상이 보이지 않았고 일부 실적이 빠졌다 (2026-10-24)
+
+- symptom/reproduction: 브리핑 실적 행에 EPS·매출 예상이 없었고, 오늘 화면에 있는 KO 실적이 브리핑 7일 목록에서 빠졌다.
+- root_cause: _fetchEarningsCalendarSnapshot이 source를 버려, 출처가 있을 때만 예상치를 계산하는 조건이 늘 걸렸다. 7일 전체에서 비중 상위 8개만 남겨 날짜별 대형주에 밀렸다.
+- fix: 예상치는 출처 이름 없이도 보이고(출처는 마우스 설명), 매출 예상을 붙였다. 날짜마다 상위 2곳을 남긴다(perDay 2). 스냅샷이 source·sourceUrl을 넘긴다.
+- violated_rule: R603
+- prevention: ci-esm-core-unit-check 일정 모델 검사.
+- verification/residual: 로컬 브리핑: KO 행과 EPS·매출 예상 표시.
+
+## P2037 - v58.75 - 매매 지시 차단 장치가 가격이 붙은 명령문을 통과시켰다 (2026-10-24)
+
+- symptom/reproduction: "손절은 178달러에서 하세요", "목표가는 210달러로 잡으세요" 같은 문장이 차단 장치를 그대로 통과했다(가격 레벨 근거를 붙이며 점검하다 발견).
+- root_cause: 차단 정규식이 동사·명사 조합 위주였고, 숫자 가격과 명령형 어미의 조합을 따로 보지 않았다.
+- fix: 가격이 붙은 명령형만 잡는 pricedImperative 패턴을 추가했다(기존 패턴은 완화하지 않음). 레벨·방법을 설명하는 문장 9개는 오탐 없이 남는다.
+- violated_rule: R724
+- prevention: ci-ai-intelligence-contract-check: 가격 명령문 치환, 레벨 설명 문장 보존.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs 통과.
+
+## P2036 - v58.75 - AI 도우미가 보고 있는 종목을 받지 못했고, 보유 내역 없이 포트폴리오 맥락이 있다고 알렸다 (2026-10-24)
+
+- symptom/reproduction: 종목·재무 화면에서 NVDA를 보며 "이 종목 어때?"를 눌러도 티커 해석이 비어 일반론이 나왔고, 차트 화면은 SPY/QQQ/SMH로 답했다. 포트폴리오 추천 칩은 보유 행 없이 나가면서 모델에는 portfolioData=true가 전달됐다.
+- root_cause: chat-tickers가 질문 문자열만 해석했고, 화면에서 선택된 종목도 P1339(티커 추정 금지)에 걸리는 추정처럼 다뤘다. 차트 분기는 값이 아닌 이동 함수(_aioTechnicalTicker)를 읽었다. 포트폴리오 칩은 동의 흐름을 거치지 않았다.
+- fix: 질문에 종목이 없고 화면이 종목·재무·차트면 화면 종목을 출처 screen으로 붙이고 답 머리에 "보고 있는 X 기준"을 밝힌다. 차트는 실제로 그린 종목(_aioChartSubject)을 쓴다. 포트폴리오 칩은 _aioPortfolioAsk 동의 뒤 비식별 행만 보내고, 행이 없으면 플래그를 false로 둔다. 화면 이동 중 생성 답을 취소하지 않는다.
+- violated_rule: R131
+- prevention: ci-ai-intelligence-contract-check에 화면 종목·차트 종목·포트폴리오 플래그 행동 검사.
+- verification/residual: 로컬 Playwright: 종목 화면 "투자 논지 점검" → NVDA(screen), 차트 화면 → NVDA, 시장 질문 → SPY/QQQ/SMH.
+
 ## P2035 - v58.74 - 다음 이벤트 날짜가 화면마다 미국 날짜와 한국 시각으로 섞여 나왔다 (2026-10-24)
 
 - symptom/reproduction: 거시 교차로·오늘·시장 가이드·브리핑·AI 시각화는 '10/28 FOMC'처럼 미국 공표일을 썼고, 일정표는 한국 시각을 썼다. FOMC 결정은 한국 시각으로 10/29 새벽이라 같은 사건이 두 날짜로 보였다.

@@ -305,10 +305,12 @@ export function themeStrengthLead(model = null, { stages = null } = {}) {
   const cooling = top.filter((group) => group.direction === 'weakening' && !(group.recent?.move > 0));
   const healthy = top.filter((group) => group.above50Pct != null && group.above50Pct >= 75).length;
   // v57.91: every clause ends in -입니다 (the lead mixed '…플랫폼. …식는 중. …곳.').
-  const parts = [`${model.windowLabel || '기간'} 상위는 ${top.slice(0, 3).map(label).join(', ')}입니다`];
+  // v58.75 (persona review): the top three were named here and again in the hero top-5 card and the table right below;
+  // the lead keeps only what the order does not say (cooling, rising, participation, the parent theme's stage).
+  const parts = [];
   const topic = (text) => { const code = String(text).charCodeAt(String(text).length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
   const joined = (list) => list.map(label).join(', ');
-  if (cooling.length) parts.push(`그중 ${joined(cooling)}${topic(label(cooling[cooling.length - 1]))} 1개월 순위가 3개월 순위보다 크게 밀려 강세가 식는 중입니다`);
+  if (cooling.length) parts.push(`상위 5개 중 ${joined(cooling)}${topic(label(cooling[cooling.length - 1]))} 1개월 순위가 3개월 순위보다 크게 밀려 강세가 식는 중입니다`);
   // v57.81 (audit): "최근 강해지는 곳" only when the last five sessions did not fall beyond the group's typical weekly move
   // (group.recent, recent-check.js); otherwise the rank gain is said with the week that contradicts it.
   const rising = improving.filter((group) => !group.recent?.broken), held = improving.filter((group) => group.recent?.broken);
@@ -327,7 +329,7 @@ export function themeStrengthLead(model = null, { stages = null } = {}) {
 
 // 테마 상세: inside one theme — which sub-themes carry it, where short-term momentum is moving, and how
 // the theme ETF sits in the sector rotation. Groups come from buildGroupStrength (screener artifact medians).
-export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {}, stage = null } = {}) {
+export function themeDetailFlow({ themeId, themeName = null, groups = [], etf = null, rotation = {}, stage = null } = {}) {
   const mine = (groups || []).filter((group) => group.themeId === themeId);
   if (!mine.length) return { read: '', rows: [], next: [] };
   // D15: a group with fewer than four members is reference only; it never names the strongest/weakest sub-theme.
@@ -369,7 +371,9 @@ export function themeDetailFlow({ themeId, groups = [], etf = null, rotation = {
   // I09: the theme read continues to the stocks (screener) and to whether the move is broad (시장 폭).
   const sector = etf ? SECTOR_ETF_SCREENER_SECTOR[String(etf).toUpperCase()] || null : null;
   const next = [
-    { route: 'screener', label: '스크리너', why: `${strongest.name} 등 세부 테마 종목을 모멘텀·추세 순위로 비교${sector ? '(같은 섹터부터)' : ''}`, ...(sector ? { ctx: { sector } } : {}) },
+    // v58.75 (persona review, D-6): the screener search takes a theme name and lists that theme's curated members
+    // (mergeThemeAliases); the sector start stays only when the theme name is not known.
+    { route: 'screener', label: themeName ? `스크리너에서 ${themeName} 종목 보기` : '스크리너', why: `${strongest ? `${strongest.name} 등 ` : ''}세부 테마 종목을 모멘텀·추세 순위로 비교${themeName ? '' : sector ? '(같은 섹터부터)' : ''}`, ...(themeName ? { ctx: { q: themeName } } : sector ? { ctx: { sector } } : {}) },
     { route: 'breadth', label: '시장 폭', why: '이 테마 흐름이 시장 전체 참여 폭과 같은 방향인지' }
   ];
   // D15 (review R2): small groups stay in the table as reference rows, after the ranked ones.

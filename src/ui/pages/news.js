@@ -8,11 +8,14 @@ import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js
 import { subscribeToSlices } from '../../state/memoize.js';
 import { groupNewsStories, newsArticleKey, newsEvidence, resolveNewsIssuers, selectIntradayNews } from '../../domain/news/stories.js';
 import { briefingWindowKST, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
-import { finiteNumber as finite } from '../../domain/shared/number.js';
 import { newsFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from '../components/page-flow.js';
 import { renderChannelData } from '../components/channel-data.js';
 import { krIndexCloseNote } from '../../domain/news/kr-close-note.js';
+import { pickImportantNews } from '../../domain/briefing/news-picks.js'; // v58.75: shared with 오늘's 밤사이 핵심
+import { newsImpactChain } from '../../domain/briefing/event-guide.js';
+import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
+import { symbolNames } from '../components/market-timeline.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -193,7 +196,8 @@ function realTitle(root, item) {
   const original = typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item) : item?.title;
   const translated = /[가-힣]/.test(ko) && typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item, ko) : ko;
   const title = /[가-힣]/.test(ko) ? translated : (original || item?.headline || '제목 없음');
-  return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(title) : title; // P1500
+  const fixed = fixKoreanTerms(item?.title, title); // v58.75 shared glossary
+  return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(fixed) : fixed; // P1500
 }
 
 const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo: '지정학', energy: '에너지', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
@@ -201,21 +205,26 @@ const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo
 // v58.74 (text audit 오늘 C6): a headline names a live scenario (the lead or the alternative) only when its topic feeds one of
 // that scenario's axes; the old fixed topic → scenario names did not exist among the live branches (P2030). The model is
 // computed once a minute, not per card.
-const TOPIC_AXES = Object.freeze({ macro: ['inflation', 'growth'], fxbond: ['rates', 'policy'], bond: ['rates', 'policy'], fx: ['rates', 'policy'], energy: ['commodities'], geo: ['commodities'], credit: ['credit'] });
+// v58.75 (persona review): the topic alone named a scenario — every 거시 headline read "관련 시나리오 'AI 투자 꺾임'"
+// because that branch shares the growth axis. The headline's own words decide (SCENARIO_TITLE_TERMS in
+// src/domain/briefing/event-guide.js), and the card now carries the whole chain — axis → live branch → burdened and
+// helped exposures → what to check — instead of the branch name alone ('고르는 법' E1).
+// The topic only keeps a scenario off unrelated feeds, so the broad macro feed may reach the oil, rates and policy branches.
+const TOPIC_AXES = Object.freeze({ macro: ['inflation', 'growth', 'commodities', 'rates', 'policy'], fxbond: ['rates', 'policy'], bond: ['rates', 'policy'], fx: ['rates', 'policy'], energy: ['commodities'], geo: ['commodities'], credit: ['credit'], semi: ['growth', 'credit'] });
 let scenarioMemo = { at: 0, xr: null };
-function liveScenarioFor(root, item) {
+let chainsShown = new Set();
+function liveScenarioFor(root, item, shownTitle = '') {
   const axes = TOPIC_AXES[item?.topic || item?.feedTopic];
-  if (!axes) return '';
+  if (!axes) return null;
   const now = Date.now();
-  if (now - scenarioMemo.at > 60000) {
+  // v58.75: a model read before the close history loaded (no lead) is kept for 3 seconds, not a minute — the first paint
+  // cached it and no card named a scenario until the minute passed.
+  if (now - scenarioMemo.at > (scenarioMemo.xr?.leadId ? 60000 : 3000)) {
     let xr = null;
     try { xr = crossroadsForRoot(root, { nowMs: now }); } catch (_) { xr = null; }
     scenarioMemo = { at: now, xr };
   }
-  const xr = scenarioMemo.xr;
-  const live = [xr?.leadId, xr?.altId].filter(Boolean).map((id) => xr.items?.find((branch) => branch.id === id)).filter(Boolean);
-  const hit = live.find((branch) => (branch.axes || []).some((axis) => axes.includes(axis)));
-  return hit ? `관련 시나리오 '${hit.title.split(' — ')[0]}'(${hit.fit})` : '';
+  return newsImpactChain(`${item?.title || ''} ${shownTitle || ''}`, scenarioMemo.xr, { axes });
 }
 
 function createNewsCard(documentRef, root, item, index) {
@@ -227,7 +236,8 @@ function createNewsCard(documentRef, root, item, index) {
   // formatter supplies the absolute, timezone-aware timestamp instead of ''.
   const absTime = displayValue(root, 'getAbsoluteTime', item, '') || formatAbsoluteTime(publishedIso);
   const timeAgo = item?.pubDate ? displayValue(root, 'getTimeAgo', new Date(item.pubDate), '') : '';
-  const title = displayValue(root, 'getDisplayTitle', item, '') || realTitle(root, item);
+  // v58.75: the free translator's known misreadings (earnings → 수익) are corrected against the shared glossary.
+  const title = fixKoreanTerms(item?.title, displayValue(root, 'getDisplayTitle', item, '') || realTitle(root, item));
   const summary = displayValue(root, 'getDisplaySummary', item, item?.summary || item?.desc || '');
   const extractedTickers = displayValue(root, 'getDisplayTickers', item, []);
 
@@ -270,13 +280,24 @@ function createNewsCard(documentRef, root, item, index) {
   // mentioned analyst's firm (Morgan Stanley on a Nike story) is not the article's subject.
   let earnings = null;
   try {
-    if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: root._aioSymNames || (root._aioSymNames = Object.fromEntries((Array.isArray(root.SCREENER_DB) ? root.SCREENER_DB : []).filter((row) => row?.sym && row?.name).map((row) => [row.sym, row.name]))) });
+    if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: symbolNames(root) });
   } catch (_) { earnings = null; }
   const tickers = earnings?.symbol ? [earnings.symbol] : extractedTickers;
   // P1591 (E05): one badge per company — '$$삼성전자' and '$삼성전자' were the same symbol with a doubled marker.
   const uniqueTickers = resolveNewsIssuers(item, tickers, root?.AIO_TICKER_NAME_REGISTRY?.entries);
   // v57.88 (screen audit): registry topic keys (GE_VRN, TSLA_AUTOPILOT) are not symbols and never become a badge.
-  uniqueTickers.filter((ticker) => !String(ticker).includes('_')).slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, `$${ticker}`, ticker === item?.issuerSymbol)));
+  // v58.75 (persona review): the badges ran into each other and into the title ("$NVDA$AAPL애플은"); they sit on their own
+  // line above the title, separated by spaces.
+  const badges = uniqueTickers.filter((ticker) => !String(ticker).includes('_')).slice(0, 4);
+  if (badges.length) {
+    const row = documentRef.createElement('div');
+    row.className = 'news-item-tickers';
+    badges.forEach((ticker, at) => {
+      if (at) row.appendChild(documentRef.createTextNode(' '));
+      row.appendChild(createTickerBadge(documentRef, `$${ticker}`, ticker === item?.issuerSymbol));
+    });
+    headline.appendChild(row);
+  }
   // LC-34: the original article was reachable only through the card's `data-open-url` click
   // delegation, so keyboard/AT users had no focusable link. The headline is now a real anchor
   // (new tab, noopener); the card keeps its larger pointer target, and the delegation ignores the
@@ -333,9 +354,19 @@ function createNewsCard(documentRef, root, item, index) {
   const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
   // v58.53 개편 v2 (5b): the topic is the capsule on the right of the row, so the meta line no longer repeats it.
   // v58.74 (text audit): the topic → scenario label is not shown; it named branches that do not exist among the live scenarios.
-  meta.textContent = [source, verificationLabel, liveScenarioFor(root, item), timeAgo]
+  meta.textContent = [source, verificationLabel, timeAgo]
     .filter(Boolean)
     .join(', ');
+  const chain = liveScenarioFor(root, item, title);
+  if (chain) {
+    const chainNode = documentRef.createElement('div');
+    chainNode.className = 'news-item-chain';
+    // The full chain once per branch per render; later cards on the same branch carry its head only.
+    chainNode.textContent = chainsShown.has(chain.branchId) ? chain.head : chain.text;
+    chainsShown.add(chain.branchId);
+    chainNode.title = '헤드라인의 주제가 지금 선두·대안 시나리오가 보는 축과 맞을 때만 표시합니다. 영향은 시나리오의 노출 분류이며 예측이 아닙니다.';
+    body.appendChild(chainNode);
+  }
   body.appendChild(meta);
   const evidence = documentRef.createElement('details');
   evidence.className = 'news-evidence';
@@ -408,10 +439,93 @@ function mentionsTicker(root, item, ticker) {
   const issuers = resolveNewsIssuers(item, displayValue(root, 'getDisplayTickers', item, []), root?.AIO_TICKER_NAME_REGISTRY?.entries || {});
   return issuers.some((symbol) => String(symbol).toUpperCase() === ticker);
 }
+function narrowModel(model, test) {
+  const keep = (list) => (Array.isArray(list) ? list.filter(test) : list);
+  const eligibleItems = keep(model.eligibleItems);
+  const eligibleCount = Array.isArray(eligibleItems) ? eligibleItems.length : model.eligibleCount;
+  return { ...model, items: keep(model.items), eligibleItems, eligibleCount, ...(eligibleCount === 0 ? { emptyReason: 'filters-removed-all-eligible-news' } : {}) };
+}
 function focusModel(root, model, ticker) {
   if (!ticker || !model) return model;
-  const keep = (list) => (Array.isArray(list) ? list.filter((item) => mentionsTicker(root, item, ticker)) : list);
-  return { ...model, items: keep(model.items), eligibleItems: keep(model.eligibleItems), eligibleCount: Array.isArray(model.eligibleItems) ? keep(model.eligibleItems).length : model.eligibleCount };
+  return narrowModel(model, (item) => mentionsTicker(root, item, ticker));
+}
+
+// v58.75 (persona review): a '내 종목' chip narrows the articles to stories about a watched or held company (the same issuer
+// resolver as the badges) and swaps the channel feed for the channel posts whose extracted tickers name one. With no
+// watched or held company the chip is disabled and says why.
+function myNewsSymbols(root, store) {
+  const watched = displayValue(root, '_aioWatchlistGet', undefined, []);
+  const holdings = store?.getState?.()?.portfolio?.holdings;
+  return new Set([...(Array.isArray(watched) ? watched : []), ...(Array.isArray(holdings) ? holdings.map((row) => row?.symbol || row?.sym) : [])]
+    .map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean));
+}
+function mineModel(root, model, symbols) {
+  if (!model || !symbols.size) return model;
+  return narrowModel(model, (item) => [...symbols].some((symbol) => mentionsTicker(root, item, symbol)));
+}
+function syncMineChip(documentRef, root, symbols, active) {
+  const topics = documentRef?.getElementById('news-topic-chips');
+  if (!topics) return;
+  let group = documentRef.getElementById('news-mine-chips');
+  let chip = group?.querySelector('button');
+  if (!group) {
+    group = documentRef.createElement('div');
+    group.id = 'news-mine-chips';
+    group.className = 'sh-wrap-row';
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', '내 종목');
+    chip = documentRef.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip sh-soft-chip';
+    chip.textContent = '내 종목';
+    chip.addEventListener('click', () => {
+      if (chip.disabled) return;
+      root._aioNewsMineOnly = !root._aioNewsMineOnly;
+      documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-mine-filter' } }));
+    });
+    group.append(chip);
+    topics.insertAdjacentElement('afterend', group);
+  }
+  chip.disabled = !symbols.size;
+  chip.setAttribute('aria-pressed', String(active));
+  chip.title = symbols.size ? `관심·보유 ${symbols.size}개(${[...symbols].slice(0, 5).join(', ')}${symbols.size > 5 ? ' 등' : ''}) 관련 기사와 채널 글만 보기` : '관심·보유 종목이 없어 쓸 수 없습니다. 스크리너에서 관심 종목을 추가하면 켜집니다.';
+  // The selected look is the filter row's aria-pressed rule (responsive.css #news-filter-row .chip); disabled is dimmed.
+  chip.style.opacity = symbols.size ? '' : '0.5';
+}
+function renderMineChannelPosts(documentRef, card, root, symbols, active) {
+  const feed = documentRef?.getElementById('tg-feed-market-news');
+  let box = documentRef?.getElementById('news-tg-mine');
+  if (!active) { if (box) box.hidden = true; if (feed) feed.hidden = false; return; }
+  if (!card) return;
+  if (!box) {
+    box = documentRef.createElement('div');
+    box.id = 'news-tg-mine';
+    card.append(box);
+  }
+  const posts = (Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [])
+    .map((post) => ({ post, symbol: (Array.isArray(post?.tickers) ? post.tickers : []).map((tag) => String(tag).replace(/^\$/, '').toUpperCase()).find((symbol) => symbols.has(symbol)) }))
+    .filter((row) => row.symbol).sort((a, b) => Date.parse(b.post.datetime || '') - Date.parse(a.post.datetime || '')).slice(0, 8);
+  if (feed) feed.hidden = true;
+  box.hidden = false;
+  if (!posts.length) { box.replaceChildren(Object.assign(documentRef.createElement('p'), { className: 'briefing-empty', textContent: '최근 24시간 채널 글 가운데 내 종목을 다룬 글이 없습니다.' })); return; }
+  const list = documentRef.createElement('ul');
+  list.className = 'news-intraday-list';
+  for (const { post, symbol } of posts) {
+    const row = documentRef.createElement('li');
+    const stamp = compactKstTime(post.datetime);
+    const time = documentRef.createElement('time');
+    time.textContent = stamp ? `${stamp.date} ${stamp.time}` : '';
+    const href = safeUrl(post.url);
+    const text = String(post.summary || post.text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
+    const title = documentRef.createElement(href ? 'a' : 'span');
+    title.className = 'nws-intraday-link';
+    title.textContent = `${symbol}, ${text.length > 110 ? `${text.slice(0, 107)}…` : text}`;
+    if (href) { title.href = href; title.target = '_blank'; title.rel = 'noopener noreferrer'; }
+    title.title = `텔레그램 공개 채널 @${post.channel || ''}`;
+    row.append(time, title);
+    list.append(row);
+  }
+  box.replaceChildren(list);
 }
 function renderTickerFocusNote(documentRef, root, container, ticker, count) {
   let note = documentRef.getElementById('news-ticker-focus');
@@ -485,20 +599,6 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
   section.replaceChildren(heading, list);
   section.hidden = false;
   return picked.length;
-}
-
-function pickImportantNews(items = [], limit = 5) {
-  const picked = items.filter((item) => item.storyHasRevision);
-  const topics = new Set();
-  for (const item of [...items].sort((a, b) => (finite(b?.score) || 0) - (finite(a?.score) || 0))) {
-    const topic = item?.topic || item?.feedTopic || 'general';
-    // Filler is worse than a shorter list: unclassified and low-score items stay in the full feed.
-    if (picked.includes(item) || item?._tgChannel || topic === 'general' || (finite(item?.score) || 0) < 50 || topics.has(topic) || picked.length >= limit) continue;
-    topics.add(topic);
-    picked.push(item);
-    if (picked.length >= limit) break;
-  }
-  return picked;
 }
 
 function appendMarketNews(documentRef, root, container, model, status, visibleLimit, controls, exclude = new Set()) {
@@ -588,6 +688,30 @@ function requestShownTranslations(root, items) {
   try { Promise.resolve(root.autoTranslateNews(pending)).catch(() => {}); } catch (_) {}
 }
 
+// v58.75 ('고르는 법' E5): how to weigh a headline, folded under the important list. Static, short, written once.
+function ensureReadingGuide(documentRef) {
+  const host = documentRef?.getElementById('news-important');
+  if (!host || documentRef.getElementById('news-reading-guide')) return;
+  const fold = documentRef.createElement('details');
+  fold.id = 'news-reading-guide';
+  fold.className = 'sx-disclosure news-reading-guide';
+  const summary = documentRef.createElement('summary');
+  summary.textContent = '뉴스 읽는 기준';
+  const list = documentRef.createElement('ul');
+  for (const line of [
+    '1차 출처를 먼저: 공시·정부 발표·회사 보도자료가 사실이고, 기사는 그 해석입니다. 해석 기사는 같은 사실을 다른 방향으로 읽기도 합니다.',
+    '출처 신뢰도: 통신사·주요 경제지는 사실 확인을 거치지만, 익명 소식통·루머는 카드에 "미확인 보도"로 표시합니다. 채널 글은 앱이 확인한 사실이 아닙니다.',
+    '같은 사건의 반복: 여러 매체가 같은 일을 쓰면 한 건으로 묶어 "관련 기사 N건"으로 보입니다. 기사 수가 많다고 새 사실이 늘어난 것은 아닙니다.',
+    '가격과 함께: 헤드라인과 가격 반응이 엇갈리면 이미 예상에 반영됐거나 다른 재료가 더 컸을 수 있습니다. 브리핑의 "결과 해석 가이드"에 최근 사례가 있습니다.'
+  ]) {
+    const li = documentRef.createElement('li');
+    li.textContent = line;
+    list.append(li);
+  }
+  fold.append(summary, list);
+  host.append(fold);
+}
+
 function render({ documentRef, root, store, route }) {
   const state = store?.getState?.() || {};
   const items = selectNewsItems(state);
@@ -601,16 +725,20 @@ function render({ documentRef, root, store, route }) {
   if (route === 'briefing') {
     // P1389: the briefing is a connected read of the completed close plus the schedule; its news
     // list moved to the news screen (important / general split).
-    renderBriefingRead({ documentRef, root });
+    renderBriefingRead({ documentRef, root, store });
     // T18: the title date is the US close the read is based on, not the KST calendar day.
     root?._aioRenderBriefingDateLine?.(undefined, closeBasis(root?._aioHistory || []));
     return;
   }
   if (route !== 'market-news') return;
+  chainsShown = new Set();
 
   const controls = root?.AIO?.getNewsSurfaceControls?.() || { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'time' };
   const tickerFocus = newsTickerFocus(root);
-  const model = focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { ...controls, nowMs: Date.now() }) || { items: [], eligibleCount: 0, emptyReason: 'native-model-unavailable' }, tickerFocus);
+  const mine = myNewsSymbols(root, store);
+  const mineOnly = !!root?._aioNewsMineOnly && mine.size > 0;
+  syncMineChip(documentRef, root, mine, mineOnly);
+  const model = mineModel(root, focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { ...controls, nowMs: Date.now() }) || { items: [], eligibleCount: 0, emptyReason: 'native-model-unavailable' }, tickerFocus), mineOnly ? mine : new Set());
   const container = documentRef?.getElementById('live-news-feed');
   if (!container) return;
   const configuredLimit = Number(root?._aioNewsVisibleLimit);
@@ -625,13 +753,15 @@ function render({ documentRef, root, store, route }) {
     windowLabel.textContent = `${windowLabel.textContent}, 한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본`;
   }
   syncNewsControlState(documentRef, controls);
+  ensureReadingGuide(documentRef);
   // P1428 (Codex review): the important list follows the same country/topic filter as the feed — a 한국
   // filter that emptied the feed still showed overseas stories above it.
-  const importantModel = focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() }), tickerFocus);
+  const importantModel = mineModel(root, focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() }), tickerFocus), mineOnly ? mine : new Set());
   renderTickerFocusNote(documentRef, root, container, tickerFocus, Array.isArray(model?.eligibleItems) ? model.eligibleItems.length : (model?.items || []).length);
   const tgScope = documentRef?.getElementById('news-tg-scope');
-  if (tgScope) tgScope.textContent = describeNewsScope(controls).channel;
+  if (tgScope) tgScope.textContent = mineOnly ? '내 종목 필터: 채널 글 중 관심·보유 종목을 다룬 글만 표시합니다.' : describeNewsScope(controls).channel;
   renderChannelData(documentRef, documentRef?.getElementById('news-tg-card'), root?.AIO_TELEGRAM_SIGNALS); // v58.71
+  renderMineChannelPosts(documentRef, documentRef?.getElementById('news-tg-card'), root, mine, mineOnly);
   const important = pickImportantNews(groupNewsStories(importantModel?.eligibleItems || importantModel?.items || []));
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {
@@ -676,9 +806,9 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       const renderNow = (force = false) => {
         const rows = selectNewsItems(store?.getState?.() || {});
         const keys = new Set(rows.map(newsArticleKey));
-        const controls = JSON.stringify([root?.AIO?.getNewsSurfaceControls?.() || {}, root?._aioNewsVisibleLimit, root?._aioNewsTickerFocus || null]);
+        const controls = JSON.stringify([root?.AIO?.getNewsSurfaceControls?.() || {}, root?._aioNewsVisibleLimit, root?._aioNewsTickerFocus || null, !!root?._aioNewsMineOnly]);
         const changed = renderedKeys && (keys.size !== renderedKeys.size || [...keys].some((key) => !renderedKeys.has(key)));
-        const explicit = force === true || (force?.type === 'aio:newsSurfaceInvalidated' && ['news-sort', 'news-load-more', 'news-country-telegram', 'news-country-filter', 'news-topic-filter'].includes(force?.detail?.reason)) || controls !== renderedControls;
+        const explicit = force === true || (force?.type === 'aio:newsSurfaceInvalidated' && ['news-sort', 'news-load-more', 'news-country-telegram', 'news-country-filter', 'news-topic-filter', 'news-mine-filter'].includes(force?.detail?.reason)) || controls !== renderedControls;
         if (updates && renderedKeys?.size > 0 && changed && !explicit) {
           const arriving = [...keys].filter((key) => !renderedKeys.has(key)).length;
           updates.textContent = arriving ? `새 뉴스·변경 ${arriving}건 보기` : '갱신된 뉴스 보기';
