@@ -1,6 +1,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { renderBriefingRead } from '../components/briefing-read.js';
+import { crossroadsForRoot } from '../components/macro-crossroads.js';
 import { closeBasis } from '../../domain/briefing/market-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
@@ -11,6 +12,7 @@ import { finiteNumber as finite } from '../../domain/shared/number.js';
 import { newsFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from '../components/page-flow.js';
 import { renderChannelData } from '../components/channel-data.js';
+import { krIndexCloseNote } from '../../domain/news/kr-close-note.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -131,6 +133,13 @@ function displayValue(root, functionName, item, fallback = '') {
 // `root.getAbsoluteTime` lookup has no implementation anywhere in the repo, so the card silently
 // dropped the absolute time and showed only a relative label. The publication time is rendered
 // with its timezone and is never treated as the underlying event time.
+function shortKst(value) {
+  const ms = value instanceof Date ? value.getTime() : Date.parse(value || '');
+  if (!Number.isFinite(ms)) return '';
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
+  return `${parts.month}/${parts.day} ${parts.hour}:${parts.minute}`;
+}
+
 export function formatAbsoluteTime(value, timeZone = 'Asia/Seoul') {
   const ms = value instanceof Date ? value.getTime() : Date.parse(value || '');
   if (!Number.isFinite(ms)) return '';
@@ -187,10 +196,27 @@ function realTitle(root, item) {
   return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(title) : title; // P1500
 }
 
-// Audit 2026-10-14: a topic names the forward branch it feeds (거시 · 향후 시나리오), so a headline is read as
-// evidence for or against a path rather than as an isolated event. Topics without a clear branch stay unlabelled.
-const TOPIC_BRANCHES = Object.freeze({ macro: '물가·고용 시나리오', fxbond: '물가·달러 시나리오', bond: '물가 재가속 시나리오', fx: '달러 급등 시나리오', energy: '유가 충격 시나리오', credit: '신용 경색 시나리오', geo: '유가·변동성 충격 시나리오' });
 const TOPIC_LABELS = Object.freeze({ macro: '거시', semi: '반도체·AI', geo: '지정학', energy: '에너지', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
+
+// v58.74 (text audit 오늘 C6): a headline names a live scenario (the lead or the alternative) only when its topic feeds one of
+// that scenario's axes; the old fixed topic → scenario names did not exist among the live branches (P2030). The model is
+// computed once a minute, not per card.
+const TOPIC_AXES = Object.freeze({ macro: ['inflation', 'growth'], fxbond: ['rates', 'policy'], bond: ['rates', 'policy'], fx: ['rates', 'policy'], energy: ['commodities'], geo: ['commodities'], credit: ['credit'] });
+let scenarioMemo = { at: 0, xr: null };
+function liveScenarioFor(root, item) {
+  const axes = TOPIC_AXES[item?.topic || item?.feedTopic];
+  if (!axes) return '';
+  const now = Date.now();
+  if (now - scenarioMemo.at > 60000) {
+    let xr = null;
+    try { xr = crossroadsForRoot(root, { nowMs: now }); } catch (_) { xr = null; }
+    scenarioMemo = { at: now, xr };
+  }
+  const xr = scenarioMemo.xr;
+  const live = [xr?.leadId, xr?.altId].filter(Boolean).map((id) => xr.items?.find((branch) => branch.id === id)).filter(Boolean);
+  const hit = live.find((branch) => (branch.axes || []).some((axis) => axes.includes(axis)));
+  return hit ? `관련 시나리오 '${hit.title.split(' — ')[0]}'(${hit.fit})` : '';
+}
 
 function createNewsCard(documentRef, root, item, index) {
   const card = documentRef.createElement('div');
@@ -284,6 +310,14 @@ function createNewsCard(documentRef, root, item, index) {
     earningsNode.title = earnings.source || '';
     body.appendChild(earningsNode);
   }
+  // v58.74: an intraday KOSPI/KOSDAQ crash or surge headline carries the session's close when the close reversed it.
+  const closeNote = krIndexCloseNote(item, root?._aioHistory || []);
+  if (closeNote) {
+    const closeNode = documentRef.createElement('div');
+    closeNode.className = 'news-item-summary';
+    closeNode.textContent = closeNote;
+    body.appendChild(closeNode);
+  }
   const meta = documentRef.createElement('div');
   meta.className = 'news-item-meta';
   // EF-14/P1411: the source-name script guard moved here with the retired digest — a Cyrillic/CJK
@@ -295,11 +329,11 @@ function createNewsCard(documentRef, root, item, index) {
   // shown only as a plain label, never as a verified sector assignment elsewhere.
   const topicLabel = TOPIC_LABELS[item?.topic || item?.feedTopic] || '';
   // v57.76: the NewsData free-plan delay marker left with the personal NewsData fetcher (no producer sets it).
-  const branchLabel = TOPIC_BRANCHES[item?.topic || item?.feedTopic] || '';
   // Owner 2026-10-18: a rumour or anonymous-source headline is labelled where the reader sees it, not only scored down.
   const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
   // v58.53 개편 v2 (5b): the topic is the capsule on the right of the row, so the meta line no longer repeats it.
-  meta.textContent = [source, verificationLabel, branchLabel, timeAgo]
+  // v58.74 (text audit): the topic → scenario label is not shown; it named branches that do not exist among the live scenarios.
+  meta.textContent = [source, verificationLabel, liveScenarioFor(root, item), timeAgo]
     .filter(Boolean)
     .join(', ');
   body.appendChild(meta);
@@ -313,8 +347,9 @@ function createNewsCard(documentRef, root, item, index) {
   evidenceTitle.setAttribute('aria-label', `${evidenceTitle.textContent} — ${String(title || '').slice(0, 80)}`);
   evidence.appendChild(evidenceTitle);
   const detail = documentRef.createElement('div');
-  detail.textContent = [`발행 ${formatAbsoluteTime(facts.publishedAt) || '미제공'}`, `관찰 ${formatAbsoluteTime(facts.observedAt) || '미제공'}`,
-    `수집 ${formatAbsoluteTime(item?.fetchedAt) || '미제공'}`,
+  // v58.74 (text audit): missing times are left out instead of "관찰 미제공", and the times read M/D HH:mm once in 한국 시간.
+  const times = [['발행', facts.publishedAt], ['관찰', facts.observedAt], ['수집', item?.fetchedAt]].map(([label, value]) => (shortKst(value) ? `${label} ${shortKst(value)}` : null)).filter(Boolean);
+  detail.textContent = [times.length ? `${times.join(', ')} (한국 시간)` : '',
     // LC-31 (v57.77): the 카테고리별 view that named this boundary left; a feed-query topic says so in the card's fold.
     isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 출처 기준 분류, 기사 본문으로 확인 전` : ''].filter(Boolean).join(', ');
   evidence.appendChild(detail);
@@ -701,8 +736,9 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       const unsubscribe = store && subscribeToSlices(store, route === 'briefing' ? ['news', 'analysis', 'marketSnapshot'] : ['news'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
-      ['aio:newsUpdated', 'aio:newsSurfaceInvalidated', 'aio:refresh:done', 'aio:serverDataLoaded',
-        ...(route === 'briefing' ? ['aio:historyLoaded', 'aio:sentimentUpdated', 'aio:liveQuotes', 'aio:marketSnapshot'] : [])].forEach((eventName) => {
+      // v58.74: the news cards read the close history too (krIndexCloseNote), so both routes redraw when it loads.
+      ['aio:newsUpdated', 'aio:newsSurfaceInvalidated', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:historyLoaded',
+        ...(route === 'briefing' ? ['aio:sentimentUpdated', 'aio:liveQuotes', 'aio:marketSnapshot'] : [])].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });

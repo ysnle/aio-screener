@@ -75,7 +75,7 @@ export function alignCloses(seriesByField) {
  * v57.84 (owner decision, TECHNICAL-DEFINITIONS 3-1/3-2 안 A): a long trend inside ±band of the index is 동행, not 약세 or
  * 반등 (US energy +9.0% against the S&P 500's +10.0% read 약세 지속); 반등 시도·약세 지속 need the long trend more than the
  * band behind. A trend ahead of the index whose own return is 0 or below is 상대 방어 — falling less is not leading (KOSPI
- * −25.7%, batteries −2.6% read 주도 지속). The proxy outcomes use the same rule against ^GSPC.
+ * -25.7%, batteries -2.6% read 주도 지속). The proxy outcomes use the same rule against ^GSPC.
  */
 export const THEME_STATES = Object.freeze({
   leading: '주도 지속 (긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음)',
@@ -93,8 +93,8 @@ export const THEME_STATES = Object.freeze({
 export function themeStateOf(trend, recent, { band = 0, recentBand = 0, absolute = null } = {}) {
   if (trend == null || recent == null) return null;
   if (trend > band) {
-    // v57.86 (live review): 상대 방어 also needs the 1-month move not to lag — KR 원전 −10.9%p behind KOSPI over a month
-    // (5 sessions −21%) read "덜 하락한 것". Lagging the month falls to 추세 속 조정, whose 5-session break check runs.
+    // v57.86 (live review): 상대 방어 also needs the 1-month move not to lag — KR 원전 -10.9%p behind KOSPI over a month
+    // (5 sessions -21%) read "덜 하락한 것". Lagging the month falls to 추세 속 조정, whose 5-session break check runs.
     if (recent < -recentBand) return 'pullback';
     return absolute != null && absolute <= 0 ? 'defensive' : 'leading';
   }

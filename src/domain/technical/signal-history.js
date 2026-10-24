@@ -1,3 +1,4 @@
+import { signedText } from '../shared/number.js';
 // Expertise review 2026-10-19: the chart marks power gaps, volatility squeezes and 8-day EMA reclaims/losses as if
 // their meaning were known. A desk asks first what followed the same signal before. This reads, on the stock's own
 // loaded history, each past occurrence's next SIGNAL_HORIZON sessions: the return and, when a benchmark is loaded, the
@@ -41,7 +42,7 @@ export function signalHistory({ events = [], closes = [], rsLine = [], horizon =
 }
 
 export function signalHistoryText(signals, benchmarkLabel = '지수') {
-  const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+  const signed = (value) => `${signedText(value, 1)}%`;
   const parts = [];
   for (const [kind, label] of Object.entries(SIGNAL_KINDS)) {
     const row = signals?.kinds?.[kind];

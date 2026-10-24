@@ -6,6 +6,7 @@
 // comparison drawn is against a published target (the FOMC's 2% PCE inflation objective).
 
 import { seriesOf, yoySeries } from './macro-read.js';
+import { signedText } from '../shared/number.js';
 
 export const FED_PCE_TARGET = 2; // FOMC Statement on Longer-Run Goals: 2% on the PCE price index
 
@@ -70,7 +71,7 @@ function monthDay(date) {
 }
 
 function signed(value, digits) {
-  return `${value > 0 ? '+' : value < 0 ? '−' : '±'}${Math.abs(value).toFixed(digits)}`;
+  return signedText(value, digits);
 }
 
 function sourceLabel(macro, key) {

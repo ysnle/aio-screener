@@ -245,7 +245,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         trend, leadership: regime.leadership?.state || null }) : null;
     } catch (_) { return null; }
   };
-  // Screen audit 2026-10-20: the top bar read "10/19 마감" all evening after KOSPI closed 10/20 at −3.73%. A Korean close
+  // Screen audit 2026-10-20: the top bar read "10/19 마감" all evening after KOSPI closed 10/20 at -3.73%. A Korean close
   // that is already in the daily record is named beside the US close (js/aio-core.js _aioWriteQuoteStatus).
   root._aioWithKrClose = (detail) => {
     const text = String(detail || '');

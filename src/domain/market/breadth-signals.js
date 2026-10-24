@@ -1,7 +1,7 @@
 // P1416 (owner request 2026-10-03, open-source comparison): participation signals beyond the
 // moving-average ratios. Definitions follow their public sources, checked against the
 // xang1234/stock-screener breadth formulas (revision 3, Apache-2.0) — reimplemented here, not copied:
-//   · 4% movers (StockBee): adjusted daily return ≥ +4% / ≤ −4% on volume above the prior session
+//   · 4% movers (StockBee): adjusted daily return ≥ +4% / ≤ -4% on volume above the prior session
 //     and at least 100,000 shares.
 //   · 52-week new high / low: the split/dividend-adjusted high (low) exceeds the highest high
 //     (lowest low) of the prior sessions. A one-year download holds about 251 sessions, so a session

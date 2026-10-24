@@ -1,4 +1,4 @@
-// Expertise review 2026-10-19 (redesign): the stress panel multiplied hand-picked sector constants (Tech −0.8% for a
+// Expertise review 2026-10-19 (redesign): the stress panel multiplied hand-picked sector constants (Tech -0.8% for a
 // +100bp rate shock), so its numbers had nothing behind them. A risk desk estimates each book's sensitivity from its own
 // return history. This module regresses the book's weekly return — today's weights applied to each holding's
 // adjusted closes — on one factor at a time over the same weeks:

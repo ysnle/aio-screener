@@ -130,7 +130,7 @@ const fetchData = readProducerSource();
       krBars[atOpen]?.close === 6008.81 && withToday === 1 && afterClose === 1 && us === 0,
       JSON.stringify({ atOpen, withToday, afterClose, us }));
     // v58.69 (live 2026-10-23): fetchQuote keeps empty bars, so an empty previous session is found as empty (and priced
-    // from its last hourly close or left missing) instead of the bar two sessions back (KOSPI −5.75% for −2.3%).
+    // from its last hourly close or left missing) instead of the bar two sessions back (KOSPI -5.75% for -2.3%).
     const holed = [bar('2026-10-20T00:00:00Z', 5552.74), bar('2026-10-21T00:00:00Z', null), bar('2026-10-22T00:00:00Z', null), bar('2026-10-23T00:00:00Z', 5406.01)];
     const krHole = previousCloseBarIndex(holed, { ...kst, regularMarketTime: Date.parse('2026-10-23T00:31:10Z') / 1000 });
     const usHole = previousCloseBarIndex([bar('2026-10-20T13:30:00Z', 7712.57), bar('2026-10-21T13:30:00Z', null), bar('2026-10-22T13:30:00Z', 7663.43)], { exchangeTimezoneName: 'America/New_York', gmtoffset: -14400, regularMarketTime: Date.parse('2026-10-22T20:31:48Z') / 1000 });
@@ -822,6 +822,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       // v58.72: a Vietnamese word in the Korean line is rejected; an accented name the title carries is kept
       && !isFaithfulKoreanTitle('Bessent dismisses AI bubble fears', '미 재무장관 베센트, AI 버블 우려 bác함')
       && isFaithfulKoreanTitle('Nestlé cuts outlook', 'Nestlé, 연간 전망 하향')
+      // v58.74: a market term comes back as its market word ("Treasury Haven" is not "재정 예금 안정성")
+      && !isFaithfulKoreanTitle('Treasury Haven Appeal Fades', '재정 예금 안정성 매력 약화')
+      && isFaithfulKoreanTitle('Treasury Haven Appeal Fades', '미 국채 안전자산 매력 약화')
       && !isFaithfulKoreanTitle('Nscale, Anthropic in Talks for $45 Billion Cloud Computing Deal', 'Nscale, 앤트로픽과 4,500억 달러 클라우드 계약 협상')
       && isFaithfulKoreanTitle('Nscale, Anthropic in Talks for $45 Billion Cloud Computing Deal', 'Nscale, 앤트로픽과 450억 달러 클라우드 계약 협상')
       && isFaithfulKoreanTitle('A $1.5 Trillion Anthropic IPO Still Pays Off for Google', '1.5조 달러 앤트로픽 IPO, 구글엔 여전히 이득')
@@ -913,7 +916,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('v57.71 (screen audit 2026-10-19) 매도 소진 is not an instruction, and an imperative 매도 still is',
     !!validateMarketSentence('매도 소진은 바닥의 신호인가, 더 깊은 조정의 전조인가?') && validateMarketSentence('지금 매도하세요, 조정이 깊어집니다') === null
       && marketSentenceRejectReason('나스닥 급락은 기회인가?') === 'names-company-or-index', 'sentence validator');
-  // Screen audit 2026-10-20: KOSPI −3.73% gave back a two-day rebound and the line read as bottoming.
+  // Screen audit 2026-10-20: KOSPI -3.73% gave back a two-day rebound and the line read as bottoming.
   const { marketAnalysisLargeMoveDirection } = await import('./lib/market-analysis-validate.mjs');
   const kospiDown = marketAnalysisLargeMoveDirection([{ evidenceId: 'k', metricId: 'market.kospi' }, { evidenceId: 's', metricId: 'market.spx' }], new Map([['k', -3.73], ['s', 0.41]]), null);
   const breakdownDay = dailyMarketSentence({ candidate: '소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?', previous: { text: '아침 문장은 그대로 남는가?', day: '2026-10-20' }, nowMs: Date.parse('2026-10-20T09:20:00.000Z'), largeMove: true, largeMoveDirection: kospiDown });
@@ -921,7 +924,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     kospiDown === 'down' && marketSentenceRejectReason('소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?', { largeMoveDirection: 'down' }) === 'large-move-missed'
       && !!validateMarketSentence('반등이 꺾인 자리, 투매의 끝인가 새 하락의 시작인가?', { largeMoveDirection: 'down' })
       && !!validateMarketSentence('소진 신호가 쌓이는 가운데, 회복 확인은 아직인가?') && breakdownDay?.text === '아침 문장은 그대로 남는가?', JSON.stringify({ kospiDown, breakdownDay }));
-  // Live 2026-10-21: after the US 10/20 close (+0.28%) the morning KOSPI −3.73% still forced "오늘의 하락".
+  // Live 2026-10-21: after the US 10/20 close (+0.28%) the morning KOSPI -3.73% still forced "오늘의 하락".
   const sessionWindow = { meta: { newsCycleStart: '2026-10-19T23:00:00.000Z' } };
   const krFall = { evidenceId: 'k', metricId: 'market.kospi', observedAt: '2026-10-20T06:30:00.000Z' };
   const directionAfter = (spxAt, spxMove) => marketAnalysisLargeMoveDirection([krFall, { evidenceId: 's', metricId: 'market.spx', observedAt: spxAt }], new Map([['k', -3.73], ['s', spxMove]]), sessionWindow);
@@ -1081,7 +1084,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const crashTitle = '코스피 7% 폭락…사이드카 발동';
     const ranked = krIndexStoryFirst([{ title: '증시 폭락에 원·달러 환율 급등' }, { title: crashTitle }]);
     check('v57.87 a large completed close reaches the prompt dated and must be named; the KOSPI move headline takes the first Korean slot',
-      // v58.68: US lines (here SMH's 5-session −9.7%) come first; the KOSPI close still follows on the same line.
+      // v58.68: US lines (here SMH's 5-session -9.7%) come first; the KOSPI close still follows on the same line.
       /직전 완료 세션의 큰 움직임: 반도체\(SMH\) [^\n]* · 코스피 10\/15 종가 -7\.5\d%/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
         && priorSessionMoveIssues('코스피 장중 13:05 KST 기준 +3.2% 반등', { context: ctx }).includes('prior-session-move-omitted')
         && ranked[0].title === crashTitle && /ko-index-move\+14/.test(scoreServerNewsItem({ title: crashTitle, source: '연합뉴스', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason),
@@ -1103,7 +1106,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && krSlotTopic('환율 1,353원 치솟으며') === 'fx' && krSlotTopic(crashTitle) === 'index-move' && krSlotTopic('Samsung wonders') === null
         && scoreServerNewsItem({ title: 'UAL Stock Quote Price and Forecast | CNN', source: 'CNN', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason === 'not-article-filter',
       priorSessionMoveLines(oilHistory));
-    const { marketDriversContext } = await import('./producer/market-narrative.mjs');
+    const { marketDriversContext, upcomingPoliticalLine } = await import('./producer/market-narrative.mjs');
+    const electionWeek = marketDriversContext({ history: oilHistory, eventsLine: upcomingPoliticalLine(Date.parse('2026-10-24T02:00:00Z')) });
+    check('v58.74 an election inside the next week reaches the confirm/deny row; none after it',
+      /- 확인·반증:[^\n]*정치 일정: 10\/28 KST 이스라엘 총선/.test(electionWeek) && upcomingPoliticalLine(Date.parse('2026-11-10T00:00:00Z')) === '', electionWeek.match(/- 확인·반증:[^\n]*/)?.[0] || '');
     const idle = marketDriversContext({ history: oilHistory });
     check('v58.72 with no market in session the drivers block does not claim the completed session had no intraday move',
       !/장중 큰 움직임 없음/.test(idle) && /장중 큰 움직임이 없었다"고 쓰지 말 것/.test(idle), idle.match(/- 지금:[^\n]*/)?.[0] || idle.slice(0, 300));
@@ -1208,7 +1214,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const digestSource = read('scripts/fetch-telegram-digest.mjs');
   check('P1722 telegram 한국장/수급 tags need 기관 as an investor group, not any agency',
     !KR_INSTITUTIONAL_FLOW.test('영국 기관: 호르무즈 해협 및 인근 해역에서 선박 6척 하루 동안 잇따라 피격') && KR_INSTITUTIONAL_FLOW.test('외국인과 기관이 동반 매도')
-      && KR_INSTITUTIONAL_FLOW.test('기관이 3,000억 순매도') && !/외국인\|기관\|코스피/.test(digestSource) && !/수급\|외국인\|기관\|순매수/.test(digestSource));
+      && KR_INSTITUTIONAL_FLOW.test('기관이 3,000억 순매도') && !/외국인\|기관\|코스피/.test(digestSource) && !/수급\|외국인\|기관\|순매수/.test(digestSource)
+      // v58.74: a bare 국장 (an agency director) no longer tags 한국장
+      && !/\|국장\|/.test(digestSource));
 }
 {
   // P1385: a FRED series added after the previous artifact (fedTargetLower/Upper) must still get an
@@ -2427,11 +2435,12 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   for (let step = 1; step <= 10; step += 1) rolling = mt.sealMarketTimeline({ previous: rolling, snapshot: snapB, pool: [], nowMs: at + step * 6 * 3600000 }).timeline;
   check('v58.28 cadence: the timeline keeps the last eight slots', rolling.slots.length === mt.MARKET_SLOT_RETAIN && rolling.slots.every((slot, i, all) => !i || Date.parse(all[i - 1].end) > Date.parse(slot.end)));
   const prompts = [];
-  const verdict = await mt.summarizeMarketTimeline(first.timeline, { nowMs: at, request: async (prompt) => { prompts.push(prompt); return { text: '코스피가 큰 폭으로 내렸고, 로이터 보도에 따르면 반도체주 약세가 배경으로 거론됐다. 다음 회차에는 미국 장 개장 전 선물 흐름을 확인할 필요가 있다.' }; } });
-  check('v58.28 cadence: one summary request for the newest slot, numbers kept out of the prompt answer',
+  const verdict = await mt.summarizeMarketTimeline(first.timeline, { nowMs: at, request: async (prompt) => { prompts.push(prompt); return { text: '코스피가 큰 폭으로 내렸습니다. 보도에 따르면 반도체주 약세가 배경으로 거론됐습니다. 다음 회차에는 미국 장 개장 전 선물 흐름을 확인합니다.' }; } });
+  check('v58.28 cadence: one summary request for the newest slot, numbers kept out of the prompt answer (v58.74: polite register, no semicolons)',
     verdict === 'verified' && prompts.length === 1 && first.timeline.slots[0].summary.source === 'shared-model' && /HEADLINES:/.test(prompts[0])
       && mt.validateMarketSlotSummary('코스피가 3% 내렸고 반도체주가 약했다는 보도가 이어졌다. 다음 회차를 지켜본다.') === null
-      && mt.validateMarketSlotSummary('코스피가 크게 내렸고 반도체주 비중을 줄이라는 보도가 있었다. 지금 매도하세요.') === null);
+      && mt.validateMarketSlotSummary('코스피가 크게 내렸고 반도체주 비중을 줄이라는 보도가 있었다. 지금 매도하세요.') === null
+      && mt.slotSummaryStyleOk('코스피가 큰 폭으로 내렸습니다. 다음 회차를 확인합니다.') && !mt.slotSummaryStyleOk('코스피가 큰 폭으로 내렸다. 다음 회차를 확인합니다.') && !mt.slotSummaryStyleOk('코스피가 내렸습니다; 반도체도 약했습니다.'));
   const blocked = mt.sealMarketTimeline({ snapshot: snapA, pool, nowMs: at }).timeline;
   await mt.summarizeMarketTimeline(blocked, { nowMs: at, request: async () => ({ text: 'NVDA 3% 상승' }) });
   check('v58.28 cadence: a blocked summary keeps the deterministic line and one retry',

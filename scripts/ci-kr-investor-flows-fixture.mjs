@@ -64,6 +64,6 @@ assert.deepEqual(buildKrInvestorFlowView(null, { loadState: 'failed' }), { state
   assert.equal(buildKrInvestorFlowView(pending).state, 'pending', 'v58.55 the 수집 전 marker carries no numbers and reads as pending');
   assert.ok(!JSON.stringify(pending).match(/"value"/), 'v58.55 the marker has no values');
 }
-assert.equal(formatEok(-17716), '−1.8조');
+assert.equal(formatEok(-17716), '-1.8조', 'P1593 family (v58.74 ASCII minus): a net sell reads -1.8조');
 assert.equal(formatEok(5485), '+5,485억');
 console.log('PASS v58.55 KR investor flows: ECOS item discovery by name, unit conversion, artifact, read model.');

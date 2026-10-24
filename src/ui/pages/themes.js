@@ -12,13 +12,17 @@ import { renderAiInfrastructureLens } from '../components/ai-infrastructure-lens
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js';
 import { krThemeArtifactRead } from '../../domain/themes/kr-themes.js';
-import { buildGroupStrength } from '../../domain/themes/group-strength.js';
+import { buildGroupStrength, directionLabel } from '../../domain/themes/group-strength.js';
+import { buildCloseSeries } from '../../domain/market/close-series.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { rrgAxisDomain, RRG_DEFINITION, RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../../domain/themes/rrg.js';
 import { rrgRecentReading, RRG_NEUTRAL_BAND } from '../../domain/themes/recent-check.js';
 import { benchmarkReturns, basisOf } from '../components/theme-strength.js';
 import { readMarketRegime } from '../components/market-regime.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { renderNextSteps } from '../components/page-flow.js';
+import { signedText } from '../../domain/shared/number.js';
+import { withTopicParticle } from '../../domain/content/korean-particle.js';
 
 // v57.76: plain-Korean quadrant notes (no 모멘텀 jargon). 100 is the sector's own 100-session average relative price.
 // v57.81 (audit): the notes name both windows and no longer say "계속 강해지는 중 / 나아지는 중" — the vertical axis
@@ -305,7 +309,7 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
     bar.style.left = theme.ret1m >= 0 ? '50%' : `calc(50% - ${half})`;
     const zero = el('span', null, 'thp-strength-zero');
     track.append(zero, bar);
-    item.append(track, el('span', `1개월 ${theme.ret1m >= 0 ? '+' : ''}${theme.ret1m.toFixed(1)}%, 3개월 ${theme.ret3m == null ? '—' : `${theme.ret3m >= 0 ? '+' : ''}${theme.ret3m.toFixed(1)}%`}${theme.above50Pct != null ? `, 50일선 위 ${theme.above50Pct}%` : ''}, ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));
+    item.append(track, el('span', `1개월 ${signedText(theme.ret1m, 1)}%, 3개월 ${theme.ret3m == null ? '—' : `${signedText(theme.ret3m, 1)}%`}${theme.above50Pct != null ? `, 50일선 위 ${theme.above50Pct}%` : ''}, ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));
     // Screen audit 2026-10-20: the Korean theme rows were not clickable, so a Korean theme's detail had no entry here.
     const label = typeof root?.openKrThemeDetail === 'function' ? el('button', theme.label, 'stock-read-bar-label theme-strength-open') : el('span', theme.label, 'stock-read-bar-label');
     if (label.tagName === 'BUTTON') {
@@ -385,7 +389,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
       track.appendChild(bar);
     }
     const value = documentRef.createElement('span');
-    value.textContent = row.pct == null ? '—' : `${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`;
+    value.textContent = row.pct == null ? '—' : `${signedText(row.pct, 2)}%`;
     value.className = 'thp-perf-value';
     value.style.color = row.pct == null ? 'var(--text-muted)' : row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     const badge = documentRef.createElement('span');
@@ -442,7 +446,7 @@ function createChip(documentRef, item, root) {
   chip.textContent = `${symbol} ${label}`;
   if (pct != null) {
     const change = documentRef.createElement('span');
-    change.textContent = ` ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+    change.textContent = ` ${signedText(pct, 2)}%`;
     change.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     chip.append(change);
   }
@@ -490,7 +494,7 @@ function renderThemes({ documentRef, root, store, route }) {
     if (groups.has(quadrant) && quadrant !== 'Border' && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) {
       // v57.81: the neutral band (경계) and the five-session reversal travel with the item to the chip and the verdict line.
       const reading = readingOf(root, item);
-      const reversal = reading?.reversal ? `상대강도 ${reading.check.change >= 0 ? '+' : ''}${reading.check.change.toFixed(1)}% ${reading.reversal === 'fell' ? '반락' : '반등'}` : null;
+      const reversal = reading?.reversal ? `상대강도 ${signedText(reading.check.change, 1)}% ${reading.reversal === 'fell' ? '반락' : '반등'}` : null;
       groups.get(reading?.border ? 'Border' : (reading?.quadrant || quadrant)).push({ ...item, rrgReading: reading, recentReversal: reversal });
     }
   });
@@ -568,7 +572,9 @@ function renderThemes({ documentRef, root, store, route }) {
   });
   appendUnclassified();
   // P1431: one reading of all four quadrants, tied to the 시장 상태 breadth axis.
-  const flow = rotationFlow({ groups: Object.fromEntries(groups), regime: readMarketRegime(root) });
+  let revisions = null;
+  try { revisions = marketInterpretation(root, { store }).indexEarnings?.sectors || null; } catch (_) { revisions = null; }
+  const flow = rotationFlow({ groups: Object.fromEntries(groups), regime: readMarketRegime(root), revisions });
   const read = documentRef.getElementById('rrg-rotation-read');
   if (read) read.textContent = flow.read;
   renderNextSteps(documentRef, documentRef.getElementById('themes-next'), flow.next);
@@ -594,7 +600,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
 
   const performance = documentRef.createElement('span');
   const pct = typeof detail.pct === 'number' && Number.isFinite(detail.pct) ? detail.pct : null;
-  performance.textContent = pct == null ? '당일 등락 대기' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+  performance.textContent = pct == null ? '당일 등락 대기' : `${signedText(pct, 2)}%`;
   performance.className = 'thp-summary-pct';
   performance.style.color = pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
 
@@ -630,7 +636,9 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   // P1591 (T03): the ETF's rotation state is read only through the session-checked selector, so a stale
   // quadrant never sits under a 'waiting' status; the sentence carries its close date.
   const etfRotation = detail.etf ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, detail.etf, Date.now()) : null;
-  const flow = themeDetailFlow({ themeId: detail.id, groups: model.groups, etf: detail.etf || null, rotation: etfRotation ? { [detail.etf]: etfRotation } : {} });
+  const stageRow = root?.__aioThemePlaybook?.themes?.find((row) => row.market === 'US' && row.id === detail.id && row.state);
+  const flow = themeDetailFlow({ themeId: detail.id, groups: model.groups, etf: detail.etf || null, rotation: etfRotation ? { [detail.etf]: etfRotation } : {},
+    stage: stageRow ? { state: stageRow.state, label: String(stageRow.stateLabel || '').split(' (')[0], window: '6개월' } : null });
   if (flow.rows.length) {
     const box = documentRef.createElement('div');
     box.className = 'theme-detail-flow';
@@ -651,8 +659,8 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
       bar.style.width = `${Math.max(2, Math.abs(group.ret3m ?? 0) / max * 100).toFixed(1)}%`;
       const value = documentRef.createElement('span');
       value.className = 'stock-read-bar-value';
-      const dir = { improving: '최근 강해짐', steady: '큰 변화 없음', weakening: '최근 식음' }[group.direction] || ''; // 3개월→1개월 순위 변화 (audit 19: not the playbook stage words)
-      value.textContent = `3개월 ${group.ret3m == null ? '—' : `${group.ret3m >= 0 ? '+' : ''}${group.ret3m.toFixed(1)}%`}, 1개월 ${group.ret1m == null ? '—' : `${group.ret1m >= 0 ? '+' : ''}${group.ret1m.toFixed(1)}%`}${group.ret5d != null ? `, 5거래일 ${group.ret5d >= 0 ? '+' : ''}${group.ret5d.toFixed(1)}%` : ''}${group.above50Pct != null ? `, 50일선 위 ${group.above50Pct}%` : ''}${dir ? `, ${dir}` : ''}`;
+      const dir = directionLabel(group); // 3개월→1개월 순위 변화 (audit 19: not the playbook stage words; v58.74 names a contrary week)
+      value.textContent = `3개월 ${group.ret3m == null ? '—' : `${signedText(group.ret3m, 1)}%`}, 1개월 ${group.ret1m == null ? '—' : `${signedText(group.ret1m, 1)}%`}${group.ret5d != null ? `, 5거래일 ${signedText(group.ret5d, 1)}%` : ''}${group.above50Pct != null ? `, 50일선 위 ${group.above50Pct}%` : ''}${dir ? `, ${dir}` : ''}`;
       item.append(bar, value);
       line.append(name, item);
       box.append(line);
@@ -732,7 +740,7 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
   }
 
   const heading = documentRef.createElement('div');
-  heading.textContent = '구성·브레드스';
+  heading.textContent = '구성 종목과 당일 참여 폭';
   heading.className = 'thp-detail-heading thp-detail-heading--loose';
 
   const breadth = documentRef.createElement('div');
@@ -761,7 +769,7 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
     }
     const pct = compositeDetailPct(detail, subTheme);
     const performance = documentRef.createElement('span');
-    performance.textContent = pct == null ? '시세 대기' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+    performance.textContent = pct == null ? '시세 대기' : `${signedText(pct, 2)}%`;
     performance.className = 'thp-subtheme-pct';
     performance.style.color = pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     title.append(name, performance);
@@ -772,7 +780,7 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
     (subTheme.tickers || []).forEach((symbol) => {
       const quote = detailQuote(detail, symbol);
       const chip = documentRef.createElement('span');
-      chip.textContent = `${symbol}${quote?.pct == null ? '' : ` ${quote.pct >= 0 ? '+' : ''}${quote.pct.toFixed(1)}%`}`;
+      chip.textContent = `${symbol}${quote?.pct == null ? '' : ` ${signedText(quote.pct, 1)}%`}`;
       chip.dataset.action = 'showTicker';
       chip.dataset.arg = symbol;
       chip.title = `${symbol} 분석`;
@@ -827,10 +835,10 @@ function renderThemeDetailLeaders({ documentRef, root, store, themeId = null }) 
     ticker.textContent = symbol;
     ticker.className = 'thp-leader-ticker';
     const price = documentRef.createElement('span');
-    price.textContent = formatQuotePrice(quote?.price, quote?.currency);
+    price.textContent = quote?.price == null && quote?.closeBased ? `${detail.quoteBasis?.session ? `${Number(detail.quoteBasis.session.slice(5, 7))}/${Number(detail.quoteBasis.session.slice(8, 10))} ` : ''}종가 기준` : formatQuotePrice(quote?.price, quote?.currency);
     price.className = 'thp-leader-price';
     const pct = documentRef.createElement('span');
-    pct.textContent = quote?.pct == null ? '등락률 대기' : `${quote.pct >= 0 ? '+' : ''}${quote.pct.toFixed(2)}%`;
+    pct.textContent = quote?.pct == null ? '등락률 대기' : `${signedText(quote.pct, 2)}%`;
     pct.className = 'thp-leader-pct';
     pct.style.color = quote?.pct == null ? 'var(--text-muted)' : quote.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
     card.append(ticker, price, pct);
@@ -902,10 +910,10 @@ function renderThemeDetailSpread({ documentRef, root, store, themeId = null }) {
     const spread = rows[0].pct - rows[rows.length - 1].pct;
     // LC-38: a narrow day-level spread is not evidence that every constituent reacted to one
     // catalyst, nor a reason to prefer the ETF. State the measured dispersion only.
-    const level = spread > 5 ? '매우 큼 — 구성종목 간 당일 등락 차가 큽니다.' : spread > 2 ? '보통 — 테마 전반의 움직임과 개별 종목 차이를 함께 확인하세요.' : '좁음 — 구성종목의 당일 등락이 비슷합니다.';
+    const level = spread > 5 ? '매우 큼 — 구성 종목 간 당일 등락 차가 큽니다.' : spread > 2 ? '보통 — 테마 전체 움직임과 종목별 차이가 함께 있습니다.' : '좁음 — 구성 종목의 당일 등락이 비슷합니다.';
     body.textContent = `등락 편차 ${spread.toFixed(1)}%p (${level})`;
     const leaders = documentRef.createElement('div');
-    leaders.textContent = `최강 ${rows[0].symbol} ${rows[0].pct >= 0 ? '+' : ''}${rows[0].pct.toFixed(2)}%, 최약 ${rows[rows.length - 1].symbol} ${rows[rows.length - 1].pct >= 0 ? '+' : ''}${rows[rows.length - 1].pct.toFixed(2)}%`;
+    leaders.textContent = `최강 ${rows[0].symbol} ${signedText(rows[0].pct, 2)}%, 최약 ${rows[rows.length - 1].symbol} ${rows[rows.length - 1].pct >= 0 ? '+' : ''}${rows[rows.length - 1].pct.toFixed(2)}%`;
     leaders.className = 'thp-spread-leaders';
     body.appendChild(leaders);
   }
@@ -970,9 +978,9 @@ function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId = null
     const spread = rows[0].pct - rows[rows.length - 1].pct;
     // LC-37: max−min of day returns is price dispersion, not observed fund rotation.
     const read = spread > 1
-      ? '서브테마 간 당일 가격 반응 격차가 큽니다. 자금 순환 여부는 별도 수급 근거가 필요합니다.'
-      : '서브테마 간 당일 반응은 유사합니다. 개별 종목 차이를 함께 확인하세요.';
-    body.textContent = `서브테마 격차 ${spread.toFixed(1)}%p, 최강 ${rows[0].name} ${rows[0].pct >= 0 ? '+' : ''}${rows[0].pct.toFixed(2)}%, 최약 ${rows[rows.length - 1].name} ${rows[rows.length - 1].pct >= 0 ? '+' : ''}${rows[rows.length - 1].pct.toFixed(2)}% — ${read}`;
+      ? '세부 테마 간 당일 가격 반응 격차가 큽니다. 자금 순환 여부는 별도 수급 근거가 필요합니다.'
+      : '세부 테마 간 당일 반응은 비슷했습니다.';
+    body.textContent = `세부 테마 격차 ${spread.toFixed(1)}%p, 최강 ${rows[0].name} ${signedText(rows[0].pct, 2, '%')}, 최약 ${rows[rows.length - 1].name} ${signedText(rows[rows.length - 1].pct, 2, '%')} — ${read}`;
   }
   host.replaceChildren(heading, body);
   host.hidden = false;
@@ -1000,7 +1008,9 @@ function renderThemeDetailBenchmark({ documentRef, root, store, themeId = null }
   const ownSymbol = detail.etf || detail.compositeBase || null;
   const ownPct = ownSymbol ? finite(detailQuote(detail, ownSymbol)?.pct) : null;
   const selfCompare = Boolean(ownSymbol && themePct != null && ownPct != null && Math.abs(themePct - ownPct) < 0.005);
-  const marketPct = finite(detailQuote(detail, 'SPY')?.pct ?? root?._liveData?.SPY?.pct ?? root?._liveData?.SPY?.changePercent);
+  // v58.74 (audit): on a weekend SPY has no live quote; the S&P 500 close of the detail's own session stands in.
+  const spxClose = (() => { if (detail.quoteBasis?.kind !== 'completed-close' || !detail.quoteBasis.session) return null; const series = buildCloseSeries(root?._aioHistory || [], 'spx'); const at = series.findIndex((point) => point.date === detail.quoteBasis.session); return at > 0 ? (series[at].value / series[at - 1].value - 1) * 100 : null; })();
+  const marketPct = finite(detailQuote(detail, 'SPY')?.pct ?? root?._liveData?.SPY?.pct ?? root?._liveData?.SPY?.changePercent ?? spxClose);
   const benchmarkSymbol = selfCompare ? (marketPct != null ? 'SPY' : null) : ownSymbol;
   const benchmarkPct = selfCompare ? marketPct : ownPct;
   if (selfCompare && benchmarkPct == null) {
@@ -1010,8 +1020,9 @@ function renderThemeDetailBenchmark({ documentRef, root, store, themeId = null }
   } else {
     const diff = themePct - benchmarkPct;
     const direction = diff > 0.5 ? '상회' : diff < -0.5 ? '하회' : '유사';
-    const context = direction === '상회' ? '구성 테마의 상대 모멘텀이 우세합니다.' : direction === '하회' ? '벤치마크 대비 상대 약세를 확인하세요.' : '테마와 벤치마크가 유사하게 움직였습니다.';
-    body.textContent = `${selfCompare ? `${ownSymbol}(테마 대표 ETF)의 시장(SPY) ` : `${benchmarkSymbol} `}대비 ${diff >= 0 ? '+' : ''}${diff.toFixed(2)}%p, 테마 ${themePct >= 0 ? '+' : ''}${themePct.toFixed(2)}% / 벤치마크 ${benchmarkPct >= 0 ? '+' : ''}${benchmarkPct.toFixed(2)}%, ${direction} — ${context}`;
+    const context = direction === '상회' ? '당일은 시장보다 강했습니다.' : direction === '하회' ? '당일은 시장보다 약했습니다.' : '당일 시장과 비슷했습니다.';
+    // v58.74 (text audit): one session is read as one session — "상대 모멘텀이 우세" claimed a trend from a day.
+    body.textContent = `${selfCompare ? `${withTopicParticle(`${ownSymbol}(테마 대표 ETF)`)} 당일 시장(SPY)보다 ` : `${benchmarkSymbol} 대비 `}${signedText(diff, 2, '%p')}(테마 ${signedText(themePct, 2, '%')}, ${selfCompare ? '시장' : '벤치마크'} ${signedText(benchmarkPct, 2, '%')}) — ${context}`;
   }
   host.replaceChildren(heading, body);
   host.hidden = false;

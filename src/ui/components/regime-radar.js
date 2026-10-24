@@ -2,6 +2,7 @@
 // follows the theme tokens; numbers are one-year positions of each series, not a composite score.
 import { buildRegimeRadar } from '../../domain/market/regime-radar.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const node = (doc, tag, attrs = {}, text = null) => {
@@ -28,7 +29,7 @@ export function radarSvg(doc, model, { size = 340 } = {}) {
     const [lx, ly] = point(i, 126);
     const label = node(doc, 'text', { x: lx, y: ly - 6, 'text-anchor': Math.abs(lx - center) < 8 ? 'middle' : lx > center ? 'start' : 'end', class: 'regime-radar-label' }, axis.label);
     const value = node(doc, 'text', { x: lx, y: ly + 10, 'text-anchor': Math.abs(lx - center) < 8 ? 'middle' : lx > center ? 'start' : 'end', class: 'regime-radar-value' },
-      axis.now == null ? '없음' : `${axis.now}${axis.change5 == null ? '' : ` (${axis.change5 >= 0 ? '+' : ''}${axis.change5})`}`);
+      axis.now == null ? '없음' : `${axis.now}${axis.change5 == null ? '' : ` (${signedText(axis.change5, 0)})`}`);
     const basis = `${axis.label}: ${axis.note}. ${axis.sample ? `최근 ${axis.sample}거래일 중 위치` : '표본 부족'} ${axis.now ?? '없음'}, 5거래일 전 ${axis.values[1] ?? '—'}, 20거래일 전 ${axis.values[2] ?? '—'}`;
     label.setAttribute('data-basis', basis); value.setAttribute('data-basis', basis); // v57.77 (a11y): the keyboard stop is the table's dd row; a focusable <text> inside role=img was a hidden second stop
     if (axis.observed?.[0]) { label.setAttribute('data-observed-at', axis.observed[0]); value.setAttribute('data-observed-at', axis.observed[0]); }
@@ -86,7 +87,7 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   // The axis table sits beside the drawing (it was folded, leaving the right side empty on desktop).
   const table = el(doc, 'dl', null, 'regime-evidence regime-radar-table');
   for (const axis of model.axes) {
-    const dd = el(doc, 'dd', axis.now == null ? '최신 관측 없음' : `${axis.now}, 5일 ${axis.change5 == null ? '—' : `${axis.change5 >= 0 ? '+' : ''}${axis.change5}`}, 20일 ${axis.change20 == null ? '—' : `${axis.change20 >= 0 ? '+' : ''}${axis.change20}`}`);
+    const dd = el(doc, 'dd', axis.now == null ? '최신 관측 없음' : `${axis.now}, 5일 ${axis.change5 == null ? '—' : signedText(axis.change5, 0)}, 20일 ${axis.change20 == null ? '—' : signedText(axis.change20, 0)}`);
     if (axis.observed?.[0]) dd.setAttribute('data-observed-at', axis.observed[0]);
     dd.setAttribute('data-basis', `${axis.note}, 비교 표본 ${axis.sample ? `${axis.sample}거래일` : '부족'}`);
     dd.tabIndex = 0;

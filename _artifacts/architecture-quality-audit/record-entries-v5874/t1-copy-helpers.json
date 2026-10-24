@@ -1,0 +1,32 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "소유자 요청(2026-10-24): 전체 텍스트 로직의 정합성·의미, 워딩·문장 흐름·배치, 직관성, 전문가 사고 흐름 전달까지 점검.",
+ "status": null,
+ "p": {
+  "title": "화면 문구 생성기가 '(으)로' 자리표시자·U+2212 음수·'+0.0' 부호를 그대로 노출",
+  "symptom": "시나리오 기록 '유가 충격'(으)로, 매크로·시장 상태 숫자의 '−0.5%'와 '-0.5%' 혼용, 0인 변화에 '+0.00%'·'±0', 조사 '이(가)'·'을(를)' 하드코딩, 사람 수 '5.1만 명'과 '51천 명' 혼용이 화면마다 달랐다.",
+  "root_cause": "부호·조사·단위를 파일마다 지역 헬퍼 34개와 인라인 삼항 68곳에서 따로 만들었다. 반올림 전에 부호를 붙여 '+0.0'이 나왔고, 조사를 고를 수 없는 자리에서는 '(으)로'를 그대로 썼다. 렌더된 문장을 검사하는 게이트가 없었다.",
+  "fix": "src/domain/shared/number.js에 signedText(반올림 뒤 부호, ASCII 마이너스, 0은 부호 없음)와 peopleText를 두고 지역 헬퍼·인라인 부호를 모두 옮겼다. korean-particle.js에 withSubjectParticle·withAndParticle을 더해 자리표시자를 없앴다. 저장된 시나리오 기록은 화면에서 recordText로 오늘의 조사·부호 규칙에 맞춰 읽는다. 장문 지식·연구 문서의 U+2212는 그대로 둔다.",
+  "violated_rule": "R723 화면 숫자·조사·단위는 공용 헬퍼로 만들고, 렌더된 문구 린트가 지킨다",
+  "prevention": "scripts/ci-rendered-copy-lint-check.mjs(browser-rendered-copy-lint): 19개 라우트를 접힌 내용까지 열어 자리표시자 조사·빈 값·음수 0·숫자 앞 U+2212·원시 토큰·빈 괄호·선행 구분자·이중 괄호·띄어 쓴 조사를 찾는다. 캐너리로 규칙 자체를 확인하고 새 위반만 실패시킨다. ci-esm-core-unit-check: signedText·peopleText·조사 헬퍼·lintLines 단위 확인.",
+  "verification": "로컬 렌더 린트 19개 라우트 위반 0건(기준선 0). 계약 QA 통과."
+ },
+ "r": {
+  "title": "화면 숫자·조사·단위는 공용 헬퍼로 만들고, 렌더된 문구 린트가 지킨다",
+  "rule": "화면에 나가는 부호 있는 숫자는 signedText(반올림 뒤 부호, ASCII 마이너스, 0은 부호 없음), 사람 수는 peopleText, 조사는 korean-particle.js 헬퍼로 만든다. '(으)로'·'이(가)' 같은 자리표시자와 숫자 앞 U+2212를 화면 문장에 남기지 않는다. 장문 지식·연구 본문과 연산자 표기('2년물 − 기준금리')는 예외다. 새 화면 문구는 렌더된 문구 린트를 통과해야 한다.",
+  "validation": "node scripts/ci-rendered-copy-lint-check.mjs; node scripts/ci-esm-core-unit-check.mjs"
+ },
+ "qa": [
+  {
+   "id": "QA-COPY-LINT-01",
+   "text": "{P}: 19개 라우트(접힌 내용 포함)에 자리표시자 조사·숫자 앞 U+2212·음수 0·빈 괄호·원시 토큰이 없다.",
+   "verify_by": "node scripts/ci-rendered-copy-lint-check.mjs",
+   "done": true
+  }
+ ],
+ "qa_section": "화면 v58.74",
+ "changelog": [
+  "**화면 문구 공용 규칙 ({P}, {R}):** 부호·조사·사람 수 단위를 공용 헬퍼 하나로 통일했다(0은 부호 없음, ASCII 마이너스). 렌더된 문장을 검사하는 문구 린트 게이트를 추가했다."
+ ]
+}

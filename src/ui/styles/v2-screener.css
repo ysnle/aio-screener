@@ -4,7 +4,10 @@
 
 /* ═══ 1. Views: one route, three views on #page-screener[data-scr-view] ═══ */
 #page-screener:not([data-scr-view="validation"]) .scr-view-validation,
-#page-screener:not([data-scr-view="custom"]) .scr-view-custom { display: none !important; }
+#page-screener:not([data-scr-view="custom"]) .scr-view-custom,
+#page-screener:not([data-scr-view="rank"]) .scr-view-rank { display: none !important; }
+#page-screener .scr-rank-read { margin: 0 0 12px; color: var(--text-secondary, inherit); line-height: 1.6; }
+#page-screener .scr-rank-read[hidden] { display: none; }
 #page-screener .scr-view-panel[hidden], #page-screener #scr-tab-ranking[hidden], #page-screener #screener-workbench[hidden] { display: none !important; }
 #page-screener:not([data-scr-view="rank"]) #scr-weight-profiles { display: none; }
 #page-screener[data-scr-view="validation"] .scr-view-panel { margin: 0 0 16px; }

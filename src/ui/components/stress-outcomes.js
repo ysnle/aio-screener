@@ -6,8 +6,9 @@ import { CLUSTER_GAP_SESSIONS, stressBandOf } from '../../domain/signal/stress-o
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 
-const pct = (value, digits = 1) => (Number.isFinite(value) ? `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%` : '—');
+const pct = (value, digits = 1) => (Number.isFinite(value) ? signedText(value, digits, '%') : '—');
 const Z10 = 1.2816; // standard normal 10th percentile
 
 // v57.50 D08: the uncertainty of a band's mean. Overlapping h-session windows give about n/h independent windows, so

@@ -11,6 +11,8 @@ import { rrgRecentReading, relativeBand, signedPct } from '../themes/recent-chec
 import { RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../themes/rrg.js';
 import { extensionMultiple } from '../technical/definitions.js';
 import { secFilingUrl } from '../fundamental/sec-report.js';
+import { SECTOR_KEY_ALIAS, normalizeSectorKey } from '../screener/sector-label.js';
+import { signedText } from '../shared/number.js';
 
 // N20 (2026-10-13): the issuer's own recent filings, from the annual-facts record's submissions snapshot (8-K with
 // Item numbers, 10-Q, 10-K). Labels name what the filing is; nothing is read from the filing text.
@@ -66,7 +68,7 @@ export function recentFilingsPoint(fundamentals, now = Date.now()) {
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
 // 은/는 by the final Hangul syllable of the label (the ticker in parentheses is not read).
 const topic = (label) => { const code = String(label || '').charCodeAt(String(label || '').length - 1) - 0xac00; return code >= 0 && code <= 11171 && code % 28 ? '은' : '는'; };
-const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 
 // V13 (2026-10-13): the one canonical sector key. The universe uses these eleven keys; names from other
 // taxonomies (Yahoo/FMP "Consumer Cyclical", "Financial Services", "Basic Materials"; GICS "Health Care",
@@ -75,15 +77,7 @@ const CANONICAL_SECTOR_ETF = Object.freeze({
   Technology: 'XLK', Financials: 'XLF', Energy: 'XLE', Healthcare: 'XLV', Industrials: 'XLI', Consumer: 'XLY',
   'Consumer Defensive': 'XLP', 'Real Estate': 'XLRE', Materials: 'XLB', Utilities: 'XLU', 'Communication Services': 'XLC'
 });
-export const SECTOR_KEY_ALIAS = Object.freeze({
-  'Consumer Cyclical': 'Consumer', 'Consumer Discretionary': 'Consumer', 'Financial Services': 'Financials',
-  'Basic Materials': 'Materials', 'Health Care': 'Healthcare', 'Information Technology': 'Technology',
-  Communication: 'Communication Services', 'Consumer Staples': 'Consumer Defensive'
-});
-export function normalizeSectorKey(sector) {
-  const key = String(sector ?? '').trim();
-  return SECTOR_KEY_ALIAS[key] || key || null;
-}
+export { SECTOR_KEY_ALIAS, normalizeSectorKey } from '../screener/sector-label.js';
 // Sector name → the SPDR sector ETF tracked by the rotation model. Alias names resolve through the same table,
 // so a direct lookup with a provider's sector name still lands on the canonical ETF.
 export const SECTOR_ETF = Object.freeze({
@@ -209,7 +203,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const text = nearLine
       ? `50일선과 ${signed(pct50)} 차이, 일평균 변동폭(${adr.toFixed(1)}%)의 ${NEAR_LINE_ADR}배 안 — 50일선 부근이라 위아래를 아직 가를 수 없는 자리입니다.`
       : band === 'below'
-      ? `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래, 일평균 변동폭의 ${Math.abs(multiple).toFixed(1)}배 — 50일선 아래로 내려온 상태입니다.`
+      ? `50일선보다 ${Math.abs(pct50).toFixed(1)}% 아래, 일평균 변동폭의 ${Math.abs(multiple).toFixed(1)}배 — 50일선을 되찾으려면 지금 가격에서 ${(-pct50 / (100 + pct50) * 100).toFixed(1)}% 올라야 하는 거리입니다.`
       : band === 'stretched'
         // Codex browser audit H32: the distance is an observed fact; entry/stop wording read as a trade instruction.
         ? `50일선보다 ${pct50.toFixed(1)}% 위, 일평균 변동폭(${adr.toFixed(1)}%)의 ${multiple.toFixed(1)}배 — 50일선에서 크게 벌어져, 50일선까지 되돌리기만 해도 지금 가격에서 ${(pct50 / (100 + pct50) * 100).toFixed(1)}% 하락하는 거리입니다.`
@@ -259,9 +253,13 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const stockStrong = trend?.id === 'up';
     // v57.81: the tie is said only when both sides have a definite tone (경계·반대 방향 sectors and 부근 stocks say none).
     const headwind = !tailwind && (sector?.quadrant?.tone === 'burden' || topTheme?.quadrant?.tone === 'burden');
-    const tie = tailwind && stockStrong ? '종목 강세가 섹터 흐름과 같은 방향입니다' : headwind && stockStrong ? '섹터 흐름이 약한데 종목만 강한 개별 강세입니다'
-      : tailwind && trend && trend.tone !== 'favorable' ? '섹터는 강한데 종목은 뒤처져 있습니다' : headwind && trend?.id === 'down' ? '섹터와 종목이 함께 약합니다' : '';
-    rotationText = `${parts.join(', ')}.${tie ? ` ${tie}.` : ''}`;
+    // v58.74 (text audit): the tie names the side that carries the tone — '섹터는 강한데' sat on BE, whose sector was only 개선
+    // and whose theme was 선도. The two parts read as two sentences instead of one comma chain.
+    const strongSide = sector?.quadrant?.tone === 'favorable' ? '섹터' : '테마';
+    const weakSide = sector?.quadrant?.tone === 'burden' ? '섹터' : '테마';
+    const tie = tailwind && stockStrong ? `종목 강세가 ${strongSide} 흐름과 같은 방향입니다` : headwind && stockStrong ? `${weakSide} 흐름이 약한데 종목만 강한 개별 강세입니다`
+      : tailwind && trend && trend.tone !== 'favorable' ? `${strongSide}는 강한데 종목은 뒤처져 있습니다` : headwind && trend?.id === 'down' ? `${weakSide}와 종목이 함께 약합니다` : '';
+    rotationText = `${parts.join('. ')}.${tie ? ` ${tie}.` : ''}`;
   }
   if (stageLines.length) {
     points.push({ id: 'sector', tone: 'neutral', title: '섹터·테마', text: stageLines.map((line) => line.text).join(' / '), lines: stageLines,

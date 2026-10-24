@@ -12,6 +12,7 @@ import {
   selectAiInferenceProxies
 } from '../../domain/ai/inference-efficiency.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 
 export function renderAiInfrastructureLens({ documentRef, root, route }) {
   if (route !== 'themes') return;
@@ -65,7 +66,7 @@ export function renderAiInfrastructureLens({ documentRef, root, route }) {
 
   const proxyRow = el(doc, 'div', null, 'ail-chips ail-chips--spaced');
   proxies.forEach((item) => {
-    const chip = reference(el(doc, 'span', item.pct == null ? item.symbol : `${item.symbol} ${item.pct >= 0 ? '+' : ''}${item.pct.toFixed(2)}%`, 'ail-chip ail-text--mono'), item.pct == null ? 'blocked' : 'reference-only', item.sourceKind);
+    const chip = reference(el(doc, 'span', item.pct == null ? item.symbol : `${item.symbol} ${signedText(item.pct, 2)}%`, 'ail-chip ail-text--mono'), item.pct == null ? 'blocked' : 'reference-only', item.sourceKind);
     chip.title = item.pct == null ? `${item.label} 현재 시세 미수신` : `${item.label} 등락률은 구조적 승자 판정이 아님`;
     proxyRow.append(chip);
   });

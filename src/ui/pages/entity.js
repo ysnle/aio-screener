@@ -14,7 +14,7 @@ import { renderFiscalRead } from '../components/fiscal-read.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
-import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { finiteNumber as finite, signedText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
@@ -255,7 +255,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
       ? `원가 통화(${costCurrency})가 시세 통화와 달라 손익은 포트폴리오에서 환산합니다`
       : pnl == null
       ? '손익 계산 대기'
-      : `${pnl >= 0 ? '+' : '-'}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`}`;
+      : `${pnl >= 0 ? '+' : '-'}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${signedText(pnlPct, 1)}%)`}`;
     valueNode.dataset.aioTickerPnlRenderer = 'native';
     valueNode.setAttribute('data-source-kind', pnl == null ? 'unavailable' : 'portfolio-state');
     valueNode.setAttribute('data-source-label', pnl == null ? 'portfolio position or quote unavailable' : 'portfolio-state+entity-quote');
@@ -275,7 +275,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
     const session = live.extSession === 'pre' || live.extSession === 'after' ? live.extSession : (typeof root?._getUsSession === 'function' ? root._getUsSession() : 'unknown');
     const visible = (session === 'pre' || session === 'after') && extPrice != null;
     extensionNode.textContent = visible
-      ? `${session === 'pre' ? 'Pre' : 'After'} ${formatMoney(extPrice, currency)}${extPct == null ? '' : ` (${extPct >= 0 ? '+' : ''}${extPct.toFixed(2)}%)`}`
+      ? `${session === 'pre' ? 'Pre' : 'After'} ${formatMoney(extPrice, currency)}${extPct == null ? '' : ` (${signedText(extPct, 2)}%)`}`
       : '';
     extensionNode.style.display = visible ? '' : 'none';
     extensionNode.dataset.aioTickerExtensionRenderer = 'native';
@@ -737,7 +737,7 @@ function renderFundamentalReport(documentRef, page, state) {
   grid.replaceChildren();
   if (report.metrics.length === 0) {
     const empty = documentRef.createElement('div');
-    empty.textContent = unselected ? '종목을 선택하면 핵심 재무 지표가 표시됩니다.' : isKrSymbol(state?.id) ? '한국 상장 종목의 핵심 재무는 기업 요약의 한국 공시(DART) 카드에서 확인합니다.' : '공식 SEC annual fact가 수신되면 핵심 재무 지표가 표시됩니다.';
+    empty.textContent = unselected ? '종목을 선택하면 핵심 재무 지표가 표시됩니다.' : isKrSymbol(state?.id) ? '한국 상장 종목의 주요 재무는 한국 공시(DART) 수집 뒤 표시됩니다. 지금은 DART 원문에서 확인합니다.' : 'SEC 연간 공시를 받으면 핵심 재무 지표가 표시됩니다.';
     empty.className = 'fsr-empty';
     grid.appendChild(empty);
     return;
@@ -790,7 +790,7 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     // dispatches only after the projection settles, so a synced symbol without fundamentalsMeta means the load failed.
     const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
     const fundamentalsState = state?.fundamentals ? 'ready' : !state?.id || (requestedId && state.id !== requestedId) ? 'loading'
-      : root?._aioOnDemandSymbol?.(state.id)?.status === 'loading' ? 'loading' : state?.fundamentalsMeta ? 'absent' : 'failed';
+      : root?._aioOnDemandSymbol?.(state.id)?.status === 'loading' ? 'loading' : state?.fundamentalsMeta ? (state.fundamentalsMeta.checkedFor === state.id ? 'absent' : 'loading') : 'failed';
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals, fundamentalsState }); // P1434; v57.51 N20 recent filings
     renderCompanyAnalysis({ documentRef, root, state });
     // v58.55 (3d): 듀폰 분해 + 역 DCF. The price is the screener's completed-session valuation close (the same close its

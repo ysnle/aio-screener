@@ -14,7 +14,7 @@
 import { pastEvidence } from '../scenarios/analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
 import { selectLessons, LESSON_KINDS } from './lessons.js';
-import { hasFinalConsonant } from '../content/korean-particle.js';
+import { hasFinalConsonant, withObjectParticle } from '../content/korean-particle.js';
 
 export const MARKET_GUIDE_VERSION = 'market-guide.v1';
 export const CHOICE_KEYS = Object.freeze(Object.keys(CHOICES));
@@ -142,7 +142,7 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
     { id: 'health', label: '시장 체력', text: `미국 6개 지표 ${regime.overall} (양호 ${counts.favorable ?? 0}, 중립 ${counts.neutral ?? 0}, 부담 ${counts.burden ?? 0}) — ${OVERALL_MEANING[regime.overall] || ''}`.trim() },
     { id: 'flow', label: '지금 흐름', text: flow ? `'${flow.title}' (${flow.fit}) — ${String(flow.posture || '').split(/(?<=니다\.)\s+/)[0]}` : outlook?.headline || '시장 흐름을 판단할 관측이 부족합니다.' },
     { id: 'driver', label: '움직이는 힘', text: leadPath ? `'${leadPath.short}' 쪽 조건이 가장 많이 맞습니다(${leadPath.fit})${leadPath.title.includes(' — ') ? ` — ${leadPath.title.split(' — ')[1]}입니다` : ''}.` : crossroads?.headline || '거시 시나리오 판단을 보류합니다.' },
-    { id: 'next', label: '다음 갈림길', text: nextEvent ? `${md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("'·'")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.' }
+    { id: 'next', label: '다음 갈림길', text: nextEvent ? `${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("', '")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.' }
   ];
   // v58.63 (architecture audit I01): a live scenario whose past sample ran against its own conclusion (pastConflict) lost
   // that limit whenever other lessons filled the lesson slots. The conflict is not a lesson; it stays beside the
@@ -154,11 +154,15 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   const ctx = { regime, outlook, crossroads, direction, curve, indexEarnings, nowMs };
   const lessons = selectLessons(ctx);
   const stance = stanceOf({ direction, leadPath, lessons });
+  // v58.74 (text audit): the next release on the calendar is not always the one that tests the central scenario ('AI 투자
+  // 꺾임' turns on the jobs report, not the FOMC); when they differ, the central scenario's own decider is named.
+  const leadTrigger = leadPath?.triggers?.[0] || null;
+  const leadDecider = leadTrigger && leadTrigger.id !== nextEvent?.id ? ` 중심 시나리오 ${withObjectParticle(`'${leadPath.short}'`)} 가를 확인은 ${leadTrigger.when} — ${leadTrigger.text}입니다.` : '';
   const headline = leadPath
-    ? `${regime.overall} 환경에서 '${leadPath.short}' 쪽 조건이 가장 많이 맞고, ${direction.robust ? `핵심 조건을 갖춘 시나리오들에 유리하다고 가장 많이 적힌 선택은 '${choiceName(direction.robust)}'입니다` : '시나리오마다 유리한 선택지가 갈립니다'}${nextEvent ? ` — 다음 갈림길 ${md(nextEvent.date)} ${nextEvent.name}` : ''}.`
-    : `${regime.overall} 환경이지만 핵심 조건을 갖춘 거시 시나리오가 없어, 한 방향에 걸지 않고 다음 확인 신호를 기다리는 쪽을 기본으로 둡니다${nextEvent ? ` — 다음 갈림길 ${md(nextEvent.date)} ${nextEvent.name}` : ''}.`;
+    ? `${regime.overall} 환경에서 '${leadPath.short}' 쪽 조건이 가장 많이 맞고, ${direction.robust ? `핵심 조건을 갖춘 시나리오들에 유리하다고 가장 많이 적힌 선택은 '${choiceName(direction.robust)}'입니다` : '시나리오마다 유리한 선택지가 갈립니다'}${nextEvent ? ` — 다음 갈림길 ${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}` : ''}.${leadDecider}`
+    : `${regime.overall} 환경이지만 핵심 조건을 갖춘 거시 시나리오가 없어, 한 방향에 걸지 않고 다음 확인 신호를 기다리는 쪽을 기본으로 둡니다${nextEvent ? ` — 다음 갈림길 ${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}` : ''}.`;
   return { available: true, version: MARKET_GUIDE_VERSION, asOf: regime.asOf, macroAsOf: crossroads?.asOf || null, headline, situation, leadId: leadPath?.id || null, direction, stance, lessons, nextEvent, pastConflicts,
-    note: "'유리한 쪽'은 각 시나리오에 적힌 비용 비교를 센 것이며, 확률이나 따라 하라는 지시가 아닙니다." };
+    note: "'유리한 대응'은 각 시나리오에 적힌 비용 비교를 센 것이며, 확률이나 따라 하라는 지시가 아닙니다." };
 }
 
 /** The same model as one AI context block (chat and the server narrative read this, so their answers follow the screens). */

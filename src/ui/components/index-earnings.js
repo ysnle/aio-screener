@@ -7,8 +7,9 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { GICS_KO } from '../../domain/market/sector-map.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 
-const pct = (value, digits = 0) => (value == null ? '—' : `${value >= 0 ? '+' : '−'}${Math.abs(value * 100).toFixed(digits)}%`);
+const pct = (value, digits = 0) => (value == null ? '—' : signedText(value * 100, digits, '%'));
 const shortDate = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');
 
 function headline(model) {

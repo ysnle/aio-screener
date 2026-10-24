@@ -2,6 +2,7 @@
 // names, what is scheduled next and which news is about my names — right after the market verdict.
 import { buildDailyChanges, buildMyNames } from '../../domain/briefing/daily-diff.js';
 import { buildBriefingSchedule, sp500NameMap } from '../../domain/briefing/schedule.js';
+import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { readMarketRegime } from './market-regime.js';
 import { emptyState } from './empty-state.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
@@ -10,6 +11,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { deriveQuotePresentation } from '../../domain/market/quote-presentation.js';
 import { formatScreenerPrice, screenerMarket } from '../../domain/screener/market-scope.js';
+import { signedText } from '../../domain/shared/number.js';
 
 function call(root, name, arg, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn(arg) ?? fallback) : fallback; } catch (_) { return fallback; }
@@ -21,7 +23,7 @@ function call(root, name, arg, fallback) {
 // tile covers ([data-close-measure]) is hidden; a measure without a tile (no comparable close) stays in the strip.
 const LIVE_SYMBOL = Object.freeze({ vix: '^VIX', tnx: '^TNX', dxy: 'DX-Y.NYB', wti: 'CL=F' });
 const WEEKDAYS = Object.freeze(['일', '월', '화', '수', '목', '금', '토']);
-const signedText = (value, digits, unit) => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+// v58.74 (text audit): the shared sign rule (src/domain/shared/number.js); a zero after rounding carries no sign.
 const observedMs = (quote) => { const parsed = Date.parse(quote?.observedAt || ''); return Number.isFinite(parsed) ? parsed : Number(quote?.ts); };
 let etDayFormat = null;
 function etDate(ms) {
@@ -29,7 +31,7 @@ function etDate(ms) {
 }
 
 // v57.86 (live review): with the shown close given, the 지금 change is measured from it — the provider's own previous close
-// (a roll or settlement price) printed WTI −0.75% beside a tile whose close it did not match.
+// (a roll or settlement price) printed WTI -0.75% beside a tile whose close it did not match.
 export function liveSinceClose(key, quote, closeDate, closeValue = null) {
   const price = Number(quote?.price);
   const at = observedMs(quote);
@@ -100,7 +102,7 @@ function renderChanges(doc, section, history, root) {
   return model;
 }
 
-// v57.79 (UI review): the 코스피 chip in the live strip showed "코스피 현재 5,498.42 −8.49%" with no time beside the
+// v57.79 (UI review): the 코스피 chip in the live strip showed "코스피 현재 5,498.42 -8.49%" with no time beside the
 // "한국장 10/14 마감 · 코스피 6,008.81" line. The chip now names its basis: a live/delayed quote carries its KST time, and
 // it is used only when it is newer than the last completed KRX close and its own previous close agrees with that close
 // (within 5%); otherwise the chip shows that close with its date, or hides when there is neither.
@@ -178,7 +180,7 @@ function renderMyNames(doc, host, root, store, regime = null) {
     button.dataset.arg = row.symbol;
     li.append(button, el(doc, 'span', `${row.name || ''}${row.held ? ', 보유' : ''}`, 'daily-name-name'));
     li.append(namePrice(doc, row.symbol, root?._liveData?.[row.symbol], rowBySymbol.get(row.symbol)));
-    li.append(el(doc, 'span', row.dayPct == null ? '' : `${row.dayPct >= 0 ? '+' : ''}${row.dayPct.toFixed(2)}%`, `daily-name-day ${row.daySignalled ? (row.dayPct > 0 ? 'is-up' : row.dayPct < 0 ? 'is-down' : '') : ''}`));
+    li.append(el(doc, 'span', row.dayPct == null ? '' : `${signedText(row.dayPct, 2)}%`, `daily-name-day ${row.daySignalled ? (row.dayPct > 0 ? 'is-up' : row.dayPct < 0 ? 'is-down' : '') : ''}`));
     li.append(el(doc, 'span', row.notes.join(', ') || '지표 기록 없음', 'daily-name-notes'));
     list.append(li);
   }
@@ -239,6 +241,9 @@ function requestEarnings(doc, host, root) {
 
 function renderSchedule(doc, host, root) {
   requestEarnings(doc, host, root);
+  // v58.74 (audit): on a weekend three days reached only Monday's minor reports (VZ, WELL); five reach the next week's
+  // Wednesday, where the election, FOMC and the largest reports sit.
+  const days = usWeekendClosed() ? 5 : 3;
   const fullSchedule = buildBriefingSchedule({
     fomcDecisions: Array.isArray(root.AIO_MACRO_OFFICIAL_SCHEDULES?.['us-fomc']) ? root.AIO_MACRO_OFFICIAL_SCHEDULES['us-fomc'] : [],
     releases: root.AIO_MACRO_CALENDAR?.releases || {},
@@ -249,12 +254,12 @@ function renderSchedule(doc, host, root) {
     earningsMeta: root._aioEarningsSnapshot || {},
     names: homeNames(root),
     nowMs: Date.now(),
-    days: 3,
+    days,
     maxEarnings: 4
   });
   const schedule = fullSchedule.filter((row) => !row.passed);
   const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
-  head.append(el(doc, 'h2', '다가오는 일정', 'briefing-h2 sx-card__title'), el(doc, 'span', '3일, 한국 시간', 'sx-card__meta'));
+  head.append(el(doc, 'h2', '다가오는 일정', 'briefing-h2 sx-card__title'), el(doc, 'span', `${days}일, 한국 시간`, 'sx-card__meta'));
   host.replaceChildren(head);
   // Codex audit F26 (2026-10-15): "없습니다" only when the calendars were actually read — a missing macro calendar or an
   // earnings calendar still loading/failed is said as such, not merged into the empty sentence.
@@ -262,7 +267,7 @@ function renderSchedule(doc, host, root) {
   const earningsKnown = !!root._aioEarningsSnapshot;
   if (!schedule.length) {
     host.append(el(doc, 'p', !macroKnown ? '발표 일정 자료를 아직 받지 못했습니다. 잠시 뒤 다시 확인합니다.'
-      : earningsKnown ? '3일 안에 예정된 주요 발표가 없습니다.' : '3일 안에 예정된 주요 경제 발표가 없습니다. 실적 발표 일정은 아직 받는 중입니다.', 'daily-empty'));
+      : earningsKnown ? `${days}일 안에 예정된 주요 발표가 없습니다.` : `${days}일 안에 예정된 주요 경제 발표가 없습니다. 실적 발표 일정은 아직 받는 중입니다.`, 'daily-empty'));
     return;
   }
   const list = el(doc, 'ul', null, 'daily-schedule');
@@ -285,7 +290,7 @@ function renderSchedule(doc, host, root) {
   host.append(list);
   // v58.52: the S&P-weight cut and the five-row list both leave reports out; the count says so.
   const hidden = (fullSchedule.omittedEarnings || 0) + Math.max(0, schedule.length - 5);
-  if (hidden > 0) host.append(el(doc, 'p', `외 ${hidden}건은 생략했습니다 — 브리핑의 7일 일정에 더 많은 일정이 있습니다.`, 'daily-event-why'));
+  if (hidden > 0) host.append(el(doc, 'p', `이 밖의 ${hidden}건은 브리핑의 7일 일정에 있습니다.`, 'daily-event-why'));
   const more = el(doc, 'button', '7일 일정과 시장 해석 → 브리핑', 'flow-next-link daily-card-more');
   more.type = 'button';
   more.dataset.action = 'showPage';

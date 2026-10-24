@@ -3,6 +3,7 @@
 // the numbers come from src/domain/portfolio/trade-journal.js. The form is built once per page mount so a live-quote
 // re-render never wipes what the reader is typing; only the summary, mirrors and list are redrawn.
 import { TRADE_REASONS, TRADE_MOODS, normalizeJournal, normalizeTrade, normalizeRules, realizeTrades, journalReview, rulesMirror } from '../../domain/portfolio/trade-journal.js';
+import { signedText } from '../../domain/shared/number.js';
 
 const FIELD_ERRORS = Object.freeze({ symbol: '종목 코드를 확인하세요', date: '날짜를 확인하세요', side: '매수·매도를 고르세요', qty: '수량은 0보다 커야 합니다', price: '가격은 0보다 커야 합니다', fee: '수수료는 0 이상이어야 합니다' });
 
@@ -32,8 +33,8 @@ function select(doc, id, options) {
   for (const [value, label] of options) { const option = el(doc, 'option', label); option.value = value; node.append(option); }
   return node;
 }
-const money = (amount, currency) => `${amount < 0 ? '−' : amount > 0 ? '+' : ''}${currency === 'KRW' ? '₩' : currency === 'USD' ? '$' : ''}${Math.abs(amount).toLocaleString('en-US', { maximumFractionDigits: currency === 'KRW' ? 0 : 2 })}${currency === 'KRW' || currency === 'USD' ? '' : ` ${currency}`}`;
-const pct = (value, digits = 1) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`);
+const money = (amount, currency) => `${amount < 0 ? '-' : amount > 0 ? '+' : ''}${currency === 'KRW' ? '₩' : currency === 'USD' ? '$' : ''}${Math.abs(amount).toLocaleString('en-US', { maximumFractionDigits: currency === 'KRW' ? 0 : 2 })}${currency === 'KRW' || currency === 'USD' ? '' : ` ${currency}`}`;
+const pct = (value, digits = 1) => (value == null ? '—' : signedText(value, digits, '%'));
 const todayKst = (now = Date.now()) => new Date(now + 9 * 3600000).toISOString().slice(0, 10);
 
 function store(root) {

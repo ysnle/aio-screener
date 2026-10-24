@@ -59,7 +59,9 @@ function closeQuotesFor(symbols, rows) {
     const row = bySymbol.get(symbol);
     if (!row || row.factorSessionDate !== session) continue;
     const pct = finite(row.ret1d);
-    quotes[symbol] = { price: null, pct, rawPct: pct, currency: null, observedAt: session, fetchedAt: null, revision: null, changeBasis: 'completed-close', directionCompatible: true, closeBased: true, source: 'screener-completed-close' };
+    // v58.74 (audit): the leader cards read '가격 대기' on every weekend row; the completed close is the valuation close.
+    const close = finite(row.valuationPrice ?? row._valuationPrice ?? row.pePrice);
+    quotes[symbol] = { price: close != null && close > 0 ? close : null, pct, rawPct: pct, currency: close != null && row.currency ? String(row.currency).toUpperCase() : null, observedAt: session, fetchedAt: null, revision: null, changeBasis: 'completed-close', directionCompatible: true, closeBased: true, source: 'screener-completed-close' };
   }
   return { session, quotes };
 }

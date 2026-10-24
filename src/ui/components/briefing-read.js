@@ -91,13 +91,13 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       const when = el(doc, 'span', row.status === 'received' ? `${row.when}, 발표 완료` : row.status === 'time-passed' ? `${row.when}, 예정 시각 지남` : row.when, 'briefing-event-when');
       const body = el(doc, 'div', null, 'briefing-event-body');
       body.append(el(doc, 'span', row.label, 'briefing-event-label'));
-      const meta = [row.why, row.comparisonBasis, row.last].filter(Boolean).join(', ');
+      const meta = [row.why && !String(row.when || '').includes(row.why) ? row.why : null, row.comparisonBasis, row.last].filter(Boolean).join(', ');
       if (meta) body.append(el(doc, 'span', meta, 'briefing-event-meta'));
       item.append(when, body);
       return item;
     }) : [el(doc, 'div', '7일 안에 예정된 주요 일정이 없습니다.', 'briefing-empty')]));
     // v58.52: say how many reports the S&P-weight cut left out, instead of dropping them silently.
-    if (schedule.omittedEarnings > 0) scheduleRows.append(el(doc, 'div', `실적 발표 외 ${schedule.omittedEarnings}건 — S&P 500 비중이 큰 순서로 골라 시간순으로 보여 줍니다.`, 'briefing-event-meta'));
+    if (schedule.omittedEarnings > 0) scheduleRows.append(el(doc, 'div', `실적 발표는 S&P 500 비중이 큰 것만 시간순으로 보여 주고, 나머지 ${schedule.omittedEarnings}건은 생략했습니다.`, 'briefing-event-meta'));
   }
 
   // 2. Read
@@ -158,7 +158,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       const event = xr?.nextEvent;
       const sides = event ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId)
         .map((item) => { const trigger = item.triggers.find((row) => row.id === event.id); return trigger ? `'${item.title.split(' — ')[0]}' 쪽이면 ${trigger.text}` : null; }).filter(Boolean) : [];
-      if (event && sides.length) { const [, m, d] = String(event.date || '').split('-').map(Number); split = `다음 발표: ${m && d ? `${m}/${d} ` : ''}${event.name} — ${sides.join(', ')}`; }
+      if (event && sides.length) { const [, m, d] = String(event.date || '').split('-').map(Number); split = `다음 발표: ${event.when || (m && d ? `${m}/${d}` : '')} ${event.name} — ${sides.join(', ')}`; }
     } catch (_) { split = null; }
     if (split) items.push(split);
     else if (nextRelease) items.push(`다음 주요 발표: ${nextRelease.when} ${nextRelease.label} (아래 일정에서 무엇을 볼지 확인)`);

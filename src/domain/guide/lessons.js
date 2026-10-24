@@ -6,6 +6,7 @@
 // situation, and the same registry serves the screens, the AI context and the scenario-state producer.
 import { pastEvidence } from '../scenarios/analogs.js';
 import { hasFinalConsonant } from '../content/korean-particle.js';
+import { shortDate } from '../content/date-labels.js';
 
 export const LESSON_KINDS = Object.freeze({
   attitude: '태도',
@@ -18,6 +19,8 @@ const axisState = (ctx, id) => ctx?.regime?.axes?.find((axis) => axis.id === id)
 const branch = (ctx, id) => ctx?.crossroads?.items?.find((item) => item.id === id) || null;
 const lead = (ctx) => (ctx?.crossroads?.leadId ? branch(ctx, ctx.crossroads.leadId) : null);
 const short = (title) => String(title || '').split(' — ')[0];
+// v58.74 (text audit): a lesson quoting the six-axis read names the close it came from — '오늘' on a Saturday was Friday's.
+const closeLead = (ctx) => { const at = String(ctx?.regime?.asOf || ''); return /^\d{4}-\d{2}-\d{2}/.test(at) ? `${Number(at.slice(5, 7))}/${Number(at.slice(8, 10))} 미국 종가 기준` : '오늘'; };
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
 const liveIds = (ctx) => new Set((ctx?.direction?.live || []).map((row) => row.id));
 
@@ -27,13 +30,13 @@ export const LESSONS = Object.freeze([
     id: 'survive-first', kind: 'attitude', concept: 'J4', title: '수익보다 먼저 살아남기',
     principle: '큰 손실은 회복에 더 큰 수익이 필요합니다(-50%를 메우려면 +100%). 부담 신호가 많은 때일수록 얼마를 벌지보다 얼마까지 잃을 수 있는지가 결과를 가릅니다.',
     why: '손실과 회복은 비대칭이라, 시장에 오래 남아 있는 것 자체가 복리의 조건입니다.',
-    live: (ctx) => { const n = ctx?.regime?.counts?.burden; return n >= 3 ? `오늘 미국 6개 지표 중 부담이 ${n}개입니다.` : null; }
+    live: (ctx) => { const n = ctx?.regime?.counts?.burden; const at = String(ctx?.regime?.asOf || ""); /* v58.74: the count is a close, not today (Saturday) */ return n >= 3 ? `${/^\d{4}-\d{2}-\d{2}/.test(at) ? `${Number(at.slice(5, 7))}/${Number(at.slice(8, 10))} 미국 종가 기준` : "직전 미국 종가 기준"} 6개 지표 중 부담이 ${n}개입니다.` : null; }
   },
   {
     id: 'conditions-not-forecasts', kind: 'attitude', concept: 'J5', title: '맞히기보다 조건으로 생각하기',
     principle: '"앞으로 오를까"를 맞히려 하기보다 "이 조건이 나오면 이렇게, 저 조건이 나오면 저렇게"를 미리 정해 두면, 어느 쪽으로 가도 당황하지 않습니다.',
     why: '시장의 다음 움직임은 아무도 정확히 모르지만, 어떤 조건에서 무엇이 바뀌는지는 미리 알 수 있습니다.',
-    live: (ctx) => { const e = ctx?.crossroads?.nextEvent; return e ? `다음 갈림길은 ${e.date.slice(5).replace('-', '/')} ${e.name}입니다 — 결과별로 무엇이 달라지는지는 시나리오에 적혀 있습니다.` : null; },
+    live: (ctx) => { const e = ctx?.crossroads?.nextEvent; return e ? `다음 갈림길은 ${e.when || shortDate(e.date)} ${e.name}입니다 — 결과별로 무엇이 달라지는지는 시나리오에 적혀 있습니다.` : null; },
     base: true
   },
   {
@@ -44,7 +47,7 @@ export const LESSONS = Object.freeze([
       const top = ctx?.direction?.robust;
       if (!top || !['wait', 'defend'].includes(top)) return null;
       const cash = ctx?.crossroads?.cash;
-      return `지금 살아 있는 시나리오에서는 서두르는 쪽의 비용이 더 크게 적혀 있습니다${cash ? ` · 현금성 자산 이자(SOFR) ${cash.value.toFixed(2)}%` : ''}.`;
+      return `지금 살아 있는 시나리오들은 서두를 때의 비용을 더 크게 봅니다.${cash ? ` 기다리는 동안 현금성 자산 이자는 연 ${cash.value.toFixed(2)}%입니다.` : ''}`;
     }
   },
   {
@@ -82,14 +85,14 @@ export const LESSONS = Object.freeze([
     id: 'know-when-wrong', kind: 'strategy', concept: 'J5', title: "'틀렸다'의 기준을 먼저 정하기",
     principle: '어떤 판단이든 "무엇이 나오면 이 생각이 틀린 것인가"가 미리 정해져 있으면, 손실이 감정이 아니라 조건으로 관리됩니다. 기준이 없으면 버티는 이유를 나중에 지어내게 됩니다.',
     why: '사후에 만든 이유는 확증 편향을 키웁니다. 사전에 적은 반증 조건만이 생각을 바꿀 계기가 됩니다.',
-    live: (ctx) => { const row = lead(ctx); const text = row?.invalidation?.[0]; return text ? `지금 중심 시나리오 ${subject(`'${short(row.title)}'`)} 빗나가는 조건: ${text}.` : null; },
+    live: (ctx) => { const row = lead(ctx); const text = row?.invalidation?.[0]; return text ? `지금 중심 시나리오 ${subject(`'${short(row.title)}'`)} 빗나가는 조건은 "${String(text).replace(/[.]$/, '')}"입니다.` : null; },
     base: true
   },
   {
     id: 'size-by-loss', kind: 'strategy', concept: 'J3', title: '확신이 아니라 감당할 손실로 크기 정하기',
     principle: '얼마나 확신하느냐가 아니라 틀렸을 때 얼마를 잃어도 괜찮은가로 크기를 정하면, 변동성이 큰 때 크기가 저절로 작아집니다.',
     why: '변동성이 두 배면 같은 크기의 손실 폭도 두 배가 됩니다. 크기는 변동성과 함께 움직여야 합니다.',
-    live: (ctx) => (axisState(ctx, 'volatility') === 'burden' ? '오늘 변동성 지표가 부담입니다 — 같은 크기라도 평소보다 흔들림이 큽니다.' : null)
+    live: (ctx) => (axisState(ctx, 'volatility') === 'burden' ? `${closeLead(ctx)} 변동성 지표가 부담입니다 — 같은 크기라도 평소보다 흔들림이 큽니다.` : null)
   },
   {
     id: 'watch-participation', kind: 'strategy', concept: 'I4', title: '지수보다 참여와 주도 영역 보기',
@@ -109,7 +112,7 @@ export const LESSONS = Object.freeze([
     live: (ctx) => {
       const e = ctx?.crossroads?.nextEvent; const now = ctx?.nowMs;
       if (!e || !Number.isFinite(now)) return null;
-      const days = Math.round((Date.parse(`${e.date}T12:00:00Z`) - now) / 86400000);
+      const days = Math.round(((Number.isFinite(e.atMs) ? e.atMs : Date.parse(`${e.date}T12:00:00Z`)) - now) / 86400000);
       return days >= 0 && days <= 7 ? `${days === 0 ? '오늘' : `${days}일 뒤`} ${e.name} 결과가 나옵니다.` : null;
     }
   },
@@ -117,7 +120,7 @@ export const LESSONS = Object.freeze([
     id: 'cheap-after-fall', kind: 'trap', concept: 'G6', title: "'많이 빠졌으니 싸다'",
     principle: '가격이 내렸다고 싸진 것은 아닙니다. 이익 전망이 함께 내려가면 가격이 내려도 밸류에이션은 그대로이거나 오히려 비싸집니다.',
     why: '싸다는 판단은 가격이 아니라 가격 ÷ 앞으로의 이익으로 합니다. 하락 추세에서는 그 이익이 아직 내려가는 중일 수 있습니다.',
-    live: (ctx) => (axisState(ctx, 'trend') === 'burden' || ctx?.regime?.leadership?.break ? '오늘 추세가 부담이거나 주도 영역이 꺾이는 중입니다.' : null)
+    live: (ctx) => { const trend = axisState(ctx, 'trend') === 'burden', broke = !!ctx?.regime?.leadership?.break; return trend || broke ? `${closeLead(ctx)} ${trend && broke ? '추세 판정이 부담이고 주도 영역도 꺾이는 중입니다' : trend ? '추세 판정이 부담입니다' : '주도 영역이 꺾이는 중입니다'}.` : null; }
   },
   {
     id: 'one-day-move', kind: 'trap', concept: 'H4', title: '하루 반등·하루 급락',
@@ -132,7 +135,7 @@ export const LESSONS = Object.freeze([
     id: 'index-high', kind: 'trap', concept: 'G7', title: "'지수 신고가 = 시장 전체가 강함'",
     principle: '지수가 신고가여도 대부분 종목은 내리고 있을 수 있습니다. 지수는 큰 종목의 무게가 크기 때문입니다.',
     why: '시가총액 가중 지수는 상위 몇 종목이 전체 방향을 정할 수 있습니다.',
-    live: (ctx) => (axisState(ctx, 'breadth') === 'burden' && axisState(ctx, 'trend') !== 'burden' ? '오늘 시장 폭이 부담인데 추세는 부담이 아닙니다.' : null)
+    live: (ctx) => (axisState(ctx, 'breadth') === 'burden' && axisState(ctx, 'trend') !== 'burden' ? `${closeLead(ctx)} 시장 폭이 부담인데 추세는 부담이 아닙니다.` : null)
   },
   {
     id: 'rate-cut-good', kind: 'trap', concept: 'D5', title: "'금리 인하는 무조건 호재'",
@@ -140,7 +143,7 @@ export const LESSONS = Object.freeze([
     why: '주가는 할인율(금리)과 이익 두 가지로 움직입니다. 금리만 보면 절반만 보는 셈입니다.',
     live: (ctx) => {
       const hits = ['slowdown', 'aibust'].map((id) => branch(ctx, id)).filter((row) => row && row.met > 0);
-      return hits.length ? `${hits.map((row) => `'${short(row.title)}' ${row.fit}`).join(' · ')} — 금리는 내려도 이익이 꺾이는 시나리오입니다.` : null;
+      return hits.length ? `${hits.map((row) => `'${short(row.title)}' ${row.fit}`).join(', ')} — ${hits.length > 1 ? '두 갈래 모두' : '이 갈래는'} 금리가 내려도 이익이 꺾이는 쪽입니다.` : null;
     }
   },
   {
@@ -163,7 +166,7 @@ export const LESSONS = Object.freeze([
       const e = ctx?.indexEarnings;
       if (!e?.available || !Number.isFinite(e.breadth) || !(e.up + e.down > 0)) return null;
       // up/down count estimate revisions (not companies), as the index-earnings card labels them; same ±0.1 tilt.
-      return `최근 4주 S&P 500 이익 전망 수정은 상향 ${e.up}건 · 하향 ${e.down}건 — ${e.breadth >= 0.1 ? '올리는 쪽이 우세합니다' : e.breadth <= -0.1 ? '내리는 쪽이 우세합니다' : '양쪽이 비슷합니다'}.`;
+      return `최근 4주 S&P 500 이익 전망 수정은 상향 ${e.up.toLocaleString('en-US')}건, 하향 ${e.down.toLocaleString('en-US')}건 — ${e.breadth >= 0.1 ? '올리는 쪽이 우세합니다' : e.breadth <= -0.1 ? '내리는 쪽이 우세합니다' : '양쪽이 비슷합니다'}.`;
     }
   },
   {

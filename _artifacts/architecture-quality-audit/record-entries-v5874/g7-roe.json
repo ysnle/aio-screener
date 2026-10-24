@@ -1,0 +1,27 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "8개 화면 전수 감사(10/23 실제 종가 대조, 화면군별 읽기 전용 감사 5개) 중 발견.",
+ "status": null,
+ "p": {
+  "title": "ROE 문장이 자기자본이 늘어난 적자 기업에 '순손실로 자본이 줄어든 해'라고 씀",
+  "symptom": "BE(자기자본 5.6억→7.7억 달러)·CRWV(−4.1억→+33억 달러)에 '순손실로 자본이 줄어든 해'.",
+  "root_cause": "문장이 ROE 부호만 보고 자기자본 변화는 보지 않았다.",
+  "fix": "자기자본이 줄었을 때만 그 문장, 늘었으면 '증자 등으로 자기자본은 늘어난 해'.",
+  "violated_rule": "R689",
+  "prevention": "로컬 화면 대조.",
+  "verification": "로컬 BE·CRWV 재무 탭 문장 확인."
+ },
+ "qa": [
+  {
+   "id": "QA-ROE-WORD-01",
+   "text": "{P}: 적자 해의 ROE 문장이 실제 자기자본 변화와 맞는다.",
+   "verify_by": "node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock",
+   "done": false
+  }
+ ],
+ "qa_section": "화면 v58.74",
+ "changelog": [
+  "**ROE 문장 ({P}):** 적자 해의 설명을 자기자본 실제 증감에 맞췄다."
+ ]
+}

@@ -5,7 +5,7 @@
 //   종목 선택 w × (r − s)     the stock against its sector (or market)
 //   환율     w × (r_base − r) the currency move for a holding converted into the base currency
 // Book return R = 지수 + 섹터 + 종목 + 환율. Against the same-weight blended index fully invested
-// (B = Σ w m ÷ Σ w), R − B = 섹터 + 종목 + 환율 + 현금, where 현금 = −(cash share) × B.
+// (B = Σ w m ÷ Σ w), R − B = 섹터 + 종목 + 환율 + 현금, where 현금 = -(cash share) × B.
 // The identity holds exactly; every component is from completed closes. It is current-composition
 // arithmetic (what today's weights would have earned), not the account's realized history.
 import { SECTOR_ETF } from '../entity/stock-read.js';

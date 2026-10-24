@@ -4,8 +4,8 @@
 // composite score: the AGENTS rule against uncalibrated n/100 composites applies, so the radar shows
 // which axes moved, not a total.
 import { alignInput, buildCloseSeries, isUsable } from './close-series.js';
+import { RULES } from '../rules/thresholds.js';
 
-const subject = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return `${word}${code >= 0 && code < 11172 && code % 28 ? '이' : '가'}`; };
 const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 
 export const RADAR_AXES = Object.freeze([
@@ -87,11 +87,16 @@ export function buildRegimeRadar(input = {}, { macroHistory = null, offsets = [0
   const up = moved.filter((axis) => axis.change5 >= 10).slice(0, 2);
   const down = moved.filter((axis) => axis.change5 <= -10).slice(0, 2);
   const lead = up.length || down.length
-    ? `5거래일 전보다 ${[up.length ? `${up.map((axis) => `${axis.label}(+${axis.change5})`).join('·')} 쪽이 올랐고` : '', down.length ? `${down.map((axis) => `${axis.label}(${axis.change5})`).join('·')} 쪽이 내려갔습니다` : '크게 내려간 지표는 없습니다'].filter(Boolean).join(' ')}.`
+    ? `5거래일 전보다 ${[up.length ? `${up.map((axis) => `${axis.label}(+${axis.change5})`).join(', ')}의 위치가 좋아졌고` : '', down.length ? `${down.map((axis) => `${axis.label}(${axis.change5})`).join(', ')}의 위치가 나빠졌습니다` : '크게 나빠진 지표는 없습니다'].filter(Boolean).join(' ')}.`
     : '5거래일 전과 비교해 10 이상 움직인 지표가 없습니다.';
   const wide = axes.filter((axis) => axis.change20 != null && Math.abs(axis.change20) >= 25).sort((a, b) => Math.abs(b.change20) - Math.abs(a.change20))[0];
-  const month = wide ? ` 20거래일 전과 비교하면 ${subject(wide.label)} ${wide.change20 > 0 ? '+' : ''}${wide.change20}로 가장 크게 ${wide.change20 > 0 ? '올랐습니다' : '내려갔습니다'}.` : '';
+  const month = wide ? ` 20거래일 전과 비교하면 ${wide.label} 위치가 ${Math.abs(wide.change20)}포인트 ${wide.change20 > 0 ? '올라 가장 크게 좋아졌습니다' : '내려 가장 크게 나빠졌습니다'}.` : '';
+  // v58.74 (text audit 시장 상태 C6): a volatility move names the VIX behind it and where it sits against the 부담 line.
+  const vixSeries = buildCloseSeries(history, 'vix');
+  const vixNow = vixSeries.at(-1)?.value, vixThen = vixSeries.length > 20 ? vixSeries[vixSeries.length - 21].value : null;
+  const volNote = wide?.id === 'volatility' && Number.isFinite(vixNow) && Number.isFinite(vixThen)
+    ? ` VIX가 20거래일 전 ${vixThen.toFixed(1)}에서 ${vixNow.toFixed(1)}로 ${(vixNow > vixThen) === (vixNow >= RULES.volatility.stressAt) ? (vixNow > vixThen ? '올라' : '내려') : (vixNow > vixThen ? '올랐지만' : '내렸지만')} ${vixNow >= RULES.volatility.stressAt ? `부담 기준(${RULES.volatility.stressAt}) 위입니다` : `부담 기준(${RULES.volatility.stressAt})에는 못 미칩니다`}.` : '';
   const missing = axes.filter((axis) => axis.now == null).map((axis) => axis.label);
   const missingText = missing.length ? ` ${missing.join('·')} 지표는 최신 관측이 없어 비웠습니다.` : '';
-  return { available: axes.filter((axis) => axis.now != null).length >= 3, asOf: dates[0], dates, offsets, axes, missing, lead: `${lead}${month}${missingText}` };
+  return { available: axes.filter((axis) => axis.now != null).length >= 3, asOf: dates[0], dates, offsets, axes, missing, lead: `${lead}${month}${volNote}${missingText}` };
 }

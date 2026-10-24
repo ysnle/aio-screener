@@ -114,7 +114,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
     for (const theme of model.associations) { const stage=stages.find(row=>row.id===theme.id); const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? `, ${theme.subThemes.join(' / ')}` : ''}${stage ? `, 테마 단계: ${stage.stateLabel}` : ''}`); button.type='button'; button.addEventListener('click',()=>openThemeDetail(root,theme.id,{symbol:id})); themes.append(button); }
     identity.append(element(doc,'p','연결된 테마, AIO 분류','company-analysis-meta'), themes);
   }
-  identity.append(detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'}, 유형 검증 ${meta.verification}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source));
+  identity.append(detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'}, 상품 유형 ${({ VERIFIED: '확인', VERIFIED_LISTING: '확인' })[meta.verification] || '미확인'}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source));
   grid.append(identity);
   const krFundamental=model.financial.status==='kr-disclosure-required' ? krFundamentalPoints(root?._aioKrFundamentals?.companies?.[id]) : null;
   const financial=card(doc,'실적·현금·재무 구조',krFundamental ? '공시' : model.financial.status==='reference' ? '참고' : model.financial.status==='not-applicable' ? '기업 재무 대상 아님' : '자료 없음');

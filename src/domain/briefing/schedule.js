@@ -105,6 +105,17 @@ function previousKrxBusinessDay(date) {
   }
 }
 
+// v58.74 (owner review 10/24): the week of the Israeli election showed no political event. Elections fixed by law are
+// listed with the official source and the review date; a moved date is corrected here (the row leaves the window after).
+// Times are when the polls close (results and exit polls follow), in KST. Sources, reviewed 2026-10-24: Israel Central
+// Elections Committee (26th Knesset, 2026-10-27); 2 U.S.C. 7 (U.S. general election, 2026-11-03).
+export const POLITICAL_EVENTS = Object.freeze([
+  Object.freeze({ id: 'il-knesset-2026', atKst: '2026-10-28T05:00:00+09:00', label: '이스라엘 총선 (투표 마감, 출구조사)',
+    why: '연정 구성에 따라 이란·중동 정책 기대가 바뀌어 유가 위험 프리미엄이 움직일 수 있음' }),
+  Object.freeze({ id: 'us-midterm-2026', atKst: '2026-11-04T09:00:00+09:00', label: '미국 중간선거 (동부 투표 마감)',
+    why: '의회 다수당에 따라 재정·관세·규제 기대가 바뀌어 금리·업종별 흐름이 갈릴 수 있음' })
+]);
+
 export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), days = 7 } = {}) {
   const rows = [];
   const push = (id, atMs, label, why) => {
@@ -127,6 +138,7 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
       '대규모 옵션 포지션이 정리되며 만기 주간 지수 변동이 커지거나 오히려 줄 수 있음');
   }
   for (const date of registeredHolidays('KRX')) push(`krx-holiday-${date}`, Date.parse(`${date}T09:00:00+09:00`), holidayLabel('한국 증시 휴장', 'KRX', date), '한국 거래가 없는 날 — 해외 시장 변화는 다음 거래일에 한꺼번에 반영');
+  for (const event of POLITICAL_EVENTS) push(event.id, Date.parse(event.atKst), event.label, event.why);
   for (const date of registeredHolidays('NYSE')) push(`nyse-holiday-${date}`, etWallClockToMs(date, [9, 30]), holidayLabel('미국 증시 휴장', 'NYSE', date), '미국 거래가 없는 날 — 다음 거래일 갭에 유의');
   return rows;
 }

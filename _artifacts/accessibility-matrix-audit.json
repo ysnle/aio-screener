@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-23T15:21:03.696Z",
-  "appRevision": "v58.73",
-  "gitHead": "07ecac5735aa09e2363a60d61e3fce05d740bdc2",
+  "observedAt": "2026-10-24T05:10:59.342Z",
+  "appRevision": "v58.74",
+  "gitHead": "2ce7efea11403d420c32f1d515247b4c2a764dba",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -92,30 +92,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "bp",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 18,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "RSI",
-          "width": 20,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": [
         {
@@ -137,13 +115,20 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
+      "smallTargetExceptionCount": 2,
       "smallTargetExceptions": [
         {
           "id": "",
           "text": "뉴스",
           "width": 24,
           "height": 16,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
           "exception": "wcag-inline-text"
         }
       ],
@@ -214,14 +199,21 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
+      "smallTargetExceptionCount": 2,
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
+          "text": "bp",
+          "width": 15,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
         }
       ],
       "skipLink": true,

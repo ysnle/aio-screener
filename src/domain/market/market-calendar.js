@@ -88,6 +88,15 @@ export function nyParts(ms) {
   return { date: `${p.year}-${p.month}-${p.day}`, minute: Number(p.hour) * 60 + Number(p.minute) };
 }
 
+// v58.74 (owner review 10/24): on Saturday the strip read '지금 시세 (실시간·지연)' over Friday's futures and FX. US futures,
+// FX and the 10-year stop from 17:00 ET Friday to the 18:00 ET Sunday reopen; the heading says so (BTC still trades).
+const NY_WEEK = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+export function usWeekendClosed(nowMs = Date.now()) {
+  const parts = Object.fromEntries(NY_WEEK.formatToParts(new Date(nowMs)).map((part) => [part.type, part.value]));
+  const minute = Number(parts.hour) * 60 + Number(parts.minute);
+  return parts.weekday === 'Sat' || (parts.weekday === 'Fri' && minute >= 17 * 60) || (parts.weekday === 'Sun' && minute < 18 * 60);
+}
+
 export function isLatestUsRegularClose({ instrumentId, observedAt, now = Date.now() } = {}) {
   if (!/^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)$/.test(String(instrumentId || ''))) return false;
   const observedMs = Date.parse(observedAt || '');

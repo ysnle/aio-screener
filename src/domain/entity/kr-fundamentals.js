@@ -1,3 +1,4 @@
+import { signedText } from '../shared/number.js';
 // P1654: OpenDART annual accounts (public-data/kr-fundamentals.json) as readable points for a Korean listing.
 // Figures are the filing's own KRW values; ratios are computed from the same report and say which basis they use.
 export const KR_FUNDAMENTALS = Object.freeze({ key: '_aioKrFundamentals', url: './public-data/kr-fundamentals.json', schemas: ['kr-fundamentals.v1'], maxAgeMs: 12 * 60 * 60 * 1000, maxBytes: 1024 * 1024 });
@@ -11,7 +12,7 @@ const krw = (value) => {
   return `${sign}${Math.round(abs).toLocaleString('en-US')}원`;
 };
 const growth = (now, then) => (Number.isFinite(now) && Number.isFinite(then) && then > 0 ? (now / then - 1) * 100 : null);
-const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+const signed = (value) => `${signedText(value, 1)}%`;
 
 export function krFundamentalPoints(company) {
   if (!company?.current) return null;

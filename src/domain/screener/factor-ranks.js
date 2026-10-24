@@ -91,7 +91,7 @@ function momSixMinusOneRaw(row) {
 }
 
 // 2026-10-19 (expertise review D2): 12-1 — the year to one month ago (Jegadeesh-Titman), the academic momentum signal,
-// from the same close series as ret12m and ret1m: (1+r12)/(1+r1)−1 = close[t−21]/close[t−252]−1. Missing when the
+// from the same close series as ret12m and ret1m: (1+r12)/(1+r1)-1 = close[t-21]/close[t-252]-1. Missing when the
 // listing has less than a year of closes; no shorter window stands in for it.
 function momTwelveMinusOneRaw(row) {
   const r12 = finite(row?.ret12m);

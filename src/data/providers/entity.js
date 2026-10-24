@@ -90,7 +90,9 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
         history,
         fundamentals,
         fundamentalsWatchlist,
-        fundamentalsMeta: projection?.meta || null,
+        // v58.74 (audit): the meta names the symbol it was checked for — a sync made before the ticker changed carried the
+        // table's meta with no NVDA record, and the 재무 tile read 'SEC 연간 공시 없음' for ~10s on a ticker the table holds.
+        fundamentalsMeta: projection?.meta ? { ...projection.meta, checkedFor: id } : null,
         options: value.options || null,
         updatedAt: latestObservedAt([
           value.quote?.observedAt,

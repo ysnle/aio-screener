@@ -17,6 +17,7 @@ import { renderNextSteps } from './page-flow.js';
 import { computeCompositeFearGreed } from '../../domain/sentiment/composite-fear-greed.js';
 import { el } from './dom.js';
 import { splitReading } from './market-regime.js';
+import { signedText } from '../../domain/shared/number.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 
 // AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
@@ -37,7 +38,7 @@ export function fearGreedBand(value) {
   const band = publishedFearGreedBand(value);
   return band.blocked ? null : { label: band.label, tone: LEVEL_TONE };
 }
-const signedPp = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%p`;
+const signedPp = (value) => `${signedText(value, 1)}%p`;
 // v57.50 C02: the HY card label comes from the one creditState() judgement (market-read), not a second set of edges.
 // v57.54 audit (4): the card shows the axis's own word (양호/중립/부담) — '경계' here beside '중립' on 오늘·시장 상태 read as
 // two verdicts for one creditState().
@@ -129,7 +130,11 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   let synthesis;
   if (!moodKnown) synthesis = '기준일에 맞는 심리 지표(F&G·AAII)가 없어 종합 판단을 보류합니다.';
   else if (fearful && creditCalm && volCalm) synthesis = `${fearSource}는 비관 쪽인데 신용(${Math.round(hyBp)}bp)과 변동성 구조(${ratio.toFixed(2)})는 안정 — 비관이 심리 지표에 머물러 있고 신용·변동성 스트레스로는 번지지 않았습니다.`;
-  else if (fearful && (creditStress || (volKnown && !volCalm))) synthesis = `${fearSource}의 비관과 함께 ${[creditStress ? `신용 스프레드(${Math.round(hyBp)}bp${hy5 != null ? `, 5일 ${hy5 >= 0 ? '+' : ''}${Math.round(hy5)}bp` : ''}${hy20Stress && hy20 != null ? `, 20거래일 +${Math.round(hy20)}bp` : ''})도 ${hyBp < RULES.credit.tightBelowBp ? `빠르게 확대(수준은 ${RULES.credit.tightBelowBp}bp 아래)` : '부담(스트레스) 구간'}` : null, volKnown && !volCalm ? (ratio >= RULES.volatility.invertedRatioAt ? `변동성 구조도 역전(${ratio.toFixed(2)})` : `변동성 구조도 역전 기준(${RULES.volatility.invertedRatioAt}) 가까이 평탄해짐(${ratio.toFixed(2)})`) : null].filter(Boolean).join(', ')} — 위험 회피가 심리 지표를 넘어 퍼지는 모습입니다.`;
+  else if (fearful && (creditStress || (volKnown && !volCalm))) // v58.74 (text audit): one sentence held three nested parentheses; the mood, the spread and the volatility curve each get one.
+    synthesis = [`${fearSource}로 비관 쪽입니다.`,
+      creditStress ? `하이일드 스프레드도 ${Math.round(hyBp)}bp로${hy20Stress && hy20 != null ? ` 20거래일 ${signedText(hy20, 0, 'bp')},` : ''}${hy5 != null ? ` 5일 ${signedText(hy5, 0, 'bp')}` : ''} ${hyBp < RULES.credit.tightBelowBp ? `넓어졌습니다(수준은 ${RULES.credit.tightBelowBp}bp 아래).` : '스트레스 구간입니다.'}` : null,
+      volKnown && !volCalm ? (ratio >= RULES.volatility.invertedRatioAt ? `VIX가 3개월 VIX보다 높아 변동성 구조가 역전됐습니다(${ratio.toFixed(2)}).` : `VIX와 3개월 VIX의 차이가 역전 기준(${RULES.volatility.invertedRatioAt}) 가까이 좁혀졌습니다(${ratio.toFixed(2)}).`) : null,
+      '비관이 심리 지표를 넘어 자금 시장으로 퍼지는 모습입니다.'].filter(Boolean).join(' ');
   else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
   else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.`;
   else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 헤지 수요가 낮음(풋/콜 ${pcr.toFixed(2)}) — 충격 대비가 약한 상태입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 헤지 수요는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 헤지 수요가 낮지는 않습니다`}.`;
@@ -185,7 +190,7 @@ function compositeCard(composite) {
     change: composite.components.map(componentText).join(', '),
     // P1593 (F97): every component is named, including the ones without data, so a partial set is not read as CNN's seven.
     // v57.77: one line on the card; how the percentiles are built and when the card is withheld sit in the fold (rules).
-    note: `${spreadLine ? `${spreadLine}, ` : ''}7개 요소의 1년 백분위를 나란히 놓은 참고값으로, 공포·탐욕 지수 값과 다릅니다`,
+    note: `${spreadLine ? `${spreadLine}, ` : ''}${composite.componentsReady ?? 7}개 요소의 1년 백분위를 나란히 놓은 참고값으로, 공포·탐욕 지수 값과 다릅니다`,
     rules: '요소마다 최근 1년 백분위로 바꾸며 높을수록 낙관 쪽입니다(변동성·풋/콜·정크본드는 뒤집어 계산). 한 점수로 평균하거나 공포·탐욕 구간을 붙이지 않고, 계산되는 요소가 4개 미만이면 표시하지 않습니다.'
   };
 }
@@ -197,7 +202,15 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('sentiment-basis', model.asOf ? `${shortDate(model.asOf)} 미국 종가 기준${model.mixed.length ? ', 날짜가 다른 지표는 카드에 표시' : ''}` : '기록을 불러오는 중입니다.');
   // v58.53 개편 v2 (5d): the hero keeps the synthesis's first sentences (the rest folds) beside the F&G position bar.
-  const { lead: synthLead, rest: synthRest } = splitReading(model.synthesis);
+  // v58.74 (text audit 시장 상태 C4): fear read the contrarian way — the bottom-watch tally the 원칙 card quotes, so a low F&G is
+  // not taken as a bottom signal on its own.
+  const bw = regime?.bottomWatch;
+  const tallyOf = (met, list) => `${met}/${list.length}`;
+  const contrarian = !bw || !/공포/.test(model.synthesis) ? ''
+    : bw.exhaustionMet >= 2 && bw.confirmationMet >= 2 ? ` 역발상으로 보면 매도 소진(${tallyOf(bw.exhaustionMet, bw.exhaustion)})과 회복 확인(${tallyOf(bw.confirmationMet, bw.confirmation)})이 함께 보여, 공포가 바닥 근처 신호로 쓰일 수 있는 구간입니다. 다음 종가로 확인합니다.`
+      : bw.exhaustionMet >= 2 ? ` 역발상으로 보면 매도 소진 신호는 ${tallyOf(bw.exhaustionMet, bw.exhaustion)}로 쌓였지만 회복 확인은 ${tallyOf(bw.confirmationMet, bw.confirmation)}라, 공포 자체를 바닥 근거로 읽기는 이릅니다.`
+        : ` 역발상으로 보면 매도 소진 신호도 ${tallyOf(bw.exhaustionMet, bw.exhaustion)}로 적어, 공포가 깊어도 투매가 끝났다고 보기는 이릅니다.`;
+  const { lead: synthLead, rest: synthRest } = splitReading(`${model.synthesis}${contrarian}`);
   set('sentiment-synthesis', synthLead);
   const more = doc.getElementById('sentiment-synthesis-more');
   if (more) { more.hidden = !synthRest; const body = more.querySelector('p'); if (body) body.textContent = synthRest; }

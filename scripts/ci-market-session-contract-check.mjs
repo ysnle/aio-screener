@@ -141,6 +141,9 @@ check('temporal evidence separates event/observed/collected/published', temporal
   const yearTurn = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-12-29T00:00:00Z'), days: 7 }).map((row) => `${row.id}|${row.label}`);
   check('P1735 the briefing schedule shows the 2027 closures across the year turn (KRX and NYSE)', yearTurn.includes('krx-holiday-2026-12-31|한국 증시 휴장 (연말 휴장)') && yearTurn.includes('krx-holiday-2027-01-01|한국 증시 휴장 (신정)') && yearTurn.includes('nyse-holiday-2027-01-01|미국 증시 휴장 (신정)'), yearTurn);
   const chuseok2027 = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2027-09-12T00:00:00Z'), days: 5 }).filter((row) => row.id.startsWith('krx-holiday-')).map((row) => row.id);
+  const politics = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-24T02:00:00Z'), days: 7 }).map((row) => row.id);
+  const afterVote = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-29T00:00:00Z'), days: 7 }).map((row) => row.id);
+  check('v58.74 a scheduled election is in the 7-day schedule and leaves it once the polls have closed', politics.includes('il-knesset-2026') && !politics.includes('us-midterm-2026') && !afterVote.includes('il-knesset-2026') && afterVote.includes('us-midterm-2026'), { politics, afterVote });
   check('P1735 2027 KRX holidays come from the registry (Chuseok 9/14-16)', JSON.stringify(chuseok2027) === JSON.stringify(['krx-holiday-2027-09-14', 'krx-holiday-2027-09-15', 'krx-holiday-2027-09-16']), chuseok2027);
 }
 

@@ -7,6 +7,7 @@ import { buildMarketRegime, krSessionThrough } from './market-read.js';
 import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/market-calendar.js';
+import { signedText } from '../shared/number.js';
 
 const shortDay = (date) => { const [, month, day] = String(date || '').split('-').map(Number); return month && day ? `${month}/${day}` : ''; };
 
@@ -19,7 +20,7 @@ export function missingSessionsBetween(fromDate, toDate) {
 }
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
-const signed = (value, digits = 1, unit = '') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+const signed = (value, digits = 1, unit = '') => signedText(value, digits, unit);
 
 function completedRows(history = []) {
   return (Array.isArray(history) ? history : []).filter((row) => row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) && finite(row.spx) != null);

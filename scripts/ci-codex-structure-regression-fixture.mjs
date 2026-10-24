@@ -171,6 +171,7 @@ assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation
   assert.equal(strip('단일 [market.index.spx] 해시 [90b7eec7] 출처 [headline:https://x.com/a] 끝'), '단일 해시 출처 끝', 'v57.83: single ids, hashes and headline citations are removed');
   assert.equal(strip('정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%'), '정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%', 'v57.83: ordinary brackets, parentheses and links are kept');
   assert.equal(strip('S&P 500 -1.21%([market.index.spx:75cea69c]); 헤드라인'), 'S&P 500 -1.21%; 헤드라인', 'v58.72: an id wrapped in parentheses leaves no empty "()"');
+  assert.equal(strip('갈림길입니다 [[regime-context]]. 약해집니다 [[regime-context];].'), '갈림길입니다. 약해집니다.', 'v58.74: a doubled bracket around an id leaves no "[]" or "[;]"');
   assert.ok(core.includes("window._aioStripEvidenceIds(txt)"), 'v57.83: the legacy analysis sink uses the native stripper (P1847)');
 }
 
@@ -310,7 +311,7 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
   const macroRead = buildMacroRead({ macroHistory: { schemaVersion: 'macro-history.v1', series: { payrolls: { observations: payrolls }, unemployment: { observations: unemployment }, corePceIndex: { observations: corePceIndex } } } });
   assert.ok(macroRead.regime.near?.growth && macroRead.regime.inputs[1][3].endsWith('(근소)'), 'M12: a direction within half a rule step is 근소');
   assert.match(macroRead.regime.timing, /고용 26년 3월/, 'M12: the quadrant names the month it reads');
-  assert.match(macroRead.axes.find((a) => a.id === 'growth').read, /51천 명씩 늘어 기준\(10만 명\)에 못 미칩니다/, 'M18: the neutral growth read names its cause');
+  assert.match(macroRead.axes.find((a) => a.id === 'growth').read, /5\.1만 명씩 늘어 기준\(10만 명\)에 못 미칩니다/, 'M18 (v58.74 one people unit): the neutral growth read names its cause');
 }
 
 console.log('codex-structure-regression-fixture: OK');

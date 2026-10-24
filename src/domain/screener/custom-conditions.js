@@ -57,7 +57,7 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ downDayHoldPct: a }, n) => a >= n },
   { id: 'no-climax', group: '후속·회복', label: '클라이맥스 징후 없음 (긴 상승 뒤 연속 급등·연중 최대 상승폭·최대 거래량·200일선 +70%)', fields: ['climaxSigns'],
     test: ({ climaxSigns }) => Array.isArray(climaxSigns) && climaxSigns.length === 0 },
-  { id: 'pe-max', group: '밸류에이션', label: 'PER {n}배 이하 (최근 회계연도 이익, 적자 제외, 미국)', value: 20, unit: '배', fields: ['pe'],
+  { id: 'pe-max', group: '밸류에이션', label: 'PER {n}배 이하 (최근 4개 분기 공시 이익, 없으면 회계연도, 적자 제외, 미국)', value: 20, unit: '배', fields: ['pe'],
     test: ({ pe }, n) => pe > 0 && pe <= n },
   { id: 'fwdpe-max', group: '밸류에이션', label: 'Forward PER {n}배 이하 (컨센서스, 미국)', value: 25, unit: '배', fields: ['fwdPe'],
     test: ({ fwdPe }, n) => fwdPe > 0 && fwdPe <= n },

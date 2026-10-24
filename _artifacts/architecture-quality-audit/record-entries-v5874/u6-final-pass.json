@@ -1,0 +1,18 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "소유자 요청(2026-10-24) 마감 화면 대조 중 정리.",
+ "status": null,
+ "qa_section": "화면 v58.74",
+ "qa": [
+  {
+   "id": "QA-KR-EXPORT-LINE-01",
+   "text": "v58.74 한국 경기지표 아래 문장은 수출 잠정치 한 줄만 말하고, 위 타일과 같은 PMI·GDP 값을 대시로 되풀이하지 않는다. 테마 상세의 단계 대조 문장은 앞 문장의 사분면을 다시 말하지 않고 '다만'으로 잇는다.",
+   "verify_by": "node .claude/skills/verify-aio/scripts/verify-aio.mjs drive macro",
+   "done": true
+  }
+ ],
+ "changelog": [
+  "**마감 대조:** 한국 경기지표 아래 문장에서 위 타일과 겹치던 PMI·GDP 대시와 늘 비어 있던 월간 수출 칸을 지우고 수출 잠정치 한 줄로 줄였다. 테마 상세의 사분면 대 단계 문장은 사분면을 되풀이하지 않는다."
+ ]
+}

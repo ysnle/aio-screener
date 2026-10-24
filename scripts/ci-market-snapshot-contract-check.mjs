@@ -40,7 +40,11 @@ const sessionFixtures = [
   ['^VIX', '2026-10-12T20:15:00.000Z', '2026-10-13T08:01:37.000Z', 'MARKET_CLOSED', 'REGULAR'],
   // P1738: a ^TNX pre-open print (09:05 ET) is not the completed close; the 14:59 ET close still is.
   ['^TNX', '2026-10-13T13:05:25.000Z', '2026-10-13T13:20:35.555Z', 'AFTER_HOURS'],
-  ['^TNX', '2026-10-09T18:59:00.000Z', '2026-10-09T21:00:00.000Z', 'MARKET_CLOSED']
+  ['^TNX', '2026-10-09T18:59:00.000Z', '2026-10-09T21:00:00.000Z', 'MARKET_CLOSED'],
+  // v58.74 (refresh-data 10/23 23:50Z): FX and CME futures are closed for the week after 17:00 ET Friday.
+  ['KRW=X', '2026-10-23T22:59:00.000Z', '2026-10-23T23:50:00.000Z', 'MARKET_CLOSED', 'REGULAR'],
+  ['CL=F', '2026-10-23T20:59:58.000Z', '2026-10-23T23:50:00.000Z', 'MARKET_CLOSED', 'REGULAR'],
+  ['KRW=X', '2026-10-23T19:55:00.000Z', '2026-10-23T20:00:00.000Z', 'CURRENT_SESSION', 'REGULAR']
 ];
 for (const [instrumentId, observedAt, now, expected, providerSession] of sessionFixtures) {
   const actual = deriveMarketSession({ instrumentId, observedAt, providerSession, now: Date.parse(now) });

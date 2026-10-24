@@ -89,6 +89,7 @@ function withThemeStages(root, rows) {
 }
 import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { renderNextSteps } from '../components/page-flow.js';
+import { signedText } from '../../domain/shared/number.js';
 
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
@@ -131,7 +132,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'value', label: '밸류', sortable: true, align: 'right', width: 70, group: 'factor' },
   { key: 'quality', label: '퀄리티', sortable: true, align: 'right', width: 78, group: 'factor' },
   // v57.54: forward multiple on analyst consensus (reference only; the 밸류 factor stays on reported earnings).
-  { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 실적 발표 전 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
+  { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 아직 실적이 발표되지 않은 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
   { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
   // 개편 v2 (3c): where the last close sits between the 52-week low and high (both distances come from the artifact).
@@ -216,7 +217,7 @@ function cell(documentRef, value, className = '') {
   else node.appendChild(text(documentRef, value));
   return node;
 }
-function returnText(value) { return finite(value) == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`; }
+function returnText(value) { return finite(value) == null ? '—' : `${signedText(value, 1)}%`; }
 function returnColor(value) { return finite(value) == null ? 'var(--text-muted)' : value >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
 // v57.81: momentum and trend scores are z-scores inside the sector, so a sector-wide selloff leaves its best names high.
 // Green needs the absolute check too (bands.js bufferedTrend 'up'); otherwise a high score is shown in the neutral colour.
@@ -689,7 +690,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const partial = !view && /^[A-Z.-]+$/.test(String(row.sym || '')) && finite(coverage?.covered) != null && coverage.covered < coverage.universeUs;
     const node = text(documentRef, view?.fwdPe != null ? (view.fwdPe > PE_MEANINGFUL_MAX ? `${PE_MEANINGFUL_MAX}배 초과` : `${numberText(view.fwdPe, 1)}배`) : view ? '적자 예상' : partial ? '수집 전' : '—');
     if (partial) node.title = `컨센서스는 실행마다 일부 종목씩 수집합니다(지금 ${coverage.covered}/${coverage.universeUs}종목). 다음 수집 차례에 채워집니다.`;
-    else node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 실적 발표 전 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps}, 애널리스트 최소 ${view.minEstimates ?? '?'}명, ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
+    else node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 아직 실적이 발표되지 않은 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps}, 애널리스트 최소 ${view.minEstimates ?? '?'}명, ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
     if (!view) node.style.color = 'var(--text-muted)';
     return node;
   }
@@ -950,7 +951,7 @@ function renderExcessBars(documentRef, row, benchmark) {
     bars.append(bar(item.stock, 'stock'), bar(item.index, 'index'));
     const value = documentRef.createElement('span');
     value.className = `scr-excess-value ${gap >= 0 ? 'sx-up' : 'scr-tone-burden'}`;
-    value.textContent = `${gap >= 0 ? '+' : '−'}${Math.abs(gap).toFixed(1)}%p`;
+    value.textContent = signedText(gap, 1, '%p');
     line.append(label, bars, value);
     host.append(line);
   }
@@ -1232,14 +1233,14 @@ function renderCandidateRecord(panel, el, archive, populationRanking) {
     const vsAll = summary.meanTopVsUniversePct;
     const ind = summary.independent;
     if (ind) {
-      const ic = (stat) => (stat?.mean == null ? '—' : `${stat.mean >= 0 ? '+' : ''}${stat.mean.toFixed(3)}${stat.t != null ? ` (t ${stat.t.toFixed(1)})` : ''}`);
+      const ic = (stat) => (stat?.mean == null ? '—' : `${signedText(stat.mean, 3)}${stat.t != null ? ` (t ${stat.t.toFixed(1)})` : ''}`);
       const verdict = ind.decision === 'supported' ? '미국 순위가 다음 21거래일 수익률과 통계적으로 같은 방향이었습니다.'
         : ind.decision === 'not-supported' && ind.icUS?.mean < 0 && ind.icUS?.t <= -2 ? `겹치지 않는 기록 ${ind.icUS.n ?? ind.n}개로 보면 미국 순위가 이후 수익률과 오히려 반대 방향이었습니다 — 순위를 매수 후보 근거로 쓰지 마세요.`
         : ind.decision === 'not-supported' ? `겹치지 않는 기록 ${ind.icUS?.n ?? ind.n}개로 보면 미국 순위와 이후 수익률의 관계가 우연과 구분되지 않습니다 — 순위를 매수 후보 근거로 쓰지 마세요.`
           : `기간이 겹치지 않는 기록이 ${Math.min(ind.n || 0, ind.icUS?.n ?? ind.n ?? 0)}개라 판단하지 않습니다(${ind.min}개부터 판단, 약 1년).`;
       box.append(el('p', `검증 판정: ${verdict} 순위 정보계수(IC, 순위와 이후 수익률의 순위상관) — 미국 ${ic(ind.icUS)}, 한국 ${ic(ind.icKR)}.`, 'briefing-read-headline'));
     }
-    box.append(el('p', `결과가 나온 ${summary.measured}일 평균: 상위 20%가 하위 20%보다 ${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%p, 전체 평균보다 ${vsAll >= 0 ? '+' : ''}${vsAll.toFixed(2)}%p(21거래일, 비용 제외). 상위가 전체를 앞선 날은 ${summary.measured}일 중 ${summary.topBeatUniverse}일입니다.${summary.measured < 20 ? ' 아직 날 수가 적고 이어지는 날끼리 기간이 겹쳐, 우연과 구분할 수 없습니다.' : ' 이어지는 날끼리 21거래일 기간이 겹쳐 독립된 표본 수는 날 수보다 훨씬 적습니다.'}`, 'briefing-read-headline'));
+    box.append(el('p', `결과가 나온 ${summary.measured}일 평균: 상위 20%가 하위 20%보다 ${signedText(spread, 2)}%p, 전체 평균보다 ${signedText(vsAll, 2)}%p(21거래일, 비용 제외). 상위가 전체를 앞선 날은 ${summary.measured}일 중 ${summary.topBeatUniverse}일입니다.${summary.measured < 20 ? ' 아직 날 수가 적고 이어지는 날끼리 기간이 겹쳐, 우연과 구분할 수 없습니다.' : ' 이어지는 날끼리 21거래일 기간이 겹쳐 독립된 표본 수는 날 수보다 훨씬 적습니다.'}`, 'briefing-read-headline'));
     const bars = el('div', null, 'scr-ic-bars');
     const max = Math.max(1, ...measured.map((entry) => Math.abs(entry.outcome.topVsUniversePct || 0)));
     for (const entry of measured.slice(-12)) {
@@ -1250,7 +1251,7 @@ function renderCandidateRecord(panel, el, archive, populationRanking) {
       fill.style.width = `${Math.min(50, Math.abs(value) / max * 50).toFixed(1)}%`;
       fill.style[value >= 0 ? 'left' : 'right'] = '50%';
       track.append(fill);
-      line.append(el('span', entry.date.slice(5), 'scr-ic-label'), track, el('span', `${value >= 0 ? '+' : ''}${value.toFixed(2)}%p`, 'scr-ic-value'));
+      line.append(el('span', entry.date.slice(5), 'scr-ic-label'), track, el('span', `${signedText(value, 2)}%p`, 'scr-ic-value'));
       bars.append(line);
     }
     box.append(bars, el('p', '막대 = 그날 기록한 상위 20%의 21거래일 수익률 − 같은 날 순위가 매겨진 전체 평균', 'theme-strength-basis'));
@@ -2096,26 +2097,28 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const asOf = page.querySelector('[data-factor-asof]');
   const marketFactorSession = state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorObservedAt;
   // v57.91 (wording audit): '미국 10/15 종가 기준 · 10/16 계산' instead of '미국 팩터 세션 2026-10-15 · 생성 2026-10-16'.
+  const kstDay = (value) => { const at = Date.parse(value || ''); return Number.isFinite(at) && /T/.test(String(value)) ? new Date(at + 9 * 3600000).toISOString().slice(0, 10) : value; }; // v58.74: 계산일 in KST
   const monthDay = (value) => { const day = String(value || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(day) ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}` : day || '—'; };
-  if (asOf) asOf.textContent = marketFactorSession ? `${MARKET_LABELS[listingMarket] || ''} ${monthDay(marketFactorSession)} 종가 기준, ${state?.metadata?.asOf ? `${monthDay(state.metadata.asOf)} 계산` : '계산일 미확인'}` : state?.metadata?.asOf ? `${monthDay(state.metadata.asOf)} 계산` : '팩터 데이터 대기';
+  if (asOf) asOf.textContent = marketFactorSession ? `${MARKET_LABELS[listingMarket] || ''} ${monthDay(marketFactorSession)} 종가 기준, ${state?.metadata?.asOf ? `${monthDay(kstDay(state.metadata.asOf))} 계산` : '계산일 미확인'}` : state?.metadata?.asOf ? `${monthDay(kstDay(state.metadata.asOf))} 계산` : '팩터 데이터 대기';
   const provenance = page.querySelector('[data-screener-provenance]');
   if (provenance) {
     const metadata = state?.metadata || {};
-    const fmtDate = (value) => value ? String(value).slice(0, 16).replace('T', ' ') : '—';
+    // v58.74 (audit): the ISO stamps are UTC; '수집 2026-10-23 21:49' beside '10/23 종가 기준' read as a KST time before the US open.
+    const fmtDate = (value) => { const at = Date.parse(value || ''); return Number.isFinite(at) ? `${new Date(at + 9 * 3600000).toISOString().slice(0, 16).replace('T', ' ')} 한국 시간` : value ? String(value).slice(0, 16).replace('T', ' ') : '—'; };
     const sec = metadata.secFundamentalsEligible > 0
-      ? `SEC FY ${metadata.secFundamentalsModel || '정규화'} ${metadata.secFundamentalsStored || 0}/${metadata.secFundamentalsEligible}(SEC 정규화 별도 스코프)`
-      : 'SEC FY coverage 별도 확인 대기';
+      ? `SEC 연간 재무 ${metadata.secFundamentalsStored || 0}/${metadata.secFundamentalsEligible}종목`
+      : 'SEC 연간 재무 확인 대기';
     const universeNote = metadata.universeFreshnessStatus === 'stale'
-      ? `종목 유니버스 갱신 필요 (${fmtDate(metadata.universeLastBulkUpdate)})`
-      : metadata.universeFreshnessStatus === 'unknown' ? '종목 유니버스 최신성 미확인' : '종목 유니버스 최신';
+      ? `종목 목록 갱신 필요 (${fmtDate(metadata.universeLastBulkUpdate)})`
+      : metadata.universeFreshnessStatus === 'unknown' ? '종목 목록 최신성 미확인' : '종목 목록 최신';
     const research = metadata.researchContext || {};
     const researchNote = research.referenceId
-      ? `연구 프레임 ${research.frameworkIds?.length || 0}개·시계열 ${research.timeSeriesIds?.length || 0}개·claim ${research.claimIds?.length || 0}개 (REFERENCE)`
+      ? `연구 근거 연결(프레임 ${research.frameworkIds?.length || 0}개, 시계열 ${research.timeSeriesIds?.length || 0}개, 주장 ${research.claimIds?.length || 0}개, 참고용)`
       : '연구 프레임 연결 대기';
     const validation = metadata.modelValidation || {};
     const validationNote = validation.status === 'READY'
-      ? '모델 검증 READY(별도 승격 승인 필요)'
-      : `모델 검증 ${validation.status || 'BLOCKED'}, 거래용 승격 금지${validation.blockers?.length ? ` (${validation.blockers.length} blockers)` : ''}`;
+      ? '모델 검증 통과(거래 판단에 쓰려면 별도 승인 필요)'
+      : '모델 검증 미통과 — 거래 판단에 쓰지 않습니다';
     // P1167 (15 D04): `metadata.factorObservedAt`는 Yahoo 일봉 timestamp, 즉 그 세션 **바의 시작**이다.
     // 종가로 계산한 팩터를 '관측 시각'으로 표시하면 그날 개장 시점에 이미 알 수 있었다는 의미가 된다.
     // 세션 기준일과 수집·생성 시각을 분리하고, 바 시작 시각을 관측시각으로 승격하지 않는다.
@@ -2123,11 +2126,13 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     // 세션일은 하나의 스칼라로 합칠 수 없고, 없을 때만 호환 바 시작 날짜로 폴백한다.
     const sessionByMarket = metadata.factorSessionDateByMarket && typeof metadata.factorSessionDateByMarket === 'object' ? metadata.factorSessionDateByMarket : null;
     const factorSessionDate = sessionByMarket
-      ? (sessionByMarket[listingMarket] ? `${listingMarket} ${String(sessionByMarket[listingMarket]).slice(0, 10)}` : '')
+      ? (sessionByMarket[listingMarket] ? `${MARKET_LABELS[listingMarket] || listingMarket} ${String(sessionByMarket[listingMarket]).slice(0, 10)}` : '')
       : String(metadata.factorSessionDate || metadata.factorObservedAt || '').slice(0, 10);
-    const factorSessionLabel = factorSessionDate ? `팩터 ${factorSessionDate} 세션 종가 기준(일봉 바 시작 ${fmtDate(metadata.factorObservedAt)}, 관측시각 아님${metadata.factorTimeBasis === 'bar-start' ? ', basis bar-start' : ''})` : '팩터 기준 세션 미확인';
-    provenance.textContent = `연구용 스냅샷, ${factorSessionLabel}, 수집 ${fmtDate(metadata.factorFetchedAt || metadata.asOf)}, 생성 ${fmtDate(metadata.asOf)}, ${metadata.source || '출처 확인 대기'}, ${sec}, ${universeNote}, ${researchNote}, ${validationNote}, 공식 거래소 breadth 아님`;
-    provenance.title = `${metadata.fundamentalCoverageScope ? `${metadata.fundamentalCoverageScope}, ` : ''}일봉 timestamp는 바 시작이며 종가 기반 팩터의 관측시각이 아닙니다. 세션 기준일·수집시각·생성시각을 분리해 표시합니다.`;
+    const factorSessionLabel = factorSessionDate ? `팩터 ${factorSessionDate} 세션 종가 기준(일봉 바 시작 ${fmtDate(metadata.factorObservedAt)}, 관측시각 아님)` : '팩터 기준 세션 미확인';
+    // v58.74 (text audit): raw tokens (BLOCKED, n blockers, basis bar-start) and the provider name left the visible line;
+    // the provider and the blocker count sit in the hover title.
+    provenance.textContent = `연구용 스냅샷, ${factorSessionLabel}, 수집 ${fmtDate(metadata.factorFetchedAt || metadata.asOf)}, 생성 ${fmtDate(metadata.asOf)}, ${sec}, ${universeNote}, ${researchNote}, ${validationNote}. 거래소 공식 집계가 아닙니다.`;
+    provenance.title = `${metadata.source ? `출처: ${metadata.source}. ` : ''}${validation.blockers?.length ? `검증 미충족 요건 ${validation.blockers.length}개. ` : ''}${metadata.fundamentalCoverageScope ? `${metadata.fundamentalCoverageScope}, ` : ''}일봉 timestamp는 바 시작이며 종가 기반 팩터의 관측시각이 아닙니다. 세션 기준일·수집시각·생성시각을 분리해 표시합니다.`;
     provenance.dataset.sourceKind = 'reference';
     provenance.dataset.operationalUse = 'reference-only';
   }
@@ -2140,21 +2145,26 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   const previewConditions = preview?.definition ? describeFilterAst(preview.definition) : null;
   // 개편 v2 (3c): the kicker states the collected and computable counts once, before the close basis.
   const kickerCounts = documentRef.getElementById('scr-kicker-counts');
-  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `${allRows.length}종목 수집, ${readyCount}종목 필수 필드 충족`;
+  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `대상 ${allRows.length}종목 중 ${readyCount}종목 필수 필드 충족`;
   // P1167 (15 D05): 정적 유니버스가 MIC·assetType을 발행하지 않으면 식별 미확인 행이 남는다. 가격 조회
   // 성공과 식별 metadata 확인을 같은 것으로 읽지 않도록 미확인 수와 누락 필드를 함께 표시한다.
+  // v58.74 (owner decision INTL, resolved on the recommended option): Tokyo/Taiwan listings stay in the table for their
+  // theme context but are outside the US ranking population (factor-ranks 'foreign'); the count line says so.
+  const foreignRows = allRows.filter((row) => row.populationExclusion === 'foreign' || /\.(T|TWO?)$/i.test(String(row.sym || '')));
+  const foreignNote = foreignRows.length ? `해외 상장 ${foreignRows.length}개(${foreignRows.slice(0, 4).map((row) => row.sym).join(', ')})는 표에 남기되 미국 순위에서는 뺍니다. ` : '';
   const identityGaps = allRows.filter((row) => row.identityValidation && row.identityValidation.ok === false);
   const identityMissingFields = [...new Set(identityGaps.flatMap((row) => row.identityValidation.missing || []))];
+  const IDENTITY_FIELD_NAMES = { mic_missing: '거래소', asset_type_missing: '자산 유형', currency_missing: '통화' };
   const identityNote = identityGaps.length
-    ? `식별 metadata 미확인 ${identityGaps.length}개(${identityMissingFields.join('·')}), 가격 조회 성공은 식별 확인이 아닙니다, `
+    ? `식별 정보(${identityMissingFields.map((field) => IDENTITY_FIELD_NAMES[field] || field).join('·')}) 미확인 ${identityGaps.length}개 — 가격 조회 성공은 식별 확인이 아닙니다. `
     : '';
   const previewNote = previewConditions
     ? `미리보기 정의 ${preview.definition?.screenId || '—'}(${String(preview.definition?.definitionHash || '').slice(0, 8)}), 조건 내장 ${previewConditions.builtin.length}개${previewConditions.builtin.length ? `: ${previewConditions.builtin.slice(0, 2).map(item => item.text).join(', ')}` : ''}${previewConditions.user.length ? `, 사용자 추가 ${previewConditions.user.length}개` : ''}, `
     : '';
-  if (readiness && previewConditions) readiness.title = `내장 조건: ${previewConditions.builtin.map(item => item.text).join(', ') || '없음'} | 사용자 추가: ${previewConditions.user.map(item => item.text).join(', ') || '없음'}`;
+  if (readiness) readiness.title = [previewNote ? previewNote.replace(/, $/, '') : null, previewConditions ? `내장 조건: ${previewConditions.builtin.map(item => item.text).join(', ') || '없음'} | 사용자 추가: ${previewConditions.user.map(item => item.text).join(', ') || '없음'}` : null, run?.runId ? `실행 ${String(run.runId).slice(0, 12)}` : null].filter(Boolean).join(' | ');
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '데이터 상태: 산출물 미수신, 결과와 검증 수치를 표시하지 않습니다.'
-    : `${previewNote}${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요, ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'}, ` : ''}연구 snapshot, 종목 ${allRows.length}, 필수 필드 충족 ${readyCount}, 실행 판정 ${run?.runId ? `run ${String(run.runId).slice(0, 12)} ` : ''}통과 ${passedCount}, 부족 ${unavailableCount} / ${allRows.length} (${MARKET_LABELS[listingMarket]} 범위), 표시 범위 현재 필터 ${filtered.length}행, ${identityNote}상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
+    : `${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요, ' : ''}종목 ${allRows.length}개 중 필수 자료 충족 ${readyCount}개, 조건 통과 ${passedCount}개, 자료 부족 ${unavailableCount}개(${MARKET_LABELS[listingMarket]} 범위), 지금 필터로 보이는 행 ${filtered.length}개. ${foreignNote}${identityNote}상대 순위는 연구용이며 매매 지시가 아닙니다.`;
   // LC-25: bind the executed judgment to the run that produced it and keep the table's display
   // scope separate. A preview is an unfixed run and is labeled as such; the pipeline entry and a
   // user run are different origins over the same artifact.

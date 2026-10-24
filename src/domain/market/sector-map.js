@@ -3,6 +3,7 @@
 // and reading out. Market value = valuation close × shares outstanding, both already published per row for P/E
 // (no raw current price is republished — P715). A member without shares or a return is counted, not drawn.
 import { sectorLabel } from '../screener/screener-read.js';
+import { signedText } from '../shared/number.js';
 
 export const SECTOR_MAP_VERSION = 'sector-map.v1';
 
@@ -199,7 +200,7 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
   const retValues = priced.filter((item) => item.ret != null).map((item) => item.ret);
   const withRet = retValues.length;
   const equalRet = withRet ? retValues.reduce((sum, value) => sum + value, 0) / withRet : null;
-  const signed = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(Math.abs(value) < 10 ? 2 : 1)}%`);
+  const signed = (value) => (value == null ? '—' : signedText(value, Math.abs(value) < 10 ? 2 : 1, '%'));
   const sectorsUp = ranked.filter((row) => row.ret > 0).length;
   // The index's own return over the same window (SPY's completed-close row), stated beside the map's average so a
   // gap left by uncollected members or the holdings date is visible rather than hidden.

@@ -1,6 +1,7 @@
 import { screenerMarket } from '../screener/market-scope.js';
 import { latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
 import { recentMove, weeklyNoiseFromVol } from './recent-check.js';
+import { signedText } from '../shared/number.js';
 // P1417 (owner request 2026-10-03, open-source comparison): sub-theme relative strength. The
 // reference (xang1234/stock-screener group rankings) averages per-stock 1-99 RS ratings built from
 // fixed horizon weights (0.2/0.3/0.2/0.15/0.15). Those weights are a composite rating, which this
@@ -45,7 +46,7 @@ export function heavyweightLine(group, nameOf = (member) => member.name || membe
   if (!heavy?.length || group.ret1m == null) return '';
   const middle = median(heavy.map((member) => member.ret1m));
   if (middle == null || Math.abs(middle - group.ret1m) < 5) return '';
-  const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+  const pct = (value) => `${signedText(value, 1)}%`;
   const opposite = Math.sign(middle) !== Math.sign(group.ret1m);
   return `거래대금 상위 ${heavy.length}종목의 1개월 수익률 중앙값은 ${pct(middle)}(${heavy.map((member) => `${nameOf(member)} ${pct(member.ret1m)}`).join(', ')})로, 동일가중 테마 중앙값 ${pct(group.ret1m)}${opposite ? '와 방향이 반대입니다' : `보다 훨씬 ${middle < group.ret1m ? '약합니다' : '강합니다'}`} — 거래대금이 큰 종목의 움직임이 중앙값에 가려져 있습니다.`;
 }
@@ -61,6 +62,16 @@ function rankBy(groups, key) {
 /**
  * @param {{ themes: Array, rows: Array<{sym:string,name?:string,ret1m?:number,ret3m?:number,ret6m?:number,pctSma50?:number}>, sortKey?: 'ret1m'|'ret3m'|'ret6m', benchmark?: {ret1m?:number,ret3m?:number,ret6m?:number} }} input
  */
+// v58.74 (audit): the 1-month vs 3-month rank label names the week when the week runs the other way — cybersecurity read
+// '최근 식음' on a +11.3% week and 원전/독립발전 '최근 강해짐' on a -7.7% week.
+export const DIRECTION_LABELS = Object.freeze({ improving: '최근 강해짐', steady: '큰 변화 없음', weakening: '최근 식음' });
+export function directionLabel(group, { short = false } = {}) {
+  if (group?.direction === 'improving' && group.recent?.broken) return short ? '1주 급락' : '순위 올랐지만 1주 급락';
+  if (group?.direction === 'weakening' && group.recent?.surged) return short ? '1주 급반등' : '순위 밀렸지만 1주 급반등';
+  if (group?.direction === 'weakening' && group.recent?.move > 0) return short ? '1주 반등' : '순위 밀렸지만 1주 반등';
+  return DIRECTION_LABELS[group?.direction] || '';
+}
+
 export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', benchmark = {}, market = 'US', now = null } = {}) {
   const key = GROUP_WINDOWS[sortKey] ? sortKey : 'ret3m';
   const bySymbol = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
@@ -106,7 +117,10 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
         vol: comparisonAligned ? median(members.map((row) => finite(row.vol))) : null,
         above50Pct: above.length ? Math.round(above.filter((row) => finite(row.pctSma50) > 0).length / above.length * 100) : null,
         leader: comparisonAligned && leader ? { sym: String(leader.sym).toUpperCase(), name: leader.name || '', value: finite(leader[key]) } : null,
-        heavyweights: comparisonAligned ? heavyweightsOf(members) : null
+        heavyweights: comparisonAligned ? heavyweightsOf(members) : null,
+        // v58.74 (audit): a theme row pools its members instead of taking the median of group medians — a 6-name
+        // nuclear group set the whole 39-name utilities theme to 3m -21.4% / 50일선 위 17% (members: -10.6% / 44%).
+        memberStats: comparisonAligned ? members.map((row) => ({ sym: String(row.sym).toUpperCase(), ret1m: finite(row.ret1m), ret3m: finite(row.ret3m), ret6m: finite(row.ret6m), ret5d: finite(row.ret5d), vol: finite(row.vol), pctSma50: finite(row.pctSma50) })) : null
       });
     }
   }

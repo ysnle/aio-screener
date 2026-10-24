@@ -6,7 +6,7 @@ import { screenerMarket, marketRows, MARKET_POPULATION_POLICY } from '../screene
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
 import { latestCompletedUsSession, latestCompletedKrSession } from '../market/market-calendar.js';
 import { outOfUniverseContext } from './out-of-universe-read.js';
-import { NEAR_LINE_ADR } from '../technical/bands.js';
+import { signedText } from '../shared/number.js';
 
 export const COMPANY_ANALYSIS_MODEL_VERSION = 'company-analysis.v1';
 export function companyAnalysisContext(model) {
@@ -17,7 +17,7 @@ const sym = value => String(value || '').trim().toUpperCase();
 const finite = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && Number.isFinite(Date.parse(value));
 const safeUrl = value => { try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : null; } catch (_) { return null; } };
-const signed = value => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+const signed = value => `${signedText(value, 1)}%`;
 const fact = (row, field, key) => row?.fieldReadiness ? finite(fieldValueForPurpose(row, field, 'display')) : finite(row?.[key]);
 
 export function buildCompanyAnalysis({ symbol, row = null, summary = null, profile = null, fundamentals = null, fiscalHistory = [], rows = [], themes = [], registry = INSTRUMENT_REGISTRY, nowMs = Date.now(), onDemand = null } = {}) {
@@ -75,10 +75,8 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   if (fiscal.lastGrowth != null && fiscal.lastGrowth < 0) risks.push({ id:'revenue', text:`최근 회계연도 매출은 전년 대비 ${signed(fiscal.lastGrowth)}입니다.` });
   if (finite(latest?.equity) < 0) risks.push({ id:'equity', text:'공시 자기자본이 음수입니다. 일반적인 양(+)의 자기자본 ROE 해석을 적용하지 않습니다.' });
   if (finite(latest?.operatingCashFlow) < 0 && !isLendingFinancial(matchedRow?.symbol || resolved?.symbol, matchedRow?.sector)) risks.push({ id:'cash', text:'최근 회계연도 영업현금흐름은 유출입니다. 원인과 다음 공시에서의 변화를 확인할 지점입니다.' });
-  // v57.84 (R707): inside one ADR of the line is 50일선 부근 on the stock summary, so it is not a risk watch here either.
-  const adr50 = Number(matchedRow?.adrPct);
-  const near50 = pctSma50 != null && Number.isFinite(adr50) && adr50 > 0 && Math.abs(pctSma50) < NEAR_LINE_ADR * adr50;
-  if (pctSma50 != null && pctSma50 < 0 && !near50) risks.push({ id:'trend', text:`${sessionDate} 종가는 50일선보다 ${Math.abs(pctSma50).toFixed(1)}% 아래입니다.` });
+  // v58.74 (text audit): the 50-day distance is the summary reading right above this list (with its own near-line rule),
+  // so the list keeps only the observations that reading lacks.
   // v57.81: an on-demand row (out-of-universe listing) is not a registered universe row.
   const identity = { registered: !!matchedRow && !matchedRow.onDemand, verification: resolved.verification, name, market, currency, assetType, sector: matchedRow?.sector || null, industry: matchedRow?.industry || matchedSummary?.industry || null, source: matchedRow?.identitySource || matchedSummary?.sourceUrl || null };
   const financialStatus = !isCompany ? 'not-applicable' : market === 'KR' ? 'kr-disclosure-required' : fiscal.available ? 'reference' : 'missing';

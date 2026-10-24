@@ -15,7 +15,7 @@ export const latestSlotEnd = (ms) => Math.floor((ms - 3 * HOUR) / SLOT_MS) * SLO
 export function formatSlotMove(move) {
   const change = Number(move?.change);
   if (!Number.isFinite(change)) return null;
-  const sign = change > 0 ? '+' : change < 0 ? '−' : '';
+  const sign = change > 0 ? '+' : change < 0 ? '-' : '';
   return { label: String(move.label || ''), text: `${sign}${Math.abs(change).toFixed(2)}${move.changeUnit === 'bp' ? 'bp' : '%'}`, direction: change > 0 ? 'up' : change < 0 ? 'down' : 'flat' };
 }
 

@@ -7,6 +7,7 @@
 import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/close-series.js';
 import { resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { RULES } from '../rules/thresholds.js';
+import { signedText } from '../shared/number.js';
 
 export const YEN_RALLY_RULE = RULES.fx.yenRally20dPct; // % in 20 sessions — the 시장 상태 FX-axis rule (P1428 registry)
 const CHART_SESSIONS = 126; // about six months of completed sessions
@@ -183,6 +184,7 @@ export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE, latest =
     'twist-flattening': '긴축 기대가 단기금리를 올리는 가운데 장기 성장·물가 기대는 낮아지는 모양입니다.'
   };
   const fact = `${shortDate(from.date)}→${shortDate(last.date)} ${rule.sessions}거래일: 2년 ${signed(shortBp, 0, 'bp')}, 10년 ${signed(longBp, 0, 'bp')}, 2년–10년 금리차 ${signed(spreadBp, 0, 'bp')}.`;
+  const parallel = !kind && Math.abs(shortBp) >= 10 && Math.abs(longBp) >= 10 && Math.sign(shortBp) === Math.sign(longBp) ? Math.round((Math.abs(shortBp) + Math.abs(longBp)) / 2) : null;
   return {
     asOf: last.date,
     from: from.date,
@@ -190,9 +192,10 @@ export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE, latest =
     longBp,
     spreadBp,
     kind,
-    label: kind ? LABEL[kind] : `기울기 변화가 ${rule.minSpreadMoveBp}bp 미만이라 방향을 붙이지 않습니다`,
+    // v58.74 (text audit): 2년 -18bp, 10년 -19bp read only as "no direction"; the whole curve moving together is a reading of its own.
+    label: kind ? LABEL[kind] : parallel ? `기울기는 거의 그대로이고 곡선 전체가 약 ${parallel}bp 함께 ${shortBp < 0 ? '내렸습니다(평행 하락)' : '올랐습니다(평행 상승)'}` : `기울기 변화가 ${rule.minSpreadMoveBp}bp 미만이라 방향을 붙이지 않습니다`,
     fact,
-    reading: kind ? READING[kind] : null,
+    reading: kind ? READING[kind] : parallel ? (shortBp < 0 ? '단기와 장기 금리가 같이 내려, 정책 기대와 장기 요인이 같은 쪽(완화)으로 움직였습니다.' : '단기와 장기 금리가 같이 올라, 할인율 부담이 곡선 전체에 실렸습니다.') : null,
     uninverted: !!ended,
     inversion: ended,
     uninverted3m: !!ended3m,
@@ -231,8 +234,7 @@ function isoDate(value) {
 }
 
 export function signed(value, digits = 2, suffix = '') {
-  if (value == null) return '—';
-  return `${value > 0 ? '+' : value < 0 ? '−' : '±'}${Math.abs(value).toFixed(digits)}${suffix}`;
+  return signedText(value, digits, suffix);
 }
 
 function bp(value) {
@@ -240,7 +242,7 @@ function bp(value) {
 }
 
 // Codex review 2026-10-05: a Treasury level can be newer than the FRED change published beside it
-// (10/2 level with the 10/1−9/30 change). A change is used only when the producer stamped it with the
+// (10/2 level with the 10/1-9/30 change). A change is used only when the producer stamped it with the
 // level's own date, or when level and change both come from FRED.
 export function alignedRateDelta(macro, key, suffix = 'Delta') {
   const value = finite(macro?.[`${key}${suffix}`]);
@@ -277,7 +279,7 @@ function treasury(macro) {
   // 1960s, with a variable lead. It is a hypothesis about the economy, not a market timing rule.
   // Macro audit 2026-10-17: the New York Fed's recession model reads 10-year minus 3-month, not this 2-year spread, so the
   // sentence names the spread its research uses instead of lending it to 2s10s.
-  const reading = inverted ? '과거 미국 경기침체 대부분에 앞서 장단기 금리 역전이 나타났습니다. 뉴욕 연준의 침체 확률 모형은 10년−3개월 금리차를 쓰며, 2년–10년 역전도 대부분의 침체에 앞섰습니다. 다만 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.' : null;
+  const reading = inverted ? '과거 미국 경기침체 대부분에 앞서 장단기 금리 역전이 나타났습니다. 뉴욕 연준의 침체 확률 모형은 10년-3개월 금리차를 쓰며, 2년–10년 역전도 대부분의 침체에 앞섰습니다. 다만 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.' : null;
   const asOf = dates.length === 1 ? dates[0] : dates.sort().pop() || null;
   // v57.50 C10: the curve's levels and 1-day/1-week changes are the Treasury's official cut on its own date, which can be
   // a session or more behind the ^TNX close the 시장 상태 10-year "5일" change reads. The label carries the source and date.
@@ -344,9 +346,9 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
       available: true,
       yenStrength,
       burden: yenStrength >= YEN_RALLY_RULE,
-      // v57.70 (2026-10-15 audit): "20거래일 +1.5%" (USD/JPY) above "엔화 20일 −1.5%" read as a sign error; the second is the
+      // v57.70 (2026-10-15 audit): "20거래일 +1.5%" (USD/JPY) above "엔화 20일 -1.5%" read as a sign error; the second is the
       // yen's own value, and that is now said.
-      text: `엔화 가치 기준 20일 ${signed(yenStrength, 1, '%')} (${yenStrength >= 0 ? '엔 강세' : '엔 약세'} — 위 엔/달러 환율과 부호가 반대) — 엔화 가치가 ${YEN_RALLY_RULE}% 이상 오르면 시장 상태의 환율 참고 지표(6개 지표 합계에는 넣지 않음)이 '부담'으로 바뀝니다.`
+      text: `엔화 가치 기준 20일 ${signed(yenStrength, 1, '%')}(${yenStrength >= 0 ? '엔 강세' : '엔 약세'}, 위 엔/달러 환율과 부호가 반대). 엔화 가치가 ${YEN_RALLY_RULE}% 이상 오르면 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
     };
   const tnxAll = buildCloseSeries(history, 'tnx', { through: basis });
   const tnx = tnxAll.slice(-CHART_SESSIONS);

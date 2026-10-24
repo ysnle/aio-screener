@@ -1,0 +1,27 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "주말(10/23 미국 마감 후) 실사이트 시황 점검 중 발견.",
+ "status": null,
+ "p": {
+  "title": "Cboe 풋콜 수집 실패가 정적 데이터 계약을 깨 데이터 갱신 전체를 막음",
+  "symptom": "refresh-data 10/24 01:20Z 실패: 'category put-call has neither current evidence nor explicit unavailable contract'.",
+  "root_cause": "풋콜 수집이 실패하면 값 null을 게시했고, 다른 원천과 달리 직전 값을 보존하는 경로가 없었다.",
+  "fix": "수집 실패 시 직전 값을 stale-reference로 유지한다(history에는 current-reference만 기록).",
+  "violated_rule": "R721",
+  "prevention": "producer-dry-run에 Cboe 실패 시 직전 값 유지 검사 추가; 수정 전 실패·수정 후 통과 확인.",
+  "verification": "dry-run 통과, 수정 제거 시 'totalPutCall null'로 실패."
+ },
+ "qa": [
+  {
+   "id": "QA-PUTCALL-KEEP-01",
+   "text": "{P}: Cboe 수집이 실패해도 직전 풋콜 값이 stale-reference로 남고 갱신이 계속된다.",
+   "verify_by": "node scripts/ci-producer-dry-run.mjs",
+   "done": true
+  }
+ ],
+ "qa_section": "데이터 v58.74",
+ "changelog": [
+  "**풋콜 수집 실패 ({P}):** Cboe 읽기가 실패하면 직전 값을 유지해 데이터 갱신이 멈추지 않는다."
+ ]
+}

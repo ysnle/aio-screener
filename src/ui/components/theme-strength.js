@@ -3,18 +3,19 @@
 import { themeStrengthLead } from '../../domain/market/page-flow.js';
 import { sectionLead } from './page-flow.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
-import { buildGroupStrength, GROUP_WINDOWS } from '../../domain/themes/group-strength.js';
+import { buildGroupStrength, directionLabel, GROUP_WINDOWS } from '../../domain/themes/group-strength.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
 import { el } from './dom.js';
 import { attachScrollCue } from './scroll-cue.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { signedText } from '../../domain/shared/number.js';
 
 const SESSIONS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
 // Audit 19: rank movement words, kept apart from the playbook's stage words (주도·조정·반등·약세).
 const DIRECTION = Object.freeze({ improving: ['최근 강해짐', 'favorable'], steady: ['큰 변화 없음', 'neutral'], weakening: ['최근 식음', 'burden'] });
 
-const pct = (value, digits = 1) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`);
+const pct = (value, digits = 1) => (value == null ? '—' : signedText(value, digits, '%'));
 
 // S&P 500 return over the same number of sessions, on the close basis (P1399).
 export function benchmarkReturns(history = []) {
@@ -69,7 +70,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // P1431: what the order says, beyond the order — momentum moving and leaders cooling.
   // P1681 (X03 follow-up): on a stale basis the table stays as a dated reference, but the "now leading/improving"
   // reading is held — the same admission the US screener applies when it holds its ranks.
-  const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model);
+  const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model, { stages: root?.__aioThemePlaybook?.themes || null });
   if (lead) host.append(sectionLead(doc, lead));
   host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'}, 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위, S&P 500 ${model.windowLabel} ${pct(model.benchmark)}, 1주 = 최근 5거래일, 순위 변화: 1개월 순위가 3개월 순위보다 크게 오르면 '최근 강해짐', 크게 밀리면 '최근 식음'`, 'theme-strength-basis'));
   if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }
@@ -109,7 +110,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     tr.append(el(doc, 'td', group.above50Pct == null ? '—' : `${group.above50Pct}%`, 'is-num'));
     const dir = DIRECTION[group.direction];
     const dirCell = el(doc, 'td');
-    if (dir) dirCell.append(el(doc, 'span', dir[0], `regime-state is-${dir[1]}`));
+    if (dir) dirCell.append(el(doc, 'span', directionLabel(group), `regime-state is-${directionLabel(group) === dir[0] ? dir[1] : 'neutral'}`));
     tr.append(dirCell);
     const leaderCell = el(doc, 'td');
     const constituents = el(doc, 'div', null, 'theme-strength-constituents');
@@ -170,9 +171,9 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     more.addEventListener('click', onToggle);
     footer.append(more);
   }
-  if (model.excluded.length) footer.append(el(doc, 'span', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 세부 테마는 순위에서 제외`, 'theme-strength-theme'));
+  if (model.excluded.length) footer.append(el(doc, 'span', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 세부 테마는 순위에서 뺐습니다.`, 'theme-strength-theme'));
   const reference = model.groups.filter((group) => group.smallSample).length;
-  if (reference) footer.append(el(doc, 'span', `, 3종목 세부 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시`, 'theme-strength-theme'));
+  if (reference) footer.append(el(doc, 'span', ` 3종목 세부 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시합니다.`, 'theme-strength-theme'));
   host.append(footer);
   if (model.excluded.length) {
     const excluded = el(doc, 'details', null, 'theme-strength-unranked');
@@ -210,7 +211,7 @@ function renderTopSubthemes(doc, host, model, basis) {
     name.append(el(doc, 'b', group.name), el(doc, 'span', `${group.themeName}, ${group.listed}종목`, 'v2-themes-top__theme'));
     const dir = DIRECTION[group.direction];
     li.append(el(doc, 'span', String(group.rank), 'v2-themes-top__rank'), name,
-      dir && !basis?.stale ? el(doc, 'span', dir[0], `sx-chip sx-chip--sm ${DIRECTION_CHIP[group.direction] || 'sx-chip--neutral'}`) : el(doc, 'span', ''),
+      dir && !basis?.stale ? el(doc, 'span', directionLabel(group, { short: true }), `sx-chip sx-chip--sm ${directionLabel(group) === dir[0] ? DIRECTION_CHIP[group.direction] || 'sx-chip--neutral' : 'sx-chip--neutral'}`) : el(doc, 'span', ''),
       el(doc, 'b', pct(group[model.sortKey]), `v2-themes-top__value ${group[model.sortKey] >= 0 ? 'is-up' : 'is-down'}`));
     list.append(li);
   }
@@ -222,9 +223,12 @@ function renderTopSubthemes(doc, host, model, basis) {
   host.append(more);
 }
 
-// A whole theme's value = the median of its sub-theme medians on the newest common session (the playbook's method in
-// src/domain/scenarios/theme-playbook.js), so the same theme never shows two different 3-month numbers on one page.
-function themeGroupValues(model, themeId) {
+// A whole theme's value. v58.74: the playbook pools the members of every sub-theme (src/domain/scenarios/theme-playbook.js),
+// so its own number is read first — the same theme showed -6.0% here and -7.7% in 테마 시나리오 on one page. Before the
+// playbook has rendered, the median of the sub-theme medians stands in and the caption says so.
+function themeGroupValues(model, themeId, root = null) {
+  const pooled = root?.__aioThemePlaybook?.themes?.find((row) => row.market === 'US' && row.id === themeId);
+  if (pooled && Number.isFinite(pooled[model.sortKey])) return { value: pooled[model.sortKey], count: pooled.memberCount ?? pooled.members ?? null, pooled: true };
   const values = (model.groups || []).filter((group) => group.themeId === themeId && group.current !== false && Number.isFinite(group[model.sortKey])).map((group) => group[model.sortKey]).sort((a, b) => a - b);
   if (!values.length) return { value: null, count: 0 };
   const mid = Math.floor(values.length / 2);
@@ -237,7 +241,7 @@ function renderCapexFlow(doc, root, host, model) {
   // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
   // v57.79: the split is a published, dated research estimate (see ai-capex-flow.js `source`), so it is labelled as a
   // cited reference with its date — never as an AIO estimate.
-  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분, 참고 자료(현재 신호 아님), 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준, 테마 값은 세부 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)`, 'theme-strength-basis');
+  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분, 참고 자료(현재 신호 아님), 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준, 테마 값은 테마 시나리오와 같은 구성 종목 전체 중앙값`, 'theme-strength-basis');
   basisLine.title = `출처: ${AI_CAPEX_FLOW.source}`;
   host.append(basisLine);
   const bar = el(doc, 'div', null, 'capex-flow-bar');
@@ -274,10 +278,10 @@ function renderCapexFlow(doc, root, host, model) {
       const theme = model.themes?.[themeId];
       if (!theme) continue;
       // Audit 16: one method with the 테마 시나리오 cards — the median of the sub-theme medians on the latest session.
-      const subs = themeGroupValues(model, themeId);
+      const subs = themeGroupValues(model, themeId, root);
       const button = el(doc, 'button', `${theme.name} ${subs.value == null ? '비교 보류' : pct(subs.value)}`, 'capex-flow-theme');
       button.type = 'button';
-      button.title = subs.value == null ? '같은 종가 기준일의 세부 테마 중앙값이 없어 비교를 보류합니다' : `세부 테마 ${subs.count}개의 대표값(중앙값) (테마 시나리오 카드와 같은 방식)`;
+      button.title = subs.value == null ? '같은 종가 기준일의 세부 테마 중앙값이 없어 비교를 보류합니다' : subs.pooled ? `구성 종목${subs.count ? ` ${subs.count}개` : ''}의 중앙값(테마 시나리오 카드와 같은 값)` : `세부 테마 ${subs.count}개 중앙값의 중앙값(테마 시나리오가 아직 계산되지 않아 대신 씀)`;
       button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(themeId); });
       links.append(button);
     }

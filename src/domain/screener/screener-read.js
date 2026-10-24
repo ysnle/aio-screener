@@ -7,15 +7,13 @@ import { THEME_STATES } from '../scenarios/analogs.js';
 import { RRG_QUADRANT_WORDS } from '../themes/rrg.js';
 import { rrgSettledQuadrant } from '../themes/recent-check.js';
 import { NEAR_LINE_ADR, RECENT_DROP_ADR, adrMultiple, recentDrop } from '../technical/bands.js';
+import { withTopicParticle } from '../content/korean-particle.js';
+import { sectorLabel } from './sector-label.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
-// V13: labels are keyed by the canonical sector key only; aliases fold through normalizeSectorKey.
-const SECTOR_KO = Object.freeze({ Technology: '기술', Financials: '금융', Energy: '에너지', Healthcare: '헬스케어', Industrials: '산업재', Consumer: '경기소비재', 'Consumer Defensive': '필수소비재', 'Real Estate': '부동산', Materials: '소재', Utilities: '유틸리티', 'Communication Services': '통신', ETF: 'ETF' });
 const QUADRANT_KO = RRG_QUADRANT_WORDS; // R714: one set of quadrant words (themes/rrg.js)
 
-export function sectorLabel(sector) {
-  return SECTOR_KO[normalizeSectorKey(sector)] || sector || '분류 없음';
-}
+export { sectorLabel } from './sector-label.js';
 
 export function buildScreenerRead({ rows = [], rotation = {}, regime = null, validation = null } = {}) {
   const ranked = (Array.isArray(rows) ? rows : []).filter((row) => finite(row?.screenRank) != null).sort((a, b) => a.screenRank - b.screenRank);
@@ -44,7 +42,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   const points = [];
   if (over.length) {
     points.push({ id: 'mix', tone: 'neutral', title: '상위권 구성',
-      text: `${topLabel}는 ${over.map((row) => `${row.label} ${row.top.toFixed(0)}%(전체 ${row.all.toFixed(0)}%)`).join(', ')}로 쏠려 있습니다 — 순위가 개별 종목보다 업종 흐름을 먼저 반영하고 있다는 뜻입니다.` });
+      text: `${withTopicParticle(topLabel)} ${over.map((row) => `${row.label} ${row.top.toFixed(0)}%(전체 ${row.all.toFixed(0)}%)`).join(', ')}로 쏠려 있습니다 — 순위가 개별 종목보다 업종 흐름을 먼저 반영하고 있다는 뜻입니다.` });
     const withQuadrant = over.filter((row) => row.quadrant);
     if (withQuadrant.length) {
       const leading = withQuadrant.filter((row) => row.quadrant === 'Leading' || row.quadrant === 'Improving');
@@ -120,7 +118,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
             : `과거 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`;
   const headline = `${topName} 구성은 ${over.length ? `${over.map((row) => row.label).join('·')} 쏠림` : '업종 쏠림 없음'}${trustVerdict ? `, ${trustVerdict}` : ''} — 순위 계산 ${ranked.length}종목 중 ${topLabel}`;
   const next = [];
-  if (over[0]) next.push({ route: 'themes', label: '테마와 섹터', why: `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });
+  if (over[0]) next.push({ route: 'themes', label: '테마와 섹터', why: over[0].quadrant ? `${withTopicParticle(over[0].label)} 섹터 회전에서 ${QUADRANT_KO[over[0].quadrant] || over[0].quadrant} — 상위권 쏠림이 지난 강세를 늦게 반영한 것인지 확인` : `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });
   // audit #22: the ranking always continues into the two crossroads.
   next.push({ route: 'themes', label: '테마 시나리오', why: '이 단계 테마의 구성 종목을 차트·재무로 직접 확인', ctx: { anchor: 'theme-playbook' } });
   next.push({ route: 'macro', label: '거시 시나리오', why: '금리·경기 시나리오가 상위권 업종에 수혜인지 부담인지' });

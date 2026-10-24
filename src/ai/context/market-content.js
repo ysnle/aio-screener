@@ -12,6 +12,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { renderMacroCrossroadsContext } from '../../domain/market/macro-crossroads.js';
 import { renderThemePlaybookContext } from '../../domain/scenarios/theme-playbook.js';
 import { conditionLabel, parseConditionValue } from '../../domain/screener/custom-conditions.js';
+import { signedText } from '../../domain/shared/number.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
 export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '' } = {}) {
@@ -105,7 +106,7 @@ export function buildMarketContentContext({ query = '', history = [], themes = [
     if (groups.length) parts.push(`AIO 하위 테마 · 1/3/6개월 수익률 중앙값. 아래는 자료가 있는 테마이며 전체 시장이 아니다.${staleNote}\n` + groups.slice(0, 30).map((group) => {
       const dates = [...new Set(group.constituents.map((item) => rows.find((row) => String(row.sym).toUpperCase() === item.sym)?.factorSessionDate).filter(Boolean))];
       // X16 (2026-10-13): the theme table shows 1/3/6-month medians; the AI got only 3 months and said 1-month was missing.
-      const pct = (value) => (value == null ? '보류' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
+      const pct = (value) => (value == null ? '보류' : `${signedText(value, 1)}%`);
       return `${group.themeName} / ${group.name}: 중앙값 1개월 ${pct(group.ret1m)} · 3개월 ${group.ret3m == null ? '기준일 불일치/미확인으로 보류' : pct(group.ret3m)} · 6개월 ${pct(group.ret6m)}${group.rank1m != null && group.rank3m != null ? ` (테마 순위 1개월 ${group.rank1m}위 / 3개월 ${group.rank3m}위 — 같은 날 끝나는 두 기간의 비교이며 과거 순위 변화가 아님)` : ''}, 수익률 표본 ${group.members}/${group.listed}개, 구성 ${group.constituents.map((item) => item.sym).join(', ')}. 미국/한국 각각의 종가 기준일 ${dates.join(', ') || '미확인(현재 수치로 단정 금지)'}. 그룹 내부 3개월 수익률 순위: ${group.rankedMembers.map((member) => `${member.sym} ${member.rank == null ? '순위 보류/수익률 없음' : `${member.rank}위 ${member.ret3m.toFixed(1)}%`}`).join('; ')}.`;
     }).join('\n'));
   }

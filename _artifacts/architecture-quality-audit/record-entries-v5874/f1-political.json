@@ -1,0 +1,18 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "주말 시황 점검 후 소유자 승인 개선(2026-10-24).",
+ "status": null,
+ "qa_section": "화면 v58.74",
+ "qa": [
+  {
+   "id": "QA-POLITICAL-EVENTS-01",
+   "text": "v58.74 정치 일정: 법으로 정해진 선거가 7일 일정과 AI 해설 확인·반증 칸에 투표 마감 시각(KST)으로 들어가고, 지나면 빠진다.",
+   "verify_by": "node scripts/ci-market-session-contract-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs",
+   "done": true
+  }
+ ],
+ "changelog": [
+  "**정치 일정:** 이스라엘 총선(10/28 05:00 KST 투표 마감)과 미국 중간선거(11/4 09:00 KST 동부 투표 마감)를 공식 근거와 함께 7일 일정에 넣고, 일주일 안의 선거는 AI 해설에도 전달한다."
+ ]
+}

@@ -1396,7 +1396,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const q = (end, revenue) => ({ periodEnd: end, revenue, netIncome: 1 });
     const uneven = buildQuarterRead([q('2024-03-31', 100), q('2024-06-30', 100), q('2024-09-30', 100), q('2025-03-31', 55), q('2025-06-30', 70), q('2025-09-30', 360)].concat([q('2025-12-31', 1), q('2024-12-31', 1)]));
     const slowing = buildQuarterRead([q('2024-03-31', 100), q('2024-06-30', 100), q('2024-09-30', 100), q('2025-03-31', 160), q('2025-06-30', 140), q('2025-09-30', 120)]);
-    if (/빨라졌다/.test(uneven.headline) || !/느려졌다/.test(slowing.headline)) fail(`v57.55 review: quarterly trend wording must follow the last two YoY steps, got "${uneven.headline}" / "${slowing.headline}"`);
+    if (/빨라졌습니다/.test(uneven.headline) || !/느려졌습니다/.test(slowing.headline)) fail(`v57.55 review: quarterly trend wording must follow the last two YoY steps, got "${uneven.headline}" / "${slowing.headline}"`);
   }
   // ── P1339: company names resolve exactly; ticker-shaped input is never rewritten through an alias ──
   {
@@ -1674,7 +1674,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     if (Math.abs(s1Before._compositeZ - s1After._compositeZ) > 1e-9) fail(`factor-ranks: adding a NaN row must not change other rows' z-scores (stats collection must exclude it) — S1 _compositeZ ${s1Before._compositeZ} vs ${s1After._compositeZ}`);
   }
 
-  // 2026-10-19 (expertise review D2): 12-1 momentum is close[t−21]/close[t−252]−1 from ret12m and ret1m; it orders by the
+  // 2026-10-19 (expertise review D2): 12-1 momentum is close[t-21]/close[t-252]-1 from ret12m and ret1m; it orders by the
   // year excluding the last month (not by the full year), and a listing without a year of closes has no momentum score.
   {
     const pairs = [[50, 20], [30, -10], [10, 0], [40, 40], [5, -5], [20, 10]]; // [ret12m, ret1m]
@@ -2003,7 +2003,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 
   // S06/S18/S19: PER names its fiscal year and months since; losses read with the sign first; negative ROE says why.
   const { buildFiscalRead, formatUsdShort } = await load('src/domain/fundamental/fiscal-read.js');
-  if (formatUsdShort(-147.8e9) !== '−$147.8B' || formatUsdShort(416.2e9) !== '$416.2B') fail(`S18 signed USD format drifted: ${formatUsdShort(-147.8e9)}`);
+  if (formatUsdShort(-147.8e9) !== '-$147.8B' || formatUsdShort(416.2e9) !== '$416.2B') fail(`S18 signed USD format drifted: ${formatUsdShort(-147.8e9)}`);
   const per = buildFiscalRead({ symbol: 'AAPL', row: { pe: 45, factorSessionDate: '2026-10-12' }, fundamentals: { symbol: 'AAPL', fiscalHistory: [{ periodEnd: '2024-09-28', revenue: 391e9, netIncome: 93.7e9, equity: 57e9 }, { periodEnd: '2025-09-27', revenue: 416e9, netIncome: 112e9, equity: 74e9 }] } });
   {
     // v58.20 review C1: a PER priced on earnings available to common (market cap 1600 / common 80 = 20) is not rebuilt
@@ -2192,7 +2192,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
   const fiscalUi = await load('src/ui/components/fiscal-read.js');
   if (fiscalUi.dartLinkHref({ receiptNo: '20250311001085' }) !== 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250311001085' || fiscalUi.dartLinkHref(null) !== 'https://dart.fss.or.kr/dsab007/main.do') fail('S12 DART link format drifted');
-  if (fiscalUi.formatFiscalCompact(416161e6) !== '$416.2B' || fiscalUi.formatFiscalCompact(-7126000) !== '−$7.1M') fail('S20 fiscal table must use B/T units');
+  if (fiscalUi.formatFiscalCompact(416161e6) !== '$416.2B' || fiscalUi.formatFiscalCompact(-7126000) !== '-$7.1M') fail('S20 fiscal table must use B/T units');
 }
 
 // ── domain/technical/follow-through.js (v57.87) ─────────────────────────────────────────────
@@ -2911,7 +2911,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`P1182/22:PFR05 a 13-return/1-tail sample must publish its facts and HOLD certification, got ${JSON.stringify({ ok: tailRun.ok, vc, var5: tailRun.performance?.historicalVar5, cvar5: tailRun.performance?.conditionalVar5 })}`);
   }
 
-  // 22:PFR02/PFR09 — cash 50 / equity 50, equity −10%, cash 0%(명시) → 계좌 전체 −5%, 주식 부분 −10%.
+  // 22:PFR02/PFR09 — cash 50 / equity 50, equity -10%, cash 0%(명시) → 계좌 전체 -5%, 주식 부분 -10%.
   // 같은 수치가 두 scope 제목으로 나뉘고, RF 없이는 estimate가 보류를 선언한다.
   const scopeSnapshot = createCompositionSnapshot({
     members: [{ ticker: 'AAA', qty: 1, price: 50, priceObservedAt: '2026-09-23T00:00:00.000Z', priceSource: 'fixture' }],
@@ -2941,7 +2941,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     // 선언은 `rebalancePolicyDeclared`로 따로 발행된다(소비되지 않는 선언이 정체성을 바꾸지 않는다).
     || scopeEstimate.rebalancePolicy !== null || scopeEstimate.rebalancePolicyDeclared !== 'daily'
     || scopeEstimate.rebalancePolicyApplied !== false) {
-    fail(`P1182/22:PFR02/PFR09 whole-account −5% and invested-sleeve −10% must publish as distinct declared scopes, got ${JSON.stringify({ snapStatus: scopeSnapshot.status, snapWeight: scopeSnapshot.members[0]?.resolvedWeight, cashWeight: scopeSnapshot.cashWeight, est: { status: scopeEstimate.status, whole: scopeEstimate.wholeAccountReturns, sleeve: scopeEstimate.investedSleeveReturns, scope: scopeEstimate.publishedScope, rf: scopeEstimate.rf, mode: scopeEstimate.exposureHistoryMode, rebalance: scopeEstimate.rebalancePolicy } })}`);
+    fail(`P1182/22:PFR02/PFR09 whole-account -5% and invested-sleeve -10% must publish as distinct declared scopes, got ${JSON.stringify({ snapStatus: scopeSnapshot.status, snapWeight: scopeSnapshot.members[0]?.resolvedWeight, cashWeight: scopeSnapshot.cashWeight, est: { status: scopeEstimate.status, whole: scopeEstimate.wholeAccountReturns, sleeve: scopeEstimate.investedSleeveReturns, scope: scopeEstimate.publishedScope, rf: scopeEstimate.rf, mode: scopeEstimate.exposureHistoryMode, rebalance: scopeEstimate.rebalancePolicy } })}`);
   }
   // 같은 입력 → 같은 estimateId (replay). RF만 바꿔도 계산 입력이 갈라진다(양성 대조).
   const scopeReplay = deriveRiskEstimate(scopeInput);
@@ -3711,7 +3711,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const overAllocated = deriveRiskEstimate({ ...p1200Base, targetWeights: { AAA: 1.2 }, cashReturn: { mode: 'explicit_assumption', annualRate: 0.0365 } });
   const cashUnresolved = deriveRiskEstimate({ ...p1200Base, targetWeights: { AAA: 0.8 }, cashReturn: { mode: 'unresolved' } });
   const fullSleeve = deriveRiskEstimate({ ...p1200Base, targetWeights: { AAA: 1 }, cashReturn: { mode: 'explicit_assumption', annualRate: 0.0365 } });
-  // 현금 수익률의 일간 환산은 모듈이 선언한 규약을 따른다: (1+연율)^(1/252)−1 (거래일 복리).
+  // 현금 수익률의 일간 환산은 모듈이 선언한 규약을 따른다: (1+연율)^(1/252)-1 (거래일 복리).
   const dailyCashRate = Math.pow(1 + 0.0365, 1 / 252) - 1;
   const expectedFirst = 0.8 * p1200Series[0] + 0.2 * dailyCashRate;
   const p1200Checks = [
@@ -3935,6 +3935,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const ids = read.statements.map((row) => row.id);
   if (!read.available || !ids.includes('narrow-rally') || !ids.includes('fear-without-credit-stress')) fail(`P1389 briefing read missed cross-asset statements: ${ids}`);
   if (buildCloseSeries(rows, 'tnx').some((point) => point.value === 0)) fail('P1389 a zero yield is a producer gap, not a close');
+  // v58.74: a Saturday live F&G reading re-dated to Friday never replaces that Friday's historical-graph close.
+  const fgRows = [
+    { date: '2026-10-16', fg: 22.07, fieldMeta: { fg: { observedAt: '2026-10-16T00:00:00.000Z', allowedUse: 'reference-history' } } },
+    { date: '2026-10-17', fg: 18, fieldMeta: { fg: { observedAt: '2026-10-16T23:59:49.000Z', allowedUse: 'reference' } } }
+  ];
+  if (buildCloseSeries(fgRows, 'fg').find((point) => point.date === '2026-10-16')?.value !== 22.07) fail('v58.74 a live F&G reading must not overwrite the historical close for its day');
   if (/HY 5일/.test(read.statements.find((row) => row.id === 'fear-without-credit-stress').text)) fail('P1389 a missing HY change must not print as 0bp');
   if (ids.some((id) => ['real-yield-led', 'breakeven-led', 'bear-steepening', 'bear-flattening', 'bull-steepening', 'bull-flattening'].includes(id))) fail('P1390 rate decomposition must stay silent without FRED inputs');
   const decomposed = buildMarketRead({ history: rows, credit: { hyBp: 308, hyAsOf: last, fg: 28, fgAsOf: last }, rates: { asOf: last, realYield10Delta5: 0.14, breakeven10Delta5: 0.03, dgs2Delta5: -0.02, dgs10Delta5: 0.17 } }).statements.map((row) => row.id);
@@ -4088,7 +4094,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const day = buildLeadershipVerdict({ history: rows, leadership, basis: '2026-10-22' });
   const gapped = buildLeadershipVerdict({ history: rows.filter((row) => row.date !== '2026-10-21'), leadership, basis: '2026-10-22' });
   const none = buildLeadershipVerdict({ history: rows, leadership: { available: false } });
-  if (!day.shock || day.label !== '이탈, 급락일' || Math.round(day.semis1d) !== -6 || day.low20 !== 189 || !/20거래일 종가 신저가 189개\(21%\)/.test(day.line)
+  if (!day.shock || day.label !== '이탈, 급락일' || Math.round(day.semis1d) !== -6 || day.low20 !== 189 || !/20거래일 종가 신저가 189개\(미국 종목의 21%\)/.test(day.line) || !/ \/ 나스닥 100/.test(day.line)
     || gapped.semis1d !== null || gapped.shock || !/하루 변화는 일부 생략/.test(gapped.line) || none.available)
     fail(`v58.68 leadership verdict wrong: ${JSON.stringify({ day: [day.label, day.semis1d, day.line], gapped: [gapped.label, gapped.semis1d, gapped.line], none: none.available })}`);
 }
@@ -4111,10 +4117,52 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     .map(([sym, ret1d]) => ({ sym, ret1d, factorSessionDate: session }));
   const split = buildThemeFlow({ themes, rows, session });
   const stale = buildThemeFlow({ themes, rows: rows.map((row) => ({ ...row, factorSessionDate: '2026-10-21' })), session });
-  if (flow.kind !== 'defensive' || flow.tenYearBp !== -17 || !/미국 10년물 −17bp/.test(flow.line) || !/공포·탐욕 20\(극단 공포\)/.test(flow.line) || !/채권/.test(flow.read)
+  if (flow.kind !== 'defensive' || flow.tenYearBp !== -17 || !/미국 10년물 -17bp/.test(flow.line) || !/공포·탐욕 20\(극단 공포\)/.test(flow.line) || !/채권/.test(flow.read)
     || broad.kind !== 'broadDown' || broad.tenYearBp !== null
-    || split.splits[0]?.theme !== '유틸리티' || !/규제 유틸리티 \+2\.6%, 원전\/독립발전 −5\.7%/.test(split.splitLines[0]) || stale.available)
+    || split.splits[0]?.theme !== '유틸리티' || !/규제 유틸리티 \+2\.6%, 원전\/독립발전 -5\.7%/.test(split.splitLines[0]) || stale.available)
     fail(`v58.68 market flow wrong: ${JSON.stringify({ flow: [flow.kind, flow.line, flow.read], broad: [broad.kind, broad.tenYearBp], split: split.splitLines, stale: stale.available })}`);
+  // v58.74: the boot-set copy of the AI chain equals the AI capex layers (minus the broad industrials theme).
+  const { AI_CHAIN_THEMES, AI_CHAIN_GROUPS } = await import(pathToFileURL(path.join(root, 'src/domain/market/market-flow.js')).href);
+  const { AI_CAPEX_FLOW } = await import(pathToFileURL(path.join(root, 'src/domain/themes/ai-capex-flow.js')).href);
+  const capexThemes = [...new Set(AI_CAPEX_FLOW.layers.flatMap((layer) => layer.themes || []).filter((id) => id !== 'industrials'))].sort();
+  const capexGroups = [...new Set(AI_CAPEX_FLOW.layers.flatMap((layer) => layer.groups || []))].sort();
+  if (JSON.stringify([...AI_CHAIN_THEMES].sort()) !== JSON.stringify(capexThemes) || JSON.stringify([...AI_CHAIN_GROUPS].sort()) !== JSON.stringify(capexGroups))
+    fail(`v58.74 AI chain copy drifted from AI_CAPEX_FLOW: ${JSON.stringify({ capexThemes, capexGroups })}`);
+  // v58.74: a sub-theme whose members split (MU up, SNDK/WDC/STX down) is named, AI-chain sub-themes first.
+  const memberThemes = [{ id: 'semiconductor', nameKr: '반도체', subThemes: [{ name: '메모리/스토리지', tickers: ['MU', 'SNDK', 'WDC', 'STX'] }] },
+    { id: 'financials', nameKr: '금융', subThemes: [{ name: '결제', tickers: ['P1', 'P2', 'P3'] }] }, ...themes.slice(1)];
+  const memberRows = [...rows, ['MU', 2.46], ['SNDK', -1.82], ['WDC', -2.97], ['STX', -1.81], ['P1', 4], ['P2', -4], ['P3', 0]].map((row) => (Array.isArray(row) ? { sym: row[0], ret1d: row[1], factorSessionDate: session } : row));
+  const members = buildThemeFlow({ themes: memberThemes, rows: memberRows, session });
+  if (members.memberSplitLines?.[0] !== '메모리/스토리지: MU +2.5%, WDC -3.0% (상승 1, 하락 3)' || members.memberSplits[1]?.name !== '결제')
+    fail(`v58.74 member split wrong: ${JSON.stringify(members.memberSplitLines)}`);
+  // v58.74: an intraday KOSPI crash headline carries the reversed close; a same-direction close or an after-close story does not.
+  const { krIndexCloseNote } = await import(pathToFileURL(path.join(root, 'src/domain/news/kr-close-note.js')).href);
+  const krHist = [{ date: '2026-10-22', kospi: 5533.7 }, { date: '2026-10-23', kospi: 5550.3 }];
+  const crash = { title: "코스피 5,500선 붕괴에 반도체주 '와르르'", pubDate: '2026-10-23T00:19:00Z' };
+  if (krIndexCloseNote(crash, krHist) !== '코스피 10/23 마감 +0.30%, 기사 이후 장중에 방향이 바뀌었습니다'
+    || krIndexCloseNote({ ...crash, title: '코스피 급등' }, krHist) !== null || krIndexCloseNote({ ...crash, pubDate: '2026-10-23T08:00:00Z' }, krHist) !== null)
+    fail('v58.74 KR close note wrong');
+  const { usWeekendClosed } = await import(pathToFileURL(path.join(root, 'src/ui/components/home-kpi-trend.js')).href);
+  const weekendReads = ['2026-10-23T20:59:00Z', '2026-10-23T21:01:00Z', '2026-10-24T03:00:00Z', '2026-10-25T21:59:00Z', '2026-10-25T22:01:00Z'].map((at) => usWeekendClosed(Date.parse(at)));
+  if (JSON.stringify(weekendReads) !== '[false,true,true,true,false]') fail(`v58.74 home weekend heading window wrong: ${JSON.stringify(weekendReads)}`);
+  // v58.74 (audit 10/24): a theme row pools its members — a 4-name group no longer sets a 10-name theme's numbers.
+  const { buildThemePlaybook } = await import(pathToFileURL(path.join(root, 'src/domain/scenarios/theme-playbook.js')).href);
+  const stat = (sym, ret, above) => ({ sym, ret1m: ret, ret3m: ret, ret6m: ret, ret5d: 0, vol: 30, pctSma50: above ? 5 : -5 });
+  const pooledGroups = [
+    { themeId: 'utilities', name: '규제', ret1m: 3, ret3m: 3, ret6m: 3, above50Pct: 100, basis: '2026-10-23', current: true, members: 10, memberStats: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => stat(`R${i}`, 3, true)) },
+    { themeId: 'utilities', name: '원전', ret1m: -20, ret3m: -20, ret6m: -20, above50Pct: 0, basis: '2026-10-23', current: true, members: 4, memberStats: [1, 2, 3, 4].map((i) => stat(`N${i}`, -20, false)) },
+    { themeId: 'utilities', name: '연료전지', ret1m: -25, ret3m: -25, ret6m: -25, above50Pct: 0, basis: '2026-10-23', current: true, members: 4, memberStats: [stat('N1', -20, false), ...[1, 2, 3].map((i) => stat(`F${i}`, -25, false))] }
+  ];
+  const pooledRow = buildThemePlaybook({ usGroups: pooledGroups, crossroads: null }).themes[0];
+  if (pooledRow?.ret3m !== 3 || pooledRow.above50 !== 59) fail(`v58.74 theme row not pooled from members: ${JSON.stringify({ ret3m: pooledRow?.ret3m, above50: pooledRow?.above50 })}`);
+  const { directionLabel } = await import(pathToFileURL(path.join(root, 'src/domain/themes/group-strength.js')).href);
+  if (directionLabel({ direction: 'weakening', recent: { surged: true } }) !== '순위 밀렸지만 1주 급반등' || directionLabel({ direction: 'improving', recent: { broken: true } }) !== '순위 올랐지만 1주 급락'
+    || directionLabel({ direction: 'weakening', recent: { surged: false, move: 2 } }) !== '순위 밀렸지만 1주 반등' || directionLabel({ direction: 'weakening', recent: { surged: false, move: -1 } }) !== '최근 식음') fail('v58.74 week-aware theme rank label wrong');
+  const { fomcDecisionDate } = await import(pathToFileURL(path.join(root, 'src/domain/market/macro-crossroads.js')).href);
+  if (fomcDecisionDate('2026-09-17') !== '2026-09-16') fail('v58.74 FOMC change is dated by its decision day');
+  const { nextEarningsLine: earningsLine } = await import('./producer/market-narrative.mjs');
+  const weekLine = earningsLine({ earnings: [['KO', '2026-10-27', 'bmo', 0.56], ['V', '2026-10-27', 'amc', 1.07], ['MSFT', '2026-10-28', 'amc', 5.85], ['GOOGL', '2026-10-28', 'amc', 2.88], ['AMZN', '2026-10-29', 'amc', 3.9]].map(([symbol, date, hour, indexWeight]) => ({ symbol, date, hour, indexWeight }) ) }, '2026-10-23');
+  if (!/^다음 대형주 실적\(10\/27, 미국 시각\): 장 전 KO \/ 장 마감 후 V \/ 이어서 비중이 큰 실적\(미국 시각\): 10\/28 장 마감 후 MSFT, 10\/28 장 마감 후 GOOGL, 10\/29 장 마감 후 AMZN$/.test(weekLine)) fail(`v58.74 the week's heaviest reports follow the next session: ${weekLine}`);
   const { priorSessionMoveLines } = await import('./fetch-data.mjs');
   const us = priorSessionMoveLines([['2026-10-20', 546.36, 7712], ['2026-10-21', 557, 7757], ['2026-10-22', 523.35, 7663]].map(([date, smh, spx]) => ({ date, smh, spx })));
   const gapped = priorSessionMoveLines([['2026-10-20', 557], ['2026-10-22', 523.35]].map(([date, smh]) => ({ date, smh })));
@@ -4855,7 +4903,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const rule = (latched) => ({ a, b }, assume = new Set()) => (a < 40 || b < 40) ? 'burden' : (a >= 60 && b >= 60) ? 'favorable' : latched && Math.min(a, b) < 45 ? 'burden' : 'neutral';
   const levers = (a, b) => [{ key: 'a', current: a, typical: 2, points: [pt(40), pt(45), pt(60)] }, { key: 'b', current: b, typical: 1, points: [pt(40), pt(45), pt(60)] }];
   const neutral = flipDistanceSearch({ state: 'neutral', stateAt: rule(false), levers: levers(50, 44) });
-  if (neutral?.primary?.toward !== 'burden' || neutral.primary.lever !== 'b' || neutral.primary.text !== '−4%p' || neutral.primary.direction !== 'worsen') fail(`v58.55 the nearest flip (in typical moves) is reported in the lever's own unit: ${JSON.stringify(neutral?.primary)}`);
+  if (neutral?.primary?.toward !== 'burden' || neutral.primary.lever !== 'b' || neutral.primary.text !== '-4%p' || neutral.primary.direction !== 'worsen') fail(`v58.55 the nearest flip (in typical moves) is reported in the lever's own unit: ${JSON.stringify(neutral?.primary)}`);
   const up = neutral.all.find((item) => item.toward === 'favorable');
   if (!up || up.also.length !== 1 || up.lever !== 'b' || up.also[0].text !== '+10%p') fail(`v58.55 two conditions together: the farther one is the distance, the other is named in also: ${JSON.stringify(up)}`);
   const held = flipDistanceSearch({ state: 'burden', stateAt: rule(true), levers: levers(50, 42) });
@@ -5105,7 +5153,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (ms.inflationDirection({ pce: { pace: 2.5, yoy: 3.0 } }).dir !== 'down' || ms.inflationDirection({}).state !== 'unknown') fail('v57.81 one published measure decides alone; none is unknown');
   // One Brent/WTI rule.
   const base = { basis: 'futures', abnormal: false, diverges: false };
-  if (!ms.oilDivergence({ ...base, brent20: 0.2, wti20: -7.2 }).held) fail('v57.81 Brent +0.2% beside WTI −7.2% holds the WTI read');
+  if (!ms.oilDivergence({ ...base, brent20: 0.2, wti20: -7.2 }).held) fail('v57.81 Brent +0.2% beside WTI -7.2% holds the WTI read');
   if (ms.oilDivergence({ ...base, brent20: -1, wti20: -8 }).kind !== 'unconfirmed') fail('v57.81 a WTI fall Brent does not follow by half is unconfirmed');
   if (ms.oilDivergence({ ...base, brent20: -6, wti20: -8 }).held || ms.oilDivergence({ ...base, basis: 'spot', brent20: 5, wti20: -8 }).held) fail('v57.81 a confirmed move, or a spot Brent, does not hold the WTI read');
   if (!ms.oilDivergence({ abnormal: true }).held) fail('v57.81 an abnormal same-day gap holds every oil read');
@@ -5448,7 +5496,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const t = taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro });
   const pi = (pce.at(-1)[1] / pce.at(-13)[1] - 1) * 100;
   const expected = 0.5 + pi + 0.5 * (pi - 2) + 0.5 * (-2 * (4.4 - 4.2));
-  if (!t.available || t.natural.value !== 4.2 || Math.abs(t.rule - expected) > 1e-9 || Math.abs(t.diff - (3.875 - expected)) > 1e-9) fail(`taylor: rule = r* + π + 0.5(π−2) + 0.5·(−2·(u−u*)) ${JSON.stringify(t)}`);
+  if (!t.available || t.natural.value !== 4.2 || Math.abs(t.rule - expected) > 1e-9 || Math.abs(t.diff - (3.875 - expected)) > 1e-9) fail(`taylor: rule = r* + π + 0.5(π-2) + 0.5·(-2·(u−u*)) ${JSON.stringify(t)}`);
   const one = taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro, rStar: 1 });
   if (Math.abs(one.rule - t.rule - 0.5) > 1e-9 || one.range.lo !== t.range.lo || one.rStar !== 1 || taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro, rStar: 3 }).rStar !== 0.5) fail('taylor: r* is one of the two offered assumptions and shifts the rule one for one');
   if (taylorRule({ macroHistory: { series: { ...series, naturalUnemployment: nrou } }, macro: {} }).diff !== null) fail('taylor: no target range, no comparison');
@@ -5514,4 +5562,20 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const none = taylorRule({ macroHistory: { series }, macro: {}, nowMs });
   if (none.rStarSource !== 'assumed' || none.rStar !== 0.5 || none.sep !== null) fail('taylor v58.56: without a collected SEP median the rule falls back to the 0.5% assumption and says so');
   if (!taylorRule({ macroHistory: withSep, macro: {}, nowMs: Date.UTC(2027, 2, 1) }).sep.old) fail('taylor v58.56: an SEP median older than one release cycle is marked old');
+}
+
+{
+  // v58.74 (text audit): one sign style, one people unit, particles after slots, and the rendered-copy rules.
+  const { signedText, peopleText } = await import(pathToFileURL(path.join(root, 'src/domain/shared/number.js')).href);
+  const signs = [signedText(-0.04, 1, '%'), signedText(0, 2, '%p'), signedText(2.6, 1, '%'), signedText(-3.24, 1, '%'), signedText(null), signedText('x'), signedText(17.4, 0, 'bp')];
+  if (JSON.stringify(signs) !== JSON.stringify(['0.0%', '0.00%p', '+2.6%', '-3.2%', '—', '—', '+17bp'])) fail(`v58.74 signedText wrong: ${JSON.stringify(signs)}`);
+  const people = [peopleText(5), peopleText(51), peopleText(100), peopleText(-25, { sign: true }), peopleText(56, { sign: true }), peopleText(null)];
+  if (JSON.stringify(people) !== JSON.stringify(['5천 명', '5.1만 명', '10만 명', '-2.5만 명', '+5.6만 명', '—'])) fail(`v58.74 peopleText wrong: ${JSON.stringify(people)}`);
+  const { withSubjectParticle, withAndParticle, withDirectionParticle } = await import(pathToFileURL(path.join(root, 'src/domain/content/korean-particle.js')).href);
+  const particles = [withSubjectParticle('시장 폭 부담'), withSubjectParticle('추세 양호'), withSubjectParticle('나스닥 100'), withAndParticle('PCE'), withAndParticle('나스닥 100'), withDirectionParticle("'유가 충격'"), withDirectionParticle('-70')];
+  if (JSON.stringify(particles) !== JSON.stringify(['시장 폭 부담이', '추세 양호가', '나스닥 100이', 'PCE와', '나스닥 100과', "'유가 충격'으로", '-70으로'])) fail(`v58.74 particles wrong: ${JSON.stringify(particles)}`);
+  const { lintLines } = await import(pathToFileURL(path.join(root, 'scripts/ci-rendered-copy-lint-check.mjs')).href);
+  const hits = lintLines("대안 시나리오가 '유가 충격'(으)로 바뀌었습니다\n나스닥 100 10/23 -0.0%\n2년물 − 기준금리 0.82%p, 코스피 +0.3%", 'home').map((hit) => hit.rule);
+  if (JSON.stringify(hits) !== JSON.stringify(['placeholder-particle', 'negative-zero'])) fail(`v58.74 copy lint rules wrong: ${JSON.stringify(hits)}`);
+  if (lintLines('−50%를 메우려면 +100%', 'principles').length) fail('v58.74 copy lint: long-form arithmetic keeps the typographic minus');
 }

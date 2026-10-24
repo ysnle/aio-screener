@@ -10,12 +10,13 @@ import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { el } from './dom.js';
 import { RULES } from '../../domain/rules/thresholds.js';
+import { signedText } from '../../domain/shared/number.js';
 // v57.91 (visual audit): the loading card spans the whole evidence grid instead of sitting in its last column.
 const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; return node; };
 
 // v58.53 개편 v2 (5f): three reading cards under the chart — distance from the 50-day line, RSI 14 and the 60-session
 // volume-weighted average price — each computed from the same completed daily bars the chart draws (no other source).
-const signedPct = (value) => `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(1)}%`;
+const signedPct = (value) => signedText(value, 1, '%');
 export function wilderRsi(closes, period = 14) {
   if (!Array.isArray(closes) || closes.length <= period) return null;
   let gain = 0, loss = 0;
@@ -46,7 +47,7 @@ function chartReadCards(doc, analysis, currency) {
   if (close > 0 && sma50 > 0) {
     const pct = (close / sma50 - 1) * 100;
     const multiple = Number.isFinite(analysis.adrFrom50) ? Math.abs(analysis.adrFrom50) : null;
-    card('50일선 대비', signedPct(pct), multiple == null ? `50일선 ${formatScreenerPrice(sma50, currency)}` : `일평균 변동폭(${analysis.adrPct.toFixed(1)}%)의 ${multiple.toFixed(1)}배 ${pct >= 0 ? '위' : '아래'} — 거리가 클수록 되돌림 폭도 커집니다`, '이동평균 규칙, Brock·Lakonishok·LeBaron(1992)');
+    card('50일선 대비', signedPct(pct), multiple == null ? `50일선 ${formatScreenerPrice(sma50, currency)}` : `일평균 변동폭(${analysis.adrPct.toFixed(1)}%)의 ${multiple.toFixed(1)}배 ${pct >= 0 ? '위 — 멀수록 50일선 쪽으로 되돌릴 때 낙폭이 큽니다' : '아래 — 멀수록 50일선을 되찾는 데 필요한 상승 폭이 큽니다'}`, '이동평균 규칙, Brock·Lakonishok·LeBaron(1992)');
   }
   const rsi = wilderRsi(analysis.bars.map((bar) => bar.close));
   if (rsi != null) {
@@ -55,7 +56,7 @@ function chartReadCards(doc, analysis, currency) {
   }
   const vwap = sessionVwap(analysis.bars, 60);
   if (vwap != null && close > 0) {
-    card('거래량 가중 평균가 (60일)', formatScreenerPrice(vwap, currency), `현재가가 ${signedPct((close / vwap - 1) * 100)} ${close >= vwap ? '위' : '아래'} — 최근 60거래일 거래가 많이 일어난 가격의 평균`, 'VWAP, 일봉 전형가격 × 거래량 근사');
+    card('거래량 가중 평균가 (60일)', formatScreenerPrice(vwap, currency), `종가가 ${Math.abs((close / vwap - 1) * 100).toFixed(1)}% ${close >= vwap ? '위' : '아래'} — 최근 60거래일 거래가 많이 일어난 가격의 평균`, 'VWAP, 일봉 전형가격 × 거래량 근사');
   }
   if (!cards.length) return null;
   const row = el(doc, 'div', null, 'v2-chart-reads');
@@ -270,7 +271,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   setChartEmpty(doc, false);
   const change = analysis.prev ? (analysis.last.close / analysis.prev.close - 1) * 100 : null;
   root.__aioStockChartAnalysis = { symbol: sym, analysis };
-  set('stock-chart-status', `${analysis.asOf} 종가 ${formatScreenerPrice(analysis.last.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%)${droppedLive ? ', 장중인 오늘 봉은 분석에서 제외' : ''}`);
+  set('stock-chart-status', `${analysis.asOf} 종가 ${formatScreenerPrice(analysis.last.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${signedText(change, 2)}%)${droppedLive ? ', 장중인 오늘 봉은 분석에서 제외' : ''}`);
   const badge = doc.getElementById('stock-chart-state');
   if (badge) { badge.textContent = analysis.stateLabel; badge.className = `regime-state is-${STATE_TONE[analysis.state] || 'neutral'}`; }
   await library;
@@ -319,11 +320,12 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const body = el(doc, 'div', null, 'v2-chart-body');
   body.append(read, visuals, more);
   panel.replaceChildren(...(readCards ? [readCards] : []), body);
-  const forward = buildChartScenarios(analysis);
+  const forward = buildChartScenarios(analysis, { currency: kr ? 'KRW' : payload?.meta?.currency || null });
   if (forward.available) {
     const section = el(doc, 'section', null, 'chart-scenarios');
     section.append(el(doc, 'h3', '앞으로 구분할 세 가지 흐름', 'briefing-h2'));
     section.append(el(doc, 'p', `${forward.asOf} 완료 봉의 가격 구조 기준, 조건이 성립했을 때의 해석입니다.`, 'theme-strength-basis'));
+    if (forward.nearest) section.append(el(doc, 'p', forward.nearest, 'xr-reading'));
     for (const scenario of forward.scenarios) {
       const card = el(doc, 'div', null, 'chart-scenario'); card.dataset.scenario = scenario.id;
       card.append(el(doc, 'h4', scenario.title), el(doc, 'p', scenario.text)); section.append(card);
@@ -480,7 +482,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   const lastBar = bars.at(-1), prevBar = bars.at(-2);
   const change = (lastBar.close / prevBar.close - 1) * 100;
   const stamp = spec.intraday ? new Date(lastBar.time * 1000).toISOString().slice(0, 16).replace('T', ' ') : lastBar.time;
-  set('stock-chart-status', `${stamp}${spec.intraday ? ' 거래소 현지 시각' : ''} ${formatScreenerPrice(lastBar.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%, 직전 봉 대비)`);
+  set('stock-chart-status', `${stamp}${spec.intraday ? ' 거래소 현지 시각' : ''} ${formatScreenerPrice(lastBar.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${signedText(change, 2)}%, 직전 봉 대비)`);
   const structure = intervalStructure(bars);
   const read = el(doc, 'div', null, 'chart-read');
   read.append(el(doc, 'p', `${spec.label}봉 기준 단기 이동평균(종가>5>10>20)은 ${structure.short || '계산 불가'}, 장기(20>50>100>200)는 ${structure.long || '기록 부족'}입니다.`, 'chart-read-headline'));

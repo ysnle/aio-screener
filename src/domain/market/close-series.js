@@ -108,6 +108,7 @@ export function buildCloseSeries(history = [], field, { through = null, includeP
 function computeCloseSeries(history, field, { through, includeProvenance, market }) {
   const byDate = new Map();
   const rankOf = new Map();
+  const historyOf = new Map();
   const close = SESSION_CLOSE_NY_MINUTE[field] ?? null;
   const rows = [...(Array.isArray(history) ? history : [])].sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   for (const row of rows) {
@@ -129,6 +130,12 @@ function computeCloseSeries(history, field, { through, includeProvenance, market
     const rank = sessionDated && previousClose && close != null ? 0 : minute == null ? null : settleRank(minute, close);
     const held = rankOf.get(date);
     if (byDate.has(date) && rank != null && held != null && rank > held) continue; // C11: an earlier stamp sits closer to the settle
+    // v58.74 (audit: F&G 10/16 showed 18; the recorded close is 22.07): a field without a settle time (F&G) took the later row, so the Saturday live
+    // reading re-dated to Friday replaced CNN's own historical close for that day. A historical-graph value
+    // (allowedUse 'reference-history') is that day's record; a live reading never overwrites it.
+    const recorded = meta?.allowedUse === 'reference-history';
+    if (close == null && byDate.has(date) && historyOf.get(date) && !recorded) continue;
+    historyOf.set(date, recorded || !!historyOf.get(date));
     rankOf.set(date, rank);
     byDate.set(date, includeProvenance ? { value, observedAt: meta?.observedAt || row.date, source: meta?.source || null, ...(Number.isFinite(meta?.eligible) ? { eligible: meta.eligible } : {}) } : value);
   }
@@ -174,7 +181,7 @@ export function alignmentLabel(alignment) {
 // session falls back to the next earlier one inside the slack). A complete series gives the same point as before.
 // v57.50 C12: exported so every "n거래일 변화" (home KPI trend, rates/FX) counts sessions the same way.
 // v58.69 (live 2026-10-23): a one-session change needs the previous session itself. The two-session slack let "1일"
-// read 10/20→10/22 when the 10/21 close was missing (briefing S&P 500 −0.6% for −1.21%, Nasdaq −1.6% for −2.6%).
+// read 10/20→10/22 when the 10/21 close was missing (briefing S&P 500 -0.6% for -1.21%, Nasdaq -1.6% for -2.6%).
 export function sessionPointBack(series, n, market = 'US') {
   const last = Array.isArray(series) ? series[series.length - 1] : null;
   if (!last) return null;

@@ -2130,6 +2130,12 @@
           "script": "scripts/ci-ui-render-hygiene-check.mjs",
           "timeoutMs": 300000,
           "remedy": "v57.54: give the target 24x24 CSS px (or a name to the empty heading/summary); after fixes run node scripts/ci-ui-render-hygiene-check.mjs --prune-baseline"
+        },
+        {
+          "id": "browser-rendered-copy-lint",
+          "script": "scripts/ci-rendered-copy-lint-check.mjs",
+          "timeoutMs": 300000,
+          "remedy": "v58.74: fix the template (shared signedText, korean-particle helpers, plain words for internal tokens); after fixes run node scripts/ci-rendered-copy-lint-check.mjs --prune-baseline"
         }
       ]
     },

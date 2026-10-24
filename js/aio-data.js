@@ -9129,7 +9129,8 @@ async function freeTranslateNews(items) {
   if (_stillOriginal > 0) statusMsg += ', <span class="lda-tr-left">' + _stillOriginal + '건은 원문 제목 그대로</span>';
   failed = _stillOriginal;
   statusMsg += ', ';
-  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ', 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" class="lda-tr-ai" data-action="openApiKeyConfig">공용 AI 연결 시 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
+  // v58.74 (text audit): the "공용 AI 연결 시 해석 추가" button only showed a toast — AI is always on — so it is gone.
+  if (statusEl) statusEl.innerHTML = statusMsg.replace(/, $/, '') + (failed > 0 ? ', 네트워크를 확인한 뒤 다시 시도하세요.' : '.');
   if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(failed > 0 ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
   // P4 수정: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
@@ -10127,7 +10128,7 @@ function _aioMarketAnalysisScope(analysis, generatedAt) {
       if (isNaN(at.getTime())) return;
       var sess = row.session || row.basis, kr = /kospi|kosdaq/.test(row.metricId), nyH = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', hourCycle: 'h23' }).format(at));
       var key = sess === 'DELAYED_IN_SESSION' ? part(at, 'Asia/Seoul', true) + ' KST 장중' // v57.54: a US pre-open/after-hours print (e.g. 09:05 ET) is not a close
-        : (!kr && (sess === 'AFTER_HOURS' || sess === 'PRE_MARKET' || nyH < 16)) ? part(at, 'Asia/Seoul', true) + ' KST 장외 시세' : part(at, kr ? 'Asia/Seoul' : 'America/New_York', false) + ' 종가';
+        : (!kr && (sess === 'AFTER_HOURS' || sess === 'PRE_MARKET' || (sess !== 'MARKET_CLOSED' && nyH < 16))) ? part(at, 'Asia/Seoul', true) + ' KST 장외 시세' /* v58.74: the 10-year closes at 15:00 ET; a MARKET_CLOSED read is its close */ : part(at, kr ? 'Asia/Seoul' : 'America/New_York', false) + ' 종가';
       if (!byKey[key]) { byKey[key] = []; groups.push(key); }
       byKey[key].push(names[row.metricId]);
     });

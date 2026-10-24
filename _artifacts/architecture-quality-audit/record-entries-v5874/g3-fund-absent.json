@@ -1,0 +1,27 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "8개 화면 전수 감사(10/23 실제 종가 대조, 화면군별 읽기 전용 감사 5개) 중 발견.",
+ "status": null,
+ "p": {
+  "title": "종목 요약 재무 칸이 불러오는 중인 재무를 'SEC 연간 공시 없음'으로 표시",
+  "symptom": "홈에 잠시 머문 뒤 NVDA를 열면 8~15초 동안 '재무 없음 / SEC 연간 공시 없음', 같은 화면 기업 요약·듀폰은 FY2026 값을 표시.",
+  "root_cause": "종목이 바뀌기 전 동기화의 fundamentalsMeta가 남아, fundamentals가 아직 없는 새 종목을 확인된 부재로 판정했다.",
+  "fix": "meta에 확인한 종목(checkedFor)을 싣고, 같은 종목을 확인했을 때만 '없음', 아니면 '불러오는 중'.",
+  "violated_rule": "R709",
+  "prevention": "Playwright 재현(홈 8초 대기 후 NVDA)으로 수정 전 '없음', 수정 후 '불러오는 중'→FY2026 확인.",
+  "verification": "수정 전 3회 중 2회 '없음' 재현, 수정 후 0회."
+ },
+ "qa": [
+  {
+   "id": "QA-FUND-ABSENT-01",
+   "text": "{P}: 공시가 있는 종목의 재무 칸이 로딩 중 '없음'으로 보이지 않는다.",
+   "verify_by": "node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock",
+   "done": false
+  }
+ ],
+ "qa_section": "화면 v58.74",
+ "changelog": [
+  "**재무 칸 ({P}):** 재무를 불러오는 동안 'SEC 연간 공시 없음'으로 잘못 보이던 순간을 '불러오는 중'으로 고쳤다."
+ ]
+}

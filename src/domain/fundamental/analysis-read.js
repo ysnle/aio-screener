@@ -6,6 +6,12 @@ import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_D
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
 
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
+// v58.74 (text audit): the DuPont sentence names the driver; one clause says what that driver's change means.
+const DRIVER_MEANING = Object.freeze({
+  margin: '매출 1달러에서 남는 이익이 변했다는 뜻입니다.',
+  turnover: '자산(현금·재고·설비 등)이 매출보다 빠르거나 느리게 늘었다는 뜻입니다.',
+  leverage: '자기자본 대비 자산(부채 포함)의 크기가 변했다는 뜻입니다.'
+});
 
 const sorted = (history) => (Array.isArray(history) ? history : []).filter((year) => /^\d{4}-\d{2}-\d{2}$/.test(String(year?.periodEnd || '')))
   .slice().sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
@@ -108,8 +114,8 @@ export function buildDupontRead(history, { fundamentals = null, nowMs = Date.now
     const offset = against.length ? ` — ${against[0].label}${against[0].log > 0 ? ' 상승' : ' 하락'}(${fmt(against[0], against[0].from)} → ${fmt(against[0], against[0].to)})은 이 변화를 일부 상쇄했습니다` : '';
     sentence = Math.abs(roeDelta) < 1
       ? `ROE는 ${(prev.roe * 100).toFixed(1)}%에서 ${(now.roe * 100).toFixed(1)}%로 거의 같고, 세 요인 중 ${subject(driver.label)} 가장 많이 움직였습니다(${fmt(driver, driver.from)} → ${fmt(driver, driver.to)}).`
-      : `ROE가 ${(prev.roe * 100).toFixed(1)}%에서 ${(now.roe * 100).toFixed(1)}%로 ${roeDelta > 0 ? '오른' : '내린'} 데는 ${driver.label} 변화(${fmt(driver, driver.from)} → ${fmt(driver, driver.to)})가 가장 크게 작용했습니다${offset}.`;
-  } else sentence = `${withTopicParticle(prev.margin <= 0 ? prev.label : now.label)} 순손실이라 ROE 변화를 세 요인의 기여로 나누지 않습니다 — 각 요인의 값만 나란히 봅니다.`;
+      : `ROE가 ${(prev.roe * 100).toFixed(1)}%에서 ${(now.roe * 100).toFixed(1)}%로 ${roeDelta > 0 ? '높아진' : '낮아진'} 데는 ${driver.label} 변화(${fmt(driver, driver.from)} → ${fmt(driver, driver.to)})가 가장 크게 작용했습니다${offset}.${DRIVER_MEANING[driver.id] ? ` ${DRIVER_MEANING[driver.id]}` : ''}`;
+  } else sentence = `${prev.margin <= 0 && now.margin <= 0 ? '두 해 모두' : withTopicParticle(prev.margin <= 0 ? prev.label : now.label)} 순손실이라 ROE 변화를 세 요인의 기여로 나누지 않습니다 — 각 요인의 값만 나란히 봅니다.`;
   return { state: 'ready', basis, columns, driver: driver ? driver.id : null, sentence };
 }
 

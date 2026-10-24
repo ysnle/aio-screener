@@ -112,7 +112,8 @@ try {
   const previewSweep = [];
   for (const screenId of sweepIds) {
     await choosePreset(screenId);
-    await page.waitForFunction((id) => (document.getElementById('screener-readiness-note')?.textContent || '').includes(id), screenId);
+    // v58.74: the preset id moved from the readiness sentence to its title.
+    await page.waitForFunction((id) => { const note = document.getElementById('screener-readiness-note'); return `${note?.textContent || ''} ${note?.title || ''}`.includes(id); }, screenId);
     previewSweep.push(await page.evaluate(readPreviewUi));
   }
   if (new Set(previewSweep.map((entry) => entry.title)).size !== previewSweep.length) throw new Error(`P1165 preview did not follow the selected definition: ${JSON.stringify(previewSweep.map((entry) => entry.title))}`);

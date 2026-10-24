@@ -6,6 +6,7 @@
 // by side pass one `range`, so the same horizontal position is the same date on every card and a
 // series whose record starts later begins later on the axis.
 import { shortDate } from '../../domain/content/date-labels.js';
+import { signedText } from '../../domain/shared/number.js';
 const SVG = 'http://www.w3.org/2000/svg';
 const W = 520;
 const H = 210;
@@ -180,5 +181,5 @@ export function seriesChange(series, n, unit = '%p', digits = 1) {
   const points = series.filter((point) => Number.isFinite(point?.value));
   if (points.length <= n) return null;
   const delta = points[points.length - 1].value - points[points.length - 1 - n].value;
-  return `${delta >= 0 ? '+' : ''}${delta.toFixed(digits)}${unit}`;
+  return signedText(delta, digits, unit);
 }

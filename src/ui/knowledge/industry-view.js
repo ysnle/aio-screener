@@ -35,8 +35,9 @@ function loadFailure(doc, text, section) {
   return box;
 }
 
-function groupHeader(doc, title, count, open, value) {
-  const head = navButton(doc, `${title}  ${count}`, { action: 'section', value });
+// v58.74 (text audit 리서치): each count names its unit — the 산업 지도 chip elsewhere counts articles (95편), this one domains.
+function groupHeader(doc, title, count, open, value, unit = '') {
+  const head = navButton(doc, `${title} ${count}${unit}`, { action: 'section', value });
   head.classList.add('rl-nav-group-head');
   head.removeAttribute('aria-pressed');
   head.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -47,7 +48,7 @@ function buildNav(doc, state, data, labels) {
   const frag = doc.createDocumentFragment();
   const domains = data.research?.taxonomyDomains || [];
   const industry = el(doc, 'div', 'rl-nav-group');
-  industry.appendChild(groupHeader(doc, '산업 지도', domains.length || 19, state.section === 'taxonomy', 'taxonomy'));
+  industry.appendChild(groupHeader(doc, '산업 지도', domains.length || 19, state.section === 'taxonomy', 'taxonomy', '개 분야'));
   if (state.section === 'taxonomy') {
     if (!domains.length) industry.appendChild(data.failed?.taxonomy ? loadFailure(doc, '산업 지도를 불러오지 못했습니다.', 'taxonomy') : el(doc, 'p', 'rl-note', '불러오는 중…'));
     for (const domain of domains) {
@@ -59,7 +60,7 @@ function buildNav(doc, state, data, labels) {
   frag.appendChild(industry);
   const layers = data.foundations?.layers || [];
   const basics = el(doc, 'div', 'rl-nav-group');
-  basics.appendChild(groupHeader(doc, 'AI 기초', layers.length || 7, state.section === 'foundations', 'foundations'));
+  basics.appendChild(groupHeader(doc, 'AI 기초', layers.length || 7, state.section === 'foundations', 'foundations', '개 층'));
   if (state.section === 'foundations') {
     if (!layers.length) basics.appendChild(data.failed?.foundations ? loadFailure(doc, 'AI 기초를 불러오지 못했습니다.', 'foundations') : el(doc, 'p', 'rl-note', '불러오는 중…'));
     const listed = new Set(FOUNDATION_HIDDEN_MODULES);
@@ -74,7 +75,7 @@ function buildNav(doc, state, data, labels) {
   frag.appendChild(basics);
   const guides = data.relationshipGuides?.guides || [];
   const rel = el(doc, 'div', 'rl-nav-group');
-  rel.appendChild(groupHeader(doc, '관계 가이드', guides.length || 5, state.section === 'relationships', 'relationships'));
+  rel.appendChild(groupHeader(doc, '관계 가이드', guides.length || 5, state.section === 'relationships', 'relationships', '편'));
   if (state.section === 'relationships') guides.forEach((guide) => rel.appendChild(navButton(doc, guide.title, { active: state.view === 'guide' && state.selectedRelationshipGuideId === guide.id, action: 'relationship-guide', value: guide.id, sub: true })));
   frag.appendChild(rel);
   // Group headers sit together at the top; only the open group's items follow below them.

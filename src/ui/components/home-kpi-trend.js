@@ -7,9 +7,10 @@
 // close carried forward — i.e. about 14 sessions. Both screens now use the same session series (one point per
 // trading date, carried-forward values excluded), so 20 sessions means 20 sessions on every screen.
 import { buildCloseSeries, closeBasis, sessionPointBack } from '../../domain/briefing/market-read.js';
-import { countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
+import { countOpenSessionsBetween, usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { createTrendChart } from './trend-chart.js';
 import { readMarketRegime } from './market-regime.js';
+import { signedText } from '../../domain/shared/number.js';
 
 // C25: the second cell is the Nasdaq-100 (^NDX); the briefing's "나스닥 종합" is the Composite.
 const CELLS = Object.freeze([
@@ -52,9 +53,15 @@ function svgLine(doc, points, width = 220, height = 40, neutral = false) {
   return svg;
 }
 
-export function renderHomeKpiTrends({ documentRef: doc, root }) {
+// v58.74: usWeekendClosed lives in market-calendar.js (the futures cell and the home schedule read it too).
+export { usWeekendClosed };
+export const HOME_QUOTE_HEADINGS = Object.freeze({ open: '지금 시세 (실시간·지연)', weekend: '지금 시세 (주말 휴장, 금요일 마감 값, BTC는 실시간)' });
+
+export function renderHomeKpiTrends({ documentRef: doc, root, nowMs = Date.now() }) {
   const strip = doc?.getElementById?.('home-kpi-strip');
   if (!strip) return 0;
+  const heading = doc.getElementById?.('home-quote-basis');
+  if (heading) heading.textContent = HOME_QUOTE_HEADINGS[usWeekendClosed(nowMs) ? 'weekend' : 'open'];
   const history = Array.isArray(root?._aioHistory) ? root._aioHistory : [];
   let drawn = 0;
   for (const cell of CELLS) {
@@ -103,8 +110,9 @@ export function homeParticipationSeries(history = []) {
 // anchor after the close comparison.
 export function participationTitle(spxMove, b0, b1) {
   if (!Number.isFinite(b0) || !Number.isFinite(b1)) return '지수와 참여 종목, 같은 기간';
-  if (spxMove > 0) return b1 < b0 ? '지수는 올랐지만 참여 종목은 줄었습니다' : '지수와 참여 종목이 함께 늘었습니다';
-  return b1 < b0 ? '지수와 참여 종목이 함께 약해졌습니다' : '지수는 약했지만 참여 종목은 늘었습니다';
+  const flat = Math.abs(b1 - b0) < 0.5;
+  if (spxMove > 0) return flat ? '지수는 올랐고 참여 종목은 그대로입니다' : b1 < b0 ? '지수는 올랐지만 참여 종목은 줄었습니다' : '지수가 오르며 참여 종목도 늘었습니다';
+  return flat ? '지수는 약했고 참여 종목은 그대로입니다' : b1 < b0 ? '지수와 참여 종목이 함께 약해졌습니다' : '지수는 약했지만 참여 종목은 늘었습니다';
 }
 
 function linkRow(doc, label, meta, onClick = null) {
@@ -145,11 +153,16 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   // sessions (+6.1%p) — a recent move against the window's direction is named beside it.
   const b20 = b50In.length > 21 ? b50In[b50In.length - 21].value : null;
   const recentTurn = b20 != null && b0 != null && b1 != null && Math.sign(b1 - b20) !== 0 && Math.sign(b1 - b20) !== Math.sign(b1 - b0) && Math.abs(b1 - b20) >= 3
-    ? ` (최근 20거래일은 ${b20.toFixed(0)}% → ${b1.toFixed(0)}%로 ${b1 > b20 ? '다시 넓어지는 중' : '다시 줄어드는 중'})` : '';
+    ? `. 최근 20거래일은 ${b20.toFixed(0)}% → ${b1.toFixed(0)}%로 ${b1 > b20 ? '다시 넓어지는 중입니다' : '다시 줄어드는 중입니다'}` : '';
   const hasBreadth = b50In.length >= 2;
+  // v58.74 (text audit): widening participation beside a leadership break is the expert's next question — rotation or the
+  // first step of a broad decline — and the chart says so instead of leaving the two readings apart.
+  const leadershipState = root ? readMarketRegime(root)?.leadershipVerdict?.state : null;
+  const bridge = recentTurn && b1 > b20 && (leadershipState === 'break' || leadershipState === 'weak')
+    ? ' 참여는 넓어지는데 주도주는 약해지는 중이라, 돈이 다른 업종으로 옮겨 가는 순환인지 동반 약세의 앞 단계인지가 다음 확인입니다.' : '';
   const read = hasBreadth
-    ? `${spx.length - 1}거래일 동안 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}%, 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${spxMove > 0 && b1 < b0 ? ' — 지수는 올랐지만 참여 종목은 줄었습니다' : spxMove > 0 && b1 >= b0 ? ' — 지수와 참여가 함께 늘었습니다' : spxMove <= 0 && b1 < b0 ? ' — 지수와 참여가 함께 약해졌습니다' : ' — 지수는 약했지만 참여는 늘었습니다'}${recentTurn}`
-    : `${spx.length - 1}거래일 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}%, 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다`;
+    ? `${spx.length - 1}거래일 동안 S&P 500 ${signedText(spxMove, 1, '%')}, 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${recentTurn}.${bridge}`
+    : `${spx.length - 1}거래일 S&P 500 ${signedText(spxMove, 1, '%')}, 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다.`;
   const head = doc.createElement('div');
   head.className = 'sx-card__head home-participation-head';
   const title = doc.createElement('h2');
@@ -178,7 +191,7 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
     return box;
   };
   grid.append(
-    card('S&P 500 종가', `${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}%`, createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
+    card('S&P 500 종가', `${signedText(spxMove, 1)}%`, createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
     card('50일선 위 종목 비율, 기준선 40%·60%', hasBreadth ? `${b0.toFixed(0)}% → ${b1.toFixed(0)}%` : '기록 수집 중', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
   );
   // v57.76: the five same-session breadth cards repeated the 시장 폭 screen on the home; the two charts and their

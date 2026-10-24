@@ -113,8 +113,9 @@ const refs = (status) => ({ officialReferences: { schemaVersion: 'official-web-r
 const verifiedLater = fixture({ now: kstNoon('2026-11-10'), produced: W.__normalize({}, refs('verified')) });
 check('P1737 fixture: verified BOK/KR CPI/exports supersede the manual or data.json copies',
   ['bokPolicy', 'krInflation', 'krExports'].every((id) => byId(verifiedLater, id).status === 'superseded'), JSON.stringify(verifiedLater.items.map((item) => [item.id, item.status])));
-const unverifiedLater = fixture({ now: kstNoon('2026-11-10'), produced: W.__normalize({}, refs('unverified')) });
-check('P1737 fixture: unverified artifact values never supersede; the expired manual values are held',
+// v58.74: the clock follows the manual BOK meeting (past its grace) so a recorded decision does not move the fixture.
+const unverifiedLater = fixture({ now: kstNoon(dayAfter(W.AIO_MANUAL_REFERENCE.bokPolicy.next, 3)), produced: W.__normalize({}, refs('unverified')) });
+check('P1737 fixture: unverified artifact values never supersede; the expired manual values are held (v58.74: clock past the manual BOK meeting)',
   byId(unverifiedLater, 'bokPolicy').held === true && byId(unverifiedLater, 'krInflation').held === true);
 const neverVerified = fixture({ serverMeta: {}, produced: W.__normalize({}, { officialReferences: { items: { krExports: { exportsBillionUsd: null, exportsYoyPct: null, publishedAt: null, status: 'unverified', reason: 'value-not-on-page' } } } }) });
 check('P1736 fixture: an export item the lane never verified stays listed as unverified and held (the issue does not close)',

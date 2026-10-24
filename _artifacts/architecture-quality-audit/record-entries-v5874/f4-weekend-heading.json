@@ -1,0 +1,18 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "주말 시황 점검 후 소유자 승인 개선(2026-10-24).",
+ "status": null,
+ "qa_section": "화면 v58.74",
+ "qa": [
+  {
+   "id": "QA-HOME-WEEKEND-01",
+   "text": "v58.74 주말 시세 제목: 금요일 17시(ET)부터 일요일 18시(ET)까지 오늘 화면 시세 제목이 주말 휴장과 금요일 마감 값을 밝힌다.",
+   "verify_by": "node scripts/ci-esm-core-unit-check.mjs",
+   "done": true
+  }
+ ],
+ "changelog": [
+  "**주말 시세 제목:** 주말에는 '지금 시세 (주말 휴장, 금요일 마감 값, BTC는 실시간)'로 표시한다."
+ ]
+}

@@ -103,13 +103,14 @@ export function selectMarketSlotHeadlines(pool, window, max = MARKET_SLOT_HEADLI
     .map(({ score, selectionReason, contentDepth, provisional, ...row }) => row);
 }
 
-const formatMove = (move) => `${move.label} ${move.change >= 0 ? '+' : ''}${move.change.toFixed(2)}${move.changeUnit === 'bp' ? 'bp' : '%'}`;
+// v58.74 (text audit): bp moves print whole basis points ("+4.20bp" read as a precision the yield quote does not have).
+const formatMove = (move) => { const bp = move.changeUnit === 'bp'; const text = Math.abs(move.change).toFixed(bp ? 0 : 2); return `${move.label} ${Number(text) === 0 ? '' : move.change > 0 ? '+' : '-'}${text}${bp ? 'bp' : '%'}`; };
 
 export function deterministicSlotSummary({ marks = null, moves = [], headlines = [], newsStatus = 'collected' } = {}) {
   const moved = moves.slice(0, 3).map(formatMove);
   // A catch-up slot (sealed after a missed run) has no quotes of its own: only its headlines are rebuilt.
   const movePart = !marks ? '이 회차는 마감 시점 지표 값이 기록되지 않았고'
-    : moved.length ? `${moved.join(' · ')} 움직였고` : '주요 지표는 직전 회차와 같은 값이었고';
+    : moved.length ? `${moved.join(', ')}로 움직였고` : '주요 지표는 직전 회차와 같은 값이었고';
   const newsPart = newsStatus === 'unavailable' ? '이 회차는 헤드라인 수집에 실패했습니다.'
     : headlines.length ? `이 시간대 주요 헤드라인 ${headlines.length}건이 수집됐습니다.` : '이 시간대 수집된 주요 헤드라인은 없습니다.';
   return `${movePart}, ${newsPart}`;
@@ -129,6 +130,14 @@ export function validateMarketSlotSummary(text) {
   return value;
 }
 
+/** v58.74 (text audit A5): a new summary is kept only in the polite register with no semicolon chains. Sealed slots
+ *  written before the rule are not re-judged on style (validateMarketSlotSummary stays the integrity test). */
+export function slotSummaryStyleOk(text) {
+  const value = String(text || '').trim();
+  if (/[;；]/.test(value)) return false;
+  return value.split(/(?<=[.?!])\s+/).map((sentence) => sentence.replace(/[.?!]+$/, '').trim()).filter(Boolean).every((sentence) => /(?:니다|니까)$/.test(sentence));
+}
+
 export function buildMarketSlotPrompt(slot) {
   const moves = slot.moves.length ? slot.moves.map((move) => `- ${formatMove(move)} (${move.basis === 'previous-slot' ? '직전 회차 대비' : '전일 종가 대비'})`).join('\n') : '- 직전 회차 이후 움직인 주요 지표 없음';
   const headlines = slot.headlines.length
@@ -137,7 +146,9 @@ export function buildMarketSlotPrompt(slot) {
   return [
     `아래는 한국 시간 ${slot.label} 여섯 시간 동안의 시장 움직임과 그 사이 발행된 헤드라인이다. 이 시간대 시황을 한국어 2~3문장 평문으로 요약하라.`,
     '순서: 무엇이 움직였나 → 헤드라인에 따르면 무엇이 배경으로 거론됐나 → 다음 회차에 확인할 것. 수치는 화면에 따로 표시되므로 숫자·%·티커는 쓰지 말고 "큰 폭", "소폭"처럼 말로 쓴다.',
-    '헤드라인에 없는 원인을 만들지 말고 "…보도에 따르면"으로 귀속하며 한 가지 해석으로만 제시한다. [미확인] 항목은 같은 문장에 "미확인"을 쓴다. 헤드라인이 적으면 적다고 쓴다. 매매 지시·추천·확신 표현은 쓰지 않는다. 제목·목록·마크다운 없이 쓴다.',
+    '헤드라인에 없는 원인을 만들지 말고 "…보도에 따르면"으로 귀속하며(매체 이름은 쓰지 않는다 — 헤드라인 목록이 화면에 따로 있다) 한 가지 해석으로만 제시한다. [미확인] 항목은 같은 문장에 "미확인"을 쓴다. 매매 지시·추천·확신 표현은 쓰지 않는다. 제목·목록·마크다운 없이 쓴다.',
+    // v58.74 (text audit A5): one register for every slot — the 10/22 12:00 slot ended in "-다" while the others used "-습니다".
+    `문체: 모든 문장을 "-습니다/-입니다"로 끝낸다. 한 문장에 한 생각만 담고 쉼표는 세 개 이하, 세미콜론은 쓰지 않는다.${slot.headlines.length <= 1 ? ' 이 시간대 헤드라인은 1건 이하라 헤드라인이 적다고 쓴다.' : ' 헤드라인 수가 적다고 쓰지 않는다.'}`,
     `MOVES:\n${moves}`,
     `HEADLINES:\n${headlines}`,
   ].join('\n\n');
@@ -149,7 +160,8 @@ async function summarizeSlot(slot, request, nowMs) {
   if (!slot.moves.length && slot.headlines.length < 2) return null;
   let result = null;
   try { result = await request(buildMarketSlotPrompt(slot)); } catch (_) { result = null; }
-  const text = validateMarketSlotSummary(result?.text);
+  const valid = validateMarketSlotSummary(result?.text);
+  const text = valid && slotSummaryStyleOk(valid) ? valid : null;
   return text ? { text, source: 'shared-model', generatedAt: iso(nowMs) } : { failed: result?.text ? 'validator-blocked' : (result?.reason || 'provider-empty') };
 }
 

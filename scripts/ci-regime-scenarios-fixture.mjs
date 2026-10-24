@@ -142,7 +142,7 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const korea = read.statements.find((row) => row.id === 'korea-relative');
   assert.ok(korea && read.statements.slice(0, 4).includes(korea) && korea.weight >= 76, `P1723 the rare Korean move enters the four-sentence lead (${JSON.stringify(read.statements.map((row) => [row.id, row.weight]))})`);
   assert.ok(/코스피 10\/13 -6\.0%/.test(korea.text) && /직전 미국장\(10\/12\)/.test(korea.text) && /최근 \d+거래일 기록에서 하루 최저/.test(korea.text), `P1723 one sentence names the KRX and US dates and the record position (${korea.text})`);
-  assert.ok(/원\/달러 10\/12까지 5거래일 [+-]\d\.\d%\(보합권\)/.test(korea.text), `P1725/P1727 the won carries its own date and a ±0.5% move is 보합권 (${korea.text})`);
+  assert.ok(/원\/달러 10\/12까지 5거래일 [+-]?\d\.\d%\(보합권\)/.test(korea.text), `P1725/P1727 the won carries its own date and a ±0.5% move is 보합권 (v58.74: 0.0% carries no sign) (${korea.text})`);
   assert.ok(!read.statements.some((row) => row.id === 'korea-day'), 'P1723 the 1-day and 5-day Korean sentences are one sentence');
   const regime = buildMarketRegime({ history: rows, now });
   const regimeCalm = buildMarketRegime({ history: calm, now });

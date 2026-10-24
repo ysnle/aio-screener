@@ -8,6 +8,7 @@ import { computeTradingScoreModel, deriveTradingScoreDecisionPresentation } from
 import { sortRows, visibleRank, vcpStageLabel } from '../src/ui/pages/screener.js';
 import { SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition } from '../src/data/contracts/screener.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../src/domain/market/quote-presentation.js';
+import { signedText } from '../src/domain/shared/number.js';
 import { MARKET_LABELS, screenerMarket, formatScreenerPrice } from '../src/domain/screener/market-scope.js';
 // v57.62: the page's pure row helpers live in this module; the vm harness below strips the page's imports, so it
 // receives them as context globals (same functions the page imports).
@@ -22,7 +23,7 @@ for (const route of ROUTE_IDS) {
   assert(existsSync(new URL(`../${modulePath}`, import.meta.url)), `${route}: missing module`);
 }
 const source = read('src/ui/pages/market.js');
-const context = vm.createContext({ deriveQuotePresentation, quoteDisplayKind });
+const context = vm.createContext({ deriveQuotePresentation, quoteDisplayKind, signedText });
 vm.runInContext(source.slice(source.indexOf('function finite('), source.indexOf('const SNAPSHOT_ALIASES')), context);
 const node = () => ({ textContent: 'old', attrs: new Map(), children: [], classList: { remove() {}, toggle() {} },
   getAttribute(key) { return this.attrs.get(key); }, setAttribute(key, value) { this.attrs.set(key, value); }, removeAttribute(key) { this.attrs.delete(key); } });
@@ -36,7 +37,7 @@ context.renderLiveQuotes({ _liveData: {} }, page);
 assert.equal(price.textContent, '—'); assert(!price.attrs.has('data-as-of'));
 assert.equal(price.attrs.get('data-operational-use'), 'blocked');
 context.renderLiveQuotes({ _liveData: { AAA: { price: 101, pct: 0, source: 'live:yahoo', observedAt: '2026-08-29' } } }, page);
-assert.equal(pct.textContent, '+0.00%'); assert.equal(price.attrs.get('data-operational-use'), 'reference-only');
+assert.equal(pct.textContent, '0.00%', 'v58.74 a zero change carries no sign'); assert.equal(price.attrs.get('data-operational-use'), 'reference-only');
 // W03-B/P1145: display state follows the envelope's declared quality, not the source
 // label. A "live" source carrying a stale envelope must never read as observed, and a
 // declared-current envelope must promote even a snapshot-labelled source.
@@ -147,7 +148,7 @@ const documentRef = {
 };
 const analysisSource = read('src/ui/pages/analysis.js');
 const { fearGreedBand } = await import(new URL('../src/domain/sentiment/metrics.js', import.meta.url));
-const uiContext = vm.createContext({ documentRef, fearGreedBand }); // T11: the home card bands through the shared fearGreedBand
+const uiContext = vm.createContext({ documentRef, fearGreedBand, signedText }); // T11: the home card bands through the shared fearGreedBand
 vm.runInContext(analysisSource.slice(analysisSource.indexOf('function finite('), analysisSource.indexOf('function renderTechnicalHealth(')), uiContext);
 // P1392: the home card is the six-axis regime summary; without close history it waits instead of
 // inventing a state (the retired score summary asserted the same fail-closed behaviour).
@@ -213,7 +214,7 @@ assert(!read('src/app/bootstrap.js').includes('screener:return-context'), 'write
 assert(analysisSource.includes("'aio:serverDataLoaded', renderNow"), 'late snapshot hydration reaches visible home');
 
 const screenerSource = read('src/ui/pages/screener.js');
-const compareContext = vm.createContext({
+const compareContext = vm.createContext({ signedText,
   ...rowPresentation, ...screenerExtended, documentRef, compareSymbols: new Set(['A', 'B']), activeRows: rows,
   SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition,
   MARKET_LABELS, screenerMarket, formatScreenerPrice,
@@ -236,7 +237,7 @@ assert.equal(compareContext.blockedCapCell, '—');
 assert(!screenerSource.includes('scr-position-sizer') && !read('index.html').includes('id="scr-position-sizer"'), 'unreachable USD-only position sizing panel retired instead of relabelling KRW prices');
 assert(screenerSource.includes('row?.focus?.({ preventScroll: true })') && screenerSource.includes('content.scrollTop = view.scrollTop'));
 assert(screenerSource.includes('const focusedSymbol = body.contains(focusedRow)') && screenerSource.includes('(action || row)?.focus({ preventScroll: true })'), 'quote rerender preserves the selected row/action focus');
-const builderContext = vm.createContext({
+const builderContext = vm.createContext({ signedText,
   documentRef, selectedValue: (doc,id) => id==='scr-listing-market' ? 'US' : '',
   activeDefinition: createScreenDefinition({ screenId: 'builder', filtersAST: { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0 }] } }),
   readBuilderConditions: () => [{ field: 'rsi', value: '52' }], createScreenDefinition

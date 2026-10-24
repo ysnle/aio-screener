@@ -4,20 +4,21 @@
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
 import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
+import { signedText } from '../shared/number.js';
 // v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
 const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
 export const isLendingFinancial = (symbol, sector) => /financ|bank/i.test(String(sector || '')) && !NON_LENDING_FINANCIALS.has(String(symbol || '').toUpperCase());
 
 const finite = finiteFact;
-const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 
 export function formatUsdShort(value) {
   const v = finite(value);
   if (v == null) return '—';
   const abs = Math.abs(v);
   // 2026-10-13 review S18: the sign precedes the currency ("−$147.8B", not "$-147.8B").
-  const sign = v < 0 ? '−' : '';
+  const sign = v < 0 ? '-' : '';
   return abs >= 1e12 ? `${sign}$${(abs / 1e12).toFixed(2)}T` : abs >= 1e9 ? `${sign}$${(abs / 1e9).toFixed(1)}B` : abs >= 1e6 ? `${sign}$${(abs / 1e6).toFixed(0)}M` : `${sign}$${abs.toFixed(0)}`;
 }
 
@@ -101,7 +102,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       // P1449: this read sees revenue and net income only. It cannot split interest, tax or
       // one-offs from operations, so attribution like "영업 레버리지" is withheld (P1441 family).
       points.push({ id: 'margin', tone: Math.abs(delta) < FISCAL_FLAT_BAND ? 'neutral' : delta > 0 ? 'favorable' : 'burden', title: '수익성',
-        text: `순이익률 ${marginNow.toFixed(1)}%(${(fiscalYearLabel(thenYear.periodEnd) || String(thenYear.periodEnd).slice(0, 4)).replace(/^FY/, '')} 회계연도 ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < FISCAL_FLAT_BAND ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? `${Math.abs(delta).toFixed(1)}%p 높아졌습니다(순이익 기준 관측이며, 세금·이자·일회성 항목과 영업 효과의 구분은 이 화면의 자료로 검증하지 않습니다)` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}.` });
+        text: `순이익률 ${marginNow.toFixed(1)}%(${(fiscalYearLabel(thenYear.periodEnd) || String(thenYear.periodEnd).slice(0, 4)).replace(/^FY/, '')} 회계연도 ${marginThen.toFixed(1)}%) — ${Math.abs(delta) < FISCAL_FLAT_BAND ? '수익성이 비슷하게 유지됩니다' : delta > 0 ? (marginNow < 0 ? `적자 폭이 ${delta.toFixed(1)}%p 줄었습니다(아직 순손실)` : marginThen < 0 ? `적자에서 흑자로 돌아섰습니다(+${delta.toFixed(1)}%p)` : `${delta.toFixed(1)}%p 높아졌습니다`) : marginThen > 0 && marginNow < 0 ? '흑자에서 적자로 돌아섰습니다 — 비용·가격 압력을 확인할 지점입니다' : marginNow < 0 ? `적자 폭이 ${Math.abs(delta).toFixed(1)}%p 커졌습니다` : '매출 대비 남는 이익이 줄었습니다 — 비용·가격 압력을 확인할 지점입니다'}. 순이익 기준이라 세금·이자·일회성 효과는 나누지 않았습니다.` });
     }
     const niNow = latest.netIncome;
     const niPrev = history[history.length - 2].netIncome;
@@ -170,7 +171,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     // Codex browser audit H37: the generic "buybacks or debt" explanation read as this company's cause. The reading
     // now uses what is measured here (margin, equity change) and names what is not (assets, so no DuPont split).
     // v58.55: with total assets collected the split is the 종목 요약 DuPont card; until then it says it is pending.
-    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe < 0 ? '순손실로 자본이 줄어든 해' : roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 40 ? ` 이 수준에서는 순이익률${latest?.margin != null ? `(${latest.margin.toFixed(1)}%)` : ''}·자산 회전·재무 레버리지 중 무엇이 끌어올렸는지 나눠 봐야 합니다. ${finite(latest?.totalAssets) > 0 ? '종목 요약의 듀폰 분해 카드가 세 요인을 나눠 보여 줍니다' : latest?.assetChain ? '총자산이 공시 수집본에 없어 그 분해는 하지 않습니다' : '총자산 수집이 끝나면 종목 요약의 듀폰 분해 카드에서 나눠 봅니다'}${equityChange != null ? ` — 자기자본은 전년보다 ${signed(equityChange)} 변했습니다` : ''}.` : ''}` });
+    text: `ROE ${roe.toFixed(1)}%(${roeBasis}) — ${roe < 0 ? (equityChange != null && equityChange < 0 ? '순손실로 자본이 줄어든 해' : latest?.equity > 0 && (equityChange > 0 || !(prevYear?.equity > 0)) ? '순손실을 냈지만 증자 등으로 자기자본은 늘어난 해' : '순손실을 낸 해') /* v58.74 (audit): BE/CRWV equity grew in the loss year */ : roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편'}입니다.${roe >= 40 ? ` 이 수준에서는 순이익률${latest?.margin != null ? `(${latest.margin.toFixed(1)}%)` : ''}·자산 회전·재무 레버리지 중 무엇이 끌어올렸는지 나눠 봐야 합니다. ${finite(latest?.totalAssets) > 0 ? '종목 요약의 듀폰 분해 카드가 세 요인을 나눠 보여 줍니다' : latest?.assetChain ? '총자산이 공시 수집본에 없어 그 분해는 하지 않습니다' : '총자산 수집이 끝나면 종목 요약의 듀폰 분해 카드에서 나눠 봅니다'}${equityChange != null && roe > 0 ? `. ${equityChange > 0 ? `자기자본이 전년보다 ${signed(equityChange)} 늘었는데도 나온 수준입니다` : `자기자본이 전년보다 ${signed(equityChange)} 줄어든 효과가 섞여 있습니다`}` : ''}.` : ''}` });
   // P1446: the cash chain — earnings → operating cash → capital spending → free cash → debt and share count.
   const ocf = finite(latest?.operatingCashFlow);
   const capex = finite(latest?.capex);
@@ -192,8 +193,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       tone: creditableConversion && conversion >= 0.8 && (fcf == null || fcf > 0) ? 'favorable' : 'neutral',
       title: '현금 전환',
       text: !creditableConversion
-        ? `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — 둘 중 하나가 마이너스면 "순이익 대비 현금 %" 비율 해석은 성립하지 않아 적용하지 않고, 두 사실을 따로 봐야 합니다(순손실 구간과 영업현금 유출은 별개의 문제입니다).`
-        : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${withObjectParticle(formatUsdShort(capex))} 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
+        ? `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — ${latest.netIncome < 0 && ocf > 0 ? '장부상 순손실이지만 영업에서는 현금이 들어왔습니다. 비현금 비용(감가상각·주식 보상)이 손실을 키웠는지 현금흐름표에서 확인합니다' : latest.netIncome > 0 && ocf < 0 ? '장부상 이익이지만 영업현금은 빠져나갔습니다. 매출채권·재고가 늘었는지 확인합니다' : '순손실과 영업현금 유출이 함께 나타났습니다. 현금 잔고와 조달 계획을 확인합니다'}. 한쪽이 마이너스라 순이익 대비 현금 비율은 쓰지 않습니다.`
+        : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${withObjectParticle(formatUsdShort(capex))} 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? (conversion >= 1 ? '이익이 현금으로 들어오고 있습니다' : '이익의 대부분이 현금으로 들어왔습니다') : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
     });
   }
   // Codex browser audit H36: say up front that the cash chain (OCF → capex → FCF → ROIC) is not available here,

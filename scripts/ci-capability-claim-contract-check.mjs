@@ -9,7 +9,8 @@ const failures = [];
 const check = (condition, message) => { if (!condition) failures.push(message); };
 
 check(CAPABILITY_MANIFEST_VERSION === 'wave4.capability.v1', `unexpected manifest version: ${CAPABILITY_MANIFEST_VERSION}`);
-check(CAPABILITY_MANIFEST.length === 9, `expected 9 capability rows, got ${CAPABILITY_MANIFEST.length}`);
+// v58.74: news-sentiment retired from the guide (no screen shows a sentiment score; audit 10/24).
+check(CAPABILITY_MANIFEST.length === 8, `v58.74 P2021 expected 8 capability rows, got ${CAPABILITY_MANIFEST.length}`);
 check(guide.includes('data-aio-capability-manifest="wave4.capability.v1"'), 'guide is not marked with the capability manifest version');
 
 const ids = [...guide.matchAll(/data-aio-capability-claim[^>]*data-capability="([^"]+)"/g)].map((match) => match[1]);

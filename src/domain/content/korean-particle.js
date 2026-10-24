@@ -40,3 +40,15 @@ export function withDirectionParticle(word) {
   const finalL = (code >= 0xac00 && code <= 0xd7a3 && (code - 0xac00) % 28 === 8) || last === '1' || last === '7' || last === '8' || /[LR]/i.test(last);
   return `${String(word ?? '')}${hasFinalConsonant(word) && !finalL ? '으로' : '로'}`;
 }
+
+// '이/가' after a noun phrase (v58.74 text audit: "시장 폭 부담 이 아직 빠짐", "나스닥 100가").
+export function withSubjectParticle(word) {
+  const text = String(word ?? '');
+  return `${text}${hasFinalConsonant(text) ? '이' : '가'}`;
+}
+
+// '과/와' after a noun phrase ("나스닥 100과 SMH", "PCE와 고용").
+export function withAndParticle(word) {
+  const text = String(word ?? '');
+  return `${text}${hasFinalConsonant(text) ? '과' : '와'}`;
+}

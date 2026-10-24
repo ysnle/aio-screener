@@ -3,6 +3,8 @@
 // the growth and the PER beside it use the last four reported quarters on that same basis, never the SEC net income.
 // The price is the screener artifact's close (valuationPrice). Nothing here enters a score.
 
+import { signedText } from '../shared/number.js';
+
 export const CONSENSUS_MAX_AGE_DAYS = 21;
 export const CONSENSUS_THIN_ESTIMATES = 3;
 /** A close more than 10 calendar days old (about a week of sessions plus a holiday weekend) is not the current price. */
@@ -16,8 +18,8 @@ export const CONSENSUS_BASIS_GAP = -30;
 const DAY_MS = 86400000;
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
-const signed = (value) => `${value >= 0 ? '+' : ''}${Math.round(value)}%`;
-const usd = (value) => `${value < 0 ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
+const signed = (value) => signedText(value, 0, '%');
+const usd = (value) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(2)}`;
 
 // Screen audit 2026-10-20: CRWD showed "직전 4개 분기 PER 2073.6배 · Forward PER 2851.3배" (EPS $0.08) and the screener
 // TSLA 454.4배 with nothing saying the multiple no longer measures price against profit. Above this a multiple is shown
@@ -66,16 +68,26 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   const lead = view.fwdPe != null
     ? `Forward PER ${view.fwdPe > PE_MEANINGFUL_MAX ? '' : '약 '}${peMultipleText(view.fwdPe)}${view.trailingPe != null ? `, 직전 4개 분기 조정 기준 ${peMultipleText(view.trailingPe)}` : ''}${view.growth != null ? `, 예상 이익 ${signed(view.growth)}` : ''}`
     : '향후 4개 분기 적자 예상';
-  const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 실적 발표 전 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
+  const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 아직 실적이 발표되지 않은 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
     + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}과 같은 조정 EPS 기준으로 비교했습니다`
       : view.basisGap ? `. 직전 4개 분기 실적 합 ${usd(view.trailingEps)}보다 30% 이상 낮아, 일회성 항목 포함 여부 등 같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다` : '');
-  const revisions = view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w}, 하향 ${view.down4w}` : '최근 4주 추정치 변경 없음';
+  const revisions = view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w}, 하향 ${view.down4w}(향후 4개 분기 건수 합계)` /* v58.74: 32 up from 9 analysts read as impossible */ : '최근 4주 추정치 변경 없음';
   const cautions = [];
   if (view.minEstimates != null && view.minEstimates < CONSENSUS_THIN_ESTIMATES) cautions.push(`추정 애널리스트가 ${view.minEstimates}명뿐이라 흔들리기 쉽습니다`);
   if (view.spread != null && view.spread >= 30) cautions.push(`최고·최저 추정 차이가 ${Math.round(view.spread)}%로 넓습니다`);
   // A large expected jump is exactly where a forward multiple flatters: at a cyclical earnings peak it reads cheapest.
   if (view.growth != null && view.growth >= 50) cautions.push('큰 이익 증가가 전제라, 경기에 따라 이익이 크게 오르내리는 업종이면 정점 근처에서 Forward PER이 가장 낮게 보입니다');
-  const text = `${lead} — ` + [basis, `애널리스트 최소 ${view.minEstimates ?? '?'}명, ${revisions}`, ...cautions].join('. ')
+  // v58.74 (text audit 종목 C6): price against expectations — where the price sits against its 52-week high beside the net
+  // revision direction, and a reported (GAAP) PER below the adjusted one, which points at one-off items.
+  const fromHigh = finite(row?.pctFrom52wHigh);
+  const netRev = view.up4w - view.down4w;
+  const revDir = Math.abs(netRev) >= CONSENSUS_NET_REVISION_FLOOR ? (netRev > 0 ? 'up' : 'down') : null;
+  const priceDir = fromHigh == null ? null : fromHigh <= -10 ? 'down' : fromHigh >= -5 ? 'up' : null;
+  const versus = revDir && priceDir ? `주가는 52주 고점 대비 ${signed(fromHigh)}인데 최근 4주 추정치는 ${revDir === 'up' ? '상향' : '하향'}이 많습니다 — 가격과 이익 전망이 ${revDir === priceDir ? '같은' : '반대'} 방향입니다` : null;
+  const reportedPe = finite(row?.pe);
+  const gaapGap = reportedPe != null && view.trailingPe != null && reportedPe > 0 && reportedPe < view.trailingPe * 0.9
+    ? `공시 기준 PER(${peMultipleText(reportedPe)})이 조정 기준보다 낮아, 공시 이익에 일회성 이익이 섞였는지 10-Q에서 확인합니다` : null;
+  const text = `${lead} — ` + [basis, `애널리스트 최소 ${view.minEstimates ?? '?'}명, ${revisions}`, versus, gaapGap, ...cautions].filter(Boolean).join('. ')
     + `. 예상치는 계속 바뀌는 참고값이라 점수에는 쓰지 않습니다(${view.asOf} 수집).`;
   // v57.81: one revision either way is not a direction — the net count (up − down) must reach the floor.
   const net = view.up4w - view.down4w;

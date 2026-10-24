@@ -68,8 +68,16 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
     validation: summarizeValidation(root?._aioScreenerBacktestHistory || [], root?._aioModelValidationStatus || null, root?._aioRankingWeights || null)
   });
   host.replaceChildren(el(doc, 'h2', '지금 순위가 말하는 것', 'briefing-h2'));
-  if (!read.available) { host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }
+  if (!read.available) { const rankRead = doc.getElementById('screener-rank-read'); if (rankRead) rankRead.hidden = true; host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }
   host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
+  // v58.74 (text audit 스크리너 C5): the 순위 view opened straight on the table; it now carries the reading's headline, the
+  // sector-rotation point and the theme stage of the top names, with the full reasoning one click away in 사후 검증.
+  const rankRead = doc.getElementById('screener-rank-read');
+  if (rankRead) {
+    const extra = ['rotation', 'theme-stage'].map((id) => read.points.find((point) => point.id === id)?.text).filter(Boolean);
+    rankRead.textContent = [read.headline, ...extra].join(' ');
+    rankRead.hidden = false;
+  }
   // P1599 (F106/C01): the reasoning comes first, but the table is one click away instead of two screens down.
   const jump = el(doc, 'button', '순위 표로 가기', 'flow-next-link');
   jump.type = 'button';

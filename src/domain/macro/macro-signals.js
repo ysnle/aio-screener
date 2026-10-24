@@ -10,6 +10,7 @@
 // Pure functions over [{ date, value }] series (ascending); imports nothing but the shared thresholds, so any domain module
 // (market-read included) can call them without an import cycle.
 import { RULES } from '../rules/thresholds.js';
+import { signedText } from '../shared/number.js';
 
 export const MACRO_SIGNAL_RULES = Object.freeze({
   deadZoneSd: 0.5,          // a move counts only past 0.5 sd of the series' own n-period changes
@@ -38,7 +39,6 @@ const stdev = (values) => {
   return Math.sqrt(values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length);
 };
 const monthOf = (date) => { const month = Number(String(date || '').split('-')[1]); return month ? `${month}월` : ''; };
-const signedText = (value, digits = 1, unit = '') => (value == null ? '—' : `${value > 0 ? '+' : value < 0 ? '−' : '±'}${Math.abs(value).toFixed(digits)}${unit}`);
 const indexBack = (series, n) => (series.length > n ? series[series.length - 1 - n] : null);
 
 /** Change against the observation closest to `days` calendar days earlier (never a later one) — the NFCI card and the

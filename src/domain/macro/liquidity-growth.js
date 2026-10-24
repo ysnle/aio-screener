@@ -9,6 +9,7 @@ import { buildCloseSeries, closeBasis } from '../market/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { sessionPointBack } from './rates-fx.js';
 import { BRENT_WTI_SPREAD_HOLD_USD, brentWtiFromSeries, changeOverDays, MACRO_SIGNAL_RULES } from './macro-signals.js';
+import { signedText } from '../shared/number.js';
 
 const seriesOf = (macroHistory, field) => (macroHistory?.series?.[field]?.observations || [])
   .map(([date, value]) => ({ date, value: Number(value) }))
@@ -23,7 +24,7 @@ const atOrBefore = (series, date) => {
 
 const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 const pct = (now, then) => (then && then !== 0 ? (now / then - 1) * 100 : null);
-const signed = (value, digits = 1, unit = '%') => (value == null || !Number.isFinite(value) ? null : `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}${unit}`);
+const signed = (value, digits = 1, unit = '%') => (value == null || !Number.isFinite(value) ? null : signedText(value, digits, unit));
 const fmt = (value, digits = 0) => value.toLocaleString('en-US', { maximumFractionDigits: digits, minimumFractionDigits: digits });
 const median = (values) => {
   const sorted = [...values].sort((a, b) => a - b);

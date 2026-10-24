@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.73';
+const APP_VERSION = 'v58.74';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -7117,7 +7117,7 @@ window.AIO.getStaticSeedFallbackAudit = function() {
     'skew-pct': 'skewChg',
     'kr-credit': 'krCreditBalance',
     'kr-semi-export-yoy-label': 'krSemiExport',
-    'kr-cpi-yoy': 'krCpi',
+    'kr-cpi-yoy': 'krCpi', 'kr-cpi-read': 'krCpi', // v58.74: the target-gap sentence reads the same CPI seed
     'kr-ppi-yoy': 'krPpi',
     'kr-manuf-pmi': 'krManufPmi',
     'kr-gdp-qoq': 'krGdp',
@@ -8912,7 +8912,7 @@ window.AIO_MACRO_CALENDAR = {
     'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fedRate', source: 'FOMC 결정', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
     // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/16)
     // v52.42: 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
-    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-08-27', nextRelease: '2026-10-22', dataField: 'bokRate', source: '한국은행 금통위', sourceUrl: 'https://www.bok.or.kr/eng/bbs/E0000627/view.do?menuNo=400022&nttId=10094301' }, // P1002: 8/27 공식 결정(2.75%→3.00%) 수신 후 10/22 공식 일정으로 이동
+    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-10-22', nextRelease: '2026-11-26', dataField: 'bokRate', source: '한국은행 금통위', sourceUrl: 'https://www.bok.or.kr/eng/bbs/E0000627/view.do?menuNo=400022&nttId=10094301' }, // P1002: 8/27 공식 결정(2.75%→3.00%) 수신 후 10/22 공식 일정으로 이동; v58.74: 10/22 동결(3.00% 유지, 10/23 공식 추이표 확인) 후 11/26으로 이동
     // P1081: 시장 핵심 이벤트 — 관심 윈도우 ~60일. 값은 넣지 않고 일정만 둔다(R605).
     'conf-gtc-dc':  { name: 'NVIDIA GTC Washington DC', frequency: 'annual-december', lastRelease: null,    nextRelease: '2026-11-30', dataField: 'event', source: 'NVIDIA official (nvidia.com/gtc/dc)' }
   }
@@ -14625,7 +14625,7 @@ const AIO_MANUAL_REFERENCE = Object.freeze({
     operationalUse: 'reference-only'
   }),
   bokPolicy: Object.freeze({
-    value: 3.00, status: '인상', asOf: '2026-08-27', next: '2026-10-22',
+    value: 3.00, status: '동결', asOf: '2026-10-22', next: '2026-11-26',
     source: 'Bank of Korea', sourceKind: 'official-primary',
     sourceUrl: 'https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200643',
     operationalUse: 'reference-only'
@@ -15490,11 +15490,12 @@ function applyDataSnapshot() {
       // 한국 매크로 추가 (Agent P1-22)
       'kr-ppi':        '—',
       'kr-pmi':        unit(S.krPmi, 1),
-      'kr-export':     unit(S.krExport, 1),
-      'kr-export-reference': (_refState.krExports && _refState.krExports.held && !(S.krExportReference && S.krExportReference.status === 'verified')) ? (_refState.krExports.status === 'unverified' ? '공식 잠정치 미수신' : '공식 잠정치 기한 지남')
+      'kr-export-reference': (_refState.krExports && _refState.krExports.held && !(S.krExportReference && S.krExportReference.status === 'verified')) ? (_refState.krExports.status === 'unverified' ? '발표 대기' : '갱신 기한 지남')
         : (S.krExportReference && S.krExportReference.status !== 'stale-reference' && isFinite(Number(S.krExportReference.exportsBillionUsd)))
-        ? String(S.krExportReference.periodLabel || '공식 잠정치') + ' 수출 $' + Number(S.krExportReference.exportsBillionUsd).toFixed(1) + 'B (' + (Number(S.krExportReference.exportsYoyPct) >= 0 ? '+' : '') + Number(S.krExportReference.exportsYoyPct).toFixed(1) + '% YoY)'
-        : '공식 잠정치 미수신',
+        // v58.74 (text audit #23): Korean units and words; a same-period comparison this large is mostly the calendar (holidays,
+        // working days), so it says so instead of reading as demand.
+        ? '수출(' + String(S.krExportReference.periodLabel || '공식 잠정치').replace(/^\d{4}-(\d{2})-(\d{2})~(\d{2})$/, function (m, mo, d1, d2) { return Number(mo) + '/' + Number(d1) + '~' + Number(d2); }) + ' 잠정) ' + Math.round(Number(S.krExportReference.exportsBillionUsd) * 10).toLocaleString('ko-KR') + '억 달러, 전년 같은 기간 대비 ' + (Number(S.krExportReference.exportsYoyPct) > 0 ? '+' : '') + Number(S.krExportReference.exportsYoyPct).toFixed(1) + '%' + (Math.abs(Number(S.krExportReference.exportsYoyPct)) >= 30 ? '(같은 날짜 구간 비교라 명절·조업일수 차이가 크게 섞일 수 있습니다)' : '')
+        : '발표 대기',
       'kr-import':     unit(S.krImport, 1),
       'kr-credit':     unit(S.krCreditBalance, 1, '조원'),
       'kr-deposit':    unit(S.krDeposit, 1, '조원'),
@@ -15506,7 +15507,10 @@ function applyDataSnapshot() {
       'kr-advance':    unit(S.krAdvance, 0, '개'),
       'kr-decline':    unit(S.krDecline, 0, '개'),
       // v48.15: kr-macro 페이지 세부 지표 data-snap 바인딩 (텍스트-B)
-      'kr-cpi-yoy':    refHeld('krInflation', S.krCpi) ? '기한 지남' : signed(S.krCpi, 1, '% YoY'),
+      'kr-cpi-yoy':    refHeld('krInflation', S.krCpi) ? '기한 지남' : signed(S.krCpi, 1, '%'),
+      // v58.74 (text audit #24): the KR CPI block reads its own number against the 2% target instead of a fixed caveat.
+      'kr-cpi-read':   refHeld('krInflation', S.krCpi) || !_snap.valid(S.krCpi) ? '공식 물가 발표 전이라 목표 대비 위치는 보류합니다.'
+        : (Math.abs(Number(S.krCpi) - 2) < 0.05 ? '물가가 한국은행 목표 2%와 같은 수준입니다.' : '물가가 한국은행 목표 2%보다 ' + Math.abs(Number(S.krCpi) - 2).toFixed(1) + '%p ' + (Number(S.krCpi) > 2 ? '높습니다.' : '낮습니다.')),
       'kr-ppi-yoy':    '—',
       'kr-manuf-pmi':  _snap.fixed(S.krManufPmi, 1),
       'kr-gdp-qoq':    signed(S.krGdp, 1, '%'),

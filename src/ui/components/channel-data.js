@@ -46,7 +46,7 @@ export function channelDataModel(signals, { recentDays = 3 } = {}) {
   if (retail[0]) {
     const [now, before] = retail;
     const change = before ? (now.leveragedLongShare > before.leveragedLongShare + 5 ? '늘었습니다' : now.leveragedLongShare < before.leveragedLongShare - 5 ? '줄었습니다' : '비슷합니다') : '';
-    sentences.push(`${day(now.date)} 서학개미 순매수에서 레버리지 롱 상품 비중은 ${fmt(now.leveragedLongShare)}%${before ? `로 직전(${fmt(before.leveragedLongShare)}%)보다 ${change}` : '입니다'}.`);
+    sentences.push(`${day(now.date)} 서학개미 순매수에서 레버리지 롱 상품 비중은 ${fmt(now.leveragedLongShare)}%${before ? `로 직전(${fmt(before.leveragedLongShare)}%)${change === '비슷합니다' ? '과 비슷합니다' : `보다 ${change}`}` : '입니다'}.`);
   }
   return {
     latest,

@@ -5,12 +5,14 @@
 // row (one list, not the map plus a second accordion of the same branches): the
 // cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
 // opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
-import { CHOICES, SHAPES, COUNT_WORDS } from '../../domain/market/macro-crossroads.js';
+import { CHOICES, SHAPES, COUNT_WORDS, EVENT_NAMES, fomcDecisionDate } from '../../domain/market/macro-crossroads.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
+import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 // Korean particles follow the last Hangul syllable of a quoted path name (quotes are skipped).
@@ -106,7 +108,7 @@ function timeline(doc, model) {
   for (const event of model.events.slice(0, 6)) {
     const item = el(doc, 'li', null, 'xr-event');
     if (model.nextEvent && event.id === model.nextEvent.id) item.dataset.next = 'true';
-    item.append(el(doc, 'span', md(event.date), 'xr-event-date'), el(doc, 'span', event.name, 'xr-event-name'));
+    item.append(el(doc, 'span', (event.when || md(event.date)).replace(/ \d{2}:\d{2} KST$/, ''), 'xr-event-date'), el(doc, 'span', event.name, 'xr-event-name'));
     strip.append(item);
   }
   return strip;
@@ -220,9 +222,14 @@ function branchCard(doc, root, item, lead, open = false) {
   body.append(impact);
   const themeRow = themeLinkRow(doc, root, item, { max: 6 });
   if (themeRow) body.append(themeRow);
-  body.append(el(doc, 'h4', '판단 근거 — 세 가지', 'xr-h4'));
+  body.append(el(doc, 'h4', '판단 근거', 'xr-h4'));
   const evidence = el(doc, 'ul', null, 'xr-evidence');
-  evidence.append(el(doc, 'li', `조건: ${item.basis.join(', ')}`), el(doc, 'li', `시장 가격: ${item.pricing.text}`), el(doc, 'li', `과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`));
+  // v58.74 (text audit): the conditions carry commas and '또는' themselves; joined into one sentence they read as five lines.
+  const conditionItem = el(doc, 'li', `조건 ${item.met}/${item.total}`);
+  const conditionList = el(doc, 'ul', null, 'xr-conditions');
+  for (const text of item.basis) conditionList.append(el(doc, 'li', text));
+  conditionItem.append(conditionList);
+  evidence.append(conditionItem, el(doc, 'li', `시장 가격: ${item.pricing.text}`), el(doc, 'li', `과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`));
   body.append(evidence);
   if (item.triggers.length) {
     body.append(el(doc, 'h4', '확인할 발표', 'xr-h4'));
@@ -251,6 +258,9 @@ const shortDate = (iso) => md(String(iso || '').slice(0, 10));
 // v57.54 review: a release is named by its own period (8월분, 9/17 결정), and the day AIO judged it comes after —
 // "10/13 CPI (2026-08-01 기준)" read as if the August CPI came out on 10/13.
 const periodLabel = (period) => { const text = String(period || ''); const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(text); if (!m) return text ? `(${text})` : ''; return !m[3] || m[3] === '01' ? `${Number(m[2])}월분` : `${Number(m[2])}/${Number(m[3])}`; };
+// v58.74 (text audit): records written before the text pass keep their old wording ('유가 충격'(으)로, −0.5%); they are
+// read with today's particle and sign rule instead of being rewritten in the stored history.
+const recordText = (text) => String(text ?? '').replace(/('[^']+'|[가-힣A-Za-z0-9]+)\(으\)로/g, (match, word) => withDirectionParticle(word)).replace(/−(?=\d)/g, '-');
 /** P1743: what the automated record saw change — branch lead/alt shifts, condition flips, and scored releases. */
 function changeLog(doc, state) {
   const transitions = (state?.transitions || []).slice(-6).reverse();
@@ -261,7 +271,7 @@ function changeLog(doc, state) {
   if (scored.length) {
     box.append(el(doc, 'h4', '지난 발표 판정', 'xr-h4'));
     const list = el(doc, 'ul', null, 'xr-scored');
-    for (const row of scored) list.append(el(doc, 'li', `${row.name} ${periodLabel(row.period)}: ${row.actualText} → ${row.matched.length ? `${row.matched.map((m) => `'${m.title}'`).join(', ')} 시나리오의 기준 충족` : '어느 시나리오의 기준에도 해당하지 않음'} (판정 ${shortDate(row.at)})`));
+    for (const row of scored) list.append(el(doc, 'li', `${row.name} ${periodLabel(row.name === EVENT_NAMES['us-fed-rate'] && /^\d{4}-\d{2}-\d{2}/.test(String(row.period || '')) ? fomcDecisionDate(row.period) : row.period)}: ${recordText(row.actualText)} → ${row.matched.length ? `${row.matched.map((m) => `'${m.title}'`).join(', ')} 시나리오의 기준 충족` : '어느 시나리오의 기준에도 해당하지 않음'} (판정 ${shortDate(row.at)})`));
     box.append(list);
   }
   if (transitions.length) {
@@ -269,10 +279,10 @@ function changeLog(doc, state) {
     const list = el(doc, 'ul', null, 'xr-transitions');
     // v57.88 (screen audit): several records a day read as contradictions with the date alone — the KST time is shown.
     const stamp = (iso) => { const ms = Date.parse(iso || ''); if (!Number.isFinite(ms)) return shortDate(iso); const kst = new Date(ms + 9 * 3600000).toISOString(); return `${md(kst.slice(0, 10))} ${kst.slice(11, 16)} KST`; };
-    for (const row of transitions) list.append(el(doc, 'li', `${stamp(row.at)} ${row.text}`));
+    for (const row of transitions) list.append(el(doc, 'li', `${stamp(row.at)} ${recordText(row.text)}`));
     box.append(list);
   }
-  box.append(el(doc, 'p', `데이터 갱신마다 자동으로 다시 계산해 기록합니다${state?.generatedAt ? `, 마지막 계산 ${shortDate(state.generatedAt)}` : ''}.`, 'xr-caveat'));
+  box.append(el(doc, 'p', `데이터 갱신마다 자동으로 다시 계산해 기록합니다${state?.generatedAt ? `(마지막 계산 ${shortDate(state.generatedAt)})` : ''}.`, 'xr-caveat'));
   return box;
 }
 
@@ -302,7 +312,7 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   const restOpen = !!target.querySelector('.xr-map-rest[open]');
   const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('.xr-branch')?.dataset.branch : null;
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
-  const basis = el(doc, 'p', `${model.asOf || '기준일 미확인'} 관측 기준. 다음 발표 때 무엇을 보고 어떻게 대응할지 정리했습니다. 각 갈래는 조건 충족 수, 시장 가격 방향, 과거 빈도를 나란히 보여 줍니다.`, 'xr-basis');
+  const basis = el(doc, 'p', `${model.asOf ? shortDate(model.asOf) : '기준일 미확인'} 관측 기준. 갈래마다 조건 충족 수, 시장 가격 방향, 과거 빈도를 나란히 놓고 다음 발표에서 무엇이 갈래를 가르는지 적었습니다. 과거 빈도는 시나리오 조건이 아니라 비슷한 시장 움직임으로 고른 비교입니다.`, 'xr-basis');
   // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
@@ -322,7 +332,7 @@ function themeLines(doc, root) {
   const pullbacks = (state.highlights?.structuralPullbacks || []).map((key) => byKey.get(key)).filter(Boolean).slice(0, 4);
   const lines = [];
   if (state.rotation?.text) lines.push(el(doc, 'p', `테마: ${state.rotation.text}`, 'xr-reading'));
-  const ret1m = (value) => (Number.isFinite(value) ? `1개월 ${value >= 0 ? '+' : ''}${value.toFixed(1)}%` : '1개월 —');
+  const ret1m = (value) => (Number.isFinite(value) ? `1개월 ${signedText(value, 1)}%` : '1개월 —');
   // v57.81 (audit): the line names the condition exactly (the lead branch's wind is not a headwind) and carries no action
   // suggestion — "분할 접근의 부담이 비교적 작은 경우" read as one.
   if (pullbacks.length) lines.push(el(doc, 'p', `상승 추세 속 쉬어 가는 테마(중심 시나리오에서 역풍이 아닌): ${pullbacks.map((row) => `${row.market === 'KR' ? '한국' : '미국'} ${row.label}(${ret1m(row.ret1m)})`).join(', ')}.`, 'xr-reading'));
@@ -334,7 +344,7 @@ function themeLines(doc, root) {
 function pathCard(doc, root, item, { kicker, fit }) {
   const card = el(doc, 'div', null, 'xr-path-card');
   // v57.86 (live review): when the price gauge is itself a condition, "시장 가격도 이 방향" would confirm the branch with its own input.
-  const tone = item.pricingInConditions && item.pricing.tone === 'same' ? '시장 가격은 조건에 포함' : item.pricing.tone === 'same' ? '시장 가격도 이 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대 방향' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '시장 가격 확인 불가';
+  const tone = item.pricingInConditions && item.pricing.tone === 'same' ? '시장 가격도 같은 쪽(조건에 포함)' : item.pricing.tone === 'same' ? '시장 가격도 이 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대 방향' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '시장 가격 확인 불가';
   const head = el(doc, 'div', null, 'xr-path-head');
   head.append(el(doc, 'span', kicker, 'xr-path-kicker'), el(doc, 'strong', `'${item.title.split(' — ')[0]}'`, 'xr-path-name'));
   const tags = el(doc, 'div', null, 'xr-path-tags');
@@ -382,7 +392,7 @@ export function renderCrossroadsCompact({ documentRef: doc, root, regime = null,
     // v57.81 (audit X7): the tie count comes from tiedIds (거시 said "셋" while 홈 hard-coded "두").
     const tiedItems = tied ? model.tiedIds.map((id) => model.items.find((item) => item.id === id)).filter(Boolean) : [];
     const sameFit = tied && tiedItems.every((item) => item.met === lead.met && item.total === lead.total);
-    const event = model.nextEvent ? `${md(model.nextEvent.date)} ${model.nextEvent.name}` : '';
+    const event = model.nextEvent ? `${model.nextEvent.when || md(model.nextEvent.date)} ${model.nextEvent.name}` : '';
     const count = COUNT_WORDS[tiedItems.length] || `${tiedItems.length}개`;
     const rest = tiedItems.filter((item) => item !== lead && item !== alt).map((item) => `'${short(item)}'`);
     const leadLine = tied
@@ -394,7 +404,8 @@ export function renderCrossroadsCompact({ documentRef: doc, root, regime = null,
     const pricedFirst = tied && lead.pricing.tone === 'same' && alt.pricing.tone !== 'same';
     cards.append(pathCard(doc, root, lead, { kicker: !tied ? '조건이 더 맞는 시나리오' : pricedFirst ? '시장도 같은 방향' : '대안 시나리오', fit: sameFit ? null : lead.fit }));
     if (alt) cards.append(pathCard(doc, root, alt, { kicker: '대안 시나리오', fit: sameFit ? null : alt.fit }));
-    parts.push(cards, el(doc, 'p', "'유리한 대응'은 그 시나리오가 실제로 이어질 때의 비용 비교이며, 따라 하라는 뜻은 아닙니다.", 'xr-scope-note'));
+    // v58.74 (text audit 오늘 B17): home states this once, in the guide right below; the compact block elsewhere keeps it.
+    parts.push(cards, ...(id === 'home-crossroads' ? [] : [el(doc, 'p', "'유리한 대응'은 그 시나리오가 실제로 이어질 때의 비용 비교이며, 따라 하라는 뜻은 아닙니다.", 'xr-scope-note')]));
     if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
   } else parts.push(el(doc, 'p', model.headline, 'xr-reading'));
   parts.push(...themeLines(doc, root), links);

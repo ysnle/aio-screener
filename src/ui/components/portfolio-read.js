@@ -10,6 +10,7 @@ import { el } from './dom.js';
 import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { estimateBookSensitivities, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { bondCushion, assetClassOf, BOND_ETF_MAP, BOND_KIND_LABEL, ASSET_CLASS_MAP_VERSION } from '../../domain/portfolio/asset-class.js';
+import { signedText } from '../../domain/shared/number.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —
 // bars on one scale, the total underneath, then what the arithmetic does not claim.
@@ -24,10 +25,10 @@ function attributionBox(doc, attribution) {
     fill.style.width = `${Math.min(50, Math.abs(part.pct) / max * 50).toFixed(1)}%`;
     fill.style[part.pct >= 0 ? 'left' : 'right'] = '50%';
     track.append(fill);
-    line.append(el(doc, 'span', part.label, 'scr-ic-label'), track, el(doc, 'span', `${part.pct >= 0 ? '+' : ''}${part.pct.toFixed(1)}%p`, 'scr-ic-value'));
+    line.append(el(doc, 'span', part.label, 'scr-ic-label'), track, el(doc, 'span', `${signedText(part.pct, 1)}%p`, 'scr-ic-value'));
     box.append(line);
   }
-  const sign = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}`;
+  const sign = (value) => `${signedText(value, 1)}`;
   box.append(el(doc, 'p', `합계 ${sign(attribution.excessPct)}%p = 내 수익률 ${sign(attribution.totalPct)}% − ${attribution.blendedLabel} ${sign(attribution.blendedPct)}%`, 'theme-strength-basis'));
   const notes = [];
   if (attribution.sectorMappedPct < 100) notes.push(`섹터 효과는 미국 섹터 ETF가 대응되는 보유액 ${attribution.sectorMappedPct.toFixed(0)}%에서만 분리(나머지는 종목 선택에 포함)`);
@@ -192,7 +193,7 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
 
 // v58.55 개편 v2 (3g) 채권 완충: the bond share of the holdings (0% is a reading too) and, with price records, how the bond
 // part moved in the weeks the stock part fell. Past association only — the text says rates can push both down together.
-const signedPct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+const signedPct = (value) => `${signedText(value, 1)}%`;
 export function bondCushionCard(bonds) {
   if (!bonds?.available) return null;
   const listed = Object.keys(BOND_ETF_MAP).length;

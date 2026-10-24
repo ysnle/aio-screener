@@ -16,6 +16,8 @@ import { breadthFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps, sectionLead } from './page-flow.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { signedText } from '../../domain/shared/number.js';
+import { sectorLabel } from '../../domain/screener/sector-label.js';
 
 const WINDOW = 126; // about six months of sessions
 
@@ -98,6 +100,27 @@ function nameOf(root, symbol) {
   return rows.find((row) => row?.sym === symbol)?.name || '';
 }
 
+// v58.74 (text audit 시장 상태 C3): which sectors a signal list is made of — a breadth gain carried by energy and defensives
+// reads differently from one carried by tech. Shown only when at least eight named stocks map to a sector.
+function sectorMix(root, list) {
+  const rows = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : [];
+  const bySym = new Map(rows.filter((row) => row?.sym).map((row) => [row.sym, row.sector]));
+  const counts = new Map();
+  let named = 0;
+  for (const entry of list) {
+    const symbol = Array.isArray(entry) ? entry[0] : entry?.symbol;
+    const assetType = Array.isArray(entry) ? entry[2] : entry?.assetType;
+    const sector = assetType === 'ETF' ? null : bySym.get(symbol);
+    if (!sector) continue;
+    named += 1;
+    const label = sectorLabel(sector);
+    counts.set(label, (counts.get(label) || 0) + 1);
+  }
+  if (named < 8) return '';
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+  return `업종 구성: ${top.map(([label, n]) => `${label} ${n}`).join(', ')}${counts.size > 3 ? ` 외 ${named - top.reduce((sum, [, n]) => sum + n, 0)}` : ''} (업종이 확인된 ${named}종목)`;
+}
+
 function renderDrill(doc, root, card, contributors, basis) {
   const wrap = el(doc, 'details', null, 'breadth-drill');
   const sessions = Array.isArray(contributors?.sessions) ? contributors.sessions.filter((row) => !basis || row.date <= basis) : [];
@@ -114,6 +137,8 @@ function renderDrill(doc, root, card, contributors, basis) {
       const column = el(doc, 'div', null, 'breadth-drill-col');
       column.append(el(doc, 'h4', `${DRILL_LABELS[key]} ${session?.counts?.[key] ?? list.length}`, 'breadth-drill-title'));
       if (!list.length) column.append(el(doc, 'p', '해당 종목 없음', 'breadth-drill-empty'));
+      const mix = sectorMix(root, list);
+      if (mix) column.append(el(doc, 'p', mix, 'breadth-drill-mix'));
       const ul = el(doc, 'ul', null, 'breadth-drill-list');
       for (const entry of list.slice(0, 40)) {
         const symbol = Array.isArray(entry) ? entry[0] : entry?.symbol;
@@ -125,7 +150,7 @@ function renderDrill(doc, root, card, contributors, basis) {
         const button = el(doc, 'button', symbol, 'breadth-drill-symbol');
         button.type = 'button';
         button.addEventListener('click', () => { if (typeof root?.showTicker === 'function') root.showTicker(symbol); });
-        li.append(button, el(doc, 'span', [assetType === 'ETF' ? 'ETF' : '', nameOf(root, symbol)].filter(Boolean).join(' '), 'breadth-drill-name'), el(doc, 'span', change == null ? '' : `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`, `breadth-drill-chg ${change >= 0 ? 'is-up' : 'is-down'}`));
+        li.append(button, el(doc, 'span', [assetType === 'ETF' ? 'ETF' : '', nameOf(root, symbol)].filter(Boolean).join(' '), 'breadth-drill-name'), el(doc, 'span', change == null ? '' : signedText(change, 1, '%'), `breadth-drill-chg ${change >= 0 ? 'is-up' : 'is-down'}`));
         const badge = (text) => el(doc, 'span', text, 'breadth-drill-ca'); // .breadth-drill-ca: src/ui/styles/responsive.css
         if (assetType === 'ETF') li.append(badge('ETF — 개별 주식 수에 함께 집계됩니다'));
         else if (caSuspected) li.append(badge('분사·합병 가능성(공시 미확인)'));
@@ -188,7 +213,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
           const pts = points.filter((point) => Number.isFinite(point.value));
           if (pts.length <= n) return null;
           const delta = (pts[pts.length - 1].value / pts[pts.length - 1 - n].value - 1) * 100;
-          return `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`;
+          return signedText(delta, 1, '%');
         }
         return seriesChange(points, n, card.changeUnit ?? '%p', card.changeDigits ?? 1);
       };

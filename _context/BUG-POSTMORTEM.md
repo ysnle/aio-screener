@@ -1,10 +1,226 @@
 ---
-last_verified: 2026-10-23
+last_verified: 2026-10-24
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2035 - v58.74 - 다음 이벤트 날짜가 화면마다 미국 날짜와 한국 시각으로 섞여 나왔다 (2026-10-24)
+
+- symptom/reproduction: 거시 교차로·오늘·시장 가이드·브리핑·AI 시각화는 '10/28 FOMC'처럼 미국 공표일을 썼고, 일정표는 한국 시각을 썼다. FOMC 결정은 한국 시각으로 10/29 새벽이라 같은 사건이 두 날짜로 보였다.
+- root_cause: macro-crossroads가 이벤트를 md(date)로만 표기하고 schedule.js의 releaseAtMs·formatKstWhen을 쓰지 않았다. 소비자마다 date를 따로 포맷했다.
+- fix: buildMacroCrossroads가 이벤트마다 when(한국 시각 표기)과 atMs를 한 번 만들고, 다섯 소비자가 when을 우선 쓴다. 발표 시각을 모르는 이벤트만 날짜로 남긴다. 남은 일수도 atMs 기준으로 센다.
+- violated_rule: R723
+- prevention: 로컬 화면 대조(오늘·거시·시장 가이드의 다음 이벤트 표기가 일정표와 같은 한국 시각).
+- verification/residual: 로컬 오늘·거시 화면에서 FOMC가 한국 시각 10/29 표기로 일정표와 일치.
+
+## P2034 - v58.74 - 거시 교차로가 정책금리 하단을 '상단 - 0.25'로 가정했다 (2026-10-24)
+
+- symptom/reproduction: 정책금리 범위 문장 세 곳이 하단을 상단에서 0.25를 빼서 만들었다. 현재 범위(3.75~4.00%)는 우연히 맞지만, 범위 폭이 바뀌거나 하단만 공표되는 경우 틀린 하단을 보인다.
+- root_cause: buildMacroCrossroads의 정책 신호가 상단만 읽고 하단은 고정 폭으로 계산했다.
+- fix: 정책 신호가 거시 이력의 fedTargetLower를 함께 읽고, 없을 때만 상단 - 0.25로 대신한다. 세 문장이 p.lower를 쓴다. 범위 표기는 '~'로 통일했다.
+- violated_rule: R689
+- prevention: 로컬 화면 대조(거시 교차로 정책 범위 문장).
+- verification/residual: 로컬 거시 화면에서 '3.75~4.00%' 확인.
+
+## P2033 - v58.74 - 뉴스 제목 번역이 시장 용어를 다른 뜻으로 옮겼다(Treasury Haven → '재정 예금 안정성') (2026-10-24)
+
+- symptom/reproduction: 무료 번역 모델이 'Treasury Haven'을 '재정 예금 안정성'으로, 'Bearish Euro Bets'를 '유로 매도 건으로 상승'으로 옮겼다. 화면은 이 번역을 그대로 제목으로 보였다.
+- root_cause: isFaithfulKoreanTitle이 회사명·금액·외국 글자만 대조하고, 시장 용어(국채·안전자산·연준·약세·강세·매도)가 한국어 제목에 살아 있는지는 보지 않았다.
+- fix: HEADLINE_TERMS 대조표를 추가했다. 영문 제목에 Treasury·haven·Fed·bearish·bullish·selloff가 있으면 한국어 제목에 해당 시장 단어가 있어야 한다. 통과하지 못한 제목은 titleKo를 비우고 브라우저 공용 번역으로 넘긴다.
+- violated_rule: R702
+- prevention: ci-data-pipeline-contract-check에 'Treasury Haven' 오역 거부·정역 통과 assertion 추가. 남는 한계: 대조 단어가 우연히 들어간 오역(예: '유로 매도 건으로 상승')은 통과한다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과.
+
+## P2032 - v58.74 - 공포·탐욕 10/16 종가가 주말 실시간 값(18)으로 덮여 공식 과거 기록(22.07)과 달랐다 (2026-10-24)
+
+- symptom/reproduction: 공포·탐욕 추이에서 10/16이 18로 나왔다. 같은 날 과거 그래프 기록은 22.07이다. 토요일(10/17·10/18) 행의 실시간 값이 금요일 23:59 관측으로 금요일 날짜에 다시 붙었다.
+- root_cause: close-series가 정산 시각이 없는 필드(공포·탐욕)는 같은 날짜의 나중 행을 그대로 채택했다. 'reference-history'로 표시된 과거 그래프 값과 실시간 값을 구분하지 않았다.
+- fix: 같은 날짜에 과거 그래프 기록(allowedUse 'reference-history')이 있으면 실시간 값은 그 날을 덮지 않는다. 기록 값끼리는 나중 것이 이긴다.
+- violated_rule: R720
+- prevention: ci-esm-core-unit-check에 금요일 기록 22.07 + 토요일 실시간 18(금요일 23:59 관측) 입력에서 22.07이 남는 assertion 추가(수정 전 코드에서는 18로 실패).
+- verification/residual: public-data/history.json으로 buildCloseSeries('fg') 계산 시 10/16 = 22.07, 10/19 = 20.8.
+
+## P2031 - v58.74 - 테마 상세가 하루 수익률 차이를 '상대 모멘텀 우세'·'상대 약세'로 단정 (2026-10-24)
+
+- symptom/reproduction: 테마 상세의 대표 ETF 대비 문장이 당일 0.5%p 차이만으로 '구성 테마의 상대 모멘텀이 우세합니다', '상대 약세를 확인하세요'라고 썼다.
+- root_cause: 하루 비교값에 기간 추세 용어를 붙였다.
+- fix: '당일은 시장보다 강했습니다/약했습니다/비슷했습니다'로 하루 사실만 적고, 비교 대상(시장 또는 벤치마크)과 수치를 괄호로 함께 쓴다.
+- violated_rule: R689
+- prevention: 로컬 테마 상세 대조.
+- verification/residual: 로컬 테마 상세 문장 확인.
+
+## P2030 - v58.74 - 뉴스 메타 줄이 지금 시나리오에 없는 갈래 이름('신용 경색 시나리오' 등)을 붙임 (2026-10-24)
+
+- symptom/reproduction: 뉴스 항목 메타에 토픽별 고정 라벨('물가 재가속 시나리오', '달러 급등 시나리오' 등)이 붙었는데, 실제 8개 시나리오 레지스트리의 이름·구성과 맞지 않았다.
+- root_cause: 2026-10-14 감사 때 만든 TOPIC_BRANCHES 고정 표가 이후 시나리오 레지스트리 개편을 따라가지 않았다.
+- fix: 토픽→시나리오 라벨을 화면에서 뺐다. 발행 시각은 '발행 M/D HH:mm(한국 시간)'으로 쓰고 시각이 없으면 생략한다.
+- violated_rule: R689
+- prevention: 로컬 뉴스 화면 대조.
+- verification/residual: 로컬 뉴스 화면 메타 줄 확인.
+
+## P2029 - v58.74 - 테마 강도 카드가 P2017 뒤에도 하위 그룹 중앙값의 중앙값을 써 같은 화면 표와 숫자가 다름 (2026-10-24)
+
+- symptom/reproduction: 테마 화면의 강도 카드(AI 설비투자 등) 3개월 수치가 같은 화면 플레이북 표의 통합 값과 달랐다.
+- root_cause: P2017은 플레이북 계산만 통합 구성 종목 기준으로 바꿨고, theme-strength의 themeGroupValues는 예전 방식을 그대로 썼다.
+- fix: themeGroupValues가 렌더된 플레이북(root.__aioThemePlaybook)의 통합 값을 먼저 읽고, 플레이북이 없을 때만 중앙값의 중앙값으로 대신하며 캡션에 그렇게 적는다.
+- violated_rule: R689
+- prevention: 로컬 테마 화면 대조.
+- verification/residual: 로컬 테마 화면에서 카드와 플레이북 표의 3개월 수치 일치 확인.
+
+## P2028 - v58.74 - 종목 요약이 흐름을 이끈 쪽을 섹터와 테마 반대로 적음 (2026-10-24)
+
+- symptom/reproduction: BE 종목 요약이 '섹터는 강한데 종목은 뒤처져 있습니다'라고 썼다. 섹터는 '개선' 단계였고, 순풍은 테마 쪽에서 왔다.
+- root_cause: 주어를 고정된 순서로 썼고, 어느 쪽이 종목의 톤과 같은지 확인하지 않았다.
+- fix: 톤을 공유하는 쪽(섹터 또는 테마)을 주어로 쓰고, 문장 조각을 마침표로 나눴다. 50일선 아래면 '되찾으려면 N% 올라야'로 거리를 적는다.
+- violated_rule: R689
+- prevention: 로컬 화면 대조.
+- verification/residual: 로컬 NVDA·BE 종목 요약 확인.
+
+## P2027 - v58.74 - 순이익률 문장이 두 해 모두 적자인 기업에 '남는 이익이 줄었다'고 쓰고 흑자·적자 전환을 구분하지 않음 (2026-10-24)
+
+- symptom/reproduction: BE처럼 적자 기업의 순이익률이 내려가면 '매출 대비 남는 이익이 줄었습니다'라고 썼다. 남는 이익이 없는 해였다. 적자→흑자, 흑자→적자도 '%p 높아졌/줄었'으로만 나왔다. 현금 문장은 순이익·영업현금흐름 중 하나가 음수일 때 '두 사실을 따로 보라'고만 하고 어떤 조합인지 말하지 않았다.
+- root_cause: fiscal-read가 순이익률 변화량의 부호만 보고, 두 해의 순이익률이 각각 양수인지 음수인지 보지 않았다.
+- fix: 순이익률은 적자 폭 축소/확대, 적자→흑자, 흑자→적자, 흑자 안의 증감으로 나눴다. 현금 문장은 '장부상 순손실이지만 영업에서 현금이 들어옴(비현금 비용)', '이익은 났지만 영업현금이 빠져나감', '둘 다 음수'를 구분한다.
+- violated_rule: R689
+- prevention: 로컬 화면 대조.
+- verification/residual: 로컬 BE·NVDA 재무 탭 문장 확인.
+
+## P2026 - v58.74 - 섹터 흐름 목록이 반도체 ETF(SMH)를 11개 섹터와 같은 순위에 넣음 (2026-10-24)
+
+- symptom/reproduction: 오늘 화면 섹터 흐름의 상위·하위 목록에 SMH가 섹터처럼 끼어 'N개 섹터 중' 순위와 개수가 실제 11개 섹터와 맞지 않았다.
+- root_cause: 흐름 목록이 섹터 ETF와 반도체 보조 지표를 한 배열에서 정렬했다.
+- fix: 순위는 11개 섹터만 매기고, 반도체(SMH)는 '반도체(SMH) …'로 따로 한 줄 붙인다.
+- violated_rule: R689
+- prevention: 로컬 화면 대조와 렌더 문구 린트.
+- verification/residual: 로컬 홈 섹터 흐름 목록 확인.
+
+## P2025 - v58.74 - 화면 문구 생성기가 '(으)로' 자리표시자·U+2212 음수·'+0.0' 부호를 그대로 노출 (2026-10-24)
+
+- symptom/reproduction: 시나리오 기록 '유가 충격'(으)로, 매크로·시장 상태 숫자의 '−0.5%'와 '-0.5%' 혼용, 0인 변화에 '+0.00%'·'±0', 조사 '이(가)'·'을(를)' 하드코딩, 사람 수 '5.1만 명'과 '51천 명' 혼용이 화면마다 달랐다.
+- root_cause: 부호·조사·단위를 파일마다 지역 헬퍼 34개와 인라인 삼항 68곳에서 따로 만들었다. 반올림 전에 부호를 붙여 '+0.0'이 나왔고, 조사를 고를 수 없는 자리에서는 '(으)로'를 그대로 썼다. 렌더된 문장을 검사하는 게이트가 없었다.
+- fix: src/domain/shared/number.js에 signedText(반올림 뒤 부호, ASCII 마이너스, 0은 부호 없음)와 peopleText를 두고 지역 헬퍼·인라인 부호를 모두 옮겼다. korean-particle.js에 withSubjectParticle·withAndParticle을 더해 자리표시자를 없앴다. 저장된 시나리오 기록은 화면에서 recordText로 오늘의 조사·부호 규칙에 맞춰 읽는다. 장문 지식·연구 문서의 U+2212는 그대로 둔다.
+- violated_rule: R723 화면 숫자·조사·단위는 공용 헬퍼로 만들고, 렌더된 문구 린트가 지킨다
+- prevention: scripts/ci-rendered-copy-lint-check.mjs(browser-rendered-copy-lint): 19개 라우트를 접힌 내용까지 열어 자리표시자 조사·빈 값·음수 0·숫자 앞 U+2212·원시 토큰·빈 괄호·선행 구분자·이중 괄호·띄어 쓴 조사를 찾는다. 캐너리로 규칙 자체를 확인하고 새 위반만 실패시킨다. ci-esm-core-unit-check: signedText·peopleText·조사 헬퍼·lintLines 단위 확인.
+- verification/residual: 로컬 렌더 린트 19개 라우트 위반 0건(기준선 0). 계약 QA 통과.
+
+## P2024 - v58.74 - AI 해설이 다음 주 대형 실적 날짜와 헤드라인 날짜를 틀리게 씀 (2026-10-24)
+
+- symptom/reproduction: '10/27 대형주 실적'(10/27은 KO·V, MSFT·GOOGL은 10/28), 10/23 04:14 GMT 로이터 금 헤드라인을 '같은 날(10/24)', 물가 재가속(조건 1/4)을 사실로, 10년물 상승일에 '국채 선호' 보도만 인용.
+- root_cause: 실적 줄이 첫 거래일만 담았고, 날짜·시나리오 이름·반대 방향 헤드라인에 대한 지시가 없었다.
+- fix: 실적 줄에 7일 안 비중 상위 실적을 날짜와 함께 덧붙이고, DATES_AND_SCENARIOS 지시를 추가했다.
+- violated_rule: R687
+- prevention: esm 단위 검사: 10/27 KO·V 뒤에 10/28 MSFT·GOOGL·10/29 AMZN.
+- verification/residual: 단위·data-pipeline 검사 통과; 서사 모델 재동기화(사건·불변식 변화 없음).
+
+## P2023 - v58.74 - ROE 문장이 자기자본이 늘어난 적자 기업에 '순손실로 자본이 줄어든 해'라고 씀 (2026-10-24)
+
+- symptom/reproduction: BE(자기자본 5.6억→7.7억 달러)·CRWV(−4.1억→+33억 달러)에 '순손실로 자본이 줄어든 해'.
+- root_cause: 문장이 ROE 부호만 보고 자기자본 변화는 보지 않았다.
+- fix: 자기자본이 줄었을 때만 그 문장, 늘었으면 '증자 등으로 자기자본은 늘어난 해'.
+- violated_rule: R689
+- prevention: 로컬 화면 대조.
+- verification/residual: 로컬 BE·CRWV 재무 탭 문장 확인.
+
+## P2022 - v58.74 - 거시 '1년 전보다'가 1년이 아닌 구간과 비교 (2026-10-24)
+
+- symptom/reproduction: 실질금리 '1년 전보다 +0.86%p'(실제 +0.96%p), 기대인플레 ±0.00(실제 +0.04), HY는 약 11.8개월 전과 비교.
+- root_cause: 최근 260개 관측의 첫 값과 비교해, 관측 간격에 따라 약 11.8~13개월 전이 기준이 됐다.
+- fix: 같은 날짜 1년 전 이전 마지막 관측을 전체 시계열에서 찾아 기준으로 하고, 10일 넘게 비면 생략한다.
+- violated_rule: R683
+- prevention: 로컬 화면 대조.
+- verification/residual: 로컬 금리 화면 실질금리 +0.96%p·기대인플레 +0.04%p·기간 프리미엄 +0.57%p.
+
+## P2021 - v58.74 - 도움말 판정 기준표와 HY 설명이 실제 판정 규칙과 다름 (2026-10-24)
+
+- symptom/reproduction: HY 340bp(양호 기준 350bp 아래)인데 신용 부담, S&P 50일선 −0.99%(±1% 안)인데 추세 부담 — 표에 20일 확대 기록 규칙·주도 영역 이탈 규칙이 없음. 달러 +2%(실제 +2.5% 또는 범위 상단), VIX 버퍼 누락. 계산하지 않는 지표(Triple Barrel, 뉴스 감성) 설명.
+- root_cause: 규칙이 v57.81에 추가될 때 도움말 표와 개념 설명은 갱신되지 않았다.
+- fix: 표와 HY 설명이 공용 임계값에서 20일 확대·주도 이탈·달러 버퍼·VIX 버퍼를 읽고, 퇴역 지표 설명과 capability 행을 지웠다.
+- violated_rule: R688
+- prevention: capability-claim 게이트를 8행으로 갱신; 표 문구는 RULES에서 생성.
+- verification/residual: capability-claim 통과; 로컬 도움말 표에 20일 확대·주도 이탈 표시.
+
+## P2020 - v58.74 - '지금 흐름' 전환 카드의 반증 조건이 이미 충족된 채 전환이 유지되고, 시장 폭이 약해졌다고 단정 (2026-10-24)
+
+- symptom/reproduction: 10/23 '반증: 나스닥 100 5거래일 낙폭 3% 안 + 신고가>신저가' — 둘 다 충족(−0.8%, 43>35)인데 '동반 약세 전환 확인 중'. 같은 카드가 '시장 폭 부담이 아직 빠짐'과 '시장 폭이 함께 약해져'를 함께 표시.
+- root_cause: 전환은 나스닥 100의 50일선 이탈로도 유지되는데, 고정 문장이 그 조건을 빼고 다른 반증을 적었다.
+- fix: 반증을 유지 규칙(50일선 1% 이내 회복 + 5거래일 낙폭 3% 안)으로 바꾸고, 첫 문장에서 시장 폭 단정을 뺐다.
+- violated_rule: R713
+- prevention: 로컬 화면 대조(반증 문장).
+- verification/residual: 로컬 홈 반증 문장이 50일선 회복 조건을 말한다.
+
+## P2019 - v58.74 - 종목 요약 재무 칸이 불러오는 중인 재무를 'SEC 연간 공시 없음'으로 표시 (2026-10-24)
+
+- symptom/reproduction: 홈에 잠시 머문 뒤 NVDA를 열면 8~15초 동안 '재무 없음 / SEC 연간 공시 없음', 같은 화면 기업 요약·듀폰은 FY2026 값을 표시.
+- root_cause: 종목이 바뀌기 전 동기화의 fundamentalsMeta가 남아, fundamentals가 아직 없는 새 종목을 확인된 부재로 판정했다.
+- fix: meta에 확인한 종목(checkedFor)을 싣고, 같은 종목을 확인했을 때만 '없음', 아니면 '불러오는 중'.
+- violated_rule: R709
+- prevention: Playwright 재현(홈 8초 대기 후 NVDA)으로 수정 전 '없음', 수정 후 '불러오는 중'→FY2026 확인.
+- verification/residual: 수정 전 3회 중 2회 '없음' 재현, 수정 후 0회.
+
+## P2018 - v58.74 - 테마 순위 변화 라벨이 그 주 흐름과 반대 방향을 말함 (2026-10-24)
+
+- symptom/reproduction: 사이버보안 1주 +11.3%(PANW +7.2%, CRWD +8.3%)에 '최근 식음'·'강세가 식는 중', 데이터/AI 플랫폼 +9.5%도 같은 문장, 원전/독립발전 1주 −7.7%에 '최근 강해짐'.
+- root_cause: 라벨이 1개월·3개월 순위 차이만 보고, 주간 점검은 '강해짐' 문장에서 급락만 걸렀다.
+- fix: directionLabel이 반대 방향 주간을 함께 말하고(급반등·반등·급락), '식는 중' 문장은 지수보다 나은 주간을 빼낸다.
+- violated_rule: R707
+- prevention: esm 단위 검사에 주간 반대 라벨 4종.
+- verification/residual: 단위 검사 통과; 로컬 화면 사이버보안 '1개월 순위는 밀렸지만 최근 1주 급반등'.
+
+## P2017 - v58.74 - 테마 행 수치를 하위 그룹 중앙값의 중앙값으로 계산해 작은 그룹이 테마 전체 숫자를 정함 (2026-10-24)
+
+- symptom/reproduction: 미국 유틸리티(39종목) '3개월 −21.4%, 6개월 −30.4%, 50일선 위 17%' — 원전/독립발전 6종목 그룹 값. 구성 종목 기준은 −10.6%·−11.7%·44%. 반도체 '50일선 위 0%'(실제 12%).
+- root_cause: buildThemePlaybook이 테마 행의 수익률·50일선 비율을 그룹 값들의 중앙값으로 냈고, 문장은 '구성 종목 X%'로 읽혔다.
+- fix: 그룹이 포함 종목 값(memberStats)을 넘기고, 테마 행은 종목을 한 번씩 모아 중앙값과 50일선 위 비율을 계산한다(종목 값이 없을 때만 기존 방식).
+- violated_rule: R685
+- prevention: esm 단위 검사: 큰 그룹 하나와 작은 약세 그룹 둘이면 테마 값이 종목 기준을 따른다(이전 코드는 −20%).
+- verification/residual: 단위 검사 통과; 로컬 화면 유틸리티 3개월 −10.6%·50일선 위 44%.
+
+## P2016 - v58.74 - 이스라엘 총리 성명 텔레그램 글이 '한국장'으로 분류됨 (2026-10-24)
+
+- symptom/reproduction: 뉴스 채널 피드에서 네타냐후 성명(…신베트 국장…)이 한국장 태그.
+- root_cause: 한국 시장 태그가 '국장'(국내 주식 은어)을 단독 단어로 잡아, 기관장 직함 '국장'에도 걸렸다.
+- fix: 단독 '국장'을 태그 조건에서 빼고 '한국장'만 유지한다.
+- violated_rule: R722
+- prevention: data-pipeline 계약 검사에 조건 추가.
+- verification/residual: 계약 검사 통과.
+
+## P2015 - v58.74 - AI 해설 기준 표시가 미 10년물 종가를 '장외 시세'로 표시 (2026-10-24)
+
+- symptom/reproduction: '미 10년물 10/24 03:59 KST 장외 시세' — 10년물은 15:00 ET에 마감하고 세션은 MARKET_CLOSED였다.
+- root_cause: 기준 표시가 세션과 무관하게 뉴욕 16시 이전 관측을 장외로 분류했다.
+- fix: MARKET_CLOSED 관측은 시각과 관계없이 종가로 표시한다.
+- violated_rule: R713
+- prevention: 현재 데이터로 기준 표시 함수를 실행해 'S&P 500·미 10년물·WTI 10/23 종가' 확인.
+- verification/residual: 함수 실행 결과 확인.
+
+## P2014 - v58.74 - AI 해설 문장 끝에 '[]'와 '[;]'가 남음 (2026-10-24)
+
+- symptom/reproduction: 10/24 09:22 해설 '갈림길입니다 [].', '약해집니다 [;].'
+- root_cause: 모델이 '[[regime-context]]'처럼 이중 괄호로 근거를 달아, 안쪽 id만 지워지고 바깥 괄호가 남았다.
+- fix: id 제거 뒤 비었거나 구분자만 남은 대괄호를 지운다(링크 '[...](' 는 유지).
+- violated_rule: R718
+- prevention: codex-structure 픽스처에 이중 괄호 사례 추가.
+- verification/residual: 현재 해설 9줄 모두 잔여 괄호 없음.
+
+## P2013 - v58.74 - Cboe 풋콜 수집 실패가 정적 데이터 계약을 깨 데이터 갱신 전체를 막음 (2026-10-24)
+
+- symptom/reproduction: refresh-data 10/24 01:20Z 실패: 'category put-call has neither current evidence nor explicit unavailable contract'.
+- root_cause: 풋콜 수집이 실패하면 값 null을 게시했고, 다른 원천과 달리 직전 값을 보존하는 경로가 없었다.
+- fix: 수집 실패 시 직전 값을 stale-reference로 유지한다(history에는 current-reference만 기록).
+- violated_rule: R721
+- prevention: producer-dry-run에 Cboe 실패 시 직전 값 유지 검사 추가; 수정 전 실패·수정 후 통과 확인.
+- verification/residual: dry-run 통과, 수정 제거 시 'totalPutCall null'로 실패.
+
+## P2012 - v58.74 - 금요일 17시(ET) 이후 환율·선물 시세를 장중으로 분류해 데이터 갱신이 거부됨 (2026-10-24)
+
+- symptom/reproduction: refresh-data 10/23 23:20Z·23:50Z 실패: 'usdkrw: 1323.66 != KRW=X completed value 1325.07 (DELAYED_IN_SESSION)'.
+- root_cause: 연속 거래 종목(환율·CME 선물)의 일정 판정이 UTC 토·일만 휴장으로 보아, 금요일 17:00 ET~24:00 UTC 사이 읽은 값을 장중으로 분류했고 history 검사는 전일 종가와 비교했다.
+- fix: 뉴욕 시각 금요일 17:00 이후를 휴장으로 판정한다.
+- violated_rule: R720
+- prevention: market-snapshot 계약 검사에 금요일 저녁 KRW=X·CL=F와 금요일 장중 사례 추가.
+- verification/residual: 계약 검사 통과; 수정 전 판정은 DELAYED_IN_SESSION.
 
 ## P2011 - v58.72 - history 세션 정리가 뒤쪽 행의 확정 종가를 보지 못해 전일 종가 읽기가 확정 값을 덮을 수 있음 (2026-10-23)
 

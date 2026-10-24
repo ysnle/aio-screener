@@ -341,7 +341,7 @@ try {
   await page.evaluate(() => window.AIO_ARCH.navigate('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioSentimentBoardRenderer === 'native');
   const sentimentFg = await page.evaluate(() => document.querySelector('#page-sentiment [data-metric="fg"] .trend-card-change')?.textContent || '');
-  const fgNumber = (text, label) => { const m = new RegExp(`${label}\\s*([+−-]?\\d+)`).exec(text); return m ? Number(m[1].replace('−', '-')) : null; };
+  const fgNumber = (text, label) => { const m = new RegExp(`${label}\\s*([+−-]?\\d+)`).exec(text); return m ? Number(m[1].replace('-', '-')) : null; };
   const homeFgDelta = fgNumber(homeFg, '전일 대비');
   const sentimentFgDelta = fgNumber(sentimentFg, '전일');
   if (homeFgDelta != null && sentimentFgDelta != null && homeFgDelta !== sentimentFgDelta) throw new Error(`P1428 F&G day change differs across screens: home=${homeFg} sentiment=${sentimentFg}`);

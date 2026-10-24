@@ -18,6 +18,7 @@ import { releaseActuals, actualText, scoreRelease, EVENT_NAMES } from '../src/do
 import { THEME_STATES } from '../src/domain/scenarios/analogs.js';
 import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
 import { choiceName } from '../src/domain/guide/market-guide.js';
+import { withDirectionParticle } from '../src/domain/content/korean-particle.js';
 import { LESSON_BY_ID } from '../src/domain/guide/lessons.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -53,8 +54,8 @@ export function diffSnapshots(previous, current, at) {
   const push = (kind, text) => out.push({ at, kind, text });
   const titleOf = (id, snap) => short(snap.crossroads?.items?.find((item) => item.id === id)?.title) || id;
   const p = previous.crossroads || {}, c = current.crossroads || {};
-  if (p.leadId !== c.leadId) push('lead', c.leadId ? `가장 맞는 시나리오가 '${p.leadId ? titleOf(p.leadId, previous) : '판단 보류'}'에서 '${titleOf(c.leadId, current)}'(으)로 바뀌었습니다.` : '조건을 확인할 관측이 부족해 중심 시나리오 판단을 보류합니다.');
-  else if (p.altId !== c.altId && c.altId) push('alt', `대안 시나리오가 '${titleOf(c.altId, current)}'(으)로 바뀌었습니다.`);
+  if (p.leadId !== c.leadId) push('lead', c.leadId ? `가장 맞는 시나리오가 '${p.leadId ? titleOf(p.leadId, previous) : '판단 보류'}'에서 ${withDirectionParticle(`'${titleOf(c.leadId, current)}'`)} 바뀌었습니다.` : '조건을 확인할 관측이 부족해 중심 시나리오 판단을 보류합니다.');
+  else if (p.altId !== c.altId && c.altId) push('alt', `대안 시나리오가 ${withDirectionParticle(`'${titleOf(c.altId, current)}'`)} 바뀌었습니다.`);
   const before = new Map((p.items || []).map((item) => [item.id, item]));
   for (const item of c.items || []) {
     const old = before.get(item.id);
@@ -66,12 +67,12 @@ export function diffSnapshots(previous, current, at) {
     }
     if (old.pricingTone !== item.pricingTone && old.pricingTone !== 'unknown' && item.pricingTone !== 'unknown') {
       const label = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립' };
-      push('pricing', `'${short(item.title)}'에 대한 시장 가격이 ${label[old.pricingTone] || old.pricingTone}에서 ${label[item.pricingTone] || item.pricingTone}(으)로 바뀌었습니다.`);
+      push('pricing', `'${short(item.title)}'에 대한 시장 가격이 ${label[old.pricingTone] || old.pricingTone}에서 ${withDirectionParticle(label[item.pricingTone] || item.pricingTone)} 바뀌었습니다.`);
     }
   }
   // Owner 2026-10-19: the market guide's cross-scenario direction and the principles today's data touches are logged too.
   const pg = previous.guide || null, cg = current.guide || null;
-  if (pg && cg && pg.robust !== cg.robust) push('guide', cg.robust ? `여러 시나리오에 유리하다고 가장 많이 적힌 선택이 '${pg.robust ? choiceName(pg.robust) : '집계 없음'}'에서 '${choiceName(cg.robust)}'(으)로 바뀌었습니다.` : (cg.split ? '살아 있는 시나리오들이 유리한 선택지를 서로 다르게 적어 한쪽으로 세지 않습니다.' : '핵심 조건을 갖춘 시나리오가 없어 선택지 집계를 멈췄습니다.'));
+  if (pg && cg && pg.robust !== cg.robust) push('guide', cg.robust ? `여러 시나리오에 유리하다고 가장 많이 적힌 선택이 '${pg.robust ? choiceName(pg.robust) : '집계 없음'}'에서 ${withDirectionParticle(`'${choiceName(cg.robust)}'`)} 바뀌었습니다.` : (cg.split ? '살아 있는 시나리오들이 유리한 선택지를 서로 다르게 적어 한쪽으로 세지 않습니다.' : '핵심 조건을 갖춘 시나리오가 없어 선택지 집계를 멈췄습니다.'));
   if (pg && cg) {
     // Only a newly relevant trap is logged (the others follow the same axes the log already records).
     const added = (cg.lessonIds || []).filter((id) => !(pg.lessonIds || []).includes(id) && LESSON_BY_ID[id]?.kind === 'trap' && cg.reasons?.[id]);

@@ -1,3 +1,4 @@
+import { signedText } from '../shared/number.js';
 // P1382: a headline-only earnings story ("Micron beats …") carries no numbers, and article
 // bodies are not retained (rights). The Finnhub earnings calendar the producer already
 // publishes supplies the structured context: estimate and, after the report, the actual.
@@ -15,7 +16,7 @@ function vsLine(label, actual, estimate, format) {
   const e = typeof estimate === 'number' && Number.isFinite(estimate) && estimate !== 0 ? estimate : null;
   if (a != null && e != null) {
     const surprise = (a - e) / Math.abs(e) * 100;
-    return `${label} ${format(a)} (예상 ${format(e)} 대비 ${surprise >= 0 ? '+' : ''}${surprise.toFixed(1)}%)`;
+    return `${label} ${format(a)} (예상 ${format(e)} 대비 ${signedText(surprise, 1)}%)`;
   }
   if (a != null) return `${label} ${format(a)}`;
   if (e != null) return `${label} 예상 ${format(e)}`;

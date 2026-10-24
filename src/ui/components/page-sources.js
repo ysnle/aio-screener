@@ -35,7 +35,8 @@ export const PAGE_SOURCES = Object.freeze({
     '지수 이익 전망: Nasdaq·Zacks 컨센서스(조정 EPS), iShares IVV 보유 비중, 실질금리 FRED DFII10',
     'AI 설비투자 배분: BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용, 부품 납기: TrendForce(2026-09-14)'
   ],
-  ticker: ['가격·차트: Yahoo Finance 일봉', SEC, '팩터 점수: 스크리너와 같은 자체 계산', '랭킹 대상 밖 종목: Nasdaq Trader 미국 상장 목록으로 확인, 요청 시 같은 공식으로 계산(공개 순위 미포함)'],
+  // v58.74 (text audit): one fold serves 미국 and 한국 tickers, so each line names the market it applies to.
+  ticker: ['가격·차트: Yahoo Finance 일봉', '기업 재무: 미국 종목은 SEC EDGAR XBRL 공시(연간 10-K, 분기 10-Q), 한국 종목은 DART 사업보고서', '팩터 점수: 스크리너와 같은 자체 계산', '랭킹 대상 밖 미국 종목: Nasdaq Trader 상장 목록으로 확인, 요청 시 같은 공식으로 계산(공개 순위 미포함)'],
   // v57.81: the 한국 시장 fold is shown to everyone, so the chart screen names its sources too.
   technical: ['종목 차트: Yahoo Finance 일봉', '코스피·코스닥 종가: Yahoo Finance 일봉(마감된 한국 거래일), 50일선·200일선·1년 고저는 자체 계산'],
   fundamental: [SEC],

@@ -11,6 +11,7 @@ import { readMarketRegime } from './market-regime.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
+import { signedText } from '../../domain/shared/number.js';
 
 const CHART_WORDS = /차트|추세|이평|이동\s*평균|지지|저항|돌파|이탈|기술적|셋업|패턴|모멘텀|rsi|macd|chart|trend|support|resistance|breakout/i;
 const FUNDAMENTAL_WORDS = /실적|매출|이익|마진|이익률|재무|펀더멘탈|현금\s*흐름|fcf|성장률|분기|어닝|가이던스|밸류에이션|per\b|earnings|revenue|margin|fundamental|quarter/i;
@@ -20,7 +21,7 @@ const THEME_WORDS = /섹터|테마|업종|로테이션|순환|주도|병목|반�
 const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
-const signed = (value, digits = 1) => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`;
+const signed = (value, digits = 1) => signedText(value, digits, '%');
 const price = (value, kr) => (kr ? Math.round(value).toLocaleString('en-US') : value >= 1000 ? value.toFixed(0) : value.toFixed(2));
 
 // Which figures fit this question. At most two, so a figure supports the answer instead of replacing it.
@@ -199,7 +200,7 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
   const rows = [...model.items].sort((a, b) => (b.id === model.leadId) - (a.id === model.leadId) || (b.id === model.altId) - (a.id === model.altId) || b.met / b.total - a.met / a.total).slice(0, 6);
   const dots = (item) => Array.from({ length: item.total }, (_, i) => `<span class="aav-dot${i < item.met ? ' is-met' : ''}"></span>`).join('');
   const { figure, body } = frame(doc, '향후 시나리오 — 조건 충족, 시장 가격, 그 시나리오에서 유리한 쪽',
-    `${model.asOf || ''} 관측 기준, 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
+    `${model.asOf || ''} 관측 기준, 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.when || model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
   body.innerHTML = `<table class="aav-table">${rows.map((item) => `<tr${item.id === model.leadId ? ' class="aav-lead"' : ''}><td class="aav-title">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td class="aav-dots" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span class="aav-count">${item.met}/${item.total}</span></td><td class="aav-tone">${esc(tone[item.pricing.tone] || '보류')}</td><td class="aav-favored">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(', '))}</td></tr>`).join('')}</table>`;
   return figure;
 }
@@ -209,7 +210,7 @@ async function buildThemesVisual({ documentRef: doc, root }) {
   const store = root?.AIO?.store || { getState: () => ({ screener: { rows: root?.AIO_ARCH?.getScreenerRows?.() || [] } }) }; // v57.77 perf: shared row snapshot, not a whole-slice clone
   const { playbook } = themePlaybookForRoot(root, store);
   if (!playbook?.available) return null;
-  const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+  const pct = (value) => `${signedText(value, 1)}%`;
   const { figure, body } = frame(doc, '테마 단계와 거시 영향 (모든 테마, 같은 규칙)',
     `${esc(playbook.asOf || '')} 확정 종가, 긴 추세(미국 6개월, 한국 3개월)와 1개월 움직임, 색은 중심 시나리오 기준 수혜(초록)·부담(빨강).`);
   body.innerHTML = `<div class="aav-stages">${Object.keys(THEME_STATES).map((stage) => {

@@ -16,6 +16,7 @@ import { renderMarketScenarioModel } from '../../src/domain/market/regime-scenar
 import { renderScenarioOutlookContext } from '../../src/domain/market/scenario-outlook.js';
 import { renderMacroCrossroadsContext } from '../../src/domain/market/macro-crossroads.js';
 import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
+import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
@@ -93,7 +94,9 @@ export function marketFlowContext(data, history = [], nowMs = Date.now(), { scre
     if (!flow?.available) return '';
     const t = flow.themes?.available ? flow.themes : null;
     return [`자금 흐름(미국 ${mdOf(flow.session)} 종가): ${flow.label} — ${flow.line}. ${flow.read}`,
-      t ? [t.strongLine, t.weakLine, t.splitLines.length ? `같은 업종 안에서 갈린 곳: ${t.splitLines.slice(0, 4).join(' / ')}` : ''].filter(Boolean).join(' · ') : '',
+      t ? [t.strongLine, t.weakLine, t.splitLines.length ? `같은 업종 안에서 갈린 곳: ${t.splitLines.slice(0, 4).join(' / ')}` : '',
+        // v58.74: the AI-chain sub-themes whose own members split (MU up, SNDK·WDC·STX down on 10/23)
+        t.memberSplitLines?.length ? `같은 테마 안에서 갈린 종목: ${t.memberSplitLines.slice(0, 3).join(' / ')}` : ''].filter(Boolean).join(' · ') : '',
       '— 지수의 움직임이 어느 업종·테마에 몰렸고 돈이 어디로 옮겨갔는지(버틴 쪽과 밀린 쪽)를 압력 단락에서 한 번 쓸 것. 업종 이동을 정치·선거 같은 원인으로 단정하지 말 것; 원인은 HEADLINE_CONTEXT 보도로만 붙인다.'].filter(Boolean).join('\n');
   } catch (_) {
     return '';
@@ -144,13 +147,26 @@ export function nextEarningsLine(calendar, afterDate, { max = 6 } = {}) {
   const when = { bmo: '장 전', amc: '장 마감 후' };
   const day = rows.filter((row) => row.date === date).sort((a, b) => Number(b.indexWeight) - Number(a.indexWeight)).slice(0, max);
   const groups = ['bmo', 'amc', null].map((hour) => [hour, day.filter((row) => (when[row.hour] ? row.hour : null) === hour).map((row) => row.symbol)]).filter(([, symbols]) => symbols.length);
-  return `다음 대형주 실적(${mdOf(date)}, 미국 시각): ${groups.map(([hour, symbols]) => `${hour ? when[hour] : '시간 미정'} ${symbols.join('·')}`).join(' / ')}`;
+  // v58.74 (audit): the first session alone (10/27 KO·V) let the reading call 10/27 the large-cap day while MSFT·GOOGL
+  // (10/28) and AMZN (10/29) carry the week; the heaviest reports of the next seven days follow, dated.
+  const weekEnd = new Date(Date.parse(`${date}T00:00:00Z`) + 7 * 86400000).toISOString().slice(0, 10);
+  const later = rows.filter((row) => row.date > date && row.date <= weekEnd).sort((a, b) => Number(b.indexWeight) - Number(a.indexWeight)).slice(0, 4)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)) || Number(b.indexWeight) - Number(a.indexWeight));
+  const laterText = later.map((row) => `${mdOf(row.date)} ${when[row.hour] || '시간 미정'} ${row.symbol}`).join(', ');
+  return `다음 대형주 실적(${mdOf(date)}, 미국 시각): ${groups.map(([hour, symbols]) => `${hour ? when[hour] : '시간 미정'} ${symbols.join('·')}`).join(' / ')}${laterText ? ` / 이어서 비중이 큰 실적(미국 시각): ${laterText}` : ''}`;
 }
 // v58.72 (live review 10/23): with no market in session the fallback read "장중 큰 움직임 없음", and the 16:27 KST reading
 // wrote "장중 큰 움직임은 없고" on a day KOSPI fell 4% intraday and closed +0.30%. The packet has no completed session's
 // intraday range, so the fallback says only that no session is open now and forbids the claim.
 export const NO_SESSION_ROW_NOW = '지금 진행 중인 장의 장중 값 없음 — 가장 최근 완료 종가로 쓰고, 완료된 세션의 장중 등락은 이 자료에 없으니 "장중 큰 움직임이 없었다"고 쓰지 말 것(장중 흐름은 그 날짜 헤드라인이 전할 때만 헤드라인에 귀속해 쓴다)';
-export function marketDriversContext({ history = [], reversal = null, intradayRows = [], earningsLine = '' } = {}) {
+// v58.74 (owner review 10/24): the week of the Israeli election the reading named only FOMC and earnings. Scheduled
+// elections inside the next week travel with the confirm/deny row, dated in KST (the briefing schedule's own list).
+export function upcomingPoliticalLine(nowMs = Date.now(), days = 7) {
+  const rows = POLITICAL_EVENTS.map((event) => ({ ...event, atMs: Date.parse(event.atKst) }))
+    .filter((event) => Number.isFinite(event.atMs) && event.atMs >= nowMs && event.atMs <= nowMs + days * 86400000);
+  return rows.length ? `정치 일정: ${rows.map((event) => `${mdOf(event.atKst.slice(0, 10))} KST ${event.label}`).join(' / ')}` : '';
+}
+export function marketDriversContext({ history = [], reversal = null, intradayRows = [], earningsLine = '', eventsLine = '' } = {}) {
   const prior = priorSessionMoveLines(history).replace(/^직전 완료 세션의 큰 움직임: /, '').replace(/ — .*$/, '');
   const kst = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16);
   const now = reversal
@@ -161,7 +177,7 @@ export function marketDriversContext({ history = [], reversal = null, intradayRo
     'MARKET_DRIVERS (해석의 뼈대 — 아래 세 칸을 이 순서로 채운다. 숫자는 METRIC_EVIDENCE·REGIME_CONTEXT·KOREA_LARGE_INTRADAY_MOVE와 아래 장중 값만 쓴다):',
     `- 압력: ${prior || '직전 완료 세션의 큰 움직임 없음 — 가장 최근 완료 종가의 변화'} — 이 움직임에 대해 보도된 이유를 서로 다른 것으로 2~3개 쓴다. 이유마다 "10/20 WSJ 보도에 따르면 …"처럼 HEADLINE_CONTEXT 헤드라인의 날짜(M/D, date= 값)와 출처를 같은 문장에 붙이고, 그 이유가 무엇을 거쳐 어느 쪽(반도체·대형 기술주, 유가, 신용 등)에 닿았는지 한 구절로 잇는다.`,
     `- 지금: ${[now, intraday].filter(Boolean).join(' · ') || NO_SESSION_ROW_NOW} — 이 움직임에 대해 보도된 이유를 1~3개, 같은 형식(날짜·출처)으로 쓴다. 장중 움직임의 이유는 08:00 이후 장중 속보(잠정)나 그 직전 미국 장 마감 뒤 헤드라인에서만 고르고 잠정이면 "잠정"을 쓴다. 압력의 이유와 지금의 이유를 한 문장에 섞지 않는다.`,
-    `- 확인·반증: ${earningsLine || '다음 대형주 실적 일정 미수집'} — 지금 움직임이 이어지려면 무엇이 확인돼야 하고(예: 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 유가·신용이 같은 방향인지) 무엇이 나오면 되돌림으로 보는지 쓴다. 매매 지시·목표가 없이.`,
+    `- 확인·반증: ${[earningsLine || '다음 대형주 실적 일정 미수집', eventsLine].filter(Boolean).join(' / ')} — 지금 움직임이 이어지려면 무엇이 확인돼야 하고(예: 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 유가·신용이 같은 방향인지) 무엇이 나오면 되돌림으로 보는지 쓴다. 매매 지시·목표가 없이.`,
     '보도된 이유가 헤드라인에 없으면 지어내지 말고 "보도된 이유 미수집"이라고 쓴다. 헤드라인은 원인을 확정하지 않는다 — 한 가지 해석으로 쓴다.'
   ].join('\n');
 }
@@ -238,8 +254,16 @@ const koreanAmounts = (ko) => [...String(ko || '').matchAll(/(?:(\d[\d,]*(?:\.\d
 // v58.72 (live review 10/23): "Bessent dismisses AI bubble fears" came back as "... AI 버블 우려 bác함" (Vietnamese). An
 // accented Latin word is kept only when the source title has it too (Nestlé, Société Générale).
 const ACCENTED_WORD = /[A-Za-zÀ-ɏḀ-ỿ]*[À-ɏḀ-ỿ][A-Za-zÀ-ɏḀ-ỿ]*/g;
+// v58.74 (text audit, news translation): the free model turned "Treasury Haven" into "재정 예금 안정성" and "Bearish Euro
+// Bets" into "유로 매도 건으로 상승". A market term in the title must come back as its market word; a title that fails
+// keeps no titleKo, so the browser translates it with the shared model instead of showing a wrong meaning.
+const HEADLINE_TERMS = Object.freeze([
+  [/\bTreasur(?:y|ies)\b(?!\s+(?:Secretary|Department))/, /국채|미 국채|재무부/], [/\bhaven\b/i, /안전/], [/\bFed\b/, /연준|연방준비/],
+  [/\bbearish\b/i, /약세|하락|매도|비관/], [/\bbullish\b/i, /강세|상승|매수|낙관/], [/\bselloff\b|\bsell-off\b/i, /매도|급락|하락/]
+]);
 export const isFaithfulKoreanTitle = (title, ko) => {
   if (!isCleanKoreanTitle(ko)) return false;
+  if (!HEADLINE_TERMS.every(([en, kr]) => !en.test(String(title || '')) || kr.test(String(ko || '')))) return false;
   if ((String(ko || '').match(ACCENTED_WORD) || []).some((word) => !String(title || '').includes(word))) return false;
   if (!HEADLINE_NAMES.every(([en, kr]) => !en.test(String(title || '')) || kr.test(String(ko || '')))) return false;
   if (/multi-?billion|\bbillions?\b/i.test(String(title || '')) && !/trillion/i.test(String(title || '')) && /수천억|수조/.test(String(ko || ''))) return false;
@@ -372,7 +396,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       .map((row) => ({ label: row.label, observedAt: row.observedAt, changePct: changeOf.get(row.evidenceId) }));
     const usCloseDate = buildCloseSeries(historyRows, 'spx').at(-1)?.date || null;
     const usCloseAt = usCloseDate ? `${mdOf(usCloseDate)} 16:00 ET` : null;
-    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate) });
+    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: upcomingPoliticalLine() });
     const macroNow = data?.macro || {};
     const signed = (value) => `${Number(value) >= 0 ? '+' : ''}${value}`;
     const inflationLine = Number.isFinite(Number(macroNow.cpi)) && macroNow.cpiDelta != null && Number.isFinite(Number(macroNow.cpiDelta))
@@ -388,6 +412,9 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 KOREA_LARGE_INTRADAY_MOVE·CROSS_MARKET_INTRADAY·MARKET_DRIVERS에 적힌 것만 쓴다. 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.',
       'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',
       'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 7-9 concise lines.',
+      // v58.74 (text audit A5): the reading kept "-다" lines beside "-습니다" ones and ran clauses together with semicolons.
+      // Outlets stay named when a reported cause is cited (the reader can check it), but never inside a number's own clause.
+      '문체: 모든 문장을 "-습니다/-입니다"로 끝낸다. 한 문장에는 한 생각만 담고 쉼표는 세 개 이하, 세미콜론은 쓰지 않는다. 보도된 이유를 인용할 때 매체 이름은 "M/D 매체 보도에 따르면"처럼 문장 앞에 한 번만 쓰고, 지표 이름과 변화율 사이에는 넣지 않는다.',
       // v57.75: the CPI direction is stated so the model does not infer "물가 둔화" from falling yields (blocked, then retried).
       ...(inflationLine ? [inflationLine] : []),
       'REGIME_CONTEXT (deterministic reading from the same completed closes the site shows; cite as [regime-context]):\n' + (regimeContext || 'none'),
@@ -408,6 +435,9 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       // Owner 2026-10-18: the stories the 08:00 bundle missed (AI funding, memory, deleveraging …) from AIO's own Telegram
       // digest and mover headlines, with the analysis note that says how to read each. Weighting, not evidence.
       ...(narrativeContext.text ? ['NARRATIVE_CONTEXT (지난 72시간 2차 자료: 리서치 텔레그램 채널 중계와 5거래일 급등락 종목의 헤드라인. 사실 확정이 아니라 지금 시장이 어떤 이야기에 무게를 두는지 보여 주는 참고다. 쓰는 법: (a) 오늘의 긴장과 (2)~(6)의 주제를 고를 때 HEADLINE_CONTEXT의 건수만 보지 말고 REGIME_CONTEXT의 움직임 크기와 여기의 언급 비중을 함께 본다 (b) 인용하면 "리서치 채널 중계에 따르면"·"…보도에 따르면"으로 귀속하고 한 가지 해석으로 제시한다 (c) [루머]·[미확인·익명 소식통] 항목은 같은 문장에 "루머" 또는 "미확인"을 쓰고 원인으로 단정하지 않는다 (d) 여기의 숫자·종목명·티커는 METRIC_EVIDENCE가 아니므로 쓰지 않는다 (e) 같은 주제에 강세 측 반론이 있으면 함께 적어 한쪽으로 기울지 않는다 (f) "읽는 틀"은 그 주제를 확인하는 순서다 — 다음에 확인할 것(6)에 활용한다):\n' + narrativeContext.text] : []),
+      // v58.74 (audit 10/24): the reading dated a 10/23 04:14 GMT Reuters gold headline "같은 날(10/24)", stated '물가 재가속'
+      // (1/4 conditions) as a fact, and repeated "Treasury haven" on a day the 10-year rose 4bp.
+      'DATES_AND_SCENARIOS: 헤드라인을 인용할 때 날짜는 그 줄의 date= 값만 쓴다. 시나리오 이름(물가 재가속·AI 투자 꺾임 등)은 사실로 쓰지 말고 "…시나리오 조건 n/m"처럼 충족 수와 함께만 쓴다. 헤드라인이 말하는 방향(예: 국채 선호)이 같은 날 종가(예: 10년물 금리 상승)와 반대이면 그 차이를 함께 쓴다.',
       'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
       ...(largeMove ? ['LARGE_MOVE (S&P 500 1% 이상 또는 코스피 3% 이상): 보도된 배경을 반드시 한 문장으로 쓴다 — "헤드라인에 따르면 …이 배경으로 거론됐다"처럼 HEADLINE_CONTEXT(장중 움직임이면 08:00 이후 장중 속보) 헤드라인 하나를 이름과 함께 든다. 그 문장 안에서 "단정할 수 없다·확인되지 않았다"로 귀속을 지우지 말고, 다른 해석이 있다는 점은 다음 문장에 쓴다.'] : []),
       // v57.71 (owner 2026-10-15): the home's one-sentence line, written by the same call (no extra request).

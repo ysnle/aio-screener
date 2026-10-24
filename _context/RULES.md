@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-23
+last_verified: 2026-10-24
 confidence: medium
 target_version: v57.79
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
@@ -18,6 +18,12 @@ target_version: v57.79
 - **수집·신선도**: R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+
+## R723. 화면 숫자·조사·단위는 공용 헬퍼로 만들고, 렌더된 문구 린트가 지킨다 (v58.74, P2025)
+
+**Rule**: 화면에 나가는 부호 있는 숫자는 signedText(반올림 뒤 부호, ASCII 마이너스, 0은 부호 없음), 사람 수는 peopleText, 조사는 korean-particle.js 헬퍼로 만든다. '(으)로'·'이(가)' 같은 자리표시자와 숫자 앞 U+2212를 화면 문장에 남기지 않는다. 장문 지식·연구 본문과 연산자 표기('2년물 − 기준금리')는 예외다. 새 화면 문구는 렌더된 문구 린트를 통과해야 한다.
+
+**Validation**: node scripts/ci-rendered-copy-lint-check.mjs; node scripts/ci-esm-core-unit-check.mjs
 
 ## R722. 채널 글의 분류·선별은 글이 담은 수치를 기준으로도 판단한다 (v58.71, P1984)
 

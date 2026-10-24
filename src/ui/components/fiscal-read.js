@@ -1,6 +1,6 @@
 // P1436: 재무 공시's lead block — annual revenue and net income as bars, the margin under each year,
 // and the connected reading (growth → profitability → earnings vs price → price vs results).
-import { buildFiscalRead, reconcileFiscalHistory, shareSplitBreaks } from '../../domain/fundamental/fiscal-read.js';
+import { buildFiscalRead, formatUsdShort, reconcileFiscalHistory, shareSplitBreaks } from '../../domain/fundamental/fiscal-read.js';
 import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { buildQuarterRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
@@ -12,6 +12,8 @@ import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus
 import { el } from './dom.js';
 import { fiscalYearLabel, fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
+import { signedText } from '../../domain/shared/number.js';
+import { sectorLabel } from '../../domain/screener/sector-label.js';
 
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
 export function parseFiscalHistory(text) {
@@ -72,7 +74,7 @@ export function fiscalBarGeometry(values = []) {
 export function formatFiscalAmount(value) {
   const v = number(value);
   if (v == null) return '자료 없음';
-  return `${v < 0 ? '−' : ''}$${(Math.abs(v) / 1e6).toLocaleString('en-US', { maximumFractionDigits: 3 })}M`;
+  return `${v < 0 ? '-' : ''}$${(Math.abs(v) / 1e6).toLocaleString('en-US', { maximumFractionDigits: 3 })}M`;
 }
 
 // 2026-10-13 review S20: the table and bar labels read in the same B/T units as the reading ($416.2B, not
@@ -82,7 +84,7 @@ export function formatFiscalCompact(value) {
   if (v == null) return '자료 없음';
   const abs = Math.abs(v);
   const body = abs >= 1e12 ? `${(abs / 1e12).toFixed(2)}T` : abs >= 1e9 ? `${(abs / 1e9).toFixed(1)}B` : abs >= 1e6 ? `${(abs / 1e6).toFixed(1)}M` : abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
-  return `${v < 0 ? '−' : ''}$${body}`;
+  return `${v < 0 ? '-' : ''}$${body}`;
 }
 function amountNode(doc, tag, prefix, value, className) {
   const node = el(doc, tag, `${prefix}${formatFiscalCompact(value)}`, className);
@@ -118,7 +120,7 @@ function fiscalChart(doc, rows, { quarter = false } = {}) {
     // year-over-year line says plainly when the same quarter a year earlier is not in the record.
     col.append(amounts, stack, el(doc, 'span', `${quarter ? '분기' : '연간'} ${year.periodEnd}${year.derived ? '*' : ''}`, 'fiscal-year'),
       el(doc, 'span', year.margin == null ? '순이익률 자료 없음' : `순이익률 ${year.margin.toFixed(1)}%`, 'fiscal-margin'));
-    if (quarter) col.append(el(doc, 'span', year.revenueYoy == null ? '전년 같은 분기 없음' : `매출 전년비 ${year.revenueYoy >= 0 ? '+' : ''}${year.revenueYoy.toFixed(1)}%`, 'fiscal-margin'));
+    if (quarter) col.append(el(doc, 'span', year.revenueYoy == null ? '전년 분기 비교 범위 밖' : `매출 전년비 ${signedText(year.revenueYoy, 1)}%`, 'fiscal-margin'));
     box.append(col);
   }
   const scroll = el(doc, 'div', null, 'fiscal-chart-scroll');
@@ -205,7 +207,7 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
   const read = buildPeerRead({ symbol, sector: row.sector, peers, seriesFor });
   if (!read.available) return null;
   const box = el(doc, 'div', null, 'fiscal-peers');
-  box.append(el(doc, 'span', `같은 섹터와 비교, ${row.sector} ${read.peers}곳`, 'stock-read-vis-title'), el(doc, 'p', read.summary, 'briefing-read-headline'));
+  box.append(el(doc, 'span', `같은 섹터와 비교, ${sectorLabel(row.sector)} ${read.peers}곳`, 'stock-read-vis-title'), el(doc, 'p', read.summary, 'briefing-read-headline'));
   for (const metric of read.rows) {
     const line = el(doc, 'div', null, 'stock-read-bars');
     line.append(el(doc, 'span', metric.label, 'stock-read-bar-label'));
@@ -218,7 +220,7 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
       bar.style.width = `${Math.max(2, metric.percentile).toFixed(1)}%`;
       const track = el(doc, 'div', null, 'stock-read-track'); // P1591: the fill sits on a 0-100 track
       track.append(bar);
-      item.append(track, el(doc, 'span', `${metric.value.toFixed(1)}%, 중앙값 ${metric.median.toFixed(1)}%, 상위 ${Math.max(1, Math.round(100 - metric.percentile))}%`, 'stock-read-bar-value'));
+      item.append(track, el(doc, 'span', `${metric.value.toFixed(1)}%, 중앙값 ${metric.median.toFixed(1)}%, ${metric.percentile >= 50 ? `상위 ${Math.max(1, Math.round(100 - metric.percentile))}%` : `하위 ${Math.max(1, Math.round(metric.percentile))}%`}`, 'stock-read-bar-value'));
     }
     line.append(item);
     box.append(line);
@@ -272,7 +274,7 @@ function earningsQualityCard(doc, read, analysis) {
       trend.append(col);
     }
   }
-  row('영업현금흐름 ÷ 순이익', ratio == null ? '순이익·현금흐름 중 하나가 마이너스 — 비율 해석 보류' : ratio >= 0.8 ? '1 근처 이상 — 이익이 현금으로 들어옴' : '1보다 낮음 — 장부 이익보다 현금이 적음', ratio == null ? '해당 없음' : ratio.toFixed(2), trend);
+  row('영업현금흐름 ÷ 순이익', ratio == null ? '순이익·현금흐름 중 하나가 마이너스 — 비율 해석 보류' : ratio >= 1 ? '1 이상 — 이익이 현금으로 들어옴' : ratio >= 0.8 ? '0.8~1 — 이익 대부분이 현금으로 들어옴' : '1보다 낮음 — 장부 이익보다 현금이 적음', ratio == null ? '해당 없음' : ratio.toFixed(2), trend);
   // v58.55: the Sloan (1996) accrual ratio on its original denominator (average total assets), now that assets are collected.
   // The analysis module loads on first use (fundamental-analysis-lazy.js); until it arrives the accrual row waits for the repaint.
   const accrual = analysis ? analysis.buildAccrualRead(read.history) : { state: 'loading' };
@@ -283,8 +285,8 @@ function earningsQualityCard(doc, read, analysis) {
   else if (accrualLatest) {
     const value = accrualLatest.ratio;
     const line = row('발생액 비율 (Sloan)', `(순이익 − 영업현금흐름) ÷ ${accrualLatest.basis === 'average' ? '평균' : '기말'} 총자산, ${accrualLatest.label}${accrual.latestIsNewest ? '' : ' (최근 연도 자료 없음)'} — ${Math.abs(value) < 0.01 ? '장부 이익과 현금이 거의 같음' : value < 0 ? '현금이 장부 이익보다 많이 들어옴' : value < 0.05 ? '장부 이익 일부가 아직 현금이 아님' : '장부 이익 중 현금이 아닌 부분이 자산 대비 큼'}`,
-      `${value >= 0 ? '+' : '−'}${Math.abs(value * 100).toFixed(1)}%`);
-    line.title = accrual.years.map((year) => `${year.label} ${year.ratio >= 0 ? '+' : '−'}${Math.abs(year.ratio * 100).toFixed(1)}%${year.basis === 'average' ? '' : '(기말)'}`).join(', ');
+      signedText(value * 100, 1, '%'));
+    line.title = accrual.years.map((year) => `${year.label} ${signedText(year.ratio * 100, 1, '%')}${year.basis === 'average' ? '' : '(기말)'}`).join(', ');
     if (value >= 0.05) line.classList.add('is-burden');
   }
   const capex = number(latest.capex);
@@ -293,9 +295,14 @@ function earningsQualityCard(doc, read, analysis) {
   if (number(latest.shares) > 0 && number(prev?.shares) > 0) {
     const split = shareSplitBreaks(read.history).includes(latest.periodEnd);
     const change = (latest.shares / prev.shares - 1) * 100;
-    row('주식 수 변화 (1년)', split ? '주식 분할 해 — 분할 전후라 비교 보류' : change <= -0.5 ? '자사주 매입이 보상 주식 발행보다 많음' : change >= 0.5 ? '신주·보상 주식으로 주식 수 증가' : '거의 변하지 않음', split ? '분할' : `${change >= 0 ? '+' : '−'}${Math.abs(change).toFixed(1)}%`);
+    row('주식 수 변화 (1년)', split ? '주식 분할 해 — 분할 전후라 비교 보류' : change <= -0.5 ? '자사주 매입이 보상 주식 발행보다 많음' : change >= 0.5 ? '신주·보상 주식으로 주식 수 증가' : '거의 변하지 않음', split ? '분할' : signedText(change, 1, '%'));
   }
   card.append(rows);
+  // v58.74 (text audit 종목 C4): the two signals can disagree (NVDA: cash 0.86 of income, yet accruals +10.9% of assets) —
+  // the expert says how both are true and what to check next.
+  if (ratio != null && ratio >= 0.8 && accrualLatest && accrualLatest.ratio >= 0.05 && latest.netIncome > latest.operatingCashFlow) {
+    card.append(el(doc, 'p', `이익의 ${Math.round(ratio * 100)}%는 현금으로 들어왔지만, 현금이 아닌 이익 ${formatUsdShort(latest.netIncome - latest.operatingCashFlow)}이 자산 대비 큽니다(발생액 비율 ${signedText(accrualLatest.ratio * 100, 1, '%')}). 매출이 빠르게 늘 때는 매출채권·재고가 함께 느는 경우가 많아, 다음 분기 현금 전환을 확인합니다.`, 'v2-fiscal-quality__reconcile'));
+  }
   // ③ 원리 / 지금 읽기 / 한계 behind one disclosure row; ④ the evidence line.
   const fold = el(doc, 'details', null, 'sx-disclosure v2-fiscal-principle');
   fold.append(el(doc, 'summary', '원리, 이익의 질'));
@@ -303,7 +310,7 @@ function earningsQualityCard(doc, read, analysis) {
   const box = (label, text) => { const c = el(doc, 'div', null, 'sx-disclosure__card'); c.append(el(doc, 'span', label, 'sx-disclosure__label'), el(doc, 'p', text, 'sx-disclosure__text')); return c; };
   body.append(
     box('원리', '회계 이익은 발생주의라 현금보다 먼저 잡힐 수 있습니다. 영업현금흐름 ÷ 순이익이 1 근처면 이익이 현금으로 뒷받침되고, 발생액(순이익 − 영업현금흐름)이 큰 기업은 이후 수익률이 낮은 경향이 관측됐습니다.'),
-    box('지금 읽기', `${ratio == null ? `${latest.periodEnd} 회계연도는 순이익이나 영업현금흐름이 마이너스라 비율로 읽지 않고 두 금액을 따로 봅니다.` : `${latest.periodEnd} 회계연도 영업현금흐름은 순이익의 ${(ratio * 100).toFixed(0)}%입니다${plotted.length >= 2 ? ` — 위 막대는 공시된 ${plotted.length}개 회계연도의 같은 비율입니다` : ''}.`}${accrualLatest ? ` 발생액 비율은 ${accrualLatest.label} ${accrualLatest.ratio >= 0 ? '+' : '−'}${Math.abs(accrualLatest.ratio * 100).toFixed(1)}%로, 마이너스일수록 현금이 이익보다 많이 들어왔다는 뜻입니다.` : ''}`),
+    box('지금 읽기', `${ratio == null ? `${latest.periodEnd} 회계연도는 순이익이나 영업현금흐름이 마이너스라 비율로 읽지 않고 두 금액을 따로 봅니다.` : `${latest.periodEnd} 회계연도 영업현금흐름은 순이익의 ${(ratio * 100).toFixed(0)}%입니다${plotted.length >= 2 ? ` — 위 막대는 공시된 ${plotted.length}개 회계연도의 같은 비율입니다` : ''}.`}${accrualLatest ? ` 발생액 비율은 ${accrualLatest.label} ${accrualLatest.ratio >= 0 ? '+' : '-'}${Math.abs(accrualLatest.ratio * 100).toFixed(1)}%로, 마이너스일수록 현금이 이익보다 많이 들어왔다는 뜻입니다.` : ''}`),
     box('한계, 함께 볼 것', `${accrual.state === 'pending' ? '발생액을 평균 총자산으로 나눈 비율(원 연구의 정의)은 총자산 수집이 끝나면 표시됩니다. ' : '발생액 비율의 5% 구간은 이 화면의 읽기 기준이며 원 연구의 분위 경계가 아닙니다. '}운전자본이 크게 변한 해나 대규모 일회성 항목은 10-K 현금흐름표에서 확인합니다.`));
   fold.append(body);
   card.append(fold, el(doc, 'p', '근거, Sloan(1996) 발생액 이상 현상, 데이터, SEC EDGAR XBRL 연간 공시', 'sx-evidence'));
@@ -435,7 +442,7 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     { action: 'showTicker', arg: symbol, route: 'ticker', label: '요약', why: '실적 흐름과 주가 추세·섹터 회전이 같은 방향인지' },
     { route: 'technical', label: '차트', why: '실적이 뒷받침하는 추세에서 지금이 셋업 구간인지' },
     // v57.50 I23: the news screen opens on 기업 뉴스 narrowed to this ticker.
-    { route: 'market-news', label: '뉴스', why: `${symbol} 실적 발표·가이던스 소식`, ctx: { ticker: symbol } },
+    { route: 'market-news', label: '뉴스', why: `${row?.name || symbol} 실적 발표·가이던스 소식`, ctx: { ticker: symbol } },
     // 2026-10-14 audit #22: the company's numbers continue into the theme and macro crossroads.
     { route: 'themes', label: '테마 시나리오', why: '이 회사가 속한 테마가 지금 어느 단계이고 거시와 어떤 방향인지', ctx: { anchor: 'theme-playbook' } },
     { route: 'macro', label: '거시 시나리오', why: '금리·경기 시나리오에서 이 실적 흐름이 수혜인지 부담인지' }

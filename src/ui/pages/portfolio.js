@@ -12,6 +12,7 @@ import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/kno
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderTradeJournal, installTradeJournal } from '../panels/portfolio-trade-journal.js';
+import { signedText } from '../../domain/shared/number.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
 // replaceChildren() the pf-positions-tbody table with a 5-column row, while legacy
@@ -277,9 +278,9 @@ function renderPortfolioSurface(documentRef, page, surface) {
   const heroEmptyLine = documentRef?.getElementById('pf-hero-empty');
   if (heroEmptyLine) heroEmptyLine.hidden = !heroEmpty;
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
-  setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${surface.totalPnlPct >= 0 ? '+' : ''}${surface.totalPnlPct.toFixed(1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
+  setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${signedText(surface.totalPnlPct, 1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
-  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `오늘 ${surface.dailyPct >= 0 ? '+' : ''}${surface.dailyPct.toFixed(2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
+  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `오늘 ${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
   renderCashBalances(documentRef, surface);
   setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? '—' : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
   // E3/P1181 (11 P11-02): 통화 상태를 표시에 드러낸다 — 혼합 통화는 환산근거가 없어 합계를 만들지
@@ -325,7 +326,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
   const kospiBack = kospi.length >= 6 ? kospi[kospi.length - 6] : null;
   const kospi5 = kospiLast && kospiBack?.value > 0 ? (kospiLast.value / kospiBack.value - 1) * 100 : null;
   const krNote = kospi5 != null && Math.abs(kospi5) >= 5
-    ? `, 한국은 코스피 5거래일 ${kospi5 >= 0 ? '+' : ''}${kospi5.toFixed(1)}%(${Number(kospiLast.date.slice(5, 7))}/${Number(kospiLast.date.slice(8, 10))} 종가) — VIX는 미국 시장 기준입니다` : '';
+    ? `, 한국은 코스피 5거래일 ${signedText(kospi5, 1)}%(${Number(kospiLast.date.slice(5, 7))}/${Number(kospiLast.date.slice(8, 10))} 종가) — VIX는 미국 시장 기준입니다` : '';
   setSurfaceText(documentRef, 'pf-exposure-rule', rule + (band.blocked ? '' : krNote), band.blocked ? null : band.value, surface);
   const current = surface.exposurePct == null ? (surface.holdingCount ? '현재 노출 —' : '보유 내역을 입력하면 계산됩니다') : `현재 노출 ${surface.exposurePct.toFixed(1)}%`;
   setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, 'var(--text-dim)');
@@ -483,6 +484,8 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     const privacy = documentRef.createElement('div');
     privacy.textContent = '보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN을 설정하면 암호화해 저장합니다.'; // P1593 (F108): same scope as the page header
     privacy.className = 'pfp-privacy'; // v57.91 (visual audit): one ~850px grey line became a readable block
+    // v58.74 (text audit): the same notice sits in the page header's 저장·보안 fold; the empty state points to it.
+    privacy.textContent = '저장 범위와 보안은 위 \'저장·보안\'에 있습니다.';
     cell.append(heading, body, addButton, privacy);
     row.appendChild(cell);
     tbody.appendChild(row);
@@ -558,12 +561,12 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     if (pnl == null) pnlCell.title = '손익 보류, 원가/시세 통화 불일치 또는 시세 미수신';
     pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--green)' : 'var(--red)';
     row.appendChild(pnlCell);
-    const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, 'pfp-cell is-bold');
+    const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${signedText(pnlPct, 1)}%`, 'pfp-cell is-bold');
     pctCell.style.color = pnlPct == null ? 'var(--text-muted)' : pnlPct >= 0 ? 'var(--green)' : 'var(--red)';
     row.appendChild(pctCell);
     // v58.56: today's move of the holding — only from a live quote with a stated basis (the hero's 오늘 uses the same rule).
     const dayPct = rowData.dailyPctEligible && Number.isFinite(rowData.dailyPct) ? rowData.dailyPct : null;
-    const dayCell = tableCell(documentRef, 'pf-th-day', dayPct == null ? '—' : `${dayPct >= 0 ? '+' : ''}${dayPct.toFixed(2)}%`, 'pfp-cell');
+    const dayCell = tableCell(documentRef, 'pf-th-day', dayPct == null ? '—' : `${signedText(dayPct, 2)}%`, 'pfp-cell');
     dayCell.style.color = dayPct == null ? 'var(--text-muted)' : dayPct >= 0 ? 'var(--green)' : 'var(--red)';
     if (dayPct == null) dayCell.title = rowData.sourceKind === 'completed-close' ? `${rowData.closeDate || ''} 종가로 평가 중 — 오늘 변화는 실시간 시세를 받으면 표시합니다`.trim() : '실시간 시세를 받으면 표시합니다';
     row.appendChild(dayCell);
@@ -579,7 +582,7 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     if (targetSet != null && price != null && price > 0 && targetCurrency === priceCurrency) {
       const upside = (targetSet - price) / price * 100;
       const upsideNode = documentRef.createElement('div');
-      upsideNode.textContent = `${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%`;
+      upsideNode.textContent = `${signedText(upside, 1)}%`;
       upsideNode.className = 'pfp-upside';
       upsideNode.style.color = upside >= 0 ? 'var(--green)' : 'var(--red)';
       targetCell.appendChild(upsideNode);

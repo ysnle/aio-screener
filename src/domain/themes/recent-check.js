@@ -9,6 +9,7 @@
 // The RRG neutral band (경계) also lives here so every reader of sector rotation (테마·섹터, the market screens) shares it.
 import { buildCloseSeries } from '../market/close-series.js';
 import { classifyRRG, RRG_QUADRANT_WORDS } from './rrg.js';
+import { signedText } from '../shared/number.js';
 
 export const RECENT_SESSIONS = 5;
 export const NOISE_MULTIPLE = 2;
@@ -38,7 +39,7 @@ const MEDIAN_ABS_OF_SIGMA = 0.6745;
 
 const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const round1 = (value) => Math.round(value * 10) / 10;
-export const signedPct = (value, unit = '%') => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}${unit}`);
+export const signedPct = (value, unit = '%') => (value == null ? '—' : `${signedText(value, 1)}${unit}`);
 export function medianOf(values) {
   const list = (values || []).filter((value) => finite(value) != null).sort((a, b) => a - b);
   if (!list.length) return null;
@@ -139,7 +140,7 @@ export function rrgNoiseBands(trail) {
   const moves = (axis) => points.slice(RECENT_SESSIONS).map((point, i) => Math.abs(point[axis] - points[i][axis]));
   return Object.freeze({ ratio: clampBand(medianOf(moves(0))), momentum: clampBand(medianOf(moves(1))) });
 }
-// One axis through the trail: +1 / −1 once beyond 100 ± band, kept until it crosses past the other side's band × exit
+// One axis through the trail: +1 / -1 once beyond 100 ± band, kept until it crosses past the other side's band × exit
 // share, 0 (undecided) in between.
 function settledSide(values, band) {
   let side = 0;

@@ -3,9 +3,10 @@
 // (kr-stress.js). The legacy shell (js/aio-workspace.js _aioRenderPortfolioStress) only places the string.
 import { estimateBookSensitivities, scenarioImpact, krwTranslationPct, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { krIndexStressRows } from '../../domain/portfolio/kr-stress.js';
+import { signedText } from '../../domain/shared/number.js';
 
 const esc = (text) => String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const signed = (value, digits = 1) => `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}%`;
+const signed = (value, digits = 1) => signedText(value, digits, '%');
 const md = (date) => (date ? `${date.slice(0, 4)}.${Number(date.slice(5, 7))}.${Number(date.slice(8, 10))}` : '');
 const toneOf = (value) => (value < -15 ? 'is-severe' : value < 0 ? 'is-down' : 'is-up');
 
@@ -33,8 +34,8 @@ export function portfolioStressHtml({ base, historyMap = {}, commonDates = [], h
   } else {
     const f = est.fits;
     const scenarios = [
-      ['보유 시장 지수 −20%', f.equity, -20],
-      ['2008 금융위기 수준 (지수 −50%)', f.equity, -50],
+      ['보유 시장 지수 -20%', f.equity, -20],
+      ['2008 금융위기 수준 (지수 -50%)', f.equity, -50],
       ['미 10년물 금리 +100bp', f.rate, 100],
       ['WTI 유가 +30%', f.oil, 30]
     ];

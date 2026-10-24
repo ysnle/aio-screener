@@ -1,4 +1,5 @@
 import { heavyweightsOf, heavyweightLine } from './group-strength.js';
+import { signedText } from '../shared/number.js';
 
 // P1327/R672: one owner for Korean theme names and ticker → theme membership.
 // Theme names used to live in three local maps inside js/aio-kr-data.js (card META, rank N,
@@ -82,7 +83,7 @@ export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
   // Codex browser audit H27: US sub-themes need three priced members while KR themes ranked on two (a "median"
   // of two names is their average). One inclusion rule for both regions.
   const usable = themes.filter((theme) => theme.covered >= KR_THEME_MIN_COVERED && theme.ret1m != null).sort((a, b) => b.ret1m - a.ret1m);
-  const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
+  const pct = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
   // v57.81 (audit): "강한 테마는 … 광통신(-3.2%)" named a falling theme strong (5 sessions -20.4%). A top theme at or below
   // 0 is only the least weak, and each name carries its last five sessions beside the month.
   const top = usable.slice(0, 3);

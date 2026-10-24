@@ -1,0 +1,18 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "주말 시황 점검 후 소유자 승인 개선(2026-10-24).",
+ "status": null,
+ "qa_section": "화면 v58.74",
+ "qa": [
+  {
+   "id": "QA-MEMBER-SPLIT-01",
+   "text": "v58.74 같은 테마 안 종목 갈림: 세부 테마 구성 종목이 양쪽으로 갈리면(예: MU 상승, SNDK·WDC·STX 하락) 오늘 화면과 AI 해설에 두 끝 종목이 표시되고 AI 연쇄 테마가 먼저 나온다.",
+   "verify_by": "node scripts/ci-esm-core-unit-check.mjs",
+   "done": true
+  }
+ ],
+ "changelog": [
+  "**같은 테마 안에서 갈린 종목:** 세부 테마 중앙값이 가리던 종목 간 갈림(메모리/스토리지에서 MU +2.5%, WDC −3.0%)을 오늘 화면과 AI 해설에 표시한다. AI 연쇄(반도체·전력·네트워크·냉각) 테마가 먼저 나온다."
+ ]
+}

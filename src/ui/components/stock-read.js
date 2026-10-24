@@ -20,6 +20,7 @@ import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 import { isLendingFinancial, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { fiscalYearLabel } from '../../domain/fundamental/period.js';
+import { signedText as sharedSignedText } from '../../domain/shared/number.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -144,7 +145,7 @@ function rangeVisual(doc, read) {
 // SEC annual record) the sentences use, with the sentence's own tone; nothing here is a new score.
 const TONE_WORD = Object.freeze({ favorable: '우호', burden: '부담', neutral: '중립' });
 const TONE_CHIP = Object.freeze({ favorable: 'sx-chip--good', burden: 'sx-chip--warn', neutral: 'sx-chip--neutral' });
-const signedText = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}${unit}`;
+const signedText = (value, digits = 1, unit = '%') => sharedSignedText(value, digits, unit);
 function checkTile(doc, { name, tone = 'neutral', chip = null, stale = false, value, detail }) {
   const tile = el(doc, 'div', null, 'v2-stock-check');
   tile.dataset.check = name;
@@ -168,7 +169,7 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
   }
   // 재무: the SEC annual record (US); a KRX listing reads DART; an ETF (no 재무 공시 next step) has no company filings.
   const isFund = !read.next.some((step) => step.route === 'fundamental');
-  if (/\.K[SQ]$/i.test(sym)) tiles.push(checkTile(doc, { name: '재무', chip: 'DART', value: '한국 공시 원문', detail: '사업보고서 기준, 재무 공시 탭' }));
+  if (/\.K[SQ]$/i.test(sym)) tiles.push(checkTile(doc, { name: '재무', chip: 'DART', value: '한국 공시 원문', detail: '주요 계정 수집 전, DART 원문' }));
   else if (!isFund) {
     const own = fundamentals && String(fundamentals.symbol || sym).toUpperCase() === sym ? fundamentals : null;
     const num = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
@@ -178,7 +179,7 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
     if (growth != null || margin != null) {
       tiles.push(checkTile(doc, { name: '재무', chip: fy ? (fiscalYearLabel(fy) || 'SEC') : 'SEC', stale,
         value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,
-        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%` : null, fy ? `${fy} 마감` : null].filter(Boolean).join(', ') }));
+        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%` : null, fy ? `${fy} 마감` : null, ttmTurn(own, margin, fy)].filter(Boolean).join(', ') }));
     } else if (fundamentalsState === 'loading') tiles.push(checkTile(doc, { name: '재무', chip: '불러오는 중', value: 'SEC 연간 공시', detail: '공시 요약을 불러오는 중입니다' }));
     // Review: only a loaded projection without this issuer is a confirmed absence; a failed or unknown load says so.
     else if (fundamentalsState === 'absent') tiles.push(checkTile(doc, { name: '재무', chip: '없음', stale: true, value: 'SEC 연간 공시 없음', detail: '수집된 연간 공시에 이 종목이 없습니다, 재무 공시 탭' }));
@@ -186,8 +187,8 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
   }
   // 위험: how far the price sits from its 50-day line in its own daily ranges, and the RSI — the stretch, not a forecast.
   if (facts.pct50 != null && facts.adr > 0) {
-    tiles.push(checkTile(doc, { name: '위험', tone: tone('extension'), value: `일평균 변동폭 ${(Math.abs(facts.pct50) / facts.adr).toFixed(1)}배`,
-      detail: [facts.pct50 >= 0 ? '50일선 위 거리' : '50일선 아래 거리', facts.rsi != null ? `RSI ${facts.rsi.toFixed(1)}` : null].filter(Boolean).join(', ') }));
+    tiles.push(checkTile(doc, { name: '위험', tone: tone('extension'), value: `50일선 ${facts.pct50 >= 0 ? '위' : '아래'} ${(Math.abs(facts.pct50) / facts.adr).toFixed(1)}배`,
+      detail: ['일평균 변동폭 기준 거리', facts.rsi != null ? `RSI ${facts.rsi.toFixed(1)}` : null].filter(Boolean).join(', ') }));
   } else if (facts.rsi != null) tiles.push(checkTile(doc, { name: '위험', value: `RSI ${facts.rsi.toFixed(1)}`, detail: '50일선 거리 자료 없음' }));
   if (!tiles.length) return null;
   const box = el(doc, 'div', null, 'v2-stock-checks');
@@ -195,6 +196,17 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
   box.setAttribute('aria-label', '네 가지 확인');
   tiles.forEach((tile) => { tile.setAttribute('role', 'listitem'); box.append(tile); });
   return box;
+}
+
+// v58.74 (audit): BE read 'FY2025 순이익률 -4.3%' a day after a third profitable quarter; when the last four quarters'
+// earnings have the other sign than the fiscal year, the tile says so with its end date.
+function ttmTurn(own, margin, fy) {
+  const ttm = own?.peEarnings;
+  const value = Number(ttm?.value);
+  if (ttm?.basis !== 'ttm' || !Number.isFinite(value) || margin == null || !fy || !(String(ttm.through || '') > fy)) return null;
+  if ((value > 0) === (margin > 0)) return null;
+  const through = String(ttm.through).slice(5, 10).split('-').map(Number).join('/');
+  return `최근 4개 분기 순이익 ${value > 0 ? '흑자' : '적자'} ${value < 0 ? '-' : ''}$${(Math.abs(value) / 1e9).toFixed(2)}B(${through}까지)`;
 }
 
 export function relativeVisual(doc, read) {
@@ -212,11 +224,11 @@ export function relativeVisual(doc, read) {
       const width = Math.abs(value) / max * 50;
       bar.style.width = `${width.toFixed(2)}%`;
       bar.style.left = `${(value < 0 ? 50 - width : 50).toFixed(2)}%`;
-      bar.title = `${kind === 'stock' ? read.symbol : read.benchmarkLabel} ${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+      bar.title = `${kind === 'stock' ? read.symbol : read.benchmarkLabel} ${signedText(value, 1)}`;
       const row = el(doc, 'div', null, 'stock-return-signed-row');
       const track = el(doc, 'div', null, 'stock-return-signed-track');
       track.append(bar);
-      row.append(track, el(doc, 'span', `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`, 'stock-return-signed-value'));
+      row.append(track, el(doc, 'span', `${signedText(value, 1)}`, 'stock-return-signed-value'));
       pair.append(row);
     }
     line.append(pair);

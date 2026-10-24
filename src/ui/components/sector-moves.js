@@ -5,6 +5,7 @@ import { selectProducedRotation } from '../../domain/themes/produced-rotation.js
 import { SECTOR_ETF_LABELS, sectorRecentCheck, leaderFading } from '../../domain/market/scenario-outlook.js';
 import { rrgSettledQuadrant } from '../../domain/themes/recent-check.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 
 const particle = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return code >= 0 && code < 11172 && code % 28 ? '이' : '가'; };
 // Audit 2026-10-14: one date format on 오늘 (M/D), and the block is an h2 like its sibling sections.
@@ -47,7 +48,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
   if (host) section.setAttribute('aria-labelledby', title.id);
   head.append(title, el(doc, 'span', `${md(model.session)} 종가, 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note sx-card__meta'));
   const top = model.rows[0], bottom = model.rows.at(-1);
-  const lead = el(doc, 'p', `${top.label}(${top.daily >= 0 ? '+' : ''}${top.daily.toFixed(2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${bottom.daily >= 0 ? '+' : ''}${bottom.daily.toFixed(2)}%)${particle(bottom.label)} 가장 약했습니다. ${model.rows.filter((row) => row.daily > 0).length}개 섹터가 올랐습니다.`, 'home-sector-lead');
+  const lead = el(doc, 'p', `${top.label}(${signedText(top.daily, 2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${signedText(bottom.daily, 2)}%)${particle(bottom.label)} 가장 약했습니다. ${model.rows.filter((row) => row.daily > 0).length}개 섹터가 올랐습니다.`, 'home-sector-lead');
   const max = Math.max(0.5, ...model.rows.map((row) => Math.abs(row.daily)));
   const list = el(doc, 'ul', null, 'home-sector-bars');
   for (const row of model.rows) {
@@ -59,7 +60,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
     fill.style.width = `${(Math.abs(row.daily) / max * 50).toFixed(1)}%`;
     fill.style.left = row.daily >= 0 ? '50%' : `${(50 - Math.abs(row.daily) / max * 50).toFixed(1)}%`;
     bar.append(fill);
-    li.append(el(doc, 'span', row.label, 'home-sector-name'), bar, el(doc, 'span', `${row.daily >= 0 ? '+' : ''}${row.daily.toFixed(2)}%`, 'home-sector-value'), el(doc, 'span', row.quadrant || '', 'home-sector-quadrant'));
+    li.append(el(doc, 'span', row.label, 'home-sector-name'), bar, el(doc, 'span', `${signedText(row.daily, 2)}%`, 'home-sector-value'), el(doc, 'span', row.quadrant || '', 'home-sector-quadrant'));
     list.append(li);
   }
   // The reading rule for the right-hand label folds under the bars (conclusion first, method on request).

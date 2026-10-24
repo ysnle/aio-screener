@@ -7,6 +7,7 @@
 import { createTrendChart } from './trend-chart.js';
 import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 
 export const VALIDATION_MIN_REBALANCES = 12;
 export const VALIDATION_MIN_ABS_T = 2;
@@ -120,12 +121,12 @@ const GATE_BLOCKER_WORDS = Object.freeze({
   liveBacktestParity: '실제 순위와 검증 정의의 일치'
 });
 const finiteOrNull = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
-const signedPp = (value, digits = 2) => `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}%p`;
+const signedPp = (value, digits = 2) => signedText(value, digits, '%p');
 const CANDIDATE_LINE = '순위는 결론이 아니라 확인할 후보입니다.';
 
 export function readValidationState({ metadata = null, root = null, listingMarket = 'US' } = {}) {
   const gate = root?._aioScreenerValidationGate || null;
-  const gateChip = !gate ? '검증 상태 없음' : gate.status === 'BLOCKED' ? '검증 미통과' : null;
+  const gateChip = !gate ? '검증 상태 없음' : gate.status === 'BLOCKED' ? '검증 요건 미충족' : null;
   const blockers = (Array.isArray(gate?.blockers) ? gate.blockers : []).map((key) => GATE_BLOCKER_WORDS[key] || key);
   const base = { gate, gateChip, blockers, gateObservedAt: gate?.observedAt ? String(gate.observedAt).slice(0, 10) : null };
   if (listingMarket === 'KR') {
@@ -166,7 +167,7 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   const distinguishable = spreadNets.length >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
   const sentence = [
     modelMatch ? null : '지금 가중치와 다른 모델로 계산된 기록입니다.',
-    `과거 ${samples}회 시점에서 상위 20%가 하위 20%보다 앞선 건 ${wins == null ? '—' : `${wins}회`}, 평균 ${signedPp(net)}(비용 반영)입니다.`,
+    `과거 ${samples}회 시점 중 상위 20%가 하위 20%보다 앞선 것은 ${wins == null ? '—' : `${wins}회`}, 두 묶음의 평균 수익 차이는 ${signedPp(net)}(비용 반영)입니다.`,
     distinguishable ? null : `표본 ${samples}회로는 우연과 구별되지 않아 판단 불가입니다.`,
     CANDIDATE_LINE
   ].filter(Boolean).join(' ');
@@ -254,7 +255,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
         fill.style.width = `${Math.min(50, Math.abs(point.ic) / maxIc * 50).toFixed(1)}%`;
         fill.style[point.ic >= 0 ? 'left' : 'right'] = '50%';
         track.append(fill);
-        line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, el(doc, 'span', `${point.ic >= 0 ? '+' : '−'}${Math.abs(point.ic).toFixed(3)}`, `scr-vh-ic ${point.ic >= 0 ? 'sx-up' : 'scr-tone-burden'}`));
+        line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, el(doc, 'span', signedText(point.ic, 3), `scr-vh-ic ${point.ic >= 0 ? 'sx-up' : 'scr-tone-burden'}`));
         body.append(line);
       }
       fold.append(body);

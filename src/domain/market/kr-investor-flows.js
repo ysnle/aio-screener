@@ -1,7 +1,7 @@
 // v58.55 개편 v2 (5n) 투자자별 순매수: the read model of public-data/kr-investor-flows.json (scripts/fetch-kr-investor-flows.mjs,
 // Bank of Korea ECOS 802Y001). Each market reads the latest session's net purchase per investor type that the source
 // publishes, plus the last 20 sessions of each series with 5- and 20-session sums. An investor type the source does not
-// publish is named as missing, never derived (개인 = −(외국인 + 기관) is not an identity: 기타법인 trade too).
+// publish is named as missing, never derived (개인 = -(외국인 + 기관) is not an identity: 기타법인 trade too).
 export const KR_INVESTOR_FLOWS = Object.freeze({ key: '_aioKrInvestorFlows', url: './public-data/kr-investor-flows.json', schemas: ['kr-investor-flows.v1'], maxAgeMs: 3 * 60 * 60 * 1000, maxBytes: 256 * 1024 });
 export const KR_FLOW_TREND_SESSIONS = 20;
 const STALE_AFTER_DAYS = 5; // a weekend plus a holiday; later than that the card says 지연
@@ -51,10 +51,10 @@ export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadStat
   };
 }
 
-/** 1,234억 / −5,678억 / 1.2조 — the size word Korean market news uses. */
+/** 1,234억 / -5,678억 / 1.2조 — the size word Korean market news uses. */
 export function formatEok(value) {
   if (!Number.isFinite(value)) return '—';
-  const sign = value > 0 ? '+' : value < 0 ? '−' : '';
+  const sign = value > 0 ? '+' : value < 0 ? '-' : '';
   const abs = Math.abs(value);
   if (abs >= 10000) return `${sign}${(abs / 10000).toFixed(abs >= 100000 ? 0 : 1)}조`;
   return `${sign}${Math.round(abs).toLocaleString('en-US')}억`;

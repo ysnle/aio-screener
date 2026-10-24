@@ -243,7 +243,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // Audit D1 (owner 2026-10-17): two standard errors, shared with frequencyText — 10/12 against 64% is sampling noise now.
   const noisy = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 12, up: 10, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
   // v58.3x (macro audit D2/D7, owner 2026-10-19): within 2 SE the line gives the counts and the base, no share or median to anchor on.
-  assert.ok(!noisy.pastConflict && !noisy.pastBridge && /표본 오차 안에서 구별되지 않았습니다/.test(noisy.past.text) && !/비슷한 때 \d+%|중앙값/.test(noisy.past.text) && /시장 움직임 기준/.test(noisy.past.text), 'audit D1/D2: within 2 SE the frequency line says sampling noise and names its market-move basis');
+  assert.ok(!noisy.pastConflict && !noisy.pastBridge && /표본 오차 안에서 구별되지 않았습니다/.test(noisy.past.text) && !/비슷한 때 \d+%|중앙값/.test(noisy.past.text) && /비슷한 시장 움직임으로 고른 비교/.test(readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8')), 'audit D1/D2 (v58.74: the market-move basis is said once in the section lead): within 2 SE the frequency line says sampling noise');
   {
     // v57.84 (owner 2026-10-16): favored stays; audit D1 (owner 2026-10-17): a conflict needs the up-share past the base rate by two binomial standard errors.
     const { pastConflict } = await import('../src/domain/market/macro-crossroads.js');
@@ -260,10 +260,10 @@ console.log('scenario guidance fixture (basis card): PASS');
   const dollar = model.items.find((item) => item.id === 'dollarsurge');
   assert.ok(dollar.impact.mixed && !/수혜 영역 없음/.test(dollar.impact.firmer), 'audit 5: the mixed exposure is rendered, not "수혜 영역 없음"');
   // Audit 6: WTI and Brent 20-session moves in opposite directions are 엇갈림, not "유가 하락 진행 중".
-  const wtiDown = /WTI 20거래일 −/.test(model.rateHub.pathsDown.find((path) => path.id === 'oil').evidence);
+  const wtiDown = /WTI 20거래일 -/.test(model.rateHub.pathsDown.find((path) => path.id === 'oil').evidence);
   const split = buildMacroCrossroads({ read: { ...read, oil: { brent20: wtiDown ? 0.9 : -0.9, basis: 'futures', abnormal: false } }, macroHistory, history: rows, events }).rateHub.pathsDown.find((path) => path.id === 'oil');
-  if (/WTI 20거래일 [+−]/.test(split.evidence)) assert.ok(split.stateText === '혼재' && split.ok == null && /브렌트 [+−]0\.9%/.test(split.evidence), 'audit 6: the WTI/Brent split is labelled 혼재 with both moves');
-  // Audit D4 (owner 2026-10-17): the rate hub's "유가 하락" path uses the chain's −5% line, not any decline below zero.
+  if (/WTI 20거래일 [+-]/.test(split.evidence)) assert.ok(split.stateText === '혼재' && split.ok == null && /브렌트 [+-]0\.9%/.test(split.evidence), 'audit 6: the WTI/Brent split is labelled 혼재 with both moves');
+  // Audit D4 (owner 2026-10-17): the rate hub's "유가 하락" path uses the chain's -5% line, not any decline below zero.
   {
     const withWti = (pct) => { const out = rows.map((row) => ({ ...row })); const idx = out.map((row, i) => (Number(row.wti) > 0 ? i : -1)).filter((i) => i >= 0); const tail = idx.slice(-21); idx.forEach((i) => { out[i].wti = 70; }); tail.forEach((i, k) => { out[i].wti = 70 * (1 + pct / 100 * k / 20); }); return out; };
     const oilPath = (pct) => buildMacroCrossroads({ read: { ...read, oil: { brent20: pct, basis: 'futures', abnormal: false } }, macroHistory, history: withWti(pct), events }).rateHub.pathsDown.find((path) => path.id === 'oil');
@@ -322,14 +322,14 @@ console.log('scenario guidance fixture (basis card): PASS');
     const krHeavy = rotationOf([mk('KR', 'a', 12), mk('KR', 'b', 10), mk('KR', 'c', 9), mk('US', 'd', 8), mk('KR', 'e', -9), mk('KR', 'f', -10), mk('KR', 'g', -11), mk('KR', 'h', -12)].map((row, i) => ({ ...row, tags: [i < 4 ? 'growth' : 'energy'] })));
     // v57.54: one US theme is too thin for a US read, so the sentence mixes markets and every name carries its market word.
     assert.match(krHeavy.text, /미국·한국 테마는/, 'v57.54: a thin US set falls back to all themes and says so');
-    assert.match(krHeavy.text, /강한 쪽 한국 a\(\+12\.0%\)/, 'audit 15: in a mixed sentence every named theme carries its market');
+    assert.match(krHeavy.text, /상위 한국 a\(\+12\.0%\)/, 'audit 15: in a mixed sentence every named theme carries its market');
     assert.doesNotMatch(krHeavy.text, /국내/, "v57.54: the market word is '한국', not the ambiguous '국내'");
     const krOnly = rotationOf([mk('KR', 'a', 12), mk('KR', 'b', 10), mk('KR', 'e', -9), mk('KR', 'f', -10)].map((row, i) => ({ ...row, tags: [i < 2 ? 'growth' : 'defensive'] })));
     assert.ok(krOnly.market === '한국' && /^최근 1개월 한국 테마는/.test(krOnly.text) && !/미국·한국/.test(krOnly.text), `v57.54 review: with no US rows the read says '한국', not '미국·한국' (${krOnly.text})`);
     const usFirst = rotationOf([mk('US', 'u1', 9), mk('US', 'u2', 7), mk('US', 'u3', -6), mk('US', 'u4', -8), mk('KR', 'k1', 20), mk('KR', 'k2', 12), mk('KR', 'k3', -15), mk('KR', 'k4', -23)].map((row, i) => ({ ...row, tags: [i % 4 < 2 ? 'growth' : 'energy'] })));
     assert.match(usFirst.text, /^최근 1개월 미국 테마는/, 'v57.54: with enough US themes the rotation is read on the US set first');
-    assert.match(usFirst.text, /강한 쪽 u1\(\+9\.0%\)/, 'v57.54: US names lead without a market word');
-    assert.match(usFirst.text, / 한국은 강한 쪽 k1\(\+20\.0%\)·k2\(\+12\.0%\), 약한 쪽 k4\(−?-?23\.0%\)/, 'v57.54: Korea follows as one short secondary line');
+    assert.match(usFirst.text, /상위 u1\(\+9\.0%\)/, 'v57.54: US names lead without a market word');
+    assert.match(usFirst.text, / 한국은 1개월 상위 k1\(\+20\.0%\), k2\(\+12\.0%\), 하위 k4\(-23\.0%\)/, 'v57.54: Korea follows as one short secondary line');
   }
   const themeText = renderThemePlaybookContext(playbook, { query: '반도체 지금 분할로 들어가도 돼?' });
   assert.match(themeText, /반도체: 추세 속 조정/, 'P1743: a named theme is always in the AI block');
@@ -675,14 +675,14 @@ console.log('scenario guidance fixture (basis card): PASS');
   const N = sessions.length;
   for (const branch of BRANCHES) assert.ok(branch.gate?.length && branch.gate.every((index) => branch.conditions[index]), `v57.81 ${branch.id}: names its core condition`);
 
-  // 10/14: WTI 20일 −7.2%, breakeven +2bp (sd 7.9bp), UMich 51.7 (8월), dollar +2.23%, 10년물 +18bp, 2년물 − 기준금리 +0.95%p.
+  // 10/14: WTI 20일 -7.2%, breakeven +2bp (sd 7.9bp), UMich 51.7 (8월), dollar +2.23%, 10년물 +18bp, 2년물 − 기준금리 +0.95%p.
   const oct14 = { oil20: -7.2, oilVsYear: 21, oilSurging: false, oilHeld: false, wtiPosition: 0.45, breakeven20: 0.02, sentimentRank: { value: 51.7, date: '2026-08-01', month: '8월', percentile: 13 },
     commodities: 'burden', dxy20: 2.23, krw20: -1.6, lean: 'hike', pricing: 0.95, tnx20: 0.18, termPremium20: 0.2, curve2s10s20: 0.15, realYield20: 0.26,
     policy: { upper: 4, change: 0.25, changeDate: '2026-09-17', bill: null }, hy20: 40, cccGap20: 1.5, nfci4: 0.051, credit: 'neutral',
     bands: { breakeven20: 0.5 * 0.079, tnx20: 0.1, termPremium20: 0.05, curve2s10s20: 0.07, realYield20: 0.06, hy20: 12, cccGap20: 0.5, nfci4: 0.015 } };
   const m14 = buildMacroCrossroads({ signals: oct14 });
   const shock = m14.items.find((item) => item.id === 'oilshock');
-  assert.ok(m14.leadId !== 'oilshock' && shock.gate.met === false && shock.status === '조건 일부 충족, 핵심 조건 미충족', `v57.81 '유가 충격' is not first while WTI 20일 is −7.2% (${m14.headline}; ${shock.status})`);
+  assert.ok(m14.leadId !== 'oilshock' && shock.gate.met === false && /^조건 충족 [1-9]\d*\/\d+.*, 핵심 조건 미충족$/.test(shock.status), `v57.81 '유가 충격' is not first while WTI 20일 is -7.2% (${m14.headline}; ${shock.status})`);
   assert.ok(/10년 기대인플레이션 20회 관측 상승 \(평소 변동 범위 밖\) 미충족/.test(shock.basis.join(' · ')) && shock.pricing.tone === 'neutral' && /평소 변동\(±4bp\) 안/.test(shock.pricing.text), `v57.81 breakeven +2bp (sd 7.9) counts neither as a condition nor as the market-price tag (${shock.pricing.text})`);
   assert.ok(/8월 51\.7/.test(shock.basis.join(' ')), 'v57.81 the monthly survey carries its month inline');
   assert.ok(!shock.basis.some((text) => /유가·달러 지표 부담/.test(text)), 'v57.81 the shared oil/dollar state (fired by the dollar) is not an oil condition');
@@ -732,7 +732,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(edge.state !== 'burden' && /수준만으로 부담으로 보지 않습니다/.test(edge.read), `v57.81 PCE 3.0076% vs missPct 3.0 is not 부담 by the level alone (${edge.state}: ${edge.read})`);
   assert.equal(buildMacroRead({ macro: { corePce: 3.2 }, macroHistory: flatMh }).axes.find((axis) => axis.id === 'inflation').detail.firedBy, 'level', 'v57.81 past the 0.1pp buffer the level fires');
 
-  // One oil read when the Brent−WTI spread breaks ($3.4 → $11, Brent +0.2%, WTI −7.2%).
+  // One oil read when the Brent−WTI spread breaks ($3.4 → $11, Brent +0.2%, WTI -7.2%).
   const oilHistory = sessions.map((date, i) => {
     const k = i < N - 21 ? 0 : (i - (N - 21)) / 20;
     const wti = (95 + wave(i < N - 21 ? i : N - 21, 1, 11)) * (1 - 0.072 * k);
@@ -870,7 +870,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // Rotation headline: dated window, no tag claim on thin tags, a broken strong side carries its week.
   assert.match(pb.rotation.text, /^최근 1개월\(9\/15~10\/14\) 미국 테마/, `v57.81 the rotation names its window (${pb.rotation.text})`);
   const thin = rotationOf([1, 2, 3, 4].flatMap((i) => [{ market: 'US', id: `g${i}`, label: `g${i}`, ret1m: 9 - i, tags: ['growth'] }, { market: 'US', id: `e${i}`, label: `e${i}`, ret1m: -9 + i, tags: ['energy'] }]));
-  assert.ok(!/힘이 옮겨 갔습니다/.test(thin.text) && /개 미만이라 한 달 동안 힘이 어느 성격으로 옮겨 갔는지는 판단하지 않습니다/.test(thin.text), 'v57.81 four themes per tag do not make a rotation claim');
+  assert.ok(!/힘이 옮겨 갔습니다/.test(thin.text) && /개 미만이라 한 달 동안 힘이 어느 묶음으로 옮겨 갔는지는 판단하지 않습니다/.test(thin.text), 'v57.81 four themes per tag do not make a rotation claim (v58.74 wording: 묶음)');
   // RRG: neutral band and the five-session reversal against the series' own noise.
   const wiggle = Array.from({ length: 95 }, (_, i) => 100 + Math.sin(i / 2) * 0.8);
   const xlkLine = [...wiggle, ...[0.991, 0.982, 0.973, 0.964, 0.955].map((f) => wiggle.at(-1) * f)];

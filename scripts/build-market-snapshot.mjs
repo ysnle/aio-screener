@@ -89,6 +89,11 @@ function scheduledSession(symbol, observedMs, nowMs) {
   if (isContinuousInstrument(symbol)) {
     const nowUtc = zoneParts(nowMs, 'UTC');
     if (nowUtc && !isWeekday(nowUtc.weekday)) return 'MARKET_CLOSED';
+    // v58.74 (refresh-data 10/23 23:50Z): FX and CME futures close for the week at 17:00 ET Friday. A Friday-evening
+    // read (still a UTC weekday) was labelled DELAYED_IN_SESSION, so the history check compared the completed close
+    // with the previous day's and refused the refresh.
+    const nowNy = zoneParts(nowMs, 'America/New_York');
+    if (nowNy?.weekday === 'Fri' && minuteOfDay(nowNy) >= 17 * 60) return 'MARKET_CLOSED';
     return null;
   }
   if (!isKorea && !isUsSession && !asia) return null;

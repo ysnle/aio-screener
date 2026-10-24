@@ -73,14 +73,14 @@ assert.ok(selectScreenLessons('portfolio', burdenCtx).some((row) => row.id === '
 assert.deepEqual(selectScreenLessons('no-such-route', burdenCtx), [], `${label}: an unknown screen shows nothing`);
 
 // Curve and index-earnings lessons (interpretation stages curve / indexEarnings) speak only from their stage output.
-const curveCtx = { curve: { kind: 'bull-steepening', fact: '9/19→10/17 20거래일: 2년 −30bp.', label: '불 스티프닝 — 단기 주도 하락', reading: '인하 기대가 앞섭니다.' } };
+const curveCtx = { curve: { kind: 'bull-steepening', fact: '9/19→10/17 20거래일: 2년 -30bp.', label: '불 스티프닝 — 단기 주도 하락', reading: '인하 기대가 앞섭니다.' } };
 const curveLesson = LESSON_BY_ID['read-the-curve'];
-assert.match(curveLesson.live(curveCtx), /^9\/19→10\/17 20거래일: 2년 −30bp\. 불 스티프닝: 인하 기대가 앞섭니다\.$/, `${label}: the curve lesson quotes the measured move and its reading`);
+assert.match(curveLesson.live(curveCtx), /^9\/19→10\/17 20거래일: 2년 -30bp\. 불 스티프닝: 인하 기대가 앞섭니다\.$/, `${label}: the curve lesson quotes the measured move and its reading`);
 assert.equal(curveLesson.live({ curve: { kind: null, uninverted: true, uninversionReading: 'U' } }), 'U', `${label}: no direction but a recent un-inversion speaks to the un-inversion`);
 assert.equal(curveLesson.live({ curve: { kind: null, uninverted: false } }), null, `${label}: a flat move without un-inversion stays silent`);
 assert.equal(selectScreenLessons('macro', curveCtx)[0]?.id, 'read-the-curve', `${label}: the macro screen leads with the live curve lesson`);
 const earningsLesson = LESSON_BY_ID['earnings-revisions'];
-assert.match(earningsLesson.live({ indexEarnings: { available: true, breadth: 0.5, up: 300, down: 100 } }), /상향 300건 · 하향 100건 — 올리는 쪽이 우세합니다/, `${label}: the earnings lesson counts revisions with the card's ±0.1 tilt`);
+assert.match(earningsLesson.live({ indexEarnings: { available: true, breadth: 0.5, up: 300, down: 100 } }), /상향 300건, 하향 100건 — 올리는 쪽이 우세합니다/, `${label}: the earnings lesson counts revisions with the card's ±0.1 tilt`);
 assert.equal(earningsLesson.live({ indexEarnings: { available: true, breadth: null, up: 3, down: 1 } }), null, `${label}: under-covered index breadth stays silent`);
 assert.equal(earningsLesson.live({ indexEarnings: { available: false } }), null, `${label}: no consensus, no sentence`);
 assert.equal(selectScreenLessons('fundamental', { indexEarnings: { available: true, breadth: 0.5, up: 3, down: 1 } }).some((row) => row.reason), false, `${label}: a stock screen keeps the earnings lesson as a principle`);

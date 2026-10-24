@@ -8,6 +8,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
 import { RULES } from '../../domain/rules/thresholds.js';
+import { signedText } from '../../domain/shared/number.js';
 
 export const KR_INDEX_TRENDS = Object.freeze([
   Object.freeze({ field: 'kospi', label: '코스피', hostId: 'kr-kospi-tech-result' }),
@@ -18,7 +19,7 @@ const YEAR_SESSIONS = 252;
 const mean = (series, n) => series.length >= n ? series.slice(-n).reduce((sum, point) => sum + point.value, 0) / n : null;
 const level = (value) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 const close = (value) => value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const signed = (value) => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+const signed = (value) => value == null ? '—' : `${signedText(value, 1)}%`;
 const side = (value, average) => value > average ? '위' : value < average ? '아래' : '같은 자리';
 
 /** Facts from one index's completed KRX closes; null when fewer than two closes exist. */

@@ -1,6 +1,6 @@
 // v58.55 (개편 v2 3e): the Taylor-rule reference beside the 거시 rate strip. Taylor (1993):
 //   rule rate = r* + π + 0.5·(π − 2) + 0.5·(output gap)
-// π is core PCE year over year (the FOMC's 2% measure) and the output gap comes from Okun's law, gap ≈ −2 × (u − u*), with
+// π is core PCE year over year (the FOMC's 2% measure) and the output gap comes from Okun's law, gap ≈ -2 × (u − u*), with
 // u* = CBO's natural rate of unemployment (FRED NROU, quarterly). r* (the neutral real rate) is an assumption, not an
 // observation, so the reader picks 0.5% or 1.0% and the model also returns the rule across both. The result is a reference
 // point the policy rate is compared with — it never says what the Fed should or will do.

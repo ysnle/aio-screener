@@ -5,11 +5,12 @@ import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs
 import { formatUsdShort } from '../../domain/fundamental/fiscal-read.js';
 import { fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 
 export const COLLECTION_PENDING_LABEL = '수집 대기, 다음 SEC 갱신 후 표시';
 const pct = (value, digits = 1) => `${(value * 100).toFixed(digits)}%`;
 const ratio = (value) => value.toFixed(Math.abs(value) < 0.1 ? 3 : 2);
-const signedPct = (value, digits = 1) => `${value >= 0 ? '+' : '−'}${Math.abs(value * 100).toFixed(digits)}%`;
+const signedPct = (value, digits = 1) => signedText(value * 100, digits, '%');
 
 function cardHead(doc, title, meta, chip = null) {
   const head = el(doc, 'div', null, 'sx-card__head');
@@ -141,7 +142,14 @@ export function reverseDcfCard(doc, root, { history, fundamentals, close, financ
   const resultValue = el(doc, 'b', '', 'v2-rdcf-result__value');
   const resultText = el(doc, 'p', '', 'v2-rdcf-result__text');
   const sensitivity = el(doc, 'p', '', 'v2-rdcf-result__sens');
-  result.append(resultName, resultValue, resultText, sensitivity);
+  // v58.74 (text audit 종목 C1): the implied rate needs an anchor — the company's own revenue pace over the filed years, and
+  // whether a thin free-cash-flow margin makes margin gains (not growth) the price's premise.
+  const anchor = el(doc, 'p', '', 'v2-rdcf-result__anchor');
+  const filed = (Array.isArray(history) ? history : []).filter((row) => Number(row?.revenue) > 0 && /^\d{4}-\d{2}-\d{2}/.test(String(row?.periodEnd || ''))).sort((a, b) => String(a.periodEnd).localeCompare(String(b.periodEnd)));
+  const spanYears = filed.length >= 3 ? Math.round((Date.parse(filed.at(-1).periodEnd) - Date.parse(filed[0].periodEnd)) / (365.25 * 86400000)) : 0;
+  const revenueCagr = spanYears >= 2 ? (filed.at(-1).revenue / filed[0].revenue) ** (1 / spanYears) - 1 : null;
+  const fcfMargin = filed.length ? inputs.fcf / filed.at(-1).revenue : null;
+  result.append(resultName, resultValue, resultText, anchor, sensitivity);
   const controls = el(doc, 'div', null, 'v2-rdcf-controls');
   const outputs = {};
   const sliders = {};
@@ -177,8 +185,12 @@ export function reverseDcfCard(doc, root, { history, fundamentals, close, financ
     sliders.terminalGrowth.setAttribute('aria-valuetext', pct(gT));
     const solved = impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, discountRate: r, terminalGrowth: gT });
     card.dataset.result = solved.state;
-    resultValue.textContent = solved.state === 'ready' ? `연 ${signedPct(solved.growth)}` : solved.state === 'above-range' ? `연 +${pct(solved.bound, 0)} 초과` : solved.state === 'below-range' ? `연 −${pct(Math.abs(solved.bound), 0)} 미만` : '—';
+    resultValue.textContent = solved.state === 'ready' ? `연 ${signedPct(solved.growth)}` : solved.state === 'above-range' ? `연 +${pct(solved.bound, 0)} 초과` : solved.state === 'below-range' ? `연 -${pct(Math.abs(solved.bound), 0)} 미만` : '—';
     resultText.textContent = growthSentence(solved);
+    anchor.textContent = solved.state !== 'ready' ? '' : [
+      revenueCagr != null ? `이 성장률은 지난 ${spanYears}년 매출 연평균 ${signedPct(revenueCagr)}보다 ${Math.abs(solved.growth - revenueCagr) < 0.01 ? '비슷한' : solved.growth < revenueCagr ? '낮은' : '높은'} 가정입니다(현금흐름 성장률과 매출 성장률을 나란히 놓은 참고 비교).` : '',
+      fcfMargin != null && fcfMargin < 0.05 ? `잉여현금흐름이 매출의 ${pct(fcfMargin)}라, 성장률보다 마진 개선이 가격의 전제입니다.` : ''
+    ].filter(Boolean).join(' ');
     const higher = r + 0.005 > gT ? impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, discountRate: r + 0.005, terminalGrowth: gT }) : null;
     sensitivity.textContent = solved.state === 'ready' && higher?.state === 'ready'
       ? `할인율을 0.5%p 높이면 필요한 성장률은 연 ${signedPct(higher.growth)} — 먼 미래 현금의 비중이 클수록 할인율 변화에 민감합니다.`
@@ -200,6 +212,16 @@ export function reverseDcfCard(doc, root, { history, fundamentals, close, financ
 }
 
 // ── R&D 비율 ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+function rdNowText(read) {
+  const generic = '막대는 공시된 회계연도별 R&D ÷ 매출입니다. 비율이 오르면 매출보다 투자가 빨리 늘었거나 매출이 줄었다는 뜻이라 매출 흐름과 함께 봅니다.';
+  const { first, latest, deltaPp } = read;
+  if (deltaPp == null || !(first?.rd > 0) || !(latest?.rd > 0) || Math.abs(deltaPp) < 0.5) return generic;
+  const rdUp = latest.rd > first.rd;
+  const why = deltaPp < 0 ? (rdUp ? '매출이 연구개발비보다 더 빨리 늘어난 결과입니다' : '연구개발비 자체를 줄인 결과입니다')
+    : (rdUp ? '연구개발비가 매출보다 빨리 늘어난 결과입니다' : '매출이 연구개발비보다 더 많이 줄어든 결과입니다');
+  return `비율은 ${first.label} ${pct(first.ratio)}에서 ${latest.label} ${pct(latest.ratio)}로 ${deltaPp < 0 ? '낮아졌지만' : '높아졌고'} 연구개발비는 ${formatUsdShort(first.rd)}에서 ${formatUsdShort(latest.rd)}로 ${rdUp ? '늘었습니다' : '줄었습니다'} — ${why}. 막대는 회계연도별 R&D ÷ 매출입니다.`;
+}
+
 export function rdCard(doc, history) {
   const read = buildRdRead(history);
   if (read.state === 'none') return null;
@@ -225,11 +247,12 @@ export function rdCard(doc, history) {
     col.append(el(doc, 'span', year.ratio == null ? '—' : pct(year.ratio), 'v2-fiscal-trend__value'), bar, el(doc, 'span', fiscalYearShortLabel(year.periodEnd), 'v2-fiscal-trend__year'));
     trend.append(col);
   }
-  const lede = `${read.latest.label} 연구개발비 ${formatUsdShort(read.latest.rd)} — 매출의 ${pct(read.latest.ratio)}${read.deltaPp != null ? ` (${read.first.label} ${pct(read.first.ratio)}에서 ${Math.abs(read.deltaPp) < 0.5 ? '비슷한 수준' : `${read.deltaPp > 0 ? '+' : '−'}${Math.abs(read.deltaPp).toFixed(1)}%p`})` : ''}.${read.latestIsNewest ? '' : ' 최근 회계연도에는 R&D가 따로 표시되지 않았습니다.'}`;
+  const lede = `${read.latest.label} 연구개발비 ${formatUsdShort(read.latest.rd)} — 매출의 ${pct(read.latest.ratio)}${read.deltaPp != null ? ` (${read.first.label} ${pct(read.first.ratio)}에서 ${Math.abs(read.deltaPp) < 0.5 ? '비슷한 수준' : `${read.deltaPp > 0 ? '+' : '-'}${Math.abs(read.deltaPp).toFixed(1)}%p`})` : ''}.${read.latestIsNewest ? '' : ' 최근 회계연도에는 R&D가 따로 표시되지 않았습니다.'}`;
   card.append(el(doc, 'p', lede, 'v2-analysis-lede'), trend);
   card.append(disclosure(doc, '원리, R&D 비율', [
     ['원리', '연구개발비는 회계상 비용으로 바로 처리되지만 성격은 미래 매출을 위한 투자에 가깝습니다. 매출 대비 비율이 높고 꾸준한 기업은 장부 이익이 실제 경제적 이익보다 낮게 잡히는 경향이 있습니다.'],
-    ['지금 읽기', '막대는 공시된 회계연도별 R&D ÷ 매출입니다. 비율이 오르면 매출보다 투자가 빨리 늘었거나 매출이 줄었다는 뜻이라 매출 흐름과 함께 봅니다.'],
+    // v58.74 (text audit 종목 C3): the reading says which side moved the ratio — R&D itself, or revenue.
+    ['지금 읽기', rdNowText(read)],
     ['한계, 함께 볼 것', '업종마다 정상 수준이 크게 다릅니다(소프트웨어·제약은 높고 유통·금융은 거의 없음). 인수한 연구개발(IPR&D)이 섞인 해는 10-K 원문에서 확인합니다.']
   ]));
   card.append(el(doc, 'p', '근거, Lev·Sougiannis(1996) R&D 자본화와 수익률, 데이터, SEC EDGAR XBRL 연간 공시', 'sx-evidence'));

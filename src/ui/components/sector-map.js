@@ -4,8 +4,9 @@
 import { buildSectorMap, layoutSectorMap, SECTOR_MAP_PERIODS, shadeOf } from '../../domain/market/sector-map.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 
-const signed = (value, digits = 2) => (value == null ? '수익률 없음' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`);
+const signed = (value, digits = 2) => (value == null ? '수익률 없음' : signedText(value, digits, '%'));
 const shortDate = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');
 // v57.81: rough bold label width in px (Hangul a full em, capitals ~0.78em, digits and signs ~0.62em) so a label is drawn only where it fits.
 const labelWidth = (text, size) => [...String(text)].reduce((sum, ch) => { const code = ch.charCodeAt(0); return sum + (code >= 0x3131 && code <= 0xd7a3 ? 1 : ch >= 'A' && ch <= 'Z' ? 0.78 : 0.62); }, 0) * size;
@@ -20,7 +21,7 @@ function weightsOf(metadata) {
 function legend(doc, steps) {
   const box = el(doc, 'div', null, 'sector-map-legend');
   box.setAttribute('aria-hidden', 'true');
-  const marks = [['d3', `−${steps[2]}%`], ['d2', `−${steps[1]}%`], ['d1', `−${steps[0]}%`], ['n0', '0'], ['u1', `+${steps[0]}%`], ['u2', `+${steps[1]}%`], ['u3', `+${steps[2]}%`]];
+  const marks = [['d3', `-${steps[2]}%`], ['d2', `-${steps[1]}%`], ['d1', `-${steps[0]}%`], ['n0', '0'], ['u1', `+${steps[0]}%`], ['u2', `+${steps[1]}%`], ['u3', `+${steps[2]}%`]];
   for (const [shade, label] of marks) box.append(el(doc, 'span', label, `sector-map-swatch is-${shade}`));
   return box;
 }

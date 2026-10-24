@@ -11,15 +11,17 @@
 // Rotation is read from all themes at once: which exposure tags gained and lost over the month.
 // No price, size, timing or named stock; stock-level selection stays on the theme, chart, company and screener screens.
 import { creditStable } from '../interpretation/concepts.js';
+import { withSubjectParticle, withDirectionParticle } from '../content/korean-particle.js';
 import { EXPOSURE_TAGS, WIND_LABELS, themeProfile, windFor } from './exposures.js';
 import { THEME_STATES, THEME_STAGE_RULE, themeStateOf, frequencyText, inlineDrift, INLINE_DRIFT_LABELS } from './analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
 import { marketWindowReturns, recentMove, recentMoveText, relativeBand, weeklyNoiseFromVol, WINDOW_LABELS } from '../themes/recent-check.js';
+import { signedText } from '../shared/number.js';
 
 export const THEME_PLAYBOOK_VERSION = 'theme-playbook.v1';
 const finite = (value) => typeof value === 'number' && Number.isFinite(value) ? value : null;
 const median = (values) => { const list = values.filter((v) => finite(v) != null).sort((a, b) => a - b); if (!list.length) return null; const m = Math.floor(list.length / 2); return list.length % 2 ? list[m] : (list[m - 1] + list[m]) / 2; };
-const pct = (value) => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+const pct = (value) => value == null ? '—' : `${signedText(value, 1)}%`;
 const marketWord = (row) => (row.market === 'KR' ? '한국' : '미국');
 const shortDay = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 /** The index each market's themes are measured against (history field, reader name). */
@@ -59,14 +61,16 @@ const WHY = {
     other: '하락 추세 속 반등은 전환인지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
   weak: { tail: '거시 수혜에도 약세가 이어진다면 업종 고유의 문제가 있을 수 있어, 원인이 확인될 때까지 기다리는 쪽이 맞습니다.',
     head: '약세와 거시 부담이 겹쳐 기다림의 비용이 가장 작은 조합입니다.',
-    other: '약세가 이어지는 동안 기다림의 비용은 작습니다.' },
+    other: '긴 추세와 1개월이 모두 지수보다 뒤처져, 50일선 위 종목 비율이 되살아나기 전까지는 기다리는 쪽의 비용이 작습니다.' },
   defensive: { other: '지수보다 덜 빠졌을 뿐 긴 추세 수익률이 0 이하라 주도로 읽지 않습니다. 지수 하락이 멈추고 이 테마의 긴 추세가 플러스로 돌아서는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
   inline: { tail: '거시 수혜 성격이지만 가격은 아직 지수와 비슷하게 움직여, 보유는 이어 가되 지수보다 앞서기 시작하는지 확인하는 쪽이 맞습니다.',
     other: '지수와 비슷한 폭으로 움직여 이 테마만의 우위가 확인되지 않습니다. 새로 들어가는 판단은 긴 추세가 지수보다 앞서기 시작한 뒤가 비용이 작습니다.' }
 };
+// v58.74 (text audit): the stage fold prints these once; a card repeats a line only when its own text differs.
+export const stageChoiceText = (state) => ({ ...(CHOICE_TEXT[state] || {}) });
 const CHOICE_TEXT = {
   leading: { wait: '기다리는 동안 추세가 이어지면 놓친 상승이 기회비용이 됩니다.', hold: '추세가 살아 있는 동안 보유를 이어 가는 비용은 작습니다.', defend: '추세가 강할 때의 방어 전환은 남은 상승을 포기하는 기회비용이 큽니다.' },
-  fading: { wait: '판정이 다시 받쳐질 때(50일선 위 비율 회복·5거래일 흐름 안정)까지 기다리면, 추세가 곧바로 이어질 경우의 상승을 놓칩니다.', stage: '급락 직후 나눠 들어가면 평균 가격은 낮아지지만, 추세가 꺾이는 중이라면 하락을 함께 떠안습니다.', hold: '보유는 긴 추세가 지수보다 앞서 있는지와 구조 가설이 깨지는 신호를 확인하며 유지합니다.', defend: '추세가 실제로 꺾이면 방어 쪽이 손실을 줄이지만, 일시적 흔들림이면 반등을 놓칩니다.' },
+  fading: { wait: '판정이 다시 받쳐질 때(50일선 위 비율 회복·5거래일 흐름 안정)까지 기다리면, 추세가 곧바로 이어질 경우의 상승을 놓칩니다.', stage: '추세가 약해지는 중에 나눠 들어가면 평균 가격은 낮출 수 있지만, 꺾임이 이어지면 하락을 함께 떠안습니다.', hold: '보유는 긴 추세가 지수보다 앞서 있는지와 구조 가설이 깨지는 신호를 확인하며 유지합니다.', defend: '추세가 실제로 꺾이면 방어 쪽이 손실을 줄이지만, 일시적 흔들림이면 반등을 놓칩니다.' },
   pullback: { wait: '조정이 쉬어 가기로 끝나면 다음 상승을 놓치는 것이 기회비용입니다.', stage: '나눠 들어가면 바닥을 맞히지 않아도 되지만, 하락이 길어지면 평균 가격도 함께 내려갑니다 — 구조 가설이 깨지는 신호가 중단 조건입니다.', hold: '보유는 조정 폭이 긴 추세 안에 머무는지(6개월 수익 범위 안인지) 확인하며 유지합니다.', defend: '조정 중의 방어 전환은 반등을 놓치는 비용이 클 수 있습니다.' },
   rebound: { wait: '반등이 전환으로 이어지면 초입을 놓치는 것이 기회비용입니다.', stage: '반등 초기에 나눠 들어가면 전환을 일부 잡지만, 반등이 실패하면 하락 추세로 되돌아갑니다.', hold: '보유는 반등이 이전 고점·50일선을 회복하는지 확인하며 유지합니다.', defend: '하락 추세가 끝나지 않았다면 방어 쪽이 손실을 줄입니다.' },
   weak: { wait: '약세가 이어지는 동안 기다림의 비용은 작습니다.', stage: '약세 속 분할은 "싸 보임"에 기대기 쉬워, 추세 회복 신호 없이 나눠 들어가는 비용이 큽니다.', hold: '보유는 약세의 원인(실적·업황)을 확인하며 비중을 점검합니다.', defend: '약세 업종 비중을 줄이는 쪽의 기회비용은 작습니다.' },
@@ -127,7 +131,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     ? { name: bench.reference.name || BENCHMARK_NAMES[bench.reference.field] || '지수', trend: trend - bench.reference[trendKey], recent: ret1m == null || finite(bench.reference.ret1m) == null ? null : ret1m - bench.reference.ret1m } : null;
   let state = stage.state;
   // v57.87 (10/16 audit): a Korean theme's equal-weight median beat the cap-weighted KOSPI only because its two largest
-  // names led the index down (반도체 1개월 −4.5% vs 삼성 −16% · 하이닉스 −30%, KOSPI −15.6%). When the largest-traded members'
+  // names led the index down (반도체 1개월 -4.5% vs 삼성 -16% · 하이닉스 -30%, KOSPI -15.6%). When the largest-traded members'
   // 1-month median trails the index by more than the 1-month band, an ahead-of-index stage is withheld with that line.
   const heavyMid = heavyweights?.length ? median(heavyweights.map((member) => member.ret1m)) : null;
   const heavyHeld = market === 'KR' && bench && heavyMid != null && finite(bench.ret1m) != null && heavyMid < bench.ret1m - recentBand
@@ -161,13 +165,15 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
   const upClaim = UP_CLAIM.has(state) || drift === 'up';
   const downClaim = state === 'pullback' || state === 'weak' || drift === 'down';
   const contradicted = !!recent && (upClaim ? recent.broken : downClaim ? recent.surged : false);
-  // v57.87 (10/16 audit): a 추세 속 조정 whose last five sessions broke (US AI infra −12% in five sessions) or whose own long
-  // return is 0 or below (KR 원전 3개월 −1.0%, 1개월 −29.5%) put 분할 first; the highlights already dropped broken pullbacks.
+  // v57.87 (10/16 audit): a 추세 속 조정 whose last five sessions broke (US AI infra -12% in five sessions) or whose own long
+  // return is 0 or below (KR 원전 3개월 -1.0%, 1개월 -29.5%) put 분할 first; the highlights already dropped broken pullbacks.
   const shakyPullback = !deep && state === 'pullback' && (recent?.broken || (trend != null && trend <= 0));
   const favored = deep || shakyPullback ? ['wait'] : state === 'leading' ? (met >= LEAD_CONFIRM_MET ? ['hold'] : ['hold', 'wait']) : state ? FAVOURED[state][wind.lead] : [];
   const why = deep ? '1개월 낙폭이 그 전까지 오른 폭의 절반을 넘어, 쉬어 가기보다 추세가 꺾이는 신호일 수 있습니다. 낙폭이 멈추고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.'
     : shakyPullback ? (recent?.broken ? '최근 5거래일 낙폭이 평소 1주 움직임의 2배를 넘어, 조정이 멈췄는지 확인하기 전에 나눠 들어가면 하락을 함께 떠안을 수 있습니다. 5거래일 흐름이 안정되고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.'
       : `${WINDOW_LABELS[trendKey]} 자체 수익률이 0 이하라 지수보다 덜 빠졌을 뿐 오르는 추세는 아닙니다. 1개월 낙폭이 멈추는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.`)
+    // v58.74 (text audit): 추세 약화 named all three reasons even when only one failed; it names the ones that did.
+    : state === 'fading' ? `긴 추세는 지수보다 앞서 있지만 ${withSubjectParticle([fadeReasons.length ? '50일선 위 종목 비율과 충족 조건 수' : null, recent?.broken ? '최근 5거래일 흐름' : null].filter(Boolean).join(', ') || '확인 조건')} 받쳐 주지 않습니다. 회복되는지 확인하기 전까지는 기다리는 쪽의 비용이 작습니다.`
     : state ? (WHY[state][wind.lead] || WHY[state].other) : '';
   // v57.84 (owner decision 3-2): the proxy's past stages count only when they were classified on the live rule.
   // Audit 2026-10-17 (D4/D5): and on the same bands and benchmark (an artifact without a rule stamp predates both).
@@ -180,10 +186,11 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     ? `, ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, 평소 1주 움직임의 2배를 넘는 ${upClaim ? '급락' : '반등'} — 1개월 판정 보류` : ''}`
     : '';
   const shortName = state ? `${THEME_STATES[state].split(' (')[0]}${drift && !contradicted ? `, ${INLINE_DRIFT_LABELS[drift]}` : ''}` : null;
-  const stateLabel = !state ? (heavyHeld ? `판정 보류 — 거래대금 상위 종목이 ${benchName}보다 더 빠져 동일가중 중앙값으로 앞섬을 말하지 않습니다${heavyweightNote ? ` (${heavyweightNote})` : ''}` : bench ? '판정 보류' : `판정 보류 (${benchName} 종가가 테마 기준일과 맞지 않음)`)
+  const stateLabel = !state ? (heavyHeld ? `판정 보류 — 거래대금 상위 종목이 ${benchName}보다 더 빠져, 동일가중 중앙값만으로 앞섰다고 보지 않습니다` : bench ? '판정 보류' : `판정 보류 (${benchName} 종가가 테마 기준일과 맞지 않음)`)
     : `${shortName} (${windowName}${fadeReasons.length ? `, ${fadeReasons.join(', ')}` : ''})${contradicted ? '' : midNote(state, ret6m, ret3m)}${recentClause}`;
   const choices = state ? { ...CHOICE_TEXT[state], ...(state === 'leading' ? { stage: leadingStageText(above50) } : {}) } : {};
   return {
+    heavyweightNote: !state && heavyHeld ? heavyweightNote || null : null,
     market, id, label, tags, tagLabels: tags.map((tag) => EXPOSURE_TAGS[tag]), thesis: profile?.thesis || null, breaks: profile?.breaks || [],
     ret1m, ret3m, ret6m, ret5d, above50, basis, members, state, stateLabel, recent, contradicted, weeklyNoise,
     relative: bench ? { name: benchName, field: bench.field || null, trendKey, trend: trendX, recent: recentX, band, recentBand, reference } : null,
@@ -232,10 +239,16 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
   const benchmarks = { US: given?.US ?? benchFor('US', usBasis), KR: given?.KR ?? benchFor('KR', krBasis) };
   const rows = [];
   for (const [id, groups] of byTheme) {
-    const ret1m = median(groups.map((g) => g.ret1m)), ret3m = median(groups.map((g) => g.ret3m)), ret6m = median(groups.map((g) => g.ret6m));
+    // v58.74: members pooled once across the theme's groups (a ticker in two groups counts once); group medians only
+    // when the groups carry no member rows.
+    const pooled = [...new Map(groups.flatMap((g) => g.memberStats || []).map((m) => [m.sym, m])).values()];
+    const pick = (key, groupKey = key) => (pooled.length ? median(pooled.map((m) => m[key])) : median(groups.map((g) => g[groupKey])));
+    const measured50 = pooled.filter((m) => finite(m.pctSma50) != null);
+    const above50 = pooled.length ? (measured50.length ? Math.round(measured50.filter((m) => m.pctSma50 > 0).length / measured50.length * 100) : null) : median(groups.map((g) => g.above50Pct));
+    const ret1m = pick('ret1m'), ret3m = pick('ret3m'), ret6m = pick('ret6m');
     if (ret1m == null) continue;
-    rows.push(themeRow({ market: 'US', id, label: labels[id] || groups[0].themeName || id, ret1m, ret3m, ret6m, above50: median(groups.map((g) => g.above50Pct)),
-      ret5d: median(groups.map((g) => g.ret5d)), vol: median(groups.map((g) => g.vol)), memberCount: groups.reduce((sum, g) => sum + (finite(g.members) ?? 0), 0) || 1,
+    rows.push(themeRow({ market: 'US', id, label: labels[id] || groups[0].themeName || id, ret1m, ret3m, ret6m, above50,
+      ret5d: pick('ret5d'), vol: pick('vol'), memberCount: pooled.length || groups.reduce((sum, g) => sum + (finite(g.members) ?? 0), 0) || 1,
       basis: groups.map((g) => g.basis).filter(Boolean).sort().at(-1) || null, benchmark: benchmarks.US,
       groups: groups.map((g) => ({ name: g.name, ret1m: g.ret1m, ret3m: g.ret3m, ret6m: g.ret6m, ret5d: g.ret5d ?? null, above50: g.above50Pct,
         state: relativeStage({ ret1m: g.ret1m, ret3m: g.ret3m, ret6m: g.ret6m, basis: g.basis || null, benchmark: benchmarks.US }).state })),
@@ -249,6 +262,19 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
   }
   const usBench = benchmarks.US?.asOf && benchmarks.US.asOf === usBasis ? benchmarks.US : null;
   const rotation = rotationOf(rows, { period: usBench?.from?.ret1m ? { from: usBench.from.ret1m, to: usBasis } : null, benchRet5d: usBench?.ret5d ?? null });
+  // v58.74 (text audit 오늘 C3): the month's ends read against the central scenario — whether price and scenario point the
+  // same way. Only the US ends are counted (the scenario exposures are US-led); with no lead branch nothing is said.
+  const leadItem = crossroads?.items?.find((item) => item.id === crossroads.leadId) || null;
+  const usUp = rotation.gainers.filter((row) => row.market !== 'KR'), usDown = rotation.losers.filter((row) => row.market !== 'KR');
+  if (leadItem && usUp.length && usDown.length) {
+    const upTail = usUp.filter((row) => row.wind.lead === 'tail').length, downHead = usDown.filter((row) => row.wind.lead === 'head').length;
+    const upHead = usUp.filter((row) => row.wind.lead === 'head').length, downTail = usDown.filter((row) => row.wind.lead === 'tail').length;
+    const name = leadItem.title.split(' — ')[0];
+    const tie = upTail + downHead > upHead + downTail ? '시나리오와 가격이 같은 방향입니다'
+      : upHead + downTail > upTail + downHead ? '가격이 시나리오와 반대로 움직였습니다' : '시나리오와 가격의 방향이 뚜렷하게 겹치지 않습니다';
+    rotation.scenarioTie = `중심 시나리오 ${withDirectionParticle(`'${name}'`)} 보면 상위 ${usUp.length}개 중 ${upTail}개가 수혜 쪽, 하위 ${usDown.length}개 중 ${downHead}개가 부담 쪽이라 ${tie}.`;
+    rotation.text = `${rotation.text} ${rotation.scenarioTie}`;
+  }
   const highlights = {
     // Only well-supported pullbacks (most known conditions met, including the depth check) are surfaced.
     structuralPullbacks: rows.filter((row) => row.state === 'pullback' && row.wind.lead !== 'head' && row.known >= 3 && row.met / row.known >= 0.75 && !row.recent?.broken).sort((a, b) => b.met - a.met || b.ret1m - a.ret1m),
@@ -306,16 +332,16 @@ export function rotationOf(rows, { period = null, benchRet5d = null } = {}) {
   const spread = top && bottom ? top.ret1m - bottom.ret1m : null;
   const week = (row) => (row.recent?.broken || row.recent?.surged) && row.ret5d != null ? `, 5거래일 ${pct(row.ret5d)}` : '';
   const named = (row) => `${scope === '미국·한국' ? `${marketWord(row)} ` : ''}${row.label}(${pct(row.ret1m)}${week(row)})`;
-  const krLine = sub ? ` 한국은 강한 쪽 ${sub.up.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join('·')}, 약한 쪽 ${sub.down.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join('·')}입니다.` : '';
+  const krLine = sub ? ` 한국은 1개월 상위 ${sub.up.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join(', ')}, 하위 ${sub.down.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join(', ')}입니다.` : '';
   const span = period?.from && period?.to ? `(${shortDay(period.from)}~${shortDay(period.to)})` : '';
   const lead = `최근 1개월${span} ${scope} 테마`;
-  const sides = `강한 쪽 ${main.up.map(named).join(', ')}, 약한 쪽 ${main.down.map(named).join(', ')}`;
+  const sides = `상위 ${main.up.map(named).join(', ')}, 하위 ${main.down.map(named).join(', ')}`;
   const thick = top && bottom && top.n >= ROTATION_TAG_MIN_THEMES && bottom.n >= ROTATION_TAG_MIN_THEMES;
   const against = top?.ret1m > 0 && top.recent?.broken
     ? ` 다만 최근 5거래일 '${top.label}' 성격 중앙값은 ${pct(top.ret5d)}로 평소 1주 움직임의 2배를 넘게 반대로 움직여, 1개월 기준 이동이 지금도 이어진다고 보지 않습니다.` : '';
   const text = !top || !bottom || top === bottom ? '테마 기록이 부족해 가격 기준 강약 이동을 읽지 않습니다.'
     : spread < 3 ? `${lead}는 성격별 차이가 작습니다(가장 강한 '${top.label}' ${pct(top.ret1m)}, 가장 약한 '${bottom.label}' ${pct(bottom.ret1m)}) — 뚜렷한 가격 기준 강약 이동은 보이지 않습니다.${krLine}`
-      : !thick ? `${lead}는 ${sides}입니다. 성격마다 테마가 ${ROTATION_TAG_MIN_THEMES}개 미만이라 한 달 동안 힘이 어느 성격으로 옮겨 갔는지는 판단하지 않습니다(하루 흐름은 시장 상태의 자금 흐름 줄).${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`
+      : !thick ? `${lead}는 ${sides}입니다. 테마 묶음마다 표본이 ${ROTATION_TAG_MIN_THEMES}개 미만이라 한 달 동안 힘이 어느 묶음으로 옮겨 갔는지는 판단하지 않습니다.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`
         : `${lead}는 '${bottom.label}' 성격(중앙값 ${pct(bottom.ret1m)})에서 '${top.label}' 성격(중앙값 ${pct(top.ret1m)})으로 힘이 옮겨 갔습니다.${against} ${sides}.${krLine} 가격 흐름 기준이며 자금 유출입 자료는 아닙니다.`;
   return { tags, gainers: [...main.up, ...(sub?.up || [])], losers: [...main.down, ...(sub?.down || [])], market: scope, text };
 }

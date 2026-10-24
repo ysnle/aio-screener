@@ -9,16 +9,17 @@
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
 import { extensionMultiple, extensionStateFor } from './definitions.js';
+import { signedText } from '../shared/number.js';
 
 /** |distance to the 50-day line| below this many average daily ranges = 부근 (neither side). v57.84: RULES constant. */
 export const NEAR_LINE_ADR = RULES.technical.nearLineAdr;
-/** A five-session return below −(this × ADR) = 단기 급락. */
+/** A five-session return below -(this × ADR) = 단기 급락. */
 export const RECENT_DROP_ADR = RULES.technical.recentDropAdr;
 /** Entry-ready needs the price at least this many daily ranges over its 50-day line (just past the 부근 band). */
 export const ENTRY_MIN_ADR_OVER_50 = NEAR_LINE_ADR;
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
-const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 
 /** pct ÷ ADR to one decimal, or null when either is missing or ADR is not positive (technical/definitions.js). */
 export const adrMultiple = extensionMultiple;

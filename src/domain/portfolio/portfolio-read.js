@@ -14,9 +14,10 @@ export function portfolioSectorLabel(name) {
 import { buildAttribution } from './attribution.js';
 import { rrgRecentReading } from '../themes/recent-check.js';
 import { koreaRecordText, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
+import { signedText } from '../shared/number.js';
 
 const finite = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
-const signed = (value, digits = 1, unit = '%') => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 const QUADRANT = Object.freeze({ Leading: { label: '선도', tone: 'favorable' }, Improving: { label: '개선', tone: 'neutral' }, Weakening: { label: '약화', tone: 'neutral' }, Lagging: { label: '후행', tone: 'burden' } });
 
 // v57.81 (analysis audit 2026-10-15): a quadrant is a ~50-session reading. XLK sat at RS-Ratio 100.33 — inside the RRG

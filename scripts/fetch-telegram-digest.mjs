@@ -210,7 +210,8 @@ function classify(text) {
   if (/power (?:grid|demand|supply|plants?|generation|capacity|prices?|utilit(?:y|ies)|equipment)|data center power|sofc|bloom energy|transformer|\bgrid\b|\bgw\b|800v|fuel cell|electricity|hvdc|전력|데이터센터|변압기|송전|전력망|연료전지/i.test(raw)) add('power');
   if (/anthropic|openai|gpt-|chatgpt|gemini|llama|claude|sovereign ai|export control|ai policy|ai model|소버린|수출통제|AI\s*모델/i.test(raw)) add('ai-policy');
   // P1722: a bare 기관 is any agency; KR_INSTITUTIONAL_FLOW (lib/telegram-tickers.mjs) is the investor-group reading.
-  if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|코스피|코스닥|국장|한국장|코스피\s*선물|환율/i.test(raw) || KR_INSTITUTIONAL_FLOW.test(raw)) add('kr-market');
+  // v58.74: a bare 국장 is also a title ("신베트 국장" put a Netanyahu statement under 한국장); 한국장 stays.
+  if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|코스피|코스닥|한국장|코스피\s*선물|환율/i.test(raw) || KR_INSTITUTIONAL_FLOW.test(raw)) add('kr-market');
   if (/spacex|prime day|amazon|adobe|\bsmci\b|\bmeta\b|murata|\bipo\b|\bbuy\b|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
   if (/crypto|bitcoin|ethereum|coinbase/i.test(raw)) add('crypto');
   if (/insider (?:buy|purchase|sale|selling|transaction)|open.market (?:buy|purchase)|form 4|director bought|executive bought|내부자|임원 매수/i.test(raw)) add('insider');

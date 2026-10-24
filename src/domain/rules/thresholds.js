@@ -24,12 +24,12 @@ export const RULES = Object.freeze({
   // Owner 2026-10-18: AI 투자 꺾임 gate — Nasdaq-100 or semis (SMH) lagging the S&P 500 over 20 sessions. SMH's 20-session
   // relative move swings ~3x the Nasdaq-100's (sd 8.2 vs 2.7pp, 2025-11~2026-10), so its edge is 8pp against the NDX's 3pp.
   // v58.68 (owner 2026-10-23): a session is a leaders' 급락일 when SMH closes 4% or more down, or the Nasdaq 100 2.5% or more
-  // (10/22: SMH −6.0%, SOXX −6.8%, Nasdaq 100 −2.9%). It labels the day on the leadership line; it is not an axis.
+  // (10/22: SMH -6.0%, SOXX -6.8%, Nasdaq 100 -2.9%). It labels the day on the leadership line; it is not an axis.
   // The money-flow line (leadership-verdict.js buildMarketFlow) calls a session a move into defensives when the defensive
   // sector ETFs (XLP·XLU·XLV) beat the growth ones (XLK·XLC·SMH) by rotationGapPp or more and rose; broadSectorCount of the
-  // eleven sectors moving one way is a market-wide day (10/22: defensives +2.2%, growth −3.6%, 6 of 11 up). A sector's
+  // eleven sectors moving one way is a market-wide day (10/22: defensives +2.2%, growth -3.6%, 6 of 11 up). A sector's
   // sub-themes split when one rose splitSidePct or more, another fell as much, and they are themeSplitPp apart (10/22:
-  // regulated utilities +2.6% vs nuclear/independent power −5.4%).
+  // regulated utilities +2.6% vs nuclear/independent power -5.4%).
   leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5, aiLagNdx20dPp: 3, aiLagSemis20dPp: 8, shockSemis1dPct: 4, shockNdx1dPct: 2.5, rotationGapPp: 3, broadSectorCount: 9, splitSidePct: 1, themeSplitPp: 4 }),
   // v57.81: "회복 중" only when the last session did not give back reversalShare of the window's gain (a 5-day +8pp bounce
   // that lost 4pp on the last close is 되밀림, not recovery); a last-session drop of lastSessionNoticePp or more is named.

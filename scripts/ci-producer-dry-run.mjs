@@ -73,6 +73,9 @@ try {
       const expired = carriedNewsCandidates(before.news, getKst0800NewsCycle(nextRefresh + 60000)).length;
       check('P1950 previous articles are candidates inside their cycle and dropped after it', kept === before.news.length && expired === 0, `in-cycle ${kept}/${before.news.length}, expired ${expired}`);
     }
+    // v58.74 (refresh-data 10/24 01:20Z): a failed Cboe read keeps the last put/call value, labelled stale-reference,
+    // instead of publishing null and failing the static-data contract.
+    if (Number.isFinite(Number(before.putCall?.totalPutCall))) check('v58.74 a failed put/call read keeps the last value as stale-reference', data.putCall?.totalPutCall === before.putCall.totalPutCall && data.putCall?.status === 'stale-reference', JSON.stringify(data.putCall || null).slice(0, 300));
     check('P565 the FRED plane reports its missing key instead of a fresh cycle', meta.fredHasKey === false && meta.fredFetchOk === false);
     // A provider failure either keeps the last verified reading (P1719, with the reason) or publishes the blocked reason.
     check('P1594 the market analysis records why it did not run', (meta.marketAnalysisOk === false && typeof meta.marketAnalysisReason === 'string' && meta.marketAnalysisReason.length > 0) || (meta.marketAnalysisOk === true && typeof meta.marketAnalysisRetained?.reason === 'string'), JSON.stringify({ ok: meta.marketAnalysisOk, reason: meta.marketAnalysisReason, retained: meta.marketAnalysisRetained, ai: meta.aiUsage?.purposes?.['market-analysis'] }));

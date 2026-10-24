@@ -40,6 +40,7 @@ export function readPreviousPlanes(previous) {
     fredDexkous: previous && previous.providerCrossChecks && previous.providerCrossChecks.fx && previous.providerCrossChecks.fx.official || null,
     marketSurveys: previous && previous.marketSurveys || null,
     fearGreed: previous && previous.fearGreed || null,
+    putCall: previous && previous.putCall || null,
     news: previous && Array.isArray(previous.news) ? previous.news : null
   };
 }
@@ -63,7 +64,11 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
     // 2026-10-19: same-cycle articles stay candidates (carriedNewsCandidates).
     { id: 'news', label: 'news', run: () => fetchNews(Date.parse(attemptedAt), { carry: prior.news }),
       fallback: () => (prior.news && prior.news.length ? prior.news : []) },
-    { id: 'putCall', label: 'Put/Call', run: () => fetchCboePutCall(),
+    // v58.74 (refresh-data 10/24 01:20Z): a failed Cboe read published totalPutCall null and the static-data contract
+    // refused the whole refresh. A failed read keeps the last value labelled stale-reference (history writes only
+    // current-reference rows), like Fear & Greed.
+    { id: 'putCall', label: 'Put/Call', run: () => fetchCboePutCall().then((value) => (value?.error && Number.isFinite(Number(prior.putCall?.totalPutCall)) && prior.putCall?.asOf
+      ? { ...prior.putCall, status: 'stale-reference', attemptedAt, failureReason: value.error } : value)),
       fallback: () => ({ source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, totalPutCall: null, error: 'put-call-plane-failed' }) },
     { id: 'bls', label: 'BLS', run: () => fetchBlsSeries(prior.bls, { releaseSchedules: blsReleaseSchedules }),
       fallback: () => (prior.bls?.series ? { ...prior.bls, status: 'stale', attemptedAt, failureReason: 'bls-plane-failed' }

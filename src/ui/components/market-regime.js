@@ -17,6 +17,9 @@ import { renderRegimeRadar } from './regime-radar.js';
 import { renderCrossroadsCompact, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { usWeekendClosed } from '../../domain/market/market-calendar.js';
+import { signedText } from '../../domain/shared/number.js';
+import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 
 // Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
 // sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
@@ -222,9 +225,12 @@ function faceValue(row) {
   const shown = parts.length ? parts : row.evidence.slice(0, 1);
   // The face keeps the value and its observation date (buildMarketRegime appends ' · M/D' when an axis mixes dates);
   // parentheticals and record notes ('기록 243일 중 …') stay in the opened row.
+  // v58.74 (text audit): a credit row judged 부담 at 340bp — below every level line — kept only the level on its face; the
+  // 20-session widening that made it 부담 now stays beside it.
   const face = (value) => {
     const [head, ...rest] = String(value).replace(/\s*\([^)]*\)/g, '').split(/ · |, /);
-    return [head, ...rest.filter((part) => /^\d{1,2}\/\d{1,2}$/.test(part.trim()))].join(', ');
+    const widening = row.id === 'credit' && row.state === 'burden' ? String(value).match(/20거래일 [+-]\d+bp/)?.[0] : null;
+    return [head, ...(widening ? [widening] : []), ...rest.filter((part) => /^\d{1,2}\/\d{1,2}$/.test(part.trim()))].join(', ');
   };
   return shown.map(([label, value]) => `${label.replace(/\s*\(.*\)$/, '')} ${face(value)}`).join(', ');
 }
@@ -238,7 +244,7 @@ function fiveDayChange(id, inputs, asOf) {
     if (!last || !base || !(base.value > 0 || kind !== 'pct')) return null;
     const value = kind === 'pct' ? (last.value / base.value - 1) * 100 : kind === 'bp' ? (last.value - base.value) * 100 : last.value - base.value;
     const unit = kind === 'pct' ? '%' : kind === 'bp' ? 'bp' : '%p';
-    return `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(kind === 'bp' ? 0 : 1)}${unit}`;
+    return signedText(value, kind === 'bp' ? 0 : 1, unit);
   };
   if (id === 'trend') return delta('spx', 'pct');
   if (id === 'breadth') return delta('breadth50', 'pt');
@@ -249,7 +255,7 @@ function fiveDayChange(id, inputs, asOf) {
     // Only the 5-session change the credit axis itself admits (aligned to the close basis, like take(..., alignments.hy)).
     const hy5 = Number(inputs?.credit?.hyDelta5Bp);
     const usable = inputs?.credit?.hyDelta5Bp != null && Number.isFinite(hy5) && isUsable(alignInput(inputs?.credit?.hyAsOf, asOf));
-    return usable ? `${hy5 >= 0 ? '+' : '−'}${Math.abs(Math.round(hy5))}bp` : null;
+    return usable ? signedText(hy5, 0, 'bp') : null;
   }
   return null;
 }
@@ -294,7 +300,7 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   // P1399: one basis chip per axis — its own observation date against the close basis.
   if (row.basis) readNow.append(el(doc, 'span', row.basis, `basis-chip${row.basisStatus === 'aligned' ? '' : ' is-off'}`));
   body.append(cardOf('원리', el(doc, 'p', blocks[0]?.[1] || '', 'sx-disclosure__text')), readNow,
-    cardOf('한계, 함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
+    cardOf('읽는 법, 함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
   // The chart, every evidence row and the flip condition stay one level down in the opened row.
   const detail = el(doc, 'div', null, 'mk-axis__detail');
   const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
@@ -355,7 +361,7 @@ function heroSide(doc, regime, previous) {
       for (let i = 0; i < count; i += 1) bar.append(el(doc, 'span', null, `mk-tally__seg is-${state}`));
     }
     const legend = el(doc, 'div', null, 'mk-tally__legend');
-    legend.append(el(doc, 'span', `양호 ${favorable}${favorable ? `, ${names('favorable')}` : ''}`, 'is-favorable'), el(doc, 'span', `중립 ${neutral}${unknown ? `, 확인 불가 ${unknown}` : ''}`, 'is-neutral'), el(doc, 'span', `부담 ${burden}${burden ? `, ${names('burden')}` : ''}`, 'is-burden'));
+    legend.append(el(doc, 'span', `양호 ${favorable}${favorable ? `(${names('favorable').replaceAll(', ', '·')})` : ''}`, 'is-favorable'), el(doc, 'span', `중립 ${neutral}${unknown ? `, 확인 불가 ${unknown}` : ''}`, 'is-neutral'), el(doc, 'span', `부담 ${burden}${burden ? `(${names('burden').replaceAll(', ', '·')})` : ''}`, 'is-burden'));
     tally.replaceChildren(...(regime.available ? [bar, legend] : []));
   }
   const prevNode = doc.getElementById('regime-previous');
@@ -365,8 +371,8 @@ function heroSide(doc, regime, previous) {
         .filter(([then, now]) => now && then.state !== now.state).map(([then, now]) => `${now.title} ${then.stateLabel}→${now.stateLabel}`);
       // With a partially rebuilt axis the overall label and tally are not restated; only the comparable axes are.
       const skipped = previous.axes.filter((axis) => axis.partial).map((axis) => axis.title);
-      const head = previous.partial ? `5거래일 전(${shortDate(previous.asOf)}) 대비` : `5거래일 전(${shortDate(previous.asOf)}) 판정: ${previous.overall}, ${summaryLine(previous)}`;
-      prevNode.textContent = `${head}${changed.length ? ` → ${changed.join(', ')}` : ' → 지표별 판정 변화 없음'}${skipped.length ? ` (${skipped.join(', ')}은 그날 입력을 모두 되살릴 수 없어 비교 제외)` : ''}`;
+      const head = previous.partial ? `5거래일 전(${shortDate(previous.asOf)}) 대비` : `5거래일 전(${shortDate(previous.asOf)})에는 ${withDirectionParticle(summaryLine(previous))} '${previous.overall}' 판정이었습니다.`;
+      prevNode.textContent = `${head}${changed.length ? ` 바뀐 지표: ${changed.join(', ')}.` : ' 지표별 판정은 그대로입니다.'}${skipped.length ? ` (${skipped.join(', ')}은 그날 입력을 모두 되살릴 수 없어 비교 제외)` : ''}`;
       prevNode.hidden = false;
     } else prevNode.hidden = true;
   }
@@ -382,7 +388,7 @@ function comboAndWatch(doc, root, regime, interpretation) {
   if (!watch) return;
   const items = [];
   const next = interpretation.crossroads?.nextEvent;
-  if (next?.name && next?.date) items.push([`${shortDate(next.date)} ${next.name}`, '발표별 시나리오는 거시 화면에서 봅니다.']);
+  if (next?.name && next?.date) items.push([`${next.when || shortDate(next.date)} ${next.name}`, '발표별 시나리오는 거시 화면에서 봅니다.']);
   for (const check of interpretation.marketRead?.checks || []) if (items.length < 4) items.push([check, '']);
   watch.replaceChildren(...items.map(([title, note], index) => {
     const item = el(doc, 'li', null, 'mk-watch__item');
@@ -506,7 +512,7 @@ function koreaIndexParts(history) {
     const last = series.at(-1), prev = series.at(-2), prior5 = series.at(-6);
     if (!last) return null;
     const pctOf = (base) => base?.value > 0 ? (last.value / base.value - 1) * 100 : null;
-    const signed = (v) => v == null ? null : `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
+    const signed = (v) => v == null ? null : `${signedText(v, 1)}%`;
     const d1 = signed(pctOf(prev)), d5 = signed(pctOf(prior5));
     return { date: last.date, text: `${title} ${last.value.toLocaleString('en-US', { maximumFractionDigits: 2 })}${d1 ? ` (${d1}${d5 ? `, 5거래일 ${d5}` : ''})` : ''}`, d5: pctOf(prior5) };
   };
@@ -541,9 +547,10 @@ function paintLeadershipLine(doc, id, verdict, flow = null) {
     const themes = flow.themes;
     if (themes?.available) {
       if (themes.splitLines.length) part.append(el(doc, 'div', `같은 업종 안에서 갈린 곳, ${themes.splitLines.slice(0, 2).join(' / ')}`, 'leaders-line__evidence'));
+      if (themes.memberSplitLines?.length) part.append(el(doc, 'div', `같은 테마 안에서 갈린 종목, ${themes.memberSplitLines.slice(0, 2).join(' / ')}`, 'leaders-line__evidence'));
       const more = el(doc, 'details', null, 'leaders-line__more');
       const list = el(doc, 'ul', null, 'leaders-line__list');
-      for (const text of [themes.strongLine, themes.weakLine, ...themes.splitLines.map((line) => `갈림, ${line}`)].filter(Boolean)) list.append(el(doc, 'li', text));
+      for (const text of [themes.strongLine, themes.weakLine, ...themes.splitLines.slice(2).map((line) => `갈림, ${line}`)].filter(Boolean)) list.append(el(doc, 'li', text));
       more.append(el(doc, 'summary', `테마 ${themes.groups}개 하루 흐름`), list);
       part.append(more);
     }
@@ -599,7 +606,7 @@ function paintFuturesCell(doc, root, cellId, futures, field, label) {
   value.textContent = last.value.toLocaleString('en-US', { maximumFractionDigits: 2 });
   const note = doc.createElement('span');
   note.className = 'kpi-fallback-note';
-  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`}, 선물 시세 아직 받지 못함`;
+  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${signedText(change, 2, '%')}`}, ${usWeekendClosed() ? '선물 주말 휴장' : '선물 시세 아직 받지 못함'}`; // v58.74: CME is shut over the weekend, nothing is pending
   if (labelNode) labelNode.textContent = label;
   fallback.append(value, note);
   fallback.hidden = false;
@@ -701,7 +708,8 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
       // with the three structures on 시장 상태.
       const sentences = String(lead.posture || '').split(/(?<=니다\.)\s+/);
       // v57.81: the transition reading also carries its next checkpoint on home.
-      const counter = [sentences.find((line) => line.startsWith('반증')), sentences.find((line) => line.startsWith('다음 확인'))].filter(Boolean).join(' ');
+      // v58.74 (text audit 오늘 C2): the confirm condition stays beside its 반증, so home reads both sides of the transition.
+      const counter = ['확인:', '반증', '다음 확인'].map((prefix) => sentences.find((line) => line.startsWith(prefix))).filter(Boolean).join(' ');
       const line = el(doc, 'p', null, 'xr-structure');
       line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? `, ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);

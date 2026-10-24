@@ -6,9 +6,10 @@ import { MARKET_TEMPERATURE, refreshSharedArtifact } from '../../data/shared-art
 import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_RULES } from '../../domain/sentiment/market-temperature.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
+import { withObjectParticle } from '../../domain/content/korean-particle.js';
 
 // A value that rounds to zero prints without a sign ('-0.0%' read as a fall).
-const pct = (value, digits = 1) => { if (!Number.isFinite(value)) return '—'; const text = Math.abs(value).toFixed(digits); return Number(text) === 0 ? `${text}%` : `${value > 0 ? '+' : '−'}${text}%`; };
+const pct = (value, digits = 1) => { if (!Number.isFinite(value)) return '—'; const text = Math.abs(value).toFixed(digits); return Number(text) === 0 ? `${text}%` : `${value > 0 ? '+' : '-'}${text}%`; };
 const md = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—');
 const STATE_LABEL = { cold: '강한 냉각', hot: '강한 과열', none: '보통 범위' };
 
@@ -142,13 +143,13 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
 
     const series = (market.history || []).map(([date, close]) => ({ date, value: close }));
     const chart = createTrendChart(doc, { series, spans: extremeSpans(market.history, rules), label: `${market.label} 2년 종가와 과열·냉각 구간`, format: (value) => Math.round(value).toLocaleString('en-US') });
-    const past = [market.week && `1주 전(${md(market.week.date)}) ${market.week.cold}·${market.week.hot}개`, market.month && `1달 전(${md(market.month.date)}) ${market.month.cold}·${market.month.hot}개`].filter(Boolean).join(', ');
+    const past = [market.week && `1주 전(${md(market.week.date)}) 하위 ${market.week.cold}개·상위 ${market.week.hot}개`, market.month && `1달 전(${md(market.month.date)}) 하위 ${market.month.cold}개·상위 ${market.month.hot}개`].filter(Boolean).join(', ');
     const gapLine = market.gaps?.length ? ` ${market.gaps.map(md).join(', ')} 종가가 원천에 비어 있어 그날은 빼고 계산했습니다.` : '';
     const reading = `${temperatureStateText(market, rules)}. ${past ? `하위·상위 10% 요소 수는 ${past}였습니다. ` : ''}${market.state !== 'none' ? temperatureEvidence(market) : ''}${gapLine}`.trim();
 
     const deep = el(doc, 'details', null, 'regime-axis-details regime-axis-deep');
     deep.append(el(doc, 'summary', '더 깊이 보기, 온도를 재는 방법과 과거 결과'));
-    deep.append(el(doc, 'h4', '다섯 요소와 과열·냉각 구간의 정의'), el(doc, 'p', `${TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', ')}를 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. 다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다. 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`));
+    deep.append(el(doc, 'h4', '다섯 요소와 과열·냉각 구간의 정의'), el(doc, 'p', `${withObjectParticle(TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', '))} 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. 다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다. 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`));
     deep.append(el(doc, 'h4', '외부 온도계와의 관계'), el(doc, 'p', '시장 심리 온도계를 공개하는 곳들은 계산식을 밝히지 않아 같은 값을 만들 수 없습니다. 이 표는 가격만으로 다시 만든 AIO의 계산이라 거래대금·신용잔고·수급은 들어 있지 않고, 같은 날 비교에서 방향은 대체로 비슷하지만 값은 다릅니다. 신용잔고 반대매매나 외국인 매도처럼 가격 밖의 압력은 이 표에 잡히지 않으니 뉴스와 거래소 공시로 따로 확인해야 합니다.'));
     const table = el(doc, 'dl', null, 'regime-evidence');
     for (const item of markets) {

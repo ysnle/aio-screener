@@ -1,0 +1,27 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "소유자 요청(2026-10-24) 남은 감사 항목 진행 중 확인(잠재 결함).",
+ "status": null,
+ "p": {
+  "title": "거시 교차로가 정책금리 하단을 '상단 - 0.25'로 가정했다",
+  "symptom": "정책금리 범위 문장 세 곳이 하단을 상단에서 0.25를 빼서 만들었다. 현재 범위(3.75~4.00%)는 우연히 맞지만, 범위 폭이 바뀌거나 하단만 공표되는 경우 틀린 하단을 보인다.",
+  "root_cause": "buildMacroCrossroads의 정책 신호가 상단만 읽고 하단은 고정 폭으로 계산했다.",
+  "fix": "정책 신호가 거시 이력의 fedTargetLower를 함께 읽고, 없을 때만 상단 - 0.25로 대신한다. 세 문장이 p.lower를 쓴다. 범위 표기는 '~'로 통일했다.",
+  "violated_rule": "R689",
+  "prevention": "로컬 화면 대조(거시 교차로 정책 범위 문장).",
+  "verification": "로컬 거시 화면에서 '3.75~4.00%' 확인."
+ },
+ "qa": [
+  {
+   "id": "QA-POLICY-LOWER-01",
+   "text": "{P}: 정책금리 범위의 하단은 공표된 하단 값을 쓰고, 없을 때만 상단에서 0.25를 뺀다.",
+   "verify_by": "node .claude/skills/verify-aio/scripts/verify-aio.mjs drive macro",
+   "done": true
+  }
+ ],
+ "qa_section": "화면 v58.74",
+ "changelog": [
+  "**정책금리 하단 ({P}):** 범위 하단을 고정 폭으로 계산하지 않고 공표된 하단 값을 읽는다."
+ ]
+}

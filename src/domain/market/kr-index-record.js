@@ -6,9 +6,10 @@
 import { koreaMoveRecord, koreaRecordText, krSessionThrough, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
 import { buildCloseSeries, recordPercentile } from './close-series.js';
 import { countOpenSessionsBetween } from './market-calendar.js';
+import { signedText } from '../shared/number.js';
 
 export const KR_MONTH_SESSIONS = 20;
-const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+const signed = (value) => `${signedText(value, 1)}%`;
 
 /** { date, d1, d5, rec1, rec5, tail1, tail5, tail, extreme } for a KRX index field, or null under two closes. */
 export function krIndexMoveRecord(history = [], field = 'kospi', { now = Date.now() } = {}) {

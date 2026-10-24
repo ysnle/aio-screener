@@ -115,7 +115,7 @@ export function followThroughSummary(row = {}) {
   const base = num(row.baseCount);
   if (base != null) {
     parts.push(base === 0 ? '베이스 전' : `베이스 ${base}번째${row.baseForming ? '(형성 중)' : ''}`);
-    details.push(base === 0 ? '추세가 다시 시작된 뒤 아직 8% 이상 조정을 거친 베이스가 없음' : `추세가 다시 시작된 뒤 ${base}번째 베이스${row.baseForming ? ` — 지금 고점 대비 −${num(row.baseDepthPct) ?? '?'}% 조정 중` : ''}, 3번째 이후는 실패가 잦다는 것이 오닐 계열의 관찰`);
+    details.push(base === 0 ? '추세가 다시 시작된 뒤 아직 8% 이상 조정을 거친 베이스가 없음' : `추세가 다시 시작된 뒤 ${base}번째 베이스${row.baseForming ? ` — 지금 고점 대비 -${num(row.baseDepthPct) ?? '?'}% 조정 중` : ''}, 3번째 이후는 실패가 잦다는 것이 오닐 계열의 관찰`);
   }
   const pocket = num(row.pocketPivotAgo);
   if (pocket != null) { parts.push(pocket === 0 ? '포켓 피벗 오늘' : `포켓 피벗 ${pocket}일 전`); details.push('상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많았던 날'); }

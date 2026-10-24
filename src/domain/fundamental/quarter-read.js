@@ -3,6 +3,7 @@
 // public-data/sec-fiscal-history.json (`quarters`, USD millions) and compares each quarter with the same
 // quarter a year earlier — the comparison that removes seasonality. A derived fourth quarter (FY − Q1..Q3)
 // is labelled; no quarter is estimated beyond that.
+import { signedText } from '../shared/number.js';
 const finite = (value) => (value === '' || value == null || !Number.isFinite(Number(value)) ? null : Number(value));
 
 export function parseQuarterHistory(text) {
@@ -36,14 +37,14 @@ export function buildQuarterRead(quarters = []) {
   // A direction is named only when both of the last two steps agree; otherwise the series is uneven.
   const [a, b, c] = yoys.slice(-3);
   const trend = yoys.length >= 3
-    ? (b > a + 3 && c > b + 3 ? '전년 대비 성장률이 최근 분기로 갈수록 빨라졌다'
-      : b < a - 3 && c < b - 3 ? '전년 대비 성장률이 최근 분기로 갈수록 느려졌다'
-        : Math.max(a, b, c) - Math.min(a, b, c) <= 6 ? '전년 대비 성장률이 비슷하게 유지된다'
-          : `전년 대비 성장률이 분기마다 들쭉날쭉하다(직전 분기 ${b >= 0 ? '+' : ''}${b.toFixed(1)}%)`)
+    ? (b > a + 3 && c > b + 3 ? '전년 대비 성장률이 최근 분기로 갈수록 빨라졌습니다'
+      : b < a - 3 && c < b - 3 ? '전년 대비 성장률이 최근 분기로 갈수록 느려졌습니다'
+        : Math.max(a, b, c) - Math.min(a, b, c) <= 6 ? '전년 대비 성장률이 비슷하게 유지됩니다'
+          : `전년 대비 성장률이 분기마다 들쭉날쭉합니다(직전 분기 ${signedText(b, 1, '%')})`)
     : null;
-  const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+  const signed = (value) => signedText(value, 1, '%');
   const headline = latest.revenueYoy != null
-    ? `최근 분기(${latest.periodEnd.slice(0, 7)} 마감) 매출은 전년 같은 분기보다 ${signed(latest.revenueYoy)}${trend ? ` — ${trend}` : ''}.`
-    : `최근 분기(${latest.periodEnd.slice(0, 7)} 마감) — 비교할 전년 같은 분기 기록이 아직 없다.`;
+    ? `최근 분기(${latest.periodEnd.slice(0, 7)} 마감) 매출은 전년 같은 분기보다 ${signed(latest.revenueYoy)}${trend ? `입니다. ${trend}` : '입니다'}.`
+    : `최근 분기(${latest.periodEnd.slice(0, 7)} 마감) 매출은 비교할 전년 같은 분기 기록이 아직 없습니다.`;
   return { available: true, rows: withYoy, latest, headline, hasDerived: withYoy.some((q) => q.derived) };
 }

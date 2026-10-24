@@ -9,12 +9,13 @@
 // sample size. Never a probability percentage, a price, a size, a date to act or a named stock.
 import { dollarRiseBurden } from '../briefing/market-read.js';
 import { buildCloseSeries, sessionPointBack } from './close-series.js';
-import { releaseAtMs } from '../briefing/schedule.js';
+import { releaseAtMs, formatKstWhen } from '../briefing/schedule.js';
 import { seriesOf, yoySeries, annualised3m } from '../macro/macro-read.js';
 import { RULES } from '../rules/thresholds.js';
 import { changeBand, bandDirection, changeOverDays, inflationDirection, oilDivergence, sentimentRank, MACRO_SIGNAL_RULES } from '../macro/macro-signals.js';
 import { BRANCH_ANALOGS, analogOutcome, frequencyText, BASE_RATE_SE } from '../scenarios/analogs.js';
 import { EXPOSURE_TAGS } from '../scenarios/exposures.js';
+import { signedText } from '../shared/number.js';
 
 export const MACRO_CROSSROADS_VERSION = 'macro-crossroads.v2';
 
@@ -28,10 +29,17 @@ const last = (series) => series.length ? series[series.length - 1] : null;
 const changeOver = (series, n) => { const back = sessionPointBack(series, n); return back ? series[series.length - 1].value - back.value : null; };
 const pctOver = (series, n) => { const back = sessionPointBack(series, n); return back?.value ? (series[series.length - 1].value / back.value - 1) * 100 : null; };
 const fmt = (value, digits = 1) => value == null ? '—' : value.toFixed(digits);
-const signed = (value, digits = 1, unit = '') => value == null ? '—' : `${value > 0 ? '+' : value < 0 ? '−' : '±'}${Math.abs(value).toFixed(digits)}${unit}`;
+const signed = (value, digits = 1, unit = '') => signedText(value, digits, unit);
 // v57.54 audit (5): a change in a yield or a yield spread is written in bp everywhere (briefing already did: 10년물 +28bp).
 const bpChange = (value) => value == null ? '—' : signed(value * 100, 0, 'bp');
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
+// v58.74 (text audit A3): event dates use one time base, the schedule's KST clock (FOMC 10/28 14:00 ET is 10/29 03:00 KST);
+// an id without a known release time keeps its calendar date.
+export function eventWhenText(event) {
+  if (!event?.date) return '';
+  const ms = releaseAtMs(event.id, event.date);
+  return Number.isFinite(ms) ? `${formatKstWhen(ms).label} KST` : md(event.date);
+}
 const has = (value) => value != null;
 const all = (...values) => values.every(has);
 
@@ -49,6 +57,12 @@ export const COUNT_WORDS = Object.freeze(['', '하나', '둘', '셋', '넷', '�
 
 export const SHAPES = Object.freeze({ expansion: '고른 상승', concentration: '소수 종목 주도', weakness: '동반 약세' });
 
+// v58.74 (audit): FRED dates a target-range change by its effective day, the session after the FOMC decision
+// ('연준 9/17 인상' for the 9/16 decision); the reading names the decision day.
+export function fomcDecisionDate(effectiveDate) {
+  const at = Date.parse(`${String(effectiveDate || '').slice(0, 10)}T00:00:00Z`);
+  return Number.isFinite(at) ? new Date(at - 86400000).toISOString().slice(0, 10) : effectiveDate || null;
+}
 export const EVENT_NAMES = Object.freeze({ 'us-cpi': 'CPI (소비자물가)', 'us-nfp': '고용보고서', 'us-pce': 'PCE (연준 기준 물가)', 'us-fed-rate': 'FOMC 회의', 'us-retail': '소매판매', 'us-ism-mfg': 'ISM 제조업' });
 
 /** Upcoming official releases: the published schedule first, the curated calendar for the rest. */
@@ -94,7 +108,7 @@ export function releaseActuals(macroHistory) {
 }
 
 // v57.91 wording audit: payrolls arrive in thousands and read in 만 명 (51 -> +5.1만 명), like briefing/schedule.js.
-const manPeople = (thousands, sign = false) => { if (!has(thousands)) return '—'; const v = Number((Math.abs(thousands) / 10).toFixed(1)); return thousands === 0 ? '0명' : `${thousands < 0 ? '−' : sign ? '+' : ''}${v.toLocaleString('en-US')}만 명`; };
+const manPeople = (thousands, sign = false) => { if (!has(thousands)) return '—'; const v = Number((Math.abs(thousands) / 10).toFixed(1)); return thousands === 0 ? '0명' : `${thousands < 0 ? '-' : sign ? '+' : ''}${v.toLocaleString('en-US')}만 명`; };
 const ACTUAL_TEXT = {
   'us-cpi': (a) => `근원 CPI 전월 대비 ${signed(a.coreMoM, 2, '%')}${a.headMoM != null ? `, 전체 CPI ${signed(a.headMoM, 2, '%')}` : ''}`,
   'us-nfp': (a) => `일자리 ${manPeople(a.payroll, true)}${a.unempDelta != null ? `, 실업률 ${signed(a.unempDelta, 1, '%p')}` : ''}${a.wageMoM != null ? `, 시간당 임금 ${signed(a.wageMoM, 2, '%')}` : ''}`,
@@ -158,14 +172,16 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     vix: vixLast?.value ?? null, vixRatio: vixLast && vix3mLast && vixLast.date === vix3mLast.date && vix3mLast.value ? vixLast.value / vix3mLast.value : null,
     pricing, mid: finite(policy.mid), lean: pricing == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold',
     credit: axis('credit')?.state || 'unknown', growthState: axis('growth')?.state || 'unknown',
-    // v57.55 review (E2-03/E2-15): the policy path — last target change and the 3-month bill (10y − (10y−3m)) against the range.
+    // v57.55 review (E2-03/E2-15): the policy path — last target change and the 3-month bill (10y − (10y-3m)) against the range.
     policy: (() => {
       const fed = mh('fedTargetUpper'), d10 = mh('dgs10'), c = mh('t10y3m');
       if (fed.length < 2) return null;
       let i = fed.length - 1; while (i > 0 && fed[i - 1].value === fed[i].value) i -= 1;
       const cByDate = new Map(c.map((row) => [row.date, row.value]));
       const pair = [...d10].reverse().find((row) => cByDate.has(row.date));
-      return { upper: last(fed).value, changeDate: i > 0 ? fed[i].date : null, change: i > 0 ? fed[i].value - fed[i - 1].value : 0,
+      // v58.74 (text audit #25): the lower bound is read, not assumed 25bp below the upper.
+      const lowerRow = last(mh('fedTargetLower'));
+      return { upper: last(fed).value, lower: lowerRow?.value ?? last(fed).value - 0.25, changeDate: i > 0 ? fomcDecisionDate(fed[i].date) : null, change: i > 0 ? fed[i].value - fed[i - 1].value : 0,
         bill: pair ? pair.value - cByDate.get(pair.date) : null, billDate: pair?.date || null };
     })(),
     commodities: axis('commodities')?.state || 'unknown', breadth: read?.breadthState ?? null,
@@ -286,7 +302,7 @@ export const BRANCHES = Object.freeze([
     explore: [['fxbond', '금리와 환율', '기대인플레이션과 10년물이 유가를 따라 오르는지'], ['themes', '테마와 섹터', '에너지 업종의 상대강도']] },
   { id: 'creditstress', shape: 'weakness', axes: ['credit'], title: '신용 경색 — 돈줄이 마르는 시나리오',
     // v57.86 (live review): the gate is the level alone — the 부담 axis also fires on a fast 20-session move, so 325bp led '돈줄이 마르는'.
-    gate: [1], conditions: [['신용 지표 부담 (하이일드 스프레드 높음 또는 빠른 확대)', (s) => s.credit === 'unknown' ? null : s.credit === 'burden'], [`스프레드 수준이 경계 이상 (하이일드 ${RULES.credit.tightBelowBp}bp 이상 또는 금융여건지수 0 초과)`, (s) => has(s.hyBp) || has(s.nfci) ? (has(s.hyBp) && s.hyBp >= RULES.credit.tightBelowBp) || (has(s.nfci) && s.nfci > 0) : null] /* v57.84: the +50bp 20-session test implied condition 0, so one move counted twice and 325bp with NFCI −0.5 read 4/4 '돈줄이 마르는' */, ['가장 약한 등급(CCC)과 B 등급 격차 20회 관측 확대 (평소 변동 범위 밖)', (s) => rose(s, 'cccGap20')], ['금융여건지수(NFCI) 4주 전보다 긴축 방향 (평소 변동 범위 밖)', (s) => rose(s, 'nfci4')]],
+    gate: [1], conditions: [['신용 지표 부담 (하이일드 스프레드 높음 또는 빠른 확대)', (s) => s.credit === 'unknown' ? null : s.credit === 'burden'], [`스프레드 수준이 경계 이상 (하이일드 ${RULES.credit.tightBelowBp}bp 이상 또는 금융여건지수 0 초과)`, (s) => has(s.hyBp) || has(s.nfci) ? (has(s.hyBp) && s.hyBp >= RULES.credit.tightBelowBp) || (has(s.nfci) && s.nfci > 0) : null] /* v57.84: the +50bp 20-session test implied condition 0, so one move counted twice and 325bp with NFCI -0.5 read 4/4 '돈줄이 마르는' */, ['가장 약한 등급(CCC)과 B 등급 격차 20회 관측 확대 (평소 변동 범위 밖)', (s) => rose(s, 'cccGap20')], ['금융여건지수(NFCI) 4주 전보다 긴축 방향 (평소 변동 범위 밖)', (s) => rose(s, 'nfci4')]],
     chain: ['신용 스프레드 확대', '약한 기업부터 차환·조달 곤란', '투자·고용 축소', '이익 하향 + 위험 회피', '주가 하락이 신용 위험으로 번짐'],
     firmer: ['defensive'], weaker: ['financials', 'liquidity', 'cyclical', 'growth', 'consumer'],
     triggers: [['us-fed-rate', '긴급 유동성 공급·인하 (신용 불안 대응)', (a) => a.upperDelta < 0]],
@@ -310,7 +326,7 @@ export const BRANCHES = Object.freeze([
     chain: ['고용·소비 재가속', '이익 추정치 상향', '성장 기대로 금리 상승', '경기민감·금융 이익 개선', '방어·배당주 상대 부진'],
     firmer: ['cyclical', 'financials', 'energy', 'consumer'], weaker: ['defensive', 'yield'],
     triggers: [['us-nfp', '일자리 20만 명 이상', (a) => a.payroll >= 200], ['us-retail', '소매판매 전월 대비 +0.5% 이상', (a) => a.mom >= 0.5]],
-    pricing: deltaPricing('curve20', '10년−3개월 금리차 20회 관측', '%p→bp', 0, true), pricingInConditions: true,
+    pricing: deltaPricing('curve20', '10년-3개월 금리차 20회 관측', '%p→bp', 0, true), pricingInConditions: true,
     choices: { wait: '이익이 함께 오르는 시나리오에서는 기다림의 기회비용이 큽니다.', stage: '금리 상승이 이익 개선을 동반하는지 확인하며 나눠 들어가는 쪽이 자연스럽습니다.', hold: '경기민감·금융 업종의 이익이 늘기 쉬운 시나리오라 보유의 비용이 작습니다.', defend: '방어 전환의 기회비용이 큰 시나리오입니다.' },
     favored: ['hold', 'stage'], favoredWhy: '금리 상승이 성장 기대 때문이라면 이익이 함께 늘어 주가가 버티는 경향이 있습니다 — 물가 때문인 금리 상승과 구분합니다.',
     costly: ['wait', 'defend'],
@@ -334,7 +350,7 @@ export const BRANCHES = Object.freeze([
   // the 10-year rising on term premium and real yield, not on inflation expectations, with the 2s10s widening.
   { id: 'fiscalsteep', shape: 'weakness', axes: ['rates', 'policy'], title: '장기 금리 상승 — 정책이 받쳐도 할인율이 오르는 시나리오',
     // v57.81: "10년물 상승" uses the 시장 상태 rates threshold (RULES.rates, 25bp) — +18bp read 충족 here and 중립 there.
-    gate: [0], conditions: [[`10년물 20거래일 +${RULES.rates.move20dBp}bp 이상(시장 상태 금리 기준), 기대인플레이션 변화보다 10bp 이상 더 오름`, (s) => all(s.tnx20, s.breakeven20) ? s.tnx20 >= RATES_RISE && s.tnx20 - s.breakeven20 >= 0.10 : null], ['10년 기간 프리미엄 20회 관측 상승 (평소 변동 범위 밖)', (s) => rose(s, 'termPremium20')], ['10년−2년 금리차 20회 관측 확대 (장기 쪽이 더 오름, 평소 변동 범위 밖)', (s) => rose(s, 'curve2s10s20')], ['정책금리는 오르지 않음 (마지막 변경이 인하·동결이거나 시장 가격이 인하 쪽)', (s) => s.policy ? s.policy.change <= 0 || s.lean === 'cut' : null]],
+    gate: [0], conditions: [[`10년물 20거래일 +${RULES.rates.move20dBp}bp 이상(시장 상태 금리 기준), 기대인플레이션 변화보다 10bp 이상 더 오름`, (s) => all(s.tnx20, s.breakeven20) ? s.tnx20 >= RATES_RISE && s.tnx20 - s.breakeven20 >= 0.10 : null], ['10년 기간 프리미엄 20회 관측 상승 (평소 변동 범위 밖)', (s) => rose(s, 'termPremium20')], ['10년-2년 금리차 20회 관측 확대 (장기 쪽이 더 오름, 평소 변동 범위 밖)', (s) => rose(s, 'curve2s10s20')], ['정책금리는 오르지 않음 (마지막 변경이 인하·동결이거나 시장 가격이 인하 쪽)', (s) => s.policy ? s.policy.change <= 0 || s.lean === 'cut' : null]],
     chain: ['경기 대응 재정 지출, 국채 발행 증가', '기간 프리미엄 상승', '정책금리는 그대로거나 내려도 10년물 상승', '할인율 상승 → 이익이 그대로여도 가치 하락', '고PER 성장주·배당주 부담'],
     firmer: [], weaker: ['growth', 'yield', 'liquidity', 'consumer'], mixed: ['financials', 'dollar'],
     triggers: [['us-fed-rate', '기준금리 인하 (장기 금리도 함께 내리는지 확인)', (a) => a.upperDelta < 0]],
@@ -344,12 +360,12 @@ export const BRANCHES = Object.freeze([
     costly: ['defend'],
     explore: [['fxbond', '금리와 환율', '10년물·2년물과 실질금리 추이'], ['themes', '테마와 섹터', '성장주와 배당주의 상대강도']] },
   { id: 'volshock', shape: 'weakness', axes: ['credit'], title: '변동성 충격 — 공포가 가격을 앞지르는 시나리오',
-    gate: [0, 1], conditions: [[`VIX ${V.stressAt} 이상`, (s) => has(s.vix) ? s.vix >= V.stressAt : null], ['VIX 단기 불안 비율 역전 (단기 ≥ 3개월)', (s) => has(s.vixRatio) ? s.vixRatio >= V.invertedRatioAt : null], ['S&P 500 5거래일 −4% 이하', (s) => has(s.spx5) ? s.spx5 <= -4 : null], ['시장 폭 부담', (s) => s.breadth == null ? null : s.breadth === 'burden']],
+    gate: [0, 1], conditions: [[`VIX ${V.stressAt} 이상`, (s) => has(s.vix) ? s.vix >= V.stressAt : null], ['VIX 단기 불안 비율 역전 (단기 ≥ 3개월)', (s) => has(s.vixRatio) ? s.vixRatio >= V.invertedRatioAt : null], ['S&P 500 5거래일 -4% 이하', (s) => has(s.spx5) ? s.spx5 <= -4 : null], ['시장 폭 부담', (s) => s.breadth == null ? null : s.breadth === 'burden']],
     chain: ['급락, 변동성 급등', '위험 축소(레버리지 청산)', '좋은 종목까지 함께 매도', '신용이 버티면 되돌림, 신용이 무너지면 장기화', '변동성 진정 후 주도주 재편'],
     firmer: ['defensive'], weaker: ['liquidity', 'growth', 'cyclical'],
     triggers: [],
     pricing: (s) => s.vixRatio == null ? { tone: 'unknown', text: 'VIX 단기 불안 비율 기록이 없어 보류합니다.' } : { tone: s.vixRatio >= V.invertedRatioAt ? 'same' : 'against', text: `VIX / 3개월 VIX ${s.vixRatio.toFixed(2)} — ${s.vixRatio >= V.invertedRatioAt ? '단기 공포가 중기보다 큼(역전)' : '정상 구조(단기 공포가 중기보다 작음)'}` },
-    choices: { wait: 'VIX 단기 불안 비율 역전이 풀릴 때까지 기다리는 쪽은 바닥 근처를 놓칠 수 있지만, 신용이 함께 무너지는 경우의 손실을 피합니다.', stage: '신용이 버티는 공포라면 나눠 들어가는 쪽이 바닥을 놓치는 비용과 더 내릴 때의 손실을 함께 줄입니다 — 아래 과거 빈도와 신용 지표로 확인합니다.', hold: '보유는 레버리지·변동성이 큰 종목 비중부터 점검합니다.', defend: '방어 전환은 급락 뒤에 하면 반등을 놓치는 기회비용이 커집니다.' },
+    choices: { wait: 'VIX 단기 불안 비율 역전이 풀릴 때까지 기다리는 쪽은 바닥 근처를 놓칠 수 있지만, 신용이 함께 무너지는 경우의 손실을 피합니다.', stage: '신용이 버티는 공포라면 나눠 들어가는 쪽이 바닥을 놓치는 비용과 더 내릴 때의 손실을 함께 줄입니다 — 위 과거 빈도와 신용 지표로 확인합니다.', hold: '보유는 레버리지·변동성이 큰 종목 비중부터 점검합니다.', defend: '방어 전환은 급락 뒤에 하면 반등을 놓치는 기회비용이 커집니다.' },
     favored: ['stage', 'wait'], favoredWhy: '신용이 버티면 분할 접근, 신용도 무너지면 기다림 — 갈림 조건은 하이일드 스프레드입니다.',
     costly: ['defend'],
     explore: [['sentiment', '투자 심리', 'VIX·단기 불안 비율·심리 지표'], ['signal', '시장 상태', '신용 지표가 버티는지']] }
@@ -357,18 +373,17 @@ export const BRANCHES = Object.freeze([
 
 // Audit D2 (owner 2026-10-17, option 1): the analogs test daily market moves, not the branch's gate conditions (macro
 // series are monthly and the long record carries only spx/tnx/vix/wti/dxy), so every frequency line says so once.
-const PAST_BASIS_NOTE = ' 이 빈도는 시나리오 조건이 아니라 시장 움직임 기준으로 고른 비교입니다.';
 
 function pastFor(branchId, { history, outcomes }) {
   const analog = BRANCH_ANALOGS[branchId];
   if (!analog) return { text: '과거 비교 기준이 정의되지 않았습니다.', n: 0 };
   const long = outcomes?.branches?.[branchId];
-  if (long && long.n >= 3) return { ...long, text: `${frequencyText(long, analog.label, { source: outcomes.sourceLabel || '장기 일봉 기록' })}${PAST_BASIS_NOTE}`, source: 'long' };
+  if (long && long.n >= 3) return { ...long, text: `${frequencyText(long, analog.label, { source: outcomes.sourceLabel || '장기 일봉 기록' })}`, source: 'long' };
   const fields = ['spx', 'tnx', 'vix', 'wti', 'dxy'];
   const maps = Object.fromEntries(fields.map((field) => [field, new Map(buildCloseSeries(history, field).map((p) => [p.date, p.value]))]));
   const rows = [...maps.spx].map(([date, spx]) => Object.fromEntries([['date', date], ['spx', spx], ...fields.slice(1).filter((f) => maps[f].has(date)).map((f) => [f, maps[f].get(date)])]));
   const local = analogOutcome(rows, analog);
-  return { ...(local || { n: 0 }), text: `${frequencyText(local, analog.label)}${local?.n >= 3 ? PAST_BASIS_NOTE : ''}`, source: 'local' };
+  return { ...(local || { n: 0 }), text: frequencyText(local, analog.label), source: 'local' };
 }
 
 // When the past-frequency line points the other way from the favoured choices (stocks mostly rose after the same
@@ -415,10 +430,11 @@ function pastBridge(branch, past) {
  * @param {object} [input.outcomes] published scenario-outcomes.v1 (long-history analogs)
  * @param {object} [input.signals] v57.81: observed values that replace the computed ones (fixtures and what-if checks)
  */
-export function buildMacroCrossroads({ read = null, macroHistory = null, history = [], events = [], outcomes = null, previousLeadId = null, signals = null } = {}) {
+export function buildMacroCrossroads({ read = null, macroHistory = null, history = [], events: rawEvents = [], outcomes = null, previousLeadId = null, signals = null } = {}) {
+  const events = (rawEvents || []).map((event) => ({ ...event, when: eventWhenText(event), atMs: releaseAtMs(event.id, event.date) }));
   const computed = buildScenarioSignals({ read, macroHistory, history });
   const s = signals ? { ...computed, ...signals, bands: { ...computed.bands, ...(signals.bands || {}) } } : computed;
-  const when = (id) => { const row = events.find((e) => e.id === id); return row ? `${md(row.date)} ${row.name}` : null; };
+  const when = (id) => { const row = events.find((e) => e.id === id); return row ? `${row.when} ${row.name}` : null; };
   const cashText = s.cash ? `현금성 자산의 이자(SOFR ${s.cash.value.toFixed(2)}%, ${md(s.cash.date)})` : null;
   const items = BRANCHES.map((branch) => {
     const conditions = branch.conditions.map(([label, test]) => { let ok = null; try { ok = test(s); } catch (_) { ok = null; } let text = label; if (typeof label === 'function') { try { text = label(s); } catch (_) { text = ''; } } return [text, ok == null ? null : !!ok]; });
@@ -429,7 +445,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
     const gateResults = [...gateIdx].map((index) => conditions[index]?.[1] ?? null);
     const gateMet = !gateIdx.size ? true : gateResults.some((ok) => ok === true) ? true : gateResults.every((ok) => ok === false) ? false : null;
     const fit = known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}${known.length < conditions.length ? `, 확인 가능 ${known.length}개` : ''}`;
-    const status = known.length < 2 || gateMet === true ? fit : gateMet === false ? (met > 0 ? '조건 일부 충족, 핵심 조건 미충족' : `${fit}, 핵심 조건 미충족`) : `${fit}, 핵심 조건 확인 불가`;
+    const status = known.length < 2 || gateMet === true ? fit : gateMet === false ? `${fit}, 핵심 조건 미충족` : `${fit}, 핵심 조건 확인 불가`;
     const choices = { ...branch.choices };
     if (cashText) choices.wait = choices.wait.replace('현금성 자산의 이자', cashText);
     const mixed = (branch.mixed || []).map((tag) => EXPOSURE_TAGS[tag]).join(', ');
@@ -475,7 +491,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   // Audit D4: "falling" uses the transmission chain's own threshold (RULES.oil.fall20dPct), not any decline below zero.
   const oilFalling = has(s.oil20) && s.oil20 <= RULES.oil.fall20dPct;
   const p = s.policy;
-  const policyLine = p ? `연준 ${p.changeDate ? `${md(p.changeDate)} ${p.change > 0 ? '인상' : '인하'}(${bpChange(p.change)}) 뒤 ` : ''}상단 ${fmt(p.upper, 2)}%${p.bill != null ? `, 3개월물 ${fmt(p.bill, 2)}%(${md(p.billDate)}) — ${p.bill > p.upper ? `목표 범위 상단보다 ${Math.round((p.bill - p.upper) * 100)}bp 높게 거래` : p.bill < p.upper - 0.25 ? `목표 범위 하단보다 ${Math.round((p.upper - 0.25 - p.bill) * 100)}bp 낮게 거래` : '목표 범위 안에서 거래'}${p.bill > p.upper || p.bill < p.upper - 0.25 ? '(국채 수급도 섞인 관측값이라 정책 예상으로 단정하지 않음)' : ''}` : ''}` : null;
+  const policyLine = p ? `연준 ${p.changeDate ? `${md(p.changeDate)} ${p.change > 0 ? '인상' : '인하'}(${bpChange(p.change)}) 뒤 ` : ''}상단 ${fmt(p.upper, 2)}%${p.bill != null ? `, 3개월물 ${fmt(p.bill, 2)}%(${md(p.billDate)}) — ${p.bill > p.upper ? `목표 범위 상단보다 ${Math.round((p.bill - p.upper) * 100)}bp 높게 거래` : p.bill < p.lower ? `목표 범위 하단보다 ${Math.round((p.lower - p.bill) * 100)}bp 낮게 거래` : '목표 범위 안에서 거래'}${p.bill > p.upper || p.bill < p.lower ? '(국채 수급도 섞인 관측값이라 정책 예상으로 단정하지 않음)' : ''}` : ''}` : null;
   const rateHub = {
     policy: policyLine,
     now: s.tnx ? `미 10년물 ${fmt(s.tnx.value, 2)}% (20거래일 ${bpChange(s.tnx20)})${s.pricing != null ? `, 2년물 − 기준금리 ${signed(s.pricing, 2, '%p')}` : ''}` : null,
@@ -497,7 +513,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   // When the conditions for lower rates and the actual move in long rates disagree, that gap is the story.
   const downPaths = rateHub.pathsDown.filter((path) => path.ok).length;
   if (downPaths >= 2 && s.tnx20 != null && s.tnx20 >= RATES_RISE) {
-    rateHub.tension = `금리를 낮출 조건 ${downPaths}개가 보이는데도${p?.change > 0 ? ` 연준은 ${md(p.changeDate)}에 올렸고` : ''} 10년물은 20거래일 ${bpChange(s.tnx20)} 올랐습니다${s.termPremium20 != null ? ` (10년 기간 프리미엄 ${bpChange(s.termPremium20)}, ${md(last(s.termPremium).date)})` : ''}. 물가·경기 밖의 요인(국채 공급, 기간 프리미엄, 해외 금리)이 금리를 올리고 있을 수 있어, ${nextEvent ? `${md(nextEvent.date)} ${nextEvent.name} 발표가` : '다음 물가 발표가'} 이 괴리를 어느 쪽으로 푸는지가 핵심입니다.`;
+    rateHub.tension = `금리를 낮출 조건 ${downPaths}개가 보이는데도${p?.change > 0 ? ` 연준은 ${md(p.changeDate)}에 올렸고` : ''} 10년물은 20거래일 ${bpChange(s.tnx20)} 올랐습니다${s.termPremium20 != null ? ` (10년 기간 프리미엄 ${bpChange(s.termPremium20)}, ${md(last(s.termPremium).date)})` : ''}. 물가·경기 밖의 요인(국채 공급, 기간 프리미엄, 해외 금리)이 금리를 올리고 있을 수 있어, ${nextEvent ? `${nextEvent.when} ${nextEvent.name} 발표가` : '다음 물가 발표가'} 이 괴리를 어느 쪽으로 푸는지가 핵심입니다.`;
   } else if (downPaths === 0 && s.tnx20 != null && s.tnx20 <= -RATES_RISE) {
     rateHub.tension = `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 안전자산 선호나 해외 요인일 수 있어, 위험 회피가 원인인지 신용·변동성 축과 함께 확인합니다.`;
   }
@@ -506,9 +522,9 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   const tone = (item) => item.pricingInConditions && item.pricing.tone === 'same' ? '' : item.pricing.tone === 'same' ? '시장 가격도 같은 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '';
   const sameFit = tied.every((item) => item.met === lead.met && item.total === lead.total);
   const tiedText = tied.map((item) => { const extra = [sameFit ? '' : item.fit, tone(item)].filter(Boolean).join(', '); return `'${short(item)}'${extra ? `(${extra})` : ''}`; });
-  const headline = held ? (partial ? `핵심 조건이 충족된 시나리오가 없어 중심 시나리오를 정하지 않습니다 — 조건이 가장 많이 맞는 '${short(partial)}'도 핵심 조건(${partial.gate.labels[0].split(' (')[0]})은 ${partial.gate.met === false ? '충족하지 못했습니다' : '확인할 수 없습니다'}.${nextEvent ? ` 다음 발표: ${md(nextEvent.date)} ${nextEvent.name}.` : ''}` : '조건을 확인할 관측이 부족하거나 뚜렷하게 맞는 시나리오가 없어 판단을 보류합니다.')
-    : tied.length >= 2 ? `조건 충족이 같은${sameFit ? `(${lead.met}/${lead.total})` : ''} 시나리오가 ${COUNT_WORDS[tied.length] || `${tied.length}개`}입니다 — ${tiedText.slice(0, -1).join(', ')}${andParticle(tiedText.at(-2))} ${tiedText.at(-1)}. ${nextEvent ? `${md(nextEvent.date)} ${nextEvent.name} 발표가 ${tied.length === 2 ? '둘을' : '이 시나리오들을'} 가릅니다.` : '다음 발표가 이 시나리오들을 가릅니다.'}`
-    : `지금 조건이 가장 많이 맞는 시나리오는 '${short(lead)}'(${lead.fit})입니다.${lead.pricing.tone === 'same' && !lead.pricingInConditions ? ' 시장 가격도 같은 방향입니다.' : lead.pricing.tone === 'against' ? ' 다만 시장 가격은 반대 방향입니다.' : ''}${alt ? ` 대안 시나리오: '${short(alt)}'(${alt.fit}${pricedSame(alt) ? ', 시장 가격은 이쪽' : ''}).` : ''}${nextEvent ? ` 다음 발표: ${md(nextEvent.date)} ${nextEvent.name}.` : ''}`;
+  const headline = held ? (partial ? `핵심 조건이 충족된 시나리오가 없어 중심 시나리오를 정하지 않습니다 — 조건이 가장 많이 맞는 '${short(partial)}'도 핵심 조건(${partial.gate.labels[0].split(' (')[0]})은 ${partial.gate.met === false ? '충족하지 못했습니다' : '확인할 수 없습니다'}.${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}` : '조건을 확인할 관측이 부족하거나 뚜렷하게 맞는 시나리오가 없어 판단을 보류합니다.')
+    : tied.length >= 2 ? `조건 충족이 같은${sameFit ? `(${lead.met}/${lead.total})` : ''} 시나리오가 ${COUNT_WORDS[tied.length] || `${tied.length}개`}입니다 — ${tiedText.slice(0, -1).join(', ')}${andParticle(tiedText.at(-2))} ${tiedText.at(-1)}. ${nextEvent ? `${nextEvent.when} ${nextEvent.name} 발표가 ${tied.length === 2 ? '둘을' : '이 시나리오들을'} 가릅니다.` : '다음 발표가 이 시나리오들을 가릅니다.'}`
+    : `지금 조건이 가장 많이 맞는 시나리오는 '${short(lead)}'(${lead.fit})입니다.${lead.pricing.tone === 'same' && !lead.pricingInConditions ? ' 시장 가격도 같은 방향입니다.' : lead.pricing.tone === 'against' ? ' 다만 시장 가격은 반대 방향입니다.' : ''}${alt ? ` 대안 시나리오: '${short(alt)}'(${alt.fit}${pricedSame(alt) ? ', 시장 가격은 이쪽' : ''}).` : ''}${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}`;
   return { available: items.some((item) => item.known >= 2), version: MACRO_CROSSROADS_VERSION, asOf: s.asOf, held, headline,
     leadId: held ? null : lead.id, altId: alt?.id || null, tiedIds: tied.length >= 2 ? tied.map((item) => item.id) : [], items, rateHub, events, nextEvent, cash: s.cash ? { value: s.cash.value, date: s.cash.date } : null };
 }

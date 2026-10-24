@@ -10,6 +10,7 @@ import { signalHistory, signalHistoryText } from './signal-history.js';
 // v57.84: moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
 // definitions module the screener producer and the summary also use.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay } from './definitions.js';
+import { signedText } from '../shared/number.js';
 const TECH = RULES.technical;
 
 function finite(value) {
@@ -233,11 +234,11 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   }
   const fiveAbove = ema5[n] != null && ema20[n] != null ? ema5[n] > ema20[n] : null;
   const fmt = (value, digits = 2) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-  const signed = (value, digits = 1, unit = '%') => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(digits)}${unit}`;
+  const signed = (value, digits = 1, unit = '%') => value == null ? '—' : signedText(value, digits, unit);
   const evidence = [
     ['일봉 이동평균', aligned ? '정배열 (종가 > 21일 EMA > 50일 > 200일)' : ema21[n] && sma50[n] ? `혼조 (종가 ${last.close > sma50[n] ? '50일선 위' : '50일선 아래'})` : '기록 부족'],
     ['주봉 추세 (10·30주)', weeklyTrend || '기록 부족'],
-    ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계, 30주선 4주 ${weinstein.slope >= 0 ? '+' : ''}${weinstein.slope.toFixed(1)}%` : '기록 부족'],
+    ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계, 30주선 4주 ${signedText(weinstein.slope, 1)}%` : '기록 부족'],
     [`${benchmarkLabel} 대비 6개월`, rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
     ['상대강도선 (종목 ÷ 지수)', rsFromHigh == null ? '—' : rsAtHigh ? (rsLeadsPrice ? `신고가 — 가격(고점 대비 ${signed(fromHigh)})보다 먼저` : '신고가 (가격도 고점권)') : `자체 고점 대비 ${signed(rsFromHigh)} (${rsWindow.length >= TECH.fullYearSessions ? '1년' : `${rsWindow.length}거래일`} 기준)`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],
@@ -245,7 +246,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     [`${rangeLabel} 고점 대비`, signed(fromHigh)],
     [TEMPLATE_LABEL, `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? `, 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}${templateChecks.some(([, ok]) => ok == null) ? `, 확인 불가 ${templateChecks.filter(([, ok]) => ok == null).length}개(기록 부족)` : ''}`],
     // v57.50 C20: one set of bands (setup-profile EXTENSION_BANDS 2/4/7) for the chart, the screener and the summary.
-    ['50일선 대비 일평균 변동폭 배수', adrFrom50 == null ? '—' : `${adrFrom50 >= 0 ? '+' : ''}${adrFrom50.toFixed(1)}배 (ADR${TECH.adrPeriod} ${fmt(adrPct)}%)${EXTENSION_NOTE[extensionStateFor(adrFrom50)] || (adrFrom50 <= -TECH.nearLineAdr ? ', 50일선 아래(부근 범위 밖)' : '')}`],
+    ['50일선 대비 일평균 변동폭 배수', adrFrom50 == null ? '—' : `${signedText(adrFrom50, 1)}배 (ADR${TECH.adrPeriod} ${fmt(adrPct)}%)${EXTENSION_NOTE[extensionStateFor(adrFrom50)] || (adrFrom50 <= -TECH.nearLineAdr ? ', 50일선 아래(부근 범위 밖)' : '')}`],
     [`${rangeLabel} 저점 대비`, `${signed(fromLow)}${fromLow < 5 ? ' (저점 5% 이내 — 바닥 다지기 전)' : ''}`],
     ['5일·20일 EMA', fiveAbove == null ? '기록 부족' : `5일 EMA가 20일 EMA ${fiveAbove ? '위' : '아래'}${crossAgo != null ? `, ${crossAgo}거래일 전 ${fiveAbove ? '상향' : '하향'} 교차` : ''}`],
     ['8일 EMA 대비 거리', extension == null ? '—' : `${signed(extension)}${adrNow > 0 ? `, 일평균 변동폭 ${(extension / adrNow).toFixed(1)}배` : ''}${overheated(extension) ? ' (과열권)' : extension <= -TECH.ema8.breakBelowPct ? ' (8일선 아래 이탈)' : ''}`],
@@ -301,7 +302,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
 // around it agrees — so the evidence list underneath is support, not the message.
 export function chartReading(analysis, regime = null) {
   if (!analysis?.available) return null;
-  const pct = (value, digits = 1) => `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`;
+  const pct = (value, digits = 1) => signedText(value, digits, '%');
   const parts = [];
   const w = analysis.weinstein;
   if (w) parts.push(`주봉으로는 Weinstein ${w.stage}단계(${w.text.split(' — ')[0]})`);

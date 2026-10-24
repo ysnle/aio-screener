@@ -1,0 +1,27 @@
+{
+ "version": "v58.74",
+ "date": "2026-10-24",
+ "note": "8개 화면 전수 감사(10/23 실제 종가 대조, 화면군별 읽기 전용 감사 5개) 중 발견.",
+ "status": null,
+ "p": {
+  "title": "도움말 판정 기준표와 HY 설명이 실제 판정 규칙과 다름",
+  "symptom": "HY 340bp(양호 기준 350bp 아래)인데 신용 부담, S&P 50일선 −0.99%(±1% 안)인데 추세 부담 — 표에 20일 확대 기록 규칙·주도 영역 이탈 규칙이 없음. 달러 +2%(실제 +2.5% 또는 범위 상단), VIX 버퍼 누락. 계산하지 않는 지표(Triple Barrel, 뉴스 감성) 설명.",
+  "root_cause": "규칙이 v57.81에 추가될 때 도움말 표와 개념 설명은 갱신되지 않았다.",
+  "fix": "표와 HY 설명이 공용 임계값에서 20일 확대·주도 이탈·달러 버퍼·VIX 버퍼를 읽고, 퇴역 지표 설명과 capability 행을 지웠다.",
+  "violated_rule": "R688",
+  "prevention": "capability-claim 게이트를 8행으로 갱신; 표 문구는 RULES에서 생성.",
+  "verification": "capability-claim 통과; 로컬 도움말 표에 20일 확대·주도 이탈 표시."
+ },
+ "qa": [
+  {
+   "id": "QA-GUIDE-RULES-01",
+   "text": "{P}: 도움말 기준표가 시장 상태 판정 규칙을 빠짐없이 보여 준다.",
+   "verify_by": "node scripts/ci-capability-claim-contract-check.mjs",
+   "done": true
+  }
+ ],
+ "qa_section": "화면 v58.74",
+ "changelog": [
+  "**도움말 기준표 ({P}):** 신용 20일 확대·주도 영역 이탈·달러·VIX 버퍼를 표와 HY 설명에 넣고, 계산하지 않는 지표 설명을 지웠다."
+ ]
+}

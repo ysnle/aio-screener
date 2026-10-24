@@ -28,7 +28,7 @@ function _calcDailyReturns(prices, timestamps) {
       continue;
     }
     if (previous != null) {
-      // Portfolio audit 2026-10-17: a 3-day limit dropped every return across a holiday (Fri → Tue over Memorial Day, −10.9%
+      // Portfolio audit 2026-10-17: a 3-day limit dropped every return across a holiday (Fri → Tue over Memorial Day, -10.9%
       // gone), lowering volatility, VaR and drawdown. Consecutive closes up to 10 calendar days apart (KRX Chuseok closures
       // run a week) are one return; a longer gap is a hole in the record and still breaks the chain.
       const adjacent = currentTs == null || previousTs == null

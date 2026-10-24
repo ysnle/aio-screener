@@ -7,15 +7,37 @@ import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { relativeBand } from '../../domain/themes/recent-check.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
+import { stageChoiceText } from '../../domain/scenarios/theme-playbook.js';
+
+const CREDIT_CONDITION = '신용 안정';
+const CHOICE_TEXT_OF = (state) => stageChoiceText(state);
+function stageChoiceTable(doc, stage, list) {
+  const wrap = el(doc, 'div', null, 'tp-stage-choices');
+  const texts = Object.entries(CHOICE_TEXT_OF(stage));
+  if (!texts.length) return wrap;
+  wrap.append(el(doc, 'h4', '이 단계의 대응별 득실', 'xr-h4'));
+  const table = el(doc, 'div', null, 'xr-choices');
+  for (const [key, text] of texts) {
+    const line = el(doc, 'div', null, 'xr-choice');
+    const favored = list.filter((row) => row.favored.includes(key)).length;
+    if (favored) line.dataset.favored = 'true';
+    line.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
+    if (favored) line.append(el(doc, 'span', favored === list.length ? '비용이 작은 쪽' : `비용이 작은 쪽, ${favored}개 테마`, 'xr-choice-flag'));
+    table.append(line);
+  }
+  wrap.append(table);
+  return wrap;
+}
 import { MACRO_HISTORY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { refreshScenarioArtifacts } from './macro-crossroads.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
+import { signedText } from '../../domain/shared/number.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
-const pct = (value) => (value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`);
+const pct = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
 const mkt = (row) => (row.market === 'KR' ? '한국' : '미국'); // v57.54: '국내' read as ambiguous on a US-first screen
 function svg(doc, tag, attrs = {}) {
   const node = doc.createElementNS(SVG, tag);
@@ -127,27 +149,40 @@ function themeCard(doc, root, row, screenerSector = null) {
   card.dataset.theme = `${row.market}:${row.id}`;
   const summary = el(doc, 'summary', null, 'tp-card-summary');
   summary.append(el(doc, 'span', `${mkt(row)}, ${row.label}`, 'tp-card-title'), el(doc, 'span', `1개월 ${pct(row.ret1m)}${row.ret5d != null ? `, 5거래일 ${pct(row.ret5d)}` : ''}`, 'tp-card-num'),
-    el(doc, 'span', WIND_LABELS[row.wind.lead], `xr-tag is-wind-${row.wind.lead}`), el(doc, 'span', `유리: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'}`, 'xr-tag is-choice'));
+    el(doc, 'span', WIND_LABELS[row.wind.lead], `xr-tag is-wind-${row.wind.lead}`), el(doc, 'span', `비용 작은 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'}`, 'xr-tag is-choice'));
   card.append(summary);
-  card.append(el(doc, 'p', `${row.stateLabel}, ${row.ret3m != null ? `3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? `, 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? `, 50일선 위 ${row.above50}%` : ''}${row.tagLabels.length ? `, 성격: ${row.tagLabels.join(', ')}` : ''}`, 'xr-basis'));
+  card.append(el(doc, 'p', [row.stateLabel, row.ret3m != null ? `3개월 ${pct(row.ret3m)}` : null, row.ret6m != null ? `6개월 ${pct(row.ret6m)}` : null, row.above50 != null ? `50일선 위 ${row.above50}%` : null, row.tagLabels.length ? `성격: ${row.tagLabels.join(', ')}` : null].filter(Boolean).join(', '), 'xr-basis'));
+  if (row.heavyweightNote) card.append(el(doc, 'p', row.heavyweightNote, 'xr-reading'));
   card.append(el(doc, 'p', `거시 영향: ${row.windText}.`, 'xr-reading'));
   const evidence = el(doc, 'ul', null, 'xr-evidence');
   // v57.79: the positioning caveat is the same for every theme, so it is said once in the section's basis line.
-  evidence.append(el(doc, 'li', `조건: ${row.fit} — ${row.basisText.join(', ')}`), el(doc, 'li', `과거 빈도: ${row.past}`));
+  // v58.74 (text audit): the credit condition is one market-wide value; it is said once in the section basis line.
+  const own = row.basisText.filter((text) => !text.startsWith(CREDIT_CONDITION));
+  evidence.append(el(doc, 'li', !row.state ? '조건: 단계가 보류돼 조건을 세지 않습니다.' : `조건: ${row.fit}${own.length ? ` — ${own.join(', ')}` : ''}`), el(doc, 'li', `과거 빈도: ${row.past}`));
   card.append(el(doc, 'h4', '판단 근거', 'xr-h4'), evidence);
   if (row.thesis) {
     card.append(el(doc, 'h4', '핵심 논리와 점검 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 논리가 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
   }
-  card.append(el(doc, 'h4', '이 단계의 대응별 득실', 'xr-h4'));
+  // v58.74 (text audit): the four choice texts are the same for every card in a stage, so the stage fold states them once;
+  // the card keeps the side whose cost is smaller and why (and a 분할 line that differs from the stage text).
+  if (!row.state) { card.append(el(doc, 'p', '단계가 정해지면 대응별 득실을 표시합니다.', 'xr-reading')); return themeCardTail(doc, root, row, card, screenerSector); }
+  const stageChoices = CHOICE_TEXT_OF(row.state);
+  const ownChoices = Object.entries(row.choices).filter(([key, text]) => stageChoices[key] !== text);
+  if (ownChoices.length) card.append(el(doc, 'h4', '이 테마의 대응별 득실', 'xr-h4'));
   const table = el(doc, 'div', null, 'xr-choices');
-  for (const [key, text] of Object.entries(row.choices)) {
+  for (const [key, text] of ownChoices) {
     const line = el(doc, 'div', null, 'xr-choice');
     if (row.favored.includes(key)) line.dataset.favored = 'true';
     line.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
-    if (row.favored.includes(key)) line.append(el(doc, 'span', '상대적으로 유리', 'xr-choice-flag'));
+    if (row.favored.includes(key)) line.append(el(doc, 'span', '비용이 작은 쪽', 'xr-choice-flag'));
     table.append(line);
   }
-  card.append(table, el(doc, 'p', row.favoredWhy, 'xr-reading'));
+  if (ownChoices.length) card.append(table);
+  card.append(el(doc, 'p', `비용이 작은 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'} — ${row.favoredWhy}`, 'xr-reading'));
+  return themeCardTail(doc, root, row, card, screenerSector);
+}
+
+function themeCardTail(doc, root, row, card, screenerSector) {
   const explore = el(doc, 'div', null, 'xr-explore');
   explore.append(el(doc, 'span', '종목은 직접 보기:', 'xr-explore-label'));
   const link = (label, onClick) => { const b = el(doc, 'button', `${label} →`, 'flow-next-link'); b.type = 'button'; b.addEventListener('click', onClick); return b; };
@@ -210,7 +245,12 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   if (h.structuralPullbacks.length) reading.push(`긴 추세는 지수보다 앞서 있는데 최근 1개월 뒤처졌고 중심 시나리오에서 역풍이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 핵심 논리가 깨지는 신호가 없는지 함께 봅니다.`);
   if (h.headwindLeaders.length) reading.push(`거시 부담에도 주도하는 테마(6개월·1개월 지수 대비, 최근 5거래일 확인): ${h.headwindLeaders.slice(0, 4).map((row) => `${mkt(row)} ${row.label}${row.ret5d != null ? `(5거래일 ${pct(row.ret5d)})` : ''}`).join(', ')} — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.`);
   if (h.tailwindLaggards.length) reading.push(`거시 수혜에도 약세인 테마: ${h.tailwindLaggards.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유의 문제가 있는지 먼저 봅니다.`);
-  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`}, 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''}, ${lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}' 기준` : '중심 시나리오 미정'}. 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500, 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis');
+  const creditEntry = playbook.themes.flatMap((row) => row.basisText || []).find((text) => text.startsWith(CREDIT_CONDITION));
+  const benchText = ['US', 'KR'].map((market) => playbook.benchmarks?.[market]).filter((b) => b && (b.ret1m != null || b.ret3m != null || b.ret6m != null))
+    .map((b) => `${b.name} ${[b.field === 'kospi' || b.name === '코스피' ? (b.ret3m != null ? `3개월 ${pct(b.ret3m)}` : null) : (b.ret6m != null ? `6개월 ${pct(b.ret6m)}` : null), b.ret1m != null ? `1개월 ${pct(b.ret1m)}` : null].filter(Boolean).join(', ')}`).join(', ');
+  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`}, 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''}, ${lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}' 기준` : '중심 시나리오 미정'}. 단계는 긴 추세(미국 6개월, 한국 3개월)와 1개월을 같은 기간 지수와 비교해 정합니다${benchText ? `(같은 기간 ${benchText})` : ''}.${creditEntry ? ` 신용 조건은 시장 전체에 하나라 모든 테마에 같게 적용됩니다: ${creditEntry}.` : ''}`, 'xr-basis');
+  const rulesFold = el(doc, 'details', null, 'tp-rules');
+  rulesFold.append(el(doc, 'summary', '판정 규칙'), el(doc, 'p', `단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500, 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis'));
   const screenerSector = screenerSectorFor(root, store);
   const mapWrap = el(doc, 'div', null, 'tp-map-wrap');
   const pick = el(doc, 'p', null, 'tp-pick');
@@ -224,7 +264,10 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     const fold = el(doc, 'details', null, 'tp-stage');
     fold.dataset.stage = stage;
     fold.open = openStages.has(stage);
-    fold.append(el(doc, 'summary', `${THEME_STATES[stage]}, ${list.length}개`, 'tp-stage-summary'));
+    fold.append(el(doc, 'summary', `${THEME_STATES[stage].split(' (')[0]}, ${list.length}개`, 'tp-stage-summary'));
+    const definition = THEME_STATES[stage].match(/\((.*)\)$/)?.[1];
+    if (definition) fold.append(el(doc, 'p', `${THEME_STATES[stage].split(' (')[0]}: ${definition}.`, 'xr-basis'));
+    fold.append(stageChoiceTable(doc, stage, list));
     for (const row of list) { const card = themeCard(doc, root, row, screenerSector); card.open = openIds.has(card.dataset.theme); fold.append(card); }
     return fold;
   }).filter(Boolean);
@@ -245,7 +288,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const mapSide = el(doc, 'div', null, 'tp-map-side');
   mapSide.append(legend(doc), ...reading.slice(1).map((text) => el(doc, 'p', text, 'xr-reading')));
   mapRow.append(mapWrap, mapSide);
-  host.replaceChildren(el(doc, 'p', reading[0], 'xr-lead'), basis, mapRow, ...stages,
+  host.replaceChildren(el(doc, 'p', reading[0], 'xr-lead'), basis, rulesFold, mapRow, ...stages,
     el(doc, 'p', '세부 종목 선택은 테마 상세·차트·재무 공시·스크리너에서 직접 합니다.', 'xr-caveat'));
   host.dataset.aioThemePlaybook = 'native';
   return playbook;
@@ -272,9 +315,9 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
     link('거시 시나리오의 근거', () => { root?.showPage?.('macro'); setTimeout(() => doc.getElementById('macro-crossroads-title')?.scrollIntoView?.({ block: 'start' }), 60); }));
   host.replaceChildren(el(doc, 'h4', '이 테마의 시나리오', 'xr-h4'),
     el(doc, 'p', `${row.stateLabel}${row.stateLabel.includes('5거래일') || row.ret5d == null ? '' : `, 5거래일 ${pct(row.ret5d)}`}, 1개월 ${pct(row.ret1m)}${row.ret6m != null ? `, 6개월 ${pct(row.ret6m)}` : ''}, ${row.fit}`, 'xr-basis'),
-    el(doc, 'p', `거시 영향: ${row.windText}. 이 흐름이 이어질 때 비용이 작은 쪽(따라 하라는 뜻 아님): ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
+    el(doc, 'p', `거시 영향: ${row.windText}. 비용이 작은 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
-    el(doc, 'p', '아래 구성 종목·대표 종목에서 추세가 살아 있는 종목을 직접 고릅니다.', 'xr-caveat'), links);
+    el(doc, 'p', row.above50 === 0 ? '구성 종목 중 50일선 위 종목이 없어, 아래 목록은 추세가 되살아나는지 확인하는 용도로 봅니다.' : row.above50 != null ? `아래 구성 종목에서 50일선 위 종목(${row.above50}%)부터 차트·재무로 확인합니다.` : '아래 구성 종목·대표 종목은 차트·재무로 직접 확인합니다.', 'xr-caveat'), links);
   return row;
 }
 

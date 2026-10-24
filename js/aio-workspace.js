@@ -63,16 +63,7 @@ setTimeout(function() {
   }, 10000); // 비활성 페이지는 40초 후
 }, 30000); // v46.10: 60초→30초 (사용자 대기 시간 단축)
 
-function openApiKeyConfig() {
-  // v46.10: prompt() → 사이드바 API 키 입력란으로 포커스 (R6 준수)
-  var sb = document.querySelector('.sidebar');
-  if (sb && sb.classList.contains('collapsed')) {
-    sb.classList.remove('collapsed');
-    var toggleBtn = document.getElementById('sidebar-toggle-btn');
-    if (toggleBtn) toggleBtn.textContent = '';
-  }
-  showToast('AI는 운영자의 공용 연결로 제공됩니다. 개인 AI 키는 입력하지 않습니다.');
-}
+// v58.74: openApiKeyConfig() left with its last button (the news translation status line); AI is always on.
 
 // ══════════════════════════════════════════════════════════════════════
 // Portfolio Management — localStorage CRUD + PIN Lock + Real-time Sync

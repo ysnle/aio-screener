@@ -8,8 +8,9 @@ import { buildCloseSeries } from './close-series.js';
 import { countOpenSessionsBetween } from './market-calendar.js';
 import { shortDate } from '../content/date-labels.js';
 import { RULES } from '../rules/thresholds.js';
+import { signedText } from '../shared/number.js';
 
-const signed = (value, digits = 1) => value == null || !Number.isFinite(value) ? null : `${value > 0 ? '+' : value < 0 ? '−' : ''}${Math.abs(value).toFixed(digits)}%`;
+const signed = (value, digits = 1) => value == null || !Number.isFinite(value) ? null : signedText(value, digits, '%');
 const pct = (now, then) => Number.isFinite(now) && Number.isFinite(then) && then !== 0 ? (now / then - 1) * 100 : null;
 
 /** The latest completed session's change, only when the previous point is the previous session (a gap is unknown). */
@@ -54,7 +55,7 @@ export function buildLeadershipVerdict({ history = [], leadership = null, smh = 
   const gap = [semis, ndx].find((move) => move?.gapFrom);
   const semisPosition = smh ? [
     smh.d5 ? `5거래일 ${signed(pct(smh.value, smh.d5))}` : null,
-    smh.ma50 ? `50일선 ${signed(pct(smh.value, smh.ma50))}` : null,
+    smh.ma50 ? `50일선 대비 ${signed(pct(smh.value, smh.ma50))}` : null,
     smh.yearMax ? `1년 고점 대비 ${signed(pct(smh.value, smh.yearMax))}` : null
   ].filter(Boolean).join(', ') : '';
   const low20 = basis ? breadthCount(history, 'breadthLow20', basis) : null;
@@ -62,7 +63,7 @@ export function buildLeadershipVerdict({ history = [], leadership = null, smh = 
   const evidence = [
     withName('반도체(SMH)', semis, semisPosition),
     withName('나스닥 100', ndx, leadership.drop5 != null ? `5거래일 ${signed(leadership.drop5)}` : ''),
-    low20 ? `미국 종목 20거래일 종가 신저가 ${low20.value}개(${Math.round(low20.share)}%)${low63 ? `, 3개월 ${low63.value}개` : ''}` : null,
+    low20 ? `20거래일 종가 신저가 ${low20.value}개(미국 종목의 ${Math.round(low20.share)}%)${low63 ? `, 3개월 신저가 ${low63.value}개` : ''}` : null,
     gap ? `직전 세션 기록이 없어 ${shortDate(gap.date)} 하루 변화는 일부 생략` : null
   ].filter(Boolean);
   const read = state === 'break'
@@ -71,7 +72,7 @@ export function buildLeadershipVerdict({ history = [], leadership = null, smh = 
     : state === 'weak' ? (shock ? '주도주가 하루에 크게 밀렸지만 시장 전반으로 번진 확인 신호는 아직 부족합니다.' : '주도주가 약해졌지만 시장 전반으로 번진 확인 신호는 아직 부족합니다.')
       : state === 'holding' ? (shock ? '하루 낙폭은 컸지만 주도주의 추세는 아직 무너지지 않았습니다.' : '주도주가 지수를 받치는 흐름이 유지되고 있습니다.')
         : '주도 영역의 상태를 판정할 기록이 부족합니다.';
-  return { available: true, state, shock, label, read, evidence, line: evidence.join(', '), date: semis?.date || ndx?.date || leadership.date || null,
+  return { available: true, state, shock, label, read, evidence, line: evidence.join(' / '), date: semis?.date || ndx?.date || leadership.date || null,
     semis1d: semis?.change ?? null, ndx1d: ndx?.change ?? null, low20: low20?.value ?? null, low20Eligible: low20?.eligible ?? null };
 }
 

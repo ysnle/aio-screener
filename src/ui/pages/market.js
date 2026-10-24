@@ -6,6 +6,7 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/quote-presentation.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
+import { signedText } from '../../domain/shared/number.js';
 
 function finite(value) {
   if (value == null || value === '' || typeof value === 'boolean') return null;
@@ -138,7 +139,7 @@ function renderLiveQuotes(root, page) {
       clearRenderedValue(node, `${symbol || '종목'} 변화율 미수신`);
       return;
     }
-    writeText(node, `${value.pct >= 0 ? '+' : ''}${value.pct.toFixed(2)}%`);
+    writeText(node, `${signedText(value.pct, 2)}%`);
     // P1579: up/down colour is a signal; it is given only to a current or delayed observation whose
     // change basis is known. A stale or basis-unknown change stays readable but neutral.
     const signalled = ['current', 'delayed'].includes(value.presentation?.displayState) && value.presentation?.changeCoherent === true;
@@ -249,16 +250,16 @@ function formatSnapshotMetric(key, metric) {
   const value = finite(metric.value);
   if (value == null) return isPlaceholder(metric.value) ? null : String(metric.value);
   if (metric.nfp || key === 'nfp') return `${value >= 0 ? '+' : ''}${Math.round(value).toLocaleString('en-US')}K`;
-  if (metric.retail) return `${value >= 0 ? '+' : ''}${value.toFixed(2)}% MoM`;
+  if (metric.retail) return `${signedText(value, 2)}% MoM`;
   if (metric.wage) {
     const mom = metric.previous > 0 ? (value - metric.previous) / metric.previous * 100 : null;
-    return `$${value.toFixed(2)}${mom == null ? '' : ` (${mom >= 0 ? '+' : ''}${mom.toFixed(2)}%)`}`;
+    return `$${value.toFixed(2)}${mom == null ? '' : ` (${signedText(mom, 2)}%)`}`;
   }
   if (key === 'fed-rate') return `${value.toFixed(2)}% 월평균`;
   if (key === 'move') return value.toFixed(1);
   if (key === 'housing') return `${Math.round(value)}K`;
   if (key === 'kr-cpi') return value.toFixed(1);
-  if (/yoy/.test(key) || key === 'unemploy') return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+  if (/yoy/.test(key) || key === 'unemploy') return `${signedText(value, 1)}%`;
   return String(metric.value);
 }
 

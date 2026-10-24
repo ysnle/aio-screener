@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v58.73 — 올인원 투자 터미널</title>
+  <title>AIO Screener v58.74 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -30,13 +30,13 @@
   <!-- P1756: the same v1.3.9 font as unicode-range subsets — only the ranges a page draws download (the single file was 2 MB). -->
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=58.73" defer></script>
-<script src="./js/aio-kr-data.js?v=58.73" defer></script>
-<script src="./js/aio-pages.js?v=58.73" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=58.73">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=58.73">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.73">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.73">
+<script src="./js/aio-workspace.js?v=58.74" defer></script>
+<script src="./js/aio-kr-data.js?v=58.74" defer></script>
+<script src="./js/aio-pages.js?v=58.74" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=58.74">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=58.74">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.74">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.74">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -3923,7 +3923,7 @@ button[data-filter-active="true"] {
       <div class="sh-muted-text-mb8">미 10년물 금리(%)</div>
       <div class="kpi-value sh-ink-stat"><span data-live-price="^TNX">—</span></div>
       <div class="sh-figure" data-live-chg="^TNX" data-chg-unit="bp">—</div>
-      <div class="sh-muted-text-mt6">현물 금리, 미국 장 마감(15시 ET) 후 고정</div>
+      <div class="sh-muted-text-mt6">현물 금리, 미국 채권시장 마감(15시 ET) 후 고정</div>
     </div>
     <div class="is-interactive sh-home-kpi-strip-box-pad18" data-close-measure="wti" data-action="showPage" data-arg="macro" role="button" tabindex="0" title="WTI 원유 선물">
       <div class="sh-muted-text-mb8">WTI 원유 선물($)</div>
@@ -4523,13 +4523,11 @@ button[data-filter-active="true"] {
         <div class="widget-title">물가지표 <span id="kr-macro-cpi-freshness" class="aio-freshness-mini sh-regular-fine"></span></div>
         <div class="sh-macro-integrated-cols-gap8">
           <div class="sh-between-row-s1">
-            <span class="sh-soft-note">소비자물가지수 (CPI)</span>
+            <span class="sh-soft-note">소비자물가 (전년 대비)</span>
             <span class="sh-ink-lead" data-snap="kr-cpi-yoy">—</span>
           </div>
         </div>
-        <div class="sh-macro-integrated-tint">
-          공식 물가 관측치가 수신된 경우에만 목표 대비 위치를 판단합니다.
-        </div>
+        <div class="sh-macro-integrated-tint" data-snap="kr-cpi-read">공식 물가 발표 전이라 목표 대비 위치는 보류합니다.</div>
       </div>
 
       <div class="aio-widget" data-aio-hide-when-empty hidden>
@@ -4545,7 +4543,7 @@ button[data-filter-active="true"] {
           </div>
         </div>
         <div class="sh-macro-integrated-tint-soft">
-          제조업 PMI <span data-snap="kr-manuf-pmi">—</span>, GDP 전분기 대비 <span data-snap="kr-gdp-qoq">—</span>. 공식 API 수출 <span data-snap="kr-export">—</span>, 최근 공개 잠정치 <span data-snap="kr-export-reference">공식 잠정치 미수신</span>, 월 전체치와 혼용하지 않습니다.
+          최근 수출 잠정치는 <span data-snap="kr-export-reference">발표 대기</span>입니다. 월 중 집계라 월 전체치와 섞어 보지 않습니다.
         </div>
       </div>
     </div>
@@ -4574,6 +4572,7 @@ button[data-filter-active="true"] {
           <div id="kr-macro-krw-3m-note" class="sh-muted-note">종가 기록 대기</div>
         </div>
       </div>
+      <p id="kr-macro-krw-read" class="sh-macro-integrated-tint">종가 기록 대기</p>
       <div class="sh-macro-integrated-cols-min220">
         <div class="sh-macro-integrated-tint-base">
           <div class="sh-macro-integrated-label">함께 볼 것 (원인은 단정하지 않음)</div>
@@ -6141,6 +6140,7 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
+    <p id="screener-rank-read" class="scr-view-rank scr-rank-read" hidden></p>
     <!-- 개편 v2 (5h): 사후 검증 요약 — 상위−하위 평균 · 앞선 횟수 · 표본 판단 · 시점별 IC · 원리(데이터 마이닝 경고). screener-validation.js -->
     <section id="scr-validation-hero" class="scr-validation-hero scr-view-validation" aria-label="사후 검증 요약"></section>
     <!-- P1437: 순위가 말하는 것(업종 쏠림·섹터 회전·추세 건강도·과거 성과) — 개편 v2: 사후 검증 보기의 둘째 카드 (native screener-read.js) -->
@@ -6710,7 +6710,6 @@ button[data-filter-active="true"] {
       <div data-aio-capability-claim data-capability="ai-analysis" data-claim-mode="optional"><b>AI 분석</b><br>교육·리서치 보조, 매매 지시 없음</div>
       <div data-aio-capability-claim data-capability="rrg" data-claim-mode="reference"><b>RRG</b><br>상대강도 로테이션 참고 분류, 일봉 이력 확인</div>
       <div data-aio-capability-claim data-capability="stage" data-claim-mode="conditional"><b>Stage</b><br>Weinstein 방식 추세 단계 참고, OHLCV 필요</div>
-      <div data-aio-capability-claim data-capability="news-sentiment" data-claim-mode="reference"><b>뉴스 감성</b><br>휴리스틱 점수 참고, 원문·날짜 확인</div>
       <div data-aio-capability-claim data-capability="market-health" data-claim-mode="reference"><b>시장 상태 판정</b><br>공개 기준의 상태 설명, 매매 승인 아님</div>
       <div data-aio-capability-claim data-capability="macro-causality" data-claim-mode="reference"><b>금리·물가·역전·공포</b><br>관측된 관계와 확인 항목, 한 가지 원인으로 단정하지 않음</div>
       <div data-aio-capability-claim data-capability="decision-checklist" data-claim-mode="observation"><b>행동 안내</b><br>확인할 점 체크리스트</div>
@@ -6782,7 +6781,7 @@ button[data-filter-active="true"] {
           <b>FOMC 회의:</b> 연 8회 정례 회의에서 정책금리를 결정합니다. 경제전망(SEP)과 위원별 금리 전망(점도표)은 3·6·9·12월 회의에서만, 연 4회 나옵니다.<br>
           <b>CPI 발표:</b> 매월. 예상보다 높으면 금리 인상 우려가 커지는 경우가 많지만, 이미 반영된 기대·성장 지표·연준 반응에 따라 주가 방향은 달라질 수 있습니다(발표 전 기대와 실제 반응을 분리).<br>
           <b>PMI:</b> 50을 확장/수축의 관례로 씁니다. 48 미만을 침체 확정으로 읽지 않고, 신규주문·고용 등 세부 항목과 추세를 함께 확인합니다.<br>
-          <b>실업률/NFP:</b> 실업률↑=경기 악화. 하지만 "적당한 약화"는 금리 인하 기대로 주가에 긍정적(Bad news is good news)일 수 있습니다.<br>
+          <b>실업률/NFP:</b> 실업률↑=경기 악화. 하지만 "적당한 약화"는 금리 인하 기대를 키워 주가에 긍정적일 수 있습니다(나쁜 소식이 좋은 소식으로 읽히는 경우).<br>
           <b>ISM 제조업/서비스업:</b> PMI와 유사. 신규주문(New Orders) 지수는 생산보다 먼저 움직이는 경향이 있어 주목받습니다.
         </div>
       </div>
@@ -6804,7 +6803,7 @@ button[data-filter-active="true"] {
           <div class="sh-guide-strategies-label">1. 돌파 셋업 (Breakout)</div>
           <div class="sh-muted-fine-loose">
             <strong>조건:</strong> 1~3개월 내 30~100%+ 선행 상승 → 10/20MA 서핑하며 저점상승(Higher Lows) → 캔들범위 수축(Tight Range) → 거래량 동반 박스 상단 돌파<br>
-             <strong>관측 체크:</strong> 박스 상단 돌파 초기와 Opening Range High(1m/5m/60m 봉 고점)의 일치 여부<br>
+             <strong>관측 체크:</strong> 박스 상단 돌파 초기와 장 초반 고점(첫 1분·5분·60분 봉의 고점)의 일치 여부<br>
              <strong>무효화 기준 후보:</strong> 관찰 당일 저가와 ATR 대비 변동폭<br>
              <strong>관리 시나리오 예시:</strong> 3~5일 후 변동성·거래량·10일선 종가 이탈을 기록하고 사전에 정한 계획과 비교
           </div>
@@ -6814,7 +6813,7 @@ button[data-filter-active="true"] {
           <div class="sh-muted-fine-loose">
             <strong>조건:</strong> 예상 못한 호재(어닝 서프라이즈·분기 매출 급등·신규 계약)로 10%+ 갭업, 첫 15~30분 평균 거래량 소화<br>
             <strong>필터:</strong> 어닝 YoY 중간~세 자릿수 성장 + 컨센 대폭 상회 + 직전 3~6개월 횡보(진짜 서프라이즈)<br>
-             <strong>관측 체크:</strong> Opening Range High 돌파와 실적 서프라이즈의 원문·기준일 일치 여부<br>
+             <strong>관측 체크:</strong> 장 초반 고점 돌파와 실적 서프라이즈의 원문·기준일 일치 여부<br>
              <strong>무효화 기준 후보:</strong> 당일 저가와 이후 10/20일선 이탈 여부
           </div>
         </div>
@@ -6831,18 +6830,12 @@ button[data-filter-active="true"] {
       </div>
 
       <!-- Minervini 시스템 -->
-      <div class="aio-subhd sh-mb8">Minervini SEPA + VCP + Triple Barrel</div>
+      <div class="aio-subhd sh-mb8">Minervini SEPA + VCP</div>
       <div class="sh-guide-strategies-cols-fluid">
         <div class="sh-raised-panel-s2">
           <div class="sh-cyan-label">VCP (Volatility Contraction Pattern)</div>
           <div class="sh-muted-fine-loose">
              선행 큰 조정 → 고점·저점 범위가 단계적으로 줄어드는 수축 패턴(예: 25%→15%→8%→5%). 거래량도 함께 감소하는지 관찰하고, 마지막 수축 뒤 돌파·피벗 하단 이탈 여부를 체크합니다.
-          </div>
-        </div>
-        <div class="sh-raised-panel-s2">
-           <div class="sh-cyan-label">Triple Barrel 동시 관측</div>
-          <div class="sh-muted-fine-loose">
-             3개 지표(가격에서 계산돼 입력이 겹칠 수 있음)의 동시 상태를 관찰: Minervini Pressure(추세 압력) + Buy Risk Colors(진입 위험도 참고) + TPR(Timing Price Range 최상단). RPR 80+·ER 80+·SR 80+는 추가 확인 항목이며 결과를 보장하지 않습니다.
           </div>
         </div>
         <div class="sh-raised-panel-s2">
@@ -6866,7 +6859,7 @@ button[data-filter-active="true"] {
           <strong>ATR 진입 필터:</strong> 손절폭과 변동폭의 관계를 확인하고, 시간 프레임별 돌파 결과는 동일 비용 가정의 백테스트로 검증합니다.
         </div>
         <div class="aio-info-box sh-fine">
-          <strong>시장 환경:</strong> NASDAQ 10MA &gt; 20MA·상향 = 단기 추세가 유지되는 관찰. 10MA &lt; 20MA = 환경이 불리했다는 관찰이며, 현금 비중 확대 같은 대응은 개인 판단·계좌 상황에 따릅니다. 나쁜 장세에서 무리한 포지션은 피하는 것이 일반적 교육 원칙입니다
+          <strong>시장 환경:</strong> 나스닥 10일선이 20일선 위에서 오르면 단기 추세가 유지되는 관찰입니다. 10일선이 20일선 아래면 환경이 불리했다는 관찰이며, 현금 비중 확대 같은 대응은 개인 판단·계좌 상황에 따릅니다. 나쁜 장세에서 무리한 포지션은 피하는 것이 일반적 교육 원칙입니다
         </div>
         <div class="aio-info-box sh-fine">
           <strong>스캔 루틴:</strong> 장마감 후 1M/3M/6M 상위 1~7% 스캔 → 하루 평균 변동폭(ADR) 5%+ → 50종목 이내 압축 → 10/20/50MA 지지 + Higher Lows + Tight Range 확인
@@ -7079,15 +7072,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=58.73" defer></script>
-  <script src="./js/aio-data.js?v=58.73" defer></script>
-  <script src="./js/aio-ui.js?v=58.73" defer></script>
+  <script src="./js/aio-core.js?v=58.74" defer></script>
+  <script src="./js/aio-data.js?v=58.74" defer></script>
+  <script src="./js/aio-ui.js?v=58.74" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=58.73" defer></script>
+<script src="./js/aio-chat.js?v=58.74" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더)는 js/aio-macro-tech.js를 거쳐 네이티브 ESM으로 옮겨졌고, 그 파일은 퇴역했다. -->
 
@@ -7138,7 +7131,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=58.73" defer></script>
+<script src="./js/aio-glossary.js?v=58.74" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -7146,7 +7139,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.73</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.74</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

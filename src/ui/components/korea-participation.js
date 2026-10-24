@@ -35,9 +35,9 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   const metrics=el(doc,'dl');metrics.className='regime-kr-metrics';
   for(const [label,value] of [['50일선 위',model.breadth50],['200일선 위',model.breadth200]]) if(value.pct!=null)metrics.append(el(doc,'dt',label),el(doc,'dd',`${value.pct.toFixed(1)}% (${value.above}/${value.count}개)`));
   if(model.returns.ret1m!=null)metrics.append(el(doc,'dt','1개월 수익률 중앙값'),el(doc,'dd',`${model.returns.ret1m.toFixed(1)}%`));host.append(metrics);
-  if(model.groups.length){host.append(el(doc,'h3','3개월 수익률 상위 한국 테마, 표본 중앙값'));const list=el(doc,'ul');
+  if(model.groups.length){host.append(el(doc,'h3','3개월 수익률 상위 한국 테마, 표본 중앙값'));const turnedCount=model.groups.filter(group=>group.ret1m!=null&&group.ret1m!==0&&Math.sign(group.ret1m)!==Math.sign(group.ret3m)).length;if(turnedCount)host.append(el(doc,'p',`${model.groups.length}개 중 ${turnedCount}개는 최근 1개월 방향이 3개월과 반대입니다.`,'regime-kr-heavy'));const list=el(doc,'ul');
     for(const group of model.groups){const item=el(doc,'li');const pc=v=>`${v>=0?'+':''}${v.toFixed(1)}%`;const turned=group.ret1m!=null&&Math.sign(group.ret1m)!==Math.sign(group.ret3m)&&group.ret1m!==0;
-      item.append(el(doc,'strong',`${group.themeName} 3개월 ${pc(group.ret3m)}, 1개월 ${group.ret1m==null?'미확인':pc(group.ret1m)}, ${group.members}/${group.listed}개`));if(turned){const note=el(doc,'p',`최근 1개월은 3개월과 반대 방향(${group.ret1m<0?'하락':'상승'})입니다.`);note.className='regime-kr-heavy';item.append(note);}
+      item.append(el(doc,'strong',`${group.themeName} 3개월 ${pc(group.ret3m)}, 1개월 ${group.ret1m==null?'미확인':pc(group.ret1m)}, ${group.members}/${group.listed}개`));if(turned){const note=el(doc,'p',`1개월 ${group.ret1m<0?'하락':'상승'} 반전`);note.className='regime-kr-heavy';item.append(note);}
       // P1651: beginners read company names, not 096770.KS codes; the exact registry name only (no guessing), code in the tooltip.
       const nameOf=member=>root.KR_STOCK_DB?.[String(member.sym||'').slice(0,6)]?.name||member.name||member.sym;
       const codes=el(doc,'div',group.constituents.map(nameOf).join(', '));codes.title=group.constituents.map(member=>`${nameOf(member)} ${member.sym}`).join('\n');codes.className='regime-kr-tickers';item.append(codes);
@@ -45,7 +45,7 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
       const heavy=heavyweightLine(group,nameOf);if(heavy){const note=el(doc,'p',heavy);note.className='regime-kr-heavy';item.append(note);}
       list.append(item);}host.append(list);}
   const watch=el(doc,'details');watch.append(el(doc,'summary','다음에 관찰할 연결'),...model.watch.map(text=>el(doc,'p',text)));host.append(watch);
-  const basis=el(doc,'details');basis.append(el(doc,'summary','표본 기준과 빠진 자료'),el(doc,'p',`AIO 추적 종목(한국) 가운데 같은 기준일에 종가가 있는 표본입니다. 늦거나 기준일이 없는 ${model.excluded}개는 제외합니다. 신고가·수급 숫자를 역산하지 않습니다.`),el(doc,'p',`아직 연결되지 않은 자료: ${missingWithFlows(model.missing,root.__aioKrInvestorFlowView).join(', ')||'없음'}`));host.append(basis);
+  const basis=el(doc,'details');basis.append(el(doc,'summary','표본 기준과 빠진 자료'),el(doc,'p',`AIO 추적 종목(한국) 가운데 같은 기준일에 종가가 있는 표본입니다. ${model.excluded ? `늦거나 기준일이 없는 ${model.excluded}개는 제외합니다. ` : ''}신고가·수급 숫자를 역산하지 않습니다.`),el(doc,'p',`아직 연결되지 않은 자료: ${missingWithFlows(model.missing,root.__aioKrInvestorFlowView).join(', ')||'없음'}`));host.append(basis);
   return model;
 }
 

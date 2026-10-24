@@ -4,6 +4,42 @@ last_verified: 2026-10-24
 confidence: medium
 ---
 
+## v58.74 데이터 v58.74 (2026-10-24)
+
+- [ ] QA-FX-FRIDAY-01: P2012: 금요일 17시(ET) 이후 환율·선물 시세가 휴장 종가로 분류된다. verify_by: 다음 금요일 21Z 이후 refresh-data history-time 단계 통과
+- [x] QA-PUTCALL-KEEP-01: P2013: Cboe 수집이 실패해도 직전 풋콜 값이 stale-reference로 남고 갱신이 계속된다. verify_by: node scripts/ci-producer-dry-run.mjs
+- [x] QA-EVID-BRACKET-01: P2014: 이중 괄호 근거 표기가 화면에 '[]'를 남기지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [ ] QA-SCOPE-TNX-01: P2015: 해설 기준 표시에서 10년물 종가가 종가로 묶인다. verify_by: push 뒤 브리핑 AI 해설 기준 줄 확인
+- [ ] QA-TG-KR-02: P2016: 직함 '국장'이 들어간 글이 한국장으로 분류되지 않는다. verify_by: push 뒤 뉴스 채널 피드 태그 확인
+- [x] QA-POLITICAL-EVENTS-01: v58.74 정치 일정: 법으로 정해진 선거가 7일 일정과 AI 해설 확인·반증 칸에 투표 마감 시각(KST)으로 들어가고, 지나면 빠진다. verify_by: node scripts/ci-market-session-contract-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-MEMBER-SPLIT-01: v58.74 같은 테마 안 종목 갈림: 세부 테마 구성 종목이 양쪽으로 갈리면(예: MU 상승, SNDK·WDC·STX 하락) 오늘 화면과 AI 해설에 두 끝 종목이 표시되고 AI 연쇄 테마가 먼저 나온다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-KR-CLOSE-NOTE-01: v58.74 장중 지수 기사: 한국 장중에 나온 코스피·코스닥 급락·급등 기사에, 같은 날 마감이 반대로 끝났으면 마감 등락이 함께 표시된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-HOME-WEEKEND-01: v58.74 주말 시세 제목: 금요일 17시(ET)부터 일요일 18시(ET)까지 오늘 화면 시세 제목이 주말 휴장과 금요일 마감 값을 밝힌다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-THEME-POOL-01: P2017: 테마 시나리오 행의 수익률·50일선 위 비율이 구성 종목 전체 기준이다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-THEME-WEEK-01: P2018: 순위 변화 라벨과 '식는 중' 문장이 같은 행의 5거래일 흐름과 반대로 읽히지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-FUND-ABSENT-01: P2019: 공시가 있는 종목의 재무 칸이 로딩 중 '없음'으로 보이지 않는다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
+- [ ] QA-TRANSITION-01: P2020: 전환 카드의 반증 조건은 전환을 실제로 풀 수 있는 조건이다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive today
+- [x] QA-GUIDE-RULES-01: P2021: 도움말 기준표가 시장 상태 판정 규칙을 빠짐없이 보여 준다. verify_by: node scripts/ci-capability-claim-contract-check.mjs
+- [ ] QA-YEAR-WINDOW-01: P2022: '1년 전보다'는 날짜 기준 1년 전 관측과 비교한다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive macro
+- [ ] QA-ROE-WORD-01: P2023: 적자 해의 ROE 문장이 실제 자기자본 변화와 맞는다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
+- [ ] QA-AI-DATES-01: P2024: AI 해설이 다음 주 대형 실적 날짜와 헤드라인 날짜를 자료대로 쓴다. verify_by: 푸시 후 다음 refresh-data의 marketAnalysis 본문 확인
+- [x] QA-WEEKEND-LABELS-01: v58.74 주말 표기: 홈 지수 칸 '선물 주말 휴장', 다가오는 일정 5일(이스라엘 총선·FOMC 포함), 참고 환율 '주말이라 금요일 시세', 포트폴리오 원칙 카드 'M/D 미국 종가 기준'. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-AUDIT-WORDING-01: v58.74 감사 문구: FOMC 변경일은 결정일(9/16), 기대인플레 보류 시 '번지지 않음' 단정 없음, 분배일 '최근 5거래일 안' 표기, 방어 섹터는 RRG 기준 명시, 스크리너 시각은 한국 시간·PER 기준은 최근 4개 분기, 컨센서스 수정 건수는 4개 분기 합계, 적자 회계연도 뒤 흑자 TTM 표시, 테마 상세 주말 종가. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-COPY-LINT-01: P2025: 19개 라우트(접힌 내용 포함)에 자리표시자 조사·숫자 앞 U+2212·음수 0·빈 괄호·원시 토큰이 없다. verify_by: node scripts/ci-rendered-copy-lint-check.mjs
+- [x] QA-FLOW-SMH-01: P2026: 섹터 흐름 순위는 11개 섹터만 세고 반도체(SMH)는 별도 줄이다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive home
+- [x] QA-CASH-CONV-01: P2027: 적자 해의 순이익률·현금 문장이 적자 폭·전환·부호 조합을 맞게 말한다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
+- [x] QA-STOCK-TIE-01: P2028: 종목 요약의 섹터/테마 주어가 실제로 같은 방향인 쪽이다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
+- [x] QA-THEME-CARD-POOL-01: P2029: 테마 강도 카드와 플레이북 표의 같은 테마 수치가 같다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes
+- [x] QA-NEWS-BRANCH-01: P2030: 뉴스 메타 줄에 존재하지 않는 시나리오 이름이 없고 발행 시각은 한국 시간이다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive news
+- [x] QA-THEME-DAY-01: P2031: 테마 상세의 하루 비교 문장은 '당일'로 한정되고 추세 단정을 하지 않는다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes
+- [x] QA-TEXT-FLOW-01: v58.74 문장 흐름: 시장 상태는 '부담 N(항목)'·5거래일 전 판정과 바뀐 지표, 거시 교차로는 '조건 충족/전체' 아래 조건 목록과 과거 빈도 기준 한 번, 테마는 단계 선택표 한 번·카드에는 단계와 다른 선택만, 스크리너는 '종목 N개 중 필수 자료 충족·조건 통과·자료 부족·보이는 행' 한 줄, 종목은 50일선 거리와 차트 가장 가까운 기준선 한 줄. verify_by: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-FG-HISTORY-01: P2032: 공포·탐욕 추이의 날짜별 값은 과거 그래프 기록을 따르고, 주말 실시간 값이 전 거래일을 덮지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NEWS-TERMS-01: P2033: 뉴스 제목 번역은 영문 제목의 시장 용어를 시장 단어로 옮긴 경우에만 저장된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-POLICY-LOWER-01: P2034: 정책금리 범위의 하단은 공표된 하단 값을 쓰고, 없을 때만 상단에서 0.25를 뺀다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive macro
+- [x] QA-EVENT-KST-01: P2035: 다음 이벤트는 모든 화면에서 일정표와 같은 한국 시각으로 표기된다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive today
+- [x] QA-EXPERT-FLOW-01: v58.74 전문가 흐름: 거시는 공식 발표·미국 종가 기준 한 줄과 테일러 준칙 대비 2년물 긴장, 중앙 시나리오를 바꿀 고용·물가 문턱을 말하고, 오늘·시장 상태는 역발상 조건·참여 폭·VIX 20일 변화를, 테마는 사분면과 단계·업종 이익 수정 방향을, 스크리너 순위 보기는 순환·테마 단계 한 줄을, 종목은 역 DCF 매출 성장 비교·R&D 지금 읽기·이익의 질 대조를 보인다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-KR-EXPORT-LINE-01: v58.74 한국 경기지표 아래 문장은 수출 잠정치 한 줄만 말하고, 위 타일과 같은 PMI·GDP 값을 대시로 되풀이하지 않는다. 테마 상세의 단계 대조 문장은 앞 문장의 사분면을 다시 말하지 않고 '다만'으로 잇는다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive macro
+
 ## v58.73 UI v58.73 (2026-10-24)
 
 - [x] QA-UI-RADIX-01: v58.73: 라이트 모드 색 글자(11단계)는 gold-1 카드 위에, 색 칩은 3단계 배경에 12단계 글자를 써 WCAG AA를 지킨다(P1758 게이트가 radix-colors.css 값을 풀어 검사). verify_by: node scripts/ci-runtime-contract-check.mjs
