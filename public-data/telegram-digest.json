@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-24T05:21:43.826Z",
-  "attemptedAt": "2026-10-24T05:21:43.826Z",
-  "lastSuccessfulAt": "2026-10-24T05:21:43.826Z",
+  "generatedAt": "2026-10-24T06:21:33.510Z",
+  "attemptedAt": "2026-10-24T06:21:33.510Z",
+  "lastSuccessfulAt": "2026-10-24T06:21:33.510Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-10T05:21:37.824Z",
-  "until": "2026-10-24T05:21:37.824Z",
+  "since": "2026-10-10T06:21:28.223Z",
+  "until": "2026-10-24T06:21:28.223Z",
   "current24hWindow": {
     "start": "2026-10-22T23:00:00.000Z",
     "end": "2026-10-23T23:00:00.000Z",
@@ -84,59 +84,59 @@
       "count": 262,
       "freshCount": 40,
       "eligibleTextCount": 250,
-      "selectedCount": 65,
+      "selectedCount": 66,
       "error": null,
-      "lastPostId": 26016
+      "lastPostId": 26017
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1227,
+      "count": 1231,
       "freshCount": 40,
-      "eligibleTextCount": 1179,
+      "eligibleTextCount": 1183,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67173
+      "lastPostId": 67180
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 230,
+      "count": 231,
       "freshCount": 40,
-      "eligibleTextCount": 230,
-      "selectedCount": 96,
+      "eligibleTextCount": 231,
+      "selectedCount": 95,
       "error": null,
-      "lastPostId": 20792
+      "lastPostId": 20793
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 712,
-      "freshCount": 37,
-      "eligibleTextCount": 712,
+      "count": 711,
+      "freshCount": 38,
+      "eligibleTextCount": 711,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70944
+      "lastPostId": 70945
     }
   ],
-  "count": 2431,
-  "retainedItemCount": 483,
+  "count": 2435,
+  "retainedItemCount": 475,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2431,
-    "eligibleTextCount": 2371,
+    "observedCount": 2435,
+    "eligibleTextCount": 2375,
     "mediaOnlyCount": 60,
-    "highSignalCount": 476,
-    "broadSignalCount": 1034,
+    "highSignalCount": 475,
+    "broadSignalCount": 1036,
     "selectedRawCount": 403,
     "selectedEligibleCount": 403,
     "selectedRawCoveragePct": 17,
@@ -144,18 +144,18 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "equity": 185,
-    "geo": 352,
-    "market-note": 860,
-    "macro": 428,
-    "semi": 608,
+    "market-note": 862,
+    "geo": 354,
+    "semi": 609,
     "ai-policy": 180,
+    "earnings": 521,
+    "power": 341,
+    "equity": 185,
+    "macro": 427,
     "credit": 117,
-    "power": 342,
-    "earnings": 520,
     "kr-market": 163,
-    "healthcare": 139,
-    "japan": 150,
+    "healthcare": 138,
+    "japan": 149,
     "media-only": 60,
     "optical": 44,
     "flows": 139,
@@ -163,13 +163,13 @@
     "insider": 7
   },
   "tickerCounts": {
+    "NVDA": 179,
     "AMZN": 42,
     "TSLA": 93,
     "GOOG": 81,
     "MU": 75,
     "005930.KS": 54,
     "MSFT": 50,
-    "NVDA": 179,
     "PANW": 1,
     "ORCL": 11,
     "BE": 36,
@@ -250,12 +250,12 @@
     "MPWR": 1
   },
   "themes": [
-    "Market Notes (860 posts in 14-day research window): 2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물...",
-    "Semiconductors/Memory (608 posts in 14-day research window): 2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION...",
-    "Earnings/Corporate (520 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터...",
-    "Macro/Rates (428 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (54.74%) 2위: DIREXION SHARES ETF TRUST DAILY MSCI SOUTH KOREA...",
-    "Geopolitics (352 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
-    "AI Power/Grid (342 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "Market Notes (862 posts in 14-day research window): 2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물...",
+    "Semiconductors/Memory (609 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+    "Earnings/Corporate (521 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터...",
+    "Macro/Rates (427 posts in 14-day research window): 2026년 10월 24일 미국 증시 브리핑 미국 증시는 유가 급등과 인플레이션 압력 재확대 우려 속에 하락 마감. S&P 500은 0.52% 하락한 7,623.68, 다우지수는 1.23% 하락한...",
+    "Geopolitics (354 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
+    "AI Power/Grid (341 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "Equity/Analyst (185 posts in 14-day research window): >>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가....",
     "AI Policy/Export Controls (180 posts in 14-day research window): 2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
   ],
@@ -328,8 +328,8 @@
       "topics": [
         "macro"
       ],
-      "count": 428,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (54.74%) 2위: DIREXION SHARES ETF TRUST DAILY MSCI SOUTH KOREA..."
+      "count": 427,
+      "focus": "2026년 10월 24일 미국 증시 브리핑 미국 증시는 유가 급등과 인플레이션 압력 재확대 우려 속에 하락 마감. S&P 500은 0.52% 하락한 7,623.68, 다우지수는 1.23% 하락한..."
     },
     {
       "id": "geo",
@@ -337,7 +337,7 @@
       "topics": [
         "geo"
       ],
-      "count": 352,
+      "count": 354,
       "focus": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
     },
     {
@@ -355,8 +355,8 @@
       "topics": [
         "semi"
       ],
-      "count": 608,
-      "focus": "2026년 10월 22일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (19.05%) 2위: SPACE EXPLORATION..."
+      "count": 609,
+      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "optical",
@@ -373,7 +373,7 @@
       "topics": [
         "power"
       ],
-      "count": 342,
+      "count": 341,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -418,7 +418,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 520,
+      "count": 521,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 139,
+      "count": 138,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · AMN Healthcare Services · Avantor · BeOne Medicines · Cardinal..."
     },
     {
@@ -436,7 +436,7 @@
       "topics": [
         "japan"
       ],
-      "count": 150,
+      "count": 149,
       "focus": "메타 Muse 일본 출시, 북미 외 첫 해외 시장 진출 : 메타가 10월 23일부터 개인 AI 에이전트 Muse를 일본에서 정식 제공. 지난 9월 미국·캐나다 출시 이후 첫 해외 시장 진출로,..."
     },
     {
@@ -463,7 +463,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 860,
+      "count": 862,
       "focus": "2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물..."
     }
   ],
@@ -714,16 +714,12 @@
       "datetime": "2026-10-23T22:47:06.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "macro",
         "semi",
-        "optical",
-        "power",
-        "kr-market",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
       "tickers": [],
       "listTickers": [
         "AMD",
@@ -746,8 +742,7 @@
         "SHOP",
         "O",
         "TEAM"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "insidertracking/67132",
@@ -1664,6 +1659,69 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/67177",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67177",
+      "datetime": "2026-10-24T05:58:19.000Z",
+      "localDateKst": "2026-10-24",
+      "tags": [
+        "geo"
+      ],
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "신화통신과 악시오스에 따르면 미국 정보당국이 이란이 중동 및 기타 지역에 주재하는 미국 외교관과 정부 관리들을 겨냥한 공격 움직임을 ‘현저히 강화했다’고 판단. 일부 치명적인 결과를 초래할 수 있는 공격..."
+    },
+    {
+      "id": "HANAchina/70945",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70945",
+      "datetime": "2026-10-24T05:55:07.000Z",
+      "localDateKst": "2026-10-24",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "earnings"
+      ],
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>38달러, DeepSeek가 계산한 수익성 •DeepSeek가 최근 공개한 충격적인 수치에 따르면 GPU 한 대는 시간당 38달러의 과금 매출을 창출할 수 있으며, 연환산 기준으로 33만 달러를 넘어섬...."
+    },
+    {
+      "id": "aetherjapanresearch/26017",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26017",
+      "datetime": "2026-10-24T05:42:29.000Z",
+      "localDateKst": "2026-10-24",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "earnings"
+      ],
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": "38달러, 딥시크의 계산 • 최근 딥시크는 단일 GPU가 시간당 38달러의 생산액 창출 & 연간 33만달러 이상의 가치 창출한다는 충격적인 수치 공개 • 하지만 정말 돈을 벌 수 있는가? 중소기업의 AI 수요..."
+    },
+    {
+      "id": "bornlupin/20793",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20793",
+      "datetime": "2026-10-24T05:37:26.000Z",
+      "localDateKst": "2026-10-24",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "중국 AI 컴퓨팅 내년 2배 증가! 싱크탱크, 4대 공급원 분석…65%는 여전히 미국 설계 칩과 해외 클라우드에 의존 - 미국 IFP 보고서에 따르면, 중국 기업이 확보할 수 있는 AI 컴퓨팅 규모가..."
+    },
+    {
       "id": "HANAchina/70942",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70942",
@@ -2068,10 +2126,10 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "인공지능(AI) 관련 기업의 신용부도스와프(CDS) 거래 규모가 지난 7월 이후 4배 이상 급증한 가운데, 메타와 엔비디아의 CDS 스프레드가 사상 최고치를 기록.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "인공지능(AI) 관련 기업의 신용부도스와프(CDS) 거래 규모가 지난 7월 이후 4배 이상 급증한 가운데, 메타와 엔비디아의 CDS 스프레드가 사상 최고치를 기록."
+      ]
     },
     {
       "id": "HANAchina/70929",
@@ -2099,16 +2157,12 @@
       "datetime": "2026-10-23T22:47:06.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "macro",
         "semi",
-        "optical",
-        "power",
-        "kr-market",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
       "tickers": [],
       "listTickers": [
         "AMD",
@@ -2131,8 +2185,7 @@
         "SHOP",
         "O",
         "TEAM"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "HANAchina/70928",
@@ -4685,15 +4738,14 @@
       "localDateKst": "2026-10-22",
       "tags": [
         "semi",
-        "power",
-        "equity"
+        "power"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을...",
       "tickers": [
         "MU"
-      ],
-      "summary": "마이크론의 DDR6, DDR5 대비 대역폭 2배·LPDDR6는 전력 효율 35% 개선, 모두 차세대 1δ DRAM 노드 기반으로 제작되며, vHBM은 수직 구조로 전환하고 G11 NAND는 400단을..."
+      ]
     },
     {
       "id": "insidertracking/66969",
@@ -5420,14 +5472,14 @@
       "datetime": "2026-10-21T12:14:02.000Z",
       "localDateKst": "2026-10-21",
       "tags": [
-        "earnings"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "JP모건, 스페이스X( $SPCX ) 목표주가 240달러에서 500달러로 상향, 투자의견 비중확대(Overweight) 유지 1. 스페이스X–테슬라 합병 가능성 일론 머스크는 스페이스X와 테슬라(TSLA)가...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "JP모건, 스페이스X( $SPCX ) 목표주가 240달러에서 500달러로 상향, 투자의견 비중확대(Overweight) 유지 1. 스페이스X–테슬라 합병 가능성 일론 머스크는 스페이스X와 테슬라(TSLA)가..."
+      ]
     },
     {
       "id": "HANAchina/70807",
@@ -6478,20 +6530,6 @@
       "tickers": [
         "CRWV"
       ]
-    },
-    {
-      "id": "insidertracking/66807",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66807",
-      "datetime": "2026-10-20T12:31:51.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "kr-market"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": "South Korean AI Data Center Builder Elise Plunges 30% on Debut Elise's 30% drop on its market debut revives concerns...",
-      "tickers": []
     },
     {
       "id": "HANAchina/70770",
@@ -7690,21 +7728,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70670",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70670",
-      "datetime": "2026-10-19T06:07:14.000Z",
-      "localDateKst": "2026-10-19",
-      "tags": [
-        "semi",
-        "japan"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>시가총액 약 40조엔 증발, 기존의 3분의 1 수준으로 축소: 일본 1위에서 밀려난 키옥시아, AI 메모리 투자 논리에 이중 타격 •핵심 부담은 두 가지. AI 자본지출의 투자수익률에 대한 의구심이 커진...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20700",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20700",
@@ -8410,38 +8433,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "bornlupin/20652",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20652",
-      "datetime": "2026-10-15T21:14:14.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "semi"
-      ],
-      "score": 66,
-      "hasText": true,
-      "summary": "독일, 엔비디아와 AI 협력 계약 계획 중이라고 한델스블라트 보도 독일 정부는 자국 산업계의 인공지능(AI) 도입을 촉진하기 위해 미국 반도체 기업 엔비디아(Nvidia)와 포괄적인 협력 계약을 추진 하고...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "bornlupin/20651",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20651",
-      "datetime": "2026-10-15T21:09:05.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "젠슨 황 엔비디아 CEO \"코어위브의 재무건전성은 날이 갈수록 개선되고 있습니다. 저는 낙관적입니다. 코어위브의 자본조달 비용은 실제로 하락하고 있습니다 .\" 엔비디아가 개입해 지원할 필요성을 느끼지 못한다며...",
-      "tickers": [
-        "NVDA"
-      ]
     }
   ],
   "current24hItems": [
@@ -8513,10 +8504,10 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "인공지능(AI) 관련 기업의 신용부도스와프(CDS) 거래 규모가 지난 7월 이후 4배 이상 급증한 가운데, 메타와 엔비디아의 CDS 스프레드가 사상 최고치를 기록.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "인공지능(AI) 관련 기업의 신용부도스와프(CDS) 거래 규모가 지난 7월 이후 4배 이상 급증한 가운데, 메타와 엔비디아의 CDS 스프레드가 사상 최고치를 기록."
+      ]
     },
     {
       "id": "HANAchina/70929",
@@ -8544,16 +8535,12 @@
       "datetime": "2026-10-23T22:47:06.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "macro",
         "semi",
-        "optical",
-        "power",
-        "kr-market",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
       "tickers": [],
       "listTickers": [
         "AMD",
@@ -8576,8 +8563,7 @@
         "SHOP",
         "O",
         "TEAM"
-      ],
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      ]
     },
     {
       "id": "HANAchina/70928",
