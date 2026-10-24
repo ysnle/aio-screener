@@ -1,6 +1,6 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-24T05:20:08.633Z",
+ "generatedAt": "2026-10-24T07:31:23.705Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -8,8 +8,8 @@
  "model": "sec-fy-normalized-v2",
  "eligible": 3901,
  "stored": 3541,
- "attempted": 33,
- "updated": 14,
+ "attempted": 0,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -4510,27 +4510,27 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:40065360378",
-  "attemptedAt": "2026-10-24T05:19:25.850Z",
+  "runId": "gha:40074086394",
+  "attemptedAt": "2026-10-24T07:31:11.042Z",
   "sourceRevision": "sec-company-tickers:d0cbfe38cc19bc798e3f8ca3071a186d7f5e8b4e329eb521694080fa13dd01a3",
   "inputWatermarks": {
-   "universe": "2026-10-24T05:19:23.979Z",
-   "screener": "2026-10-24T05:18:40.709Z",
-   "previousArtifact": "2026-10-23T21:49:47.712Z"
+   "universe": "2026-10-24T07:31:08.813Z",
+   "screener": "2026-10-24T07:30:31.838Z",
+   "previousArtifact": "2026-10-24T05:20:08.633Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3901,
-   "attempted": 33,
-   "updated": 14,
-   "retained": 3527,
+   "attempted": 0,
+   "updated": 0,
+   "retained": 3541,
    "pendingEligible": 360
   },
   "thisBatch": {
-   "updated": 14,
-   "terminalUnsupported": 1,
-   "transientFailed": 18,
-   "recorded": 19
+   "updated": 0,
+   "terminalUnsupported": 0,
+   "transientFailed": 0,
+   "recorded": 0
   },
   "ledger": {
    "total": 361,
@@ -4540,8 +4540,8 @@
   },
   "lastSuccessfulObservation": "2026-10-24T05:19:25.850Z",
   "publication": {
-   "status": "PARTIAL",
-   "reason": "some attempted targets were not updated",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -321413,7 +321413,7 @@
  "issuerSicCoverage": {
   "classified": 3856,
   "eligible": 3901,
-  "passAttempted": 42,
+  "passAttempted": 46,
   "passUpdated": 0,
   "passFailed": 0
  },
