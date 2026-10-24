@@ -3,15 +3,15 @@
   "logicalArtifact": "public-data/sec-fundamentals.json",
   "runtimeArtifact": "public-data/sec-fundamentals-summary.json",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
-  "sourceSha256": "2e691aafb095ab37ee54041702e7711ca5689020b1bf3636459781ed5ad3a675",
-  "runtimeSha256": "4dacd89c1fb7da58fe130b631cea2610da9b95dbf067a2e0217a4ceae63dad8a",
-  "sourceBytes": 109224082,
-  "runtimeBytes": 1021043,
+  "sourceSha256": "05daa4581c03eb5c5990c4691926d9d522ffd16b7909e0f35c27f6142c905b06",
+  "runtimeSha256": "31f236d8566156d1d010d5f6487fe46f34071f4288d5ec1827abf0875411623c",
+  "sourceBytes": 111246997,
+  "runtimeBytes": 1020982,
   "records": 832,
   "fiscalHistory": {
     "path": "public-data/sec-fiscal-history.json",
     "records": 781,
-    "format": "periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions[:totalAssets:researchAndDevelopment] (USD millions; the bracketed columns are present once the issuer was read with total assets and R&D — absent = not yet collected, empty = not reported)"
+    "format": "periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions[:totalAssets:researchAndDevelopment[:grossProfit:operatingIncome:cash:shortTermInvestments:shareBasedCompensation:buybacks:dividends]] (USD millions; the first bracket is present once the issuer was read with total assets and R&D, the second on the latest two fiscal years once it was read with the capital items — absent = not yet collected, empty = not reported)"
   },
-  "generatedAt": "2026-10-24T07:26:00.025Z"
+  "generatedAt": "2026-10-24T11:40:40.903Z"
 }
