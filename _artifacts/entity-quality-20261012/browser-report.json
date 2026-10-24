@@ -75,7 +75,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 7507
+          "pixels": 7561
         },
         "active": "page-ticker",
         "signed": [
@@ -143,7 +143,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 4176
+          "pixels": 4343
         },
         "active": "page-ticker",
         "signed": [
@@ -211,7 +211,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 4251
+          "pixels": 4224
         },
         "active": "page-ticker",
         "signed": [
@@ -264,7 +264,7 @@
       }
     },
     {
-      "label": "tablet-light",
+      "label": "phone-light",
       "market": "US",
       "listing": [
         {
@@ -331,7 +331,7 @@
       "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개, 3개월 수익률, 비중 모멘텀 29% / 추세 22% / 저변동 17% / 밸류 11% / 퀄리티 10% / 추세 속도 11%"
     },
     {
-      "label": "phone-light",
+      "label": "tablet-light",
       "market": "US",
       "listing": [
         {
@@ -566,157 +566,6 @@
       }
     },
     {
-      "label": "phone-dark",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "$200.1010/23 종가",
-          "ret3m": 259.7
-        },
-        {
-          "symbol": "TEAM",
-          "price": "$227.6110/23 종가",
-          "ret3m": 137.4
-        },
-        {
-          "symbol": "APPN",
-          "price": "—",
-          "ret3m": 104.9
-        },
-        {
-          "symbol": "PAYC",
-          "price": "$274.5910/23 종가",
-          "ret3m": 81.8
-        },
-        {
-          "symbol": "ZS",
-          "price": "$255.1510/23 종가",
-          "ret3m": 73.2
-        },
-        {
-          "symbol": "RBRK",
-          "price": "—",
-          "ret3m": 72.1
-        },
-        {
-          "symbol": "GTLB",
-          "price": "$56.2810/23 종가",
-          "ret3m": 71.2
-        },
-        {
-          "symbol": "ESTC",
-          "price": "$102.4310/23 종가",
-          "ret3m": 67.3
-        },
-        {
-          "symbol": "P",
-          "price": "$123.3310/23 종가",
-          "ret3m": 66.2
-        },
-        {
-          "symbol": "VEEV",
-          "price": "$323.0410/23 종가",
-          "ret3m": 66.1
-        },
-        {
-          "symbol": "ACN",
-          "price": "$249.3710/23 종가",
-          "ret3m": 63.2
-        },
-        {
-          "symbol": "IT",
-          "price": "$230.2810/23 종가",
-          "ret3m": 56.2
-        }
-      ],
-      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개, 3개월 수익률, 비중 모멘텀 29% / 추세 22% / 저변동 17% / 밸류 11% / 퀄리티 10% / 추세 속도 11%"
-    },
-    {
-      "label": "phone-dark",
-      "market": "KR",
-      "listing": [
-        {
-          "symbol": "445680.KQ",
-          "price": "—",
-          "ret3m": 73.4
-        },
-        {
-          "symbol": "323280.KQ",
-          "price": "—",
-          "ret3m": 59.6
-        },
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 58.3
-        },
-        {
-          "symbol": "036540.KQ",
-          "price": "—",
-          "ret3m": 57.8
-        },
-        {
-          "symbol": "043260.KQ",
-          "price": "—",
-          "ret3m": 55
-        },
-        {
-          "symbol": "028050.KS",
-          "price": "—",
-          "ret3m": 44.8
-        },
-        {
-          "symbol": "035760.KQ",
-          "price": "—",
-          "ret3m": 40.3
-        },
-        {
-          "symbol": "315640.KQ",
-          "price": "—",
-          "ret3m": 39.4
-        },
-        {
-          "symbol": "028300.KQ",
-          "price": "—",
-          "ret3m": 36.8
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 36.8
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 34.1
-        },
-        {
-          "symbol": "078600.KQ",
-          "price": "—",
-          "ret3m": 32.8
-        }
-      ],
-      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개, 3개월 수익률, 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
-      "label": "phone-dark",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "phone-dark/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "tablet-light",
       "fiscal": {
         "rows": 19,
@@ -835,9 +684,160 @@
       }
     },
     {
+      "label": "phone-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "$200.1010/23 종가",
+          "ret3m": 259.7
+        },
+        {
+          "symbol": "TEAM",
+          "price": "$227.6110/23 종가",
+          "ret3m": 137.4
+        },
+        {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 104.9
+        },
+        {
+          "symbol": "PAYC",
+          "price": "$274.5910/23 종가",
+          "ret3m": 81.8
+        },
+        {
+          "symbol": "ZS",
+          "price": "$255.1510/23 종가",
+          "ret3m": 73.2
+        },
+        {
+          "symbol": "RBRK",
+          "price": "—",
+          "ret3m": 72.1
+        },
+        {
+          "symbol": "GTLB",
+          "price": "$56.2810/23 종가",
+          "ret3m": 71.2
+        },
+        {
+          "symbol": "ESTC",
+          "price": "$102.4310/23 종가",
+          "ret3m": 67.3
+        },
+        {
+          "symbol": "P",
+          "price": "$123.3310/23 종가",
+          "ret3m": 66.2
+        },
+        {
+          "symbol": "VEEV",
+          "price": "$323.0410/23 종가",
+          "ret3m": 66.1
+        },
+        {
+          "symbol": "ACN",
+          "price": "$249.3710/23 종가",
+          "ret3m": 63.2
+        },
+        {
+          "symbol": "IT",
+          "price": "$230.2810/23 종가",
+          "ret3m": 56.2
+        }
+      ],
+      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개, 3개월 수익률, 비중 모멘텀 29% / 추세 22% / 저변동 17% / 밸류 11% / 퀄리티 10% / 추세 속도 11%"
+    },
+    {
       "label": "phone-light/fiscal",
       "layout": {
         "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone-dark",
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "445680.KQ",
+          "price": "—",
+          "ret3m": 73.4
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 59.6
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 58.3
+        },
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 57.8
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 55
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 44.8
+        },
+        {
+          "symbol": "035760.KQ",
+          "price": "—",
+          "ret3m": 40.3
+        },
+        {
+          "symbol": "315640.KQ",
+          "price": "—",
+          "ret3m": 39.4
+        },
+        {
+          "symbol": "028300.KQ",
+          "price": "—",
+          "ret3m": 36.8
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 36.8
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 34.1
+        },
+        {
+          "symbol": "078600.KQ",
+          "price": "—",
+          "ret3m": 32.8
+        }
+      ],
+      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개, 3개월 수익률, 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "phone-dark",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "phone-dark/screener",
+      "layout": {
+        "route": "page-screener",
         "overflow": 0,
         "clipped": []
       }
@@ -1011,7 +1011,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 9836
+          "pixels": 9960
         },
         "active": "page-ticker",
         "signed": [
@@ -1056,14 +1056,6 @@
       "fixtureRequests": 2
     },
     {
-      "label": "desktop-light/summary",
-      "layout": {
-        "route": "page-ticker",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "desktop-dark",
       "summary": {
         "price": "$84.64",
@@ -1079,7 +1071,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 9874
+          "pixels": 10001
         },
         "active": "page-ticker",
         "signed": [
@@ -1132,6 +1124,14 @@
       }
     },
     {
+      "label": "desktop-light/summary",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
       "label": "tablet-dark",
       "summary": {
         "price": "$84.64",
@@ -1147,7 +1147,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 7675
+          "pixels": 7606
         },
         "active": "page-ticker",
         "signed": [
@@ -1198,6 +1198,140 @@
         "overflow": 0,
         "clipped": []
       }
+    },
+    {
+      "label": "desktop-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "$200.1010/23 종가",
+          "ret3m": 259.7
+        },
+        {
+          "symbol": "TEAM",
+          "price": "$227.6110/23 종가",
+          "ret3m": 137.4
+        },
+        {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 104.9
+        },
+        {
+          "symbol": "PAYC",
+          "price": "$274.5910/23 종가",
+          "ret3m": 81.8
+        },
+        {
+          "symbol": "ZS",
+          "price": "$255.1510/23 종가",
+          "ret3m": 73.2
+        },
+        {
+          "symbol": "RBRK",
+          "price": "—",
+          "ret3m": 72.1
+        },
+        {
+          "symbol": "GTLB",
+          "price": "$56.2810/23 종가",
+          "ret3m": 71.2
+        },
+        {
+          "symbol": "ESTC",
+          "price": "$102.4310/23 종가",
+          "ret3m": 67.3
+        },
+        {
+          "symbol": "P",
+          "price": "$123.3310/23 종가",
+          "ret3m": 66.2
+        },
+        {
+          "symbol": "VEEV",
+          "price": "$323.0410/23 종가",
+          "ret3m": 66.1
+        },
+        {
+          "symbol": "ACN",
+          "price": "$249.3710/23 종가",
+          "ret3m": 63.2
+        },
+        {
+          "symbol": "IT",
+          "price": "$230.2810/23 종가",
+          "ret3m": 56.2
+        }
+      ],
+      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개, 3개월 수익률, 비중 모멘텀 29% / 추세 22% / 저변동 17% / 밸류 11% / 퀄리티 10% / 추세 속도 11%"
+    },
+    {
+      "label": "tablet-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "$200.1010/23 종가",
+          "ret3m": 259.7
+        },
+        {
+          "symbol": "TEAM",
+          "price": "$227.6110/23 종가",
+          "ret3m": 137.4
+        },
+        {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 104.9
+        },
+        {
+          "symbol": "PAYC",
+          "price": "$274.5910/23 종가",
+          "ret3m": 81.8
+        },
+        {
+          "symbol": "ZS",
+          "price": "$255.1510/23 종가",
+          "ret3m": 73.2
+        },
+        {
+          "symbol": "RBRK",
+          "price": "—",
+          "ret3m": 72.1
+        },
+        {
+          "symbol": "GTLB",
+          "price": "$56.2810/23 종가",
+          "ret3m": 71.2
+        },
+        {
+          "symbol": "ESTC",
+          "price": "$102.4310/23 종가",
+          "ret3m": 67.3
+        },
+        {
+          "symbol": "P",
+          "price": "$123.3310/23 종가",
+          "ret3m": 66.2
+        },
+        {
+          "symbol": "VEEV",
+          "price": "$323.0410/23 종가",
+          "ret3m": 66.1
+        },
+        {
+          "symbol": "ACN",
+          "price": "$249.3710/23 종가",
+          "ret3m": 63.2
+        },
+        {
+          "symbol": "IT",
+          "price": "$230.2810/23 종가",
+          "ret3m": 56.2
+        }
+      ],
+      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개, 3개월 수익률, 비중 모멘텀 29% / 추세 22% / 저변동 17% / 밸류 11% / 퀄리티 10% / 추세 속도 11%"
     },
     {
       "label": "desktop-light",
@@ -1268,70 +1402,171 @@
     },
     {
       "label": "desktop-dark",
-      "market": "US",
+      "market": "KR",
       "listing": [
         {
-          "symbol": "MRNA",
-          "price": "$200.1010/23 종가",
-          "ret3m": 259.7
-        },
-        {
-          "symbol": "TEAM",
-          "price": "$227.6110/23 종가",
-          "ret3m": 137.4
-        },
-        {
-          "symbol": "APPN",
+          "symbol": "445680.KQ",
           "price": "—",
-          "ret3m": 104.9
+          "ret3m": 73.4
         },
         {
-          "symbol": "PAYC",
-          "price": "$274.5910/23 종가",
-          "ret3m": 81.8
-        },
-        {
-          "symbol": "ZS",
-          "price": "$255.1510/23 종가",
-          "ret3m": 73.2
-        },
-        {
-          "symbol": "RBRK",
+          "symbol": "323280.KQ",
           "price": "—",
-          "ret3m": 72.1
+          "ret3m": 59.6
         },
         {
-          "symbol": "GTLB",
-          "price": "$56.2810/23 종가",
-          "ret3m": 71.2
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 58.3
         },
         {
-          "symbol": "ESTC",
-          "price": "$102.4310/23 종가",
-          "ret3m": 67.3
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 57.8
         },
         {
-          "symbol": "P",
-          "price": "$123.3310/23 종가",
-          "ret3m": 66.2
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 55
         },
         {
-          "symbol": "VEEV",
-          "price": "$323.0410/23 종가",
-          "ret3m": 66.1
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 44.8
         },
         {
-          "symbol": "ACN",
-          "price": "$249.3710/23 종가",
-          "ret3m": 63.2
+          "symbol": "035760.KQ",
+          "price": "—",
+          "ret3m": 40.3
         },
         {
-          "symbol": "IT",
-          "price": "$230.2810/23 종가",
-          "ret3m": 56.2
+          "symbol": "315640.KQ",
+          "price": "—",
+          "ret3m": 39.4
+        },
+        {
+          "symbol": "028300.KQ",
+          "price": "—",
+          "ret3m": 36.8
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 36.8
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 34.1
+        },
+        {
+          "symbol": "078600.KQ",
+          "price": "—",
+          "ret3m": 32.8
         }
       ],
-      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개, 3개월 수익률, 비중 모멘텀 29% / 추세 22% / 저변동 17% / 밸류 11% / 퀄리티 10% / 추세 속도 11%"
+      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개, 3개월 수익률, 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "tablet-dark",
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "445680.KQ",
+          "price": "—",
+          "ret3m": 73.4
+        },
+        {
+          "symbol": "323280.KQ",
+          "price": "—",
+          "ret3m": 59.6
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 58.3
+        },
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 57.8
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 55
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 44.8
+        },
+        {
+          "symbol": "035760.KQ",
+          "price": "—",
+          "ret3m": 40.3
+        },
+        {
+          "symbol": "315640.KQ",
+          "price": "—",
+          "ret3m": 39.4
+        },
+        {
+          "symbol": "028300.KQ",
+          "price": "—",
+          "ret3m": 36.8
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 36.8
+        },
+        {
+          "symbol": "229640.KS",
+          "price": "—",
+          "ret3m": 34.1
+        },
+        {
+          "symbol": "078600.KQ",
+          "price": "—",
+          "ret3m": 32.8
+        }
+      ],
+      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개, 3개월 수익률, 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+    },
+    {
+      "label": "desktop-dark",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "tablet-dark",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "tablet-dark/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop-dark/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
     },
     {
       "label": "desktop-light",
@@ -1418,236 +1653,127 @@
       }
     },
     {
-      "label": "desktop-dark",
-      "market": "KR",
-      "listing": [
-        {
-          "symbol": "445680.KQ",
-          "price": "—",
-          "ret3m": 73.4
-        },
-        {
-          "symbol": "323280.KQ",
-          "price": "—",
-          "ret3m": 59.6
-        },
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 58.3
-        },
-        {
-          "symbol": "036540.KQ",
-          "price": "—",
-          "ret3m": 57.8
-        },
-        {
-          "symbol": "043260.KQ",
-          "price": "—",
-          "ret3m": 55
-        },
-        {
-          "symbol": "028050.KS",
-          "price": "—",
-          "ret3m": 44.8
-        },
-        {
-          "symbol": "035760.KQ",
-          "price": "—",
-          "ret3m": 40.3
-        },
-        {
-          "symbol": "315640.KQ",
-          "price": "—",
-          "ret3m": 39.4
-        },
-        {
-          "symbol": "028300.KQ",
-          "price": "—",
-          "ret3m": 36.8
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 36.8
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 34.1
-        },
-        {
-          "symbol": "078600.KQ",
-          "price": "—",
-          "ret3m": 32.8
-        }
-      ],
-      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개, 3개월 수익률, 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
+      "label": "tablet-dark",
+      "fiscal": {
+        "rows": 19,
+        "captions": [
+          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
+          "추적할 지표, 이 기업의 값과 방향, 미확인은 이 화면 공시 수집본에 없는 항목",
+          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다"
+        ],
+        "loss": [
+          {
+            "top": 90.284,
+            "height": 2.764,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 5.331,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 9.716,
+            "zero": 90.284
+          },
+          {
+            "top": 85.361,
+            "height": 4.659,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 2.914,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 9.445,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 14.639,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 14.516,
+            "zero": 85.361
+          }
+        ],
+        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-31$16.6M-$2.0M-$2.7M$227,000-$2.9M$11.4M$024.2M주2022-05-31$50.8M$9.4M$1.5M$416,000$1.1M$51.0M자료 없음27.3M주2023-05-31$65.0M$14.6M$10.0M$1.4M$8.6M$75.6M자료 없음28.8M주2024-05-31$66.2M$33.2M$1.8M$749,000$1.0M$111.6M자료 없음29.0M주2025-05-30$59.0M-$3.9M-$7.4M$5.0M-$12.4M$122.9M자료 없음29.9M주2026-05-29$50.0M-$7.1M-$3.3M$2.1M-$5.4M$219.5M자료 없음32.6M주",
+        "basis": "최근 4개 분기(2026-05 분기까지) 매출 $50M, 순이익 -$7M, 순이익률 -14.3%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
+      }
     },
     {
       "label": "desktop-dark",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+      "fiscal": {
+        "rows": 19,
+        "captions": [
+          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
+          "추적할 지표, 이 기업의 값과 방향, 미확인은 이 화면 공시 수집본에 없는 항목",
+          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다"
+        ],
+        "loss": [
+          {
+            "top": 90.284,
+            "height": 2.764,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 5.331,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 9.716,
+            "zero": 90.284
+          },
+          {
+            "top": 85.361,
+            "height": 4.659,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 2.914,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 9.445,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 14.639,
+            "zero": 85.361
+          },
+          {
+            "top": 85.361,
+            "height": 14.516,
+            "zero": 85.361
+          }
+        ],
+        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-31$16.6M-$2.0M-$2.7M$227,000-$2.9M$11.4M$024.2M주2022-05-31$50.8M$9.4M$1.5M$416,000$1.1M$51.0M자료 없음27.3M주2023-05-31$65.0M$14.6M$10.0M$1.4M$8.6M$75.6M자료 없음28.8M주2024-05-31$66.2M$33.2M$1.8M$749,000$1.0M$111.6M자료 없음29.0M주2025-05-30$59.0M-$3.9M-$7.4M$5.0M-$12.4M$122.9M자료 없음29.9M주2026-05-29$50.0M-$7.1M-$3.3M$2.1M-$5.4M$219.5M자료 없음32.6M주",
+        "basis": "최근 4개 분기(2026-05 분기까지) 매출 $50M, 순이익 -$7M, 순이익률 -14.3%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
+      }
     },
     {
-      "label": "desktop-dark/screener",
+      "label": "tablet-dark/fiscal",
       "layout": {
-        "route": "page-screener",
+        "route": "page-fundamental",
         "overflow": 0,
         "clipped": []
       }
     },
     {
-      "label": "tablet-dark",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "$200.1010/23 종가",
-          "ret3m": 259.7
-        },
-        {
-          "symbol": "TEAM",
-          "price": "$227.6110/23 종가",
-          "ret3m": 137.4
-        },
-        {
-          "symbol": "APPN",
-          "price": "—",
-          "ret3m": 104.9
-        },
-        {
-          "symbol": "PAYC",
-          "price": "$274.5910/23 종가",
-          "ret3m": 81.8
-        },
-        {
-          "symbol": "ZS",
-          "price": "$255.1510/23 종가",
-          "ret3m": 73.2
-        },
-        {
-          "symbol": "RBRK",
-          "price": "—",
-          "ret3m": 72.1
-        },
-        {
-          "symbol": "GTLB",
-          "price": "$56.2810/23 종가",
-          "ret3m": 71.2
-        },
-        {
-          "symbol": "ESTC",
-          "price": "$102.4310/23 종가",
-          "ret3m": 67.3
-        },
-        {
-          "symbol": "P",
-          "price": "$123.3310/23 종가",
-          "ret3m": 66.2
-        },
-        {
-          "symbol": "VEEV",
-          "price": "$323.0410/23 종가",
-          "ret3m": 66.1
-        },
-        {
-          "symbol": "ACN",
-          "price": "$249.3710/23 종가",
-          "ret3m": 63.2
-        },
-        {
-          "symbol": "IT",
-          "price": "$230.2810/23 종가",
-          "ret3m": 56.2
-        }
-      ],
-      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개, 3개월 수익률, 비중 모멘텀 29% / 추세 22% / 저변동 17% / 밸류 11% / 퀄리티 10% / 추세 속도 11%"
-    },
-    {
-      "label": "tablet-dark",
-      "market": "KR",
-      "listing": [
-        {
-          "symbol": "445680.KQ",
-          "price": "—",
-          "ret3m": 73.4
-        },
-        {
-          "symbol": "323280.KQ",
-          "price": "—",
-          "ret3m": 59.6
-        },
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 58.3
-        },
-        {
-          "symbol": "036540.KQ",
-          "price": "—",
-          "ret3m": 57.8
-        },
-        {
-          "symbol": "043260.KQ",
-          "price": "—",
-          "ret3m": 55
-        },
-        {
-          "symbol": "028050.KS",
-          "price": "—",
-          "ret3m": 44.8
-        },
-        {
-          "symbol": "035760.KQ",
-          "price": "—",
-          "ret3m": 40.3
-        },
-        {
-          "symbol": "315640.KQ",
-          "price": "—",
-          "ret3m": 39.4
-        },
-        {
-          "symbol": "028300.KQ",
-          "price": "—",
-          "ret3m": 36.8
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 36.8
-        },
-        {
-          "symbol": "229640.KS",
-          "price": "—",
-          "ret3m": 34.1
-        },
-        {
-          "symbol": "078600.KQ",
-          "price": "—",
-          "ret3m": 32.8
-        }
-      ],
-      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개, 3개월 수익률, 비중 모멘텀 37% / 추세 27% / 저변동 22% / 추세 속도 14%"
-    },
-    {
-      "label": "tablet-dark",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "tablet-dark/screener",
+      "label": "desktop-dark/fiscal",
       "layout": {
-        "route": "page-screener",
+        "route": "page-fundamental",
         "overflow": 0,
         "clipped": []
       }
@@ -1717,132 +1843,6 @@
     },
     {
       "label": "desktop-dark",
-      "fiscal": {
-        "rows": 19,
-        "captions": [
-          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
-          "추적할 지표, 이 기업의 값과 방향, 미확인은 이 화면 공시 수집본에 없는 항목",
-          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다"
-        ],
-        "loss": [
-          {
-            "top": 90.284,
-            "height": 2.764,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 5.331,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 9.716,
-            "zero": 90.284
-          },
-          {
-            "top": 85.361,
-            "height": 4.659,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 2.914,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 9.445,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 14.639,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 14.516,
-            "zero": 85.361
-          }
-        ],
-        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-31$16.6M-$2.0M-$2.7M$227,000-$2.9M$11.4M$024.2M주2022-05-31$50.8M$9.4M$1.5M$416,000$1.1M$51.0M자료 없음27.3M주2023-05-31$65.0M$14.6M$10.0M$1.4M$8.6M$75.6M자료 없음28.8M주2024-05-31$66.2M$33.2M$1.8M$749,000$1.0M$111.6M자료 없음29.0M주2025-05-30$59.0M-$3.9M-$7.4M$5.0M-$12.4M$122.9M자료 없음29.9M주2026-05-29$50.0M-$7.1M-$3.3M$2.1M-$5.4M$219.5M자료 없음32.6M주",
-        "basis": "최근 4개 분기(2026-05 분기까지) 매출 $50M, 순이익 -$7M, 순이익률 -14.3%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
-      }
-    },
-    {
-      "label": "tablet-dark",
-      "fiscal": {
-        "rows": 19,
-        "captions": [
-          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
-          "추적할 지표, 이 기업의 값과 방향, 미확인은 이 화면 공시 수집본에 없는 항목",
-          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다"
-        ],
-        "loss": [
-          {
-            "top": 90.284,
-            "height": 2.764,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 5.331,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 9.716,
-            "zero": 90.284
-          },
-          {
-            "top": 85.361,
-            "height": 4.659,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 2.914,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 9.445,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 14.639,
-            "zero": 85.361
-          },
-          {
-            "top": 85.361,
-            "height": 14.516,
-            "zero": 85.361
-          }
-        ],
-        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-31$16.6M-$2.0M-$2.7M$227,000-$2.9M$11.4M$024.2M주2022-05-31$50.8M$9.4M$1.5M$416,000$1.1M$51.0M자료 없음27.3M주2023-05-31$65.0M$14.6M$10.0M$1.4M$8.6M$75.6M자료 없음28.8M주2024-05-31$66.2M$33.2M$1.8M$749,000$1.0M$111.6M자료 없음29.0M주2025-05-30$59.0M-$3.9M-$7.4M$5.0M-$12.4M$122.9M자료 없음29.9M주2026-05-29$50.0M-$7.1M-$3.3M$2.1M-$5.4M$219.5M자료 없음32.6M주",
-        "basis": "최근 4개 분기(2026-05 분기까지) 매출 $50M, 순이익 -$7M, 순이익률 -14.3%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
-      }
-    },
-    {
-      "label": "desktop-dark/fiscal",
-      "layout": {
-        "route": "page-fundamental",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "tablet-dark/fiscal",
-      "layout": {
-        "route": "page-fundamental",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "desktop-light",
       "technical": {
         "scenarios": [
           {
@@ -1864,7 +1864,7 @@
       }
     },
     {
-      "label": "desktop-light/technical",
+      "label": "desktop-dark/technical",
       "layout": {
         "route": "page-technical",
         "overflow": 0,
@@ -1902,7 +1902,7 @@
       }
     },
     {
-      "label": "desktop-dark",
+      "label": "desktop-light",
       "technical": {
         "scenarios": [
           {
@@ -1924,7 +1924,7 @@
       }
     },
     {
-      "label": "desktop-dark/technical",
+      "label": "desktop-light/technical",
       "layout": {
         "route": "page-technical",
         "overflow": 0,
