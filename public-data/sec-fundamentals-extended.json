@@ -1,14 +1,14 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-23T07:41:29.969Z",
+ "generatedAt": "2026-10-23T21:49:47.712Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3899,
+ "eligible": 3902,
  "stored": 3541,
- "attempted": 0,
+ "attempted": 3,
  "updated": 0,
  "failures": [
   {
@@ -377,6 +377,16 @@
    "issuerTaxonomy": "US_GAAP",
    "filingForms": [],
    "attemptedAt": "2026-10-19T22:30:26.357Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
+   "symbol": "APXC",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-10-23T21:49:35.832Z",
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
@@ -2315,6 +2325,16 @@
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
+   "symbol": "LYCA",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-10-23T21:49:35.832Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
    "symbol": "MAKO",
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
@@ -2890,6 +2910,16 @@
     "10-K"
    ],
    "attemptedAt": "2026-10-19T22:30:26.357Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
+   "symbol": "PAXG",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-10-23T21:49:35.832Z",
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
@@ -4443,7 +4473,10 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP"
+  "ZKP",
+  "APXC",
+  "LYCA",
+  "PAXG"
  ],
  "retryableFailures": [
   "AYA",
@@ -4471,42 +4504,42 @@
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 358,
+ "nextRefreshCandidates": 361,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:39918629195",
-  "attemptedAt": "2026-10-23T07:41:17.941Z",
-  "sourceRevision": "sec-company-tickers:c4c73cd3ccd0ef974d9f70462abb7d1ec84b3102d7f95e1e1cdb6497fb71e408",
+  "runId": "gha:40028807769",
+  "attemptedAt": "2026-10-23T21:49:35.832Z",
+  "sourceRevision": "sec-company-tickers:f5a8b5c09137999ca3815f91df8b97a3602f24d0818255001e38bc77aae9c472",
   "inputWatermarks": {
-   "universe": "2026-10-23T07:41:15.660Z",
-   "screener": "2026-10-23T07:39:20.156Z",
-   "previousArtifact": "2026-10-23T07:34:56.127Z"
+   "universe": "2026-10-23T21:49:34.027Z",
+   "screener": "2026-10-23T21:49:01.397Z",
+   "previousArtifact": "2026-10-23T07:41:29.969Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3899,
-   "attempted": 0,
+   "eligible": 3902,
+   "attempted": 3,
    "updated": 0,
    "retained": 3541,
-   "pendingEligible": 358
+   "pendingEligible": 361
   },
   "thisBatch": {
    "updated": 0,
-   "terminalUnsupported": 0,
+   "terminalUnsupported": 3,
    "transientFailed": 0,
-   "recorded": 0
+   "recorded": 3
   },
   "ledger": {
-   "total": 358,
-   "terminalUnsupported": 339,
+   "total": 361,
+   "terminalUnsupported": 342,
    "transientFailed": 19,
    "legacyUnknown": 0
   },
   "lastSuccessfulObservation": "2026-10-23T07:34:32.834Z",
   "publication": {
-   "status": "NOT_ATTEMPTED",
-   "reason": "no target was due in this batch",
+   "status": "NO_REFRESH_RETAINED",
+   "reason": "every attempted target failed; previously stored rows stay published",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -321376,8 +321409,8 @@
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3853,
-  "eligible": 3899,
+  "classified": 3856,
+  "eligible": 3902,
   "passAttempted": 46,
   "passUpdated": 0,
   "passFailed": 0
@@ -322888,6 +322921,12 @@
    "description": "Drawing & Insulating of  Nonferrous Wire",
    "cik": "0001026980",
    "observedAt": "2026-10-21T22:06:42.981Z"
+  },
+  "APXC": {
+   "sic": "1000",
+   "description": "Metal Mining",
+   "cik": "0002093856",
+   "observedAt": "2026-10-23T21:49:35.832Z"
   },
   "APXT": {
    "sic": "6770",
@@ -334151,6 +334190,12 @@
    "cik": "0000060714",
    "observedAt": "2026-10-22T22:03:33.619Z"
   },
+  "LYCA": {
+   "sic": "2836",
+   "description": "Biological Products, (No Diagnostic Substances)",
+   "cik": "0001806540",
+   "observedAt": "2026-10-23T21:49:35.832Z"
+  },
   "LYEL": {
    "sic": "2834",
    "description": "Pharmaceutical Preparations",
@@ -337324,6 +337369,12 @@
    "description": "Investment Advice",
    "cik": "0001825570",
    "observedAt": "2026-10-22T22:03:33.619Z"
+  },
+  "PAXG": {
+   "sic": "6770",
+   "description": "Blank Checks",
+   "cik": "0002076561",
+   "observedAt": "2026-10-23T21:49:35.832Z"
   },
   "PAY": {
    "sic": "7389",
