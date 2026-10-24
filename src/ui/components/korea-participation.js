@@ -31,21 +31,21 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   if(model.session?.text){const lead=el(doc,'p',model.session.text);lead.className='flow-lead';host.append(lead);}
   host.append(el(doc,'p',model.headline));
   if(!model.available){host.hidden=true;return model;}host.hidden=false;
-  host.append(el(doc,'p',`${model.date} 한국 종가 · ${model.delayed?'지연':'참고'} · ${model.observed === model.population ? `AIO 추적 종목(한국) ${model.population}개 모두` : `AIO 추적 종목(한국) ${model.population}개 중 ${model.observed}개`}`));
+  host.append(el(doc,'p',`${model.date} 한국 종가, ${model.delayed?'지연':'참고'}, ${model.observed === model.population ? `AIO 추적 종목(한국) ${model.population}개 모두` : `AIO 추적 종목(한국) ${model.population}개 중 ${model.observed}개`}`));
   const metrics=el(doc,'dl');metrics.className='regime-kr-metrics';
   for(const [label,value] of [['50일선 위',model.breadth50],['200일선 위',model.breadth200]]) if(value.pct!=null)metrics.append(el(doc,'dt',label),el(doc,'dd',`${value.pct.toFixed(1)}% (${value.above}/${value.count}개)`));
   if(model.returns.ret1m!=null)metrics.append(el(doc,'dt','1개월 수익률 중앙값'),el(doc,'dd',`${model.returns.ret1m.toFixed(1)}%`));host.append(metrics);
-  if(model.groups.length){host.append(el(doc,'h3','3개월 수익률 상위 한국 테마 · 표본 중앙값'));const list=el(doc,'ul');
+  if(model.groups.length){host.append(el(doc,'h3','3개월 수익률 상위 한국 테마, 표본 중앙값'));const list=el(doc,'ul');
     for(const group of model.groups){const item=el(doc,'li');const pc=v=>`${v>=0?'+':''}${v.toFixed(1)}%`;const turned=group.ret1m!=null&&Math.sign(group.ret1m)!==Math.sign(group.ret3m)&&group.ret1m!==0;
-      item.append(el(doc,'strong',`${group.themeName} 3개월 ${pc(group.ret3m)} · 1개월 ${group.ret1m==null?'미확인':pc(group.ret1m)} · ${group.members}/${group.listed}개`));if(turned){const note=el(doc,'p',`최근 1개월은 3개월과 반대 방향(${group.ret1m<0?'하락':'상승'})입니다.`);note.className='regime-kr-heavy';item.append(note);}
+      item.append(el(doc,'strong',`${group.themeName} 3개월 ${pc(group.ret3m)}, 1개월 ${group.ret1m==null?'미확인':pc(group.ret1m)}, ${group.members}/${group.listed}개`));if(turned){const note=el(doc,'p',`최근 1개월은 3개월과 반대 방향(${group.ret1m<0?'하락':'상승'})입니다.`);note.className='regime-kr-heavy';item.append(note);}
       // P1651: beginners read company names, not 096770.KS codes; the exact registry name only (no guessing), code in the tooltip.
       const nameOf=member=>root.KR_STOCK_DB?.[String(member.sym||'').slice(0,6)]?.name||member.name||member.sym;
-      const codes=el(doc,'div',group.constituents.map(nameOf).join(' · '));codes.title=group.constituents.map(member=>`${nameOf(member)} ${member.sym}`).join('\n');codes.className='regime-kr-tickers';item.append(codes);
+      const codes=el(doc,'div',group.constituents.map(nameOf).join(', '));codes.title=group.constituents.map(member=>`${nameOf(member)} ${member.sym}`).join('\n');codes.className='regime-kr-tickers';item.append(codes);
       // P1723: the equal-weight median can hide the largest names; one line when they moved apart from it.
       const heavy=heavyweightLine(group,nameOf);if(heavy){const note=el(doc,'p',heavy);note.className='regime-kr-heavy';item.append(note);}
       list.append(item);}host.append(list);}
   const watch=el(doc,'details');watch.append(el(doc,'summary','다음에 관찰할 연결'),...model.watch.map(text=>el(doc,'p',text)));host.append(watch);
-  const basis=el(doc,'details');basis.append(el(doc,'summary','표본 기준과 빠진 자료'),el(doc,'p',`AIO 추적 종목(한국) 가운데 같은 기준일에 종가가 있는 표본입니다. 늦거나 기준일이 없는 ${model.excluded}개는 제외합니다. 신고가·수급 숫자를 역산하지 않습니다.`),el(doc,'p',`아직 연결되지 않은 자료: ${missingWithFlows(model.missing,root.__aioKrInvestorFlowView).join(' · ')||'없음'}`));host.append(basis);
+  const basis=el(doc,'details');basis.append(el(doc,'summary','표본 기준과 빠진 자료'),el(doc,'p',`AIO 추적 종목(한국) 가운데 같은 기준일에 종가가 있는 표본입니다. 늦거나 기준일이 없는 ${model.excluded}개는 제외합니다. 신고가·수급 숫자를 역산하지 않습니다.`),el(doc,'p',`아직 연결되지 않은 자료: ${missingWithFlows(model.missing,root.__aioKrInvestorFlowView).join(', ')||'없음'}`));host.append(basis);
   return model;
 }
 
@@ -58,7 +58,7 @@ function flowMarket(doc, market) {
   const box = el(doc, 'div', null, 'kr-flows-market');
   box.dataset.market = market.id;
   const head = el(doc, 'div', null, 'kr-flows-market-head');
-  head.append(el(doc, 'strong', market.label), el(doc, 'span', `억 원 · ${shortDate(market.date)}${market.stale ? ' · 지연' : ''}`, 'kr-flows-unit'));
+  head.append(el(doc, 'strong', market.label), el(doc, 'span', `억 원, ${shortDate(market.date)}${market.stale ? ', 지연' : ''}`, 'kr-flows-unit'));
   box.append(head);
   // One scale per market: the largest single-session amount among the drawn series' last 20 sessions, so the bar says how
   // big today is against the recent month even when the source publishes one investor type only.
@@ -89,7 +89,7 @@ function flowMarket(doc, market) {
     }
     const sums = el(doc, 'p', null, 'kr-flow-sums');
     const part = (label, value) => { const span = el(doc, 'span', `${label} ${value == null ? '—' : formatEok(value)}`, tone(value)); return span; };
-    sums.append(part('5거래일 합계', trend.sum5), el(doc, 'span', ' · '), part(`${trend.sessions}거래일 합계`, trend.sum20));
+    sums.append(part('5거래일 합계', trend.sum5), el(doc, 'span', ', '), part(`${trend.sessions}거래일 합계`, trend.sum20));
     wrap.append(cols, sums);
     box.append(wrap);
   }
@@ -139,7 +139,7 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
     return view;
   }
   const latest = view.markets.map((m) => m.date).sort().at(-1);
-  head.append(el(doc, 'span', `${shortDate(latest)} · 한국은행`, 'basis-chip'));
+  head.append(el(doc, 'span', `${shortDate(latest)}, 한국은행`, 'basis-chip'));
   host.setAttribute('data-observed-at', latest);
   host.setAttribute('data-source-kind', 'official-statistics');
   const grid = el(doc, 'div', null, 'kr-flows-grid');
@@ -150,7 +150,7 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   basis.append(el(doc, 'summary', '읽는 법과 출처'),
     el(doc, 'p', '순매수는 그날 산 금액에서 판 금액을 뺀 값입니다. +는 순매수(빨강), −는 순매도(파랑)이며, 막대 길이는 같은 시장의 최근 20거래일 가운데 가장 큰 하루와 비교한 크기입니다.'),
     el(doc, 'p', '한국 증시는 외국인 보유 비중이 높아 원화가 약할 때 외국인 순매도가 지수 하락과 함께 나타나는 일이 잦습니다. 하루 수급은 다음 날 방향을 말해 주지 않습니다.'),
-    el(doc, 'p', `출처: ${view.source} · 한국거래소 집계를 한국은행이 게시한 값 · 단위 억 원.`),
+    el(doc, 'p', `출처: ${view.source}, 한국거래소 집계를 한국은행이 게시한 값, 단위 억 원.`),
     ...(view.missing.length ? [el(doc, 'p', `${view.missing.join('·')} 순매수가 없는 이유: ${KR_FLOW_SOURCE_NOTE}`)] : []));
   nodes.push(basis);
   host.replaceChildren(...nodes);

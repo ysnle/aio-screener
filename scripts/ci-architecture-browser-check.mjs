@@ -97,7 +97,7 @@ try {
     };
   });
   // P1326/R671 (QA-UX-07): one slot, one vocabulary — a server snapshot is 종가/지난 시세, never live.
-  if (!/^서버 .+ · 시세 16종$/.test(quoteTopbar.text) || !/^(close|stale)$/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title) || quoteTopbar.duplicate) {
+  if (!/^서버 .+, 시세 16종$/.test(quoteTopbar.text) || !/^(close|stale)$/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title) || quoteTopbar.duplicate) {
     throw new Error(`snapshot quote topbar must stay reference-only while external providers are blocked: ${JSON.stringify(quoteTopbar)}`);
   }
 
@@ -313,7 +313,7 @@ try {
 
   await page.evaluate(() => window.AIO_ARCH.navigate('fxbond'));
   await page.waitForFunction(() => document.getElementById('page-fxbond')?.dataset.aioArchitectureRoute === 'fxbond');
-  // P1425: 금리 · 환율 = official curve, real yield/breakeven/credit, dollar/won/yen/10Y close-basis cards.
+  // P1425: 금리와 환율 = official curve, real yield/breakeven/credit, dollar/won/yen/10Y close-basis cards.
   const fxbondRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-fxbond'),
     renderer: document.getElementById('page-fxbond')?.dataset.aioArchitectureRenderer || null,
@@ -350,7 +350,7 @@ try {
     return RULES.credit.stressAtBp === 450 && RULES.credit.widen5dBp === 25;
   });
   if (!rulesShared) throw new Error('P1428 shared rule table missing or changed without updating the guide');
-  if (fxbondRoute.boardRenderer !== 'native' || !['4.85%', '4.99%', '5.11%', '5.45%', '5.40%'].every(((at) => (v) => (at = fxbondRoute.yields.indexOf(v, at) + 1) > 0)(0)) || fxbondRoute.yields.length > 12 /* P1685 key tenors in order; v58.56 curve carries up to 11 maturities */ || fxbondRoute.curveDots !== fxbondRoute.yields.length || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) ||fxbondRoute.levels !== 3 + (fxbondRoute.premiumCard ? 1 : 0) || fxbondRoute.impactAxes.join(',') !== 'korea' /* P1505: duplicated macro axes removed */ || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy,tnx' || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리 · 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
+  if (fxbondRoute.boardRenderer !== 'native' || !['4.85%', '4.99%', '5.11%', '5.45%', '5.40%'].every(((at) => (v) => (at = fxbondRoute.yields.indexOf(v, at) + 1) > 0)(0)) || fxbondRoute.yields.length > 12 /* P1685 key tenors in order; v58.56 curve carries up to 11 maturities */ || fxbondRoute.curveDots !== fxbondRoute.yields.length || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) ||fxbondRoute.levels !== 3 + (fxbondRoute.premiumCard ? 1 : 0) || fxbondRoute.impactAxes.join(',') !== 'korea' /* P1505: duplicated macro axes removed */ || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy,tnx' || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리와 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
   // P1395: the breadth page is the native trend-card board (P1416: ten dated series in three groups + one judgement).
@@ -683,7 +683,7 @@ try {
     } finally { window._aioMarketRegimeSummary = originalSummary; window.computeTradingScore = originalScore; window.updateMarketPulse(); }
     return outcomes;
   });
-  if (pulseSemantics[0].text !== '판정 보류' || pulseSemantics[0].label !== '종가 기록 대기' || pulseSemantics[1].text !== '판정 보류' || pulseSemantics[2].text !== '부담 우세' || pulseSemantics[2].label !== '부담 4 · 양호 0 · 10/19 종가' || pulseSemantics.some((row) => /^\d+$/.test(row.text || ''))) throw new Error(`P1352/v58.52 pulse must show the regime verdict, never a number: ${JSON.stringify(pulseSemantics)}`);
+  if (pulseSemantics[0].text !== '판정 보류' || pulseSemantics[0].label !== '종가 기록 대기' || pulseSemantics[1].text !== '판정 보류' || pulseSemantics[2].text !== '부담 우세' || pulseSemantics[2].label !== '부담 4, 양호 0, 10/19 종가' || pulseSemantics.some((row) => /^\d+$/.test(row.text || ''))) throw new Error(`P1352/v58.52 pulse must show the regime verdict, never a number: ${JSON.stringify(pulseSemantics)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
   const homeRoute = await page.evaluate(() => {

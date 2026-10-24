@@ -8,7 +8,7 @@ export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, co
   if (panel) { panel._update(collect); return; } // Preserve a draft only for its issuer/session.
   panel = doc.createElement('details'); panel.dataset.researchSnapshots = kind; // styles: src/ui/styles/entity-quality.css
   const title = doc.createElement('summary');
-  title.textContent = kind === 'briefing' ? '브리핑 저장본 · 날짜별 확인' : '이 종목의 메모 · 당시 근거 저장';
+  title.textContent = kind === 'briefing' ? '브리핑 저장본, 날짜별 확인' : '이 종목의 메모, 당시 근거 저장';
   const note = doc.createElement('textarea'); note.rows = 2; note.maxLength = 2000;
   note.setAttribute('aria-label', kind === 'briefing' ? '브리핑 저장 메모' : '종목 근거 메모');
   note.placeholder = '다음에 확인할 내용 (선택)';
@@ -28,11 +28,11 @@ export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, co
     if (!rows.length) list.textContent = '직접 저장한 자료가 없습니다.';
     for (const row of rows) {
       const content = row.content, detail = doc.createElement('details'), label = doc.createElement('summary');
-      label.textContent = kind === 'briefing' ? `${content.sessionDate} 미국 종가 · 저장 ${row.savedAt.slice(0, 10)} UTC` : `${content.symbol} · 저장 ${row.savedAt.replace('T', ' ').slice(0, 16)} UTC`;
+      label.textContent = kind === 'briefing' ? `${content.sessionDate} 미국 종가, 저장 ${row.savedAt.slice(0, 10)} UTC` : `${content.symbol}, 저장 ${row.savedAt.replace('T', ' ').slice(0, 16)} UTC`;
       const body = doc.createElement('div'); body.style.whiteSpace = 'pre-wrap';
       body.textContent = kind === 'briefing'
-        ? [content.headline, content.interpretation ? `해석 · ${content.interpretation}` : '', ...content.facts.map((fact) => `${fact.label} · ${fact.value} · 관찰 ${fact.observedAt || '미제공'} · ${fact.source || '원 공급자 미제공'} · ${fact.basis || '기준 미제공'}`), ...content.checks.map((check) => `다음 확인 · ${check}`), `수집본 발행 ${row.publishedAt || '미제공'} · ${content.source || '출처 미제공'} · ${content.version || ''}`, content.note].filter(Boolean).join('\n')
-        : [content.name, content.note, `가격 ${content.quote.value ?? '미제공'} ${content.quote.currency || '통화 미제공'}`, `관찰 ${content.quote.observedAt || '미제공'} · ${content.quote.source || '출처 미제공'} · ${basisLabel(content.quote.basis)}`].filter(Boolean).join('\n');
+        ? [content.headline, content.interpretation ? `해석, ${content.interpretation}` : '', ...content.facts.map((fact) => `${fact.label}, ${fact.value}, 관찰 ${fact.observedAt || '미제공'}, ${fact.source || '원 공급자 미제공'}, ${fact.basis || '기준 미제공'}`), ...content.checks.map((check) => `다음 확인, ${check}`), `수집본 발행 ${row.publishedAt || '미제공'}, ${content.source || '출처 미제공'}, ${content.version || ''}`, content.note].filter(Boolean).join('\n')
+        : [content.name, content.note, `가격 ${content.quote.value ?? '미제공'} ${content.quote.currency || '통화 미제공'}`, `관찰 ${content.quote.observedAt || '미제공'}, ${content.quote.source || '출처 미제공'}, ${basisLabel(content.quote.basis)}`].filter(Boolean).join('\n');
       const remove = doc.createElement('button'); remove.type = 'button'; remove.textContent = '이 저장본 삭제';
       let confirmed = false;
       remove.addEventListener('click', () => {

@@ -12,7 +12,7 @@ function formatListValue(value) {
     return Object.entries(value)
       .filter(([, item]) => item != null && item !== '')
       .map(([key, item]) => `${key}: ${Array.isArray(item) ? item.join(', ') : item}`)
-      .join(' · ');
+      .join(', ');
   }
   return String(value ?? '');
 }
@@ -29,7 +29,7 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
     root.appendChild(element(documentRef, 'p', 'knowledge-empty', '개념 원문을 아직 불러오지 못했습니다. 요약과 출처를 먼저 확인하세요.'));
     return root;
   }
-  root.append(element(documentRef, 'h4', 'knowledge-lesson-title', article.title), element(documentRef, 'p', 'knowledge-lesson-boundary', '개념별 짧은 참고 원문 · 자세한 설명은 준비 중'));
+  root.append(element(documentRef, 'h4', 'knowledge-lesson-title', article.title), element(documentRef, 'p', 'knowledge-lesson-boundary', '개념별 짧은 참고 원문, 자세한 설명은 준비 중'));
   const fields = [
     ['정의', article.article.intuition], ['작동 원리', article.article.formalModelOrRationale?.text],
     ['경제에 주는 영향', article.article.realEconomyChannel], ['기업에 주는 영향', article.article.companyChannel],
@@ -61,7 +61,7 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
     const bridge = element(documentRef, 'section', 'knowledge-professional-bridge');
     bridge.append(
       element(documentRef, 'strong', 'knowledge-professional-bridge-title', '관련 화면에서 실제 데이터로 확인'),
-      element(documentRef, 'p', 'knowledge-lesson-copy', `${routeTarget.metric || '연결 지표'} · ${routeTarget.timeframe || '기간 확인'} 맥락을 전달합니다. 이 링크 자체는 투자 판단이 아닙니다.`)
+      element(documentRef, 'p', 'knowledge-lesson-copy', `${routeTarget.metric || '연결 지표'}, ${routeTarget.timeframe || '기간 확인'} 맥락을 전달합니다. 이 링크 자체는 투자 판단이 아닙니다.`)
     );
     const action = element(documentRef, 'button', 'knowledge-professional-bridge-button', routeTarget.routeLabel || '관련 화면 열기');
     action.type = 'button';

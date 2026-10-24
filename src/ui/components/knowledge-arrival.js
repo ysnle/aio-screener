@@ -47,7 +47,7 @@ export function renderKnowledgeArrival({ documentRef = globalThis.document, root
   note.setAttribute('role', 'note');
   note.textContent = '';
   const period = context.timeframe ? PERIOD_LABELS[context.timeframe] || context.timeframe : null;
-  note.append(documentRef.createTextNode(`리서치 문서에서 넘어온 확인 대상: ${context.metric || context.knowledgeNode}${period ? ` · 볼 기간 ${period}` : ''}`));
+  note.append(documentRef.createTextNode(`리서치 문서에서 넘어온 확인 대상: ${context.metric || context.knowledgeNode}${period ? `, 볼 기간 ${period}` : ''}`));
   if (context.returnContext?.route) {
     const back = documentRef.createElement('button');
     back.type = 'button';

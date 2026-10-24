@@ -86,7 +86,7 @@ export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, p
   if (!ranked.length) return { available: false, reason: 'no-comparable-metric', peers: peerMetrics.length };
   const strong = ranked.filter((row) => row.percentile >= 75).map((row) => row.label);
   const weak = ranked.filter((row) => row.percentile <= 25).map((row) => row.label);
-  const parts = [strong.length ? `상위 25% 안 — ${strong.join(' · ')}` : null, weak.length ? `하위 25% 안 — ${weak.join(' · ')}` : null].filter(Boolean);
+  const parts = [strong.length ? `상위 25% 안 — ${strong.join(', ')}` : null, weak.length ? `하위 25% 안 — ${weak.join(', ')}` : null].filter(Boolean);
   const summary = `같은 섹터 SEC 공시 기업 ${peerMetrics.length}곳과 비교: ${parts.length ? parts.join(' / ') : '비교한 지표 모두 중간 범위(25~75%)'}.${financial ? ' 금융사의 영업현금흐름에는 예금·대출·트레이딩 자산 변화가 섞이므로 일반 기업의 영업 FCF와 구분하고, 잉여현금 마진 순위는 보류합니다.' : ''}`;
   return { available: true, symbol, sector, peers: peerMetrics.length, rows, summary };
 }

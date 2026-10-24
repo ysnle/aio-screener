@@ -89,7 +89,7 @@ function quoteLineage(node, value) {
   const observedAt = value.observedAt ? String(value.observedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '관측시각 미수신';
   const fetchedAt = value.fetchedAt ? String(value.fetchedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '수신시각 미수신';
   // P1555: the tooltip states source and times in reader words; the internal basis and display-state enums stay in the data attributes.
-  node.setAttribute('title', `${source} · 관측 ${observedAt} · 수신 ${fetchedAt}`);
+  node.setAttribute('title', `${source}, 관측 ${observedAt}, 수신 ${fetchedAt}`);
 }
 
 function clearRenderedValue(node, title = '현재 관측값 미수신') {
@@ -227,7 +227,7 @@ function readSnapshotMetric(root, key) {
     // value reads '기한 지남' instead of passing as the current range.
     const fed = typeof root?.AIO?.getFedPolicyRange === 'function' ? root.AIO.getFedPolicyRange() : null;
     if (fed?.range) return { value: fed.range.replace('-', '–'), source: fed.origin === 'manual' ? `FOMC 결정 ${fed.asOf || ''}`.trim() : `FRED:DFEDTARL/DFEDTARU ${fed.asOf || ''}`.trim(), formatted: true };
-    if (fed?.held) return { value: '기한 지남', source: `FOMC 결정 ${fed.asOf || ''} · 기한 지남`.trim(), formatted: true };
+    if (fed?.held) return { value: '기한 지남', source: `FOMC 결정 ${fed.asOf || ''}, 기한 지남`.trim(), formatted: true };
     const fomc = root?.AIO_EVENT_FRESHNESS_REGISTRY?.fomc;
     if (!fed && fomc?.policyRange) return { value: String(fomc.policyRange), source: `FOMC 결정 ${fomc.eventDate || ''}`.trim(), formatted: true };
     return null;
@@ -317,7 +317,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       if (!page) return () => bag.dispose();
       const suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
         routeId: route,
-        heading: route === 'macro' ? '거시 · 금리·주택·고용의 전달 시차' : route === 'fxbond' ? '금리·환율 · 유동성·이벤트 리스크' : '시장폭 · 가격·breadth·리더십 확인'
+        heading: route === 'macro' ? '금리·주택·고용의 전달 시차' : route === 'fxbond' ? '유동성·이벤트 리스크' : '가격·breadth·리더십 확인'
       });
       page.appendChild(suppliedMaterialBridge);
       bag.add(() => suppliedMaterialBridge.remove());

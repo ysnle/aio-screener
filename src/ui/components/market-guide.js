@@ -41,7 +41,7 @@ function choiceTable(doc, direction) {
     const tr = el(doc, 'tr');
     if (row.key === direction.robust) tr.dataset.robust = 'true';
     const name = el(doc, 'th', row.label); name.scope = 'row';
-    const list = (names) => (names.length ? `${names.length} · ${names.map((n) => `'${n}'`).join(' ')}` : '0');
+    const list = (names) => (names.length ? `${names.length}, ${names.map((n) => `'${n}'`).join(' ')}` : '0');
     tr.append(name, el(doc, 'td', list(row.favoredIn)), el(doc, 'td', list(row.costlyIn)));
     body.append(tr);
   }
@@ -60,7 +60,7 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   // The long-history outcomes and the per-refresh state can land after first paint; the guide is rebuilt with them.
   if (!box.dataset.aioScenarioLoad) { box.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderHomeGuide({ documentRef: doc, root, store, anchor, nowMs: Date.now() })); }
   if (!guide.available) return guide;
-  const title = el(doc, 'h2', '오늘의 가이드 — 상황 · 시나리오 · 대응 · 배울 것', 'xr-h3'); title.id = 'home-guide-title';
+  const title = el(doc, 'h2', '오늘의 가이드 — 상황, 시나리오, 대응, 배울 것', 'xr-h3'); title.id = 'home-guide-title';
   const situation = el(doc, 'dl', null, 'mg-situation');
   for (const row of guide.situation) situation.append(el(doc, 'dt', row.label), el(doc, 'dd', row.text));
   const d = guide.direction;
@@ -77,7 +77,7 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   const lessons = el(doc, 'ul', null, 'mg-lessons');
   guide.lessons.forEach((lesson) => lessons.append(lessonItem(doc, root, lesson)));
   const library = el(doc, 'details', null, 'mg-library');
-  library.append(el(doc, 'summary', `시장에 참여하는 원칙 전체 (${ALL_LESSONS.length}개) — 태도 · 전략 · 속지 말 것 · 믿을 것`, 'mg-library-summary'));
+  library.append(el(doc, 'summary', `시장에 참여하는 원칙 전체 (${ALL_LESSONS.length}개) — 태도, 전략, 속지 말 것, 믿을 것`, 'mg-library-summary'));
   for (const kind of Object.keys(LESSON_KINDS)) {
     const group = el(doc, 'ul', null, 'mg-lessons is-library');
     ALL_LESSONS.filter((lesson) => lesson.kind === kind).forEach((lesson) => group.append(lessonItem(doc, root, lesson, { withReason: false })));

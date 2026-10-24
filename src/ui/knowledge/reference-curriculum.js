@@ -23,7 +23,7 @@ function appendList(documentRef, parent, items, className) {
 function sourceLinks(documentRef, sourceNotes, sourceIds) {
   const wrap = element(documentRef, 'div', 'principles-reference-sources');
   (sourceIds || []).map((id) => sourceNotes.find((source) => source.id === id)).filter(Boolean).forEach((source) => {
-    const link = element(documentRef, 'a', 'principles-reference-source', `${source.id} · ${source.title}`);
+    const link = element(documentRef, 'a', 'principles-reference-source', `${source.id}, ${source.title}`);
     applySafeExternalLink(link, source.url);
     wrap.appendChild(link);
   });
@@ -65,7 +65,7 @@ export function createReferenceCurriculum(documentRef, artifact, { activeStageId
   stageNav.setAttribute('role', 'tablist');
   stageNav.setAttribute('aria-label', '단계별 시장 학습');
   stages.forEach((item) => {
-    const tab = button(documentRef, `principles-reference-stage-tab${item.id === stage.id ? ' is-active' : ''}`, `${item.number}단계 · ${item.title}`, () => onStageSelect(item.id));
+    const tab = button(documentRef, `principles-reference-stage-tab${item.id === stage.id ? ' is-active' : ''}`, `${item.number}단계, ${item.title}`, () => onStageSelect(item.id));
     tab.setAttribute('role', 'tab');
     tab.setAttribute('aria-selected', item.id === stage.id ? 'true' : 'false');
     tab.dataset.principlesReferenceStage = item.id;
@@ -75,7 +75,7 @@ export function createReferenceCurriculum(documentRef, artifact, { activeStageId
   const body = element(documentRef, 'div', 'principles-reference-body');
   const stageIntro = element(documentRef, 'div', 'principles-reference-stage-intro');
   stageIntro.append(
-    element(documentRef, 'div', 'principles-eyebrow', `${String(stage.number).padStart(2, '0')} · 단계 목표`),
+    element(documentRef, 'div', 'principles-eyebrow', `${String(stage.number).padStart(2, '0')}, 단계 목표`),
     element(documentRef, 'h3', 'principles-reference-stage-title', stage.title),
     element(documentRef, 'p', 'principles-reference-stage-objective', stage.objective)
   );
@@ -105,9 +105,9 @@ export function createReferenceCurriculum(documentRef, artifact, { activeStageId
 
   body.append(stageIntro, detail);
   const sourceProfile = element(documentRef, 'details', 'principles-reference-provenance');
-  sourceProfile.appendChild(element(documentRef, 'summary', '', `${artifact.sourceProfile?.sourceName || '공개 자료'} · 원문 출처와 적용 경계`));
+  sourceProfile.appendChild(element(documentRef, 'summary', '', `${artifact.sourceProfile?.sourceName || '공개 자료'}, 원문 출처와 적용 경계`));
   const sourceBody = element(documentRef, 'div', 'principles-reference-provenance-body');
-  sourceBody.append(element(documentRef, 'p', '', `${artifact.sourceProfile?.author || '출처 저자'} · 검토 ${artifact.revision || '기준일 확인 필요'} · ${artifact.sourceProfile?.sourceType || 'REFERENCE'}`));
+  sourceBody.append(element(documentRef, 'p', '', `${artifact.sourceProfile?.author || '출처 저자'}, 검토 ${artifact.revision || '기준일 확인 필요'}, ${artifact.sourceProfile?.sourceType || 'REFERENCE'}`));
   sourceBody.appendChild(sourceLinks(documentRef, artifact.sourceNotes || [], (artifact.sourceNotes || []).map((item) => item.id)));
   sourceProfile.appendChild(sourceBody);
   section.append(header, stageNav, body, sourceProfile);

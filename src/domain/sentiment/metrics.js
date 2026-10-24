@@ -33,6 +33,6 @@ export function deriveSentimentSummary({ fearGreed, vix9d, vix, vix3m, vix6m } =
     fearGreed: fg,
     vixTermStructure: term,
     blocked: fg.blocked || term.blocked,
-    state: fg.blocked || term.blocked ? '판정 보류' : `${fg.label} · ${term.regime}`
+    state: fg.blocked || term.blocked ? '판정 보류' : `${fg.label}, ${term.regime}`
   });
 }

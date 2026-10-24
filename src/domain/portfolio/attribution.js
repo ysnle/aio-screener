@@ -83,7 +83,7 @@ export function buildAttribution({ holdings = [], cash = null, baseCurrency = nu
     .sort((a, b) => Math.abs(b.stockPct) - Math.abs(a.stockPct));
   return {
     available: true,
-    window: (() => { const dates = [...new Set(parts.map((part) => part.basis).filter(Boolean))].sort(); return dates.length ? `3개월(63거래일 · ${dates.map((d) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`).join('·')} 종가까지)` : '3개월(63거래일)'; })(),
+    window: (() => { const dates = [...new Set(parts.map((part) => part.basis).filter(Boolean))].sort(); return dates.length ? `3개월(63거래일, ${dates.map((d) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`).join('·')} 종가까지)` : '3개월(63거래일)'; })(),
     totalPct: pct(total),
     blendedPct: pct(blended),
     blendedLabel: labels.length > 1 ? `같은 비중의 ${labels.join('·')} 혼합` : labels[0] || '지수',

@@ -5,7 +5,7 @@
 ## Sub-features
 
 - `pf-entry` — `종목 추가` (`data-action=_aioTogglePortfolioEntry`) or `첫 종목 추가` opens `#pf-entry-section.is-open`.
-- `pf-add` — ticker/qty/cost (+ target, memo, cost currency) → `추가 / 업데이트`; toast `<T> 포지션 추가 완료 · 브라우저에 저장됨`; row in `#pf-holdings-table-section`.
+- `pf-add` — ticker/qty/cost (+ target, memo, cost currency) → `추가 / 업데이트`; toast `<T> 포지션 추가 완료, 브라우저에 저장됨`; row in `#pf-holdings-table-section`.
 - `pf-reject` — unknown ticker toast `"<T>" 검증되지 않은 티커라 저장하지 않았습니다…`; nothing stored.
 - `pf-persist` — `localStorage['aio_portfolio_data']` = `[{ticker,qty,cost,target,memo,costCurrency,addedAt,updatedAt}]`; with a PIN unlocked the value starts `aio_enc::`.
 - `pf-delete` — row button `[data-action=_aioRemovePosition][data-arg=<T>]` (label `삭제`, aria-label `<T> 삭제`; the row also has `차트` and `수정`) → `#aio-confirm-modal` (`#aio-confirm-title` = `<T> 포지션 삭제`) → `#aio-confirm-ok`; 전체 삭제 (`clearAllPositions`) also confirms.
@@ -26,7 +26,7 @@ Preconditions:
 - **Open.** Click sidebar `포트폴리오`. Empty state shown.
 - **Form.** Click `종목 추가`; `#pf-add-ticker` visible.
 - **Reject.** `ZZZZQ` ×1 @10 → `검증되지 않은 티커` toast; storage has no `ZZZZQ`.
-- **Add.** `MSFT` ×3 @400 → toast `MSFT 포지션 추가 완료 · 브라우저에 저장됨`; row shows `MSFT`.
+- **Add.** `MSFT` ×3 @400 → toast `MSFT 포지션 추가 완료, 브라우저에 저장됨`; row shows `MSFT`.
 - **Stored.** `aio_portfolio_data` parses to a row `{ticker:'MSFT',qty:3,cost:400}`.
 - **Reload.** Reload, reopen: `MSFT` still listed.
 - **Delete.** Click the row's `삭제` (`data-arg=MSFT`) → confirm → row gone, storage without `MSFT`.

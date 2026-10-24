@@ -1,0 +1,25 @@
+/* Radix Colors v3 (owner 2026-10-23): every page color comes from these scales. Gold is the neutral (ivory kept), green
+   rises, red falls, amber cautions, blue only for the Korean candle convention; teal to plum are chart categories (steps 9 and 11).
+   Step use follows Radix: 1-2 app and card backgrounds, 3-5 component and chip backgrounds, 6-8 lines, 9-10 solids, 11-12 text.
+   Light text on gold-2 misses WCAG AA for green/amber step 11, so colored text sits on gold-1 cards and chips carry step-12 text.
+   Imported first by responsive.css; the legacy semantic tokens in index.html :root point at these steps. */
+:root {
+  --gold-1:#fdfdfc; --gold-2:#faf9f2; --gold-3:#f2f0e7; --gold-4:#eae6db; --gold-5:#e1dccf; --gold-6:#d8d0bf; --gold-7:#cbc0aa; --gold-8:#b9a88d; --gold-9:#978365; --gold-10:#8c7a5e; --gold-11:#71624b; --gold-12:#3b352b;
+  --green-1:#fbfefc; --green-2:#f4fbf6; --green-3:#e6f6eb; --green-4:#d6f1df; --green-5:#c4e8d1; --green-6:#adddc0; --green-7:#8eceaa; --green-8:#5bb98b; --green-9:#30a46c; --green-10:#2b9a66; --green-11:#218358; --green-12:#193b2d;
+  --red-1:#fffcfc; --red-2:#fff7f7; --red-3:#feebec; --red-4:#ffdbdc; --red-5:#ffcdce; --red-6:#fdbdbe; --red-7:#f4a9aa; --red-8:#eb8e90; --red-9:#e5484d; --red-10:#dc3e42; --red-11:#ce2c31; --red-12:#641723;
+  --amber-1:#fefdfb; --amber-2:#fefbe9; --amber-3:#fff7c2; --amber-4:#ffee9c; --amber-5:#fbe577; --amber-6:#f3d673; --amber-7:#e9c162; --amber-8:#e2a336; --amber-9:#ffc53d; --amber-10:#ffba18; --amber-11:#ab6400; --amber-12:#4f3422;
+  --blue-1:#fbfdff; --blue-2:#f4faff; --blue-3:#e6f4fe; --blue-4:#d5efff; --blue-5:#c2e5ff; --blue-6:#acd8fc; --blue-7:#8ec8f6; --blue-8:#5eb1ef; --blue-9:#0090ff; --blue-10:#0588f0; --blue-11:#0d74ce; --blue-12:#113264;
+  --gold-a1:#55550003; --gold-a2:#9d8a000d; --gold-a3:#75600018; --gold-a4:#6b4e0024; --gold-a5:#60460030; --gold-a6:#64440040; --gold-a7:#63420055; --gold-a8:#633d0072; --gold-a9:#5332009a; --gold-a10:#492d00a1; --gold-a11:#362100b4; --gold-a12:#130c00d4;
+  --black-a1:rgba(0,0,0,0.05); --black-a2:rgba(0,0,0,0.1); --black-a3:rgba(0,0,0,0.15); --black-a4:rgba(0,0,0,0.2); --black-a5:rgba(0,0,0,0.3); --black-a6:rgba(0,0,0,0.4); --black-a7:rgba(0,0,0,0.5); --black-a8:rgba(0,0,0,0.6); --black-a9:rgba(0,0,0,0.7); --black-a10:rgba(0,0,0,0.8); --black-a11:rgba(0,0,0,0.9); --black-a12:rgba(0,0,0,0.95);
+  --white-a1:rgba(255,255,255,0.05); --white-a2:rgba(255,255,255,0.1); --white-a3:rgba(255,255,255,0.15); --white-a4:rgba(255,255,255,0.2); --white-a5:rgba(255,255,255,0.3); --white-a6:rgba(255,255,255,0.4); --white-a7:rgba(255,255,255,0.5); --white-a8:rgba(255,255,255,0.6); --white-a9:rgba(255,255,255,0.7); --white-a10:rgba(255,255,255,0.8); --white-a11:rgba(255,255,255,0.9); --white-a12:rgba(255,255,255,0.95);
+  --teal-9:#12a594; --teal-11:#008573; --violet-9:#6e56cf; --violet-11:#6550b9; --brown-9:#ad7f58; --brown-11:#815e46; --orange-9:#f76b15; --orange-11:#cc4e00; --cyan-9:#00a2c7; --cyan-11:#107d98; --plum-9:#ab4aba; --plum-11:#953ea3;
+}
+body.dark-theme {
+  --gold-1:#121211; --gold-2:#1b1a17; --gold-3:#24231f; --gold-4:#2d2b26; --gold-5:#38352e; --gold-6:#444039; --gold-7:#544f46; --gold-8:#696256; --gold-9:#978365; --gold-10:#a39073; --gold-11:#cbb99f; --gold-12:#e8e2d9;
+  --green-1:#0e1512; --green-2:#121b17; --green-3:#132d21; --green-4:#113b29; --green-5:#174933; --green-6:#20573e; --green-7:#28684a; --green-8:#2f7c57; --green-9:#30a46c; --green-10:#33b074; --green-11:#3dd68c; --green-12:#b1f1cb;
+  --red-1:#191111; --red-2:#201314; --red-3:#3b1219; --red-4:#500f1c; --red-5:#611623; --red-6:#72232d; --red-7:#8c333a; --red-8:#b54548; --red-9:#e5484d; --red-10:#ec5d5e; --red-11:#ff9592; --red-12:#ffd1d9;
+  --amber-1:#16120c; --amber-2:#1d180f; --amber-3:#302008; --amber-4:#3f2700; --amber-5:#4d3000; --amber-6:#5c3d05; --amber-7:#714f19; --amber-8:#8f6424; --amber-9:#ffc53d; --amber-10:#ffd60a; --amber-11:#ffca16; --amber-12:#ffe7b3;
+  --blue-1:#0d1520; --blue-2:#111927; --blue-3:#0d2847; --blue-4:#003362; --blue-5:#004074; --blue-6:#104d87; --blue-7:#205d9e; --blue-8:#2870bd; --blue-9:#0090ff; --blue-10:#3b9eff; --blue-11:#70b8ff; --blue-12:#c2e6ff;
+  --gold-a1:#91911102; --gold-a2:#f9e29d0b; --gold-a3:#f8ecbb15; --gold-a4:#ffeec41e; --gold-a5:#feecc22a; --gold-a6:#feebcb37; --gold-a7:#ffedcd48; --gold-a8:#fdeaca5f; --gold-a9:#ffdba690; --gold-a10:#fedfb09d; --gold-a11:#fee7c6c8; --gold-a12:#fef7ede7;
+  --teal-9:#12a594; --teal-11:#0bd8b6; --violet-9:#6e56cf; --violet-11:#baa7ff; --brown-9:#ad7f58; --brown-11:#dbb594; --orange-9:#f76b15; --orange-11:#ffa057; --cyan-9:#00a2c7; --cyan-11:#4ccce6; --plum-9:#ab4aba; --plum-11:#e796f3;
+}

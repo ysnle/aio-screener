@@ -1413,7 +1413,7 @@ function _aioBuildTelegramMemoOverlay(raw, merged) {
     var rows = byTicker[sym].sort(function(a, b) { return (b.score || 0) - (a.score || 0); }).slice(0, 2);
     if (!rows.length) return;
     var body = rows.map(function(r) { return r.text; }).join(' / ');
-    var suffix = rows.length > 1 ? ' · auto ' + rows.length + ' posts' : ' · auto';
+    var suffix = rows.length > 1 ? ', auto ' + rows.length + ' posts' : ', auto';
     overlays[sym] = '[TG ' + date + suffix + '] ' + body;
   });
   return { date:date, source:(raw && raw.source) || (merged && merged.dynamicDigestSource) || 'telegram-public-mirror', byTicker:overlays, candidateItems:items.length };
@@ -1580,10 +1580,10 @@ _TG_CAT_MAP.flows = { label:'수급', cls:'tg-cat-macro' };
 _TG_CAT_MAP.insider = { label:'내부자', cls:'tg-cat-equity' };
 var _TG_CH_SRC = {
   // P1503: the channel's own handle plus its coverage, so a reader can find and judge the original.
-  aetherjapanresearch: '@aetherjapanresearch · 일본·아시아 반도체',
-  insidertracking:     '@insidertracking · 미국 속보',
-  bornlupin:           '@bornlupin · 한국 반도체·증권사 자료',
-  HANAchina:           '@HANAchina · 중국·신흥국',
+  aetherjapanresearch: '@aetherjapanresearch, 일본·아시아 반도체',
+  insidertracking:     '@insidertracking, 미국 속보',
+  bornlupin:           '@bornlupin, 한국 반도체·증권사 자료',
+  HANAchina:           '@HANAchina, 중국·신흥국',
 };
 var _TG_KR_NAME = {
   '005930.KS':'삼성전자','000660.KS':'SK하이닉스','009150.KS':'삼성전기',
@@ -1678,9 +1678,9 @@ function _aioRenderTelegramFeedHtml(pageId) {
       var cls = n.status === 'success' ? 'is-ok' : n.status === 'partial' ? 'is-partial' : 'is-fail';
       // P1503: say what the reader is looking at — public channels, a completed 24-hour window, a link per post.
       var _tgChannels = (window.AIO_TELEGRAM_WEEKLY_DIGEST && Array.isArray(window.AIO_TELEGRAM_WEEKLY_DIGEST.channels) && window.AIO_TELEGRAM_WEEKLY_DIGEST.channels.length) || 4;
-      var note = n.status === 'success' ? '텔레그램 공개 채널 ' + _tgChannels + '곳 · 지난 24시간 · 글마다 원문 링크' : n.status === 'partial' ? '조건에 맞는 글 일부만 표시 · 참고용' : '지난 24시간 안에 표시할 글 없음';
+      var note = n.status === 'success' ? '텔레그램 공개 채널 ' + _tgChannels + '곳, 지난 24시간, 글마다 원문 링크' : n.status === 'partial' ? '조건에 맞는 글 일부만 표시, 참고용' : '지난 24시간 안에 표시할 글 없음';
       return '<div class="tg-source-state ' + cls + '" data-external-source="telegram:' + escHtml(pageId) + '" data-state="' + n.status + '" title="' + escHtml(note) + '">' +
-        '<span class="tg-source-state-dot"></span>' + escHtml(n.label) + ' · ' + escHtml(note) + '</div>';
+        '<span class="tg-source-state-dot"></span>' + escHtml(n.label) + ', ' + escHtml(note) + '</div>';
     };
     if (!items.length || !tags.length) return statusMarkup('unavailable', 0, maxItems);
 
@@ -1724,7 +1724,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
     html += '<div class="tg-live-feed-hd">'
           + '<span class="tg-live-dot"></span>'
           + '<span class="tg-live-hd-label">' + feedLabel + '</span>'
-          + '<span class="tg-live-hd-ts" title="' + escHtml(windowLabel) + '">' + latestDate + ' · ' + filtered.length + '건 · 수집 당시 24시간 자료</span>'
+          + '<span class="tg-live-hd-ts" title="' + escHtml(windowLabel) + '">' + latestDate + ', ' + filtered.length + '건, 수집 당시 24시간 자료</span>'
           + '</div>';
 
     // 카드 렌더
@@ -1737,7 +1737,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
             + '<a href="' + escHtml(escUrl(it.url || '#')) + '" target="_blank" rel="noopener" class="tg-card-inner">'
             + '<div class="tg-card-hd">'
             + '<span class="tg-cat ' + info.cat.cls + '">' + info.cat.label + '</span>'
-            + '<span class="tg-card-src">' + src + ' · ' + date + '</span>'
+            + '<span class="tg-card-src">' + src + ', ' + date + '</span>'
             + '</div>'
             + '<div class="tg-card-headline">' + info.hlHeadline + '</div>'
             + (showBody && info.body && (pageId !== 'market-news' || cardIdx < 3) ? '<div class="tg-card-body">' + info.body + '</div>' : '') // v57.54: the full feed opens 3 bodies, then headlines
@@ -2092,10 +2092,10 @@ var SCR_KEYWORD_ALIASES = {
 // ARX-10: native screener owns controls, table, factor panel, and backtest DOM.
 var AIO_TRADER_PROFILES = {
   balanced: { label:'균형', desc:'고정 균형 가중 (시장 국면 자동 조정은 검증 전이라 미적용)', weights:null },
-  momentum: { label:'모멘텀', desc:'단기 추세 추종 · 1~4주 보유', weights:{momentum:0.40,trend:0.25,lowvol:0.08,size:0.05,value:0.06,quality:0.06,kalman:0.10} },
-  swing: { label:'스윙', desc:'중기 기술적 매매 · 2~8주 보유', weights:{momentum:0.30,trend:0.28,lowvol:0.12,size:0.07,value:0.07,quality:0.07,kalman:0.09} },
-  value: { label:'가치', desc:'저평가 장기 투자 · 3~12개월 보유', weights:{momentum:0.12,trend:0.15,lowvol:0.15,size:0.08,value:0.30,quality:0.15,kalman:0.05} },
-  lowrisk: { label:'저리스크', desc:'방어적 저변동 우선 · 하락방어 포커스', weights:{momentum:0.10,trend:0.15,lowvol:0.38,size:0.05,value:0.12,quality:0.15,kalman:0.05} }
+  momentum: { label:'모멘텀', desc:'단기 추세 추종, 1~4주 보유', weights:{momentum:0.40,trend:0.25,lowvol:0.08,size:0.05,value:0.06,quality:0.06,kalman:0.10} },
+  swing: { label:'스윙', desc:'중기 기술적 매매, 2~8주 보유', weights:{momentum:0.30,trend:0.28,lowvol:0.12,size:0.07,value:0.07,quality:0.07,kalman:0.09} },
+  value: { label:'가치', desc:'저평가 장기 투자, 3~12개월 보유', weights:{momentum:0.12,trend:0.15,lowvol:0.15,size:0.08,value:0.30,quality:0.15,kalman:0.05} },
+  lowrisk: { label:'저리스크', desc:'방어적 저변동 우선, 하락방어 포커스', weights:{momentum:0.10,trend:0.15,lowvol:0.38,size:0.05,value:0.12,quality:0.15,kalman:0.05} }
 };
 window.AIO_TRADER_PROFILES = AIO_TRADER_PROFILES;
 window._aioGetActiveProfile = function() {
@@ -2230,13 +2230,13 @@ function switchThemeMode(mode) {
     subView.style.display = 'none';
     etfBtn.style.background = 'var(--accent-dim)'; etfBtn.style.color = 'var(--accent)'; etfBtn.style.fontWeight = '600';
     subBtn.style.background = 'transparent'; subBtn.style.color = 'var(--text-secondary)'; subBtn.style.fontWeight = 'normal';
-    desc.textContent = '대표 ETF 기준 · 누구나 바로 매매 가능한 상품';
+    desc.textContent = '대표 ETF 기준, 누구나 바로 매매 가능한 상품';
   } else {
     etfView.style.display = 'none';
     subView.style.display = '';
     subBtn.style.background = 'var(--accent-dim)'; subBtn.style.color = 'var(--accent)'; subBtn.style.fontWeight = '600';
     etfBtn.style.background = 'transparent'; etfBtn.style.color = 'var(--text-secondary)'; etfBtn.style.fontWeight = 'normal';
-    desc.textContent = '개별 종목 등락률 단순 평균 · 세부 지수';
+    desc.textContent = '개별 종목 등락률 단순 평균, 세부 지수';
   }
 }
 // ═══════════════════════════════════════════════════════════════
@@ -4301,8 +4301,8 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
 function updateDataStatusError(status, msg) {
   var panel = document.getElementById('data-status-panel');
   if (!panel) return;
-  var colors = {ok:'#00e5a0', warn:'#ffa31a', error:'#ef4444'};
-  panel.style.color = colors[status] || '#a5b0c2';
+  var colors = {ok:'#3dd68c', warn:'#ffa057', error:'#e5484d'};
+  panel.style.color = colors[status] || 'var(--gold-11)';
   panel.innerHTML = (status === 'ok' ? '<span class="sd sd-g"></span>' : status === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-r"></span>') + ' ' + escHtml(msg);
 }
 
@@ -4322,18 +4322,18 @@ function updateDataStatus() {
 
   // 프록시 stale 캐시 사용 중 표시
   const proxyStale = window._aioProxyStaleSince
-    ? ' · <span class="lda-st-stale">stale ' + (window._aioProxyStaleAgeMin || '?') + '분</span>'
+    ? ', <span class="lda-st-stale">stale ' + (window._aioProxyStaleAgeMin || '?') + '분</span>'
     : '';
 
   // SW 버전 툴팁용 — 비동기 쿼리이므로 마지막으로 수신한 값 캐시
   const swVer = window._aioSWVersion || '';
-  const titleExtra = swVer ? ` · SW ${swVer}` : '';
+  const titleExtra = swVer ? `, SW ${swVer}` : '';
 
   const appVer = (typeof APP_VERSION === 'string' ? APP_VERSION : (window.AIO && window.AIO.version) || '');
   const swMismatch = !!(swVer && appVer && swVer !== appVer);
   const swBadge = swMismatch
-    ? ' · <span class="lda-st-swbad">SW ' + escHtml(swVer) + '≠' + escHtml(appVer) + '</span>'
-    : (swVer ? ' · <span class="lda-st-sw">SW ' + escHtml(swVer) + '</span>' : '');
+    ? ', <span class="lda-st-swbad">SW ' + escHtml(swVer) + '≠' + escHtml(appVer) + '</span>'
+    : (swVer ? ', <span class="lda-st-sw">SW ' + escHtml(swVer) + '</span>' : '');
   if (swMismatch && window._aioSWMismatchLogged !== swVer + ':' + appVer) {
     window._aioSWMismatchLogged = swVer + ':' + appVer;
     if (typeof _aioLog === 'function') _aioLog('warn', 'sw', 'Service worker version mismatch: ' + swVer + ' vs app ' + appVer);
@@ -4341,14 +4341,14 @@ function updateDataStatus() {
   }
 
   if (staleMin > 10) {
-    el.innerHTML = `<span style="font-size:11px;color:#fbbf24;font-weight:700;">시세 ${staleMin}분 전 갱신</span>${proxyStale}`;
+    el.innerHTML = `<span style="font-size:12px;color:var(--amber-11);font-weight:700;">시세 ${staleMin}분 전 갱신</span>${proxyStale}`;
     el.title = `마지막 시세 갱신: ${new Date(lastQuoteTs).toLocaleTimeString('ko-KR')} — ${staleMin}분 경과${titleExtra}`;
   } else if (staleMin >= 0) {
     const t = new Date(lastQuoteTs).toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
-    el.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">시세 ${t} 갱신</span>${proxyStale}`;
+    el.innerHTML = `<span style="font-size:12px;color:var(--text-muted);">시세 ${t} 갱신</span>${proxyStale}`;
     el.title = `정상 갱신 중${titleExtra}`;
   } else {
-    el.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">데이터 갱신 중...</span>${proxyStale}`;
+    el.innerHTML = `<span style="font-size:12px;color:var(--text-muted);">데이터 갱신 중...</span>${proxyStale}`;
     el.title = `연결 중${titleExtra}`;
   }
   if (swBadge) el.innerHTML += swBadge;
@@ -5005,7 +5005,7 @@ function _aioSetDeltaEl(id, delta, polarity, opts) {
   var label = (opts && opts.label) ? opts.label + ' ' : '';
   el.textContent = label + fmt.text;
   el.className = 'aio-metric-delta ' + fmt.cls;
-  el.style.cssText = 'display:inline;font-size:10px;font-family:var(--font-mono);margin-left:4px;';
+  el.style.cssText = 'display:inline;font-size:12px;font-family:var(--font-mono);margin-left:4px;';
   el.setAttribute('title', label + fmt.text);
   el.setAttribute('aria-label', label + fmt.text);
 }
@@ -5084,9 +5084,9 @@ function _aioRenderDataFreshness() {
       var scrGeneratedTs = window._aioGetFieldTs('screener');
       var priceTs = window._aioGetFieldTs('prices');
       if (scrTs && priceTs) {
-        asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ' · 파일 ' + scrGeneratedTs : '') + ' | 가격 ' + priceTs;
+        asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ', 파일 ' + scrGeneratedTs : '') + ' | 가격 ' + priceTs;
       } else if (scrTs) {
-        asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ' · 파일 ' + scrGeneratedTs : '');
+        asEl.textContent = '팩터 관측 ' + scrTs + (scrGeneratedTs ? ', 파일 ' + scrGeneratedTs : '');
       } else if (_aioScreenerFactorAsOf()) {
         asEl.textContent = '팩터 기준 ' + String(_aioScreenerFactorAsOf()).slice(0, 10);
       } else {
@@ -5244,7 +5244,7 @@ function _aioRenderOperatorNote() {
     '<div class="aio-operator-note-card aio-operator-note-priority aio-market-sentence" data-source-kind="REFERENCE" data-operational-use="reference-only" data-sentence-day="' + escHtml(line.day) + '">' +
       '<div class="aio-operator-note-meta">' +
         '<span class="aio-operator-note-kicker">오늘의 한 문장</span>' +
-        '<span class="aio-operator-note-date">' + escHtml(md) + (line.by ? ' · ' + escHtml(line.by) : '') + '</span>' +
+        '<span class="aio-operator-note-date">' + escHtml(md) + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' +
       '</div>' +
       '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' +
     '</div>';
@@ -5404,37 +5404,37 @@ function _aioRenderPipelineStatus() {
 
     var msgs = Array.isArray(meta.pipelineNotices) ? meta.pipelineNotices.slice() : []; // v58.70: src/data/server-data.js
     if (meta.marketCyclePublished !== true) {
-      msgs.push({ icon: '', text: '시장 스냅샷 미발행', detail: '최근 refresh 시도는 완전한 시장 cycle로 발행되지 않았습니다. 현재 시세는 마지막 성공본 참고자료입니다.', color: '#ef4444' });
+      msgs.push({ icon: '', text: '시장 스냅샷 미발행', detail: '최근 refresh 시도는 완전한 시장 cycle로 발행되지 않았습니다. 현재 시세는 마지막 성공본 참고자료입니다.', color: '#e5484d' });
     }
     if (meta.marketAnalysisOk === false) {
-      msgs.push({ icon: '', text: 'AI 시장 분석 비활성', detail: '운영자의 공용 AI 연결 설정 후 자동 분석을 사용할 수 있습니다.', color: '#f59e0b' });
+      msgs.push({ icon: '', text: 'AI 시장 분석 비활성', detail: '운영자의 공용 AI 연결 설정 후 자동 분석을 사용할 수 있습니다.', color: '#e2a336' });
     }
     if (meta.fmpHasKey && meta.fmpOk === false && (meta.fundamentalCoveragePct == null || Number(meta.fundamentalCoveragePct) < 80)) {
       var coverageValue = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
       var coverageLabel = isFinite(coverageValue) ? coverageValue.toFixed(1) + '%' : '미확인';
-      var fmpDetail = '유료 FMP는 사용하지 않음 · 무료 SEC companyfacts 누적 커버리지 ' + coverageLabel;
-      msgs.push({ icon: '', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#ef4444' });
+      var fmpDetail = '유료 FMP는 사용하지 않음, 무료 SEC companyfacts 누적 커버리지 ' + coverageLabel;
+      msgs.push({ icon: '', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#e5484d' });
     }
     if (_aioScreenerMetadata('universeFreshnessStatus') === 'stale') {
-      msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#f59e0b' });
+      msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#e2a336' });
     }
     if (!meta.fredHasKey) {
-      msgs.push({ icon: '', text: 'FRED 거시 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화', color: '#94a3b8' });
+      msgs.push({ icon: '', text: 'FRED 거시 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화', color: '#b9a88d' });
     }
     if (meta.fredHasKey && meta.fredFetchOk === false) {
-      msgs.push({ icon: '', text: 'FRED 거시 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
+      msgs.push({ icon: '', text: 'FRED 거시 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#e5484d' });
     }
     var reconciliation = meta.reconciliation || null;
     if (!reconciliation || reconciliation.status === 'unavailable') {
-      msgs.push({ icon: '!', text: '데이터 범주 상태 미수신', detail: '22개 데이터 범주의 자동 조정 상태를 불러오지 못했습니다.', color: '#ef4444' });
+      msgs.push({ icon: '!', text: '데이터 범주 상태 미수신', detail: '22개 데이터 범주의 자동 조정 상태를 불러오지 못했습니다.', color: '#e5484d' });
     } else if (reconciliation.status === 'stale') {
-      msgs.push({ icon: '!', text: '데이터 범주 상태 불일치', detail: '현재 시장 스냅샷과 조정 상태의 revision이 다릅니다.', color: '#ef4444' });
+      msgs.push({ icon: '!', text: '데이터 범주 상태 불일치', detail: '현재 시장 스냅샷과 조정 상태의 revision이 다릅니다.', color: '#e5484d' });
     } else if (Array.isArray(reconciliation.runtimeBlockedCategories) && reconciliation.runtimeBlockedCategories.length) {
       msgs.push({
         icon: '!',
         text: '자동 데이터 경로 차단 ' + reconciliation.runtimeBlockedCategories.length + '건',
         detail: reconciliation.runtimeBlockedCategories.slice(0, 6).join(', '),
-        color: '#ef4444'
+        color: '#e5484d'
       });
     }
 
@@ -5628,7 +5628,7 @@ function _aioBuildPublicShareReadiness(opts) {
     status: status,
     label: status === 'ok' ? '베타 공유 가능' : (status === 'warn' ? '주의 후 공유' : '공개 전 차단'),
     version: version || 'unknown',
-    dataLabel: meta && meta.generatedAt ? _aioKstShortFromIso(meta.generatedAt) + (ageMin != null ? ' · ' + ageMin + '분 전' : '') : 'public-data 미수신',
+    dataLabel: meta && meta.generatedAt ? _aioKstShortFromIso(meta.generatedAt) + (ageMin != null ? ', ' + ageMin + '분 전' : '') : 'public-data 미수신',
     dataStatus: meta && meta.newsOk === false ? '뉴스 백스톱 주의' : (meta && meta.symbolsOk ? '서버 스냅샷 시세 ' + meta.symbolsOk + '개 수신' : '수신 상태 확인 중'),
     pageStatus: pageAudit ? (pageAudit.status === 'pass' ? pageAudit.pageCount + '개 페이지 현재성 통과' : '현재성 주의 ' + ((pageAudit.missingCaveat || []).length + (pageAudit.liveOverstatement || []).length) + '건') : '페이지 감사 대기',
     pipelineStatus: pipelineAudit ? (pipelineAudit.status === 'ok' ? '파이프라인 OK' : '파이프라인 WARN') : '파이프라인 감사 대기',
@@ -5686,7 +5686,7 @@ function _aioRenderPublicReadiness() {
       '<div class="aio-public-readiness-card"><b>데이터</b><span>' + _aioPublicReadinessEsc(m.dataLabel) + '<br>' + _aioPublicReadinessEsc(m.dataStatus) + '</span></div>' +
       '<div class="aio-public-readiness-card"><b>현재성</b><span>' + _aioPublicReadinessEsc(m.pageStatus) + '<br>' + _aioPublicReadinessEsc(m.pipelineStatus) + '</span></div>' +
       sourceHtml +
-      (issues.length ? '<div class="aio-public-readiness-issues">' + issues.map(_aioPublicReadinessEsc).join(' · ') + '</div>' : '');
+      (issues.length ? '<div class="aio-public-readiness-issues">' + issues.map(_aioPublicReadinessEsc).join(', ') + '</div>' : '');
     el.style.display = 'grid';
   } catch(_) {}
 }
@@ -8953,7 +8953,7 @@ function _aioBuildNewsLocalKoreanInsight(item, preferredTitle) {
     ko_desc: _aioCleanNewsText(item.ko_desc || item.desc || item.description || '', 220),
     ko_summary: summary,
     ko_explain: explain,
-    ko_impact: impactParts.join(' · '),
+    ko_impact: impactParts.join(', '),
     ko_action: action,
     ko_rewrite: rewrite,
     ko_section: sectionKey,
@@ -9126,10 +9126,10 @@ async function freeTranslateNews(items) {
   var _usableKo = items.filter(function(i) { return i.title && !isKoreanText(i.title) && _hasUsableTranslation(i); }).length;
   var _stillOriginal = Math.max(0, _foreignCount - _usableKo);
   var statusMsg = _usableKo === _foreignCount ? '해외 기사 ' + _foreignCount + '건 모두 한국어 제목' : '해외 기사 ' + _foreignCount + '건 중 ' + _usableKo + '건 한국어 제목';
-  if (_stillOriginal > 0) statusMsg += ' · <span class="lda-tr-left">' + _stillOriginal + '건은 원문 제목 그대로</span>';
+  if (_stillOriginal > 0) statusMsg += ', <span class="lda-tr-left">' + _stillOriginal + '건은 원문 제목 그대로</span>';
   failed = _stillOriginal;
-  statusMsg += ' · ';
-  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" class="lda-tr-ai" data-action="openApiKeyConfig">공용 AI 연결 시 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
+  statusMsg += ', ';
+  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ', 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<button type="button" class="lda-tr-ai" data-action="openApiKeyConfig">공용 AI 연결 시 해석 추가</button>'; // P1362: native keyboard action and stable hit target.
   if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(failed > 0 ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
   // P4 수정: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
@@ -9831,9 +9831,9 @@ function _aioNewsCycleWindowForContract(contract, opts) {
 function _aioNewsInclusionReason(row, surfaceId) {
   var topic = _aioNewsTopicLabel(row.topic);
   var tier = row.sourceTier ? ('Tier ' + row.sourceTier) : 'source';
-  if (surfaceId === 'home') return 'Score ' + row.score + ' · ' + topic + ' · ' + tier;
-  if (surfaceId === 'briefing') return '08:00 KST 24h · Score ' + row.score + ' · ' + row.verificationStatus;
-  return 'Score ' + row.score + ' · ' + topic + ' · ' + row.verificationStatus;
+  if (surfaceId === 'home') return 'Score ' + row.score + ', ' + topic + ', ' + tier;
+  if (surfaceId === 'briefing') return '08:00 KST 24h, Score ' + row.score + ', ' + row.verificationStatus;
+  return 'Score ' + row.score + ', ' + topic + ', ' + row.verificationStatus;
 }
 
 function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow) {
@@ -10133,7 +10133,7 @@ function _aioMarketAnalysisScope(analysis, generatedAt) {
     });
     var gen = generatedAt ? new Date(generatedAt) : null;
     var head = gen && !isNaN(gen.getTime()) ? '생성 ' + part(gen, 'Asia/Seoul', true) + ' KST' : '';
-    return [head].concat(groups.map(function(key) { return byKey[key].join('·') + ' ' + key; })).filter(Boolean).join(' · ');
+    return [head].concat(groups.map(function(key) { return byKey[key].join('·') + ' ' + key; })).filter(Boolean).join(', ');
   } catch (_) { return ''; }
 }
 
@@ -10656,7 +10656,7 @@ async function fetchAllNews(forceRefresh = false) {
     const progLabel = document.getElementById('news-progress-label');
     if (pageBar) pageBar.style.width = pct + '%';
     if (progLabel) progLabel.textContent = Date.now() - _fetchStartTime > 12000
-      ? `백그라운드 갱신 · ${done}/${total}`
+      ? `백그라운드 갱신, ${done}/${total}`
       : `뉴스 수집 중... ${done}/${total}`;
   };
 
@@ -10919,7 +10919,7 @@ async function fetchAllNews(forceRefresh = false) {
   // isFetching = false; // v27.3: finally 블록으로 이동 (중복 방지)
 
   const progLabel = document.getElementById('news-progress-label');
-  if (progLabel) progLabel.textContent = `뉴스 수집 완료 · ${filteredItems.length}건 (${removedCount}건 필터링)`;
+  if (progLabel) progLabel.textContent = `뉴스 수집 완료, ${filteredItems.length}건 (${removedCount}건 필터링)`;
 
   if (dot) { dot.style.background = 'var(--green)'; dot.style.boxShadow = '0 0 5px var(--green)'; }
   if (lbl) lbl.textContent = '새로고침';
@@ -10935,7 +10935,7 @@ async function fetchAllNews(forceRefresh = false) {
 
   // 소스 라벨 업데이트
   const sl = document.getElementById('news-sources-label');
-  if (sl) sl.textContent = `${allItems.length}건 수집 · ${AIO_NEWS_SOURCES.length}개 소스 · 최종 갱신 ${new Date().toLocaleTimeString('ko-KR')}`;
+  if (sl) sl.textContent = `${allItems.length}건 수집, ${AIO_NEWS_SOURCES.length}개 소스, 최종 갱신 ${new Date().toLocaleTimeString('ko-KR')}`;
 
   _aioNotifyNewsSurfaceInvalidated('news-fetch-complete');
   // v46.6: 최종 렌더 시 조기 렌더 캐시 무효화 → 완전한 데이터로 갱신
@@ -11001,7 +11001,7 @@ async function fetchAllNews(forceRefresh = false) {
   }
   } catch(fetchErr) {
     _aioLog('error', 'fetch', 'fetchAllNews 치명적 에러: ' + (fetchErr && fetchErr.message || fetchErr));
-    if (dot) { dot.style.background = '#ff5b50'; dot.style.boxShadow = '0 0 5px #f87171'; }
+    if (dot) { dot.style.background = 'var(--orange-9)'; dot.style.boxShadow = '0 0 5px var(--red-5)'; }
     if (lbl) lbl.textContent = '에러 발생 — 재시도';
     const pl = document.getElementById('news-progress-label');
     if (pl) pl.textContent = '뉴스 수집 중 에러 발생 — 새로고침 버튼을 눌러주세요.';
@@ -11650,7 +11650,7 @@ async function fetchLiveQuotes(requestedSymbols) {
         mcapChange24hPct: g.market_cap_change_percentage_24h_usd != null ? g.market_cap_change_percentage_24h_usd : null,
         _updated: Date.now()
       };
-      console.log('[AIO] CoinGecko /global: BTC ' + (window._cgGlobal.btcDominance||0).toFixed(1) + '% 도미넌스 · 시총 $' + ((window._cgGlobal.totalMarketCapUSD||0)/1e12).toFixed(2) + 'T');
+      console.log('[AIO] CoinGecko /global: BTC ' + (window._cgGlobal.btcDominance||0).toFixed(1) + '% 도미넌스, 시총 $' + ((window._cgGlobal.totalMarketCapUSD||0)/1e12).toFixed(2) + 'T');
     }
     // /coins/markets — 상위 20 코인 상세
     if (marketsD.status === 'fulfilled' && Array.isArray(marketsD.value)) {
@@ -12037,7 +12037,7 @@ async function fetchLiveQuotes(requestedSymbols) {
       DATA_SNAPSHOT._partialLive = !coreCoverageOk;
       DATA_SNAPSHOT._isFallback = !coreCoverageOk;
     }
-    updateDataStatusError('ok', 'API 연결 성공 · ' + allQuotes.length + '개 종목');
+    updateDataStatusError('ok', 'API 연결 성공, ' + allQuotes.length + '개 종목');
     if (typeof _reportApiOk === 'function') _reportApiOk('yahoo-quote', allQuotes.length + '개 종목');
     // v34.2: 실시간 데이터 수신 이벤트 발화 → staleness 배너 즉시 해제
     try { window.dispatchEvent(new CustomEvent('aio:liveDataReceived', { detail: { count: allQuotes.length, liveCoverage: liveCoverage, coreCoverageOk: coreCoverageOk } })); } catch(_e){}
@@ -12061,7 +12061,7 @@ async function fetchLiveQuotes(requestedSymbols) {
       try { document.dispatchEvent(new CustomEvent('aio:quoteTopbar', { detail: { retryInSec: wait } })); } catch(_retryTopbarEvent) {}
     }
     updateDataStatusError(usingSnapshotFallback ? 'warn' : 'error', usingSnapshotFallback
-      ? '실시간 시세 미수신 · 기준 스냅샷 사용 · 중앙 갱신 주기 대기'
+      ? '실시간 시세 미수신, 기준 스냅샷 사용, 중앙 갱신 주기 대기'
       : 'API 연결 실패 — ' + wait + '초 후 재시도');
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + fetchLiveQuotes._failCount + ')');
     if (!usingSnapshotFallback) setTimeout(fetchLiveQuotes, wait * 1000);
@@ -12374,7 +12374,7 @@ function _aioMarkLiveSink(el, sym, d, policyKey, unavailable) {
     // plain status (참고·지연), and the raw codes stay in data-truth-issues for operators.
     var _truthCodes = (truth.issues || []).concat(truth.warnings || []).join(' ');
     var _truthWhen = ts ? new Date(Number(ts) < 1e12 ? Number(ts) * 1000 : Number(ts)) : null;
-    var _truthTime = _truthWhen && isFinite(_truthWhen.getTime()) ? ' · 관측 ' + _truthWhen.toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    var _truthTime = _truthWhen && isFinite(_truthWhen.getTime()) ? ', 관측 ' + _truthWhen.toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
     if (truth.status === 'blocked' || truth.status === 'warn') {
       el.title = (/stale/.test(_truthCodes) ? '지연된 값' : /snapshot|non_operational/.test(_truthCodes) ? '최근 수집본(참고용)' : '참고용 값') + _truthTime + ' — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.';
     }
@@ -13260,7 +13260,7 @@ function applyLiveQuotes(quotes) {
         var _usS = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';
         var extPctVal = q.extPct != null ? q.extPct : null;
         var extLabel = q.extSession === 'pre' ? 'Pre' : 'After';
-        var extColor = extPctVal != null ? (extPctVal >= 0 ? '#00e5a0' : '#ff5b50') : 'var(--text-muted)';
+        var extColor = extPctVal != null ? (extPctVal >= 0 ? '#3dd68c' : '#ec5d5e') : 'var(--text-muted)';
         if (_usS === 'pre' || _usS === 'after') {
           _extHeroEl.innerHTML = '<span class="lda-ext-close">종가 ' +
             price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>' +
@@ -13290,10 +13290,10 @@ function applyLiveQuotes(quotes) {
         if (_futD && _futD.price) {
           document.querySelectorAll(`[data-idx-futures="${q.symbol}"]`).forEach(el => {
             var fPct = _futD.pct != null ? _futD.pct : 0;
-            var fColor = fPct >= 0 ? '#00e5a0' : '#ff5b50';
+            var fColor = fPct >= 0 ? '#3dd68c' : '#ec5d5e';
             var sessLabel = _usS2 === 'pre' ? '프리' : _usS2 === 'after' ? '애프터' : '시간외';
-            el.innerHTML = '<span style="font-size:11px;color:#a78bfa;">선물(' + sessLabel + ')</span> ' +
-              '<span style="font-size:11px;color:' + fColor + ';font-family:var(--font-mono);">' +
+            el.innerHTML = '<span style="font-size:12px;color:var(--blue-11);">선물(' + sessLabel + ')</span> ' +
+              '<span style="font-size:12px;color:' + fColor + ';font-family:var(--font-mono);">' +
               _futD.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) +
               ' (' + (fPct >= 0 ? '+' : '') + fPct.toFixed(2) + '%)</span>';
             el.style.display = '';
@@ -13313,7 +13313,7 @@ function applyLiveQuotes(quotes) {
     const cardId = snapMap[q.symbol];
     if (cardId) {
       const card = document.getElementById(cardId);
-      if (card) card.style.borderLeftColor = pct >= 0 ? '#00e5a0' : '#ff5b50';
+      if (card) card.style.borderLeftColor = pct >= 0 ? 'var(--green-7)' : 'var(--orange-9)';
     }
   });
   // VIX 별도 처리 — v45.6: _liveData/DATA_SNAPSHOT 폴백 추가
@@ -13564,15 +13564,15 @@ function _getDataFreshness(symbol) {
   var age = Date.now() - ts;
   var srcLabel = src.source || 'unknown';
   if (age < 120000) {
-    return { level: 'live', label: '실시간', color: 'var(--text-secondary)', title: srcLabel + ' · ' + Math.round(age/1000) + '초 전' };
+    return { level: 'live', label: '실시간', color: 'var(--text-secondary)', title: srcLabel + ', ' + Math.round(age/1000) + '초 전' };
   }
   if (age < 600000) {
     var mins = Math.floor(age / 60000);
-    return { level: 'recent', label: mins + '분전', color: 'var(--data-amber)', title: srcLabel + ' · ' + mins + '분 전 갱신' };
+    return { level: 'recent', label: mins + '분전', color: 'var(--data-amber)', title: srcLabel + ', ' + mins + '분 전 갱신' };
   }
   var hrs = Math.floor(age / 3600000);
   var minR = Math.floor((age % 3600000) / 60000);
-  return { level: 'stale', label: (hrs > 0 ? hrs + '시간' : minR + '분') + '전', color: 'transparent', title: srcLabel + ' · 갱신 지연' }; // P1599 (A09/E16): freshness is not price direction — neutral filled/amber/hollow, never green/red
+  return { level: 'stale', label: (hrs > 0 ? hrs + '시간' : minR + '분') + '전', color: 'transparent', title: srcLabel + ', 갱신 지연' }; // P1599 (A09/E16): freshness is not price direction — neutral filled/amber/hollow, never green/red
 }
 
 function _updateFreshnessBadges() {

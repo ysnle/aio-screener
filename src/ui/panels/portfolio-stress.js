@@ -10,7 +10,7 @@ const md = (date) => (date ? `${date.slice(0, 4)}.${Number(date.slice(5, 7))}.${
 const toneOf = (value) => (value < -15 ? 'is-severe' : value < 0 ? 'is-down' : 'is-up');
 
 function line(name, impact, note = '') {
-  const band = `95% 범위 ${signed(impact.low)} ~ ${signed(impact.high)}${impact.distinct ? '' : ' · 0과 구분 안 됨'}`;
+  const band = `95% 범위 ${signed(impact.low)} ~ ${signed(impact.high)}${impact.distinct ? '' : ', 0과 구분 안 됨'}`;
   return `<div class="pf-stress-row"><span class="pf-stress-name">${esc(name)}</span>`
     + `<span class="pf-stress-value ${toneOf(impact.mid)}">${signed(impact.mid)} <span class="pf-stress-band">(${esc(band)}${note})</span></span></div>`;
 }
@@ -23,7 +23,7 @@ export function portfolioStressHtml({ base, historyMap = {}, commonDates = [], h
   const total = rows.reduce((sum, row) => sum + (row.value || 0), 0);
   if (!(total > 0)) return '';
   const weights = Object.fromEntries(rows.map((row) => [row.sym, row.value / total]));
-  const head = '<div class="pf-stress-head">스트레스 시나리오 <span class="pf-stress-sub">— 주식 부분 · 내 계좌의 과거 주간 움직임으로 추정</span></div>';
+  const head = '<div class="pf-stress-head">스트레스 시나리오 <span class="pf-stress-sub">— 주식 부분, 내 계좌의 과거 주간 움직임으로 추정</span></div>';
   const est = estimateBookSensitivities({ historyMap, commonDates, weights, history });
   const parts = [head];
   if (!est.available) {
@@ -46,10 +46,10 @@ export function portfolioStressHtml({ base, historyMap = {}, commonDates = [], h
     if (krw) {
       const translation = krwTranslationPct({ weights, baseCurrency: base?.currency, shockPct: 10 });
       const shifted = translation == null ? krw : { ...krw, mid: krw.mid + translation, low: krw.low + translation, high: krw.high + translation, distinct: krw.low + translation > 0 || krw.high + translation < 0 };
-      parts.push(line('원/달러 +10% (원화 약세)', shifted, translation ? ` · 환산 효과 ${signed(translation)} 포함` : ''));
+      parts.push(line('원/달러 +10% (원화 약세)', shifted, translation ? `, 환산 효과 ${signed(translation)} 포함` : ''));
     }
     const r2 = (fit) => (fit?.r2 == null ? '—' : fit.r2.toFixed(2));
-    parts.push(`<div class="pf-stress-note pf-stress-method">${md(est.from)}~${md(est.to)} ${est.weeks}주의 주간 수익률을 요인 하나씩에 회귀한 기울기(지수 베타 ${f.equity ? f.equity.beta.toFixed(2) : '—'}, 설명력 R² 지수 ${r2(f.equity)} · 금리 ${r2(f.rate)} · 유가 ${r2(f.oil)} · 환율 ${r2(f.krw)})를 충격 크기만큼 키운 값입니다. 다른 요인이 함께 움직인 효과가 섞여 있고, 큰 충격은 과거 주간 관계를 넘어서는 외삽이라 예측이 아닙니다. 보유 시장 지수는 미국 종목 S&amp;P 500, 한국 종목 코스피를 비중대로 섞었습니다.</div>`);
+    parts.push(`<div class="pf-stress-note pf-stress-method">${md(est.from)}~${md(est.to)} ${est.weeks}주의 주간 수익률을 요인 하나씩에 회귀한 기울기(지수 베타 ${f.equity ? f.equity.beta.toFixed(2) : '—'}, 설명력 R² 지수 ${r2(f.equity)}, 금리 ${r2(f.rate)}, 유가 ${r2(f.oil)}, 환율 ${r2(f.krw)})를 충격 크기만큼 키운 값입니다. 다른 요인이 함께 움직인 효과가 섞여 있고, 큰 충격은 과거 주간 관계를 넘어서는 외삽이라 예측이 아닙니다. 보유 시장 지수는 미국 종목 S&amp;P 500, 한국 종목 코스피를 비중대로 섞었습니다.</div>`);
   }
   const kr = rows.some((row) => /\.(KS|KQ)$/i.test(row.sym)) ? krIndexStressRows(history, { now }) : [];
   if (kr.length) {

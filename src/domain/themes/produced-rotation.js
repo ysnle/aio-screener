@@ -16,7 +16,7 @@ export function selectProducedRotation(artifact, symbol, nowMs = Date.now()) {
     || Date.parse(row.observedAt) !== basis.closeMs || !Number.isFinite(Date.parse(row.fetchedAt)) || Date.parse(row.fetchedAt) > Number(nowMs)) return null;
   const quadrant = row.rsRatio >= 100 ? row.rsMomentum >= 100 ? 'Leading' : 'Weakening' : row.rsMomentum >= 100 ? 'Improving' : 'Lagging';
   if (row.quadrant !== quadrant) return null;
-  return Object.freeze({ ...row, source: 'Yahoo daily adjusted-close · SPY aligned research reference', sourceKind: artifact.sourceKind,
+  return Object.freeze({ ...row, source: 'Yahoo daily adjusted-close, SPY aligned research reference', sourceKind: artifact.sourceKind,
     revision: `${artifact.modelVersion}:${row.sessionDate}`, changeBasis: row.performanceBasis, allowedUse: 'reference', decisionEligible: false });
 }
 

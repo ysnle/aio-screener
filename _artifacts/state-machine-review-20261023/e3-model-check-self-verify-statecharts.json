@@ -1,0 +1,18 @@
+{
+ "version": "v58.73",
+ "date": "2026-10-24",
+ "note": "UI 개편 배치와 모델 검사 자기검증·상태도.",
+ "status": null,
+ "qa": [
+  {
+   "id": "QA-MODEL-SELFCHECK-01",
+   "text": "v58.73: 두 모델 검사(history 세션·해설 수명주기)는 검사 대상 함수의 코드가 바뀌면 --sync 전까지 실패하고, 과거 결함·가드 제거 변형(P2011·P2000·P1986 이전 코드 등 6개)을 매 실행마다 잡아야 통과한다.",
+   "verify_by": "node scripts/ci-history-session-model-check.mjs && node scripts/ci-narrative-lifecycle-model-check.mjs",
+   "done": true
+  }
+ ],
+ "qa_section": "모델 검사 v58.73",
+ "changelog": [
+  "**모델 검사 자기검증과 상태도 (v58.73):** pstack 정형 검증 스킬의 방식을 가져와, 두 모델 검사가 검사 대상 코드의 지문(architecture/model-check-coverage.json)으로 낡은 모델을 잡고, 과거 결함 코드 변형 6개를 매번 잡아 스스로 실패할 수 있음을 증명한다. --chart로 소유자용 상태도(빨강=과거 결함 경로, 초록=수정 후)를 만든다."
+ ]
+}

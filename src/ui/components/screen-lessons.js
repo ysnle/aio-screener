@@ -58,7 +58,7 @@ export function renderScreenLessons({ documentRef: doc, root, routeId, ctx = nul
     const fold = el(doc, 'details', null, 'sx-disclosure mg-screen-lessons-fold');
     fold.open = wasOpen;
     const summary = el(doc, 'summary', null, 'mg-screen-lessons-summary');
-    summary.append(title, el(doc, 'span', lessons.map((lesson) => lesson.title).filter(Boolean).join(' · '), 'mg-screen-lessons-names'));
+    summary.append(title, el(doc, 'span', lessons.map((lesson) => lesson.title).filter(Boolean).join(', '), 'mg-screen-lessons-names'));
     fold.append(summary, list);
     box.replaceChildren(fold);
     return lessons;

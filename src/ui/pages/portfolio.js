@@ -34,17 +34,17 @@ function renderPortfolioStatus(documentRef, state, surface) {
   } else if (readState === 'failed') {
     element.textContent = '포트폴리오 읽기 실패 — 입력 유무를 단정하지 않습니다. 재시도해 주세요.';
   } else if (valuation === 'cash-only') {
-    element.textContent = surface?.totalAssets == null ? '현금만 보유 중입니다 · 환율 자료가 없어 통화별 금액만 표시합니다' : '현금만 보유 중입니다 · 총자산 = 현금';
+    element.textContent = surface?.totalAssets == null ? '현금만 보유 중입니다, 환율 자료가 없어 통화별 금액만 표시합니다' : '현금만 보유 중입니다, 총자산 = 현금';
   } else if (valuation === 'empty') {
     element.textContent = '포트폴리오 등록 후 자동 계산됩니다.';
   } else if (valuation === 'partial') {
     // v57.86 (live review): the hero shows no partial total, so the line says the totals wait (it said the holding was "left out").
-    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가 · 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다${closeNote(surface)}`; // v57.81: same words as the row state
+    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가, 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다${closeNote(surface)}`; // v57.81: same words as the row state
   } else if (valuation === 'unavailable' && readState === 'ready' && (surface?.holdingCount ?? 0) > 0) {
     // v57.81: every holding is on 가격 없음 (no quote and no close yet), so no total is shown rather than a partial one.
-    element.textContent = `${surface.holdingCount}종목 모두 가격 없음 · 가격을 받으면 총자산과 손익을 계산합니다`;
+    element.textContent = `${surface.holdingCount}종목 모두 가격 없음, 가격을 받으면 총자산과 손익을 계산합니다`;
   } else if (valuation === 'complete') {
-    element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료${surface?.cash == null && !surface?.cashHeld ? ' · 현금 미입력 — 총자산은 주식 평가액' : ''}${closeNote(surface)}`;
+    element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료${surface?.cash == null && !surface?.cashHeld ? ', 현금 미입력 — 총자산은 주식 평가액' : ''}${closeNote(surface)}`;
   } else {
     element.textContent = '포트폴리오 데이터 수신 대기';
   }
@@ -226,7 +226,7 @@ const closeNote = (surface) => {
   const date = String(surface?.closeDate || '');
   const md = /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} ` : '';
   const delayed = surface?.delayedValuedCount || 0;
-  return `${n ? ` · ${n}종목은 실시간 시세 대신 ${md}종가 기준` : ''}${delayed ? ` · ${delayed}종목은 지연 시세(참고) 기준` : ''}`;
+  return `${n ? `, ${n}종목은 실시간 시세 대신 ${md}종가 기준` : ''}${delayed ? `, ${delayed}종목은 지연 시세(참고) 기준` : ''}`;
 };
 
 function screenerSectorOf(bySymbol) {
@@ -247,7 +247,7 @@ function renderCashBalances(documentRef, surface) {
   const conversion = surface?.cashConversion || {};
   const each = balances.filter((row) => row.amount > 0).map((row) => formatSurfaceMoney(row.amount, row.currency || conversion.target || surface.declaredBaseCurrency));
   const unit = conversion.target || surface.declaredCashCurrency || surface.declaredBaseCurrency;
-  const heroText = surface.cash != null ? formatSurfaceMoney(surface.cash, unit) : each.length ? `${each.join(' · ')} · 합계 보류` : '—';
+  const heroText = surface.cash != null ? formatSurfaceMoney(surface.cash, unit) : each.length ? `${each.join(', ')}, 합계 보류` : '—';
   setSurfaceText(documentRef, 'pf-cash-hero', heroText, surface.cash, surface);
   const line = documentRef?.getElementById('pf-cash-total');
   if (!line) return;
@@ -255,10 +255,10 @@ function renderCashBalances(documentRef, surface) {
   let text = '';
   if (surface.cashHeld) {
     const names = (conversion.held || []).map((code) => ({ KRW: '원화', USD: '달러' }[code] || code)).join('·');
-    text = `환율 자료가 없어 합계를 계산하지 않았습니다 · ${names ? `${names} 현금은 ` : ''}통화별 금액만 표시`;
+    text = `환율 자료가 없어 합계를 계산하지 않았습니다, ${names ? `${names} 현금은 ` : ''}통화별 금액만 표시`;
   } else if (surface.cash != null && conversion.converted) {
-    const undeclared = !surface.declaredBaseCurrency && !surface.holdingCount ? ' · 기준 통화 미선언이라 달러로 표시' : '';
-    text = `합계 ${formatSurfaceMoney(surface.cash, unit)} · ${rateText}${undeclared}`;
+    const undeclared = !surface.declaredBaseCurrency && !surface.holdingCount ? ', 기준 통화 미선언이라 달러로 표시' : '';
+    text = `합계 ${formatSurfaceMoney(surface.cash, unit)}, ${rateText}${undeclared}`;
   }
   line.textContent = text;
   line.title = conversion.appRate ? `원/달러 ${conversion.appRate.toLocaleString('en-US', { maximumFractionDigits: 2 })}원` : '';
@@ -294,14 +294,14 @@ function renderPortfolioSurface(documentRef, page, surface) {
       : surface.currencyState === 'mixed-without-conversion'
         ? `통화 혼합(${(surface.declaredCurrencies || []).join('/')}) — 환산 없어 합계 보류`
         : surface.currencyState === 'declared-single' ? `통화 ${surface.baseCurrency}`
-          : '통화 선택 전 · 모두 같은 통화로 보고 계산';
+          : '통화 선택 전, 모두 같은 통화로 보고 계산';
   // E3/P1196: 원가/시세 불일치는 이제 두 갈래다 — 선언된 leg로 환산됐으면 P&L이 성립하고, 근거가
   // 없으면 예전처럼 보류한다. 화면이 둘을 구분해야 "값 소실"과 "의도된 보류"가 구분된다.
   // v57.48 expert review #23: a converted cost uses today's declared rate, not the rate on the purchase date —
   // the P&L then leaves out the currency move since purchase, and the note says so.
-  const currencyHeld = (surface.costCurrencyState === 'cost-price-mismatch-held' ? ' · 원가/시세 불일치 — P&L 보류'
-    : surface.costCurrencyState === 'cost-price-mismatch-converted' ? ` · 원가/시세 불일치 — ${fxBasisLabel}로 환산` : '')
-    + (surface.conversion?.costApplied ? ' · 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외' : '');
+  const currencyHeld = (surface.costCurrencyState === 'cost-price-mismatch-held' ? ', 원가/시세 불일치 — P&L 보류'
+    : surface.costCurrencyState === 'cost-price-mismatch-converted' ? `, 원가/시세 불일치 — ${fxBasisLabel}로 환산` : '')
+    + (surface.conversion?.costApplied ? ', 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외' : '');
   const currencyHeldActive = (surface.currencyState === 'mixed-without-conversion' || surface.costCurrencyState === 'cost-price-mismatch-held') && surface.readState === 'ready' && !!surface.holdingCount;
   setSurfaceText(documentRef, 'pf-currency-note', currencyNoteBase === '—' ? '—' : currencyNoteBase + currencyHeld, surface.holdingCount || null, surface, currencyHeldActive ? 'var(--data-amber)' : 'var(--text-dim)');
   // Codex browser audit H50: "VIX 확인 중" stayed while every market screen showed VIX — the live quote did not
@@ -315,8 +315,8 @@ function renderPortfolioSurface(documentRef, page, surface) {
   const vixValue = liveVix ?? vixClose?.value ?? null;
   const band = vixBand(vixValue);
   const rule = band.blocked ? 'VIX 자료 없음'
-    : liveVix != null ? `VIX ${liveVix.toFixed(1)} · ${band.label}`
-      : `VIX ${vixClose.value.toFixed(1)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가) · ${band.label}`;
+    : liveVix != null ? `VIX ${liveVix.toFixed(1)}, ${band.label}`
+      : `VIX ${vixClose.value.toFixed(1)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가), ${band.label}`;
   // v57.70 (2026-10-15 audit): "VIX 16.9 · 저변동 구간" stood while KOSPI was down 13% in five sessions. VIX is the US
   // option market's gauge; a Korean move of 5% or more over five completed sessions is named beside it.
   const historyRows = documentRef?.defaultView?._aioHistory || globalThis._aioHistory || [];
@@ -325,7 +325,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
   const kospiBack = kospi.length >= 6 ? kospi[kospi.length - 6] : null;
   const kospi5 = kospiLast && kospiBack?.value > 0 ? (kospiLast.value / kospiBack.value - 1) * 100 : null;
   const krNote = kospi5 != null && Math.abs(kospi5) >= 5
-    ? ` · 한국은 코스피 5거래일 ${kospi5 >= 0 ? '+' : ''}${kospi5.toFixed(1)}%(${Number(kospiLast.date.slice(5, 7))}/${Number(kospiLast.date.slice(8, 10))} 종가) — VIX는 미국 시장 기준입니다` : '';
+    ? `, 한국은 코스피 5거래일 ${kospi5 >= 0 ? '+' : ''}${kospi5.toFixed(1)}%(${Number(kospiLast.date.slice(5, 7))}/${Number(kospiLast.date.slice(8, 10))} 종가) — VIX는 미국 시장 기준입니다` : '';
   setSurfaceText(documentRef, 'pf-exposure-rule', rule + (band.blocked ? '' : krNote), band.blocked ? null : band.value, surface);
   const current = surface.exposurePct == null ? (surface.holdingCount ? '현재 노출 —' : '보유 내역을 입력하면 계산됩니다') : `현재 노출 ${surface.exposurePct.toFixed(1)}%`;
   setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, 'var(--text-dim)');
@@ -335,7 +335,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
   if (currentNode && !documentRef.getElementById('pf-learn-links')) {
     const links = documentRef.createElement('div');
     links.id = 'pf-learn-links';
-    for (const [lesson, label] of [['J3', '원리 레슨 · 포지션 사이징'], ['J4', '원리 레슨 · 손실과 생존']]) {
+    for (const [lesson, label] of [['J3', '원리 레슨, 포지션 사이징'], ['J4', '원리 레슨, 손실과 생존']]) {
       const button = documentRef.createElement('button');
       button.type = 'button';
       button.className = 'flow-next-link';
@@ -364,7 +364,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
         row.className = 'pfp-sector-row';
         const label = documentRef.createElement('span');
         label.textContent = sectorLabel(sector.name);
-        label.title = `${sectorLabel(sector.name)} · 현금 포함 총자산 대비`;
+        label.title = `${sectorLabel(sector.name)}, 현금 포함 총자산 대비`;
         label.dataset.basis = sector.basis || 'total-assets-including-cash';
         label.className = 'pfp-sector-label';
         const track = documentRef.createElement('div');
@@ -422,7 +422,7 @@ function holdingDetailRow(documentRef, { symbol, holding, items, detailId, expan
   if (holding?.memo) {
     const memo = documentRef.createElement('p');
     memo.className = 'pfp-detail-memo';
-    memo.textContent = `메모 · ${holding.memo}`;
+    memo.textContent = `메모, ${holding.memo}`;
     cell.append(list, memo);
   } else cell.append(list);
   const actions = documentRef.createElement('div');
@@ -550,12 +550,12 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     // v57.81: one failure state for a holding whose quote and close both came back empty (any listed symbol is requested).
     const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? '가격 없음' : money(price, priceCurrency));
     priceCellNode.style.color = price == null ? 'var(--text-muted)' : 'var(--text-primary)';
-    const closeDated = rowData.sourceKind === 'completed-close' && rowData.closeDate ? ` · 실시간 시세 대신 ${rowData.closeDate} 종가` : '';
-    priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다 · 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}${closeDated}`;
+    const closeDated = rowData.sourceKind === 'completed-close' && rowData.closeDate ? `, 실시간 시세 대신 ${rowData.closeDate} 종가` : '';
+    priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다, 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}${closeDated}`;
     if (price == null) priceCellNode.dataset.priceState = 'missing';
     row.appendChild(priceCellNode);
     const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'pfp-cell is-bold');
-    if (pnl == null) pnlCell.title = '손익 보류 · 원가/시세 통화 불일치 또는 시세 미수신';
+    if (pnl == null) pnlCell.title = '손익 보류, 원가/시세 통화 불일치 또는 시세 미수신';
     pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--green)' : 'var(--red)';
     row.appendChild(pnlCell);
     const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, 'pfp-cell is-bold');
@@ -650,16 +650,16 @@ function renderPortfolioChart({ root, page, surface, charts }) {
     try { canvas.getContext?.('2d')?.clearRect(0, 0, canvas.width, canvas.height); } catch (_) {}
     if (loading) loading.textContent = !surface.rows?.length ? '종목을 추가하면 비중이 표시됩니다'
       : !holdings.length ? '시세를 받으면 평가액 기준 비중을 그립니다 — 매수 원가로 대신 그리지 않습니다'
-        : '차트 모듈 대기 · 차트 보류';
+        : '차트 모듈 대기, 차트 보류';
     return;
   }
   if (charts.get('pf-position-donut')?.signature === signature) return;
   charts.destroy('pf-position-donut');
   try {
-    const colors = ['#211d16', '#57513f', '#8a8271', '#6f695e', '#a29a89', '#3d3830', '#b8b0a0'];
+    const colors = ['#1b1a17', '#544f46', '#978365', '#696256', '#a39073', '#3b352b', '#b9a88d'];
     const chart = new ChartConstructor(canvas, {
       type: 'doughnut',
-      data: { labels: holdings.map((item) => item.symbol), datasets: [{ data: holdings.map((item) => item.value), backgroundColor: holdings.map((_, index) => colors[index % colors.length]), borderColor: '#fbf9f5', borderWidth: 1 }] },
+      data: { labels: holdings.map((item) => item.symbol), datasets: [{ data: holdings.map((item) => item.value), backgroundColor: holdings.map((_, index) => colors[index % colors.length]), borderColor: '#faf9f2', borderWidth: 1 }] },
       options: { responsive: false, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => ` ${context.label}: ${(context.parsed / total * 100).toFixed(1)}%` } } } }
     });
     charts.set('pf-position-donut', { chart, signature });
@@ -688,7 +688,7 @@ function renderPortfolioChart({ root, page, surface, charts }) {
     }
   } catch (_) {
     charts.destroy('pf-position-donut');
-    if (loading) loading.textContent = '포트폴리오 차트 런타임 실패 · 차트 보류';
+    if (loading) loading.textContent = '포트폴리오 차트 런타임 실패, 차트 보류';
   }
 }
 
@@ -747,7 +747,7 @@ function renderPortfolioChecks(documentRef, root, surface) {
     host.append(el('p', result.reason === 'currency-unconverted' ? '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.' : '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
     return result;
   }
-  host.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? ` · 평가액이 없는 ${result.excluded}종목 제외` : ''} · 한 종목은 내부 구간(10~25% 참고 · 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
+  host.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? `, 평가액이 없는 ${result.excluded}종목 제외` : ''}, 한 종목은 내부 구간(10~25% 참고, 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시`, 'theme-strength-basis'));
   const list = el('div', null, 'pf-checks-list');
   for (const check of result.checks) {
     const card = el('section', null, 'pf-check');
@@ -797,7 +797,7 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       if (page && !suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
           routeId: 'portfolio',
-          heading: '포트폴리오 · 노출·기관 시차·AI 자본구조'
+          heading: '포트폴리오, 노출·기관 시차·AI 자본구조'
         });
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge?.remove?.());

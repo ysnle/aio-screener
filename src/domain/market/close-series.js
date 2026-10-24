@@ -162,9 +162,9 @@ export function alignmentLabel(alignment) {
   if (!alignment || alignment.status === 'missing') return '미수신';
   const day = shortDate(alignment.date);
   if (alignment.status === 'aligned') return day;
-  if (alignment.status === 'lagged') return `${day} · ${alignment.lag}거래일 전`;
-  if (alignment.status === 'ahead') return `${day} 장중 · 판정 제외`;
-  return `${day} · 오래됨(판정 제외)`;
+  if (alignment.status === 'lagged') return `${day}, ${alignment.lag}거래일 전`;
+  if (alignment.status === 'ahead') return `${day} 장중, 판정 제외`;
+  return `${day}, 오래됨(판정 제외)`;
 }
 
 // P1428 (Codex review): n observations are n sessions only when no day is missing. If the session span

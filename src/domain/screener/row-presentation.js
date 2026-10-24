@@ -95,7 +95,7 @@ export function describeRankingHold(hold, { factorSessionDate = null, market = '
   }
   const coverage = hold.requestedWeightCoveragePct != null ? `${hold.requestedWeightCoveragePct}%` : null;
   const requested = hold.requestedFactorWeights && Object.keys(hold.requestedFactorWeights).length
-    ? Object.entries(hold.requestedFactorWeights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${((Number(value) || 0) * 100).toFixed(0)}%`).join(' · ')
+    ? Object.entries(hold.requestedFactorWeights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${((Number(value) || 0) * 100).toFixed(0)}%`).join(', ')
     : null;
   if (hold.reason === 'requested-factor-coverage-below-threshold') {
     return `순위 보류 — "${hold.requestedProfile || '선택한 프로필'}"의 요청 가중(${requested || '가중치 확인 필요'}) 중 계산 가능 비중이 ${coverage ?? '확인 필요'}로 80% 미만입니다(결측 팩터는 중립값으로 대체하지 않습니다). 이전 계산은 폐기됐습니다 — 표의 순위·점수 칸은 비워 둡니다.`;
@@ -115,15 +115,15 @@ export function followThroughSummary(row = {}) {
   const base = num(row.baseCount);
   if (base != null) {
     parts.push(base === 0 ? '베이스 전' : `베이스 ${base}번째${row.baseForming ? '(형성 중)' : ''}`);
-    details.push(base === 0 ? '추세가 다시 시작된 뒤 아직 8% 이상 조정을 거친 베이스가 없음' : `추세가 다시 시작된 뒤 ${base}번째 베이스${row.baseForming ? ` — 지금 고점 대비 −${num(row.baseDepthPct) ?? '?'}% 조정 중` : ''} · 3번째 이후는 실패가 잦다는 것이 오닐 계열의 관찰`);
+    details.push(base === 0 ? '추세가 다시 시작된 뒤 아직 8% 이상 조정을 거친 베이스가 없음' : `추세가 다시 시작된 뒤 ${base}번째 베이스${row.baseForming ? ` — 지금 고점 대비 −${num(row.baseDepthPct) ?? '?'}% 조정 중` : ''}, 3번째 이후는 실패가 잦다는 것이 오닐 계열의 관찰`);
   }
   const pocket = num(row.pocketPivotAgo);
   if (pocket != null) { parts.push(pocket === 0 ? '포켓 피벗 오늘' : `포켓 피벗 ${pocket}일 전`); details.push('상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많았던 날'); }
   const hold = num(row.downDayHoldPct);
-  if (hold != null) { parts.push(`하락일 버팀 ${hold}%`); details.push(`최근 60거래일 지수 하락일 ${num(row.downDayCount) ?? '?'}일 중 지수보다 덜 빠진 비율 ${hold}% · 평균 초과 ${num(row.downDayExcessPp) ?? '?'}%p`); }
+  if (hold != null) { parts.push(`하락일 버팀 ${hold}%`); details.push(`최근 60거래일 지수 하락일 ${num(row.downDayCount) ?? '?'}일 중 지수보다 덜 빠진 비율 ${hold}%, 평균 초과 ${num(row.downDayExcessPp) ?? '?'}%p`); }
   const heavy = num(row.heavyDownDays25);
   if (heavy != null && heavy >= 5) { parts.push(`거래량 실린 하락 ${heavy}일`); details.push(`최근 25거래일 중 50일 평균보다 거래량이 많은 1% 이상 하락 ${heavy}일`); }
   const signs = Array.isArray(row.climaxSigns) ? row.climaxSigns.filter((sign) => CLIMAX_SIGN_LABELS[sign]) : [];
-  if (signs.length) { parts.push(`클라이맥스 징후 ${signs.length}`); details.push(`긴 상승 뒤 징후: ${signs.map((sign) => CLIMAX_SIGN_LABELS[sign]).join(' · ')}`); }
-  return { text: parts.length ? parts.join(' · ') : '—', title: details.join('\n'), climax: signs.length };
+  if (signs.length) { parts.push(`클라이맥스 징후 ${signs.length}`); details.push(`긴 상승 뒤 징후: ${signs.map((sign) => CLIMAX_SIGN_LABELS[sign]).join(', ')}`); }
+  return { text: parts.length ? parts.join(', ') : '—', title: details.join('\n'), climax: signs.length };
 }

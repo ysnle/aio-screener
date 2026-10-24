@@ -1,6 +1,6 @@
 /* 2026-10-19 layout system: 뉴스 page styles moved out of inline `.style.cssText` in src/ui/pages/news.js.
    Old inline 11/12px read --fs-sm/base: the sizes index.html's [style*=font-size] rules rendered them at. The status colour stays in the renderer. */
-#page-market-news .nws-ticker { font-size: var(--fs-sm); font-weight: 800; color: var(--accent, var(--text-primary)); font-family: var(--font-mono); background: var(--data-cyan-soft); padding: 1px 4px; border-radius: 3px; margin-right: 3px; cursor: pointer; }
+#page-market-news .nws-ticker { font-size: var(--fs-sm); font-weight: 800; color: var(--accent, var(--text-primary)); font-family: var(--font-mono); background: var(--data-cyan-soft); padding: 1px 4px; border-radius: 4px; margin-right: 3px; cursor: pointer; }
 #page-market-news .news-evidence { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 5px; }
 #page-market-news .nws-stance { font-size: var(--fs-base); font-weight: 600; flex-shrink: 0; }
 #page-market-news .news-intraday-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }

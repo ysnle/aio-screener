@@ -50,5 +50,5 @@ export function signalHistoryText(signals, benchmarkLabel = '지수') {
     const vs = row.medianExcessPct == null ? '' : `, ${benchmarkLabel} 대비 중앙값 ${signed(row.medianExcessPct)}·${Math.round(row.beatShare * row.measuredExcess)}/${row.measuredExcess}회 앞섬`;
     parts.push(`${label} ${row.count}회: 중앙값 ${signed(row.medianPct)}, 상승 ${Math.round(row.upShare * row.count)}/${row.count}회${vs}`);
   }
-  return parts.length ? `${parts.join(' · ')} — 겹치는 기간은 한 번만 셈. 이 종목 한 개의 과거라 확률이 아닙니다.` : '해당 신호 없음';
+  return parts.length ? `${parts.join(', ')} — 겹치는 기간은 한 번만 셈. 이 종목 한 개의 과거라 확률이 아닙니다.` : '해당 신호 없음';
 }

@@ -41,7 +41,7 @@ export function krIndexStressRows(history = [], { now = Date.now(), field = 'kos
     name: `코스피 기록상 최악 ${move.sessions}거래일 (${md(move.from)}~${md(move.to)} ${move.pct.toFixed(1)}%)`,
     shock: move.pct / 100,
     // v57.84 review: applying the index move 1:1 to the Korean share is itself a beta-1 assumption — the label says so.
-    basis: `기록된 ${move.record}거래일 중 · 보유분이 코스피와 같이 움직인다고 가정`,
+    basis: `기록된 ${move.record}거래일 중, 보유분이 코스피와 같이 움직인다고 가정`,
     ...move
   }));
 }

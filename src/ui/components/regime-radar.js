@@ -29,7 +29,7 @@ export function radarSvg(doc, model, { size = 340 } = {}) {
     const label = node(doc, 'text', { x: lx, y: ly - 6, 'text-anchor': Math.abs(lx - center) < 8 ? 'middle' : lx > center ? 'start' : 'end', class: 'regime-radar-label' }, axis.label);
     const value = node(doc, 'text', { x: lx, y: ly + 10, 'text-anchor': Math.abs(lx - center) < 8 ? 'middle' : lx > center ? 'start' : 'end', class: 'regime-radar-value' },
       axis.now == null ? '없음' : `${axis.now}${axis.change5 == null ? '' : ` (${axis.change5 >= 0 ? '+' : ''}${axis.change5})`}`);
-    const basis = `${axis.label}: ${axis.note}. ${axis.sample ? `최근 ${axis.sample}거래일 중 위치` : '표본 부족'} ${axis.now ?? '없음'} · 5거래일 전 ${axis.values[1] ?? '—'} · 20거래일 전 ${axis.values[2] ?? '—'}`;
+    const basis = `${axis.label}: ${axis.note}. ${axis.sample ? `최근 ${axis.sample}거래일 중 위치` : '표본 부족'} ${axis.now ?? '없음'}, 5거래일 전 ${axis.values[1] ?? '—'}, 20거래일 전 ${axis.values[2] ?? '—'}`;
     label.setAttribute('data-basis', basis); value.setAttribute('data-basis', basis); // v57.77 (a11y): the keyboard stop is the table's dd row; a focusable <text> inside role=img was a hidden second stop
     if (axis.observed?.[0]) { label.setAttribute('data-observed-at', axis.observed[0]); value.setAttribute('data-observed-at', axis.observed[0]); }
     svg.append(label, value);
@@ -71,7 +71,7 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
     const low = gaps.filter((axis) => stateOf.get(axis.id) !== 'burden');
     const high = gaps.filter((axis) => stateOf.get(axis.id) === 'burden');
     const names = (rows) => rows.map((axis) => axis.label).join(', ');
-    section.append(el(doc, 'p', `판정과 지난 기록 속 위치가 엇갈리는 지표: ${gaps.map((axis) => `${axis.label}(판정 ${word[stateOf.get(axis.id)]} · 위치 ${axis.now})`).join(', ')}.`
+    section.append(el(doc, 'p', `판정과 지난 기록 속 위치가 엇갈리는 지표: ${gaps.map((axis) => `${axis.label}(판정 ${word[stateOf.get(axis.id)]}, 위치 ${axis.now})`).join(', ')}.`
       + `${low.length ? ` 위치가 바닥권인 쪽(${names(low)})을 다음 갱신에서 먼저 확인합니다.` : ''}`
       + `${high.length ? ` ${low.length ? '반대로 ' : ''}위치가 나아진 쪽(${names(high)})도 수준은 아직 부담입니다.` : ''}`, 'regime-radar-gap'));
   }
@@ -86,12 +86,12 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   // The axis table sits beside the drawing (it was folded, leaving the right side empty on desktop).
   const table = el(doc, 'dl', null, 'regime-evidence regime-radar-table');
   for (const axis of model.axes) {
-    const dd = el(doc, 'dd', axis.now == null ? '최신 관측 없음' : `${axis.now} · 5일 ${axis.change5 == null ? '—' : `${axis.change5 >= 0 ? '+' : ''}${axis.change5}`} · 20일 ${axis.change20 == null ? '—' : `${axis.change20 >= 0 ? '+' : ''}${axis.change20}`}`);
+    const dd = el(doc, 'dd', axis.now == null ? '최신 관측 없음' : `${axis.now}, 5일 ${axis.change5 == null ? '—' : `${axis.change5 >= 0 ? '+' : ''}${axis.change5}`}, 20일 ${axis.change20 == null ? '—' : `${axis.change20 >= 0 ? '+' : ''}${axis.change20}`}`);
     if (axis.observed?.[0]) dd.setAttribute('data-observed-at', axis.observed[0]);
-    dd.setAttribute('data-basis', `${axis.note} · 비교 표본 ${axis.sample ? `${axis.sample}거래일` : '부족'}`);
+    dd.setAttribute('data-basis', `${axis.note}, 비교 표본 ${axis.sample ? `${axis.sample}거래일` : '부족'}`);
     dd.tabIndex = 0;
     const verdict = { favorable: '양호', neutral: '중립', burden: '부담' }[stateOf.get(axis.id)];
-    table.append(el(doc, 'dt', verdict ? `${axis.label} · 판정 ${verdict}` : axis.label), dd);
+    table.append(el(doc, 'dt', verdict ? `${axis.label}, 판정 ${verdict}` : axis.label), dd);
   }
   side.append(table);
   const details = el(doc, 'details', null, 'regime-axis-details');

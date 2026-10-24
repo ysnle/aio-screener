@@ -2,17 +2,17 @@
    Inside .page the old inline 10/11/12px read --fs-xs/sm/base (what index.html's [style*=font-size] rules rendered); body overlays keep literal px. */
 
 /* Prompt modal — appended to <body>, so no [style*=font-size] rule applied (sub-12px sizes stay inline in the renderer) */
-#aio-prompt-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; }
-#aio-prompt-modal .wsl-pm-box { background: var(--bg-card,#fbf9f5); border: 1px solid var(--border,rgba(33,29,22,0.1)); border-radius: 4px; padding: 20px; max-width: 420px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+#aio-prompt-modal { position: fixed; inset: 0; background: var(--black-a8); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+#aio-prompt-modal .wsl-pm-box { background: var(--bg-card,var(--gold-2)); border: 0.5px solid var(--border,var(--black-a2)); border-radius: 4px; padding: 20px; max-width: 420px; width: 90%; box-shadow: 0 10px 40px var(--black-a7); }
 #aio-prompt-title { font-size: 14px; font-weight: 700; color: var(--text-primary,#fff); margin-bottom: 6px; }
 #aio-prompt-modal .wsl-pm-label { color: var(--text-muted,var(--text-muted)); margin-bottom: 10px; line-height: 1.5; white-space: pre-wrap; }
-#aio-prompt-input { width: 100%; padding: 8px 10px; background: var(--surface-5); border: 1px solid rgba(var(--ink-rgb),0.15); border-radius: 3px; color: var(--text-primary,#fff); font-size: 12px; font-family: inherit; box-sizing: border-box; }
+#aio-prompt-input { width: 100%; padding: 8px 10px; background: var(--surface-5); border: 0.5px solid rgba(var(--ink-rgb),0.15); border-radius: 4px; color: var(--text-primary,#fff); font-size: 12px; font-family: inherit; box-sizing: border-box; }
 #aio-prompt-modal .wsl-pm-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
-#aio-prompt-cancel { padding: 7px 14px; background: transparent; border: 1px solid rgba(var(--ink-rgb),0.2); color: var(--text-muted,var(--text-muted)); border-radius: 3px; cursor: pointer; }
-#aio-prompt-ok { padding: 7px 14px; background: rgba(var(--ink-rgb),0.2); border: 1px solid var(--data-cyan); color: var(--data-cyan); border-radius: 3px; cursor: pointer; font-weight: 700; }
+#aio-prompt-cancel { padding: 7px 14px; background: transparent; border: 0.5px solid rgba(var(--ink-rgb),0.2); color: var(--text-muted,var(--text-muted)); border-radius: 4px; cursor: pointer; }
+#aio-prompt-ok { padding: 7px 14px; background: rgba(var(--ink-rgb),0.2); border: 0.5px solid var(--data-cyan); color: var(--data-cyan); border-radius: 4px; cursor: pointer; font-weight: 700; }
 
 /* Toast — body; showToast() fades it in by setting style.opacity */
-.aio-toast.wsl-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--text-primary,#211d16); color: var(--bg-base,#f7f4ee); padding: 9px 18px; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.22); max-width: min(560px,calc(100vw - 32px)); font-size: 13px; font-weight: 600; line-height: 1.5; text-align: center; z-index: 99998; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+.aio-toast.wsl-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--text-primary,var(--gold-12)); color: var(--bg-base,var(--gold-2)); padding: 9px 18px; border-radius: 8px; box-shadow: 0 4px 14px var(--black-a4); max-width: min(560px,calc(100vw - 32px)); font-size: 12px; font-weight: 600; line-height: 1.5; text-align: center; z-index: 99998; pointer-events: none; opacity: 0; transition:opacity 250ms ease-out; }
 
 /* Chat history overlay (body) */
 #chat-history-overlay .wsl-ch-tools { display: flex; gap: 6px; }
@@ -38,13 +38,13 @@
 #page-portfolio .wsl-hc-wait { font-size: var(--fs-base); color: var(--text-muted); }
 #page-portfolio .wsl-hc-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
 #page-portfolio .wsl-hc-ticker { font-size: 14px; font-weight: 700; color: var(--text-primary); }
-#page-portfolio .wsl-hc-verdict { font-size: var(--fs-sm); font-weight: 600; border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; }
+#page-portfolio .wsl-hc-verdict { font-size: var(--fs-sm); font-weight: 600; border: 0.5px solid var(--border); border-radius: 999px; padding: 2px 9px; }
 #page-portfolio .wsl-hc-quote { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
-#page-portfolio .wsl-hc-last { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-portfolio .wsl-hc-last { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
 #page-portfolio .wsl-hc-move { font-size: var(--fs-base); font-weight: 600; font-variant-numeric: tabular-nums; }
 #page-portfolio .wsl-hc-spark { display: block; overflow: visible; }
 #page-portfolio .wsl-hc-line { stroke: var(--text-primary); }
-#page-portfolio .wsl-hc-levels { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px; }
+#page-portfolio .wsl-hc-levels { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; border-top: 0.5px solid var(--border-subtle); padding-top: 8px; }
 #page-portfolio .wsl-hc-level { display: flex; justify-content: space-between; }
 #page-portfolio .wsl-hc-level-v { font-size: var(--fs-sm); font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
 #page-portfolio .wsl-hc-more { font-size: var(--fs-sm); font-weight: 600; color: var(--text-primary); margin-top: 10px; }
@@ -57,9 +57,9 @@
 #page-portfolio .wsl-xp-note.is-ok { color: var(--data-green); }
 
 /* Risk metrics (#pf-risk-metrics): declaration box, metric tiles, correlation matrix */
-#page-portfolio .wsl-rk-decl { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.6; padding: 6px 8px; margin-bottom: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; }
+#page-portfolio .wsl-rk-decl { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.6; padding: 6px 8px; margin-bottom: 10px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 4px; }
 #page-portfolio .wsl-rk-tiles { display: grid; grid-template-columns: repeat(auto-fit,minmax(138px,1fr)); gap: 10px; margin-bottom: 14px; }
-#page-portfolio .wsl-rk-tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; }
+#page-portfolio .wsl-rk-tile { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px 12px; }
 #page-portfolio .wsl-rk-label { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
 #page-portfolio .wsl-rk-val { font-size: 18px; font-weight: 800; font-family: var(--font-mono); }
 #page-portfolio .wsl-rk-val.is-loss { color: var(--data-red); }
@@ -70,15 +70,15 @@
 #page-portfolio .wsl-rk-hd { padding: 4px 8px; }
 #page-portfolio .wsl-rk-hd.is-label { font-size: var(--fs-xs); font-weight: 700; color: var(--text-secondary); }
 #page-portfolio .wsl-rk-hd.is-col { text-align: center; }
-#page-portfolio .wsl-rk-hv { padding: 5px 10px; text-align: center; border-radius: 3px; font-weight: 600; }
+#page-portfolio .wsl-rk-hv { padding: 5px 10px; text-align: center; border-radius: 4px; font-weight: 600; }
 #page-portfolio .wsl-rk-hv.is-mixed { background: var(--surface-2); color: var(--text-muted); }
 #page-portfolio .wsl-rk-legend { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 6px; }
-#page-portfolio .wsl-rk-note { font-size: var(--fs-xs); color: var(--text-muted); padding-top: 8px; border-top: 1px solid var(--border); }
+#page-portfolio .wsl-rk-note { font-size: var(--fs-xs); color: var(--text-muted); padding-top: 8px; border-top: 0.5px solid var(--border); }
 
 /* Backtest lab (#pf-backtest-output) */
 #page-portfolio .wsl-bt-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
 #page-portfolio .wsl-bt-kpis { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 8px; margin-bottom: 10px; }
-#page-portfolio .wsl-bt-kpi { background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 10px; }
+#page-portfolio .wsl-bt-kpi { background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px; }
 #page-portfolio .wsl-bt-kpi-l { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 800; }
 #page-portfolio .wsl-bt-kpi-v { font-size: 18px; font-family: var(--font-mono); font-weight: 900; }
 #page-portfolio .wsl-bt-kpi-v.is-loss { color: var(--data-red); }
@@ -96,15 +96,15 @@
 #page-portfolio .wsl-bt-c.is-up { color: var(--data-green); }
 #page-portfolio .wsl-bt-c.is-down { color: var(--data-red); }
 #page-portfolio .wsl-bt-c.is-dd { color: var(--data-red); font-weight: 800; }
-#page-portfolio .wsl-bt-warn { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+#page-portfolio .wsl-bt-warn { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5; margin-top: 10px; border-top: 0.5px solid var(--border); padding-top: 8px; }
 
 /* Watchlist rows (#wl-tbody). The delete button's old inline 11px beat `.aio-btn-table`'s !important 12px through
    the (0,2,0) `.page [style*=…11px]` 13px rule, so the class keeps 13px with its own !important. */
-#page-portfolio .wsl-wl-row { border-bottom: 1px solid var(--surface-4); cursor: pointer; }
+#page-portfolio .wsl-wl-row { border-bottom: 0.5px solid var(--surface-4); cursor: pointer; }
 #page-portfolio .wsl-wl-c { padding: 6px 8px; }
 #page-portfolio .wsl-wl-sym { color: var(--text-primary); font-family: var(--font-mono); font-size: var(--fs-sm); }
 #page-portfolio .wsl-wl-fig { text-align: right; padding: 6px; font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-xs); }
 #page-portfolio .wsl-wl-ctr { text-align: center; padding: 6px; }
-#page-portfolio .wsl-wl-sig { padding: 1px 6px; border-radius: 3px; font-size: var(--fs-sm); font-weight: 700; }
+#page-portfolio .wsl-wl-sig { padding: 1px 6px; border-radius: 4px; font-size: var(--fs-sm); font-weight: 700; }
 #page-portfolio .wsl-wl-memo { padding: 6px; color: var(--text-muted); font-size: var(--fs-sm); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #page-portfolio .wsl-wl-del { font-size: var(--fs-sm) !important; }

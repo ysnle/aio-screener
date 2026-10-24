@@ -69,12 +69,12 @@ export function buildBreadthCards(history = []) {
     { id: 'b200', group: 'participation', title: '200일선 위 종목 비율', note: '장기 추세에 올라탄 종목 비율', series: pctSeries('breadth200'), refLines: [40, 60], format: pct, domain: [0, 100] },
     { id: 'adv', group: 'participation', title: '상승 종목 비율 (10일 평균)', note: '하루치는 소음이 커서 10일 평균으로 봄 — 50% 위면 상승 종목 우세', series: rolling(advance, 10).slice(-WINDOW), refLines: [50], format: pct },
     { id: 'ad', group: 'participation', title: '누적 상승-하락 종목 수 (A/D 라인)', note: '지수와 같이 오르면 건강한 상승, 지수만 오르면 괴리', series: cumulative(series('advanceDecline')).slice(-WINDOW), refLines: [], format: count, changeUnit: '', changeDigits: 0 },
-    { id: 'hl', group: 'leadership', title: '52주 신고가 − 신저가 종목 수', note: '신고가가 신저가보다 많으면 그날은 강한 종목이 우세 — 며칠 이어지는지로 확산 여부를 봄 · 지수 고점에서 신저가가 늘면 괴리 신호', series: difference(highs, lows).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
-      latest: lastOf(highs) && lastOf(lows) ? `신고가 ${count(lastOf(highs).value)} · 신저가 ${count(lastOf(lows).value)}` : null, drill: ['newHigh', 'newLow'] },
+    { id: 'hl', group: 'leadership', title: '52주 신고가 − 신저가 종목 수', note: '신고가가 신저가보다 많으면 그날은 강한 종목이 우세 — 며칠 이어지는지로 확산 여부를 봄, 지수 고점에서 신저가가 늘면 괴리 신호', series: difference(highs, lows).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
+      latest: lastOf(highs) && lastOf(lows) ? `신고가 ${count(lastOf(highs).value)}, 신저가 ${count(lastOf(lows).value)}` : null, drill: ['newHigh', 'newLow'] },
     { id: 'mv', group: 'leadership', title: '4% 이상 상승 − 하락 종목 수 (5일 합계)', note: '거래량이 늘며 하루 4% 넘게 움직인 종목 — 5일 합계에서 상승·하락 중 어느 쪽이 우세한지 봄', series: rolling(difference(up4, down4), 5, { sum: true }).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
-      latest: lastOf(up4) && lastOf(down4) ? `${lastOf(up4).date.slice(5).replace('-', '/')} 상승 ${count(lastOf(up4).value)} · 하락 ${count(lastOf(down4).value)}` : null, drill: ['up4', 'down4'] },
+      latest: lastOf(up4) && lastOf(down4) ? `${lastOf(up4).date.slice(5).replace('-', '/')} 상승 ${count(lastOf(up4).value)}, 하락 ${count(lastOf(down4).value)}` : null, drill: ['up4', 'down4'] },
     { id: 'dd', group: 'index', title: 'S&P 500 매도 우위일(분배일, 최근 25거래일)', note: '지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 봄', series: pctSeries('distributionDays'), refLines: [5], format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
-    { id: 'spx', group: 'index', title: 'S&P 500 (같은 기간 비교)', note: '위 참여도 차트와 나란히 보면 지수와 시장 폭이 어긋나는지 볼 수 있습니다', series: spx, refLines: [], format: count, changeUnit: '%', percentChange: true }
+    { id: 'spx', group: 'index', title: 'S&P 500 (같은 기간 비교)', series: spx, refLines: [], format: count, changeUnit: '%', percentChange: true }
   ];
 }
 
@@ -153,7 +153,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   // T12 (expert review 2026-10-13): the count came from screener.json (811) while the ratios come from the history row
   // (804 judged); the denominator is now the one stored with the shown 50-day ratio.
   const judgedCount = buildCloseSeries(inputs.history, 'breadth50', { through: regime.asOf, includeProvenance: true }).at(-1)?.eligible ?? null;
-  const denominator = judgedCount ? ` · 판정 대상 ${judgedCount}개 종목` : '';
+  const denominator = judgedCount ? `, 판정 대상 ${judgedCount}개 종목` : '';
   // v57.51 V16: the same measure on S&P 500 members only, read from the screener artifact, so the watch list's theme
   // tilt is visible next to the headline ratios. Shown only when the segment is on the shown close date.
   const sp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null; // v57.77 perf: path read, no row clone
@@ -161,7 +161,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   const sp500Read = sp500Same ? ` S&P 500 구성 종목만(${sp500.eligible}개) 보면 50일선 위 ${sp500.above50.toFixed(0)}%${Number.isFinite(sp500.above200) ? `, 200일선 위 ${sp500.above200.toFixed(0)}%` : ''}입니다.` : '';
   // v57.77: the subtitle is the date and the judged count; who is counted and how sits in the 데이터 출처 fold, and the
   // S&P 500 member read joins the participation group's reading below.
-  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? ` · 시장 폭 ${axis.basis}` : ''}${denominator}` : '종가 기록을 불러오는 중입니다.');
+  set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? `, 시장 폭 ${axis.basis}` : ''}${denominator}` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
   const tone = { favorable: 'good', burden: 'warn' }[axis?.state] || 'neutral';
   if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'} sx-chip sx-chip--sm sx-chip--${tone}`; }
@@ -192,9 +192,9 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
         }
         return seriesChange(points, n, card.changeUnit ?? '%p', card.changeDigits ?? 1);
       };
-      const changes = [[5, '5일'], [20, '20일']].map(([n, label]) => { const value = change(n); return value ? `${label} ${value}` : null; }).filter(Boolean).join(' · ');
-      const lateStart = range && points.length && points[0].date > range[0] ? ` · 기록 시작 ${shortDate(points[0].date)}` : '';
-      const highLowBasis = card.id === 'hl' && eligible?.highLow ? ` · 신고·신저 판정 대상 ${eligible.highLow}개` : '';
+      const changes = [[5, '5일'], [20, '20일']].map(([n, label]) => { const value = change(n); return value ? `${label} ${value}` : null; }).filter(Boolean).join(', ');
+      const lateStart = range && points.length && points[0].date > range[0] ? `, 기록 시작 ${shortDate(points[0].date)}` : '';
+      const highLowBasis = card.id === 'hl' && eligible?.highLow ? `, 신고·신저 판정 대상 ${eligible.highLow}개` : '';
       box.append(head);
       if (card.latest) box.append(el(doc, 'div', `${card.latest}${highLowBasis}`, 'trend-card-latest'));
       box.append(el(doc, 'div', `${changes || '변화 기록 수집 중'}${lateStart}`, 'trend-card-change'),

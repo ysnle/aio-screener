@@ -44,14 +44,14 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   const points = [];
   if (over.length) {
     points.push({ id: 'mix', tone: 'neutral', title: '상위권 구성',
-      text: `${topLabel}는 ${over.map((row) => `${row.label} ${row.top.toFixed(0)}%(전체 ${row.all.toFixed(0)}%)`).join(' · ')}로 쏠려 있습니다 — 순위가 개별 종목보다 업종 흐름을 먼저 반영하고 있다는 뜻입니다.` });
+      text: `${topLabel}는 ${over.map((row) => `${row.label} ${row.top.toFixed(0)}%(전체 ${row.all.toFixed(0)}%)`).join(', ')}로 쏠려 있습니다 — 순위가 개별 종목보다 업종 흐름을 먼저 반영하고 있다는 뜻입니다.` });
     const withQuadrant = over.filter((row) => row.quadrant);
     if (withQuadrant.length) {
       const leading = withQuadrant.filter((row) => row.quadrant === 'Leading' || row.quadrant === 'Improving');
       // v57.50 D12: the ranking (momentum·trend) and the rotation quadrant are both built from relative price strength,
       // so agreement between them is the same information seen twice — not a second confirmation. Neutral tone.
       points.push({ id: 'rotation', tone: 'neutral', title: '섹터 회전과',
-        text: `${withQuadrant.map((row) => `${row.label} ${QUADRANT_KO[row.quadrant]}`).join(' · ')} — ${leading.length === withQuadrant.length ? '쏠린 업종이 섹터 회전에서도 앞서는 쪽입니다' : leading.length ? '쏠린 업종 중 일부만 섹터 회전에서 앞섭니다' : '쏠린 업종이 섹터 회전에서는 뒤처지는 쪽이라, 순위가 지난 강세를 늦게 반영하고 있을 수 있습니다'}. 순위와 섹터 회전은 같은 가격 상대강도 정보에서 나온 결과라, 둘이 같은 방향이어도 서로를 확인하는 독립 근거는 아닙니다.` });
+        text: `${withQuadrant.map((row) => `${row.label} ${QUADRANT_KO[row.quadrant]}`).join(', ')} — ${leading.length === withQuadrant.length ? '쏠린 업종이 섹터 회전에서도 앞서는 쪽입니다' : leading.length ? '쏠린 업종 중 일부만 섹터 회전에서 앞섭니다' : '쏠린 업종이 섹터 회전에서는 뒤처지는 쪽이라, 순위가 지난 강세를 늦게 반영하고 있을 수 있습니다'}. 순위와 섹터 회전은 같은 가격 상대강도 정보에서 나온 결과라, 둘이 같은 방향이어도 서로를 확인하는 독립 근거는 아닙니다.` });
     }
   } else {
     points.push({ id: 'mix', tone: 'neutral', title: '상위권 구성', text: `${topLabel}의 업종 비중이 전체와 비슷합니다 — 특정 업종 쏠림 없이 종목별 차이로 순위가 갈렸습니다.` });
@@ -108,7 +108,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   if (stageCounts.size) {
     const themed = top.filter((row) => Array.isArray(row?.themeStages) && row.themeStages.length).length;
     points.push({ id: 'theme-stage', tone: 'neutral', title: '상위권의 테마 단계',
-      text: `${topName} 중 테마에 속한 ${themed}종목의 테마 단계: ${STAGE_ORDER.filter((key) => stageCounts.has(key)).map((key) => `${stageCounts.get(key).label} ${stageCounts.get(key).n}종목`).join(' · ')}${[...stageCounts.values()].reduce((sum, item) => sum + item.n, 0) > themed ? ' (단계가 다른 여러 테마에 속한 종목은 단계마다 한 번씩 세어 합이 종목 수보다 큽니다)' : ''}. 단계는 종목이 아니라 테마 전체의 흐름입니다.` });
+      text: `${topName} 중 테마에 속한 ${themed}종목의 테마 단계: ${STAGE_ORDER.filter((key) => stageCounts.has(key)).map((key) => `${stageCounts.get(key).label} ${stageCounts.get(key).n}종목`).join(', ')}${[...stageCounts.values()].reduce((sum, item) => sum + item.n, 0) > themed ? ' (단계가 다른 여러 테마에 속한 종목은 단계마다 한 번씩 세어 합이 종목 수보다 큽니다)' : ''}. 단계는 종목이 아니라 테마 전체의 흐름입니다.` });
   }
   // 2026-10-14 audit #3/#14: the verdicts lead (sector tilt, then what the past record says), then the one denominator.
   const spreadValue = finite(validation?.spreadNet);
@@ -118,9 +118,9 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
         : spreadValue == null ? null
           : spreadValue > 0 ? `과거 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회)`
             : `과거 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`;
-  const headline = `${topName} 구성은 ${over.length ? `${over.map((row) => row.label).join('·')} 쏠림` : '업종 쏠림 없음'}${trustVerdict ? ` · ${trustVerdict}` : ''} — 순위 계산 ${ranked.length}종목 중 ${topLabel}`;
+  const headline = `${topName} 구성은 ${over.length ? `${over.map((row) => row.label).join('·')} 쏠림` : '업종 쏠림 없음'}${trustVerdict ? `, ${trustVerdict}` : ''} — 순위 계산 ${ranked.length}종목 중 ${topLabel}`;
   const next = [];
-  if (over[0]) next.push({ route: 'themes', label: '테마 · 섹터', why: `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });
+  if (over[0]) next.push({ route: 'themes', label: '테마와 섹터', why: `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });
   // audit #22: the ranking always continues into the two crossroads.
   next.push({ route: 'themes', label: '테마 시나리오', why: '이 단계 테마의 구성 종목을 차트·재무로 직접 확인', ctx: { anchor: 'theme-playbook' } });
   next.push({ route: 'macro', label: '거시 시나리오', why: '금리·경기 시나리오가 상위권 업종에 수혜인지 부담인지' });

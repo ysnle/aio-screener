@@ -87,9 +87,9 @@ export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
   // 0 is only the least weak, and each name carries its last five sessions beside the month.
   const top = usable.slice(0, 3);
   const strongWord = top.every((t) => t.ret1m > 0) ? '강한 테마는' : '상대적으로 덜 약한 테마는';
-  const named = (t) => `${t.label}(1개월 ${pct(t.ret1m)}${t.ret5d != null ? ` · 5거래일 ${pct(t.ret5d)}` : ''})`;
+  const named = (t) => `${t.label}(1개월 ${pct(t.ret1m)}${t.ret5d != null ? `, 5거래일 ${pct(t.ret5d)}` : ''})`;
   const read = usable.length >= 4
-    ? `확정 종가 기준 1개월 중앙값으로 ${strongWord} ${top.map(named).join(' · ')}, 약한 테마는 ${usable.slice(-2).reverse().map(named).join(' · ')}입니다.`
+    ? `확정 종가 기준 1개월 중앙값으로 ${strongWord} ${top.map(named).join(', ')}, 약한 테마는 ${usable.slice(-2).reverse().map(named).join(', ')}입니다.`
     : `구성 종목 기록이 ${KR_THEME_MIN_COVERED}개 이상인 테마가 적어 순위를 매기지 않습니다.`;
   const hidden = usable.slice(0, 3).find((theme) => theme.heavyweightNote);
   const readWithWeight = hidden ? `${read} ${hidden.label}: ${hidden.heavyweightNote}` : read;

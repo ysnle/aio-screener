@@ -161,14 +161,14 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
   const tiles = [];
   if (facts.trendLabel) {
     const lines = [facts.pct50 != null ? `50일선 ${signedText(facts.pct50)}` : null, facts.pct200 != null ? `200일선 ${signedText(facts.pct200)}` : null].filter(Boolean);
-    tiles.push(checkTile(doc, { name: '추세', tone: tone('trend'), value: facts.trendLabel, detail: lines.join(' · ') }));
+    tiles.push(checkTile(doc, { name: '추세', tone: tone('trend'), value: facts.trendLabel, detail: lines.join(', ') }));
   }
   if (read.position != null) {
     tiles.push(checkTile(doc, { name: '위치', tone: tone('range'), value: `52주 범위 ${Math.round(read.position * 100)}%`, detail: read.high != null ? `52주 고점 대비 ${signedText(read.high)}` : '' }));
   }
   // 재무: the SEC annual record (US); a KRX listing reads DART; an ETF (no 재무 공시 next step) has no company filings.
   const isFund = !read.next.some((step) => step.route === 'fundamental');
-  if (/\.K[SQ]$/i.test(sym)) tiles.push(checkTile(doc, { name: '재무', chip: 'DART', value: '한국 공시 원문', detail: '사업보고서 기준 · 재무 공시 탭' }));
+  if (/\.K[SQ]$/i.test(sym)) tiles.push(checkTile(doc, { name: '재무', chip: 'DART', value: '한국 공시 원문', detail: '사업보고서 기준, 재무 공시 탭' }));
   else if (!isFund) {
     const own = fundamentals && String(fundamentals.symbol || sym).toUpperCase() === sym ? fundamentals : null;
     const num = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
@@ -178,16 +178,16 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
     if (growth != null || margin != null) {
       tiles.push(checkTile(doc, { name: '재무', chip: fy ? (fiscalYearLabel(fy) || 'SEC') : 'SEC', stale,
         value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,
-        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%` : null, fy ? `${fy} 마감` : null].filter(Boolean).join(' · ') }));
+        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%` : null, fy ? `${fy} 마감` : null].filter(Boolean).join(', ') }));
     } else if (fundamentalsState === 'loading') tiles.push(checkTile(doc, { name: '재무', chip: '불러오는 중', value: 'SEC 연간 공시', detail: '공시 요약을 불러오는 중입니다' }));
     // Review: only a loaded projection without this issuer is a confirmed absence; a failed or unknown load says so.
-    else if (fundamentalsState === 'absent') tiles.push(checkTile(doc, { name: '재무', chip: '없음', stale: true, value: 'SEC 연간 공시 없음', detail: '수집된 연간 공시에 이 종목이 없습니다 · 재무 공시 탭' }));
-    else tiles.push(checkTile(doc, { name: '재무', chip: '확인 불가', stale: true, value: 'SEC 공시 확인 불가', detail: '공시 요약을 받지 못했습니다 · 잠시 뒤 다시 확인' }));
+    else if (fundamentalsState === 'absent') tiles.push(checkTile(doc, { name: '재무', chip: '없음', stale: true, value: 'SEC 연간 공시 없음', detail: '수집된 연간 공시에 이 종목이 없습니다, 재무 공시 탭' }));
+    else tiles.push(checkTile(doc, { name: '재무', chip: '확인 불가', stale: true, value: 'SEC 공시 확인 불가', detail: '공시 요약을 받지 못했습니다, 잠시 뒤 다시 확인' }));
   }
   // 위험: how far the price sits from its 50-day line in its own daily ranges, and the RSI — the stretch, not a forecast.
   if (facts.pct50 != null && facts.adr > 0) {
     tiles.push(checkTile(doc, { name: '위험', tone: tone('extension'), value: `일평균 변동폭 ${(Math.abs(facts.pct50) / facts.adr).toFixed(1)}배`,
-      detail: [facts.pct50 >= 0 ? '50일선 위 거리' : '50일선 아래 거리', facts.rsi != null ? `RSI ${facts.rsi.toFixed(1)}` : null].filter(Boolean).join(' · ') }));
+      detail: [facts.pct50 >= 0 ? '50일선 위 거리' : '50일선 아래 거리', facts.rsi != null ? `RSI ${facts.rsi.toFixed(1)}` : null].filter(Boolean).join(', ') }));
   } else if (facts.rsi != null) tiles.push(checkTile(doc, { name: '위험', value: `RSI ${facts.rsi.toFixed(1)}`, detail: '50일선 거리 자료 없음' }));
   if (!tiles.length) return null;
   const box = el(doc, 'div', null, 'v2-stock-checks');
@@ -224,7 +224,7 @@ export function relativeVisual(doc, read) {
   }
   const legend = el(doc, 'div', null, 'stock-read-legend');
   legend.append(el(doc, 'span', read.symbol, 'is-stock'), el(doc, 'span', read.benchmarkLabel, 'is-bench'));
-  box.append(el(doc, 'p', '← 하락 · 공통 0% 기준 · 상승 →', 'stock-return-signed-axis'), legend);
+  box.append(el(doc, 'p', '← 하락, 공통 0% 기준, 상승 →', 'stock-return-signed-axis'), legend);
   return box;
 }
 
@@ -238,7 +238,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const next = doc.getElementById('ticker-next');
   // v57.54: the 종목 screen's h1 (screen-reader heading; the hub line shows the subject visually).
   const title = doc.getElementById('ticker-page-title');
-  if (title) title.textContent = sym ? `종목 · ${sym}` : '종목';
+  if (title) title.textContent = sym ? `종목, ${sym}` : '종목';
   if (!sym) { host.replaceChildren(); host.hidden = true; renderNextSteps(doc, next, []); return null; }
   host.hidden = false;
   const rows = call(root, '_aioGetCanonicalScreenerRows', []);
@@ -275,7 +275,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals, fundamentalsState }); }).catch(() => {});
   const themeStages = themeStagesFor(root, { symbol: sym, themeIds: themeIdsFor(root, sym, Array.isArray(rows) ? rows : []) });
   const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), themeStages, regime: readMarketRegime(root), universeSize: ranked.length || null, validation, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
-  if (title && read.available && read.name && read.name !== sym) title.textContent = `종목 · ${read.name} (${sym})`;
+  if (title && read.available && read.name && read.name !== sym) title.textContent = `종목, ${read.name} (${sym})`;
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2 sr-only'));
   if (!read.available) {
     // v57.81: an out-of-universe listing says what is happening (reading, not listed, chart unavailable), not "기록 없음".
@@ -338,7 +338,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   if (read.spans.some((span) => span.stock != null)) {
     const card = el(doc, 'div', null, 'sx-card v2-stock-card');
     const head = el(doc, 'div', null, 'sx-card__head');
-    head.append(el(doc, 'h3', `지수 대비 · ${read.benchmarkLabel}`, 'sx-card__title'), el(doc, 'span', basisShort ? `${basisShort} 종가 · 배당 포함` : '완료 종가', 'sx-card__meta'));
+    head.append(el(doc, 'h3', `지수 대비, ${read.benchmarkLabel}`, 'sx-card__title'), el(doc, 'span', basisShort ? `${basisShort} 종가, 배당 포함` : '완료 종가', 'sx-card__meta'));
     card.append(head, relativeVisual(doc, read));
     pair.append(card);
   }
@@ -346,7 +346,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   if (reading.length) {
     const card = el(doc, 'div', null, 'sx-card v2-stock-card');
     const head = el(doc, 'div', null, 'sx-card__head');
-    head.append(el(doc, 'h3', '함께 읽을 것', 'sx-card__title'), el(doc, 'span', '테마 · 시장 · 공시', 'sx-card__meta'));
+    head.append(el(doc, 'h3', '함께 읽을 것', 'sx-card__title'), el(doc, 'span', '테마, 시장, 공시', 'sx-card__meta'));
     const points = el(doc, 'ul', null, 'stock-read-points');
     reading.forEach((point) => points.append(item(point)));
     card.append(head, points);
@@ -362,7 +362,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
     fold.append(list);
     host.append(fold);
   }
-  host.append(el(doc, 'p', `근거 · 이동평균 추세(50·200일선) · RSI(Wilder 1978) · 일평균 변동폭 대비 거리 · 데이터 · ${basisShort ? `${basisShort} ` : ''}완료 종가 · ${read.benchmarkLabel} 같은 기간${fundamentals?.form ? ` · SEC ${fundamentals.form}` : ''}`, 'sx-evidence v2-stock-evidence'));
+  host.append(el(doc, 'p', `근거, 이동평균 추세(50·200일선), RSI(Wilder 1978), 일평균 변동폭 대비 거리, 데이터, ${basisShort ? `${basisShort} ` : ''}완료 종가, ${read.benchmarkLabel} 같은 기간${fundamentals?.form ? `, SEC ${fundamentals.form}` : ''}`, 'sx-evidence v2-stock-evidence'));
   if (onDemand) host.append(outOfUniverseBlock(doc, root, onDemand));
   renderNextSteps(doc, next, read.next);
   return read;

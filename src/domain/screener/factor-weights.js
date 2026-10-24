@@ -76,7 +76,7 @@ export function deriveFactorWeights({ marketState = null, profile = null, promot
       if (regimeMatches(String(marketState.cyclePhase || ''), 'late|후기|peak|침체|recession')) {
         const shift = Math.min(0.08, proposedWeights.value * 0.5);
         proposedWeights = { ...proposedWeights, value: proposedWeights.value + shift, momentum: Math.max(0.05, proposedWeights.momentum - shift) };
-        proposedRegimeLabel += ' · 후기사이클 밸류↑';
+        proposedRegimeLabel += ', 후기사이클 밸류↑';
       }
     }
   } catch (_) {}
@@ -94,7 +94,7 @@ export function deriveFactorWeights({ marketState = null, profile = null, promot
     proposedWeights: normalizedProposal,
     regimeLabel: adaptiveApplied ? proposedRegimeLabel : proposedRegimeLabel === '중립 → 균형 가중'
       ? proposedRegimeLabel
-      : `중립 고정 · 미검증 후보: ${proposedRegimeLabel}`,
+      : `중립 고정, 미검증 후보: ${proposedRegimeLabel}`,
     proposedRegimeLabel,
     adaptiveApplied,
     source: adaptiveApplied ? 'reviewed-adaptive-promotion' : 'fixed-neutral-until-promotion'

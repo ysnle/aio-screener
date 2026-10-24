@@ -22,7 +22,7 @@ Preconditions:
 - **Guide search.** Fill `시장 폭`, Enter; `#guide-search-result` mentions `시장 폭`.
 - **Theme.** Click the sidebar theme button; `body.dark-theme` flips and the label names the next action.
 - **Persist.** Reload; the theme is the same; flip it back.
-- **Deep link.** Open `index.html#fxbond`; `page-fxbond` active and the `금리 · 환율` hub tab is the current one.
+- **Deep link.** Open `index.html#fxbond`; `page-fxbond` active and the `금리와 환율` hub tab is the current one.
 - **Proof.** `drive shell` evidence folder.
 
 ## Gotchas

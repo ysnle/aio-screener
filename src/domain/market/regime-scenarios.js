@@ -40,7 +40,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
   const vix3m = new Map(daily('vix3m').map(point => [point.date, point.value]));
   const ratio = daily('vix').filter(point => vix3m.get(point.date) > 0).map(point => ({ date: point.date, value: point.value / vix3m.get(point.date) }));
   const definitions = {
-    trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx, { note: '지수의 확정 종가 추이. 이동평균 위치와 방향은 아래 근거에서 함께 확인합니다.' }),
+    trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx),
       // v57.81: the leadership proxy and the small caps beside the S&P 500 — the trend axis is capped when both break.
       chart('ndx', '나스닥 100 종가', '지수 pt', daily('ndx'), { note: '주도 대형 기술주의 흐름. 5거래일 3% 이상 하락하면 주도 영역이 약해지는지 확인합니다.' }),
       chart('rut', '러셀 2000 종가', '지수 pt', daily('rut'), { note: '중소형주의 흐름. 200일선 아래에 있으면 상승이 대형주 밖으로 퍼지지 못한 상태입니다.' })],
@@ -125,7 +125,7 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
     transition: item.id === 'weakness' && transition && !item.confirmed ? TRANSITION_TITLE : null }));
   return { available: true, asOf: regime.asOf, held: hold, scenarios, leadership: { state: leadership.state, break: !!leadership.break, summary: leadership.summary || null, met: leadership.met ?? 0, total: leadership.confirmations?.length ?? 0, need: leadership.need ?? RULES.leadership.minConfirmations },
     axes: regime.axes.map(axis => ({ id: axis.id, observe: OBSERVE[axis.id] || '', condition: axis.flip || null })),
-    reason: hold ? (regime.staleBasis ? regime.holdReason : `${missing.map(id => byId[id]?.title || id).join(' · ')}의 필요한 관측이 없어 현재 어느 흐름에 해당하는지 보류합니다.`) : null };
+    reason: hold ? (regime.staleBasis ? regime.holdReason : `${missing.map(id => byId[id]?.title || id).join(', ')}의 필요한 관측이 없어 현재 어느 흐름에 해당하는지 보류합니다.`) : null };
 }
 
 export function renderMarketScenarioContext(input = {}, options = {}) {
@@ -196,7 +196,7 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
     const move = record?.date === last?.date ? krIndexMoveText(record) : '';
     return last ? { id, title, scope, series, asOf: last.date, last: last.value, change, unit: '지수 pt',
       stale: !!completed && last.date !== completed.date,
-      read: change == null ? `${move ? `${move}. ` : ''}1개월 변화를 계산할 완료 세션 기록이 부족합니다.` : `최근 ${KR_MONTH_SESSIONS}거래일(한국) ${change >= 0 ? '+' : ''}${change.toFixed(1)}%${move ? ` · ${move}` : ''}. 이 지수 안 종목들이 같은 방향인지 한국 시장 폭과 함께 확인합니다.`, record,
+      read: change == null ? `${move ? `${move}. ` : ''}1개월 변화를 계산할 완료 세션 기록이 부족합니다.` : `최근 ${KR_MONTH_SESSIONS}거래일(한국) ${change >= 0 ? '+' : ''}${change.toFixed(1)}%${move ? `, ${move}` : ''}. 이 지수 안 종목들이 같은 방향인지 한국 시장 폭과 함께 확인합니다.`, record,
       // T20 (expert review 2026-10-13): the follow-up names the direction the index actually moved (-8.7% read "지수 상승이…").
       observe: `미국장 기준일과 분리해 읽습니다. ${change == null ? '지수 움직임이 참여 종목의 같은 방향 움직임으로 이어지는지' : change >= 0 ? '지수 상승이 참여 종목 확대로 이어지는지' : '지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지'} 다음 한국 종가에서 확인합니다.` } : null;
   }).filter(Boolean);
@@ -208,7 +208,7 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
   const fxWindow = usdKrwWindow(fx);
   const fxChange = fxWindow ? fxWindow.change : null;
   const cards = [...indices];
-  if (lastFx) cards.push({ id: 'usdkrw', title: '원 / 달러', scope: '외환 관측일 · 뉴욕 날짜', series: fx, asOf: lastFx.date, last: lastFx.value, change: fxChange, unit: 'KRW / USD', stale: false,
+  if (lastFx) cards.push({ id: 'usdkrw', title: '원 / 달러', scope: '외환 관측일, 뉴욕 날짜', series: fx, asOf: lastFx.date, last: lastFx.value, change: fxChange, unit: 'KRW / USD', stale: false,
     // T20: a move inside ±0.5% is 보합권, not a currency direction.
     read: fxChange == null ? '방향을 계산할 외환 관측 기록이 부족합니다.' : `20거래일 ${fxChange >= 0 ? '+' : ''}${fxChange.toFixed(1)}%${fxWindow.meanShift != null ? `(20일 평균 ${fxWindow.meanShift >= 0 ? '+' : ''}${fxWindow.meanShift.toFixed(1)}%)` : ''}. ${Math.abs(fxChange) < RULES.fx.krwFlatPct ? `±${RULES.fx.krwFlatPct}% 안의 움직임이라 원화 방향을 말하기 어려운 보합권입니다.` : !fxWindow.agrees ? `20일 평균은 그만큼 움직이지 않아 시작점의 일시적 수준 영향이 큽니다 — 원화 ${fxChange > 0 ? '약세' : '강세'}로 단정하지 않습니다.` : fxChange > 0 ? '같은 달러에 더 많은 원화가 필요해 원화 약세 방향입니다.' : '같은 달러에 필요한 원화가 줄어 원화 강세 방향입니다.'} 외국인 수급이나 수출 실적의 실제 변화는 별도 자료로 확인합니다.`,
     observe: '환율 움직임과 한국 주가를 같은 날짜·기간으로 확인합니다. 서로 관측일이 다르면 직접적인 인과나 상대강도로 단정하지 않습니다.' });

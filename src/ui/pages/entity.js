@@ -64,7 +64,7 @@ function formatMoney(value, currency, { maximumFractionDigits = 2 } = {}) {
   const amount = finite(value);
   if (amount == null) return '—';
   const code = String(currency || '').trim().toUpperCase();
-  if (!code) return `${amount.toLocaleString('en-US', { maximumFractionDigits })} · 통화 미확인`;
+  if (!code) return `${amount.toLocaleString('en-US', { maximumFractionDigits })}, 통화 미확인`;
   try {
     return new Intl.NumberFormat(code === 'KRW' ? 'ko-KR' : 'en-US', {
       style: 'currency', currency: code, maximumFractionDigits: code === 'KRW' ? 0 : maximumFractionDigits
@@ -129,7 +129,7 @@ function renderTickerHero(documentRef, state, root) {
   const krName = isKr ? (registryName || (state?.name && state.name !== id ? state.name : null)) : null;
   setText(documentRef, 'ticker-hero-name', krName || id || '종목 분석');
   setText(documentRef, 'ticker-hero-fullname', id
-    ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · ${root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다' : '시세 불러오는 중'}`)))
+    ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id}, ${root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다' : '시세 불러오는 중'}`)))
     : '종목을 검색하세요');
   // P1317: a KRX listing (.KS/.KQ) trades only in KRW — the venue, not a guess, fixes the quote currency.
   // P1689: a fallback quote can arrive without a currency; use one already observed for this symbol (live envelope or
@@ -145,10 +145,10 @@ function renderTickerHero(documentRef, state, root) {
   if (change) {
     change.className = `ticker-chg-big ${pct == null || closeLabel ? '' : pct >= 0 ? 'up' : 'down'}`;
     const basisDate = String(quote.changeBasisDate || '').slice(5).replace('-', '/');
-    change.title = closeLabel ? `${close.date} 확정 종가(수정 종가) · 현재 시세가 아닙니다` : krUnverified ? '직전 완료 거래일 종가를 검증하지 못해 등락률을 보류합니다.'
+    change.title = closeLabel ? `${close.date} 확정 종가(수정 종가), 현재 시세가 아닙니다` : krUnverified ? '직전 완료 거래일 종가를 검증하지 못해 등락률을 보류합니다.'
       : quote.changeBasis === 'screener-reconciled-session-change' && basisDate ? `${basisDate} 거래소 종가 기준 1일 변화`
       : quote.changeBasis === 'krx-history-previous-close' && basisDate ? `${basisDate} 거래소 종가 대비`
-      : quote.changeBasis === 'provider-previous-close-index-checked' && basisDate ? `${basisDate} 종가 대비 · 같은 날 지수 기준 일치 확인`
+      : quote.changeBasis === 'provider-previous-close-index-checked' && basisDate ? `${basisDate} 종가 대비, 같은 날 지수 기준 일치 확인`
       : '';
   }
   const priceNode = documentRef?.getElementById('ticker-hero-price');
@@ -160,14 +160,14 @@ function renderTickerHero(documentRef, state, root) {
     const meta = root?._aioEntitySummaries?.[id];
     const valueBasis = root?._liveData?.[id]?.quoteEnvelope?.valueBasis || meta?.quote?.valueBasis;
     // Live review 2026-10-14: a failed fetch says so; only a request still in flight reads as loading.
-    const statusText = price == null ? closeLabel ? `현재 시세 ${root?._aioEntitySummaryStatus?.[id] === 'loading' ? '불러오는 중' : '미수신'}` : root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다 · 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 미수신' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? ` · ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ' · 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? ` · 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
+    const statusText = price == null ? closeLabel ? `현재 시세 ${root?._aioEntitySummaryStatus?.[id] === 'loading' ? '불러오는 중' : '미수신'}` : root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다, 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 미수신' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? `, ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ', 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? `, 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
     if (status.textContent !== statusText) status.textContent = statusText;
   }
   // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
   // history and bookmarks kept "종목 선택 대기" (or the previous symbol). The owner of the hero owns the title.
   if (id && documentRef && documentRef.getElementById?.('page-ticker')?.classList?.contains('active')) {
     const label = state?.name && state.name !== id ? `${state.name} (${id})` : id;
-    documentRef.title = `${label}${price == null ? '' : ` ${formatMoney(price, heroCurrency)}`} · AIO Screener`;
+    documentRef.title = `${label}${price == null ? '' : ` ${formatMoney(price, heroCurrency)}`} - AIO Screener`;
   }
 }
 
@@ -305,7 +305,7 @@ function renderTickerNavigation(documentRef, state, root) {
     if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '돌아가기'); }
     return;
   }
-  const origins = { screener: '스크리너', themes: '테마 · 섹터', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '뉴스', briefing: '브리핑', masters: '대가 보유 종목', home: '오늘' };
+  const origins = { screener: '스크리너', themes: '테마와 섹터', portfolio: '포트폴리오', fundamental: '재무 공시', technical: '차트', 'market-news': '뉴스', briefing: '브리핑', masters: '대가 보유 종목', home: '오늘' };
   const requestedOrigin = root?.AIO?.state?.tickerReturnRoute;
   // P1599 (S01): with no recorded entry route (left menu, search, a shared link) there is no screen to name —
   // the old default printed '← 재무 공시' for a page the reader never came from. The tabs already move between views.
@@ -397,7 +397,7 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     ? rows.length < 2 ? (root?._aioEntitySummaryStatus?.[state?.id] === 'unavailable' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오지 못했습니다. 종목을 다시 선택해 확인할 수 있습니다.` : root?._aioEntitySummaryStatus?.[state?.id] === 'loading' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오는 중입니다.` : `${state?.id || '종목'} ${periodLabel} 가격 이력이 아직 없습니다. 종목을 다시 선택해 확인할 수 있습니다.`) : '가격 이력은 수신했지만 차트 표시를 준비하지 못했습니다. 새로고침해 다시 확인할 수 있습니다.'
     // P1255 (07:M04 계열 잔여 D4): 차트는 close 계열(배당 미조정)이다 — "수익률"과 섞이지 않도록
     // 가격 기준을 메타에 함께 말한다. S21: 내부 용어 대신 한 줄 독자 문장.
-    : `${periodLabel} · ${view.rowCount}개 관측 · ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)} · 배당 제외 가격 · 요약 수익률은 배당 포함`;
+    : `${periodLabel}, ${view.rowCount}개 관측, ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)}, 배당 제외 가격, 요약 수익률은 배당 포함`;
   canvas.dataset.aioTickerChartRenderer = 'native';
   canvas.dataset.sourceKind = unavailable ? 'unavailable' : 'native-runtime';
   canvas.dataset.sourceLabel = unavailable ? 'entity-history-unavailable' : 'native:entity-history';
@@ -438,7 +438,7 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     const isUp = prices.at(-1) >= prices[0];
     const chart = new ChartConstructor(canvas, {
       type: 'line',
-      data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#22754c' : '#b13a30', backgroundColor: 'transparent', borderWidth: 1.8, borderCapStyle: 'round', borderJoinStyle: 'round', pointRadius: 0, tension: 0, fill: false }] /* v58.53 개편 v2: thin round line, no area fill */ }, // v57.55 review (E3-F9): no smoothing — a curve drew prices that never traded
+      data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#2f7c57' : '#b54548', backgroundColor: 'transparent', borderWidth: 1.8, borderCapStyle: 'round', borderJoinStyle: 'round', pointRadius: 0, tension: 0, fill: false }] /* v58.53 개편 v2: thin round line, no area fill */ }, // v57.55 review (E3-F9): no smoothing — a curve drew prices that never traded
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
         x: { title: { display: true, text: '관측 날짜' }, ticks: { maxTicksLimit: (canvas.clientWidth || 600) < 480 ? 4 : 8, maxRotation: 0, autoSkip: true, callback(value) { const label = String(this.getLabelForValue(value) || ''); return /^\d{4}-\d{2}-\d{2}$/.test(label) ? `${Number(label.slice(5, 7))}/${Number(label.slice(8, 10))}` : label; } }, grid: { display: false } }, // v58.53: M/D ticks
         y: { title: { display: true, text: `가격${state?.quote?.currency ? ` (${state.quote.currency})` : ''}` },
@@ -449,17 +449,17 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
   } catch (_) {
     charts.destroy('ticker-price-chart');
     canvas.style.display = 'none';
-    if (loading) { loading.style.display = 'flex'; loading.textContent = `${state?.id || '종목'} ${periodLabel} 차트 런타임 실패 · 차트 보류`; }
+    if (loading) { loading.style.display = 'flex'; loading.textContent = `${state?.id || '종목'} ${periodLabel} 차트 런타임 실패, 차트 보류`; }
   }
 }
 
 // v57.81: why an out-of-universe listing has no SEC filing on screen (never an estimate in its place).
 const ON_DEMAND_SEC_STATUS = Object.freeze({
-  'no-cik': '○ 랭킹 대상 밖 종목 · SEC 등록번호(CIK) 미확인 — 공시 미조회',
-  unavailable: '○ 랭킹 대상 밖 종목 · SEC 공시 조회 실패',
-  'no-annual-facts': '○ 랭킹 대상 밖 종목 · SEC 연간 공시 항목 없음',
-  'no-current-fields': '○ 랭킹 대상 밖 종목 · 현재 기준에 맞는 연간 공시 없음',
-  'not-applicable': '○ ETF · 기업 재무 공시 대상 아님'
+  'no-cik': '○ 랭킹 대상 밖 종목, SEC 등록번호(CIK) 미확인 — 공시 미조회',
+  unavailable: '○ 랭킹 대상 밖 종목, SEC 공시 조회 실패',
+  'no-annual-facts': '○ 랭킹 대상 밖 종목, SEC 연간 공시 항목 없음',
+  'no-current-fields': '○ 랭킹 대상 밖 종목, 현재 기준에 맞는 연간 공시 없음',
+  'not-applicable': '○ ETF, 기업 재무 공시 대상 아님'
 });
 
 function renderFundamentalStatus(documentRef, state, onDemand = null) {
@@ -470,7 +470,7 @@ function renderFundamentalStatus(documentRef, state, onDemand = null) {
     && Array.isArray(fundamentals.coverage) && fundamentals.coverage.length > 0;
   const observedAt = fundamentals?.observedAt || fundamentals?.filedAt || null;
   const unselected = !String(state?.id || '').trim(); // P1365: no selection ≠ SEC 미수신.
-  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `회계연도 말 ${String(observedAt).slice(0, 10)}` : '회계연도 말 미수신'}` : unselected ? '○ 종목 선택 전' : isKrSymbol(state?.id) ? '○ 한국 공시(DART) 기준 · SEC 대상 아님' : ON_DEMAND_SEC_STATUS[onDemand?.secStatus] || '○ SEC 데이터 미수신';
+  element.textContent = available ? `● SEC 연간 공시, ${observedAt ? `회계연도 말 ${String(observedAt).slice(0, 10)}` : '회계연도 말 미수신'}` : unselected ? '○ 종목 선택 전' : isKrSymbol(state?.id) ? '○ 한국 공시(DART) 기준, SEC 대상 아님' : ON_DEMAND_SEC_STATUS[onDemand?.secStatus] || '○ SEC 데이터 미수신';
   element.className = 'freshness-badge fb-static';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
@@ -515,10 +515,10 @@ function renderFundamentalSummary(documentRef, state) {
   const observedAt = fundamentals?.observedAt || '미상';
   // v57.51 F17/F18: an extreme ratio (P/E above 1000, ROE beyond 200%, growth off a tiny base) is labelled, not hidden.
   const flagged = fundamentalValueFlags(fundamentals || {}).map((flag) => flag.label.split(' — ')[0]);
-  const flagText = flagged.length ? ` · 해석 주의: ${[...new Set(flagged)].join(', ')}` : '';
+  const flagText = flagged.length ? `, 해석 주의: ${[...new Set(flagged)].join(', ')}` : '';
   element.textContent = available
-    ? `SEC ${period === 'FY' ? '연간(FY)' : period} 기준 · 관측 항목 ${report.coverage.length}개 · 회계연도 말 ${observedAt}${facts.length ? ` · ${facts.join(' · ')}` : ''}${flagText}`
-    : !String(state?.id || '').trim() ? '종목 선택 전 · 선택 기업의 SEC 연간 재무 해석 없음' : isKrSymbol(state?.id) ? '한국 상장 종목 · 연간 재무는 한국 공시(DART) 사업보고서 기준' : 'SEC 연간 재무 데이터 수신 대기 · 해석 보류';
+    ? `SEC ${period === 'FY' ? '연간(FY)' : period} 기준, 관측 항목 ${report.coverage.length}개, 회계연도 말 ${observedAt}${facts.length ? `, ${facts.join(', ')}` : ''}${flagText}`
+    : !String(state?.id || '').trim() ? '종목 선택 전, 선택 기업의 SEC 연간 재무 해석 없음' : isKrSymbol(state?.id) ? '한국 상장 종목, 연간 재무는 한국 공시(DART) 사업보고서 기준' : 'SEC 연간 재무 데이터 수신 대기, 해석 보류';
   element.dataset.aioFundamentalSummaryRenderer = 'native';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
@@ -574,11 +574,11 @@ function renderFundamentalWatchlist(documentRef, state) {
   const generatedMs = Date.parse(meta.generatedAt || '');
   const ageHours = Number.isFinite(generatedMs) ? Math.max(0, (Date.now() - generatedMs) / 3600000) : null;
   // 2026-10-13 review S13: no provider name or pipeline vocabulary in the body; the source sits in the title.
-  const projectionState = ageHours == null ? '확인 시각 미수신' : ageHours <= 48 ? '최근 확인' : '확인 지연 · 참고 전용';
+  const projectionState = ageHours == null ? '확인 시각 미수신' : ageHours <= 48 ? '최근 확인' : '확인 지연, 참고 전용';
   const coverageText = Number.isFinite(meta.stored) && Number.isFinite(meta.eligible)
-    ? ` · 공시 대상 ${meta.eligible}개 중 ${meta.stored}개 보유`
+    ? `, 공시 대상 ${meta.eligible}개 중 ${meta.stored}개 보유`
     : '';
-  notice.textContent = `연간 공시 · ${projectionState}${meta.generatedAt ? ` · ${formatKstStamp(meta.generatedAt) || String(meta.generatedAt).slice(0, 10)}` : ''}${coverageText} · 연간 공시와 시세는 서로 다른 시계로 분리`;
+  notice.textContent = `연간 공시, ${projectionState}${meta.generatedAt ? `, ${formatKstStamp(meta.generatedAt) || String(meta.generatedAt).slice(0, 10)}` : ''}${coverageText}, 연간 공시와 시세는 서로 다른 시계로 분리`;
   notice.title = `${meta.source || 'SEC EDGAR companyfacts'} 연간 공시 요약`;
   notice.className = ageHours != null && ageHours <= 48 ? 'fwl-notice is-fresh' : 'fwl-notice';
   grid.appendChild(notice);
@@ -606,7 +606,7 @@ function renderFundamentalWatchlist(documentRef, state) {
     name.className = 'fwl-name';
     identity.append(symbolNode, name);
     const period = documentRef.createElement('span');
-    period.textContent = `${row.periodType || 'FY'} · ${row.observedAt || '회계연도 말 미상'}`;
+    period.textContent = `${row.periodType || 'FY'}, ${row.observedAt || '회계연도 말 미상'}`;
     period.className = 'fwl-period';
     heading.append(identity, period);
     card.appendChild(heading);
@@ -622,7 +622,7 @@ function renderFundamentalWatchlist(documentRef, state) {
     card.appendChild(metrics);
 
     const source = documentRef.createElement('div');
-    source.textContent = `${row.form || '연간 보고서'} · 제출 ${row.filedAt || '미상'} · 추정치 없음`;
+    source.textContent = `${row.form || '연간 보고서'}, 제출 ${row.filedAt || '미상'}, 추정치 없음`;
     source.title = `${row.source || meta.source || 'SEC EDGAR companyfacts'}`;
     source.className = 'fwl-source';
     card.appendChild(source);
@@ -678,7 +678,7 @@ function renderFundamentalArrival(documentRef, { metric, question, symbol, fromR
   const text = metricLabel || question;
   if (!text) { note.hidden = true; return; }
   const period = { TTM_3Y: '최근 12개월과 3년', '5Y': '5년', '3Y_5Y': '3~5년' }[String(timeframe || '')] || null;
-  note.textContent = `${fromRoute ? `${fromRoute} 링크에서 넘어온 확인 대상: ` : '이 화면으로 건너온 확인 대상: '}${text}${period ? ` · 볼 기간 ${period}` : ''}${symbol ? ` · 대상 종목 ${symbol}(아래 보고에서 함께 확인)` : ' · 종목을 선택해 아래 보고에서 함께 확인하세요'}${metricLabel && question ? ` — ${question}` : ''}`;
+  note.textContent = `${fromRoute ? `${fromRoute} 링크에서 넘어온 확인 대상: ` : '이 화면으로 건너온 확인 대상: '}${text}${period ? `, 볼 기간 ${period}` : ''}${symbol ? `, 대상 종목 ${symbol}(아래 보고에서 함께 확인)` : ', 종목을 선택해 아래 보고에서 함께 확인하세요'}${metricLabel && question ? ` — ${question}` : ''}`;
   if (returnContext?.route) {
     const back = documentRef.createElement('button');
     back.type = 'button';
@@ -709,27 +709,27 @@ function renderFundamentalReport(documentRef, page, state) {
   markSecReportElement(meta, report);
   markSecReportElement(coverage, report);
   markSecReportElement(grid, report);
-  if (title) title.textContent = report.entityName || report.symbol ? `SEC 연간 공시 요약 · ${report.entityName || report.symbol}` : 'SEC 연간 공시 요약';
+  if (title) title.textContent = report.entityName || report.symbol ? `SEC 연간 공시 요약, ${report.entityName || report.symbol}` : 'SEC 연간 공시 요약';
   if (meta) {
     // P1591 (S08): the reader line says which report and how old it is; filing ledger details
     // (acceptance time, accession, point-in-time count) move to the tooltip.
     meta.textContent = report.status === 'current'
-      ? `${report.form || '연간 보고서'} · 회계연도 말 ${report.observedAt || '—'} · 제출 ${report.filedAt || '—'}${report.freshness?.ageDays != null ? ` · 회계연도 말로부터 ${report.freshness.ageDays}일` : ''}${report.freshness?.state && report.freshness.state !== 'current' ? ' · 최신 연간 보고서 아님' : ''}`
-      : unselected ? '선택한 종목 없음 · 티커를 입력하거나 관심종목을 선택하면 해당 기업의 SEC 연간 보고서를 표시합니다'
-        : isKrSymbol(state?.id) ? '한국 상장 종목은 SEC 연간 보고서 대상이 아닙니다 · 연간 재무는 한국 공시(DART) 기준'
-          : 'SEC 연간 보고서를 아직 받지 못했습니다 · 값이 없는 항목은 추정하지 않습니다';
-    if (report.status === 'current') meta.title = [report.filingMetadata?.acceptedAt ? `접수 ${report.filingMetadata.acceptedAt}` : null, report.accession ? `접수번호 ${report.accession}` : null, report.pointInTime?.observationCount ? `시점 기록(PIT) ${report.pointInTime.observationCount}건 (${report.pointInTime.status})` : null].filter(Boolean).join(' · ');
+      ? `${report.form || '연간 보고서'}, 회계연도 말 ${report.observedAt || '—'}, 제출 ${report.filedAt || '—'}${report.freshness?.ageDays != null ? `, 회계연도 말로부터 ${report.freshness.ageDays}일` : ''}${report.freshness?.state && report.freshness.state !== 'current' ? ', 최신 연간 보고서 아님' : ''}`
+      : unselected ? '선택한 종목 없음, 티커를 입력하거나 관심종목을 선택하면 해당 기업의 SEC 연간 보고서를 표시합니다'
+        : isKrSymbol(state?.id) ? '한국 상장 종목은 SEC 연간 보고서 대상이 아닙니다, 연간 재무는 한국 공시(DART) 기준'
+          : 'SEC 연간 보고서를 아직 받지 못했습니다, 값이 없는 항목은 추정하지 않습니다';
+    if (report.status === 'current') meta.title = [report.filingMetadata?.acceptedAt ? `접수 ${report.filingMetadata.acceptedAt}` : null, report.accession ? `접수번호 ${report.accession}` : null, report.pointInTime?.observationCount ? `시점 기록(PIT) ${report.pointInTime.observationCount}건 (${report.pointInTime.status})` : null].filter(Boolean).join(', ');
     if (report.filingUrl && report.status === 'current') {
       const original = documentRef.createElement('a');
       original.href = report.filingUrl; original.target = '_blank'; original.rel = 'noopener noreferrer';
       original.textContent = 'SEC 공시 원문';
       original.setAttribute('aria-label', `${report.entityName || report.symbol || ''} ${report.form || ''} 제출 ${report.filedAt || ''} SEC 공시 원문 새 창`);
-      meta.append(documentRef.createTextNode(' · '), original);
+      meta.append(documentRef.createTextNode(', '), original);
     }
   }
   if (coverage) {
     coverage.textContent = report.status === 'current'
-      ? `관측 항목 ${report.coverage.length}개 · ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`
+      ? `관측 항목 ${report.coverage.length}개, ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`
       : unselected ? '선택 기업 없음' : '관측 항목 없음';
     if (report.status === 'current' && report.source) coverage.title = report.source; else coverage.removeAttribute?.('title');
   }
@@ -859,15 +859,15 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
             if (root?._currentTickerId && String(root._currentTickerId).toUpperCase() === id) renderNow();
             const label = documentRef?.getElementById('ticker-summary-price-basis');
             if (!label || root?._liveData?.[id]?.price || documentRef?.getElementById('ticker-hero-price')?.dataset.priceBasis === 'last-close') return;
-            const quoteFailed = '시세를 불러오지 못했습니다 · 잠시 후 종목을 다시 선택해 확인하세요';
+            const quoteFailed = '시세를 불러오지 못했습니다, 잠시 후 종목을 다시 선택해 확인하세요';
             if (typeof root?._aioIsKnownTicker !== 'function' || root._aioIsKnownTicker(id)) { label.textContent = quoteFailed; return; }
             // v57.81: a symbol outside AIO's registries may still be US-listed — the lazy official listing decides (exact
             // symbol). Unchecked (listing unavailable) reads as a quote failure, never as "not listed".
             label.textContent = quoteFailed;
             Promise.resolve(typeof root?._aioCheckUsListing === 'function' ? root._aioCheckUsListing(id) : { listed: false }).then((listing) => {
               if (String(root?._currentTickerId || '').toUpperCase() !== id || root?._liveData?.[id]?.price) return;
-              label.textContent = listing?.listed === true ? `미국 상장 종목${listing.name ? `(${listing.name})` : ''} · ${quoteFailed}`
-                : listing?.listed === false ? 'AIO에 등록된 종목이 아니고 미국 상장 목록에도 없습니다 · 티커 철자를 확인하세요' : quoteFailed; // v57.54 review: NVDAA is not a slow source
+              label.textContent = listing?.listed === true ? `미국 상장 종목${listing.name ? `(${listing.name})` : ''}, ${quoteFailed}`
+                : listing?.listed === false ? 'AIO에 등록된 종목이 아니고 미국 상장 목록에도 없습니다, 티커 철자를 확인하세요' : quoteFailed; // v57.54 review: NVDAA is not a slow source
               // v57.83: a one-word company name ("Opendoor") has ticker shape and lands here; offer listing-name candidates.
               if (listing?.listed === false && /^[A-Z]{3,12}$/.test(id) && typeof root?._aioTickerSearchMiss === 'function') root._aioTickerSearchMiss(id);
             }).catch(() => {});
@@ -912,7 +912,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       if (page && !suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
           routeId: route,
-          heading: route === 'ticker' ? '종목 · AI 경제성·자본·13F 맥락' : route === 'fundamental' ? '펀더멘털 · 매출 전환·소프트웨어·Physical AI' : '옵션 · 이벤트·시장 리스크 정렬'
+          heading: route === 'ticker' ? '종목, AI 경제성·자본·13F 맥락' : route === 'fundamental' ? '펀더멘털, 매출 전환·소프트웨어·Physical AI' : '옵션, 이벤트·시장 리스크 정렬'
         });
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge?.remove?.());

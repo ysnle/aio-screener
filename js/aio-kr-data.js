@@ -155,7 +155,7 @@ function initKoreaThemes() {
       // 행 전체 배경 틴트
       var a = Math.min(Math.abs(d.pct != null ? d.pct : 0)*3,12)/100;
       pill.style.background = (d.pct>=0)?'rgba(34,117,76,'+a+')':'rgba(177,58,48,'+a+')';
-      pill.style.borderColor = (d.pct>=0)?'rgba(34,117,76,0.15)':'rgba(177,58,48,0.15)';
+      pill.style.borderColor = (d.pct>=0)?'var(--gold-6)':'var(--gold-6)';
     }
   });
 
@@ -233,14 +233,14 @@ function renderKrThemeCardsFromMap() {
 
   // 테마 메타데이터 (한글명, 아이콘 배경색 — v57.77: 영문 부제 제거)
   var META = {
-    'defense':      {emoji:'',name:'K-방산 / 항공우주',bg:'rgba(177,58,48,0.12)'},
+    'defense':      {emoji:'',name:'K-방산 / 항공우주',bg:'rgba(181,69,72,0.12)'},
     'semi':         {emoji:'',name:'반도체 / HBM',bg:'rgba(var(--ink-rgb),0.12)'},
     'shipbuilding': {emoji:'',name:'조선 / 해양',bg:'rgba(var(--ink-rgb),0.12)'},
     'ai-sw':        {emoji:'',name:'AI / 소프트웨어',bg:'rgba(var(--ink-rgb),0.12)'},
     'power-grid':   {emoji:'',name:'전력기기 / 변압기',bg:'rgba(var(--ink-rgb),0.12)'},
-    'nuclear':      {emoji:'',name:'원전 / SMR',bg:'rgba(34,117,76,0.12)'},
+    'nuclear':      {emoji:'',name:'원전 / SMR',bg:'rgba(47,124,87,0.12)'},
     'battery':      {emoji:'',name:'2차전지 / 배터리',bg:'rgba(var(--ink-rgb),0.12)'},
-    'bio':          {emoji:'',name:'바이오 / 제약',bg:'rgba(34,117,76,0.12)'},
+    'bio':          {emoji:'',name:'바이오 / 제약',bg:'rgba(47,124,87,0.12)'},
     'kbeauty':      {emoji:'',name:'K-뷰티 / 화장품',bg:'rgba(var(--ink-rgb),0.12)'},
     'kcontent':     {emoji:'',name:'K-콘텐츠 / 엔터',bg:'rgba(var(--ink-rgb),0.12)'},
     'auto':         {emoji:'',name:'자동차 / EV',bg:'rgba(var(--ink-rgb),0.12)'},
@@ -254,13 +254,13 @@ function renderKrThemeCardsFromMap() {
     'steel_chem':   {emoji:'',name:'철강 / 화학 / 소재',bg:'rgba(var(--ink-rgb),0.12)'},
     'logistics':    {emoji:'',name:'물류 / 운송 / 항공',bg:'rgba(var(--ink-rgb),0.12)'},
   'medtech_kr':   {emoji:'',name:'의료기기 / 디지털헬스',bg:'rgba(var(--ink-rgb),0.12)'},
-    'energy_kr':    {emoji:'',name:'에너지 / 정유',bg:'rgba(34,117,76,0.12)'},
+    'energy_kr':    {emoji:'',name:'에너지 / 정유',bg:'rgba(47,124,87,0.12)'},
     'photonics_kr': {emoji:'',name:'광통신 / 포토닉스',bg:'rgba(var(--ink-rgb),0.12)'},
-    'wind_solar':   {emoji:'',name:'풍력 / 태양광 / 신재생',bg:'rgba(34,117,76,0.12)'},
+    'wind_solar':   {emoji:'',name:'풍력 / 태양광 / 신재생',bg:'rgba(47,124,87,0.12)'},
     'quantum':      {emoji:'',name:'양자컴퓨팅 / 양자암호',bg:'rgba(var(--ink-rgb),0.12)'},
     'uam':          {emoji:'',name:'UAM / 도심항공',bg:'rgba(var(--ink-rgb),0.12)'},
     'hydrogen':     {emoji:'',name:'수소에너지',bg:'rgba(var(--ink-rgb),0.12)'},
-    'space':        {emoji:'',name:'우주항공 / 위성',bg:'rgba(177,58,48,0.12)'}
+    'space':        {emoji:'',name:'우주항공 / 위성',bg:'rgba(181,69,72,0.12)'}
   };
 
   // 테마 순서 (사용자에게 보이는 순서)
@@ -297,7 +297,7 @@ function renderKrThemeCardsFromMap() {
         pctColor = d.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
       }
       var priceStr = d && d.price ? d.price.toLocaleString() : '';
-      var barC = d && d.pct != null ? (d.pct >= 0 ? 'rgba(34,117,76,0.12)' : 'rgba(177,58,48,0.10)') : 'transparent';
+      var barC = d && d.pct != null ? (d.pct >= 0 ? 'rgba(47,124,87,0.12)' : 'rgba(181,69,72,0.1)') : 'transparent';
       var pillHtml = '<span class="kr-ticker-pill" data-live-symbol="' + sym + '" style="--bar-w:' + s.w + '%;--bar-c:' + barC + ';cursor:pointer;" data-action="showTicker" data-arg="' + sym + '" data-stop="1" title="' + (info.name||s.code) + ' ↗">' +
         '<span class="pill-code">' + s.code + '</span> ' +
         '<span class="pill-name">' + name + '</span> ' +
@@ -318,14 +318,14 @@ function renderKrThemeCardsFromMap() {
 
     // 카드 HTML 조립
     html += '<div class="kr-theme-card" data-heat="' + heat + '" data-theme-id="' + tid + '">' +
-      '<div class="kr-theme-header" role="button" tabindex="0" aria-label="' + escHtml(String(meta.name || tid) + ' · ' + heatLabel + ' — 테마 자세히 보기') + '">' +
+      '<div class="kr-theme-header" role="button" tabindex="0" aria-label="' + escHtml(String(meta.name || tid) + ', ' + heatLabel + ' — 테마 자세히 보기') + '">' +
         '<span class="kr-theme-icon" style="background:' + meta.bg + ';"></span>' +
         '<div><div class="kr-theme-name">' + meta.name + '</div></div>' +
         '<span class="kr-theme-heat heat-' + heat + '">' + heatLabel + '</span>' +
       '</div>' +
       '<div class="kr-theme-tickers">' + pillsHtml + '</div>' +
       '<div class="kr-theme-stat" data-theme-stat="' + tid + '">' +
-        (avg == null ? '<span><b class="krl-muted">시세 미수신 · 구성 비중만 표시</b></span>' : '<span>일간 수익률 <b style="color:' + (avg >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%</b></span>') +
+        (avg == null ? '<span><b class="krl-muted">시세 미수신, 구성 비중만 표시</b></span>' : '<span>일간 수익률 <b style="color:' + (avg >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%</b></span>') +
       '</div>' +
       catalystHtml +
     '</div>';
@@ -413,7 +413,7 @@ function showKrThemeDetail(themeId) {
     var pcs=pct!==null?((pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
     var lt=d?'<span class="krl-live is-on">● 수신</span>':'<span class="krl-live">○</span>';
     var rankIcon=idx===0?' ':idx===1?' ':idx===2?' ':'';
-    rows+='<tr class="krl-d-row'+(idx%2===0?' is-alt':'')+'"><td class="krl-d-c is-name" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span class="krl-accent">'+(info.name||t.code)+'</span> <span class="krl-d-go">↗</span><div class="krl-d-meta">'+(info.sector||'')+' · '+t.code+'</div></td><td class="krl-d-c is-fig">'+ps+'</td><td class="krl-d-c is-fig is-heavy" style="color:'+pCol+';">'+pcs+'</td><td class="krl-d-c is-ctr is-xs is-muted">'+(info.mcap||'—')+'</td><td class="krl-d-c is-ctr is-xs">'+(t.wLabel||(Math.round(t.w*10)/10)+'%')+'</td><td class="krl-d-c is-ctr">'+lt+'</td></tr>';
+    rows+='<tr class="krl-d-row'+(idx%2===0?' is-alt':'')+'"><td class="krl-d-c is-name" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span class="krl-accent">'+(info.name||t.code)+'</span> <span class="krl-d-go">↗</span><div class="krl-d-meta">'+(info.sector||'')+', '+t.code+'</div></td><td class="krl-d-c is-fig">'+ps+'</td><td class="krl-d-c is-fig is-heavy" style="color:'+pCol+';">'+pcs+'</td><td class="krl-d-c is-ctr is-xs is-muted">'+(info.mcap||'—')+'</td><td class="krl-d-c is-ctr is-xs">'+(t.wLabel||(Math.round(t.w*10)/10)+'%')+'</td><td class="krl-d-c is-ctr">'+lt+'</td></tr>';
   });
 
   var tn=(CN[themeId]||themeId).replace(/[^가-힣a-zA-Z0-9\/\s]/g,'').trim();
@@ -422,7 +422,7 @@ function showKrThemeDetail(themeId) {
     // 헤더: 테마명 + 수익률 + 강도
     '<div class="krl-d-head">'+
       '<div><div class="krl-d-title">'+escHtml(CN[themeId]||themeId)+'</div>'+
-        '<div class="krl-d-sub">구성종목 '+totalStocks+'개 · 상승 '+upCnt+' · 하락 '+dnCnt+(quoted<totalStocks?' · 시세 미수신 '+(totalStocks-quoted):'')+'</div></div>'+
+        '<div class="krl-d-sub">구성종목 '+totalStocks+'개, 상승 '+upCnt+', 하락 '+dnCnt+(quoted<totalStocks?', 시세 미수신 '+(totalStocks-quoted):'')+'</div></div>'+
       '<div class="krl-d-end">'+
         '<div class="krl-d-avg" style="color:'+cc+';">'+avgText+'</div>'+
         '<div class="krl-d-band" style="color:'+strengthCol+';">'+strength+'</div></div></div>'+
@@ -449,7 +449,7 @@ function showKrThemeDetail(themeId) {
       '<div class="krl-d-cat-t">'+escHtml(cat)+'</div></div>':'')+
 
     // 종목 테이블
-    '<div style="overflow-x:auto;border:1px solid rgba(var(--ink-rgb),0.06);border-radius:4px;">'+
+    '<div style="overflow-x:auto;border:0.5px solid rgba(var(--ink-rgb),0.06);border-radius:4px;">'+
       '<table class="krl-d-tbl">'+
         '<thead><tr class="krl-d-hrow">'+
           '<th class="krl-d-th is-l">종목</th>'+
@@ -540,7 +540,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
     if (kti.foreignFlow) ss.push(' <b>외국인 수급:</b> ' + kti.foreignFlow);
     if (kti.linkedUS) ss.push(' <b>미국 연동:</b> ' + kti.linkedUS);
     if (kti.breakSignals && kti.breakSignals.length) {
-      ss.push('<b>깨지는 신호:</b> ' + kti.breakSignals.map(function(s,i){return (i+1)+') '+s;}).join(' · '));
+      ss.push('<b>깨지는 신호:</b> ' + kti.breakSignals.map(function(s,i){return (i+1)+') '+s;}).join(', '));
     }
   }
 
@@ -559,10 +559,10 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
         _knIsStale = _knStaleDays > (KR_THEME_NARRATIVES_META.staleDays || 90);
       } catch(e) {}
     }
-    var _krStaleBadge = ' <span class="krl-stale' + (_knIsStale ? ' is-stale' : '') + '">' + (_knIsStale ? 'STALE ' : '') + (KR_THEME_NARRATIVES_META && KR_THEME_NARRATIVES_META.lastUpdated || 'N/A') + ' · 경과 ' + _knStaleDays + '일</span>';
+    var _krStaleBadge = ' <span class="krl-stale' + (_knIsStale ? ' is-stale' : '') + '">' + (_knIsStale ? 'STALE ' : '') + (KR_THEME_NARRATIVES_META && KR_THEME_NARRATIVES_META.lastUpdated || 'N/A') + ', 경과 ' + _knStaleDays + '일</span>';
 
     ss.push('');
-    ss.push(' <b>테마 스토리 · 밸류체인 (기관 리서치 톤)</b>' + _krStaleBadge);
+    ss.push(' <b>테마 스토리, 밸류체인 (기관 리서치 톤)</b>' + _krStaleBadge);
     if (_knIsStale) {
       ss.push('<span class="krl-stale-note">narrative 작성일부터 ' + _knStaleDays + '일 경과 — 구체 수치는 AI 채팅/웹검색으로 crosscheck 권장</span>');
     }
@@ -661,7 +661,7 @@ function _showVkospiFailureState(reason) {
   // 실패 후에도 true로 남아 배너/채팅이 정지된 스냅샷 값을 현재값처럼 인용하는 것을 방지(P713 계약 유지).
   window._vkospiLiveOk = false;
   var lastOkText = _vkospiLastOkTs ? ('마지막 성공 ' + new Date(_vkospiLastOkTs).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })) : '성공 이력 없음';
-  var fullReason = (reason || '프록시/데이터 실패') + ' · ' + lastOkText;
+  var fullReason = (reason || '프록시/데이터 실패') + ', ' + lastOkText;
   var vEl = document.getElementById('kr-vkospi-val');
   var hEl = document.getElementById('kr-health-vkospi');
   if (vEl) window._aioRenderValueSlot(vEl, 'failed', null, { reason: fullReason });
@@ -1760,8 +1760,8 @@ function _generateKrMacroAnalysis(ld) {
   krVariables.push('외국인 수급 (선물 포지션, ETF 유출입)');
   krVariables.push('중국 경기 (PMI, 부양책 규모)');
   if (vix && vix.price > 20) krVariables.push('글로벌 리스크 심리 (VIX ' + vix.price.toFixed(0) + ')');
-  if (krConstants.length) t += ' 상수: ' + krConstants.join(' · ') + '<br>';
-  if (krVariables.length) t += ' 변수: ' + krVariables.join(' · ') + '<br>';
+  if (krConstants.length) t += ' 상수: ' + krConstants.join(', ') + '<br>';
+  if (krVariables.length) t += ' 변수: ' + krVariables.join(', ') + '<br>';
 
   // 종합 판단 (v38.4 강화)
   var krwRisk = (krw && krw.price > 1400) ? 1 : 0;
@@ -1776,8 +1776,8 @@ function _generateKrMacroAnalysis(ld) {
   if (vixRisk) krConds.push('VIX 25 이상(변동성 경계 구간)');
   t += '<br><b>【종합 판단】</b> ';
   t += krConds.length
-    ? '<span class="krl-b">해당 조건 ' + riskSum + '개/3개: ' + krConds.join(' · ') + '.</span> 예측 신호가 아니며, 업종별 영향은 실적·수급과 함께 따로 확인합니다.'
-    : '<span class="krl-b">세 조건(환율 1,400원 초과 · 미국 10년 4.5% 초과 · VIX 25 이상)에 해당하지 않습니다.</span> 예측 신호가 아니며, 비중 판단은 개인 기준으로 합니다.';
+    ? '<span class="krl-b">해당 조건 ' + riskSum + '개/3개: ' + krConds.join(', ') + '.</span> 예측 신호가 아니며, 업종별 영향은 실적·수급과 함께 따로 확인합니다.'
+    : '<span class="krl-b">세 조건(환율 1,400원 초과, 미국 10년 4.5% 초과, VIX 25 이상)에 해당하지 않습니다.</span> 예측 신호가 아니며, 비중 판단은 개인 기준으로 합니다.';
 
   // v40.4: 교차변수 심화 진단
   if (wti && wti.price && krw && krw.price && vix && vix.price) {
@@ -1816,7 +1816,7 @@ function _krReferenceScoreLine(label) {
   var ts = null;
   try { if (typeof computeTradingScore === 'function') ts = computeTradingScore().score; } catch (e) {}
   if (ts == null || !isFinite(Number(ts))) return '<br><b>' + label + '</b> 실시간·검증된 입력이 없어 참고값 산출을 보류합니다.';
-  return '<br><b>' + label + '</b> 시장 환경 참고값 <b>' + ts + '/100</b> (직전 미국장 종가 기준 · 예측 검증 미확립). 한국 시장은 수급·환율·실적을 따로 확인합니다.';
+  return '<br><b>' + label + '</b> 시장 환경 참고값 <b>' + ts + '/100</b> (직전 미국장 종가 기준, 예측 검증 미확립). 한국 시장은 수급·환율·실적을 따로 확인합니다.';
 }
 
 // ── 2) 한국 테마 동향 분석 ──

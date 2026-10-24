@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.72';
+const APP_VERSION = 'v58.73';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -36,7 +36,7 @@ const APP_VERSION = 'v58.72';
   var _buf = [];
   var _rateCounter = { warn: 0, error: 0, lastReset: Date.now() };
   var _consoleMap = { debug: 'log', info: 'log', warn: 'warn', error: 'error' };
-  var _colorMap = { debug: '#7b8599', info: '#00bcd4', warn: '#ffa31a', error: '#ff5b50' };
+  var _colorMap = { debug: '#978365', info: '#4ccce6', warn: '#ffa057', error: '#ec5d5e' };
 
   function _resetRateIfNeeded() {
     var now = Date.now();
@@ -52,7 +52,7 @@ const APP_VERSION = 'v58.72';
     if (sum >= RATE_THRESHOLD) {
       var panel = document.getElementById('data-status-panel');
       if (panel) {
-        panel.innerHTML = '<span style="color:#f87171;font-size:10px;font-weight:700;">에러 급증 — 최근 1분 ' + sum + '건 (error ' + _rateCounter.error + ', warn ' + _rateCounter.warn + ')</span>';
+        panel.innerHTML = '<span style="color:var(--red-11);font-size:12px;font-weight:700;">에러 급증 — 최근 1분 ' + sum + '건 (error ' + _rateCounter.error + ', warn ' + _rateCounter.warn + ')</span>';
       }
     }
   }
@@ -1042,7 +1042,7 @@ window.AIO.getDecisionEvidenceBundle = function(opts) {
 window.AIO.buildPageDecisionAiPrompt = function(d) {
   if (!d) return '';
   var bundle = d.provenanceBundle || null;
-  var provenanceLine = bundle ? '\n증거 묶음 evidenceId: ' + bundle.bundleId + ' · 상태: ' + bundle.status + ' · 핵심 현재 입력: ' + bundle.verifiedCurrent + '/' + bundle.total : '';
+  var provenanceLine = bundle ? '\n증거 묶음 evidenceId: ' + bundle.bundleId + ', 상태: ' + bundle.status + ', 핵심 현재 입력: ' + bundle.verifiedCurrent + '/' + bundle.total : '';
   return d.title + ': ' + d.decision + '\n근거: ' + (d.reasons || []).join(' / ') + '\n운용 포인트: ' + d.action + provenanceLine +
     '\n\n이 현재 결과를 기준으로 운용 관점에서 1) 핵심 판단 2) 리스크 3) 추가 확인 데이터 4) 실행/보류 조건을 간결하게 정리해줘.';
 };
@@ -1454,7 +1454,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
     if (!ctx) return false;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = opts.background || '#0f172a';
+    ctx.fillStyle = opts.background || '#111927';
     ctx.fillRect(0, 0, width, height);
     var padL = 30, padR = 10, padT = 14, padB = 22;
     var plotW = Math.max(1, width - padL - padR);
@@ -1466,7 +1466,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
     var max = opts.max != null ? Number(opts.max) : Math.max.apply(null, vals);
     if (!isFinite(min) || !isFinite(max) || min === max) { min -= 1; max += 1; }
     var yFor = function(v) { return padT + (max - v) / (max - min) * plotH; };
-    ctx.strokeStyle = 'rgba(148,163,184,0.18)';
+    ctx.strokeStyle = 'rgba(185,168,141,0.18)';
     ctx.lineWidth = 1;
     for (var g = 0; g < 4; g++) {
       var gy = padT + plotH * g / 3;
@@ -1475,7 +1475,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
     seriesList.forEach(function(s, si) {
       var data = (s.data || []).map(Number).filter(function(v) { return isFinite(v); });
       if (!data.length) return;
-      ctx.strokeStyle = s.color || '#00bcd4';
+      ctx.strokeStyle = s.color || '#4ccce6';
       ctx.lineWidth = s.width || 2;
       ctx.beginPath();
       data.forEach(function(v, i) {
@@ -1485,7 +1485,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
       });
       ctx.stroke();
       var last = data[data.length - 1];
-      ctx.fillStyle = s.color || '#00bcd4';
+      ctx.fillStyle = s.color || '#4ccce6';
       ctx.beginPath(); ctx.arc(width - padR - 3, yFor(last), 3, 0, Math.PI * 2); ctx.fill();
       if (si === 0 && opts.fill !== false) {
         ctx.lineTo(width - padR, padT + plotH);
@@ -1496,7 +1496,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
         ctx.globalAlpha = 1;
       }
     });
-    ctx.fillStyle = 'rgba(226,232,240,0.72)';
+    ctx.fillStyle = 'rgba(213,239,255,0.72)';
     ctx.font = '10px JetBrains Mono, monospace';
     ctx.fillText(opts.label || 'fallback', padL, 10);
     canvas.setAttribute('data-fallback-rendered', opts.name || 'fallback');
@@ -1516,14 +1516,14 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
     var ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = 'rgba(148,163,184,0.06)';
-    ctx.strokeStyle = 'rgba(148,163,184,0.18)';
+    ctx.fillStyle = 'rgba(185,168,141,0.06)';
+    ctx.strokeStyle = 'rgba(185,168,141,0.18)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.arc(width / 2, height / 2 - 8, Math.min(width, height) * 0.24, 0, Math.PI * 2);
     ctx.stroke();
     ctx.fill();
-    ctx.fillStyle = opts.color || 'rgba(226,232,240,0.72)';
+    ctx.fillStyle = opts.color || 'rgba(213,239,255,0.72)';
     ctx.font = '11px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(label || 'Data unavailable', width / 2, height / 2 + 2);
@@ -1587,7 +1587,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
       if (preset.status) {
         var st = document.getElementById(preset.status);
         if (st && /로딩|Loading|loading|수집|지연|실패/i.test(st.textContent || '')) {
-          st.textContent = '라이브 차트 미수신 · 판단 보류';
+          st.textContent = '라이브 차트 미수신, 판단 보류';
           st.style.color = 'var(--data-amber)';
         }
       }
@@ -2147,7 +2147,7 @@ window._aioRefreshActionPlan = function() {
   }
 };
 window._aioAiFeedback = function(fbId, score, el) {
-  if (el) el.style.color = score > 0 ? '#00e5a0' : '#ff5b50';
+  if (el) el.style.color = score > 0 ? 'var(--green-11)' : 'var(--orange-11)';
   if (typeof window._aiFeedback === 'function') window._aiFeedback(fbId, score);
 };
 window._aioGlossaryCat = function(cat) {
@@ -2262,7 +2262,7 @@ window._aioRenderSnapshotDates = function() {
       if (!el.getAttribute('data-source-kind')) el.setAttribute('data-source-kind', 'snapshot');
       if (!el.getAttribute('data-operational-use')) el.setAttribute('data-operational-use', 'reference-only');
       if (!el.getAttribute('data-source-label')) el.setAttribute('data-source-label', 'DATA_SNAPSHOT:' + key);
-      if (!el.title) el.title = d ? ('정적 참고값 기준일 ' + d + ' · 실시간 갱신 전 참고용') : '정적 참고값 · 실시간 갱신 전 참고용';
+      if (!el.title) el.title = d ? ('정적 참고값 기준일 ' + d + ', 실시간 갱신 전 참고용') : '정적 참고값, 실시간 갱신 전 참고용';
     });
     // KR 카드 stale-days span 갱신 — kr-* 5개 ID에 _aioStaleDaysLabel 호출
     if (typeof window._aioStaleDaysLabel === 'function') {
@@ -2375,7 +2375,7 @@ if (typeof document !== 'undefined') {
       var hh = String(d.getHours()).padStart(2, '0');
       var mm = String(d.getMinutes()).padStart(2, '0');
       var ss = String(d.getSeconds()).padStart(2, '0');
-      var txt = '자동 갱신 · ' + hh + ':' + mm + ':' + ss;
+      var txt = '자동 갱신, ' + hh + ':' + mm + ':' + ss;
       document.querySelectorAll('[data-narrative-stamp="' + pid + '"]').forEach(function(el) {
         el.textContent = txt;
       });
@@ -2501,11 +2501,11 @@ if (typeof document !== 'undefined') {
       if (banner) {
         if (on) {
           var dateStr = drift.stamp.date || '최근';
-          var reasonsHtml = drift.reasons.filter(function(r){ return r.sev === 'severe'; }).map(function(r){ return r.msg; }).join(' · ');
+          var reasonsHtml = drift.reasons.filter(function(r){ return r.sev === 'severe'; }).map(function(r){ return r.msg; }).join(', ');
           banner.style.display = 'block'; // box styles: legacy-core.css #aio-regime-drift-banner
           banner.innerHTML = '<strong class="lco-drift-title">정적 분석 텍스트는 ' + dateStr + ' 기준입니다 — 현재 시장이 그때와 크게 다릅니다.</strong>' +
             '<span class="lco-drift-why"> ' + reasonsHtml + '. 시나리오·해설·주간 요약 텍스트는 <b>참고용</b>으로만 보시고, 상단의 실시간 시세·지표를 우선하세요.</span>' +
-            ' <button data-action="_aioDismissRegimeDrift" style="margin-left:6px;background:none;border:1px solid rgba(255,90,80,0.5);color:#ff7a70;border-radius:3px;font-size:11px;padding:2px 8px;cursor:pointer;">닫기</button>';
+            ' <button data-action="_aioDismissRegimeDrift" style="margin-left:6px;background:none;border:0.5px solid var(--red-7);color:var(--red-11);border-radius:4px;font-size:12px;padding:2px 8px;cursor:pointer;">닫기</button>';
         } else {
           banner.style.display = 'none';
           banner.innerHTML = '';
@@ -2518,7 +2518,7 @@ if (typeof document !== 'undefined') {
           if (!existing) {
             var tag = document.createElement('div');
             tag.className = 'aio-regime-drift-tag';
-            tag.style.cssText = 'font-size:11px;color:#ff7a70;margin-bottom:6px;font-weight:600;';
+            tag.style.cssText = 'font-size:12px;color:var(--red-11);margin-bottom:6px;font-weight:600;';
             tag.textContent = '작성 시점(' + (drift.stamp.date || '') + ')과 시장 급변 — 참고용';
             el.insertBefore(tag, el.firstChild);
           }
@@ -2921,10 +2921,10 @@ if (typeof document !== 'undefined') {
       // 1) 레짐 (변동성 + 심리)
       var vixTxt = window._aioSafeFixed(ms.vix, 1, '—');
       var regimePart = '변동성 ' + (ms.vixBandLabel || '—') + '(VIX ' + vixTxt + ')'
-        + ' · 투자심리 ' + (ms.fgZoneLabel || '—') + '(F&G ' + (ms.fg != null ? Math.round(ms.fg) : '—') + ')';
+        + ', 투자심리 ' + (ms.fgZoneLabel || '—') + '(F&G ' + (ms.fg != null ? Math.round(ms.fg) : '—') + ')';
       // 2) 사이클 + 시장폭
       var cyclePart = '경기 국면 ' + (ms.cyclePhase || '—') + (ms.cycleScore != null ? '(위치 ' + ms.cycleScore + '/100)' : '')
-        + ' · 시장폭 ' + (ms.breadthConsensus || '—');
+        + ', 시장폭 ' + (ms.breadthConsensus || '—');
       // 3) 리스크 종합
       var riskLabelKo = { high: '높음', elevated: '경계', moderate: '보통', low: '낮음', unknown: '판정 대기' }[ms.riskLevel] || ms.riskLevel;
       var riskPart = '종합 리스크 ' + riskLabelKo + (ms.riskScore != null ? '(' + ms.riskScore + '/100)' : '');
@@ -2934,8 +2934,8 @@ if (typeof document !== 'undefined') {
       if (ns.available) {
         var biasKo = ns.bias === 'bullish' ? '긍정 우위' : ns.bias === 'bearish' ? '부정 우위' : '중립';
         newsPart = '뉴스 흐름 ' + biasKo + '(감성 ' + num(ns.sentimentScore, 0) + ')'
-          + (ns.dominantTopic ? ' · 주도 테마 ' + (topicKo[ns.dominantTopic] || ns.dominantTopic) : '')
-          + (ns.eventFlags && ns.eventFlags.geopolitical ? ' · 지정학 이벤트 활성' : '');
+          + (ns.dominantTopic ? ', 주도 테마 ' + (topicKo[ns.dominantTopic] || ns.dominantTopic) : '')
+          + (ns.eventFlags && ns.eventFlags.geopolitical ? ', 지정학 이벤트 활성' : '');
       }
       // 5) 행동 한 줄 (actionPlan 우선)
       var actionPart = '';
@@ -2943,8 +2943,8 @@ if (typeof document !== 'undefined') {
         actionPart = '변동성 환경(' + (ms.actionPlan.position.label || '—') + '): ' + (ms.actionPlan.position.note || '')
           + (ms.actionPlan.newsTilt === 'defensive' ? ' (뉴스: 부정 우위)' : ms.actionPlan.newsTilt === 'constructive' ? ' (뉴스: 긍정 우위)' : '');
       }
-      var oneLine = '지금은 변동성 ' + (ms.vixBandLabel || '—') + ' · ' + (ms.fgZoneLabel || '—') + ' 심리 · '
-        + (ms.cyclePhase || '—') + ' · 리스크 ' + riskLabelKo + (ns.available && ns.bias !== 'neutral' ? ' · 뉴스 ' + (ns.bias === 'bullish' ? '긍정' : '부정') : '') + ' 환경입니다.';
+      var oneLine = '지금은 변동성 ' + (ms.vixBandLabel || '—') + ', ' + (ms.fgZoneLabel || '—') + ' 심리, '
+        + (ms.cyclePhase || '—') + ', 리스크 ' + riskLabelKo + (ns.available && ns.bias !== 'neutral' ? ', 뉴스 ' + (ns.bias === 'bullish' ? '긍정' : '부정') : '') + ' 환경입니다.';
       var full = [oneLine, '① ' + regimePart, '② ' + cyclePart, '③ ' + riskPart]
         .concat(newsPart ? ['④ ' + newsPart] : [])
         .concat(actionPart ? ['→ ' + actionPart] : []).join('\n');
@@ -2979,9 +2979,9 @@ if (typeof document !== 'undefined') {
         var aiLines = String(txt).split('\n').map(function(line){ return line.trim(); }).filter(Boolean), openCount = 0, openChars = 0;
         while (mode === 'full' && openCount < aiLines.length && (openCount === 0 || openChars + aiLines[openCount].length <= 230)) { openChars += aiLines[openCount].length; openCount++; }
         var bodyHtml = mode !== 'full' ? esc(txt).replace(/\n/g, '<br>') : aiLines.slice(0, openCount).map(esc).join('<br>')
-          + (aiLines.length > openCount ? '<details class="ai-analysis-more"><summary>해설 이어 읽기 · ' + (aiLines.length - openCount) + '줄</summary>' + aiLines.slice(openCount).map(esc).join('<br>') + '</details>' : '');
+          + (aiLines.length > openCount ? '<details class="ai-analysis-more"><summary>해설 이어 읽기, ' + (aiLines.length - openCount) + '줄</summary>' + aiLines.slice(openCount).map(esc).join('<br>') + '</details>' : '');
         var scopeHtml = scope ? '<div class="ai-analysis-scope basis-chip">' + esc(scope) + '</div>' : '';
-        el.innerHTML = (mode === 'full' ? scopeHtml : '') + (retainedLabel ? '<span class="ai-analysis-retained">' + esc(retainedLabel) + (mode === 'full' ? '</span><br>' : ' · </span>') : '') + bodyHtml + (mode === 'full' ? '' : scopeHtml) + (note ? '<div class="ai-analysis-note">' + esc(note) + '</div>' : '');
+        el.innerHTML = (mode === 'full' ? scopeHtml : '') + (retainedLabel ? '<span class="ai-analysis-retained">' + esc(retainedLabel) + (mode === 'full' ? '</span><br>' : ', </span>') : '') + bodyHtml + (mode === 'full' ? '' : scopeHtml) + (note ? '<div class="ai-analysis-note">' + esc(note) + '</div>' : '');
         el.setAttribute('data-analysis-source', serverLLM ? 'server-llm' : 'template');
         el.setAttribute('data-analysis-ts', serverLLM && serverLLM.generatedAt ? String(serverLLM.generatedAt) : new Date().toISOString());
       });
@@ -3030,10 +3030,10 @@ if (typeof document !== 'undefined') {
         var senColor = n.sentiment === 'bull' ? 'var(--data-green)' : (n.sentiment === 'bear' || n.sentiment === 'warn') ? 'var(--data-red)' : 'var(--text-muted)';
         return '<div class="lco-ns-line">' +
           '<span style="color:' + senColor + ';">●</span> ' + esc(String(t).slice(0, 84)) +
-          ' <span class="lco-ns-src">(' + esc(n.source || '') + (ageH != null ? ' · ' + ageH + 'h' : '') + ')</span></div>';
+          ' <span class="lco-ns-src">(' + esc(n.source || '') + (ageH != null ? ', ' + ageH + 'h' : '') + ')</span></div>';
       }).join('');
       host.innerHTML = '<div class="lco-ns-head">' +
-          '<span class="lco-ns-title">관련 뉴스 ' + rows.length + '건 <span class="lco-ns-topic">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
+          '<span class="lco-ns-title">관련 뉴스 ' + rows.length + '건 <span class="lco-ns-topic">· 토픽 ' + esc(topics) + ', 공유 뉴스캐시</span></span>' +
           '<button data-action="showPage" data-arg="market-news" class="aio-btn-table lco-ns-btn">전체 뉴스 →</button></div>' + lines;
     } catch(_){}
   };
@@ -3176,7 +3176,7 @@ window._aioUpdateFreshness = function() {
   var now = Date.now();
   var lastFetch = (window._lastFetch && (window._lastFetch.quote || window._lastFetch.liveQuotes)) ? (window._lastFetch.quote || window._lastFetch.liveQuotes) : null;
   if (!lastFetch) {
-    if (dot) { dot.style.background = '#8896a8'; dot.style.boxShadow = 'none'; }
+    if (dot) { dot.style.background = 'var(--gold-9)'; dot.style.boxShadow = 'none'; }
     if (label) { label.textContent = '대기 중'; label.style.color = 'var(--text-muted)'; }
     if (time) time.textContent = '갱신: 대기';
     return;
@@ -3207,7 +3207,7 @@ if (typeof document !== 'undefined') {
   // v58.56 (re-audit #13): one topbar chip per state — "LIVE 14:32", "지연 12분 전", "10/20 종가 기준",
   // "지난 시세 10/19 21:58", or the badge word alone when no time is known (미수신, 확인 중). No 서버 prefix, no count.
   function _aioQuoteChipText(state, badge, detail) {
-    var head = String(detail || '').split(' · ')[0].replace(/^서버\s+/, '').trim();
+    var head = String(detail || '').split(/ · |, /)[0].replace(/^서버\s+/, '').trim();
     var timed = /\d/.test(head);
     if (state === 'close') { var md = head.match(/^(\d{1,2}\/\d{1,2})\s*마감$/); return md ? md[1] + ' 종가 기준' : '종가 기준'; }
     if (!timed) return String(badge || '');
@@ -3236,7 +3236,7 @@ if (typeof document !== 'undefined') {
       var published = meta.marketSnapshotPublished === true || meta.status === 'published';
       var hasSnapshotIdentity = !!(meta.revision || meta.marketSnapshotRevision || meta.latestObservedAt || meta.generatedAt);
       if (!published || (!(count > 0) && !hasSnapshotIdentity)) {
-        _aioWriteQuoteStatus('unavailable', '미수신', '기준 스냅샷 미게시 · 판정 보류', '게시된 기준 스냅샷이 없어 현재 판단에 사용하지 않음', 'none');
+        _aioWriteQuoteStatus('unavailable', '미수신', '기준 스냅샷 미게시, 판정 보류', '게시된 기준 스냅샷이 없어 현재 판단에 사용하지 않음', 'none');
         return false;
       }
       var observed = meta.latestObservedAt ? new Date(meta.latestObservedAt) : null;
@@ -3245,15 +3245,15 @@ if (typeof document !== 'undefined') {
         observed = generated ? new Date(generated) : null;
       }
       var cur = observed && isFinite(observed.getTime()) ? _aioDescribeCurrentness([{ symbol: '^GSPC', observedMs: observed.getTime() }]) : null;
-      var suffix = count > 0 ? ' · 시세 ' + count + '종' : ''; // P1599 (G05): name the count
+      var suffix = count > 0 ? ', 시세 ' + count + '종' : ''; // P1599 (G05): name the count
       if (!cur || cur.state === 'none') {
-        _aioWriteQuoteStatus('snapshot', '지난 시세', '서버 기준 시각 확인 중' + suffix, '실시간 시세가 아닌 서버 기준 스냅샷 · 관측시각 확인 전', 'stale');
+        _aioWriteQuoteStatus('snapshot', '지난 시세', '서버 기준 시각 확인 중' + suffix, '실시간 시세가 아닌 서버 기준 스냅샷, 관측시각 확인 전', 'stale');
         return true;
       }
       // A server snapshot is never "live": at best it is the latest close.
       var state = cur.state === 'close' ? 'close' : 'stale';
-      var at = cur.detail.replace(/ · (?:시세 \d+종|\d+개)$/, '');
-      _aioWriteQuoteStatus('snapshot', state === 'close' ? '종가' : '지난 시세', '서버 ' + at + suffix, cur.title + ' · 실시간 시세가 아닌 서버 기준 스냅샷', state);
+      var at = cur.detail.replace(/(?: · |, )(?:시세 \d+종|\d+개)$/, '');
+      _aioWriteQuoteStatus('snapshot', state === 'close' ? '종가' : '지난 시세', '서버 ' + at + suffix, cur.title + ', 실시간 시세가 아닌 서버 기준 스냅샷', state);
       return true;
     } catch (_) { return false; }
   }
@@ -3269,8 +3269,8 @@ if (typeof document !== 'undefined') {
     if (dot) {
       var color = kind === 'live' ? 'var(--data-green)' : kind === 'partial' || kind === 'snapshot' ? 'var(--data-amber)' : 'var(--text-muted)';
       dot.style.background = color;
-      dot.style.boxShadow = kind === 'live' ? '0 0 8px ' + color : 'none';
-      dot.style.animation = kind === 'live' ? 'pulse 2s infinite' : 'none';
+      dot.style.boxShadow = 'none';
+      dot.style.animation = 'none';
     }
   }
   function _aioRenderQuoteTopbar(opts) {
@@ -3304,7 +3304,7 @@ if (typeof document !== 'undefined') {
         status: snapshotMeta.status || (serverMeta.marketSnapshotPublished === true ? 'published' : 'unpublished')
       });
       if (_aioRenderMarketSnapshotTopbar(snapshot)) return true;
-      _aioWriteQuoteStatus('unavailable', '미수신', '시세 출처 확인 중 · 판정 보류', '실시간 시세 출처가 확인되지 않음 · 현재 판단에 사용하지 않음', 'none');
+      _aioWriteQuoteStatus('unavailable', '미수신', '시세 출처 확인 중, 판정 보류', '실시간 시세 출처가 확인되지 않음, 현재 판단에 사용하지 않음', 'none');
       return false;
     } catch (_) { return false; }
   }
@@ -3361,7 +3361,7 @@ window._aioRRPopulateSelect = function() {
   var current = sel.value;
   sel.innerHTML = '<option value="">포지션에서 자동 입력...</option>' +
     positions.map(function(p){
-      return '<option value="' + p.ticker + '">' + p.ticker + ' · ' + p.qty + '주 @ $' + Number(p.cost).toFixed(2) + '</option>';
+      return '<option value="' + p.ticker + '">' + p.ticker + ', ' + p.qty + '주 @ $' + Number(p.cost).toFixed(2) + '</option>';
     }).join('');
   if (current && positions.some(function(p){return p.ticker===current;})) sel.value = current;
 };
@@ -3456,7 +3456,7 @@ var AIO_PAGE_BRIEFS = {
     use: '거시는 시장 국면의 배경 설명입니다.',
     steps: ['FOMC·CPI·PCE·고용의 방향 확인', '달러·유가·금리와 연결', '주식시장에 부담이 되는 요인인지 근거만 남기기'],
     focus: '좋은 뉴스인지보다 연준 반응 함수와 금리 방향을 먼저 보세요.',
-    links: [['fxbond','금리 · 환율'], ['briefing','브리핑'], ['themes','테마']]
+    links: [['fxbond','금리와 환율'], ['briefing','브리핑'], ['themes','테마']]
   },
   fxbond: {
     title: '달러와 금리로 위험자산의 압박 정도 확인',
@@ -3477,7 +3477,7 @@ var AIO_PAGE_BRIEFS = {
     use: '테마 이름보다 구성 종목과 상대강도가 중요합니다.',
     steps: ['테마별 성과와 주도주 확인', '밸류체인에서 병목 위치 확인', '개별 종목은 종목 화면의 재무 공시·차트로 검증'],
     focus: '같은 AI 테마라도 인프라, 반도체, 전력, 소프트웨어는 사이클과 리스크가 다릅니다.',
-    links: [['fundamental','종목 · 재무 공시'], ['technical','종목 · 차트'], ['market-news','오늘 · 뉴스']]
+    links: [['fundamental','종목, 재무 공시'], ['technical','종목, 차트'], ['market-news','오늘, 뉴스']]
   },
   portfolio: {
     title: '내 계좌가 시장 충격에 얼마나 취약한지 확인',
@@ -3614,7 +3614,7 @@ window.AIO_SOURCE_KIND = {
 
 window.AIO_EVENT_FRESHNESS_REGISTRY = {
   // P1081: 끝난 이벤트 결과만 등록. 관심 윈도우 ~60일, 만료 시 data-refresh에서 명시적 제거(R605).
-  fomc: { eventDate: '2026-09-16', label: 'FOMC', result: '25bp 인상 · 3.75-4.00% (12-0 만장일치)', policyRange: '3.75-4.00%', nextCheckpoint: '10/28 FOMC', maxClaimAgeDays: 42, source: 'Federal Reserve FOMC statement', sourceUrl: 'https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm' }
+  fomc: { eventDate: '2026-09-16', label: 'FOMC', result: '25bp 인상, 3.75-4.00% (12-0 만장일치)', policyRange: '3.75-4.00%', nextCheckpoint: '10/28 FOMC', maxClaimAgeDays: 42, source: 'Federal Reserve FOMC statement', sourceUrl: 'https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm' }
 };
 
 // v52.55/H3-B: 사건 서사는 결과를 보존하되 현재 행동 주장으로 자동 승격하지 않는다.
@@ -3974,9 +3974,9 @@ function _aioDefaultDecision(pageId) {
   var _band = _scoreBlocked || _sc == null ? { label:'시장환경 관찰', action:'현재 입력 조합을 참고용으로만 관찰합니다. 예측 검증 미확립으로 매매·비중 결론을 생성하지 않습니다.' }
     : _sc >= 75 ? { label:'스트레스 신호 적음', action:'현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격은 별도로 확인할 항목입니다.' }
     : _sc >= 60 ? { label:'스트레스 신호 일부', action:'점수만으로 판단 근거가 되지 않습니다. 종목 품질과 이벤트 리스크는 별도로 확인할 항목입니다.' }
-    : _sc >= 45 ? { label:'중립 · 신호 혼재', action:'점수만으로 방향을 정하기 어려운 구간입니다. 기존 포지션의 방어선과 무효화 기준은 별도로 확인할 항목입니다.' }
-    : _sc >= 30 ? { label:'주의 · 부담 점검', action:'리스크 자산 노출과 현금·헤지 비중은 본인 기준으로 확인할 항목입니다.' }
-    : { label:'위험 · 방어 조건 점검', action:'방어 조건과 점수가 45 이상으로 돌아오는지는 확인 항목입니다. 신규 진입 여부는 본인 기준으로 판단할 사안입니다.' };
+    : _sc >= 45 ? { label:'중립, 신호 혼재', action:'점수만으로 방향을 정하기 어려운 구간입니다. 기존 포지션의 방어선과 무효화 기준은 별도로 확인할 항목입니다.' }
+    : _sc >= 30 ? { label:'주의, 부담 점검', action:'리스크 자산 노출과 현금·헤지 비중은 본인 기준으로 확인할 항목입니다.' }
+    : { label:'위험, 방어 조건 점검', action:'방어 조건과 점수가 45 이상으로 돌아오는지는 확인 항목입니다. 신규 진입 여부는 본인 기준으로 판단할 사안입니다.' };
 
   // FOMC/이란 이벤트를 AIO_EVENT_FRESHNESS_REGISTRY에서 단일 경로로 읽기
   var _fomcReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
@@ -3985,29 +3985,29 @@ function _aioDefaultDecision(pageId) {
   var _iranState = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('iranHormuzOil') : { allowedUse:true, status:'CURRENT' };
   var _fomcReason = _fomcReg.result && _fomcState.allowedUse
     ? 'FOMC ' + (_fomcReg.eventDate || '') + ': ' + _aioTruncateAtWord(_fomcReg.result, 50)
-    : _fomcReg.eventDate ? 'FOMC ' + _fomcReg.eventDate + ' 과거 참고(' + (_fomcState.ageDays != null ? _fomcState.ageDays + '일 경과' : '경과일 미상') + ') · 현재 행동에는 최신 금리·달러 반응 필요' : '금리·달러 반응으로 FOMC 정책 경로 확인';
+    : _fomcReg.eventDate ? 'FOMC ' + _fomcReg.eventDate + ' 과거 참고(' + (_fomcState.ageDays != null ? _fomcState.ageDays + '일 경과' : '경과일 미상') + '), 현재 행동에는 최신 금리·달러 반응 필요' : '금리·달러 반응으로 FOMC 정책 경로 확인';
   var _iranReason = _iranReg.result && _iranState.allowedUse
-    ? (_iranReg.label || '이란/유가') + ': ' + _aioTruncateAtWord(_iranReg.result, 40) + ' · ' + wtiTxt
-    : _iranReg.eventDate ? (_iranReg.label || '이란/유가') + ' 과거 참고(' + (_iranState.ageDays != null ? _iranState.ageDays + '일 경과' : '경과일 미상') + ') · WTI와 최신 헤드라인 재확인 필요' : '이란/호르무즈 리스크 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인';
+    ? (_iranReg.label || '이란/유가') + ': ' + _aioTruncateAtWord(_iranReg.result, 40) + ', ' + wtiTxt
+    : _iranReg.eventDate ? (_iranReg.label || '이란/유가') + ' 과거 참고(' + (_iranState.ageDays != null ? _iranState.ageDays + '일 경과' : '경과일 미상') + '), WTI와 최신 헤드라인 재확인 필요' : '이란/호르무즈 리스크 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인';
 
   var commonReasons = [
-    spxPct + ' · ' + vixTxt + ' · ' + _band.label,
+    spxPct + ', ' + vixTxt + ', ' + _band.label,
     _fomcReason,
     _iranReason
   ];
   var map = {
     home: {
       title: '오늘 결론',
-      decision: _sc == null ? '산출 보류 · 핵심 입력 부족' : _band.label,
+      decision: _sc == null ? '산출 보류, 핵심 입력 부족' : _band.label,
       reasons: commonReasons,
       action: _band.action + ' ATR 기준 변동폭과 이벤트 일정은 별도로 확인할 항목입니다.'
     },
     signal: {
       title: '시장 환경 참고',
-      decision: _sc == null ? '산출 보류 · 핵심 입력 부족' : _band.label,
+      decision: _sc == null ? '산출 보류, 핵심 입력 부족' : _band.label,
       reasons: [
         '시장 환경 구간: ' + _band.label,
-        '직전 미국장 종가 기준 · 입력별 기준일과 결측을 확인',
+        '직전 미국장 종가 기준, 입력별 기준일과 결측을 확인',
         _fomcReason
       ],
       action: '점수와 구성 지표의 변화를 참고합니다. 종목·계좌별 거래 판단을 대신하지 않습니다.'
@@ -4020,13 +4020,13 @@ function _aioDefaultDecision(pageId) {
     },
     sentiment: {
       title: '심리 결론',
-      decision: _sc == null ? '판단 보류 · 심리 입력 부족' : _sc >= 60 ? '공포 완화 · 과열 아님' : _sc >= 45 ? '혼합 심리 · 신호 엇갈림' : '공포 심화 · 방어 조건 점검',
-      reasons: ['F&G ' + (_aioStrictFinite(snap.fg) != null ? _aioStrictFinite(snap.fg) : '미수신') + ' · ' + vixTxt, 'AAII/PutCall은 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
+      decision: _sc == null ? '판단 보류, 심리 입력 부족' : _sc >= 60 ? '공포 완화, 과열 아님' : _sc >= 45 ? '혼합 심리, 신호 엇갈림' : '공포 심화, 방어 조건 점검',
+      reasons: ['F&G ' + (_aioStrictFinite(snap.fg) != null ? _aioStrictFinite(snap.fg) : '미수신') + ', ' + vixTxt, 'AAII/PutCall은 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
       action: '공포·과열 구간에서 역사적으로 어떤 반응이 있었는지는 참고용이며, 심리 지표만으로 매수·매도를 정하지 않습니다.'
     },
     briefing: {
       title: '시장 요약',
-      decision: _band.label + ' — ' + (_fomcState.allowedUse && _fomcReg.nextCheckpoint ? _aioTruncateAtWord(_fomcReg.nextCheckpoint, 30) : '과거 FOMC 참고 · 최신 정책/금리 반응 확인'),
+      decision: _band.label + ' — ' + (_fomcState.allowedUse && _fomcReg.nextCheckpoint ? _aioTruncateAtWord(_fomcReg.nextCheckpoint, 30) : '과거 FOMC 참고, 최신 정책/금리 반응 확인'),
       reasons: ['시장 요약 → 운용 포인트 → 핵심 뉴스 순서로 확인', _fomcReason, _iranReason],
       action: '뉴스는 Top 3~5개만 선별하고, 보유 종목 관련 뉴스는 AI 분석으로 넘긴다.'
     },
@@ -4039,7 +4039,7 @@ function _aioDefaultDecision(pageId) {
     technical: {
       title: '차트 판단',
       decision: '종목을 입력하면 가격 구조와 근거 상태를 표시',
-      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 ' + vixTxt + ' · ' + _band.label + ' 환경을 차트와 함께 확인'],
+      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 ' + vixTxt + ', ' + _band.label + ' 환경을 차트와 함께 확인'],
       action: '티커를 입력하면 피벗·무효화 가격 같은 관측 레벨과 근거 상태를 한 화면에서 확인할 수 있습니다.'
     },
     screener: {
@@ -4074,20 +4074,20 @@ function _aioDefaultDecision(pageId) {
     },
     macro: {
       title: '오늘 거시 판단',
-      decision: _fomcState.allowedUse && _fomcReg.status === 'RESULT_REVIEW' ? 'FOMC 결과 확인 구간 · 유가 리스크 완화 모니터' : '금리·달러·유가 방향 확인',
-      reasons: [_fomcReason, tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), _iranReason],
+      decision: _fomcState.allowedUse && _fomcReg.status === 'RESULT_REVIEW' ? 'FOMC 결과 확인 구간, 유가 리스크 완화 모니터' : '금리·달러·유가 방향 확인',
+      reasons: [_fomcReason, tnxTxt + ', DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), _iranReason],
       action: '관찰 프레임: 2Y/10Y·달러·WTI 동시 상승은 역사적으로 성장주에 역풍, 완화 지속은 순풍으로 서술되던 조합(지시 아님).'
     },
     fxbond: {
       title: 'FX/Rates 판단',
       decision: '달러·금리·커브·크레딧 반응만 본다',
-      reasons: ['macro 설명형 문단보다 가격 반응 우선', tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), 'HY/IG·커브가 위험자산 신호를 보강'],
+      reasons: ['macro 설명형 문단보다 가격 반응 우선', tnxTxt + ', DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), 'HY/IG·커브가 위험자산 신호를 보강'],
       action: '달러와 금리가 같이 오르면 해외 성장주에 부담이 되는 조합으로 봅니다.'
     },
     fundamental: {
       title: '기업 분석 준비',
       decision: '17개 관점과 데이터 가용성부터 확인',
-      reasons: ['검색 전 시세·SEC·FMP·Finnhub 수신 가능 여부 확인', '수집된 소스만 근거로 사용하고 미수신은 공란', '시장 배경: ' + _band.label + ' · ' + vixTxt],
+      reasons: ['검색 전 시세·SEC·FMP·Finnhub 수신 가능 여부 확인', '수집된 소스만 근거로 사용하고 미수신은 공란', '시장 배경: ' + _band.label + ', ' + vixTxt],
       action: '티커 입력 후 수집 성공 소스만 근거로 AI 종합 분석을 실행한다.'
     },
     // v53.7 (P725): KR 전용 5페이지 결론 항목 제거 — 통합 섹션은 대상 페이지(themes/macro/technical) 결론을 따름
@@ -4110,13 +4110,13 @@ function _aioDefaultDecision(pageId) {
   var _scoreScope = ['home', 'signal', 'sentiment', 'briefing'].indexOf(pageId) >= 0; // P1364: other pages keep their own verdict; the block still forbids trades.
   if (_scoreBlocked && map[pageId] && _scoreScope) {
     map[pageId].decision = _sc == null
-      ? '판정 보류 · 판단 등급 입력 없음'
-      : '시장환경 관찰 · 예측 검증 미확립';
+      ? '판정 보류, 판단 등급 입력 없음'
+      : '시장환경 관찰, 예측 검증 미확립';
     map[pageId].action = '시장환경 상태만 확인합니다. 예측 검증과 종목별 근거가 확립되기 전에는 매매·비중 결론을 생성하지 않습니다.';
     map[pageId].reasons = [_sc == null ? '핵심 시장 데이터가 부족하거나 오래되어 스코어를 산출하지 않았습니다.' : '점수는 설명형 시장환경 지표이며 예측 검증이 확립되지 않았습니다.', _scoreCaveat || '현재성·품질·허용 사용 여부를 확인할 수 없습니다.'];
   }
   if (_tickerGateBlocked && map[pageId]) {
-    map[pageId].decision = '판단 보류 · 티커 근거 부족';
+    map[pageId].decision = '판단 보류, 티커 근거 부족';
     map[pageId].action = '현재 티커의 시세·시장 상태 근거가 확보되기 전에는 매매·비중 결론을 생성하지 않습니다.';
     map[pageId].caveat = '필수 티커 근거 미수신: ' + _tickerGateMissing.join(', ');
   }
@@ -4133,7 +4133,7 @@ function _aioDefaultDecision(pageId) {
   d.sourceKind = d.sourceKind || sourceKind || 'SNAPSHOT';
   d.asOf = _aioDecisionAsOf(d.sourceKind);
   d.confidence = _aioDecisionConfidence(d.sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84);
-  if (_scoreCaveat && _scoreScope) d.caveat = d.caveat ? (d.caveat + ' · ' + _scoreCaveat) : _scoreCaveat;
+  if (_scoreCaveat && _scoreScope) d.caveat = d.caveat ? (d.caveat + ', ' + _scoreCaveat) : _scoreCaveat;
   d.provenanceBundle = _scoreEvidenceBundle;
   return d;
 }
@@ -4173,18 +4173,18 @@ window._aioBuildPageDecision = function(pageId) {
     if (evidenceBlocked) {
       var partialOnly = evidence.sourceKind !== 'UNAVAILABLE' && evidence.marketEpoch?.status !== 'BLOCKED' && (evidence.blockers || []).every(function(b) { return /^(market-epoch-partial:|visible-unavailable-values$)/.test(b); }); // P1364: PARTIAL is not 미수신.
       d.decisionBlocked = true;
-      d.decision = partialOnly ? '판단 보류 · 일부 근거 부분 확보' : '판단 보류 · 최신 근거 미수신';
+      d.decision = partialOnly ? '판단 보류, 일부 근거 부분 확보' : '판단 보류, 최신 근거 미수신';
       d.action = '최신 근거가 확인되기 전에는 ' + (d.scoreScope === false ? '이 화면의 수집 근거만 참고로 표시하고' : '시장환경 관찰만 표시하고') + ' 매매·비중 결론을 생성하지 않습니다.';
       d.reasons.unshift(partialOnly ? '일부 입력이 부분 수신·지연 상태라 행동 결론을 보류합니다.' : '현재성·필수 입력이 확인되지 않아 행동 결론을 보류합니다.');
       d.reasons = d.reasons.slice(0, 3);
     }
     d.caveat = (evidence.caveat && d.caveat && evidence.caveat !== d.caveat)
-      ? (evidence.caveat + ' · ' + d.caveat)
+      ? (evidence.caveat + ', ' + d.caveat)
       : (evidence.caveat || d.caveat);
     d.evidence = evidence;
   }
   if (typeof window._aioFinalizePageDecision === 'function') d = window._aioFinalizePageDecision(d); // P1357
-  else d.confidence = '근거 확인 필요 · 예측력 미검증';
+  else d.confidence = '근거 확인 필요, 예측력 미검증';
   var typedEvidence = window.AIO.createTypedEvidence ? window.AIO.createTypedEvidence({
     key: 'page-decision:' + (d.pageId || pageId), value: d.decision, sourceKind: d.sourceKind,
     evidenceId: d.provenanceBundle && d.provenanceBundle.bundleId,
@@ -4255,7 +4255,7 @@ window.AIO_PAGE_ACTION_HUBS = {
   signal: {
     title:'시장 환경 참고',
     subtitle:'직전 미국장 종가의 환경 점수와 구성 지표·결측을 함께 확인합니다.',
-    cards:[['핵심 지표','환경 점수 · VIX · breadth · 추세'],['확인 항목','입력별 기준일과 근거 범위 비교'],['상세 도구','이벤트·위험 지표를 별도로 확인']],
+    cards:[['핵심 지표','환경 점수, VIX, breadth, 추세'],['확인 항목','입력별 기준일과 근거 범위 비교'],['상세 도구','이벤트·위험 지표를 별도로 확인']],
     links:[['스크리너','screener'],['차트 분석','technical'],['AI 분석','ai']]
   },
   breadth: {
@@ -4267,49 +4267,49 @@ window.AIO_PAGE_ACTION_HUBS = {
   sentiment: {
     title:'심리 결론',
     subtitle:'F&G, VIX, AAII, Put/Call을 하나의 위험 온도로 읽습니다.',
-    cards:[['핵심 지표','F&G · VIX · AAII · Put/Call'],['운용 포인트','과열/공포 신호를 진입 강도와 헤지에 반영'],['신뢰도','정적 심리 지표는 참고 라벨을 확인']],
+    cards:[['핵심 지표','F&G, VIX, AAII, Put/Call'],['운용 포인트','과열/공포 신호를 진입 강도와 헤지에 반영'],['신뢰도','정적 심리 지표는 참고 라벨을 확인']],
     links:[['시장 폭','breadth'],['시그널','signal'],['AI 분석','ai']]
   },
   briefing: {
     title:'오늘 브리핑',
     subtitle:'시장 요약, 운용 포인트, 핵심 뉴스, 확인 필요 이벤트를 분리합니다.',
-    cards:[['핵심 지표','시장 국면 · 핵심 뉴스 · 확인 필요 이벤트'],['운용 포인트','포지션 영향이 큰 이슈만 추적'],['AI 분석','내 포트폴리오 영향 분석']],
+    cards:[['핵심 지표','시장 국면, 핵심 뉴스, 확인 필요 이벤트'],['운용 포인트','포지션 영향이 큰 이슈만 추적'],['AI 분석','내 포트폴리오 영향 분석']],
     links:[['시장 뉴스','market-news'],['홈','home'],['AI 분석','ai']]
   },
   'market-news': {
     title:'뉴스 인텔리전스',
     subtitle:'Top 뉴스와 시장 영향은 상단, 필터는 분석 목적에 맞게 직접 조정합니다.',
-    cards:[['핵심 지표','Top 5 뉴스 · 24h 건수 · 리스크 뉴스'],['운용 포인트','시장/섹터/보유 종목 영향만 선별'],['상세 도구','소스 상태와 원문 목록은 상세에서 확인']],
+    cards:[['핵심 지표','Top 5 뉴스, 24h 건수, 리스크 뉴스'],['운용 포인트','시장/섹터/보유 종목 영향만 선별'],['상세 도구','소스 상태와 원문 목록은 상세에서 확인']],
     links:[['브리핑','briefing'],['거시','macro'],['AI 분석','ai']]
   },
   technical: {
     title:'차트 거래 계획',
     subtitle:'차트 설명보다 진입, 무효화, 손절, 기간, 신뢰도를 먼저 봅니다.',
-    cards:[['핵심 지표','가격 위치 · RSI/MACD · 거래량 · 주요 이평선'],['운용 포인트','진입 가능/대기/축소 조건 정리'],['AI 분석','현재 차트로 매매 계획 생성']],
+    cards:[['핵심 지표','가격 위치, RSI/MACD, 거래량, 주요 이평선'],['운용 포인트','진입 가능/대기/축소 조건 정리'],['AI 분석','현재 차트로 매매 계획 생성']],
     links:[['티커 상세','ticker'],['스크리너','screener'],['AI 분석','ai']]
   },
   screener: {
     title:'후보 발굴 화면',
     subtitle:'랭크, 팩터, 결측, 후속 분석 경로를 같은 화면에서 연결합니다.',
-    cards:[['핵심 지표','랭크 · 강한 팩터 · 약한 팩터 · 결측'],['운용 포인트','후보 선택 -> 티커 분석 -> 포트폴리오 반영'],['AI 분석','후보군 분산 재랭킹']],
+    cards:[['핵심 지표','랭크, 강한 팩터, 약한 팩터, 결측'],['운용 포인트','후보 선택 -> 티커 분석 -> 포트폴리오 반영'],['AI 분석','후보군 분산 재랭킹']],
     links:[['티커 분석','ticker'],['포트폴리오','portfolio'],['AI 분석','ai']]
   },
   ticker: {
     title:'종목 Cockpit',
     subtitle:'기술, 재무, 뉴스, 포트 보유 여부, AI 분석을 한 흐름으로 연결합니다.',
-    cards:[['핵심 지표','시세 · 추세 · 재무 · 뉴스 · 보유 여부'],['운용 포인트','매수/관망/축소 판단 전 결측 데이터 확인'],['AI 분석','현재 종목 17관점 분석']],
+    cards:[['핵심 지표','시세, 추세, 재무, 뉴스, 보유 여부'],['운용 포인트','매수/관망/축소 판단 전 결측 데이터 확인'],['AI 분석','현재 종목 17관점 분석']],
     links:[['기업 분석','fundamental'],['차트 분석','technical'],['AI 분석','ai']]
   },
   portfolio: {
     title:'포트폴리오 위험 관리',
     subtitle:'추가/수정 후 가격, 집중도, 손실 위험, 기술 리스크를 함께 확인합니다.',
-    cards:[['핵심 지표','비중 · P/L · VaR · 집중도 · 기술 리스크'],['운용 포인트','미확인 티커와 가격 fallback 정리'],['AI 분석','리밸런싱 후보와 헤지 전략']],
+    cards:[['핵심 지표','비중, P/L, VaR, 집중도, 기술 리스크'],['운용 포인트','미확인 티커와 가격 fallback 정리'],['AI 분석','리밸런싱 후보와 헤지 전략']],
     links:[['스크리너','screener'],['티커 상세','ticker'],['AI 분석','ai']]
   },
   themes: {
     title:'테마 회전 지도',
     subtitle:'강한 테마, 약한 테마, 리더 후보, 리스크를 분리해서 봅니다.',
-    cards:[['핵심 지표','상대강도 · 모멘텀 · 리더 종목'],['운용 포인트','테마 강도와 후보/리스크 동시 확인'],['AI 분석','테마별 대장주와 후발주 비교']],
+    cards:[['핵심 지표','상대강도, 모멘텀, 리더 종목'],['운용 포인트','테마 강도와 후보/리스크 동시 확인'],['AI 분석','테마별 대장주와 후발주 비교']],
     links:[['테마 상세','theme-detail'],['스크리너','screener'],['AI 분석','ai']]
   },
   'theme-detail': {
@@ -4321,32 +4321,32 @@ window.AIO_PAGE_ACTION_HUBS = {
   macro: {
     title:'거시 판단',
     subtitle:'정책, 물가, 고용, 이벤트가 오늘 시장에 주는 압력을 먼저 봅니다.',
-    cards:[['핵심 지표','FOMC 결과 · 금리 · 달러 · 유가 · 고용/물가'],['운용 포인트','다음 체크포인트와 시장 반응 분리'],['AI 분석','FOMC/이란/유가 포지션 영향']],
-    links:[['금리 · 환율','fxbond'],['브리핑','briefing'],['AI 분석','ai']]
+    cards:[['핵심 지표','FOMC 결과, 금리, 달러, 유가, 고용/물가'],['운용 포인트','다음 체크포인트와 시장 반응 분리'],['AI 분석','FOMC/이란/유가 포지션 영향']],
+    links:[['금리와 환율','fxbond'],['브리핑','briefing'],['AI 분석','ai']]
   },
   fxbond: {
     title:'FX·Rates·Credit',
     subtitle:'달러, 금리곡선, 크레딧, 원유를 설명문보다 지표 중심으로 읽습니다.',
-    cards:[['핵심 지표','DXY · 2Y/10Y · HYG · WTI · USD/KRW'],['운용 포인트','달러·금리·유가가 동시에 위험선호인지 확인'],['상세 도구','인과 설명은 상세에서 확인']],
+    cards:[['핵심 지표','DXY, 2Y/10Y, HYG, WTI, USD/KRW'],['운용 포인트','달러·금리·유가가 동시에 위험선호인지 확인'],['상세 도구','인과 설명은 상세에서 확인']],
     links:[['거시','macro'],['시장 뉴스','market-news'],['AI 분석','ai']]
   },
   fundamental: {
     title:'기업 분석 17관점',
     subtitle:'검색 전 데이터 가용성을 확인하고, 수집된 정보만 분석합니다.',
-    cards:[['핵심 지표','프로필 · 재무 · 경영진 · 제품 · 뉴스 · 밸류'],['운용 포인트','티커 검색 후 결측 매트릭스 확인'],['AI 분석','수집 데이터 기준 17관점 보고서 생성']],
+    cards:[['핵심 지표','프로필, 재무, 경영진, 제품, 뉴스, 밸류'],['운용 포인트','티커 검색 후 결측 매트릭스 확인'],['AI 분석','수집 데이터 기준 17관점 보고서 생성']],
     links:[['티커 상세','ticker'],['포트폴리오','portfolio'],['AI 분석','ai']]
   },
   principles: {
     title:'시장 원리 학습',
     subtitle:'구조적 참고 콘텐츠를 Tree·Graph·Path로 탐색합니다.',
-    cards:[['핵심 축','금리 · AI workload · 메모리 · 전력'],['운용 포인트','출처와 검토일을 먼저 확인'],['주의','현재 가격·목표가·매매 신호를 제공하지 않음']],
-    links:[['금리 · 환율','fxbond'],['테마 · 섹터','themes'],['도움말','guide']]
+    cards:[['핵심 축','금리, AI workload, 메모리, 전력'],['운용 포인트','출처와 검토일을 먼저 확인'],['주의','현재 가격·목표가·매매 신호를 제공하지 않음']],
+    links:[['금리와 환율','fxbond'],['테마와 섹터','themes'],['도움말','guide']]
   },
   // v53.7 (P725): KR 전용 5페이지 액션 허브 제거 — 통합 섹션은 themes/macro/technical 허브를 따름
   guide: {
     title:'설정/레퍼런스',
     subtitle:'기본 화면이 아니라 필요할 때 찾아보는 참고/아카이브입니다.',
-    cards:[['핵심 지표','설정 · API · 사용법'],['운용 포인트','막힌 기능만 검색해서 확인'],['주의','투자 판단 화면과 분리']],
+    cards:[['핵심 지표','설정, API, 사용법'],['운용 포인트','막힌 기능만 검색해서 확인'],['주의','투자 판단 화면과 분리']],
     links:[['홈','home'],['AI 분석','ai']]
   }
 };
@@ -4355,7 +4355,7 @@ window.AIO_PAGE_ACTION_HUBS = {
 window.AIO_PAGE_ACTION_HUBS.masters = {
   title:'대가의 공개 포트폴리오',
   subtitle:'SEC 13F 신고주체·원본·분기 비교를 먼저 확인하고, 검증 전에는 holdings를 비워 둡니다.',
-  cards:[['핵심 범위','분기 말 보고 보유 · 신고주체 · 원본 filing'],['데이터 경계','13F는 전체 자산·현재 보유·공매도·현금을 뜻하지 않음'],['검증 순서','SEC 원본 → CIK → XML → shares 비교 → action 분류']],
+  cards:[['핵심 범위','분기 말 보고 보유, 신고주체, 원본 filing'],['데이터 경계','13F는 전체 자산·현재 보유·공매도·현금을 뜻하지 않음'],['검증 순서','SEC 원본 → CIK → XML → shares 비교 → action 분류']],
   links:[['개념·분석','principles'],['도움말','guide']]
 };
 // 산업 지도는 교육용 reference-connected 화면이다. 내부 research
@@ -5391,7 +5391,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   var _fomcTooStale = (_fomcAsOfAge != null && _fomcAsOfAge > 30);
   var _fomcFootNote = (_fomcFooterPages[pageId] && _fomcFoot.result && !_fomcTooStale)
     ? (_fomcFoot.eventDate ? _fomcFoot.eventDate + ': ' : '') + _aioTruncateAtWord(_fomcFoot.result, 70) +
-      ((_fomcAsOfAge != null && _fomcAsOfAge > 21) ? ' (오래된 컨텍스트 · ' + _fomcAsOfAge + '일 경과)' : '')
+      ((_fomcAsOfAge != null && _fomcAsOfAge > 21) ? ' (오래된 컨텍스트, ' + _fomcAsOfAge + '일 경과)' : '')
     : '';
   var sourceLabelMap = {
     LIVE: '데이터: 실시간',
@@ -5413,7 +5413,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
     ? window.AIO.getPageMarketEpochState(pageId)
     : null;
   var sharedCutHtml = sharedCut && sharedCut.end
-    ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '기준 시각 ' : '기준 시각 지연 · ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
+    ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '기준 시각 ' : '기준 시각 지연, ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
     : '<span class="aio-confidence-badge" title="서버 24시간 컷 메타데이터 대기">기준 시각 대기</span>';
   if (sharedCutHtml && sharedCut && sharedCut.end) {
     sharedCutHtml = sharedCutHtml.replace(
@@ -5426,7 +5426,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
       : marketEpoch.status === 'PARTIAL' ? '시점 부분 일치'
         : marketEpoch.status === 'REFERENCE' ? '참고 페이지'
           : '시점 불일치';
-  var marketEpochHtml = '<span class="aio-confidence-badge" data-market-epoch-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.status || 'BLOCKED') + '" title="' + _aioDecisionEsc(marketEpoch && marketEpoch.blockers && marketEpoch.blockers.join(' · ') || marketEpochLabel) + '">' + _aioDecisionEsc(marketEpochLabel) + '</span>';
+  var marketEpochHtml = '<span class="aio-confidence-badge" data-market-epoch-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.status || 'BLOCKED') + '" title="' + _aioDecisionEsc(marketEpoch && marketEpoch.blockers && marketEpoch.blockers.join(', ') || marketEpochLabel) + '">' + _aioDecisionEsc(marketEpochLabel) + '</span>';
   var caveatHtml = d.caveat ? '<span class="aio-decision-caveat">' + _aioDecisionEsc(d.caveat) + '</span>' : '';
   var html = ''
     + '  <section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(sourceKind) + '" data-as-of="' + _aioDecisionEsc(d.asOf || '') + '" data-market-revision="' + _aioDecisionEsc(marketEpoch && marketEpoch.revision || '') + '" data-market-cut-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.cutEnd || '') + '" data-field-timeline-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.status || 'REFERENCE') + '" data-field-observation-start="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationStart || '') + '" data-field-observation-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationEnd || '') + '">'
@@ -5545,54 +5545,54 @@ function _aioDrawVisualReportCanvas(canvas, model) {
   var ctx = canvas.getContext('2d');
   canvas.width = 1080;
   canvas.height = 1350;
-  ctx.fillStyle = '#08111f';
+  ctx.fillStyle = '#0d1520';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#0f1b2f';
+  ctx.fillStyle = '#111927';
   ctx.fillRect(48, 48, 984, 1254);
-  ctx.strokeStyle = 'rgba(0,212,255,0.35)';
+  ctx.strokeStyle = 'rgba(76,204,230,0.35)';
   ctx.lineWidth = 2;
   ctx.strokeRect(48, 48, 984, 1254);
 
-  ctx.fillStyle = '#00bcd4';
+  ctx.fillStyle = '#4ccce6';
   ctx.font = '700 30px Inter, Arial, sans-serif';
   ctx.fillText('AIO SCREENER', 86, 112);
-  ctx.fillStyle = '#8ea0b8';
+  ctx.fillStyle = '#5eb1ef';
   ctx.font = '22px Inter, Arial, sans-serif';
-  ctx.fillText(model.pageId + ' · ' + model.sourceKind + ' · ' + model.asOf, 86, 152);
+  ctx.fillText(model.pageId + ', ' + model.sourceKind + ', ' + model.asOf, 86, 152);
 
-  ctx.fillStyle = '#f8fbff';
+  ctx.fillStyle = '#f4faff';
   ctx.font = '900 54px Inter, Arial, sans-serif';
   _aioWrapCanvasText(ctx, model.decision, 86, 255, 900, 66, 3);
 
-  ctx.fillStyle = '#101f36';
+  ctx.fillStyle = '#111927';
   ctx.fillRect(86, 356, 908, 120);
   ctx.strokeStyle = 'rgba(255,255,255,0.08)';
   ctx.strokeRect(86, 356, 908, 120);
-  ctx.fillStyle = '#00e5a0';
+  ctx.fillStyle = '#3dd68c';
   ctx.font = '800 24px Inter, Arial, sans-serif';
   ctx.fillText('TODAY ACTION', 112, 398);
-  ctx.fillStyle = '#dce7f5';
+  ctx.fillStyle = '#d5efff';
   ctx.font = '28px Inter, Arial, sans-serif';
   _aioWrapCanvasText(ctx, model.action, 112, 440, 850, 36, 2);
 
-  ctx.fillStyle = '#00bcd4';
+  ctx.fillStyle = '#4ccce6';
   ctx.font = '800 26px Inter, Arial, sans-serif';
   ctx.fillText('WHY IT MATTERS', 86, 550);
   ctx.font = '25px Inter, Arial, sans-serif';
-  ctx.fillStyle = '#dce7f5';
+  ctx.fillStyle = '#d5efff';
   var y = 600;
   (model.reasons || []).forEach(function(r, idx) {
-    ctx.fillStyle = idx === 0 ? '#00e5a0' : '#dce7f5';
+    ctx.fillStyle = idx === 0 ? '#3dd68c' : '#d5efff';
     ctx.fillText(String(idx + 1) + '.', 100, y);
-    ctx.fillStyle = '#dce7f5';
+    ctx.fillStyle = '#d5efff';
     y = _aioWrapCanvasText(ctx, r, 145, y, 820, 34, 2) + 18;
   });
 
   if (model.references && model.references.length) {
-    ctx.fillStyle = '#ffa31a';
+    ctx.fillStyle = '#ffa057';
     ctx.font = '800 24px Inter, Arial, sans-serif';
     ctx.fillText('REFERENCE FRAMEWORKS', 86, 895);
-    ctx.fillStyle = '#c8d4e3';
+    ctx.fillStyle = '#acd8fc';
     ctx.font = '22px Inter, Arial, sans-serif';
     var ry = 935;
     model.references.forEach(function(r) {
@@ -5600,9 +5600,9 @@ function _aioDrawVisualReportCanvas(canvas, model) {
     });
   }
 
-  ctx.fillStyle = '#0b1628';
+  ctx.fillStyle = '#111927';
   ctx.fillRect(86, 1160, 908, 82);
-  ctx.fillStyle = '#8ea0b8';
+  ctx.fillStyle = '#5eb1ef';
   ctx.font = '22px Inter, Arial, sans-serif';
   ctx.fillText('sourceKind: ' + model.sourceKind + '   confidence: ' + model.confidence, 112, 1208);
   ctx.fillText('Investment aid only. Verify live data before trading.', 112, 1238);
@@ -5667,7 +5667,7 @@ window._aioApplyEventFreshnessGate = function() {
     var fomcNextCP = fomc.nextCheckpoint || '금리·달러 방향 확인';
     var fomcLabel = fomc.label || 'FOMC';
     var claim = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('fomc') : { allowedUse:true, status:'CURRENT' };
-    var claimPrefix = claim.allowedUse ? '' : '과거 참고 · ';
+    var claimPrefix = claim.allowedUse ? '' : '과거 참고, ';
     // v57.60: retired cp2-detail and macro-fed-meaning sinks removed (nodes no longer exist; macro Fed meaning is native).
     document.querySelectorAll('[data-snap="fomc"]').forEach(function(el) {
       el.textContent = fomcDate ? fomcDate + ' 결과' : fomcLabel + ' 결과';
@@ -7804,7 +7804,7 @@ window.AIO_FUNDAMENTAL_PAGE_CRITERIA = {
     'valuation-pe':        { num: 7,  label: 'Valuation PE',          description: 'Forward PE vs 5Y 평균, PEG < 1.5',            dataSource: 'Yahoo + Naver consensus',       implFn: 'fetchNaverUSData|dynamicTickerLookup', requires: ['forwardPe','pe5yAvg','peg'], frequency: 'daily', hallucinationRisk: 'low' },
     'ev-ebitda':           { num: 8,  label: 'EV / EBITDA',           description: '동종 산업 대비 할인, 피어 비교 핵심',          dataSource: 'FMP + Naver + SCREENER_DB peer', implFn: 'computeEvEbitda', requires: ['evEbitda','peerEvEbitda'], frequency: 'quarterly', hallucinationRisk: 'low' },
     'insider-activity':    { num: 9,  label: 'Insider Activity',      description: '임원 매수/매도 12주 누적. 매수 = 강력 신호',     dataSource: 'Finnhub /stock/insider-transactions', implFn: 'fetchFinnhubInsider', requires: ['insiderNet12w'], frequency: 'weekly', hallucinationRisk: 'medium', note: 'Finnhub key 필요' },
-    'institutional-flow':  { num: 10, label: 'Institutional Flow',    description: '13F 기관 보유 비중 변화 · 주요 헤지펀드 편입',  dataSource: 'SEC 13F filings + WhaleWisdom',  implFn: 'fetchSEC13F', requires: ['institutional13f'], frequency: 'quarterly', hallucinationRisk: 'medium', note: 'AI가 URL fetch 필요' },
+    'institutional-flow':  { num: 10, label: 'Institutional Flow',    description: '13F 기관 보유 비중 변화, 주요 헤지펀드 편입',  dataSource: 'SEC 13F filings + WhaleWisdom',  implFn: 'fetchSEC13F', requires: ['institutional13f'], frequency: 'quarterly', hallucinationRisk: 'medium', note: 'AI가 URL fetch 필요' },
     'short-interest':      { num: 11, label: 'Short Interest',        description: '5% 이하 정상, 15%+ 하방 압력/Squeeze',          dataSource: 'Finnhub /stock/metric', implFn: 'fetchFinnhubShortInterest', requires: ['shortInterestPct'], frequency: 'biweekly', hallucinationRisk: 'medium', note: 'Finnhub key 필요' },
     'analyst-revisions':   { num: 12, label: 'Analyst Revisions',     description: '최근 90일 EPS 추정치 상향/하향 비율',          dataSource: 'Finnhub recommendation + Naver consensus', implFn: 'fetchFinnhubRecommendation|fetchNaverUSData', requires: ['epsRevisions90d'], frequency: 'weekly', hallucinationRisk: 'medium' },
     'earnings-beat-streak': { num: 13, label: 'Earnings Beat Streak', description: '최근 4분기 어닝 서프라이즈 연속성',             dataSource: 'Finnhub /earnings-surprises',   implFn: 'fetchFinnhubEarningsCalendar', requires: ['beatStreak4q'], frequency: 'quarterly', hallucinationRisk: 'low' },
@@ -7852,7 +7852,7 @@ window.AIO.getCriteriaCrossReferenceAudit = function() {
     analysisFrameworkPerspective17: frameworkPerspectiveCount,
     analysisFrameworkTotal: frameworkCount,
     analysisFrameworkSupportFields: Math.max(0, frameworkCount - frameworkPerspectiveCount),
-    note: '3개 registry — (1) FUNDAMENTAL_PAGE_CRITERIA: 페이지 L8175 정량 15기준 (Quality/Moat/Growth/Margin/FCF/Balance/PE/EV/Insider/13F/Short/Revisions/Beat/Industry/Macro) · (2) FUNDAMENTAL_CRITERIA: v49.25 정량 위주 15기준 (Piotroski 등) · (3) ANALYSIS_FRAMEWORK: v49.34 정성+정량 15분야 (CEO/비즈니스/공급망/SEC/Wiki). 각각 목적 다름. AI 채팅에서 "15기준 분석" 요청 시 어느 registry를 참조하는지 명시 필수.',
+    note: '3개 registry — (1) FUNDAMENTAL_PAGE_CRITERIA: 페이지 L8175 정량 15기준 (Quality/Moat/Growth/Margin/FCF/Balance/PE/EV/Insider/13F/Short/Revisions/Beat/Industry/Macro), (2) FUNDAMENTAL_CRITERIA: v49.25 정량 위주 15기준 (Piotroski 등), (3) ANALYSIS_FRAMEWORK: v49.34 정성+정량 15분야 (CEO/비즈니스/공급망/SEC/Wiki). 각각 목적 다름. AI 채팅에서 "15기준 분석" 요청 시 어느 registry를 참조하는지 명시 필수.',
     generatedAt: new Date().toISOString()
   };
 };
@@ -7992,7 +7992,7 @@ window.AIO.assertFinancialChartsAudit = function() {
     intAllOk: intAllOk,
     cacheSize: cacheSize,
     cacheStats: cacheStats,
-    note: 'v49.72 R138~R139: fundamental 7 차트 자동 진단. fn ' + Object.keys(fnChecks).filter(function(k){return fnChecks[k];}).length + '/' + Object.keys(fnChecks).length + ' · canvas ' + canvasFound.length + '/7 · integrations ' + Object.keys(integrations).filter(function(k){return integrations[k];}).length + '/' + Object.keys(integrations).length,
+    note: 'v49.72 R138~R139: fundamental 7 차트 자동 진단. fn ' + Object.keys(fnChecks).filter(function(k){return fnChecks[k];}).length + '/' + Object.keys(fnChecks).length + ', canvas ' + canvasFound.length + '/7, integrations ' + Object.keys(integrations).filter(function(k){return integrations[k];}).length + '/' + Object.keys(integrations).length,
     generatedAt: new Date().toISOString()
   };
 };
@@ -8123,14 +8123,14 @@ window.AIO.diagnose = async function(ticker) {
   try {
     report.chatPanelDom = window.AIO.assertChatPanelDomAudit && window.AIO.assertChatPanelDomAudit();
     if (report.chatPanelDom) {
-      console.log('[4/6] CHAT_CONTEXTS DOM 매트릭스: ' + report.chatPanelDom.fullOkCount + '/' + report.chatPanelDom.totalContexts + ' OK · 누락 ' + report.chatPanelDom.contextOnlyCount + '건');
+      console.log('[4/6] CHAT_CONTEXTS DOM 매트릭스: ' + report.chatPanelDom.fullOkCount + '/' + report.chatPanelDom.totalContexts + ' OK, 누락 ' + report.chatPanelDom.contextOnlyCount + '건');
       if (report.chatPanelDom.contextOnlyList.length > 0) console.log('     → 누락 ctxId:', report.chatPanelDom.contextOnlyList.join(', '));
     }
   } catch(e) { report.chatPanelDom = { error: String(e) }; }
   // 5. assertChatFunctionCoverage
   try {
     report.chatFnCoverage = window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
-    console.log('[5/6] 채팅 함수 통합: dead=' + (report.chatFnCoverage ? report.chatFnCoverage.deadCodeCount : '?') + ' · 통합 ' + (report.chatFnCoverage ? report.chatFnCoverage.integrationPct + '%' : '?'));
+    console.log('[5/6] 채팅 함수 통합: dead=' + (report.chatFnCoverage ? report.chatFnCoverage.deadCodeCount : '?') + ', 통합 ' + (report.chatFnCoverage ? report.chatFnCoverage.integrationPct + '%' : '?'));
   } catch(e) { report.chatFnCoverage = { error: String(e) }; }
   // 6. assertChatAnswerQualityAudit
   try {
@@ -8721,11 +8721,11 @@ window._aioStaticContentLifecycleHook = function(rootEl) {
       var replaceAt = content.replaceAfterDays != null ? content.replaceAfterDays : lc.defaultReplaceAfterDays;
       var label = st.ageDays + '일 경과';
       if (st.replaceDue) {
-        span.textContent = label + ' · 교체 권장 (' + replaceAt + '일+ 초과)';
+        span.textContent = label + ', 교체 권장 (' + replaceAt + '일+ 초과)';
         span.style.color = 'var(--data-red)';
         span.style.fontWeight = '700';
       } else if (st.archiveDue) {
-        span.textContent = label + ' · archive 단계 (' + archiveAt + '일+ 초과)';
+        span.textContent = label + ', archive 단계 (' + archiveAt + '일+ 초과)';
         span.style.color = 'var(--data-amber)';
         span.style.fontWeight = '600';
       } else {
@@ -9576,15 +9576,15 @@ window.AIO.renderStaticDataGovernanceBadges = function(opts) {
       if (!badge || !badge.classList || !badge.classList.contains('aio-static-data-badge')) {
         badge = document.createElement('span');
         badge.className = 'aio-static-data-badge';
-        badge.style.cssText = 'display:inline-flex;vertical-align:baseline;margin-left:4px;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:800;letter-spacing:0;border:1px solid rgba(255,255,255,.18);max-width:58px;white-space:nowrap;line-height:1.2;';
+        badge.style.cssText = 'display:inline-flex;vertical-align:baseline;margin-left:4px;padding:1px 5px;border-radius:4px;font-size:12px;font-weight:800;letter-spacing:0;border:0.5px solid var(--white-a4);max-width:58px;white-space:nowrap;line-height:1.2;';
         el.parentNode && el.parentNode.insertBefore(badge, el.nextSibling);
       }
       // v50.13: 영어 코드(STALE/STATIC/OK/REF) → 초보자 친화 한글 (전 페이지 data-snap-date 배지 공통)
       var label = item.hardStale ? '오래됨' : item.stale ? '정적' : item.liveLike ? '최신' : '참고';
-      var color = item.hardStale ? '#ff5b50' : item.stale ? '#ffa31a' : item.liveLike ? '#00e5a0' : '#7b8599';
+      var color = item.hardStale ? '#ec5d5e' : item.stale ? '#ffa057' : item.liveLike ? '#3dd68c' : '#978365';
       badge.textContent = label;
       badge.style.color = color;
-      badge.style.background = item.hardStale ? 'rgba(255,91,80,.12)' : item.stale ? 'rgba(255,163,26,.12)' : 'rgba(123,133,153,.10)';
+      badge.style.background = item.hardStale ? 'var(--red-3)' : item.stale ? 'var(--gold-3)' : 'var(--black-a1)';
       badge.title = item.category + ' / age ' + (item.ageDays == null ? '?' : item.ageDays) + 'd / ' + (item.liveLike ? 'live-like' : 'reference');
     });
   } catch(_) {}
@@ -9786,12 +9786,12 @@ window.AIO.getCycleFromMacro = function(macro) {
     return {
       phase: '판정 보류', score: null, confidence: 'low',
       inputs: { vix: hasVix ? vix : null, breadth50: null, yield2s10s: yield2s10s, spxTrend: spxTrend },
-      rationale: ['기준 시각이 확인된 50일선 시장폭 근거 미수신 · 경기 사이클 판정 보류'],
+      rationale: ['기준 시각이 확인된 50일선 시장폭 근거 미수신, 경기 사이클 판정 보류'],
       generatedAt: new Date().toISOString()
     };
   }
   if (!hasVix && !hasCurve && !hasTrend) {
-    return { phase: '판정 보류', score: null, confidence: 'low', inputs: { vix: null, breadth50: breadth50, yield2s10s: null, spxTrend: null }, rationale: ['시장폭 외 보조 근거 미수신 · 경기 사이클 판정 보류'], generatedAt: new Date().toISOString() };
+    return { phase: '판정 보류', score: null, confidence: 'low', inputs: { vix: null, breadth50: breadth50, yield2s10s: null, spxTrend: null }, rationale: ['시장폭 외 보조 근거 미수신, 경기 사이클 판정 보류'], generatedAt: new Date().toISOString() };
   }
   var nVix = hasVix ? _clamp1((20 - vix) / 12) : 0;            // VIX 8→+1(안정), 32→-1(패닉), 20→0
   var nBreadth = hasBreadth ? _clamp1((breadth50 - 50) / 28) : 0; // 78%→+1, 22%→-1, 50%→0
@@ -9826,7 +9826,7 @@ window.AIO.getCycleFromMacro = function(macro) {
     phase = '환경 약화';
     rationale.push('시장폭·변동성 약화');
   }
-  if (inverted) rationale.push('수익률 곡선 역전 관측 · 경기 국면 확정 근거가 아닙니다');
+  if (inverted) rationale.push('수익률 곡선 역전 관측, 경기 국면 확정 근거가 아닙니다');
 
   return {
     phase: phase,
@@ -10527,14 +10527,14 @@ window._aioApplyChartDefaults = function() {
   try {
     Chart.defaults.font.family = "'Inter', 'Noto Sans KR', -apple-system, sans-serif";
     Chart.defaults.font.size = 11;
-    Chart.defaults.color = get('--text-muted', '#7b8599');
+    Chart.defaults.color = get('--text-muted', '#978365');
     Chart.defaults.borderColor = get('--chart-grid', 'rgba(255,255,255,0.06)');
     if (Chart.defaults.plugins && Chart.defaults.plugins.tooltip) {
-      Chart.defaults.plugins.tooltip.backgroundColor = get('--bg-card', '#111a2f');
+      Chart.defaults.plugins.tooltip.backgroundColor = get('--bg-card', '#111927');
       Chart.defaults.plugins.tooltip.borderColor = get('--border-strong', 'rgba(255,255,255,0.12)');
       Chart.defaults.plugins.tooltip.borderWidth = 1;
-      Chart.defaults.plugins.tooltip.titleColor = get('--text-secondary', '#a5b0c2');
-      Chart.defaults.plugins.tooltip.bodyColor = get('--text-primary', '#f0f4fc');
+      Chart.defaults.plugins.tooltip.titleColor = get('--text-secondary', '#b9a88d');
+      Chart.defaults.plugins.tooltip.bodyColor = get('--text-primary', '#e6f4fe');
       Chart.defaults.plugins.tooltip.padding = 10;
       Chart.defaults.plugins.tooltip.cornerRadius = 8;
       Chart.defaults.plugins.tooltip.titleFont = { size: 11, weight: '600' };
@@ -10542,7 +10542,7 @@ window._aioApplyChartDefaults = function() {
       Chart.defaults.plugins.tooltip.boxPadding = 4;
     }
     if (Chart.defaults.plugins && Chart.defaults.plugins.legend && Chart.defaults.plugins.legend.labels) {
-      Chart.defaults.plugins.legend.labels.color = get('--text-secondary', '#a5b0c2');
+      Chart.defaults.plugins.legend.labels.color = get('--text-secondary', '#b9a88d');
       Chart.defaults.plugins.legend.labels.font = { size: 11, weight: '500' };
     }
   } catch (e) {
@@ -10680,11 +10680,11 @@ function showDataError(area, msg, severity) {
       }
     } catch(_) {}
     var icon = severity === 'error' ? '<span class="sd sd-r"></span>' : severity === 'info' ? '<span class="sd sd-g"></span>' : '<span class="sd sd-y"></span>';
-    var color = severity === 'error' ? '#ef4444' : severity === 'info' ? '#00e5a0' : '#ffa31a';
-    panel.innerHTML = '<span style="color:' + color + ';font-size:10px;">' + icon + ' ' + escHtml(area) + ': ' + escHtml(msg) + '</span>';
+    var color = severity === 'error' ? '#e5484d' : severity === 'info' ? '#3dd68c' : '#ffa057';
+    panel.innerHTML = '<span style="color:' + color + ';font-size:12px;">' + icon + ' ' + escHtml(area) + ': ' + escHtml(msg) + '</span>';
     setTimeout(function() {
       if (panel.innerHTML.indexOf(msg) !== -1) {
-        panel.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">데이터 갱신 중...</span>';
+        panel.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">데이터 갱신 중...</span>';
       }
     }, ttl);
   }
@@ -10813,12 +10813,12 @@ function _showChartFallback(canvas, chartName, reason) {
   var overlay = document.createElement('div');
   overlay.className = 'aio-chart-fallback';
   overlay.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;' +
-    'width:100%;min-height:120px;background:rgba(0,0,0,0.15);border-radius:4px;padding:16px;box-sizing:border-box;';
-  overlay.innerHTML = '<div style="font-size:24px;margin-bottom:6px;opacity:0.5;"></div>' +
-    '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + (chartName || '차트') + '</div>' +
-    '<div class="aio-chart-fb-reason" style="font-size:10px;color:#f87171;margin-top:2px;">' + reason + '</div>' +
-    '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">데이터 갱신 시 자동 복구됩니다</div>' +
-    '<button data-action="_aioFetchLiveQuotes" style="background:var(--data-cyan-soft);border:1px solid var(--data-cyan-dim);color:#60a5fa;font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
+    'width:100%;min-height:120px;background:var(--black-a3);border-radius:4px;padding:16px;box-sizing:border-box;';
+  overlay.innerHTML = '<div style="font-size:28px;margin-bottom:6px;opacity:0.5;"></div>' +
+    '<div style="font-size:12px;color:var(--text-muted);font-weight:600;">' + (chartName || '차트') + '</div>' +
+    '<div class="aio-chart-fb-reason" style="font-size:12px;color:var(--red-11);margin-top:2px;">' + reason + '</div>' +
+    '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">데이터 갱신 시 자동 복구됩니다</div>' +
+    '<button data-action="_aioFetchLiveQuotes" style="background:var(--data-cyan-soft);border:0.5px solid var(--data-cyan-dim);color:var(--blue-11);font-size:12px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
   parent.insertBefore(overlay, canvas);
   _aioLog('warn', 'chart', chartName + ': ' + reason);
 }
@@ -11057,16 +11057,16 @@ function _checkAllDeadBanner() {
       ' — 캐시 데이터 표시 중 ' +
       '<button id="btn-retry-all-apis" data-action="_retryAllFailedApis" class="lco-retry lco-retry-dead"> 수동 재연결</button>';
     banner.style.display = 'block';
-    banner.style.background = 'rgba(220,38,38,0.15)';
-    banner.style.borderColor = 'rgba(220,38,38,0.3)';
-    banner.style.color = '#ff5b50';
+    banner.style.background = 'var(--red-4)';
+    banner.style.borderColor = 'var(--red-6)';
+    banner.style.color = 'var(--orange-11)';
   } else if (deadCount >= 1 || warnCount >= 2) {
     banner.innerHTML = '일부 데이터 소스(' + deadCount + '개 실패, ' + warnCount + '개 불안정)가 응답하지 않습니다. 해당 항목은 마지막 수신 데이터를 표시합니다.' +
       (deadCount >= 1 ? ' <button id="btn-retry-all-apis" data-action="_retryAllFailedApis" class="lco-retry lco-retry-warn"> 재연결</button>' : '');
     banner.style.display = 'block';
-    banner.style.background = 'rgba(234,179,8,0.12)';
-    banner.style.borderColor = 'rgba(234,179,8,0.3)';
-    banner.style.color = '#ffa31a';
+    banner.style.background = 'var(--gold-3)';
+    banner.style.borderColor = 'var(--amber-6)';
+    banner.style.color = 'var(--amber-11)';
   } else {
     banner.style.display = 'none';
   }
@@ -11480,14 +11480,14 @@ async function _saveApiKey(lsKey, inputId, btnEl) {
   }
   var result = await _aioSaveCredential(lsKey, val);
   if (!result.ok) {
-    if (el) { el.dataset.secretStored = ''; el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + ' · 저장 실패'); }
+    if (el) { el.dataset.secretStored = ''; el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + ', 저장 실패'); }
     if (btnEl) { btnEl.textContent = '실패'; setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK); }
     return result;
   }
   if (el) {
     el.value = val ? '••••••••' : '';
     el.dataset.secretStored = val ? 'true' : '';
-    el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + (val ? ' · 저장됨' : ' · 미저장'));
+    el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + (val ? ', 저장됨' : ', 미저장'));
   }
   if (btnEl) { btnEl.textContent = val ? '저장됨' : '삭제됨'; setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK); }
   if (lsKey === 'aio_cf_worker_url' && typeof _PROXY_REGISTRY !== 'undefined') _PROXY_REGISTRY.init();
@@ -11979,7 +11979,7 @@ window._aioAutoSurfaceOps = function(opts) {
     }
     window._aioLastOpsWarn = { ts: Date.now(), count: problems.length, problems: problems.slice(0, 12), mode: full ? 'full' : 'light' };
     if (problems.length) {
-      try { console.warn('[AIO 운영 점검] ' + problems.length + '개 항목 주의 — AIO.getAutoOpsReadiness() 로 상세 확인:\n  · ' + problems.slice(0, 8).join('\n  · ')); } catch (_w) {}
+      try { console.warn('[AIO 운영 점검] ' + problems.length + '개 항목 주의 — AIO.getAutoOpsReadiness() 로 상세 확인:\n , ' + problems.slice(0, 8).join('\n , ')); } catch (_w) {}
     }
     if (full) {
       try { if (typeof window._aioRefreshAuditWidget === 'function') window._aioRefreshAuditWidget(); } catch (_rw) {}
@@ -12097,17 +12097,17 @@ function _vaultSetPin() {
   var msg  = document.getElementById('vault-pin-msg');
   if (!pin1 || !pin2) return;
   var v1 = pin1.value.trim(), v2 = pin2.value.trim();
-  if (v1.length < 4) { msg.textContent = 'PIN은 4자리 이상'; msg.style.color = '#ff5b50'; return; }
-  if (v1 !== v2) { msg.textContent = 'PIN이 일치하지 않습니다'; msg.style.color = '#ff5b50'; return; }
-  msg.textContent = '암호화 중…'; msg.style.color = '#00bcd4';
+  if (v1.length < 4) { msg.textContent = 'PIN은 4자리 이상'; msg.style.color = 'var(--orange-11)'; return; }
+  if (v1 !== v2) { msg.textContent = 'PIN이 일치하지 않습니다'; msg.style.color = 'var(--orange-11)'; return; }
+  msg.textContent = '암호화 중…'; msg.style.color = 'var(--blue-11)';
   _AioVault.unlock(v1).then(function() {
     return _migrateToEncrypted();
   }).then(function() {
-    msg.textContent = '암호화 완료. 포트폴리오 기록과 자체 프록시 주소가 보호됩니다.'; msg.style.color = '#34d399';
+    msg.textContent = '암호화 완료. 포트폴리오 기록과 자체 프록시 주소가 보호됩니다.'; msg.style.color = 'var(--green-11)';
     pin1.value = ''; pin2.value = '';
     _updateVaultStatus();
   }).catch(function(e) {
-    msg.textContent = '오류: ' + e.message; msg.style.color = '#ff5b50';
+    msg.textContent = '오류: ' + e.message; msg.style.color = 'var(--orange-11)';
   });
 }
 
@@ -12116,19 +12116,19 @@ function _vaultUnlock() {
   var msg = document.getElementById('vault-unlock-msg');
   if (!pin) return;
   var v = pin.value.trim();
-  if (!v) { msg.textContent = 'PIN을 입력하세요'; msg.style.color = '#ff5b50'; return; }
-  msg.textContent = '잠금 해제 중…'; msg.style.color = '#00bcd4';
+  if (!v) { msg.textContent = 'PIN을 입력하세요'; msg.style.color = 'var(--orange-11)'; return; }
+  msg.textContent = '잠금 해제 중…'; msg.style.color = 'var(--blue-11)';
   _AioVault.unlock(v).then(function() {
     return _migrateToEncrypted(); // P1350: upgrade existing financial plaintext on sidebar unlock too.
   }).then(function() {
     // 복호화된 키를 input 필드에 복원
     return _restoreDecryptedKeys();
   }).then(function() {
-    msg.textContent = '잠금 해제됨'; msg.style.color = '#34d399';
+    msg.textContent = '잠금 해제됨'; msg.style.color = 'var(--green-11)';
     pin.value = '';
     _updateVaultStatus();
   }).catch(function(e) {
-    msg.textContent = 'PIN 또는 저장된 암호문을 확인할 수 없습니다'; msg.style.color = '#ff5b50';
+    msg.textContent = 'PIN 또는 저장된 암호문을 확인할 수 없습니다'; msg.style.color = 'var(--orange-11)';
   });
 }
 
@@ -12174,15 +12174,15 @@ function _updateVaultStatus() {
   var hasSalt = !!_AioVault.getStorage().getItem('aio_vault_salt');
   var isUnlocked = _AioVault.isUnlocked();
   if (!hasSalt) {
-    badge.textContent = ' 미설정'; badge.style.color = '#7b8599';
+    badge.textContent = ' 미설정'; badge.style.color = 'var(--gold-11)';
     if (setPanel) setPanel.style.display = 'block';
     if (unlockPanel) unlockPanel.style.display = 'none';
   } else if (isUnlocked) {
-    badge.textContent = ' 활성'; badge.style.color = '#34d399';
+    badge.textContent = ' 활성'; badge.style.color = 'var(--green-11)';
     if (setPanel) setPanel.style.display = 'none';
     if (unlockPanel) unlockPanel.style.display = 'none';
   } else {
-    badge.textContent = ' 잠금'; badge.style.color = '#ffa31a';
+    badge.textContent = ' 잠금'; badge.style.color = 'var(--amber-11)';
     if (setPanel) setPanel.style.display = 'none';
     if (unlockPanel) unlockPanel.style.display = 'block';
   }
@@ -12544,7 +12544,7 @@ const DataHealth = {
   },
   log() {
     const r = this.report();
-    console.log('%c[DataHealth] 데이터 파이프라인 헬스 리포트', 'color:#60a5fa;font-weight:bold;font-size:12px;');
+    console.log('%c[DataHealth] 데이터 파이프라인 헬스 리포트', 'color:var(--blue-11);font-weight:bold;font-size:12px;');
     console.log(`  상태: ${r.summary.status}`);
     console.log(`  시세: ${r.price.fresh} fresh / ${r.price.stale} stale / ${r.price.rejected} rejected (${r.price.rejectRate})`);
     console.log(`  거시: ${r.macro.fresh} fresh / ${r.macro.stale} stale / ${r.macro.rejected} rejected`);
@@ -12695,7 +12695,7 @@ window.AIO.annotateLiveDataSinks = function(root, opts) {
         el.setAttribute('data-truth-confidence', truth.confidence || '');
         el.setAttribute('data-truth-issues', (truth.issues || []).concat(truth.warnings || []).join('|'));
       }
-      el.setAttribute('data-aio-lineage', sym + ' · ' + kind + ' · ' + operationalUse); // v57.79: never `title` — value-basis.js shows any title as a reader card ("rrg-canvas · derived · reference-only" over the themes verdict)
+      el.setAttribute('data-aio-lineage', sym + ', ' + kind + ', ' + operationalUse); // v57.79: never `title` — value-basis.js shows any title as a reader card ("rrg-canvas · derived · reference-only" over the themes verdict)
       touched++;
     });
   } catch(_) {}
@@ -12959,8 +12959,8 @@ window.AIO.charts = {
     try {
       // 다크 테마 기본 (AIO 전역 테마와 일치)
       var theme = options.theme || 'dark';
-      var bgColor = theme === 'dark' ? '#111a2f' : '#ffffff';
-      var textColor = theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#333';
+      var bgColor = theme === 'dark' ? '#111927' : '#ffffff';
+      var textColor = theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#38352e';
       var gridColor = theme === 'dark' ? 'var(--surface-4)' : 'rgba(0,0,0,0.05)';
 
       var disposed = false;
@@ -12974,7 +12974,7 @@ window.AIO.charts = {
         crosshair: { mode: LightweightCharts.CrosshairMode.Normal }
       });
       var series = chart.addLineSeries({
-        color: options.color || '#00bcd4',
+        color: options.color || '#4ccce6',
         lineWidth: options.lineWidth || 2,
         priceFormat: options.priceFormat || { type: 'price', precision: 2, minMove: 0.01 }
       });
@@ -13026,7 +13026,7 @@ window.AIO.charts = {
     var container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
     if (!container) return null;
     try {
-      var bgColor = '#111a2f';
+      var bgColor = '#111927';
       var gridColor = 'var(--surface-4)';
       var disposed = false;
       var chart = LightweightCharts.createChart(container, {
@@ -13039,7 +13039,7 @@ window.AIO.charts = {
       var seriesList = [];
       for (var i = 0; i < seriesConfig.length; i++) {
         var cfg = seriesConfig[i];
-        var s = chart.addLineSeries({ color: cfg.color || '#00bcd4', lineWidth: cfg.lineWidth || 2, title: cfg.name });
+        var s = chart.addLineSeries({ color: cfg.color || '#4ccce6', lineWidth: cfg.lineWidth || 2, title: cfg.name });
         if (Array.isArray(cfg.data)) s.setData(cfg.data);
         seriesList.push(s);
       }
@@ -14229,9 +14229,9 @@ window.FRESHNESS_ENGINE = (function() {
     var a = ageMs(v);
     var threshold = STALE_THRESHOLDS[category] || STALE_THRESHOLDS.unknown;
     var icon, color;
-    if (a < threshold * 0.3) { icon = ''; color = '#00e5a0'; }   // fresh (30% of threshold)
-    else if (a < threshold) { icon = ''; color = '#ffa31a'; }    // aging
-    else { icon = ''; color = '#ff5b50'; }                        // stale
+    if (a < threshold * 0.3) { icon = ''; color = '#3dd68c'; }   // fresh (30% of threshold)
+    else if (a < threshold) { icon = ''; color = '#ffa057'; }    // aging
+    else { icon = ''; color = '#ec5d5e'; }                        // stale
     var label = formatRelative(v);
     if (opts.asHtml === false) return icon + ' ' + label;
     return '<span style="color:' + color + ';font-size:' + (opts.fontSize || '11px') + ';font-family:var(--font-mono);" title="' + formatAbsolute(v) + '">' + icon + ' ' + label + '</span>';
@@ -14744,7 +14744,7 @@ var AIO_MANUAL_REFERENCE_EXPIRY_RULES = Object.freeze({
   // NAAIM retired from the screen (2026-10-13: the official page shows only an undated, three-month-delayed number that
   // cannot be verified against its page), so it carries no expiry item.
   krExports: Object.freeze({ label: '한국 수출 잠정치', where: 'public-data/data.json officialWebReferences.krExports', maxAgeDays: 15, producer: 'public-data/official-references.json items.krExports', screen: '수출 잠정치 문구를 기한 지남으로 보류' }),
-  structuralResearch: Object.freeze({ label: '구조 데이터 원천 조사 기록', where: 'public-data/structural-data-research.json', maxAgeDays: 180, reviewLeadDays: 30, producer: null, screen: '화면 노출 없음(원천 경계 근거) · 만료 시 웹 조사 계약 gate가 배포를 막음' }),
+  structuralResearch: Object.freeze({ label: '구조 데이터 원천 조사 기록', where: 'public-data/structural-data-research.json', maxAgeDays: 180, reviewLeadDays: 30, producer: null, screen: '화면 노출 없음(원천 경계 근거), 만료 시 웹 조사 계약 gate가 배포를 막음' }),
   schedule: Object.freeze({ label: '공식 발표 일정표', where: 'js/aio-core.js AIO_MACRO_OFFICIAL_SCHEDULES', graceDays: 0, reviewLeadDays: 21, producer: 'public-data/macro-calendar.json', screen: '그 발표의 다음 일정을 일정 확인 필요로 보류' }),
   holidays: Object.freeze({ label: '거래소 휴장일 표', where: 'src/domain/market/market-calendar.js + js/aio-core.js DATE_ENGINE', asOf: '2026-09-29', reviewLeadDays: 61, producer: null, screen: '미등록 연도는 거래일 판정을 unknown으로 보류' })
 });
@@ -14946,8 +14946,8 @@ function _aioManualReferenceTitle(item) {
   if (!item) return '';
   var md = function(iso) { return iso ? Number(iso.slice(5, 7)) + '/' + Number(iso.slice(8, 10)) : '—'; };
   if (item.status === 'superseded') return '자동 확인 ' + md(item.producedAsOf);
-  if (item.held) return '기한 지남 · 마지막 확인 ' + md(item.asOf) + ' · 기한 ' + md(item.expiresAt) + ' 이후 새 공표 확인 필요';
-  return '기준 ' + md(item.asOf) + ' · 기한 ' + md(item.expiresAt);
+  if (item.held) return '기한 지남, 마지막 확인 ' + md(item.asOf) + ', 기한 ' + md(item.expiresAt) + ' 이후 새 공표 확인 필요';
+  return '기준 ' + md(item.asOf) + ', 기한 ' + md(item.expiresAt);
 }
 try { window.AIO.applyManualReferenceState(); } catch (e) { if (typeof _aioLog === 'function') _aioLog('warn', 'reference', 'manual reference state: ' + (e && e.message || e)); }
 
@@ -14970,7 +14970,7 @@ window.AIO.getUsTreasuryCurveEvidence = function() {
   if (!_curveFn) {
     // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
     // mirrors the model's own "nothing available" shape instead of duplicating the formula here.
-    return { threeM: null, twoY: null, fiveY: null, tenY: null, thirtyY: null, values: {}, spread2s10s: null, available: false, complete: false, source: 'partial', asOf: asOf, curve: { modelVersion: 'treasury-curve-spread.v2', mode: 'unavailable', spread: null, referenceSpread: null, unit: 'percentage-point', legs: [], mixedDates: false, curveCutId: null, comparable: false, label: '2s10s · curve evidence unavailable' } };
+    return { threeM: null, twoY: null, fiveY: null, tenY: null, thirtyY: null, values: {}, spread2s10s: null, available: false, complete: false, source: 'partial', asOf: asOf, curve: { modelVersion: 'treasury-curve-spread.v2', mode: 'unavailable', spread: null, referenceSpread: null, unit: 'percentage-point', legs: [], mixedDates: false, curveCutId: null, comparable: false, label: '2s10s, curve evidence unavailable' } };
   }
   return _curveFn({
     live: {
@@ -15016,18 +15016,18 @@ const NARRATIVE_ENGINE = (function() {
   }
   function regime(value, bands, missingLabel) {
     var n = num(value);
-    if (n == null) return { level:'unavailable', label:missingLabel || '미수신', color:'#8b93a7', bar:0, available:false };
+    if (n == null) return { level:'unavailable', label:missingLabel || '미수신', color:'#a39073', bar:0, available:false };
     for (var i = 0; i < bands.length; i++) {
       if (n < bands[i][0]) return { level:bands[i][1], label:bands[i][2], color:bands[i][3], bar:Math.max(0, Math.min(100, bands[i][4])), available:true };
     }
-    return { level:'observed', label:'관측', color:'#ffa31a', bar:50, available:true };
+    return { level:'observed', label:'관측', color:'#ffa057', bar:50, available:true };
   }
-  function getSKEWRegime(v) { return regime(v, [[125,'low','낮음','#00e5a0',25],[140,'normal','보통','#ffa31a',55],[Infinity,'high','높음','#ff5b50',85]]); }
-  function getMOVERegime(v) { return regime(v, [[80,'low','낮음','#00e5a0',25],[120,'normal','보통','#ffa31a',55],[Infinity,'high','높음','#ff5b50',85]]); }
-  function getVVIXRegime(v) { return regime(v, [[85,'low','낮음','#00e5a0',25],[105,'normal','보통','#ffa31a',55],[Infinity,'high','높음','#ff5b50',85]]); }
-  function getFGRegime(v) { return regime(v, [[25,'fear','공포','#ff5b50',25],[55,'neutral','중립','#ffa31a',50],[75,'greed','탐욕','#ffa31a',70],[Infinity,'extreme','극단 탐욕','#ff5b50',90]]); }
-  function getBreadthRegime(v) { return regime(v, [[40,'weak','공포 영역','#ff5b50',25],[55,'mixed','혼조','#ffa31a',45],[70,'healthy','양호','#00e5a0',70],[Infinity,'broad','광범위','#00e5a0',90]]); }
-  function getInsiderRegime(v) { return regime(v, [[20,'selling','매도 우위','#ff5b50',25],[50,'neutral','중립','#ffa31a',50],[Infinity,'buying','매수 우위','#00e5a0',80]]); }
+  function getSKEWRegime(v) { return regime(v, [[125,'low','낮음','#3dd68c',25],[140,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
+  function getMOVERegime(v) { return regime(v, [[80,'low','낮음','#3dd68c',25],[120,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
+  function getVVIXRegime(v) { return regime(v, [[85,'low','낮음','#3dd68c',25],[105,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
+  function getFGRegime(v) { return regime(v, [[25,'fear','공포','#ec5d5e',25],[55,'neutral','중립','#ffa057',50],[75,'greed','탐욕','#ffa057',70],[Infinity,'extreme','극단 탐욕','#ec5d5e',90]]); }
+  function getBreadthRegime(v) { return regime(v, [[40,'weak','공포 영역','#ec5d5e',25],[55,'mixed','혼조','#ffa057',45],[70,'healthy','양호','#3dd68c',70],[Infinity,'broad','광범위','#3dd68c',90]]); }
+  function getInsiderRegime(v) { return regime(v, [[20,'selling','매도 우위','#ec5d5e',25],[50,'neutral','중립','#ffa057',50],[Infinity,'buying','매수 우위','#3dd68c',80]]); }
 
   function current() {
     var ds = window.DATA_SNAPSHOT || {};
@@ -15043,7 +15043,7 @@ const NARRATIVE_ENGINE = (function() {
   }
   function availableText(parts) {
     var usable = parts.filter(Boolean);
-    return usable.length ? usable.join(' · ') : '현재 검증 데이터 없음';
+    return usable.length ? usable.join(', ') : '현재 검증 데이터 없음';
   }
   function checkDistributionDiagnosis() {
     var c = current();
@@ -15063,9 +15063,9 @@ const NARRATIVE_ENGINE = (function() {
   }
   function getDistributionDiagnosisText() {
     var d = checkDistributionDiagnosis();
-    return d.available ? '현재 심리·시장 폭 관측치 기반 진단 ' + d.passed + '/' + d.total + '개 조건 충족' : '현재 진단 보류 · 필수 라이브 증거 미수신';
+    return d.available ? '현재 심리·시장 폭 관측치 기반 진단 ' + d.passed + '/' + d.total + '개 조건 충족' : '현재 진단 보류, 필수 라이브 증거 미수신';
   }
-  function getCP1Text() { var c=current(); return c.wti == null ? '지정학·원유 판단 보류 · 현재 WTI 미수신' : valueText('WTI', c.wti) + ' · 최신 뉴스 원천과 함께 확인'; }
+  function getCP1Text() { var c=current(); return c.wti == null ? '지정학·원유 판단 보류, 현재 WTI 미수신' : valueText('WTI', c.wti) + ', 최신 뉴스 원천과 함께 확인'; }
   function getCP2Text() {
     var c = current();
     var fomc = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
@@ -15077,16 +15077,16 @@ const NARRATIVE_ENGINE = (function() {
     var range = fedRange.range && fedRange.origin !== 'manual'
       ? 'Fed 목표범위 ' + fedRange.range + (fedRange.asOf ? ' (' + fedRange.asOf + ' 기준)' : '')
       : fedRange.range && fomc.eventDate
-        ? 'Fed 목표범위 ' + fedRange.range + ' (' + fomc.eventDate + ' 결정' + (claim.allowedUse ? '' : ' · 과거 참고') + ')'
+        ? 'Fed 목표범위 ' + fedRange.range + ' (' + fomc.eventDate + ' 결정' + (claim.allowedUse ? '' : ', 과거 참고') + ')'
         : fedRange.held ? 'Fed 목표범위 기한 지남' : null;
     return availableText([range, c.vix == null ? null : valueText('VIX', c.vix)]);
   }
   function getCP3Text() { return getFGInternalStructureText(); }
-  function getCP4Text() { return '재정 판단 보류 · 현재 검증 원천 미연결'; }
+  function getCP4Text() { return '재정 판단 보류, 현재 검증 원천 미연결'; }
   function getCP5Text() { var c=current(); return availableText([c.move == null ? null : valueText('MOVE', c.move), c.skew == null ? null : valueText('SKEW', c.skew)]); }
-  function getCP6Text() { var c=current(); return c.breadth == null ? '시장 폭 판단 보류 · 현재 원천 미수신' : valueText('50SMA 시장 폭', c.breadth, '%'); }
-  function getCP7Text() { return '실적 판단 보류 · 현재 기업 실적 원천 미연결'; }
-  function getCP8Text() { var c=current(); return c.vvix == null ? '시스템 위험 판단 보류 · 현재 VVIX 미수신' : valueText('VVIX', c.vvix); }
+  function getCP6Text() { var c=current(); return c.breadth == null ? '시장 폭 판단 보류, 현재 원천 미수신' : valueText('50SMA 시장 폭', c.breadth, '%'); }
+  function getCP7Text() { return '실적 판단 보류, 현재 기업 실적 원천 미연결'; }
+  function getCP8Text() { var c=current(); return c.vvix == null ? '시스템 위험 판단 보류, 현재 VVIX 미수신' : valueText('VVIX', c.vvix); }
   // v57.77: renderCPTexts/setMetric/init/renderTailRiskBoard left with the absent #cp*-detail and #rm-*-val DOM.
   function setSnapshot(snap) { if (snap && typeof snap === 'object') window._DS_OVERRIDE = snap; }
   function clearSnapshot() { try { delete window._DS_OVERRIDE; } catch(_) {} }
@@ -17985,13 +17985,13 @@ window.AIO.updateSnapshotStaleBanner = function() {
   el.setAttribute('data-source-kind', 'snapshot');
   if (coreLiveOk) {
     el.textContent = baseText + 'Live quotes are active, so the static snapshot is reference-only.';
-    el.style.background = 'rgba(0,212,255,0.08)';
-    el.style.borderColor = 'rgba(0,212,255,0.25)';
+    el.style.background = 'var(--green-3)';
+    el.style.borderColor = 'var(--blue-6)';
     el.style.color = 'var(--data-cyan)';
   } else {
     el.textContent = baseText + 'Live quote coverage is incomplete; verify live values or public-data freshness before current-market decisions.';
-    el.style.background = 'rgba(255,91,80,0.10)';
-    el.style.borderColor = 'rgba(255,91,80,0.30)';
+    el.style.background = 'var(--red-3)';
+    el.style.borderColor = 'var(--red-6)';
     el.style.color = 'var(--data-red)';
   }
   return { status: coreLiveOk ? 'reference-only' : 'warn', hours: hrs, coreLiveOk: coreLiveOk, marketDataDate: marketDate, telegramDigestDate: digestDate };
@@ -18019,14 +18019,14 @@ window.AIO.applyMarketCurrentnessGuard = function(opts) {
       if (!txt || /(로딩 중|데이터 로딩|수신 대기|불러오지 못했습니다|Loading|unavailable|^—$)/i.test(txt)) {
         el.setAttribute('data-operational-use', 'reference-only');
         el.setAttribute('data-source-kind', 'unavailable');
-        el.title = '실시간 데이터 미수신 · 현재 시장 판단 제외';
+        el.title = '실시간 데이터 미수신, 현재 시장 판단 제외';
         if (/로딩 중|데이터 로딩|수신 대기/.test(txt) && txt.length <= 24) {
-          el.textContent = '수신 실패 · 판단 제외';
+          el.textContent = '수신 실패, 판단 제외';
         }
       } else if (!row.hasLineage) {
         el.setAttribute('data-operational-use', 'reference-only');
         el.setAttribute('data-source-kind', 'unknown');
-        el.title = '출처 메타데이터 미확인 · 현재 시장 판단 제외';
+        el.title = '출처 메타데이터 미확인, 현재 시장 판단 제외';
       }
     });
     var narrativeRows = _aioCollectDecisionNarratives(root).map(function(el) {
@@ -18045,14 +18045,14 @@ window.AIO.applyMarketCurrentnessGuard = function(opts) {
       if (/로딩 중|데이터 로딩|수신 대기|계산중/.test(txt)) {
         el.setAttribute('data-operational-use', 'reference-only');
         el.setAttribute('data-source-kind', 'unavailable');
-        el.title = '분석 데이터 미수신 · 현재 시장 판단 제외';
+        el.title = '분석 데이터 미수신, 현재 시장 판단 제외';
         if (txt.length <= 180) {
-          el.textContent = '데이터 수신 지연 · 현재 시장 판단 제외';
+          el.textContent = '데이터 수신 지연, 현재 시장 판단 제외';
         }
       } else if (txt && !row.hasUse) {
         el.setAttribute('data-operational-use', 'reference-only');
         el.setAttribute('data-source-kind', 'mixed');
-        el.title = '혼합 출처 분석 · 보조 참고용';
+        el.title = '혼합 출처 분석, 보조 참고용';
       }
     });
     window.AIO.updateSnapshotStaleBanner && window.AIO.updateSnapshotStaleBanner();
@@ -18096,14 +18096,14 @@ if (typeof document !== 'undefined') {
 // P845: showPage can be called by the compatibility facade before this map is
 // initialized, so the early route path must not observe a lexical TDZ.
 var breadcrumbMap = {
-  home: ['오늘','요약'], themes: ['테마 · 섹터'], // v57.79: <sidebar hub>/<tab-bar label>; a one-tab hub shows its label alone (pinned in ci-esm-core-unit-check)
-  portfolio: ['포트폴리오'], macro: ['거시 · 금리','거시 경제'],
+  home: ['오늘','요약'], themes: ['테마와 섹터'], // v57.79: <sidebar hub>/<tab-bar label>; a one-tab hub shows its label alone (pinned in ci-esm-core-unit-check)
+  portfolio: ['포트폴리오'], macro: ['거시와 금리','거시 경제'],
   technical: ['종목','차트'], fundamental: ['종목','재무 공시'],
-  briefing: ['오늘','브리핑'], fxbond: ['거시 · 금리','금리 · 환율'],
+  briefing: ['오늘','브리핑'], fxbond: ['거시와 금리','금리와 환율'],
   'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
   guide: ['도움말','화면 안내'], principles: ['리서치 라이브러리','개념·분석'], masters: ['리서치 라이브러리','대가 보유 종목'], atlas: ['리서치 라이브러리','산업 지도'],
   screener: ['스크리너'],
-  'theme-detail': ['테마 · 섹터','테마 상세'],
+  'theme-detail': ['테마와 섹터','테마 상세'],
   // A direct ticker-route visit has no selected symbol yet; do not present a
   // stale-looking placeholder symbol as if it were the current entity.
   ticker: ['종목','요약'],
@@ -18290,14 +18290,14 @@ window._pageState = window._pageState || (function() {
 // v48.15 (P2-A): 모든 페이지의 init 로직을 PAGES 테이블로 통합 (단일 진실 원천)
 // showPage · popstate 핸들러의 복제된 if-분기 전체를 이 테이블이 대체
 window.PAGES = {
-  'home':           { label: '오늘 · 요약',     init: null,                                          chatCtx: null },
+  'home':           { label: '오늘, 요약',     init: null,                                          chatCtx: null },
   'signal':         { label: '시장 상태',       init: null, chatCtx: 'signal' },
   'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
   'briefing':       { label: '브리핑',    init: null, chatCtx: 'briefing' },
   'technical':      { label: '차트',            init: null, chatCtx: 'technical' },
   'macro':          { label: '거시 경제',        init: null, chatCtx: 'macro' },
-  'fxbond':         { label: '금리 · 환율',      init: null, chatCtx: 'fxbond' },
+  'fxbond':         { label: '금리와 환율',      init: null, chatCtx: 'fxbond' },
   'fundamental':    { label: '재무 공시',       init: null, chatCtx: 'fundamental', contextScope: 'entity' },
   'themes':         { label: '테마/섹터',        init: null, chatCtx: 'themes' },
   'theme-detail':   { label: '테마 상세',        init: null, chatCtx: 'theme-detail' },
@@ -18558,7 +18558,7 @@ function showPage(id, navEl) {
       var titleNode = pg.querySelector('.page-title,h1,h2');
       var routeTitle = titleNode ? (titleNode.textContent || '').replace(/\s+/g, ' ').trim() : '';
       routeTitle = routeTitle.replace(/\bv\d+(?:\.\d+)?\b/ig, '').replace(/\s+/g, ' ').trim();
-      if (routeTitle) document.title = routeTitle + ' · AIO Screener';
+      if (routeTitle) document.title = routeTitle + ' - AIO Screener';
       return !!routeTitle;
     } catch(_) { return true; }
   };

@@ -36,12 +36,12 @@ export function renderIndexEarnings({ documentRef: doc, root, store }) {
     host.replaceChildren(head, el(doc, 'div', model.reason, 'briefing-empty'));
     return model;
   }
-  const basis = `컨센서스 ${model.oldestAsOf && model.oldestAsOf !== model.asOf ? `${shortDate(model.oldestAsOf)}~` : ''}${shortDate(model.asOf)} · 지수 비중 ${shortDate(model.weightsAsOf)} · ${model.members}개 기업(비중 ${model.coveragePct.toFixed(0)}%)`;
+  const basis = `컨센서스 ${model.oldestAsOf && model.oldestAsOf !== model.asOf ? `${shortDate(model.oldestAsOf)}~` : ''}${shortDate(model.asOf)}, 지수 비중 ${shortDate(model.weightsAsOf)}, ${model.members}개 기업(비중 ${model.coveragePct.toFixed(0)}%)`;
   head.append(el(doc, 'span', basis, 'briefing-h2-note'));
   const lead = el(doc, 'p', headline(model), 'rates-curve-fact');
   const facts = el(doc, 'ul', null, 'briefing-read-reading');
   const line = (text) => facts.append(el(doc, 'li', text));
-  line(`전망 수정 ${model.up.toLocaleString('en-US')}건 상향 · ${model.down.toLocaleString('en-US')}건 하향 (기업별로 보면 상향이 많은 곳 ${model.netUp}, 하향이 많은 곳 ${model.netDown}).`);
+  line(`전망 수정 ${model.up.toLocaleString('en-US')}건 상향, ${model.down.toLocaleString('en-US')}건 하향 (기업별로 보면 상향이 많은 곳 ${model.netUp}, 하향이 많은 곳 ${model.netDown}).`);
   if (model.forwardPe != null) line(`선행 PER ${model.forwardPe.toFixed(1)}배 — 향후 4개 분기 컨센서스 이익을 각 종목 직전 종가로 나눠 지수 비중으로 합산(이익수익률 ${(model.earningsYield * 100).toFixed(1)}%).`);
   if (model.growth != null) line(`향후 4개 분기 이익이 직전 4개 분기보다 ${pct(model.growth)} (이익 규모 가중).`);
   if (model.erp != null) line(`주식위험프리미엄 ${model.erp.toFixed(1)}%p — 이익수익률 ${(model.earningsYield * 100).toFixed(1)}%에서 10년 실질금리 ${model.realYield10.toFixed(2)}%${model.realYieldAsOf ? `(${shortDate(model.realYieldAsOf)})` : ''}를 뺀 값.`);
@@ -52,7 +52,7 @@ export function renderIndexEarnings({ documentRef: doc, root, store }) {
     const fold = el(doc, 'details', null, 'aio-comp-secondary');
     fold.append(el(doc, 'summary', `섹터별 4주 상향 우위 (구성 기업 ${SECTOR_MIN_MEMBERS}개 이상)`));
     const list = el(doc, 'ul', null, 'briefing-read-reading');
-    for (const row of model.sectors) list.append(el(doc, 'li', `${GICS_KO[row.sector] || row.sector} ${pct(row.revision)} — 상향 ${row.up} · 하향 ${row.down} (${row.members}개 기업)`));
+    for (const row of model.sectors) list.append(el(doc, 'li', `${GICS_KO[row.sector] || row.sector} ${pct(row.revision)} — 상향 ${row.up}, 하향 ${row.down} (${row.members}개 기업)`));
     fold.append(list);
     parts.push(fold);
   }

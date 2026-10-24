@@ -11,19 +11,19 @@
 .page .fiscal-quality-chart .fiscal-col { height: auto; justify-content: flex-start; gap: 5px; }
 .page .fiscal-quality-chart .fiscal-values { min-height: 36px; display: flex; flex-direction: column; gap: 3px; text-align: center; }
 .page .fiscal-quality-chart .fiscal-stack { height: 160px; flex: 0 0 160px; margin: 0 auto; }
-.page .fiscal-quality-chart .fiscal-stack::before { content: ''; position: absolute; top: var(--fiscal-zero); left: -25%; right: -25%; border-top: 1px solid var(--text-muted); opacity: .65; }
+.page .fiscal-quality-chart .fiscal-stack::before { content: ''; position: absolute; top: var(--fiscal-zero); left: -25%; right: -25%; border-top: 0.5px solid var(--text-muted); opacity: .65; }
 .page .fiscal-quality-chart .fiscal-zero-label { position: absolute; left: -35%; transform: translateY(-50%); font-size: 12px; color: var(--text-secondary); } /* v58.53: 12px floor */
-.page .fiscal-quality-chart .fiscal-bar { bottom: auto; border-radius: 2px; }
+.page .fiscal-quality-chart .fiscal-bar { bottom: auto; border-radius: 4px; }
 .page .fiscal-quality-chart .fiscal-bar.is-revenue { background: color-mix(in srgb, var(--text-primary) 30%, transparent); }
 .page .fiscal-quality-chart .fiscal-bar.is-loss { background: var(--data-red); }
 .page .fiscal-quality-chart .fiscal-year { font-size: 12px; white-space: nowrap; margin: 4px 0 0; }
 .page .fiscal-quality-chart .fiscal-value, .page .fiscal-quality-chart .fiscal-margin { font-size: 12px; line-height: 1.45; }
 .page .fiscal-quality-chart .fiscal-legend { flex-wrap: wrap; line-height: 1.6; }
 .page .fiscal-quality-chart .fiscal-value.is-loss, .page .fiscal-amount-table .is-loss { color: var(--data-red); }
-.page .fiscal-table-scroll { margin: 12px 0 6px; border: 1px solid var(--border); border-radius: 4px; }
+.page .fiscal-table-scroll { margin: 12px 0 6px; border: 0.5px solid var(--border); border-radius: 4px; }
 .page .fiscal-amount-table { width: 100%; border-collapse: collapse; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .page .fiscal-amount-table caption { padding: 9px 12px; text-align: left; color: var(--text-secondary); font-weight: 500; line-height: 1.6; }
-.page .fiscal-amount-table th, .page .fiscal-amount-table td { padding: 9px 12px; border-top: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.page .fiscal-amount-table th, .page .fiscal-amount-table td { padding: 9px 12px; border-top: 0.5px solid var(--border); text-align: right; white-space: nowrap; }
 .page .fiscal-amount-table thead th { background: var(--surface-2); color: var(--text-primary); font-size: 12px; font-weight: 600; }
 .page .fiscal-amount-table th:first-child { text-align: left; color: var(--text-primary); }
 .page .fiscal-method-details { color: var(--text-secondary); font-size: 12px; line-height: 1.65; margin: 6px 0 12px; }

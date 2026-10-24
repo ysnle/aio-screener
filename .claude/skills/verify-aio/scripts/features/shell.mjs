@@ -38,7 +38,7 @@ export default {
       await p.waitForFunction(() => typeof window.showPage === 'function', null, { timeout: 30000 });
       const r = await expectActive(p, 'page-fxbond', 30000);
       const current = await p.$$eval('#aio-hub-tabs button.aio-hub-tab', (b) => b.filter((x) => x.getAttribute('aria-current') === 'page' || x.classList.contains('active') || x.getAttribute('aria-selected') === 'true').map((x) => x.textContent.trim()));
-      if (!current.includes('금리 · 환율')) throw new Error(`active hub tab ${JSON.stringify(current)} is not 금리 · 환율`);
+      if (!current.includes('금리와 환율')) throw new Error(`active hub tab ${JSON.stringify(current)} is not 금리와 환율`);
       return { ...r, activeTab: current };
     }]
   ]

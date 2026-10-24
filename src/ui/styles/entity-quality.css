@@ -1,7 +1,7 @@
 /* P1624: summary currency, identity and signed-return chart have their own layout contract. */
 .entity-summary-price-basis { color:var(--text-secondary); font-size:12px; font-weight:400; line-height:1.6; max-width:360px; overflow-wrap:anywhere; }
-.entity-business-profile { margin:18px 0; padding:16px 0; border-bottom:1px solid var(--border); }
-.entity-business-profile h2 { margin:0 0 8px; font-size:16px; }
+.entity-business-profile { margin:18px 0; padding:16px 0; border-bottom:0.5px solid var(--border); }
+.entity-business-profile h2 { margin:0 0 8px; font-size:14px; }
 .entity-business-profile p { margin:0 0 8px; line-height:1.7; color:var(--text-secondary); max-width:90ch; }
 .entity-business-profile a, .entity-business-profile > span { font-size:12px; color:var(--text-secondary); }
 #page-ticker > #ticker-price-panel { margin:0 0 24px; min-width:0; }
@@ -11,19 +11,19 @@
 .stock-return-signed-row { display:grid; grid-template-columns:minmax(0,1fr) 62px; gap:8px; align-items:center; }
 .stock-return-signed-track { position:relative; height:12px; min-width:0; background:var(--surface-2); }
 .stock-return-signed-track::after { content:''; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--text-muted); }
-.stock-return-signed-bar { position:absolute; top:2px; height:8px; border-radius:2px; }
+.stock-return-signed-bar { position:absolute; top:2px; height:8px; border-radius:4px; }
 .stock-return-signed-bar.is-stock.is-up { background:var(--green); }
 .stock-return-signed-bar.is-stock.is-down { background:var(--red); }
 .stock-return-signed-bar.is-bench { background:var(--text-muted); }
 .stock-return-signed-value { text-align:right; font-size:12px; font-variant-numeric:tabular-nums; color:var(--text-primary); }
 .stock-return-signed-axis { color:var(--text-secondary); font-size:12px; margin:10px 0; text-align:center; }
-#page-ticker textarea, #page-ticker input { background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border); border-radius:4px; padding:9px 10px; max-width:100%; box-sizing:border-box; }
+#page-ticker textarea, #page-ticker input { background:var(--surface-2); color:var(--text-primary); border:0.5px solid var(--border); border-radius:4px; padding:9px 10px; max-width:100%; box-sizing:border-box; }
 #page-ticker textarea { min-height:76px; resize:vertical; }
-#page-ticker [data-research-snapshots] button { background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border); padding:8px 12px; }
+#page-ticker [data-research-snapshots] button { background:var(--surface-2); color:var(--text-primary); border:0.5px solid var(--border); padding:8px 12px; }
 #page-ticker :is(button,input,textarea,a):focus-visible { outline:2px solid var(--text-primary); outline-offset:3px; }
 /* P1640: the stock-and-company summary leads into the two analyses. */
 .company-analysis-routes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 10px 0 12px; }
-.company-analysis-route { display: flex; flex-direction: column; gap: 3px; text-align: left; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-1); color: var(--text-primary); cursor: pointer; font: inherit; }
+.company-analysis-route { display: flex; flex-direction: column; gap: 3px; text-align: left; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: 4px; background: var(--surface-1); color: var(--text-primary); cursor: pointer; font: inherit; }
 .company-analysis-route strong { font-size: 14px; }
 .company-analysis-route span { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
 .company-analysis-route:hover, .company-analysis-route:focus-visible { border-color: var(--accent); }
@@ -38,7 +38,7 @@ button.stock-read-point-link { display:inline-block; min-height:24px; line-heigh
 .aio-hub-subject-from { display: inline-flex; align-items: center; min-height: 24px; padding: 0 4px; }
 .aio-hub-subject-from:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (pointer: coarse) { .aio-hub-subject-from { min-height: 44px; padding: 0 10px; } }
-.aio-hub-subject-pick { display: inline-flex; align-items: center; min-height: 26px; margin-left: 8px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; cursor: pointer; }
+.aio-hub-subject-pick { display: inline-flex; align-items: center; min-height: 26px; margin-left: 8px; padding: 0 10px; border: 0.5px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; cursor: pointer; }
 .aio-hub-subject-pick:hover { background: var(--surface-1); }
 .aio-hub-subject-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (pointer: coarse) { .aio-hub-subject-pick { min-height: 44px; } }
@@ -57,12 +57,12 @@ button.stock-read-point-link { display:inline-block; min-height:24px; line-heigh
 /* 2026-10-19 layout system: 재무 page SEC watchlist cards and key-metric grid, moved out of inline `.style.cssText` in
    src/ui/pages/entity.js. Old inline 10/11/12px read --fs-xs/sm/base: the sizes index.html's [style*=font-size] rules rendered them at. */
 #fund-cards-grid .fwl-empty { grid-column: 1/-1; text-align: center; padding: 24px; color: var(--text-muted); font-size: var(--fs-sm); }
-#fund-cards-grid .fwl-notice { grid-column: 1/-1; padding: 9px 10px; border-left: 2px solid var(--data-amber); background: var(--surface-2); color: var(--text-secondary); font-size: var(--fs-xs); line-height: 1.5; }
+#fund-cards-grid .fwl-notice { grid-column: 1/-1; padding: 9px 10px;  background: var(--surface-2); color: var(--text-secondary); font-size: var(--fs-xs); line-height: 1.5; }
 #fund-cards-grid .fwl-notice.is-fresh { border-left-color: var(--data-green); }
 /* (1,1,0) outranks `.fund-ticker-card:hover` (0,2,0): the inline border kept the hover border colour off, and still does */
-#fund-cards-grid .fund-ticker-card { appearance: none; width: 100%; background: var(--bg-card); border-radius: 4px; padding: 14px; border: 1px solid var(--border); cursor: pointer; text-align: left; color: inherit; }
+#fund-cards-grid .fund-ticker-card { appearance: none; width: 100%; background: var(--bg-card); border-radius: 4px; padding: 14px; border: 0.5px solid var(--border); cursor: pointer; text-align: left; color: inherit; }
 #fund-cards-grid .fwl-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
-#fund-cards-grid .fwl-symbol { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+#fund-cards-grid .fwl-symbol { font-size: 12px; font-weight: 700; color: var(--text-primary); }
 #fund-cards-grid .fwl-name { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.35; margin-top: 2px; }
 #fund-cards-grid .fwl-period { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
 #fund-cards-grid .fwl-metrics { display: grid; gap: 5px; }
@@ -70,12 +70,12 @@ button.stock-read-point-link { display:inline-block; min-height:24px; line-heigh
 #fund-cards-grid .fwl-metric > strong { color: var(--text-primary); font-family: var(--font-mono); text-align: right; }
 #fund-cards-grid .fwl-source { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 10px; line-height: 1.35; }
 #fund-native-sec-grid .fsr-empty { grid-column: 1/-1; color: var(--text-muted); font-size: var(--fs-base); padding: 8px 0; }
-#fund-native-sec-grid .fsr-item { background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 9px 10px; min-width: 0; }
+#fund-native-sec-grid .fsr-item { background: var(--surface-2); border: 0.5px solid var(--border-subtle); border-radius: 4px; padding: 9px 10px; min-width: 0; }
 #fund-native-sec-grid .fsr-label { font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: 4px; }
 #fund-native-sec-grid .fsr-value { font-size: 14px; font-family: var(--font-mono); font-weight: 700; color: var(--text-primary); overflow-wrap: anywhere; }
 /* 2026-10-19 layout system: the ticker search miss hint (src/app/compatibility-globals.js) and the research-snapshot fold
    (src/ui/components/research-snapshots.js, 종목 and 브리핑), moved out of inline `.style.cssText`; old inline 12px reads --fs-base. */
-#ticker-search-hint { margin: -4px 0 12px; font-size: 13px; line-height: 1.6; color: var(--text-secondary); display: grid; gap: 6px; }
+#ticker-search-hint { margin: -4px 0 12px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); display: grid; gap: 6px; }
 #ticker-search-hint .ticker-search-picks { display: flex; flex-wrap: wrap; gap: 6px; }
-.page [data-research-snapshots] { margin: 14px 0; padding: 10px 12px; border: 1px solid var(--border-subtle); font-size: var(--fs-base); }
+.page [data-research-snapshots] { margin: 14px 0; padding: 10px 12px; border: 0.5px solid var(--border-subtle); font-size: var(--fs-base); }
 .page [data-research-snapshots] > textarea { display: block; width: 100%; margin: 8px 0; }

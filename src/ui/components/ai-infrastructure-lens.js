@@ -34,7 +34,7 @@ export function renderAiInfrastructureLens({ documentRef, root, route }) {
 
   const header = el(doc, 'div', null, 'ail-head');
   const liveCount = proxies.filter((item) => item.pct != null).length;
-  header.append(el(doc, 'div', 'AI 추론 효율 · 메모리 벽 × 특화도', 'ail-title'),
+  header.append(el(doc, 'div', 'AI 추론 효율, 메모리 벽 × 특화도', 'ail-title'),
     el(doc, 'span', liveCount ? `공개 지표 ${liveCount}/${proxies.length}개 수신` : '지표 수신 대기', 'ail-badge'));
   host.append(header, el(doc, 'div', '다음 AI 경쟁의 단위를 단일 칩 승자가 아니라 workload stage별 비용·지연·전력으로 재정의합니다. 아래 업체·구조·거래선은 자료에서 추출한 연구 지도이며 현재 매출·밸류에이션·성능 순위가 아닙니다.', 'ail-intro'));
 
@@ -42,8 +42,8 @@ export function renderAiInfrastructureLens({ documentRef, root, route }) {
   AI_INFERENCE_ARCHITECTURE_REFERENCE.layers.forEach((layer) => {
     architectureGrid.append(reference(card('ail-card ail-card--tall', [el(doc, 'div', layer.label, 'ail-card-title'), el(doc, 'div', layer.focus, 'ail-text')])));
   });
-  host.append(section('Jalapeño / AI 추론 시스템 아키텍처 · REFERENCE'), architectureGrid,
-    reference(el(doc, 'div', `목표: ${AI_INFERENCE_ARCHITECTURE_REFERENCE.objective} · 시계열: ${AI_INFERENCE_ARCHITECTURE_REFERENCE.timeSeriesChecks.map((item) => `${item.window}=${item.metrics}`).join(' | ')}`, 'ail-text ail-text--ink ail-rule-below')));
+  host.append(section('Jalapeño / AI 추론 시스템 아키텍처, REFERENCE'), architectureGrid,
+    reference(el(doc, 'div', `목표: ${AI_INFERENCE_ARCHITECTURE_REFERENCE.objective}, 시계열: ${AI_INFERENCE_ARCHITECTURE_REFERENCE.timeSeriesChecks.map((item) => `${item.window}=${item.metrics}`).join(' | ')}`, 'ail-text ail-text--ink ail-rule-below')));
 
   const axes = el(doc, 'div');
   axes.append(section('구조 축'));
@@ -53,13 +53,13 @@ export function renderAiInfrastructureLens({ documentRef, root, route }) {
   const workloads = el(doc, 'div');
   workloads.append(section('workload fit'));
   AI_INFERENCE_EFFICIENCY_REFERENCE.workloads.forEach((workload) => {
-    workloads.append(card('ail-row', [el(doc, 'div', `${workload.label} · ${workload.metric}`, 'ail-row-title'), el(doc, 'div', workload.fit, 'ail-text ail-text--gap')]));
+    workloads.append(card('ail-row', [el(doc, 'div', `${workload.label}, ${workload.metric}`, 'ail-row-title'), el(doc, 'div', workload.fit, 'ail-text ail-text--gap')]));
   });
   host.append(card('ail-split', [axes, workloads]));
 
   const entities = el(doc, 'div', null, 'ail-grid ail-grid--wide');
   AI_INFERENCE_EFFICIENCY_REFERENCE.entities.forEach((entity) => {
-    entities.append(reference(card('ail-card', [el(doc, 'div', entity.label, 'ail-card-title'), el(doc, 'div', `${entity.memory} · ${entity.specialization}`, 'ail-text ail-text--ink ail-text--gap'), el(doc, 'div', `${entity.fit} · ${entity.status}`, 'ail-text ail-text--gap')])));
+    entities.append(reference(card('ail-card', [el(doc, 'div', entity.label, 'ail-card-title'), el(doc, 'div', `${entity.memory}, ${entity.specialization}`, 'ail-text ail-text--ink ail-text--gap'), el(doc, 'div', `${entity.fit}, ${entity.status}`, 'ail-text ail-text--gap')])));
   });
   host.append(section('추론 하드웨어 reference map'), entities);
 
@@ -78,19 +78,19 @@ export function renderAiInfrastructureLens({ documentRef, root, route }) {
     nodes.append(chip);
   });
   const edges = el(doc, 'div');
-  AI_DEAL_ECOSYSTEM_EDGES.forEach((edge) => edges.append(reference(el(doc, 'div', `${edge.kind.toUpperCase()} · ${edge.label}`, 'ail-text ail-edge'))));
-  host.append(section('AI 거래의 순환 구조 · Bloomberg 도식의 역할/엣지 해석'), card('ail-split ail-split--map', [nodes, edges]));
+  AI_DEAL_ECOSYSTEM_EDGES.forEach((edge) => edges.append(reference(el(doc, 'div', `${edge.kind.toUpperCase()}, ${edge.label}`, 'ail-text ail-edge'))));
+  host.append(section('AI 거래의 순환 구조, Bloomberg 도식의 역할/엣지 해석'), card('ail-split ail-split--map', [nodes, edges]));
 
   const lensGrid = el(doc, 'div', null, 'ail-grid ail-grid--pair');
   AI_INFRASTRUCTURE_REFERENCE_LENSES.forEach((lens) => {
     lensGrid.append(reference(card('ail-card', [el(doc, 'div', lens.label, 'ail-card-title'), el(doc, 'div', lens.thesis, 'ail-text ail-text--body'), el(doc, 'div', `관측: ${lens.observe}`, 'ail-text ail-text--ink ail-text--gap'), el(doc, 'div', `무효화: ${lens.invalidation}`, 'ail-text ail-text--gap')])));
   });
-  host.append(section('추가 검증 렌즈 · 자료 통합 (REFERENCE)'), lensGrid);
+  host.append(section('추가 검증 렌즈, 자료 통합 (REFERENCE)'), lensGrid);
 
   const supplyGrid = el(doc, 'div', null, 'ail-grid');
   AI_HARDWARE_SUPPLY_CHAIN_REFERENCE.forEach((item) => {
     supplyGrid.append(reference(card('ail-card ail-card--muted', [el(doc, 'div', item.label, 'ail-card-title'), el(doc, 'div', item.roles, 'ail-text ail-text--ink ail-text--gap'), el(doc, 'div', item.question, 'ail-text ail-text--gap')])));
   });
-  host.append(section('가속기 밸류체인 역할 map · 첨부 표 해석'), supplyGrid,
+  host.append(section('가속기 밸류체인 역할 map, 첨부 표 해석'), supplyGrid,
     reference(el(doc, 'div', '도식·첨부 표의 업체명·원 크기·화살표·사양은 역할과 검증 질문을 만드는 REFERENCE입니다. 현재 시가총액·계약·투자금액·공급사 매출·성능 순위를 의미하지 않으며, qualification·공시·현금흐름 확인 전 종목 점수에 편입하지 않습니다.', 'ail-text ail-note')));
 }

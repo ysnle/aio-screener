@@ -84,7 +84,7 @@ function renderChanges(doc, section, history, root) {
     const live = liveSinceClose(move.key, root?._liveData?.[LIVE_SYMBOL[move.key]], model.date, move.close);
     if (live) {
       const line = el(doc, 'span', live.text, 'daily-move-live');
-      line.title = '실시간·지연 시세 · 등락은 이 칸의 마지막 종가 대비입니다';
+      line.title = '실시간·지연 시세, 등락은 이 칸의 마지막 종가 대비입니다';
       cell.append(line);
       liveShown = true;
     }
@@ -92,11 +92,11 @@ function renderChanges(doc, section, history, root) {
   }
   // P1725: two completed US closes here; a "지금" line is a live/delayed quote measured from the tile's last close (v57.86), so
   // the same asset can still carry opposite signs on the two lines (WTI +2.06% close to close, -1.92% now). The note says which.
-  note.textContent = `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? ` · ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}${liveShown ? ' · "지금" 표시는 그 뒤 실시간·지연 시세' : ''}`;
+  note.textContent = `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? `, ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}${liveShown ? ', "지금"은 실시간·지연 시세' : ''}`;
   host.append(grid);
   syncLiveStrip(doc, new Set(model.moves.map((move) => move.key)));
   // P1724: measures left out are named on one line with why (no previous close, or the latest close is older).
-  if (model.notComparedNotes?.length) host.append(el(doc, 'p', `비교 제외: ${model.notComparedNotes.map((item) => `${item.label}(${item.reason})`).join(' · ')}`, 'daily-empty'));
+  if (model.notComparedNotes?.length) host.append(el(doc, 'p', `비교 제외: ${model.notComparedNotes.map((item) => `${item.label}(${item.reason})`).join(', ')}`, 'daily-empty'));
   return model;
 }
 
@@ -139,8 +139,8 @@ function renderKoreaQuote(doc, root) {
     if (model.pct != null) change.classList.add(model.pct >= 0 ? 'pos' : 'neg', model.pct > 0 ? 'a11y-up' : model.pct < 0 ? 'a11y-dn' : 'a11y-hold');
   }
   chip.title = model.basis === 'live'
-    ? '코스피 실시간·지연 시세(한국 시간) · 등락은 직전 한국 종가 대비 · 위 한국장 줄은 마감 종가 기준입니다'
-    : '한국 정규장 확정 종가 · 등락은 그 전 거래일 종가 대비';
+    ? '코스피 실시간·지연 시세(한국 시간), 등락은 직전 한국 종가 대비, 위 한국장 줄은 마감 종가 기준입니다'
+    : '한국 정규장 확정 종가, 등락은 그 전 거래일 종가 대비';
   chip.dataset.basis = model.basis;
   chip.dataset.reason = model.reason;
   return model;
@@ -163,7 +163,7 @@ function renderMyNames(doc, host, root, store, regime = null) {
   host.dataset.empty = model.names.length ? 'false' : 'true';
   if (!model.names.length) {
     // v57.79: words, not the star glyph (the screener button is titled 워치리스트에 추가).
-    host.append(emptyState(doc, { title: '관심·보유 종목이 없습니다', reason: '스크리너나 종목 화면에서 관심 종목(워치리스트)에 추가한 종목이 여기에서 매일 정리됩니다.', compact: true, primary: true,
+    host.append(emptyState(doc, { title: '관심·보유 종목이 없습니다', compact: true, primary: true,
       action: typeof root?.showPage === 'function' ? { label: '스크리너 열기', onClick: () => root.showPage('screener') } : null }));
     return model;
   }
@@ -176,16 +176,16 @@ function renderMyNames(doc, host, root, store, regime = null) {
     button.type = 'button';
     button.dataset.action = 'showTicker';
     button.dataset.arg = row.symbol;
-    li.append(button, el(doc, 'span', `${row.name || ''}${row.held ? ' · 보유' : ''}`, 'daily-name-name'));
+    li.append(button, el(doc, 'span', `${row.name || ''}${row.held ? ', 보유' : ''}`, 'daily-name-name'));
     li.append(namePrice(doc, row.symbol, root?._liveData?.[row.symbol], rowBySymbol.get(row.symbol)));
     li.append(el(doc, 'span', row.dayPct == null ? '' : `${row.dayPct >= 0 ? '+' : ''}${row.dayPct.toFixed(2)}%`, `daily-name-day ${row.daySignalled ? (row.dayPct > 0 ? 'is-up' : row.dayPct < 0 ? 'is-down' : '') : ''}`));
-    li.append(el(doc, 'span', row.notes.join(' · ') || '지표 기록 없음', 'daily-name-notes'));
+    li.append(el(doc, 'span', row.notes.join(', ') || '지표 기록 없음', 'daily-name-notes'));
     list.append(li);
   }
   host.append(list);
   // Codex audit F25 (2026-10-15): more than eight names were cut silently; the count and the way to the rest are said.
   if (model.names.length > 8) {
-    const more = el(doc, 'button', `전체 ${model.names.length}개 중 8개 표시 · 나머지는 스크리너의 내 워치리스트에서 →`, 'flow-next-link');
+    const more = el(doc, 'button', `전체 ${model.names.length}개 중 8개 표시, 나머지는 스크리너의 내 워치리스트에서 →`, 'flow-next-link');
     more.type = 'button';
     more.addEventListener('click', () => {
       root?.showPage?.('screener');
@@ -254,7 +254,7 @@ function renderSchedule(doc, host, root) {
   });
   const schedule = fullSchedule.filter((row) => !row.passed);
   const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
-  head.append(el(doc, 'h2', '다가오는 일정', 'briefing-h2 sx-card__title'), el(doc, 'span', '3일 · 한국 시간', 'sx-card__meta'));
+  head.append(el(doc, 'h2', '다가오는 일정', 'briefing-h2 sx-card__title'), el(doc, 'span', '3일, 한국 시간', 'sx-card__meta'));
   host.replaceChildren(head);
   // Codex audit F26 (2026-10-15): "없습니다" only when the calendars were actually read — a missing macro calendar or an
   // earnings calendar still loading/failed is said as such, not merged into the empty sentence.
@@ -361,7 +361,7 @@ function flipDistanceLine(doc, row) {
   if (parts) text.append(doc.createTextNode(`${parts.subject} `), el(doc, 'b', parts.mark, 'home-flip-num'), doc.createTextNode(` ${parts.verb} `));
   else text.append(doc.createTextNode(`${d.condition} `));
   text.append(el(doc, 'b', `${row.title} → ${d.towardLabel}`, 'home-flip-axis'));
-  for (const item of d.also || []) text.append(el(doc, 'span', `함께 필요 · ${item.condition}${item.text ? ` (${item.text})` : ''}`, 'home-flip-also'));
+  for (const item of d.also || []) text.append(el(doc, 'span', `함께 필요, ${item.condition}${item.text ? ` (${item.text})` : ''}`, 'home-flip-also'));
   return text;
 }
 
@@ -379,8 +379,8 @@ function renderHeroFlips(doc, regime) {
   if (measured) {
     // v58.56 (re-audit #23): the distances are measured from the last US close, not the live quotes beside the tile
     // (WTI 98.46 live vs the 10/20 close) — the kicker and each chip's tooltip say so.
-    const order = el(doc, 'span', `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준 · 가까운 순`, 'home-flips-order');
-    order.title = '거리는 마지막 미국 종가로 잽니다(실시간 시세 아님) · 조건까지 남은 거리를 그 지표의 최근 20거래일 평균 하루 변동폭으로 나눠, 작은 순서로 3개를 보여줍니다';
+    const order = el(doc, 'span', `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준, 가까운 순`, 'home-flips-order');
+    order.title = '거리는 마지막 미국 종가로 잽니다(실시간 시세 아님), 조건까지 남은 거리를 그 지표의 최근 20거래일 평균 하루 변동폭으로 나눠, 작은 순서로 3개를 보여줍니다';
     head.append(order);
   }
   const list = el(doc, 'ul', null, 'home-flips');
@@ -390,9 +390,9 @@ function renderHeroFlips(doc, regime) {
     if (row.distance) {
       const [mark, tone, words] = DISTANCE_MARK[row.distance.direction] || DISTANCE_MARK.worsen;
       const badge = el(doc, 'span', mark, `home-flip-mark ${tone}`);
-      badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} → ${row.distance.towardLabel} · ${words}`);
+      badge.setAttribute('aria-label', `${row.title} ${row.stateLabel} → ${row.distance.towardLabel}, ${words}`);
       const chip = el(doc, 'span', row.distance.text, 'home-flip-chip');
-      chip.title = `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준 · 지금 ${row.title} ${row.stateLabel} · 기준까지 ${row.distance.text}${row.distance.sessions != null ? ` · 최근 20거래일 평균 하루 변동폭의 ${row.distance.sessions}배` : ''}${row.distance.needsMore ? ' · 숫자로 잴 수 없는 조건이 함께 필요' : ''}`;
+      chip.title = `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준, 지금 ${row.title} ${row.stateLabel}, 기준까지 ${row.distance.text}${row.distance.sessions != null ? `, 최근 20거래일 평균 하루 변동폭의 ${row.distance.sessions}배` : ''}${row.distance.needsMore ? ', 숫자로 잴 수 없는 조건이 함께 필요' : ''}`;
       li.dataset.direction = row.distance.direction;
       li.append(badge, flipDistanceLine(doc, row), chip);
     } else {

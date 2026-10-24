@@ -4,9 +4,9 @@ import { openFromNav, expectText, expectCount, activePage, visibleText } from '.
 const CHIP = '#page-themes [data-action="showThemeDetail"][data-arg]';
 
 export default {
-  title: '테마 · 섹터 (범위 전환 · 상세 패널 · 목록 복귀 · 종목 연결)',
+  title: '테마와 섹터 (범위 전환 · 상세 패널 · 목록 복귀 · 종목 연결)',
   steps: [
-    ['nav 테마 · 섹터', (p) => openFromNav(p, '테마 · 섹터', 'page-themes')],
+    ['nav 테마와 섹터', (p) => openFromNav(p, '테마와 섹터', 'page-themes')],
     ['섹터 회전 판정 + 사분면 카드', async (p) => ({ ...(await expectCount(p, '#rrg-quadrant-cards > *', 1)), ...(await expectCount(p, CHIP, 1)) })],
     ['범위 서브섹터 → 11섹터', async (p) => {
       const pill = (arg) => `#rrg-view-tabs [data-action="setRRGView"][data-arg="${arg}"]`;

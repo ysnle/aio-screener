@@ -96,11 +96,11 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
     host.append(el(doc, 'p', '사후 검증 기록 수신 대기', 'theme-strength-basis'));
   } else {
     if (!summary.modelMatch) host.append(el(doc, 'p', '이 기록은 지금 화면의 순위와 가중치·계산 방식이 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다.', 'theme-strength-basis'));
-    if (summary.series.length >= 2) host.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영 · 같은 모델 기록만)' }));
+    if (summary.series.length >= 2) host.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영, 같은 모델 기록만)' }));
     else host.append(el(doc, 'p', `같은 모델로 계산된 기록이 ${summary.sameModelRecords}개뿐이라 추이 그림은 기록이 쌓인 뒤 표시합니다.`, 'theme-strength-basis'));
     host.append(el(doc, 'p', summary.distinguishable
-      ? `최근 기록 ${summary.date} · 상위−하위 20% ${pct(summary.spreadNet)} — ${summary.rebalances}회 표본에서 우연의 범위(|t| ${VALIDATION_MIN_ABS_T})를 넘은 차이입니다.`
-      : `최근 기록 ${summary.date} · ${summary.undecided} — 앞섬·뒤처짐 판정은 기록이 ${VALIDATION_MIN_REBALANCES}회 이상 쌓이고 차이가 우연의 범위(|t| ${VALIDATION_MIN_ABS_T})를 넘을 때 합니다.`, 'theme-strength-basis'));
+      ? `최근 기록 ${summary.date}, 상위−하위 20% ${pct(summary.spreadNet)} — ${summary.rebalances}회 표본에서 우연의 범위(|t| ${VALIDATION_MIN_ABS_T})를 넘은 차이입니다.`
+      : `최근 기록 ${summary.date}, ${summary.undecided} — 앞섬·뒤처짐 판정은 기록이 ${VALIDATION_MIN_REBALANCES}회 이상 쌓이고 차이가 우연의 범위(|t| ${VALIDATION_MIN_ABS_T})를 넘을 때 합니다.`, 'theme-strength-basis'));
   }
   host.dataset.aioScreenerValidationRenderer = 'native';
   return summary;
@@ -196,14 +196,14 @@ export function renderValidationHero({ documentRef: doc, read }) {
     const half = read.samples / 2;
     const kpis = el(doc, 'div', null, 'sx-grid sx-grid--3 scr-vh-kpis');
     kpis.append(
-      tile('상위 − 하위 평균', signedPp(read.net), `비용 반영 · ${read.fwdDays}거래일 뒤 · 같은 비중`, read.distinguishable ? `is-${read.state}` : ''),
-      tile('상위가 앞선 횟수', read.wins == null ? '—' : `${read.wins} / ${read.samples}`, read.wins == null ? '기록 없음' : `${read.winsBasis} · 동전 던지기 기댓값 ${Number.isInteger(half) ? half : half.toFixed(1)}회${read.wins < half ? '보다 적음' : read.wins > half ? '보다 많음' : '와 같음'}`),
-      tile('표본 판단', read.distinguishable ? '판단 가능' : '판단 불가', `시점 ${read.samples}회 · ${read.tStat != null ? `차이의 t ${read.tStat.toFixed(2)}` : '차이의 t 미계산'} · ${VALIDATION_MIN_REBALANCES}회·|t| ${VALIDATION_MIN_ABS_T} 이상에서 판단`)
+      tile('상위 − 하위 평균', signedPp(read.net), `비용 반영, ${read.fwdDays}거래일 뒤, 같은 비중`, read.distinguishable ? `is-${read.state}` : ''),
+      tile('상위가 앞선 횟수', read.wins == null ? '—' : `${read.wins} / ${read.samples}`, read.wins == null ? '기록 없음' : `${read.winsBasis}, 동전 던지기 기댓값 ${Number.isInteger(half) ? half : half.toFixed(1)}회${read.wins < half ? '보다 적음' : read.wins > half ? '보다 많음' : '와 같음'}`),
+      tile('표본 판단', read.distinguishable ? '판단 가능' : '판단 불가', `시점 ${read.samples}회, ${read.tStat != null ? `차이의 t ${read.tStat.toFixed(2)}` : '차이의 t 미계산'}, ${VALIDATION_MIN_REBALANCES}회·|t| ${VALIDATION_MIN_ABS_T} 이상에서 판단`)
     );
     parts.push(kpis);
   } else {
     const card = el(doc, 'div', null, 'sx-card scr-vh-empty');
-    card.append(el(doc, 'span', read.chips.join(' · '), 'sx-chip sx-chip--sm sx-chip--warn'), el(doc, 'p', read.sentence, 'sx-lede'));
+    card.append(el(doc, 'span', read.chips.join(', '), 'sx-chip sx-chip--sm sx-chip--warn'), el(doc, 'p', read.sentence, 'sx-lede'));
     parts.push(card);
   }
   // v58.56 (#6, design 5h): the per-date card is the top-minus-bottom spread — what the ranking's top fifth did against its
@@ -211,7 +211,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
   if (read.samples != null || read.points?.length) {
     const card = el(doc, 'div', null, 'sx-card scr-vh-dates');
     const head = el(doc, 'div', null, 'sx-card__head');
-    head.append(el(doc, 'h3', '시점별 상위 20% − 하위 20%', 'sx-card__title'), el(doc, 'span', `${read.fwdDays}거래일 뒤 수익률 · 같은 비중 · 비용 전`, 'sx-card__meta'));
+    head.append(el(doc, 'h3', '시점별 상위 20% − 하위 20%', 'sx-card__title'), el(doc, 'span', `${read.fwdDays}거래일 뒤 수익률, 같은 비중, 비용 전`, 'sx-card__meta'));
     card.append(head);
     const spread = read.spreadPoints || [];
     if (spread.length) {
@@ -219,7 +219,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
       for (const point of spread) {
         const up = point.gross >= 0;
         const line = el(doc, 'div', null, 'scr-vh-row scr-vh-spread-row');
-        line.title = `상위 20% 평균 ${pct(point.top)} − 하위 20% 평균 ${pct(point.bottom)} = ${signedPp(point.gross)}${point.net != null ? ` · 거래비용(회전율 기준 ${point.cost != null ? `${point.cost.toFixed(2)}%` : '—'}) 반영 ${signedPp(point.net)}` : ''}`;
+        line.title = `상위 20% 평균 ${pct(point.top)} − 하위 20% 평균 ${pct(point.bottom)} = ${signedPp(point.gross)}${point.net != null ? `, 거래비용(회전율 기준 ${point.cost != null ? `${point.cost.toFixed(2)}%` : '—'}) 반영 ${signedPp(point.net)}` : ''}`;
         const track = el(doc, 'span', null, 'scr-vh-track');
         const fill = el(doc, 'span', null, `scr-vh-fill ${up ? 'is-up' : 'is-burden'}`);
         fill.style.width = `${Math.min(50, Math.abs(point.gross) / max * 50).toFixed(1)}%`;
@@ -242,7 +242,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
       if (previous?.dataset.userToggled) fold.dataset.userToggled = '1';
       fold.open = previous?.dataset.userToggled ? previous.open : !spread.length;
       const summary = el(doc, 'summary', null);
-      summary.append(el(doc, 'span', '시점별 종합 IC', 'scr-vh-ic-title'), el(doc, 'span', `순위와 ${read.fwdDays}거래일 뒤 수익률의 순위상관 · 0 = 관계 없음`, 'sx-meta'));
+      summary.append(el(doc, 'span', '시점별 종합 IC', 'scr-vh-ic-title'), el(doc, 'span', `순위와 ${read.fwdDays}거래일 뒤 수익률의 순위상관, 0 = 관계 없음`, 'sx-meta'));
       summary.addEventListener('click', () => { fold.dataset.userToggled = '1'; });
       fold.append(summary);
       const body = el(doc, 'div', null, 'scr-vh-ic-body');
@@ -263,14 +263,14 @@ export function renderValidationHero({ documentRef: doc, read }) {
     parts.push(card);
   }
   const principle = el(doc, 'div', null, 'sx-card scr-vh-principle');
-  principle.append(el(doc, 'h3', '원리 · 왜 검증을 먼저 보여주나', 'sx-card__title'));
+  principle.append(el(doc, 'h3', '원리, 왜 검증을 먼저 보여주나', 'sx-card__title'));
   const rule = `이 화면은 ${VALIDATION_MIN_REBALANCES}회 이상·|t| ${VALIDATION_MIN_ABS_T} 이상에서 앞섬·뒤처짐을 판단합니다(학술 제안인 t 3보다 느슨한 기준).`;
   const undecided = read.samples != null && !read.distinguishable
     ? ` 표본 ${read.samples}회${read.tStat == null ? '(t 미계산)' : `(t ${read.tStat.toFixed(2)})`}로는 이 기준에 못 미쳐, 순위는 계속 후보 목록으로 표시합니다.` : '';
   principle.append(el(doc, 'p', `요인 점수의 예측력은 정보 계수(IC) — 점수 순위와 이후 수익률 순위의 상관 — 로 잽니다. 학술 연구에서도 '발견된' 요인 상당수가 데이터 마이닝의 산물일 수 있어, 새 요인에는 t 값 3 이상을 요구해야 한다는 제안이 있습니다. ${rule}${undecided}`, 'sx-disclosure__text'));
-  if (read.gateChip) principle.append(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(' · ')}` : ''}${read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
+  if (read.gateChip) principle.append(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(', ')}` : ''}${read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
   const evidence = el(doc, 'div', null, 'sx-evidence scr-vh-evidence');
-  evidence.append(el(doc, 'span', '근거 · Grinold(1989) 기본 법칙 · Harvey·Liu·Zhu(2016) …and the Cross-Section of Expected Returns'), el(doc, 'span', `데이터 · 스크리너 산출물 사후 검증${read.asOf ? ` ${read.asOf}` : ''} · screener-validation-gate`), el(doc, 'span', `상태 · ${read.chips.join(' · ') || '기록 있음'}`));
+  evidence.append(el(doc, 'span', '근거, Grinold(1989) 기본 법칙, Harvey·Liu·Zhu(2016) …and the Cross-Section of Expected Returns'), el(doc, 'span', `데이터, 스크리너 산출물 사후 검증${read.asOf ? ` ${read.asOf}` : ''}, screener-validation-gate`), el(doc, 'span', `상태, ${read.chips.join(', ') || '기록 있음'}`));
   principle.append(evidence);
   parts.push(principle);
   host.replaceChildren(...parts);

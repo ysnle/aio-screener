@@ -86,7 +86,7 @@ function measureDirection(name, input) {
   const dir = margin >= step ? 'up' : margin <= -step ? 'down' : 'flat';
   const month = monthOf(input.date);
   return { name, pace, yoy, margin, dir, date: input.date || null, month,
-    text: `${name}${month ? `(${month})` : ''} ${DIRECTION_WORD[dir]}(3개월 연율 ${pace.toFixed(1)}% · 전년 대비 ${yoy.toFixed(1)}%)` };
+    text: `${name}${month ? `(${month})` : ''} ${DIRECTION_WORD[dir]}(3개월 연율 ${pace.toFixed(1)}%, 전년 대비 ${yoy.toFixed(1)}%)` };
 }
 
 /** Core inflation direction from core PCE and core CPI, each on its newest release. Both must point the same way past
@@ -101,7 +101,7 @@ export function inflationDirection({ pce = null, cpi = null } = {}) {
   if (p && c) state = p.dir === c.dir ? p.dir : (p.dir !== 'flat' && c.dir !== 'flat') ? 'mixed' : 'flat';
   else if (parts.length === 1) state = parts[0].dir;
   const dir = state === 'up' || state === 'down' ? state : null;
-  const text = parts.map((row) => row.text).join(' · ');
+  const text = parts.map((row) => row.text).join(', ');
   return { dir, state, label: INFLATION_DIRECTION_LABELS[state], single: parts.length === 1, anyUp, pce: p, cpi: c,
     reaccelerating: parts.filter((row) => row.dir === 'up'), text };
 }
@@ -153,8 +153,8 @@ export function oilDivergence(check = null, { wti20 = check?.wti20 ?? null } = {
   const w20 = finite(wti20);
   if (check.abnormal) return { held: true, kind: 'abnormal', text: '같은 날 브렌트와 WTI 선물의 차이가 평소 범위를 크게 벗어나 유가 방향 판단을 보류합니다.' };
   if (check.basis !== 'futures' || brent20 == null || w20 == null) return none;
-  const pair = `20거래일 브렌트 ${signedText(brent20, 1, '%')} · WTI ${signedText(w20, 1, '%')}`;
-  const spreadMove = finite(check.spread20Back) != null && finite(check.spread) != null ? ` · 같은 날 차이 ${check.spread20Back.toFixed(1)}달러 → ${check.spread.toFixed(1)}달러` : '';
+  const pair = `20거래일 브렌트 ${signedText(brent20, 1, '%')}, WTI ${signedText(w20, 1, '%')}`;
+  const spreadMove = finite(check.spread20Back) != null && finite(check.spread) != null ? `, 같은 날 차이 ${check.spread20Back.toFixed(1)}달러 → ${check.spread.toFixed(1)}달러` : '';
   if (check.diverges) return { held: true, kind: 'brent-rise', text: `${pair}${spreadMove} — 국제 유가는 오르는데 WTI만 덜 올라 WTI로 유가 방향을 읽지 않습니다.` };
   const word = w20 < 0 ? '하락' : '상승';
   if (brent20 !== 0 && w20 !== 0 && Math.sign(brent20) !== Math.sign(w20)) {

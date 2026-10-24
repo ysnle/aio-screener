@@ -225,12 +225,12 @@ const compareTable = nodes.get('scr-compare-list').children[0];
 assert.equal(compareTable.getAttribute('aria-label'), '선택 종목 비교');
 // P1599 (F08): a metric with no value for any compared stock is listed once under the table instead of as an empty row.
 const prunedNote = nodes.get('scr-compare-list').children[1];
-const prunedCount = prunedNote ? String(prunedNote.textContent || '').split(':').pop().split(' · ').filter((item) => item.trim()).length : 0;
+const prunedCount = prunedNote ? String(prunedNote.textContent || '').split(':').pop().split(/, | · /).filter((item) => item.trim()).length : 0;
 assert(compareTable.children[1].children.length >= 1, 'comparison contains actual metric rows, not only ticker chips');
 assert.equal(compareTable.children[1].children.length + prunedCount, 8, 'every compared metric is either a row or named in the pruned note');
 assert(compareTable.textContent.includes('90') && compareTable.textContent.includes('60'));
 vm.runInContext("nativeCapCell = createColumnContent(documentRef, { mcap:null, nativeMarketCap:{ value:200000000000000, currency:'KRW', source:'fixture', observedAt:'2026-08-31', rightsId:'REVIEW_REQUIRED' } }, 'mcap', { readLiveData:()=>({}) }); blockedCapCell = createColumnContent(documentRef, { mcap:null, nativeMarketCap:{ value:200000000000000, currency:'KRW', rightsId:'BLOCKED' } }, 'mcap', { readLiveData:()=>({}) });", compareContext);
-assert.equal(compareContext.nativeCapCell.textContent, 'KRW 200.0T · 참고');
+assert.equal(compareContext.nativeCapCell.textContent, 'KRW 200.0T, 참고', 'P1599 v58.73 the native cap cell keeps its basis note (comma separator, owner 2026-10-23)');
 assert(compareContext.nativeCapCell.title.includes('USD 환산값이 없어'));
 assert.equal(compareContext.blockedCapCell, '—');
 assert(!screenerSource.includes('scr-position-sizer') && !read('index.html').includes('id="scr-position-sizer"'), 'unreachable USD-only position sizing panel retired instead of relabelling KRW prices');

@@ -29,7 +29,7 @@ function rotationQuadrant(item) {
   // v57.84 (owner decision 3-3): the settled quadrant (own-noise band + hysteresis), as on 테마 · 섹터.
   const base = QUADRANT[reading?.quadrant || item.quadrant];
   if (reading?.border) return { label: '판정 보류(기준선 부근)', tone: 'neutral', held: true, base: base.label, why: `상대강도가 100 부근(${reading.between} 사이)${reading.clause ? `이고 ${reading.clause.replace(/^ · /, '')}` : ''}` };
-  if (reading?.reversal) return { label: `${base.label} · ${reading.reversal === 'fell' ? '약화 중' : '반등 중'}`, tone: 'neutral', held: true, base: base.label, why: reading.clause.replace(/^ · /, '') };
+  if (reading?.reversal) return { label: `${base.label}, ${reading.reversal === 'fell' ? '약화 중' : '반등 중'}`, tone: 'neutral', held: true, base: base.label, why: reading.clause.replace(/^ · /, '') };
   return { ...base, held: false, base: base.label, why: '' };
 }
 
@@ -77,7 +77,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   // computed over only the SMA-reported subset (50·200일선 둘 다 있는 종목) is an undisclosed
   // denominator — publish the contained fraction beside every trend share.
   const trendContainedPct = total > 0 ? trendTotal / total * 100 : 0;
-  const trendBasisNote = trendContainedPct >= 100 ? '' : `(추세 판정 가능 보유액 ${trendContainedPct.toFixed(0)}% 기준 · 미판정 종목은 추세 분모에서 제외)`;
+  const trendBasisNote = trendContainedPct >= 100 ? '' : `(추세 판정 가능 보유액 ${trendContainedPct.toFixed(0)}% 기준, 미판정 종목은 추세 분모에서 제외)`;
   const weakest = known.filter((row) => trendState(row.data) === 'down').sort((a, b) => b.value - a.value);
   const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
   if (trendMix.length) {
@@ -93,7 +93,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
       : usDown > 0 ? ` 미국 시장 폭이 좁은 지금은 미국 보유 중 하락 추세 종목(${usDown.toFixed(0)}%)이 지수보다 먼저 흔들리기 쉬운 환경입니다.`
         : ' 미국 시장 폭이 좁은 가운데 미국 보유 종목은 하락 추세에 있지 않습니다.';
     points.push({ id: 'trend', tone: up >= 60 ? 'favorable' : down >= 30 ? 'burden' : 'neutral', title: '보유 종목 추세',
-      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선이나 200일선과의 차이가 하루 평균 변동폭(최소 ${TREND_BUFFER_MIN_PCT}%) 안이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => `${row.symbol}(${(row.value / trendTotal * 100).toFixed(0)}%, 평가액의 ${(row.value / total * 100).toFixed(0)}%)`).join(' · ')}` : ''}.${breadthClause}` });
+      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선이나 200일선과의 차이가 하루 평균 변동폭(최소 ${TREND_BUFFER_MIN_PCT}%) 안이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => `${row.symbol}(${(row.value / trendTotal * 100).toFixed(0)}%, 평가액의 ${(row.value / total * 100).toFixed(0)}%)`).join(', ')}` : ''}.${breadthClause}` });
   }
 
   // v57.50 C24: one denominator and one classification with the 비중 · 섹터 배분 bars (surface.sectorBreakdown) — total
@@ -132,9 +132,9 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     const heldPct = heldRows.reduce((sum, row) => sum + usPct(row), 0);
     const krPct = sectorMix.reduce((sum, row) => sum + row.krValue, 0) / denom * 100;
     const krNote = krPct > 0 ? ` 한국 보유(${krPct.toFixed(0)}%)는 미국 섹터 회전으로 분류하지 않아 위 비율에서 빠집니다.` : '';
-    const heldNote = heldPct > 0 ? ` ${heldPct.toFixed(0)}%는 판정을 보류합니다 — ${heldRows.map((row) => `${row.label} ${row.pct.toFixed(0)}%: '${row.quadrant.base}' 사분면이지만 ${row.quadrant.why}`).join(' · ')}.` : '';
+    const heldNote = heldPct > 0 ? ` ${heldPct.toFixed(0)}%는 판정을 보류합니다 — ${heldRows.map((row) => `${row.label} ${row.pct.toFixed(0)}%: '${row.quadrant.base}' 사분면이지만 ${row.quadrant.why}`).join(', ')}.` : '';
     points.push({ id: 'rotation', tone: favourable === 0 && lagging === 0 ? 'neutral' : favourable >= lagging ? 'favorable' : 'burden', title: '섹터 회전과',
-      text: `${basisWord} 중 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다(약 50거래일 상대강도 기준) (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(' · ')}).${heldNote}${krNote}` });
+      text: `${basisWord} 중 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다(약 50거래일 상대강도 기준) (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(', ')}).${heldNote}${krNote}` });
   }
 
   // P1466: one decomposition answers both "how did the book do against its index" and "why".
@@ -155,10 +155,10 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const relativeBasisNote = attribution.available && attribution.coveredPct != null && attribution.coveredPct < 100 ? ` (수익률·비교 지수가 확인된 보유액 ${attribution.coveredPct.toFixed(0)}% 기준)` : '';
   if (attribution.available) {
     const gap = attribution.excessPct;
-    const parts = attribution.excess.filter((part) => Math.abs(part.pct) >= 0.05).map((part) => `${part.label} ${signed(part.pct, 1, '%p')}`).join(' · ');
+    const parts = attribution.excess.filter((part) => Math.abs(part.pct) >= 0.05).map((part) => `${part.label} ${signed(part.pct, 1, '%p')}`).join(', ');
     const lead = attribution.topStock[0];
     points.push({ id: 'relative', tone: gap >= 0 ? 'favorable' : 'burden', title: '지수 대비',
-      text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율 포함 · 현금은 수익률 0%로 계산) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
+      text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율 포함, 현금은 수익률 0%로 계산) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
   }
   // v57.81 (analysis audit 2026-10-15): the tally is the six US axes, so it is named as the US state, and its sentence
   // follows the overall label (부담 우세 at burden 3 · favourable 1 read "극단적이지 않아"). A book whose Korean part is at
@@ -174,7 +174,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
         : overall === '양호 우세' || overall === '다소 양호' ? '양호한 지표가 많아, 하락 추세 보유 종목은 시장보다 종목 자체의 이유를 먼저 확인할 국면입니다.'
           : krLine ? '미국 지표는 엇갈립니다.' : '미국 지표가 엇갈려 지수 방향보다 보유 종목별 추세가 더 많은 것을 말해 주는 국면입니다.';
     points.push({ id: 'market', tone: burdenSide || krLine?.tone === 'burden' ? 'burden' : 'neutral', title: '시장 환경',
-      text: `미국 시장 상태(6개 지표)는 ‘${overall}’(양호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})입니다. ${usSentence}${krLine ? ` ${krLine.text}` : ''}` });
+      text: `미국 시장 상태(6개 지표)는 ‘${overall}’(양호 ${regime.counts.favorable}, 부담 ${regime.counts.burden})입니다. ${usSentence}${krLine ? ` ${krLine.text}` : ''}` });
   } else if (krLine) {
     points.push({ id: 'market', tone: krLine.tone, title: '시장 환경', text: krLine.text });
   }
@@ -185,19 +185,19 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const unpricedNote = unpriced ? `(가격을 아직 못 받은 ${unpriced}종목 제외)` : '';
   const plainBasis = trendContainedPct >= 99.5
     ? (unpriced ? `가격을 확인한 보유분${unpricedNote} 기준으로` : '보유 종목 전체 기준으로')
-    : `추세를 확인한 보유분(평가액의 ${trendContainedPct.toFixed(0)}%${unpriced ? ` · 가격 미확인 ${unpriced}종목 제외` : ''}) 기준으로`;
+    : `추세를 확인한 보유분(평가액의 ${trendContainedPct.toFixed(0)}%${unpriced ? `, 가격 미확인 ${unpriced}종목 제외` : ''}) 기준으로`;
   const upPct = trendMix.find((row) => row.state === 'up')?.pct;
   const downPct = trendMix.find((row) => row.state === 'down')?.pct;
   const nearPct = trendMix.find((row) => row.state === 'near')?.pct;
   // v57.84 review: the mix names the remainder (조정·반등) so the shares add up, and the 3-month line says it is the
   // current holdings looked back on, not the account's own track record.
   const otherPct = trendMix.length ? Math.max(0, 100 - (upPct || 0) - (downPct || 0) - (nearPct || 0)) : 0;
-  const headline = [trendMix.length ? `${plainBasis} ${(upPct || 0).toFixed(0)}%는 오르는 흐름(50·200일선 위), ${(downPct || 0).toFixed(0)}%는 내리는 흐름입니다${otherPct >= 1 ? ` · 조정·반등 ${otherPct.toFixed(0)}%` : ''}${nearPct > 0 ? `(${nearPct.toFixed(0)}%는 선 근처라 판정 보류)` : ''}.` : null,
+  const headline = [trendMix.length ? `${plainBasis} ${(upPct || 0).toFixed(0)}%는 오르는 흐름(50·200일선 위), ${(downPct || 0).toFixed(0)}%는 내리는 흐름입니다${otherPct >= 1 ? `, 조정·반등 ${otherPct.toFixed(0)}%` : ''}${nearPct > 0 ? `(${nearPct.toFixed(0)}%는 선 근처라 판정 보류)` : ''}.` : null,
     book3 != null && bench3 != null ? `지금 구성으로 계산하면 최근 3개월은 지수보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
     regime?.available ? `미국 시장 상태는 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
   const next = [];
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 요약·차트' });
-  next.push({ route: 'themes', label: '테마 · 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });
+  next.push({ route: 'themes', label: '테마와 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });
   next.push({ route: 'signal', label: '시장 상태', why: '부담 지표가 무엇이고 무엇이 바뀌면 완화되는지' });
   return { available: true, total, headline, points, trendMix, sectorMix, attribution, excluded, excludedValue, containedPct: trendContainedPct, next };
 }

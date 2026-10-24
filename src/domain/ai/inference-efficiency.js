@@ -49,35 +49,35 @@ export const AI_INFRASTRUCTURE_REFERENCE_LENSES = Object.freeze([
     id: 'token-demand-relay',
     label: '토큰 수요 릴레이',
     thesis: '사용자 수요와 사용자당 토큰량이 늘면 학습보다 추론 workload·메모리·전력·검증 수요가 순차적으로 커질 수 있습니다.',
-    observe: 'query mix · tokens/user · prefill/decode 비중 · utilization · verification latency',
+    observe: 'query mix, tokens/user, prefill/decode 비중, utilization, verification latency',
     invalidation: '토큰 수요가 정체되거나 workload가 memory-bound가 아니며, utilization·현금흐름이 CAPEX를 따라가지 못하는 경우'
   }),
   Object.freeze({
     id: 'query-shape-economics',
     label: '질의 형태별 경제성',
     thesis: '실시간·장문·대량배치·에이전트 질의는 latency·bandwidth·KV cache·전력 요구가 다르므로 GPU 수요를 단일 FLOPS로 해석하지 않습니다.',
-    observe: 'latency · memory bandwidth · KV cache traffic · energy/query · batch size · TCO',
+    observe: 'latency, memory bandwidth, KV cache traffic, energy/query, batch size, TCO',
     invalidation: '동일 workload·precision·system boundary에서 비용·전력·지연 차이가 재현되지 않는 경우'
   }),
   Object.freeze({
     id: 'memory-hierarchy-option',
     label: '메모리 계층 옵션',
     thesis: 'HBM·SRAM·고대역폭 플래시·eSSD는 경쟁재라기보다 prefill/KV/decode와 용량·지연 요구에 따른 계층 선택지입니다.',
-    observe: 'qualification · yield · capacity/bit · read/write path · customer adoption · supply allocation',
+    observe: 'qualification, yield, capacity/bit, read/write path, customer adoption, supply allocation',
     invalidation: '표준화·qualification·양산·고객 채택이 이어지지 않거나, 데이터 이동 이득이 시스템 TCO를 개선하지 못하는 경우'
   }),
   Object.freeze({
     id: 'capex-financing-durability',
     label: 'CAPEX·자금 지속성',
     thesis: 'AI 인프라 수요가 매출로 전환되는 속도보다 감가상각·이자·채권 발행이 빨라지면 성장 서사가 자금조달 위험으로 바뀔 수 있습니다.',
-    observe: 'OCF/FCF · capex/depreciation · interest coverage · debt maturity · rental spread · dilution',
+    observe: 'OCF/FCF, capex/depreciation, interest coverage, debt maturity, rental spread, dilution',
     invalidation: '계약·사용량·현금흐름이 CAPEX와 조달비용을 충분히 흡수하고, 재융자·고객집중 위험이 낮아지는 경우'
   }),
   Object.freeze({
     id: 'physical-ai-deployment',
     label: 'Physical AI 배치 검증',
     thesis: '휴머노이드·로봇은 발표·펀딩·파일럿을 실제 생산성으로 동일시하지 않고 운영시간과 개입률로 검증합니다.',
-    observe: 'autonomous hours · interventions/hour · task success · cycle time · uptime · repair time · supervision ratio',
+    observe: 'autonomous hours, interventions/hour, task success, cycle time, uptime, repair time, supervision ratio',
     invalidation: '파일럿이 반복 생산·안전·유지보수·단위원가 개선으로 이어지지 않는 경우'
   })
 ]);
@@ -119,9 +119,9 @@ export const AI_INFERENCE_ARCHITECTURE_REFERENCE = Object.freeze({
 // names are intentionally not copied into the live ticker universe: identity,
 // contract, qualification and current exposure require primary verification.
 export const AI_HARDWARE_SUPPLY_CHAIN_REFERENCE = Object.freeze([
-  Object.freeze({ id: 'compute-tray', label: 'Compute tray', roles: 'substrate · HDI PCB · CCL · copper foil · fiber glass · resin', question: '세대별 layer·loss·재료 사양 변화가 어느 공급단계의 병목으로 전이되는가?' }),
-  Object.freeze({ id: 'nvswitch-tray', label: 'NVSwitch tray', roles: 'HDI/HLC PCB · CCL · copper foil · optical/electrical interconnect', question: '스위치 fabric과 scale-up 네트워크가 compute tray와 다른 콘텐츠를 만드는가?' }),
-  Object.freeze({ id: 'midplane', label: 'Midplane', roles: 'high-layer PCB · low-loss CCL · connector/interconnect', question: '랙 확장 시 PCB 층수·저손실 소재·조립 qualification이 공급 제약이 되는가?' }),
+  Object.freeze({ id: 'compute-tray', label: 'Compute tray', roles: 'substrate, HDI PCB, CCL, copper foil, fiber glass, resin', question: '세대별 layer·loss·재료 사양 변화가 어느 공급단계의 병목으로 전이되는가?' }),
+  Object.freeze({ id: 'nvswitch-tray', label: 'NVSwitch tray', roles: 'HDI/HLC PCB, CCL, copper foil, optical/electrical interconnect', question: '스위치 fabric과 scale-up 네트워크가 compute tray와 다른 콘텐츠를 만드는가?' }),
+  Object.freeze({ id: 'midplane', label: 'Midplane', roles: 'high-layer PCB, low-loss CCL, connector/interconnect', question: '랙 확장 시 PCB 층수·저손실 소재·조립 qualification이 공급 제약이 되는가?' }),
   Object.freeze({ id: 'qualification-gate', label: 'Qualification gate', roles: 'sample → validation → yield → volume → customer mix', question: '기술 표가 매출·마진·FCF로 전환됐다는 공식 증거가 존재하는가?' })
 ]);
 

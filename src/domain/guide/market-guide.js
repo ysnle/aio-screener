@@ -42,7 +42,7 @@ function evidenceOf(item) {
     : { same: '시장 가격도 이쪽', against: '시장 가격은 반대쪽', neutral: '시장 가격은 중립' }[item.pricing?.tone] || null;
   // Owner 2026-10-19: one reading of the past frequency (analogs.js pastEvidence) — a share only where it differs from the base.
   const e = pastEvidence(item.past);
-  const past = e.informative ? `과거 비슷한 때 ${e.n}번 중 ${e.sharePct}% 상승 · 전체 기준선 ${e.baseUpPct}%${e.small ? ' (표본이 작음)' : ''}`
+  const past = e.informative ? `과거 비슷한 때 ${e.n}번 중 ${e.sharePct}% 상승, 전체 기준선 ${e.baseUpPct}%${e.small ? ' (표본이 작음)' : ''}`
     : e.informative === false ? `과거 비슷한 때 ${e.n}번 — 전체 기준선(${e.baseUpPct}%)과 구별되지 않음`
       : e.n ? `과거 비슷한 때 ${e.n}번 — 표본이 작아 비율로 말하지 않음` : null;
   return { fit: item.fit, pricing, past };
@@ -139,7 +139,7 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   const decides = nextEvent ? [...live, ...watch].filter((path) => path.triggers.some((t) => t.id === nextEvent.id)).map((path) => path.short) : [];
   const counts = regime.counts || {};
   const situation = [
-    { id: 'health', label: '시장 체력', text: `미국 6개 지표 ${regime.overall} (양호 ${counts.favorable ?? 0} · 중립 ${counts.neutral ?? 0} · 부담 ${counts.burden ?? 0}) — ${OVERALL_MEANING[regime.overall] || ''}`.trim() },
+    { id: 'health', label: '시장 체력', text: `미국 6개 지표 ${regime.overall} (양호 ${counts.favorable ?? 0}, 중립 ${counts.neutral ?? 0}, 부담 ${counts.burden ?? 0}) — ${OVERALL_MEANING[regime.overall] || ''}`.trim() },
     { id: 'flow', label: '지금 흐름', text: flow ? `'${flow.title}' (${flow.fit}) — ${String(flow.posture || '').split(/(?<=니다\.)\s+/)[0]}` : outlook?.headline || '시장 흐름을 판단할 관측이 부족합니다.' },
     { id: 'driver', label: '움직이는 힘', text: leadPath ? `'${leadPath.short}' 쪽 조건이 가장 많이 맞습니다(${leadPath.fit})${leadPath.title.includes(' — ') ? ` — ${leadPath.title.split(' — ')[1]}입니다` : ''}.` : crossroads?.headline || '거시 시나리오 판단을 보류합니다.' },
     { id: 'next', label: '다음 갈림길', text: nextEvent ? `${md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("'·'")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.' }

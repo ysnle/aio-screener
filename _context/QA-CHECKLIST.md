@@ -1,8 +1,13 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-23
+last_verified: 2026-10-24
 confidence: medium
 ---
+
+## v58.73 UI v58.73 (2026-10-24)
+
+- [x] QA-UI-RADIX-01: v58.73: 라이트 모드 색 글자(11단계)는 gold-1 카드 위에, 색 칩은 3단계 배경에 12단계 글자를 써 WCAG AA를 지킨다(P1758 게이트가 radix-colors.css 값을 풀어 검사). verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-MODEL-SELFCHECK-01: v58.73: 두 모델 검사(history 세션·해설 수명주기)는 검사 대상 함수의 코드가 바뀌면 --sync 전까지 실패하고, 과거 결함·가드 제거 변형(P2011·P2000·P1986 이전 코드 등 6개)을 매 실행마다 잡아야 통과한다. verify_by: node scripts/ci-history-session-model-check.mjs && node scripts/ci-narrative-lifecycle-model-check.mjs
 
 ## v58.72 데이터 v58.72 (2026-10-23)
 

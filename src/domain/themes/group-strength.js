@@ -47,7 +47,7 @@ export function heavyweightLine(group, nameOf = (member) => member.name || membe
   if (middle == null || Math.abs(middle - group.ret1m) < 5) return '';
   const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
   const opposite = Math.sign(middle) !== Math.sign(group.ret1m);
-  return `거래대금 상위 ${heavy.length}종목의 1개월 수익률 중앙값은 ${pct(middle)}(${heavy.map((member) => `${nameOf(member)} ${pct(member.ret1m)}`).join(' · ')})로, 동일가중 테마 중앙값 ${pct(group.ret1m)}${opposite ? '와 방향이 반대입니다' : `보다 훨씬 ${middle < group.ret1m ? '약합니다' : '강합니다'}`} — 거래대금이 큰 종목의 움직임이 중앙값에 가려져 있습니다.`;
+  return `거래대금 상위 ${heavy.length}종목의 1개월 수익률 중앙값은 ${pct(middle)}(${heavy.map((member) => `${nameOf(member)} ${pct(member.ret1m)}`).join(', ')})로, 동일가중 테마 중앙값 ${pct(group.ret1m)}${opposite ? '와 방향이 반대입니다' : `보다 훨씬 ${middle < group.ret1m ? '약합니다' : '강합니다'}`} — 거래대금이 큰 종목의 움직임이 중앙값에 가려져 있습니다.`;
 }
 
 function rankBy(groups, key) {

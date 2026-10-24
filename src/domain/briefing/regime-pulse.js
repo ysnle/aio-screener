@@ -7,7 +7,7 @@ export function regimePulse(summary) {
   const counts = summary.counts || {};
   return {
     value: overall,
-    label: `부담 ${counts.burden || 0} · 양호 ${counts.favorable || 0}${summary.asOf ? ` · ${String(summary.asOf).slice(5).replace('-', '/')} 종가` : ''}`,
+    label: `부담 ${counts.burden || 0}, 양호 ${counts.favorable || 0}${summary.asOf ? `, ${String(summary.asOf).slice(5).replace('-', '/')} 종가` : ''}`,
     color: /부담/.test(overall) ? 'var(--data-red)' : /양호/.test(overall) ? 'var(--data-green)' : 'var(--data-amber)'
   };
 }

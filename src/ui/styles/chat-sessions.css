@@ -1,29 +1,29 @@
 /* Owner 2026-10-14: saved conversations in the AI panel (src/ui/components/chat-sessions.js). */
 #ai-panel .ai-session-controls { display: inline-flex; gap: 6px; margin-left: auto; }
 #ai-panel .ai-session-controls + .ai-ph-close { margin-left: 4px; }
-#ai-panel .ai-session-head-btn { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); font-size: 12px; padding: 4px 9px; border-radius: 4px; cursor: pointer; min-height: 28px; }
+#ai-panel .ai-session-head-btn { background: transparent; border: 0.5px solid var(--border); color: var(--text-secondary); font-size: 12px; padding: 4px 9px; border-radius: 4px; cursor: pointer; min-height: 28px; }
 #ai-panel .ai-session-head-btn:hover, #ai-panel .ai-session-head-btn[aria-expanded="true"] { color: var(--text-primary); border-color: var(--text-secondary); background: var(--bg-elevated); }
-#ai-panel .ai-session-consent { margin: 0 14px 8px; flex-shrink: 0; border: 1px solid var(--border); border-left: 3px solid var(--text-primary); border-radius: 6px; padding: 10px 12px; background: var(--bg-elevated); }
+#ai-panel .ai-session-consent { margin: 0 14px 8px; flex-shrink: 0; border: 0.5px solid var(--border);  border-radius: 8px; padding: 10px 12px; background: var(--bg-elevated); }
 #ai-panel .ai-session-consent-title { margin: 0 0 4px; font-weight: 700; font-size: 14px; color: var(--text-primary); }
-#ai-panel .ai-session-consent-body { margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+#ai-panel .ai-session-consent-body { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 #ai-panel .ai-session-actions { display: flex; gap: 8px; margin-top: 8px; }
-#ai-panel .ai-session-btn { background: transparent; border: 1px solid var(--border); color: var(--text-primary); font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer; min-height: 32px; }
+#ai-panel .ai-session-btn { background: transparent; border: 0.5px solid var(--border); color: var(--text-primary); font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; min-height: 32px; }
 #ai-panel .ai-session-btn.is-primary { background: var(--text-primary); color: var(--bg-surface); border-color: var(--text-primary); }
-#ai-panel .ai-session-list { position: absolute; inset: 52px 0 0 0; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; flex-direction: column; z-index: 3; }
+#ai-panel .ai-session-list { position: absolute; inset: 52px 0 0 0; background: var(--bg-surface); border-top: 0.5px solid var(--border); display: flex; flex-direction: column; z-index: 3; }
 #ai-panel .ai-session-list[hidden] { display: none; }
-#ai-panel .ai-session-list-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); }
+#ai-panel .ai-session-list-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 0.5px solid var(--border-subtle); }
 #ai-panel .ai-session-list-title { margin: 0; font-size: 14px; color: var(--text-primary); }
 #ai-panel .ai-session-items { list-style: none; margin: 0; padding: 6px 8px; overflow-y: auto; flex: 1; }
-#ai-panel .ai-session-item { display: flex; align-items: center; gap: 6px; border-radius: 6px; }
+#ai-panel .ai-session-item { display: flex; align-items: center; gap: 6px; border-radius: 8px; }
 #ai-panel .ai-session-item.is-active { background: var(--bg-elevated); }
-#ai-panel .ai-session-open { flex: 1; min-width: 0; text-align: left; background: transparent; border: none; padding: 8px 8px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; border-radius: 6px; }
+#ai-panel .ai-session-open { flex: 1; min-width: 0; text-align: left; background: transparent; border: none; padding: 8px 8px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; border-radius: 8px; }
 #ai-panel .ai-session-open:hover { background: var(--bg-elevated); }
 #ai-panel .ai-session-title { font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #ai-panel .ai-session-meta { font-size: 12px; color: var(--text-muted); margin: 0; }
 #ai-panel .ai-session-delete { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 6px 8px; border-radius: 4px; min-height: 32px; white-space: nowrap; }
 #ai-panel .ai-session-delete:hover, #ai-panel .ai-session-delete[data-confirm="1"] { color: var(--data-red); }
-#ai-panel .ai-session-empty { padding: 18px 10px; font-size: 13px; color: var(--text-muted); }
-#ai-panel .ai-session-foot { border-top: 1px solid var(--border-subtle); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#ai-panel .ai-session-empty { padding: 18px 10px; font-size: 12px; color: var(--text-muted); }
+#ai-panel .ai-session-foot { border-top: 0.5px solid var(--border-subtle); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 /* The header holds the title, the two conversation controls and close on one line: the badge repeats the policy line
    below it, so it gives way; the title shortens before a button wraps. */
 #ai-panel .ai-ph { gap: 6px; }

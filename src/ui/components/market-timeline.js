@@ -17,7 +17,7 @@ function ensureSection(doc) {
   section.setAttribute('aria-labelledby', 'briefing-timeline-title');
   const heading = el(doc, 'h2', '시간대별 시황 ', 'briefing-h2');
   heading.id = 'briefing-timeline-title';
-  heading.append(el(doc, 'span', '한국 시간 06·12·18·24시 회차 · 지난 회차 보관', 'briefing-h2-note'));
+  heading.append(el(doc, 'span', '한국 시간 06·12·18·24시 회차, 지난 회차 보관', 'briefing-h2-note'));
   const rows = el(doc, 'div');
   rows.id = 'briefing-timeline-rows';
   section.append(heading, rows);
@@ -44,7 +44,7 @@ function headlineList(doc, rows) {
     const title = el(doc, href ? 'a' : 'span', `${row.unconfirmed ? '[미확인] ' : ''}${row.title}`, 'market-slot-news-title');
     if (href) { title.href = href; title.target = '_blank'; title.rel = 'noopener noreferrer'; }
     // Sources stay off the screen text (owner 2026-10-06): publisher and original title live in the hover.
-    title.title = [row.source, row.originalTitle].filter(Boolean).join(' · ');
+    title.title = [row.source, row.originalTitle].filter(Boolean).join(', ');
     item.append(time, title);
     list.append(item);
   }
@@ -70,7 +70,7 @@ function slotBody(doc, slot) {
   }
   if (slot.headlines.length) body.append(headlineList(doc, slot.headlines));
   else body.append(el(doc, 'p', slot.newsUnavailable ? '이 회차는 헤드라인 수집에 실패했습니다.' : '이 시간대에 수집된 주요 헤드라인이 없습니다.', 'briefing-empty'));
-  const foot = [slot.sealedAt ? `${slot.sealedAt} 집계` : null, slot.late ? '지연 집계 · 지표는 집계 시점 값' : null, slot.marksMissing ? '지표 기록 없음' : null].filter(Boolean).join(' · ');
+  const foot = [slot.sealedAt ? `${slot.sealedAt} 집계` : null, slot.late ? '지연 집계, 지표는 집계 시점 값' : null, slot.marksMissing ? '지표 기록 없음' : null].filter(Boolean).join(', ');
   if (foot) body.append(el(doc, 'p', foot, 'market-slot-foot'));
   return body;
 }
@@ -95,7 +95,7 @@ export function renderMarketTimeline({ documentRef: doc, root, nowMs = Date.now(
     const current = el(doc, 'div', null, 'market-slot is-current');
     const head = el(doc, 'div', null, 'market-slot-head');
     head.append(el(doc, 'span', '진행 중', 'market-slot-state'), el(doc, 'span', view.current.label, 'market-slot-label'),
-      el(doc, 'span', `${view.current.endLabel} 회차로 정리 예정${view.current.updatedAt ? ` · ${view.current.updatedAt} 기준` : ''}`, 'market-slot-meta'));
+      el(doc, 'span', `${view.current.endLabel} 회차로 정리 예정${view.current.updatedAt ? `, ${view.current.updatedAt} 기준` : ''}`, 'market-slot-meta'));
     current.append(head, view.current.headlines.length ? headlineList(doc, view.current.headlines) : el(doc, 'p', '아직 이 시간대의 주요 헤드라인이 없습니다.', 'briefing-empty'));
     nodes.push(current);
   }
@@ -110,7 +110,7 @@ export function renderMarketTimeline({ documentRef: doc, root, nowMs = Date.now(
       first = false;
       const summary = el(doc, 'summary', null, 'market-slot-head');
       summary.append(el(doc, 'span', `${slot.endLabel} 회차`, 'market-slot-state'), el(doc, 'span', slot.label, 'market-slot-label'),
-        el(doc, 'span', [`헤드라인 ${slot.headlines.length}건`, slot.moves[0] ? `${slot.moves[0].label} ${slot.moves[0].text}` : null].filter(Boolean).join(' · '), 'market-slot-meta'));
+        el(doc, 'span', [`헤드라인 ${slot.headlines.length}건`, slot.moves[0] ? `${slot.moves[0].label} ${slot.moves[0].text}` : null].filter(Boolean).join(', '), 'market-slot-meta'));
       details.append(summary, slotBody(doc, slot));
       nodes.push(details);
     }

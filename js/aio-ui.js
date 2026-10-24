@@ -113,8 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // 모델 가격과 환율은 시점 의존 데이터이므로 코드에 저장하지 않는다.
 // 비용 표시는 공급자 청구 내역을 연결하기 전까지 unavailable로 유지한다.
 const LLM_MODELS = {
-  luna: { id: 'gpt-6-luna', label: 'GPT-6 Luna', reasoningEffort: 'none' }, 'luna-low': { id: 'gpt-6-luna', label: 'GPT-6 Luna · 심층', reasoningEffort: 'low', thinking: true },
-  'luna-medium': { id: 'gpt-6-luna', label: 'GPT-6 Luna · 분석', reasoningEffort: 'medium', thinking: true } // v57.61: analysis/decision/comparison/outlook; medium reasoning adds ~2-5k output tokens (~$0.002)
+  luna: { id: 'gpt-6-luna', label: 'GPT-6 Luna', reasoningEffort: 'none' }, 'luna-low': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 심층', reasoningEffort: 'low', thinking: true },
+  'luna-medium': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 분석', reasoningEffort: 'medium', thinking: true } // v57.61: analysis/decision/comparison/outlook; medium reasoning adds ~2-5k output tokens (~$0.002)
 };
 // v31.3: 질문 복잡도 감지 → 모델 자동 선택
 function _detectQueryComplexity(query, ctxId) {
@@ -241,7 +241,7 @@ function getLLMRouteReadiness() {
     return { ready: true, reason: 'SHARED_WORKER', label: (health.health && health.health.ai && health.health.ai.budgetSaver && health.health.ai.budgetSaver.active && health.health.ai.budgetSaver.label) || '사용 가능' }; // P1759: month's last 20% → '예산 절약 모드 · 웹 검색 없이'
   }
   if (health && health.target && health.target.workerUrl === workerUrl && health.reason === 'WORKER_NOT_READY') {
-    return { ready: false, reason: 'WORKER_NOT_READY', label: 'AI 연결 안 됨 · 잠시 뒤 다시 시도' };
+    return { ready: false, reason: 'WORKER_NOT_READY', label: 'AI 연결 안 됨, 잠시 뒤 다시 시도' };
   }
   return { ready: false, reason: 'WORKER_NOT_CHECKED', label: '연결 확인 중' };
 }
@@ -304,17 +304,17 @@ function updateQuotaBadge() {
   // v57.77: AI is always on (P1653), so route readiness is the only gate — a missing route shows its label, never an OFF state.
   if (!route.ready) {
     // v58.56 (re-audit #26): the sidebar card is one line — the short state; the full sentence stays in the title.
-    if (swLabel) { swLabel.textContent = String(route.label || '').split(' · ')[0].replace(/^AI\s+/, ''); swLabel.title = route.label; swLabel.className = 'llm-switch-label'; }
+    if (swLabel) { swLabel.textContent = String(route.label || '').split(/ · |, /)[0].replace(/^AI\s+/, ''); swLabel.title = route.label; swLabel.className = 'llm-switch-label'; }
     if (capEl) capEl.textContent = '—';
     if (remEl) { remEl.textContent = '—'; remEl.className = 'llm-quota-val empty'; }
     if (progEl) { progEl.style.width = '0%'; progEl.className = 'llm-prog-fill empty'; }
     if (badge) badge.textContent = route.reason === 'NO_ROUTE' ? 'NO ROUTE' : '확인 필요';
     if (costEl) costEl.textContent = route.reason === 'NO_ROUTE' ? '운영자의 공용 AI 연결이 필요합니다.' : '공유 Worker 상태 확인 후 사용할 수 있습니다.';
-    if (hdrBadge) { hdrBadge.textContent = 'AI · ' + route.label; hdrBadge.style.color = 'var(--text-muted)'; hdrBadge.style.borderColor = 'var(--border)'; hdrBadge.style.background = 'var(--surface-3)'; }
+    if (hdrBadge) { hdrBadge.textContent = 'AI, ' + route.label; hdrBadge.style.color = 'var(--text-muted)'; hdrBadge.style.borderColor = 'var(--border)'; hdrBadge.style.background = 'var(--surface-3)'; }
     return;
   }
 
-  if (swLabel) { swLabel.textContent = String(route.label || '사용 가능').split(' · ')[0]; swLabel.title = route.label || '사용 가능'; swLabel.className = 'llm-switch-label on'; }
+  if (swLabel) { swLabel.textContent = String(route.label || '사용 가능').split(/ · |, /)[0]; swLabel.title = route.label || '사용 가능'; swLabel.className = 'llm-switch-label on'; }
   if (capEl)   capEl.textContent = dailyLimit + '회';
   if (modelEl) modelEl.textContent = '채팅·심층·번역 GPT-6 Luna';
 
@@ -334,12 +334,12 @@ function updateQuotaBadge() {
   if (hdrBadge) {
     // v50.13: 헤더 배지는 'AI · 모델'만 — 남은 횟수(remaining/dailyLimit)는 옆 #llm-quota가 단독 표시(중복 제거).
     const hdrText = overBudget > 0
-      ? 'AI 일일 한도 초과 · +' + overBudget + '회'
-      : 'AI · ' + model.label;
+      ? 'AI 일일 한도 초과, +' + overBudget + '회'
+      : 'AI, ' + model.label;
     hdrBadge.textContent = hdrText;
-    hdrBadge.style.color = grade === 'green' ? '#00bcd4' : grade === 'warn' ? '#ffa31a' : '#ff5b50';
-    hdrBadge.style.borderColor = grade === 'green' ? 'var(--accent-border)' : grade === 'warn' ? 'rgba(245,158,11,0.3)' : 'var(--data-red-soft)';
-    hdrBadge.style.background  = grade === 'green' ? 'var(--data-cyan-soft)' : grade === 'warn' ? 'rgba(245,158,11,0.12)' : 'var(--data-red-mid)';
+    hdrBadge.style.color = grade === 'green' ? 'var(--blue-11)' : grade === 'warn' ? 'var(--amber-11)' : 'var(--orange-11)';
+    hdrBadge.style.borderColor = grade === 'green' ? 'var(--accent-border)' : grade === 'warn' ? 'var(--amber-6)' : 'var(--data-red-soft)';
+    hdrBadge.style.background  = grade === 'green' ? 'var(--data-cyan-soft)' : grade === 'warn' ? 'var(--gold-3)' : 'var(--data-red-mid)';
   }
 }
 
@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saved && el) {
       el.value = '••••••••';
       el.dataset.secretStored = 'true';
-      el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + ' · 저장됨');
+      el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + ', 저장됨');
     }
   });
   // v30.11: Vault 상태 배지 초기화
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Update version badge
   const vb = document.getElementById('app-version-badge');
-  if (vb) vb.title = (typeof APP_VERSION !== 'undefined' ? APP_VERSION : vb.textContent.trim()) + ' · 확인: ' + dateStr; // P1624: identity tooltip must match the app, not a historical literal.
+  if (vb) vb.title = (typeof APP_VERSION !== 'undefined' ? APP_VERSION : vb.textContent.trim()) + ', 확인: ' + dateStr; // P1624: identity tooltip must match the app, not a historical literal.
 })();
 });
 
@@ -483,7 +483,7 @@ async function ghPollOnce() {
   if (!repo) { setGhStatus('— 미설정', ''); return; }
 
   const url = getVersionUrl(repo);
-  if (!url) { setGhStatus('경로 오류', '#ffa31a'); return; }
+  if (!url) { setGhStatus('경로 오류', '#ffa057'); return; }
 
   try {
     var _ghCtrl = new AbortController();
@@ -497,7 +497,7 @@ async function ghPollOnce() {
       const resetTs   = resp.headers.get('x-ratelimit-reset');
       if (remaining === '0' || remaining === 0) {
         const resetIn = resetTs ? Math.max(0, Math.ceil((Number(resetTs) * 1000 - Date.now()) / 60000)) : '?';
-        setGhStatus('Rate limit · ' + resetIn + '분 후 재시도', '#ffa31a');
+        setGhStatus('Rate limit, ' + resetIn + '분 후 재시도', '#ffa057');
         _ghFailCount++;
         _rescheduleGhPoll();
         return;
@@ -518,20 +518,20 @@ async function ghPollOnce() {
       // 최초 로드 — 현재 버전 기록
       _ghCurrentVersion = ver;
       const built = data.built ? new Date(data.built).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false,month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
-      setGhStatus('✓ ' + ver + (built ? ' · ' + built : ''), '#00e5a0');
+      setGhStatus('✓ ' + ver + (built ? ', ' + built : ''), '#3dd68c');
     } else if (ver !== _ghCurrentVersion) {
       // 버전 변경 감지!
-      setGhStatus(' ' + ver + ' (신규)', '#ffa31a');
+      setGhStatus(' ' + ver + ' (신규)', '#ffa057');
       showUpdateBanner(ver, data.built);
     } else {
       // 최신 상태
-      setGhStatus('✓ ' + ver + ' 최신', '#00e5a0');
+      setGhStatus('✓ ' + ver + ' 최신', '#3dd68c');
     }
   } catch(e) {
     _ghFailCount++;
     const isOffline = !navigator.onLine;
     const errMsg = isOffline ? ' 오프라인' : (' 연결 실패 (' + _ghFailCount + ')');
-    setGhStatus(errMsg, '#ff5b50');
+    setGhStatus(errMsg, '#ec5d5e');
     // v30.11: 지수 백오프 — 연속 실패 시 폴링 간격 증가
     _rescheduleGhPoll();
   }
@@ -556,7 +556,7 @@ function showUpdateBanner(newVer, builtTs) {
   if (textEl) textEl.textContent = ' 새 버전' + (newVer ? ' (' + newVer + ')' : '') + ' 이 배포되었습니다 — 클릭하여 새로고침';
   if (subEl && builtTs) {
     const d = new Date(builtTs).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false,month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-    subEl.textContent = `배포 시각 ${d} · 클릭하여 새로고침`;
+    subEl.textContent = `배포 시각 ${d}, 클릭하여 새로고침`;
   }
   banner.classList.add('show');
 }
@@ -602,7 +602,7 @@ window.addEventListener('online', () => {
   }
 });
 window.addEventListener('offline', () => {
-  setGhStatus(' 오프라인', '#ff5b50');
+  setGhStatus(' 오프라인', '#ec5d5e');
 });
 
 
@@ -680,7 +680,7 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
     layer.setAttribute('aria-live', 'polite');
     // layout lives in legacy-ui.css (#aio-refresh-progress-layer); display stays inline — T802 reads layer.style.display
     layer.style.display = 'none';
-    layer.innerHTML = '<div class="lu-rp-head"><div id="aio-refresh-progress-title">전체 데이터 최신화</div><div id="aio-refresh-progress-count" style="font-size:11px;font-family:var(--font-mono,monospace);color:var(--data-cyan,#00bcd4);">0/0</div></div><div class="lu-rp-track"><div id="aio-refresh-progress-bar"></div></div><div id="aio-refresh-progress-current" style="font-size:11px;color:var(--text-muted,#8b98a5);margin-bottom:8px;">대기 중</div><div id="aio-refresh-progress-list"></div>';
+    layer.innerHTML = '<div class="lu-rp-head"><div id="aio-refresh-progress-title">전체 데이터 최신화</div><div id="aio-refresh-progress-count" style="font-size:12px;font-family:var(--font-mono,monospace);color:var(--data-cyan,#4ccce6);">0/0</div></div><div class="lu-rp-track"><div id="aio-refresh-progress-bar"></div></div><div id="aio-refresh-progress-current" style="font-size:12px;color:var(--text-muted,#a39073);margin-bottom:8px;">대기 중</div><div id="aio-refresh-progress-list"></div>';
     document.body.appendChild(layer);
     return layer;
   }
@@ -697,11 +697,11 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
   }
 
   function statusColor(text) {
-    if (text === '완료') return 'var(--data-green,#00e5a0)';
-    if (text === '진행 중') return 'var(--data-cyan,#00bcd4)';
-    if (text === '스킵') return 'var(--data-amber,#ffa31a)';
-    if (text === '확인 필요') return 'var(--data-red,#ff5b50)';
-    return 'var(--text-muted,#8b98a5)';
+    if (text === '완료') return 'var(--data-green,#3dd68c)';
+    if (text === '진행 중') return 'var(--data-cyan,#4ccce6)';
+    if (text === '스킵') return 'var(--data-amber,#ffa057)';
+    if (text === '확인 필요') return 'var(--data-red,#ec5d5e)';
+    return 'var(--text-muted,#a39073)';
   }
 
   function render(detail) {
@@ -729,7 +729,7 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
     if (count) count.textContent = done + '/' + total;
     if (bar) {
       bar.style.width = pct + '%';
-      bar.style.background = failed ? 'var(--data-amber,#ffa31a)' : 'var(--data-cyan,#00bcd4)';
+      bar.style.background = failed ? 'var(--data-amber,#ffa057)' : 'var(--data-cyan,#4ccce6)';
     }
     if (current) {
       current.textContent = active
@@ -749,7 +749,7 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
       (lastKeys.length ? lastKeys : Object.keys(byKey)).forEach(function(key) {
         var txt = statusText(key, detail, byKey);
         var row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;border-top:1px solid rgba(255,255,255,.06);padding-top:4px;';
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;border-top:0.5px solid var(--white-a1);padding-top:4px;';
         var name = document.createElement('span');
         name.textContent = labels[key] || key;
         var state = document.createElement('span');
@@ -1088,7 +1088,7 @@ function _itbNum(v, digits) {
 
 function _itbBadge(label, tone) {
   var color = tone === 'risk' ? 'var(--data-red)' : tone === 'warn' ? 'var(--data-amber)' : tone === 'bull' ? 'var(--data-green)' : 'var(--data-cyan)';
-  return '<span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;background:' + color + '1f;color:' + color + ';border:1px solid ' + color + '55;font-size:10px;font-weight:800;">' + escHtml(label) + '</span>';
+  return '<span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;background:' + color + '1f;color:' + color + ';border:0.5px solid ' + color + '55;font-size:12px;font-weight:800;">' + escHtml(label) + '</span>';
 }
 
 function _itbActionTone(action) {
@@ -1135,8 +1135,8 @@ function renderDataQualityBadge(quality) {
   var label = quality.label || (confNum >= 80 ? 'HIGH' : confNum >= 55 ? 'MEDIUM' : confNum >= 30 ? 'LOW' : 'UNKNOWN');
   var tone = label === 'HIGH' ? 'bull' : label === 'MEDIUM' ? 'warn' : 'risk';
   var conf = confNum !== null ? ' ' + _itbNum(confNum, 0) + '%' : '';
-  var source = quality.source ? ' · ' + quality.source : '';
-  return _itbBadge('Data ' + label + conf, tone) + '<span style="font-size:10px;color:var(--text-muted);margin-left:6px;">' + escHtml((quality.freshness || 'UNKNOWN') + source) + '</span>';
+  var source = quality.source ? ', ' + quality.source : '';
+  return _itbBadge('Data ' + label + conf, tone) + '<span style="font-size:12px;color:var(--text-muted);margin-left:6px;">' + escHtml((quality.freshness || 'UNKNOWN') + source) + '</span>';
 }
 
 
@@ -1595,8 +1595,8 @@ window._aioDiagram = (function () {
     ];
     var W = 400, H = 192, out = '';
     out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '팩터 과거 검증 · 순위와 수익률의 같은 방향 정도', C.text, 10, 700);
-    out += _t(W - 14, 18, hasSample ? 'n=' + n : (n === 0 ? 'n=0 · 표본 없음' : 'n 미수신'), C.muted, 10, 400, 'end');
+    out += _t(14, 18, '팩터 과거 검증, 순위와 수익률의 같은 방향 정도', C.text, 10, 700);
+    out += _t(W - 14, 18, hasSample ? 'n=' + n : (n === 0 ? 'n=0, 표본 없음' : 'n 미수신'), C.muted, 10, 400, 'end');
     factors.forEach(function (f, i) {
       var v = num(ic[f.key]);
       var measured = hasSample && v != null;
@@ -1616,10 +1616,10 @@ window._aioDiagram = (function () {
     });
     out += _r(14, H - 46, 180, 36, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
     out += _t(20, H - 29, '분위 스프레드', C.muted, 10);
-    out += _t(20, H - 13, hasSample && spread != null ? _n(spread, 2) + '%' : '계산 불가 · 표본 없음', hasSample && spread != null ? (spread > 2 ? C.green : spread > 0 ? C.amber : C.red) : C.muted, hasSample && spread != null ? 12 : 10, 700);
+    out += _t(20, H - 13, hasSample && spread != null ? _n(spread, 2) + '%' : '계산 불가, 표본 없음', hasSample && spread != null ? (spread > 2 ? C.green : spread > 0 ? C.amber : C.red) : C.muted, hasSample && spread != null ? 12 : 10, 700);
     out += _r(204, H - 46, 180, 36, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
     out += _t(210, H - 29, '방향 적중률', C.muted, 10);
-    out += _t(210, H - 13, hasSample && hit != null ? _n(hit, 1) + '%' : '계산 불가 · 표본 없음', hasSample && hit != null ? (hit > 55 ? C.green : hit > 45 ? C.amber : C.red) : C.muted, hasSample && hit != null ? 12 : 10, 700);
+    out += _t(210, H - 13, hasSample && hit != null ? _n(hit, 1) + '%' : '계산 불가, 표본 없음', hasSample && hit != null ? (hit > 55 ? C.green : hit > 45 ? C.amber : C.red) : C.muted, hasSample && hit != null ? 12 : 10, 700);
     return _svg(W, H, out);
   }
 
@@ -1642,14 +1642,14 @@ window._aioDiagram = (function () {
       if (typeof el === 'string') el = document.getElementById(el);
       if (!el) return;
       if (data && data.available === false) {
-        el.innerHTML = '<div style="color:var(--text-muted);font-size:11px;padding:12px">검증 입력 미수신 · 시각화 판정 보류</div>';
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:12px">검증 입력 미수신, 시각화 판정 보류</div>';
         el.setAttribute('data-source-kind', 'unavailable');
         el.setAttribute('data-operational-use', 'blocked');
         return;
       }
       var fn = _fns[type];
       if (!fn) {
-        el.innerHTML = '<div style="color:#5a7080;font-size:11px;padding:8px">다이어그램 없음: ' + _esc(type) + '</div>';
+        el.innerHTML = '<div style="color:var(--cyan-11);font-size:12px;padding:8px">다이어그램 없음: ' + _esc(type) + '</div>';
         return;
       }
       try { el.innerHTML = fn(data || {}); }
@@ -1941,7 +1941,7 @@ function _renderFundHeader(d) {
   var html = '<div class="lu-hd-row">';
   html += '<div class="lu-hd-name">';
   html += '<span class="lu-hd-title">' + escHtml(d.name || d.ticker) + '</span>';
-  html += '<span class="lu-hd-sub">' + escHtml(d.ticker) + (p.sector ? ' · ' + escHtml(p.sector) : '') + (p.exchangeShortName ? ' · ' + escHtml(p.exchangeShortName) : '') + '</span>';
+  html += '<span class="lu-hd-sub">' + escHtml(d.ticker) + (p.sector ? ', ' + escHtml(p.sector) : '') + (p.exchangeShortName ? ', ' + escHtml(p.exchangeShortName) : '') + '</span>';
   html += '</div>';
   html += '<div class="lu-hd-quote">';
   if (d.price) {
@@ -1991,9 +1991,9 @@ function _renderFundQualitative(d) {
       '<span class="lu-q-txt">' + text + '</span></div>';
   }
   var rowsHtml = '';
-  if (p.sector || p.industry) rowsHtml += qrow('섹터', escHtml(p.sector || '') + (p.industry ? ' · ' + escHtml(p.industry) : '') + (p.country ? ' · ' + escHtml(p.country) : ''));
-  if (p.ceo) rowsHtml += qrow('경영진', 'CEO ' + escHtml(p.ceo) + (p.fullTimeEmployees ? ' · 직원 ' + Number(p.fullTimeEmployees).toLocaleString() + '명' : ''));
-  if (p.ipoDate) rowsHtml += qrow('상장', escHtml(p.ipoDate) + ' 상장' + (p.exchangeShortName ? ' · ' + escHtml(p.exchangeShortName) : ''));
+  if (p.sector || p.industry) rowsHtml += qrow('섹터', escHtml(p.sector || '') + (p.industry ? ', ' + escHtml(p.industry) : '') + (p.country ? ', ' + escHtml(p.country) : ''));
+  if (p.ceo) rowsHtml += qrow('경영진', 'CEO ' + escHtml(p.ceo) + (p.fullTimeEmployees ? ', 직원 ' + Number(p.fullTimeEmployees).toLocaleString() + '명' : ''));
+  if (p.ipoDate) rowsHtml += qrow('상장', escHtml(p.ipoDate) + ' 상장' + (p.exchangeShortName ? ', ' + escHtml(p.exchangeShortName) : ''));
   rowsEl.innerHTML = rowsHtml;
 
   // 우측 — 가격 포지션 · 거래 강도: 시안의 막대-행 시각언어를 실제 52주 레인지/거래량 데이터로 채움
@@ -2021,7 +2021,7 @@ function _renderFundQualitative(d) {
     _pos = Math.max(0, Math.min(100, _pos));
     var _posColor = _pos > 75 ? 'var(--data-green)' : _pos < 25 ? 'var(--data-red)' : 'var(--data-amber)';
     var _posLabel = _pos > 90 ? '52주 고가 근접' : _pos > 75 ? '상단 구간' : _pos < 10 ? '52주 저가 근접' : _pos < 25 ? '하단 구간' : '중간 구간';
-    barsHtml += barRow('52주 레인지 ($' + _w52Low.toFixed(2) + ' ~ $' + _w52High.toFixed(2) + ')', _pos, _posLabel + ' · ' + _pos.toFixed(0) + '%', _posColor);
+    barsHtml += barRow('52주 레인지 ($' + _w52Low.toFixed(2) + ' ~ $' + _w52High.toFixed(2) + ')', _pos, _posLabel + ', ' + _pos.toFixed(0) + '%', _posColor);
   }
   if (_vol && _avgVol3M && _avgVol3M > 0) {
     var _volRatio = _vol / _avgVol3M;
@@ -2031,7 +2031,7 @@ function _renderFundQualitative(d) {
     else if (_volRatio < 0.5) { _volLabel = '거래량 저조'; _volColor = 'var(--text-muted)'; }
     else { _volLabel = '거래량 정상'; _volColor = 'var(--data-green)'; }
     var _vol10dRatio = (_avgVol10D && _avgVol10D > 0) ? (_vol / _avgVol10D) : null;
-    barsHtml += barRow('거래량 (3개월 평균 대비, 오늘 ' + Number(_vol).toLocaleString() + '주)', Math.min(100, _volRatio * 50), _volLabel + ' ' + _volRatio.toFixed(1) + 'x' + (_vol10dRatio != null ? ' · 10일 대비 ' + _vol10dRatio.toFixed(1) + 'x' : ''), _volColor);
+    barsHtml += barRow('거래량 (3개월 평균 대비, 오늘 ' + Number(_vol).toLocaleString() + '주)', Math.min(100, _volRatio * 50), _volLabel + ' ' + _volRatio.toFixed(1) + 'x' + (_vol10dRatio != null ? ', 10일 대비 ' + _vol10dRatio.toFixed(1) + 'x' : ''), _volColor);
   }
   if (p.mktCap) barsHtml += barRow('시가총액', 100, '$' + _fmtNum(p.mktCap), 'var(--text-primary)');
   barsEl.innerHTML = barsHtml || '<span class="lu-base-mut">가격 포지션 데이터 없음</span>';
@@ -2059,7 +2059,7 @@ function _renderFundSEC(d) {
       var date = s.filings.filingDate ? s.filings.filingDate[i] : '';
       var desc = s.filings.primaryDocDescription ? s.filings.primaryDocDescription[i] : '';
       var accession = s.filings.accessionNumber ? s.filings.accessionNumber[i] : '';
-      var formColor = form === '10-K' ? '#00e5a0' : form === '10-Q' ? '#00bcd4' : form === '8-K' ? '#ffa31a' : '#c084fc';
+      var formColor = form === '10-K' ? '#3dd68c' : form === '10-Q' ? '#4ccce6' : form === '8-K' ? '#ffa057' : '#baa7ff';
       html += '<div class="lu-filing">';
       // v48.91: SEC 공시 데이터 escHtml() 적용
       html += '<span class="lu-filing-form" style="color:' + formColor + ';">' + escHtml(form) + '</span>';
@@ -2129,13 +2129,13 @@ function _renderFundFinancials(d) {
   html += card('FCF Yield', m.freeCashFlowYield ? (m.freeCashFlowYield * 100).toFixed(1) + '%' : (sm.fcfYield != null ? (sm.fcfYield * 100).toFixed(1) + '%' : 'N/A'), '잉여현금흐름 수익률');
   html += card('EV/EBITDA', _fn(m.enterpriseValueOverEBITDA) !== null ? m.enterpriseValueOverEBITDA.toFixed(1) + 'x' : 'N/A', '기업가치 대비');
   html += card('P/B', _fn(m.pbRatio) !== null ? m.pbRatio.toFixed(2) + 'x' : (sm.pb != null ? sm.pb.toFixed(2) + 'x' : 'N/A'), '주가순자산비율');
-  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', (!r.debtEquityRatio && sm.debtBasis === 'noncurrent+current' ? '장·단기 차입금' : '장기부채') + ' ÷ 자기자본 · 업종마다 정상 범위가 다름');
+  html += card('부채비율', _fn(deVal) !== null ? deVal.toFixed(2) + 'x' : 'N/A', (!r.debtEquityRatio && sm.debtBasis === 'noncurrent+current' ? '장·단기 차입금' : '장기부채') + ' ÷ 자기자본, 업종마다 정상 범위가 다름');
   // P1164/B01: FMP profile이 없으면 배당 원천 자체가 미수신이다. 부재를 '0%'라는 실측값으로
   // 표시하지 않는다 — 실제 무배당(lastDiv===0)만 0.00%로 남는다.
   var hasDivValue = typeof p.lastDiv === 'number' && isFinite(p.lastDiv);
   var divYield = hasDivValue ? (d.price && d.price > 0 ? (p.lastDiv / d.price) * 100 : null) : null;
   html += card('배당수익률', divYield != null ? divYield.toFixed(2) + '%' : (hasDivValue ? 'N/A' : '미수신'), '연간 배당');
-  if (_missingCards.length) html += '<div class="lu-span-note">아직 받지 못한 항목: ' + _missingCards.join(' · ') + '</div>';
+  if (_missingCards.length) html += '<div class="lu-span-note">아직 받지 못한 항목: ' + _missingCards.join(', ') + '</div>';
 
   // Codex browser audit H38: provider/setup notes (API keys, release tags) are operator information, not analysis.
 
@@ -2148,12 +2148,12 @@ function _renderFundFinancials(d) {
     var qHtml = '<div class="lu-span-h">공시 기반 — 비용 구조와 운전자본</div>';
     if (lastRd && secRevVal) {
       var rdRatio = (lastRd / secRevVal) * 100;
-      qHtml += card('R&D 강도', rdRatio.toFixed(1) + '%', 'R&D / 매출' + (rdRatio > 15 ? ' · 고투자' : rdRatio > 5 ? ' · 양호' : ''), rdRatio > 15 ? '#00bcd4' : rdRatio > 5 ? '#00e5a0' : '#7b8599');
+      qHtml += card('R&D 강도', rdRatio.toFixed(1) + '%', 'R&D / 매출' + (rdRatio > 15 ? ', 고투자' : rdRatio > 5 ? ', 양호' : ''), rdRatio > 15 ? '#4ccce6' : rdRatio > 5 ? '#3dd68c' : '#978365');
     }
     if (lastSbc && secRevVal) {
       var sbcRatio = (lastSbc / secRevVal) * 100;
       // Codex browser audit H40: SBC/revenue is an expense share, not dilution — the share count shows dilution.
-      qHtml += card('주식 보상 비용 비중', sbcRatio.toFixed(1) + '%', '주식 보상 비용 ÷ 매출' + (sbcRatio > 10 ? ' · 높음' : sbcRatio > 3 ? ' · 중간' : '') + ' — 실제 희석은 주식 수 변화로 확인', sbcRatio > 10 ? '#ff5b50' : sbcRatio > 3 ? '#ffa31a' : '#00e5a0');
+      qHtml += card('주식 보상 비용 비중', sbcRatio.toFixed(1) + '%', '주식 보상 비용 ÷ 매출' + (sbcRatio > 10 ? ', 높음' : sbcRatio > 3 ? ', 중간' : '') + ' — 실제 희석은 주식 수 변화로 확인', sbcRatio > 10 ? '#ec5d5e' : sbcRatio > 3 ? '#ffa057' : '#3dd68c');
     }
     if (lastSga && secRevVal) qHtml += card('SG&A 비중', ((lastSga / secRevVal) * 100).toFixed(1) + '%', '판매관리비 / 매출');
     if (lastCash) qHtml += card('현금 포지션', cur + _fmtNum(lastCash), 'Cash & Equivalents');
@@ -2175,7 +2175,7 @@ function _renderFundFinancials(d) {
     function _rankCard(title, rr, unit) {
       if (!rr || rr.myVal == null) return '';
       var topPct = rr.pctile != null ? (100 - rr.pctile) : null;
-      var topColor = topPct != null && topPct <= 5 ? '#10b981' : topPct != null && topPct <= 25 ? '#00e5a0' : topPct != null && topPct <= 50 ? '#ffa31a' : '#ff5b50';
+      var topColor = topPct != null && topPct <= 5 ? '#33b074' : topPct != null && topPct <= 25 ? '#3dd68c' : topPct != null && topPct <= 50 ? '#ffa057' : '#ec5d5e';
       var topLabel = topPct != null ? ('상위 ' + topPct.toFixed(1) + '%') : '';
       var rankLabel = rr.rank != null ? ('Rank ' + rr.rank + ' / ' + rr.n) : '';
       var myValStr = (unit === 'USD' || !unit) ? '$' + _fmtNum(rr.myVal) : rr.myVal.toFixed(2) + (unit||'');
@@ -2213,7 +2213,7 @@ function _renderFundFinancials(d) {
     var recHtml = '<div class="lu-span-top">';
     recHtml += '<div class="lu-split10">';
     recHtml += '<div class="lu-h-base">애널리스트 컨센서스</div>';
-    if (_fhRec && _fhRec.period) recHtml += '<div class="lu-xs-mut">Finnhub · ' + _fhRec.period + '</div>';
+    if (_fhRec && _fhRec.period) recHtml += '<div class="lu-xs-mut">Finnhub, ' + _fhRec.period + '</div>';
     recHtml += '</div>';
 
     if (_fhRec) {
@@ -2234,13 +2234,13 @@ function _renderFundFinancials(d) {
         var _bullish = _sb + _b;
         var _bearish = _s + _ss;
         var _verdict, _verdictColor;
-        if (_bullish / _total >= 0.6) { _verdict = '매수 우세'; _verdictColor = '#10b981'; }
-        else if (_bullish / _total >= 0.4) { _verdict = '완만 매수'; _verdictColor = '#00e5a0'; }
-        else if (_bearish / _total >= 0.4) { _verdict = '매도 우세'; _verdictColor = '#ff5b50'; }
-        else { _verdict = '중립'; _verdictColor = '#ffa31a'; }
+        if (_bullish / _total >= 0.6) { _verdict = '매수 우세'; _verdictColor = '#33b074'; }
+        else if (_bullish / _total >= 0.4) { _verdict = '완만 매수'; _verdictColor = '#3dd68c'; }
+        else if (_bearish / _total >= 0.4) { _verdict = '매도 우세'; _verdictColor = '#ec5d5e'; }
+        else { _verdict = '중립'; _verdictColor = '#ffa057'; }
         recHtml += '<div class="lu-split6-sm">';
         recHtml += '<span class="lu-mut">총 ' + _total + '명 애널리스트</span>';
-        recHtml += '<span class="lu-verdict" style="background:' + _verdictColor + '22;border:1px solid ' + _verdictColor + ';color:' + _verdictColor + ';">' + _verdict + '</span>';
+        recHtml += '<span class="lu-verdict" style="background:' + _verdictColor + '22;border:0.5px solid ' + _verdictColor + ';color:' + _verdictColor + ';">' + _verdict + '</span>';
         recHtml += '</div>';
         // 누적 바 (height 22px)
         recHtml += '<div class="lu-rec-bar">';
@@ -2268,11 +2268,11 @@ function _renderFundFinancials(d) {
       var _tgtL = _ptC.targetLow != null ? _ptC.targetLow : null;
       if (_tgtC && d.price) {
         var _upside = ((_tgtC - d.price) / d.price * 100);
-        var _upColor = _upside >= 15 ? '#10b981' : _upside >= 0 ? '#00e5a0' : _upside >= -10 ? '#ffa31a' : '#ff5b50';
+        var _upColor = _upside >= 15 ? '#33b074' : _upside >= 0 ? '#3dd68c' : _upside >= -10 ? '#ffa057' : '#ec5d5e';
         recHtml += '<div class="lu-tgt-row">';
         recHtml += '<span class="lu-b-sec">FMP 목표가 컨센서스</span>';
         recHtml += '<span class="lu-tgt-v" style="color:' + _upColor + ';">$' + _tgtC.toFixed(2) + '</span>';
-        recHtml += '<span class="lu-tgt-up" style="background:' + _upColor + '22;border:1px solid ' + _upColor + ';color:' + _upColor + ';">' + (_upside >= 0 ? '+' : '') + _upside.toFixed(1) + '% upside</span>';
+        recHtml += '<span class="lu-tgt-up" style="background:' + _upColor + '22;border:0.5px solid ' + _upColor + ';color:' + _upColor + ';">' + (_upside >= 0 ? '+' : '') + _upside.toFixed(1) + '% upside</span>';
         if (_tgtH && _tgtL) recHtml += '<span class="lu-mut">범위 $' + _tgtL.toFixed(2) + ' ~ $' + _tgtH.toFixed(2) + '</span>';
         recHtml += '</div>';
       }
@@ -2299,9 +2299,9 @@ function _renderFundamentalFinancialsCharts(data) {
   var meta = document.getElementById('fund-fin-meta');
   if (meta) {
     if (data && data.available) {
-      meta.textContent = (data.dataSource || 'FMP') + ' · period=' + (data.period || 'quarter') + (data.latestQuarter ? (' · 기준일 ' + data.latestQuarter) : '');
+      meta.textContent = (data.dataSource || 'FMP') + ', period=' + (data.period || 'quarter') + (data.latestQuarter ? (', 기준일 ' + data.latestQuarter) : '');
     } else {
-      meta.textContent = (data && data.dataSource) ? (data.dataSource + ' · ' + (data.reason || '데이터 부재')) : '데이터 부재 — 외부 확인 권장';
+      meta.textContent = (data && data.dataSource) ? (data.dataSource + ', ' + (data.reason || '데이터 부재')) : '데이터 부재 — 외부 확인 권장';
     }
   }
 
@@ -2356,12 +2356,12 @@ function _renderFundamentalFinancialsCharts(data) {
   }
 
   var COLORS = {
-    rev: '#00bcd4', op: '#ffa31a', net: '#00e5a0',
-    opM: '#ffa31a', netM: '#00e5a0', roe: '#a855f7',
-    assets: '#ffa31a', liab: '#ff5b50', equity: '#00e5a0',
-    opCF: '#00e5a0', invCF: '#ff5b50', finCF: '#a855f7',
-    cash: '#00e5a0', curLiab: '#ffa31a', totLiab: '#ff5b50',
-    recv: '#7dd3fc', inv: '#00bcd4', curAssets: '#00e5a0'
+    rev: '#4ccce6', op: '#ffa057', net: '#3dd68c',
+    opM: '#ffa057', netM: '#3dd68c', roe: '#ab4aba',
+    assets: '#ffa057', liab: '#ec5d5e', equity: '#3dd68c',
+    opCF: '#3dd68c', invCF: '#ec5d5e', finCF: '#ab4aba',
+    cash: '#3dd68c', curLiab: '#ffa057', totLiab: '#ec5d5e',
+    recv: '#8ec8f6', inv: '#4ccce6', curAssets: '#3dd68c'
   };
 
   // ① Growth — Revenue/OpIncome/NetIncome (bar)
@@ -2381,14 +2381,14 @@ function _renderFundamentalFinancialsCharts(data) {
           { label: 'NetInc',  data: gNI.values,  backgroundColor: COLORS.net }
         ]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#d8d0bf', font: { size: 12 } } } }, scales: { x: { ticks: { color: '#b9a88d', font: { size: 12 } } }, y: { ticks: { color: '#b9a88d', font: { size: 12 }, callback: function(v){ return _fmt(v); } } } } }
     });
     if (window._aioChartRegistry) window._aioChartRegistry.register('fund-growth-chart', c1);
   }
   var tg = document.getElementById('fund-growth-table');
   if (tg) {
     tg.innerHTML = gRev.labels.map(function(lab, i){
-      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>R ' + _fmt(gRev.values[i]) + ' · O ' + _fmt(gOp.values[i]) + ' · N ' + _fmt(gNI.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>R ' + _fmt(gRev.values[i]) + ', O ' + _fmt(gOp.values[i]) + ', N ' + _fmt(gNI.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2409,14 +2409,14 @@ function _renderFundamentalFinancialsCharts(data) {
           { label: 'ROE',       data: pROE.values.map(function(v){return v!=null?v*100:null;}),  borderColor: COLORS.roe,  backgroundColor: 'transparent', tension: 0.3 }
         ]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return v.toFixed(1) + '%'; } } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#d8d0bf', font: { size: 12 } } } }, scales: { x: { ticks: { color: '#b9a88d', font: { size: 12 } } }, y: { ticks: { color: '#b9a88d', font: { size: 12 }, callback: function(v){ return v.toFixed(1) + '%'; } } } } }
     });
     if (window._aioChartRegistry) window._aioChartRegistry.register('fund-profitability-chart', c2);
   }
   var tp = document.getElementById('fund-profitability-table');
   if (tp) {
     tp.innerHTML = pOpM.labels.map(function(lab, i){
-      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>OpM ' + _pct(pOpM.values[i]) + ' · NM ' + _pct(pNetM.values[i]) + ' · ROE ' + _pct(pROE.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>OpM ' + _pct(pOpM.values[i]) + ', NM ' + _pct(pNetM.values[i]) + ', ROE ' + _pct(pROE.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2434,14 +2434,14 @@ function _renderFundamentalFinancialsCharts(data) {
         { label: 'Liab',   data: bL.values, backgroundColor: COLORS.liab },
         { label: 'Equity', data: bE.values, backgroundColor: COLORS.equity }
       ]},
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#d8d0bf', font: { size: 12 } } } }, scales: { x: { ticks: { color: '#b9a88d', font: { size: 12 } } }, y: { ticks: { color: '#b9a88d', font: { size: 12 }, callback: function(v){ return _fmt(v); } } } } }
     });
     if (window._aioChartRegistry) window._aioChartRegistry.register('fund-balance-chart', c3);
   }
   var tb = document.getElementById('fund-balance-table');
   if (tb) {
     tb.innerHTML = bA.labels.map(function(lab, i){
-      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>A ' + _fmt(bA.values[i]) + ' · L ' + _fmt(bL.values[i]) + ' · E ' + _fmt(bE.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>A ' + _fmt(bA.values[i]) + ', L ' + _fmt(bL.values[i]) + ', E ' + _fmt(bE.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2459,14 +2459,14 @@ function _renderFundamentalFinancialsCharts(data) {
         { label: 'Inv CF', data: cIn.values, backgroundColor: COLORS.invCF },
         { label: 'Fin CF', data: cFi.values, backgroundColor: COLORS.finCF }
       ]},
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#d8d0bf', font: { size: 12 } } } }, scales: { x: { ticks: { color: '#b9a88d', font: { size: 12 } } }, y: { ticks: { color: '#b9a88d', font: { size: 12 }, callback: function(v){ return _fmt(v); } } } } }
     });
     if (window._aioChartRegistry) window._aioChartRegistry.register('fund-cashflow-chart', c4);
   }
   var tc = document.getElementById('fund-cashflow-table');
   if (tc) {
     tc.innerHTML = cOp.labels.map(function(lab, i){
-      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>Op ' + _fmt(cOp.values[i]) + ' · Inv ' + _fmt(cIn.values[i]) + ' · Fin ' + _fmt(cFi.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>Op ' + _fmt(cOp.values[i]) + ', Inv ' + _fmt(cIn.values[i]) + ', Fin ' + _fmt(cFi.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2484,7 +2484,7 @@ function _renderFundamentalFinancialsCharts(data) {
         { label: 'Cur Liab', data: lCL.values,   borderColor: COLORS.curLiab, backgroundColor: 'transparent', tension: 0.3 },
         { label: 'Tot Liab', data: lTL.values,   borderColor: COLORS.totLiab, backgroundColor: 'transparent', tension: 0.3 }
       ]},
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#d8d0bf', font: { size: 12 } } } }, scales: { x: { ticks: { color: '#b9a88d', font: { size: 12 } } }, y: { ticks: { color: '#b9a88d', font: { size: 12 }, callback: function(v){ return _fmt(v); } } } } }
     });
     if (window._aioChartRegistry) window._aioChartRegistry.register('fund-liquidity-chart', c5a);
   }
@@ -2505,8 +2505,8 @@ function _renderFundamentalFinancialsCharts(data) {
   var tl = document.getElementById('fund-liquidity-table');
   if (tl) {
     tl.innerHTML = lCash.labels.map(function(lab, i){
-      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>Cash ' + _fmt(lCash.values[i]) + ' · CL ' + _fmt(lCL.values[i]) + ' · TL ' + _fmt(lTL.values[i]) + '</span></div>';
-    }).join('') + (curRatio != null ? '<div class="lu-ratio-note">Current Ratio: <strong>' + curRatio.toFixed(2) + 'x</strong> · ' + (curRatio >= 2 ? '강건' : curRatio >= 1 ? '정상' : '주의') + '</div>' : '');
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>Cash ' + _fmt(lCash.values[i]) + ', CL ' + _fmt(lCL.values[i]) + ', TL ' + _fmt(lTL.values[i]) + '</span></div>';
+    }).join('') + (curRatio != null ? '<div class="lu-ratio-note">Current Ratio: <strong>' + curRatio.toFixed(2) + 'x</strong>, ' + (curRatio >= 2 ? '강건' : curRatio >= 1 ? '정상' : '주의') + '</div>' : '');
   }
 
   // ⑥ Working Capital — Receivables/Inventory/CurAssets (line)
@@ -2523,14 +2523,14 @@ function _renderFundamentalFinancialsCharts(data) {
         { label: 'Inv',   data: wI.values, borderColor: COLORS.inv,       backgroundColor: 'transparent', tension: 0.3 },
         { label: 'CurA',  data: wA.values, borderColor: COLORS.curAssets, backgroundColor: 'transparent', tension: 0.3 }
       ]},
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 9 } } } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v){ return _fmt(v); } } } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#d8d0bf', font: { size: 12 } } } }, scales: { x: { ticks: { color: '#b9a88d', font: { size: 12 } } }, y: { ticks: { color: '#b9a88d', font: { size: 12 }, callback: function(v){ return _fmt(v); } } } } }
     });
     if (window._aioChartRegistry) window._aioChartRegistry.register('fund-workingcap-chart', c6);
   }
   var tw = document.getElementById('fund-workingcap-table');
   if (tw) {
     tw.innerHTML = wR.labels.map(function(lab, i){
-      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>R ' + _fmt(wR.values[i]) + ' · I ' + _fmt(wI.values[i]) + ' · CA ' + _fmt(wA.values[i]) + '</span></div>';
+      return '<div class="lu-ln-dot"><span>' + lab + '</span><span>R ' + _fmt(wR.values[i]) + ', I ' + _fmt(wI.values[i]) + ', CA ' + _fmt(wA.values[i]) + '</span></div>';
     }).join('');
   }
 
@@ -2547,7 +2547,7 @@ function _renderFundamentalFinancialsCharts(data) {
         '<div class="lu-val-tile-v" style="color:' + color + ';">' + (val != null && isFinite(val) ? Number(val).toFixed(2) + 'x' : '—') + '</div>' +
       '</div>';
     }
-    vcards.innerHTML = _vCard('P/E', pe, '#00bcd4') + _vCard('P/B', pb, '#ffa31a') + _vCard('P/S', ps, '#00e5a0');
+    vcards.innerHTML = _vCard('P/E', pe, '#4ccce6') + _vCard('P/B', pb, '#ffa057') + _vCard('P/S', ps, '#3dd68c');
   }
   var basis = document.getElementById('fund-calc-basis');
   if (basis) {
@@ -2586,7 +2586,7 @@ function _renderFundStatements(d) {
       r += '<td class="lu-td-lbl">' + label + '</td>';
       years.forEach(function(y) {
         var v = y[key];
-        var color = v != null && v < 0 ? '#ff5b50' : 'var(--text-primary)';
+        var color = v != null && v < 0 ? '#ec5d5e' : 'var(--text-primary)';
         r += '<td class="lu-td56" style="color:' + color + ';">' + (isCurrency ? '$' : '') + _fmtNum(v) + '</td>';
       });
       r += '</tr>';
@@ -2608,7 +2608,7 @@ function _renderFundStatements(d) {
       var prev = years[i-1].revenue;
       var cur = y.revenue;
       var growth = prev ? ((cur - prev) / Math.abs(prev) * 100) : 0;
-      var gc = growth >= 0 ? '#00e5a0' : '#ff5b50';
+      var gc = growth >= 0 ? '#3dd68c' : '#ec5d5e';
       html += '<td class="lu-td56-b" style="color:' + gc + ';">' + _fmtPct(growth) + '</td>';
     });
     html += '</tr>';
@@ -2683,7 +2683,7 @@ function _renderFundValuation(d) {
   var _eveb = _fv(mt.enterpriseValueOverEBITDATTM, ma.enterpriseValueOverEBITDA); html += valRow('EV/EBITDA', _eveb !== null ? _eveb.toFixed(1) + 'x' : 'N/A');
   var _evs = _fv(mt.evToSalesTTM, ma.evToSales); html += valRow('EV/Sales', _evs !== null ? _evs.toFixed(2) + 'x' : 'N/A');
   // Codex browser audit H39: two PEGs (here and the filing-based one above) use different growth inputs.
-  html += valRow('PEG (공급자 계산 · 성장률 기준 별도)', _fn(rt.pegRatioTTM) !== null ? rt.pegRatioTTM.toFixed(2) + 'x' : 'N/A');
+  html += valRow('PEG (공급자 계산, 성장률 기준 별도)', _fn(rt.pegRatioTTM) !== null ? rt.pegRatioTTM.toFixed(2) + 'x' : 'N/A');
   html += valRow('FCF Yield', _fn(mt.freeCashFlowYieldTTM) !== null ? (mt.freeCashFlowYieldTTM * 100).toFixed(1) + '%' : (_fn(ma.freeCashFlowYield) !== null ? (ma.freeCashFlowYield * 100).toFixed(1) + '%' : 'N/A'));
   html += '</div>';
 
@@ -2732,7 +2732,7 @@ function _renderFundEarnings(d) {
   // v48.10: 향후 어닝 일정 (Finnhub /calendar/earnings) — 수집만 하던 collected.finnhubEarnings UI 노출
   if (hasUpcoming) {
     html += '<div class="lu-mb10">';
-    html += '<div class="lu-h-sm">향후 어닝 일정 (Finnhub · v48.10)</div>';
+    html += '<div class="lu-h-sm">향후 어닝 일정 (Finnhub, v48.10)</div>';
     html += '<div class="lu-fit170">';
     d.finnhubEarnings.slice(0, 5).forEach(function(e) {
       var hourLabel = e.hour === 'bmo' ? '장전' : e.hour === 'amc' ? '장후' : e.hour === 'dmh' ? '장중' : '';
@@ -2758,7 +2758,7 @@ function _renderFundEarnings(d) {
     d.fmpSurprises.forEach(function(s) {
       var diff = s.actualEarningResult - s.estimatedEarning;
       var pct = s.estimatedEarning != null && isFinite(s.estimatedEarning) && s.estimatedEarning !== 0 ? (diff / Math.abs(s.estimatedEarning) * 100) : null; // no estimate: no figure, not 0%
-      var c = diff >= 0 ? '#00e5a0' : '#ff5b50';
+      var c = diff >= 0 ? '#3dd68c' : '#ec5d5e';
       var label = diff >= 0 ? 'Beat' : 'Miss';
       html += '<tr class="lu-bb2">';
       html += '<td class="lu-td6-lbl">' + (s.date||'') + '</td>';
@@ -2796,7 +2796,7 @@ function _renderFundNews(d) {
     html += '<div class="lu-news-body">';
     html += '<span class="lu-news-sum">' + summarySafe + '</span>';
     html += '</div>';
-    html += '<div class="lu-sm-mut-t3">' + sourceSafe + ' · ' + (n.date || '') + '</div>';
+    html += '<div class="lu-sm-mut-t3">' + sourceSafe + ', ' + (n.date || '') + '</div>';
     html += '</div>';
   });
   if (d.finnhubNews.length > 10) {
@@ -2967,7 +2967,7 @@ function _renderFundMultiPeriod(d) {
 
   // 데이터 소스 표시
   // Codex browser audit H38: say what the table covers and why a cell is empty, not which key is unset.
-  html += '<div class="lu-xs-mut-t6">연간 자료 · 최신 연도가 왼쪽 · 공시에서 얻지 못한 항목은 N/A</div>';
+  html += '<div class="lu-xs-mut-t6">연간 자료, 최신 연도가 왼쪽, 공시에서 얻지 못한 항목은 N/A</div>';
 
   body.innerHTML = html;
   el.style.display = 'block';
@@ -3116,7 +3116,7 @@ function _renderFundVariance(d) {
       html += '</tr>';
     });
     html += '</table></div>';
-    html += '<div class="lu-xs-mut-t5">마진 변화: bps(1%=100bps) · 소스: FMP Annual 손익계산서</div>';
+    html += '<div class="lu-xs-mut-t5">마진 변화: bps(1%=100bps), 소스: FMP Annual 손익계산서</div>';
   }
 
   body.innerHTML = html;
@@ -3137,16 +3137,16 @@ function _renderFundVariance(d) {
       var actuals = sorted2.map(function(s) { return s.actualEarningResult || 0; });
       var estimates = sorted2.map(function(s) { return s.estimatedEarning || 0; });
       var diffs2 = sorted2.map(function(s) { return s.actualEarningResult - s.estimatedEarning; });
-      var barColors = diffs2.map(function(dv) { return dv >= 0 ? 'rgba(0,229,160,0.75)' : 'rgba(255,91,80,0.75)'; });
+      var barColors = diffs2.map(function(dv) { return dv >= 0 ? 'rgba(61,214,140,0.75)' : 'rgba(236,93,94,0.75)'; });
       var ctx2 = (window._aioSetupCanvas) ? window._aioSetupCanvas(canvas, canvas.offsetWidth || 400, canvas.offsetHeight || 220) : canvas.getContext('2d');  // v48.96 P2-3: DPR
       var _newChart = new Chart(ctx2, {
         type: 'bar',
         data: {
           labels: labels,
           datasets: [
-            { label: '예상 EPS', data: estimates, type: 'line', borderColor: 'rgba(100,160,255,0.7)',
+            { label: '예상 EPS', data: estimates, type: 'line', borderColor: 'rgba(59,158,255,0.7)',
               backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 3],
-              pointRadius: 3, pointBackgroundColor: 'rgba(100,160,255,0.9)', tension: 0.3, order: 1 },
+              pointRadius: 3, pointBackgroundColor: 'rgba(59,158,255,0.9)', tension: 0.3, order: 1 },
             { label: '실제 EPS', data: actuals, backgroundColor: barColors,
               borderColor: barColors.map(function(c) { return c.replace('0.75', '1'); }),
               borderWidth: 1, borderRadius: 3, order: 2 }
@@ -3155,7 +3155,7 @@ function _renderFundVariance(d) {
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: {
-            legend: { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12 } },
+            legend: { display: true, labels: { color: '#b9a88d', font: { size: 12 }, boxWidth: 12 } },
             tooltip: { callbacks: { label: function(ctx3) {
               var idx = ctx3.dataIndex;
               if (ctx3.datasetIndex === 1) {
@@ -3167,8 +3167,8 @@ function _renderFundVariance(d) {
             }}}
           },
           scales: {
-            x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-            y: { ticks: { color: '#94a3b8', font: { size: 9 },
+            x: { ticks: { color: '#b9a88d', font: { size: 12 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#b9a88d', font: { size: 12 },
                    callback: function(v) { return '$' + v.toFixed(2); } },
                  grid: { color: 'rgba(255,255,255,0.06)' } }
           }
@@ -3214,7 +3214,7 @@ window.AIO = window.AIO || {};
     origX=r.left; origY=r.top;
     btn.style.cursor='grabbing';
     btn.style.transition='box-shadow .2s';
-    btn.style.boxShadow='0 6px 25px rgba(33,29,22,0.6)';
+    btn.style.boxShadow='0 6px 25px var(--black-a7)';
     e.preventDefault();
   }
   function onMove(e){
@@ -3233,7 +3233,7 @@ window.AIO = window.AIO || {};
     if(!isDragging) return;
     isDragging=false;
     btn.style.cursor='grab';
-    btn.style.boxShadow='0 4px 15px rgba(33,29,22,0.4)';
+    btn.style.boxShadow='0 4px 15px var(--black-a6)';
     if(!hasMoved) openGlossary();
   }
   btn.addEventListener('mousedown',onStart);
@@ -3275,7 +3275,7 @@ function openGlossary() {
   renderGlossaryCats();
   renderGlossaryItems('');
   var title = document.querySelector('#glossary-modal h2');
-  if (title) title.textContent = '투자 용어 사전 · ' + GLOSSARY.length + '개';
+  if (title) title.textContent = '투자 용어 사전, ' + GLOSSARY.length + '개';
   modal._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(modal, window._aioCloseGlossary) : null;
   searchInput.focus();
 }
@@ -3349,14 +3349,14 @@ function renderGlossaryItems(query) {
       html += '<p class="lu-gl-lead">' + escHtml(lead) + '</p>';
       if (parts) {
         parts.formulas.forEach(function(f) { html += '<div class="lu-gl-formula">' + escHtml(f) + '</div>'; });
-        if (parts.limits.length) html += '<p class="lu-gl-limits"><b>한계 · 주의</b> ' + escHtml(parts.limits.join(' ')) + '</p>';
+        if (parts.limits.length) html += '<p class="lu-gl-limits"><b>한계, 주의</b> ' + escHtml(parts.limits.join(' ')) + '</p>';
         if (parts.screens.length || parts.conceptId) {
           html += '<div class="lu-gl-used"><span class="lu-gl-used-label">이 개념이 쓰이는 화면</span>';
           parts.screens.forEach(function(s) { html += '<button type="button" class="lu-gl-route" data-action="_aioGlossaryOpenScreen" data-arg="' + escHtml(s.route) + '">' + escHtml(s.label) + '</button>'; });
-          if (parts.conceptId) html += '<button type="button" class="lu-gl-route" data-action="_aioGlossaryOpenConcept" data-arg="' + escHtml(parts.conceptId) + '">리서치 · 개념 사전</button>';
+          if (parts.conceptId) html += '<button type="button" class="lu-gl-route" data-action="_aioGlossaryOpenConcept" data-arg="' + escHtml(parts.conceptId) + '">리서치, 개념 사전</button>';
           html += '</div>';
         }
-        if (parts.basis) html += '<p class="lu-gl-basis">근거 · ' + escHtml(parts.basis) + '</p>';
+        if (parts.basis) html += '<p class="lu-gl-basis">근거, ' + escHtml(parts.basis) + '</p>';
       }
       html += '</div>';
       html += '</details>';
@@ -3429,7 +3429,7 @@ setTimeout(function() {
   // status 스팬류 (텍스트 짧은 단일 라인)
   ['earn-cal-status','risk-radar-status'].forEach(function(id){
     var s = document.getElementById(id);
-    if (s && /로딩 중|데이터 로딩/.test(s.textContent || '')) s.textContent = '불러오지 못했습니다 · 잠시 뒤 새로고침';
+    if (s && /로딩 중|데이터 로딩/.test(s.textContent || '')) s.textContent = '불러오지 못했습니다, 잠시 뒤 새로고침';
   });
 }, 15000);
 
@@ -3621,24 +3621,24 @@ function initKrVkospiChart() {
         borderColor: 'var(--data-red)',
         backgroundColor: function(ctx2) {
           var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-          g.addColorStop(0, 'rgba(177,58,48,0.30)');
-          g.addColorStop(1, 'rgba(177,58,48,0)');
+          g.addColorStop(0, 'rgba(181,69,72,0.3)');
+          g.addColorStop(1, 'rgba(181,69,72,0)');
           return g;
         },
         borderWidth: 2, tension: 0.3, fill: true,
         // v38.3 D4: 스파이크 포인트 강조 (최대값에만 점 표시)
         pointRadius: vkData.map(function(v) { return v === Math.max.apply(null, vkData) ? 5 : 0; }),
-        pointBackgroundColor: vkData.map(function(v) { return v === Math.max.apply(null, vkData) ? '#b13a30' : 'transparent'; }),
+        pointBackgroundColor: vkData.map(function(v) { return v === Math.max.apply(null, vkData) ? '#b54548' : 'transparent'; }),
         pointBorderColor: vkData.map(function(v) { return v === Math.max.apply(null, vkData) ? '#fff' : 'transparent'; }),
         pointBorderWidth: vkData.map(function(v) { return v === Math.max.apply(null, vkData) ? 2 : 0; }),
         pointHoverRadius: 4
       }, {
         label: '25 (공포)', data: Array(vkLabels.length).fill(25),
-        borderColor: 'rgba(177,58,48,0.35)', borderWidth: 1, borderDash: [3,3],
+        borderColor: 'rgba(181,69,72,0.35)', borderWidth: 1, borderDash: [3,3],
         pointRadius: 0, fill: false
       }, {
         label: '15 (안정)', data: Array(vkLabels.length).fill(15),
-        borderColor: 'rgba(34,117,76,0.35)', borderWidth: 1, borderDash: [3,3],
+        borderColor: 'rgba(47,124,87,0.35)', borderWidth: 1, borderDash: [3,3],
         pointRadius: 0, fill: false
       }]
     },
@@ -3648,14 +3648,14 @@ function initKrVkospiChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(251,249,245,0.95)', titleColor: '#211d16', bodyColor: '#57513f',
+          backgroundColor: 'rgba(250,249,242,0.95)', titleColor: '#1b1a17', bodyColor: '#544f46',
           titleFont: { size: 9 }, bodyFont: { size: 9 }, padding: 6, cornerRadius: 4,
           callbacks: { label: function(i) { return ' ' + i.dataset.label + ': ' + i.formattedValue; } }
         }
       },
       scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 8 }, border: { display: false } },
-        y: { min: 10, suggestedMax: Math.max.apply(null, vkData) * 1.1, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 } }, border: { display: false } }
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 12 }, maxTicksLimit: 8 }, border: { display: false } },
+        y: { min: 10, suggestedMax: Math.max.apply(null, vkData) * 1.1, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 12 } }, border: { display: false } }
       }
     }
   });
@@ -3689,7 +3689,7 @@ function calcKrHealthScore() {
       var trendTxt = kospiPct > 1 ? '상승 추세' : kospiPct > 0 ? '소폭 상승' : kospiPct > -1 ? '소폭 하락' : '하락 추세';
       trendEl.textContent = trendTxt + ' (' + (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%)';
       trendEl.style.color = kospiPct > 0 ? 'var(--data-green)' : kospiPct > -1 ? 'var(--data-amber)' : 'var(--data-red)';
-      trendEl.parentElement.style.background = kospiPct > 0 ? 'rgba(34,117,76,0.08)' : 'rgba(177,58,48,0.08)';
+      trendEl.parentElement.style.background = kospiPct > 0 ? 'var(--gold-3)' : 'var(--gold-3)';
     } else {
       trendEl.textContent = '미수신';
       trendEl.style.color = 'var(--text-muted)';
@@ -3756,7 +3756,7 @@ function updateKrBreadth() {
     return { available: false, reason: 'fresh covered screener breadth unavailable' };
   }
   var ratio = b.declines > 0 ? b.advances / b.declines : null;
-  var title = (b.label || 'AIO 한국 스크리너 유니버스') + ' · 커버리지 ' + b.coveragePct.toFixed(1) + '% · ' + String(b.observedAt || '').slice(0, 10);
+  var title = (b.label || 'AIO 한국 스크리너 유니버스') + ', 커버리지 ' + b.coveragePct.toFixed(1) + '%, ' + String(b.observedAt || '').slice(0, 10);
   set('kr-breadth-adl', ratio == null ? '—' : ratio.toFixed(2), ratio != null && ratio >= 1 ? 'var(--green)' : 'var(--red)', title);
   set('kr-breadth-20ma', b.sma20.toFixed(1) + '%', b.sma20 >= 50 ? 'var(--green)' : 'var(--red)', title);
   document.querySelectorAll('[data-snap="kr-advance"]').forEach(function(el) { el.textContent = b.advances.toLocaleString(); el.title = title; });
@@ -3905,8 +3905,8 @@ async function loadKrCandleChart(code) {
   var yPad = (yMin != null && yMax != null) ? Math.max((yMax - yMin) * 0.05, yMax * 0.005, 1) : 1;
   var ySuggestedMin = yMin != null ? Math.max(0, Math.floor(yMin - yPad)) : undefined;
   var ySuggestedMax = yMax != null ? Math.ceil(yMax + yPad) : undefined;
-  var colors = candles.map(function(c) { return c.close >= c.open ? 'rgba(34,117,76,0.9)' : 'rgba(177,58,48,0.9)'; });
-  var volColors = candles.map(function(c) { return c.close >= c.open ? 'rgba(34,117,76,0.5)' : 'rgba(177,58,48,0.5)'; });
+  var colors = candles.map(function(c) { return c.close >= c.open ? 'rgba(47,124,87,0.9)' : 'rgba(181,69,72,0.9)'; });
+  var volColors = candles.map(function(c) { return c.close >= c.open ? 'rgba(47,124,87,0.5)' : 'rgba(181,69,72,0.5)'; });
   var tickColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#888';
   var gridColor = 'var(--surface-3)';
 
@@ -3959,7 +3959,7 @@ async function loadKrCandleChart(code) {
   });
 
   var last = candles[candles.length - 1];
-  if (metaEl) metaEl.textContent = code + ' 종가 ' + last.close.toLocaleString() + '원 (' + last.date + ' 기준) · Naver 일봉 ' + candles.length + '개';
+  if (metaEl) metaEl.textContent = code + ' 종가 ' + last.close.toLocaleString() + '원 (' + last.date + ' 기준), Naver 일봉 ' + candles.length + '개';
 }
 window.loadKrCandleChart = loadKrCandleChart;
 
@@ -3994,7 +3994,7 @@ window._aioRenderTickerOverview = function(tkr) {
     var dsrc = window._dataSource && window._dataSource[tkr];
     if (price > 0) { srcs.push('시세: 실시간 관측'); prov.title = '시세 출처: ' + (live.source || (dsrc && dsrc.source) || 'live'); } // v57.54: provider id moved to hover (was "live:yahoo-proxy" on screen)
     if (scr) srcs.push('수익률·팩터: 확정 종가 기준');
-    prov.textContent = srcs.length ? srcs.join(' · ') : '원천 미수신 — 표시값 없음';
+    prov.textContent = srcs.length ? srcs.join(', ') : '원천 미수신 — 표시값 없음';
   }
   // 3) P1748: 관련 테마 칩 퇴역 — src/ui/components/company-analysis.js의 테마 버튼이 같은 연결(테마 단계 포함)을 맡는다.
   // 4) 팩터 프로파일 — 스크리너 순위 실행이 만든 canonical row factorScores(섹터 기준 정규화 점수 0~100, 서술적). W07-C/P1146: empirical percentile도 정규분포 누적확률도 아니며, 순위 percentile은 별도 composite rank다.
@@ -4018,12 +4018,12 @@ window._aioRenderTickerOverview = function(tkr) {
           type: 'radar',
           data: {
             labels: keys.map(function(k){ return F_LBL[k] || k; }),
-            datasets: [{ data: keys.map(function(k){ return fs[k]; }), backgroundColor: 'rgba(34,117,76,0.12)', borderColor: '#22754c', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#22754c' }]
+            datasets: [{ data: keys.map(function(k){ return fs[k]; }), backgroundColor: 'rgba(47,124,87,0.12)', borderColor: '#2f7c57', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#2f7c57' }]
           },
           options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { r: { min: 0, max: 100, ticks: { display: false }, pointLabels: { font: { size: 10 }, color: '#57513f' }, grid: { color: 'rgba(33,29,22,0.08)' }, angleLines: { color: 'rgba(33,29,22,0.08)' } } }
+            scales: { r: { min: 0, max: 100, ticks: { display: false }, pointLabels: { font: { size: 12 }, color: '#544f46' }, grid: { color: 'rgba(27,26,23,0.08)' }, angleLines: { color: 'rgba(27,26,23,0.08)' } } }
           }
         });
         if (window._aioChartRegistry) window._aioChartRegistry.register('ticker-ov-factor-radar', radarChart);
@@ -4064,7 +4064,7 @@ async function updateBenchmarkChart() {
   ctx.clearRect(0, 0, W, H);
 
   // 로딩 표시 — v48.61 R43 Canvas hex
-  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#8a8271'; ctx.textAlign = 'center';
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#978365'; ctx.textAlign = 'center';
   ctx.fillText('SPY 30일 실데이터 조회 중...', W/2, H/2);
 
   // 포트폴리오 데이터 수집 (v48.13: 실제 필드명 ticker/qty/cost 사용)
@@ -4073,7 +4073,7 @@ async function updateBenchmarkChart() {
 
   if (pfData.length === 0) {
     ctx.clearRect(0, 0, W, H);
-    ctx.font = '12px Inter, sans-serif'; ctx.fillStyle = '#8a8271'; ctx.textAlign = 'center';
+    ctx.font = '12px Inter, sans-serif'; ctx.fillStyle = '#978365'; ctx.textAlign = 'center';
     ctx.fillText('포트폴리오가 비어 있습니다', W/2, H/2 - 6);
     ctx.font = '10px Inter, sans-serif';
     ctx.fillText('종목 추가 후 갱신 버튼 클릭', W/2, H/2 + 12);
@@ -4096,14 +4096,14 @@ async function updateBenchmarkChart() {
   } catch(e) {}
   if (!spySeries || spySeries.length < 5) {
     ctx.clearRect(0, 0, W, H);
-    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#b13a30'; ctx.textAlign = 'center'; /* v48.61 R43 */
+    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#b54548'; ctx.textAlign = 'center'; /* v48.61 R43 */
     ctx.fillText('SPY 시세 조회 실패 — 네트워크 확인', W/2, H/2);
     return;
   }
   var spyBase = spySeries[0];
   if (!isFinite(spyBase) || spyBase <= 0) {
     ctx.clearRect(0, 0, W, H);
-    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#b13a30'; ctx.textAlign = 'center';
+    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#b54548'; ctx.textAlign = 'center';
     ctx.fillText('SPY 기준가 오류 — 데이터 소스 확인 필요', W/2, H/2);
     return;
   }
@@ -4166,7 +4166,7 @@ async function updateBenchmarkChart() {
   // that part), the label names that share, and with no history at all the comparison waits.
   ctx.clearRect(0, 0, W, H);
   if (!(coveredWeight > 0)) {
-    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#8a8271'; ctx.textAlign = 'left';
+    ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#978365'; ctx.textAlign = 'left';
     ctx.fillText('보유 종목의 일별 가격 이력을 받지 못해 30일 비교를 보류합니다.', 10, 16);
     return;
   }
@@ -4185,12 +4185,12 @@ async function updateBenchmarkChart() {
   var yScale = (plotH / 2) / range;
 
   // 0% 기준선
-  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--border-strong').trim() || 'rgba(33,29,22,0.15)'); ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--border-strong').trim() || 'rgba(27,26,23,0.15)'); ctx.lineWidth = 1; ctx.setLineDash([4,4]);
   ctx.beginPath(); ctx.moveTo(0, yZero); ctx.lineTo(W, yZero); ctx.stroke(); ctx.setLineDash([]);
 
-  // SPY 선 — v48.61 R43 Canvas hex (#211d16 = --data-cyan)
+  // SPY 선 — v48.61 R43 Canvas hex (#1b1a17 = --data-cyan)
   var spyPlot = spyPct.slice(-L);
-  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#211d16'); ctx.lineWidth = 2; ctx.beginPath(); // dark mode: the ink token, not a fixed near-black
+  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#1b1a17'); ctx.lineWidth = 2; ctx.beginPath(); // dark mode: the ink token, not a fixed near-black
   for (var i = 0; i < L; i++) {
     var x = (i / (L - 1)) * W;
     var y = yZero - spyPlot[i] * yScale;
@@ -4198,8 +4198,8 @@ async function updateBenchmarkChart() {
   }
   ctx.stroke();
 
-  // 포트폴리오 선 — v48.61 R43 Canvas hex (#22754c = data-green)
-  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--data-green').trim() || '#22754c'); ctx.lineWidth = 2.5; ctx.beginPath();
+  // 포트폴리오 선 — v48.61 R43 Canvas hex (#2f7c57 = data-green)
+  ctx.strokeStyle = (getComputedStyle(document.body).getPropertyValue('--data-green').trim() || '#2f7c57'); ctx.lineWidth = 2.5; ctx.beginPath();
   for (var i = 0; i < L; i++) {
     var x = (i / (L - 1)) * W;
     var y = yZero - pfPct[i] * yScale;
@@ -4211,17 +4211,17 @@ async function updateBenchmarkChart() {
   var pfFinal = pfPct[L-1];
   var spyFinal = spyPlot[L-1];
   var alpha = pfFinal - spyFinal;
-  var alphaColor = alpha >= 0 ? '#22754c' : '#b13a30';
+  var alphaColor = alpha >= 0 ? '#2f7c57' : '#b54548';
   ctx.textAlign = 'left';
-  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#22754c';
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#2f7c57';
   ctx.fillText((partial ? '이력 확보 종목(' + (coveredWeight * 100).toFixed(0) + '% 비중): ' : '내 포트폴리오: ') + (pfFinal>=0?'+':'') + pfFinal.toFixed(1) + '% (30일)', 10, 16);
-  ctx.fillStyle = (getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#211d16');
+  ctx.fillStyle = (getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#1b1a17');
   ctx.fillText('SPY: ' + (spyFinal>=0?'+':'') + spyFinal.toFixed(1) + '% (30일)', 10, 32);
   ctx.fillStyle = alphaColor;
   ctx.fillText('Alpha: ' + (alpha>=0?'+':'') + alpha.toFixed(1) + '%p', 10, 48);
 
   // 커버리지 표시 — v48.61 P37+R43
-  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#8a8271'; ctx.textAlign = 'right';
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#978365'; ctx.textAlign = 'right';
   ctx.fillText(partial ? '일별 이력 없는 종목은 제외 — 계좌 전체 수익률 아님' : '보유 종목 일별 종가 기준', W - 10, H - 8);
 }
 

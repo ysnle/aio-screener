@@ -58,7 +58,7 @@ export function recentFilingsPoint(fundamentals, now = Date.now()) {
   const href = secFilingUrl(fundamentals?.cik, shown[0].accession);
   return {
     id: 'filings', tone: 'neutral', title: '최근 공시',
-    text: `${shown.map((filing) => `${md(filing.filedAt)} ${filingLabel(filing)}`).join(' · ')}${more}${/^\d{4}-\d{2}-\d{2}$/.test(checked) ? ` (${md(checked)} 확인)` : ''}.`,
+    text: `${shown.map((filing) => `${md(filing.filedAt)} ${filingLabel(filing)}`).join(', ')}${more}${/^\d{4}-\d{2}-\d{2}$/.test(checked) ? ` (${md(checked)} 확인)` : ''}.`,
     ...(href ? { link: { href, label: 'SEC 공시 원문', ariaLabel: `${shown[0].form} ${shown[0].filedAt} 제출 SEC 공시 원문 새 창` } } : {})
   };
 }
@@ -245,7 +245,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // choice is the theme's, never an instruction on this stock. The rotation-quadrant wording stays as folded evidence.
   const stages = (Array.isArray(themeStages) ? themeStages : []).filter((stage) => stage?.id && stage.stateLabel);
   const stageLines = stages.map((stage) => ({ id: stage.id, label: stage.label,
-    text: `테마 ${stage.label}: ${stage.stateLabel}${stage.wind ? ` · 거시 ${stage.wind}` : ''}` }));
+    text: `테마 ${stage.label}: ${stage.stateLabel}${stage.wind ? `, 거시 ${stage.wind}` : ''}` }));
   let rotationText = null;
   let tailwind = false;
   if (sector?.quadrant || topTheme?.quadrant) {
@@ -253,15 +253,15 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     // v57.70 (2026-10-15 audit): "선도 — 더 강해지는 중" on a -3% sector day read as today's move; it is the multi-week
     // relative-rotation position as of a dated close, and says so.
     const rotationAsOf = /^\d{4}-\d{2}-\d{2}$/.test(String(sector?.sessionDate || '')) ? `${Number(sector.sessionDate.slice(5, 7))}/${Number(sector.sessionDate.slice(8, 10))} 종가까지 몇 주의 상대 흐름` : '몇 주의 상대 흐름';
-    if (sector?.quadrant) parts.push(`섹터 ${sector.label}(${sector.etf})${topic(sector.label)} ${sector.quadrant.label}(${sector.quadrant.between ? `${sector.quadrant.between} 사이 · ` : ''}${rotationAsOf}) — ${sector.quadrant.read}${sector.quadrant.recent ? `(${sector.quadrant.recent})` : ''}`);
-    if (topTheme?.quadrant && topTheme.etf !== sector?.etf) parts.push(`테마 ${topTheme.label}(${topTheme.etf})${topic(topTheme.label)} ${topTheme.quadrant.label}${topTheme.quadrant.between ? `(${topTheme.quadrant.between} 사이)` : ''}${topTheme.quadrant.recent ? ` · ${topTheme.quadrant.recent}${topTheme.quadrant.opposed ? '로 반대 방향' : ''}` : ''}`);
+    if (sector?.quadrant) parts.push(`섹터 ${sector.label}(${sector.etf})${topic(sector.label)} ${sector.quadrant.label}(${sector.quadrant.between ? `${sector.quadrant.between} 사이, ` : ''}${rotationAsOf}) — ${sector.quadrant.read}${sector.quadrant.recent ? `(${sector.quadrant.recent})` : ''}`);
+    if (topTheme?.quadrant && topTheme.etf !== sector?.etf) parts.push(`테마 ${topTheme.label}(${topTheme.etf})${topic(topTheme.label)} ${topTheme.quadrant.label}${topTheme.quadrant.between ? `(${topTheme.quadrant.between} 사이)` : ''}${topTheme.quadrant.recent ? `, ${topTheme.quadrant.recent}${topTheme.quadrant.opposed ? '로 반대 방향' : ''}` : ''}`);
     tailwind = sector?.quadrant?.tone === 'favorable' || topTheme?.quadrant?.tone === 'favorable';
     const stockStrong = trend?.id === 'up';
     // v57.81: the tie is said only when both sides have a definite tone (경계·반대 방향 sectors and 부근 stocks say none).
     const headwind = !tailwind && (sector?.quadrant?.tone === 'burden' || topTheme?.quadrant?.tone === 'burden');
     const tie = tailwind && stockStrong ? '종목 강세가 섹터 흐름과 같은 방향입니다' : headwind && stockStrong ? '섹터 흐름이 약한데 종목만 강한 개별 강세입니다'
       : tailwind && trend && trend.tone !== 'favorable' ? '섹터는 강한데 종목은 뒤처져 있습니다' : headwind && trend?.id === 'down' ? '섹터와 종목이 함께 약합니다' : '';
-    rotationText = `${parts.join(' · ')}.${tie ? ` ${tie}.` : ''}`;
+    rotationText = `${parts.join(', ')}.${tie ? ` ${tie}.` : ''}`;
   }
   if (stageLines.length) {
     points.push({ id: 'sector', tone: 'neutral', title: '섹터·테마', text: stageLines.map((line) => line.text).join(' / '), lines: stageLines,
@@ -312,12 +312,12 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     position != null ? `52주 범위 ${Math.round(position * 100)}% 지점` : null,
     relative3?.gap != null ? `3개월 지수 대비 ${signed(relative3.gap, 1, '%p')}` : null,
     sector?.quadrant ? `섹터 ${sector.quadrant.headLabel}` : null
-  ].filter(Boolean).join(' · ');
+  ].filter(Boolean).join(', ');
   // v57.55 review (8o): an ETF has no filings to read and no sector peers — its links say so.
   const fund = /^ETF$/i.test(String(row.sector || ''));
   const next = [{ route: 'technical', label: '차트', why: trend ? `${trend.label}의 셋업 — 이동평균·피벗·거래량으로 지금 자리가 돌파 전인지 확인` : '일봉과 이동평균 위치' },
     ...(fund ? [] : [{ route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }])];
-  if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마 · ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
+  if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마, ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
   // v57.50 I01: the Korean label (기술) is for the sentence; the screener filters on the artifact's own sector value
   // (Technology), so the handoff carries that value, not a search word that matches no row.
   // v57.54: one Korean sector name on the page ("섹터 기술" above, "같은 섹터(Technology)" here) — the label map is the

@@ -25,7 +25,7 @@ export function temperatureStateText(market, rules = TEMPERATURE_RULES) {
   const total = TEMPERATURE_COMPONENTS.length;
   if (market.state === 'cold') return `${total}개 요소 중 ${market.cold}개가 최근 3년 하위 ${rules.coldAtOrBelow}% — 강한 냉각 ${market.streak}거래일째`;
   if (market.state === 'hot') return `${total}개 요소 중 ${market.hot}개가 최근 3년 상위 ${100 - rules.hotAtOrAbove}% — 강한 과열 ${market.streak}거래일째`;
-  return `보통 범위${scores.length ? ` — 다섯 요소 순위 ${Math.round(Math.min(...scores))}~${Math.round(Math.max(...scores))}` : ''}${market.cold || market.hot ? `(하위 ${rules.coldAtOrBelow}% ${market.cold}개 · 상위 ${100 - rules.hotAtOrAbove}% ${market.hot}개)` : ''}`;
+  return `보통 범위${scores.length ? ` — 다섯 요소 순위 ${Math.round(Math.min(...scores))}~${Math.round(Math.max(...scores))}` : ''}${market.cold || market.hot ? `(하위 ${rules.coldAtOrBelow}% ${market.cold}개, 상위 ${100 - rules.hotAtOrAbove}% ${market.hot}개)` : ''}`;
 }
 
 // The 63-session result after past first days of the same spell, against any day; the ± is two standard errors
@@ -68,8 +68,8 @@ function componentBars(doc, market, rules) {
     const fill = el(doc, 'span', null, `temp-bar${tone}`);
     fill.style.width = `${Math.max(2, Math.round(row.score || 0))}%`;
     track.append(fill);
-    item.append(el(doc, 'span', row.label, 'temp-bar-label'), track, el(doc, 'span', Number.isFinite(row.score) ? `${Math.round(row.score)}${tone ? (tone === ' is-cold' ? ' · 하위 10%' : ' · 상위 10%') : ''}` : '—', 'temp-bar-value'));
-    if (def) item.title = `${def.label}: ${def.basis} · 최근 3년(756거래일) 안에서의 순위`;
+    item.append(el(doc, 'span', row.label, 'temp-bar-label'), track, el(doc, 'span', Number.isFinite(row.score) ? `${Math.round(row.score)}${tone ? (tone === ' is-cold' ? ', 하위 10%' : ', 상위 10%') : ''}` : '—', 'temp-bar-value'));
+    if (def) item.title = `${def.label}: ${def.basis}, 최근 3년(756거래일) 안에서의 순위`;
     list.append(item);
   }
   return list;
@@ -110,7 +110,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
       if (!groups[region]) {
         const box = el(doc, 'div', null, `temp-group is-${region}`);
         groups[region] = el(doc, 'div', null, 'temp-group-grid');
-        box.append(el(doc, 'span', region === 'us' ? '미국' : '한국 · 일본 (보조)', 'temp-tiles-group'), groups[region]);
+        box.append(el(doc, 'span', region === 'us' ? '미국' : '한국, 일본 (보조)', 'temp-tiles-group'), groups[region]);
         tabs.append(box);
       }
       const button = el(doc, 'button', null, `temp-tile is-${item.state}${region === 'sub' ? ' is-sub' : ''}${stale.has(item.id) ? ' is-stale' : ''}${item.id === selected ? ' is-selected' : ''}`);
@@ -136,8 +136,8 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
 
     const head = el(doc, 'div', null, 'temp-head');
     head.append(el(doc, 'strong', `${market.label} ${Number(market.close).toLocaleString('en-US', { maximumFractionDigits: 2 })}`, 'temp-head-value'),
-      el(doc, 'span', `${md(market.asOf)} 종가 · 전일 대비 ${pct(market.change1d, 2)}`, 'basis-chip'));
-    if (stale.has(market.id)) head.append(el(doc, 'span', `갱신 지연 · ${md(market.asOf)} 값`, 'regime-state is-watch'));
+      el(doc, 'span', `${md(market.asOf)} 종가, 전일 대비 ${pct(market.change1d, 2)}`, 'basis-chip'));
+    if (stale.has(market.id)) head.append(el(doc, 'span', `갱신 지연, ${md(market.asOf)} 값`, 'regime-state is-watch'));
     else if (market.state !== 'none') head.append(el(doc, 'span', `${STATE_LABEL[market.state]} ${market.streak}거래일째`, `regime-state is-${market.state === 'cold' ? 'risk' : 'watch'}`));
 
     const series = (market.history || []).map(([date, close]) => ({ date, value: close }));
@@ -147,7 +147,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     const reading = `${temperatureStateText(market, rules)}. ${past ? `하위·상위 10% 요소 수는 ${past}였습니다. ` : ''}${market.state !== 'none' ? temperatureEvidence(market) : ''}${gapLine}`.trim();
 
     const deep = el(doc, 'details', null, 'regime-axis-details regime-axis-deep');
-    deep.append(el(doc, 'summary', '더 깊이 보기 · 온도를 재는 방법과 과거 결과'));
+    deep.append(el(doc, 'summary', '더 깊이 보기, 온도를 재는 방법과 과거 결과'));
     deep.append(el(doc, 'h4', '다섯 요소와 과열·냉각 구간의 정의'), el(doc, 'p', `${TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', ')}를 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. 다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다. 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`));
     deep.append(el(doc, 'h4', '외부 온도계와의 관계'), el(doc, 'p', '시장 심리 온도계를 공개하는 곳들은 계산식을 밝히지 않아 같은 값을 만들 수 없습니다. 이 표는 가격만으로 다시 만든 AIO의 계산이라 거래대금·신용잔고·수급은 들어 있지 않고, 같은 날 비교에서 방향은 대체로 비슷하지만 값은 다릅니다. 신용잔고 반대매매나 외국인 매도처럼 가격 밖의 압력은 이 표에 잡히지 않으니 뉴스와 거래소 공시로 따로 확인해야 합니다.'));
     const table = el(doc, 'dl', null, 'regime-evidence');
@@ -155,12 +155,12 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
       for (const state of ['cold', 'hot']) {
         const h = item.outcomes?.[state]?.h63;
         if (!h?.n) continue;
-        const dt = el(doc, 'dt', `${item.label} · ${STATE_LABEL[state]} 첫날 뒤 석 달`);
+        const dt = el(doc, 'dt', `${item.label}, ${STATE_LABEL[state]} 첫날 뒤 석 달`);
         if (h.n < 10) { table.append(dt, el(doc, 'dd', `겹치지 않는 사례 ${h.n}번 — 10번 미만이라 평균·비율을 쓰지 않습니다`)); continue; }
-        table.append(dt, el(doc, 'dd', `평균 ${pct(h.mean)} ±${(2 * (h.se || 0)).toFixed(1)}%p · 오른 비율 ${h.hitRate}% · 하위 10% 결과 ${pct(h.p10)} · 겹치지 않는 ${h.n}번${h.n < 30 ? '(작은 표본)' : ''}`));
+        table.append(dt, el(doc, 'dd', `평균 ${pct(h.mean)} ±${(2 * (h.se || 0)).toFixed(1)}%p, 오른 비율 ${h.hitRate}%, 하위 10% 결과 ${pct(h.p10)}, 겹치지 않는 ${h.n}번${h.n < 30 ? '(작은 표본)' : ''}`));
       }
       const all = item.outcomes?.all?.h63;
-      if (all?.n) table.append(el(doc, 'dt', `${item.label} · 아무 날 뒤 석 달`), el(doc, 'dd', `평균 ${pct(all.mean)} ±${(2 * (all.se || 0)).toFixed(1)}%p · 오른 비율 ${all.hitRate}%`));
+      if (all?.n) table.append(el(doc, 'dt', `${item.label}, 아무 날 뒤 석 달`), el(doc, 'dd', `평균 ${pct(all.mean)} ±${(2 * (all.se || 0)).toFixed(1)}%p, 오른 비율 ${all.hitRate}%`));
     }
     deep.append(el(doc, 'h4', '과거 결과 (가격 수익률, 배당 제외)'), el(doc, 'p', `같은 구간 안에서 ${rules.clusterGapSessions}거래일 안에 다시 들어온 날은 하나의 구간으로 묶고, 구간이 시작된 첫날만 표본으로 셉니다. 그 첫날끼리도 석 달 안에 붙어 있으면 결과 기간이 겹치므로, 앞 표본에서 63거래일이 지난 첫날만 셉니다. ±는 표준오차의 2배입니다. 강한 냉각 뒤 평균이 높아 보여도 범위가 겹치면 '바닥 신호'로 읽을 근거는 없습니다.`), table);
 

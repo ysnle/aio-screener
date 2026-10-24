@@ -85,17 +85,17 @@ function renderNewsSummary(documentRef, root, model, status) {
   const cycleStart = hasModelWindow ? modelStart : Date.parse(root?._serverDataMeta?.newsCycleStart || '');
   const cycleEnd = hasModelWindow ? modelEnd : Date.parse(root?._serverDataMeta?.newsCycleEnd || '');
   const olderCycle = Number.isFinite(cycleEnd) && newsWindow.end != null && cycleEnd < newsWindow.end - 60000;
-  if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본 · ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
+  if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본, ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
   else if (hasModelWindow) set('news-window-label', `${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사`);
   else if (newsWindow.start != null) set('news-window-label', `${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
   const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
-  if (importantNote) importantNote.textContent = `주제별 핵심 · ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간`;
+  if (importantNote) importantNote.textContent = `주제별 핵심, ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간`;
   // v58.70: a quarantined news lane is an earlier publish (scripts/lib/lane-quarantine.mjs); name that collection time.
   const heldNews = (root?._serverDataMeta?.laneQuarantine || []).find((lane) => lane?.lane === 'news');
   const heldStamp = heldNews?.previousGeneratedAt ? compactKstTime(heldNews.previousGeneratedAt) : null;
-  if (heldNews) set('last-fetch-time', `뉴스 갱신 보류 · 마지막 수집 ${heldStamp ? `${heldStamp.date} ${heldStamp.time}` : '확인 필요'}`);
+  if (heldNews) set('last-fetch-time', `뉴스 갱신 보류, 마지막 수집 ${heldStamp ? `${heldStamp.date} ${heldStamp.time}` : '확인 필요'}`);
   else set('last-fetch-time', cut?.status === 'stale' || status === 'stale'
-    ? `수집 지연 · 마지막 수집 ${generatedLabel || '확인 필요'}`
+    ? `수집 지연, 마지막 수집 ${generatedLabel || '확인 필요'}`
     : generatedLabel ? `마지막 수집 ${generatedLabel}` : (status === 'current' ? '정상 수신' : '수신 대기'));
 }
 
@@ -167,7 +167,7 @@ function createTickerBadge(documentRef, ticker, direct = false) {
   badge.setAttribute('role', 'button');
   badge.tabIndex = 0;
   badge.textContent = /^[A-Z0-9.^=-]+$/.test(symbol) ? ticker : symbol; // Korean company names carry no $ marker
-  badge.title = `${direct ? '직접 당사자' : '기사에 언급된 관련 회사'} · ${symbol} 종목 분석`;
+  badge.title = `${direct ? '직접 당사자' : '기사에 언급된 관련 회사'}, ${symbol} 종목 분석`;
   badge.dataset.issuerRole = direct ? 'subject' : 'mentioned';
   badge.className = 'nws-ticker';
   return badge;
@@ -289,7 +289,7 @@ function createNewsCard(documentRef, root, item, index) {
   // EF-14/P1411: the source-name script guard moved here with the retired digest — a Cyrillic/CJK
   // feed name is shown as '외신' instead of leaking untranslated.
   const rawSource = typeof root?._aioSafeSourceLabel === 'function' ? root._aioSafeSourceLabel(item?.source || '') : item?.source || '';
-  const source = item?._tgChannel ? `TG · ${rawSource}` : rawSource;
+  const source = item?._tgChannel ? `TG, ${rawSource}` : rawSource;
   // P1391: developer markers (selection score, headline-only boundary, feed-review flag) are not
   // user content; the card keeps source, topic and time. LC-31 still holds — a feed-query topic is
   // shown only as a plain label, never as a verified sector assignment elsewhere.
@@ -301,14 +301,14 @@ function createNewsCard(documentRef, root, item, index) {
   // v58.53 개편 v2 (5b): the topic is the capsule on the right of the row, so the meta line no longer repeats it.
   meta.textContent = [source, verificationLabel, branchLabel, timeAgo]
     .filter(Boolean)
-    .join(' · ');
+    .join(', ');
   body.appendChild(meta);
   const evidence = documentRef.createElement('details');
   evidence.className = 'news-evidence';
   evidence.addEventListener('click', (event) => event.stopPropagation());
   const facts = newsEvidence(item);
   const evidenceTitle = documentRef.createElement('summary');
-  evidenceTitle.textContent = [facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '출처·시각'].filter(Boolean).join(' · ');
+  evidenceTitle.textContent = [facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '출처·시각'].filter(Boolean).join(', ');
   // v57.54 audit (11): seventeen identical "기사 · 출처·시각" folds were indistinguishable to a screen reader; each names its headline.
   evidenceTitle.setAttribute('aria-label', `${evidenceTitle.textContent} — ${String(title || '').slice(0, 80)}`);
   evidence.appendChild(evidenceTitle);
@@ -316,7 +316,7 @@ function createNewsCard(documentRef, root, item, index) {
   detail.textContent = [`발행 ${formatAbsoluteTime(facts.publishedAt) || '미제공'}`, `관찰 ${formatAbsoluteTime(facts.observedAt) || '미제공'}`,
     `수집 ${formatAbsoluteTime(item?.fetchedAt) || '미제공'}`,
     // LC-31 (v57.77): the 카테고리별 view that named this boundary left; a feed-query topic says so in the card's fold.
-    isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 출처 기준 분류 · 기사 본문으로 확인 전` : ''].filter(Boolean).join(' · ');
+    isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 출처 기준 분류, 기사 본문으로 확인 전` : ''].filter(Boolean).join(', ');
   evidence.appendChild(detail);
   if (item?.storyArticles?.length > 1) {
     evidence.appendChild(text(documentRef, item.storySelection));
@@ -325,7 +325,7 @@ function createNewsCard(documentRef, root, item, index) {
       const row = documentRef.createElement('li');
       const articleFacts = newsEvidence(article);
       const articleUrl = safeUrl(article?.link || article?.url);
-      const label = `${formatAbsoluteTime(articleFacts.publishedAt) || '발행 시각 미제공'} · ${articleFacts.revision || articleFacts.kind} · ${realTitle(root, article)}`;
+      const label = `${formatAbsoluteTime(articleFacts.publishedAt) || '발행 시각 미제공'}, ${articleFacts.revision || articleFacts.kind}, ${realTitle(root, article)}`;
       if (articleUrl) {
         const anchor = documentRef.createElement('a');
         anchor.href = articleUrl; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; anchor.textContent = label;
@@ -338,7 +338,7 @@ function createNewsCard(documentRef, root, item, index) {
     evidence.appendChild(timeline);
   } else if (item?.title && title !== item.title) {
     const original = documentRef.createElement('div');
-    original.textContent = `원문 제목 · ${item.title}`;
+    original.textContent = `원문 제목, ${item.title}`;
     evidence.appendChild(original);
   }
   body.appendChild(evidence);
@@ -393,7 +393,7 @@ function renderTickerFocusNote(documentRef, root, container, ticker, count) {
     root._aioNewsTickerFocus = null;
     documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-ticker-focus' } }));
   });
-  note.replaceChildren(documentRef.createTextNode(`${ticker} 관련 기사 ${count}건만 표시 중 · `), clear);
+  note.replaceChildren(documentRef.createTextNode(`${ticker} 관련 기사 ${count}건만 표시 중, `), clear);
 }
 
 // P1391 (owner review 2026-10-02): the news screen leads with important stories — the highest-scored
@@ -422,10 +422,10 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
   const heading = documentRef.createElement('h2');
   heading.className = 'briefing-h2';
   heading.id = 'news-intraday-title';
-  heading.append('08:00 이후 속보 · 잠정 ');
+  heading.append('08:00 이후 속보, 잠정 ');
   const note = documentRef.createElement('span');
   note.className = 'briefing-h2-note';
-  note.textContent = `${end ? `${end.date} ${end.time}` : '08:00'} 이후 헤드라인 · 다음 08:00 수집본 전까지`;
+  note.textContent = `${end ? `${end.date} ${end.time}` : '08:00'} 이후 헤드라인, 다음 08:00 수집본 전까지`;
   heading.append(note);
   const list = documentRef.createElement('ul');
   list.className = 'news-intraday-list';
@@ -443,7 +443,7 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
     // v57.77 (a11y 1.4.3): the browser-default link blue measured 1.94:1 in dark; the text colour token passes in both themes.
     titleNode.className = 'nws-intraday-link'; // src/ui/styles/news-page.css
     // Sources stay off the screen text (owner 2026-10-06): publisher and full time live in the hover.
-    titleNode.title = [item.source, formatAbsoluteTime(item.publishedMs ? new Date(item.publishedMs) : null)].filter(Boolean).join(' · ');
+    titleNode.title = [item.source, formatAbsoluteTime(item.publishedMs ? new Date(item.publishedMs) : null)].filter(Boolean).join(', ');
     row.append(time, titleNode);
     list.appendChild(row);
   });
@@ -481,8 +481,8 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     empty.textContent = status === 'unavailable'
       ? '뉴스 수신 대기 — 새로고침 후 검증된 뉴스가 표시됩니다.'
       : (model?.emptyReason === 'all-news-outside-time-window' && outOfWindow > 0
-          ? `이 조건의 오늘 뉴스(08:00 KST까지 24시간)가 아직 없습니다 · 이전 뉴스 ${outOfWindow}건은 기간 밖입니다.`
-          : `현재 조건에서 08:00 KST까지 24시간 · 중요도 기준 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${outOfWindow > 0 ? ` (수집 제외 항목 제외 후 · 창 밖 이전 수집분 ${outOfWindow}건 제외)` : ''}${reviewFlagged > 0 ? ` · 피드 분류로만 걸러진 항목 ${reviewFlagged}건은 기사별 검토가 필요합니다.` : ''}`);
+          ? `이 조건의 오늘 뉴스(08:00 KST까지 24시간)가 아직 없습니다, 이전 뉴스 ${outOfWindow}건은 기간 밖입니다.`
+          : `현재 조건에서 08:00 KST까지 24시간, 중요도 기준 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${outOfWindow > 0 ? ` (수집 제외 항목 제외 후, 창 밖 이전 수집분 ${outOfWindow}건 제외)` : ''}${reviewFlagged > 0 ? `, 피드 분류로만 걸러진 항목 ${reviewFlagged}건은 기사별 검토가 필요합니다.` : ''}`);
     container.appendChild(empty);
     if (describeNewsScope(controls).articles === '필터 적용') {
       const reset = documentRef.createElement('button');
@@ -501,9 +501,9 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   }
 
   const count = documentRef.getElementById('market-news-count');
-  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `조건에 맞는 기사 ${model?.eligibleCount || 0}건 · 같은 사건 묶은 뒤 ${eligible.length}건 중 ${displayed.length}건 표시 · 중요 사건 ${exclude.size}건 · ${describeNewsScope(controls).articles}`; }
+  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `조건에 맞는 기사 ${model?.eligibleCount || 0}건, 같은 사건 묶은 뒤 ${eligible.length}건 중 ${displayed.length}건 표시, 중요 사건 ${exclude.size}건, ${describeNewsScope(controls).articles}`; }
   const summary = documentRef.getElementById('news-visible-summary');
-  if (summary) summary.textContent = `기사 ${model?.eligibleCount || 0}건 · 아래 사건 ${eligible.length}건 중 ${displayed.length}건 표시`;
+  if (summary) summary.textContent = `기사 ${model?.eligibleCount || 0}건, 아래 사건 ${eligible.length}건 중 ${displayed.length}건 표시`;
   const more = documentRef.getElementById('news-load-more-wrap');
   if (more) {
     // P1449: "더 보기"는 렌더 가능한 풀(model.items, maxItems 계약)을 기준으로 숨긴다 —
@@ -587,7 +587,7 @@ function render({ documentRef, root, store, route }) {
   const kstMinutes = ((new Date(nowMs).getUTCHours() + 9) % 24) * 60 + new Date(nowMs).getUTCMinutes();
   const windowLabel = documentRef?.getElementById('news-window-label');
   if (intradayCount && windowLabel && (kstMinutes >= 15 * 60 + 30 || kstMinutes < 8 * 60)) {
-    windowLabel.textContent = `${windowLabel.textContent} · 한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본`;
+    windowLabel.textContent = `${windowLabel.textContent}, 한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본`;
   }
   syncNewsControlState(documentRef, controls);
   // P1428 (Codex review): the important list follows the same country/topic filter as the feed — a 한국
@@ -668,7 +668,7 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       });
       const suppliedMaterialBridge = page ? createSuppliedMaterialBridge(documentRef, {
         routeId: route,
-        heading: route === 'briefing' ? '브리핑 · 시장 확인·거시 시차·이벤트 전후' : '시장 뉴스 · 이벤트 전후 가격 반응'
+        heading: route === 'briefing' ? '브리핑, 시장 확인·거시 시차·이벤트 전후' : '시장 뉴스, 이벤트 전후 가격 반응'
       }) : null;
       if (suppliedMaterialBridge) {
         page.appendChild(suppliedMaterialBridge);

@@ -51,7 +51,7 @@ for (const [label, source, marker] of [
   ['library shell', page, 'renderConceptsPage'],
   ['three-column shell', conceptsView, 'createResearchShell'],
   ['analysis notes group', conceptsView, "{ id: 'frames', title: '분석 노트' }"],
-  ['column group', conceptsView, "{ id: 'story', title: '칼럼 · 돈에서 주식시장까지' }"],
+  ['column group', conceptsView, "{ id: 'story', title: '칼럼: 돈에서 주식시장까지' }"],
   ['dictionary group', conceptsView, "{ id: 'concept', title: '개념 사전' }"],
   ['lesson group', conceptsView, "{ id: 'lesson', title: '원리 레슨' }"],
   ['concept map group', conceptsView, "{ id: 'map', title: '개념 지도' }"],

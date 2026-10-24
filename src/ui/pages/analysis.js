@@ -38,7 +38,7 @@ function setText(documentRef, id, value, color = null) {
 
 // T09/T11 (expert review 2026-10-13): the home score was the intraday value beside a close-based '전일 대비', its label
 // banded the rounded value while the colour banded the raw one ('극단적 공포' vs the sentiment card's '극단 공포'), and
-// greed used a hard-coded #86efac (1.3:1 on ivory). The score is now the completed-close value (fgClose, computed by the
+// greed used a hard-coded #b1f1cb (1.3:1 on ivory). The score is now the completed-close value (fgClose, computed by the
 // caller from the shared series), banded once by fearGreedBand, coloured with theme tokens.
 const FEAR_GREED_COLOR = Object.freeze({ '극단 공포': 'var(--data-red)', '공포': 'var(--data-amber)', '중립': 'var(--text-muted)', '탐욕': 'var(--data-green)', '극단 탐욕': 'var(--data-green)' });
 function renderHomeFearGreed({ documentRef, sentimentValues, fgClose = null, fgStale = false }) {
@@ -72,7 +72,7 @@ function renderTechnicalHealth({ documentRef, root }) {
   if (basis) {
     const [, month, day] = String(regime.asOf || '').split('-').map(Number);
     const counts = regime.counts || {};
-    basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준 · 양호 ${counts.favorable ?? 0} · 중립 ${counts.neutral ?? 0} · 부담 ${counts.burden ?? 0}${counts.unknown ? ` · 확인 불가 ${counts.unknown}` : ''}` : '종가 기록을 불러오는 중입니다.';
+    basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준, 양호 ${counts.favorable ?? 0}, 중립 ${counts.neutral ?? 0}, 부담 ${counts.burden ?? 0}${counts.unknown ? `, 확인 불가 ${counts.unknown}` : ''}` : '종가 기록을 불러오는 중입니다.';
   }
   const chips = documentRef?.getElementById('tech-regime-chips');
   if (chips) {
@@ -84,7 +84,7 @@ function renderTechnicalHealth({ documentRef, root }) {
     if (referenceNode) {
       referenceNode.className = 'regime-chip-reference';
       referenceNode.title = '한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다';
-      referenceNode.textContent = `참고 · 환율(원·엔) ${reference.stateLabel || '확인 불가'}`;
+      referenceNode.textContent = `참고, 환율(원·엔) ${reference.stateLabel || '확인 불가'}`;
     }
     chips.replaceChildren(...axes.filter((row) => row.id !== 'korea').map((row) => {
       const chip = documentRef.createElement('div');
@@ -171,7 +171,7 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       if (page && !suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
           routeId: route,
-          heading: route === 'home' ? '홈 · 시장 확인과 거시 시차' : route === 'signal' ? '시장 상태 · 확인 증거와 리스크 과정' : '기술 · 가격 우선과 다중 시계열'
+          heading: route === 'home' ? '홈, 시장 확인과 거시 시차' : route === 'signal' ? '시장 상태, 확인 증거와 리스크 과정' : '기술, 가격 우선과 다중 시계열'
         });
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge?.remove?.());

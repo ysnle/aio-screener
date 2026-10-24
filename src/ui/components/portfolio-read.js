@@ -15,7 +15,7 @@ import { bondCushion, assetClassOf, BOND_ETF_MAP, BOND_KIND_LABEL, ASSET_CLASS_M
 // bars on one scale, the total underneath, then what the arithmetic does not claim.
 function attributionBox(doc, attribution) {
   const box = el(doc, 'div', null, 'pf-attribution');
-  box.append(el(doc, 'span', `지수 대비 차이의 원인 · ${attribution.window}`, 'stock-read-vis-title'));
+  box.append(el(doc, 'span', `지수 대비 차이의 원인, ${attribution.window}`, 'stock-read-vis-title'));
   const max = Math.max(0.5, ...attribution.excess.map((part) => Math.abs(part.pct)));
   for (const part of attribution.excess) {
     const line = el(doc, 'div', null, 'scr-ic-row');
@@ -40,7 +40,7 @@ function attributionBox(doc, attribution) {
   if (fxHeld.length) notes.push(`원/달러 종가(${fxHeld[0].fxBasis ? md(fxHeld[0].fxBasis) : '날짜 미확인'})가 종목 종가 기준일과 달라 환율 효과를 계산하지 않은 ${fxHeld.length}종목은 제외`);
   if (attribution.fxHoldingsPct > 0) notes.push(`환율 효과는 기준 통화로 환산한 보유액 ${attribution.fxHoldingsPct.toFixed(0)}%의 원/달러 3개월 변동${attribution.fxAsOf ? `(${md(attribution.fxAsOf)} 종가까지)` : ''}`);
   notes.push('지금 비중을 3개월 동안 들고 있었다고 가정한 계산이라 실제 계좌 성과와 다릅니다');
-  box.append(el(doc, 'p', `${notes.join(' · ')}.`, 'theme-strength-basis'));
+  box.append(el(doc, 'p', `${notes.join(', ')}.`, 'theme-strength-basis'));
   return box;
 }
 
@@ -101,14 +101,14 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   if (read.sectorMix.length) {
     const box = el(doc, 'div', null, 'pf-sector-mix');
     // v57.50 C24: the same denominator as the 비중 · 섹터 배분 bars, named on the title.
-    box.append(el(doc, 'span', `섹터 비중(${read.sectorMix[0].basis === 'stock-part' ? '주식 부분 중' : '현금 포함 총자산 대비'}) · 섹터 회전 단계`, 'stock-read-vis-title'));
+    box.append(el(doc, 'span', `섹터 비중(${read.sectorMix[0].basis === 'stock-part' ? '주식 부분 중' : '현금 포함 총자산 대비'}), 섹터 회전 단계`, 'stock-read-vis-title'));
     for (const row of read.sectorMix.slice(0, 6)) {
       const line = el(doc, 'div', null, 'stock-read-bars');
       line.append(el(doc, 'span', row.label, 'stock-read-bar-label'));
       const item = el(doc, 'div', null, 'stock-read-bar-row');
       const bar = el(doc, 'div', null, `stock-read-bar pf-sector-bar is-${row.quadrant?.tone || 'unknown'}`);
       bar.style.width = `${Math.max(2, row.pct).toFixed(1)}%`;
-      item.append(bar, el(doc, 'span', `${row.pct.toFixed(0)}%${row.quadrant ? ` · ${row.quadrant.label}` : ''}`, 'stock-read-bar-value'));
+      item.append(bar, el(doc, 'span', `${row.pct.toFixed(0)}%${row.quadrant ? `, ${row.quadrant.label}` : ''}`, 'stock-read-bar-value'));
       line.append(item);
       box.append(line);
     }
@@ -155,7 +155,7 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
   if (stressInput?.historyMap && Array.isArray(stressInput.commonDates)) {
     const book = Object.fromEntries(weights.map((item) => [item.symbol, item.w]));
     const est = estimateBookSensitivities({ historyMap: stressInput.historyMap, commonDates: stressInput.commonDates, weights: book, history });
-    if (est.available && est.fits?.equity) { beta = est.fits.equity.beta; betaNote = `${est.weeks}주 주간 수익률 · 설명력 R² ${est.fits.equity.r2 == null ? '—' : est.fits.equity.r2.toFixed(2)}`; }
+    if (est.available && est.fits?.equity) { beta = est.fits.equity.beta; betaNote = `${est.weeks}주 주간 수익률, 설명력 R² ${est.fits.equity.r2 == null ? '—' : est.fits.equity.r2.toFixed(2)}`; }
     else betaNote = est.reason === 'weeks-insufficient' ? `겹치는 가격 기록 ${est.weeks}주 — ${STRESS_MIN_WEEKS}주 이상 필요` : '가격 기록이 있는 종목이 80%에 못 미침';
   }
   // Sector shares of the stock part. v58.63 (architecture audit A09): the denominator is the stock part itself — bond
@@ -199,7 +199,7 @@ export function bondCushionCard(bonds) {
   if (!(bonds.bondPct > 0)) {
     return { title: '채권 완충', value: '0%', tone: null, text: `보유 ${bonds.holdings}종목 가운데 채권 ETF가 없습니다(채권 분류는 미국 상장 채권 ETF ${listed}개 고정 목록 기준). 주식이 함께 내리는 구간에 평가액을 받쳐 줄 채권 부분이 이 계좌에는 없다는 뜻입니다.` };
   }
-  const names = bonds.bonds.slice(0, 3).map((row) => `${row.symbol}(${BOND_KIND_LABEL[row.kind] || '채권'}) ${row.pct.toFixed(0)}%`).join(' · ');
+  const names = bonds.bonds.slice(0, 3).map((row) => `${row.symbol}(${BOND_KIND_LABEL[row.kind] || '채권'}) ${row.pct.toFixed(0)}%`).join(', ');
   const parts = [`채권 ETF가 보유 평가액의 ${bonds.bondPct.toFixed(0)}%입니다 — ${names}${bonds.bonds.length > 3 ? ` 외 ${bonds.bonds.length - 3}개` : ''}.`];
   if (bonds.highYieldPct > 0) parts.push(`이 가운데 하이일드 회사채 ${bonds.highYieldPct.toFixed(0)}%는 주식과 함께 움직이는 경향이 있어 완충으로 보기 어렵습니다.`);
   const corr = bonds.correlation || {};
@@ -220,7 +220,7 @@ export function bondCushionCard(bonds) {
   } else {
     parts.push('주식–채권 상관은 보유 종목 가격 기록을 받으면 계산합니다.');
   }
-  return { title: '채권 완충', value: corr.available ? `${bonds.bondPct.toFixed(0)}% · 상관 ${corr.r.toFixed(2)}` : `${bonds.bondPct.toFixed(0)}%`, tone, text: parts.join(' ') };
+  return { title: '채권 완충', value: corr.available ? `${bonds.bondPct.toFixed(0)}%, 상관 ${corr.r.toFixed(2)}` : `${bonds.bondPct.toFixed(0)}%`, tone, text: parts.join(' ') };
 }
 
 export function renderPortfolioLens({ documentRef: doc, root, surface, checks = null, sectorLabel = (name) => name }) {
@@ -234,9 +234,9 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
     return lens;
   }
   set('pf-effective-n', `${lens.effectiveN.toFixed(1)}개`);
-  set('pf-effective-n-note', `평가액 있는 ${lens.holdings}종목 · 1 ÷ Σ비중²`);
+  set('pf-effective-n-note', `평가액 있는 ${lens.holdings}종목, 1 ÷ Σ비중²`);
   set('pf-beta', lens.beta == null ? '없음' : lens.beta.toFixed(2));
-  set('pf-beta-note', lens.beta == null ? lens.betaNote : `보유 종목 부분(현금 제외): 시장 1% 움직일 때 평균 ${lens.beta.toFixed(2)}%${lens.accountBeta != null ? ` · 현금 포함 계좌 약 ${lens.accountBeta.toFixed(2)}%` : ''} · ${lens.betaNote}`);
+  set('pf-beta-note', lens.beta == null ? lens.betaNote : `보유 종목 부분(현금 제외): 시장 1% 움직일 때 평균 ${lens.beta.toFixed(2)}%${lens.accountBeta != null ? `, 현금 포함 계좌 약 ${lens.accountBeta.toFixed(2)}%` : ''}, ${lens.betaNote}`);
   if (!aside) return lens;
   const card = (title, value, tone, text) => {
     const node = el(doc, 'section', null, 'pf-reading-card');
@@ -267,7 +267,7 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
   if (cushion) { const node = card(cushion.title, cushion.value, cushion.tone, cushion.text); node.dataset.pfReading = 'bond-cushion'; cards.push(node); }
   aside.replaceChildren(el(doc, 'h2', '이 포트폴리오를 읽는 법', 'sx-card__title'), ...cards);
   const evidence = el(doc, 'div', null, 'sx-evidence pf-reading-evidence');
-  evidence.append(el(doc, 'span', '근거 · Markowitz(1952) 분산 · 허핀달 지수(실질 종목 수) · CAPM 베타'), el(doc, 'span', `지수 비중 · iShares IVV 보유 ${lens.index?.asOf || '없음'}`), el(doc, 'span', `채권 분류 · 고정 목록 ${ASSET_CLASS_MAP_VERSION}`), el(doc, 'span', '투자 권유 아님'));
+  evidence.append(el(doc, 'span', '근거, Markowitz(1952) 분산, 허핀달 지수(실질 종목 수), CAPM 베타'), el(doc, 'span', `지수 비중, iShares IVV 보유 ${lens.index?.asOf || '없음'}`), el(doc, 'span', `채권 분류, 고정 목록 ${ASSET_CLASS_MAP_VERSION}`), el(doc, 'span', '투자 권유 아님'));
   aside.append(evidence);
   aside.querySelector('h2').id = 'pf-reading-title';
   aside.hidden = cards.length === 0;

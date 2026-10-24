@@ -49,10 +49,10 @@ export function longHistoryRows(artifact) {
       startMonth: points[0].month,
       series: points.map((point) => ({ date: `${point.month}-01`, value: point.value })),
       valueText: fmt(last.value),
-      positionText: `${monthLabel(points[0].month)} 이후 ${points.length}개월 중 ${percentile}%가 ${monthLabel(last.month)} 값 이하 · ${place}`,
-      rangeText: `최고 ${fmt(max.value)}(${monthLabel(max.month)}) · 최저 ${fmt(min.value)}(${monthLabel(min.month)})`,
+      positionText: `${monthLabel(points[0].month)} 이후 ${points.length}개월 중 ${percentile}%가 ${monthLabel(last.month)} 값 이하, ${place}`,
+      rangeText: `최고 ${fmt(max.value)}(${monthLabel(max.month)}), 최저 ${fmt(min.value)}(${monthLabel(min.month)})`,
       partialMonth: partial ? partial.month : null,
-      monthText: `${monthLabel(last.month)} 월평균${partial ? ` · 진행 중인 ${monthLabel(partial.month)}은 빼고 비교` : ''}`
+      monthText: `${monthLabel(last.month)} 월평균${partial ? `, 진행 중인 ${monthLabel(partial.month)}은 빼고 비교` : ''}`
     });
   }).filter(Boolean);
 }

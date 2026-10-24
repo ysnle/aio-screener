@@ -17,7 +17,7 @@ const framesUsing = (conceptId) => LESSONS.filter((lesson) => (lesson.concepts |
 
 export const CONCEPT_GROUPS = Object.freeze([
   { id: 'frames', title: '분석 노트' },
-  { id: 'story', title: '칼럼 · 돈에서 주식시장까지' },
+  { id: 'story', title: '칼럼: 돈에서 주식시장까지' },
   { id: 'concept', title: '개념 사전' },
   { id: 'lesson', title: '원리 레슨' },
   { id: 'map', title: '개념 지도' }
@@ -85,7 +85,7 @@ function buildNav(doc, state, data) {
     if (open && group.id === 'lesson') {
       if (!data.lessons) box.appendChild(data.lessonLibraryError ? loadFailure(doc, '레슨 목록을 불러오지 못했습니다.', 'lessonLibrary') : el(doc, 'p', 'rl-note', '불러오는 중…'));
       for (const chapter of data.lessonChapters || []) {
-        box.appendChild(el(doc, 'p', 'rl-nav-title', `${chapter.id} · ${chapter.title}`));
+        box.appendChild(el(doc, 'p', 'rl-nav-title', `${chapter.id}, ${chapter.title}`));
         (data.lessons || []).filter((lesson) => lesson.chapterId === chapter.id).forEach((lesson) => box.appendChild(navButton(doc, `${lesson.id} ${lesson.title}`, { active: state.view === 'lesson' && state.lessonId === lesson.id, action: 'select-lesson', value: lesson.id, sub: true })));
       }
     }
@@ -111,7 +111,7 @@ function renderStory(doc, data, state) {
   article.dataset.narrativeChapterIndex = String(index + 1);
   const title = el(doc, 'h2', 'rl-doc-title principles-narrative-title', chapter.title);
   title.setAttribute('tabindex', '-1');
-  article.append(el(doc, 'p', 'rl-doc-kicker', `칼럼 · 제${chapter.part.index}부 ${chapter.part.title} · ${index + 1}/${chapters.length}`), title);
+  article.append(el(doc, 'p', 'rl-doc-kicker', `칼럼, 제${chapter.part.index}부 ${chapter.part.title}, ${index + 1}/${chapters.length}`), title);
   if (chapter.lead) article.appendChild(el(doc, 'p', 'rl-doc-lead', chapter.lead));
   const prose = el(doc, 'div', 'af-prose principles-narrative-prose');
   (chapter.paragraphs || []).forEach((paragraph) => prose.appendChild(el(doc, 'p', null, paragraph)));
@@ -134,7 +134,7 @@ function renderStory(doc, data, state) {
 function routeName(routeId) {
   const hub = ROUTE_HUBS.find((item) => item.routes.some((route) => route.id === routeId));
   const name = hub?.routes.find((route) => route.id === routeId)?.label || routeId;
-  return [hub?.label, name].filter((label, i, all) => label && all.indexOf(label) === i).join(' · ');
+  return [hub?.label, name].filter((label, i, all) => label && all.indexOf(label) === i).join(', ');
 }
 function usedInRow(doc, title, meta) {
   const row = el(doc, 'button', 'rl-used-row');
@@ -163,7 +163,7 @@ function conceptUsedIn(doc, concept) {
   });
   if (box.children.length === 1) box.appendChild(el(doc, 'p', 'rl-note', '이 개념을 직접 재는 화면은 아직 없습니다.'));
   const related = [...(concept.related || []), ...(concept.contrast || [])].slice(0, 5);
-  if (related.length) box.appendChild(el(doc, 'p', 'rl-entry-related', `관련 · ${related.join(' · ')}`));
+  if (related.length) box.appendChild(el(doc, 'p', 'rl-entry-related', `관련, ${related.join(', ')}`));
   return box;
 }
 
@@ -173,7 +173,7 @@ function renderConcept(doc, concept, story = null) {
   const parts = splitDefinition(concept.def);
   const card = el(doc, 'div', 'rl-entry-card');
   const body = el(doc, 'div', 'rl-entry-body af-definition');
-  body.append(el(doc, 'p', 'af-kicker', `개념 사전 · ${concept.cat}`), el(doc, 'h2', 'af-issue', concept.term));
+  body.append(el(doc, 'p', 'af-kicker', `개념 사전, ${concept.cat}`), el(doc, 'h2', 'af-issue', concept.term));
   body.appendChild(el(doc, 'p', 'rl-entry-def', parts.lead.join(' ')));
   parts.formulas.forEach((formula) => body.appendChild(el(doc, 'div', 'rl-entry-formula', formula)));
   if (parts.limits.length) body.appendChild(el(doc, 'p', 'rl-entry-limits', `한계: ${parts.limits.join(' ')}`));
@@ -222,7 +222,7 @@ function conceptTermList(doc, concept) {
   for (const [label, list] of rows) {
     const dd = el(doc, 'dd');
     list.forEach((name, i) => {
-      if (i) dd.appendChild(doc.createTextNode(' · '));
+      if (i) dd.appendChild(doc.createTextNode(', '));
       const target = label === '같은 뜻' || label === '이 글에서 다루는 용어' ? null : conceptByName.get(name.replace(/\s*\(.*$/, '')) || conceptByName.get(name);
       if (target && target.id !== concept.id) {
         const link = el(doc, 'button', 'af-term-link', name);
@@ -242,7 +242,7 @@ function renderLesson(doc, lesson, failed = false, sources = []) {
   if (!lesson) { article.appendChild(failed ? loadFailure(doc, '레슨을 불러오지 못했습니다.', 'lessonLibrary') : el(doc, 'p', 'rl-copy', '레슨을 불러오는 중입니다.')); return article; }
   article.dataset.principlesLessonId = lesson.id;
   const story = lesson.story || null;
-  article.append(el(doc, 'p', 'af-kicker', `원리 레슨 · ${lesson.id}`), el(doc, 'h2', 'af-issue', lesson.title), el(doc, 'p', 'af-lead', story?.lead || lesson.definition));
+  article.append(el(doc, 'p', 'af-kicker', `원리 레슨, ${lesson.id}`), el(doc, 'h2', 'af-issue', lesson.title), el(doc, 'p', 'af-lead', story?.lead || lesson.definition));
   const prose = el(doc, 'div', 'af-prose');
   (story?.body || [lesson.mechanism, lesson.example]).filter(Boolean).forEach((text) => prose.appendChild(el(doc, 'p', null, text)));
   article.appendChild(prose);
@@ -273,7 +273,7 @@ function conceptsInLesson(lesson) {
 export const LEARNING_PATHS = Object.freeze([
   { level: '기초', title: '숫자와 기업을 읽는 바탕', paths: ['foundation', 'accounting', 'economy'] },
   { level: '중급', title: '돈과 금리가 기업에 닿는 길', paths: ['money', 'rates', 'business'] },
-  { level: '심화', title: '산업 · 가격 · 차트', paths: ['industry', 'market', 'chart'] }
+  { level: '심화', title: '산업, 가격, 차트', paths: ['industry', 'market', 'chart'] }
 ]);
 function learningPaths(doc) {
   const row = el(doc, 'section', 'rl-paths');
@@ -323,7 +323,7 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
       link.type = 'button';
       const hub = ROUTE_HUBS.find((item) => item.routes.some((r) => r.id === chapter.routeTarget.routeId));
       const routeName = hub?.routes.find((r) => r.id === chapter.routeTarget.routeId)?.label || '';
-      link.append(el(doc, 'strong', null, chapter.routeTarget.label || chapter.routeTarget.routeLabel || routeName), el(doc, 'span', null, [hub?.label, routeName].filter((name, i, all) => name && all.indexOf(name) === i).join(' · ')));
+      link.append(el(doc, 'strong', null, chapter.routeTarget.label || chapter.routeTarget.routeLabel || routeName), el(doc, 'span', null, [hub?.label, routeName].filter((name, i, all) => name && all.indexOf(name) === i).join(', ')));
       link.addEventListener('click', () => onNavigate?.({ ...chapter.routeTarget, returnContext: { route: 'principles', mode: 'story', chapter: chapter.id } }));
       next.appendChild(link);
       aside.appendChild(next);
@@ -337,7 +337,7 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
     main.appendChild(renderConcept(doc, concept, data.conceptStories?.[concept.id] || null));
     const near = CONCEPT_CORE.filter((item) => item.cat === concept.cat && item.id !== concept.id).slice(0, 6);
     if (near.length) {
-      const box = block(`같은 분야 · ${concept.cat}`);
+      const box = block(`같은 분야, ${concept.cat}`);
       near.forEach((item) => { const b = el(doc, 'button', 'af-route'); b.type = 'button'; b.dataset.principlesAction = 'concept'; b.dataset.principlesValue = item.id; b.append(el(doc, 'strong', null, item.term)); box.appendChild(b); });
       aside.appendChild(box);
     }

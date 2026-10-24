@@ -45,7 +45,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
   const title = el(doc, 'h2', '섹터 하루 등락', 'briefing-h2 sx-card__title');
   title.id = `${section.id || 'home-sector-moves'}-title`;
   if (host) section.setAttribute('aria-labelledby', title.id);
-  head.append(title, el(doc, 'span', `${md(model.session)} 종가 · 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note sx-card__meta'));
+  head.append(title, el(doc, 'span', `${md(model.session)} 종가, 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note sx-card__meta'));
   const top = model.rows[0], bottom = model.rows.at(-1);
   const lead = el(doc, 'p', `${top.label}(${top.daily >= 0 ? '+' : ''}${top.daily.toFixed(2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${bottom.daily >= 0 ? '+' : ''}${bottom.daily.toFixed(2)}%)${particle(bottom.label)} 가장 약했습니다. ${model.rows.filter((row) => row.daily > 0).length}개 섹터가 올랐습니다.`, 'home-sector-lead');
   const max = Math.max(0.5, ...model.rows.map((row) => Math.abs(row.daily)));
@@ -53,7 +53,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
   for (const row of model.rows) {
     const li = el(doc, 'li', null, row.daily >= 0 ? 'is-up' : 'is-down');
     li.tabIndex = 0; // U01: the basis card opens from the keyboard too
-    li.title = `${row.label} (${row.symbol}) · 1일 ${row.daily.toFixed(2)}%${row.weekly == null ? '' : ` · 1주 ${row.weekly.toFixed(2)}%`}${row.fading ? ' · 회전 선도(약 50일 기준)지만 최근 5거래일 S&P 500보다 약함' : row.quadrant ? ` · 회전 ${row.quadrant}(약 50일 기준)` : ''} · 섹터 ETF 일봉 종가로 계산`;
+    li.title = `${row.label} (${row.symbol}), 1일 ${row.daily.toFixed(2)}%${row.weekly == null ? '' : `, 1주 ${row.weekly.toFixed(2)}%`}${row.fading ? ', 회전 선도(약 50일 기준)지만 최근 5거래일 S&P 500보다 약함' : row.quadrant ? `, 회전 ${row.quadrant}(약 50일 기준)` : ''}, 섹터 ETF 일봉 종가로 계산`;
     const bar = el(doc, 'span', null, 'home-sector-bar');
     const fill = el(doc, 'span');
     fill.style.width = `${(Math.abs(row.daily) / max * 50).toFixed(1)}%`;

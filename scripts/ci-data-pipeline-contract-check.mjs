@@ -1889,7 +1889,7 @@ check('telegram digest registers four channels and fail-closed source catalog', 
   const guide = guideStart >= 0 ? html.slice(guideStart, html.indexOf('</ul>', html.indexOf('</ul>', guideStart) + 5)) : '';
   const countLine = (guide.match(/텔레그램: 공개 채널 (\d+)곳/) || [])[1];
   const listLine = (guide.match(/<li>텔레그램: ([^<]+)<\/li>/g) || []).map((line) => line.replace(/<\/?li>|텔레그램: /g, '')).find((line) => !/공개 채널/.test(line)) || '';
-  check('v57.76 news source fold telegram count and channel list match the digest catalog', catalogCount === 4 && Number(countLine) === catalogCount && listLine.split('·').map((name) => name.trim()).filter(Boolean).length === catalogCount);
+  check('v57.76 news source fold telegram count and channel list match the digest catalog', catalogCount === 4 && Number(countLine) === catalogCount && listLine.split(/[·,]/).map((name) => name.trim()).filter(Boolean).length === catalogCount);
 }
 {
   // P1544: ticker symbols match case-sensitively; ordinary English words must not become tickers.
@@ -2676,7 +2676,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const panel = cd.channelDataModel(digest.signals);
   check('v58.71 the news screen 채널 데이터 block: one reading, the leverage share by day, the rows in a fold',
     /10\/22 서학개미 순매수에서 레버리지 롱 상품 비중은 22\.41%로 직전\(10\.84%\)보다 늘었습니다\./.test(panel?.reading || '') && panel.leverage.map((row) => row.date).join(',') === '2026-10-21,2026-10-22'
-      && panel.actions.some((row) => row === '10/22 META · Rosenblatt · $886 → $900 상향 · 매수') && panel.releases.length === 1 && cd.channelDataModel([]) === null,
+      && panel.actions.some((row) => row === '10/22 META, Rosenblatt, $886 → $900 상향, 매수') && panel.releases.length === 1 && cd.channelDataModel([]) === null,
     JSON.stringify(panel));
   if (savedSignals === undefined) delete globalThis.AIO_TELEGRAM_SIGNALS; else globalThis.AIO_TELEGRAM_SIGNALS = savedSignals;
 }

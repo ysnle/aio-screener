@@ -155,7 +155,7 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     const point = points[index];
     cursor.setAttribute('x1', x(index)); cursor.setAttribute('x2', x(index)); cursor.setAttribute('visibility', 'visible');
     marker.setAttribute('cx', x(index)); marker.setAttribute('cy', y(point.value)); marker.setAttribute('visibility', 'visible');
-    tip.textContent = `${shortDate(point.date)} · ${format(point.value)}`;
+    tip.textContent = `${shortDate(point.date)}, ${format(point.value)}`;
     tip.hidden = false;
     const left = (x(index) / W) * box.width;
     tip.style.left = `${Math.min(Math.max(left, 40), box.width - 40)}px`;

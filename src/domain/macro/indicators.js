@@ -46,7 +46,7 @@ export const MACRO_GROUPS = Object.freeze([
     ])
   }),
   Object.freeze({
-    id: 'activity', title: '소비 · 주택', items: Object.freeze([
+    id: 'activity', title: '소비, 주택', items: Object.freeze([
       Object.freeze({ id: 'retailSales', history: { field: 'retailSales', derive: 'mom' }, key: 'retailSales', label: '소매판매 (전월 대비)', unit: '%', digits: 1, signed: true, release: 'us-retail', note: '소매·음식점 매출의 전월 대비 증감률입니다.' }),
       Object.freeze({ id: 'housingStarts', history: { field: 'housingStarts', derive: 'level', scale: 0.1 }, key: 'housingStarts', label: '주택 착공 (연율)', unit: '만 호', scale: 100, digits: 1, deltaUnit: '만 호', note: '착공된 신규 주택 수의 연간 환산치입니다.' }),
       Object.freeze({ id: 'buildingPermits', history: { field: 'buildingPermits', derive: 'level', scale: 0.1 }, historyOnly: true, label: '건축 허가 (연율)', unit: '만 호', digits: 1, deltaUnit: '만 호', note: '착공보다 먼저 나오는 주택 경기 선행 지표입니다. 금리에 가장 먼저 반응하는 부문입니다.' })
@@ -119,7 +119,7 @@ function buildHistoryItem(releases, schedules, item, macroHistory) {
   if (!last) return { ...base, status: 'missing', valueText: '—', deltaText: null, meta: '수집된 값이 없습니다.' };
   const prior = monthsBack(series, last.date, 1);
   const digits = item.digits ?? 1;
-  const meta = [`${Number(asOf.slice(5, 7))}월분`, release.last ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, 'FRED'].filter(Boolean).join(' · ');
+  const meta = [`${Number(asOf.slice(5, 7))}월분`, release.last ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, 'FRED'].filter(Boolean).join(', ');
   return {
     ...base,
     status: macroHistory?.series?.[item.history.field]?.stale ? 'stale' : 'observed',
@@ -155,7 +155,7 @@ function buildItem(macro, releases, schedules, item, macroHistory = null) {
   else if (item.deltaUnit && delta != null && !item.range) deltaText = `전월 대비 ${signed(delta, item.digits)}${item.deltaUnit}`;
   const targetGap = item.target != null ? value - item.target : null;
   const period = !asOf ? null : item.daily ? `${monthDay(asOf)} 기준` : `${Number(asOf.slice(5, 7))}월분`;
-  const meta = [period, release.last && !item.daily ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, sourceLabel(macro, keys[0]) || (blsSeries ? 'BLS' : null)].filter(Boolean).join(' · ');
+  const meta = [period, release.last && !item.daily ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${monthDay(release.next)}` : null, sourceLabel(macro, keys[0]) || (blsSeries ? 'BLS' : null)].filter(Boolean).join(', ');
   return {
     ...base,
     status: stale ? 'stale' : 'observed',
@@ -174,18 +174,18 @@ function groupFact(group, items) {
   const ok = (id) => by[id]?.status !== 'missing' && by[id]?.value != null;
   if (group.id === 'policy') {
     if (!ok('fedTarget')) return '목표 범위 자료를 기다리는 중입니다.';
-    return `목표 범위 ${by.fedTarget.valueText}${by.fedTarget.release.next ? ` · 다음 FOMC 결정 ${monthDay(by.fedTarget.release.next)}` : ''}`;
+    return `목표 범위 ${by.fedTarget.valueText}${by.fedTarget.release.next ? `, 다음 FOMC 결정 ${monthDay(by.fedTarget.release.next)}` : ''}`;
   }
   if (group.id === 'inflation') {
-    if (!ok('pce') || !ok('corePce')) return ok('cpi') ? `CPI ${by.cpi.valueText} · PCE 물가 자료 대기` : '물가 자료를 기다리는 중입니다.';
-    return `PCE ${by.pce.valueText} · 근원 PCE ${by.corePce.valueText} — 연준 목표 2% 대비 ${signed(by.pce.value - FED_PCE_TARGET, 1)}%p, ${signed(by.corePce.value - FED_PCE_TARGET, 1)}%p`;
+    if (!ok('pce') || !ok('corePce')) return ok('cpi') ? `CPI ${by.cpi.valueText}, PCE 물가 자료 대기` : '물가 자료를 기다리는 중입니다.';
+    return `PCE ${by.pce.valueText}, 근원 PCE ${by.corePce.valueText} — 연준 목표 2% 대비 ${signed(by.pce.value - FED_PCE_TARGET, 1)}%p, ${signed(by.corePce.value - FED_PCE_TARGET, 1)}%p`;
   }
   if (group.id === 'labor') {
     if (!ok('unemployment')) return '고용 자료를 기다리는 중입니다.';
-    return `실업률 ${by.unemployment.valueText}${by.unemployment.deltaText ? ` (${by.unemployment.deltaText})` : ''}${ok('nfp') ? ` · 일자리 ${by.nfp.valueText}${by.nfp.deltaText ? ` (${by.nfp.deltaText})` : ''}` : ''}`;
+    return `실업률 ${by.unemployment.valueText}${by.unemployment.deltaText ? ` (${by.unemployment.deltaText})` : ''}${ok('nfp') ? `, 일자리 ${by.nfp.valueText}${by.nfp.deltaText ? ` (${by.nfp.deltaText})` : ''}` : ''}`;
   }
   const shown = items.filter((item) => item.status !== 'missing');
-  return shown.length ? shown.map((item) => `${item.label.replace(/ \(.*\)$/, '')} ${item.valueText}`).join(' · ') : '자료를 기다리는 중입니다.';
+  return shown.length ? shown.map((item) => `${item.label.replace(/ \(.*\)$/, '')} ${item.valueText}`).join(', ') : '자료를 기다리는 중입니다.';
 }
 
 function monthsBack(series, date, months) {
@@ -212,7 +212,7 @@ function trendOf(item, series) {
   const trendText = [
     year ? `1년 전 ${fmt(year.value)}` : '1년 전 자료 없음',
     half ? `6개월 전 ${fmt(half.value)}` : '6개월 전 자료 없음'
-  ].join(' · ');
+  ].join(', ');
   return { series, trendText, direction: flat ? 'flat' : move > 0 ? 'up' : 'down' };
 }
 

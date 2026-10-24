@@ -46,16 +46,16 @@ function chartReadCards(doc, analysis, currency) {
   if (close > 0 && sma50 > 0) {
     const pct = (close / sma50 - 1) * 100;
     const multiple = Number.isFinite(analysis.adrFrom50) ? Math.abs(analysis.adrFrom50) : null;
-    card('50일선 대비', signedPct(pct), multiple == null ? `50일선 ${formatScreenerPrice(sma50, currency)}` : `일평균 변동폭(${analysis.adrPct.toFixed(1)}%)의 ${multiple.toFixed(1)}배 ${pct >= 0 ? '위' : '아래'} — 거리가 클수록 되돌림 폭도 커집니다`, '이동평균 규칙 · Brock·Lakonishok·LeBaron(1992)');
+    card('50일선 대비', signedPct(pct), multiple == null ? `50일선 ${formatScreenerPrice(sma50, currency)}` : `일평균 변동폭(${analysis.adrPct.toFixed(1)}%)의 ${multiple.toFixed(1)}배 ${pct >= 0 ? '위' : '아래'} — 거리가 클수록 되돌림 폭도 커집니다`, '이동평균 규칙, Brock·Lakonishok·LeBaron(1992)');
   }
   const rsi = wilderRsi(analysis.bars.map((bar) => bar.close));
   if (rsi != null) {
     const { overbought: hot, oversold: cold } = RULES.technical.rsi;
-    card('RSI 14일', rsi.toFixed(1), rsi >= hot ? `과열 기준(${hot}) 이상 — 강한 추세에서는 오래 머물기도 합니다` : rsi <= cold ? `과매도 기준(${cold}) 이하 — 약한 추세에서는 이어지기도 합니다` : `과열 ${hot} · 과매도 ${cold} 사이`, 'Wilder(1978) RSI');
+    card('RSI 14일', rsi.toFixed(1), rsi >= hot ? `과열 기준(${hot}) 이상 — 강한 추세에서는 오래 머물기도 합니다` : rsi <= cold ? `과매도 기준(${cold}) 이하 — 약한 추세에서는 이어지기도 합니다` : `과열 ${hot}, 과매도 ${cold} 사이`, 'Wilder(1978) RSI');
   }
   const vwap = sessionVwap(analysis.bars, 60);
   if (vwap != null && close > 0) {
-    card('거래량 가중 평균가 (60일)', formatScreenerPrice(vwap, currency), `현재가가 ${signedPct((close / vwap - 1) * 100)} ${close >= vwap ? '위' : '아래'} — 최근 60거래일 거래가 많이 일어난 가격의 평균`, 'VWAP · 일봉 전형가격 × 거래량 근사');
+    card('거래량 가중 평균가 (60일)', formatScreenerPrice(vwap, currency), `현재가가 ${signedPct((close / vwap - 1) * 100)} ${close >= vwap ? '위' : '아래'} — 최근 60거래일 거래가 많이 일어난 가격의 평균`, 'VWAP, 일봉 전형가격 × 거래량 근사');
   }
   if (!cards.length) return null;
   const row = el(doc, 'div', null, 'v2-chart-reads');
@@ -127,12 +127,12 @@ function drawChart(root, host, analysis, previous, kr = false) {
   if (previous?.chart) { try { previous.chart.remove(); } catch (_) {} }
   host.replaceChildren();
   if (!LWC?.createChart) { host.append(el(root.document, 'div', '차트 라이브러리를 불러오지 못했습니다.', 'briefing-empty')); return null; }
-  const text = cssVar(root, '--text-secondary', '#57513f');
-  const grid = cssVar(root, '--border-subtle', '#e6e0d4');
+  const text = cssVar(root, '--text-secondary', '#544f46');
+  const grid = cssVar(root, '--border-subtle', '#e8e2d9');
   // P1634: Korean brokerage convention (rising red, falling blue) and a fixed bar spacing so a long
   // history scrolls instead of compressing every candle into a one-pixel line.
-  const up = cssVar(root, '--candle-up', '#d23f35');
-  const down = cssVar(root, '--candle-down', '#2a64c8');
+  const up = cssVar(root, '--candle-up', '#dc3e42');
+  const down = cssVar(root, '--candle-down', '#2870bd');
   const chart = LWC.createChart(host, {
     autoSize: true,
     layout: { background: { color: 'transparent' }, textColor: text, fontFamily: 'inherit', fontSize: 12 },
@@ -149,22 +149,22 @@ function drawChart(root, host, analysis, previous, kr = false) {
     series.setData(analysis.bars.map((bar, i) => values[i] == null ? null : { time: bar.time, value: values[i] }).filter(Boolean));
     return series;
   };
-  line(analysis.lines.ema8, '#2f9e8f', 1.2);
-  line(analysis.lines.ema21, '#3b6fb6', 1.5);
-  line(analysis.lines.sma50, '#c7892a', 1.5);
-  line(analysis.lines.sma200, '#8a4fa3', 1.5, 2);
+  line(analysis.lines.ema8, '#12a594', 1.2);
+  line(analysis.lines.ema21, '#2870bd', 1.5);
+  line(analysis.lines.sma50, '#ad7f58', 1.5);
+  line(analysis.lines.sma200, '#953ea3', 1.5, 2);
   const volume = chart.addHistogramSeries({ priceScaleId: 'volume', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
   chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-  volume.setData(analysis.bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? 'rgba(210,63,53,0.35)' : 'rgba(42,100,200,0.35)' })));
+  volume.setData(analysis.bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? 'rgba(220,62,66,0.35)' : 'rgba(40,112,189,0.35)' })));
   const priceLine = (price, color, title, style = 2) => { if (price != null) candles.createPriceLine({ price, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true, title }); };
-  priceLine(analysis.pivot, '#c7892a', '피벗', 0);
+  priceLine(analysis.pivot, '#ad7f58', '피벗', 0);
   priceLine(analysis.prev.high, text, '전일 고가', 1);
   priceLine(analysis.prev.low, text, '전일 저가', 1);
-  if (analysis.high52 > analysis.last.close * 1.002) priceLine(analysis.high52, grid === '#e6e0d4' ? '#999' : text, '52주 고점', 3);
+  if (analysis.high52 > analysis.last.close * 1.002) priceLine(analysis.high52, grid === '#e8e2d9' ? '#999' : text, '52주 고점', 3);
   // Contraction lows (depth) + descriptive events (8-day line, volume gap, squeeze, overheating).
-  const toneColor = { favorable: up, burden: down, neutral: '#8a8271' };
-  const markers = (analysis.vcp.valid ? analysis.vcp.contractions : []).map((row) => ({ time: analysis.bars[row.lowIndex].time, position: 'belowBar', color: '#c7892a', shape: 'arrowUp', text: `수축 -${row.depth.toFixed(1)}%` }));
-  for (const event of analysis.events || []) markers.push({ time: analysis.bars[event.index].time, position: event.position, color: toneColor[event.tone] || '#8a8271', shape: event.position === 'aboveBar' ? 'arrowDown' : 'arrowUp', text: event.text });
+  const toneColor = { favorable: up, burden: down, neutral: '#978365' };
+  const markers = (analysis.vcp.valid ? analysis.vcp.contractions : []).map((row) => ({ time: analysis.bars[row.lowIndex].time, position: 'belowBar', color: '#ad7f58', shape: 'arrowUp', text: `수축 -${row.depth.toFixed(1)}%` }));
+  for (const event of analysis.events || []) markers.push({ time: analysis.bars[event.index].time, position: event.position, color: toneColor[event.tone] || '#978365', shape: event.position === 'aboveBar' ? 'arrowDown' : 'arrowUp', text: event.text });
   if (analysis.state === 'breakout') markers.push({ time: analysis.last.time, position: 'aboveBar', color: up, shape: 'arrowDown', text: '피벗 돌파' });
   // 2026-10-18 UI review: the same label (8일 EMA 회복 …) printed at every occurrence piled up over the latest bars; older
   // repeats keep their arrow and only the most recent one is labelled.
@@ -215,7 +215,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const title = doc.getElementById('stock-chart-title');
   doc.getElementById('stock-chart-context')?.remove();
   if (title && subject && subject !== sym) {
-    const note = el(doc, 'span', `시장 비교 차트 · 요약·재무 탭의 종목은 ${subject} 그대로입니다 `, 'stock-chart-context');
+    const note = el(doc, 'span', `시장 비교 차트, 요약·재무 탭의 종목은 ${subject} 그대로입니다 `, 'stock-chart-context');
     note.id = 'stock-chart-context';
     const back = el(doc, 'button', `${subject} 차트로`, 'aio-btn-table');
     back.type = 'button';
@@ -270,7 +270,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   setChartEmpty(doc, false);
   const change = analysis.prev ? (analysis.last.close / analysis.prev.close - 1) * 100 : null;
   root.__aioStockChartAnalysis = { symbol: sym, analysis };
-  set('stock-chart-status', `${analysis.asOf} 종가 ${formatScreenerPrice(analysis.last.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%)${droppedLive ? ' · 장중인 오늘 봉은 분석에서 제외' : ''}`);
+  set('stock-chart-status', `${analysis.asOf} 종가 ${formatScreenerPrice(analysis.last.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%)${droppedLive ? ', 장중인 오늘 봉은 분석에서 제외' : ''}`);
   const badge = doc.getElementById('stock-chart-state');
   if (badge) { badge.textContent = analysis.stateLabel; badge.className = `regime-state is-${STATE_TONE[analysis.state] || 'neutral'}`; }
   await library;
@@ -312,7 +312,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const list = el(doc, 'dl', null, 'regime-evidence');
   const structure = intervalStructure(analysis.bars);
   const structureRows = [['단기 추세 (종가>5>10>20일선)', structure.short || '계산 불가'], ['장기 추세 (20>50>100>200일선)', structure.long || '기록 부족']];
-  for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (양호 ${regime.counts.favorable} · 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
+  for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (양호 ${regime.counts.favorable}, 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
   const more = el(doc, 'details', null, 'chart-evidence-more');
   more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 3}개)`), list);
   const readCards = chartReadCards(doc, analysis, kr ? 'KRW' : payload?.meta?.currency || null);
@@ -323,7 +323,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (forward.available) {
     const section = el(doc, 'section', null, 'chart-scenarios');
     section.append(el(doc, 'h3', '앞으로 구분할 세 가지 흐름', 'briefing-h2'));
-    section.append(el(doc, 'p', `${forward.asOf} 완료 봉의 가격 구조 기준 · 조건이 성립했을 때의 해석입니다.`, 'theme-strength-basis'));
+    section.append(el(doc, 'p', `${forward.asOf} 완료 봉의 가격 구조 기준, 조건이 성립했을 때의 해석입니다.`, 'theme-strength-basis'));
     for (const scenario of forward.scenarios) {
       const card = el(doc, 'div', null, 'chart-scenario'); card.dataset.scenario = scenario.id;
       card.append(el(doc, 'h4', scenario.title), el(doc, 'p', scenario.text)); section.append(card);
@@ -333,8 +333,8 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const profile = buildVolumeByPrice(analysis.bars);
   if (profile.available) {
     const section = el(doc, 'section', null, 'chart-volume-profile');
-    section.append(el(doc, 'h3', '거래 집중 가격대 · 일봉 추정', 'briefing-h2'));
-    section.append(el(doc, 'p', `${profile.start}~${profile.end} · ${profile.sessions}거래일`, 'theme-strength-basis'));
+    section.append(el(doc, 'h3', '거래 집중 가격대, 일봉 추정', 'briefing-h2'));
+    section.append(el(doc, 'p', `${profile.start}~${profile.end}, ${profile.sessions}거래일`, 'theme-strength-basis'));
     const max = Math.max(...profile.zones.map(zone => zone.volume));
     for (const zone of profile.zones) {
       const row = el(doc, 'div', null, 'chart-volume-zone');
@@ -444,10 +444,10 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   setChartEmpty(doc, false);
   const LWC = root.LightweightCharts;
   if (!LWC?.createChart) { host.append(el(doc, 'div', '차트 라이브러리를 불러오지 못했습니다.', 'briefing-empty')); return null; }
-  const text = cssVar(root, '--text-secondary', '#57513f');
-  const grid = cssVar(root, '--border-subtle', '#e6e0d4');
-  const up = cssVar(root, '--candle-up', '#d23f35');
-  const down = cssVar(root, '--candle-down', '#2a64c8');
+  const text = cssVar(root, '--text-secondary', '#544f46');
+  const grid = cssVar(root, '--border-subtle', '#e8e2d9');
+  const up = cssVar(root, '--candle-up', '#dc3e42');
+  const down = cssVar(root, '--candle-down', '#2870bd');
   const chart = LWC.createChart(host, {
     autoSize: true,
     layout: { background: { color: 'transparent' }, textColor: text, fontFamily: 'inherit', fontSize: 12 },
@@ -460,7 +460,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   const candles = chart.addCandlestickSeries({ upColor: up, downColor: down, borderUpColor: up, borderDownColor: down, wickUpColor: up, wickDownColor: down });
   candles.setData(bars.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })));
   const closes = bars.map((bar) => bar.close);
-  const maColors = { 5: '#d4862a', 20: '#3b6fb6', 60: '#2f9e8f', 120: '#8a4fa3' };
+  const maColors = { 5: '#e2a336', 20: '#2870bd', 60: '#12a594', 120: '#953ea3' };
   for (const n of [5, 20, 60, 120]) {
     if (bars.length < n) continue;
     const values = smaOf(closes, n);
@@ -469,7 +469,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   }
   const volume = chart.addHistogramSeries({ priceScaleId: 'volume', priceFormat: { type: 'volume' }, lastValueVisible: false, priceLineVisible: false });
   chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-  volume.setData(bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? 'rgba(210,63,53,0.35)' : 'rgba(42,100,200,0.35)' })));
+  volume.setData(bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? 'rgba(220,62,66,0.35)' : 'rgba(40,112,189,0.35)' })));
   const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 130), to: bars.length + 3 });
   showRecent();
   (root.requestAnimationFrame || setTimeout)(showRecent);
@@ -480,11 +480,11 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   const lastBar = bars.at(-1), prevBar = bars.at(-2);
   const change = (lastBar.close / prevBar.close - 1) * 100;
   const stamp = spec.intraday ? new Date(lastBar.time * 1000).toISOString().slice(0, 16).replace('T', ' ') : lastBar.time;
-  set('stock-chart-status', `${stamp}${spec.intraday ? ' 거래소 현지 시각' : ''} ${formatScreenerPrice(lastBar.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}% · 직전 봉 대비)`);
+  set('stock-chart-status', `${stamp}${spec.intraday ? ' 거래소 현지 시각' : ''} ${formatScreenerPrice(lastBar.close, kr ? 'KRW' : payload?.meta?.currency || null)} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%, 직전 봉 대비)`);
   const structure = intervalStructure(bars);
   const read = el(doc, 'div', null, 'chart-read');
   read.append(el(doc, 'p', `${spec.label}봉 기준 단기 이동평균(종가>5>10>20)은 ${structure.short || '계산 불가'}, 장기(20>50>100>200)는 ${structure.long || '기록 부족'}입니다.`, 'chart-read-headline'));
-  read.append(el(doc, 'p', `${bars.length}개 봉 · 이동평균 5·20·60·120 · 거래량. ${spec.intraday ? '분·시간봉은 정규장 기준이며 마지막 봉은 아직 진행 중일 수 있습니다. 짧은 주기일수록 잡음이 크므로 일봉 추세와 같은 방향인지 함께 봅니다.' : '주·월봉은 큰 추세를 확인하는 용도이며 마지막 봉은 기간이 끝나기 전까지 바뀝니다.'}`, 'stock-chart-interval-note'));
+  read.append(el(doc, 'p', `${bars.length}개 봉, 이동평균 5·20·60·120, 거래량. ${spec.intraday ? '분·시간봉은 정규장 기준이며 마지막 봉은 아직 진행 중일 수 있습니다. 짧은 주기일수록 잡음이 크므로 일봉 추세와 같은 방향인지 함께 봅니다.' : '주·월봉은 큰 추세를 확인하는 용도이며 마지막 봉은 기간이 끝나기 전까지 바뀝니다.'}`, 'stock-chart-interval-note'));
   read.append(el(doc, 'p', '피벗·변동성 수축·추세 템플릿 판정은 일봉 기준으로만 계산합니다.', 'stock-chart-interval-note'));
   const toDaily = el(doc, 'button', '일봉 셋업 분석 보기', 'aio-btn-table');
   toDaily.type = 'button';
@@ -517,7 +517,7 @@ function renderIntervalButtons(doc, root, sym, active) {
   if (legend) {
     if (!legend.__aioDailyLegend) legend.__aioDailyLegend = [...legend.childNodes].map((node) => node.cloneNode(true));
     if (active === '1d') legend.replaceChildren(...legend.__aioDailyLegend.map((node) => node.cloneNode(true)));
-    else legend.replaceChildren(el(doc, 'span', '━ 5 · 20 · 60 · 120 이동평균'), el(doc, 'span', '아래 막대는 거래량 · 상승 빨강, 하락 파랑'));
+    else legend.replaceChildren(el(doc, 'span', '━ 5, 20, 60, 120 이동평균'), el(doc, 'span', '아래 막대는 거래량, 상승 빨강, 하락 파랑'));
   }
 }
 

@@ -38,5 +38,5 @@ export function krIndexMoveRecord(history = [], field = 'kospi', { now = Date.no
 export function krIndexMoveText(record) {
   if (!record || record.d1 == null) return '';
   const rare = koreaRecordText(record, { maxTail: KR_SHOCK_TAIL_PCT });
-  return `하루 ${signed(record.d1)}${record.d5 != null ? ` · 5거래일 ${signed(record.d5)}` : ''}${rare ? `(${rare})` : ''}`;
+  return `하루 ${signed(record.d1)}${record.d5 != null ? `, 5거래일 ${signed(record.d5)}` : ''}${rare ? `(${rare})` : ''}`;
 }

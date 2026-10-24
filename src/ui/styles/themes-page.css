@@ -15,18 +15,18 @@
 .page .thp-perf-track { flex: 1; display: flex; align-items: center; position: relative; min-width: 40px; height: 12px; }
 .page .thp-perf-zero { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--border); }
 .page .thp-perf-bar { height: 12px; min-width: 2px; }
-.page .thp-perf-bar--up { background: var(--data-green); border-radius: 0 3px 3px 0; }
-.page .thp-perf-bar--down { background: var(--data-red); border-radius: 3px 0 0 3px; }
+.page .thp-perf-bar--up { background: var(--data-green); border-radius: 0 4px 4px 0; }
+.page .thp-perf-bar--down { background: var(--data-red); border-radius: 4px 0 0 4px; }
 .page .thp-perf-value { width: 62px; text-align: right; font-size: var(--fs-base); font-weight: 700; font-family: var(--font-mono); flex-shrink: 0; }
 .page .thp-perf-badge { width: 68px; padding-left: 6px; white-space: nowrap; flex-shrink: 0; font-size: var(--fs-sm); }
 
 /* RRG quadrant cards and sector chips (#rrg-quadrant-cards). v57.77 (a11y): the dashed border marks summary-only. */
-.page .thp-chip { font-size: var(--fs-base); border: 1px dashed var(--border-subtle); border-radius: 6px; padding: 4px 10px; background: var(--bg-elevated); color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.page .thp-chip { font-size: var(--fs-base); border: 0.5px dashed var(--border-subtle); border-radius: 8px; padding: 4px 10px; background: var(--bg-elevated); color: var(--text-primary); font-variant-numeric: tabular-nums; }
 .page .thp-chip.thp-chip--detail { border-style: solid; cursor: pointer; text-align: left; }
 .page .thp-quadrant-legend { grid-column: 1/-1; font-size: var(--fs-base); color: var(--text-muted); padding: 2px 0 6px; }
 .page .thp-quadrant-catalog { grid-column: 1/-1; display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 0; }
-.page .thp-quadrant-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px 16px; min-width: 0; }
-.page .thp-quadrant-heading { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.page .thp-quadrant-card { background: var(--bg-card); border: 0.5px solid var(--border-subtle); border-radius: 8px; padding: 14px 16px; min-width: 0; }
+.page .thp-quadrant-heading { font-size: 12px; font-weight: 600; color: var(--text-primary); }
 .page .thp-quadrant-note { font-size: var(--fs-base); color: var(--text-dim); margin: 2px 0 10px; }
 .page .thp-quadrant-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .page .thp-quadrant-empty { font-size: var(--fs-base); color: var(--text-dim); }
@@ -34,7 +34,7 @@
 /* Theme detail: summary header */
 .page .thp-summary-title { font-size: 14px; font-weight: 900; color: var(--text-primary); }
 .page .thp-summary-meta { font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); }
-.page .thp-summary-pct { font-size: 13px; font-family: var(--font-mono); font-weight: 900; }
+.page .thp-summary-pct { font-size: 12px; font-family: var(--font-mono); font-weight: 900; }
 .page .thp-summary-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 6px; }
 .page .thp-summary-leaders { font-size: var(--fs-sm); line-height: 1.6; color: var(--text-secondary); }
 .page .thp-summary-provenance { font-size: var(--fs-base); line-height: 1.5; color: var(--text-muted); }
@@ -50,17 +50,17 @@
 /* Theme detail: composition and sub-theme cards */
 .page .thp-breadth-line { font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.6; margin-bottom: 8px; }
 .page .thp-subtheme-list { display: grid; gap: 6px; }
-.page .thp-subtheme-card { background: var(--surface-1); border: 1px solid var(--surface-4); border-radius: 3px; padding: 8px; }
+.page .thp-subtheme-card { background: var(--surface-1); border: 0.5px solid var(--surface-4); border-radius: 4px; padding: 8px; }
 .page .thp-subtheme-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
 .page .thp-subtheme-name { font-size: var(--fs-base); font-weight: 700; color: var(--text-primary); }
 .page .thp-subtheme-etf { font-size: var(--fs-xs); font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); }
 .page .thp-subtheme-pct { font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 800; }
 .page .thp-ticker-chips { display: flex; gap: 4px; flex-wrap: wrap; }
-.page .thp-ticker-chip { font-size: var(--fs-xs); font-family: var(--font-mono); color: var(--text-secondary); background: var(--surface-2); padding: 2px 6px; border-radius: 3px; cursor: pointer; }
+.page .thp-ticker-chip { font-size: var(--fs-xs); font-family: var(--font-mono); color: var(--text-secondary); background: var(--surface-2); padding: 2px 6px; border-radius: 4px; cursor: pointer; }
 
 /* Theme detail: leader cards */
 .page .thp-leader-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; }
-.page .thp-leader-card { text-align: left; background: var(--surface-2); border: 1px solid var(--surface-5); border-radius: 3px; padding: 7px 8px; cursor: pointer; color: var(--text-primary); }
+.page .thp-leader-card { text-align: left; background: var(--surface-2); border: 0.5px solid var(--surface-5); border-radius: 4px; padding: 7px 8px; cursor: pointer; color: var(--text-primary); }
 .page .thp-leader-ticker { display: block; font-size: var(--fs-base); font-weight: 800; font-family: var(--font-mono); color: var(--accent); }
 .page .thp-leader-price { display: block; font-size: var(--fs-sm); font-family: var(--font-mono); color: var(--text-secondary); margin-top: 2px; }
 .page .thp-leader-pct { display: block; font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 800; margin-top: 2px; }

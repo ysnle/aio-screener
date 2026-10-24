@@ -27,10 +27,10 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ pctFrom52wHigh: a }, n) => a >= -n },
   // v57.59 review: "near pivot" alone is not contraction — it counts only while the latest swing is smaller than the one
   // before (vcpShrinking true; null when fewer than two swings). Rows from before these fields existed keep the old reading.
-  { id: 'vcp', group: '패턴', label: 'VCP 수렴 중 (흔들림이 2번 이상 줄어듦 · 피벗 근처는 마지막 흔들림이 직전보다 작을 때만)', fields: ['vcpStage'], optional: ['vcpShrinking', 'vcpContractions'],
+  { id: 'vcp', group: '패턴', label: 'VCP 수렴 중 (흔들림이 2번 이상 줄어듦, 피벗 근처는 마지막 흔들림이 직전보다 작을 때만)', fields: ['vcpStage'], optional: ['vcpShrinking', 'vcpContractions'],
     test: ({ vcpStage, vcpShrinking, vcpContractions }) => vcpStage === 'contracting'
       || (vcpStage === 'near_pivot' && (vcpShrinking === true || (vcpShrinking == null && vcpContractions == null))) },
-  { id: 'vcp-breakout', group: '패턴', label: 'VCP 돌파 (피벗 위 · 거래량 평소의 1.4배 이상)', fields: ['vcpStage'],
+  { id: 'vcp-breakout', group: '패턴', label: 'VCP 돌파 (피벗 위, 거래량 평소의 1.4배 이상)', fields: ['vcpStage'],
     test: ({ vcpStage }) => vcpStage === 'breakout' },
   { id: 'tight', group: '패턴', label: '하루 평균 변동폭(ADR) {n}% 이하', value: 3, unit: '%', fields: ['adrPct'],
     test: ({ adrPct: a }, n) => a <= n },
@@ -45,7 +45,7 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple >= -RULES.technical.nearLineAdr && multiple <= n; } },
   // 2026-10-18 bookmarks (snapback-vs-bottom): a stock stretched far below its 50-day line in ADR units. An observation for
   // a mean-reversion read, not a bottom or an entry — the frame keeps the reversal low as the invalidation point.
-  { id: 'down-extended', group: '패턴', label: '50일선 아래로 변동폭의 {n}배 이상 (하방 과확장 · 바닥 신호 아님)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
+  { id: 'down-extended', group: '패턴', label: '50일선 아래로 변동폭의 {n}배 이상 (하방 과확장, 바닥 신호 아님)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
     test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple <= -n; } },
   { id: 'pocket-pivot', group: '후속·회복', label: '최근 10거래일 안 포켓 피벗 (상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많음)', fields: ['pocketPivots10'],
     test: ({ pocketPivots10: a }) => a >= 1 },
@@ -57,9 +57,9 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ downDayHoldPct: a }, n) => a >= n },
   { id: 'no-climax', group: '후속·회복', label: '클라이맥스 징후 없음 (긴 상승 뒤 연속 급등·연중 최대 상승폭·최대 거래량·200일선 +70%)', fields: ['climaxSigns'],
     test: ({ climaxSigns }) => Array.isArray(climaxSigns) && climaxSigns.length === 0 },
-  { id: 'pe-max', group: '밸류에이션', label: 'PER {n}배 이하 (최근 회계연도 이익 · 적자 제외 · 미국)', value: 20, unit: '배', fields: ['pe'],
+  { id: 'pe-max', group: '밸류에이션', label: 'PER {n}배 이하 (최근 회계연도 이익, 적자 제외, 미국)', value: 20, unit: '배', fields: ['pe'],
     test: ({ pe }, n) => pe > 0 && pe <= n },
-  { id: 'fwdpe-max', group: '밸류에이션', label: 'Forward PER {n}배 이하 (컨센서스 · 미국)', value: 25, unit: '배', fields: ['fwdPe'],
+  { id: 'fwdpe-max', group: '밸류에이션', label: 'Forward PER {n}배 이하 (컨센서스, 미국)', value: 25, unit: '배', fields: ['fwdPe'],
     test: ({ fwdPe }, n) => fwdPe > 0 && fwdPe <= n },
   { id: 'pb-max', group: '밸류에이션', label: 'PBR {n}배 이하 (미국)', value: 3, unit: '배', fields: ['pb'],
     test: ({ pb }, n) => pb > 0 && pb <= n },
@@ -67,17 +67,17 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ roe }, n) => roe >= n },
   { id: 'margin-min', group: '수익성·성장', label: '순이익률 {n}% 이상 (미국)', value: 10, unit: '%', fields: ['margin'],
     test: ({ margin }, n) => margin >= n },
-  { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 회계연도 · 미국)', value: 10, unit: '%', fields: ['revGrowth'],
+  { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 회계연도, 미국)', value: 10, unit: '%', fields: ['revGrowth'],
     test: ({ revGrowth }, n) => revGrowth >= n },
   { id: 'liquidity-min', group: '거래', label: '하루 거래대금 ${n}백만 이상 (30일 평균)', value: 20, unit: '$M', fields: ['dollarVolume30d'],
     test: ({ dollarVolume30d: a }, n) => a >= n * 1e6 },
   // v58.71 (owner 2026-10-23): what the research channels reported in the last 14 days (domain/screener/channel-signals.js).
   // A stock the channels never mentioned has no data here, so these conditions only keep reported names.
-  { id: 'tg-pt-raise', group: '리서치 채널', label: '최근 14일 목표주가 상향 {n}건 이상 · 하향 없음 (채널 보도)', value: 1, unit: '건', fields: ['tgPtRaises', 'tgPtCuts'],
+  { id: 'tg-pt-raise', group: '리서치 채널', label: '최근 14일 목표주가 상향 {n}건 이상, 하향 없음 (채널 보도)', value: 1, unit: '건', fields: ['tgPtRaises', 'tgPtCuts'],
     test: ({ tgPtRaises: a, tgPtCuts: b }, n) => a >= n && b === 0 },
   { id: 'tg-upgrade', group: '리서치 채널', label: '최근 14일 투자의견 상향 (채널 보도)', fields: ['tgUpgrades'],
     test: ({ tgUpgrades: a }) => a >= 1 },
-  { id: 'tg-earnings-beat', group: '리서치 채널', label: '최근 실적이 예상 상회 · 하회 항목 없음 (매출·EPS · 채널 보도)', fields: ['tgEarnings'],
+  { id: 'tg-earnings-beat', group: '리서치 채널', label: '최근 실적이 예상 상회, 하회 항목 없음 (매출·EPS, 채널 보도)', fields: ['tgEarnings'],
     test: ({ tgEarnings }) => tgEarnings === 'beat' }
 ].map((item) => Object.freeze(item)));
 

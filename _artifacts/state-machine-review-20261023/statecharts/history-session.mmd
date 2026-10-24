@@ -1,0 +1,24 @@
+---
+title: history.json 한 세션의 기록 (실제 코드 전수 탐색)
+---
+flowchart TD
+  start(("갱신 시작")):::start
+  none["기록 없음"]:::works
+  provisional["전일 종가 읽기만 기록됨"]:::works
+  settled["확정 종가 기록됨"]:::works
+  overwritten["확정 종가가 다른 값으로 덮임"]:::bug
+  settled -->|"다음 회차: 다른 값의 전일 종가 읽기 (P2011 이전 코드)"| overwritten
+  start -->|"여러 행의 읽기를 세션별로 정리 (P2011 이전 코드)"| overwritten
+  settled -->|"다음 회차: 다른 값의 전일 종가 읽기 (수정 후)"| settled
+  start -->|"여러 행의 읽기를 세션별로 정리 (수정 후)"| settled
+  none -->|"다음 회차: 다른 값의 전일 종가 읽기"| provisional
+  provisional -->|"다음 회차: 같은 값의 전일 종가 읽기<br/>다음 회차: 다른 값의 전일 종가 읽기"| provisional
+  settled -->|"다음 회차: 같은 값의 전일 종가 읽기"| settled
+  start -->|"여러 행의 읽기를 세션별로 정리"| provisional
+  linkStyle 0 stroke:#c0392b,stroke-width:2px,color:#c0392b
+  linkStyle 1 stroke:#c0392b,stroke-width:2px,color:#c0392b
+  linkStyle 2 stroke:#1e8449,stroke-width:2px,color:#1e8449
+  linkStyle 3 stroke:#1e8449,stroke-width:2px,color:#1e8449
+  classDef start fill:#333,stroke:#333,color:#fff
+  classDef works fill:#f2f2f2,stroke:#888,color:#222
+  classDef bug fill:#fdecea,stroke:#c0392b,color:#c0392b

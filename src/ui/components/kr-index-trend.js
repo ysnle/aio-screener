@@ -52,14 +52,14 @@ export function krIndexTrendFacts(history = [], field, { through = null, now = n
 export function krIndexPositionText(facts) {
   if (!facts) return '';
   const part = (days, position) => position ? `${days}일선 ${position}` : `${days}일선 계산 전`;
-  return `${part(50, facts.position50)} · ${part(200, facts.position200)}`;
+  return `${part(50, facts.position50)}, ${part(200, facts.position200)}`;
 }
 
 /** Three lines, each a computed fact: the move, the averages, the range. */
 export function krIndexReading(facts, label) {
   if (!facts) return [];
   const rare = facts.record ? koreaRecordText(facts.record, { maxTail: KR_SHOCK_TAIL_PCT }) : '';
-  const lines = [`${shortDate(facts.date)} ${label} 종가 ${close(facts.value)} — 하루 ${signed(facts.d1)} · 5거래일 ${signed(facts.d5)} · ${KR_MONTH_SESSIONS}거래일 ${signed(facts.d20)}${rare ? `. ${rare}입니다` : ''}.`];
+  const lines = [`${shortDate(facts.date)} ${label} 종가 ${close(facts.value)} — 하루 ${signed(facts.d1)}, 5거래일 ${signed(facts.d5)}, ${KR_MONTH_SESSIONS}거래일 ${signed(facts.d20)}${rare ? `. ${rare}입니다` : ''}.`];
   if (facts.ma50 != null && facts.ma200 != null) {
     lines.push(`종가는 50일선(${level(facts.ma50)}) ${facts.position50}, 200일선(${level(facts.ma200)}) ${facts.position200}에 있고, 50일선은 200일선보다 ${facts.cross}에 있습니다.`);
   } else if (facts.ma50 != null) {

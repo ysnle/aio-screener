@@ -11,24 +11,24 @@
 .ail-grid--pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .ail-split { display: grid; grid-template-columns: 1.1fr 1fr; gap: 14px; margin-bottom: 14px; }
 .ail-split--map { grid-template-columns: 1.05fr 1fr; margin-bottom: 10px; }
-.ail-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 8px; min-width: 0; }
+.ail-card { background: var(--bg-card); border: 0.5px solid var(--border-subtle); border-radius: 4px; padding: 8px; min-width: 0; }
 .ail-card--tall { min-height: 78px; }
 .ail-card--stack { margin-bottom: 6px; }
 .ail-card--muted { background: var(--surface-1); padding: 7px; }
 .ail-card-title { font-size: var(--fs-min); font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
-.ail-row { border-bottom: 1px solid var(--border-subtle); padding: 7px 0; }
+.ail-row { border-bottom: 0.5px solid var(--border-subtle); padding: 7px 0; }
 .ail-row-title { font-size: var(--fs-min); font-weight: 700; color: var(--text-primary); }
 .ail-text { font-size: var(--fs-min); line-height: 1.55; color: var(--text-muted); overflow-wrap: anywhere; }
 .ail-text--ink { color: var(--data-cyan); }
 .ail-text--body { color: var(--text-secondary); }
 .ail-text--mono { font-family: var(--font-mono); }
 .ail-text--gap { margin-top: 4px; }
-.ail-rule-below { line-height: 1.6; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 12px; }
+.ail-rule-below { line-height: 1.6; border-bottom: 0.5px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 12px; }
 .ail-chips { display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; }
 .ail-chips--spaced { gap: 6px; margin-bottom: 14px; }
-.ail-chip { font-size: var(--fs-min); color: var(--text-secondary); background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 3px; padding: 3px 6px; }
-.ail-edge { line-height: 1.6; border-bottom: 1px solid var(--border-subtle); padding: 3px 0; }
-.ail-note { line-height: 1.6; border-top: 1px solid var(--border-subtle); padding-top: 8px; }
+.ail-chip { font-size: var(--fs-min); color: var(--text-secondary); background: var(--surface-1); border: 0.5px solid var(--border-subtle); border-radius: 4px; padding: 3px 6px; }
+.ail-edge { line-height: 1.6; border-bottom: 0.5px solid var(--border-subtle); padding: 3px 0; }
+.ail-note { line-height: 1.6; border-top: 0.5px solid var(--border-subtle); padding-top: 8px; }
 @container (max-width: 699px) {
   .ail-grid--wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ail-split, .ail-split--map { grid-template-columns: 1fr; }

@@ -73,9 +73,9 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
   const basisText = model.basis
     ? model.current ? `${shortDate(model.basis)} 미국 종가 기준` : `${shortDate(model.basis)} 미국 종가 기준(최신 거래일 ${shortDate(model.expectedSession)} 반영 전 — 지금이 아닌 그날의 지도)`
     : '종가 기준일 확인 필요';
-  const sizeText = model.sizeBasis === 'index-weight' ? `넓이 = 지수 비중(${model.members}종목${model.weightsAsOf ? ` · ${shortDate(model.weightsAsOf)} 보유 비중` : ''})` : `넓이 = 시가총액 근사(공시 주식 수 × 종가, ${model.drawn}/${model.members}종목)`;
+  const sizeText = model.sizeBasis === 'index-weight' ? `넓이 = 지수 비중(${model.members}종목${model.weightsAsOf ? `, ${shortDate(model.weightsAsOf)} 보유 비중` : ''})` : `넓이 = 시가총액 근사(공시 주식 수 × 종가, ${model.drawn}/${model.members}종목)`;
   // v57.88 (screen audit): the same sector read +0.6% here and +1.46% on the XLC chip without a word on why.
-  host.append(el(doc, 'p', `${sizeText} · 색 = ${model.periodLabel} 수익률 · ${basisText} · 섹터 평균은 지도에 그린 종목의 비중 가중이라 섹터 ETF 수익률과 다를 수 있습니다`, 'sector-map-basis'));
+  host.append(el(doc, 'p', `${sizeText}, 색 = ${model.periodLabel} 수익률, ${basisText}, 섹터 평균은 지도에 그린 종목의 비중 가중이라 섹터 ETF 수익률과 다를 수 있습니다`, 'sector-map-basis'));
   host.append(el(doc, 'p', model.lead, 'sector-map-lead'));
 
   const canvas = el(doc, 'div', null, 'sector-map-canvas');
@@ -88,7 +88,7 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
   const top = movers.reduce((best, item) => (!best || item.ret > best.ret ? item : best), null);
   const bottom = movers.reduce((worst, item) => (!worst || item.ret < worst.ret ? item : worst), null);
   const moverText = top && bottom && top !== bottom
-    ? `${model.periodLabel} 가장 크게 오른 종목 ${top.sym}(${top.sectorLabel}) ${signed(top.ret)} · 가장 크게 내린 종목 ${bottom.sym}(${bottom.sectorLabel}) ${signed(bottom.ret)}`
+    ? `${model.periodLabel} 가장 크게 오른 종목 ${top.sym}(${top.sectorLabel}) ${signed(top.ret)}, 가장 크게 내린 종목 ${bottom.sym}(${bottom.sectorLabel}) ${signed(bottom.ret)}`
     : '';
   const detail = el(doc, 'p', moverText, 'sector-map-detail');
   detail.setAttribute('aria-live', 'polite');
@@ -117,14 +117,14 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
       // shows colour only (tap still names it in the detail line and opens the stock on a second tap).
       const size = Math.max(11, Math.min(20, Math.sqrt(tile.w * tile.h) / 5.2));
       if (tile.w - 4 >= labelWidth(tile.sym, size) && tile.h - 2 >= size * 1.2) {
-        // A custom property, not an inline font-size: the legacy `.page [style*="font-size: 11px"]` floor rules bump an
+        // A custom property, not an inline font-size: the legacy `.page [style*="font-size: 12px"]` floor rules bump an
         // inline 10/11px to 12-13px !important, which made the smallest labels overflow their tiles.
         node.style.setProperty('--sector-tile-fs', `${size.toFixed(1)}px`);
         node.append(el(doc, 'strong', tile.sym));
         const sub = tile.staleRet != null ? '기준일 다름' : signed(tile.ret, Math.abs(tile.ret ?? 0) >= 10 ? 1 : 2);
         if (tile.h >= size * 2.6 && tile.w - 4 >= labelWidth(sub, Math.max(11, size * 0.78))) node.append(el(doc, 'span', sub));
       }
-      const describe = () => `${tile.sym}${tile.name ? ` · ${tile.name}` : ''} · ${tile.sectorLabel} · ${model.sizeBasis === 'index-weight' ? `지수 비중 ${tile.value.toFixed(2)}%` : `시가총액 약 ${tile.value >= 1e12 ? `${(tile.value / 1e12).toFixed(2)}조` : `${Math.round(tile.value / 1e8).toLocaleString('ko-KR')}억`} 달러`} · ${model.periodLabel} ${tile.staleRet != null ? `${signed(tile.staleRet)} (${shortDate(tile.basis)} 종가 · 기준일이 달라 색과 평균에서 제외)` : `${signed(tile.ret)}${tile.basis && tile.basis !== model.basis ? ` (${shortDate(tile.basis)} 종가)` : ''}`}`;
+      const describe = () => `${tile.sym}${tile.name ? `, ${tile.name}` : ''}, ${tile.sectorLabel}, ${model.sizeBasis === 'index-weight' ? `지수 비중 ${tile.value.toFixed(2)}%` : `시가총액 약 ${tile.value >= 1e12 ? `${(tile.value / 1e12).toFixed(2)}조` : `${Math.round(tile.value / 1e8).toLocaleString('ko-KR')}억`} 달러`}, ${model.periodLabel} ${tile.staleRet != null ? `${signed(tile.staleRet)} (${shortDate(tile.basis)} 종가, 기준일이 달라 색과 평균에서 제외)` : `${signed(tile.ret)}${tile.basis && tile.basis !== model.basis ? ` (${shortDate(tile.basis)} 종가)` : ''}`}`;
       node.addEventListener('mouseenter', () => { detail.setAttribute('aria-live', 'off'); detail.textContent = describe(); }); // v57.77 (a11y): hover is silent; a click announces
       node.addEventListener('click', () => {
         if (selected === tile.sym && typeof root.showTicker === 'function') { root.showTicker(tile.sym); return; }
@@ -166,14 +166,14 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     // P1681: the tiles are pointer-only, so the table is the keyboard path — its strongest/weakest names open the stock page.
     // M21: the up count reads over the members that have a return; members without one are named apart.
     const withRet = sector.withRet ?? movers.length;
-    const dd = el(doc, 'dd', `${signed(sector.ret)} · ${withRet}종목 중 ${sector.up}개 상승${sector.count > withRet ? `(수익률 없음 ${sector.count - withRet})` : ''} · `);
+    const dd = el(doc, 'dd', `${signed(sector.ret)}, ${withRet}종목 중 ${sector.up}개 상승${sector.count > withRet ? `(수익률 없음 ${sector.count - withRet})` : ''}, `);
     const symbolButton = (item) => {
       const button = el(doc, 'button', `${item.sym} ${signed(item.ret, 1)}`, 'breadth-drill-symbol');
       button.type = 'button';
       button.addEventListener('click', () => root.showTicker?.(item.sym));
       return button;
     };
-    dd.append('가장 강한 ', best ? symbolButton(best) : '—', ' · 가장 약한 ', worst ? symbolButton(worst) : '—');
+    dd.append('가장 강한 ', best ? symbolButton(best) : '—', ', 가장 약한 ', worst ? symbolButton(worst) : '—');
     dl.append(el(doc, 'dt', sector.label), dd);
   }
   table.append(dl);

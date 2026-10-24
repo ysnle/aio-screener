@@ -53,7 +53,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
     kind: 'briefing', sessionDate: read.asOf, publishedAt: root._serverDataMeta?.generatedAt || null,
     version: root.AIO?.version || null, headline: read.headline || (read.available ? '두드러진 교차 신호 없음' : null),
     interpretation: read.headlineReading, facts: read.facts || [],
-    checks: read.checks || [], source: 'AIO 종가 기록 · 정규화된 신용·금리 관측', sourceRevision: root._serverDataMeta?.cycleId || null
+    checks: read.checks || [], source: 'AIO 종가 기록, 정규화된 신용·금리 관측', sourceRevision: root._serverDataMeta?.cycleId || null
   }) });
 
   // 1. Schedule
@@ -88,10 +88,10 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       item.dataset.kind = row.kind;
       item.dataset.eventId = row.id;
       if (row.sourceTitle) item.title = row.sourceTitle;
-      const when = el(doc, 'span', row.status === 'received' ? `${row.when} · 발표 완료` : row.status === 'time-passed' ? `${row.when} · 예정 시각 지남` : row.when, 'briefing-event-when');
+      const when = el(doc, 'span', row.status === 'received' ? `${row.when}, 발표 완료` : row.status === 'time-passed' ? `${row.when}, 예정 시각 지남` : row.when, 'briefing-event-when');
       const body = el(doc, 'div', null, 'briefing-event-body');
       body.append(el(doc, 'span', row.label, 'briefing-event-label'));
-      const meta = [row.why, row.comparisonBasis, row.last].filter(Boolean).join(' · ');
+      const meta = [row.why, row.comparisonBasis, row.last].filter(Boolean).join(', ');
       if (meta) body.append(el(doc, 'span', meta, 'briefing-event-meta'));
       item.append(when, body);
       return item;
@@ -102,7 +102,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
 
   // 2. Read
   const basis = doc.getElementById('briefing-read-basis');
-  if (basis) basis.textContent = read.available ? `${shortDate(read.asOf)} 미국 종가 기준 · 자동 해석` : '';
+  if (basis) basis.textContent = read.available ? `${shortDate(read.asOf)} 미국 종가 기준, 자동 해석` : '';
   const headline = doc.getElementById('briefing-read-headline');
   if (headline) headline.textContent = read.available ? (read.headline || '눈에 띄는 신호가 없는 평범한 하루입니다.') : '종가 기록을 불러오는 중입니다.';
   const headlineReading = doc.getElementById('briefing-read-reading');
@@ -130,7 +130,7 @@ export function renderBriefingRead({ documentRef: doc, root, nowMs = Date.now() 
       for (const [label, value] of row.values) {
         const pair = el(doc, 'span', null, 'briefing-driver-value');
         const ownDay = observedOn[label];
-        pair.append(el(doc, 'span', label, 'briefing-driver-key'), doc.createTextNode(` ${value}${ownDay ? ` · ${ownDay} 기준` : ''}`));
+        pair.append(el(doc, 'span', label, 'briefing-driver-key'), doc.createTextNode(` ${value}${ownDay ? `, ${ownDay} 기준` : ''}`));
         values.append(pair);
       }
       box.append(values);
@@ -198,13 +198,13 @@ function renderMoveChart(doc, anchor, moves) {
     if (!rows.length) continue;
     const max = Math.max(...rows.flatMap((row) => [Math.abs(row.d1 || 0), Math.abs(row.d5 || 0)]), unit === '%' ? 0.5 : 2);
     const block = el(doc, 'div', null, 'briefing-move-block');
-    block.append(el(doc, 'div', unit === '%' ? '가격 등락(%) · 진한 막대 1일, 옅은 막대 5일 · 달러·환율은 회색(좋고 나쁨 없음)' : '금리 변화(bp) — 다른 단위라 따로 표시', 'briefing-move-head'));
+    block.append(el(doc, 'div', unit === '%' ? '가격 등락(%), 진한 막대 1일, 옅은 막대 5일, 달러·환율은 회색(좋고 나쁨 없음)' : '금리 변화(bp) — 다른 단위라 따로 표시', 'briefing-move-head'));
     // v58.71: a row closed on another date than the S&P 500 (the first row) names its date.
     const baseDate = moves[0]?.asOf || null;
     for (const row of rows) {
       const line = el(doc, 'div', null, 'briefing-move-row');
       const [, mm, dd] = String(row.asOf || '').split('-').map(Number);
-      line.append(el(doc, 'span', row.asOf && baseDate && row.asOf !== baseDate && mm && dd ? `${row.label} · ${mm}/${dd}` : row.label, 'briefing-move-label'));
+      line.append(el(doc, 'span', row.asOf && baseDate && row.asOf !== baseDate && mm && dd ? `${row.label}, ${mm}/${dd}` : row.label, 'briefing-move-label'));
       const track = el(doc, 'span', null, 'briefing-move-track');
       for (const [key, cls] of [['d5', 'is-5d'], ['d1', 'is-1d']]) {
         const value = row[key];
@@ -215,7 +215,7 @@ function renderMoveChart(doc, anchor, moves) {
         bar.style.left = value >= 0 ? '50%' : `${(50 - width).toFixed(1)}%`;
         track.append(bar);
       }
-      line.append(track, el(doc, 'span', `${fmtMove(row.d1, row.unit)} · ${fmtMove(row.d5, row.unit)}`, 'briefing-move-value'));
+      line.append(track, el(doc, 'span', `${fmtMove(row.d1, row.unit)}, ${fmtMove(row.d5, row.unit)}`, 'briefing-move-value'));
       block.append(line);
     }
     wrap.append(block);

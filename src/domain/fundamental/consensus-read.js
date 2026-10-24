@@ -64,18 +64,18 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   const range = `${view.fwdFrom}~${view.fwdTo}${firstEnded ? `, 첫 분기 ${view.fwdFrom}는 끝났고 실적 발표 전` : ''}`;
   // The visible line leads with the multiple; the stock page folds everything after the first ' — '.
   const lead = view.fwdPe != null
-    ? `Forward PER ${view.fwdPe > PE_MEANINGFUL_MAX ? '' : '약 '}${peMultipleText(view.fwdPe)}${view.trailingPe != null ? ` · 직전 4개 분기 조정 기준 ${peMultipleText(view.trailingPe)}` : ''}${view.growth != null ? ` · 예상 이익 ${signed(view.growth)}` : ''}`
+    ? `Forward PER ${view.fwdPe > PE_MEANINGFUL_MAX ? '' : '약 '}${peMultipleText(view.fwdPe)}${view.trailingPe != null ? `, 직전 4개 분기 조정 기준 ${peMultipleText(view.trailingPe)}` : ''}${view.growth != null ? `, 예상 이익 ${signed(view.growth)}` : ''}`
     : '향후 4개 분기 적자 예상';
   const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 실적 발표 전 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
     + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}과 같은 조정 EPS 기준으로 비교했습니다`
       : view.basisGap ? `. 직전 4개 분기 실적 합 ${usd(view.trailingEps)}보다 30% 이상 낮아, 일회성 항목 포함 여부 등 같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다` : '');
-  const revisions = view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w} · 하향 ${view.down4w}` : '최근 4주 추정치 변경 없음';
+  const revisions = view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w}, 하향 ${view.down4w}` : '최근 4주 추정치 변경 없음';
   const cautions = [];
   if (view.minEstimates != null && view.minEstimates < CONSENSUS_THIN_ESTIMATES) cautions.push(`추정 애널리스트가 ${view.minEstimates}명뿐이라 흔들리기 쉽습니다`);
   if (view.spread != null && view.spread >= 30) cautions.push(`최고·최저 추정 차이가 ${Math.round(view.spread)}%로 넓습니다`);
   // A large expected jump is exactly where a forward multiple flatters: at a cyclical earnings peak it reads cheapest.
   if (view.growth != null && view.growth >= 50) cautions.push('큰 이익 증가가 전제라, 경기에 따라 이익이 크게 오르내리는 업종이면 정점 근처에서 Forward PER이 가장 낮게 보입니다');
-  const text = `${lead} — ` + [basis, `애널리스트 최소 ${view.minEstimates ?? '?'}명 · ${revisions}`, ...cautions].join('. ')
+  const text = `${lead} — ` + [basis, `애널리스트 최소 ${view.minEstimates ?? '?'}명, ${revisions}`, ...cautions].join('. ')
     + `. 예상치는 계속 바뀌는 참고값이라 점수에는 쓰지 않습니다(${view.asOf} 수집).`;
   // v57.81: one revision either way is not a direction — the net count (up − down) must reach the floor.
   const net = view.up4w - view.down4w;

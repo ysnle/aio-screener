@@ -229,7 +229,7 @@ check('P1753 P1538 retired ticker deep analysis stays gone and issues no entry v
 // P1212/E2 LC-41: the legacy factor-backtest canvas promoted null/undefined IC, spread, hit-rate and
 // sample count to 0 (`bt.quantileSpread || 0`, `ic[key] || 0`), so an empty backtest rendered as
 // measured zeros beside `n=0`. Missing stays missing.
-check('LC-41/P1212 legacy factor-backtest does not promote missing values to zero', /function\s+_factorBacktest/.test(ui) && /var num = function\s*\(v\)/.test(ui) && /계산 불가 · 표본 없음/.test(ui) && !/bt\.quantileSpread \|\| 0/.test(ui));
+check('LC-41/P1212 legacy factor-backtest does not promote missing values to zero', /function\s+_factorBacktest/.test(ui) && /var num = function\s*\(v\)/.test(ui) && /계산 불가, 표본 없음/.test(ui) && !/bt\.quantileSpread \|\| 0/.test(ui));
 // P1214/E2 LC-26: the mode is one declared revision shared by the legacy toggle, the native reader
 // and the facade — and the copy must not promise a per-mode threshold the model does not produce.
 check('P1753 E2/LC-26/P1214 signal mode has one writer and the retired pill writers stay gone', /bridge\.set\(/.test(data) && /aio:signalScoreModeChanged/.test(data) && !/임계값 65점/.test(data) && !/getElementById\('sig-(?:sw-btn|dy-btn|mode-desc)'\)/.test(data));
@@ -280,7 +280,7 @@ check('LC-44/P1224 portfolio import is keyboard reachable', /data-action="_aioTr
 check('LC-45/P1225 portfolio table is currency-aware', /const priceCurrency = String\(holding\?\.currency/.test(portfolioPage) && /const costCurrency = String\(holding\?\.costCurrency/.test(portfolioPage) && !/avgCost == null \? '—' : `\$\$\{avgCost/.test(portfolioPage));
 // LC-46/P1226: the macro banner state follows the rendered inflation cards.
 // P1425: the banner was replaced by a per-card state on the 거시 경제 board (a stale release is labelled on its own card).
-check('LC-46/P1226 macro release state is shown on each indicator card', !/macro-fred-stale-banner/.test(html) && /_freshness_\$\{keys\[0\]\}/.test(read('src/domain/macro/indicators.js')) && /이번 수집 실패 · 직전 발표값/.test(read('src/ui/components/macro-board.js')));
+check('LC-46/P1226 macro release state is shown on each indicator card', !/macro-fred-stale-banner/.test(html) && /_freshness_\$\{keys\[0\]\}/.test(read('src/domain/macro/indicators.js')) && /이번 수집 실패, 직전 발표값/.test(read('src/ui/components/macro-board.js')));
 // LC-47/P1227: the 50SMA readout is owned by the native renderer and the advance share is named.
 // P1395: one owner (breadth-board.js) labels every measure with its population and window.
 check('LC-47/P1227 breadth readout single-owner and share label', !/breadth-50sma-readout/.test(html) && /50일선 위 종목 비율/.test(read('src/ui/components/breadth-board.js')) && /상승 종목 비율 \(10일 평균\)/.test(read('src/ui/components/breadth-board.js')) && /AIO가 추적하는 미국 종목/.test(html));
@@ -326,12 +326,12 @@ check('LC-36/P1233 theme breadth names its price-eligible denominator', /가격 
 check('LC-50/P1234 atlas states the search scope', read('src/ui/knowledge/research-shell.js').includes('리서치 라이브러리 통합 검색') && read('src/ui/knowledge/research-shell.js').includes('searchKnowledgeIndex'));
 // LC-51/P1235: the Masters lookup exposes visible/total rows and can expand.
 // P1488: the lookup answers "who holds it" — one summed line per manager with every raw row behind a disclosure.
-check('LC-51/P1235 masters lookup exposes the visible/total rows', /masters-ticker-lookup-count/.test(mastersPage) && /운용사 \$\{summaries\.length\}곳 · 원문 \$\{allRows\.length\}행/.test(mastersPage) && /masters-ticker-lookup-raw/.test(mastersPage));
+check('LC-51/P1235 masters lookup exposes the visible/total rows', /masters-ticker-lookup-count/.test(mastersPage) && /운용사 \$\{summaries\.length\}곳, 원문 \$\{allRows\.length\}행/.test(mastersPage) && /masters-ticker-lookup-raw/.test(mastersPage));
 // LC-52/P1236: Guide background statements carry season/condition/evidence framing.
 check('LC-52/P1236 guide background statements carry conditions', !/기관 매집\)/.test(html) && /서머타임\(EDT\)에는 22:30~05:00/.test(html) && /확정하는 신호가 아니며/.test(html) && /예상보다 높으면 금리 인상 우려가 커지는 경우가 많지만/.test(html));
 // LC-53/P1237: the Principles page explains its non-additive learning layers.
 // 2026-10-05: the layers are the contents groups themselves (분석 노트 · 칼럼 · 개념 사전 · 원리 레슨 · 개념 지도).
-check('LC-53/P1237 principles explains the learning layers', ['분석 노트', '칼럼 · 돈에서 주식시장까지', '개념 사전', '원리 레슨', '개념 지도'].every((label) => read('src/ui/knowledge/concepts-view.js').includes(label)) && !/학습 단위:/.test(html));
+check('LC-53/P1237 principles explains the learning layers', ['분석 노트', '칼럼: 돈에서 주식시장까지', '개념 사전', '원리 레슨', '개념 지도'].every((label) => read('src/ui/knowledge/concepts-view.js').includes(label)) && !/학습 단위:/.test(html));
 // E2/S-C/P1241: one policy owns row resolution; both paths declare their intent and neither reaches
 // the retired `_aioScreenerRows` global.
 check('E2/S-C/P1241 screener row resolution has one owner and a declared intent', /function _aioGetCanonicalScreenerRows\(root\)/.test(data)
@@ -359,7 +359,7 @@ check('H3-A selector tests preserve current reference observations without decis
 check('chat history is explicit opt-in with redaction and disable-delete semantics', /enabled\s*=\s*localStorage\.getItem\('aio_chat_history_enabled'\)\s*===\s*'1'/.test(core) && /localStorage\.removeItem\('aio_chat_history'\)/.test(core) && /_aioRedactChatHistoryText/.test(core) && /T962 chat_history_opt_in_redaction_delete/.test(tests) && !/기존 기록은 보존됩니다/.test(core));
 check('H3-B missing event claims fail closed and cannot drive current decisions', /getEventClaimState/.test(core) && /status: 'MISSING'/.test(core) && /_fomcState\.allowedUse/.test(core) && /T905 missing_event_claim_is_blocked/.test(tests));
 check('H3-C derived decision gate blocks quorum-missing inputs instead of preserving a strong action band', /_scoreBlocked/.test(core) && /decisionBlocked/.test(core) && /핵심 입력 부족/.test(core) && /T906 derived_regime_quorum_gate/.test(tests));
-check('P1755 P1364 market-score verdict/caveat stays on score pages and describes the close-basis model via a path-scoped state read', /_scoreScope = \['home', 'signal', 'sentiment', 'briefing'\]\.indexOf\(pageId\) >= 0/.test(core) && /if \(_scoreBlocked && map\[pageId\] && _scoreScope\)/.test(core) && /if \(_scoreCaveat && _scoreScope\)/.test(core) && /getState\('analysis\.signal\.presentation\.description'\)/.test(core) && /getState\('analysis\.tradingScore'\)/.test(core) && !/AIO_ARCH\.getState\(\)/.test(core) && /판단 보류 · 일부 근거 부분 확보/.test(core));
+check('P1755 P1364 market-score verdict/caveat stays on score pages and describes the close-basis model via a path-scoped state read', /_scoreScope = \['home', 'signal', 'sentiment', 'briefing'\]\.indexOf\(pageId\) >= 0/.test(core) && /if \(_scoreBlocked && map\[pageId\] && _scoreScope\)/.test(core) && /if \(_scoreCaveat && _scoreScope\)/.test(core) && /getState\('analysis\.signal\.presentation\.description'\)/.test(core) && /getState\('analysis\.tradingScore'\)/.test(core) && !/AIO_ARCH\.getState\(\)/.test(core) && /판단 보류, 일부 근거 부분 확보/.test(core));
 check('decision header renders page evidence caveat', /aio-decision-caveat/.test(core) && /d\.caveat/.test(core));
 check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
 check('home public readiness audit remains available only in developer mode', /id="aio-public-readiness"/.test(html) && /_aioBuildPublicShareReadiness/.test(data) && /getPublicShareReadiness/.test(data) && /getShareReadinessAudit/.test(core) && /body\.aio-dev-mode \.aio-public-readiness/.test(html) && /classList\.contains\('aio-dev-mode'\)/.test(data));
@@ -1016,7 +1016,7 @@ check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and al
 // v52.75 (WP-AI0): public AI beta safety boundary + unverified auto-analysis block.
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
 check('v57.62 WP-AI0: the unified chat path gates streaming/final output and persists gated text only', /_uniChunkResult\.text/.test(chat) && /_publicGate = _uniDoneResult\.actionGate/.test(chat) &&/state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
-check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미 · 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
+check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미, 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
 let wpAi0SemanticGate = false;
 {
   const { buildServerDataMeta } = await import('../src/data/server-data.js');
@@ -1329,14 +1329,14 @@ check('P783: a dead client quote proxy preserves snapshot fallback and bounds re
   /quoteProxyCircuitOpen/.test(data) &&
   /quoteProxyCircuitOpen && hasMarketSnapshotFallback/.test(data) &&
   /if \(!usingSnapshotFallback\) setTimeout\(fetchLiveQuotes/.test(data) &&
-  /기준 스냅샷 사용 · 중앙 갱신 주기 대기/.test(data));
+  /기준 스냅샷 사용, 중앙 갱신 주기 대기/.test(data));
 check('P783: boot waits for the same-origin snapshot and server macro/HY success suppresses duplicate browser fallbacks',
   !/실시간 시세 \(성공 시 기본값 교체\)[\s\S]{0,80}fetchLiveQuotes\(\)/.test(ui) &&
   /__AIO_ARCH_RUNTIME__/.test(data) &&
   /_aioServerMacroReady/.test(data) &&
   /!_aioServerHyReady/.test(data));
 check('P783: blocked-external-network Chromium gate asserts the reference-only snapshot topbar',
-  read('scripts/ci-architecture-browser-check.mjs').includes('/^서버 .+ · 시세 16종$/') &&
+  read('scripts/ci-architecture-browser-check.mjs').includes('/^서버 .+, 시세 16종$/') &&
   /snapshot quote topbar must stay reference-only/.test(read('scripts/ci-architecture-browser-check.mjs')));
 
 check('P784/SA-01: Yahoo chart requests use the shared proxy registry health path', (() => {
@@ -1517,13 +1517,18 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   const lum = (rgb) => rgb.map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }).reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i], 0);
   const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
   const over = (rgb, alpha, bg) => rgb.map((c, i) => c * alpha + bg[i] * (1 - alpha));
-  const lightAmber = (html.match(/^  --data-amber:\s*(#[0-9a-f]{6});/m) || [])[1];
-  const lightOverride = (html.match(/^  --data-amber:\s+(#[0-9a-f]{6}) !important;/m) || [])[1];
-  const darkAmber = (html.match(/--data-amber:(#[0-9a-f]{6}) !important; --data-yellow:/) || [])[1];
+  // owner 2026-10-23: tokens point at Radix Colors v3 steps (src/ui/styles/radix-colors.css); resolve them to hex first.
+  const radix = read('src/ui/styles/radix-colors.css');
+  const [radixLight, radixDark] = radix.split('body.dark-theme {');
+  const step = (block, value) => { const name = String(value || '').match(/var\(--([a-z]+-\d+)\)/)?.[1]; return name ? (block.match(new RegExp(`--${name}:(#[0-9a-f]{6});`)) || [])[1] : value; };
+  const lightAmber = step(radixLight, (html.match(/^  --data-amber:\s*([^;\s]+);/m) || [])[1]);
+  const lightOverride = step(radixLight, (html.match(/^  --data-amber:\s+([^;\s]+) !important;/m) || [])[1]);
+  const darkAmber = step(radixDark, (html.match(/--data-amber:([^;\s]+) !important; --data-yellow:/) || [])[1]);
   const hue = (hexValue) => { const [r, g, b] = rgbOf(hexValue).map((c) => c / 255); const max = Math.max(r, g, b), min = Math.min(r, g, b); if (max === min) return -1; const h = max === r ? ((g - b) / (max - min)) % 6 : max === g ? (b - r) / (max - min) + 2 : (r - g) / (max - min) + 4; return (h * 60 + 360) % 360; };
   const worst = (fg, bgs, ink, alphas) => Math.min(...bgs.flatMap((bg) => alphas.map((a) => ratio(rgbOf(fg), over(ink, a, rgbOf(bg))))));
-  const lightWorst = lightAmber ? worst(lightAmber, ['#fffdf9', '#f4f0e8', '#f0ebe1'], [33, 29, 22], [0, 0.10, 0.15]) : 0;
-  const darkWorst = darkAmber ? worst(darkAmber, ['#1b1914', '#201d18', '#25221c', '#2c2922'], [238, 232, 220], [0, 0.10, 0.15]) : 0;
+  // Light: colored text sits on gold-1 cards; amber chips (amber-3) carry amber-12 text (owner 2026-10-23).
+  const lightWorst = lightAmber ? Math.min(worst(lightAmber, [step(radixLight, 'var(--gold-1)')], [59, 53, 43], [0]), ratio(rgbOf(step(radixLight, 'var(--amber-12)')), rgbOf(step(radixLight, 'var(--amber-3)')))) : 0;
+  const darkWorst = darkAmber ? worst(darkAmber, ['gold-1', 'gold-2', 'gold-3', 'gold-4'].map((n) => step(radixDark, `var(--${n})`)), [232, 226, 217], [0, 0.10, 0.15]) : 0;
   check(`P1758 --data-amber is a saturated amber hue, not a warm grey (light ${lightAmber}, dark ${darkAmber}) and the light override matches the base`, !!lightAmber && lightAmber === lightOverride && [lightAmber, darkAmber].every((c) => c && hue(c) >= 30 && hue(c) <= 50 && (Math.max(...rgbOf(c)) - Math.min(...rgbOf(c))) / Math.max(...rgbOf(c)) >= 0.5));
   check(`P1758 --data-amber text contrast >= 4.5:1 on ivory/dark surfaces and ink chips (light ${lightWorst.toFixed(2)}, dark ${darkWorst.toFixed(2)})`, lightWorst >= 4.5 && darkWorst >= 4.5);
   check('P1758 navigation, logo and table-header chrome use the neutral ink, not the caution amber', !/\.nav-item::before \{[^}]*--data-amber/.test(html) && !/\.nav-item:hover \.nav-icon \{[^}]*--data-amber/.test(html) && !/\.logo::after \{[^}]*--data-amber/.test(html) && !/\.gmo-sym \{[^}]*--data-amber/.test(html));

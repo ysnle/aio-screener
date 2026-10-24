@@ -172,6 +172,6 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   const evidence = pastEvidence(freq);
   // Not beyond the base rate: the counts and the base, without a share or median to anchor on.
   if (evidence.informative === false) return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 뒤 ${freq.horizon}거래일 흐름은 같은 기록 전체 거래일(${freq.baseUpPct}% 상승)과 표본 오차 안에서 구별되지 않았습니다 — 이 움직임만으로는 방향에 대한 정보가 없습니다.${freq.n < 30 ? ' 30번 미만의 작은 표본입니다.' : ''}`;
-  const base = evidence.informative ? ` 비슷한 때 ${sharePct}% · 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
+  const base = evidence.informative ? ` 비슷한 때 ${sharePct}%, 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
   return `${label}: ${source}(${span})의 겹치지 않는 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
 }

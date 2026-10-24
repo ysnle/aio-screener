@@ -114,9 +114,9 @@ export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
       : move.key === 'breadth50' ? Math.abs(move.value) >= L.dailyDiffBreadthPp : move.key === 'fg' ? Math.abs(move.value) >= RULES.sentiment.namedMovePt
         : Math.abs(move.value) >= L.dailyDiffOtherPct);
   const headline = flips.length
-    ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(' · ')} — 시장 상태 판정에 들어가는 지표가 바뀌었습니다.`
+    ? `${flips.map((flip) => `${flip.title} ${flip.from} → ${flip.to}`).join(', ')} — 시장 상태 판정에 들어가는 지표가 바뀌었습니다.`
     // v57.84: this comparison rebuilds the regime from closes only, so the credit axis never enters it — the headline says so.
-    : big.length ? `지표 판정은 그대로이고(신용 지표는 이 비교에 넣지 않음), 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(' · ')}입니다.`
+    : big.length ? `지표 판정은 그대로이고(신용 지표는 이 비교에 넣지 않음), 크게 움직인 것은 ${big.map((move) => `${move.label}${move.market === 'KR' ? `(한국 ${shortDay(move.to)})` : ''} ${move.text}`).join(', ')}입니다.`
       : '지표 판정이 그대로이고(신용 지표는 이 비교에 넣지 않음) 크게 움직인 지표도 없습니다.';
   return { available: true, date: basis, prevDate, missing: missingSessionsBetween(prevDate, basis), notCompared, notComparedNotes, moves, flips, big: big.map((move) => move.key), headline };
 }

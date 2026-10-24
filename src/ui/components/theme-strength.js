@@ -71,7 +71,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // reading is held — the same admission the US screener applies when it holds its ranks.
   const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model);
   if (lead) host.append(sectionLead(doc, lead));
-  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'} · 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위 · S&P 500 ${model.windowLabel} ${pct(model.benchmark)} · 1주 = 최근 5거래일 · 순위 변화: 1개월 순위가 3개월 순위보다 크게 오르면 '최근 강해짐', 크게 밀리면 '최근 식음'`, 'theme-strength-basis'));
+  host.append(el(doc, 'p', `${basis ? basis.label : '스크리너 수익률 수신 대기'}, 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위, S&P 500 ${model.windowLabel} ${pct(model.benchmark)}, 1주 = 최근 5거래일, 순위 변화: 1개월 순위가 3개월 순위보다 크게 오르면 '최근 강해짐', 크게 밀리면 '최근 식음'`, 'theme-strength-basis'));
   if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
@@ -90,7 +90,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     // v57.50 D15: a group with fewer than 4 measured members is a reference row, not a ranked one.
     tr.append(el(doc, 'td', group.rank == null ? (group.smallSample ? '참고' : '—') : String(group.rank), 'is-rank'));
     const nameCell = el(doc, 'td');
-    nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName} · ${group.listed}종목${group.members !== group.listed ? ` (수익률 ${group.members}개)` : ''}${group.smallSample ? ` · 표본 ${group.members}종목 · 참고` : ''}`, 'theme-strength-theme'));
+    nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName}, ${group.listed}종목${group.members !== group.listed ? ` (수익률 ${group.members}개)` : ''}${group.smallSample ? `, 표본 ${group.members}종목, 참고` : ''}`, 'theme-strength-theme'));
     // v57.79 (375 review): the full-width '종목끼리 비교' button wrapped under the name and doubled every row's height;
     // a compact inline '비교' keeps the row one line taller at most, and its accessible name keeps the full action.
     const compare = el(doc, 'button', '비교', 'theme-strength-compare'); compare.type = 'button';
@@ -116,7 +116,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     for (const member of group.constituents) {
       const button = el(doc, 'button', member.sym, 'breadth-drill-symbol');
       button.type = 'button';
-      button.title = `${member.name || member.sym}${member.included ? '' : ' · 선택 기간 수익률 없음'}`;
+      button.title = `${member.name || member.sym}${member.included ? '' : ', 선택 기간 수익률 없음'}`;
       button.addEventListener('click', () => { if (typeof root?.showTicker === 'function') root.showTicker(member.sym); });
       constituents.append(button);
     }
@@ -127,12 +127,12 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     tbody.append(tr);
     if (root._aioThemeMemberGroup === group.id) {
       const detailRow = el(doc, 'tr'), detailCell = el(doc, 'td'); detailCell.colSpan = showVs ? 10 : 9; detailCell.className = 'theme-member-detail'; detailRow.id = `theme-members-${visible.indexOf(group)}`;
-      detailCell.append(el(doc, 'p', `${group.name} 안의 ${model.windowLabel} 수익률 비교 · ${group.basis ? `${group.basis} 종가 기준` : '기준일 불일치/미확인으로 순위·중앙값 비교 보류'} · 선두는 이 기간 수익률 순위입니다.`, 'theme-strength-basis'));
+      detailCell.append(el(doc, 'p', `${group.name} 안의 ${model.windowLabel} 수익률 비교, ${group.basis ? `${group.basis} 종가 기준` : '기준일 불일치/미확인으로 순위·중앙값 비교 보류'}, 선두는 이 기간 수익률 순위입니다.`, 'theme-strength-basis'));
       const available = group.rankedMembers.filter((member) => member.rank != null);
       if (available.length) {
-        const leaders = available.filter((member) => member.rank === 1).map((member) => member.sym).join(' · ');
-        const tail = available.filter((member) => member[model.sortKey] === available.at(-1)[model.sortKey]).map((member) => member.sym).join(' · ');
-        detailCell.append(el(doc, 'p', `${model.windowLabel} 선두 ${leaders} · 후행 ${tail} · 수익률 표본 ${available.length}/${group.listed}개`, 'theme-strength-basis'));
+        const leaders = available.filter((member) => member.rank === 1).map((member) => member.sym).join(', ');
+        const tail = available.filter((member) => member[model.sortKey] === available.at(-1)[model.sortKey]).map((member) => member.sym).join(', ');
+        detailCell.append(el(doc, 'p', `${model.windowLabel} 선두 ${leaders}, 후행 ${tail}, 수익률 표본 ${available.length}/${group.listed}개`, 'theme-strength-basis'));
       }
       const memberTable = el(doc, 'table', null, 'theme-member-table'), memberHead = el(doc, 'thead'), heading = el(doc, 'tr');
       ['그룹 내 순위', '종목', '종가 기준일', '1개월', '3개월', '6개월', 'S&P 대비', '테마 중앙값 대비', '50일선 거리'].forEach((label) => heading.append(el(doc, 'th', label)));
@@ -172,13 +172,13 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   }
   if (model.excluded.length) footer.append(el(doc, 'span', `수익률이 있는 구성 종목이 3개 미만인 ${model.excluded.length}개 세부 테마는 순위에서 제외`, 'theme-strength-theme'));
   const reference = model.groups.filter((group) => group.smallSample).length;
-  if (reference) footer.append(el(doc, 'span', ` · 3종목 세부 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시`, 'theme-strength-theme'));
+  if (reference) footer.append(el(doc, 'span', `, 3종목 세부 테마 ${reference}개는 중앙값이 한 종목에 크게 흔들려 순위 없이 '참고'로 표시`, 'theme-strength-theme'));
   host.append(footer);
   if (model.excluded.length) {
     const excluded = el(doc, 'details', null, 'theme-strength-unranked');
     excluded.append(el(doc, 'summary', '순위 밖 테마의 전체 구성 보기'));
     for (const group of model.excluded) {
-      const line = el(doc, 'div'); line.append(el(doc, 'p', `${group.themeName} / ${group.name} · 전체 ${group.listed}개 중 수익률 ${group.members}개`, 'theme-strength-basis'));
+      const line = el(doc, 'div'); line.append(el(doc, 'p', `${group.themeName} / ${group.name}, 전체 ${group.listed}개 중 수익률 ${group.members}개`, 'theme-strength-basis'));
       const symbols = el(doc, 'div', null, 'theme-strength-constituents');
       for (const symbol of group.constituents) {
         const button = el(doc, 'button', symbol, 'breadth-drill-symbol'); button.type = 'button';
@@ -207,7 +207,7 @@ function renderTopSubthemes(doc, host, model, basis) {
     const li = el(doc, 'li', null, 'v2-themes-top__row');
     li.dataset.group = group.id;
     const name = el(doc, 'span', null, 'v2-themes-top__name');
-    name.append(el(doc, 'b', group.name), el(doc, 'span', `${group.themeName} · ${group.listed}종목`, 'v2-themes-top__theme'));
+    name.append(el(doc, 'b', group.name), el(doc, 'span', `${group.themeName}, ${group.listed}종목`, 'v2-themes-top__theme'));
     const dir = DIRECTION[group.direction];
     li.append(el(doc, 'span', String(group.rank), 'v2-themes-top__rank'), name,
       dir && !basis?.stale ? el(doc, 'span', dir[0], `sx-chip sx-chip--sm ${DIRECTION_CHIP[group.direction] || 'sx-chip--neutral'}`) : el(doc, 'span', ''),
@@ -237,7 +237,7 @@ function renderCapexFlow(doc, root, host, model) {
   // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
   // v57.79: the split is a published, dated research estimate (see ai-capex-flow.js `source`), so it is labelled as a
   // cited reference with its date — never as an AIO estimate.
-  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분 · 참고 자료(현재 신호 아님) · 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준 · 테마 값은 세부 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)`, 'theme-strength-basis');
+  const basisLine = el(doc, 'p', `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분, 참고 자료(현재 신호 아님), 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준, 테마 값은 세부 테마 중앙값의 중앙값(테마 시나리오와 같은 방식)`, 'theme-strength-basis');
   basisLine.title = `출처: ${AI_CAPEX_FLOW.source}`;
   host.append(basisLine);
   const bar = el(doc, 'div', null, 'capex-flow-bar');
@@ -268,7 +268,7 @@ function renderCapexFlow(doc, root, host, model) {
     const value = el(doc, 'span', `$${layer.share} / $100`, 'trend-card-value');
     value.title = `AI 설비투자 100달러 중 ${layer.label}에 가는 몫 (${AI_CAPEX_FLOW.asOf} 공개 리서치 인용)`;
     head.append(el(doc, 'h3', layer.label, 'trend-card-title'), value);
-    card.append(head, el(doc, 'p', `100달러 중 인용 배분 · ${layer.parts}`, 'trend-card-note'));
+    card.append(head, el(doc, 'p', `100달러 중 인용 배분, ${layer.parts}`, 'trend-card-note'));
     const links = el(doc, 'div', null, 'capex-flow-themes');
     for (const themeId of layer.themes) {
       const theme = model.themes?.[themeId];
@@ -303,7 +303,7 @@ function renderCapexFlow(doc, root, host, model) {
         fill.style.width = `${Math.max(2, (row.weeks[1] - row.weeks[0]) / maxWeeks * 100)}%`;
         meter.title = `${row.item} 납기 ${row.weeks[0]}~${row.weeks[1]}주 (공통 축 0~${maxWeeks}주)`;
         meter.append(fill);
-        li.append(el(doc, 'span', row.item, 'capex-flow-item'), meter, el(doc, 'span', `${row.weeks[0]}~${row.weeks[1]}주${row.balanced ? ' · 원활' : ''}`, 'capex-flow-weeks'));
+        li.append(el(doc, 'span', row.item, 'capex-flow-item'), meter, el(doc, 'span', `${row.weeks[0]}~${row.weeks[1]}주${row.balanced ? ', 원활' : ''}`, 'capex-flow-weeks'));
         list.append(li);
       }
       card.append(list);

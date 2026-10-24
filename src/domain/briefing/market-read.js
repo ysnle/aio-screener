@@ -83,8 +83,8 @@ export function movingAverageStructure(stat) {
   return {
     short, long,
     shortLabel: short ? label[short] : null, longLabel: long ? label[long] : null,
-    shortText: short ? `${label[short]} · 종가 ${fmt(stat.value, 0)} / 5일 ${fmt(stat.ma5, 0)} / 10일 ${fmt(stat.ma10, 0)} / 20일 ${fmt(stat.ma20, 0)}` : null,
-    longText: long ? `${label[long]} · 20일 ${fmt(stat.ma20, 0)} / 50일 ${fmt(stat.ma50, 0)} / 100일 ${fmt(stat.ma100, 0)} / 200일 ${fmt(stat.ma200, 0)}` : null
+    shortText: short ? `${label[short]}, 종가 ${fmt(stat.value, 0)} / 5일 ${fmt(stat.ma5, 0)} / 10일 ${fmt(stat.ma10, 0)} / 20일 ${fmt(stat.ma20, 0)}` : null,
+    longText: long ? `${label[long]}, 20일 ${fmt(stat.ma20, 0)} / 50일 ${fmt(stat.ma50, 0)} / 100일 ${fmt(stat.ma100, 0)} / 200일 ${fmt(stat.ma200, 0)}` : null
   };
 }
 
@@ -405,7 +405,7 @@ export function koreaRecordText(record, { maxTail = 100 } = {}) {
     .filter(([rec, tail]) => rec?.pct != null && tail != null && tail <= maxTail);
   if (!parts.length) return '';
   const n = Math.max(...parts.map(([rec]) => rec.n));
-  return `최근 ${n}거래일 기록에서 ${parts.map(([rec, , label]) => `${label} ${recordSide(rec)}`).join('·')}${parts.some(([rec]) => rec.provisional) ? '(기록 1년 미만 · 잠정)' : ''}`;
+  return `최근 ${n}거래일 기록에서 ${parts.map(([rec, , label]) => `${label} ${recordSide(rec)}`).join('·')}${parts.some(([rec]) => rec.provisional) ? '(기록 1년 미만, 잠정)' : ''}`;
 }
 
 export function alignMarketInputs({ history = [], credit = {}, rates = {}, now = Date.now(), macroHistory = null } = {}) {
@@ -584,7 +584,7 @@ export function buildMarketRead(input = {}) {
     const ddSeries = buildCloseSeries(input.history, 'distributionDays', { through: basis });
     const record = recordPercentile(ddSeries, dd);
     const common = ddSeries.length ? Math.round(ddSeries.filter((point) => point.value >= ddAt).length / ddSeries.length * 100) : null;
-    const where = record.pct == null ? '' : ` AIO 기록 ${record.n}일 중 ${record.pct}백분위${record.provisional ? '(기록 1년 미만 · 잠정)' : ''}.`;
+    const where = record.pct == null ? '' : ` AIO 기록 ${record.n}일 중 ${record.pct}백분위${record.provisional ? '(기록 1년 미만, 잠정)' : ''}.`;
     add('distribution-cluster', 74, `S&P 500 최근 25거래일 중 ${fmt(dd, 0)}일이 0.2% 이상 하락하면서 거래량이 늘어난 날(분배일)입니다.${where}`, 'index', {
       reading: record.pct != null && record.pct < 80 && common != null
         ? `흔히 25거래일 중 5~6회 이상을 추세 약화 신호로 보지만, AIO 기록에서는 ${common}%의 날이 ${ddAt}회 이상이라 이 숫자만으로 경고라고 단정하지 않습니다.`
@@ -595,14 +595,14 @@ export function buildMarketRead(input = {}) {
   const ndx20 = s.nasdaq ? pct(s.nasdaq.value, s.nasdaq.d20) : null;
   const rut20 = s.rut ? pct(s.rut.value, s.rut.d20) : null;
   // C25: this series is the Nasdaq Composite; the home KPI cell is the Nasdaq-100 — each names its own index.
-  if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= B.techGap20dPp) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 종합 20일 ${signed(ndx20)}${win20(s.nasdaq) === win20(spx) ? '' : win20(s.nasdaq)} · S&P 500 ${signed(spx20)}${win20(spx)} —${ndx20 > spx20 ? '기술주가 상승을 주도' : '기술주가 시장보다 약함'}.`, 'index');
+  if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= B.techGap20dPp) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 종합 20일 ${signed(ndx20)}${win20(s.nasdaq) === win20(spx) ? '' : win20(s.nasdaq)}, S&P 500 ${signed(spx20)}${win20(spx)} —${ndx20 > spx20 ? '기술주가 상승을 주도' : '기술주가 시장보다 약함'}.`, 'index');
   if (leaders.break || leaders.state === 'weak') {
     const smh = s.smh, smh5 = smh ? pct(smh.value, smh.d5) : null, smhHigh = smh?.yearMax ? pct(smh.value, smh.yearMax) : null;
     const n = leaders.confirmations.length;
-    add('leadership-break', leaders.break ? 86 : 72, `나스닥 100 5거래일 ${signed(leaders.drop5)}${smh5 != null ? ` · 반도체(SMH) 5거래일 ${signed(smh5)}${smhHigh != null ? `(1년 고점 대비 ${signed(smhHigh)})` : ''}` : ''} · S&P 500 ${signed(spx5)}.`, 'index', {
+    add('leadership-break', leaders.break ? 86 : 72, `나스닥 100 5거래일 ${signed(leaders.drop5)}${smh5 != null ? `, 반도체(SMH) 5거래일 ${signed(smh5)}${smhHigh != null ? `(1년 고점 대비 ${signed(smhHigh)})` : ''}` : ''}, S&P 500 ${signed(spx5)}.`, 'index', {
       reading: leaders.break ? `AI·반도체 주도 영역이 지수보다 크게 밀렸고 시장 전반의 확인 신호도 ${n}개 중 ${leaders.met}개가 겹쳐, 주도주 조정이 지금 시장의 중심 변수입니다.`
         : `AI·반도체 주도 영역이 지수보다 크게 밀렸지만 시장 전반의 확인 신호는 ${n}개 중 ${leaders.met}개라 아직 동반 약세로 번지지 않았습니다.`,
-      check: `나스닥 100${smh ? '과 SMH' : ''}가 50일선(나스닥 100 ${fmt(leaders.ndx?.ma50 ?? s.ndx?.ma50, 0)}${smh?.ma50 != null ? ` · SMH ${fmt(smh.ma50, 0)}` : ''})을 되찾는지` });
+      check: `나스닥 100${smh ? '과 SMH' : ''}가 50일선(나스닥 100 ${fmt(leaders.ndx?.ma50 ?? s.ndx?.ma50, 0)}${smh?.ma50 != null ? `, SMH ${fmt(smh.ma50, 0)}` : ''})을 되찾는지` });
   }
   const bottom = bottomWatchOf({ s, c, input, basis });
   if (bottom && (bottom.exhaustionMet >= 2 || bottom.confirmationMet >= 2)) add('bottom-watch', 64, bottom.text, 'risk');
@@ -614,7 +614,7 @@ export function buildMarketRead(input = {}) {
   const widening20 = c.hy20 != null && c.hy20 >= RULES.credit.widen20dBp;
   if (rut20 != null && spx20 != null && Math.abs(rut20 - spx20) >= B.smallcapGap20dPp) {
     const lags = rut20 < spx20;
-    add(lags ? 'smallcap-lags' : 'smallcap-leads', lags && creditCalm ? 55 : 45, `러셀 2000 20일 ${signed(rut20)}${win20(s.rut) === win20(spx) ? '' : win20(s.rut)} · S&P 500 ${signed(spx20)}${win20(spx)}.`, 'index', {
+    add(lags ? 'smallcap-lags' : 'smallcap-leads', lags && creditCalm ? 55 : 45, `러셀 2000 20일 ${signed(rut20)}${win20(s.rut) === win20(spx) ? '' : win20(s.rut)}, S&P 500 ${signed(spx20)}${win20(spx)}.`, 'index', {
       reading: !lags ? '위험선호가 중소형주까지 퍼진 모습입니다.'
         // Codex browser audit H19: rate sensitivity is one possible path, not the established cause.
         : creditCalm ? `하이일드 스프레드(${fmt(hyBp, 0)}bp)가 낮고 5일·20거래일 모두 넓어지지 않아 신용 위험이 원인이라는 신호는 없습니다. 금리 부담이 그럴듯한 설명이지만, 실적 차이·업종 구성·유동성도 같은 결과를 만들 수 있습니다.`
@@ -703,9 +703,9 @@ export function buildMarketRead(input = {}) {
   if (kospi1 != null && (apart || (krRec?.tail != null && krRec.tail <= B.krTailPct))) {
     const tail = krRec?.tail ?? null;
     const weight = tail == null || tail > B.krTailPct ? 45 : tail <= 2 ? 84 : tail <= KR_SHOCK_TAIL_PCT ? 76 : 58;
-    const usText = spx1 == null ? '' : ` · 직전 미국장(${shortDate(spx.date)}) S&P 500 ${signed(spx1)}${spx5 != null ? `(5거래일 ${signed(spx5)})` : ''}`;
+    const usText = spx1 == null ? '' : `, 직전 미국장(${shortDate(spx.date)}) S&P 500 ${signed(spx1)}${spx5 != null ? `(5거래일 ${signed(spx5)})` : ''}`;
     const fxDate = s.usdkrw?.date && s.usdkrw.date !== kospi.date ? `${shortDate(s.usdkrw.date)}까지 ` : '';
-    const krwText = krw5 == null ? '' : ` · 원/달러 ${fxDate}5거래일 ${signed(krw5)}(${Math.abs(krw5) < RULES.fx.krwFlatPct ? '보합권' : krw5 > 0 ? '원화 약세' : '원화 강세'})`;
+    const krwText = krw5 == null ? '' : `, 원/달러 ${fxDate}5거래일 ${signed(krw5)}(${Math.abs(krw5) < RULES.fx.krwFlatPct ? '보합권' : krw5 > 0 ? '원화 약세' : '원화 강세'})`;
     const where = koreaRecordText(krRec, { maxTail: B.krTailPct });
     const rare = tail != null && tail <= KR_SHOCK_TAIL_PCT;
     add('korea-relative', weight, `코스피 ${shortDate(kospi.date)} ${signed(kospi1)}${kospi5 != null ? `(5거래일 ${signed(kospi5)})` : ''}${usText}${krwText}.${where ? ` 코스피 변화는 ${where}입니다.` : ''}`, 'korea', {
@@ -719,7 +719,7 @@ export function buildMarketRead(input = {}) {
   // sentence appears twice on the page.
   const lead = statements.slice(0, 4);
   const restFor = (axis) => statements.filter((row) => row.axis === axis && !lead.includes(row)).map(({ text, reading }) => ({ text, reading }));
-  const ma = (stat, label) => stat?.ma50 && stat?.ma200 ? `${label} 50일선 ${stat.value > stat.ma50 ? '위' : '아래'} · 200일선 ${stat.value > stat.ma200 ? '위' : '아래'}` : null;
+  const ma = (stat, label) => stat?.ma50 && stat?.ma200 ? `${label} 50일선 ${stat.value > stat.ma50 ? '위' : '아래'}, 200일선 ${stat.value > stat.ma200 ? '위' : '아래'}` : null;
   // P1599 (F101): structured moves for the briefing chart. Percent assets share one axis; the 10-year yield
   // moves in basis points and is kept apart so the two units never share a scale.
   const moves = [
@@ -743,10 +743,10 @@ export function buildMarketRead(input = {}) {
     return charted.has(label) ? shown : withMoves[label];
   };
   const drivers = [
-    { id: 'index', title: '지수 · 시장 폭', values: [['S&P 500', level('S&P 500', spx)], ['나스닥 종합', level('나스닥 종합', s.nasdaq)], ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`]], context: ma(spx, 'S&P 500'), reads: restFor('index') },
-    { id: 'rates', title: '금리 · 달러', values: [['미 10년물', level('미 10년물', tnx, 2, '%')], ['달러 인덱스', level('달러 인덱스', s.dxy)]], context: null, reads: restFor('rates') },
+    { id: 'index', title: '지수, 시장 폭', values: [['S&P 500', level('S&P 500', spx)], ['나스닥 종합', level('나스닥 종합', s.nasdaq)], ['50일선 위 종목', b50 == null ? null : `${fmt(b50, 0)}%`]], context: ma(spx, 'S&P 500'), reads: restFor('index') },
+    { id: 'rates', title: '금리, 달러', values: [['미 10년물', level('미 10년물', tnx, 2, '%')], ['달러 인덱스', level('달러 인덱스', s.dxy)]], context: null, reads: restFor('rates') },
     { id: 'commodities', title: '원자재', values: [['WTI', level('WTI', s.wti)], ['금', level('금', s.gold, 0)]], context: null, reads: restFor('commodities') },
-    { id: 'risk', title: '변동성 · 위험선호', values: [['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null], ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp`], ['풋/콜', pcr == null ? null : fmt(pcr)], ['F&G', fg == null ? null : fmt(fg, 0)]], context: null, reads: restFor('risk') },
+    { id: 'risk', title: '변동성, 위험선호', values: [['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null], ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp`], ['풋/콜', pcr == null ? null : fmt(pcr)], ['F&G', fg == null ? null : fmt(fg, 0)]], context: null, reads: restFor('risk') },
     { id: 'korea', title: '한국', values: [['코스피', level('코스피', s.kospi)], ['원/달러', level('원/달러', s.usdkrw, 1)]], context: null, reads: restFor('korea') }
   ].map((row) => ({ ...row, values: row.values.filter(([, value]) => value) }));
   const headline = statements[0] || null;
@@ -821,7 +821,7 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
   const item = (label, ok, value) => ({ label, ok, value });
   const exhaustion = [
     item(`공포·탐욕 ${W.fearAtMost} 이하`, fg == null ? null : fg <= W.fearAtMost, fg == null ? null : `공포·탐욕 ${fmt(fg, 0)}`),
-    item(`VIX ${V.highAt} 이상 또는 기간 구조 역전`, vix == null ? null : vix.value >= V.highAt || (ratio != null && ratio >= V.invertedRatioAt), vix == null ? null : `VIX ${fmt(vix.value)}${ratio != null ? ` · 3개월 대비 ${fmt(ratio)}` : ''}`),
+    item(`VIX ${V.highAt} 이상 또는 기간 구조 역전`, vix == null ? null : vix.value >= V.highAt || (ratio != null && ratio >= V.invertedRatioAt), vix == null ? null : `VIX ${fmt(vix.value)}${ratio != null ? `, 3개월 대비 ${fmt(ratio)}` : ''}`),
     item(`신저가가 최근 ${W.newLowsWindow}거래일 최고치의 ${W.newLowsShrinkShare * 100}% 이하로 줄어듦`, !peak || !lowsNow ? null : !!extreme && lowsNow.value <= peak.value * W.newLowsShrinkShare,
       !peak || !lowsNow ? null : `신저가 ${fmt(peak.value, 0)}(${shortDate(peak.date)}) → ${fmt(lowsNow.value, 0)}`),
     item(`20일선 위 종목 비율이 ${W.b20Window}거래일 저점보다 +${W.b20ReboundPp}%p 이상`, b20Now == null || b20Low == null ? null : b20Now - b20Low >= W.b20ReboundPp,
@@ -836,18 +836,18 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
   const tally = (list) => ({ met: list.filter((row) => row.ok === true).length, known: list.filter((row) => row.ok != null).length, total: list.length });
   const ex = tally(exhaustion), cf = tally(confirmation);
   if (!ex.known && !cf.known) return null;
-  const metText = (list) => list.filter((row) => row.ok === true && row.value).map((row) => row.value).join(' · ');
+  const metText = (list) => list.filter((row) => row.ok === true && row.value).map((row) => row.value).join(', ');
   const missText = (list) => list.filter((row) => row.ok === false).map((row) => row.label).join(', ');
   const verdict = ex.met >= 2 && cf.met >= 2 ? '소진과 회복 확인이 함께 보여, 바닥을 시험하는 반등인지 다음 종가로 확인할 구간입니다'
     : ex.met >= 2 ? '매도 소진 신호는 쌓였지만 회복 확인은 아직이라, 바닥을 단정하지 않고 확인 신호가 붙는지 보는 구간입니다'
       : cf.met >= 2 ? '회복 신호는 보이지만 매도 소진 신호가 적어, 투매 없이 버티는 반등인지 지켜볼 구간입니다'
         : '매도 소진도 회복 확인도 아직 뚜렷하지 않습니다';
-  const text = `바닥 확인 조건 — 소진 ${ex.met}/${ex.total}${metText(exhaustion) ? `(${metText(exhaustion)})` : ''} · 회복 확인 ${cf.met}/${cf.total}${metText(confirmation) ? `(${metText(confirmation)})` : ''}${missText(confirmation) ? ` · 남은 확인: ${missText(confirmation)}` : ''}. ${verdict}. 관례적 조건의 개수이며 바닥 예측이 아닙니다.`;
+  const text = `바닥 확인 조건 — 소진 ${ex.met}/${ex.total}${metText(exhaustion) ? `(${metText(exhaustion)})` : ''}, 회복 확인 ${cf.met}/${cf.total}${metText(confirmation) ? `(${metText(confirmation)})` : ''}${missText(confirmation) ? `, 남은 확인: ${missText(confirmation)}` : ''}. ${verdict}. 관례적 조건의 개수이며 바닥 예측이 아닙니다.`;
   // v58.56 (re-audit #2): one plain line for the 오늘 hero; the counts and rule stay in `text` (the 6개 축 근거 fold).
   const line = ex.met >= 2 && cf.met >= 2 ? '매도 소진과 회복 신호가 함께 보여요.'
-    : ex.met >= 2 ? '매도 소진 신호는 쌓였지만 회복 확인은 아직이에요.'
-      : cf.met >= 2 ? '회복 신호는 보이지만 매도 소진 신호는 적어요.'
-        : '매도 소진도 회복 확인도 아직 뚜렷하지 않아요.';
+    : ex.met >= 2 ? '매도 소진 신호는 쌓였지만 회복 확인은 아직입니다.'
+      : cf.met >= 2 ? '회복 신호는 보이지만 매도 소진 신호는 적습니다.'
+        : '매도 소진도 회복 확인도 아직 뚜렷하지 않습니다.';
   return { exhaustion, confirmation, exhaustionMet: ex.met, confirmationMet: cf.met, text, line };
 }
 
@@ -936,16 +936,16 @@ export function leadershipBreakOf(s = {}, basis = null, history = null) {
   const broken = proxyWeak && heldSince != null;
   const held = broken && met < rule.minConfirmations;
   const undecided = proxyWeak && !broken && met + (confirmations.length - known) >= rule.minConfirmations;
-  const proxyText = `나스닥 100 5거래일 ${signed(drop5)}${belowMa50 ? ` · 50일선 ${signed(pct(ndx.value, ndx.ma50))}` : ''}${proxyWeak && offHigh != null ? ` · 1년 고점 대비 ${signed(offHigh)}` : ''}`;
+  const proxyText = `나스닥 100 5거래일 ${signed(drop5)}${belowMa50 ? `, 50일선 ${signed(pct(ndx.value, ndx.ma50))}` : ''}${proxyWeak && offHigh != null ? `, 1년 고점 대비 ${signed(offHigh)}` : ''}`;
   const seenText = (item) => item.date && item.date !== today.date ? `${item.value}(${shortDate(item.date)})` : item.value;
   return { available: true, break: broken, state: broken ? 'break' : undecided ? 'unknown' : proxyWeak ? 'weak' : 'holding', proxy: 'ndx', proxyLabel: '나스닥 100',
     proxyWeak, drop5, belowMa50, offHigh, date: today.date, confirmations, met, known, need: rule.minConfirmations, window, heldSince: broken ? heldSince : null, held,
-    summary: [proxyText, ...confirmations.filter((item) => item.ok).map(seenText), held ? `${shortDate(heldSince)} 이탈 판정 후 나스닥 100 약세 지속` : null].filter(Boolean).join(' · ') };
+    summary: [proxyText, ...confirmations.filter((item) => item.ok).map(seenText), held ? `${shortDate(heldSince)} 이탈 판정 후 나스닥 100 약세 지속` : null].filter(Boolean).join(', ') };
 }
 
 // v57.81: one evidence line per index — level, distance to its own 50/200-day lines and to its one-year high.
 const indexPositionText = (stat, extra = '') => !stat ? null : [fmt(stat.value), stat.ma50 != null ? `50일선 ${signed(pct(stat.value, stat.ma50))}` : null,
-  stat.ma200 != null ? `200일선 ${signed(pct(stat.value, stat.ma200))}` : null, stat.yearMax ? `1년 고점 대비 ${signed(pct(stat.value, stat.yearMax))}` : null, extra || null].filter(Boolean).join(' · ');
+  stat.ma200 != null ? `200일선 ${signed(pct(stat.value, stat.ma200))}` : null, stat.yearMax ? `1년 고점 대비 ${signed(pct(stat.value, stat.yearMax))}` : null, extra || null].filter(Boolean).join(', ');
 
 export function buildMarketRegime(input = {}) {
   const { basis, s, c, r, alignments } = alignMarketInputs(input);
@@ -958,7 +958,7 @@ export function buildMarketRegime(input = {}) {
     const mixed = days.length > 1;
     return {
       id, title, state, stateLabel: STATE_LABELS[state], read, flip,
-      evidence: shown.map((row) => [row.label, mixed && row.iso ? `${row.value} · ${shortDate(row.iso)}` : row.value]),
+      evidence: shown.map((row) => [row.label, mixed && row.iso ? `${row.value}, ${shortDate(row.iso)}` : row.value]),
       basis: mixed ? `${shortDate(days[0])}~${shortDate(days[days.length - 1])}` : basisOf ? alignmentLabel(basisOf) : null,
       basisStatus: mixed ? 'mixed' : basisOf?.status || null,
       flipDistance: null, flipDistances: [] // v58.55: set by the axes whose rule has a lever (attachDistance)
@@ -1069,7 +1069,7 @@ export function buildMarketRegime(input = {}) {
       ? ` 단기(5·10·20일)는 ${structure.shortLabel}, 장기(20·50·100·200일)는 ${structure.longLabel}${structure.short !== structure.long ? ' — 두 기간의 방향이 달라 단기 흐름이 장기 추세로 이어지는지 확인할 구간입니다' : ''}.` : '';
     const baseRead = state === 'favorable' ? `지수가 오르는 50일선보다 ${signed(gap50)} 위에 있고 50일선이 200일선 위 — 상승 추세가 유지되고 있습니다.${trendHeld ? ` 양호 판정은 ${shortDate(trendLatch.since)}부터 이어지고 있으며, 50일선 아래로 마감하기 전까지 유지합니다.` : ''}`
       : state === 'burden' ? (under200 ? `S&P 500이 200일선보다 ${signed(gap200)} 아래 — 장기 추세가 꺾였습니다.`
-        : leaderBreakUnder50 ? `S&P 500이 50일선보다 ${fmt(Math.abs(gap50), 1)}% 아래로 마감했고, 주도 영역도 이탈(나스닥 100 5거래일 ${signed(leadership.drop5)} · 확인 ${leadership.met}/${leadership.confirmations.length})해 지수를 받치던 축이 함께 약해졌습니다 — 50일선 근처의 일시적 시험이 아니라 추세 약화로 봅니다.`
+        : leaderBreakUnder50 ? `S&P 500이 50일선보다 ${fmt(Math.abs(gap50), 1)}% 아래로 마감했고, 주도 영역도 이탈(나스닥 100 5거래일 ${signed(leadership.drop5)}, 확인 ${leadership.met}/${leadership.confirmations.length})해 지수를 받치던 축이 함께 약해졌습니다 — 50일선 근처의 일시적 시험이 아니라 추세 약화로 봅니다.`
           : 'S&P 500이 하락하는 50일선 아래 — 단기 추세가 약해졌습니다.')
         : state === 'unknown' ? '이동평균 계산에 필요한 종가 기록(200거래일 이상)이 부족합니다.'
           // T21: 중립 covers several shapes; each is named instead of a blanket "추세는 유지되지만".
@@ -1087,10 +1087,10 @@ export function buildMarketRegime(input = {}) {
       : state === 'favorable' ? `S&P 500이 50일선(${fmt(spx.ma50 * (1 + holdAbovePct / 100), 0)}) 아래로 마감하거나 50일선이 꺾이면 중립, 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 아래면 부담`
         : state === 'burden' ? (leaderBreakUnder50 ? `S&P 500이 50일선(${fmt(spx.ma50, 0)}) 위로 마감하거나 주도 영역 이탈이 풀리면(나스닥 100이 50일선을 되찾고 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안) 중립으로 바뀜`
           : `S&P 500이 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 위로 올라오고 하락하는 50일선보다 ${buffer}% 넘게 아래가 아니면 중립으로 바뀜`)
-          : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip} · 200일선보다 ${buffer}% 넘게 아래(${fmt(spx.ma200 * (1 - buffer / 100), 0)} 미만)이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담${leadership.break && gap50 != null && gap50 >= 0 ? ` · 주도 영역 이탈이 확인된 동안은 50일선(${fmt(spx.ma50, 0)}) 아래로 마감하기만 해도 부담` : ''}`; // v58.55: the leadership-break path the rule applies is named
+          : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip}, 200일선보다 ${buffer}% 넘게 아래(${fmt(spx.ma200 * (1 - buffer / 100), 0)} 미만)이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담${leadership.break && gap50 != null && gap50 >= 0 ? `, 주도 영역 이탈이 확인된 동안은 50일선(${fmt(spx.ma50, 0)}) 아래로 마감하기만 해도 부담` : ''}`; // v58.55: the leadership-break path the rule applies is named
     const rows = [
       ['S&P 500', `${fmt(spx.value)} (20일 ${signed(pct(spx.value, spx.d20))})`, alignments.spx],
-      ['50일선 대비', gap50 == null ? null : `${signed(gap50, 2)} (양호 진입 +${buffer}% 이상 · 유지 ${holdAbovePct ? `+${holdAbovePct}%` : '50일선'} 이상)`, alignments.spx],
+      ['50일선 대비', gap50 == null ? null : `${signed(gap50, 2)} (양호 진입 +${buffer}% 이상, 유지 ${holdAbovePct ? `+${holdAbovePct}%` : '50일선'} 이상)`, alignments.spx],
       ['단기 추세 (종가>5>10>20일선)', structure.shortText, alignments.spx],
       ['장기 추세 (20>50>100>200일선)', structure.longText, alignments.spx],
       ['50일선 / 200일선', spx.ma50 != null && spx.ma200 != null ? `${fmt(spx.ma50, 0)} / ${fmt(spx.ma200, 0)}` : null, alignments.spx],
@@ -1161,8 +1161,8 @@ export function buildMarketRegime(input = {}) {
     const recordOf = (field, value) => value == null ? null : recordPercentile(buildCloseSeries(input.history, field, { through: basis }), value);
     const rec50 = recordOf('breadth50', b50);
     const rec200 = recordOf('breadth200', b200);
-    const recordText = (rec) => rec?.pct == null ? '' : ` · 기록 ${rec.n}일 중 ${rec.pct}백분위${rec.provisional ? '(잠정)' : ''}`;
-    const recordRead = rec50?.pct == null ? '' : ` 50일선 위 비율 ${fmt(b50, 0)}%는 AIO 자체 기록 ${rec50.n}일 중 ${rec50.pct}백분위입니다${rec50.provisional ? `(기록 ${RECORD_FULL_YEAR}거래일 미만 · 잠정)` : ''}.`;
+    const recordText = (rec) => rec?.pct == null ? '' : `, 기록 ${rec.n}일 중 ${rec.pct}백분위${rec.provisional ? '(잠정)' : ''}`;
+    const recordRead = rec50?.pct == null ? '' : ` 50일선 위 비율 ${fmt(b50, 0)}%는 AIO 자체 기록 ${rec50.n}일 중 ${rec50.pct}백분위입니다${rec50.provisional ? `(기록 ${RECORD_FULL_YEAR}거래일 미만, 잠정)` : ''}.`;
     const read = (state === 'favorable' ? '상승이 다수 종목으로 퍼져 있습니다.'
       : breadthHeld ? `50일선 위 종목 비율이 ${shortDate(breadthLatch.since)}부터 ${B.weakBelow}% 아래에 머물다 ${fmt(b50, 0)}%로 올라왔지만, ${B.holdExitAt}% 위로 회복하기 전까지는 참여가 좁은 상태(부담)로 봅니다.`
       // v57.81: while the leadership break holds, the narrow tape is not "the index leaning on a few leaders" — they are falling too.
@@ -1229,9 +1229,9 @@ export function buildMarketRegime(input = {}) {
         vixPoint(V.calmBelow, String(V.calmBelow), `VIX ${V.calmBelow}`),
         vixPoint(V.calmBelow - V.calmBufferPt, String(V.calmBelow - V.calmBufferPt), `VIX ${V.calmBelow - V.calmBufferPt}`),
         ...(vix3mSame ? [vixPoint(vix3mSame * V.invertedRatioAt, `${fmt(vix3mSame * V.invertedRatioAt)}(3개월 VIX와 역전)`, `3개월 VIX 역전 ${fmt(vix3mSame)}`),
-          vixPoint(vix3mSame * V.calmRatioBelow, `${fmt(vix3mSame * V.calmRatioBelow)}(3개월 VIX의 ${V.calmRatioBelow}배)`, `VIX/3개월 ${V.calmRatioBelow} · ${fmt(vix3mSame * V.calmRatioBelow)}`)] : []),
-        ...(vix.d5 ? [vixPoint(vix.d5 * (1 + V.spike5dPct / 100), `${fmt(vix.d5 * (1 + V.spike5dPct / 100))}(5거래일 +${V.spike5dPct}%)`, `5일 +${V.spike5dPct}% · ${fmt(vix.d5 * (1 + V.spike5dPct / 100))}`),
-          vixPoint(vix.d5 * (1 + V.rise5dWatchPct / 100), `${fmt(vix.d5 * (1 + V.rise5dWatchPct / 100))}(5거래일 +${V.rise5dWatchPct}%)`, `5일 +${V.rise5dWatchPct}% · ${fmt(vix.d5 * (1 + V.rise5dWatchPct / 100))}`),
+          vixPoint(vix3mSame * V.calmRatioBelow, `${fmt(vix3mSame * V.calmRatioBelow)}(3개월 VIX의 ${V.calmRatioBelow}배)`, `VIX/3개월 ${V.calmRatioBelow}, ${fmt(vix3mSame * V.calmRatioBelow)}`)] : []),
+        ...(vix.d5 ? [vixPoint(vix.d5 * (1 + V.spike5dPct / 100), `${fmt(vix.d5 * (1 + V.spike5dPct / 100))}(5거래일 +${V.spike5dPct}%)`, `5일 +${V.spike5dPct}%, ${fmt(vix.d5 * (1 + V.spike5dPct / 100))}`),
+          vixPoint(vix.d5 * (1 + V.rise5dWatchPct / 100), `${fmt(vix.d5 * (1 + V.rise5dWatchPct / 100))}(5거래일 +${V.rise5dWatchPct}%)`, `5일 +${V.rise5dWatchPct}%, ${fmt(vix.d5 * (1 + V.rise5dWatchPct / 100))}`),
           vixPoint(vix.d5, `${fmt(vix.d5)}(5거래일 전 수준)`, `5거래일 전 ${fmt(vix.d5)}`)] : [])
       ] }]
     });
@@ -1244,8 +1244,8 @@ export function buildMarketRegime(input = {}) {
                 : 'VIX 18~25 주의 구간이거나 기간 구조가 평탄합니다.';
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `VIX ${V.stressAt} 미만, VIX/3개월 VIX ${V.invertedRatioAt} 미만, 5일 상승률 +${V.spike5dPct}% 미만이 모두 충족되면 중립으로 바뀜`
-        : state === 'favorable' ? `VIX ${V.calmBelow - V.calmBufferPt} 이상에서 5일 상승, 5일 +${V.rise5dWatchPct}% 이상 상승, VIX ${V.calmBelow} 이상 또는 VIX/3개월 VIX ${V.calmRatioBelow} 이상이면 중립 · VIX ${V.stressAt} 이상, 역전(${V.invertedRatioAt} 이상), 5일 +${V.spike5dPct}% 급등 중 하나면 부담`
-          : `VIX ${V.calmBelow - V.calmBufferPt} 미만(또는 ${V.calmBelow} 미만에서 5일 하락)이고 5일 상승이 +${V.rise5dWatchPct}% 미만, VIX/3개월 VIX ${V.calmRatioBelow} 미만이면 양호 · VIX ${V.stressAt} 이상, 역전, 5일 +${V.spike5dPct}% 급등 중 하나면 부담`;
+        : state === 'favorable' ? `VIX ${V.calmBelow - V.calmBufferPt} 이상에서 5일 상승, 5일 +${V.rise5dWatchPct}% 이상 상승, VIX ${V.calmBelow} 이상 또는 VIX/3개월 VIX ${V.calmRatioBelow} 이상이면 중립, VIX ${V.stressAt} 이상, 역전(${V.invertedRatioAt} 이상), 5일 +${V.spike5dPct}% 급등 중 하나면 부담`
+          : `VIX ${V.calmBelow - V.calmBufferPt} 미만(또는 ${V.calmBelow} 미만에서 5일 하락)이고 5일 상승이 +${V.rise5dWatchPct}% 미만, VIX/3개월 VIX ${V.calmRatioBelow} 미만이면 양호, VIX ${V.stressAt} 이상, 역전, 5일 +${V.spike5dPct}% 급등 중 하나면 부담`;
     axes.push(axis('volatility', '변동성', state, [
       ['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null],
       ['VIX / 3개월 VIX', ratio == null ? null : `${fmt(ratio)} ${ratio >= V.invertedRatioAt ? '(역전)' : ratio >= V.calmRatioBelow ? '(평탄)' : '(정상)'}`]
@@ -1289,8 +1289,8 @@ export function buildMarketRegime(input = {}) {
       return on ? 'burden' : point.d20 <= -R.move20dBp ? 'favorable' : 'neutral';
     };
     const yieldShow = (to, current) => [(to - current) * 100, 'bp', 0];
-    const changePoint = (bpLine) => ({ at: tnx.d20 + bpLine / 100, subject: '10년물 20일 변화가', mark: `${bpLine > 0 ? '+' : '−'}${Math.abs(bpLine)}bp(${fmt(tnx.d20 + bpLine / 100)}%)`, short: `20일 ${bpLine > 0 ? '+' : '−'}${Math.abs(bpLine)}bp · ${fmt(tnx.d20 + bpLine / 100)}%`, show: yieldShow });
-    const rangePoint = (share) => ({ at: tnx.yearMin + share * (tnx.yearMax - tnx.yearMin), subject: '10년물이', mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(tnx.yearMin + share * (tnx.yearMax - tnx.yearMin))}%)`, short: `1년 범위 ${Math.round(share * 100)}% · ${fmt(tnx.yearMin + share * (tnx.yearMax - tnx.yearMin))}%`, show: yieldShow });
+    const changePoint = (bpLine) => ({ at: tnx.d20 + bpLine / 100, subject: '10년물 20일 변화가', mark: `${bpLine > 0 ? '+' : '−'}${Math.abs(bpLine)}bp(${fmt(tnx.d20 + bpLine / 100)}%)`, short: `20일 ${bpLine > 0 ? '+' : '−'}${Math.abs(bpLine)}bp, ${fmt(tnx.d20 + bpLine / 100)}%`, show: yieldShow });
+    const rangePoint = (share) => ({ at: tnx.yearMin + share * (tnx.yearMax - tnx.yearMin), subject: '10년물이', mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(tnx.yearMin + share * (tnx.yearMax - tnx.yearMin))}%)`, short: `1년 범위 ${Math.round(share * 100)}%, ${fmt(tnx.yearMin + share * (tnx.yearMax - tnx.yearMin))}%`, show: yieldShow });
     const ratesDistance = !tnx || tnx20 == null ? null : flipDistanceSearch({
       state, stateAt: (values) => ratesAt(values.tnx),
       levers: [{ key: 'tnx', current: tnx.value, typical: typicalDailyMove(tnxSeries), points: [
@@ -1305,19 +1305,19 @@ export function buildMarketRegime(input = {}) {
     const realLed = real5 != null && bei5 != null && real5 > 0 && Math.abs(real5) >= Math.abs(bei5);
     // P1592 (F44): name the window — a 20-day rise with a small 5-day pullback is not 'rising now'.
     const rateMove = tnx20 != null && tnx20 >= RULES.rates.move20dBp
-      ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} 오른 구간${tnx5 != null && tnx5 < 0 ? `(최근 5일은 ${signed(tnx5, 0, 'bp')} 되돌림)` : ''}${atHigh ? ' · 1년 범위 상단' : ''}`
+      ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} 오른 구간${tnx5 != null && tnx5 < 0 ? `(최근 5일은 ${signed(tnx5, 0, 'bp')} 되돌림)` : ''}${atHigh ? ', 1년 범위 상단' : ''}`
       : `1년 범위 상단에서 최근 5일 ${signed(tnx5, 0, 'bp')} 오른 장기금리`;
     const heldRead = held ? `장기금리가 ${tnx.yearPosition == null ? '' : `1년 범위 상단(${fmt(tnx.yearPosition * 100, 0)}%)에서 `}20거래일 ${signed(tnx20, 0, 'bp')}이고 최근 5일은 ${signed(tnx5, 0, 'bp')}${tnx5 != null && tnx5 < 0 ? ' 되돌렸지만' : '였지만'}, 범위 ${R.rangeExitAt * 100}% 아래로 내려오거나 20거래일 상승이 +${R.exit20dBp}bp 아래로 줄기 전까지는 할인율 부담으로 봅니다.${latch.since ? ` 부담 판정은 ${shortDate(latch.since)}부터 이어지고 있습니다.` : ''}` : null;
     const read = heldRead || state === 'burden' ? heldRead || `${rateMove} — 주식 할인율 부담${realLed ? '. 실질금리 주도 여부는 5일 관측 기준이며(20일 전체를 분해한 자료는 없습니다), 최근 5일 상승분 대부분이 실질금리였습니다' : ''}.`
       : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
         : state === 'unknown' ? (tnx ? '10년물 20일 변화를 계산할 기록이 부족합니다.' : staleRead('금리', alignments.tnx))
           // v57.55 review (E2-09): "+22bp" read as "뚜렷한 방향 없이" — below the burden bar is not the same as no direction.
-          : (Math.abs(tnx20) >= RULES.rates.move20dBp / 2 ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} ${tnx20 > 0 ? '올랐지만' : '내렸지만'} 판정 기준(±${RULES.rates.move20dBp}bp)에는 못 미칩니다${atHigh ? ' · 1년 범위 상단' : ''}.`
+          : (Math.abs(tnx20) >= RULES.rates.move20dBp / 2 ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} ${tnx20 > 0 ? '올랐지만' : '내렸지만'} 판정 기준(±${RULES.rates.move20dBp}bp)에는 못 미칩니다${atHigh ? ', 1년 범위 상단' : ''}.`
             : '금리가 뚜렷한 방향 없이 움직이고 있습니다.') + neutralLevel;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `10년물 20일 변화 +${RULES.rates.move20dBp}bp 미만(현재 ${signed(tnx20, 0, 'bp')})이고, 1년 범위 위치가 ${R.rangeExitAt * 100}% 아래로 내려오거나 20일 상승이 +${R.exit20dBp}bp 아래로 줄면 중립으로 바뀜`
         : state === 'favorable' ? `10년물 20일 변화가 -${RULES.rates.move20dBp}bp 위로 올라오면 중립, +${RULES.rates.move20dBp}bp 이상이면 부담`
-          : `10년물 20일 +${RULES.rates.move20dBp}bp 이상 또는 1년 범위 ${RULES.rates.rangeHighAt * 100}% 이상에서 5일 상승 시 부담 · 20일 -${RULES.rates.move20dBp}bp 이하면 양호`;
+          : `10년물 20일 +${RULES.rates.move20dBp}bp 이상 또는 1년 범위 ${RULES.rates.rangeHighAt * 100}% 이상에서 5일 상승 시 부담, 20일 -${RULES.rates.move20dBp}bp 이하면 양호`;
     axes.push(axis('rates', '금리', state, [
       ['미 10년물', tnx ? `${fmt(tnx.value)}% (5거래일 ${signed(tnx5, 0, 'bp')}, 20일 ${signed(tnx20, 0, 'bp')})` : null],
       ['1년 범위 내 위치', tnx?.yearPosition == null ? null : `${fmt(tnx.yearPosition * 100, 0)}%`],
@@ -1355,10 +1355,10 @@ export function buildMarketRegime(input = {}) {
       levers: [{ key: 'hy', current: hyBp, typical: typicalDailyMove(hySeries.sort((a, b) => a.date.localeCompare(b.date))), points: [
         hyPoint(C.stressAtBp, `${C.stressAtBp}bp`, `${C.stressAtBp}bp`),
         hyPoint(C.tightBelowBp, `${C.tightBelowBp}bp`, `${C.tightBelowBp}bp`),
-        ...(base5 != null ? [hyPoint(base5 + C.widen5dBp, `${fmt(base5 + C.widen5dBp, 0)}bp(5거래일 +${C.widen5dBp}bp)`, `5일 +${C.widen5dBp}bp · ${fmt(base5 + C.widen5dBp, 0)}bp`),
-          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `5일 +${C.calm5dBp}bp · ${fmt(base5 + C.calm5dBp, 0)}bp`)] : []),
-        ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `20일 +${C.widen20dBp}bp · ${fmt(base20 + C.widen20dBp, 0)}bp`),
-          hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ' · 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `20일 +${fmt(enter20, 0)}bp · ${fmt(base20 + enter20, 0)}bp`)] : [])
+        ...(base5 != null ? [hyPoint(base5 + C.widen5dBp, `${fmt(base5 + C.widen5dBp, 0)}bp(5거래일 +${C.widen5dBp}bp)`, `5일 +${C.widen5dBp}bp, ${fmt(base5 + C.widen5dBp, 0)}bp`),
+          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `5일 +${C.calm5dBp}bp, ${fmt(base5 + C.calm5dBp, 0)}bp`)] : []),
+        ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `20일 +${C.widen20dBp}bp, ${fmt(base20 + C.widen20dBp, 0)}bp`),
+          hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ', 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `20일 +${fmt(enter20, 0)}bp, ${fmt(base20 + enter20, 0)}bp`)] : [])
       ] }],
       assumptions: [{ key: 'pcr', label: `풋/콜 ${C.putCallHedgeAt} 미만`, holds: !(pcr != null && pcr >= C.putCallHedgeAt) }]
     });
@@ -1380,9 +1380,9 @@ export function buildMarketRegime(input = {}) {
             : hy5 == null && hyBp < RULES.credit.tightBelowBp ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : `신용은 크게 나쁘지 않지만 스프레드 수준·방향이나 헤지 수요가 경계선입니다(하이일드 ${fmt(hyBp, 0)}bp, 5일 ${signed(hy5, 0, 'bp')}${month}).`;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `하이일드 스프레드가 ${RULES.credit.stressAtBp}bp 아래이고 5일 확대가 +${RULES.credit.widen5dBp}bp 미만이며 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄면 중립으로 바뀜`
-        : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대, 풋/콜 ${RULES.credit.putCallHedgeAt} 이상 중 하나면 중립 · ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
-          : `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 20거래일 확대 +${RULES.credit.widen20dBp}bp 미만, 풋/콜 ${RULES.credit.putCallHedgeAt} 미만이면 양호 · ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`;
-    axes.push(axis('credit', '신용 · 위험선호', state, [
+        : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대, 풋/콜 ${RULES.credit.putCallHedgeAt} 이상 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
+          : `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 20거래일 확대 +${RULES.credit.widen20dBp}bp 미만, 풋/콜 ${RULES.credit.putCallHedgeAt} 미만이면 양호, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`;
+    axes.push(axis('credit', '신용과 위험선호', state, [
       ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5거래일 ${signed(hy5, 0, 'bp')}${month})` : ''}`],
       ['풋/콜 비율', pcr == null ? null : fmt(pcr)],
       ['F&G (참고)', c.fg == null ? null : fmt(c.fg, 0)]
@@ -1426,8 +1426,8 @@ export function buildMarketRegime(input = {}) {
       return !oilHeld && w20 != null && d20 != null && w20 <= RULES.oil.fall20dPct && d20 <= 0 ? 'favorable' : 'neutral';
     };
     const changeShow = (stat) => (to, current) => [pct(to, stat.d20) - pct(current, stat.d20), '%p', 1];
-    const pricePoint = (stat, subject, name, line, digits) => ({ at: stat.d20 * (1 + line / 100), subject: `${subject} 20일 변화가`, mark: `${line > 0 ? '+' : line < 0 ? '−' : '±'}${Math.abs(line)}%(${fmt(stat.d20 * (1 + line / 100), digits)})`, short: `${name} 20일 ${line > 0 ? '+' : line < 0 ? '−' : '±'}${Math.abs(line)}% · ${fmt(stat.d20 * (1 + line / 100), digits)}`, show: changeShow(stat) });
-    const positionPoint = (stat, subject, name, share, digits) => stat.yearPosition == null ? null : { at: stat.yearMin + share * (stat.yearMax - stat.yearMin), subject, mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)})`, short: `${name} 1년 범위 ${Math.round(share * 100)}% · ${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)}`, show: (to, current) => [pct(to, current), '%', 1] };
+    const pricePoint = (stat, subject, name, line, digits) => ({ at: stat.d20 * (1 + line / 100), subject: `${subject} 20일 변화가`, mark: `${line > 0 ? '+' : line < 0 ? '−' : '±'}${Math.abs(line)}%(${fmt(stat.d20 * (1 + line / 100), digits)})`, short: `${name} 20일 ${line > 0 ? '+' : line < 0 ? '−' : '±'}${Math.abs(line)}%, ${fmt(stat.d20 * (1 + line / 100), digits)}`, show: changeShow(stat) });
+    const positionPoint = (stat, subject, name, share, digits) => stat.yearPosition == null ? null : { at: stat.yearMin + share * (stat.yearMax - stat.yearMin), subject, mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)})`, short: `${name} 1년 범위 ${Math.round(share * 100)}%, ${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)}`, show: (to, current) => [pct(to, current), '%', 1] };
     const commodityLevers = [
       wti?.d20 ? { key: 'wti', current: wti.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'wti', { through: basis })), points: [
         pricePoint(wti, 'WTI', 'WTI', RULES.oil.rise20dPct, 2), pricePoint(wti, 'WTI', 'WTI', RULES.oil.fall20dPct, 2), positionPoint(wti, 'WTI가', 'WTI', RULES.oil.rangeHighAt, 2)
@@ -1446,7 +1446,7 @@ export function buildMarketRegime(input = {}) {
     const wti5 = wti ? pct(wti.value, wti.d5) : null;
     const oilTurn = wti20 != null && wti5 != null && Math.abs(wti5) >= RULES.oil.turn5dPct && Math.sign(wti5) !== Math.sign(wti20) ? (wti5 > 0 ? '반등' : '반락') : null;
     const oilShort = oilTurn ? ` WTI는 20일 ${signed(wti20)}이지만 최근 5일 ${signed(wti5)} ${oilTurn}했습니다(판정은 20일 기준).` : '';
-    const read = (state === 'burden' ? (!oilHeld && wti20 != null && wti20 >= RULES.oil.rise20dPct ? '유가가 빠르게 오르며 물가·금리 부담을 키우고 있습니다.' : !oilHeld && wtiHigh ? `유가가 1년 범위 상단(${fmt(wti.yearPosition * 100, 0)}%)에 머물러 물가·금리 부담입니다.` : `달러 강세(20일 ${signed(dxy20)}${dxyPos != null ? ` · 1년 범위 ${fmt(dxyPos * 100, 0)}%` : ''})가 해외 매출 기업과 신흥국 자금 흐름에 부담입니다.`)
+    const read = (state === 'burden' ? (!oilHeld && wti20 != null && wti20 >= RULES.oil.rise20dPct ? '유가가 빠르게 오르며 물가·금리 부담을 키우고 있습니다.' : !oilHeld && wtiHigh ? `유가가 1년 범위 상단(${fmt(wti.yearPosition * 100, 0)}%)에 머물러 물가·금리 부담입니다.` : `달러 강세(20일 ${signed(dxy20)}${dxyPos != null ? `, 1년 범위 ${fmt(dxyPos * 100, 0)}%` : ''})가 해외 매출 기업과 신흥국 자금 흐름에 부담입니다.`)
       : state === 'favorable' ? '유가와 달러가 함께 내려오며 물가·금융 여건 부담이 줄고 있습니다.'
         : state === 'unknown' ? staleRead('유가·달러', alignments.wti)
           // v57.81: a dollar rise just past the line (inside the buffer, below the top of its range) is named, not judged.
@@ -1454,12 +1454,12 @@ export function buildMarketRegime(input = {}) {
             : '유가·달러가 중립 범위입니다.') + missing + (oilHeld ? ` ${oil.text}${oilShort}` : oilShort); // v57.87: a held direction still names a 5-session turn
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 미만, WTI 20일 +${RULES.oil.rise20dPct}% 미만, 달러 20일 +${D.rise20dPct + D.bufferPct}% 미만(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}% 미만)이 모두 충족되면 중립으로 바뀜`
-        : state === 'favorable' ? `WTI 20일 ${RULES.oil.fall20dPct}% 위 또는 달러 20일 상승이면 중립 · WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`
-          : `WTI 20일 ${RULES.oil.fall20dPct}% 이하이면서 달러 20일 하락이면 양호 · WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`;
-    axes.push(axis('commodities', '달러 · 원자재', state, [
-      ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)}${oilTurn ? ` · 최근 5일 ${signed(wti5)} ${oilTurn}` : ''})` : null],
+        : state === 'favorable' ? `WTI 20일 ${RULES.oil.fall20dPct}% 위 또는 달러 20일 상승이면 중립, WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`
+          : `WTI 20일 ${RULES.oil.fall20dPct}% 이하이면서 달러 20일 하락이면 양호, WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`;
+    axes.push(axis('commodities', '달러와 원자재', state, [
+      ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)}${oilTurn ? `, 최근 5일 ${signed(wti5)} ${oilTurn}` : ''})` : null],
       ['WTI 1년 범위 내 위치', wti?.yearPosition == null ? null : `${fmt(wti.yearPosition * 100, 0)}%`],
-      ['달러 인덱스', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)}${dxyPos != null ? ` · 1년 범위 ${fmt(dxyPos * 100, 0)}%` : ''})` : null],
+      ['달러 인덱스', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)}${dxyPos != null ? `, 1년 범위 ${fmt(dxyPos * 100, 0)}%` : ''})` : null],
       ['금', s.gold ? `${fmt(s.gold.value, 0)}달러 (20일 ${signed(gold20)})` : null]
     ], read, flip, alignments.wti));
     attachDistance(axes[axes.length - 1], commoditiesDistance);
@@ -1496,13 +1496,13 @@ export function buildMarketRegime(input = {}) {
       : state === 'burden' ? '원화 약세 — 외국인 수급과 수입 물가에 부담입니다.'
         : state === 'favorable' ? '원화 강세 — 외국인 자금 유입에 유리하지만 수출 기업 이익에는 부담일 수 있습니다.'
           : state === 'unknown' ? staleRead('환율', alignments.usdkrw) : '원/달러·엔/달러가 중립 범위입니다.';
-    axes.push(axis('korea', '환율 (원 · 엔)', state, [
-      ['원/달러', s.usdkrw ? `${fmt(s.usdkrw.value, 1)}원 (20거래일 ${signed(krw20)}${krwWin?.meanShift != null ? ` · 20일 평균 ${signed(krwWin.meanShift)}` : ''})` : null],
+    axes.push(axis('korea', '환율 (원, 엔)', state, [
+      ['원/달러', s.usdkrw ? `${fmt(s.usdkrw.value, 1)}원 (20거래일 ${signed(krw20)}${krwWin?.meanShift != null ? `, 20일 평균 ${signed(krwWin.meanShift)}` : ''})` : null],
       ['엔/달러', s.usdjpy ? `${fmt(s.usdjpy.value, 2)}엔 (20일 ${signed(jpy20)})` : '수집 시작 대기'],
       ['코스피', s.kospi ? `${fmt(s.kospi.value)} (20일 ${signed(kospi20)})` : null]
       // P1725: each value carries its own observation date (won/yen on the FX calendar, KOSPI on KRX), so a 10/9 won beside
       // a 10/13 KOSPI shows a mixed-date chip instead of one "10/9 · 1거래일 전" chip for all three.
-    ], read, state === 'unknown' ? null : `원/달러 20일 +${RULES.fx.krwMove20dPct}% 이상 또는 엔/달러 20일 -${RULES.fx.yenRally20dPct}% 이하(엔 급강세)면 부담 · 원/달러 20일 -${RULES.fx.krwMove20dPct}% 이하면 양호(20일 평균도 같은 방향이어야 함 · 직전 거래일 원/달러 +0.5% 이상이거나 코스피 20일 -${RULES.fx.kospiContradict20dPct}% 이하면 중립)`, alignments.usdkrw, [alignments.usdkrw, alignments.usdjpy, alignments.kospi]));
+    ], read, state === 'unknown' ? null : `원/달러 20일 +${RULES.fx.krwMove20dPct}% 이상 또는 엔/달러 20일 -${RULES.fx.yenRally20dPct}% 이하(엔 급강세)면 부담, 원/달러 20일 -${RULES.fx.krwMove20dPct}% 이하면 양호(20일 평균도 같은 방향이어야 함, 직전 거래일 원/달러 +0.5% 이상이거나 코스피 20일 -${RULES.fx.kospiContradict20dPct}% 이하면 중립)`, alignments.usdkrw, [alignments.usdkrw, alignments.usdjpy, alignments.kospi]));
   }
 
   // P1723: the trend and volatility axes stay US-only; when the KOSPI move is rare in its own record, their reading
@@ -1533,18 +1533,18 @@ export function buildMarketRegime(input = {}) {
   // Codex review 2026-10-05: '방어적 환경' read like a validated stance. The label now names only how the
   // six conventional axes split (counts beside it); it is a description, not an allocation call.
   const byId = Object.fromEntries(axes.map((row) => [row.id, row]));
-  const OVERALL_LINE = { '부담 우세': '미국 지표 대부분이 부담 쪽이에요.', '양호 우세': '미국 지표 대부분이 우호적이에요.', '다소 부담': '부담 쪽 지표가 조금 더 많아요.', '다소 양호': '우호적인 지표가 조금 더 많아요.', '혼조': '지표들이 서로 다른 방향을 가리켜요.' };
+  const OVERALL_LINE = { '부담 우세': '미국 지표 대부분이 부담 쪽입니다.', '양호 우세': '미국 지표 대부분이 우호적입니다.', '다소 부담': '부담 쪽 지표가 조금 더 많습니다.', '다소 양호': '우호적인 지표가 조금 더 많습니다.', '혼조': '지표들이 서로 다른 방향을 가리킵니다.' };
   const conflicts = [];
   // v58.56 (re-audit #2): every conflict also carries one plain declarative line (no numbers, no rule brackets) for the
   // 오늘 hero; the full sentence with its numbers and rule stays in `conflicts` (6개 축 근거 fold, 시장 상태, AI context).
   const conflictLines = [];
   const addConflict = (line, text) => { conflicts.push(text); conflictLines.push(line); };
-  if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') addConflict('지수는 오르지만 함께 오르는 종목이 적어요.', '추세는 양호인데 시장 폭은 부담 — 지수는 오르는 흐름이지만 함께 오르는 종목은 적어, 몇몇 큰 종목이 지수를 떠받치고 있을 수 있습니다.'); // v57.55 beginner panel: plain words
+  if (byId.trend?.state === 'favorable' && byId.breadth?.state === 'burden') addConflict('지수는 오르지만 함께 오르는 종목이 적습니다.', '추세는 양호인데 시장 폭은 부담 — 지수는 오르는 흐름이지만 함께 오르는 종목은 적어, 몇몇 큰 종목이 지수를 떠받치고 있을 수 있습니다.'); // v57.55 beginner panel: plain words
   // v57.81: the leaders and the small caps breaking down together is named beside the axes (the 시장 상태 conflict list and
   // the AI context read it), so a narrow-leadership reading cannot stand while it holds.
   // v57.83: leaders weak without the market-wide confirmations — the index can hold while AI·semis fall (2026-07).
-  if (leadership.state === 'weak') addConflict('주도주가 약해졌지만 시장 전반으로 번지진 않았어요.', `주도주 약세 — ${leadership.summary}. 시장 전반의 확인 신호(신저가 우위·상승 종목 감소·분배일·러셀 2000 약세)는 ${leadership.met}/${leadership.confirmations.length}개라 아직 동반 약세로 번지지 않았지만, 지수만 보고 주도 영역이 건재하다고 읽지 않습니다.`);
-  if (leadership.break) addConflict('지수를 받치던 주도주가 함께 약해지고 있어요.', `주도 영역이 꺾이는 신호 — ${leadership.summary}(확인 ${leadership.met}/${leadership.confirmations.length}${leadership.window > 1 ? `·최근 ${leadership.window}거래일` : ''}, ${leadership.need}개 이상이면 판정${leadership.held ? '·나스닥 100 약세가 풀릴 때까지 유지' : ''}). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
+  if (leadership.state === 'weak') addConflict('주도주가 약해졌지만 시장 전반으로 번지지는 않았습니다.', `주도주 약세 — ${leadership.summary}. 시장 전반의 확인 신호(신저가 우위·상승 종목 감소·분배일·러셀 2000 약세)는 ${leadership.met}/${leadership.confirmations.length}개라 아직 동반 약세로 번지지 않았지만, 지수만 보고 주도 영역이 건재하다고 읽지 않습니다.`);
+  if (leadership.break) addConflict('지수를 받치던 주도주가 함께 약해지고 있습니다.', `주도 영역이 꺾이는 신호 — ${leadership.summary}(확인 ${leadership.met}/${leadership.confirmations.length}${leadership.window > 1 ? `·최근 ${leadership.window}거래일` : ''}, ${leadership.need}개 이상이면 판정${leadership.held ? '·나스닥 100 약세가 풀릴 때까지 유지' : ''}). 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
   // P1591 (M02): the HY clause follows the observed 5-day direction — "확대가 이어지면" read as already widening
   // when the spread had narrowed 9bp.
   const hyClause = c?.hy5 == null ? '하이일드 스프레드의 5일 방향은 아직 확인하지 못했습니다'
@@ -1553,12 +1553,12 @@ export function buildMarketRegime(input = {}) {
         // P1685: after a month of widening a 5-day narrowing is a pause, not "not widening".
         ? `하이일드 스프레드는 20거래일 동안 ${Math.round(c.hy20)}bp 넓어진 뒤 최근 5일 ${Math.abs(Math.round(c.hy5))}bp ${c.hy5 < 0 ? '좁아졌습니다' : '멈췄습니다'} — 확대가 다시 이어지면 결론이 바뀔 수 있습니다`
         : `하이일드 스프레드는 5일간 ${Math.abs(Math.round(c.hy5))}bp ${c.hy5 < 0 ? '좁아졌습니다' : '변화가 없습니다'} — 확대로 돌아서면 결론이 바뀔 수 있습니다`;
-  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') addConflict('금리는 부담이지만 투매는 아직 없어요.', `금리는 부담인데 변동성은 낮음 — 금리 부담에 따른 투매는 아직 없습니다. ${hyClause}.`);
+  if (byId.volatility?.state === 'favorable' && byId.rates?.state === 'burden') addConflict('금리는 부담이지만 투매는 아직 없습니다.', `금리는 부담인데 변동성은 낮음 — 금리 부담에 따른 투매는 아직 없습니다. ${hyClause}.`);
   // Owner 2026-10-18: a weak tape shows the other side too — whether selling looks exhausted and whether a rebound is
   // confirmed (bottom-type note: 소진 → 반등의 질 → 확인). Counts of conventions, not a bottom call.
   const bottomWatch = bottomWatchOf({ s, c, input, basis });
   if (bottomWatch && (byId.trend?.state === 'burden' || byId.breadth?.state === 'burden' || leadership.break || leadership.state === 'weak')) addConflict(bottomWatch.line, bottomWatch.text);
-  if (byId.credit?.state === 'favorable' && byId.breadth?.state === 'burden') addConflict('시장 폭은 약하지만 신용은 안정적이에요.', `시장 폭은 약하지만 신용은 안정${c.hy20 != null ? `(하이일드 20거래일 ${signed(c.hy20, 0, 'bp')})` : ''} — 신용 위험이 약세를 이끈다는 신호는 없습니다.`);
+  if (byId.credit?.state === 'favorable' && byId.breadth?.state === 'burden') addConflict('시장 폭은 약하지만 신용은 안정적입니다.', `시장 폭은 약하지만 신용은 안정${c.hy20 != null ? `(하이일드 20거래일 ${signed(c.hy20, 0, 'bp')})` : ''} — 신용 위험이 약세를 이끈다는 신호는 없습니다.`);
   return {
     available: true,
     asOf: basis,
@@ -1573,7 +1573,7 @@ export function buildMarketRegime(input = {}) {
     // when no two axes disagree; null while the verdict is on hold (the hold reason is shown instead).
     // v58.56 review: '혼조' is the fall-through label, so a mostly-neutral split names that instead of "서로 다른 방향".
     heroLine: !enough ? null : conflictLines[0]
-      || (overall === '혼조' && count('neutral') * 2 > known.length ? '대부분 지표가 중립이에요.' : OVERALL_LINE[overall]) || null,
+      || (overall === '혼조' && count('neutral') * 2 > known.length ? '대부분 지표가 중립입니다.' : OVERALL_LINE[overall]) || null,
     // v57.81: the leadership-break test and the trend cap travel with the regime (scenario rules, outlook, AI context).
     leadership,
     leadershipBreak: !!leadership.break,

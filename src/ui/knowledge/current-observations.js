@@ -18,7 +18,7 @@ function sourceKindLabel(value) {
     OFFICIAL_STATISTICS: '공식 통계',
     MARKET_DATA: '시장 데이터',
     COMPANY_IR_FORWARD_LOOKING: '회사 IR 미래 목표',
-    COMPANY_IR_FORWARD_LOOKING_NON_GAAP: '회사 IR 미래 목표 · 비GAAP'
+    COMPANY_IR_FORWARD_LOOKING_NON_GAAP: '회사 IR 미래 목표, 비GAAP'
   };
   return labels[value] || '출처 확인 자료';
 }
@@ -38,7 +38,7 @@ function unitLabel(value) {
 function observationDateLabel(observation) {
   const observedAt = formatObservedAt(observation?.observedAt);
   const eventDate = formatObservedAt(observation?.eventDate);
-  if (observation?.eventDate && eventDate !== observedAt) return `기준 ${eventDate} · 확인 ${observedAt}`;
+  if (observation?.eventDate && eventDate !== observedAt) return `기준 ${eventDate}, 확인 ${observedAt}`;
   if (String(observation?.sourceKind || '').startsWith('COMPANY_IR_FORWARD_LOOKING')) return `회사 발표 확인 ${observedAt}`;
   return `관측 ${observedAt}`;
 }
@@ -121,12 +121,12 @@ export function createCurrentObservationBlock(documentRef, rawArtifact, { page, 
     card.dataset.knowledgeObservationSourceKind = observation.sourceKind || '';
     card.dataset.knowledgeObservationAllowedUse = observation.allowedUse || '';
     const value = element(documentRef, 'strong', 'knowledge-current-observation-value', observation.displayValue ?? String(observation.value ?? '—'));
-    const meta = element(documentRef, 'div', 'knowledge-current-observation-meta', `${observation.label} · ${unitLabel(observation.unit)}`);
-    const dateLabel = observation.live ? `자동 갱신 · 관측 ${observation.observedAt}` : observationDateLabel(observation);
-    const provenance = element(documentRef, 'p', 'knowledge-current-observation-provenance', `${sourceKindLabel(observation.sourceKind)} · ${dateLabel}` /* v57.84: usage chips (참고용 / 학습 참고 …) dropped; the date stays */);
+    const meta = element(documentRef, 'div', 'knowledge-current-observation-meta', `${observation.label}, ${unitLabel(observation.unit)}`);
+    const dateLabel = observation.live ? `자동 갱신, 관측 ${observation.observedAt}` : observationDateLabel(observation);
+    const provenance = element(documentRef, 'p', 'knowledge-current-observation-provenance', `${sourceKindLabel(observation.sourceKind)}, ${dateLabel}` /* v57.84: usage chips (참고용 / 학습 참고 …) dropped; the date stays */);
     const source = element(documentRef, 'a', 'knowledge-current-observation-source', observation.source || observation.sourceId || '출처 보기');
     applySafeExternalLink(source, observation.sourceUrl);
-    source.title = `${observation.source || '원문 출처'} · ${dateLabel}`;
+    source.title = `${observation.source || '원문 출처'}, ${dateLabel}`;
     card.append(value, meta, provenance, source);
     grid.appendChild(card);
   });

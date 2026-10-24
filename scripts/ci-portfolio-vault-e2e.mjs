@@ -646,7 +646,7 @@ async function main() {
       ['currencyNote', rendered.currencyNote.includes('통화 USD')],
       ['twr-in-ledger-panel', /실제 계좌 성과 TWR\(기간 누적(, 근사)?\) \+10\.00%/.test(rendered.ledgerHtml)], // v57.92 E08: a flow without a same-day valuation marks the TWR 근사
       ['mwr-in-ledger-panel', /MWR\(연율\) \+8\.\d\d%/.test(rendered.ledgerHtml)], // P1684: units named (TWR period-cumulative, MWR annualized)
-      ['period-in-ledger-panel', /USD · 입출금 기간 끝 반영 · \d+기간/.test(rendered.ledgerHtml)], // v57.92: flow timing in words
+      ['period-in-ledger-panel', /USD, 입출금 기간 끝 반영, \d+기간/.test(rendered.ledgerHtml)], // v57.92: flow timing in words
       ['no-price-claim', /시세 이력.*무관하게/.test(rendered.ledgerHtml)],
       ['pointer-in-risk-panel', /원장 성과 요약/.test(rendered.riskHtml)],
       ['whole-account-scope', /계좌 전체/.test(rendered.riskHtml)],

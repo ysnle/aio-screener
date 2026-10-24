@@ -67,11 +67,11 @@ export function fxLegListMarkup(legsState, { maxAgeMs = null } = {}) {
   const budgetHours = maxAgeMs == null ? null : Math.round(maxAgeMs / 3600000);
   return legs.map((leg, index) => {
     const ageHours = Math.round(leg.ageMs / 3600000 * 10) / 10;
-    const unusableReason = leg.usable ? '' : ' · 지금은 쓰지 않음(입력한 지 ' + (budgetHours == null ? '오래됐거나' : budgetHours + '시간이 지났거나') + ' 기준 시각 이후 관측)';
+    const unusableReason = leg.usable ? '' : ', 지금은 쓰지 않음(입력한 지 ' + (budgetHours == null ? '오래됐거나' : budgetHours + '시간이 지났거나') + ' 기준 시각 이후 관측)';
     return '<div class="pfp-decl-row' + (leg.usable ? '' : ' is-unusable') + '">' +
       '<span class="pfp-figure">' + escapeMarkup(leg.from + '→' + leg.to) + '</span>' +
       '<span class="pfp-figure">' + escapeMarkup(String(leg.rate)) + '</span>' +
-      '<span>' + escapeMarkup(String(leg.observedAt).slice(0, 10)) + ' · ' + ageHours + 'h' + unusableReason + '</span>' +
+      '<span>' + escapeMarkup(String(leg.observedAt).slice(0, 10)) + ', ' + ageHours + 'h' + unusableReason + '</span>' +
       '<button class="aio-btn-table" data-action="_aioRemoveFxLeg" data-arg="' + index + '" aria-label="환율 기록 삭제">삭제</button></div>';
   }).join('');
 }

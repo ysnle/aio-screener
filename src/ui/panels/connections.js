@@ -11,7 +11,7 @@ export function installConnectionPanel(root, documentRef) {
   const panel = documentRef.createElement?.('div');
   if (anchor && panel) {
     panel.className = 'cnp-panel'; // src/ui/styles/connection-panel.css
-    panel.innerHTML = '<details><summary>연결 상태</summary><div id="shared-connection-status" role="status" aria-live="polite">공용 AI · 연결 확인 전</div><div id="shared-data-status">공용 수집 자료 · 로드 확인 전</div><button data-action="_aioCheckSharedConnection" class="llm-key-save">공용 연결 확인</button><div class="cnp-note">공용 AI 예산 $20/월 · 기존 근거 우선<br>개인 검색 API 키는 필요하지 않습니다.</div></details>';
+    panel.innerHTML = '<details><summary>연결 상태</summary><div id="shared-connection-status" role="status" aria-live="polite">공용 AI, 연결 확인 전</div><div id="shared-data-status">공용 수집 자료, 로드 확인 전</div><button data-action="_aioCheckSharedConnection" class="llm-key-save">공용 연결 확인</button><div class="cnp-note">공용 AI 예산 $20/월, 기존 근거 우선<br>개인 검색 API 키는 필요하지 않습니다.</div></details>';
     anchor.insertAdjacentElement('afterend', panel);
   }
   let disposed = false;
@@ -20,8 +20,8 @@ export function installConnectionPanel(root, documentRef) {
     const ai = documentRef.getElementById('shared-connection-status');
     const data = documentRef.getElementById('shared-data-status');
     const state = root._aioLastClaudeRouteState;
-    if (ai) ai.textContent = state?.health ? describeSharedConnection(state.health, state.ok || state.reason === 'AUTH_FAILED').label : state ? '공용 AI 연결 확인 실패 · 잠시 후 다시 확인' : '공용 AI · 연결 확인 전';
-    if (data) data.textContent = root._serverDataMeta?.loadedAt ? '공용 수집 자료 로드됨 · 항목별 출처·관측일 확인' : '공용 수집 자료 · 로드 확인 전';
+    if (ai) ai.textContent = state?.health ? describeSharedConnection(state.health, state.ok || state.reason === 'AUTH_FAILED').label : state ? '공용 AI 연결 확인 실패, 잠시 후 다시 확인' : '공용 AI, 연결 확인 전';
+    if (data) data.textContent = root._serverDataMeta?.loadedAt ? '공용 수집 자료 로드됨, 항목별 출처·관측일 확인' : '공용 수집 자료, 로드 확인 전';
   };
   const events = ['aio:workerHealth', 'aio:serverDataLoaded'];
   for (const event of events) root.addEventListener?.(event, render);

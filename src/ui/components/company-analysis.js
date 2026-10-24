@@ -23,12 +23,12 @@ export function keyMetricsLine(row, consensus, earnings = [], today = new Date()
   if (cap) parts.push(`시총 약 $${cap >= 1000 ? `${(cap / 1000).toFixed(2)}T` : `${Math.round(cap)}B`}${close ? `(${close} 종가)` : ''}`);
   const view = consensusView(row, consensus);
   if (view?.trailingPe != null) parts.push(`직전 4개 분기 PER ${peMultipleText(view.trailingPe)}(조정 EPS)`);
-  else if (Number(row.pe) > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${peMultipleText(Number(row.pe))}(공시 순이익 · ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${peMultipleText(Number(row.pe))}`);
+  else if (Number(row.pe) > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${peMultipleText(Number(row.pe))}(공시 순이익, ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${peMultipleText(Number(row.pe))}`);
   if (view?.fwdPe != null) parts.push(`Forward PER ${peMultipleText(view.fwdPe)}(예상치 ${mdOf(view.asOf)})`);
   const symbol = String(row.sym || row.symbol || '').toUpperCase();
   const next = (Array.isArray(earnings) ? earnings : []).filter((item) => String(item?.symbol || '').toUpperCase() === symbol && String(item?.date || '') >= today).sort((a, b) => String(a.date).localeCompare(String(b.date)))[0];
   if (next) parts.push(`다음 실적 발표 ${mdOf(next.date)}`);
-  return parts.length ? parts.join(' · ') : null;
+  return parts.length ? parts.join(', ') : null;
 }
 
 function element(doc, tag, text, className) { const node=doc.createElement(tag); if (text != null) node.textContent=text; if (className) node.className=className; return node; }
@@ -104,17 +104,17 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   const meta=model.identity;
   // 2026-10-14 audit #10: an unknown asset type is left out rather than printed as '유형 미확인'.
   const assetLabel = meta.assetType==='ETF' ? '상장지수펀드(ETF)' : meta.assetType==='INDEX' ? '지수' : meta.assetType==='STOCK' ? '상장 기업' : null;
-  identity.append(element(doc,'p',[`${meta.name} (${id})`,MARKET_LABELS[meta.market] || '시장 미확인',assetLabel].filter(Boolean).join(' · '),'company-analysis-identity'));
+  identity.append(element(doc,'p',[`${meta.name} (${id})`,MARKET_LABELS[meta.market] || '시장 미확인',assetLabel].filter(Boolean).join(', '),'company-analysis-identity'));
   // Sector · industry are the profile section's fallback text when no description exists — shown here only when it is not already there.
-  if (model.business.description && ((meta.sector && !(fund && /^ETF$/i.test(meta.sector))) || meta.industry)) identity.append(element(doc,'p',[meta.sector && !(fund && /^ETF$/i.test(meta.sector)) ? `섹터 ${sectorLabel(meta.sector)}` : null,meta.industry ? `산업 ${meta.industry}` : null].filter(Boolean).join(' · '),'company-analysis-meta'));
+  if (model.business.description && ((meta.sector && !(fund && /^ETF$/i.test(meta.sector))) || meta.industry)) identity.append(element(doc,'p',[meta.sector && !(fund && /^ETF$/i.test(meta.sector)) ? `섹터 ${sectorLabel(meta.sector)}` : null,meta.industry ? `산업 ${meta.industry}` : null].filter(Boolean).join(', '),'company-analysis-meta'));
   if (model.associations.length) {
     const themes=element(doc,'div',null,'company-analysis-themes');
     // P1743 / 2026-10-14 audit #5: the same stage rows as 테마 시나리오, for this listing's own market (US or KR).
     const stages=themeStagesFor(root,{symbol:id,themeIds:model.associations.map(theme=>theme.id)});
-    for (const theme of model.associations) { const stage=stages.find(row=>row.id===theme.id); const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? ` · ${theme.subThemes.join(' / ')}` : ''}${stage ? ` · 테마 단계: ${stage.stateLabel}` : ''}`); button.type='button'; button.addEventListener('click',()=>openThemeDetail(root,theme.id,{symbol:id})); themes.append(button); }
-    identity.append(element(doc,'p','연결된 테마 · AIO 분류','company-analysis-meta'), themes);
+    for (const theme of model.associations) { const stage=stages.find(row=>row.id===theme.id); const button=element(doc,'button',`${theme.name}${theme.subThemes.length ? `, ${theme.subThemes.join(' / ')}` : ''}${stage ? `, 테마 단계: ${stage.stateLabel}` : ''}`); button.type='button'; button.addEventListener('click',()=>openThemeDetail(root,theme.id,{symbol:id})); themes.append(button); }
+    identity.append(element(doc,'p','연결된 테마, AIO 분류','company-analysis-meta'), themes);
   }
-  identity.append(detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'} · 유형 검증 ${meta.verification}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source));
+  identity.append(detail(doc,'사업·분류 근거',[`종목 등록 ${meta.registered ? '확인' : '미등록'}, 유형 검증 ${meta.verification}`,meta.currency ? `거래 통화 ${meta.currency}` : '거래 통화 미확인',model.associations.length ? '테마는 AIO의 투자 분류이며 실제 사업부문 매출 비중을 뜻하지 않습니다.' : null],model.business.sourceUrl,model.business.source));
   grid.append(identity);
   const krFundamental=model.financial.status==='kr-disclosure-required' ? krFundamentalPoints(root?._aioKrFundamentals?.companies?.[id]) : null;
   const financial=card(doc,'실적·현금·재무 구조',krFundamental ? '공시' : model.financial.status==='reference' ? '참고' : model.financial.status==='not-applicable' ? '기업 재무 대상 아님' : '자료 없음');

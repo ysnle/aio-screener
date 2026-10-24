@@ -17,10 +17,10 @@ export function formatPayrollChange(thousands) {
 }
 
 const RELEASE_PROFILES = Object.freeze({
-  'us-nfp': { label: '미국 고용보고서 (비농업 고용·실업률)', et: [8, 30], why: '고용이 강하면 금리 인하 기대가 줄어 금리·달러 상승 요인', last: (snap) => formatPayrollChange(snap.nfp) != null && snap.unemployment != null ? `직전 ${formatPayrollChange(snap.nfp)} · 실업률 ${snap.unemployment}%` : null },
-  'us-cpi': { label: '미국 소비자물가 (CPI)', et: [8, 30], why: '예상보다 높으면 금리 상승·성장주 부담', last: (snap) => snap.cpi != null ? `직전 ${snap.cpi}% · 근원 ${snap.coreCpi ?? '—'}%` : null },
-  'us-pce': { label: '미국 PCE 물가', et: [8, 30], why: '연준이 가장 중시하는 물가 지표', last: (snap) => snap.pce != null ? `직전 ${snap.pce}% · 근원 ${snap.corePce ?? '—'}%` : null },
-  'us-ism-mfg': { label: 'ISM 제조업 지수', et: [10, 0], why: '50 위면 제조업 확장 · 경기 방향 확인', last: (snap) => snap.ismPmi != null ? `직전 ${snap.ismPmi}` : null },
+  'us-nfp': { label: '미국 고용보고서 (비농업 고용·실업률)', et: [8, 30], why: '고용이 강하면 금리 인하 기대가 줄어 금리·달러 상승 요인', last: (snap) => formatPayrollChange(snap.nfp) != null && snap.unemployment != null ? `직전 ${formatPayrollChange(snap.nfp)}, 실업률 ${snap.unemployment}%` : null },
+  'us-cpi': { label: '미국 소비자물가 (CPI)', et: [8, 30], why: '예상보다 높으면 금리 상승·성장주 부담', last: (snap) => snap.cpi != null ? `직전 ${snap.cpi}%, 근원 ${snap.coreCpi ?? '—'}%` : null },
+  'us-pce': { label: '미국 PCE 물가', et: [8, 30], why: '연준이 가장 중시하는 물가 지표', last: (snap) => snap.pce != null ? `직전 ${snap.pce}%, 근원 ${snap.corePce ?? '—'}%` : null },
+  'us-ism-mfg': { label: 'ISM 제조업 지수', et: [10, 0], why: '50 위면 제조업 확장, 경기 방향 확인', last: (snap) => snap.ismPmi != null ? `직전 ${snap.ismPmi}` : null },
   'us-ism-svc': { label: 'ISM 서비스업 지수', et: [10, 0], why: '미국 경제의 대부분인 서비스 경기 확인', last: (snap) => snap.ismSvc != null ? `직전 ${snap.ismSvc}` : null },
   'us-retail': { label: '미국 소매판매', et: [8, 30], why: '소비 경기 확인', last: (snap) => snap.retailSales != null ? `직전 ${snap.retailSales}%` : null },
   'us-fomc': { label: 'FOMC 금리 결정', et: [14, 0], why: '정책금리와 향후 경로 — 모든 자산 가격의 기준', last: (_snap, extra) => extra.policyRange ? `현재 ${extra.policyRange}` : null },
@@ -164,7 +164,7 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     if (!Number.isFinite(atMs) || atMs < nowMs - 6 * 3600000 || atMs > nowMs + days * 86400000) continue;
     const when = formatKstWhen(atMs);
     // P1737: the economic-projection flag is shown only when the Fed calendar the producer read marks this meeting.
-    const label = profile === RELEASE_PROFILES['us-fomc'] && release?.sepMeeting === true ? `${profile.label} · 경제전망 발표` : profile.label;
+    const label = profile === RELEASE_PROFILES['us-fomc'] && release?.sepMeeting === true ? `${profile.label}, 경제전망 발표` : profile.label;
     rows.push({ id: `macro:${key === 'us-fed-rate' ? 'us-fomc' : key}:${date}`, kind: 'macro', atMs, when: `${when.label} KST`, label, why: profile.why,
       originalTimeZone: profile.kst ? 'Asia/Seoul' : 'America/New_York', source: release.source || null,
       comparisonBasis: ['us-cpi', 'us-pce'].includes(key) ? '전년 동월 대비(%)' : key === 'us-retail' ? '전월 대비(%)' : null,
@@ -203,18 +203,18 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     const estimate = actual != null ? `EPS ${actual.toFixed(2)}${est != null ? ` (예상 ${est.toFixed(2)})` : ''}` : est != null ? `EPS 예상 ${est.toFixed(2)}` : null;
     // T15: the provider name moves to the hover (sourceTitle) and a missing currency or period is left out, not printed
     // as '미제공'; the fiscal period is already the row's comparisonBasis.
-    const epsContext = estimate ? [estimate, row.currency ? `주당 ${row.currency}` : null].filter(Boolean).join(' · ') : null;
+    const epsContext = estimate ? [estimate, row.currency ? `주당 ${row.currency}` : null].filter(Boolean).join(', ') : null;
     // Codex browser audit H20: the calendar only says before-open / after-close; "21:00" was our placeholder hour
     // shown as if the company had announced it. Earnings rows show the US date and session, not a clock time.
     const usDate = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}`;
-    const whenLabel = row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} (시각 미정)` : `${usDate} 미국 · 발표 시각 미정`;
+    const whenLabel = row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} (시각 미정)` : `${usDate} 미국, 발표 시각 미정`;
     void when;
     // v57.88 (screen audit): '장 전' has no announced clock time — the 08:00 ET placeholder made it read '예정 시각 지남' at
     // 08:10 ET. It is past only once the regular session has opened (09:30 ET).
     const passed = (row.hour === 'bmo' ? etWallClockToMs(row.date, [9, 30]) : atMs) < nowMs;
     rows.push({ id: `earnings:${row.symbol}:${row.date}:${row.hour || 'unknown'}`, kind: 'earnings', atMs, when: whenLabel, label: `${names[row.symbol]} (${row.symbol}) 실적`,
       originalTimeZone: 'America/New_York', source: earningsMeta.source || null, sourceUrl: earningsMeta.sourceUrl || null,
-      sourceTitle: [earningsMeta.source ? `일정: ${earningsMeta.source}` : null, est != null && estimateSource ? `예상치: ${estimateSource}` : null].filter(Boolean).join(' · ') || null,
+      sourceTitle: [earningsMeta.source ? `일정: ${earningsMeta.source}` : null, est != null && estimateSource ? `예상치: ${estimateSource}` : null].filter(Boolean).join(', ') || null,
       observedAt: earningsMeta.generatedAt || null, comparisonBasis: row.fiscalPeriod || null,
       why: session, last: epsContext, today: when.date === today, passed, status: actual != null ? 'received' : passed ? 'time-passed' : 'upcoming' });
   }

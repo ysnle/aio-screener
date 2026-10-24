@@ -1,7 +1,7 @@
 /* P1626: chart interpretation follows the plot; conditions remain separate and readable. */
-.chart-scenarios, .chart-volume-profile, .chart-analysis-logic { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+.chart-scenarios, .chart-volume-profile, .chart-analysis-logic { margin-top: 24px; padding-top: 16px; border-top: 0.5px solid var(--border); }
 .chart-scenario { padding: 12px 0; }
-.chart-scenario h4 { margin: 0 0 6px; font-size: 13px; color: var(--text-primary); }
+.chart-scenario h4 { margin: 0 0 6px; font-size: 12px; color: var(--text-primary); }
 .chart-scenario p, .chart-analysis-logic p { font-size: 12px; line-height: 1.7; color: var(--text-secondary); overflow-wrap: anywhere; }
 .chart-volume-zone { display: grid; grid-template-columns: minmax(110px, 1fr) minmax(60px, 2fr) 45px; gap: 8px; align-items: center; margin: 8px 0; font-size: 12px; font-variant-numeric: tabular-nums; }
 .chart-volume-track { background: var(--surface-3); height: 8px; display: block; }
@@ -16,12 +16,11 @@
 }
 @media (max-width: 700px) { .chart-scenarios { grid-template-columns: minmax(0, 1fr); } }
 /* P1634: Korean brokerage candle convention — rising red, falling blue. */
-:root { --candle-up: #d23f35; --candle-down: #2a64c8; }
-body.dark-theme { --candle-up: #ff6b61; --candle-down: #5c9bff; }
+:root, body { --candle-up: var(--red-9); --candle-down: var(--blue-9); }
 .stock-chart-intervals { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; }
-.stock-chart-intervals button { font: inherit; font-size: 13px; padding: 5px 11px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; }
+.stock-chart-intervals button { font: inherit; font-size: 12px; padding: 5px 11px; border: 0.5px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; }
 .stock-chart-intervals button[aria-pressed="true"] { border-color: var(--text-primary); color: var(--text-primary); font-weight: 700; background: var(--surface-3, transparent); }
 @media (max-width: 520px) { .stock-chart-intervals { flex-wrap: nowrap; overflow-x: auto; gap: 4px; scrollbar-width: none; } .stock-chart-intervals button { flex: 0 0 auto; padding: 5px 9px; } }
-.stock-chart-interval-note { font-size: 13px; line-height: 1.65; color: var(--text-secondary); }
+.stock-chart-interval-note { font-size: 12px; line-height: 1.65; color: var(--text-secondary); }
 /* 2026-10-19 layout system: the market-comparison note under the chart title (src/ui/components/stock-chart.js); old inline 12px reads --fs-base. */
 .page .stock-chart-context { display: block; font-size: var(--fs-base); font-weight: 400; color: var(--text-muted); margin-top: 2px; }

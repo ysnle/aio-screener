@@ -1,0 +1,28 @@
+[
+  {
+    "id": "OPS-01",
+    "actual": "A success run with no Pages deployment closes the prior incident",
+    "writes": [
+      {
+        "owner": "owner",
+        "repo": "repo",
+        "issue_number": 9,
+        "body": "Recovered: [Deploy GitHub Pages run 1](https://fixture/run/1) succeeded at 2026-10-24T00:00:00.000Z."
+      },
+      {
+        "owner": "owner",
+        "repo": "repo",
+        "issue_number": 9,
+        "state": "closed",
+        "state_reason": "completed"
+      }
+    ]
+  },
+  {
+    "id": "OPS-02",
+    "actual": "real subprocess exits zero for timed_out CI",
+    "exitCode": 0,
+    "stdout": "[convergence] UNATTESTED_REVISION target=aaaaaaaaaaaa notes=CI finished for this revision without a successful attested run; refusing to deploy an unattested revision\n",
+    "stderr": ""
+  }
+]

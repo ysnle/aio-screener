@@ -62,7 +62,7 @@ export function renderManagersPage(doc, { root, catalog, registry, selectedId, o
   const selectedCatalog = (catalog?.managers || []).find((manager) => manager.id === selectedId);
   const frame = selectedCatalog ? styleFrameOf(selectedCatalog.style) : null;
   if (!overview && frame) {
-    const box = asideBlock(doc, `방식 · ${frame.label}`);
+    const box = asideBlock(doc, `방식, ${frame.label}`);
     [['풀려는 문제', frame.problem], ['수익의 원천', frame.source], ['감수하는 위험', frame.risk], ['13F에 보이는 것', frame.sees], ['13F로 알 수 없는 것', frame.blind]].forEach(([k, v]) => {
       const row = el(doc, 'p', 'rl-copy');
       row.append(el(doc, 'strong', null, `${k} `), doc.createTextNode(v));

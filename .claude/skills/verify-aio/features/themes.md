@@ -1,6 +1,6 @@
-# 테마 · 섹터
+# 테마와 섹터
 
-테마 · 섹터 (page heading 테마 · 트렌드) ranks sectors by relative strength in RRG quadrant cards, lets the user switch scope, opens a sector or theme detail inline on the same screen, and links its constituents to the 종목 screen.
+테마와 섹터 (page heading 테마 · 트렌드) ranks sectors by relative strength in RRG quadrant cards, lets the user switch scope, opens a sector or theme detail inline on the same screen, and links its constituents to the 종목 screen.
 
 ## Sub-features
 
@@ -13,7 +13,7 @@
 
 ## How to get to it (user POV)
 
-- Sidebar 시장 › 테마 · 섹터.
+- Sidebar 시장 › 테마와 섹터.
 - Related-theme chips on 종목 요약 route here (`page-theme-detail` when opened from another screen).
 - Deep links `#themes`, `#theme-detail`.
 
@@ -23,7 +23,7 @@ Preconditions:
 
 - Doctor OK; theme snapshot present.
 
-- **Open.** Click sidebar `테마 · 섹터`. `page-themes` active (single-tab hub, no tab bar).
+- **Open.** Click sidebar `테마와 섹터`. `page-themes` active (single-tab hub, no tab bar).
 - **Cards.** `#rrg-quadrant-cards` has children; ≥1 detail chip.
 - **Scope.** Click `서브섹터` pill, then `11섹터`; each becomes `.active` and the chip set differs.
 - **Detail.** Click the first detail chip. `#theme-detail-panel` visible, >100 chars; page stays `page-themes`.

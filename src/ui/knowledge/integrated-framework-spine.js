@@ -42,11 +42,11 @@ function createFrameworkCard(documentRef, framework, page, onNavigate, labelOf) 
   card.dataset.aioIntegratedFramework = framework.id;
   card.dataset.aioIntegrationMode = 'synthesized-reference';
   card.append(
-    element(documentRef, 'div', page === 'principles' ? 'principles-eyebrow' : 'atlas-card-meta', `${page === 'principles' ? '개념·분석 연결' : 'AI 자본·물리 연결 렌즈'} · 구조 참고`),
+    element(documentRef, 'div', page === 'principles' ? 'principles-eyebrow' : 'atlas-card-meta', `${page === 'principles' ? '개념·분석 연결' : 'AI 자본·물리 연결 렌즈'}, 구조 참고`),
     element(documentRef, 'h3', page === 'principles' ? 'principles-learning-card-title' : 'atlas-card-title', framework.title),
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `정의: ${framework.definition}`),
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `작동 경로: ${framework.mechanism}`),
-    element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `확인할 자료: ${framework.observables.join(' · ')}`),
+    element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `확인할 자료: ${framework.observables.join(', ')}`),
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy principles-chapter-counter' : 'atlas-governance-note', `무효화·반대 경로: ${framework.invalidation} ${framework.counterclaim}`),
     element(documentRef, 'p', page === 'principles' ? 'principles-chapter-copy' : 'atlas-card-copy', `핵심 질문: ${framework.question}`)
   );

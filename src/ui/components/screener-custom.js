@@ -36,7 +36,7 @@ export function installCustomConditions(documentRef) {
   text.type = 'text';
   text.id = 'scr-custom-text';
   text.setAttribute('aria-label', '조건을 문장으로 입력');
-  text.placeholder = '예: 5/10/20 정배열이면서 신고가 · VCP 수렴 · PER 20 이하 ROE 15% 이상';
+  text.placeholder = '예: 5/10/20 정배열이면서 신고가, VCP 수렴, PER 20 이하 ROE 15% 이상';
   const apply = el(documentRef, 'button', 'aio-btn-table', '조건 적용');
   apply.type = 'button';
   textRow.append(text, apply);
@@ -221,7 +221,7 @@ export function installCustomConditions(documentRef) {
         current.length && shown === 0 && documentRef.getElementById('scr-passed-only')?.checked && counts.some((item) => item.pass > 0)
           ? "'실행 통과만'이 켜져 있어 마지막 실행을 통과한 종목 안에서만 찾았습니다 — 끄면 전체 종목에서 찾습니다" : '',
         current.length >= 3 ? `조건 ${current.length}개를 겹쳤습니다 — 조건마다 남는 종목이 줄고, 이 조합은 과거 성과로 검증한 규칙이 아닙니다.` : '',
-        missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다.' : '', parseNote].filter(Boolean).join(' · ');
+        missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다.' : '', parseNote].filter(Boolean).join(', ');
       if (note.textContent !== noteText) note.textContent = noteText;
     },
     dispose() {

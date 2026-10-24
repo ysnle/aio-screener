@@ -107,7 +107,7 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     if (age) {
       const meta = doc.createElement('p');
       meta.className = 'aio-basis-meta';
-      meta.textContent = `${age.label}${age.age ? ` · ${age.age}` : ''}${age.stale ? ' · 갱신 지연' : ''}`;
+      meta.textContent = `${age.label}${age.age ? `, ${age.age}` : ''}${age.stale ? ', 갱신 지연' : ''}`;
       if (age.stale) meta.classList.add('is-stale');
       lines.push(meta);
     }

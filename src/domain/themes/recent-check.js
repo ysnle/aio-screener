@@ -197,6 +197,6 @@ export function rrgRecentReading(item, series = null) {
   const opposed = check == null || check.threshold == null ? null : reversal != null;
   const word = RRG_QUADRANT_WORDS[zone.quadrant];
   const head = zone.border ? `기준선 부근(${zone.between} 사이)` : `${word}(약 50일 기준)`;
-  const clause = reversal ? ` · 최근 5거래일 상대강도 ${signedPct(check.change)}로 ${reversal === 'fell' ? '반락' : '반등'}` : '';
+  const clause = reversal ? `, 최근 5거래일 상대강도 ${signedPct(check.change)}로 ${reversal === 'fell' ? '반락' : '반등'}` : '';
   return Object.freeze({ ...zone, check, reversal, opposed, label: `${head}${clause}`, clause });
 }

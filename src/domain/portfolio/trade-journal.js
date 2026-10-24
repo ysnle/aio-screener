@@ -132,9 +132,9 @@ export function journalReview(closed = [], rules = {}) {
     notes.push({ id: 'hold-losers', tone: 'burden', text: `손실 거래의 보유 기간 중앙값(${stats.holdLossDays}일)이 이익 거래(${stats.holdWinDays}일)의 ${fmt(stats.holdLossDays / Math.max(1, stats.holdWinDays))}배입니다 — 이익은 빨리 확정하고 손실은 오래 들고 가는 기록입니다.` });
   }
   if (stats.payoff != null && stats.payoff < 1) {
-    notes.push({ id: 'payoff', tone: 'burden', text: `평균 이익 ${fmt(stats.avgWinPct)}% · 평균 손실 ${fmt(stats.avgLossPct)}%로 손익비가 ${fmt(stats.payoff, 2)}입니다. 이 손익비에서 본전이 되려면 승률이 ${fmt(100 / (1 + stats.payoff), 0)}% 이상이어야 하는데, 기록된 승률은 ${fmt(stats.winRate, 0)}%입니다.` });
+    notes.push({ id: 'payoff', tone: 'burden', text: `평균 이익 ${fmt(stats.avgWinPct)}%, 평균 손실 ${fmt(stats.avgLossPct)}%로 손익비가 ${fmt(stats.payoff, 2)}입니다. 이 손익비에서 본전이 되려면 승률이 ${fmt(100 / (1 + stats.payoff), 0)}% 이상이어야 하는데, 기록된 승률은 ${fmt(stats.winRate, 0)}%입니다.` });
   } else if (stats.payoff != null) {
-    notes.push({ id: 'payoff', tone: 'neutral', text: `평균 이익 ${fmt(stats.avgWinPct)}% · 평균 손실 ${fmt(stats.avgLossPct)}% (손익비 ${fmt(stats.payoff, 2)}) · 승률 ${fmt(stats.winRate, 0)}% — 본전 승률은 ${fmt(100 / (1 + stats.payoff), 0)}%입니다.` });
+    notes.push({ id: 'payoff', tone: 'neutral', text: `평균 이익 ${fmt(stats.avgWinPct)}%, 평균 손실 ${fmt(stats.avgLossPct)}% (손익비 ${fmt(stats.payoff, 2)}), 승률 ${fmt(stats.winRate, 0)}% — 본전 승률은 ${fmt(100 / (1 + stats.payoff), 0)}%입니다.` });
   }
   if (r.stopLossPct != null) {
     const beyond = closed.filter((row) => row.pnlPct <= -r.stopLossPct * 1.2);
@@ -145,7 +145,7 @@ export function journalReview(closed = [], rules = {}) {
   const fomo = stats.byMood.find((row) => row.mood === 'fomo' || row.mood === 'revenge');
   const planned = stats.byMood.find((row) => row.mood === 'plan');
   if (fomo && planned && fomo.n >= 3 && planned.n >= 3 && fomo.avgPct < planned.avgPct) {
-    notes.push({ id: 'mood', tone: 'burden', text: `'${fomo.label}' 매수 ${fomo.n}건의 평균 결과 ${fmt(fomo.avgPct)}% · '계획대로' ${planned.n}건은 ${fmt(planned.avgPct)}%입니다.` });
+    notes.push({ id: 'mood', tone: 'burden', text: `'${fomo.label}' 매수 ${fomo.n}건의 평균 결과 ${fmt(fomo.avgPct)}%, '계획대로' ${planned.n}건은 ${fmt(planned.avgPct)}%입니다.` });
   }
   const strong = stats.byReason.filter((row) => row.n >= 3);
   if (strong.length >= 2) {
@@ -164,14 +164,14 @@ export function rulesMirror(rules = {}, { weights = [], cashPct = null, losses =
   if (r.maxPositionPct != null) {
     const over = weights.filter((row) => row.pct > r.maxPositionPct);
     rows.push({ id: 'max-position', label: `한 종목 최대 ${r.maxPositionPct}%`, ok: weights.length ? over.length === 0 : null,
-      text: !weights.length ? '평가액이 있는 보유 종목이 없습니다' : over.length ? `넘은 종목 ${over.map((row) => `${row.symbol} ${row.pct.toFixed(1)}%`).join(' · ')}` : `가장 큰 종목 ${weights.reduce((a, b) => (a.pct > b.pct ? a : b)).symbol} ${Math.max(...weights.map((row) => row.pct)).toFixed(1)}%` });
+      text: !weights.length ? '평가액이 있는 보유 종목이 없습니다' : over.length ? `넘은 종목 ${over.map((row) => `${row.symbol} ${row.pct.toFixed(1)}%`).join(', ')}` : `가장 큰 종목 ${weights.reduce((a, b) => (a.pct > b.pct ? a : b)).symbol} ${Math.max(...weights.map((row) => row.pct)).toFixed(1)}%` });
   }
   if (r.minCashPct != null) rows.push({ id: 'min-cash', label: `현금 최소 ${r.minCashPct}%`, ok: cashPct == null ? null : cashPct >= r.minCashPct, text: cashPct == null ? '현금이 입력되지 않았습니다' : `지금 현금 ${cashPct.toFixed(1)}%` });
   if (r.maxPositions != null) { const count = holdingCount ?? weights.length; rows.push({ id: 'max-positions', label: `보유 종목 최대 ${r.maxPositions}개`, ok: count <= r.maxPositions, text: `지금 ${count}개` }); }
   if (r.stopLossPct != null) {
     const deep = losses.filter((row) => row.pnlPct <= -r.stopLossPct);
     rows.push({ id: 'stop-loss', label: `손절 -${r.stopLossPct}%`, ok: losses.length ? deep.length === 0 : null,
-      text: !losses.length ? '평가 손익이 있는 보유 종목이 없습니다' : deep.length ? `원칙보다 깊은 평가 손실 ${deep.map((row) => `${row.symbol} ${row.pnlPct.toFixed(1)}%`).join(' · ')}` : '원칙보다 깊은 평가 손실 없음' });
+      text: !losses.length ? '평가 손익이 있는 보유 종목이 없습니다' : deep.length ? `원칙보다 깊은 평가 손실 ${deep.map((row) => `${row.symbol} ${row.pnlPct.toFixed(1)}%`).join(', ')}` : '원칙보다 깊은 평가 손실 없음' });
   }
   return rows;
 }

@@ -133,8 +133,8 @@ export function brentWtiCheck(macroHistory, history = []) {
   const heldTail = diverges ? ' — 국제 유가는 크게 오르는데 WTI는 그 절반도 오르지 않아, WTI로 유가 방향이나 물가 완화를 읽는 판단은 보류합니다.'
     : check.held ? ` — ${check.text.split(' — ').slice(1).join(' — ')}` : '.';
   const sentence = abnormal
-    ? `같은 날(${md}) 브렌트 선물 ${fmt(check.brent, 2)}달러 · WTI 선물 ${fmt(check.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다 — 최근 1년 같은 날 차이의 중앙값(${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러)과 동떨어져 두 가격의 기준이 다르거나 원천 오류일 수 있습니다. 차이의 해석과 브렌트 기준 판단, WTI 하락을 물가 완화로 읽는 판단을 모두 보류합니다.`
-    : `같은 날(${md}) 브렌트 선물 ${fmt(check.brent, 2)}달러 · WTI 선물 ${fmt(check.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다(최근 1년 같은 날 차이의 중앙값 ${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러${check.spread20Back == null ? '' : `, 20거래일 전 ${fmt(check.spread20Back, 1)}달러`}). ${md}까지 20거래일 기준 브렌트 ${signed(brent20, 1) ?? '—'}, WTI ${signed(wti20, 1) ?? '—'}${heldTail}`;
+    ? `같은 날(${md}) 브렌트 선물 ${fmt(check.brent, 2)}달러, WTI 선물 ${fmt(check.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다 — 최근 1년 같은 날 차이의 중앙값(${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러)과 동떨어져 두 가격의 기준이 다르거나 원천 오류일 수 있습니다. 차이의 해석과 브렌트 기준 판단, WTI 하락을 물가 완화로 읽는 판단을 모두 보류합니다.`
+    : `같은 날(${md}) 브렌트 선물 ${fmt(check.brent, 2)}달러, WTI 선물 ${fmt(check.wti, 2)}달러로 차이가 ${fmt(spread, 1)}달러입니다(최근 1년 같은 날 차이의 중앙값 ${spreadMedian == null ? '—' : fmt(spreadMedian, 1)}달러${check.spread20Back == null ? '' : `, 20거래일 전 ${fmt(check.spread20Back, 1)}달러`}). ${md}까지 20거래일 기준 브렌트 ${signed(brent20, 1) ?? '—'}, WTI ${signed(wti20, 1) ?? '—'}${heldTail}`;
   return { ...check, sentence };
 }
 
@@ -186,7 +186,7 @@ function liquidityGroup(macroHistory, { macro, referenceMs }) {
       valueText: `${fmt(last.value, 2)}%`, changeText: where,
       reading: '은행 간 하루짜리 담보 대출 금리입니다. 연준 목표 범위를 벗어나 튀면 단기 자금 시장의 긴장 신호로 봅니다.' }));
   }
-  return { id: 'liquidity', title: '유동성 · 금융 여건', fact: '시장에 풀린 달러와 돈을 빌리는 조건 — 위험자산 가격의 배경입니다.', items };
+  return { id: 'liquidity', title: '유동성, 금융 여건', fact: '시장에 풀린 달러와 돈을 빌리는 조건 — 위험자산 가격의 배경입니다.', items };
 }
 
 function growthGroup(macroHistory, { referenceMs }) {
@@ -223,7 +223,7 @@ function growthGroup(macroHistory, { referenceMs }) {
       valueText: signed(last.value, 1), changeText: back ? `3개월 전 ${signed(back.then.value, 1)}` : null,
       reading: '기업이 받는 가격입니다. 생산자물가가 오르면 몇 달 뒤 소비자물가나 기업 마진에 압력이 됩니다.' }));
   }
-  return { id: 'growth', title: '성장 · 고용 선행', fact: '분기 성장, 일자리 수요, 가계 심리, 기업 가격 — 경기의 다음 방향을 미리 보는 지표입니다.', items };
+  return { id: 'growth', title: '성장, 고용 선행', fact: '분기 성장, 일자리 수요, 가계 심리, 기업 가격 — 경기의 다음 방향을 미리 보는 지표입니다.', items };
 }
 
 function commodityFxGroup(macroHistory, { referenceMs }) {
@@ -238,7 +238,7 @@ function commodityFxGroup(macroHistory, { referenceMs }) {
     const format = (value) => `${fmt(value, digits)}${unitText}`;
     const [, month, day] = s.at(-1).date.split('-').map(Number);
     // A spot card names its basis and end date on the change, so it is not read as the futures span beside it.
-    const span = daily ? (spot ? `현물 · ${month}/${day}까지 20거래일` : '20거래일') : '1개월';
+    const span = daily ? (spot ? `현물, ${month}/${day}까지 20거래일` : '20거래일') : '1개월';
     const item = card({ id: field, label, series: s, asOf: s.at(-1).date, frequency, referenceMs, format, valueText: format(s.at(-1).value),
       changeText: back ? `${span} ${signed(pct(s.at(-1).value, back.value))}` : null, reading: extra ? `${reading} ${extra}` : reading });
     // v57.81: the card face names its basis with its date ("10/6 현물 기준"), so a days-behind spot value is not read
@@ -252,7 +252,7 @@ function commodityFxGroup(macroHistory, { referenceMs }) {
   add('natGas', '천연가스 (헨리허브)', 2, '달러', '전기·난방·화학 원가입니다. 겨울철과 수출 수요에 크게 흔들립니다.');
   add('copper', '구리 (월평균)', 0, '달러/톤', '건설·전력망·전기차에 쓰여 경기 체력을 비추는 금속입니다. 데이터센터 전력 투자와도 연결됩니다.');
   add('usdCny', '위안 / 달러', 3, '위안', '오르면 위안화 약세입니다. 중국 경기와 아시아 통화(원화 포함)가 같은 방향으로 움직이는 경향이 있습니다.');
-  return { id: 'commodities-fx', title: '원자재 · 아시아 통화', fact: '유가 외 에너지, 산업 금속, 위안화 — 물가와 한국 시장에 닿는 경로입니다.', items };
+  return { id: 'commodities-fx', title: '원자재, 아시아 통화', fact: '유가 외 에너지, 산업 금속, 위안화 — 물가와 한국 시장에 닿는 경로입니다.', items };
 }
 
 // referenceMs: the time staleness is judged against (now on screen; fixed in tests).

@@ -24,10 +24,10 @@ export function krFundamentalPoints(company) {
   if (Number.isFinite(c.operatingIncome) && Number.isFinite(c.revenue) && c.revenue > 0) {
     const margin = c.operatingIncome / c.revenue * 100;
     const prior = Number.isFinite(p.operatingIncome) && p.revenue > 0 ? p.operatingIncome / p.revenue * 100 : null;
-    points.push({ id: 'margin', title: '영업이익률', text: `${margin.toFixed(1)}%${prior == null ? '' : ` (전년 ${prior.toFixed(1)}%)`} · 영업이익 ${krw(c.operatingIncome)}` });
+    points.push({ id: 'margin', title: '영업이익률', text: `${margin.toFixed(1)}%${prior == null ? '' : ` (전년 ${prior.toFixed(1)}%)`}, 영업이익 ${krw(c.operatingIncome)}` });
   }
   if (Number.isFinite(c.netIncome) && Number.isFinite(c.equity) && c.equity > 0) {
-    points.push({ id: 'roe', title: '자기자본이익률(ROE)', text: `${(c.netIncome / c.equity * 100).toFixed(1)}% · 순이익 ${krw(c.netIncome)} (기말 자본 기준)` });
+    points.push({ id: 'roe', title: '자기자본이익률(ROE)', text: `${(c.netIncome / c.equity * 100).toFixed(1)}%, 순이익 ${krw(c.netIncome)} (기말 자본 기준)` });
   }
   if (Number.isFinite(c.liabilities) && Number.isFinite(c.equity) && c.equity > 0) {
     points.push({ id: 'debt', title: '부채비율', text: `${(c.liabilities / c.equity * 100).toFixed(0)}% (부채 ${krw(c.liabilities)} / 자본 ${krw(c.equity)})` });
@@ -36,9 +36,9 @@ export function krFundamentalPoints(company) {
   return {
     points,
     basisLines: [
-      `${company.fiscalYear} 회계연도 사업보고서 · ${company.basis === 'CFS' ? '연결' : '별도'} 재무제표`,
+      `${company.fiscalYear} 회계연도 사업보고서, ${company.basis === 'CFS' ? '연결' : '별도'} 재무제표`,
       company.receiptNo ? `전자공시 접수번호 ${company.receiptNo}` : '접수번호 미확인',
-      '금융감독원 전자공시(OpenDART) 주요계정 · 주가 수익률 기간과 직접 동일시하지 않습니다.'
+      '금융감독원 전자공시(OpenDART) 주요계정, 주가 수익률 기간과 직접 동일시하지 않습니다.'
     ]
   };
 }

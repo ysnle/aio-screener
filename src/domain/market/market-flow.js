@@ -39,8 +39,8 @@ export function buildMarketFlow({ rotationHistory = null, macro = null, history 
   const fgRow = (Array.isArray(history) ? history : []).find((row) => row?.date === session);
   const fear = fgRow && fgRow.fg != null ? fearGreedBand(fgRow.fg) : null;
   const evidence = [
-    rose.length ? `오른 업종 ${rose.map(item).join(' · ')}` : null,
-    fell.length ? `내린 업종 ${fell.map(item).join(' · ')}` : null,
+    rose.length ? `오른 업종 ${rose.map(item).join(', ')}` : null,
+    fell.length ? `내린 업종 ${fell.map(item).join(', ')}` : null,
     `11개 업종 중 ${up}개 상승`,
     tenYearBp != null ? `미국 10년물 ${tenYearBp > 0 ? '+' : tenYearBp < 0 ? '−' : ''}${Math.abs(tenYearBp)}bp` : null,
     fear && !fear.blocked ? `공포·탐욕 ${Math.round(fear.score)}(${fear.label})` : null
@@ -52,7 +52,7 @@ export function buildMarketFlow({ rotationHistory = null, macro = null, history 
         : kind === 'broadUp' ? '대부분 업종이 함께 올랐습니다.'
           : '업종별 방향이 엇갈려 한쪽으로 쏠린 이동은 보이지 않습니다.';
   const themeFlow = Array.isArray(themes) && Array.isArray(screenerRows) ? buildThemeFlow({ themes, rows: screenerRows, session }) : { available: false };
-  return { available: true, session, kind, label: MARKET_FLOW_KINDS[kind], read, evidence, line: evidence.join(' · '), defensive, growth, up, down, tenYearBp, fear: fear?.blocked ? null : fear?.score ?? null, themes: themeFlow };
+  return { available: true, session, kind, label: MARKET_FLOW_KINDS[kind], read, evidence, line: evidence.join(', '), defensive, growth, up, down, tenYearBp, fear: fear?.blocked ? null : fear?.score ?? null, themes: themeFlow };
 }
 
 // Owner 2026-10-23 (follow-up: "전력주/유틸리티, 금융주, 부동산/리츠 — 잘 버티는 테마와 떨어지는 테마"): a sector ETF averages
@@ -90,11 +90,11 @@ export function buildThemeFlow({ themes = [], rows = [], session = null } = {}) 
     const best = list.reduce((a, b) => (b.d1 > a.d1 ? b : a)), worst = list.reduce((a, b) => (b.d1 < a.d1 ? b : a));
     return best.d1 >= rule.splitSidePct && worst.d1 <= -rule.splitSidePct && best.d1 - worst.d1 >= rule.themeSplitPp ? { theme: best.theme, up: best, down: worst, gap: best.d1 - worst.d1 } : null;
   }).filter(Boolean).sort((a, b) => b.gap - a.gap);
-  const splitText = (split) => `${split.theme}: ${split.up.name} ${signed(split.up.d1)} · ${split.down.name} ${signed(split.down.d1)}`;
+  const splitText = (split) => `${split.theme}: ${split.up.name} ${signed(split.up.d1)}, ${split.down.name} ${signed(split.down.d1)}`;
   return {
     available: true, groups: groups.length, strong, weak, splits,
-    strongLine: strong.length ? `강한 테마 ${strong.map(label).join(' · ')}` : null,
-    weakLine: weak.length ? `약한 테마 ${weak.map(label).join(' · ')}` : null,
+    strongLine: strong.length ? `강한 테마 ${strong.map(label).join(', ')}` : null,
+    weakLine: weak.length ? `약한 테마 ${weak.map(label).join(', ')}` : null,
     splitLines: splits.map(splitText)
   };
 }

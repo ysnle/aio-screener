@@ -33,7 +33,7 @@ export default {
       await p.fill('#pf-add-qty', '3');
       await p.fill('#pf-add-cost', '400');
       await p.click('#page-portfolio button[data-action="addPortfolioPosition"]');
-      await p.waitForSelector('text=MSFT 포지션 추가 완료 · 브라우저에 저장됨', { timeout: 8000 });
+      await p.waitForSelector('text=MSFT 포지션 추가 완료, 브라우저에 저장됨', { timeout: 8000 });
       await p.waitForFunction(() => /MSFT/.test(document.querySelector('#pf-holdings-table-section')?.innerText || ''), null, { timeout: 8000 });
       return { holdingsRow: true };
     }],

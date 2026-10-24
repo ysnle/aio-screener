@@ -17,7 +17,7 @@ export const SCENARIO_OUTLOOK_VERSION = 'scenario-outlook.v1';
 export { SECTOR_ETF_LABELS } from '../interpretation/concepts.js';
 // The defensive set and the credit rule are the shared concepts (src/domain/interpretation/concepts.js).
 
-const join = (items) => items.filter(Boolean).join(' · ');
+const join = (items) => items.filter(Boolean).join(', ');
 // v57.81: the next US session after the basis close — the transition reading names when it is checked next.
 function nextUsSession(asOf) {
   const start = Date.parse(`${asOf}T12:00:00Z`);
@@ -45,7 +45,7 @@ const quadrantOf = (row) => { const settled = rrgSettledQuadrant(row); return se
 export const leaderFading = (row) => quadrantOf(row) === 'Leading' && row?.fell === true && Number.isFinite(row?.rel5);
 // v57.81: the themes screen's RRG neutral band — a point too close to 100 is 경계, not 선도/개선.
 export const rrgBorder = (row) => rrgSettledQuadrant(row) === 'Border';
-const rel5Text = (rows) => rows.map((row) => `${row.label} 상대강도 ${row.rel5 >= 0 ? '+' : ''}${row.rel5.toFixed(1)}%`).join(' · ');
+const rel5Text = (rows) => rows.map((row) => `${row.label} 상대강도 ${row.rel5 >= 0 ? '+' : ''}${row.rel5.toFixed(1)}%`).join(', ');
 const likelihoodOf = (met, total, confirmed) => confirmed ? '높음' : met / total >= 0.5 ? '중간' : '낮음'; // internal ordering key only
 export const fitLabel = (met, total) => `조건 충족 ${met}/${total}`; // P1745: one notation with the branches
 
@@ -68,7 +68,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const leadingRows = sectors.filter((row) => quadrantOf(row) === 'Leading' && !leaderFading(row) && !rrgBorder(row));
   const fadingRows = sectors.filter(leaderFading);
   const leading = leadingRows.map((row) => row.label);
-  const fadingNote = fadingRows.length ? ` · 선도였지만 최근 5거래일 상대강도가 꺾임: ${rel5Text(fadingRows)}` : '';
+  const fadingNote = fadingRows.length ? `. 선도였지만 최근 5거래일 상대강도가 꺾인 업종: ${rel5Text(fadingRows)}` : '';
   const improvingRows = sectors.filter((row) => quadrantOf(row) === 'Improving' && !rrgBorder(row));
   const improving = improvingRows.map((row) => row.label);
   // v57.81: 약화(Weakening) is losing momentum — it is not called "버티는"; a fading 선도 is not either.
@@ -95,7 +95,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
     expansion: {
       posture: '이 흐름이라면 상승이 소수 대형주를 넘어 다수 종목으로 퍼지는 국면입니다. 그동안 뒤처졌던 업종과 중소형주의 참여가 함께 늘어나는지가 이 해석을 확인하는 근거입니다. 반증: 50일선·200일선 위 비율이 ' + RULES.breadth.broadAtLeast + '% 아래로 다시 내려오거나 하이일드 스프레드가 넓어지면 확산 해석을 다시 봅니다.',
       // v57.81: the RRG window is named (약 50일 기준) and a fading 선도 is listed apart with its five-session relative return.
-      opportunity: (improving.length || leading.length ? `${improving.length ? `섹터 회전(RRG·약 50일 기준)에서 개선 중: ${join(improving)}` : '개선 중인 섹터는 아직 없음'} · 선도: ${join(leading) || '없음'}` : `확산이 확인되면 후행 업종의 개선 여부를 섹터 회전에서 확인합니다${sectorNote}.`) + fadingNote,
+      opportunity: (improving.length || leading.length ? `${improving.length ? `섹터 회전(RRG·약 50일 기준)에서 개선 중: ${join(improving)}` : '개선 중인 섹터는 아직 없음'}, 선도: ${join(leading) || '없음'}` : `확산이 확인되면 후행 업종의 개선 여부를 섹터 회전에서 확인합니다${sectorNote}.`) + fadingNote,
       opportunityLinks: [{ label: '섹터 회전(약 50일 기준)에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) }].filter((part) => part.links.length),
       check: [`50일선·200일선 위 종목 비율이 함께 ${RULES.breadth.broadAtLeast}% 이상을 유지하는지`, '52주 신고가 종목이 신저가보다 꾸준히 많은지', '러셀 2000이 S&P 500을 따라오거나 앞서는지'],
       caution: ['20일선 위 비율만 오르고 50일선 비율이 따라오지 않으면 확산이라고 보기 이릅니다.', '하이일드 스프레드가 다시 넓어지면 회복의 근거가 약해집니다.'],
@@ -108,7 +108,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       // returns — a sector can lead on relative strength while being the weakest tile on the 1-day map.
       // v57.81: RRG trails price by weeks; while the leadership break holds, the line says the leaders' recent drop beside it.
       opportunity: (leading.length || topThemes.length ? join([join(leading) && `상대강도 선도(RRG·약 50일 기준): ${join(leading)}`, topThemes.length && `3개월 상위 테마: ${join(topThemes)}`]) : `주도 섹터·테마는 테마 화면에서 확인합니다${sectorNote}.`) + fadingNote
-        + (leadership.break && leadership.drop5 != null ? ` · 상대강도는 몇 주 늦게 반영 — 나스닥 100은 최근 5거래일 ${leadership.drop5 >= 0 ? '+' : ''}${leadership.drop5.toFixed(1)}%` : ''),
+        + (leadership.break && leadership.drop5 != null ? `, 상대강도는 몇 주 늦게 반영 — 나스닥 100은 최근 5거래일 ${leadership.drop5 >= 0 ? '+' : ''}${leadership.drop5.toFixed(1)}%` : ''),
       opportunityLinks: [{ label: '상대강도 선도(RRG·약 50일 기준)', links: sectorLinks(leading) }, { label: '3개월 상위 테마', links: themeLinks }].filter((part) => part.links.length),
       check: ['주도 섹터의 상대강도가 유지되는지(선도 → 약화로 바뀌는지)', '지수 고점과 50일선 위 종목 비율의 괴리가 줄어드는지', '분배일(거래량 실린 하락일)이 늘어나는지'],
       caution: ['분배일이 누적되고 신저가 종목이 늘면, 집중 장세가 끝나 가는지 주도 섹터의 상대강도와 50일선 위 비율로 확인합니다.', '주도 종목 한두 개의 실적 실망이 지수 전체를 흔들 수 있습니다.'],
@@ -130,7 +130,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
     posture: `주도 영역(나스닥 100)과 중소형주·시장 폭이 함께 약해져, 소수 종목이 받치던 흐름이 동반 약세로 넘어가는지 확인하는 단계입니다. 확인: 추세가 부담으로 바뀌거나(S&P 500 200일선 이탈, 또는 하락하는 50일선 아래) HY 확대·VIX 급등이 겹치면 동반 약세 쪽입니다. 반증: 나스닥 100의 5거래일 낙폭이 ${RULES.trend.leaderDrop5dPct}% 안으로 줄고 신고가가 신저가보다 다시 많아지면 소수 주도로 되돌아간 것으로 봅니다. 다음 확인: ${nextCheck ? `${shortDate(nextCheck)} ` : '다음 '}미국 확정 종가.`,
     check: ['나스닥 100이 50일선 위를 지키는지, 5거래일 낙폭이 줄어드는지', '신저가가 신고가보다 많은 날이 이어지는지', '러셀 2000이 200일선을 되찾는지', '하이일드 스프레드와 VIX가 함께 오르는지'],
     caution: ['하루 반등만으로 주도 영역이 회복됐다고 보지 않습니다.', '동반 약세 조건이 모두 갖춰지기 전까지는 전환을 확인하는 단계이지 확정이 아닙니다.'],
-    leadershipBasis: `주도 영역 이탈 확인(${leadership.summary || ''} · 확인 ${leadership.met}/${leadership.confirmations?.length || 0})`,
+    leadershipBasis: `주도 영역 이탈 확인(${leadership.summary || ''}, 확인 ${leadership.met}/${leadership.confirmations?.length || 0})`,
     nextCheck
   } : null;
   const items = scenarios.scenarios.map((scenario) => {
@@ -141,11 +141,11 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
     // '3/4' with credit failing is not "almost there" — the missing condition is named and the flow reads as not formed.
     const missingNames = list.filter(([, ok]) => !ok).map(([label]) => label.split('(')[0]);
     const shortfall = !scenario.held && met > 0 && met < list.length ? `${missingNames.join('·')} 이 빠져 아직 성립하지 않음` : null;
-    const basis = list.map(([label, ok, note]) => `${label} ${ok ? '충족' : `미충족${note ? `(${note})` : ''}`}`).join(' · ');
+    const basis = list.map(([label, ok, note]) => `${label} ${ok ? '충족' : `미충족${note ? `(${note})` : ''}`}`).join(', ');
     const item = { id: scenario.id, title: scenario.title, likelihood: level, fit: scenario.held ? '판단 보류' : fitLabel(met, list.length), shortfall, met, total: list.length, basis, ...guide[scenario.id] };
     if (scenario.id !== 'weakness' || !transitionGuide) return item;
     return { ...item, title: transitionGuide.title, transition: true, nextCheck: transitionGuide.nextCheck, posture: transitionGuide.posture, check: transitionGuide.check, caution: transitionGuide.caution,
-      shortfall: missingNames.length ? `동반 약세 조건 중 ${missingNames.join('·')} 이 아직 빠짐` : null, basis: `${transitionGuide.leadershipBasis} · ${basis}` };
+      shortfall: missingNames.length ? `동반 약세 조건 중 ${missingNames.join('·')} 이 아직 빠짐` : null, basis: `${transitionGuide.leadershipBasis}, ${basis}` };
   });
   const order = { 높음: 3, 중간: 2, 낮음: 1, '판단 보류': 0 };
   // v57.84 (R707): a flow can lead only with its defining condition — 고른 상승 needs broad breadth, 소수 종목 주도 narrow
@@ -157,8 +157,8 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const lead = items.find((item) => item.transition) || [...gated].sort((a, b) => order[b.likelihood] - order[a.likelihood] || b.met / b.total - a.met / a.total)[0] || null;
   const headline = scenarios.held ? '필요한 관측이 없어 지금 어느 흐름에 가까운지 판단을 보류합니다.'
     : !lead ? '세 흐름 모두 이름을 정하는 핵심 조건(고른 상승은 넓은 시장 폭, 소수 종목 주도는 좁은 시장 폭, 동반 약세는 추세 부담)이 갖춰지지 않아 지금은 어느 흐름이라고 보기 이릅니다.'
-      : lead.transition ? `소수 종목 주도의 전제였던 주도 영역이 꺾여, 지금은 '${lead.title}'으로 읽습니다(${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}).`
-        : `핵심 조건을 갖춘 흐름은 '${lead.title}'(${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''})입니다.`;
+      : lead.transition ? `소수 종목 주도의 전제였던 주도 영역이 꺾여, 지금은 '${lead.title}'으로 읽습니다(${lead.fit}${lead.shortfall ? `, ${lead.shortfall}` : ''}).`
+        : `핵심 조건을 갖춘 흐름은 '${lead.title}'(${lead.fit}${lead.shortfall ? `, ${lead.shortfall}` : ''})입니다.`;
   // I02: the rotation names travel with the outlook so 시장 상태's "이어서 볼 곳" can quote the same leaders.
   return { available: true, version: SCENARIO_OUTLOOK_VERSION, asOf: scenarios.asOf, headline, leadId: scenarios.held ? null : lead?.id || null, items,
     // v57.81: the rotation the links quote carries only leaders that are not fading on the last five sessions.

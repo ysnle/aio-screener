@@ -13,8 +13,8 @@ export const RADAR_AXES = Object.freeze([
   { id: 'breadth', label: '시장 폭', note: '50일선 위 종목 비율' },
   { id: 'volatility', label: '변동성', note: 'VIX가 낮을수록 바깥(양호)' },
   { id: 'rates', label: '금리', note: '미 10년물이 낮을수록 바깥' },
-  { id: 'credit', label: '신용 · 위험선호', note: 'HY OAS가 좁을수록 바깥' },
-  { id: 'commodities', label: '달러 · 원자재', note: '달러지수·WTI가 낮을수록 바깥' }
+  { id: 'credit', label: '신용과 위험선호', note: 'HY OAS가 좁을수록 바깥' },
+  { id: 'commodities', label: '달러와 원자재', note: '달러지수·WTI가 낮을수록 바깥' }
 ]);
 
 function macroSeries(macroHistory, key, factor = 1) {

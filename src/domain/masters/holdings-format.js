@@ -145,7 +145,7 @@ const SCALE_TIER_LABELS = { MEGA: '초대형', LARGE: '대형', MID: '중형', S
 function formatScale(manager) {
   const tier = SCALE_TIER_LABELS[manager?.scaleTier] || '';
   const label = String(manager?.scaleMetric?.label || '');
-  if (/^\$/.test(label)) return tier ? `${tier} · ${label}` : label;
+  if (/^\$/.test(label)) return tier ? `${tier}, ${label}` : label;
   return tier ? `${tier} (공식 운용자산 미공개)` : '—';
 }
 
@@ -154,7 +154,7 @@ function formatPercent(value) {
 }
 
 function summarizeLatestChange(counts = {}) {
-  return `신규 ${counts.NEW || 0} · 증가 ${counts.INCREASED || 0} · 감소 ${counts.REDUCED || 0} · 전량 제외 ${counts.EXITED || 0}`;
+  return `신규 ${counts.NEW || 0}, 증가 ${counts.INCREASED || 0}, 감소 ${counts.REDUCED || 0}, 전량 제외 ${counts.EXITED || 0}`;
 }
 
 // v57.54: a reported-value change reads in the same unit as the value beside it ("+$12.56B" next to "$28.16B"),

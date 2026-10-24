@@ -82,8 +82,8 @@ export function buildTreasuryCurveSpread({ twoY = null, tenY = null, officialSpr
       curveCutId: selectedCutId,
       comparable,
       label: comparable
-        ? `2s10s · ${officialSpreadMeta?.source || '공식'} 동일자 스프레드`
-        : explicitConflict ? '2s10s · 공식 스프레드와 2Y·10Y cut 불일치 — 비교 판정 보류' : '2s10s · 공식 스프레드 cut 미확인 — 비교 판정 보류'
+        ? `2s10s, ${officialSpreadMeta?.source || '공식'} 동일자 스프레드`
+        : explicitConflict ? '2s10s, 공식 스프레드와 2Y·10Y cut 불일치 — 비교 판정 보류' : '2s10s, 공식 스프레드 cut 미확인 — 비교 판정 보류'
     });
   }
 
@@ -101,7 +101,7 @@ export function buildTreasuryCurveSpread({ twoY = null, tenY = null, officialSpr
       mixedDates: false,
       curveCutId: selectedCutId,
       comparable: false,
-      label: '2s10s · 판정 보류 (한쪽 만기 미수신)'
+      label: '2s10s, 판정 보류 (한쪽 만기 미수신)'
     });
   }
 
@@ -119,8 +119,8 @@ export function buildTreasuryCurveSpread({ twoY = null, tenY = null, officialSpr
     curveCutId: selectedCutId,
     comparable,
     label: comparable
-      ? '2s10s · 동일 cut 계산'
-      : explicitConflict ? '2s10s · 2Y·10Y cut 불일치 — 비교 판정 보류' : '2s10s · 관측 cut 미확인 또는 비동일 — 비교 판정 보류'
+      ? '2s10s, 동일 cut 계산'
+      : explicitConflict ? '2s10s, 2Y·10Y cut 불일치 — 비교 판정 보류' : '2s10s, 관측 cut 미확인 또는 비동일 — 비교 판정 보류'
   });
 }
 

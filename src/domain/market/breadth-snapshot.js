@@ -25,12 +25,12 @@ function snapshotAt(history, asOf) {
   const advance = point('advanceRatio');
   if (advance) {
     const share = advance.value <= 1 ? advance.value * 100 : advance.value;
-    if (share >= 0 && share <= 100) add('advance', '상승 · 하락 종목', `상승 ${share.toFixed(1)}%`, `하락 ${(100 - share).toFixed(1)}%`, share, 'advanceRatio', '전일 종가보다 오른 종목 / 상승·하락 종목 합계. 보합 제외. 원시 종목 수는 이 기록에 없어 비율에서 역산하지 않습니다.');
+    if (share >= 0 && share <= 100) add('advance', '상승, 하락 종목', `상승 ${share.toFixed(1)}%`, `하락 ${(100 - share).toFixed(1)}%`, share, 'advanceRatio', '전일 종가보다 오른 종목 / 상승·하락 종목 합계. 보합 제외. 원시 종목 수는 이 기록에 없어 비율에서 역산하지 않습니다.');
   }
   const highs = point('breadthNewHighs'), lows = point('breadthNewLows');
   if (highs && lows) {
     const total = highs.value + lows.value;
-    add('high-low', '52주 신고가 · 신저가', `신고가 ${highs.value}개`, `신저가 ${lows.value}개`, total > 0 ? highs.value / total * 100 : null, 'breadthNewHighs', `조정 고가·저가의 약 1년 범위. 막대는 신고·신저 발생 ${total}건 중 비중이며 전체 종목 중 비율이 아닙니다.`);
+    add('high-low', '52주 신고가, 신저가', `신고가 ${highs.value}개`, `신저가 ${lows.value}개`, total > 0 ? highs.value / total * 100 : null, 'breadthNewHighs', `조정 고가·저가의 약 1년 범위. 막대는 신고·신저 발생 ${total}건 중 비중이며 전체 종목 중 비율이 아닙니다.`);
   }
   for (const [field, days] of [['breadth20', 20], ['breadth50', 50], ['breadth200', 200]]) {
     const reading = point(field);

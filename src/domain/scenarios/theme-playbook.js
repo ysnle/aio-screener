@@ -84,9 +84,9 @@ function leadingStageText(above50) {
 // The 3-month median between the long trend and the month tells a pause-and-resume apart from a straight run.
 function midNote(state, ret6m, ret3m) {
   if (ret6m == null || ret3m == null) return '';
-  if (state === 'leading' && ret3m < 0) return ' · 3개월로는 조정 구간이었다가 1개월 기준 다시 앞섬';
-  if (state === 'pullback' && ret3m < 0) return ' · 3개월째 밀리는 흐름';
-  if (state === 'rebound' && ret3m > 0) return ' · 3개월 기준으로는 이미 회복 흐름';
+  if (state === 'leading' && ret3m < 0) return ', 3개월로는 조정 구간이었다가 1개월 기준 다시 앞섬';
+  if (state === 'pullback' && ret3m < 0) return ', 3개월째 밀리는 흐름';
+  if (state === 'rebound' && ret3m > 0) return ', 3개월 기준으로는 이미 회복 흐름';
   return '';
 }
 
@@ -153,7 +153,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
   // v57.81: 주도 지속 needs the 50-day share or most conditions, and no sharp five-session break; otherwise 추세 약화 확인 중.
   const fadeReasons = [];
   if (state === 'leading') {
-    if (above50Ok !== true && met < LEAD_CONFIRM_MET) fadeReasons.push(`${above50 != null ? `50일선 위 ${above50}%` : '50일선 위 비율 확인 불가'} · 조건 ${met}/${conditions.length}`);
+    if (above50Ok !== true && met < LEAD_CONFIRM_MET) fadeReasons.push(`${above50 != null ? `50일선 위 ${above50}%` : '50일선 위 비율 확인 불가'}, 조건 ${met}/${conditions.length}`);
     if (recent?.broken || fadeReasons.length) state = 'fading';
   }
   const deep = state === 'pullback' && depthOk(trendX, recentX, { relative: true }) === false;
@@ -175,19 +175,19 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
   const proxyRelative = proxyOutcome?.basis === 'relative-banded' && proxyOutcome.rule === THEME_STAGE_RULE && (proxyOutcome.benchmark || 'spx') === (bench?.field || THEME_BENCHMARKS[market]?.field);
   const proxy = state && state !== 'fading' && proxyRelative ? outcomes?.themes?.[id]?.[state] : null;
   const proxySymbol = outcomes?.themes?.[id]?.symbol;
-  const windowName = `${WINDOW_LABELS[trendKey]}·1개월, ${bench ? `${benchName} 대비` : '절대 수익률(지수 비교 불가)'}${reference ? ` · 참고: ${reference.name} 대비 ${WINDOW_LABELS[trendKey]} ${pct(reference.trend).replace(/%$/, '%p')}` : ''}`;
+  const windowName = `${WINDOW_LABELS[trendKey]}·1개월, ${bench ? `${benchName} 대비` : '절대 수익률(지수 비교 불가)'}${reference ? `, 참고: ${reference.name} 대비 ${WINDOW_LABELS[trendKey]} ${pct(reference.trend).replace(/%$/, '%p')}` : ''}`;
   const recentClause = recent && (contradicted || recent.broken)
-    ? ` · ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, 평소 1주 움직임의 2배를 넘는 ${upClaim ? '급락' : '반등'} — 1개월 판정 보류` : ''}`
+    ? `, ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, 평소 1주 움직임의 2배를 넘는 ${upClaim ? '급락' : '반등'} — 1개월 판정 보류` : ''}`
     : '';
-  const shortName = state ? `${THEME_STATES[state].split(' (')[0]}${drift && !contradicted ? ` · ${INLINE_DRIFT_LABELS[drift]}` : ''}` : null;
+  const shortName = state ? `${THEME_STATES[state].split(' (')[0]}${drift && !contradicted ? `, ${INLINE_DRIFT_LABELS[drift]}` : ''}` : null;
   const stateLabel = !state ? (heavyHeld ? `판정 보류 — 거래대금 상위 종목이 ${benchName}보다 더 빠져 동일가중 중앙값으로 앞섬을 말하지 않습니다${heavyweightNote ? ` (${heavyweightNote})` : ''}` : bench ? '판정 보류' : `판정 보류 (${benchName} 종가가 테마 기준일과 맞지 않음)`)
-    : `${shortName} (${windowName}${fadeReasons.length ? ` · ${fadeReasons.join(' · ')}` : ''})${contradicted ? '' : midNote(state, ret6m, ret3m)}${recentClause}`;
+    : `${shortName} (${windowName}${fadeReasons.length ? `, ${fadeReasons.join(', ')}` : ''})${contradicted ? '' : midNote(state, ret6m, ret3m)}${recentClause}`;
   const choices = state ? { ...CHOICE_TEXT[state], ...(state === 'leading' ? { stage: leadingStageText(above50) } : {}) } : {};
   return {
     market, id, label, tags, tagLabels: tags.map((tag) => EXPOSURE_TAGS[tag]), thesis: profile?.thesis || null, breaks: profile?.breaks || [],
     ret1m, ret3m, ret6m, ret5d, above50, basis, members, state, stateLabel, recent, contradicted, weeklyNoise,
     relative: bench ? { name: benchName, field: bench.field || null, trendKey, trend: trendX, recent: recentX, band, recentBand, reference } : null,
-    wind, windText: lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.lead]}${alt ? ` · 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '거시 시나리오 판단 보류',
+    wind, windText: lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.lead]}${alt ? `, 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '거시 시나리오 판단 보류',
     favored, favoredWhy: why, choices,
     fit: known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
     basisText: conditions.map(([text, ok]) => `${text} ${ok == null ? '확인 불가' : ok ? '충족' : '미충족'}`),
@@ -264,7 +264,7 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
 /** "미국 10/14 · 한국 10/15 확정 종가" — each market's own close date. */
 export function basisText(asOfByMarket = {}) {
   const parts = [asOfByMarket.US ? `미국 ${shortDay(asOfByMarket.US)}` : null, asOfByMarket.KR ? `한국 ${shortDay(asOfByMarket.KR)}` : null].filter(Boolean);
-  return parts.length ? `${parts.join(' · ')} 확정 종가` : '기준일 미확인';
+  return parts.length ? `${parts.join(', ')} 확정 종가` : '기준일 미확인';
 }
 
 // v57.81 (audit): a tag-level "힘이 옮겨 갔습니다" needs at least this many themes on each end; thinner tags are read as
@@ -309,7 +309,7 @@ export function rotationOf(rows, { period = null, benchRet5d = null } = {}) {
   const krLine = sub ? ` 한국은 강한 쪽 ${sub.up.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join('·')}, 약한 쪽 ${sub.down.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join('·')}입니다.` : '';
   const span = period?.from && period?.to ? `(${shortDay(period.from)}~${shortDay(period.to)})` : '';
   const lead = `최근 1개월${span} ${scope} 테마`;
-  const sides = `강한 쪽 ${main.up.map(named).join(', ')} · 약한 쪽 ${main.down.map(named).join(', ')}`;
+  const sides = `강한 쪽 ${main.up.map(named).join(', ')}, 약한 쪽 ${main.down.map(named).join(', ')}`;
   const thick = top && bottom && top.n >= ROTATION_TAG_MIN_THEMES && bottom.n >= ROTATION_TAG_MIN_THEMES;
   const against = top?.ret1m > 0 && top.recent?.broken
     ? ` 다만 최근 5거래일 '${top.label}' 성격 중앙값은 ${pct(top.ret5d)}로 평소 1주 움직임의 2배를 넘게 반대로 움직여, 1개월 기준 이동이 지금도 이어진다고 보지 않습니다.` : '';
@@ -328,9 +328,9 @@ export function renderThemePlaybookContext(model, { query = '' } = {}) {
   const picked = [...new Map([...named, ...notable].map((row) => [`${row.market}:${row.id}`, row])).values()].slice(0, 10);
   // v57.81: every line names its windows and carries the last five sessions, so the AI cannot call a theme leading
   // from the month while the week broke.
-  const line = (row) => `- [${row.market}] ${row.label}: ${row.stateLabel} (5거래일 ${pct(row.ret5d ?? null)} · 1개월 ${pct(row.ret1m)}${row.ret3m != null ? ` · 3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? ` · 50일선 위 ${row.above50}%` : ''}). 성격: ${row.tagLabels.join(', ') || '미분류'}. 거시: ${row.windText}. ${row.fit} [${row.basisText.join(', ')}]. 상대적으로 유리한 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy} 과거: ${row.past}${row.thesis ? ` 구조 가설: ${row.thesis}. 가설이 깨지는 신호: ${row.breaks.join(', ')}.` : ''}`;
+  const line = (row) => `- [${row.market}] ${row.label}: ${row.stateLabel} (5거래일 ${pct(row.ret5d ?? null)}, 1개월 ${pct(row.ret1m)}${row.ret3m != null ? `, 3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? `, 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? `, 50일선 위 ${row.above50}%` : ''}). 성격: ${row.tagLabels.join(', ') || '미분류'}. 거시: ${row.windText}. ${row.fit} [${row.basisText.join(', ')}]. 상대적으로 유리한 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy} 과거: ${row.past}${row.thesis ? ` 구조 가설: ${row.thesis}. 가설이 깨지는 신호: ${row.breaks.join(', ')}.` : ''}`;
   const withWeek = (r) => `${marketWord(r)} ${r.label}(${r.market === 'KR' ? '3개월' : '6개월'}·1개월 기준, ${recentMoveText(r.recent, { benchmarkName: r.relative?.name || '지수' }) || '최근 5거래일 —'})`;
-  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${model.asOfText || `${model.asOf || '기준일 미확인'} 확정 종가`}) · 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500, 한국 코스피)와 비교하고 최근 5거래일로 점검】`, `가격 기준 강약 이동(자금 유출입 자료 아님): ${model.rotation.text}`,
+  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${model.asOfText || `${model.asOf || '기준일 미확인'} 확정 종가`}), 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500, 한국 코스피)와 비교하고 최근 5거래일로 점검】`, `가격 기준 강약 이동(자금 유출입 자료 아님): ${model.rotation.text}`,
     model.highlights.structuralPullbacks.length ? `추세 속 조정 + 중심 시나리오에서 역풍 아님: ${model.highlights.structuralPullbacks.slice(0, 6).map((r) => `${marketWord(r)} ${r.label}(${pct(r.ret1m)})`).join(', ')}` : '',
     model.highlights.headwindLeaders.length ? `거시 부담에도 주도: ${model.highlights.headwindLeaders.map(withWeek).join(', ')} — 업종 고유 동력(실적·구조 수요) 확인 필요` : '',
     ...picked.map(line),

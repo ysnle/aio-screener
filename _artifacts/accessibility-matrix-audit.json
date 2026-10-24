@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-23T01:38:36.993Z",
-  "appRevision": "v58.69",
-  "gitHead": "098f42a1d721f0b74f8a0e75d168732c08506d78",
+  "observedAt": "2026-10-23T15:21:03.696Z",
+  "appRevision": "v58.73",
+  "gitHead": "07ecac5735aa09e2363a60d61e3fce05d740bdc2",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -92,8 +92,30 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 3,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "bp",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "VIX",
+          "width": 18,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "RSI",
+          "width": 20,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": [
         {
@@ -192,8 +214,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": [
         {
@@ -261,8 +291,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "RRG",
+          "width": 22,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": [
         {
@@ -275,7 +313,7 @@
       "routeId": "portfolio",
       "active": true,
       "nameless": [],
-      "selectCount": 2,
+      "selectCount": 5,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -301,7 +339,7 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 1,
+      "canvasCount": 0,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
@@ -427,8 +465,8 @@
         {
           "id": "",
           "text": "GitHub Issues",
-          "width": 78,
-          "height": 17,
+          "width": 72,
+          "height": 16,
           "exception": "wcag-inline-text"
         }
       ],

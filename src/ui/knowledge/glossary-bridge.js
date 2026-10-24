@@ -81,7 +81,7 @@ export function glossaryEntryParts(entry, figureSources = null) {
   const parts = splitDefinition(entry?.def);
   const figure = figureSources?.[entry?.term] || null;
   if (figure?.cond) parts.limits.push(`수치 기준: ${figure.cond}`);
-  return { ...parts, basis: figure ? [figure.kind, figure.src].filter(Boolean).join(' · ') : null, screens: screensForEntry(entry), conceptId: entry?.conceptId || null };
+  return { ...parts, basis: figure ? [figure.kind, figure.src].filter(Boolean).join(', ') : null, screens: screensForEntry(entry), conceptId: entry?.conceptId || null };
 }
 
 function routeUrl(root, route) {
@@ -158,7 +158,7 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
     }
     const head = documentRef.createElement('div');
     head.className = 'glx-head';
-    head.textContent = results.length ? `다른 학습 영역 · ${results.length}건` : '다른 학습 영역 · 일치 항목 없음';
+    head.textContent = results.length ? `다른 학습 영역, ${results.length}건` : '다른 학습 영역, 일치 항목 없음';
     box.appendChild(head);
     for (const entry of results) {
       const row = documentRef.createElement('a');
@@ -170,7 +170,7 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
       title.textContent = entry.title;
       const meta = documentRef.createElement('div');
       meta.className = 'glx-meta';
-      meta.textContent = [entry.surfaceLabel, entry.group].filter(Boolean).join(' · ');
+      meta.textContent = [entry.surfaceLabel, entry.group].filter(Boolean).join(', ');
       const text = documentRef.createElement('div');
       text.className = 'glx-text';
       text.textContent = entry.text;

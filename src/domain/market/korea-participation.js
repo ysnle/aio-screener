@@ -52,12 +52,12 @@ function sessionRead({ observed, date, index }) {
   if (out.ret1d==null || out.count<20) return out;
   const md = `${Number(date.slice(5,7))}/${Number(date.slice(8,10))}`;
   // v57.88: an up day counts the up side (+3% 이상 · 상승), a down or flat day the down side.
-  const sample = `AIO 추적 종목(한국) ${out.count}개 하루 수익률 중앙값 ${sgn(out.ret1d)}${out.ret1d > 0 ? `(+3% 이상 ${out.up3}개 · 상승 ${day.rising}개)` : `(-3% 이하 ${out.down3}개 · 하락 ${out.falling}개)`}`;
+  const sample = `AIO 추적 종목(한국) ${out.count}개 하루 수익률 중앙값 ${sgn(out.ret1d)}${out.ret1d > 0 ? `(+3% 이상 ${out.up3}개, 상승 ${day.rising}개)` : `(-3% 이하 ${out.down3}개, 하락 ${out.falling}개)`}`;
   const same = index?.date===date && finite(index?.d1)!=null;
   if (!same) { const spread = spreadWord(day); out.text = `${md} ${sample}${spread ? ` — 표본의 ${spread.share}%가 ${spread.dir==='down'?'내려 표본 전반으로 번진 하락':'올라 표본 전반으로 번진 상승'}입니다` : ''}.`; return out; }
   const dayRead = gapReading(index.d1, day);
   const weekRead = finite(index.d5)!=null && week5.median!=null && week5.count>=20 ? gapReading(index.d5, week5) : '';
-  const week = finite(index.d5)!=null && out.ret5d!=null ? ` 5거래일은 지수 ${sgn(index.d5)} · 표본 중앙값 ${sgn(out.ret5d)}${weekRead ? `로, ${weekRead}` : '입니다'}.` : '';
+  const week = finite(index.d5)!=null && out.ret5d!=null ? ` 5거래일은 지수 ${sgn(index.d5)}, 표본 중앙값 ${sgn(out.ret5d)}${weekRead ? `로, ${weekRead}` : '입니다'}.` : '';
   out.text = `코스피 ${md} ${sgn(index.d1)} vs ${sample}${dayRead ? ` — ${dayRead}` : ''}.${week}`;
   return out;
 }
@@ -72,7 +72,7 @@ export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), 
   const typed=observed.map(row=>({...row,...Object.fromEntries(['ret1m','ret3m','ret6m','pctSma50'].map(key=>[key,read(row,key)]))}));
   const groups=buildGroupStrength({rows:typed,themes:koreanThemeGroups(themes,typed),market:'KR'}).groups.filter(g=>g.ret3m!=null).slice(0,5);
   const headline=!date ? '한국 종가 표본의 기준일을 확인하지 못했습니다.' : breadth50.pct == null ? '한국 표본의 이동평균 자료가 부족합니다.'
-    : `AIO 추적 종목(한국) ${observed.length}개 중 50일선 위 ${breadth50.pct.toFixed(1)}%${returns.ret3m!=null ? ` · 3개월 수익률 중앙값 ${returns.ret3m>=0?'+':''}${returns.ret3m.toFixed(1)}%` : ''}.`;
+    : `AIO 추적 종목(한국) ${observed.length}개 중 50일선 위 ${breadth50.pct.toFixed(1)}%${returns.ret3m!=null ? `, 3개월 수익률 중앙값 ${returns.ret3m>=0?'+':''}${returns.ret3m.toFixed(1)}%` : ''}.`;
   const session=date ? sessionRead({observed,date,index}) : null;
   return {available:!!date,date,latestDate:latest?.date||null,delayed:date!==latest?.date,population:population.length,observed:observed.length,excluded:population.length-observed.length,breadth50,breadth200,returns,groups,headline,session,
     watch:['코스피·코스닥 방향과 50·200일선 위 종목 비율이 함께 개선되는지 확인합니다. 지수만 오르면 소수 종목 집중 가능성을 점검합니다.',
@@ -81,5 +81,5 @@ export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), 
     missing:['외국인·기관 순매수','한국 기업 공시 재무','전 거래소 전체 종목 시장 폭']};
 }
 export function koreaParticipationContext(model) {
-  return model?.available ? `한국 시장 표본 · ${model.date} KRX 확정 종가. ${model.session?.text ? `${model.session.text} ` : ''}${model.headline} 200일선 위 ${model.breadth200.pct==null?'미확인':model.breadth200.pct.toFixed(1)+'%'}. 모집단 ${model.observed}/${model.population}. 전 시장 지표가 아니며 미수집 수급/공시를 추정하지 않는다. 관찰: ${model.watch.join(' ')}` : '';
+  return model?.available ? `한국 시장 표본, ${model.date} KRX 확정 종가. ${model.session?.text ? `${model.session.text} ` : ''}${model.headline} 200일선 위 ${model.breadth200.pct==null?'미확인':model.breadth200.pct.toFixed(1)+'%'}. 모집단 ${model.observed}/${model.population}. 전 시장 지표가 아니며 미수집 수급/공시를 추정하지 않는다. 관찰: ${model.watch.join(' ')}` : '';
 }

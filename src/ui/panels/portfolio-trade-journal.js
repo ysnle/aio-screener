@@ -45,7 +45,7 @@ export function readJournal(root) { return normalizeJournal(store(root)?.read?.(
 function buildSkeleton(doc, host, root) {
   host.replaceChildren();
   host.dataset.aioTradeJournal = 'built';
-  host.append(el(doc, 'h2', '매매일지 · 복기', 'briefing-h2'),
+  host.append(el(doc, 'h2', '매매일지, 복기', 'briefing-h2'),
     el(doc, 'p', '사고판 기록을 이유와 함께 남기면, 끝난 거래의 손익과 내 매매 습관을 내 기록으로 보여 줍니다. 무엇을 사고팔지 권하지 않고, 내가 정한 원칙과 지금 상태의 차이만 보여 줍니다.', 'theme-strength-basis'));
   const form = el(doc, 'details', null, 'pf-trade-form');
   form.id = 'pf-trade-form';
@@ -54,7 +54,7 @@ function buildSkeleton(doc, host, root) {
   grid.append(
     field(doc, '날짜', input(doc, 'pf-trade-date', { type: 'date', value: todayKst() })),
     field(doc, '구분', select(doc, 'pf-trade-side', [['buy', '매수'], ['sell', '매도']])),
-    field(doc, '종목', input(doc, 'pf-trade-symbol', { placeholder: 'NVDA · 005930.KS' })),
+    field(doc, '종목', input(doc, 'pf-trade-symbol', { placeholder: 'NVDA, 005930.KS' })),
     field(doc, '수량', input(doc, 'pf-trade-qty', { type: 'number', min: '0', step: 'any' })),
     field(doc, '가격', input(doc, 'pf-trade-price', { type: 'number', min: '0', step: 'any' })),
     field(doc, '수수료·세금', input(doc, 'pf-trade-fee', { type: 'number', min: '0', step: 'any', placeholder: '0' })),
@@ -155,16 +155,16 @@ function renderDynamic(doc, root, host, surface) {
   const summary = el(doc, 'section', null, 'pf-trade-block');
   summary.append(el(doc, 'h3', '끝난 거래의 결과', 'pf-trade-h3'));
   if (!s.n) {
-    summary.append(el(doc, 'p', journal.trades.length ? `매수 기록 ${open.length}건이 아직 열려 있습니다. 매도까지 기록되면 손익과 습관이 여기에 나타납니다.` : '아직 기록이 없습니다. 위 "거래 기록하기"에서 매수와 매도를 적어 보세요.', 'briefing-empty'));
+    summary.append(el(doc, 'p', journal.trades.length ? `매수 기록 ${open.length}건이 아직 열려 있습니다. ` : '아직 기록이 없습니다.', 'briefing-empty'));
   } else {
     const cards = el(doc, 'div', null, 'pf-trade-cards');
     const card = (label, value, sub) => { const node = el(doc, 'div', null, 'pf-trade-card'); node.append(el(doc, 'span', label, 'pf-trade-card-label'), el(doc, 'strong', value, 'pf-trade-card-value'), sub ? el(doc, 'span', sub, 'pf-trade-card-sub') : ''); return node; };
     cards.append(
-      card('끝난 거래', `${s.n}건`, `이익 ${s.wins} · 손실 ${s.losses}`),
-      card('승률', s.winRate == null ? '—' : `${s.winRate.toFixed(0)}%`, review.small ? `${s.n}건 기록 · 표본 적음` : null),
-      card('평균 이익 · 손실', `${pct(s.avgWinPct)} · ${pct(s.avgLossPct)}`, s.payoff == null ? null : `손익비 ${s.payoff.toFixed(2)}`),
-      card('실현 손익', Object.entries(s.pnlByCurrency).map(([currency, amount]) => money(amount, currency)).join(' · ') || '—', '수수료·세금 반영'),
-      card('보유 기간 중앙값', `이익 ${s.holdWinDays ?? '—'}일 · 손실 ${s.holdLossDays ?? '—'}일`, null)
+      card('끝난 거래', `${s.n}건`, `이익 ${s.wins}, 손실 ${s.losses}`),
+      card('승률', s.winRate == null ? '—' : `${s.winRate.toFixed(0)}%`, review.small ? `${s.n}건 기록, 표본 적음` : null),
+      card('평균 이익, 손실', `${pct(s.avgWinPct)}, ${pct(s.avgLossPct)}`, s.payoff == null ? null : `손익비 ${s.payoff.toFixed(2)}`),
+      card('실현 손익', Object.entries(s.pnlByCurrency).map(([currency, amount]) => money(amount, currency)).join(', ') || '—', '수수료·세금 반영'),
+      card('보유 기간 중앙값', `이익 ${s.holdWinDays ?? '—'}일, 손실 ${s.holdLossDays ?? '—'}일`, null)
     );
     summary.append(cards);
     if (review.notes.length) {
@@ -177,7 +177,7 @@ function renderDynamic(doc, root, host, surface) {
       const fold = el(doc, 'details', null, 'pf-trade-fold');
       fold.append(el(doc, 'summary', '매수 이유별 결과'));
       const list = el(doc, 'ul', null, 'pf-trade-notes');
-      for (const row of s.byReason) list.append(el(doc, 'li', `${row.label} — ${row.n}건 · 이익 ${row.wins}건 · 평균 ${pct(row.avgPct)}`));
+      for (const row of s.byReason) list.append(el(doc, 'li', `${row.label} — ${row.n}건, 이익 ${row.wins}건, 평균 ${pct(row.avgPct)}`));
       fold.append(list);
       summary.append(fold);
     }
@@ -185,13 +185,13 @@ function renderDynamic(doc, root, host, surface) {
   parts.push(summary);
   if (journal.trades.length) {
     const fold = el(doc, 'details', null, 'pf-trade-fold');
-    fold.append(el(doc, 'summary', `전체 기록 ${journal.trades.length}건${open.length ? ` · 아직 열린 매수 ${open.length}건` : ''}`));
+    fold.append(el(doc, 'summary', `전체 기록 ${journal.trades.length}건${open.length ? `, 아직 열린 매수 ${open.length}건` : ''}`));
     if (unmatched.length) fold.append(el(doc, 'p', `매수 기록보다 많이 판 매도 ${unmatched.length}건은 손익 계산에서 뺐습니다(일지를 시작하기 전에 산 수량일 수 있습니다).`, 'theme-strength-basis'));
     const list = el(doc, 'ul', null, 'pf-trade-list');
     for (const trade of [...journal.trades].reverse().slice(0, 60)) {
       const li = el(doc, 'li', null, 'pf-trade-row');
       li.append(el(doc, 'span', `${trade.date} ${trade.side === 'buy' ? '매수' : '매도'} ${trade.symbol} ${trade.qty.toLocaleString('en-US')}주 @ ${money(trade.price, trade.currency).replace(/^\+/, '')}`, 'pf-trade-row-main'),
-        el(doc, 'span', `${TRADE_REASONS[trade.reason] || ''}${trade.mood ? ` · ${TRADE_MOODS[trade.mood]}` : ''}${trade.note ? ` · ${trade.note}` : ''}`, 'pf-trade-row-sub'));
+        el(doc, 'span', `${TRADE_REASONS[trade.reason] || ''}${trade.mood ? `, ${TRADE_MOODS[trade.mood]}` : ''}${trade.note ? `, ${trade.note}` : ''}`, 'pf-trade-row-sub'));
       const remove = el(doc, 'button', '삭제', 'aio-btn-table pf-trade-remove');
       remove.type = 'button'; remove.dataset.tradeAction = 'remove'; remove.dataset.tradeId = trade.id;
       remove.setAttribute('aria-label', `${trade.date} ${trade.symbol} 기록 삭제`);

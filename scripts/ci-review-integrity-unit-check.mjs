@@ -61,7 +61,7 @@ const held = buildPortfolioRead({ surface: { currencyState: 'mixed-without-conve
 if (held.available !== false) fail('P1449 mixed currencies without rates must still hold the read');
 const book = buildPortfolioRead({ surface: { rows: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }, { symbol: '000001.KS', value: 200 }], cash: 200, baseCurrency: 'KRW' }, rows: Object.values(rows), marketReturnFor: market, usdkrwReturnPct: 2 });
 const relative = book.points.find((point) => point.id === 'relative')?.text || '';
-if (!/환율 포함 · 현금은 수익률 0%로 계산/.test(relative) || !/차이의 구성: 섹터 \+1\.7%p/.test(relative)) fail(`P1466 the 지수 대비 sentence must come from the attribution: ${relative}`);
+if (!/환율 포함, 현금은 수익률 0%로 계산/.test(relative) || !/차이의 구성: 섹터 \+1\.7%p/.test(relative)) fail(`P1466 the 지수 대비 sentence must come from the attribution: ${relative}`);
 
 // P1467: peers use the same definitions, a 12-month fiscal window and a minimum count.
 const series = (rev, ni, eq, end = '2025-12-31') => [{ periodEnd: '2024-12-31', revenue: 100, netIncome: 10, equity: eq }, { periodEnd: end, revenue: rev, netIncome: ni, equity: eq }];
@@ -81,7 +81,7 @@ if (!/겹치지 않는 정보 약/.test(overlapSentence(overlap)) || measureFact
 // P1469: the term premium comes from the official FRED series and is named by its model.
 if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim-Wright/.test(read('src/ui/components/macro-board.js'))) fail('P1469 term premium series or model label missing');
 
-// v57.48 expert review (portfolio · 13F · research). Hypothetical holdings only.
+// v57.48 expert review (portfolio, 13F, research). Hypothetical holdings only.
 {
   const { derivePortfolioSurface } = await import('../src/domain/portfolio/surface.js');
   const { derivePortfolioChecks } = await import('../src/domain/portfolio/checks.js');
@@ -103,7 +103,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   if (!fxSame.available || fxSame.fxAsOf !== '2026-10-12') fail('#22 a matching USD/KRW close must keep the FX effect and carry its date');
   // #18/#25: the 10/15/25% bands are internal — 10~25% is 참고, only above 25% is 주의; product names stay out of body text.
   const book18 = (top) => derivePortfolioChecks({ surface: { currencyState: 'declared-single', baseCurrency: 'USD', totalAssets: 100, positionValue: 100, rows: [{ symbol: 'AAA', value: top, currency: 'USD' }, ...Array.from({ length: 4 }, (_, i) => ({ symbol: `F${i}`, value: (100 - top) / 4, currency: 'USD' }))] } }).checks.find((check) => check.id === 'single-holding');
-  if (book18(20).status !== 'info' || book18(26).status !== 'attention' || !/내부 구간/.test(book18(20).basis)) fail('#18 single-holding bands must read 내부 구간 · 10~25% 참고 · 25% 초과 주의');
+  if (book18(20).status !== 'info' || book18(26).status !== 'attention' || !/내부 구간/.test(book18(20).basis)) fail('#18 single-holding bands must read 내부 구간, 10~25% 참고, 25% 초과 주의');
   const checks25 = derivePortfolioChecks({ surface: { currencyState: 'declared-single', baseCurrency: 'USD', totalAssets: 100, positionValue: 100, rows: [{ symbol: 'AAA', value: 100, currency: 'USD' }] } }).checks;
   if (checks25.some((check) => /Ghostfolio/.test(`${check.detail} ${check.basis}`)) || !/\d{4}-\d{2}-\d{2}/.test(checks25.find((check) => check.id === 'region').detail)) fail('#25 product names belong in the hover source and the 65~69% band needs its date');
   // #12: the AI rows carry ticker·sector·weight·return in the base currency with the date — no amounts.
@@ -149,7 +149,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   // KR 50 all up is 100%, not 50%.
   const mixed = buildPortfolioRead({ surface: { rows: [{ symbol: 'AAPL', value: 50 }, { symbol: '005930.KS', value: 50 }] }, rows: [{ sym: 'AAPL', pctSma50: -10, pctSma200: -10 }, { sym: '005930.KS', pctSma50: 10, pctSma200: 10 }], regime });
   if (!/미국 보유 중 하락 추세 종목\(100%\)/.test(mixed.points.find((point) => point.id === 'trend').text)) fail(`v57.83 the US clause uses the US denominator: ${mixed.points.find((point) => point.id === 'trend').text}`);
-  // Contradiction: '부담 우세' (burden 3 · favourable 1) can never be read as a calm environment.
+  // Contradiction: '부담 우세' (burden 3, favourable 1) can never be read as a calm environment.
   const heavy = buildPortfolioRead({ surface: { rows: [{ symbol: 'QQQ', value: 100 }] }, rows: krRows, regime: { ...regime, overall: '부담 우세', counts: { favorable: 1, neutral: 2, burden: 3 } } });
   const heavyMarket = heavy.points.find((point) => point.id === 'market');
   if (/극단적이지 않아/.test(heavyMarket.text) || heavyMarket.tone !== 'burden' || /한국 보유/.test(heavyMarket.text)) fail(`v57.81 the market sentence follows regime.overall: ${heavyMarket.text}`);

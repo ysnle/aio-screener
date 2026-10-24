@@ -282,7 +282,7 @@ function treasury(macro) {
   // v57.50 C10: the curve's levels and 1-day/1-week changes are the Treasury's official cut on its own date, which can be
   // a session or more behind the ^TNX close the 시장 상태 10-year "5일" change reads. The label carries the source and date.
   const [, month, day] = String(asOf || '').split('-').map(Number);
-  const basisLabel = asOf ? `공식 국채 곡선 · ${month}/${day} 기준` : null; // provider name lives in the sources fold
+  const basisLabel = asOf ? `공식 국채 곡선, ${month}/${day} 기준` : null; // provider name lives in the sources fold
   return { yields, asOf, sameCut, curve, fact, reading, basisLabel, source: '미 재무부 공식 수익률 곡선' };
 }
 

@@ -65,7 +65,7 @@ export function convertCashBalances({ balances = [], target = null, legs = [], a
     parts: Object.freeze(parts.map((part) => Object.freeze(part))),
     held: Object.freeze([...new Set(held)]),
     converted: parts.some((part) => part.basis !== 'same-unit'),
-    basisLabel: [...bases].join(' · ') || null,
+    basisLabel: [...bases].join(', ') || null,
     appFx: appFx || null
   });
 }

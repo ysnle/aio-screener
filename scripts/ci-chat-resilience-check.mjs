@@ -136,7 +136,7 @@ assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wr
 {
   const uniRetry = section('var _uniOnError = function(errMsg) {', "var loadEl = document.getElementById('ai-panel-loading');");
   assert(/modelKey: nextModel, webSearch: false, signal: _uniSignal/.test(uniRetry), 'P1756 unified-panel retry runs without web search');
-  assert(uniRetry.includes("' · 웹 검색 없이'"), 'P1756 retry status says search is off');
+  assert(uniRetry.includes("', 웹 검색 없이'"), 'P1756 retry status says search is off');
   assert(/promptWithoutWebSearch \|\| String\)\(sysPrompt\)/.test(uniRetry), 'v57.54 a retry without search also tells the model it did not search (prompt line swapped)');
   assert(/modelOpts\.webSearch = true;/.test(unifiedChat) && /callSharedAi\(sysPrompt, state\.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object\.assign\(\{\}, modelOpts, \{ signal: _uniSignal, requestId: _uniRequestId \}\)\)/.test(unifiedChat), 'P1756 first attempts keep automatic web search (modelOpts carries it)');
   const stream = section('async function callSharedAi(', 'function _pushWebCite(');

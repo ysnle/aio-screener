@@ -33,6 +33,6 @@ export function finalizePageDecision(decision, signal) {
   }
   const labels = { LIVE: '현재 관측', DELAYED: '지연 관측', SNAPSHOT: '저장 관측', REFERENCE: '참고 관측', UNAVAILABLE: '입력 확인 필요' };
   d.confidence = labels[d.sourceKind] || '근거 확인 필요';
-  if (d.predictiveValidation !== 'established') d.confidence += ' · 예측력 미검증';
+  if (d.predictiveValidation !== 'established') d.confidence += ', 예측력 미검증';
   return d;
 }

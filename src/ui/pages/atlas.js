@@ -39,17 +39,17 @@ const TELEGRAM_DISCOVERY_BOUNDARY = 'discovery only';
 // Keep this registry structural: no company metric, shipment, yield, price, or
 // trading claim is promoted to the UI until an evidence ledger is reviewed.
 const ATLAS_PACKETS = Object.freeze([
-  Object.freeze({ id: 'ATLAS-00', title: 'Ontology · 정의 · 우선순위', scope: '공통 node·edge·knowledge class 계약', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-01', title: 'P0 source packet · evidence ledger', scope: '공식 출처·claim·as-of·conflict 기록', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-02', title: 'Cloud · neocloud · CAPEX/ROIC', scope: 'workload·인프라·계약·금융·KPI', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-03', title: 'Memory · foundry · packaging', scope: 'HBM·공정·패키징·substrate 병목', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-04', title: 'Network · photonics · CPO', scope: 'switch·optics·module·AI cluster 연결', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-05', title: 'AIDC · cooling · power/grid', scope: 'rack·전력·냉각·허가·금융', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-06', title: 'On-device · physical AI · robotics', scope: '모델·센서·제어·배치 경제성', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-07', title: 'Drone · defense · space', scope: '임무·조달·생산·지속운영', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-08', title: 'Player · product · deep links', scope: 'sector·subsector·player·product 연결', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-09', title: 'Technical · finance · source QA', scope: '기술·재무·출처·수집 검증', status: 'DESIGN_ONLY' }),
-  Object.freeze({ id: 'ATLAS-10', title: 'Graph edge · publication gate', scope: 'REVIEWED→PUBLISHED 승격 규칙', status: 'DESIGN_ONLY' })
+  Object.freeze({ id: 'ATLAS-00', title: 'Ontology, 정의, 우선순위', scope: '공통 node·edge·knowledge class 계약', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-01', title: 'P0 source packet, evidence ledger', scope: '공식 출처·claim·as-of·conflict 기록', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-02', title: 'Cloud, neocloud, CAPEX/ROIC', scope: 'workload·인프라·계약·금융·KPI', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-03', title: 'Memory, foundry, packaging', scope: 'HBM·공정·패키징·substrate 병목', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-04', title: 'Network, photonics, CPO', scope: 'switch·optics·module·AI cluster 연결', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-05', title: 'AIDC, cooling, power/grid', scope: 'rack·전력·냉각·허가·금융', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-06', title: 'On-device, physical AI, robotics', scope: '모델·센서·제어·배치 경제성', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-07', title: 'Drone, defense, space', scope: '임무·조달·생산·지속운영', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-08', title: 'Player, product, deep links', scope: 'sector·subsector·player·product 연결', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-09', title: 'Technical, finance, source QA', scope: '기술·재무·출처·수집 검증', status: 'DESIGN_ONLY' }),
+  Object.freeze({ id: 'ATLAS-10', title: 'Graph edge, publication gate', scope: 'REVIEWED→PUBLISHED 승격 규칙', status: 'DESIGN_ONLY' })
 ]);
 
 const FOUNDATION_TRACKS = Object.freeze([
@@ -57,7 +57,7 @@ const FOUNDATION_TRACKS = Object.freeze([
   Object.freeze({ id: 'AI-1', title: 'AI 작동 원리', duration: '기초', summary: '규칙 기반 프로그램, 학습, parameter, training, inference, 검증을 연결합니다.', nodes: ['규칙 vs 학습', 'parameter', 'training/inference', '환각·검증'] }),
   Object.freeze({ id: 'AI-2', title: '물리 인프라', duration: '인프라', summary: '벡터·병렬처리에서 GPU/ASIC·메모리·네트워크·AIDC·전력까지 이동합니다.', nodes: ['벡터/행렬', 'GPU/ASIC', 'HBM/memory wall', 'chip·package', 'AIDC·power'] }),
   Object.freeze({ id: 'AI-3', title: '세계 모델과 AI 에이전트', duration: '심화', summary: 'state/action/dynamics/planning과 도구·권한·검증 루프를 분리해 설명합니다.', nodes: ['state/action', 'dynamics', 'planning', 'tool use', 'human review'] }),
-  Object.freeze({ id: 'AI-4', title: '경제 · 산업 · 자본', duration: '경제성', summary: 'AI stack, 수익모델, 병목, CAPEX, utilization, depreciation과 반례를 연결합니다.', nodes: ['AI stack', 'unit economics', 'bottleneck', 'CAPEX/ROIC', 'counter-scenario'] }),
+  Object.freeze({ id: 'AI-4', title: '경제, 산업, 자본', duration: '경제성', summary: 'AI stack, 수익모델, 병목, CAPEX, utilization, depreciation과 반례를 연결합니다.', nodes: ['AI stack', 'unit economics', 'bottleneck', 'CAPEX/ROIC', 'counter-scenario'] }),
   Object.freeze({ id: 'AI-5', title: '화면 연결', duration: '제품화', summary: 'Tree/Graph/Path와 시장 분석·테마·기업 페이지의 경계를 정합니다.', nodes: ['Tree', 'Graph', 'Path', 'source badge', 'deep link'] }),
   Object.freeze({ id: 'AI-6', title: '검증과 접근성', duration: '검증 기준', summary: '현재 주장·날짜·출처·키보드 탐색·읽기 순서를 출판 조건으로 둡니다.', nodes: ['claim truth', 'as-of', 'source', 'keyboard', 'review gate'] })
 ]);
@@ -259,22 +259,22 @@ export const TAXONOMY_NODE_LABELS = Object.freeze({
 });
 
 const TAXONOMY_LEVELS = Object.freeze([
-  Object.freeze({ id: 'L0', label: '수요/문제', example: 'AI 작업 부하 · 병목 문제' }),
-  Object.freeze({ id: 'L1', label: '산업 domain', example: '반도체 · Cloud · AIDC · 전력' }),
-  Object.freeze({ id: 'L2', label: 'sector', example: 'Memory · Foundry · Photonics' }),
-  Object.freeze({ id: 'L3', label: 'subsector / 공정', example: 'HBM · EUV · CPO · cooling' }),
-  Object.freeze({ id: 'L4', label: '제품 / 사업모델', example: 'product family · service · capacity' }),
+  Object.freeze({ id: 'L0', label: '수요/문제', example: 'AI 작업 부하, 병목 문제' }),
+  Object.freeze({ id: 'L1', label: '산업 domain', example: '반도체, Cloud, AIDC, 전력' }),
+  Object.freeze({ id: 'L2', label: 'sector', example: 'Memory, Foundry, Photonics' }),
+  Object.freeze({ id: 'L3', label: 'subsector / 공정', example: 'HBM, EUV, CPO, cooling' }),
+  Object.freeze({ id: 'L4', label: '제품 / 사업모델', example: 'product family, service, capacity' }),
   Object.freeze({ id: 'L5', label: 'player / 기관', example: 'role·의존성·고객·지리' }),
   Object.freeze({ id: 'L6', label: '제품·공장·프로그램·지표', example: 'as-of·status·source·KPI' })
 ]);
 
 const REPRESENTATIVE_NODES = Object.freeze([
-  Object.freeze({ id: 'cloud-capex', label: 'Cloud · AI CAPEX', className: '산업 구조', edge: 'CAUSES → AIDC · accelerator · 전력' }),
-  Object.freeze({ id: 'memory-wall', label: 'Memory wall', className: '물리 병목', edge: 'REQUIRES → HBM · package · network' }),
-  Object.freeze({ id: 'advanced-packaging', label: 'Advanced packaging', className: '공정/제품', edge: 'CONSTRAINS → yield · throughput · cost' }),
-  Object.freeze({ id: 'power-grid', label: 'Power · grid', className: '인프라/정책', edge: 'REGULATES → permit · interconnection · tariff' }),
-  Object.freeze({ id: 'ai-application', label: 'AI application', className: '수요/서비스', edge: 'MONETIZES → workflow · revenue · savings' }),
-  Object.freeze({ id: 'capital-cycle', label: 'CAPEX · ROIC cycle', className: '경제/자본', edge: 'MEASURES → utilization · FCF · return' })
+  Object.freeze({ id: 'cloud-capex', label: 'Cloud, AI CAPEX', className: '산업 구조', edge: 'CAUSES → AIDC, accelerator, 전력' }),
+  Object.freeze({ id: 'memory-wall', label: 'Memory wall', className: '물리 병목', edge: 'REQUIRES → HBM, package, network' }),
+  Object.freeze({ id: 'advanced-packaging', label: 'Advanced packaging', className: '공정/제품', edge: 'CONSTRAINS → yield, throughput, cost' }),
+  Object.freeze({ id: 'power-grid', label: 'Power, grid', className: '인프라/정책', edge: 'REGULATES → permit, interconnection, tariff' }),
+  Object.freeze({ id: 'ai-application', label: 'AI application', className: '수요/서비스', edge: 'MONETIZES → workflow, revenue, savings' }),
+  Object.freeze({ id: 'capital-cycle', label: 'CAPEX, ROIC cycle', className: '경제/자본', edge: 'MEASURES → utilization, FCF, return' })
 ]);
 
 function element(documentRef, tag, className, text) {
@@ -289,13 +289,13 @@ function element(documentRef, tag, className, text) {
 // The grouping of domains into layers is structural (which layer a domain supplies), not a ranking or a bottleneck claim,
 // so no layer is highlighted as "where the profit is". The model layer has no registry company yet and says so.
 export const VALUE_CHAIN_LAYERS = Object.freeze([
-  Object.freeze({ n: 7, title: '애플리케이션', desc: '산업·업무 AI · 피지컬 AI · 방산·우주', domains: ['domain-ai-applications', 'domain-on-device-physical-ai', 'domain-physical-ai-robotics', 'domain-drone-defense', 'domain-space-aerospace'] }),
-  Object.freeze({ n: 6, title: '모델', desc: '파운데이션 모델 · 추론 서비스', domains: [], node: 'cloud-ai-service' }),
-  Object.freeze({ n: 5, title: '클라우드', desc: '연산 임대 · 플랫폼 · 네오클라우드', domains: ['domain-cloud-platform', 'domain-neocloud-finance'] }),
-  Object.freeze({ n: 4, title: '데이터센터 · 전력', desc: '서버 · 냉각 · 전력망', domains: ['domain-aidc-cooling', 'domain-power-grid'] }),
-  Object.freeze({ n: 3, title: '네트워크', desc: '스위치 · 광통신', domains: ['domain-network-photonics'] }),
-  Object.freeze({ n: 2, title: '반도체 · 메모리', desc: 'GPU · 맞춤형 칩 · HBM · SSD', domains: ['domain-compute-silicon', 'domain-memory-storage'] }),
-  Object.freeze({ n: 1, title: '장비 · 파운드리', desc: '공정 · 노광 · 패키징 · 소재', domains: ['domain-foundry-equipment', 'domain-packaging-substrate', 'domain-resources-materials'] })
+  Object.freeze({ n: 7, title: '애플리케이션', desc: '산업·업무 AI, 피지컬 AI, 방산·우주', domains: ['domain-ai-applications', 'domain-on-device-physical-ai', 'domain-physical-ai-robotics', 'domain-drone-defense', 'domain-space-aerospace'] }),
+  Object.freeze({ n: 6, title: '모델', desc: '파운데이션 모델, 추론 서비스', domains: [], node: 'cloud-ai-service' }),
+  Object.freeze({ n: 5, title: '클라우드', desc: '연산 임대, 플랫폼, 네오클라우드', domains: ['domain-cloud-platform', 'domain-neocloud-finance'] }),
+  Object.freeze({ n: 4, title: '데이터센터, 전력', desc: '서버, 냉각, 전력망', domains: ['domain-aidc-cooling', 'domain-power-grid'] }),
+  Object.freeze({ n: 3, title: '네트워크', desc: '스위치, 광통신', domains: ['domain-network-photonics'] }),
+  Object.freeze({ n: 2, title: '반도체, 메모리', desc: 'GPU, 맞춤형 칩, HBM, SSD', domains: ['domain-compute-silicon', 'domain-memory-storage'] }),
+  Object.freeze({ n: 1, title: '장비, 파운드리', desc: '공정, 노광, 패키징, 소재', domains: ['domain-foundry-equipment', 'domain-packaging-substrate', 'domain-resources-materials'] })
 ]);
 const VALUE_CHAIN_CROSS_DOMAINS = Object.freeze(['domain-ai-economics', 'domain-geopolitics-policy-security', 'domain-capital-markets-company-map', 'domain-adjacent-future-tech']);
 
@@ -323,7 +323,7 @@ export const ATLAS_PLAYER_LISTINGS = Object.freeze({
   ibm: Object.freeze({ ticker: 'IBM', cik: '0000051143' }),
   'samsung-electronics': Object.freeze({ ticker: '005930.KS', krCode: '005930', krName: '삼성전자' })
 });
-const PLAYER_NO_TICKER_REASON = Object.freeze({ PRIVATE: '비상장', 'google-cloud': '모회사 Alphabet · 보통주 두 종류', kioxia: '도쿄 상장', siemens: '독일 상장' });
+const PLAYER_NO_TICKER_REASON = Object.freeze({ PRIVATE: '비상장', 'google-cloud': '모회사 Alphabet, 보통주 두 종류', kioxia: '도쿄 상장', siemens: '독일 상장' });
 
 export function valueChainLayerPlayers(layer, research, registry) {
   if (layer.node) return []; // no model company in the registry; the managed-AI-service node holds cloud companies
@@ -340,7 +340,7 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
   const block = element(documentRef, 'section', 'rl-aside-block atlas-layers');
   block.dataset.atlasLayers = 'value-chain';
   const head = element(documentRef, 'div', 'atlas-layers-head');
-  head.append(element(documentRef, 'h3', 'atlas-layers-title', 'AI 산업 아틀라스'), element(documentRef, 'span', 'atlas-layers-sub', '가치사슬 · 아래에서 위로'));
+  head.append(element(documentRef, 'h3', 'atlas-layers-title', 'AI 산업 아틀라스'), element(documentRef, 'span', 'atlas-layers-sub', '가치사슬, 아래에서 위로'));
   block.appendChild(head);
   const list = element(documentRef, 'ol', 'atlas-layers-list');
   VALUE_CHAIN_LAYERS.forEach((layer) => {
@@ -359,7 +359,7 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
     item.appendChild(open);
     const players = valueChainLayerPlayers(layer, research, registry);
     const chips = element(documentRef, 'div', 'atlas-layer-players');
-    if (!players.length) chips.appendChild(element(documentRef, 'span', 'atlas-layer-empty', layer.node ? '등록된 모델 기업 없음 · 관리형 AI 서비스에서 설명' : '등록된 기업 없음'));
+    if (!players.length) chips.appendChild(element(documentRef, 'span', 'atlas-layer-empty', layer.node ? '등록된 모델 기업 없음, 관리형 AI 서비스에서 설명' : '등록된 기업 없음'));
     players.slice(0, 4).forEach((player) => {
       const listing = ATLAS_PLAYER_LISTINGS[player.playerId];
       if (listing) {
@@ -367,17 +367,17 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
         chip.type = 'button';
         chip.dataset.action = 'showTicker';
         chip.dataset.arg = listing.ticker;
-        chip.title = `${player.name}${listing.parent ? ` (모회사 ${listing.parent})` : ''} · 종목 요약 열기`;
+        chip.title = `${player.name}${listing.parent ? ` (모회사 ${listing.parent})` : ''}, 종목 요약 열기`;
         chip.setAttribute('aria-label', chip.title);
         chips.appendChild(chip);
       } else {
         const reason = PLAYER_NO_TICKER_REASON[player.playerId] || PLAYER_NO_TICKER_REASON[player.publicPrivate] || '';
         const chip = element(documentRef, 'span', 'sx-chip sx-chip--sm atlas-layer-company', player.name);
-        if (reason) chip.title = `${player.name} · ${reason}`;
+        if (reason) chip.title = `${player.name}, ${reason}`;
         chips.appendChild(chip);
       }
     });
-    if (players.length > 4) { const more = element(documentRef, 'span', 'atlas-layer-more', `외 ${players.length - 4}곳`); more.title = players.slice(4).map((player) => player.name).join(' · '); chips.appendChild(more); }
+    if (players.length > 4) { const more = element(documentRef, 'span', 'atlas-layer-more', `외 ${players.length - 4}곳`); more.title = players.slice(4).map((player) => player.name).join(', '); chips.appendChild(more); }
     item.appendChild(chips);
     list.appendChild(item);
   });
@@ -453,7 +453,7 @@ const ATLAS_STATUS_LABELS = Object.freeze({
 
 const ATLAS_RELATIONSHIP_KIND_LABELS = Object.freeze({ concept: '핵심 개념', metric: '관찰 지표', company_claim: '기업 주장', evidence: '검증 근거', market: '시장 연결', financial: '재무 결과', constraint: '제약 조건' });
 const ATLAS_CRITICALITY_LABELS = Object.freeze({ structural: '구조 관계', conditional: '조건부 관계', claim: '기업 주장' });
-const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '거시 경제', fxbond: '금리 · 환율', technical: '종목 · 차트' });
+const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '거시 경제', fxbond: '금리와 환율', technical: '종목, 차트' });
 
 const ATLAS_PACKET_DISPLAY = Object.freeze({
   'ATLAS-00': { title: 'AI 산업 지도 읽는 법', scope: '노드·관계·출처·검토 상태를 읽는 공통 언어' },
@@ -637,9 +637,9 @@ function createDeepTaxonomyView(documentRef, node, deepTaxonomy, selectedTopicId
     const content = element(documentRef, 'div', 'atlas-deep-branch-content');
     content.append(
       element(documentRef, 'p', 'atlas-card-copy', branch.summary),
-      element(documentRef, 'p', 'atlas-card-copy', `작동 원리 · ${branch.mechanism}`),
-      element(documentRef, 'p', 'atlas-card-copy atlas-deep-observe', `관찰 지표 · ${branch.observe}`),
-      element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-risk', `오해 방지 · ${branch.caution}`)
+      element(documentRef, 'p', 'atlas-card-copy', `작동 원리, ${branch.mechanism}`),
+      element(documentRef, 'p', 'atlas-card-copy atlas-deep-observe', `관찰 지표, ${branch.observe}`),
+      element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-risk', `오해 방지, ${branch.caution}`)
     );
     const children = element(documentRef, 'div', 'atlas-deep-children');
     (branch.children || []).forEach((child) => children.appendChild(element(documentRef, 'span', 'atlas-chip', child)));
@@ -679,7 +679,7 @@ function relationList(documentRef, groups = []) {
   for (const group of groups) {
     const line = element(documentRef, 'p', 'atlas-relation-line');
     line.dataset.relationType = group.type;
-    line.append(element(documentRef, 'strong', 'atlas-relation-type', `${group.label}: `), documentRef.createTextNode(group.items.map((item) => item.text ? `${item.title}(${item.text})` : item.title).join(' · ')));
+    line.append(element(documentRef, 'strong', 'atlas-relation-type', `${group.label}: `), documentRef.createTextNode(group.items.map((item) => item.text ? `${item.title}(${item.text})` : item.title).join(', ')));
     box.appendChild(line);
   }
   return box;
@@ -729,14 +729,14 @@ function createDomainGuide(documentRef, domain, guide, packet, claimLedger) {
       const item = element(documentRef, 'article', 'atlas-domain-claim');
       item.append(
         element(documentRef, 'p', 'atlas-card-copy atlas-domain-claim-statement', claim.statement),
-        element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-boundary', `${claim.claimType === 'STRUCTURAL_REFERENCE' ? '구조 참고' : '검토 후보'} · ${claim.currentnessPolicy === 'NOT_APPLICABLE_STRUCTURAL_REFERENCE' ? '현재성 비적용' : '기준일 확인 필요'} · 검토일 ${claim.reviewedAt || '미확정'} · ${claim.status === 'PARTIAL' ? '부분 검토' : claim.status || '상태 확인 필요'}`),
+        element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-boundary', `${claim.claimType === 'STRUCTURAL_REFERENCE' ? '구조 참고' : '검토 후보'}, ${claim.currentnessPolicy === 'NOT_APPLICABLE_STRUCTURAL_REFERENCE' ? '현재성 비적용' : '기준일 확인 필요'}, 검토일 ${claim.reviewedAt || '미확정'}, ${claim.status === 'PARTIAL' ? '부분 검토' : claim.status || '상태 확인 필요'}`),
         element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-boundary', claim.evidenceBoundary || '현재 수치·가격·생산 상태로 일반화하지 않습니다.')
       );
       const claimLinks = element(documentRef, 'div', 'atlas-domain-guide-links');
       (claim.sourceIds || []).forEach((sourceId) => {
         const source = packetSourceById.get(sourceId);
         if (!source?.url) return;
-        const link = element(documentRef, 'a', 'atlas-reference-source-link', `${source.publisher}${source.title ? ` · ${source.title}` : ''}`);
+        const link = element(documentRef, 'a', 'atlas-reference-source-link', `${source.publisher}${source.title ? `, ${source.title}` : ''}`);
         applySafeExternalLink(link, source.url);
         claimLinks.appendChild(link);
       });
@@ -839,7 +839,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
              basis: (domain, node = null) => {
                const guide = (state.domainGuides?.guides || []).find((item) => item.id === domain?.id) || null;
                const packet = (state.domainPackets?.packets || []).find((item) => item.domainId === domain?.id) || null;
-               const packetSources = (packet?.sources || []).map((source) => ({ label: `${source.publisher || ''}${source.title ? `${source.publisher ? ' · ' : ''}${source.title}` : ''}` || source.url, url: source.url }));
+               const packetSources = (packet?.sources || []).map((source) => ({ label: `${source.publisher || ''}${source.title ? `${source.publisher ? ', ' : ''}${source.title}` : ''}` || source.url, url: source.url }));
                const topicSources = node ? (state.deepTaxonomy?.topics || []).filter((topic) => topic.anchorNodeIds?.includes(node.id)).flatMap((topic) => topic.sources || []).map((source) => ({ label: source.label, url: source.url })) : [];
                const guideSource = guide?.sourceUrl ? [{ label: guide.sourceName || '공식 자료', url: guide.sourceUrl }] : [];
                const seen = new Set();

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "aio-model-check-coverage.v1",
+  "gates": {
+    "history-session-model": {
+      "syncedAt": "07ecac57",
+      "covers": [
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "holdRepeatedSessions",
+          "fingerprint": "83c6ced650983481"
+        },
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "mergeBackfillBars",
+          "fingerprint": "cf3a09bb0d099ec9"
+        }
+      ]
+    },
+    "narrative-lifecycle-model": {
+      "syncedAt": "07ecac57",
+      "covers": [
+        {
+          "module": "scripts/producer/market-narrative.mjs",
+          "name": "genMarketAnalysis",
+          "fingerprint": "4b01ca2c3a310137"
+        },
+        {
+          "module": "scripts/producer/market-narrative.mjs",
+          "name": "applyMarketAnalysis",
+          "fingerprint": "666a2adf4bdb9a74"
+        },
+        {
+          "module": "scripts/lib/market-analysis-validate.mjs",
+          "name": "reusableMarketAnalysis",
+          "fingerprint": "271f65591ee5bbe1"
+        },
+        {
+          "module": "scripts/lib/market-analysis-validate.mjs",
+          "name": "retainVerifiedMarketAnalysis",
+          "fingerprint": "7a479459319248d9"
+        },
+        {
+          "module": "scripts/lib/market-analysis-validate.mjs",
+          "name": "lastVerifiedMarketAnalysis",
+          "fingerprint": "869576ba3a89a12a"
+        },
+        {
+          "module": "scripts/lib/lane-quarantine.mjs",
+          "name": "applyLaneQuarantine",
+          "fingerprint": "25d0b9703c7090ff"
+        }
+      ]
+    }
+  }
+}

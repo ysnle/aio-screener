@@ -106,7 +106,7 @@ export async function buildPriceVisual({ documentRef: doc, root, symbol }) {
     ma200Last ? `200일선 대비 ${signed((last / ma200Last - 1) * 100)}` : null,
     `${analysis.rangeLabel} 고점 대비 ${signed(analysis.fromHigh)}`,
     `차트 상태: ${analysis.stateLabel}`
-  ].filter(Boolean).join(' · ');
+  ].filter(Boolean).join(', ');
   const { figure, body } = frame(doc, `${symbol} 최근 ${span}거래일 가격 흐름`, `${facts}. 완료된 일봉 기준이며 장중 봉은 제외했습니다.${analysis.flip ? ` 상태가 바뀌는 조건: ${analysis.flip}.` : ''}`);
   body.innerHTML = svg + legend;
   return figure;
@@ -198,9 +198,9 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
   const tone = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립', unknown: '보류' };
   const rows = [...model.items].sort((a, b) => (b.id === model.leadId) - (a.id === model.leadId) || (b.id === model.altId) - (a.id === model.altId) || b.met / b.total - a.met / a.total).slice(0, 6);
   const dots = (item) => Array.from({ length: item.total }, (_, i) => `<span class="aav-dot${i < item.met ? ' is-met' : ''}"></span>`).join('');
-  const { figure, body } = frame(doc, '향후 시나리오 — 조건 충족 · 시장 가격 · 그 시나리오에서 유리한 쪽',
-    `${model.asOf || ''} 관측 기준 · 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
-  body.innerHTML = `<table class="aav-table">${rows.map((item) => `<tr${item.id === model.leadId ? ' class="aav-lead"' : ''}><td class="aav-title">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td class="aav-dots" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span class="aav-count">${item.met}/${item.total}</span></td><td class="aav-tone">${esc(tone[item.pricing.tone] || '보류')}</td><td class="aav-favored">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(' · '))}</td></tr>`).join('')}</table>`;
+  const { figure, body } = frame(doc, '향후 시나리오 — 조건 충족, 시장 가격, 그 시나리오에서 유리한 쪽',
+    `${model.asOf || ''} 관측 기준, 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
+  body.innerHTML = `<table class="aav-table">${rows.map((item) => `<tr${item.id === model.leadId ? ' class="aav-lead"' : ''}><td class="aav-title">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td class="aav-dots" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span class="aav-count">${item.met}/${item.total}</span></td><td class="aav-tone">${esc(tone[item.pricing.tone] || '보류')}</td><td class="aav-favored">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(', '))}</td></tr>`).join('')}</table>`;
   return figure;
 }
 
@@ -211,10 +211,10 @@ async function buildThemesVisual({ documentRef: doc, root }) {
   if (!playbook?.available) return null;
   const pct = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
   const { figure, body } = frame(doc, '테마 단계와 거시 영향 (모든 테마, 같은 규칙)',
-    `${esc(playbook.asOf || '')} 확정 종가 · 긴 추세(미국 6개월, 한국 3개월)와 1개월 움직임 · 색은 중심 시나리오 기준 수혜(초록)·부담(빨강).`);
+    `${esc(playbook.asOf || '')} 확정 종가, 긴 추세(미국 6개월, 한국 3개월)와 1개월 움직임, 색은 중심 시나리오 기준 수혜(초록)·부담(빨강).`);
   body.innerHTML = `<div class="aav-stages">${Object.keys(THEME_STATES).map((stage) => {
     const list = playbook.themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m);
-    return `<div><div class="aav-stage-head">${esc(THEME_STATES[stage].split(' (')[0])} · ${list.length}</div>${list.slice(0, 6).map((row) => `<div class="aav-stage-row aav-wind--${row.wind.lead}" title="${esc(WIND_LABELS[row.wind.lead])}">${row.market === 'KR' ? '국내' : '미국'} ${esc(row.label)} ${pct(row.ret1m)}</div>`).join('')}${list.length > 6 ? `<div class="aav-stage-more">외 ${list.length - 6}개</div>` : ''}</div>`;
+    return `<div><div class="aav-stage-head">${esc(THEME_STATES[stage].split(' (')[0])}, ${list.length}</div>${list.slice(0, 6).map((row) => `<div class="aav-stage-row aav-wind--${row.wind.lead}" title="${esc(WIND_LABELS[row.wind.lead])}">${row.market === 'KR' ? '국내' : '미국'} ${esc(row.label)} ${pct(row.ret1m)}</div>`).join('')}${list.length > 6 ? `<div class="aav-stage-more">외 ${list.length - 6}개</div>` : ''}</div>`;
   }).join('')}</div>`;
   return figure;
 }

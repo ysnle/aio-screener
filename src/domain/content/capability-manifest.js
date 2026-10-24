@@ -13,7 +13,7 @@ const rows = [
   {
     id: 'translation', label: '뉴스 번역', status: 'optional',
     evidence: 'AI key/provider response or 원문 fallback',
-    wording: '선택적 AI 번역 보강 · 원문 우선',
+    wording: '선택적 AI 번역 보강, 원문 우선',
     forbiddenClaims: ['자동 번역 보장', '모든 뉴스 자동 번역']
   },
   {
@@ -37,7 +37,7 @@ const rows = [
   {
     id: 'news-sentiment', label: '뉴스 감성', status: 'reference',
     evidence: 'headline/text heuristic score with source and date',
-    wording: '뉴스 감성 점수 · 휴리스틱 참고',
+    wording: '뉴스 감성 점수, 휴리스틱 참고',
     forbiddenClaims: ['뉴스 감성 = 주가 예측', '감성 점수 매수 신호']
   },
   {

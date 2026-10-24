@@ -90,7 +90,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     const cagr = years > 0 && first.revenue > 0 && latest.revenue > 0 ? ((latest.revenue / first.revenue) ** (1 / years) - 1) * 100 : null;
     let streak = 0;
     for (let i = history.length - 1; i > 0 && isPriorAnnualPeriod(history[i], history[i - 1]) && history[i].revenue > history[i - 1].revenue; i--) streak += 1;
-    const pace = cagr == null ? '' : ` · 약 ${Math.round(years)}년 연평균 ${signed(cagr)}`;
+    const pace = cagr == null ? '' : `, 약 ${Math.round(years)}년 연평균 ${signed(cagr)}`;
     if (lastGrowth != null) points.push({ id: 'growth', tone: Math.abs(lastGrowth) < FISCAL_FLAT_BAND ? 'neutral' : lastGrowth > 0 ? 'favorable' : 'burden', title: '매출 흐름',
       text: `최근 회계연도 매출 ${formatUsdShort(latest.revenue)}(${signed(lastGrowth)})${pace}. ${streak >= 2 ? `${streak}년 연속 증가입니다` : streak === 1 ? '직전 해보다 늘었습니다' : '직전 해보다 줄었습니다'}${cagr != null && lastGrowth > cagr + 10 ? ' — 성장이 최근에 빨라졌습니다' : cagr != null && lastGrowth < cagr - 10 ? ' — 최근 성장은 평균보다 느립니다' : ''}.` });
     const marginNow = latest.margin;
@@ -120,7 +120,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
         ? (Number(sessionEnd.slice(0, 4)) - Number(earningsEnd.slice(0, 4))) * 12 + Number(sessionEnd.slice(5, 7)) - Number(earningsEnd.slice(5, 7)) - (Number(sessionEnd.slice(8, 10)) < Number(earningsEnd.slice(8, 10)) ? 1 : 0)
         : null;
       const fyLabel = fiscalYearLabel(earningsEnd);
-      const earningsBasis = fyLabel ? `${fyLabel} ${commonBasis ? '보통주 귀속 순이익' : '순이익'} 기준 · ${earningsEnd.slice(0, 7)} 마감${monthsSince != null && monthsSince >= 0 ? ` · 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
+      const earningsBasis = fyLabel ? `${fyLabel} ${commonBasis ? '보통주 귀속 순이익' : '순이익'} 기준, ${earningsEnd.slice(0, 7)} 마감${monthsSince != null && monthsSince >= 0 ? `, 경과 ${monthsSince}개월` : ''}` : '공시 이익 기준';
       // 2026-10-14 audit #2: the PER method is unchanged (the last fiscal year's net income). When four newer
       // consecutive quarters are filed, the same price over their summed net income is shown beside it, labelled.
       // Valid only when the PER's own year is the latest annual row (so PER × FY income recovers the same market value).
@@ -138,14 +138,14 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       // PER (the screener's value factor basis) stays beside it, labelled.
       const ttmThrough = rowTtm ? String(row._valuationPeEarningsThrough).slice(0, 10) : ttm?.[ttm.length - 1]?.periodEnd;
       const peText = pe == null ? '' : rowTtm
-        ? `, PER ${pe.toFixed(1)}배(최근 4개 분기 ${commonBasis ? '보통주 귀속 ' : '공시 '}순이익 합 · ${ttmThrough.slice(0, 7)} 분기까지)`
+        ? `, PER ${pe.toFixed(1)}배(최근 4개 분기 ${commonBasis ? '보통주 귀속 ' : '공시 '}순이익 합, ${ttmThrough.slice(0, 7)} 분기까지)`
         : peTtm != null
-          ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합 · ${ttmThrough.slice(0, 7)} 분기까지) · ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
+          ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합, ${ttmThrough.slice(0, 7)} 분기까지), ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
           : `, PER ${pe.toFixed(1)}배(${earningsBasis})`;
       points.push({ id: 'earnings', tone: niGrowth > FISCAL_FLAT_BAND ? 'favorable' : niGrowth < -FISCAL_FLAT_BAND ? 'burden' : 'neutral', title: '이익과 가격', /* v57.84: the same flat band as revenue and margin */
         // Codex review 2026-10-05: a PEG from last year's income growth cannot say whether the price is a
         // burden — that needs the growth ahead. The number is shown with its basis, without a verdict.
-        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${peText}${peg != null ? `, PEG ${peg.toFixed(2)}(${fyLabel ? `${fyLabel} ` : ''}PER ÷ ${fyLabel ? `${fyLabel} ` : '그 회계연도 '}순이익 성장률)${pegTtm != null ? ` · 최근 4개 분기 합 기준 약 ${pegTtm.toFixed(2)}` : ''}` : pegTtm != null ? `, PEG 약 ${pegTtm.toFixed(2)}(최근 4개 분기 PER ÷ 그 전 4개 분기 대비 순이익 성장률)` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.`,
+        text: `순이익 ${formatUsdShort(niNow)}(${signed(niGrowth)})${peText}${peg != null ? `, PEG ${peg.toFixed(2)}(${fyLabel ? `${fyLabel} ` : ''}PER ÷ ${fyLabel ? `${fyLabel} ` : '그 회계연도 '}순이익 성장률)${pegTtm != null ? `, 최근 4개 분기 합 기준 약 ${pegTtm.toFixed(2)}` : ''}` : pegTtm != null ? `, PEG 약 ${pegTtm.toFixed(2)}(최근 4개 분기 PER ÷ 그 전 4개 분기 대비 순이익 성장률)` : ''}. PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.`,
         ...(peTtm != null ? { peTtm, ttmThrough } : {}) });
     }
   } else if (latest) {
@@ -179,7 +179,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       text: '은행·금융사는 순이자이익과 순이자마진(NIM), 예금 조달 비용, 대손비용, 자본비율(CET1)이 핵심입니다. 이 화면의 공시 수집본에는 이 항목들이 없어 판단하지 않으며, 분기 실적 자료와 10-K·10-Q 원문에서 확인합니다. 아래 영업현금흐름은 예금·대출 변화가 섞여 일반 기업처럼 읽지 않습니다.' });
   }
   if (ocf != null && latest?.netIncome != null && financial) {
-    points.push({ id: 'cash', tone: 'neutral', title: '현금흐름(참고)', text: `영업현금흐름 ${formatUsdShort(ocf)} · 순이익 ${formatUsdShort(latest.netIncome)} — 금융사의 영업현금흐름은 예금·대출·트레이딩 자산 증감이 섞여, 마이너스여도 현금이 부족하다는 뜻이 아닙니다.` });
+    points.push({ id: 'cash', tone: 'neutral', title: '현금흐름(참고)', text: `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — 금융사의 영업현금흐름은 예금·대출·트레이딩 자산 증감이 섞여, 마이너스여도 현금이 부족하다는 뜻이 아닙니다.` });
   } else if (ocf != null && latest?.netIncome != null) {
     // P1449: the OCF/netIncome ratio only means "earnings arrive as cash" when BOTH numbers are
     // positive. A net loss with an operating-cash outflow (or either sign flipped) divides to a
@@ -192,7 +192,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       tone: creditableConversion && conversion >= 0.8 && (fcf == null || fcf > 0) ? 'favorable' : 'neutral',
       title: '현금 전환',
       text: !creditableConversion
-        ? `영업현금흐름 ${formatUsdShort(ocf)} · 순이익 ${formatUsdShort(latest.netIncome)} — 둘 중 하나가 마이너스면 "순이익 대비 현금 %" 비율 해석은 성립하지 않아 적용하지 않고, 두 사실을 따로 봐야 합니다(순손실 구간과 영업현금 유출은 별개의 문제입니다).`
+        ? `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — 둘 중 하나가 마이너스면 "순이익 대비 현금 %" 비율 해석은 성립하지 않아 적용하지 않고, 두 사실을 따로 봐야 합니다(순손실 구간과 영업현금 유출은 별개의 문제입니다).`
         : `영업현금흐름 ${formatUsdShort(ocf)}(순이익의 ${(conversion * 100).toFixed(0)}%)${fcf != null ? `, 설비투자 ${withObjectParticle(formatUsdShort(capex))} 뺀 잉여현금흐름 ${formatUsdShort(fcf)}(매출의 ${(fcf / latest.revenue * 100).toFixed(1)}%)` : ''} — ${conversion >= 0.8 ? '이익이 현금으로 들어오고 있습니다' : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다'}.`
     });
   }
@@ -204,7 +204,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   if (annualPair && debtNow != null && debtPrev != null && debtPrev > 0) {
     const change = (debtNow / debtPrev - 1) * 100;
     points.push({ id: 'debt', tone: change > 25 ? 'burden' : 'neutral', title: '부채',
-      text: `장기부채 ${formatUsdShort(debtNow)}(전년 대비 ${signed(change)})${latest?.equity > 0 ? ` · 자기자본 대비 ${(debtNow / latest.equity * 100).toFixed(0)}%` : ''}.` });
+      text: `장기부채 ${formatUsdShort(debtNow)}(전년 대비 ${signed(change)})${latest?.equity > 0 ? `, 자기자본 대비 ${(debtNow / latest.equity * 100).toFixed(0)}%` : ''}.` });
   }
   // Share count across years, skipping year-over-year jumps that look like splits (near-integer ratios ≥ 1.9).
   const shareYears = history.filter((year) => finite(year.shares) > 0);
@@ -237,6 +237,6 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   const filing = latest ? annualFilingStatus(latest.periodEnd, now ?? (row?.factorSessionDate || Date.now())) : null;
   const headline = !history.length ? null
     : `${filing ? `${filing.fyLabel} ` : ''}${[lastGrowth != null ? `매출 ${signed(lastGrowth)}` : null, latest.margin != null ? `순이익률 ${latest.margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%(${roeBasis})` : null,
-      filing?.overdue ? '다음 연간 공시 예정 지남' : null].filter(Boolean).join(' · ')}`.trim();
+      filing?.overdue ? '다음 연간 공시 예정 지남' : null].filter(Boolean).join(', ')}`.trim();
   return { available: history.length > 0, symbol, history, latest, headline, points, roe, roeBasis, lastGrowth, filing };
 }

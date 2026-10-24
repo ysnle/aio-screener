@@ -105,5 +105,5 @@ export function overlapSentence(overlap) {
   if (!overlap.pairs.length) return `오늘 ${overlap.n}종목에서 값이 움직이는 지표가 둘 미만이라 겹침을 재지 못했습니다.${flat}`;
   const strongest = overlap.pairs[0];
   const high = overlap.pairs.filter((pair) => Math.abs(pair.rho) >= 0.6).map((pair) => `${pair.label} ${pair.rho.toFixed(2)}`);
-  return `오늘 ${overlap.n}종목에서 잰 순위 상관: ${high.length ? high.join(' · ') : `가장 높은 쌍 ${strongest.label} ${strongest.rho.toFixed(2)}`} — 지표 ${overlap.factors.length}개가 실질적으로는 겹치지 않는 정보 약 ${overlap.effective?.toFixed(1) ?? '—'}개 분량입니다(순위 상관으로 잰 유효 개수이며, 서로 독립이라는 증명은 아닙니다). 함께 높다고 근거가 그 수만큼 쌓인 것은 아닙니다.${flat}`;
+  return `오늘 ${overlap.n}종목에서 잰 순위 상관: ${high.length ? high.join(', ') : `가장 높은 쌍 ${strongest.label} ${strongest.rho.toFixed(2)}`} — 지표 ${overlap.factors.length}개가 실질적으로는 겹치지 않는 정보 약 ${overlap.effective?.toFixed(1) ?? '—'}개 분량입니다(순위 상관으로 잰 유효 개수이며, 서로 독립이라는 증명은 아닙니다). 함께 높다고 근거가 그 수만큼 쌓인 것은 아닙니다.${flat}`;
 }

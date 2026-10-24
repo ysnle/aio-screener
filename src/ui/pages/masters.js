@@ -32,7 +32,7 @@ const ACTION_LABELS = Object.freeze({
   REDUCED: '감소',
   UNCHANGED: '변화 없음',
   EXITED: '전량 제외',
-  SPLIT_SUSPECT: '분할 의심 · 수량 변화 보류',
+  SPLIT_SUSPECT: '분할 의심, 수량 변화 보류',
   UNAVAILABLE: '비교 불가'
 });
 
@@ -88,7 +88,7 @@ function matches(manager, query) {
 function formatOperator(manager) {
   const names = manager.operator?.names || [];
   const roles = manager.operator?.roles || [];
-  return names.length ? names.map((name, index) => roles[index] ? `${name} (${roles[index]})` : name).join(' · ') : '운영 책임자 확인 필요';
+  return names.length ? names.map((name, index) => roles[index] ? `${name} (${roles[index]})` : name).join(', ') : '운영 책임자 확인 필요';
 }
 
 function createManagerCard(documentRef, manager, selected, statusOverride = manager.status, freshnessStatus = null, reportPeriod = null, holdingMeta = null) {
@@ -97,16 +97,16 @@ function createManagerCard(documentRef, manager, selected, statusOverride = mana
   card.setAttribute('aria-label', `${manager.name} ${reportPeriod ? `${reportPeriod} 13F` : statusLabel(statusOverride)} 보기`);
   const stateText = manager.type === 'METHOD_ONLY'
     ? '투자 방법론'
-    : `${reportPeriod || '공시 연결 중'}${freshnessStatus === 'STALE_REFERENCE' ? ' · 최신 제출 공백' : ' · 13F'}`;
+    : `${reportPeriod || '공시 연결 중'}${freshnessStatus === 'STALE_REFERENCE' ? ', 최신 제출 공백' : ', 13F'}`;
   card.append(
     element(documentRef, 'strong', 'masters-manager-name', manager.name),
     element(documentRef, 'span', 'masters-manager-filer', manager.filer),
     element(documentRef, 'span', 'masters-manager-style', manager.style),
     element(documentRef, 'span', 'masters-manager-operator', `운영 ${formatOperator(manager)}`),
-    element(documentRef, 'span', 'masters-manager-profile', [manager.scaleTier, manager.strategyProfile?.approach].filter(Boolean).join(' · ') || '전략·규모 분류 확인 필요'),
+    element(documentRef, 'span', 'masters-manager-profile', [manager.scaleTier, manager.strategyProfile?.approach].filter(Boolean).join(', ') || '전략·규모 분류 확인 필요'),
     element(documentRef, 'span', 'masters-manager-scale', manager.scaleMetric?.label || '공식 규모값 확인 필요'),
     element(documentRef, 'span', `masters-manager-state${freshnessStatus === 'STALE_REFERENCE' ? ' is-stale' : ''}`, stateText),
-    element(documentRef, 'span', 'masters-manager-profile', holdingMeta?.verification?.fullRowCount != null ? `신고 행 ${holdingMeta.verification.fullRowCount}개 · Top 10 ${formatPercent(holdingMeta.verification.top10ConcentrationPct)}` : '전체 행 대사 대기'),
+    element(documentRef, 'span', 'masters-manager-profile', holdingMeta?.verification?.fullRowCount != null ? `신고 행 ${holdingMeta.verification.fullRowCount}개, Top 10 ${formatPercent(holdingMeta.verification.top10ConcentrationPct)}` : '전체 행 대사 대기'),
     element(documentRef, 'span', 'masters-manager-state', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : statusLabel(manager.rowFreshnessStatus || manager.noticeStatus || statusOverride))
   );
   return card;
@@ -123,7 +123,7 @@ function createMetric(documentRef, label, value) {
 const MASTERS_EXTRA_STYLE = `
 .masters-ticker-lookup{margin:0}
 .masters-ticker-lookup .masters-search{display:block;margin:6px 0 0;min-width:0}
-.masters-ticker-lookup-input{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);color:var(--text-primary);font-size:13px}
+.masters-ticker-lookup-input{width:100%;box-sizing:border-box;padding:9px 11px;border:0.5px solid var(--border);border-radius:4px;background:var(--surface-1);color:var(--text-primary);font-size:12px}
 .masters-ticker-lookup-input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .masters-weight-bars{margin:12px 0 4px}
 .masters-weight-bars .af-bars{max-width:none}
@@ -189,7 +189,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
         card.dataset.tickerReference = record.tickerReference;
         card.append(
           element(documentRef, 'strong', 'masters-ticker-lookup-symbol', record.tickerReference),
-          element(documentRef, 'span', 'masters-ticker-lookup-issuer', (record.issuerReferences || []).join(' · ') || '발행인명 확인 필요'),
+          element(documentRef, 'span', 'masters-ticker-lookup-issuer', (record.issuerReferences || []).join(', ') || '발행인명 확인 필요'),
           element(documentRef, 'span', 'masters-ticker-lookup-meta', `CUSIP ${record.cusips?.join(', ') || '확인 필요'}`)
         );
         // v57.50 I12: from a holder back to the stock itself (the reference ticker the ledger already names).
@@ -241,7 +241,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           const manager = registryById.get(summary.managerId);
           const item = element(documentRef, 'li', 'masters-ticker-lookup-row');
           item.dataset.lookupManager = summary.managerId;
-          const optionText = summary.options.length ? ` · 옵션 ${summary.options.map((row) => `${row.putCall === 'Put' ? '풋' : '콜'} ${Number(row.shares || 0).toLocaleString('en-US')}주 기준`).join(', ')}` : '';
+          const optionText = summary.options.length ? `, 옵션 ${summary.options.map((row) => `${row.putCall === 'Put' ? '풋' : '콜'} ${Number(row.shares || 0).toLocaleString('en-US')}주 기준`).join(', ')}` : '';
           const withheldValue = summary.latest.some((row) => row.valueScaleStatus === 'SCALE_REVIEW');
           // F38: for the same stock and quarter the filed value per share should agree across filers. A filer whose
           // implied price is more than 1% off the others is marked, so the gap is visible without a column of prices.
@@ -250,9 +250,9 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           const gap = implied && medianImplied ? implied / medianImplied - 1 : 0;
           const perShare = Math.abs(gap) > 0.01 ? ` (주당 약 $${implied.toFixed(2)}, 같은 분기 다른 신고보다 ${Math.abs(gap * 100).toFixed(1)}% ${gap < 0 ? '낮음' : '높음'})` : '';
           if (perShare) priceGaps += 1;
-          const holding = summary.direct ? `${summary.shares.toLocaleString('en-US')}주 · ${withheldValue ? '금액 단위 확인 중' : formatReportedValue(summary.value)}${perShare}` : '직접 보유 없음';
+          const holding = summary.direct ? `${summary.shares.toLocaleString('en-US')}주, ${withheldValue ? '금액 단위 확인 중' : formatReportedValue(summary.value)}${perShare}` : '직접 보유 없음';
           const detail = element(documentRef, 'details', 'masters-ticker-lookup-detail');
-          detail.appendChild(element(documentRef, 'summary', '', `${manager?.name || summary.managerId} · ${summary.period} · ${holding}${optionText}`));
+          detail.appendChild(element(documentRef, 'summary', '', `${manager?.name || summary.managerId}, ${summary.period}, ${holding}${optionText}`));
           const raw = element(documentRef, 'ul', 'masters-ticker-lookup-raw');
           // F39: several rows for one stock are the filer's own split (by manager or discretion), not duplicates.
           if (summary.latest.length > 1) raw.appendChild(element(documentRef, 'li', 'masters-holdings-meta', `원문 ${summary.latest.length}행은 같은 종목을 운용 주체·재량 구분별로 나눠 신고한 것이며, 위 합계는 이 행들을 더한 값입니다.`));
@@ -261,7 +261,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
             // P1592 (F39): a row without a filing URL says so instead of a link-looking label that goes nowhere.
             const source = row.sourceUrl ? element(documentRef, 'a', 'masters-source-link', 'SEC 원문') : element(documentRef, 'span', 'masters-holdings-meta', '원문 링크 없음');
             if (row.sourceUrl) applySafeExternalLink(source, row.sourceUrl);
-            line.append(element(documentRef, 'span', '', `${row.titleOfClass || '보통주'}${row.putCall ? ` · ${row.putCall === 'Put' ? '풋옵션' : '콜옵션'}` : ''} · ${Number(row.shares || 0).toLocaleString('en-US')}주 · ${formatReportedValue(row.value)} `), source);
+            line.append(element(documentRef, 'span', '', `${row.titleOfClass || '보통주'}${row.putCall ? `, ${row.putCall === 'Put' ? '풋옵션' : '콜옵션'}` : ''}, ${Number(row.shares || 0).toLocaleString('en-US')}주, ${formatReportedValue(row.value)} `), source);
             raw.appendChild(line);
           });
           detail.appendChild(raw);
@@ -269,7 +269,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           rows.appendChild(item);
         });
         card.appendChild(rows);
-        card.appendChild(element(documentRef, 'span', 'masters-ticker-lookup-count', `운용사 ${summaries.length}곳 · 원문 ${allRows.length}행 — 검색 범위: 참조 원장과 각 운용사의 상위 10개 보유. 그 밖의 보유는 운용사 상세에서 확인합니다.${priceGaps ? ' 주당 값이 다른 신고와 어긋나는 운용사는 원문 신고 가치를 그대로 옮긴 것이며, 정정 신고 여부를 원문에서 확인해야 합니다.' : ''}`));
+        card.appendChild(element(documentRef, 'span', 'masters-ticker-lookup-count', `운용사 ${summaries.length}곳, 원문 ${allRows.length}행 — 검색 범위: 참조 원장과 각 운용사의 상위 10개 보유. 그 밖의 보유는 운용사 상세에서 확인합니다.${priceGaps ? ' 주당 값이 다른 신고와 어긋나는 운용사는 원문 신고 가치를 그대로 옮긴 것이며, 정정 신고 여부를 원문에서 확인해야 합니다.' : ''}`));
         body.appendChild(card);
       });
     }
@@ -317,13 +317,13 @@ function createCatalogCoverage(documentRef, catalog, registry, holdings, preview
   const coverage = catalog.coverage || {};
   const discoveryAsOf = String(discovery?.reviewedAt || discovery?.generatedAt || '기준일 확인 필요').slice(0, 10);
   section.append(
-    element(documentRef, 'summary', 'masters-catalog-title', `데이터 범위와 검증 상태 보기 · SEC 발견 ${summary.discoveryState === 'complete' ? '전체' : '부분'} · 13F 행 ${summary.rowCoverageState === 'complete' ? '전체' : '부분'} · 보강 ${summary.enrichmentState === 'complete' ? '전체' : '부분'}`),
-    element(documentRef, 'p', 'masters-catalog-copy masters-coverage-classification', `현재 분류 ${summary.profiles}개: 최신 전체 행 ${summary.currentFull} · 지연 전체 행 ${summary.staleFull} · 원문 미리보기만 ${summary.previewOnly} · 메타데이터만 ${summary.metadataOnly} · 방법론 전용 ${summary.methodOnly}`),
+    element(documentRef, 'summary', 'masters-catalog-title', `데이터 범위와 검증 상태 보기, SEC 발견 ${summary.discoveryState === 'complete' ? '전체' : '부분'}, 13F 행 ${summary.rowCoverageState === 'complete' ? '전체' : '부분'}, 보강 ${summary.enrichmentState === 'complete' ? '전체' : '부분'}`),
+    element(documentRef, 'p', 'masters-catalog-copy masters-coverage-classification', `현재 분류 ${summary.profiles}개: 최신 전체 행 ${summary.currentFull}, 지연 전체 행 ${summary.staleFull}, 원문 미리보기만 ${summary.previewOnly}, 메타데이터만 ${summary.metadataOnly}, 방법론 전용 ${summary.methodOnly}`),
     element(documentRef, 'p', 'masters-catalog-boundary masters-latest-quarter-boundary', `${summary.latestPeriod || '최신분기 확인 필요'} 기준 13F 신고주체 ${summary.filers}개 중 ${summary.latestPeriodMissing}개는 최신분기 전체 행이 연결되지 않았습니다. 프로필·CIK·과거 공시 링크가 있어도 최신 보유 데이터 완성을 뜻하지 않습니다.`),
-    element(documentRef, 'p', 'masters-catalog-boundary masters-discovery-boundary', `SEC 발견 artifact 기준일 ${discoveryAsOf}: 제출주체 ${summary.discovered}/${summary.filers} · 차단/미완료 ${summary.blocked}. 이 artifact 상태는 수집 실행 결과이며 repository 변수 설정 존재 여부와 같은 뜻이 아닙니다. 최신 온라인 조회 시각은 별도로 표시되지 않습니다.`),
+    element(documentRef, 'p', 'masters-catalog-boundary masters-discovery-boundary', `SEC 발견 artifact 기준일 ${discoveryAsOf}: 제출주체 ${summary.discovered}/${summary.filers}, 차단/미완료 ${summary.blocked}. 이 artifact 상태는 수집 실행 결과이며 repository 변수 설정 존재 여부와 같은 뜻이 아닙니다. 최신 온라인 조회 시각은 별도로 표시되지 않습니다.`),
     element(documentRef, 'p', 'masters-catalog-boundary masters-shard-integrity-boundary', `브라우저 전체 행 원장 무결성 ${summary.shardIntegrityVerified ? '검증 완료' : '검증 미완료'}. 신고 메타데이터의 행 수와 실제 선택 로드 shard 길이가 일치할 때만 전체 행 연결로 분류합니다.`),
-    element(documentRef, 'p', 'masters-catalog-boundary masters-enrichment-boundary', `공식 투자 원칙 원고 ${summary.officialPrinciples}/${summary.profiles} · 검증 issuer·ticker·sector master ${summary.verifiedSecurityRecords}개. 나머지 원칙은 catalog 전략 분류이며, 참고 섹터 분류는 검증 master로 승격하지 않습니다.`),
-    element(documentRef, 'p', 'masters-catalog-copy', `SEC 메타데이터 상태 ${coverage.secMetadataVerified || 0}개 · 전체 행 대사 ${fullManagersLabel(summary)} · 원문 행 미리보기 ${coverage.rowPreviewManagers || 0}개/${coverage.previewRows || 0}행`),
+    element(documentRef, 'p', 'masters-catalog-boundary masters-enrichment-boundary', `공식 투자 원칙 원고 ${summary.officialPrinciples}/${summary.profiles}, 검증 issuer·ticker·sector master ${summary.verifiedSecurityRecords}개. 나머지 원칙은 catalog 전략 분류이며, 참고 섹터 분류는 검증 master로 승격하지 않습니다.`),
+    element(documentRef, 'p', 'masters-catalog-copy', `SEC 메타데이터 상태 ${coverage.secMetadataVerified || 0}개, 전체 행 대사 ${fullManagersLabel(summary)}, 원문 행 미리보기 ${coverage.rowPreviewManagers || 0}개/${coverage.previewRows || 0}행`),
     element(documentRef, 'p', 'masters-catalog-boundary masters-history-boundary', `12분기 심화 이력은 우선순위 ${holdings?.historySummary?.connectedManagers || 0}/${summary.filers}개 기관에 연결되어 있습니다. 나머지 기관은 최신·직전 분기 비교까지만 제공하며 장기 이력이 있는 것처럼 확대 표시하지 않습니다.`),
     element(documentRef, 'p', 'masters-catalog-copy', '각 카드에는 운영 책임자, 규모 구간, 전략 성격을 함께 표시합니다. 13F 신고 주체와 실제 투자 책임자는 다를 수 있으므로 두 축을 구분해 읽습니다.'),
     element(documentRef, 'p', 'masters-catalog-boundary', `텔레그램 발견 단서 ${coverage.telegramDiscoveryLeads || coverage.discoveryLeads || 0}개는 검증 포트폴리오에 합산하지 않습니다. X 13F 검색은 ${coverage.xSearchStatus === 'UNREADABLE_BY_BROWSER_TOOL' ? '본문을 읽지 못해 소비하지 않음' : '별도 검증 필요'} 상태입니다.`)
@@ -390,11 +390,11 @@ function issuerCell(documentRef, row, lookup = PLAIN_LOOKUP) {
   const name = lookup.nameOf(row);
   const ticker = lookup.tickerOf(row);
   const td = element(documentRef, 'td', 'masters-issuer-cell');
-  const label = element(documentRef, 'span', 'masters-issuer-name', `${name}${tag && !/\bclass\b/i.test(name) ? ` · ${tag}` : ''}`);
+  const label = element(documentRef, 'span', 'masters-issuer-name', `${name}${tag && !/\bclass\b/i.test(name) ? `, ${tag}` : ''}`);
   td.appendChild(label);
   if (ticker) { td.appendChild(tickerChip(documentRef, ticker)); td.dataset.ticker = ticker; }
   const filed = row.issuer && row.issuer !== name ? `SEC 신고 표기 ${row.issuer}` : '';
-  if (cusip || filed) td.title = [filed, cusip ? `CUSIP(증권 코드) ${cusip}` : ''].filter(Boolean).join(' · ');
+  if (cusip || filed) td.title = [filed, cusip ? `CUSIP(증권 코드) ${cusip}` : ''].filter(Boolean).join(', ');
   if (cusip) td.dataset.cusip = cusip;
   return td;
 }
@@ -403,7 +403,7 @@ function createChangeSummary(documentRef, verification, comparisonRows = []) {
   if (!verification?.priorReportPeriod) return null;
   const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
   const summary = element(documentRef, 'div', 'masters-change-summary');
-  summary.appendChild(element(documentRef, 'strong', 'masters-change-summary-title', `${verification.reportPeriod} 보고 주식 수 변화 · 이전 보고분기 ${verification.priorReportPeriod}`));
+  summary.appendChild(element(documentRef, 'strong', 'masters-change-summary-title', `${verification.reportPeriod} 보고 주식 수 변화, 이전 보고분기 ${verification.priorReportPeriod}`));
   const counts = element(documentRef, 'div', 'masters-change-counts');
   ['NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED'].forEach((action) => {
     const count = verification.comparisonActionCounts?.[action] || 0;
@@ -411,7 +411,7 @@ function createChangeSummary(documentRef, verification, comparisonRows = []) {
   });
   summary.appendChild(counts);
   // #9: the counts are the filing's share deltas, not split-adjusted.
-  summary.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `주식 분할·병합 미보정 수량 기준${splitSuspects ? ` · 불러온 행 중 분할 의심 ${splitSuspects}건이 증가·감소 수에 들어 있습니다` : ''}.`));
+  summary.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `주식 분할·병합 미보정 수량 기준${splitSuspects ? `, 불러온 행 중 분할 의심 ${splitSuspects}건이 증가·감소 수에 들어 있습니다` : ''}.`));
   return summary;
 }
 
@@ -452,9 +452,9 @@ function createOwnershipEvents(documentRef, manager, discovery) {
     const kind = /13D/.test(form) ? '경영 참여 가능 보유(13D)' : /13G/.test(form) ? '단순 투자 보유(13G)' : form;
     const change = /\/A$/.test(form) ? ' 변경' : ' 최초';
     const issuer = event.subjectCompany ? formatIssuerName(event.subjectCompany) : '발행사 확인 전';
-    const percent = Number.isFinite(event.percentOfClass) ? ` · 지분 ${event.percentOfClass}%` : '';
+    const percent = Number.isFinite(event.percentOfClass) ? `, 지분 ${event.percentOfClass}%` : '';
     item.appendChild(element(documentRef, 'span', 'masters-ownership-issuer', `${issuer}${percent}`));
-    item.appendChild(element(documentRef, 'span', '', ` · ${kind}${change} · ${event.filedAt || '제출일 확인 필요'} `));
+    item.appendChild(element(documentRef, 'span', '', `, ${kind}${change}, ${event.filedAt || '제출일 확인 필요'} `));
     const link = element(documentRef, 'a', 'masters-source-link', '원문');
     applySafeExternalLink(link, event.indexUrl);
     item.appendChild(link);
@@ -465,7 +465,7 @@ function createOwnershipEvents(documentRef, manager, discovery) {
 }
 
 function fullManagersLabel(summary) {
-  return `${summary.currentFull + summary.staleFull}/${summary.filers}개 (최신 ${summary.currentFull} · 지연 ${summary.staleFull})`;
+  return `${summary.currentFull + summary.staleFull}/${summary.filers}개 (최신 ${summary.currentFull}, 지연 ${summary.staleFull})`;
 }
 
 function createTable(documentRef, headers, rows, rowBuilder, className = 'masters-holdings-table') {
@@ -494,7 +494,7 @@ function createHoldingRow(documentRef, row, index, includeAction = true, lookup 
     const prefix = row.actionConfidence === 'REVIEW_REQUIRED' && action !== 'SPLIT_SUSPECT' ? '신고 수량상 ' : '';
     tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${action.toLowerCase()}`, `${prefix}${ACTION_LABELS[action] || action}`));
   }
-  tr.title = `${row.evidenceId || 'SEC reference'} · ${row.reportPeriod || ''}`;
+  tr.title = `${row.evidenceId || 'SEC reference'}, ${row.reportPeriod || ''}`;
   return tr;
 }
 
@@ -502,8 +502,8 @@ function createTopHoldingTable(documentRef, manager, holdingMeta, rows, lookup =
   const section = element(documentRef, 'section', 'masters-holdings-section');
   const heading = element(documentRef, 'div', 'masters-holdings-heading');
   heading.append(
-    element(documentRef, 'h3', 'masters-holdings-title', '상위 보고 보유 종목 · 증권·주식 유형·옵션별 집계'),
-    element(documentRef, 'p', 'masters-holdings-meta', `${holdingMeta?.verification?.reportPeriod || '보고분기 확인 필요'} · 상위 ${rows.length}개 · 전체 신고 행 ${holdingMeta?.verification?.fullRowCount || '—'}개`)
+    element(documentRef, 'h3', 'masters-holdings-title', '상위 보고 보유 종목, 증권·주식 유형·옵션별 집계'),
+    element(documentRef, 'p', 'masters-holdings-meta', `${holdingMeta?.verification?.reportPeriod || '보고분기 확인 필요'}, 상위 ${rows.length}개, 전체 신고 행 ${holdingMeta?.verification?.fullRowCount || '—'}개`)
   );
   const table = createTable(documentRef, ['가치 순위', '발행사', '신고 가치', '주식 수', '수량 변화', '가치 변화', '옵션', '변화 분류'], rows, (row, index) => createHoldingRow(documentRef, row, index, true, lookup));
   table.setAttribute('aria-label', `${manager.name} reported top holdings`);
@@ -517,13 +517,13 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
   const next = button(documentRef, 'masters-page-button', '다음', action, 'next');
   previous.disabled = page <= 1;
   next.disabled = page >= pageCount;
-  wrap.append(previous, element(documentRef, 'span', 'masters-page-status', `${page} / ${pageCount} · ${total}개`), next);
+  wrap.append(previous, element(documentRef, 'span', 'masters-page-status', `${page} / ${pageCount}, ${total}개`), next);
   return wrap;
 }
 
 function createChangeLedger(documentRef, comparisonRows, state) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-change-ledger');
-  section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', '분기별 변화 표 · 증권·주식 유형·옵션별 집계'));
+  section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', '분기별 변화 표, 증권·주식 유형·옵션별 집계'));
   section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이로 나눈 분류입니다. 주식 분할·병합은 보정하지 않아, 주식 수는 크게 바뀌었는데 신고 가치가 비슷한 행은 분할 의심으로 따로 둡니다. 변화가 있는 행을 먼저 신고 가치 순으로 놓았고(왼쪽 번호는 표시 순서), 현재 가격·실제 매매·매매 신호·목표가를 뜻하지 않습니다.'));
   const filters = element(documentRef, 'div', 'masters-action-filters');
   const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
@@ -549,7 +549,7 @@ function createChangeLedger(documentRef, comparisonRows, state) {
     [formatReportedValue(row.value), formatter.format(row.shares || 0), formatDelta(row.sharesDelta, formatter), formatValueDelta(row.valueDelta)].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
     const shown = displayActionOf(row);
     tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${String(shown).toLowerCase().replace(/_/g, '-')}`, `${ACTION_LABELS[shown] || shown || '비교 불가'}`));
-    tr.title = `${row.evidenceId || 'SEC comparison'} · 이전 보고분기 ${row.priorReportPeriod || '확인 필요'} · ${row.actionBasis || 'REPORTED_SHARE_DELTA'} · ${row.actionConfidence || 'REVIEW_REQUIRED'}`;
+    tr.title = `${row.evidenceId || 'SEC comparison'}, 이전 보고분기 ${row.priorReportPeriod || '확인 필요'}, ${row.actionBasis || 'REPORTED_SHARE_DELTA'}, ${row.actionConfidence || 'REVIEW_REQUIRED'}`;
     return tr;
   }, 'masters-comparison-table masters-holdings-table');
   section.append(filters, table, createPagination(documentRef, state.page, pageCount, filtered.length));
@@ -588,8 +588,8 @@ function createRowPreviewView(documentRef, manager, previewMeta, previewRows) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-row-preview');
   const heading = element(documentRef, 'div', 'masters-holdings-heading');
   heading.append(
-    element(documentRef, 'h3', 'masters-holdings-title', 'SEC 원문 미리보기 · 전체 표 불러오는 중'),
-    element(documentRef, 'p', 'masters-holdings-meta', `${previewMeta?.reportPeriod || '보고분기 확인 필요'} · ${previewRows.length}개 표시 행 · 전체 신고 행 수 미확정`)
+    element(documentRef, 'h3', 'masters-holdings-title', 'SEC 원문 미리보기, 전체 표 불러오는 중'),
+    element(documentRef, 'p', 'masters-holdings-meta', `${previewMeta?.reportPeriod || '보고분기 확인 필요'}, ${previewRows.length}개 표시 행, 전체 신고 행 수 미확정`)
   );
   const notice = element(documentRef, 'p', 'masters-coverage-warning', '이 표는 공식 SEC 정보표에서 확인된 일부 행의 연결 상태를 보여주는 미리보기입니다. 전체 보유·비중·분기 변화·섹터·신호 계산에는 사용하지 않습니다.');
   const formatter = new Intl.NumberFormat('en-US');
@@ -603,7 +603,7 @@ function createRowPreviewView(documentRef, manager, previewMeta, previewRows) {
       sourceCell.appendChild(link);
     } else sourceCell.textContent = '—';
     tr.appendChild(sourceCell);
-    tr.title = `${previewMeta?.accession || 'SEC information table'} · preview only`;
+    tr.title = `${previewMeta?.accession || 'SEC information table'}, preview only`;
     return tr;
   }, 'masters-row-preview-table masters-holdings-table');
   section.append(heading, notice, table);
@@ -623,7 +623,7 @@ function createSectorView(documentRef, fullRows = [], securityMaster = null) {
     ['고유 CUSIP', cusips.size.toLocaleString('en-US')],
     ['고유 신고 발행사명', issuers.size.toLocaleString('en-US')],
     ['검증 ticker·sector 연결', mappedRows.length.toLocaleString('en-US')],
-    ['security master artifact', securityMaster ? `${securityMaster.status} · ${securityMaster.coverage?.recordsPublished ?? 0} records` : 'NOT_CONNECTED']
+    ['security master artifact', securityMaster ? `${securityMaster.status}, ${securityMaster.coverage?.recordsPublished ?? 0} records` : 'NOT_CONNECTED']
   ].forEach(([label, value]) => metrics.appendChild(createMetric(documentRef, label, value)));
   empty.append(
     element(documentRef, 'strong', '', '섹터 구성은 아직 공개하지 않습니다.'),
@@ -650,7 +650,7 @@ function createReferenceSectorView(documentRef, fullRows = [], referenceMaster =
   });
   const section = element(documentRef, 'section', 'masters-holdings-section masters-reference-sector-view');
   section.append(
-    element(documentRef, 'h3', 'masters-holdings-title', '섹터 구성 · 참고 분류'),
+    element(documentRef, 'h3', 'masters-holdings-title', '섹터 구성, 참고 분류'),
     element(documentRef, 'p', 'masters-holdings-meta', `신고 보유 ${fullRows.length}행 가운데 공개 식별자로 섹터를 붙일 수 있었던 ${mappedRows.length}행(${scaleWithheld ? '금액 단위 확인 중' : formatReportedValue(totalValue)}) 기준이다. 분류는 참고용이라, 공식 섹터 자료로 한 번 더 확인되기 전까지 비중은 대략적인 구성으로만 읽는다.`)
   );
   const rows = [...sectorTotals.entries()].sort((a, b) => (scaleWithheld ? b[1].rows - a[1].rows : b[1].value - a[1].value)).map(([sector, values]) => ({ sector, ...values }));
@@ -659,7 +659,7 @@ function createReferenceSectorView(documentRef, fullRows = [], referenceMaster =
     [row.sector, String(row.rows), scaleWithheld ? '—' : formatReportedValue(row.value), totalValue ? `${((row.value / totalValue) * 100).toFixed(1)}%` : '—'].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
     return tr;
   }, 'masters-sector-reference-table masters-holdings-table'));
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `분류 기준일 ${referenceMaster.reviewedAt} · SEC 신고 원문의 발행사·CUSIP와 공개 식별자 대조로 붙인 섹터다.`));
+  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `분류 기준일 ${referenceMaster.reviewedAt}, SEC 신고 원문의 발행사·CUSIP와 공개 식별자 대조로 붙인 섹터다.`));
   return section;
 }
 
@@ -696,7 +696,7 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
     else if (row.rowImportStatus === 'REVIEW_REQUIRED') state = '분기 전체를 구성하지 못해 보류';
     else if (row.rowImportStatus === 'IMPORTED_CURRENT' || row.rowImportStatus === 'IMPORTED_PRIOR' || row.rowImportStatus === 'IMPORTED_HISTORICAL') {
       const reconciledLabel = row.reconciliation ? '표지 합계와 일치' : '표지 합계와 차이 — 확인 필요';
-      state = row.composition?.composite ? `${reconciledLabel} · ${row.composition.label}` : reconciledLabel;
+      state = row.composition?.composite ? `${reconciledLabel}, ${row.composition.label}` : reconciledLabel;
     } else state = '공시 목록만 연결';
     if (row.partial) tr.dataset.mastersPartialPeriod = 'true';
     [row.period, row.count == null ? '—' : String(row.count), formatReportedValue(row.value), state].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
@@ -719,7 +719,7 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
 function createQuarterTrend(documentRef, rows) {
   const ordered = [...rows].filter((row) => row.period).sort((a, b) => String(a.period).localeCompare(String(b.period)));
   const wrap = element(documentRef, 'div', 'masters-quarter-trend');
-  for (const [key, title, format] of [['value', '신고 가치 합계 (가격 변화 포함 · 운용 수익이나 AUM 아님)', formatReportedValue], ['count', '보고 행 수', (value) => `${value}행`]]) {
+  for (const [key, title, format] of [['value', '신고 가치 합계 (가격 변화 포함, 운용 수익이나 AUM 아님)', formatReportedValue], ['count', '보고 행 수', (value) => `${value}행`]]) {
     const values = ordered.map((row) => (Number.isFinite(Number(row[key])) && row[key] !== null ? Number(row[key]) : null));
     const known = values.filter((value) => value != null);
     if (known.length < 2) continue;
@@ -732,7 +732,7 @@ function createQuarterTrend(documentRef, rows) {
     ordered.forEach((row, index) => {
       const bar = element(documentRef, 'span', `masters-trend-bar${values[index] == null ? ' is-gap' : ''}`);
       bar.style.height = values[index] == null ? '100%' : `${Math.max(3, values[index] / max * 100).toFixed(1)}%`;
-      bar.title = `${row.period} · ${values[index] == null ? '분기 전체 미확인' : format(values[index])}`;
+      bar.title = `${row.period}, ${values[index] == null ? '분기 전체 미확인' : format(values[index])}`;
       bars.appendChild(bar);
     });
     block.appendChild(bars);
@@ -771,7 +771,7 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId, sc
     ['증권·유형별 묶음', String(records.length)],
     ['분기별 공시 행', String(managerPeriodRows)],
     ['확인할 점이 있는 묶음', String(reviewQueue.length)],
-    ['전체 수집 자료 (모든 운용사)', `${aggregateArtifact?.coverage?.aggregateRecords ?? '—'}개 묶음 · ${aggregateArtifact?.coverage?.periods ?? '—'}개 분기 · 확인할 점 ${aggregateArtifact?.coverage?.reviewQueue ?? '—'}개 묶음`]
+    ['전체 수집 자료 (모든 운용사)', `${aggregateArtifact?.coverage?.aggregateRecords ?? '—'}개 묶음, ${aggregateArtifact?.coverage?.periods ?? '—'}개 분기, 확인할 점 ${aggregateArtifact?.coverage?.reviewQueue ?? '—'}개 묶음`]
   ].forEach(([label, value]) => metrics.appendChild(createMetric(documentRef, label, value)));
   section.appendChild(metrics);
   const top = records
@@ -782,19 +782,19 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId, sc
     section.appendChild(createTable(documentRef, ['발행사(신고 원문)', 'CUSIP(증권 코드)', '최근 보고 분기', '신고 가치', '보고된 분기 수', '확인할 점'], top, ({ record, latest }) => {
       const tr = element(documentRef, 'tr', '');
       const values = [
-        (record.issuerNames || []).join(' · ') || '회사명 표기 없음',
+        (record.issuerNames || []).join(', ') || '회사명 표기 없음',
         record.cusipNormalized || '—',
         latest?.reportPeriod || '—',
         latest && !scaleReviewed ? formatReportedValue(latest.valueUsd) : '—',
         String(record.periodCount || 0),
-        record.reviewFlags?.length ? record.reviewFlags.map((flag) => REVIEW_FLAG_WORDS[flag] || flag).join(' · ') : '없음'
+        record.reviewFlags?.length ? record.reviewFlags.map((flag) => REVIEW_FLAG_WORDS[flag] || flag).join(', ') : '없음'
       ];
       values.forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
       return tr;
     }, 'masters-issuer-aggregate-table masters-holdings-table'));
   }
-  const aggregateMeta = element(documentRef, 'p', 'masters-holdings-meta', `종목별 분기 합산 · 기준일 ${aggregateArtifact?.reviewedAt || '확인 필요'} · 보고 분기 ${scope.reportPeriods.length}개. 종목 코드·업종은 공식 증권 원장과 대조한 뒤에만 붙입니다.`);
-  aggregateMeta.title = `집계 상태 ${aggregateArtifact?.status || 'NOT_CONNECTED'} · manager=${scope.managerId || '—'} · 집계키 ${scope.aggregationKey}`;
+  const aggregateMeta = element(documentRef, 'p', 'masters-holdings-meta', `종목별 분기 합산, 기준일 ${aggregateArtifact?.reviewedAt || '확인 필요'}, 보고 분기 ${scope.reportPeriods.length}개. 종목 코드·업종은 공식 증권 원장과 대조한 뒤에만 붙입니다.`);
+  aggregateMeta.title = `집계 상태 ${aggregateArtifact?.status || 'NOT_CONNECTED'}, manager=${scope.managerId || '—'}, 집계키 ${scope.aggregationKey}`;
   section.appendChild(aggregateMeta);
   return section;
 }
@@ -807,7 +807,7 @@ function createFilingArtifact(documentRef, filingMeta, holdingMeta) {
   const artifact = element(documentRef, 'div', 'masters-filing-artifact');
   artifact.append(
     element(documentRef, 'strong', '', filing ? 'SEC 공시 메타데이터 검증 완료' : 'SEC 공시 메타데이터 확인 필요'),
-    element(documentRef, 'p', '', filing ? `CIK ${filingMeta?.cik || holdingMeta?.cik || '—'} · ${filing.form} · 보고분기 ${filing.periodOfReport} · 제출 ${filing.filedAt}` : `CIK ${filingMeta?.cik || holdingMeta?.cik || '확인 필요'} · ${filingMeta?.status || 'PENDING'}`)
+    element(documentRef, 'p', '', filing ? `CIK ${filingMeta?.cik || holdingMeta?.cik || '—'}, ${filing.form}, 보고분기 ${filing.periodOfReport}, 제출 ${filing.filedAt}` : `CIK ${filingMeta?.cik || holdingMeta?.cik || '확인 필요'}, ${filingMeta?.status || 'PENDING'}`)
   );
   if (!filing) return artifact;
   const links = element(documentRef, 'div', 'masters-filing-links');
@@ -862,7 +862,7 @@ function createPrinciplesView(documentRef, manager, principlesArtifact) {
   limits.forEach((item) => limitationList.appendChild(element(documentRef, 'li', '', item)));
   section.appendChild(limitationList);
   if (profile?.sourceUrl) {
-    const link = element(documentRef, 'a', 'masters-source-link', `${profile.sourceName || '공식 자료'} · 검토 ${profile.reviewedAt || principlesArtifact.reviewedAt}`);
+    const link = element(documentRef, 'a', 'masters-source-link', `${profile.sourceName || '공식 자료'}, 검토 ${profile.reviewedAt || principlesArtifact.reviewedAt}`);
     applySafeExternalLink(link, profile.sourceUrl);
     section.appendChild(link);
   }
@@ -880,7 +880,7 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
     // P1592 (F36): name who is already picked — the comparison list is separate from the manager being read.
     const picked = ids.map((id) => registry.find((item) => item.id === id)?.name || id);
     section.appendChild(element(documentRef, 'div', 'masters-empty-state', picked.length
-      ? `지금 ${picked.join(' · ')} 1명을 골랐습니다. 다른 운용사 상세에서 “비교에 추가”를 눌러 1명 이상 더 고르면 비교합니다(최대 4명).`
+      ? `지금 ${picked.join(', ')} 1명을 골랐습니다. 다른 운용사 상세에서 “비교에 추가”를 눌러 1명 이상 더 고르면 비교합니다(최대 4명).`
       : '상세 상단의 “비교에 추가”를 눌러 2~4명을 선택하세요.'));
     return section;
   }
@@ -892,7 +892,7 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
     const reportPeriod = holding?.verification?.reportPeriod || null;
     if (reportPeriod) reportPeriods.push(reportPeriod);
     const rowCount = Number.isFinite(Number(holding?.verification?.fullRowCount)) ? `${Number(holding.verification.fullRowCount)}행` : '행 확인 필요';
-    metrics.appendChild(createMetric(documentRef, manager?.name || id, `${reportPeriod || '분기 확인 필요'} · Top10 ${formatPercent(holding?.verification?.top10ConcentrationPct)} · ${rowCount}`));
+    metrics.appendChild(createMetric(documentRef, manager?.name || id, `${reportPeriod || '분기 확인 필요'}, Top10 ${formatPercent(holding?.verification?.top10ConcentrationPct)}, ${rowCount}`));
   });
   section.appendChild(metrics);
   const uniquePeriods = [...new Set(reportPeriods)];
@@ -901,7 +901,7 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
       const manager = registry.find((item) => item.id === id);
       const holding = holdingManagers.find((item) => item.id === id);
       return `${manager?.name || id} ${holding?.verification?.reportPeriod || '분기 미확인'}`;
-    }).join(' · ');
+    }).join(', ');
     section.appendChild(element(documentRef, 'div', 'masters-empty-state masters-compare-period-mismatch', `선택 운용사의 보고분기가 일치하지 않아 공통 보유 비교를 보류합니다. ${periodSummary}`));
     return section;
   }
@@ -912,25 +912,25 @@ function createInvestorCompareView(documentRef, selectedIds, registry, holdingMa
   const scopeOf = (id) => (rowsByManager.get(id)?.basis === 'top' ? '상위 보유' : `불러온 ${(rowsByManager.get(id)?.holdings || []).length}행`);
   const nameOf = (id) => registry.find((item) => item.id === id)?.name || id;
   if (missing.length) {
-    section.appendChild(element(documentRef, 'div', 'masters-empty-state', `비교 미완료 — ${missing.map(nameOf).join(' · ')}의 ${commonPeriod} 보유 행을 아직 불러오지 못했습니다. 공통 보유가 없다는 뜻이 아닙니다.`));
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', `비교 미완료 — ${missing.map(nameOf).join(', ')}의 ${commonPeriod} 보유 행을 아직 불러오지 못했습니다. 공통 보유가 없다는 뜻이 아닙니다.`));
     return section;
   }
   const rowMaps = ids.map((id) => new Map((rowsByManager.get(id)?.holdings || [])
     .filter((row) => row.reportPeriod === commonPeriod)
     .map((row) => [keyOf(row), row])));
   const commonKeys = rowMaps.length ? [...rowMaps[0].keys()].filter((key) => rowMaps.every((map) => map.has(key))) : [];
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `비교 범위: ${ids.map((id) => `${nameOf(id)} ${scopeOf(id)}`).join(' · ')} — 범위 밖의 보유는 비교에 들어가지 않습니다.`));
+  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `비교 범위: ${ids.map((id) => `${nameOf(id)} ${scopeOf(id)}`).join(', ')} — 범위 밖의 보유는 비교에 들어가지 않습니다.`));
   const partialIds = ids.filter((id) => {
     const full = Number(holdingManagers.find((item) => item.id === id)?.verification?.fullRowCount);
     return rowsByManager.get(id)?.basis === 'top' || (Number.isFinite(full) && (rowsByManager.get(id)?.holdings || []).length < full);
   });
   if (commonKeys.length) {
-    section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', `함께 보유한 증권 ${commonKeys.length}개${commonKeys.length > 25 ? ' · 상위 25개 표시' : ''}${partialIds.length ? ` · 부분 비교(${withTopicParticle(partialIds.map(nameOf).join(' · '))} 신고 전체가 아닌 불러온 행만)` : ''}`));
+    section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', `함께 보유한 증권 ${commonKeys.length}개${commonKeys.length > 25 ? ', 상위 25개 표시' : ''}${partialIds.length ? `, 부분 비교(${withTopicParticle(partialIds.map(nameOf).join(', '))} 신고 전체가 아닌 불러온 행만)` : ''}`));
     const common = commonKeys.slice(0, 25).map((key) => ({ key, rows: rowMaps.map((map) => map.get(key)) }));
     section.appendChild(createTable(documentRef, ['발행사', 'CUSIP(증권 코드)', '함께 보유한 운용사 수', '보고 분기'], common, ({ rows }) => {
       const tr = element(documentRef, 'tr', '');
       tr.appendChild(issuerCell(documentRef, rows[0] || {}, lookup));
-      [rows[0]?.cusipNormalized || rows[0]?.cusip || '—', String(rows.length), [...new Set(rows.map((row) => row.reportPeriod).filter(Boolean))].join(' · ')].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
+      [rows[0]?.cusipNormalized || rows[0]?.cusip || '—', String(rows.length), [...new Set(rows.map((row) => row.reportPeriod).filter(Boolean))].join(', ')].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
       return tr;
     }));
   } else {
@@ -954,19 +954,19 @@ function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld, 
   ensureFrameStyle(documentRef);
   ensureMastersExtraStyle(documentRef);
   // v58.56 (#4): the exact ticker leads the label (the part an ellipsis keeps), then the readable name.
-  const baseLabel = (row) => { const ticker = lookup.tickerOf(row); const name = row.issuer ? lookup.nameOf(row) : row.cusipNormalized || '—'; const tag = shareClassTag(row.titleOfClass); return `${ticker ? `${ticker} · ` : ''}${name}${tag && !/\bclass\b/i.test(name) ? ` · ${tag}` : ''}${row.putCall ? ` ${row.putCall}` : ''}`; };
+  const baseLabel = (row) => { const ticker = lookup.tickerOf(row); const name = row.issuer ? lookup.nameOf(row) : row.cusipNormalized || '—'; const tag = shareClassTag(row.titleOfClass); return `${ticker ? `${ticker}, ` : ''}${name}${tag && !/\bclass\b/i.test(name) ? `, ${tag}` : ''}${row.putCall ? ` ${row.putCall}` : ''}`; };
   const repeated = new Set(top.map(baseLabel).filter((label, index, all) => all.indexOf(label) !== index));
   // Two share classes of one issuer (e.g. class A and C) are separate rows; name the class so they read apart.
   // v57.92: the full class title ("CAP STK CL A") was cut by the label ellipsis on a tablet, so both Alphabet rows read
   // "ALPHABET INC · CAP STK…"; the class letter is kept short ("A주") so the part that tells them apart stays visible.
   const classTag = (title) => shareClassTag(title) || title;
-  const weights = top.map((row) => ({ label: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)} · ${classTag(row.titleOfClass)}` : baseLabel(row), fullLabel: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)} · ${row.titleOfClass}` : baseLabel(row), pct: Number(row.value) / total * 100 }));
+  const weights = top.map((row) => ({ label: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)}, ${classTag(row.titleOfClass)}` : baseLabel(row), fullLabel: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)}, ${row.titleOfClass}` : baseLabel(row), pct: Number(row.value) / total * 100 }));
   const max = Math.max(...weights.map((item) => item.pct));
   const sum = weights.reduce((acc, item) => acc + item.pct, 0);
   const section = element(documentRef, 'section', 'masters-weight-bars');
   section.append(
     element(documentRef, 'h3', 'masters-holdings-title', `상위 ${weights.length}개 보유 비중`),
-    element(documentRef, 'p', 'masters-holdings-meta', `${period ? `${period} 신고 가치 기준` : '신고 가치 기준'} · 합계 ${sum.toFixed(1)}% — 나머지 ${Math.max(0, 100 - sum).toFixed(1)}%는 그 밖의 보유입니다.`)
+    element(documentRef, 'p', 'masters-holdings-meta', `${period ? `${period} 신고 가치 기준` : '신고 가치 기준'}, 합계 ${sum.toFixed(1)}% — 나머지 ${Math.max(0, 100 - sum).toFixed(1)}%는 그 밖의 보유입니다.`)
   );
   const bars = element(documentRef, 'div', 'af-bars');
   bars.setAttribute('role', 'img');
@@ -1003,7 +1003,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     element(documentRef, 'div', 'masters-eyebrow', manager.type === 'METHOD_ONLY' ? '방법론 전용 프로필' : '공개 13F 신고 보유'),
     // 2026-10-14 audit: the detail title sits directly under the page h1, so it is an h2 (same class and look).
     element(documentRef, 'h2', 'masters-detail-title', manager.name),
-    element(documentRef, 'p', 'masters-detail-filer', [manager.filer && manager.filer !== manager.name ? `신고 법인 ${manager.filer}` : manager.filer, manager.style].filter(Boolean).join(' · '))
+    element(documentRef, 'p', 'masters-detail-filer', [manager.filer && manager.filer !== manager.name ? `신고 법인 ${manager.filer}` : manager.filer, manager.style].filter(Boolean).join(', '))
   );
   // Codex review 2026-10-05: a person's philosophy and the filer's holdings are different things. The
   // filing is the entity's — several funds and portfolio managers — not one person's every decision.
@@ -1023,7 +1023,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   const quarterEnd = filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || null;
   if (quarterEnd) {
     const stale = thirteenFStale(quarterEnd);
-    const chip = element(documentRef, 'span', `sx-chip sx-chip--sm masters-quarter-chip${stale ? ' sx-chip--date' : ''}`, `${quarterEnd} 분기 말 기준${stale ? ' · 다음 신고 지남' : ''}`);
+    const chip = element(documentRef, 'span', `sx-chip sx-chip--sm masters-quarter-chip${stale ? ' sx-chip--date' : ''}`, `${quarterEnd} 분기 말 기준${stale ? ', 다음 신고 지남' : ''}`);
     chip.dataset.mastersQuarterEnd = quarterEnd;
     detail.querySelector('.masters-detail-filer')?.before(chip);
   }
@@ -1052,7 +1052,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   metrics.append(
     createMetric(documentRef, '최신 보고분기', filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || '—'),
     createMetric(documentRef, '보유 종목 수', holdingMeta?.verification?.reportedPositionCount != null ? `${holdingMeta.verification.reportedPositionCount}개` : '—'),
-    createMetric(documentRef, '상위 5 · 10 비중', withheld(`${formatPercent(holdingMeta?.verification?.top5ConcentrationPct)} · ${formatPercent(holdingMeta?.verification?.top10ConcentrationPct)}`)),
+    createMetric(documentRef, '상위 5, 10 비중', withheld(`${formatPercent(holdingMeta?.verification?.top5ConcentrationPct)}, ${formatPercent(holdingMeta?.verification?.top10ConcentrationPct)}`)),
     createMetric(documentRef, '직전 분기 대비 (보고 수량)', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '—'),
     // P1444: the distance between reported-value weights — price moves alone change it — not trading turnover.
     createMetric(documentRef, '신고 가치 비중 변화(회전율 아님)', withheld(formatPercent(holdingMeta?.verification?.turnoverProxyPct))),
@@ -1070,7 +1070,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     filingMeta?.latestFiling?.filedAt ? `${filingMeta.latestFiling.form || '13F'} 제출 ${filingMeta.latestFiling.filedAt}` : null,
     reviewedAt ? `자료 검토 ${reviewedAt}` : null
   ].filter(Boolean);
-  if (filingDates.length) detail.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-filing-dates', filingDates.join(' · ')));
+  if (filingDates.length) detail.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-filing-dates', filingDates.join(', ')));
   if (holdingMeta?.verification?.valueReconciliationStatus === 'MISMATCH') detail.appendChild(element(documentRef, 'p', 'masters-note', '이 분기는 공시 표지의 합계와 보유 내역의 합계가 달라, 비중과 합계처럼 총액 기반 해석을 보류한다.'));
   const compareToggle = button(documentRef, 'masters-route-button is-secondary', state.compareIds.includes(manager.id) ? '비교에서 제거' : '비교에 추가', 'toggle-compare', manager.id);
   compareToggle.disabled = !state.compareIds.includes(manager.id) && state.compareIds.length >= 4;
@@ -1217,7 +1217,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       if (!suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
           routeId: 'masters',
-          heading: '대가 보유 종목 · 13F는 분기 뒤 늦게 공개됨'
+          heading: '대가 보유 종목, 13F는 분기 뒤 늦게 공개됨'
         });
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge.remove());

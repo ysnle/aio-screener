@@ -41,7 +41,7 @@ export function channelDataModel(signals, { recentDays = 3 } = {}) {
   const missed = (signal) => [signal.revenue, signal.eps].includes('miss');
   const sentences = [];
   if (recentActions.length) {
-    sentences.push(`${day(since)} 이후 목표주가 상향 ${recentActions.filter((s) => s.direction === 'raise').length}건 · 하향 ${recentActions.filter((s) => s.direction === 'cut').length}건${recentReports.length ? `, 실적은 예상 상회 ${recentReports.filter((s) => !missed(s) && [s.revenue, s.eps].includes('beat')).length}곳 · 하회 ${recentReports.filter(missed).length}곳` : ''}입니다.`);
+    sentences.push(`${day(since)} 이후 목표주가 상향 ${recentActions.filter((s) => s.direction === 'raise').length}건, 하향 ${recentActions.filter((s) => s.direction === 'cut').length}건${recentReports.length ? `, 실적은 예상 상회 ${recentReports.filter((s) => !missed(s) && [s.revenue, s.eps].includes('beat')).length}곳, 하회 ${recentReports.filter(missed).length}곳` : ''}입니다.`);
   }
   if (retail[0]) {
     const [now, before] = retail;
@@ -52,9 +52,9 @@ export function channelDataModel(signals, { recentDays = 3 } = {}) {
     latest,
     reading: sentences.join(' '),
     leverage: retail.slice(0, 8).reverse().map((signal) => ({ date: signal.date, value: signal.leveragedLongShare, top: signal.top?.[0]?.name || '' })),
-    releases: releases.slice(0, 6).map((s) => `${day(s.date)} ${s.name} — 실제 ${fmt(s.actual)}${s.unit || ''} · 예상 ${fmt(s.forecast)}${s.unit || ''}${s.previous != null ? ` · 이전 ${fmt(s.previous)}${s.unit || ''}` : ''} (${s.actual > s.forecast ? '예상보다 높음' : s.actual < s.forecast ? '예상보다 낮음' : '예상과 같음'})`),
-    actions: actions.slice(0, 24).map((s) => `${day(s.date)} ${s.ticker} · ${s.broker || '증권사'} · ${s.ptFrom != null ? `${price(s.ptFrom, s.currency)} → ` : ''}${price(s.ptTo, s.currency)} ${DIRECTION[s.direction] || ''}${s.rating ? ` · ${RATING[s.rating]}` : ''}${s.ratingAction ? ` · 의견 ${s.ratingAction === 'upgrade' ? '상향' : '하향'}` : ''}`),
-    reports: reports.slice(0, 16).map((s) => `${day(s.date)} ${s.ticker || s.name}${s.ticker && s.name ? ` (${s.name})` : ''} · 매출 ${VERDICT[s.revenue] || '—'} · EPS ${VERDICT[s.eps] || '—'}${s.guidance ? ` · 가이던스 ${s.guidance === 'raise' ? '상향' : '하향'}` : ''}`)
+    releases: releases.slice(0, 6).map((s) => `${day(s.date)} ${s.name} — 실제 ${fmt(s.actual)}${s.unit || ''}, 예상 ${fmt(s.forecast)}${s.unit || ''}${s.previous != null ? `, 이전 ${fmt(s.previous)}${s.unit || ''}` : ''} (${s.actual > s.forecast ? '예상보다 높음' : s.actual < s.forecast ? '예상보다 낮음' : '예상과 같음'})`),
+    actions: actions.slice(0, 24).map((s) => `${day(s.date)} ${s.ticker}, ${s.broker || '증권사'}, ${s.ptFrom != null ? `${price(s.ptFrom, s.currency)} → ` : ''}${price(s.ptTo, s.currency)} ${DIRECTION[s.direction] || ''}${s.rating ? `, ${RATING[s.rating]}` : ''}${s.ratingAction ? `, 의견 ${s.ratingAction === 'upgrade' ? '상향' : '하향'}` : ''}`),
+    reports: reports.slice(0, 16).map((s) => `${day(s.date)} ${s.ticker || s.name}${s.ticker && s.name ? ` (${s.name})` : ''}, 매출 ${VERDICT[s.revenue] || '—'}, EPS ${VERDICT[s.eps] || '—'}${s.guidance ? `, 가이던스 ${s.guidance === 'raise' ? '상향' : '하향'}` : ''}`)
   };
 }
 
@@ -71,7 +71,7 @@ export function renderChannelData(doc, card, signals) {
   container.replaceChildren();
   container.hidden = !model;
   if (!model) return;
-  container.append(el(doc, 'div', '채널 데이터 · 채널이 전한 수치이며 앱이 직접 확인한 값은 아닙니다', 'tg-data-head'));
+  container.append(el(doc, 'div', '채널 데이터, 채널이 전한 수치이며 앱이 직접 확인한 값은 아닙니다', 'tg-data-head'));
   if (model.reading) container.append(el(doc, 'p', model.reading, 'tg-data-reading'));
   if (model.leverage.length) {
     const chart = el(doc, 'div', null, 'tg-data-leverage');
@@ -91,8 +91,8 @@ export function renderChannelData(doc, card, signals) {
     container.append(chart);
   }
   const fold = el(doc, 'details', null, 'tg-data-fold');
-  fold.append(el(doc, 'summary', '지표 · 목표주가 · 실적 자세히'));
-  for (const [title, rows] of [['경제지표 (실제 대 예상)', model.releases], ['목표주가 · 투자의견', model.actions], ['실적 (예상 대비)', model.reports]]) {
+  fold.append(el(doc, 'summary', '지표, 목표주가, 실적 자세히'));
+  for (const [title, rows] of [['경제지표 (실제 대 예상)', model.releases], ['목표주가, 투자의견', model.actions], ['실적 (예상 대비)', model.reports]]) {
     if (!rows.length) continue;
     fold.append(el(doc, 'div', title, 'tg-data-sub'));
     const ul = el(doc, 'ul', null, 'tg-data-list');

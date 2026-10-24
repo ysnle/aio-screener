@@ -2,19 +2,19 @@
    Inside .page an old inline 10/11px rendered 12/13px (index.html substring !important rules) → --fs-xs/--fs-sm. */
 
 /* Topbar data-status chip (#data-status-panel in .topbar): colour-only spans; the 11px status text stays inline. */
-#data-status-panel .lda-st-stale { color: #f59e0b; }
-#data-status-panel .lda-st-swbad { color: #f87171; }
+#data-status-panel .lda-st-stale { color: var(--amber-11); }
+#data-status-panel .lda-st-swbad { color: var(--red-11); }
 #data-status-panel .lda-st-sw { color: var(--text-muted); }
 /* Pipeline status bar (#aio-pipeline-status-bar in #page-home: old inline 10px rendered 12px) */
-#aio-pipeline-status-bar .stale-manual-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: var(--fs-xs); background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; cursor: default; }
-#aio-pipeline-status-bar .lda-pipe { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.25); border-left: 2px solid; padding: 3px 8px; border-radius: 3px; font-size: var(--fs-xs); }
+#aio-pipeline-status-bar .stale-manual-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: var(--fs-xs); background: var(--gold-3); border: 0.5px solid var(--amber-6); color: var(--amber-11); cursor: default; }
+#aio-pipeline-status-bar .lda-pipe { display: inline-flex; align-items: center; gap: 4px; background: var(--black-a4);  padding: 3px 8px; border-radius: 4px; font-size: var(--fs-xs); }
 #aio-pipeline-status-bar .lda-pipe-detail { color: var(--text-muted); font-size: var(--fs-xs); }
 /* News translation status (#translate-status in #page-market-news) */
-#translate-status .lda-tr-left { color: #f87171; }
-#translate-status .lda-tr-ai { display: inline-flex; align-items: center; min-height: 28px; padding: 2px 6px; background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; color: #fbbf24; }
+#translate-status .lda-tr-left { color: var(--red-11); }
+#translate-status .lda-tr-ai { display: inline-flex; align-items: center; min-height: 28px; padding: 2px 6px; background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; color: var(--amber-11); }
 @media (pointer: coarse) { #translate-status .lda-tr-ai { min-height: 44px; } }
 /* Ticker hero extended-hours line (#ticker-hero-ext in #page-ticker: old inline 10/11px rendered 12/13px) */
-#ticker-hero-ext .lda-ext-close { font-size: var(--fs-sm); color: #94a3b8; }
-#ticker-hero-ext .lda-ext-arrow { font-size: var(--fs-sm); color: #64748b; margin: 0 4px; }
-#ticker-hero-ext .lda-ext-sess { font-size: var(--fs-sm); color: #a78bfa; margin-right: 3px; }
+#ticker-hero-ext .lda-ext-close { font-size: var(--fs-sm); color: var(--gold-11); }
+#ticker-hero-ext .lda-ext-arrow { font-size: var(--fs-sm); color: var(--cyan-11); margin: 0 4px; }
+#ticker-hero-ext .lda-ext-sess { font-size: var(--fs-sm); color: var(--blue-11); margin-right: 3px; }
 #ticker-hero-ext .lda-ext-px { font-size: var(--fs-xs); font-weight: 700; font-family: var(--font-mono); }

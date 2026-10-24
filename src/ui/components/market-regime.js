@@ -59,7 +59,7 @@ export function readMarketRegime(root, onHistory = null) {
 
 function summaryLine(regime) {
   const { favorable, neutral, burden, unknown } = regime.counts;
-  return `양호 ${favorable} · 중립 ${neutral} · 부담 ${burden}${unknown ? ` · 확인 불가 ${unknown}` : ''}`;
+  return `양호 ${favorable}, 중립 ${neutral}, 부담 ${burden}${unknown ? `, 확인 불가 ${unknown}` : ''}`;
 }
 
 // P1505 (owner 2026-10-06: no source text on the face of the screen): each axis keeps its source as a hover title and
@@ -68,8 +68,8 @@ const AXIS_SOURCES = Object.freeze({
   trend: 'S&P 500·나스닥 100·나스닥 종합·러셀 2000 일봉 종가 (Yahoo Finance)', // v57.81: the cross-index evidence rows
   breadth: '스크리너 유니버스 구성 종목의 수정 종가로 자체 계산',
   volatility: 'VIX·VIX3M (Cboe 지수, Yahoo Finance 경유)',
-  rates: '미 국채 수익률 (미 재무부 공시 par curve · FRED DGS2/DGS10)',
-  credit: 'ICE BofA 하이일드 OAS (FRED BAMLH0A0HYM2) · CNN Fear & Greed',
+  rates: '미 국채 수익률 (미 재무부 공시 par curve, FRED DGS2/DGS10)',
+  credit: 'ICE BofA 하이일드 OAS (FRED BAMLH0A0HYM2), CNN Fear & Greed',
   commodities: 'WTI 선물·금 선물·달러 인덱스 (Yahoo Finance)',
   korea: '원/달러·엔/달러·코스피 (Yahoo Finance)'
 });
@@ -91,7 +91,7 @@ function chartPanel(doc, charts, range) {
   const note = el(doc, 'p', null, 'regime-chart-note');
   let buttons = [];
   const show = selected => {
-    caption.textContent = `${selected.title} · 세로축 ${selected.unit} · ${selected.series[0].date}~${selected.series.at(-1).date}`;
+    caption.textContent = `${selected.title}, 세로축 ${selected.unit}, ${selected.series[0].date}~${selected.series.at(-1).date}`;
     plot.replaceChildren(createTrendChart(doc, { ...selected, label: `${selected.title} (${selected.unit})`, range }));
     plot.dataset.historySeries = selected.id;
     note.textContent = selected.note || '';
@@ -116,12 +116,12 @@ function opportunityNode(doc, root, view, className) {
   const parts = Array.isArray(view?.opportunityLinks) ? view.opportunityLinks.filter((part) => part?.links?.length) : [];
   if (!parts.length) { node.textContent = view?.opportunity || ''; return node; }
   parts.forEach((part, index) => {
-    if (index) node.append(doc.createTextNode(' · '));
+    if (index) node.append(doc.createTextNode(', '));
     node.append(doc.createTextNode(`${part.label}: `));
     for (const link of part.links) {
       const button = el(doc, 'button', link.label, 'regime-opportunity-chip');
       button.type = 'button';
-      button.title = link.kind === 'theme' && link.themeId ? `${link.label} 테마 상세` : '테마 · 섹터 화면에서 보기';
+      button.title = link.kind === 'theme' && link.themeId ? `${link.label} 테마 상세` : '테마와 섹터 화면에서 보기';
       button.addEventListener('click', () => {
         if (link.kind === 'theme' && link.themeId && typeof root?.showThemeDetail === 'function') root.showThemeDetail(link.themeId);
         else root?.showPage?.('themes');
@@ -149,7 +149,7 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   // branches by release live in full on 거시 only, so the heading no longer says 향후 시나리오 and the section ends
   // with one link there.
   section.append(el(doc, 'h2', '지금 시장 흐름 — 세 가지 중 어디에 가까운가', 'briefing-h2'),
-    el(doc, 'p', `${model.asOf || '기준일 미확인'} 종가 기준 · 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.`, 'regime-scenario-basis'));
+    el(doc, 'p', `${model.asOf || '기준일 미확인'} 종가 기준, 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.`, 'regime-scenario-basis'));
   if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'), scenarioLink(doc, root)); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
   if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
@@ -163,7 +163,7 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
     if (outlook?.leadId === scenario.id) card.dataset.lead = 'true';
     const head = el(doc, 'div', null, 'regime-scenario-head');
     // v57.81: while the leadership break holds, the weakness card is titled as the transition and its count names 동반 약세.
-    head.append(el(doc, 'h3', view?.transition ? view.title : scenario.title), el(doc, 'span', view ? `${view.transition ? '동반 약세 ' : ''}${view.fit}${view.shortfall ? ' · 아직 성립 아님' : ''}` : scenario.status, 'regime-scenario-status'));
+    head.append(el(doc, 'h3', view?.transition ? view.title : scenario.title), el(doc, 'span', view ? `${view.transition ? '동반 약세 ' : ''}${view.fit}${view.shortfall ? ', 아직 성립 아님' : ''}` : scenario.status, 'regime-scenario-status'));
     if (view?.shortfall) head.lastChild.title = view.shortfall; // v57.55 review (E2-06)
     card.append(head);
     if (view) {
@@ -172,7 +172,7 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
     } else card.append(el(doc, 'p', scenario.interpretation, 'regime-scenario-reading'));
     const more = el(doc, 'details', null, 'regime-scenario-more');
     more.open = openIds.has(scenario.id);
-    more.append(el(doc, 'summary', '확인할 것 · 조심할 것 · 넘겨도 되는 것'));
+    more.append(el(doc, 'summary', '확인할 것, 조심할 것, 넘겨도 되는 것'));
     if (view) {
       more.append(el(doc, 'p', `조건 근거: ${view.basis}`, 'regime-scenario-basis'));
       more.append(listBlock(doc, '확인할 것', view.check), listBlock(doc, '조심할 것', view.caution), listBlock(doc, '넘겨도 되는 것', view.ignore));
@@ -200,10 +200,10 @@ function scenarioLink(doc, root) {
 
 // v58.53 개편 v2 (3b): the axis table's row labels, the academic line under each opened row (authors · year only) and
 // the axis whose burden opens first. Static reference text; live values come from the regime rows.
-const AXIS_EN = Object.freeze({ trend: 'Trend', breadth: 'Breadth', volatility: 'Volatility', credit: 'Credit', rates: 'Rates', commodities: 'Dollar · Commodity' });
+const AXIS_EN = Object.freeze({ trend: 'Trend', breadth: 'Breadth', volatility: 'Volatility', credit: 'Credit', rates: 'Rates', commodities: 'Dollar, Commodity' });
 const AXIS_REFS = Object.freeze({
-  trend: 'Moskowitz·Ooi·Pedersen 2012 · Faber 2007',
-  breadth: 'Zweig 1986 · 다우 이론의 확인 원칙',
+  trend: 'Moskowitz·Ooi·Pedersen 2012, Faber 2007',
+  breadth: 'Zweig 1986, 다우 이론의 확인 원칙',
   volatility: 'Whaley 2000',
   credit: 'Gilchrist·Zakrajšek 2012',
   rates: 'Campbell·Shiller 1988',
@@ -223,10 +223,10 @@ function faceValue(row) {
   // The face keeps the value and its observation date (buildMarketRegime appends ' · M/D' when an axis mixes dates);
   // parentheticals and record notes ('기록 243일 중 …') stay in the opened row.
   const face = (value) => {
-    const [head, ...rest] = String(value).replace(/\s*\([^)]*\)/g, '').split(' · ');
-    return [head, ...rest.filter((part) => /^\d{1,2}\/\d{1,2}$/.test(part.trim()))].join(' · ');
+    const [head, ...rest] = String(value).replace(/\s*\([^)]*\)/g, '').split(/ · |, /);
+    return [head, ...rest.filter((part) => /^\d{1,2}\/\d{1,2}$/.test(part.trim()))].join(', ');
   };
-  return shown.map(([label, value]) => `${label.replace(/\s*\(.*\)$/, '')} ${face(value)}`).join(' · ');
+  return shown.map(([label, value]) => `${label.replace(/\s*\(.*\)$/, '')} ${face(value)}`).join(', ');
 }
 
 // The five-session change of each axis's headline series, from the same completed closes the axis reads.
@@ -261,8 +261,8 @@ function distanceCell(doc, row) {
   const d = row.flipDistance;
   if (!d) { cell.textContent = '—'; cell.classList.add('is-empty'); return cell; }
   cell.dataset.direction = d.direction;
-  cell.append(el(doc, 'b', d.label, 'mk-axis__dist-value'), el(doc, 'span', `${d.short}${d.also?.length ? ' · 함께 필요' : ''}`, 'mk-axis__dist-basis'));
-  cell.title = `종가 기준 · ${d.condition} ${row.title} → ${d.towardLabel}${(d.also || []).map((also) => ` · 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`;
+  cell.append(el(doc, 'b', d.label, 'mk-axis__dist-value'), el(doc, 'span', `${d.short}${d.also?.length ? ', 함께 필요' : ''}`, 'mk-axis__dist-basis'));
+  cell.title = `종가 기준, ${d.condition} ${row.title} → ${d.towardLabel}${(d.also || []).map((also) => `, 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`;
   return cell;
 }
 
@@ -277,7 +277,7 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   const prev = previous?.axes?.find((axis) => axis.id === row.id);
   // A previous state rebuilt from partial inputs (prev.partial) is not shown as a flip.
   const prevShown = prev && !prev.partial ? prev : null;
-  const prevText = prevShown ? (prevShown.state === row.state ? `${prevShown.stateLabel} · 같음` : `${prevShown.stateLabel} → ${row.stateLabel}`) : '—';
+  const prevText = prevShown ? (prevShown.state === row.state ? `${prevShown.stateLabel}, 같음` : `${prevShown.stateLabel} → ${row.stateLabel}`) : '—';
   const rule = el(doc, 'span', row.flip || '—', 'mk-axis__rule');
   if (row.flip) rule.title = row.flip;
   summary.append(name, el(doc, 'span', row.stateLabel, `sx-chip sx-chip--sm sx-chip--${TONE[row.state] || 'neutral'} mk-axis__state`),
@@ -294,7 +294,7 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   // P1399: one basis chip per axis — its own observation date against the close basis.
   if (row.basis) readNow.append(el(doc, 'span', row.basis, `basis-chip${row.basisStatus === 'aligned' ? '' : ' is-off'}`));
   body.append(cardOf('원리', el(doc, 'p', blocks[0]?.[1] || '', 'sx-disclosure__text')), readNow,
-    cardOf('한계 · 함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
+    cardOf('한계, 함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
   // The chart, every evidence row and the flip condition stay one level down in the opened row.
   const detail = el(doc, 'div', null, 'mk-axis__detail');
   const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
@@ -311,14 +311,14 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
         const li = el(doc, 'li', null, 'mk-axis__near-item');
         li.dataset.direction = item.direction;
         li.append(el(doc, 'b', `${item.direction === 'improve' ? '↑' : '↓'} ${item.towardLabel}까지 ${item.text}`, 'mk-axis__near-value'),
-          el(doc, 'span', `${item.condition} ${row.title} → ${item.towardLabel}${(item.also || []).map((also) => ` · 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`, 'mk-axis__near-text'));
+          el(doc, 'span', `${item.condition} ${row.title} → ${item.towardLabel}${(item.also || []).map((also) => `, 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`, 'mk-axis__near-text'));
         near.append(li);
       }
       changes.append(near);
     }
     changes.append(el(doc, 'h4', '상태가 바뀌는 조건'), el(doc, 'p', row.flip));
     // The 5거래일 전 column folds away below desktop width; the opened row keeps it.
-    changes.append(el(doc, 'p', `5거래일 전 판정 · ${prevText}`, 'mk-axis__prev-line'));
+    changes.append(el(doc, 'p', `5거래일 전 판정, ${prevText}`, 'mk-axis__prev-line'));
     facts.append(changes);
   }
   const watch = scenarios.axes?.find((axis) => axis.id === row.id);
@@ -332,7 +332,7 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   if (row.id === 'volatility') renderStressOutcomes({ documentRef: doc, root, host: card });
   // ④ evidence line: academic basis (authors · year), data source, validation state.
   const evidence = el(doc, 'p', null, 'sx-evidence mk-axis__evidence');
-  evidence.append(el(doc, 'span', `학술 근거 · ${AXIS_REFS[row.id] || '—'}`), el(doc, 'span', `데이터 · ${AXIS_SOURCES[row.id] || '—'}`), el(doc, 'span', '판정 기준 · 공개 관례 기준선, 예측력 검증 전'));
+  evidence.append(el(doc, 'span', `학술 근거, ${AXIS_REFS[row.id] || '—'}`), el(doc, 'span', `데이터, ${AXIS_SOURCES[row.id] || '—'}`), el(doc, 'span', '판정 기준, 공개 관례 기준선, 예측력 검증 전'));
   card.append(evidence);
   // Single-open accordion (README: openAxis); the choice survives a repaint of the board.
   card.addEventListener('toggle', () => {
@@ -348,14 +348,14 @@ function heroSide(doc, regime, previous) {
   const tally = doc.getElementById('regime-tally');
   if (tally) {
     const { favorable = 0, neutral = 0, burden = 0, unknown = 0 } = regime.counts || {};
-    const names = (state) => (regime.axes || []).filter((row) => row.id !== 'korea' && row.state === state).map((row) => row.title).join(' · ');
+    const names = (state) => (regime.axes || []).filter((row) => row.id !== 'korea' && row.state === state).map((row) => row.title).join(', ');
     const bar = el(doc, 'div', null, 'mk-tally__bar');
     bar.setAttribute('aria-hidden', 'true');
     for (const [state, count] of [['favorable', favorable], ['neutral', neutral], ['burden', burden], ['unknown', unknown]]) {
       for (let i = 0; i < count; i += 1) bar.append(el(doc, 'span', null, `mk-tally__seg is-${state}`));
     }
     const legend = el(doc, 'div', null, 'mk-tally__legend');
-    legend.append(el(doc, 'span', `양호 ${favorable}${favorable ? ` · ${names('favorable')}` : ''}`, 'is-favorable'), el(doc, 'span', `중립 ${neutral}${unknown ? ` · 확인 불가 ${unknown}` : ''}`, 'is-neutral'), el(doc, 'span', `부담 ${burden}${burden ? ` · ${names('burden')}` : ''}`, 'is-burden'));
+    legend.append(el(doc, 'span', `양호 ${favorable}${favorable ? `, ${names('favorable')}` : ''}`, 'is-favorable'), el(doc, 'span', `중립 ${neutral}${unknown ? `, 확인 불가 ${unknown}` : ''}`, 'is-neutral'), el(doc, 'span', `부담 ${burden}${burden ? `, ${names('burden')}` : ''}`, 'is-burden'));
     tally.replaceChildren(...(regime.available ? [bar, legend] : []));
   }
   const prevNode = doc.getElementById('regime-previous');
@@ -365,8 +365,8 @@ function heroSide(doc, regime, previous) {
         .filter(([then, now]) => now && then.state !== now.state).map(([then, now]) => `${now.title} ${then.stateLabel}→${now.stateLabel}`);
       // With a partially rebuilt axis the overall label and tally are not restated; only the comparable axes are.
       const skipped = previous.axes.filter((axis) => axis.partial).map((axis) => axis.title);
-      const head = previous.partial ? `5거래일 전(${shortDate(previous.asOf)}) 대비` : `5거래일 전(${shortDate(previous.asOf)}) 판정: ${previous.overall} · ${summaryLine(previous)}`;
-      prevNode.textContent = `${head}${changed.length ? ` → ${changed.join(' · ')}` : ' → 지표별 판정 변화 없음'}${skipped.length ? ` (${skipped.join(' · ')}은 그날 입력을 모두 되살릴 수 없어 비교 제외)` : ''}`;
+      const head = previous.partial ? `5거래일 전(${shortDate(previous.asOf)}) 대비` : `5거래일 전(${shortDate(previous.asOf)}) 판정: ${previous.overall}, ${summaryLine(previous)}`;
+      prevNode.textContent = `${head}${changed.length ? ` → ${changed.join(', ')}` : ' → 지표별 판정 변화 없음'}${skipped.length ? ` (${skipped.join(', ')}은 그날 입력을 모두 되살릴 수 없어 비교 제외)` : ''}`;
       prevNode.hidden = false;
     } else prevNode.hidden = true;
   }
@@ -382,7 +382,7 @@ function comboAndWatch(doc, root, regime, interpretation) {
   if (!watch) return;
   const items = [];
   const next = interpretation.crossroads?.nextEvent;
-  if (next?.name && next?.date) items.push([`${shortDate(next.date)} ${next.name}`, '다음 공식 발표입니다. 발표별로 갈리는 시나리오는 거시 화면에서 이어 봅니다.']);
+  if (next?.name && next?.date) items.push([`${shortDate(next.date)} ${next.name}`, '발표별 시나리오는 거시 화면에서 봅니다.']);
   for (const check of interpretation.marketRead?.checks || []) if (items.length < 4) items.push([check, '']);
   watch.replaceChildren(...items.map(([title, note], index) => {
     const item = el(doc, 'li', null, 'mk-watch__item');
@@ -411,14 +411,14 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const scenarios = interpretation.scenarios || { available: false };
   const previous = previousRegime({ ...inputs, macroHistory: inputs?.macroHistory || root._aioMacroHistory || null }, regime);
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 6개 지표 · 공개 기준선` : '종가 기록을 불러오는 중입니다.');
+  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 6개 지표, 공개 기준선` : '종가 기록을 불러오는 중입니다.');
   const overall = set('regime-overall', regime.available ? regime.overall : '판정 대기');
   if (overall) { overall.dataset.overall = regime.overall || ''; overall.setAttribute('aria-label', `미국 시장 판정: ${regime.available ? regime.overall : '판정 대기'}`); } // v57.77 (a11y 2.4.6)
   // The tally bar's legend carries the counts; this line stays for a held verdict (its reason) only.
   set('regime-counts', regime.available ? (regime.holdReason || (doc.getElementById('regime-tally') ? '' : summaryLine(regime))) : '');
   const breadthRow = (regime.axes || []).find((row) => row.id === 'breadth');
   // v58.68: the leadership break is told by its own line (regime-leaders) below the headline.
-  set('regime-shape', !regime.leadershipBreak && breadthRow?.narrow ? '좁은 장세 · 소수 종목이 지수를 받침' : '');
+  set('regime-shape', !regime.leadershipBreak && breadthRow?.narrow ? '좁은 장세, 소수 종목이 지수를 받침' : '');
   const read = interpretation.marketRead;
   set('regime-headline', read?.headline ? `${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : '');
   paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow);
@@ -441,7 +441,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       const korea = buildKoreaRegimeObservations(inputs, { through: regime.asOf || null });
       const cards = korea.cards.map(item => {
         const section = el(doc, 'section', null, 'regime-axis'); section.dataset.axis = item.id; section.dataset.market = 'KR';
-        section.append(el(doc, 'h3', item.title, 'regime-axis-title'), el(doc, 'p', `${item.scope} · ${item.asOf}${item.stale ? ' · 지연 자료' : ''}`, 'regime-chart-caption'),
+        section.append(el(doc, 'h3', item.title, 'regime-axis-title'), el(doc, 'p', `${item.scope}, ${item.asOf}${item.stale ? ', 지연 자료' : ''}`, 'regime-chart-caption'),
           el(doc, 'p', `${item.last.toLocaleString('en-US', { maximumFractionDigits: item.id === 'usdkrw' ? 2 : 2 })} ${item.unit}`, 'regime-korea-value'), el(doc, 'p', item.read, 'regime-read'));
         if (item.series.length > 1) { const chart = chartPanel(doc, [{ id: item.id, title: item.title, unit: item.unit, series: item.series, format: value => value.toLocaleString('en-US', { maximumFractionDigits: 0 }) }], [item.series[0].date, item.series.at(-1).date]); if (chart) section.append(chart); }
         section.append(el(doc, 'p', item.observe, 'regime-read'));
@@ -451,7 +451,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
           const reference = regime.axes.find(axis => axis.id === 'korea');
           if (reference?.evidence?.length) {
             const details = el(doc, 'details', null, 'regime-axis-details');
-            details.append(el(doc, 'summary', '원·엔 연결 근거와 관찰'), el(doc, 'p', `미국 종가 기준에 맞춘 환율 참고 · ${reference.basis || '관측일 미확인'}`));
+            details.append(el(doc, 'summary', '원·엔 연결 근거와 관찰'), el(doc, 'p', `미국 종가 기준에 맞춘 환율 참고, ${reference.basis || '관측일 미확인'}`));
             const evidence = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of reference.evidence) evidence.append(el(doc, 'dt', label), el(doc, 'dd', value));
             details.append(evidence, el(doc, 'p', reference.read));
             if (reference.flip) details.append(el(doc, 'p', reference.flip));
@@ -468,8 +468,8 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       const krSummary = doc.getElementById('regime-kr-summary');
       if (krSummary) {
         const parts = koreaIndexParts(root._aioHistory || []);
-        krSummary.textContent = parts.kospi ? `${shortDate(parts.kospi.date)} 마감 · ${parts.kospi.text}` : '위 6개 지표 합계 제외';
-        krSummary.title = '한국 정규장 확정 종가 · 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않는 참고입니다';
+        krSummary.textContent = parts.kospi ? `${shortDate(parts.kospi.date)} 마감, ${parts.kospi.text}` : '위 6개 지표 합계 제외';
+        krSummary.title = '한국 정규장 확정 종가, 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않는 참고입니다';
       }
     }
   }
@@ -508,7 +508,7 @@ function koreaIndexParts(history) {
     const pctOf = (base) => base?.value > 0 ? (last.value / base.value - 1) * 100 : null;
     const signed = (v) => v == null ? null : `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
     const d1 = signed(pctOf(prev)), d5 = signed(pctOf(prior5));
-    return { date: last.date, text: `${title} ${last.value.toLocaleString('en-US', { maximumFractionDigits: 2 })}${d1 ? ` (${d1}${d5 ? ` · 5거래일 ${d5}` : ''})` : ''}`, d5: pctOf(prior5) };
+    return { date: last.date, text: `${title} ${last.value.toLocaleString('en-US', { maximumFractionDigits: 2 })}${d1 ? ` (${d1}${d5 ? `, 5거래일 ${d5}` : ''})` : ''}`, d5: pctOf(prior5) };
   };
   return { kospi: part('kospi', '코스피'), kosdaq: part('kosdaq', '코스닥') };
 }
@@ -540,10 +540,10 @@ function paintLeadershipLine(doc, id, verdict, flow = null) {
       tip: '미국 섹터 ETF의 하루 등락, 같은 날 10년물 금리 변화와 공포·탐욕 지수로 냅니다. 성장(기술·통신·반도체)과 방어(필수소비재·유틸리티·헬스케어) 업종의 평균 차이가 3%p 이상이면 한쪽으로의 이동으로 봅니다.' });
     const themes = flow.themes;
     if (themes?.available) {
-      if (themes.splitLines.length) part.append(el(doc, 'div', `같은 업종 안에서 갈린 곳 · ${themes.splitLines.slice(0, 2).join(' / ')}`, 'leaders-line__evidence'));
+      if (themes.splitLines.length) part.append(el(doc, 'div', `같은 업종 안에서 갈린 곳, ${themes.splitLines.slice(0, 2).join(' / ')}`, 'leaders-line__evidence'));
       const more = el(doc, 'details', null, 'leaders-line__more');
       const list = el(doc, 'ul', null, 'leaders-line__list');
-      for (const text of [themes.strongLine, themes.weakLine, ...themes.splitLines.map((line) => `갈림 · ${line}`)].filter(Boolean)) list.append(el(doc, 'li', text));
+      for (const text of [themes.strongLine, themes.weakLine, ...themes.splitLines.map((line) => `갈림, ${line}`)].filter(Boolean)) list.append(el(doc, 'li', text));
       more.append(el(doc, 'summary', `테마 ${themes.groups}개 하루 흐름`), list);
       part.append(more);
     }
@@ -570,7 +570,7 @@ function paintKoreaLine(doc, root) {
   const rare = record?.extreme && record.date === kospi.date ? koreaRecordText(record, { maxTail: KR_SHOCK_TAIL_PCT }) : '';
   const tone = rare ? ` — 코스피 변화가 ${rare}라 미국장과 따로 확인할 구간입니다.`
     : kospi.d5 != null && Math.abs(kospi.d5) >= 5 ? (kospi.d5 < 0 ? ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.' : ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.') : '';
-  line.textContent = `한국장 ${month}/${day} 마감 · ${[kospi.text, kosdaq?.text].filter(Boolean).join(' · ')}${tone}`;
+  line.textContent = `한국장 ${month}/${day} 마감, ${[kospi.text, kosdaq?.text].filter(Boolean).join(', ')}${tone}`;
   line.dataset.observedAt = kospi.date;
   line.dataset.market = 'KR';
   line.title = '한국 정규장 확정 종가 기준입니다. 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않습니다.';
@@ -599,7 +599,7 @@ function paintFuturesCell(doc, root, cellId, futures, field, label) {
   value.textContent = last.value.toLocaleString('en-US', { maximumFractionDigits: 2 });
   const note = doc.createElement('span');
   note.className = 'kpi-fallback-note';
-  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`} · 선물 시세 아직 받지 못함`;
+  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`}, 선물 시세 아직 받지 못함`;
   if (labelNode) labelNode.textContent = label;
   fallback.append(value, note);
   fallback.hidden = false;
@@ -622,11 +622,11 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   if (kicker) {
     let today = '';
     try { today = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'long' }).format(new Date()); } catch (_) { today = ''; }
-    const text = [today, regime.available && regime.asOf ? `${shortDate(regime.asOf)} 미국 종가 기준` : ''].filter(Boolean).join(' · ');
+    const text = [today, regime.available && regime.asOf ? `${shortDate(regime.asOf)} 미국 종가 기준` : ''].filter(Boolean).join(', ');
     if (text) kicker.textContent = text;
   }
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
-  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준 · 미국 6개 지표 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
+  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 미국 6개 지표 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
   // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
   // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
   set('home-hero-desc', regime.heroLine || '');
@@ -674,7 +674,7 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
       // P1592 (F42): the tally above counts the six US axes; the Korea FX card is a reference beside it.
       const reference = row.id === 'korea';
       if (reference) { chip.classList.add('is-reference'); chip.title = '한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다'; }
-      chip.append(el(doc, 'span', reference ? `${row.title} · 참고` : row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
+      chip.append(el(doc, 'span', reference ? `${row.title}, 참고` : row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
       return chip;
     }));
     // P1633/P1745: home answers "so what" in ONE forward block — the present structure (which of the three it is
@@ -703,7 +703,7 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
       // v57.81: the transition reading also carries its next checkpoint on home.
       const counter = [sentences.find((line) => line.startsWith('반증')), sentences.find((line) => line.startsWith('다음 확인'))].filter(Boolean).join(' ');
       const line = el(doc, 'p', null, 'xr-structure');
-      line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? ` · ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
+      line.append(el(doc, 'strong', `지금 시장 흐름 '${lead.title}'`), el(doc, 'span', `${lead.fit}${lead.shortfall ? `, ${lead.shortfall}` : ''}`, 'basis-chip'), doc.createTextNode(` ${sentences[0] || ''}`));
       structure.push(line, ...(counter ? [el(doc, 'p', counter, 'xr-structure-note')] : []), ...(named ? [opportunityNode(doc, root, lead, 'home-outlook-opportunity')] : []), toStructure);
     } else if (scenarios?.held) structure.push(el(doc, 'p', `지금 구조: 판단 보류 — ${scenarios.reason}`, 'xr-structure'));
     renderCrossroadsCompact({ documentRef: doc, root, regime, anchor: outlookBox, id: 'home-crossroads', structure, title: '지금 흐름과 다음 발표', headingLevel: 'h2' }); // v57.77 (a11y 1.3.1): home has no h2 before this block // P1742/P1745

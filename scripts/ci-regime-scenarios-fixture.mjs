@@ -151,9 +151,9 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   assert.ok(regime.axes.find((row) => row.id === 'volatility').read.includes('단, 한국은 10/13 코스피 -6.0%') && !regime.axes.find((row) => row.id === 'trend').read.includes('단, 한국은'), 'P1723/P1746 the rare Korean move is named once, on the volatility reading');
   assert.ok(!regimeCalm.axes.find((row) => row.id === 'trend').read.includes('단, 한국은'), 'P1723 an ordinary Korean day adds nothing to the US axis readings');
   const fxAxis = regime.axes.find((row) => row.id === 'korea');
-  assert.ok(fxAxis.basisStatus === 'mixed' && fxAxis.basis === '10/12~10/13' && fxAxis.evidence.find(([label]) => label === '코스피')[1].endsWith('· 10/13'), `P1725 the won/KOSPI card shows each value's own date (${JSON.stringify(fxAxis)})`);
+  assert.ok(fxAxis.basisStatus === 'mixed' && fxAxis.basis === '10/12~10/13' && fxAxis.evidence.find(([label]) => label === '코스피')[1].endsWith(', 10/13'), `P1725 the won/KOSPI card shows each value's own date (${JSON.stringify(fxAxis)})`);
   const oil = regime.axes.find((row) => row.id === 'commodities');
-  assert.ok(/WTI","84\.00달러 \(20일 -8\.7% · 최근 5일 \+5\.0% 반등\)/.test(JSON.stringify(oil.evidence)) && /최근 5일 \+5\.0% 반등했습니다\(판정은 20일 기준\)/.test(oil.read), `P1726 a 5-session WTI rebound is named beside the 20-session fall (${JSON.stringify(oil)})`);
+  assert.ok(/WTI","84\.00달러 \(20일 -8\.7%, 최근 5일 \+5\.0% 반등\)/.test(JSON.stringify(oil.evidence)) && /최근 5일 \+5\.0% 반등했습니다\(판정은 20일 기준\)/.test(oil.read), `P1726 a 5-session WTI rebound is named beside the 20-session fall (${JSON.stringify(oil)})`);
   assert.equal(oil.state, regimeCalm.axes.find((row) => row.id === 'commodities').state, 'P1726 the oil wording never changes the axis state');
   const daily = buildDailyChanges(rows, { now });
   const kospiMove = daily.moves.find((move) => move.key === 'kospi');

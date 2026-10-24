@@ -83,12 +83,12 @@ export function deriveSentimentViewModel({ values = {}, evidenceByMetric = {}, r
   if (fg.blocked || term.blocked) {
     narratives.push(narrative({ claimId: 'sentiment.composite', inputMetricIds: ['fearGreed', 'vix', 'vix9d', 'vix3m', 'vix6m'], inputEvidenceIds: evidenceIds(['fearGreed', 'vix']), text: '복합 판단 보류 — F&G 또는 VIX 기간구조 입력 미수신.', status: 'withheld' }));
   } else {
-    narratives.push(narrative({ claimId: 'sentiment.composite', inputMetricIds: ['fearGreed', 'vix', 'vix9d', 'vix3m', 'vix6m'], inputEvidenceIds: evidenceIds(['fearGreed', 'vix']), text: `Fear & Greed ${fg.score} (${fg.label}) · VIX 기간구조 ${term.regime}.`, status: 'reference' }));
+    narratives.push(narrative({ claimId: 'sentiment.composite', inputMetricIds: ['fearGreed', 'vix', 'vix9d', 'vix3m', 'vix6m'], inputEvidenceIds: evidenceIds(['fearGreed', 'vix']), text: `Fear & Greed ${fg.score} (${fg.label}), VIX 기간구조 ${term.regime}.`, status: 'reference' }));
   }
   if (spy.state === 'missing') {
     narratives.push(narrative({ claimId: 'sentiment.spy-vix-divergence', inputMetricIds: ['spyChg', 'vix'], inputEvidenceIds: evidenceIds(['vix']), text: 'SPY 등락 미수신 — 공포지수 vs 주가 동행·역행 판정 보류.', status: 'withheld' }));
   } else {
-    narratives.push(narrative({ claimId: 'sentiment.spy-vix-divergence', inputMetricIds: ['spyChg', 'vix'], inputEvidenceIds: evidenceIds(['vix']), text: `SPY ${spy.value >= 0 ? '+' : ''}${spy.value.toFixed(1)}% · VIX ${vix.value == null ? '미수신' : vix.value.toFixed(1)}.`, status: 'reference' }));
+    narratives.push(narrative({ claimId: 'sentiment.spy-vix-divergence', inputMetricIds: ['spyChg', 'vix'], inputEvidenceIds: evidenceIds(['vix']), text: `SPY ${spy.value >= 0 ? '+' : ''}${spy.value.toFixed(1)}%, VIX ${vix.value == null ? '미수신' : vix.value.toFixed(1)}.`, status: 'reference' }));
   }
   if (trading.state === 'withheld') {
     narratives.push(narrative({ claimId: 'sentiment.trading-score-link', inputMetricIds: ['tradingScoreTotal'], inputEvidenceIds: [], text: trading.text, status: 'withheld' }));

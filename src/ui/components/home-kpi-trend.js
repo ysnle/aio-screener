@@ -82,7 +82,7 @@ export function renderHomeKpiTrends({ documentRef: doc, root }) {
     const digits = cell.field === 'tnx' ? 2 : lo >= 100 ? 0 : 2;
     box.setAttribute('data-observed-at', points[points.length - 1].date); // P1643
     box.tabIndex = 0; // U01
-    box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${sessions}거래일) · 기간 저점 ${lo.toFixed(digits)} · 고점 ${hi.toFixed(digits)} · 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다`;
+    box.title = `${cell.label} ${points[0].date} 종가 → ${points[points.length - 1].date} 종가 (${sessions}거래일), 기간 저점 ${lo.toFixed(digits)}, 고점 ${hi.toFixed(digits)}, 카드마다 세로 범위가 달라 카드끼리 높이를 비교하지 않습니다`;
     drawn += 1;
   }
   renderHomeParticipation({ documentRef: doc, root, history });
@@ -102,9 +102,9 @@ export function homeParticipationSeries(history = []) {
 // It sits first in #home-depth (the fold of scenarios and the guide follows it); without that host it keeps the old
 // anchor after the close comparison.
 export function participationTitle(spxMove, b0, b1) {
-  if (!Number.isFinite(b0) || !Number.isFinite(b1)) return '지수와 참여 종목 · 같은 기간';
-  if (spxMove > 0) return b1 < b0 ? '지수는 올랐는데, 참여 종목은 줄었어요' : '지수와 참여 종목이 함께 늘었어요';
-  return b1 < b0 ? '지수와 참여 종목이 함께 약해졌어요' : '지수는 약했지만, 참여 종목은 늘었어요';
+  if (!Number.isFinite(b0) || !Number.isFinite(b1)) return '지수와 참여 종목, 같은 기간';
+  if (spxMove > 0) return b1 < b0 ? '지수는 올랐지만 참여 종목은 줄었습니다' : '지수와 참여 종목이 함께 늘었습니다';
+  return b1 < b0 ? '지수와 참여 종목이 함께 약해졌습니다' : '지수는 약했지만 참여 종목은 늘었습니다';
 }
 
 function linkRow(doc, label, meta, onClick = null) {
@@ -148,8 +148,8 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
     ? ` (최근 20거래일은 ${b20.toFixed(0)}% → ${b1.toFixed(0)}%로 ${b1 > b20 ? '다시 넓어지는 중' : '다시 줄어드는 중'})` : '';
   const hasBreadth = b50In.length >= 2;
   const read = hasBreadth
-    ? `${spx.length - 1}거래일 동안 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${spxMove > 0 && b1 < b0 ? ' — 지수는 올랐지만 참여 종목은 줄었습니다' : spxMove > 0 && b1 >= b0 ? ' — 지수와 참여가 함께 늘었습니다' : spxMove <= 0 && b1 < b0 ? ' — 지수와 참여가 함께 약해졌습니다' : ' — 지수는 약했지만 참여는 늘었습니다'}${recentTurn}`
-    : `${spx.length - 1}거래일 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}% · 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다`;
+    ? `${spx.length - 1}거래일 동안 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}%, 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${spxMove > 0 && b1 < b0 ? ' — 지수는 올랐지만 참여 종목은 줄었습니다' : spxMove > 0 && b1 >= b0 ? ' — 지수와 참여가 함께 늘었습니다' : spxMove <= 0 && b1 < b0 ? ' — 지수와 참여가 함께 약해졌습니다' : ' — 지수는 약했지만 참여는 늘었습니다'}${recentTurn}`
+    : `${spx.length - 1}거래일 S&P 500 ${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}%, 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다`;
   const head = doc.createElement('div');
   head.className = 'sx-card__head home-participation-head';
   const title = doc.createElement('h2');
@@ -179,7 +179,7 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   };
   grid.append(
     card('S&P 500 종가', `${spxMove >= 0 ? '+' : ''}${spxMove.toFixed(1)}%`, createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
-    card('50일선 위 종목 비율 · 기준선 40%·60%', hasBreadth ? `${b0.toFixed(0)}% → ${b1.toFixed(0)}%` : '기록 수집 중', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
+    card('50일선 위 종목 비율, 기준선 40%·60%', hasBreadth ? `${b0.toFixed(0)}% → ${b1.toFixed(0)}%` : '기록 수집 중', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
   );
   // v57.76: the five same-session breadth cards repeated the 시장 폭 screen on the home; the two charts and their
   // one-line read stay, the counting basis folds, and one link leads to the full breadth screen.
@@ -195,10 +195,10 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   const counts = regime?.available ? regime.counts : null;
   const rows = doc.createElement('div');
   rows.className = 'sx-rows home-participation-rows';
-  const axisRow = linkRow(doc, '6개 축 근거와 읽은 값', counts ? `양호 ${counts.favorable} · 중립 ${counts.neutral} · 부담 ${counts.burden}` : '시장 상태');
+  const axisRow = linkRow(doc, '6개 축 근거와 읽은 값', counts ? `양호 ${counts.favorable}, 중립 ${counts.neutral}, 부담 ${counts.burden}` : '시장 상태');
   axisRow.dataset.action = 'showPage';
   axisRow.dataset.arg = 'signal';
-  const breadthRow = linkRow(doc, '시장 폭 상세', '50일선 · 200일선 · 신고가');
+  const breadthRow = linkRow(doc, '시장 폭 상세', '50일선, 200일선, 신고가');
   breadthRow.classList.add('home-breadth-link');
   breadthRow.dataset.action = 'showPage';
   breadthRow.dataset.arg = 'breadth';

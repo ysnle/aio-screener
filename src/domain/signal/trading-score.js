@@ -359,7 +359,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const components = deriveTradingScoreComponents(score);
   const optionalLabels = { vvix: 'VVIX', pcr: 'Put/Call', hyBp: '하이일드 스프레드', oilPrice: 'WTI' };
   const optionalMissing = Array.isArray(score.missingOptionalInputs) ? score.missingOptionalInputs : [];
-  const optionalText = optionalMissing.length ? ` 보조 입력 미수신: ${optionalMissing.map(key => optionalLabels[key] || key).join(' · ')}.` : '';
+  const optionalText = optionalMissing.length ? ` 보조 입력 미수신: ${optionalMissing.map(key => optionalLabels[key] || key).join(', ')}.` : '';
   // P1118: the published total is not the weighted component sum — post-composite
   // adjustments and the [5,100] clamp move it afterwards. Carry the exact terms into the
   // presentation so the visible hero can reconcile the components it already shows with
@@ -370,7 +370,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
     : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
   const decisionEligible = score?.decisionEligible === true && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED;
   const missingLabels = { volatility: '변동성', momentum: '위험선호', trend: '추세', breadth: '시장 폭', macro: '거시' };
-  const missingText = missing.map((key) => missingLabels[key] || key).join(' · ');
+  const missingText = missing.map((key) => missingLabels[key] || key).join(', ');
   const reasons = missing.map((key) => `missing:${key}`);
   // P1328: the basis the inputs were read on (e.g. "9/28 미국 정규장 종가 기준") is part of the statement.
   const basisLabel = score?.closeBasis?.label || '';
@@ -388,7 +388,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       components,
       breakdown,
       decision: '점수 보류 — 확정 종가 근거 부족',
-      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText || '시장 환경'}: 확정 종가 기준의 필수 근거가 부족해 점수를 보류합니다. 개별 관측값은 별도로 확인하세요.${optionalText}`,
+      description: `${basisLabel ? `${basisLabel}, ` : ''}${missingText || '시장 환경'}: 확정 종가 기준의 필수 근거가 부족해 점수를 보류합니다. 개별 관측값은 별도로 확인하세요.${optionalText}`,
       reasons: Object.freeze(['required-input-missing', ...reasons])
     });
   }
@@ -413,7 +413,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       components,
       breakdown,
       basisLabel,
-      decision: `시장환경 관찰 — ${CONDITION_BAND_LABELS[conditionBand]} 구간 · 예측 검증 미확립`,
+      decision: `시장환경 관찰 — ${CONDITION_BAND_LABELS[conditionBand]} 구간, 예측 검증 미확립`,
       description: `${basisLabel ? `${basisLabel}. ` : ''}${missingText ? `${missingText} 자료가 없어 나머지 항목(${breakdown?.availableWeight ?? '—'}점 만점)을 100점으로 환산했습니다. ` : ''}변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다.${optionalText}`,
       reasons: Object.freeze(['predictive-validation-not-established', ...reasons])
     });
@@ -433,7 +433,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       breakdown,
       basisLabel,
       decision: '판정 보류 — 부분 데이터 점수',
-      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText || '일부 입력'} 제외 · 수신된 입력만 반영한 참고 점수입니다.`,
+      description: `${basisLabel ? `${basisLabel}, ` : ''}${missingText || '일부 입력'} 제외, 수신된 입력만 반영한 참고 점수입니다.`,
       reasons: Object.freeze(['partial-inputs', ...reasons])
     });
   }

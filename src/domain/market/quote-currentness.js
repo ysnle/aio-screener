@@ -44,13 +44,13 @@ export function describeQuoteCurrentness({ observations = [], nowMs = Date.now()
   const durable = Number.isFinite(durableCount) && durableCount > 0 ? durableCount : null;
   const suffix = durable != null
     // v57.55 review (E2-18): '시세 16종 (라이브 17종)' read as 17 of 16 — they are two different sets, named as such.
-    ? ` · 시세 ${durable}종` + (count ? ` · 실시간 관측 ${count}종` : '')
-    : (count ? ` · 시세 ${count}종` : '');
+    ? `, 시세 ${durable}종` + (count ? `, 실시간 관측 ${count}종` : '')
+    : (count ? `, 시세 ${count}종` : '');
   if (basis?.inSession) {
-    if (ageMs <= LIVE_MAX_MS) return result('live', 'LIVE', `${at.hm} 기준${suffix}`, `미국 정규장 중 · 최신 관측 ${at.md} ${at.hm} KST`);
-    if (ageMs <= DELAYED_MAX_MS) return result('delayed', '지연', `${Math.round(ageMs / 60000)}분 전${suffix}`, `미국 정규장 중 · 최신 관측 ${at.md} ${at.hm} KST`);
+    if (ageMs <= LIVE_MAX_MS) return result('live', 'LIVE', `${at.hm} 기준${suffix}`, `미국 정규장 중, 최신 관측 ${at.md} ${at.hm} KST`);
+    if (ageMs <= DELAYED_MAX_MS) return result('delayed', '지연', `${Math.round(ageMs / 60000)}분 전${suffix}`, `미국 정규장 중, 최신 관측 ${at.md} ${at.hm} KST`);
   } else if (basis && newestMs >= basis.closeMs - 5 * 60000) {
-    return result('close', '종가', `${mdOf(basis.date)} 마감${suffix}`, `미국 정규장 마감 · ${mdOf(basis.date)} 종가 기준 (최신 관측 ${at.md} ${at.hm} KST)`);
+    return result('close', '종가', `${mdOf(basis.date)} 마감${suffix}`, `미국 정규장 마감, ${mdOf(basis.date)} 종가 기준 (최신 관측 ${at.md} ${at.hm} KST)`);
   }
-  return result('stale', '지난 시세', `${at.md} ${at.hm}${suffix}`, `최신 관측이 ${basis?.inSession ? '90분 이상 지났습니다' : `${basis ? mdOf(basis.date) + ' 종가보다 오래됐습니다' : '거래 캘린더로 확인되지 않습니다'}`} · 증권사 앱에서 현재가를 확인하세요.`);
+  return result('stale', '지난 시세', `${at.md} ${at.hm}${suffix}`, `최신 관측이 ${basis?.inSession ? '90분 이상 지났습니다' : `${basis ? mdOf(basis.date) + ' 종가보다 오래됐습니다' : '거래 캘린더로 확인되지 않습니다'}`}, 증권사 앱에서 현재가를 확인하세요.`);
 }

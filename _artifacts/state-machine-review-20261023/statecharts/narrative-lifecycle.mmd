@@ -1,0 +1,36 @@
+---
+title: 홈 AI 시황 해설 카드의 상태 (실제 생성기 연속 실행 전수 탐색)
+---
+flowchart TD
+  start(("해설 없음")):::start
+  fresh["새로 검증된 해설"]:::works
+  reused["검증된 해설 재사용"]:::works
+  retained["직전 검증본 표시 (HH:MM 기준)"]:::works
+  fallback["확인된 지표만 표시"]:::works
+  unverified["검증 안 된 해설이 검증본처럼 표시"]:::bug
+  fallback -->|"같은 막힌 입력인데 모델을 다시 호출 (P2000 이전 코드)"| fresh
+  fallback -->|"레인 격리: 직전 게시본으로 되돌림 (P1986 이전 코드)"| unverified
+  fallback -->|"막힌 입력 그대로 → 모델 호출 없음 (수정 후)"| fallback
+  fallback -->|"레인 격리: 되돌릴 검증본 없음 (수정 후)"| start
+  fallback -->|"모델 답 불합격"| fallback
+  fallback -->|"모델 답 검증 통과"| fresh
+  fresh -->|"검증본이 12시간 넘게 지나 모델 답 불합격"| fallback
+  fresh -->|"검증본이 12시간 넘게 지나 모델 답 검증 통과<br/>모델 답 검증 통과"| fresh
+  fresh -->|"레인 격리: 직전 게시본으로 되돌림<br/>모델 답 불합격"| retained
+  fresh -->|"자료 변화 없음 → 모델 호출 없이 재사용"| reused
+  retained -->|"검증본이 12시간 넘게 지나 막힌 입력 그대로 → 모델 호출 없음<br/>검증본이 12시간 넘게 지나 모델 답 불합격"| fallback
+  retained -->|"검증본이 12시간 넘게 지나 모델 답 검증 통과<br/>모델 답 검증 통과"| fresh
+  retained -->|"레인 격리: 직전 게시본으로 되돌림<br/>막힌 입력 그대로 → 모델 호출 없음<br/>모델 답 불합격"| retained
+  reused -->|"검증본이 12시간 넘게 지나 모델 답 불합격"| fallback
+  reused -->|"검증본이 12시간 넘게 지나 모델 답 검증 통과<br/>모델 답 검증 통과"| fresh
+  reused -->|"레인 격리: 직전 게시본으로 되돌림<br/>모델 답 불합격"| retained
+  reused -->|"자료 변화 없음 → 모델 호출 없이 재사용"| reused
+  start -->|"모델 답 불합격"| fallback
+  start -->|"모델 답 검증 통과"| fresh
+  linkStyle 0 stroke:#c0392b,stroke-width:2px,color:#c0392b
+  linkStyle 1 stroke:#c0392b,stroke-width:2px,color:#c0392b
+  linkStyle 2 stroke:#1e8449,stroke-width:2px,color:#1e8449
+  linkStyle 3 stroke:#1e8449,stroke-width:2px,color:#1e8449
+  classDef start fill:#333,stroke:#333,color:#fff
+  classDef works fill:#f2f2f2,stroke:#888,color:#222
+  classDef bug fill:#fdecea,stroke:#c0392b,color:#c0392b

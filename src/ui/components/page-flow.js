@@ -57,7 +57,7 @@ export function renderNextSteps(doc, host, items = []) {
     label.textContent = '이어서 볼 곳';
     const names = doc.createElement('span');
     names.className = 'flow-next-names';
-    names.textContent = items.map((item) => item.label).join(' · ');
+    names.textContent = items.map((item) => item.label).join(', ');
     summary.append(label, names);
     fold.append(summary, list);
     host.append(fold);

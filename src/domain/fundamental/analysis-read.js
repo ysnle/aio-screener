@@ -35,7 +35,7 @@ const DAY_MS = 86400000;
 export function annualStaleReason({ periodEnd, fundamentals = null, nowMs = Date.now(), shares = false } = {}) {
   const end = Date.parse(String(periodEnd || ''));
   const label = periodEnd ? fyLabel(periodEnd) : '연간 공시';
-  const old = `최근 연간 공시가 오래돼 계산하지 않음 · ${label}`;
+  const old = `최근 연간 공시가 오래돼 계산하지 않음, ${label}`;
   if (!Number.isFinite(end)) return old;
   if (fundamentals?.quality?.stale === true) return old;
   if ((nowMs - end) / DAY_MS > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) return old;

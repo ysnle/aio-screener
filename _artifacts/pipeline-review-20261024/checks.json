@@ -1,0 +1,65 @@
+[
+  {
+    "command": "node scripts/ci-qa-pipeline-contract-check.mjs",
+    "exitCode": 0,
+    "elapsedMs": 1058,
+    "stdout": "QA pipeline contract OK: 197 gates, phased aggregation, impact cache, isolated Pages and external watchdog.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/ci-release-manifest-contract.mjs",
+    "exitCode": 0,
+    "elapsedMs": 124,
+    "stdout": "{\"ok\":true,\"appRevision\":\"v58.73\",\"dataRevision\":\"market-snapshot:2026-10-23T07:25:55.503Z:aed72736\",\"evidenceRevision\":\"evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1\",\"workerRevision\":\"sw:v58.73\",\"rollback\":\"revision-pinned\"}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/ci-operations-contract-check.mjs",
+    "exitCode": 0,
+    "elapsedMs": 160,
+    "stdout": "{\n  \"ok\": true,\n  \"version\": \"v58.73\",\n  \"workflowCount\": 13,\n  \"actionCount\": 62,\n  \"routeCount\": 19,\n  \"stateCount\": 5,\n  \"routeSoak\": \"pending\",\n  \"errors\": []\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/ci-operations-alert-policy-check.mjs",
+    "exitCode": 0,
+    "elapsedMs": 161,
+    "stdout": "[operations-alert-policy] PASS — three deterministic alert policies, calendar boundaries, unknown evidence, and immutability\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/ci-operations-alert-source-check.mjs",
+    "exitCode": 0,
+    "elapsedMs": 198,
+    "stdout": "[operations-alert-source] PASS — 19 traced assertions; injected fetch/clock only; no evidence persisted\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/ci-cloudflare-deployment-contract-check.mjs",
+    "exitCode": 0,
+    "elapsedMs": 653,
+    "stdout": "Cloudflare deployment contract OK: exact-CI auto-deploy, independent Worker identity, captured-version smoke rollback, source gate and health verification.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/ci-deployment-convergence-check.mjs",
+    "exitCode": 0,
+    "elapsedMs": 108,
+    "stdout": "{\"ok\":true,\"status\":\"SOURCE_CONTRACTED_LIVE_OPERATOR_REQUIRED\",\"planes\":[\"pages\",\"aiProxy\",\"fastDataPlane\"],\"liveCertification\":\"OPERATOR_REQUIRED\"}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/ci-knowledge-currentness-separation.mjs",
+    "exitCode": 0,
+    "elapsedMs": 111,
+    "stdout": "{\n  \"status\": \"PASS_WITH_BOUNDARY\",\n  \"bundles\": [\n    {\n      \"kind\": \"coverage\",\n      \"count\": 455\n    },\n    {\n      \"kind\": \"research\",\n      \"count\": 455\n    },\n    {\n      \"kind\": \"domain\",\n      \"count\": 19\n    }\n  ],\n  \"quantitativeLabs\": \"EXCLUDED_BY_PRODUCT_SCOPE\",\n  \"completionReady\": false,\n  \"failures\": []\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/ci-knowledge-core-semantic-check.mjs",
+    "exitCode": 0,
+    "elapsedMs": 172,
+    "stdout": "{\n  \"status\": \"PASS\",\n  \"principles\": {\n    \"nodes\": 60,\n    \"edges\": 71,\n    \"components\": [\n      60\n    ],\n    \"isolated\": 0\n  },\n  \"atlas\": {\n    \"nodes\": 95,\n    \"edges\": 98,\n    \"components\": [\n      95\n    ],\n    \"isolated\": 0\n  },\n  \"evidence\": {\n    \"registered\": 202,\n    \"referenced\": 74,\n    \"unresolved\": 0,\n    \"conflicts\": 0\n  },\n  \"capabilityIsolation\": {\n    \"available\": \"connected\",\n    \"missing\": \"fallback\"\n  },\n  \"ontology\": {\n    \"concepts\": 212,\n    \"aliases\": 1142\n  },\n  \"claimDirectness\": {\n    \"sources\": 202,\n    \"claims\": 274,\n    \"unresolved\": 0,\n    \"duplicates\": 0\n  },\n  \"failures\": []\n}\n",
+    "stderr": ""
+  }
+]

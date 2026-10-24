@@ -1,5 +1,6 @@
 /* P1618: preserve the desktop terminal; compact screens use a navigation drawer.
    Dense financial tables retain their columns in local, keyboard-accessible scroll regions. */
+@import url('./radix-colors.css'); /* owner 2026-10-23: Radix Colors v3 scales, read by every token below */
 @import url('./layout-primitives.css');
 @import url('./entity-quality.css');
 @import url('./screener-quality.css');
@@ -35,7 +36,7 @@
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
    (thin rule 8px, strong rule 20px, no rule — the subtitle then touched the first section's rule), and a
    first section that draws its own top rule doubled the header rule. */
-.page-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-strong); padding-bottom: 18px; margin: 0 0 20px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 0.5px solid var(--border-strong); padding-bottom: 18px; margin: 0 0 20px; }
 .page-head--stack { display: block; }
 .page-head .macro-next-release { margin: 4px 0 0; }
 .page-head + .briefing-block,
@@ -48,9 +49,9 @@
 /* UI review 2026-10-18: one look for every "pick a view" toggle. The screens used four (grey square chips, outlined
    rectangles, a pill group, filled pills); all now read as outlined pills with the chosen one filled in ink. */
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button) {
-  display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-sans); font-size: 13px; line-height: 1.3; min-height: 32px; padding: 5px 13px;
-  border: 1px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--text-secondary);
-  font-weight: 500; cursor: pointer; transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+  display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-sans); font-size: 12px; line-height: 1.3; min-height: 32px; padding: 5px 13px;
+  border: 0.5px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--text-secondary);
+  font-weight: 500; cursor: pointer; 
 }
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button):hover { border-color: var(--text-secondary); color: var(--text-primary); }
 .page :is(.news-sort-btn.active, .news-sort-btn[aria-pressed="true"], .sector-map-tab.is-active, .stock-chart-intervals button[aria-pressed="true"], .regime-chart-selectors button[aria-pressed="true"]) {
@@ -60,10 +61,10 @@
 #rrg-view-tabs, #sector-perf-view-tabs, #sector-perf-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 /* The quadrant count beside those toggles is a reading, not a control: plain text, so it is not mistaken for a fourth button. */
 .page-head #theme-cycle-pill { background: none; border: 0; padding: 0; font-size: 12px; font-weight: 500; color: var(--text-muted); }
-.regime-kr-participation { margin:24px 0; padding:24px; border:1px solid var(--border); border-radius:8px; font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
+.regime-kr-participation { margin:24px 0; padding:24px; border:0.5px solid var(--border); border-radius:8px; font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
 /* v57.55 cleanup: one type scale — page 27 · section 18 (.briefing-h2) · card 16 · sub 14. This block used browser h2/h3 sizes (21px). */
 .regime-kr-participation > h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0 0 12px; }
-.regime-kr-participation > h3 { font-size: 15px; font-weight: 700; margin: 16px 0 6px; }
+.regime-kr-participation > h3 { font-size: 14px; font-weight: 700; margin: 16px 0 6px; }
 .regime-kr-metrics { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:8px 20px; }
 .regime-kr-metrics dd { margin:0; font-variant-numeric:tabular-nums; }
 .regime-kr-tickers { color:var(--text-secondary); font-size:12px; overflow-wrap:anywhere; }
@@ -82,7 +83,7 @@
 #glossary-modal > div { max-height: min(86vh, calc(var(--aio-visual-height, 100dvh) * .86)) !important; }
 #glossary-modal [data-action="_aioCloseGlossary"] { min-width: 24px; min-height: 24px; }
 /* v57.81: glossary category tags were 10px; 11px is the text floor. */
-#glossary-body .aio-glossary-item > div:first-child > span:not(.aio-glossary-term) { font-size: 11px !important; }
+#glossary-body .aio-glossary-item > div:first-child > span:not(.aio-glossary-term) { font-size: 12px !important; }
 /* v57.81 (WCAG 2.5.8): the 오늘 sector rows (20px), the 시장 상태 regime values (22px) and the 재무 공시 source link (14px)
    open or lead somewhere on tap; each is at least 24px tall on every device. */
 .home-sector-bars li[tabindex], .regime-radar-table dd[tabindex] { min-height: 24px; box-sizing: border-box; }
@@ -107,7 +108,7 @@
 /* 시장 상태 한국 참고: label and value sit close together instead of at the two ends of the page. */
 .regime-kr-metrics { max-width: 640px; }
 #breadth-chart-grid > .breadth-more { grid-column: 1 / -1; min-width: 0; }
-.breadth-more > summary { cursor: pointer; width: max-content; max-width: 100%; padding: 12px 0; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.breadth-more > summary { cursor: pointer; width: max-content; max-width: 100%; padding: 12px 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .breadth-more > .breadth-more-grid { margin-top: 4px; }
 /* 2026-10-19 layout system: the ETF / corporate-action note in the breadth drill list (src/ui/components/breadth-board.js); old inline 10px reads --fs-xs. */
 .page .breadth-drill-ca { font-size: var(--fs-xs); color: var(--data-amber); line-height: 1.5; }
@@ -122,11 +123,11 @@
     position: fixed; inset: 0 auto 0 0; width: min(300px, 86vw); min-width: 0;
     height: 100dvh; z-index: 310; transform: translateX(-100%);
     overflow-y: auto; padding: 0; border-right: 1px solid var(--border);
-    transition: transform .2s ease; visibility: hidden;
+    transition:transform 250ms ease-out; visibility: hidden;
   }
   body.aio-navigation-open .sidebar { transform: translateX(0); visibility: visible; }
-  .aio-navigation-close { display: block; align-self: flex-end; margin: 8px; padding: 8px 12px; min-height: 44px; color: var(--text-primary); background: var(--bg-surface); border: 1px solid var(--border); border-radius: 4px; }
-  .aio-navigation-backdrop { position: fixed; inset: 0; z-index: 300; border: 0; background: rgb(0 0 0 / .45); }
+  .aio-navigation-close { display: block; align-self: flex-end; margin: 8px; padding: 8px 12px; min-height: 44px; color: var(--text-primary); background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 4px; }
+  .aio-navigation-backdrop { position: fixed; inset: 0; z-index: 300; border: 0; background: var(--black-a6); }
   body.aio-navigation-open .aio-navigation-backdrop { display: block; }
   #sidebar-toggle-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
 }
@@ -187,7 +188,7 @@
   /* v57.54: "서버 10/13 2…" was cut mid-time. The phone shows only the compact time the writer derives
      (data-compact, e.g. "10/13 22:20"); the full sentence stays the element's text and title for readers. */
   #live-quote-ts[data-compact]:not([data-compact=""]) { font-size: 0 !important; text-overflow: clip; }
-  #live-quote-ts[data-compact]:not([data-compact=""])::after { content: attr(data-compact); font-size: 11px; font-variant-numeric: tabular-nums; }
+  #live-quote-ts[data-compact]:not([data-compact=""])::after { content: attr(data-compact); font-size: 12px; font-variant-numeric: tabular-nums; }
   /* Room for that time at 360px: tighter chips and gaps (help/AI keep their 44px height). */
   .topbar-actions-right { column-gap: 4px !important; }
   #topbar-live-badge { padding-inline: 6px !important; }
@@ -220,7 +221,7 @@
   .page .theme-detail-flow .stock-read-bar-value { min-width: 0; white-space: normal; overflow: visible; text-overflow: clip; }
   body #ai-panel { width: 100%; border-left: 0; }
   .ai-ph { padding: 10px 12px; flex-wrap: wrap; }
-  .ai-ph-badge { font-size: 11px; } /* v57.81: 11px text floor (was 10px) */
+  .ai-ph-badge { font-size: 12px; } /* v57.81: 11px text floor (was 10px) */
   #ai-panel-policy { flex-shrink: 0; }
   .ai-chips { max-height: 110px; overflow-y: auto; }
   .ai-chip { min-height: 36px; }
@@ -312,32 +313,31 @@ body { word-break: keep-all; overflow-wrap: break-word; }
    backgrounds cannot cover it. Keyboard focus drops the mask so the focus ring stays whole. Wide desktop pointers keep
    the plain scroll region. */
 @media (pointer: coarse), (max-width: 1100px) {
-  .aio-table-scroll.has-more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
-  .aio-table-scroll.has-more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to left, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
-  .aio-table-scroll.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / .18), #000 32px, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, rgb(0 0 0 / .18), #000 32px, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  .aio-table-scroll.has-more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); }
+  .aio-table-scroll.has-more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to left, #000 calc(100% - 32px), var(--black-a4)); }
+  .aio-table-scroll.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(to right, var(--black-a4), #000 32px, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to right, var(--black-a4), #000 32px, #000 calc(100% - 32px), var(--black-a4)); }
   .aio-table-scroll:focus-visible { -webkit-mask-image: none; mask-image: none; }
   /* The portfolio hero's lesson links ("원리 레슨 · 포지션 사이징") ran past an iPad screen on one line; they wrap. */
   #page-portfolio .flow-next-link { white-space: normal; text-align: left; }
 }
 /* The phone screener header is a sideways sort bar (screener-quality.css); only a clipped "3" said it scrolled. */
 @media (max-width: 599px) {
-  #screener-results-table .scr-registry-header.has-more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
-  #screener-results-table .scr-registry-header.has-more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to left, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
-  #screener-results-table .scr-registry-header.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / .18), #000 32px, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, rgb(0 0 0 / .18), #000 32px, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  #screener-results-table .scr-registry-header.has-more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); }
+  #screener-results-table .scr-registry-header.has-more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to left, #000 calc(100% - 32px), var(--black-a4)); }
+  #screener-results-table .scr-registry-header.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(to right, var(--black-a4), #000 32px, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to right, var(--black-a4), #000 32px, #000 calc(100% - 32px), var(--black-a4)); }
 }
 /* v57.81: on a phone the holdings table scrolls and 수정/삭제 sit in its last column. The 종목 column stays pinned, so a
    row's actions are reached with the name still in view; the left fade gives way to the pinned column's edge shadow. */
 @media (max-width: 700px) {
   #page-portfolio .aio-table-scroll > table :is(th, td):first-child:not([colspan]) { position: sticky; left: 0; z-index: 1; background: var(--bg-card); }
   #page-portfolio .aio-table-scroll > table th:first-child:not([colspan]) { background: linear-gradient(var(--surface-1), var(--surface-1)), linear-gradient(var(--surface-1), var(--surface-1)) var(--bg-card); } /* th and its row both paint surface-1 */
-  #page-portfolio .aio-table-scroll.has-more-left { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), rgb(0 0 0 / .18)); }
+  #page-portfolio .aio-table-scroll.has-more-left { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); }
   #page-portfolio .aio-table-scroll.has-more-left:not(.has-more-right) { -webkit-mask-image: none; mask-image: none; }
-  #page-portfolio .aio-table-scroll.has-more-left > table :is(th, td):first-child:not([colspan]) { box-shadow: 6px 0 6px -6px rgba(var(--ink-rgb), .45); }
+  #page-portfolio .aio-table-scroll.has-more-left > table :is(th, td):first-child:not([colspan]) { box-shadow:none; }
 }
 /* v57.55 review (E3-F6/F7): dark-mode contrast. The active screener chip kept the light-theme "dark text on solid
    accent" override over a 5% white surface (1.0:1); amber badges and chips hard-code #57513f, which is ~2.3:1 on the
    dark base; and the red token sat near 4.0:1 on cards at 12-14px. */
-body.dark-theme { --data-red: #e0685d !important; --red: #e0685d !important; }
 body.dark-theme #page-screener .scr-screen-chip.active { color: var(--accent) !important; }
 body.dark-theme .aio-badge.is-amber,
 body.dark-theme .sp-neutral,
@@ -355,11 +355,11 @@ body.dark-theme .scr-star.active { color: var(--text-secondary) !important; }
 /* Live review 2026-10-14: vertical padding on an inline box widens the tap area to about 26px without moving the line box (1.2em content + 2 x (13px - 0.6em)). */
 .aio-term { font: inherit; color: inherit; background: none; border: 0; padding: max(2px, calc(13px - 0.6em)) 0; margin: 0; cursor: help; text-decoration: underline dotted; text-decoration-color: var(--text-muted); text-underline-offset: 3px; display: inline; min-height: 0 !important; }
 .aio-term:hover, .aio-term:focus-visible { text-decoration-color: var(--text-primary); }
-.aio-term-pop { position: fixed; z-index: 300; max-width: calc(100vw - 16px); box-sizing: border-box; padding: 12px 14px; border: 1px solid var(--border-strong, var(--border)); border-radius: 6px; background: var(--bg-elevated, var(--bg-card)); color: var(--text-primary); box-shadow: 0 6px 20px rgba(0,0,0,0.14); font-size: 13px; line-height: 1.6; }
+.aio-term-pop { position: fixed; z-index: 300; max-width: calc(100vw - 16px); box-sizing: border-box; padding: 12px 14px; border: 0.5px solid var(--border-strong, var(--border)); border-radius: 8px; background: var(--bg-elevated, var(--bg-card)); color: var(--text-primary); box-shadow:none; font-size: 12px; line-height: 1.6; }
 .aio-term-pop strong { display: block; margin-bottom: 4px; font-size: 14px; }
 .aio-term-pop p { margin: 0 0 8px; color: var(--text-secondary); }
 body.aio-term-pop-open #scroll-top-btn { display: none !important; }
-.aio-term-more { font: inherit; font-size: 12px; min-height: 28px; padding: 2px 10px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-primary); cursor: pointer; }
+.aio-term-more { font: inherit; font-size: 12px; min-height: 28px; padding: 2px 10px; border: 0.5px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-primary); cursor: pointer; }
 
 /* v57.79 review: an empty portfolio (no holdings, no cash) collapses the hero strip to one empty-state line. */
 #pf-hero.is-empty > :not(#pf-hero-empty) { display: none !important; }
@@ -372,18 +372,18 @@ body.aio-term-pop-open #scroll-top-btn { display: none !important; }
 .pf-allocation-grid { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); gap: 12px; margin-bottom: 14px; }
 .pf-allocation-card { min-width: 0; box-sizing: border-box; }
 .pf-cash-row { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: center; gap: 6px; margin-bottom: 6px; font-size: 12px; color: var(--text-secondary); text-align: left; }
-.pf-cash-row > input { width: 100%; min-width: 0; box-sizing: border-box; padding: 6px 10px; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 12px; font-family: var(--font-mono); }
-.pf-cash-total { font-size: 11px; line-height: 1.5; color: var(--text-muted); text-align: left; overflow-wrap: anywhere; }
+.pf-cash-row > input { width: 100%; min-width: 0; box-sizing: border-box; padding: 6px 10px; background: var(--surface-3); border: 0.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 12px; font-family: var(--font-mono); }
+.pf-cash-total { font-size: 12px; line-height: 1.5; color: var(--text-muted); text-align: left; overflow-wrap: anywhere; }
 .pf-cash-total:empty { display: none; }
 @media (max-width: 640px) { .pf-allocation-grid { grid-template-columns: minmax(0, 1fr); } }
-@media (pointer: coarse) { .pf-cash-row > input { min-height: 44px; font-size: 16px; } }
+@media (pointer: coarse) { .pf-cash-row > input { min-height: 44px; font-size: 14px; } }
 /* v57.81: an empty portfolio keeps 비중·섹터 for the cash boxes; the blank donut and its legend stay hidden until a holding exists. */
 #pf-main.is-empty .pf-donut-box, #pf-main.is-empty #pf-donut-legend { display: none; }
 /* v57.91 (phone/iPad readability audit): sentence-length text set at 11px — the folded-section titles (한국 시장 — 한국
    거시 …, 관심종목 리스트 · 위험 계산 …), the theme-strength footnote and the sector status pill — read at 12px. Short
    labels and chips keep 11px. The theme compare button (26px tall in a table cell) gets a touch-sized target. */
 .aio-page-advanced-toggle > summary { font-size: 12px; }
-.aio-page-advanced-toggle > summary:after { font-size: 11px; }
+.aio-page-advanced-toggle > summary:after { font-size: 12px; }
 .theme-strength-theme { font-size: 12px; }
 .status-pill { font-size: 12px !important; }
 @media (pointer: coarse), (max-width: 1100px) {
@@ -407,9 +407,9 @@ body.aio-term-pop-open #scroll-top-btn { display: none !important; }
   .page .theme-strength-table { display: block; min-width: 0 !important; width: 100%; }
   .page .theme-strength-table > thead { display: none; }
   .page .theme-strength-table > tbody { display: block; }
-  .page .theme-strength-table > tbody > tr { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 10px; position: relative; padding: 10px 12px 10px 40px; border-bottom: 1px solid var(--border); }
+  .page .theme-strength-table > tbody > tr { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 10px; position: relative; padding: 10px 12px 10px 40px; border-bottom: 0.5px solid var(--border); }
   .page .theme-strength-table > tbody > tr > td { display: block; min-width: 0 !important; padding: 0 !important; border: 0; text-align: left !important; white-space: nowrap; background: transparent; font-size: 12px; }
-  .page .theme-strength-table > tbody > tr > td[data-label]::before { content: attr(data-label); display: block; font-size: 11px; font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
+  .page .theme-strength-table > tbody > tr > td[data-label]::before { content: attr(data-label); display: block; font-size: 12px; font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
   .page .theme-strength-table > tbody > tr > td:is([data-label="순위"], [data-label="하위 테마"])::before { content: none; }
   .page .theme-strength-table > tbody > tr > td[data-label="순위"] { position: absolute; left: 12px; top: 10px; font-weight: 600; }
   .page .theme-strength-table > tbody > tr > td:is([data-label="하위 테마"], [data-label="구성 종목 전체"]) { grid-column: 1 / -1; white-space: normal; }
@@ -436,7 +436,7 @@ body.aio-term-pop-open #scroll-top-btn { display: none !important; }
 /* v57.91 (visual readability audit): the big-move tiles on home carried an unexplained accent border; it now reads as a
    quieter outline with the word cue beside the label. The theme rank cards (above) also match the renamed 세부 테마 column. */
 .page .daily-move.is-big { border-color: var(--border-strong); }
-.page .daily-move.is-big .daily-move-label::after { content: ' · 큰 폭'; color: var(--text-secondary); }
+.page .daily-move.is-big .daily-move-label::after { content: ', 큰 폭'; color: var(--text-secondary); }
 @media (max-width: 599px) {
   .page .theme-strength-table > tbody > tr > td[data-label="세부 테마"]::before { content: none; }
   .page .theme-strength-table > tbody > tr > td[data-label="세부 테마"] { grid-column: 1 / -1; white-space: normal; }
@@ -446,14 +446,14 @@ body.aio-term-pop-open #scroll-top-btn { display: none !important; }
 .page svg.macro-quadrant { max-width: min(100%, 440px); margin-inline: auto; }
 /* v57.91 (desktop audit): the main 분석 button was a small pale 11px chip beside heavier quick picks; it is the primary
    action in ink. .btn-accent pins 11px with !important, hence the override here. */
-#page-ticker .btn-accent[data-action="tickerDirectSearchFromInput"] { background: var(--text-primary); color: var(--bg-base); border: 1px solid var(--text-primary); border-radius: 4px; font-size: 14px !important; font-weight: 600; padding: 8px 16px; }
+#page-ticker .btn-accent[data-action="tickerDirectSearchFromInput"] { background: var(--text-primary); color: var(--bg-base); border: 0.5px solid var(--text-primary); border-radius: 4px; font-size: 14px !important; font-weight: 600; padding: 8px 16px; }
 /* v57.91 (desktop audit): the empty-portfolio storage notice ran as one ~850px grey line; its lines stop at 60ch, centred. */
 #page-portfolio .pf-empty-state td > div { max-width: 60ch; margin-inline: auto; }
 /* 2026-10-18 UI review (visual pass 2) */
 /* News country/topic filters join the one toggle style; the grey box around them goes (inline styles from the legacy
    writer, hence !important). Selection reads from aria-pressed, which src/ui/pages/news.js keeps in sync. */
 #news-filter-row { background: transparent !important; border: 0 !important; padding: 0 !important; gap: 8px 18px !important; }
-#news-filter-row .chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px !important; font-size: 12.5px !important; border: 1px solid var(--border-strong) !important; border-radius: 999px !important; background: transparent !important; color: var(--text-secondary) !important; }
+#news-filter-row .chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px !important; font-size: 12px !important; border: 0.5px solid var(--border-strong) !important; border-radius: 999px !important; background: transparent !important; color: var(--text-secondary) !important; }
 #news-filter-row .chip:hover { color: var(--text-primary) !important; border-color: var(--text-secondary) !important; }
 #news-filter-row .chip[aria-pressed="true"] { background: var(--text-primary) !important; border-color: var(--text-primary) !important; color: var(--bg-card) !important; }
 #news-filter-row .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -461,17 +461,17 @@ body.aio-term-pop-open #scroll-top-btn { display: none !important; }
 .trend-chart-wrap { container-type: inline-size; }
 @container (max-width: 380px) { .page .trend-chart-wrap .trend-chart-axis { font-size: 17px; } }
 /* Stock chart evidence: label above value in the 320px side panel, instead of a squeezed two-column list. */
-#stock-chart-evidence .regime-evidence { display: block; font-size: 13px; }
+#stock-chart-evidence .regime-evidence { display: block; font-size: 12px; }
 #stock-chart-evidence .regime-evidence dt { color: var(--text-muted); font-size: 12px; margin-top: 10px; }
 #stock-chart-evidence .regime-evidence dd { margin: 2px 0 0; line-height: 1.55; }
 /* Phone: the eight chart intervals fit on one line instead of scrolling the last two out of view. */
-@media (max-width: 520px) { .page .stock-chart-intervals { gap: 4px; } .page .stock-chart-intervals button { padding: 0 8px; min-height: 30px; font-size: 12.5px; } }
+@media (max-width: 520px) { .page .stock-chart-intervals { gap: 4px; } .page .stock-chart-intervals button { padding: 0 8px; min-height: 30px; font-size: 12px; } }
 /* Section headings with a trailing note (속보 · 잠정, 한국 시장 참고) squeezed both into half-width columns on phones and broke
    the heading mid-phrase; let the note drop to its own line instead. */
 .page .briefing-h2 { flex-wrap: wrap; row-gap: 2px; }
 
 /* v58.71: research-channel numbers above the channel notes (src/ui/components/channel-data.js). */
-.tg-data { border-bottom: 1px solid var(--border); padding: 2px 0 14px; margin-bottom: 14px; }
+.tg-data { border-bottom: 0.5px solid var(--border); padding: 2px 0 14px; margin-bottom: 14px; }
 .tg-data-head, .tg-data-sub { font-size: 12px; color: var(--text-muted); margin: 6px 0 4px; }
 .tg-data-reading { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin: 4px 0 8px; }
 .tg-data-leverage { max-width: 420px; }

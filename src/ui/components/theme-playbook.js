@@ -55,13 +55,13 @@ function momentumMap(doc, themes, size = 'wide', onPick = null) {
   const corner = (text, x, y, anchor) => { const t = svg(doc, 'text', { x, y, 'text-anchor': anchor, class: 'tp-quad' }); t.textContent = text; box.append(t); };
   corner('주도 지속', W - pad / 2, pad / 2 + 4, 'end'); corner('추세 속 조정', W - pad / 2, H - pad / 2 - 2, 'end');
   corner('반등 시도', pad / 2, pad / 2 + 4, 'start'); corner('약세 지속', pad / 2, H - pad / 2 - 2, 'start');
-  const axisLabel = svg(doc, 'text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'tp-axis-label' }); axisLabel.textContent = points.some((row) => row.relative) ? '긴 추세, 지수 대비 (미국 6개월 · 한국 3개월) →' : '긴 추세 (미국 6개월 · 한국 3개월) →'; box.append(axisLabel);
+  const axisLabel = svg(doc, 'text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'tp-axis-label' }); axisLabel.textContent = points.some((row) => row.relative) ? '긴 추세, 지수 대비 (미국 6개월, 한국 3개월) →' : '긴 추세 (미국 6개월, 한국 3개월) →'; box.append(axisLabel);
   const yLabel = svg(doc, 'text', { x: 12, y: H / 2, 'text-anchor': 'middle', class: 'tp-axis-label', transform: `rotate(-90 12 ${H / 2})` }); yLabel.textContent = points.some((row) => row.relative) ? '1개월, 지수 대비 →' : '최근 1개월 →'; box.append(yLabel);
   // v57.79 (375 review): labels covered markers and each other. Only the themes farthest from the centre are labelled
   // (both axes scaled to the drawing), a label never sits on any marker, another label, a quadrant caption or an axis
   // title, and every point keeps its hover title; a tap prints the same line under the map.
   const marks = [];
-  const describe = (row) => `[${mkt(row)}] ${row.label}: ${row.stateLabel.split(' (')[0]} · 1개월 ${pct(row.ret1m)} · 긴 추세 ${pct(row.ret6m ?? row.ret3m)}${row.relative ? ` (${row.relative.name} 대비 ${pct(row.relative.recent)}p · ${pct(row.relative.trend)}p)` : ''}${row.ret5d != null ? ` · 5거래일 ${pct(row.ret5d)}` : ''} · ${WIND_LABELS[row.wind.lead]}`;
+  const describe = (row) => `[${mkt(row)}] ${row.label}: ${row.stateLabel.split(' (')[0]}, 1개월 ${pct(row.ret1m)}, 긴 추세 ${pct(row.ret6m ?? row.ret3m)}${row.relative ? ` (${row.relative.name} 대비 ${pct(row.relative.recent)}p, ${pct(row.relative.trend)}p)` : ''}${row.ret5d != null ? `, 5거래일 ${pct(row.ret5d)}` : ''}, ${WIND_LABELS[row.wind.lead]}`;
   const located = points.map((row) => {
     const x = X(mapX(row)), y = Y(mapY(row));
     const mark = row.market === 'KR' ? svg(doc, 'rect', { x: x - 5, y: y - 5, width: 10, height: 10, class: `tp-dot is-${row.wind.lead}` }) : svg(doc, 'circle', { cx: x, cy: y, r: 6, class: `tp-dot is-${row.wind.lead}` });
@@ -99,7 +99,7 @@ function momentumMap(doc, themes, size = 'wide', onPick = null) {
 function legend(doc) {
   const row = el(doc, 'div', null, 'tp-legend');
   for (const key of ['tail', 'head', 'mixed', 'none']) { const item = el(doc, 'span', null, 'tp-legend-item'); item.append(el(doc, 'span', null, `tp-swatch is-${key}`), doc.createTextNode(WIND_LABELS[key])); row.append(item); }
-  row.append(el(doc, 'span', '원: 미국 · 네모: 한국 · 중심 시나리오 기준', 'tp-legend-note'));
+  row.append(el(doc, 'span', '원: 미국, 네모: 한국, 중심 시나리오 기준', 'tp-legend-note'));
   return row;
 }
 
@@ -126,14 +126,14 @@ function themeCard(doc, root, row, screenerSector = null) {
   const card = el(doc, 'details', null, 'tp-card');
   card.dataset.theme = `${row.market}:${row.id}`;
   const summary = el(doc, 'summary', null, 'tp-card-summary');
-  summary.append(el(doc, 'span', `${mkt(row)} · ${row.label}`, 'tp-card-title'), el(doc, 'span', `1개월 ${pct(row.ret1m)}${row.ret5d != null ? ` · 5거래일 ${pct(row.ret5d)}` : ''}`, 'tp-card-num'),
-    el(doc, 'span', WIND_LABELS[row.wind.lead], `xr-tag is-wind-${row.wind.lead}`), el(doc, 'span', `유리: ${row.favored.map((key) => CHOICES[key]).join(' · ') || '보류'}`, 'xr-tag is-choice'));
+  summary.append(el(doc, 'span', `${mkt(row)}, ${row.label}`, 'tp-card-title'), el(doc, 'span', `1개월 ${pct(row.ret1m)}${row.ret5d != null ? `, 5거래일 ${pct(row.ret5d)}` : ''}`, 'tp-card-num'),
+    el(doc, 'span', WIND_LABELS[row.wind.lead], `xr-tag is-wind-${row.wind.lead}`), el(doc, 'span', `유리: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'}`, 'xr-tag is-choice'));
   card.append(summary);
-  card.append(el(doc, 'p', `${row.stateLabel} · ${row.ret3m != null ? `3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? ` · 50일선 위 ${row.above50}%` : ''}${row.tagLabels.length ? ` · 성격: ${row.tagLabels.join(', ')}` : ''}`, 'xr-basis'));
+  card.append(el(doc, 'p', `${row.stateLabel}, ${row.ret3m != null ? `3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? `, 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? `, 50일선 위 ${row.above50}%` : ''}${row.tagLabels.length ? `, 성격: ${row.tagLabels.join(', ')}` : ''}`, 'xr-basis'));
   card.append(el(doc, 'p', `거시 영향: ${row.windText}.`, 'xr-reading'));
   const evidence = el(doc, 'ul', null, 'xr-evidence');
   // v57.79: the positioning caveat is the same for every theme, so it is said once in the section's basis line.
-  evidence.append(el(doc, 'li', `조건: ${row.fit} — ${row.basisText.join(' · ')}`), el(doc, 'li', `과거 빈도: ${row.past}`));
+  evidence.append(el(doc, 'li', `조건: ${row.fit} — ${row.basisText.join(', ')}`), el(doc, 'li', `과거 빈도: ${row.past}`));
   card.append(el(doc, 'h4', '판단 근거', 'xr-h4'), evidence);
   if (row.thesis) {
     card.append(el(doc, 'h4', '핵심 논리와 점검 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 논리가 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
@@ -152,7 +152,7 @@ function themeCard(doc, root, row, screenerSector = null) {
   explore.append(el(doc, 'span', '종목은 직접 보기:', 'xr-explore-label'));
   const link = (label, onClick) => { const b = el(doc, 'button', `${label} →`, 'flow-next-link'); b.type = 'button'; b.addEventListener('click', onClick); return b; };
   if (typeof (row.market === 'KR' ? root?.openKrThemeDetail : root?.showThemeDetail) === 'function') {
-    const detail = link('테마 상세 · 구성 종목', () => openThemeDetail(root, row.id, { market: row.market }));
+    const detail = link('테마 상세, 구성 종목', () => openThemeDetail(root, row.id, { market: row.market }));
     if (row.market !== 'KR') detail.dataset.themeId = row.id; // the 테마 page places the US detail panel right after this section (themes.js trigger rule)
     explore.append(detail);
   }
@@ -210,7 +210,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   if (h.structuralPullbacks.length) reading.push(`긴 추세는 지수보다 앞서 있는데 최근 1개월 뒤처졌고 중심 시나리오에서 역풍이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 핵심 논리가 깨지는 신호가 없는지 함께 봅니다.`);
   if (h.headwindLeaders.length) reading.push(`거시 부담에도 주도하는 테마(6개월·1개월 지수 대비, 최근 5거래일 확인): ${h.headwindLeaders.slice(0, 4).map((row) => `${mkt(row)} ${row.label}${row.ret5d != null ? `(5거래일 ${pct(row.ret5d)})` : ''}`).join(', ')} — 업종 고유 동력(실적·구조 수요)이 있는지 확인이 필요합니다.`);
   if (h.tailwindLaggards.length) reading.push(`거시 수혜에도 약세인 테마: ${h.tailwindLaggards.slice(0, 4).map((row) => `${mkt(row)} ${row.label}`).join(', ')} — 업종 고유의 문제가 있는지 먼저 봅니다.`);
-  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`} · 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''} · ${lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}' 기준` : '중심 시나리오 미정'}. 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500 · 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis');
+  const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`}, 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''}, ${lead ? `중심 시나리오 '${lead.title.split(' — ')[0]}' 기준` : '중심 시나리오 미정'}. 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500, 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis');
   const screenerSector = screenerSectorFor(root, store);
   const mapWrap = el(doc, 'div', null, 'tp-map-wrap');
   const pick = el(doc, 'p', null, 'tp-pick');
@@ -224,7 +224,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     const fold = el(doc, 'details', null, 'tp-stage');
     fold.dataset.stage = stage;
     fold.open = openStages.has(stage);
-    fold.append(el(doc, 'summary', `${THEME_STATES[stage]} · ${list.length}개`, 'tp-stage-summary'));
+    fold.append(el(doc, 'summary', `${THEME_STATES[stage]}, ${list.length}개`, 'tp-stage-summary'));
     for (const row of list) { const card = themeCard(doc, root, row, screenerSector); card.open = openIds.has(card.dataset.theme); fold.append(card); }
     return fold;
   }).filter(Boolean);
@@ -235,7 +235,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     const fold = el(doc, 'details', null, 'tp-stage');
     fold.dataset.stage = 'held';
     fold.open = openStages.has('held');
-    fold.append(el(doc, 'summary', `판정 보류 · ${held.length}개`, 'tp-stage-summary'));
+    fold.append(el(doc, 'summary', `판정 보류, ${held.length}개`, 'tp-stage-summary'));
     for (const row of held) { const card = themeCard(doc, root, row, screenerSector); card.open = openIds.has(card.dataset.theme); fold.append(card); }
     stages.push(fold);
   }
@@ -271,8 +271,8 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   links.append(link('모든 테마 시나리오와 비교', () => doc.getElementById('theme-playbook-title')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' })),
     link('거시 시나리오의 근거', () => { root?.showPage?.('macro'); setTimeout(() => doc.getElementById('macro-crossroads-title')?.scrollIntoView?.({ block: 'start' }), 60); }));
   host.replaceChildren(el(doc, 'h4', '이 테마의 시나리오', 'xr-h4'),
-    el(doc, 'p', `${row.stateLabel}${row.stateLabel.includes('5거래일') || row.ret5d == null ? '' : ` · 5거래일 ${pct(row.ret5d)}`} · 1개월 ${pct(row.ret1m)}${row.ret6m != null ? ` · 6개월 ${pct(row.ret6m)}` : ''} · ${row.fit}`, 'xr-basis'),
-    el(doc, 'p', `거시 영향: ${row.windText}. 이 흐름이 이어질 때 비용이 작은 쪽(따라 하라는 뜻 아님): ${row.favored.map((key) => CHOICES[key]).join(' · ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
+    el(doc, 'p', `${row.stateLabel}${row.stateLabel.includes('5거래일') || row.ret5d == null ? '' : `, 5거래일 ${pct(row.ret5d)}`}, 1개월 ${pct(row.ret1m)}${row.ret6m != null ? `, 6개월 ${pct(row.ret6m)}` : ''}, ${row.fit}`, 'xr-basis'),
+    el(doc, 'p', `거시 영향: ${row.windText}. 이 흐름이 이어질 때 비용이 작은 쪽(따라 하라는 뜻 아님): ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
     el(doc, 'p', '아래 구성 종목·대표 종목에서 추세가 살아 있는 종목을 직접 고릅니다.', 'xr-caveat'), links);
   return row;

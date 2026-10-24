@@ -178,17 +178,17 @@ export function rolesBlock(doc, node, registry) {
   const productItem = (product) => {
     const li = el(doc, 'li');
     li.dataset.atlasProductId = product.productId;
-    li.append(el(doc, 'strong', null, `${ownerOf.get(product.playerId) ? `${ownerOf.get(product.playerId)} · ` : ''}${PRODUCT_CATEGORY_LABELS[product.category] || readable(product.category) || '제품'}`), doc.createTextNode(PRODUCT_PROBLEM_LABELS[product.productId] ? ` — ${PRODUCT_PROBLEM_LABELS[product.productId]}` : ''));
+    li.append(el(doc, 'strong', null, `${ownerOf.get(product.playerId) ? `${ownerOf.get(product.playerId)}, ` : ''}${PRODUCT_CATEGORY_LABELS[product.category] || readable(product.category) || '제품'}`), doc.createTextNode(PRODUCT_PROBLEM_LABELS[product.productId] ? ` — ${PRODUCT_PROBLEM_LABELS[product.productId]}` : ''));
     return li;
   };
   const playerItem = (player) => {
     const li = el(doc, 'li');
     li.dataset.atlasPlayerId = player.playerId;
-    li.append(el(doc, 'strong', null, player.name), doc.createTextNode(` — ${(player.roleIds || []).map((role) => ROLE_LABELS[role] || readable(role)).join(' · ')}`));
+    li.append(el(doc, 'strong', null, player.name), doc.createTextNode(` — ${(player.roleIds || []).map((role) => ROLE_LABELS[role] || readable(role)).join(', ')}`));
     return li;
   };
   if (products.length) wrap.appendChild(group('이 자리에 제품이 연결된 곳', 'product', products.map(productItem)));
-  if (roleOnly.length) wrap.appendChild(group('기업 역할 참고 · 이 자리에 연결된 제품 없음', 'reference', roleOnly.map(playerItem)));
+  if (roleOnly.length) wrap.appendChild(group('기업 역할 참고, 이 자리에 연결된 제품 없음', 'reference', roleOnly.map(playerItem)));
   return wrap;
 }
 
@@ -222,8 +222,8 @@ function renderRelationshipGuide(doc, guide, selectedNodeId, failed = false, sou
   article.dataset.atlasRelationshipGuide = guide.id;
   // P1592 (F71): name the company and the date a guide's company claims come from — a target figure
   // credited to '회사' could not be traced to who said it or when.
-  const anchor = [guide.ticker ? `기준 회사 ${guide.ticker}` : null, guide.asOf ? `${guide.asOf} 발표 기준` : null].filter(Boolean).join(' · ');
-  article.append(el(doc, 'p', 'af-kicker', [`관계 가이드`, guide.eyebrow, anchor].filter(Boolean).join(' · ')), el(doc, 'h2', 'af-issue', guide.title), el(doc, 'p', 'af-lead', guide.summary));
+  const anchor = [guide.ticker ? `기준 회사 ${guide.ticker}` : null, guide.asOf ? `${guide.asOf} 발표 기준` : null].filter(Boolean).join(', ');
+  article.append(el(doc, 'p', 'af-kicker', [`관계 가이드`, guide.eyebrow, anchor].filter(Boolean).join(', ')), el(doc, 'h2', 'af-issue', guide.title), el(doc, 'p', 'af-lead', guide.summary));
   const nodeById = new Map((guide.nodes || []).map((node) => [node.id, node]));
   const selected = nodeById.get(selectedNodeId) || guide.nodes?.[0] || null;
   const stages = el(doc, 'div', 'af-stages');
@@ -265,7 +265,7 @@ function renderRelationshipGuide(doc, guide, selectedNodeId, failed = false, sou
   }
   const sourceRows = (guide.sourceIds || []).map((id) => (Array.isArray(sources?.sources) ? sources.sources : []).find((item) => item.id === id)).filter(Boolean);
   const basis = renderBasis(doc, {
-    sources: sourceRows.map((source) => ({ label: `${source.publisher ? `${source.publisher} · ` : ''}${source.title || source.id}${source.publishedAt ? ` (${source.publishedAt})` : ''}`, url: source.url })),
+    sources: sourceRows.map((source) => ({ label: `${source.publisher ? `${source.publisher}, ` : ''}${source.title || source.id}${source.publishedAt ? ` (${source.publishedAt})` : ''}`, url: source.url })),
     assumptions: ['회사 목표·계획은 발표 시점의 주장이며, 이후 실적·공시로 확인되기 전에는 현재 성과가 아니다.'],
     asOf: guide.asOf || null
   });
@@ -350,7 +350,7 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
     const guide = parts.guide(node);
     const article = el(doc, 'article', 'af-article');
     article.dataset.atlasNode = node.id;
-    article.append(el(doc, 'p', 'af-kicker', `${labels.domain(domain)} · ${labels.category(node.kind)}`), el(doc, 'h2', 'af-issue', labels.node(node)));
+    article.append(el(doc, 'p', 'af-kicker', `${labels.domain(domain)}, ${labels.category(node.kind)}`), el(doc, 'h2', 'af-issue', labels.node(node)));
     const story = parts.story?.(node) || null;
     if (story) {
       article.appendChild(el(doc, 'p', 'af-lead', story.lead));

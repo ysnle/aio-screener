@@ -146,8 +146,8 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
     for (const session of sessions) {
       const item = el(doc, 'li', null, `ai-session-item${session.id === api.sessionId ? ' is-active' : ''}`);
       const open = el(doc, 'button', null, 'ai-session-open'); open.type = 'button';
-      const screens = [...new Set(session.turns.map((t) => SCREEN[t.ctx] || null).filter(Boolean))].slice(0, 3).join(' · ');
-      open.append(el(doc, 'span', session.title, 'ai-session-title'), el(doc, 'span', `${sessionWhen(session.updatedAt)} · 질문 ${session.turns.length}개${screens ? ` · ${screens}` : ''}`, 'ai-session-meta'));
+      const screens = [...new Set(session.turns.map((t) => SCREEN[t.ctx] || null).filter(Boolean))].slice(0, 3).join(', ');
+      open.append(el(doc, 'span', session.title, 'ai-session-title'), el(doc, 'span', `${sessionWhen(session.updatedAt)}, 질문 ${session.turns.length}개${screens ? `, ${screens}` : ''}`, 'ai-session-meta'));
       open.addEventListener('click', () => {
         cancel('session-switch');
         setActive(session.id);
@@ -175,7 +175,7 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
       if (off.dataset.confirm !== '1') { off.dataset.confirm = '1'; off.textContent = '한 번 더 누르면 모두 지웁니다'; return; }
       setConsent(storage, false); setActive(null); shared.messages.length = 0; repaint(); closeList(); refreshHeader();
     });
-    foot.append(el(doc, 'p', '이 브라우저에만 저장 · PIN 암호화 대상 아님 · 최근 40개 대화', 'ai-session-meta'), off);
+    foot.append(el(doc, 'p', '이 브라우저에만 저장, PIN 암호화 대상 아님, 최근 40개 대화', 'ai-session-meta'), off);
     panel.replaceChildren(top, items, foot);
     panel.style.top = `${head?.offsetHeight || 52}px`; // the header wraps on a phone; the list starts below it
     panel.hidden = false;

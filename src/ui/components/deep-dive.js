@@ -12,7 +12,7 @@ export function deepDiveFold(doc, root, title, deep, extra = []) {
   if (!doc || (!deep && !extra.length)) return null;
   const node = (tag, text, className) => { const item = doc.createElement(tag); if (text != null) item.textContent = text; if (className) item.className = className; return item; };
   const details = node('details', null, 'regime-axis-details regime-axis-deep');
-  details.append(node('summary', `${title ? `${title} ` : ''}더 깊이 보기 · 원리와 읽는 법`));
+  details.append(node('summary', `${title ? `${title} ` : ''}더 깊이 보기, 원리와 읽는 법`));
   for (const [heading, text] of deep?.blocks || []) details.append(node('h4', heading), node('p', text));
   details.append(...extra.filter(Boolean), ...deepDiveLinks(doc, root, deep));
   return details;
@@ -32,7 +32,7 @@ export function deepDiveLinks(doc, root, deep) {
   const conceptTerm = deep.conceptId ? CONCEPT_TERMS.get(deep.conceptId) : null;
   if (conceptTerm) {
     const link = doc.createElement('button');
-    link.textContent = `개념 노트 · ${conceptTerm} →`; link.className = 'flow-next-link'; link.type = 'button';
+    link.textContent = `개념 노트, ${conceptTerm} →`; link.className = 'flow-next-link'; link.type = 'button';
     link.dataset.aioConceptId = deep.conceptId;
     link.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'concept', node: deep.conceptId } }));
     links.push(link);

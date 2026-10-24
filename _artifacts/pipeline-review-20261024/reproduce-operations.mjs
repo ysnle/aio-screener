@@ -1,0 +1,23 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {load} from 'js-yaml';
+const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
+const out=[];
+const workflow=load(fs.readFileSync('.github/workflows/operations-alert.yml','utf8'));
+const script=workflow.jobs.reconcile.steps[0].with.script;
+const run={id:1,name:'Deploy GitHub Pages',workflow_id:2,head_branch:'main',head_repository:{full_name:'owner/repo'},event:'workflow_run',conclusion:'success',html_url:'https://fixture/run/1',head_sha:'a'.repeat(40),updated_at:'2026-10-24T00:00:00Z'};
+const writes=[];
+const github={rest:{actions:{listWorkflowRuns:async()=>({data:{workflow_runs:[run]}}),listJobsForWorkflowRun:async()=>({data:{jobs:[{name:'deploy',conclusion:'success',steps:[{name:'Deploy to GitHub Pages',conclusion:'skipped'}]}]}})},issues:{getLabel:async()=>({}),listForRepo:async()=>{},createComment:async x=>writes.push(x),update:async x=>writes.push(x)}},paginate:async(fn)=> fn===github.rest.issues.listForRepo?[{number:9,state:'open',body:'<!-- aio-operations-alert:Deploy GitHub Pages -->'}]:[{name:'deploy',conclusion:'success'}]};
+await new AsyncFunction('github','context','core','require',script)(github,{payload:{workflow_run:run},repo:{owner:'owner',repo:'repo'}},{info:()=>{}},()=>{throw Error('unexpected require')});
+assert.ok(writes.some(x=>x.state==='closed'));
+out.push({id:'OPS-01',actual:'A success run with no Pages deployment closes the prior incident',writes});
+const convergence=fs.readFileSync('scripts/ensure-live-convergence.mjs','utf8').replace(/^#![^\n]*\n/, '').replace("import { writeFileSync } from 'node:fs';",'');
+const target='a'.repeat(40);
+const logs=[];let exitCode;
+const proc={argv:['node','fixture','--await-sha',target],env:{GH_TOKEN:'fixture',GITHUB_REPOSITORY:'owner/repo'},exit(code){if(exitCode===undefined)exitCode=code;throw new Error('FIXTURE_EXIT');}};
+const fetchStub=async url=>{const u=String(url);if(!u.includes('/actions/workflows/ci.yml/runs?head_sha='))throw Error('unexpected request '+u);return {ok:true,status:200,json:async()=>({workflow_runs:[{id:7,head_sha:target,status:'completed',conclusion:'timed_out'}]})};};
+try{await new AsyncFunction('process','fetch','writeFileSync','console',convergence)(proc,fetchStub,()=>{throw Error('unexpected write')},{log:s=>logs.push(s)});}catch(e){if(e.message!=='FIXTURE_EXIT')throw e;}
+assert.equal(exitCode,0);assert.match(logs.join('\n'),/UNATTESTED_REVISION/);
+out.push({id:'OPS-02',actual:'timed_out CI produces UNATTESTED_REVISION with exit code 0',exitCode,logs});
+fs.writeFileSync('_artifacts/pipeline-review-20261024/reproductions.json',JSON.stringify(out,null,2)+'\n');
+console.log(JSON.stringify(out,null,2));

@@ -28,7 +28,7 @@ export function placeTermPopover(anchorRect, size, viewport) {
 export const TERM_MARKS = Object.freeze([
   ['Forward PER', 'Forward PER'],
   ['하이일드 스프레드', '하이일드 스프레드'],
-  ['근원 물가', '근원 물가 (근원 CPI · 근원 PCE)'],
+  ['근원 물가', '근원 물가 (근원 CPI, 근원 PCE)'],
   ['공포·탐욕', '공포·탐욕 지수 (F&G)'],
   ['달러 지수', 'DXY (달러 인덱스)'],
   ['Sahm', 'Sahm Rule'],
@@ -41,7 +41,7 @@ export const TERM_MARKS = Object.freeze([
   ['풋/콜', 'Put/Call 비율'],
   ['TGA', 'TGA (재무부 일반계정)'],
   ['JOLTS', 'JOLTS (구인·이직 조사)'],
-  ['PCE', 'PCE (개인소비지출 · PCE 물가지수)'],
+  ['PCE', 'PCE (개인소비지출, PCE 물가지수)'],
   ['PER', 'PER (P/E Ratio)'],
   ['ROE', 'ROE (자기자본이익률)'],
   ['RSI', 'RSI'],
@@ -53,8 +53,8 @@ export const TERM_MARKS = Object.freeze([
   ['정배열', '정배열 / 역배열'],
   ['3개월물', '3개월물 (국채)'],
   ['단기채', '단기채'],
-  ['50일선', '이동평균 (50일선 · 200일선)'],
-  ['200일선', '이동평균 (50일선 · 200일선)'],
+  ['50일선', '이동평균 (50일선, 200일선)'],
+  ['200일선', '이동평균 (50일선, 200일선)'],
   // 2026-10-19 market guide: the choice words 오늘 · 시나리오 가이드 use are glossary terms.
   ['기회비용', '기회비용'],
   ['분할 접근', '분할 접근']

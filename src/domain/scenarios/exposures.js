@@ -6,17 +6,17 @@
 // every statement here is a hypothesis, never a measured value, and contains no time-stamped numbers.
 
 export const EXPOSURE_TAGS = Object.freeze({
-  growth: '장기 성장 · 고PER (할인율 민감)',
+  growth: '장기 성장, 고PER (할인율 민감)',
   aicapex: 'AI 설비투자 사이클',
   cyclical: '경기 민감',
   defensive: '경기 방어',
-  energy: '에너지 · 원자재 가격',
-  yield: '금리 민감 배당 (리츠 · 유틸리티 · 통신)',
-  financials: '금융 (금리차 · 신용)',
+  energy: '에너지, 원자재 가격',
+  yield: '금리 민감 배당 (리츠, 유틸리티, 통신)',
+  financials: '금융 (금리차, 신용)',
   consumer: '소비 경기',
-  dollar: '달러 · 환율 민감 (수출 · 해외 매출)',
-  liquidity: '유동성 · 위험 선호',
-  policy: '정책 · 지정학 수요'
+  dollar: '달러, 환율 민감 (수출, 해외 매출)',
+  liquidity: '유동성, 위험 선호',
+  policy: '정책, 지정학 수요'
 });
 
 const T = (tags, thesis, breaks) => Object.freeze({ tags: Object.freeze(tags), thesis, breaks: Object.freeze(breaks) });
