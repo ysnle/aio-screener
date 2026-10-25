@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-25T06:24:20.657Z",
-  "attemptedAt": "2026-10-25T06:24:20.657Z",
-  "lastSuccessfulAt": "2026-10-25T06:24:20.657Z",
+  "generatedAt": "2026-10-25T07:21:46.273Z",
+  "attemptedAt": "2026-10-25T07:21:46.273Z",
+  "lastSuccessfulAt": "2026-10-25T07:21:46.273Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-11T06:24:16.295Z",
-  "until": "2026-10-25T06:24:16.295Z",
+  "since": "2026-10-11T07:21:40.506Z",
+  "until": "2026-10-25T07:21:40.506Z",
   "current24hWindow": {
     "start": "2026-10-23T23:00:00.000Z",
     "end": "2026-10-24T23:00:00.000Z",
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1221,
-      "freshCount": 19,
-      "eligibleTextCount": 1172,
+      "count": 1225,
+      "freshCount": 39,
+      "eligibleTextCount": 1176,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67237
+      "lastPostId": 67241
     },
     {
       "channel": "bornlupin",
@@ -117,37 +117,37 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 713,
+      "count": 714,
       "freshCount": 36,
-      "eligibleTextCount": 713,
+      "eligibleTextCount": 714,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70977
+      "lastPostId": 70978
     }
   ],
-  "count": 2432,
-  "retainedItemCount": 455,
+  "count": 2437,
+  "retainedItemCount": 470,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2432,
-    "eligibleTextCount": 2371,
+    "observedCount": 2437,
+    "eligibleTextCount": 2376,
     "mediaOnlyCount": 61,
     "highSignalCount": 478,
     "broadSignalCount": 1034,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 17,
+    "selectedRawCoveragePct": 16.9,
     "selectedOfObservedPct": 16.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "geo": 360,
+    "market-note": 858,
+    "geo": 361,
     "credit": 120,
     "macro": 424,
-    "market-note": 854,
     "semi": 607,
     "power": 342,
     "earnings": 516,
@@ -250,11 +250,11 @@
     "WULF": 1
   },
   "themes": [
-    "Market Notes (854 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터...",
+    "Market Notes (858 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터...",
     "Semiconductors/Memory (607 posts in 14-day research window): 노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상...",
     "Earnings/Corporate (516 posts in 14-day research window): 테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
     "Macro/Rates (424 posts in 14-day research window): >>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가 기준금리 3.75~4.00% 동결 예상, 12월 금리 경로에 대한 파월의 발언이 핵심. 매파적 신호가 나올 경우...",
-    "Geopolitics (360 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
+    "Geopolitics (361 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
     "AI Power/Grid (342 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "Equity/Analyst (186 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "AI Policy/Export Controls (172 posts in 14-day research window): 2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
@@ -263,7 +263,7 @@
     {
       "key": "NVDA",
       "count": 183,
-      "text": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI..."
+      "text": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI 하이퍼스케일러 기업들의 10~30년 만기 회사채와 미국 국채 간 금리 차이를 시가총액 가중 방식으로 분석한..."
     },
     {
       "key": "TSM",
@@ -337,7 +337,7 @@
       "topics": [
         "geo"
       ],
-      "count": 360,
+      "count": 361,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에..."
     },
     {
@@ -347,7 +347,7 @@
         "credit"
       ],
       "count": 120,
-      "focus": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI..."
+      "focus": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI 하이퍼스케일러 기업들의 10~30년 만기 회사채와 미국 국채 간 금리 차이를 시가총액 가중 방식으로 분석한..."
     },
     {
       "id": "semi",
@@ -463,7 +463,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 854,
+      "count": 858,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터..."
     }
   ],
@@ -766,18 +766,19 @@
       "localDateKst": "2026-10-25",
       "tags": [
         "credit",
+        "macro",
         "semi"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MSFT",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI..."
     },
     {
       "id": "insidertracking/67137",
@@ -2028,8 +2029,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "뱅크오브아메리카(BofA)에 따르면 1800년대 후반 철도 산업의 장기 강세장에서도 30~50%에 달하는 대규모 하락이 세 차례 발생. S&P 500 철도업종 지수의 1850년대부터 1900년대 초반까지...",
-      "tickers": []
+      "tickers": [],
+      "summary": "뱅크오브아메리카(BofA)에 따르면 1800년대 후반 철도 산업의 장기 강세장에서도 30~50%에 달하는 대규모 하락이 세 차례 발생. S&P 500 철도업종 지수의 1850년대부터 1900년대 초반까지..."
     },
     {
       "id": "insidertracking/67211",
@@ -2039,18 +2040,19 @@
       "localDateKst": "2026-10-25",
       "tags": [
         "credit",
+        "macro",
         "semi"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MSFT",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI..."
     },
     {
       "id": "insidertracking/67208",
@@ -2059,14 +2061,14 @@
       "datetime": "2026-10-24T23:18:35.000Z",
       "localDateKst": "2026-10-25",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "미국 S&P 500 주간 상승률 및 하락률 상위 종목 (10월 19~23일) S&P 500 지수는 한 주간 0.47% 하락. 이번 주 상승률 상위 종목은 소비재, 생명과학 서비스, 소프트웨어 기업들이 주도한...",
       "tickers": [
         "T"
-      ]
+      ],
+      "summary": "미국 S&P 500 주간 상승률 및 하락률 상위 종목 (10월 19~23일) S&P 500 지수는 한 주간 0.47% 하락. 이번 주 상승률 상위 종목은 소비재, 생명과학 서비스, 소프트웨어 기업들이 주도한..."
     },
     {
       "id": "insidertracking/67207",
@@ -2079,9 +2081,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 10월 25일 트럼프·이란 군사작전 · 트럼프 “이란과 협정을 체결하거나 군사작전을 마무리해야 할 수도 있다. 어느 쪽이든 우리가 이긴다” 발언 · 트럼프...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 10월 25일 트럼프·이란 군사작전 · 트럼프 “이란과 협정을 체결하거나 군사작전을 마무리해야 할 수도 있다. 어느 쪽이든 우리가 이긴다” 발언 · 트럼프..."
     },
     {
       "id": "insidertracking/67206",
@@ -2090,15 +2091,15 @@
       "datetime": "2026-10-24T23:13:33.000Z",
       "localDateKst": "2026-10-25",
       "tags": [
-        "geo"
+        "geo",
+        "power"
       ],
       "score": 67,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 25일 🇺🇸 아메리카 • 트럼프 대통령은 이란에 대한 군사 공격 가능성을 인정하며, 이란과 합의하거나 군사작전을 통해 문제를 해결할 수 있다고 밝혀. 또한 러시아와...",
-      "lead": 1,
       "tickers": [
         "PLTR"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 25일 🇺🇸 아메리카 • 트럼프 대통령은 이란에 대한 군사 공격 가능성을 인정하며, 이란과 합의하거나 군사작전을 통해 문제를 해결할 수 있다고 밝혀. 또한 러시아와..."
     },
     {
       "id": "aetherjapanresearch/26024",
@@ -2354,11 +2355,11 @@
         "equity",
         "macro"
       ],
-      "lead": 2,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI 거래 붕괴, Anthropic은 ‘초대형 IPO’를 연기할까? 11월 중순 ‘예정 상장일’이 얼마 남지 않았음 (중국언론) •시간적 여유가 매우 부족한 상황. SEC 규정에 따르면 늦어도 다음 주까지..."
+      "summary": ">>AI 거래 붕괴, Anthropic은 ‘초대형 IPO’를 연기할까? 11월 중순 ‘예정 상장일’이 얼마 남지 않았음 (중국언론) •시간적 여유가 매우 부족한 상황. SEC 규정에 따르면 늦어도 다음 주까지...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/70937",
@@ -8764,11 +8765,11 @@
         "equity",
         "macro"
       ],
-      "lead": 2,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI 거래 붕괴, Anthropic은 ‘초대형 IPO’를 연기할까? 11월 중순 ‘예정 상장일’이 얼마 남지 않았음 (중국언론) •시간적 여유가 매우 부족한 상황. SEC 규정에 따르면 늦어도 다음 주까지..."
+      "summary": ">>AI 거래 붕괴, Anthropic은 ‘초대형 IPO’를 연기할까? 11월 중순 ‘예정 상장일’이 얼마 남지 않았음 (중국언론) •시간적 여유가 매우 부족한 상황. SEC 규정에 따르면 늦어도 다음 주까지...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/70937",
