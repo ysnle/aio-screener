@@ -46,7 +46,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
       chart('ndx', '나스닥 100 종가', '지수 pt', daily('ndx'), { note: '주도 대형 기술주의 흐름. 5거래일 3% 이상 하락하면 주도 영역이 약해지는지 확인합니다.' }),
       chart('rut', '러셀 2000 종가', '지수 pt', daily('rut'), { note: '중소형주의 흐름. 200일선 아래에 있으면 상승이 대형주 밖으로 퍼지지 못한 상태입니다.' })],
     breadth: [chart('breadth20', '20일선 위 종목 비율 (단기)', '%', daily('breadth20'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '단기 참여도. 50일선 비율보다 먼저 움직여 참여가 넓어지거나 줄어드는 방향을 먼저 보여 줍니다.' }),
-      chart('breadth50', '50일선 위 종목 비율', '%', daily('breadth50'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: 'AIO 미국 수집 표본의 비율. 전체 미국 거래소 종목을 집계한 값과 모집단이 다릅니다.' }),
+      chart('breadth50', '50일선 위 종목 비율', '%', daily('breadth50'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: 'S&P 500 구성 종목의 비율(v58.79 전환 전 기록은 AIO 미국 수집 표본), 지수 회사의 공식 통계가 아닙니다.' }),
       chart('breadth200', '200일선 위 종목 비율', '%', daily('breadth200'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '중기 참여도(50일)와 장기 참여도(200일)가 함께 넓어지는지 비교합니다.' })],
     volatility: [chart('vix', 'VIX', '지수 pt', daily('vix'), { format: value => value.toFixed(1), refs: [RULES.volatility.calmBelow, RULES.volatility.stressAt] }),
       chart('vix-term', 'VIX / 3개월 VIX', '배', ratio, { format: value => value.toFixed(2), refs: [RULES.volatility.calmRatioBelow, RULES.volatility.invertedRatioAt], note: '같은 관측일의 두 지수만 나눕니다. 1 이상은 단기 변동성이 중기보다 높은 기간 구조입니다.' })],

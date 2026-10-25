@@ -224,6 +224,7 @@ jobs:
           stage_if_exists public-data/kr-investor-flows.json # v58.55: BOK ECOS investor-type net buying
           stage_if_exists public-data/backtest-history.json
           stage_if_exists public-data/breadth-contributors.json # P1416: breadth drilldown
+          stage_if_exists public-data/theme-stage-history.json # v58.79: recomputed theme-stage record
           stage_if_exists public-data/sec-fiscal-history.json # P1436: 재무 공시 fiscal-year series
           stage_if_exists public-data/screener-candidate-archive.json # P1465: forward candidate record
           node scripts/verify-refresh-candidate.mjs --expect-staged "$RUNNER_TEMP/aio-refresh-screener-candidate.json"

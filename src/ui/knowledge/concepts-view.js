@@ -10,6 +10,8 @@ import { createResearchShell, navGroup, asideBlock, el, researchDocumentOpen } f
 import { splitDefinition } from './glossary-bridge.js';
 import { screenRoutesFor, CONCEPT_SURFACES } from '../../domain/knowledge/concept-surfaces.js';
 import { renderFrameArticle, renderFrameConnections, ensureFrameStyle, renderBasis, renderWorkedCalc } from './analysis-frames.js';
+import { themesForNote } from '../../domain/knowledge/theme-research-links.js';
+import { themeStageBlock } from './theme-stage-links.js';
 
 const conceptById = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
 const CONCEPT_CATS = [...new Set(CONCEPT_CORE.map((concept) => concept.cat))];
@@ -312,6 +314,9 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
   if (state.view === 'frames') {
     const lesson = lessonById(state.frameId) || LESSONS[0];
     main.appendChild(renderFrameArticle(doc, lesson));
+    // v58.79: the themes this note explains, with their stage now, come first in the connection column.
+    const themes = themeStageBlock(doc, root, themesForNote(lesson.id), block);
+    if (themes) aside.appendChild(themes);
     renderFrameConnections(doc, lesson, { onNavigate, onConcept, block }).forEach((node) => aside.appendChild(node));
   } else if (state.view === 'story') {
     main.appendChild(renderStory(doc, data, state));

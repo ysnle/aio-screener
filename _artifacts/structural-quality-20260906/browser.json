@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-24T13:54:27.036Z",
+  "generatedAt": "2026-10-25T07:54:14.436Z",
   "routes": [
     {
       "id": "home",
@@ -8,23 +8,39 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "6개 축 근거 자세히"
+          "name": "S&P 500 SPY, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "나스닥 100 QQQ, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 SOXX, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "러셀 2000 IWM, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동"
         },
         {
           "tag": "A",
-          "name": "Apple, Nvidia로부터 시가총액 1위 왕좌 되찾을 전망…실적 발표가 대역전 이끌 수도"
+          "name": "[뉴욕증시-주간전망] 운명의 한 주…FOMC·물가·AI 실적 '3중 시험대'"
         },
         {
           "tag": "A",
-          "name": "엔비디아, 네오클라우드 주가 하락 속에 컨테이너형 AI 공장을 공개"
+          "name": "Apollo, 광범위한 AI 이익을 발견하지 못함: NVDA 주식 예측, 실적 발표 전"
         },
         {
           "tag": "A",
-          "name": "코스피 5,500선 붕괴에 반도체주 '와르르'…외국인 매도에 증시 급락"
+          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다"
         },
         {
           "tag": "A",
-          "name": "10/24 06:00 구성 종목 CRWD +8.3%, 큰 실적 발표 예정; 크라우드스트라이크, 에토스, CSX, 마이크로소프트 주목 - 비디오"
+          "name": "10/23 18:31 채널 글, 골드만삭스, Western Digital 목표주가 하향: HDD 증설 우려가 밸류에이션 압박, HAMR 전환이 순조로운 Seagate를 더 선호"
+        },
+        {
+          "tag": "A",
+          "name": "10/24 07:48 채널 글, SK하이닉스, Solidigm 미국 IPO 포기…NAND 공급 감소 전망에 Micron·SanDisk 수혜"
         },
         {
           "tag": "BUTTON",
@@ -45,10 +61,6 @@
         {
           "tag": "BUTTON",
           "name": "시장 폭 상세50일선, 200일선, 신고가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "데이터 기준과 출처10/23 종가"
         },
         {
           "tag": "BUTTON",
@@ -245,10 +257,12 @@
       ],
       "headings": [
         "오늘",
+        "지수 하루 흐름",
         "판단이 바뀌는 조건",
         "지난 마감 이후 변화",
-        "지금 시세 (주말 휴장, 금요일 마감 값, BTC는 실시간)",
+        "지금 시세 주말 휴장",
         "밤사이 핵심 3건",
+        "움직인 종목과 같은 날 보도",
         "오늘 확인할 3가지",
         "내 종목",
         "다가오는 일정",
@@ -1110,11 +1124,71 @@
       "controls": [
         {
           "tag": "A",
-          "name": "겨울이 다가오면서 난방유, 미국 상원의원 선거에서 공화당의 걸림돌로 부상"
+          "name": "예측: 중간 선거 이후 주식 시장은 상승할 것"
         },
         {
           "tag": "A",
-          "name": "이스라엘 문제로 분열된 디트로이트 민주당원들, 중간선거 앞두고 치솟는 비용에는 한목소리"
+          "name": "주가는 우는데 원화는 웃는다…코스피·환율의 엇갈린 신호[주末머니]"
+        },
+        {
+          "tag": "A",
+          "name": "데이터센터 가이던스 상향, 아메리칸 타워(AMT) 주식의 강세론을 바꿀까?"
+        },
+        {
+          "tag": "A",
+          "name": "[뉴욕증시-주간전망] 운명의 한 주…FOMC·물가·AI 실적 '3중 시험대'"
+        },
+        {
+          "tag": "A",
+          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다"
+        },
+        {
+          "tag": "A",
+          "name": "OpenAI 모델이 허가 없이 이더리움을 사용했다…가상자산 투자자에게 의미하는 것은"
+        },
+        {
+          "tag": "A",
+          "name": "코스피 급락에…10대그룹 시총, 한달새 1천100조원 증발"
+        },
+        {
+          "tag": "A",
+          "name": "홍콩ELS식 '제재엇박' 막는다…금융위·금감원, 사전조율 공식화"
+        },
+        {
+          "tag": "A",
+          "name": "후티 반군, 사우디 석유 시설을 겨냥했다고 밝혀…아덴에서 공격 보고"
+        },
+        {
+          "tag": "A",
+          "name": "앤스로픽은 잊어라: 바이오테크, IPO 시장을 조용히 장악"
+        },
+        {
+          "tag": "A",
+          "name": "독점 | FBI, 사우디 OpenAI 용의자에 대한 스파이 사건을 조사한다"
+        },
+        {
+          "tag": "A",
+          "name": "미국 대사관, 미국 중간 선거 이전에 이란 위협 경고가 고조됨에 따라 보안 강화"
+        },
+        {
+          "tag": "A",
+          "name": "개인 신용에서 융합 에너지까지: The Street 쇼 #777, 오늘 밤 블룸버그 텔레비전에서 첫 방송"
+        },
+        {
+          "tag": "A",
+          "name": "\"외인 놀이터 된 코스피, 못 버티겠다\"…개미 떠나자 50조 증발 [분석+]"
+        },
+        {
+          "tag": "A",
+          "name": "골드만, 이 기술 주식은 실적 발표 전 상당한 상승 가능성 있어"
+        },
+        {
+          "tag": "A",
+          "name": "에버코어, AI 주식 시장 교정 신호가 될 수 있는 주요 신용과 재무부 수익 임계값 설명"
+        },
+        {
+          "tag": "A",
+          "name": "AI 지출 우려가 지속되는 가운데 아시아 증시는 혼조세"
         },
         {
           "tag": "A",
@@ -1230,83 +1304,11 @@
         },
         {
           "tag": "A",
-          "name": "코스피, 4% 급락후 낙폭 좁혀 5,390선…하닉은 한때 상승전환"
+          "name": "10/23 18:31 채널 글, 골드만삭스, Western Digital 목표주가 하향: HDD 증설 우려가 밸류에이션 압박, HAMR 전환이 순조로운 Seagate를 더 선호"
         },
         {
           "tag": "A",
-          "name": "3거래일 하락 후 인도 증시 상승 출발 예상…유가 급등에 전망은 불투명"
-        },
-        {
-          "tag": "A",
-          "name": "AI 기술 우려에 글로벌 신용 스프레드 17개월 만에 최고치"
-        },
-        {
-          "tag": "A",
-          "name": "CNBC Daily Open: 핼러윈 앞두고 AI 지출 우려가 시장 짓눌러"
-        },
-        {
-          "tag": "A",
-          "name": "코스피, 美AI·반도체 급락에 2%대 하락출발후 낙폭 확대(종합)"
-        },
-        {
-          "tag": "A",
-          "name": "퍼스트FT: 메타, AI 지출 우려 재점화"
-        },
-        {
-          "tag": "A",
-          "name": "유가 급등 속 AI주 급락에 전 세계 시장 압도돼"
-        },
-        {
-          "tag": "A",
-          "name": "프랑스 정국 혼란에 안전자산 선호 심리 커지며 미국 10년물 국채 수익률 5% 밑으로 하락"
-        },
-        {
-          "tag": "A",
-          "name": "포커의 교훈: 메타의 실적 매도 후에도 포기하지 말아야 하는 이유"
-        },
-        {
-          "tag": "A",
-          "name": "트럼프 \"이란, 중간선거 앞 유가 올리려 모든 것 꾸며내\""
-        },
-        {
-          "tag": "A",
-          "name": "은 선물, 연초 최저치로 하락... 유가로 인한 인플레이션 우려"
-        },
-        {
-          "tag": "A",
-          "name": "AI 지출에 투자자들 불안…Meta 주가 하락, 채무불이행 보험료 사상 최고치"
-        },
-        {
-          "tag": "A",
-          "name": "‘마비’된 미국 IPO 시장, 앤트로픽 이후에도 생명체가 존재하는가 질문"
-        },
-        {
-          "tag": "A",
-          "name": "이란 긴장 재고조에 유가 급등, 인플레이션 우려 다시 고조"
-        },
-        {
-          "tag": "A",
-          "name": "뉴욕증시, AI 불안에 하락 출발"
-        },
-        {
-          "tag": "A",
-          "name": "목요일 주요 애널리스트 의견: Nvidia, Tesla, SpaceX, Meta, CoreWeave, IBM, Block 등"
-        },
-        {
-          "tag": "A",
-          "name": "골드만 \"기관투자자⅓ 투자금 늘릴 계획…최대위험 지정학 긴장\""
-        },
-        {
-          "tag": "A",
-          "name": "엔비디아 CEO 젠슨 황, 신클라우드 수요는 '기록적인 수준'이지만 자본은 부족하다"
-        },
-        {
-          "tag": "A",
-          "name": "10/24 06:00 구성 종목 CRWD +8.3%, 큰 실적 발표 예정; 크라우드스트라이크, 에토스, CSX, 마이크로소프트 주목 - 비디오"
-        },
-        {
-          "tag": "A",
-          "name": "뉴스"
+          "name": "10/24 07:48 채널 글, SK하이닉스, Solidigm 미국 IPO 포기…NAND 공급 감소 전망에 Micron·SanDisk 수혜"
         },
         {
           "tag": "BUTTON",
@@ -1353,21 +1355,21 @@
         "브리핑",
         "오늘의 시장 해석 10/23 미국 종가 기준, 자동 해석",
         "섹터 하루 등락",
-        "시간대별 시황 한국 시간 06·12·18·24시 회차, 지난 회차 보관",
-        "오늘 10/24",
-        "어제 10/23",
-        "10/22",
-        "왜 움직였나 10/23 미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마",
+        "시간대별 시황 하루 4회차",
+        "오늘 10/25",
+        "어제 10/24",
+        "10/23",
+        "왜 움직였나 10/23 종가",
         "자산별 흐름",
         "다음 확인 포인트",
-        "다음 이벤트 미리보기 시장이 예상하는 것, 결과 갈래, 지금 시나리오와의 연결",
+        "다음 이벤트 미리보기",
         "앞으로 7일 일정 한국 시간",
         "10/26(월) 미국, 101건",
         "10/27(화) 미국, 187건",
         "10/28(수) 미국, 261건",
         "10/29(목) 미국, 338건",
         "10/30(금) 미국, 54건",
-        "11/2(월) 미국, 192건",
+        "11/2(월) 미국, 191건",
         "이 화면을 볼 때 — 속지 말 것과 원칙",
         "이어서 볼 곳"
       ]
@@ -1521,10 +1523,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "거시 경제의 6요인 판정"
-        },
-        {
-          "tag": "BUTTON",
           "name": "시장 상태에서 한국 시장 카드 보기 →"
         },
         {
@@ -1662,7 +1660,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "전체 89개 순위와 구성 종목S&P 500 3개월 +2.8%"
+          "name": "전체 94개 순위와 구성 종목S&P 500 1개월 -1.0%"
         },
         {
           "tag": "BUTTON",
@@ -1802,15 +1800,23 @@
         },
         {
           "tag": "BUTTON",
+          "name": "미국 18"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "한국 28"
+        },
+        {
+          "tag": "BUTTON",
           "name": "기준 충족"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 헬스케어 단계 바뀜"
+          "name": "미국 헬스케어"
         },
         {
           "tag": "BUTTON",
-          "name": "미국 소프트웨어/클라우드 단계 바뀜"
+          "name": "미국 소프트웨어/클라우드"
         },
         {
           "tag": "BUTTON",
@@ -1830,15 +1836,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "한국 에너지 단계 바뀜"
+          "name": "한국 에너지"
         },
         {
           "tag": "BUTTON",
-          "name": "한국 AI 단계 바뀜"
+          "name": "한국 AI"
         },
         {
           "tag": "BUTTON",
-          "name": "한국 크립토 단계 바뀜"
+          "name": "한국 크립토"
         },
         {
           "tag": "BUTTON",
@@ -1850,11 +1856,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "한국 광통신 단계 바뀜"
+          "name": "한국 광통신"
         },
         {
           "tag": "BUTTON",
-          "name": "한국 건설 단계 바뀜"
+          "name": "한국 건설"
         },
         {
           "tag": "BUTTON",
@@ -1874,7 +1880,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "한국 물류 단계 바뀜"
+          "name": "한국 물류"
         },
         {
           "tag": "BUTTON",
@@ -1910,7 +1916,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "미국 에너지 단계 바뀜"
+          "name": "미국 에너지"
         },
         {
           "tag": "BUTTON",
@@ -1942,7 +1948,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "미국 부동산 단계 바뀜"
+          "name": "미국 부동산"
         },
         {
           "tag": "BUTTON",
@@ -1954,7 +1960,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "미국 소재 단계 바뀜"
+          "name": "미국 소재"
         },
         {
           "tag": "BUTTON",
@@ -1966,7 +1972,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "미국 반도체 단계 바뀜"
+          "name": "미국 반도체"
         },
         {
           "tag": "BUTTON",
@@ -1982,7 +1988,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "미국 AI 인프라/데이터센터 단계 바뀜"
+          "name": "미국 AI 인프라/데이터센터"
         },
         {
           "tag": "BUTTON",
@@ -2022,6 +2028,18 @@
         },
         {
           "tag": "BUTTON",
+          "name": "강한 순"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "약한 순"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1주"
+        },
+        {
+          "tag": "BUTTON",
           "name": "1개월"
         },
         {
@@ -2030,7 +2048,223 @@
         },
         {
           "tag": "BUTTON",
-          "name": "6개월"
+          "name": "보험 중개 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MRSH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AON"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AJG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WTW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BRO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "급여·기업 서비스 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ADP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PAYX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CTAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CPRT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "통합 메이저 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XOM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CVX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SU"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SHEL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "여행/레저 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BKNG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ABNB"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MAR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HLT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "관리의료/보험 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "UNH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ELV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CVS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HUM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CNC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "생활용품 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CLX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CHD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "KMB"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "KVUE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "정유 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MPC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PSX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VLO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "할인/식료품 유통 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "COST"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WMT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TGT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "KR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DLTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "E&P(탐사/생산) 구성 종목끼리 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "COP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "EOG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CNQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "OXY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DVN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FANG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TPL"
         },
         {
           "tag": "BUTTON",
@@ -2066,199 +2300,135 @@
         },
         {
           "tag": "BUTTON",
-          "name": "정유 구성 종목끼리 비교"
+          "name": "규제 유틸리티 구성 종목끼리 비교"
         },
         {
           "tag": "BUTTON",
-          "name": "MPC"
+          "name": "SO"
         },
         {
           "tag": "BUTTON",
-          "name": "PSX"
+          "name": "DUK"
         },
         {
           "tag": "BUTTON",
-          "name": "VLO"
+          "name": "AEP"
         },
         {
           "tag": "BUTTON",
-          "name": "DK"
+          "name": "D"
         },
         {
           "tag": "BUTTON",
-          "name": "사이버보안 구성 종목끼리 비교"
+          "name": "EXC"
         },
         {
           "tag": "BUTTON",
-          "name": "PANW"
+          "name": "SRE"
         },
         {
           "tag": "BUTTON",
-          "name": "CRWD"
+          "name": "PCG"
         },
         {
           "tag": "BUTTON",
-          "name": "FTNT"
+          "name": "PEG"
         },
         {
           "tag": "BUTTON",
-          "name": "ZS"
+          "name": "ETR"
         },
         {
           "tag": "BUTTON",
-          "name": "NET"
+          "name": "XEL"
         },
         {
           "tag": "BUTTON",
-          "name": "S"
+          "name": "EIX"
         },
         {
           "tag": "BUTTON",
-          "name": "RBRK"
+          "name": "ES"
         },
         {
           "tag": "BUTTON",
-          "name": "데이터/AI 플랫폼 구성 종목끼리 비교"
+          "name": "FE"
         },
         {
           "tag": "BUTTON",
-          "name": "PLTR"
+          "name": "EVRG"
         },
         {
           "tag": "BUTTON",
-          "name": "SNOW"
+          "name": "LNT"
         },
         {
           "tag": "BUTTON",
-          "name": "DDOG"
+          "name": "PNW"
         },
         {
           "tag": "BUTTON",
-          "name": "MDB"
+          "name": "ATO"
         },
         {
           "tag": "BUTTON",
-          "name": "ESTC"
+          "name": "거래소/금융데이터 구성 종목끼리 비교"
         },
         {
           "tag": "BUTTON",
-          "name": "AI"
+          "name": "SPGI"
         },
         {
           "tag": "BUTTON",
-          "name": "통합 메이저 구성 종목끼리 비교"
+          "name": "MCO"
         },
         {
           "tag": "BUTTON",
-          "name": "XOM"
+          "name": "ICE"
         },
         {
           "tag": "BUTTON",
-          "name": "CVX"
+          "name": "CME"
         },
         {
           "tag": "BUTTON",
-          "name": "SU"
+          "name": "NDAQ"
         },
         {
           "tag": "BUTTON",
-          "name": "SHEL"
+          "name": "MSCI"
         },
         {
           "tag": "BUTTON",
-          "name": "생명과학/진단 구성 종목끼리 비교"
+          "name": "보험사(손해·생명·재보험) 구성 종목끼리 비교"
         },
         {
           "tag": "BUTTON",
-          "name": "TMO"
+          "name": "BRK-B"
         },
         {
           "tag": "BUTTON",
-          "name": "DHR"
+          "name": "PGR"
         },
         {
           "tag": "BUTTON",
-          "name": "A"
+          "name": "CB"
         },
         {
           "tag": "BUTTON",
-          "name": "WAT"
+          "name": "TRV"
         },
         {
           "tag": "BUTTON",
-          "name": "IDXX"
+          "name": "AIG"
         },
         {
           "tag": "BUTTON",
-          "name": "바이오텍 구성 종목끼리 비교"
+          "name": "ALL"
         },
         {
           "tag": "BUTTON",
-          "name": "VRTX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "REGN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMGN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "GILD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRNA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BIIB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ALNY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ARGX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VKTX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "E&P(탐사/생산) 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EOG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CNQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OXY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DVN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FANG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TPL"
+          "name": "MET"
         },
         {
           "tag": "BUTTON",
@@ -2306,159 +2476,27 @@
         },
         {
           "tag": "BUTTON",
-          "name": "병원/유통/서비스 구성 종목끼리 비교"
+          "name": "홈·자동차부품 리테일 구성 종목끼리 비교"
         },
         {
           "tag": "BUTTON",
-          "name": "HCA"
+          "name": "HD"
         },
         {
           "tag": "BUTTON",
-          "name": "MCK"
+          "name": "LOW"
         },
         {
           "tag": "BUTTON",
-          "name": "COR"
+          "name": "ORLY"
         },
         {
           "tag": "BUTTON",
-          "name": "CAH"
+          "name": "AZO"
         },
         {
           "tag": "BUTTON",
-          "name": "DVA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거래소/금융데이터 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SPGI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MCO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ICE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CME"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NDAQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MSCI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "서버/HW 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DELL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SMCI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HPE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CLS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금 광산 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NEM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AEM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "B"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WPM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KGC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "할인/식료품 유통 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COST"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WMT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TGT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DLTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "관리의료/보험 구성 종목끼리 비교"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "UNH"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ELV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CVS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HUM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CNC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "전체 89개 보기"
+          "name": "전체 94개 보기"
         },
         {
           "tag": "BUTTON",
@@ -2470,31 +2508,31 @@
         },
         {
           "tag": "BUTTON",
-          "name": "반도체 -7.7%"
+          "name": "반도체 -17.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "유틸리티 -10.6%"
+          "name": "유틸리티 +2.9%"
         },
         {
           "tag": "BUTTON",
-          "name": "전력장비/그리드 -9.7%"
+          "name": "전력장비/그리드 -14.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "광통신/포토닉스 -15.1%"
+          "name": "광통신/포토닉스 -18.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 -12.8%"
+          "name": "AI 인프라/데이터센터 -20.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 -12.8%"
+          "name": "AI 인프라/데이터센터 -20.6%"
         },
         {
           "tag": "BUTTON",
-          "name": "산업재 -3.4%"
+          "name": "산업재 +2.6%"
         },
         {
           "tag": "BUTTON",
@@ -2572,11 +2610,13 @@
       "headings": [
         "테마와 섹터",
         "섹터 회전",
+        "강한 쪽, 1개월",
+        "약한 쪽, 1개월",
+        "바뀌는 중",
         "상대강도 회전 그래프 (RRG)",
-        "원리",
         "세부 테마 상위",
         "S&P 500 지도",
-        "S&P 500 이익 전망과 밸류에이션컨센서스 10/24, 지수 비중 10/22, 487개 기업(비중 98%)",
+        "S&P 500 이익 전망과 밸류에이션 컨센서스 10/24",
         "테마 시나리오 — 단계와 거시 영향",
         "단계 × 테마, 46개",
         "미국 세부 테마 상대강도 순위",
@@ -2586,7 +2626,7 @@
         "네트워크",
         "냉각",
         "시설·건설",
-        "한국 테마 흐름",
+        "한국 테마 흐름 10/23 종가",
         "이 화면을 볼 때 — 속지 말 것과 원칙",
         "이어서 볼 곳"
       ]
@@ -2830,67 +2870,35 @@
         },
         {
           "tag": "A",
-          "name": "As winter nears, heating oil emerges as hurdle for Republicans in US Senate races"
+          "name": "Prediction: The Stock Market Will Soar After Midterm Elections"
         },
         {
           "tag": "A",
-          "name": "Divided over Israel, Detroit Democrats unite on rising costs for midterm elections"
+          "name": "주가는 우는데 원화는 웃는다…코스피·환율의 엇갈린 신호[주末머니]"
         },
         {
           "tag": "A",
-          "name": "AI Bubble Fears Trigger a Surprising Shift to Swiss Stocks"
+          "name": "Does Higher Data Center Guidance Change The Bull Case For American Tower Stock (AMT)?"
         },
         {
           "tag": "A",
-          "name": "Swiss Stocks Are Becoming a Haven From AI Fears Roiling Markets"
+          "name": "[뉴욕증시-주간전망] 운명의 한 주…FOMC·물가·AI 실적 '3중 시험대' — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Here's the AI Chip Stock That Hedge Funds Are Loading Up On"
+          "name": "Apollo, 광범위한 AI 이익을 발견하지 못함: NVDA 주식 예측, 실적 발표 전 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "What next for France as riots rattle markets? Three questions facing investors ahead of more protests"
+          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Oil Prices Surge to Six-Month High as U.S.-Iran Tensions Roil Markets"
+          "name": "이란 전쟁으로 IEA의 석유시장 전망 뒤집혀…2026년 세계 공급·수요 위축 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Global Corporate Bond Credit Risk Hits 17-Month High Amid AI Investment Bubble Fears"
-        },
-        {
-          "tag": "A",
-          "name": "[IPO챗] 내주 옵토닉스 등 7개사 수요예측…엠비디 공모주 청약"
-        },
-        {
-          "tag": "A",
-          "name": "외국인 38조 던졌는데도 내리는 환율, 여기까지 떨어진다고?[주末머니]"
-        },
-        {
-          "tag": "A",
-          "name": "UK Vows £100 Million for Biosecurity Lab With OpenAI, Anthropic"
-        },
-        {
-          "tag": "A",
-          "name": "Apple, Nvidia로부터 시가총액 1위 왕좌 되찾을 전망…실적 발표가 대역전 이끌 수도 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "엔비디아, 네오클라우드 주가 하락 속에 컨테이너형 AI 공장을 공개 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "코스피 5,500선 붕괴에 반도체주 '와르르'…외국인 매도에 증시 급락 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "CFTC 데이터: 헤지펀드의 유로 약세 베팅, 2020년 이후 최대 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "영국 감시 기관, 6개 사적 자금 회사에 대하여 자금 세탁 방지 조치를 취함 — 원문 새 창에서 열기"
+          "name": "에버코어, AI 주식시장 조정을 시사할 수 있는 주요 신용·미 국채 금리 임계치 제시 — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -2902,51 +2910,51 @@
         },
         {
           "tag": "A",
-          "name": "변동성 여파에 한국수출입은행, 엔화 채권 발행 잠정 중단 — 원문 새 창에서 열기"
+          "name": "국채 시장에 숨 돌리는 기회: AI 기업들, 거액의 자금을 확보한 채 부채 매각을 앞당긴 후 채권 시장에서 물러나다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Anthropic IPO is biggest question mark for entire market: Vital Knowledge's Crisafulli — 원문 새 창에서 열기"
+          "name": "고점 대비 56% 급락 SK하이닉스…이번주 실적발표 반등 계기되나 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "에릭 슈미트, AI 버블 우려 거부, 앤트로픽은 구글보다 두 배 빠르게 성장하고 있다고 말함 — 원문 새 창에서 열기"
+          "name": "코스피 급락에…10대그룹 시총, 한달새 1천100조원 증발 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "이란 전쟁은 트럼프 대사에 따르면 1년 더 지속될 수 있다 — 원문 새 창에서 열기"
+          "name": "OpenAI 모델이 허가 없이 이더리움을 사용했다…가상자산 투자자에게 의미하는 것은 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "메타 주가, AI 지출 우려로 금요일 마감 시세 하락 — 원문 새 창에서 열기"
+          "name": "연준, 하위크적 금리 동결에서 G7 3국을 이끌 것: 에코 위크 아헤드 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "주식, 두 방향으로 끌려가며, 변동성 있는 주간을 마무리하며 하락 — 원문 새 창에서 열기"
+          "name": "GBP/USD, 금 전망: 주목할 두 가지 거래 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "큰 실적 발표 예정; 크라우드스트라이크, 에토스, CSX, 마이크로소프트 주목 - 비디오 — 원문 새 창에서 열기"
+          "name": "후티, 사우디 유정 공격했다고 주장; 아덴에서 공격 보고 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "투자자들, 미 국채의 안전자산 매력 재발견…AI 투자 열기 다시 주춤 — 원문 새 창에서 열기"
+          "name": "Anthropic을 잊어라: 바이오테크는 조용히 IPO 영역을 지배하고 있다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "뉴욕증시, 중동확전 우려·유가 급등에 하락…다우 1.2%↓(종합) — 원문 새 창에서 열기"
+          "name": "파이퍼 샌들러, 코어위브 자금 조달 우려는 과장…모두가 동의하는 것은 아니다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "인터넷 없는 AI 모델 훈련에 나서는 OpenAI — 원문 새 창에서 열기"
+          "name": "Exclusive | FBI Explores Espionage Case Against Saudi OpenAI Suspect — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "달러 트리, 달러 제너럴 주가, 핵심 고객들이 압박을 받음에 따라 하락 — 원문 새 창에서 열기"
+          "name": "The AI Bubble Has A $3.6 Trillion Problem, And It's Getting Worse (NYSEARCA:SPY) — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "AI 버블 우려, 마이크 리이에 의하여 기술 주가 폭락 이후 축소됨 — 원문 새 창에서 열기"
+          "name": "Stocks fall, bonds gain as Meta dents tech optimism — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -2954,51 +2962,51 @@
         },
         {
           "tag": "A",
-          "name": "실적@aetherjapanresearch, 일본·아시아 반도체, 10-24스페이스X, 신규 네트워크 구축 위해 8만 개 기지국 접근 협상 중 내용 요약 스페이스X는 미국 전역에서 최소 8만 개의 기"
+          "name": "지정학@insidertracking, 미국 속보, 10-24오늘 발생한 테러 공격에 대한 베냐민 네타냐후 이스라엘 총리 성명 > 방금 국방장관, 이스라엘군(IDF) 참모총장, 신베트(이스라엘 국내정"
         },
         {
           "tag": "A",
-          "name": "전력인프라@aetherjapanresearch, 일본·아시아 반도체, 10-23Citi) 미니맥스(MiniMax, 0100.HK ) | 매수 / 고위험; M3.1 Flash 오픈소스화 및 AI 기술"
+          "name": "지정학@insidertracking, 미국 속보, 10-24이스라엘 국방장관 이스라엘 카츠: > 방금 총리와 함께 헤브론 인근에서 최근 충돌이 발생한 현장을 공동 방문하고 돌아왔다. 총리와 내가 경"
         },
         {
           "tag": "A",
-          "name": "전력인프라@bornlupin, 한국 반도체·증권사 자료, 10-23미즈호(Mizuho), 블룸에너지(Bloom Energy, $BE ), 투자의견 ‘시장수익률 상회(Outperform)’, 목표주가"
+          "name": "시장소식@insidertracking, 미국 속보, 10-24차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 10월 27일 화요일 23:00 – CB 소비자신뢰지수 (10월) 23:"
         },
         {
           "tag": "A",
-          "name": "거시@bornlupin, 한국 반도체·증권사 자료, 10-23모건스탠리, 블룸에너지( $BE ) 목표주가 $310에서 $335로 상향, 투자의견 비중확대(Overweight)를 유지 블룸에너지의 생"
+          "name": "AI정책@HANAchina, 중국·신흥국, 10-24>>Kimi, 3조 파라미터급 최강 모델 출시…코딩 에이전트 평가에서 GPT-6 능가, 11월 4일 이전 가중치 공개 •Kimi K3.1 Pro는"
         },
         {
           "tag": "A",
-          "name": "전력인프라@aetherjapanresearch, 일본·아시아 반도체, 10-23Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $28"
+          "name": "반도체@insidertracking, 미국 속보, 10-24인공지능(AI) 관련 기업의 신용부도스와프(CDS) 거래 규모가 지난 7월 이후 4배 이상 급증한 가운데, 메타와 엔비디아의 CDS 스프레"
         },
         {
           "tag": "A",
-          "name": "실적@bornlupin, 한국 반도체·증권사 자료, 10-23블룸에너지 중장기 수요 확인, 이유 있는 부지 확보 1. 실적 방향성에 집중할 필요 - 수주잔고가 매출보다 빠르게 증가하고 있으며, 구매"
+          "name": "반도체@HANAchina, 중국·신흥국, 10-24>>SK하이닉스, Solidigm 미국 IPO 포기…NAND 공급 감소 전망에 Micron·SanDisk 수혜 •LYNX Equity Strateg"
         },
         {
           "tag": "A",
-          "name": "실적@aetherjapanresearch, 일본·아시아 반도체, 10-23제목 : 테슬라, 수익성 전망 밝지 않아 GS 외 *연합인포맥스* 테슬라(NAS: TSLA)의 ‘26년 3분기 실적발표 이후"
+          "name": "반도체@insidertracking, 미국 속보, 10-24서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAI"
         },
         {
           "tag": "A",
-          "name": "반도체@bornlupin, 한국 반도체·증권사 자료, 10-23블룸에너지 오버나이트 양전 루멘텀 +3.59% 네비우스 +2.44% 마이크론 +2.45% 엔비디아 +0.7%NVDAMUBE"
+          "name": "거시@HANAchina, 중국·신흥국, 10-24>>탄산리튬 가격 5거래일 연속 하락…월초 대비 20%↓ (중국언론) •중국 생의사 현물 시세 분석에 따르면, 10월 23일 배터리급 탄산리튬 기준 "
         },
         {
           "tag": "A",
-          "name": "지정학@bornlupin, 한국 반도체·증권사 자료, 10-23\"1분 만에 동났다\" 폴더블 아이폰 곳곳 오픈런…애플 잔칫날 갤럭시도 '축포' 아이폰 사전 예약, 1분 만에 종료 명동 매장, 쌀쌀한 "
+          "name": "AI정책@insidertracking, 미국 속보, 10-242026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 ·"
         },
         {
           "tag": "A",
-          "name": "실적@bornlupin, 한국 반도체·증권사 자료, 10-232026.10.23 13:55:22 기업명: 기가비스(시가총액: 1조 2,232억) A420770 보고서명: 단일판매ㆍ공급계약체결 계약상"
+          "name": "시장소식@insidertracking, 미국 속보, 10-2452주 신고가 (시총 $1B 이상) 에너지 · APA Corporation · Baytex Energy · BP · Canadian Na"
         },
         {
           "tag": "A",
-          "name": "전력인프라@bornlupin, 한국 반도체·증권사 자료, 10-23SK하이퍼, AI 데이터센터 구축 자금 유치 본격화 초기 5GW 구축에 3천500억달러 필요…2027년 첫 매출 창출 목표 SK텔레"
+          "name": "실적@insidertracking, 미국 속보, 10-24미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY)"
         },
         {
           "tag": "A",
-          "name": "실적@bornlupin, 한국 반도체·증권사 자료, 10-23애플, '아이폰 듀오' 판매 개시와 함께 폴더블 시장 진출 첫 폴더블폰 출시: 애플이 10월 23일(금) 첫 폴더블 스마트폰인 '아이폰 "
+          "name": "거시@insidertracking, 미국 속보, 10-242026년 10월 24일 미국 증시 브리핑 미국 증시는 유가 급등과 인플레이션 압력 재확대 우려 속에 하락 마감. S&P 500은 0.52%"
         },
         {
           "tag": "BUTTON",
@@ -3023,8 +3031,8 @@
       ],
       "headings": [
         "뉴스",
-        "08:00 이후 속보, 잠정 10/24 08:00 이후 헤드라인, 다음 08:00 수집본 전까지",
-        "중요 뉴스 주제별 핵심, 10/24 08:00 KST까지 24시간",
+        "08:00 이후 속보, 잠정 10/25 08:00 이후",
+        "중요 뉴스 10/25 08:00까지",
         "이 화면을 볼 때 — 속지 말 것과 원칙",
         "이어서 볼 곳"
       ]
@@ -5136,7 +5144,7 @@
         "메뉴 지도",
         "오늘 단축키 1",
         "시장 상태 단축키 2",
-        "거시와 금리 단축키 3",
+        "매크로 단축키 3",
         "테마와 섹터 단축키 4",
         "종목 단축키 5",
         "스크리너 단축키 6",

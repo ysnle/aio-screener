@@ -20,6 +20,7 @@ import { REPO_ROOT, SEC_FUNDAMENTALS_OUT } from './paths.mjs';
 import { mapLimit, fetchHistory } from './quotes.mjs';
 import { reconcileKrExchangeCloses, summarizeKrCloseReconciliation, fetchKrExchangeDaily } from './kr-exchange.mjs';
 import { computeScreenerBreadthHistory, writeBreadthContributors, updateScreenerBreadthHistory } from './screener-breadth.mjs';
+import { writeThemeStageBackfill } from './theme-stage-backfill.mjs';
 
 // ── v50.52 Track1: 스크리너 팩터 enrichment (정적 SCREENER_DB → 라이브 팩터 데이터) ──
 // 왜: SCREENER_DB(js/aio-data.js)는 시총/RSI/시그널이 하드코딩(2026-04 기준)이라 stale.
@@ -625,11 +626,13 @@ export async function enrichScreener() {
   const secondaryClass = new Set(Object.keys(universeInfo.shareClassOf || {}));
   const breadthSyms = syms.filter((sym) => !secondaryClass.has(sym));
   const breadthResults = (results || []).filter((row) => !secondaryClass.has(row?.sym));
-  const breadth = computeScreenerBreadth(breadthSyms, breadthResults, assetTypeOf, { sp500Members: sp500MemberSet(sp500Weights) });
+  const sp500Members = sp500MemberSet(sp500Weights);
+  const breadth = computeScreenerBreadth(breadthSyms, breadthResults, assetTypeOf, { sp500Members });
   if (krRetained && previousArtifact?.breadth?.segments?.kr) breadth.segments.kr = { ...previousArtifact.breadth.segments.kr, retained: { from: krRetained.from, reason: krRetained.reason } };
   // P1449: breadth contributors carry each symbol's asset type so the drilldown can say which
   // single-day moves need a corporate-action check. v57.50 D21: ETFs are no longer in the breadth population.
-  const breadthHistory = computeScreenerBreadthHistory(breadthSyms, breadthResults, undefined, Date.now(), assetTypeOf);
+  // v58.79 (owner 2026-10-25): the history's headline breadth is S&P 500 members (the AIO universe stays in screener.json).
+  const breadthHistory = computeScreenerBreadthHistory(breadthSyms, breadthResults, undefined, Date.now(), assetTypeOf, sp500Members);
   // P1416: distribution days need the index's own volume; one extra daily-bar request.
   let distribution = null;
   try {
@@ -638,6 +641,9 @@ export async function enrichScreener() {
   } catch (e) { console.warn('[fetch-data] distribution-day bars unavailable:', e && e.message || e); }
   const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now(), distribution);
   await writeBreadthContributors(breadthHistory, Date.now());
+  // v58.79 (owner 2026-10-25): the theme-stage record before 10/12, recomputed from these closes with the live rule.
+  try { await writeThemeStageBackfill(results, Date.now()); }
+  catch (e) { console.warn('[fetch-data] theme stage backfill 실패(무시):', e && e.message || e); }
   const usUniverse = syms.filter(s => listingMarketOfSymbol(s) === 'US').length;
   const fundamentalCount = syms.filter(sym => {
     const row = data[sym] || {};

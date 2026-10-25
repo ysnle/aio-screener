@@ -19,6 +19,8 @@ import { RULES } from '../../domain/rules/thresholds.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
+import { breadthScopeOf } from '../../domain/market/screener-breadth.js';
+import { noteFold } from './section-frame.js';
 
 const WINDOW = 126; // about six months of sessions
 
@@ -179,14 +181,18 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   // T12 (expert review 2026-10-13): the count came from screener.json (811) while the ratios come from the history row
   // (804 judged); the denominator is now the one stored with the shown 50-day ratio.
   const judgedCount = buildCloseSeries(inputs.history, 'breadth50', { through: regime.asOf, includeProvenance: true }).at(-1)?.eligible ?? null;
-  const denominator = judgedCount ? `, 판정 대상 ${judgedCount}개 종목` : '';
+  // v58.79 (owner 2026-10-25): the history says which population it counts — S&P 500 members after the switch.
+  const scope = breadthScopeOf(inputs.history);
+  const denominator = judgedCount ? (scope.sp500 ? `, S&P 500 ${judgedCount}개 종목` : `, 판정 대상 ${judgedCount}개 종목`) : '';
   // v57.51 V16: the same measure on S&P 500 members only, read from the screener artifact, so the watch list's theme
   // tilt is visible next to the headline ratios. Shown only when the segment is on the shown close date.
   const sp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null; // v57.77 perf: path read, no row clone
-  const sp500Same = sp500 && Number(sp500.eligible) >= 300 && Number.isFinite(sp500.above50) && String(sp500.observedAt || '').slice(0, 10) === String(regime.asOf || '').slice(0, 10);
+  const sp500Same = !scope.sp500 && sp500 && Number(sp500.eligible) >= 300 && Number.isFinite(sp500.above50) && String(sp500.observedAt || '').slice(0, 10) === String(regime.asOf || '').slice(0, 10);
   const sp500Read = sp500Same ? ` S&P 500 구성 종목만(${sp500.eligible}개) 보면 50일선 위 ${sp500.above50.toFixed(0)}%${Number.isFinite(sp500.above200) ? `, 200일선 위 ${sp500.above200.toFixed(0)}%` : ''}입니다.` : '';
   // v57.77: the subtitle is the date and the judged count; who is counted and how sits in the 데이터 출처 fold, and the
   // S&P 500 member read joins the participation group's reading below.
+  const basisNode = doc.getElementById('breadth-basis');
+  if (basisNode) basisNode.title = `${scope.label}의 1년 조정 종가로 계산한 값이며 거래소·지수 공식 통계가 아닙니다`;
   set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? `, 시장 폭 ${axis.basis}` : ''}${denominator}` : '종가 기록을 불러오는 중입니다.');
   const state = doc.getElementById('breadth-state');
   const tone = { favorable: 'good', burden: 'warn' }[axis?.state] || 'neutral';
@@ -224,8 +230,10 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       box.append(head);
       if (card.latest) box.append(el(doc, 'div', `${card.latest}${highLowBasis}`, 'trend-card-latest'));
       box.append(el(doc, 'div', `${changes || '변화 기록 수집 중'}${lateStart}`, 'trend-card-change'),
-        createTrendChart(doc, { series: points, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }),
-        el(doc, 'p', card.note, 'trend-card-note'));
+        createTrendChart(doc, { series: points, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
+      // v58.79 (layout over captions): how to read the chart is one fold down, not lines under every card.
+      const note = noteFold(doc, card.note);
+      if (note) box.append(note);
       if (card.drill) box.append(renderDrill(doc, root, card, root._aioBreadthContributors, basis));
       return box;
     };

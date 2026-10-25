@@ -827,9 +827,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
     // P1505: one folded 데이터 출처 note per screen.
-    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') renderHomeKpiTrends({ documentRef, root }); }); });
+    // Owner 2026-10-25: the index strip on 오늘 loads with the route (lazy chunk; the boot module set stays unchanged).
+    const renderIndexStrip = () => import('../ui/components/home-index-strip.js').then(({ renderHomeIndexStrip }) => renderHomeIndexStrip({ documentRef, root })).catch(() => {});
+    const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') { renderHomeKpiTrends({ documentRef, root }); renderIndexStrip(); } }); });
     const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) renderHomeKpiTrends({ documentRef, root }); });
-    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') renderHomeKpiTrends({ documentRef, root }); });
+    queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') { renderHomeKpiTrends({ documentRef, root }); renderIndexStrip(); } });
     // E2/LC-26: a mode change is a score input change, so re-derive the analysis slice instead of
     // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
     // event (not `aio:refresh:done`) so toggling the pill does not re-run every route provider.

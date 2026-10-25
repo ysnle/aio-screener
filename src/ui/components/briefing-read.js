@@ -9,6 +9,7 @@ import { briefingFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';
+import { asOfChip } from './section-frame.js';
 import { moveNewsList, moveNewsRows, renderMarketTimeline, symbolNames } from './market-timeline.js';
 import { renderSectorMoves } from './sector-moves.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -58,7 +59,8 @@ function renderMoveNews(doc, root, store, flow) {
   }
   const heading = el(doc, 'h2', '왜 움직였나 ', 'briefing-h2');
   heading.id = 'briefing-move-news-title';
-  heading.append(el(doc, 'span', `${shortDate(flow.session)} 미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마`, 'briefing-h2-note'));
+  // v58.79: date chip; what the list compares is its hover.
+  heading.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마'));
   const matched = rows.filter((row) => row.headline).length;
   const lead = el(doc, 'p', matched
     ? `${rows.length}곳 중 ${matched}곳은 같은 날 이름이 나온 보도나 채널 글이 있습니다. 보도는 같은 날 나왔다는 사실이며 원인을 확정하지는 않습니다.`
@@ -151,7 +153,7 @@ function renderEventPreview(doc, root, store, { xr, schedule, flow, nowMs }) {
   const wasOpen = !!section.querySelector('details.briefing-result-guide')?.open;
   const heading = el(doc, 'h2', '다음 이벤트 미리보기 ', 'briefing-h2');
   heading.id = 'briefing-events-title';
-  heading.append(el(doc, 'span', '시장이 예상하는 것, 결과 갈래, 지금 시나리오와의 연결', 'briefing-h2-note'));
+  heading.title = '시장이 예상하는 것, 결과 갈래, 지금 시나리오와의 연결';
   const first = previews[0];
   const lead = el(doc, 'p', `가장 가까운 큰 이벤트는 ${first.when} ${first.title}입니다.${first.branches.length > 1 ? ' 결과에 따라 지금 시나리오가 갈립니다.' : ''}`, 'briefing-read-reading');
   const list = el(doc, 'div', null, 'briefing-events-list');
@@ -249,7 +251,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
       return item;
     }) : [el(doc, 'div', '7일 안에 예정된 주요 일정이 없습니다.', 'briefing-empty')]));
     // v58.52: say how many reports the S&P-weight cut left out, instead of dropping them silently.
-    if (schedule.omittedEarnings > 0) scheduleRows.append(el(doc, 'div', `실적 발표는 S&P 500 비중이 큰 것(날짜마다 상위 2곳 포함)만 시간순으로 보여 줍니다. 나머지 ${schedule.omittedEarnings}건은 아래 이번 주 실적 발표 목록에 있습니다.`, 'briefing-event-meta'));
+    if (schedule.omittedEarnings > 0) scheduleRows.append(Object.assign(el(doc, 'div', `나머지 실적 발표 ${schedule.omittedEarnings}건은 아래 이번 주 실적 목록에`, 'briefing-event-meta'), { title: '실적 발표는 S&P 500 비중이 큰 것(날짜마다 상위 2곳 포함)만 시간순으로 보여 줍니다.' }));
   }
   renderEarningsWeek(doc, root, store, root._aioEarningsSnapshot);
 

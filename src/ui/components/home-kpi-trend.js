@@ -10,6 +10,8 @@ import { buildCloseSeries, closeBasis, sessionPointBack } from '../../domain/bri
 import { countOpenSessionsBetween, usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { createTrendChart } from './trend-chart.js';
 import { readMarketRegime } from './market-regime.js';
+import { asOfChip, markFrame } from './section-frame.js';
+import { breadthScopeOf } from '../../domain/market/screener-breadth.js';
 import { signedText } from '../../domain/shared/number.js';
 
 // C25: the second cell is the Nasdaq-100 (^NDX); the briefing's "나스닥 종합" is the Composite.
@@ -55,13 +57,20 @@ function svgLine(doc, points, width = 220, height = 40, neutral = false) {
 
 // v58.74: usWeekendClosed lives in market-calendar.js (the futures cell and the home schedule read it too).
 export { usWeekendClosed };
-export const HOME_QUOTE_HEADINGS = Object.freeze({ open: '지금 시세 (실시간·지연)', weekend: '지금 시세 (주말 휴장, 금요일 마감 값, BTC는 실시간)' });
+// v58.79 (layout over captions): the heading is "지금 시세" with the quote state as its chip; the longer basis is the hover.
+export const HOME_QUOTE_HEADINGS = Object.freeze({
+  open: Object.freeze({ chip: '실시간·지연', detail: '등락은 각 시세의 전일 대비입니다' }),
+  weekend: Object.freeze({ chip: '주말 휴장', detail: '금요일 마감 값, BTC는 실시간' })
+});
 
 export function renderHomeKpiTrends({ documentRef: doc, root, nowMs = Date.now() }) {
   const strip = doc?.getElementById?.('home-kpi-strip');
   if (!strip) return 0;
   const heading = doc.getElementById?.('home-quote-basis');
-  if (heading) heading.textContent = HOME_QUOTE_HEADINGS[usWeekendClosed(nowMs) ? 'weekend' : 'open'];
+  if (heading) {
+    const state = HOME_QUOTE_HEADINGS[usWeekendClosed(nowMs) ? 'weekend' : 'open'];
+    heading.replaceChildren(doc.createTextNode('지금 시세 '), asOfChip(doc, state.chip, state.detail));
+  }
   const history = Array.isArray(root?._aioHistory) ? root._aioHistory : [];
   let drawn = 0;
   for (const cell of CELLS) {
@@ -169,10 +178,12 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   title.className = 'sx-card__title';
   title.id = 'home-participation-title';
   title.textContent = participationTitle(spxMove, hasBreadth ? b0 : null, hasBreadth ? b1 : null);
-  const meta = doc.createElement('span');
-  meta.className = 'sx-card__meta';
-  meta.textContent = `최근 ${spx.length - 1}거래일`;
-  head.append(title, meta);
+  // v58.79 section frame: the head is the title and the last close as its chip (the period is the reading's first words);
+  // the old "데이터 기준과 출처" row repeated the page's 데이터 출처 fold and left.
+  const [, endMonth, endDay] = range[1].split('-').map(Number);
+  head.classList.add('aio-frame-head');
+  head.append(title, asOfChip(doc, `${endMonth}/${endDay} 종가`, `최근 ${spx.length - 1}거래일, ${range[0]} ~ ${range[1]} 종가`));
+  markFrame(host, 'home.participation');
   const note = doc.createElement('p');
   note.className = 'home-participation-read';
   note.textContent = read;
@@ -192,7 +203,7 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   };
   grid.append(
     card('S&P 500 종가', `${signedText(spxMove, 1)}%`, createTrendChart(doc, { series: spx, format: (value) => value.toFixed(0), label: 'S&P 500 종가', range })),
-    card('50일선 위 종목 비율, 기준선 40%·60%', hasBreadth ? `${b0.toFixed(0)}% → ${b1.toFixed(0)}%` : '기록 수집 중', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
+    card('50일선 위 종목 비율', hasBreadth ? `${b0.toFixed(0)}% → ${b1.toFixed(0)}%` : '기록 수집 중', createTrendChart(doc, { series: b50In, refLines: [40, 60], format: (value) => `${value.toFixed(0)}%`, label: '50일선 위 종목 비율', domain: [0, 100], range }))
   );
   // v57.76: the five same-session breadth cards repeated the 시장 폭 screen on the home; the two charts and their
   // one-line read stay, the counting basis folds, and one link leads to the full breadth screen.
@@ -201,7 +212,11 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   const label = doc.createElement('summary');
   label.textContent = '집계 기준';
   const text = doc.createElement('p');
-  text.textContent = '50일선 위 종목 비율은 ETF를 뺀 AIO 관찰 목록(미국)의 개별 주식으로 계산해 거래소 전체 집계와 다릅니다. 두 차트는 같은 기간을 쓰지만 세로축은 각자의 단위입니다.';
+  // v58.79 (owner 2026-10-25): S&P 500 members after the producer switch; the history row says which population it counts.
+  const scope = breadthScopeOf(root?._aioHistory);
+  text.textContent = scope.sp500
+    ? '50일선 위 종목 비율은 S&P 500 구성 종목으로 계산한 값이며 지수 회사의 공식 통계가 아닙니다. 두 차트는 같은 기간을 쓰지만 세로축은 각자의 단위입니다.'
+    : '50일선 위 종목 비율은 ETF를 뺀 AIO 관찰 목록(미국)의 개별 주식으로 계산해 거래소 전체 집계와 다릅니다. 두 차트는 같은 기간을 쓰지만 세로축은 각자의 단위입니다.';
   detail.append(label, text);
   // 2b link rows: the axis board, the breadth screen, and this page's 데이터 출처 fold.
   const regime = root ? readMarketRegime(root) : null;
@@ -215,14 +230,6 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   breadthRow.classList.add('home-breadth-link');
   breadthRow.dataset.action = 'showPage';
   breadthRow.dataset.arg = 'breadth';
-  const [, month, day] = range[1].split('-').map(Number);
-  const sourceRow = linkRow(doc, '데이터 기준과 출처', `${month}/${day} 종가`, () => {
-    const fold = doc.querySelector('#page-home > details.page-sources');
-    if (!fold) return;
-    fold.open = true;
-    fold.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
-    fold.querySelector('summary')?.focus?.({ preventScroll: true });
-  });
-  rows.append(axisRow, breadthRow, sourceRow);
+  rows.append(axisRow, breadthRow);
   host.replaceChildren(head, note, grid, detail, rows);
 }

@@ -2329,7 +2329,9 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     const rankedCount = screened || ranking.ranked || 0;
     // v57.81: which population the percentiles come from — the core universe or the extended one.
     const contract = RANKING_CONTRACTS[rawState?.metadata?.universeScope === 'extended' ? 'extended' : 'core'];
-    diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 순위 계산 ${rankedCount}종목(${contract.label}), 표시 ${filtered.length}개, ${order}, 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
+    // v58.79: the counts stay on screen; the order (already in its select) and the weights are the line's hover.
+    diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 순위 계산 ${rankedCount}종목(${contract.label}), 표시 ${filtered.length}개`;
+    diagnostics.title = `${order}, 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
     diagnostics.dataset.rankingContract = contract.id;
     const excluded = documentRef.getElementById('scr-population-excluded');
     if (excluded) {

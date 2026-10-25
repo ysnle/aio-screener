@@ -17,6 +17,8 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .trend-chart-band { fill: rgba(var(--ink-rgb), 0.05); }
 .trend-chart-ref { stroke: rgba(var(--ink-rgb), 0.28); stroke-width: 1; stroke-dasharray: 3 4; }
 .trend-chart-ref.is-band-edge { stroke: none; }
+.trend-chart-ref-label { font-size: 12px; fill: var(--text-muted); font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--bg-card); stroke-width: 3px; stroke-linejoin: round; } /* v58.79: a threshold names its value */
+@container (max-width: 380px) { .page .trend-chart-wrap .trend-chart-ref-label { font-size: 17px; } }
 .trend-chart-dot { stroke-width: 1.5; }
 .trend-chart-tip { border-radius: 8px; }
 .trend-card { border-radius: 12px !important; }
@@ -191,11 +193,17 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
   background: var(--bg-card) !important; border-radius: 12px !important; box-shadow:none !important; padding: 20px 22px !important; margin: 0 0 16px !important; border: 0 !important;
 }
 :is(#page-macro, #page-fxbond) .macro-section > .briefing-h2, :is(#page-macro, #page-fxbond) .rates-block > .briefing-h2 { margin: 0 0 6px; font-size: 14px !important; font-weight: 700; }
-.mk-macro-top { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 14px; align-items: start; margin: 0 0 14px; }
+.mk-macro-top { display: grid; grid-template-columns: minmax(340px, 5fr) minmax(0, 7fr); gap: 14px; align-items: start; margin: 0 0 14px; }
+/* Owner 2026-10-25: the quadrant card stays in view beside the factor rows instead of ending early above an empty column. */
+.mk-macro-top > .sx-card:first-child { position: sticky; top: 16px; }
+#page-macro .page-head > div:has(> .page-title) { flex-direction: column; flex: 1 1 0; min-width: 0; }
+#page-macro .page-head .macro-next-release { order: -1; margin: 0; }
+#page-macro .page-head #macro-board-basis { max-width: 72ch; font-size: 13px !important; line-height: 1.6; color: var(--text-secondary) !important; }
 .mk-macro-top > .sx-card { margin: 0 !important; padding: 22px !important; }
 .mk-factor-card { padding: 16px 8px 8px !important; }
 .mk-factor-card > .briefing-h2, .mk-factor-card > .macro-section-lead { padding: 0 16px; }
 #page-macro .mk-quad-card .macro-overview { display: flex; flex-direction: column; gap: 12px; }
+#page-macro .mk-quad-card .macro-overview-map { width: 100%; }
 #page-macro .macro-quadrant { max-width: 360px; margin: 0 auto; }
 #page-macro .macro-quadrant-cell { fill: rgba(var(--ink-rgb), 0.035) !important; fill-opacity: 1 !important; stroke: none !important; }
 #page-macro .macro-quadrant-cell.is-partial { stroke: rgba(var(--ink-rgb), 0.2) !important; stroke-width: 1 !important; stroke-dasharray: 4 3; }
@@ -301,6 +309,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 @media (max-width: 1023px) {
   .mk-hero { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .bb-pair, .mk-macro-top, .mk-rates-top { grid-template-columns: minmax(0, 1fr); }
+  .mk-macro-top > .sx-card:first-child { position: static; }
   .mk-rsum-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .mk-senti-hero { grid-template-columns: minmax(0, 1fr); }
   #sentiment-card-grid, #sentiment-mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }

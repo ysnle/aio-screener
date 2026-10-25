@@ -16,6 +16,7 @@ import { sentimentFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { computeCompositeFearGreed } from '../../domain/sentiment/composite-fear-greed.js';
 import { el } from './dom.js';
+import { noteFold } from './section-frame.js';
 import { splitReading } from './market-regime.js';
 import { signedText } from '../../domain/shared/number.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -237,11 +238,13 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       box.append(tags);
       if (card.change) box.append(el(doc, 'div', card.change, 'trend-card-change'));
       if (card.series) box.append(createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
-      box.append(el(doc, 'p', card.note, 'trend-card-note'));
       // v57.77: providers moved from the hover (unreachable on a phone) to the page's 데이터 출처 fold (page-sources.js).
-      const rules = card.rules ? [el(doc, 'h4', '판정 기준'), el(doc, 'p', card.rules)] : [];
+      // v58.79 (layout over captions): the card's how-to-read note opens with its deep-dive fold instead of sitting under
+      // every chart; a card without a deep dive keeps it in a small "설명" fold.
+      const rules = [...(card.note ? [el(doc, 'p', card.note)] : []), ...(card.rules ? [el(doc, 'h4', '판정 기준'), el(doc, 'p', card.rules)] : [])];
       const fold = deepDiveFold(doc, root, card.title.replace(/ \(.*\)$/, ''), SENTIMENT_DEEP_DIVES[card.id], rules); // P1660
       if (fold) box.append(fold);
+      else { const note = noteFold(doc, card.note); if (note) box.append(note); }
       return box;
     }));
   }

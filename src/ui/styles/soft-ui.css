@@ -45,16 +45,7 @@ body { background: var(--bg-base) !important; font-family: var(--font-sans); col
 .logo-mark { display: inline !important; font-family: var(--font-sans) !important; font-size: 18px !important; font-weight: 800 !important; letter-spacing: -0.02em !important; line-height: 1.2 !important; }
 .logo-sub { display: inline !important; margin: 0 !important; font-size: 12px !important; font-weight: 400 !important; color: var(--text-secondary) !important; letter-spacing: 0 !important; }
 
-.sx-sidebar-search {
-  appearance: none; display: flex; align-items: center; justify-content: space-between; width: 100%;
-  height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: var(--sx-ink-a06);
-  font: inherit; font-size: 12px; color: var(--text-muted); cursor: pointer; text-align: left;
-  
-}
-.sx-sidebar-search:hover { background: var(--sx-ink-a08); color: var(--text-secondary); }
-.sx-sidebar-search kbd { font: inherit; font-size: 12px; color: var(--text-muted); }
 /* v58.68 (owner 2026-10-23): a shortcut hint is noise where there is no keyboard (phone, tablet). */
-@media (hover: none) and (pointer: coarse) { .sx-sidebar-search kbd { display: none; } }
 
 .nav-section { display: flex; flex-direction: column; gap: 2px; padding: 0 !important; margin: 0 !important; border: 0 !important; }
 .nav-section + .nav-section { border-top: 0 !important; margin-top: 0 !important; }
@@ -180,10 +171,12 @@ h2, .section-title, .widget-title, .aio-card-title, .section-header {
 .aio-decision-verdict { font-size: 28px !important; font-weight: 700 !important; letter-spacing: -0.02em !important; }
 
 .trend-card, .regime-axis, .macro-stat, .macro-tile, .temp-tile, .thp-quadrant-card, .tp-card, .capex-flow-card,
-.sector-map-tile, .masters-metric, .pf-allocation-card, .regime-scenario-card, .xr-path-card, .scr-funnel-step,
+.masters-metric, .pf-allocation-card, .regime-scenario-card, .xr-path-card, .scr-funnel-step,
 .sh-base-panel, .sh-base-panel-s1, .empty-state, .stock-chart-evidence, .masters-detail-card, .rates-guide {
   border: 0 !important; border-radius: 12px !important; background: var(--sx-ink-a03) !important; box-shadow: none !important;
 }
+/* Owner 2026-10-25: .sector-map-tile left the soft-card list above — its !important ink background and 12px corners hid
+   the return shades (regime-quality.css), and the dark labels of the biggest movers vanished on it. */
 .aio-card .aio-card, .aio-widget .aio-widget { box-shadow: none !important; background: var(--sx-ink-a03) !important; border-radius: 12px !important; }
 
 details > summary { cursor: pointer; }
@@ -241,6 +234,19 @@ details > summary { cursor: pointer; }
 .sx-card--flush > .sx-card__head { padding: 0 16px 10px; }
 .sx-card__title { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); }
 .sx-card__meta { font-size: 12px; color: var(--text-secondary); }
+/* v58.79 section frame (src/ui/components/section-frame.js): the head holds a title, one as-of chip and actions — no
+   caption line; the body holds one reading of at most 240 characters. */
+.aio-frame-head { flex-wrap: wrap; row-gap: 6px; }
+.aio-frame-head:has(> .aio-frame-actions) { justify-content: flex-start; } /* the chip sits by the title; actions take the right */
+.aio-frame-head > .sr-only + .aio-asof { margin-left: auto; }
+.aio-asof { display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: 999px; background: var(--sx-ink-a03); color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.aio-asof[title] { cursor: help; }
+.aio-frame-actions { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.aio-note-fold { margin-top: 6px; }
+.aio-note-fold > summary { display: inline-flex; align-items: center; min-height: 24px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+.aio-note-fold__text { margin: 2px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+.macro-chain-rule { margin: 4px 0 8px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+.aio-frame-reading { margin: 0 0 12px; max-width: 72ch; font-size: 14px; line-height: 1.65; text-wrap: pretty; color: var(--text-primary); }
 .sx-tile { background: var(--sx-ink-a03); border-radius: 12px; padding: 16px 18px; }
 .sx-kicker { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .sx-verdict { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--text-primary); }
@@ -484,7 +490,7 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
   #ai-panel { width: 100vw !important; }
 }
 @media (pointer: coarse) {
-  .sx-btn, .sx-sidebar-search { min-height: 44px; }
+  .sx-btn { min-height: 44px; }
   .sx-seg > button, #aio-hub-tabs .aio-hub-tab { min-height: 44px !important; height: auto; }
   /* The repo's 44px touch rule (responsive.css, v57.81) is not !important; the redesign's compact desktop heights
      (pills, tiles, chips, 32px nav rows) are, so the rule is restated here to win on every touch device. */

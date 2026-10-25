@@ -17,7 +17,7 @@ export const PRICE_LEVEL_RULES = Object.freeze({
 });
 
 // Swing points confirmed by `span` bars on each side (the newest `span` bars cannot be confirmed yet).
-function swingPoints(bars, from, span) {
+export function swingPoints(bars, from, span) {
   const highs = [], lows = [];
   for (let i = Math.max(from, span); i < bars.length - span; i++) {
     let isHigh = true, isLow = true;

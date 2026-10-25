@@ -524,7 +524,10 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
 function createChangeLedger(documentRef, comparisonRows, state) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-change-ledger');
   section.appendChild(element(documentRef, 'h3', 'masters-holdings-title', '분기별 변화 표, 증권·주식 유형·옵션별 집계'));
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이로 나눈 분류입니다. 주식 분할·병합은 보정하지 않아, 주식 수는 크게 바뀌었는데 신고 가치가 비슷한 행은 분할 의심으로 따로 둡니다. 변화가 있는 행을 먼저 신고 가치 순으로 놓았고(왼쪽 번호는 표시 순서), 현재 가격·실제 매매·매매 신호·목표가를 뜻하지 않습니다.'));
+  // v58.79: the classification method is one fold down, not an open paragraph above the ledger.
+  const method = element(documentRef, 'details', 'aio-note-fold masters-method-fold');
+  method.append(element(documentRef, 'summary', '', '분류 방법'), element(documentRef, 'p', 'aio-note-fold__text', '두 보고분기의 신고 주식 수 차이로 나눈 분류입니다. 주식 분할·병합은 보정하지 않아, 주식 수는 크게 바뀌었는데 신고 가치가 비슷한 행은 분할 의심으로 따로 둡니다. 변화가 있는 행을 먼저 신고 가치 순으로 놓았고(왼쪽 번호는 표시 순서), 현재 가격·실제 매매·매매 신호·목표가를 뜻하지 않습니다.'));
+  section.appendChild(method);
   const filters = element(documentRef, 'div', 'masters-action-filters');
   const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
   ['ALL', 'NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED', ...(splitSuspects ? ['SPLIT_SUSPECT'] : [])].forEach((action) => {
@@ -1008,7 +1011,8 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   // Codex review 2026-10-05: a person's philosophy and the filer's holdings are different things. The
   // filing is the entity's — several funds and portfolio managers — not one person's every decision.
   if (manager.type !== 'METHOD_ONLY' && manager.filer && manager.filer !== manager.name && !/^(BlackRock|Vanguard|Citi|Goldman|JPMorgan|State Street|Capital Group|Fidelity|T\. Rowe|Wellington|Dimensional|Millennium|Renaissance|Two Sigma|Tudor|Starboard|Trian|ValueAct|Harvard)/.test(manager.name)) {
-    detail.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-entity-note', '보유는 위 법인 전체의 신고분이며, 모든 종목을 한 사람이 직접 골랐다는 뜻은 아닙니다.'));
+    // v58.79: short label; the full caveat is its hover.
+    detail.appendChild(Object.assign(element(documentRef, 'p', 'masters-holdings-meta masters-entity-note', '법인 전체 신고분'), { title: '보유는 위 법인 전체의 신고분이며, 모든 종목을 한 사람이 직접 골랐다는 뜻은 아닙니다.' }));
   }
   // A method-only profile has no 13F: no empty metric grid, compare toggle or filing tabs — only what exists.
   if (manager.type === 'METHOD_ONLY') {
@@ -1128,7 +1132,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
         const filingUrl = filingMeta?.latestFiling?.informationTableXml || filingMeta?.latestFiling?.indexUrl || holdingMeta?.latestFiling?.indexUrl || manager.sourceUrl || 'https://www.sec.gov/edgar/search-and-access';
         const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', shardLoaded
           ? `웹 화면은 신고 가치 상위 ${comparisonRows.length.toLocaleString('en-US')}개 비교 행까지만 제공합니다(신고 ${expected.toLocaleString('en-US')}건). 아래 표는 변화가 있는 행을 먼저 놓습니다. 나머지는 `
-          : `현재 신고 가치 상위 ${comparisonRows.length}개 보유를 먼저 불러왔습니다(신고 ${expected}건). 아래 표는 변화가 있는 행을 먼저 놓고 왼쪽 번호를 표시 순서로 씁니다. `);
+          : `신고 ${expected}건 중 가치 상위 ${comparisonRows.length}개, 변화 있는 행 먼저 `);
         if (shardLoaded) {
           const link = element(documentRef, 'a', 'masters-source-link', 'SEC 원문 신고서');
           applySafeExternalLink(link, filingUrl);

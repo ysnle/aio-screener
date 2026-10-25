@@ -20,6 +20,7 @@ const DAY_MS = 86400000;
 import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile } from '../market/close-series.js';
 import { buildLeadershipVerdict } from '../market/leadership-verdict.js';
 import { signedText } from '../shared/number.js';
+import { breadthScopeOf } from '../market/screener-breadth.js';
 import { fearGreedBand } from '../sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
@@ -558,11 +559,13 @@ export function buildMarketRead(input = {}) {
   const b50 = s.breadth50?.value ?? null;
   const members = sp500BreadthOn(input.breadthSp500, spx.date);
   const narrowB50 = members ? members.above50 : b50;
-  const narrowWho = members ? 'S&P 500 구성 종목' : 'AIO 추적 종목(미국)';
+  // v58.79 (owner 2026-10-25): the history's breadth counts S&P 500 members after the producer switch.
+  const historyWho = breadthScopeOf(input.history).sp500 ? 'S&P 500 구성 종목' : 'AIO 추적 종목(미국)';
+  const narrowWho = members ? 'S&P 500 구성 종목' : historyWho;
   if (b50 != null && spxFromHigh != null) {
     if (spxFromHigh > -RULES.technical.nearHighPct && narrowB50 < RULES.breadth.weakBelow) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 ${narrowWho} 중 50일선 위 종목은 ${fmt(narrowB50, 0)}%뿐입니다.`, 'index', { reading: '지수 상승이 일부 대형주에 집중된 좁은 장세일 수 있습니다.', check: `${narrowWho} 중 50일선 위 비율이 ${RULES.breadth.weakBelow}% 위로 회복되는지(현재 ${fmt(narrowB50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
-    else if (b50 >= RULES.breadth.broadAtLeast && spx20 != null && spx20 > 0) add('broad-rally', 55, `AIO 추적 종목(미국) 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
-    else if (b50 < B.broadWeakBelow && spx20 != null && spx20 < 0) add('broad-weakness', 70, `AIO 추적 종목(미국) 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
+    else if (b50 >= RULES.breadth.broadAtLeast && spx20 != null && spx20 > 0) add('broad-rally', 55, `${historyWho} 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
+    else if (b50 < B.broadWeakBelow && spx20 != null && spx20 < 0) add('broad-weakness', 70, `${historyWho} 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
   }
   // P1416: leadership and distribution (definitions in src/domain/market/breadth-signals.js).
   const nh = s.breadthNewHighs?.date === spx.date ? s.breadthNewHighs.value : null;
@@ -1168,6 +1171,7 @@ export function buildMarketRegime(input = {}) {
     const narrow = state === 'burden' && fromHigh != null && fromHigh > -RULES.technical.nearHighPct;
     const members = sp500BreadthOn(input.breadthSp500, spx.date);
     const narrowWho = members && members.above50 < RULES.breadth.weakBelow ? `S&P 500 구성 종목 중 50일선 위 ${fmt(members.above50, 0)}%로`
+      : breadthScopeOf(input.history).sp500 ? 'S&P 500 구성 종목 가운데 이동평균선 위 비율이 낮은'
       : `AIO 추적 종목(미국) 가운데 이동평균선 위 비율이 낮은${members ? `(S&P 500 구성 종목은 50일선 위 ${fmt(members.above50, 0)}%)` : ''}`;
     const partial = state !== 'unknown' && (b50 == null || b200 == null) ? ` (${b50 == null ? '50일선' : '200일선'} 비율 미수신 — 나머지 하나로만 판단)` : '';
     // v57.50 D20: the 40/60 lines are conventions; beside them, where today's ratio sits in AIO's own record

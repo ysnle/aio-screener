@@ -16,6 +16,7 @@
 #page-home .home-hero-lede { font-size: 14px; line-height: 1.65; max-width: 62ch; }
 #page-home .home-hero-lede:empty { display: none; }
 #page-home .home-hero-basis { font-size: 12px; line-height: 1.6; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+#page-home .home-hero-basis:empty { display: none; } /* v58.79: speaks only when the verdict is held */
 #page-home .home-kr-line { font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 /* Axis capsules: the six US axes + the Korea reference, 28px pills, verdict colours only (red is never a verdict). */
 #page-home #home-score-hero .home-hero-chips {
@@ -52,7 +53,6 @@
 #page-home .home-flip-axis { font-weight: 600; color: var(--text-primary); }
 /* v58.55: distance rows — badge · one short sentence · the distance chip (design 2b), nearest first. */
 #page-home .home-flips-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-#page-home .home-flips-order { font-size: 12px; color: var(--text-muted); white-space: nowrap; cursor: help; }
 #page-home .home-flip[data-direction] { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 12px; align-items: start; }
 #page-home .home-flip[data-direction] .home-flip-text { color: var(--text-primary); }
 #page-home .home-flip-num { font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -69,8 +69,6 @@
 #page-home .home-flips-rules { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px 0; margin: 0; padding: 0 8px 10px; font-size: 12px; line-height: 1.6; }
 #page-home .home-flips-rules dt { margin-top: 6px; font-weight: 600; color: var(--text-primary); }
 #page-home .home-flips-rules dd { margin: 0; color: var(--text-secondary); overflow-wrap: anywhere; }
-#page-home .home-flips-link { align-self: flex-start; margin-top: auto; min-height: 24px; }
-#page-home .home-flips-link::after { content: ' ›'; }
 /* v58.56 (re-audit #2): the hero reads one plain sentence; the conflict sentences with numbers and rules fold under the chips. */
 #page-home .home-hero-lede { font-size: 18px; font-weight: 600; color: var(--text-primary); line-height: 1.5; }
 #page-home .home-hero-why { margin: 2px -8px 0; }
@@ -94,7 +92,7 @@
 #page-home .home-changes-title { margin: 0; font-size: 14px; font-weight: 700; font-family: var(--font-sans); white-space: nowrap; }
 #page-home .home-changes-lead { margin: 0; font-size: 12px; line-height: 1.5; color: var(--text-secondary); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #page-home .home-changes[open] .home-changes-lead { white-space: normal; }
-#page-home .home-changes-note { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+#page-home .home-changes-asof { justify-self: end; } /* v58.79: the compared closes as the row's as-of chip */
 #page-home .home-changes-body { padding: 0 20px 18px; display: flex; flex-direction: column; gap: 10px; }
 #page-home .home-changes-body .daily-moves { gap: 10px; }
 #page-home .home-changes-body .daily-move { border: 0; border-radius: 12px; background: var(--sx-ink-a03); padding: 12px 14px; }
@@ -103,7 +101,7 @@
 #page-home .daily-move-value { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* ═══ 3. KPI tiles (value 26 · change 13/600 · line · 20거래일 foot) + quote row ═══════════ */
-#page-home .home-quote-basis { margin: 4px 0 10px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+#page-home .home-quote-title { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; font-family: var(--font-sans); font-size: 14px; font-weight: 700; color: var(--text-primary); } /* v58.79: title + quote-state chip */
 #page-home #home-kpi-strip.home-kpi-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0 0 14px; border: 0; }
 #page-home #home-kpi-strip > [role="button"] {
   display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 18px 20px; border: 0; border-radius: 12px;
@@ -152,6 +150,7 @@
 #page-home .daily-card-head { padding: 0 16px 10px; align-items: baseline; }
 #page-home .daily-card-head .briefing-h2 { margin: 0; font-family: var(--font-sans); font-size: 14px; font-weight: 700; }
 #page-home #home-daily-loop .daily-headline { margin: 0 16px 8px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+#page-home #home-daily-loop .daily-subhead { margin-top: 12px; font-family: var(--font-sans); font-weight: 600; } /* v58.79: a sub-heading, not a caption */
 #page-home #home-daily-loop .daily-names { gap: 0; }
 #page-home #home-daily-loop .daily-name {
   grid-template-columns: auto minmax(0, 1fr) auto 84px; gap: 2px 12px; align-items: center; padding: 12px 16px; border: 0; border-radius: 12px;
@@ -376,8 +375,6 @@
   #page-home #home-kpi-strip.home-kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } /* responsive-shell's card-grid rule */
   #page-home #home-daily-loop.daily-loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #page-home .home-changes > summary { grid-template-columns: auto minmax(0, 1fr) auto; }
-  #page-home .home-changes-note { display: none; }
-  #page-home .home-changes[open] .home-changes-note { display: block; grid-column: 1 / -1; white-space: normal; }
   #page-briefing .briefing-event { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
 @media (max-width: 743px) {
@@ -391,7 +388,7 @@
   #page-home #home-daily-loop.daily-loop { grid-template-columns: minmax(0, 1fr); }
   #page-home #home-daily-loop .daily-name { grid-template-columns: auto minmax(0, 1fr) auto; }
   #page-home #home-daily-loop .daily-name-price { display: none; }
-  #page-home #home-daily-loop .daily-name-symbol, #page-home .home-flips-link, #page-home .home-flips-full > summary, #page-home #home-daily-loop .flow-next-link { min-height: 44px; }
+  #page-home #home-daily-loop .daily-name-symbol, #page-home .home-flips-full > summary, #page-home #home-daily-loop .flow-next-link { min-height: 44px; }
   #page-home .home-changes > summary { grid-template-columns: minmax(0, 1fr) auto; }
   #page-home .home-changes-lead { grid-column: 1 / -1; grid-row: 2; white-space: normal; }
   #page-home .home-participation-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 8px 20px 12px; }
@@ -451,3 +448,37 @@
 #page-market-news .news-reading-guide { margin: 8px 10px 0; }
 #page-market-news .news-reading-guide > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 10px 12px; min-height: 44px; box-sizing: border-box; font-size: 12px; color: var(--text-secondary); }
 #page-market-news .news-reading-guide ul { margin: 6px 12px 8px; padding-left: 18px; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
+
+/* Owner 2026-10-25: the four index ETFs' last regular session opens 오늘 (src/ui/components/home-index-strip.js). */
+#page-home .home-index-strip { margin: 0 0 16px; }
+#page-home .home-index-strip:empty { display: none; }
+#page-home .home-index-strip > .aio-frame-head { padding: 0 0 8px; }
+#page-home .home-index-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+#page-home .home-index-card { display: flex; flex-direction: column; gap: 6px; min-width: 0; margin: 0; padding: 12px 14px 10px; border: 0; border-radius: 12px; background: var(--bg-card); color: var(--text-primary); font: inherit; text-align: left; cursor: pointer; }
+#page-home .home-index-card:hover { background: var(--sx-ink-a03, var(--bg-card)); }
+#page-home .home-index-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#page-home .home-index-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; }
+#page-home .home-index-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; white-space: nowrap; }
+#page-home .home-index-name strong { font-size: 14px; font-weight: 700; }
+#page-home .home-index-sym { font-size: 12px; color: var(--text-muted); }
+#page-home .home-index-change { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text-secondary); }
+#page-home .home-index-change.is-up, #page-home .home-index-last.is-up { color: var(--data-green); }
+#page-home .home-index-change.is-down, #page-home .home-index-last.is-down { color: var(--data-red); }
+#page-home .home-index-plot { display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 6px; height: 96px; }
+#page-home .home-index-plot.is-empty { display: block; border-radius: 8px; background: var(--sx-ink-a03, transparent); }
+#page-home .home-index-chart { display: block; width: 100%; height: 100%; overflow: visible; }
+#page-home .home-index-canvas { position: relative; min-width: 0; height: 100%; }
+#page-home .home-index-prev-tag { position: absolute; left: 0; transform: translateY(-50%); padding: 1px 3px; border-radius: 3px; background: var(--bg-card); font-size: 12px; line-height: 1; color: var(--text-muted); pointer-events: none; }
+#page-home .home-index-prev { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
+#page-home .home-index-wick { stroke-width: 1; }
+#page-home .home-index-wick.is-up { stroke: var(--data-green); }
+#page-home .home-index-wick.is-down { stroke: var(--data-red); }
+#page-home .home-index-body.is-up { fill: var(--data-green); }
+#page-home .home-index-body.is-down { fill: var(--data-red); }
+#page-home .home-index-axis { display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; text-align: right; }
+#page-home .home-index-last { font-weight: 700; }
+#page-home .home-index-times { position: relative; height: 16px; margin-right: 58px; font-size: 12px; line-height: 16px; color: var(--text-muted); }
+#page-home .home-index-times > span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+#page-home .home-index-times > span:last-child { transform: translateX(-100%); }
+@media (max-width: 1100px) { #page-home .home-index-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { #page-home .home-index-grid { gap: 8px; } #page-home .home-index-card { padding: 10px 10px 8px; } #page-home .home-index-plot { height: 64px; grid-template-columns: minmax(0, 1fr) 46px; } #page-home .home-index-times { margin-right: 52px; } #page-home .home-index-times > span:nth-child(2), #page-home .home-index-times > span:nth-child(3) { display: none; } #page-home .home-index-head { flex-wrap: wrap; row-gap: 2px; } }

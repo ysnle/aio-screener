@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { interpretationFromArtifacts } from './lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { releaseActuals, actualText, scoreRelease, EVENT_NAMES } from '../src/domain/market/macro-crossroads.js';
-import { THEME_STATES } from '../src/domain/scenarios/analogs.js';
+import { THEME_STATES, THEME_STAGE_RULE } from '../src/domain/scenarios/analogs.js';
 import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
 import { choiceName } from '../src/domain/guide/market-guide.js';
 import { withDirectionParticle } from '../src/domain/content/korean-particle.js';
@@ -46,6 +46,28 @@ export function loadThemeMaps(rootDir = ROOT) {
 
 const short = (title) => String(title || '').split(' — ')[0];
 const themeKey = (row) => `${row.market}:${row.id}`;
+
+/**
+ * v58.79 (owner 2026-10-25): the forward record (from 2026-10-12) plus the recomputed one (theme-stage-history.json, built
+ * by the screener run from adjusted closes with the same rule). A recorded day and a recorded theme always win; a day or
+ * a theme the record lacks is filled from the recomputed copy and marked `recomputed`. A copy built on another rule is
+ * ignored.
+ */
+export function mergeThemeHistory(recorded = [], backfill = null) {
+  const byDate = new Map((Array.isArray(recorded) ? recorded : []).filter((row) => row?.date).map((row) => [row.date, { ...row, themes: { ...(row.themes || {}) } }]));
+  const usable = backfill?.schemaVersion === 'theme-stage-history.v1' && backfill.rule === THEME_STAGE_RULE && Array.isArray(backfill.history);
+  if (!usable) return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+  const firstRecorded = [...byDate.keys()].filter((date) => !byDate.get(date).recomputed).sort()[0] || null;
+  for (const day of backfill.history) {
+    if (!day?.date || !day.themes) continue;
+    const own = byDate.get(day.date);
+    if (!own) { byDate.set(day.date, { date: day.date, themes: { ...day.themes }, recomputed: true }); continue; }
+    // Only a day before the forward record started takes a missing theme (a newer recorded day without it means it was not measured).
+    if (!own.recomputed && firstRecorded && day.date >= firstRecorded) continue;
+    for (const [key, value] of Object.entries(day.themes)) if (!(key in own.themes)) own.themes[key] = value;
+  }
+  return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
 
 /** What changed between two snapshots, as plain sentences. */
 export function diffSnapshots(previous, current, at) {
@@ -106,7 +128,7 @@ export function scoreNewReleases(macroHistory, lastScored = {}, at) {
   return { scored, lastScored: next };
 }
 
-export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, outcomes = null, previous = null, nowMs = Date.now() } = {}) {
+export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, outcomes = null, previous = null, themeBackfill = null, nowMs = Date.now() } = {}) {
   const at = new Date(nowMs).toISOString();
   // Owner 2026-10-19: the shared interpretation (the same stages the screens, the AI and the narrative read). The
   // structure outlook here has no live sector rows (no rotation input), as before.
@@ -129,7 +151,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const { scored, lastScored } = scoreNewReleases(macroHistory, previous?.lastScored || {}, at);
   const eventOutcomes = [...(previous?.eventOutcomes || []), ...scored].slice(-MAX_EVENT_OUTCOMES);
   const themeDay = playbook.asOf;
-  const themeHistory = (previous?.themeHistory || []).filter((row) => row.date !== themeDay);
+  const themeHistory = mergeThemeHistory(previous?.themeHistory || [], themeBackfill).filter((row) => row.date !== themeDay);
   if (themeDay) themeHistory.push({ date: themeDay, themes: Object.fromEntries(snapshot.themes.map((row) => [themeKey(row), [row.ret1m == null ? null : Math.round(row.ret1m * 10) / 10, row.state]])) });
   return {
     schemaVersion: SCENARIO_STATE_SCHEMA, status: SCENARIO_STATE_CURRENT, generatedAt: at,
@@ -148,7 +170,7 @@ async function main() {
   const history = Array.isArray(historyRaw) ? historyRaw : historyRaw?.rows || historyRaw?.history || [];
   const payload = buildScenarioState({
     data: readJson(PD('data.json')), history, macroHistory: readJson(PD('macro-history.json')), calendar: readJson(PD('macro-calendar.json')),
-    screener: readJson(PD('screener.json')), themeMaps: loadThemeMaps(ROOT), outcomes: ((out) => (out?.status === 'current' ? out : null))(readJson(PD('scenario-outcomes.json'))), previous: ((prev) => (prev?.status === 'current' ? prev : null))(readJson(PD('scenario-state.json'))) // a pending placeholder is not a previous state
+    screener: readJson(PD('screener.json')), themeMaps: loadThemeMaps(ROOT), themeBackfill: readJson(PD('theme-stage-history.json')), outcomes: ((out) => (out?.status === 'current' ? out : null))(readJson(PD('scenario-outcomes.json'))), previous: ((prev) => (prev?.status === 'current' ? prev : null))(readJson(PD('scenario-state.json'))) // a pending placeholder is not a previous state
   });
   if (!payload.crossroads.items.length) { console.warn('[scenario-state] no branches computed — artifact unchanged'); return; }
   await atomicWriteFile(PD('scenario-state.json'), JSON.stringify(payload));

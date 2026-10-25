@@ -30,9 +30,9 @@
       "banned": "매크로",
       "pattern": "매크로",
       "preferred": "거시",
-      "reason": "The screen is 거시 · 금리; Korean UI uses 거시 (거시 경제, 거시 지표, 거시 조건).",
+      "reason": "Korean UI prose and tab names use 거시 (거시 경제, 거시 지표, 거시 조건); the sidebar hub alone is 매크로 (owner 2026-10-25).",
       "allowedContexts": [
-        { "pattern": "매크로\\s*(?:헤지\\s*)?펀드", "reason": "글로벌 매크로 펀드 is the industry name of a fund style (대가 보유 종목), not the screen or the economy." }
+        { "pattern": "매크로\\s*(?:헤지\\s*)?펀드", "reason": "글로벌 매크로 펀드 is the industry name of a fund style (대가 보유 종목), not the screen or the economy." }, { "pattern": "^매크로$", "reason": "Owner 2026-10-25: the sidebar hub holding 거시 경제 and 금리와 환율 is named 매크로 (the label string alone, never a sentence)." }
       ]
     },
     {

@@ -7,20 +7,7 @@ const SCROLL_CUE_BOXES = '.page .aio-table-scroll,#screener-results-table .scr-r
 const TAB_FOR_ROUTE = Object.freeze({ home: 'today', briefing: 'today', 'market-news': 'today', signal: 'market', breadth: 'market', sentiment: 'market', screener: 'screener', ticker: 'stock', technical: 'stock', fundamental: 'stock' });
 const FOCUSABLE = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[role="button"][tabindex],[tabindex]:not([tabindex="-1"])';
 
-// v58.68 (owner 2026-10-23): the sidebar search hint showed the Mac key (⌘K) on Windows, where the shortcut is Ctrl+K.
-// Ctrl K is the markup default; a Mac keyboard reads ⌘K (the e.metaKey branch of the shortcut handler). Touch devices
-// hide the hint in CSS.
-export function applySearchShortcutHint(root, doc) {
-  const kbd = doc.getElementById('sx-search-kbd');
-  if (!kbd) return;
-  const nav = root.navigator || {};
-  const mac = /mac|iphone|ipad|ipod/i.test(String(nav.userAgentData?.platform || nav.platform || ''));
-  kbd.textContent = mac ? '⌘K' : 'Ctrl K';
-  kbd.parentElement?.setAttribute('aria-label', mac ? '종목 검색 (⌘K)' : '종목 검색 (Ctrl+K)');
-}
-
 export function installResponsiveShell(root, doc) {
-  applySearchShortcutHint(root, doc);
   const sidebar = doc.querySelector('.sidebar');
   const main = doc.querySelector('.main');
   const toggle = doc.getElementById('sidebar-toggle-btn');

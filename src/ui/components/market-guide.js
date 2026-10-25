@@ -25,7 +25,9 @@ export function lessonItem(doc, root, lesson, { withReason = true } = {}) {
   head.append(el(doc, 'span', LESSON_KINDS[lesson.kind], 'mg-kind'), el(doc, 'strong', lesson.title, 'mg-lesson-title'));
   item.append(head, el(doc, 'p', lesson.principle, 'mg-lesson-principle'));
   // Today's reason when the data touches the lesson; otherwise the mechanism behind it.
-  item.append(withReason && lesson.reason ? el(doc, 'p', `근거: ${lesson.reason}`, 'mg-lesson-reason') : el(doc, 'p', `왜: ${lesson.why}`, 'mg-lesson-why'));
+  // v58.79 (layout over captions): today's reason stays on the card; the general mechanism ("왜") is one fold down.
+  if (withReason && lesson.reason) item.append(el(doc, 'p', `근거: ${lesson.reason}`, 'mg-lesson-reason'));
+  else if (lesson.why) { const why = el(doc, 'details', null, 'mg-lesson-more'); why.append(el(doc, 'summary', '왜'), el(doc, 'p', lesson.why, 'mg-lesson-why')); item.append(why); }
   item.append(conceptButton(doc, root, lesson));
   return item;
 }

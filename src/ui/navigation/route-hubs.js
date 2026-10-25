@@ -4,7 +4,7 @@
 export const ROUTE_HUBS = Object.freeze([
   { id: 'today', label: '오늘', routes: [{ id: 'home', label: '요약' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
   { id: 'market', label: '시장 상태', routes: [{ id: 'signal', label: '국면 판정' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }] },
-  { id: 'macro', label: '거시와 금리', routes: [{ id: 'macro', label: '거시 경제' }, { id: 'fxbond', label: '금리와 환율' }] },
+  { id: 'macro', label: '매크로', routes: [{ id: 'macro', label: '거시 경제' }, { id: 'fxbond', label: '금리와 환율' }] },
   { id: 'themes', label: '테마와 섹터', routes: [{ id: 'themes', label: '테마와 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
   // P1430: one 종목 screen — 요약 · 차트 · 재무 공시 are three views of the same selected company.
   { id: 'stock', label: '종목', routes: [{ id: 'ticker', label: '요약' }, { id: 'technical', label: '차트' }, { id: 'fundamental', label: '재무 공시' }] },

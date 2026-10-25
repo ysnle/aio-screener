@@ -283,7 +283,7 @@ check('LC-45/P1225 portfolio table is currency-aware', /const priceCurrency = St
 check('LC-46/P1226 macro release state is shown on each indicator card', !/macro-fred-stale-banner/.test(html) && /_freshness_\$\{keys\[0\]\}/.test(read('src/domain/macro/indicators.js')) && /이번 수집 실패, 직전 발표값/.test(read('src/ui/components/macro-board.js')));
 // LC-47/P1227: the 50SMA readout is owned by the native renderer and the advance share is named.
 // P1395: one owner (breadth-board.js) labels every measure with its population and window.
-check('LC-47/P1227 breadth readout single-owner and share label', !/breadth-50sma-readout/.test(html) && /50일선 위 종목 비율/.test(read('src/ui/components/breadth-board.js')) && /상승 종목 비율 \(10일 평균\)/.test(read('src/ui/components/breadth-board.js')) && /AIO가 추적하는 미국 종목/.test(html));
+check('LC-47/P1227 breadth readout single-owner and share label', !/breadth-50sma-readout/.test(html) && /50일선 위 종목 비율/.test(read('src/ui/components/breadth-board.js')) && /상승 종목 비율 \(10일 평균\)/.test(read('src/ui/components/breadth-board.js')) && /breadthScopeOf\(/.test(read('src/ui/components/breadth-board.js'))); // v58.79: the population label follows each row's own scope (S&P 500 or AIO US), not a page footnote
 // LC-48/P1227: the signal sector-breadth cell names its own population.
 check('LC-48/P1227 signal sector breadth names its population', !/SPDR 11 ETF/.test(html) || (/SPDR 11 ETF 당일/.test(html) && /Breadth의 AIO 종목 5\/20\/50일선 폭과 다른 모집단/.test(html))); // P1392: retired with the checklist
 // LC-49/P1228: the macro curve's availability is independent of the official 2s10s spread.

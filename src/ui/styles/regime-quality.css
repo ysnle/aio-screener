@@ -33,7 +33,6 @@
 .page [class*="grid"] > .regime-axis-deep { grid-column: 1 / -1; }
 .page .regime-scenarios { margin: 24px 0 30px; padding-top: 20px; border-top: 0.5px solid var(--border); }
 .page .regime-scenario-next { margin: 14px 0 0; } /* v57.76: one link line to 거시의 다음 발표별 시나리오 */
-.page .regime-scenario-basis { font-size: 14px; line-height: 1.75; color: var(--text-secondary); margin: 10px 0 16px; }
 .page .regime-scenario-hold { color: var(--text-primary);  padding: 10px 14px; font-size: 14px; line-height: 1.65; }
 .page .regime-scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .page .regime-scenario-card { min-width: 0; padding: 20px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--bg-card); }
@@ -445,6 +444,8 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .mg-lesson-principle { margin: 0; font-size: 14px; line-height: 1.65; color: var(--text-secondary); }
 .page .mg-lesson-reason { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-primary); }
 .page .mg-lesson-why { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
+.page .mg-lesson-more > summary { font-size: 12px; color: var(--text-secondary); cursor: pointer; min-height: 24px; min-width: 24px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; } /* v58.79: the mechanism is one fold down */
+.page .mg-lesson-more[open] > summary { margin-bottom: 2px; }
 .page .mg-concept-link { align-self: flex-start; margin-top: auto; min-height: 32px; padding: 4px 0; background: none; border: 0; color: var(--data-cyan); font-size: 12px; cursor: pointer; }
 .page .mg-concept-link:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
 .page .mg-library { margin: 4px 0 10px; }
@@ -468,3 +469,25 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .pf-stress-method { margin-top: 4px; }
 /* 2026-10-19 layout system: the Korea FX reference line after the six regime chips (src/ui/pages/analysis.js); old inline 12px reads --fs-base. */
 .page .regime-chip-reference { flex-basis: 100%; font-size: var(--fs-base); color: var(--text-muted); margin-top: 2px; }
+
+/* v58.78 (owner 2026-10-25, 매크로 마감): the scenario map reads as a timeline — a thin rail with a dot per branch under a
+   small "지금" kicker, instead of a page-tall bordered "지금" box beside the list. The lead branch carries an accent edge,
+   not a full white outline, and favoured choices are a soft green fill rather than bright green frames. */
+.page .xr-map { grid-template-columns: minmax(0, 1fr); position: relative; padding-left: 22px; }
+.page .xr-map::before { content: ''; position: absolute; left: 6px; top: 10px; bottom: 22px; border-left: 1px solid var(--border-strong); }
+.page .xr-map-now { position: relative; display: block; justify-content: flex-start; padding: 0 0 8px; border: 0; border-radius: 0; background: none; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.page .xr-map-now::before { content: ''; position: absolute; left: -21px; top: 3px; width: 11px; height: 11px; border-radius: 50%; background: var(--text-primary); }
+.page .xr-map-branch::before { left: -20px; top: 17px; width: 9px; height: 9px; border: 1px solid var(--border-strong); border-radius: 50%; background: var(--bg-base); box-sizing: border-box; }
+.page .xr-map-branch[data-lead="true"]::before { background: var(--text-primary); border-color: var(--text-primary); }
+.page .xr-map-rest .xr-map-branch::before { display: none; }
+.page .xr-map-branch[data-lead="true"], .page .xr-branch[data-lead="true"] { border-color: var(--border); box-shadow: inset 3px 0 0 var(--text-primary); }
+.page .xr-branch-body { padding: 8px 14px 14px; }
+.page .xr-tag { border-color: transparent; background: var(--sx-ink-a07, transparent); }
+.page .xr-tag.is-same { color: var(--text-primary); border-color: transparent; }
+.page .xr-tag.is-choice { color: var(--data-green); border-color: transparent; background: var(--sx-good-bg, transparent); }
+.page .xr-tag.is-against { border-color: transparent; background: var(--sx-warn-bg, transparent); }
+.page .xr-choice { border-color: transparent; background: var(--sx-ink-a03, transparent); border-radius: 8px; }
+.page .xr-choice[data-favored="true"] { border-color: transparent; background: var(--sx-good-bg, transparent); }
+.page .xr-chain-step { border-radius: 6px; background: var(--sx-ink-a07, var(--bg-elevated)); }
+@media (max-width: 760px) { .page .xr-map { padding-left: 18px; } .page .xr-map::before { left: 4px; } .page .xr-map-now { margin-bottom: 0; } .page .xr-map-now::before { left: -19px; } .page .xr-map-branch::before { left: -18px; } }
+.page .theme-strength-table td.is-quiet:not(.is-sorted) { opacity: .72; } /* v58.78: 3개월 is context beside 1주·2주·1개월 */

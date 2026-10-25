@@ -103,6 +103,7 @@ export function closesToFactors(closes) {
     // 2026-10-13 (owner: S&P 500 map): one- and five-session returns on the same completed close series, so the
     // sector map can colour a day or a week without republishing raw prices (P715 keeps prices out).
     ret1d: _retPct(closes, 1), ret5d: _retPct(closes, 5),
+    ret10d: _retPct(closes, 10), // v58.78 (owner 2026-10-25): the theme ranking reads 1주·2주·1개월
     ret1m: _retPct(closes, 21), ret3m: _retPct(closes, 63), ret6m: _retPct(closes, 126),
     // 2026-10-19 (expertise review D2): a full year (252 sessions back, so 253 closes) for 12-1 momentum; null below that.
     ret12m: _retPct(closes, 252),
@@ -423,6 +424,7 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     const gapInside = (n) => dates.length > n && gaps.some((date) => date > dates[dates.length - 1 - n] && date < dates[dates.length - 1]);
     if (gapInside(1)) f.ret1d = null;
     if (gapInside(5)) f.ret5d = null;
+    if (gapInside(10)) f.ret10d = null;
     // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close, 조정종가 아님 — 위 주석 참조)
     if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
       const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);

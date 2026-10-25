@@ -9,6 +9,12 @@ import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { el } from './dom.js';
+import { CHART_NOTES } from '../../domain/knowledge/theme-research-links.js';
+import { attachChartDrawings } from './stock-chart-drawings.js';
+import { attachChartCompare } from './stock-chart-compare.js';
+import { strategySection } from './stock-chart-strategies.js';
+import { trendRead } from '../../domain/technical/chart-strategies.js';
+import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { signedText } from '../../domain/shared/number.js';
 // v58.75: the bar helpers live in chart-bars.js so boot-time readers (AI visuals, compatibility globals) can import
@@ -47,7 +53,14 @@ function chartReadCards(doc, analysis, currency) {
     const box = el(doc, 'div', null, 'sx-card v2-chart-read');
     box.append(el(doc, 'span', name, 'v2-chart-read__name'), el(doc, 'b', value, 'v2-chart-read__value'), el(doc, 'span', detail, 'v2-chart-read__detail'), el(doc, 'span', ref, 'v2-chart-read__ref'));
     cards.push(box);
+    return box;
   };
+  // v58.79 (chart review): direction first — swing structure, moving-average order and the 50-day slope, with any turn.
+  const trend = trendRead(analysis);
+  if (trend?.direction) {
+    const box = card('추세', trend.label, trend.turn || trend.facts.slice(0, 2).join(', '), '고점·저점 구조(Dow), 이동평균 배열');
+    box.title = [...trend.facts, trend.turn].filter(Boolean).join(' · ');
+  }
   if (close > 0 && sma50 > 0) {
     const pct = (close / sma50 - 1) * 100;
     const multiple = Number.isFinite(analysis.adrFrom50) ? Math.abs(analysis.adrFrom50) : null;
@@ -204,7 +217,7 @@ function drawChart(root, host, analysis, previous, kr = false) {
     levelLines.forEach((item) => { try { candles.removePriceLine(item); } catch (_) {} });
     levelLines = levels.map((level) => candles.createPriceLine({ price: level.price, color: LEVEL_LINE_COLOR, lineWidth: 1, lineStyle: 1, axisLabelVisible: false, title: '' }));
   };
-  return { chart, setLevels, applyTheme: (palette) => {
+  return { chart, candles, setLevels, applyTheme: (palette) => {
     chart.applyOptions({ layout: { textColor: palette.text }, grid: { vertLines: { color: palette.grid }, horzLines: { color: palette.grid } }, rightPriceScale: { borderColor: palette.grid }, timeScale: { borderColor: palette.grid } });
     candles.applyOptions({ upColor: palette.up, downColor: palette.down, borderUpColor: palette.up, borderDownColor: palette.down, wickUpColor: palette.up, wickDownColor: palette.down });
   } };
@@ -245,6 +258,10 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   root.__aioStockChartInterval = spec.id;
   set('stock-chart-title', `${sym} ${spec.label}봉`);
   renderIntervalButtons(doc, root, sym, spec.id);
+  // v58.79: the drawing row belongs to the daily chart; it is rebuilt once the daily bars are drawn.
+  doc.getElementById('stock-chart-draw')?.remove();
+  doc.querySelector('.stock-chart-draw-read')?.remove();
+  doc.getElementById('stock-chart-compare')?.remove();
   // Codex review 2026-10-05: switching the chart to SPY left the 종목 header on NVDA with nothing saying the
   // two differ. A market chart now says so and offers the way back to the company's chart.
   const subject = String(root?._aioLastOpenedSymbol || '').trim().toUpperCase();
@@ -325,6 +342,8 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   await library;
   if (ticket !== root.__aioStockChartTicket) return null;
   root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance, kr);
+  attachChartDrawings({ doc, root, sym, instance: root.__aioStockChartInstance, analysis, levels, price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
+  attachChartCompare({ doc, root, sym, instance: root.__aioStockChartInstance, analysis });
   syncRsLegend(doc, !!(root.__aioStockChartInstance && rsLineSeries(analysis)), analysis.benchmarkLabel);
   {
     const legend = doc.querySelector?.('#stock-chart-section .stock-chart-legend');
@@ -372,7 +391,16 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 3}개)`), list);
   const readCards = chartReadCards(doc, analysis, kr ? 'KRW' : payload?.meta?.currency || null);
   const body = el(doc, 'div', null, 'v2-chart-body');
-  body.append(read, visuals, more);
+  // v58.79 (owner 2026-10-25): each mark the chart draws links to the research note that teaches it.
+  const learn = el(doc, 'div', null, 'xr-explore chart-learn');
+  learn.append(el(doc, 'span', '차트 표시 배우기', 'xr-explore-label'), ...CHART_NOTES.map((note) => {
+    const button = el(doc, 'button', `${note.mark} →`, 'flow-next-link');
+    button.type = 'button';
+    button.title = note.title;
+    button.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'frames', node: note.id } }));
+    return button;
+  }));
+  body.append(read, visuals, more, learn);
   panel.replaceChildren(...(readCards ? [readCards] : []), body);
   if (tools) panel.append(coach.setupCoachSection(doc, root, sym, analysis, regime, tools, levels.available));
   const forward = buildChartScenarios(analysis, { currency: kr ? 'KRW' : payload?.meta?.currency || null });
@@ -387,6 +415,8 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     }
     panel.append(section);
   }
+  const styles = strategySection(doc, analysis, levels, wilderRsi(analysis.bars.map((bar) => bar.close)));
+  if (styles) panel.append(styles);
   if (levels.available) {
     const currency = kr ? 'KRW' : payload?.meta?.currency || null;
     root.__aioStockChartInstance?.setLevels?.(coach.nearestLevels(levels));

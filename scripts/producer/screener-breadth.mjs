@@ -14,7 +14,10 @@ import { normalizeHistoryRows } from './history.mjs';
 // the screener. Date alignment is explicit; array position is never used to
 // align different securities. This remains AIO-universe research data, not
 // official exchange advance/decline data.
-export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowMs = Date.now(), assetTypeOf = null) {
+// v58.79 (owner 2026-10-25): the headline breadth is S&P 500 members, not the AIO watch list — a fourth bucket
+// (sp500) counts members only, judged on the same adjusted closes; the history writer prefers it (SP500_SCOPE below).
+export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowMs = Date.now(), assetTypeOf = null, sp500Members = null) {
+  const isMember = (sym) => sp500Members instanceof Set && sp500Members.has(String(sym || '').toUpperCase());
   // v57.50 D21: breadth is a share of stocks; ETFs (index trackers, VIX products) are excluded from both
   // the numerator and the denominator when the universe's asset type is known.
   const isEtf = (sym) => typeof assetTypeOf === 'function' && assetTypeOf(sym) === 'ETF';
@@ -26,7 +29,8 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
   const universe = {
     all: symbolSet.size,
     us: [...symbolSet].filter((sym) => segmentFor(sym) === 'us').length,
-    kr: [...symbolSet].filter((sym) => segmentFor(sym) === 'kr').length
+    kr: [...symbolSet].filter((sym) => segmentFor(sym) === 'kr').length,
+    sp500: [...symbolSet].filter((sym) => segmentFor(sym) === 'us' && isMember(sym)).length
   };
   const blank = () => ({ eligible: 0, advances: 0, declines: 0, unchanged: 0, observedAt: null, above: { 20: 0, 40: 0, 50: 0, 200: 0 }, eligibleByWindow: { 20: 0, 40: 0, 50: 0, 200: 0 },
     // P1416: StockBee 4% movers, 52-week highs/lows; each with its own eligible denominator.
@@ -34,7 +38,7 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     // v58.68: recent closing lows (20 / 63 sessions), each with its own eligible denominator.
     low20: 0, low20Eligible: 0, low63: 0, low63Eligible: 0 });
   const getBucket = (date) => {
-    if (!buckets.has(date)) buckets.set(date, { all: blank(), us: blank(), kr: blank() });
+    if (!buckets.has(date)) buckets.set(date, { all: blank(), us: blank(), kr: blank(), sp500: blank() });
     return buckets.get(date);
   };
   const addSignals = (bucket, signal, sym) => {
@@ -98,6 +102,7 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       if (bucket[market]) update(bucket[market], values, prefix, finitePrefix, index, observedAt);
       addSignals(bucket.all, signals[index], row.sym);
       if (bucket[market]) addSignals(bucket[market], signals[index], row.sym);
+      if (market === 'us' && isMember(row.sym)) { update(bucket.sp500, values, prefix, finitePrefix, index, observedAt); addSignals(bucket.sp500, signals[index], row.sym); }
     }
   }
 
@@ -132,7 +137,17 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
   return [...buckets.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(-Math.max(60, Number(maxRows) || 252))
-    .map(([date, segments]) => ({ date, all: finalize(segments.all, universe.all), us: finalize(segments.us, universe.us), kr: finalize(segments.kr, universe.kr) }));
+    .map(([date, segments]) => ({ date, all: finalize(segments.all, universe.all), us: finalize(segments.us, universe.us), kr: finalize(segments.kr, universe.kr),
+      ...(universe.sp500 ? { sp500: finalize(segments.sp500, universe.sp500) } : {}) }));
+}
+
+// v58.79: which segment a history point's headline breadth comes from — S&P 500 members when that bucket judged at
+// least 300 of them that day, otherwise the AIO US universe (membership artifact missing or a thin day).
+export const SP500_SCOPE = 'sp500-members-not-official-index-breadth';
+export const AIO_US_SCOPE = 'aio-us-screener-universe-not-official-exchange';
+export function headlineBreadthSegment(point) {
+  if (point?.sp500 && Number(point.sp500.eligible) >= 300) return { segment: point.sp500, scope: SP500_SCOPE, source: 'S&P 500 members (public-data/sp500-weights.json) from Yahoo adjusted-close history' };
+  return point?.us ? { segment: point.us, scope: AIO_US_SCOPE, source: 'AIO US screener universe from Yahoo adjusted-close history' } : null;
 }
 
 // P1416: which stocks made each count — the latest 20 completed sessions, US segment. Names come
@@ -143,28 +158,30 @@ const BREADTH_CONTRIBUTORS_OUT = `${REPO_ROOT}/public-data/breadth-contributors.
 export const breadthMinimumEligible = (universe) => Math.max(20, Math.ceil(Number(universe) * 0.5));
 export function buildBreadthContributorSessions(rows, nowMs = Date.now()) {
   return (Array.isArray(rows) ? rows : [])
-    .filter((point) => point?.date && point?.us?.contributors && isSessionComplete(point.date, 'us', nowMs)
-      && Number(point.us.signalEligible?.movers) >= breadthMinimumEligible(point.us.universe))
+    .map((point) => ({ point, headline: headlineBreadthSegment(point) }))
+    .filter(({ point, headline }) => point?.date && headline?.segment?.contributors && isSessionComplete(point.date, 'us', nowMs)
+      && Number(headline.segment.signalEligible?.movers) >= breadthMinimumEligible(headline.segment.universe))
     .slice(-20)
-    .map((point) => ({
+    .map(({ point, headline: { segment, scope } }) => ({
       date: point.date,
-      eligible: point.us.signalEligible || null,
+      universeScope: scope,
+      eligible: segment.signalEligible || null,
       // P1449: contributor entries become objects — asset type (ETF/stock) plus the
       // corporate-action suspicion flag (|day change| >= 20%). "미국 주식" counts bundle ETFs
       // with individual names, so the drilldown must say which is which.
-      signals: Object.fromEntries(Object.entries(point.us.contributors).map(([key, list]) => [key,
+      signals: Object.fromEntries(Object.entries(segment.contributors).map(([key, list]) => [key,
         [...list]
           .sort((a, b) => Math.abs(b[1] ?? 0) - Math.abs(a[1] ?? 0))
           .slice(0, 80)
           .map((entry) => ({ symbol: entry[0], dayChangePct: entry[1] ?? null, assetType: entry[2] ?? null, corporateActionSuspected: entry[3] === true }))
       ])),
-      counts: { up4: point.us.breadthUp4, down4: point.us.breadthDown4, newHigh: point.us.breadthNewHighs, newLow: point.us.breadthNewLows }
+      counts: { up4: segment.breadthUp4, down4: segment.breadthDown4, newHigh: segment.breadthNewHighs, newLow: segment.breadthNewLows }
     }));
 }
 export async function writeBreadthContributors(rows, nowMs = Date.now()) {
   const sessions = buildBreadthContributorSessions(rows, nowMs);
   if (!sessions.length) return { written: false };
-  const payload = { schemaVersion: 'breadth-contributors.v2', model: BREADTH_SIGNAL_MODEL_VERSION, generatedAt: new Date(nowMs).toISOString(), universeScope: 'aio-us-screener-universe-not-official-exchange', universeAssetTypes: 'stocks-only-etfs-excluded', columns: ['symbol', 'dayChangePct', 'assetType', 'corporateActionSuspected'], corporateActionPolicy: 'none-adjusted — a >=20% one-day move is flagged only as a suspicion to check against the filing, not adjusted or confirmed', sessions };
+  const payload = { schemaVersion: 'breadth-contributors.v2', model: BREADTH_SIGNAL_MODEL_VERSION, generatedAt: new Date(nowMs).toISOString(), universeScope: sessions.at(-1)?.universeScope || AIO_US_SCOPE, universeAssetTypes: 'stocks-only-etfs-excluded', columns: ['symbol', 'dayChangePct', 'assetType', 'corporateActionSuspected'], corporateActionPolicy: 'none-adjusted — a >=20% one-day move is flagged only as a suspicion to check against the filing, not adjusted or confirmed', sessions };
   await atomicWriteFile(BREADTH_CONTRIBUTORS_OUT, JSON.stringify(payload));
   return { written: true, sessions: sessions.length };
 }
@@ -190,7 +207,8 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
     for (const field of fields) { if (field in row) row[field] = null; if (row.fieldMeta) delete row.fieldMeta[field]; }
   }
   for (const point of rows) {
-    const segment = point?.us;
+    const headline = headlineBreadthSegment(point);
+    const segment = headline?.segment;
     // v58.71 (pipeline audit): a date that only KR (or another market) traded has no US breadth; it must not add an all-null row.
     if (!segment || !point?.date || !(Number(segment.eligible) > 0)) continue;
     let target = history.find((row) => row?.date === point.date);
@@ -214,7 +232,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
         observedAt: segment.observedAt || `${point.date}T00:00:00.000Z`,
         fetchedAt,
         lastSuccessfulAt: fetchedAt,
-        source: 'AIO US screener universe from Yahoo adjusted-close history',
+        source: headline.source,
         sourceKind: 'derived-research',
         allowedUse: 'research-history',
         // P1117: the screener breadth lane writes into the same rows; without these two
@@ -222,7 +240,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
         // history artifact gate could not classify.
         observationRelation: 'latest-completed-close',
         observedAtSource: 'derived-from-adjusted-close-series',
-        universeScope: 'aio-us-screener-universe-not-official-exchange',
+        universeScope: headline.scope,
         universe,
         eligible,
         coveragePct: round(eligible / universe * 100, 1)

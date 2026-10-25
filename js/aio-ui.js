@@ -3512,7 +3512,7 @@ document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     var searchInput = (document.querySelector('.page.active') || document).querySelector('#scr-text-search, #fund-search-input, #ticker-direct-search, #guide-search-input'); // P1315: .search-bar never existed
-    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); else window._aioOpenStockSearch(); // v58.53: sidebar '종목 검색 ⌘K'
+    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); // owner 2026-10-25: the sidebar search button is gone; only an on-screen search box takes focus
     return;
   }
 
@@ -4013,12 +4013,6 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { mountDisclaimer(false); });
   else mountDisclaimer(false);
 })();
-
-// v58.53 개편 v2: 사이드바 '종목 검색' — 종목 화면을 열고 검색 칸에 초점을 둔다(⌘K와 같은 목적지).
-window._aioOpenStockSearch = function() {
-  if (typeof showPage === 'function') showPage('ticker');
-  setTimeout(function() { var input = document.getElementById('ticker-direct-search'); if (input) input.focus(); }, 60);
-};
 
 // P1429 (owner 2026-10-04): the first-visit "처음 오셨나요?" onboarding card was removed — users are active traders; no how-to prompts.
 // ── 초기화 ──

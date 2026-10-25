@@ -241,7 +241,11 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   // The hub tab bar above already switches pages and the breadcrumb names the hub; the shell header
   // carries only the page title, what it answers and the search.
   void pages;
-  titleBox.append(el(doc, 'h1', 'rl-title', page.title), el(doc, 'p', 'rl-sub', lead || page.summary));
+  // v58.79 (layout over captions): the page list under the title repeated the hub tabs; it is the title's hover now, and a
+  // caller's own lead line still shows.
+  const heading = el(doc, 'h1', 'rl-title', page.title);
+  heading.title = page.summary;
+  titleBox.append(heading, ...(lead ? [el(doc, 'p', 'rl-sub', lead)] : []));
   const search = el(doc, 'div', 'rl-search');
   const input = el(doc, 'input');
   input.type = 'search';

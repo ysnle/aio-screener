@@ -10,6 +10,8 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { el } from './dom.js';
+import { myLineFacts } from './stock-chart-drawings.js';
+import { rewardRiskFacts, RR_GUIDE } from '../../domain/technical/chart-strategies.js';
 import { signedText } from '../../domain/shared/number.js';
 
 // The domain functions the sections use, passed as one object so stock-chart.js reads them through this lazy module.
@@ -248,16 +250,51 @@ export function planFacts(result, price) {
   if (result.target != null) {
     facts.push(result.levelsToTarget.length ? `목표가까지 가는 길에 ${below ? '저항' : '지지'} 후보 ${result.levelsToTarget.length}개: ${list(result.levelsToTarget)}.` : '진입가와 목표가 사이에 지도 위 레벨이 없습니다.');
     facts.push(`위험 1 대비 보상 ${result.rewardRisk.toFixed(1)}배 (목표가까지 ${result.rewardPct.toFixed(1)}%, 손절가까지 ${result.riskPct.toFixed(1)}%).`);
+    const rr = rewardRiskFacts(result.rewardRisk);
+    if (rr) facts.push(rr.text);
   } else if (result.targetIgnored) facts.push('목표가가 손절가와 같은 쪽에 있어 보상 배수를 계산하지 않았습니다.');
   if (result.lossAtStop != null) facts.push(`투입 금액 기준 손절가 도달 시 손실 약 ${price(result.lossAtStop)}${result.lossOfCapitalPct != null ? `, 전체 자본의 ${result.lossOfCapitalPct.toFixed(2)}%` : ''}.`);
   facts.push('갭·체결 미끄러짐·수수료는 반영하지 않은 계산입니다.');
   return facts;
 }
 
+function holdingCost(root, sym) {
+  const surface = root?._aioPortfolioSurface;
+  if (!surface || surface.readState !== 'ready') return null;
+  const row = (Array.isArray(surface.rows) ? surface.rows : []).find((item) => String(item?.symbol || item?.ticker || '').toUpperCase() === sym);
+  const cost = Number(row?.avgCost);
+  return Number.isFinite(cost) && cost > 0 ? cost : null;
+}
+
+function rrGuide(doc) {
+  const details = el(doc, 'details', null, 'chart-rr-guide');
+  details.append(el(doc, 'summary', '손익비(R:R) 쉽게 — 계산과 본전 승률'));
+  RR_GUIDE.forEach((line) => details.append(el(doc, 'p', line)));
+  const scroll = el(doc, 'div', null, 'aio-table-scroll');
+  scroll.style.overflowX = 'auto';
+  const table = el(doc, 'table', null, 'aio-table');
+  const head = el(doc, 'tr');
+  ['손익비', '본전 승률', '10번 중 맞아야 하는 횟수'].forEach((label) => { const th = el(doc, 'th', label); th.scope = 'col'; head.append(th); });
+  const thead = el(doc, 'thead'); thead.append(head);
+  const body = el(doc, 'tbody');
+  for (const ratio of [1, 1.5, 2, 3]) {
+    const rr = rewardRiskFacts(ratio);
+    const tr = el(doc, 'tr');
+    tr.append(el(doc, 'td', `${ratio} : 1`), el(doc, 'td', `${rr.breakevenWinRate.toFixed(0)}%`), el(doc, 'td', `${(rr.breakevenWinRate / 10).toFixed(1)}번`));
+    body.append(tr);
+  }
+  table.append(thead, body);
+  scroll.append(table);
+  details.append(scroll);
+  return details;
+}
+
 function planCheck(doc, root, sym, levels, price, checkPricePlan) {
   const box = el(doc, 'div', null, 'chart-plan-check');
   box.append(el(doc, 'h4', '내 계획 점검'), el(doc, 'p', '내가 정한 가격을 넣으면 레벨 지도와 비교한 사실만 보여 줍니다. 입력값은 이 브라우저 탭에만 잠시 남습니다.', 'theme-strength-basis'));
   const stored = readPlan(root, sym);
+  // v58.79 (chart review): a holding opened from the portfolio starts from its average cost, not today's close.
+  const held = holdingCost(root, sym);
   const grid = el(doc, 'div', null, 'chart-plan-fields');
   Object.assign(grid.style, { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', margin: '6px 0' });
   const inputs = {};
@@ -267,10 +304,10 @@ function planCheck(doc, root, sym, levels, price, checkPricePlan) {
     const input = el(doc, 'input');
     input.type = 'number'; input.inputMode = 'decimal'; input.step = 'any'; input.min = '0';
     input.id = `chart-plan-${key}`;
-    input.value = stored[key] != null ? String(stored[key]) : key === 'entry' ? String(Number(levels.close.toFixed(levels.close >= 1000 ? 0 : 2))) : '';
+    input.value = stored[key] != null ? String(stored[key]) : key === 'entry' ? String(Number((held ?? levels.close).toFixed((held ?? levels.close) >= 1000 ? 0 : 2))) : '';
     // Touch browsers zoom into inputs under 16px (owner rule: touch-input 16px).
     Object.assign(input.style, { fontSize: '16px', padding: '6px 8px', border: '0.5px solid var(--border)', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', minWidth: '0' });
-    field.append(doc.createTextNode(label), input);
+    field.append(doc.createTextNode(key === 'entry' && held != null && stored.entry == null ? '진입가(보유 평균 단가)' : label), input);
     grid.append(field);
     inputs[key] = input;
   }
@@ -285,6 +322,27 @@ function planCheck(doc, root, sym, levels, price, checkPricePlan) {
   Object.values(inputs).forEach((input) => input.addEventListener('input', update));
   update();
   box.append(grid, out);
+  // v58.79: the lines the user drew on the chart, read against the map; each can fill the stop or target field.
+  const mineBox = el(doc, 'ul', null, 'chart-plan-mine');
+  Object.assign(mineBox.style, { margin: '6px 0 0', paddingLeft: '18px', fontSize: '13px', lineHeight: '1.6' });
+  const fill = (key, value) => { inputs[key].value = String(value); update(); };
+  const renderMine = () => {
+    const facts = myLineFacts(sym, levels, price);
+    mineBox.hidden = !facts.length;
+    mineBox.replaceChildren(...facts.map((fact) => {
+      const item = el(doc, 'li', `${fact.text} `);
+      for (const [key, label] of [['stop', '손절가에'], ['target', '목표가에']]) {
+        const button = el(doc, 'button', label, 'aio-btn-table');
+        button.type = 'button';
+        button.addEventListener('click', () => fill(key, fact.value));
+        item.append(button);
+      }
+      return item;
+    }));
+  };
+  root.__aioMyLinesChanged = (changed) => { if (changed === sym && mineBox.isConnected) renderMine(); };
+  renderMine();
+  box.append(mineBox);
   return box;
 }
 
@@ -317,7 +375,7 @@ export function priceLevelSection(doc, root, sym, levels, currency, instance, ch
     `반응 횟수: 최근 ${R.lookback}거래일 중 고가가 그 구간(변동폭 ${R.touchAdr}배 여유)에 닿고 종가는 구간 아래에서 끝났거나, 저가가 닿고 종가는 구간 위에서 끝난 봉의 수입니다. 많을수록 그 가격에서 매매가 자주 갈렸다는 뜻입니다.`,
     '지지 후보·저항 후보는 관찰할 가격대이며 그 가격에서 멈추거나 되돌아선다는 보장은 없습니다.'
   ].forEach((line) => how.append(el(doc, 'p', line)));
-  section.append(how, expertMethods(doc, levels, price), planCheck(doc, root, sym, levels, price, checkPricePlan));
+  section.append(how, expertMethods(doc, levels, price), rrGuide(doc), planCheck(doc, root, sym, levels, price, checkPricePlan));
   return section;
 }
 

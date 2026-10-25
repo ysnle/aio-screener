@@ -95,6 +95,7 @@ function failuresOf(data) {
 
 const POLICIES = {
   'breadth-contributors.json': { kind: 'research-drilldown', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // P1416: stocks behind each breadth count (refresh-screener)
+  'theme-stage-history.json': { kind: 'research-drilldown', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // v58.79: recomputed theme-stage record (refresh-screener -> build-scenario-state)
   'backtest-history.json': { kind: 'research-history', custom: 'backtest-history-latest', maxAgeHours: 24 * 14 },
   'data.json': { kind: 'live-core', timestamp: ['meta.generatedAt'], maxAgeHours: 12 },
   // Weekly calendar reference rebuilt by refresh-screener. It owns a bounded

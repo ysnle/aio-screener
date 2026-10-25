@@ -69,6 +69,7 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     // P1686: the S&P 500 map's 1일/1주 tabs read these; the normalizer dropped them, so the tabs never enabled.
     ret1d: finite(row?.ret1d),
     ret5d: finite(row?.ret5d),
+    ret10d: finite(row?.ret10d), // v58.78: 2주 on the theme ranking
     ret1m: finite(row?.ret1m),
     ret3m: finite(row?.ret3m),
     ret6m: finite(row?.ret6m),

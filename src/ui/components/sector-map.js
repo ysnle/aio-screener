@@ -4,6 +4,7 @@
 import { buildSectorMap, layoutSectorMap, SECTOR_MAP_PERIODS, shadeOf } from '../../domain/market/sector-map.js';
 import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 import { el } from './dom.js';
+import { asOfChip, markFrame } from './section-frame.js';
 import { signedText } from '../../domain/shared/number.js';
 
 const signed = (value, digits = 2) => (value == null ? '수익률 없음' : signedText(value, digits, '%'));
@@ -53,10 +54,12 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
   host.dataset.aioSectorMapRenderer = 'native';
   host.dataset.aioSectorMapKey = renderKey;
   host._aioSectorMapModel = model;
-  const head = el(doc, 'div', null, 'sector-map-head');
+  // v58.79 section frame: title, the close as its chip (size, colour and basis in its hover), the period tabs as actions.
+  const head = el(doc, 'div', null, 'sector-map-head aio-frame-head');
+  markFrame(host, 'themes.sector-map');
   const title = el(doc, 'h2', 'S&P 500 지도', 'briefing-h2');
   head.append(title);
-  const tabs = el(doc, 'div', null, 'sector-map-tabs');
+  const tabs = el(doc, 'div', null, 'sector-map-tabs aio-frame-actions');
   tabs.setAttribute('role', 'group');
   tabs.setAttribute('aria-label', '수익률 기간');
   for (const [id, spec] of Object.entries(SECTOR_MAP_PERIODS)) {
@@ -76,7 +79,8 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     : '종가 기준일 확인 필요';
   const sizeText = model.sizeBasis === 'index-weight' ? `넓이 = 지수 비중(${model.members}종목${model.weightsAsOf ? `, ${shortDate(model.weightsAsOf)} 보유 비중` : ''})` : `넓이 = 시가총액 근사(공시 주식 수 × 종가, ${model.drawn}/${model.members}종목)`;
   // v57.88 (screen audit): the same sector read +0.6% here and +1.46% on the XLC chip without a word on why.
-  host.append(el(doc, 'p', `${sizeText}, 색 = ${model.periodLabel} 수익률, ${basisText}, 섹터 평균은 지도에 그린 종목의 비중 가중이라 섹터 ETF 수익률과 다를 수 있습니다`, 'sector-map-basis'));
+  const chip = !model.basis ? '기준일 확인 필요' : model.current ? `${shortDate(model.basis)} 종가` : `${shortDate(model.basis)} 종가, 반영 전`;
+  tabs.before(asOfChip(doc, chip, `${sizeText}, 색 = ${model.periodLabel} 수익률, ${basisText}, 섹터 평균은 지도에 그린 종목의 비중 가중이라 섹터 ETF 수익률과 다를 수 있습니다`));
   host.append(el(doc, 'p', model.lead, 'sector-map-lead'));
 
   const canvas = el(doc, 'div', null, 'sector-map-canvas');

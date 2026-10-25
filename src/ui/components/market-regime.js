@@ -16,6 +16,7 @@ import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSe
 import { renderRegimeRadar } from './regime-radar.js';
 import { renderCrossroadsCompact, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
+import { frameHead, markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -89,7 +90,8 @@ function requestRegimeMacroHistory(root, doc, pageId = 'page-signal', rerender =
 function chartPanel(doc, charts, range) {
   if (!charts.length || !range) return null;
   const panel = el(doc, 'div', null, 'regime-axis-history');
-  const caption = el(doc, 'p', null, 'regime-chart-caption');
+  // v58.79 (layout over captions): the chart's axes carry the unit and dates; the caption stays for screen readers.
+  const caption = el(doc, 'p', null, 'regime-chart-caption sr-only');
   const plot = el(doc, 'div', null, 'regime-axis-plot');
   const note = el(doc, 'p', null, 'regime-chart-note');
   let buttons = [];
@@ -151,8 +153,10 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   // v57.76: this section is the current-state reading (which of three flows the market is closest to); the forward
   // branches by release live in full on 거시 only, so the heading no longer says 향후 시나리오 and the section ends
   // with one link there.
-  section.append(el(doc, 'h2', '지금 시장 흐름 — 세 가지 중 어디에 가까운가', 'briefing-h2'),
-    el(doc, 'p', `${model.asOf || '기준일 미확인'} 종가 기준, 지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.`, 'regime-scenario-basis'));
+  // v58.79 section frame: title + close chip; "맞는 조건 수, 확률 아님" and the hand-off to 거시 are the chip's hover.
+  section.append(frameHead(doc, { title: '지금 시장 흐름 — 세 가지 중 어디에 가까운가', titleClass: 'briefing-h2', asOf: model.asOf ? `${shortDate(model.asOf)} 종가` : '기준일 미확인',
+    asOfDetail: '지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 거시 화면에서 이어 봅니다.' }));
+  markFrame(section, 'signal.scenarios');
   if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'), scenarioLink(doc, root)); return section; }
   if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
   if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
@@ -664,7 +668,9 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
     if (text) kicker.textContent = text;
   }
   set('home-hero-total', regime.available ? regime.overall : '판정 대기');
-  set('home-hero-headline', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 미국 6개 지표 ${regime.holdReason || summaryLine(regime)}` : '종가 기록을 불러오는 중입니다.');
+  // v58.79 (owner 2026-10-25, layout over captions): the close date is in the page subtitle and the six counts are the
+  // axis chips below, so this line speaks only when the verdict is held (why) and stays empty (hidden) otherwise.
+  set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '')) : '종가 기록을 불러오는 중입니다.');
   // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
   // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
   set('home-hero-desc', regime.heroLine || '');

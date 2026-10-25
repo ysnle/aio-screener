@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.77';
+const APP_VERSION = 'v58.79';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2980,7 +2980,7 @@ if (typeof document !== 'undefined') {
         var bodyHtml = mode !== 'full' ? esc(txt).replace(/\n/g, '<br>') : aiLines.slice(0, openCount).map(esc).join('<br>')
           + (aiLines.length > openCount ? '<details class="ai-analysis-more"><summary>해설 이어 읽기, ' + (aiLines.length - openCount) + '줄</summary>' + aiLines.slice(openCount).map(esc).join('<br>') + '</details>' : '');
         var scopeHtml = scope ? '<div class="ai-analysis-scope basis-chip">' + esc(scope) + '</div>' : '';
-        el.innerHTML = (mode === 'full' ? scopeHtml : '') + (retainedLabel ? '<span class="ai-analysis-retained">' + esc(retainedLabel) + (mode === 'full' ? '</span><br>' : ', </span>') : '') + bodyHtml + (mode === 'full' ? '' : scopeHtml) + (note ? '<div class="ai-analysis-note">' + esc(note) + '</div>' : '');
+        el.innerHTML = (mode === 'full' ? scopeHtml : '') + (retainedLabel ? '<span class="ai-analysis-retained">' + esc(retainedLabel) + (mode === 'full' ? '</span><br>' : ', </span>') : '') + bodyHtml + (mode === 'full' ? '' : scopeHtml) + (note ? '<details class="aio-note-fold ai-analysis-note-fold"><summary>해설 범위</summary><p class="aio-note-fold__text">' + esc(note) + '</p></details>' : ''); // v58.79: disclaimer one fold down
         el.setAttribute('data-analysis-source', serverLLM ? 'server-llm' : 'template');
         el.setAttribute('data-analysis-ts', serverLLM && serverLLM.generatedAt ? String(serverLLM.generatedAt) : new Date().toISOString());
       });
@@ -17884,9 +17884,9 @@ if (typeof document !== 'undefined') {
 // initialized, so the early route path must not observe a lexical TDZ.
 var breadcrumbMap = {
   home: ['오늘','요약'], themes: ['테마와 섹터'], // v57.79: <sidebar hub>/<tab-bar label>; a one-tab hub shows its label alone (pinned in ci-esm-core-unit-check)
-  portfolio: ['포트폴리오'], macro: ['거시와 금리','거시 경제'],
+  portfolio: ['포트폴리오'], macro: ['매크로','거시 경제'],
   technical: ['종목','차트'], fundamental: ['종목','재무 공시'],
-  briefing: ['오늘','브리핑'], fxbond: ['거시와 금리','금리와 환율'],
+  briefing: ['오늘','브리핑'], fxbond: ['매크로','금리와 환율'],
   'market-news': ['오늘','뉴스'], signal: ['시장 상태','국면 판정'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
   guide: ['도움말','화면 안내'], principles: ['리서치 라이브러리','개념·분석'], masters: ['리서치 라이브러리','대가 보유 종목'], atlas: ['리서치 라이브러리','산업 지도'],
   screener: ['스크리너'],

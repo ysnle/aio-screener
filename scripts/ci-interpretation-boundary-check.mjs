@@ -33,7 +33,8 @@ const STAGES = {
 // Declared exceptions: a different question on different inputs, not a second assembly of today's interpretation.
 const EXCEPTIONS = {
   'src/domain/briefing/daily-diff.js': ['buildMarketRegime'], // axis flips compared on closes only, today vs the prior session (its headline says credit is left out)
-  'src/domain/market/regime-scenarios.js': ['buildMarketRegime', 'buildMarketScenarios'] // the stage's own default argument and its legacy render helper
+  'src/domain/market/regime-scenarios.js': ['buildMarketRegime', 'buildMarketScenarios'], // the stage's own default argument and its legacy render helper
+  'scripts/producer/theme-stage-backfill.mjs': ['buildThemePlaybook'] // v58.79: past sessions' theme stages from past closes (no macro inputs), not today's interpretation
 };
 
 for (const file of files) {

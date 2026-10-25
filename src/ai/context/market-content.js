@@ -1,5 +1,6 @@
 // P1621: bounded, question-selected facts from the same native models used by the screens.
 import { buildBreadthSnapshot } from '../../domain/market/breadth-snapshot.js';
+import { breadthScopeOf } from '../../domain/market/screener-breadth.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
 import { koreaParticipationContext } from '../../domain/market/korea-participation.js';
@@ -107,7 +108,7 @@ export function buildMarketContentContext({ query = '', history = [], themes = [
   const parts = [];
   if (/시장|상승.*하락|신고가|신저가|시장\s*폭|breadth|SMA\s*(50|200)|50일|200일/i.test(query)) {
     const snapshot = buildBreadthSnapshot(history);
-    if (snapshot.cards.length) parts.push(`AIO 미국 수집 표본의 시장 폭 · ${snapshot.asOf} 종가 기준\n` + snapshot.cards.map((card) => `${card.title}: ${card.first} / ${card.second}. ${card.detail} 판정 ${card.eligible ?? '미확인'}개 / 대상 ${card.universe ?? '미확인'}개.`).join('\n'));
+    if (snapshot.cards.length) parts.push(`${breadthScopeOf(history).sp500 ? 'S&P 500 구성 종목' : 'AIO 미국 수집 표본'}의 시장 폭 · ${snapshot.asOf} 종가 기준\n` + snapshot.cards.map((card) => `${card.title}: ${card.first} / ${card.second}. ${card.detail} 판정 ${card.eligible ?? '미확인'}개 / 대상 ${card.universe ?? '미확인'}개.`).join('\n'));
   }
   if (/테마|섹터|업종|구성\s*종목|상대강도/i.test(query)) {
     const model = buildGroupStrength({ themes, rows });

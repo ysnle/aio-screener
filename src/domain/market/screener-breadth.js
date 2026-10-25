@@ -13,9 +13,25 @@ function observedMsOf(segment) {
   return segment && segment.observedAt ? new Date(segment.observedAt).getTime() : 0;
 }
 
+// v58.79 (owner 2026-10-25): the headline breadth is S&P 500 members. The history rows say which population each value
+// counts (fieldMeta.universeScope); rows written before the switch keep the AIO US universe and say so.
+export const SP500_BREADTH_SCOPE = 'sp500-members-not-official-index-breadth';
+export function breadthScopeOf(history, field = 'breadth50') {
+  const rows = Array.isArray(history) ? history : [];
+  for (let i = rows.length - 1; i >= 0; i -= 1) {
+    if (rows[i]?.[field] == null) continue;
+    const meta = rows[i].fieldMeta?.[field] || {};
+    const sp500 = meta.universeScope === SP500_BREADTH_SCOPE;
+    return { sp500, label: sp500 ? 'S&P 500 구성 종목' : 'AIO 미국 관찰 종목', eligible: Number.isFinite(Number(meta.eligible)) ? Number(meta.eligible) : null, date: rows[i].date };
+  }
+  return { sp500: false, label: 'AIO 미국 관찰 종목', eligible: null, date: null };
+}
+
 export function readScreenerBreadth(breadth, now = Date.now()) {
   const root = breadth && typeof breadth === 'object' ? breadth : null;
-  const us = root?.segments?.us || null;
+  // v58.79: S&P 500 members lead when that segment passes the same checks; the AIO US universe is the fallback.
+  const sp500 = root?.segments?.sp500 || null;
+  const us = (sp500 && valuesOk(sp500) && sp500.eligible >= 300 && sp500.coveragePct >= 85 ? sp500 : null) || root?.segments?.us || null;
   const kr = root?.segments?.kr || null;
   const observedMs = observedMsOf(us);
   const ageHours = observedMs ? (now - observedMs) / 3600000 : null;

@@ -38,9 +38,12 @@ export function renderNextSteps(doc, host, items = []) {
         setResearchHandoff({ root, routeId: item.route, context: item.ctx, label: item.label });
       });
     }
+    // v58.79 (layout over captions): the link names its destination; why to go there is its hover (and stays for
+    // screen readers), not a second line under every link.
     const why = doc.createElement('span');
-    why.className = 'flow-next-why';
+    why.className = 'flow-next-why sr-only';
     why.textContent = item.why || '';
+    if (item.why) button.title = item.why;
     li.append(button, why);
     list.append(li);
   }

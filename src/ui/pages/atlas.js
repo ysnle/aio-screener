@@ -393,7 +393,8 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
     cross.appendChild(link);
   });
   block.appendChild(cross);
-  block.appendChild(element(documentRef, 'p', 'atlas-layers-note', '층을 누르면 그 분야 설명이, 티커를 누르면 종목 요약이 열립니다. 기업은 역할 예시이며 추천이 아닙니다.'));
+  // v58.79: the not-a-recommendation line stays; how to use the layers is its hover.
+  block.appendChild(Object.assign(element(documentRef, 'p', 'atlas-layers-note', '기업은 역할 예시, 추천 아님'), { title: '층을 누르면 그 분야 설명이, 티커를 누르면 종목 요약이 열립니다.' }));
   return block;
 }
 

@@ -7,6 +7,7 @@ import { readMarketRegime } from './market-regime.js';
 import { emptyState } from './empty-state.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { el } from './dom.js';
+import { asOfChip, frameHead, markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { deriveQuotePresentation } from '../../domain/market/quote-presentation.js';
@@ -76,7 +77,9 @@ function renderChanges(doc, section, history, root) {
   if (!model.available) { syncLiveStrip(doc, new Set()); summary.append(el(doc, 'span', model.reason || '비교 대기', 'home-changes-lead')); fold.append(emptyState(doc, { title: '비교 대기', reason: model.reason, compact: true })); return model; }
   const gap = Array.isArray(model.missing) && model.missing.length > 0;
   if (gap) heading.textContent = '직전 기록과 달라진 점';
-  const note = el(doc, 'span', '', 'briefing-h2-note home-changes-note');
+  // v58.79 section frame: the compared closes are the row's as-of chip; a missing day and the live line are its hover.
+  const note = asOfChip(doc, '');
+  note.classList.add('home-changes-asof');
   summary.append(el(doc, 'span', model.headline, 'home-changes-lead daily-headline'), note);
   const body = el(doc, 'div', null, 'home-changes-body');
   fold.append(body);
@@ -101,7 +104,8 @@ function renderChanges(doc, section, history, root) {
   }
   // P1725: two completed US closes here; a "지금" line is a live/delayed quote measured from the tile's last close (v57.86), so
   // the same asset can still carry opposite signs on the two lines (WTI +2.06% close to close, -1.92% now). The note says which.
-  note.textContent = `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? `, ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}${liveShown ? ', "지금"은 실시간·지연 시세' : ''}`;
+  note.textContent = `${shortDate(model.prevDate)} → ${shortDate(model.date)}`;
+  note.title = `미국 종가 ${shortDate(model.prevDate)} → ${shortDate(model.date)}${gap ? `, ${model.missing.map(shortDate).join('·')} 기록 없음` : ''}${liveShown ? ', "지금"은 실시간·지연 시세' : ''}`;
   host.append(grid);
   syncLiveStrip(doc, new Set(model.moves.map((move) => move.key)));
   // P1724: measures left out are named on one line with why (no previous close, or the latest close is older).
@@ -165,9 +169,9 @@ function renderMyNames(doc, host, root, store, regime = null) {
   const model = buildMyNames({ symbols, rows, live: root?._liveData || {}, holdings, breadthState });
   // v58.53 개편 v2 (2b): a card head (title + count) and one row per name: symbol and name, the notes under them, the
   // last quote and the day's change as a capsule (coloured only when the quote is current, P1579).
-  const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
-  head.append(el(doc, 'h2', '내 종목', 'briefing-h2 sx-card__title'));
-  if (model.names.length) head.append(el(doc, 'span', `관심·보유 ${model.names.length}개`, 'sx-card__meta'));
+  const head = frameHead(doc, { title: '내 종목', titleClass: 'briefing-h2', asOf: model.names.length ? `${model.names.length}개` : '' });
+  head.classList.add('daily-card-head');
+  markFrame(host, 'home.my-names');
   host.replaceChildren(head);
   host.dataset.empty = model.names.length ? 'false' : 'true';
   if (!model.names.length) {
@@ -265,8 +269,10 @@ function renderSchedule(doc, host, root) {
     maxEarnings: 4
   });
   const schedule = fullSchedule.filter((row) => !row.passed);
-  const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
-  head.append(el(doc, 'h2', '다가오는 일정', 'briefing-h2 sx-card__title'), el(doc, 'span', `${days}일, 한국 시간`, 'sx-card__meta'));
+  // v58.79 section frame: each row carries its own KST time, so the head keeps only the window as its chip.
+  const head = frameHead(doc, { title: '다가오는 일정', titleClass: 'briefing-h2', asOf: `${days}일`, asOfDetail: `앞으로 ${days}일, 한국 시간` });
+  head.classList.add('daily-card-head');
+  markFrame(host, 'home.schedule');
   host.replaceChildren(head);
   // Codex audit F26 (2026-10-15): "없습니다" only when the calendars were actually read — a missing macro calendar or an
   // earnings calendar still loading/failed is said as such, not merged into the empty sentence.
@@ -297,8 +303,8 @@ function renderSchedule(doc, host, root) {
   host.append(list);
   // v58.52: the S&P-weight cut and the five-row list both leave reports out; the count says so.
   const hidden = (fullSchedule.omittedEarnings || 0) + Math.max(0, schedule.length - 5);
-  if (hidden > 0) host.append(el(doc, 'p', `이 밖의 ${hidden}건은 브리핑의 7일 일정에 있습니다.`, 'daily-event-why'));
-  const more = el(doc, 'button', '7일 일정과 시장 해석 → 브리핑', 'flow-next-link daily-card-more');
+  // v58.79: the left-out count rides on the one link instead of a sentence above it.
+  const more = el(doc, 'button', hidden > 0 ? `7일 일정 ${hidden}건 더 → 브리핑` : '7일 일정과 시장 해석 → 브리핑', 'flow-next-link daily-card-more');
   more.type = 'button';
   more.dataset.action = 'showPage';
   more.dataset.arg = 'briefing';
@@ -338,10 +344,11 @@ function renderOvernight(doc, loop, root, store) {
     loop.prepend(host);
   }
   host.hidden = false;
-  const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
-  const title = el(doc, 'h2', picked.length ? `밤사이 핵심 ${picked.length}건` : '움직인 종목의 같은 날 보도', 'briefing-h2 sx-card__title');
-  title.id = 'home-overnight-title';
-  head.append(title, el(doc, 'span', '같은 사건은 한 건으로, 한국 시간', 'sx-card__meta'));
+  // v58.79 section frame: the times are Korean clock times like every time on 오늘; grouping is the list's own rule.
+  const head = frameHead(doc, { title: picked.length ? `밤사이 핵심 ${picked.length}건` : '움직인 종목의 같은 날 보도', titleId: 'home-overnight-title', titleClass: 'briefing-h2' });
+  head.classList.add('daily-card-head');
+  head.title = '같은 사건은 한 건으로 묶고, 시각은 한국 시간';
+  markFrame(host, 'home.overnight');
   const nodes = [head];
   const untranslated = [];
   if (picked.length) {
@@ -373,7 +380,10 @@ function renderOvernight(doc, loop, root, store) {
   const moveList = moves.length ? moveNewsList(doc, root, moves, { max: 3, listClass: 'daily-news', timeClass: 'daily-news-symbol', titleClass: 'daily-news-link' }) : null;
   if (moveList) {
     for (const li of moveList.children) li.className = 'daily-news-item';
-    nodes.push(el(doc, 'p', '움직인 종목·테마와 같은 날 나온 보도 (원인을 확정하지는 않습니다)', 'daily-headline'), moveList);
+    // v58.79: a sub-heading, not a caption; that a same-day story is not a confirmed cause stays in its hover.
+    const sub = el(doc, 'h3', '움직인 종목과 같은 날 보도', 'daily-headline daily-subhead');
+    sub.title = '움직인 종목·테마와 같은 날 나온 보도이며, 원인을 확정하지는 않습니다';
+    nodes.push(sub, moveList);
   }
   const more = el(doc, 'button', '전체 뉴스와 채널 소식 → 뉴스', 'flow-next-link daily-card-more');
   more.type = 'button';
@@ -427,10 +437,9 @@ function renderTodayChecks(doc, loop, root, regime, schedule) {
     if (overnight) overnight.after(host); else loop.prepend(host);
   }
   host.hidden = false;
-  const head = el(doc, 'div', null, 'sx-card__head daily-card-head');
-  const title = el(doc, 'h2', `오늘 확인할 ${rows.length}가지`, 'briefing-h2 sx-card__title');
-  title.id = 'home-checks-title';
-  head.append(title);
+  const head = frameHead(doc, { title: `오늘 확인할 ${rows.length}가지`, titleId: 'home-checks-title', titleClass: 'briefing-h2' });
+  head.classList.add('daily-card-head');
+  markFrame(host, 'home.checks');
   const list = el(doc, 'ol', null, 'home-checks');
   for (const row of rows) {
     const li = el(doc, 'li', null, 'home-check');
@@ -525,13 +534,10 @@ function renderHeroFlips(doc, regime) {
   const title = el(doc, 'h2', '판단이 바뀌는 조건', 'sx-kicker home-flips-title');
   title.id = 'home-hero-flips-title';
   head.append(title);
-  if (measured) {
-    // v58.56 (re-audit #23): the distances are measured from the last US close, not the live quotes beside the tile
-    // (WTI 98.46 live vs the 10/20 close) — the kicker and each chip's tooltip say so.
-    const order = el(doc, 'span', `${regime.asOf ? `${shortDate(regime.asOf)} ` : ''}종가 기준, 가까운 순`, 'home-flips-order');
-    order.title = '거리는 마지막 미국 종가로 잽니다(실시간 시세 아님), 조건까지 남은 거리를 그 지표의 최근 20거래일 평균 하루 변동폭으로 나눠, 작은 순서로 3개를 보여줍니다';
-    head.append(order);
-  }
+  // v58.56 (re-audit #23): the distances are measured from the last US close, not the live quotes beside the tile.
+  // v58.79 (layout over captions): the page subtitle carries that close and the list's order is visible, so the
+  // "종가 기준, 가까운 순" line became the title's hover; each chip's hover still names its close.
+  if (measured) title.title = `거리는 ${regime.asOf ? `${shortDate(regime.asOf)} ` : '마지막 '}미국 종가로 잽니다(실시간 시세 아님), 조건까지 남은 거리를 그 지표의 최근 20거래일 평균 하루 변동폭으로 나눠, 작은 순서로 3개를 보여줍니다`;
   const list = el(doc, 'ul', null, 'home-flips');
   for (const row of rows) {
     const li = el(doc, 'li', null, 'home-flip');
@@ -576,11 +582,7 @@ function renderHeroFlips(doc, regime) {
     fold.append(rules);
     nodes.push(fold);
   }
-  const link = el(doc, 'button', '6개 축 근거 자세히', 'sx-link home-flips-link');
-  link.type = 'button';
-  link.dataset.action = 'showPage';
-  link.dataset.arg = 'signal';
-  nodes.push(link);
+  // v58.79: the "6개 축 근거 자세히" link left — the hero's 6개 축 근거 fold and the participation card's row lead there.
   tile.replaceChildren(...nodes);
 }
 

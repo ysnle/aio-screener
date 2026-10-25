@@ -24,6 +24,7 @@ import { BRANCHES } from '../../domain/market/macro-crossroads.js';
 import { longHistoryRows } from '../../domain/macro/long-history.js';
 import { taylorRule, TAYLOR_R_STAR_OPTIONS, TAYLOR_R_STAR_SEP } from '../../domain/macro/taylor-rule.js';
 import { el } from './dom.js';
+import { frameHead, noteFold } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -122,7 +123,9 @@ function statCard(doc, { label, valueText, lines = [], meta, note, status, serie
   }
   if (status === 'stale') card.append(el(doc, 'span', staleText || '이번 수집 실패, 직전 발표값', 'basis-chip is-off'));
   if (metaShown) card.append(el(doc, 'div', metaShown, 'macro-stat-meta'));
-  if (note) card.append(el(doc, 'p', note, 'macro-stat-note'));
+  // v58.79 (layout over captions): the definition is one "설명" fold down instead of three lines under the number.
+  const noteNode = noteFold(doc, note);
+  if (noteNode) card.append(noteNode);
   return card;
 }
 
@@ -353,7 +356,7 @@ function renderRateStrip(doc, root) {
     const [date, value] = spread;
     const tile = el(doc, 'div', null, 'mk-rate-tile');
     tile.append(el(doc, 'span', '장단기 금리차, 10년 − 3개월', 'mk-rate-tile__label'), basisValue(doc, signedText(value, 2, '%p'), '10년물 금리에서 3개월물 금리를 뺀 값입니다. 0 아래면 역전입니다.', date),
-      el(doc, 'span', value >= 0 ? '역전 아님 — 경기 침체 확률 모형에 쓰이는 대표 입력' : '역전 — 과거 미국 경기 침체 대부분에 앞섰던 신호', 'mk-rate-tile__note'), dateChip(date));
+      Object.assign(el(doc, 'span', value >= 0 ? '역전 아님' : '역전', 'mk-rate-tile__note'), { title: value >= 0 ? '경기 침체 확률 모형에 쓰이는 대표 입력' : '과거 미국 경기 침체 대부분에 앞섰던 신호' }), dateChip(date)); // v58.79: the state word; its meaning is the hover
     tiles.push(tile);
   }
   const taylor = taylorRule({ macroHistory: root?._aioMacroHistory || null, macro: root?._aioServerMacro || null, rStar: root?.__aioTaylorRStar });
@@ -435,9 +438,10 @@ function taylorTile(doc, root, t) {
   } else if (!t.sep) {
     basis.append(doc.createTextNode(', FOMC 장기 금리 전망(SEP)은 다음 자료 갱신부터 기준으로 씁니다'));
   }
-  tile.append(value, basis,
-    el(doc, 'span', `${target}, r* 0.5~1.0% 가정 시 준칙 ${pct(t.range.lo)}~${pct(t.range.hi)}`, 'mk-rate-tile__note'),
-    el(doc, 'span', `${inputs}, 실업률 갭 ${signed(t.unemploymentGap, 1)}%p`, 'mk-rate-tile__note'));
+  // v58.79 (layout over captions): the target range, the r* band and the inputs with their months are the tile's hover;
+  // the tile keeps the gap, the rule and the tension sentence.
+  tile.title = `${target}, r* 0.5~1.0% 가정 시 준칙 ${pct(t.range.lo)}~${pct(t.range.hi)}. ${inputs}, 실업률 갭 ${signed(t.unemploymentGap, 1)}%p`;
+  tile.append(value, basis);
   const tension = taylorTension(t, root?._aioServerMacro || null);
   if (tension) tile.append(el(doc, 'span', tension, 'mk-rate-tile__note mk-taylor__tension'));
   if (t.stale) tile.append(taylorStaleLine(doc, t));
@@ -620,7 +624,7 @@ function renderRegime(doc, read) {
   // v57.50 D16/D17: a direction inside its dead band is held — the note names the gap whether or not the quadrant is set.
   const nearText = [r.near?.growth ? `성장 방향은 근소(경계)라 보류합니다. ${r.near.growth}.` : null, r.near?.inflation ? `물가 방향은 보류합니다. ${r.near.inflation}.` : null].filter(Boolean).join(' ');
   const timingNote = r.timing || nearText ? el(doc, 'p', [r.timing, nearText || null].filter(Boolean).join(' '), 'briefing-footnote macro-quadrant-note') : null;
-  if (r.available && timingNote) left.append(timingNote);
+  // v58.79 (layout over captions): the month each input describes moves into the criteria fold below; the map stays clean.
   const right = el(doc, 'div', null, 'macro-overview-side');
   const head = el(doc, 'div', null, 'macro-regime-head');
   head.append(el(doc, 'span', r.label, `macro-regime-label is-${r.tone}`));
@@ -639,8 +643,9 @@ function renderRegime(doc, read) {
   const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 수준이 목표보다 높으면 물가 요인은 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
   const criteria = el(doc, 'details', null, 'macro-axis-more');
   if (r.available) {
-    right.append(head, tally, lens, overviewTiles(doc, read.axes), reading);
-    criteria.append(el(doc, 'summary', '국면 판정 기준과 지금 읽은 값'));
+    right.append(head, tally, overviewTiles(doc, read.axes), reading);
+    // v58.79: the direction-vs-level sentence and the input months are the fold's first lines, not captions above the tiles.
+    criteria.append(el(doc, 'summary', '국면 판정 기준과 지금 읽은 값'), ...[timingNote, lens].filter(Boolean));
   } else {
     // A held quadrant is one line (why it is held, and which direction is settled); the reasoning folds below.
     right.append(head, tally, el(doc, 'p', heldRegimeLine(r), 'macro-regime-held'), overviewTiles(doc, read.axes));
@@ -686,7 +691,8 @@ function renderCommodities(doc, root, oil = null) {
       if (extra) box.append(el(doc, 'div', extra, 'trend-card-change'));
     }
     box.append(createTrendChart(doc, { series: series.slice(-252), format: (value) => `${value.toFixed(0)}달러`, label: title }));
-    box.append(el(doc, 'p', note, 'trend-card-note'));
+    const noteNode = noteFold(doc, note); // v58.79: how to read it is one fold down
+    if (noteNode) box.append(noteNode);
     return box;
   };
   grid.replaceChildren(
@@ -827,8 +833,8 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     const fold = el(doc, 'details', null, 'regime-axis-details macro-long-fold');
     fold.append(el(doc, 'summary', `수십 년 속 위치 보기 (${longRows.length}개 지표)`),
       el(doc, 'p', `1990년(또는 자료 시작) 이후 매달 평균 가운데 가장 최근 마감된 달이 어디쯤인지 봅니다. 높은 편·낮은 편은 과거 분포 안의 위치일 뿐 앞으로의 방향을 말하지 않고, 오르는 중인지 내리는 중인지는 위 카드의 6개월 추세로 읽습니다.`, 'macro-group-fact'), grid);
-    section.append(el(doc, 'h3', '수십 년 속 지금 위치', 'macro-group-title'),
-      el(doc, 'p', '기준은 지난달 월평균입니다. 위 카드(최신 발표값)나 금리 카드(최근 종가)와 시점이 달라 같은 지표도 숫자가 다를 수 있습니다.', 'macro-group-fact macro-long-basis'), fold);
+    // v58.79: the basis is a chip; why the numbers differ from the cards above is its hover.
+    section.append(frameHead(doc, { title: '수십 년 속 지금 위치', level: 'h3', titleClass: 'macro-group-title', asOf: '지난달 월평균', asOfDetail: '위 카드(최신 발표값)나 금리 카드(최근 종가)와 시점이 달라 같은 지표도 숫자가 다를 수 있습니다.' }), fold);
     host.append(section);
   }
   renderCommodities(doc, root, read.oil);
@@ -938,7 +944,8 @@ function trendCard(doc, { id, title, valueText, chip, chipOff, lines, series, fo
   box.append(tags);
   lines.filter(Boolean).forEach((line) => box.append(el(doc, 'div', line, 'trend-card-change')));
   box.append(createTrendChart(doc, { series, format, label: title }));
-  if (note) box.append(el(doc, 'p', note, 'trend-card-note'));
+  const noteNode = noteFold(doc, note); // v58.79: how to read it is one fold down
+  if (noteNode) box.append(noteNode);
   return box;
 }
 
@@ -1170,13 +1177,15 @@ function renderAssetPerformance(doc, root, basis) {
   }
   const fold = el(doc, 'details', null, 'aio-comp-secondary');
   fold.open = true;
-  fold.append(el(doc, 'summary', '자산별 1개월·3개월·올해 수익률'), table,
-    el(doc, 'p', '각 자산의 일별 종가로 계산한 가격 변화이며 배당·이자는 넣지 않았습니다. 1개월은 21거래일, 3개월은 63거래일 전 종가 대비이고, 코스피는 한국 거래일 기준입니다. 원/달러와 달러 인덱스는 환율이라 가장 강한·약한 자산 비교에서 뺐습니다.', 'briefing-footnote'));
+  // v58.79 (layout over captions): the return method is the fold summary's hover, not a paragraph under the table.
+  const returnsSummary = el(doc, 'summary', '자산별 1개월·3개월·올해 수익률');
+  returnsSummary.title = '각 자산의 일별 종가로 계산한 가격 변화이며 배당·이자는 넣지 않았습니다. 1개월은 21거래일, 3개월은 63거래일 전 종가 대비이고, 코스피는 한국 거래일 기준입니다. 원/달러와 달러 인덱스는 환율이라 가장 강한·약한 자산 비교에서 뺐습니다.';
+  fold.append(returnsSummary, table);
   const parts = [title, lead, fold];
   if (model.corr.length >= 5) {
-    parts.push(el(doc, 'h3', `S&P 500 – 미 장기채(TLT) ${CORR_WINDOW}거래일 상관`, 'trend-card-title'),
-      createTrendChart(doc, { series: model.corr, refLines: [0], domain: [-1, 1], format: (value) => value.toFixed(2), label: `S&P 500과 TLT의 ${CORR_WINDOW}거래일 일간 수익률 상관` }),
-      el(doc, 'p', `표본: 두 종가가 모두 있는 ${model.jointSessions}거래일(${shortDate(model.corrFrom)}부터), 상관 ${model.corr.length}개 시점. 일간 수익률의 피어슨 상관이며 TLT 기록이 쌓인 만큼만 그립니다.`, 'trend-card-note'));
+    const corrTitle = el(doc, 'h3', `S&P 500 – 미 장기채(TLT) ${CORR_WINDOW}거래일 상관`, 'trend-card-title');
+    corrTitle.title = `표본: 두 종가가 모두 있는 ${model.jointSessions}거래일(${shortDate(model.corrFrom)}부터), 상관 ${model.corr.length}개 시점. 일간 수익률의 피어슨 상관이며 TLT 기록이 쌓인 만큼만 그립니다.`; // v58.79: sample size as the title's hover
+    parts.push(corrTitle, createTrendChart(doc, { series: model.corr, refLines: [0], domain: [-1, 1], format: (value) => value.toFixed(2), label: `S&P 500과 TLT의 ${CORR_WINDOW}거래일 일간 수익률 상관` }));
   } else parts.push(el(doc, 'p', `S&P 500과 TLT가 함께 기록된 날이 ${model.jointSessions}거래일이라 ${CORR_WINDOW}거래일 상관은 아직 그리지 않습니다.`, 'briefing-empty'));
   const reading = el(doc, 'p', null, 'briefing-read-reading');
   reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(' 상관이 0보다 크면 주식과 장기채가 같은 방향으로 움직여, 주식이 내릴 때 채권이 받쳐 주는 분산 효과가 줄어든 상태입니다. 0보다 작으면 채권이 완충 역할을 하는 쪽입니다. 물가·금리 충격이 주도하는 시기에는 양(+)으로, 성장 둔화 걱정이 주도하는 시기에는 음(−)으로 기우는 경향이 알려져 있지만, 이 값은 지난 60거래일의 관계일 뿐 앞으로를 보장하지 않습니다.'));
@@ -1205,7 +1214,7 @@ function allocationPrinciples(doc, root, model, nowCorr) {
   box.append(el(doc, 'summary', '자산배분 원리 — 채권·달러·금·현금이 하는 일'));
   const list = el(doc, 'dl', null, 'regime-evidence');
   for (const [label, text] of items) list.append(el(doc, 'dt', label), el(doc, 'dd', text));
-  box.append(list, el(doc, 'p', '각 자산의 역할을 설명하는 원리이며, 얼마를 담을지는 내 목표와 원칙으로 정합니다.', 'briefing-footnote'));
+  box.append(list); // v58.79: the closing "얼마를 담을지는 …" caption left (R724 is the screen's rule, not a line under it)
   return box;
 }
 
@@ -1255,7 +1264,9 @@ function renderRatesSummary(doc, model, read) {
     const box = el(doc, 'div', null, 'mk-rsum');
     const head = el(doc, 'div', null, 'mk-rsum__head');
     head.append(el(doc, 'span', label, 'mk-rsum__label'), el(doc, 'span', change || '', 'mk-rsum__change'));
-    box.append(head, el(doc, 'b', value, 'mk-rsum__value'), el(doc, 'span', note, 'mk-rsum__note'));
+    // v58.79: a [short, full] note shows the short cue and keeps the explanation as its hover.
+    const [cue, full] = Array.isArray(note) ? note : [note, ''];
+    box.append(head, el(doc, 'b', value, 'mk-rsum__value'), Object.assign(el(doc, 'span', cue, 'mk-rsum__note'), full ? { title: full } : {}));
     if (dated) box.append(dated);
     return box;
   };
@@ -1271,9 +1282,9 @@ function renderRatesSummary(doc, model, read) {
   const policy = (read?.axes || []).find((row) => row.id === 'policy');
   const gap = policy?.evidence?.find(([label]) => label.startsWith('2년물 − 기준금리'))?.[1] || null;
   host.replaceChildren(
-    fxTile('usdkrw', '원/달러', '오르면 원화 약세 — 외국인 자금 흐름과 수입 물가에 연결됩니다.'),
-    fxTile('usdjpy', '엔/달러', '내리면 엔화 강세 — 엔으로 빌려 투자한 자금(엔 캐리)의 기준선입니다.'),
-    tile('2년물 − 기준금리 중간값', gap ? gap.replace(/\s*\(.*$/, '') : '없음', policy ? policy.stateLabel : '', gap ? '2년물에는 앞으로 1~2년 기준금리 예상과 기간·위험 프리미엄이 함께 들어 있습니다 — 거시 경제의 통화정책 판정과 같은 값입니다.' : '2년물 또는 기준금리 자료 없음', gap ? chipFor(policy?.asOf, '2년물 관측') : null)
+    fxTile('usdkrw', '원/달러', ['오르면 원화 약세', '오르면 원화 약세 — 외국인 자금 흐름과 수입 물가에 연결됩니다.']),
+    fxTile('usdjpy', '엔/달러', ['내리면 엔화 강세', '내리면 엔화 강세 — 엔으로 빌려 투자한 자금(엔 캐리)의 기준선입니다.']),
+    tile('2년물 − 기준금리 중간값', gap ? gap.replace(/\s*\(.*$/, '') : '없음', policy ? policy.stateLabel : '', gap ? ['통화정책 판정과 같은 값', '2년물에는 앞으로 1~2년 기준금리 예상과 기간·위험 프리미엄이 함께 들어 있습니다 — 거시 경제의 통화정책 판정과 같은 값입니다.'] : '2년물 또는 기준금리 자료 없음', gap ? chipFor(policy?.asOf, '2년물 관측') : null)
   );
 }
 

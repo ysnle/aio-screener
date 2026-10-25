@@ -234,7 +234,7 @@
 #page-themes .thp-quadrant-card { border: 0; border-radius: 12px; background: var(--sx-ink-a03); }
 #page-themes .thp-chip { border: 0; border-radius: 999px; background: var(--bg-card); box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.08); }
 #page-themes .thp-chip.thp-chip--detail { box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.16); }
-.v2-themes-principle { display: flex; flex-direction: column; gap: 10px; }
+.v2-themes-principle { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
 .v2-themes-principle .sx-disclosure__text { font-size: 12px; line-height: 1.75; text-wrap: pretty; }
 .v2-themes-principle .v2-themes-limit { color: var(--text-secondary); }
 .v2-themes-evidence { padding: 0; margin: 0; }
@@ -404,7 +404,7 @@
 @media (max-width: 1279px) {
   .v2-stock-checks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .v2-themes-grid { grid-template-columns: minmax(0, 1fr); }
-  .v2-themes-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .v2-themes-side { display: flex; } /* v58.79: one card left in the side column */
 }
 @media (max-width: 1023px) {
   .v2-stock-pair, .v2-fiscal-pair { grid-template-columns: minmax(0, 1fr); }

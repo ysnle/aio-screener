@@ -5662,3 +5662,213 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (JSON.stringify(hits) !== JSON.stringify(['placeholder-particle', 'negative-zero'])) fail(`v58.74 copy lint rules wrong: ${JSON.stringify(hits)}`);
   if (lintLines('−50%를 메우려면 +100%', 'principles').length) fail('v58.74 copy lint: long-form arithmetic keeps the typographic minus');
 }
+
+{
+  // v58.78 (owner 2026-10-25): 오늘 opens with the four index ETFs' last regular session — change from the previous close,
+  // an open/closed flag from the trading period, and nothing drawn from an empty payload.
+  const { sessionModel, INDEX_STRIP } = await load('src/ui/components/home-index-strip.js');
+  if (INDEX_STRIP.map((row) => row.sym).join(',') !== 'SPY,QQQ,SOXX,IWM') fail('v58.78 index strip: SPY, QQQ, SOXX, IWM in that order');
+  const start = 1792762200; // 2026-10-23 09:30 New York
+  const payload = { timestamps: [start, start + 300, start + 600], opens: [100, 101, null], highs: [102, 103, 104], lows: [99, 100, 101], closes: [101, 102, 103],
+    meta: { chartPreviousClose: 100, currentTradingPeriod: { regular: { start, end: start + 23400 } } } };
+  const closed = sessionModel(payload, start + 30000);
+  if (!closed || closed.bars.length !== 2 || closed.last !== 102 || Math.abs(closed.changePct - 2) > 1e-9 || closed.open || closed.min !== 99 || closed.max !== 103
+    || closed.session.month !== 10 || closed.session.day !== 23 || closed.session.weekday !== 'Fri') fail(`v58.78 index strip session model wrong: ${JSON.stringify(closed && { n: closed.bars.length, last: closed.last, pct: closed.changePct, open: closed.open, s: closed.session })}`);
+  if (!sessionModel(payload, start + 900).open) fail('v58.78 index strip: a session inside its regular period reads as open (and re-reads every five minutes)');
+  if (sessionModel({ timestamps: [] }) !== null || sessionModel(null) !== null) fail('v58.78 index strip: an empty payload draws nothing');
+  if (sessionModel({ ...payload, meta: {} }, start + 30000).change !== null) fail('v58.78 index strip: without a previous close the change stays empty, never guessed');
+}
+
+{
+  // P2061: a soft-card reset in soft-ui.css set every S&P 500 map tile to the same faint ink with !important, so the
+  // return shades never showed and the biggest movers' dark labels vanished. No soft-ui rule may set a tile background.
+  const softCss = readFileSync(path.join(root, 'src/ui/styles/soft-ui.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const rules = softCss.split('}').map((chunk) => chunk.split('{')).filter((parts) => parts.length === 2)
+    .map(([selector, body]) => ({ selectors: selector.split(',').map((item) => item.trim()), props: Object.fromEntries(body.split(';').map((decl) => decl.split(':')).filter((pair) => pair.length >= 2).map(([key, ...rest]) => [key.trim(), rest.join(':').trim()])) }));
+  const painting = rules.filter((rule) => rule.selectors.some((item) => item === '.sector-map-tile' || item.endsWith(' .sector-map-tile')) && (rule.props.background || rule.props['background-color']));
+  if (painting.length) fail(`P2061 soft-ui.css must not paint .sector-map-tile (it hides the return shades): ${painting.map((rule) => rule.selectors.join(',')).join(' | ').slice(0, 200)}`);
+}
+
+{
+  // v58.78 (owner 2026-10-25): the theme ranking reads 1주·2주·1개월 — the 1주 tab ranks by the members' five-session
+  // median, 2주 is the ten-session median, and 6개월 stays a valid key for the other readers.
+  const { buildGroupStrength, STRENGTH_TABS, GROUP_WINDOWS } = await load('src/domain/themes/group-strength.js');
+  if (STRENGTH_TABS.join(',') !== 'ret5d,ret1m,ret3m' || GROUP_WINDOWS.ret10d !== '2주' || GROUP_WINDOWS.ret6m !== '6개월') fail('v58.78 ranking tabs are 1주·1개월·3개월, with 2주 and 6개월 still named');
+  const themes = [{ id: 't', nameKr: 'T', subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3'] }, { name: 'B', tickers: ['B1', 'B2', 'B3'] }] }];
+  const row = (sym, ret5d, ret10d, ret1m) => ({ sym, ret5d, ret10d, ret1m, ret3m: ret1m, ret6m: ret1m, pctSma50: 1, factorSessionDate: '2026-10-23' });
+  const rows = [row('A1', 5, 6, -1), row('A2', 4, 7, -2), row('A3', 6, 8, -3), row('B1', -1, -2, 9), row('B2', -2, -3, 8), row('B3', -3, -4, 7)];
+  const week = buildGroupStrength({ themes, rows, sortKey: 'ret5d' });
+  if (week.sortKey !== 'ret5d' || week.groups[0].name !== 'A' || week.groups[0].ret5d !== 5 || week.groups[0].ret10d !== 7 || week.windowLabel !== '1주') fail(`v58.78 1주 ranking wrong: ${JSON.stringify(week.groups.map((g) => [g.name, g.ret5d, g.ret10d]))}`);
+  if (buildGroupStrength({ themes, rows, sortKey: 'ret1m' }).groups[0].name !== 'B') fail('v58.78 the 1개월 tab ranks by the one-month median');
+  const { closesToFactors } = await load('src/domain/screener/price-factors.js');
+  const closes = Array.from({ length: 60 }, (_, i) => 100 + i);
+  const factors = closesToFactors ? closesToFactors(closes) : null;
+  if (!factors || Math.abs(factors.ret10d - (159 / 149 - 1) * 100) > 0.01) fail(`v58.78 ret10d must be the ten-session return on the same closes: ${factors.ret10d}`);
+}
+
+{
+  // v58.78 (owner 2026-10-25): the stage table says the run in words, and the theme map keeps a readable scale.
+  const { stageRun, robustSpan } = await load('src/ui/components/theme-playbook-view.js');
+  const day = (date, state) => ({ date, state, ret1m: 1 });
+  const run = stageRun([day('2026-10-14', 'leading'), day('2026-10-15', 'leading'), day('2026-10-16', 'fading'), day('2026-10-17', undefined), day('2026-10-20', 'fading'), day('2026-10-21', 'fading')]);
+  if (!run || run.state !== 'fading' || run.sessions !== 3 || run.from?.state !== 'leading' || run.from?.date !== '2026-10-15' || run.atLeast) fail(`v58.78 stageRun wrong: ${JSON.stringify(run)}`);
+  const held = stageRun([day('2026-10-20', 'weak'), day('2026-10-21', 'weak')]);
+  if (!held || held.sessions !== 2 || held.from !== null || !held.atLeast) fail('v58.78 a stage held through the whole record reads "이상 유지"');
+  if (stageRun([]) !== null) fail('v58.78 no record, no run');
+  const values = [1, -2, 3, -4, 2, 5, -3, 4, -1, 2, -45];
+  const span = robustSpan(values);
+  if (!(span >= 5 && span < 20)) fail(`v58.78 one extreme theme must not set the map scale: span ${span}`);
+  if (robustSpan([1, 2]) !== 5 || robustSpan([]) !== 5) fail('v58.78 the map scale is at least 5%p');
+}
+
+{
+  // v58.79 (owner 2026-10-25, "let the layout do the explaining"): the section frame and the secondary-text budget.
+  const frame = await load('src/ui/components/section-frame.js');
+  if (!frame.isSecondaryClass('sector-map-basis') || !frame.isSecondaryClass('sx-card__meta') || !frame.isSecondaryClass('home-flips-order')
+    || frame.isSecondaryClass('xr-lead') || frame.isSecondaryClass('sx-lede') || frame.isSecondaryClass('leaders-line__head') || frame.isSecondaryClass('aio-frame-reading'))
+    fail('v58.79 secondary class words: basis/meta/order count, an analysis reading (xr-lead, sx-lede) and a frame reading do not');
+  if (frame.closeChipText('미국 10/23, 한국 10/23 확정 종가') !== '10/23 종가' || frame.closeChipText('미국 10/23, 한국 10/22 확정 종가') !== '미국 10/23, 한국 10/22'
+    || frame.closeChipText('10/23 미국 종가 기준') !== '10/23 종가') fail('v58.79 close chip: one date reads "M/D 종가", two dates keep both');
+  // A minimal document: enough of the DOM for the frame builders.
+  const node = (tag) => ({ tag, children: [], className: '', textContent: '', title: '', dataset: {}, attrs: {},
+    classList: { add(name) { this.owner.className = `${this.owner.className} ${name}`.trim(); } },
+    append(...parts) { for (const part of parts) if (part) { part.parentNode = this; this.children.push(part); } },
+    setAttribute(key, value) { this.attrs[key] = String(value); } });
+  const doc = { createElement: (tag) => { const n = node(tag); n.classList.owner = n; return n; }, createTextNode: (text) => ({ tag: '#text', textContent: text }) };
+  const head = frame.frameHead(doc, { title: '다가오는 일정', asOf: '5일', asOfDetail: '앞으로 5일, 한국 시간' });
+  const [title, chip] = head.children;
+  if (!/aio-frame-head/.test(head.className) || title.tag !== 'h2' || title.textContent !== '다가오는 일정' || chip.className !== 'aio-asof' || chip.textContent !== '5일' || chip.title !== '앞으로 5일, 한국 시간' || head.children.length !== 2)
+    fail(`v58.79 frame head: title, then one as-of chip with its method in the hover, nothing else: ${JSON.stringify(head.children.map((c) => [c.tag, c.className, c.textContent]))}`);
+  if (frame.asOfChip(doc, '가'.repeat(40)).textContent.length !== frame.ASOF_MAX) fail('v58.79 an as-of chip is cut to ASOF_MAX characters');
+  if (!/sr-only/.test(frame.frameHead(doc, { title: '지수 하루 흐름', hiddenTitle: true }).children[0].className)) fail('v58.79 a hidden frame title stays for screen readers');
+  const section = frame.frameSection(doc, { frame: 'home.test', title: 'T', titleId: 't', reading: '읽기' });
+  if (section.dataset.frame !== 'home.test' || section.attrs['aria-labelledby'] !== 't' || section.children[1]?.className !== 'aio-frame-reading') fail('v58.79 frameSection: data-frame name, labelled by its title, reading after the head');
+  const { headroom } = await import(pathToFileURL(path.join(root, 'scripts/ci-secondary-text-budget-check.mjs')).href);
+  if (headroom(0) !== 40 || headroom(1000) !== 1140) fail('v58.79 budget headroom is 10% + 40 characters');
+  const { HOME_QUOTE_HEADINGS } = await load('src/ui/components/home-kpi-trend.js');
+  if (HOME_QUOTE_HEADINGS.weekend.chip !== '주말 휴장' || HOME_QUOTE_HEADINGS.open.chip !== '실시간·지연') fail('v58.79 the quote heading carries the quote state as its chip');
+}
+
+{
+  // v58.79 (owner 2026-10-25): the breadth headline is S&P 500 members; the AIO US universe is the fallback.
+  const producer = await import(pathToFileURL(path.join(root, 'scripts/producer/screener-breadth.mjs')).href);
+  const client = await load('src/domain/market/screener-breadth.js');
+  if (producer.SP500_SCOPE !== client.SP500_BREADTH_SCOPE) fail('v58.79 producer and client name the S&P 500 breadth scope the same');
+  const sp = { eligible: 497 }, us = { eligible: 840 };
+  if (producer.headlineBreadthSegment({ sp500: sp, us })?.segment !== sp || producer.headlineBreadthSegment({ sp500: { eligible: 120 }, us })?.segment !== us
+    || producer.headlineBreadthSegment({ us })?.scope !== producer.AIO_US_SCOPE || producer.headlineBreadthSegment({}) !== null)
+    fail('v58.79 headline breadth: S&P 500 when at least 300 members are judged, else the AIO US universe');
+  const dates = [];
+  for (let day = new Date(Date.UTC(2025, 0, 6)); dates.length < 60; day = new Date(day.getTime() + 86400000)) if (day.getUTCDay() % 6) dates.push(day.toISOString().slice(0, 10));
+  const series = (sym, step) => ({ sym, dates, adjCloses: dates.map((_, i) => 100 + i * step) });
+  const points = producer.computeScreenerBreadthHistory(['AAA', 'BBB'], [series('AAA', 1), series('BBB', -1)], 252, Date.UTC(2026, 0, 1), null, new Set(['AAA']));
+  const last = points.at(-1);
+  if (last?.sp500?.universe !== 1 || last?.us?.universe !== 2) fail(`v58.79 the S&P 500 bucket counts members only: ${JSON.stringify({ sp500: last?.sp500?.universe, us: last?.us?.universe })}`);
+  if ('sp500' in (producer.computeScreenerBreadthHistory(['AAA'], [series('AAA', 1)], 252, Date.UTC(2026, 0, 1)).at(-1) || {})) fail('v58.79 no membership set, no S&P 500 bucket');
+  const row = (scope) => ({ date: '2026-10-23', breadth50: 40, fieldMeta: { breadth50: { universeScope: scope, eligible: 497 } } });
+  if (!client.breadthScopeOf([row(client.SP500_BREADTH_SCOPE)]).sp500 || client.breadthScopeOf([row(producer.AIO_US_SCOPE)]).sp500 || client.breadthScopeOf([]).sp500)
+    fail('v58.79 breadthScopeOf reads the latest breadth row\'s own scope');
+}
+
+{
+  // v58.79 (owner 2026-10-25): the theme-stage record before 10/12 is recomputed from closes with the live rule.
+  const { mergeThemeHistory, loadThemeMaps } = await import(pathToFileURL(path.join(root, 'scripts/build-scenario-state.mjs')).href);
+  const { buildThemeStageBackfill, THEME_STAGE_HISTORY_SCHEMA } = await import(pathToFileURL(path.join(root, 'scripts/producer/theme-stage-backfill.mjs')).href);
+  const { THEME_STAGE_RULE } = await load('src/domain/scenarios/analogs.js');
+  const backfill = { schemaVersion: THEME_STAGE_HISTORY_SCHEMA, rule: THEME_STAGE_RULE, history: [
+    { date: '2026-10-08', themes: { 'US:a': [1, 'leading'], 'US:b': [2, 'weak'] } },
+    { date: '2026-10-12', themes: { 'US:a': [9, 'weak'], 'US:b': [3, 'weak'] } },
+    { date: '2026-10-13', themes: { 'US:a': [9, 'weak'], 'US:b': [3, 'weak'] } }] };
+  const recorded = [{ date: '2026-10-12', themes: { 'US:a': [1.5, 'leading'] } }, { date: '2026-10-13', themes: { 'US:a': [1.6, 'leading'] } }];
+  const merged = mergeThemeHistory(recorded, backfill);
+  if (merged.length !== 3 || merged[0].recomputed !== true || merged[1].themes['US:a'][1] !== 'leading' || merged[1].recomputed
+    || 'US:b' in merged[2].themes || 'US:b' in merged[1].themes)
+    fail(`v58.79 theme history merge: recorded days and themes win, only days before the record are filled: ${JSON.stringify(merged)}`);
+  if (mergeThemeHistory(recorded, { ...backfill, rule: 'theme-stage.v0' }).length !== 2) fail('v58.79 a recomputed copy on another stage rule is ignored');
+  // Two years of synthetic closes for every listed member: one recomputed day per completed session, every theme keyed.
+  const maps = loadThemeMaps(root);
+  const dates = [];
+  for (let day = new Date(Date.UTC(2026, 9, 23)); dates.length < 300; day = new Date(day.getTime() - 86400000)) if (day.getUTCDay() % 6) dates.unshift(day.toISOString().slice(0, 10));
+  const history = dates.map((date, i) => ({ date, spx: 5000 * (1 + i * 0.0005), rsp: 170 * (1 + i * 0.0004), kospi: 2500 * (1 + i * 0.0003) }));
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const syms = [...new Set([...maps.usThemes.flatMap((theme) => theme.subThemes.flatMap((sub) => sub.tickers)), ...Object.values(maps.krThemeMap).flat().map((row) => `${row.code}.KS`)])];
+  const results = syms.map((sym) => { let p = 100; const drift = (rnd() - 0.45) * 0.004; return { sym, dates, adjCloses: dates.map(() => (p *= 1 + drift + (rnd() - 0.5) * 0.03)) }; });
+  const out = buildThemeStageBackfill({ results, themeMaps: maps, history, sessions: 5, nowMs: Date.UTC(2026, 9, 25) });
+  const keys = Object.keys(out.history.at(-1)?.themes || {});
+  if (out.rule !== THEME_STAGE_RULE || out.sessions !== 5 || out.history.at(-1).date !== '2026-10-23' || keys.length !== maps.usThemes.length + Object.keys(maps.krThemeMap).length)
+    fail(`v58.79 theme stage backfill: one day per completed session on the live rule, every US and KR theme: ${JSON.stringify({ rule: out.rule, sessions: out.sessions, last: out.history.at(-1)?.date, keys: keys.length })}`);
+  const view = await load('src/ui/components/theme-playbook-view.js');
+  const days = view.stageHistoryOf(merged, { market: 'US', id: 'a', basis: '2026-10-14', state: 'leading', ret1m: 2 }, view.RUN_DAYS);
+  if (days.length !== 4 || view.stageRun(days).sessions !== 4 || !/10\/12 이전/.test(view.recomputedNote(days))) fail('v58.79 the stage run spans the whole record and names where the recomputed part ends');
+}
+
+{
+  // v58.79 (owner 2026-10-25): theme <-> research-library links; every id must resolve and every copied title must match.
+  const links = await load('src/domain/knowledge/theme-research-links.js');
+  const { lessonById } = await load('src/domain/knowledge/learning-core.js');
+  const { loadThemeMaps } = await import(pathToFileURL(path.join(root, 'scripts/build-scenario-state.mjs')).href);
+  const themeIds = new Set(loadThemeMaps(root).usThemes.map((theme) => theme.id));
+  const guides = JSON.parse(readFileSync(path.join(root, 'public-data/atlas/domain-guides.json'), 'utf8'));
+  const domainIds = new Set((guides.domains || guides.guides || []).map((row) => row.id));
+  const problems = [];
+  for (const [id, entry] of Object.entries(links.THEME_RESEARCH)) {
+    if (!themeIds.has(id)) problems.push(`theme ${id} not in THEME_MAP`);
+    for (const note of entry.notes) if (!lessonById(note) || links.NOTE_TITLES[note] !== lessonById(note).title) problems.push(`note ${note} missing or title drifted`);
+    if (entry.domain && !domainIds.has(entry.domain)) problems.push(`domain ${entry.domain} not in 산업 지도`);
+  }
+  for (const id of themeIds) if (!(id in links.THEME_RESEARCH)) problems.push(`theme ${id} has no research entry`);
+  for (const note of links.CHART_NOTES) if (lessonById(note.id)?.title !== note.title) problems.push(`chart note ${note.id} missing or title drifted`);
+  if (!links.themesForNote('insurance').includes('financials') || !links.themesForDomain('domain-power-grid').includes('utilities')) problems.push('reverse lookups');
+  if (problems.length) fail(`v58.79 theme research links: ${problems.join('; ')}`);
+}
+
+{
+  // v58.79 (owner 2026-10-25): rule drawings — a trendline through two confirmed swing points no close has broken since,
+  // anchored VWAP from dated events, and the user's lines read against the level map.
+  const draw = await load('src/domain/technical/chart-drawings.js');
+  // A rising zigzag: swing lows every 20 bars climbing by 2, highs in between; the last close sits above the support.
+  const bars = Array.from({ length: 160 }, (_, i) => {
+    const phase = i % 20, base = 100 + i * 0.1, wave = phase < 10 ? phase : 20 - phase;
+    const close = base + wave * 0.8;
+    return { time: `t${i}`, open: close, high: close + 0.5, low: close - 0.5, close, volume: 1000 + i };
+  });
+  const lines = draw.ruleTrendLines(bars);
+  if (!lines.available || !lines.support || lines.support.slopePerBar <= 0 || lines.support.touches < 3 || lines.support.status !== 'confirmed' || lines.support.value >= bars.at(-1).close)
+    fail(`v58.79 rule trendline: a rising support through confirmed swing lows, confirmed by a third touch: ${JSON.stringify(lines.support)}`);
+  const broken = bars.map((bar, i) => (i === 150 ? { ...bar, close: 50, low: 49.5 } : bar));
+  if (draw.ruleTrendLines(broken).support?.from.index < 150 && draw.ruleTrendLines(broken).support?.to.index < 150) fail('v58.79 a close through the line breaks every line drawn before it');
+  const vwap = draw.anchoredVwap([{ high: 11, low: 9, close: 10, volume: 1 }, { high: 22, low: 18, close: 20, volume: 3 }], 0);
+  if (vwap?.[0] !== 10 || Math.abs(vwap[1] - 17.5) > 1e-9 || draw.anchoredVwap(bars, 999) !== null) fail('v58.79 anchored VWAP is the volume-weighted typical price from the anchor');
+  const anchors = draw.vwapAnchors(bars);
+  if (!anchors.some((row) => row.id === 'low6m') || anchors.some((row) => row.index >= bars.length - 1)) fail(`v58.79 VWAP anchors are dated past bars: ${JSON.stringify(anchors)}`);
+  const map = { available: true, close: 100, adrPct: 2, above: [{ price: 104 }], below: [{ price: 97 }] };
+  const near = draw.nearestMappedLevel(map, 98);
+  if (near?.level.price !== 97 || Math.abs(near.pct - (98 / 97 - 1) * 100) > 1e-9 || Math.abs(near.vsClose + 2) > 1e-9) fail('v58.79 a user line is read against the nearest mapped level');
+}
+
+{
+  // v58.79 (owner 2026-10-25, chart review): trend direction and turn, the same chart under four trading styles, the
+  // reward-to-risk breakeven win rate, and the compare overlay's rebasing and period returns.
+  const { analyzeChart } = await load('src/domain/technical/chart-analysis.js');
+  const strat = await load('src/domain/technical/chart-strategies.js');
+  const cmp = await load('src/domain/technical/chart-compare.js');
+  const mk = (n, f) => Array.from({ length: n }, (_, i) => { const close = f(i); return { time: new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10), open: close, high: close * 1.01, low: close * 0.99, close, volume: 1e6 }; });
+  const up = mk(300, (i) => 100 + i * 0.5 + 6 * Math.sin(i / 6));
+  const down = mk(300, (i) => 300 - i * 0.5 + 6 * Math.sin(i / 6));
+  const readOf = (bars) => strat.trendRead(analyzeChart(bars, { benchmark: [], benchmarkLabel: 'S&P 500' }));
+  if (readOf(up)?.direction !== 'up' || readOf(down)?.direction !== 'down') fail('v58.79 trendRead: rising and falling zigzags read as up and down');
+  const turned = [...down.slice(0, -1), { ...down.at(-1), close: down.at(-1).close * 1.2, high: down.at(-1).close * 1.21 }];
+  if (!/전환 시도/.test(readOf(turned)?.turn || '')) fail(`v58.79 trendRead: a close above the last swing high in a downtrend is a turn: ${readOf(turned)?.turn}`);
+  const lenses = strat.strategyLenses(analyzeChart(up, { benchmark: [], benchmarkLabel: 'S&P 500' }), null, { rsi: 55 });
+  if (lenses.map((lens) => lens.id).join() !== 'breakout,pullback,position,reversion' || lenses.some((lens) => !(lens.met <= lens.total) || !lens.stop || !lens.target || !lens.invalidation))
+    fail('v58.79 strategyLenses: four styles, each with a count of met conditions and its own stop, target and invalidation rule');
+  const byId = Object.fromEntries(lenses.map((lens) => [lens.id, lens]));
+  if (!(byId.pullback.met > byId.reversion.met)) fail('v58.79 strategyLenses: a steady uptrend fits the pullback style better than the oversold style');
+  if (Math.abs(strat.rewardRiskFacts(2).breakevenWinRate - 100 / 3) > 1e-9 || strat.rewardRiskFacts(1).breakevenWinRate !== 50 || strat.rewardRiskFacts(0) !== null) fail('v58.79 breakeven win rate = 1 / (1 + R)');
+  const peers = cmp.chartPeers([{ name: 'AI', leaders: ['NVDA', 'AMD'], subThemes: [{ tickers: ['NVDA', 'AMD', 'AVGO', 'MRVL'] }, { tickers: ['NVDA', 'TSM'] }] }], 'nvda');
+  if (peers.peers.join() !== 'TSM,AMD,AVGO,MRVL') fail(`v58.79 chartPeers: smallest sub-theme first, then the rest, self excluded: ${peers.peers}`);
+  const line = cmp.rebasedLine(up, up.map((bar) => ({ ...bar, close: bar.close * 2 })));
+  if (line?.points.length !== cmp.COMPARE_WINDOW || Math.abs(line.points.at(-1).value - up.at(-1).close) > 1e-9) fail('v58.79 rebasedLine: a symbol moving in proportion lands on the stock line');
+  const returns = cmp.periodReturns(up);
+  if (Math.abs(returns['1개월'] - (up.at(-1).close / up.at(-22).close - 1) * 100) > 1e-9 || cmp.periodReturns(up.slice(0, 30))['3개월'] !== null) fail('v58.79 periodReturns: close against the close n sessions earlier');
+}

@@ -125,7 +125,9 @@ function renderScreenCards(documentRef) {
   open.className = 'aio-btn-table';
   open.dataset.action = 'openKbdHelp';
   open.textContent = '단축키 전체 보기 (?)';
-  keys.replaceChildren(documentRef.createTextNode('키보드: 숫자 1~8은 위 순서대로 화면 이동, R은 데이터 새로고침, Ctrl+K는 검색, ?는 단축키 목록입니다. '), open);
+  // v58.79: the button is the line; the key summary is its hover.
+  open.title = '숫자 1~8은 위 순서대로 화면 이동, R은 데이터 새로고침, Ctrl+K는 검색, ?는 단축키 목록';
+  keys.replaceChildren(open);
 }
 
 // P1428 + owner 2026-10-04: the guide's judgement section is the rule table itself, generated from the

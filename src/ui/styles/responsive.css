@@ -150,6 +150,9 @@
   .page .aio-responsive-row { flex-wrap: wrap; gap: 10px !important; }
   .page .rl-grid, .page .rl-head { grid-template-columns: minmax(0, 1fr); }
   .page .rl-nav, .page .rl-aside { position: static; max-height: none; min-width: 0; }
+  /* P2063: v2-research's <=1279px rule pins the aside to column 2; in this one-column band that made an implicit second
+     column and squeezed the document into ~140px (1024-1100px). */
+  .page .rl-shell .rl-aside { grid-column: 1; }
   .page .rl-main { order: 1; }
   /* v57.92: in one column the 424-item list sat between the article and its next/prerequisite links, so the
      reading flow ran into an inner scroller; the article's own links follow it and the full list comes last. */

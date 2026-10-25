@@ -10,6 +10,8 @@ import { ensureFrameStyle, renderBasis } from './analysis-frames.js';
 import { FOUNDATION_HIDDEN_MODULES, foundationStory } from '../../domain/knowledge/foundation-stories.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { createCurrentObservationBlock } from './current-observations.js';
+import { themesForDomain } from '../../domain/knowledge/theme-research-links.js';
+import { themeStageBlock } from './theme-stage-links.js';
 
 const conceptById = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
 
@@ -342,6 +344,9 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
       // 2026-10-14 audit: the sub-areas already sit in the left TOC and in the reading-order map above;
       // a third list in the right column repeated them. v58.56 (#8): the column holds the value-chain layer card
       // instead — where this domain sits among the seven layers, with the companies of each layer.
+      // v58.79: the themes this domain explains, with their stage now, sit above the layer card.
+      const themes = themeStageBlock(doc, root, themesForDomain(domain.id), block);
+      if (themes) aside.appendChild(themes);
       const layers = parts.layers?.(domain);
       if (layers) aside.appendChild(layers);
       return shell;

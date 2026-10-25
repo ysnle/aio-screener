@@ -12,7 +12,9 @@ import { signedText } from '../shared/number.js';
 // Members come from the curated THEME_MAP; a symbol without published returns is not counted.
 
 export const GROUP_STRENGTH_MODEL_VERSION = 'theme-group-strength.v1';
-export const GROUP_WINDOWS = Object.freeze({ ret1m: '1개월', ret3m: '3개월', ret6m: '6개월' });
+export const GROUP_WINDOWS = Object.freeze({ ret5d: '1주', ret10d: '2주', ret1m: '1개월', ret3m: '3개월', ret6m: '6개월' });
+// v58.78 (owner 2026-10-25): the ranking's period tabs are the short windows; 6개월 stays a valid key for other readers.
+export const STRENGTH_TABS = Object.freeze(['ret5d', 'ret1m', 'ret3m']);
 export const MIN_GROUP_MEMBERS = 3;
 // v57.50 D15: a 3-stock median can swing on one name; such a group stays in the table as '표본 n종목 · 참고' but does
 // not take a rank, so it never heads the order (1위) or closes it (최하위) in the lead sentence.
@@ -95,7 +97,7 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
       const memberSet = new Set(members.map((row) => String(row.sym).toUpperCase()));
       const rankedMembers = tickers.map((sym) => {
         const row = bySymbol.get(sym);
-        return { sym, name: row?.name || '', ret1m: finite(row?.ret1m), ret3m: finite(row?.ret3m), ret6m: finite(row?.ret6m), pctSma50: finite(row?.pctSma50), basis: row?.factorSessionDate || null, included: memberSet.has(sym) };
+        return { sym, name: row?.name || '', ret5d: finite(row?.ret5d), ret10d: finite(row?.ret10d), ret1m: finite(row?.ret1m), ret3m: finite(row?.ret3m), ret6m: finite(row?.ret6m), pctSma50: finite(row?.pctSma50), basis: row?.factorSessionDate || null, included: memberSet.has(sym) };
       }).sort((a, b) => (a.included !== b.included ? (a.included ? -1 : 1) : a[key] == null ? (b[key] == null ? 0 : 1) : b[key] == null ? -1 : b[key] - a[key]));
       let rank = null, previousValue = null;
       rankedMembers.forEach((member, index) => {
@@ -114,6 +116,7 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
         // v57.81: the last five sessions and the members' typical volatility, so a 1-month verdict can be checked against
         // the week (src/domain/themes/recent-check.js). Same aligned-session rule as the windows above.
         ret5d: comparisonAligned ? median(members.map((row) => finite(row.ret5d))) : null,
+        ret10d: comparisonAligned ? median(members.map((row) => finite(row.ret10d))) : null,
         vol: comparisonAligned ? median(members.map((row) => finite(row.vol))) : null,
         above50Pct: above.length ? Math.round(above.filter((row) => finite(row.pctSma50) > 0).length / above.length * 100) : null,
         leader: comparisonAligned && leader ? { sym: String(leader.sym).toUpperCase(), name: leader.name || '', value: finite(leader[key]) } : null,

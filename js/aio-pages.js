@@ -526,14 +526,15 @@ var THEME_MAP = [
       { name:'담배', tickers:['PM','MO','BTI'] }
     ] },
   { id:'healthcare', nameKr:'헬스케어', emoji:'', color:'#1b1a17', etf:'XLV', etfName:'Healthcare',
-    leaders:['LLY','JNJ','ABBV','MRK','UNH','TMO','AMGN','GILD','ABT','PFE','DHR','ISRG','MRNA','VRTX','BMY','MDT','MCK','CVS','SYK','HCA','ELV','CI','REGN','BSX','COR','CAH','BDX','EW','A','HUM','VEEV','WAT','IDXX','RMD','DXCM','BIIB','ZTS','ALNY','GEHC','NVO','TEM','AZN','NVS','CNC','DVA','ARGX','HIMS','VKTX'], leaderHighlight:['LLY','JNJ','ABBV','MRK'],
+    leaders:['LLY','JNJ','ABBV','MRK','UNH','TMO','AMGN','GILD','ABT','PFE','DHR','ISRG','MRNA','VRTX','BMY','MDT','MCK','CVS','SYK','HCA','ELV','CI','REGN','BSX','COR','CAH','BDX','EW','A','HUM','VEEV','WAT','IDXX','RMD','DXCM','BIIB','ZTS','ALNY','GEHC','NVO','TEM','AZN','NVS','CNC','DVA','ARGX','HIMS','VKTX','UHS','THC'], leaderHighlight:['LLY','JNJ','ABBV','MRK'],
     subThemes:[
       { name:'대형 제약', tickers:['LLY','JNJ','MRK','PFE','ABBV','BMY','NVO','AZN','NVS','ZTS'] },
       { name:'바이오텍', tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB','ALNY','ARGX','VKTX'] },
       { name:'디지털 헬스/의료 데이터', tickers:['VEEV','HIMS','TEM'] },
       { name:'관리의료/보험', tickers:['UNH','ELV','CI','CVS','HUM','CNC'] },
       { name:'의료기기', tickers:['ISRG','ABT','SYK','BSX','MDT','EW','BDX','DXCM','RMD','GEHC'] },
-      { name:'병원/유통/서비스', tickers:['HCA','MCK','COR','CAH','DVA'] },
+      { name:'병원/의료 서비스', tickers:['HCA','UHS','THC','DVA'] },
+      { name:'의약품 유통', tickers:['MCK','COR','CAH'] },
       { name:'생명과학/진단', tickers:['TMO','DHR','A','WAT','IDXX'] }
     ] },
   { id:'utilities', nameKr:'유틸리티', emoji:'', color:'#1b1a17', etf:'XLU', etfName:'Utilities',
@@ -576,25 +577,29 @@ var THEME_MAP = [
       { name:'업무 자동화 소프트웨어', tickers:['PATH','APPN','PEGA'] }
     ] },
   { id:'industrials', nameKr:'산업재', emoji:'', color:'var(--data-cyan)', etf:'XLI', etfName:'Industrials',
-    leaders:['CAT','GEV','DE','UNP','ETN','HON','PH','ADP','TT','PWR','JCI','EMR','CSX','MMM','WM','CTAS','ITW','NSC','FDX','UPS','RSG','URI','GWW','FAST','PCAR','AME','WAB','CARR','PAYX','CPRT','HUBB','JBHT','NDSN','ODFL','GNRC','LII'], leaderHighlight:['CAT','GEV','DE','UNP'],
+    leaders:['CAT','GEV','DE','UNP','ETN','HON','PH','ADP','TT','PWR','JCI','EMR','CSX','MMM','WM','CTAS','ITW','NSC','FDX','UPS','RSG','URI','GWW','FAST','PCAR','AME','WAB','CARR','PAYX','CPRT','HUBB','JBHT','NDSN','ODFL','GNRC','LII','WSO','WCN'], leaderHighlight:['CAT','GEV','DE','UNP'],
     subThemes:[
       { name:'철도/화물/물류', tickers:['UNP','CSX','NSC','UPS','FDX','ODFL','JBHT'] },
       { name:'건설·농기계/장비', tickers:['CAT','DE','PCAR','URI'] },
       { name:'전력장비/그리드', tickers:['GEV','ETN','PWR','HUBB','GNRC'] },
       { name:'공조/빌딩', tickers:['TT','CARR','JCI','LII'] },
       { name:'다각화 산업재', tickers:['HON','MMM','ITW','EMR','PH','AME','WAB','NDSN'] },
-      { name:'기업서비스/유통/환경', tickers:['ADP','PAYX','CTAS','GWW','FAST','CPRT','WM','RSG'] }
+      { name:'급여·기업 서비스', tickers:['ADP','PAYX','CTAS','CPRT'] },
+      { name:'산업재 유통', tickers:['GWW','FAST','WSO'] },
+      { name:'폐기물/환경 서비스', tickers:['WM','RSG','WCN'] }
     ] },
   { id:'financials', nameKr:'금융', emoji:'', color:'var(--data-amber)', etf:'XLF', etfName:'Financials',
-    leaders:['JPM','BAC','MS','WFC','C','AXP','V','SCHW','BLK','CB','PGR','COF','SPGI','BNY','PNC','USB','ICE','MRSH','BX','MCO','TRV','KKR','GS','MA','AON','NDAQ','PYPL','NU','AIG','MSCI','SOFI','CME','AFRM','TFC','XYZ','BRK-B'], leaderHighlight:['JPM','BAC','MS','WFC'],
+    leaders:['JPM','BAC','MS','WFC','C','AXP','V','SCHW','BLK','CB','PGR','COF','SPGI','BNY','PNC','USB','ICE','MRSH','BX','MCO','TRV','KKR','GS','MA','AON','NDAQ','PYPL','NU','AIG','MSCI','SOFI','CME','AFRM','TFC','XYZ','BRK-B','ALL','MET','AJG','WTW','BRO','FIS','GPN'], leaderHighlight:['JPM','BAC','MS','WFC'],
     subThemes:[
       { name:'대형 은행', tickers:['JPM','BAC','WFC','C'] },
       { name:'투자은행/브로커', tickers:['GS','MS','SCHW'] },
       { name:'지역·소비자 은행', tickers:['PNC','USB','TFC','COF'] },
       { name:'자산운용/수탁', tickers:['BLK','BX','KKR','BNY'] },
-      { name:'보험', tickers:['BRK-B','PGR','CB','TRV','AIG','MRSH','AON'] },
+      { name:'보험사(손해·생명·재보험)', tickers:['BRK-B','PGR','CB','TRV','AIG','ALL','MET'] },
+      { name:'보험 중개', tickers:['MRSH','AON','AJG','WTW','BRO'] },
       { name:'거래소/금융데이터', tickers:['SPGI','MCO','ICE','CME','NDAQ','MSCI'] },
-      { name:'결제/핀테크', tickers:['V','MA','AXP','PYPL','XYZ','SOFI','AFRM','NU'] }
+      { name:'결제 네트워크', tickers:['V','MA','AXP'] },
+      { name:'핀테크/결제 처리', tickers:['PYPL','XYZ','SOFI','AFRM','NU','FIS','GPN'] }
     ] },
   { id:'reits', nameKr:'부동산', emoji:'', color:'#1b1a17', etf:'XLRE', etfName:'Real Estate',
     leaders:['WELL','PLD','EQIX','AMT','DLR','O','PSA','VTR','IRM','CCI','SBAC','KIM','REG','SPG','STAG'], leaderHighlight:['WELL','PLD','EQIX','AMT'],

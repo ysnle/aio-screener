@@ -7,6 +7,7 @@
 // opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
 import { CHOICES, SHAPES, COUNT_WORDS, EVENT_NAMES, fomcDecisionDate } from '../../domain/market/macro-crossroads.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
+import { frameHead, markFrame, noteFold, setAsOf } from './section-frame.js';
 import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { themeRotationRead } from '../../domain/scenarios/theme-playbook.js';
@@ -184,7 +185,7 @@ function rateHub(doc, model) {
   hub.append(el(doc, 'h3', '왜 금리가 중심인가', 'xr-h3'));
   if (model.rateHub.policy) hub.append(el(doc, 'p', model.rateHub.policy, 'xr-hub-now')); // v57.55 review (E2-03): policy path first
   if (model.rateHub.now) hub.append(el(doc, 'p', model.rateHub.now, 'xr-hub-now'));
-  if (model.rateHub.pricingNote) hub.append(el(doc, 'p', model.rateHub.pricingNote, 'xr-hub-note'));
+  if (model.rateHub.pricingNote) hub.append(noteFold(doc, model.rateHub.pricingNote)); // v58.79: the proxy caveat one fold down
   hub.append(el(doc, 'p', model.rateHub.whyHigherHurts, 'xr-reading'));
   if (model.rateHub.tension) hub.append(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
   hub.append(el(doc, 'h4', '금리가 내려가려면 — 무엇이 필요하고 어디서 확인하나', 'xr-h4'));
@@ -195,7 +196,7 @@ function rateHub(doc, model) {
       el(doc, 'p', path.evidence, 'xr-path-evidence'), el(doc, 'p', path.next ? `확인: ${path.next}` : '', 'xr-path-next'));
     grid.append(card);
   }
-  hub.append(grid, el(doc, 'p', model.rateHub.caveat, 'xr-caveat'));
+  hub.append(grid, noteFold(doc, model.rateHub.caveat, '금리 하락이 늘 좋은가')); // v58.79
   return hub;
 }
 
@@ -283,7 +284,8 @@ function changeLog(doc, state) {
     for (const row of transitions) list.append(el(doc, 'li', `${stamp(row.at)} ${recordText(row.text)}`));
     box.append(list);
   }
-  box.append(el(doc, 'p', `데이터 갱신마다 자동으로 다시 계산해 기록합니다${state?.generatedAt ? `(마지막 계산 ${shortDate(state.generatedAt)})` : ''}.`, 'xr-caveat'));
+  // v58.79: the "recomputed every refresh" caption became the fold's hover.
+  box.title = `데이터 갱신마다 자동으로 다시 계산해 기록합니다${state?.generatedAt ? `(마지막 계산 ${shortDate(state.generatedAt)})` : ''}`;
   return box;
 }
 
@@ -296,8 +298,9 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   if (after) {
     const section = el(doc, 'section', null, 'briefing-block macro-section xr-section');
     section.setAttribute('aria-labelledby', 'macro-crossroads-title');
-    const title = el(doc, 'h2', '향후 시나리오 — 다음 발표로 확인', 'briefing-h2');
-    title.id = 'macro-crossroads-title';
+    // v58.79 section frame: title + observation-date chip (the method sentence is the chip's hover).
+    const title = frameHead(doc, { title: '향후 시나리오 — 다음 발표로 확인', titleId: 'macro-crossroads-title', titleClass: 'briefing-h2' });
+    markFrame(section, 'macro.crossroads');
     target = el(doc, 'div');
     target.id = 'macro-crossroads';
     // v57.76: one bridge line ties the branches to the chain right above.
@@ -313,12 +316,13 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   const restOpen = !!target.querySelector('.xr-map-rest[open]');
   const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('.xr-branch')?.dataset.branch : null;
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
-  const basis = el(doc, 'p', `${model.asOf ? shortDate(model.asOf) : '기준일 미확인'} 관측 기준. 갈래마다 조건 충족 수, 시장 가격 방향, 과거 빈도를 나란히 놓고 다음 발표에서 무엇이 갈래를 가르는지 적었습니다. 과거 빈도는 시나리오 조건이 아니라 비슷한 시장 움직임으로 고른 비교입니다.`, 'xr-basis');
+  setAsOf(doc, target.parentElement?.querySelector(':scope > .aio-frame-head'), model.asOf ? `${shortDate(model.asOf)} 관측` : '기준일 미확인',
+    '갈래마다 조건 충족 수, 시장 가격 방향, 과거 빈도를 나란히 놓고 다음 발표에서 무엇이 갈래를 가르는지 적었습니다. 과거 빈도는 시나리오 조건이 아니라 비슷한 시장 움직임으로 고른 비교입니다.');
   // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
-  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), basis, timeline(doc, model), rateHub(doc, model), mapHead, branchMap(doc, root, model, openIds, { firstPaint, restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key])].filter(Boolean),
-    el(doc, 'p', '세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다. 이 화면은 가격·수량·시점을 제시하지 않습니다.', 'xr-caveat'));
+  // v58.79: the closing "세부 종목 선택은 …" caption left; the screen names no price, size or timing by construction (R724).
+  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model), mapHead, branchMap(doc, root, model, openIds, { firstPaint, restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key])].filter(Boolean));
   target.dataset.aioCrossroads = 'native';
   if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
   return model;

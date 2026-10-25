@@ -547,6 +547,7 @@ export function createScreenerProvider({
           rsi: finite(factor.rsi),
           ret1d: finite(factor.ret1d), // 2026-10-13 sector map: one/five completed sessions (absent until the producer adds them)
           ret5d: finite(factor.ret5d),
+          ret10d: finite(factor.ret10d), // v58.78: 2주 (absent until the producer publishes it)
           ret1m: finite(factor.ret1m),
           ret3m: finite(factor.ret3m),
           ret6m: finite(factor.ret6m),

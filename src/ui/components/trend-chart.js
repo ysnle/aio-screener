@@ -114,6 +114,14 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     svg.append(svgEl(doc, 'rect', { x: PAD.left, y: top.toFixed(1), width: plotW, height: Math.max(2, bottom - top).toFixed(1), rx: 6, class: 'trend-chart-band' }));
   }
   for (const ref of shownRefs) svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(ref), y2: y(ref), class: shownRefs.length >= 2 ? 'trend-chart-ref is-band-edge' : 'trend-chart-ref' }));
+  // v58.79 (layout over captions): a threshold names its own value at the plot's right edge (with a halo so the line
+  // stays readable under it), so a card label no longer spells "기준선 40%·60%" — unless it sits on a labelled gridline.
+  for (const ref of shownRefs) {
+    if (ticks.some((tick) => Math.abs(tick - ref) < step / 1000)) continue;
+    const tag = svgEl(doc, 'text', { x: W - PAD.right - 2, y: (y(ref) - 3).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' });
+    tag.textContent = format(ref).replace(/(\d)\.0+(?!\d)/, '$1');
+    svg.append(tag);
+  }
   // P1599 (M04/F46): a series that starts after the shared range marks the earlier span as 'no record yet',
   // so the empty left side reads as missing history rather than a rendering failure.
   const firstX = x(0);

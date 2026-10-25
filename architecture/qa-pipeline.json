@@ -2136,6 +2136,12 @@
           "script": "scripts/ci-rendered-copy-lint-check.mjs",
           "timeoutMs": 300000,
           "remedy": "v58.74: fix the template (shared signedText, korean-particle helpers, plain words for internal tokens); after fixes run node scripts/ci-rendered-copy-lint-check.mjs --prune-baseline"
+        },
+        {
+          "id": "browser-secondary-text-budget",
+          "script": "scripts/ci-secondary-text-budget-check.mjs",
+          "timeoutMs": 300000,
+          "remedy": "v58.79: move the new caption, basis or hint line into the section frame (as-of chip, its hover, or the frame's one fold; src/ui/components/section-frame.js) instead of adding text; after cuts run node scripts/ci-secondary-text-budget-check.mjs --tighten"
         }
       ]
     },

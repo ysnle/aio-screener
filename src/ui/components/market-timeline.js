@@ -7,6 +7,7 @@ import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
 import { selectNewsItems } from '../../state/selectors/news.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
+import { asOfChip } from './section-frame.js';
 
 // v58.75 (persona review): "왜 움직였나" — beside the stocks and themes 오늘 names as the session's movers, the headline
 // that named the company the same day (src/domain/briefing/news-picks.js), with its time; the publisher sits in the hover.
@@ -81,7 +82,7 @@ function ensureSection(doc) {
   section.setAttribute('aria-labelledby', 'briefing-timeline-title');
   const heading = el(doc, 'h2', '시간대별 시황 ', 'briefing-h2');
   heading.id = 'briefing-timeline-title';
-  heading.append(el(doc, 'span', '한국 시간 06·12·18·24시 회차, 지난 회차 보관', 'briefing-h2-note'));
+  heading.append(asOfChip(doc, '하루 4회차', '한국 시간 06·12·18·24시 회차, 지난 회차 보관'));
   const rows = el(doc, 'div');
   rows.id = 'briefing-timeline-rows';
   section.append(heading, rows);

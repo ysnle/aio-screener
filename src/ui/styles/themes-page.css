@@ -175,6 +175,19 @@
    reasons, criteria table, role line/fold and the AI chips. */
 .page .thp-strength-map { margin-top: 10px; display: grid; gap: 4px; }
 .page .thp-strength-line { margin: 0; font-size: var(--fs-base); line-height: 1.6; color: var(--text-secondary); }
+/* v58.79: 강한 쪽 / 약한 쪽 / 바뀌는 중 as three columns instead of one sentence. */
+.page .thp-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 20px; margin: 10px 0 4px; }
+.page .thp-col-title { margin: 0 0 6px; font-size: var(--fs-xs); font-weight: 600; color: var(--text-secondary); }
+.page .thp-col-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.page .thp-col-list > li { display: flex; justify-content: space-between; gap: 10px; font-size: var(--fs-base); line-height: 1.5; min-width: 0; }
+.page .thp-col-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); }
+.page .thp-col-value { flex: none; font-variant-numeric: tabular-nums; color: var(--text-secondary); white-space: nowrap; }
+.page .thp-col-value.is-up { color: var(--data-green); }
+.page .thp-col-value.is-down { color: var(--data-red); }
+.page .thp-col.is-stacked .thp-col-list > li { flex-direction: column; gap: 0; }
+.page .thp-col.is-stacked .thp-col-value { font-size: var(--fs-xs); }
+.page .thp-col-empty { margin: 0; font-size: var(--fs-xs); color: var(--text-muted); }
+@media (max-width: 743px) { .page .thp-cols { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
 .page .thp-why, .page .thp-criteria { margin: 12px 0 4px; }
 .page .thp-why-list { margin: 4px 0; padding-left: 18px; font-size: var(--fs-base); line-height: 1.6; color: var(--text-secondary); }
 .page .thp-why-list li + li { margin-top: 2px; }
@@ -198,4 +211,61 @@
   .page .thp-criteria-table, .page .thp-criteria-table tbody, .page .thp-criteria-table tr, .page .thp-criteria-table td { display: block; }
   .page .thp-criteria-table tr { padding: 6px 0; border-bottom: 0.5px solid var(--border-subtle); }
   .page .thp-criteria-table td { border: 0; padding: 1px 0; }
+}
+
+/* v58.78 (owner 2026-10-25: "눈에 안 들어오고 색 조합도 이상"): the stage × theme table reads in words and one line. Each stage
+   group carries a thin edge in its own tone (no colour cells per day); the run of the stage is text, the 1-month return
+   over the same sessions is a small line, 50일선 위 has a bar, the wind is a soft pill (부담 amber like the map dots, not
+   the red used for falling prices) and the expert-criteria count is six dots. */
+.page .tp-table { font-size: 13px; }
+.page .tp-table thead th { font-weight: 600; font-size: 12px; padding: 8px 10px; }
+.page .tp-table td { padding: 9px 10px; }
+.page .tp-stage-row th { padding: 18px 10px 8px 14px; background: transparent; box-shadow: inset 3px 0 0 var(--tp-stage, var(--border-strong)); }
+.page .tp-stage[data-stage="leading"] { --tp-stage: var(--data-green); }
+.page .tp-stage[data-stage="fading"] { --tp-stage: color-mix(in srgb, var(--data-green) 50%, var(--bg-card)); }
+.page .tp-stage[data-stage="pullback"] { --tp-stage: var(--data-amber); }
+.page .tp-stage[data-stage="defensive"] { --tp-stage: color-mix(in srgb, var(--data-amber) 45%, var(--bg-card)); }
+.page .tp-stage[data-stage="inline"] { --tp-stage: var(--text-muted); }
+.page .tp-stage[data-stage="rebound"] { --tp-stage: var(--blue-9, var(--accent)); }
+.page .tp-stage[data-stage="weak"] { --tp-stage: var(--text-secondary); }
+.page .tp-row.is-exception td { background: transparent; }
+.page .tp-row-flag { font-weight: 400; color: var(--text-muted); }
+.page .tp-row-flow { min-width: 170px; }
+.page .tp-flow-text { color: var(--text-primary); }
+.page .tp-flow-chip { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 12px; background: var(--sx-warn-bg); color: var(--amber-12, var(--data-amber)); white-space: nowrap; }
+.page .tp-row-flow .tp-row-drift { display: block; margin-top: 2px; }
+.page .tp-row-spark { white-space: nowrap; }
+.page .tp-spark { width: 84px; height: 24px; vertical-align: middle; overflow: visible; }
+.page .tp-spark-zero { stroke: var(--border-strong); stroke-width: 1; stroke-dasharray: 2 2; }
+.page .tp-spark-line { fill: none; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.page .tp-spark-line.is-up { stroke: var(--data-green); }
+.page .tp-spark-line.is-down { stroke: var(--data-red); }
+.page .tp-spark-text { display: block; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.page .tp-row-breadth > span:first-child { display: inline-block; min-width: 34px; }
+.page .tp-breadth-bar { display: inline-block; width: 48px; height: 4px; margin-left: 6px; vertical-align: middle; border-radius: 999px; background: var(--sx-ink-a07); overflow: hidden; }
+.page .tp-breadth-fill { display: block; height: 100%; border-radius: inherit; background: var(--text-secondary); }
+.page .tp-criteria-dots { display: inline-flex; gap: 2px; margin-right: 6px; vertical-align: middle; }
+.page .tp-criteria-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--sx-ink-a07); }
+.page .tp-criteria-dots i.is-met { background: var(--text-primary); }
+.page .tp-table .thp-member-sort { font: inherit; font-weight: 600; padding: 0; min-height: 24px; background: none; border: 0; color: inherit; cursor: pointer; white-space: nowrap; }
+.page .tp-table .thp-member-sort:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.page .xr-tag.is-wind-tail { color: var(--data-green); background: var(--sx-good-bg, transparent); border-color: transparent; }
+.page .xr-tag.is-wind-head { color: var(--amber-12, var(--data-amber)); background: var(--sx-warn-bg, transparent); border-color: transparent; }
+.page .xr-tag.is-wind-mixed, .page .xr-tag.is-wind-none { color: var(--text-secondary); background: var(--sx-ink-a07, transparent); border-color: transparent; }
+/* The momentum map: one market at a time, pinned outliers hollow, leader lines faint. */
+.page .tp-map-tabs { display: flex; gap: 6px; margin: 4px 0 2px; }
+.page .tp-leader { stroke: var(--text-muted); stroke-width: 0.8; opacity: .6; }
+.page .tp-dot.is-clipped { fill-opacity: 0; stroke-width: 2; }
+.page .tp-swatch.is-clipped { background: transparent; box-shadow: inset 0 0 0 1.5px var(--text-secondary); } /* v58.79: the hollow circle as a legend key */
+.page .tp-legend[title], .page .tp-legend-item[title] { cursor: help; }
+.page .tp-rrg-fold { margin-top: 10px; }
+.page .tp-dot.is-clipped.is-tail { stroke: var(--data-green); }
+.page .tp-dot.is-clipped.is-head { stroke: var(--data-amber); }
+.page .tp-dot.is-clipped.is-mixed { stroke: var(--text-primary); }
+.page .tp-dot.is-clipped.is-none { stroke: var(--text-muted); }
+@media (max-width: 600px) {
+  .page .tp-table tr.tp-row > td:nth-child(6)::before { content: attr(data-label) ' '; color: var(--text-muted); font-weight: 400; }
+  .page .tp-table tr.tp-row > td:is([data-label="시나리오 영향"], [data-label="1개월 수익률 추이"])::before { content: none; }
+  .page .tp-table tr.tp-row > td[data-label="1개월 수익률 추이"] { flex-basis: 100%; }
+  .page .tp-row-flow { min-width: 0; }
 }

@@ -58,7 +58,8 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   const short = (date) => date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—';
   // Codex M-screen: the radar is a position inside each axis's own past, not the 양호/부담 verdict above.
   // v57.54 audit (6): the numbers are a position (0~100), not a grade — the caption says so and each row names its card verdict.
-  section.append(el(doc, 'p', '숫자 = 최근 1년(최대 252거래일) 중 지금 위치(0~100, 클수록 양호) — 위 표의 양호·중립·부담 판정과는 다른 잣대', 'regime-chart-caption'));
+  // v58.79: the scale in a few words; that it differs from the verdicts above is the line's hover.
+  section.append(Object.assign(el(doc, 'p', '숫자 = 1년 중 지금 위치(0~100, 클수록 양호)', 'regime-chart-caption'), { title: '최근 1년(최대 252거래일) 중 지금 위치 — 위 표의 양호·중립·부담 판정과는 다른 잣대' }));
   section.append(el(doc, 'p', model.lead, 'regime-radar-lead'));
   // X-review (2026-10-13, PM/credit view): "양호" above and 9 here read as a contradiction at first glance. When an
   // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.

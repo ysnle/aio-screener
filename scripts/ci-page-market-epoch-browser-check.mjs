@@ -68,7 +68,8 @@ try {
         const page = document.getElementById('page-breadth');
         return {
           cards: page ? page.querySelectorAll('.trend-card').length : 0,
-          text: page?.textContent || ''
+          // v58.79: the population and not-official lineage moved from a page footnote to the basis line's hover.
+          text: `${page?.textContent || ''} ${document.getElementById('breadth-basis')?.title || ''}`
         };
       })()
     };
@@ -101,7 +102,7 @@ try {
   if (requiredHeaders.length !== pageIds.length) throw new Error(`decision headers ${requiredHeaders.length}/${pageIds.length}`);
   const badHeaders = requiredHeaders.filter((header) => header.revision !== report.audit.sharedRevision || !header.cutEnd || !header.epoch);
   if (badHeaders.length) throw new Error(`decision header epoch missing: ${JSON.stringify(badHeaders)}`);
-  if (report.breadthHistory.cards !== 10 || !/AIO가 추적하는 미국 종목/.test(report.breadthHistory.text) || !/거래소 공식 통계가 아닙니다/.test(report.breadthHistory.text) || /McClellan/.test(report.breadthHistory.text)) throw new Error(`breadth board lineage mismatch: ${JSON.stringify({ cards: report.breadthHistory.cards })}`);
+  if (report.breadthHistory.cards !== 10 || !/AIO 미국 관찰 종목|S&P 500 구성 종목/.test(report.breadthHistory.text) || !/거래소·지수 공식 통계가 아닙니다/.test(report.breadthHistory.text) || /McClellan/.test(report.breadthHistory.text)) throw new Error(`breadth board lineage mismatch: ${JSON.stringify({ cards: report.breadthHistory.cards })}`);
   console.log(JSON.stringify({
     ok: true,
     pageCount: pageIds.length,

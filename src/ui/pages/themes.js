@@ -29,6 +29,7 @@ import { signedText } from '../../domain/shared/number.js';
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
+import { asOfChip, setAsOf } from '../components/section-frame.js';
 
 const finiteOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 // Published screener rows by symbol (the store's rows; ETFs included), for the period bars and the member tables.
@@ -118,13 +119,21 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   // v57.76: that caveat lives once, in the 사분면별 섹터 fold (rrg-method-note); the line above the chart keeps the
   // counts and the close it was measured on.
   const close = usCloseSession(root);
-  status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, 기준선 부근 ${counts.Border}` : ''}, 약 50일 상대강도, ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}${rrgTrailLength(root) ? `, 점선 꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로, 화살표 = 오늘 위치` : ''}`;
+  // v58.79 (layout over captions): the line keeps the quadrant counts; the window and the close are the card head's
+  // chip, and the tail's meaning is the line's hover (the tail control names itself).
+  status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, 기준선 부근 ${counts.Border}` : ''}`;
+  status.title = rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치` : '';
+  setAsOf(documentRef, documentRef.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head'), close ? `${shortSession(close)} 종가` : '완료 종가', `약 50일 상대강도, ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`);
   status.style.color = 'var(--text-dim)';
 }
 
 const RRG_TRAILS = Object.freeze([['short', '짧게', 5], ['long', '길게', 10], ['off', '끔', 0]]);
+// v58.78 (owner 2026-10-25, "RRG 차트 난리"): daily tails crossed each other in the leading cluster and widened the axes, so
+// the chart opens on today's positions only; a tail is the reader's choice.
+const RRG_TRAIL_DEFAULT = 'off';
+const rrgTrailOf = (root) => RRG_TRAILS.find(([key]) => key === (root?._aioRrgTrail || RRG_TRAIL_DEFAULT)) || RRG_TRAILS[2];
 function rrgTrailLength(root) {
-  return (RRG_TRAILS.find(([key]) => key === root?._aioRrgTrail) || RRG_TRAILS[0])[2];
+  return rrgTrailOf(root)[2];
 }
 // The tail-length control sits above the chart (built once; its pressed state follows the reader's choice).
 function ensureRrgTrailTabs(documentRef, root, store, route) {
@@ -147,13 +156,13 @@ function ensureRrgTrailTabs(documentRef, root, store, route) {
       button.className = 'news-sort-btn';
       button.dataset.trail = key;
       button.textContent = text;
-      button.title = n ? `최근 ${n}거래일 경로를 점선으로, 오늘 위치를 화살표로` : '꼬리 없이 오늘 위치만';
+      button.title = n ? `최근 ${n}거래일 경로를 선으로, 오늘 위치를 화살표로` : '꼬리 없이 오늘 위치만';
       button.addEventListener('click', () => { root._aioRrgTrail = key; renderRRGCanvas({ documentRef, root, store, route }); renderRRGStatus({ documentRef, root, store, route }); });
       group.append(button);
     }
     frame.insertAdjacentElement('beforebegin', group);
   }
-  const current = (RRG_TRAILS.find(([key]) => key === root?._aioRrgTrail) || RRG_TRAILS[0])[0];
+  const current = rrgTrailOf(root)[0];
   group.querySelectorAll('button[data-trail]').forEach((button) => {
     const on = button.dataset.trail === current;
     button.classList.toggle('active', on);
@@ -274,16 +283,15 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
     const color = colors[zoneKey(root, item)] || muted;
     const path = [...points.map((point) => [px(point.rsRatio), py(point.rsMomentum)]), [px(item.rsRatio), py(item.rsMomentum)]];
     context.save();
-    context.globalAlpha = 0.45;
+    context.globalAlpha = 0.35;
     context.strokeStyle = color;
     context.fillStyle = color;
-    context.lineWidth = 1.5;
-    context.setLineDash([3, 3]);
+    context.lineWidth = 1.25;
+    context.lineJoin = 'round';
     context.beginPath();
     path.forEach(([x, y], index) => (index ? context.lineTo(x, y) : context.moveTo(x, y)));
     context.stroke();
-    context.setLineDash([]);
-    path.slice(0, -1).forEach(([x, y]) => { context.beginPath(); context.arc(x, y, 1.6, 0, Math.PI * 2); context.fill(); });
+    context.beginPath(); context.arc(path[0][0], path[0][1], 2, 0, Math.PI * 2); context.fill(); // where the tail starts
     // The arrow head sits just past today's dot, pointing the way the last session moved.
     const [x0, y0] = path[path.length - 2], [x1, y1] = path[path.length - 1];
     const angle = Math.atan2(y1 - y0, x1 - x0), r = compact ? 5 : 6;
@@ -298,44 +306,71 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
     }
     context.restore();
   });
-  const placed = [];
-  // v57.76: a label is kept inside the canvas (a dot at the right edge used to cut its ticker in half on a phone).
-  const inside = (text, x) => {
-    const half = (context.measureText?.(text)?.width || text.length * 6) / 2;
-    return Math.min(Math.max(x, half + 2), width - half - 2);
-  };
-  validItems.forEach((item) => {
-    const x = px(item.rsRatio);
-    const y = py(item.rsMomentum);
-    const color = colors[zoneKey(root, item)] || muted; // v57.84: the settled zone's colour (경계 muted), as in the cards
+  // v58.78 (owner 2026-10-25): dots first, then one-line labels ("XLF 금융") placed by trying eight spots around each dot,
+  // then the same spots farther out with a leader line, against every label and dot already on the canvas — the
+  // two-line ticker/name stack overlapped in the crowded leading cluster.
+  const radius = compact ? 5 : 6;
+  const dots = validItems.map((item) => ({ item, x: px(item.rsRatio), y: py(item.rsMomentum), color: colors[zoneKey(root, item)] || muted }));
+  for (const dot of dots) {
     context.beginPath();
-    context.arc(x, y, compact ? 5 : 6, 0, Math.PI * 2);
-    context.fillStyle = color;
+    context.arc(dot.x, dot.y, radius, 0, Math.PI * 2);
+    context.fillStyle = dot.color;
     context.fill();
     context.strokeStyle = palette.grid;
     context.stroke();
-    // v57.91 (visual audit, XLC/XLK overlap): collisions use measured widths and include the name lines; a crowded
-    // label flips below its dot before stacking further away.
-    const symbol = String(item.symbol || item.id || '');
+  }
+  const boxes = dots.map((dot) => ({ x0: dot.x - radius - 1, y0: dot.y - radius - 1, x1: dot.x + radius + 1, y1: dot.y + radius + 1 }));
+  const overlaps = (box) => boxes.some((other) => box.x0 < other.x1 && box.x1 > other.x0 && box.y0 < other.y1 && box.y1 > other.y0)
+    || box.x0 < plot.left + 1 || box.x1 > plot.right - 1 || box.y0 < plot.top + 1 || box.y1 > plot.bottom - 1;
+  const showNames = !compact && activeView(root) !== 'all';
+  // Crowded dots (most neighbours within 40px) choose first, while the most room is left.
+  const crowd = (dot) => dots.filter((other) => other !== dot && Math.hypot(other.x - dot.x, other.y - dot.y) < 40).length;
+  for (const dot of [...dots].sort((a, b) => crowd(b) - crowd(a))) {
+    const symbol = String(dot.item.symbol || dot.item.id || '');
+    const name = showNames ? String(dot.item.label || '') : '';
     context.font = 'bold 12px "Pretendard Variable", Pretendard, system-ui';
     const symbolWidth = context.measureText?.(symbol)?.width || symbol.length * 7;
-    const hits = (ly, lw) => placed.some((spot) => Math.abs(spot.x - x) < (spot.w + lw) / 2 + 4 && Math.abs(spot.y - ly) < 13);
-    const labelY = [y - 9, y + 20, y - 22, y + 33, y - 35, y - 48].find((ly) => !hits(ly, symbolWidth)) ?? y - 48;
-    placed.push({ x, y: labelY, w: symbolWidth });
-    context.fillStyle = color;
-    context.fillText(symbol, inside(symbol, x), labelY);
-    // The Korean name under the dot is a desktop extra; on a phone it overlapped the neighbouring tickers.
-    if (!compact && activeView(root) !== 'all' && labelY === y - 9) {
-      const name = String(item.label || '');
-      context.font = '12px "Pretendard Variable", Pretendard, system-ui';
-      const nameWidth = context.measureText?.(name)?.width || name.length * 10;
-      if (!hits(y + 16, nameWidth)) {
-        placed.push({ x, y: y + 16, w: nameWidth });
-        context.fillStyle = muted;
-        context.fillText(name, inside(name, x), y + 16);
-      }
+    context.font = '12px "Pretendard Variable", Pretendard, system-ui';
+    const nameWidth = name ? (context.measureText?.(name)?.width || name.length * 11) + 4 : 0;
+    const w = symbolWidth + nameWidth;
+    const h = 14;
+    const spot = (gap) => [
+      [dot.x + radius + gap, dot.y - h / 2], [dot.x - radius - gap - w, dot.y - h / 2],
+      [dot.x - w / 2, dot.y - radius - gap - h], [dot.x - w / 2, dot.y + radius + gap],
+      [dot.x + radius + gap - 2, dot.y - radius - gap - h + 2], [dot.x + radius + gap - 2, dot.y + radius + gap - 2],
+      [dot.x - radius - gap - w + 2, dot.y - radius - gap - h + 2], [dot.x - radius - gap - w + 2, dot.y + radius + gap - 2]
+    ];
+    let chosen = null;
+    let leader = false;
+    for (const [gap, far] of [[3, false], [16, true], [30, true]]) {
+      chosen = spot(gap).map(([x0, y0]) => ({ x0, y0, x1: x0 + w, y1: y0 + h })).find((box) => !overlaps(box)) || null;
+      if (chosen) { leader = far; break; }
     }
-  });
+    if (!chosen) { const [x0, y0] = spot(3)[0]; chosen = { x0, y0, x1: x0 + w, y1: y0 + h }; }
+    boxes.push(chosen);
+    if (leader) {
+      context.save();
+      context.globalAlpha = 0.5;
+      context.strokeStyle = dot.color;
+      context.lineWidth = 1;
+      context.beginPath();
+      context.moveTo(dot.x, dot.y);
+      context.lineTo(Math.min(Math.max(dot.x, chosen.x0), chosen.x1), Math.min(Math.max(dot.y, chosen.y0), chosen.y1));
+      context.stroke();
+      context.restore();
+    }
+    context.textAlign = 'left';
+    context.textBaseline = 'middle';
+    context.font = 'bold 12px "Pretendard Variable", Pretendard, system-ui';
+    context.fillStyle = dot.color;
+    context.fillText(symbol, chosen.x0, chosen.y0 + h / 2);
+    if (name) {
+      context.font = '12px "Pretendard Variable", Pretendard, system-ui';
+      context.fillStyle = muted;
+      context.fillText(name, chosen.x0 + symbolWidth + 4, chosen.y0 + h / 2);
+    }
+    context.textBaseline = 'alphabetic';
+  }
 }
 
 function renderThemeCyclePill({ documentRef, root, store, route }) {
@@ -386,12 +421,14 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
   host.dataset.aioKrThemeArtifactRenderer = 'native';
   host.hidden = false;
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
-  host.replaceChildren(el('h2', '한국 테마 흐름', 'briefing-h2'), el('p', read.read, 'flow-lead'));
+  // v58.79 section frame: the title carries the close as its chip; the shown-rows rule and the click hint are its hover.
+  const heading = el('h2', '한국 테마 흐름 ', 'briefing-h2');
+  if (krClose) heading.append(asOfChip(documentRef, `${shortSession(krClose)} 종가`, `${shortSession(krClose)} 확정 종가 기준${read.usable.length > 12 ? `, 상위 6개와 하위 6개(전체 ${read.usable.length}개 중)` : ''}, 테마 이름을 누르면 구성 종목의 확정 종가 표가 열림`));
+  host.replaceChildren(heading, el('p', read.read, 'flow-lead'));
   const max = Math.max(1, ...read.usable.map((theme) => Math.abs(theme.ret1m)));
   // P1591 (T09/T10): the strongest and the weakest six both show (the reading names the weak ones), and bars
   // grow from a zero line so a loss never looks like a long gain.
   const shown = read.usable.length > 12 ? [...read.usable.slice(0, 6), ...read.usable.slice(-6)] : read.usable;
-  if (read.usable.length > 12) host.append(el('p', `상위 6개와 하위 6개, 전체 ${read.usable.length}개 중`, 'theme-strength-basis'));
   for (const theme of shown) {
     const line = el('div', null, 'stock-read-bars');
     const item = el('div', null, 'stock-read-bar-row');
@@ -415,8 +452,6 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
     line.append(label, item);
     host.append(line);
   }
-  const live = krLiveThemeCount(root) > 0;
-  host.append(el('p', `위 흐름은 ${krClose ? `${shortSession(krClose)} ` : ''}확정 종가 기준입니다. 테마 이름을 누르면 구성 종목의 확정 종가 표가 열립니다${live ? '. 장중 실시간 등락은 아래 접힌 칸에 있습니다' : ''}.`, 'theme-strength-basis'));
   syncKrLiveBlocks(documentRef, root); // v58.75
 }
 
@@ -565,12 +600,9 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     return;
   }
   const maxAbs = Math.max(0.5, ...rows.map((row) => Math.abs(row.pct ?? 0)));
-  {
-    const basisLine = documentRef.createElement('div');
-    basisLine.textContent = `${period[1]} 수익률${close ? `, ${shortSession(close)} 미국 종가 기준` : ''}${spy != null ? `, 오른쪽 %p = 같은 기간 SPY(${signedText(spy, 2)}%) 대비` : ', SPY 같은 기간 값 대기'}, 값이 없는 섹터는 —`;
-    basisLine.className = 'thp-perf-basis';
-    host.appendChild(basisLine);
-  }
+  // v58.79 (layout over captions): the section label already says "SPY 대비"; the close is the label's chip and the
+  // column rule (right %p = SPY over the same period, — = no value) is the chip's hover.
+  setAsOf(documentRef, section?.querySelector?.('.aio-section-hd'), close ? `${shortSession(close)} 종가` : '', `${period[1]} 수익률${close ? `, ${shortSession(close)} 미국 종가 기준` : ''}${spy != null ? `, 오른쪽 %p = 같은 기간 SPY(${signedText(spy, 2)}%) 대비` : ', SPY 같은 기간 값 대기'}, 값이 없는 섹터는 —`);
   const colors = { Leading: 'var(--data-green)', Improving: 'var(--text-secondary)', Weakening: 'var(--text-secondary)', Lagging: 'var(--data-amber)' }; // v58.53: the scatter's quadrant colours
   rows.forEach((row) => {
     const line = documentRef.createElement('div');
@@ -868,8 +900,8 @@ function renderThemeDetailTeach({ documentRef, root, store }) {
       revisions: revisionCounts(teach.consensus, teach.measured.map((member) => member.sym)), rrgMove: rrgMoveOf(root, themeId), headlines: themeHeadlines(root, store, teach.measured, teach.after) });
     const list = make('ul', null, 'thp-why-list');
     reasons.forEach((item) => list.append(make('li', item.text)));
-    why.replaceChildren(make('div', '이 흐름의 이유', 'thp-detail-heading'), reasons.length ? list : make('p', '데이터로 확인되는 원인이 아직 없습니다(미확인).', 'thp-detail-empty'),
-      make('p', '거시 축 이동, 이익 전망 수정, 섹터 회전 이동, 선두 시나리오, 같은 날 보도처럼 데이터로 확인되는 원인만 적습니다.', 'thp-perf-basis'));
+    // v58.79: which causes qualify is the heading's hover, not a line under the list.
+    why.replaceChildren(Object.assign(make('div', '이 흐름의 이유', 'thp-detail-heading'), { title: '거시 축 이동, 이익 전망 수정, 섹터 회전 이동, 선두 시나리오, 같은 날 보도처럼 데이터로 확인되는 원인만 적습니다.' }), reasons.length ? list : make('p', '데이터로 확인되는 원인이 아직 없습니다(미확인).', 'thp-detail-empty'));
     why.hidden = false;
   }
   if (criteriaHost) {
@@ -1311,7 +1343,9 @@ function memberTable(documentRef, root, members, { onSort, showGroup = false, ar
     ? `3개월 기준 앞선 종목 ${ranked.slice(0, 3).map((m) => `${name(m)}(${signedText(m.row.ret3m, 1)}%)`).join(', ')}, 뒤처진 종목 ${ranked.slice(-2).reverse().map((m) => `${name(m)}(${signedText(m.row.ret3m, 1)}%)`).join(', ')}. 50일선 위 ${members.filter((m) => finiteOrNull(m.row?.pctSma50) != null && m.row.pctSma50 > 0).length}/${members.filter((m) => finiteOrNull(m.row?.pctSma50) != null).length}종목.`
     : '구성 종목의 기간 수익률 기록이 적어 앞선·뒤처진 종목을 나누지 않습니다.', 'thp-detail-body');
   const sessions = members.map((member) => String(member.row?.factorSessionDate || '').slice(0, 10)).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
-  const basis = make('p', `${basisDate || (sessions.length ? `${shortSession(sessions.at(-1))} 종가 기준` : '종가 기준일 미확인')}, 열 제목을 누르면 정렬, 거래량 배수 = 최근 거래량 ÷ 20일 평균, ${roleMap ? "역할은 아래 '테마 안에서 종목 고르는 법'의 정의" : `3개월 순위는 이 표 안에서의 위치(기록 ${ranked.length}종목)`}`, 'thp-perf-basis');
+  // v58.79: the close date stays; how to read the columns is its hover.
+  const basis = make('p', basisDate || (sessions.length ? `${shortSession(sessions.at(-1))} 종가 기준` : '종가 기준일 미확인'), 'thp-perf-basis');
+  basis.title = `열 제목을 누르면 정렬, 거래량 배수 = 최근 거래량 ÷ 20일 평균, ${roleMap ? "역할은 아래 '테마 안에서 종목 고르는 법'의 정의" : `3개월 순위는 이 표 안에서의 위치(기록 ${ranked.length}종목)`}`;
   if (sorted.length > 18) {
     const more = make('button', root._aioMemberAll ? '정렬 순 상위 15종목만 보기' : `전체 ${sorted.length}종목 보기`, 'theme-strength-more thp-member-more');
     more.type = 'button';

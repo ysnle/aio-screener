@@ -6,6 +6,33 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2063 - v58.79 - 리서치 라이브러리 1024~1100px에서 본문이 약 140px 칸으로 눌림 (2026-10-25)
+
+- symptom/reproduction: 개념·분석·산업 지도·대가 보유 문서를 1024~1100px 폭(아이패드 가로, 좁은 데스크톱 창)에서 열면 본문이 왼쪽 약 140px 칸에 세로로 늘어서고 연결 칸이 오른쪽 넓은 칸을 차지했다.
+- root_cause: src/ui/styles/v2-research.css의 1279px 이하 규칙이 연결 칸(.rl-aside)을 grid-column: 2에 고정하는데, responsive.css의 1100px 이하 규칙은 격자를 한 열로 바꾼다. 두 규칙이 겹치는 구간에서 2열 고정이 암묵적 둘째 열을 만들었고, 목차와 본문이 첫째 열(남은 폭)에 쌓였다.
+- fix: responsive.css 1100px 이하 블록에 .page .rl-shell .rl-aside { grid-column: 1; }를 두어 한 열 구간에서 연결 칸도 첫째 열을 쓰게 했다. 1100px에서 세 칸 모두 829px, 1200px에서 목차 210px·본문 703px로 확인했다.
+- violated_rule: 반응형 구간 규칙은 같은 요소의 열 고정을 그 구간의 열 수와 함께 다시 정한다.
+- prevention: 브라우저 확인에서 리서치 라이브러리 문서를 1100px로 열어 본문 폭이 격자 폭과 같은지 본다(QA-RESEARCH-GRID-01).
+- verification/residual: 브라우저 1100px·1200px에서 .rl-grid 열과 자식 폭 측정
+
+## P2062 - v58.78 - 섹터 회전 그래프(RRG)의 이름이 서로 겹치고 꼬리가 엉켜 읽을 수 없었다 (2026-10-25)
+
+- symptom/reproduction: 선도 구역에 6개 섹터가 몰린 날 XLRE·XLF 티커와 아래 한글 이름이 겹치고, 기본으로 켜진 5거래일 점선 꼬리가 서로 교차해 점과 글자를 가렸다. 꼬리까지 축 범위에 넣어 점들이 더 좁게 몰렸다.
+- root_cause: 이름 배치가 위·아래 세로 칸만 시도하고 다른 점은 피하지 않았으며, 티커와 한글 이름을 두 줄로 따로 놓아 충돌 상자가 커졌다. 일별 꼬리는 하루하루 흔들림이 커서 교차가 잦은데 기본값이 켜짐이었다.
+- fix: 점을 먼저 그리고 "XLF 금융" 한 줄 이름을 점 주변 8방향, 이어 더 먼 위치(가는 연결선)에서 다른 이름·점·테두리와 겹치지 않는 자리에 둔다. 꼬리는 기본 끔(짧게·길게는 선택), 켤 때는 옅은 실선과 시작점만 그린다.
+- violated_rule: R571
+- prevention: 브라우저 확인(1560px 다크): 11개 섹터 이름이 서로·점과 겹치지 않음. 꼬리 기본 끔.
+- verification/residual: 로컬 브라우저에서 확인.
+
+## P2061 - v58.78 - S&P 500 지도 타일에 수익률 색이 나오지 않고 크게 움직인 종목 글자가 사라졌다 (2026-10-25)
+
+- symptom/reproduction: 테마와 섹터의 S&P 500 지도가 모든 타일을 같은 옅은 회색 둥근 카드로 그려 상승·하락 색이 보이지 않았고, CRWD +8.25%·AXP -3.68% 같은 큰 변동 종목의 어두운 글자가 배경에 묻혀 빠진 것처럼 보였다. 수익률이 없는 종목은 503개 중 1개(VYLR)뿐이었다.
+- root_cause: soft-ui.css의 소프트 카드 초기화 목록에 .sector-map-tile이 들어 있어 background: var(--sx-ink-a03) !important와 12px 모서리가 regime-quality.css의 수익률 색 단계(is-u1~u3, is-d1~d3)를 덮었다. 다크 테마에서 u3/d3 글자색은 어두운 gold-1이라 회색 위에서 보이지 않았다.
+- fix: 소프트 카드 목록에서 .sector-map-tile을 뺐다.
+- violated_rule: R571
+- prevention: ci-esm-core-unit-check가 soft-ui.css를 규칙 단위로 해석해 .sector-map-tile에 배경을 칠하는 규칙이 없는지 검사한다(이전 CSS로 실패 확인).
+- verification/residual: 브라우저(1560px 다크)에서 is-u3 rgb(48,164,108), is-d3 rgb(229,72,77), 모서리 0으로 확인. 게이트 PASS.
+
 ## P2060 - v58.77 - AI 패널의 "웹검색 중" 안내가 답변이 끝난 뒤에도 그대로 남았다 (2026-10-25)
 
 - symptom/reproduction: 자동 웹검색이 켜진 질문에서 "기존 자료를 보강하기 위해 웹검색 중, 출처 확인 후 답변" 줄이 답변 완료·검색 없는 재시도·실패 뒤에도 진행형으로 남아, 검색이 아직 도는 것처럼 보였다.

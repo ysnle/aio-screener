@@ -107,8 +107,8 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
     // v57.76: the fold summary is the title; the first line bridges from this card's VIX level to the table.
     section.replaceChildren(el(doc, 'summary', STRESS_TITLE),
       el(doc, 'p', '위 VIX 수준과 비슷했던 날에서 시작한 과거의 한 달이 실제로 어떻게 끝났는지입니다.', 'regime-read'),
-      el(doc, 'p', `변동성(VIX) 구간별 S&P 500 한 달 뒤 평균, ${from}~${String(payload.to || '').slice(0, 4)}`, 'regime-chart-caption'), chart, el(doc, 'p', reading, 'regime-read'),
-      el(doc, 'p', `이 표의 VIX 구간(${payload.bands.map((band) => band.label.replace(/^VIX /, '')).join(', ')})은 과거 결과를 나누는 구간이라, 시장 상태 변동성 축의 판정 기준(${RULES.volatility.calmBelow}, ${RULES.volatility.stressAt}, ${RULES.volatility.highAt})과 다릅니다.`, 'regime-chart-caption'), deep);
+      // v58.79: the band caveat is the chart caption's hover, not a second caption under the reading.
+      Object.assign(el(doc, 'p', `변동성(VIX) 구간별 S&P 500 한 달 뒤 평균, ${from}~${String(payload.to || '').slice(0, 4)}`, 'regime-chart-caption'), { title: `이 표의 VIX 구간(${payload.bands.map((band) => band.label.replace(/^VIX /, '')).join(', ')})은 과거 결과를 나누는 구간이라, 시장 상태 변동성 축의 판정 기준(${RULES.volatility.calmBelow}, ${RULES.volatility.stressAt}, ${RULES.volatility.highAt})과 다릅니다` }), chart, el(doc, 'p', reading, 'regime-read'), deep);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`;
     section.hidden = false;
   };

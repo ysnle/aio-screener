@@ -7,6 +7,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { GICS_KO } from '../../domain/market/sector-map.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
+import { asOfChip } from './section-frame.js';
 import { signedText } from '../../domain/shared/number.js';
 
 const pct = (value, digits = 0) => (value == null ? '—' : signedText(value * 100, digits, '%'));
@@ -38,7 +39,8 @@ export function renderIndexEarnings({ documentRef: doc, root, store }) {
     return model;
   }
   const basis = `컨센서스 ${model.oldestAsOf && model.oldestAsOf !== model.asOf ? `${shortDate(model.oldestAsOf)}~` : ''}${shortDate(model.asOf)}, 지수 비중 ${shortDate(model.weightsAsOf)}, ${model.members}개 기업(비중 ${model.coveragePct.toFixed(0)}%)`;
-  head.append(el(doc, 'span', basis, 'briefing-h2-note'));
+  // v58.79 (layout over captions): the consensus date is the heading's chip; weights and coverage are its hover.
+  head.append(doc.createTextNode(' '), asOfChip(doc, `컨센서스 ${shortDate(model.asOf)}`, basis));
   const lead = el(doc, 'p', headline(model), 'rates-curve-fact');
   const facts = el(doc, 'ul', null, 'briefing-read-reading');
   const line = (text) => facts.append(el(doc, 'li', text));

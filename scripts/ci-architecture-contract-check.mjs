@@ -405,6 +405,8 @@ if (legacyRuntimeSource.includes('function loadTechCandleChart')) fail('retired 
     /\bid=\\?["']([A-Za-z][\w-]*)\\?["']/g,
     /\.id\s*=\s*["'`]([A-Za-z][\w-]*)["'`]/g,
     /setAttribute\(\s*["']id["']\s*,\s*["'`]([A-Za-z][\w-]*)["'`]/g,
+    // v58.79: the section frame (src/ui/components/section-frame.js frameHead) gives its title the id passed as titleId.
+    /\btitleId:\s*["'`]([A-Za-z][\w-]*)["'`]/g,
   ];
   for (const source of sourceOf.values()) {
     for (const pattern of createPatterns) for (const match of source.matchAll(pattern)) createdIds.add(match[1]);
@@ -627,12 +629,13 @@ if (indexHtmlSource.includes('id="sector-perf-analysis"') || themesPageSource.in
 // v57.76: the fenced legacy writer (generateSectorAnalysis in js/aio-pages.js) left with the box.
 if (/function generateSectorAnalysis\s*\(|sector-perf-analysis/.test(pagesSource)) fail('v57.76 retired legacy sector-perf-analysis writer returned'); // text-pin-ok: retirement absence
 // v57.76: the RRG scatter is the visible visual of 섹터 회전 판정 (not a developer-mode fold), the quadrant chips
-// fold beneath it as 사분면별 섹터, and the textbook sector-cycle map moved to the concept dictionary.
+// fold beneath it as 사분면별 섹터 (v58.79: 사분면별 섹터와 원리, the principle card joined it), and the textbook
+// sector-cycle map moved to the concept dictionary.
 {
   const verdictStart = indexHtmlSource.indexOf('id="themes-verdict"');
   const verdictEnd = indexHtmlSource.indexOf('</section>', verdictStart);
   const verdict = verdictStart >= 0 && verdictEnd > verdictStart ? indexHtmlSource.slice(verdictStart, verdictEnd) : '';
-  if (!verdict.includes('id="rrg-canvas"') || !verdict.includes('id="rrg-quadrant-fold"') || !/<summary[^>]*>사분면별 섹터<\/summary>/.test(verdict)
+  if (!verdict.includes('id="rrg-canvas"') || !verdict.includes('id="rrg-quadrant-fold"') || !/<summary[^>]*>사분면별 섹터(?:와 원리)?<\/summary>/.test(verdict)
     || verdict.includes('aio-page-advanced-toggle')) fail('v57.76 RRG scatter must be the visible visual of 섹터 회전 판정 with the quadrant fold beneath it');
   if (indexHtmlSource.indexOf('id="rrg-quadrant-fold"') < indexHtmlSource.indexOf('id="rrg-canvas"')) fail('v57.76 quadrant fold must sit beneath the RRG scatter');
   if (/RRG — Relative Rotation Graph|RRG 산점도 차트 보기|섹터 ETF 퍼포먼스|섹터 순환 참고 지도|id="themes-cycle-reference"/.test(indexHtmlSource)) fail('v57.76 retired themes headings or the sector-cycle fold returned'); // text-pin-ok: retirement absence

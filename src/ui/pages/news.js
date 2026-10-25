@@ -94,7 +94,7 @@ function renderNewsSummary(documentRef, root, model, status) {
   else if (hasModelWindow) set('news-window-label', `${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사`);
   else if (newsWindow.start != null) set('news-window-label', `${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
   const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
-  if (importantNote) importantNote.textContent = `주제별 핵심, ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간`;
+  if (importantNote) Object.assign(importantNote, { textContent: `${fmt(olderCycle ? cycleEnd : newsWindow.end)}까지`, title: `주제별 핵심, ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간` }); // v58.79 chip
   // v58.70: a quarantined news lane is an earlier publish (scripts/lib/lane-quarantine.mjs); name that collection time.
   const heldNews = (root?._serverDataMeta?.laneQuarantine || []).find((lane) => lane?.lane === 'news');
   const heldStamp = heldNews?.previousGeneratedAt ? compactKstTime(heldNews.previousGeneratedAt) : null;
@@ -574,7 +574,8 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
   heading.append('08:00 이후 속보, 잠정 ');
   const note = documentRef.createElement('span');
   note.className = 'briefing-h2-note';
-  note.textContent = `${end ? `${end.date} ${end.time}` : '08:00'} 이후 헤드라인, 다음 08:00 수집본 전까지`;
+  note.textContent = `${end ? `${end.date} ${end.time}` : '08:00'} 이후`;
+  note.title = '다음 08:00 수집본 전까지의 헤드라인'; note.classList.add('aio-asof'); // v58.79 chip
   heading.append(note);
   const list = documentRef.createElement('ul');
   list.className = 'news-intraday-list';
@@ -750,7 +751,7 @@ function render({ documentRef, root, store, route }) {
   const kstMinutes = ((new Date(nowMs).getUTCHours() + 9) % 24) * 60 + new Date(nowMs).getUTCMinutes();
   const windowLabel = documentRef?.getElementById('news-window-label');
   if (intradayCount && windowLabel && (kstMinutes >= 15 * 60 + 30 || kstMinutes < 8 * 60)) {
-    windowLabel.textContent = `${windowLabel.textContent}, 한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본`;
+    windowLabel.title = '한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본'; // v58.79: the window stays, the routing rule is its hover
   }
   syncNewsControlState(documentRef, controls);
   ensureReadingGuide(documentRef);
