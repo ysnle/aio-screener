@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-25T08:21:50.132Z",
-  "attemptedAt": "2026-10-25T08:21:50.132Z",
-  "lastSuccessfulAt": "2026-10-25T08:21:50.132Z",
+  "generatedAt": "2026-10-25T09:21:36.022Z",
+  "attemptedAt": "2026-10-25T09:21:36.022Z",
+  "lastSuccessfulAt": "2026-10-25T09:21:36.022Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-11T08:21:44.910Z",
-  "until": "2026-10-25T08:21:44.910Z",
+  "since": "2026-10-11T09:21:28.742Z",
+  "until": "2026-10-25T09:21:28.742Z",
   "current24hWindow": {
     "start": "2026-10-23T23:00:00.000Z",
     "end": "2026-10-24T23:00:00.000Z",
@@ -81,81 +81,81 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 259,
-      "freshCount": 40,
-      "eligibleTextCount": 247,
-      "selectedCount": 65,
+      "count": 260,
+      "freshCount": 38,
+      "eligibleTextCount": 248,
+      "selectedCount": 64,
       "error": null,
-      "lastPostId": 26025
+      "lastPostId": 26029
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1221,
+      "count": 1223,
       "freshCount": 39,
-      "eligibleTextCount": 1173,
+      "eligibleTextCount": 1175,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67243
+      "lastPostId": 67247
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 240,
+      "count": 242,
       "freshCount": 40,
-      "eligibleTextCount": 240,
-      "selectedCount": 95,
+      "eligibleTextCount": 242,
+      "selectedCount": 96,
       "error": null,
-      "lastPostId": 20804
+      "lastPostId": 20806
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 711,
+      "count": 710,
       "freshCount": 37,
-      "eligibleTextCount": 711,
+      "eligibleTextCount": 710,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70980
+      "lastPostId": 70984
     }
   ],
-  "count": 2431,
-  "retainedItemCount": 484,
+  "count": 2435,
+  "retainedItemCount": 488,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2431,
-    "eligibleTextCount": 2371,
+    "observedCount": 2435,
+    "eligibleTextCount": 2375,
     "mediaOnlyCount": 60,
     "highSignalCount": 476,
-    "broadSignalCount": 1030,
+    "broadSignalCount": 1032,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
-    "selectedRawCoveragePct": 17,
+    "selectedRawCoveragePct": 16.9,
     "selectedOfObservedPct": 16.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 858,
-    "geo": 362,
-    "semi": 603,
-    "power": 340,
+    "market-note": 862,
+    "macro": 424,
+    "earnings": 514,
+    "semi": 605,
+    "flows": 137,
+    "healthcare": 138,
+    "geo": 360,
+    "power": 338,
     "credit": 120,
-    "macro": 422,
-    "earnings": 513,
     "equity": 185,
-    "flows": 135,
     "kr-market": 165,
     "japan": 144,
-    "healthcare": 136,
     "optical": 45,
     "media-only": 60,
     "ai-policy": 171,
@@ -163,14 +163,16 @@
     "insider": 6
   },
   "tickerCounts": {
+    "DB": 3,
+    "NVDA": 183,
+    "TSLA": 92,
     "MU": 75,
     "005930.KS": 54,
     "000660.KS": 66,
     "MSFT": 53,
-    "GOOG": 85,
+    "GOOG": 84,
     "AMZN": 48,
     "TSM": 109,
-    "NVDA": 182,
     "AAPL": 14,
     "CRWV": 23,
     "GOOGL": 1,
@@ -179,7 +181,6 @@
     "META": 17,
     "AMD": 37,
     "INTC": 3,
-    "TSLA": 91,
     "PANW": 1,
     "ORCL": 10,
     "BE": 36,
@@ -211,7 +212,6 @@
     "COHR": 7,
     "RDDT": 1,
     "PINS": 1,
-    "DB": 2,
     "WMT": 2,
     "SMCI": 5,
     "LITE": 9,
@@ -250,19 +250,19 @@
     "WULF": 1
   },
   "themes": [
-    "Market Notes (858 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터...",
-    "Semiconductors/Memory (603 posts in 14-day research window): 노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상...",
-    "Earnings/Corporate (513 posts in 14-day research window): 테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
-    "Macro/Rates (422 posts in 14-day research window): >>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가 기준금리 3.75~4.00% 동결 예상, 12월 금리 경로에 대한 파월의 발언이 핵심. 매파적 신호가 나올 경우...",
-    "Geopolitics (362 posts in 14-day research window): Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템...",
-    "AI Power/Grid (340 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "Market Notes (862 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터...",
+    "Semiconductors/Memory (605 posts in 14-day research window): 노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상...",
+    "Earnings/Corporate (514 posts in 14-day research window): 테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
+    "Macro/Rates (424 posts in 14-day research window): >>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가 기준금리 3.75~4.00% 동결 예상, 12월 금리 경로에 대한 파월의 발언이 핵심. 매파적 신호가 나올 경우...",
+    "Geopolitics (360 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
+    "AI Power/Grid (338 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "Equity/Analyst (185 posts in 14-day research window): >>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가....",
     "AI Policy/Export Controls (171 posts in 14-day research window): 2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 182,
+      "count": 183,
       "text": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI 하이퍼스케일러 기업들의 10~30년 만기 회사채와 미국 국채 간 금리 차이를 시가총액 가중 방식으로 분석한..."
     },
     {
@@ -272,12 +272,12 @@
     },
     {
       "key": "TSLA",
-      "count": 91,
+      "count": 92,
       "text": "2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
     },
     {
       "key": "GOOG",
-      "count": 85,
+      "count": 84,
       "text": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상..."
     },
     {
@@ -328,7 +328,7 @@
       "topics": [
         "macro"
       ],
-      "count": 422,
+      "count": 424,
       "focus": ">>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가 기준금리 3.75~4.00% 동결 예상, 12월 금리 경로에 대한 파월의 발언이 핵심. 매파적 신호가 나올 경우..."
     },
     {
@@ -337,8 +337,8 @@
       "topics": [
         "geo"
       ],
-      "count": 362,
-      "focus": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을 유지하고 목표주가를 245달러에서 250달러로 상향했습니다. Citi는 네오클라우드, 글로벌 시스템..."
+      "count": 360,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에..."
     },
     {
       "id": "credit",
@@ -355,7 +355,7 @@
       "topics": [
         "semi"
       ],
-      "count": 603,
+      "count": 605,
       "focus": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상..."
     },
     {
@@ -373,7 +373,7 @@
       "topics": [
         "power"
       ],
-      "count": 340,
+      "count": 338,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -418,7 +418,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 513,
+      "count": 514,
       "focus": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 136,
+      "count": 138,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · AMN Healthcare Services · Avantor · BeOne Medicines · Cardinal..."
     },
     {
@@ -437,7 +437,7 @@
         "japan"
       ],
       "count": 144,
-      "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은 다시 급락하며 63,000선까지 내려갔고, 아시아 거래 시간대에 한국 증시와 나스닥100 선물도 크게..."
+      "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
       "id": "flows",
@@ -445,7 +445,7 @@
       "topics": [
         "flows"
       ],
-      "count": 135,
+      "count": 137,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -463,7 +463,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 858,
+      "count": 862,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터..."
     }
   ],
@@ -1087,18 +1087,16 @@
       "datetime": "2026-10-22T11:49:26.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "geo",
-        "semi",
-        "ai-policy",
-        "equity"
+        "equity",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을...",
       "tickers": [
         "NVDA",
         "PLTR"
-      ],
-      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25981",
@@ -1667,6 +1665,40 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/70983",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/70983",
+      "datetime": "2026-10-25T08:52:49.000Z",
+      "localDateKst": "2026-10-25",
+      "tags": [
+        "semi",
+        "flows",
+        "healthcare"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>SemiAnalysis 창립자 심층 분석: AI 투자는 얼마나 더 지속될 수 있을까? NVIDIA의 해자는 계속 지켜질 수 있을까? 메모리 부족은 언제 끝날까? •SemiAnalysis 창립자 Dylan..."
+    },
+    {
+      "id": "bornlupin/20805",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20805",
+      "datetime": "2026-10-25T08:33:43.000Z",
+      "localDateKst": "2026-10-25",
+      "tags": [
+        "macro",
+        "geo",
+        "earnings"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "중간선거 이후 불확실성 완화 기대 중간선거 이후 정치 불확실성 해소되며 연말까지 주식시장은 상승 가능 - 美 중간선거 전까지 이란 종전이 난망한 가운데, 선거 이후 전쟁은 재격화되기 보다 어떤 형태로든 종료될..."
+    },
+    {
       "id": "bornlupin/20804",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20804",
@@ -2116,15 +2148,15 @@
       "datetime": "2026-10-24T23:13:33.000Z",
       "localDateKst": "2026-10-25",
       "tags": [
-        "geo",
-        "power"
+        "geo"
       ],
       "score": 67,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 25일 🇺🇸 아메리카 • 트럼프 대통령은 이란에 대한 군사 공격 가능성을 인정하며, 이란과 합의하거나 군사작전을 통해 문제를 해결할 수 있다고 밝혀. 또한 러시아와...",
+      "lead": 1,
       "tickers": [
         "PLTR"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 25일 🇺🇸 아메리카 • 트럼프 대통령은 이란에 대한 군사 공격 가능성을 인정하며, 이란과 합의하거나 군사작전을 통해 문제를 해결할 수 있다고 밝혀. 또한 러시아와..."
+      ]
     },
     {
       "id": "aetherjapanresearch/26024",
@@ -2348,11 +2380,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>호르무즈 해협 원유 운송을 사실상 독점! 한국 선사, 하룻밤 사이에 큰돈 벌어… 앞서 60억 달러 들여 중고 초대형 유조선 73척 확보 (중국언론) •한국의 흥아해운은 올해 9월 호르무즈 해협 원유 통과..."
+      "summary": ">>호르무즈 해협 원유 운송을 사실상 독점! 한국 선사, 하룻밤 사이에 큰돈 벌어… 앞서 60억 달러 들여 중고 초대형 유조선 73척 확보 (중국언론) •한국의 흥아해운은 올해 9월 호르무즈 해협 원유 통과...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/70939",
@@ -4493,16 +4525,13 @@
       "datetime": "2026-10-22T14:52:38.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "japan",
-        "credit",
-        "macro",
-        "earnings"
+        "japan"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
-      "tickers": [],
-      "summary": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
+      "summary": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/70858",
@@ -4525,13 +4554,12 @@
       "datetime": "2026-10-22T14:02:10.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
         "earnings"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "Citi) 디스코(6146.T) 2분기 결산 - 예상 범위 내. 그러나 생산 지원 확대 예정(100명→200명)은 호감을 얻을 가능성이 있을 것 씨티의 견해 실적 및 가이던스는 대체로 예상 범위 내입니다...."
+      "summary": "Citi) 디스코(6146.T) 2분기 결산 - 예상 범위 내. 그러나 생산 지원 확대 예정(100명→200명)은 호감을 얻을 가능성이 있을 것 씨티의 견해 실적 및 가이던스는 대체로 예상 범위 내입니다....",
+      "tickers": []
     },
     {
       "id": "HANAchina/70855",
@@ -4664,19 +4692,18 @@
       "datetime": "2026-10-22T12:08:19.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "semi",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 83,
       "hasText": true,
+      "summary": "테슬라, 삼성전기 기판 물량 확보 위해 1.1조 원 투자 보도… 엔비디아도 동참 1. 테슬라의 투자 및 공급 계약 (약 1조 1,000억 원) 계약 내용: 삼성전기는 테슬라와 장기 플립칩...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSLA",
         "MU",
         "009150.KS"
-      ],
-      "summary": "테슬라, 삼성전기 기판 물량 확보 위해 1.1조 원 투자 보도… 엔비디아도 동참 1. 테슬라의 투자 및 공급 계약 (약 1조 1,000억 원) 계약 내용: 삼성전기는 테슬라와 장기 플립칩..."
+      ]
     },
     {
       "id": "insidertracking/67020",
@@ -4735,14 +4762,13 @@
       "datetime": "2026-10-22T11:52:23.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "earnings",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
-      "tickers": [],
-      "summary": "Citi) 노키아(NOKIA.HE) 3분기 예상치 상회, 2026년 가이던스 유지, 2027년 수주잔고 확대. TP EUR4.65(유지), 매도의견. 씨티의 견해 노키아는 3Q26 실적에서 매출이 2%,..."
+      "summary": "Citi) 노키아(NOKIA.HE) 3분기 예상치 상회, 2026년 가이던스 유지, 2027년 수주잔고 확대. TP EUR4.65(유지), 매도의견. 씨티의 견해 노키아는 3Q26 실적에서 매출이 2%,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25986",
@@ -4751,18 +4777,16 @@
       "datetime": "2026-10-22T11:49:26.000Z",
       "localDateKst": "2026-10-22",
       "tags": [
-        "geo",
-        "semi",
-        "ai-policy",
-        "equity"
+        "equity",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을...",
       "tickers": [
         "NVDA",
         "PLTR"
-      ],
-      "summary": "Citi) 팔란티어 테크놀로지스(PLTR.O) – 미국 정부 및 상업 부문에서 상회 예상; 추정치 상향 Citi는 3분기 실적 발표를 앞두고 팔란티어에 대해 투자의견 매수/고위험(Buy/High Risk)을..."
+      ]
     },
     {
       "id": "insidertracking/67017",
@@ -7830,25 +7854,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70706",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70706",
-      "datetime": "2026-10-19T22:25:15.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": ">>엔비디아가 지원하는 Nscale, Anthropic과 450억 달러 규모 대형 계약 협상 보도에 IPO 전망 개선 •계약이 성사되면 양사의 협력 규모는 총 900억 달러에 달할 전망임. 이번 협상은...",
-      "lead": 3,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/20715",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20715",
@@ -8552,20 +8557,6 @@
       "tickers": [
         "CRWV"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25898",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25898",
-      "datetime": "2026-10-16T11:05:15.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "earnings"
-      ],
-      "score": 53,
-      "hasText": true,
-      "summary": "JP모건) 에릭슨 3Q26: 네트워크 부문의 강한 성장과 마진 방어력에 힘입어 호실적을 기록했으나, 부진한 RAN 시장 관련 리스크는 해소되지 않았음 내용 요약 에릭슨의 3분기 실적은 매우 강했으며, 핵심...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8791,11 +8782,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>호르무즈 해협 원유 운송을 사실상 독점! 한국 선사, 하룻밤 사이에 큰돈 벌어… 앞서 60억 달러 들여 중고 초대형 유조선 73척 확보 (중국언론) •한국의 흥아해운은 올해 9월 호르무즈 해협 원유 통과..."
+      "summary": ">>호르무즈 해협 원유 운송을 사실상 독점! 한국 선사, 하룻밤 사이에 큰돈 벌어… 앞서 60억 달러 들여 중고 초대형 유조선 73척 확보 (중국언론) •한국의 흥아해운은 올해 9월 호르무즈 해협 원유 통과...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/70939",
