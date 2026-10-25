@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-25T11:21:43.265Z",
-  "attemptedAt": "2026-10-25T11:21:43.265Z",
-  "lastSuccessfulAt": "2026-10-25T11:21:43.265Z",
+  "generatedAt": "2026-10-25T12:21:37.028Z",
+  "attemptedAt": "2026-10-25T12:21:37.028Z",
+  "lastSuccessfulAt": "2026-10-25T12:21:37.028Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-11T11:21:36.958Z",
-  "until": "2026-10-25T11:21:36.958Z",
+  "since": "2026-10-11T12:21:32.123Z",
+  "until": "2026-10-25T12:21:32.123Z",
   "current24hWindow": {
     "start": "2026-10-23T23:00:00.000Z",
     "end": "2026-10-24T23:00:00.000Z",
@@ -78,36 +78,36 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 254,
-      "freshCount": 18,
-      "eligibleTextCount": 242,
+      "count": 255,
+      "freshCount": 38,
+      "eligibleTextCount": 243,
       "selectedCount": 63,
       "error": null,
-      "lastPostId": 26029
+      "lastPostId": 26031
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1223,
+      "count": 1227,
       "freshCount": 39,
-      "eligibleTextCount": 1175,
+      "eligibleTextCount": 1179,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67254
+      "lastPostId": 67259
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 240,
-      "freshCount": 40,
-      "eligibleTextCount": 240,
+      "count": 239,
+      "freshCount": 20,
+      "eligibleTextCount": 239,
       "selectedCount": 97,
       "error": null,
       "lastPostId": 20807
@@ -117,25 +117,25 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 706,
+      "count": 705,
       "freshCount": 37,
-      "eligibleTextCount": 706,
+      "eligibleTextCount": 705,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 70985
+      "lastPostId": 70986
     }
   ],
-  "count": 2423,
-  "retainedItemCount": 481,
+  "count": 2426,
+  "retainedItemCount": 488,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2423,
-    "eligibleTextCount": 2363,
+    "observedCount": 2426,
+    "eligibleTextCount": 2366,
     "mediaOnlyCount": 60,
-    "highSignalCount": 473,
+    "highSignalCount": 474,
     "broadSignalCount": 1024,
     "selectedRawCount": 402,
     "selectedEligibleCount": 402,
@@ -144,27 +144,30 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 859,
+    "market-note": 861,
+    "earnings": 514,
+    "semi": 599,
+    "power": 333,
+    "equity": 185,
+    "media-only": 60,
+    "japan": 142,
     "macro": 424,
     "geo": 357,
-    "semi": 599,
     "flows": 134,
     "kr-market": 163,
     "healthcare": 138,
     "credit": 120,
-    "earnings": 512,
-    "power": 332,
-    "equity": 184,
-    "japan": 142,
-    "optical": 45,
-    "media-only": 60,
+    "optical": 44,
     "ai-policy": 171,
     "crypto": 6,
     "insider": 6
   },
   "tickerCounts": {
-    "005930.KS": 54,
+    "GOOG": 85,
+    "AMZN": 49,
     "NVDA": 182,
+    "APO": 1,
+    "005930.KS": 54,
     "CRWV": 24,
     "SHOP": 5,
     "DB": 3,
@@ -172,8 +175,6 @@
     "MU": 73,
     "000660.KS": 66,
     "MSFT": 53,
-    "GOOG": 84,
-    "AMZN": 48,
     "TSM": 108,
     "AAPL": 14,
     "GOOGL": 1,
@@ -250,13 +251,13 @@
     "WULF": 1
   },
   "themes": [
-    "Market Notes (859 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터...",
+    "Market Notes (861 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터...",
     "Semiconductors/Memory (599 posts in 14-day research window): 노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상...",
-    "Earnings/Corporate (512 posts in 14-day research window): 테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
+    "Earnings/Corporate (514 posts in 14-day research window): 테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
     "Macro/Rates (424 posts in 14-day research window): >>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가 기준금리 3.75~4.00% 동결 예상, 12월 금리 경로에 대한 파월의 발언이 핵심. 매파적 신호가 나올 경우...",
     "Geopolitics (357 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
-    "AI Power/Grid (332 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-    "Equity/Analyst (184 posts in 14-day research window): >>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가....",
+    "AI Power/Grid (333 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "Equity/Analyst (185 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "AI Policy/Export Controls (171 posts in 14-day research window): 2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
   ],
   "catalysts": [
@@ -277,7 +278,7 @@
     },
     {
       "key": "GOOG",
-      "count": 84,
+      "count": 85,
       "text": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상..."
     },
     {
@@ -302,7 +303,7 @@
     },
     {
       "key": "AMZN",
-      "count": 48,
+      "count": 49,
       "text": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상..."
     },
     {
@@ -364,7 +365,7 @@
       "topics": [
         "optical"
       ],
-      "count": 45,
+      "count": 44,
       "focus": "모건스탠리, 광학엔진(OE) 출하량 및 FAU 시장 규모 전망 상향 Largan Precision·Genius Electronic Optical 목표주가 동반 상향 모건스탠리(Morgan Stanley)는..."
     },
     {
@@ -373,7 +374,7 @@
       "topics": [
         "power"
       ],
-      "count": 332,
+      "count": 333,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -400,8 +401,8 @@
       "topics": [
         "equity"
       ],
-      "count": 184,
-      "focus": ">>Meta의 미래 지출 약정 8,250억 달러로 급증, 신용위험 지표 사상 최고치 기록 •Meta가 공개한 9월말 기준 미래 지출 약정은 약 8,250억달러, 7월의 7,000억 달러에서 크게 증가...."
+      "count": 185,
+      "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
       "id": "crypto",
@@ -418,7 +419,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 512,
+      "count": 514,
       "focus": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정..."
     },
     {
@@ -463,7 +464,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 859,
+      "count": 861,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 템퍼스 AI (TEM) · 브리스톨 마이어스 스퀴브 (BMY) — 기존 협력을 2031년까지 확대하는 다년간의 종양학 데이터..."
     }
   ],
@@ -962,21 +963,18 @@
       "datetime": "2026-10-23T00:10:32.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market"
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
       "tickers": [
         "068270.KS",
         "016360.KS",
         "005940.KS",
         "039490.KS",
         "028050.KS"
-      ],
-      "summary": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
+      ]
     },
     {
       "id": "insidertracking/67041",
@@ -1668,6 +1666,43 @@
   ],
   "broadItems": [
     {
+      "id": "aetherjapanresearch/26031",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26031",
+      "datetime": "2026-10-25T11:59:48.000Z",
+      "localDateKst": "2026-10-25",
+      "tags": [
+        "earnings"
+      ],
+      "score": 53,
+      "hasText": true,
+      "tickers": [
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": "번스타인) AI Musing; 온라인 애그리게이터가 AI에이전트를 차단해야 하나요? 번스타인의 니킬 데브나니와 마크 슈물릭은 소비자 AI 미니시리즈 'AI Musings' 첫 편에서, 온라인 애그리게이터가..."
+    },
+    {
+      "id": "aetherjapanresearch/26030",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26030",
+      "datetime": "2026-10-25T11:56:46.000Z",
+      "localDateKst": "2026-10-25",
+      "tags": [
+        "semi",
+        "power",
+        "equity",
+        "earnings"
+      ],
+      "score": 68,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "APO"
+      ],
+      "summary": "아폴로의 슬록 \"AI, 테크 외 분야에서는 성과 제로\" 아폴로 글로벌 매니지먼트(Apollo Global Management)의 토르스텐 슬록(Torsten Slok) 수석 이코노미스트는 토요일 발표한..."
+    },
+    {
       "id": "insidertracking/67253",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67253",
@@ -1699,7 +1734,7 @@
       "score": 53,
       "hasText": true,
       "tickers": [],
-      "summary": ">>골드만삭스, AI 트레이딩 우려 심화로 한국 코스피 12개월 목표치 25% 하향 •AI 관련 투자에 대한 우려가 커지면서 골드만삭스 전략가들이 한국 코스피지수 목표치를 25% 하향 조정함. 올해 여러 차례..."
+      "summary": ">>골드만삭스, AI 트레이딩 우려 심화로 한국 코스피 12개월 목표치 25% 하향 •AI 관련 투자에 대한 우려가 커지면서 골드만삭스 전략이 한국 코스피 목표치를 25% 하향 조정. 올해 여러 차례 목표치를..."
     },
     {
       "id": "bornlupin/20807",
@@ -2387,14 +2422,14 @@
       "datetime": "2026-10-24T05:55:07.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "semi",
-        "ai-policy",
-        "earnings"
+        "earnings",
+        "semi"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>38달러, DeepSeek가 계산한 수익성 •DeepSeek가 최근 공개한 충격적인 수치에 따르면 GPU 한 대는 시간당 38달러의 과금 매출을 창출할 수 있으며, 연환산 기준으로 33만 달러를 넘어섬...."
+      "summary": ">>38달러, DeepSeek가 계산한 수익성 •DeepSeek가 최근 공개한 충격적인 수치에 따르면 GPU 한 대는 시간당 38달러의 과금 매출을 창출할 수 있으며, 연환산 기준으로 33만 달러를 넘어섬....",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/26017",
@@ -2715,14 +2750,11 @@
       "datetime": "2026-10-23T23:35:23.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "earnings",
-        "macro",
-        "semi",
-        "ai-policy"
+        "earnings"
       ],
-      "lead": 1,
       "score": 94,
       "hasText": true,
+      "summary": "다음주 일정 26일: 중국 5중 전회(~29일), VZ 실적(장전), CLS, CDNS, RMBS, AMKR 실적(장전), Oracle AI World(~28일 ), IBM TechXchange...",
       "tickers": [],
       "listTickers": [
         "CAT",
@@ -2733,8 +2765,7 @@
         "STX",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "다음주 일정 26일: 중국 5중 전회(~29일), VZ 실적(장전), CLS, CDNS, RMBS, AMKR 실적(장전), Oracle AI World(~28일 ), IBM TechXchange..."
+      ]
     },
     {
       "id": "insidertracking/67156",
@@ -3246,13 +3277,12 @@
         "power",
         "earnings"
       ],
-      "lead": 1,
       "score": 85,
       "hasText": true,
+      "summary": "미즈호(Mizuho), 블룸에너지(Bloom Energy, $BE ), 투자의견 ‘시장수익률 상회(Outperform)’, 목표주가 351달러 2026년 3분기 실적은 당사 및 시장 컨센서스를 모두...",
       "tickers": [
         "BE"
-      ],
-      "summary": "미즈호(Mizuho), 블룸에너지(Bloom Energy, $BE ), 투자의견 ‘시장수익률 상회(Outperform)’, 목표주가 351달러 2026년 3분기 실적은 당사 및 시장 컨센서스를 모두..."
+      ]
     },
     {
       "id": "HANAchina/70914",
@@ -3314,15 +3344,14 @@
       "datetime": "2026-10-23T11:04:56.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "macro",
         "earnings"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "모건스탠리, 블룸에너지( $BE ) 목표주가 $310에서 $335로 상향, 투자의견 비중확대(Overweight)를 유지 블룸에너지의 생산능력 확대와 확보된 수요 파이프라인을 실제 매출로 전환할 수 있는...",
       "tickers": [
         "BE"
-      ],
-      "summary": "모건스탠리, 블룸에너지( $BE ) 목표주가 $310에서 $335로 상향, 투자의견 비중확대(Overweight)를 유지 블룸에너지의 생산능력 확대와 확보된 수요 파이프라인을 실제 매출로 전환할 수 있는..."
+      ]
     },
     {
       "id": "aetherjapanresearch/26006",
@@ -3332,16 +3361,17 @@
       "localDateKst": "2026-10-23",
       "tags": [
         "power",
-        "earnings"
+        "earnings",
+        "flows"
       ],
+      "lead": 1,
       "score": 91,
       "hasText": true,
-      "summary": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-      "lead": 1,
       "tickers": [
         "GOOG",
         "BE"
-      ]
+      ],
+      "summary": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
       "id": "HANAchina/70911",
@@ -3397,16 +3427,15 @@
       "datetime": "2026-10-23T08:00:17.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "power",
         "earnings"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "블룸에너지 중장기 수요 확인, 이유 있는 부지 확보 1. 실적 방향성에 집중할 필요 - 수주잔고가 매출보다 빠르게 증가하고 있으며, 구매약정을 통해 중장기 수요도 확보 중인 것으로 추정. - 블룸에너지가...",
       "tickers": [
         "GOOG",
         "BE"
-      ],
-      "summary": "블룸에너지 중장기 수요 확인, 이유 있는 부지 확보 1. 실적 방향성에 집중할 필요 - 수주잔고가 매출보다 빠르게 증가하고 있으며, 구매약정을 통해 중장기 수요도 확보 중인 것으로 추정. - 블룸에너지가..."
+      ]
     },
     {
       "id": "HANAchina/70907",
@@ -3433,15 +3462,15 @@
       "datetime": "2026-10-23T07:55:46.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
+        "semi",
         "earnings"
       ],
       "score": 56,
       "hasText": true,
-      "summary": "제목 : 테슬라, 수익성 전망 밝지 않아 GS 외 *연합인포맥스* 테슬라(NAS: TSLA)의 ‘26년 3분기 실적발표 이후, 전문가들은 수익성 전망이 여전히 밝지 않다고 지적했다. 골드만삭스의 애널리스트는...",
-      "lead": 1,
       "tickers": [
         "TSLA"
-      ]
+      ],
+      "summary": "제목 : 테슬라, 수익성 전망 밝지 않아 GS 외 *연합인포맥스* 테슬라(NAS: TSLA)의 ‘26년 3분기 실적발표 이후, 전문가들은 수익성 전망이 여전히 밝지 않다고 지적했다. 골드만삭스의 애널리스트는..."
     },
     {
       "id": "aetherjapanresearch/25999",
@@ -3450,12 +3479,14 @@
       "datetime": "2026-10-23T07:54:48.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "credit"
+        "credit",
+        "equity"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": "제목 : 오픈AI, 기업가치 $1.25조에 최대 $300억 자금조달 임박 *연합인포맥스* CNBC는 “오픈AI가 기업가치 1조2천500억 달러를 기준으로 최대 300억 달러 규모의 신규 자금조달을 추진하고...",
-      "tickers": []
+      "tickers": [],
+      "summary": "제목 : 오픈AI, 기업가치 $1.25조에 최대 $300억 자금조달 임박 *연합인포맥스* CNBC는 “오픈AI가 기업가치 1조2천500억 달러를 기준으로 최대 300억 달러 규모의 신규 자금조달을 추진하고..."
     },
     {
       "id": "HANAchina/70904",
@@ -3481,14 +3512,17 @@
       "datetime": "2026-10-23T06:24:03.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "earnings"
+        "macro",
+        "power",
+        "earnings",
+        "flows"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "JP모건) 웨스턴 디지털, F1Q27 리뷰: 가격 모멘텀과 EB 회복이 긍정적 이익 추정치 상향을 뒷받침, 설비투자 우려는 과도 웨스턴 디지털(WDC)은 F1Q27(9월 말 종료)에 매출 43억 8,000만...",
       "tickers": [
         "WDC"
-      ]
+      ],
+      "summary": "JP모건) 웨스턴 디지털, F1Q27 리뷰: 가격 모멘텀과 EB 회복이 긍정적 이익 추정치 상향을 뒷받침, 설비투자 우려는 과도 웨스턴 디지털(WDC)은 F1Q27(9월 말 종료)에 매출 43억 8,000만..."
     },
     {
       "id": "bornlupin/20781",
@@ -3501,12 +3535,12 @@
       ],
       "score": 64,
       "hasText": true,
+      "summary": "블룸에너지 오버나이트 양전 루멘텀 +3.59% 네비우스 +2.44% 마이크론 +2.45% 엔비디아 +0.7%",
       "tickers": [
         "NVDA",
         "MU",
         "BE"
-      ],
-      "summary": "블룸에너지 오버나이트 양전 루멘텀 +3.59% 네비우스 +2.44% 마이크론 +2.45% 엔비디아 +0.7%"
+      ]
     },
     {
       "id": "insidertracking/67092",
@@ -3532,14 +3566,15 @@
       "datetime": "2026-10-23T05:41:06.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
+        "power",
         "earnings"
       ],
       "score": 77,
       "hasText": true,
-      "summary": "JP모건) 블룸 에너지 3분기 리뷰: 둔화라니? 또 한 번의 견조한 실적 상회와 가이던스 상향 블룸 에너지(BE)는 3분기에 매출 12억 3,600만 달러, PF EBITDA 2억 9,900만 달러를 기록해...",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "JP모건) 블룸 에너지 3분기 리뷰: 둔화라니? 또 한 번의 견조한 실적 상회와 가이던스 상향 블룸 에너지(BE)는 3분기에 매출 12억 3,600만 달러, PF EBITDA 2억 9,900만 달러를 기록해..."
     },
     {
       "id": "HANAchina/70901",
@@ -3614,19 +3649,16 @@
       "datetime": "2026-10-23T05:14:30.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "geo",
-        "semi",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "score": 79,
       "hasText": true,
+      "summary": "\"1분 만에 동났다\" 폴더블 아이폰 곳곳 오픈런…애플 잔칫날 갤럭시도 '축포' 아이폰 사전 예약, 1분 만에 종료 명동 매장, 쌀쌀한 날씨 속 오픈런 갤Z폴드8, 유럽서 판매량 45% 증가 애플의 첫 폴더블...",
       "tickers": [
         "005930.KS",
         "017670.KS",
         "032640.KS"
-      ],
-      "summary": "\"1분 만에 동났다\" 폴더블 아이폰 곳곳 오픈런…애플 잔칫날 갤럭시도 '축포' 아이폰 사전 예약, 1분 만에 종료 명동 매장, 쌀쌀한 날씨 속 오픈런 갤Z폴드8, 유럽서 판매량 45% 증가 애플의 첫 폴더블..."
+      ]
     },
     {
       "id": "HANAchina/70896",
@@ -3649,13 +3681,12 @@
       "datetime": "2026-10-23T05:02:27.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "2026.10.23 13:55:22 기업명: 기가비스(시가총액: 1조 2,232억) A420770 보고서명: 단일판매ㆍ공급계약체결 계약상대 : 한국 반도체 기판 제조회사 계약내용 : 반도체 기판 검사장비..."
+      "summary": "2026.10.23 13:55:22 기업명: 기가비스(시가총액: 1조 2,232억) A420770 보고서명: 단일판매ㆍ공급계약체결 계약상대 : 한국 반도체 기판 제조회사 계약내용 : 반도체 기판 검사장비...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67085",
@@ -3682,13 +3713,12 @@
         "power",
         "earnings"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
+      "summary": "SK하이퍼, AI 데이터센터 구축 자금 유치 본격화 초기 5GW 구축에 3천500억달러 필요…2027년 첫 매출 창출 목표 SK텔레콤[017670]의 인공지능(AI) 데이터센터 사업개발 전문회사 SK하이퍼가...",
       "tickers": [
         "017670.KS"
-      ],
-      "summary": "SK하이퍼, AI 데이터센터 구축 자금 유치 본격화 초기 5GW 구축에 3천500억달러 필요…2027년 첫 매출 창출 목표 SK텔레콤[017670]의 인공지능(AI) 데이터센터 사업개발 전문회사 SK하이퍼가..."
+      ]
     },
     {
       "id": "HANAchina/70894",
@@ -3726,15 +3756,19 @@
       "datetime": "2026-10-23T03:52:57.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "power"
+        "power",
+        "geo",
+        "semi",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 88,
       "hasText": true,
-      "summary": "블룸버그) SK 데이터센터 부문, 3,500억 달러 규모 AI 인프라 구축 자금 조달 협의 중 SK그룹이 지난 7월 SK텔레콤 산하에 설립한 데이터센터 자회사 SK하이퍼가 3,500억 달러 규모의 데이터센터...",
       "tickers": [
         "AMZN",
         "017670.KS"
-      ]
+      ],
+      "summary": "블룸버그) SK 데이터센터 부문, 3,500억 달러 규모 AI 인프라 구축 자금 조달 협의 중 SK그룹이 지난 7월 SK텔레콤 산하에 설립한 데이터센터 자회사 SK하이퍼가 3,500억 달러 규모의 데이터센터..."
     },
     {
       "id": "HANAchina/70889",
@@ -3772,16 +3806,14 @@
       "datetime": "2026-10-23T03:04:00.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "semi",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "score": 61,
       "hasText": true,
+      "summary": "애플, '아이폰 듀오' 판매 개시와 함께 폴더블 시장 진출 첫 폴더블폰 출시: 애플이 10월 23일(금) 첫 폴더블 스마트폰인 '아이폰 듀오(iPhone Duo)'의 정식 판매를 시작했습니다. 신임 CEO의...",
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "애플, '아이폰 듀오' 판매 개시와 함께 폴더블 시장 진출 첫 폴더블폰 출시: 애플이 10월 23일(금) 첫 폴더블 스마트폰인 '아이폰 듀오(iPhone Duo)'의 정식 판매를 시작했습니다. 신임 CEO의..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25994",
@@ -3791,14 +3823,17 @@
       "localDateKst": "2026-10-23",
       "tags": [
         "semi",
-        "equity"
+        "power",
+        "equity",
+        "earnings"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": "[메리츠증권 반도체/디스플레이 김선우] SK하이닉스 (000660): 솔리다임 상장 검토 중단 코멘트 [솔리다임 IPO 사실상 철회, 이는 강화된 주주환원 정책으로 귀결] - SK하이닉스는 금일 오전...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "[메리츠증권 반도체/디스플레이 김선우] SK하이닉스 (000660): 솔리다임 상장 검토 중단 코멘트 [솔리다임 IPO 사실상 철회, 이는 강화된 주주환원 정책으로 귀결] - SK하이닉스는 금일 오전..."
     },
     {
       "id": "bornlupin/20776",
@@ -3808,18 +3843,17 @@
       "localDateKst": "2026-10-23",
       "tags": [
         "japan",
-        "equity",
-        "ai-policy"
+        "equity"
       ],
-      "lead": 2,
       "score": 62,
       "hasText": true,
+      "summary": "Meta, 퍼스널 AI 에이전트 'Muse' 일본에서 제공 개시 Meta는 10월 23일(일본 시간)부터 퍼스널 AI 에이전트 'Muse'의 일본 서비스를 시작합니다. 일본은 올해 9월 선행 출시된 북미 외...",
+      "lead": 2,
       "tickers": [
         "GOOG",
         "SHOP",
         "TCOM"
-      ],
-      "summary": "Meta, 퍼스널 AI 에이전트 'Muse' 일본에서 제공 개시 Meta는 10월 23일(일본 시간)부터 퍼스널 AI 에이전트 'Muse'의 일본 서비스를 시작합니다. 일본은 올해 9월 선행 출시된 북미 외..."
+      ]
     },
     {
       "id": "insidertracking/67080",
@@ -3859,13 +3893,14 @@
       "datetime": "2026-10-23T01:29:10.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "earnings"
+        "earnings",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 53,
       "hasText": true,
-      "summary": "JP모건) 노키아, 이미 강력한 AI 및 클라우드 매출을 가이던스로 제시했음에도 FY27 가이던스를 상당폭 상향할 여력 보유. TP $20.5(기존 $21) 노키아의 3Q26 실적에서 핵심은 AI 및 클라우드...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건) 노키아, 이미 강력한 AI 및 클라우드 매출을 가이던스로 제시했음에도 FY27 가이던스를 상당폭 상향할 여력 보유. TP $20.5(기존 $21) 노키아의 3Q26 실적에서 핵심은 AI 및 클라우드..."
     },
     {
       "id": "insidertracking/67078",
@@ -3895,11 +3930,10 @@
       "tags": [
         "power"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "[단독] SK 데이터센터 자회사, 3,500억 달러 규모 AI 인프라 구축 위한 투자 유치 논의 투자 유치 추진: SK그룹의 신생 데이터센터 자회사인 'SK 하이퍼(SK Hyper Co.)'가 3,500억..."
+      "summary": "[단독] SK 데이터센터 자회사, 3,500억 달러 규모 AI 인프라 구축 위한 투자 유치 논의 투자 유치 추진: SK그룹의 신생 데이터센터 자회사인 'SK 하이퍼(SK Hyper Co.)'가 3,500억...",
+      "tickers": []
     },
     {
       "id": "HANAchina/70882",
@@ -3958,15 +3992,14 @@
       "datetime": "2026-10-23T00:10:47.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "equity",
         "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "[유진투자증권 건설 류태환] 삼성E&A: 건설업종 시총 1위의 위엄 - 3Q26 어닝서프라이즈 . 매출액 2조 9,105억원(+45.8%yoy), 영업이익 5,006억원(+183.5%yoy, OPM...",
       "tickers": [
         "028050.KS"
-      ],
-      "summary": "[유진투자증권 건설 류태환] 삼성E&A: 건설업종 시총 1위의 위엄 - 3Q26 어닝서프라이즈 . 매출액 2조 9,105억원(+45.8%yoy), 영업이익 5,006억원(+183.5%yoy, OPM..."
+      ]
     },
     {
       "id": "bornlupin/20773",
@@ -3975,21 +4008,18 @@
       "datetime": "2026-10-23T00:10:32.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market"
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
       "tickers": [
         "068270.KS",
         "016360.KS",
         "005940.KS",
         "039490.KS",
         "028050.KS"
-      ],
-      "summary": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
+      ]
     },
     {
       "id": "HANAchina/70873",
@@ -4014,15 +4044,12 @@
       "datetime": "2026-10-22T23:39:47.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "earnings",
-        "credit",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 95,
       "hasText": true,
-      "tickers": [],
-      "summary": "맥스리니어(MaxLinear, MXL) 2026년 3분기 실적 매출액: 2억 1,810만 달러 (예상 2억 1,100만 달러 상회), 전년 대비 72% 증가 조정 EPS: 0.62달러 (예상 0.55달러..."
+      "summary": "맥스리니어(MaxLinear, MXL) 2026년 3분기 실적 매출액: 2억 1,810만 달러 (예상 2억 1,100만 달러 상회), 전년 대비 72% 증가 조정 EPS: 0.62달러 (예상 0.55달러...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20771",
@@ -4031,20 +4058,17 @@
       "datetime": "2026-10-22T23:20:55.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "semi",
-        "power",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 91,
       "hasText": true,
+      "summary": "블룸에너지 ( $BE ) 2026년 3분기 어닝콜 Q&A 세션 Q1. 프리몬트 부지 확장(10GW 증설 여부) 및 매출총이익률 전망 (JPMorgan) 질문: 지금 프리몬트 공장 부지를 확장하는 이유와 신규...",
       "tickers": [
         "NVDA",
         "GOOG",
         "BE",
         "MS"
-      ],
-      "summary": "블룸에너지 ( $BE ) 2026년 3분기 어닝콜 Q&A 세션 Q1. 프리몬트 부지 확장(10GW 증설 여부) 및 매출총이익률 전망 (JPMorgan) 질문: 지금 프리몬트 공장 부지를 확장하는 이유와 신규..."
+      ]
     },
     {
       "id": "aetherjapanresearch/25991",
@@ -4509,13 +4533,12 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "블룸에너지(BE) 2026년 3분기 실적 매출액: 12억 4,000만 달러 (예상 10억 5,000만 달러 상회), 전년 대비 138.1% 증가 조정 주당순이익(EPS): 0.94달러 (예상 0.68달러...",
       "tickers": [
         "BE"
-      ],
-      "summary": "블룸에너지(BE) 2026년 3분기 실적 매출액: 12억 4,000만 달러 (예상 10억 5,000만 달러 상회), 전년 대비 138.1% 증가 조정 주당순이익(EPS): 0.94달러 (예상 0.68달러..."
+      ]
     },
     {
       "id": "insidertracking/67027",
@@ -4676,16 +4699,14 @@
       "localDateKst": "2026-10-22",
       "tags": [
         "equity",
-        "kr-market",
         "earnings"
       ],
-      "lead": 1,
       "score": 87,
       "hasText": true,
+      "summary": "Rosenblatt, 메타(Meta, $META ), 투자의견 '매수(Buy)'를 유지, 목표주가를 886달러에서 900달러로 상향 \"메타의 2026년 3분기 실적은 AI 기반의 광고 성장 스토리가 여전히...",
       "tickers": [
         "META"
-      ],
-      "summary": "Rosenblatt, 메타(Meta, $META ), 투자의견 '매수(Buy)'를 유지, 목표주가를 886달러에서 900달러로 상향 \"메타의 2026년 3분기 실적은 AI 기반의 광고 성장 스토리가 여전히..."
+      ]
     },
     {
       "id": "bornlupin/20767",
@@ -8515,41 +8536,6 @@
         "NVDA",
         "MSFT"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25902",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25902",
-      "datetime": "2026-10-16T11:46:40.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "market-note"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "JP모건 APAC테크 리뷰 JP모건은 아시아 하드웨어 테크 리포트에서 단기적으로 AI 서버 램프업에 차질이 있지만 장기 수요는 견조하다는 시각을 제시했습니다. 2025~28년 AI 칩 출하량 연평균...",
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "AMZN"
-      ],
-      "relatedTickers": [
-        "AVGO"
-      ]
-    },
-    {
-      "id": "aetherjapanresearch/25901",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25901",
-      "datetime": "2026-10-16T11:11:44.000Z",
-      "localDateKst": "2026-10-16",
-      "tags": [
-        "macro"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "JP모건) 코어위브(CRWV), 부채 우려는 펀더멘털이 아닌 현금흐름 시점에 대한 심리를 반영한 것입니다 (비중확대, 2026.10.16) 코어위브 주가는 이번 주 약 20% 하락했습니다. 채권 금리 상승...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8724,14 +8710,14 @@
       "datetime": "2026-10-24T05:55:07.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "semi",
-        "ai-policy",
-        "earnings"
+        "earnings",
+        "semi"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>38달러, DeepSeek가 계산한 수익성 •DeepSeek가 최근 공개한 충격적인 수치에 따르면 GPU 한 대는 시간당 38달러의 과금 매출을 창출할 수 있으며, 연환산 기준으로 33만 달러를 넘어섬...."
+      "summary": ">>38달러, DeepSeek가 계산한 수익성 •DeepSeek가 최근 공개한 충격적인 수치에 따르면 GPU 한 대는 시간당 38달러의 과금 매출을 창출할 수 있으며, 연환산 기준으로 33만 달러를 넘어섬....",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "aetherjapanresearch/26017",
@@ -9052,14 +9038,11 @@
       "datetime": "2026-10-23T23:35:23.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "earnings",
-        "macro",
-        "semi",
-        "ai-policy"
+        "earnings"
       ],
-      "lead": 1,
       "score": 94,
       "hasText": true,
+      "summary": "다음주 일정 26일: 중국 5중 전회(~29일), VZ 실적(장전), CLS, CDNS, RMBS, AMKR 실적(장전), Oracle AI World(~28일 ), IBM TechXchange...",
       "tickers": [],
       "listTickers": [
         "CAT",
@@ -9070,8 +9053,7 @@
         "STX",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "다음주 일정 26일: 중국 5중 전회(~29일), VZ 실적(장전), CLS, CDNS, RMBS, AMKR 실적(장전), Oracle AI World(~28일 ), IBM TechXchange..."
+      ]
     },
     {
       "id": "insidertracking/67156",
