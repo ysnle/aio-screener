@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-10-25T21:23:18.936Z",
+  "generatedAt": "2026-10-25T22:32:36.803Z",
   "appRevision": "v58.79",
   "dataRevision": "market-snapshot:2026-10-25T20:21:07.919Z:97d7b528",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -199,9 +199,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-10-25T20:21:07.919Z",
-        "ageHours": 1.04,
+        "ageHours": 2.19,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-10-25T21:23:18.936Z",
+        "evaluatedAt": "2026-10-25T22:32:36.803Z",
         "reason": null
       },
       "readiness": {
@@ -228,7 +228,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-25T21:23:18.936Z"
+        "evidenceEvaluatedAt": "2026-10-25T22:32:36.803Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -296,7 +296,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-25T21:23:18.936Z"
+        "evidenceEvaluatedAt": "2026-10-25T22:32:36.803Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -339,8 +339,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 12,
-      "MATCH": 7,
+      "PARTIAL": 13,
+      "MATCH": 6,
       "BLOCKED": 3
     },
     "closure": {
@@ -360,6 +360,7 @@
         "news",
         "commodities-fx",
         "global-indices",
+        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -374,7 +375,8 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices"
+        "global-indices",
+        "crypto"
       ],
       "operatorRequiredCategories": [
         "naaim",
