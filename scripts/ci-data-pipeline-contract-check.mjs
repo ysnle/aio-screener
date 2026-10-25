@@ -2737,6 +2737,26 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('v58.71 a newer public-CSV HY OAS date brings its own one-day and five-session deltas',
     merged._asOf_hyOAS === '2026-10-22' && merged.hyOASDelta === 0.1 && merged.hyOASDelta5 === 0.28, JSON.stringify({ d: merged.hyOASDelta, d5: merged.hyOASDelta5 }));
 
+  // v58.77 pipeline audit DATA-01/02: a newer official month brings its own change; a failed official read never takes
+  // the field back to FRED's lagging month; FRED catching up takes the field back over.
+  {
+    const okBls = { status: 'ok', fetchedAt: '2026-10-24T00:00:00Z', values: { blsCpiYoY: 2.5 }, series: { cpi: { status: 'ok', observedAt: '2026-09-01' } } };
+    const promoted = mergeMacroPlanes({ macroRaw: { _source: 'fred', cpi: 2.9, cpiDelta: 0.4, _asOf_cpi: '2026-08-01' }, previousMacro: {}, bls: okBls, bea: {}, treasury: {}, fredHyOas: {} });
+    const held = mergeMacroPlanes({ macroRaw: { _source: 'fred', cpi: 3.0, cpiDelta: 0.1, _asOf_cpi: '2026-08-01' }, previousMacro: { cpi: 2.5, cpiDelta: -0.4, _asOf_cpi: '2026-09-01', _source_cpi: 'bls-official-primary', _freshness_cpi: 'observed' }, bls: { status: 'unavailable' }, bea: {}, treasury: {}, fredHyOas: {} });
+    const caught = mergeMacroPlanes({ macroRaw: { _source: 'fred', cpi: 2.5, cpiDelta: -0.4, _asOf_cpi: '2026-09-01' }, previousMacro: { cpi: 2.5, _asOf_cpi: '2026-09-01', _source_cpi: 'bls-official-primary' }, bls: { status: 'unavailable' }, bea: {}, treasury: {}, fredHyOas: {} });
+    check('v58.77 DATA-01/02 official month change recomputed; no month regression on a failed official read; FRED catch-up takes over',
+      promoted.cpi === 2.5 && promoted.cpiDelta === -0.4 && promoted._asOf_cpi === '2026-09-01'
+        && held.cpi === 2.5 && held._asOf_cpi === '2026-09-01' && held._source_cpi === 'bls-official-primary' && held.cpiDelta === -0.4
+        && caught._source_cpi === 'fred-official-primary', JSON.stringify({ promoted: [promoted.cpi, promoted.cpiDelta], held: [held.cpi, held._asOf_cpi, held._source_cpi] }));
+  }
+  // v58.77 DATA-05: the extended shard is validated again against the rebased core before it is pushed.
+  {
+    const screenerWorkflow = readFileSync(new URL('../.github/workflows/refresh-screener.yml', import.meta.url), 'utf8');
+    const extendedCommit = screenerWorkflow.slice(screenerWorkflow.indexOf('Commit only extended screener artifacts'), screenerWorkflow.indexOf('Dispatch exact produced commit to CI', screenerWorkflow.indexOf('Commit only extended screener artifacts')));
+    check('v58.77 DATA-05 extended push retry revalidates the rebased shard against the new core',
+      /git rebase origin\/main\n\s+# v58\.77[\s\S]*?node scripts\/validate-screener-extended\.mjs public-data\/screener-extended\.json \|\| ! node scripts\/ci-screener-extended-contract-check\.mjs/.test(extendedCommit));
+  }
+
   const { previousCloseBarIndex } = await import('./fetch-data.mjs');
   const bar = (iso, close) => ({ timestamp: Date.parse(iso) / 1000, close });
   const tokyo = previousCloseBarIndex([bar('2026-10-20T00:00:00Z', 1), bar('2026-10-21T00:00:00Z', 2)], { exchangeTimezoneName: 'Asia/Tokyo', gmtoffset: 32400, regularMarketTime: Date.parse('2026-10-22T00:05:00Z') / 1000 }, '^N225');
@@ -2756,6 +2776,21 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('v58.71 a screener run whose market session moves backwards is held, an advancing or new market is not',
     back.join('|') === 'US 2026-10-21->2026-10-20' && sessionRegressions({ US: '2026-10-21' }, { US: { sessionDate: '2026-10-22' }, KR: { sessionDate: '2026-10-22' } }).length === 0 && sessionRegressions(null, { US: { sessionDate: '2026-10-20' } }).length === 0,
     JSON.stringify(back));
+}
+
+{
+  // P2047: the previous-digest merge runs at load time; a TDZ throw inside it was caught as "non-fatal" and the next
+  // refresh published only the ~100 posts fetched since the cursor. Offline run (fetch rejected) on a copy of the
+  // committed digest: the merge must read it without that warning.
+  const { mkdtempSync, copyFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const dir = mkdtempSync(join(tmpdir(), 'aio-tg-merge-'));
+  try {
+    copyFileSync(join(root, 'public-data/telegram-digest.json'), join(dir, 'telegram-digest.json'));
+    const run = spawnSync(process.execPath, ['--import', 'data:text/javascript,globalThis.fetch=async()=>{throw new Error("offline")}', join(root, 'scripts/fetch-telegram-digest.mjs'), '--days=14', `--out=${join(dir, 'telegram-digest.json')}`], { cwd: root, encoding: 'utf8', timeout: 120000 });
+    const merged = /previous digest read failed/.exec(run.stderr || '');
+    check('P2047 Telegram producer carries the previous digest forward (no load-time merge failure)', !merged && !run.error, (run.stderr || String(run.error || '')).split('\n').find((line) => /previous digest|Error/.test(line)) || '');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
 if (errors.length) {

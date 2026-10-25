@@ -158,7 +158,7 @@ try {
       check(/HALO/.test(tray.list) && /랭킹 대상 밖 종목/.test(tray.note), `${label}: compare tray lacks the on-demand HALO row/note (v57.81)`, tray);
       await layout(page, `${label}/screener-compare`);
 
-      // 5. Watchlist / alerts accept listed symbols, refuse unlisted ones, and add accepted ones to the quote set.
+      // 5. Watchlist accepts listed symbols (v58.76: price alerts are retired), refuse unlisted ones, and add accepted ones to the quote set.
       const accept = await page.evaluate(async () => {
         localStorage.setItem('aio_watchlists', JSON.stringify([{ id: 'wl-oou', name: 'fixture', tickers: [] }]));
         localStorage.setItem('aio_watchlist_active', 'wl-oou');
@@ -166,17 +166,12 @@ try {
         window.addToWatchlist('ZZZZ', 'fixture');
         await new Promise((r) => setTimeout(r, 1500));
         const saved = (JSON.parse(localStorage.getItem('aio_watchlists') || '[]')[0]?.tickers || []).map((t) => t.sym);
-        const good = window._aioAddAlert({ metric: 'price', tickerOrIndex: 'HALO', threshold: 1, direction: 'above' });
-        const bad = window._aioAddAlert({ metric: 'price', tickerOrIndex: 'ZZZZ', threshold: 1, direction: 'above' });
         await new Promise((r) => setTimeout(r, 800));
-        const alerts = (window._aioGetAlerts() || []).map((a) => a.tickerOrIndex);
-        window._aioSetAlerts((window._aioGetAlerts() || []).filter((a) => a.id !== good?.id && a.id !== bad?.id));
-        return { saved, alerts, quoteSet: [...new Set([...(window._aioQuoteRequestSymbols || []), ...(window.LIVE_SYMBOLS || [])])].filter((s) => ['MLI', 'HALO', 'ZZZZ', 'UFPT'].includes(s)), zzzz: await window._aioAcceptSymbol('ZZZZ') };
+        return { saved, quoteSet: [...new Set([...(window._aioQuoteRequestSymbols || []), ...(window.LIVE_SYMBOLS || [])])].filter((s) => ['MLI', 'HALO', 'ZZZZ', 'UFPT'].includes(s)), zzzz: await window._aioAcceptSymbol('ZZZZ') };
       });
       observations.push({ label, accept });
       check(accept.saved.includes('MLI') && !accept.saved.includes('ZZZZ'), `${label}: watchlist must accept a listed symbol and refuse an unlisted one (v57.81)`, accept);
-      check(accept.alerts.includes('HALO') && !accept.alerts.includes('ZZZZ'), `${label}: price alerts must accept a listed symbol and drop an unlisted one (v57.81)`, accept);
-      check(['MLI', 'HALO', 'UFPT'].every((s) => accept.quoteSet.includes(s)) && !accept.quoteSet.includes('ZZZZ') && accept.zzzz.ok === false, `${label}: accepted symbols must join the quote request set; unlisted never (v57.81)`, accept);
+      check(['MLI', 'UFPT'].every((s) => accept.quoteSet.includes(s)) && !accept.quoteSet.includes('ZZZZ') && accept.zzzz.ok === false, `${label}: accepted symbols must join the quote request set; unlisted never (v57.81)`, accept);
 
       // 6. Portfolio: an out-of-universe holding joins the analytics rows with its own on-demand row.
       await page.evaluate(() => window.savePortfolioData([{ sym: 'UFPT', qty: 10, cost: 150 }, { sym: 'HALO', qty: 20, cost: 40 }]));

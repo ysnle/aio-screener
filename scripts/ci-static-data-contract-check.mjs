@@ -142,7 +142,7 @@ const categories = [
   ['commodities-fx', historyHas('wti','gold','dxy'), 'history/live artifact'],
   ['global-indices', historyHas('spx','kospi','kosdaq'), 'history/live artifact'],
   ['crypto', historyHas('btc'), 'history/live artifact'],
-  ['kr-macro-vkospi-supply', /bokPolicy:[\s\S]*?official/.test(core) && /VKOSPI 시계열 미수신/.test(core) && !/fetchKrSupplyData|updateKrSupplyDOM/.test(runtime), 'official reference + explicit unavailable (P1671: KR supply plane retired)']
+  ['kr-macro-vkospi-supply', /bokPolicy:[\s\S]*?official/.test(core) && !/kr-vkospi-chart/.test(core) /* v58.76: the developer-only VKOSPI chart is retired */ &&!/fetchKrSupplyData|updateKrSupplyDOM/.test(runtime), 'official reference + explicit unavailable (P1671: KR supply plane retired)']
 ];
 
 // v57.81: the extended screener rows (Russell 2000 + Nasdaq beyond the core) exist only as a produced artifact —

@@ -30,7 +30,9 @@
     "main-content",
     "topbar-ai-btn",
     "glossary-body",
-    "glossary-search"
+    "glossary-search",
+    "ai-panel-msgs",
+    "ai-panel-chips"
   ],
   "domWriterIntersectionAllowlistNotes": {
     "aio-chart-cdn": "A05 (2026-10-12): color-theme.js reads the chart CDN script element to wait for load; index.html owns the element. No content write.",
@@ -41,6 +43,8 @@
     "topbar-ai-btn": "A05: responsive-shell.js reads the AI button for focus return; aio-chat.js owns its behaviour.",
     "glossary-body": "A05: aio-ui.js renders the glossary list; glossary-bridge.js only appends one data-glossary-cross section after it (MutationObserver), never replacing legacy content.",
     "glossary-search": "A05: glossary-bridge.js reads the search query; aio-ui.js/aio-core.js own the input.",
+    "ai-panel-msgs": "v58.77: ai-chip-fold.js only observes the message list (MutationObserver) to know a conversation has started; aio-chat.js owns its content.",
+    "ai-panel-chips": "v58.77: ai-chip-fold.js observes and counts the chip list and inserts one toggle button as a sibling before it; aio-chat.js owns the chips.",
     "theme-detail-panel": "After P818, themes.js is the sole panel display/current-theme writer; index.html showThemeDetail/closeThemeDetail only read the panel to retain selection/event compatibility. Legitimate read dependency, not a write race.",
     "pf-position-donut": "P835: portfolio.js owns the native holding-allocation chart; index.html drawPositionDonut is fenced by the mounted native portfolio chart marker.",
     "sector-perf-bars": "P859: themes.js owns the normalized sector-performance bars; index.html renderSectorPerfBars is fenced by the mounted native bars marker and remains only a compatibility fallback."
@@ -247,7 +251,6 @@
         "#page-fundamental #fund-data-status"
       ],
       "nativeSecondarySurface": [
-        "#page-fundamental #fund-analysis-text",
         "#page-fundamental #fund-native-sec-report",
         "#page-fundamental #fund-native-sec-title",
         "#page-fundamental #fund-native-sec-meta",
@@ -258,7 +261,7 @@
         "index.html:_generateFundamentalAnalysis (former aggregate report entry point is inert after P815; multi-source report sections and AI narrative remain legacy-owned)"
       ],
       "p779Boundary": "entity.js owns the SEC annual-data availability/source badge from the normalized sec-fundamentals artifact.",
-      "p815Boundary": "entity.js now owns only the bounded SEC-derived fund-analysis-text summary line from normalized fundamentals; the former inline aggregate report is inert and the multi-source report sections, charts, and AI narrative remain legacy-owned.",
+      "p815Boundary": "v58.76: the SEC-derived fund-analysis-text summary line (developer-only) is retired. Formerly: entity.js owned only the bounded SEC-derived fund-analysis-text summary line from normalized fundamentals; the former inline aggregate report is inert and the multi-source report sections, charts, and AI narrative remain legacy-owned.",
       "p832Boundary": "entity.js owns the bounded SEC annual-fact core report from sec-report.v3: filing identity, period/submission/acceptance metadata, point-in-time status/counts, coverage count, finite observed metrics, and explicit freshness state. The multi-source report sections, peer/news/external panels, charts, and AI narrative remain legacy-owned.",
       "notes": "Shares entity.js render() with ticker (options route retired v56.79); P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover."
     },

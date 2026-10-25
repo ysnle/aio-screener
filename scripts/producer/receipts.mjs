@@ -85,7 +85,7 @@ export function buildDomainReceipts({ previousMeta, attemptedAt, generatedAt, sy
     }),
     'options-put-call': planeReceipt('options-put-call', {
       eligible: 1, attempted: 1, updated: putCallFresh ? 1 : 0,
-      stored: (putCallFresh || (putCall && Number.isFinite(Number(putCall.totalPutCall)))) ? 1 : 0,
+      stored: (putCallFresh || (putCall && putCall.totalPutCall != null && Number.isFinite(Number(putCall.totalPutCall)))) ? 1 : 0,
       failures: putCallFresh ? [] : failure('cboe-put-call')
     })
   };

@@ -151,7 +151,7 @@ check('Telegram memo overlay is exposed through audit',/_aioTelegramMemoOverlayA
 check('Telegram dynamic artifact replaces static narrative and exposes honest coverage', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /pipelineNote:\s*String\(raw\.pipelineNote/.test(data) && /coverage:\s*raw\.coverage/.test(data));
 check('Telegram page coverage audit spans all 17 routes (v53.7 P725)', /getTelegramPageCoverageAudit/.test(data) && /requiredPageCount/.test(data) && /'portfolio':\s*\[/.test(data) && /'ticker':\s*\[/.test(data) && /'screener':\s*\[/.test(data) && /'kr-macro':\s*\[/.test(data) && /'guide':\s*\[\]/.test(data));
 check('tests cover Telegram digest memo injection', /T831[\s\S]{0,2200}SCREENER_DB memo/.test(tests) && /_telegramMemoOverlay/.test(tests));
-check('Telegram page feeds cover fundamental/themes/KR technical pages', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && /id="tg-feed-theme-detail"/.test(html) && /id="tg-feed-kr-technical"/.test(html));
+check('Telegram page feeds cover fundamental/themes/KR technical pages', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && !/id="tg-feed-theme-detail"/.test(html) /* v58.76: the legacy theme-detail page is retired */ &&/id="tg-feed-kr-technical"/.test(html));
 check('Telegram page routing includes credit and AI infrastructure tags by page', /'fundamental':\s*\[[^\]]*'semi'[^\]]*'credit'/.test(data) && /'themes':\s*\[[^\]]*'power'[^\]]*'credit'/.test(data) && /'fxbond':\s*\[[^\]]*'credit'/.test(data) && /'kr-technical':\s*\[[^\]]*'semi'/.test(data) && /'credit':\s*\{\s*label:/.test(data));
 check('Telegram runtime audits four required channels including HANA China',/tgSlug:'HANAchina'/.test(data) && /requiredChannelSlugs/.test(core) && /missingRequiredChannels/.test(core) && /requiredSourcesReady/.test(core));
 check('Telegram market-note digest tag is consumed by briefing and market-news pages', /'briefing':\s*\[[^\]]*'market-note'/.test(data) && /'market-news':\s*\[[^\]]*'market-note'/.test(data));
@@ -531,7 +531,8 @@ check('ticker live price renderer does not call live.price.toFixed directly', !/
 check('scenario sum renderers guard missing sum before toFixed', !/sumCheck\.sum\.toFixed\(/.test(core) && !/sigSum\.sum\.toFixed\(/.test(core));
 check('Chart tooltip callbacks guard missing parsed.y before toFixed', !/ctx\.parsed\.y\.toFixed\(/.test(core));
 check('home dashboard VIX default path guards missing live price before toFixed', !/vix\.price\?\.toFixed\(/.test(data) && !/vp\.toFixed\(2\)/.test(data));
-check('theme detail deep analysis filters finite pct values before toFixed', /topV\s*=\s*-Infinity/.test(pagesSource) && /botV\s*=\s*Infinity/.test(pagesSource) && /pctVal\s*=\s*d\s*&&\s*_themeFinitePct\(d\.pct\)/.test(pagesSource) && /_themeSafeFixed\(topV,\s*2/.test(pagesSource));
+// v58.76: the sub-theme deep analysis (topV/botV) left with the developer-only 세분화 테마 panel; the finite-pct helpers stay.
+check('theme detail keeps the finite pct helpers; the retired sub-theme deep analysis stays gone (v58.76)', /function _themeFinitePct/.test(pagesSource) && !/function (?:showSubThemeDetail|_themeSafeFixed)\b/.test(pagesSource));
 check('theme-detail route resolves to themes inline detail surface',
   (/id === 'theme-detail'/.test(core) && /_aioOpenThemeDetailOnThemes/.test(core) && /showThemeDetail\(themeId\)/.test(core))
   || (/createThemesPage/.test(themesPage) && /createThemesPage\(\{[^}]*route:\s*'theme-detail'/.test(bootstrap) && /aioArchitectureSlice/.test(themesPage)));
@@ -539,7 +540,7 @@ check('theme-detail route resolves to themes inline detail surface',
 // v57.50 C06: aio-data no longer reads F&G (its only reader was an unused value with a 35 default); the legacy F&G
 // readers share the home card's completed-close reader (_aioFgCloseReading), and no numeric default may return.
 check('C06/P1699: briefing summary F&G reads the shared close reader, no deleted helper, no numeric default', /_aioFgCloseReading/.test(core) && !/_buildBriefingDecisionSummary/.test(data) && !/getCanonicalMetric\('fg'\)[^;\n]*:\s*35\b/.test(data));
-check('KR candle chart auto-loads from canvas and avoids zero-baseline compression', /krCandleCanvas/.test(ui) && /loadKrCandleChart\(krCode \|\| '005930'\)/.test(ui) && /beginAtZero:\s*false/.test(ui) && /suggestedMin:\s*ySuggestedMin/.test(ui) && /suggestedMax:\s*ySuggestedMax/.test(ui));
+check('v58.76 the developer-only KR candle chart is retired (종목 owns the KR chart)', !/function loadKrCandleChart|id="kr-candle-chart"/.test(ui + html));
 check('headless tests validate every theme record and representative renderer boundaries plus route redirect', /T860 theme_detail_registry_and_representative_render_v5460/.test(tests) && /T861 theme_detail_route_redirect_v5227/.test(tests));
 check('theme composition audit indexes canonical semantic evidence once instead of rebuilding the screener universe per symbol', (() => {
   const start = core.indexOf('window.AIO.getThemeCompositionLogicAudit = function()');
@@ -553,7 +554,7 @@ check('theme composition audit indexes canonical semantic evidence once instead 
 check('proxy layer rejects HTML block pages for JSON endpoints before caching success', /_aioProxyUrlExpectsJson/.test(data) && /_aioValidateProxyResponse/.test(data) && /aioProxyBlockedHtml/.test(data) && /proxy returned HTML for JSON endpoint/.test(data));
 // P1671: the KR supply/investor data plane had no rendered or AI consumer and was retired, and the
 // developer-mode-only KR macro/technical folds (P702) no longer render or fetch candles for nobody.
-check('P1671 KR macro/technical folds render only in developer mode', /if \(_aioKrDevSectionsVisible\(\)\) initKoreaMacro\(\)/.test(krData) && /if \(_aioKrDevSectionsVisible\(\)\) initKoreaTechnical\(\)/.test(krData) && /pid === 'technical' && _aioKrDevSectionsVisible\(\)/.test(krData));
+check('P1671 → v58.76 the developer-only KR macro/technical cards and their writers are retired', !/function (?:initKoreaMacro|initKoreaTechnical|_aioKrDevSectionsVisible)\b/.test(krData + ui) && !/<div\b[^>]*\bdata-dev-only\b/.test(html));
 check('KR supply failure state clears canonical evidence and retired investor fanout is not scheduled', !/function (?:fetchKrSupplyData|fetchKrInvestorTop10|updateKrSupplyDOM|_showKrSupplyFailureState)\b/.test(krData) && /T863_kr_retired_investor_fanout_not_scheduled/.test(tests));
 check('Cloudflare worker handles Naver JSON endpoints with browser-like headers and HTML block guard', /targetExpectsJson/.test(worker) && /m\.stock\.naver\.com/.test(worker) && /Upstream returned HTML block page for JSON endpoint/.test(worker) && /Referer = 'https:\/\/m\.stock\.naver\.com\/'/.test(worker));
 check('viewport matrix CI script covers desktop-only viewports, topbar clipping, and SVG text geometry', qaHas('scripts/ci-viewport-matrix-check.mjs', 'browser-viewport') && qaHas('scripts/ci-desktop-scope-check.mjs', 'core') && /desktop-qa-config\.mjs/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && !/mobile390|tablet768/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/desktop-qa-config.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
@@ -575,10 +576,9 @@ check('value slot renderer encodes value/pending/failed/na states and touched ma
   return (valueSlotBase && legacyTouched) || (valueSlotBase && nativeTouched) || (valueSlotBase && boardTouched);
 })());
 check('C06/P1699: briefing decision summary F&G uses the shared close reader, not dead snap fields', /_aioFgCloseReading/.test(core) && !/snap\.fg\.value|snap\.fearGreed/.test(data));
-// P1134/R620: the VKOSPI failure-state helpers now live in js/aio-kr-data.js (block C) while
-// calcKrHealthScore lives in js/aio-ui.js (block F) — the check spans two owners, so each token is
-// asserted against the file that actually holds it.
-check('VKOSPI failure state is surfaced after repeated failures and calcKrHealthScore does not overwrite it', /function _showVkospiFailureState/.test(krData) && /function _vkospiIsFailedState/.test(krData) && /_vkospiIsFailedState\(\)/.test(ui.slice(ui.indexOf('function calcKrHealthScore'), ui.indexOf('function calcKrHealthScore') + 4000)) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
+// P1134/R620 → v58.76: the VKOSPI failure-state helpers live in js/aio-kr-data.js; the developer-only health card
+// (calcKrHealthScore) that could overwrite the state is retired, so the state only has to clear the live flag.
+check('VKOSPI failure state clears the live flag after repeated failures (v58.76)', /function _showVkospiFailureState/.test(krData) && /function _vkospiIsFailedState/.test(krData) && /window\._vkospiLiveOk = false/.test(krData) && !/function calcKrHealthScore/.test(ui) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
 check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(chat) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
 check(
   'T866 v57.60 breadth surfaces share canonical regime color and zero delta renders neutral (the legacy _bbRegime ladder retired with updateBreadthBars)',
@@ -719,7 +719,7 @@ check('13 comp routes hide advanced legacy blocks by default and expose them in 
 check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holdings-table-section"/.test(html) && /id="pf-entry-section"/.test(html) && /_aioTogglePortfolioEntry/.test(html));
 check('v57.77 portfolio writerless 리스크 분석 shell and duplicate 자동 진단 widget stay retired', !/id="pf-risk-section"|id="pf-analysis-dashboard"|id="pf-analysis-text"/.test(html)); // text-pin-ok: retirement absence
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
-check('runtime-injected decision headers and related-news strips stay out of the 13-route default surface', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && /#page-signal > \.aio-page-news-strip[\s\S]{0,1200}display:none !important/.test(html));
+check('runtime-injected decision headers stay out of the default surface; the related-news strip is retired (v58.76)', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && !/aio-page-news-strip/.test(html + core));
 check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
 check('P1425 macro route has no legacy yield-curve owner and replays both official calendars after the shared cut', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && !/renderOfficialFutureCalendar/.test(core) && /renderMacroNextRelease\(\)/.test(core) && /aio:sharedMarketCut/.test(core)); // P1672: #official-future-calendar left with P1425 // P1425
 check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', !/function renderOfficialFutureCalendar/.test(macroTech) && /renderMacroNextRelease/.test(core)); // P1672: the legacy calendar sink left with P1425; renderMacroNextRelease owns the macro calendar
@@ -1221,13 +1221,10 @@ check('R340/P712: Treasury maturity fields are separated and 2s10s uses the cano
 // technical-page fail-closed branch lives in js/aio-ui.js (block F) — two owners, both asserted.
 // P1538 (owner decision: no composite grades or scores without predictive evidence): the KR health card no longer sums points, so
 // "fails closed" now means it reports which current inputs exist and invents no total.
-const krHealthBody = ui.slice(ui.indexOf('function calcKrHealthScore()'), ui.indexOf('// ── 한국 금리 스프레드'));
-// v57.76: the big input-count slot that sat where the 0-100 건강 점수 used to be (#kr-health-val/#kr-health-label) was deleted;
-// each input row reports its own value or 미수신.
-check('R340/P712 + P1538 + v57.76: KR theme breadth fails closed on missing current inputs, the KR input card adds nothing up, and the score slot stays retired',
+// v58.76: the developer-only KR input card (calcKrHealthScore) is retired outright, so no score slot can return.
+check('R340/P712 + P1538 + v58.76: KR theme breadth fails closed on missing current inputs and the retired KR input card stays gone',
   /evaluateKrThemeQuoteCoverage/.test(krData) && /weightedCoverage\s*>=\s*0\.7/.test(krData) && /테마 종합판정 보류/.test(krData)
-    && krHealthBody.length > 500 && /missing\.push\('KOSPI'\)/.test(krHealthBody) && /trendEl\.textContent = '미수신'/.test(krHealthBody)
-    && !/getElementById\('kr-health-(?:val|label)'\)/.test(krHealthBody) && !/\bscore\s*[-+]?=|grade\s*=/.test(krHealthBody));
+    && !/function calcKrHealthScore|kr-health-(?:val|label|trend|vkospi)/.test(ui + html));
 check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
   // P1389: the briefing schedule (buildBriefingSchedule over AIO_MACRO_CALENDAR) replaced the archived calendar block.
   /export function buildBriefingSchedule/.test(read('src/domain/briefing/schedule.js')) && /id="briefing-schedule-rows"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
@@ -1236,23 +1233,17 @@ check('R340/P712: semantic market-integrity tests cover curve exactness and KR m
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
-  /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 P1274 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
+  /T1035 → v58\.76/.test(tests) /* the KR spread widget is retired */ && /T1036 P1274 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
   && !/function\s+updateBreadthBars/.test(ui) /* v57.60: the legacy breadth DOM writer retired; market.js renders current evidence */
   && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
 check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink (P1425: the whole legacy updater is gone)',
   !/function\s+(?:updateFxDynamicComments|generateFxBondCommentary|updateFxBondPage|updateCrossAssetMatrix)\s*\(/.test(pagesSource) &&
   !/(?:getElementById|querySelector)\(['"](?:fx-dc-|bond-dc-)/.test(pagesSource) &&
   !/updateFxBondPage\(/.test(data + ui + core));
-check('R344/P727: alert polling has no unregistered raw interval fallback',
-  /_aioRegisterTimer\('alerts-check'/.test(chat) && !/\bsetInterval\s*\(/.test(chat));
-{
-  const bg = readFileSync('src/app/background-alerts.js', 'utf8');
-  const boot = readFileSync('src/app/bootstrap.js', 'utf8');
-  check('v57.54 an armed alert with granted notifications keeps a slow hidden-tab quote check (P1756 pauses the rest)',
-    /permission !== 'granted'\) return \[\]/.test(bg) && /keys: \['quotes'\], reason: 'background-alerts'/.test(bg)
-    && /_aioCheckAlerts/.test(bg) && /if \(doc\.hidden && armedAlerts\(root\)\.length\)/.test(bg)
-    && /installBackgroundAlerts\(window, document\)/.test(boot));
-}
+// R344/P727 → v58.76: price/VIX alerts (and their hidden-tab check) are retired; chat keeps no raw interval.
+check('v58.76 alerts and the background alert check are retired; chat keeps no raw interval',
+  !/function _aioCheckAlerts|'alerts-check'/.test(chat) && !/\bsetInterval\s*\(/.test(chat)
+  && !existsSync('src/app/background-alerts.js') && !/installBackgroundAlerts/.test(readFileSync('src/app/bootstrap.js', 'utf8')));
 check('P1756 network/refresh registry timers pause while the tab is hidden and resume in one place',
   /hiddenPaused = \{ serverDataReload: 1, ghPoll: 1, dataStatus: 1, serverDataAgeBadge: 1, freshness: 1, globalUpdate: 1, 'alerts-check': 1 \}/.test(core)
   && /if \(hiddenPaused\[name\] && document\.hidden\)/.test(core) && /if \(Date\.now\(\) - m\.last >= m\.ms\)/.test(core)

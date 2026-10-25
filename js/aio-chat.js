@@ -251,6 +251,13 @@ function _aioHasCurrentNumericContent(value) {
   return publication ? publication.hasCurrentNumericContent(value) : true;
 }
 
+// v58.77: the "웹검색 중" status line turns into what happened once the answer (or its failure) arrives.
+function _aioSettleWebSearchStatus(text) {
+  var lines = document.querySelectorAll('#ai-panel-msgs .ai-websearch-status:not([data-settled])');
+  var line = lines[lines.length - 1];
+  if (line) { line.textContent = text; line.dataset.settled = '1'; }
+}
+
 function _aioExtractAIAnswerFallback(rawText, currentSensitive, options) {
   var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
   return publication ? publication.extractAnswerFallback(rawText, currentSensitive, options) : '';
@@ -289,7 +296,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   } else if (isPartialStream) {
     visible = 'AI 답변을 구성하고 근거를 검증하는 중…';
   } else {
-    visible = _aioExtractAIAnswerFallback(raw, currentSensitive, { evidenceCount: bindingIds.size });
+    visible = _aioExtractAIAnswerFallback(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish) });
   }
   if (!visible && !isPartialStream) visible = '답변 형식이 완성되지 않아 검증 가능한 문장을 복구하지 못했습니다. 같은 질문을 다시 보내면 간결한 형식으로 재시도합니다.';
   if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
@@ -4175,181 +4182,8 @@ async function _aioPrepareAIResearch(questionPlan, options) {
 }
 
 // ── Send message ───────────────────────────────────────────────────────
-// v49.70 P373 R134: 답변 데이터 다운로드 (CSV/JSON/Markdown export) + 클립보드 복사
-// AI 응답 텍스트 + 종목 데이터 + 시뮬레이션 결과를 사용자가 직접 활용 가능
-function _aioExportChatData(ctxId, fullText, detectedTickers, format) {
-  format = (format || 'markdown').toLowerCase();
-  var ld = window._liveData || {};
-  var timestamp = new Date().toISOString();
-  var payload = {
-    version: 'v49.70',
-    context: ctxId,
-    exportedAt: timestamp,
-    detectedTickers: detectedTickers || [],
-    marketSnapshot: {},
-    aiResponse: fullText || ''
-  };
-  // 시장 스냅샷 (라이브 데이터)
-  ['^GSPC', '^VIX', '^TNX', 'DX-Y.NYB', 'CL=F', 'GC=F', 'BTC-USD', '^KS11', 'KRW=X'].forEach(function(sym) {
-    if (ld[sym] && ld[sym].price) payload.marketSnapshot[sym] = { price: ld[sym].price, pct: ld[sym].pct };
-  });
-  if (window._lastFG != null) payload.marketSnapshot['CNN_FG'] = window._lastFG;
-  // 종목 라이브 데이터
-  payload.tickerData = {};
-  (detectedTickers || []).forEach(function(t) {
-    if (ld[t]) payload.tickerData[t] = ld[t];
-  });
-  var content = '', mime = 'text/plain', filename = 'aio-chat-' + ctxId + '-' + timestamp.slice(0, 19).replace(/[:T]/g, '-') + '.';
-  if (format === 'json') {
-    content = JSON.stringify(payload, null, 2);
-    mime = 'application/json';
-    filename += 'json';
-  } else if (format === 'csv') {
-    var rows = ['key,value'];
-    rows.push('context,' + payload.context);
-    rows.push('exportedAt,' + payload.exportedAt);
-    rows.push('detectedTickers,"' + payload.detectedTickers.join(';') + '"');
-    Object.keys(payload.marketSnapshot).forEach(function(k) {
-      var v = payload.marketSnapshot[k];
-      rows.push('market_' + k + ',"' + (typeof v === 'object' ? JSON.stringify(v).replace(/"/g, '""') : v) + '"');
-    });
-    Object.keys(payload.tickerData).forEach(function(k) {
-      rows.push('ticker_' + k + ',"' + JSON.stringify(payload.tickerData[k]).replace(/"/g, '""') + '"');
-    });
-    rows.push('aiResponse,"' + String(payload.aiResponse).replace(/"/g, '""').replace(/\n/g, '\\n') + '"');
-    content = rows.join('\n');
-    mime = 'text/csv';
-    filename += 'csv';
-  } else { // markdown
-    content = '# AIO Screener Chat Export\n\n';
-    content += '- **Context**: ' + payload.context + '\n';
-    content += '- **Exported**: ' + payload.exportedAt + '\n';
-    content += '- **Tickers**: ' + (payload.detectedTickers.join(', ') || 'none') + '\n\n';
-    content += '## Market Snapshot\n\n';
-    Object.keys(payload.marketSnapshot).forEach(function(k) {
-      var v = payload.marketSnapshot[k];
-      content += '- **' + k + '**: ' + (typeof v === 'object' ? JSON.stringify(v) : v) + '\n';
-    });
-    if (Object.keys(payload.tickerData).length > 0) {
-      content += '\n## Ticker Data\n\n```json\n' + JSON.stringify(payload.tickerData, null, 2) + '\n```\n';
-    }
-    content += '\n## AI Response\n\n' + payload.aiResponse + '\n';
-    mime = 'text/markdown';
-    filename += 'md';
-  }
-  // 다운로드 트리거
-  try {
-    var blob = new Blob([content], { type: mime + ';charset=utf-8' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function() {
-      URL.revokeObjectURL(url);
-      a.remove();
-    }, 500);
-    return { success: true, filename: filename, format: format };
-  } catch(e) {
-    // 클립보드 폴백
-    try { navigator.clipboard.writeText(content); return { success: true, fallback: 'clipboard', format: format }; } catch(_) {}
-    return { success: false, error: e && e.message };
-  }
-}
-window._aioExportChatData = _aioExportChatData;
-window.AIO = window.AIO || {};
-window.AIO.exportChatData = _aioExportChatData;
-// v58.19: _aioExportFromBtn은 제거 — data-action 버튼도 _aioDlCtx_* 작성자도 없어 항상 조기 반환했다.
-
-// v57.77: the test-only chat simulators (_aioSimulateAmountOrPct, _simulateMacroScenario, _simulatePortfolioAddition) are retired —
-// no production path called them since the per-page chatSend was retired (v57.62).
-
-// v49.70 P372 R133: 알람/임계값 트리거 — VIX/F&G/종목 가격 자동 모니터링 + 브라우저 Notification
-// "VIX 30 도달 시 알림" / "NVDA $150 도달 시" 등 자연어 의도 감지 + localStorage 영속 + 페이지 로드 시 자동 점검
-function _aioGetAlerts() {
-  try {
-    var raw = localStorage.getItem('aio_alerts_v1');
-    if (raw) return JSON.parse(raw);
-  } catch(_) {}
-  return [];
-}
-function _aioSetAlerts(alerts) {
-  try { localStorage.setItem('aio_alerts_v1', JSON.stringify(alerts || [])); return true; } catch(_) { return false; }
-}
-function _aioAddAlert(alert) {
-  if (!alert || !alert.metric || alert.threshold == null) return null;
-  var alerts = _aioGetAlerts();
-  var id = 'alert_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-  var newAlert = Object.assign({ id: id, createdAt: Date.now(), triggered: false, triggerCount: 0 }, alert);
-  alerts.push(newAlert);
-  _aioSetAlerts(alerts); if (newAlert.metric === 'price' && newAlert.tickerOrIndex && typeof window._aioAcceptSymbol === 'function') window._aioAcceptSymbol(newAlert.tickerOrIndex).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') return; _aioSetAlerts(_aioGetAlerts().filter(function(a) { return a.id !== id; })); window._aioToastWithNameHint(newAlert.tickerOrIndex, newAlert.tickerOrIndex + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커라 가격 알림을 만들지 않았습니다.'); }); // v57.81: known or US-listed symbols only; accepted ones join the quote request set
-  return newAlert;
-}
-// v57.77: the test-only alert remover and natural-language alert parser are retired (no production caller).
-function _aioCheckAlerts() {
-  var alerts = _aioGetAlerts();
-  if (alerts.length === 0) return [];
-  var ld = window._liveData || {};
-  var triggered = [];
-  alerts.forEach(function(a) {
-    var current = null;
-    if (a.metric === 'vix') current = (ld['^VIX'] && ld['^VIX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vix);
-    else if (a.metric === 'fg') current = window._lastFG;
-    else if (a.metric === 'price' && a.tickerOrIndex) current = (ld[a.tickerOrIndex] && ld[a.tickerOrIndex].price); if (a.metric === 'price' && a.tickerOrIndex && current == null && window.AIO && typeof window.AIO.registerLiveSymbol === 'function') window.AIO.registerLiveSymbol(a.tickerOrIndex, { reason: 'price-alert' }); // v57.81
-    if (current == null) return;
-    var hit = a.direction === 'above' ? Number(current) >= Number(a.threshold) : Number(current) <= Number(a.threshold);
-    if (hit && !a.triggered) {
-      a.triggered = true;
-      a.triggerCount = (a.triggerCount || 0) + 1;
-      a.lastTriggeredAt = Date.now();
-      a.currentValueAtTrigger = current;
-      triggered.push(a);
-    } else if (!hit && a.triggered) {
-      // 조건 미충족 → reset (다음 도달 시 재 알림)
-      a.triggered = false;
-    }
-  });
-  if (triggered.length > 0) {
-    _aioSetAlerts(alerts);
-    // 브라우저 Notification (권한 있을 때)
-    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      triggered.forEach(function(a) {
-        try {
-          new Notification('AIO Screener 알림', {
-            body: a.label + ' 도달! 현재: ' + a.currentValueAtTrigger,
-            icon: '/favicon.ico',
-            tag: a.id
-          });
-        } catch(_) {}
-      });
-    }
-  }
-  return triggered;
-}
-window._aioGetAlerts = _aioGetAlerts;
-window._aioAddAlert = _aioAddAlert;
-window._aioCheckAlerts = _aioCheckAlerts;
-window.AIO = window.AIO || {};
-window.AIO.getAlerts = _aioGetAlerts;
-window.AIO.addAlert = _aioAddAlert;
-window.AIO.getUserProfile = _aioGetUserProfile;
-window.AIO.setUserProfile = _aioSetUserProfile;
-// 자동 1분마다 점검 (페이지 로드 후 30초 지연)
-if (typeof setTimeout !== 'undefined' && typeof window !== 'undefined') {
-  setTimeout(function() {
-    try { _aioCheckAlerts(); } catch(_) {}
-    // v52.5x/WO-7: 기존 window._aioRegisterTimer(name, fn, ms) 레지스트리를 경유하도록 전환 —
-    // 이전엔 이름 없는 raw setInterval이라 _aioTimerRegistry에 잡히지 않고, 같은 이름으로 중복
-    // 실행돼도 clearInterval 자동 정리가 없었다(이 스크립트 블록이 두 번 실행될 경로는 현재
-    // 없지만, 레지스트리 경유는 이 코드베이스의 다른 모든 named interval이 이미 따르는 표준
-    // 패턴이라 통일).
-    if (typeof window._aioRegisterTimer === 'function') {
-      window._aioRegisterTimer('alerts-check', function() { try { _aioCheckAlerts(); } catch(_) {} }, 60 * 1000);
-    }
-  }, 30000);
-}
+// v58.76: the console-only chat export (_aioExportChatData) and price/VIX alerts (_aioAddAlert/_aioCheckAlerts, the
+// background hidden-tab check) are retired — no screen created an alert or offered the export since v57.62/v57.77.
 
 // ─────────────────────────────────────────────────────────────────
 // v49.73 P388 R140~R142: 답변 품질 3축 보강 (현재성·정확성·직관성) 헬퍼
@@ -4510,57 +4344,13 @@ function _aioGetMemoForTicker(ticker) {
 }
 window._aioGetMemoForTicker = _aioGetMemoForTicker;
 
-// v49.70 P371 R132: 사용자 투자 프로필 — 위험성향 + 시간축 + 선호 자산 (localStorage 영속)
-// 14 CHAT_CONTEXTS의 system prompt에 자동 주입 → AI가 개인화된 답변 제공
-function _aioGetUserProfile() {
-  var defaults = { riskTolerance: 'medium', timeHorizon: '1y', preferredAssets: [], excludedAssets: [], note: 'v49.70 신규 — 사용자 프로필 미설정 시 default' };
-  try {
-    var raw = localStorage.getItem('aio_user_profile_v1');
-    if (raw) {
-      var parsed = JSON.parse(raw);
-      return Object.assign({}, defaults, parsed);
-    }
-  } catch(_) {}
-  return defaults;
-}
-function _aioSetUserProfile(profile) {
-  try {
-    var merged = Object.assign({}, _aioGetUserProfile(), profile || {});
-    localStorage.setItem('aio_user_profile_v1', JSON.stringify(merged));
-    return merged;
-  } catch(e) {
-    return null;
-  }
-}
-window._aioGetUserProfile = _aioGetUserProfile;
-window._aioSetUserProfile = _aioSetUserProfile;
-
-// 14 CHAT_CONTEXTS system prompt에 자동 주입할 사용자 프로필 텍스트
+// Owner 2026-10-25: the 맞춤 profile set in the AI panel header (src/ai/session/user-profile.js) adapts the explanation
+// only; unset, the AI is told not to assume one (P1740) and an answer that depends on risk appetite is split by case.
 function _buildUserProfileContext() {
-  // P1740: an unsaved profile is not the user's profile. The defaults ("중립", "1년") were sent with "답변 의무" as if
-  // the user had declared them, so every answer was framed for a medium-risk one-year investor nobody described.
-  var saved = null;
-  try { saved = localStorage.getItem('aio_user_profile_v1'); } catch (_) { saved = null; }
-  if (!saved) return '\n\n【사용자 투자 프로필】\n미설정 — 위험 성향·투자 기간을 가정하지 말고, 답이 성향에 따라 달라지면 성향별로 나눠 설명한다.\n';
-  var p = _aioGetUserProfile();
-  var riskLabel = p.riskTolerance === 'low' ? '보수적 (위험 최소화 + 자본 보존 우선)' :
-                  p.riskTolerance === 'high' ? '공격적 (높은 변동성 수용 + 성장 추구)' :
-                  '중립 (균형 잡힌 위험/수익)';
-  var horizonLabel = p.timeHorizon === '1d' ? '단기 (1일~1주 — 데이트레이딩/스윙)' :
-                     p.timeHorizon === '1m' ? '단기 (1개월 — 모멘텀/이벤트)' :
-                     p.timeHorizon === '1y' ? '중기 (1년 — 자산 배분)' :
-                     p.timeHorizon === '5y' ? '장기 (5년 — 본질가치/복리)' :
-                     p.timeHorizon === '10y' ? '초장기 (10년+ — Buffett 스타일)' :
-                     '중기 (default)';
-  var prefAssets = Array.isArray(p.preferredAssets) && p.preferredAssets.length > 0 ? p.preferredAssets.join(', ') : '미설정';
-  var excAssets = Array.isArray(p.excludedAssets) && p.excludedAssets.length > 0 ? p.excludedAssets.join(', ') : '없음';
-  return '\n\n【사용자 투자 프로필 (v49.70 R132 — 답변 시 자동 반영)】\n' +
-    '• 위험 성향: ' + riskLabel + '\n' +
-    '• 투자 시간축: ' + horizonLabel + '\n' +
-    '• 선호 자산/섹터: ' + prefAssets + '\n' +
-    '• 제외 자산/섹터: ' + excAssets + '\n' +
-    '답변 의무 (R132): 위 프로필을 전제로 (1) 위험 성향에 따라 노출 한도와 레버리지가 어떻게 달라지는지 조건별 설명 (2) 시간축별로 확인할 지표와 보유 기간 관점 정리 (3) 선호 자산을 우선 검토하고 제외 자산은 제외 사유를 밝힘 (4) 프로필과 충돌하면 충돌 지점을 명시 ("프로필이 보수적이라 이 종목은 노출 한도 점검이 필요한 조건"). 특정 비율이나 진입 시점을 지시하지 않는다.\n';
+  if (window.AIO && typeof window.AIO.aiProfileContext === 'function') { try { return window.AIO.aiProfileContext(); } catch (_) {} }
+  return '\n\n【사용자 투자 프로필】\n미설정 — 위험 성향·투자 기간을 가정하지 말고, 답이 성향에 따라 달라지면 성향별로 나눠 설명한다.\n';
 }
+
 window._buildUserProfileContext = _buildUserProfileContext;
 
 // v49.69 P369 R131: 약어/별명 fuzzy match 강화 — "엔비" / "퀄컴" / "테슬라" / 본드 / 환율 등
@@ -5940,7 +5730,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     sysPrompt += window.AIO.describeAnswerVisuals(window.AIO.chooseAnswerVisuals({ query: q, mode: _uniMode, canonical: (_uniQuestionPlan && _uniQuestionPlan.intent && _uniQuestionPlan.intent.intents) || [], tickers: detectedTickers }));
   } catch (_) {}
   if (_uniUseClaudeWebSearch) {
-    _appendAIMsg('ai', '<div style="font-size:12px;color:var(--text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">기존 자료를 보강하기 위해 웹검색 중, 출처 확인 후 답변</div>');
+    _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">기존 자료를 보강하기 위해 웹검색 중, 출처 확인 후 답변</div>');
     sysPrompt += '\n\n【웹 리서치 지시 (통합 AI 패널)】\n공급망·밸류체인·TAM/시장규모·경쟁구조·기술해자·13F·사업구조·경영진 전략처럼 최신 확인이 필요한 정성 분석은 web_search 결과를 우선하라. 확인하지 못한 항목은 "확인 불가"로 남기고, 학습데이터 기반 추측을 금지한다.';
     modelOpts.webSearch = true;
   }
@@ -6008,7 +5798,9 @@ async function chatSendUnified(_aioDispatchOptions) {
 
   var _uniOnDone = function(fullText, completion) {
     if (!_isCurrentUnifiedRun()) return;
+    var _searchedAnswer = modelOpts.webSearch === true && !(state._retryCount > 0); // P1756: retries run without search
     state._retryCount = 0;
+    _aioSettleWebSearchStatus(_searchedAnswer ? '웹검색으로 보강해 답했습니다. 참고 링크는 답변 아래에 있습니다.' : '웹검색 응답이 늦어 검색 없이 앱 자료로 답했습니다.'); // v58.77: the "웹검색 중" line no longer stays after the answer
     var loadEl = document.getElementById('ai-panel-loading');
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     var streamEl = document.getElementById('ai-panel-streaming');
@@ -6145,6 +5937,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     var loadEl = document.getElementById('ai-panel-loading');
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     _releaseUnifiedRun();
+    _aioSettleWebSearchStatus('답변을 받지 못해 웹검색도 끝내지 못했습니다.');
     _appendAIMsg('ai', '<span class="lch-err">' + _uniSafeRender(errMsg) + '</span>');
   };
 

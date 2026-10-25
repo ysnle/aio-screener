@@ -26,7 +26,8 @@ const EXCHANGE_LOOKBACK_DAYS = 150;
 async function chartRows(symbol, query) {
   for (const host of HOSTS) {
     try {
-      const response = await fetch(`${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&${query}`, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      // v58.77 (pipeline audit DATA-04): a provider that never answers must not hold the refresh job (Naver below has 12 s).
+      const response = await fetch(`${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&${query}`, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(30000) });
       if (!response.ok) continue;
       const result = (await response.json())?.chart?.result?.[0];
       const stamps = result?.timestamp, closes = result?.indicators?.quote?.[0]?.close;

@@ -569,155 +569,7 @@ function renderFundamentalStatus(documentRef, state, onDemand = null) {
   element.setAttribute('data-cadence', 'annual'); // codex audit F16: a fiscal-year-end date is judged by the filing cadence, not two sessions
 }
 
-function formatFundamentalNumber(value) {
-  const number = finite(value);
-  return number == null ? null : number.toLocaleString('en-US', { maximumFractionDigits: 2 });
-}
-
-function renderFundamentalSummary(documentRef, state) {
-  const element = documentRef?.getElementById('fund-analysis-text');
-  if (!element) return;
-  const fundamentals = state?.fundamentals;
-  const coverage = Array.isArray(fundamentals?.coverage)
-    ? fundamentals.coverage.filter((field) => typeof field === 'string')
-    : [];
-  const available = coverage.length > 0;
-  const report = deriveSecReport(fundamentals);
-  const facts = [];
-  if (coverage.includes('revenue')) {
-    const revenue = finite(fundamentals?.revenue);
-    if (revenue != null) facts.push(`매출 ${formatSecWatchlistValue(revenue)}`);
-  }
-  if (coverage.includes('netIncome')) {
-    const netIncome = finite(fundamentals?.netIncome);
-    if (netIncome != null) facts.push(`순이익 ${formatSecWatchlistValue(netIncome)}`);
-  }
-  if (coverage.includes('margin')) {
-    const margin = formatFundamentalNumber(fundamentals?.margin);
-    if (margin != null) facts.push(`마진 ${margin}%`);
-  }
-  if (coverage.includes('pe')) {
-    const pe = formatFundamentalNumber(fundamentals?.pe);
-    if (pe != null) facts.push(`P/E ${pe}`);
-  }
-  const period = fundamentals?.periodType || 'FY';
-  const observedAt = fundamentals?.observedAt || '미상';
-  // v57.51 F17/F18: an extreme ratio (P/E above 1000, ROE beyond 200%, growth off a tiny base) is labelled, not hidden.
-  const flagged = fundamentalValueFlags(fundamentals || {}).map((flag) => flag.label.split(' — ')[0]);
-  const flagText = flagged.length ? `, 해석 주의: ${[...new Set(flagged)].join(', ')}` : '';
-  element.textContent = available
-    ? `SEC ${period === 'FY' ? '연간(FY)' : period} 기준, 관측 항목 ${report.coverage.length}개, 회계연도 말 ${observedAt}${facts.length ? `, ${facts.join(', ')}` : ''}${flagText}`
-    : !String(state?.id || '').trim() ? '종목 선택 전, 선택 기업의 SEC 연간 재무 해석 없음' : isKrSymbol(state?.id) ? '한국 상장 종목, 연간 재무는 한국 공시(DART) 사업보고서 기준' : 'SEC 연간 재무 데이터 수신 대기, 해석 보류';
-  element.dataset.aioFundamentalSummaryRenderer = 'native';
-  element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
-  element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
-  element.setAttribute('data-operational-use', 'reference-only');
-  if (available && fundamentals?.observedAt) element.setAttribute('data-observed-at', fundamentals.observedAt);
-  else element.removeAttribute('data-observed-at');
-  element.setAttribute('data-cadence', 'annual');
-}
-
-function formatSecWatchlistValue(value, { percent = false } = {}) {
-  const number = finite(value);
-  if (number == null) return '—';
-  if (percent) return `${number.toFixed(1)}%`;
-  const absolute = Math.abs(number);
-  const sign = number < 0 ? '-' : '';
-  if (absolute >= 1e12) return `${sign}$${(absolute / 1e12).toFixed(1)}T`;
-  if (absolute >= 1e9) return `${sign}$${(absolute / 1e9).toFixed(1)}B`;
-  if (absolute >= 1e6) return `${sign}$${(absolute / 1e6).toFixed(1)}M`;
-  return `${sign}$${absolute.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-}
-
-function appendSecWatchlistMetric(documentRef, container, labelText, valueText) {
-  const metric = documentRef.createElement('div');
-  metric.className = 'fwl-metric';
-  const label = documentRef.createElement('span');
-  label.textContent = labelText;
-  const value = documentRef.createElement('strong');
-  value.textContent = valueText;
-  metric.append(label, value);
-  container.appendChild(metric);
-}
-
-function renderFundamentalWatchlist(documentRef, state) {
-  const grid = documentRef?.getElementById('fund-cards-grid');
-  if (!grid) return;
-  const rows = Array.isArray(state?.fundamentalsWatchlist) ? state.fundamentalsWatchlist : [];
-  const meta = state?.fundamentalsMeta || {};
-  grid.replaceChildren();
-  grid.dataset.aioFundamentalWatchlistRenderer = 'native';
-  grid.setAttribute('data-source-kind', rows.length ? (meta.sourceTier || 'official-regulator') : 'unavailable');
-  grid.setAttribute('data-source-label', rows.length ? (meta.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals-summary.json');
-  grid.setAttribute('data-operational-use', 'reference-only');
-  if (meta.generatedAt) grid.setAttribute('data-fetched-at', meta.generatedAt);
-  else grid.removeAttribute('data-fetched-at');
-  if (!rows.length) {
-    const empty = documentRef.createElement('div');
-    empty.textContent = '공식 SEC 연간 공시 투영을 수신하지 못해 관심종목 비교를 표시하지 않습니다.';
-    empty.className = 'fwl-empty';
-    grid.appendChild(empty);
-    return;
-  }
-  const notice = documentRef.createElement('div');
-  const generatedMs = Date.parse(meta.generatedAt || '');
-  const ageHours = Number.isFinite(generatedMs) ? Math.max(0, (Date.now() - generatedMs) / 3600000) : null;
-  // 2026-10-13 review S13: no provider name or pipeline vocabulary in the body; the source sits in the title.
-  const projectionState = ageHours == null ? '확인 시각 미수신' : ageHours <= 48 ? '최근 확인' : '확인 지연, 참고 전용';
-  const coverageText = Number.isFinite(meta.stored) && Number.isFinite(meta.eligible)
-    ? `, 공시 대상 ${meta.eligible}개 중 ${meta.stored}개 보유`
-    : '';
-  notice.textContent = `연간 공시, ${projectionState}${meta.generatedAt ? `, ${formatKstStamp(meta.generatedAt) || String(meta.generatedAt).slice(0, 10)}` : ''}${coverageText}, 연간 공시와 시세는 서로 다른 시계로 분리`;
-  notice.title = `${meta.source || 'SEC EDGAR companyfacts'} 연간 공시 요약`;
-  notice.className = ageHours != null && ageHours <= 48 ? 'fwl-notice is-fresh' : 'fwl-notice';
-  grid.appendChild(notice);
-  for (const row of rows) {
-    const symbol = String(row.symbol || '').trim().toUpperCase();
-    if (!symbol) continue;
-    const card = documentRef.createElement('button');
-    card.type = 'button';
-    card.className = 'fund-ticker-card';
-    card.setAttribute('data-aio-entity-symbol', symbol);
-    card.setAttribute('data-source-kind', row.sourceTier || 'official-regulator');
-    card.setAttribute('data-source-label', row.source || meta.source || 'SEC EDGAR companyfacts');
-    card.setAttribute('data-operational-use', 'reference-only');
-    card.setAttribute('data-decision-eligible', 'false');
-    if (row.observedAt) { card.setAttribute('data-observed-at', row.observedAt); card.setAttribute('data-cadence', 'annual'); }
-
-    const heading = documentRef.createElement('div');
-    heading.className = 'fwl-head';
-    const identity = documentRef.createElement('div');
-    const symbolNode = documentRef.createElement('div');
-    symbolNode.textContent = symbol;
-    symbolNode.className = 'fwl-symbol';
-    const name = documentRef.createElement('div');
-    name.textContent = row.entityName || symbol;
-    name.className = 'fwl-name';
-    identity.append(symbolNode, name);
-    const period = documentRef.createElement('span');
-    period.textContent = `${row.periodType || 'FY'}, ${row.observedAt || '회계연도 말 미상'}`;
-    period.className = 'fwl-period';
-    heading.append(identity, period);
-    card.appendChild(heading);
-
-    const metrics = documentRef.createElement('div');
-    metrics.className = 'fwl-metrics';
-    appendSecWatchlistMetric(documentRef, metrics, '매출', formatSecWatchlistValue(row.revenue));
-    appendSecWatchlistMetric(documentRef, metrics, '순이익', formatSecWatchlistValue(row.netIncome));
-    appendSecWatchlistMetric(documentRef, metrics, '매출 성장', formatSecWatchlistValue(row.revGrowth, { percent: true }));
-    appendSecWatchlistMetric(documentRef, metrics, '순이익률', formatSecWatchlistValue(row.margin, { percent: true }));
-    // 2026-10-13 review S08: the card's year-end-equity ROE (NVDA 76.3%) disagreed with the fiscal reading's
-    // average-equity ROE (101.5%); the summary row has no prior equity, so ROE is read in 재무 흐름 only.
-    card.appendChild(metrics);
-
-    const source = documentRef.createElement('div');
-    source.textContent = `${row.form || '연간 보고서'}, 제출 ${row.filedAt || '미상'}, 추정치 없음`;
-    source.title = `${row.source || meta.source || 'SEC EDGAR companyfacts'}`;
-    source.className = 'fwl-source';
-    card.appendChild(source);
-    grid.appendChild(card);
-  }
-}
+// v58.76: the developer-only SEC 연간 재무 스캔 (summary line + watchlist cards) is retired; 재무 흐름 and the company card read the filings.
 
 function formatSecMetric(metric) {
   if (metric?.value == null) return '—';
@@ -919,8 +771,6 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     const onDemand = onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals ? root?._aioOnDemandSymbol?.(onDemandId) || null : null;
     if (onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals && !onDemand) root?._aioRequestOnDemandSymbol?.(onDemandId)?.catch?.(() => {});
     renderFundamentalStatus(documentRef, state, onDemand);
-    renderFundamentalSummary(documentRef, state);
-    renderFundamentalWatchlist(documentRef, state);
     renderFundamentalReport(documentRef, routeNode, state);
     renderFiscalRead({ documentRef, root, state }); // P1436
   }
@@ -1038,23 +888,6 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         bag.add(() => eventTarget?.removeEventListener?.('click', onRelatedThemeClick, true));
       }
       if (route === 'fundamental') {
-        const onFundamentalCardClick = (event) => {
-          const trigger = event?.target?.closest?.('[data-aio-entity-symbol]');
-          if (!trigger) return;
-          const symbol = String(trigger.getAttribute('data-aio-entity-symbol') || '').trim().toUpperCase();
-          if (!symbol) return;
-          event.preventDefault?.();
-          event.stopImmediatePropagation?.();
-          root._currentTickerId = symbol;
-          eventTarget?.dispatchEvent?.(new CustomEvent('aio:entityChanged', { detail: { symbol, source: 'sec-watchlist' } }));
-        };
-        eventTarget?.addEventListener?.('click', onFundamentalCardClick, true);
-        bag.add(() => eventTarget?.removeEventListener?.('click', onFundamentalCardClick, true));
-        const summary = documentRef?.getElementById('fund-analysis-text');
-        if (summary) summary.dataset.aioFundamentalSummaryRenderer = 'native';
-        bag.add(() => {
-          if (summary?.dataset.aioFundamentalSummaryRenderer === 'native') delete summary.dataset.aioFundamentalSummaryRenderer;
-        });
         const report = documentRef?.getElementById('page-fundamental');
         bag.add(() => {
           if (report?.dataset.aioFundamentalReportRenderer === 'native') delete report.dataset.aioFundamentalReportRenderer;
@@ -1066,14 +899,6 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
             delete element.dataset.operationalUse;
             delete element.dataset.observedAt;
           });
-          const watchlist = documentRef?.getElementById('fund-cards-grid');
-          if (watchlist?.dataset.aioFundamentalWatchlistRenderer === 'native') {
-            delete watchlist.dataset.aioFundamentalWatchlistRenderer;
-            delete watchlist.dataset.sourceKind;
-            delete watchlist.dataset.sourceLabel;
-            delete watchlist.dataset.operationalUse;
-            delete watchlist.dataset.fetchedAt;
-          }
         });
       }
       if (route === 'ticker') {

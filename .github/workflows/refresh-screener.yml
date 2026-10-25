@@ -373,6 +373,12 @@ jobs:
             fi
             git fetch origin main
             git rebase origin/main
+            # v58.77 (pipeline audit DATA-05): the shard was validated against the core screener.json it was built on; a
+            # core push in between changes that membership, so the rebased pair is validated again before it is pushed.
+            if ! node scripts/validate-screener-extended.mjs public-data/screener-extended.json || ! node scripts/ci-screener-extended-contract-check.mjs; then
+              echo "::error::the rebased extended shard no longer validates against the new core screener; not pushing"
+              exit 1
+            fi
             attempt=$((attempt + 1))
             sleep $((attempt * 3))
           done

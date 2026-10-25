@@ -1121,16 +1121,7 @@ function renderSectorPerfBars() {
 function _themeFinitePct(v) {
   return v != null && isFinite(Number(v));
 }
-function _themeFmtPct(v, dec, fallback) {
-  if (!_themeFinitePct(v)) return fallback || 'LIVE REQUIRED';
-  v = Number(v);
-  return (v >= 0 ? '+' : '') + v.toFixed(dec == null ? 2 : dec) + '%';
-}
-function _themeSafeFixed(v, dec, fallback) {
-  if (window._aioSafeFixed) return window._aioSafeFixed(v, dec, fallback || '—');
-  var n = Number(v);
-  return Number.isFinite(n) ? n.toFixed(dec == null ? 2 : dec) : (fallback || '—');
-}
+// v58.76: _themeFmtPct / _themeSafeFixed served only the retired sub-theme deep analysis.
 
 function showThemeDetail(themeId) {
   var idx = THEME_INDEX[themeId];
@@ -1251,222 +1242,7 @@ function closeThemeDetail() {
   try { document.dispatchEvent(new CustomEvent('aio:themeDetailClosed')); } catch(_) {}
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  v38.3: 세분화 테마(SUB_THEMES) 심층 분석
-// ═══════════════════════════════════════════════════════════════
-function showSubThemeDetail(subThemeId) {
-  var idx = SUB_THEME_INDEX[subThemeId];
-  if (idx === undefined) return;
-  var st = SUB_THEMES[idx];
-  var container = document.getElementById('sub-theme-detail-panel');
-  if (!container) return;
-  let ld = window._liveData || {};
-
-  // 테마 퍼포먼스 계산
-  var perf;
-  if (st.etf && ld[st.etf]) {
-    perf = { chgPct: (ld[st.etf].pct != null ? ld[st.etf].pct : 0), source: st.etf };
-  } else {
-    var comp = calcCompositePerf(st.tickers, st.weights);
-    perf = { chgPct: comp.chgPct, source: st.weights ? '설정가중(참고 ' + comp.count + ')' : '합산(' + comp.count + ')' };
-  }
-  var hasPerf = _themeFinitePct(perf.chgPct);
-  var isPos = hasPerf && perf.chgPct >= 0;
-  var chgColor = hasPerf ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-
-  // ── 헤더 ──
-  var html = '<div class="pgl-sd-head">' +
-    '<div><span class="pgl-sd-name">' + st.name + '</span>' +
-    (st.etf ? ' <span class="pgl-sd-etf">' + st.etf + '</span>' : '') +
-    '</div>' +
-    '<div class="pgl-end">' +
-      '<span class="pgl-sd-pct" style="color:' + chgColor + ';">' + _themeFmtPct(perf.chgPct, 2, 'LIVE REQUIRED') + '</span>' +
-      '<div class="pgl-sub">via ' + perf.source + '</div>' +
-    '</div>' +
-  '</div>';
-
-  // ── 테마 설명 ──
-  html += '<div class="pgl-sd-desc">' + st.desc + '</div>';
-
-  // ── 전 종목 상세 테이블 ──
-  html += '<div class="pgl-sd-h">전 종목 상세 (All ' + st.tickers.length + ' Stocks)</div>';
-  html += '<div class="pgl-sd-tickers">';
-
-  // 종목별 데이터 수집 및 정렬
-  var tickerData = st.tickers.map(function(t) {
-    var d = ld[t];
-    var pctVal = d && _themeFinitePct(d.pct);
-    var priceVal = d && d.price != null && isFinite(Number(d.price));
-    var hasData = Boolean(pctVal && priceVal);
-    return { ticker: t, price: hasData ? Number(d.price) : null, pct: hasData ? Number(d.pct) : null, hasData: hasData };
-  });
-  tickerData.sort(function(a,b) {
-    if (!a.hasData && !b.hasData) return 0;
-    if (!a.hasData) return 1;
-    if (!b.hasData) return -1;
-    return b.pct - a.pct;
-  });
-
-  tickerData.forEach(function(td) {
-    var tcol = !td.hasData ? 'var(--text-muted)' : (td.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)');
-    var pctStr = !td.hasData ? '—' : ((td.pct >= 0 ? '+' : '') + td.pct.toFixed(2) + '%');
-    var priceStr = !td.hasData ? '' : ('$' + (td.price >= 1000 ? td.price.toLocaleString(undefined,{maximumFractionDigits:0}) : td.price.toFixed(2)));
-    var w = (st.weights && st.weights[td.ticker]) ? st.weights[td.ticker] : null;
-    var wStr = w ? '<span class="pgl-note"> ' + w + '%</span>' : '';
-    html += '<div class="pgl-sd-tk">' +
-      '<div class="pgl-sd-tkrow">' +
-        '<span class="pgl-sd-tksym">' + td.ticker + wStr + '</span>' +
-        '<span class="pgl-sd-tkpct" style="color:' + tcol + ';">' + pctStr + '</span>' +
-      '</div>' +
-      (priceStr ? '<div class="pgl-sd-tkpx">' + priceStr + '</div>' : '') +
-    '</div>';
-  });
-  html += '</div>';
-
-  // ── 데이터 커버리지 표시 ──
-  var dataCount = tickerData.filter(function(td) { return td.hasData; }).length;
-  var coveragePct = Math.round(dataCount / st.tickers.length * 100);
-  if (coveragePct < 100) {
-    html += '<div class="pgl-sd-cov">데이터 수신: ' + dataCount + '/' + st.tickers.length + ' (' + coveragePct + '%) — ' +
-      (coveragePct < 50 ? '<span class="pgl-amber">장 마감 또는 데이터 지연으로 일부 종목 미수신</span>' : '대부분 수신 완료') + '</div>';
-  }
-
-  // ── 브레드스 ──
-  var tickers = st.tickers;
-  var above = 0, below = 0, flat = 0, totalValid = 0;
-  tickers.forEach(function(t) {
-    var d = ld[t];
-    if (!d || d.pct == null) return;
-    totalValid++;
-    if (d.pct > 0) above++;
-    else if (d.pct < 0) below++;
-    else flat++;
-  });
-  if (totalValid > 0) {
-    var breadth = Math.round(above / totalValid * 100);
-    html += '<div class="pgl-sd-br">' +
-      '<div class="pgl-sd-h is-tight">브레드스 (종목 건강도)</div>' +
-      '<div class="pgl-sd-brrow">' +
-        '<div class="pgl-sd-brtrack">' +
-          '<div class="pgl-sd-seg is-up" style="width:' + breadth + '%;"></div>' +
-          '<div class="pgl-sd-seg is-flat" style="width:' + Math.round(flat/totalValid*100) + '%;"></div>' +
-          '<div class="pgl-sd-seg is-down" style="width:' + Math.round(below/totalValid*100) + '%;"></div>' +
-        '</div>' +
-        '<span class="pgl-sd-brpct' + (breadth>50?' is-up':' is-down') + '">' + breadth + '% 상승(전일 대비)</span>' +
-      '</div>' +
-      '<div class="pgl-sd-brfoot">상승 ' + above + ', 보합 ' + flat + ', 하락 ' + below + ' / ' + totalValid + '종목</div>' +
-    '</div>';
-  }
-
-  // ── 심층 분석 ──
-  html += '<div class="pgl-deep">';
-  html += '<div class="pgl-deep-t">심층 분석 — ' + st.name + '</div>';
-  var sections = [];
-
-  // 1) 온도 진단
-  var pct = hasPerf ? Number(perf.chgPct) : 0;
-  if (!hasPerf) sections.push('<b>Live data required</b> - this sub-theme is connected, but current quotes have not loaded yet. Read the constituent list first and refresh data before using momentum.');
-  if (pct >= 3) sections.push('<b>매우 강세</b> — 시장에서 가장 뜨거운 테마 중 하나. 단기 과열 가능성 점검 필요. 모멘텀 추세 추종(trend-following) 전략에 적합하되, 급반전 리스크에도 대비하세요.');
-  else if (pct >= 1) sections.push('<b>강세</b> — 기관·헤지펀드 자금이 유입되고 있을 가능성 높음. 테마 ETF(' + (st.etf||'—') + ')와 대표 종목을 비교해 알파가 어디서 나오는지 파악하세요.');
-  else if (pct >= 0) sections.push(' <b>보합</b> — 시장이 이 테마에 대해 아직 방향을 정하지 못함. 카탈리스트(실적 발표, 정책 변화, 기술 진전) 대기 구간. 지금은 관망하되 핵심 종목의 기술적 지지선을 체크하세요.');
-  else if (pct >= -2) sections.push('<b>약세</b> — 차익실현 또는 섹터 로테이션 매도 진행 중. 이것이 펀더멘털 훼손인지(구조적 하락) 단순 조정인지(일시적) 구분이 핵심입니다.');
-  else sections.push(' <b>급락</b> — 시장에서 외면받는 테마. 구조적 문제(규제, 기술 대체, 수요 감소)가 있는지 반드시 확인하세요. 역발상 진입 시 리스크 관리가 필수.');
-
-  // 2) 종목 간 격차
-  var topTk = null, topV = -Infinity, botTk = null, botV = Infinity;
-  tickerData.forEach(function(td) {
-    if (!td.hasData) return;
-    if (td.pct > topV) { topV = td.pct; topTk = td.ticker; }
-    if (td.pct < botV) { botV = td.pct; botTk = td.ticker; }
-  });
-  if (topTk && botTk && topTk !== botTk) {
-    var spread = topV - botV;
-    if (spread > 5) sections.push('종목 간 등락 편차 <b>' + spread.toFixed(1) + '%p</b> — 매우 큼. 테마 내에서 승자/패자가 명확히 갈리고 있어 개별 종목 선정(stock picking)이 핵심입니다. ETF 매매보다 핵심 대장주에 집중하세요.');
-    else if (spread > 2) sections.push('종목 간 편차 <b>' + spread.toFixed(1) + '%p</b> — 적절. 테마 전반이 비슷하게 움직이고 있어 ETF 접근도 유효합니다.');
-    else sections.push('종목 간 편차 <b>' + spread.toFixed(1) + '%p</b> — 매우 좁음. 테마 전체가 동일 재료에 반응 중. ETF 매매가 가장 효율적입니다.');
-    sections.push(' <b>최강:</b> ' + topTk + ' (' + (topV>=0?'+':'') + _themeSafeFixed(topV, 2, '—') + '%) — 테마 리더, 시장 관심 집중');
-    sections.push(' <b>최약:</b> ' + botTk + ' (' + (botV>=0?'+':'') + _themeSafeFixed(botV, 2, '—') + '%) — 개별 악재 또는 밸류에이션 부담 가능');
-  }
-
-  // 3) 비중 분석 (weights가 있는 경우)
-  if (st.weights) {
-    var weightKeys = Object.keys(st.weights).sort(function(a,b) { return st.weights[b] - st.weights[a]; });
-    var top3 = weightKeys.slice(0, 3).map(function(t) { return t + '(' + st.weights[t] + '%)'; }).join(', ');
-    sections.push(' <b>비중 상위:</b> ' + top3 + ' — ETF ' + (st.etf||'합산') + ' 추종 기준. 이 종목들의 움직임이 테마 전체 수익률을 좌우합니다.');
-  }
-
-  // 4) v38.3: 테마별 맞춤 인사이트 (레퍼런스 기반, 고정 텍스트 제거)
-  var sti = SUB_THEME_INSIGHTS[subThemeId];
-  sections.push('');
-  sections.push(' <b>테마 인사이트:</b>');
-  if (sti) {
-    sections.push('<b>핵심 거시 변수 [' + sti.macroKey + ']:</b> ' + sti.upCondition);
-    sections.push('<b>깨지는 신호:</b> ' + sti.breakSignal);
-    sections.push('<b>비직관적 인사이트:</b> ' + sti.insight);
-  } else {
-    sections.push('• 이 테마의 핵심 거시 변수와 깨지는 신호를 AI 분석에서 확인해보세요.');
-  }
-
-  // v48.14: 구조적 내러티브 (기관 애널리스트 스타일 — why/valueChain/playerRoles)
-  var sn = (typeof THEME_NARRATIVES !== 'undefined') ? THEME_NARRATIVES[subThemeId] : null;
-  if (sn) {
-    // stale 배지 (narrative 작성일 기준 경과일)
-    var _snStaleDays = 0;
-    var _snIsStale = false;
-    if (typeof THEME_NARRATIVES_META !== 'undefined' && THEME_NARRATIVES_META.lastUpdated) {
-      try {
-        _snStaleDays = Math.round((Date.now() - new Date(THEME_NARRATIVES_META.lastUpdated).getTime()) / 86400000);
-        _snIsStale = _snStaleDays > (THEME_NARRATIVES_META.staleDays || 90);
-      } catch(e) {}
-    }
-    var _staleBadge = ' <span class="pgl-stale' + (_snIsStale ? ' is-stale' : '') + '">' + (_snIsStale ? 'STALE ' : '') + (THEME_NARRATIVES_META && THEME_NARRATIVES_META.lastUpdated || 'N/A') + ', 경과 ' + _snStaleDays + '일</span>';
-
-    sections.push('');
-    sections.push(' <b>테마 스토리, 밸류체인 (기관 리서치 톤)</b>' + _staleBadge);
-    if (_snIsStale) {
-      sections.push('<span class="pgl-stale-note">narrative 작성일부터 ' + _snStaleDays + '일 경과 — 구체 수치(매출·수주·시총·가이던스)는 AI 채팅/웹검색으로 crosscheck 권장</span>');
-    }
-    if (sn.why) sections.push('<b>왜 지금 HOT한가:</b> ' + sn.why);
-    if (sn.valueChain) sections.push('<b>밸류체인 구조:</b> ' + sn.valueChain);
-    if (sn.playerRoles && typeof sn.playerRoles === 'object') {
-      var rolesHtml = Object.keys(sn.playerRoles).map(function(t) {
-        return '&nbsp;&nbsp;<b>' + t + ':</b> ' + sn.playerRoles[t];
-      }).join('<br>');
-      sections.push('<b>핵심 플레이어 포지션:</b><br>' + rolesHtml);
-    }
-
-    // 최근 7일 뉴스 자동 표시 (newsCache 기반)
-    if (typeof _getThemeNews === 'function' && st && st.tickers) {
-      var recentNews = _getThemeNews(st.tickers, st.name, 5);
-      if (recentNews.length > 0) {
-        var newsHtml = recentNews.map(function(n) {
-          var dt = n.pubDate ? new Date(n.pubDate) : null;
-          var dtStr = dt ? (dt.getMonth()+1) + '/' + dt.getDate() : '';
-          return '&nbsp;&nbsp;<span class="pgl-cyan">[' + dtStr + ']</span> ' + (n.title || '').substring(0, 140) + (n.source ? ' <span class="pgl-note">(' + n.source + ')</span>' : '');
-        }).join('<br>');
-        sections.push('<b>최근 7일 뉴스 (최근 수집, ' + recentNews.length + '건):</b><br>' + newsHtml);
-      }
-    }
-  }
-
-  html += sections.map(function(s) {
-    if (!s) return '<hr class="pgl-deep-hr">';
-    return '<div class="pgl-deep-p">' + s + '</div>';
-  }).join('');
-  html += '</div>';
-
-  container.innerHTML = html;
-  container.style.display = 'block';
-  container.dataset.currentSubTheme = subThemeId;
-
-  // 패널로 스크롤
-  container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function closeSubThemeDetail() {
-  var p = document.getElementById('sub-theme-detail-panel');
-  if (p) p.style.display = 'none';
-}
+// v58.76: the developer-only 세분화 테마 grid and its detail panel (showSubThemeDetail / renderSubThemesGrid) are retired.
 
 // ═══════════════════════════════════════════════════════════════
 //  누적 히스토리 수집 (RS 정밀도 향상)
@@ -1674,98 +1450,6 @@ var THEME_NARRATIVES = Object.freeze({});
 // ═══════════════════════════════════════════════════════════════
 var KR_THEME_NARRATIVES_META = Object.freeze({ status:'unavailable', reason:'정적 한국 테마 수치 제거 — 시세·뉴스 증거만 허용' });
 var KR_THEME_NARRATIVES = Object.freeze({});
-var _subThemeRetries = 0;
-function renderSubThemesGrid() {
-  let ld = window._liveData || {};
-  if (Object.keys(ld).length < 5) {
-    _subThemeRetries++;
-    if (_subThemeRetries < 60) { // v46.6: 최대 30초 대기
-      setTimeout(renderSubThemesGrid, 500);
-      return;
-    }
-    _aioLog('warn', 'render', '세분화 테마: 라이브 데이터 30초 초과 — 정적 데이터로 렌더');
-  }
-  var container = document.getElementById('sub-themes-grid');
-  if (!container) return;
-  ld = window._liveData || {}; // v46.9: 중복 var 제거, 최신 참조 갱신
-
-  // 각 서브테마 퍼포먼스 계산 후 정렬
-  var items = SUB_THEMES.map(function(st) {
-    var perf;
-    if (st.etf && ld[st.etf]) {
-      perf = { chgPct: (ld[st.etf].pct != null ? ld[st.etf].pct : 0), source: st.etf };
-    } else if (st.compositeBase && ld[st.compositeBase]) {
-      perf = { chgPct: (ld[st.compositeBase].pct != null ? ld[st.compositeBase].pct : 0), source: st.compositeBase };
-    } else {
-      // v36.4: weights 있으면 ETF 추종 가중평균 사용
-      var comp = calcCompositePerf(st.tickers, st.weights);
-      perf = { chgPct: comp.chgPct, source: st.weights ? '설정가중(참고 ' + comp.count + ')' : '합산(' + comp.count + ')' };
-    }
-    return { theme: st, perf: perf };
-  });
-
-  // 퍼포먼스 순 정렬
-  items.sort(function(a,b) { return b.perf.chgPct - a.perf.chgPct; });
-
-  // If no items, show placeholder
-  if (items.length === 0) {
-    container.innerHTML = '<div class="pgl-st-empty">서브테마 데이터 준비 중…</div>';
-    return;
-  }
-
-  var html = '';
-  items.forEach(function(item) {
-    var st = item.theme;
-    var chg = Number(item && item.perf ? item.perf.chgPct : 0);
-    if (!isFinite(chg)) chg = 0;
-    var isPos = chg >= 0;
-    var chgColor = isPos ? 'var(--data-green)' : 'var(--data-red)';
-    var bgAlpha = Math.min(Math.abs(chg) * 6, 20);
-    var bgColor = isPos ? 'rgba(34,117,76,' + (bgAlpha/100) + ')' : 'rgba(177,58,48,' + (bgAlpha/100) + ')';
-
-    // v39.2: 테마 모멘텀 지표 — 참여폭(breadth) + 상대강도 신호
-    var thUp = 0, thDown = 0, thTotal = 0;
-    st.tickers.forEach(function(t) { var d = ld[t]; if (d && d.pct != null) { thTotal++; if (d.pct > 0) thUp++; else thDown++; } });
-    var breadthPct = thTotal > 0 ? Math.round(thUp / thTotal * 100) : 0;
-    var spyChg = ld['SPY'] && ld['SPY'].pct != null ? ld['SPY'].pct : 0;
-    var rsVsSpy = chg - spyChg; // 테마 상대강도 vs SPY
-    var momSignal = breadthPct >= 70 && rsVsSpy > 0 ? '강세' : breadthPct >= 50 && rsVsSpy > -0.5 ? '↑양호' : breadthPct < 30 ? '약세' : '→중립';
-    var momColor = momSignal.indexOf('강세') >= 0 ? 'var(--data-green)' : momSignal.indexOf('양호') >= 0 ? 'var(--data-cyan)' : momSignal.indexOf('약세') >= 0 ? 'var(--data-red)' : 'var(--data-amber)';
-
-    // 대장주 (최대 3개, 콤팩트) — v38.3: 데이터 없는 종목 "—" 표시
-    var leadersHtml = '';
-    var sl = st.leaders.slice(0, 3);
-    sl.forEach(function(t) {
-      var d = ld[t];
-      var hasData = d && d.price != null && d.pct != null;
-      var tc = hasData ? d.pct : null;
-      var tcol = tc === null ? 'var(--text-muted)' : (tc >= 0 ? 'var(--data-green)' : 'var(--data-red)');
-      var tcStr = tc === null ? '—' : ((tc >= 0 ? '+' : '') + tc.toFixed(1) + '%');
-      leadersHtml += '<div data-action="showTicker" data-arg="'+t+'" data-stop="1" class="pgl-st-leader" title="'+t+' 분석 →">' +
-        '<span class="pgl-st-lsym">' + t + ' <span class="pgl-st-go">↗</span></span>' +
-        '<span class="pgl-st-lpct" style="color:' + tcol + ';">' + tcStr + '</span></div>';
-    });
-    if (st.leaders.length > 3) leadersHtml += '<div class="pgl-st-more">+' + (st.leaders.length - 3) + '개 더</div>';
-
-    var barMax = 5; var barW = Math.min(Math.abs(chg) / barMax * 100, 100);
-
-    // v38.3: onclick 핸들러 추가 — 세분화 테마 클릭 시 심층 분석
-    html += '<div class="aio-hover-scale-subtle pgl-st-tile" style="background:' + bgColor + ';--hover-border-color:' + st.color + '50;" data-action="showSubThemeDetail" data-arg="' + escHtml(st.id) + '">' +
-      '<div class="pgl-st-row">' +
-        '<div class="pgl-st-namewrap"><span class="pgl-st-name">' + st.name + '</span></div>' +
-        '<span class="pgl-st-pct" style="color:' + chgColor + ';">' + (isPos ? '+' : '') + chg.toFixed(2) + '%</span>' +
-      '</div>' +
-      '<div class="pgl-st-track"><div class="pgl-st-fill" style="width:' + barW + '%;background:' + chgColor + ';"></div></div>' +
-      '<div class="pgl-st-row">' +
-        '<span class="pgl-st-desc">' + st.desc + (st.etf ? ', ' + st.etf : '') + '</span>' +
-        '<span class="pgl-st-mom" style="color:' + momColor + ';">' + momSignal + ' ' + breadthPct + '%</span>' +
-      '</div>' +
-      leadersHtml +
-    '</div>';
-  });
-
-  container.innerHTML = html;
-}
 
 // ═══════════════════════════════════════════════════════════════
 //  THEMES PAGE INIT & EVENT WIRING
@@ -1781,7 +1465,6 @@ _aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
       drawRRG();
       document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
       renderSectorPerfBars();
-      renderSubThemesGrid();
       // v45.5: 1주 캐시 백그라운드 프리페치 (사용자가 1주 탭 클릭 시 즉각 표시)
       if (Object.keys(_sectorWeeklyCache).length === 0 && !_sectorWeeklyFetching) {
         try { fetchSectorWeeklyPerf(); } catch(_e) {}
@@ -1797,16 +1480,10 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
     drawRRG();
     document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
     renderSectorPerfBars();
-    renderSubThemesGrid();
     // 열려있는 상세 패널 자동 갱신
     var dp = document.getElementById('theme-detail-panel');
     if (dp && dp.style.display !== 'none' && dp.dataset.currentTheme) {
       showThemeDetail(dp.dataset.currentTheme);
-    }
-    // v38.3: 열려있는 세분화 테마 상세 패널 자동 갱신
-    var sp = document.getElementById('sub-theme-detail-panel');
-    if (sp && sp.style.display !== 'none' && sp.dataset.currentSubTheme) {
-      showSubThemeDetail(sp.dataset.currentSubTheme);
     }
   }
 });

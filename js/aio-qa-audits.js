@@ -1395,54 +1395,7 @@ window.AIO.assertFetchFailureSurfacingAudit = function() {
 };
 
 // ─────────────────────────────────────────────────────────────────
-// v49.70 P375 R132~R134: assertChatAdvancedFeaturesAudit — 사용자 프로필 + 알람 + 다운로드 + 금액/% 시뮬레이션 자동 진단
-// 사용자 정직 요구 "전체 세션 남은 영역과 부분 모두 보강"
-// ─────────────────────────────────────────────────────────────────
-window.AIO.assertChatAdvancedFeaturesAudit = function() {
-  var fnChecks = {
-    userProfileGet: typeof window._aioGetUserProfile === 'function',
-    userProfileSet: typeof window._aioSetUserProfile === 'function',
-    buildUserProfileContext: typeof window._buildUserProfileContext === 'function',
-    alertGet: typeof window._aioGetAlerts === 'function',
-    alertAdd: typeof window._aioAddAlert === 'function',
-    alertCheck: typeof window._aioCheckAlerts === 'function',
-    exportChatData: typeof window._aioExportChatData === 'function'
-    // v57.77: the test-only alert parser and amount simulator are retired, so they are no longer probed.
-  };
-  var v48Src = (typeof window._getV48IntegratedContext === 'function') ? window._getV48IntegratedContext.toString() : '';
-  // v57.62: alert/amount-simulation/download wiring lived only in the dead per-page chatSend (retired); the unified
-  // panel never carried it, so those integration probes were removed rather than repointed.
-  var integrations = {
-    profileInV48: v48Src.indexOf('_buildUserProfileContext') >= 0,
-    notificationApi: typeof Notification !== 'undefined'
-  };
-  var apiChecks = {
-    aioGetAlerts: typeof (window.AIO && window.AIO.getAlerts) === 'function',
-    aioAddAlert: typeof (window.AIO && window.AIO.addAlert) === 'function',
-    aioGetUserProfile: typeof (window.AIO && window.AIO.getUserProfile) === 'function',
-    aioSetUserProfile: typeof (window.AIO && window.AIO.setUserProfile) === 'function',
-    aioExportChatData: typeof (window.AIO && window.AIO.exportChatData) === 'function'
-  };
-  var fnCount = Object.values(fnChecks).filter(Boolean).length;
-  var integCount = Object.values(integrations).filter(Boolean).length;
-  var apiCount = Object.values(apiChecks).filter(Boolean).length;
-  var total = Object.keys(fnChecks).length + Object.keys(integrations).length + Object.keys(apiChecks).length;
-  var pass = fnCount + integCount + apiCount;
-  var coveragePct = Math.round(pass / total * 100);
-  return {
-    status: coveragePct === 100 ? 'ok' : coveragePct >= 80 ? 'warn' : 'fail',
-    coveragePct: coveragePct,
-    fnCount: fnCount, fnTotal: Object.keys(fnChecks).length,
-    integCount: integCount, integTotal: Object.keys(integrations).length,
-    apiCount: apiCount, apiTotal: Object.keys(apiChecks).length,
-    fnChecks: fnChecks, integrations: integrations, apiChecks: apiChecks,
-    activeAlerts: (typeof window._aioGetAlerts === 'function') ? window._aioGetAlerts().length : 0,
-    userProfileSet: (typeof window._aioGetUserProfile === 'function') ? (window._aioGetUserProfile().riskTolerance !== 'medium' || (window._aioGetUserProfile().preferredAssets || []).length > 0) : false,
-    note: 'v49.70 신규 4 영역 (사용자 프로필 / 알람 / 다운로드 / 금액 시뮬레이션) 자동 진단 — 100% = 완전 통합.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
+// v58.76: assertChatAdvancedFeaturesAudit retired with the profile/alert/export functions it probed.
 // ─────────────────────────────────────────────────────────────────
 // v49.69 P370 R129~R131: assertChatInteractivityAudit — 6 인터랙티브 기능 자동 진단
 // (후속 질문 / 자동 페이지 이동 / 포트폴리오 시뮬레이션 / 거시 시나리오 / fuzzy 매칭 / 응답 시각 단서)
@@ -2387,7 +2340,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
   var eventTimelineStaleness = full && window.AIO.getEventTimelineStalenessAudit ? window.AIO.getEventTimelineStalenessAudit() : null;
   // v50.42: 선순환 — 단일 두뇌(marketState) 신선도/충실 + 크로스-페이지 연결(뉴스) 형식화
   var marketStateCoherence = window.AIO.getMarketStateCoherenceAudit ? window.AIO.getMarketStateCoherenceAudit() : null;
-  var connectiveLayer = window.AIO.getConnectiveLayerAudit ? window.AIO.getConnectiveLayerAudit() : null;
   // v50.48: 자율 운영 루프 5단계 연결(ingest→signal→brain→text→reflect)
   var autonomousLoop = window.AIO.getAutonomousLoopAudit ? window.AIO.getAutonomousLoopAudit() : null;
   var runtimeContract = window.AIO.getRuntimeContractAudit ? window.AIO.getRuntimeContractAudit() : null;
@@ -2446,7 +2398,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
   if (narrativeRegimeDrift && narrativeRegimeDrift.severity === 'severe') issues.push('정적 내러티브 레짐 드리프트(severe) [v50.25/WO-5]: ' + (narrativeRegimeDrift.reasons || []).join(' · '));
   // v50.42: marketState 단일 두뇌 신선도 + 크로스-페이지 연결
   if (marketStateCoherence && marketStateCoherence.status !== 'ok') issues.push('marketState coherence: ' + marketStateCoherence.status + (marketStateCoherence.stale ? ' (stale ' + marketStateCoherence.ageSec + 's)' : '') + ' [v50.42/MarketStateCore]');
-  if (connectiveLayer && connectiveLayer.status && connectiveLayer.status !== 'ok') issues.push('connective layer: ' + connectiveLayer.status + ' [v50.41/42]');
   if (autonomousLoop && autonomousLoop.status === 'fail') issues.push('자율 운영 루프 끊김(' + autonomousLoop.connected + '): ' + (autonomousLoop.brokenStages || []).join(',') + ' [v50.48/Phase4]');
   if (!runtimeContract) issues.push('runtime contract audit unavailable [v50.79]');
   else if (runtimeContract.status === 'fail') issues.push('runtime contract fail: ' + runtimeContract.failures.slice(0, 3).join(' | '));
@@ -2523,7 +2474,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
       marketRegime: 'AIO.getCurrentMarketRegime()',
       marketState: 'AIO.computeMarketState()',
       marketStateCoherence: 'AIO.getMarketStateCoherenceAudit()',
-      connectiveLayer: 'AIO.getConnectiveLayerAudit()',
       autonomousLoop: 'AIO.getAutonomousLoopAudit()',
       marketAnalysis: 'AIO.synthesizeMarketAnalysis()',
       runtimeContract: 'AIO.getRuntimeContractAudit()',
@@ -2571,7 +2521,6 @@ window.AIO.getAutoOpsReadiness = function(opts) {
     deepReviewAudit: deepReviewAudit,
     fourthFifthPass: fourthFifthPass,
     marketStateCoherence: marketStateCoherence,
-    connectiveLayer: connectiveLayer,
     runtimeContract: runtimeContract,
     generatedAt: new Date().toISOString()
   };
@@ -3421,22 +3370,6 @@ window._aioRenderAuditWidget = function() {
           ciaEl.innerHTML = '<span style="color:var(--text-muted);">— chatInteractivity audit 미가용</span>';
         }
       } catch(e) { ciaEl.textContent = 'chatInteractivity error'; }
-    }
-    // v49.70 P375 R132~R134: AI 채팅 고급 기능 (사용자 프로필 + 알람 + 다운로드 + 금액 시뮬레이션)
-    var cafEl = container.querySelector('[data-audit-key="chatAdvanced"]');
-    if (cafEl) {
-      try {
-        var caf = window.AIO && window.AIO.assertChatAdvancedFeaturesAudit && window.AIO.assertChatAdvancedFeaturesAudit();
-        if (caf) {
-          var iconB = caf.status === 'ok' ? '✓' : caf.status === 'warn' ? '!' : '✗';
-          var colorB = caf.status === 'ok' ? 'var(--data-green)' : caf.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
-          var alertStr = caf.activeAlerts > 0 ? ' · ' + caf.activeAlerts : '';
-          var profileStr = caf.userProfileSet ? ' · ✓' : ' · default';
-          cafEl.innerHTML = '<span style="color:' + colorB + ';">' + iconB + '</span> 고급 기능 <b>' + caf.coveragePct + '%</b> · 함수 ' + caf.fnCount + '/' + caf.fnTotal + alertStr + profileStr;
-        } else {
-          cafEl.innerHTML = '<span style="color:var(--text-muted);">— chatAdvanced audit 미가용</span>';
-        }
-      } catch(e) { cafEl.textContent = 'chatAdvanced error'; }
     }
     // v49.71 P380 R135~R137: MEMO 커버리지 + 신선도 자동 진단 (사용자 정직 질의 4건 시정)
     var mcEl = container.querySelector('[data-audit-key="memoCoverage"]');
@@ -4364,8 +4297,8 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // v57.76: the order-2 경기 사이클 동적 readout (#cycle-dynamic-*) is retired.
         // v57.77: the sector-rotation table (3, moved to the concept dictionary in v57.76), the ETF recommendation table (6, P1429)
         // and the Stage 4 / rotation guide fold (8) left index.html; those entries and their finding are pruned.
-        { id: 'themes-ai-infra-matrix',    order: 4, topic: 'AI 인프라 연구 지도 (#ai-capex-flow · #ai-infra-efficiency-lens)', lines: 'index.html #page-themes' },
-        { id: 'themes-thematic-cards',     order: 5, topic: '세분화 테마 (#theme-strength-board · #sub-themes-grid)', lines: 'index.html #page-themes' },
+        { id: 'themes-ai-infra-matrix',    order: 4, topic: 'AI 설비투자 흐름 (#ai-capex-flow)', lines: 'index.html #page-themes' },
+        { id: 'themes-thematic-cards',     order: 5, topic: '테마 강도 (#theme-strength-board)', lines: 'index.html #page-themes' },
         { id: 'themes-cross-link',         order: 7, topic: 'theme-detail 패널 cross-link 동선 (#theme-detail-panel)', lines: 'index.html #page-themes' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
@@ -4374,13 +4307,12 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
     },
     // v49.48 theme-detail 1차+2차 (라이브 cell 3 / placeholder 1: XSD — v49.47 P315 LIVE_SYMBOLS 등록 후 SW 회전 대기)
     'theme-detail': {
-      lineRange: 'index.html #page-theme-detail',
+      lineRange: 'src/ui/pages/themes.js #theme-detail-panel',
       subSections: [
         // v57.78: the CHAT_CONTEXTS memo (4, theme questions go to the one AI panel since P1653) and the bottom cross-link block (5)
         // left index.html; those entries are pruned.
-        { id: 'td-header',          order: 1, topic: '테마 상세 헤더 + 현재성 요약 (#theme-detail-title · #theme-detail-currentness-brief)', lines: 'index.html #page-theme-detail' },
-        { id: 'td-ticker-table',    order: 2, topic: '테마별 ETF 표 (#etf-view, SMH/SOXX/XSD 등)',  lines: 'index.html #etf-view' },
-        { id: 'td-news-feed',       order: 3, topic: '선택 테마 최신 소식 (#tg-feed-theme-detail, v57.78 갱신)', lines: 'index.html #tg-feed-theme-detail' }
+        // v58.76: the legacy #page-theme-detail block is retired; the detail lives in #page-themes #theme-detail-panel.
+        { id: 'td-panel',           order: 1, topic: '테마 상세 패널 (#theme-detail-panel, native)', lines: 'src/ui/pages/themes.js' }
       ],
       auditStatus: { '최신성':'mostly-ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [

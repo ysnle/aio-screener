@@ -78,9 +78,15 @@ for (const unit of matrix.units || []) {
     return source ? { sourceId: id, url: source.url, publisher: source.publisher, title: source.title, sourceTier: source.sourceTier || null } : { sourceId: id, unresolved: true };
   });
   const claims = claimByEntity.get(`${unit.surface === 'atlas-foundations' ? 'atlas' : unit.surface}:${unit.unitId.split(':').at(-1)}`) || [];
-  const haystack = sourceText(unit);
+  // v58.77 (pass-2 P2-KNOW-02): whole-word match — a substring match attached SEC valuation facts to "evaluation".
+  // Unit ids are hyphenated slugs ("power-cooling", "micron-hbm-family"), so hyphens split words here and a
+  // hyphenated appliesTo token ("data-center") must appear as consecutive words.
+  const words = ` ${sourceText(unit).split(/[^a-z0-9&]+/).filter(Boolean).join(' ')} `;
   const inferredResearchFactIds = (factsBundle.facts || [])
-    .filter((fact) => (fact.appliesTo || []).some((token) => haystack.includes(String(token).toLowerCase())))
+    .filter((fact) => (fact.appliesTo || []).some((token) => {
+      const phrase = String(token).toLowerCase().split(/[^a-z0-9&]+/).filter(Boolean).join(' ');
+      return phrase && words.includes(` ${phrase} `);
+    }))
     .map((fact) => fact.factId)
     .slice(0, 6);
   const researchFactIds = [...new Set([...attachedFactIds, ...inferredResearchFactIds])];

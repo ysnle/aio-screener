@@ -1,8 +1,8 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-10-24T16:40:00+09:00
+generated_from_build: 2026-10-25T12:54:00+09:00
 auto_refresh: true
-last_verified: 2026-10-24
+last_verified: 2026-10-25
 ---
 
 # AIO Current State
@@ -11,19 +11,19 @@ last_verified: 2026-10-24
 
 ## Application
 
-- Version: `v58.75`
+- Version: `v58.77`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
-- App shell: 7,217 lines / 507,551 bytes
+- App shell: 6,867 lines / 487,187 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 7,217 | 507,551 |
-| `js/aio-core.js` | 18,830 | 1,128,955 |
-| `js/aio-data.js` | 14,067 | 887,522 |
-| `js/aio-ui.js` | 4,374 | 246,902 |
-| `js/aio-chat.js` | 6,175 | 455,342 |
-| `js/aio-tests.js` | 9,057 | 724,192 |
+| `index.html` | 6,867 | 487,187 |
+| `js/aio-core.js` | 18,608 | 1,117,322 |
+| `js/aio-data.js` | 14,044 | 886,130 |
+| `js/aio-ui.js` | 4,033 | 227,633 |
+| `js/aio-chat.js` | 5,968 | 444,829 |
+| `js/aio-tests.js` | 8,958 | 717,559 |
 | `js/aio-glossary.js` | 409 | 111,278 |
 
 ## Workspace
@@ -31,13 +31,13 @@ last_verified: 2026-10-24
 - Context documents: 78; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 9; command wrappers: 16; agent profiles: 4.
 - Workflows: 13; CI scripts: 184.
-- Ledgers: latest rule R724; latest postmortem P2046; open QA 224 unique IDs (224 rows, 3 explicitly superseded).
+- Ledgers: latest rule R724; latest postmortem P2060; open QA 228 unique IDs (228 rows, 3 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary
 
 - Runtime status: `REFERENCE_PROGRESS_ONLY`.
-- 455 units: 227 researched, 52 in progress, 176 research required; 160 articles.
+- 455 units: 222 researched, 57 in progress, 176 research required; 160 articles.
 - Human review complete: `false`; publication ready: `false`.
 - These counts are structural/runtime evidence, not semantic or investment certification.
 

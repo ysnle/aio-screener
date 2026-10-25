@@ -83,6 +83,12 @@ export function liveCurrentObservations(artifact, root) {
     BLS: { source: '미 노동통계국(BLS) 소비자물가지수', sourceId: 'bls-cpi', sourceUrl: 'https://www.bls.gov/cpi/' }
   };
   const live = (row, value, observedAt, displayValue, sourceKind = 'MARKET_DATA', lineage = SOURCES.MARKET_DATA) => value == null || !observedAt ? row : { ...row, ...lineage, value, displayValue, observedAt, eventDate: null, sourceKind, allowedUse: 'current-context', live: true };
+  // v58.77 (pipeline audit KNOW-01): the server keeps a failed read's last-known-good value with allowedUse reference-only
+  // (src/data/server-macro.js); that value keeps its date and stays a reference here, never an auto-updated current value.
+  const macroLive = (row, key, value, observedAt, displayValue, lineage) => {
+    const out = live(row, value, observedAt, displayValue, 'OFFICIAL_STATISTICS', lineage);
+    return out !== row && snapshot[`_${key}_src`] === 'last-known-good' ? { ...out, allowedUse: 'reference-only', live: false } : out;
+  };
   const observations = artifact.observations.map((row) => {
     for (const [pattern, field] of LIVE_ROWS) {
       if (!pattern.test(row.id)) continue;
@@ -91,10 +97,10 @@ export function liveCurrentObservations(artifact, root) {
     }
     if (/^fed-funds-midpoint-/.test(row.id)) {
       const lower = finite(snapshot.fedTargetLower), upper = finite(snapshot.fedTargetUpper);
-      return lower != null && upper != null ? live(row, (lower + upper) / 2, ts.macro_fedTargetLower || null, `${((lower + upper) / 2).toFixed(3)}%`, 'OFFICIAL_STATISTICS', SOURCES.FED) : row;
+      return lower != null && upper != null ? macroLive(row, 'fedTargetLower', (lower + upper) / 2, ts.macro_fedTargetLower || null, `${((lower + upper) / 2).toFixed(3)}%`, SOURCES.FED) : row;
     }
-    if (/^bls-cpi-/.test(row.id)) return live(row, finite(snapshot.cpi), ts.macro_cpi ? `${ts.macro_cpi.slice(0, 7)} 기준월` : null, finite(snapshot.cpi) == null ? null : `${snapshot.cpi}% YoY`, 'OFFICIAL_STATISTICS', SOURCES.BLS);
-    if (/^bls-core-cpi-/.test(row.id)) return live(row, finite(snapshot.coreCpi), ts.macro_coreCpi ? `${ts.macro_coreCpi.slice(0, 7)} 기준월` : null, finite(snapshot.coreCpi) == null ? null : `${snapshot.coreCpi}% YoY`, 'OFFICIAL_STATISTICS', SOURCES.BLS);
+    if (/^bls-cpi-/.test(row.id)) return macroLive(row, 'cpi', finite(snapshot.cpi), ts.macro_cpi ? `${ts.macro_cpi.slice(0, 7)} 기준월` : null, finite(snapshot.cpi) == null ? null : `${snapshot.cpi}% YoY`, SOURCES.BLS);
+    if (/^bls-core-cpi-/.test(row.id)) return macroLive(row, 'coreCpi', finite(snapshot.coreCpi), ts.macro_coreCpi ? `${ts.macro_coreCpi.slice(0, 7)} 기준월` : null, finite(snapshot.coreCpi) == null ? null : `${snapshot.coreCpi}% YoY`, SOURCES.BLS);
     return row;
   });
   return { ...artifact, observations };

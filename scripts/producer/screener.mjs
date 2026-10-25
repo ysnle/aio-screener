@@ -151,7 +151,8 @@ async function enrichFundamentals(syms) {
     const s = encodeURIComponent(_fmpSym(sym));
     try {
       const fmpFetch = (endpoint) =>
-        fetchJSON(`${base}/${endpoint}?apikey=${key}`, {}, 1)
+        // v58.77 (pass-2 P2-DATA-07): endpoints that already carry a query got a second '?', so apikey parsed as null.
+        fetchJSON(`${base}/${endpoint}${endpoint.includes('?') ? '&' : '?'}apikey=${key}`, {}, 1)
           .catch(e => { console.warn(`[fetch-data] FMP ${sym} ${endpoint}: ${e && e.message}`); return null; });
       const [ratios, growth, earn] = await Promise.all([
         fmpFetch(`ratios-ttm/${s}`),

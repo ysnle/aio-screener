@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v58.75 — 올인원 투자 터미널</title>
+  <title>AIO Screener v58.77 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -30,13 +30,13 @@
   <!-- P1756: the same v1.3.9 font as unicode-range subsets — only the ranges a page draws download (the single file was 2 MB). -->
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=58.75" defer></script>
-<script src="./js/aio-kr-data.js?v=58.75" defer></script>
-<script src="./js/aio-pages.js?v=58.75" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=58.75">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=58.75">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.75">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.75">
+<script src="./js/aio-workspace.js?v=58.77" defer></script>
+<script src="./js/aio-kr-data.js?v=58.77" defer></script>
+<script src="./js/aio-pages.js?v=58.77" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=58.77">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=58.77">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.77">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.77">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -2551,12 +2551,6 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
   min-width: 0;
   box-sizing: border-box;
 }
-#fund-cards-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important;
-}
-#fund-cards-grid > * {
-  min-width: 0;
-}
 #kr-integrated-technical canvas {
   display: block;
   width: 100% !important;
@@ -3042,15 +3036,6 @@ body.aio-dev-mode .aio-public-readiness { display:grid !important; }
   margin-top: 0 !important;
   border-color: rgba(var(--ink-rgb),0.34) !important;
 }
-#fund-cards-grid {
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) !important;
-  gap: 12px !important;
-  overflow: hidden;
-}
-#fund-cards-grid > * {
-  min-width: 0 !important;
-  overflow-wrap: anywhere;
-}
 /* v50.85: page body redesign — decision -> action -> data -> AI, with dense legacy controls folded */
 .aio-action-hub {
   margin:0 0 14px;
@@ -3118,7 +3103,7 @@ body.aio-dev-mode #page-fundamental .aio-page-advanced-toggle,
 body.aio-dev-mode #page-themes .aio-page-advanced-toggle,
 body.aio-dev-mode #page-portfolio .aio-page-advanced-toggle,
 body.aio-dev-mode #page-market-news .aio-page-advanced-toggle,
-body.aio-dev-mode #page-screener .aio-page-advanced-toggle, .page .aio-page-advanced-toggle[data-user-fold] { display:block !important; } body:not(.aio-dev-mode) [data-dev-only] { display:none !important; } /* P1327 → v57.81: user-content folds carry data-user-fold and show to everyone; inside them a widget without a source or against a product rule is data-dev-only */
+body.aio-dev-mode #page-screener .aio-page-advanced-toggle, .page .aio-page-advanced-toggle[data-user-fold] { display:block !important; } /* P1327 → v57.81: user-content folds carry data-user-fold and show to everyone; inside them a widget without a source or against a product rule is data-dev-only */
 /* v52.88 P703: 시안 13면을 실제 기본 화면으로 고정한다. 운영 진단/중복 피드는
    삭제하지 않고 개발자 모드에만 남겨 사용자 화면의 판단 밀도를 보존한다. */
 body:not(.aio-dev-mode) #market-pulse-bar,
@@ -3146,17 +3131,6 @@ body:not(.aio-dev-mode) .page > .aio-decision-header { display:none !important; 
 body:not(.aio-dev-mode) .aio-operator-control,
 body:not(.aio-dev-mode) .page [id^="tg-feed-"]:not(#tg-feed-market-news) { display:none !important; }
 body:not(.aio-dev-mode) #page-home > details.aio-card,
-body:not(.aio-dev-mode) #page-signal > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-breadth > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-sentiment > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-technical > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-macro > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-fxbond > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-fundamental > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-themes > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-portfolio > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-market-news > .aio-page-news-strip,
-body:not(.aio-dev-mode) #page-screener > .aio-page-news-strip { display:none !important; }
 body:not(.aio-dev-mode) .page.has-aio-decision-header { padding-top:0 !important; }
 
 /* v53.69/P875: the completed 24-hour Telegram lane is a user-facing evidence
@@ -3728,7 +3702,6 @@ button[data-filter-active="true"] {
               <div data-audit-key="tickerFetchHealth">… 시세 fetch 건강도…</div>
               <div data-audit-key="chatContextConsistency">… 14 컨텍스트 프롬프트 구성…</div>
               <div data-audit-key="chatInteractivity">… AI 채팅 인터랙티브…</div>
-              <div data-audit-key="chatAdvanced">… AI 채팅 고급 기능…</div>
               <div data-audit-key="memoCoverage">… MEMO 커버리지 + 신선도…</div>
               <div data-audit-key="financialCharts">… 재무 차트 (7 섹션)…</div>
               <div data-audit-key="answerQuality">… 답변 품질 (현재·정확·직관)…</div>
@@ -4226,26 +4199,7 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
-  <!-- v34.9: TradingView 한국장 차트 / v52.13 P610/B7: TradingView KRX 임베드 하드 브레이크(P3) 대체 —
-       Naver 일봉 시세 + Chart.js 자체 렌더(외부 위젯 의존 제거) -->
-  <div id="tv-chart-kr" data-dev-only class="sh-technical-tv-plot-panel">
-    <div class="sh-technical-tv-plot-row">
-      <div class="sh-technical-tv-plot-text">한국 종목 일봉 차트 </div>
-      <div class="sh-row">
-        <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" aria-label="한국 종목코드" class="sh-technical-tv-sym-field" data-on-enter="loadTVChart:kr" />
-        <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table sh-btn-fs11">차트 로드</button>
-        <button data-action="krTvSymSearchFromInput" class="aio-btn-table sh-btn-fs11">종목 화면 →</button>
-      </div>
-    </div>
-    <div id="tv-widget-kr" class="sh-technical-tv-block-tint">
-      <canvas id="kr-candle-chart" height="320" style="width:100%;height:320px;max-height:340px;display:block;" role="img" aria-label="한국 종목 일봉 캔들 차트"></canvas>
-      <canvas id="kr-candle-volume" height="70" style="width:100%;height:70px;max-height:80px;display:block;margin-top:2px;" role="img" aria-label="거래량"></canvas>
-    </div>
-    <div id="kr-candle-meta" class="sh-technical-candle-meta-row">
-      <span data-role="kr-candle-asof">데이터 수신 대기...</span>
-      <span title="출처: 네이버 금융 일봉 종가">일봉 종가, 20일 평균선 포함</span>
-    </div>
-  </div>
+  <!-- v58.76: the developer-only 한국 종목 일봉 chart, 현재 입력·VKOSPI·breadth·spread cards are retired. -->
 
   <div class="aio-section aio-comp-secondary-feed">
     <div class="aio-section-hd"><span class="aio-section-label">한국 차트·반도체 최신 소식</span></div>
@@ -4253,101 +4207,6 @@ button[data-filter-active="true"] {
   </div>
 
     <!-- v57.76: 0-100 건강 점수 자리(입력 개수 큰 숫자)와 원천 없는 외국인 수급 줄은 퇴역 — 지표별 관측값만 남긴다. -->
-    <div data-dev-only><div class="aio-section-rule sh-mb8"><span>② 현재 입력 상태 — 합산하지 않는 지표별 값</span></div>
-    <div class="aio-why sh-mb8">아래 값은 지표별 현재 관측값입니다. 점수나 등급으로 합산하지 않으며, 입력이 없는 지표는 미수신으로 남깁니다.</div>
-    <div class="sh-technical-integrated-cols">
-      <!-- 한국 시장 현재 입력(지표별 값) -->
-      <div class="sh-panel">
-        <div class="sh-soft-label-bold"> 한국 시장 현재 입력</div>
-        <div class="sh-technical-integrated-cols-small">
-          <div class="sh-technical-integrated-tint">
-            <span class="sh-muted-tone">KOSPI 추세:</span> <span id="kr-health-trend" class="sh-muted-tone-bold">수신 대기</span>
-          </div>
-          <div class="sh-technical-integrated-tint-red">
-            <span class="sh-muted-tone">VKOSPI:</span> <span class="sh-muted-tone-bold" id="kr-health-vkospi" title="VKOSPI(한국 변동성지수) — 비공식 참고값, 실시간으로 받아졌을 때만 표시">—</span>
-          </div>
-          <div class="sh-technical-integrated-tint-green">
-            <span class="sh-muted-tone">수출·반도체:</span> <span class="sh-green-tone" data-snap="kr-semi-export-yoy" data-operational-use="reference-only">확인 대기</span> <span class="sh-green-tone"><span class="sh-technical-integrated-note">(최신 수출 데이터 검증 후 반영)</span></span>
-          </div>
-          <div class="sh-technical-integrated-tint-red">
-            <span class="sh-muted-tone">신용잔고:</span> <span class="sh-technical-integrated-tone" data-snap="kr-credit">—</span>
-          </div>
-          <div class="sh-technical-integrated-tint-green">
-            <span class="sh-muted-tone">기준금리:</span> <span class="sh-technical-integrated-tone-ink" data-snap="bok-rate">—</span> <span class="sh-muted-tone" data-snap="bok-status">—</span>
-          </div>
-        </div>
-        <div class="sh-muted-note-centered">지표별 기준일을 따로 적용, 합산 점수는 만들지 않음</div>
-      </div>
-
-      <!-- VKOSPI 변동성 지수 -->
-      <div class="sh-panel">
-        <div class="sh-soft-label-mb8">VKOSPI 변동성 지수 (KRX 공포지수)</div>
-        <canvas id="kr-vkospi-chart" height="160" style="width:100%;height:160px;max-height:180px;display:block;" role="img" aria-label="VKOSPI 변동성 지수 차트"></canvas>
-        <div class="sh-technical-integrated-cols-three">
-          <div class="sh-technical-integrated-tint-centered">
-            <div class="sh-muted-tone">안정</div>
-            <div class="sh-green-tone">15 이하</div>
-          </div>
-          <div class="sh-technical-integrated-tint-ink08">
-            <div class="sh-muted-tone">경계</div>
-            <div class="sh-technical-integrated-tone">15~25</div>
-          </div>
-          <div class="sh-technical-integrated-tint-pad4">
-            <div class="sh-muted-tone">공포</div>
-            <div class="sh-technical-integrated-tone-red">25 이상</div>
-          </div>
-        </div>
-        <div class="sh-muted-note-centered">공포탐욕 참고값 — 최신값 자동갱신</div>
-      </div>
-    </div>
-
-    <!-- v35.6: 한국 시장 브레드스 (Market Breadth) -->
-    <div class="sh-technical-integrated-cols">
-      <div class="sh-panel">
-        <div class="sh-soft-label-mb8">시장 내부 건강도 (Breadth)</div>
-        <div class="sh-technical-integrated-cols-two">
-          <div class="sh-technical-integrated-tint-pad8">
-            <div class="sh-technical-integrated-tone-muted">상승/하락 비율</div>
-            <div class="sh-technical-breadth-adl-big" id="kr-breadth-adl">—</div>
-            <div class="sh-muted-note">현재 A/D 종목수 미수신</div>
-          </div>
-          <div class="sh-technical-integrated-tint-ink06">
-            <div class="sh-technical-integrated-tone-muted">20MA 위 종목 비율</div>
-            <div class="sh-technical-breadth-adl-big" id="kr-breadth-20ma">—</div>
-            <div class="sh-muted-note">현재 구성종목 원천 미수신</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 한국 금리 스프레드 -->
-      <div class="sh-panel">
-        <div class="sh-soft-label-mb8">한국 금리 스프레드</div>
-        <div class="sh-technical-integrated-cols-gap8">
-          <div class="sh-between-row-middle">
-            <div>
-              <div class="sh-technical-integrated-tone-cyan">장단기 스프레드 (10Y-3Y)</div>
-              <div class="sh-muted-note">국고채 10년 - 3년</div>
-            </div>
-            <div class="sh-muted-big" id="kr-spread-3y10y">—</div>
-          </div>
-          <div class="sh-between-row-middle">
-            <div>
-              <div class="sh-technical-integrated-tone-amber">기준금리-10년 스프레드</div>
-              <div class="sh-muted-note">국고채 10년 - BOK 기준금리</div>
-            </div>
-            <div class="sh-muted-big" id="kr-spread-bok10y">—</div>
-          </div>
-          <div class="sh-between-row-middle">
-            <div>
-              <div class="sh-technical-integrated-tone-purple">CD-기준금리 스프레드</div>
-              <div class="sh-muted-note">CD 91일 - BOK 기준금리</div>
-            </div>
-            <div class="sh-muted-big" id="kr-spread-cd">—</div>
-          </div>
-        </div>
-        <div class="sh-muted-note-centered">기울기의 부호는 곡선 형태만 뜻합니다. 경기 판단은 물가·고용·신용·수급과 교차 확인합니다.</div>
-      </div>
-    </div></div><!-- /data-dev-only 현재 입력·VKOSPI·breadth·금리 스프레드 (v57.81) -->
 
     <!-- v57.77: 지수 Stage(N단계·확도 NN%)·셋업 상태 카드와 MACD·볼린저 박스, 실시간 차트 호출(analyzeKrIndex)은 퇴역 —
          코스피·코스닥은 한국 종가 기록(src/ui/components/kr-index-trend.js)으로 차트 한 장, 50일선·200일선 위치, 계산된 사실 3줄만 쓴다. -->
@@ -4446,35 +4305,6 @@ button[data-filter-active="true"] {
     <div class="aio-page-advanced-body">
 
     <!-- ═══ v53.7 (P725): 핵심 지수 카드 — 구 kr-home 섹션 1 이관 (P636/P721 KR 전일종가·변화폭 계약 sink 보존) ═══ -->
-    <div class="aio-section" data-dev-only>
-    <div class="aio-section-hd"><span class="aio-section-label">핵심 지수</span></div>
-    <div class="kr-index-grid">
-      <div class="kr-idx-card">
-        <div class="kr-idx-label">KOSPI</div>
-        <div class="kr-idx-val" id="kr-kospi-price" data-snap="kospi" data-live-price="^KS11">—</div>
-        <div class="kr-idx-chg" style="color:var(--text-muted)"><span data-live-kr-change="^KS11"><span data-snap="kospi-pct" data-live-chg="^KS11">—</span></span> <span data-date-ref="kr-last"></span></div>
-        <div class="sh-muted-note-mt2">전일종가: <span data-snap="kospi-prev" data-live-prev-close="^KS11">—</span></div>
-      </div>
-      <div class="kr-idx-card">
-        <div class="kr-idx-label">KOSDAQ</div>
-        <div class="kr-idx-val" id="kr-kosdaq-price" data-snap="kosdaq" data-live-price="^KQ11">—</div>
-        <div class="kr-idx-chg" style="color:var(--text-muted)"><span data-live-kr-change="^KQ11"><span data-snap="kosdaq-pct" data-live-chg="^KQ11">—</span></span> <span data-date-ref="kr-last"></span></div>
-        <div class="sh-muted-note-mt2">전일종가: <span data-snap="kosdaq-prev" data-live-prev-close="^KQ11">—</span></div>
-      </div>
-      <div class="kr-idx-card">
-        <div class="kr-idx-label">KRW/USD</div>
-        <div class="kr-idx-val" id="kr-krw-price" data-snap="krw-full">—</div>
-        <div class="kr-idx-chg" style="color:var(--text-muted)"><span data-live-kr-change="KRW=X">—</span> <span data-date-ref="kr-last"></span></div>
-        <div class="sh-macro-integrated-note">전일 종가 대비 방향만 표시, 원인은 수급·금리·정책과 별도 확인</div>
-      </div>
-      <div class="kr-idx-card">
-        <div class="kr-idx-label">VKOSPI</div>
-        <div class="kr-idx-val sh-macro-vkospi-val-tone" id="kr-vkospi-val" title="VKOSPI(한국 변동성지수) — 비공식 참고값, 실시간으로 받아졌을 때만 표시">—</div>
-        <div class="kr-idx-chg" style="color:var(--text-muted)">현재 원천 수신 대기</div>
-        <div class="sh-macro-integrated-note">변동성 지수 (KRX 공포지수, 비공식 참고값)</div>
-      </div>
-    </div>
-    </div><!-- /aio-section 핵심지수 -->
 
 
   <!-- ═══ v48.46: KR 매크로 심층 해설 ═══ -->
@@ -4558,11 +4388,6 @@ button[data-filter-active="true"] {
     <div class="aio-widget sh-mb12">
       <div class="widget-title">원/달러 환율 분석</div>
       <div class="sh-macro-integrated-cols-fluid"><!-- v57.81: undated 현재 환율 card → data-dev-only; dated closes carry the reading -->
-        <div data-dev-only class="sh-base-panel">
-          <div class="sh-muted-label-semi">현재 환율</div>
-          <div id="kr-macro-krw" class="sh-macro-krw-big" data-snap="krw-full">—</div>
-          <div class="kr-idx-chg" data-live-kr-change="KRW=X" style="font-size:12px;color:var(--text-muted);">—</div>
-        </div>
         <div class="sh-base-panel">
           <div class="sh-muted-label-semi">1년 범위</div>
           <div id="kr-macro-krw-range" class="sh-macro-krw-range-big">—</div>
@@ -4601,32 +4426,8 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 원달러환율분석 -->
 
     <!-- ═══ 섹션 3B: 채권 금리 ═══ -->
-    <div class="aio-section" data-dev-only>
-    <div class="aio-section-hd"><span class="aio-section-label">주요 채권 금리</span></div>
-    <div class="aio-widget sh-mb12">
-      <div class="widget-title">주요 채권 금리</div>
-      <div class="sh-macro-integrated-cols-one">
-        <div class="sh-base-panel">
-          <div class="sh-muted-label-semi">미국 10년물</div>
-          <div id="kr-macro-us10y" class="sh-macro-krw-big" data-snap="tnx">—</div>
-          <div class="sh-muted-note">Fed 정책 금리와 연관</div>
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 주요채권금리 -->
 
     <!-- ═══ v37.8: 한국 거시 동적 분석 ═══ -->
-    <div class="aio-section" id="kr-macro-dynamic-section" data-dev-only hidden>
-    <div class="aio-section-hd"><span class="aio-section-label">거시 환경 분석</span></div>
-    <!-- v57.77: the summary stays hidden until _generateKrMacroAnalysis writes it (no permanent "수신 대기" line).
-         The calendar pointer widget left (it sat on the macro screen it pointed to); the Korea/US comparison
-         moved into the BOK rate widget above. -->
-    <div class="aio-widget sh-mb12" id="kr-macro-dynamic-widget">
-      <div class="widget-title">거시 환경 요약</div>
-      <div id="kr-macro-analysis-text" class="sh-soft-text-loose"></div>
-    </div>
-    </div><!-- /aio-section 매크로환경분석 -->
 
     <!-- ═══ 텔레그램 한국 거시 최신 소식 ═══ -->
     <div class="aio-section aio-comp-secondary-feed">
@@ -4919,26 +4720,6 @@ button[data-filter-active="true"] {
   </details>
 
     <!-- v52.73 아이보리 3f: 시안엔 없는 관심종목 스캔 — details로 압축 (개별 종목 딥다이브가 시안의 본 목적) -->
-    <details class="aio-page-advanced-toggle sh-mb12">
-      <summary>SEC 공식 연간 재무 스캔 (참고용)</summary>
-      <div class="aio-page-advanced-body">
-    <!-- SEC EDGAR companyfacts 기반 공식 연간 재무 카드 — native entity renderer 소유 -->
-    <div id="fund-cards-grid" class="sh-fund-tiles-matrix-cols">
-      <!-- 동적으로 생성됨 — src/ui/pages/entity.js -->
-      <div class="sh-fund-tiles-matrix-span-all">
-        <div class="sh-fund-tiles-matrix-big"></div>
-        공식 SEC 연간 공시 투영 수신 대기, 값이 없는 항목은 추정하지 않습니다
-      </div>
-    </div>
-
-    <!-- v37.8: 펀더멘털 동적 분석 -->
-    <div class="aio-widget sh-mb12">
-      <div class="widget-title">선택 기업 SEC 데이터 요약</div>
-      <div id="fund-analysis-text" class="sh-soft-text-loose">SEC 연간 재무 데이터 수신 대기, 해석 보류</div>
-    </div>
-      </div>
-    </details>
-
     <!-- v48.56: 어닝 캘린더 — EarningsHub 스타일 주간 그리드 (Finnhub + FMP + IPO) -->
     <div class="aio-section" id="fund-earnings-calendar">
     <div class="aio-section-hd"><span class="aio-section-label">어닝 캘린더</span></div>
@@ -5057,13 +4838,7 @@ button[data-filter-active="true"] {
 
   <!-- P1417: AI capital-spending flow and bottleneck lead times (REFERENCE, a16z SoM II) -->
   <section class="aio-section capex-flow" id="ai-capex-flow" aria-label="AI 설비투자 흐름"></section>
-  <!-- v54.44: supplied inference-efficiency and AI-deal-map reference lens -->
-  <details class="aio-page-advanced-toggle sh-themes-fold">
-  <summary>AI 인프라 연구 지도, 구조와 검증 질문</summary>
-  <div id="ai-infra-efficiency-lens" class="sh-themes-ai-infra-panel" aria-label="AI 추론 효율과 거래 생태계 분석">
-    <div class="sh-muted-text">AI 추론 효율 렌즈 준비 중…</div>
-  </div>
-  </details>
+  <!-- v58.76: the developer-only AI 인프라 연구 지도 (inference-efficiency reference lens) is retired; the 설비투자 흐름 above stays. -->
 
 
 
@@ -5082,26 +4857,6 @@ button[data-filter-active="true"] {
         <div id="theme-detail-native-insights" class="theme-detail-native-section" data-aio-theme-detail-surface="native-insights" hidden></div>
         <div id="theme-detail-legacy-content"></div>
       </div>
-
-  <details class="aio-page-advanced-toggle sh-fold-mt16" id="themes-subthemes-advanced">
-    <summary>세분화 테마 — 45개 분류, 대장주, 상세 (개발자 모드 전용)</summary>
-    <div class="aio-page-advanced-body">
-    <!-- ══ SECTION 5: 세분화 테마 — 시장 핵심 트렌드 ════════════════ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">세분화 테마 — 시장 전체 테마별 분류 & 대장주</span></div>
-    <div class="sh-themes-panel">
-      <div id="sub-themes-grid" class="sh-themes-sub-matrix-cols">
-        <!-- 동적: renderSubThemesGrid() -->
-        <div class="sh-themes-sub-matrix-text">세분화 테마 수집 대기…</div>
-      </div>
-      <!-- v38.3: 세분화 테마 심층 분석 패널 -->
-      <div id="sub-theme-detail-panel" style="display:none;background:var(--surface-1);border:0.5px solid var(--border);border-radius:4px;padding:16px;margin-top:12px;position:relative;">
-        <button data-action="closeSubThemeDetail" class="btn-close" aria-label="세부 테마 상세 닫기"></button>
-      </div>
-    </div>
-    </div><!-- /aio-section 세분화테마 -->
-    </div>
-  </details>
 
   <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-themes) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
   <!-- v57.76: 교과서식 섹터 순환 지도(학습용)는 리서치 라이브러리 개념 사전(sector-rotation-cycle)으로 옮겼다. -->
@@ -5192,114 +4947,9 @@ button[data-filter-active="true"] {
 
   </div>
     <!-- ═══════════════ PAGE: THEME-DETAIL (테마 상세) ═══════════════ -->
-  <div class="page" id="page-theme-detail">
-  <div class="insight-box box-collapsed">
-    <strong>테마 상세 — 대표 종목·구성 종목·등락률·섹터 안 상대강도</strong>
-  </div>
-    <div class="aio-section">
-    <div class="mb-4">
-      <div class="sh-themedetail-row">
-        <button id="ticker-back-btn" class="aio-btn-table" data-action="showPage" data-arg="themes">← 돌아가기</button>
-        <span id="ticker-breadcrumb-parent" class="sh-muted-fine">테마와 섹터 &gt; AI·반도체</span>
-      </div>
-      <div class="sh-themedetail-row-middle">
-        <span id="theme-detail-icon" class="sh-themedetail-icon-big"></span>
-        <h1 class="page-title" id="theme-detail-title">AI·반도체</h1>
-      </div>
-      <div id="theme-detail-name" style="display:none;">AI·반도체</div>
-      <div id="theme-detail-currentness-brief" class="fxb-dynamic-comment sh-mt10">
-        <div class="dc-title">테마 현재성 요약</div>
-        <div class="sh-themedetail-currentness-brief-note">
-          선택 테마의 대표 종목, 후발 종목, 촉매, 깨지는 신호를 비교합니다. 실시간 가격을 받기 전에는 참고 보드로만 쓰고, 종목별 판단은 종목·스크리너 화면에서 다시 확인합니다.
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 테마헤더 -->
-
-    <div class="aio-section">
-      <div class="aio-section-hd"><span class="aio-section-label">선택 테마 최신 소식</span></div>
-      <div id="tg-feed-theme-detail"></div>
-    </div>
-
-    <!-- Mode Toggle: ETF vs Subtheme -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">테마 데이터</span></div>
-    <div style="display:flex;gap:8px;margin-bottom:14px;">
-      <button id="etf-btn" class="aio-btn-table primary" data-action="switchThemeMode" data-arg="etf">ETF 뷰</button>
-      <button id="sub-btn" class="aio-btn-table" data-action="switchThemeMode" data-arg="subtheme">세부 테마</button>
-      <span id="theme-mode-desc" class="sh-themedetail-mode-desc-fine">AI 및 반도체 섹터 주요 ETF</span>
-    </div>
-
-    <!-- ETF View -->
-    <div id="etf-view" class="aio-widget">
-      <div class="widget-title">AI 관련 대표 종목·ETF</div>
-      <table class="sh-themedetail-etf-view-table">
-        <thead>
-          <tr class="sh-tablerow">
-            <th class="sh-themedetail-etf-view-colhead">종목</th>
-            <th class="sh-soft-colhead">가격</th>
-            <th class="sh-soft-colhead">연초 대비</th>
-            <th class="sh-soft-colhead">1년</th>
-            <th class="sh-soft-colhead">보유 종목 수</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="sh-tablerow">
-            <td class="sh-cell-pad8"><b>NVDA</b></td>
-            <td class="sh-centered-cell" data-live-price="NVDA">—</td>
-            <td class="sh-muted-cell" data-perf-ytd="NVDA">—</td>
-            <td class="sh-muted-cell" data-perf-1y="NVDA">—</td>
-            <!-- v52.16 P5i/P621: 개별주(NVDA)에 "Self"(자기자신 보유)는 ETF Holdings 개념과 안 맞음 —
-                 inline 테마 상세 패널의 "대장주" 의미와 일관되게 정적 placeholder도 "—"로 둔다. -->
-            <td class="sh-centered-cell">—</td>
-          </tr>
-          <tr class="sh-tablerow">
-            <td class="sh-cell-pad8"><b>XLC</b></td>
-            <td class="sh-centered-cell" data-live-price="XLC">—</td>
-            <td class="sh-muted-cell" data-perf-ytd="XLC">—</td>
-            <td class="sh-muted-cell" data-perf-1y="XLC">—</td>
-            <td class="sh-centered-cell">67</td>
-          </tr>
-          <tr class="sh-tablerow">
-            <td class="sh-cell-pad8"><b>XSD</b></td>
-            <td class="sh-centered-cell" data-live-price="XSD">—</td>
-            <td class="sh-muted-cell" data-perf-ytd="XSD">—</td>
-            <td class="sh-muted-cell" data-perf-1y="XSD">—</td>
-            <td class="sh-centered-cell">44</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Subtheme View (hidden) -->
-    <div id="subtheme-view" style="display:none;" class="aio-widget">
-      <div class="widget-title">AI 세부 테마</div>
-      <div class="sh-themedetail-subtheme-view-cols">
-        <div class="sh-green-tint">
-          <div class="sh-bold-label">생성형 AI</div>
-          <div class="sh-soft-note-mt4">언어 모델·모델 학습</div>
-        </div>
-        <div class="sh-green-tint">
-          <div class="sh-bold-label">AI 반도체</div>
-          <div class="sh-soft-note-mt4">GPU·특화 반도체</div>
-        </div>
-        <div class="sh-green-tint">
-          <div class="sh-bold-label">기업용 AI</div>
-          <div class="sh-soft-note-mt4">AI 소프트웨어·서비스</div>
-        </div>
-        <div class="sh-green-tint">
-          <div class="sh-bold-label">AI 인프라</div>
-          <div class="sh-soft-note-mt4">클라우드·데이터센터</div>
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 테마데이터 -->
-
-    <!-- P1653: theme questions go to the one top AI panel -->
-    <div class="aio-ask-row" style="margin-top:16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><span class="sh-muted-text">AI에게 묻기</span><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="이 테마의 성장 동력과 지금 흐름을 설명해줘">성장 동력</button><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="이 테마의 경쟁 구도를 정리해줘">경쟁 구도</button><button type="button" class="q-chip" data-action="_aioAskInPanel" data-arg="이 테마의 위험 요소와 확인할 지표를 정리해줘">위험 요소</button></div>
-  </div>
+  <!-- v58.76: the route shell stays (route registry, data epoch); its legacy header, news lane and ETF/세부 테마 toggle are retired.
+       The router sends theme-detail to 테마와 섹터, whose #theme-detail-panel owns the detail. -->
+  <div class="page" id="page-theme-detail"></div>
     <!-- ═══════════════ PAGE: PORTFOLIO (포트폴리오) ═══════════════ -->
   <div class="page" id="page-portfolio">
   <div class="insight-box box-collapsed">
@@ -7059,15 +6709,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=58.75" defer></script>
-  <script src="./js/aio-data.js?v=58.75" defer></script>
-  <script src="./js/aio-ui.js?v=58.75" defer></script>
+  <script src="./js/aio-core.js?v=58.77" defer></script>
+  <script src="./js/aio-data.js?v=58.77" defer></script>
+  <script src="./js/aio-ui.js?v=58.77" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=58.75" defer></script>
+<script src="./js/aio-chat.js?v=58.77" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더)는 js/aio-macro-tech.js를 거쳐 네이티브 ESM으로 옮겨졌고, 그 파일은 퇴역했다. -->
 
@@ -7118,7 +6768,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=58.75" defer></script>
+<script src="./js/aio-glossary.js?v=58.77" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -7126,7 +6776,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.75</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.77</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

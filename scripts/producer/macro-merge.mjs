@@ -17,10 +17,30 @@ function promote(macro, field, value, observedAt, source) {
   delete macro[`_originSource_${field}`];
 }
 
+const monthKey = (date) => String(date || '').slice(0, 7);
+const nextMonthKey = (date) => {
+  const [y, m] = monthKey(date).split('-').map(Number);
+  return Number.isFinite(y) && Number.isFinite(m) ? `${m === 12 ? y + 1 : y}-${String(m === 12 ? 1 : m + 1).padStart(2, '0')}` : '';
+};
+// v58.77 (pipeline audit DATA-01): BLS/BEA can publish a month before FRED. The change beside the FRED value belongs to
+// FRED's month, so a newer official month recomputes it from the value it replaces when that is the month just
+// before, and otherwise drops it, instead of publishing last month's change beside the new print (the reading would
+// call inflation rising or easing on it).
+function promoteMonthly(macro, field, value, observedAt, source) {
+  const priorAt = macro[`_asOf_${field}`];
+  const prior = Number(macro[field]);
+  if (priorAt && observedAt && monthKey(priorAt) !== monthKey(observedAt)) {
+    if (nextMonthKey(priorAt) === monthKey(observedAt) && Number.isFinite(prior)) macro[`${field}Delta`] = Math.round((value - prior) * 10) / 10;
+    else delete macro[`${field}Delta`];
+  }
+  promote(macro, field, value, observedAt, source);
+}
+
 export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, fredHyOas }) {
   const macro = mergeMacroLastKnownGood(macroRaw, previousMacro);
   for (const field of Object.keys(FRED_SERIES)) {
-    if (Number.isFinite(Number(macroRaw?.[field]))) macro[`_source_${field}`] = 'fred-official-primary';
+    // DATA-02: a newer earlier-run observation the merge kept is not this run's FRED value.
+    if (Number.isFinite(Number(macroRaw?.[field])) && String(macro[`_asOf_${field}`] || '') === String(macroRaw[`_asOf_${field}`] || '')) macro[`_source_${field}`] = 'fred-official-primary';
   }
   Object.assign(macro, bls.values || {});
   // Promote only the successful BLS headline/core fields to the canonical
@@ -41,7 +61,7 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
       if (seriesEvidence?.status !== 'ok' || !Number.isFinite(value)) continue;
       // 2026-10-19 data audit: as for HY OAS below, an older BLS month never replaces a newer FRED month (release-day lag).
       if (macro[`_asOf_${macroField}`] && String(seriesEvidence.observedAt || '') < String(macro[`_asOf_${macroField}`])) continue;
-      promote(macro, macroField, value, seriesEvidence.observedAt || null, 'bls-official-primary');
+      promoteMonthly(macro, macroField, value, seriesEvidence.observedAt || null, 'bls-official-primary');
     }
   }
   macro._bls = bls;
@@ -83,10 +103,10 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
   const beaNotOlder = (field) => !macro[`_asOf_${field}`] || String(bea.observedAt || '') >= String(macro[`_asOf_${field}`]);
   if (bea.status === 'ok' && bea.values) {
     if (Number.isFinite(bea.values.pce) && beaNotOlder('pce')) {
-      promote(macro, 'pce', bea.values.pce, bea.observedAt, 'bea-official-primary');
+      promoteMonthly(macro, 'pce', bea.values.pce, bea.observedAt, 'bea-official-primary');
     }
     if (Number.isFinite(bea.values.corePce) && beaNotOlder('corePce')) {
-      promote(macro, 'corePce', bea.values.corePce, bea.observedAt, 'bea-official-primary');
+      promoteMonthly(macro, 'corePce', bea.values.corePce, bea.observedAt, 'bea-official-primary');
     }
   }
   return macro;

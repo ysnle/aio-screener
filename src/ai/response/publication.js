@@ -43,9 +43,9 @@ export function claimSourceUrl(value) {
 // slip through because its unit was not on the list. Counts (개/곳/건/명/종목) and Korean magnitudes (조/억/만) are
 // covered; 개월/개년 stay out so a period like "3개월" is not read as a current figure.
 // Briefing audit 2026-10-17: the particles 가/도/의 joined the metric list ("VIX가 15.2로" published unbound); a period after
-// the number ("금리가 3개월") stays out. Index levels ("코스피가 2,450까지") are still not covered — see the macro audit.
+// the number ("금리가 3개월") stays out. v58.77 (pipeline audit AI-02): index levels without a unit ("코스피는 2,450이다") are covered.
 export function hasCurrentNumericContent(value) {
-  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년])|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}(?!\d))/i.test(String(value || ''));
+  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스피|KOSPI)(?:\s*200)?\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스닥|나스닥|다우|닛케이|니케이|러셀\s*2000|S&P\s*500|KOSDAQ|Nasdaq|Dow|Nikkei)\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년])|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}(?!\d))/i.test(String(value || ''));
 }
 
 // X02 (2026-10-13): a period/question mark only ends a sentence when it is not glued to the next
@@ -109,13 +109,32 @@ export function stripUnverifiedCurrentNumericSentences(value) {
 // a condition stay, so general explanation is untouched.
 var CURRENT_EVENT = /(?:인하|인상|동결|발표|해소|급등|급락|상승|하락|반등|폭락|폭등|돌파|붕괴|경신|확대|축소|완화|악화|개선|둔화|가속|진정|전환)(?:했|됐|되었|하였|되면서|하면서)|(?:올랐|내렸|떨어졌|뛰었|밀렸|꺾였|풀렸)/;
 var GENERAL_OR_HISTORICAL = /(?:\b(?:19|20)\d{2}\s*년|역사적으로|과거에|과거\s|예전에|일반적으로|보통|대체로|흔히|전형적으로|사례|예를\s*들어|가령|historically|typically|in\s+general)/i;
-export function stripUnverifiedCurrentEventSentences(value) {
+// v58.77 (pipeline audit AI-01): one unrelated evidence row (an AAPL price) switched the rule off for every sentence, so
+// "연준이 금리를 인하했고 신용 스트레스도 해소됐다" was published next to it. With evidence present, a current event sentence
+// stays only when an evidence row names one of its subjects (a word of two or more letters, particles trimmed).
+var EVENT_STOPWORDS = /^(?:시장|증시|오늘|현재|지금|이번|지난|최근|이후|이전|우리|투자|투자자|가격|흐름|상황|분위기|기대|우려|영향|가능성|정도|수준|부분|전체|모두|함께|다시|계속|크게|소폭|일부|the|and|for|with|market|markets|today|now)$/i;
+var PARTICLE_TAIL = /(?:으로|에서|에게|까지|부터|이라|라는|이며|하고|이고|으며|이나|은|는|이|가|을|를|의|도|로|에|와|과|고|만|며)$/;
+function eventSubjects(sentence) {
+  return (String(sentence || '').match(/[가-힣]{2,}|[A-Za-z][A-Za-z0-9&.]{1,}/g) || [])
+    .map(function(word) { return /[가-힣]/.test(word) && word.length > 2 ? word.replace(PARTICLE_TAIL, '') : word; })
+    .filter(function(word) { return word.length >= 2 && !EVENT_STOPWORDS.test(word) && !CURRENT_EVENT.test(word); });
+}
+export function eventBoundToEvidence(sentence, rows) {
+  var subjects = eventSubjects(sentence).map(function(word) { return word.toLowerCase(); });
+  if (!subjects.length) return false;
+  return (Array.isArray(rows) ? rows : []).some(function(row) {
+    var text = Object.keys(row || {}).map(function(key) { return typeof row[key] === 'string' ? row[key] : ''; }).join(' ').toLowerCase();
+    return subjects.some(function(word) { return text.indexOf(word) >= 0; });
+  });
+}
+export function stripUnverifiedCurrentEventSentences(value, isBound) {
   var dropped = 0;
   var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim() || /^\s*\|.*\|\s*$/.test(line)) return line;
     var kept = splitAnswerSentences(line).filter(function(sentence) {
       var bare = sentence.replace(/(?:https?:\/\/|www\.)\S+/gi, ' ');
-      var event = CURRENT_EVENT.test(bare) && !GENERAL_OR_HISTORICAL.test(bare) && !isConditionalNumericSentence(bare) && !CONDITIONAL_MARKER.test(bare.replace(NON_CONDITIONAL_MYEON, ' '));
+      var event = CURRENT_EVENT.test(bare) && !GENERAL_OR_HISTORICAL.test(bare) && !isConditionalNumericSentence(bare) && !CONDITIONAL_MARKER.test(bare.replace(NON_CONDITIONAL_MYEON, ' '))
+        && !(typeof isBound === 'function' && isBound(bare));
       if (event) dropped += 1;
       return !event;
     }).join(' ');
@@ -131,7 +150,10 @@ export function stripUnverifiedCurrentEventSentences(value) {
 function guardFallback(text, currentSensitive, options) {
   if (!currentSensitive) return text;
   var out = stripUnverifiedCurrentNumericSentences(text);
-  return options && options.evidenceCount === 0 ? stripUnverifiedCurrentEventSentences(out).text : out;
+  if (options && options.evidenceCount === 0) return stripUnverifiedCurrentEventSentences(out).text;
+  // v58.77 AI-01: with evidence rows handed in, an event sentence must name what one of them covers (same as the plan path).
+  if (options && Array.isArray(options.evidenceRows)) return stripUnverifiedCurrentEventSentences(out, function(sentence) { return eventBoundToEvidence(sentence, options.evidenceRows); }).text;
+  return out;
 }
 export function extractAnswerFallback(rawText, currentSensitive, options) {
   var raw = String(rawText || '');
@@ -231,8 +253,7 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
   var noEvidence = currentSensitive && rows.length === 0;
   var clean = function(text) {
     var out = stripUnverifiedCurrentNumericSentences(text);
-    if (!noEvidence) return out;
-    var events = stripUnverifiedCurrentEventSentences(out);
+    var events = stripUnverifiedCurrentEventSentences(out, noEvidence ? null : function(sentence) { return eventBoundToEvidence(sentence, rows); });
     eventsDropped += events.dropped;
     return events.text;
   };

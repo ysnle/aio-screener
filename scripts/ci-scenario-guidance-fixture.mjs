@@ -68,6 +68,15 @@ const live = liveCurrentObservations(artifact, { _aioHistory: [{ date: '2026-10-
 assert.equal(live.observations[0].value, 7811.54, 'P1636: market rows follow the latest close');
 assert.equal(live.observations[0].live, true);
 assert.equal(live.observations[1].value, 50, 'P1636: dated company targets stay dated references');
+// v58.77 pipeline audit KNOW-01: a last-known-good CPI (the server marks it reference-only) is not promoted to an
+// auto-updated current value; a fresh official CPI is.
+{
+  const cpiArtifact = { observations: [{ id: 'bls-cpi-2025', label: 'CPI', value: 1, displayValue: '1', unit: 'percent', observedAt: '2025-01', sourceId: 'bls-cpi', sourceKind: 'OFFICIAL_STATISTICS', allowedUse: 'reference-only', pageTargets: ['principles'] }] };
+  const lkg = liveCurrentObservations(cpiArtifact, { DATA_SNAPSHOT: { cpi: 2.9, _cpi_src: 'last-known-good', _fieldTs: { macro_cpi: '2025-01-01' } } }).observations[0];
+  const fresh = liveCurrentObservations(cpiArtifact, { DATA_SNAPSHOT: { cpi: 2.9, _cpi_src: 'bls-official-primary', _fieldTs: { macro_cpi: '2026-09-01' } } }).observations[0];
+  assert.ok(lkg.allowedUse === 'reference-only' && lkg.live === false && /2025-01/.test(lkg.observedAt), `P2055 LKG CPI stays a dated reference: ${JSON.stringify(lkg)}`);
+  assert.ok(fresh.allowedUse === 'current-context' && fresh.live === true, 'P2055 a fresh official CPI is current');
+}
 
 console.log('scenario guidance fixture: PASS');
 

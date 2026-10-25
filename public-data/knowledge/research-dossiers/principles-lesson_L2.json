@@ -88,10 +88,8 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "researchFactIds": [
-    "fact:ibm:silicon-doping"
-  ],
-  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "researchFactIds": [],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -100,9 +98,9 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 컴퓨팅 시스템 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCHED",
+  "status": "RESEARCH_IN_PROGRESS",
   "completion": {
-    "evidenceAttached": true,
+    "evidenceAttached": false,
     "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"

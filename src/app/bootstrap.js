@@ -40,7 +40,6 @@ import { applyProducedMacroCalendar } from '../data/macro-calendar.js';
 import { installResponsiveShell } from '../ui/components/responsive-shell.js';
 import { installChatSessions } from '../ui/components/chat-sessions.js'; // owner 2026-10-14: saved conversations
 import { installPanelContexts } from '../ai/context/panel-contexts.js'; // audit 2026-10-14: AI on masters/guide
-import { installBackgroundAlerts } from './background-alerts.js'; // v57.54: armed alerts keep a slow hidden-tab check
 import { readMarketRegime } from '../ui/components/market-regime.js';
 import { collectMarketInputs } from '../data/selectors/market-inputs.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
@@ -95,8 +94,11 @@ import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './ro
 if (typeof window !== 'undefined') {
   installCompatibilityGlobals(window); // v57.62: the window.* bridge assignments live in compatibility-globals.js
 try { installPanelContexts(window); } catch (_) { /* masters/guide keep the disabled panel */ }
-try { installBackgroundAlerts(window, document); } catch (_) { /* alerts still fire when the tab is visible */ }
 try { installChatSessions(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() }); } catch (_) { /* the panel keeps working without saved conversations */ }
+// Owner 2026-10-25: the 맞춤 profile and the touch chip fold load after boot (outside the boot module budget). Until the
+// profile module has loaded, a question carries the unset-profile line.
+import('../ui/components/ai-profile.js').then(({ installAIProfile }) => installAIProfile(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() })).catch(() => { /* answers fall back to the unset-profile line */ });
+import('../ui/components/ai-chip-fold.js').then(({ installAIChipFold }) => installAIChipFold(window, document)).catch(() => { /* the chips stay open */ });
 }
 import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALYSIS_DATA_SET } from '../state/slices/analysis.js';
 import { createAnalysisCommands } from './commands/analysis.js';
@@ -944,9 +946,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // long-open tab moves canonical quotes, evidence and the store to the new producer revision together. Only the
     // newest request commits, and an older snapshot never replaces a newer one.
     let snapshotRequest = 0;
+    let snapshotPending = 0;
     const loadSnapshot = () => {
       const ticket = ++snapshotRequest;
-      return snapshotLoader.load().then((result) => {
+      snapshotPending += 1;
+      return snapshotLoader.load().finally(() => { snapshotPending -= 1; }).then((result) => {
         if (disposed || ticket !== snapshotRequest || !result.ok) return result;
         const nextAt = Date.parse(result.snapshot?.generatedAt || '') || 0;
         const currentAt = Date.parse(marketSnapshot?.generatedAt || '') || 0;
@@ -957,7 +961,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     };
     const reloadSnapshotOnRevision = () => {
       const announced = root?._serverDataMeta?.marketSnapshotRevision || null;
-      if (!disposed && announced && marketSnapshot && announced !== marketSnapshot.revision) loadSnapshot().catch(() => {});
+      // v58.77 (pipeline audit RUNTIME-01): a tab whose first snapshot read failed (503) has no snapshot to compare, so it
+      // retried never; any announced revision now retries it, one request at a time.
+      if (disposed || !announced) return;
+      if (marketSnapshot ? announced !== marketSnapshot.revision : snapshotPending === 0) loadSnapshot().catch(() => {});
     };
     const stopSnapshotRevision = legacy.on('aio:serverDataLoaded', reloadSnapshotOnRevision);
     // P1654: extend the official release schedule from the producer artifact (refreshed with each server data load).

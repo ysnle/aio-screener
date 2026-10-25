@@ -2129,8 +2129,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (JSON.stringify(spans) !== JSON.stringify([{ start: '2026-01-01', end: '2026-01-02', tone: 'cold' }, { start: '2026-01-06', end: '2026-01-06', tone: 'hot' }])) fail(`v57.54 extreme spans group consecutive sessions by tone, got ${JSON.stringify(spans)}`);
   const evidence = tempUi.temperatureEvidence({ label: '코스피', from: '1999-01-05', state: 'cold', outcomes: { cold: { h63: { n: 39, mean: 5.6, se: 2.5, hitRate: 67, p10: -11.8 } }, all: { h63: { n: 6800, mean: 3.1, se: 1.25, hitRate: 60 } } } });
   if (!/1999년 이후 강한 냉각 구간이 시작된 첫날 중 서로 겹치지 않는 39번/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || /예측은 아닙니다/.test(evidence)) fail(`v57.54/v57.84 the past-spell line (overlap verdict carries the caveat; the boilerplate 예측 sentence is gone) names n, the ± range and whether it clears the baseline, got ${evidence}`);
-  const staleIds = tempUi.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }]);
+  const staleIds = tempUi.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }], Date.parse('2026-10-14T00:00:00Z'));
   if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
+  // v58.77 pipeline audit DATA-03: every market failing leaves them equally old; the artifact age and the calendar catch it.
+  const allOld = tempUi.staleMarketIds({ retained: [], generatedAt: '2025-01-02T00:00:00Z' }, [{ id: 'spx', asOf: '2025-01-01' }, { id: 'kospi', asOf: '2025-01-01' }], Date.parse('2026-10-14T00:00:00Z'));
+  const weekend = tempUi.staleMarketIds({ retained: [], generatedAt: '2026-10-18T20:00:00Z' }, [{ id: 'spx', asOf: '2026-10-16' }, { id: 'kospi', asOf: '2026-10-16' }], Date.parse('2026-10-18T22:00:00Z'));
+  if (allOld.size !== 2 || weekend.size !== 0) fail(`v58.77 DATA-03 an unchanged artifact after a full outage is stale; a weekend is not, got ${[...allOld]} / ${[...weekend]}`);
   // v57.83 codex audit F05 + R706: under 10 non-overlapping windows no average; 10-29 carries the small-sample note;
   // every kept 63-session window starts at least 63 sessions after the previous one.
   const tempEv = (n) => tempUi.temperatureEvidence({ label: 'x', from: '2000', state: 'hot', outcomes: { hot: { h63: { n, mean: 1, se: 1, hitRate: 50, p10: -5 } }, all: { h63: { n: 4000, mean: 2, se: 1, hitRate: 60 } } } });
@@ -3922,6 +3926,38 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (architecture.getState().marketSnapshot !== beforeStop || lateSnapshotEvents !== 0 || timers.size !== 0) {
     fail(`bootstrap: stop allowed late startup publication: ${JSON.stringify({ lateSnapshotEvents, pendingTimers: timers.size })}`);
   }
+}
+
+// ── v58.77 pipeline audit RUNTIME-01: a failed first snapshot read recovers on the next announced revision ──────
+{
+  const { createAIOArchitecture } = await load('src/app/bootstrap.js');
+  const runtimeRoot = new EventTarget();
+  runtimeRoot.setTimeout = () => 0;
+  runtimeRoot.clearTimeout = () => {};
+  runtimeRoot.location = { hash: '#home' };
+  runtimeRoot.document = runtimeRoot;
+  runtimeRoot.visibilityState = 'visible';
+  runtimeRoot.getElementById = () => null;
+  runtimeRoot.querySelector = () => null;
+  runtimeRoot.querySelectorAll = () => [];
+  const realSnapshot = JSON.parse(readFileSync(new URL('../public-data/market-snapshot.json', import.meta.url), 'utf8'));
+  let snapshotReads = 0;
+  const fetchImpl = async (url) => {
+    if (!/market-snapshot\.json/.test(String(url))) return { ok: false, status: 404, json: async () => ({}) };
+    snapshotReads += 1;
+    if (snapshotReads === 1) return { ok: false, status: 503, json: async () => ({}) };
+    return { ok: true, status: 200, json: async () => ({ ...realSnapshot, revision: 'rev-2' }) };
+  };
+  const architecture = createAIOArchitecture({ runtimeRoot, root: runtimeRoot, documentRef: runtimeRoot, now: () => Date.parse(realSnapshot.generatedAt), fetchImpl });
+  const stop = architecture.start();
+  await stop.ready;
+  const before = architecture.getState().marketSnapshot;
+  runtimeRoot._serverDataMeta = { marketSnapshotRevision: 'rev-2' };
+  runtimeRoot.dispatchEvent(new Event('aio:serverDataLoaded'));
+  for (let i = 0; i < 20 && architecture.getState().marketSnapshot?.revision !== 'rev-2'; i += 1) await new Promise((resolve) => setImmediate(resolve));
+  const after = architecture.getState().marketSnapshot;
+  stop();
+  if (before !== null || after?.revision !== 'rev-2' || snapshotReads !== 2) fail(`v58.77 RUNTIME-01 a failed first snapshot must retry on an announced revision: ${JSON.stringify({ before: before?.revision || null, after: after?.revision || null, snapshotReads })}`);
 }
 
 // ── P1389/P1390: briefing connected read + schedule ─────────────────────────────────────────

@@ -99,6 +99,12 @@ const marketCycle = getCompletedKst0800Cycle(now);
 // `lastPostId` cursor per channel and use it to stop pagination as soon as a page's newest
 // post ID is already <= what the previous run last saw, instead of always walking the
 // entire 14-day window every cycle.
+// P2047: the previous-digest merge below re-tags carried posts with classifyPost at load time, so the constants it
+// reads are declared before it; declared further down (v58.75) they were still in the TDZ, the merge threw, and the
+// digest dropped from ~2,400 posts to the ~100 fetched since the last cursor.
+const TAG_PRIORITY = Object.freeze(['insider', 'geo', 'macro', 'earnings', 'semi', 'optical', 'power', 'healthcare', 'ai-policy', 'crypto', 'credit', 'japan', 'kr-market', 'flows', 'equity', 'market-note']);
+const TAG_LIMIT = 4;
+const NEGATED_TOPIC = /(?:실적|어닝)\s*(?:발표\s*)?(?:은|을|를|은\s*)?\s*(?:제외|빼고|무관)|(?:excluding|ex-|aside from|apart from)\s*earnings/gi;
 const previousLastPostId = new Map();
 // Merge pool: the digest we write never persists the full raw item list (only capped
 // topItems/broadItems), so those are what we carry forward to backfill whatever an
@@ -160,7 +166,13 @@ if (outPath && existsSync(outPath)) {
         }
       }
     }
-  } catch (e) { console.warn(`[fetch-telegram-digest] previous digest read failed (non-fatal, full re-scan): ${e.message}`); }
+  } catch (e) {
+    // P2047: the warning promised a full re-scan, but cursors read before the throw stayed and only posts newer than
+    // them were fetched; a failed merge now really walks the whole window again.
+    previousLastPostId.clear();
+    previousMergePool = [];
+    console.warn(`[fetch-telegram-digest] previous digest read failed (non-fatal, full re-scan): ${e.message}`);
+  }
 }
 
 function decodeEntities(s) {
@@ -203,10 +215,8 @@ function stripLinks(text) { return String(text || '').replace(/https?:\/\/\S+|\b
 // v58.75 (persona review): a whole post was tagged by every rule its body touched (up to 8 tags), in rule order, so a
 // Netanyahu statement read as 한국장 and a long digest sat under every topic. The lead sentence decides the first tags
 // (ordered by TAG_PRIORITY, the renderer's order; `lead` says how many came from it), the body adds the rest, at most
-// TAG_LIMIT in all. A negated topic ("실적 제외", "excluding earnings") does not tag the post.
-const TAG_PRIORITY = Object.freeze(['insider', 'geo', 'macro', 'earnings', 'semi', 'optical', 'power', 'healthcare', 'ai-policy', 'crypto', 'credit', 'japan', 'kr-market', 'flows', 'equity', 'market-note']);
-const TAG_LIMIT = 4;
-const NEGATED_TOPIC = /(?:실적|어닝)\s*(?:발표\s*)?(?:은|을|를|은\s*)?\s*(?:제외|빼고|무관)|(?:excluding|ex-|aside from|apart from)\s*earnings/gi;
+// TAG_LIMIT in all. A negated topic ("실적 제외", "excluding earnings") does not tag the post. (TAG_PRIORITY, TAG_LIMIT and
+// NEGATED_TOPIC are declared above the previous-digest merge, which re-tags carried posts at load time.)
 function leadSentence(text) {
   for (const part of String(text || '').split(/\n|\s>\s|(?<=[.!?다])\s+/)) {
     const lead = part.replace(/^[\s>·•\-–—]+/, '').trim();

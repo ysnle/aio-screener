@@ -1538,8 +1538,8 @@
     // T350~T354: 5 페이지 subSections enumerate
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var pgs = pageReg && pageReg.pages;
-    _assert('T350 v57.78 theme_detail_subsections_3: enumerate, retired sections pruned',
-      pgs && pgs['theme-detail'] && Array.isArray(pgs['theme-detail'].subSections) && pgs['theme-detail'].subSections.length === 3,
+    _assert('T350 v58.76 theme_detail_subsections_1: the native detail panel is the one section (legacy block retired)',
+      pgs && pgs['theme-detail'] && Array.isArray(pgs['theme-detail'].subSections) && pgs['theme-detail'].subSections.length === 1,
       'count=' + (pgs && pgs['theme-detail'] && pgs['theme-detail'].subSections ? pgs['theme-detail'].subSections.length : '?'));
 
     _assert('T351 v57.78 portfolio_subsections_5: enumerate, retired sections pruned',
@@ -1619,8 +1619,9 @@
     var r101 = window.AIO && window.AIO.getLiveSymbolsCoverageAudit && window.AIO.getLiveSymbolsCoverageAudit();
     _assert('T364 live_symbols_coverage_zero_missing', r101 && r101.issueCount === 0, 'issueCount=' + (r101 ? r101.issueCount : '?'));
     _assert('T365 kr_manufacturing_pmi_is_runtime_or_explicitly_unavailable', DATA_SNAPSHOT.krManufPmi == null || (Number(DATA_SNAPSHOT.krManufPmi) >= 0 && Number(DATA_SNAPSHOT.krManufPmi) <= 100), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
-    var vk = document.getElementById('kr-vkospi-chart');
-    _assert('T366 kr_vkospi_canvas_height_guard', vk && (vk.style.height === '160px' || vk.getAttribute('height') === '160'), 'height=' + (vk ? (vk.style.height || vk.getAttribute('height')) : '?'));
+    _assert('T366 v58.76 kr_dev_cards_retired: developer-only KR widgets and their writers are absent',
+      !document.getElementById('kr-vkospi-chart') && !document.getElementById('kr-health-vkospi') && typeof initKoreaTechnical === 'undefined' && typeof calcKrYieldSpreads === 'undefined',
+      'initTech=' + typeof initKoreaTechnical);
     _assert('T367 showPage_global_binding', typeof window.showPage === 'function', 'typeof=' + typeof window.showPage);
   }
 
@@ -2002,11 +2003,7 @@
     _assert('T421 chat_named_entity_v4958: "Bessent/Warsh" 패턴 제거',
       !/Bessent\/Warsh/.test(techSysText), /Bessent\/Warsh/.test(techSysText) ? 'STILL PRESENT' : 'ok');
 
-    // T422: VKOSPI 임계값 < 20 → "정상" (P278 fix)
-    var hvkEl = document.getElementById('kr-health-vkospi');
-    _assert('T422 vkospi_label_v4958: missing live evidence renders unavailable instead of a normal seed',
-      hvkEl && (hvkEl.textContent || '').trim() === '—' && !hvkEl.hasAttribute('data-snap'),
-      hvkEl ? 'text=' + hvkEl.textContent : 'missing');
+    // T422 → v58.76: the developer-only VKOSPI health card is retired (T366 covers the absence).
 
     // T423: showTicker 호출 시 _currentTickerId 설정 source 검증
     var stSrc = typeof showTicker === 'function' ? showTicker.toString() : (typeof window.showTicker === 'function' ? window.showTicker.toString() : '');
@@ -2633,57 +2630,16 @@
 
   // v49.70 P371~P376 R132~R134: AI 채팅 고급 기능 (사용자 프로필 + 알람 + 다운로드 + 시뮬레이션) 회귀 방지
   function _testV4970Advanced() {
-    // T541: 사용자 프로필 (get/set/buildContext) 함수 정의
-    _assert('T541 user_profile_fns_v4970: _aioGetUserProfile + _aioSetUserProfile + _buildUserProfileContext 모두 정의',
-      typeof window._aioGetUserProfile === 'function' && typeof window._aioSetUserProfile === 'function' && typeof window._buildUserProfileContext === 'function',
-      'get=' + typeof window._aioGetUserProfile + ' set=' + typeof window._aioSetUserProfile + ' build=' + typeof window._buildUserProfileContext);
-
-    // T542: _buildUserProfileContext가 _getV48IntegratedContext에 자동 통합
+    // v58.76: the console-only profile, alert and export functions are retired; the AI still receives the
+    // "do not assume a risk profile" line through _buildUserProfileContext.
+    _assert('T541 v58.76 profile_alert_export_retired: profile get/set, alerts and chat export absent',
+      typeof window._aioGetUserProfile === 'undefined' && typeof window._aioSetUserProfile === 'undefined' && typeof window._aioAddAlert === 'undefined'
+        && typeof window._aioCheckAlerts === 'undefined' && typeof window._aioExportChatData === 'undefined' && !(window.AIO && (window.AIO.addAlert || window.AIO.exportChatData || window.AIO.assertChatAdvancedFeaturesAudit)),
+      'profile=' + typeof window._aioSetUserProfile + ' alert=' + typeof window._aioAddAlert + ' export=' + typeof window._aioExportChatData);
     var v48Src = typeof window._getV48IntegratedContext === 'function' ? window._getV48IntegratedContext.toString() : '';
     _assert('T542 user_profile_v48_integration_v4970: _getV48IntegratedContext에서 _buildUserProfileContext 호출',
-      v48Src.indexOf('_buildUserProfileContext') >= 0,
+      typeof window._buildUserProfileContext === 'function' && v48Src.indexOf('_buildUserProfileContext') >= 0 && /가정하지 말고/.test(window._buildUserProfileContext()),
       'integrated=' + (v48Src.indexOf('_buildUserProfileContext') >= 0));
-
-    // T543: 알람 함수 (get/add/check) 정의 + 1분 자동 점검 — v57.77: test-only remove/parse retired
-    var alertFns = ['_aioGetAlerts', '_aioAddAlert', '_aioCheckAlerts'];
-    var alertMissing = alertFns.filter(function(fn) { return typeof window[fn] !== 'function'; });
-    _assert('T543 v57.77 alert_fns: 3 알람 함수 정의 (get/add/check)',
-      alertMissing.length === 0,
-      'missing=' + alertMissing.join(','));
-
-    // T544 → v57.77: the natural-language alert parser and the alert remover had no production caller and are retired.
-    _assert('T544 v57.77 alert_parse_remove_retired: _aioParseAlertIntent and _aioRemoveAlert absent',
-      typeof window._aioParseAlertIntent === 'undefined' && typeof window._aioRemoveAlert === 'undefined',
-      'parse=' + typeof window._aioParseAlertIntent + ' remove=' + typeof window._aioRemoveAlert);
-
-    // T545: 데이터 다운로드 (CSV/JSON/MD) + 클립보드 폴백
-    // v58.19: 항상 조기 반환하던 _aioExportFromBtn 확인은 함수와 함께 제거.
-    _assert('T545 export_chat_data_v4970: _aioExportChatData 정의',
-      typeof window._aioExportChatData === 'function',
-      'export=' + typeof window._aioExportChatData);
-
-    // T546 → v57.77: the amount / index-percent simulator had no production caller and is retired.
-    _assert('T546 v57.77 simulate_amount_pct_retired: window._aioSimulateAmountOrPct absent',
-      typeof window._aioSimulateAmountOrPct === 'undefined',
-      typeof window._aioSimulateAmountOrPct);
-
-    // T547: AIO API 노출 (getAlerts/addAlert/getUserProfile/setUserProfile/exportChatData)
-    var aioFns = ['getAlerts', 'addAlert', 'getUserProfile', 'setUserProfile', 'exportChatData', 'assertChatAdvancedFeaturesAudit'];
-    var missingApi = aioFns.filter(function(fn) { return typeof (window.AIO && window.AIO[fn]) !== 'function'; });
-    _assert('T547 aio_api_exposed_v4970: 6 AIO 콘솔 API 모두 노출',
-      missingApi.length === 0,
-      'missing=' + missingApi.join(','));
-
-    // T548: assertChatAdvancedFeaturesAudit + coveragePct 100%
-    var caf = window.AIO && typeof window.AIO.assertChatAdvancedFeaturesAudit === 'function' && window.AIO.assertChatAdvancedFeaturesAudit();
-    _assert('T548 chat_advanced_audit_v4970: assertChatAdvancedFeaturesAudit + coveragePct 100',
-      caf && caf.coveragePct === 100,
-      caf ? ('cov=' + caf.coveragePct + ' fn=' + caf.fnCount + ' integ=' + caf.integCount + ' api=' + caf.apiCount) : 'audit missing');
-
-    // T549: 사이드바 audit row 10번째 (chatAdvanced) DOM 존재
-    var cafEl = document.querySelector('[data-audit-key="chatAdvanced"]');
-    _assert('T549 sidebar_chat_advanced_row_v4970: 사이드바 audit row [data-audit-key="chatAdvanced"] DOM 존재',
-      !!cafEl, 'cafEl=' + (!!cafEl));
 
     // T550: APP_VERSION >= 'v49.71' (v49.71 MEMO 커버리지 + 신선도)
     _assert('T550 app_version_v4971_memo: APP_VERSION >= "v49.71"',
@@ -3162,7 +3118,6 @@
     // T641~T642: theme detail panels must degrade gracefully before live quotes arrive.
     var prevLive = window._liveData;
     var themeOk = false;
-    var subOk = false;
     try {
       window._liveData = {};
       if (typeof window.showPage === 'function') window.showPage('themes');
@@ -3181,26 +3136,17 @@
           themeOk = themeSelectionQueued && (!nativeThemeDetailMounted || themeDetailVisible);
         }
       }
-      if (typeof window.showSubThemeDetail === 'function') {
-        var firstSub = window.SUB_THEMES && window.SUB_THEMES[0] && window.SUB_THEMES[0].id;
-        if (firstSub) {
-          window.showSubThemeDetail(firstSub);
-          var subPanel = document.getElementById('sub-theme-detail-panel');
-        subOk = !!(subPanel && subPanel.style.display !== 'none' && (/LIVE REQUIRED|시세 대기|판정 보류/.test(subPanel.textContent || '')));
-        }
-      }
     } catch(eThemeNoLive) {
       themeOk = false;
-      subOk = false;
     } finally {
       window._liveData = prevLive;
     }
     _assert('T641 theme_detail_no_live_no_throw_v4979: no-live theme detail opens with LIVE REQUIRED',
       themeOk,
       'themeOk=' + themeOk);
-    _assert('T642 subtheme_detail_no_live_no_throw_v4979: no-live subtheme detail opens with LIVE REQUIRED',
-      subOk,
-      'subOk=' + subOk);
+    _assert('T642 v58.76 subtheme_detail_retired: the developer-only 세분화 테마 panel and grid are absent',
+      typeof window.showSubThemeDetail === 'undefined' && !document.getElementById('sub-theme-detail-panel') && !document.getElementById('sub-themes-grid'),
+      'show=' + typeof window.showSubThemeDetail);
     var allThemeDetailOk = true;
     var allThemeVisibleOk = false;
     var themeDetailRouteOk = false;
@@ -3294,10 +3240,9 @@
     _assert('T866 breadth_regime_contract_and_zero_delta_v5460: 32% breadth classifies fearful red and zero delta is neutral 0pp',
       t866ok,
       t866detail);
-    var calcKrHealthSrc868 = typeof calcKrHealthScore === 'function' ? calcKrHealthScore.toString() : '';
-    _assert('T868 vkospi_failure_state_contract_v5234: VKOSPI 연속 실패 시 실패 상태를 노출하고 calcKrHealthScore가 그 상태를 스냅샷 값으로 덮어쓰지 않음',
-      typeof _showVkospiFailureState === 'function' && typeof _vkospiIsFailedState === 'function' && /_vkospiIsFailedState\(\)/.test(calcKrHealthSrc868),
-      'showFn=' + typeof _showVkospiFailureState + ' isFailedFn=' + typeof _vkospiIsFailedState + ' guarded=' + /_vkospiIsFailedState\(\)/.test(calcKrHealthSrc868));
+    _assert('T868 vkospi_failure_state_contract_v5234 → v58.76: repeated VKOSPI failures still clear the live flag',
+      typeof _showVkospiFailureState === 'function' && typeof _vkospiIsFailedState === 'function' && /_vkospiLiveOk = false/.test(_showVkospiFailureState.toString()),
+      'showFn=' + typeof _showVkospiFailureState);
     var compositionAudit = window.AIO && typeof window.AIO.getThemeCompositionLogicAudit === 'function' && window.AIO.getThemeCompositionLogicAudit();
     _assert('T643 theme_composition_logic_audit_defined_v4979: theme composition logic audit exists',
       compositionAudit && compositionAudit.counts && compositionAudit.counts.themes >= 100,
@@ -4308,23 +4253,7 @@
       fcAudit && fcAudit.coveragePct >= 80,
       fcAudit ? 'coverage=' + fcAudit.coveragePct + '%' : 'missing');
 
-    // T277: VKOSPI 인라인 DATA_SNAPSHOT 정합
-    var vkEl = document.getElementById('kr-vkospi-val');
-    var vkExpected = typeof DATA_SNAPSHOT !== 'undefined' ? Number(DATA_SNAPSHOT.vkospi) : NaN;
-    var vkActual = vkEl ? Number((vkEl.textContent.match(/[\d.]+/) || [])[0]) : NaN;
-    _assert('T277 vkospi_inline_fix: missing live evidence does not expose a static seed',
-      vkEl && (vkEl.textContent || '').trim() === '—' && !vkEl.hasAttribute('data-snap'),
-      vkEl ? 'text=' + vkEl.textContent : 'missing');
-
-    // T278: kr-health-vkospi (kr-technical) DATA_SNAPSHOT 정합
-    // FABLE-LIVE-AUDIT-2026-07-07 C4/L1: applyDataSnapshot()의 vkospi 라벨이 폴백 시드값에
-    // 단정적 "(정상)"을 붙이던 문제를 "(폴백·정상 추정)"으로 정직화(aio-core.js). 임계값 매핑 자체
-    // (17.80→정상 tier)는 그대로이므로 새 포맷으로 갱신해 검증.
-    var hvkEl = document.getElementById('kr-health-vkospi');
-    var hvkActual = hvkEl ? Number((hvkEl.textContent.match(/[\d.]+/) || [])[0]) : NaN;
-    _assert('T278 kr_health_vkospi: health card rejects static VKOSPI classification',
-      hvkEl && (hvkEl.textContent || '').trim() === '—' && !hvkEl.hasAttribute('data-snap'),
-      hvkEl ? 'text=' + hvkEl.textContent : 'missing');
+    // T277/T278 → v58.76: the developer-only VKOSPI value and health cards are retired (T366 covers the absence).
   }
 
   // ── Group40: v49.32 AI 채팅 정확성 + 종목 데이터 통합 검증 ──────────────
@@ -4526,10 +4455,10 @@
     _assert('T244 chat_named_entity_generalized: "Bessent/Warsh" 제거',
       !hasBessentWarsh, hasBessentWarsh ? 'STILL PRESENT' : 'ok');
 
-    // T245: 반도체 수출 +157.9% data-snap 바인딩 (3곳 중 최소 1곳)
+    // T245 → v58.76: the only 수출·반도체 sink sat in the retired developer-only 현재 입력 card; none may linger half-wired.
     var semiEls = document.querySelectorAll('[data-snap^="kr-semi-export"]');
-    _assert('T245 kr_semi_export_dynamic: data-snap 바인딩 ≥1',
-      semiEls.length >= 1, 'count=' + semiEls.length);
+    _assert('T245 v58.76 kr_semi_export_card_retired: no orphan 수출·반도체 sink remains',
+      semiEls.length === 0, 'count=' + semiEls.length);
 
     // T246: assertSnapshotInlineMatch 호출 가능 + mismatch 0 (KOSPI 시정 후)
     var inlineMatch = window.AIO && window.AIO.assertSnapshotInlineMatch
@@ -5988,23 +5917,10 @@
     _assert('T813 v57.62 technical_context_expanded: 티커 감지 시 전 컨텍스트 기술 분석 동반(3종 한정 해제, chatSendUnified)', t813ok, t813detail);
 
     // ─── v50.41 선순환 연결 계층: 크로스-페이지 뉴스 통합 ───
-    // T814: 분석 8페이지가 공유 뉴스캐시에 토픽 필터로 연결(계약 + buildNewsSurfaceModel 토픽 필터 + 렌더 fn + audit)
-    var t814ok = false, t814detail = '';
-    try {
-      var contracts814 = window.AIO_NEWS_SURFACE_CONTRACTS || {};
-      var anaPages = ['macro','fxbond','technical','themes','sentiment','signal','fundamental','breadth'];
-      var allHaveContract = anaPages.every(function(p){ var c = contracts814[p]; return c && Array.isArray(c.topics) && c.topics.length > 0; });
-      var renderFn814 = typeof window._aioRenderPageNewsStrip === 'function';
-      var auditFn814 = !!(window.AIO && typeof window.AIO.getConnectiveLayerAudit === 'function');
-      var aud814 = auditFn814 ? window.AIO.getConnectiveLayerAudit() : null;
-      var auditOk814 = !!(aud814 && aud814.status === 'ok' && aud814.analysisPagesWired === 8 && aud814.newsSurfaceCount >= 11 && (aud814.missingContract||[]).length === 0);
-      // buildNewsSurfaceModel이 분석 surfaceId(macro)를 인식 + 토픽 필터 동작(throw 안 함)
-      var modelOk814 = false;
-      try { var m814 = window.AIO.buildNewsSurfaceModel('macro', window._allNewsItems || [], {}); modelOk814 = !!(m814 && Array.isArray(m814.items)); } catch(_) { modelOk814 = false; }
-      t814ok = allHaveContract && renderFn814 && auditOk814 && modelOk814;
-      t814detail = 'contracts8=' + allHaveContract + ' renderFn=' + renderFn814 + ' auditStatus=' + (aud814 ? aud814.status : 'na') + ' wired=' + (aud814 ? aud814.analysisPagesWired : '-') + '/8 surfaces=' + (aud814 ? aud814.newsSurfaceCount : '-') + ' macroModel=' + modelOk814;
-    } catch(e) { t814detail = 'ERR:' + e.message; }
-    _assert('T814 v5041_connective_layer: 분석 8페이지 크로스-페이지 뉴스 연결(계약+토픽필터+렌더+audit ok)', t814ok, t814detail);
+    // T814 (v58.76): the per-screen 관련 뉴스 strip and its connective-layer audit are retired.
+    _assert('T814 v58.76 page_news_strip_retired: strip renderer and connective audit absent',
+      typeof window._aioRenderPageNewsStrip === 'undefined' && !(window.AIO && window.AIO.getConnectiveLayerAudit) && !document.querySelector('.aio-page-news-strip'),
+      'render=' + typeof window._aioRenderPageNewsStrip);
 
     // ─── v50.42 Market State Core: 단일 두뇌(선순환 오케스트레이션) ───
     // T815: computeMarketState 합성 + AIO.marketState 캐시 + aio:marketStateUpdated 발행 + coherence audit + AutoOps 통합
@@ -7061,13 +6977,6 @@
       if (pulse && getComputedStyle(pulse).display !== 'none') failures869.push('market-pulse-visible');
       Array.prototype.forEach.call(document.querySelectorAll('.page > .aio-decision-header'), function(el) {
         if (getComputedStyle(el).display !== 'none') failures869.push('decision-header-visible');
-      });
-      pages869.forEach(function(id) {
-        var page = document.getElementById('page-' + id);
-        if (!page) return;
-        Array.prototype.forEach.call(page.querySelectorAll(':scope > .aio-page-news-strip'), function(el) {
-          if (getComputedStyle(el).display !== 'none') failures869.push(id + ':related-news-visible');
-        });
       });
       var homeDetails = document.querySelectorAll('#page-home > details.aio-card');
       Array.prototype.forEach.call(homeDetails, function(el) {
@@ -8569,15 +8478,7 @@
         && (regime1034 == null || typeof regime1034.sufficient === 'boolean'),
       'global=' + typeof window.computeMarketHealth + ' facade=' + !!(window.AIO_ARCH && 'computeMarketHealth' in window.AIO_ARCH) + ' sufficient=' + (regime1034 && regime1034.sufficient));
 
-    var krYieldOldLd = window._liveData;
-    try {
-      window._liveData = {};
-      var krYieldMissing = typeof calcKrYieldSpreads === 'function' ? calcKrYieldSpreads() : null;
-      // v58.19: 퇴역한 updateKrMacroFromLive 소스 검사(항상 빈 문자열) 제거 — calcKrYieldSpreads가 단독으로 판정한다.
-      _assert('T1035 kr_yield_current_source_fail_closed: historical KR bond seeds cannot become current yields or spreads',
-        krYieldMissing && krYieldMissing.available === false && krYieldMissing.spread3y10y === null,
-        JSON.stringify(krYieldMissing));
-    } finally { window._liveData = krYieldOldLd; }
+    // T1035 → v58.76: the developer-only KR spread widget (calcKrYieldSpreads) is retired.
 
     var breadthOld = window._aioScreenerBreadth;
     try {

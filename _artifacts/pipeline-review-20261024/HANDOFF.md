@@ -269,6 +269,10 @@ affected 명령은 `node scripts/qa-runner.mjs affected --files _artifacts/pipel
 
 독립성: 주 담당자 + 데이터 / runtime·AI / knowledge·QA의 읽기 전용 reviewer 3개. 동일 계열 모델의 독립 context이므로 **independence: limited**. 주 담당자가 최종 10개 재현 항목을 다시 실제 함수/runner에 실행하고 근거를 대조했다. 낮은 effort reviewer의 단독 결론을 그대로 확정하지 않았고 FRED 후보 1개는 활성 경로 증거가 부족해 제외했다.
 
+## 후속 감사 상태
+
+v58.75에서 이어진 개별 경로 판독·추가 결함 재현·남은 범위는 [PASS2-HANDOFF.md](./PASS2-HANDOFF.md)에 기록했다. **전체 파이프라인 전수 검토 완료 상태는 아니다.** 아래 원래 종료 기록은 당시 snapshot에 대한 기록이며 후속 감사 기준과 구분한다.
+
 ## 8. 미검증·차단·권한 상태
 
 외부 공급자 최신 응답, GitHub Actions 실제 동시 실행, Cloudflare secret/DO/KV provisioning·실청구, 실제 공개 페이지·캐시 업데이트, 전 route DOM, SEC/13F 모든 form/단위/amendment와 factor 수식 전수 검증은 수행하지 않았다. 인증·네트워크 실패 때문에 시도하다 막힌 것이 아니라 읽기 전용 범위에서 해당 생산·배포 동작을 실행하지 않은 것이다.

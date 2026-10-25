@@ -44,10 +44,9 @@ check('date label must not use shifted Date.getDay()', !/kst\.getDay\(\)/.test(u
 // single-writer rule is AG-DOM-WRITER). The legacy pin here matched an unused variable; the KST intent moves to the owner.
 check('v58.55 home date line must use the KST formatter', /getElementById\('home-date-label'\)[\s\S]{0,400}timeZone: 'Asia\/Seoul'/.test(read('src/ui/components/market-regime.js')));
 
-check('KOSPI previous-close sink must exist', /data-live-prev-close="\^KS11"/.test(html));
-check('KOSDAQ previous-close sink must exist', /data-live-prev-close="\^KQ11"/.test(html));
+// v58.76: the KOSPI/KOSDAQ cards that carried these sinks were developer-only and are retired; the quote pipeline below
+// still writes any [data-live-prev-close] / [data-live-kr-change] sink (the T823 fixture covers the behaviour).
 check('KOSDAQ snapshot previous-close mapping must exist', /'kosdaq-prev':\s+_snap\.localeFull\(S\.kosdaqPrev\)/.test(core));
-check('KR change sink must preserve date-reference child', /data-live-kr-change="\^KS11"/.test(html));
 check('quote pipeline must update previous-close sinks', /data-live-prev-close/.test(data) && /previousClose\.toLocaleString/.test(data));
 check('KR change sink must derive delta from the same price and previous close', /atomicDelta = price - previousClose/.test(data));
 check('T823 KST/KR regression test must exist', /T823 v5056_kst_kr_index_contract/.test(tests));

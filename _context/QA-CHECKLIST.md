@@ -1,8 +1,37 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-24
+last_verified: 2026-10-25
 confidence: medium
 ---
+
+## v58.77 v58.77 파이프라인 감사 잔여 결함, AI 답변 맞춤, 모바일 예시 질문 (2026-10-25) (2026-10-25)
+
+- [x] QA-MACRO-MONTH-01: P2048: 공식 월 승격은 같은 월의 변화량만 싣고, 공식 실패 런에도 기준월이 역행하지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-MACRO-MONTH-LIVE-01: P2048: push 뒤 다음 CPI·PCE 발표 갱신에서 data.json의 cpiDelta·pceDelta가 같은 기준월의 변화이고 서사 방향이 그 값과 맞는다. verify_by: push 뒤 refresh-data → public-data/data.json macro.cpi/_asOf_cpi/cpiDelta
+- [x] QA-TEMP-STALE-01: P2049: 전 시장 동시 실패 뒤 온도계 타일이 갱신 지연으로 표시되고 극단 문장에서 빠진다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-EXT-REBASE-01: P2050: extended shard는 rebase 뒤 새 core와 다시 검증된 경우에만 push된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-OPS-PAGES-RECOVER-01: P2051: Pages 장애 이슈는 배포·검증이 실제로 된 run에서만 닫힌다. verify_by: node scripts/ci-workspace-contract-check.mjs
+- [x] QA-OPS-CI-TIMEOUT-01: P2052: 시간초과·승인대기 CI는 수렴 job을 실패로 끝낸다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [x] QA-RUNTIME-SNAPSHOT-RETRY-01: P2053: 첫 스냅샷 실패 뒤 다음 revision 알림에서 시세·근거·스토어가 함께 회복된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-AI-EVENT-BIND-01: P2054: 현재 사건 문장은 그 주어를 담은 근거가 있을 때만, 단위 없는 지수 수치는 근거가 있을 때만 공개된다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-KNOW-LKG-REF-01: P2055: 보존된 거시값은 지식 화면에서 자동 갱신 현재값으로 승격되지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-KNOW-PARITY-SELECT-01: P2056: 지식 빌더 import closure의 어느 파일이 바뀌어도 affected QA가 knowledge-generated-parity를 실행한다. verify_by: node scripts/ci-qa-pipeline-contract-check.mjs
+- [x] QA-CBOE-RECEIPT-01: P2057: Cboe 수집 실패 런의 receipt는 retained로 남고 마지막 성공 시각을 전진시키지 않는다. verify_by: node scripts/ci-review-integrity-unit-check.mjs
+- [x] QA-FMP-QUERY-01: P2058: FMP query가 있는 endpoint도 API 키가 정상 파라미터로 전달된다. verify_by: node scripts/ci-review-integrity-unit-check.mjs
+- [x] QA-DOSSIER-WORD-01: P2059: dossier 근거는 단어 단위로만 연결되고 정당한 약어·복합어 연결은 유지된다. verify_by: node scripts/ci-review-integrity-unit-check.mjs
+- [x] QA-AI-PROFILE-01: v58.77 AI 답변 맞춤: 패널 머리의 "맞춤"에서 경험·관점(최대 3)·기간·손실 감내·시장·관심 분야·길이를 이 브라우저에 저장하고, 모든 질문의 문맥에 설명 방식 조정용으로 실린다. 종목·매매·비중·시점·적합성 판정은 하지 않는다(R724). verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-CHIPS-TOUCH-01: v58.77 예시 질문: 터치·좁은 화면에서 첫 질문 전에는 한 줄 가로 스크롤, 대화가 시작되면 "이어 물어볼 질문 n개" 버튼으로 접히고, 입력 중에는 숨는다. 넓은 데스크톱은 그대로. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [ ] QA-AI-CHIPS-DEVICE-01: v58.77 예시 질문 접기를 실제 iPhone·iPad(가상 키보드)에서 확인한다. verify_by: push 뒤 실기기에서 AI 패널 질문 1회 → 칩 접힘·입력 중 숨김 확인
+- [x] QA-AI-WEBSEARCH-STATUS-01: P2060: 웹검색 상태 줄은 답변 완료·재시도·실패 뒤 결과 문구로 바뀐다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-LEARN-01: v58.77 사용 기록 학습: 맞춤 시트에서 켤 때만 여는 화면·질문 주제·앱이 확정한 종목·테마의 횟수를 이 브라우저에 쌓고(질문 원문 미저장, 2주 반감기), 직접 고른 설정이 없는 칸만 "사용 기록 추정"으로 AI 문맥에 싣는다. 학습 내용 보기·지우기, 끄면 삭제. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [ ] QA-AI-LEARN-LIVE-01: v58.77 사용 기록 학습을 배포본에서 켜고 며칠 사용한 뒤 요약이 실제 사용과 맞는지, 끄면 저장소에서 사라지는지 확인한다. verify_by: push 뒤 배포본 AI 패널 맞춤 시트 → 사용 기록 요약·끄기 후 localStorage aio_ai_learned_v1 부재
+
+## v58.76 v58.76 파이프라인 복구와 개발자 전용 화면 정리 (2026-10-24) (2026-10-24)
+
+- [x] QA-TG-MERGE-01: P2047: 텔레그램 생산자가 이전 요약을 병합하며 로드 시점 예외 없이 14일 창을 이어 간다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-TG-MERGE-LIVE-01: P2047: push 뒤 다음 갱신의 telegram-digest count가 다시 1,000건 이상이고 외부 파이프라인 점검이 통과한다. verify_by: push 뒤 refresh-data 실행 → public-data/telegram-digest.json count, Data freshness watchdog 결과
+- [x] QA-DEVONLY-RETIRE-01: v58.76 개발자 전용 정리: 화면별 관련 뉴스 띠, AI 인프라 연구 지도, 세분화 테마, SEC 연간 재무 스캔, 한국 data-dev-only 카드, 죽은 #page-theme-detail 블록이 사라지고 그 작성 코드도 없다. verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-CONSOLE-FN-RETIRE-01: v58.76 콘솔 전용 함수 정리: 사용자 프로필 저장, 가격·VIX 알림(숨은 탭 점검 포함), 채팅 내보내기가 없고 AI에는 '성향을 가정하지 말라'는 줄만 남는다. verify_by: node scripts/qa-runner.mjs group headless
 
 ## v58.75 v58.75 사용자 유형 검토 (2026-10-24) (2026-10-24)
 

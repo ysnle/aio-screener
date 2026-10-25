@@ -187,6 +187,7 @@ jobs:
         id: market-temperature
         if: ${{ !cancelled() }}
         continue-on-error: true
+        timeout-minutes: 8 # v58.77 pipeline audit DATA-04: the auxiliary lane cannot use up the job's time budget
         run: node scripts/build-market-temperature.mjs
 
       - name: Refresh weekly SEC 13F and daily 13D-G discovery

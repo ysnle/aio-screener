@@ -338,4 +338,8 @@ console.log('codex-structure-regression-fixture: OK');
   assert.equal(failed.status, 1, `an earlier data revision whose CI settled red fails the awaiting cycle: ${failed.stdout}${failed.stderr}`);
   assert.match(failed.stdout, /previous data revision old settled with a failed CI run 49/);
   assert.equal(converge('success').status, 0, 'an earlier green data revision leaves the awaiting cycle green');
+  // v58.77 pipeline audit OPS-02: a timed-out or approval-blocked CI run is a failed attestation; a cancelled one is not.
+  assert.equal(converge('timed_out').status, 1, 'P2052 an earlier data revision whose CI timed out fails the awaiting cycle');
+  assert.equal(converge('action_required').status, 1, 'P2052 an earlier data revision whose CI needs approval fails the awaiting cycle');
+  assert.equal(converge('cancelled').status, 0, 'P2052 a cancelled earlier run stays green');
 }

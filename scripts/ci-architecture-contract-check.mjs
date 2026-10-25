@@ -314,7 +314,7 @@ const indexHtmlSource = read('index.html');
 // and quietly weaken the assertions below).
 // P1133/R620: showThemeDetail/closeThemeDetail/showSubThemeDetail moved with block D to js/aio-pages.js.
 const showThemeDetailSource = pagesSource.slice(pagesSource.indexOf('function showThemeDetail'), pagesSource.indexOf('function closeThemeDetail'));
-const closeThemeDetailSource = pagesSource.slice(pagesSource.indexOf('function closeThemeDetail'), pagesSource.indexOf('function showSubThemeDetail'));
+const closeThemeDetailSource = pagesSource.slice(pagesSource.indexOf('function closeThemeDetail'), pagesSource.indexOf('function collectPriceHistory')); // v58.76: showSubThemeDetail retired
 if (showThemeDetailSource.includes("container.style.display = 'block'") || showThemeDetailSource.includes("container.dataset.currentTheme = themeId") || closeThemeDetailSource.includes("p.style.display = 'none'")) fail('legacy theme detail panel writer returned after P818 cutover');
 if (!showThemeDetailSource.includes('themesPageActive') || !showThemeDetailSource.includes("window.showPage('theme-detail')")) fail('ticker-to-theme detail bridge does not route when the owning themes page is inactive');
 if (!coreSource.includes('nativeThemeDetailMounted') || !themesPageSource.includes('pendingThemeId') || !themesPageSource.includes('queueMicrotask(() => requestThemeDetail(pendingThemeId))')) fail('theme-detail lazy-mount pending handoff contract missing');
@@ -343,16 +343,8 @@ for (const marker of ['renderFundamentalStatus', "route === 'fundamental'", 'fun
 }
 // P815: the bounded SEC-derived fundamental summary is native; the former inline
 // aggregate report entry point is inert and must not reacquire the surface.
-for (const marker of ['renderFundamentalSummary', 'fund-analysis-text', 'aioFundamentalSummaryRenderer', 'SEC']) {
-  if (!entityPageSource.includes(marker)) fail(`native fundamental summary renderer marker missing: ${marker}`);
-}
+// v58.76: the developer-only SEC 연간 재무 스캔 (summary line + watchlist cards) is retired; R705 below fails any writer that returns.
 if (pagesSource.includes("document.getElementById('fund-analysis-text')") || pagesSource.includes('_generateFundamentalAnalysis(FUND_FALLBACK')) fail('legacy fundamental summary writer returned after P815 cutover');
-for (const marker of ['renderFundamentalWatchlist', 'fund-cards-grid', 'aioFundamentalWatchlistRenderer', 'fundamentalsWatchlist']) {
-  if (!entityPageSource.includes(marker)) fail(`native SEC fundamental watchlist renderer marker missing: ${marker}`);
-}
-for (const marker of ['data-aio-entity-symbol', 'aio:entityChanged', 'sec-watchlist']) {
-  if (!entityPageSource.includes(marker)) fail(`native SEC fundamental selection marker missing: ${marker}`);
-}
 if (/\b(?:FUND_FALLBACK|buildFundCard|initFundamentalCards)\b/.test(pagesSource)) fail('legacy hardcoded fundamental watchlist writer returned');
 if (/function\s+fundamentalCardClick\s*\(/.test(pagesSource)) fail('legacy fundamental card provider-search delegate returned');
 // P819 -> v58.20: the breadth diagnostic signal/text elements are no longer rendered (no id is created anywhere), so

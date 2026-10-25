@@ -145,12 +145,17 @@ async function findAttestedRun(runs) {
 // 12-minute wait ended that cycle as AWAITING (green); the next cycle awaited a newer commit, so a failed data CI was
 // seen only by the 6-hour freshness watchdog. Each awaiting cycle now looks back at the newest settled dispatched data
 // CI for an earlier revision: a failure there (with nothing newer settled green) fails this cycle within ~30 minutes.
+// v58.77 (pipeline audit OPS-02): a CI run that timed out, needs approval or never started is a failed attestation too;
+// only a cancelled run (superseded by a newer one) or a skipped one stays green.
+const UNSUCCESSFUL = new Set(['failure', 'timed_out', 'action_required', 'startup_failure']);
+const unsuccessful = (run) => UNSUCCESSFUL.has(run && run.conclusion);
+
 async function previousDataCiFailure(targetSha) {
   const payload = await api(`/repos/${REPO}/actions/workflows/ci.yml/runs?branch=main&event=workflow_dispatch&per_page=20`);
   const earlier = (payload.workflow_runs || [])
     .filter((run) => run.head_sha !== targetSha && run.status === 'completed' && run.conclusion !== 'cancelled' && run.conclusion !== 'skipped')
     .sort((left, right) => Number(right.id) - Number(left.id));
-  return earlier[0] && earlier[0].conclusion === 'failure' ? earlier[0] : null;
+  return earlier[0] && unsuccessful(earlier[0]) ? earlier[0] : null;
 }
 
 async function awaitAttestedRun(sha) {
@@ -206,7 +211,7 @@ try {
       // for 5.7 hours while every refresh run stayed green — a dispatched CI run emits no workflow_run, so nothing alerted.
       // A revision whose CI settled with a failure now fails this job (and the alert that follows it); a run that was only
       // cancelled by a newer one stays green.
-      const ciFailed = (awaited.settled && (awaited.runs || []).some((run) => run.conclusion === 'failure'))
+      const ciFailed = (awaited.settled && (awaited.runs || []).some(unsuccessful))
         || (!awaited.settled && !!(await previousDataCiFailure(report.targetSha).catch(() => null)));
       finish(awaited.settled ? 'UNATTESTED_REVISION' : 'AWAITING_CI_ATTESTATION', ciFailed ? 1 : 0);
     }
@@ -226,7 +231,7 @@ try {
       // v57.92 (audit W06): the --await-sha branch already turned a settled CI failure red (v57.88); this default branch
       // (used after "No changes" cycles) ended green on the same state. Both now share the rule: every run finished and
       // one failed → exit 1. A cancelled run or one still running stays green.
-      const settledFailure = runs.length > 0 && runs.every((run) => run.status === 'completed') && runs.some((run) => run.conclusion === 'failure');
+      const settledFailure = runs.length > 0 && runs.every((run) => run.status === 'completed') && runs.some(unsuccessful);
       finish('UNATTESTED_REVISION', settledFailure ? 1 : 0);
     }
     report.ciRunId = attested.id;

@@ -60,10 +60,14 @@ jobs:
             // the issue as recovered nor breaks the failure streak; before, a red-CI stall on a weekend closed its own alert.
             const gateJobs = ['cadence'];
             const gatedWorkflows = ['Refresh market data'];
+            // v58.77 (pipeline audit OPS-01): Pages ends success when main moved on and the deploy step was skipped. Only a
+            // run whose released-Pages verification passed deployed and observed the live site, so only that run recovers.
+            const workSteps = { 'Deploy GitHub Pages': 'Verify released Pages and all external planes' };
             const observedWork = async (id) => {
-              if (!gatedWorkflows.includes(workflow)) return true;
+              if (!gatedWorkflows.includes(workflow) && !workSteps[workflow]) return true;
               try {
                 const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, { owner, repo, run_id: id, per_page: 100 });
+                if (workSteps[workflow]) return jobs.some((job) => (job.steps || []).some((step) => step.name === workSteps[workflow] && step.conclusion === 'success'));
                 const work = jobs.filter((job) => !gateJobs.includes(job.name));
                 return !(jobs.length > work.length && work.length && work.every((job) => job.conclusion === 'skipped'));
               } catch (_) { return true; }

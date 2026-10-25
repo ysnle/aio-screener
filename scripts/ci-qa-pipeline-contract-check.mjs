@@ -125,6 +125,30 @@ check('P1314/R660/QA-DATA-54 isolated knowledge builders reject symlink escapes 
     && ['scripts/ci-knowledge-generated-parity-check.mjs', '.github/workflows/knowledge-build-candidate.yml', 'scripts/lib/atomic-write.mjs', 'scripts/lib/13f-semantic-hash.mjs'].every((path) => knowledgeCandidateParityImpactRule?.patterns?.includes(path))
     && knowledgeCandidateParityImpactRule?.groups?.includes('knowledge')
     && knowledgeCandidateParityImpactRule?.gates?.includes('knowledge-generated-parity'));
+// v58.77 (pipeline audit QA-01): a change to any file a knowledge builder imports (principles stories/worked shards, research
+// packets, route modules) must select the generated-output parity gate. The import closure of the parity builders is
+// recomputed here, so a new import cannot fall out of affected QA again.
+{
+  const globRegex = (pattern) => new RegExp(`^${String(pattern).replace(/[.+^${}()|[\]\\]/g, '\\$&').replaceAll('**', '\u0000').replaceAll('*', '[^/]*').replaceAll('?', '[^/]').replaceAll('\u0000', '.*')}$`);
+  const builders = [...knowledgeParitySource.matchAll(/\['(scripts\/[^']+\.mjs)'\]/g)].map((m) => m[1]);
+  const seen = new Set();
+  const walk = (file) => {
+    if (seen.has(file) || !existsSync(file)) return;
+    seen.add(file);
+    for (const m of read(file).matchAll(/(?:import|export)\s[^'"]*?from\s*['"](\.{1,2}\/[^'"]+)['"]|import\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g)) {
+      const out = [];
+      for (const part of `${file.split('/').slice(0, -1).join('/')}/${m[1] || m[2]}`.split('/')) { if (part === '..') out.pop(); else if (part !== '.' && part) out.push(part); }
+      walk(out.join('/'));
+    }
+  };
+  builders.forEach(walk);
+  const knowledgeGroupHasParity = (manifest.groups?.knowledge?.gates || []).some((gate) => gate.id === 'knowledge-generated-parity');
+  const selectsParity = (file) => (manifest.impactRules || []).some((rule) => (rule.patterns || []).some((pattern) => globRegex(pattern).test(file))
+    && (rule.gates?.includes('knowledge-generated-parity') || (knowledgeGroupHasParity && rule.groups?.includes('knowledge') && !rule.gates)));
+  const unselected = [...seen].filter((file) => !selectsParity(file));
+  check(`v58.77 QA-01 every file in the knowledge builders' import closure selects knowledge-generated-parity (${builders.length} builders, ${seen.size} files; missing: ${unselected.join(', ') || 'none'})`,
+    builders.length >= 18 && seen.size > builders.length && unselected.length === 0);
+}
 check('R656/QA-WORKSPACE-13 all six CI meta gates have a weekly strict backstop before any severity downgrade',
   knowledgeLintWorkflowContract?.mode === 'direct'
     && knowledgeLintWorkflowContract.requiredScripts?.length === 6

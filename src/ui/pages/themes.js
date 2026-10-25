@@ -13,7 +13,6 @@ import { headlineForCompany, sessionNewsWindow } from '../../domain/briefing/new
 import { selectNewsItems } from '../../state/selectors/news.js';
 import { renderSectorMap } from '../components/sector-map.js';
 import { renderIndexEarnings } from '../components/index-earnings.js';
-import { renderAiInfrastructureLens } from '../components/ai-infrastructure-lens.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { rotationFlow, themeDetailFlow } from '../../domain/market/page-flow.js';
 import { krThemeArtifactRead, krThemeLabel } from '../../domain/themes/kr-themes.js';
@@ -1740,7 +1739,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderThemePerformanceBars({ documentRef, root, store, route });
            renderKrThemeArtifact({ documentRef, root, store });
           renderDetail();
-           renderAiInfrastructureLens({ documentRef, root, route });
            renderThemeStrength({ documentRef, root, store }); // P1417
            try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); if (detailPanel?.style.display === 'block') renderThemeDetailTeach({ documentRef, root, store }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743; v58.75 the teach block reads the playbook just built
            try { renderSectorMap({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map

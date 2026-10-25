@@ -211,6 +211,13 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   check('P1598 a refresh run that skipped every work job does not close the open alert', !quiet.mutations.length);
   const worked = await scenario({ ...refresh, conclusion: 'success' }, [{ ...refresh, conclusion: 'success' }], 'first', failJobs, marker);
   check('P1598 a refresh run that did work still closes the alert as recovered', worked.mutations.some((m) => m.state === 'closed'));
+  // v58.77 pipeline audit OPS-01: a Pages run that skipped the deploy (main moved on) keeps the alert; a verified deploy closes it.
+  const pages = { ...run, name: 'Deploy GitHub Pages' };
+  const pagesMarker = { number: 8, state: 'open', body: '<!-- aio-operations-alert:Deploy GitHub Pages -->' };
+  const pagesJob = (verify) => () => [{ name: 'deploy', conclusion: 'success', steps: [{ name: 'Deploy to GitHub Pages', conclusion: verify }, { name: 'Verify released Pages and all external planes', conclusion: verify }] }];
+  const pagesSkip = await scenario({ ...pages, conclusion: 'success' }, [{ ...pages, conclusion: 'success' }], 'first', pagesJob('skipped'), pagesMarker);
+  const pagesDone = await scenario({ ...pages, conclusion: 'success' }, [{ ...pages, conclusion: 'success' }], 'first', pagesJob('success'), pagesMarker);
+  check('v58.77 OPS-01 a Pages success without a verified deploy keeps the alert; a verified deploy closes it', !pagesSkip.mutations.length && pagesDone.mutations.some((m) => m.state === 'closed'));
   const streak = await scenario(refresh, [refresh, { ...refresh, id: 8, conclusion: 'success', updated_at: '2026-10-10T11:30:00Z' }, { ...refresh, id: 7, updated_at: '2026-10-10T11:00:00Z' }], 'first', (id) => (id === 8 ? skipJobs() : failJobs()));
   check('P1598 a skip run between two refresh failures does not break the failure streak', streak.mutations.some((m) => /Consecutive failures observed in latest 100 main runs: \*\*2\*\*/.test(m.body || '')));
 }

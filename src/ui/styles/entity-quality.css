@@ -56,19 +56,7 @@ button.stock-read-point-link { display:inline-block; min-height:24px; line-heigh
 }
 /* 2026-10-19 layout system: 재무 page SEC watchlist cards and key-metric grid, moved out of inline `.style.cssText` in
    src/ui/pages/entity.js. Old inline 10/11/12px read --fs-xs/sm/base: the sizes index.html's [style*=font-size] rules rendered them at. */
-#fund-cards-grid .fwl-empty { grid-column: 1/-1; text-align: center; padding: 24px; color: var(--text-muted); font-size: var(--fs-sm); }
-#fund-cards-grid .fwl-notice { grid-column: 1/-1; padding: 9px 10px;  background: var(--surface-2); color: var(--text-secondary); font-size: var(--fs-xs); line-height: 1.5; }
-#fund-cards-grid .fwl-notice.is-fresh { border-left-color: var(--data-green); }
 /* (1,1,0) outranks `.fund-ticker-card:hover` (0,2,0): the inline border kept the hover border colour off, and still does */
-#fund-cards-grid .fund-ticker-card { appearance: none; width: 100%; background: var(--bg-card); border-radius: 4px; padding: 14px; border: 0.5px solid var(--border); cursor: pointer; text-align: left; color: inherit; }
-#fund-cards-grid .fwl-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
-#fund-cards-grid .fwl-symbol { font-size: 12px; font-weight: 700; color: var(--text-primary); }
-#fund-cards-grid .fwl-name { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.35; margin-top: 2px; }
-#fund-cards-grid .fwl-period { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
-#fund-cards-grid .fwl-metrics { display: grid; gap: 5px; }
-#fund-cards-grid .fwl-metric { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-sm); color: var(--text-secondary); }
-#fund-cards-grid .fwl-metric > strong { color: var(--text-primary); font-family: var(--font-mono); text-align: right; }
-#fund-cards-grid .fwl-source { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 10px; line-height: 1.35; }
 #fund-native-sec-grid .fsr-empty { grid-column: 1/-1; color: var(--text-muted); font-size: var(--fs-base); padding: 8px 0; }
 #fund-native-sec-grid .fsr-item { background: var(--surface-2); border: 0.5px solid var(--border-subtle); border-radius: 4px; padding: 9px 10px; min-width: 0; }
 #fund-native-sec-grid .fsr-label { font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: 4px; }

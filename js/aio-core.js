@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.75';
+const APP_VERSION = 'v58.77';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1547,8 +1547,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
       'fund-var-chart': { type:'message', label:'티커 선택 후 표시' },
       'pf-benchmark-chart': { type:'message', label:'포트폴리오 구성 후 표시' },
       'pf-position-donut': { type:'message', label:'포트폴리오 구성 후 표시' },
-      'ticker-price-chart': { type:'message', label:'티커 가격 시계열 미수신' },
-      'kr-vkospi-chart': { type:'message', label:'VKOSPI 시계열 미수신' }
+      'ticker-price-chart': { type:'message', label:'티커 가격 시계열 미수신' }
     };
     function isBlank(canvas) {
       if (!canvas) return true;
@@ -2038,8 +2037,8 @@ window._aioFundSearchFill = function(preset) {
       if (typeof console !== 'undefined' && console.info) console.info('[AIO v49.79 P426] Multi-tab API key change:', e.key);
       try { if (typeof window._aioRefreshAuditWidget === 'function') window._aioRefreshAuditWidget(); } catch(_) {}
     }
-    if (e.key === 'aio_user_profile_v1') {
-      if (typeof showToast === 'function') showToast('다른 탭에서 사용자 프로필 변경 감지', 3000);
+    if (e.key === 'aio_ai_profile_v2') {
+      if (typeof showToast === 'function') showToast('다른 탭에서 답변 맞춤 설정 변경 감지', 3000);
     }
     if (e.key === 'aio_alerts_v1') {
       if (typeof console !== 'undefined' && console.info) console.info('[AIO v49.79 P426] Multi-tab alerts changed');
@@ -2988,87 +2987,9 @@ if (typeof document !== 'undefined') {
     } catch(_){}
   };
 
-  // v50.41 선순환 연결 계층: 분석 페이지에 토픽 필터 뉴스 스트립 (같은 뉴스캐시 → 다수 surface, 사일로 해소).
-  //   buildNewsSurfaceModel(pageId, _allNewsItems) 재사용(계약의 topics 필터). insight-box 직후 앵커, 멱등.
-  var _PAGE_NEWS_STRIP_PAGES = ['macro','fxbond','technical','themes','sentiment','signal','fundamental','breadth'];
-  window._PAGE_NEWS_STRIP_PAGES = _PAGE_NEWS_STRIP_PAGES;
-  window._aioRenderPageNewsStrip = function(pageId){
-    try {
-      if (_PAGE_NEWS_STRIP_PAGES.indexOf(pageId) < 0) return;
-      if (!window.AIO || typeof window.AIO.buildNewsSurfaceModel !== 'function') return;
-      if (!window.AIO_NEWS_SURFACE_CONTRACTS || !window.AIO_NEWS_SURFACE_CONTRACTS[pageId]) return;
-      var page = document.getElementById('page-' + pageId); if (!page) return;
-      var items = window._allNewsItems || window.newsCache || [];
-      var model; try { model = window.AIO.buildNewsSurfaceModel(pageId, items, {}); } catch(_) { return; }
-      var rows = (model && model.items) || [];
-      var hostId = 'aio-page-news-' + pageId;
-      var host = document.getElementById(hostId);
-      if (!rows.length) { if (host) host.style.display = 'none'; return; }
-      // P602-followup/R245 계열: 페이지별 토픽 필터 스트립은 초기 6건 배치 번역에도, data-news-idx
-      // 지연로딩 옵저버에도 걸리지 않아 [번역 대기]가 영구 고정되는 구조적 문제가 있었다(홈 "핵심
-      // 뉴스"의 동일 패턴 — R245/P554). 실제로 보여줄 상위 4건이 아직 캐시에 없으면 즉시 우선
-      // 번역을 요청한다(완료 시 autoTranslateNews가 _aioRenderActivePageNewsStrip을 재호출).
-      try {
-        var _stripUntranslated = rows.slice(0, 4).filter(function(n) { return n && n.title && !(typeof _tcHas === 'function' && _tcHas(n.title)); });
-        if (_stripUntranslated.length && typeof autoTranslateNews === 'function') autoTranslateNews(_stripUntranslated).catch(function(){});
-      } catch(_) {}
-      if (!host) {
-        host = document.createElement('div');
-        host.id = hostId;
-        host.className = 'aio-page-news-strip'; // box styles: legacy-core.css
-        var anchor = page.querySelector('.insight-box');
-        while (anchor && anchor.parentElement !== page) anchor = anchor.parentElement;
-        if (anchor && anchor.parentElement === page) anchor.insertAdjacentElement('afterend', host);
-        else page.insertBefore(host, page.firstChild);
-      }
-      host.style.display = '';
-      var esc = (typeof escHtml === 'function') ? escHtml : function(s){ return String(s); };
-      var topics = (window.AIO_NEWS_SURFACE_CONTRACTS[pageId].topics || []).join('/');
-      var lines = rows.slice(0, 4).map(function(n){
-        var t = (typeof getDisplayTitle === 'function' ? getDisplayTitle(n) : (n.title || '')) || '';
-        var ageH = n.ageHours != null ? Math.round(n.ageHours) : null;
-        var senColor = n.sentiment === 'bull' ? 'var(--data-green)' : (n.sentiment === 'bear' || n.sentiment === 'warn') ? 'var(--data-red)' : 'var(--text-muted)';
-        return '<div class="lco-ns-line">' +
-          '<span style="color:' + senColor + ';">●</span> ' + esc(String(t).slice(0, 84)) +
-          ' <span class="lco-ns-src">(' + esc(n.source || '') + (ageH != null ? ', ' + ageH + 'h' : '') + ')</span></div>';
-      }).join('');
-      host.innerHTML = '<div class="lco-ns-head">' +
-          '<span class="lco-ns-title">관련 뉴스 ' + rows.length + '건 <span class="lco-ns-topic">· 토픽 ' + esc(topics) + ', 공유 뉴스캐시</span></span>' +
-          '<button data-action="showPage" data-arg="market-news" class="aio-btn-table lco-ns-btn">전체 뉴스 →</button></div>' + lines;
-    } catch(_){}
-  };
-  window._aioRenderActivePageNewsStrip = function(){
-    try { var act = document.querySelector('.page.active'); if (!act) return; var pid = (act.id || '').replace('page-', ''); window._aioRenderPageNewsStrip(pid); } catch(_){}
-  };
-
-  // v50.41 선순환 연결 계층 audit — 각 분석 페이지가 공유 뉴스캐시에 토픽 필터로 연결됐는지 검증(통합 형식화·회귀 가드).
+  // v58.76: the per-screen 관련 뉴스 strip (dev mode only, raw topic codes) and its connective-layer audit are retired;
+  // 오늘 and 뉴스 carry the shared news cache.
   window.AIO = window.AIO || {};
-  window.AIO.getConnectiveLayerAudit = function(){
-    var pages = window._PAGE_NEWS_STRIP_PAGES || [];
-    var contracts = window.AIO_NEWS_SURFACE_CONTRACTS || {};
-    var renderFn = typeof window._aioRenderPageNewsStrip === 'function';
-    var buildFn = !!(window.AIO && typeof window.AIO.buildNewsSurfaceModel === 'function');
-    var missingContract = [], noTopics = [];
-    pages.forEach(function(p){
-      var c = contracts[p];
-      if (!c) { missingContract.push(p); return; }
-      if (!Array.isArray(c.topics) || !c.topics.length) noTopics.push(p);
-    });
-    var newsSurfaces = Object.keys(contracts);
-    return {
-      status: (renderFn && buildFn && missingContract.length === 0 && noTopics.length === 0) ? 'ok' : 'warn',
-      analysisPagesWired: pages.length - missingContract.length,
-      analysisPageTotal: pages.length,
-      newsSurfaceCount: newsSurfaces.length,           // home/briefing/market-news(3) + 분석 8 = 11 기대
-      renderFnDefined: renderFn,
-      buildModelDefined: buildFn,
-      missingContract: missingContract,
-      contractWithoutTopics: noTopics,
-      pageShownWired: !!(window._aioPageBus),
-      note: '단일 뉴스캐시(RSS+텔레그램 6채널) → home/briefing/market-news + 분석 8페이지 토픽 필터 strip + 채팅. 사일로→연결(선순환).',
-      generatedAt: new Date().toISOString()
-    };
-  };
 
   // v50.42 선순환 루프 형식화 audit — 단일 두뇌(marketState) 신선도·충실도 + 크로스-페이지 드리프트.
   window.AIO.getMarketStateCoherenceAudit = function(){
@@ -3098,15 +3019,14 @@ if (typeof document !== 'undefined') {
       // P858: news strips/digest are secondary narrative enrichment. Native
       // route surfaces already paint the decision state, so release these
       // DOM-heavy projections after the interactive boot budget.
-      window._aioPageBus.register('core-page-news-strip', 'aio:pageShown', function(e){ var pid = e && e.detail; if (pid) setTimeout(function(){ window._aioRenderPageNewsStrip(pid); }, 2300); });
       window._aioPageBus.register('core-verdict-guard-page', 'aio:pageShown', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
       window._aioPageBus.register('core-verdict-guard-live', 'aio:liveQuotes', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
       // v50.42: Market State Core — 시세/뉴스/페이지 진입 시 단일 상태 재계산(throttle 2s)
       window._aioPageBus.register('core-market-state-live', 'aio:liveQuotes', function(){ window._aioScheduleMarketState(300); });
       window._aioPageBus.register('core-market-state-page', 'aio:pageShown', function(){ window._aioScheduleMarketState(200); });
     }
-    window.addEventListener('aio:serverDataLoaded', function(){ try { setTimeout(function(){ window._aioScheduleMarketState(100); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); }, 2300); } catch(_){} });
-    window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} });  // v50.41/42/47: 뉴스 갱신 → marketState + 스트립 + 분석 합성
+    window.addEventListener('aio:serverDataLoaded', function(){ try { setTimeout(function(){ window._aioScheduleMarketState(100); window._aioGuardEmptyVerdicts(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); }, 2300); } catch(_){} });
+    window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} });  // v50.41/42/47: 뉴스 갱신 → marketState + 스트립 + 분석 합성
     // v50.42/43/44: 단일 두뇌 갱신 → 소비자 동기화. 선순환 전파 단계.
     //   드리프트 배너·결론 가드·뉴스 스트립·home Action Item(v43) + breadth/themes/briefing/options 페이지 렌더러(v44).
     //   페이지 렌더러는 marketState.*Full을 읽기만(독립 재계산 제거) → 라이브 데이터 갱신 시 페이지 재진입 없이 동기화.
@@ -3115,10 +3035,9 @@ if (typeof document !== 'undefined') {
         if (window._aioApplyRegimeDriftMarkers) window._aioApplyRegimeDriftMarkers();
         if (window._aioRefreshActionPlan) window._aioRefreshActionPlan();
         if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); // v50.47 자동 텍스트 합성 전파
-        window._aioRenderActivePageNewsStrip();
       } catch(_){}
     });
-    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 2300);
+    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioGuardEmptyVerdicts(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 2300);
     setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
 })();
@@ -10696,142 +10615,8 @@ function showDataError(area, msg, severity) {
 // 불충분/무효 데이터 시 폴백 UI를 표시한다.
 // ──────────────────────────────────────────────────────────────────────
 
-/**
- * 차트 데이터 배열 정제 — NaN, null, undefined, Infinity 제거
- * @param {Array} arr - 데이터 배열
- * @param {string} fillMode - 'zero' | 'prev' | 'skip'
- *   'zero': 무효값을 0으로 대체
- *   'prev': 직전 유효값으로 대체 (시계열용)
- *   'skip': 무효값을 null로 남김 (Chart.js spanGaps 사용)
- * @returns {Array} 정제된 배열
- */
-function _sanitizeChartData(arr, fillMode) {
-  if (!Array.isArray(arr) || arr.length === 0) return [];
-  fillMode = fillMode || 'prev';
-  var lastValid = null;
-  var hasValid = false;
-  return arr.map(function(v, i) {
-    if (v == null || typeof v !== 'number' || !isFinite(v)) {
-      if (fillMode === 'zero') return 0;
-      if (fillMode === 'prev') return hasValid ? lastValid : null;
-      return null; // 'skip'
-    }
-    hasValid = true;
-    lastValid = v;
-    return v;
-  });
-}
-
-/**
- * 차트 데이터 검증 게이트 — 유효성 판정 + 폴백 UI 표시
- * @param {string} canvasId - canvas 요소 ID
- * @param {Array} labels - X축 라벨 배열
- * @param {Array[]} datasets - 데이터셋 배열들 (각각 숫자 배열)
- * @param {Object} opts
- * @param {number}  opts.minPoints  - 최소 데이터 포인트 수 (기본 3)
- * @param {string}  opts.chartName  - 차트 이름 (에러 메시지용)
- * @param {string}  opts.fillMode   - 정제 모드 (기본 'prev')
- * @returns {Object|null} { labels, datasets } 정제된 데이터 또는 null (폴백 표시됨)
- */
-function chartDataGate(canvasId, labels, datasets, opts) {
-  opts = opts || {};
-  var minPoints = opts.minPoints || 3;
-  var chartName = opts.chartName || canvasId;
-  var fillMode = opts.fillMode || 'prev';
-
-  // 1. 캔버스 존재 확인
-  var canvas = document.getElementById(canvasId);
-  if (!canvas) return null;
-
-  // 2. 라벨 배열 검증
-  if (!Array.isArray(labels) || labels.length < minPoints) {
-    _showChartFallback(canvas, chartName, '데이터 부족 (' + (labels ? labels.length : 0) + '/' + minPoints + '개)');
-    return null;
-  }
-
-  // 3. 각 데이터셋 정제
-  var cleanDatasets = [];
-  var validCount = 0;
-  for (var i = 0; i < datasets.length; i++) {
-    var clean = _sanitizeChartData(datasets[i], fillMode);
-    // 라벨과 길이 불일치 → 자르거나 패딩
-    if (clean.length > labels.length) clean = clean.slice(0, labels.length);
-    while (clean.length < labels.length) {
-      var prev = clean.length ? clean[clean.length - 1] : null;
-      clean.push(fillMode === 'zero' ? 0 : (prev != null ? prev : null));
-    }
-    // 유효 포인트 수 확인
-    var vCount = clean.filter(function(v) { return v !== null && !isNaN(v); }).length;
-    if (vCount >= minPoints) validCount++;
-    cleanDatasets.push(clean);
-  }
-
-  // 4. 유효 데이터셋이 없으면 폴백
-  if (validCount === 0) {
-    _showChartFallback(canvas, chartName, '유효 데이터 없음');
-    return null;
-  }
-
-  // 5. 극단값 경고 (차단은 안 함)
-  for (var j = 0; j < cleanDatasets.length; j++) {
-    var ds = cleanDatasets[j];
-    var vals = ds.filter(function(v) { return v !== null && isFinite(v); });
-    if (vals.length > 2) {
-      var mean = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
-      var stddev = Math.sqrt(vals.reduce(function(a, b) { return a + (b - mean) * (b - mean); }, 0) / vals.length);
-      if (stddev > 0) {
-        for (var k = 0; k < ds.length; k++) {
-          if (ds[k] !== null && Math.abs(ds[k] - mean) > 5 * stddev) {
-            _aioLog('warn', 'chart', chartName + ': 극단값 감지 idx=' + k + ' val=' + ds[k] + ' (mean=' + mean.toFixed(2) + ' std=' + stddev.toFixed(2) + ')');
-          }
-        }
-      }
-    }
-  }
-
-  // 폴백 UI 제거 (이전에 표시되었을 수 있음)
-  _removeChartFallback(canvas);
-
-  return { labels: labels, datasets: cleanDatasets };
-}
-
-/**
- * 차트 캔버스에 "데이터 로딩 실패" 폴백 오버레이 표시
- */
-function _showChartFallback(canvas, chartName, reason) {
-  var parent = canvas.parentElement;
-  if (!parent) return;
-  // 기존 폴백 있으면 재사용
-  var existing = parent.querySelector('.aio-chart-fallback');
-  if (existing) {
-    existing.querySelector('.aio-chart-fb-reason').textContent = reason;
-    return;
-  }
-  // 캔버스 숨기기
-  canvas.style.display = 'none';
-  // 폴백 오버레이 생성
-  var overlay = document.createElement('div');
-  overlay.className = 'aio-chart-fallback';
-  overlay.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;' +
-    'width:100%;min-height:120px;background:var(--black-a3);border-radius:4px;padding:16px;box-sizing:border-box;';
-  overlay.innerHTML = '<div style="font-size:28px;margin-bottom:6px;opacity:0.5;"></div>' +
-    '<div style="font-size:12px;color:var(--text-muted);font-weight:600;">' + (chartName || '차트') + '</div>' +
-    '<div class="aio-chart-fb-reason" style="font-size:12px;color:var(--red-11);margin-top:2px;">' + reason + '</div>' +
-    '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">데이터 갱신 시 자동 복구됩니다</div>' +
-    '<button data-action="_aioFetchLiveQuotes" style="background:var(--data-cyan-soft);border:0.5px solid var(--data-cyan-dim);color:var(--blue-11);font-size:12px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;">↻ 데이터 재시도</button>';
-  parent.insertBefore(overlay, canvas);
-  _aioLog('warn', 'chart', chartName + ': ' + reason);
-}
-
-/**
- * 폴백 오버레이 제거, 캔버스 복원
- */
-function _removeChartFallback(canvas) {
-  if (!canvas || !canvas.parentElement) return;
-  var fb = canvas.parentElement.querySelector('.aio-chart-fallback');
-  if (fb) fb.remove();
-  canvas.style.display = '';
-}
+// v58.76: the chart data gate and its fallback overlay (_sanitizeChartData/_showChartFallback/_removeChartFallback) fed only
+// the retired developer-only VKOSPI and KR candle charts.
 
 /**
  * 타임스탬프 배열 → 한국 로컬 날짜 문자열 변환 (타임존 정규화)
@@ -16294,11 +16079,9 @@ var AIO_CURRENTNESS_NARRATIVE_IDS = [
   'briefing-top-5-watch',
   'briefing-top-5-list',
   'briefing-action-item-card',
-  'kr-macro-analysis-text',
   'fxbond-dynamic-thesis',
   'risk-radar-body',
   'sent-analysis-text',
-  'fund-analysis-text',
   'rally-quality-verdict'
 ];
 var AIO_CURRENTNESS_NARRATIVE_SELECTOR = [
@@ -18689,11 +18472,6 @@ function tickerDirectSearchFromInput() {
   var el = document.getElementById('ticker-direct-search');
   var v = el ? el.value.trim().toUpperCase() : '';
   if (v) showTicker(v);
-}
-function krTvSymSearchFromInput() {
-  var el = document.getElementById('tv-kr-sym');
-  var c = el ? el.value.trim() : '';
-  if (c) showTicker(typeof krTickerToYahoo === 'function' ? krTickerToYahoo(c) : c);
 }
 
 function showTicker(tkr) {

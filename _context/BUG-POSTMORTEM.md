@@ -1,10 +1,136 @@
 ---
-last_verified: 2026-10-24
+last_verified: 2026-10-25
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2060 - v58.77 - AI 패널의 "웹검색 중" 안내가 답변이 끝난 뒤에도 그대로 남았다 (2026-10-25)
+
+- symptom/reproduction: 자동 웹검색이 켜진 질문에서 "기존 자료를 보강하기 위해 웹검색 중, 출처 확인 후 답변" 줄이 답변 완료·검색 없는 재시도·실패 뒤에도 진행형으로 남아, 검색이 아직 도는 것처럼 보였다.
+- root_cause: 상태 줄을 일반 메시지로 붙이고 완료·오류 경로에서 갱신하지 않았다.
+- fix: 상태 줄에 표식을 달고, 완료 시 "웹검색으로 보강해 답했습니다"(검색 없는 재시도로 끝나면 "웹검색 응답이 늦어 검색 없이 앱 자료로 답했습니다"), 최종 실패 시 실패 문구로 바꾼다.
+- violated_rule: R571
+- prevention: ci-ai-intelligence-contract-check가 실제 _aioSettleWebSearchStatus를 잘라 실행해 진행 중인 줄만 바뀌는지 검사한다.
+- verification/residual: 게이트 PASS.
+
+## P2059 - v58.77 - 지식 연구 dossier가 부분 문자열 매칭으로 무관한 근거를 연결했다(evaluation←SEC 재무제표 등) (2026-10-25)
+
+- symptom/reproduction: 2차 감사 P2-KNOW-02: AI Evaluation dossier에 fact:sec:financial-statements·10k-reading이 붙었다(evaluation이 valuation을 포함). 같은 부류로 tokenomics←transformer attention, power-interconnection←TSMC 3DFabric.
+- root_cause: dossier 빌더가 appliesTo 토큰을 includes로 찾았다. articles 빌더는 v57.92에 단어 단위로 바뀌었지만 dossier에는 남아 있었다.
+- fix: 단어 단위 매칭. 단위 ID 하이픈은 단어 경계로 보고 하이픈 토큰(data-center)은 연속 단어로 맞춘다. 첫 시도(하이픈 복합어를 한 토큰)는 정당한 연결 57건을 잃어 폐기, 최종은 RESEARCHED 227→222(오연결만 강등).
+- violated_rule: R718
+- prevention: ci-review-integrity-unit-check가 evaluation←SEC 부재와 power-cooling←PUE, inflation←CPI, micron-hbm←HBM2E 유지를 검사한다. knowledge parity 18 빌더 일치.
+- verification/residual: 재생성 비교: 연결 변화 13건 수동 검토, 강등 5건 모두 오연결.
+
+## P2058 - v58.77 - FMP 성장률 요청 URL에 물음표가 두 번 들어가 API 키가 전달되지 않았다 (2026-10-25)
+
+- symptom/reproduction: 2차 감사 P2-DATA-07: financial-growth/AAPL?period=annual&limit=1?apikey=… 로 요청돼 apikey가 null, limit이 깨졌다.
+- root_cause: 공통 fetch가 query가 있는 endpoint에도 ?apikey=를 붙였다.
+- fix: endpoint에 ?가 있으면 &apikey=로 잇는다.
+- violated_rule: R575
+- prevention: ci-review-integrity-unit-check가 구분자 선택 코드를 검사한다.
+- verification/residual: 소스 확인. FMP live 호출 없음(키·플랜 미검증).
+
+## P2057 - v58.77 - Cboe 풋콜 보존값이 이번 런의 수집 성공으로 운영 receipt에 기록됐다 (2026-10-25)
+
+- symptom/reproduction: 2차 감사 P2-DATA-06: 실패 뒤 보존된 객체(stale-reference, failureReason)가 예전 fetchedAt을 가져 updated=1, publication SUCCESS, 마지막 성공 시각 전진으로 기록됐다.
+- root_cause: planeFresh('putCall')가 !error && fetchedAt만 보았다. 보존 조건은 totalPutCall null을 Number(null)=0으로 유효하다고 보았다.
+- fix: failureReason이 있는 값은 fresh가 아니다. 보존·stored 판정은 null을 먼저 배제한다.
+- violated_rule: R571
+- prevention: ci-review-integrity-unit-check가 보존값 비fresh·현재값 fresh와 null 배제 소스를 검사한다.
+- verification/residual: planeFresh 단위 확인 PASS.
+
+## P2056 - v58.77 - 지식 빌더가 import하는 helper·연구 패킷 27개를 바꿔도 생성물 parity 게이트가 선택되지 않았다 (2026-10-25)
+
+- symptom/reproduction: 감사 QA-01 재현: principles-stories.mjs 단일 변경의 affected 선택이 preflight/core뿐이었다. 빌더 18개의 import closure 82개 중 27개가 같은 상태였다.
+- root_cause: 영향 규칙이 빌더 파일명 패턴만 가졌고 중간 lib·src import를 포함하지 않았다.
+- fix: 27개(principles 이야기·worked 분할, 연구 패킷, 라우트·캐시·저장 모듈, 13F 집계 빌더)를 parity 규칙에 넣었다.
+- violated_rule: R589
+- prevention: ci-qa-pipeline-contract-check가 parity 빌더의 import closure를 다시 계산해 모든 파일이 parity를 선택하는지 검사한다.
+- verification/residual: 실제 qa-runner --explain을 82개 파일에 각각 실행해 누락 0, 게이트 PASS.
+
+## P2055 - v58.77 - 지식 화면이 서버가 참고용으로 제한한 LKG CPI·정책금리를 자동 갱신 현재값으로 표시했다 (2026-10-25)
+
+- symptom/reproduction: 감사 KNOW-01: 수집 실패로 보존된 CPI(allowedUse reference-only)를 liveCurrentObservations가 current-context, live=true로 바꿔 "자동 갱신"을 붙였다.
+- root_cause: live()가 값과 날짜만 있으면 사용 범위를 올렸고, 서버가 남긴 출처(_cpi_src)를 보지 않았다.
+- fix: CPI·근원 CPI·정책금리 행은 출처가 last-known-good이면 날짜를 유지한 참고값(reference-only, live=false)으로 둔다.
+- violated_rule: R570
+- prevention: ci-scenario-guidance-fixture가 LKG CPI는 참고값, 공식 신규 CPI는 현재값임을 검사한다.
+- verification/residual: fixture PASS.
+
+## P2054 - v58.77 - 무관한 근거 하나가 AI 답변의 현재 사건 문장 검사를 꺼 버렸고, 단위 없는 지수 수치는 검사를 빠져나갔다 (2026-10-25)
+
+- symptom/reproduction: 감사 AI-01/02: AAPL 가격 근거 하나만 있어도 '연준이 금리를 인하했고 신용 스트레스도 해소됐다'가 그대로 공개됐다. '코스피는 2,450이다'는 현재 수치로 인식되지 않았다.
+- root_cause: 사건 문장 검사가 근거 0개일 때만 작동했다. 현재 수치 정규식의 지표·단위 목록에 지수 이름이 없었다.
+- fix: 근거가 있을 때도 사건 문장은 근거 행이 그 주어(2글자 이상 단어)를 담고 있을 때만 남긴다(계획 경로·fallback 공통). 코스피·코스닥·나스닥·S&P 500·다우·닛케이·러셀 2000 뒤 수치를 현재 수치로 본다(기간·조건 문장은 제외).
+- violated_rule: R698
+- prevention: ci-ai-intelligence-contract-check: 근거 없음/무관한 근거는 사건 제거, 일치 근거는 유지, 일반 설명 유지, fallback 동일, 지수 수치 3종 제거·기간·조건 유지.
+- verification/residual: 게이트 PASS.
+
+## P2053 - v58.77 - 최초 시장 스냅샷 읽기가 실패한 탭은 새 revision 알림이 와도 다시 읽지 않았다 (2026-10-25)
+
+- symptom/reproduction: 감사 RUNTIME-01: 첫 loadSnapshot이 503이면 marketSnapshot이 null로 남고, 이후 serverDataLoaded 이벤트에도 스냅샷 fetch가 1회에서 늘지 않았다.
+- root_cause: 재시도 조건이 marketSnapshot이 이미 있을 때만 참이었다.
+- fix: 스냅샷이 없으면 발표된 revision이 있을 때 진행 중 요청이 없을 경우 다시 읽는다. 기존 ticket·dispose·역행 방지는 유지.
+- violated_rule: R571
+- prevention: ci-esm-core-unit-check가 실제 createAIOArchitecture에 503→revision 이벤트→정상 응답을 주고 스토어 회복과 읽기 2회를 확인한다.
+- verification/residual: fixture PASS(before null, after rev-2, reads 2).
+
+## P2052 - v58.77 - 수렴 드라이버가 시간초과·승인대기 CI를 실패로 분류하지 않아 운영 job이 초록으로 끝났다 (2026-10-25)
+
+- symptom/reproduction: 감사 OPS-02: CI conclusion이 timed_out이면 failure 문자열 비교를 빠져나가 UNATTESTED_REVISION에 exit 0이었다.
+- root_cause: conclusion === 'failure' 한 가지만 실패로 보았다.
+- fix: failure·timed_out·action_required·startup_failure를 실패로, cancelled·skipped만 정상으로 분류한다(세 판정 경로 공통).
+- violated_rule: R593
+- prevention: ci-codex-structure-regression-fixture가 실제 드라이버를 stub API로 실행해 timed_out·action_required는 exit 1, cancelled는 exit 0을 확인한다.
+- verification/residual: fixture PASS.
+
+## P2051 - v58.77 - 배포를 건너뛴 Pages 성공 run이 열린 Pages 장애 이슈를 복구로 닫았다 (2026-10-25)
+
+- symptom/reproduction: 감사 OPS-01: main이 전진해 deploy 단계가 skip된 Pages run도 success라, operations-alert가 Recovered 댓글을 달고 이슈를 닫았다.
+- root_cause: observedWork가 Refresh market data만 검사하고 Pages는 항상 작업한 것으로 보았다.
+- fix: Pages는 "Verify released Pages and all external planes" 단계가 성공한 run만 복구로 친다. 그 외 성공은 알림 상태를 바꾸지 않는다.
+- violated_rule: R657
+- prevention: ci-workspace-contract-check가 실제 github-script를 주입 API로 실행해 skip 성공은 이슈 유지, 검증된 배포는 종료를 확인한다.
+- verification/residual: 주입 실행 PASS(skip 성공 mutation 0, 검증 성공 closed).
+
+## P2050 - v58.77 - 확장 스크리너 shard가 push 실패 뒤 rebase된 새 core와 다시 검증되지 않고 push됐다 (2026-10-25)
+
+- symptom/reproduction: 감사 DATA-05: extended job은 검증→commit→push 실패→rebase→push 순서라, 그 사이 core가 push되면 이전 core membership으로 검증한 shard가 새 main과 결합됐다.
+- root_cause: core job과 달리 rebase 뒤 재검증 단계가 없었다.
+- fix: rebase 뒤 validate-screener-extended와 ci-screener-extended-contract-check(둘 다 core screener.json을 읽음)를 다시 돌리고 실패하면 push하지 않는다.
+- violated_rule: R595
+- prevention: ci-data-pipeline-contract-check가 extended push 재시도 루프 안의 재검증을 확인한다.
+- verification/residual: 워크플로 정적 확인. 실제 경합 실행은 Actions에서만 가능(미실행).
+
+## P2049 - v58.77 - 시장 온도계가 전 시장 동시 수집 실패를 지연으로 표시하지 못했고, Yahoo 요청에는 시간 상한이 없었다 (2026-10-25)
+
+- symptom/reproduction: 감사 DATA-03/04: 모든 시장 fetch가 실패하면 artifact가 그대로 남고, 소비자는 시장끼리의 날짜 차이만 비교해 2025-01-01의 두 시장도 지연 집합이 비었다. Yahoo fetch는 AbortSignal도 단계 timeout도 없었다.
+- root_cause: staleMarketIds가 retained 목록과 시장 간 상대 날짜만 보았다. 보조 lane의 요청·단계 시간 정책이 Naver(12초)와 달리 비어 있었다.
+- fix: artifact가 이틀 넘게 다시 쓰이지 않았거나 본문이 달력 10일보다 오래되면 지연으로 본다. Yahoo 요청 30초, 워크플로 단계 8분 상한.
+- violated_rule: R634
+- prevention: ci-esm-core-unit-check가 전체 정지(같은 날 두 시장, 오래된 artifact)는 지연, 주말은 비지연임을 검사한다.
+- verification/residual: staleMarketIds fixture PASS(전체 정지 2/2 지연, 주말 0).
+
+## P2048 - v58.77 - 공식 CPI·PCE가 FRED보다 한 달 앞설 때 이전 달 변화량이 남고, 공식 읽기가 실패한 다음 런에는 기준월이 역행했다 (2026-10-25)
+
+- symptom/reproduction: 파이프라인 감사 DATA-01/02 재현: BLS 9월 CPI 2.5 승격 시 cpiDelta는 FRED 8월의 +0.4가 남아 서사가 물가 상승으로 읽었고, 다음 런에서 BLS 실패·FRED 8월만 오면 값이 8월 3.0, fred-official-primary로 돌아갔다.
+- root_cause: promote()는 값·기준월·출처·신선도만 바꾸고 변화량을 남겼다. mergeMacroLastKnownGood는 이번 런 값을 날짜 비교 없이 이전 값 위에 펼쳤다.
+- fix: BLS·BEA 승격은 promoteMonthly로 바꿔 기준월이 바뀌면 바로 앞 달 값에서 변화량을 다시 계산하고 아니면 지운다. LKG 병합은 이전 런의 관측이 더 새로우면 값·날짜·출처·신선도·변화량을 함께 유지하고, 그 경우 FRED 출처로 덮지 않는다.
+- violated_rule: R587
+- prevention: mergeMacroPlanes 3단계 fixture(공식 9월 → 공식 실패+FRED 8월 → FRED 9월)와 한 달 앞선 공식 월의 변화량 재계산을 ci-data-pipeline-contract-check에서 검사한다.
+- verification/residual: fixture: 승격 시 cpi 2.5/delta −0.4(9월), 실패 런 2.5·9월·bls-official-primary 유지, FRED 추격 시 fred-official-primary.
+
+## P2047 - v58.76 - 텔레그램 요약이 14일 창(약 2,400건)을 잃고 직전 커서 이후 약 100건만 게시했다 (2026-10-24)
+
+- symptom/reproduction: v58.75 push 뒤 첫 갱신(09:22Z)부터 public-data/telegram-digest.json count가 2,433에서 99로 줄었고, 외부 파이프라인 점검 pages-telegram-coverage(100건 이상)가 실패해 Pages 배포 검증과 신선도 감시가 연달아 실패했다.
+- root_cause: v58.75가 이전 요약 병합(모듈 로드 시점 실행)에서 classifyPost로 재태깅하도록 바꿨는데, 그 함수가 읽는 TAG_PRIORITY·TAG_LIMIT·NEGATED_TOPIC은 파일 아래쪽 const라 아직 TDZ였다. 병합이 던진 예외를 catch가 '비치명, 전체 재스캔'으로 삼켰지만 커서는 이미 채워져 있어 재스캔도 일어나지 않았다.
+- fix: 세 상수를 병합 블록 위로 옮겼다. 병합이 실패하면 커서와 병합 풀을 비워 실제로 14일 창을 다시 읽는다. 잃은 창은 push 때 마지막 정상 요약(da24941d)을 되돌려 다음 갱신이 그 커서부터 이어 받게 한다.
+- violated_rule: R262
+- prevention: ci-data-pipeline-contract-check가 fetch를 막은 오프라인 실행으로 커밋된 요약을 병합하고 'previous digest read failed' 경고가 없어야 통과한다(수정 전 코드에서 실패 확인).
+- verification/residual: 오프라인 실행: 수정 전 'Cannot access NEGATED_TOPIC before initialization', 수정 후 경고 없음. 게이트는 수정 전 코드에서 FAIL, 수정 후 PASS.
 
 ## P2046 - v58.75 - 접어 두려던 도구들이 개발자 모드에서만 보였다 (2026-10-24)
 

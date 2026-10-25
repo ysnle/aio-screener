@@ -20,7 +20,9 @@ export const FRESH_STATUSES = Object.freeze({
 });
 
 export function planeFresh(id, value) {
-  if (id === 'putCall') return !!(value && !value.error && value.fetchedAt);
+  // v58.77 (pass-2 P2-DATA-06): a retained Cboe value keeps its old fetchedAt and carries failureReason; it is not this
+  // run's collection, so the receipt must not count it as updated.
+  if (id === 'putCall') return !!(value && !value.error && !value.failureReason && value.fetchedAt);
   const statuses = FRESH_STATUSES[id];
   return !!(statuses && value && statuses.includes(value.status));
 }
@@ -67,7 +69,7 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
     // v58.74 (refresh-data 10/24 01:20Z): a failed Cboe read published totalPutCall null and the static-data contract
     // refused the whole refresh. A failed read keeps the last value labelled stale-reference (history writes only
     // current-reference rows), like Fear & Greed.
-    { id: 'putCall', label: 'Put/Call', run: () => fetchCboePutCall().then((value) => (value?.error && Number.isFinite(Number(prior.putCall?.totalPutCall)) && prior.putCall?.asOf
+    { id: 'putCall', label: 'Put/Call', run: () => fetchCboePutCall().then((value) => (value?.error && prior.putCall?.totalPutCall != null && Number.isFinite(Number(prior.putCall.totalPutCall)) && prior.putCall?.asOf
       ? { ...prior.putCall, status: 'stale-reference', attemptedAt, failureReason: value.error } : value)),
       fallback: () => ({ source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, totalPutCall: null, error: 'put-call-plane-failed' }) },
     { id: 'bls', label: 'BLS', run: () => fetchBlsSeries(prior.bls, { releaseSchedules: blsReleaseSchedules }),

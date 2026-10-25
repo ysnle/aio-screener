@@ -60,7 +60,7 @@ check('visual hierarchy refresh must move away from one-note terminal styling', 
 // v53.7 (P725): kr-technical 페이지 퇴역 — 레거시 intro 은닉 규칙 대신 페이지 자체가 없어야 하고,
 // 이관된 통합 섹션에는 insight-box가 애초에 포함되지 않아야 한다.
 check('KR technical default path is retired into the technical page (v53.7 P725)', !/id="page-kr-technical"/.test(html) && /id="kr-integrated-technical"/.test(html) && !/<details[^>]*id="kr-integrated-technical"[\s\S]{0,400}insight-box/.test(html));
-check('fundamental example card grid must be intrinsic and overflow-safe', /#fund-cards-grid[\s\S]*repeat\(auto-fit,\s*minmax\(170px,\s*1fr\)\)/.test(html) && /#fund-cards-grid > \*[\s\S]*overflow-wrap:\s*anywhere/.test(html));
+check('v58.76 the retired SEC annual scan grid leaves no styles behind', !/#fund-cards-grid/.test(html));
 
 const ariaLiveCount = (html.match(/aria-live=/gi) || []).length;
 check('aria-live regions must stay intentionally scarce', ariaLiveCount <= 10, `aria-live=${ariaLiveCount}`);

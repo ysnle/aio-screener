@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-kr-data.js — P1134/R620: index.html 인라인 블록 C(3,473줄)에서 추출한 KR/SEC 데이터 플레인.
 // KR 테마 카드·심층분석(filterKrThemes/initKoreaThemes/showKrThemeDetail/_buildKrThemeDeepAnalysis),
-// VKOSPI 동적 수집과 이력(AIO_VKOSPI_HIST_KEY/fetchVkospiDynamic/_aioAppendVkospiHistory)
+// VKOSPI 동적 수집(fetchVkospiDynamic; v58.76: 브라우저 이력과 개발자 전용 카드는 퇴역)
 // (P1671: KR 수급·투자자 TOP10 수집은 표시 소비처가 없어 퇴역), KR_STOCK_DB/KR_THEME_MAP/_KR_SECTOR_MAP,
 // SEC 공시·재무(fetchSECFilings/fetchSECFinancials/SEC_TICKER_CIK).
 //
@@ -109,24 +109,17 @@ function _aioEnsureKrDataLoaded() {
   window._krDynamicLoaded = true;
   if (typeof fetchKrDynamicData === 'function') { try { fetchKrDynamicData(); } catch(_e) {} }
 }
-// P1671: the KR macro/technical sections are folds that P702 hides outside developer mode; their
-// writers (and the KR candle chart's proxy fan-out) run only when someone can see them.
-function _aioKrDevSectionsVisible() {
-  return !!(document.body && document.body.classList.contains('aio-dev-mode'));
-}
+// v58.76: the developer-only KR macro/technical cards and their writers (initKoreaMacro/initKoreaTechnical) are retired.
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-kr-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'themes') initKoreaThemes();
-  if (e.detail === 'macro') { _aioEnsureKrDataLoaded(); if (_aioKrDevSectionsVisible()) initKoreaMacro(); }
-  if (e.detail === 'technical') { _aioEnsureKrDataLoaded(); if (_aioKrDevSectionsVisible()) initKoreaTechnical(); }
+  if (e.detail === 'macro' || e.detail === 'technical') _aioEnsureKrDataLoaded();
 });
 _aioPageBus.register('html-kr-live', 'aio:liveQuotes', function() {
   var activePage = document.querySelector('.page.active');
   if (!activePage) return;
   var pid = activePage.id.replace('page-','');
   if (pid === 'themes') initKoreaThemes();
-  if (pid === 'macro' && _aioKrDevSectionsVisible()) initKoreaMacro();
-  if (pid === 'technical' && _aioKrDevSectionsVisible()) initKoreaTechnical();
 });
 });
 
@@ -619,39 +612,7 @@ async function _aioReadKrJsonResponse(r, label) {
 // VKOSPI · 거래대금 · 외국인 TOP · 주간 수급 · 공매도 (네이버 API + 프록시 체인)
 // ══════════════════════════════════════════════════════════════════
 
-// FABLE-LIVE-AUDIT-2026-07-07 F3/L4: kr-vkospi-chart는 2026-05-08~06-05 20거래일이 하드코딩된
-// 정적 배열(initKrVkospiChart 내부)이라 시간이 지나도 절대 갱신되지 않는다(다른 히스토리 차트와
-// 달리 public-data/history.json에 vkospi 필드 자체가 없음 — 서버 크론에 신규 Naver 호출을 추가하는
-// 것은 무인 프로덕션 파이프라인에 새 실패 지점을 만드는 리스크가 커 이번엔 배제). 서버 대신
-// 이미 정상 동작 중인 이 함수의 성공 시점마다 클라이언트 localStorage에 날짜별로 upsert 누적하고,
-// 아래 initKrVkospiChart()가 실데이터가 충분(>=3일)하면 하드코딩 배열 대신 그걸 우선 사용하도록 배선.
-var AIO_VKOSPI_HIST_KEY = 'aio_vkospi_hist_v1';
-var AIO_VKOSPI_HIST_CAP = 60; // ~3개월치 상한
-function _aioAppendVkospiHistory(val) {
-  try {
-    var today = new Date().toISOString().slice(0, 10);
-    var hist = [];
-    try { hist = JSON.parse(localStorage.getItem(AIO_VKOSPI_HIST_KEY) || '[]'); if (!Array.isArray(hist)) hist = []; } catch(_) { hist = []; }
-    var idx = hist.findIndex(function(h) { return h && h.date === today; });
-    if (idx >= 0) hist[idx].value = val; else hist.push({ date: today, value: val });
-    hist.sort(function(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
-    if (hist.length > AIO_VKOSPI_HIST_CAP) hist = hist.slice(hist.length - AIO_VKOSPI_HIST_CAP);
-    localStorage.setItem(AIO_VKOSPI_HIST_KEY, JSON.stringify(hist));
-  } catch(_) { /* localStorage 미지원/쿼터 초과 — 조용히 스킵, 차트는 기존 시드로 폴백 */ }
-}
-function _aioGetVkospiHistorySeries(minPoints) {
-  try {
-    var hist = JSON.parse(localStorage.getItem(AIO_VKOSPI_HIST_KEY) || '[]');
-    if (!Array.isArray(hist) || hist.length < (minPoints || 3)) return null;
-    return {
-      labels: hist.map(function(h) { var p = h.date.split('-'); return Number(p[1]) + '/' + Number(p[2]); }),
-      data: hist.map(function(h) { return h.value; })
-    };
-  } catch(_) { return null; }
-}
-
-// v52.34 P649: VKOSPI 실패 상태 추적 (FABLE-UIUX-DEEP-AUDIT-2026-07-08 §5 V1 Failure UI contract).
-// N회 연속 실패 시 정지된 시드/직전값을 "정상"처럼 계속 보여주는 대신 수신 실패를 명시한다.
+// v58.76: the browser-side VKOSPI history (aio_vkospi_hist_v1) fed only the retired developer-only chart.
 var AIO_VKOSPI_FAIL_THRESHOLD = 3;
 var _vkospiFailCount = 0;
 var _vkospiLastOkTs = null;
@@ -662,10 +623,7 @@ function _showVkospiFailureState(reason) {
   window._vkospiLiveOk = false;
   var lastOkText = _vkospiLastOkTs ? ('마지막 성공 ' + new Date(_vkospiLastOkTs).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })) : '성공 이력 없음';
   var fullReason = (reason || '프록시/데이터 실패') + ', ' + lastOkText;
-  var vEl = document.getElementById('kr-vkospi-val');
-  var hEl = document.getElementById('kr-health-vkospi');
-  if (vEl) window._aioRenderValueSlot(vEl, 'failed', null, { reason: fullReason });
-  if (hEl) window._aioRenderValueSlot(hEl, 'failed', null, { reason: fullReason });
+  window._vkospiFailureReason = fullReason; // v58.76: the developer-only VKOSPI cards that showed it are retired
 }
 
 // ── 1. VKOSPI 실시간 값 + 차트 데이터 ──
@@ -681,12 +639,11 @@ async function fetchVkospiDynamic() {
     _vkospiLastOkTs = Date.now();
     // M11 (v57.48): the 15/20/25/35 colour bands and 정상/경계/공포 labels had no published basis — value and date only.
     var vDay = String(d.localTradedAt || d.tradedAt || '').slice(0, 10), vText = val.toFixed(2) + (/^\d{4}-\d{2}-\d{2}$/.test(vDay) ? ' (' + Number(vDay.slice(5, 7)) + '/' + Number(vDay.slice(8, 10)) + ')' : '');
-    ['kr-vkospi-val', 'kr-health-vkospi'].forEach(function(id) { var el = document.getElementById(id); if (el) window._aioRenderValueSlot(el, 'value', id === 'kr-vkospi-val' ? val.toFixed(2) : vText, { color: 'var(--text-primary)' }); });
+    window._vkospiLastText = vText;
     // DATA_SNAPSHOT 동기화 — live 성공 플래그(P713): 배너/채팅 컨텍스트는 이 플래그가
     // true일 때만 vkospi를 현재값으로 사용한다(시드 16.00이 라벨 없이 노출되는 것 방지).
     if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.vkospi = val;
     window._vkospiLiveOk = true;
-    _aioAppendVkospiHistory(val);
     console.log('[KR] VKOSPI 동적 업데이트:', val);
   } catch(e) {
     _vkospiFailCount++;
@@ -1565,249 +1522,10 @@ async function dynamicTickerLookup(ticker, opts) {
   };
 }
 
-var _krMacroRetry = 0;
-var _krMacroRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P85)
-function initKoreaMacro() {
-  let ld = window._liveData || {};
-  // Check if required data is available, if not retry (max 20 attempts = 10s)
-  if (!ld['KRW=X'] || !ld['^TNX']) {
-    if (_krMacroRetry++ < 20) { _krMacroRetryTimer = setTimeout(initKoreaMacro, 500); return; }
-    _aioLog('warn', 'init', 'initKoreaMacro: 한국 거시 데이터 로딩 타임아웃');
-    return;
-  }
-  _krMacroRetry = 0;
-
-  // Update KRW exchange rate
-  var krw = ld['KRW=X'];
-  if (krw && krw.price != null && isFinite(krw.price)) {
-    var el = document.getElementById('kr-macro-krw');
-    if (el) {
-      el.textContent = krw.price.toFixed(2);
-      var chgEl = el.parentElement && el.parentElement.querySelector('.kr-idx-chg');
-      if (chgEl && krw.pct != null) {
-        chgEl.textContent = (krw.pct >= 0 ? '+' : '') + krw.pct.toFixed(2) + '%';
-        chgEl.className = krw.pct >= 0 ? 'pnl pos' : 'pnl neg';
-      }
-    }
-  }
-
-  // Update US 10Y bond yield
-  var tnx = ld['^TNX'];
-  if (tnx && tnx.price != null && isFinite(tnx.price)) {
-    var el = document.getElementById('kr-macro-us10y');
-    if (el) {
-      el.textContent = tnx.price.toFixed(2) + '%';
-      var chgEl = el.parentElement && el.parentElement.querySelector('.kr-idx-chg');
-      if (chgEl && tnx.pct != null) {
-        chgEl.textContent = (tnx.pct >= 0 ? '+' : '') + tnx.pct.toFixed(2) + '%';
-        chgEl.className = tnx.pct >= 0 ? 'pnl pos' : 'pnl neg';
-      }
-    }
-  }
-
-  _generateKrMacroAnalysis(ld);
-}
 
 // ═══ v37.8: 동적 분석 텍스트 생성 함수 모음 ═══
 
 // ── 1) 한국 매크로 분석 ──
-function _generateKrMacroAnalysis(ld) {
-  var el = document.getElementById('kr-macro-analysis-text'); if (!el) return;
-  var krw = ld['KRW=X'], tnx = ld['^TNX'], vix = ld['^VIX'], kospi = ld['^KS11'] || ld['KOSPI'];
-  var dxy = ld['DX-Y.NYB'], wti = ld['CL=F'];
-  var t = '';
-  // 환율 판단
-  if (krw && krw.price) {
-    var kp = krw.price;
-    t += '<b class="krl-accent">원/달러 ' + kp.toFixed(0) + '원</b> — ';
-    t += kp > 1450 ? '<span class="krl-red">1,450원 상회 구간입니다. 전일 등락·외국인 수급·수입물가·정책 발언을 별도 확인하며 원인이나 업종 수혜를 단정하지 않습니다.</span>' :
-         kp > 1380 ? '<span class="krl-yellow">1,380원 상회 구간입니다. 환율 수준과 당일 방향을 구분하고 수급·금리차를 교차 확인합니다.</span>' :
-         kp > 1300 ? '<span class="krl-dim">1,300~1,380원 구간입니다. 수준 자체를 시장 안정이나 외국인 수급으로 환산하지 않습니다.</span>' :
-         '<span class="krl-green">1,300원 미만 구간입니다. 내수 회복이나 외국인 유입 신호로 단독 해석하지 않습니다.</span>';
-    t += '<br>';
-  }
-  // 미국 금리 판단
-  if (tnx && tnx.price) {
-    var tp = tnx.price;
-    t += '<b>미 10Y 금리 ' + tp.toFixed(2) + '%</b> — ';
-    t += tp > 4.8 ? '<span class="krl-red">4.8% 상회 구간입니다. 할인율·달러·신용 스프레드 민감도를 함께 확인합니다.</span>' :
-         tp > 4.3 ? '<span class="krl-yellow">4.3~4.8% 구간입니다. 성장주 밸류에이션 민감도를 관찰하되 자금 유출을 단정하지 않습니다.</span>' :
-         tp > 3.8 ? '<span class="krl-dim">3.8~4.3% 구간입니다. 인하 기대와 물가 경로를 후속 지표로 확인합니다.</span>' :
-         '<span class="krl-green">3.8% 미만 구간입니다. 유동성 완화나 주가 상승을 자동 추론하지 않습니다.</span>';
-    t += '<br>';
-  }
-  // VIX 판단 (한국 영향)
-  if (vix && vix.price) {
-    var vp = vix.price;
-    t += '<b>VIX ' + vp.toFixed(1) + '</b> — ';
-    t += vp >= 32 ? '<span class="krl-red">32 이상 고변동 구간입니다. KOSPI 방향은 수급·환율과 별도 확인합니다.</span>' :
-         vp >= 25 ? '<span class="krl-yellow">25~32 변동성 경계 구간입니다. 방향 신호가 아니라 예상 변동 범위 확대를 뜻합니다.</span>' :
-         vp >= 18 ? '<span class="krl-dim">18~25 통상 범위입니다. 한국 시장의 수급·실적을 별도 확인합니다.</span>' :
-         '<span class="krl-green">18 미만 저변동 구간입니다. 안정이나 상승을 단독 예측하지 않습니다.</span>';
-    t += '<br>';
-  }
-  // v38.5: 환율 스트레스 인덱스 (KRW 등락률 + VIX 조합)
-  if (krw && krw.pct != null && vix && vix.price) {
-    var krwStress = Math.abs(krw.pct != null ? krw.pct : 0) * 1.5 + (vix.price > 20 ? (vix.price - 20) * 0.3 : 0);
-    var stressLevel = krwStress > 5 ? '위험' : krwStress > 2.5 ? '주의' : '안정';
-    var stressColor = krwStress > 5 ? 'var(--red)' : krwStress > 2.5 ? 'var(--yellow)' : 'var(--green)';
-    t += '<br><b>【환율 스트레스 인덱스】 <span style="color:' + stressColor + ';">' + stressLevel + ' (' + krwStress.toFixed(1) + ')</span></b> — ';
-    t += '<span class="krl-note">산출: |원/달러 등락률|×1.5 + VIX 초과분×0.3</span>';
-    if (krwStress > 5) {
-      t += '<br><span class="krl-red">원/달러 절대 등락과 VIX가 함께 높은 관측입니다. 외국인 수급과 헤지 비용을 별도 확인합니다.</span>';
-    } else if (krwStress > 2.5) {
-      t += '<br><span class="krl-yellow">중간 수준 관측입니다. 환율·VIX의 관측시각과 외국인 수급을 교차 확인합니다.</span>';
-    } else {
-      t += '<br><span class="krl-green">현재 입력상 낮은 수준입니다. 향후 안정이나 자산 성과를 보장하지 않습니다.</span>';
-    }
-    t += '<br>';
-  }
-
-  // v38.5: 수출 경기 서프라이즈 (KOSPI vs 원/달러 역상관 깨짐 감지)
-  if (kospi && kospi.pct != null && krw && krw.pct != null) {
-    var kospiChg = kospi.pct != null ? kospi.pct : 0;
-    var krwChg = krw.pct != null ? krw.pct : 0; // 양수 = 원화 약세(달러 강세)
-    t += '<br><b>【수출 경기 서프라이즈 진단】</b> ';
-    if (krwChg > 0.3 && kospiChg < -0.3) {
-      // 원화 약세 + KOSPI 하락 = 정상 역상관 깨짐 → 진짜 위험
-      t += '<span class="krl-red krl-b">경고: 원화 약세(+' + krwChg.toFixed(1) + '%)인데 KOSPI도 하락(' + kospiChg.toFixed(1) + '%). ';
-      t += '두 자산이 같은 방향으로 약세를 보인 관측입니다. 원인은 외국인 순매매·신용·실적 데이터로 별도 검증합니다.</span>';
-    } else if (krwChg < -0.3 && kospiChg > 0.3) {
-      t += '<span class="krl-green">원화 강세 + KOSPI 상승 동행입니다. 외국인 유입이나 실적 기대를 원인으로 단정하지 않습니다.</span>';
-    } else if (krwChg > 0.3 && kospiChg > 0.3) {
-      t += '<span class="krl-dim">원화 약세 + KOSPI 상승 동행입니다. 환차익 수혜 여부는 업종·기업별 실적으로 확인합니다.</span>';
-    } else {
-      t += '<span class="krl-dim">KOSPI ' + (kospiChg >= 0 ? '+' : '') + kospiChg.toFixed(1) + '% / 원/달러 ' + (krwChg >= 0 ? '+' : '') + krwChg.toFixed(1) + '%. 특이 디커플링 미감지.</span>';
-    }
-    t += '<br>';
-  }
-
-  // v38.5: 한국 시장 체력 진단 (KOSPI/KOSDAQ 디커플링)
-  var kosdaq = ld['^KQ11'] || ld['KOSDAQ'];
-  if (kospi && kospi.pct != null && kosdaq && kosdaq.pct != null) {
-    var kspChg = kospi.pct != null ? kospi.pct : 0;
-    var ksdqChg = kosdaq.pct != null ? kosdaq.pct : 0;
-    var gapPct = kspChg - ksdqChg;
-    t += '<br><b>【한국 시장 체력 진단】</b> KOSPI ' + (kspChg >= 0 ? '+' : '') + kspChg.toFixed(2) + '% / KOSDAQ ' + (ksdqChg >= 0 ? '+' : '') + ksdqChg.toFixed(2) + '% (갭 ' + (gapPct >= 0 ? '+' : '') + gapPct.toFixed(2) + '%p) — ';
-    if (kspChg < 0 && ksdqChg < kspChg - 0.5) {
-      t += '<span class="krl-red">KOSDAQ이 KOSPI보다 더 크게 하락했습니다. 소형주 수급·신용잔고·거래대금을 별도 확인합니다.</span>';
-    } else if (ksdqChg > kspChg + 0.5) {
-      t += '<span class="krl-green">KOSDAQ이 KOSPI 대비 강세입니다. 개인 수급이나 성장주 선호를 원인으로 단정하지 않습니다.</span>';
-    } else {
-      t += '<span class="krl-dim">대형/소형주 동조. 시장 전반 방향성 일치. 특이 체력 괴리 없음.</span>';
-    }
-    t += '<br>';
-  }
-
-  // 한미 금리차는 양쪽 공식/실시간 관측치가 모두 있을 때만 계산한다.
-  var krRate = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.bokRate != null) ? Number(DATA_SNAPSHOT.bokRate) : null;
-  if (tnx && tnx.price && krw && krw.price && Number.isFinite(krRate)) {
-    var rateDiff = tnx.price - krRate;
-    t += '<br><b>한미 금리차 ' + rateDiff.toFixed(1) + '%p</b> — ';
-    if (rateDiff > 2.0) {
-      t += '<span class="krl-red">극심한 금리차. 달러캐리 트레이드 유인 → 외국인 한국 채권 매도 + 주식 자금 유출. 원화 약세 가속 요인. ';
-      t += '→ 한은의 정책 딜레마: 금리 올리면 내수 충격, 안 올리면 자본 유출.</span>';
-    } else if (rateDiff > 1.0) {
-      t += '<span class="krl-yellow">금리차 확대 구간. 외국인 수급 불안정. 환헤지 비용 상승으로 외국인 채권 투자 매력 감소.</span>';
-    } else {
-      t += '<span class="krl-green">금리차 안정. 외국인 자금 흐름 중립. 환율 변동성 제한적.</span>';
-    }
-    t += '<br>';
-    // v38.5: 금리 인하/인상 시나리오별 영향 분석
-    t += '<br><b>【금리 시나리오 분석】</b> 현재 한은 기준금리 ' + krRate.toFixed(2) + '% / 미 10Y ' + tnx.price.toFixed(2) + '%<br>';
-    var cutRate = krRate - 0.25;
-    var hikeRate = krRate + 0.25;
-    t += '<span class="krl-sm"><b>한은 25bp 인하(' + cutRate.toFixed(2) + '%)시:</b> ';
-    t += '한미 금리차 ' + (tnx.price - cutRate).toFixed(1) + '%p로 확대 → 원화 약세 압력↑, ';
-    t += '단 내수·건설·중소형주 수혜. 대출금리↓ 소비회복 기대. ';
-    if (tnx.price - cutRate > 2.0) {
-      t += '<span class="krl-red">자본유출 위험 경계 수준 진입.</span>';
-    } else {
-      t += '<span class="krl-yellow">관리 가능한 수준.</span>';
-    }
-    t += '</span><br>';
-    t += '<span class="krl-sm"><b>한은 25bp 인상(' + hikeRate.toFixed(2) + '%)시:</b> ';
-    t += '한미 금리차 ' + (tnx.price - hikeRate).toFixed(1) + '%p로 축소 → 원화 방어 효과, ';
-    t += '단 내수 위축·가계부채 부담↑·중소기업 이자부담 가중. ';
-    if (krw.price > 1400) {
-      t += '<span class="krl-yellow">현 환율 수준에선 인상 압력 존재.</span>';
-    } else {
-      t += '<span class="krl-dim">환율 안정적이라 인상 필요성 낮음.</span>';
-    }
-    t += '</span><br>';
-  }
-
-  // v38.4: WTI 한국 영향 체인 (인과 체인 확장)
-  if (wti && wti.price) {
-    var wp = wti.price;
-    t += '<b>WTI $' + wp.toFixed(0) + ' → 한국 인과 체인</b> — ';
-    if (wp > 90) {
-      t += '<span class="krl-red">유가↑ → 수입물가↑ → CPI↑ → 한은 인하 지연 → 내수 약화 → 소비재·항공·운송 약세. ';
-      t += '단, 정유(SK이노)·해운(HMM) 마진 확대 구간.</span>';
-    } else if (wp > 75) {
-      t += '<span class="krl-yellow">적정 범위이나 중동 변수 주시. 한국 무역수지에 중립.</span>';
-    } else {
-      t += '<span class="krl-green">저유가 → 수입물가↓ → 무역수지 개선 → 한은 인하 여력↑ → 내수·건설·소비 수혜.</span>';
-    }
-    t += '<br>';
-  }
-
-  // v38.4: 상수/변수 분리 (한국 맥락)
-  t += '<br><b>【상수 vs 변수 (한국)】</b><br>';
-  var krConstants = [], krVariables = [];
-  if (tnx && tnx.price > 4.0) krConstants.push('미국 고금리 기조 (Fed 인하 전까지)');
-  if (krw && krw.price > 1350) krConstants.push('원화 약세 기조 (한미 금리차 구조적)');
-  krVariables.push('외국인 수급 (선물 포지션, ETF 유출입)');
-  krVariables.push('중국 경기 (PMI, 부양책 규모)');
-  if (vix && vix.price > 20) krVariables.push('글로벌 리스크 심리 (VIX ' + vix.price.toFixed(0) + ')');
-  if (krConstants.length) t += ' 상수: ' + krConstants.join(', ') + '<br>';
-  if (krVariables.length) t += ' 변수: ' + krVariables.join(', ') + '<br>';
-
-  // 종합 판단 (v38.4 강화)
-  var krwRisk = (krw && krw.price > 1400) ? 1 : 0;
-  var rateRisk = (tnx && tnx.price > 4.5) ? 1 : 0;
-  var vixRisk = (vix && vix.price >= 25) ? 1 : 0; // P1565: 25 = the shared VIX boundary band edge
-  var riskSum = krwRisk + rateRisk + vixRisk;
-  // P1565: the verdict used to be a ladder of conclusions ("keep cash at 50%+", "defensive strategy", "favourable for growth themes").
-  // It now lists which of the three conditions hold; what they mean for a sector is checked separately.
-  var krConds = [];
-  if (krwRisk) krConds.push('원/달러 1,400원 초과');
-  if (rateRisk) krConds.push('미국 10년 금리 4.5% 초과');
-  if (vixRisk) krConds.push('VIX 25 이상(변동성 경계 구간)');
-  t += '<br><b>【종합 판단】</b> ';
-  t += krConds.length
-    ? '<span class="krl-b">해당 조건 ' + riskSum + '개/3개: ' + krConds.join(', ') + '.</span> 예측 신호가 아니며, 업종별 영향은 실적·수급과 함께 따로 확인합니다.'
-    : '<span class="krl-b">세 조건(환율 1,400원 초과, 미국 10년 4.5% 초과, VIX 25 이상)에 해당하지 않습니다.</span> 예측 신호가 아니며, 비중 판단은 개인 기준으로 합니다.';
-
-  // v40.4: 교차변수 심화 진단
-  if (wti && wti.price && krw && krw.price && vix && vix.price) {
-    t += '<br><br><b>【교차변수 심화 진단】</b><br>';
-    var wp2 = wti.price, kp2 = krw.price, vp2 = vix.price;
-    // 유가↑+원화↓ = 수입물가 이중 타격
-    if (wp2 > 90 && kp2 > 1400) {
-      t += '<span class="krl-red">유가 $' + wp2.toFixed(0) + ' + 원화 ' + Math.round(kp2) + '원 = 수입물가 이중 타격. 달러 기준 유가와 원화 약세가 결합하면 원화 기준 유가는 더 비쌈. 정유·에너지 수혜이나 물가↑→한은 인하 지연→내수 약화 연쇄.</span><br>';
-    }
-    // VIX↑+원화↓ = 외국인 이탈 가속
-    if (vp2 > 25 && kp2 > 1400) {
-      t += '<span class="krl-red">VIX ' + vp2.toFixed(0) + ' + 원화 약세 = 글로벌 위험 회피와 환손실 우려가 함께 거론되는 조합입니다. 외국인 수급은 따로 확인합니다.</span><br>';
-    }
-    // 금리↑+원화↓ = 한은 딜레마 심화
-    if (tnx && tnx.price > 4.5 && kp2 > 1400) {
-      t += '<span class="krl-yellow">미국 고금리(' + tnx.price.toFixed(1) + '%) + 원화 약세 = 한은 정책 딜레마 심화. 인하하면 자본유출, 동결하면 내수 침체. "진퇴양난" 국면.</span><br>';
-    }
-    // 긍정 조합: VIX↓+원화↑
-    if (vp2 < 18 && kp2 < 1350) {
-      t += '<span class="krl-green">VIX ' + vp2.toFixed(0) + ' + 원화 강세(' + Math.round(kp2) + '원) = 과거 외국인 유입에 우호적이었던 조합(관측). 매수 타이밍 근거로는 사용하지 마세요.</span><br>';
-    }
-  }
-
-  t += _krReferenceScoreLine('【글로벌 시장 환경】');
-
-  // v57.77: an empty summary hides its section instead of showing a permanent waiting line.
-  el.innerHTML = t;
-  var krMacroSection = document.getElementById('kr-macro-dynamic-section');
-  if (krMacroSection) krMacroSection.hidden = !t;
-}
 
 // P1552: the KR analysis paragraphs used to turn the 0-100 market score into a narrative ("favourable environment", "keep a
 // defensive position", "historically rotation was active"). The score has no recorded predictive validation, so the line states

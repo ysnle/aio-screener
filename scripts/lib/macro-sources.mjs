@@ -453,6 +453,18 @@ export function mergeMacroLastKnownGood(current, previous) {
     const currentValue = Number(current?.[field]);
     const previousValue = Number(previous?.[field]);
     if (Number.isFinite(currentValue)) {
+      // v58.77 (pipeline audit DATA-02): an earlier run's official month (BLS/BEA promoted September) must not go back
+      // to the month FRED still lags on (August) when the official read fails this run. The newer observation keeps
+      // its value, date, source, freshness and change together.
+      const currentAt = String(current?.[`_asOf_${field}`] || '');
+      const previousAt = String(previous?.[`_asOf_${field}`] || '');
+      if (Number.isFinite(previousValue) && currentAt && previousAt > currentAt) {
+        for (const key of [field, `_asOf_${field}`, `_source_${field}`, `_freshness_${field}`, `_originSource_${field}`, `${field}Delta`, `${field}Delta5`, `_deltaAsOf_${field}`]) {
+          if (key in previous) merged[key] = previous[key]; else delete merged[key];
+        }
+        if (!merged[`_freshness_${field}`]) merged[`_freshness_${field}`] = 'observed';
+        continue;
+      }
       // P1090: `_freshness_*` is published as the field's CURRENT freshness, but the
       // old code only ever set it — never cleared it. Once a field had been carried
       // forward in any earlier cycle it kept reading `stale-reference` forever, even

@@ -1,0 +1,275 @@
+{
+  "evidence": "isolated source execution; no network; no producer outputs written",
+  "putCall": {
+    "retained": {
+      "totalPutCall": 0.8,
+      "asOf": "2026-10-22",
+      "fetchedAt": "2026-10-23T01:00:00.000Z",
+      "status": "stale-reference",
+      "attemptedAt": "2026-10-24T08:00:00.000Z",
+      "failureReason": "fixture-provider-failure"
+    },
+    "fresh": true,
+    "receipt": {
+      "schemaVersion": "domain-receipt.v1",
+      "domain": "options-put-call",
+      "runId": "fetch-data:2026-10-24T08:00:00.000Z",
+      "attemptedAt": "2026-10-24T08:00:00.000Z",
+      "sourceRevision": null,
+      "inputWatermarks": {
+        "generatedAt": "2026-10-24T08:00:00.000Z"
+      },
+      "batchLimit": null,
+      "counts": {
+        "eligible": 1,
+        "attempted": 1,
+        "updated": 1,
+        "retained": 0,
+        "pendingEligible": 0
+      },
+      "thisBatch": {
+        "updated": 1,
+        "terminalUnsupported": 0,
+        "transientFailed": 0,
+        "recorded": 0
+      },
+      "ledger": {
+        "total": 0,
+        "terminalUnsupported": 0,
+        "transientFailed": 0,
+        "legacyUnknown": 0
+      },
+      "lastSuccessfulObservation": "2026-10-24T08:00:00.000Z",
+      "publication": {
+        "status": "SUCCESS",
+        "reason": "every attempted target was updated",
+        "allowsPartial": true,
+        "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+        "terminalExcludedFromBatchFailures": true,
+        "generatedAtIsNotFreshness": true
+      }
+    }
+  },
+  "fmp": {
+    "requestedUrl": "https://financialmodelingprep.com/api/v3/financial-growth/AAPL?period=annual&limit=1?apikey=fixture-key",
+    "parsedApiKey": null,
+    "parsedLimit": "1?apikey=fixture-key",
+    "result": {
+      "data": {},
+      "hasKey": true,
+      "ok": 0,
+      "total": 1,
+      "planError": false
+    }
+  },
+  "dossier": {
+    "count": 455,
+    "substringCandidateCount": 177,
+    "examples": [
+      {
+        "unitId": "principles-lesson:B2",
+        "factId": "fact:bls:cpi",
+        "tokens": [
+          "cpi"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:B2",
+        "factId": "fact:bls:2026-june-headline-core",
+        "tokens": [
+          "cpi"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:D6",
+        "factId": "fact:ibm:silicon-doping",
+        "tokens": [
+          "p-n"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:L1",
+        "factId": "fact:ibm:silicon-doping",
+        "tokens": [
+          "p-n"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:L2",
+        "factId": "fact:ibm:silicon-doping",
+        "tokens": [
+          "p-n"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:L9",
+        "factId": "fact:tsmc:3dfabric",
+        "tokens": [
+          "hbm"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:L9",
+        "factId": "fact:micron:hbm2e",
+        "tokens": [
+          "hbm"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:L10",
+        "factId": "fact:tsmc:3dfabric",
+        "tokens": [
+          "hbm"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:L10",
+        "factId": "fact:micron:hbm2e",
+        "tokens": [
+          "hbm"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:N1",
+        "factId": "fact:doe:pue",
+        "tokens": [
+          "energy"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:O1",
+        "factId": "fact:krx:listed-products",
+        "tokens": [
+          "krx"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:O2",
+        "factId": "fact:krx:listed-products",
+        "tokens": [
+          "krx"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:O3",
+        "factId": "fact:krx:listed-products",
+        "tokens": [
+          "krx"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "principles-lesson:O4",
+        "factId": "fact:krx:listed-products",
+        "tokens": [
+          "krx"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:tokenization",
+        "factId": "fact:transformer:attention",
+        "tokens": [
+          "token"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:embedding-and-position",
+        "factId": "fact:transformer:attention",
+        "tokens": [
+          "transformer",
+          "token"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:self-attention",
+        "factId": "fact:transformer:attention",
+        "tokens": [
+          "transformer",
+          "attention"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:multi-head-attention",
+        "factId": "fact:transformer:attention",
+        "tokens": [
+          "transformer"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:context-window",
+        "factId": "fact:transformer:attention",
+        "tokens": [
+          "transformer",
+          "token"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:kv-cache",
+        "factId": "fact:transformer:attention",
+        "tokens": [
+          "attention"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:pretraining",
+        "factId": "fact:transformer:attention",
+        "tokens": [
+          "transformer"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:pretraining",
+        "factId": "fact:google:learning-types",
+        "tokens": [
+          "training"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:post-training",
+        "factId": "fact:google:learning-types",
+        "tokens": [
+          "training"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:evaluation",
+        "factId": "fact:sec:financial-statements",
+        "tokens": [
+          "valuation"
+        ],
+        "status": "RESEARCHED"
+      },
+      {
+        "unitId": "atlas-foundation:evaluation",
+        "factId": "fact:sec:10k-reading",
+        "tokens": [
+          "valuation"
+        ],
+        "status": "RESEARCHED"
+      }
+    ],
+    "boundary": "Substring attachments reproduced; semantic validity requires individual review, not all candidates are errors."
+  }
+}

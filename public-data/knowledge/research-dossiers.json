@@ -6,8 +6,8 @@
   "counts": {
     "total": 455,
     "researchRequired": 176,
-    "researchInProgress": 52,
-    "researched": 227
+    "researchInProgress": 57,
+    "researched": 222
   },
   "dossiers": [
     {
@@ -1726,7 +1726,6 @@
         "fact:fed:policy-transmission",
         "fact:nyfed:rstar-definition",
         "fact:nyfed:rstar-model-market",
-        "fact:ibm:silicon-doping",
         "fact:fed:2026-june-policy-neutral-reference",
         "fact:bls:2026-june-headline-core",
         "fact:nyfed:rstar-estimation-method"
@@ -5641,10 +5640,8 @@
           "requiredAction": "independent direct source required"
         }
       ],
-      "researchFactIds": [
-        "fact:ibm:silicon-doping"
-      ],
-      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+      "researchFactIds": [],
+      "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -5653,9 +5650,9 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace AI 경제의 수요 구조 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCHED",
+      "status": "RESEARCH_IN_PROGRESS",
       "completion": {
-        "evidenceAttached": true,
+        "evidenceAttached": false,
         "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
@@ -5751,10 +5748,8 @@
           "requiredAction": "independent direct source required"
         }
       ],
-      "researchFactIds": [
-        "fact:ibm:silicon-doping"
-      ],
-      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+      "researchFactIds": [],
+      "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -5763,9 +5758,9 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace 컴퓨팅 시스템 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCHED",
+      "status": "RESEARCH_IN_PROGRESS",
       "completion": {
-        "evidenceAttached": true,
+        "evidenceAttached": false,
         "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
@@ -11526,8 +11521,7 @@
         }
       ],
       "researchFactIds": [
-        "fact:transformer:attention",
-        "fact:google:learning-types"
+        "fact:transformer:attention"
       ],
       "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
@@ -11800,9 +11794,7 @@
         }
       ],
       "researchFactIds": [
-        "fact:nist:ai-rmf-core",
-        "fact:sec:financial-statements",
-        "fact:sec:10k-reading"
+        "fact:nist:ai-rmf-core"
       ],
       "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
@@ -15493,9 +15485,7 @@
       ],
       "claimCoverage": [],
       "researchFactIds": [
-        "fact:nist:ai-rmf-core",
-        "fact:sec:financial-statements",
-        "fact:sec:10k-reading"
+        "fact:nist:ai-rmf-core"
       ],
       "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
@@ -16291,10 +16281,8 @@
         "PRIMARY_OFFICIAL"
       ],
       "claimCoverage": [],
-      "researchFactIds": [
-        "fact:fed:financial-stability"
-      ],
-      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+      "researchFactIds": [],
+      "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -16303,9 +16291,9 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace 경기순환과 자산배분 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCHED",
+      "status": "RESEARCH_IN_PROGRESS",
       "completion": {
-        "evidenceAttached": true,
+        "evidenceAttached": false,
         "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
@@ -19827,10 +19815,8 @@
         "PRIMARY_OFFICIAL"
       ],
       "claimCoverage": [],
-      "researchFactIds": [
-        "fact:transformer:attention"
-      ],
-      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+      "researchFactIds": [],
+      "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -19839,9 +19825,9 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace 토큰의 직접적 가치 연결고리 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCHED",
+      "status": "RESEARCH_IN_PROGRESS",
       "completion": {
-        "evidenceAttached": true,
+        "evidenceAttached": false,
         "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
@@ -20448,10 +20434,8 @@
         "PRIMARY_OFFICIAL"
       ],
       "claimCoverage": [],
-      "researchFactIds": [
-        "fact:fed:financial-stability"
-      ],
-      "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+      "researchFactIds": [],
+      "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
       "disagreement": "Not assessed until independent source comparison is complete.",
       "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
       "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -20460,9 +20444,9 @@
       "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
       "q4StructuralMechanism": "Trace 은행에서 비은행으로 이동하는 규제·시스템 리스크 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
       "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-      "status": "RESEARCHED",
+      "status": "RESEARCH_IN_PROGRESS",
       "completion": {
-        "evidenceAttached": true,
+        "evidenceAttached": false,
         "sourceProfileComplete": true,
         "semanticReview": "REQUIRED",
         "userValidation": "NOT_CONDUCTED"
@@ -25586,7 +25570,6 @@
       "claimCoverage": [],
       "researchFactIds": [
         "fact:doe:pue",
-        "fact:tsmc:3dfabric",
         "fact:sia:semiconductor-value-chain",
         "fact:nist:supply-chain-risk",
         "fact:doe:datacenter-kpi-denominators"
@@ -27022,6 +27005,7 @@
       ],
       "claimCoverage": [],
       "researchFactIds": [
+        "fact:react:agent-tools",
         "fact:world-models:planning",
         "fact:sia:semiconductor-value-chain",
         "fact:nist:supply-chain-risk"
@@ -28859,7 +28843,6 @@
       "sourceTiers": [],
       "claimCoverage": [],
       "researchFactIds": [
-        "fact:world-models:planning",
         "fact:sia:semiconductor-value-chain",
         "fact:nist:supply-chain-risk"
       ],
@@ -35247,9 +35230,7 @@
       ],
       "researchFactIds": [
         "fact:sec:financial-statements",
-        "fact:sec:10k-reading",
-        "fact:finra:orders",
-        "fact:krx:listed-products"
+        "fact:sec:10k-reading"
       ],
       "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
       "disagreement": "Not assessed until independent source comparison is complete.",

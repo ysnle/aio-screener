@@ -31,3 +31,44 @@
 #ai-panel .ai-ph-badge { display: none; }
 #ai-panel .ai-session-controls { flex: 0 0 auto; margin-left: 0; }
 #ai-panel .ai-session-head-btn { white-space: nowrap; }
+/* Owner 2026-10-25: 답변 맞춤 sheet (src/ui/components/ai-profile.js). */
+#ai-panel .ai-profile-btn.is-on { color: var(--text-primary); border-color: var(--text-secondary); }
+#ai-panel .ai-profile-form { display: flex; flex-direction: column; gap: 10px; padding: 10px 14px 0; overflow-y: auto; flex: 1; min-height: 0; }
+#ai-panel .ai-profile-lede { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+#ai-panel .ai-profile-group { border: 0; margin: 0; padding: 0; min-width: 0; }
+#ai-panel .ai-profile-legend { display: block; padding: 0; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--text-primary); }
+#ai-panel .ai-profile-options { display: flex; flex-wrap: wrap; gap: 6px; }
+#ai-panel .ai-profile-option { position: relative; display: inline-flex; }
+#ai-panel .ai-profile-option input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+#ai-panel .ai-profile-option span { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 12px; border: 0.5px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--text-secondary); }
+#ai-panel .ai-profile-option input:checked + span { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-surface); }
+#ai-panel .ai-profile-option input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+#ai-panel .ai-profile-text input { width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--bg-surface); color: var(--text-primary); font-size: 14px; }
+#ai-panel .ai-profile-status { margin: 0; }
+#ai-panel .ai-profile-form .ai-session-foot { position: sticky; bottom: 0; margin: 0 -14px; background: var(--bg-surface); }
+#ai-panel .ai-profile-form .ai-session-foot .ai-session-meta { flex: 1; }
+/* Owner 2026-10-25: example questions on touch and narrow layouts (src/ui/components/ai-chip-fold.js) — one sideways
+   row before the first question, folded behind one button once a conversation has started, hidden while typing. */
+#ai-panel .ai-chips-toggle { display: none; }
+@media (pointer: coarse), (max-width: 1100px) {
+  #ai-panel .ai-chips { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; max-height: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  #ai-panel .ai-chips::-webkit-scrollbar { display: none; }
+  #ai-panel .ai-chip { flex: 0 0 auto; white-space: nowrap; max-width: 85%; overflow: hidden; text-overflow: ellipsis; }
+  #ai-panel[data-convo="1"] .ai-chips-toggle:not([hidden]) { display: flex; align-items: center; align-self: flex-start; flex-shrink: 0; margin: 4px 14px 0; min-height: 32px; padding: 4px 12px; background: transparent; border: 0.5px solid var(--border); border-radius: 999px; color: var(--text-secondary); font-size: 12px; cursor: pointer; }
+  #ai-panel[data-convo="1"]:not([data-chips-open="1"]) .ai-chips { display: none; }
+  #ai-panel[data-convo="1"][data-chips-open="1"] .ai-chips { flex-wrap: wrap; max-height: 40vh; overflow-y: auto; }
+  #ai-panel[data-convo="1"][data-chips-open="1"] .ai-chip { white-space: normal; max-width: 100%; }
+}
+@media (pointer: coarse) {
+  #ai-panel:has(#ai-panel-inp:focus) :is(.ai-chips, .ai-chips-toggle) { display: none !important; }
+  #ai-panel .ai-profile-text input { font-size: 16px; } /* iOS zooms into a focused input under 16px */
+}
+/* Owner 2026-10-25: 사용 기록으로 맞추기 — the opt-in switch and the learned summary inside the 맞춤 sheet. */
+#ai-panel .ai-profile-learn { border-top: 0.5px solid var(--border-subtle); padding-top: 10px; }
+#ai-panel .ai-profile-switch { display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 12px; color: var(--text-primary); cursor: pointer; }
+#ai-panel .ai-profile-switch input { width: 18px; height: 18px; margin: 0; accent-color: var(--text-primary); }
+#ai-panel .ai-profile-learned { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+#ai-panel .ai-profile-learned-list { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; margin: 0; font-size: 12px; }
+#ai-panel .ai-profile-learned-list dt { color: var(--text-muted); }
+#ai-panel .ai-profile-learned-list dd { margin: 0; color: var(--text-primary); overflow-wrap: anywhere; }
+#ai-panel .ai-profile-learned .ai-session-delete { align-self: flex-start; }

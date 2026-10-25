@@ -2224,26 +2224,7 @@ var _fetchYahooChartData = window._fetchYahooChartData;
 
 
 // v39.2: screener 제거됨
-function switchThemeMode(mode) {
-  const etfView = document.getElementById('etf-view');
-  const subView = document.getElementById('subtheme-view');
-  const etfBtn = document.getElementById('etf-btn');
-  const subBtn = document.getElementById('sub-btn');
-  const desc = document.getElementById('theme-mode-desc');
-  if(mode === 'etf') {
-    etfView.style.display = '';
-    subView.style.display = 'none';
-    etfBtn.style.background = 'var(--accent-dim)'; etfBtn.style.color = 'var(--accent)'; etfBtn.style.fontWeight = '600';
-    subBtn.style.background = 'transparent'; subBtn.style.color = 'var(--text-secondary)'; subBtn.style.fontWeight = 'normal';
-    desc.textContent = '대표 ETF 기준, 누구나 바로 매매 가능한 상품';
-  } else {
-    etfView.style.display = 'none';
-    subView.style.display = '';
-    subBtn.style.background = 'var(--accent-dim)'; subBtn.style.color = 'var(--accent)'; subBtn.style.fontWeight = '600';
-    etfBtn.style.background = 'transparent'; etfBtn.style.color = 'var(--text-secondary)'; etfBtn.style.fontWeight = 'normal';
-    desc.textContent = '개별 종목 등락률 단순 평균, 세부 지수';
-  }
-}
+// v58.76: switchThemeMode (ETF / 세부 테마 toggle of the retired #page-theme-detail block) is retired.
 // ═══════════════════════════════════════════════════════════════
 // AIO LIVE DATA ENGINE v1.0
 // 나라별 우선순위 기반 멀티소스 실시간 뉴스 + 시세 데이터
@@ -9190,7 +9171,6 @@ async function autoTranslateNews(items) { (items || []).forEach(function(i) { if
     if (statusEl) statusEl.textContent = `✓ ${_translationCache.size}건 처리됨`;
     _aioNotifyNewsSurfaceInvalidated('news-translation-retry');
     renderBriefingFeed(newsCache);
-    if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
     return;
   }
 
@@ -9328,7 +9308,6 @@ ${prompt}`
       await new Promise(r => setTimeout(r, 600));
       if (statusEl) statusEl.textContent = `번역·해석 중... (${translated}/${needTranslation.length})`;
       _aioNotifyNewsSurfaceInvalidated('news-translation-progress');
-      if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
     }
   }
 
@@ -9344,7 +9323,6 @@ ${prompt}`
   // 최종 렌더링 업데이트
   _aioNotifyNewsSurfaceInvalidated('news-translation-final');
   renderBriefingFeed(newsCache);
-  if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
 }
 
 function localEnrichSingle(item) {
@@ -13428,7 +13406,6 @@ function _aioApplyScreenerBreadth(sd) {
       document.querySelector('#page-signal[data-aio-architecture-renderer="native"], #page-home[data-aio-architecture-renderer="native"]'));
     if (!_nativeAnalysisRuntime && typeof refreshSignalDashboard === 'function') refreshSignalDashboard();
     if (!_nativeAnalysisRuntime && typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
-    if (typeof updateKrBreadth === 'function') updateKrBreadth();
   } catch(_) {}
   return true;
 }

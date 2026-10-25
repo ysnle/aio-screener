@@ -244,4 +244,18 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   if (shareClassTag('CAP STK CL A') !== 'A주' || shareClassTag('CAP STK CL C') !== 'C주' || shareClassTag('COM') !== null || shareClassTag('CLASS B COM') !== 'B주') fail('masters share-class tag');
 }
 
-console.log(JSON.stringify({ ok: true, checks: ['P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25', 'v57.81-portfolio-read', 'v57.92-E01-E08', 'v57.92-M02-K01-masters'] }));
+// v58.77 pipeline pass-2: retained Cboe value is not this run's success; FMP query keeps one '?'; dossier facts by whole word.
+{
+  const { planeFresh } = await import('./producer/source-planes.mjs');
+  if (planeFresh('putCall', { fetchedAt: '2026-10-23T21:00Z', status: 'stale-reference', failureReason: 'HTTP 503', totalPutCall: 0.9 })) fail('P2-DATA-06 a retained put/call value counted as fresh');
+  if (!planeFresh('putCall', { fetchedAt: '2026-10-24T21:00Z', status: 'current-reference', totalPutCall: 0.9 })) fail('P2-DATA-06 a current put/call read must stay fresh');
+  if (/prior\.putCall\?\.asOf/.test(read('scripts/producer/source-planes.mjs')) && !/prior\.putCall\?\.totalPutCall != null/.test(read('scripts/producer/source-planes.mjs'))) fail('P2-DATA-06 null totalPutCall must not be retained as 0');
+  if (!/endpoint\.includes\('\?'\) \? '&' : '\?'/.test(read('scripts/producer/screener.mjs'))) fail('P2-DATA-07 FMP endpoint with a query must append apikey with &');
+  const dossierFacts = (id) => JSON.parse(read(`public-data/knowledge/research-dossiers/${id}.json`)).researchFactIds || [];
+  const wrong = [['atlas-foundation_evaluation', /sec:/], ['principles_evaluation', /sec:/]].filter(([id, pattern]) => dossierFacts(id).some((f) => pattern.test(f)));
+  if (wrong.length) fail(`P2-KNOW-02 substring evidence attached: ${wrong.map(([id]) => id).join(', ')}`);
+  const kept = [['principles_power-cooling', 'fact:doe:pue'], ['principles_inflation-deflation', 'fact:bls:cpi'], ['product_micron-hbm-family', 'fact:micron:hbm2e']].filter(([id, fact]) => !dossierFacts(id).includes(fact));
+  if (kept.length) fail(`P2-KNOW-02 whole-word evidence lost: ${kept.map(([id]) => id).join(', ')}`);
+}
+
+console.log(JSON.stringify({ ok: true, checks: ['v58.77-pass2-P2-DATA-06-07-KNOW-02', 'P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25', 'v57.81-portfolio-read', 'v57.92-E01-E08', 'v57.92-M02-K01-masters'] }));
