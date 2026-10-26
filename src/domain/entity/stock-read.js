@@ -312,7 +312,9 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     trend ? trend.label : null,
     position != null ? `52주 범위 ${Math.round(position * 100)}% 지점` : null,
     relative3?.gap != null ? `3개월 지수 대비 ${signed(relative3.gap, 1, '%p')}` : null,
-    sector?.quadrant ? `섹터 ${sector.quadrant.headLabel}` : null
+    // v58.80 run-5 (skeptic #6): '섹터 후행' beside the stock's own +32%p did not say whose lag; it is the sector ETF's
+    // rotation against the S&P 500.
+    sector?.quadrant ? `섹터${sector.etf ? `(${sector.etf})` : ''} 지수 대비 ${sector.quadrant.headLabel}` : null
   ].filter(Boolean).join(', ');
   // v57.55 review (8o): an ETF has no filings to read and no sector peers — its links say so.
   const fund = /^ETF$/i.test(String(row.sector || ''));

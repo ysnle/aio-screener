@@ -143,7 +143,7 @@ function initKoreaThemes() {
       var pctEl = pill.querySelector('.pill-pct');
       if (pctEl && d.pct != null) {
         pctEl.textContent = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
-        pctEl.style.color = d.pct >= 0 ? 'var(--green)' : 'var(--red)';
+        pctEl.style.color = d.pct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
       }
       // 행 전체 배경 틴트
       var a = Math.min(Math.abs(d.pct != null ? d.pct : 0)*3,12)/100;
@@ -197,7 +197,7 @@ function initKoreaThemes() {
     var statEl = card.querySelector('.kr-theme-stat span:first-child b');
     if (statEl) {
       statEl.textContent = (avg >= 0 ? '+' : '') + avg.toFixed(1) + '%';
-      statEl.style.color = avg >= 0 ? 'var(--green)' : 'var(--red)';
+      statEl.style.color = avg >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     }
 
     // v35.5: 카탈리스트 텍스트 JS 변수에서 동적 주입
@@ -287,7 +287,7 @@ function renderKrThemeCardsFromMap() {
       var pctStr = '', pctColor = 'var(--text-muted)';
       if (d && d.pct != null) {
         pctStr = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(1) + '%';
-        pctColor = d.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+        pctColor = d.pct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
       }
       var priceStr = d && d.price ? d.price.toLocaleString() : '';
       var barC = d && d.pct != null ? (d.pct >= 0 ? 'rgba(47,124,87,0.12)' : 'rgba(181,69,72,0.1)') : 'transparent';
@@ -318,7 +318,7 @@ function renderKrThemeCardsFromMap() {
       '</div>' +
       '<div class="kr-theme-tickers">' + pillsHtml + '</div>' +
       '<div class="kr-theme-stat" data-theme-stat="' + tid + '">' +
-        (avg == null ? '<span><b class="krl-muted">시세 미수신, 구성 비중만 표시</b></span>' : '<span>일간 수익률 <b style="color:' + (avg >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%</b></span>') +
+        (avg == null ? '<span><b class="krl-muted">시세 미수신, 구성 비중만 표시</b></span>' : '<span>일간 수익률 <b style="color:' + (avg >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') + ';">' + (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%</b></span>') +
       '</div>' +
       catalystHtml +
     '</div>';
@@ -366,7 +366,7 @@ function renderKrThemePerfBars(ld) {
   var N={};Object.keys(window.AIO_KR_THEME_LABELS||{}).forEach(function(k){N[k]=window.AIO_KR_THEME_LABELS[k].split(' / ')[0];}); // P1327: one label owner
   var res=[];for(var tid in KR_THEME_MAP){var t=KR_THEME_MAP[tid],ws=0,vs=0;t.forEach(function(s){var d=ld[krTickerToYahoo(s.code)];if(d&&d.pct != null&&s.w>0){vs+=d.pct*s.w;ws+=s.w;}});if(ws>0)res.push({id:tid,name:N[tid]||tid,perf:vs/ws});}
   if(!res.length)return;res.sort(function(a,b){return b.perf-a.perf;});var mx=Math.max.apply(null,res.map(function(r){return Math.abs(r.perf);}));if(mx<0.01)mx=1;
-  var h='';res.forEach(function(r,i){var p=r.perf>=0,bw=Math.min(Math.abs(r.perf)/mx*100,100),cl=p?'var(--data-green)':'var(--data-red)',rk=i<3?'<b style="color:'+cl+';">'+(i+1)+'</b> ':'';
+  var h='';res.forEach(function(r,i){var p=r.perf>=0,bw=Math.min(Math.abs(r.perf)/mx*100,100),cl=p?'var(--dir-up)':'var(--dir-down)',rk=i<3?'<b style="color:'+cl+';">'+(i+1)+'</b> ':'';
     h+='<div class="krl-pb-row'+(i%2===0?' is-alt':'')+'" data-action="showKrThemeDetail" data-arg="'+escHtml(r.id)+'"><div class="krl-pb-name">'+rk+r.name+'</div><div class="krl-pb-track">'+(p?'<div class="krl-pb-fill is-pos" style="width:'+(bw/2)+'%;background:'+cl+';"></div>':'<div class="krl-pb-fill is-neg" style="width:'+(bw/2)+'%;background:'+cl+';"></div>')+'<div class="krl-pb-mid"></div></div><div class="krl-pb-val" style="color:'+cl+';">'+(p?'+':'')+r.perf.toFixed(2)+'%</div></div>';});
   c.innerHTML=h;var ts=document.getElementById('kr-theme-rank-ts');if(ts)ts.textContent=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 갱신';
 }
@@ -390,18 +390,18 @@ function showKrThemeDetail(themeId) {
     if(p>=0)upCnt++;else dnCnt++;
     if(p>topPct){topPct=p;topStock=info.name||t.code;}if(p<botPct){botPct=p;botStock=info.name||t.code;}
   });
-  var avg=ws>0?vs/ws:null,ip=avg!=null&&avg>=0,cc=avg==null?'var(--text-muted)':ip?'var(--data-green)':'var(--data-red)';
+  var avg=ws>0?vs/ws:null,ip=avg!=null&&avg>=0,cc=avg==null?'var(--text-muted)':ip?'var(--dir-up)':'var(--dir-down)';
   var avgText=avg==null?'—':(ip?'+':'')+avg.toFixed(2)+'%';
   var totalStocks=tmap.length,quoted=upCnt+dnCnt,upRatio=quoted>0?Math.round(upCnt/quoted*100):null;
 
   // v57.77: 등락 구간 표기 (카드와 같은 구간, 등급 아님)
-  var strength=ws>0?_krThemeMoveBand(avg).label:'시세 미수신',strengthCol=ws>0&&avg>=1?'var(--data-green)':ws>0&&avg<=-1?'var(--data-red)':'var(--text-muted)';
+  var strength=ws>0?_krThemeMoveBand(avg).label:'시세 미수신',strengthCol=ws>0&&avg>=1?'var(--dir-up)':ws>0&&avg<=-1?'var(--dir-down)':'var(--text-muted)';
 
   // 종목 테이블 (등락률 순 정렬)
   var sorted=tmap.slice().sort(function(a,b){var da=ld[krTickerToYahoo(a.code)],db=ld[krTickerToYahoo(b.code)],ha=hasPct(da),hb=hasPct(db);if(ha!==hb)return ha?-1:1;return ha?Number(db.pct)-Number(da.pct):0;});
   var rows='';sorted.forEach(function(t,idx){
     var info=KR_STOCK_DB[t.code]||{},sym=krTickerToYahoo(t.code),d=ld[sym];
-    var price=d&&d.price!=null&&isFinite(Number(d.price))?Number(d.price):null,pct=d&&d.pct!=null?d.pct:null,pCol=pct!==null?(pct>=0?'var(--data-green)':'var(--data-red)'):'var(--text-muted)';
+    var price=d&&d.price!=null&&isFinite(Number(d.price))?Number(d.price):null,pct=d&&d.pct!=null?d.pct:null,pCol=pct!==null?(pct>=0?'var(--dir-up)':'var(--dir-down)'):'var(--text-muted)';
     var ps=price==null?'—':price>=1000?Math.round(price).toLocaleString()+'원':price+'원';
     var pcs=pct!==null?((pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
     var lt=d?'<span class="krl-live is-on">● 수신</span>':'<span class="krl-live">○</span>';

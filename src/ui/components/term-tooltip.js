@@ -8,6 +8,8 @@
  * on hover, focus or tap, and places it with fixed coordinates clamped inside the viewport.
  */
 
+import { claimPopover, releasePopover, watchScroll, hoverSuppressed } from './popover.js';
+
 const MARGIN = 8;
 
 export function placeTooltipBody(anchorRect, bodySize, viewport) {
@@ -46,6 +48,7 @@ export function installTermTooltips(documentRef, { root = globalThis } = {}) {
     if (body) body.removeAttribute('style');
     openTip.classList.remove('is-open');
     openTip = null;
+    releasePopover(documentRef, close);
   };
 
   const open = (tip) => {
@@ -63,10 +66,11 @@ export function installTermTooltips(documentRef, { root = globalThis } = {}) {
     Object.assign(body.style, { visibility: '', left: `${place.left}px`, top: `${place.top}px`, width: `${place.width}px`, zIndex: '1000' });
     tip.classList.add('is-open');
     openTip = tip;
+    claimPopover(documentRef, close);
   };
 
   const tipFrom = (event) => event.target?.closest?.('.term-tooltip');
-  const onOver = (event) => { const tip = tipFrom(event); if (tip) open(tip); };
+  const onOver = (event) => { if (hoverSuppressed(root)) return; const tip = tipFrom(event); if (tip) open(tip); };
   const onOut = (event) => {
     const tip = tipFrom(event);
     if (tip && tip === openTip && !tip.contains(event.relatedTarget) && !tip.contains(documentRef.activeElement)) close();
@@ -85,6 +89,7 @@ export function installTermTooltips(documentRef, { root = globalThis } = {}) {
   const onScroll = () => close();
 
   prepare();
+  watchScroll(root);
   documentRef.addEventListener('mouseover', onOver);
   documentRef.addEventListener('mouseout', onOut);
   documentRef.addEventListener('click', onClick, true);

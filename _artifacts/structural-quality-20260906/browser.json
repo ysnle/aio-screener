@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T15:22:59.129Z",
+  "generatedAt": "2026-10-26T03:57:48.967Z",
   "routes": [
     {
       "id": "home",
@@ -8,35 +8,63 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "S&P 500 SPY, 장중 그래프를 받지 못했습니다. 누르면 차트 화면으로 이동"
+          "name": "S&P 500, 10/23 종가 7,623.68. 장중 그래프는 받지 못했습니다. 누르면 SPY 차트로 이동(이 지수를 따르는 ETF)"
         },
         {
           "tag": "BUTTON",
-          "name": "나스닥 100 QQQ, 장중 그래프를 받지 못했습니다. 누르면 차트 화면으로 이동"
+          "name": "나스닥 100, 10/23 종가 28,957.53. 장중 그래프는 받지 못했습니다. 누르면 QQQ 차트로 이동(이 지수를 따르는 ETF)"
         },
         {
           "tag": "BUTTON",
-          "name": "반도체 SOXX, 장중 그래프를 받지 못했습니다. 누르면 차트 화면으로 이동"
+          "name": "반도체, 10/23 종가 527.20. 장중 그래프는 받지 못했습니다. 누르면 SMH 차트로 이동"
         },
         {
           "tag": "BUTTON",
-          "name": "러셀 2000 IWM, 장중 그래프를 받지 못했습니다. 누르면 차트 화면으로 이동"
+          "name": "러셀 2000, 10/23 종가 2,775.90. 장중 그래프는 받지 못했습니다. 누르면 IWM 차트로 이동(이 지수를 따르는 ETF)"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "추세부담"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭중립"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "변동성중립"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리중립"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "신용과 위험선호부담"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "달러와 원자재부담"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "환율 (원, 엔), 참고중립"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "판정 근거와 지수 차트 보기 →"
         },
         {
           "tag": "A",
-          "name": "[뉴욕증시-주간전망] 운명의 한 주…FOMC·물가·AI 실적 '3중 시험대'"
+          "name": "솔리다임 상장 중단 후 반등한 코스피…FOMC·실적 주목"
         },
         {
           "tag": "A",
-          "name": "Apollo, 광범위한 AI 이익을 발견하지 못함: NVDA 주식 예측, 실적 발표 전"
+          "name": "S&P500: AI 지출, 빅테크 실적과 연준 리스크가 미국 주식시장 시험대에"
         },
         {
           "tag": "A",
-          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다"
-        },
-        {
-          "tag": "A",
-          "name": "10/24 09:23 구성 종목 PANW +7.2%, 채널 글, 니케시 아로라 (Palo Alto Networks CEO) - All-In Podcast 중 (26.10.24) - 팔로알토 네트웍스"
+          "name": "AI 지출 우려와 유가 상승에 글로벌 증시 하락"
         },
         {
           "tag": "BUTTON",
@@ -44,7 +72,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "스크리너 열기"
+          "name": "포트폴리오에서 추가"
         },
         {
           "tag": "BUTTON",
@@ -97,6 +125,10 @@
         {
           "tag": "BUTTON",
           "name": "모든 시나리오와 선택지 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "모든 테마의 단계 →"
         },
         {
           "tag": "BUTTON",
@@ -256,9 +288,8 @@
         "지수 하루 흐름",
         "판단이 바뀌는 조건",
         "지난 마감 이후 변화",
-        "지금 시세 주말 휴장",
+        "지금 시세 실시간·지연, 10/26 10:18 관측",
         "밤사이 핵심 3건",
-        "움직인 종목과 같은 날 보도",
         "오늘 확인할 3가지",
         "내 종목",
         "다가오는 일정",
@@ -527,43 +558,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "RHI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CART"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RBRK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EQNR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CHRD"
-        },
-        {
-          "tag": "BUTTON",
           "name": "APA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OVV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "E"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ETSY"
         },
         {
           "tag": "BUTTON",
@@ -587,22 +582,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "RNR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APPN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SHEL"
-        },
-        {
-          "tag": "BUTTON",
           "name": "EG"
         },
         {
@@ -611,39 +590,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "CNQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PBR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TTE"
-        },
-        {
-          "tag": "BUTTON",
           "name": "ADP"
         },
         {
           "tag": "BUTTON",
-          "name": "WCN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ROKU"
-        },
-        {
-          "tag": "BUTTON",
           "name": "MRSH"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BJ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PAYC"
         },
         {
           "tag": "BUTTON",
@@ -660,10 +611,6 @@
         {
           "tag": "BUTTON",
           "name": "ED"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WTRG"
         },
         {
           "tag": "BUTTON",
@@ -687,7 +634,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "LKQ"
+          "name": "BBY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CTAS"
         },
         {
           "tag": "BUTTON",
@@ -695,23 +646,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "MBLY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VKTX"
-        },
-        {
-          "tag": "BUTTON",
           "name": "MGM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AVAV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CIFR"
         },
         {
           "tag": "BUTTON",
@@ -719,35 +654,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "ARRY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CLSK"
-        },
-        {
-          "tag": "BUTTON",
           "name": "WYNN"
         },
         {
           "tag": "BUTTON",
-          "name": "CDE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NNE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ASTS"
-        },
-        {
-          "tag": "BUTTON",
           "name": "APTV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OKLO"
         },
         {
           "tag": "BUTTON",
@@ -759,71 +670,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "CW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FLNC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RIVN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LEU"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NXT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SOUN"
-        },
-        {
-          "tag": "BUTTON",
           "name": "APP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KGC"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KTOS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CCJ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MTZ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "QBTS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BWXT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SMR"
         },
         {
           "tag": "SELECT",
@@ -831,19 +678,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "RHI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CART"
-        },
-        {
-          "tag": "BUTTON",
           "name": "CCI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FANUY"
         },
         {
           "tag": "BUTTON",
@@ -851,35 +686,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "ZS"
-        },
-        {
-          "tag": "BUTTON",
           "name": "SLB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "S"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RBRK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "OKTA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BKSY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EQNR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CHRD"
         },
         {
           "tag": "BUTTON",
@@ -891,23 +698,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "WHD"
-        },
-        {
-          "tag": "BUTTON",
           "name": "DVN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "E"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VSAT"
         },
         {
           "tag": "BUTTON",
@@ -915,19 +706,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "LNG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "LKQ"
-        },
-        {
-          "tag": "BUTTON",
           "name": "BE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CRDO"
         },
         {
           "tag": "BUTTON",
@@ -943,26 +722,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "INFY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "PENN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MBLY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VKTX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COKE"
-        },
-        {
-          "tag": "BUTTON",
           "name": "DECK"
         },
         {
@@ -971,19 +730,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "HIMS"
-        },
-        {
-          "tag": "BUTTON",
           "name": "MET"
         },
         {
           "tag": "BUTTON",
           "name": "DLTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EQH"
         },
         {
           "tag": "BUTTON",
@@ -1120,6 +871,78 @@
       "controls": [
         {
           "tag": "A",
+          "name": "중금리대출 확대에…카드론 금리 석달 만에 13%대로 하락"
+        },
+        {
+          "tag": "A",
+          "name": "원/달러 환율 1,310원대 근접…명목실효환율 2년만에 최고"
+        },
+        {
+          "tag": "A",
+          "name": "Investors Are Worried About Too Much AI Spending. They're Not Wrong, But It's Paying Off for These 2 Tech Stoc"
+        },
+        {
+          "tag": "A",
+          "name": "50% 수익률? CoreWeave 이후 AI 투자 열기 뜨거워져"
+        },
+        {
+          "tag": "A",
+          "name": "중간 선거 9일 전, 빅테크 실적 발표 주목"
+        },
+        {
+          "tag": "A",
+          "name": "Will AI Data Center Explosive Growth Save STM Stock on Oct. 29?"
+        },
+        {
+          "tag": "A",
+          "name": "메타의 끝없는 AI 투자"
+        },
+        {
+          "tag": "A",
+          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다"
+        },
+        {
+          "tag": "A",
+          "name": "AI 지출 우려, 빅 테크의 강력한 실적을 침몰시킬 수 있다"
+        },
+        {
+          "tag": "A",
+          "name": "연준이 금리 인상에 대한 힌트를 내놓을까?"
+        },
+        {
+          "tag": "A",
+          "name": "실적 플레이북: 알파벳, 마이크로소프트, 아마존 등이 이번 주 보고서를 발표한다. 기대할 것"
+        },
+        {
+          "tag": "A",
+          "name": "골드만삭스, 코스피 목표치 9000 하향 조정…“60% 이상 상승 가능”"
+        },
+        {
+          "tag": "A",
+          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다"
+        },
+        {
+          "tag": "A",
+          "name": "인도재벌 암바니 IT기업 IPO…기업가치 1천억달러 넘겨"
+        },
+        {
+          "tag": "A",
+          "name": "증시 흔들려도 개미들은 ETF로…개인 순매수 사상 첫 '80조' 돌파"
+        },
+        {
+          "tag": "A",
+          "name": "워런 버핏, 헤지펀드와의 10년 내기에서 승리… 내기 종료 후 S&P 500은 어떻게 움직였나"
+        },
+        {
+          "tag": "A",
+          "name": "코스피 한 달 새 18.8% 급락에…10대 그룹 시총 1100조 증발"
+        },
+        {
+          "tag": "A",
+          "name": "예측: 중간 선거 이후 주식 시장은 급등할 것"
+        },
+        {
+          "tag": "A",
           "name": "주가는 우는데 원화는 웃는다…코스피·환율의 엇갈린 신호[주末머니]"
         },
         {
@@ -1223,82 +1046,6 @@
           "name": "Anthropic IPO는 Vital Knowledge의 Crisafulli에 따르면 전체 시장에서 가장 큰 물음표"
         },
         {
-          "tag": "A",
-          "name": "뉴욕증시, 중동확전 우려·유가 급등에 하락…다우 1.2%↓(종합)"
-        },
-        {
-          "tag": "A",
-          "name": "인터넷 없는 AI 모델 훈련에 나서는 OpenAI"
-        },
-        {
-          "tag": "A",
-          "name": "미국 주식, 오일 가격 5개월 만에 최고치에 도달하면서 하락"
-        },
-        {
-          "tag": "A",
-          "name": "뉴욕증시, 이란 긴장 고조·유가 급등에 약세…다우 1%대↓"
-        },
-        {
-          "tag": "A",
-          "name": "트럼프와 번햄, 북해 석유·우크라이나·포클랜드 논의"
-        },
-        {
-          "tag": "A",
-          "name": "이 데이터 센터 주가가 다음 주 수익을 보고할 때 우리가 보고 싶은 것"
-        },
-        {
-          "tag": "A",
-          "name": "뉴욕증시, 위험회피 분위기에 하락 출발"
-        },
-        {
-          "tag": "A",
-          "name": "AI 거래와 연준의 만남"
-        },
-        {
-          "tag": "A",
-          "name": "엔비디아의 AI 쇼피스 현장: Jensen-mania, 로봇 덕과 네오클라우드 고민"
-        },
-        {
-          "tag": "A",
-          "name": "오늘의 주식 시장: 미들이스트 긴장으로 원유 가격 추가 상승에 미래물은 하락; 칩 주식은 반등"
-        },
-        {
-          "tag": "A",
-          "name": "월스트리트 주간 전망: 실적 발표와 연준 회의, 불안한 AI 시장 반등에 중요한 시험대"
-        },
-        {
-          "tag": "A",
-          "name": "[표] 주간 코스닥 외국인 순매수도 상위종목"
-        },
-        {
-          "tag": "A",
-          "name": "렉셀, 데이터 센터 수요로 매출 상승; 전망 상향 조정에 주가 2% 상승"
-        },
-        {
-          "tag": "A",
-          "name": "Anthropic’s Pitch to Investors Starts With Taking Their Jobs"
-        },
-        {
-          "tag": "A",
-          "name": "중동의 물리적 원유 가격, 호르무즈를 통한 유류 흐름 유지로 하락"
-        },
-        {
-          "tag": "A",
-          "name": "AI 신용우려에 코스피 '출렁'…하이닉스 호재에 한숨 돌려(종합)"
-        },
-        {
-          "tag": "A",
-          "name": "네오클라우드서 빅테크로 옮겨붙은 AI 신용위험…코스피 '흔들'(종합)"
-        },
-        {
-          "tag": "A",
-          "name": "오일 가격 상승에 인플레이션 우려로 금, 2주 연속 하락 예상"
-        },
-        {
-          "tag": "A",
-          "name": "10/24 09:23 구성 종목 PANW +7.2%, 채널 글, 니케시 아로라 (Palo Alto Networks CEO) - All-In Podcast 중 (26.10.24) - 팔로알토 네트웍스"
-        },
-        {
           "tag": "BUTTON",
           "name": "발표 전에는 예측보다 준비 — 리서치 라이브러리에서 개념 배우기"
         },
@@ -1344,16 +1091,16 @@
         "오늘의 시장 해석 10/23 미국 종가 기준, 자동 해석",
         "섹터 하루 등락",
         "시간대별 시황 하루 4회차",
+        "오늘 10/26",
         "어제 10/25",
         "10/24",
-        "10/23",
         "왜 움직였나 10/23 종가",
         "자산별 흐름",
         "다음 확인 포인트",
         "다음 이벤트 미리보기",
         "앞으로 7일 일정 한국 시간",
         "10/26(월) 미국, 101건",
-        "10/27(화) 미국, 187건",
+        "10/27(화) 미국, 186건",
         "10/28(수) 미국, 261건",
         "10/29(목) 미국, 338건",
         "10/30(금) 미국, 54건",
@@ -2788,7 +2535,7 @@
       "controls": [
         {
           "tag": "INPUT",
-          "name": "종목 티커 검색"
+          "name": "종목 검색: 회사 이름이나 종목 기호(티커)"
         },
         {
           "tag": "BUTTON",
@@ -2858,39 +2605,59 @@
         },
         {
           "tag": "A",
-          "name": "인도재벌 암바니 IT기업 IPO…기업가치 1천억달러 넘겨"
+          "name": "Oil eases from six-month highs amid US-Iran tensions, overbought signals emerge"
         },
         {
           "tag": "A",
-          "name": "Warren Buffett Won His 10-Year Bet Against Hedge Funds. Here's What the S&P 500 Has Done Since It Ended."
+          "name": "KODEX 코스피200 커버드콜 2종, 올해 개인 순매수 4조 넘어"
         },
         {
           "tag": "A",
-          "name": "주가는 우는데 원화는 웃는다…코스피·환율의 엇갈린 신호[주末머니]"
+          "name": "[미확인] Korea defense stocks surge on Kim Jong-un death rumor, plunge after China visit - CHOSUNBIZ"
         },
         {
           "tag": "A",
-          "name": "Does Higher Data Center Guidance Change The Bull Case For American Tower Stock (AMT)?"
+          "name": "[특징주] '솔리다임 상장 검토 철회' SK하이닉스, 장초반 2%대 상승"
         },
         {
           "tag": "A",
-          "name": "[뉴욕증시-주간전망] 운명의 한 주…FOMC·물가·AI 실적 '3중 시험대' — 원문 새 창에서 열기"
+          "name": "[포토] 원/달러 환율, 코스피 동반 하락 출발"
         },
         {
           "tag": "A",
-          "name": "Apollo, 광범위한 AI 이익을 발견하지 못함: NVDA 주식 예측, 실적 발표 전 — 원문 새 창에서 열기"
+          "name": "U.S.-Iran tensions sink South Korea stocks as oil jumps - CHOSUNBIZ"
         },
         {
           "tag": "A",
-          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다 — 원문 새 창에서 열기"
+          "name": "US Stock Futures Climb as Crude Oil Price Dips: Markets Wrap"
         },
         {
           "tag": "A",
-          "name": "이란 전쟁으로 IEA의 석유시장 전망 뒤집혀…2026년 세계 공급·수요 위축 — 원문 새 창에서 열기"
+          "name": "Anthropic's Claude accessed Georgia state vote count information behind paywall, Axios reports"
         },
         {
           "tag": "A",
-          "name": "에버코어, AI 주식시장 조정을 시사할 수 있는 주요 신용·미 국채 금리 임계치 제시 — 원문 새 창에서 열기"
+          "name": "Oil Prices Rise Despite Middle East Export Recovery"
+        },
+        {
+          "tag": "A",
+          "name": "솔리다임 상장 중단 후 반등한 코스피…FOMC·실적 주목 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "S&P500: AI 지출, 빅테크 실적과 연준 리스크가 미국 주식시장 시험대에 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "AI 지출 우려와 유가 상승에 글로벌 증시 하락 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "선거 후 세금 감면 종료로 이스라엘 연료 가격 리터당 9셰켈 넘을 수도 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "금, 은은 오일 급등으로 인해 새로운 시험에 직면하다: 연준 정책 결정에 초점 — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -2902,51 +2669,51 @@
         },
         {
           "tag": "A",
-          "name": "국채 시장에 숨 돌리는 기회: AI 기업들, 거액의 자금을 확보한 채 부채 매각을 앞당긴 후 채권 시장에서 물러나다 — 원문 새 창에서 열기"
+          "name": "[주간환율전망] 수출 네고가 버틴다…FOMC 주간에도 1320~1335원 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "\"美 반도체 상승에 크게 건다\"…서학개미, 3배 '속슬'에 35억달러 순매수 — 원문 새 창에서 열기"
+          "name": "머스크 “스페이스X, 부채 조달로 400억 달러 확보”…네오클라우드 업계 지각변동 전망 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "고점 대비 56% 급락 SK하이닉스…이번주 실적발표 반등 계기되나 — 원문 새 창에서 열기"
+          "name": "엘비스 프레슬리 노래로 클로드를 학습시킨 앤스로픽, 소송당해 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "코스피 급락에…10대그룹 시총, 한달새 1천100조원 증발 — 원문 새 창에서 열기"
+          "name": "로이터 보도: 앤스로픽의 클로드, 조지아주 유권자 정보 공개 자료에 접근 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "OpenAI 모델이 허가 없이 이더리움을 사용했다…가상자산 투자자에게 의미하는 것은 — 원문 새 창에서 열기"
+          "name": "앤스로픽, 기업 사용자용 클로드 채팅과 코워크 통합 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "연준, 하위크적 금리 동결에서 G7 3국을 이끌 것: 에코 위크 아헤드 — 원문 새 창에서 열기"
+          "name": "앤스로픽의 클로드, 허가 없이 유료 장벽을 우회해 조지아주 유권자 데이터에 접근 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "GBP/USD, 금 전망: 주목할 두 가지 거래 — 원문 새 창에서 열기"
+          "name": "넥스트DC CEO, 호주 데이터센터 지연에 인센티브 포기 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "후티, 사우디 유정 공격했다고 주장; 아덴에서 공격 보고 — 원문 새 창에서 열기"
+          "name": "[인터뷰] 이성호 NH증권 본부장 \"올해 채권금리 상승은 성장의 대가\" — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Anthropic을 잊어라: 바이오테크는 조용히 IPO 영역을 지배하고 있다 — 원문 새 창에서 열기"
+          "name": "일론 머스크 “AI 클라우드 기업 200여 곳 도태될 것”…코어위브는 살아남을까? — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Piper Sandler Says Financing Concerns for CoreWeave Are Overblown. Not Everyone Is Convinced. — 원문 새 창에서 열기"
+          "name": "중금리대출 확대에…카드론 금리 석달 만에 13%대로 하락 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Exclusive | FBI Explores Espionage Case Against Saudi OpenAI Suspect — 원문 새 창에서 열기"
+          "name": "금 기술적 전망: XAU/USD 하락으로 더 깊은 매도 압력이 예상된다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "The AI Bubble Has A $3.6 Trillion Problem, And It's Getting Worse (NYSEARCA:SPY) — 원문 새 창에서 열기"
+          "name": "A 50% Yield? The AI Trade Is Getting Wild After CoreWeave — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -2954,51 +2721,51 @@
         },
         {
           "tag": "A",
-          "name": "실적@aetherjapanresearch, 일본·아시아 반도체, 10-25BofA) 메타; AI 스토리는 계속 개선 중이며 뮤즈(Muse)에 대해 생각해볼 거리가 많음; 매수 의견 재확인. TP $"
+          "name": "반도체@HANAchina, 중국·신흥국, 10-26• 애플의 첫 폴더블폰 '아이폰 듀오'가 출시 직후 전 모델 완판되었으며, 리셀 프리미엄이 33%까지 붙는 등 품귀 현상으로 인해 2차 출하 일정이"
         },
         {
           "tag": "A",
-          "name": "주식분석@aetherjapanresearch, 일본·아시아 반도체, 10-25웰스파고) Meta Platforms, Inc. 3Q:26 EPS 리뷰: 견조한 매출, 자본 조달 및 FY27 OpEx/"
+          "name": "거시@insidertracking, 미국 속보, 10-2610월 26일~10월 30일 미국증시 (썸네일 재업) > 연준 금리 결정·GDP·PCE·빅테크 실적 발표 집중 • 미국 중간선거 D-8 (2"
         },
         {
           "tag": "A",
-          "name": "반도체@aetherjapanresearch, 일본·아시아 반도체, 10-24> 격리된 작업 간 통신 에이전트들이 서로 통신하기 위해 항상 네트워크 연결이 필요한 것은 아닙니다. 별도의 환경이 동일한"
+          "name": "지정학@insidertracking, 미국 속보, 10-2610월 26일 미주인 브리핑 • 이번 주 FOMC 금리 결정 · 미국 GDP·PCE 발표 • 마이크로소프트·구글·아마존 · 빅테크 실적 집"
         },
         {
           "tag": "A",
-          "name": "반도체@insidertracking, 미국 속보, 10-24젠슨 황 “카자흐스탄을 세계적인 피지컬 AI 중심지로 만들자”…힉스필드 투자·협력 강조 엔비디아 $NVDA CEO 젠슨 황이 카자흐스탄을 "
+          "name": "시장소식@insidertracking, 미국 속보, 10-262026년 10월 26일 미국 레딧 베스트 게시물 분석 > AI 전체 - “돈은 대체 누가 버는 거냐” · “Who Da Fuck is "
         },
         {
           "tag": "A",
-          "name": "반도체@HANAchina, 중국·신흥국, 10-24>>AI 군비 경쟁, 공급망 후방산업 확산 : Intel·Nvidia·AMD, 고급 IC 기판 생산능력 확보 위해 1,000억 대만달러 이상 선급금"
+          "name": "거시@insidertracking, 미국 속보, 10-26미국 레딧 관심도 유가, 구글, 나스닥 그리고 스페이스 XGOOG"
         },
         {
           "tag": "A",
-          "name": "시장소식@insidertracking, 미국 속보, 10-24글로벌 뉴스 브리핑 - 2026년 10월 24일 > 오전 6시~오후 8시 기준 아메리카 • 미국 국방부는 중국 공자학원을 국가안보 위협으"
+          "name": "반도체@insidertracking, 미국 속보, 10-26일론 머스크가 스페이스X의 대규모 AI 컴퓨팅 인프라 확장을 위해 엔비디아 GPU 구매 자금으로 400억 달러 규모의 부채 조달을 완료했다"
         },
         {
           "tag": "A",
-          "name": "신용·자금@bornlupin, 한국 반도체·증권사 자료, 10-24SF Compute 공동창업자 에반 콘래드 향후 6개월 이내에 대부분의 AI 스타트업은 컴퓨팅 자원을 구매할 수 없게 될 것 전 세"
+          "name": "시장소식@insidertracking, 미국 속보, 10-26금주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 10월 27일 화요일 23:00 – CB 소비자신뢰지수 (10월) 23:"
         },
         {
           "tag": "A",
-          "name": "시장소식@bornlupin, 한국 반도체·증권사 자료, 10-24아마존 CEO : 클라우드 용량 2027년까지 매진 앤디 재시(Andy Jassy) 아마존 CEO는 인공지능(AI) 인프라 수요 급증"
+          "name": "시장소식@insidertracking, 미국 속보, 10-26트럼프 SNS 발언 모음 [2026-10-26 오전 1:49] 폭스뉴스는 우리나라를 사랑하고 훌륭한 정책과 아이디어를 가진 공화당 후보들"
         },
         {
           "tag": "A",
-          "name": "일본@aetherjapanresearch, 일본·아시아 반도체, 10-24Citi) 일본 FX – 제2차 타카이치 내각 하에서의 일본은행 정책 변화와 엔화에 미치는 영향 Citi는 일본은행(BoJ)"
+          "name": "지정학@insidertracking, 미국 속보, 10-26트럼프 발언 및 미국 정치 관련 정리 - 2026년 10월 26일 트럼프·이란 전쟁 및 핵협상 · 트럼프 “이란과 협정을 체결할지, 완전히"
         },
         {
           "tag": "A",
-          "name": "지정학@insidertracking, 미국 속보, 10-24신화통신과 악시오스에 따르면 미국 정보당국이 이란이 중동 및 기타 지역에 주재하는 미국 외교관과 정부 관리들을 겨냥한 공격 움직임을 ‘현저"
+          "name": "반도체@bornlupin, 한국 반도체·증권사 자료, 10-26[단독]SK하이닉스, 日 키옥시아 지분 차익 16조원 특별배당 추진 투자 8년 만에 매각 이익 20조 주당 2만3000원 안팎 배당 예"
         },
         {
           "tag": "A",
-          "name": "실적@HANAchina, 중국·신흥국, 10-24>>38달러, DeepSeek가 계산한 수익성 •DeepSeek가 최근 공개한 충격적인 수치에 따르면 GPU 한 대는 시간당 38달러의 과금 매출을 "
+          "name": "지정학@insidertracking, 미국 속보, 10-26글로벌 뉴스 브리핑 - 2026년 10월 26일 아메리카 • 트럼프 대통령은 이란과 핵 협상을 타결할지, 군사적으로 문제를 해결할지 결정해"
         },
         {
           "tag": "A",
-          "name": "실적@aetherjapanresearch, 일본·아시아 반도체, 10-2438달러, 딥시크의 계산 • 최근 딥시크는 단일 GPU가 시간당 38달러의 생산액 창출 & 연간 33만달러 이상의 가치 창출"
+          "name": "전력인프라@aetherjapanresearch, 일본·아시아 반도체, 10-25미국 데이터센터 중 35%만이 실제로 건설될 것 - 번스타인 리서치는 미국 내 계획된 500GW 규모의 데이터센터 용량"
         },
         {
           "tag": "BUTTON",
@@ -3023,8 +2790,8 @@
       ],
       "headings": [
         "뉴스",
-        "08:00 이후 속보, 잠정 10/25 08:00 이후",
-        "중요 뉴스 10/25 08:00까지",
+        "08:00 이후 속보, 잠정 10/26 08:00 이후",
+        "중요 뉴스 10/26 08:00까지",
         "이 화면을 볼 때 — 속지 말 것과 원칙",
         "이어서 볼 곳"
       ]

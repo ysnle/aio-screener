@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-25T15:26:52.359Z",
+  "observedAt": "2026-10-26T04:01:16.773Z",
   "appRevision": "v58.80",
-  "gitHead": "873b151f18745d1850e89430291e0c93fe3a0f8b",
+  "gitHead": "5eb20082fdb48dc2776680d852731f828ee958e0",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -26,12 +26,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "signal",
@@ -49,12 +44,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "breadth",
@@ -72,12 +62,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "sentiment",
@@ -92,15 +77,18 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
-      "skipLink": true,
-      "modalContracts": [
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
         {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
+          "id": "",
+          "text": "지수별 가격 온도 (참고) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         }
-      ]
+      ],
+      "skipLink": true,
+      "modalContracts": []
     },
     {
       "routeId": "briefing",
@@ -115,15 +103,39 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
-      "skipLink": true,
-      "modalContracts": [
+      "smallTargetExceptionCount": 4,
+      "smallTargetExceptions": [
         {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
+          "id": "",
+          "text": "bp",
+          "width": 16,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "KST",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
         }
-      ]
+      ],
+      "skipLink": true,
+      "modalContracts": []
     },
     {
       "routeId": "technical",
@@ -141,12 +153,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "macro",
@@ -164,12 +171,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "fxbond",
@@ -184,15 +186,46 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
-      "skipLink": true,
-      "modalContracts": [
+      "smallTargetExceptionCount": 5,
+      "smallTargetExceptions": [
         {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
+          "id": "",
+          "text": "%p",
+          "width": 17,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "bp",
+          "width": 15,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "WTI",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "OAS",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
         }
-      ]
+      ],
+      "skipLink": true,
+      "modalContracts": []
     },
     {
       "routeId": "fundamental",
@@ -210,12 +243,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "themes",
@@ -230,23 +258,10 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "RRG",
-          "width": 22,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "theme-detail",
@@ -261,7 +276,7 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
+      "smallTargetExceptionCount": 3,
       "smallTargetExceptions": [
         {
           "id": "",
@@ -269,15 +284,24 @@
           "width": 22,
           "height": 28,
           "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 18,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 19,
+          "height": 28,
+          "exception": "wcag-inline-text"
         }
       ],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "portfolio",
@@ -295,12 +319,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "ticker",
@@ -318,12 +337,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "market-news",
@@ -341,12 +355,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "principles",
@@ -364,12 +373,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "masters",
@@ -387,12 +391,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "atlas",
@@ -410,12 +409,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "guide",
@@ -441,12 +435,7 @@
         }
       ],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     },
     {
       "routeId": "screener",
@@ -464,12 +453,7 @@
       "smallTargetExceptionCount": 0,
       "smallTargetExceptions": [],
       "skipLink": true,
-      "modalContracts": [
-        {
-          "id": "aio-first-visit-disclaimer",
-          "labelled": true
-        }
-      ]
+      "modalContracts": []
     }
   ],
   "manualBoundaries": [

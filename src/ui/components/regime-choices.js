@@ -6,8 +6,9 @@
 // Loaded lazily from market-regime.js (not part of the first paint).
 import { el } from './dom.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
+import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 
-const STATE = Object.freeze({ favored: ['비용이 작음', 'favorable'], costly: ['비용이 큼', 'burden'], neutral: ['중립', 'neutral'] });
+const STATE = Object.freeze({ favored: [CHOICE_WORDS.favoredState, 'favorable'], costly: [CHOICE_WORDS.costlyState, 'burden'], neutral: ['중립', 'neutral'] });
 
 export function regimeChoicesModel({ guide = null, axes = [] } = {}) {
   const paths = guide?.available ? guide.direction?.live || [] : [];

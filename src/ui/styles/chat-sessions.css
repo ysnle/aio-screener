@@ -28,6 +28,7 @@
    below it, so it gives way; the title shortens before a button wraps. */
 #ai-panel .ai-ph { gap: 6px; }
 #ai-panel .ai-ph-title { min-width: 0; flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ai-panel .ai-ph-ctx { display: block; font-size: 12px; font-weight: 500; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; }
 #ai-panel .ai-ph-badge { display: none; }
 /* First-users run 4: the shared AI route state, shown when the panel opens. */
 #ai-panel .ai-ph-route { margin-left: auto; margin-right: 8px; font-size: 12px; color: var(--text-muted); }
@@ -66,6 +67,7 @@
 @media (pointer: coarse) {
   #ai-panel:has(#ai-panel-inp:focus) :is(.ai-chips, .ai-chips-toggle) { display: none !important; }
   #ai-panel .ai-profile-text input { font-size: 16px; } /* iOS zooms into a focused input under 16px */
+  #ai-panel[data-convo="1"] .ai-chips-toggle:not([hidden]) { min-height: 44px; } /* v58.80 run-5 (phone #13): was 32px on touch */
 }
 /* Owner 2026-10-25: 사용 기록으로 맞추기 — the opt-in switch and the learned summary inside the 맞춤 sheet. */
 #ai-panel .ai-profile-learn { border-top: 0.5px solid var(--border-subtle); padding-top: 10px; }

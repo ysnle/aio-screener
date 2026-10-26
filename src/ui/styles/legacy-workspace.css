@@ -81,7 +81,7 @@
 #page-portfolio .wsl-bt-kpi { background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 4px; padding: 10px; }
 #page-portfolio .wsl-bt-kpi-l { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 800; }
 #page-portfolio .wsl-bt-kpi-v { font-size: 18px; font-family: var(--font-mono); font-weight: 900; }
-#page-portfolio .wsl-bt-kpi-v.is-loss { color: var(--data-red); }
+#page-portfolio .wsl-bt-kpi-v.is-loss { color: var(--dir-down); }
 #page-portfolio .wsl-bt-kpi-v.is-plain { color: var(--text-primary); }
 #page-portfolio .wsl-bt-tables { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,320px),1fr)); gap: 10px; }
 #page-portfolio .wsl-bt-tbl { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
@@ -93,9 +93,9 @@
 #page-portfolio .wsl-bt-c.is-fig { font-family: var(--font-mono); }
 #page-portfolio .wsl-bt-c.is-heavy { font-weight: 800; }
 #page-portfolio .wsl-bt-c.is-dim { color: var(--text-secondary); }
-#page-portfolio .wsl-bt-c.is-up { color: var(--data-green); }
-#page-portfolio .wsl-bt-c.is-down { color: var(--data-red); }
-#page-portfolio .wsl-bt-c.is-dd { color: var(--data-red); font-weight: 800; }
+#page-portfolio .wsl-bt-c.is-up { color: var(--dir-up); }
+#page-portfolio .wsl-bt-c.is-down { color: var(--dir-down); }
+#page-portfolio .wsl-bt-c.is-dd { color: var(--dir-down); font-weight: 800; }
 #page-portfolio .wsl-bt-warn { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5; margin-top: 10px; border-top: 0.5px solid var(--border); padding-top: 8px; }
 
 /* Watchlist rows (#wl-tbody). The delete button's old inline 11px beat `.aio-btn-table`'s !important 12px through

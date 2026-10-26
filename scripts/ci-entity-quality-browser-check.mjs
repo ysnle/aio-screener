@@ -211,7 +211,7 @@ try {
       observations.push({label,fiscal});
       check(fiscal.rows>=2 && fiscal.captions.some(text=>/USD.*B=10억/.test(text)) /* P1687/S20: compact B/T units, exact amount in the cell title */,`${label}: fiscal period/amount table absent (P1627)`,fiscal);
       check(fiscal.loss.length>0 && fiscal.loss.every(bar=>Math.abs(bar.top-bar.zero)<.02 && bar.height>0),`${label}: fiscal losses extend above zero (P1627)`,fiscal);
-      check(/순이익/.test(fiscal.tableText) && /[−-]\$/.test(fiscal.tableText),`${label}: explicit monetary losses absent from table (P1627)`,fiscal.tableText);
+      check(/순이익/.test(fiscal.tableText) && /-[\d,.]+(?:조|억|만)? ?달러/.test(fiscal.tableText),`${label}: explicit monetary losses absent from table (P1627; v58.80 P2079 money reads '-203만 달러')`,fiscal.tableText);
       await captureLayout(page,`${label}/fiscal`);
       await snap(page, `browser-${label}-fiscal.png`, { fullPage:true });
 

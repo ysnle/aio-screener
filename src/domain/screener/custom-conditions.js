@@ -71,6 +71,20 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ revGrowth }, n) => revGrowth >= n },
   { id: 'liquidity-min', group: '거래', label: '하루 거래대금 ${n}백만 이상 (30일 평균)', value: 20, unit: '$M', fields: ['dollarVolume30d'],
     test: ({ dollarVolume30d: a }, n) => a >= n * 1e6 },
+  // v58.80 (first-users F34): "RSI 30 이하" and "3개월 수익률 20% 이상" were not understood. The same RSI(14) and
+  // completed-close returns the table columns show; a narrowing filter, not an oversold or momentum signal.
+  { id: 'rsi-max', group: '가격 흐름', label: 'RSI(14일) {n} 이하', value: 30, unit: '', fields: ['rsi'],
+    test: ({ rsi: a }, n) => a <= n },
+  { id: 'rsi-min', group: '가격 흐름', label: 'RSI(14일) {n} 이상', value: 70, unit: '', fields: ['rsi'],
+    test: ({ rsi: a }, n) => a >= n },
+  { id: 'ret1m-min', group: '가격 흐름', label: '1개월 수익률 {n}% 이상', value: 10, unit: '%', fields: ['ret1m'],
+    test: ({ ret1m: a }, n) => a >= n },
+  { id: 'ret1m-max', group: '가격 흐름', label: '1개월 수익률 {n}% 이하', value: -10, unit: '%', fields: ['ret1m'],
+    test: ({ ret1m: a }, n) => a <= n },
+  { id: 'ret3m-min', group: '가격 흐름', label: '3개월 수익률 {n}% 이상', value: 20, unit: '%', fields: ['ret3m'],
+    test: ({ ret3m: a }, n) => a >= n },
+  { id: 'ret3m-max', group: '가격 흐름', label: '3개월 수익률 {n}% 이하', value: -10, unit: '%', fields: ['ret3m'],
+    test: ({ ret3m: a }, n) => a <= n },
   // v58.71 (owner 2026-10-23): what the research channels reported in the last 14 days (domain/screener/channel-signals.js).
   // A stock the channels never mentioned has no data here, so these conditions only keep reported names.
   { id: 'tg-pt-raise', group: '리서치 채널', label: '최근 14일 목표주가 상향 {n}건 이상, 하향 없음 (채널 보도)', value: 1, unit: '건', fields: ['tgPtRaises', 'tgPtCuts'],
@@ -90,7 +104,9 @@ export const CONDITION_BOUNDS = Object.freeze({
   tight: ['adrPct', 'max'], 'adr-min': ['adrPct', 'min'], rvol: ['rvol20', 'min'], 'few-heavy-down': ['heavyDownDays25', 'max'],
   'early-base': ['baseCount', 'max'], 'down-day-hold': ['downDayHoldPct', 'min'], 'pe-max': ['pe', 'max'], 'fwdpe-max': ['fwdPe', 'max'],
   'pb-max': ['pb', 'max'], 'roe-min': ['roe', 'min'], 'margin-min': ['margin', 'min'], 'growth-min': ['revGrowth', 'min'],
-  'liquidity-min': ['dollarVolume30d', 'min', 1e6]
+  'liquidity-min': ['dollarVolume30d', 'min', 1e6],
+  'rsi-max': ['rsi', 'max'], 'rsi-min': ['rsi', 'min'], 'ret1m-min': ['ret1m', 'min'], 'ret1m-max': ['ret1m', 'max'],
+  'ret3m-min': ['ret3m', 'min'], 'ret3m-max': ['ret3m', 'max']
 });
 const BOUNDS = CONDITION_BOUNDS;
 

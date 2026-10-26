@@ -18,6 +18,14 @@
   --sx-good-bg: var(--green-3);
   --sx-warn-bg: var(--amber-3);
   --sx-down-bg: var(--red-3);
+  /* v58.80 (owner-delegated 2026-10-26): price and return direction follows the Korean brokerage convention the
+     candles already used (P1634) — rising red, falling blue. Judgements (양호/부담, 통과/실패) keep green/amber/red. */
+  --dir-up: var(--red-11);
+  --dir-down: var(--blue-11);
+  --dir-up-strong: var(--red-12);
+  --dir-down-strong: var(--blue-12);
+  --dir-up-bg: var(--red-3);
+  --dir-down-bg: var(--blue-3);
   --sx-card-shadow: none;
   --sx-hero-shadow: none;
   --sx-float-shadow: var(--shadow-md);
@@ -253,8 +261,8 @@ details > summary { cursor: pointer; }
 .sx-lede { margin: 0; font-size: 18px; line-height: 1.6; letter-spacing: -0.01em; text-wrap: pretty; color: var(--text-primary); }
 .sx-kpi { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .sx-meta { font-size: 12px; color: var(--text-muted); }
-.sx-up { color: var(--data-green) !important; }
-.sx-down { color: var(--data-red) !important; }
+.sx-up { color: var(--dir-up) !important; }
+.sx-down { color: var(--dir-down) !important; }
 .sx-grid { display: grid; gap: 14px; }
 .sx-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sx-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }

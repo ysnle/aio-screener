@@ -6,6 +6,7 @@
 // cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
 // opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
 import { CHOICES, SHAPES, COUNT_WORDS, EVENT_NAMES, fomcDecisionDate } from '../../domain/market/macro-crossroads.js';
+import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame, noteFold, setAsOf } from './section-frame.js';
 import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/shared-artifacts.js';
@@ -211,7 +212,7 @@ function branchCard(doc, root, item, lead, open = false) {
   head.append(el(doc, 'span', name, 'xr-map-title'), meter(doc, item), el(doc, 'span', item.status || item.fit, 'xr-map-fit'));
   const tags = el(doc, 'span', null, 'xr-map-tags');
   tags.append(el(doc, 'span', TONE[item.pricing.tone] || TONE.unknown, `xr-tag is-${item.pricing.tone}`),
-    el(doc, 'span', `비용이 작은 쪽: ${item.favored.map((key) => CHOICES[key]).join(', ')}`, 'xr-tag is-choice'));
+    el(doc, 'span', `${CHOICE_WORDS.favored}: ${item.favored.map((key) => CHOICES[key]).join(', ')}`, 'xr-tag is-choice'));
   // v57.84 (owner 2026-10-16): favored stays; a conflict with the past frequency is named beside it.
   if (item.pastConflict) tags.append(pastConflictTag(doc, item));
   summary.append(head, ...(sub ? [el(doc, 'span', sub, 'xr-map-sub')] : []), tags, el(doc, 'span', '근거와 선택지', 'xr-map-more'));
@@ -245,7 +246,7 @@ function branchCard(doc, root, item, lead, open = false) {
     const row = el(doc, 'div', null, 'xr-choice');
     if (item.favored.includes(key)) row.dataset.favored = 'true';
     row.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
-    if (item.favored.includes(key)) row.append(el(doc, 'span', '비용이 작은 쪽', 'xr-choice-flag'));
+    if (item.favored.includes(key)) row.append(el(doc, 'span', CHOICE_WORDS.favored, 'xr-choice-flag'));
     table.append(row);
   }
   body.append(table, el(doc, 'p', item.favoredWhy, 'xr-reading'));
@@ -363,7 +364,7 @@ function pathCard(doc, root, item, { kicker, fit }) {
   const favoredRow = el(doc, 'dd', item.favored.map((key) => CHOICES[key]).join(', '));
   favoredRow.title = item.favoredWhy || '';
   if (item.pastConflict) favoredRow.append(' ', pastConflictTag(doc, item));
-  rows.append(el(doc, 'dt', '이때 비용이 작은 쪽'), favoredRow);
+  rows.append(el(doc, 'dt', `이때 ${CHOICE_WORDS.favored}`), favoredRow);
   if (item.shape && SHAPES[item.shape]) rows.append(el(doc, 'dt', item.gate?.met === true ? '이후 시장 흐름' : '성립하면 시장 흐름'), el(doc, 'dd', `'${SHAPES[item.shape]}'`));
   card.append(head, tags, rows);
   const themes = themeLinkRow(doc, root, item);
@@ -413,7 +414,7 @@ export function renderCrossroadsCompact({ documentRef: doc, root, regime = null,
     cards.append(pathCard(doc, root, lead, { kicker: !tied ? '조건이 더 맞는 시나리오' : pricedFirst ? '시장도 같은 방향' : '대안 시나리오', fit: sameFit ? null : lead.fit }));
     if (alt) cards.append(pathCard(doc, root, alt, { kicker: '대안 시나리오', fit: sameFit ? null : alt.fit }));
     // v58.74 (text audit 오늘 B17): home states this once, in the guide right below; the compact block elsewhere keeps it.
-    parts.push(cards, ...(id === 'home-crossroads' ? [] : [el(doc, 'p', "'비용이 작은 쪽'은 그 시나리오가 실제로 이어질 때의 비용 비교이며, 따라 하라는 뜻은 아닙니다.", 'xr-scope-note')]));
+    parts.push(cards, ...(id === 'home-crossroads' ? [] : [el(doc, 'p', `'${CHOICE_WORDS.favored}'은 그 시나리오가 실제로 이어질 때의 비용 비교이며, 따라 하라는 뜻은 아닙니다.`, 'xr-scope-note')]));
     if (model.rateHub.tension) parts.push(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
   } else parts.push(el(doc, 'p', model.headline, 'xr-reading'));
   parts.push(...themeLines(doc, root), links);

@@ -12,8 +12,8 @@
 .stock-return-signed-track { position:relative; height:12px; min-width:0; background:var(--surface-2); }
 .stock-return-signed-track::after { content:''; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--text-muted); }
 .stock-return-signed-bar { position:absolute; top:2px; height:8px; border-radius:4px; }
-.stock-return-signed-bar.is-stock.is-up { background:var(--green); }
-.stock-return-signed-bar.is-stock.is-down { background:var(--red); }
+.stock-return-signed-bar.is-stock.is-up { background:var(--dir-up); }
+.stock-return-signed-bar.is-stock.is-down { background:var(--dir-down); }
 .stock-return-signed-bar.is-bench { background:var(--text-muted); }
 .stock-return-signed-value { text-align:right; font-size:12px; font-variant-numeric:tabular-nums; color:var(--text-primary); }
 .stock-return-signed-axis { color:var(--text-secondary); font-size:12px; margin:10px 0; text-align:center; }
@@ -70,3 +70,7 @@ button.stock-read-point-link { display:inline-block; min-height:24px; line-heigh
 #ticker-search-hint .ticker-search-picks { display: flex; flex-wrap: wrap; gap: 6px; }
 .page [data-research-snapshots] { margin: 14px 0; padding: 10px 12px; border: 0.5px solid var(--border-subtle); font-size: var(--fs-base); }
 .page [data-research-snapshots] > textarea { display: block; width: 100%; margin: 8px 0; }
+/* v58.80 run-5 (newcomer #6): before a company is chosen the breadcrumb '종목' sat over the title '종목 분석' under the sidebar's '종목'. */
+#page-ticker.is-empty #ticker-breadcrumb-main { display: none; }
+#ticker-suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+#ticker-suggest:empty { display: none; }

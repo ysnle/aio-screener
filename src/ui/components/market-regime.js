@@ -643,7 +643,7 @@ function paintFuturesCell(doc, root, cellId, futures, field, label) {
   value.textContent = last.value.toLocaleString('en-US', { maximumFractionDigits: 2 });
   const note = doc.createElement('span');
   note.className = 'kpi-fallback-note';
-  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${signedText(change, 2, '%')}`}, ${usWeekendClosed() ? '선물 주말 휴장' : '선물 시세 아직 받지 못함'}`; // v58.74: CME is shut over the weekend, nothing is pending
+  note.textContent = `${month}/${day} 종가${change == null ? '' : ` ${signedText(change, 2, '%')}`}, ${usWeekendClosed() ? '선물 주말 휴장' : '선물 시세 대기 중'}`; // v58.74: CME is shut over the weekend, nothing is pending
   if (labelNode) labelNode.textContent = label;
   fallback.append(value, note);
   fallback.hidden = false;
@@ -730,6 +730,18 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
       chip.append(el(doc, 'span', reference ? `${row.title}, 참고` : row.title, 'regime-chip-label'), el(doc, 'span', row.stateLabel, `regime-state is-${row.state}`));
       return chip;
     }));
+    // v58.80 run-5 (impatient #2): the six chips did not read as the way to the verdict's chart; one named link under them
+    // opens 시장 상태 with the trend axis (the S&P 500 close chart and its 50-day line) unfolded.
+    if (!doc.getElementById('home-hero-chart-link')) {
+      const toChart = el(doc, 'button', '판정 근거와 지수 차트 보기 →', 'flow-next-link');
+      toChart.type = 'button';
+      toChart.id = 'home-hero-chart-link';
+      toChart.addEventListener('click', () => {
+        root.showPage?.('signal');
+        setTimeout(() => { const axis = doc.querySelector?.('.mk-axis[data-axis="trend"]'); if (axis) { axis.open = true; axis.scrollIntoView?.({ block: 'start' }); } }, 120);
+      });
+      chips.insertAdjacentElement('afterend', toChart);
+    }
     // P1633/P1745: home answers "so what" in ONE forward block — the present structure (which of the three it is
     // closest to, and the themes leading it), then the branch the next releases would confirm and where it leads.
     let outlookBox = doc.getElementById('home-outlook');

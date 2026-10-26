@@ -45,6 +45,7 @@ import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js'
 import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
 import { installPageCompleteness } from '../data/page-completeness.js';
 import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
+import { takeBootPrefetch } from '../data/boot-prefetch.js';
 import { applyServerMacro } from '../data/server-macro.js';
 import { verifyServerMarketAnalysis } from '../data/server-market-analysis.js';
 import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
@@ -79,7 +80,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   });
   // The legacy data.json loader fetches and gates the server artifact here (legacy unification 2026-10-17).
   // 2026-10-19: the six-hour market slots (data.json marketTimeline) are kept for the briefing's 시간대별 시황.
-  window._aioFetchServerData = () => fetchServerData({ fetch: (...args) => window.fetch(...args) }).then((result) => {
+  window._aioFetchServerData = () => fetchServerData({ fetch: (...args) => window.fetch(...args), prefetched: takeBootPrefetch(window, 'data') }).then((result) => {
     if (result?.ok) window._serverMarketTimeline = result.data.marketTimeline?.schemaVersion === 'market-timeline.v1' ? result.data.marketTimeline : null;
     return result;
   });
@@ -249,6 +250,14 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   // v58.80 (first-users bundle 6): typed numbers go through one reader (loaded on first use, outside the boot set).
   const inputCheck = () => import('../ui/components/input-check.js');
   window._aioReadBacktestInputs = () => Promise.all([inputCheck(), backtestLab()]).then(([{ readBacktestInputs }]) => readBacktestInputs(document));
+  // The values are taken synchronously, before the lazy import, so the form can be refilled while the check loads.
+  window._aioReadHoldingInputs = () => {
+    const snapshot = Object.fromEntries(['pf-add-ticker', 'pf-add-qty', 'pf-add-cost'].map((id) => { const input = document.getElementById(id); return [id, { value: input?.value ?? '', badInput: !!input?.validity?.badInput }]; }));
+    return inputCheck().then(({ readHoldingInputs }) => readHoldingInputs(document, snapshot));
+  };
+  // v58.80 run-5 (breaker #5): a refused ticker or currency is marked beside its field like a refused number, not only in a toast.
+  const fieldRefusals = { ticker: '종목 목록에 없는 심볼입니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름으로 입력하세요.', currency: '3자리 통화 코드(예: USD, KRW)로 입력하거나 비워 두세요.' };
+  window._aioMarkField = (id, refusal = '') => inputCheck().then(({ markField }) => markField(document.getElementById(id), refusal ? { ok: false, reason: fieldRefusals[refusal] || refusal } : { ok: true })).catch(() => null);
   window._aioSaveCashBalance = async (el) => {
     const currency = el?.dataset?.currency;
     if (!currency) return;
@@ -278,22 +287,33 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     .map((row) => String(row?.sym || row?.symbol || '').toUpperCase()).filter(Boolean));
   // 2026-10-17: the watchlist, price-alert and holding boxes accept symbols only; when a typed company name is refused,
   // the refusal names the listing candidates (registry names first, then the US listing) for the reader to type.
-  // First-users F22 (newcomer, runs 1-4): typing 애플 showed nothing until Enter. The stock search suggests registry and KRX
-  // names while typing (a native datalist; the symbol fills the box and Enter opens it as before).
+  // First-users F22 (newcomer, runs 1-4): typing 애플 showed nothing until Enter. v58.80 run-5 (impatient #5, skeptic #10):
+  // the native datalist filtered its options by their value (the symbol), so a Korean name hid every candidate. The
+  // candidates are buttons under the box instead (the same chips as the no-match hint); Enter still opens the typed name.
   const tickerSearch = document?.querySelector?.('#ticker-direct-search');
   if (tickerSearch && !document.querySelector('#ticker-suggest')) {
-    const list = document.createElement('datalist');
+    const list = document.createElement('div');
     list.id = 'ticker-suggest';
-    tickerSearch.after(list);
-    tickerSearch.setAttribute('list', 'ticker-suggest');
+    list.className = 'ticker-search-picks';
+    list.setAttribute('aria-label', '입력한 이름과 맞는 종목');
+    (tickerSearch.parentElement || tickerSearch).insertAdjacentElement('afterend', list);
     let suggestTimer = null;
     tickerSearch.addEventListener('input', () => {
       clearTimeout(suggestTimer);
       suggestTimer = setTimeout(() => {
-        const picks = searchCandidates(tickerSearch.value, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
-        list.replaceChildren(...picks.map((pick) => { const option = document.createElement('option'); option.value = pick.symbol; option.label = pick.label; return option; }));
+        const query = tickerSearch.value.trim();
+        const picks = query ? searchCandidates(query, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo }).slice(0, 6) : [];
+        list.replaceChildren(...picks.map((pick) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'q-chip';
+          button.textContent = `${pick.label} · ${pick.symbol}`;
+          button.addEventListener('click', () => { list.replaceChildren(); window.showTicker?.(pick.symbol); });
+          return button;
+        }));
       }, 120);
     });
+    for (const type of ['aio:tickerViewReset', 'aio:entityChanged']) document.addEventListener(type, () => list.replaceChildren());
   }
   window._aioListingNameSuggestion = (raw) => {
     const query = String(raw || '').trim();

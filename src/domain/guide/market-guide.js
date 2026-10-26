@@ -13,6 +13,7 @@
 //   lessons   — the concept layer (lessons.js) entries today's data touches, each linked to the principles library
 import { pastEvidence } from '../scenarios/analogs.js';
 import { CHOICES } from '../market/macro-crossroads.js';
+import { CHOICE_WORDS } from '../content/choice-words.js';
 import { selectLessons, LESSON_KINDS } from './lessons.js';
 import { hasFinalConsonant, withObjectParticle } from '../content/korean-particle.js';
 
@@ -94,7 +95,7 @@ export function buildDirection(live, watch) {
   const n = live.length;
   // The nearest watch branch (most conditions, core not met yet) either agrees with the tally or names what changes.
   const nearest = watch[0] || null;
-  const nearText = !nearest || !robust ? '' : nearest.favored.includes(robust) ? ` 핵심 조건만 빠진 시나리오 중 가장 가까운 '${nearest.short}'(${nearest.fit})도 '${choiceName(robust)}'${hasFinalConsonant(choiceName(robust)) ? '을' : '를'} 비용이 작은 쪽으로 적습니다.`
+  const nearText = !nearest || !robust ? '' : nearest.favored.includes(robust) ? ` 핵심 조건만 빠진 시나리오 중 가장 가까운 '${nearest.short}'(${nearest.fit})도 '${choiceName(robust)}'${hasFinalConsonant(choiceName(robust)) ? '을' : '를'} ${CHOICE_WORDS.favored}으로 적습니다.`
     : nearest.costly.includes(robust) ? ` 다만 가장 가까운 '${nearest.short}'(${nearest.fit})로 넘어가면 이 선택의 비용이 커집니다.` : '';
   const text = !robust ? '살아 있는 시나리오들이 비용이 작은 선택지를 서로 다르게 적어, 한쪽으로 세지 않습니다.'
     : `핵심 조건을 갖춘 시나리오 ${n}개 중 ${row.favoredIn.length}개에서 ${subject(`'${row.name}'`)} 비용이 작다고 적혀 있고${row.favoredClusters < row.favoredIn.length ? `(같은 거시 축을 공유하는 것을 하나로 묶으면 ${row.favoredClusters}묶음)` : ''}, 비용이 크다고 적힌 곳은 ${row.costlyIn.length ? `${row.costlyIn.length}개('${row.costlyIn.join("'·'")}')` : '없습니다'}${split ? ` — '${top.filter((item) => item.key !== robust).map((item) => item.name).join("'·'")}'도 같은 수라 함께 봅니다` : ''}.${nearText}`;
@@ -162,7 +163,7 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
     ? `${regime.overall} 환경에서 '${leadPath.short}' 쪽 조건이 가장 많이 맞고, ${direction.robust ? `핵심 조건을 갖춘 시나리오들에 유리하다고 가장 많이 적힌 선택은 '${choiceName(direction.robust)}'입니다` : '시나리오마다 유리한 선택지가 갈립니다'}${nextEvent ? ` — 다음 갈림길 ${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}` : ''}.${leadDecider}`
     : `${regime.overall} 환경이지만 핵심 조건을 갖춘 거시 시나리오가 없어, 한 방향에 걸지 않고 다음 확인 신호를 기다리는 쪽을 기본으로 둡니다${nextEvent ? ` — 다음 갈림길 ${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}` : ''}.`;
   return { available: true, version: MARKET_GUIDE_VERSION, asOf: regime.asOf, macroAsOf: crossroads?.asOf || null, headline, situation, leadId: leadPath?.id || null, direction, stance, lessons, nextEvent, pastConflicts,
-    note: "'비용이 작은 쪽'은 각 시나리오에 적힌 비용 비교를 센 것이며, 확률이나 따라 하라는 지시가 아닙니다." };
+    note: `'${CHOICE_WORDS.favored}'은 각 시나리오에 적힌 비용 비교를 센 것이며, 확률이나 따라 하라는 지시가 아닙니다.` };
 }
 
 /** The same model as one AI context block (chat and the server narrative read this, so their answers follow the screens). */

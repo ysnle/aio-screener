@@ -32,7 +32,10 @@
     "glossary-body",
     "glossary-search",
     "ai-panel-msgs",
-    "ai-panel-chips"
+    "ai-panel-chips",
+    "pf-add-ticker",
+    "pf-add-qty",
+    "pf-add-cost"
   ],
   "domWriterIntersectionAllowlistNotes": {
     "aio-chart-cdn": "A05 (2026-10-12): color-theme.js reads the chart CDN script element to wait for load; index.html owns the element. No content write.",
@@ -47,7 +50,10 @@
     "ai-panel-chips": "v58.77: ai-chip-fold.js observes and counts the chip list and inserts one toggle button as a sibling before it; aio-chat.js owns the chips.",
     "theme-detail-panel": "After P818, themes.js is the sole panel display/current-theme writer; index.html showThemeDetail/closeThemeDetail only read the panel to retain selection/event compatibility. Legitimate read dependency, not a write race.",
     "pf-position-donut": "P835: portfolio.js owns the native holding-allocation chart; index.html drawPositionDonut is fenced by the mounted native portfolio chart marker.",
-    "sector-perf-bars": "P859: themes.js owns the normalized sector-performance bars; index.html renderSectorPerfBars is fenced by the mounted native bars marker and remains only a compatibility fallback."
+    "sector-perf-bars": "P859: themes.js owns the normalized sector-performance bars; index.html renderSectorPerfBars is fenced by the mounted native bars marker and remains only a compatibility fallback.",
+    "pf-add-ticker": "v58.80 (first-users F06/F25, P2083 batch): input-check.js readHoldingInputs validates the holding form for aio-workspace.js addPortfolioPosition — it reads the value and sets aria-invalid, focus and one note element after the field; aio-workspace.js owns the form, its values and saving.",
+    "pf-add-qty": "v58.80 (first-users F06/F25, P2083 batch): input-check.js readHoldingInputs validates the holding form for aio-workspace.js addPortfolioPosition — it reads the value and sets aria-invalid, focus and one note element after the field; aio-workspace.js owns the form, its values and saving.",
+    "pf-add-cost": "v58.80 (first-users F06/F25, P2083 batch): input-check.js readHoldingInputs validates the holding form for aio-workspace.js addPortfolioPosition — it reads the value and sets aria-invalid, focus and one note element after the field; aio-workspace.js owns the form, its values and saving."
   },
   "routes": {
     "home": {

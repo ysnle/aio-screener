@@ -1098,7 +1098,7 @@ function renderSectorPerfBars() {
   sectors.forEach(function(s) {
     var chgVal = s.chg != null ? s.chg : 0;
     var isPos = chgVal >= 0;
-    var barColor = s.chg != null ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+    var barColor = s.chg != null ? (isPos ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
     var barWidth = Math.abs(chgVal) / maxAbs * 45;
     var qBadge = s.chg == null ? '<span class="pgl-sp-q is-wait">●대기</span>' :
                  s.q === 'Leading' ? '<span class="pgl-sp-q is-lead">●선도</span>' :
@@ -1157,7 +1157,7 @@ function showThemeDetail(themeId) {
   var perf = getThemePerf(theme);
   var hasPerf = perf.chgPct != null && isFinite(perf.chgPct);
   var isPos = hasPerf && perf.chgPct >= 0;
-  var chgColor = hasPerf ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+  var chgColor = hasPerf ? (isPos ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
 
   var html = '<div class="pgl-td-head">' +
     '<div><span class="pgl-td-name">' + theme.nameKr + '</span>' +

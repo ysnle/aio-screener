@@ -461,8 +461,7 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
   // P1592 (F14): '005930.KS' / '000660.KQ' (the screener's own format) is the same listed code — keep the six digits.
   const pfRawTicker = (document.getElementById('pf-add-ticker').value || '').trim(), pfHolding = typeof window._aioResolveHoldingInput === 'function' ? window._aioResolveHoldingInput(pfRawTicker) : null; // v57.81: shared symbol owner with the ticker route — ticker-shaped input kept as typed; only a name ("스엑") resolves, by exact registry match (P1339)
   let ticker = ((pfHolding && pfHolding.symbol) || pfRawTicker.toUpperCase()).replace(/^(\d{6})\.K[SQ]$/, '$1');
-  const qty = parseFloat(document.getElementById('pf-add-qty').value) || 0;
-  const cost = parseFloat(document.getElementById('pf-add-cost').value) || 0;
+  var pfCheckPending = typeof window._aioReadHoldingInputs === 'function' ? window._aioReadHoldingInputs().catch(function() { return null; }) : Promise.resolve(null); // v58.80 F06/F25: input-check.js checks the values taken now; every field is read before the first await
   // P1176 (22 PFR01): 빈 칸을 0으로 직렬화하면 화면이 '목표 $0.00 · -100%'를 만든다 — 미설정은 null로 남긴다.
   const parsedTarget = parseFloat((document.getElementById('pf-add-target').value || '').trim());
   const target = Number.isFinite(parsedTarget) && parsedTarget > 0 ? parsedTarget : null;
@@ -473,18 +472,13 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
   const costCurrencyEl = document.getElementById('pf-add-cost-currency');
   const costCurrencyRaw = (costCurrencyEl ? costCurrencyEl.value : '').trim().toUpperCase();
   if (costCurrencyRaw && !/^[A-Z]{3}$/.test(costCurrencyRaw)) {
-    showToast('원가 통화는 3자리 코드(예: USD, KRW)로 입력하거나 비워 두세요.');
+    showToast('원가 통화는 3자리 코드(예: USD, KRW)로 입력하거나 비워 두세요.'); window._aioMarkField?.('pf-add-cost-currency', 'currency');
     return;
-  }
+  } else window._aioMarkField?.('pf-add-cost-currency');
   // v58.80 F18: the default currency follows the resolved ticker, the same rule as the cost label.
   const costCurrency = costCurrencyRaw || (/^\d{6}$/.test(ticker) ? 'KRW' : null);
-  // v58.80 F06/F25: focus the bad field; reject unparsable or huge numbers.
-  const pfBad = function(id, message) { var el = document.getElementById(id); if (el) { el.setAttribute('aria-invalid', 'true'); el.focus(); el.addEventListener('input', function() { el.removeAttribute('aria-invalid'); }, { once: true }); } showToast(message); };
-  const pfUnparsable = function(id) { var el = document.getElementById(id); return !!(el && el.validity && el.validity.badInput); };
-  if (!ticker) { pfBad('pf-add-ticker', '종목(티커 또는 이름)을 입력하세요.'); return; }
-  if (pfUnparsable('pf-add-qty') || qty > 1e9) { pfBad('pf-add-qty', '수량이 너무 크거나 숫자가 아닙니다 — 10억 이하의 숫자로 입력하세요.'); return; }
-  if (pfUnparsable('pf-add-cost') || cost > 1e9) { pfBad('pf-add-cost', '매수 단가가 너무 크거나 숫자가 아닙니다 — 10억 이하의 숫자로 입력하세요.'); return; }
-  if (qty <= 0 || cost <= 0) { pfBad(qty <= 0 ? 'pf-add-qty' : 'pf-add-cost', qty <= 0 ? '수량은 0보다 커야 합니다.' : '매수 단가는 0보다 커야 합니다.'); return; } // P1592 (F15): name the field
+  var pfCheck = await pfCheckPending; if (!pfCheck || !pfCheck.ok) { showToast(pfCheck ? pfCheck.reason : '입력 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 추가하세요.'); return; }
+  const qty = pfCheck.qty, cost = pfCheck.cost;
   var knownTickers = (typeof KNOWN_TICKERS !== 'undefined') ? KNOWN_TICKERS : [], snapFb = (typeof _SNAP_FALLBACK !== 'undefined') ? _SNAP_FALLBACK : {};
   let ld = window._liveData || {};
   var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker) || !!(pfHolding && pfHolding.known); // v46.6: KNOWN_TICKERS is a Set — .has(); v57.81: + screener universe / name registry
@@ -492,7 +486,7 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
   var pfListing = null, pfListingSym = typeof window._aioUsListingSymbol === 'function' ? window._aioUsListingSymbol(ticker) : ticker; if (!isKnown && typeof window._aioCheckUsListing === 'function') { try { pfListing = await window._aioCheckUsListing(pfListingSym); } catch (_) { pfListing = null; } if (!pfListing || pfListing.listed == null) { showToast('"' + (pfRawTicker || ticker) + '"는 AIO 종목 목록에 없어 미국 상장 목록과 대조해야 하는데, 지금 상장 목록을 불러오지 못해 저장하지 않았습니다. 잠시 후 다시 시도하세요.'); return; } if (pfListing.listed === true) { ticker = pfListingSym; isKnown = true; } }
   var krCode = /^\d{6}$/.test(ticker), krListed = krCode && typeof window._aioIsKnownTicker === 'function' && (window._aioIsKnownTicker(ticker) || window._aioIsKnownTicker(ticker + '.KS') || window._aioIsKnownTicker(ticker + '.KQ')), pfRefPrice = (ld[ticker] && +ld[ticker].price) || 0, pfWarn = krCode && !krListed ? '"' + ticker + '"는 AIO 한국 종목 목록에 없는 코드입니다. 시세·차트를 받지 못할 수 있어요. 코드가 맞으면 그대로 저장할까요?' : (!krCode && (costCurrency || 'USD') === 'USD' && (pfRefPrice > 0 ? cost > pfRefPrice * 10 : cost >= 50000 && ticker !== 'BRK-A')) ? '매수 단가(' + cost.toLocaleString() + ')는 달러로 저장됩니다' + (pfRefPrice > 0 ? '(현재가 $' + pfRefPrice.toFixed(2) + '의 10배 이상)' : '') + '. 원화로 산 금액이라면 원가 통화 칸에 KRW를 적어 주세요. 그대로 저장할까요?' : ''; if (isKnown && pfWarn && _pfConfirmedAdd !== ticker + '|' + cost) { showConfirmModal('입력값 확인', pfWarn, function() { _pfConfirmedAdd = ticker + '|' + cost; addPortfolioPosition(); }); return; } _pfConfirmedAdd = null;
   if (!isKnown) {
-    await window._aioToastWithNameHint(pfRawTicker || ticker, '"' + (pfRawTicker || ticker) + '" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.'); // v57.81
+    window._aioMarkField?.('pf-add-ticker', 'ticker'); await window._aioToastWithNameHint(pfRawTicker || ticker, '"' + (pfRawTicker || ticker) + '" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.'); // v57.81
     return;
   }
 
@@ -517,7 +511,7 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
   }
   const saved = await savePortfolioData(positions);
   if (_pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
-  renderPortfolio();
+  window._aioRevealHolding = ticker; renderPortfolio(); // v58.80 run-5: portfolio.js scrolls to the new row
   // v48.3 신규 추가 토스트 → E3/P1181: 완료 문구는 durable ack 성공 뒤에만 노출된다.
   if (typeof showToast === 'function') {
     showToast(saved.ok
@@ -639,7 +633,7 @@ function showConfirmModal(title, msg, onConfirm, icon, onCancel) {
   if (modal._aioTrapCleanup) modal._aioTrapCleanup();
   modal.style.display = 'flex'; modal.dataset.tone = /삭제|지우|초기화|제거|비우|덮어/.test(title + ' ' + msg) ? 'danger' : 'neutral'; // run-4: only removals are red
   modal._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(modal, function() { closeConfirmModal('trap'); }) : null;
-  okBtn.focus();
+  (document.getElementById('aio-confirm-cancel') || okBtn).focus(); // v58.80 run-5: Enter on arrival kept the old value; it no longer overwrote a holding
   // ESC 키로 닫기
   if (modal._escHandler) document.removeEventListener('keydown', modal._escHandler); // v46.9: 중복 등록 방지
   modal._escHandler = function(e) { if (e.key === 'Escape') closeConfirmModal('escape'); };
@@ -779,9 +773,9 @@ function renderPortfolio() {
     const pnl = posValue != null ? posValue - posCost : null;
     const pnlPct = pnl != null && posCost > 0 ? (pnl / posCost * 100) : null;
 
-    const pnlColor = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--green)' : 'var(--red)';
+    const pnlColor = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     const pnlSign = pnl != null && pnl >= 0 ? '+' : '';
-    const priceColor = live ? (dailyPct >= 0 ? 'var(--green)' : 'var(--red)') : 'var(--text-muted)';
+    const priceColor = live ? (dailyPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
     const liveTag = live ? '' : ' <span class="wsl-note">(시세 미수신)</span>';
 
     var _eTk = escHtml(p.ticker); // v46.9: XSS 방어
@@ -797,7 +791,7 @@ function renderPortfolio() {
       <td headers="pf-th-pnl" class="pfp-cell is-bold" style="color:${pnlColor};">${pnl == null ? '—' : pnlSign+_pfLegacyMoney(Math.abs(pnl), _cur, 0)}</td>
       <td headers="pf-th-pct" class="pfp-cell is-bold" style="color:${pnlColor};">${pnlPct == null ? '—' : pnlSign+pnlPct.toFixed(1)+'%'}</td>
       <td headers="pf-th-day" class="pfp-cell">—</td>
-      <td headers="pf-th-target" class="pfp-cell">${p.target && p.target > 0 ? (currentPrice != null ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--green)' : 'var(--red)'; return _pfLegacyMoney(p.target, _cur, 0)+'<div class="pfp-upside" style="color:'+uColor+';">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : _pfLegacyMoney(p.target, _cur, 0)+'<div class="wsl-sub">상승여력 대기</div>') : '<span class="wsl-sub">미설정</span>'}</td>
+      <td headers="pf-th-target" class="pfp-cell">${p.target && p.target > 0 ? (currentPrice != null ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--dir-up)' : 'var(--dir-down)'; return _pfLegacyMoney(p.target, _cur, 0)+'<div class="pfp-upside" style="color:'+uColor+';">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : _pfLegacyMoney(p.target, _cur, 0)+'<div class="wsl-sub">상승여력 대기</div>') : '<span class="wsl-sub">미설정</span>'}</td>
       <td headers="pf-th-weight" class="pfp-cell is-bold is-sans" id="pf-weight-${_eTk}">—</td>
       <td headers="pf-th-manage" class="pfp-manage">
         <button data-action="_aioTechnicalTicker" data-arg="${_eTk}" data-stop="1" class="pfp-manage-btn" title="차트 분석" aria-label="차트 분석">차트</button>
@@ -900,7 +894,7 @@ function _aioRenderPortfolioHoldingCharts(positions, ld) {
       var pathPts = closes.map(function(c, idx) {
         return (idx / (closes.length - 1) * w).toFixed(1) + ',' + (h - ((c - lo) / span * h)).toFixed(1);
       }).join(' ');
-      var chgColor = chg != null ? (chg >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+      var chgColor = chg != null ? (chg >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
       card.innerHTML =
         '<div class="wsl-hc-head">' +
           '<span class="wsl-hc-ticker">' + escHtml(ticker) + '</span>' +
@@ -1529,7 +1523,7 @@ function _aioRenderPortfolioBacktestLab(model) {
       '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">CAGR</div><div class="wsl-bt-kpi-v" style="color:' + (p.cagr >= p.benchmarkCagr ? 'var(--data-green)' : 'var(--data-amber)') + ';">' + _aioFmtBtPct(p.cagr) + '</div><div class="wsl-sub">bench ' + _aioFmtBtPct(p.benchmarkCagr) + '</div></div>' +
       '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Max Drawdown</div><div class="wsl-bt-kpi-v is-loss">' + _aioFmtBtPct(-p.maxDrawdown) + '</div><div class="wsl-sub">worst underwater path</div></div>' +
       '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Sharpe / Sortino</div><div class="wsl-bt-kpi-v is-plain">' + _aioFmtBtNum(p.sharpe) + ' / ' + _aioFmtBtNum(p.sortino) + '</div><div class="wsl-sub">RF ' + _aioFmtBtPct(model.settings.rfAnnual, 1) + '</div></div>' +
-      '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Active / IR</div><div class="wsl-bt-kpi-v" style="color:' + (p.activeReturn >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + _aioFmtBtPct(p.activeReturn) + ' / ' + _aioFmtBtNum(p.informationRatio) + '</div><div class="wsl-sub">tracking error ' + _aioFmtBtPct(p.trackingError) + '</div></div>' +
+      '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Active / IR</div><div class="wsl-bt-kpi-v" style="color:' + (p.activeReturn >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') + ';">' + _aioFmtBtPct(p.activeReturn) + ' / ' + _aioFmtBtNum(p.informationRatio) + '</div><div class="wsl-sub">tracking error ' + _aioFmtBtPct(p.trackingError) + '</div></div>' +
     '</div>' +
     '<div class="wsl-bt-tables">' +
       '<div style="overflow-x:auto;"><div class="wsl-head">Performance Summary</div><table class="wsl-bt-tbl"><thead><tr class="wsl-bt-hrow"><th class="wsl-bt-c is-l">Metric</th><th class="wsl-bt-c is-r">Portfolio</th><th class="wsl-bt-c is-r">Benchmark</th></tr></thead><tbody>' + metricHtml + '</tbody></table></div>' +
@@ -1673,7 +1667,7 @@ function _aioBuildPortfolioActionPrompt(kind) {
   var note = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(noteRaw, { maxChars: 800 }).text : '';
   var recent = _aioPortfolioJournalEntries().slice(0, 3).map(function(e, idx) {
     var safeNote = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(e.note || '', { maxChars: 400 }).text : '';
-    return safeNote ? (idx + 1) + '. ' + (e.date || '').slice(0, 10) + ' ' + safeNote : '';
+    return safeNote ? (idx + 1) + '. ' + (e.ts ? new Date(e.ts).toLocaleDateString('sv-SE') : (e.date || '').slice(0, 10)) + ' ' + safeNote /* R2-28: local day, not the UTC one */ : '';
   }).join('\n');
   var tickers = window.AIO && typeof window.AIO.portfolioRowsLine === 'function' ? window.AIO.portfolioRowsLine(window) : ''; // v58.75: src/ai/context/portfolio-rows.js
   var targetLine = ticker ? ('선택 종목: ' + ticker + '\n') : '대상: 전체 포트폴리오\n';
@@ -2016,7 +2010,7 @@ function renderWatchlistContent() {
     var db = dbMap[t.sym];
     var price = d && d.price ? d.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
     var chg = d && d.pct != null ? d.pct : null;
-    var cc = chg !== null ? (chg >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+    var cc = chg !== null ? (chg >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
     var chgStr = chg !== null ? ((chg >= 0 ? '+' : '') + chg.toFixed(2) + '%') : '—';
     var signal = db ? db.signal : '—';
     var sc = signal === 'BUY' ? 'var(--data-green)' : signal === 'SELL' ? 'var(--data-red)' : signal === 'WATCH' ? 'var(--data-amber)' : 'var(--text-muted)';

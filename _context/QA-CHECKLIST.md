@@ -29,6 +29,14 @@ confidence: medium
 - [x] QA-UNITS-01: v58.80 미국 금액은 usdKoreanText 하나로 조·억·만 달러로 쓰고 부호가 앞에 온다(재무 표·문단·종목·스크리너가 같은 단위) verify_by: node scripts/ci-fiscal-quality-fixture.mjs
 - [x] QA-STATE-03: v58.80 종목 화면은 재무 파일이 없으면 3·8·20초 뒤 최대 3번 다시 받고, 다른 종목으로 바뀌면 멈춘다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-BOOT-03: v58.80 포트폴리오 백테스트 엔진(src/domain/portfolio/backtest.js)은 포트폴리오를 열거나 유휴 시간에 불러오고 부팅 묶음에 들어오지 않는다(부팅 상한 1,440 KB/530 KB gzip) verify_by: node scripts/ci-boot-bundle-budget-check.mjs
+- [x] QA-COLOR-01: v58.80 방향 색: --dir-up 빨강·--dir-down 파랑이 캔들 관례와 같고, S&P 500 지도·안내 문구가 따르며, directionOf가 0으로 반올림된 변화를 칠하지 않는다. 판정 색은 초록·앰버·빨강 유지. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-STATE-04: v58.80 지수 카드는 5분봉 실패 뒤 기록이 늦게 와도 '받지 못했습니다'를 유지하고, 스크리너 가격 시각에는 날짜가 붙으며, 매매일지는 현지 날짜다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-PARSE-01: v58.80 맞춤 조건 문장: RSI 이하·이상, 1·3개월 수익률 이상·이하(음수 포함), 과매도·과매수를 읽고, 방향 없는 숫자는 돌려준다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NAV-02: v58.80 산업 지도 뒤로·앞으로 가기가 이전·다음 문서로 돌아오고, 떠 있는 설명은 한 번에 하나만 열리며 스크롤 중 hover로 열리지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-BOOT-04: v58.80 첫 화면 자료 우선: 부팅 선요청은 한 번만·5분 이내만 쓰이고, 스크리너 작업은 data.json·기록 도착 또는 대비 시간 뒤에 돌며, 행 우선 화면은 바로 받는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-VOCAB-01: v58.80 선택지 비용 비교 어휘는 choice-words.js 한 곳에만 쓰이고 화면과 AI 프롬프트가 함께 읽는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SEARCH-05: v58.80 종목 검색은 한글 이름을 입력하는 동안 후보 버튼을 보이고, 어느 화면에서 연 종목이든 재무 공시 최근 검색에 남으며, 화면 이동 직후에는 마우스가 움직이기 전까지 설명이 열리지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-BASIS-07: v58.80 한 화면의 같은 이름은 같은 기준이다: 반도체 카드는 SMH, 상대강도는 SPY 배당 포함(없으면 지수로 이름 표시), 가격선 조건의 거리는 가격 %, 맞춤 조건 결과 보기는 전체 종목에서 찾는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 
 ## v58.79 v58.79 섹션 틀, 보조 문구 상한 게이트, 오늘·테마와 섹터 문구 정리 (2026-10-25) (2026-10-25)
 
@@ -55,7 +63,7 @@ confidence: medium
 ## v58.78 v58.78 오늘 지수 띠, S&P 500 지도 색, 사이드바 검색 제거, 거시 머리 (2026-10-25) (2026-10-25)
 
 - [x] QA-SECTOR-MAP-SHADE-01: P2061: S&P 500 지도 타일은 수익률 단계 색을 그대로 보이고 소프트 카드 초기화가 덮지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-HOME-INDEX-STRIP-01: v58.78 오늘 첫 화면: 페이지 머리 바로 아래에 S&P 500(SPY)·나스닥 100(QQQ)·반도체(SOXX)·러셀 2000(IWM)의 지난 뉴욕 정규장 5분봉, 전일 종가 점선, 전일 종가 대비 등락을 보이고, 장중에는 5분마다 다시 읽는다. 카드를 누르면 차트 화면. 사이드바 종목 검색 버튼과 Ctrl K 표시는 없다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-HOME-INDEX-STRIP-01: v58.78 오늘 첫 화면: 페이지 머리 바로 아래에 S&P 500(SPY)·나스닥 100(QQQ)·반도체(SMH, v58.80 run-5에서 SOXX→SMH)·러셀 2000(IWM)의 지난 뉴욕 정규장 5분봉, 전일 종가 점선, 전일 종가 대비 등락을 보이고, 장중에는 5분마다 다시 읽는다. 카드를 누르면 차트 화면. 사이드바 종목 검색 버튼과 Ctrl K 표시는 없다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [ ] QA-HOME-INDEX-STRIP-LIVE-01: v58.78 지수 띠를 배포본에서 확인한다(로컬은 공용 Worker 중계가 막혀 실제 분봉을 받지 못함): 4개 카드가 그려지고 등락이 시세와 맞는지, 장중 갱신되는지. verify_by: push 뒤 배포본 오늘 화면 → #home-index-strip 카드 4개·rect 그려짐, 장중 5분 뒤 다시 읽음
 - [x] QA-RRG-LABELS-01: P2062: RRG는 꼬리 기본 끔, 이름 한 줄이 점·다른 이름과 겹치지 않는다(몰린 구역은 연결선으로 바깥에). verify_by: node scripts/qa-runner.mjs affected (browser-surface) + 테마와 섹터 RRG 화면 확인
 - [x] QA-THEME-TABLE-02: v58.78 단계 × 테마 표: 단계 흐름(지금 단계가 이어진 거래일 수와 그 전 단계), 최근 10거래일 1개월 수익률 추이 선, 1주 열, 50일선 위 막대, 시나리오 영향 부드러운 알약(부담 = 호박색), 기준 충족 점 6개. 7색 단계 띠는 없앴다. 테마 지도는 미국/한국을 나눠 보이고, 극단값은 축 끝의 속 빈 원과 실제 값 이름으로 둔다. verify_by: node scripts/ci-esm-core-unit-check.mjs

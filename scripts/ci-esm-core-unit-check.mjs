@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readProducerSource } from './lib/producer-source.mjs';
 
@@ -4910,9 +4910,10 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const comm = classMap.sectors.find((sector) => sector.sector === 'Communication');
   if (comm.count !== 2 || comm.withRet !== 1) fail('M21 the sector table denominator must be the members with a return');
   if (!/같은 비중을 두면 평균/.test(classMap.lead) || /끌었습니다/.test(classMap.lead)) fail(`M21 the concentration sentence must carry the equal-weight average: ${classMap.lead}`);
-  // M07: the map follows the app-wide colour rule (rising green, falling red).
+  // M07, v58.80 (owner-delegated 2026-10-26): the map follows the app-wide direction rule — rising red, falling blue,
+  // the Korean brokerage convention the candles already used (P1634) — and its guide says so.
   const mapCss = readFileSync(path.join(root, 'src/ui/styles/regime-quality.css'), 'utf8');
-  if (!/\.sector-map \.is-u3 \{ background: var\(--green-11\)/.test(mapCss) || !/\.sector-map \.is-d3 \{ background: var\(--red-11\)/.test(mapCss) || /오르면 빨강/.test(readFileSync(path.join(root, 'src/ui/components/sector-map.js'), 'utf8'))) fail('M07 the S&P 500 map must colour rises green and falls red');
+  if (!/\.sector-map \.is-u3 \{ background: var\(--red-11\)/.test(mapCss) || !/\.sector-map \.is-d3 \{ background: var\(--blue-11\)/.test(mapCss) || !/오르면 빨강, 내리면 파랑/.test(readFileSync(path.join(root, 'src/ui/components/sector-map.js'), 'utf8'))) fail('M07 v58.80 the S&P 500 map must colour rises red and falls blue');
 }
 // P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
 // T01/T02/T05/T19/T04/T15 (expert review v57.48, 2026-10-13): the shared close series keeps one value per session of the
@@ -5734,7 +5735,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   // v58.78 (owner 2026-10-25): 오늘 opens with the four index ETFs' last regular session — change from the previous close,
   // an open/closed flag from the trading period, and nothing drawn from an empty payload.
   const { sessionModel, INDEX_STRIP } = await load('src/ui/components/home-index-strip.js');
-  if (INDEX_STRIP.map((row) => row.sym).join(',') !== 'SPY,QQQ,SOXX,IWM') fail('v58.78 index strip: SPY, QQQ, SOXX, IWM in that order');
+  if (INDEX_STRIP.map((row) => row.sym).join(',') !== 'SPY,QQQ,SMH,IWM') fail('v58.78 index strip: SPY, QQQ, SMH (v58.80 run-5: one semiconductor gauge app-wide), IWM in that order');
   const start = 1792762200; // 2026-10-23 09:30 New York
   const payload = { timestamps: [start, start + 300, start + 600], opens: [100, 101, null], highs: [102, 103, 104], lows: [99, 100, 101], closes: [101, 102, 103],
     meta: { chartPreviousClose: 100, currentTradingPeriod: { regular: { start, end: start + 23400 } } } };
@@ -5992,6 +5993,128 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   }
   if (readNumericInput('', { ...spec, badInput: true }).ok || readNumericInput('2017.5', { label: '시작 연도', integer: true }).ok) fail('v58.80 badInput and integer refusals');
   if (!/^달러 현금은 0 이상/.test(readNumericInput('-1', spec).reason)) fail('v58.80 refusal names its field with the right particle');
+}
+
+// v58.80 (first-users F23): one slot for the floating layers — opening a second popover closes the first, and the
+// body class that moves 맨 위로 aside follows the slot.
+{
+  const { claimPopover, releasePopover, openPopoverCount, placePopover } = await load('src/ui/components/popover.js');
+  const { placeTermPopover } = await load('src/ui/components/term-marks.js');
+  const classes = new Set();
+  const doc = { body: { classList: { add: (c) => classes.add(c), remove: (c) => classes.delete(c) } } };
+  const closed = [];
+  const closeA = () => { closed.push('A'); releasePopover(doc, closeA); };
+  const closeB = () => { closed.push('B'); releasePopover(doc, closeB); };
+  claimPopover(doc, closeA);
+  claimPopover(doc, closeA);
+  claimPopover(doc, closeB);
+  if (closed.join() !== 'A' || openPopoverCount() !== 1 || !classes.has('aio-popover-open')) fail(`v58.80 a second popover closes the first: ${closed.join()}`);
+  closeB();
+  if (openPopoverCount() !== 0 || classes.has('aio-popover-open')) fail('v58.80 closing the open popover clears the slot and the body class');
+  if (placeTermPopover !== placePopover) fail('v58.80 the term popover uses the shared placement rule');
+  // run-5: after a route change hover waits for a real pointer move (a synthetic move has no movement).
+  const { watchScroll, hoverSuppressed } = await load('src/ui/components/popover.js');
+  const listeners = {};
+  const win = { performance: { now: () => 1e6 }, addEventListener: (type, fn) => { listeners[type] = fn; } };
+  watchScroll(win);
+  if (hoverSuppressed(win)) fail('v58.80 hover is allowed before any scroll or navigation');
+  listeners.hashchange();
+  listeners.pointermove({ movementX: 0, movementY: 0 });
+  if (!hoverSuppressed(win)) fail('v58.80 a route change suppresses hover until the pointer really moves');
+  listeners.pointermove({ movementX: 3, movementY: 0 });
+  if (hoverSuppressed(win)) fail('v58.80 a real pointer move lifts the navigation hover suppression');
+}
+
+// v58.80 run-5: a company opened anywhere joins 재무 공시's 최근 검색; the sentence parser names only the refusal that
+// applied; the stock watch line names its benchmark.
+{
+  const { rememberRecentSymbol } = await load('src/data/stock-subject-store.js');
+  const store = new Map([['aio_fund_recent', JSON.stringify(['AAPL', 'MSFT'])]]);
+  const fakeRoot = { localStorage: { getItem: (key) => store.get(key) ?? null, setItem: (key, value) => store.set(key, value) } };
+  rememberRecentSymbol(fakeRoot, 'MSFT');
+  rememberRecentSymbol(fakeRoot, '<b>');
+  if (store.get('aio_fund_recent') !== JSON.stringify(['MSFT', 'AAPL'])) fail(`v58.80 recent symbols move to the front once and refuse non-symbols: ${store.get('aio_fund_recent')}`);
+  const { parseConditionText } = await load('src/domain/screener/condition-text-parser.js');
+  const orRead = parseConditionText('PER 10 이하 또는 ROE 20 이상');
+  if (JSON.stringify(orRead.reasons) !== '["or"]') fail(`v58.80 an OR sentence names only the OR reason: ${JSON.stringify(orRead.reasons)}`);
+  const { buildWatchList } = await load('src/domain/fundamental/stock-lens.js');
+  const watch = buildWatchList({ row: { ret3m: 10 }, benchmarkRet3m: 3.1, benchmarkLabel: 'S&P 500(SPY, 배당 포함)' });
+  if (!watch.find((item) => item.id === 'relative')?.now.includes('S&P 500(SPY, 배당 포함) +3.1%')) fail('v58.80 the relative-strength line names the benchmark basis it compares against');
+}
+
+// v58.80 (first-users R2-27, owner-delegated colour rule): the direction colour follows the printed sign.
+{
+  const { directionOf, signedText } = await load('src/domain/shared/number.js');
+  const cases = [[0.04, 1, null], [-0.04, 1, null], [0.05, 1, 'up'], [-0.004, 2, null], [-0.006, 2, 'down'], [null, 1, null], ['1.2', 1, 'up']];
+  for (const [value, digits, want] of cases) if (directionOf(value, digits) !== want) fail(`v58.80 directionOf(${value}, ${digits}) -> ${directionOf(value, digits)}`);
+  if (signedText(0.04, 1) !== '0.0' || directionOf(0.04, 1) !== null) fail('v58.80 an unsigned "0.0" carries no direction colour');
+}
+
+// v58.80 (first-users F01): the critical-data gate holds screener work until data.json and history arrive (or the
+// fallback fires), runs it at once for a rows-first screen, and the <head> prefetch is taken once and never when stale.
+{
+  const { createCriticalDataGate, ROWS_FIRST_ROUTES } = await load('src/app/critical-data-gate.js');
+  const { takeBootPrefetch } = await load('src/data/boot-prefetch.js');
+  let ready = false; let notify = null; let fallback = null; const ran = [];
+  const gate = createCriticalDataGate({ isReady: () => ready, subscribe: (fn) => { notify = fn; return () => { notify = null; }; }, schedule: (fn) => { fallback = fn; } });
+  const task = () => ran.push('screener');
+  gate.run(task); gate.run(task);
+  if (ran.length || gate.open) fail('v58.80 the gate holds work until the critical artifacts arrive');
+  gate.run(() => ran.push('rows-first'), { now: true });
+  ready = true; notify();
+  if (ran.join() !== 'rows-first,screener' || !gate.open) fail(`v58.80 a queued task runs once when both artifacts land: ${ran.join()}`);
+  const late = createCriticalDataGate({ isReady: () => false, subscribe: () => null, schedule: (fn) => { fallback = fn; } });
+  const lateRan = []; late.run(() => lateRan.push(1)); fallback();
+  if (lateRan.length !== 1 || !ROWS_FIRST_ROUTES.has('screener') || ROWS_FIRST_ROUTES.has('home')) fail('v58.80 the fallback releases the gate; 오늘 is not a rows-first screen');
+  const res = Promise.resolve({ ok: true });
+  const root = { __aioBootPrefetch: { data: { url: 'x', minute: 42, at: 1000, res } } };
+  const first = takeBootPrefetch(root, 'data', { now: 2000 });
+  if (first?.response !== res || first.minute !== 42 || takeBootPrefetch(root, 'data', { now: 2000 }) !== null) fail('v58.80 the boot prefetch is taken once');
+  const stale = { __aioBootPrefetch: { data: { minute: 1, at: 0, res } } };
+  if (takeBootPrefetch(stale, 'data', { now: 6 * 60 * 1000 }) !== null) fail('v58.80 a prefetch older than five minutes is not used');
+}
+
+// v58.80 (first-users F34): RSI and period-return sentences become conditions; a bare number is reported, never guessed.
+{
+  const { parseConditionText } = await load('src/domain/screener/condition-text-parser.js');
+  const { evaluateCondition } = await load('src/domain/screener/custom-conditions.js');
+  const ids = (text) => parseConditionText(text).conditions.map((c) => `${c.id}:${c.value}${c.strict ? '!' : ''}`).join(',');
+  const cases = { 'RSI 30 이하': 'rsi-max:30', '3개월 수익률 20% 이상': 'ret3m-min:20', '1개월 수익률 -5% 이하': 'ret1m-max:-5', '과매도': 'rsi-max:30', '3개월 수익률 20% 미만': 'ret3m-max:20!', 'RSI 30': '' };
+  for (const [text, want] of Object.entries(cases)) if (ids(text) !== want) fail(`v58.80 parse "${text}" -> ${ids(text)}`);
+  if (parseConditionText('RSI 30').unknown !== 'RSI 30') fail('v58.80 a bare RSI number is reported back');
+  const row = { rsi: 28, ret3m: 21 };
+  const read = (r, field) => r[field];
+  if (evaluateCondition({ id: 'rsi-max', value: 30 }, row, read) !== true && evaluateCondition({ id: 'rsi-max', value: 30 }, row, read)?.pass !== true) fail('v58.80 rsi-max keeps RSI 28');
+}
+
+// v58.80 (first-users F07): the cost-comparison words have one owner, read by the screens and the AI prompts alike.
+{
+  const { CHOICE_WORDS } = await load('src/domain/content/choice-words.js');
+  const walk = (dir) => readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? walk(`${dir}/${entry.name}`) : entry.name.endsWith('.js') ? [`${dir}/${entry.name}`] : []);
+  const literal = walk('src').filter((file) => file !== 'src/domain/content/choice-words.js' && Object.values(CHOICE_WORDS).some((word) => readFileSync(path.join(root, file), 'utf8').includes(word)));
+  if (CHOICE_WORDS.favored !== '비용이 작은 쪽' || literal.length) fail(`v58.80 choice words are written only in choice-words.js: ${literal.join(', ')}`);
+}
+
+// v58.80 (first-users F06/F25): the holding form is read in src; the first refused field takes focus and is marked.
+{
+  const { readHoldingInputs } = await load('src/ui/components/input-check.js');
+  const fakeForm = (values) => {
+    const nodes = new Map();
+    const doc = { getElementById: (id) => nodes.get(id) || null, createElement: () => ({ id: '', className: '', textContent: '', setAttribute() {}, remove() { nodes.delete(this.id); } }) };
+    for (const [id, value] of Object.entries(values)) {
+      const attrs = new Map();
+      nodes.set(id, { id, value, ownerDocument: doc, focused: false, validity: { badInput: false }, setAttribute: (k, v) => attrs.set(k, v), removeAttribute: (k) => attrs.delete(k), getAttribute: (k) => attrs.get(k) ?? null, focus() { this.focused = true; }, closest: () => null, insertAdjacentElement: (_, note) => nodes.set(note.id, note) });
+    }
+    return doc;
+  };
+  const ok = readHoldingInputs(fakeForm({ 'pf-add-ticker': 'nvda', 'pf-add-qty': '10', 'pf-add-cost': '1,200.5' }));
+  if (!ok.ok || ok.qty !== 10 || ok.cost !== 1200.5) fail(`v58.80 holding form reads quantity and cost: ${JSON.stringify(ok)}`);
+  const zero = fakeForm({ 'pf-add-ticker': 'NVDA', 'pf-add-qty': '0', 'pf-add-cost': '5' });
+  const zeroRead = readHoldingInputs(zero);
+  if (zeroRead.ok || zeroRead.reason !== '수량은 0보다 커야 합니다.' || !zero.getElementById('pf-add-qty').focused || zero.getElementById('pf-add-qty').getAttribute('aria-invalid') !== 'true') fail(`v58.80 a zero quantity is refused on its field: ${JSON.stringify(zeroRead)}`);
+  const huge = readHoldingInputs(fakeForm({ 'pf-add-ticker': 'NVDA', 'pf-add-qty': '1', 'pf-add-cost': '1e12' }));
+  const blank = readHoldingInputs(fakeForm({ 'pf-add-ticker': '  ', 'pf-add-qty': '1', 'pf-add-cost': '1' }));
+  if (huge.ok || !/매수 단가는 1,000,000,000 이하/.test(huge.reason) || blank.ok || !/종목/.test(blank.reason)) fail(`v58.80 holding refusals: ${JSON.stringify({ huge, blank })}`);
 }
 
 // v58.80 (first-users F29): the screener star and 포트폴리오 관심 종목 share one store; the old star array is folded in once.

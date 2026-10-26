@@ -164,8 +164,8 @@
 #pf-technical-risk .lu-pf-th { padding: 4px; }
 
 #pf-technical-risk .lu-pf-th-r { text-align: right; }
-#pf-technical-risk .lu-pf-up { color: var(--data-green); }
-#pf-technical-risk .lu-pf-dn { color: var(--data-red); }
+#pf-technical-risk .lu-pf-up { color: var(--dir-up); }
+#pf-technical-risk .lu-pf-dn { color: var(--dir-down); }
 
 /* Refresh progress layer — appended to <body>, outside .page, so no inline font-size substring rule applied. */
 #aio-refresh-progress-layer { position: fixed; right: 14px; top: 58px; z-index: 99998; width: min(360px, calc(100vw - 28px)); background: var(--surface-2,var(--green-12)); border: 1px solid var(--border,var(--gold-12)); border-radius: 4px; box-shadow: 0 14px 34px var(--black-a5); padding: 10px 12px; color: var(--text-primary,var(--blue-3)); font-family: var(--font-sans,system-ui); }

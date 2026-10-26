@@ -7,6 +7,7 @@ import { ALL_LESSONS, LESSON_KINDS } from '../../domain/guide/lessons.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { el } from './dom.js';
 import { refreshScenarioArtifacts } from './macro-crossroads.js';
+import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 
 function conceptButton(doc, root, lesson) {
   const button = el(doc, 'button', '개념 배우기 →', 'mg-concept-link');
@@ -36,7 +37,7 @@ function choiceTable(doc, direction) {
   const table = el(doc, 'table', null, 'mg-choices');
   table.append(el(doc, 'caption', '선택지별 집계 — 핵심 조건을 갖춘 시나리오마다 적힌 비용 비교를 센 것(확률 아님)', 'mg-caption'));
   const head = el(doc, 'tr');
-  for (const label of ['선택지', '비용이 작음', '비용이 큼']) { const th = el(doc, 'th', label); th.scope = 'col'; head.append(th); }
+  for (const label of ['선택지', CHOICE_WORDS.favoredState, CHOICE_WORDS.costlyState]) { const th = el(doc, 'th', label); th.scope = 'col'; head.append(th); }
   const thead = el(doc, 'thead'); thead.append(head);
   const body = el(doc, 'tbody');
   for (const row of direction.tally) {
@@ -79,7 +80,7 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   const lessons = el(doc, 'ul', null, 'mg-lessons');
   guide.lessons.forEach((lesson) => lessons.append(lessonItem(doc, root, lesson)));
   const library = el(doc, 'details', null, 'mg-library');
-  library.append(el(doc, 'summary', `시장에 참여하는 원칙 전체 (${ALL_LESSONS.length}개) — 태도, 전략, 속지 말 것, 믿을 것`, 'mg-library-summary'));
+  library.append(el(doc, 'summary', `참여 원칙 ${ALL_LESSONS.length}개 — 태도·전략·속지 말 것·믿을 것`, 'mg-library-summary')); // v58.80: text budget
   for (const kind of Object.keys(LESSON_KINDS)) {
     const group = el(doc, 'ul', null, 'mg-lessons is-library');
     ALL_LESSONS.filter((lesson) => lesson.kind === kind).forEach((lesson) => group.append(lessonItem(doc, root, lesson, { withReason: false })));

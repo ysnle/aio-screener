@@ -1189,7 +1189,7 @@ window._aioDiagram = (function () {
   }
   function _n(v, d) { return (typeof v === 'number' && isFinite(v)) ? v.toFixed(d || 0) : '—'; }
   function _cl(v, lo, hi) { return Math.max(lo, Math.min(hi, v || 0)); }
-  function _pctCol(v) { return v > 0 ? C.green : v < 0 ? C.red : C.muted; }
+  function _pctCol(v) { return v > 0 ? 'var(--dir-up)' : v < 0 ? 'var(--dir-down)' : C.muted; }
   function _scoreCol(s) { return s >= 75 ? C.green : s >= 60 ? C.cyan : s >= 45 ? C.amber : C.red; }
   function _alphaRgb(hex, a) {
     // Convert #rrggbb → rgba(r,g,b,a)
@@ -1893,7 +1893,7 @@ var _fmtPct = window._fmtPct;
 function _renderFundHeader(d) {
   var el = document.getElementById('fund-rpt-header');
   if (!el) return;
-  var pctColor = d.pct != null ? (d.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+  var pctColor = d.pct != null ? (d.pct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
   var p = d.fmpProfile || {};
   // v52.73 아이보리 3f: 시안 구조(회사명+티커/섹터/거래소 좌 · 가격+등락 우, 한 줄 리포트 헤더)
   var html = '<div class="lu-hd-row">';
@@ -3939,41 +3939,9 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
 // ── P714: 첫 방문 투자 면책 고지 (1회, 확인 시까지 유지) ──
 // 기존 면책은 guide 페이지 <details> 안에 접혀 있어 실질 도달률이 0에 가까웠다.
 // v58.53 개편 v2: 고정 하단 바 → 최초 1회 떠 있는 카드(비차단) + 페이지 하단 한 줄(.sx-page-foot)에서 다시 열기.
-(function() {
-  function mountDisclaimer(force) {
-    if (document.getElementById('aio-first-visit-disclaimer')) return;
-    var bar = document.createElement('div');
-    bar.id = 'aio-first-visit-disclaimer';
-    bar.setAttribute('role', 'region'); // first-users F27 (runs 1-4): an inline notice at the top of the page, not a card over the text
-    bar.setAttribute('aria-labelledby', 'aio-first-visit-disclaimer-title');
-    // card, text and button styles: legacy-ui.css + soft-ui.css (#aio-first-visit-disclaimer)
-    var txt = document.createElement('div');
-    txt.className = 'lu-dc-text';
-    txt.innerHTML = '<b class="lu-dc-title" id="aio-first-visit-disclaimer-title">투자 면책 고지</b>본 도구의 모든 수치·점수·시그널·AI 답변은 늦거나 참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과의 책임은 이용자 본인에게 있습니다.';
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = '확인했습니다';
-    btn.className = 'lu-dc-btn';
-    // Reopened from the page foot: focus returns to that trigger on dismiss (Escape dismisses too).
-    var trigger = force ? document.activeElement : null;
-    btn.addEventListener('click', function() {
-      try { localStorage.setItem('aio_disclaimer_ack_v1', '1'); } catch(_e) {}
-      if (bar.parentNode) bar.parentNode.removeChild(bar);
-      if (trigger && trigger.isConnected && typeof trigger.focus === 'function') trigger.focus();
-    });
-    bar.addEventListener('keydown', function(e) { if (e.key === 'Escape') { e.preventDefault(); btn.click(); } });
-    bar.appendChild(txt);
-    bar.appendChild(btn);
-    var flow = document.querySelector('.content'); if (flow) { bar.classList.add('is-inline'); flow.insertBefore(bar, flow.firstChild); if (force) flow.scrollTo?.({ top: 0 }); } else document.body.appendChild(bar);
-    if (force) btn.focus();
-  }
-  window._aioShowDisclaimer = function() { mountDisclaimer(true); };
-  try {
-    if (localStorage.getItem('aio_disclaimer_ack_v1') === '1') return;
-  } catch(_e) { return; } // storage 불가 환경(시크릿 등)에서는 매번 띄우는 대신 조용히 생략
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { mountDisclaimer(false); });
-  else mountDisclaimer(false);
-})();
+// v58.80 run-5 (phone #2): the notice is drawn by the static shell (index.html #aio-disclaimer-tpl) as the page parses —
+// from this late classic script it landed at 39 s on slow 3G and pushed the reading down (CLS 0.74). The foot reopens it.
+window._aioShowDisclaimer = function() { if (typeof window._aioMountDisclaimer === 'function') window._aioMountDisclaimer(true); };
 
 // P1429 (owner 2026-10-04): the first-visit "처음 오셨나요?" onboarding card was removed — users are active traders; no how-to prompts.
 // ── 초기화 ──

@@ -291,14 +291,14 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
 }
 
 // ── 5. What to keep watching ───────────────────────────────────────────────────────────────────────────────────────
-export function buildWatchList({ schedule = null, consensus = null, trailing = null, row = null, stage = null, levels = null, benchmarkRet3m = null } = {}) {
+export function buildWatchList({ schedule = null, consensus = null, trailing = null, row = null, stage = null, levels = null, benchmarkRet3m = null, benchmarkLabel = 'S&P 500' } = {}) {
   const items = [];
   if (schedule?.text) items.push({ id: 'earnings', label: '다음 실적', now: schedule.text, why: '가이던스와 마진 방향이 논지를 가장 직접 확인합니다.' });
   const fwd = consensus?.fwd;
   if (fwd) items.push({ id: 'revisions', label: '이익 전망 방향', now: `최근 4주 상향 ${finite(fwd.up4w) || 0}, 하향 ${finite(fwd.down4w) || 0}`, why: '가격보다 먼저 방향이 바뀌는 경우가 많습니다.' });
   if (trailing?.margin != null) items.push({ id: 'margin', label: '이익률 추세', now: `최근 4개 분기 순이익률 ${trailing.margin.toFixed(1)}%${trailing.priorMargin != null ? `(1년 전 ${trailing.priorMargin.toFixed(1)}%)` : ''}`, why: '성장보다 이익률이 먼저 꺾이는 일이 흔합니다.' });
   const r3 = finite(row?.ret3m);
-  if (r3 != null) items.push({ id: 'relative', label: '상대강도', now: `3개월 ${signedText(r3, 1, '%')}${benchmarkRet3m != null ? `, 같은 기간 S&P 500 ${signedText(benchmarkRet3m, 1, '%')}` : ''}`, why: '지수보다 강한지 약한지가 수급의 방향입니다.' });
+  if (r3 != null) items.push({ id: 'relative', label: '상대강도', now: `3개월 ${signedText(r3, 1, '%')}${benchmarkRet3m != null ? `, 같은 기간 ${benchmarkLabel} ${signedText(benchmarkRet3m, 1, '%')}` : ''}`, why: '지수보다 강한지 약한지가 수급의 방향입니다.' });
   const support = levels?.supportCandidates?.[0];
   const resistance = levels?.resistanceCandidates?.[0];
   if (support || resistance) items.push({ id: 'levels', label: '가까운 가격 레벨', now: [support ? `아래 $${support.price.toFixed(2)}` : null, resistance ? `위 $${resistance.price.toFixed(2)}` : null].filter(Boolean).join(', '), why: '관찰할 가격대이며 매매 가격 제안이 아닙니다.' });

@@ -3,6 +3,7 @@
 // decision): the '개연성 높음/중간/낮음' grade became "현재 조건 충족 n/m" (a count, not a likelihood), and the
 // allocation/timing advice (현금·단기채 비중, 기다리는 쪽, 기준선 가까운 종목이 유리) was removed — each path keeps only
 // what it would mean, what confirms it and what would refute it. No price, size or timing instruction.
+import { CHOICE_WORDS } from '../content/choice-words.js';
 import { creditStable, isDefensiveSector } from '../interpretation/concepts.js';
 import { RULES } from '../rules/thresholds.js';
 import { TRANSITION_TITLE } from './regime-scenarios.js';
@@ -178,5 +179,5 @@ export function renderScenarioOutlookContext(outlook) {
   return `${outlook.asOf} 확정 종가 기준 시나리오별 현재 조건 충족 수(규칙 충족 수이며 확률이나 가능성 등급이 아님). ${outlook.headline}\n`
     + outlook.items.map((item) => `${item.title}: ${item.fit} (${item.basis}). 읽기: ${item.posture} 관련 섹터·테마: ${item.opportunity} 확인: ${item.check.join('; ')} 조심: ${item.caution.join(' ')} 넘겨도 됨: ${item.ignore.join('; ')}`).join('\n')
     // P1742 (owner 2026-10-13, supersedes T06): choices and opportunity cost come from the 시나리오 block; only instructions stay out.
-    + '\n가격·수량·시점·특정 종목 매매 지시는 하지 않는다. 선택지별 기회비용과 비용이 작은 쪽은 【향후 시나리오】 근거로만 말할 것.';
+    + '\n가격·수량·시점·특정 종목 매매 지시는 하지 않는다. 선택지별 기회비용과 ' + CHOICE_WORDS.favored + '은 【향후 시나리오】 근거로만 말할 것.';
 }

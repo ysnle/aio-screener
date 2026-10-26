@@ -207,6 +207,8 @@ async function main() {
     const heartbeat = setInterval(() => console.log(`[qa-progress] headless selection=${SELECTION_LABEL} elapsed=${Math.round((Date.now() - heartbeatStartedAt) / 1000)}s`), 15000);
     try {
       runResult = await page.evaluate(async ({ shardIndex, shardCount, groupIds }) => {
+      // v58.80: the backtest engine loads on demand (idle warm-up); the synchronous suite reads it, so load it first.
+      await window._aioLoadBacktestLab?.().catch(() => null);
       await window.AIO.loadTests();
         return window.AIO.runTests({ shardIndex, shardCount, groupIds, progress: true });
       }, { shardIndex: SHARD_INDEX, shardCount: SHARD_COUNT, groupIds: GROUP_IDS });

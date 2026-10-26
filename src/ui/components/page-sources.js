@@ -7,6 +7,8 @@ const NEWS = '뉴스: Google News가 모은 매체별 기사 (제목과 매체�
 const TELEGRAM = '텔레그램: 공개 채널 4곳의 요약 (각 글은 원문 링크)';
 const FRED = '미국 금리·물가·고용: FRED(세인트루이스 연준), BLS, BEA, 미 재무부 공식 고시';
 const SEC = '기업 재무: SEC EDGAR XBRL 공시 (연간 10-K, 분기 10-Q)';
+// v58.80 run-5 (skeptic #8): 재무 공시 also shows consensus EPS, Forward PER and the 4-week revisions; their provider was not listed.
+const CONSENSUS = '컨센서스 EPS·Forward PER·최근 4주 추정치 상향·하향: Nasdaq 공개 실적 전망(Zacks 컨센서스, 조정 EPS 기준, 점수에 쓰지 않는 참고값)';
 
 export const PAGE_SOURCES = Object.freeze({
   home: [QUOTES, '시장 판정·지난 마감 이후 변화: 종가 기록으로 자체 계산', '일정: BLS·BEA·연준 공식 일정과 거래소 규칙(만기·휴장)', NEWS],
@@ -36,10 +38,10 @@ export const PAGE_SOURCES = Object.freeze({
     'AI 설비투자 배분: BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용, 부품 납기: TrendForce(2026-09-14)'
   ],
   // v58.74 (text audit): one fold serves 미국 and 한국 tickers, so each line names the market it applies to.
-  ticker: ['가격·차트: Yahoo Finance 일봉', '기업 재무: 미국 종목은 SEC EDGAR XBRL 공시(연간 10-K, 분기 10-Q), 한국 종목은 DART 사업보고서', '팩터 점수: 스크리너와 같은 자체 계산', '랭킹 대상 밖 미국 종목: Nasdaq Trader 상장 목록으로 확인, 요청 시 같은 공식으로 계산(공개 순위 미포함)'],
+  ticker: ['가격·차트: Yahoo Finance 일봉', '기업 재무: 미국 종목은 SEC EDGAR XBRL 공시(연간 10-K, 분기 10-Q), 한국 종목은 DART 사업보고서', CONSENSUS, '팩터 점수: 스크리너와 같은 자체 계산', '랭킹 대상 밖 미국 종목: Nasdaq Trader 상장 목록으로 확인, 요청 시 같은 공식으로 계산(공개 순위 미포함)'],
   // v57.81: the 한국 시장 fold is shown to everyone, so the chart screen names its sources too.
   technical: ['종목 차트: Yahoo Finance 일봉', '코스피·코스닥 종가: Yahoo Finance 일봉(마감된 한국 거래일), 50일선·200일선·1년 고저는 자체 계산'],
-  fundamental: [SEC],
+  fundamental: [SEC, CONSENSUS],
   screener: ['가격 팩터(수익률·추세·변동성): Yahoo Finance 수정 종가로 자체 계산', SEC, '종목별 원시 가격은 공개 데이터에 싣지 않습니다'],
   portfolio: ['보유 내역·통화별 현금: 이 브라우저에 저장된 사용자 입력', QUOTES, '현금 합계 환산: 앱이 게시한 원/달러 직전 종가(Yahoo Finance KRW=X 일봉) 또는 사용자가 선언한 환율'],
   masters: ['13F·13D/13G: SEC EDGAR 공시 원문', '운용 규모: 각 운용사 공식 자료'],

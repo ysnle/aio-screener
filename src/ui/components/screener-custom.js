@@ -144,15 +144,24 @@ export function installCustomConditions(documentRef) {
   const applySentence = (parsed, sentence) => {
     // v58.63 (SCR04): OR, an inverted direction or a won amount applies nothing and keeps the sentence, instead of a silently different screen.
     if (parsed.unsupported?.length) {
-      parseNote = `'${parsed.unsupported.join("', '")}'는 적용하지 않았습니다. 조건은 모두 '그리고'로 묶이며, 반대 방향(예: PER 이상)은 목록에 없는 조건이고, 거래대금은 달러 백만 단위(예: 거래대금 20백만)로 적습니다. 문장을 고쳐 다시 적용해 주세요.`;
+      const why = { or: "조건은 모두 '그리고'로 묶입니다('또는'은 지원하지 않습니다)", inverted: '반대 방향(예: PER 이상)은 목록에 없는 조건입니다', won: '거래대금은 달러 백만 단위(예: 거래대금 20백만)로 적습니다' };
+      const reasons = (parsed.reasons?.length ? parsed.reasons : Object.keys(why)).map((key) => why[key]).filter(Boolean);
+      parseNote = `'${parsed.unsupported.join("', '")}'는 적용하지 않았습니다. ${reasons.join(', ')}. 문장을 고쳐 다시 적용해 주세요.`;
       note.textContent = parseNote;
       return;
     }
+    // v58.80 run-5 (breaker #6): only words shaped like a name or sector ('반도체', 'NVDA') become the name search; emoji,
+    // other scripts or SQL fragments are reported as not applied instead of silently narrowing the table to 0.
+    const words = String(parsed.unknown || '').split(/\s+/).filter(Boolean);
+    const searchWords = words.filter((word) => /^[\p{Script=Hangul}A-Za-z0-9.&-]{2,30}$/u.test(word));
+    const dropped = words.filter((word) => !searchWords.includes(word));
+    const searchText = searchWords.join(' ');
     parseNote = !parsed.conditions.length ? '알아들은 조건이 없습니다. 아래 목록에서 골라 주세요.'
-      : parsed.unknown ? `'${parsed.unknown}'는 조건으로 읽지 못해 이름·업종 검색에 넣었습니다.` : '';
-    if (parsed.unknown && parsed.conditions.length) {
+      : [searchText ? `'${searchText}'는 조건으로 읽지 못해 이름·업종 검색에 넣었습니다(순위 표 위 검색칸에서 지울 수 있습니다).` : '',
+        dropped.length ? `'${dropped.join(' ')}'는 읽지 못해 적용하지 않았습니다.` : ''].filter(Boolean).join(' ');
+    if (searchText && parsed.conditions.length) {
       const search = documentRef.getElementById('scr-text-search');
-      if (search) { search.value = parsed.unknown; searchFromPanel = parsed.unknown; search.dispatchEvent(new Event('change', { bubbles: true })); }
+      if (search) { search.value = searchText; searchFromPanel = searchText; search.dispatchEvent(new Event('change', { bubbles: true })); }
     }
     if (parsed.conditions.length) { if (text.value === sentence) text.value = ''; commit([...current, ...parsed.conditions]); } else note.textContent = parseNote;
   };

@@ -113,11 +113,12 @@ import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, audi
 import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } from '../ai/policy/conduct.js';
 import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
-import { renderHomeKpiTrends } from '../ui/components/home-kpi-trend.js';
+import { renderHomeKpiTrends, renderHomeQuoteHeading } from '../ui/components/home-kpi-trend.js';
 import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
 import { portfolioStressHtml } from '../ui/panels/portfolio-stress.js';
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
 import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
+import { createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
 import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
 import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
 
@@ -259,13 +260,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     return `${count ? text.slice(0, -count.length) : text} · 한국 ${label} 마감${count}`;
   };
   root._aioRegimePulse = () => regimePulse(root._aioMarketRegimeSummary()); // v58.52: the top pulse bar's verdict
-  // v58.80 (first-users F08): 오늘의 한 문장 is a question by design (owner 2026-10-15); the card now also says the verdict it
-  // sits above, so the first thing read is not only a question.
+  // v58.80 (first-users F08, decision delegated by the owner 2026-10-26): the producer's sentence is the day's question
+  // (owner 2026-10-15); four first users read "오늘의 한 문장" as a conclusion. The card is now 오늘의 질문 and leads
+  // with the verdict it questions.
   root._aioSentenceVerdict = () => {
     const summary = root._aioMarketRegimeSummary();
     if (!summary?.available || !summary.sufficient || !summary.overall) return '';
     const day = /^\d{4}-\d{2}-\d{2}/.test(summary.asOf || '') ? `${Number(summary.asOf.slice(5, 7))}/${Number(summary.asOf.slice(8, 10))} 종가 기준 ` : '';
-    return `${day}시장 상태 판정은 '${summary.overall}'입니다. 근거는 아래 시장 상태 카드에 있습니다.`;
+    return `${day}'${summary.overall}'`;
   };
   root.addEventListener?.('aio:historyLoaded', () => { try { root._aioRenderOperatorNote?.(); } catch (_) {} });
   // The Korean close label needs the daily record, which loads after the first top-bar render.
@@ -677,6 +679,17 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       clearTimeoutImpl: root?.clearTimeout?.bind(root) || globalThis.clearTimeout.bind(globalThis)
     });
     const compatibilityEvents = createCompatibilityEventAdapter({ root, eventTarget, now: clock.now });
+    const currentRouteId = () => { try { return String(store.getState()?.route || router.active() || '').replace(/^page-/, ''); } catch (_) { return ''; } };
+    const criticalData = createCriticalDataGate({
+      isReady: () => Boolean(root?._serverDataMeta) && Boolean(root?._aioHistoryMeta || (root?._aioHistory || []).length),
+      subscribe: (check) => {
+        const stopServer = legacy.on('aio:serverDataLoaded', check);
+        const stopHistory = compatibilityEvents.on('aio:historyLoaded', check);
+        return () => { stopServer(); stopHistory(); };
+      },
+      schedule: (task, ms) => deferredTasks.defer(task, ms)
+    });
+    const syncScreenerAfterCriticalData = () => criticalData.run(() => syncScreenerData(), { now: ROWS_FIRST_ROUTES.has(currentRouteId()) });
     const emitDataTimelineUpdated = coalesceMicrotask((reason = 'state-updated') => {
       try {
         eventTarget.dispatchEvent(new CustomEvent('aio:dataTimelineUpdated', { detail: { reason, audit: getPageDataTimelineAudit() } }));
@@ -697,7 +710,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       () => syncPortfolio.sync(),
       // Server hydration commonly finishes before the staged startup reaches
       // this task. Do not rebuild and refetch that same universe a second time.
-      () => store.getState()?.screener?.rows?.length ? null : syncScreenerData(),
+      () => store.getState()?.screener?.rows?.length ? null : syncScreenerAfterCriticalData(),
       // Reference corpus for AI answers, prefetched last so it never competes with first paint. v58.80 (first-users bundle 4):
       // on a slow or data-saving connection it would still share the line with screener.json, so it waits for the first
       // question instead (the AI dispatch awaits it either way).
@@ -747,7 +760,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         Promise.resolve().then(() => syncThemes.sync()),
         Promise.resolve().then(() => syncEntityForConsumers()),
         Promise.resolve().then(() => syncPortfolio.sync()),
-        Promise.resolve().then(() => syncScreenerData()),
+        Promise.resolve().then(() => syncScreenerAfterCriticalData()),
         Promise.resolve().then(() => syncAnalysis.sync())
       ]);
       if (!disposed) emitDataTimelineUpdated('server-data');
@@ -839,6 +852,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       return null;
     });
     const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), ({ scope }) => syncScreenerData({ scope, refresh: screenerArtifactReadDue() }), { withScope: true }));
+    // A screen that draws rows first, opened before the critical-data gate released the screener read, reads it now.
+    const stopRowsFirstShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set([...ROWS_FIRST_ROUTES].filter((route) => route !== 'screener')), () => (store.getState()?.screener?.rows?.length || criticalData.open ? null : syncScreenerData())));
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
@@ -847,6 +862,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const renderIndexStrip = () => import('../ui/components/home-index-strip.js').then(({ renderHomeIndexStrip }) => renderHomeIndexStrip({ documentRef, root })).catch(() => {});
     const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') { renderHomeKpiTrends({ documentRef, root }); renderIndexStrip(); } }); });
     const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) renderHomeKpiTrends({ documentRef, root }); });
+    const stopQuoteHeading = legacy.on('aio:liveQuotes', () => { if (!disposed) renderHomeQuoteHeading({ documentRef, root }); }); // v58.80 run-5: the live chip's observation time
     queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') { renderHomeKpiTrends({ documentRef, root }); renderIndexStrip(); } });
     // E2/LC-26: a mode change is a score input change, so re-derive the analysis slice instead of
     // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
@@ -1021,6 +1037,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopMarketHistory();
       stopMarketSnapshot();
       stopServerMarketData();
+      stopRowsFirstShown();
+      criticalData.dispose();
       stopSnapshotRevision();
       stopMacroCalendar();
       stopMacroUpdated();
@@ -1045,6 +1063,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisShown();
       stopSourcesShown();
       stopKpiTrendHistory();
+      stopQuoteHeading();
       stopAnalysisModeChange();
       stopAnalysisHistory();
       stopAnalysisSentiment();

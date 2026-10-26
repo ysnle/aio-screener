@@ -6,7 +6,17 @@ import { CONDITION_BOUNDS as BOUNDS, normalizeConditions } from './custom-condit
 // Sentence → conditions. Rules run longest-phrase first and consume what they match; the rest is reported back
 // so a reader sees what was not understood instead of a silently wider result.
 const NUM = '(\\d+(?:\\.\\d+)?)';
+const SIGNED = '(-?\\d+(?:\\.\\d+)?)';
+const MIN_WORDS = '(?:이상|초과|넘는|넘게|보다\\s*(?:큰|높은))';
+const MAX_WORDS = '(?:이하|미만|아래|까지|보다\\s*(?:작은|낮은))';
 const PARSE_RULES = [
+  // v58.80 (first-users F34): RSI and period returns, with an explicit direction word (a bare "RSI 30" is reported back).
+  [new RegExp(`rsi\\s*(?:\\(?\\s*14\\s*일?\\s*\\)?\\s*)?(?:가|이)?\\s*${NUM}\\s*${MAX_WORDS}`, 'i'), (m) => ({ id: 'rsi-max', value: +m[1] })],
+  [new RegExp(`rsi\\s*(?:\\(?\\s*14\\s*일?\\s*\\)?\\s*)?(?:가|이)?\\s*${NUM}\\s*${MIN_WORDS}`, 'i'), (m) => ({ id: 'rsi-min', value: +m[1] })],
+  [/과매도/, () => ({ id: 'rsi-max', value: 30 })],
+  [/과매수/, () => ({ id: 'rsi-min', value: 70 })],
+  [new RegExp(`([13])\\s*개월\\s*(?:수익률|상승률|등락률|수익)?\\s*(?:이|가)?\\s*${SIGNED}\\s*%?\\s*${MIN_WORDS}`), (m) => ({ id: `ret${m[1]}m-min`, value: +m[2] })],
+  [new RegExp(`([13])\\s*개월\\s*(?:수익률|상승률|등락률|수익)?\\s*(?:이|가)?\\s*${SIGNED}\\s*%?\\s*${MAX_WORDS}`), (m) => ({ id: `ret${m[1]}m-max`, value: +m[2] })],
   // v58.71: research-channel reports, before the 실적/성장 rules below.
   [/목표\s*(?:주)?가\s*(?:상향|올린|올라간)/, () => ({ id: 'tg-pt-raise', value: 1 })],
   [/(?:투자\s*)?의견\s*상향|업그레이드/, () => ({ id: 'tg-upgrade' })],
@@ -60,8 +70,9 @@ export function parseConditionText(text) {
   let rest = ` ${String(text || '')} `;
   const conditions = [];
   const unsupported = [];
+  const reasons = new Set(); // v58.80 run-5: which rule refused, so the note names only that one
   const or = rest.match(OR_WORDS);
-  if (or) unsupported.push(or[0].trim());
+  if (or) { unsupported.push(or[0].trim()); reasons.add('or'); }
   for (const [pattern, build] of PARSE_RULES) {
     let match = rest.match(pattern);
     while (match) {
@@ -71,12 +82,12 @@ export function parseConditionText(text) {
       const won = condition.id === 'liquidity-min' && rest.slice(end).match(AFTER_WON_UNIT);
       const inverted = !won && bound && rest.slice(end).match(bound[1] === 'max' ? AFTER_MAX_INVERTED : AFTER_MIN_INVERTED);
       if (won) {
-        unsupported.push(`${match[0].trim()}${won[1]}`);
+        unsupported.push(`${match[0].trim()}${won[1]}`); reasons.add('won');
         end += won[0].length;
         const tail = rest.slice(end).match(/^\s*(?:이상|이하|초과|미만)/);
         if (tail) end += tail[0].length;
       } else if (inverted) {
-        unsupported.push(`${match[0].trim()} ${inverted[1]}`);
+        unsupported.push(`${match[0].trim()} ${inverted[1]}`); reasons.add('inverted');
         end += inverted[0].length;
       } else conditions.push(bound && STRICT_WORDS.test(match[0]) ? { ...condition, strict: true } : condition);
       rest = `${rest.slice(0, match.index)} ${rest.slice(end)}`;
@@ -85,5 +96,5 @@ export function parseConditionText(text) {
   }
   const unknown = rest.replace(OR_WORDS, ' ').replace(FILLER, ' ').split(' ').filter((word) => word && !STOP_WORDS.test(word)).join(' ');
   const out = { conditions: normalizeConditions(conditions), unknown };
-  return unsupported.length ? { ...out, unsupported } : out;
+  return unsupported.length ? { ...out, unsupported, reasons: [...reasons] } : out;
 }

@@ -37,13 +37,18 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
   const clip = series => series.filter(point => point.date >= range[0] && point.date <= range[1]);
   const daily = field => clip(buildCloseSeries(input.history, field, { through }));
   const macro = (field, factor = 1) => clip(macroSeries(macroHistory, field, through, factor));
-  const chart = (id, title, unit, series, { format = count, refs = [], domain = null, note = '' } = {}) => ({ id, title, unit, series, format, refLines: refs, domain, note });
+  const chart = (id, title, unit, series, { format = count, refs = [], domain = null, note = '', guide = null } = {}) => ({ id, title, unit, series, format, refLines: refs, domain, note, guide });
+  // v58.80 run-5 (skeptic #5): the trend verdict is read against the 50-day line, which the index charts did not draw.
+  const ma50 = (field) => {
+    const all = buildCloseSeries(input.history, field, { through });
+    return { label: '50일선', series: clip(all.map((point, index) => index >= 49 ? { date: point.date, value: all.slice(index - 49, index + 1).reduce((sum, item) => sum + item.value, 0) / 50 } : null).filter(Boolean)) };
+  };
   const vix3m = new Map(daily('vix3m').map(point => [point.date, point.value]));
   const ratio = daily('vix').filter(point => vix3m.get(point.date) > 0).map(point => ({ date: point.date, value: point.value / vix3m.get(point.date) }));
   const definitions = {
-    trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx),
+    trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx, { guide: ma50('spx') }),
       // v57.81: the leadership proxy and the small caps beside the S&P 500 — the trend axis is capped when both break.
-      chart('ndx', '나스닥 100 종가', '지수 pt', daily('ndx'), { note: '주도 대형 기술주의 흐름. 5거래일 3% 이상 하락하면 주도 영역이 약해지는지 확인합니다.' }),
+      chart('ndx', '나스닥 100 종가', '지수 pt', daily('ndx'), { guide: ma50('ndx'), note: '주도 대형 기술주의 흐름. 5거래일 3% 이상 하락하면 주도 영역이 약해지는지 확인합니다.' }),
       chart('rut', '러셀 2000 종가', '지수 pt', daily('rut'), { note: '중소형주의 흐름. 200일선 아래에 있으면 상승이 대형주 밖으로 퍼지지 못한 상태입니다.' })],
     breadth: [chart('breadth20', '20일선 위 종목 비율 (단기)', '%', daily('breadth20'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '단기 참여도. 50일선 비율보다 먼저 움직여 참여가 넓어지거나 줄어드는 방향을 먼저 보여 줍니다.' }),
       chart('breadth50', '50일선 위 종목 비율', '%', daily('breadth50'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: 'S&P 500 구성 종목의 비율(v58.79 전환 전 기록은 AIO 미국 수집 표본), 지수 회사의 공식 통계가 아닙니다.' }),

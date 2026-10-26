@@ -4898,10 +4898,8 @@ window._aioGetFieldTs = function(category) {
     var dd = String(kst.getUTCDate()).padStart(2, '0');
     var hh = String(kst.getUTCHours()).padStart(2, '0');
     var min = String(kst.getUTCMinutes()).padStart(2, '0');
-    // 오늘 날짜면 HH:MM, 다른 날이면 MM-DD HH:MM
-    var today = new Date(Date.now() + 9 * 3600000);
-    var sameDay = kst.getUTCFullYear() === today.getUTCFullYear() && kst.getUTCMonth() === today.getUTCMonth() && kst.getUTCDate() === today.getUTCDate();
-    return sameDay ? hh + ':' + min + ' KST' : mm + '-' + dd + ' ' + hh + ':' + min + ' KST';
+    // v58.80 (first-users R2-5): always MM-DD HH:MM — "가격 09:02 KST" beside a dated factor time read as undated.
+    return mm + '-' + dd + ' ' + hh + ':' + min + ' KST';
   } catch(e) { return raw; }
 };
 
@@ -5218,10 +5216,10 @@ function _aioRenderOperatorNote() {
   el.innerHTML =
     '<div class="aio-operator-note-card aio-operator-note-priority aio-market-sentence" data-source-kind="REFERENCE" data-operational-use="reference-only" data-sentence-day="' + escHtml(line.day) + '">' +
       '<div class="aio-operator-note-meta">' +
-        '<span class="aio-operator-note-kicker">오늘의 한 문장</span>' +
+        '<span class="aio-operator-note-kicker">오늘의 질문</span>' +
         '<span class="aio-operator-note-date">' + escHtml(md) + ' 작성' + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' + // v58.80 (first-users run-4): the writing day, not the close it reads
       '</div>' +
-      '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' + (function(v) { return v ? '<div class="aio-operator-note-verdict">' + escHtml(v) + '</div>' : ''; })(typeof window._aioSentenceVerdict === 'function' ? window._aioSentenceVerdict() : '') +
+      (function(v) { return v ? '<div class="aio-operator-note-verdict">' + escHtml(v) + '</div>' : ''; })(typeof window._aioSentenceVerdict === 'function' ? window._aioSentenceVerdict() : '') + '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' + // run-5 (owner decision delegated 2026-10-26): the verdict leads, the day's question follows under its own name
     '</div>';
   el.style.display = 'block';
 }
@@ -5710,7 +5708,7 @@ window._aioStartServerDataPolling = _aioStartServerDataPolling;
 async function _aioLoadHistory() {
   try {
     var url = './public-data/history.json'; // v57.61 (perf): no ?t= — the no-cache fetch revalidates (304) instead of re-downloading 3MB each hour
-    var pre = window.__aioHistoryPrefetch; window.__aioHistoryPrefetch = null; var r = await (pre ? pre.catch(function() { return fetch(url, { cache: 'no-cache' }); }) : fetch(url, { cache: 'no-cache' })); // the boot prefetch (index.html), once
+    var bp = window.__aioBootPrefetch && window.__aioBootPrefetch.history, pre = bp && !bp.taken ? (bp.taken = true, bp.res) : null; var r = await (pre ? pre.catch(function() { return fetch(url, { cache: 'no-cache' }); }) : fetch(url, { cache: 'no-cache' })); // the <head> boot prefetch (src/data/boot-prefetch.js), once
     if (!r.ok) return null;
     var arr = await r.json();
     if (!Array.isArray(arr)) return null;
@@ -13218,7 +13216,7 @@ function applyLiveQuotes(quotes) {
         el.textContent = (atomicDelta >= 0 ? '▲ ' : '▼ ')
           + Math.abs(atomicDelta).toLocaleString('ko-KR', { maximumFractionDigits: 2 })
           + ' (' + (atomicPct >= 0 ? '+' : '') + atomicPct.toFixed(2) + '%)';
-        el.style.color = atomicDelta >= 0 ? 'var(--green)' : 'var(--red)'; var _krIdxCard = el.closest && el.closest('.kr-idx-card'); if (_krIdxCard) { _krIdxCard.classList.toggle('up', atomicDelta > 0); _krIdxCard.classList.toggle('down', atomicDelta < 0); } // P1315: card direction follows the live delta, never static markup
+        el.style.color = atomicDelta >= 0 ? 'var(--dir-up)' : 'var(--dir-down)'; var _krIdxCard = el.closest && el.closest('.kr-idx-card'); if (_krIdxCard) { _krIdxCard.classList.toggle('up', atomicDelta > 0); _krIdxCard.classList.toggle('down', atomicDelta < 0); } // P1315: card direction follows the live delta, never static markup
         el.setAttribute('data-source-kind', 'live');
         el.setAttribute('data-operational-use', 'decision');
         el.setAttribute('data-source-label', q._source || 'live:yahoo');
@@ -13233,7 +13231,7 @@ function applyLiveQuotes(quotes) {
         var _usS = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';
         var extPctVal = q.extPct != null ? q.extPct : null;
         var extLabel = q.extSession === 'pre' ? 'Pre' : 'After';
-        var extColor = extPctVal != null ? (extPctVal >= 0 ? '#3dd68c' : '#ec5d5e') : 'var(--text-muted)';
+        var extColor = extPctVal != null ? (extPctVal >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
         if (_usS === 'pre' || _usS === 'after') {
           _extHeroEl.innerHTML = '<span class="lda-ext-close">종가 ' +
             price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>' +
@@ -13263,7 +13261,7 @@ function applyLiveQuotes(quotes) {
         if (_futD && _futD.price) {
           document.querySelectorAll(`[data-idx-futures="${q.symbol}"]`).forEach(el => {
             var fPct = _futD.pct != null ? _futD.pct : 0;
-            var fColor = fPct >= 0 ? '#3dd68c' : '#ec5d5e';
+            var fColor = fPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
             var sessLabel = _usS2 === 'pre' ? '프리' : _usS2 === 'after' ? '애프터' : '시간외';
             el.innerHTML = '<span style="font-size:12px;color:var(--blue-11);">선물(' + sessLabel + ')</span> ' +
               '<span style="font-size:12px;color:' + fColor + ';font-family:var(--font-mono);">' +
@@ -13286,7 +13284,7 @@ function applyLiveQuotes(quotes) {
     const cardId = snapMap[q.symbol];
     if (cardId) {
       const card = document.getElementById(cardId);
-      if (card) card.style.borderLeftColor = pct >= 0 ? 'var(--green-7)' : 'var(--orange-9)';
+      if (card) card.style.borderLeftColor = pct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     }
   });
   // VIX 별도 처리 — v45.6: _liveData/DATA_SNAPSHOT 폴백 추가

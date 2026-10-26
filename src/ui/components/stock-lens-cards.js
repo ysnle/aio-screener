@@ -14,6 +14,7 @@ import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stag
 import { themeProfile } from '../../domain/scenarios/exposures.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { buildCloseSeries } from '../../domain/market/close-series.js';
+import { MARKET_WINDOWS, closeChange } from '../../domain/market/market-windows.js';
 import { signedText } from '../../domain/shared/number.js';
 import { sharedArtifactState } from '../../data/shared-artifacts.js';
 
@@ -50,7 +51,11 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const spx = buildCloseSeries(root?._aioHistory || [], 'spx');
   const barsIn = (Array.isArray(bars) && bars.length ? bars : root?._aioEntitySummaries?.[sym]?.history || []).map((bar) => ({ date: isoOf(bar), close: bar?.close }));
   const beta = market === 'US' ? dailyBeta(barsIn, spx) : null;
-  const benchmarkRet3m = spx.length > 64 ? (spx.at(-1).value / spx.at(-64).value - 1) * 100 : null;
+  // v58.80 run-5 (skeptic #11): the stock's 3-month return is an adjusted close (dividends in), so its benchmark is SPY's
+  // adjusted return from the same factor session — the basis the 지수 대비 card above already uses (F10). Without that row
+  // the S&P 500 index window (MARKET_WINDOWS.quarter) stands in and is named as the index.
+  const spyRow = market === 'US' && sym !== 'SPY' ? rows.find((item) => item?.sym === 'SPY' && item.factorSessionDate && item.factorSessionDate === row?.factorSessionDate && Number.isFinite(Number(item.ret3m))) : null;
+  const benchmark = spyRow ? { pct: Number(spyRow.ret3m), label: 'S&P 500(SPY, 배당 포함)' } : { pct: closeChange(root?._aioHistory || [], 'spx', MARKET_WINDOWS.quarter)?.pct ?? null, label: 'S&P 500 지수' };
   const sicCode = String(root?._aioSecIssuerSic?.[sym] || '').split('|')[0] || null;
   const lens = lensIdFor({ sic: sicCode, themeIds, sector: row?.sector || null });
   const trailing = buildTrailingYearRead(quarters);
@@ -70,7 +75,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
     sym, market, row, history, peers, strengths, stage, themeList, situation, schedule, levels, consensus, trailing,
     lensRead: history.length ? buildLensRead({ lens, history, trailing, quarterRead, marginCash, rd: buildRdRead(history), consensus, surprise: buildSurpriseRead(consensus) }) : null,
     thesis: history.length ? buildThesisFrame({ implied, trailing, marginCash, consensus, schedule, levels, peerPe: pe ? { value: pe.value, median: pe.median } : null, situation }) : null,
-    watch: buildWatchList({ schedule, consensus, trailing, row, stage, levels, benchmarkRet3m }),
+    watch: buildWatchList({ schedule, consensus, trailing, row, stage, levels, benchmarkRet3m: benchmark.pct, benchmarkLabel: benchmark.label }),
     link: buildMarketLink({ regime, scenario, stage, themeLabel: themeList[0]?.label || null, tags })
   };
 }

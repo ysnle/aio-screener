@@ -12,6 +12,7 @@ import { selectProducedRotation } from '../../domain/themes/produced-rotation.js
 import { RRG_QUADRANT_WORDS, RRG_RATIO_SESSIONS, RRG_MOMENTUM_LAG } from '../../domain/themes/rrg.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
+import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { stageChoiceText, LEAD_CONFIRM_MET, ABOVE50_FLOOR } from '../../domain/scenarios/theme-playbook.js';
 
 const CREDIT_CONDITION = '신용 안정';
@@ -27,7 +28,7 @@ function stageChoiceTable(doc, stage, list) {
     const favored = list.filter((row) => row.favored.includes(key)).length;
     if (favored) line.dataset.favored = 'true';
     line.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
-    if (favored) line.append(el(doc, 'span', favored === list.length ? '비용이 작은 쪽' : `비용이 작은 쪽, ${favored}개 테마`, 'xr-choice-flag'));
+    if (favored) line.append(el(doc, 'span', favored === list.length ? CHOICE_WORDS.favored : `${CHOICE_WORDS.favored}, ${favored}개 테마`, 'xr-choice-flag'));
     table.append(line);
   }
   wrap.append(table);
@@ -351,11 +352,11 @@ function themeCard(doc, root, row, screenerSector = null, { change = null, teach
     const line = el(doc, 'div', null, 'xr-choice');
     if (row.favored.includes(key)) line.dataset.favored = 'true';
     line.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
-    if (row.favored.includes(key)) line.append(el(doc, 'span', '비용이 작은 쪽', 'xr-choice-flag'));
+    if (row.favored.includes(key)) line.append(el(doc, 'span', CHOICE_WORDS.favored, 'xr-choice-flag'));
     table.append(line);
   }
   if (ownChoices.length) card.append(table);
-  card.append(el(doc, 'p', `비용이 작은 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'} — ${row.favoredWhy}`, 'xr-reading'));
+  card.append(el(doc, 'p', `${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'} — ${row.favoredWhy}`, 'xr-reading'));
   return themeCardTail(doc, root, row, card, screenerSector);
 }
 
@@ -560,7 +561,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     const choiceLine = stage === 'held' ? '' : [...counts].sort((a, b) => b[1] - a[1]).map(([key, n]) => `${key ? key.split('+').map((k) => CHOICES[k].split(' (')[0]).join('·') : '보류'} ${n}개`).join(', ');
     const definition = THEME_STATES[stage]?.match(/\((.*)\)$/)?.[1];
     stageCell.append(el(doc, 'span', `${stage === 'held' ? '판정 보류' : stageName(stage)}, ${list.length}개`, 'tp-stage-name'),
-      el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인).'}${choiceLine ? ` 조건별 득실로 비용이 작은 쪽: ${choiceLine}.` : ''}`, 'tp-stage-note'));
+      el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인).'}${choiceLine ? ` 조건별 득실로 ${CHOICE_WORDS.favored}: ${choiceLine}.` : ''}`, 'tp-stage-note'));
     if (stage !== 'held') {
       const fold = el(doc, 'details', null, 'tp-stage-choices-fold');
       fold.dataset.stage = stage;
@@ -633,7 +634,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   tableScroll.setAttribute('aria-label', '테마 단계 표, 가로 스크롤');
   tableScroll.tabIndex = 0;
   tableScroll.append(table);
-  const tableHelp = (`테마 이름을 누르면 근거·핵심 논리·자기만의 득실이 펼쳐집니다. 단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계(최근 10거래일 기록 안), '바뀜'은 최근 3거래일 안에 단계가 달라진 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다. 마지막 거래일에 바뀐 테마와 '다른 선택'(같은 단계 다수와 비용이 작은 쪽이 다름)은 처음부터 펼쳐 둡니다(최대 4개).`);
+  const tableHelp = (`테마 이름을 누르면 근거·핵심 논리·자기만의 득실이 펼쳐집니다. 단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계(최근 10거래일 기록 안), '바뀜'은 최근 3거래일 안에 단계가 달라진 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다. 마지막 거래일에 바뀐 테마와 '다른 선택'(같은 단계 다수와 ${CHOICE_WORDS.favored}이 다름)은 처음부터 펼쳐 둡니다(최대 4개).`);
   // v58.75 (persona review): where the sector rotation chart and the stage point opposite ways, one fact line says why.
   const conflicts = playbook.themes.map((row) => ({ row, conflict: rrgStageConflict(root, row) })).filter((item) => item.conflict);
   // v58.79: the list sits in one fold under the table; the fold's summary carries the count.
@@ -695,7 +696,7 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
     // v58.79: the stage is already in the line above; the returns stay and the stage's comparison basis is the hover.
     Object.assign(el(doc, 'p', [row.ret5d != null ? `5거래일 ${pct(row.ret5d)}` : null, `1개월 ${pct(row.ret1m)}`, row.ret6m != null ? `6개월 ${pct(row.ret6m)}` : null, row.fit].filter(Boolean).join(', '), 'xr-basis'), { title: row.stateLabel }),
     ...(conflict ? [Object.assign(el(doc, 'p', `RRG ${conflict.etf} '${conflict.word}', 단계 '${conflict.stage}'`, 'xr-reading tp-rrg-fact'), { title: rrgBasisText(row.relative?.name) })] : []),
-    el(doc, 'p', `거시 영향: ${row.windText}. 비용이 작은 쪽: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
+    el(doc, 'p', `거시 영향: ${row.windText}. ${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
     el(doc, 'p', row.above50 === 0 ? '구성 종목 중 50일선 위 종목이 없어, 아래 목록은 추세가 되살아나는지 확인하는 용도로 봅니다.' : row.above50 != null ? `아래 구성 종목에서 50일선 위 종목(${row.above50}%)부터 차트·재무로 확인합니다.` : '아래 구성 종목·대표 종목은 차트·재무로 직접 확인합니다.', 'xr-caveat'), links);
   return row;

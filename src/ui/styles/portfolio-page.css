@@ -136,3 +136,5 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
   .sh-portfolio-entry-part-row > button { min-height: 44px; }
 }
 @media (hover: none) and (pointer: coarse) { #sidebar-kbd-btn { display: none; } } /* no keyboard shortcuts on a phone */
+/* v58.80 run-5 (phone #9): the row just added is marked for a moment after the page scrolls to it. */
+#page-portfolio tr.is-just-added > td { background: var(--surface-2, rgba(0, 0, 0, 0.05)); transition: background 0.6s; }

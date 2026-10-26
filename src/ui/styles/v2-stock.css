@@ -11,8 +11,8 @@
 #page-ticker .sh-ticker-box { margin-left: 0; text-align: left; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 #page-ticker .v2-stock-price { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 #page-ticker #ticker-hero-chg { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-#page-ticker #ticker-hero-chg.up { color: var(--data-green); }
-#page-ticker #ticker-hero-chg.down { color: var(--data-red); }
+#page-ticker #ticker-hero-chg.up { color: var(--dir-up); }
+#page-ticker #ticker-hero-chg.down { color: var(--dir-down); }
 #page-ticker .v2-stock-ext { font-size: 12px; color: var(--text-muted); }
 #page-ticker .v2-stock-ext:empty { display: none; }
 #page-ticker #ticker-hero-pnl { order: 4; font-size: 12px; color: var(--text-muted); }
@@ -248,8 +248,8 @@
 .v2-themes-top__name > b { font-weight: 600; overflow-wrap: anywhere; }
 .v2-themes-top__theme { font-size: 12px; color: var(--text-muted); }
 .v2-themes-top__value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
-.v2-themes-top__value.is-up { color: var(--data-green); }
-.v2-themes-top__value.is-down { color: var(--data-red); }
+.v2-themes-top__value.is-up { color: var(--dir-up); }
+.v2-themes-top__value.is-down { color: var(--dir-down); }
 .v2-themes-top > .sx-row { padding: 13px 16px; font-size: 12px; }
 /* The sections under the verdict: soft cards instead of hairline panels. */
 #page-themes > .aio-section > .sh-themes-panel, #page-themes > .aio-section.sector-map, #page-themes > .aio-section.theme-strength, #page-themes > .aio-section.capex-flow:not(:empty),

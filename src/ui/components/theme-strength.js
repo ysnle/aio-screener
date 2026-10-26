@@ -10,7 +10,7 @@ import { el } from './dom.js';
 import { asOfChip, closeChipText, markFrame } from './section-frame.js';
 import { attachScrollCue } from './scroll-cue.js';
 import { shortDate } from '../../domain/content/date-labels.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 import { screenerRowsState } from '../../data/shared-artifacts.js';
 import { dataStateText } from '../../domain/content/data-state.js';
 
@@ -129,12 +129,12 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     compare.addEventListener('click', () => onCompare(group.id)); nameCell.append(compare);
     tr.append(nameCell);
     // v57.81: a week that fell beyond the group's typical weekly move (group.recent, recent-check.js) is said in the title.
-    const week = el(doc, 'td', pct(group.ret5d ?? null), `is-num${group.ret5d == null ? '' : group.ret5d >= 0 ? ' is-up' : ' is-down'}`);
+    const week = el(doc, 'td', pct(group.ret5d ?? null), `is-num${group.ret5d == null ? '' : ({ up: ' is-up', down: ' is-down' }[directionOf(group.ret5d)] || '')}`);
     if (group.recent?.broken) { week.title = '평소 1주 움직임의 2배를 넘는 하락'; week.dataset.recentBreak = 'true'; }
     if (model.sortKey === 'ret5d') week.classList.add('is-sorted');
     tr.append(week);
-    for (const key of ['ret10d', 'ret1m', 'ret3m']) tr.append(el(doc, 'td', pct(group[key]), `is-num${key === model.sortKey ? ' is-sorted' : ''}${group[key] == null ? '' : group[key] >= 0 ? ' is-up' : ' is-down'}${key === 'ret3m' ? ' is-quiet' : ''}`));
-    if (showVs) tr.append(el(doc, 'td', group.vsBenchmark == null ? '—' : `${pct(group.vsBenchmark)}p`, `is-num${group.vsBenchmark >= 0 ? ' is-up' : ' is-down'}`));
+    for (const key of ['ret10d', 'ret1m', 'ret3m']) tr.append(el(doc, 'td', pct(group[key]), `is-num${key === model.sortKey ? ' is-sorted' : ''}${group[key] == null ? '' : ({ up: ' is-up', down: ' is-down' }[directionOf(group[key])] || '')}${key === 'ret3m' ? ' is-quiet' : ''}`));
+    if (showVs) tr.append(el(doc, 'td', group.vsBenchmark == null ? '—' : `${pct(group.vsBenchmark)}p`, `is-num${({ up: ' is-up', down: ' is-down' }[directionOf(group.vsBenchmark)] || '')}`));
     tr.append(el(doc, 'td', group.above50Pct == null ? '—' : `${group.above50Pct}%`, 'is-num'));
     const dir = DIRECTION[group.direction];
     const dirCell = el(doc, 'td');
@@ -243,7 +243,7 @@ function renderTopSubthemes(doc, host, model, basis) {
     const dir = DIRECTION[group.direction];
     li.append(el(doc, 'span', String(group.rank), 'v2-themes-top__rank'), name,
       dir && !basis?.stale ? el(doc, 'span', directionLabel(group, { short: true }), `sx-chip sx-chip--sm ${directionLabel(group) === dir[0] ? DIRECTION_CHIP[group.direction] || 'sx-chip--neutral' : 'sx-chip--neutral'}`) : el(doc, 'span', ''),
-      el(doc, 'b', pct(group[model.sortKey]), `v2-themes-top__value ${group[model.sortKey] >= 0 ? 'is-up' : 'is-down'}`));
+      el(doc, 'b', pct(group[model.sortKey]), `v2-themes-top__value ${({ up: 'is-up', down: 'is-down' }[directionOf(group[model.sortKey])] || '')}`));
     list.append(li);
   }
   host.append(list);

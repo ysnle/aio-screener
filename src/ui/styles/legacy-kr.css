@@ -40,8 +40,8 @@
 #kr-theme-detail-content .krl-d-stat-v.is-fig { font-family: var(--font-mono); }
 #kr-theme-detail-content .krl-d-stat-name { font-size: var(--fs-base); font-weight: 800; }
 #kr-theme-detail-content .krl-d-stat-pct { font-size: var(--fs-xs); }
-#kr-theme-detail-content :is(.krl-d-stat-name, .krl-d-stat-pct).is-up { color: var(--data-green); }
-#kr-theme-detail-content :is(.krl-d-stat-name, .krl-d-stat-pct).is-down { color: var(--data-red); }
+#kr-theme-detail-content :is(.krl-d-stat-name, .krl-d-stat-pct).is-up { color: var(--dir-up); }
+#kr-theme-detail-content :is(.krl-d-stat-name, .krl-d-stat-pct).is-down { color: var(--dir-down); }
 #kr-theme-detail-content .krl-d-cat { background: rgba(var(--ink-rgb),0.06);  border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 14px; }
 #kr-theme-detail-content .krl-d-cat-l { font-size: var(--fs-xs); font-weight: 700; color: var(--accent); margin-bottom: 4px; }
 #kr-theme-detail-content .krl-d-cat-t { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.6; }

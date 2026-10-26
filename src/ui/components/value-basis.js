@@ -5,6 +5,7 @@
 // stay off the face of the screen (P1505); the card is the hover place the owner allowed for them.
 
 import { placeTooltipBody } from './term-tooltip.js';
+import { claimPopover, releasePopover, watchScroll, hoverSuppressed } from './popover.js';
 import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession } from '../../domain/market/market-calendar.js';
 
 const DATE_ATTRS = ['data-observed-at', 'data-source-ts', 'data-as-of'];
@@ -94,6 +95,7 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     anchor = null;
     openedBy = null;
     card.hidden = true;
+    releasePopover(doc, hide);
   };
 
   // U05: content is rebuilt on every show, so a reopened card reflects the element's current value and date.
@@ -121,9 +123,10 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     describe(el, card.id, true);
     anchor = el;
     openedBy = via;
+    claimPopover(doc, hide);
   };
 
-  const onOver = (event) => { if (event.pointerType === 'touch') return; const el = target(event); if (el) show(el, 'hover'); };
+  const onOver = (event) => { if (event.pointerType === 'touch' || hoverSuppressed(root)) return; const el = target(event); if (el) show(el, 'hover'); };
   // v57.81 (phone/iPad audit): a tap fires pointerout right after pointerup (relatedTarget null), which closed the
   // card inside the same tap, so no basis was readable on touch. Touch pointerout is ignored; a touch card closes on
   // the next pointerdown outside its element, on scroll, or on Escape. Mouse hover and keyboard focus are unchanged.
@@ -148,6 +151,7 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
   };
   const onKey = (event) => { if (event.key === 'Escape' && anchor) { event.preventDefault(); hide(); } };
 
+  watchScroll(root);
   doc.addEventListener('pointerover', onOver);
   doc.addEventListener('pointerout', onOut);
   doc.addEventListener('focusin', onFocus);

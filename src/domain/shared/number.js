@@ -15,6 +15,14 @@ export function signedText(value, digits = 1, unit = '') {
   return `${Number(text) === 0 ? '' : number > 0 ? '+' : '-'}${text}${unit}`;
 }
 
+// v58.80 (first-users R2-27): the colour follows the printed sign — a change that rounds to zero ("0.0%") is neither
+// rising red nor falling blue. Same rounding as signedText; null for a missing value.
+export function directionOf(value, digits = 1) {
+  const number = typeof value === 'number' ? value : value == null || value === '' ? NaN : Number(value);
+  if (!Number.isFinite(number) || Number(Math.abs(number).toFixed(digits)) === 0) return null;
+  return number > 0 ? 'up' : 'down';
+}
+
 // v58.74 (text audit): job counts arrive in thousands and were printed as "100천 명", "25천 명" and "5.1만 명" in one card.
 // Under 10천 the count stays in 천; from there it reads in 만 with at most one decimal.
 export function peopleText(thousands, { sign = false } = {}) {

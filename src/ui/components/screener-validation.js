@@ -228,7 +228,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
         track.append(fill);
         const legs = el(doc, 'span', null, 'scr-vh-legs');
         legs.append(el(doc, 'span', `상위 ${pct(point.top)}`), el(doc, 'span', `하위 ${pct(point.bottom)}`));
-        line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, legs, el(doc, 'span', signedPp(point.gross), `scr-vh-ic ${up ? 'sx-up' : 'scr-tone-burden'}`));
+        line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, legs, el(doc, 'span', signedPp(point.gross), `scr-vh-ic ${up ? 'scr-tone-up' : 'scr-tone-burden'}`));
         card.append(line);
       }
       card.append(el(doc, 'p', `막대 = 그 시점 상위 20% 평균 − 하위 20% 평균(비용 전). 위의 평균 ${signedPp(read.net)}은 시점마다 바뀐 종목만큼의 거래비용을 뺀 값입니다.`, 'sx-meta scr-vh-note'));
@@ -255,7 +255,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
         fill.style.width = `${Math.min(50, Math.abs(point.ic) / maxIc * 50).toFixed(1)}%`;
         fill.style[point.ic >= 0 ? 'left' : 'right'] = '50%';
         track.append(fill);
-        line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, el(doc, 'span', signedText(point.ic, 3), `scr-vh-ic ${point.ic >= 0 ? 'sx-up' : 'scr-tone-burden'}`));
+        line.append(el(doc, 'span', point.date, 'scr-vh-date'), track, el(doc, 'span', signedText(point.ic, 3), `scr-vh-ic ${point.ic >= 0 ? 'scr-tone-up' : 'scr-tone-burden'}`));
         body.append(line);
       }
       fold.append(body);

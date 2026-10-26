@@ -9,6 +9,7 @@ import { crossroadsForRoot } from './macro-crossroads.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
 import { readMarketRegime } from './market-regime.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
+import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
 import { signedText, usdKoreanText } from '../../domain/shared/number.js';
@@ -180,7 +181,7 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
   const tone = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립', unknown: '보류' };
   const rows = [...model.items].sort((a, b) => (b.id === model.leadId) - (a.id === model.leadId) || (b.id === model.altId) - (a.id === model.altId) || b.met / b.total - a.met / a.total).slice(0, 6);
   const dots = (item) => Array.from({ length: item.total }, (_, i) => `<span class="aav-dot${i < item.met ? ' is-met' : ''}"></span>`).join('');
-  const { figure, body } = frame(doc, '향후 시나리오 — 조건 충족, 시장 가격, 그 시나리오에서 비용이 작은 쪽',
+  const { figure, body } = frame(doc, `향후 시나리오 — 조건 충족, 시장 가격, 그 시나리오에서 ${CHOICE_WORDS.favored}`,
     `${model.asOf || ''} 관측 기준, 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.when || model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
   body.innerHTML = `<table class="aav-table">${rows.map((item) => `<tr${item.id === model.leadId ? ' class="aav-lead"' : ''}><td class="aav-title">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td class="aav-dots" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span class="aav-count">${item.met}/${item.total}</span></td><td class="aav-tone">${esc(tone[item.pricing.tone] || '보류')}</td><td class="aav-favored">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(', '))}</td></tr>`).join('')}</table>`;
   return figure;

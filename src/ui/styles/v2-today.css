@@ -81,7 +81,7 @@
 
 /* The hub tabs float right at the top (soft-ui §2); the note card keeps its own box beside them instead of running under them. */
 #page-home > #home-operator-note { contain: layout; }
-#page-home #home-operator-note .aio-operator-note-verdict { margin-top: 8px; font-size: var(--fs-sm, 13px); color: var(--text-secondary); line-height: 1.5; }
+#page-home #home-operator-note .aio-operator-note-verdict { margin: 6px 0 6px; font-size: var(--fs-sm, 13px); font-weight: 600; color: var(--text-primary); line-height: 1.5; } /* run-5: the verdict leads the question */
 /* The page head keeps the 34px title; the operator's one dated sentence above it reads as a quiet note card. */
 #page-home #home-operator-note .aio-operator-note-card { border-radius: 12px !important; box-shadow:none !important; padding: 18px 22px !important; } /* soft-ui §3 sets the hero shadow with !important */
 
@@ -122,8 +122,8 @@
 #page-home #home-kpi-strip .kpi-fallback-note { display: inline-flex; align-self: flex-start; align-items: center; min-height: 22px; padding: 0 9px; border-radius: 999px; background: var(--sx-warn-bg); color: var(--amber-12); font-size: 12px; font-weight: 600; }
 #page-home .kpi-trend { display: flex; flex-direction: column; align-items: stretch; gap: 4px; margin-top: auto; padding-top: 10px; }
 #page-home .kpi-trend .kpi-trend-line { width: 100%; height: 36px; }
-#page-home .kpi-trend-line path.is-up { stroke: var(--data-green); }
-#page-home .kpi-trend-line path.is-down { stroke: var(--data-red); }
+#page-home .kpi-trend-line path.is-up { stroke: var(--dir-up); }
+#page-home .kpi-trend-line path.is-down { stroke: var(--dir-down); }
 #page-home .kpi-trend-line path.is-neutral { stroke: var(--text-secondary); }
 #page-home .kpi-trend-caption { font-size: 12px; color: var(--text-muted); }
 #page-home .kpi-trend:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 8px; }
@@ -170,8 +170,8 @@
   font-size: 12px; font-weight: 700; background: var(--sx-ink-a05); color: var(--text-secondary);
 }
 #page-home #home-daily-loop .daily-name-day:empty { background: none; }
-#page-home #home-daily-loop .daily-name-day.is-up { background: var(--sx-good-bg); color: var(--green-12); }
-#page-home #home-daily-loop .daily-name-day.is-down { background: var(--sx-down-bg); color: var(--red-12); }
+#page-home #home-daily-loop .daily-name-day.is-up { background: var(--dir-up-bg); color: var(--dir-up-strong); }
+#page-home #home-daily-loop .daily-name-day.is-down { background: var(--dir-down-bg); color: var(--dir-down-strong); }
 #page-home #home-daily-loop .daily-name-notes { grid-column: 1 / 3; grid-row: 2; font-size: 12px; color: var(--text-secondary); }
 #page-home #home-daily-loop .daily-schedule { gap: 0; }
 #page-home #home-daily-loop .daily-event {
@@ -263,8 +263,8 @@
 #page-briefing .home-sector-bars li:hover, #page-briefing .home-sector-bars li:focus-visible { background: var(--sx-ink-a03); outline: none; }
 #page-briefing .home-sector-bar { height: 10px; background: none; }
 #page-briefing .home-sector-bar > span { border-radius: 999px; }
-#page-briefing .home-sector-bars .is-up .home-sector-value { color: var(--data-green); }
-#page-briefing .home-sector-bars .is-down .home-sector-value { color: var(--data-red); }
+#page-briefing .home-sector-bars .is-up .home-sector-value { color: var(--dir-up); }
+#page-briefing .home-sector-bars .is-down .home-sector-value { color: var(--dir-down); }
 #page-briefing .home-sector-value { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
 #page-briefing .home-sector-quadrant { font-size: 12px; color: var(--text-muted); text-align: right; }
 #page-briefing .sector-moves-basis { margin-top: 10px; font-size: 12px; color: var(--text-muted); }
@@ -465,8 +465,8 @@
 #page-home .home-index-name strong { font-size: 14px; font-weight: 700; }
 #page-home .home-index-sym { font-size: 12px; color: var(--text-muted); }
 #page-home .home-index-change { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text-secondary); }
-#page-home .home-index-change.is-up, #page-home .home-index-last.is-up { color: var(--data-green); }
-#page-home .home-index-change.is-down, #page-home .home-index-last.is-down { color: var(--data-red); }
+#page-home .home-index-change.is-up, #page-home .home-index-last.is-up { color: var(--dir-up); }
+#page-home .home-index-change.is-down, #page-home .home-index-last.is-down { color: var(--dir-down); }
 #page-home .home-index-plot { display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 6px; height: 96px; }
 #page-home .home-index-plot.is-empty { display: block; border-radius: 8px; background: var(--sx-ink-a03, transparent); }
 #page-home .home-index-fallback { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 8px 10px; font-size: 12px; color: var(--sx-ink-2, inherit); }
@@ -478,10 +478,10 @@
 #page-home .home-index-prev-tag { position: absolute; left: 0; transform: translateY(-50%); padding: 1px 3px; border-radius: 3px; background: var(--bg-card); font-size: 12px; line-height: 1; color: var(--text-muted); pointer-events: none; }
 #page-home .home-index-prev { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
 #page-home .home-index-wick { stroke-width: 1; }
-#page-home .home-index-wick.is-up { stroke: var(--data-green); }
-#page-home .home-index-wick.is-down { stroke: var(--data-red); }
-#page-home .home-index-body.is-up { fill: var(--data-green); }
-#page-home .home-index-body.is-down { fill: var(--data-red); }
+#page-home .home-index-wick.is-up { stroke: var(--dir-up); }
+#page-home .home-index-wick.is-down { stroke: var(--dir-down); }
+#page-home .home-index-body.is-up { fill: var(--dir-up); }
+#page-home .home-index-body.is-down { fill: var(--dir-down); }
 #page-home .home-index-axis { display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; text-align: right; }
 #page-home .home-index-last { font-weight: 700; }
 #page-home .home-index-times { position: relative; height: 16px; margin-right: 58px; font-size: 12px; line-height: 16px; color: var(--text-muted); }

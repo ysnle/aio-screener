@@ -7,22 +7,14 @@
  * changed (textContent stays the same), only prose is marked (p · li · dd — not headings, tables, buttons or chips),
  * and a term without a glossary entry is left alone.
  */
-const EDGE = 8;
+import { POPOVER_EDGE as EDGE, placePopover, claimPopover, releasePopover, watchScroll, hoverSuppressed } from './popover.js';
 
 /**
  * Live review 2026-10-14: the popover opens below the term (the finger covers what is above it) and moves above only
  * when there is no room below; with room on neither side it takes the larger side, clamped inside the viewport.
+ * v58.80: the rule lives in popover.js, shared with the other floating layers.
  */
-export function placeTermPopover(anchorRect, size, viewport) {
-  const width = Math.min(size.width, viewport.width - EDGE * 2);
-  const left = Math.max(EDGE, Math.min(anchorRect.left + anchorRect.width / 2 - width / 2, viewport.width - width - EDGE));
-  const below = anchorRect.bottom + 6;
-  const above = anchorRect.top - size.height - 6;
-  const roomBelow = viewport.height - EDGE - below;
-  const top = roomBelow >= size.height ? below : above >= EDGE ? above
-    : roomBelow >= anchorRect.top - EDGE ? Math.min(below, viewport.height - size.height - EDGE) : EDGE;
-  return { left: Math.round(left), top: Math.round(Math.max(EDGE, top)), width: Math.round(width), side: top >= anchorRect.bottom ? 'below' : 'above' };
-}
+export const placeTermPopover = placePopover;
 
 // [text as written on screen, glossary term]. Longer forms first so 'Forward PER' is not read as 'PER'.
 export const TERM_MARKS = Object.freeze([
@@ -72,7 +64,31 @@ export const TERM_MARKS = Object.freeze([
   ['FOMC', 'FOMC'],
   ['ATR', 'ATR'],
   ['EPS', 'EPS'],
-  ['ETF', 'ETF']
+  ['ETF', 'ETF'],
+  // v58.80 first-users run-5 (newcomer): words met unmarked on 오늘 · 시장 상태 · 종목 · 포트폴리오.
+  ['주도 영역', '주도 영역 (AI·반도체)'],
+  ['주도주', '주도주(Leader)'],
+  ['매도 소진', '매도 소진'],
+  ['모멘텀', '모멘텀(Momentum)'],
+  ['상대강도', '상대강도(RS)'],
+  ['셋업', '셋업 (매매 셋업)'],
+  ['피벗', '피벗 (피벗 가격)'],
+  ['가이던스', '가이던스(Guidance)'],
+  ['잉여현금흐름', '잉여현금흐름(FCF)'],
+  ['FCF', '잉여현금흐름(FCF)'],
+  ['듀폰', '듀폰 분해'],
+  ['역 DCF', '역 DCF'],
+  ['할인율', '할인율'],
+  ['영구 성장률', '영구 성장률'],
+  ['10-K', '10-K / 10-Q'],
+  ['10-Q', '10-K / 10-Q'],
+  ['13F', '13F (기관 보유 공시)'],
+  ['SEC', 'SEC (미국 증권거래위원회)'],
+  ['컨센서스', '컨센서스 (실적 전망치)'],
+  ['허핀달', '허핀달 지수 (HHI)'],
+  ['실질 종목 수', '실질 종목 수'],
+  ['CAPM', 'CAPM (자본자산가격결정모형)'],
+  ['VCP', 'VCP 패턴']
 ]);
 
 const PROSE = 'p, li, dd';
@@ -109,7 +125,14 @@ export function markTerms(page, glossary, documentRef = page?.ownerDocument) {
   const parents = new Map();
   const parentInfo = (parent) => {
     let info = parents.get(parent);
-    if (!info) { info = { prose: !parent.closest(SKIP) && !!parent.closest(PROSE), length: null, laidOut: null }; parents.set(parent, info); }
+    if (!info) {
+      // v58.80: a flex or grid parent turns each text run into its own box, so a mark there is a small standalone target,
+      // not a word in a sentence (the 근거 line of 테마와 섹터 read 'ETF' as an 18 px button).
+      const view = parent.ownerDocument?.defaultView;
+      const display = typeof view?.getComputedStyle === 'function' ? view.getComputedStyle(parent).display : '';
+      info = { prose: !parent.closest(SKIP) && !!parent.closest(PROSE) && !/flex|grid/.test(display), length: null, laidOut: null };
+      parents.set(parent, info);
+    }
     return info;
   };
   // A sentence, not a short label span ('VIX 18.2'): only then is a small inline target exempt (WCAG 2.5.8).
@@ -165,12 +188,13 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     if (!pop) return;
     const hadFocus = pop.contains(documentRef.activeElement);
     pop.remove(); pop = null;
-    documentRef.body?.classList.remove('aio-term-pop-open');
+    releasePopover(documentRef, closeQuiet);
     const mark = opener;
     opener = null;
     mark?.setAttribute('aria-expanded', 'false');
     if (restore && hadFocus && mark?.isConnected) mark.focus({ preventScroll: true });
   };
+  const closeQuiet = () => close({ restore: false });
   const open = (mark, { focus = true } = {}) => {
     if (pop && opener === mark) return;
     close({ restore: false });
@@ -205,7 +229,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     opener = mark;
     mark.setAttribute('aria-expanded', 'true');
     documentRef.body.append(pop);
-    documentRef.body.classList.add('aio-term-pop-open');
+    claimPopover(documentRef, closeQuiet);
     const viewport = { width: root.innerWidth || 1024, height: root.innerHeight || 768 };
     // The width is fixed first so the measured height is the wrapped height the popover will really have.
     pop.style.width = `${Math.min(320, viewport.width - EDGE * 2)}px`;
@@ -218,7 +242,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
   // (without moving focus) and leaving both the term and the popover closes it; touch and keyboard keep tap/Enter.
   let hoverTimer = null;
   const onOver = (event) => {
-    if (event.pointerType !== 'mouse') return;
+    if (event.pointerType !== 'mouse' || hoverSuppressed(root)) return;
     const mark = event.target.closest?.('.aio-term');
     if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
     if (mark) hoverTimer = setTimeout(() => { hoverTimer = null; open(mark, { focus: false }); }, 250);
@@ -234,6 +258,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     const mark = (event.key === 'Enter' || event.key === ' ') && event.target.closest?.('.aio-term');
     if (mark) { event.preventDefault(); open(mark); }
   };
+  watchScroll(root);
   const observer = new MutationObserver(schedule);
   const content = documentRef.querySelector('.content') || documentRef.body;
   observer.observe(content, { childList: true, subtree: true, characterData: true });

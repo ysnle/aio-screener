@@ -99,7 +99,7 @@ function renderPortfolioHero(documentRef, surface) {
   }
   if (pnlElement) {
     pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl, surface.baseCurrency || surface.declaredBaseCurrency || 'USD')}`;
-    pnlElement.style.color = totalPnl == null ? 'var(--text-dim)' : totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+    pnlElement.style.color = totalPnl == null ? 'var(--text-dim)' : totalPnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     pnlElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
     pnlElement.setAttribute('data-source-kind', totalPnl == null ? 'unavailable' : 'portfolio-state');
     pnlElement.setAttribute('data-source-label', totalPnl == null ? 'portfolio-pnl-unavailable' : 'native-portfolio-totals');
@@ -325,9 +325,9 @@ function renderPortfolioSurface(documentRef, page, surface) {
   const heroEmptyLine = documentRef?.getElementById('pf-hero-empty');
   if (heroEmptyLine) heroEmptyLine.hidden = !heroEmpty;
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
-  setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${signedText(surface.totalPnlPct, 1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
-  setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
-  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
+  setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${signedText(surface.totalPnlPct, 1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');
+  setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');
+  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');
   // First-users run 4: with no day move yet the line read '1 종목, 오늘 — (—)'; it hides until a move exists.
   const dailyLine = documentRef?.getElementById('pf-daily-line');
   if (dailyLine) dailyLine.hidden = surface.dailyChange == null;
@@ -565,6 +565,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     row.className = 'pfp-row';
     row.setAttribute('data-action', 'showTicker');
     row.setAttribute('data-arg', symbol);
+    row.dataset.holding = symbol;
     const tickerCell = documentRef.createElement('td');
     tickerCell.setAttribute('headers', 'pf-th-ticker');
     tickerCell.className = 'pfp-ticker';
@@ -627,15 +628,15 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     row.appendChild(priceCellNode);
     const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'pfp-cell is-bold');
     if (pnl == null) pnlCell.title = '손익 보류, 원가/시세 통화 불일치 또는 시세 미수신';
-    pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--green)' : 'var(--red)';
+    pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     row.appendChild(pnlCell);
     const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${signedText(pnlPct, 1)}%`, 'pfp-cell is-bold');
-    pctCell.style.color = pnlPct == null ? 'var(--text-muted)' : pnlPct >= 0 ? 'var(--green)' : 'var(--red)';
+    pctCell.style.color = pnlPct == null ? 'var(--text-muted)' : pnlPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     row.appendChild(pctCell);
     // v58.56: today's move of the holding — only from a live quote with a stated basis (the hero's 오늘 uses the same rule).
     const dayPct = rowData.dailyPctEligible && Number.isFinite(rowData.dailyPct) ? rowData.dailyPct : null;
     const dayCell = tableCell(documentRef, 'pf-th-day', dayPct == null ? '—' : `${signedText(dayPct, 2)}%`, 'pfp-cell');
-    dayCell.style.color = dayPct == null ? 'var(--text-muted)' : dayPct >= 0 ? 'var(--green)' : 'var(--red)';
+    dayCell.style.color = dayPct == null ? 'var(--text-muted)' : dayPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     if (dayPct == null) dayCell.title = rowData.sourceKind === 'completed-close' ? `${rowData.closeDate || ''} 종가로 평가 중 — 오늘 변화는 실시간 시세를 받으면 표시합니다`.trim() : '실시간 시세를 받으면 표시합니다';
     row.appendChild(dayCell);
     // P1176 (22 PFR01): `finite(0)`은 0이라 미설정 표시를 통과하지 못했다. legacy 테이블은 이미
@@ -652,7 +653,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
       const upsideNode = documentRef.createElement('div');
       upsideNode.textContent = `${signedText(upside, 1)}%`;
       upsideNode.className = 'pfp-upside';
-      upsideNode.style.color = upside >= 0 ? 'var(--green)' : 'var(--red)';
+      upsideNode.style.color = upside >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
       targetCell.appendChild(upsideNode);
     }
     row.appendChild(targetCell);
@@ -700,6 +701,16 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
       ]
     }));
   });
+  // v58.80 run-5 (phone #9): after 추가 / 업데이트 the form folded and the page sat at the top with the new row two swipes
+  // down. The legacy add path names the holding (root._aioRevealHolding); its row is brought into view and marked briefly.
+  const reveal = !preview && root?._aioRevealHolding;
+  const added = reveal ? [...tbody.querySelectorAll('tr[data-holding]')].find((item) => item.dataset.holding === reveal) : null;
+  if (added) {
+    root._aioRevealHolding = null;
+    added.classList.add('is-just-added');
+    added.scrollIntoView?.({ block: 'center' });
+    root.setTimeout?.(() => added.classList.remove('is-just-added'), 2400);
+  }
 }
 
 function renderPortfolioChart({ root, page, surface, charts }) {

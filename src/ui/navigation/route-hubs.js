@@ -1,7 +1,7 @@
 // 2026-10-01 information architecture (AGENTS.md): 19 routes are presented as eight
 // screens. A screen's sub-routes are switched by the in-page tab bar below the topbar;
 // route ids, deep links and page owners stay unchanged until each screen is merged.
-import { readSavedStockSubject, saveStockSubject } from '../../data/stock-subject-store.js';
+import { readSavedStockSubject, saveStockSubject, rememberRecentSymbol } from '../../data/stock-subject-store.js';
 export const ROUTE_HUBS = Object.freeze([
   { id: 'today', label: '오늘', routes: [{ id: 'home', label: '요약' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
   { id: 'market', label: '시장 상태', routes: [{ id: 'signal', label: '국면 판정' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }] },
@@ -153,6 +153,7 @@ export function setStockSubject({ root = globalThis, documentRef = root?.documen
   if (root._aioLastOpenedSymbol === next && !nameChanged) return false;
   root._aioLastOpenedSymbol = next;
   saveStockSubject(root, { symbol: next, name: root._aioLastOpenedName?.symbol === next ? root._aioLastOpenedName.name : '' });
+  rememberRecentSymbol(root, next);
   try { documentRef?.dispatchEvent?.(new CustomEvent('aio:subjectChanged', { detail: { symbol: next } })); } catch (_) {}
   return true;
 }

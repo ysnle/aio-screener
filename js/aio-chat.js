@@ -1582,7 +1582,7 @@ function _aioBeginChatRequest(ctxId, query, options) {
     stopButton.className = sendButton.className;
     stopButton.textContent = '중지';
     stopButton.setAttribute('aria-label', '답변 생성 중지');
-    stopButton.addEventListener('click', function() { if (Date.now() - run.startedAt < 800) return; _aioCancelChatRequest(ctxId, 'user-cancelled'); }); // first-users run 4 (breaker #7): the second click of a double-click on 전송 landed on 중지
+    stopButton.addEventListener('click', function(event) { if (event && event.detail > 0 && Date.now() - run.startedAt < 800) return; _aioCancelChatRequest(ctxId, 'user-cancelled'); }); // keyboard activation (detail 0) always stops; // first-users run 4 (breaker #7): the second click of a double-click on 전송 landed on 중지
     sendButton.parentNode.insertBefore(stopButton, sendButton.nextSibling);
     run.stopButton = stopButton;
   }
@@ -5144,7 +5144,7 @@ function updateAIPanelContext(pageId) {
       msgsEl.innerHTML = '<div class="ai-no-ctx">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
     }
     var titleEl = document.getElementById('ai-panel-title');
-    if (titleEl) titleEl.textContent = 'AI 도우미';
+    if (titleEl) { titleEl.textContent = 'AI 도우미'; titleEl.removeAttribute('title'); }
     var chipsEl = document.getElementById('ai-panel-chips');
     if (chipsEl) chipsEl.innerHTML = '';
     return;
@@ -5155,7 +5155,7 @@ function updateAIPanelContext(pageId) {
   var titleEl = document.getElementById('ai-panel-title');
   var badgeEl = document.getElementById('ai-panel-badge');
   var _ctxPublicTitle = String(chatContexts[ctxId].title || '리서치').replace(/^AI\s*/i, '').replace(/분석가/g, '리서치');
-  if (titleEl) titleEl.textContent = 'AI 도우미, ' + _ctxPublicTitle;
+  if (titleEl) { titleEl.textContent = 'AI 도우미'; titleEl.title = 'AI 도우미, ' + _ctxPublicTitle; var ctxLine = document.createElement('span'); ctxLine.className = 'ai-ph-ctx'; ctxLine.textContent = _ctxPublicTitle; titleEl.appendChild(ctxLine); } // v58.80 run-5: the screen name is its own small line, never 'AI 도우미, ...'
   if (badgeEl) badgeEl.textContent = '학습·리서치용';
   _aioRenderAiPanelBasis(); // P1729
   // 메시지 이력 복원

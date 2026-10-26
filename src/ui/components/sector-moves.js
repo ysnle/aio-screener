@@ -5,7 +5,7 @@ import { selectProducedRotation } from '../../domain/themes/produced-rotation.js
 import { SECTOR_ETF_LABELS, sectorRecentCheck, leaderFading } from '../../domain/market/scenario-outlook.js';
 import { rrgSettledQuadrant } from '../../domain/themes/recent-check.js';
 import { el } from './dom.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 
 const particle = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return code >= 0 && code < 11172 && code % 28 ? '이' : '가'; };
 // Audit 2026-10-14: one date format on 오늘 (M/D), and the block is an h2 like its sibling sections.
@@ -52,7 +52,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
   const max = Math.max(0.5, ...model.rows.map((row) => Math.abs(row.daily)));
   const list = el(doc, 'ul', null, 'home-sector-bars');
   for (const row of model.rows) {
-    const li = el(doc, 'li', null, row.daily >= 0 ? 'is-up' : 'is-down');
+    const li = el(doc, 'li', null, ({ up: 'is-up', down: 'is-down' }[directionOf(row.daily)] || ''));
     li.tabIndex = 0; // U01: the basis card opens from the keyboard too
     li.title = `${row.label} (${row.symbol}), 1일 ${row.daily.toFixed(2)}%${row.weekly == null ? '' : `, 1주 ${row.weekly.toFixed(2)}%`}${row.fading ? ', 회전 선도(약 50일 기준)지만 최근 5거래일 S&P 500보다 약함' : row.quadrant ? `, 회전 ${row.quadrant}(약 50일 기준)` : ''}, 섹터 ETF 일봉 종가로 계산`;
     const bar = el(doc, 'span', null, 'home-sector-bar');

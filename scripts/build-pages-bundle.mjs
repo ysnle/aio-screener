@@ -109,6 +109,35 @@ fs.renameSync(styleTemp, path.join(dist, STYLE_ENTRY));
 const outputs = Object.fromEntries(Object.entries(build.metafile.outputs).map(([file, value]) => [rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, file)))), value]));
 const bootModules = new Set(bootOutputs(build.metafile).map((file) => rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, file))))));
 
+// 5. v58.80 (first-users F01): the module script sits at the end of a ~120 KB (gzip) index.html, so on a 50 KB/s line
+// bootstrap.js started only after the whole page had arrived (~13 s) and its static chunks after that (~32 s). The
+// boot set is announced in <head> as modulepreload, right after the data prefetch, so it downloads beside the legacy
+// scripts instead of after them. Order: the entry first, then its chunks.
+const indexPath = path.join(dist, 'index.html');
+// The page itself was ~117 KB gzip, of which ~19 KB were authoring comments and ~45 KB inline <style>. The shipped
+// copy drops HTML comments outside <script>/<style> and minifies each inline <style> (no runtime code reads comment
+// nodes); the repository file keeps them for authors and source gates.
+const rawIndex = fs.readFileSync(indexPath, 'utf8');
+const indexParts = rawIndex.split(/(<script\b[\s\S]*?<\/script>|<style\b[\s\S]*?<\/style>)/i);
+for (let i = 0; i < indexParts.length; i += 1) {
+  const part = indexParts[i];
+  if (i % 2 === 0) { indexParts[i] = part.replace(/<!--[\s\S]*?-->/g, ''); continue; }
+  if (!/^<style\b/i.test(part)) continue;
+  const open = part.slice(0, part.indexOf('>') + 1);
+  const css = part.slice(open.length, part.length - '</style>'.length);
+  const minified = await esbuild.transform(css, { loader: 'css', minify: true, logLevel: 'error' });
+  indexParts[i] = `${open}${minified.code.trim()}</style>`;
+}
+const indexHtml = indexParts.join('');
+if (/rel="modulepreload"/.test(indexHtml)) throw new Error('index.html already carries modulepreload links (built twice?)');
+const preloadOrder = [ESM_ENTRY, ...[...bootModules].filter((file) => file !== ESM_ENTRY).sort()];
+const preloadLinks = preloadOrder.map((file) => `  <link rel="modulepreload" href="./${file}">`).join('\n') + '\n';
+const prefetchEnd = indexHtml.indexOf('</script>', indexHtml.indexOf('__aioBootPrefetch'));
+const viewportEnd = indexHtml.indexOf('>', indexHtml.indexOf('<meta name="viewport"'));
+const insertAt = prefetchEnd >= 0 ? indexHtml.indexOf('\n', prefetchEnd) + 1 : viewportEnd >= 0 ? indexHtml.indexOf('\n', viewportEnd) + 1 : -1;
+if (insertAt <= 0) throw new Error('index.html: no <head> anchor for the modulepreload links');
+fs.writeFileSync(indexPath, indexHtml.slice(0, insertAt) + preloadLinks + indexHtml.slice(insertAt));
+
 const builtFiles = [...GLOBAL_SCRIPTS, ...Object.keys(outputs).filter((file) => file.endsWith('.js')).sort(), STYLE_ENTRY, 'index.html'];
 const manifest = {
   schemaVersion: 'aio-pages-bundle.v1',

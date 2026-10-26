@@ -95,6 +95,7 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
   if (!documentRef || root._aioGlossaryBridgeInstalled) return;
   root._aioGlossaryBridgeInstalled = true;
   try { if (Array.isArray(root.GLOSSARY)) { root._aioGlossaryScreenTerms = appendScreenTerms(root.GLOSSARY); root._aioGlossaryConceptMerge = mergeConceptCore(root.GLOSSARY); } } catch (_) { /* legacy glossary absent */ }
+  import('../../domain/knowledge/deferred-screen-terms.js').then(({ DEFERRED_SCREEN_TERMS }) => { if (Array.isArray(root.GLOSSARY)) appendScreenTerms(root.GLOSSARY, DEFERRED_SCREEN_TERMS); }).catch(() => {}); // v58.80 run-5 terms, after boot
   // The classic renderer (js/aio-ui.js renderGlossaryItems) lays each entry out from these parts.
   root._aioGlossaryEntryParts = (entry) => glossaryEntryParts(entry, root.GLOSSARY_FIGURE_SOURCES || null);
   // Its "이 개념이 쓰이는 화면" buttons (data-action) close the glossary, then open the screen or the concept document.

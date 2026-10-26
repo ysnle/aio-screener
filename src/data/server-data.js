@@ -165,9 +165,11 @@ export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}
 
 // Fetches data.json, then the reconciliation artifact built from it. The minute cache-buster (v57.61) bypasses the
 // 10-minute CDN copy so both files come from the same origin minute.
-export async function fetchServerData({ fetch = globalThis.fetch, now = () => Date.now() } = {}) {
-  const minute = Math.floor(now() / 60000);
-  const response = await fetch(`./public-data/data.json?t=${minute}`, { cache: 'no-cache' });
+// prefetched: the <head> boot request for data.json (src/data/boot-prefetch.js); a failed one falls back to a fetch.
+export async function fetchServerData({ fetch = globalThis.fetch, now = () => Date.now(), prefetched = null } = {}) {
+  const minute = prefetched?.minute ?? Math.floor(now() / 60000);
+  const response = await (prefetched?.response ? prefetched.response.catch(() => null) : Promise.resolve(null))
+    .then((early) => (early?.ok ? early : fetch(`./public-data/data.json?t=${minute}`, { cache: 'no-cache' })));
   if (!response.ok) return { ok: false, reason: `data.json HTTP ${response.status}` };
   const data = await response.json();
   if (!data || !data.meta) return { ok: false, reason: 'invalid data.json payload' };

@@ -1,7 +1,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { createEvidenceRegistry } from '../../domain/knowledge/evidence.js';
 import { createKnowledgeCapabilityBatchLoader } from '../knowledge/capability-loader.js';
-import { navigateKnowledgeRoute, navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
+import { navigateKnowledgeRoute, navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, pushKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../../ui/knowledge/current-observations.js';
@@ -454,6 +454,8 @@ const ATLAS_STATUS_LABELS = Object.freeze({
 
 const ATLAS_RELATIONSHIP_KIND_LABELS = Object.freeze({ concept: '핵심 개념', metric: '관찰 지표', company_claim: '기업 주장', evidence: '검증 근거', market: '시장 연결', financial: '재무 결과', constraint: '제약 조건' });
 const ATLAS_CRITICALITY_LABELS = Object.freeze({ structural: '구조 관계', conditional: '조건부 관계', claim: '기업 주장' });
+// Actions that open a different document (a history entry each); selections inside one document replace the URL.
+const ATLAS_DOCUMENT_ACTIONS = new Set(['tab', 'section', 'layer', 'module', 'domain', 'domain-node', 'relationship-guide']);
 const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '거시 경제', fxbond: '금리와 환율', technical: '종목, 차트' });
 
 const ATLAS_PACKET_DISPLAY = Object.freeze({
@@ -787,7 +789,8 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         if (!target?.routeId) return;
         navigateKnowledgeTarget({ root, target: { ...target, returnContext: target.returnContext || { route: 'atlas' } } });
       };
-      const syncSharedState = () => replaceKnowledgeRouteState({ root, state: {
+      // v58.80 (first-users R2-17, atlas): opening a document adds a history entry, so Back returns to the previous one.
+      const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, state: {
         mode: state.tab,
         node: state.tab === 'taxonomy' ? state.selectedDomainNodeId : state.tab === 'relationships' ? state.selectedRelationshipNodeId : null,
         chapter: state.tab === 'foundations' ? state.selectedLayerId : null,
@@ -859,7 +862,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
                state.tab = 'foundations'; state.selectedModuleId = params.lesson; if (params.chapter) state.selectedLayerId = params.chapter;
                ensureTabCapabilities('foundations'); ensureFoundationDetailCapabilities();
              }
-             syncSharedState();
+             syncSharedState({ push: true });
              render();
            },
            // v58.63 (architecture audit UI-04): pushState then route() lost mode/node — the legacy showPage clears the query
@@ -928,7 +931,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           event.preventDefault();
           if (action === 'module') learning.markViewed(`atlas-foundations:${value}`);
           if (action === 'domain-node') learning.markViewed(`atlas-node:${value}`);
-          syncSharedState();
+          syncSharedState({ push: ATLAS_DOCUMENT_ACTIONS.has(action) });
           render();
           if (action === 'tab' || action === 'section') ensureTabCapabilities(value);
           if (action === 'module') ensureFoundationDetailCapabilities();
@@ -951,6 +954,31 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       };
       page.addEventListener('click', onClick);
       bag.add(() => page.removeEventListener('click', onClick));
+      // Back and Forward between atlas documents: the URL names the open section and document, so the page re-reads it.
+      const onPop = () => {
+        if (!isAlive() || !/^#atlas(?:$|[?&])/.test(String(root?.location?.hash || ''))) return;
+        const shared = parseKnowledgeRouteState(root.location);
+        if (['foundations', 'relationships', 'taxonomy'].includes(shared.mode)) state.tab = shared.mode;
+        if (state.tab === 'foundations') {
+          if (shared.chapter) state.selectedLayerId = shared.chapter;
+          if (shared.lesson) state.selectedModuleId = shared.lesson;
+        } else if (state.tab === 'taxonomy') {
+          state.atlasView = shared.view === 'domain' ? 'domain' : 'node';
+          if (shared.domain) state.selectedDomainId = shared.domain;
+          if (shared.node) state.selectedDomainNodeId = shared.node;
+          state.selectedDeepTopicId = shared.topic || '';
+        } else {
+          if (shared.guide) state.selectedRelationshipGuideId = shared.guide;
+          state.selectedRelationshipNodeId = shared.node || '';
+          if (shared.criticality) state.relationshipCriticality = shared.criticality;
+        }
+        state.query = '';
+        ensureTabCapabilities(state.tab);
+        if (state.tab === 'foundations') ensureFoundationDetailCapabilities();
+        render();
+      };
+      root?.addEventListener?.('popstate', onPop);
+      bag.add(() => root?.removeEventListener?.('popstate', onPop));
       import('../../domain/knowledge/industry-node-stories.js').then((module) => { state.nodeStories = module.INDUSTRY_NODE_STORIES; state.domainStories = module.INDUSTRY_DOMAIN_STORIES; if (isAlive()) render(); }).catch(() => {});
            bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioKnowledgeLearningState; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasKnowledgeArticles; delete page.dataset.aioAtlasKnowledgeStatus; delete page.dataset.aioAtlasRouteTargets; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; delete page.dataset.aioAtlasCurrentEvidenceLedger; delete page.dataset.aioAtlasKnowledgeSources; delete page.dataset.aioAtlasKnowledgeClaims; delete page.dataset.aioAtlasKnowledgeCoverage; delete page.dataset.aioAtlasKnowledgeResearchDossiers; delete page.dataset.aioAtlasKnowledgeDomainDossiers; delete page.dataset.aioAtlasRelationshipGuides; delete page.dataset.aioAtlasCurrentObservations; content.replaceChildren(); });
       render();

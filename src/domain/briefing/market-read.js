@@ -1444,10 +1444,11 @@ export function buildMarketRegime(input = {}) {
       if ((!oilHeld && (high || (w20 != null && w20 >= RULES.oil.rise20dPct))) || dollarRiseBurden(d20, dxyValue == null ? null : rangeOf(s.dxy, dxyValue)) === true) return 'burden';
       return !oilHeld && w20 != null && d20 != null && w20 <= RULES.oil.fall20dPct && d20 <= 0 ? 'favorable' : 'neutral';
     };
-    const changeShow = (stat) => (to, current) => [pct(to, stat.d20) - pct(current, stat.d20), '%p', 1];
     // v58.80 (first-users bundle 2): "WTI 20일 변화가 +10%(101.65) 아래로" read as a price and a percent at once; the level
-    // comes first and the 20-session change explains it ("WTI가 101.65(20거래일 전보다 +10%) 아래로 내려가면").
-    const pricePoint = (stat, subject, name, line, digits) => ({ at: stat.d20 * (1 + line / 100), subject: withSubjectParticle(subject), mark: `${fmt(stat.d20 * (1 + line / 100), digits)}(20거래일 전${line ? `보다 ${line > 0 ? '+' : '-'}${Math.abs(line)}%` : '과 같은 수준'})`, short: `${name} 20일 ${line > 0 ? '+' : line < 0 ? '-' : ''}${Math.abs(line)}%, ${fmt(stat.d20 * (1 + line / 100), digits)}`, show: changeShow(stat) });
+    // comes first and the 20-session change explains it ("WTI가 101.65(20거래일 전보다 +10%) 아래로 내려가면"). v58.80 run-5
+    // (skeptic #1): the distance beside a price line is in price % from the close (it was the 20-day change in %p, so a
+    // price already at the line read -1.8%p away).
+    const pricePoint = (stat, subject, name, line, digits) => ({ at: stat.d20 * (1 + line / 100), subject: withSubjectParticle(subject), mark: `${fmt(stat.d20 * (1 + line / 100), digits)}(20거래일 전${line ? `보다 ${line > 0 ? '+' : '-'}${Math.abs(line)}%` : '과 같은 수준'})`, short: `${name} 20일 ${line > 0 ? '+' : line < 0 ? '-' : ''}${Math.abs(line)}%, ${fmt(stat.d20 * (1 + line / 100), digits)}`, show: (to, current) => [pct(to, current), '%', 1] });
     const positionPoint = (stat, subject, name, share, digits) => stat.yearPosition == null ? null : { at: stat.yearMin + share * (stat.yearMax - stat.yearMin), subject, mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)})`, short: `${name} 1년 범위 ${Math.round(share * 100)}%, ${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)}`, show: (to, current) => [pct(to, current), '%', 1] };
     const commodityLevers = [
       wti?.d20 ? { key: 'wti', current: wti.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'wti', { through: basis })), points: [

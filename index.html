@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <script>/* v58.80 F01: the first screens' verdict reads data.json and history.json; both start here, before any stylesheet or script, and their loaders take them once (src/data/boot-prefetch.js). */(function(){try{var m=Math.floor(Date.now()/60000),p=window.__aioBootPrefetch={},go=function(k,u){p[k]={url:u,minute:m,at:Date.now(),res:fetch(u,{cache:'no-cache',priority:'high'})};p[k].res.catch(function(){});};go('data','./public-data/data.json?t='+m);go('history','./public-data/history.json');}catch(_){}})();</script>
   <!-- v34.6: 캐시 방지 — GitHub Pages에서 항상 최신 버전 제공 -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -79,14 +80,14 @@
   --text-muted:     var(--gold-11);  /* #fbf9f5/#f7f4ee 배경 대비 WCAG AA 일반 텍스트 기준 충족 */
   --text-dim:       var(--text-muted); /* P1604: subdued explanations still need readable contrast. */
 
-  /* === 데이터 팔레트 — 아이보리 원칙 §1: 색은 3계열만(무채+상승green+하락red)
+  /* === 데이터 팔레트 — 아이보리 원칙 §1: 색은 3계열만(무채+평가 green/amber/red+방향 --dir-up 빨강/--dir-down 파랑, soft-ui.css, v58.80)
      cyan/magenta/purple/blue는 무채 잉크에 수렴, yellow는 세컨더리 잉크. amber는 주의·혼조 전용 앰버(P1758, AA 텍스트) */
   --data-cyan:    var(--gold-12);
   --data-magenta: var(--gold-12);
   --data-purple:  var(--gold-12);
   --data-amber:   var(--amber-11);   /* 주의·혼조 — 개편 v2 #7a5000을 #f4f0e8 바탕 ink .15 칩 위 AA(4.5:1)로 한 단계 보정 */
-  --data-green:   var(--green-11);   /* 상승/통과 */
-  --data-red:     var(--red-11);   /* 하락/경고 */
+  --data-green:   var(--green-11);   /* 통과/양호 (가격 방향은 --dir-up) */
+  --data-red:     var(--red-11);   /* 경고/부담 (가격 방향은 --dir-down) */
   --data-yellow:  var(--gold-11);
   --data-blue:    var(--gold-12);
 
@@ -448,11 +449,11 @@ body {
 
 /* ─── v48.43 Phase 15: 숫자 flash (값 변경 시) ──────────────────────────── */
 @keyframes aio-flash-up {
-  0% { background: var(--green-5); }
+  0% { background: var(--red-4); }
   100% { background: transparent; }
 }
 @keyframes aio-flash-down {
-  0% { background: var(--gold-5); }
+  0% { background: var(--blue-4); }
   100% { background: transparent; }
 }
 .aio-flash-up   {  }
@@ -1029,8 +1030,8 @@ body {
 .briefing-move-track { position: relative; height: 12px; background: linear-gradient(var(--border), var(--border)) center / 1px 100% no-repeat; }
 .briefing-move-bar { position: absolute; top: 2px; height: 8px; border-radius: 4px; }
 .briefing-move-bar.is-5d { top: 0; height: 12px; opacity: .28; }
-.briefing-move-bar.is-up { background: var(--data-green); }
-.briefing-move-bar.is-down { background: var(--data-red); }
+.briefing-move-bar.is-up { background: var(--dir-up); }
+.briefing-move-bar.is-down { background: var(--dir-down); }
 .briefing-move-bar.is-rate { background: var(--text-secondary); }
 .masters-quarter-trend { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 24px; margin: 6px 0 12px; }
 .masters-trend-bars { display: flex; align-items: flex-end; gap: 4px; height: 44px; border-bottom: 0.5px solid var(--border); margin-top: 4px; }
@@ -1124,8 +1125,8 @@ body {
 .breadth-drill-symbol { font: inherit; font-weight: 700; color: var(--text-primary); background: none; border: 0; padding: 0; text-align: left; cursor: pointer; text-decoration: underline; text-decoration-color: var(--border-subtle); }
 .breadth-drill-name { color: var(--text-muted); line-height: 1.35; overflow-wrap: anywhere; } /* P1599 (M06): wrap instead of cutting the company name */
 .breadth-drill-chg { font-variant-numeric: tabular-nums; }
-.breadth-drill-chg.is-up { color: var(--data-green); }
-.breadth-drill-chg.is-down { color: var(--data-red); }
+.breadth-drill-chg.is-up { color: var(--dir-up); }
+.breadth-drill-chg.is-down { color: var(--dir-down); }
 .breadth-drill-empty { font-size: 12px; color: var(--text-muted); margin: 0; }
 /* P1417: 테마 — sub-theme strength table and AI capex flow */
 .theme-strength-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -1140,8 +1141,8 @@ body {
 .theme-strength-table td.is-rank { font-weight: 700; color: var(--text-secondary); width: 40px; }
 .theme-strength-table td.is-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .theme-strength-table td.is-sorted { font-weight: 700; }
-.theme-strength-table td.is-up { color: var(--data-green); }
-.theme-strength-table td.is-down { color: var(--data-red); }
+.theme-strength-table td.is-up { color: var(--dir-up); }
+.theme-strength-table td.is-down { color: var(--dir-down); }
 .theme-strength-name { font-weight: 600; color: var(--text-primary); }
 .theme-strength-theme { font-size: 12px; color: var(--text-muted); }
 .theme-strength-footer { display: flex; align-items: center; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
@@ -1373,10 +1374,10 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .screener-read-layout { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 18px 32px; align-items: start; margin-top: 10px; }
 .page .pf-trend-bar { display: flex; height: 22px; border-radius: 4px; overflow: hidden; margin-top: 6px; }
 .page .pf-trend-seg { display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; }
-.page .pf-trend-seg.is-up, .page .pf-trend-legend .is-up::before { background: var(--data-green); }
+.page .pf-trend-seg.is-up, .page .pf-trend-legend .is-up::before { background: var(--dir-up); }
 .page .pf-trend-seg.is-pullback, .page .pf-trend-legend .is-pullback::before { background: var(--data-amber); }
 .page .pf-trend-seg.is-rebound, .page .pf-trend-legend .is-rebound::before { background: var(--gold-9); } .page .pf-trend-seg.is-near, .page .pf-trend-legend .is-near::before { background: var(--gold-10); }
-.page .pf-trend-seg.is-down, .page .pf-trend-legend .is-down::before { background: var(--data-red); }
+.page .pf-trend-seg.is-down, .page .pf-trend-legend .is-down::before { background: var(--dir-down); }
 .page .pf-trend-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--text-muted); margin-top: 8px; }
 .page .pf-trend-legend span::before { content: ''; display: inline-block; width: 10px; height: 8px; border-radius: 4px; margin-right: 5px; vertical-align: middle; }
 .page .pf-sector-bar.is-favorable { background: var(--data-green); }
@@ -1413,8 +1414,8 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .stock-read-bar-pair { display: grid; gap: 3px; }
 .page .stock-read-bar-row { display: flex; align-items: center; gap: 8px; }
 .page .stock-read-bar { height: 9px; border-radius: 4px; } .page .stock-read-bar.is-favorable { background: var(--data-green); } .page .stock-read-bar.is-burden { background: var(--data-red); } .page .stock-read-bar.is-neutral { background: var(--text-muted); } .page .fiscal-peers .stock-read-bars { grid-template-columns: 132px minmax(0, 1fr); } .page .stock-read-track { flex: 1; min-width: 120px; height: 9px; border-radius: 4px; background: color-mix(in srgb, var(--text-primary) 8%, transparent); } .page .fiscal-peers .stock-read-bar-value { flex: 0 0 auto; min-width: 230px; white-space: nowrap; } /* P1591: peer bars had no tone colors and a 52px label column */
-.page .stock-read-bar.is-stock.is-up { background: var(--data-green); }
-.page .stock-read-bar.is-stock.is-down { background: var(--data-red); }
+.page .stock-read-bar.is-stock.is-up { background: var(--dir-up); }
+.page .stock-read-bar.is-stock.is-down { background: var(--dir-down); }
 .page .stock-read-bar.is-bench { background: var(--gold-a7); }
 .page .stock-read-bar-value { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 /* P1599: in theme detail the value line is long — bar and value get their own columns so the longest bar never pushes its numbers onto a second line. */
@@ -1423,7 +1424,7 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .theme-detail-flow .stock-read-bar-value { min-width: 0; white-space: nowrap; line-height: 1.45; } /* v57.91: value column sized to its text (was a 330px wrapping strip); phones stack it (responsive.css) */
 .page .stock-read-legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 .page .stock-read-legend span::before { content: ''; display: inline-block; width: 10px; height: 8px; border-radius: 4px; margin-right: 5px; vertical-align: middle; }
-.page .stock-read-legend .is-stock::before { background: var(--data-green); }
+.page .stock-read-legend .is-stock::before { background: linear-gradient(90deg, var(--dir-up) 50%, var(--dir-down) 50%); }
 .page .stock-read-legend .is-bench::before { background: var(--gold-a7); }
 .page .stock-read-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .page .stock-read-point { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; padding: 7px 0; font-size: 14px; line-height: 1.6; }
@@ -1441,8 +1442,8 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .daily-move.is-big { border-color: var(--accent); }
 .page .daily-move-label, .page .daily-move-level { font-size: 12px; color: var(--text-muted); }
 .page .daily-move-value { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.page .daily-move-value.is-up, .page .daily-name-day.is-up { color: var(--data-green); }
-.page .daily-move-value.is-down, .page .daily-name-day.is-down { color: var(--data-red); }
+.page .daily-move-value.is-up, .page .daily-name-day.is-up { color: var(--dir-up); }
+.page .daily-move-value.is-down, .page .daily-name-day.is-down { color: var(--dir-down); }
 .page .daily-names, .page .daily-schedule, .page .daily-news { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .page .daily-name { display: grid; grid-template-columns: 74px minmax(0, 1fr) 64px; gap: 2px 10px; align-items: baseline; padding: 6px 0; border-bottom: 0.5px solid var(--border-subtle); }
 .page .daily-name-symbol { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-family: var(--font-mono); font-weight: 700; color: var(--text-primary); cursor: pointer; text-align: left; }
@@ -2337,8 +2338,8 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 
 /* ═══ v20: Missing PnL classes ═══ */
 .pnl { font-family: var(--font-mono); font-weight: 700; font-size: 12px; }
-.pnl.pos { color: var(--data-green); }
-.pnl.neg { color: var(--data-red); }
+.pnl.pos { color: var(--dir-up); }
+.pnl.neg { color: var(--dir-down); }
 .pnl.neutral { color: var(--text-muted); }
 
 /* Scroll-to-top button */
@@ -2630,8 +2631,8 @@ body.dark-theme .nav-item.active { background: var(--gold-a3) !important; color:
 .theme-toggle-btn { display:none; }
 .theme-toggle-btn:hover {  }
 /* ── v34.9: 색각 이상 접근성 (▲/▼ 아이콘 병용) ── */
-.a11y-up { color: var(--data-green); } .a11y-up::before { content:'▲ '; font-size:0.8em; } /* P1315: direction had glyph only — no colour rule matched .pos/.neg outside .pnl */
-.a11y-dn { color: var(--data-red); } .a11y-dn::before { content:'▼ '; font-size:0.8em; }
+.a11y-up { color: var(--dir-up); } .a11y-up::before { content:'▲ '; font-size:0.8em; } /* P1315: direction had glyph only — no colour rule matched .pos/.neg outside .pnl */
+.a11y-dn { color: var(--dir-down); } .a11y-dn::before { content:'▼ '; font-size:0.8em; }
 .a11y-hold::before { content:'● '; font-size:0.7em; }
 /* ── v34.8: 인쇄 전용 스타일시트 ── */
 @media print {
@@ -3548,9 +3549,6 @@ button[data-filter-active="true"] {
       }
     };
     if (bar) bar.style.width = '18%';
-    // First-users run 4 (phone #1): the home verdict waits for the close history, whose request began only after the four
-    // legacy scripts ran (~68 s on a slow phone). It starts here at low priority; _aioLoadHistory takes it once.
-    try { window.__aioHistoryPrefetch = fetch('./public-data/history.json', { cache: 'no-cache', priority: 'low' }); window.__aioHistoryPrefetch.catch(function() {}); } catch (_) {}
     document.addEventListener('DOMContentLoaded', function() {
       if (bar) bar.style.width = '78%';
       requestAnimationFrame(function() { requestAnimationFrame(function() { closeBootLoader('화면 준비 완료'); }); });
@@ -3773,6 +3771,8 @@ button[data-filter-active="true"] {
         </div>
       </header>
       <div class="content" id="main-content" role="main">
+        <!-- v58.80 run-5 (phone #2): the first-visit notice is part of the shell, mounted while the page parses (it came from js/aio-ui.js 39 s into a slow-3G load and pushed the reading down); the page foot reopens it. -->
+        <template id="aio-disclaimer-tpl"><div id="aio-first-visit-disclaimer" class="is-inline" role="region" aria-labelledby="aio-first-visit-disclaimer-title"><div class="lu-dc-text"><b class="lu-dc-title" id="aio-first-visit-disclaimer-title">투자 면책 고지</b>본 도구의 모든 수치·점수·시그널·AI 답변은 늦거나 참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 투자 결정과 그 결과의 책임은 이용자 본인에게 있습니다.</div><button type="button" class="lu-dc-btn">확인했습니다</button></div></template><script>window._aioMountDisclaimer=function(force){var flow=document.getElementById('main-content'),tpl=document.getElementById('aio-disclaimer-tpl');if(!flow||!tpl||document.getElementById('aio-first-visit-disclaimer'))return;var bar=tpl.content.firstElementChild.cloneNode(true),btn=bar.querySelector('button'),trigger=force?document.activeElement:null;btn.addEventListener('click',function(){try{localStorage.setItem('aio_disclaimer_ack_v1','1')}catch(e){}bar.remove();if(trigger&&trigger.isConnected&&trigger.focus)trigger.focus()});bar.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();btn.click()}});flow.insertBefore(bar,flow.firstChild);if(force){if(flow.scrollTo)flow.scrollTo({top:0});btn.focus()}};try{if(localStorage.getItem('aio_disclaimer_ack_v1')!=='1')window._aioMountDisclaimer(false)}catch(e){}</script>
         <!-- v50.25/WO-5: 정적 분석 텍스트 레짐 드리프트 경고 (작성 시점 시장 ↔ 현재 시장 급변 시 자동 표시) -->
         <div id="aio-regime-drift-banner" role="status" aria-live="polite" style="display:none;"></div>
         <!-- v42.1: 마켓 펄스 바 — 페이지 간 시장 상태 요약 -->
@@ -3976,13 +3976,13 @@ button[data-filter-active="true"] {
     <div class="mk-hero__main">
       <div class="mk-hero__verdict-row"><h2 class="mk-hero__verdict" id="regime-overall">판정 대기</h2><span class="mk-hero__shape" id="regime-shape"></span></div>
       <p class="sx-lede mk-hero__lede" id="regime-headline"></p>
-      <div id="regime-leaders" class="leaders-line" hidden></div>
     </div>
     <div class="mk-hero__side">
       <div class="mk-tally" id="regime-tally"></div>
       <span class="mk-hero__counts" id="regime-counts"></span>
       <p class="mk-hero__prev" id="regime-previous" hidden></p>
     </div>
+    <div id="regime-leaders" class="leaders-line" hidden></div>
   </section>
   <section class="sx-card mk-axes" aria-labelledby="regime-axes-title">
     <h2 class="sr-only" id="regime-axes-title">미국 시장 6개 지표</h2>
@@ -5080,8 +5080,8 @@ button[data-filter-active="true"] {
           <input id="pf-add-target" type="number" step="0.01" placeholder="선택 입력" aria-label="내 목표가 메모 (선택)" class="sh-portfolio-add-qty-field">
         </div>
         <div>
-          <div class="sh-muted-label">원가 통화 (선택, 비우면 종목의 시장 통화)</div>
-          <input id="pf-add-cost-currency" type="text" maxlength="3" placeholder="자동" aria-label="원가 통화 3자리 코드 (예: USD, KRW)" class="sh-portfolio-add-cost-field-ink">
+          <div class="sh-muted-label">산 통화 (비워 두면 미국 종목은 달러, 한국 종목은 원)</div>
+          <input id="pf-add-cost-currency" type="text" maxlength="3" placeholder="자동" aria-label="산 통화 3자리 코드 (예: USD, KRW), 비워 두면 자동" class="sh-portfolio-add-cost-field-ink">
         </div>
         <div class="sh-portfolio-entry-part-grow">
           <div class="sh-muted-label">메모 (선택)</div>
@@ -6776,7 +6776,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.80</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.80</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

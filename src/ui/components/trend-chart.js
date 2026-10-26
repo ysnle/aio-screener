@@ -44,7 +44,9 @@ function datedShort(date) {
  * @param {Document} doc
  * @param {{ series: Array<{date:string,value:number}>, refLines?: number[], format?: (v:number)=>string, label?: string, domain?: [number, number], range?: [string, string], spans?: Array<{start:string,end:string,tone:string}> }} options
  */
-export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [] } = {}) {
+// v58.80 run-5 (skeptic #5): `guide` is a second, dashed series the reading is measured against (the 50-day line under
+// the S&P 500 close); it sets the scale with the line, names itself at its right end and joins the hover readout.
+export function createTrendChart(doc, { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null } = {}) {
   const wrap = doc.createElement('div');
   wrap.className = 'trend-chart-wrap';
   const svg = svgEl(doc, 'svg', { viewBox: `0 0 ${W} ${H}`, class: 'trend-chart', role: 'img' });
@@ -60,7 +62,9 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     svg.append(text);
     return wrap;
   }
-  const values = points.map((point) => point.value);
+  const guidePoints = (guide?.series || []).filter((point) => Number.isFinite(point?.value) && point.date >= start && point.date <= end);
+  const guideAt = new Map(guidePoints.map((point) => [point.date, point.value]));
+  const values = [...points.map((point) => point.value), ...guidePoints.map((point) => point.value)];
   let lo = domain ? domain[0] : Math.min(...values, ...refLines);
   let hi = domain ? domain[1] : Math.max(...values, ...refLines);
   if (hi === lo) { hi += 1; lo -= 1; }
@@ -139,6 +143,13 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     svg.append(svgEl(doc, 'rect', { x: x0.toFixed(1), y: PAD.top, width: (x1 - x0).toFixed(1), height: plotH, class: `trend-chart-span is-${span.tone}` }));
   }
   // Line only (v58.53 개편 v2: no area fill; 1.6–2px round stroke in v2-market.css).
+  if (guidePoints.length > 1) {
+    svg.append(svgEl(doc, 'path', { d: guidePoints.map((point, index) => `${index ? 'L' : 'M'}${xd(point.date).toFixed(1)},${y(point.value).toFixed(1)}`).join(' '), class: 'trend-chart-guide' }));
+    const tail = guidePoints[guidePoints.length - 1];
+    const tag = svgEl(doc, 'text', { x: W - PAD.right - 2, y: (y(tail.value) + (tail.value > points[points.length - 1].value ? -5 : 13)).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' });
+    tag.textContent = guide.label || '';
+    svg.append(tag);
+  }
   const line = points.map((point, index) => `${index ? 'L' : 'M'}${x(index).toFixed(1)},${y(point.value).toFixed(1)}`).join(' ');
   svg.append(svgEl(doc, 'path', { d: line, class: 'trend-chart-line' }));
   const last = points[points.length - 1];
@@ -164,7 +175,7 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     const point = points[index];
     cursor.setAttribute('x1', x(index)); cursor.setAttribute('x2', x(index)); cursor.setAttribute('visibility', 'visible');
     marker.setAttribute('cx', x(index)); marker.setAttribute('cy', y(point.value)); marker.setAttribute('visibility', 'visible');
-    tip.textContent = `${shortDate(point.date)}, ${format(point.value)}`;
+    tip.textContent = `${shortDate(point.date)}, ${format(point.value)}${guideAt.has(point.date) ? `, ${guide.label} ${format(guideAt.get(point.date))}` : ''}`;
     tip.hidden = false;
     const left = (x(index) / W) * box.width;
     tip.style.left = `${Math.min(Math.max(left, 40), box.width - 40)}px`;
@@ -180,7 +191,7 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   overlay.addEventListener('pointermove', show);
   overlay.addEventListener('pointerleave', (event) => { if (event.pointerType !== 'touch') hide(); });
   overlay.addEventListener('pointercancel', hide);
-  svg.setAttribute('aria-label', `${label} ${datedShort(points[0].date)}~${datedShort(last.date)} 추이, 최근 ${format(last.value)}`);
+  svg.setAttribute('aria-label', `${label} ${datedShort(points[0].date)}~${datedShort(last.date)} 추이, 최근 ${format(last.value)}${guideAt.has(last.date) ? `, ${guide.label} ${format(guideAt.get(last.date))}` : ''}`);
   return wrap;
 }
 

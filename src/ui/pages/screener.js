@@ -240,7 +240,7 @@ function cell(documentRef, value, className = '') {
   return node;
 }
 function returnText(value) { return finite(value) == null ? '—' : `${signedText(value, 1)}%`; }
-function returnColor(value) { return finite(value) == null ? 'var(--text-muted)' : value >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
+function returnColor(value) { return finite(value) == null ? 'var(--text-muted)' : value >= 0 ? 'var(--dir-up)' : 'var(--dir-down)'; }
 // v57.81: momentum and trend scores are z-scores inside the sector, so a sector-wide selloff leaves its best names high.
 // Green needs the absolute check too (bands.js bufferedTrend 'up'); otherwise a high score is shown in the neutral colour.
 const SECTOR_RELATIVE_PRICE_FACTORS = new Set(['momentum', 'trend']);
@@ -1219,7 +1219,7 @@ function renderExcessBars(documentRef, row, benchmark) {
     bars.className = 'scr-excess-bars';
     bars.append(bar(item.stock, 'stock'), bar(item.index, 'index'));
     const value = documentRef.createElement('span');
-    value.className = `scr-excess-value ${gap >= 0 ? 'sx-up' : 'scr-tone-burden'}`;
+    value.className = `scr-excess-value ${gap >= 0 ? 'scr-tone-up' : 'scr-tone-burden'}`;
     value.textContent = signedText(gap, 1, '%p');
     line.append(label, bars, value);
     host.append(line);
@@ -1302,7 +1302,7 @@ function renderCustomSummary(documentRef, { scopeRows = [], custom = [], coverag
     bars.append(line);
   }
   nodes.push(bars);
-  nodes.push(make('p', steps.length ? `표에 남는 종목 ${shown}개 — 실행 통과·섹터·검색 같은 다른 필터까지 적용한 수입니다. 겹친 조건은 과거 성과로 검증한 규칙이 아닙니다.` : '조건을 고르면 조건마다 남는 종목 수가 여기에 쌓입니다.', 'sx-meta scr-custom-foot'));
+  nodes.push(make('p', steps.length ? `지금 표에 남는 종목 ${shown}개 — 실행 통과·섹터·검색 같은 다른 필터까지 적용한 수입니다(결과 보기는 실행 통과만을 끄고 전체에서 찾습니다). 겹친 조건은 과거 성과로 검증한 규칙이 아닙니다.` : '조건을 고르면 조건마다 남는 종목 수가 여기에 쌓입니다.', 'sx-meta scr-custom-foot'));
   const go = make('button', '결과 보기', 'sx-btn sx-btn--primary scr-custom-go');
   go.type = 'button';
   go.dataset.aioScreenerAction = 'view';
@@ -2084,6 +2084,10 @@ function renderTableStatus(documentRef, { status, scopeRows, filtered, definitio
     const withCap = filtered.filter((row) => capFilterValue(liveRow(row, readLiveData)) != null).length;
     if (!withCap) order = shortOrder = '시총 자료 없음, 조건 순위 순';
     else if (withCap < filtered.length) order = `${order}(시총 확인 ${withCap}종목 먼저)`;
+    // v58.80 (first-users F21, owner-delegated 2026-10-26): the default stays market cap — leading with an order the
+    // back-test cannot yet tell from chance would read as a recommendation — and the line now says so.
+    const validation = documentRef.getElementById('scr-validation-banner')?.dataset?.validationState;
+    if (withCap && !sortState.ascending && validation !== 'favorable') order = `${order} — 순위가 우연과 구별되지 않아 기본은 시총 순, 전체 순위 머리글을 누르면 순위 순`;
   }
   // v58.56 review: quote refreshes re-render the table, so the text is written only when it changes.
   const fullText = `${leadFor(fullName, ' 조건')}, ${order}`;
@@ -2289,6 +2293,9 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
           return button;
         };
         if (searchText) actions.appendChild(action('검색어 지우기', 'clear-filter', 'scr-text-search'));
+        // v58.80 run-5 (breaker #1): 'RSI 30 이하' matched 68 stocks, the table showed 0 inside 실행 통과만, and the only way out
+        // ('모두 지우기') also deleted the condition. The narrower scope is offered first and keeps the condition.
+        if (documentRef.getElementById('scr-passed-only')?.checked) actions.appendChild(action("'실행 통과만' 끄고 전체에서 찾기", 'clear-filter', 'scr-passed-only'));
         actions.appendChild(action('표시 필터 모두 지우기', 'reset-all-filters'));
         empty.firstChild.appendChild(actions);
       }
@@ -3731,6 +3738,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            } else if (!fromSeg) scrollToTop();
          } else if (action === 'view') {
            const fromSeg = !!actionNode.closest('.scr-view-seg');
+           // v58.80 run-5 (breaker #1): 결과 보기 under the 맞춤 조건 count shows that count — the conditions search every stock,
+           // as a theme handoff does (v58.75), instead of only the last run's passed set.
+           if (actionNode.classList.contains('scr-custom-go')) { const passedOnly = documentRef.getElementById('scr-passed-only'); if (passedOnly) passedOnly.checked = false; visibleLimit.value = 12; renderNow(); }
            setView(argument, { focusTab: fromSeg });
            if (!fromSeg) scrollToTop();
            if (argument === 'custom' && !fromSeg) documentRef.querySelector('#scr-custom select')?.focus?.({ preventScroll: true });

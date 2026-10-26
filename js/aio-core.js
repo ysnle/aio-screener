@@ -18472,7 +18472,7 @@ const tickerData = {
 function tickerDirectSearchFromInput() {
   var el = document.getElementById('ticker-direct-search');
   var v = el ? el.value.trim() : '';
-  if (!v) return;
+  if (!v) { if (typeof window._aioTickerSearchMiss === 'function') window._aioTickerSearchMiss(''); return; } // v58.80 run-5: an empty Enter says what to type
   // v58.80 (first-users F17): a typed symbol the app does not know (AAPLL, SIVB, -100) opened a full stock page with memo,
   // watchlist and AI actions. A typed search is checked against the registries and the official US listing first (the
   // same owner as the watchlist and holding boxes); only "not listed" is refused — an unreachable listing still opens.
@@ -18537,7 +18537,7 @@ function showTicker(tkr) {
         var rsi77 = sd77.rsi != null ? sd77.rsi : '—';
         var rsiCol77 = sd77.rsi != null ? (sd77.rsi >= 70 ? 'var(--data-red)' : sd77.rsi <= 30 ? 'var(--data-green)' : 'var(--data-amber)') : 'var(--text-muted)';
         var r3m77 = typeof sd77.ret3m === 'number' ? ((sd77.ret3m >= 0 ? '+' : '') + sd77.ret3m.toFixed(1) + '%') : '—';
-        var r3mCol77 = typeof sd77.ret3m === 'number' ? (sd77.ret3m >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
+        var r3mCol77 = typeof sd77.ret3m === 'number' ? (sd77.ret3m >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
         var fs77 = sd77.factorScores || {};
         var mom77 = fs77.momentum != null ? fs77.momentum : null;
         mvEl.innerHTML =

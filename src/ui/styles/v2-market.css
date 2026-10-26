@@ -17,6 +17,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .trend-chart-band { fill: rgba(var(--ink-rgb), 0.05); }
 .trend-chart-ref { stroke: rgba(var(--ink-rgb), 0.28); stroke-width: 1; stroke-dasharray: 3 4; }
 .trend-chart-ref.is-band-edge { stroke: none; }
+.trend-chart-guide { fill: none; stroke: var(--text-muted); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-linecap: round; } /* v58.80 run-5: the 50-day line the trend verdict reads */
 .trend-chart-ref-label { font-size: 12px; fill: var(--text-muted); font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--bg-card); stroke-width: 3px; stroke-linejoin: round; } /* v58.79: a threshold names its value */
 @container (max-width: 380px) { .page .trend-chart-wrap .trend-chart-ref-label { font-size: 17px; } }
 .trend-chart-dot { stroke-width: 1.5; }
@@ -39,6 +40,9 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 /* ① Hero: verdict word + one line | tally bar + previous verdict. */
 .mk-hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; align-items: start; } /* first-users run 4 (S#10): the tally sat mid-height beside a long main column, leaving an empty block above it */
 .mk-hero__side { padding-top: 6px; }
+/* v58.80 run-5 (owner: "여백이 왜 이렇게 많아"): the leadership, money-flow and distribution lines ran down the left column
+   beside a short tally, leaving the right third empty; they span the card under the verdict and tally. */
+.mk-hero > .leaders-line { grid-column: 1 / -1; margin-top: -18px; }
 .mk-hero__main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .mk-hero__verdict-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; }
 .page .mk-hero__verdict { margin: 0; font-size: 28px !important; font-weight: 700; letter-spacing: -0.03em !important; line-height: 1.05; color: var(--text-primary); }
@@ -89,7 +93,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-signal .mk-axis .regime-read-more summary { font-size: 12px; color: var(--text-secondary); }
 .mk-axis__detail { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
 .mk-axis__detail > * { background: var(--bg-card); border-radius: 12px; padding: 16px 18px; min-width: 0; }
-#page-signal .mk-axis__detail .regime-axis-history { margin: 0; }
+#page-signal .mk-axis__detail .regime-axis-history { margin: 0; align-self: start; } /* v58.80 run-5: the chart card no longer stretches to the facts column (half of it was empty) */
 #page-signal .mk-axis__facts .regime-evidence { display: grid; grid-template-columns: minmax(110px, .8fr) minmax(0, 1.4fr); gap: 6px 12px; margin: 0 0 12px; font-size: 12px; line-height: 1.6; }
 #page-signal .mk-axis__facts .regime-evidence dt { color: var(--text-secondary); overflow-wrap: anywhere; }
 #page-signal .mk-axis__facts .regime-evidence dd { margin: 0; overflow-wrap: anywhere; }
