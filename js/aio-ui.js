@@ -1674,19 +1674,6 @@ window._aioDiagram = (function () {
 // ──────────────────────────────────────────────────────────────────────────────
 (function () {
   function _snap() { return window.DATA_SNAPSHOT || {}; }
-  function _ld(sym) {
-    var live = window._liveData || {};
-    var e = live[sym];
-    return (e && typeof e.price === 'number') ? e.price : null;
-  }
-  function _cl(v, lo, hi) { return Math.max(lo, Math.min(hi, isFinite(v) ? v : lo)); }
-
-  function _getScore() {
-    try {
-      if (typeof computeTradingScore === 'function') return computeTradingScore() || {};
-    } catch (e) {}
-    return {};
-  }
 
   function _econStage(snap) {
     if ([snap.cpi,snap.fedRate,snap.usUnemploy].some(function(v){ return v == null || v === ''; })) return 'UNAVAILABLE';
@@ -1696,35 +1683,6 @@ window._aioDiagram = (function () {
     if (cpi >= 3.8 && rate >= 4.8) return 'LATE';
     if (cpi >= 2.5 || rate >= 3.0) return 'MID';
     return 'EARLY';
-  }
-
-  function _buildRegime() {
-    var s = _getScore();
-    var snap = _snap();
-    if (s.total == null) return { available:false };
-    var total = Number(s.total);
-    var vixRaw = _ld('^VIX') || snap.vix;
-    if (vixRaw == null || vixRaw === '') return { available:false };
-    var vix = Number(vixRaw);
-    if (!Number.isFinite(total) || !Number.isFinite(vix) || vix <= 0) return { available:false };
-    var regime = total >= 75 ? 'BULL' : total >= 60 ? '매수우호' : total >= 45 ? 'NEUTRAL' : total >= 30 ? '경계' : 'BEAR';
-    var spyScore = _cl(s.trendScore || 50, 0, 100);
-    var _vbr = typeof window._aioVixBandIndex === 'function' ? window._aioVixBandIndex(vix) : (vix >= 32 ? 3 : vix >= 25 ? 2 : vix >= 18 ? 1 : 0); // v57.50 C13: shared bands
-    var vixScore = _vbr >= 3 ? 8 : _vbr === 2 ? 28 : _vbr === 1 ? 55 : vix >= 14 ? 78 : 92;
-    return { regime: regime, score: total, vix: vix, spyScore: spyScore, vixScore: vixScore };
-  }
-
-  function _buildSentiment() {
-    var snap = _snap();
-    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-    var fgRaw = fgMetric && fgMetric.value;
-    var vixRaw = _ld('^VIX') || snap.vix;
-    var vvixRaw = _ld('^VVIX') || snap.vvix;
-    var aaiiRaw = window._aaiiBearish;
-    if ([fgRaw,vixRaw,vvixRaw,aaiiRaw].some(function(v){ return v == null || v === ''; })) return { available:false };
-    var fg = Number(fgRaw), vix = Number(vixRaw), vvix = Number(vvixRaw), aaii = Number(aaiiRaw);
-    if (![fg,vix,vvix,aaii].every(Number.isFinite) || vix <= 0 || vvix <= 0) return { available:false };
-    return { fg:_cl(fg,0,100), vix:vix, vvix:vvix, aaiiBear:_cl(aaii,0,70) };
   }
 
   function _buildPipeline() {
@@ -1811,12 +1769,8 @@ window._aioDiagram = (function () {
           // typeof 가드 후 호출). initSignalDashboard()가 이미 페이지 진입 시 호출하므로 중복 안전.
           try { if (typeof window.refreshSignalDashboard === 'function') window.refreshSignalDashboard(); } catch(_) {}
           break;
-        case 'breadth':
-          _render('vis-breadth-regime', 'market-regime', _buildRegime());
-          break;
-        case 'sentiment':
-          _render('vis-sentiment-gauge', 'sentiment-gauge', _buildSentiment());
-          break;
+        // v58.87 (legacy decomposition 2/8 시장 상태): the breadth/sentiment diagram slots (#vis-breadth-regime,
+        // #vis-sentiment-gauge) are gone; src/ui/components/breadth-board.js and src/ui/pages/sentiment.js own those routes.
         case 'briefing':
           _render('vis-briefing-pipeline', 'pipeline-status', _buildPipeline());
           _render('vis-briefing-cycle',    'economic-cycle',   _buildEcon());

@@ -511,7 +511,7 @@ check(
   /dataset\.aioFold !== 'never'/.test(core),
   'new primary panels need a fold escape hatch so legacy boot logic cannot re-home them again'
 );
-check('v51.40/P532 signal lockout remains a hidden legacy sink', /signal-lockout-control/.test(core));
+check('v51.40/P532 → v58.87 the retired signal lockout control stays out of the shell (its legacy reorder was deleted)', !/id="signal-lockout-control"/.test(html));
 // P1449 (P1216 NEWS_EMPTY_REASON_COPY 패턴): screener workbench developer vocabulary must stay
 // out of the user copy — Outcome/Operations/실행 정의 hash/identity are internal terms.
 check('P1449 screener labels use user vocabulary (no Outcome/Operations/hash/identity leaks)',
