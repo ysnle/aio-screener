@@ -9175,7 +9175,7 @@ async function autoTranslateNews(items) { (items || []).forEach(function(i) { if
       const resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
         method: 'POST',
         signal: AbortSignal.timeout(45000),
-        headers: (window._aioWithFamilyCode || Object)({ 'Content-Type': 'application/json', 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : ''), 'X-AIO-Idempotency-Key': _translationRequest.requestId }),
+        headers: { 'Content-Type': 'application/json', 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : ''), 'X-AIO-Idempotency-Key': _translationRequest.requestId },
         body: JSON.stringify({
           model: 'gpt-6-luna',
           max_output_tokens: Math.min(4000, Number(route.health?.ai?.maxTokens) || 4000),

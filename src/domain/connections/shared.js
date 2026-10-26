@@ -1,10 +1,6 @@
 // P1607: server configuration, caller access and a data artifact are different evidence.
 export function describeSharedConnection(health, httpOk = true) {
   if (!httpOk || health?.schemaVersion !== 'aio-worker-health.v1') return { ok: false, reason: 'WORKER_NOT_READY', label: '공용 AI 연결 미확인' };
-  // v58.82: the visitor's own step.
-  if (health.ai?.familyCodeRequired === true && health.ai?.familyCodeAccepted !== true) {
-    return { ok: false, reason: 'FAMILY_CODE_REQUIRED', label: '가족 코드 입력 필요' };
-  }
   if ((health.ai?.appTokenRequired || health.relay?.appTokenRequired) && health.ai?.appTokenAccepted !== true) {
     return { ok: false, reason: 'AUTH_FAILED', label: '공용 AI 연결 설정 확인 필요' };
   }
