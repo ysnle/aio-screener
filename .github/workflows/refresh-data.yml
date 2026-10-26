@@ -232,6 +232,11 @@ jobs:
           fi
           node scripts/ci-13f-currentness-check.mjs
           node scripts/ci-masters-contract-check.mjs
+          # v58.81 (P2093/R729): the 13F files' size budgets are checked here, inside the degradable lane. On 10/26 a Monday full chain
+          # grew filings.json to 502 KB (budget 460 KB); the check only ran in the data gate below, which refused the market,
+          # news and Telegram commit for 7 cycles in a row while the US pre-market was open. Over budget, the restore step
+          # below puts the 13F files back to the last publish and the rest of the cycle publishes.
+          node scripts/ci-artifact-size-headroom-check.mjs --only masters-
 
       - name: Restore 13F files after a failed 13F lane (v58.71)
         id: masters-restore

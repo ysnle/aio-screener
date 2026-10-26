@@ -73,6 +73,9 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
       if (themesBlock) parts.push(themesBlock);
     } catch (_) {}
   }
+  // v58.81 (owner 2026-10-26): the 오늘 market clock / Korea↔US links and the lean; src/ui/components/session-lean.js sets the
+  // reader (and picks the blocks for the question) once the hero has painted, so this boot module imports neither model.
+  try { const now = root.__aioMarketNowContext?.(text); if (now) parts.push(now); } catch (_) {}
   if (/한국|코스피|코스닥|원화|한국.*시장|국내.*시장/.test(text)) {
     const korea = koreaParticipationContext(root.__aioKoreaParticipation);
     if (korea) parts.push(korea);

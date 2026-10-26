@@ -1,14 +1,14 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-10-26T09:41:37.575Z",
-  "appRevision": "v58.80",
-  "gitHead": "ba42e9d1f63ad4ccae01820a4fb745fbd146e57d",
+  "observedAt": "2026-10-26T13:46:59.723Z",
+  "appRevision": "v58.81",
+  "gitHead": "165a9fbecc7d5267e37c4e0c319a7230b11a5eb5",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
-    "browserVersion": "156.0.8078.4",
-    "platform": "win32",
-    "node": "v24.18.0",
+    "browserVersion": "153.0.8010.12",
+    "platform": "linux",
+    "node": "v22.22.0",
     "viewport": "1440x1000"
   },
   "command": "node scripts/ci-boot-interaction-check.mjs",
@@ -16,28 +16,29 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "decoded same-origin JS 5.22MB > 1.5MB"
+    "max long task 233 > 200",
+    "decoded same-origin JS 4.91MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 900,
-    "dclMs": 530,
-    "loadMs": 539,
-    "maxLongTaskMs": 170,
-    "totalLongTaskMs": 711,
-    "longTaskCount": 7,
+    "fcpMs": 232,
+    "dclMs": 1214,
+    "loadMs": 1292,
+    "maxLongTaskMs": 233,
+    "totalLongTaskMs": 694,
+    "longTaskCount": 5,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4634,
-    "activeRouteDomNodes": 1193,
+    "domNodes": 4005,
+    "activeRouteDomNodes": 1200,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 5475722,
+    "decodedJsBytes": 5152382,
     "sameOriginScripts": 214,
     "crossOriginScripts": 1,
-    "routeMs": 808,
-    "wallMs": 8207,
-    "totalExternalRequests": 107,
+    "routeMs": 216,
+    "wallMs": 8032,
+    "totalExternalRequests": 98,
     "quoteRequests": 32,
-    "initialExternalRequests": 8,
+    "initialExternalRequests": 7,
     "initialQuoteRequests": 4,
     "bootObservationWindowMs": 2000,
     "delayedPrimaryChart": {
@@ -53,6 +54,6 @@
       "placeholderLoads": 1,
       "direct": true
     },
-    "decodedJsMb": 5.22
+    "decodedJsMb": 4.91
   }
 }

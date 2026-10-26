@@ -4,6 +4,10 @@ last_verified: 2026-10-26
 confidence: medium
 ---
 
+## v58.81 v58.81 레인 크기 격리 (2026-10-26)
+
+- [x] QA-DATA-LANE-SIZE-01: 13F 산출물이 크기 예산을 넘는 주기에도 시장·뉴스 갱신이 커밋되고 13F 파일은 마지막 공개본으로 남는다(P2093). verify_by: refresh-data 실행 로그에서 '13F lane failed this cycle' 경고와 data 커밋 동시 확인
+
 ## v58.80 미래 자료 누설 검사와 작업 방식 개선 (2026-10-25)
 
 - [x] QA-LOOKAHEAD-01: v58.80 미래 자료 누설 검사: 과거 30세션 as-of 불변(관측 시각 기준 절단, 신용 축 평가), 테마 단계 백필 미래 교란 불변, 330버킷 워밍업 충분. 네 누설 변이에서 실패. verify_by: node scripts/ci-lookahead-check.mjs

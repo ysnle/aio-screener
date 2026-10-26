@@ -6141,3 +6141,58 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (record?.overall !== '다소 부담' || record.asOf !== '2026-10-23' || 'axes' in record || record.schemaVersion !== 'today-verdict.v1') fail(`v58.80 F01 verdict record fields: ${JSON.stringify(record)}`);
 
 }
+
+// v58.81 (owner 2026-10-26): the market clock and Korea↔US link check — Monday 22:13 KST is the US pre-market with the
+// open 17 minutes away; a KOSDAQ fall far larger than every outside cue is named Korea-led; old futures are flagged.
+{
+  const { buildSessionBridge, marketClock } = await load('src/domain/market/session-bridge.js');
+  const q = (instrumentId, value, changePct, observedAt) => ({ instrumentId, value, changePct, observedAt });
+  const snapshot = { generatedAt: '2026-10-26T09:21:00Z', quotes: [q('^KS11', 5469, -1.46, '2026-10-26T06:32:50Z'), q('^KQ11', 727, -3.26, '2026-10-26T06:33:00Z'), q('^IXIC', 25955, -0.21, '2026-10-23T21:15:59Z'), q('KRW=X', 1323.8, 0.01, '2026-10-26T09:20:59Z'), q('CL=F', 100.7, -2.45, '2026-10-26T09:11:08Z')],
+    evidenceQuotes: [q('ES=F', 7683, 0.31, '2026-10-26T09:11:06Z'), q('NQ=F', 29187, 0.24, '2026-10-26T09:11:08Z'), q('^N225', 62189, -0.8, '2026-10-26T06:45:03Z'), q('^HSI', 23211, 0.51, '2026-10-26T08:08:28Z')] };
+  const pre = buildSessionBridge({ nowMs: Date.parse('2026-10-26T13:13:00Z'), snapshot });
+  const local = pre.links.find((link) => link.id === 'local'), fx = pre.links.find((link) => link.id === 'fx'), us = pre.links.find((link) => link.id === 'us');
+  if (pre.clock.us.phase !== 'pre' || pre.clock.us.opensIn !== 17 || !/22:30 KST/.test(pre.clockLine) || pre.clock.kr.phase !== 'closed-today'
+    || local?.verdict !== 'supports' || fx?.verdict !== 'against' || us?.verdict !== 'against' || !pre.futuresStale || !/한국 하락이 미국으로 번지는 신호는 아직 없습니다/.test(pre.next) || !/유가/.test(pre.oil || ''))
+    fail(`v58.81 session bridge Monday pre-market: ${JSON.stringify({ clock: pre.clock, links: pre.links.map((l) => [l.id, l.verdict]), stale: pre.futuresStale, next: pre.next })}`);
+  // EST after 11/1: the open moves to 23:30 KST; Saturday is a weekend for both; the US regular session gives no "next" line.
+  if (!/23:30 KST/.test(marketClock(Date.parse('2026-11-03T13:00:00Z')) && buildSessionBridge({ nowMs: Date.parse('2026-11-03T13:00:00Z'), snapshot }).clockLine)
+    || marketClock(Date.parse('2026-10-24T05:00:00Z')).us.phase !== 'closed' || marketClock(Date.parse('2026-10-24T05:00:00Z')).kr.phase !== 'closed'
+    || buildSessionBridge({ nowMs: Date.parse('2026-10-26T15:00:00Z'), snapshot }).next !== null) fail('v58.81 session clock DST/weekend/regular-session cases');
+  if (buildSessionBridge({ nowMs: Date.parse('2026-10-26T13:13:00Z'), snapshot: null }).available) fail('v58.81 no snapshot, no bridge');
+  // Review fixes: a US session after the Korean close is not its cause; no "tonight" line on Saturday or after the US
+  // close; Friday night futures are not "trading" or stale.
+  const tue = { ...snapshot, quotes: snapshot.quotes.map((row) => row.instrumentId === '^IXIC' ? { ...row, changePct: -2, observedAt: '2026-10-26T20:15:00Z' } : row) };
+  const morning = buildSessionBridge({ nowMs: Date.parse('2026-10-26T21:00:00Z'), snapshot: tue });
+  const sat = buildSessionBridge({ nowMs: Date.parse('2026-10-24T05:00:00Z'), snapshot });
+  const friNight = marketClock(Date.parse('2026-10-24T01:30:00Z'));
+  const nextDayFx = buildSessionBridge({ nowMs: Date.parse('2026-10-26T23:30:00Z'), snapshot: { ...snapshot, quotes: snapshot.quotes.map((row) => row.instrumentId === 'KRW=X' ? { ...row, changePct: 1, observedAt: '2026-10-26T23:20:00Z' } : row) } });
+  if (nextDayFx.links.some((link) => link.id === 'fx')) fail('v58.81 a next-day FX reading is not a cause of the previous Korean session');
+  if (morning.links.some((link) => link.id === 'us') || morning.next !== null || sat.next !== null || sat.futuresStale || !/주말 휴장/.test(friNight.us.label))
+    fail(`v58.81 bridge review cases: ${JSON.stringify({ links: morning.links.map((l) => l.id), next: [morning.next, sat.next], stale: sat.futuresStale, fri: friNight.us.label })}`);
+}
+
+// v58.81 (owner 2026-10-26): the probabilistic lean — a frequency votes only beyond its sampling noise on 30+ cases, the
+// condition count votes at a two-axis gap, opposite votes read 엇갈림, and the base rate is always stated.
+{
+  const { buildMarketLean, frequencyEvidence } = await load('src/domain/market/market-lean.js');
+  const stress = { all: { 21: { hitRate: 64 } }, bands: [{ id: 'normal', horizons: { 21: { hitRate: 63.4, nEff: 136 } } }, { id: 'stress', horizons: { 21: { hitRate: 80, nEff: 60 } } }] };
+  const regime = (favorable, burden) => ({ available: true, counts: { favorable, neutral: 6 - favorable - burden, burden } });
+  const today = buildMarketLean({ regime: regime(0, 3), stress, vix: 19.2 });
+  // Codex review: the VIX band rate pools overlapping windows, so it never votes; a retained or older temperature body
+  // is held out; the won counts only on the Korean session's KST date.
+  const temp = (state, asOf) => ({ retained: [], markets: { spx: { state, asOf, outcomes: { [state]: { h21: { n: 60, hitRate: 85 } }, all: { h21: { hitRate: 64 } } } } } });
+  const mixed = buildMarketLean({ regime: { ...regime(0, 3), asOf: '2026-10-23' }, stress, vix: 33, temperature: temp('cold', '2026-10-23') });
+  const up = buildMarketLean({ regime: { ...regime(3, 0), asOf: '2026-10-23' }, stress, vix: 33, temperature: temp('cold', '2026-10-23') });
+  const vixOnly = buildMarketLean({ regime: regime(1, 1), stress, vix: 33 });
+  const held = buildMarketLean({ regime: { ...regime(1, 1), asOf: '2026-10-23' }, temperature: { ...temp('cold', '2026-10-23'), retained: ['spx'] } });
+  const older = buildMarketLean({ regime: { ...regime(1, 1), asOf: '2026-10-23' }, temperature: temp('cold', '2026-10-16') });
+  if (vixOnly.us.label !== '뚜렷한 우위 없음' || held.us.items.some((i) => i.id === 'temp-spx') || older.us.items.some((i) => i.id === 'temp-spx'))
+    fail(`v58.81 lean holds overlapping/retained evidence: ${JSON.stringify({ vixOnly: vixOnly.us.label, held: held.us.items.map((i) => i.id), older: older.us.items.map((i) => i.id) })}`);
+  const none = buildMarketLean({ regime: regime(1, 2), stress, vix: 19.2 });
+  const small = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 20 });
+  const tiny = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 9.9 });
+  if (today.us.label !== '약한 매도 우위 (조건 기준)' || !today.us.countOnly || buildMarketLean({ regime: regime(0, 3) }).us.read.includes('구분되지 않아') || !/64%/.test(today.us.read) || /가능성/.test(today.us.read) || today.us.items.find((i) => i.id === 'vix-band')?.vote !== 0
+    || mixed.us.label !== '엇갈림' || up.us.label !== '매수 우위' || none.us.label !== '뚜렷한 우위 없음'
+    || small.vote !== 0 || !small.small || tiny.rate !== undefined || !/비율을 내지 않습니다/.test(tiny.text))
+    fail(`v58.81 market lean: ${JSON.stringify({ today: today.us.label, mixed: mixed.us.label, up: up.us.label, none: none.us.label, small, tiny })}`);
+}

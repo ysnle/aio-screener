@@ -271,7 +271,8 @@ check('P1309/R654/QA-DATA-51 full-discovery-failure-path-preserves-ownership-lkg
 const producerWiring = [
   // v58.72 (P2006): the discovery writer passes `pretty` through (filing-discovery.json is written compact).
   ['collect-13f-discovery.mjs', ['writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile })']],
-  ['collect-13f-reference.mjs', ['writeJsonIfSemanticallyChanged(file, value, { writer: atomicWriteFile })']],
+  // v58.81 (P2093): the reference writer also keeps filing-discovery.json compact and filings.json free of 13D/G events.
+  ['collect-13f-reference.mjs', ['writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile })', '}, { pretty: false });', 'ownershipEvents: _events']],
   ['collect-13f-history-index.mjs', ['writeJsonIfSemanticallyChanged(outputPath, result, { writer: atomicWriteFile })']],
   ['collect-13f-history-rows.mjs', [
     'writeJsonIfSemanticallyChanged(historyPath, history, { writer: atomicWriteFile })',
