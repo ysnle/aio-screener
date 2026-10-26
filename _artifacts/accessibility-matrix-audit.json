@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-26T23:43:13.108Z",
-  "appRevision": "v59.10",
-  "gitHead": "ad6e1bf28cfac4b78c297d52e0fe61874861addc",
+  "observedAt": "2026-10-26T23:52:26.348Z",
+  "appRevision": "v59.11",
+  "gitHead": "346cb7ca629d6fc737b3bc09f3038aaf74b66f10",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -131,8 +131,170 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 23,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "연준 목표 범위 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "실효 연방기금금리 (월평균) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "CPI (전년 대비) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "근원 CPI (전년 대비) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "PCE 물가 (전년 대비) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "근원 PCE (전년 대비) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "주거비 CPI (전년 대비) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "주거비 제외 서비스 CPI (전년 대비) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "실업률 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "비농업 고용 증감 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "시간당 임금 (전년 대비) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "경제활동참가율 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "소매판매 (전월 대비) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "주택 착공 (연율) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "건축 허가 (연율) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "기준금리(실효 연방기금금리) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "미국 10년물 금리 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "미국 2년물 금리 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "10년물 − 3개월물 금리차 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "10년 실질금리 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "근원 CPI 전년 대비 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "실업률 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "VIX 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -149,8 +311,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -167,8 +337,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 24,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 23,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -370,8 +555,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 24,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     }

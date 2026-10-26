@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T23:39:56.272Z",
+  "generatedAt": "2026-10-26T23:49:14.737Z",
   "routes": [
     {
       "id": "home",
@@ -296,8 +296,148 @@
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
+        {
+          "tag": "SELECT",
+          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CRL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NDAQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CTAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XOM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CVX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "IFF"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TECH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CHTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NFLX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FSLR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TKO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CBRE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TMUS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APP"
+        },
+        {
+          "tag": "SELECT",
+          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LITE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "P"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "COHR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SNPS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AKAM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TSLA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LMT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CIEN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TXN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NXPI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ADI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DOW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "INTC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FICO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DASH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CHTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RDDT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태에서 추세 축과 함께 보기 →"
+        },
         {
           "tag": "BUTTON",
           "name": "지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기"
@@ -309,11 +449,40 @@
         {
           "tag": "BUTTON",
           "name": "확정 종가와 공식 발표 — 리서치 라이브러리에서 개념 배우기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마와 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
         }
       ],
       "headings": [
         "시장 폭",
         "시장 폭 판정",
+        "참여도 — 이동평균 위 종목 비율",
+        "20일선 위 종목 비율",
+        "50일선 위 종목 비율",
+        "200일선 위 종목 비율",
+        "40일선 위 종목 비율",
+        "상승 종목 비율 (10일 평균)",
+        "누적 상승-하락 종목 수 (A/D 라인)",
+        "강한 종목 수 — 신고가·신저가, 급등락",
+        "52주 신고가 − 신저가 종목 수",
+        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
+        "지수 확인 — 분배일과 S&P 500",
+        "S&P 500 (같은 기간 비교)",
+        "S&P 500 매도 우위일(분배일, 최근 25거래일)",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
       ]
     },
@@ -365,6 +534,10 @@
         {
           "tag": "BUTTON",
           "name": "닛케이 225: 5개 요소 중 3개가 최근 3년 하위 10% — 강한 냉각 1거래일째"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "지수별 가격 온도 (참고) 근거 보기"
         },
         {
           "tag": "BUTTON",
