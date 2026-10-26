@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-26T14:54:04.918Z",
-  "appRevision": "v58.85",
-  "gitHead": "cde761f12d9bfce2aba1002621dc587850ccb76c",
+  "observedAt": "2026-10-26T15:15:14.082Z",
+  "appRevision": "v58.87",
+  "gitHead": "a481f70f22edbebd0db91193c0d8c6b4a81bed4b",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -131,16 +131,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "KST",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -211,8 +203,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 22,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 23,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -337,15 +344,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "13F",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
         {
           "id": "",
           "text": "GitHub Issues",

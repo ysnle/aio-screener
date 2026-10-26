@@ -1,13 +1,455 @@
 {
-  "status": "FAIL",
+  "status": "PASS",
   "release": "v57.81",
   "evidence": "Headless real routes; Yahoo chart, SEC companyfacts/submissions and the US listing directory are intercepted fixtures; other external calls (AI included) aborted. Not live provider certification.",
   "paidCalls": 0,
-  "observations": [],
-  "failures": [
+  "observations": [
     {
-      "message": "browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝",
-      "stack": "browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝\n    at /home/user/aio-screener/scripts/ci-out-of-universe-ticker-browser-check.mjs:83:28"
+      "label": "phone",
+      "ufpt": {
+        "state": "ready",
+        "text": "랭킹 대상 밖 종목 — 현재 유니버스 기준 위치현재 유니버스 812종목 안의 위치(백분위)하위상위 약 11%상위스크리너와 같은 가격·재무 공식으로 10/23 종가까지의 값을 계산해 현재 공개 유니버스 812종목에 넣어 보면 상위 약 11% 자리(백분위 89)입니다.계산에 쓴 항목: 모멘텀, 추세, 낮은 변동성, 가치, 수익성, 추세 속도. 빠진 항목은 추정하지 않고 비워 둡니다.2026-10-27 00:14 한국 시간에 요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 Materials는 SEC 산업분류(SIC 3089 Plastics Products, NEC)를 옮긴 값입니다.계산에 쓴 입력과 빠진 입력모멘텀: 사용 — 입력: 1개월 수익률, 3개월 수익률, 6개월 수익률추세: 사용 — 입력: 50일선 거리, 200일선 거리낮은 변동성: 사용 — 입력: 60일 변동성규모: 모델에서 비활성 — 현재 유니버스 전체에서 이 항목의 유효값이 80%에 못 미쳐 모든 종목에서 빠진 항목입니다가치: 사용 — 입력: PER, PBR수익성: 사용 — 입력: ROE, 순이익률, 매출 성장률추세 속도: 사용 — 입력: 추세 속도스크리너 비교에 넣기",
+        "inputs": [
+          {
+            "factor": "momentum",
+            "status": "used"
+          },
+          {
+            "factor": "trend",
+            "status": "used"
+          },
+          {
+            "factor": "lowvol",
+            "status": "used"
+          },
+          {
+            "factor": "size",
+            "status": "inactive"
+          },
+          {
+            "factor": "value",
+            "status": "used"
+          },
+          {
+            "factor": "quality",
+            "status": "used"
+          },
+          {
+            "factor": "kalman",
+            "status": "used"
+          }
+        ],
+        "marker": true,
+        "button": true
+      },
+      "hero": {
+        "price": "$248.75",
+        "chartEnd": "2026-10-23",
+        "record": {
+          "status": "ready",
+          "secStatus": "ready",
+          "sessionDate": "2026-10-23",
+          "rank": 89,
+          "ranked": 812
+        },
+        "context": "현재 선택 기업 UFPT. UFP Technologies, Inc. — 3개월 수익률 +4.7% / 연간 공시 FY2025 순이익률 11.7%, ROE 17.9%(기말 자기자본 기준)\n정체성: US / STOCK / Materials (산업분류: Plastics Products, NEC (SEC SIC 3089)).\n사업: 내부 사업 설명 미수집. 필요하면 공식 회사 소개·공시의 사업부문을 웹검색으로 확인하고 추정하지 말 것.\n연결 테마: 없음 (사업부문 매출 비중이 아님).\n재무: 2025-12-31 회계연도. 공시 기록: 회계연도 2025-12-31 매출 5억 달러(전년 대비 +26.0%), 순이익률 11.7%. 여러 해 추이 그래프는 다음 재무 데이터 갱신 뒤 표시됩니다. 자본 효율: ROE 17.9%(기말 자기자본 기준) — 평균적인 자본 효율입니다. 현금 전환: 이 회사의 공시 수집본에는 영업현금흐름·설비투자가 없어 잉여현금흐름과 ROIC(투하자본 대비 이익)는 이 화면에서 계산하지 않습니다. 10-K 현금흐름표에서 확인하며, 다른 출처의 FCF 값과 기간을 섞어 쓰지 않습니다.\n관찰: 추가 관측 없음. 미수집 자료는 없음으로 알리고 출처·관측일을 분리할 것.\n랭킹 대상 밖 종목 — 현재 유니버스 기준 위치 (UFPT): 스크리너와 같은 가격·재무 공식으로 10/23 종가까지의 값을 계산해 현재 공개 유니버스 812종목에 넣어 보면 상위 약 11% 자리(백분위 89)입니다. 계산에 쓴 항목: 모멘텀, 추세, 낮은 변동성, 가치, 수익성, 추세 속도. 빠진 항목은 추정하지 않고 비워 둡니다. 2026-10-27 00:14 한국 시간에 요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 Materials는 SEC 산업분류(SIC 3089 Plastics Products, NEC)를 옮긴 값입니다. 공개 스크리너 순위가 아니므로 '순위 n위'로 말하지 말고 요청 시 계산한 위치로만 설명한다.",
+        "registered": false
+      }
+    },
+    {
+      "label": "phone/ticker-ufpt",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone",
+      "fund": "● SEC 연간 공시, 회계연도 말 2025-12-31"
+    },
+    {
+      "label": "phone/fundamental-ufpt",
+      "layout": {
+        "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone",
+      "halo": {
+        "state": "ready",
+        "text": "랭킹 대상 밖 종목 — 현재 유니버스 기준 위치스크리너 모델은 가중치의 80% 이상에 해당하는 입력이 있어야 위치를 매기는데, 이 종목은 그 기준에 못 미쳐 위치를 매기지 않았습니다.계산에 쓴 항목: 모멘텀, 추세, 낮은 변동성, 추세 속도, 빠진 항목: 가치, 수익성. 빠진 항목은 추정하지 않고 비워 둡니다.SEC 등록번호(CIK)를 상장 목록에서 확인하지 못해 재무 공시를 읽지 않았습니다.2026-10-27 00:14 한국 시간에 요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 분류가 없어 섹터 안이 아닌 유니버스 전체 기준으로 비교했습니다.계산에 쓴 입력과 빠진 입력모멘텀: 사용 — 입력: 1개월 수익률, 3개월 수익률, 6개월 수익률추세: 사용 — 입력: 50일선 거리, 200일선 거리낮은 변동성: 사용 — 입력: 60일 변동성규모: 모델에서 비활성 — 현재 유니버스 전체에서 이 항목의 유효값이 80%에 못 미쳐 모든 종목에서 빠진 항목입니다가치: 빠짐 — 빠진 입력: PER, PBR수익성: 빠짐 — 빠진 입력: ROE, 순이익률, 매출 성장률추세 속도: 사용 — 입력: 추세 속도스크리너 비교에 넣기",
+        "inputs": [
+          {
+            "factor": "momentum",
+            "status": "used"
+          },
+          {
+            "factor": "trend",
+            "status": "used"
+          },
+          {
+            "factor": "lowvol",
+            "status": "used"
+          },
+          {
+            "factor": "size",
+            "status": "inactive"
+          },
+          {
+            "factor": "value",
+            "status": "missing"
+          },
+          {
+            "factor": "quality",
+            "status": "missing"
+          },
+          {
+            "factor": "kalman",
+            "status": "used"
+          }
+        ],
+        "marker": false,
+        "button": true
+      }
+    },
+    {
+      "label": "phone",
+      "tray": {
+        "list": "동일 기준 비교HALOHalozyme Therapeutics, Inc.가격$51.441개월+0.6%3개월-1.9%RSI43.9수축 구조(VCP)·충족도이동평균 배열 충족, 충족도 25비교 종목 모두 값이 없어 뺀 항목: 백분위, 밸류, 퀄리티HALO: 랭킹 대상 밖 종목 — 순위 칸은 비우고, 다른 값은 2026-10-26 요청 시 같은 공식으로 계산했습니다.",
+        "note": "HALO: 랭킹 대상 밖 종목 — 순위 칸은 비우고, 다른 값은 2026-10-26 요청 시 같은 공식으로 계산했습니다."
+      }
+    },
+    {
+      "label": "phone/screener-compare",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone",
+      "accept": {
+        "saved": [
+          "MLI"
+        ],
+        "quoteSet": [
+          "UFPT",
+          "HALO",
+          "MLI"
+        ],
+        "zzzz": {
+          "ok": false,
+          "id": "ZZZZ",
+          "reason": "not-listed"
+        }
+      }
+    },
+    {
+      "label": "phone",
+      "firstUse": {
+        "lists": [
+          {
+            "name": "관심 종목",
+            "syms": [
+              "MLI"
+            ]
+          }
+        ],
+        "hasInput": true,
+        "before": null,
+        "after": null
+      }
+    },
+    {
+      "label": "phone",
+      "portfolio": {
+        "rows": [
+          "UFPT",
+          "HALO"
+        ],
+        "valued": [
+          "UFPT",
+          "HALO"
+        ]
+      }
+    },
+    {
+      "label": "phone/portfolio",
+      "layout": {
+        "route": "page-portfolio",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone",
+      "ai": {
+        "block": "ready",
+        "chat": "랭킹 대상 밖 종목 — 현재 유니버스 기준 위치 (MLI): 스크리너와 같은 가격·재무 공식으로 10/23 종가까지의 값을 계산해 현재 공개 유니버스 812종목에 넣어 보면 상위 약 12% 자리(백분위 88)입니다. 계산에 쓴 항목: 모멘텀, 추세, 낮은 변동성, 가치, 수익성, 추세 속도. 빠진 항목은 추정하지 않고 비워 둡니다. 2026-10-27 00:14 한국 시간에 요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 Materials는 SEC 산업분류(SIC 3350 Rolling Drawing & Extruding)를 옮긴 값입니다. 공개 스크리너 순위가 아니므로 '순위 n위'로 말하지 말고 요청 시 계산한 위치로만 설명한다.",
+        "facts": [
+          "MLI"
+        ]
+      }
+    },
+    {
+      "label": "phone/ticker-mli",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone",
+      "served": [
+        "chart:UFPT",
+        "listing",
+        "sec-facts:0000914156",
+        "sec-submissions:0000914156",
+        "chart:HALO",
+        "chart:MLI",
+        "sec-facts:0000089439",
+        "sec-submissions:0000089439"
+      ],
+      "abortedHosts": [
+        "cdn.jsdelivr.net",
+        "aio-proxy.zmfhd007.workers.dev",
+        "api.coingecko.com",
+        "api.allorigins.win",
+        "production.dataviz.cnn.io",
+        "api.codetabs.com",
+        "open.er-api.com",
+        "api.rss2json.com",
+        "api.exchangerate-api.com"
+      ]
+    },
+    {
+      "label": "desktop",
+      "ufpt": {
+        "state": "ready",
+        "text": "랭킹 대상 밖 종목 — 현재 유니버스 기준 위치현재 유니버스 812종목 안의 위치(백분위)하위상위 약 11%상위스크리너와 같은 가격·재무 공식으로 10/23 종가까지의 값을 계산해 현재 공개 유니버스 812종목에 넣어 보면 상위 약 11% 자리(백분위 89)입니다.계산에 쓴 항목: 모멘텀, 추세, 낮은 변동성, 가치, 수익성, 추세 속도. 빠진 항목은 추정하지 않고 비워 둡니다.2026-10-27 00:15 한국 시간에 요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 Materials는 SEC 산업분류(SIC 3089 Plastics Products, NEC)를 옮긴 값입니다.계산에 쓴 입력과 빠진 입력모멘텀: 사용 — 입력: 1개월 수익률, 3개월 수익률, 6개월 수익률추세: 사용 — 입력: 50일선 거리, 200일선 거리낮은 변동성: 사용 — 입력: 60일 변동성규모: 모델에서 비활성 — 현재 유니버스 전체에서 이 항목의 유효값이 80%에 못 미쳐 모든 종목에서 빠진 항목입니다가치: 사용 — 입력: PER, PBR수익성: 사용 — 입력: ROE, 순이익률, 매출 성장률추세 속도: 사용 — 입력: 추세 속도스크리너 비교에 넣기",
+        "inputs": [
+          {
+            "factor": "momentum",
+            "status": "used"
+          },
+          {
+            "factor": "trend",
+            "status": "used"
+          },
+          {
+            "factor": "lowvol",
+            "status": "used"
+          },
+          {
+            "factor": "size",
+            "status": "inactive"
+          },
+          {
+            "factor": "value",
+            "status": "used"
+          },
+          {
+            "factor": "quality",
+            "status": "used"
+          },
+          {
+            "factor": "kalman",
+            "status": "used"
+          }
+        ],
+        "marker": true,
+        "button": true
+      },
+      "hero": {
+        "price": "$248.75",
+        "chartEnd": "2026-10-23",
+        "record": {
+          "status": "ready",
+          "secStatus": "ready",
+          "sessionDate": "2026-10-23",
+          "rank": 89,
+          "ranked": 812
+        },
+        "context": "현재 선택 기업 UFPT. UFP Technologies, Inc. — 3개월 수익률 +4.7% / 연간 공시 FY2025 순이익률 11.7%, ROE 17.9%(기말 자기자본 기준)\n정체성: US / STOCK / Materials (산업분류: Plastics Products, NEC (SEC SIC 3089)).\n사업: 내부 사업 설명 미수집. 필요하면 공식 회사 소개·공시의 사업부문을 웹검색으로 확인하고 추정하지 말 것.\n연결 테마: 없음 (사업부문 매출 비중이 아님).\n재무: 2025-12-31 회계연도. 공시 기록: 회계연도 2025-12-31 매출 5억 달러(전년 대비 +26.0%), 순이익률 11.7%. 여러 해 추이 그래프는 다음 재무 데이터 갱신 뒤 표시됩니다. 자본 효율: ROE 17.9%(기말 자기자본 기준) — 평균적인 자본 효율입니다. 현금 전환: 이 회사의 공시 수집본에는 영업현금흐름·설비투자가 없어 잉여현금흐름과 ROIC(투하자본 대비 이익)는 이 화면에서 계산하지 않습니다. 10-K 현금흐름표에서 확인하며, 다른 출처의 FCF 값과 기간을 섞어 쓰지 않습니다.\n관찰: 추가 관측 없음. 미수집 자료는 없음으로 알리고 출처·관측일을 분리할 것.\n랭킹 대상 밖 종목 — 현재 유니버스 기준 위치 (UFPT): 스크리너와 같은 가격·재무 공식으로 10/23 종가까지의 값을 계산해 현재 공개 유니버스 812종목에 넣어 보면 상위 약 11% 자리(백분위 89)입니다. 계산에 쓴 항목: 모멘텀, 추세, 낮은 변동성, 가치, 수익성, 추세 속도. 빠진 항목은 추정하지 않고 비워 둡니다. 2026-10-27 00:15 한국 시간에 요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 Materials는 SEC 산업분류(SIC 3089 Plastics Products, NEC)를 옮긴 값입니다. 공개 스크리너 순위가 아니므로 '순위 n위'로 말하지 말고 요청 시 계산한 위치로만 설명한다.",
+        "registered": false
+      }
+    },
+    {
+      "label": "desktop/ticker-ufpt",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop",
+      "fund": "● SEC 연간 공시, 회계연도 말 2025-12-31"
+    },
+    {
+      "label": "desktop/fundamental-ufpt",
+      "layout": {
+        "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop",
+      "halo": {
+        "state": "ready",
+        "text": "랭킹 대상 밖 종목 — 현재 유니버스 기준 위치스크리너 모델은 가중치의 80% 이상에 해당하는 입력이 있어야 위치를 매기는데, 이 종목은 그 기준에 못 미쳐 위치를 매기지 않았습니다.계산에 쓴 항목: 모멘텀, 추세, 낮은 변동성, 추세 속도, 빠진 항목: 가치, 수익성. 빠진 항목은 추정하지 않고 비워 둡니다.SEC 등록번호(CIK)를 상장 목록에서 확인하지 못해 재무 공시를 읽지 않았습니다.2026-10-27 00:15 한국 시간에 요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 분류가 없어 섹터 안이 아닌 유니버스 전체 기준으로 비교했습니다.계산에 쓴 입력과 빠진 입력모멘텀: 사용 — 입력: 1개월 수익률, 3개월 수익률, 6개월 수익률추세: 사용 — 입력: 50일선 거리, 200일선 거리낮은 변동성: 사용 — 입력: 60일 변동성규모: 모델에서 비활성 — 현재 유니버스 전체에서 이 항목의 유효값이 80%에 못 미쳐 모든 종목에서 빠진 항목입니다가치: 빠짐 — 빠진 입력: PER, PBR수익성: 빠짐 — 빠진 입력: ROE, 순이익률, 매출 성장률추세 속도: 사용 — 입력: 추세 속도스크리너 비교에 넣기",
+        "inputs": [
+          {
+            "factor": "momentum",
+            "status": "used"
+          },
+          {
+            "factor": "trend",
+            "status": "used"
+          },
+          {
+            "factor": "lowvol",
+            "status": "used"
+          },
+          {
+            "factor": "size",
+            "status": "inactive"
+          },
+          {
+            "factor": "value",
+            "status": "missing"
+          },
+          {
+            "factor": "quality",
+            "status": "missing"
+          },
+          {
+            "factor": "kalman",
+            "status": "used"
+          }
+        ],
+        "marker": false,
+        "button": true
+      }
+    },
+    {
+      "label": "desktop",
+      "tray": {
+        "list": "동일 기준 비교HALOHalozyme Therapeutics, Inc.가격$51.441개월+0.6%3개월-1.9%RSI43.9수축 구조(VCP)·충족도이동평균 배열 충족, 충족도 25비교 종목 모두 값이 없어 뺀 항목: 백분위, 밸류, 퀄리티HALO: 랭킹 대상 밖 종목 — 순위 칸은 비우고, 다른 값은 2026-10-26 요청 시 같은 공식으로 계산했습니다.",
+        "note": "HALO: 랭킹 대상 밖 종목 — 순위 칸은 비우고, 다른 값은 2026-10-26 요청 시 같은 공식으로 계산했습니다."
+      }
+    },
+    {
+      "label": "desktop/screener-compare",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop",
+      "accept": {
+        "saved": [
+          "MLI"
+        ],
+        "quoteSet": [
+          "UFPT",
+          "HALO",
+          "MLI"
+        ],
+        "zzzz": {
+          "ok": false,
+          "id": "ZZZZ",
+          "reason": "not-listed"
+        }
+      }
+    },
+    {
+      "label": "desktop",
+      "firstUse": {
+        "lists": [
+          {
+            "name": "관심 종목",
+            "syms": [
+              "MLI"
+            ]
+          }
+        ],
+        "hasInput": true,
+        "before": null,
+        "after": null
+      }
+    },
+    {
+      "label": "desktop",
+      "portfolio": {
+        "rows": [
+          "UFPT",
+          "HALO"
+        ],
+        "valued": [
+          "UFPT",
+          "HALO"
+        ]
+      }
+    },
+    {
+      "label": "desktop/portfolio",
+      "layout": {
+        "route": "page-portfolio",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop",
+      "ai": {
+        "block": "ready",
+        "chat": "랭킹 대상 밖 종목 — 현재 유니버스 기준 위치 (MLI): 스크리너와 같은 가격·재무 공식으로 10/23 종가까지의 값을 계산해 현재 공개 유니버스 812종목에 넣어 보면 상위 약 12% 자리(백분위 88)입니다. 계산에 쓴 항목: 모멘텀, 추세, 낮은 변동성, 가치, 수익성, 추세 속도. 빠진 항목은 추정하지 않고 비워 둡니다. 2026-10-27 00:15 한국 시간에 요청 시 계산한 값이며 공개 순위에는 들어가지 않습니다, 섹터 Materials는 SEC 산업분류(SIC 3350 Rolling Drawing & Extruding)를 옮긴 값입니다. 공개 스크리너 순위가 아니므로 '순위 n위'로 말하지 말고 요청 시 계산한 위치로만 설명한다.",
+        "facts": [
+          "MLI"
+        ]
+      }
+    },
+    {
+      "label": "desktop/ticker-mli",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop",
+      "served": [
+        "chart:UFPT",
+        "listing",
+        "sec-facts:0000914156",
+        "sec-submissions:0000914156",
+        "chart:HALO",
+        "chart:MLI",
+        "sec-facts:0000089439",
+        "sec-submissions:0000089439"
+      ],
+      "abortedHosts": [
+        "cdn.jsdelivr.net",
+        "aio-proxy.zmfhd007.workers.dev",
+        "api.coingecko.com",
+        "open.er-api.com",
+        "api.allorigins.win",
+        "api.exchangerate-api.com",
+        "api.codetabs.com",
+        "api.rss2json.com",
+        "production.dataviz.cnn.io"
+      ]
     }
-  ]
+  ],
+  "failures": []
 }
