@@ -1,3 +1,6 @@
+## v58.85 (2026-10-26)
+- **레거시 분해 1/8 — 거시 · 금리 (v58.85):** 거시 화면에 남아 있던 legacy 렌더러(다음 주요 발표 헤더 `window.AIO.renderMacroNextRelease`, 한국 거시 기준일 배지 `_aioRenderKrMacroFreshnessBadges`, `_initMacroPage`와 그 page-shown 훅)를 `js/aio-core.js`에서 지우고 `src/ui/components/macro-next-release.js`로 옮겼다. `src/ui/pages/market.js` 거시 렌더가 두 함수를 직접 부르고, 헤드리스 테스트·QA용 전역 이름은 `src/app/compatibility-globals.js`가 유지한다. 화면 출력·속성은 그대로이며, 발표 시각 판정은 legacy와 같은 부팅 브리지(`_aioMacroReleaseNotYet`/`_aioReleaseKstLabel`)를 읽어 새 모듈이 부팅 번들 청크를 쪼개지 않는다(전역 이름은 동적 import로 설치, 부팅 예산 안). legacy의 `aio:sharedMarketCut` 재렌더 리스너는 document에 걸려 있었지만 이벤트는 window로 발송돼 한 번도 실행되지 않았다 — 같은 서버 데이터 패스의 `aio:serverDataLoaded` 재렌더가 이미 헤더를 다시 그리므로 옮기지 않았다. 게이트 4건(structural·runtime-contract)이 새 위치를 읽는다.
+- R1 7곳 v58.85
 ## v58.84 (2026-10-26)
 - **운영 알림 깜빡임 정리 (P2102):** 열린 운영 알림은 두 번 연속 성공해야 닫힌다. 흔들리는 레인이 성공 한 번마다 닫혔다 다시 열리며 알림을 두 개씩 보내던 문제(이슈 #4 댓글 184개)를 막는다.
 - **테마 연구 게이트 CDN 의존 제거 (P2103):** 차트 라이브러리를 SRI 검사한 로컬 사본에서 제공해 외부망이 막힌 환경에서도 같은 결과가 나온다.

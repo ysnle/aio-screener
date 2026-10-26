@@ -53,7 +53,7 @@ check('T823 KST/KR regression test must exist', /T823 v5056_kst_kr_index_contrac
 check('T823 must validate numeric KR index consistency', /expectedDelta823 = price823 - prev823/.test(tests));
 // P1386: later official dates may be appended; the verified history prefix must stay intact.
 check('official NFP/CPI/ISM schedule must replace mechanical monthly dates', /'us-nfp': \['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02'(?:, '\d{4}-\d{2}-\d{2}')*\]/.test(core) && /'us-cpi': \['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14'(?:, '\d{4}-\d{2}-\d{2}')*\]/.test(core) && /'us-ism-mfg': \['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01'(?:, '\d{4}-\d{2}-\d{2}')*\]/.test(core) && /'us-ism-svc': \['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05'(?:, '\d{4}-\d{2}-\d{2}')*\]/.test(core));
-check('macro page must expose the next official release', /id="macro-next-release"/.test(html) && /renderMacroNextRelease/.test(core));
+check('macro page must expose the next official release', /id="macro-next-release"/.test(html) && /renderMacroNextRelease\(\{ documentRef, root \}\)/.test(read('src/ui/pages/market.js'))); // v58.85: the renderer moved from aio-core.js to src/ui/components/macro-next-release.js
 check('VVIX live snapshot and fallback mirror must update together', /DATA_SNAPSHOT\._fallback\.vvix = price/.test(data));
 check('known KR ticker mappings must be corrected', /sym:'011200\.KS', name:'HMM'/.test(data) && /sym:'041510\.KQ', name:'SM엔터테인먼트'/.test(data) && /'403870\.KQ': \{ en: 'HPSP'/.test(core));
 check('known KR ticker mapping regressions must be absent', !/sym:'011200\.KS', name:'HJ중공업'|sym:'041510\.KS'|'403870\.KQ': \{ en: 'HJ Sci'/.test(data + core));
