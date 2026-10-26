@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-26T04:51:36.951Z",
-  "attemptedAt": "2026-10-26T04:51:36.951Z",
-  "lastSuccessfulAt": "2026-10-26T04:51:36.951Z",
+  "generatedAt": "2026-10-26T05:21:28.752Z",
+  "attemptedAt": "2026-10-26T05:21:28.752Z",
+  "lastSuccessfulAt": "2026-10-26T05:21:28.752Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-12T04:51:33.374Z",
-  "until": "2026-10-26T04:51:33.374Z",
+  "since": "2026-10-12T05:21:24.529Z",
+  "until": "2026-10-26T05:21:24.529Z",
   "current24hWindow": {
     "start": "2026-10-24T23:00:00.000Z",
     "end": "2026-10-25T23:00:00.000Z",
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1266,
-      "freshCount": 20,
-      "eligibleTextCount": 1215,
+      "count": 1264,
+      "freshCount": 40,
+      "eligibleTextCount": 1213,
       "selectedCount": 119,
       "error": null,
-      "lastPostId": 67344
+      "lastPostId": 67345
     },
     {
       "channel": "bornlupin",
@@ -117,26 +117,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 694,
-      "freshCount": 38,
-      "eligibleTextCount": 694,
+      "count": 695,
+      "freshCount": 39,
+      "eligibleTextCount": 695,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71015
+      "lastPostId": 71016
     }
   ],
-  "count": 2458,
-  "retainedItemCount": 461,
+  "count": 2457,
+  "retainedItemCount": 478,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2458,
-    "eligibleTextCount": 2395,
+    "observedCount": 2457,
+    "eligibleTextCount": 2394,
     "mediaOnlyCount": 63,
-    "highSignalCount": 467,
-    "broadSignalCount": 1029,
+    "highSignalCount": 465,
+    "broadSignalCount": 1027,
     "selectedRawCount": 403,
     "selectedEligibleCount": 403,
     "selectedRawCoveragePct": 16.8,
@@ -144,29 +144,29 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "macro": 420,
-    "geo": 356,
-    "earnings": 517,
     "market-note": 889,
-    "semi": 609,
+    "semi": 608,
+    "macro": 418,
+    "geo": 354,
+    "earnings": 516,
     "equity": 183,
     "media-only": 63,
-    "kr-market": 157,
-    "flows": 128,
-    "ai-policy": 170,
-    "japan": 141,
-    "power": 328,
+    "kr-market": 155,
+    "flows": 126,
+    "ai-policy": 169,
+    "japan": 140,
+    "power": 327,
     "credit": 120,
     "optical": 44,
     "healthcare": 137,
-    "crypto": 6,
+    "crypto": 5,
     "insider": 6
   },
   "tickerCounts": {
     "GOOG": 91,
-    "000660.KS": 73,
-    "TSM": 103,
-    "005930.KS": 50,
+    "000660.KS": 72,
+    "TSM": 102,
+    "005930.KS": 49,
     "APH": 1,
     "CEG": 1,
     "AMZN": 51,
@@ -252,13 +252,13 @@
   },
   "themes": [
     "Market Notes (889 posts in 14-day research window): 2026년 10월 26일 미국 레딧 베스트 게시물 분석 > AI 전체 - “돈은 대체 누가 버는 거냐” · “Who Da Fuck is even benefiting from AI?” 등장 · AI CAPEX...",
-    "Semiconductors/Memory (609 posts in 14-day research window): 노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상...",
-    "Earnings/Corporate (517 posts in 14-day research window): 테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
-    "Macro/Rates (420 posts in 14-day research window): >>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가...",
-    "Geopolitics (356 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
-    "AI Power/Grid (328 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "Semiconductors/Memory (608 posts in 14-day research window): 노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상...",
+    "Earnings/Corporate (516 posts in 14-day research window): 테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
+    "Macro/Rates (418 posts in 14-day research window): >>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가...",
+    "Geopolitics (354 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
+    "AI Power/Grid (327 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "Equity/Analyst (183 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "AI Policy/Export Controls (170 posts in 14-day research window): 2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
+    "AI Policy/Export Controls (169 posts in 14-day research window): 2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
   ],
   "catalysts": [
     {
@@ -268,7 +268,7 @@
     },
     {
       "key": "TSM",
-      "count": 103,
+      "count": 102,
       "text": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상..."
     },
     {
@@ -283,7 +283,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 73,
+      "count": 72,
       "text": "2026년 10월 24일 미국 증시 브리핑 미국 증시는 유가 급등과 인플레이션 압력 재확대 우려 속에 하락 마감. S&P 500은 0.52% 하락한 7,623.68, 다우지수는 1.23% 하락한..."
     },
     {
@@ -303,7 +303,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 50,
+      "count": 49,
       "text": "2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물..."
     },
     {
@@ -329,7 +329,7 @@
       "topics": [
         "macro"
       ],
-      "count": 420,
+      "count": 418,
       "focus": ">>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "geo"
       ],
-      "count": 356,
+      "count": 354,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "semi"
       ],
-      "count": 609,
+      "count": 608,
       "focus": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "power"
       ],
-      "count": 328,
+      "count": 327,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -383,7 +383,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 170,
+      "count": 169,
       "focus": "2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 157,
+      "count": 155,
       "focus": ">>외국인, 대만 주식 795억TWD(30억달러) 순매도…ETF 6개 종목 대거 매도 •대만 증시는 20일 1.13% 하락한 46,292.93pt로 마감함. 3대 기관투자자는 총 968TWD(약 29.79억..."
     },
     {
@@ -410,8 +410,8 @@
       "topics": [
         "crypto"
       ],
-      "count": 6,
-      "focus": "No retained full-text sample; 6 observed posts in the 14-day research window."
+      "count": 5,
+      "focus": "No retained full-text sample; 5 observed posts in the 14-day research window."
     },
     {
       "id": "earnings",
@@ -419,7 +419,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 517,
+      "count": 516,
       "focus": "테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "japan"
       ],
-      "count": 141,
+      "count": 140,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "flows"
       ],
-      "count": 128,
+      "count": 126,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -1802,12 +1802,12 @@
       "datetime": "2026-10-26T01:31:34.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
-      "summary": "2026년 10월 26일 (월요일) 트럼프 대통령 일정 07:00 PM (동부시간) → 한국시간 10월 27일 오전 8:00 트럼프 대통령, 미시시피주 코린스에서 정치 유세 개최 ※ 현지시간 06:00 PM...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 10월 26일 (월요일) 트럼프 대통령 일정 07:00 PM (동부시간) → 한국시간 10월 27일 오전 8:00 트럼프 대통령, 미시시피주 코린스에서 정치 유세 개최 ※ 현지시간 06:00 PM..."
     },
     {
       "id": "bornlupin/20818",
@@ -1871,13 +1871,14 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": "미국 레딧 관심도 유가→구글→나스닥→아마존→스페이스X",
       "tickers": [
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 유가→구글→나스닥→아마존→스페이스X"
     },
     {
       "id": "insidertracking/67317",
@@ -1886,15 +1887,16 @@
       "datetime": "2026-10-26T00:59:43.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "본 공시는 2026년 10월 26일자 동아일보에 보도된 \"SK하이닉스, 日 키옥시아 지분 차익 16조원 특별배당 추진\" 기사에 대한 해명공시(미확정) 입니다. - 당사는 주주가치 제고를 위해 다양한 주주환원...",
-      "lead": 1,
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "본 공시는 2026년 10월 26일자 동아일보에 보도된 \"SK하이닉스, 日 키옥시아 지분 차익 16조원 특별배당 추진\" 기사에 대한 해명공시(미확정) 입니다. - 당사는 주주가치 제고를 위해 다양한 주주환원..."
     },
     {
       "id": "aetherjapanresearch/26038",
