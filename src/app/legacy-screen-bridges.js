@@ -6,6 +6,7 @@ import { renderHomeVix } from '../ui/components/home-vix.js';
 import { renderHomeActionPlan } from '../ui/components/home-action-plan.js';
 import { renderNewsProgress } from '../ui/components/news-progress.js';
 import * as newsControls from '../ui/components/news-controls.js';
+import { setSectorPerfView } from '../ui/components/sector-perf-view.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
   // v58.85 거시 · 금리: header next-release line and 한국 거시 badges.
@@ -28,4 +29,6 @@ export function installLegacyScreenBridges(root, documentRef) {
   root.filterNewsByTopic = (filter, el) => newsControls.filterNewsByTopic(filter, el, at);
   root.filterNewsByTelegramOnly = (el) => newsControls.filterNewsByTelegramOnly(el, at);
   root.setNewsSortMode = (mode, el) => newsControls.setNewsSortMode(mode, el, at);
+  // v58.95 테마 · 섹터: the 11섹터 / +세부 업종 toggle (themes.js draws the bars).
+  root.setSectorPerfView = (view, el) => setSectorPerfView(view, el, at);
 }

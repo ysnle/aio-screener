@@ -763,6 +763,14 @@ const newsControlsProbe = await (async () => {
   return { after, tg: m.getNewsSurfaceControls().countryFilter, reasons, fetches, picked, cleared, score: buttons['sort-score-btn'].has('active'), time: buttons['sort-time-btn'].has('active') };
 })();
 check('v58.92 news filter chips and sort buttons keep their state, chip colours and repaint reasons outside the legacy news pipeline', newsControlsProbe.after.countryFilter === 'us' && newsControlsProbe.after.topicFilter === 'macro' && newsControlsProbe.after.sortMode === 'score' && newsControlsProbe.tg === 'tg' && newsControlsProbe.fetches === 1 && newsControlsProbe.reasons.join() === 'news-topic-filter,news-sort,news-country-telegram' && newsControlsProbe.picked === 'var(--accent)' && newsControlsProbe.cleared === 'var(--text-secondary)' && newsControlsProbe.score && !newsControlsProbe.time); // v58.92
+const sectorViewProbe = await (async () => {
+  const { setSectorPerfView } = await import('../src/ui/components/sector-perf-view.js');
+  const cls = () => { const set = new Set(['active']); return { classList: { remove: (c) => set.delete(c), add: (c) => set.add(c) }, on: () => set.has('active') }; };
+  const [a, b] = [cls(), cls()]; const events = []; const root = {};
+  setSectorPerfView('all', b, { root, documentRef: { querySelectorAll: () => [a, b], dispatchEvent: (e) => events.push(e.type) } });
+  return root._sectorPerfView === 'all' && !a.on() && b.on() && events.join() === 'aio:sectorPerfChanged';
+})();
+check('v58.95 the sector bars view toggle sets the shared view, marks one button and asks themes.js to repaint', sectorViewProbe);
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',

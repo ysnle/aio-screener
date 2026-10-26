@@ -653,7 +653,7 @@ if (/function generateSectorAnalysis\s*\(|sector-perf-analysis/.test(pagesSource
 for (const marker of ['renderThemePerformanceBars', 'sector-perf-bars', 'aioThemePerformanceBarsRenderer', 'weeklyPct']) {
   if (!themesPageSource.includes(marker) && marker !== 'sector-perf-bars' && marker !== 'weeklyPct') fail(`native theme performance-bars marker missing: ${marker}`);
 }
-if (!pagesSource.includes("container.dataset.aioThemePerformanceBarsRenderer === 'native'")) fail('theme performance-bars legacy writer fence missing');
+if (/function (renderSectorPerfBars|setSectorPerfMode|setSectorPerfView)\b/.test(pagesSource)) fail('v58.95 the legacy sector-bars writer and period/view handlers must stay out of js/aio-pages.js');
 
 // AG-DOM-WRITER (RM-01): src/ui/pages/* may only write ids/helpers that no legacy file also
 // writes. This is deliberately id-based (getElementById + the setText/text(documentRef, id, …)

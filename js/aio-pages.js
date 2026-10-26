@@ -960,7 +960,7 @@ function drawRRG() {
 // ═══════════════════════════════════════════════════════════════
 //  SECTOR PERFORMANCE BARS (확장: 11 섹터 + 서브섹터)
 // ═══════════════════════════════════════════════════════════════
-var _sectorPerfMode = '1d';
+// v58.95: the 11섹터/+세부 업종 toggle lives in src/ui/components/sector-perf-view.js, the bars in src/ui/pages/themes.js.
 var _sectorPerfView = 'sectors'; // 'sectors' or 'all'
 
 // v45.5: 1주 모드 weekly 캐시 (Yahoo Finance range=5d 사용)
@@ -970,32 +970,6 @@ var _sectorWeeklyTs = 0;
 
 // Current sector/theme rankings must be live/delayed only; there is no static fallback pct table
 // (v58.20: the empty _SECTOR_PCT_FALLBACK placeholder was read by nothing and is gone).
-
-function setSectorPerfMode(mode, btn) {
-  _sectorPerfMode = mode;
-  document.querySelectorAll('#sector-perf-tabs .news-sort-btn').forEach(function(b){ b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  // v45.5: 1주 모드면 미확보 섹터에 대해 fetch (캐시 일부만 채워진 경우 재시도)
-  if (mode === '1w' && !_sectorWeeklyFetching) {
-    var src = _sectorPerfView === 'all' ? (typeof ALL_RRG_ETFS !== 'undefined' ? ALL_RRG_ETFS : RRG_SECTORS) : RRG_SECTORS;
-    var missing = src.some(function(s) { return _sectorWeeklyCache[s.sym] == null; });
-    if (missing) fetchSectorWeeklyPerf();
-  }
-  renderSectorPerfBars();
-  try { document.dispatchEvent(new CustomEvent('aio:sectorPerfChanged', { detail: { mode: _sectorPerfMode, view: _sectorPerfView } })); } catch (_) {}
-}
-
-function setSectorPerfView(view, btn) {
-  _sectorPerfView = view;
-  document.querySelectorAll('#sector-perf-view-tabs .news-sort-btn').forEach(function(b){ b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  // v45.5: view 변경 시 weekly 캐시도 확장 fetch
-  if (_sectorPerfMode === '1w' && !_sectorWeeklyFetching) {
-    fetchSectorWeeklyPerf();
-  }
-  renderSectorPerfBars();
-  try { document.dispatchEvent(new CustomEvent('aio:sectorPerfChanged', { detail: { mode: _sectorPerfMode, view: _sectorPerfView } })); } catch (_) {}
-}
 
 // v45.5: Yahoo Finance 5일 차트로 주간 수익률 계산 (CORS 프록시 경유)
 async function _fetchOneSectorWeekly(sym) {
@@ -1048,79 +1022,7 @@ function fetchSectorWeeklyPerf() {
   new Promise(function(resolve) { pump(resolve); }).then(function() {
     _sectorWeeklyFetching = false;
     _sectorWeeklyTs = Date.now();
-    if (_sectorPerfMode === '1w') {
-      try { renderSectorPerfBars(); } catch(e) {}
-      try { document.dispatchEvent(new CustomEvent('aio:sectorPerfChanged', { detail: { mode: _sectorPerfMode, view: _sectorPerfView, source: 'weekly-cache' } })); } catch (_) {}
-    }
   });
-}
-
-function renderSectorPerfBars() {
-  var container = document.getElementById('sector-perf-bars');
-  if (!container) return;
-  // P859: native themes owns the bounded sector-performance bars from the
-  // normalized themes slice; this compatibility writer must not repaint them.
-  if (container.dataset.aioThemePerformanceBarsRenderer === 'native') return;
-  let ld = window._liveData || {};
-  var source = _sectorPerfView === 'all' ? ALL_RRG_ETFS : RRG_SECTORS;
-  var isWeekly = (_sectorPerfMode === '1w');
-
-  var sectors = source.map(function(sec) {
-    var d = ld[sec.sym];
-    var chg;
-    if (isWeekly) {
-      // 1주 모드: weekly 캐시 → 라이브 daily 임시. 정적 fallback은 현재 랭킹에 쓰지 않는다.
-      if (_sectorWeeklyCache[sec.sym] != null) {
-        chg = _sectorWeeklyCache[sec.sym];
-      } else if (d && d.pct != null) {
-        chg = d.pct; // fetch 미완료 — 라이브 daily로 임시 표시
-      } else {
-        chg = null;
-      }
-    } else {
-      chg = (d && d.pct != null) ? d.pct : null;
-    }
-    var rs = calcLiveRS(sec.sym);
-    return { sym: sec.sym, name: sec.name, chg: chg, color: sec.color, q: rs.quadrant };
-  });
-
-  sectors.sort(function(a,b) {
-    if (a.chg == null && b.chg == null) return 0;
-    if (a.chg == null) return 1;
-    if (b.chg == null) return -1;
-    return b.chg - a.chg;
-  });
-
-  var maxAbs = Math.max.apply(null, sectors.map(function(s){ return Math.abs(s.chg||0); }));
-  if (maxAbs < 0.5) maxAbs = 0.5;
-
-  var html = '';
-  sectors.forEach(function(s) {
-    var chgVal = s.chg != null ? s.chg : 0;
-    var isPos = chgVal >= 0;
-    var barColor = s.chg != null ? (isPos ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
-    var barWidth = Math.abs(chgVal) / maxAbs * 45;
-    var qBadge = s.chg == null ? '<span class="pgl-sp-q is-wait">●대기</span>' :
-                 s.q === 'Leading' ? '<span class="pgl-sp-q is-lead">●선도</span>' :
-                 s.q === 'Improving' ? '<span class="pgl-sp-q is-improve">●개선</span>' :
-                 s.q === 'Weakening' ? '<span class="pgl-sp-q is-weak">●약화</span>' :
-                 '<span class="pgl-sp-q is-lag">●후행</span>';
-    html += '<div class="pgl-sp-row">' +
-      '<span class="pgl-sp-sym">' + s.sym + '</span>' +
-      '<span class="pgl-sp-name">' + s.name + '</span>' +
-      '<div class="pgl-sp-track">' +
-        '<div class="pgl-sp-zero"></div>' +
-        (isPos ?
-          '<div class="pgl-sp-bar is-pos" style="width:' + barWidth + '%;background:' + barColor + ';"></div>' :
-          '<div class="pgl-sp-bar is-neg" style="margin-left:calc(50% - ' + barWidth + '%);width:' + barWidth + '%;background:' + barColor + ';"></div>'
-        ) +
-      '</div>' +
-      '<span class="pgl-sp-val" style="color:' + barColor + ';">' + (s.chg != null ? ((isPos?'+':'') + s.chg.toFixed(2) + '%') : '—') + '</span>' +
-      '<span class="pgl-sp-qcell">' + qBadge + '</span>' +
-    '</div>';
-  });
-  container.innerHTML = html;
-  // v57.76: the fenced legacy 섹터 흐름 분석 prose writer was deleted with its box.
 }
 
 function _themeFinitePct(v) {
@@ -1289,7 +1191,6 @@ async function hydrateRRGDailyHistory() {
       if (!tp || !tp.classList.contains('active')) return;
       try { drawRRG(); } catch(_e) {}
       try { document.dispatchEvent(new CustomEvent('aio:themesViewChanged')); } catch(_e) {}
-      try { renderSectorPerfBars(); } catch(_e) {}
     };
     // 동시 3개 제한 — 프록시/Yahoo 부하 억제. 배치마다 점진 재렌더(부분 실패에도 확보분은 표시).
     for (var i = 0; i < syms.length; i += 3) {
@@ -1469,7 +1370,6 @@ _aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
     setTimeout(function() {
       drawRRG();
       document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
-      renderSectorPerfBars();
       // v45.5: 1주 캐시 백그라운드 프리페치 (사용자가 1주 탭 클릭 시 즉각 표시)
       if (Object.keys(_sectorWeeklyCache).length === 0 && !_sectorWeeklyFetching) {
         try { fetchSectorWeeklyPerf(); } catch(_e) {}
@@ -1484,7 +1384,6 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
   if (tp && tp.classList.contains('active')) {
     drawRRG();
     document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
-    renderSectorPerfBars();
     // 열려있는 상세 패널 자동 갱신
     var dp = document.getElementById('theme-detail-panel');
     if (dp && dp.style.display !== 'none' && dp.dataset.currentTheme) {

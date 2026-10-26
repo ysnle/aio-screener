@@ -1,3 +1,7 @@
+## v58.95 (2026-10-27)
+- **레거시 분해 4/8 — 테마·섹터: 섹터 막대 legacy 경로 정리 (v58.95):** 섹터 막대는 이미 `src/ui/pages/themes.js`(`renderThemePerformanceBars`)가 그리고 기간 버튼(1일·1주·1·3·6·12개월)도 직접 채운다. 그래서 `js/aio-pages.js`에서 native 표시가 붙으면 아무것도 하지 않던 `renderSectorPerfBars` 대체 경로와 그 호출 4곳, native가 버튼을 교체해 눌릴 수 없던 1일/1주 처리기 `setSectorPerfMode`와 `_sectorPerfMode`, 그 모드에서만 돌던 주간 캐시 완료 재렌더를 지웠다. `index.html`의 정적 1일/1주 버튼도 지웠다(빈 그룹을 themes.js가 채운다). 11섹터/+세부 업종 토글(`setSectorPerfView`)은 `src/ui/components/sector-perf-view.js`로 옮기고 `src/app/legacy-screen-bridges.js`가 설치한다. 화면 동작은 그대로다.
+- R1 7곳 v58.95
+
 ## v58.94 (2026-10-27)
 - **레거시 분해 3/8 — 오늘: 홈 행동 계획·브리핑 잔여 정리 (v58.94):** 홈 행동 계획 카드 문구(`#home-action-position`·`-sentiment`·`-breadth`)를 그리던 `window._aioRefreshActionPlan`을 `js/aio-core.js`에서 지우고 `src/ui/components/home-action-plan.js`로 옮겼다. 신선한 `marketState.actionPlan` 우선, 없으면 VIX·F&G·50일선 비율로 계산, 결측은 '—'인 동작과 문구는 그대로다. 지금까지 옮긴 화면 코드(거시·홈 VIX·뉴스 칩·뉴스 진행·행동 계획)의 전역 이름은 이제 새 지연 모듈 `src/app/legacy-screen-bridges.js` 하나가 설치한다(`compatibility-globals.js`는 동적 import 한 줄, 부팅 원시 바이트 1,443,017→1,441,968 / 예산 1,443,000). 각 렌더러는 설치 직후 한 번 그린다. 브리핑은 이미 `src/ui/pages/news.js`가 그리므로, `fetchAllNews`의 v46.6 조기 브리핑 렌더(부분 배치를 채점해 넘겼지만 `renderBriefingFeed`가 버려 보이지 않던 계산)와 읽는 곳 없는 `_briefingCacheKey`·`_briefingEarlyRendered`·`_homeNewsEarlyRendered`를 지웠다. T816은 함수 소스 문자열 대신 stub 노드에 신선한 marketState 계획이 그려지는지 확인한다.
 - R1 7곳 v58.94

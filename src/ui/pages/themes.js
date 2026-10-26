@@ -572,7 +572,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   const allItems = selectThemesItems(store?.getState?.() || {});
   const hasLong = allItems.some((item) => finite(screenerRows.get(String(item?.symbol || item?.id || '').toUpperCase())?.ret1m) != null);
   // 1개월 first (the S&P 500 map right below already shows the day), the day when no screener return has arrived.
-  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : root?._sectorPerfMode === '1w' ? '1w' : hasLong ? '1m' : '1d';
+  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasLong ? '1m' : '1d';
   const period = SECTOR_PERIODS.find(([key]) => key === mode);
   ensureSectorPeriodTabs(documentRef, root, store, route, mode);
   const valueOf = (symbol, item) => {
