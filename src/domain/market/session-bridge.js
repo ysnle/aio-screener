@@ -92,7 +92,7 @@ function reading(quotes, id, nowMs) {
 const sideOf = (value, threshold = BRIDGE_RULES.movePct) => value == null ? null : value >= threshold ? 1 : value <= -threshold ? -1 : 0;
 
 /** Candidate drivers of the latest Korean session, each checked against the same day's numbers. */
-export function koreaLinks({ kospi, kosdaq, nasdaq: nasdaqRow, semis, nikkei: nikkeiRow, hangseng: hangsengRow, usdkrw }) {
+export function koreaLinks({ kospi, kosdaq, nasdaq: nasdaqRow, semis, nikkei: nikkeiRow, hangseng: hangsengRow, usdkrw: usdkrwRow }) {
   if (kospi?.change == null) return [];
   // Only cues the Korean session could have traded on: the US session completed before the KOSPI observation, and Asia
   // rows of the same KST date. A US session that ran after the Korean close (06:00 KST next morning) is not a cause.
@@ -101,7 +101,8 @@ export function koreaLinks({ kospi, kosdaq, nasdaq: nasdaqRow, semis, nikkei: ni
   const nasdaq = nasdaqRow?.observedAt && usBefore && nyParts(Date.parse(nasdaqRow.observedAt)).date === usBefore ? nasdaqRow : null;
   const krDate = Number.isFinite(kospiMs) ? kstParts(kospiMs).date : null;
   const sameDay = (row) => (row?.observedAt && kstParts(Date.parse(row.observedAt)).date === krDate ? row : null);
-  const nikkei = sameDay(nikkeiRow), hangseng = sameDay(hangsengRow);
+  // The won trades around the clock: only a reading of the same KST date as the Korean session is a candidate.
+  const nikkei = sameDay(nikkeiRow), hangseng = sameDay(hangsengRow), usdkrw = sameDay(usdkrwRow);
   const kr = kospi.change;
   const krSide = sideOf(kr);
   const links = [];

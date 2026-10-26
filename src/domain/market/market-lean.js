@@ -47,12 +47,16 @@ export function conditionEvidence(regime) {
     text: `미국 6개 지표 양호 ${counts.favorable}·중립 ${counts.neutral}·부담 ${counts.burden}${vote ? ` — ${vote > 0 ? '양호' : '부담'} 쪽이 ${Math.abs(net)}개 많음` : ' — 한쪽으로 2개 이상 기울지 않음'}` };
 }
 
-function temperatureItem(market, id, name) {
+// A market body the producer kept from an earlier run (`retained`), or one dated before the close being judged, is not
+// today's condition: it is held out of the lean (the 가격 온도 screen marks the same rows stale).
+function temperatureItem(market, id, name, { retained = [], asOf = null } = {}) {
   if (!market || !['cold', 'hot'].includes(market.state)) return null;
+  const key = id.replace('temp-', '');
+  if (retained.includes(key) || (asOf && market.asOf && market.asOf < asOf)) return null;
   const outcome = market.outcomes?.[market.state]?.h21;
   const base = market.outcomes?.all?.h21?.hitRate;
   if (!outcome) return null;
-  return frequencyEvidence({ id, label: `${name} 가격 온도`, condition: `${name} 가격 온도 '${market.state === 'cold' ? '차가움' : '뜨거움'}'(겹치지 않는 과거 구간)`, rate: outcome.hitRate, base, n: outcome.n, unit: '구간' });
+  return frequencyEvidence({ id, label: `${name} 가격 온도`, condition: `${name} 가격 온도 '${market.state === 'cold' ? '차가움' : '뜨거움'}'(${market.asOf ? `${Number(market.asOf.slice(5, 7))}/${Number(market.asOf.slice(8, 10))} 기준, ` : ''}겹치지 않는 과거 구간)`, rate: outcome.hitRate, base, n: outcome.n, unit: '구간' });
 }
 
 function stressItem(stress, vix) {
@@ -60,8 +64,10 @@ function stressItem(stress, vix) {
   const row = band ? stress?.bands?.find((item) => item.id === band.id)?.horizons?.[String(LEAN_RULES.horizon)] : null;
   const base = stress?.all?.[String(LEAN_RULES.horizon)]?.hitRate;
   if (!row) return null;
-  // Forward windows overlap inside a band; nEff (days / horizon) is the honest sample, not the day count.
-  return frequencyEvidence({ id: 'vix-band', label: '변동성 구간', condition: `VIX ${Number(vix).toFixed(1)}(${band.label} 구간)`, rate: row.hitRate, base, n: row.nEff ?? row.n / LEAN_RULES.horizon, unit: '(독립 환산)' });
+  // The band rate pools overlapping daily 21-session windows, so it is not a frequency of independent cases (AGENTS
+  // past-frequency rule): it is shown for reference beside the base rate and never votes.
+  const item = frequencyEvidence({ id: 'vix-band', label: '변동성 구간', condition: `VIX ${Number(vix).toFixed(1)}(${band.label} 구간, 겹치는 날짜 기준)`, rate: row.hitRate, base, n: row.nEff ?? row.n / LEAN_RULES.horizon, unit: '(독립 환산)' });
+  return item && { ...item, vote: 0, reference: true, text: `${item.text.replace(/ — .*$/, '')} — 날짜가 겹치는 통계라 참고로만 보고 판단에 넣지 않음` };
 }
 
 function combine(items) {
@@ -78,15 +84,15 @@ function leanRead(key, items, baseRate) {
   const drivers = items.filter((item) => item?.vote);
   const base = Number.isFinite(baseRate) ? `기본값부터: 1990년 이후 S&P 500이 ${LEAN_RULES.horizon}거래일 뒤 오른 날은 ${round(baseRate)}%입니다. ` : '';
   if (key === 'mixed') return `${base}지금 조건과 과거 빈도가 서로 다른 쪽을 가리켜 한쪽 우위로 정리하지 않습니다.`;
-  if (!drivers.length) return `${base}지금 확인되는 ${items.some((item) => item?.kind === 'frequency') ? '조건과 과거 빈도 모두' : '조건이'} 이 기본값을 의미 있게 바꾸지 못해 뚜렷한 우위는 없습니다.`;
+  if (!drivers.length) return `${base}지금 확인되는 ${items.some((item) => item?.kind === 'frequency' && !item.reference) ? '조건과 과거 빈도 모두' : '조건이'} 이 기본값을 의미 있게 바꾸지 못해 뚜렷한 우위는 없습니다.`;
   const side = drivers[0].vote > 0 ? '상승' : '하락';
   // R697: the condition count is never called a likelihood; only a frequency that cleared its noise gate moves the odds.
   const counted = drivers.filter((item) => item.kind === 'count');
   const measured = drivers.filter((item) => item.kind === 'frequency');
   const countText = counted.length ? `지금 조건은 ${side === '상승' ? '양호' : '부담'} 쪽이 더 많습니다. ` : '';
   const freqText = measured.length ? `${measured.map((item) => item.label).join('·')}의 과거 빈도가 기본값보다 ${side} 쪽이라, 확률상 기울기가 ${side} 쪽으로 옮겨 갑니다.`
-    : items.some((item) => item?.kind === 'frequency') ? '다만 지금과 비슷한 날들의 과거 빈도는 기본값과 구분되지 않아, 이 기울기는 조건 개수에서만 나옵니다.'
-      : '과거 빈도 자료를 아직 불러오지 못해, 지금은 조건 개수로만 봅니다.';
+    : items.some((item) => item?.kind === 'frequency' && !item.reference) ? '다만 지금과 비슷한 날들의 과거 빈도는 기본값과 구분되지 않아, 이 기울기는 조건 개수에서만 나옵니다.'
+      : '판단에 넣을 수 있는 과거 빈도(겹치지 않는 사례)가 지금은 없어, 조건 개수로만 봅니다.';
   return `${base}${countText}${freqText} 방향이 정해졌다는 뜻은 아닙니다.`;
 }
 
@@ -96,7 +102,9 @@ function leanRead(key, items, baseRate) {
  */
 export function buildMarketLean({ regime = null, stress = null, temperature = null, vix = null } = {}) {
   const baseRate = stress?.all?.[String(LEAN_RULES.horizon)]?.hitRate ?? temperature?.markets?.spx?.outcomes?.all?.h21?.hitRate ?? null;
-  const usItems = [conditionEvidence(regime), stressItem(stress, vix), temperatureItem(temperature?.markets?.spx, 'temp-spx', 'S&P 500'), temperatureItem(temperature?.markets?.nasdaq, 'temp-nasdaq', '나스닥')].filter(Boolean);
+  const retained = Array.isArray(temperature?.retained) ? temperature.retained : [];
+  const usAsOf = regime?.asOf || null;
+  const usItems = [conditionEvidence(regime), stressItem(stress, vix), temperatureItem(temperature?.markets?.spx, 'temp-spx', 'S&P 500', { retained, asOf: usAsOf }), temperatureItem(temperature?.markets?.nasdaq, 'temp-nasdaq', '나스닥', { retained, asOf: usAsOf })].filter(Boolean);
   const usCombined = combine(usItems);
   const condition = usItems.find((item) => item.id === 'conditions');
   const flip = condition?.vote ? `양호·부담 지표 차이가 1개 이하로 줄면 조건 쪽 기울기는 사라집니다(지금 ${Math.abs(condition.net)}개).`
@@ -105,7 +113,7 @@ export function buildMarketLean({ regime = null, stress = null, temperature = nu
   const countOnly = usCombined.score !== 0 && usItems.every((item) => !item.vote || item.kind === 'count');
   const us = { available: usItems.length > 0, market: 'US', key: usCombined.key, score: usCombined.score, countOnly, label: `${LEAN_LABELS[usCombined.key]}${countOnly ? ' (조건 기준)' : ''}`, items: usItems,
     read: leanRead(usCombined.key, usItems, baseRate), flip, choices: CHOICE_BY_LEAN[usCombined.key].map((id) => CHOICES[id]), horizon: LEAN_RULES.horizon, baseRate };
-  const krItems = [temperatureItem(temperature?.markets?.kospi, 'temp-kospi', '코스피'), temperatureItem(temperature?.markets?.kosdaq, 'temp-kosdaq', '코스닥')].filter(Boolean);
+  const krItems = [temperatureItem(temperature?.markets?.kospi, 'temp-kospi', '코스피', { retained }), temperatureItem(temperature?.markets?.kosdaq, 'temp-kosdaq', '코스닥', { retained })].filter(Boolean);
   const krCombined = combine(krItems);
   const krFirst = krItems[0];
   const krName = krFirst?.id === 'temp-kosdaq' ? '코스닥' : '코스피';

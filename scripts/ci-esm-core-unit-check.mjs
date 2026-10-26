@@ -6165,6 +6165,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const morning = buildSessionBridge({ nowMs: Date.parse('2026-10-26T21:00:00Z'), snapshot: tue });
   const sat = buildSessionBridge({ nowMs: Date.parse('2026-10-24T05:00:00Z'), snapshot });
   const friNight = marketClock(Date.parse('2026-10-24T01:30:00Z'));
+  const nextDayFx = buildSessionBridge({ nowMs: Date.parse('2026-10-26T23:30:00Z'), snapshot: { ...snapshot, quotes: snapshot.quotes.map((row) => row.instrumentId === 'KRW=X' ? { ...row, changePct: 1, observedAt: '2026-10-26T23:20:00Z' } : row) } });
+  if (nextDayFx.links.some((link) => link.id === 'fx')) fail('v58.81 a next-day FX reading is not a cause of the previous Korean session');
   if (morning.links.some((link) => link.id === 'us') || morning.next !== null || sat.next !== null || sat.futuresStale || !/주말 휴장/.test(friNight.us.label))
     fail(`v58.81 bridge review cases: ${JSON.stringify({ links: morning.links.map((l) => l.id), next: [morning.next, sat.next], stale: sat.futuresStale, fri: friNight.us.label })}`);
 }
@@ -6176,8 +6178,16 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const stress = { all: { 21: { hitRate: 64 } }, bands: [{ id: 'normal', horizons: { 21: { hitRate: 63.4, nEff: 136 } } }, { id: 'stress', horizons: { 21: { hitRate: 80, nEff: 60 } } }] };
   const regime = (favorable, burden) => ({ available: true, counts: { favorable, neutral: 6 - favorable - burden, burden } });
   const today = buildMarketLean({ regime: regime(0, 3), stress, vix: 19.2 });
-  const mixed = buildMarketLean({ regime: regime(0, 3), stress, vix: 33 });
-  const up = buildMarketLean({ regime: regime(3, 0), stress, vix: 33 });
+  // Codex review: the VIX band rate pools overlapping windows, so it never votes; a retained or older temperature body
+  // is held out; the won counts only on the Korean session's KST date.
+  const temp = (state, asOf) => ({ retained: [], markets: { spx: { state, asOf, outcomes: { [state]: { h21: { n: 60, hitRate: 85 } }, all: { h21: { hitRate: 64 } } } } } });
+  const mixed = buildMarketLean({ regime: { ...regime(0, 3), asOf: '2026-10-23' }, stress, vix: 33, temperature: temp('cold', '2026-10-23') });
+  const up = buildMarketLean({ regime: { ...regime(3, 0), asOf: '2026-10-23' }, stress, vix: 33, temperature: temp('cold', '2026-10-23') });
+  const vixOnly = buildMarketLean({ regime: regime(1, 1), stress, vix: 33 });
+  const held = buildMarketLean({ regime: { ...regime(1, 1), asOf: '2026-10-23' }, temperature: { ...temp('cold', '2026-10-23'), retained: ['spx'] } });
+  const older = buildMarketLean({ regime: { ...regime(1, 1), asOf: '2026-10-23' }, temperature: temp('cold', '2026-10-16') });
+  if (vixOnly.us.label !== '뚜렷한 우위 없음' || held.us.items.some((i) => i.id === 'temp-spx') || older.us.items.some((i) => i.id === 'temp-spx'))
+    fail(`v58.81 lean holds overlapping/retained evidence: ${JSON.stringify({ vixOnly: vixOnly.us.label, held: held.us.items.map((i) => i.id), older: older.us.items.map((i) => i.id) })}`);
   const none = buildMarketLean({ regime: regime(1, 2), stress, vix: 19.2 });
   const small = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 20 });
   const tiny = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 9.9 });
