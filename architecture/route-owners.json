@@ -289,11 +289,11 @@
       "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "index.html:drawRRG and js/aio-core.js chart cleanup retain only compatibility paths; both fence rrg-canvas when the native marker is active",
+        "v58.96: no legacy rrg-canvas writer remains (drawRRG and the js/aio-core.js legacy canvas clear removed)",
         "v58.95: no legacy sector-perf-bars writer remains (renderSectorPerfBars removed)"
       ],
-      "p798Boundary": "themes.js owns rrg-chart-status from normalized RRG quadrant evidence; drawRRG retains only the legacy rrg-canvas chart writer.",
-      "p799Boundary": "themes.js owns the rrg-canvas drawing lifecycle from normalized ratio/momentum evidence; drawRRG is a fenced compatibility fallback and no longer writes the native canvas.",
+      "p798Boundary": "themes.js owns rrg-chart-status from normalized RRG quadrant evidence; v58.96: the legacy drawRRG writer was removed.",
+      "p799Boundary": "themes.js owns the rrg-canvas drawing lifecycle from normalized ratio/momentum evidence; the legacy drawRRG fallback was removed (v58.96) and no longer writes the native canvas.",
       "p800Boundary": "the themes provider/orchestrator now reads explicit runtime definitions, quote data, and history inputs directly; legacy.readThemes is no longer the route data source.",
       "p801Boundary": "themes.js owns the RRG-derived theme-cycle-pill status; legacy sector prose is fenced from this bounded status while deeper sector analysis remains legacy narrative.",
       "p802Boundary": "v57.76: the sector-perf-analysis leaders/laggards narrative (P802) is retired with its box — it repeated the rotation read and the 1일·1주 bars; the fenced legacy generator in js/aio-pages.js has no host.",

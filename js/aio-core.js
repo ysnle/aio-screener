@@ -17863,12 +17863,7 @@ function destroyPageCharts(pageId) {
     if (pageId === 'fundamental') {
       if (typeof _fundInitDone !== 'undefined') _fundInitDone = false;
     }
-    // v42.4: themes 페이지 RRG canvas 클리어 (잔상 방지)
-    if (pageId === 'themes') {
-      var rrgCanvas = document.querySelector('[id="rrg-canvas"]');
-      if (rrgCanvas && rrgCanvas.dataset.aioRrgChartRenderer !== 'native') { var ctx2d = rrgCanvas.getContext && rrgCanvas.getContext('2d'); if (ctx2d) ctx2d.clearRect(0, 0, rrgCanvas.width, rrgCanvas.height); }
-      if (window._rrgRetry) window._rrgRetry = 0;
-    }
+    // v58.96: the legacy RRG canvas clear left with drawRRG (themes.js owns the canvas lifecycle).
   } catch(e) { _aioLog('warn', 'chart', 'destroyPageCharts error: ' + (e && e.message || e)); }
 }
 
