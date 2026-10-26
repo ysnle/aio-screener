@@ -1,3 +1,7 @@
+## v58.88 (2026-10-27)
+- **퇴역 게이트 잔여 검사 복원 (v58.88):** v58.86에 퇴역한 두 게이트의 검사 중 중복이 아니던 것을 되살렸다. release-manifest의 rollback 독립성·immutableRuntime 허용 목록은 release-revision의 release-rollback-invariants 구획으로, headless-group-lifecycle의 G### 레지스트리(100개 이상·중복 없음)·그룹 귀속·정확한 그룹 선택·실패 보고서 확인은 qa-pipeline-contract로 옮겼다. 게이트 수는 그대로 165개다.
+- R1 7곳 v58.88
+
 ## v58.87 (2026-10-26)
 - **13F discovery 슬림화 (P2093 후속):** filing-discovery.json이 filings.json과 똑같은 13F 공시 블록(직전 분기·같은 분기 제출 목록·SEC URL)을 매니저마다 들고 있었다. 화면은 이 파일에서 13D/G 이벤트와 집계만 읽으므로, 최신 제출·보유 공시는 접수번호 참조(accession·form·period·filedAt)만 남기고 나머지는 뺀다(현재 데이터 기준 373KB → 약 228KB). 두 작성 경로(전체·소유권 전용) 모두 적용, ci-13f-currentness-check가 고정한다.
 - **실패한 13F 레인 재시도 간격 (P2093 후속):** 실패하면 매 30분 주기마다 SEC 전체 체인을 다시 돌던 것을, 실패 횟수에 따라 1·2·4·최대 8시간 기다린 뒤 재시도하게 했다(scripts/daily-lane-age.mjs --record-failure, refresh-data.yml). 매일 07:33 cron과 운영자 실행은 그대로 즉시 돌고, 성공하면 횟수가 초기화된다.

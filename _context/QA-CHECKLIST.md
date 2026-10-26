@@ -4,6 +4,10 @@ last_verified: 2026-10-27
 confidence: medium
 ---
 
+## v58.88 퇴역 게이트 잔여 검사 복원 (2026-10-27)
+
+- [x] QA-GOV-RETIRE-01: v58.88 v58.86에 퇴역한 release-manifest·headless-group-lifecycle 게이트 중 다른 게이트에 없던 검사(rollback 독립성·immutableRuntime 허용 목록, G### 그룹 레지스트리 100개 이상·중복 없음, 그룹 귀속·정확한 그룹 선택·실패 보고서)는 release-revision의 release-rollback-invariants 구획과 qa-pipeline-contract에서 계속 실패한다. verify_by: node scripts/ci-release-revision-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs (asset-manifest rollback·aio-tests.js 그룹 id 변이로 실패 확인)
+
 ## v58.86 규칙·게이트 부채 정리 (2026-10-27)
 
 - [ ] QA-BOUNDARY-HUMAN-01: 상시 경계: 모집 사용자 과업 검증과 키보드·스크린리더·200% 확대 실사는 자동화로 대신하지 않는다. 결과가 생기기 전까지 architecture/human-validation.json은 NOT_EXECUTED, certification은 OPERATOR_REQUIRED다(v58.86에 v54~v56의 같은 항목 12개를 합침) verify_by: architecture/human-validation.json sessions + ci-product-charter-contract-check의 human-validation 구획

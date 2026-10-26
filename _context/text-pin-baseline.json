@@ -2,8 +2,8 @@
   "schemaVersion": "aio-text-pin-baseline.v1",
   "generatedBy": "scripts/ci-text-pin-ratchet-check.mjs",
   "note": "Per-gate count of product-source text pins. Shrink only; never raise a count or add a file.",
-  "files": 32,
-  "totalPins": 2472,
+  "files": 33,
+  "totalPins": 2476,
   "exemptLines": 52,
   "counts": {
     "scripts/ci-13f-currentness-check.mjs": 3,
@@ -26,6 +26,7 @@
     "scripts/ci-market-snapshot-contract-check.mjs": 4,
     "scripts/ci-masters-contract-check.mjs": 50,
     "scripts/ci-principles-contract-check.mjs": 45,
+    "scripts/ci-qa-pipeline-contract-check.mjs": 4,
     "scripts/ci-research-flow-contract-check.mjs": 82,
     "scripts/ci-retirement-contract.mjs": 5,
     "scripts/ci-review-integrity-unit-check.mjs": 16,
