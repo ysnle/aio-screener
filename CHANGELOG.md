@@ -1,3 +1,7 @@
+## v58.90 (2026-10-27)
+- **반응형 검사 간헐 실패 (v58.90):** browser-responsive가 세 번 중 한두 번 'tablet: hidden futures fallback is visibly duplicated'로 실패했다. 화면 결함이 아니라 검사 경합이다. locator.evaluateAll이 `.kpi-fallback[hidden]`을 고른 뒤 따로 평가해, 그 사이 오늘 렌더가 선물 시세 없는 상태의 대체값(의도된 표시)을 다시 보이게 하면 정상 상태를 숨김 위반으로 읽었다. 고르기와 계산을 한 번의 page.evaluate로 묶었다(scripts/ci-responsive-browser-check.mjs). 로컬에서 수정 전 3회 중 1회 실패, 수정 후 4회 연속 통과. PR #89, v58.89를 #88이 써서 다음 번호로 재할당.
+- R1 7곳 v58.90
+
 ## v58.89 (2026-10-27)
 - **퇴역 게이트 잔여 검사 복원 (v58.89):** v58.86에 퇴역한 두 게이트의 검사 중 중복이 아니던 것을 되살렸다. release-manifest의 rollback 독립성·immutableRuntime 허용 목록은 release-revision의 release-rollback-invariants 구획으로, headless-group-lifecycle의 G### 레지스트리(100개 이상·중복 없음)·그룹 귀속·정확한 그룹 선택·실패 보고서 확인은 qa-pipeline-contract로 옮겼다. 게이트 수는 그대로 165개다.
 - R1 7곳 v58.89
