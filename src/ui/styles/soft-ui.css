@@ -251,7 +251,7 @@ details > summary { cursor: pointer; }
 .aio-asof[title] { cursor: help; }
 .aio-frame-actions { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
 .aio-note-fold { margin-top: 6px; }
-.aio-note-fold > summary { display: inline-flex; align-items: center; min-height: 24px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+.aio-note-fold > summary { display: inline-flex; align-items: center; min-width: 24px; min-height: 24px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
 .aio-note-fold__text { margin: 2px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 .macro-chain-rule { margin: 4px 0 8px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 .aio-frame-reading { margin: 0 0 12px; max-width: 72ch; font-size: 14px; line-height: 1.65; text-wrap: pretty; color: var(--text-primary); }
