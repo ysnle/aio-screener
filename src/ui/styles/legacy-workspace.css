@@ -55,6 +55,10 @@
 #page-portfolio .wsl-xp-note { margin-top: 6px; font-size: var(--fs-xs); }
 #page-portfolio .wsl-xp-note.is-warn { color: var(--data-amber); line-height: 1.5; }
 #page-portfolio .wsl-xp-note.is-ok { color: var(--data-green); }
+#page-portfolio .wsl-xp-kv .is-over { color: var(--data-red); }
+#page-portfolio .wsl-xp-kv .is-near { color: var(--data-amber); }
+#page-portfolio .wsl-xp-kv .is-within { color: var(--text-secondary); }
+#page-portfolio .wsl-xp-kv .is-plain { color: var(--text-primary); }
 
 /* Risk metrics (#pf-risk-metrics): declaration box, metric tiles, correlation matrix */
 #page-portfolio .wsl-rk-decl { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.6; padding: 6px 8px; margin-bottom: 10px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 4px; }

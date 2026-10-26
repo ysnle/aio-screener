@@ -798,6 +798,14 @@ const tickerOvProbe = await (async () => {
   return nodes['ticker-ov-provenance'].textContent === '시세: 실시간 관측, 수익률·팩터: 확정 종가 기준' && rows.includes('<span class="ov-lbl">모멘텀</span><span class="ov-val">71</span>') && nodes['ticker-ov-factor-radar'].parentElement.style.display === 'none';
 })();
 check('v59.01 the 종목 factor fold reads the live quote and canonical screener row and hides the radar without Chart.js', tickerOvProbe);
+const exposureProbe = await (async () => {
+  const { renderPortfolioExposure } = await import('../src/ui/components/portfolio-exposure.js');
+  const el = { insertAdjacentHTML: (_, html) => { el.note = html; } };
+  const root = { _pfBaseValues: () => ({ blocked: false, rows: [{ sym: 'NVDA', value: 70 }, { sym: 'MSFT', value: 30 }] }), _pfBaseNote: () => '[base]', _pfPearson: () => 0.8, _aioPortfolioSurface: { totalAssets: 100 }, _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', sector: 'Tech', rank: 10 }, { sym: 'MSFT', sector: 'Tech', rank: 20 }] };
+  renderPortfolioExposure([{}, {}], { NVDA: [1], MSFT: [1] }, { root, documentRef: { getElementById: () => el } });
+  return el.innerHTML.includes('Tech 섹터 100% 집중(&gt;40%), 상위 3종목 100% 집중(&gt;60%), 평균 상관 0.80') && el.innerHTML.includes('평균 퀀트 랭크</span><span class="wsl-b">13</span>') && el.note === '[base]';
+})();
+check('v59.04 the 포트폴리오 exposure panel weighs base-currency values over total assets and flags sector, top-3 and correlation limits', exposureProbe);
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',

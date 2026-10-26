@@ -10,6 +10,7 @@ import { setSectorPerfView } from '../ui/components/sector-perf-view.js';
 import { setRRGView } from '../ui/components/rrg-view.js';
 import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.js';
 import { renderTickerOverview } from '../ui/components/ticker-overview.js';
+import { renderPortfolioExposure, renderPortfolioStress } from '../ui/components/portfolio-exposure.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
@@ -48,4 +49,7 @@ export function installLegacyScreenBridges(root, documentRef) {
   root._aioRenderPortfolioBacktestLab = (model) => renderPortfolioBacktestLab(model, at);
   root._aioRenderPortfolioBacktestStatus = (text, warn) => renderPortfolioBacktestStatus(text, warn, at);
   root._aioBtVarCertLabel = varCertLabel;
+  // v59.04 포트폴리오: the 익스포저·집중도 and stress panels (refreshPortfolioRisk calls them).
+  root._aioRenderPortfolioExposure = (positions, returnsMap) => renderPortfolioExposure(positions, returnsMap, at);
+  root._aioRenderPortfolioStress = (positions, historyMap, commonDates) => renderPortfolioStress(positions, historyMap, commonDates, at);
 }

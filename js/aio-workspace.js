@@ -1178,12 +1178,12 @@ async function refreshPortfolioRisk() {
     corrRes: corrRes, validTickers: validTickers, n: minLen, rfAnnual: rfAnnual,
     estimate: estimate });
   if (assembled && assembled.fxIncluded === false) el.insertAdjacentHTML('beforeend', '<div class="wsl-aside is-warn">해외 종목 수익률에 환율 변동이 빠져 있습니다(같은 기간 원/달러 종가 부족) — 계좌 통화 기준 전체 위험보다 작게 나올 수 있습니다.</div>'); // P1445
-  try { _aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
-  try { _aioRenderPortfolioStress(positions, historyMap, commonDates); } catch(_) {} // v50.54 3E
+  try { window._aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
+  try { window._aioRenderPortfolioStress(positions, historyMap, commonDates); } catch(_) {} // v50.54 3E
   try { refreshPortfolioTechnicalRisk(); } catch(_) {}
 }
 
-// v50.54 3D: 포트폴리오 리스크 귀속 + 익스포저 한도 — 섹터/종목 집중도·팩터 익스포저·상관 클러스터. P1445: 비중은 _pfBaseValues(기준통화 평가액, src/ui/panels/portfolio-base-values.js).
+// Pearson correlation for the risk matrix and the exposure panel's mean pairwise correlation (window._pfPearson).
 function _pfPearson(a, b) {
   var n = Math.min(a.length, b.length); if (n < 3) return null;
   a = a.slice(-n); b = b.slice(-n);
@@ -1191,66 +1191,8 @@ function _pfPearson(a, b) {
   var num = 0, da = 0, dbb = 0; for (i = 0; i < n; i++) { var x = a[i] - ma, y = b[i] - mb; num += x * y; da += x * x; dbb += y * y; }
   return (da > 0 && dbb > 0) ? num / Math.sqrt(da * dbb) : null;
 }
-function _aioRenderPortfolioExposure(positions, returnsMap) {
-  var el = document.getElementById('pf-exposure-panel'); if (!el) return;
-  if (!positions || !positions.length) { el.innerHTML = ''; return; }
-  var ld = window._liveData || {}, db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  var find = function(s){ for (var i=0;i<db.length;i++) if (db[i].sym===s) return db[i]; return null; };
-  var base = _pfBaseValues(positions);
-  if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
-  var rows = base.rows.map(function(r){ return { sym: r.sym, value: r.value, stock: find(r.sym) }; });
-  // v57.50 review R1 (C24): weights over total assets including cash, the denominator of the native sector bars and the
-  // 포트폴리오 해석; without a known total the panel falls back to the position sum and says so. Cash is not a sector.
-  var surf = window._aioPortfolioSurface || {};
-  var posSum = rows.reduce(function(s,r){return s+(r.value||0);},0);
-  var total = surf.totalAssets != null && isFinite(surf.totalAssets) && surf.totalAssets >= posSum && surf.totalAssets > 0 ? surf.totalAssets : posSum;
-  var basisNote = total === posSum ? '주식 부분 중' : '현금 포함 총자산 대비';
-  if (total <= 0) { el.innerHTML = _pfBaseNote(base); return; }
-  rows.forEach(function(r){ r.w = r.value/total; });
-  var secLabel = typeof window._aioPortfolioSectorLabel === 'function' ? window._aioPortfolioSectorLabel : function(s) { return s; };
-  var bySec = {}; rows.forEach(function(r){ var sec=secLabel((r.stock&&r.stock.sector)||'기타'); bySec[sec]=(bySec[sec]||0)+r.w; });
-  var secArr = Object.keys(bySec).map(function(k){return [k,bySec[k]];}).sort(function(a,b){return b[1]-a[1];});
-  var topSorted = rows.slice().sort(function(a,b){return b.w-a.w;});
-  var top3 = topSorted.slice(0,3).reduce(function(s,r){return s+r.w;},0);
-  var ranked = rows.filter(function(r){ return r.stock && typeof r.stock.rank==='number'; });
-  var wr = ranked.reduce(function(s,r){return s+r.w;},0);
-  var avgRank = wr>0 ? Math.round(ranked.reduce(function(s,r){return s+r.stock.rank*r.w;},0)/wr) : null;
-  // 평균 쌍별 상관
-  var tk = Object.keys(returnsMap||{}); var cs=0, cn=0, hi=0;
-  for (var a=0;a<tk.length;a++) for (var b=a+1;b<tk.length;b++){ var c=_pfPearson(returnsMap[tk[a]], returnsMap[tk[b]]); if (c!=null){ cs+=c; cn++; if (c>0.7) hi++; } }
-  var avgCorr = cn>0 ? cs/cn : null;
-  var warns = [];
-  if (secArr.length && secArr[0][1] > 0.40) warns.push(secArr[0][0]+' 섹터 '+Math.round(secArr[0][1]*100)+'% 집중(>40%)');
-  if (top3 > 0.60) warns.push('상위 3종목 '+Math.round(top3*100)+'% 집중(>60%)');
-  if (avgCorr != null && avgCorr > 0.7) warns.push('평균 상관 '+avgCorr.toFixed(2)+' — 분산효과 약함(>0.70)');
-  var secHtml = secArr.slice(0,5).map(function(s){ var pct=Math.round(s[1]*100); var col=s[1]>0.4?'var(--data-red)':s[1]>0.25?'var(--data-amber)':'var(--text-secondary)'; return '<div class="wsl-xp-kv wsl-fs-sm"><span class="wsl-dim">'+_escHtmlSafe(s[0])+'</span><span class="wsl-b" style="color:'+col+';">'+pct+'%</span></div>'; }).join('');
-  el.innerHTML =
-    '<div class="wsl-head">익스포저, 집중도 <span class="wsl-w500">(' + basisNote + ')</span></div>' +
-    '<div class="wsl-xp-cols">' +
-      '<div>' + secHtml + '</div>' +
-      '<div class="wsl-fs-sm">' +
-        '<div class="wsl-xp-kv"><span class="wsl-dim">상위3 집중</span><span class="wsl-b" style="color:'+(top3>0.6?'var(--data-red)':'var(--text-primary)')+';">'+Math.round(top3*100)+'%</span></div>' +
-        '<div class="wsl-xp-kv"><span class="wsl-dim">평균 상관</span><span class="wsl-b">'+(avgCorr!=null?avgCorr.toFixed(2):'—')+'</span></div>' +
-        '<div class="wsl-xp-kv"><span class="wsl-dim">평균 퀀트 랭크</span><span class="wsl-b">'+(avgRank!=null?avgRank:'—')+'</span></div>' +
-        '<div class="wsl-xp-kv"><span class="wsl-dim">종목/섹터 수</span><span class="wsl-b">'+rows.length+'/'+secArr.length+'</span></div>' +
-      '</div>' +
-    '</div>' +
-    (warns.length ? '<div class="wsl-xp-note is-warn">'+warns.map(_escHtmlSafe).join(', ')+'</div>' : '<div class="wsl-xp-note is-ok">집중도·상관 한도 내</div>');
-  el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
-}
-// v50.54 3E: 포트폴리오 스트레스 시나리오 — 섹터 베타(주식/금리/유가) 기반 가상 충격 손익.
-function _aioRenderPortfolioStress(positions, historyMap, commonDates) {
-  // 개편 v2 (3g): the same price records feed the 포트폴리오 hero's 시장 민감도 β (src/ui/components/portfolio-read.js).
-  window._aioPortfolioStressInput = { historyMap: historyMap || {}, commonDates: commonDates || [] };
-  try { window.dispatchEvent(new CustomEvent('aio:portfolioStressInput')); } catch (_) {}
-  var el = document.getElementById('pf-stress-panel'); if (!el) return;
-  if (!positions || !positions.length || typeof window._aioPortfolioStressHtml !== 'function') { el.innerHTML = ''; return; }
-  var base = _pfBaseValues(positions);
-  if (base.blocked) { el.innerHTML = _pfBaseNote(base); return; }
-  // 2026-10-19: sensitivities are regressed on the book's own weekly returns (src/ui/panels/portfolio-stress.js), not hand-set sector betas.
-  el.innerHTML = window._aioPortfolioStressHtml({ base: base, historyMap: historyMap || {}, commonDates: commonDates || [] });
-  el.insertAdjacentHTML('beforeend', _pfBaseNote(base)); // P1445
-}
+// v59.04: the exposure panel and the stress panel placement moved to src/ui/components/portfolio-exposure.js
+// (window._aioRenderPortfolioExposure / _aioRenderPortfolioStress, installed by src/app/legacy-screen-bridges.js).
 function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
 async function refreshPortfolioTechnicalRisk() {
