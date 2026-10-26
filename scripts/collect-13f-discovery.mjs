@@ -190,7 +190,6 @@ const nextFilings = {
       priorFiling: manager.priorFiling,
       latestPeriodSubmissions: discoveryById.get(manager.id)?.latestPeriodSubmissions || [],
       priorPeriodSubmissions: discoveryById.get(manager.id)?.priorPeriodSubmissions || [],
-      ownershipEvents: discoveryById.get(manager.id)?.ownershipEvents || [],
       latestAvailablePeriod: manager.latestAvailablePeriod,
       collectedAt: generatedAt,
       freshnessStatus: manager.freshnessStatus,

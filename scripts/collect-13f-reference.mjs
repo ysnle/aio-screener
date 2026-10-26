@@ -171,8 +171,8 @@ function baseUrl(indexUrl) {
   return indexUrl.slice(0, indexUrl.lastIndexOf('/') + 1);
 }
 
-async function writeAtomic(file, value) {
-  await writeJsonIfSemanticallyChanged(file, value, { writer: atomicWriteFile });
+async function writeAtomic(file, value, { pretty = true } = {}) {
+  await writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile });
 }
 
 async function fetchFilingBundle(filing) {
@@ -384,7 +384,9 @@ const refreshedFilings = {
   ...filings,
   generatedAt,
   latestAvailablePeriod,
-  managers: filings.managers.map((manager) => {
+  // v58.81 (P2093): 13D/G events live only in filing-discovery.json (the masters page reads them there); an older
+  // filings.json copy is dropped here so the file stays within its size budget.
+  managers: filings.managers.map(({ ownershipEvents: _events, ...manager }) => {
     const refreshed = managersWithFreshness.find((item) => item.id === manager.id);
     if (!refreshed) return manager;
     return {
@@ -464,7 +466,7 @@ await writeAtomic(discoveryPath, {
     holdingsRowsPending: Math.max(0, verified.length - successfulRowManagers.length),
     staleLastKnownGoodRows
   }
-});
+}, { pretty: false });
 await writeAtomic(runtimeHoldingsPath, {
   schema: 'masters-13f-runtime-summary.v1',
   sourceSchema: result.schema,
