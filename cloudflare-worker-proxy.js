@@ -147,9 +147,12 @@ const RELAY_PROVIDERS = Object.freeze({
 
 // The relay key is never logged or echoed. Upstream error bodies occasionally
 // repeat the request URL, so redact the exact key value before returning bytes.
+// v58.82: the key also appears URL-encoded (searchParams.set percent-encodes '=', '+', '/'), so both forms are removed.
 function redactRelayKey(text, key) {
   if (!key) return text;
-  return String(text).split(key).join('***');
+  let out = String(text);
+  for (const form of new Set([key, encodeURIComponent(key), new URLSearchParams({ k: key }).toString().slice(2)])) out = out.split(form).join('***');
+  return out;
 }
 
 // ── 봇/스캐너 User-Agent 차단 ────────────────────────────────────
@@ -770,6 +773,13 @@ async function fetchOpenAiWithDeadline(apiKey, budget, callerSignal, settle) {
       throw controller.signal.reason;
     }
     if (!upstream.body) { finished = true; cleanup(); return upstream; }
+    // v58.82: an OpenAI error body (401 names the masked key's last characters, quota text names the organization) is
+    // read within the same deadline and returned with key-shaped and org-shaped tokens removed.
+    if (!upstream.ok) {
+      const text = (await upstream.text()).slice(0, 8192).replace(/\bsk-[A-Za-z0-9_*-]{2,}/g, 'sk-***').replace(/\borg-[A-Za-z0-9]{6,}/g, 'org-***');
+      finished = true; cleanup();
+      return new Response(text, { status: upstream.status, headers: { 'content-type': upstream.headers.get('content-type') || 'application/json' } });
+    }
     const receipt = upstream.status === 200 ? createOpenAiReceiptObserver(upstream.headers.get('content-type')) : null;
     reader = upstream.body.getReader();
     const streamedBody = new ReadableStream({

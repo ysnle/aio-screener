@@ -122,6 +122,12 @@ async function main() {
     check('P1421 configured app token rejects missing and invalid before reservation', rejectedAppTokens.every(response => response.status === 403) && upstreamCalls === appBefore && appAuth.saved() === undefined);
     const acceptedAppToken = await worker.fetch(req(body, { headers: { 'X-AIO-App-Token': 'fixture-public-app-token', 'cf-connecting-ip': '198.51.100.2' } }), appAuth.env); await acceptedAppToken.arrayBuffer();
     check('P1421 configured app token accepts the matching browser token', acceptedAppToken.status === 200 && appAuth.saved().days['claude:' + currentDay] === 1);
+    const errorFixture = harness(), keyedUpstream = upstream;
+    upstream = async () => new Response(JSON.stringify({ error: { message: 'Incorrect API key provided: sk-proj-abcd****WXYZ. Org org-AbCdEf123456 over quota.' } }), { status: 401, headers: { 'content-type': 'application/json' } });
+    const keyedError = await worker.fetch(req(body, { headers: { 'cf-connecting-ip': '198.51.100.71' } }), errorFixture.env), keyedErrorText = await keyedError.text();
+    upstream = keyedUpstream;
+    check('v58.82 an upstream error body reaches the browser without key-shaped or org-shaped tokens',
+      !/sk-proj-abcd|WXYZ|org-AbCdEf/.test(keyedErrorText) && keyedError.status >= 400, { status: keyedError.status, keyedErrorText });
     const devPreflight = await worker.fetch(req(undefined, { origin: 'http://localhost:8891', method: 'OPTIONS' }), fixture.env);
     check('P1421 exact configured development origin preflight is echoed', devPreflight.status === 204 && devPreflight.headers.get('Access-Control-Allow-Origin') === 'http://localhost:8891');
     const allowedHeaders = devPreflight.headers.get('Access-Control-Allow-Headers') || '';

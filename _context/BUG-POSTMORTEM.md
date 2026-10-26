@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2100 - v58.82 - 공용 Worker 오류 응답에 키 흔적이 남을 수 있음 (2026-10-26)
+
+- symptom/reproduction: OpenAI가 401·쿼터 오류를 돌려주면 그 본문(마스킹된 키 끝자리, 조직 id)이 브라우저까지 그대로 전달됐다. KOSIS 키처럼 '=', '+', '/'가 든 relay 키는 URL 인코딩된 형태로 오류 본문에 남으면 가려지지 않았다.
+- root_cause: fetchOpenAiWithDeadline은 upstream 오류 본문을 스트림으로 그대로 넘겼고, redactRelayKey는 원문 키 문자열만 찾았다.
+- fix: OpenAI 오류 본문은 같은 마감 안에서 8KB까지 읽어 sk-·org- 형태 토큰을 가린 뒤 반환하고, relay 키는 원문·encodeURIComponent·URLSearchParams 인코딩 세 형태를 모두 가린다. refresh-data의 npm ci는 쓰기 토큰 옆에서 설치 스크립트를 실행하지 않도록 --ignore-scripts를 쓴다.
+- violated_rule: R636 비밀값은 어떤 출력에도 마스킹되어 나간다 — Worker 응답에도 같은 원칙
+- prevention: worker/openai-contract.test.mjs v58.82: 키 형태가 든 upstream 401 본문이 가려져 도착한다.
+- verification/residual: node worker/openai-contract.test.mjs
+
 ## P2099 - v58.82 - 수능일·개장일 KRX 시간 변경이 캘린더에 없음 (2026-10-26)
 
 - symptom/reproduction: 2026-11-19(2027학년도 수능) KRX는 10:00~16:30인데 캘린더는 09:00~15:30으로 고정되어, 16:00에 그날 종가를 확정으로 표시하고 15:30~16:30을 장 마감·09:00~10:00을 장중으로 판정했다. 2027-01-04 개장일 10:00 개장도 같았다.
