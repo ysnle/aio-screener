@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assertNoPlaceholderSecUserAgents, parse13fAmendmentMetadata, recentOwnershipRows, recentSubmissionRows, select13fFilings } from './lib/sec-edgar.mjs';
-import { is13FFilingSeason } from './lib/13f-discovery.mjs';
+import { is13FFilingSeason, slimDiscoveryManager } from './lib/13f-discovery.mjs';
+import { failureMarker, inRetryBackoff, retryBackoffHours } from './daily-lane-age.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -110,4 +111,15 @@ const mastersGate = read('scripts/ci-masters-contract-check.mjs');
 if (!/filing-discovery\.json/.test(mastersGate)) fail('masters gate does not consume filing discovery');
 const tickerIndexBuilder = read('scripts/build-13f-reference-ticker-index.mjs');
 if (!/build-13f-reference-ticker-index\.mjs/.test(workflow) || !/REFERENCE_ONLY_TICKER_LOOKUP/.test(tickerIndexBuilder) || !/Absence from this bounded index does not prove absence/.test(tickerIndexBuilder)) fail('reference-only 13F ticker lookup is not part of the refresh boundary');
+// v58.87 (P2093 follow-up): filing-discovery.json carries only accession references for the 13F blocks (filings.json
+// holds the full blocks and URLs); 13D/G events are kept whole because the masters page reads them there.
+const slimmed = slimDiscoveryManager({ managerId: 'm', status: 'DISCOVERED', latestSubmission: { accession: 'a', form: '13F-HR', periodOfReport: '2026-06-30', indexUrl: 'https://x' }, latestHoldings: { accession: 'a', form: '13F-HR', informationTableXml: 'https://x' }, priorHoldings: { accession: 'b' }, latestPeriodSubmissions: [{}], priorPeriodSubmissions: [{}], ownershipEvents: [{ accession: 'e', indexUrl: 'https://x' }] });
+if (slimmed.latestSubmission.indexUrl || slimmed.latestHoldings.informationTableXml || slimmed.latestHoldings.accession !== 'a' || 'priorHoldings' in slimmed || 'latestPeriodSubmissions' in slimmed || 'priorPeriodSubmissions' in slimmed || slimmed.ownershipEvents[0].indexUrl !== 'https://x') fail('filing discovery must keep accession references and whole 13D/G events only');
+if ((read('scripts/collect-13f-discovery.mjs').match(/writeAtomic\(discoveryPath, slimDiscoveryArtifact\(artifact\)/g) || []).length !== 2) fail('both discovery writers must slim the artifact');
+// v58.87 (P2093 follow-up): a failed lane backs off 1, 2, 4, max 8 h instead of re-running every 30-minute cycle.
+const lastFailure = Date.parse('2026-10-26T10:00:00Z');
+const marker3 = failureMarker(failureMarker(failureMarker({ polledAt: '2026-10-25T09:00:00Z' }, lastFailure), lastFailure), lastFailure);
+if (marker3.failures !== 3 || marker3.polledAt !== '2026-10-25T09:00:00Z' || retryBackoffHours(3) !== 4 || retryBackoffHours(9) !== 8 || retryBackoffHours(0) !== 0
+  || !inRetryBackoff({ marker: marker3, now: lastFailure + 3.9 * 3600000 }) || inRetryBackoff({ marker: marker3, now: lastFailure + 4 * 3600000 }) || inRetryBackoff({ marker: { polledAt: '2026-10-25T09:00:00Z' }, now: lastFailure })) fail('daily-lane failure backoff is wrong');
+if (!/daily-lane-age\.mjs --record-failure/.test(workflow) || !/age_hours" == "backoff"/.test(workflow) || !/steps\.daily-lane-failure-write\.outcome == 'success'/.test(workflow)) fail('refresh workflow does not back off a failed 13F lane');
 console.log(JSON.stringify({ ok: true, fixture13FForms: 4, ownershipEvents: ownershipRows.length, notice: selected.latestSubmission.form, holdings: selected.latestHoldings.form, priorPeriod: selected.priorHoldings.periodOfReport }));

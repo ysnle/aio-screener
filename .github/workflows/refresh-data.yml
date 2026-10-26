@@ -158,8 +158,11 @@ jobs:
             due=true; mode=daily; reason=daily-cron
           else
             # Due when the newest known poll (marker, or the artifact's own clock fields) is > 20 h old or unknown.
+            # v58.87: "backoff" while a failed lane waits out its retry delay (1, 2, 4, max 8 h; daily-lane-age.mjs).
             age_hours="$(node scripts/daily-lane-age.mjs)"
-            if [[ "$age_hours" == "unknown" || "$age_hours" -gt 20 ]]; then
+            if [[ "$age_hours" == "backoff" ]]; then
+              due=false; mode=none; reason=failed-lane-backoff
+            elif [[ "$age_hours" == "unknown" || "$age_hours" -gt 20 ]]; then
               due=true; mode=daily; reason="last-poll-age-${age_hours}h"
             else
               due=false; mode=none; reason="last-poll-age-${age_hours}h"
@@ -196,7 +199,7 @@ jobs:
         # v58.71 (pipeline audit): a 13F failure (an unguarded SEC read, a contract check in this step) dropped the market,
         # news and Telegram commit too, and the lane stayed due, so the next cycles repeated the block. The step is now a
         # degradable lane: on failure its files go back to HEAD below and the rest of the cycle publishes; the poll marker
-        # is not written, so the lane is retried next cycle.
+        # is not written, so the lane is retried — after a growing delay since v58.87 (Record daily-lane failure below).
         continue-on-error: true
         env:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
@@ -246,7 +249,7 @@ jobs:
           # Tracked files go back to HEAD; files the failed run created are removed so nothing half-written is staged.
           git checkout -- public-data/masters public-data/objects/masters
           git ls-files --others --exclude-standard -z -- public-data/masters public-data/objects/masters | xargs -0 -r rm -f --
-          echo "::warning::13F lane failed this cycle; its files stay at the last publish and the lane is retried next cycle."
+          echo "::warning::13F lane failed this cycle; its files stay at the last publish and the lane is retried after its backoff."
 
       - name: Prepare official-reference ledger key (P1734)
         # The lane runs only when this cycle can actually publish; its call ledger lives in the Actions cache
@@ -556,8 +559,16 @@ jobs:
         continue-on-error: true
         run: node scripts/daily-lane-age.mjs --write-marker
 
+      # v58.87 (P2093 follow-up): a failed 13F lane records the failure so the next attempts back off (1, 2, 4, max 8 h)
+      # instead of repeating the full SEC chain every 30 minutes; the daily cron and an operator dispatch still run it.
+      - name: Record daily-lane failure
+        id: daily-lane-failure-write
+        if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' && steps.masters.outcome == 'failure' }}
+        continue-on-error: true
+        run: node scripts/daily-lane-age.mjs --record-failure
+
       - name: Save daily-lane poll marker
-        if: ${{ !cancelled() && steps.daily-lane-marker-write.outcome == 'success' }}
+        if: ${{ !cancelled() && (steps.daily-lane-marker-write.outcome == 'success' || steps.daily-lane-failure-write.outcome == 'success') }}
         continue-on-error: true
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
