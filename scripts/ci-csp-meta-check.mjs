@@ -27,7 +27,7 @@ const NON_EXECUTABLE = /\btype\s*=\s*["']?(?:text\/plain|application\/(?:ld\+)?j
 
 export function inlineScriptHashes(html) {
   const hashes = [];
-  for (const match of String(html).matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi)) {
+  for (const match of String(html).matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script\b[^>]*>/gi)) {
     const attrs = match[1] || '';
     if (/\ssrc\s*=/.test(attrs) || NON_EXECUTABLE.test(attrs)) continue;
     hashes.push(`'sha256-${createHash('sha256').update(match[2], 'utf8').digest('base64')}'`);
