@@ -495,12 +495,11 @@ if (routeOwners.routes?.breadth?.chartOwner !== 'native' || (routeOwners.routes?
 }
 // P828 → P1425: the fxbond route draws its curve and trend charts as native SVG in the 금리 · 환율 board.
 if (routeOwners.routes?.fxbond?.chartOwner !== 'native' || (routeOwners.routes?.fxbond?.contestedIds || []).length) fail('fxbond chart ownership remains contested');
-// P829: entity.js owns extended-session and portfolio P&L hero sinks; compatibility writers
-// remain available for action/overview behavior but cannot overwrite native-marked nodes.
+// P829: entity.js owns extended-session and portfolio P&L hero sinks; v59.02 deleted the fenced legacy fallbacks.
 for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value', 'aioTickerExtensionRenderer', 'aioTickerPnlRenderer']) {
   if (!entityPageSource.includes(marker)) fail(`native ticker activity marker missing: ${marker}`);
 }
-if (!coreSource.includes('aioTickerPnlRenderer') || !dataSource.includes('aioTickerExtensionRenderer')) fail('legacy ticker activity writer fence missing');
+if (coreSource.includes('aioTickerPnlRenderer') || dataSource.includes('aioTickerExtensionRenderer')) fail('v59.02 the fenced legacy ticker P&L/after-hours writers stay deleted');
 // P834/LC-18/LC-27: entity.js owns ticker tab, range, and chart lifecycle from the
 // normalized entity history. The legacy Stooq/Chart.js and generic tab dispatchers
 // are removed rather than fenced.

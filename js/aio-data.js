@@ -13103,29 +13103,7 @@ function applyLiveQuotes(quotes) {
         el.setAttribute('data-source-ts', String(now));
       });
     }
-    // v36.8: 개별 종목 시간외 표시 — 기업분석(ticker-detail) 화면 전용
-    if (q.extPrice && q.extSession) {
-      // ticker-hero (기업분석 페이지)의 시간외 표시 전용 영역
-      var _extHeroEl = document.getElementById('ticker-hero-ext');
-      if (_extHeroEl && _extHeroEl.dataset.aioTickerExtensionRenderer !== 'native' && _currentTickerSym === q.symbol) {
-        var _usS = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';
-        var extPctVal = q.extPct != null ? q.extPct : null;
-        var extLabel = q.extSession === 'pre' ? 'Pre' : 'After';
-        var extColor = extPctVal != null ? (extPctVal >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
-        if (_usS === 'pre' || _usS === 'after') {
-          _extHeroEl.innerHTML = '<span class="lda-ext-close">종가 ' +
-            price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>' +
-            '<span class="lda-ext-arrow">→</span>' +
-            '<span class="lda-ext-sess">' + extLabel + '</span>' +
-            '<span class="lda-ext-px" style="color:' + extColor + ';">' +
-            q.extPrice.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) +
-            ' (' + (extPctVal != null ? (extPctVal >= 0 ? '+' : '') + extPctVal.toFixed(2) + '%' : '—') + ')</span>';
-          _extHeroEl.style.display = '';
-        } else {
-          _extHeroEl.style.display = 'none';
-        }
-      }
-    }
+    // v59.02: the fenced after-hours hero fallback (#ticker-hero-ext) was deleted; entity.js renders it on every mount.
     // v36.8: 시장 지수 — RTH 외 시간에 "종가" 라벨 + 선물 참고 표시
     var _INDEX_FUTURES_MAP = {'^GSPC':'ES=F', '^NDX':'NQ=F', '^DJI':'YM=F'};
     var _futSym = _INDEX_FUTURES_MAP[q.symbol];

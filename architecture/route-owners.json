@@ -413,8 +413,8 @@
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-core.js:showTicker retains compatibility overview writers; P1010 retires dead action/financial/navigation writers and P829 fences P&L behind aioTickerPnlRenderer",
-        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer"
+        "js/aio-core.js:showTicker retains compatibility overview writers; P1010 retires dead action/financial/navigation writers and P829 fenced P&L behind aioTickerPnlRenderer; v59.01 moved the factor fold to src/ui/components/ticker-overview.js and v59.02 deleted the P&L fallback",
+        "js/aio-data.js: v59.02 deleted the fenced ticker-hero-ext after-hours fallback; entity.js renders it"
       ],
       "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
       "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing.",

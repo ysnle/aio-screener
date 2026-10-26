@@ -13,8 +13,3 @@
 #translate-status .lda-tr-left { color: var(--red-11); }
 #translate-status .lda-tr-ai { display: inline-flex; align-items: center; min-height: 28px; padding: 2px 6px; background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; color: var(--amber-11); }
 @media (pointer: coarse) { #translate-status .lda-tr-ai { min-height: 44px; } }
-/* Ticker hero extended-hours line (#ticker-hero-ext in #page-ticker: old inline 10/11px rendered 12/13px) */
-#ticker-hero-ext .lda-ext-close { font-size: var(--fs-sm); color: var(--gold-11); }
-#ticker-hero-ext .lda-ext-arrow { font-size: var(--fs-sm); color: var(--cyan-11); margin: 0 4px; }
-#ticker-hero-ext .lda-ext-sess { font-size: var(--fs-sm); color: var(--blue-11); margin-right: 3px; }
-#ticker-hero-ext .lda-ext-px { font-size: var(--fs-xs); font-weight: 700; font-family: var(--font-mono); }

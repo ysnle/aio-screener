@@ -1,3 +1,7 @@
+## v59.02 (2026-10-27)
+- **레거시 분해 5/8 — 종목: 히어로 손익·시간외 legacy 대체 경로 삭제 (v59.02):** 종목 히어로의 내 손익(`#ticker-hero-pnl`·`#ticker-hero-value`)과 시간외 줄(`#ticker-hero-ext`)은 P829 이후 `src/ui/pages/entity.js`가 화면이 열릴 때마다 그린다. legacy 쪽은 native 표시가 없을 때만 쓰는 대체 작성기였다. `js/aio-core.js` `showTicker` 안의 손익 작성기는 정적 `tickerData`를 읽어 늘 '포트폴리오에 없는 종목'을 썼고, 보유 종목에서는 native가 덮기 전까지 틀린 문구가 잠깐 남을 수 있었다. `js/aio-data.js` 시세 반영 경로의 시간외 작성기는 화면을 떠난 뒤 숨은 노드에만 썼다. 두 작성기와 그 작성기만 쓰던 `.lda-ext-*` CSS를 지웠다. 아키텍처 게이트는 이제 두 대체 경로가 다시 생기지 않는지를 확인한다.
+- R1 7곳 v59.02
+
 ## v59.01 (2026-10-27)
 - **레거시 분해 5/8 — 종목: 팩터 성격 접기·숨은 지표 줄 (v59.01):** 종목 요약 탭의 '팩터 성격, 섹터 대비 위치' 접기(출처 줄·팩터 행·레이더)를 그리던 `window._aioRenderTickerOverview`를 `js/aio-ui.js`에서 지우고 `src/ui/components/ticker-overview.js`로 옮겼다. 문구·레이더 설정·차트 등록 키는 그대로고, `showTicker`와 `src/app/bootstrap.js`의 시세 수신 처리가 같은 이름으로 부른다. `src/app/legacy-screen-bridges.js`가 설치할 때 이미 열린 종목 화면을 한 번 그린다. 같은 시세 이벤트로 한 번 더 그리던 legacy page-bus 등록(`html-ticker-overview-live`)은 bootstrap 처리와 겹쳐 지웠다. P1434 이후 늘 `hidden`이라 보이지 않던 SR·RSI·3M·MOM 줄(`#ticker-mv-strip`)과 `showTicker` 안의 그 작성기, 그 줄에만 쓰이던 CSS(`.mv-metric-strip`·`.mv-pill*`·`.lco-mv-*`)도 지웠다. 화면에 보이는 동작은 그대로다.
 - R1 7곳 v59.01

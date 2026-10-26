@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.01';
+const APP_VERSION = 'v59.02';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -18336,16 +18336,8 @@ function showTicker(tkr) {
       if (input && input.value !== tkr) input.value = tkr;
     } catch (_) {}
   });
-  const d = tickerData[tkr] || {name:tkr, value:'—', action:'hold'};
   // v57.76: the 요약 tab's text-only 최근 3봉 형태 section (symbol label + _aioDetectTickerPattern) was deleted.
-  // v52.16 P5f/P620: pnlEl.textContent 대입이 자식 span(#ticker-hero-value)을 통째로 파괴해
-  // 바로 다음 줄의 _thv 갱신이 이후 영구 무력화(getElementById가 null)되던 버그 — span은
-  // 건드리지 않고 그 안의 텍스트만 갱신하도록 순서 변경.
-  var pnlEl = document.getElementById('ticker-hero-pnl');
-  var _thv = document.getElementById('ticker-hero-value');
-  var hasPosition = d.value !== '—';
-  if (_thv && _thv.dataset.aioTickerPnlRenderer !== 'native') _thv.textContent = hasPosition ? d.value : '포트폴리오에 없는 종목';
-  if (pnlEl && pnlEl.dataset.aioTickerPnlRenderer !== 'native') pnlEl.className = 'pnl' + (hasPosition ? ' pos' : '');
+  // v59.02: the fenced hero P&L fallback (#ticker-hero-pnl/-value) was deleted; entity.js renders it on every mount.
   // v53.6: 종목 개요(밸리AI 참조) — TV 대형 차트 + 가격/테마/팩터 좌측 레일 (index.html 정의)
   try { if (typeof window._aioRenderTickerOverview === 'function') window._aioRenderTickerOverview(tkr); } catch(_ovErr) {}
   // P1010: unconnected financial slots retired; native entity navigation opens the shared SEC report.
