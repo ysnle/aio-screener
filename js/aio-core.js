@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.95';
+const APP_VERSION = 'v58.96';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -17863,12 +17863,7 @@ function destroyPageCharts(pageId) {
     if (pageId === 'fundamental') {
       if (typeof _fundInitDone !== 'undefined') _fundInitDone = false;
     }
-    // v42.4: themes 페이지 RRG canvas 클리어 (잔상 방지)
-    if (pageId === 'themes') {
-      var rrgCanvas = document.querySelector('[id="rrg-canvas"]');
-      if (rrgCanvas && rrgCanvas.dataset.aioRrgChartRenderer !== 'native') { var ctx2d = rrgCanvas.getContext && rrgCanvas.getContext('2d'); if (ctx2d) ctx2d.clearRect(0, 0, rrgCanvas.width, rrgCanvas.height); }
-      if (window._rrgRetry) window._rrgRetry = 0;
-    }
+    // v58.96: the legacy RRG canvas clear left with drawRRG (themes.js owns the canvas lifecycle).
   } catch(e) { _aioLog('warn', 'chart', 'destroyPageCharts error: ' + (e && e.message || e)); }
 }
 

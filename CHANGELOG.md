@@ -1,3 +1,7 @@
+## v58.96 (2026-10-27)
+- **레거시 분해 4/8 — 테마·섹터: RRG legacy 경로 정리 (v58.96):** RRG 산점도·상태 문구·사분면 칩은 이미 `src/ui/pages/themes.js`(`renderRRGCanvas`·`renderRRGStatus`)가 그린다. 그래서 `js/aio-pages.js`에서 native 표시가 붙으면 바로 끝나던 `drawRRG` 캔버스 대체 경로(약 130줄)와 그 호출 3곳, `js/aio-core.js` 화면 정리 시의 legacy 캔버스 지우기와 `_rrgRetry`를 지웠다. 11섹터/세부 업종/전체 버튼(`setRRGView`)은 `src/ui/components/rrg-view.js`로 옮기고 `src/app/legacy-screen-bridges.js`가 설치한다. 화면 동작은 그대로다.
+- R1 7곳 v58.96
+
 ## v58.95 (2026-10-27)
 - **레거시 분해 4/8 — 테마·섹터: 섹터 막대 legacy 경로 정리 (v58.95):** 섹터 막대는 이미 `src/ui/pages/themes.js`(`renderThemePerformanceBars`)가 그리고 기간 버튼(1일·1주·1·3·6·12개월)도 직접 채운다. 그래서 `js/aio-pages.js`에서 native 표시가 붙으면 아무것도 하지 않던 `renderSectorPerfBars` 대체 경로와 그 호출 4곳, native가 버튼을 교체해 눌릴 수 없던 1일/1주 처리기 `setSectorPerfMode`와 `_sectorPerfMode`, 그 모드에서만 돌던 주간 캐시 완료 재렌더를 지웠다. `index.html`의 정적 1일/1주 버튼도 지웠다(빈 그룹을 themes.js가 채운다). 11섹터/+세부 업종 토글(`setSectorPerfView`)은 `src/ui/components/sector-perf-view.js`로 옮기고 `src/app/legacy-screen-bridges.js`가 설치한다. 화면 동작은 그대로다.
 - R1 7곳 v58.95

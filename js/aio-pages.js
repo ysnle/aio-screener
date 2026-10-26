@@ -803,159 +803,8 @@ function calcSectorBreadth(tickers) {
 
 var _rrgViewMode = 'sectors'; // 'sectors' or 'subsectors' or 'all'
 
-function setRRGView(mode, btn) {
-  _rrgViewMode = mode;
-  document.querySelectorAll('#rrg-view-tabs .news-sort-btn').forEach(function(b){ b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  drawRRG();
-  try { document.dispatchEvent(new CustomEvent('aio:themesViewChanged', { detail: { mode: _rrgViewMode } })); } catch (_) {}
-}
-
-// ── RRG 4분면 텍스트 카드 — v52.71 아이보리 3g: 시안 구조(산점도 대신 사분면별 섹터 칩 목록),
-// 기존 calcLiveRS()/classifyRRG() 재사용, 신규 알고리즘 없음 ──
-function drawRRG() {
-  if (!window._rrgRetry) window._rrgRetry = 0;
-  // P799: native themes owns the RRG canvas from normalized quadrant evidence.
-  if (document.querySelector('[id="rrg-canvas"]')?.dataset.aioRrgChartRenderer === 'native') return;
-  let ld = window._liveData || {};
-  // v45.5: SPY가 없으면 시드 기반 RRG 그리기 불가 → 로딩 상태 표시 + 짧은 재시도
-  if (!ld['SPY']) {
-    var stWait = document.querySelector('[id="rrg-chart-status"]');
-    if (stWait && stWait.dataset.aioRrgStatusRenderer !== 'native') stWait.textContent = '시세 수신 대기... (' + Object.keys(ld).length + '개 수신)';
-    window._rrgRetry++;
-    if (window._rrgRetry < 40) { // 최대 20초 (500ms x 40)
-      setTimeout(drawRRG, 500);
-    } else {
-      if (stWait && stWait.dataset.aioRrgStatusRenderer !== 'native') stWait.textContent = '시세 연결 지연 — 잠시 후 자동 갱신됩니다';
-    }
-    return;
-  }
-  window._rrgRetry = 0;
-  var canvas = document.querySelector('[id="rrg-canvas"]');
-  if (!canvas) return;
-  // v30.13d: 컨테이너 기반 동적 캔버스 크기 — 비율 왜곡 방지
-  var containerW = canvas.parentElement ? canvas.parentElement.clientWidth - 8 : 900;
-  if (containerW < 300) containerW = 900;
-  var targetH = Math.round(containerW * 0.52); // 약 1.92:1 비율
-  if (targetH > 520) targetH = 520;
-  if (canvas.width !== containerW || canvas.height !== targetH) {
-    canvas.width = containerW;
-    canvas.height = targetH;
-  }
-  var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
-  var spy = ld['SPY'] ? ld['SPY'].price : null;
-
-  ctx.clearRect(0, 0, W, H);
-
-  // v48.43: Background quadrants — 새 팔레트 (cyan/magenta/amber/red 대응)
-  var cx = W/2, cy = H/2, inkRgb = (getComputedStyle(document.body).getPropertyValue('--ink-rgb').trim() || '33,29,22'); // canvas cannot resolve var(): themed ink read once
-  // Leading (right-top) = green
-  ctx.fillStyle = 'rgba(47,124,87,0.08)'; ctx.fillRect(cx, 0, W/2, cy);
-  // Improving (left-top) = cyan
-  ctx.fillStyle = 'rgba(' + inkRgb + ',0.08)'; ctx.fillRect(0, 0, cx, cy);
-  // Weakening (right-bottom) = amber
-  ctx.fillStyle = 'rgba(' + inkRgb + ',0.06)'; ctx.fillRect(cx, cy, W/2, H/2);
-  // Lagging (left-bottom) = red
-  ctx.fillStyle = 'rgba(181,69,72,0.06)'; ctx.fillRect(0, cy, cx, H/2);
-
-  // v48.43: Grid lines — 토큰 기반
-  ctx.strokeStyle = 'rgba(' + inkRgb + ',0.10)'; ctx.lineWidth = 1;
-  ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
-  ctx.setLineDash([]);
-
-  // v48.43: Axis labels — Inter + muted
-  ctx.font = '11px Inter, sans-serif'; ctx.textAlign = 'center';
-  ctx.fillStyle = '#978365';
-  ctx.fillText('RS-Ratio →', W/2, H-8);
-  ctx.save(); ctx.translate(16, H/2); ctx.rotate(-Math.PI/2);
-  ctx.fillText('RS-Momentum ↑', 0, 0);
-  ctx.restore();
-
-  // v48.43: Quadrant labels — 새 팔레트 hex (canvas는 CSS var 미지원)
-  ctx.font = 'bold 12px Inter, sans-serif'; ctx.globalAlpha = 0.75;
-  ctx.fillStyle = '#2f7c57'; ctx.textAlign = 'center'; ctx.fillText('선도 Leading', W*3/4, 22);
-  ctx.fillStyle = 'rgb(' + inkRgb + ')'; ctx.textAlign = 'center'; ctx.fillText('개선 Improving', W/4, 22);
-  ctx.fillStyle = 'rgb(' + inkRgb + ')'; ctx.textAlign = 'center'; ctx.fillText('약화 Weakening', W*3/4, H-14);
-  ctx.fillStyle = '#b54548'; ctx.textAlign = 'center'; ctx.fillText('후행 Lagging', W/4, H-14);
-  ctx.globalAlpha = 1;
-
-  // RS 기반 포지션 계산 (screener_pro.py compute_sector_rrg 방법론)
-  var activeSectors = _rrgViewMode === 'subsectors' ? RRG_SUBSECTORS :
-                      _rrgViewMode === 'all' ? ALL_RRG_ETFS : RRG_SECTORS;
-
-  var positions = [];
-  var quadrantCounts = { Leading:0, Improving:0, Weakening:0, Lagging:0 };
-
-  activeSectors.forEach(function(sec) {
-    var d = ld[sec.sym];
-    if (!d) { positions.push(null); return; }
-
-    var rs = calcLiveRS(sec.sym);
-    if (rs.quadrant === 'unknown' || rs.rsRatio === null || rs.rsMom === null) { positions.push(null); return; }
-    quadrantCounts[rs.quadrant] = (quadrantCounts[rs.quadrant] || 0) + 1;
-
-    // v30.13d: 동적 레인지 스케일링 — 실제 데이터 범위에 맞춰 확대 (기존 고정 /5 → /3.5)
-    var rsNorm = (rs.rsRatio - 100) / 3.5; // 더 넓은 스프레드
-    var momNorm = (rs.rsMom - 100) / 3.5;
-    // 클램프 to ±0.95 for visual margin
-    rsNorm = Math.max(-0.95, Math.min(0.95, rsNorm));
-    momNorm = Math.max(-0.95, Math.min(0.95, momNorm));
-    var x = cx + rsNorm * (W/2 - 40);
-    var y = cy - momNorm * (H/2 - 40);
-    x = Math.max(25, Math.min(W-25, x));
-    y = Math.max(25, Math.min(H-25, y));
-    positions.push({ x:x, y:y, rs:rs.rsRatio, mom:rs.rsMom, q:rs.quadrant });
-  });
-
-  // Draw sector dots + labels
-  activeSectors.forEach(function(sec, i) {
-    var pos = positions[i];
-    if (!pos) return;
-
-    // Quadrant-based glow
-    var glowColor = pos.q === 'Leading' ? 'rgba(47,124,87,0.3)' :
-                    pos.q === 'Improving' ? 'rgba(' + inkRgb + ',0.3)' :
-                    pos.q === 'Weakening' ? 'rgba(' + inkRgb + ',0.3)' : 'rgba(181,69,72,0.3)';
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, 14, 0, Math.PI*2);
-    ctx.fillStyle = glowColor;
-    ctx.fill();
-
-    // Dot
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, 7, 0, Math.PI*2);
-    ctx.fillStyle = sec.color;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Label
-    ctx.font = 'bold 11px system-ui';
-    ctx.fillStyle = sec.color;
-    ctx.textAlign = 'center';
-    ctx.fillText(sec.sym, pos.x, pos.y - 9);
-    if (_rrgViewMode !== 'all') {
-      ctx.font = '11px system-ui'; /* v48.61 P37: 9px→11px */
-      ctx.fillStyle = '#978365'; /* v48.61 R43 Canvas hex */
-      ctx.fillText(sec.name, pos.x, pos.y + 14);
-    }
-  });
-
-  // RRG 분면 분포 표시
-  var st = document.querySelector('[id="rrg-chart-status"]');
-  // P798: RRG chart-status is owned by the native themes state projection; the canvas remains legacy.
-  if (st && st.dataset.aioRrgStatusRenderer !== 'native') {
-    var lc = quadrantCounts.Leading||0, ic = quadrantCounts.Improving||0;
-    var wc = quadrantCounts.Weakening||0, lac = quadrantCounts.Lagging||0;
-    var txt = spy ? 'SPY $' + spy.toFixed(2) + ' | ' : '';
-    // P1686/M08: counts only — the quadrant mix is not a market-health grade.
-    st.textContent = txt + '선도 ' + lc + ', 개선 ' + ic + ', 약화 ' + wc + ', 후행 ' + lac;
-  }
-}
+// v58.96: setRRGView moved to src/ui/components/rrg-view.js; the fenced legacy drawRRG canvas fallback is gone —
+// src/ui/pages/themes.js draws the RRG scatter, status and quadrant chips.
 
 // ═══════════════════════════════════════════════════════════════
 //  SECTOR PERFORMANCE BARS (확장: 11 섹터 + 서브섹터)
@@ -1189,7 +1038,6 @@ async function hydrateRRGDailyHistory() {
     var rerender = function() {
       var tp = document.getElementById('page-themes');
       if (!tp || !tp.classList.contains('active')) return;
-      try { drawRRG(); } catch(_e) {}
       try { document.dispatchEvent(new CustomEvent('aio:themesViewChanged')); } catch(_e) {}
     };
     // 동시 3개 제한 — 프록시/Yahoo 부하 억제. 배치마다 점진 재렌더(부분 실패에도 확보분은 표시).
@@ -1368,7 +1216,6 @@ _aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
     // P721: 실제 일봉 종가로 RRG 근거 수화 (완료 시 스스로 재렌더, 실패 심볼은 보류 유지)
     try { hydrateRRGDailyHistory(); } catch(_e) {}
     setTimeout(function() {
-      drawRRG();
       document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
       // v45.5: 1주 캐시 백그라운드 프리페치 (사용자가 1주 탭 클릭 시 즉각 표시)
       if (Object.keys(_sectorWeeklyCache).length === 0 && !_sectorWeeklyFetching) {
@@ -1382,7 +1229,6 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
   collectPriceHistory();
   var tp = document.getElementById('page-themes');
   if (tp && tp.classList.contains('active')) {
-    drawRRG();
     document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
     // 열려있는 상세 패널 자동 갱신
     var dp = document.getElementById('theme-detail-panel');
