@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T16:04:50.041Z",
+  "generatedAt": "2026-10-26T16:28:00.390Z",
   "routes": [
     {
       "id": "home",
@@ -284,7 +284,7 @@
         "지수 하루 흐름",
         "판단이 바뀌는 조건",
         "지난 마감 이후 변화",
-        "지금 시세 실시간·지연, 10/26 18:21 관측",
+        "지금 시세 실시간·지연, 10/27 01:21 관측",
         "밤사이 핵심 3건",
         "오늘 확인할 3가지",
         "내 종목",
@@ -536,7 +536,6 @@
         "코스피",
         "코스닥",
         "원 / 달러",
-        "외국인 순매수",
         "한국한국 종목의 참여도와 3개월 수익률 상위 테마",
         "3개월 수익률 상위 한국 테마, 표본 중앙값",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
@@ -545,196 +544,8 @@
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
-        {
-          "tag": "SELECT",
-          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "COP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EOG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CVX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "XOM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "EG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "KMI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ADP"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MRSH"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NDAQ"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "RSG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VLTO"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "ED"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "IFF"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AWK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CDW"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HAS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AAPL"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BBY"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CTAS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TMUS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MGM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "HWM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WYNN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APTV"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CMG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "NRG"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APP"
-        },
-        {
-          "tag": "SELECT",
-          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CCI"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "CRWD"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "SLB"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "APA"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VYLR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DVN"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "AMT"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "BE"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "FIX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "T"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "TMUS"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DECK"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MGM"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "MET"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "DLTR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태에서 추세 축과 함께 보기 →"
-        },
         {
           "tag": "BUTTON",
           "name": "지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기"
@@ -746,32 +557,11 @@
         {
           "tag": "BUTTON",
           "name": "확정 종가와 공식 발표 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 상태 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 →"
         }
       ],
       "headings": [
         "시장 폭",
         "시장 폭 판정",
-        "참여도 — 이동평균 위 종목 비율",
-        "20일선 위 종목 비율",
-        "50일선 위 종목 비율",
-        "200일선 위 종목 비율",
-        "40일선 위 종목 비율",
-        "상승 종목 비율 (10일 평균)",
-        "누적 상승-하락 종목 수 (A/D 라인)",
-        "강한 종목 수 — 신고가·신저가, 급등락",
-        "52주 신고가 − 신저가 종목 수",
-        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
-        "지수 확인 — 분배일과 S&P 500",
-        "S&P 500 (같은 기간 비교)",
-        "S&P 500 매도 우위일(분배일, 최근 25거래일)",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
       ]
     },
@@ -2024,7 +1814,7 @@
         },
         {
           "tag": "BUTTON",
-          "name": "유틸리티 +2.9%"
+          "name": "유틸리티 -4.4%"
         },
         {
           "tag": "BUTTON",
@@ -2032,19 +1822,19 @@
         },
         {
           "tag": "BUTTON",
-          "name": "광통신/포토닉스 -18.6%"
+          "name": "광통신/포토닉스 -16.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 -20.6%"
+          "name": "AI 인프라/데이터센터 -17.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 -20.6%"
+          "name": "AI 인프라/데이터센터 -17.7%"
         },
         {
           "tag": "BUTTON",
-          "name": "산업재 +2.6%"
+          "name": "산업재 +2.2%"
         },
         {
           "tag": "BUTTON",
@@ -2382,23 +2172,31 @@
         },
         {
           "tag": "A",
-          "name": "Oil price falls back as traders remain focused on Middle East conflict"
+          "name": "Wall St eyes best day in a month as Anthropic's IPO filing propels AI stocks"
         },
         {
           "tag": "A",
-          "name": "Elon Musk warning on neoclouds: They will face 'guppy level' death"
+          "name": "뉴욕증시, 앤트로픽 IPO 신청·유가 하락에 상승 출발"
         },
         {
           "tag": "A",
-          "name": "Oil Falls Amid Diplomatic Efforts to End Iran War"
+          "name": "CoreWeave Rout Sends Warning Sign to Rest of the Stock Market"
         },
         {
           "tag": "A",
-          "name": "Neocloud stocks fall as Elon Musk says more than 200 of them face 'guppy-level death'"
+          "name": "In his own words: Trump on gas prices and energy costs since launching the war with Iran"
         },
         {
           "tag": "A",
-          "name": "Investors Flee India Small-Caps as Margin Calls Come Knocking"
+          "name": "Audi Announces Its First U.S. Factory; Nvidia, Micron Drive Earnings Boom"
+        },
+        {
+          "tag": "A",
+          "name": "Stocks Rise Pre-Bell as Traders Await Fed Policy Decision, Inflation Report, Big Tech Earnings"
+        },
+        {
+          "tag": "A",
+          "name": "A shock in Brazil sends stocks plunging, while neoclouds take another hit"
         },
         {
           "tag": "A",
@@ -2410,19 +2208,7 @@
         },
         {
           "tag": "A",
-          "name": "[표] 코스닥 외국인 순매수도 상위종목(26일)"
-        },
-        {
-          "tag": "A",
-          "name": "Gold gains on softer oil prices; Fed decision in focus"
-        },
-        {
-          "tag": "A",
-          "name": "Elon Musk says neoclouds are cooked, and SpaceX won't be buying them"
-        },
-        {
-          "tag": "A",
-          "name": "Copper Extends Drop as AI Stocks Weigh Ahead of Fed Meeting"
+          "name": "Gold rises as lower oil prices ease inflation fears ahead of Fed meeting"
         },
         {
           "tag": "A",
@@ -2486,7 +2272,7 @@
         },
         {
           "tag": "A",
-          "name": "넥스트DC CEO, 호주 데이터센터 지연에 인센티브 포기 — 원문 새 창에서 열기"
+          "name": "호주 데이터센터 지연에 Nextdc CEO, 보너스 포기 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -3834,6 +3620,10 @@
         {
           "tag": "BUTTON",
           "name": "BAC 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "GOOG 종목 요약 열기"
         },
         {
           "tag": "BUTTON",

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-26T16:08:13.329Z",
-  "appRevision": "v58.91",
-  "gitHead": "c3d27c821d9bc2dac0be4163452a9fc9b04e8a29",
+  "observedAt": "2026-10-26T16:31:26.348Z",
+  "appRevision": "v58.92",
+  "gitHead": "7104674a5e7fb6d4fbbf2f1831eda459b61cb441",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -77,28 +77,14 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "bp",
-          "width": 22,
-          "height": 25,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "%p",
-          "width": 22,
-          "height": 26,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 20,
-          "height": 27,
-          "exception": "wcag-inline-text"
+          "text": "지수별 가격 온도 (참고) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
         }
       ],
       "skipLink": true,
@@ -207,23 +193,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 22,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
