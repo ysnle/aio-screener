@@ -1,3 +1,7 @@
+## v58.91 (2026-10-27)
+- **레거시 분해 3/8 — 오늘: 홈 VIX 카드 (v58.91):** 오늘 화면은 홈·브리핑·뉴스 세 덩어리라 작은 PR로 나눈다. 첫 조각으로 홈 VIX 카드 렌더러(`_aioRenderHomeVix`)를 `js/aio-data.js`에서 지우고 `src/ui/components/home-vix.js`로 옮겼다. 출력·색·구간 문구는 그대로다. 홈 화면(`src/ui/pages/analysis.js`)이 렌더마다 직접 그리고, legacy 스냅샷 적용(`applyDataSnapshot`)과 홈 새로고침이 부르는 `window._aioRenderHomeVix`는 `src/app/compatibility-globals.js`가 동적 import로 설치한다(부팅 번들 밖, 설치 직후 한 번 그림).
+- R1 7곳 v58.91
+
 ## v58.90 (2026-10-27)
 - **반응형 검사 간헐 실패 (v58.90):** browser-responsive가 세 번 중 한두 번 'tablet: hidden futures fallback is visibly duplicated'로 실패했다. 화면 결함이 아니라 검사 경합이다. locator.evaluateAll이 `.kpi-fallback[hidden]`을 고른 뒤 따로 평가해, 그 사이 오늘 렌더가 선물 시세 없는 상태의 대체값(의도된 표시)을 다시 보이게 하면 정상 상태를 숨김 위반으로 읽었다. 고르기와 계산을 한 번의 page.evaluate로 묶었다(scripts/ci-responsive-browser-check.mjs). 로컬에서 수정 전 3회 중 1회 실패, 수정 후 4회 연속 통과. PR #89, v58.89를 #88이 써서 다음 번호로 재할당.
 - R1 7곳 v58.90

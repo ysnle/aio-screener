@@ -11,6 +11,7 @@ import { renderKrIndexTrends } from '../components/kr-index-trend.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
 import { fearGreedBand } from '../../domain/sentiment/metrics.js';
 import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/knowledge-arrival.js';
+import { renderHomeVix } from '../components/home-vix.js';
 
 function finite(value) {
   if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
@@ -135,6 +136,7 @@ function render({ root, documentRef, store, route }) {
       // T09 + review: the close value counts only when it is aligned with the basis (same rule as the sentiment card);
       // a stalled F&G series shows as held, not as today's score.
       renderHomeFearGreed({ documentRef, sentimentValues, fgClose, fgStale: !!fgClose && !isUsable(alignInput(fgClose.date, basis)) });
+      renderHomeVix({ documentRef, root }); // v58.91: moved from js/aio-data.js _aioRenderHomeVix
     }
     if (route === 'signal') {
       page.dataset.aioArchitectureRenderer = 'native';
