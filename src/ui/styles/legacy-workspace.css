@@ -78,6 +78,9 @@
 #page-portfolio .wsl-rk-hv.is-mixed { background: var(--surface-2); color: var(--text-muted); }
 #page-portfolio .wsl-rk-legend { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 6px; }
 #page-portfolio .wsl-rk-note { font-size: var(--fs-xs); color: var(--text-muted); padding-top: 8px; border-top: 0.5px solid var(--border); }
+#page-portfolio .wsl-rk-val.is-muted { color: var(--text-muted); }
+#page-portfolio .wsl-rk-val.is-plain { color: var(--text-primary); }
+#page-portfolio .wsl-rk-scroll { overflow-x: auto; }
 
 /* Backtest lab (#pf-backtest-output) */
 #page-portfolio .wsl-bt-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }

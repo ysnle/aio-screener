@@ -1,3 +1,7 @@
+## v59.05 (2026-10-27)
+- **레거시 분해 6/8 — 포트폴리오: 리스크 지표 패널 이동 (v59.05):** 포트폴리오 위험 분석의 리스크 지표 패널(`#pf-risk-metrics`: VaR·CVaR·변동성·MDD·베타 표, 상관 행렬 히트맵, 보류 문구)을 `js/aio-workspace.js`의 `_renderRiskMetrics`와 `refreshPortfolioRisk` 안의 직접 쓰기에서 `src/ui/components/portfolio-risk-metrics.js`로 옮겼다. `refreshPortfolioRisk`는 데이터 수집만 하고 `_aioRenderPortfolioRiskStatus`·`_aioRenderPortfolioRiskMetrics`를 부르며 `src/app/legacy-screen-bridges.js`가 설치한다. 브리지 설치 전에 호출되면 대기 플래그를 남기고 설치 시 한 번 다시 실행한다. 문구, 99% 표본 부족 시 최악일 표기, 행렬 색, 환율 제외 안내(P1445)는 그대로이며 인라인 style은 `legacy-workspace.css` 클래스로 바꿨다(히트맵 셀 색만 계산값으로 직접 지정).
+- R1 7곳 v59.05
+
 ## v59.04 (2026-10-27)
 - **레거시 분해 6/8 — 포트폴리오: 익스포저·스트레스 패널 이동 (v59.04):** 포트폴리오 위험 분석의 익스포저·집중도 패널(`#pf-exposure-panel`: 섹터 비중 상위 5, 상위 3 집중, 평균 쌍별 상관, 평균 퀀트 랭크, 한도 경고)과 스트레스 패널 배치(`#pf-stress-panel`, HTML은 `src/ui/panels/portfolio-stress.js`)를 `js/aio-workspace.js`의 `_aioRenderPortfolioExposure`·`_aioRenderPortfolioStress`에서 `src/ui/components/portfolio-exposure.js`로 옮겼다. 문구와 한도(섹터 40%·상위 3 60%·상관 0.70), 기준통화 평가 비중(P1445)은 그대로다. `refreshPortfolioRisk`가 같은 창 이름으로 부르고 `src/app/legacy-screen-bridges.js`가 설치한다. 섹터·집중 색은 인라인 style 대신 `legacy-workspace.css` 클래스로 같은 색을 낸다. 계산만 하고 쓰지 않던 고상관 쌍 개수(`hi`)는 지웠다.
 - R1 7곳 v59.04

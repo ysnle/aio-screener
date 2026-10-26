@@ -11,6 +11,7 @@ import { setRRGView } from '../ui/components/rrg-view.js';
 import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.js';
 import { renderTickerOverview } from '../ui/components/ticker-overview.js';
 import { renderPortfolioExposure, renderPortfolioStress } from '../ui/components/portfolio-exposure.js';
+import { renderPortfolioRiskMetrics, renderPortfolioRiskStatus } from '../ui/components/portfolio-risk-metrics.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
@@ -52,4 +53,9 @@ export function installLegacyScreenBridges(root, documentRef) {
   // v59.04 포트폴리오: the 익스포저·집중도 and stress panels (refreshPortfolioRisk calls them).
   root._aioRenderPortfolioExposure = (positions, returnsMap) => renderPortfolioExposure(positions, returnsMap, at);
   root._aioRenderPortfolioStress = (positions, historyMap, commonDates) => renderPortfolioStress(positions, historyMap, commonDates, at);
+  // v59.05 포트폴리오: the 리스크 지표 panel and its status lines; a refreshPortfolioRisk that ran before this module
+  // loaded is repeated now.
+  root._aioRenderPortfolioRiskStatus = (text, warn) => renderPortfolioRiskStatus(text, warn, at);
+  root._aioRenderPortfolioRiskMetrics = (data) => renderPortfolioRiskMetrics(data, at);
+  if (root._aioPortfolioRiskPending && typeof root.refreshPortfolioRisk === 'function') { root._aioPortfolioRiskPending = false; root.refreshPortfolioRisk(); }
 }

@@ -14,6 +14,8 @@ import { readProducerSource } from './lib/producer-source.mjs';
 // 2026-07-22/ARX-11: signal now consumes the extracted trading-score model; its score-to-action
 // envelope is covered below so the retired three-input toy cannot return as a parallel owner.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// v59.05: the 포트폴리오 risk panel renderer moved from js/aio-workspace.js to src/ui/components/portfolio-risk-metrics.js.
+const workspaceWithPanels = () => readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8') + readFileSync(path.join(root, 'src/ui/components/portfolio-risk-metrics.js'), 'utf8');
 const fail = (message) => { throw new Error(`[esm-core-unit] ${message}`); };
 const load = (rel) => import(pathToFileURL(path.join(root, rel)));
 
@@ -2869,7 +2871,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
 
   // 11 P11-01 durable ack — 소스 계약: 완료 알림은 persist 결과 뒤에만 온다.
-  const workspaceSource = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const workspaceSource = workspaceWithPanels();
   if (!/return persist\.then\(/.test(workspaceSource)) fail('P1181/11 P11-01 savePortfolioData must return the durable acknowledgement');
   if (!/async function addPortfolioPosition\(/.test(workspaceSource)) fail('P1181/11 P11-01 the add path must await the acknowledgement');
   if (!/showToast\(saved\.ok|if \(saved\.ok\)/.test(workspaceSource) || !/영구 저장 실패/.test(workspaceSource)) {
@@ -3043,7 +3045,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   // 소스 계약 — 패널의 선언·표시가 코드에 실제로 존재한다.
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)이 src/ui/panels/portfolio-risk-input.js로
   // 분해됐다 — 계약은 코드의 새 소유자를 따라간다: 선언 기본값·추정 호출은 모듈, lineage 문구는 셸.
-  const e4WorkspaceSource = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const e4WorkspaceSource = workspaceWithPanels();
   const e4RiskInputSource = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
   if (/0\.043/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the risk panel must not carry a hidden fixed RF assumption (0.043) any more');
   if (!/RF 미입력 — 보류/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the panel must publish the withheld-RF state instead of a bare dash');
@@ -3177,7 +3179,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       fail(`P1188/11 P11-02 the risk surface must expose the ${id} declaration input`);
     }
   });
-  const p1188Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1188Workspace = workspaceWithPanels();
   if (!/function savePortfolioAssumption\(/.test(p1188Workspace) || !/readPortfolioAssumptionDeclarations\(\)/.test(p1188Workspace)) {
     fail('P1188/11 P11-02 the classic shell must own the assumption writer and read its own declarations');
   }
@@ -3323,7 +3325,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`P1191/E4 removing a missing ledger entry must fail instead of silently succeeding, got ${JSON.stringify(removed)}`);
   }
   const p1191Index = readFileSync(path.join(root, 'index.html'), 'utf8');
-  const p1191Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1191Workspace = workspaceWithPanels();
   const p1191Readers = readFileSync(path.join(root, 'src/data/runtime-readers.js'), 'utf8');
   ['pf-ledger-section', 'pf-ledger-flow-timing', 'pf-ledger-coverage', 'pf-ledger-kind', 'pf-ledger-date', 'pf-ledger-amount', 'pf-ledger-valuation-date', 'pf-ledger-valuation-amount', 'pf-ledger-list', 'pf-ledger-status'].forEach((id) => {
     if (!p1191Index.includes(`id="${id}"`)) fail(`P1191/E4 the ledger surface must expose ${id}`);
@@ -3393,7 +3395,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`P1198 an undeclared or unrecognized enum must stay null and be reported as unrecognized, got ${JSON.stringify({ path: normalizeExposurePath('strategy'), policy: normalizeRebalancePolicy('weekly'), blank: normalizeRebalancePolicy(''), read: { policy: assumptionRead.rebalancePolicy, unrecognized: assumptionRead.unrecognized } })}`);
   }
   const p1193Index = readFileSync(path.join(root, 'index.html'), 'utf8');
-  const p1193Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1193Workspace = workspaceWithPanels();
   if (!/id="pf-exposure-path-input"/.test(p1193Index) || !/id="pf-rebalance-policy-input"/.test(p1193Index)
     || !/value="fixed_target_weight_strategy"/.test(p1193Index) || !/value="buy-and-hold"/.test(p1193Index)) {
     fail('P1193 the risk surface must expose the exposure path and rebalance policy declarations');
@@ -3490,7 +3492,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const p1194Readers = readFileSync(path.join(root, 'src/data/runtime-readers.js'), 'utf8');
   const p1194Provider = readFileSync(path.join(root, 'src/data/providers/portfolio.js'), 'utf8');
   const p1194Normalize = readFileSync(path.join(root, 'src/data/normalize/portfolio.js'), 'utf8');
-  const p1194Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1194Workspace = workspaceWithPanels();
   const p1194Html = readFileSync(path.join(root, 'index.html'), 'utf8');
   if (!/clone\(root\.getPortfolioFxLegs\(\)\)/.test(p1194Readers) || !/fxLegs: Array\.isArray\(runtime\.fxLegs\)/.test(p1194Provider)
     || !/fxLegs: Object\.freeze/.test(p1194Normalize) || !/safeLS\(key, json\)/.test(p1194Workspace)
@@ -3553,7 +3555,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   ];
   const failedPanels = panelChecks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedPanels.length) fail(`P1195 declared-panel checks failed: ${failedPanels.join(' | ')}`);
-  const p1195Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1195Workspace = workspaceWithPanels();
   const p1195Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'); // v57.62
   if (/data-action="_aioRemoveLedgerEntry"/.test(p1195Workspace) || /data-action="_aioRemoveFxLeg"/.test(p1195Workspace)
     || /function _pfVaultListPersist\(options\)/.test(p1195Workspace) === false
@@ -3642,7 +3644,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (failedP1197.length) {
     fail(`P1197 policy-consumption checks failed: ${failedP1197.join(' | ')} — ${JSON.stringify({ noPolicy: { status: noPolicy.status, id: noPolicy.estimateId, applied: noPolicy.rebalancePolicyApplied }, monthly: { id: withMonthly.estimateId, declared: withMonthly.rebalancePolicyDeclared, applied: withMonthly.rebalancePolicyApplied }, strategyNo: { status: strategyNoPolicy.status, code: strategyNoPolicy.code } })}`);
   }
-  if (!/선언 정책 ' \+ _escHtmlSafe\(est\.rebalancePolicyDeclared\) \+ ' 미사용/.test(readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8'))) {
+  if (!/선언 정책 ' \+ _escHtmlSafe\(est\.rebalancePolicyDeclared\) \+ ' 미사용/.test(workspaceWithPanels())) {
     fail('P1197 the risk panel must say that a declared policy was not used on the retrospective path');
   }
 }
@@ -3650,7 +3652,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // P1197이 엔진에서 선언/적용을 분리했는데, 셸이 `|| 'daily'`로 기본값을 만들면 사용자가 선언하지 않은
 // 정책이 '선언'으로 게시된다 — 지어낸 선언은 선언이 아니다. 전략 경로에서 미선언이면 엔진이 보류한다.
 {
-  const p1198Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1198Workspace = workspaceWithPanels();
   const p1198RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
   const p1198Index = readFileSync(path.join(root, 'index.html'), 'utf8');
   const p1198Checks = [
@@ -3716,7 +3718,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   ];
   const failedP1199 = p1199Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1199.length) fail(`P1199 declaration-store checks failed: ${failedP1199.join(' | ')}`);
-  const p1199Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1199Workspace = workspaceWithPanels();
   if (!/window\._pfDeclarationsStore = \{ create: createDeclarationsStore \}/.test(readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8')) // v57.62
     || /function _pfVaultListWrite\(/.test(p1199Workspace)
     || !/_pfDeclarationWrite\(options\.key, options\.value\)/.test(p1199Workspace)
@@ -3764,7 +3766,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (failedP1200.length) {
     fail(`P1200 strategy cash-weight checks failed: ${failedP1200.join(' | ')} — ${JSON.stringify({ withCash: { status: withCash.status, cashWeight: withCash.strategy && withCash.strategy.cashWeight, hold: withCash.wholeAccountHold, scope: withCash.publishedScope, first: withCash.wholeAccountReturns && withCash.wholeAccountReturns[0] }, over: { status: overAllocated.status, code: overAllocated.code }, unresolved: { hold: cashUnresolved.wholeAccountHold, scope: cashUnresolved.publishedScope }, full: { weight: fullSleeve.strategy && fullSleeve.strategy.cashWeight, hold: fullSleeve.wholeAccountHold } })}`);
   }
-  const p1200Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1200Workspace = workspaceWithPanels();
   const p1200RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
   // P1258: 합 검증은 조립 모듈이, 현금 몫 표기는 셸 패널이 소유한다.
   if (!/declaredWeightSum > 100 \+ 1e-6/.test(p1200RiskInput) || !/est\.strategy\.cashWeight > 0 \? ', 현금 '/.test(p1200Workspace)) {
@@ -4622,7 +4624,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   ];
   const failedP1316 = p1316Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1316.length) fail(`P1316 portfolio backup checks failed: ${failedP1316.join(' | ')}`);
-  const p1316Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1316Workspace = workspaceWithPanels();
   const p1316Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'); // v57.62
   if (!/window\._pfPortfolioBackup = \{/.test(p1316Bootstrap)
     || !/api\.build\(_pfBackupSnapshot\(\)/.test(p1316Workspace)

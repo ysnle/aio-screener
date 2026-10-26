@@ -114,7 +114,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const coverage = Object.fromEntries(['trades', 'deposits-withdrawals', 'dividends-splits', 'fees-taxes', 'fx', 'valuation-cuts'].map((name) => [name, true]));
   const perf = assessAccountPerformance({ ledger: { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage, transactions: [{ date: '2026-03-01', kind: 'trade', amount: 0 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2027-01-01', amount: 121 }] } });
   if (perf.status !== 'ready' || perf.units?.twr !== 'period-cumulative' || perf.units?.mwr !== 'annualized-irr') fail(`#6 account performance must name the TWR/MWR units: ${perf.status} ${JSON.stringify(perf.units)}`);
-  const workspace = read('js/aio-workspace.js');
+  const workspace = read('js/aio-workspace.js') + read('src/ui/components/portfolio-risk-metrics.js'); // v59.05: risk panel moved to src/
   if (!/TWR\(기간 누적/.test(workspace) || !/MWR\(연율\)/.test(workspace)) fail('#6 the ledger panel must label TWR(기간 누적) and MWR(연율)');
   // #8/#17/#16: thin 99% sample reads 표본 최악일 with the tail count; no Sharpe/MDD grades; internal codes folded.
   if (!/표본 최악일/.test(workspace) || !/thin99 = !\(n >= 100\)/.test(workspace)) fail('#8 a sub-100-day 99% VaR must read 표본 최악일');

@@ -806,6 +806,16 @@ const exposureProbe = await (async () => {
   return el.innerHTML.includes('Tech 섹터 100% 집중(&gt;40%), 상위 3종목 100% 집중(&gt;60%), 평균 상관 0.80') && el.innerHTML.includes('평균 퀀트 랭크</span><span class="wsl-b">13</span>') && el.note === '[base]';
 })();
 check('v59.04 the 포트폴리오 exposure panel weighs base-currency values over total assets and flags sector, top-3 and correlation limits', exposureProbe);
+const riskPanelProbe = await (async () => {
+  const { renderPortfolioRiskMetrics, renderPortfolioRiskStatus } = await import('../src/ui/components/portfolio-risk-metrics.js');
+  const cell = { dataset: { heatBg: 'rgba(1,2,3,0.4)', heatFg: '#fff' }, style: {} };
+  const el = { querySelectorAll: () => [cell], insertAdjacentHTML: (_, html) => { el.tail = html; } };
+  const documentRef = { getElementById: () => el };
+  const held = renderPortfolioRiskStatus('공통 거래일 <6일', true, { root: {}, documentRef }) && el.innerHTML === '<div class="wsl-msg is-warn">공통 거래일 &lt;6일</div>';
+  renderPortfolioRiskMetrics({ var95: 0.02, var99: 0.03, sharpe: null, mddRes: { mdd: 0.1 }, n: 60, fxExcluded: true, corrRes: { tickers: ['A', 'B'], matrix: [[1, 0.6], [0.6, 1]] } }, { root: {}, documentRef });
+  return held && el.innerHTML.includes('표본 최악일 (1일 손실)') && el.innerHTML.includes('<div class="wsl-rk-val is-muted">—</div>') && cell.style.background === 'rgba(1,2,3,0.4)' && cell.style.color === '#fff' && /환율 변동이 빠져/.test(el.tail);
+})();
+check('v59.05 the 포트폴리오 risk panel escapes its hold lines, reads a thin 99% sample as the worst day, colours matrix cells and notes excluded FX', riskPanelProbe);
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',
