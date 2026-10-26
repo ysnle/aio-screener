@@ -1,8 +1,6 @@
 // v58.82 (owner 2026-10-26, roadmap 12): "이상해요" — a short note to the owner from any screen. Only the screen name
-// and the app version ride with the text. The AIO Worker keeps notes privately (the repository is public) and needs a
-// family code to accept one; the owner reads them in the connection panel with the operator token, which is not stored.
-import { readFamilyCode } from '../../domain/connections/family-code.js';
-import { attachFamilyCodeForm } from './family-code-form.js';
+// and the app version ride with the text. The AIO Worker keeps notes privately (the repository is public), a few per
+// connection a day; the owner reads them in the connection panel with the operator token, which is not stored.
 import { readFeedback, sendFeedback } from '../../data/feedback.js';
 
 export const FEEDBACK_MAX_CHARS = 1000;
@@ -16,7 +14,6 @@ export function feedbackRoute(hash) {
 
 const RESULT_TEXT = {
   sent: '보냈습니다. 고마워요.',
-  code: '가족 코드가 맞지 않습니다. 아래에 받은 코드를 다시 넣어 주세요.',
   limit: '오늘은 더 보낼 수 없습니다. 내일 다시 보내 주세요.',
   failed: '보내지 못했습니다. 잠시 뒤 다시 시도해 주세요. 쓴 내용은 그대로 있습니다.',
 };
@@ -32,7 +29,7 @@ function workerTarget(win) {
   try { return win._aioClaudeTarget?.()?.workerUrl || ''; } catch { return ''; }
 }
 
-export function openFeedbackDialog({ documentRef: doc, windowRef: win, storage, version = '' }) {
+export function openFeedbackDialog({ documentRef: doc, windowRef: win, version = '' }) {
   let dialog = doc.getElementById('aio-feedback-dialog');
   if (!dialog) {
     dialog = el(doc, 'dialog', null, 'aio-feedback');
@@ -46,36 +43,26 @@ export function openFeedbackDialog({ documentRef: doc, windowRef: win, storage, 
     text.setAttribute('aria-label', '무엇이 이상했나요');
     text.placeholder = '무엇이 이상했나요? 예: 차트가 비어 있어요';
     const status = el(doc, 'div', null, 'aio-feedback-status'); status.setAttribute('role', 'status');
-    const codeBox = el(doc, 'div', null, 'aio-feedback-code');
     const send = el(doc, 'button', '보내기'); send.type = 'submit';
     const close = el(doc, 'button', '닫기', 'aio-feedback-close'); close.type = 'button';
     const actions = el(doc, 'div', null, 'aio-feedback-actions'); actions.append(send, close);
-    form.append(text, codeBox, status, actions);
+    form.append(text, status, actions);
     dialog.append(title, lede, form);
     doc.body.appendChild(dialog);
     close.addEventListener('click', () => dialog.close());
-    const askCode = () => {
-      if (codeBox.firstChild) return;
-      codeBox.append(el(doc, 'p', '보내려면 가족 코드가 필요합니다.', 'aio-feedback-lede'));
-      attachFamilyCodeForm(codeBox, { documentRef: doc, storage, onSaved: () => { win._aioClearWorkerHealth?.(); setTimeout(() => codeBox.replaceChildren(), 1200); } });
-    };
-    dialog.aioAskCode = askCode;
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const code = readFamilyCode(storage), body = text.value.trim(), workerUrl = workerTarget(win);
-      if (!code) { askCode(); status.textContent = ''; return; }
+      const body = text.value.trim(), workerUrl = workerTarget(win);
       if (!body) { status.textContent = '내용을 적어 주세요.'; return; }
       if (!workerUrl) { status.textContent = RESULT_TEXT.failed; return; }
       send.disabled = true; status.textContent = '보내는 중';
-      const result = await sendFeedback({ fetchImpl: win.fetch.bind(win), workerUrl, appToken: win._aioAppToken?.(), code, text: body,
+      const result = await sendFeedback({ fetchImpl: win.fetch.bind(win), workerUrl, appToken: win._aioAppToken?.(), text: body,
         route: feedbackRoute(win.location?.hash), version });
       send.disabled = false; status.textContent = RESULT_TEXT[result];
       if (result === 'sent') text.value = '';
-      if (result === 'code') askCode();
     });
   }
   dialog.querySelector('.aio-feedback-status').textContent = '';
-  if (!readFamilyCode(storage)) dialog.aioAskCode();
   if (!dialog.open) dialog.showModal();
   dialog.querySelector('textarea')?.focus();
   return dialog;

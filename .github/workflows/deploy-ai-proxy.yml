@@ -246,7 +246,6 @@ jobs:
           AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
           BOK_API_KEY: ${{ secrets.BOK_API_KEY }}
           KOSIS_API_KEY: ${{ secrets.KOSIS_API_KEY }}
-          AIO_FAMILY_CODES: ${{ secrets.AIO_FAMILY_CODES }}
         run: |
           set -euo pipefail
           printf '%s' "$OPENAI_API_KEY" | wrangler secret put OPENAI_API_KEY --config worker/wrangler.proxy.deploy.toml
@@ -261,8 +260,6 @@ jobs:
           }
           publish_optional BOK_API_KEY "$BOK_API_KEY"
           publish_optional KOSIS_API_KEY "$KOSIS_API_KEY"
-          # v58.82 (owner 2026-10-26): family codes for browser AI; absent leaves the Worker's current setting as it is.
-          if [ -n "$AIO_FAMILY_CODES" ]; then printf '%s' "$AIO_FAMILY_CODES" | wrangler secret put AIO_FAMILY_CODES --config worker/wrangler.proxy.deploy.toml; fi
 
       - name: Verify health, readiness, CORS, and fail-closed origin
         id: smoke

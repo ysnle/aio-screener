@@ -1855,7 +1855,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var searchEnabledNow = opts.webSearch === true;
   if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
-  var _claudeHeaders = (window._aioWithFamilyCode || Object)({ 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() });
+  var _claudeHeaders = { 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() };
   if (_streamRequestId) _claudeHeaders['X-AIO-Idempotency-Key'] = _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : ''); // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
   try {
     var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
@@ -5161,8 +5161,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }
   if (!_uniRoute.ok) {
     _releaseUnifiedRun();
-    _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>')); var _uniNotice = _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
-    if (_uniRoute.reason === 'FAMILY_CODE_REQUIRED' && _uniNotice && window.AIO && window.AIO.attachFamilyCodeForm) window.AIO.attachFamilyCodeForm(_uniNotice);
+    _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>')); _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
     return;
   }
   // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수

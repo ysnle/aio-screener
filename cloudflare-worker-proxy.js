@@ -334,7 +334,7 @@ function getCorsHeaders(requestOrigin, env) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Family-Code, X-AIO-Operator-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Operator-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id',
     'Access-Control-Max-Age': '86400',
     // The allowed origin is echoed per request; a shared cache must not serve one origin's ACAO to another.
     'Vary': 'Origin',
@@ -427,7 +427,7 @@ async function readClientBudgetStatus(env, clientIp) {
   return value;
 }
 
-async function healthResponse(origin, env, method = 'GET', appToken = '', clientIp = 'unknown', familyCode = '') {
+async function healthResponse(origin, env, method = 'GET', appToken = '', clientIp = 'unknown') {
   const configured = !!(env && env.OPENAI_API_KEY);
   const quotaConfigured = hasAtomicQuotaBinding(env);
   const killSwitch = !!(env && env.AI_KILL_SWITCH === '1');
@@ -438,12 +438,11 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
     : { ready: false, jurisdiction: null, reason: 'us-authority-unavailable' };
   // Compared only when the caller sent a token; an absent header is simply "not accepted".
   const appTokenAccepted = !env?.AIO_APP_TOKEN || (!!appToken && await constantTimeTokenEquals(env.AIO_APP_TOKEN, appToken));
-  const family = await matchFamilyCode(env, familyCode);
   const authorityReady = authority?.ready === true && authority?.jurisdiction === 'us';
   const ready = configured && quotaConfigured && authorityReady && configurationValid && !killSwitch;
   // P1759: coarse budget visibility only (never spend, cap or reservation amounts).
   const budgetStatus = method !== 'HEAD' && configured && configurationValid && authorityReady && hasDurableObjectNamespace(env)
-    ? await readClientBudgetStatus(env, family.code ? 'family|' + family.code : clientIp) : null;
+    ? await readClientBudgetStatus(env, clientIp) : null;
   const budgetState = budgetStatus ? budgetStatus.budgetState : 'unknown';
   const budgetSaverActive = budgetState === 'low' || budgetState === 'exhausted';
   const payload = {
@@ -456,8 +455,6 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
       automationConfigured: typeof env?.AIO_AUTOMATION_TOKEN === 'string' && env.AIO_AUTOMATION_TOKEN.length >= 32,
       appTokenRequired: !!env?.AIO_APP_TOKEN,
       appTokenAccepted,
-      familyCodeRequired: family.required,
-      familyCodeAccepted: family.accepted,
       paidWebSearchEnabled: paidWebSearchEnabled(env),
       // P1759: 'ok' | 'low' (<20% of the month left) | 'exhausted' | 'unknown'. In low/exhausted the Worker
       // removes hosted web search from new requests itself; webSearchAvailable is what a client should gate on.
@@ -565,8 +562,8 @@ function privateOperatorResponse(payload, status = 200) {
 }
 
 // v58.82 (owner 2026-10-26, roadmap 12): the in-app "이상해요" note. The repository and its Actions logs are public, so
-// notes stay in the Worker (Durable Object) and only the operator token reads them. Writing needs a family code, so
-// strangers cannot fill it; each code may leave FEEDBACK_PER_MEMBER_DAY notes a UTC day, the newest FEEDBACK_KEEP stay.
+// notes stay in the Worker (Durable Object) and only the operator token reads them. v59.10 (owner 2026-10-26: family codes
+// removed): each connection may leave FEEDBACK_PER_MEMBER_DAY notes a UTC day, the newest FEEDBACK_KEEP stay.
 const FEEDBACK_MAX_CHARS = 1000, FEEDBACK_KEEP = 300, FEEDBACK_PER_MEMBER_DAY = 10, FEEDBACK_RATE_LIMIT = 5;
 const feedbackRateLimitMap = new Map();
 async function handleFeedback(request, env, origin) {
@@ -574,11 +571,9 @@ async function handleFeedback(request, env, origin) {
   if (request.method !== 'POST') return errorResponse('POST required for /feedback', 405, origin, null, env);
   if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, null, env);
   if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, null, env);
-  const family = await matchFamilyCode(env, request.headers.get('X-AIO-Family-Code'));
-  if (!family.required) return errorResponse('feedback needs family codes', 503, origin, null, env);
-  if (!family.accepted) { logDenial('/feedback', 'family-code'); return errorResponse('Family code auth required', 403, origin, null, env); }
+  const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
   cleanupRateLimitMap(feedbackRateLimitMap);
-  if (!await enforceRateLimit(env, 'RATE_LIMIT_FEEDBACK', feedbackRateLimitMap, FEEDBACK_RATE_LIMIT, request.headers.get('cf-connecting-ip') || 'unknown')) return errorResponse('Too many requests', 429, origin, null, env);
+  if (!await enforceRateLimit(env, 'RATE_LIMIT_FEEDBACK', feedbackRateLimitMap, FEEDBACK_RATE_LIMIT, clientIp)) return errorResponse('Too many requests', 429, origin, null, env);
   if (!hasAtomicQuotaBinding(env)) return errorResponse('feedback store unavailable', 503, origin, null, env);
   let body;
   try { body = JSON.parse(await readBoundedAiRequestBody(request, 8 * 1024)); } catch { return errorResponse('Invalid JSON body', 400, origin, null, env); }
@@ -586,8 +581,8 @@ async function handleFeedback(request, env, origin) {
   if (!text) return errorResponse('feedback text required', 400, origin, null, env);
   const route = typeof body.route === 'string' && /^[a-z][a-z0-9-]{0,30}(?:\/[A-Za-z0-9.^=-]{1,20})?$/.test(body.route) ? body.route : 'unknown';
   const version = typeof body.version === 'string' && /^v\d{1,3}\.\d{1,3}$/.test(body.version) ? body.version : null;
-  // A stable short id per code (not the code) so the owner can tell notes from one person apart.
-  const member = (await deriveClientKey(env, 'family|' + family.code, '2000-01-01') || '').slice(0, 8);
+  // The day's connection id (an HMAC, never the address) lets the owner tell one sender's notes apart within a day.
+  const member = (await deriveClientKey(env, clientIp, new Date().toISOString().slice(0, 10)) || '').slice(0, 8);
   if (!member) return errorResponse('feedback store unavailable', 503, origin, null, env);
   try {
     const saved = await quotaRpc(env, 'feedback-add', { item: { at: new Date().toISOString(), member, route, version, text } });
@@ -996,7 +991,7 @@ export class AIOQuotaDurableObject {
     return changed;
   }
 
-  // v58.82 (roadmap 12): family feedback in its own bounded storage value, beside the quota ledger.
+  // v58.82 (roadmap 12): feedback notes in their own bounded storage value, beside the quota ledger.
   async feedback(operation, body) {
     const stored = (await this.storage.get('feedback-v1')) || { items: [], perDay: {} };
     if (operation === 'feedback-list') return { ok: true, items: stored.items.slice(-FEEDBACK_KEEP).reverse() };
@@ -1334,36 +1329,16 @@ async function readBoundedAiRequestBody(request, maximumBytes) {
   } finally { reader.releaseLock(); }
 }
 
-// v58.82 (owner 2026-10-26): family codes. AIO_FAMILY_CODES is a Worker secret listing one code per person (comma or
-// whitespace separated, 12+ characters each); when it is set, a browser /openai request and its /health readiness need a
-// matching X-AIO-Family-Code. The public app token cannot do this job because it ships in every page. Unset keeps the
-// earlier behaviour. Every listed code is compared, so timing does not reveal which one matched.
-const FAMILY_CODE_MIN_LENGTH = 12;
-function familyCodes(env) {
-  return typeof env?.AIO_FAMILY_CODES === 'string' ? [...new Set(env.AIO_FAMILY_CODES.split(/[\s,]+/).filter(Boolean))] : [];
-}
-async function matchFamilyCode(env, supplied) {
-  const codes = familyCodes(env);
-  if (!codes.length && !env?.AIO_FAMILY_CODES) return { required: false, accepted: true, code: null };
-  const value = typeof supplied === 'string' ? supplied.trim() : '';
-  let matched = null;
-  for (const code of codes) if (await constantTimeTokenEquals(code, value) && code.length >= FAMILY_CODE_MIN_LENGTH) matched = code;
-  return { required: true, accepted: matched !== null, code: matched };
-}
-
 /** Canonical, atomic /openai production handler. */
 async function handleOpenAi(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
   const aiError = { source: 'worker-openai' };
-  let family = null;
   if (request.method !== 'POST') return errorResponse('POST required for /openai', 405, origin, aiError, env);
   if (env?.AI_KILL_SWITCH === '1') return errorResponse('server AI mode disabled by kill switch', 503, origin, aiError, env);
   if (!env?.OPENAI_API_KEY) return errorResponse('server OpenAI key is not configured', 503, origin, aiError, env);
   if (origin) {
     if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, aiError, env);
     if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, aiError, env);
-    family = await matchFamilyCode(env, request.headers.get('X-AIO-Family-Code'));
-    if (!family.accepted) { logDenial('/openai', 'family-code'); return errorResponse('Family code auth required', 403, origin, aiError, env); }
   } else if (!await matchesOperatorToken(env.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'))) {
     return errorResponse('Authorized automation token required', 403, origin, aiError, env);
   }
@@ -1389,8 +1364,7 @@ async function handleOpenAi(request, env, origin) {
   const requestId = await deriveRequestId(request, bodyText);
   const maxTokens = body.max_output_tokens;
   // P1759: browser (Origin) requests carry a per-connection HMAC key; authenticated automation does not.
-  // v58.82: with family codes each person (code) has their own share instead of everyone behind one address.
-  const clientKey = origin ? await deriveClientKey(env, family?.code ? 'family|' + family.code : clientIp, dayKey.slice(7)) : null;
+  const clientKey = origin ? await deriveClientKey(env, clientIp, dayKey.slice(7)) : null;
   const clientFields = clientKey ? { clientKey, clientCap } : {};
   const exposeAiMeta = { 'Access-Control-Expose-Headers': ['X-AIO-Max-Tokens', ...AI_META_HEADERS].join(', ') };
   if (hasDurableObjectNamespace(env)) {
@@ -1601,7 +1575,7 @@ export default {
         logDenial('/health', 'rate-limit');
         return errorResponse('Too many requests', 429, requestOrigin, null, env);
       }
-      return healthResponse(requestOrigin, env, request.method, request.headers.get('X-AIO-App-Token') || '', healthClientIp, request.headers.get('X-AIO-Family-Code') || '');
+      return healthResponse(requestOrigin, env, request.method, request.headers.get('X-AIO-App-Token') || '', healthClientIp);
     }
 
     // P1421: AI provider route branches before the independent data proxy.

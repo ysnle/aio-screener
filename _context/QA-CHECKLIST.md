@@ -4,6 +4,10 @@ last_verified: 2026-10-27
 confidence: medium
 ---
 
+## v59.10 가족 코드 제거 (v59.10) (2026-10-26)
+
+- [x] QA-EDGE-13: v59.10 공용 AI와 '이상해요' 피드백은 가족 코드 없이 동작하고, 남은 AIO_FAMILY_CODES 비밀은 무시되며, 피드백은 연결마다 UTC 하루 10건까지다. verify_by: node worker/openai-contract.test.mjs
+
 ## v58.89 퇴역 게이트 잔여 검사 복원 (2026-10-27)
 
 - [x] QA-GOV-RETIRE-01: v58.89 v58.86에 퇴역한 release-manifest·headless-group-lifecycle 게이트 중 다른 게이트에 없던 검사(rollback 독립성·immutableRuntime 허용 목록, G### 그룹 레지스트리 100개 이상·중복 없음, 그룹 귀속·정확한 그룹 선택·실패 보고서)는 release-revision의 release-rollback-invariants 구획과 qa-pipeline-contract에서 계속 실패한다. verify_by: node scripts/ci-release-revision-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs (asset-manifest rollback·aio-tests.js 그룹 id 변이로 실패 확인)
