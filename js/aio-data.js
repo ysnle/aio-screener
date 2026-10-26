@@ -8516,18 +8516,10 @@ function isUnverifiedClaim(item) {
   return patterns.some(function(p) { return text.indexOf(p) !== -1; });
 }
 
-/* ── v21: 정렬 모드 ──────────────────────────────────────────── */
-let _newsSortMode = 'time'; // 'time' (최신순) or 'score' (중요도순)
-
-function setNewsSortMode(mode, el) {
-  _newsSortMode = mode;
-  const timeBtn = document.getElementById('sort-time-btn');
-  const scoreBtn = document.getElementById('sort-score-btn');
-  if (timeBtn) timeBtn.classList.toggle('active', mode === 'time');
-  if (scoreBtn) scoreBtn.classList.toggle('active', mode === 'score');
-  if (newsCache.length > 0) {
-    _aioNotifyNewsSurfaceInvalidated('news-sort');
-  }
+// v58.92: 정렬 모드(setNewsSortMode)와 국가·주제 칩 상태는 src/ui/components/news-controls.js로 이전했다.
+function _aioNewsControls() {
+  var get = window.AIO && window.AIO.getNewsSurfaceControls;
+  return (typeof get === 'function' && get()) || {};
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -9869,7 +9861,7 @@ function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow) {
 function _aioApplyNewsFilterOptions(rows, opts) {
   opts = opts || {};
   var filtered = rows;
-  var cf = String(opts.countryFilter || (typeof currentCountryFilter !== 'undefined' ? currentCountryFilter : 'all') || 'all').toLowerCase();
+  var cf = String(opts.countryFilter || _aioNewsControls().countryFilter || 'all').toLowerCase();
   if (cf && cf !== 'all') {
     if (cf === 'asia') {
       var ASIA_COUNTRIES = ['jp','cn','hk','tw','sg','in','qa'];
@@ -9882,7 +9874,7 @@ function _aioApplyNewsFilterOptions(rows, opts) {
       filtered = filtered.filter(function(i) { return String(i.country || '').toLowerCase() === cf; });
     }
   }
-  var tf = opts.topicFilter || (typeof currentTopicFilter !== 'undefined' ? currentTopicFilter : 'all');
+  var tf = opts.topicFilter || _aioNewsControls().topicFilter || 'all';
   // v57.77: 'company' (기업 chip) is the one distinct filter the retired type tabs carried — a named company is the subject.
   if (tf === 'company') filtered = filtered.filter(function(i) { return isCompanyNews(i); });
   else if (tf && tf !== 'all') filtered = filtered.filter(function(i) { return i.topic === tf || (i.topics && i.topics.indexOf(tf) >= 0); });
@@ -9951,7 +9943,7 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
       i.inclusionReason = _aioNewsInclusionReason(i, surfaceId);
     });
     deduped.sort(function(a, b) { return (b._surfaceScore || 0) - (a._surfaceScore || 0); });
-  } else if (surfaceId === 'market-news' && (opts.sortMode || _newsSortMode) === 'time') {
+  } else if (surfaceId === 'market-news' && (opts.sortMode || _aioNewsControls().sortMode || 'time') === 'time') {
     deduped.sort(function(a, b) {
       var ta = _aioNewsPubMs(a), tb = _aioNewsPubMs(b);
       var bucketA = Math.floor(ta / 1800000), bucketB = Math.floor(tb / 1800000);
@@ -10184,8 +10176,6 @@ let newsCache = [];
 let lastFetchTime = 0;
 let isFetching = false;
 let _fetchStartTime = 0; // v29.3: isFetching 잠김 방지용 타임스탬프
-let currentCountryFilter = 'all';
-let currentTopicFilter = 'all';
 
 window.AIO = window.AIO || {};
 function _aioNotifyNewsSurfaceInvalidated(reason) {
@@ -10195,13 +10185,8 @@ function _aioNotifyNewsSurfaceInvalidated(reason) {
   } catch (_) {}
 }
 window._aioNotifyNewsSurfaceInvalidated = _aioNotifyNewsSurfaceInvalidated;
-window.AIO.getNewsSurfaceControls = function() {
-  return {
-    countryFilter: currentCountryFilter || 'all',
-    topicFilter: currentTopicFilter || 'all',
-    sortMode: typeof _newsSortMode !== 'undefined' ? _newsSortMode : 'time'
-  };
-};
+// v58.92: window.AIO.getNewsSurfaceControls and the chip/sort handlers are installed by src/app/compatibility-globals.js.
+window._aioNewsCacheSize = function() { return newsCache.length; };
 window.AIO.getTelegramPageCoverageAudit = function() {
   var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
   var pageMap = digest.pageMap || {};
@@ -10983,60 +10968,6 @@ async function fetchAllNews(forceRefresh = false) {
 }
 
 // v57.76: the 60s home news loading-timeout writer was deleted with #home-news-highlights.
-
-// ── 필터 함수 ───────────────────────────────────────────────────
-
-// 전체 뉴스 캐시 보관
-
-// v48.19 (bugfix): 기존 src.includes('') 항상 true 버그 수정 → 명시적 텔레그램 판별
-// 모든 필터 경로가 renderFeed로 통합되도록 currentCountryFilter='tg' 방식 전환
-function filterNewsByTelegramOnly(el) {
-  currentCountryFilter = 'tg';
-  document.querySelectorAll('#news-country-chips .chip').forEach(c => {
-    c.style.background = 'transparent';
-    c.style.borderColor = 'var(--surface-5)';
-    c.style.color = 'var(--text-secondary)';
-  });
-  if (el) {
-    el.style.background = 'var(--accent-dim)';
-    el.style.borderColor = 'var(--accent-border)';
-    el.style.color = 'var(--accent)';
-  }
-  if (newsCache.length > 0) _aioNotifyNewsSurfaceInvalidated('news-country-telegram');
-  else fetchAllNews();
-}
-
-function filterNewsByCountry(filter, el) {
-  currentCountryFilter = filter;
-  document.querySelectorAll('#news-country-chips .chip').forEach(c => {
-    c.style.background = 'transparent';
-    c.style.borderColor = 'var(--surface-5)';
-    c.style.color = 'var(--text-secondary)';
-  });
-  if (el) {
-    el.style.background = 'var(--accent-dim)';
-    el.style.borderColor = 'var(--accent-border)';
-    el.style.color = 'var(--accent)';
-  }
-  if (newsCache.length > 0) _aioNotifyNewsSurfaceInvalidated('news-country-filter');
-  else fetchAllNews();
-}
-
-function filterNewsByTopic(filter, el) {
-  currentTopicFilter = filter;
-  document.querySelectorAll('#news-topic-chips .chip').forEach(c => {
-    c.style.background = 'transparent';
-    c.style.borderColor = 'var(--surface-5)';
-    c.style.color = 'var(--text-secondary)';
-  });
-  if (el) {
-    el.style.background = 'var(--accent-dim)';
-    el.style.borderColor = 'var(--accent-border)';
-    el.style.color = 'var(--accent)';
-  }
-  if (newsCache.length > 0) _aioNotifyNewsSurfaceInvalidated('news-topic-filter');
-}
-
 
 // ── 라이브 시세 엔진 ─────────────────────────────────────────────
 const LIVE_SYMBOLS = [

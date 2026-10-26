@@ -303,6 +303,14 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     window._aioRenderHomeVix = (quote) => m.renderHomeVix({ documentRef: document, root: window, quote });
     window._aioRenderHomeVix();
   }).catch(() => {});
+  import('../ui/components/news-controls.js').then((m) => {
+    window.AIO = window.AIO || {};
+    window.AIO.getNewsSurfaceControls = m.getNewsSurfaceControls;
+    window.filterNewsByCountry = (filter, el) => m.filterNewsByCountry(filter, el);
+    window.filterNewsByTopic = (filter, el) => m.filterNewsByTopic(filter, el);
+    window.filterNewsByTelegramOnly = (el) => m.filterNewsByTelegramOnly(el);
+    window.setNewsSortMode = (mode, el) => m.setNewsSortMode(mode, el);
+  }).catch(() => {});
   import('../ui/components/macro-next-release.js').then((m) => {
     const at = { documentRef: document, root: window };
     if (window.AIO) window.AIO.renderMacroNextRelease = () => m.renderMacroNextRelease(at);

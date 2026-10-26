@@ -742,6 +742,27 @@ check('official future calendar merges the registry beyond snapshot-only CPI/PCE
 check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /const visibleLimit = \{ value: 12 \}/.test(read('src/ui/pages/screener.js')) /* v58.20: the screener's reveal limit lives in screener.js; the unread classic _scrVisibleLimit is gone */ && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 // P770: native news.js owns the briefing list height/reveal; the uncalled legacy adapters were retired.
+// v58.92: the 뉴스 chips and sort buttons run from src/ui/components/news-controls.js (moved from aio-data.js).
+const newsControlsProbe = await (async () => {
+  const m = await import('../src/ui/components/news-controls.js');
+  const chip = () => ({ style: {} });
+  const chips = { 'news-country-chips': [chip(), chip()], 'news-topic-chips': [chip()] };
+  const cls = () => { const set = new Set(); return { classList: { toggle: (c, on) => (on ? set.add(c) : set.delete(c)) }, has: (c) => set.has(c) }; };
+  const buttons = { 'sort-time-btn': cls(), 'sort-score-btn': cls() };
+  const documentRef = { querySelectorAll: (sel) => chips[/#([\w-]+)/.exec(sel)[1]] || [], getElementById: (id) => buttons[id] || null };
+  const reasons = []; let fetches = 0; let size = 0;
+  const root = { _aioNewsCacheSize: () => size, _aioNotifyNewsSurfaceInvalidated: (r) => reasons.push(r), fetchAllNews: () => { fetches += 1; } };
+  const at = { documentRef, root };
+  m.filterNewsByCountry('us', chips['news-country-chips'][1], at);
+  size = 3;
+  m.filterNewsByTopic('macro', null, at);
+  m.setNewsSortMode('score', null, at);
+  const after = m.getNewsSurfaceControls();
+  const picked = chips['news-country-chips'][1].style.color; const cleared = chips['news-country-chips'][0].style.color;
+  m.filterNewsByTelegramOnly(null, at);
+  return { after, tg: m.getNewsSurfaceControls().countryFilter, reasons, fetches, picked, cleared, score: buttons['sort-score-btn'].has('active'), time: buttons['sort-time-btn'].has('active') };
+})();
+check('v58.92 news filter chips and sort buttons keep their state, chip colours and repaint reasons outside the legacy news pipeline', newsControlsProbe.after.countryFilter === 'us' && newsControlsProbe.after.topicFilter === 'macro' && newsControlsProbe.after.sortMode === 'score' && newsControlsProbe.tg === 'tg' && newsControlsProbe.fetches === 1 && newsControlsProbe.reasons.join() === 'news-topic-filter,news-sort,news-country-telegram' && newsControlsProbe.picked === 'var(--accent)' && newsControlsProbe.cleared === 'var(--text-secondary)' && newsControlsProbe.score && !newsControlsProbe.time); // v58.92
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',

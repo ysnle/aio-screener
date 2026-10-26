@@ -1,3 +1,7 @@
+## v58.92 (2026-10-27)
+- **레거시 분해 3/8 — 오늘: 뉴스 필터 칩·정렬 버튼 (v58.92):** 뉴스 화면의 국가·주제·텔레그램 칩과 최신순/중요도순 버튼 처리기(`filterNewsByCountry`·`filterNewsByTopic`·`filterNewsByTelegramOnly`·`setNewsSortMode`), 그 상태(`currentCountryFilter`·`currentTopicFilter`·`_newsSortMode`)와 `window.AIO.getNewsSurfaceControls`를 `js/aio-data.js`에서 지우고 `src/ui/components/news-controls.js`로 옮겼다. 칩 색·정렬 버튼 표시·재렌더 이유 문자열은 그대로다. legacy 필터·정렬 경로는 `getNewsSurfaceControls()`로 상태를 읽고, 뉴스 캐시 크기는 `window._aioNewsCacheSize` 다리로 넘긴다. 전역 이름은 `src/app/compatibility-globals.js`가 동적 import로 설치한다(부팅 번들 밖).
+- R1 7곳 v58.92
+
 ## v58.91 (2026-10-27)
 - **레거시 분해 3/8 — 오늘: 홈 VIX 카드 (v58.91):** 오늘 화면은 홈·브리핑·뉴스 세 덩어리라 작은 PR로 나눈다. 첫 조각으로 홈 VIX 카드 렌더러(`_aioRenderHomeVix`)를 `js/aio-data.js`에서 지우고 `src/ui/components/home-vix.js`로 옮겼다. 출력·색·구간 문구는 그대로다. 홈 화면(`src/ui/pages/analysis.js`)이 렌더마다 직접 그리고, legacy 스냅샷 적용(`applyDataSnapshot`)과 홈 새로고침이 부르는 `window._aioRenderHomeVix`는 `src/app/compatibility-globals.js`가 동적 import로 설치한다(부팅 번들 밖, 설치 직후 한 번 그림).
 - R1 7곳 v58.91
