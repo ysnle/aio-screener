@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T20:50:51.504Z",
+  "generatedAt": "2026-10-26T21:19:56.096Z",
   "routes": [
     {
       "id": "home",
@@ -8,7 +8,7 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "S&P 500, 10/23 종가 7,623.68. 장중 그래프는 받지 못했습니다. 누르면 SPY 차트로 이동(이 지수를 따르는 ETF)"
+          "name": "S&P 500, 10/26 종가 7,676.77. 장중 그래프는 받지 못했습니다. 누르면 SPY 차트로 이동(이 지수를 따르는 ETF)"
         },
         {
           "tag": "BUTTON",
@@ -16,15 +16,15 @@
         },
         {
           "tag": "BUTTON",
-          "name": "반도체, 10/23 종가 527.20. 장중 그래프는 받지 못했습니다. 누르면 SMH 차트로 이동"
+          "name": "반도체, 10/26 종가 541.62. 장중 그래프는 받지 못했습니다. 누르면 SMH 차트로 이동"
         },
         {
           "tag": "BUTTON",
-          "name": "러셀 2000, 10/23 종가 2,775.90. 장중 그래프는 받지 못했습니다. 누르면 IWM 차트로 이동(이 지수를 따르는 ETF)"
+          "name": "러셀 2000, 10/26 종가 2,786.42. 장중 그래프는 받지 못했습니다. 누르면 IWM 차트로 이동(이 지수를 따르는 ETF)"
         },
         {
           "tag": "BUTTON",
-          "name": "6개 축 근거와 읽은 값양호 0, 중립 3, 부담 3"
+          "name": "6개 축 근거와 읽은 값양호 1, 중립 2, 부담 3"
         },
         {
           "tag": "BUTTON",
@@ -46,7 +46,7 @@
       "headings": [
         "오늘",
         "지수 하루 흐름",
-        "지금 시세 실시간·지연, 10/27 04:59 관측",
+        "지금 시세 실시간·지연, 10/27 05:51 관측",
         "지수는 올랐고 참여 종목은 줄었다가 최근 다시 늘고 있습니다"
       ]
     },
@@ -165,6 +165,70 @@
         },
         {
           "tag": "BUTTON",
+          "name": "산업재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "경기소비재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "경기소비재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티"
+        },
+        {
+          "tag": "BUTTON",
           "name": "다음 발표별 시나리오 → 거시"
         },
         {
@@ -194,10 +258,6 @@
         {
           "tag": "BUTTON",
           "name": "시장 폭 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리와 환율 →"
         },
         {
           "tag": "BUTTON",
@@ -509,10 +569,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "지수별 가격 온도 (참고) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
           "name": "공포에 팔고 환호에 사지 않기 — 리서치 라이브러리에서 개념 배우기"
         },
         {
@@ -714,10 +770,6 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "10년 기간 프리미엄 (Kim-Wright) 근거 보기"
-        },
-        {
-          "tag": "BUTTON",
           "name": "테마 화면의 S&P 500 이익 전망"
         },
         {
@@ -750,6 +802,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "테마와 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
           "name": "브리핑 →"
         }
       ],
@@ -766,7 +822,7 @@
         "원/달러",
         "엔/달러",
         "미 10년물 금리 (일별 종가)",
-        "자산군 성과와 주식·채권 상관10/23 종가 기준",
+        "자산군 성과와 주식·채권 상관10/26 종가 기준",
         "S&P 500 – 미 장기채(TLT) 60거래일 상관",
         "그 밖의 통화 시세를 아직 받지 못했습니다",
         "이 화면을 볼 때 — 속지 말 것과 원칙",
@@ -811,47 +867,59 @@
       "controls": [
         {
           "tag": "BUTTON",
-          "name": "XLF 금융 — 테마 상세 열기"
+          "name": "짧게"
         },
         {
           "tag": "BUTTON",
-          "name": "XLE 에너지 — 테마 상세 열기"
+          "name": "길게"
         },
         {
           "tag": "BUTTON",
-          "name": "XLV 헬스케어 — 테마 상세 열기"
+          "name": "끔"
         },
         {
           "tag": "BUTTON",
-          "name": "XLI 산업재 — 테마 상세 열기"
+          "name": "XLY 경기소비재 +1.03% — 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "XLY 경기소비재 — 테마 상세 열기"
+          "name": "XLE 에너지 +0.45% — 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "XLP 필수소비재 — 테마 상세 열기"
+          "name": "XLB 소재 +0.14% — 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "XLRE 부동산 — 테마 상세 열기"
+          "name": "XLV 헬스케어 0.00% — 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "XLB 소재 — 테마 상세 열기"
+          "name": "XLU 유틸리티 -0.02% — 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "XLU 유틸리티 — 테마 상세 열기"
+          "name": "XLP 필수소비재 -0.34% — 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "XLC 통신 — 테마 상세 열기"
+          "name": "XLI 산업재 +1.42% — 테마 상세 열기"
         },
         {
           "tag": "BUTTON",
-          "name": "전체 94개 순위와 구성 종목S&P 500 1개월 -1.0%"
+          "name": "XLRE 부동산 +0.54% — 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XLC 통신 -1.57% — 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XLF 금융 +0.21%, 선도/개선 사이 — 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체 94개 순위와 구성 종목S&P 500 1개월 -0.9%"
         },
         {
           "tag": "BUTTON",
@@ -1680,6 +1748,18 @@
         {
           "tag": "BUTTON",
           "name": "'과거에 이랬으니 이번에도' — 리서치 라이브러리에서 개념 배우기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "거시 경제 →"
         }
       ],
       "headings": [
@@ -1702,7 +1782,8 @@
         "냉각",
         "시설·건설",
         "한국 테마 흐름 10/26 종가",
-        "이 화면을 볼 때 — 속지 말 것과 원칙"
+        "이 화면을 볼 때 — 속지 말 것과 원칙",
+        "이어서 볼 곳"
       ]
     },
     {
@@ -1944,7 +2025,19 @@
         },
         {
           "tag": "A",
-          "name": "앤트로픽, 위험요인에 상장서류 25% 할애…\"AI, 재앙 부를수도\""
+          "name": "Equities end higher as Anthropic's IPO filing buoys AI stocks"
+        },
+        {
+          "tag": "A",
+          "name": "앤트로픽 IPO 기대감에 뉴욕증시 들썩…나스닥 0.8%↑"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Prices Fall as Traders Weigh U.S.-Iran Diplomacy, Saudi Attacks"
+        },
+        {
+          "tag": "A",
+          "name": "국제유가, 이란·사우디 회동에 하락…WTI 1.5%↓"
         },
         {
           "tag": "A",
@@ -1961,18 +2054,6 @@
         {
           "tag": "A",
           "name": "Citadel Securities’ Shah Says AI Trade Has No ‘Margin for Error’"
-        },
-        {
-          "tag": "A",
-          "name": "Musk's grim outlook hits neoclouds as debt concerns mount"
-        },
-        {
-          "tag": "A",
-          "name": "뉴욕증시, 앤트로픽 IPO 신청·유가 하락에 상승 출발"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Prices Fall as Traders Weigh U.S.-Iran Diplomacy, Saudi Attacks"
         },
         {
           "tag": "A",

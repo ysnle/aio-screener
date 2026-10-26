@@ -27,7 +27,7 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 3493,
+      "total": 3628,
       "secondary": 417,
       "lines": [
         {
@@ -48,12 +48,12 @@
         {
           "chars": 27,
           "classes": "page-subtitle  page-head",
-          "text": "10월 27일 화요일, 10/23 미국 종가 기준"
+          "text": "10월 27일 화요일, 10/26 미국 종가 기준"
         },
         {
           "chars": 27,
           "classes": "kpi-fallback-note kpi-fallback is-interactive sh-home-kpi-strip-box",
-          "text": "10/23 종가 -0.52%, 선물 시세 대기 중"
+          "text": "10/26 종가 +0.70%, 선물 시세 대기 중"
         },
         {
           "chars": 26,
@@ -68,7 +68,7 @@
         {
           "chars": 19,
           "classes": "aio-operator-note-verdict aio-operator-note-card aio-operator-note-priority aio-market-sentence",
-          "text": "10/23 종가 기준 '다소 부담'"
+          "text": "10/26 종가 기준 '다소 부담'"
         },
         {
           "chars": 16,
@@ -95,7 +95,7 @@
         {
           "frame": "home.index-strip",
           "hasHead": true,
-          "asof": "10/23 종가",
+          "asof": "10/26 종가",
           "readings": [],
           "problems": []
         },
@@ -130,14 +130,14 @@
         {
           "frame": "home.participation",
           "hasHead": true,
-          "asof": "10/23 종가",
+          "asof": "10/26 종가",
           "readings": [],
           "problems": []
         }
       ]
     },
     "signal": {
-      "total": 5941,
+      "total": 6042,
       "secondary": 246,
       "lines": [
         {
@@ -148,7 +148,7 @@
         {
           "chars": 29,
           "classes": "page-subtitle  page-head",
-          "text": "10/23 미국 종가 기준, 6개 지표, 공개 기준선"
+          "text": "10/26 미국 종가 기준, 6개 지표, 공개 기준선"
         },
         {
           "chars": 25,
@@ -178,12 +178,7 @@
         {
           "chars": 16,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "3개월 VIX 역전 20.48"
-        },
-        {
-          "chars": 16,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "20일 -25bp, 4.93%"
+          "text": "1년 범위 80%, 5.04%"
         },
         {
           "chars": 16,
@@ -191,34 +186,39 @@
           "text": "20일 +25bp, 318bp"
         },
         {
-          "chars": 10,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "50일선 7,700"
+          "chars": 11,
+          "classes": "basis-chip is-off sx-disclosure__card sx-disclosure__body mk-axis__body",
+          "text": "10/23~10/26"
         },
         {
-          "chars": 5,
-          "classes": "basis-chip sx-disclosure__card sx-disclosure__body mk-axis__body",
-          "text": "10/23"
+          "chars": 10,
+          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
+          "text": "50일선 7,697"
+        },
+        {
+          "chars": 8,
+          "classes": "is-favorable mk-tally__legend mk-tally",
+          "text": "양호 1(금리)"
         }
       ],
       "frames": [
         {
           "frame": "signal.scenarios",
           "hasHead": true,
-          "asof": "10/23 종가",
+          "asof": "10/26 종가",
           "readings": [],
           "problems": []
         }
       ]
     },
     "breadth": {
-      "total": 1268,
-      "secondary": 49,
+      "total": 1288,
+      "secondary": 69,
       "lines": [
         {
-          "chars": 31,
+          "chars": 51,
           "classes": "page-subtitle  page-head",
-          "text": "10/23 미국 종가 기준, S&P 500 499개 종목"
+          "text": "10/26 미국 종가 기준, 시장 폭 10/23, 1거래일 전, S&P 500 499개 종목"
         },
         {
           "chars": 2,
@@ -269,13 +269,13 @@
       "frames": []
     },
     "sentiment": {
-      "total": 2008,
-      "secondary": 219,
+      "total": 2016,
+      "secondary": 227,
       "lines": [
         {
           "chars": 33,
           "classes": "page-subtitle  page-head",
-          "text": "10/23 미국 종가 기준, 날짜가 다른 지표는 카드에 표시"
+          "text": "10/26 미국 종가 기준, 날짜가 다른 지표는 카드에 표시"
         },
         {
           "chars": 22,
@@ -285,12 +285,12 @@
         {
           "chars": 20,
           "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/23 기준, 7개 중 6개 반영"
+          "text": "10/26 기준, 7개 중 6개 반영"
         },
         {
           "chars": 16,
           "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/21, 2거래일 전 주간"
+          "text": "10/21, 3거래일 전 주간"
         },
         {
           "chars": 14,
@@ -320,25 +320,30 @@
         {
           "chars": 13,
           "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/22, 1거래일 전"
+          "text": "10/23, 1거래일 전"
+        },
+        {
+          "chars": 13,
+          "classes": "basis-chip trend-card-tags trend-card",
+          "text": "10/22, 2거래일 전"
         },
         {
           "chars": 13,
           "classes": "regime-chart-caption temp-legend temp-plot",
           "text": "S&P 500 2년 종가"
-        },
-        {
-          "chars": 5,
-          "classes": "sx-kicker mk-senti-hero__main sx-card sx-card--hero mk-sub-hero mk-senti-hero",
-          "text": "심리 종합"
         }
       ],
       "frames": []
     },
     "briefing": {
-      "total": 5309,
-      "secondary": 809,
+      "total": 5183,
+      "secondary": 832,
       "lines": [
+        {
+          "chars": 47,
+          "classes": "ai-analysis-scope basis-chip  briefing-ai",
+          "text": "생성 10/27 05:51 KST, S&P 500·미 10년물·코스피 10/26 종가"
+        },
         {
           "chars": 47,
           "classes": "briefing-event-meta briefing-event-body briefing-event",
@@ -355,9 +360,14 @@
           "text": "정책금리와 향후 경로 — 모든 자산 가격의 기준, 현재 3.75-4.00%"
         },
         {
+          "chars": 32,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "시간 미정, EPS 예상 0.42, 매출 예상 22억 달러"
+        },
+        {
           "chars": 30,
           "classes": "briefing-event-meta  aio-section briefing-block",
-          "text": "나머지 실적 발표 169건은 아래 이번 주 실적 목록에"
+          "text": "나머지 실적 발표 183건은 아래 이번 주 실적 목록에"
         },
         {
           "chars": 28,
@@ -375,6 +385,11 @@
           "text": "EPS 예상 4.12, 매출 예상 1,045억 달러"
         },
         {
+          "chars": 28,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 2.02, 매출 예상 1,155억 달러"
+        },
+        {
           "chars": 26,
           "classes": "briefing-event-meta briefing-event-body briefing-event is-today",
           "text": "EPS 예상 0.91, 매출 예상 133억 달러"
@@ -383,21 +398,6 @@
           "chars": 26,
           "classes": "briefing-event-meta briefing-event-body briefing-event",
           "text": "EPS 예상 3.50, 매출 예상 123억 달러"
-        },
-        {
-          "chars": 26,
-          "classes": "briefing-event-meta briefing-event-body briefing-event",
-          "text": "EPS 예상 4.82, 매출 예상 925억 달러"
-        },
-        {
-          "chars": 26,
-          "classes": "briefing-event-meta briefing-event-body briefing-event",
-          "text": "EPS 예상 6.61, 매출 예상 228억 달러"
-        },
-        {
-          "chars": 26,
-          "classes": "briefing-event-meta briefing-event-body briefing-event",
-          "text": "EPS 예상 3.83, 매출 예상 177억 달러"
         }
       ],
       "frames": []
@@ -409,7 +409,7 @@
         {
           "chars": 32,
           "classes": "theme-strength-basis tech-regime-head aio-section tech-regime",
-          "text": "10/23 미국 종가 기준, 양호 0, 중립 3, 부담 3"
+          "text": "10/26 미국 종가 기준, 양호 1, 중립 2, 부담 3"
         },
         {
           "chars": 28,
@@ -430,7 +430,7 @@
       "frames": []
     },
     "macro": {
-      "total": 6887,
+      "total": 7059,
       "secondary": 567,
       "lines": [
         {
@@ -486,7 +486,7 @@
         {
           "chars": 8,
           "classes": "sx-meta mk-rate-tile mk-rate-strip__grid",
-          "text": "10/22 관측"
+          "text": "10/23 관측"
         },
         {
           "chars": 8,
@@ -498,20 +498,20 @@
         {
           "frame": "macro.crossroads",
           "hasHead": true,
-          "asof": "10/23 관측",
+          "asof": "10/26 관측",
           "readings": [],
           "problems": []
         }
       ]
     },
     "fxbond": {
-      "total": 2854,
-      "secondary": 247,
+      "total": 2769,
+      "secondary": 267,
       "lines": [
         {
           "chars": 36,
           "classes": "page-subtitle  page-head",
-          "text": "10/23 미국 종가 기준, 국채 금리 10/26 공식 고시 기준"
+          "text": "10/26 미국 종가 기준, 국채 금리 10/26 공식 고시 기준"
         },
         {
           "chars": 22,
@@ -522,6 +522,21 @@
           "chars": 18,
           "classes": "briefing-h2-note briefing-h2 briefing-block rates-block sx-card sx-card--hero mk-curve-card",
           "text": "공식 국채 곡선, 10/26 기준"
+        },
+        {
+          "chars": 16,
+          "classes": "basis-chip is-off trend-card-tags trend-card",
+          "text": "10/23, 1거래일 전 종가"
+        },
+        {
+          "chars": 16,
+          "classes": "basis-chip is-off trend-card-tags trend-card",
+          "text": "10/23, 1거래일 전 종가"
+        },
+        {
+          "chars": 16,
+          "classes": "basis-chip is-off trend-card-tags trend-card",
+          "text": "10/23, 1거래일 전 종가"
         },
         {
           "chars": 15,
@@ -536,7 +551,12 @@
         {
           "chars": 13,
           "classes": "macro-stat-meta macro-stat macro-stat-grid",
-          "text": "10/16, 5거래일 전"
+          "text": "10/16, 6거래일 전"
+        },
+        {
+          "chars": 12,
+          "classes": "sx-meta mk-rsum mk-rsum-col",
+          "text": "10/26 2년물 관측"
         },
         {
           "chars": 11,
@@ -547,26 +567,6 @@
           "chars": 11,
           "classes": "rates-guide",
           "text": "수익률 곡선 읽는 법"
-        },
-        {
-          "chars": 11,
-          "classes": "briefing-h2-note briefing-h2 briefing-block rates-block",
-          "text": "10/23 종가 기준"
-        },
-        {
-          "chars": 9,
-          "classes": "mk-rsum__note mk-rsum mk-rsum-col",
-          "text": "오르면 원화 약세"
-        },
-        {
-          "chars": 9,
-          "classes": "mk-rsum__note mk-rsum mk-rsum-col",
-          "text": "내리면 엔화 강세"
-        },
-        {
-          "chars": 8,
-          "classes": "sx-meta mk-rsum mk-rsum-col",
-          "text": "10/23 종가"
         }
       ],
       "frames": []
@@ -589,14 +589,9 @@
       "frames": []
     },
     "themes": {
-      "total": 8831,
-      "secondary": 901,
+      "total": 8275,
+      "secondary": 601,
       "lines": [
-        {
-          "chars": 300,
-          "classes": "theme-strength-basis sh-themes-rrg-method-box sh-themes-rrg-quadrant-fold sx-card v2-themes-rrg aio-frame",
-          "text": "이 그림은 흔히 RRG(상대 회전 그래프)라 부르는 방식입니다. 가로축 상대강도(시장 대비)는 지금의 상대가격(섹터 ÷ SPY)이 최근 50거래일 평균의 몇 %인지입니다(100 = 자기 평균 수준). 세로축 상대강도 변화 속도는 그 값이 10거래일 전 같은 방식으로 잰 값보다 높은지입니"
-        },
         {
           "chars": 75,
           "classes": "tp-stage-note  tp-stage-row",
@@ -650,14 +645,19 @@
         {
           "chars": 17,
           "classes": "sx-row__meta sx-row sx-card sx-card--flush v2-themes-top",
-          "text": "S&P 500 1개월 -1.0%"
+          "text": "S&P 500 1개월 -0.9%"
+        },
+        {
+          "chars": 14,
+          "classes": "trend-card-note capex-flow-card",
+          "text": "데이터센터 건물·부지·건설"
         }
       ],
       "frames": [
         {
           "frame": "themes.rrg",
           "hasHead": true,
-          "asof": "",
+          "asof": "10/26 종가",
           "readings": [],
           "problems": []
         },
@@ -694,14 +694,9 @@
       ]
     },
     "theme-detail": {
-      "total": 10697,
-      "secondary": 928,
+      "total": 10316,
+      "secondary": 628,
       "lines": [
-        {
-          "chars": 300,
-          "classes": "theme-strength-basis sh-themes-rrg-method-box sh-themes-rrg-quadrant-fold sx-card v2-themes-rrg aio-frame",
-          "text": "이 그림은 흔히 RRG(상대 회전 그래프)라 부르는 방식입니다. 가로축 상대강도(시장 대비)는 지금의 상대가격(섹터 ÷ SPY)이 최근 50거래일 평균의 몇 %인지입니다(100 = 자기 평균 수준). 세로축 상대강도 변화 속도는 그 값이 10거래일 전 같은 방식으로 잰 값보다 높은지입니"
-        },
         {
           "chars": 75,
           "classes": "tp-stage-note  tp-stage-row",
@@ -756,13 +751,18 @@
           "chars": 22,
           "classes": "xr-h3 xr-section mg-guide mg-screen-lessons",
           "text": "이 화면을 볼 때 — 속지 말 것과 원칙"
+        },
+        {
+          "chars": 17,
+          "classes": "sx-row__meta sx-row sx-card sx-card--flush v2-themes-top",
+          "text": "S&P 500 1개월 -0.9%"
         }
       ],
       "frames": [
         {
           "frame": "themes.rrg",
           "hasHead": true,
-          "asof": "",
+          "asof": "10/26 종가",
           "readings": [],
           "problems": []
         },
@@ -833,8 +833,8 @@
       "frames": []
     },
     "market-news": {
-      "total": 5542,
-      "secondary": 402,
+      "total": 5551,
+      "secondary": 400,
       "lines": [
         {
           "chars": 32,
@@ -844,7 +844,7 @@
         {
           "chars": 26,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "The Jerusalem Post, 22시간 전"
+          "text": "The Jerusalem Post, 23시간 전"
         },
         {
           "chars": 23,
@@ -854,7 +854,7 @@
         {
           "chars": 23,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "The Japan Times, 21시간 전"
+          "text": "The Japan Times, 22시간 전"
         },
         {
           "chars": 22,
@@ -864,32 +864,32 @@
         {
           "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
+          "text": "Bloomberg.com, 23시간 전"
+        },
+        {
+          "chars": 21,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "Investing.com, 22시간 전"
+        },
+        {
+          "chars": 21,
+          "classes": "news-item-meta news-item-body news-item-card",
           "text": "Bloomberg.com, 22시간 전"
         },
         {
           "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Investing.com, 21시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 22시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 22시간 전"
+          "text": "Yahoo Finance, 23시간 전"
         },
         {
           "chars": 19,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "TradingView, 22시간 전"
+          "text": "TradingView, 23시간 전"
         },
         {
           "chars": 18,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "PYMNTS.com, 21시간 전"
+          "text": "PYMNTS.com, 22시간 전"
         },
         {
           "chars": 15,
