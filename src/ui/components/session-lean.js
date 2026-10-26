@@ -87,7 +87,11 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   more.append(el(doc, 'summary', '근거와 바뀌는 조건'), items);
   if (model.us.flip) more.append(el(doc, 'p', `바뀌는 조건: ${model.us.flip}`, 'market-lean__note'));
   more.append(el(doc, 'p', `이 기울기에서 일반적으로 덜 불리한 선택: ${model.us.choices.join(', ')}.`, 'market-lean__note'));
-  const nodes = [head, el(doc, 'p', model.us.read, 'market-lean__read'), more, el(doc, 'p', '시장 전체의 조건부 설명이며 개별 종목의 매수·매도 지시나 가격 예측이 아닙니다.', 'market-lean__note')];
+  // The disclaimer sits in the fold and on the chip's hover, not as an open line (v58.79 secondary text budget).
+  const disclaimer = '시장 전체의 조건부 설명이며 개별 종목의 매수·매도 지시나 가격 예측이 아닙니다.';
+  chip.title = disclaimer;
+  more.append(el(doc, 'p', disclaimer, 'market-lean__note'));
+  const nodes = [head, el(doc, 'p', model.us.read, 'market-lean__read'), more];
   if (model.kr.available) {
     const kr = el(doc, 'details', null, 'market-lean__kr');
     const list = el(doc, 'ul', null, 'market-lean__items');
