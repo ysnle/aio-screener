@@ -390,6 +390,11 @@
           "remedy": "move the new static import behind import(); a budget raise in architecture/boot-budget.json needs a reason in the commit"
         },
         {
+          "id": "csp-meta",
+          "script": "scripts/ci-csp-meta-check.mjs",
+          "remedy": "after editing an inline <script> in index.html: node scripts/ci-csp-meta-check.mjs --write; a new CDN script needs its exact package path in the script's SCRIPT_HOSTS"
+        },
+        {
           "id": "inline-style-ratchet",
           "script": "scripts/ci-inline-style-ratchet-check.mjs",
           "remedy": "style through a class in src/ui/styles (tokens: index.html :root, layout-primitives.css); after a shrink run --write"

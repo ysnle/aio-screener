@@ -14,11 +14,11 @@ last_verified: 2026-10-26
 - Version: `v58.82`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
-- App shell: 6,883 lines / 491,697 bytes
+- App shell: 6,884 lines / 492,803 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 6,883 | 491,697 |
+| `index.html` | 6,884 | 492,803 |
 | `js/aio-core.js` | 18,623 | 1,120,471 |
 | `js/aio-data.js` | 14,027 | 887,377 |
 | `js/aio-ui.js` | 3,957 | 224,771 |
@@ -30,7 +30,7 @@ last_verified: 2026-10-26
 
 - Context documents: 78; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 9; command wrappers: 19; agent profiles: 4.
-- Workflows: 13; CI scripts: 186.
+- Workflows: 13; CI scripts: 187.
 - Ledgers: latest rule R728; latest postmortem P2100; open QA 234 unique IDs (234 rows, 3 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
