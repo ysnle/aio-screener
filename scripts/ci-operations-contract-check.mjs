@@ -137,8 +137,12 @@ check('watchdog produces a retained rolling SLO artifact without hiding QA failu
 
 const uses = [...workflowText.matchAll(/^\s*uses:\s*([^\s#]+)/gm)].map((match) => match[1]);
 check('all GitHub Actions refs are SHA pinned', uses.length > 0 && uses.every((ref) => /@[0-9a-f]{40}$/i.test(ref)), uses.join(', '));
-check('Wrangler install is exact-versioned', /npm install --global wrangler@\d+\.\d+\.\d+/.test(read('.github/workflows/deploy-data-plane.yml')));
-check('AI proxy Wrangler install is exact-versioned', /npm install --global wrangler@\d+\.\d+\.\d+/.test(aiProxyWorkflow));
+// v58.82: both deploys install Wrangler from its own lockfile without install scripts (the job holds the Cloudflare token).
+const wranglerPackage = JSON.parse(read('tools/wrangler/package.json')), wranglerLock = JSON.parse(read('tools/wrangler/package-lock.json'));
+const lockedWrangler = /^\d+\.\d+\.\d+$/.test(wranglerPackage.dependencies?.wrangler || '') && wranglerLock.packages?.['node_modules/wrangler']?.version === wranglerPackage.dependencies.wrangler;
+for (const [label, text] of [['v58.82 Wrangler install is locked', read('.github/workflows/deploy-data-plane.yml')], ['v58.82 AI proxy Wrangler install is locked', aiProxyWorkflow]]) {
+  check(label, lockedWrangler && /npm ci --prefix tools\/wrangler --ignore-scripts/.test(text) && !/npm install --global wrangler/.test(text) && text.includes('wrangler@' + wranglerPackage.dependencies.wrangler));
+}
 check('AI proxy deploy owns canonical source and atomic quota binding', aiProxyWrangler.includes('main = "../cloudflare-worker-proxy.js"') && aiProxyWrangler.includes('name = "AIO_QUOTA_DO"') && aiProxyWrangler.includes('class_name = "AIOQuotaDurableObject"'));
 check('AI provider outbound is executed by the guaranteed US Durable Object authority', worker.includes("jurisdiction('us')") && worker.includes("getByName('anthropic-authority-v1')") && worker.includes("'X-AIO-Upstream-Authority': 'durable-object-us'") && worker.includes('fetchOpenAiThroughDurableObject') && !worker.includes("locationHint: 'enam'"));
 check('P1421 AI proxy deploy requires secrets and blocks on executed US readiness/upstream', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'OPENAI_API_KEY', 'AIO_AUTOMATION_TOKEN', 'aio-worker-health.v1', 'quotaConfigured', 'authorityReady', 'authorityJurisdiction', 'durable-object-us', 'ai_proxy_origin_gate_failed', 'ai_proxy_upstream_failed'].every((token) => aiProxyWorkflow.includes(token)));

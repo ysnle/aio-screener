@@ -334,7 +334,7 @@ function getCorsHeaders(requestOrigin, env) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Family-Code, X-AIO-Idempotency-Key, X-AIO-Request-Id',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Family-Code, X-AIO-Operator-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id',
     'Access-Control-Max-Age': '86400',
     // The allowed origin is echoed per request; a shared cache must not serve one origin's ACAO to another.
     'Vary': 'Origin',
@@ -562,6 +562,53 @@ function privateOperatorResponse(payload, status = 200) {
       'Referrer-Policy': 'no-referrer'
     }
   });
+}
+
+// v58.82 (owner 2026-10-26, roadmap 12): the in-app "이상해요" note. The repository and its Actions logs are public, so
+// notes stay in the Worker (Durable Object) and only the operator token reads them. Writing needs a family code, so
+// strangers cannot fill it; each code may leave FEEDBACK_PER_MEMBER_DAY notes a UTC day, the newest FEEDBACK_KEEP stay.
+const FEEDBACK_MAX_CHARS = 1000, FEEDBACK_KEEP = 300, FEEDBACK_PER_MEMBER_DAY = 10, FEEDBACK_RATE_LIMIT = 5;
+const feedbackRateLimitMap = new Map();
+async function handleFeedback(request, env, origin) {
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
+  if (request.method !== 'POST') return errorResponse('POST required for /feedback', 405, origin, null, env);
+  if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, null, env);
+  if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, null, env);
+  const family = await matchFamilyCode(env, request.headers.get('X-AIO-Family-Code'));
+  if (!family.required) return errorResponse('feedback needs family codes', 503, origin, null, env);
+  if (!family.accepted) { logDenial('/feedback', 'family-code'); return errorResponse('Family code auth required', 403, origin, null, env); }
+  cleanupRateLimitMap(feedbackRateLimitMap);
+  if (!await enforceRateLimit(env, 'RATE_LIMIT_FEEDBACK', feedbackRateLimitMap, FEEDBACK_RATE_LIMIT, request.headers.get('cf-connecting-ip') || 'unknown')) return errorResponse('Too many requests', 429, origin, null, env);
+  if (!hasAtomicQuotaBinding(env)) return errorResponse('feedback store unavailable', 503, origin, null, env);
+  let body;
+  try { body = JSON.parse(await readBoundedAiRequestBody(request, 8 * 1024)); } catch { return errorResponse('Invalid JSON body', 400, origin, null, env); }
+  const text = typeof body?.text === 'string' ? body.text.normalize('NFC').trim().slice(0, FEEDBACK_MAX_CHARS) : '';
+  if (!text) return errorResponse('feedback text required', 400, origin, null, env);
+  const route = typeof body.route === 'string' && /^[a-z][a-z0-9-]{0,30}(?:\/[A-Za-z0-9.^=-]{1,20})?$/.test(body.route) ? body.route : 'unknown';
+  const version = typeof body.version === 'string' && /^v\d{1,3}\.\d{1,3}$/.test(body.version) ? body.version : null;
+  // A stable short id per code (not the code) so the owner can tell notes from one person apart.
+  const member = (await deriveClientKey(env, 'family|' + family.code, '2000-01-01') || '').slice(0, 8);
+  if (!member) return errorResponse('feedback store unavailable', 503, origin, null, env);
+  try {
+    const saved = await quotaRpc(env, 'feedback-add', { item: { at: new Date().toISOString(), member, route, version, text } });
+    if (saved?.ok !== true) return errorResponse('feedback daily limit reached', 429, origin, null, env);
+  } catch { return errorResponse('feedback store unavailable', 503, origin, null, env); }
+  return new Response(JSON.stringify({ ok: true }), { status: 201, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin, env) } });
+}
+
+async function handleOperatorFeedback(request, env, origin) {
+  // The owner reads notes in the app's connection panel, so a browser preflight is answered; everything else is 404
+  // without the operator token, like /_ops/ai-usage.
+  if (request.method === 'OPTIONS' && resolveAllowedOrigin(origin, env)) return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
+  if (!await matchesOperatorToken(env?.AIO_OPERATOR_TOKEN, request.headers.get('X-AIO-Operator-Token'))) return privateOperatorResponse(null, 404);
+  if (request.method !== 'GET') return privateOperatorResponse({ error: 'GET required' }, 405);
+  const cors = resolveAllowedOrigin(origin, env) ? getCorsHeaders(origin, env) : {};
+  try {
+    const listed = await quotaRpc(env, 'feedback-list', {});
+    const response = privateOperatorResponse({ schemaVersion: 'aio-operator-feedback.v1', items: listed.items });
+    for (const [name, value] of Object.entries(cors)) response.headers.set(name, value);
+    return response;
+  } catch { return privateOperatorResponse({ error: 'feedback store unavailable' }, 503); }
 }
 
 async function handleOperatorAiUsage(request, env) {
@@ -949,6 +996,22 @@ export class AIOQuotaDurableObject {
     return changed;
   }
 
+  // v58.82 (roadmap 12): family feedback in its own bounded storage value, beside the quota ledger.
+  async feedback(operation, body) {
+    const stored = (await this.storage.get('feedback-v1')) || { items: [], perDay: {} };
+    if (operation === 'feedback-list') return { ok: true, items: stored.items.slice(-FEEDBACK_KEEP).reverse() };
+    const item = body?.item;
+    if (!item || typeof item.text !== 'string' || !/^\d{4}-\d{2}-\d{2}T/.test(String(item.at)) || !/^[0-9a-f]{8}$/.test(String(item.member))) throw new Error('valid feedback item required');
+    const day = item.at.slice(0, 10), key = day + ':' + item.member;
+    for (const k of Object.keys(stored.perDay)) if (!k.startsWith(day)) delete stored.perDay[k];
+    if ((stored.perDay[key] || 0) >= FEEDBACK_PER_MEMBER_DAY) return { ok: false, reason: 'daily' };
+    stored.perDay[key] = (stored.perDay[key] || 0) + 1;
+    stored.items.push(item);
+    if (stored.items.length > FEEDBACK_KEEP) stored.items.splice(0, stored.items.length - FEEDBACK_KEEP);
+    await this.storage.put('feedback-v1', stored);
+    return { ok: true };
+  }
+
   async mutateQuota(operation, body) {
     let result;
     await this.state.blockConcurrencyWhile(async () => {
@@ -991,6 +1054,7 @@ export class AIOQuotaDurableObject {
         }
         return;
       }
+      if (operation === 'feedback-add' || operation === 'feedback-list') { result = await this.feedback(operation, body); return; }
       if (!dayKey || !requestId) throw new Error('dayKey and requestId are required');
       if (operation === 'reserve') {
         if (this.counts.reservations[key]) {
@@ -1522,6 +1586,8 @@ export default {
     const _u = new URL(request.url);
 
     if (_u.pathname === '/_ops/ai-usage') return handleOperatorAiUsage(request, env);
+    if (_u.pathname === '/_ops/feedback') return handleOperatorFeedback(request, env, requestOrigin);
+    if (_u.pathname === '/feedback') return handleFeedback(request, env, requestOrigin);
     if (_u.pathname === '/workers-ai/translate') return handleWorkersAiTranslate(request, env);
 
     if (_u.pathname === '/health') {

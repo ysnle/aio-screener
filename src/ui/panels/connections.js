@@ -13,6 +13,11 @@ export function installConnectionPanel(root, documentRef) {
     panel.className = 'cnp-panel'; // src/ui/styles/connection-panel.css
     panel.innerHTML = '<details><summary>연결 상태</summary><div id="shared-connection-status" role="status" aria-live="polite">공용 AI, 연결 확인 전</div><div id="shared-data-status">공용 수집 자료, 로드 확인 전</div><button data-action="_aioCheckSharedConnection" class="llm-key-save">공용 연결 확인</button><div class="cnp-note">공용 AI 예산 $20/월, 기존 근거 우선<br>개인 검색 API 키는 필요하지 않습니다.</div></details>';
     anchor.insertAdjacentElement('afterend', panel);
+    // v58.82: the owner's feedback reader loads the first time the card opens.
+    panel.querySelector('details')?.addEventListener('toggle', function once(event) {
+      event.currentTarget.removeEventListener('toggle', once);
+      import('../components/feedback-form.js').then((m) => m.attachFeedbackReader(panel.querySelector('details'), { documentRef, windowRef: root })).catch(() => {});
+    });
   }
   let disposed = false;
   const render = () => {

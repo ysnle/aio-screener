@@ -103,6 +103,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.AIO.describeSharedConnection = describeSharedConnection;
   // v58.82: family code (shared AI); the entry form loads on first need and saving drops the cached health.
   const familyStorage = () => { try { return window.localStorage; } catch { return null; } };
+  window._aioOpenFeedback = () => import('../ui/components/feedback-form.js').then((m) => m.openFeedbackDialog({ documentRef: document, windowRef: window, storage: familyStorage(), version: typeof APP_VERSION === 'string' ? APP_VERSION : '' })).catch(() => null); // roadmap 12
   window._aioWithFamilyCode = (headers) => { const code = readFamilyCode(familyStorage()); if (code) headers['X-AIO-Family-Code'] = code; return headers; }; // AI requests only
   window.AIO.attachFamilyCodeForm = (box) => import('../ui/components/family-code-form.js').then((m) => m.attachFamilyCodeForm(box, { documentRef: document, storage: familyStorage(), onSaved: () => window._aioClearWorkerHealth?.() })).catch(() => null);
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;

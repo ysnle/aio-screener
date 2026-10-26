@@ -6194,6 +6194,16 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const needCode = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: false } });
   const withCode = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: true } });
   if (needCode.reason !== 'FAMILY_CODE_REQUIRED' || needCode.ok || !withCode.ok) fail(`v58.82 a required family code is the visitor's step: ${JSON.stringify({ needCode, withCode })}`);
+  // v58.82 (roadmap 12): the feedback note sends only the text, a route id and the version, with the family code header.
+  const { feedbackRoute } = await load('src/ui/components/feedback-form.js');
+  const { sendFeedback } = await load('src/data/feedback.js');
+  let sent;
+  const result = await sendFeedback({ fetchImpl: async (url, init) => { sent = { url, init }; return { status: 201 }; }, workerUrl: 'https://w.example', appToken: 't', code: 'family-code-0001', text: '차트가 비어요', route: feedbackRoute('#ticker/AAPL?x=1'), version: 'v58.82' });
+  const sentBody = JSON.parse(sent.init.body);
+  if (result !== 'sent' || sent.url !== 'https://w.example/feedback' || sent.init.headers['X-AIO-Family-Code'] !== 'family-code-0001' || Object.keys(sentBody).join() !== 'text,route,version' || sentBody.route !== 'ticker/AAPL'
+    || feedbackRoute('') !== 'home' || feedbackRoute('#<script>') !== 'unknown' || feedbackRoute('#macro/<x>') !== 'macro') fail(`v58.82 feedback note shape: ${JSON.stringify({ result, sentBody })}`);
+  const outcomes = await Promise.all([403, 429, 500].map((status) => sendFeedback({ fetchImpl: async () => ({ status }), workerUrl: 'w', code: 'c', text: 't' })));
+  if (outcomes.join() !== 'code,limit,failed' || await sendFeedback({ fetchImpl: async () => { throw new Error('offline'); }, workerUrl: 'w', code: 'c', text: 't' }) !== 'failed') fail(`v58.82 feedback outcomes: ${outcomes}`);
 }
 
 // v58.81 (owner 2026-10-26): the market clock and Korea↔US link check — Monday 22:13 KST is the US pre-market with the
