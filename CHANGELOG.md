@@ -1,3 +1,7 @@
+## v58.83 (2026-10-26)
+- **팩터 검증을 외부 기준과 대조 (v58.83, be-ambitious 적용):** 장기 팩터 백테스트(scripts/backtest-factors-longrun.mjs)의 IC 유의성이 겹치는 미래 구간을 독립으로 보는 순진한 t값뿐이던 것을, Newey-West(Bartlett) HAC 표준오차로 보강했다(lag = max(구간 겹침, 4(n/100)^(2/9)); 순진한 값은 그대로 두고 icIR.*.hac에 추가). 모멘텀 팩터의 상·하위 5분위 21일 수익 차이를 Kenneth French Data Library 일별 모멘텀 팩터(Mom)를 같은 거래일로 복리한 값과 비교하고, 첫 실행 전에 정한 기준(겹친 구간 60개 이상, Pearson r ≥ 0.3이면 PASS, r ≤ 0이면 FAIL)으로 판정한다. 자료 실패는 UNAVAILABLE로 닫히며 모델 승격에는 쓰지 않는다. backtestFactors는 factorSpreads 옵션을 줄 때만 팩터별 구간 수익 차이를 날짜와 함께 내보내 기본 출력은 같다. 프로듀서라 로컬이 아니라 수동 워크플로(.github/workflows/research-backtest.yml, 커밋 없이 결과 파일 업로드·요약)로 돌린다. 오프라인 검사 scripts/ci-research-validation-check.mjs.
+- R1 7곳 v58.83
+
 ## v58.80 (2026-10-25)
 - **미래 자료 누설 검사 (P2064/R725):** freqtrade의 lookahead·recursive 분석 방식으로 scripts/ci-lookahead-check.mjs를 추가했다. 과거 판정이 그날까지 자료로 다시 계산한 값과 같은지, 테마 단계 백필이 그날 이후 종가를 바꿔도 같은지, 오늘 판정이 오래된 이력에 기대지 않는지 본다. 이 검사가 백필이 지금 구성 종목을 과거에 쓴다는 점을 드러내, 단계 안내 문구가 이를 밝힌다.
 - **작업 지침 (v58.80, 소유자 제공 링크 8건):** CLAUDE.md·AGENTS.md에 '문서와 코드가 어긋나면 코드 관례를 따르고 어긋남을 모두 보고, 제품 결정과 다른 코드는 결함'(arXiv 2610.30571: 낡은 지시 파일을 90% 따르던 것이 한 문장으로 코드 준수 4%→91%)과 '가능성 낮은 경합·보안 사례에 복잡도를 더하려면 먼저 동의'(opencode)를 넣었다. AGENTS 마감 절의 손으로 복제한 게이트 10줄은 qa-runner preflight·workspace 그룹 실행으로 바꿨다(복제 목록이 게이트를 빠뜨린 v57.61 전례).

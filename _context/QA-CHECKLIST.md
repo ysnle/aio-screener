@@ -4,6 +4,11 @@ last_verified: 2026-10-26
 confidence: medium
 ---
 
+## v58.83 팩터 검증 외부 대조 (2026-10-26)
+
+- [x] QA-RESEARCH-BENCH-01: v58.83 장기 팩터 백테스트: HAC t값이 자기상관에서 넓어지고, French 일별 표 파싱·구간 복리·사전 등록 판정(PASS/FAIL/INSUFFICIENT)과 factorSpreads 선택 출력이 고정 입력으로 확인된다. verify_by: node scripts/ci-research-validation-check.mjs
+- [x] QA-RESEARCH-BENCH-02: v58.83 research-backtest 워크플로를 main에서 한 번 실행해 externalBenchmark 판정·HAC t값이 요약에 나오고, 결과를 검토한 뒤 public-data/factor-backtest-longrun.json 갱신 여부를 정한다. verify_by: GitHub Actions 'Research factor backtest (manual)' 실행 요약과 업로드된 factor-backtest-longrun.json
+
 ## v58.80 미래 자료 누설 검사와 작업 방식 개선 (2026-10-25)
 
 - [x] QA-LOOKAHEAD-01: v58.80 미래 자료 누설 검사: 과거 30세션 as-of 불변(관측 시각 기준 절단, 신용 축 평가), 테마 단계 백필 미래 교란 불변, 330버킷 워밍업 충분. 네 누설 변이에서 실패. verify_by: node scripts/ci-lookahead-check.mjs
