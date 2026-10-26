@@ -48,7 +48,9 @@ try {
       check(await page.locator('#app-version-badge').isVisible() && (await page.locator('#app-version-badge').innerText()).trim() === version, `${viewport.name}: app version is not visible/current`);
       check(!/VIX/.test(await page.locator('#app-version-badge').innerText()), `${viewport.name}: VIX overwrites app identity`);
       check(!/베타/.test(await page.locator('#topbar-ai-btn').innerText()) && (await page.locator('#ai-panel-title').innerText()).trim() === 'AI 도우미', `${viewport.name}: stale AI beta label`);
-      check(await page.locator('.kpi-fallback[hidden]').evaluateAll((elements) => elements.every((el) => getComputedStyle(el).display === 'none')), `${viewport.name}: hidden futures fallback is visibly duplicated`);
+      // v58.89: one in-page read. locator.evaluateAll matched '[hidden]' and then evaluated, so a fallback the 오늘 render
+      // un-hid in between (futures missing: an intended state) was read as a visible hidden fallback.
+      check(await page.evaluate(() => [...document.querySelectorAll('.kpi-fallback[hidden]')].every((el) => getComputedStyle(el).display === 'none')), `${viewport.name}: hidden futures fallback is visibly duplicated`);
     }
     for (const route of ROUTE_IDS) {
       await page.evaluate((id) => window.showPage(id, null), route);
