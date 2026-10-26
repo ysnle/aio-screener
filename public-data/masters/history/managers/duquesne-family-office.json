@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-history-runtime.v1",
   "sourceKind": "SEC_EDGAR_DERIVED_RAW_ROWS",
-  "reviewedAt": "2026-09-29",
-  "generatedAt": "2026-09-29T14:05:12.629Z",
+  "reviewedAt": "2026-10-26",
+  "generatedAt": "2026-10-26T15:53:05.306Z",
   "managerId": "duquesne-family-office",
   "historyRows": [],
   "historySummary": {
@@ -17,16 +17,16 @@
     "managers": [
       {
         "managerId": "duquesne-family-office",
-        "aggregateCount": 289,
+        "aggregateCount": 299,
         "latestPeriod": "2026-06-30",
-        "periodsCovered": 11,
-        "reviewQueueCount": 289
+        "periodsCovered": 12,
+        "reviewQueueCount": 299
       }
     ],
     "coverage": {
-      "aggregateRecords": 289,
-      "periods": 11,
-      "reviewQueue": 23,
+      "aggregateRecords": 299,
+      "periods": 12,
+      "reviewQueue": 24,
       "previewRecords": 10
     },
     "reviewQueue": [
@@ -77,6 +77,15 @@
         "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
       },
       {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|58733R102|SH|",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "58733R102",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
         "aggregateId": "sec-13f-cusip:duquesne-family-office|81369Y605|SH|",
         "managerId": "duquesne-family-office",
         "cusipNormalized": "81369Y605",
@@ -112,15 +121,6 @@
           "PUT_CALL_REVIEW"
         ],
         "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
-      },
-      {
-        "aggregateId": "sec-13f-cusip:duquesne-family-office|235851102|SH|",
-        "managerId": "duquesne-family-office",
-        "cusipNormalized": "235851102",
-        "flags": [
-          "ISSUER_NAME_VARIATION"
-        ],
-        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
       }
     ],
     "aggregates": [
@@ -141,7 +141,7 @@
         "putCallTypes": [],
         "firstReportPeriod": "2023-09-30",
         "latestReportPeriod": "2026-06-30",
-        "periodCount": 11,
+        "periodCount": 12,
         "periods": [
           {
             "reportPeriod": "2023-09-30",
@@ -264,6 +264,16 @@
             "sharesDelta": -703175
           },
           {
+            "reportPeriod": "2026-03-31",
+            "filedAt": null,
+            "valueUsd": 612691,
+            "shares": 3063606,
+            "rowCount": 1,
+            "sourceUrls": [],
+            "valueDeltaUsd": 37364,
+            "sharesDelta": 552249
+          },
+          {
             "reportPeriod": "2026-06-30",
             "filedAt": "2026-08-14",
             "valueUsd": 864923,
@@ -272,8 +282,8 @@
             "sourceUrls": [
               "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
             ],
-            "valueDeltaUsd": 289596,
-            "sharesDelta": 674949
+            "valueDeltaUsd": 252232,
+            "sharesDelta": 122700
           }
         ],
         "sourceUrls": [
@@ -370,7 +380,7 @@
         "putCallTypes": [],
         "firstReportPeriod": "2024-09-30",
         "latestReportPeriod": "2026-06-30",
-        "periodCount": 7,
+        "periodCount": 8,
         "periods": [
           {
             "reportPeriod": "2024-09-30",
@@ -445,6 +455,16 @@
             "sharesDelta": -222000
           },
           {
+            "reportPeriod": "2026-03-31",
+            "filedAt": null,
+            "valueUsd": 167380,
+            "shares": 495280,
+            "rowCount": 1,
+            "sourceUrls": [],
+            "valueDeltaUsd": 2342,
+            "sharesDelta": -47805
+          },
+          {
             "reportPeriod": "2026-06-30",
             "filedAt": "2026-08-14",
             "valueUsd": 281613,
@@ -453,8 +473,8 @@
             "sourceUrls": [
               "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
             ],
-            "valueDeltaUsd": 116575,
-            "sharesDelta": 46595
+            "valueDeltaUsd": 114233,
+            "sharesDelta": 94400
           }
         ],
         "sourceUrls": [
@@ -536,7 +556,7 @@
         "putCallTypes": [],
         "firstReportPeriod": "2025-12-31",
         "latestReportPeriod": "2026-06-30",
-        "periodCount": 2,
+        "periodCount": 3,
         "periods": [
           {
             "reportPeriod": "2025-12-31",
@@ -551,6 +571,16 @@
             "sharesDelta": null
           },
           {
+            "reportPeriod": "2026-03-31",
+            "filedAt": null,
+            "valueUsd": 90275,
+            "shares": 2612880,
+            "rowCount": 1,
+            "sourceUrls": [],
+            "valueDeltaUsd": 70209,
+            "sharesDelta": 1839325
+          },
+          {
             "reportPeriod": "2026-06-30",
             "filedAt": "2026-08-14",
             "valueUsd": 232375,
@@ -559,8 +589,8 @@
             "sourceUrls": [
               "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
             ],
-            "valueDeltaUsd": 212309,
-            "sharesDelta": 2329325
+            "valueDeltaUsd": 142100,
+            "sharesDelta": 490000
           }
         ],
         "sourceUrls": [
@@ -590,10 +620,20 @@
         "putCallTypes": [
           "Call"
         ],
-        "firstReportPeriod": "2026-06-30",
+        "firstReportPeriod": "2026-03-31",
         "latestReportPeriod": "2026-06-30",
-        "periodCount": 1,
+        "periodCount": 2,
         "periods": [
+          {
+            "reportPeriod": "2026-03-31",
+            "filedAt": null,
+            "valueUsd": 157566,
+            "shares": 821000,
+            "rowCount": 1,
+            "sourceUrls": [],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
           {
             "reportPeriod": "2026-06-30",
             "filedAt": "2026-08-14",
@@ -603,8 +643,8 @@
             "sourceUrls": [
               "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
             ],
-            "valueDeltaUsd": null,
-            "sharesDelta": null
+            "valueDeltaUsd": 17118,
+            "sharesDelta": 0
           }
         ],
         "sourceUrls": [
@@ -635,7 +675,7 @@
         "putCallTypes": [],
         "firstReportPeriod": "2024-06-30",
         "latestReportPeriod": "2026-06-30",
-        "periodCount": 8,
+        "periodCount": 9,
         "periods": [
           {
             "reportPeriod": "2024-06-30",
@@ -722,6 +762,16 @@
             "sharesDelta": -941683
           },
           {
+            "reportPeriod": "2026-03-31",
+            "filedAt": null,
+            "valueUsd": 188717,
+            "shares": 1154090,
+            "rowCount": 1,
+            "sourceUrls": [],
+            "valueDeltaUsd": -69167,
+            "sharesDelta": -327662
+          },
+          {
             "reportPeriod": "2026-06-30",
             "filedAt": "2026-08-14",
             "valueUsd": 151900,
@@ -730,8 +780,8 @@
             "sourceUrls": [
               "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
             ],
-            "valueDeltaUsd": -105984,
-            "sharesDelta": -57062
+            "valueDeltaUsd": -36817,
+            "sharesDelta": 270600
           }
         ],
         "sourceUrls": [
@@ -836,7 +886,7 @@
         ],
         "firstReportPeriod": "2025-12-31",
         "latestReportPeriod": "2026-06-30",
-        "periodCount": 2,
+        "periodCount": 3,
         "periods": [
           {
             "reportPeriod": "2025-12-31",
@@ -851,6 +901,16 @@
             "sharesDelta": null
           },
           {
+            "reportPeriod": "2026-03-31",
+            "filedAt": null,
+            "valueUsd": 162313,
+            "shares": 4228000,
+            "rowCount": 1,
+            "sourceUrls": [],
+            "valueDeltaUsd": 27989,
+            "sharesDelta": 0
+          },
+          {
             "reportPeriod": "2026-06-30",
             "filedAt": "2026-08-14",
             "valueUsd": 145866,
@@ -859,7 +919,7 @@
             "sourceUrls": [
               "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
             ],
-            "valueDeltaUsd": 11542,
+            "valueDeltaUsd": -16447,
             "sharesDelta": 0
           }
         ],
