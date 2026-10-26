@@ -15,7 +15,7 @@ try {
   const page = await browser.newPage();
   await page.route('**/*', route => route.abort());
   await page.setContent('<div id="chat-home-msgs"></div><div><button id="chat-home-btn">전송</button></div>');
-  // v59.10: the cancellation helpers live in the shared transport module (moved from js/aio-chat.js).
+  // v59.11: the cancellation helpers live in the shared transport module (moved from js/aio-chat.js).
   await page.addScriptTag({ type: 'module', content: readFileSync(new URL('../src/data/providers/shared-ai-transport.js', import.meta.url), 'utf8') + '\ninstallSharedRoute(window);' });
   await page.addScriptTag({ content:
     section('const chatState = {};', '// ── Text processing helpers') + '\n' +

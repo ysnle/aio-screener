@@ -106,6 +106,6 @@ context.window.AIO = { getPublicConfig: () => ({ ai: { routeStatus: 'DISABLED' }
 vm.runInContext(slice(ui, 'function getLLMRouteReadiness(', '// P1070/R592:'), context);
 assert.equal(context.getLLMRouteReadiness().label, '공용 연결 준비 중', 'P1424 held AI route has an explicit user status');
 assert.equal(context.getLLMRouteReadiness().ready, false, 'P1424 held AI route never advertises capacity');
-installSharedRoute(context.window); // v59.10: the route target moved from js/aio-chat.js to the shared transport module
+installSharedRoute(context.window); // v59.11: the route target moved from js/aio-chat.js to the shared transport module
 assert.equal(context.window._aioClaudeTarget(), null, 'P1424 disabled public configuration also blocks the generation transport');
 console.log('Extension API runtime PASS: plain timeout/abort transport (v57.81), RSS priority/fallback, retired personal data keys and their removed fetchers.');
