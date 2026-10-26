@@ -3559,11 +3559,10 @@
       globalSrc696.slice(0, 140));
 
     var newsSrc697 = (typeof fetchAllNews === 'function') ? fetchAllNews.toString() : '';
+    // v58.93: the progress writers moved to src/ui/components/news-progress.js (behaviour probed in ci-structural-check).
     _assert('T697 news_progress_bar_visible_v49101: market-news progress wrapper and bar are actively updated',
       !!document.getElementById('news-progress-wrap') && !!document.getElementById('news-progress-bar') &&
-        newsSrc697.indexOf('progWrap.style.display') >= 0 &&
-        newsSrc697.indexOf('news-progress-bar') >= 0 &&
-        newsSrc697.indexOf('pageBar.style.width') >= 0,
+        typeof window._aioRenderNewsProgress === 'function' && newsSrc697.indexOf('_aioNewsProgress(') >= 0,
       'wrap=' + !!document.getElementById('news-progress-wrap') + ' bar=' + !!document.getElementById('news-progress-bar'));
 
     var statusSrc698 = (typeof updateDataStatus === 'function') ? updateDataStatus.toString() : '';

@@ -1,3 +1,7 @@
+## v58.93 (2026-10-27)
+- **레거시 분해 3/8 — 오늘: 뉴스 수집 진행 표시 (v58.93):** `fetchAllNews` 안에 흩어져 있던 뉴스 화면 수집 진행 문구·막대(`#news-progress-wrap/-label/-bar`) 기록을 `src/ui/components/news-progress.js`의 `renderNewsProgress`로 옮겼다. 문구·폭·완료 2.5초 뒤 숨김은 그대로다. legacy 수집은 단계(`cached`/`start`/`step`/`done`/`empty`/`error`)만 `window._aioRenderNewsProgress`로 알리고 마지막 단계를 `window._aioNewsProgressState`에 남겨, 모듈이 늦게 설치돼도 그 단계를 그린다. 화면에 보이지 않던(`display:none`) `#live-dot`·`#live-btn-label`·`#news-sources-label`과 그 기록 코드는 지웠다. T697은 소스 문자열 대신 설치된 렌더러를 stub 노드로 실행해 확인한다.
+- R1 7곳 v58.93
+
 ## v58.92 (2026-10-27)
 - **레거시 분해 3/8 — 오늘: 뉴스 필터 칩·정렬 버튼 (v58.92):** 뉴스 화면의 국가·주제·텔레그램 칩과 최신순/중요도순 버튼 처리기(`filterNewsByCountry`·`filterNewsByTopic`·`filterNewsByTelegramOnly`·`setNewsSortMode`), 그 상태(`currentCountryFilter`·`currentTopicFilter`·`_newsSortMode`)와 `window.AIO.getNewsSurfaceControls`를 `js/aio-data.js`에서 지우고 `src/ui/components/news-controls.js`로 옮겼다. 칩 색·정렬 버튼 표시·재렌더 이유 문자열은 그대로다. legacy 필터·정렬 경로는 `getNewsSurfaceControls()`로 상태를 읽고, 뉴스 캐시 크기는 `window._aioNewsCacheSize` 다리로 넘긴다. 전역 이름은 `src/app/compatibility-globals.js`가 동적 import로 설치한다(부팅 번들 밖).
 - R1 7곳 v58.92

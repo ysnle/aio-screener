@@ -67,7 +67,14 @@ check('dynamic KR theme pills must keep live bindings on value children', /class
 check('KRW-denominated equity prices must use a KR-specific sanity range', /if \(\/\\\.\(KS\|KQ\)\$\/\.test\(sym\)\) return \[1, 10000000\]/.test(core));
 check('reference-only unavailable values must warn rather than block deployment', /truth-blocked-reference-only[\s\S]*status: row\.operationalUse === 'reference-only' \? 'warn' : 'block'/.test(core));
 check('text audit must distinguish ratios and MA periods from calendar dates', /var slashFormula =/.test(core) && /!slashFormula &&/.test(core));
-check('long news refresh must switch to an honest background status', /백그라운드 갱신/.test(data) && /Date\.now\(\) - _fetchStartTime > 12000/.test(data));
+// v58.93: the progress label renders from src/ui/components/news-progress.js; fetchAllNews passes the elapsed time.
+const newsProgressLabel = await (async () => {
+  const { renderNewsProgress } = await import('../src/ui/components/news-progress.js');
+  const label = { textContent: '' };
+  renderNewsProgress({ documentRef: { getElementById: (id) => (id === 'news-progress-label' ? label : null) }, state: { phase: 'step', done: 4, total: 9, elapsedMs: 12001 } });
+  return label.textContent;
+})();
+check('long news refresh must switch to an honest background status', newsProgressLabel === '백그라운드 갱신, 4/9' && /elapsedMs: Date\.now\(\) - _fetchStartTime/.test(data));
 
 // R280 (P605): index.html and the js/*.js modules are all classic (non-module) <script>s sharing
 // one global scope. A top-level `function name(){}`/`async function name(){}` declared in more

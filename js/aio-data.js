@@ -10185,6 +10185,11 @@ function _aioNotifyNewsSurfaceInvalidated(reason) {
   } catch (_) {}
 }
 window._aioNotifyNewsSurfaceInvalidated = _aioNotifyNewsSurfaceInvalidated;
+// v58.93: the progress line/bar is painted by src/ui/components/news-progress.js; the last step is kept for its install.
+function _aioNewsProgress(state) {
+  window._aioNewsProgressState = state;
+  if (typeof window._aioRenderNewsProgress === 'function') window._aioRenderNewsProgress(state);
+}
 // v58.92: window.AIO.getNewsSurfaceControls and the chip/sort handlers are installed by src/app/compatibility-globals.js.
 window._aioNewsCacheSize = function() { return newsCache.length; };
 window.AIO.getTelegramPageCoverageAudit = function() {
@@ -10557,10 +10562,7 @@ async function fetchAllNews(forceRefresh = false) {
       _aioNotifyNewsSurfaceInvalidated('news-cache-reuse');
       renderBriefingFeed(newsCache);
     }
-    var cachedProgLabel = document.getElementById('news-progress-label');
-    var cachedProgBar = document.getElementById('news-progress-bar');
-    if (cachedProgLabel) cachedProgLabel.textContent = '뉴스 캐시 사용 중 - 최신 수집본 유지';
-    if (cachedProgBar) cachedProgBar.style.width = '100%';
+    _aioNewsProgress({ phase: 'cached' });
     return;
   }
 
@@ -10576,16 +10578,8 @@ async function fetchAllNews(forceRefresh = false) {
     Object.keys(_rssSourceHealth).forEach(function(k) { _rssSourceHealth[k] = { fails: 0, lastOk: 0 }; });
     _rss2jsonFailed = 0;
   }
-  const dot  = document.getElementById('live-dot');
-  const lbl  = document.getElementById('live-btn-label');
-  const progWrap = document.getElementById('news-progress-wrap');
-  const progBar = document.getElementById('news-progress-bar');
-  const progLabelTop = document.getElementById('news-progress-label');
-  if (progWrap) progWrap.style.display = 'block';
-  if (progBar) progBar.style.width = '0%';
-  if (progLabelTop) progLabelTop.textContent = '뉴스 수집 준비 중';
-  if (dot) { dot.style.background = 'var(--yellow)'; dot.style.boxShadow = '0 0 5px var(--yellow)'; }
-  if (lbl) lbl.textContent = '뉴스 수집 준비';
+  // v58.93: the hidden #live-dot/#live-btn-label writers left with their nodes.
+  _aioNewsProgress({ phase: 'start' });
   try {
   // v48.38: 헬스체크 — disabled 피드 자동 스킵 (dead RSS 자동 회피)
   let activeSources = (window._aioFeedHealth && typeof window._aioFeedHealth.isDisabled === 'function')
@@ -10606,14 +10600,7 @@ async function fetchAllNews(forceRefresh = false) {
   let done = 0;
   const updateBar = (name) => {
     done++;
-    const pct = Math.round(done / total * 100);
-    // v57.60: retired load-bar/load-status/home-news-progress-* writers removed (nodes no longer exist).
-    const pageBar = document.getElementById('news-progress-bar');
-    const progLabel = document.getElementById('news-progress-label');
-    if (pageBar) pageBar.style.width = pct + '%';
-    if (progLabel) progLabel.textContent = Date.now() - _fetchStartTime > 12000
-      ? `백그라운드 갱신, ${done}/${total}`
-      : `뉴스 수집 중... ${done}/${total}`;
+    _aioNewsProgress({ phase: 'step', done: done, total: total, elapsedMs: Date.now() - _fetchStartTime });
   };
 
   // v21: 배치 분할 (3개씩 순차 배치 → CF Worker 100req/분 rate limit 안전)
@@ -10874,24 +10861,13 @@ async function fetchAllNews(forceRefresh = false) {
   _idbSaveNews(filteredItems); // IDB 저장 (비동기, 블로킹 없음)
   // isFetching = false; // v27.3: finally 블록으로 이동 (중복 방지)
 
-  const progLabel = document.getElementById('news-progress-label');
-  if (progLabel) progLabel.textContent = `뉴스 수집 완료, ${filteredItems.length}건 (${removedCount}건 필터링)`;
-
-  if (dot) { dot.style.background = 'var(--green)'; dot.style.boxShadow = '0 0 5px var(--green)'; }
-  if (lbl) lbl.textContent = '새로고침';
-  const pageProgBar = document.getElementById('news-progress-bar');
-  const pageProgWrap = document.getElementById('news-progress-wrap');
-  if (pageProgBar) pageProgBar.style.width = '100%';
-  if (pageProgWrap) setTimeout(function(){ pageProgWrap.style.display = 'none'; }, 2500);
+  _aioNewsProgress({ phase: 'done', count: filteredItems.length, removed: removedCount });
   const ftEl = document.getElementById('last-fetch-time');
   if (ftEl) ftEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
   // 스테일 배너 (RSS 성공 시 항상 신선; v57.77: the absent #news-cache-ts stamp writer is retired)
   var _newsStaleBanner = document.getElementById('news-stale-banner');
   if (_newsStaleBanner) _newsStaleBanner.style.display = 'none';
-
-  // 소스 라벨 업데이트
-  const sl = document.getElementById('news-sources-label');
-  if (sl) sl.textContent = `${allItems.length}건 수집, ${AIO_NEWS_SOURCES.length}개 소스, 최종 갱신 ${new Date().toLocaleTimeString('ko-KR')}`;
+  // v58.93: the hidden #news-sources-label writer left with its node.
 
   _aioNotifyNewsSurfaceInvalidated('news-fetch-complete');
   // v46.6: 최종 렌더 시 조기 렌더 캐시 무효화 → 완전한 데이터로 갱신
@@ -10952,15 +10928,11 @@ async function fetchAllNews(forceRefresh = false) {
 
   // v27.2: 뉴스 0건이면 진행 라벨에 안내 메시지 표시 (v57.76: the retired home news list message is gone)
   if (allItems.length === 0) {
-    const pl = document.getElementById('news-progress-label');
-    if (pl) pl.textContent = '뉴스 소스 연결 실패 — 새로고침하거나 잠시 후 다시 시도하세요.';
+    _aioNewsProgress({ phase: 'empty' });
   }
   } catch(fetchErr) {
     _aioLog('error', 'fetch', 'fetchAllNews 치명적 에러: ' + (fetchErr && fetchErr.message || fetchErr));
-    if (dot) { dot.style.background = 'var(--orange-9)'; dot.style.boxShadow = '0 0 5px var(--red-5)'; }
-    if (lbl) lbl.textContent = '에러 발생 — 재시도';
-    const pl = document.getElementById('news-progress-label');
-    if (pl) pl.textContent = '뉴스 수집 중 에러 발생 — 새로고침 버튼을 눌러주세요.';
+    _aioNewsProgress({ phase: 'error' });
     _aioNotifyNewsSurfaceInvalidated('news-fetch-error');
   } finally {
     isFetching = false; // v27.3: 어떤 에러가 나도 반드시 잠금 해제

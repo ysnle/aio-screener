@@ -303,6 +303,10 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     window._aioRenderHomeVix = (quote) => m.renderHomeVix({ documentRef: document, root: window, quote });
     window._aioRenderHomeVix();
   }).catch(() => {});
+  import('../ui/components/news-progress.js').then((m) => {
+    window._aioRenderNewsProgress = (state, documentRef) => m.renderNewsProgress({ documentRef: documentRef || document, state });
+    window._aioRenderNewsProgress(window._aioNewsProgressState);
+  }).catch(() => {});
   import('../ui/components/news-controls.js').then((m) => {
     window.AIO = window.AIO || {};
     window.AIO.getNewsSurfaceControls = m.getNewsSurfaceControls;
