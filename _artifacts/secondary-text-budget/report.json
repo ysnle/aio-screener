@@ -27,7 +27,7 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 3628,
+      "total": 3651,
       "secondary": 417,
       "lines": [
         {
@@ -336,18 +336,18 @@
       "frames": []
     },
     "briefing": {
-      "total": 756,
-      "secondary": 93,
+      "total": 779,
+      "secondary": 64,
       "lines": [
-        {
-          "chars": 47,
-          "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/27 06:21 KST, S&P 500·미 10년물·코스피 10/26 종가"
-        },
         {
           "chars": 22,
           "classes": "xr-h3 xr-section mg-guide mg-screen-lessons",
           "text": "이 화면을 볼 때 — 속지 말 것과 원칙"
+        },
+        {
+          "chars": 18,
+          "classes": "ai-analysis-scope basis-chip  briefing-ai",
+          "text": "생성 10/27 06:51 KST"
         },
         {
           "chars": 14,
@@ -798,8 +798,8 @@
       "frames": []
     },
     "market-news": {
-      "total": 5560,
-      "secondary": 400,
+      "total": 5502,
+      "secondary": 390,
       "lines": [
         {
           "chars": 32,
@@ -807,9 +807,9 @@
           "text": "10/25 08:00 ~ 10/26 08:00 KST 기사"
         },
         {
-          "chars": 26,
+          "chars": 24,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "The Jerusalem Post, 23시간 전"
+          "text": "The Jerusalem Post, 1일 전"
         },
         {
           "chars": 23,
@@ -819,7 +819,7 @@
         {
           "chars": 23,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "The Japan Times, 22시간 전"
+          "text": "The Japan Times, 23시간 전"
         },
         {
           "chars": 22,
@@ -829,37 +829,37 @@
         {
           "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 23시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Investing.com, 22시간 전"
+          "text": "Investing.com, 23시간 전"
         },
         {
           "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
           "text": "Bloomberg.com, 23시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 23시간 전"
         },
         {
           "chars": 19,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "TradingView, 23시간 전"
+          "text": "Bloomberg.com, 1일 전"
+        },
+        {
+          "chars": 19,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "Yahoo Finance, 1일 전"
         },
         {
           "chars": 18,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "PYMNTS.com, 22시간 전"
+          "text": "PYMNTS.com, 23시간 전"
+        },
+        {
+          "chars": 17,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "TradingView, 1일 전"
         },
         {
           "chars": 15,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Reuters, 22시간 전"
+          "text": "Reuters, 23시간 전"
         }
       ],
       "frames": []
@@ -927,7 +927,7 @@
       "frames": []
     },
     "masters": {
-      "total": 2655,
+      "total": 2656,
       "secondary": 217,
       "lines": [
         {
@@ -936,9 +936,9 @@
           "text": "비교 행 30개(이번 분기 보유 29개, 전량 매도 1개) 중 가치 상위 10개, 변화 있는 행 먼저 30행 모두 보기"
         },
         {
-          "chars": 61,
+          "chars": 64,
           "classes": "masters-holdings-meta masters-filing-dates masters-detail-card rl-main",
-          "text": "보고분기 2026 Q2(2026-06-30), -HR 제출 2026-08-14, 자료 검토 2026-10-26"
+          "text": "보고분기 2026 Q2(2026-06-30), 13F-HR 제출 2026-08-14, 자료 검토 2026-10-26"
         },
         {
           "chars": 54,
@@ -959,11 +959,6 @@
           "chars": 5,
           "classes": "aio-note-fold masters-method-fold masters-holdings-section masters-change-ledger",
           "text": "분류 방법"
-        },
-        {
-          "chars": 3,
-          "classes": "aio-term masters-holdings-meta masters-filing-dates masters-detail-card",
-          "text": "13F"
         }
       ],
       "frames": []
@@ -1058,33 +1053,13 @@
       "frames": []
     },
     "screener": {
-      "total": 1265,
-      "secondary": 293,
+      "total": 700,
+      "secondary": 116,
       "lines": [
         {
-          "chars": 65,
-          "classes": "scr-population-holder sx-meta",
-          "text": "미국 순위 계산 0종목(기본 종목 범위), 표시 0개, 가격 자료 10/23 종가 기준, 10/26 미국장 반영 대기"
-        },
-        {
-          "chars": 37,
-          "classes": "scr-status-full scr-table-status-text scr-table-status sx-meta",
-          "text": "균형 상대 순위 조건 통과 0종목, 시총 자료 없음, 조건 순위 순"
-        },
-        {
-          "chars": 35,
+          "chars": 39,
           "classes": "sx-meta scr-stats-line  aio-section",
-          "text": "· 총 종목, 조건 통과 · 그중 팩터 80 이상 · 사용 팩터"
-        },
-        {
-          "chars": 24,
-          "classes": "page-subtitle scr-kicker",
-          "text": "미국 10/23 종가 기준, 10/26 계산"
-        },
-        {
-          "chars": 23,
-          "classes": "page-subtitle scr-kicker",
-          "text": "대상 904종목 중 3종목 필수 필드 충족"
+          "text": "· 총 종목, 조건 통과 · 그중 팩터 백분위 80 이상 · 사용 팩터"
         },
         {
           "chars": 22,
@@ -1092,24 +1067,14 @@
           "text": "이 화면을 볼 때 — 속지 말 것과 원칙"
         },
         {
-          "chars": 17,
-          "classes": "scr-market-scope scr-toolbar",
-          "text": "주식 시장 종목 범위 정렬 기준"
-        },
-        {
-          "chars": 16,
-          "classes": "sx-row__meta sx-row sx-rows scr-more-rows",
-          "text": "검증 요건 미충족, 판단 불가"
-        },
-        {
           "chars": 13,
           "classes": "sx-meta scr-stats-line",
           "text": "기본 균형 비중으로 합산"
         },
         {
-          "chars": 11,
-          "classes": "scr-ranking-method scr-population-holder sx-meta",
-          "text": "순위가 계산되는 방식"
+          "chars": 9,
+          "classes": "page-subtitle scr-kicker",
+          "text": "팩터 데이터 대기"
         },
         {
           "chars": 8,
@@ -1120,6 +1085,36 @@
           "chars": 8,
           "classes": "sx-row__meta sx-row sx-rows scr-more-rows",
           "text": "사후 검증 보기"
+        },
+        {
+          "chars": 8,
+          "classes": "sx-row__meta sx-row sx-rows scr-more-rows",
+          "text": "사후 검증 보기"
+        },
+        {
+          "chars": 2,
+          "classes": "sx-meta scr-result-count scr-filterbar-end scr-filter-sheet",
+          "text": "종목"
+        },
+        {
+          "chars": 2,
+          "classes": "sx-meta scr-toolbar scr-filter-sheet",
+          "text": "컬럼"
+        },
+        {
+          "chars": 1,
+          "classes": "sx-meta scr-result-count scr-filterbar-end",
+          "text": "0"
+        },
+        {
+          "chars": 1,
+          "classes": "sx-meta scr-stats-line",
+          "text": "—"
+        },
+        {
+          "chars": 1,
+          "classes": "sx-meta scr-stats-line",
+          "text": "—"
         }
       ],
       "frames": []
