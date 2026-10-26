@@ -816,6 +816,27 @@ const riskPanelProbe = await (async () => {
   return held && el.innerHTML.includes('표본 최악일 (1일 손실)') && el.innerHTML.includes('<div class="wsl-rk-val is-muted">—</div>') && cell.style.background === 'rgba(1,2,3,0.4)' && cell.style.color === '#fff' && /환율 변동이 빠져/.test(el.tail);
 })();
 check('v59.05 the 포트폴리오 risk panel escapes its hold lines, reads a thin 99% sample as the worst day, colours matrix cells and notes excluded FX', riskPanelProbe);
+const watchlistProbe = await (async () => {
+  const { renderWatchlist, clearWatchlistInputs } = await import('../src/ui/components/portfolio-watchlist.js');
+  const node = () => ({ style: {}, dataset: {}, children: [], appendChild(c) { this.children.push(c); } });
+  const els = { 'wl-select': node(), 'wl-add-row': node(), 'wl-empty-msg': node(), 'wl-table': node(), 'wl-tbody': node(), 'wl-add-ticker': node(), 'wl-add-note': node() };
+  const documentRef = { getElementById: (id) => els[id] || null, createElement: () => ({}) };
+  const registered = [];
+  const root = { _liveData: { AAA: { price: 10, pct: -1.5 } }, _aioGetCanonicalScreenerRows: () => [{ sym: 'AAA', signal: 'BUY', name: 'A<b>' }], AIO: { registerLiveSymbol: (sym) => registered.push(sym) } };
+  const lists = [{ id: 'w1', name: 'one', tickers: [{ sym: 'AAA', note: 'n' }, { sym: 'BBB', note: '' }] }];
+  renderWatchlist(lists, 'w1', 'live', { documentRef, root });
+  const filled = els['wl-select'].dataset.filled === '1' && els['wl-select'].children.length === 1 && els['wl-add-row'].style.display === 'block' && els['wl-table'].style.display === 'table';
+  const body = els['wl-tbody'].innerHTML;
+  const rows = body.includes('wsl-wl-fig is-down">-1.50%') && body.includes('wsl-wl-sig is-buy') && body.includes('A&lt;b&gt;') && !/style=/.test(body) && registered.join() === 'BBB';
+  els['wl-add-ticker'].value = 'X'; els['wl-add-note'].value = 'changed';
+  clearWatchlistInputs({ ticker: 'X', note: '' }, { documentRef });
+  const kept = els['wl-add-ticker'].value === 'X';
+  els['wl-add-note'].value = '';
+  clearWatchlistInputs({ ticker: 'X', note: '' }, { documentRef });
+  renderWatchlist(lists, '', 'view', { documentRef, root });
+  return filled && rows && kept && els['wl-add-ticker'].value === '' && els['wl-add-row'].style.display === 'none' && /리스트를 선택하거나/.test(els['wl-empty-msg'].textContent);
+})();
+check('v59.06 the 포트폴리오 watchlist fills its select once, tones quote and signal cells by class, quotes unknown symbols and clears the inputs only while they still show the request', watchlistProbe);
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',

@@ -3,7 +3,7 @@
 // 포트폴리오(refreshPortfolioPrices/refreshPortfolioRisk/_pfPearson/
 // share·MDD 라벨/shapre 라벨/exportPortfolio/importPortfolio), 백테스트 랩(runPortfolioBacktestLab;
 // 결과 렌더러는 src/ui/components/portfolio-backtest-lab.js), 워치리스트(getWatchlists/saveWatchlists/createWatchlist/switchWatchlist/
-// addToWatchlist/updateWatchlistButtons), 투자 일지와 채팅 이력(PF_JOURNAL_KEY/CHAT_HISTORY_LS/
+// addToWatchlist; 화면은 src/ui/components/portfolio-watchlist.js), 투자 일지와 채팅 이력(PF_JOURNAL_KEY/CHAT_HISTORY_LS/
 // CHAT_DEFAULT_CHIPS/_aioBuildPortfolioActionPrompt), 공용 헬퍼(showToast/_escHtmlSafe/fmtN).
 //
 // 왜 이 파일이 defer 그룹의 첫 번째인가: 원래 이 블록은 core·data·ui보다 먼저 실행되는 인라인이었고,
@@ -1564,11 +1564,10 @@ function deleteWatchlist() {
 }
 
 function switchWatchlist() {
-  var sel = document.getElementById('wl-select');
-  if (!sel) return;
-  setActiveWatchlistId(sel.value);
-  renderWatchlistContent();
-  updateWatchlistButtons();
+  var value = typeof window._aioReadWatchlistSelect === 'function' ? window._aioReadWatchlistSelect() : null;
+  if (value == null) return;
+  setActiveWatchlistId(value);
+  _aioRenderWatchlistView('view');
 }
 
 // v58.63 (architecture audit BND01): the symbol check is asynchronous. The retry used to re-read the active list and
@@ -1590,12 +1589,11 @@ function addToWatchlist(ticker, note, accepted, request) {
   var typed = request ? request.typed : null;
   // 인자 없으면 입력 필드에서 가져오기
   if (!ticker) {
-    var inp = document.getElementById('wl-add-ticker');
-    ticker = (inp ? inp.value : '').trim().toUpperCase();
-    var noteInp = document.getElementById('wl-add-note');
-    note = noteInp ? noteInp.value.trim() : '';
+    if (typeof window._aioReadWatchlistInputs !== 'function') { showToast('종목 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 추가하세요.'); return; }
+    typed = window._aioReadWatchlistInputs();
+    ticker = typed.ticker.trim().toUpperCase();
+    note = typed.note.trim();
     fromInputs = true;
-    typed = { ticker: inp ? inp.value : '', note: noteInp ? noteInp.value : '' };
   }
   if (!ticker) { showToast('티커를 입력하세요.'); return; }
   var pending = { listId: activeId, fromInputs: fromInputs, typed: typed };
@@ -1613,13 +1611,7 @@ function addToWatchlist(ticker, note, accepted, request) {
   saveWatchlists(lists);
   if (activeId !== getActiveWatchlistId() || !fromInputs) showToast(ticker + ': "' + (wl.name || '이전 목록') + '" 목록에 추가했습니다.');
   // 입력 필드 초기화 — 이 요청을 입력한 그대로일 때만
-  var inp2 = document.getElementById('wl-add-ticker');
-  var noteInp2 = document.getElementById('wl-add-note');
-  var unchanged = fromInputs && activeId === getActiveWatchlistId() && (!typed || ((inp2 ? inp2.value : '') === typed.ticker && (noteInp2 ? noteInp2.value : '') === typed.note));
-  if (unchanged) {
-    if (inp2) inp2.value = '';
-    if (noteInp2) noteInp2.value = '';
-  }
+  if (fromInputs && activeId === getActiveWatchlistId() && typeof window._aioClearWatchlistInputs === 'function') window._aioClearWatchlistInputs(typed);
   refreshWatchlistUI(); // run-4 #12
 }
 
@@ -1647,100 +1639,14 @@ function showToast(msg) {
   }, 2000);
 }
 
-function updateWatchlistButtons() {
-  var hasActive = !!getActiveWatchlistId();
-  var renBtn = document.getElementById('wl-rename-btn');
-  var delBtn = document.getElementById('wl-delete-btn');
-  var addRow = document.getElementById('wl-add-row');
-  if (renBtn) renBtn.disabled = !hasActive;
-  if (delBtn) delBtn.disabled = !hasActive;
-  if (addRow) addRow.style.display = hasActive ? 'block' : 'none';
+// v59.06: the list view (select, buttons, table) is drawn by src/ui/components/portfolio-watchlist.js through
+// window._aioRenderWatchlist (src/app/legacy-screen-bridges.js); a call before that module loaded is repeated on install.
+// Its rows open a ticker and its 삭제 buttons call removeFromWatchlist by data-action.
+function _aioRenderWatchlistView(mode) {
+  if (typeof window._aioRenderWatchlist !== 'function') { window._aioWatchlistPending = true; return; }
+  window._aioRenderWatchlist(getWatchlists(), getActiveWatchlistId(), mode);
 }
-
-function refreshWatchlistUI() {
-  var sel = document.getElementById('wl-select');
-  if (!sel) return;
-  var lists = getWatchlists();
-  var activeId = getActiveWatchlistId();
-  sel.innerHTML = '<option value="">리스트 ' + lists.length + '개</option>'; sel.dataset.filled = '1'; // run-4 #4
-  lists.forEach(function(l) {
-    var opt = document.createElement('option');
-    opt.value = l.id;
-    opt.textContent = l.name + ' (' + l.tickers.length + '종목)';
-    if (l.id === activeId) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  updateWatchlistButtons();
-  renderWatchlistContent();
-}
-
-function renderWatchlistContent() {
-  var activeId = getActiveWatchlistId();
-  var emptyMsg = document.getElementById('wl-empty-msg');
-  var table = document.getElementById('wl-table');
-  var tbody = document.getElementById('wl-tbody');
-  if (!emptyMsg || !table || !tbody) return;
-
-  if (!activeId) {
-    emptyMsg.style.display = 'block';
-    table.style.display = 'none';
-    emptyMsg.textContent = '리스트를 선택하거나 새로 만들어주세요. 관심 종목을 그룹별로 관리할 수 있습니다.';
-    return;
-  }
-
-  var lists = getWatchlists();
-  var wl = lists.find(function(l) { return l.id === activeId; });
-  if (!wl) {
-    emptyMsg.style.display = 'block';
-    table.style.display = 'none';
-    return;
-  }
-
-  if (wl.tickers.length === 0) {
-    emptyMsg.style.display = 'block';
-    table.style.display = 'none';
-    emptyMsg.textContent = '"' + wl.name + '" 리스트가 비어 있습니다. 위 입력란에 티커를 넣어 추가하세요.'; // v57.81: the removed-emoji gap left a blank button reference
-    return;
-  }
-
-  emptyMsg.style.display = 'none';
-  table.style.display = 'table';
-
-  let ld = window._liveData || {};
-  // SCREENER_DB에서 신호 정보 가져오기
-  var dbMap = {};
-  var screenerRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  if (Array.isArray(screenerRows)) {
-    screenerRows.forEach(function(s) { dbMap[s.sym] = s; });
-  }
-
-  var html = '';
-  wl.tickers.forEach(function(t) {
-    var d = ld[t.sym]; if (!d && window.AIO && typeof window.AIO.registerLiveSymbol === 'function') window.AIO.registerLiveSymbol(t.sym, { reason: 'watchlist' }); // v57.81: a saved symbol outside the market set is quoted on the next refresh
-    var db = dbMap[t.sym];
-    var price = d && d.price ? d.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
-    var chg = d && d.pct != null ? d.pct : null;
-    var cc = chg !== null ? (chg >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
-    var chgStr = chg !== null ? ((chg >= 0 ? '+' : '') + chg.toFixed(2) + '%') : '—';
-    var signal = db ? db.signal : '—';
-    var sc = signal === 'BUY' ? 'var(--data-green)' : signal === 'SELL' ? 'var(--data-red)' : signal === 'WATCH' ? 'var(--data-amber)' : 'var(--text-muted)';
-    var sb = signal === 'BUY' ? 'rgba(47,124,87,0.15)' : signal === 'SELL' ? 'rgba(181,69,72,0.15)' : signal === 'WATCH' ? 'rgba(var(--ink-rgb),0.15)' : 'rgba(var(--ink-rgb),0.15)';
-    var nameStr = db ? db.name : '';
-
-    var _eSym = escHtml(t.sym); // v46.9: XSS 방어
-    html += '<tr class="aio-hover-row wsl-wl-row" data-action="_aioPortfolioTicker" data-arg="' + escHtml(_eSym) + '">' +
-      '<td class="wsl-wl-c"><b class="wsl-wl-sym">' + _eSym + '</b>' + (nameStr ? '<div class="wsl-note">' + escHtml(nameStr) + '</div>' : '') + '</td>' +
-      '<td class="wsl-wl-fig">' + price + '</td>' +
-      '<td class="wsl-wl-fig" style="color:' + cc + ';">' + chgStr + '</td>' +
-      '<td class="wsl-wl-ctr">' + (signal !== '—' ? '<span class="wsl-wl-sig" style="background:' + sb + ';color:' + sc + ';">' + (typeof _scrSignalLabel === 'function' ? _scrSignalLabel(signal) : signal) + '</span>' : '<span class="wsl-note">—</span>') + '</td>' +
-      '<td class="wsl-wl-memo">' + escHtml(t.note || '') + '</td>' +
-      '<td class="wsl-wl-ctr">' +
-        '<button data-action="removeFromWatchlist" data-arg="' + escHtml(_eSym) + '" data-stop="1" aria-label="' + escHtml(_eSym) + ' 관심 종목에서 삭제" class="aio-btn-table wsl-wl-del" title="삭제">삭제</button>' +
-      '</td>' +
-    '</tr>';
-  });
-  tbody.innerHTML = html;
-}
+function refreshWatchlistUI() { _aioRenderWatchlistView('full'); }
 
 // 포트폴리오 페이지 진입 시 워치리스트도 렌더
 // v48.99: _aioPageBus 마이그 (P180)
@@ -1757,7 +1663,7 @@ _aioPageBus.register('html-portfolio-watchlist-shown', 'aio:pageShown', function
 _aioPageBus.register('html-portfolio-watchlist-live', 'aio:liveQuotes', function() {
   var pfPage = document.getElementById('page-portfolio');
   if (pfPage && pfPage.classList.contains('active')) {
-    try { var wlSel = document.getElementById('wl-select'); (wlSel && !wlSel.dataset.filled ? refreshWatchlistUI : renderWatchlistContent)(); } catch(err) {}
+    try { _aioRenderWatchlistView('live'); } catch(err) {}
   }
 });
 var pfShownAtLoad = document.getElementById('page-portfolio'); if (pfShownAtLoad && pfShownAtLoad.classList.contains('active')) { try { refreshWatchlistUI(); } catch (_) {} } // the initial route's pageShown can fire before this listener

@@ -116,6 +116,12 @@
 #page-portfolio .wsl-wl-sym { color: var(--text-primary); font-family: var(--font-mono); font-size: var(--fs-sm); }
 #page-portfolio .wsl-wl-fig { text-align: right; padding: 6px; font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-xs); }
 #page-portfolio .wsl-wl-ctr { text-align: center; padding: 6px; }
-#page-portfolio .wsl-wl-sig { padding: 1px 6px; border-radius: 4px; font-size: var(--fs-sm); font-weight: 700; }
+#page-portfolio .wsl-wl-fig.is-up { color: var(--dir-up); }
+#page-portfolio .wsl-wl-fig.is-down { color: var(--dir-down); }
+#page-portfolio .wsl-wl-fig.is-muted { color: var(--text-muted); }
+#page-portfolio .wsl-wl-sig { padding: 1px 6px; border-radius: 4px; font-size: var(--fs-sm); font-weight: 700; background: rgba(var(--ink-rgb),0.15); color: var(--text-muted); }
+#page-portfolio .wsl-wl-sig.is-buy { background: rgba(47,124,87,0.15); color: var(--data-green); }
+#page-portfolio .wsl-wl-sig.is-sell { background: rgba(181,69,72,0.15); color: var(--data-red); }
+#page-portfolio .wsl-wl-sig.is-watch { color: var(--data-amber); }
 #page-portfolio .wsl-wl-memo { padding: 6px; color: var(--text-muted); font-size: var(--fs-sm); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #page-portfolio .wsl-wl-del { font-size: var(--fs-sm) !important; }

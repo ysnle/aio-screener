@@ -1,3 +1,7 @@
+## v59.06 (2026-10-27)
+- **레거시 분해 6/8 — 포트폴리오: 관심 종목 리스트 화면 이동 (v59.06):** 관심 종목 리스트의 화면 부분(`#wl-select` 목록, 이름변경·삭제 버튼, 추가 입력줄, 빈 목록 문구와 종목 표)과 선택값·추가 입력란 읽기를 `js/aio-workspace.js`의 `refreshWatchlistUI`·`updateWatchlistButtons`·`renderWatchlistContent`에서 `src/ui/components/portfolio-watchlist.js`로 옮겼다. 저장과 목록 편집(만들기·이름변경·삭제·추가·제거)은 그대로 `aio-workspace.js`에 있고, 목록과 선택 id를 `src/app/legacy-screen-bridges.js`가 설치한 `_aioRenderWatchlist`에 넘긴다. 브리지 설치 전 호출은 대기 플래그로 남겨 설치 시 한 번 다시 그린다. 문구, 입력란은 요청을 입력한 그대로일 때만 비우는 규칙(v58.63 BND01), 목록 밖 종목 시세 등록(v57.81)은 그대로이며, 등락·신호 색은 인라인 style 대신 `legacy-workspace.css` 클래스로 같은 색을 낸다.
+- R1 7곳 v59.06
+
 ## v59.05 (2026-10-27)
 - **레거시 분해 6/8 — 포트폴리오: 리스크 지표 패널 이동 (v59.05):** 포트폴리오 위험 분석의 리스크 지표 패널(`#pf-risk-metrics`: VaR·CVaR·변동성·MDD·베타 표, 상관 행렬 히트맵, 보류 문구)을 `js/aio-workspace.js`의 `_renderRiskMetrics`와 `refreshPortfolioRisk` 안의 직접 쓰기에서 `src/ui/components/portfolio-risk-metrics.js`로 옮겼다. `refreshPortfolioRisk`는 데이터 수집만 하고 `_aioRenderPortfolioRiskStatus`·`_aioRenderPortfolioRiskMetrics`를 부르며 `src/app/legacy-screen-bridges.js`가 설치한다. 브리지 설치 전에 호출되면 대기 플래그를 남기고 설치 시 한 번 다시 실행한다. 문구, 99% 표본 부족 시 최악일 표기, 행렬 색, 환율 제외 안내(P1445)는 그대로이며 인라인 style은 `legacy-workspace.css` 클래스로 바꿨다(히트맵 셀 색만 계산값으로 직접 지정).
 - R1 7곳 v59.05
