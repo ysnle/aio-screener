@@ -299,7 +299,8 @@ const disclosure=root._aioBuildAIResponseDisclosure({freshness:{after:{quoteRows
 assert.equal(disclosure.asOf,'미확인');
 assert.equal(disclosure.status,'확인 필요');
 assert.equal(root._aioBuildAIResponseDisclosure({freshness:{after:{quoteRows:[{truthStatus:'verified',decisionUse:true,source:'Yahoo chart',fetchedAt:new Date().toISOString()}]}}}).status,'확인 필요');
-assert(html.includes('https://sec.gov/report') && !html.includes('javascript:'));
+assert.deepEqual([...html.matchAll(/<a href="([^"]*)"/g)].map((m)=>m[1]),['https://sec.gov/report']);
+assert(!html.includes('javascript:'));
 let loads=0;
 const retry=createAIKnowledgeRetriever({timeoutMs:5,fetchImpl:()=>++loads===1 ? new Promise(()=>{}) : Promise.resolve({ok:true,json:async()=>({articles:[]})})});
 assert.equal((await retry.buildContext('금리')).audit.status,'UNAVAILABLE');
