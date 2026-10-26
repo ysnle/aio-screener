@@ -756,6 +756,21 @@ check('headless registry stays ordered until group isolation is proven',
 check('failed headless groups have an independent rerun lifecycle',
   headlessSource.includes('AIO_FAILED_GROUPS=')
   && runnerSource.includes('`--groups=${failedGroups}`'));
+// v58.89: the rest of the retired headless-group-lifecycle gate — the group registry and exact group selection.
+const testsSource = read('js/aio-tests.js');
+const headlessGroupIds = [...testsSource.matchAll(/\{ id:'(G\d{3})', name:/g)].map((match) => match[1]);
+check(`QA-GOV-RETIRE-01 headless group registry has 100+ unique G### ids (total=${headlessGroupIds.length})`, headlessGroupIds.length >= 100 && new Set(headlessGroupIds).size === headlessGroupIds.length);
+check('QA-GOV-RETIRE-01 browser assertions are attributable to an exact selectable group',
+  testsSource.includes("entry = { label: label, ok: ok, detail: detail || '', groupId: _activeTestGroupId }")
+  && testsSource.includes('function _selectTestGroups(options)')
+  && testsSource.includes('UNKNOWN_TEST_GROUPS:')
+  && testsSource.includes('getTestGroupRegistry'));
+check('QA-GOV-RETIRE-01 headless runner selects exact groups and writes a failure report',
+  headlessSource.includes("value.startsWith('--groups=')")
+  && /runResult\?\.selection\?\.mode|result\?\.selection\?\.mode/.test(headlessSource)
+  && headlessSource.includes('failure report=')
+  && runnerSource.includes("profile === 'rerun-failed'")
+  && runnerSource.includes('AIO_FAILED_GROUPS='));
 check('headless failures keep exact test details in stdout and a local report',
   headlessSource.includes('FAILURE_LEDGER_JSON=')
   && headlessSource.includes('writeQaReport')

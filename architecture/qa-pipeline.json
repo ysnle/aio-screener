@@ -1528,7 +1528,8 @@
             "architecture/skill-eval-cases.json",
             "architecture/qa-pipeline.json",
             "scripts/**",
-            "architecture/operations-alert-policy.json"
+            "architecture/operations-alert-policy.json",
+            "js/aio-tests.js"
           ]
         }
       ]
@@ -3083,7 +3084,8 @@
     },
     {
       "patterns": [
-        "architecture/operations-alert-policy.json"
+        "architecture/operations-alert-policy.json",
+        "js/aio-tests.js"
       ],
       "groups": [],
       "gates": [

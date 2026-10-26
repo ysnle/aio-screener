@@ -1,3 +1,7 @@
+## v58.89 (2026-10-27)
+- **퇴역 게이트 잔여 검사 복원 (v58.89):** v58.86에 퇴역한 두 게이트의 검사 중 중복이 아니던 것을 되살렸다. release-manifest의 rollback 독립성·immutableRuntime 허용 목록은 release-revision의 release-rollback-invariants 구획으로, headless-group-lifecycle의 G### 레지스트리(100개 이상·중복 없음)·그룹 귀속·정확한 그룹 선택·실패 보고서 확인은 qa-pipeline-contract로 옮겼다. 게이트 수는 그대로 165개다.
+- R1 7곳 v58.89
+
 ## v58.88 (2026-10-26)
 - **레거시 분해 2/8 — 시장 상태 (v58.88):** 시장 상태 화면(signal·breadth·sentiment)에 남은 legacy 코드는 옮길 것이 아니라 이미 사라진 화면 요소를 겨누는 죽은 코드였다. 지운 것: `js/aio-core.js` `_aioReorderCoreSections`의 signal lockout/exit-trigger 재배치(`#signal-lockout-control`·`#signal-exit-triggers`·`#entry-checklist-card`·`#sig-ticker-bar` 모두 부재), 유일한 대상 `#sent-analysis-text`가 그려지지 않는 `_aioGuardEmptyVerdicts`와 그 5개 호출, signal 라우트의 `signal-lockout-symbol` 입력 수집; `js/aio-ui.js` 다이어그램 렌더의 breadth·sentiment 분기(`#vis-breadth-regime`·`#vis-sentiment-gauge` 부재)와 그 뒤 쓰이지 않게 된 `_buildRegime`·`_buildSentiment`·`_getScore`·`_ld`·`_cl`. 화면 출력은 그대로다(native `analysis.js`·`breadth-board.js`·`sentiment.js`가 이미 소유). `refreshSignalDashboard`는 여러 화면이 공유하는 판정 헤더·기준일·펄스 바를 부르는 연결부라 이번 범위에서 옮기지 않았다. 게이트 1건(P532 lockout)은 셸에 lockout이 없음을 검사하도록 바꿨다.
 - R1 7곳 v58.88

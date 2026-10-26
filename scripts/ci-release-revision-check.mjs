@@ -138,4 +138,13 @@ if (changed.length) {
 }
 console.log('Release generated parity OK: asset/release manifests unchanged.');
 }],
+// ── section release-rollback-invariants (kept from the retired ci-release-manifest-contract.mjs) ──
+// v58.89: version/data revision parity moved to ci-version-check and the parity section above; these two invariants did not.
+['release-rollback-invariants', async () => {
+const { readFileSync } = await import('node:fs');
+const manifest = JSON.parse(readFileSync('architecture/asset-manifest.json', 'utf8'));
+if (!manifest.rollback?.appDataIndependent || !manifest.rollback?.workerCacheIndependent) throw new Error('[release-rollback-invariants] rollback independence missing (asset-manifest rollback.appDataIndependent / workerCacheIndependent)');
+if (!Array.isArray(manifest.immutableRuntime) || !manifest.immutableRuntime.includes('src/**/*.js')) throw new Error('[release-rollback-invariants] native runtime allowlist missing (asset-manifest immutableRuntime must include src/**/*.js)');
+console.log(`[release-rollback-invariants] OK: rollback ${manifest.rollback.strategy}, immutableRuntime ${manifest.immutableRuntime.length} pattern(s)`);
+}],
 ]);
