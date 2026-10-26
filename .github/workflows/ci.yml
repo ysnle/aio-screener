@@ -131,14 +131,21 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ms-playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Identify runner image
+        # 2026-10-26: the .deb cache was keyed by OS + lock only, so it kept the previous image's packages forever (a
+        # cache key is never overwritten) and every shard still downloaded ~12 MB after the image moved on.
+        id: runner-image
+        run: echo "id=${ImageOS:-unknown}-${ImageVersion:-unknown}" >> "$GITHUB_OUTPUT"
       - name: Cache Chromium OS packages
         # v58.68 (CI 2026-10-23): the Azure apt mirror served ~50 kB/s, so the 26 MB of Chromium libraries outlasted every
         # attempt. The downloaded .deb files are kept between jobs; apt then installs from disk and fetches only what changed.
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/aio-apt-archives
-          key: aio-apt-archives-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-v1
-          restore-keys: aio-apt-archives-${{ runner.os }}-
+          key: aio-apt-archives-${{ runner.os }}-${{ steps.runner-image.outputs.id }}-${{ hashFiles('package-lock.json') }}-v2
+          restore-keys: |
+            aio-apt-archives-${{ runner.os }}-${{ steps.runner-image.outputs.id }}-
+            aio-apt-archives-${{ runner.os }}-
       - name: Install dependencies and Chromium
         env:
           PLAYWRIGHT_BROWSERS_CACHED: ${{ steps.playwright-cache.outputs.cache-hit }}
@@ -148,17 +155,23 @@ jobs:
           # Cap each attempt and retry on a fresh connection instead of waiting it out.
           # A cache hit already holds the browser build; only the OS libraries (apt) are installed then, because
           # the runner image does not persist them between jobs.
-          if [ "$PLAYWRIGHT_BROWSERS_CACHED" = "true" ]; then install_args="install-deps chromium"; else install_args="install --with-deps chromium"; fi
+          # 2026-10-26: the browser build comes from the Playwright CDN, not apt, so it is fetched on its own first.
+          if [ "$PLAYWRIGHT_BROWSERS_CACHED" != "true" ]; then
+            for attempt in 1 2 3; do
+              timeout 240 npx playwright install chromium && break
+              [ "$attempt" = 3 ] && { echo "::error::playwright browser download failed 3 times"; exit 1; }
+            done
+          fi
           # v58.67 (CI 2026-10-23): a stalled mirror connection kept apt-get alive for 6+ minutes. apt now gives up a
           # stalled connection after 20 s and retries it itself, so one slow shard costs seconds, not the attempt.
           printf 'Acquire::Retries "3";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' | sudo tee /etc/apt/apt.conf.d/99aio-network >/dev/null
           # v58.68: apt reads and keeps its archives in the cached folder (the cache step above).
           mkdir -p "$HOME/.cache/aio-apt-archives/partial"
           printf 'Dir::Cache::Archives "%s/.cache/aio-apt-archives/";\nAPT::Keep-Downloaded-Packages "true";\nBinary::apt::APT::Keep-Downloaded-Packages "true";\n' "$HOME" | sudo tee /etc/apt/apt.conf.d/98aio-archives >/dev/null
-          for attempt in 1 2 3; do
-            if timeout 240 npx playwright $install_args; then break; fi
-            [ "$attempt" = 3 ] && { echo "::error::playwright install failed 3 times"; exit 1; }
-            echo "::warning::playwright install attempt $attempt timed out or failed; retrying"
+          deps_installed=false
+          for attempt in 1 2; do
+            if timeout 240 npx playwright install-deps chromium; then deps_installed=true; break; fi
+            echo "::warning::playwright install-deps attempt $attempt timed out or failed"
             # v58.65/67: timeout stops npx, not the sudo apt-get it started, and that apt kept the dpkg lock — every
             # retry failed in two seconds (apt exit 100) and nothing deployed after 10/21 17:48. Stop the leftover apt,
             # wait for the lock, and let dpkg finish any half-configured package before retrying.
@@ -168,6 +181,18 @@ jobs:
           done
           # apt wrote the archives as root; the cache step saves them as the runner user.
           sudo chown -R "$(id -u):$(id -g)" "$HOME/.cache/aio-apt-archives" || true
+          # 2026-10-26 (main CI red 15:45Z-17:40Z, 5 runs): the image already ships every library Chromium loads; on a
+          # stalled mirror apt was stuck on optional fonts (fonts-wqy-zenhei 7.8 MB) and the libnss3/xvfb upgrades, and
+          # the red browser shards kept every release and data refresh off Pages. apt stays best effort: if it could not
+          # finish, the shard runs when Chromium really launches and renders, and fails only when it does not.
+          if [ "$deps_installed" != true ]; then
+            if node -e "const { chromium } = require('playwright'); (async () => { const browser = await chromium.launch(); const page = await browser.newPage(); await page.setContent('<p>브라우저 확인</p>'); await page.textContent('p'); await browser.close(); })().catch((error) => { console.error(error.message); process.exit(1); });"; then
+              echo "::warning::apt could not install Chromium OS packages; Chromium launches without them, so the shard continues (optional fonts may be missing)"
+            else
+              echo "::error::apt could not install Chromium OS packages and Chromium does not launch without them"
+              exit 1
+            fi
+          fi
       - name: Run all gates in shard
         env:
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
