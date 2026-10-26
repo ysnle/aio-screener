@@ -1,5 +1,5 @@
 import { applyFreshness } from '../quality/freshness.js';
-import { normalizeSentiment, sentimentFieldDefinitions } from '../normalize/sentiment.js';
+import { normalizeSentiment, sentimentFieldDefinitions, sentimentMaxAgeMs } from '../normalize/sentiment.js';
 
 export function createSentimentOrchestrator({ provider, evidenceStore, store, commands, snapshotEvidence, clock } = {}) {
   if (!provider?.readCurrent || !evidenceStore?.ingest || (!store?.dispatch && !commands?.setData)) throw new Error('SENTIMENT_ORCHESTRATOR_DEPENDENCY_INVALID');
@@ -42,7 +42,8 @@ export function createSentimentOrchestrator({ provider, evidenceStore, store, co
         allowedUse: value == null ? 'none' : declaredAllowedUse || (referenceOnly ? 'reference' : undefined),
         allowedUseCeiling
       };
-      const evidence = applyFreshness(input, { now: clock?.now?.() || Date.now(), maxAgeMs: field.maxAgeMs || 86_400_000 });
+      const nowMs = clock?.now?.() || Date.now();
+      const evidence = applyFreshness(input, { now: nowMs, maxAgeMs: sentimentMaxAgeMs(field, input.observedAt, nowMs) });
       evidenceStore.ingest(evidence);
     }
     const observationTimes = sentimentFieldDefinitions().map((field) => Date.parse(raw[field.observedAt] || '')).filter(Number.isFinite);

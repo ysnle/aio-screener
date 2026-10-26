@@ -189,6 +189,10 @@ export function backtestFactors(stockData, opts) {
   // date instead of only the mean. Every array below has one entry per date in spreadDates (same order).
   var spreadDates = [], spreadByDate = [], spreadNetByDate = [], topMeanByDate = [], bottomMeanByDate = [], costByDate = [];
   var icCompositeDates = [];
+  // v58.83 (be-ambitious): opt-in per-factor top-minus-bottom quintile spreads with each window's
+  // exact rebalance/forward dates, so a research run can compare one factor's long-short return
+  // with an external factor series over the same days. Off by default; production output is unchanged.
+  var factorSpreadByDate = opts.factorSpreads === true ? { momentum: [], trend: [], lowvol: [], kalman: [] } : null;
   var turnoverValues = [], liquidityCoverageValues = [], liquidityObservedRows = 0, liquidityEligibleRows = 0;
   var previousPositions = null;
   var adjustedCloseEligible = dateReadyRecords.filter(function(record){ return _hasCompleteAdjustedSeries(record.stock, record.dates.length); }).length;
@@ -255,6 +259,13 @@ export function backtestFactors(stockData, opts) {
       if (ps.length < 10) return;
       var ic = _spearman(ps.map(function(r){ return r[pair[0]]; }), ps.map(function(r){ return r.fwd; }));
       if (isNum(ic)) { icS[pair[1]] += ic; icN[pair[1]]++; icByDate[pair[1]].push(ic); }
+      if (factorSpreadByDate) {
+        var byFactor = ps.slice().sort(function(a, b){ return a[pair[0]] - b[pair[0]]; });
+        var fq = Math.max(1, Math.floor(byFactor.length / 5));
+        var fTop = _mean(byFactor.slice(-fq).map(function(r){ return r.fwd; }));
+        var fBot = _mean(byFactor.slice(0, fq).map(function(r){ return r.fwd; }));
+        if (isNum(fTop) && isNum(fBot)) factorSpreadByDate[pair[1]].push({ rebalanceDate: rebalanceDate, forwardDate: ps[0].forwardDate, spread: fTop - fBot, n: byFactor.length });
+      }
     });
     // P1443/I P1449: the composite is the live model itself — computeFactorRanks with the
     // same raw definitions (trend 60/40 of the 50/200-day distances), sector-relative z-scores,
@@ -407,6 +418,7 @@ export function backtestFactors(stockData, opts) {
     bottomQuintileMeanByDate: bottomMeanByDate,
     transactionCostByDate: costByDate,
     icCompositeDates: icCompositeDates,
+    ...(factorSpreadByDate ? { factorSpreadByDate: factorSpreadByDate } : {}),
     transactionCostPct: spreadN ? round(costSum / spreadN * 100, 3) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
     netHitRate: hitN ? round(netHit / hitN * 100, 1) : null,

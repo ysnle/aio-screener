@@ -10,10 +10,12 @@ export const MARKET_TIME_VERSION = 'market-time-evidence.v1';
 // https://ir.theice.com/press/news-details/2025/NYSE-Group-Announces-2026-2027-and-2028-Holiday-and-Early-Closings-Calendar/
 // KRX source (official holiday query; verified 2026 and 2027 weekday closures):
 // https://open.krx.co.kr/contents/MKD/01/0110/01100305/MKD01100305.jsp
-const createRegularCalendar = (year, holidays, halfDays = {}) => Object.freeze({
+// v58.82: specialSessions moves a whole day's hours ({ open, close }); halfDays only moves the close.
+const createRegularCalendar = (year, holidays, halfDays = {}, specialSessions = {}) => Object.freeze({
   year,
   holidays: Object.freeze(holidays),
-  halfDays: Object.freeze(halfDays)
+  halfDays: Object.freeze(halfDays),
+  specialSessions: Object.freeze(specialSessions)
 });
 
 export const US_REGULAR_CALENDAR_2026 = createRegularCalendar(2026,
@@ -26,12 +28,17 @@ export const US_REGULAR_CALENDAR_2027 = createRegularCalendar(2027,
   { '2027-11-26': '13:00' }
 );
 
+// v58.82: KRX moves the whole session one hour later on the college entrance exam day (2027학년도 수능 2026-11-19,
+// 한국교육과정평가원 시행 공고; the same 10:00-16:30 KRX schedule as 2025-11-13) and opens at 10:00 on the year's first
+// trading day (개장식). Recheck against the KRX notice each year; an unlisted year keeps 09:00-15:30.
 export const KRX_REGULAR_CALENDAR_2026 = createRegularCalendar(2026,
-  ['2026-01-01', '2026-02-16', '2026-02-17', '2026-02-18', '2026-03-02', '2026-05-01', '2026-05-05', '2026-05-25', '2026-06-03', '2026-07-17', '2026-08-17', '2026-09-24', '2026-09-25', '2026-10-05', '2026-10-09', '2026-12-25', '2026-12-31']
+  ['2026-01-01', '2026-02-16', '2026-02-17', '2026-02-18', '2026-03-02', '2026-05-01', '2026-05-05', '2026-05-25', '2026-06-03', '2026-07-17', '2026-08-17', '2026-09-24', '2026-09-25', '2026-10-05', '2026-10-09', '2026-12-25', '2026-12-31'],
+  {}, { '2026-11-19': { open: '10:00', close: '16:30' } }
 );
 
 export const KRX_REGULAR_CALENDAR_2027 = createRegularCalendar(2027,
-  ['2027-01-01', '2027-02-08', '2027-02-09', '2027-03-01', '2027-05-03', '2027-05-05', '2027-05-13', '2027-07-19', '2027-08-16', '2027-09-14', '2027-09-15', '2027-09-16', '2027-10-04', '2027-10-11', '2027-12-27', '2027-12-31']
+  ['2027-01-01', '2027-02-08', '2027-02-09', '2027-03-01', '2027-05-03', '2027-05-05', '2027-05-13', '2027-07-19', '2027-08-16', '2027-09-14', '2027-09-15', '2027-09-16', '2027-10-04', '2027-10-11', '2027-12-27', '2027-12-31'],
+  {}, { '2027-01-04': { open: '10:00', close: '15:30' } }
 );
 
 // P1735: the one holiday table. The briefing schedule (src/domain/briefing/schedule.js) derives its holiday rows from
@@ -211,8 +218,9 @@ export function resolveMarketCalendarSession({ market = 'US', date, calendar = n
   const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
   if (weekday === 0 || weekday === 6) return { schemaVersion: MARKET_TIME_VERSION, market: adapter.market, date: day, status: 'closed', reason: 'weekend', timezone: adapter.timezone, dstAware: adapter.dstAware };
   if (schedule.holidays.includes(day)) return { schemaVersion: MARKET_TIME_VERSION, market: adapter.market, date: day, status: 'closed', reason: 'holiday', timezone: adapter.timezone, dstAware: adapter.dstAware };
-  const close = schedule.halfDays[day] || adapter.regularClose;
-  return { schemaVersion: MARKET_TIME_VERSION, market: adapter.market, date: day, status: 'open', session: 'regular', open: adapter.regularOpen, close, halfDay: close !== adapter.regularClose, timezone: adapter.timezone, dstAware: adapter.dstAware };
+  const special = schedule.specialSessions?.[day] || null;
+  const close = special?.close || schedule.halfDays[day] || adapter.regularClose;
+  return { schemaVersion: MARKET_TIME_VERSION, market: adapter.market, date: day, status: 'open', session: 'regular', open: special?.open || adapter.regularOpen, close, halfDay: close < adapter.regularClose, ...(special ? { specialSession: true } : {}), timezone: adapter.timezone, dstAware: adapter.dstAware };
 }
 
 export function currentCalendarContext(market, now) {

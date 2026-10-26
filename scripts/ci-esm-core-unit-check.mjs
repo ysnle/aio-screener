@@ -2890,10 +2890,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail('P1187 the update path must preserve non-form fields instead of replacing the position object');
   }
   // P1316: the import path now restores a full backup bundle; the positions write is `c.positions`.
-  if (!/await savePortfolioData\((?:data|c\.positions)\)/.test(workspaceSource) || !/가져오기가 확정되지 않았습니다/.test(workspaceSource)) {
+  if (!/await savePortfolioData\((?:data|c\.positions)(?:, \{ replace: true \})?\)/.test(workspaceSource) || !/가져오기가 확정되지 않았습니다/.test(workspaceSource)) {
     fail('P1187/11 P11-01 the import path must gate completion on the durable acknowledgement');
   }
-  if (!/await savePortfolioData\(\[\]\)/.test(workspaceSource) || !/전체 삭제가 확정되지 않았습니다/.test(workspaceSource)) {
+  if (!/await savePortfolioData\(\[\](?:, \{ replace: true \})?\)/.test(workspaceSource) || !/전체 삭제가 확정되지 않았습니다/.test(workspaceSource)) {
     fail('P1187/11 P11-01 clear-all must gate confirmation on the durable acknowledgement');
   }
 }
@@ -6140,4 +6140,135 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const record = todayVerdictFrom({ available: true, overall: '다소 부담', asOf: '2026-10-23', heroLine: '한 줄', holdReason: null, counts: { burden: 3 }, axes: [1] }, '2026-10-26T00:00:00Z');
   if (record?.overall !== '다소 부담' || record.asOf !== '2026-10-23' || 'axes' in record || record.schemaVersion !== 'today-verdict.v1') fail(`v58.80 F01 verdict record fields: ${JSON.stringify(record)}`);
 
+}
+
+// v58.82 (multi-user edge-case audit): bad imports, holiday/weekend clocks, producer partial failures and input forms.
+{
+  const { parsePortfolioBackup } = await load('src/data/portfolio-backup.js');
+  const imported = parsePortfolioBackup(JSON.stringify([{ ticker: 'aapl', qty: 1, cost: 150, costCurrency: '<img src=x onerror=alert(1)>' }, { ticker: 'msft', qty: -5, cost: 10 }, { ticker: 'nvda', qty: 2, cost: -1 }, { ticker: 'tsla', qty: '', cost: 1 }, { ticker: '005930.KS', qty: 3, cost: 70000, costCurrency: 'krw' }]), {});
+  const rows = imported.contents?.positions || [];
+  if (rows.map((p) => p.ticker).join() !== 'AAPL,005930.KS' || 'costCurrency' in rows[0] || rows[1].costCurrency !== 'KRW') fail(`v58.82 backup import keeps only qty>0, cost>=0 and a 3-letter currency: ${JSON.stringify(rows)}`);
+
+  const { mergeWithPrevious } = await import(new URL('./fetch-dart-fundamentals.mjs', import.meta.url));
+  const previous = { generatedAt: '2026-10-19T00:00:00Z', count: 4, companies: { 'A.KS': { fiscalYear: 2025 }, 'B.KS': { fiscalYear: 2025 }, 'C.KS': { fiscalYear: 2025 }, 'D.KS': { fiscalYear: 2025 } } };
+  const quota = mergeWithPrevious({ 'A.KS': { fiscalYear: 2025 } }, [{ sym: 'B.KS', reason: 'DART status 020' }, { sym: 'C.KS', reason: 'stopped: DART status 020' }, { sym: 'D.KS', reason: 'no-annual-report' }], previous);
+  const empty = mergeWithPrevious({}, [{ sym: 'A.KS', reason: 'no-annual-report' }, { sym: 'B.KS', reason: 'no-annual-report' }, { sym: 'C.KS', reason: 'no-annual-report' }], previous);
+  const allCarried = mergeWithPrevious({}, [{ sym: 'A.KS', reason: 'DART status 020' }, { sym: 'B.KS', reason: 'HTTP 500' }], previous);
+  if (allCarried.publish) fail('v58.82 a DART run that read nothing new keeps the previous file (its generatedAt)');
+  if (quota.count !== 3 || quota.companies['B.KS'].carriedFrom !== previous.generatedAt || 'D.KS' in quota.companies || !quota.publish || empty.publish) fail(`v58.82 DART carries transient failures forward and never publishes a collapsed artifact: ${JSON.stringify({ quota, empty })}`);
+
+  const { sentimentFieldDefinitions, sentimentMaxAgeMs } = await load('src/data/normalize/sentiment.js');
+  const { classifyFreshness } = await load('src/data/quality/freshness.js');
+  const fields = Object.fromEntries(sentimentFieldDefinitions().map((f) => [f.metric, f]));
+  const fresh = (metric, observedAt, nowIso) => { const now = Date.parse(nowIso); return classifyFreshness({ observedAt, now, maxAgeMs: sentimentMaxAgeMs(fields[metric], observedAt, now) }); };
+  if (fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-25T22:00:00Z') !== 'fresh' || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-26T18:00:00Z') !== 'fresh'
+    || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-27T01:00:00Z') !== 'stale' || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-27T14:00:00Z') !== 'stale'
+    || fresh('hySpread', '2026-10-22', '2026-10-26T12:00:00Z') !== 'fresh' || fresh('hySpread', '2026-10-21', '2026-10-27T14:00:00Z') !== 'stale'
+    || fresh('vix', '2026-10-23T20:00:00Z', '2026-10-25T22:00:00Z') !== 'stale') fail('v58.82 daily sentiment staleness follows NYSE sessions, not a flat 48h');
+
+  const { normalizeTickerInput } = await load('src/domain/entity/ticker-symbol.js');
+  const { resolveHoldingInput } = await load('src/domain/ticker/resolve-name.js');
+  if (normalizeTickerInput('ＡＡＰＬ') !== 'AAPL' || normalizeTickerInput('００５９３０') !== '005930.KS' || resolveHoldingInput('ｎｖｄａ').symbol !== 'NVDA') fail('v58.82 full-width tickers fold to ASCII');
+
+  const { marketStructureEvents } = await load('src/domain/briefing/schedule.js');
+  const opex = (iso) => marketStructureEvents({ nowMs: Date.parse(iso), days: 7 }).filter((row) => row.id.startsWith('us-expiry-')).map((row) => row.id).join();
+  if (opex('2027-06-14T00:00:00Z') !== 'us-expiry-2027-06-17' || opex('2026-11-16T00:00:00Z') !== 'us-expiry-2026-11-20') fail('v58.82 US monthly expiry moves off an NYSE holiday third Friday');
+
+  const { deriveMarketSession } = await import(new URL('./build-market-snapshot.mjs', import.meta.url));
+  const seollal = Date.parse('2027-02-09T01:00:00Z');
+  if (deriveMarketSession({ instrumentId: '^KS11', observedAt: '2027-02-05T06:30:00Z', providerSession: 'REGULAR', now: seollal }) !== 'MARKET_CLOSED'
+    || deriveMarketSession({ instrumentId: '^KS11', observedAt: '2027-02-04T06:30:00Z', providerSession: 'REGULAR', now: seollal }) !== 'STALE_UNEXPECTED') fail('v58.82 a weekday KRX holiday is a closed venue for the KR index');
+
+  const { describeOtherFx } = await load('src/ui/components/macro-board.js');
+  const fx = describeOtherFx({ 'EURUSD=X': { price: 1.08, observedAt: '2026-10-26T15:30:00Z' } });
+  if (!/10\/27 00:30 관측/.test(fx.text)) fail(`v58.82 FX observation label is KST regardless of the browser zone: ${fx.text}`);
+  // v58.82 (owner 2026-10-26): family code — stored only after it passes the Worker's own shape, and a missing code is the
+  // visitor's step (FAMILY_CODE_REQUIRED), not the operator-facing AUTH_FAILED.
+  const { readFamilyCode } = await load('src/domain/connections/family-code.js');
+  const { saveFamilyCode } = await load('src/ui/components/family-code-form.js');
+  const { describeSharedConnection } = await load('src/domain/connections/shared.js');
+  const memory = new Map(), store = { getItem: (k) => memory.get(k) ?? null, setItem: (k, v) => memory.set(k, String(v)) };
+  const shortCode = saveFamilyCode(store, '1234'), spaced = saveFamilyCode(store, 'abc def ghi jkl'), good = saveFamilyCode(store, ' ｆａｍｉｌｙ-code-0001 ');
+  if (shortCode.ok || spaced.ok || !good.ok || readFamilyCode(store) !== 'family-code-0001') fail(`v58.82 family code saves only a 12+ character code without spaces, NFKC-normalized: ${JSON.stringify({ shortCode, spaced, good, stored: readFamilyCode(store) })}`);
+  const ai = { ready: true, provider: 'openai', model: 'gpt-6-luna' };
+  const needCode = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: false } });
+  const withCode = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: true } });
+  if (needCode.reason !== 'FAMILY_CODE_REQUIRED' || needCode.ok || !withCode.ok) fail(`v58.82 a required family code is the visitor's step: ${JSON.stringify({ needCode, withCode })}`);
+  // v58.82 (roadmap 12): the feedback note sends only the text, a route id and the version, with the family code header.
+  const { feedbackRoute } = await load('src/ui/components/feedback-form.js');
+  const { sendFeedback } = await load('src/data/feedback.js');
+  let sent;
+  const result = await sendFeedback({ fetchImpl: async (url, init) => { sent = { url, init }; return { status: 201 }; }, workerUrl: 'https://w.example', appToken: 't', code: 'family-code-0001', text: '차트가 비어요', route: feedbackRoute('#ticker/AAPL?x=1'), version: 'v58.82' });
+  const sentBody = JSON.parse(sent.init.body);
+  if (result !== 'sent' || sent.url !== 'https://w.example/feedback' || sent.init.headers['X-AIO-Family-Code'] !== 'family-code-0001' || Object.keys(sentBody).join() !== 'text,route,version' || sentBody.route !== 'ticker/AAPL'
+    || feedbackRoute('') !== 'home' || feedbackRoute('#<script>') !== 'unknown' || feedbackRoute('#macro/<x>') !== 'macro') fail(`v58.82 feedback note shape: ${JSON.stringify({ result, sentBody })}`);
+  const outcomes = await Promise.all([403, 429, 500].map((status) => sendFeedback({ fetchImpl: async () => ({ status }), workerUrl: 'w', code: 'c', text: 't' })));
+  if (outcomes.join() !== 'code,limit,failed' || await sendFeedback({ fetchImpl: async () => { throw new Error('offline'); }, workerUrl: 'w', code: 'c', text: 't' }) !== 'failed') fail(`v58.82 feedback outcomes: ${outcomes}`);
+}
+
+// v58.81 (owner 2026-10-26): the market clock and Korea↔US link check — Monday 22:13 KST is the US pre-market with the
+// open 17 minutes away; a KOSDAQ fall far larger than every outside cue is named Korea-led; old futures are flagged.
+{
+  const { buildSessionBridge, marketClock } = await load('src/domain/market/session-bridge.js');
+  const q = (instrumentId, value, changePct, observedAt) => ({ instrumentId, value, changePct, observedAt });
+  const snapshot = { generatedAt: '2026-10-26T09:21:00Z', quotes: [q('^KS11', 5469, -1.46, '2026-10-26T06:32:50Z'), q('^KQ11', 727, -3.26, '2026-10-26T06:33:00Z'), q('^IXIC', 25955, -0.21, '2026-10-23T21:15:59Z'), q('KRW=X', 1323.8, 0.01, '2026-10-26T09:20:59Z'), q('CL=F', 100.7, -2.45, '2026-10-26T09:11:08Z')],
+    evidenceQuotes: [q('ES=F', 7683, 0.31, '2026-10-26T09:11:06Z'), q('NQ=F', 29187, 0.24, '2026-10-26T09:11:08Z'), q('^N225', 62189, -0.8, '2026-10-26T06:45:03Z'), q('^HSI', 23211, 0.51, '2026-10-26T08:08:28Z')] };
+  const pre = buildSessionBridge({ nowMs: Date.parse('2026-10-26T13:13:00Z'), snapshot });
+  const local = pre.links.find((link) => link.id === 'local'), fx = pre.links.find((link) => link.id === 'fx'), us = pre.links.find((link) => link.id === 'us');
+  if (pre.clock.us.phase !== 'pre' || pre.clock.us.opensIn !== 17 || !/22:30 KST/.test(pre.clockLine) || pre.clock.kr.phase !== 'closed-today'
+    || local?.verdict !== 'supports' || fx?.verdict !== 'against' || us?.verdict !== 'against' || !pre.futuresStale || !/한국 하락이 미국으로 번지는 신호는 아직 없습니다/.test(pre.next) || !/유가/.test(pre.oil || ''))
+    fail(`v58.81 session bridge Monday pre-market: ${JSON.stringify({ clock: pre.clock, links: pre.links.map((l) => [l.id, l.verdict]), stale: pre.futuresStale, next: pre.next })}`);
+  // EST after 11/1: the open moves to 23:30 KST; Saturday is a weekend for both; the US regular session gives no "next" line.
+  if (!/23:30 KST/.test(marketClock(Date.parse('2026-11-03T13:00:00Z')) && buildSessionBridge({ nowMs: Date.parse('2026-11-03T13:00:00Z'), snapshot }).clockLine)
+    || marketClock(Date.parse('2026-10-24T05:00:00Z')).us.phase !== 'closed' || marketClock(Date.parse('2026-10-24T05:00:00Z')).kr.phase !== 'closed'
+    || buildSessionBridge({ nowMs: Date.parse('2026-10-26T15:00:00Z'), snapshot }).next !== null) fail('v58.81 session clock DST/weekend/regular-session cases');
+  if (buildSessionBridge({ nowMs: Date.parse('2026-10-26T13:13:00Z'), snapshot: null }).available) fail('v58.81 no snapshot, no bridge');
+  // Review fixes: a US session after the Korean close is not its cause; no "tonight" line on Saturday or after the US
+  // close; Friday night futures are not "trading" or stale.
+  const tue = { ...snapshot, quotes: snapshot.quotes.map((row) => row.instrumentId === '^IXIC' ? { ...row, changePct: -2, observedAt: '2026-10-26T20:15:00Z' } : row) };
+  const morning = buildSessionBridge({ nowMs: Date.parse('2026-10-26T21:00:00Z'), snapshot: tue });
+  const sat = buildSessionBridge({ nowMs: Date.parse('2026-10-24T05:00:00Z'), snapshot });
+  const friNight = marketClock(Date.parse('2026-10-24T01:30:00Z'));
+  const nextDayFx = buildSessionBridge({ nowMs: Date.parse('2026-10-26T23:30:00Z'), snapshot: { ...snapshot, quotes: snapshot.quotes.map((row) => row.instrumentId === 'KRW=X' ? { ...row, changePct: 1, observedAt: '2026-10-26T23:20:00Z' } : row) } });
+  if (nextDayFx.links.some((link) => link.id === 'fx')) fail('v58.81 a next-day FX reading is not a cause of the previous Korean session');
+  if (morning.links.some((link) => link.id === 'us') || morning.next !== null || sat.next !== null || sat.futuresStale || !/주말 휴장/.test(friNight.us.label))
+    fail(`v58.81 bridge review cases: ${JSON.stringify({ links: morning.links.map((l) => l.id), next: [morning.next, sat.next], stale: sat.futuresStale, fri: friNight.us.label })}`);
+}
+
+// v58.81 (owner 2026-10-26): the probabilistic lean — a frequency votes only beyond its sampling noise on 30+ cases, the
+// condition count votes at a two-axis gap, opposite votes read 엇갈림, and the base rate is always stated.
+{
+  const { buildMarketLean, frequencyEvidence } = await load('src/domain/market/market-lean.js');
+  const stress = { all: { 21: { hitRate: 64 } }, bands: [{ id: 'normal', horizons: { 21: { hitRate: 63.4, nEff: 136 } } }, { id: 'stress', horizons: { 21: { hitRate: 80, nEff: 60 } } }] };
+  const regime = (favorable, burden) => ({ available: true, counts: { favorable, neutral: 6 - favorable - burden, burden } });
+  const today = buildMarketLean({ regime: regime(0, 3), stress, vix: 19.2 });
+  // Codex review: the VIX band rate pools overlapping windows, so it never votes; a retained or older temperature body
+  // is held out; the won counts only on the Korean session's KST date.
+  const temp = (state, asOf) => ({ retained: [], markets: { spx: { state, asOf, outcomes: { [state]: { h21: { n: 60, hitRate: 85 } }, all: { h21: { hitRate: 64 } } } } } });
+  const mixed = buildMarketLean({ regime: { ...regime(0, 3), asOf: '2026-10-23' }, stress, vix: 33, temperature: temp('cold', '2026-10-23') });
+  const up = buildMarketLean({ regime: { ...regime(3, 0), asOf: '2026-10-23' }, stress, vix: 33, temperature: temp('cold', '2026-10-23') });
+  const vixOnly = buildMarketLean({ regime: regime(1, 1), stress, vix: 33 });
+  const held = buildMarketLean({ regime: { ...regime(1, 1), asOf: '2026-10-23' }, temperature: { ...temp('cold', '2026-10-23'), retained: ['spx'] } });
+  const older = buildMarketLean({ regime: { ...regime(1, 1), asOf: '2026-10-23' }, temperature: temp('cold', '2026-10-16') });
+  if (vixOnly.us.label !== '뚜렷한 우위 없음' || held.us.items.some((i) => i.id === 'temp-spx') || older.us.items.some((i) => i.id === 'temp-spx'))
+    fail(`v58.81 lean holds overlapping/retained evidence: ${JSON.stringify({ vixOnly: vixOnly.us.label, held: held.us.items.map((i) => i.id), older: older.us.items.map((i) => i.id) })}`);
+  const none = buildMarketLean({ regime: regime(1, 2), stress, vix: 19.2 });
+  const small = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 20 });
+  const tiny = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 9.9 });
+  if (today.us.label !== '약한 매도 우위 (조건 기준)' || !today.us.countOnly || buildMarketLean({ regime: regime(0, 3) }).us.read.includes('구분되지 않아') || !/64%/.test(today.us.read) || /가능성/.test(today.us.read) || today.us.items.find((i) => i.id === 'vix-band')?.vote !== 0
+    || mixed.us.label !== '엇갈림' || up.us.label !== '매수 우위' || none.us.label !== '뚜렷한 우위 없음'
+    || small.vote !== 0 || !small.small || tiny.rate !== undefined || !/비율을 내지 않습니다/.test(tiny.text))
+    fail(`v58.81 market lean: ${JSON.stringify({ today: today.us.label, mixed: mixed.us.label, up: up.us.label, none: none.us.label, small, tiny })}`);
+}
+
+// v58.84: the portfolio backup reminder appears only when there is something to lose and no backup in 30 days.
+{
+  const { backupReminder, BACKUP_REMINDER_DAYS } = await load('src/data/portfolio-backup.js');
+  const now = Date.parse('2026-11-02T00:00:00Z');
+  if (backupReminder({ holdingCount: 0, now }) !== null) fail('v58.84 an empty portfolio shows no backup reminder');
+  if (backupReminder({ holdingCount: 3, now })?.days !== null) fail('v58.84 holdings never backed up show the first-backup reminder');
+  if (backupReminder({ holdingCount: 3, lastBackupAt: 'not a date', now })?.days !== null) fail('v58.84 an unreadable backup time counts as never');
+  if (backupReminder({ holdingCount: 3, lastBackupAt: '2026-10-20T00:00:00Z', now }) !== null) fail('v58.84 a backup within 30 days stays quiet');
+  const due = backupReminder({ holdingCount: 3, lastBackupAt: '2026-10-01T00:00:00Z', now });
+  if (BACKUP_REMINDER_DAYS !== 30 || due?.days !== 32 || !due.text.includes('32일')) fail(`v58.84 a 32-day-old backup reminds with its age: ${JSON.stringify(due)}`);
 }

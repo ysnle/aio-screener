@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Knowledge corpus contract (v58.84 gate consolidation): the generated knowledge artifacts, their renderers and
-// learning state. Each section below was a separate gate until v58.84; none was cited by a postmortem as the catch
+// Knowledge corpus contract (v58.86 gate consolidation): the generated knowledge artifacts, their renderers and
+// learning state. Each section below was a separate gate until v58.86; none was cited by a postmortem as the catch
 // for a regression, and all read the same static knowledge corpus, so one gate runs them in order.
 import { runSections } from './lib/gate-sections.mjs';
 

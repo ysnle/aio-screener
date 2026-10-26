@@ -22,8 +22,9 @@
 //       다년치 소스 부재로 제외(선先 기존 사실, 이 스크립트가 새로 만든 제약 아님).
 //
 // 실행: node scripts/backtest-factors-longrun.mjs [--range=10y] [--top=120] [--out=path]
-//       (네트워크 호출 있음 — Yahoo 공개 chart API, concurrency=4로 제한. cron 미배선 — 연구용
-//       수동 스크립트.)
+//       (네트워크 호출 있음 — Yahoo 공개 chart API, concurrency=4로 제한 + Ken French 일별 모멘텀
+//       팩터 1회. cron 미배선 — 프로듀서이므로 로컬이 아니라 .github/workflows/research-backtest.yml
+//       수동 실행(workflow_dispatch)으로 돌리고 결과는 워크플로 아티팩트로 받는다, v58.83.)
 // ─────────────────────────────────────────────────────────────────────────
 
 import { writeFile, readFile } from 'node:fs/promises';
@@ -31,6 +32,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { backtestFactors } from './fetch-data.mjs';
 import { classifyRegime, spearmanWithCI } from './backtest-trading-score-longrun.mjs';
+import { hacLagFor, neweyWestMeanStats, extractFirstZipEntry, parseFrenchDailyFactorCsv, compareWithExternalFactor, EXTERNAL_MOMENTUM_CRITERION } from './lib/research-validation.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
@@ -47,6 +49,22 @@ const CONCURRENCY = 4; // scripts/fetch-data.mjs backfillHistory()와 동일한 
 
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 const _yhSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2'); // BRK.B → BRK-B (fetch-data.mjs와 동일 규칙)
+const REBALANCE_STEP_DAYS = 21;
+// v58.83: external benchmark — Kenneth French Data Library daily momentum factor (primary source, free).
+const FRENCH_MOMENTUM_DAILY_URL = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip';
+
+async function fetchFrenchMomentumDaily() {
+  try {
+    const res = await fetch(FRENCH_MOMENTUM_DAILY_URL, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!res.ok) return { error: 'http-' + res.status };
+    const series = parseFrenchDailyFactorCsv(extractFirstZipEntry(Buffer.from(await res.arrayBuffer())));
+    // A table this short means the file layout changed; fail closed instead of comparing a fragment.
+    if (series.dates.length < 1000) return { error: 'unexpected-layout-' + series.dates.length + '-rows' };
+    return { series };
+  } catch (e) {
+    return { error: String(e && e.message || e).slice(0, 120) };
+  }
+}
 
 async function mapLimit(items, limit, fn) {
   const out = new Array(items.length);
@@ -93,12 +111,28 @@ async function fetchDailyBars(symbol, range) {
   return null;
 }
 
-async function loadTopUniverse(topN) {
-  const raw = await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8');
-  const j = JSON.parse(raw);
-  const rows = (j.universe || []).filter(r => r && r.sym && typeof r.mcap === 'number');
+// v58.83: screener-universe.json no longer carries a numeric mcap (identity rows only), so the old
+// filter selected 0 tickers. Market cap is now today's valuationPrice × valuationSharesOutstanding from
+// screener.json, US listings only (KR rows are KRW and are not ranked against USD). Selecting by
+// today's cap is part of the survivorship bias already disclosed in survivorshipBiasCaveat.
+export function selectTopByMarketCap(universeRows, screenerData, topN) {
+  const isNum = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0;
+  const rows = (universeRows || [])
+    .filter((r) => r && r.sym && !/\.(KS|KQ)$/i.test(r.sym))
+    .map((r) => {
+      const d = screenerData && screenerData[r.sym];
+      const mcap = d && isNum(d.valuationPrice) && isNum(d.valuationSharesOutstanding) ? d.valuationPrice * d.valuationSharesOutstanding : null;
+      return mcap == null ? null : { ...r, mcap };
+    })
+    .filter(Boolean);
   rows.sort((a, b) => b.mcap - a.mcap);
   return rows.slice(0, topN);
+}
+
+async function loadTopUniverse(topN) {
+  const universe = JSON.parse(await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8'));
+  const screener = JSON.parse(await readFile(`${__dir}/../public-data/screener.json`, 'utf8'));
+  return selectTopByMarketCap(universe.universe, screener.data, topN);
 }
 
 export async function runFactorLongrunBacktest(range, topN, outPath) {
@@ -133,15 +167,31 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
   // backtestFactors 자체의 길이 가드(c.length < off+1이면 skip)가 개별적으로 처리한다.
   const maxLen = Math.max(...stockData.map(s => s.closes.length));
   const offsetsAsc = [];
-  for (let off = 63; off < maxLen - 1; off += 21) offsetsAsc.push(off);
+  for (let off = 63; off < maxLen - 1; off += REBALANCE_STEP_DAYS) offsetsAsc.push(off);
   const offsetsDesc = [...offsetsAsc].sort((a, b) => b - a); // 큰 off(더 과거) 먼저 = 시간순 오름차순
 
   const FWD_HORIZONS = [1, 5, 21, 63];
   const overall = {};
+  let momentumWindows = [];
   for (const fwd of FWD_HORIZONS) {
-    const r = backtestFactors(stockData, { offsets: offsetsAsc, fwdDays: fwd });
-    overall[`fwd${fwd}d`] = { dates: r.dates, n: r.n, ic: r.ic, icIR: computeICIR(r.icByDate), quantileSpread: r.quantileSpread, hitRate: r.hitRate };
+    const r = backtestFactors(stockData, { offsets: offsetsAsc, fwdDays: fwd, factorSpreads: fwd === 21 });
+    if (fwd === 21) momentumWindows = r.factorSpreadByDate ? r.factorSpreadByDate.momentum : [];
+    overall[`fwd${fwd}d`] = { dates: r.dates, n: r.n, ic: r.ic, icIR: computeICIR(r.icByDate, fwd), quantileSpread: r.quantileSpread, quantileSpreadNet: r.quantileSpreadNet, turnover: r.turnover, hitRate: r.hitRate };
   }
+
+  // 21-day windows sampled every 21 days do not overlap, so each momentum long-short window is one
+  // independent comparison against the published factor compounded over the same trading days.
+  const french = await fetchFrenchMomentumDaily();
+  const externalBenchmark = {
+    source: 'Kenneth R. French Data Library — Momentum Factor (Mom), daily',
+    sourceUrl: FRENCH_MOMENTUM_DAILY_URL,
+    ours: 'top-minus-bottom quintile forward 21-day return of this backtest\'s momentum factor (1M 40% / 3M 40% / 6M 20%), per rebalance',
+    sourceCoverage: french.series ? { from: french.series.dates[0], to: french.series.dates[french.series.dates.length - 1] } : null,
+    ...(french.series
+      ? compareWithExternalFactor(momentumWindows, french.series)
+      : { status: 'UNAVAILABLE', reason: french.error, windows: 0, criterion: { ...EXTERNAL_MOMENTUM_CRITERION } }),
+    meaning: 'Implementation check against an independent published factor, judged by a criterion fixed before the first run. Not predictive validation; never promotes the screener model.',
+  };
 
   // walk-forward: 시간순 70/30 분할(reference/holdout) — offset이 클수록 과거이므로
   // 오름차순(과거→최근)으로 정렬한 뒤 앞 70%=reference(과거), 뒤 30%=holdout(최근).
@@ -151,8 +201,8 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
   const refResult = backtestFactors(stockData, { offsets: referenceOffsets, fwdDays: 21 });
   const holdResult = backtestFactors(stockData, { offsets: holdoutOffsets, fwdDays: 21 });
   const walkForward = {
-    referencePeriod: { n: refResult.dates, ic: refResult.ic, icIR: computeICIR(refResult.icByDate) },
-    holdoutPeriod: { n: holdResult.dates, ic: holdResult.ic, icIR: computeICIR(holdResult.icByDate) },
+    referencePeriod: { n: refResult.dates, ic: refResult.ic, icIR: computeICIR(refResult.icByDate, 21) },
+    holdoutPeriod: { n: holdResult.dates, ic: holdResult.ic, icIR: computeICIR(holdResult.icByDate, 21) },
   };
 
   // regime별 분해: 각 offset(리밸런스 시점)을 시장 시리즈에서 근사 매칭해 regime 라벨 부여 후 그룹핑.
@@ -170,7 +220,8 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
     .filter(([, offs]) => offs.length >= 5)
     .map(([label, offs]) => {
       const r = backtestFactors(stockData, { offsets: offs, fwdDays: 21 });
-      return { label, n: r.dates, ic: r.ic, icIR: computeICIR(r.icByDate) };
+      // Regime groups are non-contiguous dates, so the HAC lag here is only an approximation.
+      return { label, n: r.dates, ic: r.ic, icIR: computeICIR(r.icByDate, 21) };
     })
     .sort((a, b) => b.n - a.n);
 
@@ -184,7 +235,7 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       survivorshipBiasCaveat: 'Uses TODAY\'s top-mcap universe applied retroactively over the full lookback window — any ticker that would have been delisted/acquired/failed during this period is entirely absent from the sample. This systematically tends to overstate momentum/quality-style factor performance in the finance literature. Not resolvable without paid point-in-time index-constituent history; NOT claimed as resolved or "passed" here.',
       subsetNotFullUniverse: `Uses top ${topN} by market cap, not the full ${universe.length}-ticker universe, to bound Yahoo Finance request volume (this repo's own fetch-data.mjs/ci.yml comments document a prior Yahoo IP-blocking incident from excess request volume).`,
       icIRNote: 'ICIR = mean(IC across rebalance dates) / stddev(IC across rebalance dates), with a t-stat and approximate 95% CI via the standard IC-IR normal approximation (t = ICIR * sqrt(dates), CI = mean ± 1.96*stddev/sqrt(dates)) — this is what Codex\'s WO-3 gate means by "IC/ICIR/t-stat", distinct from the pooled-cross-section Fisher-z CI used in the WO-2 score backtest.',
-      icInferenceCaveat: 'Forward windows (up to 63 trading days) overlap across 21-day rebalances, so the IC observations are serially dependent while se = std/sqrt(n) assumes independence. Every tStat/ci95 here is therefore a naive descriptive figure, not a validated significance test. No HAC or block-bootstrap correction has been applied; choosing and versioning one is required before any inferential claim.',
+      icInferenceCaveat: 'Forward windows (up to 63 trading days) overlap across 21-day rebalances, so the IC observations are serially dependent while se = std/sqrt(n) assumes independence. tStat/ci95 are kept as the naive descriptive figures; hac.hacTStat/hac.hacCi95 apply a Newey-West (Bartlett) HAC standard error with lag max(ceil(fwd/21)-1, floor(4(n/100)^(2/9))) (v58.83). HAC corrects serial dependence only — it does not remove survivorship bias, multiple-testing across factors and horizons, or regime-sample non-contiguity.',
       priceBasisCaveat: 'Only tickers whose Yahoo adjusted-close series is complete over the requested range are ranked (universe.adjustedCloseExcluded counts the rest). Raw and adjusted closes are never mixed in one return series, and no automatic corporate-action repair is attempted.',
       liveModelParity: 'This still validates only 4 of the live _aioComputeFactorRanks() model\'s 7 factors, always at the production-fixed NEUTRAL weights (same limitation already documented in fetch-data.mjs backtestFactors() since P586/C2) — marketState proposal tilts are not promoted or validated here.',
       modelFingerprint: baselineRef.modelFingerprint, // P1449: same model identity contract as the daily backtest artifact (its rebalance offsets differ, so its canonical string may differ from the daily one)
@@ -194,13 +245,15 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
     overallByHorizon: overall,
     walkForward,
     regimes,
+    externalBenchmark,
     caveats: [
       'Survivorship bias is NOT resolved (see methodology.survivorshipBiasCaveat) — treat all IC/ICIR figures here as an upper-bound-leaning estimate, not a clean out-of-sample figure.',
       'Only 4 of 7 live-model factors covered (size/value/quality excluded — pre-existing limitation, not new to this script).',
       'Top-mcap subset, not the full 873-ticker universe.',
       'MarketState regime-weight tilts remain proposal-only and are not validated or applied — only the fixed NEUTRAL-weight composite is measured.',
       'Tickers with an incomplete adjusted-close series are excluded, not repaired from raw closes (see methodology.priceBasisCaveat).',
-      'Overlapping forward windows make every tStat/ci95 a naive descriptive figure, not a validated significance test (see methodology.icInferenceCaveat).',
+      'Overlapping forward windows make every naive tStat/ci95 descriptive only; use the Newey-West hac figures, which still inherit the survivorship and multiple-testing limits (see methodology.icInferenceCaveat).',
+      'externalBenchmark checks that the momentum factor moves with the published momentum anomaly; a PASS is an implementation check, not predictive validation.',
     ],
   };
 
@@ -214,9 +267,10 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
 // W07-D/P1146 (M05): consecutive rebalances are 21 trading days apart while forward windows run up
 // to 63 days, so the IC observations overlap and are serially dependent. se = std/sqrt(n) treats
 // them as independent, which understates the interval width. The t-stat/CI here are descriptive
-// naive figures, not a validated significance test; a HAC or block-bootstrap method must be chosen
-// and versioned before any inference claim is made.
-function computeICIR(icByDateMap) {
+// naive figures, not a validated significance test. v58.83: each entry also carries `hac`, a
+// Newey-West (Bartlett) HAC t-stat/CI (scripts/lib/research-validation.mjs) — the versioned method
+// the caveat above asked for; it still does not correct survivorship or multiple testing.
+function computeICIR(icByDateMap, fwdDays) {
   const out = {};
   for (const [factor, values] of Object.entries(icByDateMap || {})) {
     const clean = values.filter((v) => typeof v === 'number' && isFinite(v));
@@ -229,7 +283,8 @@ function computeICIR(icByDateMap) {
     const se = std / Math.sqrt(n);
     const tStat = se > 0 ? mean / se : null;
     const ci95 = se > 0 ? [Math.round((mean - 1.96 * se) * 1000) / 1000, Math.round((mean + 1.96 * se) * 1000) / 1000] : null;
-    out[factor] = { n, mean: Math.round(mean * 1000) / 1000, std: Math.round(std * 1000) / 1000, icIR: icIR != null ? Math.round(icIR * 1000) / 1000 : null, tStat: tStat != null ? Math.round(tStat * 100) / 100 : null, ci95, inference: 'naive-iid-normal-approximation' };
+    const hac = neweyWestMeanStats(clean, hacLagFor(n, fwdDays, REBALANCE_STEP_DAYS));
+    out[factor] = { n, mean: Math.round(mean * 1000) / 1000, std: Math.round(std * 1000) / 1000, icIR: icIR != null ? Math.round(icIR * 1000) / 1000 : null, tStat: tStat != null ? Math.round(tStat * 100) / 100 : null, ci95, inference: 'naive-iid-normal-approximation', hac };
   }
   return out;
 }
@@ -241,6 +296,8 @@ if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url
     console.log(`[backtest-factors-longrun] fwd21d composite: ${JSON.stringify(output.overallByHorizon.fwd21d.ic)} icIR=${JSON.stringify(output.overallByHorizon.fwd21d.icIR.composite)}`);
     console.log(`[backtest-factors-longrun] walk-forward: reference.composite=${JSON.stringify(walkForwardSummary(output.walkForward.referencePeriod))} holdout.composite=${JSON.stringify(walkForwardSummary(output.walkForward.holdoutPeriod))}`);
     console.log(`[backtest-factors-longrun] regimes: ${output.regimes.map(r => r.label + '(n=' + r.n + ')').join(', ')}`);
+    console.log(`[backtest-factors-longrun] fwd21d composite HAC: ${JSON.stringify(output.overallByHorizon.fwd21d.icIR.composite && output.overallByHorizon.fwd21d.icIR.composite.hac)}`);
+    console.log(`[backtest-factors-longrun] external momentum benchmark: ${JSON.stringify({ status: output.externalBenchmark.status, windows: output.externalBenchmark.windows, r: output.externalBenchmark.pearsonR, reason: output.externalBenchmark.reason })}`);
   }).catch((e) => { console.error('[backtest-factors-longrun] error:', e.stack || e.message); process.exit(1); });
 }
 function walkForwardSummary(period) { return { ic: period.ic.composite, icIR: period.icIR.composite && period.icIR.composite.icIR }; }

@@ -9,6 +9,7 @@ import {
   createMarketSessionEvidence,
   createTemporalEvidence,
   resolveMarketCalendarSession,
+  latestCompletedKrSession,
   resolveMarketSessionSchedule
 } from '../src/ai/time/market-session.js';
 
@@ -37,6 +38,19 @@ for (const [market, year, calendar] of [
     const legacyHalfDays = readLegacyHalfDays(`US_HALF_DAYS_${year}`);
     check(`P1302/R447/QA-DATA-46 legacy NYSE ${year} half-days match ESM registry`, JSON.stringify(legacyHalfDays) === JSON.stringify(calendar.halfDays));
   }
+}
+{
+  // v58.82: the legacy KRX special-session copy ([open, close] minutes) equals the registry's specialSessions.
+  const body = legacyCore.match(/var KR_SPECIAL_SESSIONS = \{([^}]+)\}/)?.[1] || '';
+  const legacy = Object.fromEntries([...body.matchAll(/'(\d{4}-\d{2}-\d{2})':\s*\[(\d+),\s*(\d+)\]/g)].map((m) => [m[1], [Number(m[2]), Number(m[3])]]));
+  const minutes = (text) => Number(text.slice(0, 2)) * 60 + Number(text.slice(3, 5));
+  const registry = Object.fromEntries([KRX_REGULAR_CALENDAR_2026, KRX_REGULAR_CALENDAR_2027].flatMap((c) => Object.entries(c.specialSessions)).map(([d, h]) => [d, [minutes(h.open), minutes(h.close)]]));
+  check('v58.82 legacy KRX special sessions match the ESM registry', Object.keys(registry).length > 0 && JSON.stringify(legacy) === JSON.stringify(registry));
+  const exam = resolveMarketCalendarSession({ market: 'KR', date: '2026-11-19' });
+  const examClose = latestCompletedKrSession(Date.parse('2026-11-19T07:15:00Z')); // 16:15 KST: the moved 16:30 close has not happened
+  const examDone = latestCompletedKrSession(Date.parse('2026-11-19T08:05:00Z'));
+  check('v58.82 수능 day KRX session is 10:00-16:30 and its close is not the 16:00 default', exam.open === '10:00' && exam.close === '16:30' && exam.halfDay === false
+    && examClose?.date === '2026-11-18' && examDone?.date === '2026-11-19' && examDone.eodConfirmed === true);
 }
 check('P1302/R447/QA-DATA-46 legacy unknown years have no 2026 fallback', !/\b_(?:KR|US)_HOLIDAYS_MAP\[d\.getFullYear\(\)\]\s*\|\|\s*KR?_?HOLIDAYS_2026/.test(legacyCore));
 check('P1302/R447/QA-DATA-46 legacy session clock uses IANA DST and annual close data', legacyCore.includes("timeZone: 'America/New_York'")

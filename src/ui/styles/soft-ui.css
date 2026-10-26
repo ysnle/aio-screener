@@ -554,3 +554,23 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
 /* First-users F08: the screen's menu name above a tab's own title ("시장 상태 ›" over 국면 판정). */
 /* Run-5 (phone #5): the trailing " ›" read as a tappable path; the hub name is a label, not a link. */
 .page-title[data-hub-label]::before { content: attr(data-hub-label); display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--text-muted); }
+/* v58.82: family-code entry under the shared-AI notice (src/ui/components/family-code-form.js); 44px touch targets. */
+.aio-family-code-form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.aio-family-code-form input { flex: 1 1 160px; min-width: 0; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--bg-base); color: var(--text-primary); font-size: 16px; }
+.aio-family-code-form button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: var(--text-primary); color: var(--bg-base); font-size: 15px; cursor: pointer; }
+.aio-family-code-form [role="status"] { flex-basis: 100%; font-size: 13px; color: var(--text-muted); }
+/* v58.82 (roadmap 12): the "이상해요" note dialog and the owner's reader (src/ui/components/feedback-form.js). */
+.aio-feedback { width: min(520px, calc(100vw - 32px)); border: 1px solid var(--border-strong); border-radius: 12px; padding: 20px; background: var(--bg-base); color: var(--text-primary); }
+.aio-feedback::backdrop { background: rgba(0, 0, 0, 0.4); }
+.aio-feedback h2 { margin: 0 0 8px; font-size: 18px; }
+.aio-feedback-lede { margin: 0 0 12px; font-size: 14px; color: var(--text-muted); }
+.aio-feedback textarea { width: 100%; box-sizing: border-box; min-height: 110px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--bg-base); color: var(--text-primary); font: inherit; font-size: 16px; }
+.aio-feedback-status { min-height: 20px; margin: 8px 0; font-size: 14px; color: var(--text-secondary); }
+.aio-feedback-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.aio-feedback-actions button, .aio-feedback-reader button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: var(--text-primary); color: var(--bg-base); font-size: 15px; cursor: pointer; }
+.aio-feedback-actions .aio-feedback-close { background: transparent; color: var(--text-primary); border: 1px solid var(--border-strong); }
+.aio-feedback-reader form { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.aio-feedback-reader input { flex: 1 1 160px; min-width: 0; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--bg-base); color: var(--text-primary); font-size: 16px; }
+.aio-feedback-list { margin: 0; padding-left: 20px; font-size: 14px; }
+.aio-feedback-list p { margin: 2px 0 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.aio-feedback-meta { font-size: 12px; color: var(--text-muted); }

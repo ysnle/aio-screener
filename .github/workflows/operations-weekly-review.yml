@@ -1,0 +1,70 @@
+name: Weekly operations review
+
+# v58.84: the slow failures no other workflow watches — an expiring dispatch or Cloudflare
+# token, repository size and the shared AI month. One durable issue opens when something
+# needs the operator and closes on the first clear week. Reads only; never deploys or commits.
+on:
+  schedule:
+    # Monday 00:41Z (09:41 KST), clear of the :17/:47 refreshes, :23 watchdog and :53 screener.
+    - cron: '41 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: weekly-operations-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Build weekly review
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AIO_REFRESH_DISPATCH_TOKEN: ${{ secrets.AIO_REFRESH_DISPATCH_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          AIO_OPERATOR_TOKEN: ${{ secrets.AIO_OPERATOR_TOKEN }}
+        run: |
+          set -euo pipefail
+          node scripts/build-operations-weekly-review.mjs --status-file "$RUNNER_TEMP/review.status" > "$RUNNER_TEMP/review.md"
+          cat "$RUNNER_TEMP/review.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open, update or close the review issue
+        run: |
+          set -euo pipefail
+          needs_action="$(sed -n 's/^needs_action=//p' "$RUNNER_TEMP/review.status")"
+          title="[Operations] 주간 점검: 조치 필요"
+          marker="<!-- aio-operations-weekly-review -->"
+          matches="$(gh issue list --state all --search 'in:body aio-operations-weekly-review' --json number,state,body --limit 50)"
+          matches="$(jq --arg marker "$marker" '[.[] | select((.body // "") | contains($marker))]' <<< "$matches")"
+          issue="$(jq -r '[.[] | .number] | sort | .[0] // empty' <<< "$matches")"
+          state="$(jq -r --arg n "$issue" '[.[] | select((.number | tostring) == $n) | .state] | .[0] // empty' <<< "$matches")"
+          if [ "$needs_action" = "true" ]; then
+            if [ -z "$issue" ]; then
+              gh issue create --title "$title" --body-file "$RUNNER_TEMP/review.md"
+            else
+              gh issue edit "$issue" --title "$title" --body-file "$RUNNER_TEMP/review.md"
+              if [ "$state" = "CLOSED" ]; then gh issue reopen "$issue"; fi
+            fi
+          elif [ -n "$issue" ] && [ "$state" = "OPEN" ]; then
+            gh issue edit "$issue" --body-file "$RUNNER_TEMP/review.md"
+            gh issue close "$issue" --reason completed
+          else
+            echo "Nothing needs the operator this week."
+          fi

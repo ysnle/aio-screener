@@ -87,7 +87,7 @@ confidence: high
 
 - `public-data/knowledge/current-observations.json`을 새 SSOT로 추가했다. S&P 500/VIX 최신 공개 스냅샷, FOMC 목표 중간값·SEP 장기 중앙값·BLS CPI/근원 CPI, Sandisk Investor Day의 FY27/FY28 NBM 커버리지와 FY28~30 조정 총마진·FCF 마진 목표를 값·단위·관측일·sourceKind·sourceId·allowedUse와 함께 보존한다.
 - `시장 원리`와 `AI 시대 지식 지도`가 동일 원장을 capability로 로드한다. 기본 상세 화면과 AI 기초 레슨 상세에 `실제 관측값` 카드가 표시되고, 출처 링크와 `reference-only` 경계가 함께 노출된다. 회사 목표는 현재 실적·매매 신호가 아니라 날짜가 있는 forward-looking reference로만 렌더링한다.
-- 새 `ci-knowledge-current-observations-check.mjs`(v58.84부터 `ci-knowledge-corpus-check.mjs`의 current-observations 구획), repository contract, Principles/Atlas Chromium gate가 양쪽 페이지 연결·값·출처·반응형 렌더링을 검증한다. 지식 원고의 영구 정의와 시점 데이터는 계속 분리된다.
+- 새 `ci-knowledge-current-observations-check.mjs`(v58.86부터 `ci-knowledge-corpus-check.mjs`의 current-observations 구획), repository contract, Principles/Atlas Chromium gate가 양쪽 페이지 연결·값·출처·반응형 렌더링을 검증한다. 지식 원고의 영구 정의와 시점 데이터는 계속 분리된다.
 
 ## 2026-08-15 v54.26 source-linkage closure and residual data boundary
 

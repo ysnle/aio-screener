@@ -2490,7 +2490,7 @@ function _aioSensitiveProxyUrl(url) {
   try {
     var parsed = new URL(url);
     return !!(parsed.username || parsed.password) || Array.from(parsed.searchParams.keys()).some(function(key) {
-      return /^(?:api[-_]?key|key|token|access[-_]?token|client[-_]?secret|auth|authorization|signature|url)$/i.test(key);
+      return /^(?:api[-_]?key|key|token|access[-_]?token|client[-_]?secret|auth|authorization|signature|url|crtfc_key|service_?key|cert_?key)$/i.test(key); // v58.82: DART crtfc_key, data.go.kr serviceKey, KOSIS certkey
     });
   } catch (_) { return true; }
 }
@@ -9197,7 +9197,7 @@ async function autoTranslateNews(items) { (items || []).forEach(function(i) { if
       const resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
         method: 'POST',
         signal: AbortSignal.timeout(45000),
-        headers: { 'Content-Type': 'application/json', 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : ''), 'X-AIO-Idempotency-Key': _translationRequest.requestId },
+        headers: (window._aioWithFamilyCode || Object)({ 'Content-Type': 'application/json', 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : ''), 'X-AIO-Idempotency-Key': _translationRequest.requestId }),
         body: JSON.stringify({
           model: 'gpt-6-luna',
           max_output_tokens: Math.min(4000, Number(route.health?.ai?.maxTokens) || 4000),
@@ -13439,7 +13439,7 @@ const _YAHOO_FRED_MAP = {
   // P1541: no ^IRX -> DGS3MO row. Yahoo ^IRX is the 13-week bill DISCOUNT rate; FRED DGS3MO is the bond-equivalent constant-maturity
   // yield (about 10bp higher at 4%). An intraday discount quote must not stand in for an official series.
   '^VIX':     { fredId: 'VIXCLS',   transform: v => v,         label: 'VIX' },
-  'DX-Y.NYB': { fredId: 'DTWEXBGS', transform: v => v,         label: '달러인덱스' },
+  // v58.82: DXY(~100)는 DTWEXBGS(연준 광의 달러, ~120)가 아니다 — 매핑 제거
   // v51.91 P585/R266/C4: removed a 'HYG' entry that wrote a HYG-price-derived spread approximation
   // to a synthetic fredId ('_HY_PROXY') that no real FRED series uses and no code ever read back —
   // a confirmed dead write (this map's real entries are read via window._fredData[cfg.fredId], but
@@ -13452,9 +13452,9 @@ const _YAHOO_FRED_MAP = {
 function _syncYahooToFred() {
   const ld = window._liveData || {};
   const fd = window._fredData || {};
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
   let synced = 0;
+  // v58.82: 시세 자체의 뉴욕 날짜로 비교·기록 (UTC 날짜는 월요일마다 FRED를 덮고 주말 날짜를 붙였다)
+  const etDate = (ms) => { try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms)); } catch (_) { return null; } };
 
   for (const [ySym, cfg] of Object.entries(_YAHOO_FRED_MAP)) {
     const yahoo = ld[ySym];
@@ -13462,14 +13462,10 @@ function _syncYahooToFred() {
 
     const yahooVal = cfg.transform(yahoo.price);
     const fredEntry = fd[cfg.fredId];
-
-    // FRED 데이터가 없거나 1영업일 이상 지연된 경우 Yahoo로 대체
-    let fredStale = !fredEntry;
-    if (fredEntry && fredEntry.date) {
-      const fredDate = new Date(fredEntry.date);
-      const diffDays = Math.floor((now - fredDate) / 86400000);
-      fredStale = diffDays > 1; // 1일 초과면 stale
-    }
+    const quoteMs = Date.parse(yahoo.observedAt || '');
+    const quoteDate = Number.isFinite(quoteMs) ? etDate(quoteMs) : null;
+    if (!quoteDate) continue;
+    const fredStale = !fredEntry || !fredEntry.date || String(fredEntry.date).slice(0, 10) < quoteDate;
 
     if (fredStale) {
       // Yahoo 실시간 값으로 FRED 파이프라인에 주입
@@ -13478,7 +13474,7 @@ function _syncYahooToFred() {
       window._fredData[cfg.fredId] = {
         value: yahooVal,
         prevValue: fredEntry ? fredEntry.value : yahooVal,
-        date: todayStr,
+        date: quoteDate,
         _source: 'yahoo-realtime:' + ySym,
         _overrideTs: Date.now()
       };
@@ -13488,7 +13484,7 @@ function _syncYahooToFred() {
         MacroStore._data[cfg.fredId] = {
           value: yahooVal,
           prevValue: prevVal,
-          date: todayStr,
+          date: quoteDate,
           source: 'yahoo-bridge'
         };
       }
@@ -13506,7 +13502,7 @@ function _syncYahooToFred() {
     window._fredData['T10Y2Y'] = {
       value: spread10y2y,
       prevValue: fd['T10Y2Y'] ? fd['T10Y2Y'].value : spread10y2y,
-      date: todayStr,
+      date: etDate(Date.parse(tnx.observedAt || '')) || etDate(Date.now()),
       unit: 'percentage-point',
       _source: 'yahoo-calc:^TNX-DGS2'
     };

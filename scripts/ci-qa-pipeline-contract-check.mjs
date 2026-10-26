@@ -414,7 +414,7 @@ const gateInputContracts = [
     inputs: ['public-data/masters/**', 'public-data/objects/masters/**', 'scripts/lib/13f-semantic-hash.mjs', 'scripts/lib/13f-discovery.mjs', 'scripts/ci-13f-semantic-hash-check.mjs', 'scripts/collect-13f-discovery.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/build-masters-runtime-artifacts.mjs', '.github/workflows/refresh-data.yml'],
     impactPaths: ['public-data/masters/index.json', 'public-data/objects/masters/fixture.json', 'scripts/lib/13f-semantic-hash.mjs', 'scripts/lib/13f-discovery.mjs', 'scripts/ci-13f-semantic-hash-check.mjs', 'scripts/collect-13f-discovery.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/build-masters-runtime-artifacts.mjs', '.github/workflows/refresh-data.yml']
   },
-  // v58.84: the release-manifest gate retired (ci-version-check owns the revision fields, release-revision regenerates the manifests).
+  // v58.86: the release-manifest gate retired (ci-version-check owns the revision fields, release-revision regenerates the manifests).
   {
     id: 'deployment-convergence',
     group: 'core',

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Skill contract and skill eval fixtures. v58.84 gate consolidation: the sections below were separate gates until v58.84. They check one subject, so one gate
+// Skill contract and skill eval fixtures. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
 // runs them in order; every section runs even when an earlier one fails, and the failure names the section.
 import { runSections } from './lib/gate-sections.mjs';
 

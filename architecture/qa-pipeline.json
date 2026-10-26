@@ -103,6 +103,22 @@
       ]
     },
     {
+      "workflow": ".github/workflows/operations-weekly-review.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/build-operations-weekly-review.mjs"
+      ],
+      "requiredTokens": [
+        "cron: '41 0 * * 1'",
+        "contents: read",
+        "issues: write",
+        "group: weekly-operations-review",
+        "cancel-in-progress: false",
+        "if: github.ref == 'refs/heads/main'",
+        "--state all"
+      ]
+    },
+    {
       "workflow": ".github/workflows/macro-calendar-review.yml",
       "mode": "direct",
       "requiredScripts": [
@@ -191,7 +207,7 @@
       "script": "scripts/ci-doc-currency-check.mjs",
       "status": "weekly-backstop",
       "replacement": ".github/workflows/knowledge-lint.yml",
-      "reason": "v58.84 gate cleanup: the check always exits 0 (CODE-MAP drift is a warning by design), so as a blocking gate it could never fail. The weekly knowledge-lint workflow still runs it and prints the drift (R656 backstop)."
+      "reason": "v58.86 gate cleanup: the check always exits 0 (CODE-MAP drift is a warning by design), so as a blocking gate it could never fail. The weekly knowledge-lint workflow still runs it and prints the drift (R656 backstop)."
     }
   ],
   "groups": {
@@ -392,6 +408,11 @@
           "remedy": "move the new static import behind import(); a budget raise in architecture/boot-budget.json needs a reason in the commit"
         },
         {
+          "id": "csp-meta",
+          "script": "scripts/ci-csp-meta-check.mjs",
+          "remedy": "after editing an inline <script> in index.html: node scripts/ci-csp-meta-check.mjs --write; a new CDN script needs its exact package path in the script's SCRIPT_HOSTS"
+        },
+        {
           "id": "inline-style-ratchet",
           "script": "scripts/ci-inline-style-ratchet-check.mjs",
           "remedy": "style through a class in src/ui/styles (tokens: index.html :root, layout-primitives.css); after a shrink run --write"
@@ -479,6 +500,10 @@
         {
           "id": "research-model",
           "script": "scripts/ci-research-model-contract-check.mjs"
+        },
+        {
+          "id": "research-validation",
+          "script": "scripts/ci-research-validation-check.mjs"
         },
         {
           "id": "research-flow",
@@ -942,6 +967,17 @@
           ]
         },
         {
+          "id": "operations-weekly-review",
+          "script": "scripts/ci-operations-weekly-review-check.mjs",
+          "inputs": [
+            "scripts/lib/operations-weekly-review.mjs",
+            "scripts/build-operations-weekly-review.mjs",
+            "scripts/ci-operations-weekly-review-check.mjs",
+            "architecture/worker-endpoints.json",
+            ".github/workflows/operations-weekly-review.yml"
+          ]
+        },
+        {
           "id": "fast-plane-consumer",
           "script": "scripts/ci-fast-plane-consumer-gate.mjs",
           "inputs": [
@@ -1364,7 +1400,6 @@
             "architecture/golden-routes.json",
             "architecture/route-owners.json",
             "scripts/lib/masters-manager-store.mjs",
-            "scripts/ci-masters-manager-store-check.mjs",
             "scripts/split-masters-manager-rows.mjs",
             "public-data/masters/managers/**"
           ]
@@ -2521,6 +2556,21 @@
       ],
       "gates": [
         "operations-alert-policy"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/lib/operations-weekly-review.mjs",
+        "scripts/build-operations-weekly-review.mjs",
+        "scripts/ci-operations-weekly-review-check.mjs",
+        ".github/workflows/operations-weekly-review.yml"
+      ],
+      "groups": [
+        "data",
+        "core"
+      ],
+      "gates": [
+        "operations-weekly-review"
       ]
     },
     {

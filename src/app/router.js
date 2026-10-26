@@ -109,7 +109,9 @@ const ENTITY_ROUTES = new Set(['ticker', 'fundamental']);
 function normalizeEntityId(candidate) {
   if (candidate == null) return null;
   if (typeof candidate === 'object') return null;
-  const normalized = String(candidate).trim().toUpperCase();
+  let text = String(candidate);
+  try { text = decodeURIComponent(text); } catch (_) { /* malformed % sequence: the regex below refuses it */ }
+  const normalized = text.normalize('NFKC').trim().toUpperCase(); // v58.82: #ticker/ＡＡＰＬ (percent-encoded in the hash) is AAPL
   if (!normalized || !/^[A-Z0-9][A-Z0-9.\-=]*$/.test(normalized)) return null;
   return normalized;
 }

@@ -122,6 +122,45 @@ async function main() {
     check('P1421 configured app token rejects missing and invalid before reservation', rejectedAppTokens.every(response => response.status === 403) && upstreamCalls === appBefore && appAuth.saved() === undefined);
     const acceptedAppToken = await worker.fetch(req(body, { headers: { 'X-AIO-App-Token': 'fixture-public-app-token', 'cf-connecting-ip': '198.51.100.2' } }), appAuth.env); await acceptedAppToken.arrayBuffer();
     check('P1421 configured app token accepts the matching browser token', acceptedAppToken.status === 200 && appAuth.saved().days['claude:' + currentDay] === 1);
+    // v58.82 (owner 2026-10-26): family codes gate browser AI; each code is its own connection share.
+    const familyAuth = harness(undefined, { AIO_FAMILY_CODES: 'fixture-family-code-a1, fixture-family-code-b2\nshort' }), familyBefore = upstreamCalls;
+    const asFamily = (code, ip = '198.51.100.81') => req(body, { headers: { 'cf-connecting-ip': ip, ...(code === undefined ? {} : { 'X-AIO-Family-Code': code }) } });
+    const familyDenied = await Promise.all([undefined, '', 'wrong-family-code-zz', 'short', 'fixture-family-code-a'].map(code => worker.fetch(asFamily(code), familyAuth.env)));
+    check('v58.82 missing, wrong, too-short and prefix family codes are refused before reservation',
+      familyDenied.every(response => response.status === 403) && upstreamCalls === familyBefore && familyAuth.saved() === undefined, familyDenied.map(response => response.status));
+    const familyA = await worker.fetch(asFamily(' fixture-family-code-a1 '), familyAuth.env); await familyA.arrayBuffer();
+    const familyB = await worker.fetch(asFamily('fixture-family-code-b2'), familyAuth.env); await familyB.arrayBuffer();
+    const familyShares = Object.keys(familyAuth.saved()?.clientSpend?.['claude:' + currentDay] || {});
+    check('v58.82 two family codes behind one address are accepted as two connection shares',
+      familyA.status === 200 && familyB.status === 200 && familyShares.length === 2, { a: familyA.status, b: familyB.status, familyShares });
+    const familyHealth = async code => (await worker.fetch(req(undefined, { path: '/health', method: 'GET', headers: code ? { 'X-AIO-Family-Code': code } : {} }), familyAuth.env)).json();
+    const [familyHealthNone, familyHealthOk, openHealth] = await Promise.all([familyHealth(''), familyHealth('fixture-family-code-b2'), (await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), fixture.env)).json()]);
+    check('v58.82 /health reports whether a family code is required and accepted; unset stays open',
+      familyHealthNone.ai.familyCodeRequired === true && familyHealthNone.ai.familyCodeAccepted === false && familyHealthOk.ai.familyCodeAccepted === true
+        && openHealth.ai.familyCodeRequired === false && openHealth.ai.familyCodeAccepted === true, { familyHealthNone: familyHealthNone.ai, openHealth: openHealth.ai });
+    // v58.82 (roadmap 12): family feedback is written with a family code and read only with the operator token.
+    const OPS = 'fixture-operator-token-' + 'y'.repeat(32), noteCode = 'fixture-family-code-a1';
+    const notes = harness(undefined, { AIO_FAMILY_CODES: noteCode, AIO_OPERATOR_TOKEN: OPS }), openNotes = harness();
+    const note = (data, code, ip = '198.51.100.91') => req(data, { path: '/feedback', headers: { 'cf-connecting-ip': ip, ...(code ? { 'X-AIO-Family-Code': code } : {}) } });
+    const [noCodes, noCode, empty, saved] = [await worker.fetch(note({ text: 'x' }, noteCode), openNotes.env), await worker.fetch(note({ text: 'x' }), notes.env),
+      await worker.fetch(note({ text: '   ' }, noteCode), notes.env), await worker.fetch(note({ text: '차트가 안 보여요 <b>', route: 'ticker/AAPL', version: 'v58.82' }, noteCode), notes.env)];
+    const statuses = [];
+    for (let i = 1; i < 11; i += 1) statuses.push((await worker.fetch(note({ text: 'n' + i, route: 'bad route!' }, noteCode, '198.51.100.' + (100 + i)), notes.env)).status);
+    const anonymousRead = await worker.fetch(req(undefined, { path: '/_ops/feedback', method: 'GET' }), notes.env);
+    const ownerRead = await (await worker.fetch(req(undefined, { path: '/_ops/feedback', method: 'GET', headers: { 'X-AIO-Operator-Token': OPS } }), notes.env)).json();
+    const newest = ownerRead.items?.[0], oldest = ownerRead.items?.at(-1);
+    check('v58.82 feedback needs configured family codes and a matching one, refuses empty text, keeps 10 notes a code a day',
+      noCodes.status === 503 && noCode.status === 403 && empty.status === 400 && saved.status === 201 && statuses.slice(0, 9).every(status => status === 201) && statuses[9] === 429,
+      { noCodes: noCodes.status, noCode: noCode.status, empty: empty.status, saved: saved.status, statuses });
+    check('v58.82 only the operator token reads notes; a note keeps text, route and version, never the code',
+      anonymousRead.status === 404 && ownerRead.items?.length === 10 && oldest.text === '차트가 안 보여요 <b>' && oldest.route === 'ticker/AAPL' && oldest.version === 'v58.82'
+        && newest.route === 'unknown' && /^[0-9a-f]{8}$/.test(oldest.member) && !JSON.stringify(ownerRead).includes(noteCode), ownerRead);
+    const errorFixture = harness(), keyedUpstream = upstream;
+    upstream = async () => new Response(JSON.stringify({ error: { message: 'Incorrect API key provided: sk-proj-abcd****WXYZ. Org org-AbCdEf123456 over quota.' } }), { status: 401, headers: { 'content-type': 'application/json' } });
+    const keyedError = await worker.fetch(req(body, { headers: { 'cf-connecting-ip': '198.51.100.71' } }), errorFixture.env), keyedErrorText = await keyedError.text();
+    upstream = keyedUpstream;
+    check('v58.82 an upstream error body reaches the browser without key-shaped or org-shaped tokens',
+      !/sk-proj-abcd|WXYZ|org-AbCdEf/.test(keyedErrorText) && keyedError.status >= 400, { status: keyedError.status, keyedErrorText });
     const devPreflight = await worker.fetch(req(undefined, { origin: 'http://localhost:8891', method: 'OPTIONS' }), fixture.env);
     check('P1421 exact configured development origin preflight is echoed', devPreflight.status === 204 && devPreflight.headers.get('Access-Control-Allow-Origin') === 'http://localhost:8891');
     const allowedHeaders = devPreflight.headers.get('Access-Control-Allow-Headers') || '';
@@ -312,6 +351,16 @@ async function main() {
       check('v58.20 one connection cannot reserve more than 1/20 of the month per UTC day; settled answers refund the unused part',
         unsettledStatuses.join() === '200,200,429' && otherConnection === 200 && settledStatuses.every((status) => status === 200),
         { unsettledStatuses, otherConnection, settledStatuses });
+      // v58.82: a household shares one address; a searched answer that would pass the share while others are still in
+      // flight is admitted as its no-search variant when that fits, and refused (marked spend-limited) only when it does not.
+      const house = harness(), houseKey = 'c'.repeat(32), asHouse = (id, amount, saver) => ({ ...payload(id, amount, 20000000), clientKey: houseKey, clientCap: 150, ...(saver ? { saverReservationMicroUsd: saver } : {}) });
+      const first = await house.durable.mutateQuota('reserve', asHouse('house-1', 600000));
+      const second = await house.durable.mutateQuota('reserve', asHouse('house-2', 600000, 100000));
+      const third = await house.durable.mutateQuota('reserve', asHouse('house-3', 600000, 400000));
+      check('v58.82 shared-address searched answer over the spend share falls back to no search, then refuses as spend-limited',
+        first.reserved === true && second.reserved === true && second.budgetSaverApplied === true && third.reserved === false && third.clientSpendLimited === true
+          && house.saved().clientSpend['claude:' + currentDay][houseKey] === 700000,
+        { first, second, third });
     }
     const clientCap = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: '3' }), clientCapBefore = upstreamCalls;
     const clientRace = await Promise.all(Array.from({ length: 6 }, (_, i) => worker.fetch(req(body, { headers: ip('203.0.113.9', { 'X-AIO-Idempotency-Key': 'client-race-' + i }) }), clientCap.env)));

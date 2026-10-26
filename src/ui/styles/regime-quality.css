@@ -502,3 +502,24 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-chain-step { border-radius: 6px; background: var(--sx-ink-a07, var(--bg-elevated)); }
 @media (max-width: 760px) { .page .xr-map { padding-left: 18px; } .page .xr-map::before { left: 4px; } .page .xr-map-now { margin-bottom: 0; } .page .xr-map-now::before { left: -19px; } .page .xr-map-branch::before { left: -18px; } }
 .page .theme-strength-table td.is-quiet:not(.is-sorted) { opacity: .72; } /* v58.78: 3개월 is context beside 1주·2주·1개월 */
+/* v58.81: market clock + Korea↔US link check, and the probabilistic lean (src/ui/components/session-lean.js) */
+.session-bridge { margin: 0 0 10px; padding: 8px 10px; border-left: 2px solid var(--border-subtle); font-size: 13px; line-height: 1.6; color: var(--text-secondary); overflow-wrap: anywhere; }
+.session-bridge p { margin: 0 0 4px; }
+.session-bridge__clock { font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.session-bridge__head strong { color: var(--text-primary); font-weight: 600; }
+.session-bridge__links { list-style: none; margin: 2px 0 6px; padding: 0; display: grid; gap: 3px; }
+.session-bridge__label { font-weight: 600; color: var(--text-primary); margin-right: 6px; }
+.session-bridge__verdict { font-size: 12px; padding: 0 6px; border-radius: 8px; border: 0.5px solid var(--border-subtle); }
+.session-bridge__link[data-verdict="supports"] .session-bridge__verdict { color: var(--text-primary); border-color: var(--text-secondary); }
+.session-bridge__line { font-variant-numeric: tabular-nums; }
+.session-bridge__line.is-stale { color: var(--data-amber); }
+.market-lean { margin: 4px 0 10px; padding: 8px 0; border-top: 0.5px solid var(--border-subtle); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.market-lean__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.market-lean__title { font-weight: 600; color: var(--text-primary); }
+.market-lean__state { font-weight: 700; color: var(--text-primary); }
+.market-lean__state[data-score="-1"], .market-lean__state[data-score="-2"] { color: var(--data-amber); }
+.market-lean__read { margin: 2px 0 4px; color: var(--text-secondary); }
+.market-lean__items { margin: 0 0 4px; padding-left: 18px; color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
+.market-lean__item[data-vote="1"], .market-lean__item[data-vote="-1"] { color: var(--text-primary); }
+.market-lean__note { margin: 0 0 2px; font-size: 12px; color: var(--text-secondary); }
+.market-lean__kr summary, .market-lean__more summary, .session-bridge__more summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); }

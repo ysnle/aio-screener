@@ -6,6 +6,103 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2103 - v58.84 - 테마 연구 브라우저 게이트가 CDN에 의존해 외부망이 막힌 환경에서 30초 시간 초과로 실패 (2026-10-26)
+
+- symptom/reproduction: browser-theme-research가 클라우드 세션 등 CDN이 막힌 환경에서 LightweightCharts 대기 30초 시간 초과로 실패했고, PR #76·#80이 이를 '기존 문제'로 넘겼다.
+- root_cause: 이 게이트만 차트 라이브러리 두 개를 unpkg·jsDelivr에서 실제로 받았다. entity-quality·out-of-universe 게이트는 이미 SRI 검사한 로컬 사본을 쓰고 있었다.
+- fix: 같은 SRI 검사 로컬 사본(_artifacts/entity-quality-20261012)을 route.fulfill로 제공하고 나머지 외부 요청은 모두 막는다.
+- violated_rule: 브라우저 게이트는 고정 입력으로 재현 가능해야 한다(remote-blocked 네트워크 정책).
+- prevention: 세 브라우저 게이트가 같은 로컬 사본과 SRI 값을 쓴다. 사본 내용이 바뀌면 SRI 불일치로 즉시 실패한다.
+- verification/residual: node scripts/ci-theme-research-browser-check.mjs (CDN이 막힌 클라우드 세션에서 20 steps PASS)
+
+## P2102 - v58.84 - 운영 알림이 깜빡이는 레인마다 닫혔다 다시 열려 알림이 쌓임 (2026-10-26)
+
+- symptom/reproduction: 데이터 신선도 워치독 이슈(#4)가 8월 28일부터 열린 채 댓글 184개가 쌓였다. 실패·실패·성공·실패·실패로 흔들리는 레인은 성공 한 번마다 'Recovered' 댓글과 닫기, 다음 연속 실패마다 'reopened' 댓글을 남겨 흔들림 한 번에 알림 두 개가 갔다.
+- root_cause: operations-alert.yml이 열린 이슈를 같은 워크플로의 성공 한 번으로 닫았다. 복구 판단에 히스테리시스가 없었다.
+- fix: 열린 알림은 직전 관측 실행도 성공했을 때만 닫는다. 실패 사이의 성공 한 번은 이슈를 열어 둔 채 아무 댓글도 남기지 않는다. 일을 하지 않은 성공(게이트 스킵)은 기존대로 건너뛴다.
+- violated_rule: operations-slo 연속 2회 실패 알림 기준과 대칭인 복구 기준이 없었다.
+- prevention: ci-workspace-contract-check가 실제 github-script를 주입 API로 실행해, 실패 뒤 첫 성공은 변경 없음, 두 번 연속 성공은 닫힘을 확인한다.
+- verification/residual: node scripts/ci-workspace-contract-check.mjs
+## P2101 - v58.82 - 공용 Worker 오류 응답에 키 흔적이 남을 수 있음 (2026-10-26)
+
+- symptom/reproduction: OpenAI가 401·쿼터 오류를 돌려주면 그 본문(마스킹된 키 끝자리, 조직 id)이 브라우저까지 그대로 전달됐다. KOSIS 키처럼 '=', '+', '/'가 든 relay 키는 URL 인코딩된 형태로 오류 본문에 남으면 가려지지 않았다.
+- root_cause: fetchOpenAiWithDeadline은 upstream 오류 본문을 스트림으로 그대로 넘겼고, redactRelayKey는 원문 키 문자열만 찾았다.
+- fix: OpenAI 오류 본문은 같은 마감 안에서 8KB까지 읽어 sk-·org- 형태 토큰을 가린 뒤 반환하고, relay 키는 원문·encodeURIComponent·URLSearchParams 인코딩 세 형태를 모두 가린다. refresh-data의 npm ci는 쓰기 토큰 옆에서 설치 스크립트를 실행하지 않도록 --ignore-scripts를 쓴다.
+- violated_rule: R636 비밀값은 어떤 출력에도 마스킹되어 나간다 — Worker 응답에도 같은 원칙
+- prevention: worker/openai-contract.test.mjs v58.82: 키 형태가 든 upstream 401 본문이 가려져 도착한다.
+- verification/residual: node worker/openai-contract.test.mjs
+
+## P2100 - v58.82 - 수능일·개장일 KRX 시간 변경이 캘린더에 없음 (2026-10-26)
+
+- symptom/reproduction: 2026-11-19(2027학년도 수능) KRX는 10:00~16:30인데 캘린더는 09:00~15:30으로 고정되어, 16:00에 그날 종가를 확정으로 표시하고 15:30~16:30을 장 마감·09:00~10:00을 장중으로 판정했다. 2027-01-04 개장일 10:00 개장도 같았다.
+- root_cause: market-calendar.js에는 휴장일과 조기 폐장(halfDays)만 있고 하루 전체 시간이 바뀌는 날을 표현할 방법이 없었으며, legacy DATE_ENGINE·_getKrxSession·스냅샷 scheduledSession·코스피 장중 기사 노트가 09:00/15:30을 상수로 썼다.
+- fix: 캘린더에 specialSessions({open, close})를 추가하고 2026-11-19(10:00~16:30)·2027-01-04(10:00 개장)를 등록. resolveMarketCalendarSession·latestCompletedKrSession이 이를 따르고, legacy 사본 KR_SPECIAL_SESSIONS(DATE_ENGINE.krSessionMinutes), _getKrxSession, krxStatus, lastKrTradingDayEx, 스냅샷 scheduledSession, kr-close-note가 같은 시간을 쓴다.
+- violated_rule: R447 거래 시간은 등록된 연간 캘린더에서만 온다
+- prevention: ci-market-session-contract-check v58.82: legacy 사본=레지스트리, 수능일 16:15 KST에 전날 종가·16:35 이후 당일 확정.
+- verification/residual: node scripts/ci-market-session-contract-check.mjs
+
+## P2099 - v58.82 - 전각 티커·잘못된 목표가·손상된 관심목록 저장소 처리 (2026-10-26)
+
+- symptom/reproduction: ＡＡＰＬ 같은 전각 입력이 미검증 티커로 거절, 읽을 수 없는 목표가가 말없이 미설정으로 저장, 저장된 관심목록이 null이거나 tickers가 없으면 화면 갱신이 예외, 저장 공간 부족 시 관심목록 변경이 조용히 사라짐.
+- root_cause: NFKC 정규화가 AI 입력 경로에만 있었고, 목표가는 parseFloat로만 읽었고, getWatchlists는 배열 여부를 확인하지 않았고 saveWatchlists는 예외를 삼켰다.
+- fix: normalizeTickerInput·resolveHoldingInput·라우터 엔터티 id에 NFKC, 목표가 badInput·0 이하 거절, getWatchlists 모양 정규화, saveWatchlists 실패 알림.
+- violated_rule: 입력 폼은 거절 이유를 그 칸에서 알린다; 저장 실패는 조용히 버리지 않는다.
+- prevention: ci-esm-core-unit-check v58.82 전각 티커 단언.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
+## P2098 - v58.82 - 휴장일·주말·시간대 경계에서 날짜와 신선도가 틀림 (2026-10-26)
+
+- symptom/reproduction: 설·추석 연휴 둘째 날 ^KS11이 STALE_UNEXPECTED(발행 차단 가능), 2027-06-18(Juneteenth 대체 휴장) 옵션 만기를 그날로 표시, 토요일에 선물 거래 중으로 AI 문맥에 기록, 금요일 종가 sentiment가 일요일부터 stale, Yahoo→FRED 다리가 월요일마다 FRED 값을 바꾸고 주말 날짜를 붙이며 DXY를 Fed 광의 달러지수(DTWEXBGS) 자리에 넣음, 환율 관측 라벨이 브라우저 시간대.
+- root_cause: 각 경로가 공통 캘린더(market-calendar.js) 대신 요일·고정 시간·UTC 날짜·현지 시간을 썼다.
+- fix: scheduledSession이 평일 KRX 휴장일을 MARKET_CLOSED로, 옵션 만기는 NYSE 휴장이면 직전 거래일로, _getUsSession/_isFuturesOpen은 금 17:00 ET 주간 마감과 Intl 시간대, sentiment 일간 값은 NYSE 세션 수 기준(sentimentMaxAgeMs), FRED 다리는 시세 자체의 뉴욕 날짜로 더 새로울 때만 대체하고 DXY 매핑 제거, 환율 라벨은 KST.
+- violated_rule: 신선도는 원천의 발행 주기 기준(AGENTS Freshness); 다른 지표의 숫자를 공식 계열 자리에 넣지 않는다.
+- prevention: ci-esm-core-unit-check v58.82 단언(연휴 KR 지수, 옵션 만기, sentiment 세션, KST 라벨), aio-tests T75 v58.82(주말 시계).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
+## P2097 - v58.82 - 부분 실패가 좋은 자료를 덮거나 캐시를 무시함 (2026-10-26)
+
+- symptom/reproduction: OpenDART 한도 초과(HTTP 200 status 020)나 일시 오류 때 kr-fundamentals.json이 count 0 또는 일부만으로 덮어써졌다. 서비스워커는 fetch가 거부될 때만 캐시로 폴백해 Pages/CDN 503 페이지를 그대로 넘겼다.
+- root_cause: DART 생산자는 실패 심볼을 건너뛰고 결과 크기를 이전과 비교하지 않았고 fetch 타임아웃·corpCode res.ok 확인이 없었다. sw.js는 !resp.ok를 네트워크 실패로 보지 않았다.
+- fix: DART: 치명 status에서 중단, 일시 실패 심볼은 이전 값(carriedFrom 표시)을 유지, 이전의 절반 미만이면 발행하지 않음, 20s/60s 타임아웃과 corpCode res.ok. sw.js: 5xx면 최대 나이 안의 캐시 사본으로 폴백.
+- violated_rule: 생산자는 실패 시 마지막 정상 자료를 유지한다; 오류 응답은 오프라인과 같이 취급한다.
+- prevention: ci-esm-core-unit-check v58.82 DART mergeWithPrevious 단언.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
+## P2096 - v58.82 - 같은 IP를 쓰는 가족이 동시에 검색 답변을 받으면 네 번째 질문이 거절됨 (2026-10-26)
+
+- symptom/reproduction: 연결당 하루 예약 금액 상한(월 예산의 1/20)이 정산 전 예약 상한(검색 답변 약 $0.27)으로 계산되어, 집 공유기 뒤 3~4명이 동시에 묻으면 실제 사용액이 작아도 429가 났고, 안내는 질문 횟수를 다 썼다며 UTC 자정까지 기다리라고 했다.
+- root_cause: 금액 상한 거절 분기가 월 절약 모드처럼 검색 없는 변형으로 낮출 기회를 쓰지 않았고, 응답 문구·Retry-After가 질문 횟수 상한과 같았다.
+- fix: 상한을 넘는 검색 답변은 검색 없는 변형이 상한 안에 들면 그 변형으로 받는다(X-AIO-Web-Search-Removed). 그래도 넘으면 금액 상한 전용 문구와 Retry-After 60초로 거절한다.
+- violated_rule: 공유 IP 가구(제품 대상: 가족·지인)가 정상 사용 중 거절되지 않아야 한다.
+- prevention: worker/openai-contract.test.mjs v58.82 가구 동시 예약 단언.
+- verification/residual: node worker/openai-contract.test.mjs
+
+## P2095 - v58.82 - 두 탭에서 포트폴리오를 고치면 나중 탭이 다른 탭의 변경을 지움 (2026-10-26)
+
+- symptom/reproduction: 탭 B에서 MSFT를 추가한 뒤 새로고침하지 않은 탭 A에서 NVDA를 추가하면 탭 A의 오래된 런타임 사본+NVDA가 저장되어 MSFT가 사라졌다.
+- root_cause: getPortfolioData는 저장 후 항상 _AioVault._keyRuntime 사본을 먼저 읽고, storage 이벤트는 다시 불러오기 안내만 띄우고 쓰기를 막지 않았다.
+- fix: js/aio-workspace.js가 aio_portfolio_data의 storage 이벤트를 받으면 표식을 세우고, savePortfolioData는 그 뒤의 추가·수정·삭제를 저장하지 않고 cross-tab-changed로 거절해 다시 불러오라고 안내한다. 가져오기·전체 삭제는 { replace: true }로 통째 교체한다.
+- violated_rule: 저장소 사본이 더 새로우면 오래된 메모리 사본으로 덮어쓰지 않는다.
+- prevention: QA-EDGE-02 브라우저 두 탭 수동 확인.
+- verification/residual: node --check js/aio-workspace.js; 두 탭 수동 확인
+
+## P2094 - v58.82 - 외부 뉴스 제목과 가져온 백업의 통화 코드가 마크업으로 렌더링됨 (2026-10-26)
+
+- symptom/reproduction: 한국 테마 심층 분석의 최근 7일 뉴스가 RSS 제목을 이스케이프 없이 innerHTML에 넣었고, 백업 가져오기는 costCurrency를 검증하지 않아 구형 포트폴리오 표가 그 문자열을 마크업으로 썼다. 가져오기는 음수 수량·음수 단가·빈 수량(0)도 받았다.
+- root_cause: RSS XML 경로는 제목의 엔티티를 디코딩한 뒤 태그를 제거하지 않았고(rss2json 경로만 제거), 소비처(js/aio-kr-data.js)는 escHtml 없이 이어 붙였다. sanitizePositions는 ...p로 모든 필드를 유지하고 수량·단가의 유한성만 확인했다.
+- fix: 소비처에서 제목·출처를 escHtml로 이스케이프. sanitizePositions가 3자리 통화 코드만 남기고 qty>0·cost>=0 행만 받는다. _pfLegacyMoney는 3자리 코드만 출력한다.
+- violated_rule: 외부 텍스트는 렌더링 지점에서 이스케이프한다; 가져오기는 입력 폼과 같은 규칙으로 검증한다.
+- prevention: ci-esm-core-unit-check v58.82 백업 가져오기 단언(악성 통화·음수·빈 수량 거절).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+## P2093 - v58.81 - 13F 레인의 파일 크기 초과가 시장 데이터 갱신 전체를 막음 (2026-10-26)
+
+- symptom/reproduction: 2026-10-26 09:53Z부터 refresh-data가 7회 연속 실패해 공개 시세가 18:21 KST 관측에 멈췄고, 월요일 한국장 마감 뒤 미국 프리마켓(선물) 변화가 화면과 AI에 반영되지 않았다.
+- root_cause: 월요일 13F 신고 기간의 전체 체인이 public-data/masters/filings.json(502,329B)과 filing-discovery.json(495,589B)을 460,000B 예산 위로 키웠다. 13F 단계 자체 검사는 통과했고, 크기 검사는 뒤쪽 data 게이트 그룹(artifact-headroom)에서만 돌아 시장·뉴스·텔레그램 커밋까지 거부했다. v58.71의 13F 레인 격리(실패 시 HEAD로 복원)는 크기 초과를 실패로 보지 못했다.
+- fix: ci-artifact-size-headroom-check.mjs에 --only <prefix>를 추가하고 refresh-data의 13F 단계 끝에서 --only masters-로 실행한다. 초과하면 단계가 실패해 기존 복원 단계가 13F 파일을 마지막 공개본으로 되돌리고 나머지 갱신은 공개된다.
+- violated_rule: R603 (데이터 갱신 범위의 상태는 레인별로 격리)
+- prevention: 격리 가능한 레인(degradable lane)의 산출물 예산 검사는 그 레인 단계 안에서 실행해, 레인 실패가 다른 레인의 공개를 막지 않게 한다.
+- verification/residual: node scripts/ci-artifact-size-headroom-check.mjs --only masters- (5 budgets), 전체 실행 동일 결과; 워크플로 YAML에서 masters 단계 실패 시 masters-restore가 실행되는 조건 확인.
+
 ## P2092 - v58.80 - 이름을 입력하고 바로 Enter로 고르면 고른 종목의 후보 버튼이 검색칸 아래에 다시 생겼다 (2026-10-26)
 
 - symptom/reproduction: verify-aio stock: '삼성전자' 입력 뒤 Enter로 005930.KS를 연 다음에도 검색칸 아래에 '삼성전자 · 005930.KS' 후보가 남았고, 다음 검색에서 그 낡은 후보가 먼저 눌렸다.

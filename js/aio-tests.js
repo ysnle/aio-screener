@@ -553,6 +553,7 @@
       _assert('T75 P1302/R447/QA-DATA-46: legacy runtime reports UNKNOWN on 2028 weekday', _getUsSession(new Date('2028-01-03T15:00:00.000Z')) === 'unknown' && _getKrxSession(new Date('2028-01-03T02:00:00.000Z')) === 'unknown');
       _assert('T75 P1302/R447/QA-DATA-46: NYSE pre-market/open boundary follows spring DST', _getUsSession(new Date('2026-03-09T13:29:00.000Z')) === 'pre' && _getUsSession(new Date('2026-03-09T13:30:00.000Z')) === 'open');
       _assert('T75 P1302/R447/QA-DATA-46: NYSE pre-market/open boundary follows fall DST', _getUsSession(new Date('2026-11-02T14:29:00.000Z')) === 'pre' && _getUsSession(new Date('2026-11-02T14:30:00.000Z')) === 'open');
+      _assert('T75 v58.82: US week closes Fri 20:00 ET, futures Fri 17:00 ET', ['2026-10-30T23:30Z', '2026-10-31T00:30Z', '2026-10-31T14:00Z'].map(function(z) { return _getUsSession(new Date(z.replace('Z', ':00Z'))); }).join() === 'after,closed,closed' && ['2026-10-30T20:00Z', '2026-10-30T21:30Z', '2026-11-01T23:30Z'].map(function(z) { return _isFuturesOpen(new Date(z.replace('Z', ':00Z'))); }).join() === 'true,false,true');
       var holidayUsLast = DATE_ENGINE.lastUsTradingDay(new Date('2027-06-18T15:00:00.000Z'));
       _assert('T75 P1302/R447/QA-DATA-46: last US trading day skips 2027 holiday', holidayUsLast && holidayUsLast.getFullYear() === 2027 && holidayUsLast.getMonth() === 5 && holidayUsLast.getDate() === 17);
       var earlyUsBeforeClose = DATE_ENGINE.lastUsTradingDay(new Date('2027-11-26T17:30:00.000Z'));

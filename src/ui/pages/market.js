@@ -7,6 +7,7 @@ import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/q
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { signedText } from '../../domain/shared/number.js';
+import { renderMacroNextRelease, renderKrMacroFreshnessBadges } from '../components/macro-next-release.js';
 
 function finite(value) {
   if (value == null || value === '' || typeof value === 'boolean') return null;
@@ -297,7 +298,11 @@ function renderMacro(documentRef, root, page) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
   renderMacroBoard({ documentRef, root });
-  root?.AIO?.renderMacroNextRelease?.();
+  renderMacroNextRelease({ documentRef, root });
+  renderKrMacroFreshnessBadges({ documentRef, root }); // v53.7 (P725): the 한국 거시 fold's 기준일 badges
+  // P875: the release registry and the server snapshot load on separate lanes; the aio:serverDataLoaded re-render below
+  // replays the header once the shared cut lands (the retired legacy aio:sharedMarketCut listener sat on document while
+  // the event is dispatched on window, so it never ran).
 }
 
 function renderFxbond(documentRef, root, page) {

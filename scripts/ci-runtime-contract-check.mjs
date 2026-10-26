@@ -721,8 +721,24 @@ check('v57.77 portfolio writerless 리스크 분석 shell and duplicate 자동 �
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
 check('runtime-injected decision headers stay out of the default surface; the related-news strip is retired (v58.76)', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && !/aio-page-news-strip/.test(html + core));
 check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
-check('P1425 macro route has no legacy yield-curve owner and replays both official calendars after the shared cut', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && !/renderOfficialFutureCalendar/.test(core) && /renderMacroNextRelease\(\)/.test(core) && /aio:sharedMarketCut/.test(core)); // P1672: #official-future-calendar left with P1425 // P1425
-check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', !/function renderOfficialFutureCalendar/.test(macroTech) && /renderMacroNextRelease/.test(core)); // P1672: the legacy calendar sink left with P1425; renderMacroNextRelease owns the macro calendar
+// v58.85: the 거시 · 금리 header and 한국 거시 badges render from src/ui/components/macro-next-release.js (moved from aio-core.js).
+const macroReleaseProbe = await (async () => {
+  const { renderMacroNextRelease, renderKrMacroFreshnessBadges } = await import('../src/ui/components/macro-next-release.js');
+  const nodes = {};
+  const node = () => { const attrs = {}; return { textContent: '', style: {}, setAttribute: (k, v) => { attrs[k] = String(v); }, getAttribute: (k) => attrs[k] ?? null }; };
+  const documentRef = { getElementById: (id) => (nodes[id] ||= node()) };
+  const now = Date.parse('2026-10-26T00:00:00Z');
+  const root = {
+    AIO_MACRO_CALENDAR: { releases: { 'kr-bok': { name: 'BOK 금통위', nextRelease: '2026-10-27' }, 'us-cpi': { name: 'BLS CPI', nextRelease: '2026-11-10' }, 'us-nfp': { name: 'BLS NFP', nextRelease: '2026-10-02' } } },
+    DATA_SNAPSHOT: { _fieldTs: { bok_rate: '2026-10-01' } },
+    _aioStaleDays: (date) => Math.floor((now - Date.parse(`${date}T00:00:00Z`)) / 86400000)
+  };
+  const next = renderMacroNextRelease({ documentRef, root, now });
+  renderKrMacroFreshnessBadges({ documentRef, root });
+  return { next, header: nodes['macro-next-release'], badges: ['kr-macro-bokrate-freshness', 'kr-macro-cpi-freshness', 'kr-macro-pmi-freshness'].map((id) => nodes[id].textContent) };
+})();
+check('P1425 macro route has no legacy yield-curve owner and replays the official calendar after the server data lands', !/_lazyInitChartPage\('macro', 'yieldCurveChart'/.test(core) && !/renderOfficialFutureCalendar/.test(core) && !/renderMacroNextRelease|_initMacroPage/.test(core) && /'aio:serverDataLoaded'/.test(read('src/ui/pages/market.js'))); // v58.85: the header renderer left aio-core.js (its document-level aio:sharedMarketCut listener never fired: the event is dispatched on window) // P1672: #official-future-calendar left with P1425 // P1425
+check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', !/function renderOfficialFutureCalendar/.test(macroTech) && macroReleaseProbe.next?.key === 'us-cpi' && /^다음 주요 발표: .+ 미국 CPI$/.test(macroReleaseProbe.header.textContent) && macroReleaseProbe.header.getAttribute('data-runtime-state') === 'official-reference'); // v58.85: behaviour of src/ui/components/macro-next-release.js (US first, reader label) // P1672: the legacy calendar sink left with P1425; renderMacroNextRelease owns the macro calendar
 check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /const visibleLimit = \{ value: 12 \}/.test(read('src/ui/pages/screener.js')) /* v58.20: the screener's reveal limit lives in screener.js; the unread classic _scrVisibleLimit is gone */ && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 // P770: native news.js owns the briefing list height/reveal; the uncalled legacy adapters were retired.
@@ -800,7 +816,7 @@ check('EF-06: VIX term-structure seed fallback values render a distinguishable n
   || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && /points:\s*(?:Object\.freeze\()?\{ short, spot, medium, long \}/.test(sentimentDomain) && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /root\._aioSafeSourceLabel\(item\?\.source/.test(read('src/ui/pages/news.js'))); // P1411: guard moved to the native news card
 check('EF-15/P1428: the home F&G day change uses the completed-close history, the same basis as 투자 심리 (not CNN previous_close)', !/_aioSetDeltaEl\('home-fg-delta'/.test(data) && /aioFgDeltaRenderer = 'native'/.test(read('src/ui/components/market-regime.js')) && /buildCloseSeries\(history, 'fg'/.test(read('src/ui/components/market-regime.js')));
-check('EF-16: kr-macro rate/CPI/PMI cards expose a shared _fieldTs-based freshness badge instead of inconsistent per-card date disclosure', /_aioRenderKrMacroFreshnessBadges/.test(core) && /kr-macro-bokrate-freshness/.test(html) && /kr-macro-cpi-freshness/.test(html) && /kr-macro-pmi-freshness/.test(html));
+check('EF-16: kr-macro rate/CPI/PMI cards expose a shared _fieldTs-based freshness badge instead of inconsistent per-card date disclosure', macroReleaseProbe.badges[0] === '기준: 10/01 (25일 전)' && macroReleaseProbe.badges[1] === '기준: 미수신' && macroReleaseProbe.badges[2] === '기준: 미수신' && /kr-macro-bokrate-freshness/.test(html) && /kr-macro-cpi-freshness/.test(html) && /kr-macro-pmi-freshness/.test(html));
 check('headless tests cover Batch 3 efficacy fixes (EF-06/07/14/16)', /_testV5242Batch3Efficacy/.test(tests) && /T879/.test(tests) && /T880/.test(tests) && /T881/.test(tests) && /T883/.test(tests));
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (EF-03/05/17/18) structural gates
@@ -913,7 +929,7 @@ check('H2-03: price-position markers clamp both SVG edges and have a browser fix
 // drifting silently against actual code was exactly the kind of "operational fact vs. doc drift"
 // WO-8 asks CI to detect. Non-blocking by design (line counts drift continuously during normal
 // development; a hard-failing gate here would just get bypassed/ignored, R300-adjacent lesson).
-// v58.84: it always exits 0, so it left the blocking manifest; the weekly knowledge-lint workflow runs it (R656 backstop).
+// v58.86: it always exits 0, so it left the blocking manifest; the weekly knowledge-lint workflow runs it (R656 backstop).
 check('WO-8: documentation currency check script exists and runs in the weekly knowledge lint', exists('scripts/ci-doc-currency-check.mjs') && /ci-doc-currency-check\.mjs/.test(knowledgeWorkflow));
 
 // v52.56 (P673/R303): H3-D/E desktop geometry + external failure-state contract

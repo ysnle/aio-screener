@@ -1,4 +1,4 @@
-// Runs several checks inside one QA gate (v58.84 gate consolidation). Each section is the body of a check that used to be
+// Runs several checks inside one QA gate (v58.86 gate consolidation). Each section is the body of a check that used to be
 // its own scripts/ci-*.mjs gate; a section fails when it throws, calls process.exit(non-zero) or leaves process.exitCode
 // set. Every section runs even after an earlier one fails, and the gate exits 1 naming each failed section.
 

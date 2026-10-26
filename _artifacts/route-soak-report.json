@@ -1,89 +1,23 @@
 {
   "schemaVersion": "aio-route-soak-evidence.v1",
-  "observedAt": "2026-10-26T09:43:25.218Z",
-  "appRevision": "v58.80",
-  "gitHead": "ba42e9d1f63ad4ccae01820a4fb745fbd146e57d",
+  "observedAt": "2026-10-26T15:02:38.156Z",
+  "appRevision": "v58.86",
+  "gitHead": "0dfc4e3de4653c1a1bdf52f7066571b03dab5988",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
-    "browserVersion": "156.0.8078.4",
-    "platform": "win32",
-    "node": "v24.18.0",
+    "browserVersion": null,
+    "platform": "linux",
+    "node": "v22.22.0",
     "viewport": "1440x1000"
   },
   "command": "node scripts/ci-route-soak-check.mjs",
-  "ok": true,
+  "ok": false,
   "routes": 19,
   "laps": 3,
-  "lapReports": [
-    {
-      "lap": 1,
-      "last": {
-        "route": "screener",
-        "active": "screener",
-        "visiblePages": [
-          "page-screener"
-        ],
-        "marker": "vs05-fundamental-screener",
-        "state": "loaded",
-        "charts": 0,
-        "canvases": 13,
-        "entityId": null
-      },
-      "maxCharts": 0,
-      "maxCanvases": 13
-    },
-    {
-      "lap": 2,
-      "last": {
-        "route": "screener",
-        "active": "screener",
-        "visiblePages": [
-          "page-screener"
-        ],
-        "marker": "vs05-fundamental-screener",
-        "state": "loaded",
-        "charts": 0,
-        "canvases": 13,
-        "entityId": null
-      },
-      "maxCharts": 0,
-      "maxCanvases": 13
-    },
-    {
-      "lap": 3,
-      "last": {
-        "route": "screener",
-        "active": "screener",
-        "visiblePages": [
-          "page-screener"
-        ],
-        "marker": "vs05-fundamental-screener",
-        "state": "loaded",
-        "charts": 0,
-        "canvases": 13,
-        "entityId": null
-      },
-      "maxCharts": 0,
-      "maxCanvases": 13
-    }
+  "lapReports": [],
+  "errors": [
+    "browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝\n    at /home/user/aio-screener/scripts/ci-route-soak-check.mjs:36:28"
   ],
-  "errors": [],
-  "entityRoundTrip": {
-    "sequence": [
-      {
-        "entityId": "AAPL",
-        "mountId": 55
-      },
-      {
-        "entityId": "MSFT",
-        "mountId": 56
-      },
-      {
-        "entityId": "AAPL",
-        "mountId": 57
-      }
-    ],
-    "active": "ticker"
-  }
+  "entityRoundTrip": null
 }

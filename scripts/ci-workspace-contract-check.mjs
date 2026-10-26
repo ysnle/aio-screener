@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Workspace contract and the live header policy helper. v58.84 gate consolidation: the sections below were separate gates until v58.84. They check one subject, so one gate
+// Workspace contract and the live header policy helper. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
 // runs them in order; every section runs even when an earlier one fails, and the failure names the section.
 import { runSections } from './lib/gate-sections.mjs';
 
@@ -226,6 +226,11 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   const pagesSkip = await scenario({ ...pages, conclusion: 'success' }, [{ ...pages, conclusion: 'success' }], 'first', pagesJob('skipped'), pagesMarker);
   const pagesDone = await scenario({ ...pages, conclusion: 'success' }, [{ ...pages, conclusion: 'success' }], 'first', pagesJob('success'), pagesMarker);
   check('v58.77 OPS-01 a Pages success without a verified deploy keeps the alert; a verified deploy closes it', !pagesSkip.mutations.length && pagesDone.mutations.some((m) => m.state === 'closed'));
+  const ciMarker = { number: 4, state: 'open', body: '<!-- aio-operations-alert:CI -->' };
+  const okRun = { ...run, conclusion: 'success' };
+  const lonePass = await scenario(okRun, [okRun, { ...run, id: 8, updated_at: '2026-10-10T11:00:00Z' }], 'first', null, ciMarker);
+  const secondPass = await scenario(okRun, [okRun, { ...okRun, id: 8, updated_at: '2026-10-10T11:00:00Z' }, { ...run, id: 7, updated_at: '2026-10-10T10:00:00Z' }], 'first', null, ciMarker);
+  check('v58.84 a lone pass after a failure keeps the alert open and silent; a second consecutive pass closes it', !lonePass.mutations.length && secondPass.mutations.some((m) => m.state === 'closed'));
   const streak = await scenario(refresh, [refresh, { ...refresh, id: 8, conclusion: 'success', updated_at: '2026-10-10T11:30:00Z' }, { ...refresh, id: 7, updated_at: '2026-10-10T11:00:00Z' }], 'first', (id) => (id === 8 ? skipJobs() : failJobs()));
   check('P1598 a skip run between two refresh failures does not break the failure streak', streak.mutations.some((m) => /Consecutive failures observed in latest 100 main runs: \*\*2\*\*/.test(m.body || '')));
 }

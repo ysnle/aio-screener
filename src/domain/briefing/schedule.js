@@ -105,6 +105,17 @@ function previousKrxBusinessDay(date) {
   }
 }
 
+const isNyseHoliday = (iso) => (MARKET_CALENDAR_REGISTRY.NYSE?.[iso.slice(0, 4)]?.holidays || []).includes(iso);
+function previousNyseBusinessDay(date) {
+  let ms = Date.parse(`${date}T12:00:00Z`);
+  for (let i = 0; i < 7; i += 1) {
+    const iso = new Date(ms).toISOString().slice(0, 10), day = new Date(ms).getUTCDay();
+    if (day !== 0 && day !== 6 && !isNyseHoliday(iso)) return iso;
+    ms -= 86400000;
+  }
+  return date;
+}
+
 // v58.74 (owner review 10/24): the week of the Israeli election showed no political event. Elections fixed by law are
 // listed with the official source and the review date; a moved date is corrected here (the row leaves the window after).
 // Times are when the polls close (results and exit polls follow), in KST. Sources, reviewed 2026-10-24: Israel Central
@@ -133,7 +144,8 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
     const krx = previousKrxBusinessDay(isoDate(y, m, nthWeekday(y, m, 4, 2)));
     push(`krx-expiry-${krx}`, Date.parse(`${krx}T15:20:00+09:00`), QUARTER_MONTHS.has(m) ? '한국 선물·옵션 동시 만기' : '한국 옵션 만기',
       '만기 정산과 지수 추종 자금의 리밸런싱이 장 마감 무렵 대형주 수급을 흔들 수 있음');
-    const us = isoDate(y, m, nthWeekday(y, m, 5, 3));
+    // v58.82: a third Friday that is an NYSE holiday (Juneteenth observed 2027-06-18) expires on the session before.
+    const us = previousNyseBusinessDay(isoDate(y, m, nthWeekday(y, m, 5, 3)));
     push(`us-expiry-${us}`, etWallClockToMs(us, [16, 0]), QUARTER_MONTHS.has(m) ? '미국 지수 선물·옵션 분기 만기' : '미국 월물 옵션 만기',
       '대규모 옵션 포지션이 정리되며 만기 주간 지수 변동이 커지거나 오히려 줄 수 있음');
   }

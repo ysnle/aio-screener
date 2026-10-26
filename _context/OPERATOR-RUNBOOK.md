@@ -1,10 +1,23 @@
 ---
 title: Operator runbook — provisioning and manual boundaries
-last_verified: 2026-10-03
+last_verified: 2026-10-26
 auto_refresh: false
 ---
 
 # Operator runbook
+
+## 증상별 빠른 대응 (v58.84)
+
+운영 이슈는 `aio-operations-alert`(워크플로 실패)와 `[Operations] 주간 점검`(토큰 만료·저장소 크기·AI 월 예산) 두 종류다. 사람이 할 일이 있을 때만 열린다.
+
+| 증상 | 먼저 볼 곳 | 할 일 |
+|---|---|---|
+| 화면 숫자가 오래됨(지연 표시) | 열린 `[Operations] Refresh market data` 이슈의 "Failed jobs/gates" | 실패한 단계 이름을 Claude에게 그대로 전달한다. 화면은 마지막 값과 날짜를 계속 보여 주므로 급하지 않다. |
+| 사이트가 안 열리거나 깨짐 | Actions → Deploy GitHub Pages 최근 실행 | 직전 변경이 원인이면 §5a대로 `git revert` 후 push. 과거 SHA 재배포는 쓰지 않는다. |
+| AI가 답하지 않음 | `https://aio-proxy.zmfhd007.workers.dev/health` | `ai.ready`가 false면 `ai.configured`(OpenAI 키)와 `ai.killSwitch`를 본다. 월 예산이 소진됐다면 다음 달(UTC) 1일까지 거절하는 것이 정상이다. |
+| 주간 점검에 토큰 만료 | 이슈 표의 안내 | 토큰을 재발급해 같은 이름의 저장소 Secret을 교체한다. 디스패치 토큰은 교체 후 `deploy-data-plane.yml`을 수동 실행해야 Worker에 반영된다. |
+| 주간 점검에 AI 월 예산 80% | OpenAI 대시보드 Usage | 실제 청구액을 확인한다. OpenAI 프로젝트 Limits에 월 $20 한도를 걸어 두면 원장이 틀려도 청구는 거기서 멈춘다. |
+| 주간 점검에 저장소 크기 | 이슈 표의 크기 | 900 MB 경고, 2 GB 조치. 큰 데이터 파일을 git 밖(Release 첨부 등)으로 옮기는 결정을 Claude와 논의한다. 이력 재작성은 되돌릴 수 없으므로 승인 없이 하지 않는다. |
 
 ## 일반 사용자 입력과 운영자 토큰의 구분 (P1607)
 
@@ -37,6 +50,7 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 | `BOK_API_KEY` | `deploy-ai-proxy.yml` | **선택.** `/relay`의 `bok` 제공자만 503 fail-closed로 남고 배포는 계속된다(경고로 표시). 브라우저는 이 소스에 직접 도달할 수 없으므로 키가 없으면 한국은행 지표는 서버 스냅샷에만 의존한다. |
 | `OPENFIGI_API_KEY` | `refresh-data.yml` (13F 단계) | **선택(v58.56).** OpenFIGI 무료 키(openfigi.com 가입). 없으면 키 없는 한도로 회차당 더 적은 CUSIP만 조회해 대가 보유 종목의 티커 매핑이 천천히 늘어난다. 모호하거나 미국 보통주가 아닌 응답은 버린다. |
 | `KOSIS_API_KEY` | `deploy-ai-proxy.yml` | **선택.** 위와 동일하게 `kosis` 제공자만 fail-closed. |
+| `AIO_OPERATOR_TOKEN` | `operations-weekly-review.yml` | **선택(v58.84).** §4의 `aio-proxy` Worker secret과 같은 값. 있으면 주간 점검이 `/_ops/ai-usage`로 이번 달 예약액이 예산의 80% 이상인지 상태만 이슈에 적는다(금액은 공개 이슈에 쓰지 않는다, R658). 없으면 그 항목은 '미설정'이다. |
 | `AIO_REFRESH_DISPATCH_TOKEN` | `deploy-data-plane.yml` | **권장(P1578).** 이 저장소만 대상으로 Actions 읽기·쓰기 권한을 준 fine-grained PAT. 데이터 평면 Worker에 `GITHUB_DISPATCH_TOKEN`으로 복사되어 5분 cron이 :20/:50에 `refresh-data`를 디스패치한다. 없으면 GitHub 예약 실행에만 의존한다(실측 슬롯의 약 10%). `/health`의 `schedulerDispatch.configured`와 워치독 경고로 확인한다. |
 | `CLOUDFLARE_API_TOKEN` | `deploy-ai-proxy.yml`, `deploy-data-plane.yml` | 두 Worker 배포가 `operator_required`로 즉시 실패한다. |
 | `CLOUDFLARE_ACCOUNT_ID` | `deploy-ai-proxy.yml`, `deploy-data-plane.yml` | 위와 동일. |
@@ -81,6 +95,8 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 - **`/relay` 키와 캐시** — FRED 개인 키 조회는 `private, no-store`이며 키·응답을 공유 캐시하지 않는다. BOK/KOSIS 공용 응답은 `public, max-age=3600`이므로 키 교체 뒤 최대 1시간 이전 응답이 남을 수 있다.
 - **KV 네임스페이스** `aio-quotes-prod` — 바인딩 id를 `AIO_QUOTES_KV_ID`로 저장소에 전달한다.
 - **Durable Object** `AIOQuotaDurableObject` (`AIO_QUOTA_DO` 바인딩) — 없으면 `/openai`가 503 fail-closed로 거부한다. `/relay`의 일일 캡도 같은 바인딩을 쓰므로, 없으면 릴레이도 503이다.
+- **가족 코드 `AIO_FAMILY_CODES` (v58.82, 소유자 결정 2026-10-26)** — 설정하면 브라우저의 공용 AI(`/openai`, 번역 포함)는 코드를 넣은 사람만 쓴다. 공개 앱 토큰은 모든 페이지에 실려 비밀이 될 수 없기 때문이다. 한 사람에 코드 하나, 12자 이상, 공백·쉼표 없이 만들고 쉼표로 이어 한 값에 넣는다(예: `node -e "for(let i=0;i<4;i++)console.log(require('crypto').randomBytes(12).toString('base64url'))"`). 저장소 Settings → Secrets → Actions에 `AIO_FAMILY_CODES`로 저장하고 `deploy-ai-proxy.yml`을 수동 실행하거나, `wrangler secret put AIO_FAMILY_CODES --config worker/wrangler.proxy.toml`로 직접 넣는다. 각 사람은 처음 질문할 때 나오는 입력란에 자기 코드를 한 번 넣으면 그 브라우저에 저장된다. 코드마다 하루 질문 수·월 예산 1/20 몫이 따로 잡혀 한 집에서 여럿이 써도 서로 막지 않는다. 코드가 새면 그 코드만 목록에서 빼고 다시 게시한다. 미설정이면 예전처럼 열려 있다(`/health`의 `ai.familyCodeRequired`로 확인). Actions의 AI 호출은 `AIO_AUTOMATION_TOKEN`을 쓰므로 영향이 없고, `/relay`·데이터 경로도 코드 없이 그대로다.
+- **가족 피드백 (v58.82, 로드맵 12)** — 각 화면 맨 아래 `이상해요` 버튼으로 가족이 짧은 글을 보낸다. 글에는 화면 이름과 앱 버전만 붙고, 공개 저장소·Actions 로그가 아니라 Worker(Durable Object)에 최근 300건까지 비공개로 남는다. 보내려면 가족 코드가 필요하고(`AIO_FAMILY_CODES` 미설정이면 503), 코드마다 UTC 하루 10건까지다. 소유자는 앱의 연결 상태 카드 → `가족 피드백 보기`에 `AIO_OPERATOR_TOKEN`을 넣어 읽는다(토큰은 저장하지 않음). 같은 내용은 `curl -H "X-AIO-Operator-Token: …" https://<worker>/_ops/feedback`으로도 읽힌다. `보낸 사람`은 코드별 고정 8자리 표시이며 코드 자체는 저장하지 않는다.
 - **선택 Worker 설정** `AIO_CRON_SECRET`(수동 `/admin/run`만), `AIO_APP_TOKEN`(공개 클라이언트 억제용), `AIO_DEV_ORIGINS`(개발 origin 추가). 자동 cron과 일반 사용자에게는 입력이 필요 없다. `deploy-ai-proxy.yml`의 명시적 수동 dispatch가 `OPENAI_API_KEY`·`AIO_AUTOMATION_TOKEN`·`BOK_API_KEY`·`KOSIS_API_KEY`를 게시한다. FRED 운영자 키는 Actions 수집/운영자 자신의 smoke용이며 사용자 대신 Worker에 게시하지 않는다.
 - **비공개 AI 사용량 관측(선택)** — `AIO_OPERATOR_TOKEN`을 `aio-proxy` Cloudflare Worker secret으로 설정하면 `GET /_ops/ai-usage`에서 현재 UTC 날짜의 공유 AI Durable Object 요청 수와 `AI_DAILY_CAP`을 확인할 수 있다. 최소 32자 무작위 값으로 발급하고 Cloudflare에 직접 `wrangler secret put AIO_OPERATOR_TOKEN --config worker/wrangler.proxy.toml`로 설정한다. 이 명령은 저장소의 정본 config를 사용하며, `.deploy.toml`은 CI runner 안에서만 생성된다. 저장소·워크플로 로그·공개 이슈에 값이나 응답을 복사하지 않는다. 미설정 또는 인증 실패는 404이며 `/health`에는 사용량·AI cap이 추가되지 않는다. 코드 배포 후 A5에서 secret 설정과 인증된 200 응답을 운영자가 확인해야 한다.
 - **월 AI 예산** — `AI_MONTHLY_BUDGET_USD=20`이며 코드에서 $20보다 큰 설정은 허용하지 않는다(소유자 승인 2026-10-11). 채팅·번역·Actions·배포 smoke가 같은 원장에 호출 최대 비용을 먼저 원자적으로 예약한다. 상한에 도달하면 추가 유료 요청을 차단한다. `AI_WEB_SEARCH_ENABLED=true`로 내부/무료 근거가 부족할 때 OpenAI 검색을 보강한다. 사용자별 검색 할당량은 없다. 요청당 도구 호출 최대 2회, 검색 호출당 $0.10의 정책 예약을 유지한다. 검색의 누적 청구 토큰 상한은 공개되지 않아 이 예약은 청구액 보장이나 실측 사용액이 아니다. 다른 앱에서 같은 프로젝트 키를 사용하면 Worker 원장 밖에서 청구되므로 AIO 전용 프로젝트와 키를 사용한다.
@@ -120,6 +136,7 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 
 - 데이터 수집·검증·봇 커밋·CI 검증·attestation 생성은 스케줄로 자동이다.
 - **라이브 수렴도 자동이다.** `scripts/ensure-live-convergence.mjs`가 매 refresh 주기마다 origin/main 리비전과 라이브 `deployment.json`의 `sourceSha`를 비교하고, 다르면 attestation을 가진 CI 실행 id를 `pages-deploy.yml`에 넘긴다. 배포는 그 워크플로만 수행하며 attestation 검증을 우회하지 않는다.
+- **주간 운영 점검**(`operations-weekly-review.yml`, 월요일 09:41 KST)이 `AIO_REFRESH_DISPATCH_TOKEN`·`CLOUDFLARE_API_TOKEN` 만료(30일 전 경고), 저장소 크기, AI 월 예산 상태를 확인해 조치가 필요할 때만 이슈 하나를 열고 정상이 되면 닫는다. 토큰 값은 각 발급처에만 보낸다.
 - 워치독이 red이면 먼저 `pages-data-freshness` / `pages-telegram-freshness` / `pages-source-matches-attested-ci` 중 무엇인지 확인한다. 앞의 둘은 위 수렴 경로가 막혔다는 뜻이다.
 
 ## 8. 경계

@@ -577,7 +577,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
           var krNewsHtml = krRecentNews.map(function(n) {
             var dt = n.pubDate ? new Date(n.pubDate) : null;
             var dtStr = dt ? (dt.getMonth()+1) + '/' + dt.getDate() : '';
-            return '&nbsp;&nbsp;<span class="krl-cyan">[' + dtStr + ']</span> ' + (n.title || '').substring(0, 140) + (n.source ? ' <span class="krl-note">(' + n.source + ')</span>' : '');
+            return '&nbsp;&nbsp;<span class="krl-cyan">[' + dtStr + ']</span> ' + escHtml((n.title || '').substring(0, 140)) + (n.source ? ' <span class="krl-note">(' + escHtml(n.source) + ')</span>' : ''); // feed titles are external text: RSS entity decoding can yield raw markup
           }).join('<br>');
           ss.push('<b>최근 7일 뉴스 (최근 수집, ' + krRecentNews.length + '건):</b><br>' + krNewsHtml);
         }

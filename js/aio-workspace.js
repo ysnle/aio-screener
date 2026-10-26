@@ -97,7 +97,15 @@ function getPortfolioData() {
     return JSON.parse(raw);
   } catch(e) { return []; }
 }
-function savePortfolioData(positions) {
+// v58.82: 다른 탭이 보유 종목을 바꾸면 이 탭의 오래된 사본으로 덮지 않는다(편집 거절). 가져오기·전체 삭제는 { replace: true }.
+window.addEventListener('storage', function(e) { if (e.key === PF_STORAGE_KEY) window.__aioPfOtherTab = true; });
+function _pfSaveFailText(saved, text) {
+  return saved.reason === 'other-tab' ? '다른 탭에서 포트폴리오가 바뀌어 저장하지 않았습니다. 다시 불러온 뒤 입력하세요.' : text;
+}
+function savePortfolioData(positions, opts) {
+  var replace = !!(opts && opts.replace);
+  if (window.__aioPfOtherTab && !replace) return Promise.resolve({ ok: false, reason: 'other-tab' });
+  if (replace) window.__aioPfOtherTab = false;
   var json = JSON.stringify(positions);
   var memoryOk = true;
   try {
@@ -463,7 +471,8 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
   let ticker = ((pfHolding && pfHolding.symbol) || pfRawTicker.toUpperCase()).replace(/^(\d{6})\.K[SQ]$/, '$1');
   var pfCheckPending = typeof window._aioReadHoldingInputs === 'function' ? window._aioReadHoldingInputs().catch(function() { return null; }) : Promise.resolve(null); // v58.80 F06/F25: input-check.js checks the values taken now; every field is read before the first await
   // P1176 (22 PFR01): 빈 칸을 0으로 직렬화하면 화면이 '목표 $0.00 · -100%'를 만든다 — 미설정은 null로 남긴다.
-  const parsedTarget = parseFloat((document.getElementById('pf-add-target').value || '').trim());
+  const pfTargetEl = document.getElementById('pf-add-target'), parsedTarget = parseFloat(pfTargetEl.value);
+  if (pfTargetEl.validity?.badInput || (pfTargetEl.value.trim() && !(parsedTarget > 0))) { showToast('목표가는 0보다 큰 숫자로 입력하거나 비워 두세요.'); return; } // v58.82: 말없이 미설정 저장하지 않음
   const target = Number.isFinite(parsedTarget) && parsedTarget > 0 ? parsedTarget : null;
   const memo = (document.getElementById('pf-add-memo').value || '').trim();
   // E3/P1187 (11 P11-02): 원가 통화는 합산의 단위다 — 이 경로에 writer가 없어서 사용자는 통화를
@@ -501,22 +510,22 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
       // 폼이 소유한 필드만 덮어쓰고 나머지는 보존한다.
       positions[existing] = { ...positions[existing], ticker, qty, cost, target, memo, costCurrency, updatedAt: Date.now() };
       const saved = await savePortfolioData(positions);
-      if (_pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
+      if (saved.reason !== 'other-tab' && _pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
       renderPortfolio();
-      showToast(saved.ok ? ticker + ' 업데이트 완료' : '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.');
+      showToast(saved.ok ? ticker + ' 업데이트 완료' : _pfSaveFailText(saved, '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.'));
     }, '');
     return;
   } else {
     positions.push({ ticker, qty, cost, target, memo, costCurrency, addedAt: Date.now(), updatedAt: Date.now() });
   }
   const saved = await savePortfolioData(positions);
-  if (_pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
+  if (saved.reason !== 'other-tab' && _pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
   window._aioRevealHolding = ticker; renderPortfolio(); // v58.80 run-5: portfolio.js scrolls to the new row
   // v48.3 신규 추가 토스트 → E3/P1181: 완료 문구는 durable ack 성공 뒤에만 노출된다.
   if (typeof showToast === 'function') {
     showToast(saved.ok
       ? ticker + ' 포지션 추가 완료' + (pfHolding && pfHolding.resolvedFrom ? ' ("' + pfHolding.resolvedFrom + '" = ' + ticker + ')' : '') + (pfListing && pfListing.listed === true && pfListing.name ? ', ' + pfListing.name : '') + ', 브라우저에 저장됨'
-      : '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.');
+      : _pfSaveFailText(saved, '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.'));
   }
 }
 function removePosition(ticker) {
@@ -528,7 +537,7 @@ function removePosition(ticker) {
       const saved = await savePortfolioData(positions);
       renderPortfolio(); window._aioFocusPortfolioAfterDelete?.(); // v57.81: focus left <body> (src/ui/components/shell-overlays.js)
       if (typeof showToast === 'function' && !saved.ok) {
-        showToast('영구 저장 실패 — 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.');
+        showToast(_pfSaveFailText(saved, '영구 저장 실패 — 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.'));
       }
     },
     ''
@@ -710,7 +719,7 @@ function clearAllPositions() {
     // E3/P1187 (11 P11-01): 이 경로는 savePortfolioData의 반환을 버려 persist가 거부돼도 조용히
     // 성공한 것처럼 보였다 — 삭제도 durable ack 뒤에만 확정으로 말한다.
     async function() {
-      const saved = await savePortfolioData([]);
+      const saved = await savePortfolioData([], { replace: true });
       renderPortfolio(); window._aioFocusPortfolioAfterDelete?.(); // v57.81: focus left <body> (src/ui/components/shell-overlays.js)
       if (typeof showToast === 'function' && !saved.ok) {
         showToast('영구 저장 실패 — 전체 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.');
@@ -734,7 +743,7 @@ function renderPortfolio() {
     if (main) main.style.display = 'none';
     return;
   }
-  const positions = getPortfolioData();
+  const positions = getPortfolioData(); try { window._pfPortfolioBackup.renderReminder(positions.length); } catch (_) {} // v58.84 backup reminder
   let ld = window._liveData || {};
   const tbody = document.getElementById('pf-positions-tbody');
   if (!tbody) return;
@@ -930,7 +939,7 @@ function _pfLegacyMoney(amount, currency, digits = 2) {
   if (amount == null) return '—';
   var fix = Number.isFinite(Number(digits)) ? Number(digits) : 2;
   var text = Math.abs(Number(amount)).toLocaleString('en', { minimumFractionDigits: fix, maximumFractionDigits: fix });
-  return code === 'USD' ? '$' + text : code === 'KRW' ? '₩' + Math.round(Number(amount)).toLocaleString('en') : text + ' ' + code;
+  return code === 'USD' ? '$' + text : code === 'KRW' ? '₩' + Math.round(Number(amount)).toLocaleString('en') : text + (/^[A-Z]{3}$/.test(code) ? ' ' + code : '');
 }
 function _pfLegacyCurrencyOf(position) {
   return String((position && (position.costCurrency || position.currency)) || '').trim().toUpperCase()
@@ -1752,7 +1761,7 @@ function exportPortfolio() {
   var bundle = api.build(_pfBackupSnapshot(), { appVersion: typeof APP_VERSION !== 'undefined' ? APP_VERSION : null, origin: location.origin }), a = document.createElement('a');
   if (!bundle.counts.total) { showToast('내보낼 데이터가 없습니다.'); return; }
   a.href = URL.createObjectURL(new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' })); a.download = 'aio-backup-' + bundle.exportedAt.slice(0, 10) + '.json'; a.click(); URL.revokeObjectURL(a.href);
-  try { localStorage.setItem('aio_last_backup_at', bundle.exportedAt); } catch(e) {}
+  try { localStorage.setItem('aio_last_backup_at', bundle.exportedAt); window._pfPortfolioBackup.renderReminder(1); } catch(e) {}
   showToast('전체 백업 저장 (' + api.describe(bundle.counts) + ') — 암호화되지 않은 파일이니 안전한 곳에 보관하세요.');
 }
 function _pfRestoreBackupSections(c) { var keys = (_pfAssumptionApi() || {}).keys || {};
@@ -1767,7 +1776,7 @@ function importPortfolio(event) {
     if (!parsed.ok) { showToast('파일 형식이 올바르지 않습니다.'); return; }
     showConfirmModal('데이터 가져오기', (bundle ? '전체 백업(' + api.describe(parsed.counts) + ')을' : c.positions.length + '개 포지션을') + ' 가져오시겠습니까? 기존 데이터가 대체됩니다.', async function() {
       // E3/P1187: 가져오기도 durable ack 뒤에만 '완료'를 말한다 — P1316: 묶음은 모든 섹션 ack를 합산한다.
-      var acks = [await savePortfolioData(c.positions)].concat(bundle ? await _pfRestoreBackupSections(c) : []);
+      var acks = [await savePortfolioData(c.positions, { replace: true })].concat(bundle ? await _pfRestoreBackupSections(c) : []);
       renderPortfolio();
       showToast(acks.every(function(r) { return r && r.ok; }) ? (bundle ? '전체 백업 가져오기 완료' : c.positions.length + '개 포지션 가져오기 완료') : '영구 저장 실패 — 가져오기가 확정되지 않았습니다. 새로고침 시 이전 데이터로 되돌아올 수 있습니다.');
     }, '');
@@ -1785,11 +1794,12 @@ function getWatchlists() {
   try {
     var raw = localStorage.getItem(WL_STORAGE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw);
+    var parsed = JSON.parse(raw); // v58.82: null·tickers 없는 목록이 화면 갱신을 깨뜨렸다
+    return Array.isArray(parsed) ? parsed.filter(function(l) { return l && Array.isArray(l.tickers); }) : [];
   } catch(e) { return []; }
 }
 function saveWatchlists(lists) {
-  try { localStorage.setItem(WL_STORAGE_KEY, JSON.stringify(lists)); } catch(e) {}
+  try { localStorage.setItem(WL_STORAGE_KEY, JSON.stringify(lists)); } catch(e) { showToast('관심목록을 저장하지 못했습니다(브라우저 저장 공간 부족).'); }
 }
 function getActiveWatchlistId() {
   return localStorage.getItem(WL_ACTIVE_KEY) || '';

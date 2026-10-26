@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.84';
+const APP_VERSION = 'v58.86';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -8917,43 +8917,6 @@ window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {
 // fallback is permitted.
 window.AIO.refreshMacroCalendarFromOfficialSchedule();
 
-window.AIO.renderMacroNextRelease = function() {
-  var el = document.getElementById('macro-next-release');
-  var releases = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases, nowMs = Date.now(), notYet = typeof window._aioMacroReleaseNotYet === 'function' ? window._aioMacroReleaseNotYet : function(k, d, n, t) { return d >= t; }; // P1844 (codex F07): native release clock
-  if (!el) return null;
-  if (!releases) {
-    el.textContent = '공식 일정 원천 수신 대기';
-    el.setAttribute('data-runtime-state', 'unavailable');
-    el.setAttribute('data-operational-use', 'blocked');
-    return null;
-  }
-  var todayKst = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
-  }).format(new Date());
-  var upcoming = Object.keys(releases).map(function(key) {
-    return { key:key, name:releases[key].name, date:releases[key].nextRelease };
-  }).filter(function(item) {
-    return item.date && notYet(item.key, item.date, nowMs, todayKst);
-  }).sort(function(a, b) {
-    return a.date.localeCompare(b.date);
-  });
-  // v57.88 (screen audit): US first — the 미국 거시 header named 한국은행 (10/22) while the scenarios named FOMC (10/28).
-  upcoming = upcoming.filter(function(i) { return /^us-/.test(i.key); }).concat(upcoming.filter(function(i) { return !/^us-/.test(i.key); }));
-  if (!upcoming.length) {
-    el.textContent = '다음 주요 발표 일정 확인 필요';
-    el.setAttribute('data-runtime-state', 'unavailable');
-    el.setAttribute('data-operational-use', 'calendar-only');
-    return null;
-  }
-  // P1505: a release is named for the reader ("미국 CPI"), not by the agency code ("BLS CPI").
-  var _releaseLabels = { 'us-nfp': '미국 고용보고서', 'us-cpi': '미국 CPI', 'us-pce': '미국 PCE 물가', 'us-ism-mfg': 'ISM 제조업 지수', 'us-ism-svc': 'ISM 서비스업 지수', 'us-retail': '미국 소매판매', 'us-fomc': 'FOMC 금리 결정', 'us-fed-rate': 'FOMC 금리 결정', 'kr-bok': '한국은행 금리 결정', 'conf-gtc-dc': 'NVIDIA GTC' };
-  var _kstWhen = typeof window._aioReleaseKstLabel === 'function' ? window._aioReleaseKstLabel(upcoming[0].key, upcoming[0].date) : null; // v58.80 first-users F09: KST like the body
-  el.textContent = '다음 주요 발표: ' + (_kstWhen ? _kstWhen + ' KST ' : '') + (_kstWhen ? '' : (function(d) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || '')); return m ? Number(m[2]) + '/' + Number(m[3]) + '(' + '일월화수목금토'.charAt(new Date(Date.UTC(+m[1], m[2] - 1, +m[3])).getUTCDay()) + ') ' : (d ? d + ' ' : ''); })(upcoming[0].date)) + (_releaseLabels[upcoming[0].key] || upcoming[0].name); // v57.91: '10/28(수) FOMC 금리 결정'
-  el.setAttribute('data-runtime-state', 'official-reference');
-  el.setAttribute('data-operational-use', 'calendar-only');
-  return upcoming[0];
-};
-
 window.AIO.getMacroReleaseStaleAudit = function() {
   var reg = window.AIO_MACRO_CALENDAR;
   if (!reg) return { status: 'error', staleReleaseCount: 0, issues: ['MACRO_CALENDAR undefined'] };
@@ -12000,10 +11963,10 @@ function _getKrxSession(at) {
   if (calendarStatus === 'unknown') return 'unknown';
   if (calendarStatus === 'closed') return 'closed';
   var h = kst.getHours(), m = kst.getMinutes();
-  var t = h * 60 + m; // 분 단위
-  if (t >= 540 && t < 930) return 'open';   // 09:00~15:30
-  if (t >= 510 && t < 540) return 'pre';     // 08:30~09:00
-  if (t >= 940 && t < 960) return 'after';   // 15:40~16:00
+  var t = h * 60 + m, hours = DATE_ENGINE.krSessionMinutes(kst); // 분 단위, 평소 [540, 930] (v58.82: 수능일 10:00~16:30)
+  if (t >= hours[0] && t < hours[1]) return 'open';
+  if (t >= hours[0] - 30 && t < hours[0]) return 'pre';
+  if (t >= hours[1] + 10 && t < hours[1] + 30) return 'after';
   return 'closed';
 }
 
@@ -12023,10 +11986,10 @@ function _getUsSession(at) {
   var h = et.getHours(), m = et.getMinutes();
   var t = h * 60 + m;
 
-  // 주말: 일요일 18:00 이전 또는 토요일 = closed
+  // 주말(v58.82): 금 20:00 후 ~ 일 18:00 전 = closed (CME 선물은 금 17:00 ET 주간 마감)
   if (day === 0 && t < 1080) return 'closed';    // 일요일 18:00 전
-  if (day === 6 && t >= 1020) return 'closed';    // 토요일 17:00 후
-  if (day === 6) return 'futures_only';            // 토요일 17:00 전 (선물 잔여)
+  if (day === 6) return 'closed';
+  if (day === 5 && t >= 1200) return 'closed';
   if (typeof DATE_ENGINE === 'undefined') return 'unknown';
   var calendarStatus = DATE_ENGINE.marketCalendarStatus('US', et);
   if (calendarStatus === 'unknown') return 'unknown';
@@ -12047,17 +12010,12 @@ function _getUsSession(at) {
  * 일 18:00 ET ~ 금 17:00 ET (중간 17:00~18:00 유지보수 휴장)
  * @returns {boolean} true = 선물 시장 운영 중
  */
-function _isFuturesOpen() {
-  var now = new Date();
-  var year = now.getUTCFullYear(), mar = new Date(year, 2, 1), nov = new Date(year, 10, 1);
-  var dstStart = new Date(mar.getTime() + ((14 - mar.getDay()) % 7) * 86400000 + 7 * 86400000);
-  var dstEnd = new Date(nov.getTime() + ((7 - nov.getDay()) % 7) * 86400000);
-  var isDST = now >= dstStart && now < dstEnd;
-  var etOffset = isDST ? -4 : -5;
-  var et = new Date(now.getTime() + (now.getTimezoneOffset() + etOffset * 60) * 60000);
-  var day = et.getDay(), t = et.getHours() * 60 + et.getMinutes();
-  // 토요일 17:00 이후 ~ 일요일 18:00 이전 = 휴장
-  if (day === 6 && t >= 1020) return false;
+function _isFuturesOpen(at) {
+  // v58.82: Intl ET 시계, 금 17:00 ET 주간 마감
+  var etFormat = _isFuturesOpen._etFormat || (_isFuturesOpen._etFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }));
+  var parts = Object.fromEntries(etFormat.formatToParts(at instanceof Date ? at : new Date()).map(function(part) { return [part.type, part.value]; }));
+  var day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(parts.weekday), t = Number(parts.hour) * 60 + Number(parts.minute);
+  if ((day === 5 && t >= 1020) || day === 6) return false;
   if (day === 0 && t < 1080) return false;
   // 평일 17:00~18:00 = 유지보수 (대략)
   if (t >= 1020 && t < 1080 && day >= 1 && day <= 5) return false;
@@ -13515,7 +13473,12 @@ function calcExtensionHeat(snapshot) {
 // 이쪽은 받지 못해 두 구현이 하루 다른 날짜를 낼 수 있었다. 로컬 자정을 toISOString으로 바꾸면
 // UTC+ 시간대에서 전날이 되므로(KST: 3rd Friday 2026-01-16 → "2026-01-15") 로컬 성분으로 포맷한다.
 function _aioNextMonthlyOpex(referenceDate) {
-  function third(y, m) { return new Date(y, m, 1 + ((5 - new Date(y, m, 1).getDay() + 7) % 7) + 14); }
+  // v58.82: 휴장인 셋째 금요일(2027-06-18)은 직전 거래일 만기
+  function third(y, m) {
+    var d = new Date(y, m, 1 + ((5 - new Date(y, m, 1).getDay() + 7) % 7) + 14);
+    try { for (var i = 0; i < 4 && DATE_ENGINE.hasMarketCalendar('US', d.getFullYear()) && !DATE_ENGINE.isUsTradingDay(d); i++) d = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1); } catch (_) {}
+    return d;
+  }
   var ref = referenceDate ? new Date(referenceDate) : new Date();
   var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
   var next = third(ref.getFullYear(), ref.getMonth());
@@ -14946,6 +14909,9 @@ const DATE_ENGINE = (function() {
   ];
   var US_HALF_DAYS_2026 = { '2026-11-27': '13:00', '2026-12-24': '13:00' };
   var US_HALF_DAYS_2027 = { '2027-11-26': '13:00' };
+  // v58.82: KRX 하루 시간 변경(수능·개장일) [개장분, 마감분] — market-calendar.js specialSessions 사본(ci-market-session-contract-check)
+  var KR_SPECIAL_SESSIONS = { '2026-11-19': [600, 990], '2027-01-04': [600, 930] };
+  function krSessionMinutes(d) { return KR_SPECIAL_SESSIONS[_dateStr(d)] || [540, 930]; }
 
   // 연도별 공휴일 조회 (2026/2027 지원, 미등록 연도는 빈 배열)
   var _KR_HOLIDAYS_MAP = { 2026: KR_HOLIDAYS_2026, 2027: KR_HOLIDAYS_2027 };
@@ -14987,7 +14953,7 @@ const DATE_ENGINE = (function() {
 
   function marketCloseMinute(market, d) {
     if (marketCalendarStatus(market, d) !== 'open') return null;
-    if (String(market).toUpperCase() === 'KR') return 930;
+    if (String(market).toUpperCase() === 'KR') return krSessionMinutes(d)[1];
     var halfDayMap = d.getFullYear() === 2026 ? US_HALF_DAYS_2026 : d.getFullYear() === 2027 ? US_HALF_DAYS_2027 : null;
     if (!halfDayMap) return 960;
     var close = halfDayMap[_dateStr(d)] || '16:00';
@@ -15005,16 +14971,16 @@ const DATE_ENGINE = (function() {
     var kst = nowKST(at);
     if (!hasMarketCalendar('KR', kst.getFullYear())) return { date: null, eodConfirmed: false, status: 'unknown' };
     var d = new Date(kst);
-    var time = d.getHours() * 60 + d.getMinutes();
-    // 장 마감(15:30=930) 이전 또는 비거래일 → 전 거래일로
-    if (time < 930 || !isKrTradingDay(d)) {
+    var time = d.getHours() * 60 + d.getMinutes(), krClose = krSessionMinutes(kst)[1];
+    // 장 마감(평소 15:30) 이전 또는 비거래일 → 전 거래일로
+    if (time < krClose || !isKrTradingDay(d)) {
       d.setDate(d.getDate() - 1);
     }
     for (var i = 0; i < 10; i++) {
       if (!hasMarketCalendar('KR', d.getFullYear())) return { date: null, eodConfirmed: false, status: 'unknown' };
       if (isKrTradingDay(d)) {
         // v48.95: 15:30~16:00 = EOD 데이터 미확정 grace window
-        var eodConfirmed = !(time >= 930 && time < 960 && isKrTradingDay(new Date(kst)));
+        var eodConfirmed = !(time >= krClose && time < krClose + 30 && isKrTradingDay(new Date(kst)));
         return { date: d, eodConfirmed: eodConfirmed };
       }
       d.setDate(d.getDate() - 1);
@@ -15067,10 +15033,10 @@ const DATE_ENGINE = (function() {
     if (dow === 0 || dow === 6) return { status: 'closed', label: '주말 휴장' };
     if (!hasMarketCalendar('KR', kst.getFullYear())) return { status: 'unknown', label: '연간 거래소 달력 미등록' };
     if (!isKrTradingDay(kst)) return { status: 'closed', label: '공휴일 휴장' };
-    var t = kst.getHours() * 60 + kst.getMinutes();
-    if (t >= 540 && t < 900) return { status: 'open', label: '장중' };
-    if (t >= 900 && t < 930) return { status: 'after', label: '시간외 거래' };
-    if (t >= 480 && t < 540) return { status: 'pre', label: '프리마켓' };
+    var t = kst.getHours() * 60 + kst.getMinutes(), hours = krSessionMinutes(kst);
+    if (t >= hours[0] && t < hours[1] - 30) return { status: 'open', label: '장중' };
+    if (t >= hours[1] - 30 && t < hours[1]) return { status: 'after', label: '시간외 거래' };
+    if (t >= hours[0] - 60 && t < hours[0]) return { status: 'pre', label: '프리마켓' };
     return { status: 'closed', label: '장 마감' };
   }
 
@@ -15134,6 +15100,7 @@ const DATE_ENGINE = (function() {
     isKrTradingDay: isKrTradingDay,
     isUsTradingDay: isUsTradingDay,
     hasMarketCalendar: hasMarketCalendar,
+    krSessionMinutes: krSessionMinutes,
     marketCalendarStatus: marketCalendarStatus,
     marketCloseMinute: marketCloseMinute,
     krxStatus: krxStatus,
@@ -18123,51 +18090,6 @@ window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
 // P1137/R623: NAV_ROUTE is the canonical 20 minus the derived-view and reference classes — derived, not re-listed.
 window.AIO_ROUTE_REGISTRY.classes.NAV_ROUTE = (window.AIO_ALL_ROUTE_PAGE_IDS || []).filter(function(id) { var c = window.AIO_ROUTE_REGISTRY.classes; return (c.DERIVED_VIEW || []).indexOf(id) < 0 && (c.REFERENCE || []).indexOf(id) < 0; });
 
-// v52.42 (P657/EF-16): kr-macro 카드별 기준일 노출이 산발적이었다(수출입 동향엔 "아카이브" 라벨이
-// 있지만 기준금리·물가·경기 카드엔 없음) — 이미 있는 _fieldTs(bok_rate/kr_macro)를 재사용해
-// 일관된 "기준: MM/DD (N일 전)" 배지를 3개 주요 카드에 부여(새 필드 신설 없음, R276 정신).
-window._aioRenderKrMacroFreshnessBadges = function() {
-  var S = window.DATA_SNAPSHOT || {};
-  var ts = S._fieldTs || {};
-  function badge(id, key) {
-    var el = document.getElementById(id);
-    var dateStr = ts[key];
-    if (!el) return;
-    if (!dateStr) {
-      el.textContent = '기준: 미수신';
-      el.style.color = 'var(--text-muted)';
-      el.setAttribute('data-runtime-state', 'unavailable');
-      return;
-    }
-    var days = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(dateStr) : Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
-    el.textContent = '기준: ' + dateStr.slice(5).replace('-', '/') + ' (' + days + '일 전)';
-    el.style.color = days > 30 ? 'var(--data-amber)' : 'var(--text-muted)';
-  }
-  badge('kr-macro-bokrate-freshness', 'bok_rate');
-  badge('kr-macro-cpi-freshness', 'kr_cpi');
-  badge('kr-macro-pmi-freshness', 'kr_pmi');
-};
-
-var _aioMacroCalendarSyncBound = false;
-var _initMacroPage = function() {
-  // P875: the release registry and the server snapshot are loaded on separate
-  // lanes. Re-render both calendar surfaces on entry and when the shared cut
-  // arrives so a cold direct route cannot remain stuck on "계산 중".
-  if (window.AIO && typeof window.AIO.renderMacroNextRelease === 'function') {
-    try { window.AIO.renderMacroNextRelease(); } catch(e) {}
-  }
-  if (!_aioMacroCalendarSyncBound) {
-    _aioMacroCalendarSyncBound = true;
-    document.addEventListener('aio:sharedMarketCut', function() {
-      if (!document.getElementById('page-macro')?.classList.contains('active')) return;
-      try { if (window.AIO && typeof window.AIO.renderMacroNextRelease === 'function') window.AIO.renderMacroNextRelease(); } catch(e) {}
-    });
-  }
-  // v53.7 (P725): 한국 매크로 통합 섹션 — 구 PAGES['kr-macro'].init에서 이관
-  if (typeof _aioRenderKrMacroFreshnessBadges === 'function') { try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }
-  // P1425: the yield-curve canvas and the FRED 12-month charts left the 거시 page with the native boards.
-}
-
 var _initFundamentalPage = function() {
   if (typeof _fundRecentSearches === 'function') { try { _fundRecentSearches(); } catch(e) {} }
   // The native entity slice fills the default surface from the bounded SEC projection.
@@ -18258,10 +18180,10 @@ var _safePageInitGlobal = function(pageId, fn) {
 }
 // P1339: b7bce36b nulled PAGES[route].init and orphaned these initializers (macro calendar/FRED/KR badges,
 // briefing strip, fundamental recent searches, guide chapters). One page-shown hook restores them without PAGES.init.
+// 2026-10-26: the macro initializer left with the 거시 · 금리 renderers (src/ui/components/macro-next-release.js).
 _aioPageBus.register('core-page-init-rewire', 'aio:pageShown', function(e) {
   var id = e && e.detail;
-  if (id === 'macro') _safePageInitGlobal('macro', _initMacroPage);
-  else if (id === 'briefing') _safePageInitGlobal('briefing', _initBriefingPage);
+  if (id === 'briefing') _safePageInitGlobal('briefing', _initBriefingPage);
   else if (id === 'fundamental') _safePageInitGlobal('fundamental', _initFundamentalPage);
   else if (id === 'guide') _safePageInitGlobal('guide', function() { _aioPolishRemainingPages('guide'); }); // idempotent via data-aio-remaining-polished
 });

@@ -4,6 +4,7 @@
 import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
+import { readFamilyCode } from '../domain/connections/family-code.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { parseSecStatements } from '../domain/fundamental/sec-statements.js';
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
@@ -32,7 +33,7 @@ import { applyFxPanel, applyLedgerPanel, clearDeclaredFields, readDeclaredFields
 import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js';
 import { baseValueRows, baseValueNote } from '../ui/panels/portfolio-base-values.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
-import { BACKUP_SECTIONS, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
+import { BACKUP_SECTIONS, backupReminder, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
 import { readWatchlistSymbols, toggleWatchlistSymbol } from '../data/watchlist-store.js';
 import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBalances, setCashBalance, writeCashBalances } from '../data/portfolio-cash.js';
 import { appUsdKrwClose } from '../domain/portfolio/cash.js';
@@ -100,6 +101,11 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._detectSectorQuery = (text) => detectSectorQuery(text, { rows: screenerQueryInput().rows });
   window.AIO = window.AIO || {};
   window.AIO.describeSharedConnection = describeSharedConnection;
+  // v58.82: family code (shared AI); the entry form loads on first need and saving drops the cached health.
+  const familyStorage = () => { try { return window.localStorage; } catch { return null; } };
+  window._aioOpenFeedback = () => import('../ui/components/feedback-form.js').then((m) => m.openFeedbackDialog({ documentRef: document, windowRef: window, storage: familyStorage(), version: typeof APP_VERSION === 'string' ? APP_VERSION : '' })).catch(() => null); // roadmap 12
+  window._aioWithFamilyCode = (headers) => { const code = readFamilyCode(familyStorage()); if (code) headers['X-AIO-Family-Code'] = code; return headers; }; // AI requests only
+  window.AIO.attachFamilyCodeForm = (box) => import('../ui/components/family-code-form.js').then((m) => m.attachFamilyCodeForm(box, { documentRef: document, storage: familyStorage(), onSaved: () => window._aioClearWorkerHealth?.() })).catch(() => null);
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
   // v58.71: research-channel numbers in the chat context; loaded after boot (the chat checks that it exists).
   import('../ai/context/channel-signals.js').then((module) => { window.AIO.formatChannelSignalEvidence = module.formatChannelSignalEvidence; }).catch(() => {});
@@ -163,6 +169,15 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     sections: BACKUP_SECTIONS,
     build: buildPortfolioBackup,
     describe: describeBackupCounts,
+    renderReminder(holdingCount) {
+      const el = document.getElementById('pf-backup-reminder');
+      if (!el) return;
+      let last = null;
+      try { last = localStorage.getItem('aio_last_backup_at'); } catch (_) {}
+      const reminder = backupReminder({ lastBackupAt: last, holdingCount });
+      el.hidden = !reminder;
+      el.textContent = reminder ? reminder.text : '';
+    },
     parse: (text) => parsePortfolioBackup(text, backupDeps)
   };
   // P1317/R663: the ticker route, quote request and screener lookup share one canonical symbol —
@@ -282,6 +297,12 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   };
   // v58.80 (first-users F09): the 거시 header named FOMC by its US date (10/28(수)) beside the body's 10/29(목) 03:00 KST.
   window._aioReleaseKstLabel = (key, date) => { const at = releaseAtMs(key, date); return Number.isFinite(at) ? formatKstWhen(at).label : null; };
+  // v58.85: names kept for tests after the 거시 renderers left aio-core.js (lazy, outside the boot set).
+  import('../ui/components/macro-next-release.js').then((m) => {
+    const at = { documentRef: document, root: window };
+    if (window.AIO) window.AIO.renderMacroNextRelease = () => m.renderMacroNextRelease(at);
+    window._aioRenderKrMacroFreshnessBadges = () => m.renderKrMacroFreshnessBadges(at);
+  }).catch(() => {});
   window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
   const universeSymbols = () => new Set((typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [])
     .map((row) => String(row?.sym || row?.symbol || '').toUpperCase()).filter(Boolean));
