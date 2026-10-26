@@ -12,6 +12,7 @@ import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.
 import { renderTickerOverview } from '../ui/components/ticker-overview.js';
 import { renderPortfolioExposure, renderPortfolioStress } from '../ui/components/portfolio-exposure.js';
 import { renderPortfolioRiskMetrics, renderPortfolioRiskStatus } from '../ui/components/portfolio-risk-metrics.js';
+import { organizeGuideChapters } from '../ui/components/guide-chapters.js';
 import { renderWatchlist, readWatchlistSelect, readWatchlistInputs, clearWatchlistInputs } from '../ui/components/portfolio-watchlist.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 
@@ -66,4 +67,6 @@ export function installLegacyScreenBridges(root, documentRef) {
   root._aioReadWatchlistInputs = () => readWatchlistInputs(at);
   root._aioClearWatchlistInputs = (typed) => clearWatchlistInputs(typed, at);
   if (root._aioWatchlistPending && typeof root.refreshWatchlistUI === 'function') { root._aioWatchlistPending = false; root.refreshWatchlistUI(); }
+  // v59.07 도움말: the chapter layout (guide.js runs it on mount; the headless T869 test calls this name).
+  root._aioOrganizeGuideChapters = () => { const page = documentRef.getElementById('page-guide'); if (page) organizeGuideChapters(documentRef, page); };
 }

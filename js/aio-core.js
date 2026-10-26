@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.06';
+const APP_VERSION = 'v59.07';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -18014,51 +18014,7 @@ var _initFundamentalPage = function() {
   // consume network/API budgets or imply that one hardcoded company is the user's context.
 }
 
-// v52.89 P704: 13면 시안의 조용한 정보 위계를 가이드·용어사전·한국 5면으로 확장한다.
-// 기존 데이터/액션 DOM은 그대로 재사용하고, 보조 섹션만 명시적 탐색 단계로 묶는다.
-var _aioPolishRemainingPages = function(pageId) {
-  var page = document.getElementById('page-' + pageId);
-  if (!page || page.dataset.aioRemainingPolished === '1') return;
-  page.dataset.aioRemainingPolished = '1';
-
-  function directSections(root) {
-    return Array.prototype.slice.call(root.children).filter(function(el) { return el.classList && el.classList.contains('aio-section'); });
-  }
-  function sectionLabel(section, fallback) {
-    var label = section && section.querySelector('.aio-section-label, .page-title, .widget-title');
-    return (label && label.textContent || fallback || '추가 정보').replace(/\s+/g, ' ').trim();
-  }
-  function wrapSections(root, sections, title, className) {
-    sections = (sections || []).filter(function(el) { return el && el.parentElement === root; });
-    if (!sections.length) return null;
-    var details = document.createElement('details');
-    details.className = className || 'aio-comp-secondary';
-    var summary = document.createElement('summary');
-    summary.textContent = title;
-    details.appendChild(summary);
-    root.insertBefore(details, sections[0]);
-    sections.forEach(function(section) { details.appendChild(section); });
-    return details;
-  }
-
-  if (pageId === 'guide') {
-    var guideSections = directSections(page);
-    var quick = guideSections[0];
-    var hero = guideSections.filter(function(section) { return !!section.querySelector('.page-title'); })[0];
-    if (hero) page.insertBefore(hero, page.firstChild);
-    if (quick && hero) hero.insertAdjacentElement('afterend', quick);
-    var chapterSections = directSections(page).filter(function(section) { return section !== hero && section !== quick; });
-    chapterSections.forEach(function(section) {
-      var details = wrapSections(page, [section], sectionLabel(section), 'aio-guide-chapter');
-    });
-    var policy = document.getElementById('guide-public-policy');
-    if (policy) page.appendChild(policy);
-  }
-
-  // v53.7 (P725): kr-home/kr-supply/kr-macro/kr-technical polish 분기 제거 — 페이지 퇴역.
-  // kr-themes 테마 progressive 버튼은 통합 섹션(#kr-integrated-themes) 내에서 동작해야 하므로
-  // 페이지 polish가 아닌 별도 idempotent 헬퍼로 유지(themes 진입 시 initKoreaThemes에서 호출).
-}
+// v59.07: the guide chapter layout (_aioPolishRemainingPages, v52.89 P704) runs from src/ui/pages/guide.js on mount.
 
 // v58.99: window._aioEnsureKrThemeProgressive (한국 테마 '테마 더 보기') moved to src/ui/components/kr-theme-progressive.js.
 
@@ -18081,13 +18037,12 @@ var _safePageInitGlobal = function(pageId, fn) {
   } catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'page-init', pageId + ' init failed: ' + e.message); }
 }
 // P1339: b7bce36b nulled PAGES[route].init and orphaned these initializers (macro calendar/FRED/KR badges,
-// briefing strip, fundamental recent searches, guide chapters). One page-shown hook restores them without PAGES.init.
+// briefing strip, fundamental recent searches; guide chapters since v59.07 in guide.js). One page-shown hook restores them without PAGES.init.
 // 2026-10-26: the macro initializer left with the 거시 · 금리 renderers (src/ui/components/macro-next-release.js).
 _aioPageBus.register('core-page-init-rewire', 'aio:pageShown', function(e) {
   var id = e && e.detail;
   if (id === 'briefing') _safePageInitGlobal('briefing', _initBriefingPage);
   else if (id === 'fundamental') _safePageInitGlobal('fundamental', _initFundamentalPage);
-  else if (id === 'guide') _safePageInitGlobal('guide', function() { _aioPolishRemainingPages('guide'); }); // idempotent via data-aio-remaining-polished
 });
 
 // v48.14: aio:pageShown dedup guard (Agent C2/P1-1 대응)

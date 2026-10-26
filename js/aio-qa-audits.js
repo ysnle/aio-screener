@@ -2801,7 +2801,7 @@ window.AIO.getContentTruthAudit = function(opts) {
   var issues = [];
   var fakeFeedback = /사이드바\s*하단\s*["“]?Feedback|피드백\s*보드에서\s*처리\s*현황/.test(guideText);
   if (fakeFeedback) issues.push('retired feedback/board instruction remains in guide');
-  var publicContact = !!document.getElementById('guide-public-policy') && !!(guide && guide.querySelector('a[href*="github.com/ysnle/aio-screener/issues"]'));
+  var publicContact = !!document.querySelector('#guide-public-policy') && !!(guide && guide.querySelector('a[href*="github.com/ysnle/aio-screener/issues"]'));
   if (!publicContact) issues.push('single public inquiry path missing');
   var publicMarkup = document.documentElement.innerHTML.replace(/<script[\s\S]*?<\/script>/gi, '');
   var oldPrivateContact = /dydyd007@naver\.com|mailto:/i.test(publicMarkup);

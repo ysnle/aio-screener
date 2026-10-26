@@ -843,7 +843,29 @@ check('fundamental route entry remains a free bounded SEC surface without automa
   /var\s+_initFundamentalPage\s*=\s*function\(\)[\s\S]{0,500}user-triggered/.test(core)
     && !/aioDefaultCompany/.test(core)
     && !/var\s+_initFundamentalPage\s*=\s*function\(\)[\s\S]{0,700}fundamentalSearch\s*\(/.test(core));
-check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', /(?:(?:function\s+_aioPolishRemainingPages\(pageId\))|(?:(?:var|let|const)\s+_aioPolishRemainingPages\s*=\s*function\(pageId\)))/.test(core) && /aio-guide-chapter/.test(core) && krMoreProbe /* v58.99: the 테마 progressive toggle runs from src/ui/components/kr-theme-progressive.js */ && /aio-comp-secondary-feed/.test(html));
+const guideChapterProbe = await (async () => {
+  const { organizeGuideChapters } = await import('../src/ui/components/guide-chapters.js');
+  const node = (tag, id, cls, label) => ({
+    tagName: tag, id, dataset: {}, children: [], parentElement: null, open: false, textContent: '',
+    classList: { contains: (c) => (cls || '').split(' ').includes(c) },
+    querySelector: (sel) => (label && sel.includes(label.cls) ? { textContent: label.text } : null),
+    appendChild(c) { if (c.parentElement) c.parentElement.children.splice(c.parentElement.children.indexOf(c), 1); c.parentElement = this; this.children.push(c); return c; },
+    insertBefore(c, ref) { if (c.parentElement) c.parentElement.children.splice(c.parentElement.children.indexOf(c), 1); c.parentElement = this; this.children.splice(Math.max(0, this.children.indexOf(ref)), 0, c); return c; },
+    insertAdjacentElement(_, c) { const p = this.parentElement; if (c.parentElement) c.parentElement.children.splice(c.parentElement.children.indexOf(c), 1); c.parentElement = p; p.children.splice(p.children.indexOf(this) + 1, 0, c); },
+    get firstChild() { return this.children[0] || null; },
+  });
+  const page = node('DIV', 'page-guide', 'page');
+  const policy = node('DIV', 'guide-public-policy', '');
+  [node('DIV', 'q', 'aio-section', { cls: '.aio-section-label', text: '빠른 시작' }), node('DIV', 'h', 'aio-section', { cls: '.page-title', text: '도움말' }), policy,
+    node('DIV', 'c1', 'aio-section', { cls: '.aio-section-label', text: '화면  안내' }), node('DIV', 'c2', 'aio-section')].forEach((c) => page.appendChild(c));
+  const documentRef = { getElementById: (id) => (id === 'guide-public-policy' ? policy : null), createElement: (tag) => node(tag.toUpperCase(), '', tag === 'details' ? '' : '') };
+  organizeGuideChapters(documentRef, page);
+  organizeGuideChapters(documentRef, page);
+  const ids = page.children.map((c) => c.id || c.className);
+  const chapters = page.children.filter((c) => c.className === 'aio-guide-chapter');
+  return ids.join() === 'h,q,aio-guide-chapter,aio-guide-chapter,guide-public-policy' && chapters.every((c) => !c.open) && chapters.map((c) => c.children[0].textContent).join('|') === '화면 안내|추가 정보';
+})();
+check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', guideChapterProbe /* v59.07: the guide chapters are laid out by src/ui/components/guide-chapters.js */ && krMoreProbe /* v58.99: the 테마 progressive toggle runs from src/ui/components/kr-theme-progressive.js */ && /aio-comp-secondary-feed/.test(html));
 // P1137/R623: NAV_ROUTE is no longer a re-listed array — it is derived from the canonical
 // `AIO_ALL_ROUTE_PAGE_IDS` minus the derived-view and reference classes. Assert the derivation
 // itself, so re-introducing a hand-listed copy fails here as well as in the registry gate.

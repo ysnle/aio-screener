@@ -6962,9 +6962,7 @@
       });
     }); ['kr-integrated-technical','kr-integrated-macro','kr-integrated-themes','pf-ai-notes-fold','pf-watchlist-risk-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden
     try {
-      ['guide','kr-home','kr-supply','kr-themes','kr-macro','kr-technical'].forEach(function(id) {
-        if (typeof _aioPolishRemainingPages === 'function') _aioPolishRemainingPages(id);
-      });
+      if (typeof window._aioOrganizeGuideChapters === 'function') window._aioOrganizeGuideChapters(); // v59.07: src/ui/components/guide-chapters.js
       if (typeof window._aioRenderPageFundamentals === 'function') failures869.push('retired-fund-renderer-present');
       var compFundCount = pages869.reduce(function(total, id) {
         var page = document.getElementById('page-' + id);

@@ -1,4 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { organizeGuideChapters } from '../components/guide-chapters.js';
 import { GUIDE_SCREEN_TEXT } from '../../domain/content/guide-screens.js';
 import { ROUTE_HUBS } from '../navigation/route-hubs.js';
 import { SCREEN_SHORTCUTS } from '../navigation/screen-shortcuts.js';
@@ -186,6 +187,7 @@ export function createGuidePage({ documentRef } = {}) {
       result?.setAttribute('role', 'status');
       result?.setAttribute('aria-live', 'polite');
       if (!guidePage) return () => bag.dispose();
+      organizeGuideChapters(documentRef, guidePage);
       renderScreenCards(documentRef);
       renderRulesTable(documentRef);
       guidePage.dataset.aioArchitectureRoute = 'guide';
