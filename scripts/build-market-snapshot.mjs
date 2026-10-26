@@ -101,14 +101,17 @@ function scheduledSession(symbol, observedMs, nowMs) {
   const zone = asia ? asia.zone : isKorea ? 'Asia/Seoul' : 'America/New_York';
   const observedLocal = zoneParts(observedMs, zone);
   const nowLocal = zoneParts(nowMs, zone);
-  const openMinutes = asia ? asia.open : isKorea ? 9 * 60 : 9 * 60 + 30;
-  const closeMinutes = asia ? asia.close : isKorea ? 15 * 60 + 30 : 16 * 60;
+  // v58.82: a KRX day with moved hours (수능 10:00-16:30) takes them from the calendar.
+  const krToday = isKorea ? resolveMarketCalendarSession({ market: 'KR', date: dateInTimezone(nowMs, 'Asia/Seoul') }) : null;
+  const hhmm = (text) => Number(text.slice(0, 2)) * 60 + Number(text.slice(3, 5));
+  const openMinutes = asia ? asia.open : krToday?.status === 'open' ? hhmm(krToday.open) : isKorea ? 9 * 60 : 9 * 60 + 30;
+  const closeMinutes = asia ? asia.close : krToday?.status === 'open' ? hhmm(krToday.close) : isKorea ? 15 * 60 + 30 : 16 * 60;
   const nowMinute = minuteOfDay(nowLocal);
   const observedMinute = minuteOfDay(observedLocal);
   if (!nowLocal || !isWeekday(nowLocal.weekday)) return 'MARKET_CLOSED';
   // v58.82: a weekday KRX holiday (설·추석 runs) is a closed venue, not an open session with a 24h previous-close leash —
   // 10:00 KST on the second day of 설날 2027 (02-09) read the Fri 02-05 close as STALE_UNEXPECTED.
-  if (isKorea && resolveMarketCalendarSession({ market: 'KR', date: dateInTimezone(nowMs, 'Asia/Seoul') }).reason === 'holiday') return 'MARKET_CLOSED';
+  if (krToday?.reason === 'holiday') return 'MARKET_CLOSED';
   if (nowMinute != null && nowMinute >= openMinutes && nowMinute < closeMinutes) {
     if (observedLocal && isWeekday(observedLocal.weekday) && observedMinute != null && observedMinute >= openMinutes && observedMinute < closeMinutes) {
       return 'IN_SESSION';

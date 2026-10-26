@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2099 - v58.82 - 수능일·개장일 KRX 시간 변경이 캘린더에 없음 (2026-10-26)
+
+- symptom/reproduction: 2026-11-19(2027학년도 수능) KRX는 10:00~16:30인데 캘린더는 09:00~15:30으로 고정되어, 16:00에 그날 종가를 확정으로 표시하고 15:30~16:30을 장 마감·09:00~10:00을 장중으로 판정했다. 2027-01-04 개장일 10:00 개장도 같았다.
+- root_cause: market-calendar.js에는 휴장일과 조기 폐장(halfDays)만 있고 하루 전체 시간이 바뀌는 날을 표현할 방법이 없었으며, legacy DATE_ENGINE·_getKrxSession·스냅샷 scheduledSession·코스피 장중 기사 노트가 09:00/15:30을 상수로 썼다.
+- fix: 캘린더에 specialSessions({open, close})를 추가하고 2026-11-19(10:00~16:30)·2027-01-04(10:00 개장)를 등록. resolveMarketCalendarSession·latestCompletedKrSession이 이를 따르고, legacy 사본 KR_SPECIAL_SESSIONS(DATE_ENGINE.krSessionMinutes), _getKrxSession, krxStatus, lastKrTradingDayEx, 스냅샷 scheduledSession, kr-close-note가 같은 시간을 쓴다.
+- violated_rule: R447 거래 시간은 등록된 연간 캘린더에서만 온다
+- prevention: ci-market-session-contract-check v58.82: legacy 사본=레지스트리, 수능일 16:15 KST에 전날 종가·16:35 이후 당일 확정.
+- verification/residual: node scripts/ci-market-session-contract-check.mjs
+
 ## P2098 - v58.82 - 전각 티커·잘못된 목표가·손상된 관심목록 저장소 처리 (2026-10-26)
 
 - symptom/reproduction: ＡＡＰＬ 같은 전각 입력이 미검증 티커로 거절, 읽을 수 없는 목표가가 말없이 미설정으로 저장, 저장된 관심목록이 null이거나 tickers가 없으면 화면 갱신이 예외, 저장 공간 부족 시 관심목록 변경이 조용히 사라짐.
