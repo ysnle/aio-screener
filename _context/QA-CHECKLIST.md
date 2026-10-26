@@ -4,6 +4,15 @@ last_verified: 2026-10-26
 confidence: medium
 ---
 
+## v58.82 다중 사용자 엣지 케이스 점검 (2026-10-26)
+
+- [x] QA-EDGE-01: v58.82 백업 가져오기는 qty>0·cost>=0·3자리 통화 코드만 받고, 한국 테마 뉴스 제목·출처는 이스케이프되어 렌더링된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-EDGE-02: v58.82 다른 탭에서 보유 종목이 바뀐 뒤 이 탭에서 추가·수정·삭제하면 저장되지 않고 다시 불러오기 안내가 나온다(다른 탭 변경 보존). verify_by: 브라우저 두 탭으로 포트폴리오를 열고 한쪽에서 추가 후 다른 쪽에서 추가 시도
+- [x] QA-EDGE-03: v58.82 같은 연결의 동시 검색 답변이 금액 상한을 넘으면 검색 없이 답하고, 그래도 넘으면 금액 상한 문구로 거절한다. verify_by: node worker/openai-contract.test.mjs
+- [x] QA-EDGE-04: v58.82 DART 한도 초과·일시 실패는 이전 재무를 유지하고 절반 미만 결과는 발행하지 않으며, 서비스워커는 5xx에 신선한 캐시를 쓴다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-EDGE-05: v58.82 평일 KRX 휴장일 KR 지수는 MARKET_CLOSED, 휴장 세 번째 금요일 옵션 만기는 직전 거래일, 일간 sentiment는 NYSE 세션 기준 신선도, 환율 라벨은 KST. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-EDGE-06: v58.82 전각 티커는 ASCII로 접히고(ＡＡＰＬ→AAPL), 읽을 수 없는 목표가는 그 칸에서 거절된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+
 ## v58.80 미래 자료 누설 검사와 작업 방식 개선 (2026-10-25)
 
 - [x] QA-LOOKAHEAD-01: v58.80 미래 자료 누설 검사: 과거 30세션 as-of 불변(관측 시각 기준 절단, 신용 축 평가), 테마 단계 백필 미래 교란 불변, 330버킷 워밍업 충분. 네 누설 변이에서 실패. verify_by: node scripts/ci-lookahead-check.mjs

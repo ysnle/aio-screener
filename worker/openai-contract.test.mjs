@@ -312,6 +312,16 @@ async function main() {
       check('v58.20 one connection cannot reserve more than 1/20 of the month per UTC day; settled answers refund the unused part',
         unsettledStatuses.join() === '200,200,429' && otherConnection === 200 && settledStatuses.every((status) => status === 200),
         { unsettledStatuses, otherConnection, settledStatuses });
+      // v58.82: a household shares one address; a searched answer that would pass the share while others are still in
+      // flight is admitted as its no-search variant when that fits, and refused (marked spend-limited) only when it does not.
+      const house = harness(), houseKey = 'c'.repeat(32), asHouse = (id, amount, saver) => ({ ...payload(id, amount, 20000000), clientKey: houseKey, clientCap: 150, ...(saver ? { saverReservationMicroUsd: saver } : {}) });
+      const first = await house.durable.mutateQuota('reserve', asHouse('house-1', 600000));
+      const second = await house.durable.mutateQuota('reserve', asHouse('house-2', 600000, 100000));
+      const third = await house.durable.mutateQuota('reserve', asHouse('house-3', 600000, 400000));
+      check('v58.82 shared-address searched answer over the spend share falls back to no search, then refuses as spend-limited',
+        first.reserved === true && second.reserved === true && second.budgetSaverApplied === true && third.reserved === false && third.clientSpendLimited === true
+          && house.saved().clientSpend['claude:' + currentDay][houseKey] === 700000,
+        { first, second, third });
     }
     const clientCap = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: '3' }), clientCapBefore = upstreamCalls;
     const clientRace = await Promise.all(Array.from({ length: 6 }, (_, i) => worker.fetch(req(body, { headers: ip('203.0.113.9', { 'X-AIO-Idempotency-Key': 'client-race-' + i }) }), clientCap.env)));

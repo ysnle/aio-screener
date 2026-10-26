@@ -1036,7 +1036,16 @@ export class AIOQuotaDurableObject {
         const clientSpent = spendKey ? this.counts.clientSpend?.[dayKey]?.[spendKey] || 0 : 0;
         // A connection's first reservation of the day is never refused by its share alone (the month bound above still
         // applies), so a small configured month cannot block every single answer.
-        if (spendKey && clientSpent > 0 && clientSpent + amount > Math.floor(body.monthlyCapMicroUsd / AI_PER_CLIENT_MONTH_SHARE)) {
+        const clientShare = Math.floor(body.monthlyCapMicroUsd / AI_PER_CLIENT_MONTH_SHARE);
+        // v58.82: a household shares one address, so three or four searched answers in flight at once (each reserving
+        // the ~$0.27 upper bound until settlement) reach the share although real spend is far lower. The answer is then
+        // admitted without web search when that variant fits, as in the month's saver mode, instead of being refused.
+        if (spendKey && clientSpent > 0 && clientSpent + amount > clientShare && !budgetSaverApplied
+          && Number.isSafeInteger(body.saverReservationMicroUsd) && body.saverReservationMicroUsd >= 1 && body.saverReservationMicroUsd < amount
+          && clientSpent + body.saverReservationMicroUsd <= clientShare) {
+          amount = body.saverReservationMicroUsd; budgetSaverApplied = true;
+        }
+        if (spendKey && clientSpent > 0 && clientSpent + amount > clientShare) {
           result = { ok: false, reserved: false, duplicate: false, count, reason: 'client-daily-cap', budgetState, clientSpendLimited: true };
           return;
         }
@@ -1184,18 +1193,21 @@ async function dispatchOpenAi(env, budget, payload, signal, rpc) {
   const reservation = await rpc('reserve', saver ? { ...payload, saverReservationMicroUsd: saver.reservationMicroUsd } : payload);
   if (!reservation?.ok || !reservation.reserved) {
     const reason = reservation?.reason || 'quota-unavailable';
-    const daily = reason === 'daily-cap' || reason === 'client-daily-cap';
+    // v58.82: the spend share frees up as in-flight answers settle, so it is not a wait-until-midnight limit.
+    const spendLimited = reason === 'client-daily-cap' && reservation?.clientSpendLimited === true;
+    const daily = (reason === 'daily-cap' || reason === 'client-daily-cap') && !spendLimited;
     const resetMs = nextUtcDayStartMs();
     const retryAfterSeconds = Math.max(1, Math.ceil((resetMs - Date.now()) / 1000));
     const message = reason === 'legacy-month-spend-unknown'
       ? '이번 UTC 월의 과거 AI 비용을 확인할 수 없어 서버 AI를 보호 차단했습니다. 공급자 Console의 월 한도를 확인하세요.'
       : reason === 'monthly-budget' ? '월 AI 예산의 보수적 예약 상한에 도달했습니다. 실제 청구액이 아니며 반복 재시도로 복구되지 않습니다.'
+      : reason === 'client-daily-cap' && reservation?.clientSpendLimited === true ? '이 연결의 오늘 AI 사용 금액 상한(월 예산의 1/20)에 도달했습니다. 진행 중인 답변이 끝나면 남은 예약분이 돌아오니 잠시 뒤 다시 시도하세요.'
       : reason === 'client-daily-cap' ? `이 연결의 오늘 AI 질문 한도(${Number.isSafeInteger(reservation?.clientLimit) ? reservation.clientLimit + '회' : '일일 한도'})를 모두 사용했습니다. UTC 자정(한국 시간 오전 9시)에 다시 사용할 수 있습니다.`
       : 'daily AI quota exceeded';
     logDenial('/openai', reason);
     return Response.json({ error: { type: 'rate_limit_error', code: reason, message, quotaReason: reason,
       ...(daily ? { retryAfterSeconds, resetAt: new Date(resetMs).toISOString() } : {}) } },
-    { status: 429, headers: { ...aiAdmissionHeaders(reservation), ...(daily ? { 'Retry-After': String(retryAfterSeconds) } : {}) } });
+    { status: 429, headers: { ...aiAdmissionHeaders(reservation), ...(daily ? { 'Retry-After': String(retryAfterSeconds) } : spendLimited ? { 'Retry-After': '60' } : {}) } });
   }
   if (reservation.duplicate) return Response.json({ error: { type: 'idempotency_conflict', message: 'duplicate request is already reserved' } }, { status: 409 });
   if (reservation.budgetSaverApplied === true && saver) budget = saver;

@@ -21,6 +21,7 @@ export const BACKUP_SECTIONS = Object.freeze(['positions', 'ledger', 'fxLegs', '
 
 const TICKER_RE = /^[A-Z0-9.\-^=]{1,12}$/i;
 const MAX_JOURNAL = 80;
+const CURRENCY_RE = /^[A-Z]{3}$/i;
 
 // Same acceptance rule as the pre-P1316 import (v46.9 schema + XSS trimming).
 export function sanitizePositions(raw) {
@@ -32,8 +33,15 @@ export function sanitizePositions(raw) {
       if (out.note) out.note = String(out.note).slice(0, 200);
       out.qty = Number.isFinite(Number(out.qty)) ? Number(out.qty) : 0;
       out.cost = Number.isFinite(Number(out.cost)) ? Number(out.cost) : 0;
+      // v58.82: a currency is a three-letter code or absent — the legacy table renders it as markup.
+      for (const field of ['costCurrency', 'currency']) {
+        if (field in out && !(typeof out[field] === 'string' && CURRENCY_RE.test(out[field].trim()))) delete out[field];
+        else if (field in out) out[field] = out[field].trim().toUpperCase();
+      }
       return out;
-    });
+    })
+    // v58.82: the add form refuses qty <= 0 and a negative cost; an imported file is held to the same rule.
+    .filter((p) => p.qty > 0 && p.cost >= 0);
 }
 
 function sanitizeJournal(raw) {

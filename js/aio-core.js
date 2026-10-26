@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.80';
+const APP_VERSION = 'v58.82';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12023,10 +12023,10 @@ function _getUsSession(at) {
   var h = et.getHours(), m = et.getMinutes();
   var t = h * 60 + m;
 
-  // 주말: 일요일 18:00 이전 또는 토요일 = closed
+  // 주말(v58.82): 금 20:00 후 ~ 일 18:00 전 = closed (CME 선물은 금 17:00 ET 주간 마감)
   if (day === 0 && t < 1080) return 'closed';    // 일요일 18:00 전
-  if (day === 6 && t >= 1020) return 'closed';    // 토요일 17:00 후
-  if (day === 6) return 'futures_only';            // 토요일 17:00 전 (선물 잔여)
+  if (day === 6) return 'closed';
+  if (day === 5 && t >= 1200) return 'closed';
   if (typeof DATE_ENGINE === 'undefined') return 'unknown';
   var calendarStatus = DATE_ENGINE.marketCalendarStatus('US', et);
   if (calendarStatus === 'unknown') return 'unknown';
@@ -12047,17 +12047,12 @@ function _getUsSession(at) {
  * 일 18:00 ET ~ 금 17:00 ET (중간 17:00~18:00 유지보수 휴장)
  * @returns {boolean} true = 선물 시장 운영 중
  */
-function _isFuturesOpen() {
-  var now = new Date();
-  var year = now.getUTCFullYear(), mar = new Date(year, 2, 1), nov = new Date(year, 10, 1);
-  var dstStart = new Date(mar.getTime() + ((14 - mar.getDay()) % 7) * 86400000 + 7 * 86400000);
-  var dstEnd = new Date(nov.getTime() + ((7 - nov.getDay()) % 7) * 86400000);
-  var isDST = now >= dstStart && now < dstEnd;
-  var etOffset = isDST ? -4 : -5;
-  var et = new Date(now.getTime() + (now.getTimezoneOffset() + etOffset * 60) * 60000);
-  var day = et.getDay(), t = et.getHours() * 60 + et.getMinutes();
-  // 토요일 17:00 이후 ~ 일요일 18:00 이전 = 휴장
-  if (day === 6 && t >= 1020) return false;
+function _isFuturesOpen(at) {
+  // v58.82: Intl ET 시계, 금 17:00 ET 주간 마감
+  var etFormat = _isFuturesOpen._etFormat || (_isFuturesOpen._etFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }));
+  var parts = Object.fromEntries(etFormat.formatToParts(at instanceof Date ? at : new Date()).map(function(part) { return [part.type, part.value]; }));
+  var day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(parts.weekday), t = Number(parts.hour) * 60 + Number(parts.minute);
+  if ((day === 5 && t >= 1020) || day === 6) return false;
   if (day === 0 && t < 1080) return false;
   // 평일 17:00~18:00 = 유지보수 (대략)
   if (t >= 1020 && t < 1080 && day >= 1 && day <= 5) return false;
@@ -13515,7 +13510,12 @@ function calcExtensionHeat(snapshot) {
 // 이쪽은 받지 못해 두 구현이 하루 다른 날짜를 낼 수 있었다. 로컬 자정을 toISOString으로 바꾸면
 // UTC+ 시간대에서 전날이 되므로(KST: 3rd Friday 2026-01-16 → "2026-01-15") 로컬 성분으로 포맷한다.
 function _aioNextMonthlyOpex(referenceDate) {
-  function third(y, m) { return new Date(y, m, 1 + ((5 - new Date(y, m, 1).getDay() + 7) % 7) + 14); }
+  // v58.82: 휴장인 셋째 금요일(2027-06-18)은 직전 거래일 만기
+  function third(y, m) {
+    var d = new Date(y, m, 1 + ((5 - new Date(y, m, 1).getDay() + 7) % 7) + 14);
+    try { for (var i = 0; i < 4 && DATE_ENGINE.hasMarketCalendar('US', d.getFullYear()) && !DATE_ENGINE.isUsTradingDay(d); i++) d = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1); } catch (_) {}
+    return d;
+  }
   var ref = referenceDate ? new Date(referenceDate) : new Date();
   var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
   var next = third(ref.getFullYear(), ref.getMonth());

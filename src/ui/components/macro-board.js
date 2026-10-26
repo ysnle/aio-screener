@@ -1320,8 +1320,10 @@ export function describeOtherFx(live = {}) {
   const reference = rows.every((row) => basisOf(row) === 'daily-reference-rate' || sourceOf(row).startsWith('reference:fx'));
   const stamps = rows.map((row) => row.observedAt || row.quoteEnvelope?.observedAt).map((at) => (typeof at === 'number' ? at * (at < 1e12 ? 1000 : 1) : Date.parse(at))).filter(Number.isFinite);
   const latest = stamps.length ? new Date(Math.max(...stamps)) : null;
-  const md = latest ? `${latest.getMonth() + 1}/${latest.getDate()}` : null;
-  const hm = latest ? latest.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) : null;
+  // v58.82: the label is KST like the rest of the board — the browser's own zone gave a US or European reader another day/hour.
+  const kst = latest ? new Date(latest.getTime() + 9 * 3600000) : null;
+  const md = kst ? `${kst.getUTCMonth() + 1}/${kst.getUTCDate()}` : null;
+  const hm = kst ? `${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}` : null;
   return reference
     // v58.74 (audit): the provider stamps its Saturday update '10/24 고시' over Friday's rates; on a weekend it says so.
     ? { text: `참고 환율, ${md ? (usWeekendClosed(latest.getTime()) ? `${md} 고시(주말이라 금요일 시세)` : `${md} 고시`) : '고시일 미확인'}. 하루 한 번 갱신해 등락은 표시하지 않습니다`, reference: true }

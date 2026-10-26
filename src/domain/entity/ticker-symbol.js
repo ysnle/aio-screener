@@ -20,7 +20,8 @@ function compact(value) {
 }
 
 export function normalizeTickerInput(raw, { krStockDb = {}, krToYahoo = null, isListed = null } = {}) {
-  const text = String(raw == null ? '' : raw).trim();
+  // v58.82: NFKC folds a full-width or IME-typed ticker (ＡＡＰＬ → AAPL) to ASCII; it changes the characters' form, not the symbol.
+  const text = String(raw == null ? '' : raw).normalize('NFKC').trim();
   if (!text) return '';
   const toYahoo = (code) => (typeof krToYahoo === 'function' ? krToYahoo(code) : `${code}.KS`);
   const upper = text.toUpperCase();

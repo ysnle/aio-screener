@@ -6,6 +6,60 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2098 - v58.82 - 전각 티커·잘못된 목표가·손상된 관심목록 저장소 처리 (2026-10-26)
+
+- symptom/reproduction: ＡＡＰＬ 같은 전각 입력이 미검증 티커로 거절, 읽을 수 없는 목표가가 말없이 미설정으로 저장, 저장된 관심목록이 null이거나 tickers가 없으면 화면 갱신이 예외, 저장 공간 부족 시 관심목록 변경이 조용히 사라짐.
+- root_cause: NFKC 정규화가 AI 입력 경로에만 있었고, 목표가는 parseFloat로만 읽었고, getWatchlists는 배열 여부를 확인하지 않았고 saveWatchlists는 예외를 삼켰다.
+- fix: normalizeTickerInput·resolveHoldingInput·라우터 엔터티 id에 NFKC, 목표가 badInput·0 이하 거절, getWatchlists 모양 정규화, saveWatchlists 실패 알림.
+- violated_rule: 입력 폼은 거절 이유를 그 칸에서 알린다; 저장 실패는 조용히 버리지 않는다.
+- prevention: ci-esm-core-unit-check v58.82 전각 티커 단언.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
+## P2097 - v58.82 - 휴장일·주말·시간대 경계에서 날짜와 신선도가 틀림 (2026-10-26)
+
+- symptom/reproduction: 설·추석 연휴 둘째 날 ^KS11이 STALE_UNEXPECTED(발행 차단 가능), 2027-06-18(Juneteenth 대체 휴장) 옵션 만기를 그날로 표시, 토요일에 선물 거래 중으로 AI 문맥에 기록, 금요일 종가 sentiment가 일요일부터 stale, Yahoo→FRED 다리가 월요일마다 FRED 값을 바꾸고 주말 날짜를 붙이며 DXY를 Fed 광의 달러지수(DTWEXBGS) 자리에 넣음, 환율 관측 라벨이 브라우저 시간대.
+- root_cause: 각 경로가 공통 캘린더(market-calendar.js) 대신 요일·고정 시간·UTC 날짜·현지 시간을 썼다.
+- fix: scheduledSession이 평일 KRX 휴장일을 MARKET_CLOSED로, 옵션 만기는 NYSE 휴장이면 직전 거래일로, _getUsSession/_isFuturesOpen은 금 17:00 ET 주간 마감과 Intl 시간대, sentiment 일간 값은 NYSE 세션 수 기준(sentimentMaxAgeMs), FRED 다리는 시세 자체의 뉴욕 날짜로 더 새로울 때만 대체하고 DXY 매핑 제거, 환율 라벨은 KST.
+- violated_rule: 신선도는 원천의 발행 주기 기준(AGENTS Freshness); 다른 지표의 숫자를 공식 계열 자리에 넣지 않는다.
+- prevention: ci-esm-core-unit-check v58.82 단언(연휴 KR 지수, 옵션 만기, sentiment 세션, KST 라벨), aio-tests T75 v58.82(주말 시계).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
+## P2096 - v58.82 - 부분 실패가 좋은 자료를 덮거나 캐시를 무시함 (2026-10-26)
+
+- symptom/reproduction: OpenDART 한도 초과(HTTP 200 status 020)나 일시 오류 때 kr-fundamentals.json이 count 0 또는 일부만으로 덮어써졌다. 서비스워커는 fetch가 거부될 때만 캐시로 폴백해 Pages/CDN 503 페이지를 그대로 넘겼다.
+- root_cause: DART 생산자는 실패 심볼을 건너뛰고 결과 크기를 이전과 비교하지 않았고 fetch 타임아웃·corpCode res.ok 확인이 없었다. sw.js는 !resp.ok를 네트워크 실패로 보지 않았다.
+- fix: DART: 치명 status에서 중단, 일시 실패 심볼은 이전 값(carriedFrom 표시)을 유지, 이전의 절반 미만이면 발행하지 않음, 20s/60s 타임아웃과 corpCode res.ok. sw.js: 5xx면 최대 나이 안의 캐시 사본으로 폴백.
+- violated_rule: 생산자는 실패 시 마지막 정상 자료를 유지한다; 오류 응답은 오프라인과 같이 취급한다.
+- prevention: ci-esm-core-unit-check v58.82 DART mergeWithPrevious 단언.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
+## P2095 - v58.82 - 같은 IP를 쓰는 가족이 동시에 검색 답변을 받으면 네 번째 질문이 거절됨 (2026-10-26)
+
+- symptom/reproduction: 연결당 하루 예약 금액 상한(월 예산의 1/20)이 정산 전 예약 상한(검색 답변 약 $0.27)으로 계산되어, 집 공유기 뒤 3~4명이 동시에 묻으면 실제 사용액이 작아도 429가 났고, 안내는 질문 횟수를 다 썼다며 UTC 자정까지 기다리라고 했다.
+- root_cause: 금액 상한 거절 분기가 월 절약 모드처럼 검색 없는 변형으로 낮출 기회를 쓰지 않았고, 응답 문구·Retry-After가 질문 횟수 상한과 같았다.
+- fix: 상한을 넘는 검색 답변은 검색 없는 변형이 상한 안에 들면 그 변형으로 받는다(X-AIO-Web-Search-Removed). 그래도 넘으면 금액 상한 전용 문구와 Retry-After 60초로 거절한다.
+- violated_rule: 공유 IP 가구(제품 대상: 가족·지인)가 정상 사용 중 거절되지 않아야 한다.
+- prevention: worker/openai-contract.test.mjs v58.82 가구 동시 예약 단언.
+- verification/residual: node worker/openai-contract.test.mjs
+
+## P2094 - v58.82 - 두 탭에서 포트폴리오를 고치면 나중 탭이 다른 탭의 변경을 지움 (2026-10-26)
+
+- symptom/reproduction: 탭 B에서 MSFT를 추가한 뒤 새로고침하지 않은 탭 A에서 NVDA를 추가하면 탭 A의 오래된 런타임 사본+NVDA가 저장되어 MSFT가 사라졌다.
+- root_cause: getPortfolioData는 저장 후 항상 _AioVault._keyRuntime 사본을 먼저 읽고, storage 이벤트는 다시 불러오기 안내만 띄우고 쓰기를 막지 않았다.
+- fix: js/aio-workspace.js가 aio_portfolio_data의 storage 이벤트를 받으면 표식을 세우고, savePortfolioData는 그 뒤의 추가·수정·삭제를 저장하지 않고 cross-tab-changed로 거절해 다시 불러오라고 안내한다. 가져오기·전체 삭제는 { replace: true }로 통째 교체한다.
+- violated_rule: 저장소 사본이 더 새로우면 오래된 메모리 사본으로 덮어쓰지 않는다.
+- prevention: QA-EDGE-02 브라우저 두 탭 수동 확인.
+- verification/residual: node --check js/aio-workspace.js; 두 탭 수동 확인
+
+## P2093 - v58.82 - 외부 뉴스 제목과 가져온 백업의 통화 코드가 마크업으로 렌더링됨 (2026-10-26)
+
+- symptom/reproduction: 한국 테마 심층 분석의 최근 7일 뉴스가 RSS 제목을 이스케이프 없이 innerHTML에 넣었고, 백업 가져오기는 costCurrency를 검증하지 않아 구형 포트폴리오 표가 그 문자열을 마크업으로 썼다. 가져오기는 음수 수량·음수 단가·빈 수량(0)도 받았다.
+- root_cause: RSS XML 경로는 제목의 엔티티를 디코딩한 뒤 태그를 제거하지 않았고(rss2json 경로만 제거), 소비처(js/aio-kr-data.js)는 escHtml 없이 이어 붙였다. sanitizePositions는 ...p로 모든 필드를 유지하고 수량·단가의 유한성만 확인했다.
+- fix: 소비처에서 제목·출처를 escHtml로 이스케이프. sanitizePositions가 3자리 통화 코드만 남기고 qty>0·cost>=0 행만 받는다. _pfLegacyMoney는 3자리 코드만 출력한다.
+- violated_rule: 외부 텍스트는 렌더링 지점에서 이스케이프한다; 가져오기는 입력 폼과 같은 규칙으로 검증한다.
+- prevention: ci-esm-core-unit-check v58.82 백업 가져오기 단언(악성 통화·음수·빈 수량 거절).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+
 ## P2092 - v58.80 - 이름을 입력하고 바로 Enter로 고르면 고른 종목의 후보 버튼이 검색칸 아래에 다시 생겼다 (2026-10-26)
 
 - symptom/reproduction: verify-aio stock: '삼성전자' 입력 뒤 Enter로 005930.KS를 연 다음에도 검색칸 아래에 '삼성전자 · 005930.KS' 후보가 남았고, 다음 검색에서 그 낡은 후보가 먼저 눌렸다.
