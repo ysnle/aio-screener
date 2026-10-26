@@ -1,3 +1,7 @@
+## v58.96 (2026-10-27)
+- **CI 브라우저 샤드 apt 의존 완화 (v58.96):** 15:45Z부터 main CI가 다섯 번 연속 'Install dependencies and Chromium' 단계(playwright install 3회 실패, apt 미러 지연)에서 실패해 Pages 배포와 데이터 갱신 공개가 멈췄다. Chromium 내려받기(Playwright CDN)를 apt와 분리하고, install-deps는 2회까지 시도하는 best effort로 바꿨다. apt가 끝나지 못하면 Chromium이 실제로 떠서 페이지를 그릴 때만 샤드를 계속한다. .deb 캐시 키에 러너 이미지를 넣어 이전 이미지 패키지를 계속 쓰지 않게 했다(.github/workflows/ci.yml). PR #96, 결함 아닌 change-only.
+- R1 7곳 v58.96
+
 ## v58.95 (2026-10-27)
 - **레거시 분해 4/8 — 테마·섹터: 섹터 막대 legacy 경로 정리 (v58.95):** 섹터 막대는 이미 `src/ui/pages/themes.js`(`renderThemePerformanceBars`)가 그리고 기간 버튼(1일·1주·1·3·6·12개월)도 직접 채운다. 그래서 `js/aio-pages.js`에서 native 표시가 붙으면 아무것도 하지 않던 `renderSectorPerfBars` 대체 경로와 그 호출 4곳, native가 버튼을 교체해 눌릴 수 없던 1일/1주 처리기 `setSectorPerfMode`와 `_sectorPerfMode`, 그 모드에서만 돌던 주간 캐시 완료 재렌더를 지웠다. `index.html`의 정적 1일/1주 버튼도 지웠다(빈 그룹을 themes.js가 채운다). 11섹터/+세부 업종 토글(`setSectorPerfView`)은 `src/ui/components/sector-perf-view.js`로 옮기고 `src/app/legacy-screen-bridges.js`가 설치한다. 화면 동작은 그대로다.
 - R1 7곳 v58.95
