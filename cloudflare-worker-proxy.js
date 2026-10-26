@@ -147,9 +147,12 @@ const RELAY_PROVIDERS = Object.freeze({
 
 // The relay key is never logged or echoed. Upstream error bodies occasionally
 // repeat the request URL, so redact the exact key value before returning bytes.
+// v58.82: the key also appears URL-encoded (searchParams.set percent-encodes '=', '+', '/'), so both forms are removed.
 function redactRelayKey(text, key) {
   if (!key) return text;
-  return String(text).split(key).join('***');
+  let out = String(text);
+  for (const form of new Set([key, encodeURIComponent(key), new URLSearchParams({ k: key }).toString().slice(2)])) out = out.split(form).join('***');
+  return out;
 }
 
 // ── 봇/스캐너 User-Agent 차단 ────────────────────────────────────
@@ -331,7 +334,7 @@ function getCorsHeaders(requestOrigin, env) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Family-Code, X-AIO-Idempotency-Key, X-AIO-Request-Id',
     'Access-Control-Max-Age': '86400',
     // The allowed origin is echoed per request; a shared cache must not serve one origin's ACAO to another.
     'Vary': 'Origin',
@@ -424,7 +427,7 @@ async function readClientBudgetStatus(env, clientIp) {
   return value;
 }
 
-async function healthResponse(origin, env, method = 'GET', appToken = '', clientIp = 'unknown') {
+async function healthResponse(origin, env, method = 'GET', appToken = '', clientIp = 'unknown', familyCode = '') {
   const configured = !!(env && env.OPENAI_API_KEY);
   const quotaConfigured = hasAtomicQuotaBinding(env);
   const killSwitch = !!(env && env.AI_KILL_SWITCH === '1');
@@ -435,11 +438,12 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
     : { ready: false, jurisdiction: null, reason: 'us-authority-unavailable' };
   // Compared only when the caller sent a token; an absent header is simply "not accepted".
   const appTokenAccepted = !env?.AIO_APP_TOKEN || (!!appToken && await constantTimeTokenEquals(env.AIO_APP_TOKEN, appToken));
+  const family = await matchFamilyCode(env, familyCode);
   const authorityReady = authority?.ready === true && authority?.jurisdiction === 'us';
   const ready = configured && quotaConfigured && authorityReady && configurationValid && !killSwitch;
   // P1759: coarse budget visibility only (never spend, cap or reservation amounts).
   const budgetStatus = method !== 'HEAD' && configured && configurationValid && authorityReady && hasDurableObjectNamespace(env)
-    ? await readClientBudgetStatus(env, clientIp) : null;
+    ? await readClientBudgetStatus(env, family.code ? 'family|' + family.code : clientIp) : null;
   const budgetState = budgetStatus ? budgetStatus.budgetState : 'unknown';
   const budgetSaverActive = budgetState === 'low' || budgetState === 'exhausted';
   const payload = {
@@ -452,6 +456,8 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
       automationConfigured: typeof env?.AIO_AUTOMATION_TOKEN === 'string' && env.AIO_AUTOMATION_TOKEN.length >= 32,
       appTokenRequired: !!env?.AIO_APP_TOKEN,
       appTokenAccepted,
+      familyCodeRequired: family.required,
+      familyCodeAccepted: family.accepted,
       paidWebSearchEnabled: paidWebSearchEnabled(env),
       // P1759: 'ok' | 'low' (<20% of the month left) | 'exhausted' | 'unknown'. In low/exhausted the Worker
       // removes hosted web search from new requests itself; webSearchAvailable is what a client should gate on.
@@ -770,6 +776,13 @@ async function fetchOpenAiWithDeadline(apiKey, budget, callerSignal, settle) {
       throw controller.signal.reason;
     }
     if (!upstream.body) { finished = true; cleanup(); return upstream; }
+    // v58.82: an OpenAI error body (401 names the masked key's last characters, quota text names the organization) is
+    // read within the same deadline and returned with key-shaped and org-shaped tokens removed.
+    if (!upstream.ok) {
+      const text = (await upstream.text()).slice(0, 8192).replace(/\bsk-[A-Za-z0-9_*-]{2,}/g, 'sk-***').replace(/\borg-[A-Za-z0-9]{6,}/g, 'org-***');
+      finished = true; cleanup();
+      return new Response(text, { status: upstream.status, headers: { 'content-type': upstream.headers.get('content-type') || 'application/json' } });
+    }
     const receipt = upstream.status === 200 ? createOpenAiReceiptObserver(upstream.headers.get('content-type')) : null;
     reader = upstream.body.getReader();
     const streamedBody = new ReadableStream({
@@ -1036,7 +1049,16 @@ export class AIOQuotaDurableObject {
         const clientSpent = spendKey ? this.counts.clientSpend?.[dayKey]?.[spendKey] || 0 : 0;
         // A connection's first reservation of the day is never refused by its share alone (the month bound above still
         // applies), so a small configured month cannot block every single answer.
-        if (spendKey && clientSpent > 0 && clientSpent + amount > Math.floor(body.monthlyCapMicroUsd / AI_PER_CLIENT_MONTH_SHARE)) {
+        const clientShare = Math.floor(body.monthlyCapMicroUsd / AI_PER_CLIENT_MONTH_SHARE);
+        // v58.82: a household shares one address, so three or four searched answers in flight at once (each reserving
+        // the ~$0.27 upper bound until settlement) reach the share although real spend is far lower. The answer is then
+        // admitted without web search when that variant fits, as in the month's saver mode, instead of being refused.
+        if (spendKey && clientSpent > 0 && clientSpent + amount > clientShare && !budgetSaverApplied
+          && Number.isSafeInteger(body.saverReservationMicroUsd) && body.saverReservationMicroUsd >= 1 && body.saverReservationMicroUsd < amount
+          && clientSpent + body.saverReservationMicroUsd <= clientShare) {
+          amount = body.saverReservationMicroUsd; budgetSaverApplied = true;
+        }
+        if (spendKey && clientSpent > 0 && clientSpent + amount > clientShare) {
           result = { ok: false, reserved: false, duplicate: false, count, reason: 'client-daily-cap', budgetState, clientSpendLimited: true };
           return;
         }
@@ -1184,18 +1206,21 @@ async function dispatchOpenAi(env, budget, payload, signal, rpc) {
   const reservation = await rpc('reserve', saver ? { ...payload, saverReservationMicroUsd: saver.reservationMicroUsd } : payload);
   if (!reservation?.ok || !reservation.reserved) {
     const reason = reservation?.reason || 'quota-unavailable';
-    const daily = reason === 'daily-cap' || reason === 'client-daily-cap';
+    // v58.82: the spend share frees up as in-flight answers settle, so it is not a wait-until-midnight limit.
+    const spendLimited = reason === 'client-daily-cap' && reservation?.clientSpendLimited === true;
+    const daily = (reason === 'daily-cap' || reason === 'client-daily-cap') && !spendLimited;
     const resetMs = nextUtcDayStartMs();
     const retryAfterSeconds = Math.max(1, Math.ceil((resetMs - Date.now()) / 1000));
     const message = reason === 'legacy-month-spend-unknown'
       ? '이번 UTC 월의 과거 AI 비용을 확인할 수 없어 서버 AI를 보호 차단했습니다. 공급자 Console의 월 한도를 확인하세요.'
       : reason === 'monthly-budget' ? '월 AI 예산의 보수적 예약 상한에 도달했습니다. 실제 청구액이 아니며 반복 재시도로 복구되지 않습니다.'
+      : reason === 'client-daily-cap' && reservation?.clientSpendLimited === true ? '이 연결의 오늘 AI 사용 금액 상한(월 예산의 1/20)에 도달했습니다. 진행 중인 답변이 끝나면 남은 예약분이 돌아오니 잠시 뒤 다시 시도하세요.'
       : reason === 'client-daily-cap' ? `이 연결의 오늘 AI 질문 한도(${Number.isSafeInteger(reservation?.clientLimit) ? reservation.clientLimit + '회' : '일일 한도'})를 모두 사용했습니다. UTC 자정(한국 시간 오전 9시)에 다시 사용할 수 있습니다.`
       : 'daily AI quota exceeded';
     logDenial('/openai', reason);
     return Response.json({ error: { type: 'rate_limit_error', code: reason, message, quotaReason: reason,
       ...(daily ? { retryAfterSeconds, resetAt: new Date(resetMs).toISOString() } : {}) } },
-    { status: 429, headers: { ...aiAdmissionHeaders(reservation), ...(daily ? { 'Retry-After': String(retryAfterSeconds) } : {}) } });
+    { status: 429, headers: { ...aiAdmissionHeaders(reservation), ...(daily ? { 'Retry-After': String(retryAfterSeconds) } : spendLimited ? { 'Retry-After': '60' } : {}) } });
   }
   if (reservation.duplicate) return Response.json({ error: { type: 'idempotency_conflict', message: 'duplicate request is already reserved' } }, { status: 409 });
   if (reservation.budgetSaverApplied === true && saver) budget = saver;
@@ -1245,16 +1270,36 @@ async function readBoundedAiRequestBody(request, maximumBytes) {
   } finally { reader.releaseLock(); }
 }
 
+// v58.82 (owner 2026-10-26): family codes. AIO_FAMILY_CODES is a Worker secret listing one code per person (comma or
+// whitespace separated, 12+ characters each); when it is set, a browser /openai request and its /health readiness need a
+// matching X-AIO-Family-Code. The public app token cannot do this job because it ships in every page. Unset keeps the
+// earlier behaviour. Every listed code is compared, so timing does not reveal which one matched.
+const FAMILY_CODE_MIN_LENGTH = 12;
+function familyCodes(env) {
+  return typeof env?.AIO_FAMILY_CODES === 'string' ? [...new Set(env.AIO_FAMILY_CODES.split(/[\s,]+/).filter(Boolean))] : [];
+}
+async function matchFamilyCode(env, supplied) {
+  const codes = familyCodes(env);
+  if (!codes.length && !env?.AIO_FAMILY_CODES) return { required: false, accepted: true, code: null };
+  const value = typeof supplied === 'string' ? supplied.trim() : '';
+  let matched = null;
+  for (const code of codes) if (await constantTimeTokenEquals(code, value) && code.length >= FAMILY_CODE_MIN_LENGTH) matched = code;
+  return { required: true, accepted: matched !== null, code: matched };
+}
+
 /** Canonical, atomic /openai production handler. */
 async function handleOpenAi(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
   const aiError = { source: 'worker-openai' };
+  let family = null;
   if (request.method !== 'POST') return errorResponse('POST required for /openai', 405, origin, aiError, env);
   if (env?.AI_KILL_SWITCH === '1') return errorResponse('server AI mode disabled by kill switch', 503, origin, aiError, env);
   if (!env?.OPENAI_API_KEY) return errorResponse('server OpenAI key is not configured', 503, origin, aiError, env);
   if (origin) {
     if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, aiError, env);
     if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, aiError, env);
+    family = await matchFamilyCode(env, request.headers.get('X-AIO-Family-Code'));
+    if (!family.accepted) { logDenial('/openai', 'family-code'); return errorResponse('Family code auth required', 403, origin, aiError, env); }
   } else if (!await matchesOperatorToken(env.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'))) {
     return errorResponse('Authorized automation token required', 403, origin, aiError, env);
   }
@@ -1280,7 +1325,8 @@ async function handleOpenAi(request, env, origin) {
   const requestId = await deriveRequestId(request, bodyText);
   const maxTokens = body.max_output_tokens;
   // P1759: browser (Origin) requests carry a per-connection HMAC key; authenticated automation does not.
-  const clientKey = origin ? await deriveClientKey(env, clientIp, dayKey.slice(7)) : null;
+  // v58.82: with family codes each person (code) has their own share instead of everyone behind one address.
+  const clientKey = origin ? await deriveClientKey(env, family?.code ? 'family|' + family.code : clientIp, dayKey.slice(7)) : null;
   const clientFields = clientKey ? { clientKey, clientCap } : {};
   const exposeAiMeta = { 'Access-Control-Expose-Headers': ['X-AIO-Max-Tokens', ...AI_META_HEADERS].join(', ') };
   if (hasDurableObjectNamespace(env)) {
@@ -1489,7 +1535,7 @@ export default {
         logDenial('/health', 'rate-limit');
         return errorResponse('Too many requests', 429, requestOrigin, null, env);
       }
-      return healthResponse(requestOrigin, env, request.method, request.headers.get('X-AIO-App-Token') || '', healthClientIp);
+      return healthResponse(requestOrigin, env, request.method, request.headers.get('X-AIO-App-Token') || '', healthClientIp, request.headers.get('X-AIO-Family-Code') || '');
     }
 
     // P1421: AI provider route branches before the independent data proxy.

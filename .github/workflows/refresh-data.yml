@@ -305,7 +305,9 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
-        run: npm ci --no-audit --no-fund
+        # v58.82: this job holds a contents:write token in .git/config; no dependency install script runs beside it
+        # (the same --ignore-scripts as pages-deploy.yml).
+        run: npm ci --no-audit --no-fund --ignore-scripts
 
       - name: Contain a failing degradable lane
         # v58.70 (owner 2026-10-23): when every artifact-semantics failure belongs to a degradable lane (news, narrative,

@@ -554,3 +554,8 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
 /* First-users F08: the screen's menu name above a tab's own title ("시장 상태 ›" over 국면 판정). */
 /* Run-5 (phone #5): the trailing " ›" read as a tappable path; the hub name is a label, not a link. */
 .page-title[data-hub-label]::before { content: attr(data-hub-label); display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--text-muted); }
+/* v58.82: family-code entry under the shared-AI notice (src/ui/components/family-code-form.js); 44px touch targets. */
+.aio-family-code-form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.aio-family-code-form input { flex: 1 1 160px; min-width: 0; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--bg-base); color: var(--text-primary); font-size: 16px; }
+.aio-family-code-form button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: var(--text-primary); color: var(--bg-base); font-size: 15px; cursor: pointer; }
+.aio-family-code-form [role="status"] { flex-basis: 100%; font-size: 13px; color: var(--text-muted); }

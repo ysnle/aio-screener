@@ -2890,10 +2890,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail('P1187 the update path must preserve non-form fields instead of replacing the position object');
   }
   // P1316: the import path now restores a full backup bundle; the positions write is `c.positions`.
-  if (!/await savePortfolioData\((?:data|c\.positions)\)/.test(workspaceSource) || !/가져오기가 확정되지 않았습니다/.test(workspaceSource)) {
+  if (!/await savePortfolioData\((?:data|c\.positions)(?:, \{ replace: true \})?\)/.test(workspaceSource) || !/가져오기가 확정되지 않았습니다/.test(workspaceSource)) {
     fail('P1187/11 P11-01 the import path must gate completion on the durable acknowledgement');
   }
-  if (!/await savePortfolioData\(\[\]\)/.test(workspaceSource) || !/전체 삭제가 확정되지 않았습니다/.test(workspaceSource)) {
+  if (!/await savePortfolioData\(\[\](?:, \{ replace: true \})?\)/.test(workspaceSource) || !/전체 삭제가 확정되지 않았습니다/.test(workspaceSource)) {
     fail('P1187/11 P11-01 clear-all must gate confirmation on the durable acknowledgement');
   }
 }
@@ -6195,4 +6195,56 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     || mixed.us.label !== '엇갈림' || up.us.label !== '매수 우위' || none.us.label !== '뚜렷한 우위 없음'
     || small.vote !== 0 || !small.small || tiny.rate !== undefined || !/비율을 내지 않습니다/.test(tiny.text))
     fail(`v58.81 market lean: ${JSON.stringify({ today: today.us.label, mixed: mixed.us.label, up: up.us.label, none: none.us.label, small, tiny })}`);
+// v58.82 (multi-user edge-case audit): bad imports, holiday/weekend clocks, producer partial failures and input forms.
+{
+  const { parsePortfolioBackup } = await load('src/data/portfolio-backup.js');
+  const imported = parsePortfolioBackup(JSON.stringify([{ ticker: 'aapl', qty: 1, cost: 150, costCurrency: '<img src=x onerror=alert(1)>' }, { ticker: 'msft', qty: -5, cost: 10 }, { ticker: 'nvda', qty: 2, cost: -1 }, { ticker: 'tsla', qty: '', cost: 1 }, { ticker: '005930.KS', qty: 3, cost: 70000, costCurrency: 'krw' }]), {});
+  const rows = imported.contents?.positions || [];
+  if (rows.map((p) => p.ticker).join() !== 'AAPL,005930.KS' || 'costCurrency' in rows[0] || rows[1].costCurrency !== 'KRW') fail(`v58.82 backup import keeps only qty>0, cost>=0 and a 3-letter currency: ${JSON.stringify(rows)}`);
+
+  const { mergeWithPrevious } = await import(new URL('./fetch-dart-fundamentals.mjs', import.meta.url));
+  const previous = { generatedAt: '2026-10-19T00:00:00Z', count: 4, companies: { 'A.KS': { fiscalYear: 2025 }, 'B.KS': { fiscalYear: 2025 }, 'C.KS': { fiscalYear: 2025 }, 'D.KS': { fiscalYear: 2025 } } };
+  const quota = mergeWithPrevious({ 'A.KS': { fiscalYear: 2025 } }, [{ sym: 'B.KS', reason: 'DART status 020' }, { sym: 'C.KS', reason: 'stopped: DART status 020' }, { sym: 'D.KS', reason: 'no-annual-report' }], previous);
+  const empty = mergeWithPrevious({}, [{ sym: 'A.KS', reason: 'no-annual-report' }, { sym: 'B.KS', reason: 'no-annual-report' }, { sym: 'C.KS', reason: 'no-annual-report' }], previous);
+  const allCarried = mergeWithPrevious({}, [{ sym: 'A.KS', reason: 'DART status 020' }, { sym: 'B.KS', reason: 'HTTP 500' }], previous);
+  if (allCarried.publish) fail('v58.82 a DART run that read nothing new keeps the previous file (its generatedAt)');
+  if (quota.count !== 3 || quota.companies['B.KS'].carriedFrom !== previous.generatedAt || 'D.KS' in quota.companies || !quota.publish || empty.publish) fail(`v58.82 DART carries transient failures forward and never publishes a collapsed artifact: ${JSON.stringify({ quota, empty })}`);
+
+  const { sentimentFieldDefinitions, sentimentMaxAgeMs } = await load('src/data/normalize/sentiment.js');
+  const { classifyFreshness } = await load('src/data/quality/freshness.js');
+  const fields = Object.fromEntries(sentimentFieldDefinitions().map((f) => [f.metric, f]));
+  const fresh = (metric, observedAt, nowIso) => { const now = Date.parse(nowIso); return classifyFreshness({ observedAt, now, maxAgeMs: sentimentMaxAgeMs(fields[metric], observedAt, now) }); };
+  if (fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-25T22:00:00Z') !== 'fresh' || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-26T18:00:00Z') !== 'fresh'
+    || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-27T01:00:00Z') !== 'stale' || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-27T14:00:00Z') !== 'stale'
+    || fresh('hySpread', '2026-10-22', '2026-10-26T12:00:00Z') !== 'fresh' || fresh('hySpread', '2026-10-21', '2026-10-27T14:00:00Z') !== 'stale'
+    || fresh('vix', '2026-10-23T20:00:00Z', '2026-10-25T22:00:00Z') !== 'stale') fail('v58.82 daily sentiment staleness follows NYSE sessions, not a flat 48h');
+
+  const { normalizeTickerInput } = await load('src/domain/entity/ticker-symbol.js');
+  const { resolveHoldingInput } = await load('src/domain/ticker/resolve-name.js');
+  if (normalizeTickerInput('ＡＡＰＬ') !== 'AAPL' || normalizeTickerInput('００５９３０') !== '005930.KS' || resolveHoldingInput('ｎｖｄａ').symbol !== 'NVDA') fail('v58.82 full-width tickers fold to ASCII');
+
+  const { marketStructureEvents } = await load('src/domain/briefing/schedule.js');
+  const opex = (iso) => marketStructureEvents({ nowMs: Date.parse(iso), days: 7 }).filter((row) => row.id.startsWith('us-expiry-')).map((row) => row.id).join();
+  if (opex('2027-06-14T00:00:00Z') !== 'us-expiry-2027-06-17' || opex('2026-11-16T00:00:00Z') !== 'us-expiry-2026-11-20') fail('v58.82 US monthly expiry moves off an NYSE holiday third Friday');
+
+  const { deriveMarketSession } = await import(new URL('./build-market-snapshot.mjs', import.meta.url));
+  const seollal = Date.parse('2027-02-09T01:00:00Z');
+  if (deriveMarketSession({ instrumentId: '^KS11', observedAt: '2027-02-05T06:30:00Z', providerSession: 'REGULAR', now: seollal }) !== 'MARKET_CLOSED'
+    || deriveMarketSession({ instrumentId: '^KS11', observedAt: '2027-02-04T06:30:00Z', providerSession: 'REGULAR', now: seollal }) !== 'STALE_UNEXPECTED') fail('v58.82 a weekday KRX holiday is a closed venue for the KR index');
+
+  const { describeOtherFx } = await load('src/ui/components/macro-board.js');
+  const fx = describeOtherFx({ 'EURUSD=X': { price: 1.08, observedAt: '2026-10-26T15:30:00Z' } });
+  if (!/10\/27 00:30 관측/.test(fx.text)) fail(`v58.82 FX observation label is KST regardless of the browser zone: ${fx.text}`);
+  // v58.82 (owner 2026-10-26): family code — stored only after it passes the Worker's own shape, and a missing code is the
+  // visitor's step (FAMILY_CODE_REQUIRED), not the operator-facing AUTH_FAILED.
+  const { readFamilyCode } = await load('src/domain/connections/family-code.js');
+  const { saveFamilyCode } = await load('src/ui/components/family-code-form.js');
+  const { describeSharedConnection } = await load('src/domain/connections/shared.js');
+  const memory = new Map(), store = { getItem: (k) => memory.get(k) ?? null, setItem: (k, v) => memory.set(k, String(v)) };
+  const shortCode = saveFamilyCode(store, '1234'), spaced = saveFamilyCode(store, 'abc def ghi jkl'), good = saveFamilyCode(store, ' ｆａｍｉｌｙ-code-0001 ');
+  if (shortCode.ok || spaced.ok || !good.ok || readFamilyCode(store) !== 'family-code-0001') fail(`v58.82 family code saves only a 12+ character code without spaces, NFKC-normalized: ${JSON.stringify({ shortCode, spaced, good, stored: readFamilyCode(store) })}`);
+  const ai = { ready: true, provider: 'openai', model: 'gpt-6-luna' };
+  const needCode = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: false } });
+  const withCode = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: true } });
+  if (needCode.reason !== 'FAMILY_CODE_REQUIRED' || needCode.ok || !withCode.ok) fail(`v58.82 a required family code is the visitor's step: ${JSON.stringify({ needCode, withCode })}`);
 }

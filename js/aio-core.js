@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.81';
+const APP_VERSION = 'v58.82';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12000,10 +12000,10 @@ function _getKrxSession(at) {
   if (calendarStatus === 'unknown') return 'unknown';
   if (calendarStatus === 'closed') return 'closed';
   var h = kst.getHours(), m = kst.getMinutes();
-  var t = h * 60 + m; // 분 단위
-  if (t >= 540 && t < 930) return 'open';   // 09:00~15:30
-  if (t >= 510 && t < 540) return 'pre';     // 08:30~09:00
-  if (t >= 940 && t < 960) return 'after';   // 15:40~16:00
+  var t = h * 60 + m, hours = DATE_ENGINE.krSessionMinutes(kst); // 분 단위, 평소 [540, 930] (v58.82: 수능일 10:00~16:30)
+  if (t >= hours[0] && t < hours[1]) return 'open';
+  if (t >= hours[0] - 30 && t < hours[0]) return 'pre';
+  if (t >= hours[1] + 10 && t < hours[1] + 30) return 'after';
   return 'closed';
 }
 
@@ -12023,10 +12023,10 @@ function _getUsSession(at) {
   var h = et.getHours(), m = et.getMinutes();
   var t = h * 60 + m;
 
-  // 주말: 일요일 18:00 이전 또는 토요일 = closed
+  // 주말(v58.82): 금 20:00 후 ~ 일 18:00 전 = closed (CME 선물은 금 17:00 ET 주간 마감)
   if (day === 0 && t < 1080) return 'closed';    // 일요일 18:00 전
-  if (day === 6 && t >= 1020) return 'closed';    // 토요일 17:00 후
-  if (day === 6) return 'futures_only';            // 토요일 17:00 전 (선물 잔여)
+  if (day === 6) return 'closed';
+  if (day === 5 && t >= 1200) return 'closed';
   if (typeof DATE_ENGINE === 'undefined') return 'unknown';
   var calendarStatus = DATE_ENGINE.marketCalendarStatus('US', et);
   if (calendarStatus === 'unknown') return 'unknown';
@@ -12047,17 +12047,12 @@ function _getUsSession(at) {
  * 일 18:00 ET ~ 금 17:00 ET (중간 17:00~18:00 유지보수 휴장)
  * @returns {boolean} true = 선물 시장 운영 중
  */
-function _isFuturesOpen() {
-  var now = new Date();
-  var year = now.getUTCFullYear(), mar = new Date(year, 2, 1), nov = new Date(year, 10, 1);
-  var dstStart = new Date(mar.getTime() + ((14 - mar.getDay()) % 7) * 86400000 + 7 * 86400000);
-  var dstEnd = new Date(nov.getTime() + ((7 - nov.getDay()) % 7) * 86400000);
-  var isDST = now >= dstStart && now < dstEnd;
-  var etOffset = isDST ? -4 : -5;
-  var et = new Date(now.getTime() + (now.getTimezoneOffset() + etOffset * 60) * 60000);
-  var day = et.getDay(), t = et.getHours() * 60 + et.getMinutes();
-  // 토요일 17:00 이후 ~ 일요일 18:00 이전 = 휴장
-  if (day === 6 && t >= 1020) return false;
+function _isFuturesOpen(at) {
+  // v58.82: Intl ET 시계, 금 17:00 ET 주간 마감
+  var etFormat = _isFuturesOpen._etFormat || (_isFuturesOpen._etFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }));
+  var parts = Object.fromEntries(etFormat.formatToParts(at instanceof Date ? at : new Date()).map(function(part) { return [part.type, part.value]; }));
+  var day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(parts.weekday), t = Number(parts.hour) * 60 + Number(parts.minute);
+  if ((day === 5 && t >= 1020) || day === 6) return false;
   if (day === 0 && t < 1080) return false;
   // 평일 17:00~18:00 = 유지보수 (대략)
   if (t >= 1020 && t < 1080 && day >= 1 && day <= 5) return false;
@@ -13515,7 +13510,12 @@ function calcExtensionHeat(snapshot) {
 // 이쪽은 받지 못해 두 구현이 하루 다른 날짜를 낼 수 있었다. 로컬 자정을 toISOString으로 바꾸면
 // UTC+ 시간대에서 전날이 되므로(KST: 3rd Friday 2026-01-16 → "2026-01-15") 로컬 성분으로 포맷한다.
 function _aioNextMonthlyOpex(referenceDate) {
-  function third(y, m) { return new Date(y, m, 1 + ((5 - new Date(y, m, 1).getDay() + 7) % 7) + 14); }
+  // v58.82: 휴장인 셋째 금요일(2027-06-18)은 직전 거래일 만기
+  function third(y, m) {
+    var d = new Date(y, m, 1 + ((5 - new Date(y, m, 1).getDay() + 7) % 7) + 14);
+    try { for (var i = 0; i < 4 && DATE_ENGINE.hasMarketCalendar('US', d.getFullYear()) && !DATE_ENGINE.isUsTradingDay(d); i++) d = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1); } catch (_) {}
+    return d;
+  }
   var ref = referenceDate ? new Date(referenceDate) : new Date();
   var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
   var next = third(ref.getFullYear(), ref.getMonth());
@@ -14946,6 +14946,9 @@ const DATE_ENGINE = (function() {
   ];
   var US_HALF_DAYS_2026 = { '2026-11-27': '13:00', '2026-12-24': '13:00' };
   var US_HALF_DAYS_2027 = { '2027-11-26': '13:00' };
+  // v58.82: KRX 하루 시간 변경(수능·개장일) [개장분, 마감분] — market-calendar.js specialSessions 사본(ci-market-session-contract-check)
+  var KR_SPECIAL_SESSIONS = { '2026-11-19': [600, 990], '2027-01-04': [600, 930] };
+  function krSessionMinutes(d) { return KR_SPECIAL_SESSIONS[_dateStr(d)] || [540, 930]; }
 
   // 연도별 공휴일 조회 (2026/2027 지원, 미등록 연도는 빈 배열)
   var _KR_HOLIDAYS_MAP = { 2026: KR_HOLIDAYS_2026, 2027: KR_HOLIDAYS_2027 };
@@ -14987,7 +14990,7 @@ const DATE_ENGINE = (function() {
 
   function marketCloseMinute(market, d) {
     if (marketCalendarStatus(market, d) !== 'open') return null;
-    if (String(market).toUpperCase() === 'KR') return 930;
+    if (String(market).toUpperCase() === 'KR') return krSessionMinutes(d)[1];
     var halfDayMap = d.getFullYear() === 2026 ? US_HALF_DAYS_2026 : d.getFullYear() === 2027 ? US_HALF_DAYS_2027 : null;
     if (!halfDayMap) return 960;
     var close = halfDayMap[_dateStr(d)] || '16:00';
@@ -15005,16 +15008,16 @@ const DATE_ENGINE = (function() {
     var kst = nowKST(at);
     if (!hasMarketCalendar('KR', kst.getFullYear())) return { date: null, eodConfirmed: false, status: 'unknown' };
     var d = new Date(kst);
-    var time = d.getHours() * 60 + d.getMinutes();
-    // 장 마감(15:30=930) 이전 또는 비거래일 → 전 거래일로
-    if (time < 930 || !isKrTradingDay(d)) {
+    var time = d.getHours() * 60 + d.getMinutes(), krClose = krSessionMinutes(kst)[1];
+    // 장 마감(평소 15:30) 이전 또는 비거래일 → 전 거래일로
+    if (time < krClose || !isKrTradingDay(d)) {
       d.setDate(d.getDate() - 1);
     }
     for (var i = 0; i < 10; i++) {
       if (!hasMarketCalendar('KR', d.getFullYear())) return { date: null, eodConfirmed: false, status: 'unknown' };
       if (isKrTradingDay(d)) {
         // v48.95: 15:30~16:00 = EOD 데이터 미확정 grace window
-        var eodConfirmed = !(time >= 930 && time < 960 && isKrTradingDay(new Date(kst)));
+        var eodConfirmed = !(time >= krClose && time < krClose + 30 && isKrTradingDay(new Date(kst)));
         return { date: d, eodConfirmed: eodConfirmed };
       }
       d.setDate(d.getDate() - 1);
@@ -15067,10 +15070,10 @@ const DATE_ENGINE = (function() {
     if (dow === 0 || dow === 6) return { status: 'closed', label: '주말 휴장' };
     if (!hasMarketCalendar('KR', kst.getFullYear())) return { status: 'unknown', label: '연간 거래소 달력 미등록' };
     if (!isKrTradingDay(kst)) return { status: 'closed', label: '공휴일 휴장' };
-    var t = kst.getHours() * 60 + kst.getMinutes();
-    if (t >= 540 && t < 900) return { status: 'open', label: '장중' };
-    if (t >= 900 && t < 930) return { status: 'after', label: '시간외 거래' };
-    if (t >= 480 && t < 540) return { status: 'pre', label: '프리마켓' };
+    var t = kst.getHours() * 60 + kst.getMinutes(), hours = krSessionMinutes(kst);
+    if (t >= hours[0] && t < hours[1] - 30) return { status: 'open', label: '장중' };
+    if (t >= hours[1] - 30 && t < hours[1]) return { status: 'after', label: '시간외 거래' };
+    if (t >= hours[0] - 60 && t < hours[0]) return { status: 'pre', label: '프리마켓' };
     return { status: 'closed', label: '장 마감' };
   }
 
@@ -15134,6 +15137,7 @@ const DATE_ENGINE = (function() {
     isKrTradingDay: isKrTradingDay,
     isUsTradingDay: isUsTradingDay,
     hasMarketCalendar: hasMarketCalendar,
+    krSessionMinutes: krSessionMinutes,
     marketCalendarStatus: marketCalendarStatus,
     marketCloseMinute: marketCloseMinute,
     krxStatus: krxStatus,

@@ -44,7 +44,7 @@ export function isKnownSymbol(symbol, { entries = {}, krStockDb = {}, universe =
  * registry match. `known` uses the same owner as the ticker route (isKnownSymbol: name registry, KRX list, screener universe).
  */
 export function resolveHoldingInput(raw, { entries = {}, krStockDb = {}, universe = [] } = {}) {
-  const text = String(raw || '').trim();
+  const text = String(raw || '').normalize('NFKC').trim(); // v58.82: full-width ＡＡＰＬ is AAPL
   if (!text) return { symbol: '', known: false, resolvedFrom: null };
   const typed = text.toUpperCase();
   const tickerShaped = /^[A-Z0-9.^=-]{1,10}$/.test(typed);

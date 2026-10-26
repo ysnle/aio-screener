@@ -4,6 +4,7 @@
 import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
+import { readFamilyCode } from '../domain/connections/family-code.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { parseSecStatements } from '../domain/fundamental/sec-statements.js';
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
@@ -100,6 +101,10 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._detectSectorQuery = (text) => detectSectorQuery(text, { rows: screenerQueryInput().rows });
   window.AIO = window.AIO || {};
   window.AIO.describeSharedConnection = describeSharedConnection;
+  // v58.82: family code (shared AI); the entry form loads on first need and saving drops the cached health.
+  const familyStorage = () => { try { return window.localStorage; } catch { return null; } };
+  window._aioWithFamilyCode = (headers) => { const code = readFamilyCode(familyStorage()); if (code) headers['X-AIO-Family-Code'] = code; return headers; }; // AI requests only
+  window.AIO.attachFamilyCodeForm = (box) => import('../ui/components/family-code-form.js').then((m) => m.attachFamilyCodeForm(box, { documentRef: document, storage: familyStorage(), onSaved: () => window._aioClearWorkerHealth?.() })).catch(() => null);
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
   // v58.71: research-channel numbers in the chat context; loaded after boot (the chat checks that it exists).
   import('../ai/context/channel-signals.js').then((module) => { window.AIO.formatChannelSignalEvidence = module.formatChannelSignalEvidence; }).catch(() => {});

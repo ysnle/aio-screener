@@ -4,6 +4,17 @@ last_verified: 2026-10-26
 confidence: medium
 ---
 
+## v58.82 다중 사용자 엣지 케이스 점검 (2026-10-26)
+
+- [x] QA-EDGE-01: v58.82 백업 가져오기는 qty>0·cost>=0·3자리 통화 코드만 받고, 한국 테마 뉴스 제목·출처는 이스케이프되어 렌더링된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-EDGE-02: v58.82 다른 탭에서 보유 종목이 바뀐 뒤 이 탭에서 추가·수정·삭제하면 저장되지 않고 다시 불러오기 안내가 나온다(다른 탭 변경 보존). verify_by: 브라우저 두 탭으로 포트폴리오를 열고 한쪽에서 추가 후 다른 쪽에서 추가 시도
+- [x] QA-EDGE-03: v58.82 같은 연결의 동시 검색 답변이 금액 상한을 넘으면 검색 없이 답하고, 그래도 넘으면 금액 상한 문구로 거절한다. verify_by: node worker/openai-contract.test.mjs
+- [x] QA-EDGE-04: v58.82 DART 한도 초과·일시 실패는 이전 재무를 유지하고 절반 미만 결과는 발행하지 않으며, 서비스워커는 5xx에 신선한 캐시를 쓴다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-EDGE-05: v58.82 평일 KRX 휴장일 KR 지수는 MARKET_CLOSED, 휴장 세 번째 금요일 옵션 만기는 직전 거래일, 일간 sentiment는 NYSE 세션 기준 신선도, 환율 라벨은 KST. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-EDGE-06: v58.82 전각 티커는 ASCII로 접히고(ＡＡＰＬ→AAPL), 읽을 수 없는 목표가는 그 칸에서 거절된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-EDGE-07: v58.82 수능일(2026-11-19) KRX 세션은 10:00~16:30으로, 16:30 이전에는 그날 종가를 확정으로 보지 않는다. 매년 KRX 공지로 다음 해 수능일을 등록한다. verify_by: node scripts/ci-market-session-contract-check.mjs
+- [x] QA-EDGE-08: v58.82 공용 Worker가 돌려주는 upstream 오류 본문에는 API 키·조직 id 형태 토큰과 relay 키(인코딩 형태 포함)가 없다. verify_by: node worker/openai-contract.test.mjs
+- [x] QA-EDGE-09: v58.82 AIO_FAMILY_CODES가 설정되면 브라우저 공용 AI(/openai)는 12자 이상 일치하는 X-AIO-Family-Code만 예약 전에 통과시키고, 코드마다 하루 질문 수·지출 몫을 따로 잡는다. /health는 familyCodeRequired·familyCodeAccepted를 알리고, 앱은 FAMILY_CODE_REQUIRED에서 입력란을 열어 저장 후 다시 확인한다. 미설정이면 예전처럼 열려 있다. verify_by: node worker/openai-contract.test.mjs
 ## v58.81 v58.81 레인 크기 격리 (2026-10-26)
 
 - [x] QA-DATA-LANE-SIZE-01: 13F 산출물이 크기 예산을 넘는 주기에도 시장·뉴스 갱신이 커밋되고 13F 파일은 마지막 공개본으로 남는다(P2093). verify_by: refresh-data 실행 로그에서 '13F lane failed this cycle' 경고와 data 커밋 동시 확인
