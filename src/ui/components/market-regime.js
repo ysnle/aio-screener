@@ -695,7 +695,7 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   paintKoreaLine(doc, root);
   // v58.81 (owner 2026-10-26): the market clock with the Korea↔US link check, then the probabilistic lean, under the verdict.
   // Loaded after first paint (boot budget); the module also hands the AI context its two readers.
-  (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintHome(doc, root, store, regime, () => renderHomeRegime({ documentRef: doc, root, store }))).catch(() => { sessionLean = null; });
+  (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintHome(doc, root, store, regime, () => renderHomeRegime({ documentRef: doc, root, store }), () => marketInterpretation(root, { store }).regime)).catch(() => { sessionLean = null; });
   // P1429 (Codex review): the two futures cells were the largest items on home and often empty. When a
   // futures quote is missing the cell shows the cash index's last completed close (same history as 시장 상태)
   // and says the futures quote is unavailable; a live futures quote restores the cell.

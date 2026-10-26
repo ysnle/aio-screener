@@ -16,26 +16,39 @@ function snapshotOf(root, store) {
 // The AI context (src/ai/context/market-content.js) reads these two hooks so its boot module imports neither model.
 const SESSION_QUESTION = /지금|오늘|현재|장전|프리마켓|선물|개장|마감|한국|코스피|코스닥|원화|환율|시장\s*(?:상황|흐름|어때)|왜\s*(?:빠|올|내|떨)/;
 const LEAN_QUESTION = /우위|매수|매도|확률|가능성|유리|불리|앞으로|향후|전망|시장\s*(?:상황|흐름|어때)/;
-function exposeContextReaders(root, store) {
-  if (!root || root.__aioMarketNowContext) return;
-  root.__aioMarketNowContext = (text = '') => [
-    SESSION_QUESTION.test(text) ? renderSessionBridgeContext(buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store) })) : '',
-    LEAN_QUESTION.test(text) ? renderMarketLeanContext(root.__aioMarketLean) : ''
-  ].filter(Boolean).join('\n');
+// Both readers rebuild from the current regime and shared artifacts at question time, so a refresh made after the reader
+// left 오늘 (a new temperature or stress artifact, a later close) reaches the answer.
+// currentRegime comes from the caller (market-regime.js) so this lazy chunk does not re-split the boot selectors.
+function exposeContextReaders(root, store, currentRegime) {
+  if (!root || root.__aioMarketNowContext || typeof currentRegime !== 'function') return;
+  root.__aioMarketNowContext = (text = '') => {
+    const lean = () => { const regime = currentRegime(); return leanModel(root, regime?.available ? regime : null); };
+    return [
+      SESSION_QUESTION.test(text) ? renderSessionBridgeContext(buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store) })) : '',
+      LEAN_QUESTION.test(text) ? renderMarketLeanContext(lean()) : ''
+    ].filter(Boolean).join('\n');
+  };
+}
+
+function leanModel(root, regime) {
+  // R670: the VIX band is read on the same completed US close as the verdict, not the after-hours print.
+  const history = root?._aioHistory || [];
+  const vix = buildCloseSeries(history, 'vix', { through: regime?.asOf || closeBasis(history) }).at(-1)?.value ?? null;
+  return buildMarketLean({ regime, stress: root?.[STRESS_OUTCOMES.key] || null, temperature: root?.[MARKET_TEMPERATURE.key] || null, vix });
 }
 
 export function paintSessionBridge(doc, root, store, anchor) {
-  exposeContextReaders(root, store);
   if (!doc || !anchor) return null;
   const model = buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store) });
   let box = doc.getElementById('home-session-bridge');
   if (!model.available) { if (box) box.hidden = true; return model; }
   if (!box) { box = el(doc, 'div', null, 'session-bridge'); box.id = 'home-session-bridge'; anchor.insertAdjacentElement('afterend', box); }
   const nodes = [el(doc, 'p', model.clockLine, 'session-bridge__clock')];
-  // The Korean close itself is the line above (home-kr-line); this names which candidate drivers the numbers support.
+  // The line above (home-kr-line) is the last completed Korean close; during the session these checks read today's
+  // intraday move, so the head names the session it explains (date, 진행 중 with the observation time, or 마감).
   if (model.koreaRead) {
     const head = el(doc, 'p', null, 'session-bridge__head');
-    head.append(el(doc, 'strong', '한국장이 왜 움직였나'), doc.createTextNode(` ${model.koreaRead}`));
+    head.append(el(doc, 'strong', model.koreaHead ? `${model.koreaHead}, 왜 움직였나` : '한국장이 왜 움직였나'), doc.createTextNode(` ${model.koreaRead}`));
     nodes.push(head);
   }
   if (model.links.length) {
@@ -65,11 +78,7 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   for (const spec of [STRESS_OUTCOMES, MARKET_TEMPERATURE]) {
     if (sharedArtifactIsStale(root, spec.key, spec)) refreshSharedArtifact(root, spec).then(({ changed }) => { if (changed && typeof rerender === 'function') rerender(); }).catch(() => {});
   }
-  // R670: the VIX band is read on the same completed US close as the verdict, not the after-hours print.
-  const history = root?._aioHistory || [];
-  const vix = buildCloseSeries(history, 'vix', { through: regime?.asOf || closeBasis(history) }).at(-1)?.value ?? null;
-  const model = buildMarketLean({ regime, stress: root?.[STRESS_OUTCOMES.key] || null, temperature: root?.[MARKET_TEMPERATURE.key] || null, vix });
-  root.__aioMarketLean = model;
+  const model = leanModel(root, regime);
   let box = doc.getElementById('home-lean');
   if (!model.us.available) { if (box) box.hidden = true; return model; }
   if (!box) { box = el(doc, 'div', null, 'market-lean'); box.id = 'home-lean'; anchor.insertAdjacentElement('afterend', box); }
@@ -105,7 +114,8 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
 }
 
 // The 오늘 hero call (src/ui/components/market-regime.js renderHomeRegime): clock and links under the Korea line, lean under the leaders.
-export function paintHome(doc, root, store, regime, rerender) {
+export function paintHome(doc, root, store, regime, rerender, currentRegime) {
+  exposeContextReaders(root, store, currentRegime);
   paintSessionBridge(doc, root, store, doc.getElementById('home-kr-line') || doc.getElementById('home-hero-headline'));
   paintMarketLean(doc, root, regime?.available ? regime : null, doc.getElementById('home-hero-leaders'), rerender);
 }
