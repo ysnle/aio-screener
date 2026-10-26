@@ -1,3 +1,7 @@
+## v58.98 (2026-10-27)
+- **접힘 설명 버튼 최소 폭 (v58.98):** 거시·금리(fxbond) 등의 `.aio-note-fold > summary` '설명' 버튼은 높이만 24px로 고정돼 있어, 폭이 글꼴에 따라 달라졌다. CI 브라우저 샤드가 apt 실패로 CJK 글꼴 없이 돌자 14~18x24로 줄어 browser-ui-render-hygiene target-size가 실패했다(main CI run 40372883792). `min-width: 24px`를 더해 글꼴과 무관하게 WCAG 2.5.8 최소 대상 크기를 지킨다(src/ui/styles/soft-ui.css). PR #98, change-only.
+- R1 7곳 v58.98
+
 ## v58.97 (2026-10-27)
 - **레거시 분해 4/8 — 테마·섹터: RRG legacy 경로 정리 (v58.97):** RRG 산점도·상태 문구·사분면 칩은 이미 `src/ui/pages/themes.js`(`renderRRGCanvas`·`renderRRGStatus`)가 그린다. 그래서 `js/aio-pages.js`에서 native 표시가 붙으면 바로 끝나던 `drawRRG` 캔버스 대체 경로(약 130줄)와 그 호출 3곳, `js/aio-core.js` 화면 정리 시의 legacy 캔버스 지우기와 `_rrgRetry`를 지웠다. 11섹터/세부 업종/전체 버튼(`setRRGView`)은 `src/ui/components/rrg-view.js`로 옮기고 `src/app/legacy-screen-bridges.js`가 설치한다. 화면 동작은 그대로다. PR #97, v58.96을 #96이 써서 다음 번호로 재할당.
 - R1 7곳 v58.97
