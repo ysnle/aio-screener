@@ -1,3 +1,7 @@
+## v59.03 (2026-10-27)
+- **레거시 분해 6/8 — 포트폴리오: 백테스트 랩 결과 렌더러 이동 (v59.03):** 포트폴리오의 백테스트 랩 결과(`#pf-backtest-output`: 기간·설정 줄, KPI 4칸, 성과 요약·연도별 수익·최악 낙폭·수익/위험 기여 표)를 그리던 `_aioRenderPortfolioBacktestLab`과 그 형식 도우미(퍼센트·숫자·금액·셀), VaR/CVaR 인증 문구(`_aioBtVarCertLabel`·`_aioBtCvarCertLabel`, 보류 사유 표)를 `js/aio-workspace.js`에서 지우고 `src/ui/components/portfolio-backtest-lab.js`로 옮겼다. 마크업과 문구는 그대로다. 실행 전 한 줄 상태(보유 종목 없음·입력 거부·수집 중)도 같은 모듈의 `renderPortfolioBacktestStatus`가 그려, `#pf-backtest-output`의 작성자가 하나가 됐다. 가격 이력 수집과 엔진 실행(`runPortfolioBacktestLab`)은 legacy에 남아 창 이름(`_aioRenderPortfolioBacktestStatus`·`_aioRenderPortfolioBacktestLab`)으로 넘기고, `src/app/legacy-screen-bridges.js`가 이들과 `window._aioBtVarCertLabel`을 설치한다. P1190 게이트는 소스 문자열 대신 모듈이 실제 인증 보류 사유를 그리는지 확인한다.
+- R1 7곳 v59.03
+
 ## v59.02 (2026-10-27)
 - **레거시 분해 5/8 — 종목: 히어로 손익·시간외 legacy 대체 경로 삭제 (v59.02):** 종목 히어로의 내 손익(`#ticker-hero-pnl`·`#ticker-hero-value`)과 시간외 줄(`#ticker-hero-ext`)은 P829 이후 `src/ui/pages/entity.js`가 화면이 열릴 때마다 그린다. legacy 쪽은 native 표시가 없을 때만 쓰는 대체 작성기였다. `js/aio-core.js` `showTicker` 안의 손익 작성기는 정적 `tickerData`를 읽어 늘 '포트폴리오에 없는 종목'을 썼고, 보유 종목에서는 native가 덮기 전까지 틀린 문구가 잠깐 남을 수 있었다. `js/aio-data.js` 시세 반영 경로의 시간외 작성기는 화면을 떠난 뒤 숨은 노드에만 썼다. 두 작성기와 그 작성기만 쓰던 `.lda-ext-*` CSS를 지웠다. 아키텍처 게이트는 이제 두 대체 경로가 다시 생기지 않는지를 확인한다.
 - R1 7곳 v59.02

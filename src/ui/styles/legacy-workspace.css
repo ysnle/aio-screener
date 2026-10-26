@@ -83,6 +83,10 @@
 #page-portfolio .wsl-bt-kpi-v { font-size: 18px; font-family: var(--font-mono); font-weight: 900; }
 #page-portfolio .wsl-bt-kpi-v.is-loss { color: var(--dir-down); }
 #page-portfolio .wsl-bt-kpi-v.is-plain { color: var(--text-primary); }
+#page-portfolio .wsl-bt-kpi-v.is-up { color: var(--dir-up); }
+#page-portfolio .wsl-bt-kpi-v.is-ahead { color: var(--data-green); }
+#page-portfolio .wsl-bt-kpi-v.is-behind { color: var(--data-amber); }
+#page-portfolio .wsl-bt-scroll { overflow-x: auto; }
 #page-portfolio .wsl-bt-tables { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,320px),1fr)); gap: 10px; }
 #page-portfolio .wsl-bt-tbl { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
 #page-portfolio .wsl-bt-hrow { color: var(--text-muted); }

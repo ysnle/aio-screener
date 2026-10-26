@@ -10,6 +10,7 @@ import { setSectorPerfView } from '../ui/components/sector-perf-view.js';
 import { setRRGView } from '../ui/components/rrg-view.js';
 import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.js';
 import { renderTickerOverview } from '../ui/components/ticker-overview.js';
+import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
   // v58.85 거시 · 금리: header next-release line and 한국 거시 badges.
@@ -43,4 +44,8 @@ export function installLegacyScreenBridges(root, documentRef) {
   // before this module loaded is painted now.
   root._aioRenderTickerOverview = (tkr) => renderTickerOverview(tkr, at);
   if (root._currentTickerSym && documentRef.getElementById('page-ticker')?.classList.contains('active')) root._aioRenderTickerOverview(root._currentTickerSym);
+  // v59.03 포트폴리오: the 백테스트 랩 status line and result (runPortfolioBacktestLab reports after a click), VaR label.
+  root._aioRenderPortfolioBacktestLab = (model) => renderPortfolioBacktestLab(model, at);
+  root._aioRenderPortfolioBacktestStatus = (text, warn) => renderPortfolioBacktestStatus(text, warn, at);
+  root._aioBtVarCertLabel = varCertLabel;
 }

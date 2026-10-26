@@ -1014,7 +1014,8 @@
             "src/state/**",
             "js/aio-data.js",
             "version.json",
-            "js/aio-workspace.js"
+            "js/aio-workspace.js",
+            "src/ui/components/portfolio-backtest-lab.js"
           ]
         },
         {
@@ -2046,6 +2047,7 @@
             "scripts/**",
             "version.json",
             "js/aio-workspace.js",
+            "src/ui/components/portfolio-backtest-lab.js",
             "src/domain/fundamental/sec-normalize.js"
           ]
         },
@@ -2866,7 +2868,8 @@
     },
     {
       "patterns": [
-        "js/aio-workspace.js"
+        "js/aio-workspace.js",
+        "src/ui/components/portfolio-backtest-lab.js"
       ],
       "groups": [],
       "gates": [

@@ -32,6 +32,7 @@ const krData = read('js/aio-kr-data.js');
 const macroTech = ['js/aio-workspace.js', 'js/aio-kr-data.js', 'js/aio-pages.js', 'js/aio-ui.js'].map(read).join('\n');
 // P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
 const workspace = read('js/aio-workspace.js');
+const workspaceViews = workspace + read('src/ui/components/portfolio-backtest-lab.js'); // v59.03: the lab result renderer moved to src/
 const tests = read('js/aio-tests.js');
 const bootstrap = read('src/app/bootstrap.js');
 const portfolioBacktest = read('src/domain/portfolio/backtest.js');
@@ -383,14 +384,14 @@ check('full surface audit must match v50.29 page-brief declutter policy', /pageB
 check(
   'portfolio backtest lab exposes Portfolio Visualizer-style monthly report contract',
   /id="pf-backtest-lab"/.test(html)
-    && /runPortfolioBacktestLab/.test(html + workspace)
-    && /pf-bt-rebalance/.test(html + workspace)
-    && /pf-backtest-output/.test(html + workspace)
-    && /Performance Summary/.test(html + workspace)
-    && /Annual Returns/.test(html + workspace)
-    && /Worst Drawdowns/.test(html + workspace)
-    && /Return \/ Risk Attribution/.test(html + workspace)
-    && /과거 성과 시뮬레이션/.test(html + workspace)
+    && /runPortfolioBacktestLab/.test(html + workspaceViews)
+    && /pf-bt-rebalance/.test(html + workspaceViews)
+    && /pf-backtest-output/.test(html + workspaceViews)
+    && /Performance Summary/.test(html + workspaceViews)
+    && /Annual Returns/.test(html + workspaceViews)
+    && /Worst Drawdowns/.test(html + workspaceViews)
+    && /Return \/ Risk Attribution/.test(html + workspaceViews)
+    && /과거 성과 시뮬레이션/.test(html + workspaceViews)
     && /buildPortfolioBacktestLab/.test(portfolioBacktest)
     && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2/.test(portfolioBacktest)
     && /adjusted-close/.test(portfolioBacktest)

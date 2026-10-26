@@ -1,8 +1,8 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-workspace.js — P1136/R620: index.html 인라인 블록 A(1,992줄)에서 추출한 사용자 상태·워크스페이스 계층.
 // 포트폴리오(refreshPortfolioPrices/refreshPortfolioRisk/_pfPearson/
-// share·MDD 라벨/shapre 라벨/exportPortfolio/importPortfolio), 백테스트 랩(_aioRenderPortfolioBacktestLab/
-// runPortfolioBacktestLab), 워치리스트(getWatchlists/saveWatchlists/createWatchlist/switchWatchlist/
+// share·MDD 라벨/shapre 라벨/exportPortfolio/importPortfolio), 백테스트 랩(runPortfolioBacktestLab;
+// 결과 렌더러는 src/ui/components/portfolio-backtest-lab.js), 워치리스트(getWatchlists/saveWatchlists/createWatchlist/switchWatchlist/
 // addToWatchlist/updateWatchlistButtons), 투자 일지와 채팅 이력(PF_JOURNAL_KEY/CHAT_HISTORY_LS/
 // CHAT_DEFAULT_CHIPS/_aioBuildPortfolioActionPrompt), 공용 헬퍼(showToast/_escHtmlSafe/fmtN).
 //
@@ -1429,135 +1429,23 @@ function _renderRiskMetrics(el, data) {
   el.innerHTML = declHtml + cards + heatHtml + note;
 }
 
-function _aioFmtBtPct(v, d) {
-  if (v === null || v === undefined || !isFinite(v)) return '—';
-  return (v >= 0 ? '+' : '') + (v * 100).toFixed(d == null ? 2 : d) + '%';
-}
-function _aioFmtBtNum(v, d) {
-  if (v === null || v === undefined || !isFinite(v)) return '—';
-  return Number(v).toFixed(d == null ? 2 : d);
-}
-// E4/P1190: 인증 문구는 실제 판정을 따른다 — '인증 보류'를 고정 라벨로 두면 인증된 표본도
-// 보류로 보이고, 왜 보류인지 소비자가 알 수 없다.
-var PF_VAR_REASON_LABELS = {
-  'sample-below-declared-minimum': '표본 부족',
-  'tail-below-declared-minimum': '꼬리 부족',
-  'bootstrap-band-exceeds-declared-maximum': '부트스트랩 변동 큼',
-  'estimator-sensitivity-exceeds-declared-maximum': '추정량 민감',
-  'tail-sample-single-observation': '꼬리 1개',
-  'cvar-bootstrap-band-exceeds-declared-maximum': '부트스트랩 변동 큼',
-  'cvar-sensitivity-exceeds-declared-maximum': '최악 1개에 민감'
-};
-// v57.92 E06: CVaR has its own certification (the tail mean can move while the 5% quantile holds).
-function _aioBtCvarCertLabel(cert) {
-  var stability = cert && cert.stability;
-  if (!stability || !stability.cvarCertification) return '';
-  if (stability.cvarCertification === 'certified') return 'CVaR 인증';
-  var reasons = Array.isArray(stability.cvarCertificationReasons) ? stability.cvarCertificationReasons : [];
-  return 'CVaR 인증 보류' + (reasons.length ? ' — ' + reasons.map(function(reason) { return PF_VAR_REASON_LABELS[reason] || reason; }).join(', ') : '');
-}
-function _aioBtVarCertLabel(cert) {
-  if (!cert || typeof cert !== 'object') return '인증 보류';
-  if (cert.certification === 'certified') return '인증';
-  var reasons = (cert.stability && Array.isArray(cert.stability.certificationReasons)) ? cert.stability.certificationReasons : [];
-  if (!reasons.length && Array.isArray(cert.certificationReasons)) reasons = cert.certificationReasons;
-  return reasons.length ? '인증 보류 — ' + reasons.map(function(reason) { return PF_VAR_REASON_LABELS[reason] || reason; }).join(', ') : '인증 보류';
-}
-function _aioFmtBtMoney(v) {
-  if (v === null || v === undefined || !isFinite(v)) return '—';
-  return '$' + Math.round(v).toLocaleString();
-}
-function _aioBtTd(value, cls) {
-  return '<td class="wsl-bt-c is-fig is-r' + (cls ? ' ' + cls : '') + '">' + value + '</td>';
-}
-function _aioRenderPortfolioBacktestLab(model) {
-  var el = document.getElementById('pf-backtest-output');
-  if (!el) return;
-  if (!model || !model.ok) {
-    var reason = model && model.warnings && model.warnings.length ? model.warnings.join(', ') : '백테스트를 계산할 수 없습니다.';
-    el.innerHTML = '<div class="wsl-msg is-warn">' + _escHtmlSafe(reason) + '</div>';
-    return;
-  }
-  var p = model.performance || {};
-  var tone = function(v) { return v < 0 ? 'is-down' : 'is-up'; };
-  var metricRows = [
-    ['Start Balance', _aioFmtBtMoney(p.startBalance), _aioFmtBtMoney(p.startBalance)],
-    ['End Balance', _aioFmtBtMoney(p.endBalance), _aioFmtBtMoney(p.benchmarkEndBalance)],
-    ['CAGR', _aioFmtBtPct(p.cagr), _aioFmtBtPct(p.benchmarkCagr)],
-    ['Stdev', _aioFmtBtPct(p.stdev), _aioFmtBtPct(p.benchmarkStdev)],
-    ['Best Year', _aioFmtBtPct(p.bestYear), '—'],
-    ['Worst Year', _aioFmtBtPct(p.worstYear), '—'],
-    ['Max Drawdown', _aioFmtBtPct(-p.maxDrawdown), '—'],
-    ['Sharpe / Sortino', _aioFmtBtNum(p.sharpe) + ' / ' + _aioFmtBtNum(p.sortino), '—'],
-    ['Active / Tracking Error / IR', _aioFmtBtPct(p.activeReturn) + ' / ' + _aioFmtBtPct(p.trackingError) + ' / ' + _aioFmtBtNum(p.informationRatio), '—'],
-    ['Beta / Alpha / Corr', _aioFmtBtNum(p.beta) + ' / ' + _aioFmtBtPct(p.alpha) + ' / ' + _aioFmtBtNum(p.benchmarkCorrelation), '—'],
-    ['VaR / CVaR 5% monthly' + (p.varCertification ? ' (표본 ' + p.varCertification.sampleN + '·꼬리 ' + p.varCertification.tailN + ', VaR ' + _aioBtVarCertLabel(p.varCertification) + (_aioBtCvarCertLabel(p.varCertification) ? ', ' + _aioBtCvarCertLabel(p.varCertification) : '') + ')' : ''), _aioFmtBtPct(-p.historicalVar5) + ' / ' + _aioFmtBtPct(-p.conditionalVar5), '—'],
-    ['Up / Down Capture', _aioFmtBtPct(p.upsideCapture) + ' / ' + _aioFmtBtPct(p.downsideCapture), '—']
-  ];
-  var metricHtml = metricRows.map(function(r) {
-    return '<tr><td class="wsl-bt-c is-dim">' + _escHtmlSafe(r[0]) + '</td>' +
-      _aioBtTd(r[1]) + _aioBtTd(r[2]) + '</tr>';
-  }).join('');
-  var annualHtml = (model.annualRows || []).slice(-12).reverse().map(function(r) {
-    return '<tr><td class="wsl-bt-c is-fig">' + _escHtmlSafe(r.year) + '</td>' +
-      _aioBtTd(_aioFmtBtPct(r.return), tone(r.return)) +
-      _aioBtTd(_aioFmtBtMoney(r.balance)) +
-      _aioBtTd(_aioFmtBtPct(r.benchmarkReturn), tone(r.benchmarkReturn)) +
-      _aioBtTd(_aioFmtBtMoney(r.benchmarkBalance)) + '</tr>';
-  }).join('');
-  var ddHtml = (model.drawdowns || []).slice(0, 6).map(function(d, i) {
-    return '<tr><td class="wsl-bt-c is-ctr">' + (i + 1) + '</td>' +
-      '<td class="wsl-bt-c is-fig">' + _escHtmlSafe(d.start || '—') + '</td>' +
-      '<td class="wsl-bt-c is-fig">' + _escHtmlSafe(d.end || '—') + '</td>' +
-      '<td class="wsl-bt-c is-fig">' + _escHtmlSafe(d.recoveryBy || '—') + '</td>' +
-      _aioBtTd(d.recoveryMonths == null ? '—' : d.recoveryMonths + 'm') +
-      _aioBtTd(d.underwaterMonths == null ? '—' : d.underwaterMonths + 'm') +
-      _aioBtTd(_aioFmtBtPct(-d.drawdown), 'is-dd') + '</tr>';
-  }).join('');
-  var compHtml = (model.components || []).slice(0, 8).map(function(c) {
-    return '<tr><td class="wsl-bt-c is-fig is-heavy">' + _escHtmlSafe(c.ticker) + '</td>' +
-      _aioBtTd(_aioFmtBtPct(c.weight, 1)) +
-      _aioBtTd(_aioFmtBtPct(c.standaloneReturn)) +
-      _aioBtTd(_aioFmtBtMoney(c.returnContribution)) +
-      _aioBtTd(c.riskContribution == null ? '—' : _aioFmtBtPct(c.riskContribution, 1)) + '</tr>';
-  }).join('');
-  el.innerHTML =
-    '<div class="wsl-bt-head">' +
-      '<div class="wsl-note">기간 <b class="wsl-strong is-fig">' + _escHtmlSafe(model.settings.startMonth) + ' ~ ' + _escHtmlSafe(model.settings.endMonth) + '</b>, ' +
-      '리밸런싱 <b class="wsl-strong">' + _escHtmlSafe(model.settings.rebalanceType) + '</b>, 벤치마크 <b class="wsl-strong is-fig">' + _escHtmlSafe(model.settings.benchmarkSymbol) + '</b><br>' +
-      '조정주가, 지금 구성 그대로, 배분 기준 ' + _escHtmlSafe(model.settings.targetWeightBasis || '—') + ', 거래비용 미모형, RF ' + (model.settings.rfAnnual == null ? '미입력' : _aioFmtBtPct(model.settings.rfAnnual, 2)) + '</div>' +
-      '<span class="aio-source-badge is-delayed">REFERENCE-ONLY, delayed monthly backtest</span>' +
-    '</div>' +
-    '<div class="wsl-bt-kpis">' +
-      '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">CAGR</div><div class="wsl-bt-kpi-v" style="color:' + (p.cagr >= p.benchmarkCagr ? 'var(--data-green)' : 'var(--data-amber)') + ';">' + _aioFmtBtPct(p.cagr) + '</div><div class="wsl-sub">bench ' + _aioFmtBtPct(p.benchmarkCagr) + '</div></div>' +
-      '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Max Drawdown</div><div class="wsl-bt-kpi-v is-loss">' + _aioFmtBtPct(-p.maxDrawdown) + '</div><div class="wsl-sub">worst underwater path</div></div>' +
-      '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Sharpe / Sortino</div><div class="wsl-bt-kpi-v is-plain">' + _aioFmtBtNum(p.sharpe) + ' / ' + _aioFmtBtNum(p.sortino) + '</div><div class="wsl-sub">RF ' + _aioFmtBtPct(model.settings.rfAnnual, 1) + '</div></div>' +
-      '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Active / IR</div><div class="wsl-bt-kpi-v" style="color:' + (p.activeReturn >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') + ';">' + _aioFmtBtPct(p.activeReturn) + ' / ' + _aioFmtBtNum(p.informationRatio) + '</div><div class="wsl-sub">tracking error ' + _aioFmtBtPct(p.trackingError) + '</div></div>' +
-    '</div>' +
-    '<div class="wsl-bt-tables">' +
-      '<div style="overflow-x:auto;"><div class="wsl-head">Performance Summary</div><table class="wsl-bt-tbl"><thead><tr class="wsl-bt-hrow"><th class="wsl-bt-c is-l">Metric</th><th class="wsl-bt-c is-r">Portfolio</th><th class="wsl-bt-c is-r">Benchmark</th></tr></thead><tbody>' + metricHtml + '</tbody></table></div>' +
-      '<div style="overflow-x:auto;"><div class="wsl-head">Annual Returns</div><table class="wsl-bt-tbl"><thead><tr class="wsl-bt-hrow"><th class="wsl-bt-c is-l">Year</th><th class="wsl-bt-c is-r">Return</th><th class="wsl-bt-c is-r">Balance</th><th class="wsl-bt-c is-r">Bench</th><th class="wsl-bt-c is-r">Bench Bal</th></tr></thead><tbody>' + annualHtml + '</tbody></table></div>' +
-      '<div style="overflow-x:auto;"><div class="wsl-head">Worst Drawdowns</div><table class="wsl-bt-tbl"><thead><tr class="wsl-bt-hrow"><th class="wsl-bt-c">#</th><th class="wsl-bt-c is-l">Start</th><th class="wsl-bt-c is-l">Trough</th><th class="wsl-bt-c is-l">Recovery</th><th class="wsl-bt-c is-r">Recover</th><th class="wsl-bt-c is-r">Underwater</th><th class="wsl-bt-c is-r">DD</th></tr></thead><tbody>' + ddHtml + '</tbody></table></div>' +
-      '<div style="overflow-x:auto;"><div class="wsl-head">Return / Risk Attribution</div><table class="wsl-bt-tbl"><thead><tr class="wsl-bt-hrow"><th class="wsl-bt-c is-l">Ticker</th><th class="wsl-bt-c is-r">Weight</th><th class="wsl-bt-c is-r">Standalone</th><th class="wsl-bt-c is-r">Return $</th><th class="wsl-bt-c is-r">Risk</th></tr></thead><tbody>' + compHtml + '</tbody></table></div>' +
-    '</div>' +
-    '<div class="wsl-bt-warn">' + model.warnings.map(_escHtmlSafe).join(', ') + '</div>';
-}
+// v59.03: the backtest lab result renderer and its formatters moved to src/ui/components/portfolio-backtest-lab.js
+// (window._aioRenderPortfolioBacktestLab and window._aioBtVarCertLabel, installed by src/app/legacy-screen-bridges.js).
 
 async function runPortfolioBacktestLab() {
-  var out = document.getElementById('pf-backtest-output');
-  if (!out) return;
+  var status = function(text, warn) { if (typeof window._aioRenderPortfolioBacktestStatus === 'function') window._aioRenderPortfolioBacktestStatus(text, warn); };
   var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
   if (!positions || !positions.length) {
-    out.innerHTML = '<div class="wsl-msg is-warn">보유 종목을 먼저 추가하세요.</div>';
+    status('보유 종목을 먼저 추가하세요.', true);
     return;
   }
   // v58.80 (first-users bundle 6): -1000, 1800/3000 and 1e309 ran on silently; src/ui/components/input-check.js reads the form.
   var form = typeof window._aioReadBacktestInputs === 'function' ? await window._aioReadBacktestInputs().catch(function() { return null; }) : null; if (!form) form = { ok: false, reason: '입력 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 실행하세요.' }; // run 4 breaker #6
-  if (!form.ok) { out.innerHTML = '<div class="wsl-msg is-warn">' + _escHtmlSafe(form.reason) + '</div>'; return; }
+  if (!form.ok) { status(form.reason, true); return; }
   var initial = form.initial, startYear = form.startYear, rebalance = form.rebalance, benchmark = form.benchmark;
   var tickers = positions.map(function(p) { return String(p.ticker || '').trim().toUpperCase(); }).filter(Boolean);
   if (benchmark && tickers.indexOf(benchmark) < 0) tickers.push(benchmark);
-  out.innerHTML = '<div class="wsl-msg">월말 가격 이력을 수집하는 중입니다... (' + tickers.map(_escHtmlSafe).join(', ') + ')</div>';
+  status('월말 가격 이력을 수집하는 중입니다... (' + tickers.join(', ') + ')', false);
   var priceMap = {};
   var settled = await Promise.allSettled(tickers.map(async function(t) {
     var d = (typeof _fetchYahooChartData === 'function') ? await _fetchYahooChartData(t, '10y', '1d') : null;
@@ -1595,7 +1483,7 @@ async function runPortfolioBacktestLab() {
     model.warnings = (model.warnings || []).concat([model.baseCurrencyReturns.disclosure]);
   }
   window._lastPortfolioBacktestLab = { model: model, priceMap: priceMap, checkedAt: Date.now(), fetchStatuses: settled.map(function(r, i) { return { ticker: tickers[i], status: r.status }; }) };
-  _aioRenderPortfolioBacktestLab(model);
+  if (typeof window._aioRenderPortfolioBacktestLab === 'function') window._aioRenderPortfolioBacktestLab(model);
 }
 window.runPortfolioBacktestLab = runPortfolioBacktestLab;
 

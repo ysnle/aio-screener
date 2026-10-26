@@ -3352,8 +3352,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/clone\(root\.getPortfolioLedger\(\)\)/.test(p1191Readers)) {
     fail('P1191/E4 runtime-readers must pass the declared ledger through');
   }
-  if (!/_aioBtVarCertLabel\(p\.varCertification\)/.test(p1191Workspace) || !/function _aioBtVarCertLabel\(/.test(p1191Workspace)) {
-    fail('P1190/E4 the lab must render the actual VaR certification instead of a hard-coded hold label');
+  { // v59.03: the lab renderer lives in src/ui/components/portfolio-backtest-lab.js; probe what it renders.
+    const lab = await import('../src/ui/components/portfolio-backtest-lab.js');
+    const out = {}; const cert = { sampleN: 13, tailN: 1, certification: 'held', stability: { certificationReasons: ['sample-below-declared-minimum'] } };
+    lab.renderPortfolioBacktestLab({ ok: true, performance: { varCertification: cert }, settings: {}, warnings: [] }, { root: {}, documentRef: { getElementById: () => out } });
+    if (lab.varCertLabel({ certification: 'certified' }) !== '인증' || !String(out.innerHTML).includes('VaR 인증 보류 — 표본 부족')) fail('P1190/E4 the lab must render the actual VaR certification instead of a hard-coded hold label');
   }
   const uiLedger = {
     currency: 'USD',
