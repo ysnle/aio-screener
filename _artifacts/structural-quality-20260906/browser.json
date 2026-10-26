@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T20:06:38.080Z",
+  "generatedAt": "2026-10-26T20:29:40.336Z",
   "routes": [
     {
       "id": "home",
@@ -445,6 +445,8 @@
         "국면 판정",
         "다소 부담",
         "미국 시장 6개 지표",
+        "이 국면에서 네 가지 선택지의 득실",
+        "판단이 바뀌는 가장 가까운 조건",
         "이 조합이 뜻하는 것",
         "다음에 확인할 것",
         "1년 중 지금 위치 — 6개 지표 레이더",
@@ -456,7 +458,6 @@
         "코스피",
         "코스닥",
         "원 / 달러",
-        "외국인 순매수",
         "한국한국 종목의 참여도와 3개월 수익률 상위 테마",
         "3개월 수익률 상위 한국 테마, 표본 중앙값",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
@@ -465,8 +466,196 @@
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
+        {
+          "tag": "SELECT",
+          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AMT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "COP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "EOG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CVX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XOM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "EG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "KMI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ADP"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MRSH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NDAQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RSG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VLTO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ED"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "IFF"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AWK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CDW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AAPL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BBY"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CTAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TMUS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MGM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HWM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "WYNN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APTV"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CMG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NRG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APP"
+        },
+        {
+          "tag": "SELECT",
+          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CCI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CRWD"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SLB"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VYLR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DVN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AMT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FIX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "T"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TMUS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DECK"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MGM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MET"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DLTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태에서 추세 축과 함께 보기 →"
+        },
         {
           "tag": "BUTTON",
           "name": "지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기"
@@ -478,11 +667,32 @@
         {
           "tag": "BUTTON",
           "name": "확정 종가와 공식 발표 — 리서치 라이브러리에서 개념 배우기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
         }
       ],
       "headings": [
         "시장 폭",
         "시장 폭 판정",
+        "참여도 — 이동평균 위 종목 비율",
+        "20일선 위 종목 비율",
+        "50일선 위 종목 비율",
+        "200일선 위 종목 비율",
+        "40일선 위 종목 비율",
+        "상승 종목 비율 (10일 평균)",
+        "누적 상승-하락 종목 수 (A/D 라인)",
+        "강한 종목 수 — 신고가·신저가, 급등락",
+        "52주 신고가 − 신저가 종목 수",
+        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
+        "지수 확인 — 분배일과 S&P 500",
+        "S&P 500 (같은 기간 비교)",
+        "S&P 500 매도 우위일(분배일, 최근 25거래일)",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
       ]
     },
@@ -534,6 +744,10 @@
         {
           "tag": "BUTTON",
           "name": "닛케이 225: 5개 요소 중 3개가 최근 3년 하위 10% — 강한 냉각 1거래일째"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "지수별 가격 온도 (참고) 근거 보기"
         },
         {
           "tag": "BUTTON",

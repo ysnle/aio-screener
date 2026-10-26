@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-26T20:09:50.991Z",
-  "appRevision": "v59.04",
-  "gitHead": "62e52380bcf3636d810099bce8d01a77722b86bb",
+  "observedAt": "2026-10-26T20:32:58.473Z",
+  "appRevision": "v59.05",
+  "gitHead": "d96197ae9e42a55ec22d8bbb9d155352681ad652",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -50,7 +50,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 2,
+      "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -77,30 +77,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "bp",
-          "width": 22,
-          "height": 25,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "%p",
-          "width": 22,
-          "height": 26,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 20,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -153,16 +131,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "KST",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -197,23 +167,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 24,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -242,29 +197,14 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 0,
+      "canvasCount": 1,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 22,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -389,15 +329,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "13F",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
         {
           "id": "",
           "text": "GitHub Issues",
