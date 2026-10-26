@@ -5423,24 +5423,10 @@ function _aioRenderPipelineStatus() {
     bar.innerHTML = html;
     bar.style.display = 'flex';
 
-    // 스크리너 페이지 FMP 상태 인라인 노트 업데이트
-    var scrFmpEl = document.getElementById('screener-fmp-status');
-    var scrFmpReason = document.getElementById('screener-fmp-reason');
-    if (scrFmpEl && meta.fmpHasKey != null) {
-      if (meta.fmpHasKey && meta.fmpOk === false) {
-        scrFmpEl.style.display = 'inline-flex';
-        var inlineCoverage = meta.fundamentalCoveragePct == null ? '미확인' : (isFinite(Number(meta.fundamentalCoveragePct)) ? Number(meta.fundamentalCoveragePct).toFixed(1) + '%' : '미확인');
-        if (scrFmpReason) scrFmpReason.textContent = '공시 재무 자료가 있는 종목 ' + inlineCoverage + '(US 유니버스 기준, 필드 혼합)만 재무 조건 판정 가능';
-      } else if (!meta.fmpHasKey) {
-        scrFmpEl.style.display = 'inline-flex';
-        if (scrFmpReason) {
-          var noKeyCoverage = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
-          scrFmpReason.textContent = isFinite(noKeyCoverage) ? (noKeyCoverage >= 80 ? '재무 자료 충분' : '공시 재무 자료가 있는 종목 ' + noKeyCoverage.toFixed(1) + '%(US 유니버스 기준, 필드 혼합)만 재무 조건 판정 가능') : '재무 자료 범위 확인 중';
-        }
-      } else {
-        scrFmpEl.style.display = 'none';
-      }
-    }
+    // v59.08: the 스크리너 재무 팩터 coverage note is drawn by src/ui/components/screener-fmp-status.js
+    // (window._aioRenderScreenerFmpStatus, src/app/legacy-screen-bridges.js); the meta is kept for its install.
+    window._aioScreenerFmpMeta = meta;
+    if (typeof window._aioRenderScreenerFmpStatus === 'function') window._aioRenderScreenerFmpStatus(meta);
     if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
   } catch(_) {}
 }

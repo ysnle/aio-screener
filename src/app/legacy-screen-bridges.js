@@ -12,6 +12,7 @@ import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.
 import { renderTickerOverview } from '../ui/components/ticker-overview.js';
 import { renderPortfolioExposure, renderPortfolioStress } from '../ui/components/portfolio-exposure.js';
 import { renderPortfolioRiskMetrics, renderPortfolioRiskStatus } from '../ui/components/portfolio-risk-metrics.js';
+import { renderScreenerFmpStatus } from '../ui/components/screener-fmp-status.js';
 import { organizeGuideChapters } from '../ui/components/guide-chapters.js';
 import { renderWatchlist, readWatchlistSelect, readWatchlistInputs, clearWatchlistInputs } from '../ui/components/portfolio-watchlist.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
@@ -69,4 +70,7 @@ export function installLegacyScreenBridges(root, documentRef) {
   if (root._aioWatchlistPending && typeof root.refreshWatchlistUI === 'function') { root._aioWatchlistPending = false; root.refreshWatchlistUI(); }
   // v59.07 도움말: the chapter layout (guide.js runs it on mount; the headless T869 test calls this name).
   root._aioOrganizeGuideChapters = () => { const page = documentRef.getElementById('page-guide'); if (page) organizeGuideChapters(documentRef, page); };
+  // v59.08 스크리너: the 재무 팩터 coverage note (_aioRenderPipelineStatus calls it; the last meta is painted now).
+  root._aioRenderScreenerFmpStatus = (meta) => renderScreenerFmpStatus(meta, at);
+  if (root._aioScreenerFmpMeta) root._aioRenderScreenerFmpStatus(root._aioScreenerFmpMeta);
 }

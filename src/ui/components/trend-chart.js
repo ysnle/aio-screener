@@ -139,9 +139,13 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   const firstX = x(0);
   if (firstX - PAD.left > 24) {
     svg.append(svgEl(doc, 'rect', { x: PAD.left, y: PAD.top, width: (firstX - PAD.left).toFixed(1), height: plotH, class: 'trend-chart-nodata' }));
-    const note = svgEl(doc, 'text', { x: ((PAD.left + firstX) / 2).toFixed(1), y: PAD.top + plotH / 2, 'text-anchor': 'middle', class: 'trend-chart-empty' });
-    note.textContent = '기록 이전';
-    svg.append(note);
+    // v59.08: the centred 12px label (~52 units wide) is written only when it fits inside the shaded span; a narrower span
+    // pushed it into the y-axis labels (browser-viewport, breadth "기록 이전" over the "6" tick). The shading stays.
+    if (firstX - PAD.left >= 60) {
+      const note = svgEl(doc, 'text', { x: ((PAD.left + firstX) / 2).toFixed(1), y: PAD.top + plotH / 2, 'text-anchor': 'middle', class: 'trend-chart-empty' });
+      note.textContent = '기록 이전';
+      svg.append(note);
+    }
   }
   // v57.54: shaded date spans behind the line (market temperature extremes); tone picks the class.
   for (const span of spans) {

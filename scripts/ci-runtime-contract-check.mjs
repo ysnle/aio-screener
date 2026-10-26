@@ -866,6 +866,17 @@ const guideChapterProbe = await (async () => {
   return ids.join() === 'h,q,aio-guide-chapter,aio-guide-chapter,guide-public-policy' && chapters.every((c) => !c.open) && chapters.map((c) => c.children[0].textContent).join('|') === '화면 안내|추가 정보';
 })();
 check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', guideChapterProbe /* v59.07: the guide chapters are laid out by src/ui/components/guide-chapters.js */ && krMoreProbe /* v58.99: the 테마 progressive toggle runs from src/ui/components/kr-theme-progressive.js */ && /aio-comp-secondary-feed/.test(html));
+const fmpNoteProbe = await (async () => {
+  const { renderScreenerFmpStatus } = await import('../src/ui/components/screener-fmp-status.js');
+  const el = { style: {} }; const reason = { textContent: '' };
+  const documentRef = { getElementById: (id) => (id === 'screener-fmp-status' ? el : id === 'screener-fmp-reason' ? reason : null) };
+  const seen = [];
+  [{ fmpHasKey: false, fundamentalCoveragePct: 62.34 }, { fmpHasKey: false, fundamentalCoveragePct: 85 }, { fmpHasKey: false }, { fmpHasKey: true, fmpOk: false }].forEach((meta) => { renderScreenerFmpStatus(meta, { documentRef }); seen.push(reason.textContent); });
+  const shown = el.style.display === 'inline-flex';
+  renderScreenerFmpStatus({ fmpHasKey: true, fmpOk: true }, { documentRef });
+  return shown && el.style.display === 'none' && /종목 62\.3%\(US/.test(seen[0]) && seen[1] === '재무 자료 충분' && seen[2] === '재무 자료 범위 확인 중' && /종목 미확인\(US/.test(seen[3]);
+})();
+check('v59.08 the 스크리너 재무 팩터 note reads coverage against the 80% line, says when it is unknown and hides once the key works', fmpNoteProbe);
 // P1137/R623: NAV_ROUTE is no longer a re-listed array — it is derived from the canonical
 // `AIO_ALL_ROUTE_PAGE_IDS` minus the derived-view and reference classes. Assert the derivation
 // itself, so re-introducing a hand-listed copy fails here as well as in the registry gate.

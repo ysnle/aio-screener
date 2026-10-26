@@ -1,10 +1,19 @@
 ---
-last_verified: 2026-10-26
+last_verified: 2026-10-27
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2104 - v59.08 - 시장 상태 추이 차트의 '기록 이전' 라벨이 좁은 빈 구간에서 y축 숫자와 겹침 (2026-10-27)
+
+- symptom/reproduction: browser-viewport가 desktop 1280·1440의 breadth 화면에서 SVG 텍스트 겹침 1건으로 실패했다('기록 이전'과 y축 '6'). PR #106 CI에서 두 번 연속 재현됐다(머지 후 main에서도 같은 데이터면 재현).
+- root_cause: src/ui/components/trend-chart.js는 시리즈가 공통 범위보다 늦게 시작하면 빈 구간이 24 단위만 넘어도 12px '기록 이전'(약 52 단위 폭)을 그 구간 가운데에 썼다. breadth-chart-grid의 빈 구간이 32.8 단위라 라벨 왼쪽 끝이 y축 숫자 열(PAD.left-8)까지 밀려 들어갔다. 데이터 갱신으로 빈 구간 폭이 바뀌면서 드러났다.
+- fix: 빈 구간 음영은 그대로 두고, 라벨은 구간 폭이 60 단위 이상으로 라벨이 구간 안에 들어갈 때만 쓴다.
+- violated_rule: 차트 라벨은 이웃 라벨과 겹치지 않는다(viewport matrix svg text overlap).
+- prevention: browser-viewport의 svg text overlap 검사가 이 경우를 잡는다. 라벨을 둘 자리를 계산할 때 텍스트 폭을 함께 본다.
+- verification/residual: 로컬 ci-viewport-matrix 2회 통과, breadth 실측 빈 구간 32.8 단위에서 라벨 생략 확인.
 
 ## P2103 - v58.84 - 테마 연구 브라우저 게이트가 CDN에 의존해 외부망이 막힌 환경에서 30초 시간 초과로 실패 (2026-10-26)
 

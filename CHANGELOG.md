@@ -1,3 +1,8 @@
+## v59.08 (2026-10-27)
+- **레거시 분해 8/8 — 스크리너: 재무 팩터 안내 이동 (v59.08):** 스크리너의 재무 팩터 범위 안내(`#screener-fmp-status`, `#screener-fmp-reason`)를 `js/aio-data.js`의 `_aioRenderPipelineStatus`에서 `src/ui/components/screener-fmp-status.js`로 옮겼다. 파이프라인 상태는 스냅샷 meta를 넘기고, `src/app/legacy-screen-bridges.js`가 설치 때 마지막 meta로 한 번 그린다. 문구와 80% 기준은 그대로다. 키 없이 범위 값이 비었을 때 예전 코드는 `null.toFixed`에서 예외로 멈춰 초기 문구 '재무 자료 범위 확인 중'이 남고 뒤의 공개 준비도 갱신도 건너뛰었는데, 이제 같은 문구를 직접 쓰고 갱신도 이어진다. 이것으로 8화면의 화면 전용 레거시 쓰기가 모두 `src/`로 옮겨졌다.
+- **차트 '기록 이전' 라벨 겹침 수정 (P2104):** 시장 상태 추이 차트에서 시리즈 시작 전 빈 구간이 좁으면 '기록 이전' 라벨이 y축 숫자와 겹쳤다. 음영은 그대로 두고 라벨은 구간 안에 들어갈 때(60 단위 이상)만 쓴다.
+- R1 7곳 v59.08
+
 ## v59.07 (2026-10-27)
 - **레거시 분해 7/8 — 리서치·도움말: 도움말 장 접기 이동 (v59.07):** 도움말 화면의 장 배치(첫 화면 제목 → 빠른 시작 → 나머지 섹션을 각자 제목의 닫힌 `details.aio-guide-chapter`로 접기 → 공개 정책 안내를 맨 끝으로)를 `js/aio-core.js`의 `_aioPolishRemainingPages`와 그 페이지 표시 훅에서 `src/ui/components/guide-chapters.js`의 `organizeGuideChapters`로 옮겼다. `src/ui/pages/guide.js`가 도움말 페이지를 마운트할 때 한 번만 실행되고(`data-guide-chapters`), 마운트 해제 때 되돌리지 않는 것은 이전과 같다. T869 headless 테스트는 퇴역한 한국 5면 분기 호출 대신 `_aioOrganizeGuideChapters`(legacy-screen-bridges)를 부른다. 공개 정책 안내를 읽는 QA 감사는 `querySelector`로 바꿨다(AG-DOM-WRITER). 리서치 라이브러리(개념·분석, 대가 보유 종목, 산업 지도)는 이미 `src/ui/pages/`가 그려 레거시 쓰기가 없었다.
 - R1 7곳 v59.07
