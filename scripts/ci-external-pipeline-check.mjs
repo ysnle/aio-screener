@@ -106,7 +106,7 @@ async function observeOnce() {
       const telegramChannels = Array.isArray(telegram?.channels) ? telegram.channels : [];
       const telegramFailing = telegramChannels.filter((channel) => channel.error || !Number.isFinite(Number(channel.lastPostId)));
       check('pages-telegram-coverage', Number(telegram?.count) >= 100 && telegramChannels.length - telegramFailing.length >= 3, `count=${telegram?.count || 0} channels=${telegramChannels.length} healthy=${telegramChannels.length - telegramFailing.length}`);
-      check('pages-telegram-channels', telegramChannels.length > 0 && !telegramFailing.length, telegramFailing.map((channel) => `${channel.channel}: ${channel.error || 'no lastPostId'}`).join('; ') || `channels=${telegramChannels.length}`, 'warning');
+      check('pages-telegram-channels (v58.71)', telegramChannels.length > 0 && !telegramFailing.length, telegramFailing.map((channel) => `${channel.channel}: ${channel.error || 'no lastPostId'}`).join('; ') || `channels=${telegramChannels.length}`, 'warning');
       if (!data?.meta?.fearGreedOk) result.warnings.push('live Fear & Greed provider is degraded; static fallback is active');
       if (!data?.meta?.fredHasKey || !data?.meta?.fredFetchOk) result.warnings.push('live FRED enrichment is unavailable or degraded');
       if (!data?.meta?.marketAnalysisOk) result.warnings.push(`live LLM market analysis blocked: ${marketAnalysisDiagnostic(data)}; typed fallback is active`);
