@@ -1,3 +1,6 @@
+## v58.83 (2026-10-26)
+- **팩터 검증을 외부 기준과 대조 (v58.83, be-ambitious 적용):** 장기 팩터 백테스트(scripts/backtest-factors-longrun.mjs)의 IC 유의성이 겹치는 미래 구간을 독립으로 보는 순진한 t값뿐이던 것을, Newey-West(Bartlett) HAC 표준오차로 보강했다(lag = max(구간 겹침, 4(n/100)^(2/9)); 순진한 값은 그대로 두고 icIR.*.hac에 추가). 모멘텀 팩터의 상·하위 5분위 21일 수익 차이를 Kenneth French Data Library 일별 모멘텀 팩터(Mom)를 같은 거래일로 복리한 값과 비교하고, 첫 실행 전에 정한 기준(겹친 구간 60개 이상, Pearson r ≥ 0.3이면 PASS, r ≤ 0이면 FAIL)으로 판정한다. 자료 실패는 UNAVAILABLE로 닫히며 모델 승격에는 쓰지 않는다. backtestFactors는 factorSpreads 옵션을 줄 때만 팩터별 구간 수익 차이를 날짜와 함께 내보내 기본 출력은 같다. 프로듀서라 로컬이 아니라 수동 워크플로(.github/workflows/research-backtest.yml, 커밋 없이 결과 파일 업로드·요약)로 돌린다. 오프라인 검사 scripts/ci-research-validation-check.mjs.
+- R1 7곳 v58.83
 ## v58.82 (2026-10-26)
 - **외부 텍스트·가져오기 검증 (P2094):** 한국 테마 뉴스 제목 이스케이프, 백업 가져오기의 음수·빈 수량과 비정상 통화 코드 거절.
 - **다중 탭 포트폴리오 (P2095):** 다른 탭에서 보유 종목이 바뀐 뒤의 오래된 탭 저장을 거절해 변경 유실을 막음.

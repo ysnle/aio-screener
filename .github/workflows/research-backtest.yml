@@ -1,0 +1,77 @@
+name: Research factor backtest (manual)
+
+# v58.83: scripts/backtest-factors-longrun.mjs fetches Yahoo history and the Kenneth French daily
+# momentum factor, so it is a producer and runs only here (AGENTS: producers run in Actions). It does
+# not commit: the JSON is uploaded as a workflow artifact and summarised, and promoting it into
+# public-data/factor-backtest-longrun.json stays a reviewed change.
+on:
+  workflow_dispatch:
+    inputs:
+      range:
+        description: 'Yahoo history range (e.g. 10y)'
+        required: false
+        default: '10y'
+      top:
+        description: 'Top-N tickers by market cap (concurrency stays 4)'
+        required: false
+        default: '120'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: research-factor-backtest
+  cancel-in-progress: false
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RANGE: ${{ inputs.range || '10y' }}
+      TOP: ${{ inputs.top || '120' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Offline checks for the inference and benchmark helpers
+        run: node scripts/ci-research-validation-check.mjs
+
+      - name: Run long-run factor backtest
+        run: |
+          set -euo pipefail
+          case "$RANGE" in ([1-9]y|[1-9][0-9]y) ;; (*) echo "::error::range must look like 10y"; exit 1 ;; esac
+          case "$TOP" in (''|*[!0-9]*) echo "::error::top must be a number"; exit 1 ;; esac
+          node scripts/backtest-factors-longrun.mjs "--range=$RANGE" "--top=$TOP" "--out=$RUNNER_TEMP/factor-backtest-longrun.json"
+
+      - name: Summarise
+        run: |
+          set -euo pipefail
+          node -e '
+            const o = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+            const c = o.overallByHorizon.fwd21d.icIR.composite || {};
+            const b = o.externalBenchmark || {};
+            const lines = [
+              "## Research factor backtest",
+              "",
+              `- tickers ${o.universe.fetchedTickers}/${o.universe.requestedTop}, rebalances ${o.rebalanceDates.count}`,
+              `- fwd21d composite IC ${c.mean} · naive t ${c.tStat} · Newey-West t ${c.hac && c.hac.hacTStat} (lag ${c.hac && c.hac.lags})`,
+              `- external momentum benchmark: **${b.status}** · windows ${b.windows} · r ${b.pearsonR ?? "n/a"} · sign agreement ${b.signAgreementPct ?? "n/a"}%${b.reason ? " · " + b.reason : ""}`,
+              `- criterion: r >= ${b.criterion && b.criterion.passR} over >= ${b.criterion && b.criterion.minWindows} windows (fixed before the first run)`,
+              "",
+              "Research reference only; survivorship bias remains uncontrolled.",
+            ];
+            require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+          ' "$RUNNER_TEMP/factor-backtest-longrun.json"
+
+      - name: Upload result
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: factor-backtest-longrun
+          path: ${{ runner.temp }}/factor-backtest-longrun.json
+          retention-days: 30

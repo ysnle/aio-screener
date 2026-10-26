@@ -4,6 +4,10 @@ last_verified: 2026-10-26
 confidence: medium
 ---
 
+## v58.83 팩터 검증 외부 대조 (2026-10-26)
+
+- [x] QA-RESEARCH-BENCH-01: v58.83 장기 팩터 백테스트: HAC t값이 자기상관에서 넓어지고, French 일별 표 파싱·구간 복리·사전 등록 판정(PASS/FAIL/INSUFFICIENT)과 factorSpreads 선택 출력이 고정 입력으로 확인된다. verify_by: node scripts/ci-research-validation-check.mjs
+- [x] QA-RESEARCH-BENCH-02: v58.83 research-backtest 워크플로를 main에서 한 번 실행해 externalBenchmark 판정·HAC t값이 요약에 나오고, 결과를 검토한 뒤 public-data/factor-backtest-longrun.json 갱신 여부를 정한다. verify_by: GitHub Actions 'Research factor backtest (manual)' 실행 요약과 업로드된 factor-backtest-longrun.json
 ## v58.82 다중 사용자 엣지 케이스 점검 (2026-10-26)
 
 - [x] QA-EDGE-01: v58.82 백업 가져오기는 qty>0·cost>=0·3자리 통화 코드만 받고, 한국 테마 뉴스 제목·출처는 이스케이프되어 렌더링된다. verify_by: node scripts/ci-esm-core-unit-check.mjs

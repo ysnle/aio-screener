@@ -493,6 +493,10 @@
           "script": "scripts/ci-research-model-contract-check.mjs"
         },
         {
+          "id": "research-validation",
+          "script": "scripts/ci-research-validation-check.mjs"
+        },
+        {
           "id": "research-flow",
           "script": "scripts/ci-research-flow-contract-check.mjs",
           "inputs": [
