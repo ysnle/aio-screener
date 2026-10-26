@@ -743,7 +743,7 @@ function renderPortfolio() {
     if (main) main.style.display = 'none';
     return;
   }
-  const positions = getPortfolioData();
+  const positions = getPortfolioData(); try { window._pfPortfolioBackup.renderReminder(positions.length); } catch (_) {} // v58.84 backup reminder
   let ld = window._liveData || {};
   const tbody = document.getElementById('pf-positions-tbody');
   if (!tbody) return;
@@ -1761,7 +1761,7 @@ function exportPortfolio() {
   var bundle = api.build(_pfBackupSnapshot(), { appVersion: typeof APP_VERSION !== 'undefined' ? APP_VERSION : null, origin: location.origin }), a = document.createElement('a');
   if (!bundle.counts.total) { showToast('내보낼 데이터가 없습니다.'); return; }
   a.href = URL.createObjectURL(new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' })); a.download = 'aio-backup-' + bundle.exportedAt.slice(0, 10) + '.json'; a.click(); URL.revokeObjectURL(a.href);
-  try { localStorage.setItem('aio_last_backup_at', bundle.exportedAt); } catch(e) {}
+  try { localStorage.setItem('aio_last_backup_at', bundle.exportedAt); window._pfPortfolioBackup.renderReminder(1); } catch(e) {}
   showToast('전체 백업 저장 (' + api.describe(bundle.counts) + ') — 암호화되지 않은 파일이니 안전한 곳에 보관하세요.');
 }
 function _pfRestoreBackupSections(c) { var keys = (_pfAssumptionApi() || {}).keys || {};

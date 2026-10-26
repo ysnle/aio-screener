@@ -96,6 +96,19 @@ jobs:
               core.info('Success without work (gate skipped every job); the alert state is unchanged.');
               return;
             }
+            // v58.84 recovery hysteresis: a lane flapping fail/fail/pass/fail/fail closed and reopened its issue on every
+            // pass, two notifications per flap (issue #4 reached 184 comments). An open alert closes only when the previous
+            // observed run also succeeded; a lone pass between failures leaves it open and quiet.
+            if (succeeded && existing && existing.state === 'open') {
+              for (const candidate of recentRuns.filter((item) => item.id !== run.id)) {
+                if (candidate.conclusion === 'success' && !(await observedWork(candidate.id))) continue;
+                if (candidate.conclusion !== 'success') {
+                  core.info('First success after a failure; the alert closes after a second consecutive success.');
+                  return;
+                }
+                break;
+              }
+            }
             if (succeeded) {
               if (existing && existing.state === 'open') {
                 await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Recovered: [${workflow} run ${run.id}](${runUrl}) succeeded at ${timestamp}.` });

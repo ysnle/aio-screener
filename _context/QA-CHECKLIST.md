@@ -4,6 +4,12 @@ last_verified: 2026-10-26
 confidence: medium
 ---
 
+## v58.84 운영 알림 복구 히스테리시스 (2026-10-26)
+
+- [x] QA-OPS-10: 운영 알림 이슈는 두 번 연속 관측 성공에서만 닫히고, 실패 사이의 성공 한 번은 댓글을 남기지 않는다. verify_by: v58.84 P2102 ci-workspace-contract-check.mjs(lone pass / second pass 시나리오)
+- [x] QA-TEST-HERMETIC-01: 브라우저 게이트는 차트 라이브러리를 CDN이 아니라 SRI 검사한 로컬 사본에서 받는다(theme-research·entity-quality·out-of-universe). verify_by: v58.84 P2103 ci-theme-research-browser-check.mjs
+- [ ] QA-OPS-11: 주간 운영 점검은 디스패치·Cloudflare 토큰 만료(30일 전 경고·거절 시 조치), 저장소 크기(900 MB 경고·2 GB 조치), AI 월 예약액 80%를 상태로만 판정하고, 조치가 필요할 때만 이슈 하나를 열며 정상 주에 닫는다. 공개 이슈에 AI 금액을 쓰지 않는다. verify_by: v58.84 ci-operations-weekly-review-check.mjs; 실제 Actions 실행과 토큰 응답은 미검증
+- [ ] QA-PORT-BACKUP-01: 보유 종목이 있고 백업 기록이 없거나 30일 넘었으면 포트폴리오 화면에 한 줄 백업 안내가 보이고, 내보내기 직후 사라진다. verify_by: v58.84 ci-esm-core-unit-check.mjs backupReminder; 화면 표시는 브라우저 수동 확인 필요
 ## v58.83 팩터 검증 외부 대조 (2026-10-26)
 
 - [x] QA-RESEARCH-BENCH-01: v58.83 장기 팩터 백테스트: HAC t값이 자기상관에서 넓어지고, French 일별 표 파싱·구간 복리·사전 등록 판정(PASS/FAIL/INSUFFICIENT)과 factorSpreads 선택 출력이 고정 입력으로 확인된다. verify_by: node scripts/ci-research-validation-check.mjs
