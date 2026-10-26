@@ -17,6 +17,7 @@ confidence: medium
 - [x] QA-EDGE-09: v58.82 AIO_FAMILY_CODES가 설정되면 브라우저 공용 AI(/openai)는 12자 이상 일치하는 X-AIO-Family-Code만 예약 전에 통과시키고, 코드마다 하루 질문 수·지출 몫을 따로 잡는다. /health는 familyCodeRequired·familyCodeAccepted를 알리고, 앱은 FAMILY_CODE_REQUIRED에서 입력란을 열어 저장 후 다시 확인한다. 미설정이면 예전처럼 열려 있다. verify_by: node worker/openai-contract.test.mjs
 - [x] QA-EDGE-10: v58.82 index.html의 CSP <meta>는 첫 <script> 앞에 있고, script-src에 'unsafe-inline'이 없으며 인라인 스크립트는 sha256으로, 외부 스크립트는 정확한 CDN 패키지 경로로만 허용한다. 19개 화면을 돌 때 위반 0건, 끼워 넣은 onerror 처리기는 실행되지 않는다. _headers도 같은 정책이다. verify_by: node scripts/ci-csp-meta-check.mjs
 - [x] QA-EDGE-11: v58.82 Cloudflare 배포 두 작업은 Wrangler를 tools/wrangler/package-lock.json에서 --ignore-scripts로 설치한다(전역 설치 없음, 하위 패키지까지 무결성 고정). verify_by: node scripts/ci-operations-contract-check.mjs
+- [x] QA-EDGE-12: v58.82 화면 맨 아래 '이상해요'는 글·화면 이름·버전만 /feedback으로 보내고, Worker는 가족 코드가 맞을 때만 Durable Object에 저장한다(코드당 하루 10건, 최근 300건, 코드 원문 미저장). 읽기는 /_ops/feedback 운영자 토큰만, 없으면 404. verify_by: node worker/openai-contract.test.mjs
 
 ## v58.80 미래 자료 누설 검사와 작업 방식 개선 (2026-10-25)
 

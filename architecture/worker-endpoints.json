@@ -31,6 +31,8 @@
     "routes": [
       { "path": "/health", "methods": ["GET", "HEAD", "OPTIONS"], "access": "public", "notes": "readiness metadata only; workersAiBound is a presence boolean" },
       { "path": "/_ops/ai-usage", "methods": ["GET"], "access": "X-AIO-Operator-Token (AIO_OPERATOR_TOKEN); anonymous callers get 404 for every method; no CORS; no-store" },
+      { "path": "/feedback", "methods": ["POST", "OPTIONS"], "access": "allowed Origin + X-AIO-Family-Code (AIO_FAMILY_CODES; unset = 503); 10 notes per code per UTC day; newest 300 kept in the AIO_QUOTA_DO Durable Object", "maxBodyBytes": 8192, "maxChars": 1000 },
+      { "path": "/_ops/feedback", "methods": ["GET", "OPTIONS"], "access": "X-AIO-Operator-Token (AIO_OPERATOR_TOKEN); anonymous callers get 404; CORS only for allowed origins (the owner's in-app reader); no-store" },
       { "path": "/workers-ai/translate", "methods": ["POST"], "access": "X-AIO-Automation-Token (AIO_AUTOMATION_TOKEN); anonymous callers get 404 for every method; no CORS; no-store", "binding": "AI", "maxTitles": 20, "maxTitleLength": 300, "maxBodyBytes": 32768, "errors": "short codes only (titles-invalid 400, body-too-large 413, workers-ai-unbound / workers-ai-unparsed:* / workers-ai-failed 503); never model output", "budget": "Workers AI account allowance, not the shared OpenAI ledger" },
       { "path": "/openai", "methods": ["POST", "OPTIONS"], "access": "allowed Origin (+ AIO_APP_TOKEN when set) or origin-less X-AIO-Automation-Token" },
       { "path": "/anthropic", "methods": ["*"], "access": "public", "status": 410, "notes": "retired tombstone (also any path with ?anthropic=1); never calls a provider" },
