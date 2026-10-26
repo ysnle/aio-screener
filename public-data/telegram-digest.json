@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-26T20:51:50.118Z",
-  "attemptedAt": "2026-10-26T20:51:50.118Z",
-  "lastSuccessfulAt": "2026-10-26T20:51:50.118Z",
+  "generatedAt": "2026-10-26T21:21:54.517Z",
+  "attemptedAt": "2026-10-26T21:21:54.517Z",
+  "lastSuccessfulAt": "2026-10-26T21:21:54.517Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-12T20:51:44.718Z",
-  "until": "2026-10-26T20:51:44.718Z",
+  "since": "2026-10-12T21:21:48.646Z",
+  "until": "2026-10-26T21:21:48.646Z",
   "current24hWindow": {
     "start": "2026-10-24T23:00:00.000Z",
     "end": "2026-10-25T23:00:00.000Z",
@@ -90,24 +90,24 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1283,
-      "freshCount": 60,
-      "eligibleTextCount": 1230,
+      "count": 1284,
+      "freshCount": 40,
+      "eligibleTextCount": 1231,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67428
+      "lastPostId": 67431
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 243,
+      "count": 242,
       "freshCount": 20,
-      "eligibleTextCount": 243,
+      "eligibleTextCount": 242,
       "selectedCount": 95,
       "error": null,
       "lastPostId": 20828
@@ -126,7 +126,7 @@
     }
   ],
   "count": 2465,
-  "retainedItemCount": 472,
+  "retainedItemCount": 444,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -135,8 +135,8 @@
     "observedCount": 2465,
     "eligibleTextCount": 2398,
     "mediaOnlyCount": 67,
-    "highSignalCount": 467,
-    "broadSignalCount": 1028,
+    "highSignalCount": 465,
+    "broadSignalCount": 1026,
     "selectedRawCount": 406,
     "selectedEligibleCount": 406,
     "selectedRawCoveragePct": 16.9,
@@ -144,33 +144,33 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "geo": 358,
-    "semi": 615,
+    "market-note": 893,
+    "geo": 357,
+    "semi": 614,
     "equity": 186,
-    "earnings": 508,
-    "market-note": 891,
+    "earnings": 506,
     "japan": 139,
     "power": 327,
     "media-only": 67,
-    "macro": 413,
+    "macro": 412,
     "flows": 117,
     "credit": 125,
     "ai-policy": 161,
     "healthcare": 135,
     "kr-market": 152,
-    "optical": 45,
+    "optical": 44,
     "crypto": 4,
     "insider": 6
   },
   "tickerCounts": {
-    "NVDA": 191,
+    "NVDA": 190,
     "AVGO": 25,
     "MU": 74,
     "GOOG": 95,
     "005930.KS": 56,
     "AMZN": 55,
     "TSLA": 94,
-    "MSFT": 57,
+    "MSFT": 56,
     "META": 18,
     "AAPL": 15,
     "TSM": 98,
@@ -220,7 +220,7 @@
     "PINS": 1,
     "WMT": 2,
     "SMCI": 5,
-    "LITE": 9,
+    "LITE": 8,
     "DELL": 1,
     "ADBE": 1,
     "2454.TW": 3,
@@ -252,19 +252,19 @@
     "ACN": 1
   },
   "themes": [
-    "Market Notes (891 posts in 14-day research window): 2026년 10월 26일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승 출발. 다우 선물 +0.33%, S&P500 선물 +0.30%, 나스닥100 선물 +0.29%, 러셀2000 선물 +0.36% 기록....",
-    "Semiconductors/Memory (615 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로 보도. 대상 직원들은 12월 초까지 참여 여부를 결정하며 퇴직은 연말로 예정. • IBM (IBM) ·...",
-    "Earnings/Corporate (508 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (413 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43% 기록. 미국 10년물 국채금리는 4.986%로 하락했고 VIX는 18.32로 5.81% 급락하며 위험자산...",
-    "Geopolitics (358 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (327 posts in 14-day research window): SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이...",
-    "Equity/Analyst (186 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "Market Notes (893 posts in 14-day research window): 2026년 10월 26일 프리마켓 주요 종목 동향 상승 종목 XNCR (+36.70%) 초기 단계 신장암 임상시험 데이터 발표 SGRY (+24.44%) Bon Secours, Surgery Partners...",
+    "Semiconductors/Memory (614 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로 보도. 대상 직원들은 12월 초까지 참여 여부를 결정하며 퇴직은 연말로 예정. • IBM (IBM) ·...",
+    "Earnings/Corporate (506 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
+    "Macro/Rates (412 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43% 기록. 미국 10년물 국채금리는 4.986%로 하락했고 VIX는 18.32로 5.81% 급락하며 위험자산...",
+    "Geopolitics (357 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "AI Power/Grid (327 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Equity/Analyst (186 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
     "AI Policy/Export Controls (161 posts in 14-day research window): 2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 191,
+      "count": 190,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로 보도. 대상 직원들은 12월 초까지 참여 여부를 결정하며 퇴직은 연말로 예정. • IBM (IBM) ·..."
     },
     {
@@ -293,14 +293,14 @@
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
-      "key": "MSFT",
-      "count": 57,
-      "text": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB 메인 떡밥 · 게시글들은 2026년 대규모 손실을 집중 공격 · SpaceX에 거액의 AI compute..."
-    },
-    {
       "key": "005930.KS",
       "count": 56,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
+    },
+    {
+      "key": "MSFT",
+      "count": 56,
+      "text": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB 메인 떡밥 · 게시글들은 2026년 대규모 손실을 집중 공격 · SpaceX에 거액의 AI compute..."
     },
     {
       "key": "AMZN",
@@ -315,12 +315,12 @@
     {
       "key": "AMD",
       "count": 31,
-      "text": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이 사실상 막혔다고 경고. 200개 이상의 네오클라우드 기업이 자금난으로 파산하거나 대규모 산업 재편에 직면할 수..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
       "key": "AVGO",
       "count": 25,
-      "text": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이 사실상 막혔다고 경고. 200개 이상의 네오클라우드 기업이 자금난으로 파산하거나 대규모 산업 재편에 직면할 수..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     }
   ],
   "categories": [
@@ -330,7 +330,7 @@
       "topics": [
         "macro"
       ],
-      "count": 413,
+      "count": 412,
       "focus": "2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43% 기록. 미국 10년물 국채금리는 4.986%로 하락했고 VIX는 18.32로 5.81% 급락하며 위험자산..."
     },
     {
@@ -339,7 +339,7 @@
       "topics": [
         "geo"
       ],
-      "count": 358,
+      "count": 357,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -357,7 +357,7 @@
       "topics": [
         "semi"
       ],
-      "count": 615,
+      "count": 614,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로 보도. 대상 직원들은 12월 초까지 참여 여부를 결정하며 퇴직은 연말로 예정. • IBM (IBM) ·..."
     },
     {
@@ -366,7 +366,7 @@
       "topics": [
         "optical"
       ],
-      "count": 45,
+      "count": 44,
       "focus": "제프리스, 루멘텀(Lumentum, $LITE ) 목표주가 1,200달러에서 1,250달러로 상향 , 투자의견 '매수(Buy)'를 유지 루멘텀이 알파벳(GOOGL)의 광회선 스위치(OCS, Optical..."
     },
     {
@@ -376,7 +376,7 @@
         "power"
       ],
       "count": 327,
-      "focus": "SemiAnalysis ) 2027년 데이터센터: 가속화의 해, 단일 연도에 +50GW 구축 1. 데이터센터 구축을 둘러싼 의구심(FUD)과 실제 진실 매주 데이터센터에 대한 부정적인 억측과 불안감(FUD)이..."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
       "id": "ai-policy",
@@ -403,7 +403,7 @@
         "equity"
       ],
       "count": 186,
-      "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각..."
     },
     {
       "id": "crypto",
@@ -420,7 +420,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 508,
+      "count": 506,
       "focus": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -465,8 +465,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 891,
-      "focus": "2026년 10월 26일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승 출발. 다우 선물 +0.33%, S&P500 선물 +0.30%, 나스닥100 선물 +0.29%, 러셀2000 선물 +0.36% 기록...."
+      "count": 893,
+      "focus": "2026년 10월 26일 프리마켓 주요 종목 동향 상승 종목 XNCR (+36.70%) 초기 단계 신장암 임상시험 데이터 발표 SGRY (+24.44%) Bon Secours, Surgery Partners..."
     }
   ],
   "pageMap": {
@@ -843,13 +843,11 @@
       "datetime": "2026-10-26T12:26:00.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "credit",
-        "semi",
-        "kr-market",
-        "equity"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 26일 프리마켓 주요 종목 동향 상승 종목 XNCR (+36.70%) 초기 단계 신장암 임상시험 데이터 발표 SGRY (+24.44%) Bon Secours, Surgery Partners...",
       "tickers": [],
       "listTickers": [
         "TSLA",
@@ -858,8 +856,7 @@
         "MS",
         "BCS",
         "RRC"
-      ],
-      "summary": "2026년 10월 26일 프리마켓 주요 종목 동향 상승 종목 XNCR (+36.70%) 초기 단계 신장암 임상시험 데이터 발표 SGRY (+24.44%) Bon Secours, Surgery Partners..."
+      ]
     },
     {
       "id": "insidertracking/67382",
@@ -868,13 +865,12 @@
       "datetime": "2026-10-26T12:00:16.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "semi",
-        "power",
-        "equity",
-        "healthcare"
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -885,8 +881,7 @@
         "AMZN",
         "ORCL",
         "BE"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각..."
+      ]
     },
     {
       "id": "insidertracking/67380",
@@ -895,20 +890,18 @@
       "datetime": "2026-10-26T11:58:53.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "power",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO",
         "AMZN"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
+      ]
     },
     {
       "id": "insidertracking/67347",
@@ -2095,8 +2088,8 @@
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
+      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다....",
+      "tickers": []
     },
     {
       "id": "insidertracking/67387",
@@ -2105,13 +2098,11 @@
       "datetime": "2026-10-26T12:26:00.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "credit",
-        "semi",
-        "kr-market",
-        "equity"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 26일 프리마켓 주요 종목 동향 상승 종목 XNCR (+36.70%) 초기 단계 신장암 임상시험 데이터 발표 SGRY (+24.44%) Bon Secours, Surgery Partners...",
       "tickers": [],
       "listTickers": [
         "TSLA",
@@ -2120,8 +2111,7 @@
         "MS",
         "BCS",
         "RRC"
-      ],
-      "summary": "2026년 10월 26일 프리마켓 주요 종목 동향 상승 종목 XNCR (+36.70%) 초기 단계 신장암 임상시험 데이터 발표 SGRY (+24.44%) Bon Secours, Surgery Partners..."
+      ]
     },
     {
       "id": "insidertracking/67384",
@@ -2130,12 +2120,12 @@
       "datetime": "2026-10-26T12:13:26.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "브라질 대선 이후 금융시장에서 달러 선물 급등과 주가지수 선물 급락이 나타나는 중. 달러 선물은 9.2% 상승한 5.43헤알에 거래를 시작했으며, 브라질 대표 주가지수인 보베스파 지수 선물은 14.9% 하락한..."
+      "summary": "브라질 대선 이후 금융시장에서 달러 선물 급등과 주가지수 선물 급락이 나타나는 중. 달러 선물은 9.2% 상승한 5.43헤알에 거래를 시작했으며, 브라질 대표 주가지수인 보베스파 지수 선물은 14.9% 하락한...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20827",
@@ -2177,13 +2167,12 @@
       "datetime": "2026-10-26T12:00:16.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "semi",
-        "power",
-        "equity",
-        "healthcare"
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2194,8 +2183,7 @@
         "AMZN",
         "ORCL",
         "BE"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각..."
+      ]
     },
     {
       "id": "insidertracking/67380",
@@ -2204,20 +2192,18 @@
       "datetime": "2026-10-26T11:58:53.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "power",
+        "earnings"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO",
         "AMZN"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
+      ]
     },
     {
       "id": "aetherjapanresearch/26051",
@@ -2243,13 +2229,12 @@
       "datetime": "2026-10-26T11:46:02.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "macro",
-        "kr-market"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "모건스탠리는 룰라 대통령의 선거 승리 이후 브라질의 재정 건전성에 대한 우려가 확대되면서 브라질 증시가 20~30% 하락할 가능성이 있다고 경고. • 브라질 주식시장은 재정 리스크 확대로 20~30% 하락할..."
+      "summary": "모건스탠리는 룰라 대통령의 선거 승리 이후 브라질의 재정 건전성에 대한 우려가 확대되면서 브라질 증시가 20~30% 하락할 가능성이 있다고 경고. • 브라질 주식시장은 재정 리스크 확대로 20~30% 하락할...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20824",
@@ -2291,12 +2276,12 @@
       "datetime": "2026-10-26T11:34:30.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "일론 머스크가 네오클라우드 기업들의 대규모 파산과 업계 통합 가능성을 경고하면서 주요 네오클라우드 관련주가 월요일 프리마켓에서 하락. • 코어위브 -5% • 네비우스 -4% • 아이렌 -4% 머스크는 신용시장..."
+      "summary": "일론 머스크가 네오클라우드 기업들의 대규모 파산과 업계 통합 가능성을 경고하면서 주요 네오클라우드 관련주가 월요일 프리마켓에서 하락. • 코어위브 -5% • 네비우스 -4% • 아이렌 -4% 머스크는 신용시장...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20822",
@@ -2391,16 +2376,16 @@
       "datetime": "2026-10-26T11:12:24.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 67,
       "hasText": true,
+      "summary": "메타가 두 가지 주식 발행 방식을 통해 약 350억 달러의 자금을 조달할 계획 발표. • 클래스 A 보통주 225억 달러 규모를 선도매도계약을 통해 발행할 계획. • 의무전환우선주를 나타내는 예탁주식 125억...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ],
-      "summary": "메타가 두 가지 주식 발행 방식을 통해 약 350억 달러의 자금을 조달할 계획 발표. • 클래스 A 보통주 225억 달러 규모를 선도매도계약을 통해 발행할 계획. • 의무전환우선주를 나타내는 예탁주식 125억..."
+      ]
     },
     {
       "id": "insidertracking/67373",
@@ -2409,12 +2394,12 @@
       "datetime": "2026-10-26T10:28:30.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "받) 미국 상장 브라질 기업 프리마켓 현황 • XP -45.39% →브라질 기반 보험사로 자동차·생명·주택보험 등 다양한 보험 상품 제공. • 스톤코 -34.70% →브라질 중소기업과 소상공인을 대상으로 결제..."
+      "summary": "받) 미국 상장 브라질 기업 프리마켓 현황 • XP -45.39% →브라질 기반 보험사로 자동차·생명·주택보험 등 다양한 보험 상품 제공. • 스톤코 -34.70% →브라질 중소기업과 소상공인을 대상으로 결제...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67372",
@@ -2425,11 +2410,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "호르무즈 해협을 넘어섰다… 세계에서 가장 위험해진 바다 > • 흑해에서 선원 최소 40명 사망·선박 570척 이상 공격 피해 • 러시아·우크라이나, 유조선·곡물 운반선 등 민간 선박 공격 확대 • 흑해 전쟁..."
+      "summary": "호르무즈 해협을 넘어섰다… 세계에서 가장 위험해진 바다 > • 흑해에서 선원 최소 40명 사망·선박 570척 이상 공격 피해 • 러시아·우크라이나, 유조선·곡물 운반선 등 민간 선박 공격 확대 • 흑해 전쟁...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71036",
