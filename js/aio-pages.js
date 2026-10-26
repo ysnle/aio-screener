@@ -803,7 +803,7 @@ function calcSectorBreadth(tickers) {
 
 var _rrgViewMode = 'sectors'; // 'sectors' or 'subsectors' or 'all'
 
-// v58.96: setRRGView moved to src/ui/components/rrg-view.js; the fenced legacy drawRRG canvas fallback is gone —
+// v58.97: setRRGView moved to src/ui/components/rrg-view.js; the fenced legacy drawRRG canvas fallback is gone —
 // src/ui/pages/themes.js draws the RRG scatter, status and quadrant chips.
 
 // ═══════════════════════════════════════════════════════════════

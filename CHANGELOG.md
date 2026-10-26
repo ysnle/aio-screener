@@ -1,5 +1,8 @@
+## v58.97 (2026-10-27)
+- **레거시 분해 4/8 — 테마·섹터: RRG legacy 경로 정리 (v58.97):** RRG 산점도·상태 문구·사분면 칩은 이미 `src/ui/pages/themes.js`(`renderRRGCanvas`·`renderRRGStatus`)가 그린다. 그래서 `js/aio-pages.js`에서 native 표시가 붙으면 바로 끝나던 `drawRRG` 캔버스 대체 경로(약 130줄)와 그 호출 3곳, `js/aio-core.js` 화면 정리 시의 legacy 캔버스 지우기와 `_rrgRetry`를 지웠다. 11섹터/세부 업종/전체 버튼(`setRRGView`)은 `src/ui/components/rrg-view.js`로 옮기고 `src/app/legacy-screen-bridges.js`가 설치한다. 화면 동작은 그대로다. PR #97, v58.96을 #96이 써서 다음 번호로 재할당.
+- R1 7곳 v58.97
+
 ## v58.96 (2026-10-27)
-- **레거시 분해 4/8 — 테마·섹터: RRG legacy 경로 정리 (v58.96):** RRG 산점도·상태 문구·사분면 칩은 이미 `src/ui/pages/themes.js`(`renderRRGCanvas`·`renderRRGStatus`)가 그린다. 그래서 `js/aio-pages.js`에서 native 표시가 붙으면 바로 끝나던 `drawRRG` 캔버스 대체 경로(약 130줄)와 그 호출 3곳, `js/aio-core.js` 화면 정리 시의 legacy 캔버스 지우기와 `_rrgRetry`를 지웠다. 11섹터/세부 업종/전체 버튼(`setRRGView`)은 `src/ui/components/rrg-view.js`로 옮기고 `src/app/legacy-screen-bridges.js`가 설치한다. 화면 동작은 그대로다.
 - **CI 브라우저 샤드 apt 의존 완화 (v58.96):** 15:45Z부터 main CI가 다섯 번 연속 'Install dependencies and Chromium' 단계(playwright install 3회 실패, apt 미러 지연)에서 실패해 Pages 배포와 데이터 갱신 공개가 멈췄다. Chromium 내려받기(Playwright CDN)를 apt와 분리하고, install-deps는 2회까지 시도하는 best effort로 바꿨다. apt가 끝나지 못하면 Chromium이 실제로 떠서 페이지를 그릴 때만 샤드를 계속한다. .deb 캐시 키에 러너 이미지를 넣어 이전 이미지 패키지를 계속 쓰지 않게 했다(.github/workflows/ci.yml). PR #96, 결함 아닌 change-only.
 - R1 7곳 v58.96
 

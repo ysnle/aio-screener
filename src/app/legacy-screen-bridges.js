@@ -32,6 +32,6 @@ export function installLegacyScreenBridges(root, documentRef) {
   root.setNewsSortMode = (mode, el) => newsControls.setNewsSortMode(mode, el, at);
   // v58.95 테마 · 섹터: the 11섹터 / +세부 업종 toggle (themes.js draws the bars).
   root.setSectorPerfView = (view, el) => setSectorPerfView(view, el, at);
-  // v58.96 테마 · 섹터: the RRG view pills (themes.js draws the scatter).
+  // v58.97 테마 · 섹터: the RRG view pills (themes.js draws the scatter).
   root.setRRGView = (mode, el) => setRRGView(mode, el, at);
 }

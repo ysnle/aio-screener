@@ -777,7 +777,7 @@ const rrgViewProbe = await (async () => {
   setRRGView('subsectors', pill, { root, documentRef: { querySelectorAll: () => [], dispatchEvent: (e) => events.push(e.type) } });
   return root._rrgViewMode === 'subsectors' && events.join() === 'active,aio:themesViewChanged';
 })();
-check('v58.96 the RRG view pills set the shared view and ask themes.js to repaint the scatter', rrgViewProbe);
+check('v58.97 the RRG view pills set the shared view and ask themes.js to repaint the scatter', rrgViewProbe);
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',

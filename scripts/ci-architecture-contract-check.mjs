@@ -614,11 +614,11 @@ if (indexHtmlSource.includes('_retiredThemeDeepAnalysis')) fail('theme-detail re
 if (!pagesSource.includes('legacyContainer.replaceChildren()') || pagesSource.includes('legacyContainer.innerHTML = html')) fail('theme-detail legacy visible writer retirement missing');
 
 // P798-P799: the RRG status and canvas are native projections of the normalized themes slice.
-// v58.96: the fenced legacy drawRRG fallback is deleted; the view pills are src/ui/components/rrg-view.js.
+// v58.97: the fenced legacy drawRRG fallback is deleted; the view pills are src/ui/components/rrg-view.js.
 for (const marker of ['renderRRGStatus', 'renderRRGCanvas', 'rrg-chart-status', 'rrg-canvas', 'aioRrgStatusRenderer', 'aioRrgChartRenderer']) {
   if (!themesPageSource.includes(marker)) fail(`native RRG surface marker missing: ${marker}`);
 }
-if (/function (drawRRG|setRRGView)\b/.test(pagesSource)) fail('v58.96 the legacy RRG canvas writer and view handler must stay out of js/aio-pages.js');
+if (/function (drawRRG|setRRGView)\b/.test(pagesSource)) fail('v58.97 the legacy RRG canvas writer and view handler must stay out of js/aio-pages.js');
 
 // P800: the themes slice must be fed by the native provider/orchestrator rather than
 // the legacy facade projection; legacy theme events remain compatibility notifications.
