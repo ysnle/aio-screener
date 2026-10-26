@@ -788,6 +788,15 @@ const krMoreProbe = await (async () => {
   return first === '테마 더 보기' && added.textContent === '핵심 테마만 보기' && cls.has('aio-theme-progressive') && cls.has('is-expanded');
 })();
 check('v58.99 the 한국 테마 more toggle is added once under the cards and flips between 더 보기 and 핵심만', krMoreProbe);
+const tickerOvProbe = await (async () => {
+  const { renderTickerOverview } = await import('../src/ui/components/ticker-overview.js');
+  const nodes = { 'ticker-ov-provenance': {}, 'ticker-ov-factor-rows': {}, 'ticker-ov-factor-radar': { dataset: {}, parentElement: { style: {} } } };
+  const root = { _liveData: { NVDA: { price: 100 } }, _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', factorScores: { momentum: 71, trend: 64 } }] };
+  renderTickerOverview('nvda', { root, documentRef: { getElementById: (id) => nodes[id] || null } });
+  const rows = nodes['ticker-ov-factor-rows'].innerHTML || '';
+  return nodes['ticker-ov-provenance'].textContent === '시세: 실시간 관측, 수익률·팩터: 확정 종가 기준' && rows.includes('<span class="ov-lbl">모멘텀</span><span class="ov-val">71</span>') && nodes['ticker-ov-factor-radar'].parentElement.style.display === 'none';
+})();
+check('v59.01 the 종목 factor fold reads the live quote and canonical screener row and hides the radar without Chart.js', tickerOvProbe);
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',

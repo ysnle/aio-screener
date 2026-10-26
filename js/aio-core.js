@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.99';
+const APP_VERSION = 'v59.01';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -18350,31 +18350,7 @@ function showTicker(tkr) {
   try { if (typeof window._aioRenderTickerOverview === 'function') window._aioRenderTickerOverview(tkr); } catch(_ovErr) {}
   // P1010: unconnected financial slots retired; native entity navigation opens the shared SEC report.
   // v57.77: the ticker-entry-check observation card writer left with its absent #ticker-entry-check DOM.
-  // v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·MOM)
-  try {
-    var mvEl = document.getElementById('ticker-mv-strip');
-    if (mvEl) {
-      var sdRows77 = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-      var sd77 = sdRows77.find(function(r){ return r.sym === tkr; }) || null;
-      if (sd77) {
-        var rk77 = typeof sd77.rank === 'number' ? sd77.rank : null;
-        var rsi77 = sd77.rsi != null ? sd77.rsi : '—';
-        var rsiCol77 = sd77.rsi != null ? (sd77.rsi >= 70 ? 'var(--data-red)' : sd77.rsi <= 30 ? 'var(--data-green)' : 'var(--data-amber)') : 'var(--text-muted)';
-        var r3m77 = typeof sd77.ret3m === 'number' ? ((sd77.ret3m >= 0 ? '+' : '') + sd77.ret3m.toFixed(1) + '%') : '—';
-        var r3mCol77 = typeof sd77.ret3m === 'number' ? (sd77.ret3m >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
-        var fs77 = sd77.factorScores || {};
-        var mom77 = fs77.momentum != null ? fs77.momentum : null;
-        mvEl.innerHTML =
-          '<span class="mv-pill"><span class="mv-pill-lbl">SR</span><span class="lco-mv-sr">' + (rk77 != null ? rk77 : '—') + '</span></span>' +
-          '<span class="mv-pill-sep"></span>' +
-          '<span class="mv-pill"><span class="mv-pill-lbl">RSI</span><span style="color:' + rsiCol77 + ';">' + rsi77 + '</span></span>' +
-          '<span class="mv-pill"><span class="mv-pill-lbl">3M</span><span style="color:' + r3mCol77 + ';">' + r3m77 + '</span></span>' +
-          (mom77 != null ? '<span class="mv-pill"><span class="mv-pill-lbl">MOM</span><span style="color:' + (mom77 >= 60 ? 'var(--data-green)' : mom77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') + ';">' + mom77 + '</span></span>' : ''); // 2026-10-01: rank-derived TPR grade and sourceless BUY/SELL 'SIG' removed
-      } else {
-        mvEl.innerHTML = '<span class="lco-mv-none">SCREENER_DB 미등록 — 시장 데이터 기반 기본 분석 사용</span>';
-      }
-    }
-  } catch(_) {}
+  // v59.01: the hidden SR·RSI·3M·MOM metric strip (P1434) and its writer were deleted.
 
   showPage('ticker', null);
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));

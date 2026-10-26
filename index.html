@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v58.99 — 올인원 투자 터미널</title>
+  <title>AIO Screener v59.01 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -1398,7 +1398,6 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .fiscal-legend .is-note::before { display: none; }
 .page .fund-legacy { margin: 18px 0 12px; }
 .page .fund-legacy > summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); min-height: 28px; }
-.page #ticker-mv-strip[hidden] { display: none !important; }
 .page .stock-read-visuals { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px 32px; margin: 12px 0 14px; }
 .page .stock-read-vis-title { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
 .page .stock-read-track { position: relative; margin-top: 18px; }
@@ -3228,11 +3227,6 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 .aio-fund { margin:10px 0 12px; border:0.5px solid var(--border); border-radius:8px; background:var(--bg-secondary); }
 .aio-page-dense-folded { display:none !important; }
 .aio-page-advanced-body .aio-page-dense-folded:not(.insight-box) { display:block !important; }
-/* v50.77: Minervini-style metric pills + indicator strips */
-.mv-metric-strip { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:8px 12px; background:var(--surface-1); border:0.5px solid var(--border); border-radius:4px; }
-.mv-pill { display:inline-flex; align-items:center; gap:3px; padding:3px 7px; border-radius:4px; font-size:12px; font-weight:800; font-family:var(--font-mono); background:rgba(var(--ink-rgb),0.05); border:0.5px solid rgba(var(--ink-rgb),0.09); white-space:nowrap; }
-.mv-pill-lbl { font-size:12px; font-weight:600; color:var(--text-muted); text-transform:none; letter-spacing:0; margin-right:2px; }
-.mv-pill-sep { width:1px; height:14px; background:var(--border); flex-shrink:0; }
 /* v53.6: ticker 종목 개요 행 (v57.76: the unused .ticker-ov-grid two-column layout rule is removed) */
 .ticker-ov-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:5px 0; border-bottom:0.5px solid var(--surface-2); font-size:12px; }
 .ticker-ov-row:last-child { border-bottom:none; }
@@ -5584,11 +5578,6 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
-  <!-- v50.77: Minervini-style 메트릭 스트립 (SR·RSI·3M·TPR·SIG) -->
-    <!-- P1434: SR·RSI·3M·MOM 약어 줄은 위 '이 종목의 지금'이 같은 값을 문장과 그림으로 대신한다 (legacy writer 대상으로만 유지). -->
-    <div id="ticker-mv-strip" class="mv-metric-strip sh-ticker-mv-strip-mb10" hidden>
-      <span class="sh-muted-fine">종목 선택 대기</span>
-    </div>
 
     <!-- P1430: 진입 적합성(시장 건강도 점수·BUY 분류) 블록 제거 — 퇴역한 점수 체계를 다시 보여주던 화면이다. -->
     </div><!-- /aio-section 종목검색 -->
@@ -6717,18 +6706,18 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=58.99" defer></script>
-  <script src="./js/aio-kr-data.js?v=58.99" defer></script>
-  <script src="./js/aio-pages.js?v=58.99" defer></script>
-  <script src="./js/aio-core.js?v=58.99" defer></script>
-  <script src="./js/aio-data.js?v=58.99" defer></script>
-  <script src="./js/aio-ui.js?v=58.99" defer></script>
+  <script src="./js/aio-workspace.js?v=59.01" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.01" defer></script>
+  <script src="./js/aio-pages.js?v=59.01" defer></script>
+  <script src="./js/aio-core.js?v=59.01" defer></script>
+  <script src="./js/aio-data.js?v=59.01" defer></script>
+  <script src="./js/aio-ui.js?v=59.01" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=58.99" defer></script>
+<script src="./js/aio-chat.js?v=59.01" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더)는 js/aio-macro-tech.js를 거쳐 네이티브 ESM으로 옮겨졌고, 그 파일은 퇴역했다. -->
 
@@ -6779,7 +6768,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=58.99" defer></script>
+<script src="./js/aio-glossary.js?v=59.01" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6787,7 +6776,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">이상해요</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.99</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">이상해요</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.01</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

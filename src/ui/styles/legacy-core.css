@@ -13,6 +13,3 @@
 #snapshot-stale-warning .lco-retry { font-size: var(--fs-sm); padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-weight: 600; font-family: var(--font-mono);  }
 #snapshot-stale-warning .lco-retry-dead { background: var(--red-5); border: 0.5px solid var(--red-8); color: var(--red-12); }
 #snapshot-stale-warning .lco-retry-warn { background: var(--amber-3); border: 0.5px solid var(--amber-6); color: var(--amber-12); }
-/* Ticker metric strip (#ticker-mv-strip in #page-ticker) */
-#ticker-mv-strip .lco-mv-sr { color: var(--data-cyan); }
-#ticker-mv-strip .lco-mv-none { font-size: var(--fs-xs); color: var(--text-muted); }

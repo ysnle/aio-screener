@@ -6837,10 +6837,10 @@
     var t843ok = false, t843detail = '';
     try {
       var signalStrip843 = document.getElementById('signal-mv-strip') || !document.getElementById('score-gauge-val'); // P1392: signal strip retired with the score
-      var tickerStrip843 = document.getElementById('ticker-mv-strip');
+      var tickerStrip843 = !document.getElementById('ticker-mv-strip'); // v59.01: the hidden ticker strip retired (P1434)
       var ind843 = ['ind-pressure-fill','ind-buyrisk-fill','ind-trend-fill'].every(function(id) { return !document.getElementById(id); }); // v57.76: SPY indicator strips retired
       var css843 = Array.from(document.querySelectorAll('style')).some(function(s) {
-        return (s.textContent || '').indexOf('.mv-metric-strip') >= 0 && (s.textContent || '').indexOf('.aio-visual-report') >= 0;
+        return (s.textContent || '').indexOf('.mv-metric-strip') < 0 && (s.textContent || '').indexOf('.aio-visual-report') >= 0;
       });
       var screenerHead843 = Array.from(document.querySelectorAll('#page-screener thead th')).some(function(th) {
         return /등급|grade/i.test(th.textContent || '');
@@ -6848,7 +6848,7 @@
       t843ok = !!(signalStrip843 && tickerStrip843 && ind843 && css843 && screenerHead843);
       t843detail = JSON.stringify({ signal:!!signalStrip843, ticker:!!tickerStrip843, indicators:ind843, css:css843, grade:screenerHead843 });
     } catch(e) { t843detail = 'ERR:' + e.message; }
-    _assert('T843 v5077_minervini_ui_contract: metric strips, visual CSS and screener grade column are present; the SPY indicator strips stay retired (v57.76)', t843ok, t843detail);
+    _assert('T843 v5077_minervini_ui_contract: signal strip, visual CSS and screener grade column are present; the SPY indicator strips (v57.76) and the ticker strip (v59.01) stay retired', t843ok, t843detail);
 
     // T844: v50.79 runtime/share gate — prompts, digest artifacts, cachebusters, and public-share status share one contract.
     var t844ok = false, t844detail = '';

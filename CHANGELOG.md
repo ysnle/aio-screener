@@ -1,3 +1,7 @@
+## v59.01 (2026-10-27)
+- **레거시 분해 5/8 — 종목: 팩터 성격 접기·숨은 지표 줄 (v59.01):** 종목 요약 탭의 '팩터 성격, 섹터 대비 위치' 접기(출처 줄·팩터 행·레이더)를 그리던 `window._aioRenderTickerOverview`를 `js/aio-ui.js`에서 지우고 `src/ui/components/ticker-overview.js`로 옮겼다. 문구·레이더 설정·차트 등록 키는 그대로고, `showTicker`와 `src/app/bootstrap.js`의 시세 수신 처리가 같은 이름으로 부른다. `src/app/legacy-screen-bridges.js`가 설치할 때 이미 열린 종목 화면을 한 번 그린다. 같은 시세 이벤트로 한 번 더 그리던 legacy page-bus 등록(`html-ticker-overview-live`)은 bootstrap 처리와 겹쳐 지웠다. P1434 이후 늘 `hidden`이라 보이지 않던 SR·RSI·3M·MOM 줄(`#ticker-mv-strip`)과 `showTicker` 안의 그 작성기, 그 줄에만 쓰이던 CSS(`.mv-metric-strip`·`.mv-pill*`·`.lco-mv-*`)도 지웠다. 화면에 보이는 동작은 그대로다.
+- R1 7곳 v59.01
+
 ## v58.99 (2026-10-27)
 - **레거시 분해 4/8 — 테마·섹터: 한국 테마 더 보기·테마 상세 잔여 (v58.99):** 한국 테마 카드 아래 '테마 더 보기' 토글(`window._aioEnsureKrThemeProgressive`)을 `js/aio-core.js`에서 지우고 `src/ui/components/kr-theme-progressive.js`로 옮겼다. 한 번만 붙고 '더 보기/핵심 테마만 보기'로 바뀌는 동작은 그대로다. `js/aio-kr-data.js` `initKoreaThemes`가 같은 이름으로 부르고, `src/app/legacy-screen-bridges.js`가 설치할 때 한 번 실행한다. `showThemeDetail`에서 만들기만 하고 읽지 않던 요약 헤더 HTML 문자열(P788 이후 themes.js가 그림)과 `closeThemeDetail`의 미사용 변수도 지웠다. 테마 상세 열기(`showThemeDetail`) 자체는 부팅 직후 딥링크가 바로 부르는 경로라 지연 모듈로 옮기면 경합이 생겨 legacy에 둔다.
 - R1 7곳 v58.99

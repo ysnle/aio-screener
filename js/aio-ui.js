@@ -3539,79 +3539,8 @@ function calculateRR() {
 
 // v57.76 (EF-12 retired): _aioSyncTvOhlcFallback and its page-bus hooks were deleted with the #tv-tech-ohlc strip.
 
-// ═══ v53.6: ticker 종목 개요(밸리AI 참조 레이아웃) 렌더러 ═══════════════════
-// 원칙: 실데이터만 표기(결측은 정직한 '—' + 사유 title), 새 병렬 계산 경로 없음(R276) —
-// 시세는 _liveData, 수익률/팩터는 SCREENER_DB(스크리너 페이지와 동일 원천·동일 값)를 재사용.
-window._aioRenderTickerOverview = function(tkr) {
-  tkr = String(tkr || '').toUpperCase();
-  if (!tkr) return;
-  // 1) v57.77: the TradingView 대형 차트 block (#tv-widget-ticker) was deleted — the container left index.html and
-  //    the native ticker price chart owns the 요약 tab.
-  // 2) 가격 정보 — 라이브 quote 결측 필드는 '—' 유지(합성 금지)
-  var live = (window._liveData || {})[tkr] || {};
-  var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  var scr = Array.isArray(scrRows) ? (scrRows.find(function(r){ return r && r.sym === tkr; }) || null) : null;
-  var price = Number(live.price); // P1640: price/52-week/return rows retired (summary owns them)
-  var prov = document.getElementById('ticker-ov-provenance');
-  if (prov) {
-    var srcs = [];
-    var dsrc = window._dataSource && window._dataSource[tkr];
-    if (price > 0) { srcs.push('시세: 실시간 관측'); prov.title = '시세 출처: ' + (live.source || (dsrc && dsrc.source) || 'live'); } // v57.54: provider id moved to hover (was "live:yahoo-proxy" on screen)
-    if (scr) srcs.push('수익률·팩터: 확정 종가 기준');
-    prov.textContent = srcs.length ? srcs.join(', ') : '원천 미수신 — 표시값 없음';
-  }
-  // 3) P1748: 관련 테마 칩 퇴역 — src/ui/components/company-analysis.js의 테마 버튼이 같은 연결(테마 단계 포함)을 맡는다.
-  // 4) 팩터 프로파일 — 스크리너 순위 실행이 만든 canonical row factorScores(섹터 기준 정규화 점수 0~100, 서술적). W07-C/P1146: empirical percentile도 정규분포 누적확률도 아니며, 순위 percentile은 별도 composite rank다.
-  var rowsEl = document.getElementById('ticker-ov-factor-rows');
-  var radarC = document.getElementById('ticker-ov-factor-radar');
-  var radarWrap = radarC && radarC.parentElement;
-  var fs = scr && scr.factorScores;
-  var F_LBL = { momentum:'모멘텀', trend:'추세', lowvol:'저변동성', size:'사이즈', value:'밸류', quality:'퀄리티', kalman:'칼만 추세' }, F_HINT = { kalman:'칼만 추세: 잡음을 걸러 낸 추세 추정' };
-  if (fs && rowsEl) {
-    var keys = Object.keys(fs).filter(function(k){ return typeof fs[k] === 'number' && isFinite(fs[k]); });
-    rowsEl.innerHTML = keys.map(function(k) { // v57.54: 섹터 대비 위치(백분위·등급 아님) — 칼만 같은 용어는 hover 설명
-      return '<div class="ticker-ov-row"' + (F_HINT[k] ? ' title="' + escHtml(F_HINT[k]) + '"' : '') + '><span class="ov-lbl">' + escHtml(F_LBL[k] || k) + '</span><span class="ov-val">' + fs[k] + '</span></div>';
-    }).join('');
-    var sig = tkr + '|' + keys.map(function(k){ return k + ':' + fs[k]; }).join(',');
-    if (radarC && typeof Chart !== 'undefined' && keys.length >= 3 && radarC.dataset.sig !== sig) {
-      radarC.dataset.sig = sig;
-      if (radarWrap) radarWrap.style.display = 'block';
-      try {
-        if (window._aioChartRegistry) window._aioChartRegistry.destroyIfExists('ticker-ov-factor-radar');
-        var radarChart = new Chart(radarC.getContext('2d'), {
-          type: 'radar',
-          data: {
-            labels: keys.map(function(k){ return F_LBL[k] || k; }),
-            datasets: [{ data: keys.map(function(k){ return fs[k]; }), backgroundColor: 'rgba(47,124,87,0.12)', borderColor: '#2f7c57', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#2f7c57' }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { r: { min: 0, max: 100, ticks: { display: false }, pointLabels: { font: { size: 12 }, color: '#544f46' }, grid: { color: 'rgba(27,26,23,0.08)' }, angleLines: { color: 'rgba(27,26,23,0.08)' } } }
-          }
-        });
-        if (window._aioChartRegistry) window._aioChartRegistry.register('ticker-ov-factor-radar', radarChart);
-      } catch(_radarErr) {}
-    } else if (radarWrap && (typeof Chart === 'undefined' || keys.length < 3)) {
-      radarWrap.style.display = 'none';
-    }
-  } else if (rowsEl) {
-    rowsEl.innerHTML = '<span class="lu-tk-empty">' + (scr ? '팩터 점수 미계산 — 스크리너 데이터 수신 대기' : '스크리너 유니버스 외 종목 — 팩터 정규화 점수는 섹터 상대값이라 제공되지 않습니다') + '</span>';
-    if (radarWrap) radarWrap.style.display = 'none';
-    if (radarC) radarC.dataset.sig = '';
-    if (window._aioChartRegistry) window._aioChartRegistry.destroyIfExists('ticker-ov-factor-radar');
-  }
-};
-try {
-  if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
-    _aioPageBus.register('html-ticker-overview-live', 'aio:liveQuotes', function() {
-      var p = document.getElementById('page-ticker');
-      if (p && p.classList.contains('active') && window._currentTickerSym) {
-        try { window._aioRenderTickerOverview(window._currentTickerSym); } catch(_e) {}
-      }
-    });
-  }
-} catch(_registerTickerOvErr) {}
+// v59.01: the 종목 요약 팩터 fold renderer (window._aioRenderTickerOverview) moved to src/ui/components/ticker-overview.js;
+// its aio:liveQuotes repaint is the ticker listener in src/app/bootstrap.js.
 
 // v57.60: legacy McClellan row writer and its EMA state removed — no .bb-label rows and no A/D history source.
 
