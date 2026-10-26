@@ -1,3 +1,7 @@
+## v58.89 (2026-10-27)
+- **반응형 검사 간헐 실패 (v58.89):** browser-responsive가 세 번 중 한두 번 'tablet: hidden futures fallback is visibly duplicated'로 실패했다. 화면 결함이 아니라 검사 경합이다. locator.evaluateAll이 `.kpi-fallback[hidden]`을 고른 뒤 따로 평가해, 그 사이 오늘 렌더가 선물 시세 없는 상태의 대체값(의도된 표시)을 다시 보이게 하면 정상 상태를 숨김 위반으로 읽었다. 고르기와 계산을 한 번의 page.evaluate로 묶었다(scripts/ci-responsive-browser-check.mjs). 로컬에서 수정 전 3회 중 1회 실패, 수정 후 4회 연속 통과.
+- R1 7곳 v58.89
+
 ## v58.87 (2026-10-26)
 - **13F discovery 슬림화 (P2093 후속):** filing-discovery.json이 filings.json과 똑같은 13F 공시 블록(직전 분기·같은 분기 제출 목록·SEC URL)을 매니저마다 들고 있었다. 화면은 이 파일에서 13D/G 이벤트와 집계만 읽으므로, 최신 제출·보유 공시는 접수번호 참조(accession·form·period·filedAt)만 남기고 나머지는 뺀다(현재 데이터 기준 373KB → 약 228KB). 두 작성 경로(전체·소유권 전용) 모두 적용, ci-13f-currentness-check가 고정한다.
 - **실패한 13F 레인 재시도 간격 (P2093 후속):** 실패하면 매 30분 주기마다 SEC 전체 체인을 다시 돌던 것을, 실패 횟수에 따라 1·2·4·최대 8시간 기다린 뒤 재시도하게 했다(scripts/daily-lane-age.mjs --record-failure, refresh-data.yml). 매일 07:33 cron과 운영자 실행은 그대로 즉시 돌고, 성공하면 횟수가 초기화된다.
