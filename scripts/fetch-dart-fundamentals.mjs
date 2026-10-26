@@ -81,7 +81,8 @@ export function mergeWithPrevious(companies, failed, previous) {
   }
   const count = Object.keys(merged).length;
   const previousCount = Number(previous?.count) || 0;
-  return { companies: merged, count, publish: count > 0 && count >= previousCount / 2 };
+  // A run that read nothing new keeps the previous file whole, so its generatedAt (the 6-day skip) still says when filings were last read.
+  return { companies: merged, count, publish: Object.keys(companies).length > 0 && count >= previousCount / 2 };
 }
 
 async function main() {
@@ -89,7 +90,9 @@ async function main() {
   if (!key) { console.log('[dart] DART_API_KEY not configured — skipping (artifact unchanged)'); return; }
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
-  if (previous?.count > 0 && previous?.generatedAt && Date.now() - Date.parse(previous.generatedAt) < REFRESH_AFTER_MS && process.env.DART_FORCE !== '1') {
+  // v58.82: a file holding carried-forward companies is retried on the next run instead of waiting out the 6-day skip.
+  const carried = Object.values(previous?.companies || {}).some((row) => row?.carriedFrom);
+  if (previous?.count > 0 && !carried && previous?.generatedAt && Date.now() - Date.parse(previous.generatedAt) < REFRESH_AFTER_MS && process.env.DART_FORCE !== '1') {
     console.log(`[dart] fresh (${previous.generatedAt}) — skipping`); return;
   }
   const screener = JSON.parse(await readFile(SCREENER, 'utf8'));

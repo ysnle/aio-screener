@@ -6153,13 +6153,16 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const previous = { generatedAt: '2026-10-19T00:00:00Z', count: 4, companies: { 'A.KS': { fiscalYear: 2025 }, 'B.KS': { fiscalYear: 2025 }, 'C.KS': { fiscalYear: 2025 }, 'D.KS': { fiscalYear: 2025 } } };
   const quota = mergeWithPrevious({ 'A.KS': { fiscalYear: 2025 } }, [{ sym: 'B.KS', reason: 'DART status 020' }, { sym: 'C.KS', reason: 'stopped: DART status 020' }, { sym: 'D.KS', reason: 'no-annual-report' }], previous);
   const empty = mergeWithPrevious({}, [{ sym: 'A.KS', reason: 'no-annual-report' }, { sym: 'B.KS', reason: 'no-annual-report' }, { sym: 'C.KS', reason: 'no-annual-report' }], previous);
+  const allCarried = mergeWithPrevious({}, [{ sym: 'A.KS', reason: 'DART status 020' }, { sym: 'B.KS', reason: 'HTTP 500' }], previous);
+  if (allCarried.publish) fail('v58.82 a DART run that read nothing new keeps the previous file (its generatedAt)');
   if (quota.count !== 3 || quota.companies['B.KS'].carriedFrom !== previous.generatedAt || 'D.KS' in quota.companies || !quota.publish || empty.publish) fail(`v58.82 DART carries transient failures forward and never publishes a collapsed artifact: ${JSON.stringify({ quota, empty })}`);
 
   const { sentimentFieldDefinitions, sentimentMaxAgeMs } = await load('src/data/normalize/sentiment.js');
   const { classifyFreshness } = await load('src/data/quality/freshness.js');
   const fields = Object.fromEntries(sentimentFieldDefinitions().map((f) => [f.metric, f]));
   const fresh = (metric, observedAt, nowIso) => { const now = Date.parse(nowIso); return classifyFreshness({ observedAt, now, maxAgeMs: sentimentMaxAgeMs(fields[metric], observedAt, now) }); };
-  if (fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-25T22:00:00Z') !== 'fresh' || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-27T14:00:00Z') !== 'stale'
+  if (fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-25T22:00:00Z') !== 'fresh' || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-26T18:00:00Z') !== 'fresh'
+    || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-27T01:00:00Z') !== 'stale' || fresh('fearGreed', '2026-10-23T20:00:00Z', '2026-10-27T14:00:00Z') !== 'stale'
     || fresh('hySpread', '2026-10-22', '2026-10-26T12:00:00Z') !== 'fresh' || fresh('hySpread', '2026-10-21', '2026-10-27T14:00:00Z') !== 'stale'
     || fresh('vix', '2026-10-23T20:00:00Z', '2026-10-25T22:00:00Z') !== 'stale') fail('v58.82 daily sentiment staleness follows NYSE sessions, not a flat 48h');
 
