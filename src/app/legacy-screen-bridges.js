@@ -8,6 +8,7 @@ import { renderNewsProgress } from '../ui/components/news-progress.js';
 import * as newsControls from '../ui/components/news-controls.js';
 import { setSectorPerfView } from '../ui/components/sector-perf-view.js';
 import { setRRGView } from '../ui/components/rrg-view.js';
+import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
   // v58.85 거시 · 금리: header next-release line and 한국 거시 badges.
@@ -34,4 +35,7 @@ export function installLegacyScreenBridges(root, documentRef) {
   root.setSectorPerfView = (view, el) => setSectorPerfView(view, el, at);
   // v58.97 테마 · 섹터: the RRG view pills (themes.js draws the scatter).
   root.setRRGView = (mode, el) => setRRGView(mode, el, at);
+  // v58.99 테마 · 섹터: the 한국 테마 '테마 더 보기' toggle (initKoreaThemes calls it; idempotent).
+  root._aioEnsureKrThemeProgressive = () => ensureKrThemeProgressive(at);
+  root._aioEnsureKrThemeProgressive();
 }

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.98';
+const APP_VERSION = 'v58.99';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -18060,22 +18060,7 @@ var _aioPolishRemainingPages = function(pageId) {
   // 페이지 polish가 아닌 별도 idempotent 헬퍼로 유지(themes 진입 시 initKoreaThemes에서 호출).
 }
 
-window._aioEnsureKrThemeProgressive = function() {
-  var container = document.getElementById('kr-theme-container');
-  if (container && !document.getElementById('kr-theme-more')) {
-    container.classList.add('aio-theme-progressive');
-    var button = document.createElement('button');
-    button.id = 'kr-theme-more';
-    button.className = 'aio-btn-table aio-comp-more';
-    button.type = 'button';
-    button.textContent = '테마 더 보기';
-    button.addEventListener('click', function() {
-      var expanded = container.classList.toggle('is-expanded');
-      button.textContent = expanded ? '핵심 테마만 보기' : '테마 더 보기';
-    });
-    container.insertAdjacentElement('afterend', button);
-  }
-};
+// v58.99: window._aioEnsureKrThemeProgressive (한국 테마 '테마 더 보기') moved to src/ui/components/kr-theme-progressive.js.
 
 var _initBriefingPage = function() {
   // P1346: news.js owns the summary, score/F&G strip and check list.

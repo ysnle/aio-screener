@@ -778,13 +778,23 @@ const rrgViewProbe = await (async () => {
   return root._rrgViewMode === 'subsectors' && events.join() === 'active,aio:themesViewChanged';
 })();
 check('v58.97 the RRG view pills set the shared view and ask themes.js to repaint the scatter', rrgViewProbe);
+const krMoreProbe = await (async () => {
+  const { ensureKrThemeProgressive } = await import('../src/ui/components/kr-theme-progressive.js');
+  const cls = new Set(); let added = null; let click = null;
+  const container = { classList: { add: (c) => cls.add(c), toggle: (c) => (cls.has(c) ? (cls.delete(c), false) : (cls.add(c), true)) }, insertAdjacentElement: (_, el) => { added = el; } };
+  const documentRef = { getElementById: (id) => (id === 'kr-theme-container' ? container : id === 'kr-theme-more' ? added : null), createElement: () => ({ addEventListener: (_, fn) => { click = fn; } }) };
+  ensureKrThemeProgressive({ documentRef }); ensureKrThemeProgressive({ documentRef });
+  const first = added?.textContent; click?.();
+  return first === '테마 더 보기' && added.textContent === '핵심 테마만 보기' && cls.has('aio-theme-progressive') && cls.has('is-expanded');
+})();
+check('v58.99 the 한국 테마 more toggle is added once under the cards and flips between 더 보기 and 핵심만', krMoreProbe);
 check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental route entry remains a free bounded SEC surface without automatic ticker/API work',
   /var\s+_initFundamentalPage\s*=\s*function\(\)[\s\S]{0,500}user-triggered/.test(core)
     && !/aioDefaultCompany/.test(core)
     && !/var\s+_initFundamentalPage\s*=\s*function\(\)[\s\S]{0,700}fundamentalSearch\s*\(/.test(core));
-check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', /(?:(?:function\s+_aioPolishRemainingPages\(pageId\))|(?:(?:var|let|const)\s+_aioPolishRemainingPages\s*=\s*function\(pageId\)))/.test(core) && /aio-guide-chapter/.test(core) && /aio-theme-progressive/.test(core) && /aio-comp-secondary-feed/.test(html));
+check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', /(?:(?:function\s+_aioPolishRemainingPages\(pageId\))|(?:(?:var|let|const)\s+_aioPolishRemainingPages\s*=\s*function\(pageId\)))/.test(core) && /aio-guide-chapter/.test(core) && krMoreProbe /* v58.99: the 테마 progressive toggle runs from src/ui/components/kr-theme-progressive.js */ && /aio-comp-secondary-feed/.test(html));
 // P1137/R623: NAV_ROUTE is no longer a re-listed array — it is derived from the canonical
 // `AIO_ALL_ROUTE_PAGE_IDS` minus the derived-view and reference classes. Assert the derivation
 // itself, so re-introducing a hand-listed copy fails here as well as in the registry gate.

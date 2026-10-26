@@ -1,3 +1,7 @@
+## v58.99 (2026-10-27)
+- **레거시 분해 4/8 — 테마·섹터: 한국 테마 더 보기·테마 상세 잔여 (v58.99):** 한국 테마 카드 아래 '테마 더 보기' 토글(`window._aioEnsureKrThemeProgressive`)을 `js/aio-core.js`에서 지우고 `src/ui/components/kr-theme-progressive.js`로 옮겼다. 한 번만 붙고 '더 보기/핵심 테마만 보기'로 바뀌는 동작은 그대로다. `js/aio-kr-data.js` `initKoreaThemes`가 같은 이름으로 부르고, `src/app/legacy-screen-bridges.js`가 설치할 때 한 번 실행한다. `showThemeDetail`에서 만들기만 하고 읽지 않던 요약 헤더 HTML 문자열(P788 이후 themes.js가 그림)과 `closeThemeDetail`의 미사용 변수도 지웠다. 테마 상세 열기(`showThemeDetail`) 자체는 부팅 직후 딥링크가 바로 부르는 경로라 지연 모듈로 옮기면 경합이 생겨 legacy에 둔다.
+- R1 7곳 v58.99
+
 ## v58.98 (2026-10-27)
 - **접힘 설명 버튼 최소 폭 (v58.98):** 거시·금리(fxbond) 등의 `.aio-note-fold > summary` '설명' 버튼은 높이만 24px로 고정돼 있어, 폭이 글꼴에 따라 달라졌다. CI 브라우저 샤드가 apt 실패로 CJK 글꼴 없이 돌자 14~18x24로 줄어 browser-ui-render-hygiene target-size가 실패했다(main CI run 40372883792). `min-width: 24px`를 더해 글꼴과 무관하게 WCAG 2.5.8 최소 대상 크기를 지킨다(src/ui/styles/soft-ui.css). PR #98, change-only.
 - R1 7곳 v58.98

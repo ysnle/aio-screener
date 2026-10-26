@@ -906,19 +906,7 @@ function showThemeDetail(themeId) {
   let ld = window._liveData || {};
 
   var perf = getThemePerf(theme);
-  var hasPerf = perf.chgPct != null && isFinite(perf.chgPct);
-  var isPos = hasPerf && perf.chgPct >= 0;
-  var chgColor = hasPerf ? (isPos ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
-
-  var html = '<div class="pgl-td-head">' +
-    '<div><span class="pgl-td-name">' + theme.nameKr + '</span>' +
-    (theme.etf ? ' <span class="pgl-td-etf">' + theme.etf + '</span>' : '') +
-    '</div>' +
-    '<div class="pgl-end">' +
-      '<span class="pgl-td-pct" style="color:' + chgColor + ';">' + (hasPerf ? ((isPos?'+':'') + perf.chgPct.toFixed(2) + '%') : 'LIVE REQUIRED') + '</span>' +
-      '<div class="pgl-note">via ' + perf.source + (perf.count != null && perf.total ? ', ' + perf.count + '/' + perf.total : '') + '</div>' +
-    '</div>' +
-  '</div>';
+  // v58.99: the unread summary-header html string (P788 moved that header to themes.js) is gone.
 
   // P790: detailed leader cards are owned by the native child surface.
 
@@ -994,7 +982,6 @@ function showThemeDetail(themeId) {
 window.showThemeDetail = showThemeDetail;
 
 function closeThemeDetail() {
-  var p = document.getElementById('theme-detail-panel');
   try { document.dispatchEvent(new CustomEvent('aio:themeDetailClosed')); } catch(_) {}
 }
 
