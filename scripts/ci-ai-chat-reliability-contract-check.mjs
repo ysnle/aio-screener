@@ -19,7 +19,7 @@ const errors = [];
 const check = (label, condition) => { if (!condition) errors.push(label); };
 
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-const chat = read('js/aio-chat.js');
+const chat = read('js/aio-chat.js') + String.fromCharCode(10) + read('src/data/providers/shared-ai-transport.js'); // v59.10: the shared AI route moved to the transport module
 const data = read('js/aio-data.js');
 const html = read('index.html');
 // P1136/R620: the sidebar credential-save handler (and other user-state writers) moved with
@@ -252,7 +252,11 @@ const root = { AbortController, setTimeout, clearTimeout, URL, console, document
   localStorage: { getItem:()=>null }, _getApiKey:()=> 'fixture', escHtml:String };
 root.window=root;
 vm.createContext(root);
-vm.runInContext(section('function _aioChatAbortError(', '// ── Text processing helpers'), root);
+// v59.10: the cancellation helpers come from the shared transport module (moved from js/aio-chat.js).
+const { installSharedRoute } = await import('../src/data/providers/shared-ai-transport.js');
+const transport = installSharedRoute({});
+for (const name of ['_aioChatAbortError', '_aioThrowIfChatAborted', '_aioRunChatTask', '_aioLinkChatAbortSignal']) root[name] = transport[name];
+vm.runInContext(section('function _aioBeginChatRequest(', '// ── Text processing helpers'), root);
 vm.runInContext(section('function _aioCanonicalResearchUrl(', '/** 검색 출처 → UI HTML */'), root);
 vm.runInContext(section('function _aioResearchFailureForUser(', '// ── Send message'), root);
 vm.runInContext(section('function _shouldUseClaudeWebSearch(', 'function _aioCanonicalResearchUrl('), root);

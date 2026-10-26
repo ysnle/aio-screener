@@ -1,3 +1,7 @@
+## v59.10 (2026-10-27)
+- **AI 공용 연결 코드 분리 (레거시 다음 계층 1단계, 채팅):** 공용 AI Worker 연결(라우트 대상, 앱 토큰, 연결 상태 확인과 캐시, 연결 안내 문구, 유료 요청 한 번, 채팅 취소 도우미)을 js/aio-chat.js에서 src/data/providers/shared-ai-transport.js로 옮겼다. 동작과 창 이름은 그대로이며, 채팅 파일을 나중에 패널을 열 때 불러오기 위한 준비다. 부팅 모듈 한도는 옮긴 바이트만큼 올렸다(새 코드 아님).
+- R1 7곳 v59.10
+
 ## v59.09 (2026-10-27)
 - **배포 후 텔레그램 검증 완화 (v59.09):** 20:52Z 갱신부터 공개 채널 4개 중 aetherjapanresearch의 미리보기가 'first page parsed no posts'로 실패했다. 그래서 'Verify released Pages and all external planes'(pages-telegram-coverage)가 모든 채널 무오류를 요구하며 v59.08 배포 뒤 검증을 계속 빨갛게 만들었다. 나머지 3개 채널과 다이제스트(2,464건)는 정상이었다. coverage는 정상 채널 3개 이상이면 통과하고, 실패 채널은 새 warning 검사 pages-telegram-channels (v59.09)가 이름과 함께 보여 준다(scripts/ci-external-pipeline-check.mjs). 해당 채널이 왜 파싱되지 않는지는 확인하지 못했다(클라우드에서 t.me 차단). PR #108, change-only.
 - R1 7곳 v59.09

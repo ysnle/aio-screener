@@ -2,6 +2,7 @@
 // installCompatibilityGlobals(window) at the same point of boot; `window`/`document` below are the passed root so the
 // assignments read exactly as they did in bootstrap (gates match these lines).
 import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
+import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from js/aio-chat.js
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
 import { readFamilyCode } from '../domain/connections/family-code.js';
@@ -54,6 +55,7 @@ import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, 
 export function installCompatibilityGlobals(root = globalThis) {
   const window = root;
   const document = root.document;
+  installSharedRoute(window);
   window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args) });
   window._aioCompletedBars = completedBars; // v57.92 A04: the AI trend line reads completed sessions only, like the chart
   window._statMean = _statMean;
