@@ -6182,4 +6182,16 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { describeOtherFx } = await load('src/ui/components/macro-board.js');
   const fx = describeOtherFx({ 'EURUSD=X': { price: 1.08, observedAt: '2026-10-26T15:30:00Z' } });
   if (!/10\/27 00:30 관측/.test(fx.text)) fail(`v58.82 FX observation label is KST regardless of the browser zone: ${fx.text}`);
+  // v58.82 (owner 2026-10-26): family code — stored only after it passes the Worker's own shape, and a missing code is the
+  // visitor's step (FAMILY_CODE_REQUIRED), not the operator-facing AUTH_FAILED.
+  const { readFamilyCode } = await load('src/domain/connections/family-code.js');
+  const { saveFamilyCode } = await load('src/ui/components/family-code-form.js');
+  const { describeSharedConnection } = await load('src/domain/connections/shared.js');
+  const memory = new Map(), store = { getItem: (k) => memory.get(k) ?? null, setItem: (k, v) => memory.set(k, String(v)) };
+  const shortCode = saveFamilyCode(store, '1234'), spaced = saveFamilyCode(store, 'abc def ghi jkl'), good = saveFamilyCode(store, ' ｆａｍｉｌｙ-code-0001 ');
+  if (shortCode.ok || spaced.ok || !good.ok || readFamilyCode(store) !== 'family-code-0001') fail(`v58.82 family code saves only a 12+ character code without spaces, NFKC-normalized: ${JSON.stringify({ shortCode, spaced, good, stored: readFamilyCode(store) })}`);
+  const ai = { ready: true, provider: 'openai', model: 'gpt-6-luna' };
+  const needCode = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: false } });
+  const withCode = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: true } });
+  if (needCode.reason !== 'FAMILY_CODE_REQUIRED' || needCode.ok || !withCode.ok) fail(`v58.82 a required family code is the visitor's step: ${JSON.stringify({ needCode, withCode })}`);
 }

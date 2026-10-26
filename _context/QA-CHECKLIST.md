@@ -14,6 +14,7 @@ confidence: medium
 - [x] QA-EDGE-06: v58.82 전각 티커는 ASCII로 접히고(ＡＡＰＬ→AAPL), 읽을 수 없는 목표가는 그 칸에서 거절된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-EDGE-07: v58.82 수능일(2026-11-19) KRX 세션은 10:00~16:30으로, 16:30 이전에는 그날 종가를 확정으로 보지 않는다. 매년 KRX 공지로 다음 해 수능일을 등록한다. verify_by: node scripts/ci-market-session-contract-check.mjs
 - [x] QA-EDGE-08: v58.82 공용 Worker가 돌려주는 upstream 오류 본문에는 API 키·조직 id 형태 토큰과 relay 키(인코딩 형태 포함)가 없다. verify_by: node worker/openai-contract.test.mjs
+- [x] QA-EDGE-09: v58.82 AIO_FAMILY_CODES가 설정되면 브라우저 공용 AI(/openai)는 12자 이상 일치하는 X-AIO-Family-Code만 예약 전에 통과시키고, 코드마다 하루 질문 수·지출 몫을 따로 잡는다. /health는 familyCodeRequired·familyCodeAccepted를 알리고, 앱은 FAMILY_CODE_REQUIRED에서 입력란을 열어 저장 후 다시 확인한다. 미설정이면 예전처럼 열려 있다. verify_by: node worker/openai-contract.test.mjs
 
 ## v58.80 미래 자료 누설 검사와 작업 방식 개선 (2026-10-25)
 

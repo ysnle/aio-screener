@@ -240,6 +240,7 @@ function getLLMRouteReadiness() {
   if (health && health.target && health.target.workerUrl === workerUrl && health.ok === true) {
     return { ready: true, reason: 'SHARED_WORKER', label: (health.health && health.health.ai && health.health.ai.budgetSaver && health.health.ai.budgetSaver.active && health.health.ai.budgetSaver.label) || '사용 가능' }; // P1759: month's last 20% → '예산 절약 모드 · 웹 검색 없이'
   }
+  if (health && health.target && health.target.workerUrl === workerUrl && health.reason === 'FAMILY_CODE_REQUIRED') return { ready: false, reason: 'FAMILY_CODE_REQUIRED', label: '가족 코드 필요, 질문하면 입력란이 열림' }; // v58.82
   if (health && health.target && health.target.workerUrl === workerUrl && health.reason === 'WORKER_NOT_READY') {
     return { ready: false, reason: 'WORKER_NOT_READY', label: 'AI 연결 안 됨, 잠시 뒤 다시 시도' };
   }

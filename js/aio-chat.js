@@ -1858,6 +1858,7 @@ window._aioHasClaudeRoute = _aioHasClaudeRoute;
 
 var _aioWorkerHealthCache = window._aioWorkerHealthCache || {};
 var _aioWorkerHealthInFlight = {};
+window._aioClearWorkerHealth = function() { Object.keys(_aioWorkerHealthCache).forEach(function(k) { delete _aioWorkerHealthCache[k]; }); };
 function _aioSetChatRuntimeState(name, value) {
   try { window[name] = value; } catch (_) {}
   if (name === '_aioLastClaudeRouteState') {
@@ -1892,7 +1893,7 @@ async function _aioEnsureClaudeRoute(apiKey) {
       var ctrl = new AbortController();
       var timer = setTimeout(function() { ctrl.abort(); }, _AIO_HEALTH_TIMEOUT_MS); // P1653: slow mobile networks timed out at 7s and refused the question
       try {
-        var _healthInit = { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal }; var response = await fetch(target.healthUrl, _healthInit).catch(async function(firstError) { if (ctrl.signal.aborted) throw firstError; await new Promise(function(resolve) { setTimeout(resolve, 1200); }); return fetch(target.healthUrl, _healthInit); }); // one quiet retry for a dropped mobile connection
+        var _healthInit = { method: 'GET', cache: 'no-store', credentials: 'omit', headers: (window._aioWithFamilyCode || Object)({ 'X-AIO-App-Token': _aioAppToken() }), signal: ctrl.signal }; var response = await fetch(target.healthUrl, _healthInit).catch(async function(firstError) { if (ctrl.signal.aborted) throw firstError; await new Promise(function(resolve) { setTimeout(resolve, 1200); }); return fetch(target.healthUrl, _healthInit); }); // one quiet retry for a dropped mobile connection
         var payload = await response.json().catch(function() { return null; });
         var access = window.AIO && window.AIO.describeSharedConnection ? window.AIO.describeSharedConnection(payload, response.ok) : { ok: false, reason: 'WORKER_NOT_READY' };
         var ready = access.ok;
@@ -1926,7 +1927,8 @@ Object.defineProperty(window, '_aioRouteNotice', {
     VAULT_LOCKED: '공용 AI 연결을 확인하고 다시 시도하세요.',
     WORKER_NOT_READY: '공용 AI 연결이 현재 응답할 준비가 되지 않았습니다. 잠시 후 다시 시도해 주세요. 작성한 질문은 유지됩니다.',
     RATE_LIMIT: 'AI 요청 한도에 도달했습니다. 잠시 후 다시 시도하세요.',
-    AUTH_FAILED: 'AI 인증에 실패했습니다. 운영자에게 공용 연결 확인을 요청하세요.'
+    AUTH_FAILED: 'AI 인증에 실패했습니다. 운영자에게 공용 연결 확인을 요청하세요.',
+    FAMILY_CODE_REQUIRED: '공용 AI는 가족 코드가 있어야 쓸 수 있습니다. AI 패널에서 질문하면 나오는 입력란에 받은 코드를 한 번 넣어 주세요. 작성한 질문은 유지됩니다.'
   })[reason] || 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.';
   },
   configurable: true,
@@ -2015,7 +2017,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var searchEnabledNow = opts.webSearch === true;
   if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
-  var _claudeHeaders = { 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() };
+  var _claudeHeaders = (window._aioWithFamilyCode || Object)({ 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() });
   if (_streamRequestId) _claudeHeaders['X-AIO-Idempotency-Key'] = _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : ''); // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
   try {
     var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
@@ -5321,7 +5323,8 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }
   if (!_uniRoute.ok) {
     _releaseUnifiedRun();
-    _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>')); _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
+    _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>')); var _uniNotice = _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
+    if (_uniRoute.reason === 'FAMILY_CODE_REQUIRED' && _uniNotice && window.AIO && window.AIO.attachFamilyCodeForm) window.AIO.attachFamilyCodeForm(_uniNotice);
     return;
   }
   // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수

@@ -122,6 +122,22 @@ async function main() {
     check('P1421 configured app token rejects missing and invalid before reservation', rejectedAppTokens.every(response => response.status === 403) && upstreamCalls === appBefore && appAuth.saved() === undefined);
     const acceptedAppToken = await worker.fetch(req(body, { headers: { 'X-AIO-App-Token': 'fixture-public-app-token', 'cf-connecting-ip': '198.51.100.2' } }), appAuth.env); await acceptedAppToken.arrayBuffer();
     check('P1421 configured app token accepts the matching browser token', acceptedAppToken.status === 200 && appAuth.saved().days['claude:' + currentDay] === 1);
+    // v58.82 (owner 2026-10-26): family codes gate browser AI; each code is its own connection share.
+    const familyAuth = harness(undefined, { AIO_FAMILY_CODES: 'fixture-family-code-a1, fixture-family-code-b2\nshort' }), familyBefore = upstreamCalls;
+    const asFamily = (code, ip = '198.51.100.81') => req(body, { headers: { 'cf-connecting-ip': ip, ...(code === undefined ? {} : { 'X-AIO-Family-Code': code }) } });
+    const familyDenied = await Promise.all([undefined, '', 'wrong-family-code-zz', 'short', 'fixture-family-code-a'].map(code => worker.fetch(asFamily(code), familyAuth.env)));
+    check('v58.82 missing, wrong, too-short and prefix family codes are refused before reservation',
+      familyDenied.every(response => response.status === 403) && upstreamCalls === familyBefore && familyAuth.saved() === undefined, familyDenied.map(response => response.status));
+    const familyA = await worker.fetch(asFamily(' fixture-family-code-a1 '), familyAuth.env); await familyA.arrayBuffer();
+    const familyB = await worker.fetch(asFamily('fixture-family-code-b2'), familyAuth.env); await familyB.arrayBuffer();
+    const familyShares = Object.keys(familyAuth.saved()?.clientSpend?.['claude:' + currentDay] || {});
+    check('v58.82 two family codes behind one address are accepted as two connection shares',
+      familyA.status === 200 && familyB.status === 200 && familyShares.length === 2, { a: familyA.status, b: familyB.status, familyShares });
+    const familyHealth = async code => (await worker.fetch(req(undefined, { path: '/health', method: 'GET', headers: code ? { 'X-AIO-Family-Code': code } : {} }), familyAuth.env)).json();
+    const [familyHealthNone, familyHealthOk, openHealth] = await Promise.all([familyHealth(''), familyHealth('fixture-family-code-b2'), (await worker.fetch(req(undefined, { path: '/health', method: 'GET' }), fixture.env)).json()]);
+    check('v58.82 /health reports whether a family code is required and accepted; unset stays open',
+      familyHealthNone.ai.familyCodeRequired === true && familyHealthNone.ai.familyCodeAccepted === false && familyHealthOk.ai.familyCodeAccepted === true
+        && openHealth.ai.familyCodeRequired === false && openHealth.ai.familyCodeAccepted === true, { familyHealthNone: familyHealthNone.ai, openHealth: openHealth.ai });
     const errorFixture = harness(), keyedUpstream = upstream;
     upstream = async () => new Response(JSON.stringify({ error: { message: 'Incorrect API key provided: sk-proj-abcd****WXYZ. Org org-AbCdEf123456 over quota.' } }), { status: 401, headers: { 'content-type': 'application/json' } });
     const keyedError = await worker.fetch(req(body, { headers: { 'cf-connecting-ip': '198.51.100.71' } }), errorFixture.env), keyedErrorText = await keyedError.text();

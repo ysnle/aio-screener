@@ -2490,7 +2490,7 @@ function _aioSensitiveProxyUrl(url) {
   try {
     var parsed = new URL(url);
     return !!(parsed.username || parsed.password) || Array.from(parsed.searchParams.keys()).some(function(key) {
-      return /^(?:api[-_]?key|key|token|access[-_]?token|client[-_]?secret|auth|authorization|signature|url)$/i.test(key);
+      return /^(?:api[-_]?key|key|token|access[-_]?token|client[-_]?secret|auth|authorization|signature|url|crtfc_key|service_?key|cert_?key)$/i.test(key); // v58.82: DART crtfc_key, data.go.kr serviceKey, KOSIS certkey
     });
   } catch (_) { return true; }
 }
@@ -9197,7 +9197,7 @@ async function autoTranslateNews(items) { (items || []).forEach(function(i) { if
       const resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
         method: 'POST',
         signal: AbortSignal.timeout(45000),
-        headers: { 'Content-Type': 'application/json', 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : ''), 'X-AIO-Idempotency-Key': _translationRequest.requestId },
+        headers: (window._aioWithFamilyCode || Object)({ 'Content-Type': 'application/json', 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : ''), 'X-AIO-Idempotency-Key': _translationRequest.requestId }),
         body: JSON.stringify({
           model: 'gpt-6-luna',
           max_output_tokens: Math.min(4000, Number(route.health?.ai?.maxTokens) || 4000),
