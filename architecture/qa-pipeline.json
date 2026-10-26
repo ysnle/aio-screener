@@ -186,6 +186,12 @@
       "status": "manual-diagnostic",
       "replacement": "scripts/ci-live-invariant-check.mjs",
       "reason": "Manual /health and /quotes diagnostic documented in worker/README.md; retained because the scheduled external health check does not replace its quote-payload assertions."
+    },
+    {
+      "script": "scripts/ci-doc-currency-check.mjs",
+      "status": "weekly-backstop",
+      "replacement": ".github/workflows/knowledge-lint.yml",
+      "reason": "v58.84 gate cleanup: the check always exits 0 (CODE-MAP drift is a warning by design), so as a blocking gate it could never fail. The weekly knowledge-lint workflow still runs it and prints the drift (R656 backstop)."
     }
   ],
   "groups": {
@@ -234,7 +240,18 @@
         },
         {
           "id": "product-charter",
-          "script": "scripts/ci-product-charter-contract-check.mjs"
+          "script": "scripts/ci-product-charter-contract-check.mjs",
+          "inputs": [
+            "**",
+            "public-data/**",
+            "architecture/**",
+            "scripts/**",
+            "src/data/**",
+            "src/domain/**",
+            "src/state/**",
+            "js/aio-data.js",
+            "version.json"
+          ]
         },
         {
           "id": "architecture",
@@ -250,7 +267,13 @@
             "architecture/**",
             "_context/**",
             "scripts/**",
-            "public-data/**"
+            "public-data/**",
+            "_headers",
+            "src/app/**",
+            "architecture/route-owners.json",
+            "js/aio-core.js",
+            "js/aio-qa-audits.js",
+            "src/data/page-completeness.js"
           ]
         },
         {
@@ -258,17 +281,6 @@
           "script": "scripts/ci-native-decision-evidence-check.mjs",
           "inputs": [
             "src/**"
-          ]
-        },
-        {
-          "id": "vertical-slice",
-          "script": "scripts/ci-vertical-slice-contract-check.mjs",
-          "inputs": [
-            "src/app/**",
-            "architecture/route-owners.json",
-            "js/aio-core.js",
-            "js/aio-qa-audits.js",
-            "src/data/page-completeness.js"
           ]
         },
         {
@@ -282,19 +294,6 @@
         {
           "id": "operations-contract",
           "script": "scripts/ci-operations-contract-check.mjs"
-        },
-        {
-          "id": "reference-curriculum",
-          "script": "scripts/ci-reference-curriculum-contract-check.mjs",
-          "inputs": [
-            "public-data/principles/reference-curriculum.json",
-            "architecture/golden-routes.json",
-            "src/ui/knowledge/reference-curriculum.js",
-            "src/ui/pages/principles.js",
-            "js/aio-chat.js",
-            "js/aio-glossary.js",
-            "sw.js"
-          ]
         },
         {
           "id": "route-registry",
@@ -349,7 +348,10 @@
             "public-data/operations-status.json",
             "AGENTS.md",
             "CLAUDE.md",
-            "public-artifact-manifest.json"
+            "public-artifact-manifest.json",
+            "architecture/agent-profiles.json",
+            "architecture/skill-eval-cases.json",
+            "architecture/qa-pipeline.json"
           ]
         },
         {
@@ -408,10 +410,6 @@
           "remedy": "shrink: node scripts/ci-decomp-hotspot-check.mjs --write; growth needs --allow-growth + justification"
         },
         {
-          "id": "baseline",
-          "script": "scripts/ci-baseline-contract-check.mjs"
-        },
-        {
           "id": "esm-core",
           "script": "scripts/ci-esm-core-unit-check.mjs"
         },
@@ -432,10 +430,6 @@
           "script": "scripts/ci-artifact-cache-check.mjs"
         },
         {
-          "id": "headless-group-lifecycle",
-          "script": "scripts/ci-headless-group-lifecycle-check.mjs"
-        },
-        {
           "id": "service-worker-cache-policy",
           "script": "scripts/ci-service-worker-cache-policy-check.mjs",
           "inputs": [
@@ -444,7 +438,13 @@
             "js/**",
             "src/**",
             "public-data/**",
-            ".github/workflows/pages-deploy.yml"
+            ".github/workflows/pages-deploy.yml",
+            "public-data/principles/reference-curriculum.json",
+            "architecture/golden-routes.json",
+            "src/ui/knowledge/reference-curriculum.js",
+            "src/ui/pages/principles.js",
+            "js/aio-chat.js",
+            "js/aio-glossary.js"
           ]
         },
         {
@@ -469,20 +469,8 @@
           ]
         },
         {
-          "id": "ai-premise",
-          "script": "scripts/ci-ai-premise-check.mjs"
-        },
-        {
-          "id": "ai-analysis-evidence",
-          "script": "scripts/ci-ai-analysis-evidence-check.mjs"
-        },
-        {
-          "id": "ai-chat-analysis-integration",
-          "script": "scripts/ci-ai-chat-analysis-integration-check.mjs"
-        },
-        {
-          "id": "ai-quote-evidence",
-          "script": "scripts/ci-ai-quote-evidence-check.mjs"
+          "id": "ai-evidence",
+          "script": "scripts/ci-ai-evidence-contract-check.mjs"
         },
         {
           "id": "domain-parity",
@@ -566,27 +554,8 @@
           "script": "scripts/ci-desktop-continuity-check.mjs"
         },
         {
-          "id": "chat-resilience",
-          "script": "scripts/ci-chat-resilience-check.mjs"
-        },
-        {
-          "id": "ai-provider-stream",
-          "script": "scripts/ci-ai-provider-stream-check.mjs"
-        },
-        {
           "id": "storage-migration",
           "script": "scripts/ci-storage-migration-check.mjs"
-        },
-        {
-          "id": "release-manifest",
-          "script": "scripts/ci-release-manifest-contract.mjs",
-          "inputs": [
-            "architecture/asset-manifest.json",
-            "version.json",
-            "architecture/release-manifest.json",
-            "public-data/market-snapshot.json",
-            "sw.js"
-          ]
         },
         {
           "id": "deployment-convergence",
@@ -627,10 +596,6 @@
             "_headers",
             "public-data/operations-status.json"
           ]
-        },
-        {
-          "id": "inference",
-          "script": "scripts/ci-inference-contract-check.mjs"
         },
         {
           "id": "csp",
@@ -763,10 +728,6 @@
           ]
         },
         {
-          "id": "connection-access",
-          "script": "scripts/ci-connection-access-check.mjs"
-        },
-        {
           "id": "conditional-native-search",
           "script": "scripts/ci-native-search-check.mjs"
         },
@@ -785,10 +746,6 @@
         {
           "id": "scenario-guidance-fixture",
           "script": "scripts/ci-scenario-guidance-fixture.mjs"
-        },
-        {
-          "id": "market-guide-fixture",
-          "script": "scripts/ci-market-guide-fixture.mjs"
         },
         {
           "id": "interpretation-boundary-check",
@@ -821,16 +778,8 @@
           "script": "scripts/ci-fiscal-quality-fixture.mjs"
         },
         {
-          "id": "company-analysis-fixture",
-          "script": "scripts/ci-company-analysis-fixture.mjs"
-        },
-        {
           "id": "korea-participation-fixture",
           "script": "scripts/ci-korea-participation-fixture.mjs"
-        },
-        {
-          "id": "kr-investor-flows-fixture",
-          "script": "scripts/ci-kr-investor-flows-fixture.mjs"
         },
         {
           "id": "13f-figi-ticker-fixture",
@@ -912,15 +861,6 @@
           "script": "scripts/ci-conditional-evidence-contract.mjs"
         },
         {
-          "id": "screener-benchmark",
-          "script": "scripts/benchmark-screener-workbench.mjs",
-          "args": [
-            "--out",
-            "{cacheDir}/screener-scale-benchmark.json"
-          ],
-          "timeoutMs": 120000
-        },
-        {
           "id": "market-snapshot",
           "script": "scripts/ci-market-snapshot-contract-check.mjs",
           "inputs": [
@@ -984,7 +924,8 @@
             "src/state/**",
             "js/aio-data.js",
             "version.json",
-            "public-config.json"
+            "public-config.json",
+            "_headers"
           ]
         },
         {
@@ -1018,10 +959,6 @@
           "script": "scripts/ci-operations-slo-window-check.mjs"
         },
         {
-          "id": "human-validation",
-          "script": "scripts/ci-human-validation-contract-check.mjs"
-        },
-        {
           "id": "reconciliation",
           "script": "scripts/ci-reconciliation-contract-check.mjs"
         },
@@ -1042,21 +979,6 @@
             "js/aio-data.js",
             "version.json",
             "js/aio-workspace.js"
-          ]
-        },
-        {
-          "id": "operator-readiness",
-          "script": "scripts/ci-operator-readiness-check.mjs",
-          "inputs": [
-            "public-data/**",
-            "architecture/**",
-            "scripts/**",
-            "src/data/**",
-            "src/domain/**",
-            "src/state/**",
-            "js/aio-data.js",
-            "version.json",
-            "_headers"
           ]
         },
         {
@@ -1270,10 +1192,6 @@
           ]
         },
         {
-          "id": "release-generated-parity",
-          "script": "scripts/ci-generated-release-parity-check.mjs"
-        },
-        {
           "id": "13f-currentness",
           "script": "scripts/ci-13f-currentness-check.mjs",
           "inputs": [
@@ -1335,17 +1253,13 @@
       ],
       "gates": [
         {
-          "id": "principles-lesson-parity",
-          "script": "scripts/ci-principles-lesson-parity-contract-check.mjs"
-        },
-        {
           "id": "knowledge-generated-parity",
           "script": "scripts/ci-knowledge-generated-parity-check.mjs",
           "timeoutMs": 180000
         },
         {
-          "id": "integrated-framework",
-          "script": "scripts/ci-integrated-framework-contract.mjs",
+          "id": "knowledge-corpus",
+          "script": "scripts/ci-knowledge-corpus-check.mjs",
           "inputs": [
             "public-data/knowledge/**",
             "public-data/principles/**",
@@ -1359,60 +1273,10 @@
             "scripts/**",
             ".github/workflows/knowledge-build-candidate.yml",
             "_context/**",
-            "src/ai/retrieval/knowledge.js"
+            "src/ai/retrieval/knowledge.js",
+            "js/aio-glossary.js",
+            "index.html"
           ]
-        },
-        {
-          "id": "knowledge-ontology",
-          "script": "scripts/ci-knowledge-ontology-contract.mjs"
-        },
-        {
-          "id": "knowledge-core",
-          "script": "scripts/ci-knowledge-core-semantic-check.mjs"
-        },
-        {
-          "id": "knowledge-articles",
-          "script": "scripts/ci-knowledge-article-contract.mjs"
-        },
-        {
-          "id": "knowledge-learning",
-          "script": "scripts/ci-knowledge-learning-state-contract.mjs"
-        },
-        {
-          "id": "knowledge-routes",
-          "script": "scripts/ci-knowledge-route-bridge-contract.mjs"
-        },
-        {
-          "id": "knowledge-renderer",
-          "script": "scripts/ci-knowledge-renderer-contract.mjs"
-        },
-        {
-          "id": "knowledge-coverage",
-          "script": "scripts/ci-knowledge-full-corpus-coverage.mjs"
-        },
-        {
-          "id": "knowledge-web",
-          "script": "scripts/ci-knowledge-web-research-dossier.mjs"
-        },
-        {
-          "id": "knowledge-sector",
-          "script": "scripts/ci-knowledge-sector-domain-depth.mjs"
-        },
-        {
-          "id": "knowledge-unique",
-          "script": "scripts/ci-knowledge-article-uniqueness.mjs"
-        },
-        {
-          "id": "knowledge-transmission",
-          "script": "scripts/ci-knowledge-market-transmission.mjs"
-        },
-        {
-          "id": "knowledge-currentness",
-          "script": "scripts/ci-knowledge-currentness-separation.mjs"
-        },
-        {
-          "id": "knowledge-current-observations",
-          "script": "scripts/ci-knowledge-current-observations-check.mjs"
         },
         {
           "id": "six-doc-coverage",
@@ -1498,37 +1362,11 @@
             "src/app/bootstrap.js",
             "sw.js",
             "architecture/golden-routes.json",
-            "architecture/route-owners.json"
-          ]
-        },
-        {
-          "id": "masters-manager-store",
-          "script": "scripts/ci-masters-manager-store-check.mjs",
-          "inputs": [
+            "architecture/route-owners.json",
             "scripts/lib/masters-manager-store.mjs",
             "scripts/ci-masters-manager-store-check.mjs",
             "scripts/split-masters-manager-rows.mjs",
             "public-data/masters/managers/**"
-          ]
-        },
-        {
-          "id": "knowledge-review",
-          "script": "scripts/ci-knowledge-review-check.mjs",
-          "inputs": [
-            "public-data/knowledge/**",
-            "public-data/principles/**",
-            "public-data/atlas/**",
-            "public-data/masters/**",
-            "src/domain/knowledge/**",
-            "src/ui/pages/principles.js",
-            "src/ui/pages/atlas.js",
-            "src/ui/pages/masters.js",
-            "src/ui/knowledge/**",
-            "scripts/**",
-            ".github/workflows/knowledge-build-candidate.yml",
-            "_context/**",
-            "js/aio-glossary.js",
-            "index.html"
           ]
         }
       ]
@@ -1578,10 +1416,6 @@
           "script": "scripts/ci-skill-contract-check.mjs"
         },
         {
-          "id": "skill-evals",
-          "script": "scripts/ci-skill-eval-fixture-check.mjs"
-        },
-        {
           "id": "agent-profiles",
           "script": "scripts/sync-agent-profiles.mjs",
           "args": [
@@ -1596,34 +1430,12 @@
           ]
         },
         {
-          "id": "live-header-policy",
-          "script": "scripts/ci-live-header-policy-contract-check.mjs"
-        },
-        {
           "id": "operator-provisioning",
           "script": "scripts/ci-operator-secrets-contract-check.mjs",
           "inputs": [
             ".github/workflows/**",
             "_context/OPERATOR-RUNBOOK.md",
             "_context/CONTEXT-CATALOG.json"
-          ]
-        },
-        {
-          "id": "doc-currency",
-          "script": "scripts/ci-doc-currency-check.mjs",
-          "inputs": [
-            "AGENTS.md",
-            "CLAUDE.md",
-            ".agents/**",
-            ".claude/**",
-            ".codex/**",
-            ".github/**",
-            "_context/**",
-            "architecture/agent-profiles.json",
-            "architecture/skill-eval-cases.json",
-            "architecture/qa-pipeline.json",
-            "scripts/**",
-            "version.json"
           ]
         },
         {
@@ -2174,7 +1986,8 @@
             "architecture/**",
             "scripts/**",
             "version.json",
-            "public-config.json"
+            "public-config.json",
+            "_headers"
           ]
         },
         {
@@ -3073,7 +2886,7 @@
       ],
       "groups": [],
       "gates": [
-        "integrated-framework"
+        "knowledge-corpus"
       ]
     },
     {
@@ -3114,7 +2927,7 @@
         "atlas-contract",
         "principles-contract",
         "masters-contract",
-        "knowledge-review"
+        "knowledge-corpus"
       ]
     },
     {
@@ -3205,7 +3018,7 @@
       ],
       "groups": [],
       "gates": [
-        "knowledge-review"
+        "knowledge-corpus"
       ]
     },
     {
@@ -3215,7 +3028,7 @@
       "groups": [],
       "gates": [
         "workflow-compaction",
-        "doc-currency"
+        "workspace-contract"
       ]
     },
     {

@@ -913,7 +913,8 @@ check('H2-03: price-position markers clamp both SVG edges and have a browser fix
 // drifting silently against actual code was exactly the kind of "operational fact vs. doc drift"
 // WO-8 asks CI to detect. Non-blocking by design (line counts drift continuously during normal
 // development; a hard-failing gate here would just get bypassed/ignored, R300-adjacent lesson).
-check('WO-8: documentation currency check script exists and is wired into CI', exists('scripts/ci-doc-currency-check.mjs') && qaHas('scripts/ci-doc-currency-check.mjs', 'workspace'));
+// v58.84: it always exits 0, so it left the blocking manifest; the weekly knowledge-lint workflow runs it (R656 backstop).
+check('WO-8: documentation currency check script exists and runs in the weekly knowledge lint', exists('scripts/ci-doc-currency-check.mjs') && /ci-doc-currency-check\.mjs/.test(knowledgeWorkflow));
 
 // v52.56 (P673/R303): H3-D/E desktop geometry + external failure-state contract
 check('H3-D: sentiment and macro canvases are constrained to their actual laptop grid parent, preventing Chart.js 300px intrinsic-width clipping', /#page-sentiment canvas[\s\S]{0,260}width:\s*100%\s*!important/.test(html) && /#page-macro canvas[\s\S]{0,260}width:\s*100%\s*!important/.test(html));
@@ -1001,7 +1002,7 @@ check('H2-12: typed provenance links decision UI/score/AI through one runtime-de
 check('H2-13: Trading Score research artifact is reproducible but explicitly partial, with fixed-rule walk-forward and unresolved missing inputs/costs', exists('scripts/backtest-trading-score-longrun.mjs') && exists('public-data/score-backtest-longrun.json') && /PARTIAL validation/.test(read('scripts/backtest-trading-score-longrun.mjs')) && /walkForward/.test(read('public-data/score-backtest-longrun.json')) && /No transaction costs/.test(read('public-data/score-backtest-longrun.json')) && /momScore/.test(read('public-data/score-backtest-longrun.json')));
 check('H2-14: Factor research artifact preserves IC/ICIR/t-stat outputs and does not claim PIT/survivorship validation', exists('scripts/backtest-factors-longrun.mjs') && exists('public-data/factor-backtest-longrun.json') && /survivorshipBiasCaveat/.test(read('scripts/backtest-factors-longrun.mjs')) && /not resolvable without paid point-in-time/i.test(read('scripts/backtest-factors-longrun.mjs')) && /ICIR/.test(read('public-data/factor-backtest-longrun.json')) && /survivorship/i.test(read('public-data/factor-backtest-longrun.json')));
 check('H2-15: portfolio storage adapter slice is adopted while snapshot/global legacy migration remains explicit', /getArchitectureGovernanceAudit/.test(core) && /readSnapshotField/.test(core) && /storageAdapter/.test(core) && /completedSlices/.test(core) && /incompleteSlices/.test(core) && /storageAdapter/.test(html + workspace) && /adapter\.get\(PF_STORAGE_KEY/.test(html + workspace) && /adapter\.set\(PF_STORAGE_KEY/.test(html + workspace) && /T931/.test(tests));
-check('H2-16: documentation and knowledge gates are wired for the final handoff audit', qaHas('scripts/ci-doc-currency-check.mjs', 'workspace') && /ci-knowledge-lint-check\.mjs/.test(knowledgeWorkflow) && qaHas('scripts/ci-workflow-compaction-check.mjs', 'workspace'));
+check('H2-16: documentation and knowledge gates are wired for the final handoff audit', /ci-doc-currency-check\.mjs/.test(knowledgeWorkflow) && /ci-knowledge-lint-check\.mjs/.test(knowledgeWorkflow) && qaHas('scripts/ci-workflow-compaction-check.mjs', 'workspace'));
 
 // Initial-interaction performance contract: production boot must never run whole-site audits or
 // repeated global currentness scans on the user main thread. The status banner is informational only.

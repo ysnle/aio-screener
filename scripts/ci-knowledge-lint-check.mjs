@@ -110,7 +110,7 @@ check('postmortem-to-rule workflow is explicit', /Postmortem-To-Gate Rule/.test(
 // (policies "generated-current-state" and "hook-authority"); the checks above stay because they validate ledger structure.
 const defaultWorkingSet = read('_context/INDEX.md').match(/## Default working set([\s\S]*?)## Search-only ledgers/)?.[1] || '';
 check('default working set does not route to the frozen v48 worktree audit', !/WORKTREE-AUDIT\.md/.test(defaultWorkingSet));
-check('knowledge current-observations gate is reachable through the QA manifest', Object.values(JSON.parse(read('architecture/qa-pipeline.json')).groups || {}).some((group) => (group.gates || []).some((gate) => gate.script === 'scripts/ci-knowledge-current-observations-check.mjs')));
+check('knowledge current-observations gate is reachable through the QA manifest', Object.values(JSON.parse(read('architecture/qa-pipeline.json')).groups || {}).some((group) => (group.gates || []).some((gate) => gate.script === 'scripts/ci-knowledge-corpus-check.mjs')) && read('scripts/ci-knowledge-corpus-check.mjs').includes("['current-observations'"));
 
 if (warnings.length) {
   console.warn('Knowledge lint warnings:');

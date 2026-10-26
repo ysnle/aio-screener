@@ -12,7 +12,7 @@ target_version: version.json
 
 P1518 구조 재검토: 아래 canonical 경로·훅·미러·권한 경계를 workspace/skill/profile gate와 대조했다. 지식 본문 의미 검수나 배포 상태의 재인증은 아니다.
 
-- **현재 버전**: v58.80
+- **현재 버전**: v58.84
 - 공통 preflight: `CURRENT-STATE.md` 한 번 확인; `WORKFLOW-GOVERNANCE.md`·`INDEX.md`·스킬은 필요한 경우만 참조
 - 대형 원장: `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 용어/ID 범위만 읽는다.
 
@@ -23,7 +23,7 @@ P1518 구조 재검토: 아래 canonical 경로·훅·미러·권한 경계를 w
 | Current facts | `scripts/workspace-state-lib.mjs` + repository registries | `CURRENT-STATE.md`, `CONTEXT-CATALOG.json` | `ci-workspace-contract-check.mjs` |
 | Skills | `.claude/skills` | `.agents/skills` | `ci-skill-contract-check.mjs`, `sync-agent-skills.mjs --check` |
 | Agent profiles | `architecture/agent-profiles.json` | `.claude/agents`, `.codex/agents` | `sync-agent-profiles.mjs --check` |
-| Skill eval fixtures | `architecture/skill-eval-cases.json` | behavioral-run input | `ci-skill-eval-fixture-check.mjs` |
+| Skill eval fixtures | `architecture/skill-eval-cases.json` | behavioral-run input | `ci-skill-contract-check.mjs` |
 | Hooks | `scripts/agent-hook.mjs` | `.codex/hooks.json`, `.claude/settings.json` | `ci-workspace-contract-check.mjs` + hook fixtures |
 | Knowledge inventory | runtime knowledge artifacts | `public-data/knowledge/status-summary.json` | knowledge contract family |
 

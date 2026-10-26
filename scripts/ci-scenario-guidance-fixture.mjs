@@ -1,12 +1,20 @@
-import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { buildMarketRegime, movingAverageStructure } from '../src/domain/briefing/market-read.js';
-import { buildMarketScenarios } from '../src/domain/market/regime-scenarios.js';
-import { buildScenarioOutlook, renderScenarioOutlookContext } from '../src/domain/market/scenario-outlook.js';
-import { CHART_INTERVALS, intervalBars, intervalSpec, intervalStructure } from '../src/ui/components/stock-chart.js';
-import { buildMarketAnalysisRegimeContext } from './fetch-data.mjs';
-import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
-import { liveCurrentObservations } from '../src/ui/knowledge/current-observations.js';
+#!/usr/bin/env node
+// Scenario guidance and the shared market guide. v58.84 gate consolidation: the sections below were separate gates until v58.84. They check one subject, so one gate
+// runs them in order; every section runs even when an earlier one fails, and the failure names the section.
+import { runSections } from './lib/gate-sections.mjs';
+
+await runSections('scenario-guidance-fixture', [
+// ── section scenario-guidance (was ci-scenario-guidance-fixture.mjs) ──
+['scenario-guidance', async () => {
+const { default: assert } = await import('node:assert/strict');
+const { readFileSync } = await import('node:fs');
+const { buildMarketRegime, movingAverageStructure } = await import('../src/domain/briefing/market-read.js');
+const { buildMarketScenarios } = await import('../src/domain/market/regime-scenarios.js');
+const { buildScenarioOutlook, renderScenarioOutlookContext } = await import('../src/domain/market/scenario-outlook.js');
+const { CHART_INTERVALS, intervalBars, intervalSpec, intervalStructure } = await import('../src/ui/components/stock-chart.js');
+const { buildMarketAnalysisRegimeContext } = await import('./fetch-data.mjs');
+const { readProducerSource } = await import('./lib/producer-source.mjs'); // v57.62: fetch-data.mjs + the lib modules split out of it
+const { liveCurrentObservations } = await import('../src/ui/knowledge/current-observations.js');
 
 // P1633: short (close>5>10>20) and long (20>50>100>200) moving-average order.
 assert.equal(movingAverageStructure({ value: 110, ma5: 108, ma10: 106, ma20: 104, ma50: 100, ma100: 96, ma200: 90 }).shortLabel, '정배열');
@@ -1045,3 +1053,117 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(board, /buildCrossAssetRelations\(root\._aioHistory \|\| \[\], \{ through: model\.basis \|\| null \}\)/, 'v58.80 the asset card reading uses the card basis');
   console.log('scenario guidance fixture (v58.80 cross-asset relations on the asset card): PASS');
 }
+}],
+// ── section market-guide (was ci-market-guide-fixture.mjs) ──
+['market-guide', async () => {
+// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): the shared market guide — one synthesis for 오늘, the AI chat, the server
+// narrative and the scenario-state producer. Behaviour checks on fixtures (no text pins on product copy beyond the
+// boundary words): the choice tally counts favored/costly across live branches only, the opportunity cost comes from a
+// watch branch that names the robust choice costly, lessons are selected by today's state and every lesson links to a
+// principles lesson that exists, and no surface turns the count into a probability or an instruction.
+const { default: assert } = await import('node:assert/strict');
+const { readFileSync } = await import('node:fs');
+const { BRANCHES, CHOICES } = await import('../src/domain/market/macro-crossroads.js');
+const { buildMarketGuide, buildDirection, renderMarketGuideContext, CHOICE_KEYS } = await import('../src/domain/guide/market-guide.js');
+const { pastEvidence, ANALOG_METHOD } = await import('../src/domain/scenarios/analogs.js');
+const { ALL_LESSONS, LESSON_BY_ID, LESSON_KINDS, SCREEN_LESSON_IDS, selectLessons, selectScreenLessons } = await import('../src/domain/guide/lessons.js');
+
+const label = 'v58.31 market guide';
+const choiceKeys = new Set(Object.keys(CHOICES));
+
+// Every branch names its costly choices, from the shared four, never overlapping its favoured ones.
+for (const branch of BRANCHES) {
+  assert.ok(Array.isArray(branch.costly) && branch.costly.length, `${label}: ${branch.id} names costly choices`);
+  for (const key of [...branch.favored, ...branch.costly]) assert.ok(choiceKeys.has(key), `${label}: ${branch.id} uses a shared choice key (${key})`);
+  assert.ok(!branch.costly.some((key) => branch.favored.includes(key)), `${label}: ${branch.id} costly and favored are disjoint`);
+}
+
+// Every lesson links to a principles lesson that exists, has a known kind and a principle and a mechanism.
+const library = JSON.parse(readFileSync(new URL('../public-data/principles/lesson-library.json', import.meta.url), 'utf8'));
+const lessonIds = new Set((library.lessons || []).map((row) => row.id));
+for (const lesson of ALL_LESSONS) {
+  assert.ok(lessonIds.has(lesson.concept), `${label}: ${lesson.id} concept ${lesson.concept} exists in the principles library`);
+  assert.ok(LESSON_KINDS[lesson.kind] && lesson.principle && lesson.why, `${label}: ${lesson.id} is complete`);
+}
+assert.equal(new Set(ALL_LESSONS.map((row) => row.id)).size, ALL_LESSONS.length, `${label}: lesson ids are unique`);
+
+// The tally: favoured somewhere, costly nowhere wins; a watch branch that names it costly becomes the opportunity cost.
+const path = (id, favored, costly, extra = {}) => ({ id, short: id, title: `${id} — 테스트`, fit: '조건 충족 2/4', favored, costly, choices: Object.fromEntries(CHOICE_KEYS.map((key) => [key, `${id}:${key}`])), triggers: [{ id: 'us-cpi', when: '11/10 CPI', text: '근원 둔화' }], ...extra });
+const d = buildDirection([path('a', ['wait', 'defend'], ['stage']), path('b', ['wait'], ['stage'])], [path('w', ['stage', 'hold'], ['wait', 'defend'])]);
+assert.equal(d.robust, 'wait', `${label}: the choice favoured in both live branches and costly in none is the robust one`);
+assert.equal(d.tally.find((row) => row.key === 'stage').costlyIn.length, 2, `${label}: costly counts come from live branches only`);
+assert.equal(d.costIfWrong[0]?.id, 'w', `${label}: the opportunity cost names the watch branch that makes the robust choice costly`);
+assert.match(d.costIfWrong[0].text, /w:wait/, `${label}: the opportunity cost quotes that branch's own text for the choice`);
+assert.equal(buildDirection([], []).robust, null, `${label}: no live branch means no tally winner`);
+
+// End to end on the published artifacts: a guide is built, its lessons belong to today's state, the AI block holds the boundary.
+const history = JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'));
+const rows = Array.isArray(history) ? history : history.rows || [];
+const { buildMarketRegime } = await import('../src/domain/briefing/market-read.js');
+const regime = buildMarketRegime({ history: rows, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {} });
+const guide = buildMarketGuide({ regime, outlook: null, crossroads: null, nowMs: Date.now() });
+assert.ok(guide.available && guide.situation.length === 4, `${label}: the guide builds from the regime alone`);
+assert.equal(guide.direction.robust, null, `${label}: without the crossroads nothing is counted`);
+const kinds = new Set(guide.lessons.map((row) => row.kind));
+assert.ok(Object.keys(LESSON_KINDS).every((kind) => kinds.has(kind)), `${label}: every lesson kind is represented`);
+assert.ok(guide.lessons.every((row) => !row.scope || row.scope === 'market'), `${label}: home shows market-scope lessons only`);
+const burdened = selectLessons({ regime: { counts: { burden: 5, favorable: 0 }, axes: [{ id: 'trend', state: 'burden' }] } });
+assert.ok(burdened.some((row) => row.id === 'survive-first' && row.reason) && burdened.some((row) => row.id === 'cheap-after-fall' && row.reason), `${label}: a burdened tape raises survive-first and the cheap-after-fall trap`);
+const calm = selectLessons({ regime: { counts: { burden: 0, favorable: 5 }, axes: [{ id: 'trend', state: 'favorable' }] } });
+assert.ok(!calm.some((row) => row.id === 'cheap-after-fall') && calm.some((row) => row.id === 'no-chasing' && row.reason), `${label}: a strong tape raises no-chasing, not the falling-price trap`);
+const text = [guide.headline, ...guide.situation.map((row) => row.text), guide.direction.text, ...guide.stance.pursue, ...guide.stance.avoid, ...ALL_LESSONS.map((row) => `${row.principle} ${row.why}`)].join('\n');
+assert.doesNotMatch(text, /\d+(?:\.\d+)?\s*%\s*(?:확률|가능성)|매수하세요|매도하세요|목표가|손절가/, `${label}: no probability percentage or trade instruction`);
+assert.match(renderMarketGuideContext(guide), /확률로 바꾸지 말고/, `${label}: the AI block restates the boundary`);
+
+// Per-screen lessons: every listed id exists; stock screens never borrow a market-state reason.
+const routes = JSON.parse(readFileSync(new URL('../architecture/route-owners.json', import.meta.url), 'utf8'));
+const routeIds = new Set(Object.keys(routes.routes));
+for (const [route, ids] of Object.entries(SCREEN_LESSON_IDS)) {
+  assert.ok(routeIds.has(route), `${label}: screen lessons target a registered route (${route})`);
+  for (const id of ids) assert.ok(LESSON_BY_ID[id], `${label}: ${route} lesson ${id} exists`);
+}
+const burdenCtx = { regime: { counts: { burden: 5, favorable: 0 }, axes: [{ id: 'trend', state: 'burden' }] } };
+for (const route of ['technical', 'ticker', 'fundamental', 'screener']) {
+  const picked = selectScreenLessons(route, burdenCtx);
+  assert.ok(picked.length && picked.every((row) => !row.reason), `${label}: ${route} shows the mechanism, not a market reason`);
+}
+assert.ok(selectScreenLessons('portfolio', burdenCtx).some((row) => row.id === 'survive-first' && row.reason), `${label}: a market screen ties its lesson to today's state`);
+assert.deepEqual(selectScreenLessons('no-such-route', burdenCtx), [], `${label}: an unknown screen shows nothing`);
+
+// Curve and index-earnings lessons (interpretation stages curve / indexEarnings) speak only from their stage output.
+const curveCtx = { curve: { kind: 'bull-steepening', fact: '9/19→10/17 20거래일: 2년 -30bp.', label: '불 스티프닝 — 단기 주도 하락', reading: '인하 기대가 앞섭니다.' } };
+const curveLesson = LESSON_BY_ID['read-the-curve'];
+assert.match(curveLesson.live(curveCtx), /^9\/19→10\/17 20거래일: 2년 -30bp\. 불 스티프닝: 인하 기대가 앞섭니다\.$/, `${label}: the curve lesson quotes the measured move and its reading`);
+assert.equal(curveLesson.live({ curve: { kind: null, uninverted: true, uninversionReading: 'U' } }), 'U', `${label}: no direction but a recent un-inversion speaks to the un-inversion`);
+assert.equal(curveLesson.live({ curve: { kind: null, uninverted: false } }), null, `${label}: a flat move without un-inversion stays silent`);
+assert.equal(selectScreenLessons('macro', curveCtx)[0]?.id, 'read-the-curve', `${label}: the macro screen leads with the live curve lesson`);
+const earningsLesson = LESSON_BY_ID['earnings-revisions'];
+assert.match(earningsLesson.live({ indexEarnings: { available: true, breadth: 0.5, up: 300, down: 100 } }), /상향 300건, 하향 100건 — 올리는 쪽이 우세합니다/, `${label}: the earnings lesson counts revisions with the card's ±0.1 tilt`);
+assert.equal(earningsLesson.live({ indexEarnings: { available: true, breadth: null, up: 3, down: 1 } }), null, `${label}: under-covered index breadth stays silent`);
+assert.equal(earningsLesson.live({ indexEarnings: { available: false } }), null, `${label}: no consensus, no sentence`);
+assert.equal(selectScreenLessons('fundamental', { indexEarnings: { available: true, breadth: 0.5, up: 3, down: 1 } }).some((row) => row.reason), false, `${label}: a stock screen keeps the earnings lesson as a principle`);
+assert.doesNotMatch([curveLesson.live(curveCtx), earningsLesson.live({ indexEarnings: { available: true, breadth: -0.4, up: 10, down: 30 } })].join('\n'), /\d+(?:\.\d+)?\s*%\s*(?:확률|가능성)|매수하세요|매도하세요/, `${label}: live curve/earnings sentences carry no probability or instruction`);
+
+// The ranking lesson states only what the forward record has reached, and keeps that reason on the screener (screen-wide).
+const rankLesson = LESSON_BY_ID['rank-is-not-edge'];
+assert.doesNotMatch(rankLesson.principle, /확인되지 않았습니다|확인됐습니다/, `${label}: the ranking principle carries no fixed verdict`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'insufficient', n: 4, min: 12 } }), /4개뿐이라\(12개부터 판단\).*아직 모릅니다/, `${label}: an insufficient record says it cannot judge yet`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'not-supported', n: 14, min: 12, icUS: { n: 14, mean: 0.01, t: 0.4 } } }), /우연과 구분되지 않습니다/, `${label}: a not-supported record says so`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'not-supported', n: 14, min: 12, icUS: { n: 14, mean: -0.08, t: -3 } } }), /반대 방향/, `${label}: a significant negative IC is not read as chance`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'insufficient', n: 14, min: 12, icUS: { n: 8 } } }), /8개뿐이라/, `${label}: the count shown is the one the decision used`);
+for (const decision of ['insufficient', 'not-supported', 'supported']) assert.match(rankLesson.live({ rankEvidence: { decision, n: 14, min: 12, icUS: { n: 14 } } }), /기본 가중치 미국 순위/, `${label}: ${decision} names the tested scope`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'supported', n: 14, min: 12 } }), /같은 방향이었습니다.*손실 한도/, `${label}: a supported record still keeps the rank a filter`);
+assert.match(rankLesson.live({ rankEvidence: { decision: 'insufficient', n: 0, min: 12 } }), /결과가 아직 없어/, `${label}: an empty record does not say "0개뿐"`);
+assert.equal(rankLesson.live({}), null, `${label}: no record, no sentence`);
+assert.ok(selectScreenLessons('screener', { rankEvidence: { decision: 'insufficient', n: 4, min: 12 } })[0]?.reason, `${label}: the screener shows the record's reason first`);
+
+// Past-frequency evidence (analogs ${ANALOG_METHOD}): a share is informative only beyond 2 standard errors of the base rate.
+assert.equal(pastEvidence({ n: 40, up: 22, baseUpPct: 55 }).informative, false, `${label}: a share at the base rate carries no information`);
+assert.equal(pastEvidence({ n: 40, up: 38, baseUpPct: 55 }).informative, true, `${label}: a share far beyond the base rate is informative`);
+assert.equal(pastEvidence({ n: 5, up: 5, baseUpPct: 55 }).informative, null, `${label}: under 10 cases nothing is tested`);
+assert.equal(pastEvidence(null).n, 0, `${label}: no record, no evidence`);
+assert.equal(pastEvidence({ n: 40, up: 22, baseUpPct: 55 }).method, ANALOG_METHOD, `${label}: evidence carries its method label`);
+
+console.log(`market guide fixture OK: ${BRANCHES.length} branches tagged, ${ALL_LESSONS.length} lessons linked, ${guide.lessons.length} selected today`);
+}],
+]);

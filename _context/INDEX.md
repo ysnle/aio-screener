@@ -89,7 +89,6 @@ node scripts/generate-workspace-state.mjs --write
 node scripts/ci-workspace-contract-check.mjs
 node scripts/ci-knowledge-lint-check.mjs
 node scripts/ci-skill-contract-check.mjs
-node scripts/ci-skill-eval-fixture-check.mjs
 node scripts/ci-ledger-integrity-check.mjs
 node scripts/ci-assertion-trace-check.mjs
 node scripts/sync-agent-profiles.mjs --check

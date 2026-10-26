@@ -24,7 +24,7 @@ const operationsStatusCheckSource = read('scripts/ci-operations-status-check.mjs
 const runnerSource = read('scripts/qa-runner.mjs');
 const headlessSource = read('scripts/ci-headless-tests.mjs');
 const knowledgeParitySource = read('scripts/ci-knowledge-generated-parity-check.mjs');
-const principlesLessonParitySource = read('scripts/ci-principles-lesson-parity-contract-check.mjs');
+const principlesLessonParitySource = read('scripts/ci-knowledge-corpus-check.mjs');
 const macroCalendarReviewContractSource = read('scripts/ci-macro-calendar-review-contract-check.mjs');
 const knowledgeCandidateWorkflowContract = (manifest.workflowContracts || []).find((contract) => contract.workflow === '.github/workflows/knowledge-build-candidate.yml');
 const knowledgeCandidateParityImpactRule = (manifest.impactRules || []).find((rule) => rule.gates?.includes('knowledge-generated-parity'));
@@ -47,7 +47,7 @@ check('fast profile is preflight-only', JSON.stringify(manifest.profiles?.fast) 
 check('preflight contains no browser startup', (manifest.groups?.preflight?.gates || []).every((gate) => !/(?:from ['"]playwright['"]|chromium\.launch|start-local-node)/.test(read(gate.script))));
 check('full profile contains every browser shard', ['browser-unit', 'browser-runtime', 'browser-knowledge', 'browser-resilience', 'browser-viewport', 'browser-surface'].every((group) => manifest.profiles?.full?.includes(group)));
 check('watchdog profile covers local and external state', ['watchdog-local', 'external'].every((group) => manifest.profiles?.watchdog?.includes(group)));
-const principlesLessonParityGate = (manifest.groups?.knowledge?.gates || []).find((gate) => gate.id === 'principles-lesson-parity');
+const principlesLessonParityGate = (manifest.groups?.knowledge?.gates || []).find((gate) => gate.id === 'knowledge-corpus');
 const macroCalendarReviewGate = (manifest.groups?.data?.gates || []).find((gate) => gate.id === 'macro-calendar-review');
 const thirteenFSemanticGate = (manifest.groups?.data?.gates || []).find((gate) => gate.id === '13f-semantic-noop');
 const operationsAlertPolicyGate = (manifest.groups?.data?.gates || []).find((gate) => gate.id === 'operations-alert-policy');
@@ -78,7 +78,7 @@ check('P1303/R560/QA-DATA-47 Principles lesson builder is inventoried before enr
   principlesLessonBuilderIndex >= 0
     && sourceLessonEnrichmentIndex > principlesLessonBuilderIndex
     && knowledgeParitySource.includes("'public-data/principles/lesson-library.json'")
-    && principlesLessonParityGate?.script === 'scripts/ci-principles-lesson-parity-contract-check.mjs'
+    && principlesLessonParityGate?.script === 'scripts/ci-knowledge-corpus-check.mjs'
     && principlesLessonParitySource.includes('isDeepStrictEqual(generatedD6, canonicalD6)'));
 check('P1304/R605/QA-DATA-48 macro candidate workflow and report builder have a direct data gate and workflow contract',
   macroCalendarReviewGate?.script === 'scripts/ci-macro-calendar-review-contract-check.mjs'
@@ -414,12 +414,7 @@ const gateInputContracts = [
     inputs: ['public-data/masters/**', 'public-data/objects/masters/**', 'scripts/lib/13f-semantic-hash.mjs', 'scripts/lib/13f-discovery.mjs', 'scripts/ci-13f-semantic-hash-check.mjs', 'scripts/collect-13f-discovery.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/build-masters-runtime-artifacts.mjs', '.github/workflows/refresh-data.yml'],
     impactPaths: ['public-data/masters/index.json', 'public-data/objects/masters/fixture.json', 'scripts/lib/13f-semantic-hash.mjs', 'scripts/lib/13f-discovery.mjs', 'scripts/ci-13f-semantic-hash-check.mjs', 'scripts/collect-13f-discovery.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/build-masters-runtime-artifacts.mjs', '.github/workflows/refresh-data.yml']
   },
-  {
-    id: 'release-manifest',
-    group: 'core',
-    inputs: ['architecture/asset-manifest.json', 'version.json', 'architecture/release-manifest.json', 'public-data/market-snapshot.json', 'sw.js'],
-    impactPaths: ['architecture/asset-manifest.json', 'version.json', 'architecture/release-manifest.json', 'public-data/market-snapshot.json', 'sw.js']
-  },
+  // v58.84: the release-manifest gate retired (ci-version-check owns the revision fields, release-revision regenerates the manifests).
   {
     id: 'deployment-convergence',
     group: 'core',
@@ -441,7 +436,7 @@ for (const contract of gateInputContracts) {
 
 const literalDependencyContracts = [
   { id: 'market-snapshot', paths: ['src/ai/time/market-session.js', 'src/domain/market/market-calendar.js', 'src/data/market-snapshot-loader.js', 'src/legacy/market-snapshot-bridge.js', '.github/workflows/refresh-data.yml'] },
-  { id: 'operator-readiness', paths: ['_headers'] },
+  { id: 'operations-status', paths: ['_headers'] },
   { id: 'data-lineage', paths: ['src/ai/time/market-session.js', 'src/domain/market/market-calendar.js'] },
   { id: '13f-semantic-noop', paths: ['scripts/lib/13f-semantic-hash.mjs', 'scripts/lib/13f-discovery.mjs', '.github/workflows/refresh-data.yml'] },
   { id: 'data-refresh', paths: ['index.html'] },
@@ -760,8 +755,7 @@ check('headless registry stays ordered until group isolation is proven',
   && headlessGates[0].timeoutMs <= 180000);
 check('failed headless groups have an independent rerun lifecycle',
   headlessSource.includes('AIO_FAILED_GROUPS=')
-  && runnerSource.includes('`--groups=${failedGroups}`')
-  && manifest.groups?.core?.gates?.some((gate) => gate.id === 'headless-group-lifecycle'));
+  && runnerSource.includes('`--groups=${failedGroups}`'));
 check('headless failures keep exact test details in stdout and a local report',
   headlessSource.includes('FAILURE_LEDGER_JSON=')
   && headlessSource.includes('writeQaReport')

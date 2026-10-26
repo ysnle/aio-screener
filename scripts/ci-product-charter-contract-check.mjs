@@ -1,6 +1,14 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+#!/usr/bin/env node
+// Product charter and the human-validation boundary. v58.84 gate consolidation: the sections below were separate gates until v58.84. They check one subject, so one gate
+// runs them in order; every section runs even when an earlier one fails, and the failure names the section.
+import { runSections } from './lib/gate-sections.mjs';
+
+await runSections('product-charter', [
+// ── section product-charter (was ci-product-charter-contract-check.mjs) ──
+['product-charter', async () => {
+const { default: fs } = await import('node:fs');
+const { default: path } = await import('node:path');
+const { fileURLToPath } = await import('node:url');
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
@@ -77,3 +85,38 @@ const reachable = Object.values(qa.groups || {}).flatMap((group) => group.gates 
 if (!reachable) fail('product-charter gate is not reachable from QA manifest');
 
 console.log(`Product charter OK: ${charter.productIdentity.category}, ${planeIds.length} trust planes, ${auditedDomains.length} audited domains, execution=${charter.productIdentity.executionCapability}.`);
+}],
+// ── section human-validation (was ci-human-validation-contract-check.mjs) ──
+['human-validation', async () => {
+const { readFileSync } = await import('node:fs');
+
+const artifact = JSON.parse(readFileSync(new URL('../architecture/human-validation.json', import.meta.url), 'utf8'));
+const fail = (message) => { throw new Error(`[human-validation] ${message}`); };
+const study = artifact.minimumStudy || {};
+const acceptance = artifact.acceptance || {};
+const sessions = artifact.sessions || [];
+const requiredDimensions = ['screen-reader-reading-order', 'keyboard-only', 'computed-contrast', '200-percent-zoom-reflow', 'dialog-focus-trap-and-return'];
+if (artifact.schemaVersion !== 'human-validation.v1' || study.participantsPerPersona < 5 || study.personas?.length !== 3 || study.tasks?.length < 6 || requiredDimensions.some((dimension) => !study.manualAccessibilityDimensions?.includes(dimension))) fail('study topology is incomplete');
+// v57.83 codex audit F23: the study covers phone and tablet as well as desktop, and the household pilot (the real readers)
+// is declared without ever certifying anything.
+if (!['desktop', 'phone', 'tablet'].every((platform) => study.platforms?.includes(platform))) fail('study must cover desktop, phone and tablet');
+const pilot = artifact.householdPilot || {};
+if (!Array.isArray(pilot.tasks) || pilot.tasks.length < 4 || !['phone', 'tablet', 'desktop'].every((platform) => pilot.platforms?.includes(platform)) || !/never sets certification/.test(pilot.purpose || '')) fail('household pilot must name its tasks, devices and that it never certifies');
+if (acceptance.taskCompletionRateMin < 0.9 || acceptance.criticalMisunderstandingRateMax > 0.05 || acceptance.accessibilityCriticalFailuresMax !== 0) fail('acceptance thresholds are weaker than the product boundary');
+for (const session of sessions) {
+  for (const field of acceptance.requiredFieldsPerSession || []) if (session[field] == null || session[field] === '') fail(`session ${session.evidenceId || 'unknown'} missing ${field}`);
+  if (!study.personas.includes(session.persona) || !study.platforms.includes(session.platform) || !study.tasks.includes(session.taskId)) fail(`session ${session.evidenceId} is outside the declared study topology`);
+  if (Number.isNaN(Date.parse(session.observedAt)) || Number.isNaN(Date.parse(session.signedAt))) fail(`session ${session.evidenceId} has invalid timestamps`);
+}
+const participantsByPersona = Object.fromEntries(study.personas.map((persona) => [persona, new Set(sessions.filter((session) => session.persona === persona).map((session) => session.participantAlias)).size]));
+const completeCoverage = study.personas.every((persona) => participantsByPersona[persona] >= study.participantsPerPersona)
+  && study.tasks.every((task) => sessions.some((session) => session.taskId === task))
+  && study.assistiveTechnology.every((technology) => sessions.some((session) => session.assistiveTechnology === technology));
+const taskCompletionRate = sessions.length ? sessions.filter((session) => session.completed === true).length / sessions.length : null;
+const misunderstandingRate = sessions.length ? sessions.filter((session) => session.criticalMisunderstanding === true).length / sessions.length : null;
+const qualified = completeCoverage && taskCompletionRate >= acceptance.taskCompletionRateMin && misunderstandingRate <= acceptance.criticalMisunderstandingRateMax && artifact.aggregate?.accessibilityCriticalFailures === 0;
+if ((artifact.status === 'USER_VALIDATED' || artifact.certification === 'PASS') && !qualified) fail('artifact promoted human validation without complete qualified evidence');
+if (!sessions.length && (artifact.status !== 'NOT_EXECUTED' || artifact.certification !== 'OPERATOR_REQUIRED')) fail('empty study must remain operator-required');
+console.log(JSON.stringify({ ok: true, contract: artifact.schemaVersion, sessions: sessions.length, participantsByPersona, qualified, certification: artifact.certification }));
+}],
+]);
