@@ -103,6 +103,22 @@
       ]
     },
     {
+      "workflow": ".github/workflows/operations-weekly-review.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/build-operations-weekly-review.mjs"
+      ],
+      "requiredTokens": [
+        "cron: '41 0 * * 1'",
+        "contents: read",
+        "issues: write",
+        "group: weekly-operations-review",
+        "cancel-in-progress: false",
+        "if: github.ref == 'refs/heads/main'",
+        "--state all"
+      ]
+    },
+    {
       "workflow": ".github/workflows/macro-calendar-review.yml",
       "mode": "direct",
       "requiredScripts": [
@@ -998,6 +1014,17 @@
             "src/domain/market/market-calendar.js",
             "scripts/build-operations-status.mjs",
             "scripts/ci-operations-status-check.mjs"
+          ]
+        },
+        {
+          "id": "operations-weekly-review",
+          "script": "scripts/ci-operations-weekly-review-check.mjs",
+          "inputs": [
+            "scripts/lib/operations-weekly-review.mjs",
+            "scripts/build-operations-weekly-review.mjs",
+            "scripts/ci-operations-weekly-review-check.mjs",
+            "architecture/worker-endpoints.json",
+            ".github/workflows/operations-weekly-review.yml"
           ]
         },
         {
@@ -2708,6 +2735,21 @@
       ],
       "gates": [
         "operations-alert-policy"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/lib/operations-weekly-review.mjs",
+        "scripts/build-operations-weekly-review.mjs",
+        "scripts/ci-operations-weekly-review-check.mjs",
+        ".github/workflows/operations-weekly-review.yml"
+      ],
+      "groups": [
+        "data",
+        "core"
+      ],
+      "gates": [
+        "operations-weekly-review"
       ]
     },
     {

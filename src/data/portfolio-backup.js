@@ -133,6 +133,16 @@ export function describeBackupCounts(counts) {
   ].join(' · ');
 }
 
+// v58.84: remind once there is something to lose and no backup within 30 days; an unreadable time counts as never.
+export const BACKUP_REMINDER_DAYS = 30;
+export function backupReminder({ lastBackupAt, holdingCount, now = Date.now() } = {}) {
+  if (!(holdingCount > 0)) return null;
+  const last = Date.parse(lastBackupAt || '');
+  if (!Number.isFinite(last) || last > now) return { days: null, text: '아직 백업이 없습니다. 기록을 지우면 사라지니 \'내보내기\'로 저장해 두세요.' };
+  const days = Math.floor((now - last) / 86_400_000);
+  return days >= BACKUP_REMINDER_DAYS ? { days, text: `마지막 백업이 ${days}일 전입니다. '내보내기'로 저장해 두세요.` } : null;
+}
+
 export function buildPortfolioBackup(snapshot = {}, meta = {}) {
   const contents = {
     positions: Array.isArray(snapshot.positions) ? snapshot.positions : [],

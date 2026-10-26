@@ -6141,3 +6141,15 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (record?.overall !== '다소 부담' || record.asOf !== '2026-10-23' || 'axes' in record || record.schemaVersion !== 'today-verdict.v1') fail(`v58.80 F01 verdict record fields: ${JSON.stringify(record)}`);
 
 }
+
+// v58.84: the portfolio backup reminder appears only when there is something to lose and no backup in 30 days.
+{
+  const { backupReminder, BACKUP_REMINDER_DAYS } = await load('src/data/portfolio-backup.js');
+  const now = Date.parse('2026-11-02T00:00:00Z');
+  if (backupReminder({ holdingCount: 0, now }) !== null) fail('v58.84 an empty portfolio shows no backup reminder');
+  if (backupReminder({ holdingCount: 3, now })?.days !== null) fail('v58.84 holdings never backed up show the first-backup reminder');
+  if (backupReminder({ holdingCount: 3, lastBackupAt: 'not a date', now })?.days !== null) fail('v58.84 an unreadable backup time counts as never');
+  if (backupReminder({ holdingCount: 3, lastBackupAt: '2026-10-20T00:00:00Z', now }) !== null) fail('v58.84 a backup within 30 days stays quiet');
+  const due = backupReminder({ holdingCount: 3, lastBackupAt: '2026-10-01T00:00:00Z', now });
+  if (BACKUP_REMINDER_DAYS !== 30 || due?.days !== 32 || !due.text.includes('32일')) fail(`v58.84 a 32-day-old backup reminds with its age: ${JSON.stringify(due)}`);
+}

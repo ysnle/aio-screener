@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2102 - v58.84 - 테마 연구 브라우저 게이트가 CDN에 의존해 외부망이 막힌 환경에서 30초 시간 초과로 실패 (2026-10-26)
+
+- symptom/reproduction: browser-theme-research가 클라우드 세션 등 CDN이 막힌 환경에서 LightweightCharts 대기 30초 시간 초과로 실패했고, PR #76·#80이 이를 '기존 문제'로 넘겼다.
+- root_cause: 이 게이트만 차트 라이브러리 두 개를 unpkg·jsDelivr에서 실제로 받았다. entity-quality·out-of-universe 게이트는 이미 SRI 검사한 로컬 사본을 쓰고 있었다.
+- fix: 같은 SRI 검사 로컬 사본(_artifacts/entity-quality-20261012)을 route.fulfill로 제공하고 나머지 외부 요청은 모두 막는다.
+- violated_rule: 브라우저 게이트는 고정 입력으로 재현 가능해야 한다(remote-blocked 네트워크 정책).
+- prevention: 세 브라우저 게이트가 같은 로컬 사본과 SRI 값을 쓴다. 사본 내용이 바뀌면 SRI 불일치로 즉시 실패한다.
+- verification/residual: node scripts/ci-theme-research-browser-check.mjs (CDN이 막힌 클라우드 세션에서 20 steps PASS)
+
+## P2101 - v58.84 - 운영 알림이 깜빡이는 레인마다 닫혔다 다시 열려 알림이 쌓임 (2026-10-26)
+
+- symptom/reproduction: 데이터 신선도 워치독 이슈(#4)가 8월 28일부터 열린 채 댓글 184개가 쌓였다. 실패·실패·성공·실패·실패로 흔들리는 레인은 성공 한 번마다 'Recovered' 댓글과 닫기, 다음 연속 실패마다 'reopened' 댓글을 남겨 흔들림 한 번에 알림 두 개가 갔다.
+- root_cause: operations-alert.yml이 열린 이슈를 같은 워크플로의 성공 한 번으로 닫았다. 복구 판단에 히스테리시스가 없었다.
+- fix: 열린 알림은 직전 관측 실행도 성공했을 때만 닫는다. 실패 사이의 성공 한 번은 이슈를 열어 둔 채 아무 댓글도 남기지 않는다. 일을 하지 않은 성공(게이트 스킵)은 기존대로 건너뛴다.
+- violated_rule: operations-slo 연속 2회 실패 알림 기준과 대칭인 복구 기준이 없었다.
+- prevention: ci-workspace-contract-check가 실제 github-script를 주입 API로 실행해, 실패 뒤 첫 성공은 변경 없음, 두 번 연속 성공은 닫힘을 확인한다.
+- verification/residual: node scripts/ci-workspace-contract-check.mjs
+
 ## P2092 - v58.80 - 이름을 입력하고 바로 Enter로 고르면 고른 종목의 후보 버튼이 검색칸 아래에 다시 생겼다 (2026-10-26)
 
 - symptom/reproduction: verify-aio stock: '삼성전자' 입력 뒤 Enter로 005930.KS를 연 다음에도 검색칸 아래에 '삼성전자 · 005930.KS' 후보가 남았고, 다음 검색에서 그 낡은 후보가 먼저 눌렸다.

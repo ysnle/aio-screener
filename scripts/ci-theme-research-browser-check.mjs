@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 import { createRequire } from 'node:module';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
@@ -30,14 +31,25 @@ const runId = process.env.AIO_QA_RUN_ID || `theme-research-${Date.now()}`;
 const output = process.env.AIO_QA_EVIDENCE_PATH || resolve(root, '.cache/aio-qa/runs', runId, 'theme-research/evidence.json');
 mkdirSync(dirname(output), { recursive: true });
 const fixture = { profile: 'isolated-local-artifacts', initialMode: 'light', personalData: 'none', source: 'local published artifacts; synthetic stock bars' };
-const pinnedLibraries = ['https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'];
-const report = createBrowserEvidence({ root, runId, fixture, providerVersion: createRequire(import.meta.url)('playwright/package.json').version, operation: 'theme-research-journeys', environment: { mode: 'headless-fixture', viewport: { width: 1440, height: 900 }, locale: 'ko-KR', timezone: 'Asia/Seoul', initialStateId: fixture.profile, networkPolicy: 'local-artifacts+two-pinned-chart-libraries; remote-data-blocked' } });
+// v58.84: the two pinned chart libraries are served from the SRI-checked copies the entity-quality and
+// out-of-universe journeys already use, so the gate no longer needs the CDN (it timed out wherever egress is blocked).
+const pinnedLibraries = [
+  { url: 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', file: 'browser-chart.umd.min.js', sri: 'e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g' },
+  { url: 'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js', file: 'browser-lightweight-charts.js', sri: 'OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA' }
+].map((item) => { const body = readFileSync(resolve(root, '_artifacts/entity-quality-20261012', item.file));
+  if (createHash('sha384').update(body).digest('base64') !== item.sri) throw new Error(`Pinned chart library SRI mismatch: ${item.file}`);
+  return { ...item, body }; });
+const report = createBrowserEvidence({ root, runId, fixture, providerVersion: createRequire(import.meta.url)('playwright/package.json').version, operation: 'theme-research-journeys', environment: { mode: 'headless-fixture', viewport: { width: 1440, height: 900 }, locale: 'ko-KR', timezone: 'Asia/Seoul', initialStateId: fixture.profile, networkPolicy: 'local-artifacts+two-pinned-chart-libraries-from-local-copies; remote-blocked' } });
 const server = await startLocalServer(port, { label: 'theme-research/server' }); // v57.62 shared lifecycle (15 s ready-line timeout)
 let browser;
 try {
   browser = await chromium.launch();
   const context = await browser.newContext({ viewport: report.environment.viewport, locale: 'ko-KR', timezoneId: 'Asia/Seoul', serviceWorkers: 'block' });
-  await context.route('**/*', (request) => request.request().url().startsWith(base) || pinnedLibraries.includes(request.request().url()) ? request.continue() : request.abort());
+  await context.route('**/*', (request) => {
+    const url = request.request().url(), library = pinnedLibraries.find((item) => item.url === url);
+    if (library) return request.fulfill({ status: 200, contentType: 'application/javascript', body: library.body, headers: { 'Access-Control-Allow-Origin': '*' } });
+    return url.startsWith(base) ? request.continue() : request.abort();
+  });
   const page = await context.newPage();
   await page.goto(`${base}index.html`);
   await page.waitForFunction(() => window.AIO_ARCH && typeof window.toggleTheme === 'function');

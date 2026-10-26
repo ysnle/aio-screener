@@ -32,7 +32,7 @@ import { applyFxPanel, applyLedgerPanel, clearDeclaredFields, readDeclaredFields
 import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js';
 import { baseValueRows, baseValueNote } from '../ui/panels/portfolio-base-values.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
-import { BACKUP_SECTIONS, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
+import { BACKUP_SECTIONS, backupReminder, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
 import { readWatchlistSymbols, toggleWatchlistSymbol } from '../data/watchlist-store.js';
 import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBalances, setCashBalance, writeCashBalances } from '../data/portfolio-cash.js';
 import { appUsdKrwClose } from '../domain/portfolio/cash.js';
@@ -163,6 +163,15 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     sections: BACKUP_SECTIONS,
     build: buildPortfolioBackup,
     describe: describeBackupCounts,
+    renderReminder(holdingCount) {
+      const el = document.getElementById('pf-backup-reminder');
+      if (!el) return;
+      let last = null;
+      try { last = localStorage.getItem('aio_last_backup_at'); } catch (_) {}
+      const reminder = backupReminder({ lastBackupAt: last, holdingCount });
+      el.hidden = !reminder;
+      el.textContent = reminder ? reminder.text : '';
+    },
     parse: (text) => parsePortfolioBackup(text, backupDeps)
   };
   // P1317/R663: the ticker route, quote request and screener lookup share one canonical symbol —
