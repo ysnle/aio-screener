@@ -15,6 +15,28 @@ export function is13FFilingSeason(value) {
   return false;
 }
 
+// v58.87 (P2093 follow-up): filing-discovery.json is read for 13D/G events and coverage (src/ui/pages/masters.js);
+// the full 13F filing blocks with their SEC URLs live in filings.json, which the full run builds from the in-memory
+// discovery. The discovery artifact keeps only the accession reference that the contract and the next run compare.
+const FILING_REF_KEYS = Object.freeze(['accession', 'form', 'baseForm', 'periodOfReport', 'filedAt']);
+const DROPPED_FILING_KEYS = Object.freeze(['priorHoldings', 'latestPeriodSubmissions', 'priorPeriodSubmissions']);
+
+function filingRef(filing) {
+  if (!filing || typeof filing !== 'object') return filing ?? null;
+  return Object.fromEntries(FILING_REF_KEYS.filter((key) => filing[key] != null).map((key) => [key, filing[key]]));
+}
+
+export function slimDiscoveryManager(manager) {
+  if (!manager || typeof manager !== 'object') return manager;
+  const slim = Object.fromEntries(Object.entries(manager).filter(([key]) => !DROPPED_FILING_KEYS.includes(key)));
+  for (const key of ['latestSubmission', 'latestHoldings']) if (key in slim) slim[key] = filingRef(slim[key]);
+  return slim;
+}
+
+export function slimDiscoveryArtifact(artifact) {
+  return { ...artifact, managers: (artifact?.managers || []).map(slimDiscoveryManager) };
+}
+
 function managerIdFor(profile) {
   return profile?.id || profile?.managerId || null;
 }

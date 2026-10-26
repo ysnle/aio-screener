@@ -1,6 +1,6 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-10-26T23:27:00+09:00
+generated_from_build: 2026-10-26T23:57:00+09:00
 auto_refresh: true
 last_verified: 2026-10-26
 ---
@@ -11,7 +11,7 @@ last_verified: 2026-10-26
 
 ## Application
 
-- Version: `v58.85`
+- Version: `v58.87`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
 - App shell: 6,885 lines / 492,962 bytes

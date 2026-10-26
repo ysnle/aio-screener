@@ -1,3 +1,8 @@
+## v58.87 (2026-10-26)
+- **13F discovery 슬림화 (P2093 후속):** filing-discovery.json이 filings.json과 똑같은 13F 공시 블록(직전 분기·같은 분기 제출 목록·SEC URL)을 매니저마다 들고 있었다. 화면은 이 파일에서 13D/G 이벤트와 집계만 읽으므로, 최신 제출·보유 공시는 접수번호 참조(accession·form·period·filedAt)만 남기고 나머지는 뺀다(현재 데이터 기준 373KB → 약 228KB). 두 작성 경로(전체·소유권 전용) 모두 적용, ci-13f-currentness-check가 고정한다.
+- **실패한 13F 레인 재시도 간격 (P2093 후속):** 실패하면 매 30분 주기마다 SEC 전체 체인을 다시 돌던 것을, 실패 횟수에 따라 1·2·4·최대 8시간 기다린 뒤 재시도하게 했다(scripts/daily-lane-age.mjs --record-failure, refresh-data.yml). 매일 07:33 cron과 운영자 실행은 그대로 즉시 돌고, 성공하면 횟수가 초기화된다.
+- R1 7곳 v58.87
+
 ## v58.85 (2026-10-26)
 - **레거시 분해 1/8 — 거시 · 금리 (v58.85):** 거시 화면에 남아 있던 legacy 렌더러(다음 주요 발표 헤더 `window.AIO.renderMacroNextRelease`, 한국 거시 기준일 배지 `_aioRenderKrMacroFreshnessBadges`, `_initMacroPage`와 그 page-shown 훅)를 `js/aio-core.js`에서 지우고 `src/ui/components/macro-next-release.js`로 옮겼다. `src/ui/pages/market.js` 거시 렌더가 두 함수를 직접 부르고, 헤드리스 테스트·QA용 전역 이름은 `src/app/compatibility-globals.js`가 유지한다. 화면 출력·속성은 그대로이며, 발표 시각 판정은 legacy와 같은 부팅 브리지(`_aioMacroReleaseNotYet`/`_aioReleaseKstLabel`)를 읽어 새 모듈이 부팅 번들 청크를 쪼개지 않는다(전역 이름은 동적 import로 설치, 부팅 예산 안). legacy의 `aio:sharedMarketCut` 재렌더 리스너는 document에 걸려 있었지만 이벤트는 window로 발송돼 한 번도 실행되지 않았다 — 같은 서버 데이터 패스의 `aio:serverDataLoaded` 재렌더가 이미 헤더를 다시 그리므로 옮기지 않았다. 게이트 4건(structural·runtime-contract)이 새 위치를 읽는다.
 - R1 7곳 v58.85
