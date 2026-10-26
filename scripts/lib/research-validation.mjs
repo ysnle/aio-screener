@@ -76,24 +76,25 @@ export function extractFirstZipEntry(buffer) {
 }
 
 // Daily table rows look like "19261103,   0.56" (YYYYMMDD, percent). Text before/after the table
-// and the -99.99/-999 missing markers are skipped. Returns { dates, returns } with decimal returns.
+// is skipped; a -99.99/-999 missing marker keeps its date with a null return so a window that spans
+// it is excluded rather than compounded as 0%. Returns { dates, returns } with decimal returns.
 export function parseFrenchDailyFactorCsv(text) {
   const dates = [], returns = [];
   for (const line of String(text || '').split(/\r?\n/)) {
     const m = /^\s*(\d{4})(\d{2})(\d{2})\s*,\s*(-?\d+(?:\.\d+)?)\s*(?:,|$)/.exec(line);
     if (!m) continue;
     const pct = Number(m[4]);
-    if (!isNum(pct) || pct <= -99.99) continue;
     const date = `${m[1]}-${m[2]}-${m[3]}`;
     if (dates.length && date <= dates[dates.length - 1]) continue;
     dates.push(date);
-    returns.push(pct / 100);
+    returns.push(isNum(pct) && pct > -99.99 ? pct / 100 : null);
   }
   return { dates, returns };
 }
 
 // Compound the factor over days strictly after `from` up to and including `to` (the same holding
-// period as a close-to-close forward return). Null when the series does not cover the window.
+// period as a close-to-close forward return). Null when the series does not cover the window or a
+// day inside it is missing.
 export function compoundWindow(series, from, to) {
   if (!series || !series.dates.length || !(from < to)) return null;
   if (series.dates[0] > from || series.dates[series.dates.length - 1] < to) return null;
@@ -102,6 +103,7 @@ export function compoundWindow(series, from, to) {
     const d = series.dates[i];
     if (d <= from) continue;
     if (d > to) break;
+    if (!isNum(series.returns[i])) return null;
     growth *= 1 + series.returns[i];
     days++;
   }

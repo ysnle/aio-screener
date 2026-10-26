@@ -5,6 +5,7 @@ import { deflateRawSync } from 'node:zlib';
 import { readFile } from 'node:fs/promises';
 import { hacLagFor, neweyWestMeanStats, extractFirstZipEntry, parseFrenchDailyFactorCsv, compoundWindow, compareWithExternalFactor } from './lib/research-validation.mjs';
 import { backtestFactors } from './lib/factors.mjs';
+import { selectTopByMarketCap } from './backtest-factors-longrun.mjs';
 
 const errors = [];
 const check = (label, ok, detail) => { if (!ok) errors.push(label + (detail ? ': ' + JSON.stringify(detail) : '')); };
@@ -38,15 +39,16 @@ const local = Buffer.concat([ddHeader, name, body, Buffer.alloc(16)]);
 const central = Buffer.alloc(46); central.writeUInt32LE(0x02014b50, 0); central.writeUInt16LE(8, 10); central.writeUInt32LE(body.length, 20); central.writeUInt32LE(csv.length, 24); central.writeUInt16LE(name.length, 28); central.writeUInt32LE(0, 42);
 const eocd = Buffer.alloc(22); eocd.writeUInt32LE(0x06054b50, 0); eocd.writeUInt16LE(1, 8); eocd.writeUInt16LE(1, 10); eocd.writeUInt32LE(46 + name.length, 12); eocd.writeUInt32LE(local.length, 16);
 const ddParsed = parseFrenchDailyFactorCsv(extractFirstZipEntry(Buffer.concat([local, central, name, eocd])));
-check('v58.83 zip written with a data descriptor reads through the central directory', ddParsed.dates.join() === '2024-01-02,2024-01-03,2024-01-05,2024-01-08', ddParsed);
-check('v58.83 zip entry inflates and the daily table parses with missing markers skipped', parsed.dates.join() === '2024-01-02,2024-01-03,2024-01-05,2024-01-08' && parsed.returns[0] === 0.01 && parsed.returns[1] === -0.005, parsed);
+check('v58.83 zip written with a data descriptor reads through the central directory', ddParsed.dates.join() === parsed.dates.join(), ddParsed);
+check('v58.83 zip entry inflates and the daily table parses with missing markers kept as null days', parsed.dates.join() === '2024-01-02,2024-01-03,2024-01-04,2024-01-05,2024-01-08' && parsed.returns[0] === 0.01 && parsed.returns[1] === -0.005 && parsed.returns[2] === null, parsed);
 let rejected = false;
 try { extractFirstZipEntry(Buffer.from('not a zip at all, just text....')); } catch { rejected = true; }
 check('v58.83 non-zip payload fails closed', rejected);
 
 // Window = days strictly after the rebalance close through the forward close.
-const w = compoundWindow(parsed, '2024-01-02', '2024-01-05');
-check('v58.83 factor compounds over (rebalance, forward] only', Math.abs(w - (0.995 * 1.02 - 1)) < 1e-12, w);
+const w = compoundWindow(parsed, '2024-01-02', '2024-01-03');
+check('v58.83 factor compounds over (rebalance, forward] only', Math.abs(w - -0.005) < 1e-12 && Math.abs(compoundWindow(parsed, '2024-01-04', '2024-01-08') - (1.02 * 1.001 - 1)) < 1e-12, w);
+check('v58.83 a window spanning a missing factor day is excluded, not compounded as 0%', compoundWindow(parsed, '2024-01-03', '2024-01-05') === null && compoundWindow(parsed, '2024-01-02', '2024-01-08') === null);
 check('v58.83 uncovered window returns null', compoundWindow(parsed, '2023-12-01', '2024-01-05') === null && compoundWindow(parsed, '2024-01-03', '2024-02-01') === null);
 
 // Comparison verdicts against a synthetic factor series.
@@ -71,6 +73,13 @@ const mom = withSpreads.factorSpreadByDate && withSpreads.factorSpreadByDate.mom
 check('v58.83 per-factor spreads are opt-in', !('factorSpreadByDate' in plain) && Array.isArray(mom) && mom.length === 2, { plainKeys: 'factorSpreadByDate' in plain, mom });
 check('v58.83 each momentum window carries its rebalance and T+21 forward date', Array.isArray(mom) && mom.every((x) => x.forwardDate === btDays[btDays.indexOf(x.rebalanceDate) + 21] && Number.isFinite(x.spread)), mom);
 check('v58.83 opt-in spreads do not change the default statistics', JSON.stringify(plain.ic) === JSON.stringify(withSpreads.ic) && plain.quantileSpread === withSpreads.quantileSpread);
+
+const universeRows = [{ sym: 'AAA' }, { sym: 'BBB' }, { sym: '005930.KS' }, { sym: 'CCC' }, { sym: 'DDD' }];
+const screenerData = { AAA: { valuationPrice: 10, valuationSharesOutstanding: 100 }, BBB: { valuationPrice: 50, valuationSharesOutstanding: 100 }, '005930.KS': { valuationPrice: 1e5, valuationSharesOutstanding: 1e9 }, CCC: { valuationPrice: 20 }, DDD: { valuationPrice: 30, valuationSharesOutstanding: 100 } };
+const top = selectTopByMarketCap(universeRows, screenerData, 2);
+check('v58.83 long-run universe ranks US rows by price × shares and skips KR or incomplete rows', top.map((r) => r.sym).join() === 'BBB,DDD' && top[0].mcap === 5000, top);
+const realTop = selectTopByMarketCap(JSON.parse(await readFile(new URL('../public-data/screener-universe.json', import.meta.url), 'utf8')).universe, JSON.parse(await readFile(new URL('../public-data/screener.json', import.meta.url), 'utf8')).data, 120);
+check('v58.83 committed artifacts yield enough tickers for the default top-120 run (script aborts below 20)', realTop.length >= 100, realTop.length);
 
 const longrun = await readFile(new URL('./backtest-factors-longrun.mjs', import.meta.url), 'utf8');
 check('v58.83 long-run script reports HAC inference and the external benchmark', /neweyWestMeanStats/.test(longrun) && /externalBenchmark/.test(longrun) && /compareWithExternalFactor/.test(longrun));

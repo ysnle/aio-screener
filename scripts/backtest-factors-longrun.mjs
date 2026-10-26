@@ -111,12 +111,28 @@ async function fetchDailyBars(symbol, range) {
   return null;
 }
 
-async function loadTopUniverse(topN) {
-  const raw = await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8');
-  const j = JSON.parse(raw);
-  const rows = (j.universe || []).filter(r => r && r.sym && typeof r.mcap === 'number');
+// v58.83: screener-universe.json no longer carries a numeric mcap (identity rows only), so the old
+// filter selected 0 tickers. Market cap is now today's valuationPrice × valuationSharesOutstanding from
+// screener.json, US listings only (KR rows are KRW and are not ranked against USD). Selecting by
+// today's cap is part of the survivorship bias already disclosed in survivorshipBiasCaveat.
+export function selectTopByMarketCap(universeRows, screenerData, topN) {
+  const isNum = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0;
+  const rows = (universeRows || [])
+    .filter((r) => r && r.sym && !/\.(KS|KQ)$/i.test(r.sym))
+    .map((r) => {
+      const d = screenerData && screenerData[r.sym];
+      const mcap = d && isNum(d.valuationPrice) && isNum(d.valuationSharesOutstanding) ? d.valuationPrice * d.valuationSharesOutstanding : null;
+      return mcap == null ? null : { ...r, mcap };
+    })
+    .filter(Boolean);
   rows.sort((a, b) => b.mcap - a.mcap);
   return rows.slice(0, topN);
+}
+
+async function loadTopUniverse(topN) {
+  const universe = JSON.parse(await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8'));
+  const screener = JSON.parse(await readFile(`${__dir}/../public-data/screener.json`, 'utf8'));
+  return selectTopByMarketCap(universe.universe, screener.data, topN);
 }
 
 export async function runFactorLongrunBacktest(range, topN, outPath) {
