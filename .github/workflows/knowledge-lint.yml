@@ -28,7 +28,6 @@ jobs:
           node scripts/generate-workspace-state.mjs --check
           node scripts/sync-agent-profiles.mjs --check
           node scripts/ci-skill-contract-check.mjs
-          node scripts/ci-skill-eval-fixture-check.mjs
           node scripts/ci-doc-currency-check.mjs
           node scripts/ci-ledger-integrity-check.mjs
           node scripts/ci-assertion-trace-check.mjs

@@ -1,3 +1,10 @@
+## v58.86 (2026-10-27)
+- **게이트 203 → 165개 (v58.86):** 같은 주제의 소형 게이트를 한 게이트의 구획으로 합쳤다(지식 corpus 16개 → knowledge-corpus 1개, AI 근거 6개 → ai-evidence 1개, 그 밖에 14쌍). 단언은 지우지 않았고, 구획 하나가 실패해도 나머지가 돌며 실패한 구획 이름을 남긴다(scripts/lib/gate-sections.mjs). ci-* 스크립트 189 → 153개.
+- **퇴역 4개 (v58.86):** doc-currency(항상 exit 0이라 막을 수 없음, 주간 knowledge-lint가 계속 실행), screener-benchmark(측정 도구, 수동 실행), release-manifest(ci-version-check와 release-revision이 같은 필드를 검사), headless-group-lifecycle(qa-pipeline-contract가 같은 문자열을 검사).
+- **게이트별 실패 기록 (v58.86):** CI에서 실패한 게이트를 check-run annotation(qa-gate-fail)으로 남긴다. 작업 로그는 만료되고 일부 세션에서 내려받을 수 없어 이번 정리는 '한 번도 실패하지 않음'을 게이트 단위로 셀 수 없었다. 다음 분기 정리는 이 annotation으로 센다.
+- **열린 QA 247 → 78행 (v58.86):** 산출물·게이트로 지금 확인되는 30행은 확인으로 닫고, v53~v57의 같은 상시 경계 항목 41행은 4개 경계 항목(QA-BOUNDARY-*)으로 합쳤으며, 퇴역 표면·역사 배치·중복·자동화로 대체된 항목·분해 작업 102행은 사유와 함께 닫았다. 남은 78행은 v58.x 라이브 확인과 실제 남은 일이다.
+- R1 7곳 v58.86
+
 ## v58.85 (2026-10-26)
 - **레거시 분해 1/8 — 거시 · 금리 (v58.85):** 거시 화면에 남아 있던 legacy 렌더러(다음 주요 발표 헤더 `window.AIO.renderMacroNextRelease`, 한국 거시 기준일 배지 `_aioRenderKrMacroFreshnessBadges`, `_initMacroPage`와 그 page-shown 훅)를 `js/aio-core.js`에서 지우고 `src/ui/components/macro-next-release.js`로 옮겼다. `src/ui/pages/market.js` 거시 렌더가 두 함수를 직접 부르고, 헤드리스 테스트·QA용 전역 이름은 `src/app/compatibility-globals.js`가 유지한다. 화면 출력·속성은 그대로이며, 발표 시각 판정은 legacy와 같은 부팅 브리지(`_aioMacroReleaseNotYet`/`_aioReleaseKstLabel`)를 읽어 새 모듈이 부팅 번들 청크를 쪼개지 않는다(전역 이름은 동적 import로 설치, 부팅 예산 안). legacy의 `aio:sharedMarketCut` 재렌더 리스너는 document에 걸려 있었지만 이벤트는 window로 발송돼 한 번도 실행되지 않았다 — 같은 서버 데이터 패스의 `aio:serverDataLoaded` 재렌더가 이미 헤더를 다시 그리므로 옮기지 않았다. 게이트 4건(structural·runtime-contract)이 새 위치를 읽는다.
 - R1 7곳 v58.85

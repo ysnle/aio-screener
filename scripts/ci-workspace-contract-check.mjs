@@ -1,9 +1,17 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
-import { buildWorkspaceState, canonicalTextBytes, renderCurrentState } from './workspace-state-lib.mjs';
+#!/usr/bin/env node
+// Workspace contract and the live header policy helper. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
+// runs them in order; every section runs even when an earlier one fails, and the failure names the section.
+import { runSections } from './lib/gate-sections.mjs';
+
+await runSections('workspace-contract', [
+// ── section workspace (was ci-workspace-contract-check.mjs) ──
+['workspace', async () => {
+const { existsSync, readFileSync, readdirSync } = await import('node:fs');
+const { spawnSync } = await import('node:child_process');
+const { dirname, join } = await import('node:path');
+const { fileURLToPath } = await import('node:url');
+const { createRequire } = await import('node:module');
+const { buildWorkspaceState, canonicalTextBytes, renderCurrentState } = await import('./workspace-state-lib.mjs');
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -142,7 +150,7 @@ for (const dir of ['.codex/hooks', '.claude/hooks']) {
 check('agent profile source exists', exists('architecture/agent-profiles.json'));
 check('agent profile generator exists', exists('scripts/sync-agent-profiles.mjs'));
 check('skill eval fixtures exist', exists('architecture/skill-eval-cases.json'));
-check('skill eval fixture gate exists', exists('scripts/ci-skill-eval-fixture-check.mjs'));
+check('skill eval fixture gate exists', read('scripts/ci-skill-contract-check.mjs').includes("['skill-evals'"));
 check('portable Codex skill discovery surface is materialized', exists('.agents/skills/knowledge-lint/SKILL.md'));
 for (const file of ['.codex/agents/accessibility-auditor.toml', '.codex/agents/code-reviewer.toml', '.codex/agents/performance-analyzer.toml', '.codex/agents/qa-auditor.toml', '.claude/agents/accessibility-auditor.md', '.claude/agents/code-reviewer.md', '.claude/agents/performance-analyzer.md', '.claude/agents/qa-auditor.md']) {
   const text = read(file);
@@ -156,8 +164,8 @@ const qaScripts = Object.values(qaPipeline.groups || {}).flatMap((group) => grou
 check('push/PR CI runs the canonical QA manifest', /qa-runner\.mjs/.test(ci) && /--group preflight/.test(ci));
 check('push/PR CI runs workspace contract', qaScripts.includes('scripts/ci-workspace-contract-check.mjs'));
 check('push/PR CI runs knowledge lint', qaScripts.includes('scripts/ci-knowledge-lint-check.mjs'));
-check('push/PR CI runs skill eval fixtures', qaScripts.includes('scripts/ci-skill-eval-fixture-check.mjs'));
-check('push/PR CI runs reference curriculum boundary contract', qaScripts.includes('scripts/ci-reference-curriculum-contract-check.mjs'));
+check('push/PR CI runs skill eval fixtures', qaScripts.includes('scripts/ci-skill-contract-check.mjs'));
+check('push/PR CI runs reference curriculum boundary contract', qaScripts.includes('scripts/ci-service-worker-cache-policy-check.mjs') && read('scripts/ci-service-worker-cache-policy-check.mjs').includes("['reference-curriculum'"));
 const weekly = read('.github/workflows/knowledge-lint.yml');
 check('scheduled knowledge lint also checks workspace contract', /ci-workspace-contract-check\.mjs/.test(weekly));
 check('failure escalation workflow exists', exists('.github/workflows/operations-alert.yml'));
@@ -233,7 +241,7 @@ check('live invariant keeps an explicit strict header mode', /LIVE_HEADER_POLICY
 check('GitHub Pages default treats unavailable response headers as operator-owned', /resolveLiveHeaderPolicy/.test(liveInvariant) && exists('scripts/live-header-policy.mjs'));
 check('data watchdog declares the GitHub Pages header policy', /LIVE_HEADER_POLICY:\s*operator-required/.test(watchdog));
 check('header limitations cannot silently become publication-ready', /OPERATOR_REQUIRED|PUBLIC_DEPLOY.*OPERATOR_REQUIRED/s.test(liveInvariant));
-check('live header policy has a deterministic behavior gate', exists('scripts/ci-live-header-policy-contract-check.mjs') && qaScripts.includes('scripts/ci-live-header-policy-contract-check.mjs'));
+check('live header policy has a deterministic behavior gate', qaScripts.includes('scripts/ci-workspace-contract-check.mjs') && read('scripts/ci-workspace-contract-check.mjs').includes("['live-header-policy'"));
 
 // v57.54: the no-auto-commit policy is enforced in code above (hook config and agent-hook.mjs never commit,
 // push or deploy). Its prose is required only in its canonical home (AGENTS.md) and the Codex hook config;
@@ -250,3 +258,27 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(`Workspace contract OK: ${state.application.version}, ${state.workspace.contextDocuments} context docs, ${state.workspace.skills} skills, ${state.workspace.agentProfiles} agent profiles, ${state.workspace.workflows} workflows.`);
+}],
+// ── section live-header-policy (was ci-live-header-policy-contract-check.mjs) ──
+['live-header-policy', async () => {
+const { evaluateLiveHeader, resolveLiveHeaderPolicy } = await import('./live-header-policy.mjs');
+
+const errors = [];
+const check = (label, condition) => { if (!condition) errors.push(label); };
+
+check('GitHub Pages defaults to operator-required', resolveLiveHeaderPolicy('https://example.github.io/app') === 'operator-required');
+check('custom origins default to enforce', resolveLiveHeaderPolicy('https://markets.example.com') === 'enforce');
+check('explicit enforce overrides GitHub Pages default', resolveLiveHeaderPolicy('https://example.github.io/app', 'enforce') === 'enforce');
+check('missing GitHub Pages header is an operator warning', evaluateLiveHeader('operator-required', '', 'nosniff').outcome === 'WARN');
+check('missing enforced header is a failure', evaluateLiveHeader('enforce', '', 'nosniff').outcome === 'FAIL');
+check('matching enforced header passes', evaluateLiveHeader('enforce', 'nosniff', 'nosniff').outcome === 'PASS');
+
+if (errors.length) {
+  console.error('Live header policy contract failed:');
+  errors.forEach((error) => console.error(` - ${error}`));
+  process.exit(1);
+}
+
+console.log('Live header policy contract OK: github.io=operator-required/WARN, custom=enforce/FAIL, matching=PASS.');
+}],
+]);

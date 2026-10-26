@@ -30,6 +30,10 @@ const escapeRe = (value) => value.replace(/[$]/g, '\\$');
 // Only checks on source text count; `.includes()` on a function's output is a behaviour test and stays free.
 export function countTextPins(source) {
   const text = String(source);
+  // v58.86: a consolidated gate (scripts/lib/gate-sections.mjs) scopes each former gate's variables to its own section, so
+  // a source variable is resolved inside its section only.
+  const sections = text.split(/^\/\/ ── section /m);
+  if (sections.length > 1) return sections.reduce((sum, section) => sum + countTextPins(section), 0);
   const vars = [...new Set([...text.matchAll(SOURCE_VAR)].map((match) => escapeRe(match[1])))];
   const receivers = [String.raw`\bread\w*\([^()\n]*?` + SOURCE_PATH + String.raw`[^()\n]*\)`, ...vars.map((v) => String.raw`\b${v}\b`)];
   const pins = receivers.flatMap((receiver) => [

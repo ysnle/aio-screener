@@ -35,7 +35,7 @@ Choose the evaluation mode before scoring:
 
 - Use deterministic static evaluation for skill topology, references, wrappers, encoding, and mirror parity.
 - Use behavioral runs for output quality. If independent task runs are unavailable, record behavioral quality as unverified rather than inferring it from static checks.
-- Record deterministic fixture validation (`ci-skill-eval-fixture-check.mjs`) and independent model execution as different result columns/statuses.
+- Record deterministic fixture validation (`ci-skill-contract-check.mjs`) and independent model execution as different result columns/statuses.
 
 ## Experiment Loop
 

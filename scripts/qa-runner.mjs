@@ -812,6 +812,9 @@ function runGate(gate) {
           console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
         } else {
           console.error(`[qa] FAIL ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})`);
+          // v58.86: job logs expire and their download host is not reachable from every agent session, but check-run
+          // annotations stay readable through the API, so the quarterly gate cleanup can count failures per gate.
+          if (process.env.GITHUB_ACTIONS === 'true') console.log(`::error title=qa-gate-fail::${gate.id}`);
           // v58.63 (A25): a failure invalidates this gate's cached success (from this run's view and on disk).
           const fresh = readJson(cachePath, null);
           if (successCache.gates[gate.id] || fresh?.gates?.[gate.id]) {

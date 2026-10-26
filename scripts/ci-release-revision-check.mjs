@@ -1,12 +1,20 @@
+#!/usr/bin/env node
+// Release revision and generated release manifests. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
+// runs them in order; every section runs even when an earlier one fails, and the failure names the section.
+import { runSections } from './lib/gate-sections.mjs';
+
+await runSections('release-revision', [
+// ── section release-revision (was ci-release-revision-check.mjs) ──
+['release-revision', async () => {
 // Local release-revision contract.
 // This does not certify live deployment, provider rights, or model efficacy. It
 // only proves that the repository's versioned app shell, data artifacts, worker
 // source, and Pages allowlist can be described by one deterministic revision.
 
-import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+const { createHash } = await import('node:crypto');
+const { existsSync, readFileSync } = await import('node:fs');
+const { join, dirname } = await import('node:path');
+const { fileURLToPath } = await import('node:url');
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const path = file => join(root, file);
@@ -101,3 +109,33 @@ if (errors.length) {
   process.exit(1);
 }
 console.log('Release revision contract OK');
+}],
+// ── section generated-release-parity (was ci-generated-release-parity-check.mjs) ──
+['generated-release-parity', async () => {
+const { spawnSync } = await import('node:child_process');
+const { createHash } = await import('node:crypto');
+const { readFileSync, writeFileSync } = await import('node:fs');
+
+const targets = ['architecture/asset-manifest.json', 'architecture/release-manifest.json'];
+const digest = () => Object.fromEntries(targets.map((file) => [file, createHash('sha256').update(readFileSync(file)).digest('hex')]));
+const before = digest();
+// v58.63 (architecture audit C6): a check must not leave the tree changed — on a mismatch or a generator failure the
+// manifests were left regenerated (or half written). The original bytes are restored before the gate reports.
+const originals = Object.fromEntries(targets.map((file) => [file, readFileSync(file)]));
+const restore = () => { for (const file of targets) writeFileSync(file, originals[file]); };
+const result = spawnSync(process.execPath, ['scripts/sync-data-release-manifests.mjs'], { encoding: 'utf8', stdio: 'pipe' });
+if (result.status !== 0) {
+  restore();
+  console.error(String(result.stderr || result.stdout || 'release manifest generation failed').trim());
+  process.exit(1);
+}
+const after = digest();
+const changed = targets.filter((file) => before[file] !== after[file]);
+if (changed.length) {
+  restore();
+  console.error(`Release generated parity failed; regenerating would change: ${changed.join(', ')} (restored; run node scripts/sync-data-release-manifests.mjs to update)`);
+  process.exit(1);
+}
+console.log('Release generated parity OK: asset/release manifests unchanged.');
+}],
+]);

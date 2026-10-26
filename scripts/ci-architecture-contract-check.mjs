@@ -1,6 +1,14 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+#!/usr/bin/env node
+// Native ESM architecture contract, baseline and vertical slices. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
+// runs them in order; every section runs even when an earlier one fails, and the failure names the section.
+import { runSections } from './lib/gate-sections.mjs';
+
+await runSections('architecture', [
+// ── section architecture (was ci-architecture-contract-check.mjs) ──
+['architecture', async () => {
+const { default: fs } = await import('node:fs');
+const { default: path } = await import('node:path');
+const { fileURLToPath, pathToFileURL } = await import('node:url');
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
@@ -828,3 +836,51 @@ const perfP95 = perfSamples[Math.floor(perfSamples.length * 0.95)];
 if (perfP95 > PERF_SCREENER_DISPATCH_P95_BUDGET_MS) fail(`RM-02 performance budget exceeded: ${perfRows.length}-row screener dispatch+notify p95=${perfP95.toFixed(3)}ms > ${PERF_SCREENER_DISPATCH_P95_BUDGET_MS}ms`);
 
 console.log(JSON.stringify({ ok: true, routes: golden.routes.length, firstVerticalSlice: golden.firstVerticalSlice, baseline, current, perfScreenerDispatchP95Ms: Number(perfP95.toFixed(3)) }));
+}],
+// ── section baseline (was ci-baseline-contract-check.mjs) ──
+['baseline', async () => {
+const { readFile } = await import('node:fs/promises');
+const owners = JSON.parse(await readFile(new URL('../architecture/route-owners.json', import.meta.url), 'utf8'));
+const baseline = JSON.parse(await readFile(new URL('../architecture/baseline.json', import.meta.url), 'utf8'));
+const graph = JSON.parse(await readFile(new URL('../architecture/dependency-graph.json', import.meta.url), 'utf8'));
+const errors = [];
+const routes = Object.keys(owners.routes || {});
+if (routes.length !== baseline.routeGraph?.supportedRoutesCount && baseline.routeGraph?.supportedRoutesCount != null) errors.push('baseline route count drift');
+if (!owners.ownerEnums?.includes('native') || !owners.ownerEnums?.includes('legacy') || !owners.ownerEnums?.includes('not-applicable')) errors.push('owner enum contract missing');
+if (!['local', 'release', 'live'].every(lane => graph.revisionLanes.includes(lane) && baseline.revisionLanes?.[lane])) errors.push('revision lanes are not separated');
+if (!Object.values(graph.dependencies || {}).every(dep => dep.kind === 'external-gate' || dep.source)) errors.push('dependency graph contains an undeclared dependency');
+if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }
+console.log(`Baseline contract check OK: ${routes.length} supported routes, graph dependencies and local/release/live lanes are explicit.`);
+}],
+// ── section vertical-slice (was ci-vertical-slice-contract-check.mjs) ──
+['vertical-slice', async () => {
+const { readFileSync } = await import('node:fs');
+const { join } = await import('node:path');
+const { fileURLToPath } = await import('node:url');
+const { ROUTE_IDS } = await import('../src/app/routes.js');
+const { VERTICAL_SLICE_CONTRACTS, auditVerticalSliceContracts } = await import('../src/app/vertical-slices.js');
+
+const root = join(fileURLToPath(new URL('.', import.meta.url)), '..');
+const read = (file) => readFileSync(join(root, file), 'utf8');
+const fail = (message) => { throw new Error(message); };
+
+const audit = auditVerticalSliceContracts(ROUTE_IDS);
+if (!audit.ok || audit.sliceCount !== 12 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical slice registry drifted: ${JSON.stringify(audit)}`);
+if (VERTICAL_SLICE_CONTRACTS.some((slice) => slice.routes.length < 1 || slice.acceptance.length < 13)) fail('vertical slice acceptance contract is incomplete');
+const routeOwners = JSON.parse(read('architecture/route-owners.json'));
+for (const route of ROUTE_IDS) {
+  const owner = routeOwners.routes?.[route];
+  if (!owner || owner.lifecycleOwner !== 'native' || !owner.nativeModule) fail(`route lifecycle owner missing for ${route}`);
+}
+const router = read('src/app/router.js');
+const bootstrap = read('src/app/bootstrap.js');
+if (!router.includes('getVerticalSliceContract') || !router.includes('aioVerticalSlice') || !router.includes('requiredData')) fail('router does not mount vertical slice markers');
+if (!bootstrap.includes('auditVerticalSliceContracts') || !bootstrap.includes('getVerticalSliceContracts')) fail('architecture API does not expose the vertical slice registry');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
+// Legacy unification (2026-10-17): the completeness API moved to src/data/page-completeness.js; the router's slice
+// markers are only as good as the contracts it reads and the API it calls.
+const completeness = read('src/data/page-completeness.js');
+if (!core.includes('AIO_PAGE_CONTRACTS') || !completeness.includes('AIO.getPageDataCompleteness') || !completeness.includes('blocked') || !completeness.includes('stale-reference')) fail('page completeness contract is not wired to the slice gate');
+console.log(JSON.stringify({ ok: true, slices: VERTICAL_SLICE_CONTRACTS.map((slice) => ({ id: slice.id, routes: slice.routes, requiredData: slice.requiredData })), routes: ROUTE_IDS.length }));
+}],
+]);

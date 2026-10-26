@@ -16,7 +16,8 @@ import { fileURLToPath } from 'node:url';
 import { detectDataSide, resolveConflictText } from './resolve-data-manifest-merge.mjs';
 
 const GENERATED = new Set(['architecture/asset-manifest.json', 'architecture/release-manifest.json', 'public-data/operations-status.json']);
-const GATES = ['scripts/ci-generated-release-parity-check.mjs', 'scripts/ci-release-manifest-contract.mjs', 'scripts/ci-release-revision-check.mjs'];
+// v58.86: the release-revision gate also runs the generated-manifest parity section; release-manifest retired into it.
+const GATES = ['scripts/ci-release-revision-check.mjs'];
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const skipGates = process.argv.includes('--skip-gates');
 const version = JSON.parse(readFileSync('version.json', 'utf8')).version;

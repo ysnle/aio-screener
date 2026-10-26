@@ -25,7 +25,7 @@ Close every change with evidence, not notes only.
 
 - Code/data/doc changes require the relevant executable gate. Reuse passing evidence until a changed input, failure, or unresolved risk warrants rerunning it. Small reversible edits do not require new tests that mirror implementation.
 - Skill-facing edits require `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`.
-- Skill prompt/eval changes require `node scripts/ci-skill-eval-fixture-check.mjs`; fixture PASS does not count as an independent behavioral run.
+- Skill prompt/eval changes require `node scripts/ci-skill-contract-check.mjs`; fixture PASS does not count as an independent behavioral run.
 - Codex mirror changes require `node scripts/sync-agent-skills.mjs --check`.
 - Agent/hook/workspace changes require `node scripts/ci-workspace-contract-check.mjs` and `node scripts/sync-agent-profiles.mjs --check` when profiles changed.
 - Versioned changes use `node scripts/bump-version.mjs <version>` and keep R1 as 7 synchronized surfaces.
