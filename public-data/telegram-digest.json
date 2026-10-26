@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-26T05:21:28.752Z",
-  "attemptedAt": "2026-10-26T05:21:28.752Z",
-  "lastSuccessfulAt": "2026-10-26T05:21:28.752Z",
+  "generatedAt": "2026-10-26T05:51:38.234Z",
+  "attemptedAt": "2026-10-26T05:51:38.234Z",
+  "lastSuccessfulAt": "2026-10-26T05:51:38.234Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-10-12T05:21:24.529Z",
-  "until": "2026-10-26T05:21:24.529Z",
+  "since": "2026-10-12T05:51:32.696Z",
+  "until": "2026-10-26T05:51:32.696Z",
   "current24hWindow": {
     "start": "2026-10-24T23:00:00.000Z",
     "end": "2026-10-25T23:00:00.000Z",
@@ -78,37 +78,37 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 257,
-      "freshCount": 18,
+      "freshCount": 38,
       "eligibleTextCount": 245,
       "selectedCount": 65,
       "error": null,
-      "lastPostId": 26043
+      "lastPostId": 26044
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1264,
+      "count": 1267,
       "freshCount": 40,
-      "eligibleTextCount": 1213,
-      "selectedCount": 119,
+      "eligibleTextCount": 1216,
+      "selectedCount": 120,
       "error": null,
-      "lastPostId": 67345
+      "lastPostId": 67349
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 241,
+      "count": 240,
       "freshCount": 20,
-      "eligibleTextCount": 241,
-      "selectedCount": 97,
+      "eligibleTextCount": 240,
+      "selectedCount": 96,
       "error": null,
       "lastPostId": 20819
     },
@@ -117,26 +117,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 695,
+      "count": 696,
       "freshCount": 39,
-      "eligibleTextCount": 695,
+      "eligibleTextCount": 696,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71016
+      "lastPostId": 71018
     }
   ],
-  "count": 2457,
-  "retainedItemCount": 478,
+  "count": 2460,
+  "retainedItemCount": 492,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2457,
-    "eligibleTextCount": 2394,
+    "observedCount": 2460,
+    "eligibleTextCount": 2397,
     "mediaOnlyCount": 63,
-    "highSignalCount": 465,
-    "broadSignalCount": 1027,
+    "highSignalCount": 467,
+    "broadSignalCount": 1029,
     "selectedRawCount": 403,
     "selectedEligibleCount": 403,
     "selectedRawCoveragePct": 16.8,
@@ -144,35 +144,38 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 889,
-    "semi": 608,
-    "macro": 418,
-    "geo": 354,
+    "market-note": 890,
     "earnings": 516,
+    "macro": 419,
+    "geo": 356,
+    "semi": 609,
+    "power": 329,
+    "credit": 121,
     "equity": 183,
     "media-only": 63,
     "kr-market": 155,
     "flows": 126,
     "ai-policy": 169,
     "japan": 140,
-    "power": 327,
-    "credit": 120,
     "optical": 44,
     "healthcare": 137,
     "crypto": 5,
     "insider": 6
   },
   "tickerCounts": {
+    "AMAT": 2,
+    "MRVL": 3,
+    "ORCL": 11,
+    "NVDA": 185,
+    "005930.KS": 50,
+    "000660.KS": 73,
     "GOOG": 91,
-    "000660.KS": 72,
     "TSM": 102,
-    "005930.KS": 49,
     "APH": 1,
     "CEG": 1,
     "AMZN": 51,
     "TSLA": 92,
     "BE": 36,
-    "NVDA": 184,
     "218410.KQ": 1,
     "MU": 71,
     "009150.KS": 14,
@@ -189,7 +192,6 @@
     "AMD": 32,
     "INTC": 2,
     "PANW": 1,
-    "ORCL": 10,
     "EQIX": 1,
     "FCEL": 1,
     "SNDK": 8,
@@ -197,7 +199,6 @@
     "AVGO": 19,
     "WDC": 13,
     "RKLB": 4,
-    "MRVL": 2,
     "STX": 7,
     "267250.KS": 1,
     "017670.KS": 3,
@@ -239,7 +240,6 @@
     "V": 5,
     "SMTC": 1,
     "BX": 1,
-    "AMAT": 1,
     "373220.KS": 2,
     "IONQ": 3,
     "007660.KS": 1,
@@ -251,19 +251,19 @@
     "ACN": 1
   },
   "themes": [
-    "Market Notes (889 posts in 14-day research window): 2026년 10월 26일 미국 레딧 베스트 게시물 분석 > AI 전체 - “돈은 대체 누가 버는 거냐” · “Who Da Fuck is even benefiting from AI?” 등장 · AI CAPEX...",
-    "Semiconductors/Memory (608 posts in 14-day research window): 노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상...",
+    "Market Notes (890 posts in 14-day research window): 2026년 10월 26일 미국 레딧 베스트 게시물 분석 > AI 전체 - “돈은 대체 누가 버는 거냐” · “Who Da Fuck is even benefiting from AI?” 등장 · AI CAPEX...",
+    "Semiconductors/Memory (609 posts in 14-day research window): 노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상...",
     "Earnings/Corporate (516 posts in 14-day research window): 테슬라(TSLA) 2026년 3분기 실적 (시간외 +1%) 1. 매출 280.46억 달러 (예상 278.83억), 전년 대비 보합 조정 EPS 0.48달러 (예상 0.43달러), 전년 대비 -4% 조정...",
-    "Macro/Rates (418 posts in 14-day research window): >>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가...",
-    "Geopolitics (354 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
-    "AI Power/Grid (327 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
+    "Macro/Rates (419 posts in 14-day research window): 2026년 10월 26일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승 출발. 다우 선물 +0.33%, S&P500 선물 +0.30%, 나스닥100 선물 +0.29%, 러셀2000 선물 +0.36% 기록. VIX는 19.35로 1.34% 하락하며 위험회피 심리 일부 완화. 다만 중동 지정학적 불확실성과...",
+    "Geopolitics (356 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에...",
+    "AI Power/Grid (329 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
     "Equity/Analyst (183 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "AI Policy/Export Controls (169 posts in 14-day research window): 2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 184,
+      "count": 185,
       "text": "Bernstein, AI 인프라 자금조달 제약, 오히려 장기 호황에 긍정적 - 최근 코어위브(CoreWeave)의 부채 우려와 메타의 자금조달 계획으로 AI 인프라 투자의 금융 리스크 및 투자수익률에 대한 시장의 우려 확대. - 번스타인의 스테이시 라스곤은 전력, 공급망, 반도체 장비뿐 아니라 자금조달 역시 AI..."
     },
     {
@@ -283,7 +283,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 72,
+      "count": 73,
       "text": "2026년 10월 24일 미국 증시 브리핑 미국 증시는 유가 급등과 인플레이션 압력 재확대 우려 속에 하락 마감. S&P 500은 0.52% 하락한 7,623.68, 다우지수는 1.23% 하락한..."
     },
     {
@@ -303,7 +303,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 49,
+      "count": 50,
       "text": "2026년 10월 23일 미국 증시 프리마켓 브리핑 미국 증시 선물은 금일 혼조세를 보이며 기술주 중심의 제한적 반등과 전반적인 위험자산 회피 심리가 공존. 다우 선물 -0.27%, S&P500 선물..."
     },
     {
@@ -329,8 +329,8 @@
       "topics": [
         "macro"
       ],
-      "count": 418,
-      "focus": ">>주간 글로벌 이벤트 - 미 연준·일본은행·ECB 금리 결정, 빅테크 실적 집중 발표…AI 투자 회복 가능성 주목 (중국언론) •통화정책: 10월 29일 미 연준 금리 결정 발표. 경제학자의 94%가..."
+      "count": 419,
+      "focus": "2026년 10월 26일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승 출발. 다우 선물 +0.33%, S&P500 선물 +0.30%, 나스닥100 선물 +0.29%, 러셀2000 선물 +0.36% 기록. VIX는 19.35로 1.34% 하락하며 위험회피 심리 일부 완화. 다만 중동 지정학적 불확실성과..."
     },
     {
       "id": "geo",
@@ -338,7 +338,7 @@
       "topics": [
         "geo"
       ],
-      "count": 354,
+      "count": 356,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 22일 🇺🇸 아메리카 • 미국 정부는 러시아와 우크라이나가 미국이 제안한 3자 실무급 평화협상 재개에 동의했다고 밝혀. 트럼프 대통령은 우크라이나 전쟁 종식에..."
     },
     {
@@ -347,8 +347,8 @@
       "topics": [
         "credit"
       ],
-      "count": 120,
-      "focus": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI..."
+      "count": 121,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀. 이란과의 갈등을 종식하기 위한 합의 가능성을 열어두면서도 협상이 실패할 경우 강경 대응에 나설 수 있다고 시사...."
     },
     {
       "id": "semi",
@@ -356,7 +356,7 @@
       "topics": [
         "semi"
       ],
-      "count": 608,
+      "count": 609,
       "focus": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game of Chicken)’ 국면에 진입했으며, 2027년 메모리 반도체 공급 부족과 가격 강세가 사실상..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "power"
       ],
-      "count": 327,
+      "count": 329,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에..."
     },
     {
@@ -464,7 +464,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 889,
+      "count": 890,
       "focus": "2026년 10월 26일 미국 레딧 베스트 게시물 분석 > AI 전체 - “돈은 대체 누가 버는 거냐” · “Who Da Fuck is even benefiting from AI?” 등장 · AI CAPEX..."
     }
   ],
@@ -708,6 +708,44 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/67347",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67347",
+      "datetime": "2026-10-26T05:41:08.000Z",
+      "localDateKst": "2026-10-26",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "AMAT",
+        "MRVL",
+        "ORCL"
+      ],
+      "summary": "2026년 10월 26일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승 출발. 다우 선물 +0.33%, S&P500 선물 +0.30%, 나스닥100 선물 +0.29%, 러셀2000 선물 +0.36% 기록...."
+    },
+    {
+      "id": "insidertracking/67346",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67346",
+      "datetime": "2026-10-26T05:38:18.000Z",
+      "localDateKst": "2026-10-26",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
+    },
     {
       "id": "insidertracking/67275",
       "channel": "insidertracking",
@@ -1370,47 +1408,6 @@
       ]
     },
     {
-      "id": "insidertracking/66904",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66904",
-      "datetime": "2026-10-21T11:58:58.000Z",
-      "localDateKst": "2026-10-21",
-      "tags": [
-        "power"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 21일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 신규 대형 데이터센터에 자체 전력 생산을 의무화하고, 잉여 전력은 지역사회나 전력망에...",
-      "tickers": [
-        "NVDA",
-        "005930.KS",
-        "009150.KS",
-        "000660.KS"
-      ]
-    },
-    {
-      "id": "insidertracking/66903",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66903",
-      "datetime": "2026-10-21T11:55:44.000Z",
-      "localDateKst": "2026-10-21",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "엔비디아 기조연설 및 협업 관련 정리 - 2026년 10월 21일 젠슨 황 기조연설 핵심 발언 · 젠슨 황 “우리는 인류 역사상 최대 규모의 인프라 구축 과정에 있다” · 젠슨 황 “수요는 엄청나며,...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "MU",
-        "009150.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20736",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20736",
@@ -1661,6 +1658,63 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/67347",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67347",
+      "datetime": "2026-10-26T05:41:08.000Z",
+      "localDateKst": "2026-10-26",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "AMAT",
+        "MRVL",
+        "ORCL"
+      ],
+      "summary": "2026년 10월 26일 미국 증시 프리마켓 브리핑 미국 증시 선물은 상승 출발. 다우 선물 +0.33%, S&P500 선물 +0.30%, 나스닥100 선물 +0.29%, 러셀2000 선물 +0.36% 기록...."
+    },
+    {
+      "id": "aetherjapanresearch/26044",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/26044",
+      "datetime": "2026-10-26T05:39:01.000Z",
+      "localDateKst": "2026-10-26",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 59,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "삼성전자·SK하이닉스, 엔비디아향 HBM4 8단 2Q27 출하 - 현재 주력은 HBM4 12단이지만, 올해 3분기 HBM4 8단 논의하면서 8단도 병행 출하하기로 결정"
+    },
+    {
+      "id": "insidertracking/67346",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67346",
+      "datetime": "2026-10-26T05:38:18.000Z",
+      "localDateKst": "2026-10-26",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
+    },
     {
       "id": "HANAchina/71015",
       "channel": "HANAchina",
@@ -2507,13 +2561,13 @@
       "datetime": "2026-10-25T05:37:44.000Z",
       "localDateKst": "2026-10-25",
       "tags": [
-        "credit",
-        "macro"
+        "credit"
       ],
       "score": 84,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BofA Hartnett: 11월 중순까지 ‘전술적 위험 회피’, 단기 전망은 세 가지 조건에 달려 있음 •BofA는 미국 중간선거, 프랑스 채권시장 불안, AI 자금조달 리스크가 아직 해소되지 않아..."
+      "summary": ">>BofA Hartnett: 11월 중순까지 ‘전술적 위험 회피’, 단기 전망은 세 가지 조건에 달려 있음 •BofA는 미국 중간선거, 프랑스 채권시장 불안, AI 자금조달 리스크가 아직 해소되지 않아...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67235",
@@ -2952,13 +3006,13 @@
         "equity",
         "earnings"
       ],
+      "lead": 1,
       "score": 77,
       "hasText": true,
-      "summary": "웰스파고) Meta Platforms, Inc. 3Q:26 EPS 리뷰: 견조한 매출, 자본 조달 및 FY27 OpEx/CapEx 전망에 대한 의문은 여전 비중확대(Overweight), 목표주가:...",
-      "lead": 1,
       "tickers": [
         "META"
-      ]
+      ],
+      "summary": "웰스파고) Meta Platforms, Inc. 3Q:26 EPS 리뷰: 견조한 매출, 자본 조달 및 FY27 OpEx/CapEx 전망에 대한 의문은 여전 비중확대(Overweight), 목표주가:..."
     },
     {
       "id": "aetherjapanresearch/26022",
@@ -2967,12 +3021,13 @@
       "datetime": "2026-10-24T14:52:18.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "market-note"
+        "semi",
+        "ai-policy"
       ],
       "score": 62,
       "hasText": true,
-      "summary": "> 격리된 작업 간 통신 에이전트들이 서로 통신하기 위해 항상 네트워크 연결이 필요한 것은 아닙니다. 별도의 환경이 동일한 하드웨어나 서비스를 공유하는 경우, 한 환경의 활동이 다른 환경에서 감지할 수 있는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "> 격리된 작업 간 통신 에이전트들이 서로 통신하기 위해 항상 네트워크 연결이 필요한 것은 아닙니다. 별도의 환경이 동일한 하드웨어나 서비스를 공유하는 경우, 한 환경의 활동이 다른 환경에서 감지할 수 있는..."
     },
     {
       "id": "insidertracking/67191",
@@ -3060,13 +3115,16 @@
       "datetime": "2026-10-24T08:12:15.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
+        "japan",
         "macro",
-        "japan"
+        "geo",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 85,
       "hasText": true,
-      "summary": "Citi) 일본 FX – 제2차 타카이치 내각 하에서의 일본은행 정책 변화와 엔화에 미치는 영향 Citi는 일본은행(BoJ)이 다음 주 회의에서 정책금리를 1.25%로 동결할 것으로 예상하며, FOMC와...",
-      "tickers": []
+      "tickers": [],
+      "summary": "Citi) 일본 FX – 제2차 타카이치 내각 하에서의 일본은행 정책 변화와 엔화에 미치는 영향 Citi는 일본은행(BoJ)이 다음 주 회의에서 정책금리를 1.25%로 동결할 것으로 예상하며, FOMC와..."
     },
     {
       "id": "insidertracking/67177",
@@ -3106,13 +3164,14 @@
       "datetime": "2026-10-24T05:42:29.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy",
+        "earnings"
       ],
       "score": 62,
       "hasText": true,
-      "summary": "38달러, 딥시크의 계산 • 최근 딥시크는 단일 GPU가 시간당 38달러의 생산액 창출 & 연간 33만달러 이상의 가치 창출한다는 충격적인 수치 공개 • 하지만 정말 돈을 벌 수 있는가? 중소기업의 AI 수요...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "38달러, 딥시크의 계산 • 최근 딥시크는 단일 GPU가 시간당 38달러의 생산액 창출 & 연간 33만달러 이상의 가치 창출한다는 충격적인 수치 공개 • 하지만 정말 돈을 벌 수 있는가? 중소기업의 AI 수요..."
     },
     {
       "id": "bornlupin/20793",
@@ -3775,15 +3834,15 @@
       "datetime": "2026-10-23T15:48:36.000Z",
       "localDateKst": "2026-10-24",
       "tags": [
-        "market-note"
+        "earnings"
       ],
       "score": 63,
       "hasText": true,
-      "summary": "스페이스X, 신규 네트워크 구축 위해 8만 개 기지국 접근 협상 중 내용 요약 스페이스X는 미국 전역에서 최소 8만 개의 기지국을 확보해 네 번째 전국 단위 무선통신사를 구축하려 하고 있으며, 아메리칸 타워,...",
       "tickers": [
         "AMZN",
         "T"
-      ]
+      ],
+      "summary": "스페이스X, 신규 네트워크 구축 위해 8만 개 기지국 접근 협상 중 내용 요약 스페이스X는 미국 전역에서 최소 8만 개의 기지국을 확보해 네 번째 전국 단위 무선통신사를 구축하려 하고 있으며, 아메리칸 타워,..."
     },
     {
       "id": "HANAchina/70919",
@@ -3809,12 +3868,14 @@
       "datetime": "2026-10-23T13:05:46.000Z",
       "localDateKst": "2026-10-23",
       "tags": [
-        "market-note"
+        "power",
+        "ai-policy",
+        "healthcare"
       ],
       "score": 68,
       "hasText": true,
-      "summary": "Citi) 미니맥스(MiniMax, 0100.HK ) | 매수 / 고위험; M3.1 Flash 오픈소스화 및 AI 기술 수출 임시 등록에 대한 평가 내용 요약 미니맥스는 10월 19일 M3.1 Flash를...",
-      "tickers": []
+      "tickers": [],
+      "summary": "Citi) 미니맥스(MiniMax, 0100.HK ) | 매수 / 고위험; M3.1 Flash 오픈소스화 및 AI 기술 수출 임시 등록에 대한 평가 내용 요약 미니맥스는 10월 19일 M3.1 Flash를..."
     },
     {
       "id": "insidertracking/67122",
@@ -4006,16 +4067,17 @@
       "localDateKst": "2026-10-23",
       "tags": [
         "power",
-        "earnings"
+        "earnings",
+        "flows"
       ],
+      "lead": 1,
       "score": 91,
       "hasText": true,
-      "summary": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-      "lead": 1,
       "tickers": [
         "GOOG",
         "BE"
-      ]
+      ],
+      "summary": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
       "id": "HANAchina/70911",
@@ -6928,28 +6990,6 @@
       ]
     },
     {
-      "id": "insidertracking/66903",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/66903",
-      "datetime": "2026-10-21T11:55:44.000Z",
-      "localDateKst": "2026-10-21",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "엔비디아 기조연설 및 협업 관련 정리 - 2026년 10월 21일 젠슨 황 기조연설 핵심 발언 · 젠슨 황 “우리는 인류 역사상 최대 규모의 인프라 구축 과정에 있다” · 젠슨 황 “수요는 엄청나며,...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "MU",
-        "009150.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20751",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20751",
@@ -8458,40 +8498,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "bornlupin/20689",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20689",
-      "datetime": "2026-10-18T23:43:51.000Z",
-      "localDateKst": "2026-10-19",
-      "tags": [
-        "optical"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "모건스탠리, 광학엔진(OE) 출하량 및 FAU 시장 규모 전망 상향 Largan Precision·Genius Electronic Optical 목표주가 동반 상향 모건스탠리(Morgan Stanley)는...",
-      "tickers": [
-        "MS"
-      ]
-    },
-    {
-      "id": "aetherjapanresearch/25919",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25919",
-      "datetime": "2026-10-18T13:48:41.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "power"
-      ],
-      "score": 85,
-      "hasText": true,
-      "summary": "텔레그래프) 마이크로소프트, AI 계약 전격 취소… 영국 데이터센터 선구자에 타격 부제: 미국 빅테크 기업이 엔스케일과의 계약을 철회하면서 수십억 달러 규모의 상장에 위협이 되고 있습니다 마이크로소프트가 영국...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MSFT"
-      ]
     }
   ],
   "current24hItems": [
@@ -8895,13 +8901,13 @@
       "datetime": "2026-10-25T05:37:44.000Z",
       "localDateKst": "2026-10-25",
       "tags": [
-        "credit",
-        "macro"
+        "credit"
       ],
       "score": 84,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BofA Hartnett: 11월 중순까지 ‘전술적 위험 회피’, 단기 전망은 세 가지 조건에 달려 있음 •BofA는 미국 중간선거, 프랑스 채권시장 불안, AI 자금조달 리스크가 아직 해소되지 않아..."
+      "summary": ">>BofA Hartnett: 11월 중순까지 ‘전술적 위험 회피’, 단기 전망은 세 가지 조건에 달려 있음 •BofA는 미국 중간선거, 프랑스 채권시장 불안, AI 자금조달 리스크가 아직 해소되지 않아...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67235",
