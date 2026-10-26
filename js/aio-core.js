@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.93';
+const APP_VERSION = 'v58.94';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2105,46 +2105,7 @@ window._aioFetchLiveQuotes = function() {
 // v49.39까지 index.html L4063 data-action="_aioRefreshActionPlan" 버튼은 핸들러 미정의 → click 무동작.
 // v49.39 R96 audit이 knownAliases로 false-positive 통과시켰으나 실제로는 silent no-op.
 // 해결: ACTION_RULES 재계산 + home Action Item 3개 sink (home-action-position/sentiment/breadth) 동기 갱신.
-window._aioRefreshActionPlan = function() {
-  try {
-    if (!window.AIO_ACTION_RULES || !window.AIO_ACTION_RULES.getActionPlan) return;
-    // v50.43: 단일 두뇌(AIO.marketState) 우선 — action-item이 conclusion-bar/trading 카드와 같은 상태를 구독해 정합 보장.
-    //   marketState.actionPlan은 ACTION_RULES와 동일 입력(vix/fg/breadth50)으로 1회 합성됨 → 분산 재계산 제거.
-    //   marketState 미계산/구버전이면 기존 독립 compute로 폴백(무회귀).
-    var ms = window.AIO && window.AIO.marketState;
-    var fresh = ms && ms.actionPlan && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000);
-    var vixVal, fgVal, plan;
-    // P1164/B03: 결측을 숫자 0으로 강제하지 않는다. `Number(null)===0`이 유한값 검사를 통과해
-    // 미수신 F&G가 '극단 공포' 구간으로, 미수신 VIX가 저변동 구간으로 표시됐다. 표시 sentinel은 NaN('—').
-    var _num = function(v) { var n = (typeof window._aioFiniteNum === 'function') ? window._aioFiniteNum(v) : (typeof v === 'number' && isFinite(v) ? v : null); return n == null ? NaN : n; };
-    if (fresh) {
-      vixVal = _num(ms.vix);
-      fgVal = _num(ms.fg);
-      plan = ms.actionPlan;
-    } else {
-      var ld = window._liveData || {};
-      vixVal = _num((ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price
-                   : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : null));
-      var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-      var _fgCandidate = (fgMetric && fgMetric.value != null) ? fgMetric.value
-        : (window._lastFG != null ? window._lastFG : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.fg : null));
-      fgVal = _num(_fgCandidate);
-      var breadthEv = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
-      var breadth50Val = breadthEv.available ? breadthEv.sma50 : NaN;
-      plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal, breadth50: breadth50Val });
-    }
-    var posEl = document.getElementById('home-action-position');
-    var sentEl = document.getElementById('home-action-sentiment');
-    var brEl = document.getElementById('home-action-breadth');
-    if (posEl && plan.position) posEl.textContent = '변동성 구간(' + plan.position.label + '): ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(2)) + ')'; // one VIX rounding (first-users S4#11)
-    if (sentEl && plan.sentiment) sentEl.textContent = '심리 환경(' + plan.sentiment.action + '): ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
-    if (brEl && plan.actions && plan.actions.length > 2) brEl.textContent = '' + plan.actions[plan.actions.length - 1];
-    // 갱신 시점 시각 표시
-    if (posEl) posEl.setAttribute('data-refreshed-at', new Date().toISOString());
-  } catch (e) {
-    if (window._aioLog) window._aioLog('error', 'action-plan', 'refresh failed: ' + (e && e.message || e));
-  }
-};
+// v58.94: window._aioRefreshActionPlan (home 행동 계획 lines) moved to src/ui/components/home-action-plan.js.
 window._aioAiFeedback = function(fbId, score, el) {
   if (el) el.style.color = score > 0 ? 'var(--green-11)' : 'var(--orange-11)';
   if (typeof window._aiFeedback === 'function') window._aiFeedback(fbId, score);

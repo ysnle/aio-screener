@@ -297,29 +297,9 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   };
   // v58.80 (first-users F09): the 거시 header named FOMC by its US date (10/28(수)) beside the body's 10/29(목) 03:00 KST.
   window._aioReleaseKstLabel = (key, date) => { const at = releaseAtMs(key, date); return Number.isFinite(at) ? formatKstWhen(at).label : null; };
-  // v58.85: names kept for tests after the 거시 renderers left aio-core.js (lazy, outside the boot set).
-  // v58.91: the home VIX card left aio-data.js the same way (legacy snapshot apply and home refresh call this name).
-  import('../ui/components/home-vix.js').then((m) => {
-    window._aioRenderHomeVix = (quote) => m.renderHomeVix({ documentRef: document, root: window, quote });
-    window._aioRenderHomeVix();
-  }).catch(() => {});
-  import('../ui/components/news-progress.js').then((m) => {
-    window._aioRenderNewsProgress = (state, documentRef) => m.renderNewsProgress({ documentRef: documentRef || document, state });
-    window._aioRenderNewsProgress(window._aioNewsProgressState);
-  }).catch(() => {});
-  import('../ui/components/news-controls.js').then((m) => {
-    window.AIO = window.AIO || {};
-    window.AIO.getNewsSurfaceControls = m.getNewsSurfaceControls;
-    window.filterNewsByCountry = (filter, el) => m.filterNewsByCountry(filter, el);
-    window.filterNewsByTopic = (filter, el) => m.filterNewsByTopic(filter, el);
-    window.filterNewsByTelegramOnly = (el) => m.filterNewsByTelegramOnly(el);
-    window.setNewsSortMode = (mode, el) => m.setNewsSortMode(mode, el);
-  }).catch(() => {});
-  import('../ui/components/macro-next-release.js').then((m) => {
-    const at = { documentRef: document, root: window };
-    if (window.AIO) window.AIO.renderMacroNextRelease = () => m.renderMacroNextRelease(at);
-    window._aioRenderKrMacroFreshnessBadges = () => m.renderKrMacroFreshnessBadges(at);
-  }).catch(() => {});
+  // Roadmap item 11: the globals of screen code moved out of js/ (macro v58.85, home VIX v58.91, news chips v58.92,
+  // news progress v58.93, home action plan v58.94) are installed from one lazy module, outside the boot set.
+  import('./legacy-screen-bridges.js').then((m) => m.installLegacyScreenBridges(window, document)).catch(() => {});
   window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
   const universeSymbols = () => new Set((typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [])
     .map((row) => String(row?.sym || row?.symbol || '').toUpperCase()).filter(Boolean));

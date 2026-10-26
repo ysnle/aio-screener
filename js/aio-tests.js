@@ -5952,7 +5952,6 @@
     var t816ok = false, t816detail = '';
     try {
       var hasRefreshAction = typeof window._aioRefreshActionPlan === 'function';
-      // marketState를 강제 갱신 후 action plan이 그 plan을 반영하는지(throw 없이 실행 + 소스 단일).
       var ms816 = (window.AIO && typeof window.AIO.computeMarketState === 'function') ? window.AIO.computeMarketState() : null;
       var ranOk = false;
       try { if (hasRefreshAction) { window._aioRefreshActionPlan(); ranOk = true; } } catch(_r) { ranOk = false; }
@@ -5962,9 +5961,10 @@
       // 입력이 있을 때만). 이전 단언(planFromBrain=position 존재)은 그 오표시 덕분에 통과했다 —
       // 데이터가 없는 이 하네스에서 결측 시 position=null을 요구하는 것이 정확한 계약이다.
       var noBandFromMissing = !(ms816 && ms816.vix == null && ms816.actionPlan && ms816.actionPlan.position);
-      // 함수 소스에 marketState 우선 분기가 박혀 있는지(dedup/단일출처 회귀 가드)
-      var srcHasBrainPref = hasRefreshAction && /marketState/.test(window._aioRefreshActionPlan.toString());
-      // marketStateUpdated 구독자가 action plan 재렌더를 포함하는지 간접 확인은 생략(런타임 비결정). 함수 정의 + 실행 + 소스 분기로 충분.
+      // v58.94: a fresh marketState.actionPlan wins over recomputation (src/ui/components/home-action-plan.js), run on a stub node.
+      var pos816 = { textContent: '', setAttribute: function() {} }, saved816 = window.AIO.marketState; window.AIO.marketState = { ts: Date.now(), vix: 21.5, fg: 40, actionPlan: { position: { label: 'L816', note: 'n' } } };
+      try { if (hasRefreshAction) window._aioRefreshActionPlan({ getElementById: function(id) { return id === 'home-action-position' ? pos816 : null; } }); } finally { window.AIO.marketState = saved816; }
+      var srcHasBrainPref = pos816.textContent === '변동성 구간(L816): n (VIX 21.50)';
       t816ok = hasRefreshAction && ranOk && brainPlanEmitted && noBandFromMissing && srcHasBrainPref;
       t816detail = 'fn=' + hasRefreshAction + ' ran=' + ranOk + ' brainPlan=' + brainPlanEmitted + ' noBandFromMissing=' + noBandFromMissing + ' brainPref=' + srcHasBrainPref;
     } catch(e) { t816detail = 'ERR:' + e.message; }

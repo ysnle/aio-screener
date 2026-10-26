@@ -10124,9 +10124,6 @@ function _getBriefingWindowKST() {
   };
 }
 
-// 브리핑 캐시 키: 앵커 날짜 기반
-var _briefingCacheKey = null;
-
 
 window.renderBriefingFeed = function(items) {
   // P770: primary briefing DOM belongs to src/ui/pages/news.js; this legacy call is input-only.
@@ -10568,8 +10565,6 @@ async function fetchAllNews(forceRefresh = false) {
 
   isFetching = true;
   _fetchStartTime = Date.now(); // v29.3: 잠김 방지 타임스탬프
-  window._homeNewsEarlyRendered = false; // v34.5: 점진 렌더링 플래그 초기화
-  window._briefingEarlyRendered = false; // v46.6: 브리핑 점진 렌더링 플래그
   // v27.3: 새로고침 시 번역 캐시 클리어 (오래된 캐시가 새 뉴스에 잘못 매핑되는 것 방지)
   if (forceRefresh) {
     _translationCache.clear();
@@ -10773,24 +10768,8 @@ async function fetchAllNews(forceRefresh = false) {
     );
     results.push(...batchResults);
 
-    // v46.6: 점진적 브리핑 렌더링 — 15소스(5배치) 이상 완료 시 조기 렌더
-    // (홈 뉴스는 전체 완료 후 렌더, 브리핑은 부분 결과라도 표시)
-    if (i >= BATCH_SIZE * 4 && !window._briefingEarlyRendered) {
-      var _earlyItems = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
-      if (_earlyItems.length >= 8) {
-        window._briefingEarlyRendered = true;
-        // 조기 스코어링 + 렌더
-        var _earlyScored = _earlyItems
-          .map(function(it) { var s = Object.assign({}, it); s.score = scoreItem(s); s.topic = classifyTopic(s); s.flag = s.flag || getCountryFlag(s.country); return s; })
-          .filter(function(it) { return !it._blacklisted; })
-          .sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
-        if (_earlyScored.length >= 5) {
-          _briefingCacheKey = null; // 캐시 무효화 (최종 렌더에서 갱신)
-          renderBriefingFeed(_earlyScored);
-          console.log('[AIO v46.6] 브리핑 조기 렌더: ' + _earlyScored.length + '건 (배치 ' + Math.ceil((i + BATCH_SIZE) / BATCH_SIZE) + '/' + Math.ceil(activeSources.length / BATCH_SIZE) + ')');
-        }
-      }
-    }
+    // v58.94: the v46.6 early briefing render left — renderBriefingFeed only repaints the native briefing from the
+    // current cache, so the partial batch it scored was never shown.
 
     // v46.6: 배치 딜레이 1500→1000ms (프록시 타임아웃 단축과 함께 전체 속도 30%↑)
     if (i + BATCH_SIZE < activeSources.length) {
@@ -10870,8 +10849,6 @@ async function fetchAllNews(forceRefresh = false) {
   // v58.93: the hidden #news-sources-label writer left with its node.
 
   _aioNotifyNewsSurfaceInvalidated('news-fetch-complete');
-  // v46.6: 최종 렌더 시 조기 렌더 캐시 무효화 → 완전한 데이터로 갱신
-  _briefingCacheKey = null;
   renderBriefingFeed(newsCache);
   var _newsSummary = _aioUpdateNewsSummaryFromItems(newsCache, { kind: 'direct', generatedAt: new Date().toISOString() });
   document.dispatchEvent(new CustomEvent('aio:newsUpdated', { detail: { count: newsCache.length, source: 'fetchAllNews' } }));

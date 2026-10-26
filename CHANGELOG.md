@@ -1,3 +1,7 @@
+## v58.94 (2026-10-27)
+- **레거시 분해 3/8 — 오늘: 홈 행동 계획·브리핑 잔여 정리 (v58.94):** 홈 행동 계획 카드 문구(`#home-action-position`·`-sentiment`·`-breadth`)를 그리던 `window._aioRefreshActionPlan`을 `js/aio-core.js`에서 지우고 `src/ui/components/home-action-plan.js`로 옮겼다. 신선한 `marketState.actionPlan` 우선, 없으면 VIX·F&G·50일선 비율로 계산, 결측은 '—'인 동작과 문구는 그대로다. 지금까지 옮긴 화면 코드(거시·홈 VIX·뉴스 칩·뉴스 진행·행동 계획)의 전역 이름은 이제 새 지연 모듈 `src/app/legacy-screen-bridges.js` 하나가 설치한다(`compatibility-globals.js`는 동적 import 한 줄, 부팅 원시 바이트 1,443,017→1,441,968 / 예산 1,443,000). 각 렌더러는 설치 직후 한 번 그린다. 브리핑은 이미 `src/ui/pages/news.js`가 그리므로, `fetchAllNews`의 v46.6 조기 브리핑 렌더(부분 배치를 채점해 넘겼지만 `renderBriefingFeed`가 버려 보이지 않던 계산)와 읽는 곳 없는 `_briefingCacheKey`·`_briefingEarlyRendered`·`_homeNewsEarlyRendered`를 지웠다. T816은 함수 소스 문자열 대신 stub 노드에 신선한 marketState 계획이 그려지는지 확인한다.
+- R1 7곳 v58.94
+
 ## v58.93 (2026-10-27)
 - **레거시 분해 3/8 — 오늘: 뉴스 수집 진행 표시 (v58.93):** `fetchAllNews` 안에 흩어져 있던 뉴스 화면 수집 진행 문구·막대(`#news-progress-wrap/-label/-bar`) 기록을 `src/ui/components/news-progress.js`의 `renderNewsProgress`로 옮겼다. 문구·폭·완료 2.5초 뒤 숨김은 그대로다. legacy 수집은 단계(`cached`/`start`/`step`/`done`/`empty`/`error`)만 `window._aioRenderNewsProgress`로 알리고 마지막 단계를 `window._aioNewsProgressState`에 남겨, 모듈이 늦게 설치돼도 그 단계를 그린다. 화면에 보이지 않던(`display:none`) `#live-dot`·`#live-btn-label`·`#news-sources-label`과 그 기록 코드는 지웠다. T697은 소스 문자열 대신 설치된 렌더러를 stub 노드로 실행해 확인한다.
 - R1 7곳 v58.93
