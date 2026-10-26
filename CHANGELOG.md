@@ -1,3 +1,7 @@
+## v58.88 (2026-10-26)
+- **레거시 분해 2/8 — 시장 상태 (v58.88):** 시장 상태 화면(signal·breadth·sentiment)에 남은 legacy 코드는 옮길 것이 아니라 이미 사라진 화면 요소를 겨누는 죽은 코드였다. 지운 것: `js/aio-core.js` `_aioReorderCoreSections`의 signal lockout/exit-trigger 재배치(`#signal-lockout-control`·`#signal-exit-triggers`·`#entry-checklist-card`·`#sig-ticker-bar` 모두 부재), 유일한 대상 `#sent-analysis-text`가 그려지지 않는 `_aioGuardEmptyVerdicts`와 그 5개 호출, signal 라우트의 `signal-lockout-symbol` 입력 수집; `js/aio-ui.js` 다이어그램 렌더의 breadth·sentiment 분기(`#vis-breadth-regime`·`#vis-sentiment-gauge` 부재)와 그 뒤 쓰이지 않게 된 `_buildRegime`·`_buildSentiment`·`_getScore`·`_ld`·`_cl`. 화면 출력은 그대로다(native `analysis.js`·`breadth-board.js`·`sentiment.js`가 이미 소유). `refreshSignalDashboard`는 여러 화면이 공유하는 판정 헤더·기준일·펄스 바를 부르는 연결부라 이번 범위에서 옮기지 않았다. 게이트 1건(P532 lockout)은 셸에 lockout이 없음을 검사하도록 바꿨다.
+- R1 7곳 v58.88
+
 ## v58.87 (2026-10-26)
 - **13F discovery 슬림화 (P2093 후속):** filing-discovery.json이 filings.json과 똑같은 13F 공시 블록(직전 분기·같은 분기 제출 목록·SEC URL)을 매니저마다 들고 있었다. 화면은 이 파일에서 13D/G 이벤트와 집계만 읽으므로, 최신 제출·보유 공시는 접수번호 참조(accession·form·period·filedAt)만 남기고 나머지는 뺀다(현재 데이터 기준 373KB → 약 228KB). 두 작성 경로(전체·소유권 전용) 모두 적용, ci-13f-currentness-check가 고정한다.
 - **실패한 13F 레인 재시도 간격 (P2093 후속):** 실패하면 매 30분 주기마다 SEC 전체 체인을 다시 돌던 것을, 실패 횟수에 따라 1·2·4·최대 8시간 기다린 뒤 재시도하게 했다(scripts/daily-lane-age.mjs --record-failure, refresh-data.yml). 매일 07:33 cron과 운영자 실행은 그대로 즉시 돌고, 성공하면 횟수가 초기화된다.

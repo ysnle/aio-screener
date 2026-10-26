@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.87';
+const APP_VERSION = 'v58.88';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2583,24 +2583,8 @@ if (typeof document !== 'undefined') {
       // v52.88 P703: sentiment 복합 판단은 시안 3b의 마지막 결론이다.
       // 상단으로 끌어올리던 구 로직을 제거해 헤더→F&G/VIX→지표→복합판단 순서를 보존한다.
       // v58.20: the breadth verdict move (#breadth-diag-signal) is gone — that element is no longer rendered anywhere.
-      // signal: Lockout/OPEX 컨트롤(전문 도구)을 티커 바 아래로 — 결론·점수가 먼저
-      // v50.33: Signal 핵심 결정 흐름 정렬 — 진입 체크리스트 직후로 [Exit Triggers → Lockout] 순서 고정.
-      //   Exit(청산/헷지=핵심 리스크)는 기존 맨 끝에 묻혀 있었음. insertAdjacentElement는 "이동"이라
-      //   현재 위치와 무관하게 순서를 강제(결과 멱등). 부모 같을 때만, 자기 자신 제외.
-      // P626-followup/T800: `entry-checklist-card`는 `.aio-section` 래퍼 안에 중첩돼 있어
-      // `signal-lockout-control`/`signal-exit-triggers`(page-signal 직계 자식)와 parentElement가
-      // 달랐다 — `lock.parentElement === par` 비교가 항상 false라 이 블록이 조용히 no-op이었음
-      // (실측: lockout이 페이지 최상단 그대로 남아 티커 바보다도 앞섬). sentiment/breadth 블록처럼
-      // `_directChildOf`로 셋 다 page-signal 직계 자식 레벨로 정규화한 뒤 이동.
-      var pSig = document.getElementById('page-signal');
-      var anchorL = pSig ? (_directChildOf(pSig, '#entry-checklist-card') || _directChildOf(pSig, '#sig-ticker-bar')) : null;
-      if (anchorL) {
-        var cursor = anchorL;
-        var exitT = _directChildOf(pSig, '#signal-exit-triggers');
-        if (exitT && exitT !== cursor) { cursor.insertAdjacentElement('afterend', exitT); cursor = exitT; }
-        var lock = _directChildOf(pSig, '#signal-lockout-control');
-        if (lock && lock !== cursor) { cursor.insertAdjacentElement('afterend', lock); cursor = lock; }
-      }
+      // v58.88 (legacy decomposition 2/8 시장 상태): the signal lockout/exit-trigger reorder left with its DOM — none of
+      // #signal-lockout-control, #signal-exit-triggers, #entry-checklist-card or #sig-ticker-bar is rendered any more.
       // v57.76: the home conclusion-bar and market-summary-banner reorders were deleted with both anchors.
       // P1322: home order (KPI → cross assets → score → today's summary) is static in index.html; no runtime move.
       // v50.36: technical verdict-first — 시장 건강도(페이지 결론)를 헤더 직후로(TV차트보다 먼저) +
@@ -2631,27 +2615,9 @@ if (typeof document !== 'undefined') {
   // P1411: the legacy briefing digest (#briefing-digest) was retired; the briefing is the native
   // connected read (src/ui/components/briefing-read.js) and no hidden copy is built any more.
 
-  // v50.32 (항목4) 빈 결론 박스 금지: 상단에 올린 결론/판단 박스가 placeholder("수신 대기" 등)면 그 박스를
-  // 숨겨 빈 결론이 prime 영역을 차지하지 않게. 데이터 도착 후 렌더러가 채우면 다시 표시(토글, 멱등).
-  // (결론바·디제스트 등 항상 채워지는 것은 대상 아님 — 데이터 의존 보조 판단 박스만.)
-  var _EMPTY_VERDICT_RE = /(수신|입력|판정|계산)\s*(대기|중)|분석\s*중\.\.\.|데이터\s*(수신\s*지연|없음)|대기\.\.\./;
-  var _VERDICT_BOXES = [
-    { inner: '#sent-analysis-text', page: 'page-sentiment' }      // 시장 심리 복합 판단 (v58.20: retired #breadth-diag-text entry removed)
-  ];
-  window._aioGuardEmptyVerdicts = function(){
-    try {
-      _VERDICT_BOXES.forEach(function(cfg){
-        var page = document.getElementById(cfg.page); if (!page) return;
-        var inner = page.querySelector(cfg.inner); if (!inner) return;
-        var box = inner; while (box && box.parentElement !== page) box = box.parentElement;
-        if (!box) return;
-        var txt = (inner.textContent || '').replace(/\s+/g, ' ').trim();
-        var empty = !txt || txt.length < 8 || _EMPTY_VERDICT_RE.test(txt);
-        if (empty) { box.dataset.aioEmptyHidden = '1'; box.style.display = 'none'; }
-        else if (box.dataset.aioEmptyHidden === '1') { box.style.display = ''; box.removeAttribute('data-aio-empty-hidden'); }
-      });
-    } catch(_){}
-  };
+  // v58.88 (legacy decomposition 2/8 시장 상태): _aioGuardEmptyVerdicts left with its only box (#sent-analysis-text in
+  // #page-sentiment), which no renderer draws any more.
+
 
   // ════════════════════════════════════════════════════════════════
   // v50.45 [자율 루프 1A] 뉴스 신호 집계 — 받아온 뉴스(_allNewsItems)를 감성/이벤트 신호로 합성.
@@ -3019,13 +2985,11 @@ if (typeof document !== 'undefined') {
       // P858: news strips/digest are secondary narrative enrichment. Native
       // route surfaces already paint the decision state, so release these
       // DOM-heavy projections after the interactive boot budget.
-      window._aioPageBus.register('core-verdict-guard-page', 'aio:pageShown', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
-      window._aioPageBus.register('core-verdict-guard-live', 'aio:liveQuotes', function(){ setTimeout(window._aioGuardEmptyVerdicts, 400); });
       // v50.42: Market State Core — 시세/뉴스/페이지 진입 시 단일 상태 재계산(throttle 2s)
       window._aioPageBus.register('core-market-state-live', 'aio:liveQuotes', function(){ window._aioScheduleMarketState(300); });
       window._aioPageBus.register('core-market-state-page', 'aio:pageShown', function(){ window._aioScheduleMarketState(200); });
     }
-    window.addEventListener('aio:serverDataLoaded', function(){ try { setTimeout(function(){ window._aioScheduleMarketState(100); window._aioGuardEmptyVerdicts(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); }, 2300); } catch(_){} });
+    window.addEventListener('aio:serverDataLoaded', function(){ try { setTimeout(function(){ window._aioScheduleMarketState(100); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); }, 2300); } catch(_){} });
     window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} });  // v50.41/42/47: 뉴스 갱신 → marketState + 스트립 + 분석 합성
     // v50.42/43/44: 단일 두뇌 갱신 → 소비자 동기화. 선순환 전파 단계.
     //   드리프트 배너·결론 가드·뉴스 스트립·home Action Item(v43) + breadth/themes/briefing/options 페이지 렌더러(v44).
@@ -3037,8 +3001,7 @@ if (typeof document !== 'undefined') {
         if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); // v50.47 자동 텍스트 합성 전파
       } catch(_){}
     });
-    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioGuardEmptyVerdicts(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 2300);
-    setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
+    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 2300);
   }
 })();
 
@@ -10088,9 +10051,7 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
   // v53.7 (P725): KR 테마 심볼은 이제 themes 페이지(통합 섹션)에서 수집 — KR 전용 라우트 퇴역
   var isKrThemePage = id === 'themes';
   var limit = (scope && scope.symbolLimit) || (isThemePage ? (isKrThemePage ? 900 : 650) : 260);
-  if (id === 'signal') {
-    _aioPushInputSymbol(out, 'signal-lockout-symbol');
-  }
+  // v58.88: the signal lockout symbol input left with its control; the signal route collects no input symbol.
   if (id === 'technical') {
     // v57.76: the brief/TradingView ticker inputs were deleted; the 차트 tab shows the 종목 subject.
     _aioPushSymbol(out, window._aioLastOpenedSymbol);
