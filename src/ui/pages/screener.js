@@ -57,7 +57,8 @@ import { requestConsensusEstimates, consensusRowFor, CONSENSUS_KEY } from '../..
 import { CHANNEL_SIGNAL_KEYS, channelSignalValue } from '../../domain/screener/channel-signals.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { themeStagesFor, scenarioStateCurrent } from '../../domain/scenarios/theme-stage.js';
-import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, screenerRowsState, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { dataStateText } from '../../domain/content/data-state.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 // v57.81: universe scope (기본/확장) and the ranking contract labels.
 import { RANKING_CONTRACTS, readUniverseScope, rememberExtendedCount, writeUniverseScope } from '../../data/screener-extended.js';
@@ -86,7 +87,7 @@ function withThemeStages(root, rows) {
 }
 import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { renderNextSteps } from '../components/page-flow.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, usdKoreanText } from '../../domain/shared/number.js';
 
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
@@ -113,7 +114,8 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'watchlist', label: '관심', sortable: false, align: 'center', width: 48, group: 'utility' },
   // v58.56 (#3): the first column of the default view numbers the rows by market cap (1 = largest of the rows shown). The
   // default order is market cap (v57.55), so it reads 1, 2, 3…; 전체 순위 moved beside 백분위. Its header sorts by 시총.
-  { key: 'capOrder', label: '순서', headerLabel: '#', sortAs: 'mcap', hint: '지금 정렬 기준에서의 순서 — 기본 정렬(시총 큰 순)에서는 시가총액 순서(1 = 가장 큼), 누르면 시총 순으로 정렬합니다', sortable: true, align: 'left', width: 44, group: 'identity' },
+  // v58.80 (first-users F21): the header read '#' beside 전체 순위 and 백분위 and was taken for a rank; it is the row order.
+  { key: 'capOrder', label: '순서', headerLabel: '순서', sortAs: 'mcap', hint: '지금 정렬 기준에서의 순서 — 기본 정렬(시총 큰 순)에서는 시가총액 순서(1 = 가장 큼), 누르면 시총 순으로 정렬합니다', sortable: true, align: 'left', width: 44, group: 'identity' },
   // 개편 v2 (3c): the ordinal among ranked rows (the same number the inspector and the stock summary quote).
   { key: 'screenRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서 — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 72, group: 'ranking' },
   // P1464: the value is a percentile among rows that pass the criteria — "점수 100" read as a perfect
@@ -551,7 +553,7 @@ function renderPresetLesson(documentRef, root, presetsHost, screenId, screenName
     ['잘 통하는 환경', lesson.works],
     ['잘 안 통하는 환경', lesson.fails],
     ['흔한 실패', lesson.failure],
-    ['표에서 볼 컬럼', `${columnLabels.join(' · ')} — 머리글에 마우스를 올리면 계산 기준이 나옵니다(컬럼 선택에서 켤 수 있습니다).`],
+    ['표에서 볼 컬럼', `${columnLabels.join(' · ')} — 머리글을 누르거나 마우스를 올리면 계산 기준이 나옵니다(컬럼 선택에서 켤 수 있습니다).`],
     ['지금 시장', presetMarketLine(lesson, readMarketRegime(root))]
   ];
   const list = documentRef.createElement('dl');
@@ -740,7 +742,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     star.dataset.aioScreenerWatchlist = row.sym;
     star.className = `scr-star${inWatchlist ? ' active' : ''}`;
     star.textContent = inWatchlist ? '★' : '☆';
-    star.title = inWatchlist ? '워치리스트에서 제거' : '워치리스트에 추가';
+    star.title = inWatchlist ? '관심 종목에서 빼기' : '관심 종목에 추가'; // one name with the 포트폴리오 list (run 4 breaker #19)
     star.setAttribute('aria-label', `워치리스트 ${inWatchlist ? '제거' : '추가'} ${row.sym}`);
     star.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); onWatchlistToggle?.(row.sym); });
     wrap.append(star);
@@ -891,7 +893,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     const usd = finite(row.dollarVolume30d);
     const native = usd == null ? finite(row.tradedValue30d) : null;
     const nativeCurrency = String(row.tradedValueCurrency || '').toUpperCase();
-    const label = usd != null ? (usd >= 1e9 ? `$${(usd / 1e9).toFixed(1)}B` : `$${Math.round(usd / 1e6)}M`)
+    const label = usd != null ? usdKoreanText(usd)
       : native != null && nativeCurrency === 'KRW' ? `${Math.round(native / 1e8).toLocaleString('ko-KR')}억원` : '—';
     const node = text(documentRef, label);
     if (label === '—') node.style.color = 'var(--text-muted)';
@@ -960,11 +962,11 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     return node;
   }
   if (key === 'mcap') {
-    if (live.mcap != null) return live.mcap >= 1000 ? `$${(live.mcap / 1000).toFixed(1)}T` : `$${live.mcap}B`;
+    if (live.mcap != null) return usdKoreanText(live.mcap * 1e9);
     const native = row.nativeMarketCap;
     const reference = row.referenceMarketCap;
     if ((finite(native?.value) == null || ['BLOCKED', 'DENIED'].includes(native.rightsId)) && finite(reference?.billions) != null) {
-      const node = text(documentRef, `${reference.billions >= 1000 ? `$${numberText(reference.billions / 1000, 1)}T` : `$${numberText(reference.billions, 1)}B`}, 참고`);
+      const node = text(documentRef, `${usdKoreanText(reference.billions * 1e9)}, 참고`);
       node.title = `참고 시총 = SEC 발행주식수(${reference.sharesObservedAt || '기준일 미상'}) × 산출물 종가 — 크기 구간 필터에만 쓰고 팩터·판단에는 쓰지 않음 (P1318)`;
       return node;
     }
@@ -1389,7 +1391,7 @@ function renderFactorTab(documentRef, metadata) {
     const outlierCount = countOrNull(outliers.totalOutliers);
     const turnoverPct = countOrNull(turnover.turnoverPct);
     const parts = [
-      `섹터 중립 ${sector.status || '미확인'}${sectorGroups != null ? ` (${sectorGroups}개 그룹${sectorUnknown ? `, 미분류 ${sectorUnknown}` : ''})` : ''}`,
+      `섹터 중립 ${({ observed: '적용', partial: '일부 적용', unavailable: '확인 불가' })[sector.status] || '미확인'}${sectorGroups != null ? ` (${sectorGroups}개 그룹${sectorUnknown ? `, 미분류 ${sectorUnknown}` : ''})` : ''}`,
       `극단치 완화 ${outlierCount != null ? `${outlierCount}건` : '미확인'}`,
       // D10 (2026-10-17 audit): no caller supplies a prior ranking or regime snapshot, so these two read
       // '이전 스냅샷 없음' on every visit. They appear only when they were actually measured.
@@ -2253,21 +2255,28 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
       // latest session, the table is empty for lack of current data, not because no stock met the conditions.
       const listingRows = (state?.rows || []).filter((row) => screenerMarket(row) === listingMarket);
       const heldForData = listingRows.length > 0 && listingRows.every((row) => row.screenStatus === 'unavailable');
+      // v58.80 (first-users F02): on a slow phone the factor file had not arrived yet, every row read 'unavailable', and the
+      // table said all 904 were "not on the latest session" — a final verdict for a load still in progress.
+      const factorsPending = heldForData && !state?.metadata?.asOf;
       const emptyMessage = state?.status === 'unavailable'
-        ? '스크리너 산출물 미수신'
+        ? `${dataStateText(screenerRowsState(root) === 'failed' ? 'failed' : 'loading', '스크리너 자료')}` // v58.80 bundle 3: was '미수신' for both
+        : factorsPending
+          ? '종목 지표를 불러오는 중입니다 — 도착하면 순위가 표시됩니다'
         : heldForData
           ? `${MARKET_LABELS[listingMarket] || listingMarket} ${listingRows.length}종목 모두 필수 지표가 최신 거래일 기준이 아니어서 순위 판정을 보류했습니다 — 데이터 갱신 후 표시됩니다`
           : capFilter && capHeld > 0
           ? `조건을 충족한 0건 / 시총 정보가 없어 판정 보류 ${capHeld}건 — 시총 적격 ${rows.length - capHeld}/${rows.length}, 적용 컷 ${capLabel}`
           : '조건에 맞는 종목이 없습니다';
       // P1592 (F02): say what the search ran over and offer the way back, instead of one dead sentence.
-      const searchText = selectedValue(documentRef, 'scr-text-search').trim();
+      const searchRaw = selectedValue(documentRef, 'scr-text-search').trim();
+      const searchText = searchRaw.length > 40 ? `${searchRaw.slice(0, 40)}…` : searchRaw; // first-users run 4 (breaker #16): a 5,000-char query ran off-screen
       const scopedMessage = state?.status !== 'unavailable' && !(capFilter && capHeld > 0) && searchText
         ? `'${searchText}' — 지금 조건과 표시 필터(시장·섹터·분류 등) 안에서는 찾지 못했습니다. 전체 종목에서 찾으려면 필터를 지우세요.`
         : emptyMessage;
       empty.appendChild(cell(documentRef, scopedMessage, 'scr-empty-cell'));
       empty.firstChild.colSpan = visibleColumns.length;
-      if (state?.status !== 'unavailable') {
+      // v58.80 first-users run-2: while the factor file is still arriving, "clear the filters" is not the way out.
+      if (state?.status !== 'unavailable' && !factorsPending) {
         const actions = documentRef.createElement('div');
         actions.className = 'scr-empty-actions';
         const action = (label, name, arg) => {
@@ -2640,6 +2649,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             const note = documentRef.createElement('p'); note.textContent = `한국 상장 ${rows.length}종목을 독립 비교합니다. 팩터 비중·데이터 범위는 아래에 표시하며 미국 업종 회전과 과거 검증을 이 순위의 근거로 섞지 않습니다.`;
             host.replaceChildren(heading, note);
           }
+          // v58.80 (first-users bundle 8): the 순위 view kept the US reading ("순위 계산 810종목 … 기술·산업재 쏠림") over the KR table.
+          const rankRead = documentRef.getElementById('screener-rank-read');
+          if (rankRead) { rankRead.hidden = true; rankRead.textContent = ''; }
           // v57.50 I22: the KR ranking also continues somewhere — the Korean themes it sits in and its first name
           // (the table-lead sync below re-points the ticker link to the filtered table's first row).
           const ranked = rows.filter((row) => finite(row?.screenRank) != null).sort((a, b) => a.screenRank - b.screenRank);
@@ -3127,6 +3139,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const symbol = activeRow.sym || activeRow.symbol;
          const pool = activeRows || activePreview?.rows || selectScreenerState(store.getState())?.rows || [];
          const fresh = symbol ? pool.find((item) => (item.sym || item.symbol) === symbol) : null;
+         // v58.80 (first-users bundle 8): a filter that left the table empty kept the last stock's explanation beside it,
+         // as if it were one of zero results. With no row on the table the inspector is put away until rows return.
+         const tableRows = documentRef.getElementById('screener-results-body')?.querySelector('tr[data-aio-screener-ticker]');
+         if (!tableRows && fresh) { activeRow = null; autoInspected = false; selectedSymbols.clear(); whyDrawerNode.hidden = true; syncWhyMode(); return false; }
          if (fresh === activeRow) return false;
          if (fresh) { activeRow = fresh; renderWhyDrawer(fresh); return false; }
          activeRow = null; autoInspected = false; selectedSymbols.clear();

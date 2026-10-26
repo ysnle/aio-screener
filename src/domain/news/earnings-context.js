@@ -1,4 +1,4 @@
-import { signedText } from '../shared/number.js';
+import { signedText, usdKoreanText } from '../shared/number.js';
 // P1382: a headline-only earnings story ("Micron beats …") carries no numbers, and article
 // bodies are not retained (rights). The Finnhub earnings calendar the producer already
 // publishes supplies the structured context: estimate and, after the report, the actual.
@@ -6,8 +6,7 @@ const DAY = 86400000;
 
 function money(value) {
   const abs = Math.abs(value);
-  if (abs >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
-  if (abs >= 1e6) return `$${(value / 1e6).toFixed(0)}M`;
+  if (abs >= 1e6) return usdKoreanText(value); // first-users F33
   return `$${value.toFixed(2)}`;
 }
 

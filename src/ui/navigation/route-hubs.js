@@ -1,6 +1,7 @@
 // 2026-10-01 information architecture (AGENTS.md): 19 routes are presented as eight
 // screens. A screen's sub-routes are switched by the in-page tab bar below the topbar;
 // route ids, deep links and page owners stay unchanged until each screen is merged.
+import { readSavedStockSubject, saveStockSubject } from '../../data/stock-subject-store.js';
 export const ROUTE_HUBS = Object.freeze([
   { id: 'today', label: '오늘', routes: [{ id: 'home', label: '요약' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
   { id: 'market', label: '시장 상태', routes: [{ id: 'signal', label: '국면 판정' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }] },
@@ -72,6 +73,9 @@ function renderSubject(documentRef, nav, subject, root, routeId) {
 export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   const nav = documentRef?.getElementById?.('aio-hub-tabs');
   if (!nav) return null;
+  // v58.80 (first-users F26): 도움말 is help, not research — the sidebar no longer marks 리서치 라이브러리; the topbar button does.
+  const help = documentRef.getElementById?.('topbar-help-btn');
+  if (help) { if (routeId === 'guide') help.setAttribute('aria-current', 'page'); else help.removeAttribute('aria-current'); }
   const hub = hubForRoute(routeId);
   const tabs = hub ? hub.routes.filter((route) => route.tab !== false) : [];
   nav.replaceChildren();
@@ -86,6 +90,10 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   }
   nav.hidden = false;
   nav.dataset.hub = hub.id;
+  // First-users F08 (runs 1-4): the menu said 시장 상태 and the page said 국면 판정. A tab whose name differs from its screen's
+  // menu name carries that name above its title (soft-ui.css .page-title[data-hub-label]), so the two read as one place.
+  const title = documentRef.querySelector?.(`#page-${routeId} .page-title`);
+  if (title) { if (current && current.label !== hub.label && !String(title.textContent || '').trim().startsWith(hub.label)) title.dataset.hubLabel = hub.label; else delete title.dataset.hubLabel; }
   const subject = hub.id === 'stock' ? readStockSubject(root) : null;
   // v58.53 개편 v2: the tabs sit in one segmented control (soft-ui.css .aio-hub-seg).
   const seg = documentRef.createElement('span');
@@ -111,7 +119,12 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   return hub.id;
 }
 
+// First-users F15 (runs 1-3): a reload or Back on 차트 lost the company (subject "종목 고르기" over an SPY chart). The subject
+// is kept for the tab's session (src/data/stock-subject-store.js) and restored before the first render; a ?sym= deep link
+// still wins (it sets the subject).
 export function installRouteHubTabs({ root = globalThis, documentRef = root.document, activeRoute = () => null } = {}) {
+  const saved = root._aioLastOpenedSymbol ? null : readSavedStockSubject(root);
+  if (saved) { root._aioLastOpenedSymbol = saved.symbol; if (saved.name) root._aioLastOpenedName = { symbol: saved.symbol, name: saved.name }; }
   const render = (event) => renderHubTabs({ documentRef, root, routeId: event?.detail?.routeId || activeRoute() });
   const renderActive = () => renderHubTabs({ documentRef, root, routeId: activeRoute() });
   // The router commits on the document (bootstrap legacy.on listens there too).
@@ -139,6 +152,7 @@ export function setStockSubject({ root = globalThis, documentRef = root?.documen
   if (label) root._aioLastOpenedName = { symbol: next, name: label };
   if (root._aioLastOpenedSymbol === next && !nameChanged) return false;
   root._aioLastOpenedSymbol = next;
+  saveStockSubject(root, { symbol: next, name: root._aioLastOpenedName?.symbol === next ? root._aioLastOpenedName.name : '' });
   try { documentRef?.dispatchEvent?.(new CustomEvent('aio:subjectChanged', { detail: { symbol: next } })); } catch (_) {}
   return true;
 }

@@ -259,6 +259,15 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     return `${count ? text.slice(0, -count.length) : text} · 한국 ${label} 마감${count}`;
   };
   root._aioRegimePulse = () => regimePulse(root._aioMarketRegimeSummary()); // v58.52: the top pulse bar's verdict
+  // v58.80 (first-users F08): 오늘의 한 문장 is a question by design (owner 2026-10-15); the card now also says the verdict it
+  // sits above, so the first thing read is not only a question.
+  root._aioSentenceVerdict = () => {
+    const summary = root._aioMarketRegimeSummary();
+    if (!summary?.available || !summary.sufficient || !summary.overall) return '';
+    const day = /^\d{4}-\d{2}-\d{2}/.test(summary.asOf || '') ? `${Number(summary.asOf.slice(5, 7))}/${Number(summary.asOf.slice(8, 10))} 종가 기준 ` : '';
+    return `${day}시장 상태 판정은 '${summary.overall}'입니다. 근거는 아래 시장 상태 카드에 있습니다.`;
+  };
+  root.addEventListener?.('aio:historyLoaded', () => { try { root._aioRenderOperatorNote?.(); } catch (_) {} });
   // The Korean close label needs the daily record, which loads after the first top-bar render.
   root.addEventListener?.('aio:historyLoaded', () => { try { root.document?.dispatchEvent(new root.CustomEvent('aio:quoteTopbar', { detail: {} })); } catch (_) {} });
   root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
@@ -583,14 +592,19 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // (refresh:true) start at once as before.
   let screenerSyncRunning = null;
   let screenerSyncQueued = null;
+  // v58.80 (first-users bundle 3): the screener rows' load state in the shared words (data-state.js). Store status
+  // 'unavailable' meant both "not answered yet" and "the read failed", so 테마 read "28개 중 0개" on a slow phone.
+  const screenerRowCount = () => { try { return (store.getState()?.screener?.rows || []).length; } catch (_) { return 0; } };
   function startScreenerSync({ scope, refresh, quotesOnly = false }) {
     if (refresh) screenerArtifactReadAt = clock.now();
+    if (refresh && !screenerRowCount()) root.__aioScreenerLoadState = 'loading';
     const run = syncScreener.sync({ scope, refresh, quotesOnly }).then((result) => {
+      if (refresh || screenerRowCount()) root.__aioScreenerLoadState = screenerRowCount() ? 'ready' : 'failed';
       if (result) {
         eventTarget.dispatchEvent(new CustomEvent('aio:nativeScreenerReady', { detail: result }));
       }
       return result;
-    });
+    }, (error) => { if (!screenerRowCount()) root.__aioScreenerLoadState = 'failed'; throw error; });
     screenerSyncRunning = run;
     const settle = () => { if (screenerSyncRunning === run) screenerSyncRunning = null; };
     run.then(settle, settle);
@@ -684,8 +698,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       // Server hydration commonly finishes before the staged startup reaches
       // this task. Do not rebuild and refetch that same universe a second time.
       () => store.getState()?.screener?.rows?.length ? null : syncScreenerData(),
-      // Reference corpus for AI answers, prefetched last so it never competes with first paint.
-      () => root?.AIO?.ensureResearchCorpus?.()
+      // Reference corpus for AI answers, prefetched last so it never competes with first paint. v58.80 (first-users bundle 4):
+      // on a slow or data-saving connection it would still share the line with screener.json, so it waits for the first
+      // question instead (the AI dispatch awaits it either way).
+      () => (root?.navigator?.connection?.saveData || /(^|-)(2g|3g)$/.test(root?.navigator?.connection?.effectiveType || '') ? null : root?.AIO?.ensureResearchCorpus?.())
     ];
     let deferredStartupIndex = 0;
     const runDeferredStartupSync = () => {

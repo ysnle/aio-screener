@@ -2763,6 +2763,32 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const fx = previousCloseBarIndex([bar('2026-10-20T23:00:00Z', 1), bar('2026-10-21T23:00:00Z', 2), bar('2026-10-22T23:00:00Z', 3)], { exchangeTimezoneName: 'Europe/London', gmtoffset: 3600, regularMarketTime: Date.parse('2026-10-22T23:10:00Z') / 1000 }, 'KRW=X');
   check('v58.71 an exchange opening before its bar prints compares with the last session (Tokyo), continuous FX keeps the bar before last',
     tokyo === 1 && fx === 1, JSON.stringify({ tokyo, fx }));
+  // v58.80 (first-users bundle 1): the real 10/25 DXY read — Sunday's empty reopen bar follows Friday's; Friday's close is
+  // compared with Thursday's (101.61), not with Friday's own settle (101.81).
+  const dxyWeekend = previousCloseBarIndex([bar('2026-10-21T04:00:00Z', 101.78), bar('2026-10-22T04:00:00Z', 101.61), bar('2026-10-23T04:00:00Z', 101.81), bar('2026-10-25T04:00:00Z', null)],
+    { exchangeTimezoneName: 'America/New_York', gmtoffset: -14400, regularMarketTime: Date.parse('2026-10-23T20:59:59Z') / 1000 }, 'DX-Y.NYB');
+  check('v58.80 a weekend reopen bar listed after the quote is not the quote session (DXY 10/23 vs 10/22)', dxyWeekend === 1, String(dxyWeekend));
+
+  // v58.80 (P2065): around a crude expiry the continuous quote is the next month while its bars are the expiring month.
+  // Real reads: WTI 10/20 (December 97.82; November bars 103.66 → 101.79), Brent 10/23 (January 111.70; December 113.17).
+  {
+    const { futuresContractCandidates, sameContractChange, ROLLING_FUTURES } = await import('./producer/quotes.mjs');
+    const chart = (price, time, bars) => ({ meta: { regularMarketPrice: price, regularMarketTime: Date.parse(time) / 1000, exchangeTimezoneName: 'America/New_York', gmtoffset: -14400 },
+      timestamp: bars.map(([date]) => Date.parse(`${date}T04:00:00Z`) / 1000), indicators: { quote: [{ close: bars.map(([, close]) => close) }] } });
+    const wtiQuote = { symbol: 'CL=F', regularMarketPrice: 97.82, regularMarketTime: Date.parse('2026-10-20T20:59:58Z') / 1000, regularMarketPreviousClose: 103.66 };
+    const november = sameContractChange(wtiQuote, 'CLX26.NYM', chart(101.79, '2026-10-20T20:59:58Z', [['2026-10-16', 101.41], ['2026-10-19', 103.66], ['2026-10-20', 101.79]]));
+    const december = sameContractChange(wtiQuote, 'CLZ26.NYM', chart(97.82, '2026-10-20T20:59:58Z', [['2026-10-16', 99.02], ['2026-10-19', 98.54], ['2026-10-20', 97.82]]));
+    const brent = sameContractChange({ symbol: 'BZ=F', regularMarketPrice: 111.7, regularMarketTime: Date.parse('2026-10-23T20:59:57Z') / 1000 }, 'BZF27.NYM',
+      chart(111.7, '2026-10-23T20:59:57Z', [['2026-10-21', 105.07], ['2026-10-22', 108.66], ['2026-10-23', 111.7]]));
+    const quoteSource = readFileSync(new URL('./producer/quotes.mjs', import.meta.url), 'utf8');
+    check('v58.80 a rolled crude quote takes its 1-day change from the same contract (WTI 10/20 −0.7% not −5.6%, Brent 10/23 +2.8% not −1.3%)',
+      november === null && december?.prev === 98.54 && Math.abs(december.pct - -0.731) < 0.01 && december.previousCloseSessionDate === '2026-10-19'
+        && Math.abs(brent?.pct - 2.798) < 0.01 && brent.previousCloseSessionDate === '2026-10-22'
+        && futuresContractCandidates('CL', Date.parse('2026-10-20T12:00:00Z')).join() === 'CLX26.NYM,CLZ26.NYM,CLF27.NYM'
+        && futuresContractCandidates('BZ', Date.parse('2026-12-05T12:00:00Z')).join() === 'BZF27.NYM,BZG27.NYM,BZH27.NYM'
+        && Object.keys(ROLLING_FUTURES).join() === 'CL=F,BZ=F' && /if \(ROLLING_FUTURES\[symbol\]\) await alignRollingFuturesQuote\(host, quote\)/.test(quoteSource),
+      JSON.stringify({ november, december, brent }));
+  }
 
   const { parsePeriodicFilers } = await import('./fetch-sec-fundamentals.mjs');
   const filers = parsePeriodicFilers(['Form Type   Company Name      CIK         Date Filed  File Name', '10-Q        APPLE INC         320193      20261022    edgar/data/320193/0000320193-26-000105.txt', '8-K         APPLE INC         320193      20261023    edgar/data/320193/0000320193-26-000106.txt', '10-K/A      AGILENT TECH      1090872     20261021    edgar/data/1090872/0001090872-26-000050.txt'].join('\r\n'));

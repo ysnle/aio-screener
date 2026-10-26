@@ -4,7 +4,7 @@
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
 import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
-import { signedText } from '../shared/number.js';
+import { signedText, usdKoreanText } from '../shared/number.js';
 // v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
 const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
@@ -13,13 +13,9 @@ export const isLendingFinancial = (symbol, sector) => /financ|bank/i.test(String
 const finite = finiteFact;
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 
+// 2026-10-13 review S18: the sign precedes the currency. First-users F33: Korean units (shared/number.js usdKoreanText).
 export function formatUsdShort(value) {
-  const v = finite(value);
-  if (v == null) return '—';
-  const abs = Math.abs(v);
-  // 2026-10-13 review S18: the sign precedes the currency ("−$147.8B", not "$-147.8B").
-  const sign = v < 0 ? '-' : '';
-  return abs >= 1e12 ? `${sign}$${(abs / 1e12).toFixed(2)}T` : abs >= 1e9 ? `${sign}$${(abs / 1e9).toFixed(1)}B` : abs >= 1e6 ? `${sign}$${(abs / 1e6).toFixed(0)}M` : `${sign}$${abs.toFixed(0)}`;
+  return usdKoreanText(value);
 }
 
 // P1627: the compact history used to round every amount to a whole USD million.

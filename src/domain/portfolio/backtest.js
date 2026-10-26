@@ -5,41 +5,12 @@
  * The app bootstrap installs the classic-shell compatibility binding.
  */
 import { convertWithDeclaredRates, FX_LEG_MAX_AGE_MS } from './fx.js';
-import { _statMean, _statStdDev, deriveVarStability, _quantileR7, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix } from './return-stats.js';
+import { _statMean, _statStdDev, deriveVarStability, _quantileR7, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _calcDailyReturns } from './return-stats.js';
 export { deriveVarStability };
 
 function _cleanCurrencyCode(value) {
   const text = String(value == null ? '' : value).trim().toUpperCase();
   return /^[A-Z]{3}$/.test(text) ? text : null;
-}
-
-function _calcDailyReturns(prices, timestamps) {
-  if (!prices || prices.length < 2) return [];
-  const returns = [];
-  let previous = null;
-  let previousTs = null;
-  for (let i = 0; i < prices.length; i += 1) {
-    const current = prices[i];
-    const valid = current !== null && current !== undefined && !Number.isNaN(Number(current)) && Number(current) > 0;
-    const currentTs = timestamps && timestamps[i] != null ? _aioBtTimestampMs(timestamps[i]) : null;
-    if (!valid) {
-      previous = null;
-      previousTs = null;
-      continue;
-    }
-    if (previous != null) {
-      // Portfolio audit 2026-10-17: a 3-day limit dropped every return across a holiday (Fri → Tue over Memorial Day, -10.9%
-      // gone), lowering volatility, VaR and drawdown. Consecutive closes up to 10 calendar days apart (KRX Chuseok closures
-      // run a week) are one return; a longer gap is a hole in the record and still breaks the chain.
-      const adjacent = currentTs == null || previousTs == null
-        ? true
-        : currentTs > previousTs && currentTs - previousTs <= 10 * 24 * 60 * 60 * 1000;
-      if (adjacent) returns.push((Number(current) - previous) / previous);
-    }
-    previous = Number(current);
-    previousTs = currentTs;
-  }
-  return returns;
 }
 
 function _aioBtFinite(v) {

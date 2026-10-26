@@ -74,7 +74,7 @@ export const LESSONS = Object.freeze([
       const ids = liveIds(ctx);
       const favoring = (ctx?.direction?.live || []).filter((row) => row.favored.includes('stage')).map((row) => `'${short(row.title)}'`);
       const w = ctx?.regime?.bottomWatch;
-      if (favoring.length) return `${favoring.join('·')}에서 분할 접근이 상대적으로 유리하게 적혀 있습니다.`;
+      if (favoring.length) return `${favoring.join('·')}에서 분할 접근의 비용이 작다고 적혀 있습니다.`;
       // Not while a live branch names staging costly (the avoid list would say the opposite).
       if ((ctx?.direction?.live || []).some((row) => row.costly.includes('stage'))) return null;
       if (w && w.exhaustionMet >= 2 && !ids.has('creditstress')) return `매도 소진 신호 ${w.exhaustionMet}개 · 회복 확인 ${w.confirmationMet}개 — 소진과 확인이 따로 움직이는 때입니다.`;

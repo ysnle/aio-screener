@@ -61,7 +61,7 @@ for (const [label, source, marker] of [
   ['route dynamic import', bootstrap, "loader: () => import('../ui/pages/masters.js')"],
   ['bootstrap mount', bootstrap, 'createMastersPage({ root, documentRef })'],
   ['page DOM', index, 'id="page-masters"'],
-  ['navigation (리서치 라이브러리 hub, 2026-10-05)', index, 'data-hub-routes="principles atlas masters guide"'],
+  ['navigation (리서치 라이브러리 hub, 2026-10-05)', index, 'data-hub-routes="principles atlas masters"'],
   // P1111 removed the service worker's runtime registry (no reader, 11 stale
   // paths). Offline ownership of a page module comes from the request-driven
   // shell rule; the module's own wiring is covered by the route dynamic import row.

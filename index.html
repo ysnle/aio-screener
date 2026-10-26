@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v58.79 — 올인원 투자 터미널</title>
+  <title>AIO Screener v58.80 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -30,13 +30,13 @@
   <!-- P1756: the same v1.3.9 font as unicode-range subsets — only the ranges a page draws download (the single file was 2 MB). -->
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=58.79" defer></script>
-<script src="./js/aio-kr-data.js?v=58.79" defer></script>
-<script src="./js/aio-pages.js?v=58.79" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=58.79">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=58.79">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.79">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.79">
+<script src="./js/aio-workspace.js?v=58.80" defer></script>
+<script src="./js/aio-kr-data.js?v=58.80" defer></script>
+<script src="./js/aio-pages.js?v=58.80" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=58.80">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=58.80">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.80">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.80">
   <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
@@ -3548,6 +3548,9 @@ button[data-filter-active="true"] {
       }
     };
     if (bar) bar.style.width = '18%';
+    // First-users run 4 (phone #1): the home verdict waits for the close history, whose request began only after the four
+    // legacy scripts ran (~68 s on a slow phone). It starts here at low priority; _aioLoadHistory takes it once.
+    try { window.__aioHistoryPrefetch = fetch('./public-data/history.json', { cache: 'no-cache', priority: 'low' }); window.__aioHistoryPrefetch.catch(function() {}); } catch (_) {}
     document.addEventListener('DOMContentLoaded', function() {
       if (bar) bar.style.width = '78%';
       requestAnimationFrame(function() { requestAnimationFrame(function() { closeBootLoader('화면 준비 완료'); }); });
@@ -3595,7 +3598,7 @@ button[data-filter-active="true"] {
       </div>
       <div class="nav-section">
         <div class="nav-label">리서치</div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="principles" data-hub="learn" data-hub-routes="principles atlas masters guide" data-pass-el="1"><span class="nav-icon"></span><span class="label">리서치 라이브러리</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="principles" data-hub="learn" data-hub-routes="principles atlas masters" data-pass-el="1"><span class="nav-icon"></span><span class="label">리서치 라이브러리</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="openGlossary"><span class="nav-icon"></span><span class="label">용어 사전</span></div>
       </div>
 
@@ -5011,7 +5014,7 @@ button[data-filter-active="true"] {
     <div class="sh-portfolio-hero-noshrink">
       <div class="sh-portfolio-hero-text">총 자산 가치</div>
       <div id="pf-total-value" class="sh-portfolio-total-value-stat">$0</div>
-      <div class="sh-portfolio-hero-body"><span id="pf-holding-count">0 종목</span>, 오늘 <b id="pf-daily-chg" class="sh-portfolio-daily-move-figure">$0</b> (<span id="pf-daily-pct" class="sh-portfolio-daily-move-figure">0%</span>)</div>
+      <div class="sh-portfolio-hero-body"><span id="pf-holding-count">0 종목</span><span id="pf-daily-line">, 오늘 <b id="pf-daily-chg" class="sh-portfolio-daily-move-figure">$0</b> (<span id="pf-daily-pct" class="sh-portfolio-daily-move-figure">0%</span>)</span></div>
       <!-- v57.77: the valuation status line moved here from the retired 리스크 분석 shell (its four cards had no writer). -->
       <div id="pf-analysis-status" class="sh-portfolio-analysis-status-text">포트폴리오 등록 후 자동 계산됩니다.</div>
     </div>
@@ -5021,7 +5024,7 @@ button[data-filter-active="true"] {
       <div><div class="sh-dim-text-mb8">현금</div><div id="pf-cash-hero" class="sh-portfolio-total-pnl-stat">—</div><div id="pf-cash-pct-hero" class="sh-portfolio-cash-pct-figure">—</div><div id="pf-currency-note" class="sh-portfolio-currency-note-text">—</div></div>
       <div><div class="sh-dim-text-mb8">변동성 구간</div><div id="pf-exposure-rule" class="sh-portfolio-exposure-rule-lead">VIX 확인 중</div><div id="pf-exposure-current" class="sh-portfolio-exposure-current-body">현재 노출 —</div></div>
       <div class="pf-hero-lens"><div class="sh-dim-text-mb8">실질 종목 수</div><div id="pf-effective-n" class="sh-portfolio-total-pnl-stat">—</div><div id="pf-effective-n-note" class="sh-figure">보유 종목의 평가액 비중으로 계산</div></div>
-      <div class="pf-hero-lens"><div class="sh-dim-text-mb8">시장 민감도 β</div><div id="pf-beta" class="sh-portfolio-total-pnl-stat">—</div><div id="pf-beta-note" class="sh-figure">보유 시장 지수에 대한 주간 회귀</div></div>
+      <div class="pf-hero-lens"><div class="sh-dim-text-mb8">시장 민감도(베타)</div><div id="pf-beta" class="sh-portfolio-total-pnl-stat">—</div><div id="pf-beta-note" class="sh-figure">보유 시장 지수에 대한 주간 회귀</div></div>
     </div>
   </div>
 
@@ -5061,28 +5064,28 @@ button[data-filter-active="true"] {
     <div class="sh-portfolio-entry-part-panel">
       <div class="sh-portfolio-entry-part-row">
         <div>
-          <div class="sh-muted-label">티커</div>
-          <input id="pf-add-ticker" type="text" placeholder="NVDA" aria-label="종목 티커 입력" class="sh-portfolio-add-field">
+          <div class="sh-muted-label">종목 (티커 또는 이름)</div>
+          <input id="pf-add-ticker" type="text" placeholder="예: AAPL, 애플" aria-label="종목 티커 입력" class="sh-portfolio-add-field">
         </div>
         <div>
           <div class="sh-muted-label">수량</div>
-          <input id="pf-add-qty" type="number" placeholder="100" aria-label="보유 수량" class="sh-portfolio-add-qty-field">
+          <input id="pf-add-qty" type="number" placeholder="예: 10" aria-label="보유 수량" class="sh-portfolio-add-qty-field">
         </div>
         <div>
           <div id="pf-add-cost-label" class="sh-muted-label">매수 단가 (USD)</div>
-          <input id="pf-add-cost" type="number" step="0.01" placeholder="120.50" aria-label="매수 단가" class="sh-portfolio-add-cost-field">
+          <input id="pf-add-cost" type="number" step="0.01" placeholder="예: 150.25" aria-label="매수 단가" class="sh-portfolio-add-cost-field">
         </div>
         <div>
           <div id="pf-add-target-label" class="sh-muted-label">내 목표가 (USD, 선택)</div>
-          <input id="pf-add-target" type="number" step="0.01" placeholder="200.00" aria-label="내 목표가 메모 (선택)" class="sh-portfolio-add-qty-field">
+          <input id="pf-add-target" type="number" step="0.01" placeholder="선택 입력" aria-label="내 목표가 메모 (선택)" class="sh-portfolio-add-qty-field">
         </div>
         <div>
-          <div class="sh-muted-label">원가 통화 (선택)</div>
-          <input id="pf-add-cost-currency" type="text" maxlength="3" placeholder="USD" aria-label="원가 통화 3자리 코드 (예: USD, KRW)" class="sh-portfolio-add-cost-field-ink">
+          <div class="sh-muted-label">원가 통화 (선택, 비우면 종목의 시장 통화)</div>
+          <input id="pf-add-cost-currency" type="text" maxlength="3" placeholder="자동" aria-label="원가 통화 3자리 코드 (예: USD, KRW)" class="sh-portfolio-add-cost-field-ink">
         </div>
         <div class="sh-portfolio-entry-part-grow">
           <div class="sh-muted-label">메모 (선택)</div>
-          <input id="pf-add-memo" type="text" placeholder="매수 근거 (예: 실적 서프라이즈, 밸류에이션)" aria-label="메모" class="sh-portfolio-add-memo-field">
+          <input id="pf-add-memo" type="text" maxlength="500" placeholder="매수 근거 (예: 실적 서프라이즈, 밸류에이션)" aria-label="메모" class="sh-portfolio-add-memo-field">
         </div>
         <button class="aio-btn-table primary sh-portfolio-entry-part-btn" data-action="addPortfolioPosition">추가 / 업데이트</button>
         <button class="aio-btn-table sh-portfolio-entry-part-btn-small" data-action="clearPortfolioForm">초기화</button>
@@ -5347,7 +5350,7 @@ button[data-filter-active="true"] {
       <div id="wl-add-row" style="display:none;padding:6px 12px 8px;border-top:0.5px solid var(--border);">
         <div class="sh-portfolio-wl-add-row">
           <input id="wl-add-ticker" type="text" placeholder="티커 입력 (예: AAPL)" aria-label="관심종목 티커 입력" class="sh-portfolio-wl-add-field" data-on-enter="addToWatchlist">
-          <input id="wl-add-note" type="text" placeholder="메모 (선택)" aria-label="관심종목 메모 입력" class="sh-portfolio-wl-add-field-ink" data-on-enter="addToWatchlist">
+          <input id="wl-add-note" type="text" maxlength="200" placeholder="메모 (선택)" aria-label="관심종목 메모 입력" class="sh-portfolio-wl-add-field-ink" data-on-enter="addToWatchlist">
           <button class="aio-btn-table primary sh-portfolio-wl-add-btn" data-action="addToWatchlist">추가</button>
         </div>
       </div>
@@ -5557,8 +5560,8 @@ button[data-filter-active="true"] {
     <div class="aio-section">
     <div class="aio-section-hd"><h2 class="aio-section-label sh-flush">종목 검색</h2></div>
     <div class="v2-stock-search">
-      <input id="ticker-direct-search" type="text" placeholder="티커·코드·한글명 (예: NVDA, 삼성전자)" aria-label="종목 티커 검색"
-        data-on-enter="showTicker:__value_upper"
+      <input id="ticker-direct-search" type="text" placeholder="회사 이름이나 기호 (예: 애플, NVDA)" aria-label="종목 검색: 회사 이름이나 종목 기호(티커)"
+        data-on-enter="tickerDirectSearchFromInput"
         data-on-input="_aioUppercaseInput"/>
       <button class="btn-accent --blue sh-ticker-btn" data-action="tickerDirectSearchFromInput">분석 →</button>
       <div class="sh-wrap-row">
@@ -6706,15 +6709,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=58.79" defer></script>
-  <script src="./js/aio-data.js?v=58.79" defer></script>
-  <script src="./js/aio-ui.js?v=58.79" defer></script>
+  <script src="./js/aio-core.js?v=58.80" defer></script>
+  <script src="./js/aio-data.js?v=58.80" defer></script>
+  <script src="./js/aio-ui.js?v=58.80" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=58.79" defer></script>
+<script src="./js/aio-chat.js?v=58.80" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더)는 js/aio-macro-tech.js를 거쳐 네이티브 ESM으로 옮겨졌고, 그 파일은 퇴역했다. -->
 
@@ -6765,7 +6768,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=58.79" defer></script>
+<script src="./js/aio-glossary.js?v=58.80" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6773,7 +6776,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.79</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <span class="sx-page-foot-version" id="app-version-badge">v58.80</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->
@@ -6783,6 +6786,7 @@ button[data-filter-active="true"] {
   <div class="ai-ph">
     <span class="ai-ph-title" id="ai-panel-title">AI 도우미</span>
     <span class="ai-ph-badge" id="ai-panel-badge">학습·리서치용</span>
+    <span class="ai-ph-route" id="ai-panel-route" role="status" aria-live="polite"></span>
     <button class="ai-ph-close" data-action="toggleAIPanel" aria-label="AI 도우미 닫기">×</button>
   </div>
   <div id="ai-panel-policy" data-ai-public-policy="beta-research" class="sh-shell-ai-policy-tint">지금 보는 화면의 수치와 근거를 읽고 질문에 답합니다. <details class="sh-shell-ai-policy-fold"><summary class="sh-shell-ai-policy-toggle">답변 범위</summary> AI 도우미, 읽기 전용 리서치, 투자·법률·세무 조건부 분석과 숫자 시나리오로 답합니다. 불법 실행 절차·주문 실행·확정적 보장은 하지 않습니다.</details></div>

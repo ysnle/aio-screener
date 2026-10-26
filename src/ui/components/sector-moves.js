@@ -60,7 +60,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
     fill.style.width = `${(Math.abs(row.daily) / max * 50).toFixed(1)}%`;
     fill.style.left = row.daily >= 0 ? '50%' : `${(50 - Math.abs(row.daily) / max * 50).toFixed(1)}%`;
     bar.append(fill);
-    li.append(el(doc, 'span', row.label, 'home-sector-name'), bar, el(doc, 'span', `${signedText(row.daily, 2)}%`, 'home-sector-value'), el(doc, 'span', row.quadrant || '', 'home-sector-quadrant'));
+    li.append(el(doc, 'span', row.label, 'home-sector-name'), bar, el(doc, 'span', `${signedText(row.daily, 2)}%`, 'home-sector-value'), el(doc, 'span', row.quadrant ? (row.fading ? row.quadrant : `50일 ${row.quadrant}`) : '', 'home-sector-quadrant')); // v58.80 (first-users F12): "선도" beside -1.92% read as today's; the cell names its ~50-day window
     list.append(li);
   }
   // The reading rule for the right-hand label folds under the bars (conclusion first, method on request).

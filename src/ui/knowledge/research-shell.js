@@ -199,7 +199,16 @@ function conceptMatches(query, limit = 6) {
   return scored.sort((a, b) => b.score - a.score).slice(0, limit)
     .map(({ concept, score }) => ({ id: `concept:${concept.id}`, surface: 'concept', surfaceLabel: '개념', group: concept.cat, title: concept.term, text: concept.def.slice(0, 120), score, route: { page: 'principles', params: { mode: 'concept', node: concept.id } } }));
 }
-const SURFACE_ORDER = ['frame', 'column', 'concept', 'principles-lesson', 'principles-node', 'atlas-node', 'atlas-foundation', 'manager'];
+// first-users run-2 R2-20: a word the screens use (분배일) may live only in 용어 사전; it is found here too and opens there.
+function glossaryMatches(root, query, known, limit = 4) {
+  const q = normalize(query);
+  if (q.length < 2) return [];
+  return (Array.isArray(root?.GLOSSARY) ? root.GLOSSARY : [])
+    .filter((entry) => entry?.term && !known.has(normalize(entry.term)) && (normalize(entry.term).includes(q) || normalize(entry.alias).includes(q)))
+    .slice(0, limit)
+    .map((entry) => ({ id: `glossary:${entry.term}`, surface: 'glossary', surfaceLabel: '용어 사전', group: entry.cat || null, title: entry.term, text: String(entry.def || '').slice(0, 120), score: normalize(entry.term) === q ? 90 : 45, glossaryTerm: entry.term }));
+}
+const SURFACE_ORDER = ['frame', 'column', 'concept', 'glossary', 'principles-lesson', 'principles-node', 'atlas-node', 'atlas-foundation', 'manager'];
 
 export function routeHref(root, route) {
   const params = new URLSearchParams();
@@ -259,7 +268,8 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
     if (query.length < 2) { results.hidden = true; results.replaceChildren(); return; }
     const index = await loadIndex(root);
     if (input.value.trim() !== query) return;
-    const pool = [...conceptMatches(query), ...searchKnowledgeIndex(index, query, 40)];
+    const concepts = conceptMatches(query);
+    const pool = [...concepts, ...glossaryMatches(root, query, new Set(concepts.map((item) => normalize(item.title)))), ...searchKnowledgeIndex(index, query, 40)];
     const rank = (item) => { const at = SURFACE_ORDER.indexOf(item.surface); return at < 0 ? SURFACE_ORDER.length : at; };
     const items = pool.sort((a, b) => (b.score || 0) - (a.score || 0) || rank(a) - rank(b)).slice(0, 12);
     results.replaceChildren();
@@ -275,7 +285,16 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
       row.setAttribute('role', 'option');
       row.dataset.researchResult = item.id;
       row.append(el(doc, 'div', 'rl-result-title', item.title), el(doc, 'div', 'rl-result-meta', [item.surfaceLabel, item.group].filter(Boolean).join(', ')), el(doc, 'div', 'rl-result-text', item.text));
-      row.addEventListener('click', () => { results.hidden = true; input.value = ''; openResearchRoute(root, item.route, { currentPage: route, onLocal }); });
+      row.addEventListener('click', () => {
+        results.hidden = true; input.value = '';
+        if (item.glossaryTerm) {
+          root.openGlossary?.();
+          const field = doc.getElementById('glossary-search');
+          if (field) { field.value = item.glossaryTerm; field.dispatchEvent(new Event('input', { bubbles: true })); }
+          return;
+        }
+        openResearchRoute(root, item.route, { currentPage: route, onLocal });
+      });
       results.appendChild(row);
     }
     results.hidden = false;

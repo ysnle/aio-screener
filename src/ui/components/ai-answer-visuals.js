@@ -11,35 +11,16 @@ import { readMarketRegime } from './market-regime.js';
 import { CHOICES } from '../../domain/market/macro-crossroads.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, usdKoreanText } from '../../domain/shared/number.js';
+import { chooseAnswerVisuals } from '../../ai/response/answer-visual-choice.js';
 
-const CHART_WORDS = /차트|추세|이평|이동\s*평균|지지|저항|돌파|이탈|기술적|셋업|패턴|모멘텀|rsi|macd|chart|trend|support|resistance|breakout/i;
-const FUNDAMENTAL_WORDS = /실적|매출|이익|마진|이익률|재무|펀더멘탈|현금\s*흐름|fcf|성장률|분기|어닝|가이던스|밸류에이션|per\b|earnings|revenue|margin|fundamental|quarter/i;
-const COMPARE_WORDS = /비교|대비|vs\.?|versus|어느\s*쪽|차이/i;
-const THEME_WORDS = /섹터|테마|업종|로테이션|순환|주도|병목|반도체|소프트웨어|광통신|포토닉스|메모리|전력|조선|방산|원전|바이오|2차전지/i;
+export { chooseAnswerVisuals };
 
 const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 const finite = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 const signed = (value, digits = 1) => signedText(value, digits, '%');
 const price = (value, kr) => (kr ? Math.round(value).toLocaleString('en-US') : value >= 1000 ? value.toFixed(0) : value.toFixed(2));
-
-// Which figures fit this question. At most two, so a figure supports the answer instead of replacing it.
-export function chooseAnswerVisuals({ query = '', mode = 'analysis', canonical = [], tickers = [] } = {}) {
-  const companies = (Array.isArray(tickers) ? tickers : []).filter((symbol) => symbol && !/^\^|=X$|=F$|-USD$/.test(symbol)).slice(0, 3);
-  // P1743: a market-level outlook question gets the branch table, and the theme stages when it is about themes/sectors.
-  if (!companies.length && mode === 'outlook') return [{ kind: 'crossroads', symbols: [] }, ...(THEME_WORDS.test(query) ? [{ kind: 'themes', symbols: [] }] : [])];
-  if (!companies.length && THEME_WORDS.test(query) && mode !== 'quick') return [{ kind: 'themes', symbols: [] }];
-  if (!companies.length || mode === 'quick' && !CHART_WORDS.test(query) && !FUNDAMENTAL_WORDS.test(query)) return [];
-  const picks = [];
-  if (companies.length >= 2 && (mode === 'comparison' || COMPARE_WORDS.test(query))) picks.push({ kind: 'relative', symbols: companies });
-  const lead = companies[0];
-  const wantsChart = CHART_WORDS.test(query) || canonical.includes('TECHNICAL_ANALYSIS');
-  const wantsFundamentals = FUNDAMENTAL_WORDS.test(query);
-  if (wantsFundamentals && !isKr(lead)) picks.push({ kind: 'fundamentals', symbols: [lead] });
-  if (wantsChart || (!picks.length && (mode === 'decision' || mode === 'analysis'))) picks.push({ kind: 'price', symbols: [lead] });
-  return picks.slice(0, 2);
-}
 
 function frame(doc, title, caption) {
   const figure = doc.createElement('figure');
@@ -138,7 +119,7 @@ export async function buildFundamentalsVisual({ documentRef: doc, root, symbol }
   const slot = (W - 66) / rows.length;
   const barW = Math.min(36, slot * 0.55);
   const y = (v) => top + (1 - v / maxRev) * (H - top - bottom);
-  const money = (millions) => (millions >= 1000 ? `${(millions / 1000).toFixed(millions >= 100000 ? 0 : 1)}B` : `${Math.round(millions)}M`);
+  const money = (millions) => usdKoreanText(millions * 1e6); // first-users F33
   let bars = '';
   rows.forEach((row, i) => {
     const cx = 60 + slot * i + slot / 2;
@@ -199,7 +180,7 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
   const tone = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립', unknown: '보류' };
   const rows = [...model.items].sort((a, b) => (b.id === model.leadId) - (a.id === model.leadId) || (b.id === model.altId) - (a.id === model.altId) || b.met / b.total - a.met / a.total).slice(0, 6);
   const dots = (item) => Array.from({ length: item.total }, (_, i) => `<span class="aav-dot${i < item.met ? ' is-met' : ''}"></span>`).join('');
-  const { figure, body } = frame(doc, '향후 시나리오 — 조건 충족, 시장 가격, 그 시나리오에서 유리한 쪽',
+  const { figure, body } = frame(doc, '향후 시나리오 — 조건 충족, 시장 가격, 그 시나리오에서 비용이 작은 쪽',
     `${model.asOf || ''} 관측 기준, 확률이 아니라 맞는 조건 수와 시장 가격 방향입니다.${model.nextEvent ? ` 다음 발표 ${esc(model.nextEvent.when || model.nextEvent.date)} ${esc(model.nextEvent.name)}.` : ''}`);
   body.innerHTML = `<table class="aav-table">${rows.map((item) => `<tr${item.id === model.leadId ? ' class="aav-lead"' : ''}><td class="aav-title">${esc(item.title.split(' — ')[0])}${item.id === model.leadId ? ' (중심)' : item.id === model.altId ? ' (대안)' : ''}</td><td class="aav-dots" aria-label="조건 ${item.met}/${item.total}">${dots(item)}<span class="aav-count">${item.met}/${item.total}</span></td><td class="aav-tone">${esc(tone[item.pricing.tone] || '보류')}</td><td class="aav-favored">${esc(item.favored.map((key) => CHOICES[key].split(' (')[0]).join(', '))}</td></tr>`).join('')}</table>`;
   return figure;

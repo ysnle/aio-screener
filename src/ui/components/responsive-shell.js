@@ -69,9 +69,14 @@ export function installResponsiveShell(root, doc) {
       event.preventDefault(); event.stopImmediatePropagation(); setOpen(!opened); return;
     }
     if (event.target === backdrop || event.target === close) { setOpen(false); return; }
-    if (opened && event.target.closest?.('.sidebar [data-action="showPage"],.sidebar [data-action="openGlossary"],.sidebar a[href^="#"]')) { setOpen(false, false); toggle.focus(); }
+    // First-users run 4: tapping the current tab scrolls to the top (the floating ↑ is hidden on phones).
+    if (event.target.closest?.('#aio-tabbar [data-tab][aria-current="page"]')) { event.preventDefault(); event.stopImmediatePropagation(); root._aioScrollContentTop?.(); return; }
+    if (opened && event.target.closest?.('.sidebar [data-action="showPage"],.sidebar [data-action="openGlossary"],.sidebar [data-action="openKbdHelp"],.sidebar a[href^="#"]')) { setOpen(false, false); if (!event.target.closest?.('[data-action="openKbdHelp"]')) toggle.focus(); } // v58.80 (first-users bundle 5): the menu stayed over the shortcut sheet and its 닫기 tap hit 용어 사전
   };
   const onKey = (event) => {
+    // v58.80 (first-users F24): the shortcut sheet promises "Esc 모달/메뉴 닫기", but on a desktop width (panel beside the page)
+    // Escape from inside the open AI panel did nothing; only the narrow overlay closed.
+    if (event.key === 'Escape' && !opened && ai?.classList.contains('open') && ai.contains(doc.activeElement)) { event.preventDefault(); ai.querySelector('.ai-ph-close')?.click(); return; }
     const activePanel = opened ? sidebar : aiOverlay.matches && ai?.classList.contains('open') ? ai : null;
     if (!activePanel) return;
     if (event.key === 'Escape') { event.preventDefault(); if (opened) setOpen(false); else ai.querySelector('.ai-ph-close')?.click(); return; }
@@ -128,7 +133,23 @@ export function installResponsiveShell(root, doc) {
   });
   observer.observe(doc.getElementById('main-content') || main, { childList: true, subtree: true });
   let aiWasModal = false;
+  // First-users run 4: opening the panel checks the shared route (cached health) and names the state in the header.
+  let aiWasOpen = false;
+  const routeLine = () => {
+    const node = doc.getElementById('ai-panel-route');
+    const state = root._aioLastClaudeRouteState;
+    if (!node || !state) return;
+    node.textContent = state.ok ? '답변 가능' : '지금은 답변할 수 없음, 질문은 보관됩니다';
+    node.dataset.state = state.ok ? 'ok' : 'down';
+  };
   const onAi = () => {
+    const isOpen = !!ai?.classList.contains('open');
+    if (isOpen && !aiWasOpen && typeof root._aioEnsureClaudeRoute === 'function') {
+      const node = doc.getElementById('ai-panel-route');
+      if (node && !node.dataset.state) node.textContent = '연결 확인 중';
+      Promise.resolve().then(() => root._aioEnsureClaudeRoute('')).then(routeLine, routeLine);
+    }
+    aiWasOpen = isOpen;
     const modal = aiOverlay.matches && ai?.classList.contains('open');
     if (app) app.inert = !!modal || previousAi.appInert;
     if (!ai) return;
@@ -147,7 +168,15 @@ export function installResponsiveShell(root, doc) {
     const tab = TAB_FOR_ROUTE[route] || 'more';
     tabbar.querySelectorAll('[data-tab]').forEach((item) => { if (item.dataset.tab === tab) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current'); });
   };
-  doc.addEventListener('click', onClick, true); doc.addEventListener('keydown', onKey);
+  // v58.80 (first-users F24, run-3): Escape with focus on the page (not in the panel) still left the side panel open. On the
+  // window, after every other Escape owner had its turn, an unclaimed Escape outside a text field closes it.
+  const onLateEscape = (event) => {
+    if (event.key !== 'Escape' || event.defaultPrevented || opened || !ai?.classList.contains('open')) return;
+    const target = doc.activeElement;
+    if (target?.closest?.('input, textarea, select, [contenteditable="true"], [aria-modal="true"], dialog[open]') || [...doc.querySelectorAll('[aria-modal="true"], dialog[open]')].some((el) => el.getClientRects().length)) return;
+    event.preventDefault(); ai.querySelector('.ai-ph-close')?.click();
+  };
+  doc.addEventListener('click', onClick, true); doc.addEventListener('keydown', onKey); root.addEventListener('keydown', onLateEscape); root.addEventListener('aio:workerHealth', routeLine);
   compact.addEventListener('change', onMode); aiOverlay.addEventListener('change', onAi); root.addEventListener('hashchange', onHash);
   doc.addEventListener('aio:navigationCommitted', markTab);
   root.addEventListener('resize', refreshViewport); root.visualViewport?.addEventListener('resize', refreshViewport);
@@ -162,7 +191,7 @@ export function installResponsiveShell(root, doc) {
     if (previous.role) sidebar.setAttribute('role', previous.role); else sidebar.removeAttribute('role');
     if (!previous.id) sidebar.removeAttribute('id');
     if (previous.controls) toggle.setAttribute('aria-controls', previous.controls); else toggle.removeAttribute('aria-controls');
-    backdrop.remove(); close.remove(); doc.removeEventListener('click', onClick, true); doc.removeEventListener('keydown', onKey);
+    backdrop.remove(); close.remove(); doc.removeEventListener('click', onClick, true); doc.removeEventListener('keydown', onKey); root.removeEventListener('keydown', onLateEscape); root.removeEventListener('aio:workerHealth', routeLine);
     compact.removeEventListener('change', onMode); aiOverlay.removeEventListener('change', onAi); root.removeEventListener('hashchange', onHash);
     doc.removeEventListener('aio:navigationCommitted', markTab);
     root.removeEventListener('resize', refreshViewport); root.visualViewport?.removeEventListener('resize', refreshViewport);

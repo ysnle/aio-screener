@@ -81,6 +81,15 @@ export function replaceKnowledgeRouteState({ root = globalThis, locationLike = r
   return nextUrl;
 }
 
+// first-users run-2 R2-17: opening a document on the same page only replaced the URL, so Back left the library. Opening
+// one adds a history entry (the same page state), and the page re-reads the URL when Back returns to it.
+export function pushKnowledgeRouteState({ root = globalThis, locationLike = root.location, historyLike = root.history, state = {} } = {}) {
+  const nextUrl = serializeKnowledgeRouteState(locationLike, state);
+  const current = `${locationLike?.pathname || ''}${locationLike?.search || ''}${locationLike?.hash || ''}`;
+  if (nextUrl !== current && typeof historyLike?.pushState === 'function') historyLike.pushState(historyLike.state || null, '', nextUrl);
+  return nextUrl;
+}
+
 export function knowledgeTargetHash(target = {}) {
   if (!isRouteId(target.routeId)) return '';
   const params = new URLSearchParams();

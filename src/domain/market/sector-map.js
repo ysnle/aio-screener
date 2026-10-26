@@ -142,6 +142,8 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
   const memberRows = weightRows ? weightRows.map((item) => bySym.get(String(item.sym || '').toUpperCase())).filter(Boolean) : list.filter((row) => row && row.index === 'SP500');
   const available = Object.fromEntries(Object.keys(SECTOR_MAP_PERIODS).map((id) => [id, memberRows.some((row) => finite(row[id]) != null)]));
   if (priced.length < 20) {
+    // v58.80 first-users run-2: no rows yet is a load, not "0개".
+    if (!list.length) return { available: false, version: SECTOR_MAP_VERSION, period: key, periods: available, reason: '구성 종목 자료를 불러오는 중입니다 — 도착하면 지도를 그립니다.' };
     return { available: false, version: SECTOR_MAP_VERSION, period: key, periods: available, reason: `시가총액을 계산할 수 있는 구성 종목이 ${priced.length}개라 지도를 그리지 않습니다.` };
   }
   // P1681: one map, one close. A member still on an older session would paint yesterday's move beside today's —

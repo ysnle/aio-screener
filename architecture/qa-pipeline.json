@@ -799,6 +799,10 @@
           "script": "scripts/ci-crash-replay-check.mjs"
         },
         {
+          "id": "lookahead-check",
+          "script": "scripts/ci-lookahead-check.mjs"
+        },
+        {
           "id": "codex-structure-regression-fixture",
           "script": "scripts/ci-codex-structure-regression-fixture.mjs"
         },
@@ -2784,8 +2788,10 @@
         "src/data/shared-artifacts.js",
         "src/domain/content/korean-particle.js",
         "src/domain/research/*.js",
+        "src/platform/http.js",
         "src/platform/storage.js",
         "src/ui/navigation/route-hubs.js",
+        "src/data/stock-subject-store.js",
         ".github/workflows/knowledge-build-candidate.yml"
       ],
       "groups": [

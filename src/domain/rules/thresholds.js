@@ -106,6 +106,9 @@ export const RULES = Object.freeze({
   // v57.81: a dollar rise counts as 부담 only bufferPct past rise20dPct, or past rise20dPct with the dollar index in the top
   // of its own one-year range (rangeHighAt) — DXY +2.23% against a 2.0% line read 부담 on 0.23pp.
   dollar: Object.freeze({ rise20dPct: 2, fall20dPct: -2, bufferPct: 0.5, rangeHighAt: 0.8 }),
+  // v58.80 (owner 2026-10-25): cross-asset relations read over 20 sessions on the 거시 asset card. A pair counts as moving
+  // against its usual relation only when both legs pass their line; semisLeadPp names the semiconductor ETF as the driver.
+  crossAsset: Object.freeze({ window: 20, oil20dPct: 5, rate20dBp: 10, stock20dPct: 1, bond20dPct: 1, gold20dPct: 2, dollar20dPct: 1, vixRise20dPct: 15, semisLeadPp: 5 }),
   // Won 20-session move; a yen rally of 3%+ in 20 sessions preceded the August 2024 carry unwind.
   // v57.81: a won move counts only when the 20-session change and the shift of the 20-session mean agree (meanShareOfBar of
   // the bar, same sign) — an endpoint on a one-day spike (9/17 1376.6) made a flat won read -2.5%. A KOSPI fall of

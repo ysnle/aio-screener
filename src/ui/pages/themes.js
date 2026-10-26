@@ -27,7 +27,8 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { renderNextSteps } from '../components/page-flow.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
-import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
+import { DATA_STATE_CHIPS } from '../../domain/content/data-state.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { asOfChip, setAsOf } from '../components/section-frame.js';
 
@@ -45,7 +46,7 @@ function screenerRowMap(store) {
 const QUADRANTS = Object.freeze([
   ...['Leading', 'Improving', 'Weakening', 'Lagging'].map((key) => ({ key, label: RRG_QUADRANT_WORDS[key], note: RRG_QUADRANT_READS[key] })),
   // v57.84 (owner decision 3-3): the band is each sector's own typical 5-session move on that axis, with hysteresis.
-  { key: 'Border', label: '기준선 부근', note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜`, optional: true }
+  { key: 'Border', label: '기준선 부근', note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜. 속이 빈 점은 놓인 구역과 판정이 다른 섹터로, 이름 옆에 판정을 적음`, optional: true }
 ]);
 
 // v57.81: the banded zone and the five-session relative-strength check of one item, from the session-checked artifact row.
@@ -122,7 +123,7 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   // v58.79 (layout over captions): the line keeps the quadrant counts; the window and the close are the card head's
   // chip, and the tail's meaning is the line's hover (the tail control names itself).
   status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, 기준선 부근 ${counts.Border}` : ''}`;
-  status.title = rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치` : '';
+  status.title = `${rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치. ` : ''}속이 빈 점 = 놓인 구역과 판정이 다른 섹터(이름 옆에 판정)`;
   setAsOf(documentRef, documentRef.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head'), close ? `${shortSession(close)} 종가` : '완료 종가', `약 50일 상대강도, ${close ? `${shortSession(close)} 미국 종가 기준` : '완료 종가 기준'}`);
   status.style.color = 'var(--text-dim)';
 }
@@ -310,10 +311,21 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   // then the same spots farther out with a leader line, against every label and dot already on the canvas — the
   // two-line ticker/name stack overlapped in the crowded leading cluster.
   const radius = compact ? 5 : 6;
-  const dots = validItems.map((item) => ({ item, x: px(item.rsRatio), y: py(item.rsMomentum), color: colors[zoneKey(root, item)] || muted }));
+  // v58.80 (first-users bundle 2): XLRE and XLF sat inside the 선도 area while the text called them 개선 and 기준선 부근 —
+  // the text uses the settled zone (band + hysteresis), the dot its raw position. A dot whose settled zone differs from
+  // where it sits is drawn as a ring and its label names the settled word.
+  const rawQuadrant = (item) => (item.rsRatio >= 100 ? (item.rsMomentum >= 100 ? 'Leading' : 'Weakening') : (item.rsMomentum >= 100 ? 'Improving' : 'Lagging'));
+  const dots = validItems.map((item) => { const zone = zoneKey(root, item); return { item, zone, held: zone !== rawQuadrant(item), x: px(item.rsRatio), y: py(item.rsMomentum), color: colors[zone] || muted }; });
   for (const dot of dots) {
     context.beginPath();
     context.arc(dot.x, dot.y, radius, 0, Math.PI * 2);
+    if (dot.held) {
+      context.lineWidth = 2;
+      context.strokeStyle = dot.color;
+      context.stroke();
+      context.lineWidth = 1;
+      continue;
+    }
     context.fillStyle = dot.color;
     context.fill();
     context.strokeStyle = palette.grid;
@@ -326,8 +338,11 @@ function renderRRGCanvas({ documentRef, root, store, route }) {
   // Crowded dots (most neighbours within 40px) choose first, while the most room is left.
   const crowd = (dot) => dots.filter((other) => other !== dot && Math.hypot(other.x - dot.x, other.y - dot.y) < 40).length;
   for (const dot of [...dots].sort((a, b) => crowd(b) - crowd(a))) {
-    const symbol = String(dot.item.symbol || dot.item.id || '');
-    const name = showNames ? String(dot.item.label || '') : '';
+    // A phone shows the Korean sector name instead of the ticker (run-3: "XLRE, XBI 같은 영어 약자만"), except in 전체.
+    const ticker = String(dot.item.symbol || dot.item.id || '');
+    const symbol = compact && activeView(root) !== 'all' && dot.item.label ? String(dot.item.label) : ticker;
+    const word = dot.held ? (dot.zone === 'Border' ? '경계' : RRG_QUADRANT_WORDS[dot.zone] || '') : '';
+    const name = [showNames ? String(dot.item.label || '') : '', word].filter(Boolean).join(' ');
     context.font = 'bold 12px "Pretendard Variable", Pretendard, system-ui';
     const symbolWidth = context.measureText?.(symbol)?.width || symbol.length * 7;
     context.font = '12px "Pretendard Variable", Pretendard, system-ui';
@@ -417,7 +432,9 @@ function renderKrThemeArtifact({ documentRef, root, store }) {
   const read = krThemeArtifactRead({ themeMap, rows: store?.getState?.()?.screener?.rows || [] });
   const krClose = krCloseSession(store?.getState?.()?.screener?.rows || []);
   const summary = documentRef.getElementById('kr-themes-summary');
-  if (summary) summary.textContent = `한국 테마 (${read.totalThemes}개 중 ${read.coveredThemes}개를 ${krClose ? `${shortSession(krClose)} ` : ''}확정 종가로 비교)`;
+  // v58.80 (first-users bundle 3): before the rows arrive "28개 중 0개" read as a final count.
+  const load = (store?.getState?.()?.screener?.rows || []).length ? 'ready' : screenerRowsState(root);
+  if (summary) summary.textContent = load === 'ready' ? `한국 테마 (${read.totalThemes}개 중 ${read.coveredThemes}개를 ${krClose ? `${shortSession(krClose)} ` : ''}확정 종가로 비교)` : `한국 테마 (${DATA_STATE_CHIPS[load]})`;
   host.dataset.aioKrThemeArtifactRenderer = 'native';
   host.hidden = false;
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
@@ -636,7 +653,11 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     vsSpy.className = 'thp-perf-vs';
     if (row.vsSpy != null) vsSpy.title = `${period[1]} SPY 대비 ${signedText(row.vsSpy, 2)}%p`;
     const badge = documentRef.createElement('span');
-    badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? '기준선 부근' : RRG_QUADRANT_WORDS[row.quadrant] || '중립');
+    // v58.80 first-users run-2 (F12): "선도" beside the day's worst move read as a contradiction; the badge is the ~50-session
+    // rotation stage, not this period's move, so it says so.
+    const quadrantWord = RRG_QUADRANT_WORDS[row.quadrant];
+    badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? '기준선 부근' : quadrantWord ? `50일 ${quadrantWord}` : '중립');
+    if (quadrantWord) badge.title = `약 50거래일 상대강도 회전 단계 — 위 막대(${period[1]})와 다른 기간입니다`;
     badge.className = 'thp-perf-badge';
     badge.style.color = row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)';
     line.append(symbol, label, track, value, vsSpy, badge);
@@ -1163,7 +1184,7 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
   const breadthValue = finite(detail.breadth);
   const closeSession = detail.quoteBasis?.kind === 'completed-close' ? detail.quoteBasis.session : null;
   breadth.textContent = breadthValue == null
-    ? '브레드스: 시세 대기 — 충분한 구성종목 가격이 확인되면 계산됩니다.'
+    ? '상승 종목 비율: 구성 종목 가격을 아직 충분히 받지 못해 계산 전입니다.'
     : `상승 종목 비율(${closeSession ? `${shortSession(closeSession)} 종가 기준` : '전일 대비'}): ${breadthValue}%, ${detail.leaders.length}종목 기준`;
   breadth.className = 'thp-breadth-line';
 

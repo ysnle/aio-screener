@@ -11,6 +11,8 @@ import { asOfChip, closeChipText, markFrame } from './section-frame.js';
 import { attachScrollCue } from './scroll-cue.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
+import { screenerRowsState } from '../../data/shared-artifacts.js';
+import { dataStateText } from '../../domain/content/data-state.js';
 
 const SESSIONS = Object.freeze({ ret5d: 5, ret10d: 10, ret1m: 21, ret3m: 63, ret6m: 126 });
 // Audit 19: rank movement words, kept apart from the playbook's stage words (주도·조정·반등·약세).
@@ -95,7 +97,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   // reading is held — the same admission the US screener applies when it holds its ranks.
   const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위와 방향은 기준일 시점의 참고 값입니다.' : themeStrengthLead(model, { stages: root?.__aioThemePlaybook?.themes || null });
   if (lead) host.append(sectionLead(doc, lead));
-  if (!model.groups.length) { host.append(el(doc, 'p', '스크리너 수익률이 들어오면 순위가 표시됩니다.', 'briefing-empty')); return; }
+  if (!model.groups.length) { const load = screenerRowsState(root); host.append(el(doc, 'p', load === 'ready' ? '이 보기에서 비교할 테마 수익률이 없습니다.' : `${dataStateText(load, '스크리너 수익률')}.`, 'briefing-empty')); return; } // v58.80 bundle 3
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
   const hr = el(doc, 'tr');

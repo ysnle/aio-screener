@@ -393,14 +393,18 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const vixQuote = runtimeQuoteEvidence(vix, { now });
   const vixValue = vixQuote?.price != null && vixQuote.price > 0 ? vixQuote.price : null;
   const sectors = new Map();
+  // v58.80 (first-users bundle 2): with no cash entered the top said "1종목 평가 완료" while the sector panel waited for
+  // "평가액이 확인되면" — the total needs cash, the split does not. Without cash the split is of the stock value.
+  const sectorBasis = totalAssets != null && totalAssets > 0 ? 'total-assets-including-cash' : allRowsValued && positionValue > 0 ? 'positions-only' : null;
+  const sectorDenominator = sectorBasis === 'total-assets-including-cash' ? totalAssets : sectorBasis ? positionValue : null;
   for (const row of rows) {
-    if (row.value == null || totalAssets == null || totalAssets <= 0) continue;
+    if (row.value == null || sectorDenominator == null) continue;
     const name = row.sector || 'Unclassified';
-    sectors.set(name, (sectors.get(name) || 0) + row.value / totalAssets * 100);
+    sectors.set(name, (sectors.get(name) || 0) + row.value / sectorDenominator * 100);
   }
   if (cash != null && totalAssets != null && totalAssets > 0 && cash > 0) sectors.set('CASH', cash / totalAssets * 100);
   const sectorBreakdown = [...sectors.entries()]
-    .map(([name, pct]) => Object.freeze({ name, pct }))
+    .map(([name, pct]) => Object.freeze({ name, pct, basis: sectorBasis }))
     .sort((a, b) => b.pct - a.pct);
   const sourceKind = rows.some((row) => row.sourceKind === 'live-quote') ? 'portfolio-state+live-quote' : rows.length ? 'portfolio-state' : cash != null ? 'portfolio-state:cash-only' : 'unavailable';
   const valuationState = readState !== 'ready' ? 'unavailable' : rows.length === 0 ? (cash != null ? (cash > 0 ? 'cash-only' : 'empty') : cashHeld ? 'cash-only' : 'empty') : allRowsValued ? 'complete' : someRowsValued ? 'partial' : 'unavailable';
@@ -466,7 +470,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     costFallbackBlocked,
     promotionBlocked: true,
     promotionBlockers: Object.freeze(['portfolio-surface-is-reference-only', 'snapshot-fallback-blocked', 'cost-fallback-blocked']),
-    sectorBreakdown: Object.freeze(sectorBreakdown.map((row) => Object.freeze({ ...row, basis: row.name === 'CASH' ? 'total-assets-including-cash' : 'total-assets-including-cash' }))),
+    sectorBreakdown: Object.freeze(sectorBreakdown),
     sourceKind,
     sourceLabel: sourceKind === 'unavailable' ? 'portfolio-surface-unavailable' : 'native-portfolio-surface-reference-only',
     observedAt: rows.some((row) => row.sourceKind === 'live-quote')

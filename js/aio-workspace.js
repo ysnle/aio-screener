@@ -476,8 +476,15 @@ var _pfConfirmedAdd = null; async function addPortfolioPosition() { // v57.55 re
     showToast('원가 통화는 3자리 코드(예: USD, KRW)로 입력하거나 비워 두세요.');
     return;
   }
-  const costCurrency = costCurrencyRaw || null;
-  if (!ticker || qty <= 0 || cost <= 0) { showToast(!ticker ? '티커를 입력하세요.' : qty <= 0 ? '수량은 0보다 커야 합니다.' : '매수 단가는 0보다 커야 합니다.'); return; } // P1592 (F15): name the field
+  // v58.80 F18: the default currency follows the resolved ticker, the same rule as the cost label.
+  const costCurrency = costCurrencyRaw || (/^\d{6}$/.test(ticker) ? 'KRW' : null);
+  // v58.80 F06/F25: focus the bad field; reject unparsable or huge numbers.
+  const pfBad = function(id, message) { var el = document.getElementById(id); if (el) { el.setAttribute('aria-invalid', 'true'); el.focus(); el.addEventListener('input', function() { el.removeAttribute('aria-invalid'); }, { once: true }); } showToast(message); };
+  const pfUnparsable = function(id) { var el = document.getElementById(id); return !!(el && el.validity && el.validity.badInput); };
+  if (!ticker) { pfBad('pf-add-ticker', '종목(티커 또는 이름)을 입력하세요.'); return; }
+  if (pfUnparsable('pf-add-qty') || qty > 1e9) { pfBad('pf-add-qty', '수량이 너무 크거나 숫자가 아닙니다 — 10억 이하의 숫자로 입력하세요.'); return; }
+  if (pfUnparsable('pf-add-cost') || cost > 1e9) { pfBad('pf-add-cost', '매수 단가가 너무 크거나 숫자가 아닙니다 — 10억 이하의 숫자로 입력하세요.'); return; }
+  if (qty <= 0 || cost <= 0) { pfBad(qty <= 0 ? 'pf-add-qty' : 'pf-add-cost', qty <= 0 ? '수량은 0보다 커야 합니다.' : '매수 단가는 0보다 커야 합니다.'); return; } // P1592 (F15): name the field
   var knownTickers = (typeof KNOWN_TICKERS !== 'undefined') ? KNOWN_TICKERS : [], snapFb = (typeof _SNAP_FALLBACK !== 'undefined') ? _SNAP_FALLBACK : {};
   let ld = window._liveData || {};
   var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker) || !!(pfHolding && pfHolding.known); // v46.6: KNOWN_TICKERS is a Set — .has(); v57.81: + screener universe / name registry
@@ -569,12 +576,16 @@ function clearPortfolioForm() {
 }
 // Codex browser audit H49: the price labels said "$" after KRW was chosen. They follow the declared cost
 // currency, else the currency the ticker trades in (6-digit or .KS/.KQ = KRW), else USD.
-function _pfSyncEntryCurrencyLabels() {
+function _pfEntryCurrency() {
   var ccEl = document.getElementById('pf-add-cost-currency');
   var tkEl = document.getElementById('pf-add-ticker');
   var cc = String(ccEl && ccEl.value || '').trim().toUpperCase();
-  var tk = String(tkEl && tkEl.value || '').trim().toUpperCase();
-  var currency = /^[A-Z]{3}$/.test(cc) ? cc : (/^\d{6}$/.test(tk) || /\.K[SQ]$/.test(tk) ? 'KRW' : 'USD');
+  var raw = String(tkEl && tkEl.value || '').trim(), held = raw && typeof window._aioResolveHoldingInput === 'function' ? window._aioResolveHoldingInput(raw) : null;
+  var tk = String((held && held.symbol) || raw).toUpperCase();
+  return /^[A-Z]{3}$/.test(cc) ? cc : (/^\d{6}$/.test(tk) || /\.K[SQ]$/.test(tk) ? 'KRW' : 'USD');
+}
+function _pfSyncEntryCurrencyLabels() {
+  var currency = _pfEntryCurrency();
   var costLabel = document.getElementById('pf-add-cost-label');
   var targetLabel = document.getElementById('pf-add-target-label');
   if (costLabel) costLabel.textContent = '매수 단가 (' + currency + ')';
@@ -583,6 +594,13 @@ function _pfSyncEntryCurrencyLabels() {
 if (typeof document !== 'undefined') document.addEventListener('input', function(event) {
   var id = event && event.target && event.target.id;
   if (id === 'pf-add-cost-currency' || id === 'pf-add-ticker') _pfSyncEntryCurrencyLabels();
+});
+// v58.80 F25: Enter submits the add form (not while composing Korean).
+if (typeof document !== 'undefined') document.addEventListener('keydown', function(event) {
+  var id = event && event.target && event.target.id;
+  if (event.key !== 'Enter' || event.isComposing || !/^pf-add-(ticker|qty|cost|target|cost-currency|memo)$/.test(id || '')) return;
+  event.preventDefault();
+  addPortfolioPosition();
 });
 // ═══ Confirmation Modal 시스템 ═══════════════════════════════════════
 var _confirmCallback = null;
@@ -619,7 +637,7 @@ function showConfirmModal(title, msg, onConfirm, icon, onCancel) {
   var modal = document.getElementById('aio-confirm-modal');
   _confirmPreviousFocus = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
   if (modal._aioTrapCleanup) modal._aioTrapCleanup();
-  modal.style.display = 'flex';
+  modal.style.display = 'flex'; modal.dataset.tone = /삭제|지우|초기화|제거|비우|덮어/.test(title + ' ' + msg) ? 'danger' : 'neutral'; // run-4: only removals are red
   modal._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(modal, function() { closeConfirmModal('trap'); }) : null;
   okBtn.focus();
   // ESC 키로 닫기
@@ -682,8 +700,8 @@ function showPromptModal(title, label, defaultValue, onSubmit, opts) {
     try { if (typeof onSubmit === 'function') onSubmit(val); } catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'modal', 'prompt onSubmit failed: ' + e.message); }
   }
   function _esc(e) {
-    if (e.key === 'Escape') _close(null);
-    else if (e.key === 'Enter') _close(input.value);
+    if (e.key === 'Escape') { e.preventDefault(); _close(null); }
+    else if (e.key === 'Enter') { e.preventDefault(); _close(input.value); } // v58.80 B18: stop the Enter from reopening the prompt
   }
   document.addEventListener('keydown', _esc);
   document.getElementById('aio-prompt-cancel').addEventListener('click', function() { _close(null); });
@@ -1530,10 +1548,10 @@ async function runPortfolioBacktestLab() {
     out.innerHTML = '<div class="wsl-msg is-warn">보유 종목을 먼저 추가하세요.</div>';
     return;
   }
-  var initial = Number((document.getElementById('pf-bt-initial') || {}).value) || 10000;
-  var startYear = Number((document.getElementById('pf-bt-start-year') || {}).value) || 2017;
-  var rebalance = String((document.getElementById('pf-bt-rebalance') || {}).value || 'annual');
-  var benchmark = String((document.getElementById('pf-bt-benchmark') || {}).value || 'SPY').trim().toUpperCase();
+  // v58.80 (first-users bundle 6): -1000, 1800/3000 and 1e309 ran on silently; src/ui/components/input-check.js reads the form.
+  var form = typeof window._aioReadBacktestInputs === 'function' ? await window._aioReadBacktestInputs().catch(function() { return null; }) : null; if (!form) form = { ok: false, reason: '입력 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 실행하세요.' }; // run 4 breaker #6
+  if (!form.ok) { out.innerHTML = '<div class="wsl-msg is-warn">' + _escHtmlSafe(form.reason) + '</div>'; return; }
+  var initial = form.initial, startYear = form.startYear, rebalance = form.rebalance, benchmark = form.benchmark;
   var tickers = positions.map(function(p) { return String(p.ticker || '').trim().toUpperCase(); }).filter(Boolean);
   if (benchmark && tickers.indexOf(benchmark) < 0) tickers.push(benchmark);
   out.innerHTML = '<div class="wsl-msg">월말 가격 이력을 수집하는 중입니다... (' + tickers.map(_escHtmlSafe).join(', ') + ')</div>';
@@ -1829,7 +1847,7 @@ function deleteWatchlist() {
   var wl = lists.find(function(l) { return l.id === activeId; });
   if (!wl) return;
   showConfirmModal(
-    '워치리스트 삭제',
+    '관심 종목 리스트 삭제',
     '"' + wl.name + '" 리스트와 ' + wl.tickers.length + '개 종목이 삭제됩니다. 계속하시겠습니까?',
     function() {
       var updated = lists.filter(function(l) { return l.id !== activeId; });
@@ -1855,7 +1873,15 @@ function switchWatchlist() {
 // deleted) and clears the inputs only while they still show that request.
 function addToWatchlist(ticker, note, accepted, request) {
   var activeId = request ? request.listId : getActiveWatchlistId();
-  if (!activeId) { showToast('먼저 워치리스트를 선택하세요.'); return; }
+  // v58.80 F16: a stock-page add with no chosen list goes to the first list (or a new one).
+  if (!activeId && ticker && !request) {
+    var wlAll = getWatchlists();
+    if (!wlAll.length) { wlAll.push({ id: 'wl_' + Date.now(), name: '관심 종목', tickers: [], createdAt: Date.now() }); saveWatchlists(wlAll); }
+    activeId = wlAll[0].id;
+    setActiveWatchlistId(activeId);
+    try { refreshWatchlistUI(); } catch (_) {}
+  }
+  if (!activeId) { showToast('먼저 관심 종목 리스트를 고르세요.'); return; }
   var fromInputs = request ? request.fromInputs : false;
   var typed = request ? request.typed : null;
   // 인자 없으면 입력 필드에서 가져오기
@@ -1869,18 +1895,19 @@ function addToWatchlist(ticker, note, accepted, request) {
   }
   if (!ticker) { showToast('티커를 입력하세요.'); return; }
   var pending = { listId: activeId, fromInputs: fromInputs, typed: typed };
-  if (accepted !== true && typeof window._aioAcceptSymbol === 'function') { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok || r.reason === 'listing-unavailable') addToWatchlist(r.id || ticker, note, true, pending); else window._aioToastWithNameHint(ticker, ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // v57.81: known or US-listed (listing directory) symbols only; accepted ones join the quote request set
+  if (accepted !== true && typeof window._aioAcceptSymbol !== 'function') { showToast('종목 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 추가하세요.'); return; } // run-4 #5
+  if (accepted !== true) { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok) addToWatchlist(r.id || ticker, note, true, pending); else if (r.reason === 'listing-unavailable') showToast(String(ticker).slice(0, 24) + ': 미국 상장 목록을 받지 못해 확인할 수 없습니다. 잠시 뒤 다시 추가하세요.'); else window._aioToastWithNameHint(ticker, ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // like the holding form, an unchecked symbol is not saved // v57.81: known or US-listed (listing directory) symbols only; accepted ones join the quote request set
   var lists = getWatchlists();
   var wl = lists.find(function(l) { return l.id === activeId; });
   if (!wl) { if (request) showToast(ticker + ': 추가하려던 워치리스트가 삭제되어 추가하지 않았습니다.'); return; }
   // 중복 체크
   if (wl.tickers.some(function(t) { return t.sym === ticker; })) {
-    showToast(ticker + '는 이미 이 리스트에 있습니다.');
+    showToast(ticker + ': 이미 이 리스트에 있습니다.');
     return;
   }
   wl.tickers.push({ sym: ticker, note: note || '', addedAt: Date.now() });
   saveWatchlists(lists);
-  if (activeId !== getActiveWatchlistId()) showToast(ticker + '를 "' + (wl.name || '이전 목록') + '" 목록에 추가했습니다.');
+  if (activeId !== getActiveWatchlistId() || !fromInputs) showToast(ticker + ': "' + (wl.name || '이전 목록') + '" 목록에 추가했습니다.');
   // 입력 필드 초기화 — 이 요청을 입력한 그대로일 때만
   var inp2 = document.getElementById('wl-add-ticker');
   var noteInp2 = document.getElementById('wl-add-note');
@@ -1889,7 +1916,7 @@ function addToWatchlist(ticker, note, accepted, request) {
     if (inp2) inp2.value = '';
     if (noteInp2) noteInp2.value = '';
   }
-  renderWatchlistContent();
+  refreshWatchlistUI(); // run-4 #12
 }
 
 function removeFromWatchlist(ticker) {
@@ -1900,14 +1927,14 @@ function removeFromWatchlist(ticker) {
   if (!wl) return;
   wl.tickers = wl.tickers.filter(function(t) { return t.sym !== ticker; });
   saveWatchlists(lists);
-  renderWatchlistContent();
+  refreshWatchlistUI(); // run-4 #12
 }
 
 
 // 간단 토스트 알림
 function showToast(msg) {
   var toast = document.createElement('div');
-  toast.className = 'aio-toast wsl-toast'; toast.textContent = msg; // v57.81: .aio-toast stacks above the first-visit disclaimer; look: legacy-workspace.css
+  toast.className = 'aio-toast wsl-toast'; toast.textContent = String(msg == null ? '' : msg).replace(/\S{33,}/g, function(w) { return w.slice(0, 24) + '…'; }).slice(0, 320); // run-4 #10 // v57.81: .aio-toast stacks above the first-visit disclaimer; look: legacy-workspace.css
   document.body.appendChild(toast);
   requestAnimationFrame(function() { toast.style.opacity = '1'; });
   setTimeout(function() {
@@ -1931,7 +1958,7 @@ function refreshWatchlistUI() {
   if (!sel) return;
   var lists = getWatchlists();
   var activeId = getActiveWatchlistId();
-  sel.innerHTML = '<option value="">리스트 ' + lists.length + '개</option>';
+  sel.innerHTML = '<option value="">리스트 ' + lists.length + '개</option>'; sel.dataset.filled = '1'; // run-4 #4
   lists.forEach(function(l) {
     var opt = document.createElement('option');
     opt.value = l.id;
@@ -2026,9 +2053,10 @@ _aioPageBus.register('html-portfolio-watchlist-shown', 'aio:pageShown', function
 _aioPageBus.register('html-portfolio-watchlist-live', 'aio:liveQuotes', function() {
   var pfPage = document.getElementById('page-portfolio');
   if (pfPage && pfPage.classList.contains('active')) {
-    try { renderWatchlistContent(); } catch(err) {}
+    try { var wlSel = document.getElementById('wl-select'); (wlSel && !wlSel.dataset.filled ? refreshWatchlistUI : renderWatchlistContent)(); } catch(err) {}
   }
 });
+var pfShownAtLoad = document.getElementById('page-portfolio'); if (pfShownAtLoad && pfShownAtLoad.classList.contains('active')) { try { refreshWatchlistUI(); } catch (_) {} } // the initial route's pageShown can fire before this listener
 });
 
 // Hook: refresh portfolio on live data update

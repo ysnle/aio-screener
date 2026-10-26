@@ -271,7 +271,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
   principle.append(el(doc, 'p', `요인 점수의 예측력은 정보 계수(IC) — 점수 순위와 이후 수익률 순위의 상관 — 로 잽니다. 학술 연구에서도 '발견된' 요인 상당수가 데이터 마이닝의 산물일 수 있어, 새 요인에는 t 값 3 이상을 요구해야 한다는 제안이 있습니다. ${rule}${undecided}`, 'sx-disclosure__text'));
   if (read.gateChip) principle.append(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(', ')}` : ''}${read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
   const evidence = el(doc, 'div', null, 'sx-evidence scr-vh-evidence');
-  evidence.append(el(doc, 'span', '근거, Grinold(1989) 기본 법칙, Harvey·Liu·Zhu(2016) …and the Cross-Section of Expected Returns'), el(doc, 'span', `데이터, 스크리너 산출물 사후 검증${read.asOf ? ` ${read.asOf}` : ''}, screener-validation-gate`), el(doc, 'span', `상태, ${read.chips.join(', ') || '기록 있음'}`));
+  evidence.append(el(doc, 'span', '근거, Grinold(1989) 기본 법칙, Harvey·Liu·Zhu(2016) …and the Cross-Section of Expected Returns'), el(doc, 'span', `데이터, 스크리너 결과 사후 검증${read.asOf ? ` ${read.asOf}` : ''}`), el(doc, 'span', `상태, ${read.chips.join(', ') || '기록 있음'}`));
   principle.append(evidence);
   parts.push(principle);
   host.replaceChildren(...parts);

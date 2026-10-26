@@ -37,8 +37,9 @@ export function installShellOverlays({ root = globalThis, documentRef = root?.do
     body.classList.toggle('aio-update-banner-open', bannerOpen);
     html.style.setProperty('--aio-update-banner-h', bannerOpen ? `${banner.offsetHeight}px` : '0px');
     const bar = documentRef.querySelector('#aio-first-visit-disclaimer');
-    body.classList.toggle('aio-disclaimer-open', !!bar);
-    if (bar) html.style.setProperty('--aio-disclaimer-h', `${bar.offsetHeight}px`); else html.style.removeProperty('--aio-disclaimer-h');
+    const floating = !!bar && !bar.classList.contains('is-inline'); // an inline notice (F27) needs no reserved space
+    body.classList.toggle('aio-disclaimer-open', floating);
+    if (floating) html.style.setProperty('--aio-disclaimer-h', `${bar.offsetHeight}px`); else html.style.removeProperty('--aio-disclaimer-h');
     if (sizeObserver && bar !== watchedBar) {
       if (watchedBar) sizeObserver.unobserve(watchedBar);
       if (bar) sizeObserver.observe(bar);

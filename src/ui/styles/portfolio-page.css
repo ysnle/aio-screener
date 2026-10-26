@@ -38,6 +38,9 @@
 #pf-positions-tbody > tr.pfp-row { border-bottom: 0.5px solid var(--border); cursor: pointer; }
 #pf-positions-tbody td.pfp-ticker { padding: 8px 10px; font-size: var(--fs-base); }
 #pf-positions-tbody .pfp-memo { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
+/* v58.80 (first-users run-3 B17): a 5,000-character memo with no spaces widened the table to 51,180px. */
+#pf-positions-tbody :is(.pfp-memo, .pfp-detail-memo, dd) { overflow-wrap: anywhere; word-break: break-word; }
+#pf-positions-tbody .pfp-detail-memo { max-height: 12em; overflow-y: auto; }
 #pf-positions-tbody td.pfp-cell { text-align: center; padding: 8px 6px; font-family: var(--font-mono); font-size: var(--fs-sm); }
 #pf-positions-tbody td.pfp-cell.is-bold { font-weight: 700; }
 #pf-positions-tbody td.pfp-cell.is-sans { font-family: inherit; }
@@ -59,6 +62,11 @@
 /* v58.52 매매일지 · 복기 (src/ui/panels/portfolio-trade-journal.js) */
 #pf-trades .pf-trade-form, #pf-trades .pf-trade-rules, #pf-trades .pf-trade-fold { border: 0.5px solid var(--border-subtle); border-radius: 8px; padding: 10px 14px; margin: 10px 0; background: var(--bg-card, transparent); }
 #pf-trades summary { cursor: pointer; font-weight: 700; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
+/* first-users run-3 B19: a flex summary loses its marker, so "거래 기록하기" (open from the start) read as a heading and the
+   first click closed it. Every journal fold says what a click does, like .aio-page-advanced-toggle. */
+#pf-trades summary::after { content: '펼치기'; margin-left: auto; padding-left: 12px; color: var(--accent); font-size: var(--fs-sm, 12px); font-weight: 600; }
+#pf-trades details[open] > summary::after { content: '접기'; }
+@media (pointer: coarse) { #pf-trades summary { min-height: 44px; } }
 #pf-trades .pf-trade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; margin: 10px 0; }
 #pf-trades .pf-trade-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm, 12px); color: var(--text-muted); min-width: 0; }
 #pf-trades .pf-trade-field input, #pf-trades .pf-trade-field select, #pf-trades .pf-trade-field textarea { min-height: 36px; padding: 6px 8px; border: 0.5px solid var(--border-subtle); border-radius: 8px; background: var(--bg-input, var(--bg-card, transparent)); color: var(--text-primary); font: inherit; width: 100%; box-sizing: border-box; }
@@ -95,3 +103,36 @@
 #pf-checks .pf-checks-fold > summary { cursor: pointer; font-weight: 700; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
 /* 내 계획 점검 (R:R) result lines */
 #pf-rr-fold .pf-rr-lines { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 4px; font-variant-numeric: tabular-nums; }
+
+/* v58.80 (first-users bundle 6): a refused number says why beside its field (src/ui/components/input-check.js). */
+.input-check-error { display: block; margin-top: 4px; font-size: var(--fs-min); color: var(--data-red); line-height: 1.4; }
+.pf-crosstab-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-elevated); }
+input[aria-invalid="true"] { border-color: var(--data-red); }
+/* v58.80 (first-users run-4): "예: AAPL, 애플" and the optional-field hints were cut off in 80–90px boxes. */
+@media (min-width: 701px) { #pf-add-ticker { width: 140px; } #pf-add-target { width: 120px; } }
+/* With the AI panel beside the page the holdings table clipped its last columns ("주식 중 비중" → "10"); it scrolls instead. */
+@media (min-width: 701px) { #pf-holdings-table-section { overflow-x: auto; } #pf-holdings-table-section .sh-portfolio-holdings-table th { white-space: nowrap; } }
+
+/* v58.80 (first-users bundle 5): on a phone the holdings table is a list of cards. The sticky 종목 column overlapped
+   "목표가" after a sideways swipe and 수정·삭제 sat off-screen at x 617–661; each row now wraps inside the screen, every value
+   names its column, and the manage buttons sit on the card's last line at 44px (same 700px breakpoint as responsive.css). */
+@media (max-width: 700px) {
+  .page .sh-portfolio-holdings-table thead { display: none; }
+  .page .sh-portfolio-holdings-table, .page .sh-portfolio-holdings-table tbody { display: block; width: 100%; }
+  .page .sh-portfolio-holdings-table tbody tr { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
+  .page .sh-portfolio-holdings-table tbody td { display: flex; flex-direction: column; gap: 2px; padding: 0; border: 0; position: static; min-width: 0; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+  .page .sh-portfolio-holdings-table tbody td[data-label]::before { content: attr(data-label); font-size: var(--fs-min); color: var(--text-muted); font-weight: 400; }
+  .page .sh-portfolio-holdings-table tbody td[headers="pf-th-ticker"], .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] { grid-column: 1 / -1; }
+  .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] button { min-height: 44px; min-width: 44px; }
+}
+
+/* v58.80 (first-users bundle 5): the add form's 80–110px fields cut their examples ("예: AAPL, 애플", "비우면 자동") on a
+   phone; below 600px each field takes the full row and the buttons reach 44px. */
+@media (max-width: 600px) {
+  .sh-portfolio-entry-part-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sh-portfolio-entry-part-row > div:first-child, .sh-portfolio-entry-part-row > .sh-portfolio-entry-part-grow { grid-column: 1 / -1; }
+  .sh-portfolio-entry-part-row input { width: 100%; min-width: 0; box-sizing: border-box; min-height: 44px; }
+  .sh-portfolio-entry-part-row > button { min-height: 44px; }
+}
+@media (hover: none) and (pointer: coarse) { #sidebar-kbd-btn { display: none; } } /* no keyboard shortcuts on a phone */

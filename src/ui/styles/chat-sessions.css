@@ -29,6 +29,10 @@
 #ai-panel .ai-ph { gap: 6px; }
 #ai-panel .ai-ph-title { min-width: 0; flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #ai-panel .ai-ph-badge { display: none; }
+/* First-users run 4: the shared AI route state, shown when the panel opens. */
+#ai-panel .ai-ph-route { margin-left: auto; margin-right: 8px; font-size: 12px; color: var(--text-muted); }
+#ai-panel .ai-ph-route[data-state="ok"] { color: var(--data-green); }
+#ai-panel .ai-ph-route[data-state="down"] { color: var(--data-amber); }
 #ai-panel .ai-session-controls { flex: 0 0 auto; margin-left: 0; }
 #ai-panel .ai-session-head-btn { white-space: nowrap; }
 /* Owner 2026-10-25: 답변 맞춤 sheet (src/ui/components/ai-profile.js). */

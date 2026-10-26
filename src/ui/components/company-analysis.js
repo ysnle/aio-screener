@@ -1,12 +1,13 @@
 import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
+import { DATA_STATE_CHIPS, dataStateText } from '../../domain/content/data-state.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { parseFiscalHistory, requestFiscalHistory, dartLink, EARNINGS_CALENDAR } from './fiscal-read.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { MARKET_LABELS } from '../../domain/screener/market-scope.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
-import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, sharedArtifactState, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { krFundamentalPoints, KR_FUNDAMENTALS } from '../../domain/entity/kr-fundamentals.js';
 import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
@@ -21,7 +22,8 @@ export function keyMetricsLine(row, consensus, earnings = [], today = new Date()
   const parts = [];
   const close = mdOf(row.factorSessionDate);
   const cap = Number.isFinite(row.mcap) && row.mcap > 0 ? row.mcap : Number(row.referenceMarketCap?.billions) > 0 ? Number(row.referenceMarketCap.billions) : null;
-  if (cap) parts.push(`시총 약 $${cap >= 1000 ? `${(cap / 1000).toFixed(2)}T` : `${Math.round(cap)}B`}${close ? `(${close} 종가)` : ''}`);
+  // v58.80 (first-users F33): $4.61T / $95B read as English units to a Korean reader; the same 조/억 달러 as the calendar.
+  if (cap) parts.push(`시총 약 ${cap >= 1000 ? `${Number((cap / 1000).toFixed(2))}조 달러` : `${Math.round(cap * 10).toLocaleString('en-US')}억 달러`}${close ? `(${close} 종가)` : ''}`);
   const view = consensusView(row, consensus);
   if (view?.trailingPe != null) parts.push(`직전 4개 분기 PER ${peMultipleText(view.trailingPe)}(조정 EPS)`);
   else if (Number(row.pe) > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${peMultipleText(Number(row.pe))}(공시 순이익, ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${peMultipleText(Number(row.pe))}`);
@@ -47,16 +49,18 @@ function card(doc, title, status) {
 }
 
 // P1624: this renderer reads existing issuer-keyed caches only; no provider or paid calls.
-export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state }) {
+export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state, fundamentalsState=null }) {
   const host=doc?.getElementById('ticker-company-analysis'); if (!host) return null;
   const id=String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
   if (!id) { host.hidden=true; host.replaceChildren(); root.__aioCompanyAnalysis=null; return null; }
+  // First-users run 4 (breaker #11): a symbol the US listing refused has no company to summarise (it read '다음 실적 일정 미확정').
+  if (root?._aioOnDemandSymbol?.(id)?.status === 'not-listed') { host.hidden=true; host.replaceChildren(); delete host.dataset.signature; root.__aioCompanyAnalysis=null; return null; }
   // P1654: Korean listings read OpenDART annual accounts (loaded once per TTL; re-render when a new copy arrives).
   // 2026-10-14 audit #5: the theme stage rows (scenario-state.json) are read here too, not only after 거시 opened them.
-  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); }).catch(() => {});
-  if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); }).catch(() => {});
+  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); }).catch(() => {});
+  if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); }).catch(() => {});
   requestFiscalHistory(root, () => {
-    if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,state});
+    if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState});
   }, 'company');
   let rows=[]; try { rows=root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) {}
   // v57.81: an out-of-universe US listing reads its on-demand row and SEC record (same formulas, computed on request).
@@ -73,10 +77,10 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   // details and keyboard focus survive; a changed model restores both after rebuilding.
   let keys = null;
   if (!/\.K[SQ]$/.test(id)) {
-    requestConsensusEstimates(root, () => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); });
-    refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); }).catch(() => {});
-    const analysis = loadFundamentalAnalysis(() => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state}); });
-    keys = keyMetricsLine(row, consensusRowFor(root, id), root?.[EARNINGS_CALENDAR.key]?.earnings, undefined, analysis?.buildEarningsSchedule({ symbol: id, calendar: root?.[EARNINGS_CALENDAR.key], consensus: consensusRowFor(root, id) }));
+    requestConsensusEstimates(root, () => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); });
+    refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); }).catch(() => {});
+    const analysis = loadFundamentalAnalysis(() => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); });
+    keys = keyMetricsLine(row, consensusRowFor(root, id), root?.[EARNINGS_CALENDAR.key]?.earnings, undefined, analysis?.buildEarningsSchedule({ symbol: id, calendar: root?.[EARNINGS_CALENDAR.key], consensus: consensusRowFor(root, id), calendarState: sharedArtifactState(root, EARNINGS_CALENDAR.key) }));
   }
   const signature=`${keys || ''}|${root?._aioSecIssuerSic?.[id] || ''}|${fundamentals?.accession || ''}|${JSON.stringify(model)}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}`; // stage chips follow a new scenario state
   if (host.dataset.signature===signature && host.childElementCount) return model;
@@ -126,7 +130,10 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
   identity.append(basisBox);
   grid.append(identity);
   const krFundamental=model.financial.status==='kr-disclosure-required' ? krFundamentalPoints(root?._aioKrFundamentals?.companies?.[id]) : null;
-  const financial=card(doc,'실적·현금·재무 구조',krFundamental ? '공시' : model.financial.status==='reference' ? '참고' : model.financial.status==='not-applicable' ? '기업 재무 대상 아님' : '자료 없음');
+  // v58.80 (first-users bundle 3): a missing record is only "자료 없음" once the SEC summary answered; on the way or failed
+  // it says so (run-3: 요약 read "검증된 연간 공시 자료가 없습니다" on a slow phone while 재무 공시 said it had not arrived).
+  const pending=model.financial.status==='missing' && (fundamentalsState==='loading' || fundamentalsState==='failed') ? fundamentalsState : null;
+  const financial=card(doc,'실적·현금·재무 구조',krFundamental ? '공시' : model.financial.status==='reference' ? '참고' : model.financial.status==='not-applicable' ? '기업 재무 대상 아님' : DATA_STATE_CHIPS[pending || 'absent']);
   if (krFundamental) {
     const list=element(doc,'ul'); for (const point of krFundamental.points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text)); list.append(li); } financial.append(list);
     financial.append(detail(doc,'재무 기간·원문',krFundamental.basisLines), dartLink(doc, root?._aioKrFundamentals?.companies?.[id]));
@@ -135,7 +142,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state 
     const points=model.financial.fiscal.points.filter(point=>['growth','margin','cash','roe','debt','shares','single'].includes(point.id)).slice(0,3);
     const list=element(doc,'ul'); for (const point of points) { const li=element(doc,'li'); li.append(element(doc,'strong',`${point.title} `),element(doc,'span',point.text.split(' — ')[0])); list.append(li); } financial.append(list);
     const more=element(doc,'button',`재무 공시 →`,'aio-btn-table'); more.type='button'; more.setAttribute('aria-label',`${id} 재무 공시 화면에서 전체 재무 흐름 보기`); more.addEventListener('click',()=>root?.showPage?.('fundamental')); financial.append(more);
-  } else financial.append(element(doc,'p',model.financial.status==='not-applicable' ? 'ETF·지수는 사업회사 매출·순이익·ROE로 분석하지 않습니다. 추종 대상·구성·비용은 해당 상품 자료에서 확인합니다.' : model.financial.status==='kr-disclosure-required' ? '한국 상장 종목의 재무는 한국 공시(DART) 사업보고서 원문에서 확인합니다.' : '동일 기업의 검증된 연간 공시 자료가 없습니다. 이전에 보던 기업의 재무나 다른 기간의 숫자를 대신 표시하지 않습니다.'));
+  } else financial.append(element(doc,'p',pending ? `${dataStateText(pending,'SEC 연간 공시 요약')}.` : model.financial.status==='not-applicable' ? 'ETF·지수는 사업회사 매출·순이익·ROE로 분석하지 않습니다. 추종 대상·구성·비용은 해당 상품 자료에서 확인합니다.' : model.financial.status==='kr-disclosure-required' ? '한국 상장 종목의 재무는 한국 공시(DART) 사업보고서 원문에서 확인합니다.' : '동일 기업의 검증된 연간 공시 자료가 없습니다. 이전에 보던 기업의 재무나 다른 기간의 숫자를 대신 표시하지 않습니다.'));
   // 2026-10-13 review S12: the Korean filing source button (address in href/title only).
   if (!krFundamental && model.financial.status==='kr-disclosure-required') financial.append(dartLink(doc, root?._aioKrFundamentals?.companies?.[id]));
   if (!fund) grid.append(financial);

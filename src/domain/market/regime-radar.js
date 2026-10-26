@@ -81,7 +81,12 @@ export function buildRegimeRadar(input = {}, { macroHistory = null, offsets = [0
       observed[slot] = parts.map((part) => part.date).sort()[0];
       return Math.round(parts.reduce((sum, part) => sum + part.value, 0) / parts.length);
     });
-    return { ...axis, values, observed, sample: sample >= MIN_SAMPLE ? sample : null, now: values[0], change5: values[0] != null && values[1] != null ? values[0] - values[1] : null, change20: values[0] != null && values[2] != null ? values[0] - values[2] : null };
+    // v58.80 (first-users bundle 1): "추세 1/100" beside a 52-week range position of 87% read as a contradiction — the axis
+    // ranks the 200-day distance, not the price. Today's measured value travels with the rank so the basis can say so.
+    const single = sources[axis.id].length === 1 ? sources[axis.id][0].series : null;
+    const at = single && dates[0] ? endIndex(single, dates[0]) : -1;
+    const raw = values[0] != null && at >= 0 ? single[at].value : null;
+    return { ...axis, values, observed, raw, sample: sample >= MIN_SAMPLE ? sample : null, now: values[0], change5: values[0] != null && values[1] != null ? values[0] - values[1] : null, change20: values[0] != null && values[2] != null ? values[0] - values[2] : null };
   });
   const moved = axes.filter((axis) => axis.change5 != null).sort((a, b) => Math.abs(b.change5) - Math.abs(a.change5));
   const up = moved.filter((axis) => axis.change5 >= 10).slice(0, 2);

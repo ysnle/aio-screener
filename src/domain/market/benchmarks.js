@@ -3,8 +3,9 @@
 // Index returns come from the completed-close history (price index, no dividends); the screener's stock
 // returns use adjusted closes (dividends included), so a dividend payer gains ~0.5-1%/quarter in comparison.
 import { buildCloseSeries, sessionPointBack } from './close-series.js';
+import { MARKET_WINDOWS } from './market-windows.js';
 
-const WINDOWS = Object.freeze({ ret1m: 21, ret3m: 63, ret6m: 126 });
+const WINDOWS = Object.freeze({ ret1m: MARKET_WINDOWS.month, ret3m: MARKET_WINDOWS.quarter, ret6m: MARKET_WINDOWS.half });
 
 export function benchmarkOf(symbol) {
   const text = String(symbol || '').toUpperCase();

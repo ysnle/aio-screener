@@ -143,9 +143,10 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
       return;
     }
     const el = target(event);
-    if (el) show(el, 'touch'); else hide();
+    // First-users run 4: on touch a control's tap is its action; only non-interactive values open a card.
+    if (el && !el.closest('button, a[href], input, select, textarea, summary, [role="button"], [data-action]')) show(el, 'touch'); else hide();
   };
-  const onKey = (event) => { if (event.key === 'Escape') hide(); };
+  const onKey = (event) => { if (event.key === 'Escape' && anchor) { event.preventDefault(); hide(); } };
 
   doc.addEventListener('pointerover', onOver);
   doc.addEventListener('pointerout', onOut);

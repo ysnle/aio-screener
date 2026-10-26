@@ -86,7 +86,7 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
     const curRange = curStats ? meanRange(curStats, 21) : null;
     const curVsAll = curRange && allRange ? (overlaps(curRange, allRange) ? ` 이 구간 평균의 범위(±${curRange.half.toFixed(1)}%p)가 전체 평균 ${pct(all.mean)}의 범위와 겹쳐, 평균 차이는 구별되지 않습니다.` : ` 이 구간 평균의 범위(±${curRange.half.toFixed(1)}%p)는 전체 평균 ${pct(all.mean)}의 범위와 겹치지 않습니다.`) : ` 전체 평균은 ${pct(all.mean)}입니다.`;
     const reading = cur && curStats?.n
-      ? `${Number(vix.date.slice(5, 7))}/${Number(vix.date.slice(8, 10))} 종가 VIX ${vix.value.toFixed(1)}은 ${cur.label} 구간입니다. ${from}년 이후 이 구간에 있던 날(${spellText(cur, curStats, 21)}) 뒤 한 달 동안 S&P 500은 평균 ${pct(curStats.mean)} 움직였고 ${curStats.hitRate}%는 올랐습니다. 나쁜 쪽 10%는 ${pct(curStats.p10)} 이하였습니다.${curVsAll}`
+      ? `${Number(vix.date.slice(5, 7))}/${Number(vix.date.slice(8, 10))} 종가 VIX ${vix.value.toFixed(2)}은 ${cur.label} 구간입니다. ${from}년 이후 이 구간에 있던 날(${spellText(cur, curStats, 21)}) 뒤 한 달 동안 S&P 500은 평균 ${pct(curStats.mean)} 움직였고 ${curStats.hitRate}%는 올랐습니다. 나쁜 쪽 10%는 ${pct(curStats.p10)} 이하였습니다.${curVsAll}`
       : `${from}년 이후 VIX 구간별로 그 뒤 한 달 동안 S&P 500이 실제로 어떻게 움직였는지입니다. 오늘의 VIX 종가가 없어 현재 구간은 표시하지 않습니다.`;
     // D08: name the bands whose mean range clears the overall range; when none does, the table shows no distinguishable gap.
     const distinct = allRange ? rows.filter((band) => { const r = meanRange(month(band), 21); return r && !overlaps(r, allRange); }).map((band) => band.label) : [];

@@ -1,10 +1,172 @@
 ---
-last_verified: 2026-10-25
+last_verified: 2026-10-26
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2081 - v58.80 - 휴대폰·느린 망에서 첫 화면 결론이 늦고, 면책 막대·맨 위로 버튼이 본문을 가렸으며, 로딩 중 상태가 '자료 없음'처럼 읽혔다 (2026-10-26)
+
+- symptom/reproduction: 느린 3G에서 오늘의 판정이 종가 기록 요청을 기다려 1분 넘게 비어 있음(요청이 레거시 스크립트 네 개 뒤에야 시작); 면책 막대가 본문 위에 떠서 결론 카드를 가림; 맨 위로 버튼이 표 숫자를 가림; 지수 카드가 처음엔 SOXX, 나중엔 SMH로 바뀌고 장중 그래프를 기다리는 동안 빈 상자; '종가장중 그래프는…'처럼 붙어 읽힘; 기록을 받는 중에도 '비교할 두 거래일의 종가 기록이 없습니다'; 재무 파일을 한 번 못 받으면 다시 열 때까지 그대로; 입력칸·차트 기간 버튼이 44px보다 작음; AI 상태는 질문을 보내야만 보임; 포트폴리오 요약 격자에 빈칸.
+- root_cause: 종가 기록 fetch가 _aioLoadHistory 안(레거시 스크립트 실행 뒤)에서만 시작됐다. 면책 막대는 고정 위치 오버레이였고 shell-overlays가 그 높이만큼 본문을 늘렸다. 지수 카드는 대체 기호 목록과 표시 기호를 따로 정했다. 로딩과 빈 기록이 같은 문구를 썼다. 재무 동기화는 실패 뒤 재시도가 없었다.
+- fix: index.html 부팅 스크립트가 history.json을 낮은 우선순위로 먼저 받고 _aioLoadHistory가 한 번 소비. 면책은 .content 첫 자식의 인라인 영역(role=region)으로 두고, 겹침 여백은 떠 있는 막대일 때만. 1023px 이하에서 맨 위로 버튼을 숨기고(현재 탭을 다시 누르면 위로), 부팅 로더는 탭 막대 위 아래쪽. 지수 카드는 SPY·QQQ·SMH·IWM 고정, 표시 기호가 태그와 클릭을 함께 정하고, 종가를 바로 그린 뒤 기록이 오면 다시 그리며, 사이를 띄어 씀. 기록이 비면 '종가 기록을 불러오는 중입니다.' 재무가 없으면 3·8·20초 뒤 최대 3번 다시 받음(세대 확인). .page 입력·AI 입력·차트 기간 버튼 44px. AI 패널 머리에 연결 상태(aria-live). 요약 격자 마지막 칸이 남는 줄을 채움.
+- violated_rule: AGENTS 제품 결정(데스크톱·모바일·아이패드 반응형 지원) — 휴대폰에서 결론이 늦고 고정 요소가 본문을 가렸다.
+- prevention: ci-esm-core-unit-check: v58.80 엔터티 재무 재시도(지연 3단계, 세대가 바뀌면 중단, id당 3번). 브라우저: 면책이 .content 안 인라인, 지수 카드 기호 SPY/QQQ/SMH/IWM과 즉시 종가, 휴대폰 오늘 높이 약 5,300px(이전 16,700px), 요약 격자 빈칸 없음(1440·390px).
+- verification/residual: qa-runner --profile affected. Playwright 1440·390px 확인, 페이지 오류 0. 느린 3G 첫 로드 전체 시간(F01)은 큰 산출물 분할이 남아 열린 항목이다.
+
+## P2080 - v58.80 - 확인 대화상자의 Enter가 취소로 처리됐고, 관심 종목·뒤로 가기·접기·빈 상태가 사용자가 기대한 동작과 달랐다 (2026-10-26)
+
+- symptom/reproduction: 보유 종목 중복 확인에서 '확인'에 초점이 있는데 Enter를 누르면 창이 닫히고 변경이 적용되지 않음(클릭은 정상); 종목 확인 도구가 아직 없으면 관심 종목이 확인 없이 저장됨; 5,000자 붙여넣기가 알림을 화면 밖으로 밀어냄; 바로 연 포트폴리오에서 리스트 선택기가 비어 있고 추가·삭제 뒤 개수가 그대로; 리서치 노트·대가를 연 뒤 뒤로 가기가 라이브러리를 떠남; Ctrl+K가 검색창 없는 화면에서 아무 일도 안 함(도움말은 용어 사전을 약속); 매매일지 '거래 기록하기'가 처음부터 열려 있으나 표시가 없어 첫 클릭이 닫음; 공백 없는 긴 메모가 표를 51,180px로 넓힘; '내 종목'이 비면 스크리너로만 안내; 비활성 '내 종목' 칩이 터치에서 이유를 보이지 못함; 리서치 검색이 '분배일'을 못 찾음; 휴대폰에서 용어 사전 검색창 자동 초점으로 키보드가 목록을 가림; AI 중지 버튼이 시작 직후 클릭으로 바로 멈춤; 여러 줄 질문이 한 줄로 보임.
+- root_cause: aio-core의 role=button 키보드 위임이 Enter를 받은 요소가 아니라 바깥 data-action(확인 창 배경의 closeConfirmModal)을 찾아 먼저 실행했다 — 안쪽 네이티브 버튼의 Enter를 가로챈 것이다. 리서치 페이지는 문서를 열 때 URL을 replace만 했다. 매매일지 summary가 display:flex라 펼침 표시가 사라졌다. 관심 종목 추가는 확인 도구가 없을 때 저장으로 넘어갔다. 그 밖에는 각 화면이 상태(선택기 채움, 개수, 이유 문구)를 한 번만 그렸다.
+- fix: 키보드 위임은 Enter의 대상이 data-action 요소 안의 네이티브 컨트롤(button·a·input·select·textarea·summary)이면 손대지 않는다(모든 확인 창에 적용). 확인 창 색은 삭제류만 빨강. 관심 종목은 확인 도구가 없거나 목록을 받지 못하면 저장하지 않고 이유를 말함. 알림은 긴 단어를 자르고 320자로 제한. 선택기에 채움 표시를 두고 첫 진입·시세 갱신 때 새로 그리며, 추가·삭제 뒤 개수를 갱신. pushKnowledgeRouteState로 리서치 문서·대가 선택이 기록을 남기고 popstate에서 URL을 다시 읽음. Ctrl+K는 검색창이 없으면 용어 사전을 엶. 매매일지 접기마다 '펼치기/접기' 표시와 터치 44px. 메모 overflow-wrap:anywhere. '내 종목' 빈 상태는 '포트폴리오에서 추가'와 관심 종목 넣는 곳 안내, 비활성 칩은 aria-disabled로 바꿔 누르면 이유 알림. 리서치 검색이 용어 사전 항목도 찾아 그 단어로 엶. 터치에서는 용어 사전 자동 초점 생략. AI 중지는 시작 800ms 안의 클릭을 무시하고 질문 줄바꿈을 보존.
+- violated_rule: P1604 role-button 소유자 규칙의 반대 방향 — 위임 핸들러가 안쪽 네이티브 컨트롤의 기본 동작을 가로챘다.
+- prevention: 브라우저 재현 스크립트로 확인: 중복 확인 Enter 뒤 수량 10→12, closeConfirmModal 호출 사유 'confirm'. 리서치: 노트 열기→뒤로=목록, 다시 뒤로=이전 화면. 대가: Vanguard 선택→뒤로=Buffett. 검색 '분배일'→용어 사전 결과→사전이 그 단어로 열림. Ctrl+K(매크로)→용어 사전 검색창 초점. us-listings 게이트가 관심 종목 거절 문구를 계속 고정.
+- verification/residual: Playwright 1440px로 위 시나리오를 모두 재현한 뒤 통과, 페이지 오류 0. qa-runner --profile affected.
+
+## P2079 - v58.80 - 같은 숫자가 화면마다 다른 기준·단위·자릿수로 읽혔고, 판정 문구가 지시처럼 읽혔다 (2026-10-26)
+
+- symptom/reproduction: 종목 MSFT 3개월 초과 수익 +32.2%p(S&P 가격만) vs 포트폴리오 32.0%p(SPY 배당 포함); VIX 19.4와 19.45; 매출·시가총액이 $416.2B·5.14T·$7.126M처럼 섞여 표기; 섹터 '후행' 옆 테마 '주도 지속'을 설명 없이 나란히; 순위 분모(70/810)가 무엇의 수인지 없음; ROE 180%가 설명 없이 좋은 값처럼 보임; 위험 칸 '50일선 위 1.6배'가 무엇의 배수인지 없음; 실적 일정이 미국 날짜로 시작해 한국 시각 정렬과 뒤섞여 보임; FOMC 사유에 KST 없음; 동종 업계 중앙값에 회사 자신이 들어감; 차트의 가까운 가격선 라벨이 겹침; 네 가지 선택지 칩 '상대적으로 유리'가 지시처럼 읽힘; 오늘의 한 문장이 질문만 있고 판정은 아래에 있음.
+- root_cause: 기준(가격 지수 vs 배당 포함 ETF)과 단위·자릿수를 화면마다 따로 정했다. 미국 금액 포맷터가 formatUsdShort·formatFiscalAmount·화면별 코드로 갈라져 있었고, 일정 정렬 키(한국 시각)와 라벨 앞머리(미국 날짜)가 달랐다. 동종 중앙값은 비교 대상 집합에서 회사 자신을 빼지 않았다.
+- fix: 미국 종목의 비교 기준을 포트폴리오와 같은 SPY 배당 포함 수익률(같은 factor 세션)로 통일하고 '둘 다 배당 포함'이라 밝힘. VIX는 어디서나 소수 둘째 자리. src/domain/shared/number.js usdKoreanText 하나로 미국 금액을 조·억·만 달러로 표기(재무 표·문단·종목·스크리너·대가·뉴스·AI 그림). 섹터와 테마가 엇갈리면 범위 차이를 한 문장으로, 순위 분모는 '가격 기록이 충분해 순위를 매긴 종목 수', ROE 60% 초과는 '자기자본이 작아 크게 나옴', 위험 칸은 '50일선 위, 하루 움직임의 N배'와 정의, 52주 칸은 0%·100%의 뜻. 실적 일정 라벨은 '한국 10/28 새벽 (미국 10/27 장 마감 후, 시각 미정)', FOMC 사유는 KST. 동종 중앙값에서 회사 자신을 뺌. 0.4% 안의 가격선은 라벨 하나로 합침. 선택지 칩과 AI 프롬프트의 '유리'를 '비용이 작은 쪽'으로 바꾸고, 한 문장 아래에 판정 한 줄을 둠.
+- violated_rule: AGENTS 제품 결정(종가 기준 점수, 매매 지시 금지) — 같은 값이 화면마다 다른 기준으로 보였고 판정 칩이 행동 지시처럼 읽혔다.
+- prevention: ci-esm-core-unit-check: usdKoreanText 조·억·만 경계와 부호, VIX 기간 카드 'VIX 22.20 → S&P 500 하루 약 ±1.4%'. ci-fiscal-quality-fixture: 재무 표·셀 제목이 한국 단위(-712.6만 달러, 4,162억 달러), 동종 중앙값이 자신을 뺀 20. 브라우저: MSFT 비교 기준 'S&P 500(SPY, 배당 포함)', 시가총액 '5.14조 달러', 일정 라벨이 한국 날짜 순.
+- verification/residual: qa-runner --profile affected(로컬 데이터 신선도 2건 외 통과). Playwright 1440px로 종목 칸 문구·비교 기준·금액 단위·일정 라벨 확인, 페이지 오류 0.
+
+## P2078 - v58.80 - 초보자에게 내부 이름·영어·수식이 그대로 보였고, 관심 종목·검색·스크리너·두 탭·AI 패널의 상태가 서로 어긋났다 (2026-10-26)
+
+- symptom/reproduction: 용어 표시는 눌러야만 열림; 시장 상태 축 이름 아래 Trend·Breadth 같은 영어; 맞춤 조건 '하루 평균 변동폭(ADR)'이 미국 예탁증권(ADR)과 겹침; 포트폴리오 근거 줄에 'iShares IVV 보유', '고정 목록 2026-10-20.v1', '1 ÷ Σ비중²', 스크리너 근거에 'screener-validation-gate'; OAS 정의에 FRED 코드, ROE 정의가 영어 수식으로 시작; 사전에 '브레드스' 없음; 테마 상세 '브레드스: 시세 대기'; 캐시된 뉴스가 영어 제목이 남아도 '번역 완료'. 상태: 스크리너 별표와 포트폴리오 관심 종목이 다른 저장소('리스트 0개'); 종목 화면 관심 종목 버튼이 상태를 바꾸지 않음과 'AAPL를'; AAPLL 거절 문구 아래 AAPL 분석이 남아 AAPLL 분석처럼 읽힘; 필터 결과 0건 옆에 마지막 종목 설명; 두 번째 탭이 다음 동작 전까지 옛 보유를 보임; 페이지에 초점이 있을 때 Esc가 AI 패널을 닫지 않음; 연결 실패 때 질문 없이 같은 오류 말풍선만 쌓임; '+ 새 리스트'에서 Enter로 만들면 입력 창이 다시 열림.
+- root_cause: 화면 문구가 원천·내부 식별자를 그대로 썼고, 관심 종목은 v50대 별표 배열과 이후의 이름 있는 리스트가 따로 남았다. 종목 검색 거절은 문구만 더했고, 스크리너 상세는 전체 결과에 그 종목이 있는지만 보았으며, 포트폴리오는 다른 탭의 storage 이벤트를 듣지 않았다. Esc는 패널 안 초점에서만 처리했고, 프롬프트는 Enter keydown 안에서 초점을 버튼으로 돌려 그 Enter가 버튼을 다시 눌렀다.
+- fix: term-marks가 마우스가 머물면(250ms) 초점 이동 없이 열고 떠나면 닫음. 축 부제는 무엇을 보는지(S&P 500 가격 흐름, 오르는 종목의 넓이 등). ADR 표기 삭제, 내부 id·제공자·수식 문구를 쉬운 말로, OAS·ROE 정의를 평이한 첫 문장으로, '브레드스·브레드쓰' 별칭, 뉴스 상태는 실제 한국어 제목 수로. src/data/watchlist-store.js 하나로 별표와 관심 종목 리스트를 묶고(옛 별표 배열은 한 번 합친 뒤 삭제) 종목 화면 버튼은 '관심 종목에 추가/빼기'와 aria-pressed. 거절 문구가 아래 남은 분석의 종목을 밝힘. 표에 행이 없으면 상세 패널을 접음. 포트폴리오는 다른 탭 변경을 알리고 다시 불러오기 버튼(복호화된 메모리 때문에 합치지 않음). 처리되지 않은 Esc는 입력칸·모달 밖에서 AI 패널을 닫고, 열린 팝오버의 Esc는 preventDefault로 그 팝오버만 닫음. 연결 실패 때 질문을 먼저 보임. 프롬프트 Enter·Esc는 preventDefault.
+- violated_rule: AGENTS 협업 원칙(초보자 언어, 원천 텍스트는 화면 밖) — 내부 식별자·제공자명이 본문에 노출됐다.
+- prevention: ci-esm-core-unit-check: v58.80 watchlist-store(옛 별표 합치기, 선택 리스트에 추가, 모든 리스트에서 빼기, 리스트 없으면 '관심 종목'). 브라우저 확인(1440px): 용어 호버 열림·초점 유지·떠나면 닫힘, 페이지 초점 Esc로 AI 패널 닫힘, 새 리스트 Enter 뒤 재오픈 없음, AAPLL 거절 문구에 'Apple Inc.(AAPL) 분석 그대로', 버튼 '관심 종목에서 빼기|true'.
+- verification/residual: qa-runner --profile affected 통과(151 통과, 47 캐시, 실패 0). 브라우저: 두 번째 탭이 '다른 탭에서 포트폴리오가 바뀌었습니다' 알림과 다시 불러오기 버튼을 보임, 스크리너 검색으로 0건이 되면 상세 패널이 접히고 검색을 지우면 첫 행으로 다시 열림.
+
+## P2077 - v58.80 - 숫자 입력이 말없이 비워지거나 터무니없는 값을 받았고, 휴대폰에서 표·메뉴·버튼이 손에 맞지 않았다 (2026-10-26)
+
+- symptom/reproduction: 현금 -100·1e309는 말없이 $0, 99999999999999999999는 그대로 저장; 과거 성과 시뮬레이션은 초기 금액 -1000, 시작 연도 1800/3000, 비교 지수 <img…>로 그대로 실행; 휴대폰에서 보유 종목 표가 680px로 옆으로 밀려 고정 종목 칸이 '목표가'를 덮고 수정·삭제가 화면 밖; 메뉴에서 단축키를 열면 메뉴가 위에 남아 '닫기'가 용어 사전을 누름; 추가 폼 예시 문구가 80~110px 칸에서 잘림; '왜'·'설명'·AI 버튼·필터 닫기·면책 고지가 44px 미만; '마우스를 올리면 보임' 안내.
+- root_cause: 숫자 칸마다 Number()로 읽고 실패를 빈 값으로 처리했으며(type=number는 읽지 못한 글자를 빈 문자열로 넘김), 휴대폰 표는 옆 스크롤 전제(min-width 680px, 오른쪽 마스크)였고, 휴대폰 메뉴는 화면 이동·용어 사전에서만 닫혔다.
+- fix: src/domain/shared/numeric-input.js(readNumericInput, 조사 포함 거부 사유, 현금 상한) + src/ui/components/input-check.js(aria-invalid와 칸 옆 문구, 입력 유지, 지연 로딩)를 현금 저장과 시뮬레이션 폼(window._aioReadBacktestInputs)이 쓴다. 휴대폰(≤700px) 보유 종목은 카드(열 이름 표시, 관리 버튼 44px), 추가 폼은 전체 폭; 메뉴는 단축키를 열 때 닫히고 터치 기기에서 단축키 버튼을 숨김; coarse pointer에서 작은 버튼 44px; hover 안내는 '누르거나 마우스를 올리면'.
+- violated_rule: AGENTS 반응형 지원(데스크톱·모바일·아이패드) — 휴대폰 핵심 동작(수정·삭제, 닫기)이 손에 닿지 않았다.
+- prevention: ci-esm-core-unit-check: readNumericInput 거부·허용 표. ci-portfolio-vault-e2e: 음수 현금은 사유와 함께 거부되고 저장값 유지(v58.80 refused_cash_amount_says_why_and_keeps_balance).
+- verification/residual: 390px 브라우저에서 카드 폭 322px(화면 안), 차트·수정·삭제 44x44, 현금 -100 거부 문구 확인. qa-runner affected 통과.
+
+## P2076 - v58.80 - 판단 문장이 같은 화면의 근거·그림과 반대로 읽혔다 (2026-10-25)
+
+- symptom/reproduction: 한 종목 100% 포트폴리오에 '비중이 고르게 나뉘어'; 현금 미입력 때 '1종목 평가 완료' 아래 섹터 배분 '평가액이 확인되면'; RRG에서 선도 구역 안의 XLRE·XLF 점이 문장에서는 개선·기준선 부근; '+10%(101.65) 아래로'와 '-1.8%p / 평소 하루 변동의 0.9배'를 읽지 못함; 근원 PCE 3.0% 중립 칩 위에 '목표보다 높으면 부담'; 신용 '양호까지' 옆 문장은 '중립으로 바뀜'; 한국 순위 표 위에 미국 순위 설명이 남음.
+- root_cause: 문장과 그림이 서로 다른 값에서 나왔다: 분산 문장은 보유 수 1을 고려하지 않았고, 섹터 비중은 현금이 없으면 총자산이 없어 비었으며(surface가 계산한 기준도 덮어씀), RRG 점은 원래 위치·문장은 띠와 이력을 반영한 판정, 조건 문장은 변화율과 가격을 한 괄호에 넣었고, 물가·신용 안내문은 규칙을 단순화해 적었다. 한국 분기는 미국 순위 문단을 숨기지 않았다.
+- fix: portfolio-read 한 종목 문장; surface 섹터 비중은 현금 미입력 때 주식 평가액 기준(basis positions-only, 제목 '현금 미입력, 주식 평가액 대비 비중'); themes RRG 판정과 위치가 다른 점은 빈 원과 판정 단어, 휴대폰은 한국어 섹터 이름; market-read 조건은 가격 먼저('WTI가 101.65(20거래일 전보다 +10%) 아래로'), 거리 칩 '남은 거리', '보통 하루 움직임의 n배'; macro-board 물가 안내는 규칙의 수준선(RULES+버퍼); 신용 조건문은 중립과 바로 양호 두 결과를 나란히; screener 한국 분기에서 미국 순위 문단 숨김.
+- violated_rule: R726 (한 이름은 한 길이·한 집합) 및 AGENTS 근거 없는 판정 금지 — 문장이 자기 근거와 다른 값을 말했다.
+- prevention: ci-esm-core-unit-check: 현금 미입력 평가 완료 포트폴리오의 섹터 비중(positions-only, 100%). 나머지 문구는 끝의 페르소나 재검증(브라우저)에서 확인.
+- verification/residual: qa-runner affected 통과(browser-vault는 파일 잠금 뒤 단독 재실행 통과). 실제 브라우저 확인은 페르소나 재검증에서.
+
+## P2075 - v58.80 - 불러오는 중·받지 못함을 '없음'으로 말하는 화면이 남아 있었다 (2026-10-25)
+
+- symptom/reproduction: 느린 휴대폰에서 요약 '검증된 연간 공시 자료가 없습니다'(재무 공시는 '받지 못했습니다'), 실적 일정 파일 실패 때 '다음 실적 일정 미확정', 테마 '한국 테마 (28개 중 0개)', 테마 순위 '스크리너 수익률이 들어오면…', 포트폴리오 '가격 없음'(10/23 종가가 알려진 종목), 스크리너 '산출물 미수신', 지수 이익 '지수 구성 비중이 아직 없습니다'.
+- root_cause: 상태 어휘가 화면마다 따로였고, 스크리너 스토어의 status 'unavailable'과 공유 산출물 로더가 '아직 응답 없음'과 '실패'를 구분해 내보내지 않아 각 화면이 빈 값을 확정된 부재로 읽었다.
+- fix: src/domain/content/data-state.js(불러오는 중/받지 못함/자료 없음/해당 없음과 문장, entityFundamentalsState)를 새 소유자로 두고, shared-artifacts.js에 sharedArtifactState·screenerRowsState, app/bootstrap.js startScreenerSync가 스크리너 행 적재 상태를 기록한다. 요약 재무 카드·종목 타일·실적 일정(4개 호출처)·테마 순위·한국 테마 요약·스크리너 빈 표·포트폴리오 가격 칸과 상단 문장·지수 이익이 이 상태를 따른다.
+- violated_rule: AGENTS 원천 없는 판정 금지 — 응답 전·실패를 '없음'으로 단정했다(P2068 loading≠absence 계열의 잔여).
+- prevention: ci-esm-core-unit-check: artifactState·dataStateText 조사·entityFundamentalsState 세 상태·sharedArtifactState·실적 일정이 실패/로딩에서 '미확정'을 쓰지 않음.
+- verification/residual: 단위 검사 통과. 브라우저 확인은 끝의 페르소나 재검증(느린 3G)에서.
+
+## P2074 - v58.80 - 같은 이름의 숫자가 화면마다 다른 길이·집합·반올림으로 계산됐다 (2026-10-25)
+
+- symptom/reproduction: S&P 500 3개월 +2.6%(오늘, 62개 행) vs +2.8%(매크로, 63거래일); 시장 온도 20일 수익률 -1.6% vs -1.5%; 동종 ROE 중앙값 26.2%(요약, 본인 포함) vs 24.3%(재무 공시, 본인 제외); 선도 섹터 5개(시장 상태) vs 6개(테마와 섹터), 이름이 붙어 보임; 레이더 '추세 1/100' vs 52주 범위 87%; 엔화 20일 +1.3% vs 엔/달러 -1.3%; VIX 18(용어 사전) vs 17(판정표); 10년 금리 4.96%(피셔 분해) vs 4.99%(시장 종가).
+- root_cause: 기간 이름과 길이를 각 화면이 따로 정했고(.slice(-63)은 62개 변화), 온도 생산자가 원값을 4자리로 반올림한 뒤 화면이 다시 반올림했으며, 동종 중앙값 정의가 두 곳에서 달랐고, 선도 섹터를 링크로 그릴 때 '꺾인 선도' 문장이 통째로 빠졌다. 레이더·피셔·VIX·엔화는 근거가 맞지만 무엇을 재는지 말하지 않았다.
+- fix: src/domain/market/market-windows.js(새 소유자: rule 20, month 21, quarter 63, half 126과 이름)를 home-kpi-trend·benchmarks·macro-board·rates-fx가 쓴다. 참여 그래프는 sessionPointBack으로 63거래일 시작점. market-temperature raw 6자리. stock-lens 동종 중앙값은 본인 제외('이 회사 포함 n곳 중 k위, 동종 n-1곳 중앙값'). scenario-outlook 링크에 꺾인 선도·경계 선도 부분 추가, 이름 사이 쉼표. 레이더 근거에 오늘 측정값과 '가격 자체의 위치가 아님'. 피셔 근거 카드에 시장 종가 10년물과 날짜 차이. 용어 사전 VIX에 양호 기준(17 또는 18 미만·5일 비상승). 엔화 문구는 '엔화 가치 20거래일'.
+- violated_rule: R572 (비교는 같은 관측) — 같은 이름이 다른 길이·집합을 가리켰다.
+- prevention: ci-esm-core-unit-check: 3개월·1개월이 indexReturns·참여 그래프·매크로 표에서 같은 수, 1개월(21)≠20거래일, RULES.crossAsset.window = MARKET_WINDOWS.rule; 온도 raw 6자리. ci-fiscal-quality-fixture: 동종 중앙값은 본인 제외. ci-scenario-guidance-fixture: 링크 형태 선도 목록이 꺾인 선도까지 포함.
+- verification/residual: 실제 history로 S&P 1/5/20/21/63 = -0.52/-0.47/-1.55/-1.04/+2.84 측정, 세 모듈 일치. 실질금리 2.64%(10/22 일별)와 9월 월평균 2.638%는 우연히 같은 값으로 표기가 맞음을 확인. 테마와 섹터의 ETF 1일 vs S&P 지도 섹터 평균은 기준 칩 설명에 이미 방법 차이가 있어 유지.
+
+## P2073 - v58.80 - 주말에 달러 지수 하루 변화가 금요일 체결가와 금요일 정산가의 차이로 계산됐다 (2026-10-25)
+
+- symptom/reproduction: 오늘 화면 달러 지수 10/23 -0.06%(101.752 / 101.81), 금리와 환율 +0.14%(101.75 / 10/22 종가 101.61). first-users 1~3차 회의론자가 같은 하루 변화의 두 값을 지적.
+- root_cause: Yahoo DX-Y.NYB 일봉 목록이 주말에 일요일 재개장 봉(10/25, 빈 값)을 금요일 봉 뒤에 미리 싣는다. 연속 거래 종목(선물·환율·달러 지수·암호화폐)의 직전 봉을 '끝에서 두 번째'로 고르던 previousCloseBarIndex가 금요일 봉 자신을 직전 종가로 골랐다.
+- fix: scripts/producer/quotes.mjs previousCloseBarIndex: 연속 거래 종목은 시세 시각(regularMarketTime) 이후에 열린 봉을 건너뛰고 그 앞 봉을 직전 종가로 쓴다. regularMarketPreviousCloseObservedAt도 직전 봉 다음 봉(현재 세션 봉)의 개시 경계를 쓴다.
+- violated_rule: R572 (비교는 같은 관측) — 변화율의 분모가 같은 세션의 다른 값이었다(P545·P1581·P2065와 같은 '다른 기준의 전일 종가' 계열).
+- prevention: ci-data-pipeline-contract-check에 실제 10/25 DXY 봉 배열(일요일 빈 봉 포함)로 직전 봉 = 10/22 검사 추가(수정 전 코드는 10/23을 고름). ci-history-field-time-contract의 기존 경계 고정을 현재 봉 색인으로 갱신.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs PASS; Yahoo DX-Y.NYB 일봉 직접 조회로 10/23 봉 101.81, 10/25 빈 봉 확인. 다음 refresh-data 실행 뒤 market-snapshot DXY changePct가 +0.14% 근처인지 확인 필요(로컬 생산 금지).
+
+## P2072 - v58.80 - 느린 3G에서 screener.json과 SEC 요약 파일이 8초 제한에 끊겨 처음부터 다시 받기를 반복했다 (2026-10-25)
+
+- symptom/reproduction: first-users phone(50 KB/s, 지연 400ms)에서 screener.json이 11~13번 끊겨 스크리너가 '총 0종목'에 머물고, NVDA 재무가 '재무 파일을 받지 못했습니다'로 끝났다. 재현에서 screener.json은 요청 시작 정확히 8.0초 뒤 중단됐다.
+- root_cause: src/platform/http.js requestJson의 제한 시간(기본 8초)이 응답 헤더 대기뿐 아니라 본문을 다 받을 때까지 포함했다. 배포본 gzip 크기는 screener.json 397 KB, SEC 요약 112 KB라 50 KB/s에서 다른 요청과 대역폭을 나누면 8초를 넘고, 중단 뒤 재요청은 처음부터 다시 받아 영원히 끝나지 않았다. src/data/artifact-cache.js loadJsonArtifact(재무 기록)도 15초 전체 제한으로 같은 구조였다.
+- fix: 두 경로 모두 제한 시간은 응답 헤더가 올 때까지만 적용하고, 스트림 본문은 readBodyText(src/platform/http.js)로 읽어 바이트가 들어오는 동안 기다린다. 무응답 판정은 모든 스트림 본문 기준(20초 동안 어느 본문도 바이트를 받지 못할 때)이라, 큰 파일 옆에서 대역폭을 못 받은 파일(재현에서 screener-universe.json이 19초 무응답)은 끊지 않는다. 스트림이 없는 응답은 기존 전체 제한을 유지한다.
+- violated_rule: 네트워크 제한 시간은 '연결이 죽었다'를 판정해야 하며, 파일 크기와 회선 속도의 곱을 판정하면 안 된다.
+- prevention: ci-esm-core-unit-check가 실제 Response 스트림으로 (1) 제한 시간보다 오래 걸리지만 계속 받는 본문은 성공, (2) 멈춘 본문은 HTTP_TIMEOUT, (3) 다른 본문이 움직이는 동안 굶은 본문은 유지를 확인하고, ci-artifact-cache-check가 같은 규칙(바이트 예산 경로 포함)을 확인한다. 고치기 전 코드에서는 (1)이 HTTP_TIMEOUT·Artifact timeout으로 실패했다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-artifact-cache-check.mjs; gzip 로컬 서버 + CDP 50 KB/s: 이전 코드는 screener.json 8.4초 중단·표 '불러오는 중', 수정 후 24.7초에 완료·표 12행, SEC 요약 12.4초에 완료
+
+## P2071 - v58.80 - '내 계획 점검'이 잘못된 입력을 거절해도 이전 계산 결과를 새 계획처럼 남겼다 (2026-10-25)
+
+- symptom/reproduction: 손절 가격을 진입가보다 높게 넣으면 안내 토스트만 뜨고, 화면에는 직전 계산(-10%, 보상 3.00배, 전체 자본 1.0%)이 그대로 남았다. 20자리 투입 금액은 '전체 자본의 1e+22%'로 계산됐다(first-users run-2 breaker).
+- root_cause: calculateRR이 거절 시 토스트만 띄우고 반환해 결과 영역(rr-result)을 그대로 두었고, 값 상한이 없었다.
+- fix: js/aio-ui.js calculateRR이 거절할 때 결과 영역을 숨기고, 1조를 넘는 값은 단위 확인 안내와 함께 거절한다.
+- violated_rule: 거절된 입력 뒤에는 이전 결과를 현재 결과처럼 보이지 않는다.
+- prevention: ci-portfolio-vault-e2e PFE2-26이 정상 계산 뒤 손절>진입가·20자리 금액에서 결과가 숨겨짐을 브라우저에서 확인한다.
+- verification/residual: node scripts/ci-portfolio-vault-e2e.mjs
+
+## P2070 - v58.80 - 종목 화면의 '관심 종목에 추가'가 '추가 요청함'으로 바뀌고 '먼저 워치리스트를 선택하세요'만 남겼다 (2026-10-25)
+
+- symptom/reproduction: 워치리스트가 없거나 선택되지 않은 상태에서 종목 요약의 관심 종목 버튼을 누르면 버튼은 '추가 요청함'이 되고 토스트는 목록 선택을 요구했는데, 그 화면에는 목록 선택이 없었다(first-users 2명).
+- root_cause: addToWatchlist가 활성 목록이 없으면 종료했고, 버튼은 결과와 상관없이 요청 문구로 바뀌었다.
+- fix: js/aio-workspace.js addToWatchlist가 종목이 지정된 호출이면 첫 목록을 쓰거나 '관심 종목' 목록을 만들고 성공 토스트를 띄운다. stock-lens-cards.js 버튼은 결과를 미리 적지 않는다.
+- violated_rule: 버튼은 실제 결과만 적는다; 행동을 막을 때는 그 자리에서 할 수 있는 다음 행동을 준다.
+- prevention: ci-out-of-universe-ticker-browser-check 5b가 목록 없는 추가가 '관심 종목' 목록을 만들어 담는 것을 확인한다.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs; first-users run-2 impatient
+
+## P2069 - v58.80 - 없는 티커(AAPLL, SIVB, -100)를 검색하면 메모·관심 종목·AI 버튼이 있는 종목 화면이 열렸다 (2026-10-25)
+
+- symptom/reproduction: 종목 검색창에 목록에 없는 기호를 넣고 Enter를 누르면 빈 종목 화면이 메모·워치리스트·AI 질문과 함께 열렸다(first-users breaker).
+- root_cause: 검색창 Enter 경로(tickerDirectSearchFromInput)만 _aioAcceptSymbol 상장 확인을 거치지 않고 바로 showTicker를 불렀다. 관심 종목·보유 입력은 같은 확인을 쓰고 있었다.
+- fix: js/aio-core.js tickerDirectSearchFromInput이 레지스트리에 없으면 _aioAcceptSymbol로 공식 상장 목록을 확인하고, '목록에 없음'이면 _aioTickerSearchMiss로 후보를 보여 준다. 목록을 받지 못한 경우만 그대로 연다.
+- violated_rule: 티커 추정 금지 — 입력 경로마다 같은 상장 확인 소유자를 쓴다.
+- prevention: ci-out-of-universe-ticker-browser-check 5b가 목록에 없는 ZZZZ 검색이 종목 화면을 열지 않음을 확인한다.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs; first-users run-2 breaker
+
+## P2068 - v58.80 - 느린 연결에서 아직 도착하지 않은 자료를 '없음·보류'라는 최종 판정으로 보여 줬다 (2026-10-25)
+
+- symptom/reproduction: 느린 휴대폰에서 스크리너가 '904종목 모두 최신 거래일 기준이 아니어서 보류', 종목 재무가 'SEC 공시 대상이 아니거나…', 오늘 지수 카드가 '분봉 수신 실패'와 빈 상자를 보였다(first-users 3~5명).
+- root_cause: 각 화면이 '자료 미도착'과 '자료 없음'을 같은 빈 상태로 그렸다. 스크리너는 지표 파일 도착 전 모든 행이 unavailable인 상태를 보류로, 재무 카드는 undefined(로딩)를 null(없음)과 같게, 지수 카드는 분봉 실패 시 이미 받은 일봉 종가를 쓰지 않았다.
+- fix: screener.js factorsPending(지표 asOf 없음)이면 '불러오는 중' 문구, fiscal-read.js는 _aioSecFiscalHistory === undefined일 때 로딩 빈 상태, home-index-strip.js closeFallback이 history의 마지막 두 종가로 '{지수} {날짜} 종가 — 장중 그래프는 받지 못했습니다' 카드를 그린다.
+- violated_rule: 로딩 중과 자료 없음은 다른 상태다; 최종 판정 문구는 자료가 도착한 뒤에만 쓴다.
+- prevention: ci-runtime-contract-check가 closeFallback 결과(10/23 종가, +1%)를 확인하고, 스크리너·재무 로딩 문구는 first-users run-2 phone 증거로 확인한다.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs; first-users run-2 phone
+
+## P2067 - v58.80 - 거시 머리말의 다음 발표 날짜(10/28 FOMC)가 본문의 한국 시각(10/29 03:00)과 하루 어긋났다 (2026-10-25)
+
+- symptom/reproduction: 매크로 머리말 '다음 주요 발표: 10/28(수) FOMC'와 본문 '10/29(목) 03:00 KST'가 서로 다른 날로 읽혔다(first-users 4명).
+- root_cause: 머리말은 미국 기준 발표일을 그대로 찍고 본문은 releaseAtMs로 한국 시각을 계산했다. 같은 발표를 두 시계로 적었다.
+- fix: compatibility-globals가 _aioReleaseKstLabel(key, date)를 노출하고 js/aio-core.js renderMacroNextRelease가 같은 releaseAtMs·formatKstWhen으로 'KST' 날짜를 앞에 적는다.
+- violated_rule: 같은 일정은 한 시계(한국 시각)로 화면마다 같은 날짜를 적는다.
+- prevention: ci-runtime-contract-check가 10/28 FOMC의 KST 라벨이 10/29임을 실제 함수로 확인한다.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs
+
+## P2066 - v58.80 - 원화 매수 단가로 넣은 한국 종목이 달러($70,000.00)로 저장·표시됐다 (2026-10-25)
+
+- symptom/reproduction: 포트폴리오에 005930을 '매수 단가 (KRW)' 칸 안내대로 70000으로 넣으면 보유 표에 $70,000.00으로 나왔다(first-users breaker).
+- root_cause: 입력 칸 이름은 종목 코드를 보고 원화로 바뀌었지만 저장 함수는 원가 통화 칸이 비면 통화를 null(달러 취급)로 저장했다. 화면이 보여 준 통화와 저장 통화의 출처가 달랐다.
+- fix: js/aio-workspace.js addPortfolioPosition이 원가 통화 칸이 비면 해석된 티커(6자리 = 한국 거래소)로 KRW를 정하고, 입력 칸 이름(_pfEntryCurrency)도 이름 입력("삼성전자")을 같은 해석기로 풀어 같은 통화를 보인다(run-3에서 이름으로 갱신하면 USD로 덮이던 경로까지). 수량·단가 상한(1e9)과 해석 불가 값 안내, Enter 제출도 같은 폼에서 정리했다.
+- violated_rule: 화면에 보이는 단위와 저장되는 단위는 한 출처에서 정한다.
+- prevention: ci-portfolio-vault-e2e PFE2-12가 코드 입력과 이름 갱신 모두에서 빈 통화 칸의 한국 종목이 KRW로 저장되고 입력 칸이 KRW로 표시됨을 브라우저에서 확인한다.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs; first-users run-2 breaker
+
+## P2065 - v58.80 - WTI·브렌트유 만기 직전 며칠 동안 하루 변화율이 서로 다른 월물을 나눠 계산됐다 (2026-10-25)
+
+- symptom/reproduction: WTI 10/19~10/21 화면 변화율 -3~-5.7%(같은 12월물 기준 -0.5~-0.7%), 9/18 -5.8%(같은 날 브렌트유 -0.9%), 브렌트유 10/23 -1.3%(같은 1월물 기준 +2.8%). history.json 9/18 세션에 100.3(10월물 일봉)과 96.08(11월물 시세) 두 값이 남았다.
+- root_cause: Yahoo 연속 원유 선물(CL=F, BZ=F)의 시세는 만기 2~4거래일 전에 다음 월물로 넘어가지만 일봉과 그 전일 종가는 만기까지 기존 월물에 남는다. fetchQuote가 시세를 연속 기호의 직전 일봉으로 나눠 두 월물을 비교했다. 실측: CLZ26 10/16 종가 99.02 = CL=F 금요일 시세, CL=F 10/16 일봉 101.41 = 11월물.
+- fix: scripts/producer/quotes.mjs: CL=F·BZ=F는 앞으로 석 달의 개별 월물(CLZ26.NYM 등)을 조회해 시세와 가격·시각이 같은 월물을 찾고, 그 월물의 직전 일봉을 전일 종가로 쓴다(contract, contractRolled, _pctSource same-contract-daily). 일치 월물이 없으면 기존 값을 두고 contract null.
+- violated_rule: R572 (비교는 같은 관측) — 변화율의 분자와 분모가 다른 계약이었다(P545·P1581과 같은 '다른 기준의 전일 종가' 계열).
+- prevention: ci-data-pipeline-contract-check에 실제 10/20 WTI(11월물 일봉·12월물 시세)와 10/23 브렌트 값으로 같은 월물 변화율·후보 월물·연결 고정 검사를 추가. 훅 제거·가격 일치 조건 제거 두 변이에서 실패 확인.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs PASS; 실시간 fetchQuote BZ=F 111.70 / 108.66 = +2.80%(BZF27.NYM, contractRolled true), CL=F CLZ26.NYM 일치·미교체. 과거 history 교체 단차(10/20→10/21 -4.6%)와 금·은 선물은 이번 범위 밖.
+
+## P2064 - v58.80 - 테마 단계 소급 계산이 지금 구성 종목을 과거에 쓴다는 사실을 밝히지 않았고, 과거 판정의 미래 자료 불변성을 검사하는 게이트가 없었다 (2026-10-25)
+
+- symptom/reproduction: v58.79 테마 단계 백필의 안내는 '지금 규칙으로 종가에서 소급 계산(신용·중심 시나리오 조건은 다시 보지 않음)'만 밝혔고 생산자 주석은 '나중 정보가 새지 않는다'고 단정했지만, 과거 120거래일 모두 오늘의 THEME_MAP 구성 종목으로 계산한다 — 올라서 테마에 들어간 종목은 사후 정보다. R697의 '각 사례 날짜에 있던 자료만'은 as-of 함수와 소급 계산에 대해 실행 검사가 없었다.
+- root_cause: 백필 검토가 가격 누설(종가를 그 세션까지 자름)만 보았고 구성 종목이라는 나중 사실은 고려하지 않았다. 과거 판정을 '그날까지 자른 자료'로 다시 계산해 비교하는 게이트가 없어 누설 여부가 코드 리뷰에만 기대고 있었다.
+- fix: 안내 문구·산출물 basis가 '지금 규칙과 지금 구성 종목'을 밝히고 주석을 정정했다. scripts/ci-lookahead-check.mjs(QA 파이프라인 lookahead-check, freqtrade lookahead/recursive-analysis 방식): ① 최근 30세션마다 '그날 밤까지 관측된 값만 남긴 파일'(수집 버킷이 아닌 관측 시각 기준)로 다시 계산한 S&P 500 이동평균·종가 시리즈 9종·시장 판정(신용 축까지 평가)이 지금 파일의 as-of 결과와 같음 ② 테마 단계 백필 행이 그날 이후 종가를 모두 바꿔도 같음(실제 테마 지도와 시드 고정 합성 패널) ③ 오늘 판정이 330버킷으로 잘라도 같음. 첫 시제품은 버킷 날짜로 잘라 거짓 누설을 냈고, 코드 리뷰가 동어반복 비교 3건과 신용 축이 늘 '모름'인 판정 비교를 찾아 다시 설계했다.
+- violated_rule: R697
+- prevention: ci-lookahead-check가 QA 파이프라인에서 돈다. 백필이 2세션 뒤 종가를 읽음, HY 기록이 through를 무시, 이동평균 asOf가 3일 앞을 읽음, 종가 시리즈가 through를 무시하는 네 변이에서 모두 실패함을 확인했다. 새 as-of 함수·소급 계산은 이 검사에 대상을 추가한다(R725).
+- verification/residual: node scripts/ci-lookahead-check.mjs PASS(30세션·신용 30일 평가, 백필 5세션, 330버킷); 네 변이 FAIL 후 원복; ci-esm-core-unit-check 통과. 남은 것: 같은 세션의 일봉 백필과 정산 시각 시세가 어긋나는 값(WTI 9/18 100.3 대 96.08, 금요일 DXY 몇 건)은 C11 규칙이 정산 시세를 고르며 누설은 아니지만 원천 불일치로 별도 확인 필요. HY 기록은 278개 관측이라 기준선이 아직 이력 길이에 따라 움직인다(검사 노트).
 
 ## P2063 - v58.79 - 리서치 라이브러리 1024~1100px에서 본문이 약 140px 칸으로 눌림 (2026-10-25)
 

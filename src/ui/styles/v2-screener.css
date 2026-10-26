@@ -304,6 +304,10 @@
 /* The hero (ids unchanged): the total-value block is the lead tile; #pf-hero-stats stays a three-column grid of tiles. */
 #page-portfolio #pf-hero { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 3fr); gap: 14px; align-items: start; margin: 0 0 16px; padding: 0; border: 0; }
 #page-portfolio #pf-hero > .pf-hero-divider { display: none; }
+/* First-users run 4 (I#6, S#11): five tiles in a three-column grid left an empty cell; the last tile takes the rest of its
+   row and the lead tile matches the grid's height. */
+#page-portfolio #pf-hero { align-items: stretch; }
+#page-portfolio #pf-hero-stats > div:last-child:nth-child(3n + 2) { grid-column: span 2; }
 #page-portfolio #pf-hero > .sh-portfolio-hero-noshrink, #page-portfolio #pf-hero-stats > div {
   min-width: 0; box-sizing: border-box; padding: 18px 20px; border-radius: 12px; background: var(--bg-card); box-shadow:none;
 }
@@ -343,6 +347,16 @@
 #page-portfolio .pf-reading-value.is-burden { color: var(--data-amber); }
 #page-portfolio .pf-reading-value.is-favorable { color: var(--data-green); }
 #page-portfolio .pf-reading-card p { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
+/* v58.80 ETF look-through: each name's bar split into held directly (solid) and held through the S&P 500 trackers (light). */
+#page-portfolio .pf-look-bars { display: grid; gap: 6px; margin: 6px 0; }
+#page-portfolio .pf-look-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) 44px; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+#page-portfolio .pf-look-pct { text-align: right; font-variant-numeric: tabular-nums; }
+#page-portfolio .pf-look-track { display: flex; height: 9px; border-radius: 4px; overflow: hidden; background: var(--sx-ink-a06); }
+#page-portfolio .pf-look-track > i { display: block; }
+#page-portfolio .pf-look-direct, #page-portfolio .pf-look-legend .is-direct::before { background: var(--gold-9); }
+#page-portfolio .pf-look-via, #page-portfolio .pf-look-legend .is-via::before { background: var(--gold-a6); }
+#page-portfolio .pf-look-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 6px; font-size: var(--fs-min); color: var(--text-muted); }
+#page-portfolio .pf-look-legend span::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 4px; border-radius: 2px; vertical-align: -1px; }
 #page-portfolio .pf-reading-evidence { padding: 4px 2px 0; }
 #page-portfolio .pf-weight-cell { display: inline-flex; align-items: center; gap: 10px; min-width: 120px; }
 #page-portfolio .pf-weight-bar { flex: 1 1 auto; min-width: 48px; height: 6px; border-radius: 999px; background: var(--sx-ink-a07); overflow: hidden; }
@@ -361,7 +375,7 @@
 #page-portfolio .pfp-detail-list > div { display: flex; flex-direction: column; gap: 2px; }
 #page-portfolio .pfp-detail-list dt { font-size: 12px; color: var(--text-muted); }
 #page-portfolio .pfp-detail-list dd { margin: 0; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-primary); }
-#page-portfolio .pfp-detail-memo { margin: 10px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+#page-portfolio .pfp-detail-memo { margin: 10px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); overflow-wrap: anywhere; } /* run-3 B17: a 5,000-char memo without spaces widened the table to 51,180 px */
 #page-portfolio .pfp-detail-actions { display: flex; gap: 6px; margin: 10px 0 0; }
 #page-portfolio .pfp-detail-actions .pfp-manage-btn { min-height: 32px; padding: 0 12px; border-radius: 999px; background: var(--bg-card); box-shadow: inset 0 0 0 1px var(--border-subtle); color: var(--text-primary); }
 /* Legacy grey panels on this page (allocation, comparison, holdings analysis, entry form) read as the shared soft card. */

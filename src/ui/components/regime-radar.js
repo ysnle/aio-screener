@@ -5,6 +5,8 @@ import { el } from './dom.js';
 import { signedText } from '../../domain/shared/number.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
+// Today's measured value per axis (the rank alone read as the price's own position).
+const RAW_TEXT = Object.freeze({ trend: (v) => `${signedText(v, 1, '%')}`, breadth: (v) => `${v.toFixed(0)}%`, volatility: (v) => v.toFixed(1), rates: (v) => `${v.toFixed(2)}%`, credit: (v) => `${(v / 100).toFixed(2)}%` });
 const node = (doc, tag, attrs = {}, text = null) => {
   const out = doc.createElementNS(SVG, tag);
   for (const [key, value] of Object.entries(attrs)) out.setAttribute(key, String(value));
@@ -30,7 +32,7 @@ export function radarSvg(doc, model, { size = 340 } = {}) {
     const label = node(doc, 'text', { x: lx, y: ly - 6, 'text-anchor': Math.abs(lx - center) < 8 ? 'middle' : lx > center ? 'start' : 'end', class: 'regime-radar-label' }, axis.label);
     const value = node(doc, 'text', { x: lx, y: ly + 10, 'text-anchor': Math.abs(lx - center) < 8 ? 'middle' : lx > center ? 'start' : 'end', class: 'regime-radar-value' },
       axis.now == null ? '없음' : `${axis.now}${axis.change5 == null ? '' : ` (${signedText(axis.change5, 0)})`}`);
-    const basis = `${axis.label}: ${axis.note}. ${axis.sample ? `최근 ${axis.sample}거래일 중 위치` : '표본 부족'} ${axis.now ?? '없음'}, 5거래일 전 ${axis.values[1] ?? '—'}, 20거래일 전 ${axis.values[2] ?? '—'}`;
+    const basis = `${axis.label}: ${axis.note}${RAW_TEXT[axis.id] && Number.isFinite(axis.raw) ? `, 지금 ${RAW_TEXT[axis.id](axis.raw)}` : ''}. ${axis.sample ? `이 값의 최근 ${axis.sample}거래일 중 위치(0~100, 가격 자체의 위치가 아님)` : '표본 부족'} ${axis.now ?? '없음'}, 5거래일 전 ${axis.values[1] ?? '—'}, 20거래일 전 ${axis.values[2] ?? '—'}`;
     label.setAttribute('data-basis', basis); value.setAttribute('data-basis', basis); // v57.77 (a11y): the keyboard stop is the table's dd row; a focusable <text> inside role=img was a hidden second stop
     if (axis.observed?.[0]) { label.setAttribute('data-observed-at', axis.observed[0]); value.setAttribute('data-observed-at', axis.observed[0]); }
     svg.append(label, value);

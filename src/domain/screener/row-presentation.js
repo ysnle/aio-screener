@@ -58,7 +58,7 @@ export function describeStaleDates(dates = []) {
   const unique = [...new Set(dates.filter(Boolean))].sort();
   if (!unique.length) return '';
   const span = unique.length === 1 ? unique[0] : `${unique[0]} ~ ${unique[unique.length - 1]}`;
-  return `흐리게 표시된 값은 ${span} 기준 관측값으로 최신이 아닙니다(참고용). 셀에 마우스를 올리면 출처·관측 시각이 보입니다.`;
+  return `흐리게 표시된 값은 ${span} 기준 관측값으로 최신이 아닙니다(참고용). 셀을 누르거나 마우스를 올리면 출처·관측 시각이 보입니다.`;
 }
 
 // 2026-10-13 review S01: a weight profile whose computable share is under the model's 80% floor can only

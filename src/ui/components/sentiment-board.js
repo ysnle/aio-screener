@@ -59,7 +59,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   // 2026-10-18 bookmarks (volatility-base-rates): VIX is a 30-day annualised implied volatility, so VIX ÷ √252 is the
   // S&P 500's implied one-standard-deviation daily move — a yardstick for the day's change, not a forecast.
   const vixAtRatio = ratioLast ? vix.find((point) => point.date === ratioLast.date)?.value ?? null : null;
-  const impliedDaily = vixAtRatio == null ? '' : `VIX ${vixAtRatio.toFixed(1)} → S&P 500 하루 약 ±${(vixAtRatio / Math.sqrt(252)).toFixed(1)}% (1표준편차·정규 가정)`;
+  const impliedDaily = vixAtRatio == null ? '' : `VIX ${vixAtRatio.toFixed(2)} → S&P 500 하루 약 ±${(vixAtRatio / Math.sqrt(252)).toFixed(1)}% (1표준편차·정규 가정)`;
   const aaiiAlign = alignInput(credit.aaiiAsOf, basis, 7); // weekly survey
   // Display values (shown even when excluded) and judged values (usable only).
   const shown = {

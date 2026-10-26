@@ -57,7 +57,22 @@ export const TERM_MARKS = Object.freeze([
   ['200일선', '이동평균 (50일선, 200일선)'],
   // 2026-10-19 market guide: the choice words 오늘 · 시나리오 가이드 use are glossary terms.
   ['기회비용', '기회비용'],
-  ['분할 접근', '분할 접근']
+  ['분할 접근', '분할 접근'],
+  // v58.80 (first-users run-4, newcomer): abbreviations and words a beginner met unmarked on 오늘 · 시장 상태 · 종목.
+  ['시장 폭', '시장 폭(Breadth)'],
+  ['역배열', '정배열 / 역배열'],
+  ['52주', '52주 신고가/신저가'],
+  ['베타', '베타(Beta)'],
+  ['국면', '시장 국면(Market Regime · 레짐)'],
+  ['%p', '%p (퍼센트포인트)'],
+  ['KST', 'KST (한국 시간)'],
+  ['WTI', 'WTI (서부텍사스유)'],
+  ['SMH', 'SMH (반도체 ETF)'],
+  ['CPI', 'CPI (소비자물가지수)'],
+  ['FOMC', 'FOMC'],
+  ['ATR', 'ATR'],
+  ['EPS', 'EPS'],
+  ['ETF', 'ETF']
 ]);
 
 const PROSE = 'p, li, dd';
@@ -156,7 +171,8 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     mark?.setAttribute('aria-expanded', 'false');
     if (restore && hadFocus && mark?.isConnected) mark.focus({ preventScroll: true });
   };
-  const open = (mark) => {
+  const open = (mark, { focus = true } = {}) => {
+    if (pop && opener === mark) return;
     close({ restore: false });
     const entry = (root.GLOSSARY || []).find((item) => item?.term === mark.dataset.glossaryTerm);
     if (!entry) return;
@@ -196,7 +212,17 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     const place = placeTermPopover(mark.getBoundingClientRect(), { width: pop.offsetWidth || 320, height: pop.offsetHeight || 90 }, viewport);
     Object.assign(pop.style, { left: `${place.left}px`, top: `${place.top}px`, width: `${place.width}px` });
     pop.dataset.side = place.side;
-    more.focus({ preventScroll: true });
+    if (focus) more.focus({ preventScroll: true });
+  };
+  // v58.80 (first-users bundle 7): "hover does nothing; I had to click". A mouse resting on a term opens its popover
+  // (without moving focus) and leaving both the term and the popover closes it; touch and keyboard keep tap/Enter.
+  let hoverTimer = null;
+  const onOver = (event) => {
+    if (event.pointerType !== 'mouse') return;
+    const mark = event.target.closest?.('.aio-term');
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+    if (mark) hoverTimer = setTimeout(() => { hoverTimer = null; open(mark, { focus: false }); }, 250);
+    else if (pop && !pop.contains(event.target)) hoverTimer = setTimeout(() => { hoverTimer = null; if (!pop?.contains(documentRef.activeElement)) close({ restore: false }); }, 300);
   };
   const onClick = (event) => {
     const mark = event.target.closest?.('.aio-term');
@@ -204,7 +230,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     if (pop && !pop.contains(event.target)) close();
   };
   const onKey = (event) => {
-    if (event.key === 'Escape' && pop) { close(); return; }
+    if (event.key === 'Escape' && pop) { event.preventDefault(); close(); return; }
     const mark = (event.key === 'Enter' || event.key === ' ') && event.target.closest?.('.aio-term');
     if (mark) { event.preventDefault(); open(mark); }
   };
@@ -213,6 +239,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
   observer.observe(content, { childList: true, subtree: true, characterData: true });
   documentRef.addEventListener('click', onClick);
   documentRef.addEventListener('keydown', onKey);
+  documentRef.addEventListener('pointerover', onOver);
   const onScroll = () => close();
   root.addEventListener?.('scroll', onScroll, { passive: true });
   // The reading column scrolls inside .content, not the window; a fixed popover must not stay behind when it moves.
@@ -225,6 +252,8 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     close();
     documentRef.removeEventListener('click', onClick);
     documentRef.removeEventListener('keydown', onKey);
+    documentRef.removeEventListener('pointerover', onOver);
+    if (hoverTimer) clearTimeout(hoverTimer);
     root.removeEventListener?.('scroll', onScroll);
     scroller?.removeEventListener('scroll', onScroll);
     documentRef.__aioTermMarks = false;

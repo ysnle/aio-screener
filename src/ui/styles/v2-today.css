@@ -25,7 +25,9 @@
 #page-home .home-hero-chips .regime-chip {
   display: inline-flex; align-items: center; justify-content: flex-start; gap: 6px; height: 28px; padding: 0 12px;
   border: 0; border-radius: 999px; background: var(--sx-ink-a07); font-size: 12px; color: var(--text-secondary); white-space: nowrap;
+  font-family: inherit; cursor: pointer;
 }
+#page-home .home-hero-chips .regime-chip:hover { box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.22); }
 #page-home .home-hero-chips .regime-chip[data-state="favorable"] { background: var(--sx-good-bg); }
 #page-home .home-hero-chips .regime-chip[data-state="burden"] { background: var(--sx-warn-bg); }
 #page-home .home-hero-chips .regime-chip[data-state="unknown"] { background: transparent; box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.14); }
@@ -79,6 +81,7 @@
 
 /* The hub tabs float right at the top (soft-ui §2); the note card keeps its own box beside them instead of running under them. */
 #page-home > #home-operator-note { contain: layout; }
+#page-home #home-operator-note .aio-operator-note-verdict { margin-top: 8px; font-size: var(--fs-sm, 13px); color: var(--text-secondary); line-height: 1.5; }
 /* The page head keeps the 34px title; the operator's one dated sentence above it reads as a quiet note card. */
 #page-home #home-operator-note .aio-operator-note-card { border-radius: 12px !important; box-shadow:none !important; padding: 18px 22px !important; } /* soft-ui §3 sets the hero shadow with !important */
 
@@ -466,6 +469,10 @@
 #page-home .home-index-change.is-down, #page-home .home-index-last.is-down { color: var(--data-red); }
 #page-home .home-index-plot { display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 6px; height: 96px; }
 #page-home .home-index-plot.is-empty { display: block; border-radius: 8px; background: var(--sx-ink-a03, transparent); }
+#page-home .home-index-fallback { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 8px 10px; font-size: 12px; color: var(--sx-ink-2, inherit); }
+#page-home .home-index-fallback strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+#page-home .home-index-plot.home-index-fallback { display: flex; height: auto; min-height: 64px; } /* v58.80: .is-empty (block) outranked the column layout, so price, caption and note ran together */
+#page-home .home-index-fallback-note { color: var(--sx-ink-3, inherit); font-size: var(--fs-min); }
 #page-home .home-index-chart { display: block; width: 100%; height: 100%; overflow: visible; }
 #page-home .home-index-canvas { position: relative; min-width: 0; height: 100%; }
 #page-home .home-index-prev-tag { position: absolute; left: 0; transform: translateY(-50%); padding: 1px 3px; border-radius: 3px; background: var(--bg-card); font-size: 12px; line-height: 1; color: var(--text-muted); pointer-events: none; }
@@ -482,3 +489,11 @@
 #page-home .home-index-times > span:last-child { transform: translateX(-100%); }
 @media (max-width: 1100px) { #page-home .home-index-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { #page-home .home-index-grid { gap: 8px; } #page-home .home-index-card { padding: 10px 10px 8px; } #page-home .home-index-plot { height: 64px; grid-template-columns: minmax(0, 1fr) 46px; } #page-home .home-index-times { margin-right: 52px; } #page-home .home-index-times > span:nth-child(2), #page-home .home-index-times > span:nth-child(3) { display: none; } #page-home .home-index-head { flex-wrap: wrap; row-gap: 2px; } }
+
+/* v58.80 (first-users F05): the AI panel takes 400px beside the page, so a 1440px window leaves the page about 800px while
+   the viewport breakpoints above still drew two columns — the verdict and its flip list squeezed to one word per line and
+   the index-card titles overlapped. The page column is a container (responsive.css); these follow its width. */
+@container aio-main (max-width: 840px) {
+  #page-home > #home-score-hero.home-hero { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  #page-home .home-index-head { flex-wrap: wrap; row-gap: 2px; }
+}

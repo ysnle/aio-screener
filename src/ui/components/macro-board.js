@@ -28,6 +28,10 @@ import { frameHead, noteFold } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { usWeekendClosed } from '../../domain/market/market-calendar.js';
 import { signedText } from '../../domain/shared/number.js';
+import { buildCrossAssetRelations } from '../../domain/macro/cross-asset-relations.js';
+import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
+import { RULES } from '../../domain/rules/thresholds.js';
+import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -345,7 +349,11 @@ function renderRateStrip(doc, root) {
     const gap = n - (r + b);
     const tile = el(doc, 'div', null, 'mk-rate-tile');
     // v58.53: the face values carry their basis (value-basis.js turns title + data-as-of into the tap/hover basis card).
-    const value = basisValue(doc, `${pct(n)} ≈ ${pct(r)} + ${pct(b)}`, '10년물 명목 금리를 같은 날의 10년 실질금리(TIPS)와 기대 인플레이션(BEI)으로 나눈 값입니다. 세 값이 모두 있는 가장 최근 관측일 기준입니다.', common);
+    // v58.80 (first-users bundle 1): readers saw 4.96% here beside 4.99% on the rate card and asked which was true. The
+    // split rests on the last day all three official values exist; the basis card now names the market close it differs from.
+    const marketTen = buildCloseSeries(root?._aioHistory || [], 'tnx').at(-1) || null;
+    const later = marketTen && marketTen.date > common ? ` 시장 종가 기준 10년물은 ${shortDate(marketTen.date)} ${pct(marketTen.value)}로, 날짜와 출처가 달라 값이 조금 다릅니다.` : '';
+    const value = basisValue(doc, `${pct(n)} ≈ ${pct(r)} + ${pct(b)}`, `10년물 명목 금리를 같은 날의 10년 실질금리(TIPS)와 기대 인플레이션(BEI)으로 나눈 값입니다. 세 값이 모두 있는 가장 최근 관측일(${shortDate(common)}) 기준입니다.${later}`, common);
     tile.append(el(doc, 'span', '명목 금리 분해, 피셔 방정식', 'mk-rate-tile__label'), value,
       el(doc, 'span', `10년 실질금리(TIPS) + 기대 인플레이션(BEI)${Math.abs(gap) >= 0.005 ? `, 나머지 ${signedText(gap, 2, '%p')}` : ''}`, 'mk-rate-tile__note'),
       // v58.74 (text audit): the expert's next step after the split — which part carries the level.
@@ -366,7 +374,11 @@ function renderRateStrip(doc, root) {
   const grid = el(doc, 'div', null, 'mk-rate-strip__grid');
   grid.append(...tiles);
   const line = el(doc, 'p', null, 'sx-evidence mk-rate-strip__evidence');
-  line.append(el(doc, 'span', '근거, Fisher 1930, Estrella·Mishkin 1998, Taylor 1993'), el(doc, 'span', '데이터, FRED (DGS10, DFII10, T10YIE, T10Y3M, PCEPILFE, UNRATE, NROU, FEDTARMDLR, DFEDTARL/U)'));
+  // v58.80 (first-users F23): raw FRED series codes sat on screen under the rate tiles; sources live in hover (owner
+  // 2026-10-06), so the line names its basis in words and keeps the codes and papers in its title.
+  const basis = el(doc, 'span', '근거와 자료 (눌러서 보기)'); // run-3 B24: '마우스를 올리면' meant nothing on touch; the basis card opens on tap
+  basis.title = '근거: Fisher 1930, Estrella·Mishkin 1998, Taylor 1993. 자료: FRED (DGS10, DFII10, T10YIE, T10Y3M, PCEPILFE, UNRATE, NROU, FEDTARMDLR, DFEDTARL/U)';
+  line.append(basis);
   // Round-2 review (v58.55): a repaint (r* switch, data refresh) keeps the formula fold open if the reader opened it.
   const wasOpen = !!host.querySelector?.('.mk-taylor__fold')?.open;
   const fold = taylorFold(doc, root, taylor);
@@ -640,7 +652,10 @@ function renderRegime(doc, read) {
   reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${r.reading}`));
   // P1506: the quadrant reads the 3-month direction of growth and prices; the six cards judge today's level
   // against a threshold. A disinflation quadrant beside a 부담 price card is consistent once that is said.
-  const lens = el(doc, 'p', '사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 수준이 목표보다 높으면 물가 요인은 부담으로 남습니다.', 'briefing-footnote macro-lens-note');
+  // v58.80 (first-users bundle 2): "수준이 목표보다 높으면 부담" sat above a 중립 chip for core PCE 3.0% — the rule is the
+  // level line (3% miss + buffer) or a re-acceleration, so the sentence now names that line from the same rules.
+  const levelLine = (RULES.inflation.missPct + MACRO_SIGNAL_RULES.inflationLevelBufferPp).toFixed(1);
+  const lens = el(doc, 'p', `사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 아래 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 근원 PCE가 ${levelLine}% 이상이면 물가 요인은 부담으로 남고, 목표(${RULES.inflation.targetPct}%)보다 높지만 그 선 아래면 중립입니다.`, 'briefing-footnote macro-lens-note');
   const criteria = el(doc, 'details', null, 'macro-axis-more');
   if (r.available) {
     right.append(head, tally, overviewTiles(doc, read.axes), reading);
@@ -1052,7 +1067,8 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         label: '10년 기간 프리미엄 (Kim-Wright)',
         valueText: `${signedNumber(lastPremium.value, 2)}%`,
         lines: [back63 ? `3개월 ${signed(lastPremium.value - back63.value, 2, '%p')}` : null, year == null ? null : `1년 전보다 ${signed(year, 2, '%p')}`,
-          tenYear ? `같은 날 10년 금리 ${tenYear.value.toFixed(2)}% 중 단기금리 예상분 약 ${(tenYear.value - lastPremium.value).toFixed(2)}%` : null],
+          // v58.80 (first-users F13): "같은 날 10년 금리 5.09%" beside 4.99% elsewhere hid that this one is the model date (10/16).
+          tenYear ? `${shortDate(tenYear.date)} 10년 금리 ${tenYear.value.toFixed(2)}% 중 단기금리 예상분 약 ${(tenYear.value - lastPremium.value).toFixed(2)}%` : null],
         meta: [shortDate(lastPremium.date), premiumLag ? `${premiumLag}거래일 전` : null, 'FRED THREEFYTP10 (연준 이사회 모형)'].filter(Boolean).join(', '),
         note: '10년 금리 가운데 앞으로의 단기금리 예상이 아니라 오래 묶어 두는 위험에 대한 보상으로 추정되는 부분입니다. 관측값이 아닌 모형 추정치이고, 뉴욕 연준 ACM 등 다른 모형과는 수준이 다릅니다.',
         status: ageDays > 30 ? 'stale' : 'observed',
@@ -1127,7 +1143,7 @@ export function buildAssetPerformance(history = [], basis = closeBasis(history))
     const market = closeSessionMarket(field) || 'US';
     const back = (n) => { const point = closePointBack(series, n, market); return point ? (last.value / point.value - 1) * 100 : null; };
     const prevYear = year ? series.filter((point) => point.date < `${year}-01-01`).at(-1) : null;
-    return { field, label, investable, last, m1: back(21), m3: back(63), ytd: prevYear ? (last.value / prevYear.value - 1) * 100 : null, ytdFrom: prevYear?.date || null };
+    return { field, label, investable, last, m1: back(MARKET_WINDOWS.month), m3: back(MARKET_WINDOWS.quarter), ytd: prevYear ? (last.value / prevYear.value - 1) * 100 : null, ytdFrom: prevYear?.date || null };
   });
   // Daily simple returns on the dates both US closes exist, then a trailing 60-session Pearson correlation.
   const spx = buildCloseSeries(history, 'spx', { through: basis });
@@ -1187,8 +1203,12 @@ function renderAssetPerformance(doc, root, basis) {
     corrTitle.title = `표본: 두 종가가 모두 있는 ${model.jointSessions}거래일(${shortDate(model.corrFrom)}부터), 상관 ${model.corr.length}개 시점. 일간 수익률의 피어슨 상관이며 TLT 기록이 쌓인 만큼만 그립니다.`; // v58.79: sample size as the title's hover
     parts.push(corrTitle, createTrendChart(doc, { series: model.corr, refLines: [0], domain: [-1, 1], format: (value) => value.toFixed(2), label: `S&P 500과 TLT의 ${CORR_WINDOW}거래일 일간 수익률 상관` }));
   } else parts.push(el(doc, 'p', `S&P 500과 TLT가 함께 기록된 날이 ${model.jointSessions}거래일이라 ${CORR_WINDOW}거래일 상관은 아직 그리지 않습니다.`, 'briefing-empty'));
+  // v58.80 (owner 2026-10-25): the fixed paragraph on the correlation sign (kept in the allocation fold below) gave way to
+  // what the same assets did against their usual relations over 20 sessions — the reading the chart above leads into.
+  const relations = buildCrossAssetRelations(root._aioHistory || [], { through: model.basis || null });
   const reading = el(doc, 'p', null, 'briefing-read-reading');
-  reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(' 상관이 0보다 크면 주식과 장기채가 같은 방향으로 움직여, 주식이 내릴 때 채권이 받쳐 주는 분산 효과가 줄어든 상태입니다. 0보다 작으면 채권이 완충 역할을 하는 쪽입니다. 물가·금리 충격이 주도하는 시기에는 양(+)으로, 성장 둔화 걱정이 주도하는 시기에는 음(−)으로 기우는 경향이 알려져 있지만, 이 값은 지난 60거래일의 관계일 뿐 앞으로를 보장하지 않습니다.'));
+  reading.title = `평소 관계: 유가와 금리는 같이, 금리와 주식은 반대로, 주가가 내릴 때 장기채·금·달러는 오르는 경향. 두 자산이 모두 기준 이상 움직이고 방향이 평소와 반대일 때만 적습니다(${relations.window}거래일 종가 변화). 경향이지 법칙이나 예측이 아닙니다.`;
+  reading.append(el(doc, 'span', '평소 관계', 'briefing-hypothesis-tag'), doc.createTextNode(` ${relations.reading || '자산별 종가 기록이 쌓이면 평소 관계와 어긋난 곳을 적습니다.'}`));
   parts.push(reading, allocationPrinciples(doc, root, model, nowCorr));
   host.replaceChildren(...parts);
 }

@@ -1788,45 +1788,6 @@ window._aioDiagram = (function () {
     return { backtest: (typeof _aioScreenerFactorBacktest === 'function' && _aioScreenerFactorBacktest()) || {} };
   }
 
-  function _buildSectors() {
-    // E0/P1282: 현행 소유자 getPortfolioData(Vault-aware, {ticker, qty, cost, sector?})에서 읽는다.
-    // P1592 (F16): 비중은 native 평가액(기준 통화 환산)만 쓴다 — 시세가 없으면 원가·혼합 통화로 대신 그리지 않는다.
-    var pf = [];
-    try {
-      if (typeof window.getPortfolioData === 'function') {
-        var raw = window.getPortfolioData();
-        if (Array.isArray(raw)) pf = raw;
-      }
-    } catch (e) {}
-    var surf = window._aioPortfolioSurface, valued = {};
-    if (!pf.length || (surf && surf.positionValue == null)) return { sectors: [] };
-    if (surf && Array.isArray(surf.rows)) surf.rows.forEach(function (r) { if (r && r.symbol) valued[String(r.symbol).toUpperCase()] = r.value; });
-    var live = window._liveData || {};
-    var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    var sMap = {};
-    pf.forEach(function (entry) {
-      var sym = String((entry && entry.ticker) || '').toUpperCase();
-      if (!sym) return;
-      var row = null;
-      for (var i = 0; i < db.length; i++) {
-        if ((db[i].sym || '').toUpperCase() === sym) { row = db[i]; break; }
-      }
-      var sector = (entry.sector || (row && row.sector)) ? (entry.sector || row.sector) : 'Other';
-      var mv = valued[sym] != null ? valued[sym] : (entry.qty || 0) * ((live[sym] && typeof live[sym].price === 'number') ? live[sym].price : 0);
-      if (!sMap[sector]) sMap[sector] = { mv: 0, perfSum: 0, count: 0 };
-      sMap[sector].mv += mv;
-      sMap[sector].perfSum += (row && row.ret3m != null) ? row.ret3m : 0;
-      sMap[sector].count++;
-    });
-    var total = Object.keys(sMap).reduce(function (s, k) { return s + sMap[k].mv; }, 0);
-    if (!total) return { sectors: [] };
-    var sectors = Object.keys(sMap).map(function (k) {
-      var s = sMap[k];
-      return { name: k, weight: Math.round((s.mv / total) * 100), perf: s.count ? s.perfSum / s.count : 0 };
-    }).sort(function (a, b) { return b.weight - a.weight; });
-    return { sectors: sectors };
-  }
-
   function _render(elId, type, data) {
     var el = document.getElementById(elId);
     if (el && window._aioDiagram) window._aioDiagram.render(type, el, data);
@@ -1870,14 +1831,11 @@ window._aioDiagram = (function () {
           _render('vis-screener-backtest', 'factor-backtest', _buildBacktest());
           break;
         case 'portfolio': {
-          var _pfSec = _buildSectors();
+          // v58.80 (first-users F19): this legacy bubble drew "Technology 100%" (English, cost basis) above the native
+          // 섹터 배분 card, which waits for a valuation and said "평가액이 확인되면 섹터 비중이 표시됩니다" — two answers to one
+          // question (R619). The native card (src/ui/pages/portfolio.js) is the owner; the bubble stays hidden.
           var _pfWrap = document.getElementById('vis-portfolio');
-          if (_pfSec.sectors && _pfSec.sectors.length) {
-            if (_pfWrap) _pfWrap.style.display = '';
-            _render('vis-portfolio-sectors', 'sector-bubble', _pfSec);
-          } else {
-            if (_pfWrap) _pfWrap.style.display = 'none';
-          }
+          if (_pfWrap) _pfWrap.style.display = 'none';
           break;
         }
       }
@@ -3277,7 +3235,7 @@ function openGlossary() {
   var title = document.querySelector('#glossary-modal h2');
   if (title) title.textContent = '투자 용어 사전, ' + GLOSSARY.length + '개';
   modal._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(modal, window._aioCloseGlossary) : null;
-  searchInput.focus();
+  if (!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) searchInput.focus(); // run-3 phone #21: on touch the keyboard covered half the list
 }
 
 function renderGlossaryCats() {
@@ -3512,7 +3470,7 @@ document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     var searchInput = (document.querySelector('.page.active') || document).querySelector('#scr-text-search, #fund-search-input, #ticker-direct-search, #guide-search-input'); // P1315: .search-bar never existed
-    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); // owner 2026-10-25: the sidebar search button is gone; only an on-screen search box takes focus
+    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); else if (typeof window.openGlossary === 'function') { window.openGlossary(); setTimeout(function() { var g = document.getElementById('glossary-search'); if (g) g.focus(); }, 60); } // owner 2026-10-25: the sidebar search button is gone; only an on-screen search box takes focus; run-3 I#21: with none, 용어 사전 as the help row promises
     return;
   }
 
@@ -3591,8 +3549,12 @@ function analyzeKrTickerDeep(ticker) {
 function calculateRR() {
   var num = function(id) { var el = document.getElementById(id); var v = el ? parseFloat(el.value) : NaN; return isFinite(v) && v > 0 ? v : null; };
   var entry = num('rr-entry'), stop = num('rr-stop'), target = num('rr-target'), amount = num('rr-capital'), total = num('rr-total');
-  if (entry == null || stop == null || stop >= entry) { showToast('가정 진입가와 그보다 낮은 손절 가격을 넣으세요'); return; }
-  if (target != null && target <= entry) { showToast('목표 가격은 진입가보다 높게 넣거나 비워 두세요'); return; }
+  // v58.80 first-users run-2 (breaker): a refused input left the previous plan's lines on screen as if they were the new
+  // plan, and a 20-digit amount printed "1e+22%". A refusal now hides the old result; amounts above 1e12 are refused.
+  var refuse = function(message) { var old = document.getElementById('rr-result'); if (old) old.hidden = true; showToast(message); };
+  if (entry == null || stop == null || stop >= entry) { refuse('가정 진입가와 그보다 낮은 손절 가격을 넣으세요'); return; }
+  if (target != null && target <= entry) { refuse('목표 가격은 진입가보다 높게 넣거나 비워 두세요'); return; }
+  if ([entry, stop, target, amount, total].some(function(v) { return v != null && v > 1e12; })) { refuse('1조보다 큰 값은 계산하지 않습니다. 단위를 확인해 주세요'); return; }
   var fmt = function(v, d) { return Number(v).toLocaleString('en-US', { maximumFractionDigits: d == null ? 2 : d }); };
   var riskPct = (entry - stop) / entry * 100;
   var lines = ['위험 폭: 진입가에서 손절 가격까지 -' + riskPct.toFixed(1) + '% (' + fmt(entry - stop) + ')'];
@@ -3982,8 +3944,7 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
     if (document.getElementById('aio-first-visit-disclaimer')) return;
     var bar = document.createElement('div');
     bar.id = 'aio-first-visit-disclaimer';
-    bar.setAttribute('role', 'dialog');
-    bar.setAttribute('aria-modal', 'false');
+    bar.setAttribute('role', 'region'); // first-users F27 (runs 1-4): an inline notice at the top of the page, not a card over the text
     bar.setAttribute('aria-labelledby', 'aio-first-visit-disclaimer-title');
     // card, text and button styles: legacy-ui.css + soft-ui.css (#aio-first-visit-disclaimer)
     var txt = document.createElement('div');
@@ -4003,7 +3964,7 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
     bar.addEventListener('keydown', function(e) { if (e.key === 'Escape') { e.preventDefault(); btn.click(); } });
     bar.appendChild(txt);
     bar.appendChild(btn);
-    document.body.appendChild(bar);
+    var flow = document.querySelector('.content'); if (flow) { bar.classList.add('is-inline'); flow.insertBefore(bar, flow.firstChild); if (force) flow.scrollTo?.({ top: 0 }); } else document.body.appendChild(bar);
     if (force) btn.focus();
   }
   window._aioShowDisclaimer = function() { mountDisclaimer(true); };

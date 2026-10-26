@@ -304,7 +304,7 @@ details > summary { cursor: pointer; }
 .sx-disclosure__text { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-primary); }
 .sx-evidence { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 0 20px 16px; font-size: 12px; color: var(--text-muted); }
 
-/* Link rows at the foot of a card ("6개 축 근거와 읽은 값 ›"). */
+/* Link rows at the foot of a card ("6개 축 근거와 읽은 값 →"). */
 .sx-rows { display: flex; flex-direction: column; }
 .sx-row {
   appearance: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%;
@@ -313,7 +313,7 @@ details > summary { cursor: pointer; }
 }
 .sx-row:hover { background: var(--sx-ink-a03); }
 .sx-row__meta { font-size: 12px; color: var(--text-secondary); }
-.sx-row__meta::after { content: ' ›'; }
+.sx-row__meta::after { content: ' →'; } /* run-3 I#23: '›' read as a fold; these rows open another screen (the app's link arrow) */
 
 /* Inspector (screener side panel) and iPhone sheet. */
 .sx-inspector {
@@ -372,7 +372,16 @@ details > summary { cursor: pointer; }
   background: var(--text-primary) !important; color: var(--bg-base) !important; font-size: 14px !important; font-weight: 600 !important;
 }
 /* Never over the AI panel; the page keeps room for the card (shell-overlays.css reserves --aio-disclaimer-h). */
-body:has(#ai-panel.open) #aio-first-visit-disclaimer { display: none !important; }
+body:has(#ai-panel.open) #aio-first-visit-disclaimer:not(.is-inline) { display: none !important; }
+/* First-users F27 (runs 1-4): the card floated over body text; it now opens the page as a notice in the flow. */
+#aio-first-visit-disclaimer.is-inline {
+  position: relative !important; left: auto !important; right: auto !important; bottom: auto !important; transform: none !important;
+  width: auto !important; max-width: none; margin: 0 0 16px !important; padding: 14px 16px !important; z-index: auto !important;
+  flex-direction: row !important; flex-wrap: wrap; align-items: center !important; gap: 10px 16px !important;
+  border: 0.5px solid var(--border-strong) !important; font-size: 13px !important;
+}
+#aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 280px !important; min-width: 0; }
+#aio-first-visit-disclaimer.is-inline .lu-dc-btn { align-self: center; min-height: 44px; }
 body.aio-disclaimer-open .sidebar { padding-bottom: 16px !important; }
 
 .sx-page-foot { clear: both; max-width: 1400px; margin: 28px auto 0; text-align: center; font-size: 12px; color: var(--text-muted); }
@@ -397,6 +406,7 @@ body #update-banner { padding: 12px 64px 12px 20px; }
 #aio-confirm-modal button { border-radius: 999px !important; border: 0 !important; height: 40px; padding: 0 18px !important; font-size: 12px !important; }
 #aio-confirm-cancel { background: var(--sx-ink-a06) !important; color: var(--text-primary) !important; }
 #aio-confirm-ok { background: var(--data-red) !important; color: var(--bg-card) !important; }
+#aio-confirm-modal[data-tone="neutral"] #aio-confirm-ok { background: var(--text-primary) !important; border-color: var(--text-primary) !important; }
 
 /* ═══ 7. AI panel (5l) ═══════════════════════════════════════════════════ */
 #ai-panel {
@@ -461,7 +471,14 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
   .sx-tabbar-item[aria-current="page"]::before { content: ''; position: absolute; top: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-primary); }
   .sx-tabbar-item:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -4px; border-radius: 8px; }
   .content { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
-  #scroll-top-btn { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important; }
+  /* First-users run 4 (phone #6): focus and scrollIntoView stop above the fixed tab bar (the edit form's button sat under it). */
+  html { scroll-padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  #scroll-top-btn { display: none !important; }
+  /* First-users run 4 (phone #9): the boot status covered the topbar chip and 도움말; on phones it sits above the tab bar. */
+  #aio-boot-loader { top: auto; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); margin-top: 0; }
+  /* First-users run 4 (phone #11): touch targets under 44 px — text fields, the chart interval buttons and the AI input. */
+  .page :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select), #ai-panel-inp { min-height: 44px; box-sizing: border-box; }
+  #stock-chart-intervals > button { min-width: 44px; min-height: 44px; }
   #aio-first-visit-disclaimer { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; }
   body.aio-disclaimer-open .content { padding-bottom: calc(var(--aio-disclaimer-h, 0px) + 96px + env(safe-area-inset-bottom, 0px)) !important; }
   /* Toasts and the screener compare note sit above the tab bar, not under it. */
@@ -524,3 +541,6 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
   .topbar #topbar-ai-btn { grid-column: 4; }
 }
 .sx-page-foot-version { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* First-users F08: the screen's menu name above a tab's own title ("시장 상태 ›" over 국면 판정). */
+.page-title[data-hub-label]::before { content: attr(data-hub-label) " ›"; display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--text-muted); }

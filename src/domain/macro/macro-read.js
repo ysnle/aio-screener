@@ -364,7 +364,7 @@ function sharedGauges({ macro, rateFx, regime }) {
     commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI 20일 ${signed(wti20, 1, '%')}${rateFx?.wti5 != null && Math.abs(rateFx.wti5) >= RULES.oil.turn5dPct && Math.sign(rateFx.wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(rateFx.wti5, 1, '%')})` : ''}, 달러 ${signed(dxy20, 1, '%')}` },
     credit: { gauge: credit, headline: hyBp == null ? null : `하이일드 ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')}${creditBy20 ? `, 20거래일 ${signed(record20.value, 0, 'bp')}` : ''})`}` },
     korea: stateOf('korea') === 'burden' && (rateFx?.krw20 == null || rateFx.krw20 < RULES.fx.krwMove20dPct) && rateFx?.jpy20 != null && rateFx.jpy20 <= -RULES.fx.yenRally20dPct
-      ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -rateFx.jpy20, unit: '%', digits: 1, ...cuts(-5, 8, [RULES.fx.yenRally20dPct], ['neutral', 'burden'], [[RULES.fx.yenRally20dPct, `+${RULES.fx.yenRally20dPct}% 엔 급강세`]]) }), headline: `엔화 20일 ${signed(-rateFx.jpy20, 1, '%')} 강세` }
+      ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -rateFx.jpy20, unit: '%', digits: 1, ...cuts(-5, 8, [RULES.fx.yenRally20dPct], ['neutral', 'burden'], [[RULES.fx.yenRally20dPct, `+${RULES.fx.yenRally20dPct}% 엔 급강세`]]) }), headline: `엔화 가치 20거래일 ${signed(-rateFx.jpy20, 1, '%')} 강세` }
       // v57.86 (live review): a won past -2% held at 중립 (KOSPI contradicts, last-day turn, endpoint-only) drew its pin in the
       // favourable band — each outer band takes its tone only when the axis reached it, as the dollar gauge does.
       : { gauge: gauge({ label: '원/달러 20일 변화', value: rateFx?.krw20 ?? null, unit: '%', digits: 1, ...cuts(-5, 5, [-RULES.fx.krwMove20dPct, RULES.fx.krwMove20dPct], [stateOf('korea') === 'favorable' ? 'favorable' : 'neutral', 'neutral', stateOf('korea') === 'burden' ? 'burden' : 'neutral'], [[-RULES.fx.krwMove20dPct, `-${RULES.fx.krwMove20dPct}%`], [RULES.fx.krwMove20dPct, `+${RULES.fx.krwMove20dPct}%`]]) }), headline: rateFx?.krw20 == null ? null : `원/달러 20일 ${signed(rateFx.krw20, 1, '%')}` }
@@ -590,7 +590,7 @@ export function ratesNextSteps({ read = null, carry = null } = {}) {
   const byId = Object.fromEntries((read?.axes || []).map((row) => [row.id, row]));
   const label = (id) => byId[id]?.stateLabel || '판정 보류';
   const next = [{ route: 'macro', label: '거시 경제', why: `물가 ${label('inflation')}, 통화정책 ${label('policy')} — 금리 경로를 움직이는 쪽` }];
-  next.push({ route: 'signal', label: '시장 상태', why: `금리(${label('rates')})와 추세·시장 폭을 합친 판정${carry?.available ? ` (환율은 참고로 따로 표시, 엔화 20일 ${signed(carry.yenStrength, 1, '%')})` : ''}` });
+  next.push({ route: 'signal', label: '시장 상태', why: `금리(${label('rates')})와 추세·시장 폭을 합친 판정${carry?.available ? ` (환율은 참고로 따로 표시, 엔화 가치 20거래일 ${signed(carry.yenStrength, 1, '%')})` : ''}` });
   if (byId.rates?.state === 'burden' || byId.rates?.state === 'favorable') next.push({ route: 'themes', label: '테마와 섹터', why: `금리 ${label('rates')} 국면에서 섹터 회전(선도·후행)이 어떻게 나타나는지` });
   next.push({ route: 'briefing', label: '브리핑', why: '다음 7일 국채·물가·연준 일정과 오늘 금리·달러 움직임 해석' });
   return next;

@@ -101,7 +101,7 @@ export function dupontCard(doc, history, { financial = false, fundamentals = nul
     ['지금 읽기', `${read.basis === 'average' ? '기초·기말 평균 총자산과 평균 자기자본을 썼습니다(재무 공시의 ROE와 같은 기준).' : read.basis === 'year-end' ? '평균을 만들 직전 해 자료가 없어 기말 값을 썼습니다.' : '직전 해 자료가 있는 해는 평균, 없는 해는 기말 값을 썼습니다(재무 공시의 ROE와 같은 규칙).'} 가장 크게 움직인 요인은 표에서 강조했습니다.`],
     ['한계, 함께 볼 것', `${financial ? '은행은 예금을 부채로 쓰는 구조라 재무 레버리지가 10배 안팎이 보통이고 자산회전율은 매우 낮습니다 — 일반 기업과 같은 눈높이로 비교하지 않습니다. ' : ''}높은 수익성은 시간이 지나며 평균 쪽으로 돌아가는 경향이 관측됐습니다(Fama·French 2000). 일회성 이익·자사주 매입은 10-K 원문에서 확인합니다.`]
   ]));
-  card.append(el(doc, 'p', '근거, DuPont 분해(1920년대), 수익성 평균 회귀(Fama·French 2000), 데이터, SEC EDGAR XBRL 연간 공시(10-K)', 'sx-evidence'));
+  card.append(el(doc, 'p', '근거, DuPont 분해(1920년대), 수익성 평균 회귀(Fama·French 2000), 데이터, 미국 증권거래위원회 연간 공시(10-K)', 'sx-evidence'));
   return card;
 }
 
@@ -258,7 +258,7 @@ export function rdCard(doc, history) {
     ['지금 읽기', rdNowText(read)],
     ['한계, 함께 볼 것', '업종마다 정상 수준이 크게 다릅니다(소프트웨어·제약은 높고 유통·금융은 거의 없음). 인수한 연구개발(IPR&D)이 섞인 해는 10-K 원문에서 확인합니다.']
   ]));
-  card.append(el(doc, 'p', '근거, Lev·Sougiannis(1996) R&D 자본화와 수익률, 데이터, SEC EDGAR XBRL 연간 공시', 'sx-evidence'));
+  card.append(el(doc, 'p', '근거, Lev·Sougiannis(1996) R&D 자본화와 수익률, 데이터, 미국 증권거래위원회 연간 공시(10-K)', 'sx-evidence'));
   return card;
 }
 
@@ -371,7 +371,7 @@ export function marginCashCard(doc, read, { financial = false } = {}) {
     ['지금 읽기', `${operating.value != null && net.value != null ? (net.value > operating.value ? '순이익률이 영업이익률보다 높아 이자 수익·투자 이익 같은 영업 밖 이익이 있었던 해입니다.' : `영업이익률과 순이익률의 차이 ${(operating.value - net.value).toFixed(1)}%p는 이자·세금·영업 밖 손익입니다.`) : '세 단계 중 공시된 값만 표시했습니다.'}${cap.sbcRatio != null && cap.sbcRatio >= 10 ? ' 주식보상이 매출의 10% 이상이라, 현금흐름에 더해지는 비현금 비용이지만 주식 수를 늘리는 실제 비용으로 함께 봅니다.' : ''}`],
     ['한계, 함께 볼 것', `순현금은 현금성 자산(단기투자 포함 시 표기)에서 장기부채만 뺀 값이며, 1년 안에 갚을 부채와 리스 부채는 빠져 있습니다.${financial ? ' 은행·대출 금융사는 현금과 부채가 영업 자산이라 순현금 줄을 표시하지 않습니다.' : ''} 매출총이익을 따로 표시하지 않는 업종(금융·서비스 일부)은 첫 단계가 비어 있습니다.`]
   ]));
-  card.append(el(doc, 'p', '데이터, SEC EDGAR XBRL 연간 공시(최근 2개 회계연도)', 'sx-evidence'));
+  card.append(el(doc, 'p', '데이터, 미국 증권거래위원회 연간 공시(10-K)(최근 2개 회계연도)', 'sx-evidence'));
   return card;
 }
 
@@ -423,11 +423,11 @@ export function themePeerCard(doc, read, { onOpen = null } = {}) {
 
 // v58.75: everything 재무 공시 adds for this pass, built here so the boot-loaded fiscal-read.js stays small. hero = lines
 // under the annual headline; cards = margin/cash (only with a fiscal series) and the EPS surprise; themePeers = the table.
-export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, calendar, rows, fundamentals, series = false, financial = false }) {
+export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, calendar, calendarState = null, rows, fundamentals, series = false, financial = false }) {
   const hero = [];
   const recent = trailingYearLine(buildTrailingYearRead(quarters));
   if (recent) hero.push(el(doc, 'p', recent, 'fiscal-period-basis v2-fiscal-recent'));
-  const schedule = buildEarningsSchedule({ symbol, calendar, consensus });
+  const schedule = buildEarningsSchedule({ symbol, calendar, consensus, calendarState });
   if (schedule) { const line = el(doc, 'p', schedule.text, 'fiscal-period-basis sx-meta v2-fiscal-schedule'); if (schedule.title) line.title = schedule.title; hero.push(line); }
   const cards = [series ? marginCashCard(doc, buildMarginCashRead(history), { financial }) : null, surpriseCard(doc, buildSurpriseRead(consensus))].filter(Boolean);
   const fiscal = root?._aioSecFiscalHistory;

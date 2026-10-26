@@ -37,7 +37,8 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 #page-signal > .sx-card, #page-signal > .mk-pair { margin: 0 0 16px; }
 
 /* ① Hero: verdict word + one line | tally bar + previous verdict. */
-.mk-hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; align-items: center; }
+.mk-hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; align-items: start; } /* first-users run 4 (S#10): the tally sat mid-height beside a long main column, leaving an empty block above it */
+.mk-hero__side { padding-top: 6px; }
 .mk-hero__main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .mk-hero__verdict-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; }
 .page .mk-hero__verdict { margin: 0; font-size: 28px !important; font-weight: 700; letter-spacing: -0.03em !important; line-height: 1.05; color: var(--text-primary); }
@@ -76,6 +77,8 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .mk-axis__state { justify-self: start; }
 .mk-axis__value { color: var(--text-primary); line-height: 1.45; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .mk-axis__rule { font-size: 12px; line-height: 1.45; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* Run-3 B23: the flip condition was cut at two lines with no way to read the rest; an open row shows it whole. */
+.mk-axis[open] .mk-axis__rule { display: block; -webkit-line-clamp: unset; overflow: visible; }
 .mk-axis__prev { text-align: right; font-size: 12px; color: var(--text-secondary); }
 .mk-axis__prev.is-changed { color: var(--text-primary); font-weight: 600; }
 .mk-axis__d5 { text-align: right; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
@@ -426,4 +429,10 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
   #page-signal .mk-korea .mk-fold > summary, #page-macro .macro-fold-section .mk-fold > summary { display: grid; grid-template-columns: minmax(0, 1fr) 16px; gap: 4px 10px; align-items: center; }
   #page-signal .mk-korea .mk-fold > summary .sx-card__meta, #page-macro .macro-fold-section .mk-fold > summary .sx-card__meta { grid-column: 1; grid-row: 2; margin-left: 0; white-space: normal; }
   #page-macro .macro-fold-section .mk-fold > summary .briefing-h2 { white-space: normal; }
+}
+
+/* v58.80 (first-users F05): same rule as 오늘 — the page column, not the window, decides when the hero stacks. */
+@container aio-main (max-width: 840px) {
+  .mk-hero { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .bb-pair, .mk-macro-top, .mk-rates-top { grid-template-columns: minmax(0, 1fr); }
 }

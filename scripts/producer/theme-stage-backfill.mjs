@@ -3,7 +3,9 @@
 // member; this rebuilds each past session's theme rows from those closes (the same closesToFactors fields the live row
 // carries) and runs them through the same group-strength and playbook rules the screens use. Output is the compact
 // themeHistory shape ({ date, themes: { 'US:id': [ret1m, state] } }); build-scenario-state fills the days and themes its
-// forward record lacks and marks them as recomputed. Fundamentals are not involved, so no later information leaks in.
+// forward record lacks and marks them as recomputed. Each session reads only closes up to that session (ci-lookahead-check
+// rewrites every later close and requires the row unchanged); the one later fact is membership — today's theme members are
+// applied to every past session, and the screen's hover note says so.
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
 import { closesToFactors, isSessionComplete } from '../../src/domain/screener/price-factors.js';
@@ -76,7 +78,7 @@ export function buildThemeStageBackfill({ results = [], themeMaps = null, histor
     if (Object.keys(themes).length) out.push({ date, themes });
   }
   return { schemaVersion: THEME_STAGE_HISTORY_SCHEMA, generatedAt: new Date(nowMs).toISOString(), rule: THEME_STAGE_RULE,
-    basis: 'recomputed from AIO screener adjusted closes (2y) with the live theme-stage rule; not a forward record', sessions: out.length, history: out };
+    basis: 'recomputed from AIO screener adjusted closes (2y) with the live theme-stage rule and today\'s theme members; not a forward record', sessions: out.length, history: out };
 }
 
 export async function writeThemeStageBackfill(results, nowMs = Date.now()) {

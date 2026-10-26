@@ -218,7 +218,45 @@ function _calcCorrelationMatrix(returnsMap) {
   return { tickers: tickers, matrix: matrix };
 }
 
+// v58.80 (boot budget): the daily-return helper moved here with the other statistics, so the boot shell's globals no longer
+// pull the backtest engine (src/domain/portfolio/backtest.js, loaded on demand) into the boot bundle.
+function _returnTimestampMs(ts) {
+  var numeric = typeof ts === 'number' || (typeof ts === 'string' && /^\d+(?:\.\d+)?$/.test(ts)) ? Number(ts) : NaN;
+  var epochMs = Number.isFinite(numeric) ? (numeric < 100000000000 ? numeric * 1000 : numeric) : Date.parse(String(ts || ''));
+  return Number.isFinite(epochMs) ? epochMs : null;
+}
+
+function _calcDailyReturns(prices, timestamps) {
+  if (!prices || prices.length < 2) return [];
+  const returns = [];
+  let previous = null;
+  let previousTs = null;
+  for (let i = 0; i < prices.length; i += 1) {
+    const current = prices[i];
+    const valid = current !== null && current !== undefined && !Number.isNaN(Number(current)) && Number(current) > 0;
+    const currentTs = timestamps && timestamps[i] != null ? _returnTimestampMs(timestamps[i]) : null;
+    if (!valid) {
+      previous = null;
+      previousTs = null;
+      continue;
+    }
+    if (previous != null) {
+      // Portfolio audit 2026-10-17: a 3-day limit dropped every return across a holiday (Fri → Tue over Memorial Day, -10.9%
+      // gone), lowering volatility, VaR and drawdown. Consecutive closes up to 10 calendar days apart (KRX Chuseok closures
+      // run a week) are one return; a longer gap is a hole in the record and still breaks the chain.
+      const adjacent = currentTs == null || previousTs == null
+        ? true
+        : currentTs > previousTs && currentTs - previousTs <= 10 * 24 * 60 * 60 * 1000;
+      if (adjacent) returns.push((Number(current) - previous) / previous);
+    }
+    previous = Number(current);
+    previousTs = currentTs;
+  }
+  return returns;
+}
+
 export {
+  _calcDailyReturns,
   _statMean,
   _statStdDev,
   _btFnv1a,

@@ -1,5 +1,6 @@
 // v57.60: pure Masters (13F) registry, coverage and value formatters, moved out of src/ui/pages/masters.js
 // unchanged. No DOM here; the page imports these and keeps re-exporting the names it exported before.
+import { usdKoreanText } from '../shared/number.js';
 
 // MF-05: holding rows are rendered only from a verified SEC EDGAR
 // filer/CIK/filing artifact; the registry itself never invents rows.
@@ -126,8 +127,7 @@ function deriveCoverageSummary(registry = [], catalog = null, holdings = null, p
 function formatReportedValue(value) {
   const number = Number(value);
   if (value == null || !Number.isFinite(number)) return '—';
-  if (Math.abs(number) >= 1e9) return `$${(number / 1e9).toFixed(2)}B`;
-  if (Math.abs(number) >= 1e6) return `$${(number / 1e6).toFixed(1)}M`;
+  if (Math.abs(number) >= 1e4) return usdKoreanText(number); // first-users F33: 조·억·만 달러 like every other amount
   return `$${new Intl.NumberFormat('en-US').format(number)}`;
 }
 
@@ -135,9 +135,6 @@ function formatReportedValue(value) {
 function formatCompactUsd(value) {
   const number = Number(value);
   if (value == null || !Number.isFinite(number)) return '—';
-  if (Math.abs(number) >= 1e12) return `$${(number / 1e12).toFixed(2)}T`;
-  if (Math.abs(number) >= 1e9) return `$${(number / 1e9).toFixed(1)}B`;
-  if (Math.abs(number) >= 1e6) return `$${(number / 1e6).toFixed(1)}M`;
   return formatReportedValue(number);
 }
 

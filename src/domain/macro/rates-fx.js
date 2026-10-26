@@ -7,6 +7,7 @@
 import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/close-series.js';
 import { resolveMarketCalendarSession } from '../market/market-calendar.js';
 import { RULES } from '../rules/thresholds.js';
+import { MARKET_WINDOWS } from '../market/market-windows.js';
 import { signedText } from '../shared/number.js';
 
 export const YEN_RALLY_RULE = RULES.fx.yenRally20dPct; // % in 20 sessions — the 시장 상태 FX-axis rule (P1428 registry)
@@ -308,7 +309,7 @@ function fxCard(history, basis, spec) {
   if (!series.length) return { ...spec, available: false, series: [] };
   const last = series[series.length - 1];
   const prior = closeSessionPointBack(series, 1);
-  const back20 = closeSessionPointBack(series, 20);
+  const back20 = closeSessionPointBack(series, MARKET_WINDOWS.rule);
   const change20 = back20 ? (last.value / back20.value - 1) * 100 : null;
   return {
     ...spec,
@@ -348,7 +349,9 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
       burden: yenStrength >= YEN_RALLY_RULE,
       // v57.70 (2026-10-15 audit): "20거래일 +1.5%" (USD/JPY) above "엔화 20일 -1.5%" read as a sign error; the second is the
       // yen's own value, and that is now said.
-      text: `엔화 가치 기준 20일 ${signed(yenStrength, 1, '%')}(${yenStrength >= 0 ? '엔 강세' : '엔 약세'}, 위 엔/달러 환율과 부호가 반대). 엔화 가치가 ${YEN_RALLY_RULE}% 이상 오르면 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
+      // v58.80 (first-users run-3 N#32): "엔화 20일 +1.3%" beside the card's "-1.3%" still read as a contradiction; the
+      // window carries the same name as the card's and the sentence says the two are one move seen from each side.
+      text: `엔화 가치 20거래일 ${signed(yenStrength, 1, '%')}(${yenStrength >= 0 ? '엔 강세' : '엔 약세'}) — 위 엔/달러 환율이 ${signed(-yenStrength, 1, '%')} 움직였다는 같은 뜻입니다. 엔화 가치가 ${YEN_RALLY_RULE}% 이상 오르면 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
     };
   const tnxAll = buildCloseSeries(history, 'tnx', { through: basis });
   const tnx = tnxAll.slice(-CHART_SESSIONS);

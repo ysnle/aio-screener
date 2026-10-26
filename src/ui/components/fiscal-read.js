@@ -12,9 +12,9 @@ import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus
 import { el } from './dom.js';
 import { fiscalYearLabel, fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, usdKoreanText } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
-import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
 
 // The provider earnings calendar (week rows + the v58.75 six-week `upcoming` map), shared with the company summary.
 export const EARNINGS_CALENDAR = Object.freeze({ key: '_aioEarningsCalendarArtifact', url: './public-data/earnings-calendar.json', schemas: ['earnings-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 });
@@ -57,8 +57,8 @@ export function requestFiscalHistory(root, onReady, key = 'default') {
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
   load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
     .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
-    .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; root._aioSecIssuerSic = artifact?.issuerSic && typeof artifact.issuerSic === 'object' ? artifact.issuerSic : null; })
-    .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistory = null; })
+    .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = false; root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; root._aioSecIssuerSic = artifact?.issuerSic && typeof artifact.issuerSic === 'object' ? artifact.issuerSic : null; })
+    .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = true; root._aioSecFiscalHistory = null; })
     .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = Object.values(root._aioSecFiscalHistoryOnReady || {}); delete root._aioSecFiscalHistoryOnReady; ready.forEach((fn) => fn?.()); });
 }
 
@@ -80,18 +80,14 @@ export function fiscalBarGeometry(values = []) {
 
 export function formatFiscalAmount(value) {
   const v = number(value);
-  if (v == null) return '자료 없음';
-  return `${v < 0 ? '-' : ''}$${(Math.abs(v) / 1e6).toLocaleString('en-US', { maximumFractionDigits: 3 })}M`;
+  return v == null ? '자료 없음' : usdKoreanText(v, { precise: true });
 }
 
-// 2026-10-13 review S20: the table and bar labels read in the same B/T units as the reading ($416.2B, not
-// $416,161M); the exact filed amount (formatFiscalAmount) stays in the cell title.
+// 2026-10-13 review S20: the table and bar labels read in the same units as the reading; the exact filed amount
+// (formatFiscalAmount) stays in the cell title. First-users F33: Korean units (조·억·만 달러).
 export function formatFiscalCompact(value) {
   const v = number(value);
-  if (v == null) return '자료 없음';
-  const abs = Math.abs(v);
-  const body = abs >= 1e12 ? `${(abs / 1e12).toFixed(2)}T` : abs >= 1e9 ? `${(abs / 1e9).toFixed(1)}B` : abs >= 1e6 ? `${(abs / 1e6).toFixed(1)}M` : abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
-  return `${v < 0 ? '-' : ''}$${body}`;
+  return v == null ? '자료 없음' : usdKoreanText(v);
 }
 function amountNode(doc, tag, prefix, value, className) {
   const node = el(doc, tag, `${prefix}${formatFiscalCompact(value)}`, className);
@@ -287,17 +283,18 @@ function earningsQualityCard(doc, read, analysis) {
   const accrual = analysis ? analysis.buildAccrualRead(read.history) : { state: 'loading' };
   const COLLECTION_PENDING_LABEL = analysis?.COLLECTION_PENDING_LABEL || '';
   const accrualLatest = accrual.state === 'ready' ? accrual.latest : null;
-  if (accrual.state === 'pending') row('발생액 비율 (Sloan)', COLLECTION_PENDING_LABEL, '대기');
-  else if (accrual.state === 'unreported') row('발생액 비율 (Sloan)', '총자산이 공시 수집본에 없어 계산하지 않음', '해당 없음');
+  if (accrual.state === 'pending') row('이익 중 현금이 아닌 몫 (발생액 비율)', COLLECTION_PENDING_LABEL, '대기');
+  else if (accrual.state === 'unreported') row('이익 중 현금이 아닌 몫 (발생액 비율)', '총자산이 공시 수집본에 없어 계산하지 않음', '해당 없음');
   else if (accrualLatest) {
     const value = accrualLatest.ratio;
-    const line = row('발생액 비율 (Sloan)', `(순이익 − 영업현금흐름) ÷ ${accrualLatest.basis === 'average' ? '평균' : '기말'} 총자산, ${accrualLatest.label}${accrual.latestIsNewest ? '' : ' (최근 연도 자료 없음)'} — ${Math.abs(value) < 0.01 ? '장부 이익과 현금이 거의 같음' : value < 0 ? '현금이 장부 이익보다 많이 들어옴' : value < 0.05 ? '장부 이익 일부가 아직 현금이 아님' : '장부 이익 중 현금이 아닌 부분이 자산 대비 큼'}`,
+    // v58.80 (first-users run-4): the formula moved to the hover; the row reads in words.
+    const line = row('이익 중 현금이 아닌 몫 (발생액 비율)', `순이익에서 실제 들어온 영업 현금을 뺀 값을 총자산으로 나눔, ${accrualLatest.label}${accrual.latestIsNewest ? '' : ' (최근 연도 자료 없음)'} — ${Math.abs(value) < 0.01 ? '장부 이익과 현금이 거의 같음' : value < 0 ? '현금이 장부 이익보다 많이 들어옴' : value < 0.05 ? '장부 이익 일부가 아직 현금이 아님' : '장부 이익 중 현금이 아닌 부분이 자산 대비 큼'}`,
       signedText(value * 100, 1, '%'));
-    line.title = accrual.years.map((year) => `${year.label} ${signedText(year.ratio * 100, 1, '%')}${year.basis === 'average' ? '' : '(기말)'}`).join(', ');
+    line.title = `(순이익 − 영업현금흐름) ÷ ${accrualLatest.basis === 'average' ? '평균' : '기말'} 총자산 (Sloan 1996). ` + accrual.years.map((year) => `${year.label} ${signedText(year.ratio * 100, 1, '%')}${year.basis === 'average' ? '' : '(기말)'}`).join(', ');
     if (value >= 0.05) line.classList.add('is-burden');
   }
   const capex = number(latest.capex);
-  if (capex != null && latest.revenue > 0) row('잉여현금흐름 마진', '(영업현금흐름 − 설비투자) ÷ 매출', `${((latest.operatingCashFlow - capex) / latest.revenue * 100).toFixed(1)}%`);
+  if (capex != null && latest.revenue > 0) row('잉여현금흐름 마진', '매출 중 설비투자까지 쓰고 남은 현금의 비율', `${((latest.operatingCashFlow - capex) / latest.revenue * 100).toFixed(1)}%`);
   const prev = read.history.at(-2);
   if (number(latest.shares) > 0 && number(prev?.shares) > 0) {
     const split = shareSplitBreaks(read.history).includes(latest.periodEnd);
@@ -320,7 +317,7 @@ function earningsQualityCard(doc, read, analysis) {
     box('지금 읽기', `${ratio == null ? `${latest.periodEnd} 회계연도는 순이익이나 영업현금흐름이 마이너스라 비율로 읽지 않고 두 금액을 따로 봅니다.` : `${latest.periodEnd} 회계연도 영업현금흐름은 순이익의 ${(ratio * 100).toFixed(0)}%입니다${plotted.length >= 2 ? ` — 위 막대는 공시된 ${plotted.length}개 회계연도의 같은 비율입니다` : ''}.`}${accrualLatest ? ` 발생액 비율은 ${accrualLatest.label} ${accrualLatest.ratio >= 0 ? '+' : '-'}${Math.abs(accrualLatest.ratio * 100).toFixed(1)}%로, 마이너스일수록 현금이 이익보다 많이 들어왔다는 뜻입니다.` : ''}`),
     box('한계, 함께 볼 것', `${accrual.state === 'pending' ? '발생액을 평균 총자산으로 나눈 비율(원 연구의 정의)은 총자산 수집이 끝나면 표시됩니다. ' : '발생액 비율의 5% 구간은 이 화면의 읽기 기준이며 원 연구의 분위 경계가 아닙니다. '}운전자본이 크게 변한 해나 대규모 일회성 항목은 10-K 현금흐름표에서 확인합니다.`));
   fold.append(body);
-  card.append(fold, el(doc, 'p', '근거, Sloan(1996) 발생액 이상 현상, 데이터, SEC EDGAR XBRL 연간 공시', 'sx-evidence'));
+  card.append(fold, el(doc, 'p', '근거, Sloan(1996) 발생액 이상 현상, 데이터, 미국 증권거래위원회 연간 공시(10-K)', 'sx-evidence'));
   return card;
 }
 
@@ -380,7 +377,11 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
       host.append(emptyState(doc, { title: '한국 공시(DART) 재무', reason: `${symbol} — 한국 상장 종목의 연간 재무는 한국 공시(DART) 사업보고서 원문에서 확인합니다.`, compact: true }));
       const dart = dartLink(doc, root?._aioKrFundamentals?.companies?.[symbol]);
       if (dart) host.append(dart);
-    } else host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분합니다.', compact: true }));
+    // v58.80 (first-users F03): on a slow phone NVDA read "SEC 공시 대상이 아니거나…" while the history file was still on its
+    // way (undefined = not answered yet); run-2: a failed download is not "no record" either.
+    } else if (root?._aioSecFiscalHistory === undefined) host.append(emptyState(doc, { title: '재무 기록을 불러오는 중입니다', reason: `${symbol} — 공시 재무 파일이 도착하면 여기에 그립니다.`, compact: true }));
+    else if (root?._aioSecFiscalHistoryFailed) host.append(emptyState(doc, { title: '재무 파일을 받지 못했습니다', reason: `${symbol} — 연결이 느리거나 끊겨 공시 재무 파일이 도착하지 않았습니다.`, next: '1분 뒤 이 화면을 다시 열면 다시 받습니다.', compact: true }));
+    else host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분합니다.', compact: true }));
   } else {
     // v58.53 개편 v2 (5g): ① hero (the reading in one line + basis) → ② revenue/income card beside 이익의 질 → quarters,
     // the reading rows and peers as cards.
@@ -394,7 +395,7 @@ export function renderFiscalRead({ documentRef: doc, root, state }) {
     if (annualSource) basis.append(doc.createTextNode(', '), annualSource);
     if (read.headline) hero.append(el(doc, 'p', `${symbol} — ${read.headline}`, 'briefing-read-headline v2-stock-lede'));
     // v58.75 (persona review): the last four filed quarters and the next report date under the (possibly old) annual line.
-    const extra = analysis ? analysis.fiscalExtras(doc, { root, symbol, quarters: quarterText ? parseQuarterHistory(quarterText) : [], history: read.history, consensus: consensusRowFor(root, symbol), calendar: root?.[EARNINGS_CALENDAR.key], rows, fundamentals, series: !!series, financial: read.points.some((point) => point.id === 'bank') }) : null;
+    const extra = analysis ? analysis.fiscalExtras(doc, { root, symbol, quarters: quarterText ? parseQuarterHistory(quarterText) : [], history: read.history, consensus: consensusRowFor(root, symbol), calendar: root?.[EARNINGS_CALENDAR.key], calendarState: sharedArtifactState(root, EARNINGS_CALENDAR.key), rows, fundamentals, series: !!series, financial: read.points.some((point) => point.id === 'bank') }) : null;
     if (extra) hero.append(...extra.hero);
     hero.append(basis);
     host.append(hero);

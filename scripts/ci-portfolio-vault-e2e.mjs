@@ -420,6 +420,13 @@ async function main() {
       };
       await fill('005930', 'krw');
       await fill('000660', '');
+      // P2066 run-3: the same holding updated by its Korean name with a blank currency must not fall back to dollars.
+      document.getElementById('pf-add-ticker').value = '삼성전자';
+      const nameLabel = (_pfEntryCurrency || (() => null))();
+      await fill('삼성전자', '');
+      const updateAsked = document.getElementById('aio-confirm-modal').style.display === 'flex';
+      document.getElementById('aio-confirm-ok').click();
+      for (let i = 0; i < 50 && window.getPortfolioData().find((p) => p.ticker === '005930')?.cost !== 90; i += 1) await new Promise((r) => setTimeout(r, 20));
       const stored = window.getPortfolioData();
       const row = (ticker) => stored.find((entry) => String(entry.ticker || entry.sym || '').toUpperCase() === ticker) || {};
       const beforeInvalid = window.getPortfolioData().length;
@@ -427,12 +434,15 @@ async function main() {
       const afterInvalid = window.getPortfolioData();
       return {
         declared: row('005930').costCurrency ?? null,
+        nameLabel, updateAsked,
+        rows: stored.length,
         undeclared: row('000660').costCurrency ?? null,
         invalidRejected: afterInvalid.length === beforeInvalid && !afterInvalid.some((entry) => entry.costCurrency === 'US')
       };
     });
     check('PFE2-12 cost_currency_writer_round_trip (P1187)',
-      currencyWriter.declared === 'KRW' && currencyWriter.undeclared === null && currencyWriter.invalidRejected,
+      // P2066 (v58.80 first-users F18): a blank currency box under the "매수 단가 (KRW)" label keeps KRW, not dollars.
+      currencyWriter.declared === 'KRW' && currencyWriter.undeclared === 'KRW' && currencyWriter.nameLabel === 'KRW' && currencyWriter.updateAsked && currencyWriter.rows === 2 && currencyWriter.invalidRejected,
       JSON.stringify(currencyWriter));
 
     // v57.81: SPCX (SpaceX, Nasdaq since 2026-06-12) sat in the screener universe but the portfolio box checked only its own
@@ -475,6 +485,22 @@ async function main() {
     check('PFE2-25 verified_nickname_resolves_by_registry (v57.81)',
       listedSymbol.alias.join() === 'SPCX' && listedSymbol.toasts.some((message) => /"스엑" = SPCX/.test(message)),
       JSON.stringify(listedSymbol));
+
+    // P2071 (v58.80 first-users run-2): a refused 내 계획 점검 input left the previous plan's lines on screen as if new.
+    const planCheck = await page.evaluate(() => {
+      const set = (values) => Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value; });
+      set({ 'rr-entry': '100', 'rr-stop': '90', 'rr-target': '130', 'rr-capital': '1000', 'rr-total': '10000' });
+      window.calculateRR();
+      const shown = !document.getElementById('rr-result').hidden;
+      set({ 'rr-stop': '110' });
+      window.calculateRR();
+      const hiddenOnStop = document.getElementById('rr-result').hidden;
+      set({ 'rr-stop': '90', 'rr-capital': '99999999999999999999' });
+      window.calculateRR();
+      return { shown, hiddenOnStop, hiddenOnHuge: document.getElementById('rr-result').hidden, text: document.getElementById('rr-lines').textContent };
+    });
+    check('PFE2-26 refused_plan_check_hides_previous_result (P2071)',
+      planCheck.shown && planCheck.hiddenOnStop && planCheck.hiddenOnHuge, JSON.stringify(planCheck));
 
     // E3/P1187 (11 P11-01): 가져오기·전체 삭제 경로는 savePortfolioData의 반환을 버려 persist가
     // 거부돼도 완료를 말했다. 두 경로 모두 실패 ack에서 성공 문구를 내지 않아야 한다.
@@ -1059,9 +1085,15 @@ async function main() {
       const usdBox = document.getElementById('pf-cash-usd-input');
       const restoredBox = krwBox?.value === '5000';
       usdBox.value = '1200';
-      window._aioSaveCashBalance(usdBox);
+      await window._aioSaveCashBalance(usdBox); // v58.80: the shared number reader loads on first use, so the save resolves after it
       const saved = localStorage.getItem('aio_portfolio_cash_balances');
       const legacyDropped = localStorage.getItem('aio_portfolio_cash') === null;
+      // v58.80 (first-users bundle 6): a refused amount says why and leaves the stored balance as it was.
+      usdBox.value = '-100';
+      await window._aioSaveCashBalance(usdBox);
+      const refused = { kept: localStorage.getItem('aio_portfolio_cash_balances') === saved, reason: document.getElementById('pf-cash-usd-input-error')?.textContent || '', invalid: usdBox.getAttribute('aria-invalid') === 'true', typed: usdBox.value };
+      usdBox.value = '1200';
+      await window._aioSaveCashBalance(usdBox);
       _AioVault.lock();
       document.getElementById('pf-pin-input').value = '1357';
       await window.unlockPortfolio();
@@ -1075,7 +1107,7 @@ async function main() {
       const roundTrip = window._pfPortfolioBackup.parse(JSON.stringify(bundle));
       await _pfRestoreBackupSections(roundTrip.contents);
       const newRestored = JSON.stringify(bridge.read().balances);
-      return { legacyRead, legacyKeptAfterRead, secondRead, restoredBox, saved, legacyDropped, afterUnlock, exported, oldRestored, newRestored, encrypted: (localStorage.getItem('aio_portfolio_data') || '').startsWith('aio_enc::') };
+      return { legacyRead, legacyKeptAfterRead, secondRead, restoredBox, saved, legacyDropped, refused, afterUnlock, exported, oldRestored, newRestored, encrypted: (localStorage.getItem('aio_portfolio_data') || '').startsWith('aio_enc::') };
     });
     const twoBalances = '[{"currency":"KRW","amount":5000},{"currency":"USD","amount":1200}]';
     check('v57.81 legacy_single_cash_reads_as_one_balance_without_write',
@@ -1083,6 +1115,7 @@ async function main() {
       && cashModel.legacyKeptAfterRead && cashModel.secondRead, JSON.stringify(cashModel));
     check('v57.81 per_currency_boxes_save_and_drop_legacy_copy',
       cashModel.restoredBox && cashModel.saved === twoBalances && cashModel.legacyDropped, JSON.stringify(cashModel));
+    check('v58.80 refused_cash_amount_says_why_and_keeps_balance', cashModel.refused?.kept && /0 이상/.test(cashModel.refused?.reason || '') && cashModel.refused?.invalid && cashModel.refused?.typed === '-100', JSON.stringify(cashModel.refused));
     check('v57.81 cash_balances_survive_pin_lock_unlock', cashModel.encrypted && cashModel.afterUnlock === twoBalances, JSON.stringify(cashModel));
     check('v57.81 backup_round_trips_cash_balances_and_old_single_cash',
       cashModel.exported === twoBalances && cashModel.newRestored === twoBalances

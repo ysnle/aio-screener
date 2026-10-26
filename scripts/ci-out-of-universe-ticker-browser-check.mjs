@@ -173,6 +173,26 @@ try {
       check(accept.saved.includes('MLI') && !accept.saved.includes('ZZZZ'), `${label}: watchlist must accept a listed symbol and refuse an unlisted one (v57.81)`, accept);
       check(['MLI', 'UFPT'].every((s) => accept.quoteSet.includes(s)) && !accept.quoteSet.includes('ZZZZ') && accept.zzzz.ok === false, `${label}: accepted symbols must join the quote request set; unlisted never (v57.81)`, accept);
 
+      // 5b. P2070: a stock page's 관심 종목 추가 with no list makes a "관심 종목" list instead of asking to pick one.
+      //     P2069: a typed search for an unlisted symbol stays on the search miss instead of opening a stock page.
+      const firstUse = await page.evaluate(async () => {
+        localStorage.removeItem('aio_watchlists');
+        localStorage.removeItem('aio_watchlist_active');
+        window.addToWatchlist('MLI', 'fixture');
+        await new Promise((r) => setTimeout(r, 1500));
+        const lists = JSON.parse(localStorage.getItem('aio_watchlists') || '[]');
+        window.showPage('ticker');
+        const before = window._currentTickerId || null;
+        const input = document.getElementById('ticker-direct-search');
+        if (input) input.value = 'ZZZZ';
+        window.tickerDirectSearchFromInput?.();
+        await new Promise((r) => setTimeout(r, 1500));
+        return { lists: lists.map((l) => ({ name: l.name, syms: (l.tickers || []).map((t) => t.sym) })), hasInput: !!input, before, after: window._currentTickerId || null };
+      });
+      observations.push({ label, firstUse });
+      check(firstUse.lists.length === 1 && firstUse.lists[0].name === '관심 종목' && firstUse.lists[0].syms.join() === 'MLI', `${label}: watchlist add with no list must create "관심 종목" (P2070)`, firstUse);
+      check(firstUse.hasInput && firstUse.after !== 'ZZZZ' && firstUse.after === firstUse.before, `${label}: a typed unlisted symbol must not open a stock page (P2069)`, firstUse);
+
       // 6. Portfolio: an out-of-universe holding joins the analytics rows with its own on-demand row.
       await page.evaluate(() => window.savePortfolioData([{ sym: 'UFPT', qty: 10, cost: 150 }, { sym: 'HALO', qty: 20, cost: 40 }]));
       await page.evaluate(() => window.showPage('portfolio'));

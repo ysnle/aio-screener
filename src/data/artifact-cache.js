@@ -1,3 +1,5 @@
+import { readBodyText } from '../platform/http.js';
+
 const storesByFetch = new WeakMap();
 // v57.77 perf: callers passed `root.fetch.bind(root)`, a new function on every call, so an identity-keyed store was
 // always empty and `maxAgeMs` never applied. v57.77 shared one store per bound *name*; v58.64 (architecture audit M1):
@@ -40,14 +42,17 @@ async function sha256Hex(value) {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-async function decodeResponse(response, { requestUrl, integrity, maxBytes } = {}) {
-  if (!integrity && !Number.isFinite(maxBytes)) return response.json();
+// v58.80 (first-users run-3): the body is read through readBodyText, so a slow but moving download is not cut by the
+// request timeout (the 1 MB SEC summary never finished on 3G); only `stallMs` of silence ends it.
+async function decodeResponse(response, { requestUrl, integrity, maxBytes, stallMs, onStall } = {}) {
+  const streamed = typeof response?.body?.getReader === 'function';
+  if (!integrity && !Number.isFinite(maxBytes)) return streamed ? JSON.parse(await readBodyText(response, { stallMs, onStall })) : response.json();
   const declaredBytes = Number(response.headers?.get?.('content-length'));
   if (Number.isFinite(maxBytes) && Number.isFinite(declaredBytes) && declaredBytes > maxBytes) {
     throw new Error(`Artifact byte budget exceeded: ${requestUrl} (${declaredBytes} > ${maxBytes})`);
   }
-  if (typeof response.text !== 'function') throw new Error(`Artifact text decoder unavailable: ${requestUrl}`);
-  const text = await response.text();
+  if (!streamed && typeof response.text !== 'function') throw new Error(`Artifact text decoder unavailable: ${requestUrl}`);
+  const text = streamed ? await readBodyText(response, { stallMs, onStall }) : await response.text();
   const observedBytes = new TextEncoder().encode(text).byteLength;
   if (Number.isFinite(maxBytes) && observedBytes > maxBytes) {
     throw new Error(`Artifact byte budget exceeded: ${requestUrl} (${observedBytes} > ${maxBytes})`);
@@ -82,7 +87,7 @@ function waitForConsumer(entry, signal) {
   });
 }
 
-export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 1000, maxEntries = 64, timeoutMs = 15_000, force = false, integrity = null, maxBytes = null } = {}) {
+export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 1000, maxEntries = 64, timeoutMs = 15_000, stallMs = 20_000, force = false, integrity = null, maxBytes = null } = {}) {
   if (typeof fetchFn !== 'function') return Promise.reject(new Error('artifact fetch function is unavailable'));
   if (signal?.aborted) return Promise.reject(createAbortError());
   const requestUrl = String(url);
@@ -113,11 +118,10 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
   const controller = new AbortController();
   const entry = { promise: null, controller, consumers: 0, settled: false, timer: null };
   const timeout = Math.max(100, Number.isFinite(Number(timeoutMs)) ? Number(timeoutMs) : 15_000);
+  let fail = null;
   const timeoutPromise = new Promise((_, reject) => {
-    entry.timer = setTimeout(() => {
-      controller.abort();
-      reject(new Error(`Artifact timeout after ${timeout}ms: ${key}`));
-    }, timeout);
+    fail = (reason) => { controller.abort(); reject(new Error(`${reason}: ${key}`)); };
+    entry.timer = setTimeout(() => fail(`Artifact timeout after ${timeout}ms`), timeout);
   });
   const fetchPromise = Promise.resolve()
     .then(() => {
@@ -126,7 +130,8 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
     })
     .then((response) => {
       if (!response?.ok) throw new Error(`Artifact ${response?.status || 'ERR'}: ${requestUrl}`);
-      return decodeResponse(response, { requestUrl, integrity: normalizedIntegrity, maxBytes: normalizedMaxBytes });
+      if (typeof response?.body?.getReader === 'function') clearTimeout(entry.timer); // headers arrived; a streamed body is bounded by stallMs
+      return decodeResponse(response, { requestUrl, integrity: normalizedIntegrity, maxBytes: normalizedMaxBytes, stallMs, onStall: () => fail(`Artifact stalled for ${stallMs}ms`) });
     });
   entry.promise = Promise.race([fetchPromise, timeoutPromise])
     .then((value) => {

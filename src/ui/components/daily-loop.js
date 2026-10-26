@@ -74,7 +74,9 @@ function renderChanges(doc, section, history, root) {
   summary.append(heading);
   fold.append(summary);
   host.replaceChildren(fold);
-  if (!model.available) { syncLiveStrip(doc, new Set()); summary.append(el(doc, 'span', model.reason || '비교 대기', 'home-changes-lead')); fold.append(emptyState(doc, { title: '비교 대기', reason: model.reason, compact: true })); return model; }
+  // First-users run 4 (phone #1): before the history file arrives the row said there was no record ("기록이 없습니다").
+  const reason = !(Array.isArray(history) && history.length) ? '종가 기록을 불러오는 중입니다.' : model.reason;
+  if (!model.available) { syncLiveStrip(doc, new Set()); summary.append(el(doc, 'span', reason || '비교 대기', 'home-changes-lead')); fold.append(emptyState(doc, { title: '비교 대기', reason, compact: true })); return model; }
   const gap = Array.isArray(model.missing) && model.missing.length > 0;
   if (gap) heading.textContent = '직전 기록과 달라진 점';
   // v58.79 section frame: the compared closes are the row's as-of chip; a missing day and the live line are its hover.
@@ -176,8 +178,10 @@ function renderMyNames(doc, host, root, store, regime = null) {
   host.dataset.empty = model.names.length ? 'false' : 'true';
   if (!model.names.length) {
     // v57.79: words, not the star glyph (the screener button is titled 워치리스트에 추가).
+    // first-users run-3 N#15: the one button led to the screener, but a reader with a stock in mind wanted to add it.
     host.append(emptyState(doc, { title: '관심·보유 종목이 없습니다', compact: true, primary: true,
-      action: typeof root?.showPage === 'function' ? { label: '스크리너 열기', onClick: () => root.showPage('screener') } : null }));
+      next: '가진 종목은 포트폴리오에서 추가하고, 지켜볼 종목은 종목 화면이나 스크리너에서 관심 종목에 넣습니다.',
+      action: typeof root?.showPage === 'function' ? { label: '포트폴리오에서 추가', onClick: () => root.showPage('portfolio') } : null }));
     return model;
   }
   if (model.summary) host.append(el(doc, 'p', model.summary, 'daily-headline'));
@@ -421,7 +425,7 @@ function flipCheck(regime) {
   const d = row.distance;
   if (!d) return { text: `${row.title} ${row.stateLabel}: ${row.flip}`, sub: null };
   const lead = d.parts ? `${d.parts.subject} ${d.parts.mark} ${d.parts.verb}` : d.condition;
-  return { text: `${lead} ${row.title} → ${d.towardLabel}`, sub: [`지금 ${d.text}`, d.sessions != null ? `평소 하루 변동의 ${d.sessions}배` : null].filter(Boolean).join(', ') };
+  return { text: `${lead} ${row.title} → ${d.towardLabel}`, sub: [`남은 거리 ${d.text}`, d.sessions != null ? `보통 하루 움직임의 ${d.sessions}배` : null].filter(Boolean).join(', ') };
 }
 function renderTodayChecks(doc, loop, root, regime, schedule) {
   let host = doc.getElementById('home-checks');
@@ -553,7 +557,9 @@ function renderHeroFlips(doc, regime) {
       // phone); it sits under the chip in small type.
       const dist = el(doc, 'span', null, 'home-flip-dist');
       dist.append(chip);
-      if (row.distance.sessions != null) dist.append(el(doc, 'span', `평소 하루 변동의 ${row.distance.sessions}배`, 'home-flip-sessions'));
+      // v58.80 (first-users bundle 2): "-1.8%p / 평소 하루 변동의 0.9배" did not say what either number measured.
+      chip.textContent = `남은 거리 ${row.distance.text}`;
+      if (row.distance.sessions != null) dist.append(el(doc, 'span', `보통 하루 움직임의 ${row.distance.sessions}배`, 'home-flip-sessions'));
       li.append(badge, flipDistanceLine(doc, row), dist);
     } else {
       const [mark, tone, words] = FLIP_MARK[row.state];

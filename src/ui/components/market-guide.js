@@ -27,7 +27,7 @@ export function lessonItem(doc, root, lesson, { withReason = true } = {}) {
   // Today's reason when the data touches the lesson; otherwise the mechanism behind it.
   // v58.79 (layout over captions): today's reason stays on the card; the general mechanism ("왜") is one fold down.
   if (withReason && lesson.reason) item.append(el(doc, 'p', `근거: ${lesson.reason}`, 'mg-lesson-reason'));
-  else if (lesson.why) { const why = el(doc, 'details', null, 'mg-lesson-more'); why.append(el(doc, 'summary', '왜'), el(doc, 'p', lesson.why, 'mg-lesson-why')); item.append(why); }
+  else if (lesson.why) { const why = el(doc, 'details', null, 'mg-lesson-more'); why.append(el(doc, 'summary', '왜 그런지 보기'), el(doc, 'p', lesson.why, 'mg-lesson-why')); item.append(why); } // v58.80: a lone "왜" read as stray text
   item.append(conceptButton(doc, root, lesson));
   return item;
 }
@@ -36,7 +36,7 @@ function choiceTable(doc, direction) {
   const table = el(doc, 'table', null, 'mg-choices');
   table.append(el(doc, 'caption', '선택지별 집계 — 핵심 조건을 갖춘 시나리오마다 적힌 비용 비교를 센 것(확률 아님)', 'mg-caption'));
   const head = el(doc, 'tr');
-  for (const label of ['선택지', '상대적으로 유리', '비용이 큼']) { const th = el(doc, 'th', label); th.scope = 'col'; head.append(th); }
+  for (const label of ['선택지', '비용이 작음', '비용이 큼']) { const th = el(doc, 'th', label); th.scope = 'col'; head.append(th); }
   const thead = el(doc, 'thead'); thead.append(head);
   const body = el(doc, 'tbody');
   for (const row of direction.tally) {

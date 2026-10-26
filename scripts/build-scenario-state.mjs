@@ -94,7 +94,7 @@ export function diffSnapshots(previous, current, at) {
   }
   // Owner 2026-10-19: the market guide's cross-scenario direction and the principles today's data touches are logged too.
   const pg = previous.guide || null, cg = current.guide || null;
-  if (pg && cg && pg.robust !== cg.robust) push('guide', cg.robust ? `여러 시나리오에 유리하다고 가장 많이 적힌 선택이 '${pg.robust ? choiceName(pg.robust) : '집계 없음'}'에서 ${withDirectionParticle(`'${choiceName(cg.robust)}'`)} 바뀌었습니다.` : (cg.split ? '살아 있는 시나리오들이 유리한 선택지를 서로 다르게 적어 한쪽으로 세지 않습니다.' : '핵심 조건을 갖춘 시나리오가 없어 선택지 집계를 멈췄습니다.'));
+  if (pg && cg && pg.robust !== cg.robust) push('guide', cg.robust ? `여러 시나리오에 비용이 작다고 가장 많이 적힌 선택이 '${pg.robust ? choiceName(pg.robust) : '집계 없음'}'에서 ${withDirectionParticle(`'${choiceName(cg.robust)}'`)} 바뀌었습니다.` : (cg.split ? '살아 있는 시나리오들이 유리한 선택지를 서로 다르게 적어 한쪽으로 세지 않습니다.' : '핵심 조건을 갖춘 시나리오가 없어 선택지 집계를 멈췄습니다.'));
   if (pg && cg) {
     // Only a newly relevant trap is logged (the others follow the same axes the log already records).
     const added = (cg.lessonIds || []).filter((id) => !(pg.lessonIds || []).includes(id) && LESSON_BY_ID[id]?.kind === 'trap' && cg.reasons?.[id]);

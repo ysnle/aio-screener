@@ -206,8 +206,12 @@
   #home-score-hero .home-hero-divider { display: none; }
   /* Portfolio hero: two columns and no vertical divider on a phone (the three-column grid broke words). */
   #pf-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px !important; min-width: 0 !important; flex: 1 1 100% !important; }
-  /* The nine-column holdings table keeps readable column widths and scrolls sideways (its wrapper is .aio-table-scroll). */
-  #page-portfolio .aio-table-scroll > table { min-width: 680px; }
+  /* v58.80 (first-users bundle 5): the nine-column holdings table scrolled sideways at min-width 680px, its sticky 종목
+     column overlapped "목표가" and 수정·삭제 sat off-screen; it is a list of cards now (portfolio-page.css), so it keeps
+     the screen width and the sideways-scroll mask does not apply. */
+  #page-portfolio .aio-table-scroll > table.sh-portfolio-holdings-table { min-width: 0; }
+  #page-portfolio .aio-table-scroll:has(> table.sh-portfolio-holdings-table) { overflow-x: visible; -webkit-mask-image: none; mask-image: none; }
+  #page-portfolio #pf-positions-tbody td { position: static; width: auto; text-align: left; padding: 0; }
   #page-portfolio .pf-hero-divider { display: none; }
   .page :is(.home-participation-grid, .briefing-move-chart, .breadth-drill-body, .scr-why-grid,
       .principles-reference-body, .masters-principles-list, .aio-vis-panel,
@@ -479,3 +483,15 @@ body.aio-term-pop-open #scroll-top-btn { display: none !important; }
 .tg-data-leverage { max-width: 420px; }
 .tg-data-list { margin: 0 0 6px; padding-left: 18px; font-size: 12px; line-height: 1.7; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .tg-data-fold > summary { font-size: 12px; color: var(--text-muted); cursor: pointer; margin-top: 6px; }
+
+/* v58.80 (first-users F05): the page column is the container screens size against when the AI panel narrows it. */
+#main-content { container: aio-main / inline-size; }
+
+/* v58.80 (first-users bundle 5): touch targets the phone persona measured under 44px — "왜" 24x44, "설명" 21x44, AI
+   맞춤/새 대화 28px tall, AI close 27px wide, 필터 닫기 24px wide, 면책 고지 45x14. A coarse pointer gets 44px on both axes. */
+@media (pointer: coarse) {
+  .mg-lesson-more > summary, .aio-note-fold > summary { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+  #ai-panel .ai-session-head-btn, #ai-panel .ai-ph-close { min-width: 44px; min-height: 44px; }
+  #page-screener .scr-filter-close { min-width: 44px; }
+  .sx-page-foot button { min-width: 44px; min-height: 44px; }
+}

@@ -16,7 +16,8 @@ import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifac
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
-import { finiteNumber as finite, signedText } from '../../domain/shared/number.js';
+import { entityFundamentalsState } from '../../domain/content/data-state.js';
+import { finiteNumber as finite, signedText, usdKoreanText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
 import { detectContractions } from '../../domain/technical/definitions.js';
 import { vcpStageLabel } from '../../domain/screener/row-presentation.js';
@@ -165,7 +166,7 @@ function renderTickerHero(documentRef, state, root) {
     const meta = root?._aioEntitySummaries?.[id];
     const valueBasis = root?._liveData?.[id]?.quoteEnvelope?.valueBasis || meta?.quote?.valueBasis;
     // Live review 2026-10-14: a failed fetch says so; only a request still in flight reads as loading.
-    const statusText = price == null ? closeLabel ? `현재 시세 ${root?._aioEntitySummaryStatus?.[id] === 'loading' ? '불러오는 중' : '미수신'}` : root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다, 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 미수신' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? `, ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ', 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? `, 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
+    const statusText = price == null ? closeLabel ? `현재 시세 ${root?._aioEntitySummaryStatus?.[id] === 'loading' ? '불러오는 중' : '받지 못함'}` : root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다, 종목을 다시 선택해 확인' : root?._aioEntitySummaryStatus?.[id] === 'ready' ? '현재 시세 받지 못함, 이 종목은 앱에 실린 종가가 없어 시세를 받으면 표시' : '현재 시세 불러오는 중' : `${valueBasis === 'completed-daily-close' ? '완료 일봉 종가' : '정규장 관측가'}${quote.observedAt ? `, ${formatKstStamp(quote.observedAt) || String(quote.observedAt)}` : ', 관측 시각 미확인'}${quote.changeCheck === 'corrected' && quote.changeBasisDate ? `, 등락률은 ${String(quote.changeBasisDate).slice(5).replace('-', '/')} ${quote.changeBasis === 'screener-reconciled-session-change' ? '거래소 종가 기준' : '거래소 종가 대비'}` : ''}`;
     if (status.textContent !== statusText) status.textContent = statusText;
   }
   // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
@@ -254,7 +255,7 @@ function renderTickerSetup(documentRef, root, state) {
   tiles.setAttribute('aria-label', '셋업 위치');
   const contractions = finite(row.vcpContractions);
   const currency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || (isKrSymbol(id) ? 'KRW' : /\.[A-Z]{1,3}$/.test(id) ? null : 'USD');
-  tiles.append(tile('셋업 단계', vcpStageLabel(row.vcpStage), [contractions > 0 ? `변동폭 수축 ${contractions}번` : null, row.vcpShrinking === true ? '수축 폭이 차례로 줄어듦' : null].filter(Boolean).join(', ') || '스크리너와 같은 판정'));
+  tiles.append(tile('차트 모양 단계', vcpStageLabel(row.vcpStage), [contractions > 0 ? `출렁임이 줄어든 구간 ${contractions}번` : null, row.vcpShrinking === true ? '출렁임 폭이 차례로 줄어듦' : null].filter(Boolean).join(', ') || '스크리너와 같은 판정'));
   if (pivot && close) tiles.append(tile('피벗 대비', `${signedText((close / pivot - 1) * 100, 1)}%`, `피벗 ${formatMoney(pivot, currency)}, 마지막 수축의 고점`));
   if (last && close) tiles.append(tile('마지막 수축 저점 대비', `${signedText((close / last.low - 1) * 100, 1)}%`, `저점 ${formatMoney(last.low, currency)}, 이 아래로 내려가면 수축 패턴이 깨진 것으로 읽습니다`));
   const head = el('div', null, 'sx-card__head');
@@ -272,6 +273,9 @@ function renderStockLens(documentRef, root, state) {
   const make = (id, className, label) => { let node = documentRef.getElementById(id); if (!node) { node = documentRef.createElement('section'); node.id = id; node.className = className; node.setAttribute('aria-label', label); } return node; };
   const context = make('ticker-context', 'v2-stock-context', '시장과 이 종목의 연결');
   const strength = make('ticker-strength', 'v2-stock-strength', '강한 점과 약한 점, 계속 볼 것');
+  // First-users run 4: a symbol the listing check refused gets no market link or watch actions.
+  const notListed = root?._aioOnDemandSymbol?.(String(state?.id || root?._currentTickerId || '').toUpperCase())?.status === 'not-listed';
+  if (notListed) { context.hidden = true; strength.hidden = true; delete context.dataset.signature; return; }
   // v58.75 (persona review): price header and '이 종목의 지금' stay first; the market line follows the reading, then the setup
   // tiles, then strengths/watch — so the new blocks never push the price and the reading below the first screen.
   if (readHost.nextElementSibling !== context) readHost.after(context);
@@ -324,8 +328,11 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
   const id = state?.id || null;
   const quote = state?.quote || {};
   const live = id ? root?._liveData?.[id] || {} : {};
-  const price = finite(quote.value) ?? finite(live.price) ?? finite(live.regularMarketPrice);
-  const currency = quote.currency || live.currency || live.quoteEnvelope?.currency || null;
+  const livePrice = finite(quote.value) ?? finite(live.price) ?? finite(live.regularMarketPrice);
+  // First-users run 4: without a live quote the published close values the position, as the portfolio does.
+  const close = livePrice == null && id ? lastPublishedClose(id, state, root) : null;
+  const price = livePrice ?? (close ? close.value : null);
+  const currency = quote.currency || live.currency || live.quoteEnvelope?.currency || close?.currency || null;
   const holding = (Array.isArray(portfolioState?.holdings) ? portfolioState.holdings : [])
     .find((item) => String(item?.symbol || '').toUpperCase() === String(id || '').toUpperCase());
   const shares = finite(holding?.shares);
@@ -340,11 +347,11 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
   const pnlNode = tickerElement(documentRef, 'ticker-hero-pnl');
   const hasPosition = !!holding && shares != null && avgCost != null;
   if (valueNode) {
-    valueNode.textContent = !hasPosition ? '보유 종목 아님' : currencyConflict
+    valueNode.textContent = !hasPosition ? '포트폴리오에 없는 종목' : currencyConflict
       ? `원가 통화(${costCurrency})가 시세 통화와 달라 손익은 포트폴리오에서 환산합니다`
       : pnl == null
       ? '손익 계산 대기'
-      : `${pnl >= 0 ? '+' : '-'}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${signedText(pnlPct, 1)}%)`}`;
+      : `${pnl >= 0 ? '+' : '-'}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${signedText(pnlPct, 1)}%)`}${livePrice == null && close ? `, ${Number(close.date.slice(5, 7))}/${Number(close.date.slice(8, 10))} 종가 기준` : ''}`;
     valueNode.dataset.aioTickerPnlRenderer = 'native';
     valueNode.setAttribute('data-source-kind', pnl == null ? 'unavailable' : 'portfolio-state');
     valueNode.setAttribute('data-source-label', pnl == null ? 'portfolio position or quote unavailable' : 'portfolio-state+entity-quote');
@@ -575,7 +582,7 @@ function formatSecMetric(metric) {
   if (metric?.value == null) return '—';
   // P1591: compact units like the fiscal reading ($215.9B), not raw dollars; the exact value stays in the tooltip.
   const compact = (v) => { const a = Math.abs(v); return a >= 1e12 ? `${(a / 1e12).toFixed(2)}T` : a >= 1e9 ? `${(a / 1e9).toFixed(1)}B` : a >= 1e6 ? `${(a / 1e6).toFixed(1)}M` : a.toLocaleString('en-US', { maximumFractionDigits: 0 }); };
-  if (metric.unit === 'currency') return `${metric.value < 0 ? '-' : ''}$${compact(metric.value)}`;
+  if (metric.unit === 'currency') return usdKoreanText(metric.value); // first-users F33
   if (metric.unit === 'shares') return `${compact(metric.value)}주`;
   if (metric.unit === 'percent') return `${metric.value.toFixed(1)}%`;
   return `${metric.value.toFixed(2)}x`;
@@ -730,12 +737,11 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     // Review (v58.53): the 재무 tile tells a pending or failed SEC projection apart from a confirmed absence. The provider
     // dispatches only after the projection settles, so a synced symbol without fundamentalsMeta means the load failed.
     const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
-    const fundamentalsState = state?.fundamentals ? 'ready' : !state?.id || (requestedId && state.id !== requestedId) ? 'loading'
-      : root?._aioOnDemandSymbol?.(state.id)?.status === 'loading' ? 'loading' : state?.fundamentalsMeta ? (state.fundamentalsMeta.checkedFor === state.id ? 'absent' : 'loading') : 'failed';
+    const fundamentalsState = entityFundamentalsState(state, { requestedId, onDemandStatus: state?.id ? root?._aioOnDemandSymbol?.(state.id)?.status : null });
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals, fundamentalsState }); // P1434; v57.51 N20 recent filings
     renderTickerSetup(documentRef, root, state); // v58.75 (persona review)
     renderStockLens(documentRef, root, state); // v58.75 ('고르는 법' layer B)
-    renderCompanyAnalysis({ documentRef, root, state });
+    renderCompanyAnalysis({ documentRef, root, state, fundamentalsState });
     // v58.55 (3d): 듀폰 분해 + 역 DCF. The price is the screener's completed-session valuation close (the same close its
     // P/E uses), else the latest dated close; never the live quote, so the calculator does not move with every tick.
     const analysisId = String(state?.id || '').toUpperCase();
@@ -777,6 +783,8 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
 }
 
 export function createEntityPage({ root = globalThis, documentRef, store, route = 'ticker' } = {}) {
+  // v58.80 (first-users run-4): the 차트 tab's failure names the same last close the 요약 header shows.
+  if (root && !root._aioLastPublishedClose) root._aioLastPublishedClose = (sym) => lastPublishedClose(sym, null, root);
   return {
     route,
     mount() {

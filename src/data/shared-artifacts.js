@@ -15,6 +15,16 @@ export function sharedArtifactIsStale(root, key, { maxAgeMs, now = Date.now() } 
   return serverAt > entry.loadedAt;
 }
 
+/** v58.80 (first-users bundle 3): 'ready' | 'loading' | 'failed' in the shared state words (domain/content/data-state.js). */
+export function sharedArtifactState(root, key) {
+  if (root?.[key]) return 'ready';
+  const entry = root ? stateOf(root)[key] : null;
+  return entry?.failedAt && !entry.inFlight ? 'failed' : 'loading';
+}
+
+/** The screener rows' load state, written by app/bootstrap.js startScreenerSync (v58.80 bundle 3). */
+export const screenerRowsState = (root) => root?.__aioScreenerLoadState || 'loading';
+
 /** Resolves to { payload, changed }. `changed` is true when a new copy replaced the old one. */
 export function refreshSharedArtifact(root, { key, url, schemas, maxAgeMs = 60 * 60 * 1000, maxBytes = 2 * 1024 * 1024, now = Date.now() } = {}) {
   if (!root) return Promise.resolve({ payload: null, changed: false });

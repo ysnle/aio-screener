@@ -2,7 +2,7 @@ import { STYLE_FRAMES, groupManagersByStyle } from '../../domain/masters/style-f
 import { renderManagersPage } from '../knowledge/managers-view.js';
 import { ensureFrameStyle } from '../knowledge/analysis-frames.js';
 import { createResourceBag } from '../../app/lifecycle.js';
-import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
+import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, pushKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
 import { detectValueScaleSuspects, withholdSuspectValues, withholdManagerValues, managersUnderScaleReview, describeValueScaleReview, describeValueScaleCarryover } from '../../domain/masters/value-scale.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
@@ -392,7 +392,7 @@ function issuerCell(documentRef, row, lookup = PLAIN_LOOKUP) {
   const td = element(documentRef, 'td', 'masters-issuer-cell');
   const label = element(documentRef, 'span', 'masters-issuer-name', `${name}${tag && !/\bclass\b/i.test(name) ? `, ${tag}` : ''}`);
   td.appendChild(label);
-  if (ticker) { td.appendChild(tickerChip(documentRef, ticker)); td.dataset.ticker = ticker; }
+  if (ticker) { td.append(' ', tickerChip(documentRef, ticker)); td.dataset.ticker = ticker; } // run-3 B28: "Class AGOOGL" read and copied as one word
   const filed = row.issuer && row.issuer !== name ? `SEC 신고 표기 ${row.issuer}` : '';
   if (cusip || filed) td.title = [filed, cusip ? `CUSIP(증권 코드) ${cusip}` : ''].filter(Boolean).join(', ');
   if (cusip) td.dataset.cusip = cusip;
@@ -1130,9 +1130,13 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
         // and point to the SEC filing for the rest instead.
         const shardLoaded = state.managerRows?.has?.(manager.id);
         const filingUrl = filingMeta?.latestFiling?.informationTableXml || filingMeta?.latestFiling?.indexUrl || holdingMeta?.latestFiling?.indexUrl || manager.sourceUrl || 'https://www.sec.gov/edgar/search-and-access';
+        // first-users run-3 B28: "보유 종목 수 29개" beside "신고 30건" read as two counts of one list. The comparison also
+        // carries the positions sold out since the prior quarter, so the sentence names both parts.
+        const exited = Number(holdingMeta?.verification?.comparisonActionCounts?.EXITED) || 0;
+        const parts = exited ? `이번 분기 보유 ${(expected - exited).toLocaleString('en-US')}개, 전량 매도 ${exited.toLocaleString('en-US')}개` : '';
         const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', shardLoaded
-          ? `웹 화면은 신고 가치 상위 ${comparisonRows.length.toLocaleString('en-US')}개 비교 행까지만 제공합니다(신고 ${expected.toLocaleString('en-US')}건). 아래 표는 변화가 있는 행을 먼저 놓습니다. 나머지는 `
-          : `신고 ${expected}건 중 가치 상위 ${comparisonRows.length}개, 변화 있는 행 먼저 `);
+          ? `웹 화면은 신고 가치 상위 ${comparisonRows.length.toLocaleString('en-US')}개 비교 행까지만 제공합니다(비교 행 전체 ${expected.toLocaleString('en-US')}개${parts ? `: ${parts}` : ''}). 아래 표는 변화가 있는 행을 먼저 놓습니다. 나머지는 `
+          : `비교 행 ${expected.toLocaleString('en-US')}개${parts ? `(${parts})` : ''} 중 가치 상위 ${comparisonRows.length}개, 변화 있는 행 먼저 `);
         if (shardLoaded) {
           const link = element(documentRef, 'a', 'masters-source-link', 'SEC 원문 신고서');
           applySafeExternalLink(link, filingUrl);
@@ -1240,7 +1244,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       page.dataset.aioReviewedAt = REVIEWED_AT;
 
       const route = (routeId) => { if (typeof root?.showPage === 'function') root.showPage(routeId); };
-      const syncSharedState = () => replaceKnowledgeRouteState({ root, state: {
+      const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, state: {
         mode: state.view,
         manager: state.selectedId,
         period: state.holdings?.managers?.find((manager) => manager.id === state.selectedId)?.verification?.reportPeriod || null
@@ -1519,7 +1523,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         }
         if (action !== 'route') {
           event.preventDefault();
-          syncSharedState();
+          syncSharedState({ push: action === 'select-manager' || action === 'view' }); // run-2 R2-17: Back returns to the previous manager or view
           render();
           if (action === 'load-manager' || action === 'toggle-compare') loadManagerRows(value);
           if (action === 'view' && (value === 'holdings' || value === 'sectors')) loadManagerRows(state.selectedId);
@@ -1561,6 +1565,19 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       bag.add(() => page.removeEventListener('focusin', onFocusIn));
       bag.add(() => page.removeEventListener('click', onClick));
       bag.add(() => page.removeEventListener('input', onInput));
+      const onPop = () => {
+        if (!isAlive() || !/^#masters(?:$|[?&])/.test(String(root?.location?.hash || ''))) return;
+        const next = parseKnowledgeRouteState(root.location);
+        const view = Object.hasOwn(VIEW_LABELS, next.mode) ? next.mode : 'changes';
+        const manager = next.manager || MASTER_REGISTRY[0].id;
+        if (manager === state.selectedId && view === state.view) return;
+        Object.assign(state, { styleOverview: false, selectedId: manager, view, page: 1 });
+        render();
+        if (view === 'holdings' || view === 'sectors') loadManagerRows(manager);
+        if (view === 'quarters') loadQuarterArtifacts(manager);
+      };
+      root?.addEventListener?.('popstate', onPop);
+      bag.add(() => root?.removeEventListener?.('popstate', onPop));
        bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersCoverageState; delete page.dataset.aioMastersCurrentFull; delete page.dataset.aioMastersStaleFull; delete page.dataset.aioMastersPreviewOnly; delete page.dataset.aioMastersMetadataOnly; delete page.dataset.aioMastersMethodOnly; delete page.dataset.aioMastersOfficialPrinciples; delete page.dataset.aioMastersVerifiedSecurityRecords; delete page.dataset.aioMastersLatestPeriodMissing; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersDiscovery; delete page.dataset.aioMastersPrinciples; delete page.dataset.aioMastersSelectedShard; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersTickerIndex; delete page.dataset.aioMastersView; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });
       render();
       if (state.tickerQuery) {

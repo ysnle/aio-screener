@@ -388,6 +388,9 @@
 .page .sh-portfolio-lock-screen-btn { font-size: var(--fs-sm) !important; }
 .sh-portfolio-entry-part-panel { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 4px; padding: 14px 18px; margin-bottom: 14px; }
 .sh-portfolio-entry-part-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+/* v58.80 (first-users F06): placeholders are examples, drawn light so they never read as filled values. */
+#pf-entry-section input::placeholder { color: var(--text-muted, #8a8a8a); font-weight: 400; opacity: 1; }
+#pf-entry-section input[aria-invalid="true"] { outline: 2px solid var(--negative, #c0392b); outline-offset: 1px; }
 .sh-portfolio-add-field { width: 90px; padding: 8px 10px; background: var(--surface-4); border: 0.5px solid var(--border); border-radius: 4px; color: var(--text-primary); font-size: 12px; font-family: var(--font-mono); font-weight: 700; text-transform: none; }
 .sh-portfolio-add-qty-field { width: 90px; padding: 8px 10px; background: var(--surface-4); border: 0.5px solid var(--border); border-radius: 4px; color: var(--text-primary); font-size: 12px; font-family: var(--font-mono); }
 .sh-portfolio-add-cost-field { width: 110px; padding: 8px 10px; background: var(--surface-4); border: 0.5px solid var(--border); border-radius: 4px; color: var(--text-primary); font-size: 12px; font-family: var(--font-mono); }
@@ -848,3 +851,13 @@
 .sh-shell-confirm-icon-big { font-size: 18px; }
 .sh-shell-confirm-title-lead { font-size: 14px; font-weight: 800; color: var(--text-primary,#fff); }
 .sh-shell-confirm-modal-row-gap10 { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* v58.80 (first-users F20): at 390px the plan-check grid kept four columns (inputs 29–52px wide, labels wrapping one
+   syllable per line) and the holdings table pushed 차트/수정/삭제 off the right edge of its scroller. */
+@media (max-width: 600px) {
+  .sh-portfolio-cols.pf-rr-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sh-portfolio-cols.pf-rr-cols input { width: 100%; min-width: 0; box-sizing: border-box; }
+  /* v58.80 run-2: a sticky 관리 column (3 x 44px buttons, 150px) covered 현재가·손익 on a 322px scroller; the table now
+     scrolls sideways whole, and each row's detail repeats 차트·수정·삭제. */
+  .sh-portfolio-holdings-table td:last-child button { min-width: 44px; min-height: 44px; }
+}

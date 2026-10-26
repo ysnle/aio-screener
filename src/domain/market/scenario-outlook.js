@@ -98,7 +98,11 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       posture: '이 흐름이라면 상승이 소수 대형주를 넘어 다수 종목으로 퍼지는 국면입니다. 그동안 뒤처졌던 업종과 중소형주의 참여가 함께 늘어나는지가 이 해석을 확인하는 근거입니다. 반증: 50일선·200일선 위 비율이 ' + RULES.breadth.broadAtLeast + '% 아래로 다시 내려오거나 하이일드 스프레드가 넓어지면 확산 해석을 다시 봅니다.',
       // v57.81: the RRG window is named (약 50일 기준) and a fading 선도 is listed apart with its five-session relative return.
       opportunity: (improving.length || leading.length ? `${improving.length ? `섹터 회전(RRG·약 50일 기준)에서 개선 중: ${join(improving)}` : '개선 중인 섹터는 아직 없음'}, 선도: ${join(leading) || '없음'}` : `확산이 확인되면 후행 업종의 개선 여부를 섹터 회전에서 확인합니다${sectorNote}.`) + fadingNote,
-      opportunityLinks: [{ label: '섹터 회전(약 50일 기준)에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) }].filter((part) => part.links.length),
+      // v58.80 (first-users bundle 1): the link form dropped fadingNote, so 선도 read five sectors here beside six on 테마와
+      // 섹터 (경기소비재 fading). The fading and border leaders are their own parts, and the parts add up to that count.
+      opportunityLinks: [{ label: '섹터 회전(약 50일 기준)에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) },
+        { label: '선도였지만 최근 5거래일 상대강도가 꺾인 업종', links: sectorLinks(fadingRows.map((row) => row.label)) },
+        { label: '선도와 다른 구역의 경계', links: sectorLinks(sectors.filter((row) => quadrantOf(row) === 'Leading' && !leaderFading(row) && rrgBorder(row)).map((row) => row.label)) }].filter((part) => part.links.length),
       check: [`50일선·200일선 위 종목 비율이 함께 ${RULES.breadth.broadAtLeast}% 이상을 유지하는지`, '52주 신고가 종목이 신저가보다 꾸준히 많은지', '러셀 2000이 S&P 500을 따라오거나 앞서는지'],
       caution: ['20일선 위 비율만 오르고 50일선 비율이 따라오지 않으면 확산이라고 보기 이릅니다.', '하이일드 스프레드가 다시 넓어지면 회복의 근거가 약해집니다.'],
       // P1727: "지수 하루 하락" read as "ignore today's -5.5% KOSPI"; the item names the ordinary US day and excludes rare moves.
@@ -174,5 +178,5 @@ export function renderScenarioOutlookContext(outlook) {
   return `${outlook.asOf} 확정 종가 기준 시나리오별 현재 조건 충족 수(규칙 충족 수이며 확률이나 가능성 등급이 아님). ${outlook.headline}\n`
     + outlook.items.map((item) => `${item.title}: ${item.fit} (${item.basis}). 읽기: ${item.posture} 관련 섹터·테마: ${item.opportunity} 확인: ${item.check.join('; ')} 조심: ${item.caution.join(' ')} 넘겨도 됨: ${item.ignore.join('; ')}`).join('\n')
     // P1742 (owner 2026-10-13, supersedes T06): choices and opportunity cost come from the 시나리오 block; only instructions stay out.
-    + '\n가격·수량·시점·특정 종목 매매 지시는 하지 않는다. 선택지별 기회비용과 상대적으로 유리한 쪽은 【향후 시나리오】 근거로만 말할 것.';
+    + '\n가격·수량·시점·특정 종목 매매 지시는 하지 않는다. 선택지별 기회비용과 비용이 작은 쪽은 【향후 시나리오】 근거로만 말할 것.';
 }

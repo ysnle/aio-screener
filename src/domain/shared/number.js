@@ -24,3 +24,15 @@ export function peopleText(thousands, { sign = false } = {}) {
   const prefix = thousands < 0 && Math.round(abs) !== 0 ? '-' : sign && thousands > 0 && Math.round(abs) !== 0 ? '+' : '';
   return `${prefix}${body}`;
 }
+
+// First-users F33: one dollar format in 조·억·만 달러, sign first; `precise` keeps decimals for exact-value titles.
+export function usdKoreanText(value, { precise = false } = {}) {
+  const number = typeof value === 'number' ? value : value == null || value === '' ? NaN : Number(value);
+  if (!Number.isFinite(number)) return '—';
+  const abs = Math.abs(number);
+  const fmt = (n, digits) => Number(n.toFixed(digits)).toLocaleString('en-US', { maximumFractionDigits: digits });
+  const body = precise
+    ? (abs >= 1e8 ? `${fmt(abs / 1e8, 4)}억 달러` : abs >= 1e4 ? `${fmt(abs / 1e4, 2)}만 달러` : `${fmt(abs, 2)}달러`)
+    : abs >= 1e12 ? `${fmt(abs / 1e12, 2)}조 달러` : abs >= 1e8 ? `${fmt(abs / 1e8, abs >= 1e10 ? 0 : 1)}억 달러` : abs >= 1e4 ? `${fmt(abs / 1e4, 0)}만 달러` : `${fmt(abs, 0)}달러`;
+  return `${number < 0 && body !== '0달러' ? '-' : ''}${body}`;
+}

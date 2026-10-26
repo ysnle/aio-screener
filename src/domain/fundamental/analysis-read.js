@@ -2,6 +2,7 @@
 // the Sloan (1996) accrual ratio and a reverse DCF calculator. Pure: the parsed SEC fiscal history (sec-fiscal-history.json,
 // newest last) and the screener/SEC facts in, plain reading objects out. Nothing here is a score or a verdict; a missing
 // input returns a state ('pending' = not yet collected, 'unreported' = the filer does not tag it) instead of a number.
+import { dataStateText } from '../content/data-state.js';
 import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fiscalYearLabel } from './period.js';
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
 import { trailingQuarters } from './fiscal-read.js';
@@ -239,7 +240,7 @@ export function usDateFromSlash(text) {
   const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(text || '').trim());
   return m ? `${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}` : null;
 }
-export function buildEarningsSchedule({ symbol, calendar = null, consensus = null, nowMs = Date.now() } = {}) {
+export function buildEarningsSchedule({ symbol, calendar = null, consensus = null, nowMs = Date.now(), calendarState = null } = {}) {
   const sym = String(symbol || '').trim().toUpperCase();
   if (!sym || /\.K[SQ]$/.test(sym)) return null;
   const today = dateInTimezone(nowMs, 'America/New_York');
@@ -264,6 +265,9 @@ export function buildEarningsSchedule({ symbol, calendar = null, consensus = nul
     return { state: 'scheduled', date: next.date, hour, sessions, lastReported,
       text: `다음 실적 ${next.date === today ? '오늘' : monthDay(next.date)}${hour ? `(${hour})` : ''}${next.date === today ? '' : `, ${sessions}거래일 후`}` };
   }
+  // v58.80 (first-users bundle 3): without the calendar the date is not "미확정" — the list is on its way or did not arrive.
+  const pending = !calendar && (calendarState === 'loading' || calendarState === 'failed') ? calendarState : null;
+  if (pending) return { state: pending, date: null, lastReported, windowEnd: null, text: `${lastReported ? `직전 발표 ${monthDay(lastReported)}, ` : ''}${pending === 'loading' ? '실적 일정 불러오는 중' : '실적 일정 받지 못함'}`, title: `${dataStateText(pending, '실적 일정 자료')}.` };
   return { state: usable ? 'unconfirmed' : 'unknown', date: null, lastReported, windowEnd,
     text: `${lastReported ? `직전 발표 ${monthDay(lastReported)}, ` : ''}다음 실적 일정 미확정`,
     title: usable && windowEnd ? `실적 일정 목록(${windowEnd}까지)에 아직 날짜가 없습니다${gaps ? `. 이번 수집에서 ${gaps}일치 일정을 받지 못해 그날 발표가 빠졌을 수 있습니다` : ''}. 지난 발표일로 날짜를 추정하지 않습니다.` : '실적 일정 자료를 받지 못했습니다.' };

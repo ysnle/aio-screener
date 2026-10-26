@@ -1,5 +1,5 @@
 {
-  "version": "v58.79",
+  "version": "v58.80",
   "viewport": {
     "width": 1440,
     "height": 1000
@@ -8,7 +8,7 @@
     {
       "routeId": "home",
       "status": "ok",
-      "focusableCount": 70,
+      "focusableCount": 15,
       "pageTitle": "오늘",
       "audit": {
         "status": "ok",
@@ -36,10 +36,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 결론시장환경 관찰 — 중립 구간, 예측 검증 미확립 데이터: 참고10/23 미국 정규장 종가 기준기준 시각 10/25 08:00시점 불일치근거 상태 참고 관측, 예측력 미검증 10/23 미국 정규장 종가 기준. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다. 보조 입력 미수신: VVIX.AI에게 묻기"
+              "headerText": "오늘 결론점수 보류 — 확정 종가 근거 부족 데이터: 기준 미확인기준 시각 10/25 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 10/23 미국 정규장 종가 기준, 추세, 시장 폭: 확정 종가 기준의 필수 근거가 부족해 점수를 보류합니다. 개별 관측값은 별도로 확인하세요. 보조 입력 미수신: VVIX.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:17.359Z"
+          "generatedAt": "2026-10-25T15:26:24.430Z"
         },
         "accessibility": {
           "status": "ok",
@@ -62,39 +62,33 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:17.363Z"
+          "generatedAt": "2026-10-25T15:26:24.431Z"
         },
-        "generatedAt": "2026-10-25T07:57:17.363Z"
+        "generatedAt": "2026-10-25T15:26:24.431Z"
       },
       "tabSequence": [
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "S&P 500 SPY, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동",
+          "name": "S&P 500, 10/23 종가 7,623.68. 장중 그래프는 받지 못했습니다. 누르면 차트 화면으로 이동",
           "tabindex": ""
         },
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "S&P 500 SPY, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동",
+          "name": "나스닥 100, 10/23 종가 28,957.53. 장중 그래프는 받지 못했습니다. 누르면 차트 화면으로 이동",
           "tabindex": ""
         },
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "나스닥 100 QQQ, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동",
+          "name": "반도체, 10/23 종가 527.20. 장중 그래프는 받지 못했습니다. 누르면 차트 화면으로 이동",
           "tabindex": ""
         },
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "반도체 SOXX, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "러셀 2000 IWM, 분봉을 받지 못했습니다. 누르면 차트 화면으로 이동",
+          "name": "러셀 2000, 10/23 종가 2,775.90. 장중 그래프는 받지 못했습니다. 누르면 차트 화면으로 이동",
           "tabindex": ""
         },
         {
@@ -108,12 +102,6 @@
           "id": "",
           "name": "6개 축 근거",
           "tabindex": ""
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "VIX",
-          "tabindex": "0"
         },
         {
           "tag": "SUMMARY",
@@ -210,13 +198,25 @@
           "id": "",
           "name": "[뉴욕증시-주간전망] 운명의 한 주…FOMC·물가·AI 실적 '3중 시험대'",
           "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "Apollo, 광범위한 AI 이익을 발견하지 못함: NVDA 주식 예측, 실적 발표 전",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다",
+          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "signal",
       "status": "ok",
-      "focusableCount": 52,
+      "focusableCount": 67,
       "pageTitle": "국면 판정",
       "audit": {
         "status": "ok",
@@ -247,7 +247,7 @@
               "headerText": "시장 환경 참고시장환경 관찰 — 중립 구간, 예측 검증 미확립 데이터: 참고10/23 미국 정규장 종가 기준기준 시각 10/25 08:00시점 불일치근거 상태 참고 관측, 예측력 미검증 10/23 미국 정규장 종가 기준. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다. 보조 입력 미수신: VVIX.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:17.952Z"
+          "generatedAt": "2026-10-25T15:26:25.376Z"
         },
         "accessibility": {
           "status": "ok",
@@ -270,9 +270,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:17.969Z"
+          "generatedAt": "2026-10-25T15:26:25.383Z"
         },
-        "generatedAt": "2026-10-25T07:57:17.970Z"
+        "generatedAt": "2026-10-25T15:26:25.383Z"
       },
       "tabSequence": [
         {
@@ -284,8 +284,14 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "추세Trend부담S&P 500 7,623.68, 50일선 대비 -0.99%S&P 500이 50일선(7,700) 위로 마감하거나 주도 영역 이탈이 풀리면(나스닥 100이 50일선을 ",
+          "name": "추세S&P 500 가격 흐름부담S&P 500 7,623.68, 50일선 대비 -0.99%S&P 500이 50일선(7,700) 위로 마감하거나 주도 영역 이탈이 풀리면(나스닥 100",
           "tabindex": ""
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "정배열",
+          "tabindex": "0"
         },
         {
           "tag": "BUTTON",
@@ -314,32 +320,50 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시장 폭Breadth중립50일선 위 종목 51%, 200일선 위 종목 53%50일선·200일선 위 종목 비율이 모두 60% 이상이면 양호, 하나라도 40% 아래면 부담부담까지 -1",
+          "name": "시장 폭오르는 종목의 넓이중립50일선 위 종목 51%, 200일선 위 종목 53%50일선·200일선 위 종목 비율이 모두 60% 이상이면 양호, 하나라도 40% 아래면 부담부담까지",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "변동성Volatility중립VIX 19.45, VIX / 3개월 VIX 0.95VIX 17 미만(또는 18 미만에서 5일 하락)이고 5일 상승이 +10% 미만, VIX/3개월 VI",
+          "name": "변동성지수가 흔들리는 크기중립VIX 19.45, VIX / 3개월 VIX 0.95VIX 17 미만(또는 18 미만에서 5일 하락)이고 5일 상승이 +10% 미만, VIX/3개월 V",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "금리Rates중립미 10년물 4.99%, 10/2310년물 20일 +25bp 이상 또는 1년 범위 90% 이상에서 5일 상승 시 부담, 20일 -25bp 이하면 양호양호까지 -6b",
+          "name": "금리국채 금리중립미 10년물 4.99%, 10/2310년물 20일 +25bp 이상 또는 1년 범위 90% 이상에서 5일 상승 시 부담, 20일 -25bp 이하면 양호양호까지 -6b",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "신용과 위험선호Credit부담하이일드 스프레드 340bp, 20거래일 +60bp, 10/22하이일드 스프레드가 450bp 아래이고 5일 확대가 +25bp 미만이며 20거래일 확대가",
+          "name": "신용과 위험선호회사채가 더 얹는 금리부담하이일드 스프레드 340bp, 20거래일 +60bp, 10/22하이일드 스프레드가 450bp 아래이고 5일 확대가 +25bp 미만이며 20거",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "달러와 원자재Dollar, Commodity부담달러 인덱스 101.75, WTI 103.27달러WTI 1년 범위 85% 미만, WTI 20일 +10% 미만, 달러 20일 +2.5%",
+          "name": "달러와 원자재달러 지수와 국제 유가부담달러 인덱스 101.75, WTI 103.27달러WTI 1년 범위 85% 미만, WTI 20일 +10% 미만, 달러 20일 +2.5% 미만(1",
           "tabindex": ""
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "분할 접근",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "분배일",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "공포·탐욕",
+          "tabindex": "0"
         },
         {
           "tag": "SUMMARY",
@@ -390,41 +414,17 @@
           "tabindex": ""
         },
         {
-          "tag": "BUTTON",
+          "tag": "SPAN",
           "id": "",
-          "name": "소재",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "에너지",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "헬스케어",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "필수소비재",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "유틸리티",
-          "tabindex": ""
+          "name": "RRG",
+          "tabindex": "0"
         }
       ]
     },
     {
       "routeId": "breadth",
       "status": "ok",
-      "focusableCount": 120,
+      "focusableCount": 122,
       "pageTitle": "시장 폭",
       "audit": {
         "status": "ok",
@@ -455,7 +455,7 @@
               "headerText": "시장 폭 판단판단 보류, 일부 근거 부분 확보 데이터: 스냅샷기준 시각 10/25 08:00시점 부분 일치근거 상태 저장 관측, 예측력 미검증 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:18.396Z"
+          "generatedAt": "2026-10-25T15:26:25.796Z"
         },
         "accessibility": {
           "status": "ok",
@@ -478,9 +478,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:18.404Z"
+          "generatedAt": "2026-10-25T15:26:25.811Z"
         },
-        "generatedAt": "2026-10-25T07:57:18.404Z"
+        "generatedAt": "2026-10-25T15:26:25.811Z"
       },
       "tabSequence": [
         {
@@ -547,6 +547,12 @@
           "tag": "SUMMARY",
           "id": "",
           "name": "이어서 볼 곳시장 상태, 투자 심리",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
           "tabindex": ""
         },
         {
@@ -620,19 +626,13 @@
           "id": "",
           "name": "확인했습니다",
           "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "확인했습니다",
-          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "sentiment",
       "status": "warn",
-      "focusableCount": 10,
+      "focusableCount": 23,
       "pageTitle": "투자 심리",
       "audit": {
         "status": "warn",
@@ -663,7 +663,7 @@
               "headerText": "심리 결론판단 보류, 최신 근거 미수신 데이터: 미수신기준 시각 10/25 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다., 10/23 미국 정규장 종가 기준. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다. 보조 입력 미수신: VVIX.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:18.739Z"
+          "generatedAt": "2026-10-25T15:26:26.177Z"
         },
         "accessibility": {
           "status": "warn",
@@ -672,7 +672,7 @@
           "warningCount": 1,
           "blockers": [],
           "warnings": [
-            "small-targets:1"
+            "small-targets:2"
           ],
           "pages": [
             {
@@ -681,7 +681,7 @@
               "active": true,
               "blockers": [],
               "warnings": [
-                "small-targets:1"
+                "small-targets:2"
               ],
               "nameless": [],
               "unfocusable": [],
@@ -689,24 +689,54 @@
               "smallTargets": [
                 {
                   "id": "",
-                  "selector": "#page-sentiment section.briefing-block.market-temperature > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
+                  "selector": "#page-sentiment section.sx-card.sx-card--hero > div.mk-senti-hero__main > p.mk-sub-hero__lede > span.aio-term",
+                  "width": 21,
+                  "height": 28
+                },
+                {
+                  "id": "",
+                  "selector": "#page-sentiment section.sx-card.sx-card--hero > p.flow-lead.mk-sub-hero__flip > span.aio-term",
+                  "width": 18,
+                  "height": 28
                 }
               ],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:18.740Z"
+          "generatedAt": "2026-10-25T15:26:26.183Z"
         },
-        "generatedAt": "2026-10-25T07:57:18.740Z"
+        "generatedAt": "2026-10-25T15:26:26.183Z"
       },
       "tabSequence": [
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "공포·탐욕",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "하이일드 스프레드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "bp",
+          "tabindex": "0"
+        },
         {
           "tag": "SUMMARY",
           "id": "",
           "name": "이어서 읽기",
           "tabindex": ""
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "VIX",
+          "tabindex": "0"
         },
         {
           "tag": "SUMMARY",
@@ -821,37 +851,13 @@
           "id": "",
           "name": "확인했습니다",
           "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "확인했습니다",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "확인했습니다",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "확인했습니다",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "확인했습니다",
-          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "briefing",
       "status": "ok",
-      "focusableCount": 51,
+      "focusableCount": 55,
       "pageTitle": "브리핑",
       "audit": {
         "status": "ok",
@@ -882,7 +888,7 @@
               "headerText": "시장 요약시장환경 관찰 — 중립 구간, 예측 검증 미확립 데이터: 참고10/23 미국 정규장 종가 기준기준 시각 10/25 08:00시점 불일치근거 상태 참고 관측, 예측력 미검증 10/23 미국 정규장 종가 기준. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다. 보조 입력 미수신: VVIX.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:19.179Z"
+          "generatedAt": "2026-10-25T15:26:26.650Z"
         },
         "accessibility": {
           "status": "ok",
@@ -905,9 +911,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:19.181Z"
+          "generatedAt": "2026-10-25T15:26:26.662Z"
         },
-        "generatedAt": "2026-10-25T07:57:19.181Z"
+        "generatedAt": "2026-10-25T15:26:26.662Z"
       },
       "tabSequence": [
         {
@@ -925,79 +931,73 @@
         {
           "tag": "LI",
           "id": "",
-          "name": "에너지+2.60%선도",
+          "name": "에너지+2.60%50일 선도",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "기술+0.52%후행",
+          "name": "기술+0.52%50일 후행",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "부동산+0.12%개선",
+          "name": "부동산+0.12%50일 개선",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "유틸리티-0.72%선도",
+          "name": "유틸리티-0.72%50일 선도",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "소재-0.74%선도",
+          "name": "소재-0.74%50일 선도",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "헬스케어-1.11%선도",
+          "name": "헬스케어-1.11%50일 선도",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "산업재-1.27%개선",
+          "name": "산업재-1.27%50일 개선",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "금융-1.32%기준선 부근",
+          "name": "금융-1.32%50일 기준선 부근",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "경기소비재-1.66%선도",
+          "name": "경기소비재-1.66%50일 선도",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "통신-1.78%후행",
+          "name": "통신-1.78%50일 후행",
           "tabindex": "0"
         },
         {
           "tag": "LI",
           "id": "",
-          "name": "필수소비재-1.92%선도",
+          "name": "필수소비재-1.92%50일 선도",
           "tabindex": "0"
         },
         {
           "tag": "SUMMARY",
           "id": "",
           "name": "오른쪽 표시 읽는 법",
-          "tabindex": ""
-        },
-        {
-          "tag": "A",
-          "id": "",
-          "name": "예측: 중간 선거 이후 주식 시장은 상승할 것",
           "tabindex": ""
         },
         {
@@ -1053,13 +1053,19 @@
           "id": "",
           "name": "24:00 회차10/24 18:00~24:00헤드라인 6건, 비트코인 -1.54%",
           "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "18:00 회차10/24 12:00~18:00헤드라인 3건, 비트코인 -0.28%",
+          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "technical",
       "status": "ok",
-      "focusableCount": 13,
+      "focusableCount": 14,
       "pageTitle": "차트",
       "audit": {
         "status": "ok",
@@ -1090,7 +1096,7 @@
               "headerText": "차트 판단판단 보류, 최신 근거 미수신 데이터: 미수신기준 시각 10/25 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 기술 점수는 실시간 가격과 저장된 보조지표를 함께 씁니다. 단독 매수 신호가 아닙니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:19.911Z"
+          "generatedAt": "2026-10-25T15:26:27.378Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1113,11 +1119,65 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:19.912Z"
+          "generatedAt": "2026-10-25T15:26:27.381Z"
         },
-        "generatedAt": "2026-10-25T07:57:19.913Z"
+        "generatedAt": "2026-10-25T15:26:27.381Z"
       },
       "tabSequence": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "5분",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "15분",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "30분",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "1시간",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "4시간",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "일",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "주",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "월",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "다시 시도",
+          "tabindex": ""
+        },
         {
           "tag": "BUTTON",
           "id": "",
@@ -1164,6 +1224,136 @@
           "tag": "SUMMARY",
           "id": "",
           "name": "한국 시장 추세 보기 (코스피·코스닥)",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "데이터 출처",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "면책 고지",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "확인했습니다",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "확인했습니다",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "확인했습니다",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "확인했습니다",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "확인했습니다",
+          "tabindex": ""
+        }
+      ]
+    },
+    {
+      "routeId": "macro",
+      "status": "ok",
+      "focusableCount": 3,
+      "pageTitle": "거시 경제",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "macro",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-macro header.page-head",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "오늘 거시 판단판단 보류, 최신 근거 미수신 데이터: 기준 미확인기준 시각 10/25 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 FRED/FMP 키 미수신 구간은 스냅샷 거시로 표시하고 현재 판단 강도를 낮춥니다.AI에게 묻기"
+            }
+          ],
+          "generatedAt": "2026-10-25T15:26:28.225Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "macro",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-10-25T15:26:28.226Z"
+        },
+        "generatedAt": "2026-10-25T15:26:28.226Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "어떻게 연결되나 — 유가에서 주가까지",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "유가, 금 — 최근 1년WTI, 금 종가 추이와 1년 범위 위치",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "한국 시장 — 한국 거시 (기준금리, 물가, 원/달러)",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "이 화면을 볼 때 — 속지 말 것과 원칙발표 전에는 예측보다 준비, 맞히기보다 조건으로 생각하기, '과거에 이랬으니 이번에도'",
           "tabindex": ""
         },
         {
@@ -1261,213 +1451,29 @@
           "id": "",
           "name": "확인했습니다",
           "tabindex": ""
-        }
-      ]
-    },
-    {
-      "routeId": "macro",
-      "status": "ok",
-      "focusableCount": 2,
-      "pageTitle": "거시 경제",
-      "audit": {
-        "status": "ok",
-        "hierarchy": {
-          "status": "ok",
-          "pagesChecked": 1,
-          "issueCount": 0,
-          "warningCount": 0,
-          "blockers": [],
-          "warnings": [],
-          "pages": [
-            {
-              "pageId": "macro",
-              "active": true,
-              "pageExists": true,
-              "decisionHeader": true,
-              "compHeaderHidden": true,
-              "decisionFirst": true,
-              "firstVisibleSelector": "#page-macro header.page-head",
-              "conclusion": true,
-              "evidenceAndStatus": true,
-              "actionAffordance": true,
-              "viewportPass": true,
-              "openFundamentals": 0,
-              "developerSurfaceVisible": 0,
-              "blockers": [],
-              "warnings": [],
-              "headerText": "오늘 거시 판단판단 보류, 최신 근거 미수신 데이터: 기준 미확인기준 시각 10/25 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 FRED/FMP 키 미수신 구간은 스냅샷 거시로 표시하고 현재 판단 강도를 낮춥니다.AI에게 묻기"
-            }
-          ],
-          "generatedAt": "2026-10-25T07:57:20.731Z"
         },
-        "accessibility": {
-          "status": "ok",
-          "pagesChecked": 1,
-          "issueCount": 0,
-          "warningCount": 0,
-          "blockers": [],
-          "warnings": [],
-          "pages": [
-            {
-              "pageId": "macro",
-              "pageExists": true,
-              "active": true,
-              "blockers": [],
-              "warnings": [],
-              "nameless": [],
-              "unfocusable": [],
-              "positiveTabindex": [],
-              "smallTargets": [],
-              "chartIssues": []
-            }
-          ],
-          "generatedAt": "2026-10-25T07:57:20.731Z"
-        },
-        "generatedAt": "2026-10-25T07:57:20.731Z"
-      },
-      "tabSequence": [
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "성장중립일자리 3개월 평균 +5.1만 명",
+          "name": "확인했습니다",
           "tabindex": ""
         },
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "물가중립근원 PCE 3.0%",
+          "name": "확인했습니다",
           "tabindex": ""
         },
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "통화정책부담2년물이 기준금리보다 0.82%p 높음",
+          "name": "확인했습니다",
           "tabindex": ""
         },
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "금리, 할인율중립10년물 20일 -19bp",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "유가, 달러부담WTI 20일 +11.8%, 달러 +0.7%",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "신용부담하이일드 340bp (5거래일 +17bp, 20거래일 +60bp)",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "보류 이유와 국면 판정 기준",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "성장 (고용, 소비)중립일자리 3개월 평균 +5.1만 명",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "물가중립근원 PCE 3.0%",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "통화정책부담2년물이 기준금리보다 0.82%p 높음",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "물가 재가속",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "달러 급등",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "장기 금리 상승",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "통화정책 더 깊이 보기, 원리와 읽는 법",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "금리, 할인율중립10년물 20일 -19bp",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "유가, 달러부담WTI 20일 +11.8%, 달러 +0.7%",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "신용부담하이일드 340bp (5거래일 +17bp, 20거래일 +60bp)",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "테일러 준칙 — 계산식과 한계",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "어떻게 연결되나 — 유가에서 주가까지",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "설명",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "금리 하락이 늘 좋은가",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "AI 투자 꺾임조건 충족 3/4이익과 고용이 함께 식는 시나리오시장 가격 같은 방향유리한 대응: 관망 (현금, 단기채), 방어 전환근거와 선택지",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "방산/항공우주 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "필수소비재 →",
+          "name": "확인했습니다",
           "tabindex": ""
         }
       ]
@@ -1475,7 +1481,7 @@
     {
       "routeId": "fxbond",
       "status": "ok",
-      "focusableCount": 8,
+      "focusableCount": 9,
       "pageTitle": "금리와 환율",
       "audit": {
         "status": "ok",
@@ -1506,7 +1512,7 @@
               "headerText": "FX/Rates 판단판단 보류, 최신 근거 미수신 데이터: 미수신기준 시각 10/25 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:21.577Z"
+          "generatedAt": "2026-10-25T15:26:28.990Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1529,9 +1535,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:21.579Z"
+          "generatedAt": "2026-10-25T15:26:28.993Z"
         },
-        "generatedAt": "2026-10-25T07:57:21.579Z"
+        "generatedAt": "2026-10-25T15:26:28.993Z"
       },
       "tabSequence": [
         {
@@ -1714,7 +1720,7 @@
               "headerText": "기업 분석 준비판단 보류, 일부 근거 부분 확보 데이터: 스냅샷기준 시각 10/25 08:00시점 부분 일치근거 상태 저장 관측, 예측력 미검증 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:22.035Z"
+          "generatedAt": "2026-10-25T15:26:29.435Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1737,9 +1743,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:22.038Z"
+          "generatedAt": "2026-10-25T15:26:29.438Z"
         },
-        "generatedAt": "2026-10-25T07:57:22.038Z"
+        "generatedAt": "2026-10-25T15:26:29.438Z"
       },
       "tabSequence": [
         {
@@ -1891,7 +1897,7 @@
     {
       "routeId": "themes",
       "status": "ok",
-      "focusableCount": 254,
+      "focusableCount": 256,
       "pageTitle": "테마와 섹터",
       "audit": {
         "status": "ok",
@@ -1922,7 +1928,7 @@
               "headerText": "테마 회전 지도판단 보류, 일부 근거 부분 확보 데이터: 스냅샷기준 시각 10/25 08:00시점 부분 일치근거 상태 저장 관측, 예측력 미검증 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-25T07:57:22.597Z"
+          "generatedAt": "2026-10-25T15:26:30.017Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1945,9 +1951,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-25T07:57:22.626Z"
+          "generatedAt": "2026-10-25T15:26:30.050Z"
         },
-        "generatedAt": "2026-10-25T07:57:22.626Z"
+        "generatedAt": "2026-10-25T15:26:30.050Z"
       },
       "tabSequence": [
         {
@@ -2098,6 +2104,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-10-25T07:57:15.356Z",
+  "generatedAt": "2026-10-25T15:26:22.797Z",
   "status": "pass"
 }

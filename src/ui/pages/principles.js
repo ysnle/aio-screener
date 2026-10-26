@@ -3,7 +3,7 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { normalizeKnowledgeEdges } from '../../domain/knowledge/graph.js';
 import { createKnowledgeCapabilityBatchLoader } from '../knowledge/capability-loader.js';
 import { PRINCIPLE_EDGE_SEMANTICS } from '../../domain/knowledge/principles-edge-semantics.js';
-import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
+import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, pushKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../../ui/knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../../ui/knowledge/learning-controls.js';
@@ -494,7 +494,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         navigateKnowledgeTarget({ root, target: { ...target, returnContext: target.returnContext || { route: 'principles' } } });
       };
 
-      const syncSharedState = () => replaceKnowledgeRouteState({ root, state: { mode: state.view === 'map' ? 'graph' : state.view === 'lesson' ? null : state.view, node: state.view === 'map' ? state.selectedId : state.view === 'frames' ? state.frameId : state.view === 'concept' ? state.conceptId : null, chapter: state.view === 'story' ? state.chapterId : null, lesson: state.view === 'lesson' ? state.lessonId : null } });
+      const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, state: { mode: state.view === 'map' ? 'graph' : state.view === 'lesson' ? null : state.view, node: state.view === 'map' ? state.selectedId : state.view === 'frames' ? state.frameId : state.view === 'concept' ? state.conceptId : null, chapter: state.view === 'story' ? state.chapterId : null, lesson: state.view === 'lesson' ? state.lessonId : null } });
       syncSharedState();
 
       const focusDetail = () => {
@@ -587,14 +587,15 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         return { chapters: narrativeChapters(state.narrative), narrativeError: state.narrativeError, lessonLibraryError: state.lessonLibraryError || state.chaptersError, lessons: state.lessonLibrary?.lessons || null, lessonSources: state.lessonLibrary?.sources || [], lessonChapters, conceptStories: state.conceptStories || null };
       }
 
-      const selectLocal = (params = {}) => {
+      const selectLocal = (params = {}, { push = true } = {}) => {
         if (params.mode === 'concept' && params.node) { state.view = 'concept'; state.conceptId = params.node; state.openGroup = 'concept'; }
         else if (params.mode === 'frames' && params.node) { state.view = 'frames'; state.frameId = params.node; state.openGroup = 'frames'; }
         else if (params.lesson) { state.view = 'lesson'; state.lessonId = params.lesson; state.openGroup = 'lesson'; ensureLibraryCapabilities(); }
         // E14: a column (story chapter) opened from the shelf or search on this same page.
         else if (params.mode === 'story') { state.view = 'story'; state.openGroup = 'story'; if (params.chapter) { state.chapterId = params.chapter; state.selectedNarrativeChapterId = params.chapter; } }
         else if (params.mode === 'tree' || params.mode === 'graph') { state.view = 'map'; state.openGroup = 'map'; if (params.node && NODE_BY_ID.has(params.node)) state.selectedId = params.node; }
-        syncSharedState();
+        else if (params.mode === 'frames' || !params.mode) { state.view = 'frames'; state.frameId = null; state.openGroup = 'frames'; }
+        syncSharedState({ push });
         render();
         queueMicrotask(() => page.querySelector('.rl-main')?.scrollIntoView({ block: 'start', behavior: 'auto' }));
       };
@@ -680,7 +681,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         if (action === 'retry-capability') retryCapability(value);
         if (action !== 'route') {
           event.preventDefault();
-          syncSharedState();
+          syncSharedState({ push: ['frame', 'concept', 'story-chapter', 'select-lesson', 'select-node'].includes(action) });
           render();
           if (['frame', 'concept', 'story-chapter', 'select-lesson'].includes(action)) queueMicrotask(() => page.querySelector('.rl-main')?.scrollIntoView({ block: 'start', behavior: 'auto' }));
           if (action === 'story-chapter') queueMicrotask(() => page.querySelector('.principles-narrative-title')?.focus({ preventScroll: true }));
@@ -688,6 +689,13 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
       };
       page.addEventListener('click', onClick);
       bag.add(() => page.removeEventListener('click', onClick));
+      // Back and Forward between documents of this page: the URL names the document, so the page re-reads it.
+      const onPop = () => {
+        if (!isAlive() || !/^#principles(?:$|[?&])/.test(String(root?.location?.hash || ''))) return;
+        selectLocal(parseKnowledgeRouteState(root.location), { push: false });
+      };
+      root?.addEventListener?.('popstate', onPop);
+      bag.add(() => root?.removeEventListener?.('popstate', onPop));
       bag.add(() => {
         if (page.dataset.aioArchitectureRoute === 'principles') delete page.dataset.aioArchitectureRoute;
         if (page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;

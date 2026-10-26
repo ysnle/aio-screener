@@ -25,6 +25,11 @@ _artifacts/performance-hunt-*/sample.json
 # release inputs. Machine-readable audit summaries under _artifacts stay tracked.
 _artifacts/viewport-matrix/*.png
 
+# /prototype variants are throwaway, and /first-users persona runs are screenshot-heavy local evidence; the
+# first-users report.md stays tracked (v58.80).
+_artifacts/prototype-*/
+_artifacts/first-users/run-*/
+
 # Pre-integration backup copies of generated manifests are redundant with git
 # history (same rationale as _backup/ above) and stay local.
 _artifacts/*/integration-backup/

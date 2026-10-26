@@ -123,7 +123,8 @@ function opportunityNode(doc, root, view, className) {
   parts.forEach((part, index) => {
     if (index) node.append(doc.createTextNode(', '));
     node.append(doc.createTextNode(`${part.label}: `));
-    for (const link of part.links) {
+    part.links.forEach((link, at) => {
+      if (at) node.append(doc.createTextNode(', ')); // v58.80: the names ran together ("소재에너지헬스케어")
       const button = el(doc, 'button', link.label, 'regime-opportunity-chip');
       button.type = 'button';
       button.title = link.kind === 'theme' && link.themeId ? `${link.label} 테마 상세` : '테마와 섹터 화면에서 보기';
@@ -132,7 +133,7 @@ function opportunityNode(doc, root, view, className) {
         else root?.showPage?.('themes');
       });
       node.append(button);
-    }
+    });
   });
   return node;
 }
@@ -207,7 +208,8 @@ function scenarioLink(doc, root) {
 
 // v58.53 개편 v2 (3b): the axis table's row labels, the academic line under each opened row (authors · year only) and
 // the axis whose burden opens first. Static reference text; live values come from the regime rows.
-const AXIS_EN = Object.freeze({ trend: 'Trend', breadth: 'Breadth', volatility: 'Volatility', credit: 'Credit', rates: 'Rates', commodities: 'Dollar, Commodity' });
+// v58.80 (first-users bundle 7): the subtitle was the English axis name (Trend, Breadth, …); it now says what the axis watches.
+const AXIS_WATCH = Object.freeze({ trend: 'S&P 500 가격 흐름', breadth: '오르는 종목의 넓이', volatility: '지수가 흔들리는 크기', credit: '회사채가 더 얹는 금리', rates: '국채 금리', commodities: '달러 지수와 국제 유가' });
 const AXIS_REFS = Object.freeze({
   trend: 'Moskowitz·Ooi·Pedersen 2012, Faber 2007',
   breadth: 'Zweig 1986, 다우 이론의 확인 원칙',
@@ -291,7 +293,7 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   card.open = !!open;
   const summary = el(doc, 'summary', null, 'mk-axis__row');
   const name = el(doc, 'span', null, 'mk-axis__name');
-  name.append(el(doc, 'b', row.title), el(doc, 'span', AXIS_EN[row.id] || '', 'mk-axis__en'));
+  name.append(el(doc, 'b', row.title), el(doc, 'span', AXIS_WATCH[row.id] || '', 'mk-axis__en'));
   const prev = previous?.axes?.find((axis) => axis.id === row.id);
   // A previous state rebuilt from partial inputs (prev.partial) is not shown as a flip.
   const prevShown = prev && !prev.partial ? prev : null;
@@ -713,8 +715,15 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   const chips = doc.getElementById('home-hero-components');
   if (chips) {
     chips.replaceChildren(...regime.axes.map((row) => {
-      const chip = el(doc, 'div', null, 'regime-chip');
+      // v58.80 (first-users run-4): the chips looked clickable and did nothing, and the verdict had no way to its chart.
+      // Each chip opens 시장 상태 with that axis (its chart and rule) unfolded.
+      const chip = el(doc, 'button', null, 'regime-chip');
+      chip.type = 'button';
       chip.dataset.state = row.state;
+      chip.addEventListener('click', () => {
+        root.showPage?.('signal');
+        setTimeout(() => { const axis = doc.querySelector?.(`.mk-axis[data-axis="${row.id}"]`); if (axis) { axis.open = true; axis.scrollIntoView?.({ block: 'start' }); } }, 120);
+      });
       // P1592 (F42): the tally above counts the six US axes; the Korea FX card is a reference beside it.
       const reference = row.id === 'korea';
       if (reference) { chip.classList.add('is-reference'); chip.title = '한국 참고 — 위 양호·중립·부담 합계에 넣지 않습니다'; }

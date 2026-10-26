@@ -259,7 +259,10 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     const weakSide = sector?.quadrant?.tone === 'burden' ? '섹터' : '테마';
     const tie = tailwind && stockStrong ? `종목 강세가 ${strongSide} 흐름과 같은 방향입니다` : headwind && stockStrong ? `${weakSide} 흐름이 약한데 종목만 강한 개별 강세입니다`
       : tailwind && trend && trend.tone !== 'favorable' ? `${strongSide}는 강한데 종목은 뒤처져 있습니다` : headwind && trend?.id === 'down' ? `${weakSide}와 종목이 함께 약합니다` : '';
-    rotationText = `${parts.join('. ')}.${tie ? ` ${tie}.` : ''}`;
+    // First-users run 4 (skeptic #7): '섹터 후행' beside a leading theme read as a contradiction; the scope difference is said.
+    const tones = [sector?.quadrant?.tone, topTheme?.etf !== sector?.etf ? topTheme?.quadrant?.tone : null];
+    const split = tones.includes('favorable') && tones.includes('burden') ? ' 섹터는 업종 전체, 테마는 그 안의 좁은 묶음이라 방향이 갈릴 수 있습니다.' : '';
+    rotationText = `${parts.join('. ')}.${tie ? ` ${tie}.` : ''}${split}`;
   }
   if (stageLines.length) {
     points.push({ id: 'sector', tone: 'neutral', title: '섹터·테마', text: stageLines.map((line) => line.text).join(' / '), lines: stageLines,
@@ -300,7 +303,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   // screener's own validation verdict when it is loaded — otherwise the rank alone, without a claim.
   // v57.81: under the screener's 확장 range the denominator includes Russell 2000·Nasdaq stocks — the rank says so.
   const rankScope = row.rankingUniverse === 'extended' ? '(확장 종목 범위 기준: 기본 + 러셀2000·나스닥) ' : '';
-  if (ranking) points.push({ id: 'rank', tone: 'neutral', title: '순위', text: `가격 흐름 순위 ${rankScope}${ranking.rank}/${ranking.of}${rankVerdict(validation)}.` });
+  if (ranking) points.push({ id: 'rank', tone: 'neutral', title: '순위', text: `가격 흐름 순위 ${rankScope}${ranking.rank}/${ranking.of}(가격 기록이 충분해 순위를 매긴 종목 수 기준)${rankVerdict(validation)}.` });
   const relative3 = spans.find((span) => span.key === 'ret3m');
   // 2026-10-13 review S07: a factor file older than the market's latest completed session says so in the headline.
   const lagSessions = finite(sessionLag?.sessions);

@@ -479,14 +479,15 @@ function syncMineChip(documentRef, root, symbols, active) {
     chip.className = 'chip sh-soft-chip';
     chip.textContent = '내 종목';
     chip.addEventListener('click', () => {
-      if (chip.disabled) return;
+      // first-users run-3 N#23: a disabled chip gave no reason on touch (a title never shows); a tap now says what to do.
+      if (chip.getAttribute('aria-disabled') === 'true') { root.showToast?.(chip.title); return; }
       root._aioNewsMineOnly = !root._aioNewsMineOnly;
       documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-mine-filter' } }));
     });
     group.append(chip);
     topics.insertAdjacentElement('afterend', group);
   }
-  chip.disabled = !symbols.size;
+  chip.setAttribute('aria-disabled', String(!symbols.size));
   chip.setAttribute('aria-pressed', String(active));
   chip.title = symbols.size ? `관심·보유 ${symbols.size}개(${[...symbols].slice(0, 5).join(', ')}${symbols.size > 5 ? ' 등' : ''}) 관련 기사와 채널 글만 보기` : '관심·보유 종목이 없어 쓸 수 없습니다. 스크리너에서 관심 종목을 추가하면 켜집니다.';
   // The selected look is the filter row's aria-pressed rule (responsive.css #news-filter-row .chip); disabled is dimmed.

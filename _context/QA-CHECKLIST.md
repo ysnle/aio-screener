@@ -1,8 +1,34 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-25
+last_verified: 2026-10-26
 confidence: medium
 ---
+
+## v58.80 미래 자료 누설 검사와 작업 방식 개선 (2026-10-25)
+
+- [x] QA-LOOKAHEAD-01: v58.80 미래 자료 누설 검사: 과거 30세션 as-of 불변(관측 시각 기준 절단, 신용 축 평가), 테마 단계 백필 미래 교란 불변, 330버킷 워밍업 충분. 네 누설 변이에서 실패. verify_by: node scripts/ci-lookahead-check.mjs
+- [ ] QA-VERIFY-61: 포트폴리오 ETF 펼쳐 보기: 라이브에서 SPY·VOO가 실시간 시세로 평가액을 받으면 읽는 법 첫 카드가 ETF 속까지 본 상위 종목 막대로 나오고, 실질 종목 수 타일이 펼친 값과 보유 그대로 값을 함께 보이며, 가격 없는 추종 ETF는 문장에 이름이 남는다. verify_by: live 포트폴리오에 NVDA·SPY·VOO 보유 입력 후 데스크톱·휴대폰 확인 (로컬은 ETF 시세가 없어 ci-esm-core-unit-check 고정 입력이 대신 검증)
+- [x] QA-ROLL-01: v58.80 원유 선물 시세의 하루 변화율은 시세와 같은 월물의 직전 종가 기준(WTI 10/20 -0.7%, 브렌트 10/23 +2.8%) verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-RELATION-01: v58.80 금리와 환율의 자산군 카드 읽기는 같은 20거래일의 평소 관계와 어긋난 곳(유가-금리, 금리-주식, 주식-장기채, 위험 회피-금·달러)과 반도체 주도를 이야기 순서로 최대 3개 적는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-FU-01: v58.80 포트폴리오에서 원화 칸 안내로 넣은 한국 종목 단가는 원화로 저장·표시된다(빈 원가 통화 칸 = 입력 칸 통화). verify_by: node scripts/ci-portfolio-vault-e2e.mjs
+- [x] QA-FU-02: v58.80 거시 머리말의 다음 발표 날짜는 본문과 같은 한국 시각 날짜로 적는다(FOMC 10/28 ET → 10/29 KST). verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-FU-03: v58.80 스크리너·종목 재무·오늘 지수 카드는 자료 도착 전을 '불러오는 중'으로, 분봉 실패는 마지막 종가와 날짜로 보여 준다. verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-FU-04: v58.80 종목 검색 Enter는 목록에 없는 기호에 종목 화면을 열지 않고 후보 안내를 보인다. verify_by: node scripts/ci-out-of-universe-ticker-browser-check.mjs
+- [x] QA-FU-05: v58.80 종목 화면의 관심 종목 추가는 목록이 없으면 '관심 종목' 목록을 만들어 담고 결과를 알린다. verify_by: node scripts/ci-out-of-universe-ticker-browser-check.mjs
+- [x] QA-FU-06: v58.80 내 계획 점검은 거절된 입력 뒤 이전 결과를 숨기고 1조 초과 값을 거절한다. verify_by: node scripts/ci-portfolio-vault-e2e.mjs
+- [x] QA-FU-07: v58.80 S&P 500 지도는 스크리너 행이 아직 없으면 '0개'가 아니라 불러오는 중이라고 적고, 종목 재무는 내려받기 실패를 '공시 대상 아님'과 구분한다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-FU-08: v58.80 네트워크 제한 시간은 응답 헤더 대기만 판정하고, 스트림 본문은 모든 본문이 20초 동안 멈췄을 때만 끊는다(3G에서 screener.json·SEC 요약이 끝까지 받아진다). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-ROLL-02: v58.80 주말에 미리 실린 재개장 봉은 연속 거래 종목의 직전 종가가 아니다(DXY 10/23은 10/22 종가 대비) verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-NUM-01: v58.80 3개월·1개월은 오늘·매크로·지수 비교에서 같은 수(63·21거래일, sessionPointBack) verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NUM-02: v58.80 동종 중앙값은 본인 제외 한 정의, 선도 섹터 링크 목록은 꺾인·경계 선도까지 합쳐 테마와 섹터의 선도 수와 같다. verify_by: node scripts/ci-fiscal-quality-fixture.mjs && node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-STATE-01: v58.80 빈 값은 불러오는 중·받지 못함·자료 없음·해당 없음 중 하나의 공용 문장으로 말한다(data-state.js) verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NUM-03: v58.80 평가 완료 포트폴리오는 현금 미입력이어도 주식 평가액 대비 섹터 비중을 보인다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-INPUT-01: v58.80 숫자 입력(현금·시뮬레이션)은 공용 리더가 읽고, 거부 때 칸 옆에 사유를 보이며 저장값을 바꾸지 않는다. verify_by: node scripts/ci-portfolio-vault-e2e.mjs
+- [x] QA-STATE-02: v58.80 스크리너 별표와 포트폴리오 관심 종목은 한 저장소(aio_watchlists)를 쓰고, 옛 별표 배열은 한 번 합친 뒤 지운다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-BOOT-02: v58.80 AI 답변 아래 그림(ai-answer-visuals.js)과 재무 읽기(fiscal-read.js)는 첫 답변 때 불러오고 부팅 묶음에 들어오지 않는다(부팅 상한 1,455 KB/535 KB gzip) verify_by: node scripts/ci-boot-bundle-budget-check.mjs
+- [x] QA-UNITS-01: v58.80 미국 금액은 usdKoreanText 하나로 조·억·만 달러로 쓰고 부호가 앞에 온다(재무 표·문단·종목·스크리너가 같은 단위) verify_by: node scripts/ci-fiscal-quality-fixture.mjs
+- [x] QA-STATE-03: v58.80 종목 화면은 재무 파일이 없으면 3·8·20초 뒤 최대 3번 다시 받고, 다른 종목으로 바뀌면 멈춘다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-BOOT-03: v58.80 포트폴리오 백테스트 엔진(src/domain/portfolio/backtest.js)은 포트폴리오를 열거나 유휴 시간에 불러오고 부팅 묶음에 들어오지 않는다(부팅 상한 1,440 KB/530 KB gzip) verify_by: node scripts/ci-boot-bundle-budget-check.mjs
 
 ## v58.79 v58.79 섹션 틀, 보조 문구 상한 게이트, 오늘·테마와 섹터 문구 정리 (2026-10-25) (2026-10-25)
 

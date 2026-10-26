@@ -51,7 +51,14 @@ export function exchangeLocalDate(ms, timeZone) {
 const CONTINUOUS_QUOTE = /(=F|=X)$|^DX-Y\.NYB$|-USD$/;
 export function previousCloseBarIndex(closeBars, meta, symbol = '') {
   const bars = Array.isArray(closeBars) ? closeBars : [];
-  if (CONTINUOUS_QUOTE.test(String(symbol || meta?.symbol || '')) || !meta?.exchangeTimezoneName || !Number.isFinite(meta?.regularMarketTime) || !Number.isFinite(meta?.gmtoffset)) return bars.length >= 2 ? bars.length - 2 : -1;
+  // v58.80 (first-users bundle 1): on a weekend Yahoo already lists Sunday's reopen bar (empty) after Friday's, so the bar
+  // before last was Friday itself — DXY 10/23 read -0.06% (Friday's last print against Friday's settle) beside +0.14%
+  // close to close on 금리와 환율. A bar opened after the quote's own time is not its session and is skipped.
+  if (CONTINUOUS_QUOTE.test(String(symbol || meta?.symbol || '')) || !meta?.exchangeTimezoneName || !Number.isFinite(meta?.regularMarketTime) || !Number.isFinite(meta?.gmtoffset)) {
+    const at = Number(meta?.regularMarketTime);
+    const current = Number.isFinite(at) ? bars.map((bar) => Number.isFinite(bar.timestamp) && bar.timestamp <= at).lastIndexOf(true) : bars.length - 1;
+    return current >= 1 ? current - 1 : -1;
+  }
   const localDay = (seconds) => new Date((seconds + meta.gmtoffset) * 1000).toISOString().slice(0, 10);
   const sessionDay = localDay(meta.regularMarketTime);
   return bars.map((bar) => Number.isFinite(bar.timestamp) && localDay(bar.timestamp) < sessionDay).lastIndexOf(true);
@@ -119,8 +126,8 @@ export async function fetchQuote(symbol) {
         // bar's own timestamp made otherwise-correct previous-close values
         // appear one market day older on WTI/gold/BTC/KR series.
         // P1799: when the current session's bar is not printed yet, its opening boundary is unknown — fail closed (P1095).
-        regularMarketPreviousCloseObservedAt: prevIndex === closeBars.length - 2 && Number.isFinite(closeBars[closeBars.length - 1].timestamp)
-          ? new Date(closeBars[closeBars.length - 1].timestamp * 1000).toISOString()
+        regularMarketPreviousCloseObservedAt: prevIndex >= 0 && Number.isFinite(closeBars[prevIndex + 1]?.timestamp)
+          ? new Date(closeBars[prevIndex + 1].timestamp * 1000).toISOString()
           : null,
         // P1192: 위 경계가 이 행의 완료 컷을 넘을 때(진행 중 bar의 개시 시각이 KST-08:00 컷보다
         // 뒤인 창 — FX/상품) 쓸 직전 bar의 개시 경계. 관측 시각이 아니라 bar 경계다.
@@ -191,10 +198,75 @@ export async function fetchQuote(symbol) {
           }
         } catch (_) { /* daily path stays */ }
       }
+      if (ROLLING_FUTURES[symbol]) await alignRollingFuturesQuote(host, quote);
       return quote;
     } catch (e) { lastErr = e; }
   }
   throw lastErr;
+}
+
+// v58.80 (P2065): Yahoo's continuous crude contracts quote the next month two to four sessions before the expiring month's
+// last trade, while their daily bars — and so the previous close above — stay on the expiring month. The 1-day change
+// divided two contracts: WTI 10/20 read −5.6% for −0.7% (December 97.82 against November's 103.66), 9/18 −5.8% while
+// Brent fell 0.9%, Brent 10/23 −1.3% for +2.8% (January 111.70 against December's 113.17). The explicit contract whose
+// price is the quoted price names the month, and its own bar before last is the previous close.
+export const ROLLING_FUTURES = { 'CL=F': 'CL', 'BZ=F': 'BZ' };
+const FUTURES_MONTH_CODES = 'FGHJKMNQUVXZ';
+// WTI month M expires around the 20th of M−1 and NYMEX Brent at the end of M−2, so the quoted month is one to three ahead.
+export function futuresContractCandidates(root, nowMs = Date.now()) {
+  const now = new Date(nowMs);
+  return [1, 2, 3].map((ahead) => {
+    const month = now.getUTCMonth() + ahead;
+    const year = now.getUTCFullYear() + Math.floor(month / 12);
+    return `${root}${FUTURES_MONTH_CODES[month % 12]}${String(year % 100).padStart(2, '0')}.NYM`;
+  });
+}
+// The contract chart whose price and time are the quote's; null when none is.
+export function sameContractChange(quote, contract, res) {
+  const meta = res?.meta;
+  const price = Number(quote?.regularMarketPrice);
+  if (!meta || !(Math.abs(Number(meta.regularMarketPrice) - price) <= 0.005)) return null;
+  if (Number.isFinite(quote.regularMarketTime) && Math.abs(Number(meta.regularMarketTime) - quote.regularMarketTime) > 120) return null;
+  const stamps = res.timestamp || [];
+  const bars = (res.indicators?.quote?.[0]?.close || [])
+    .map((close, index) => ({ close: close != null && isFinite(close) && close > 0 ? close : null, timestamp: stamps[index] }))
+    .filter((bar) => Number.isFinite(bar.timestamp));
+  // The continuous symbol's rule (bar before last): a futures "day" holds the next session's evening hours.
+  const index = previousCloseBarIndex(bars, meta, quote.symbol);
+  const prev = index >= 0 ? bars[index].close : null;
+  return {
+    contract,
+    prev,
+    pct: prev ? ((price - prev) / prev) * 100 : null,
+    regularMarketPreviousCloseObservedAt: index >= 0 && index === bars.length - 2 ? new Date(bars[bars.length - 1].timestamp * 1000).toISOString() : null,
+    previousBarOpenedAt: index >= 0 ? new Date(bars[index].timestamp * 1000).toISOString() : null,
+    previousCloseSessionDate: index >= 0 ? exchangeLocalDate(bars[index].timestamp * 1000, meta.exchangeTimezoneName) : null,
+  };
+}
+async function alignRollingFuturesQuote(host, quote, nowMs = Date.now()) {
+  for (const contract of futuresContractCandidates(ROLLING_FUTURES[quote.symbol], nowMs)) {
+    let same = null;
+    try {
+      const j = await fetchJSON(host + '/v8/finance/chart/' + encodeURIComponent(contract) + '?interval=1d&range=5d', {}, 1);
+      same = sameContractChange(quote, contract, j?.chart?.result?.[0]);
+    } catch (_) { continue; }
+    if (!same) continue;
+    const rolled = !(Math.abs(Number(same.prev) - Number(quote.regularMarketPreviousClose)) <= 1e-6);
+    quote.contract = contract;
+    quote.contractRolled = rolled;
+    if (!rolled) return;
+    quote.regularMarketPreviousClose = same.prev;
+    quote.chartPreviousClose = same.prev;
+    quote.regularMarketChangePercent = same.pct;
+    quote.regularMarketPreviousCloseObservedAt = same.regularMarketPreviousCloseObservedAt;
+    quote.previousBarOpenedAt = same.previousBarOpenedAt;
+    quote.previousCloseSessionDate = same.previousCloseSessionDate;
+    quote.previousCloseApproximate = false;
+    quote._pctSource = same.prev ? 'same-contract-daily' : 'previous-session-close-missing';
+    return;
+  }
+  // No candidate priced the quote (or none answered): the continuous read stays, marked unconfirmed.
+  quote.contract = null;
 }
 
 // v58.69: the last hourly close of one exchange-local session (the fallback when that session's daily close is empty).

@@ -23,11 +23,11 @@ for (const changed of [{ symbol: 'NVDA' }, { observedAt: '2026-08-29', periodTyp
   assert.equal(reconcileFiscalHistory(history, { ...fixture, ...changed }, 'AEHR')[1].netIncome, -7e6, 'P1627 a different issuer or period must never overwrite the annual loss');
 }
 assert.equal(reconcileFiscalHistory(history, { ...fixture, operatingCashFlow: null }, 'AEHR')[1].operatingCashFlow, null, 'P1627 missing cash flow must remain missing');
-assert.equal(formatFiscalAmount(-7126000), '-$7.126M', 'P1627 displayed losses must retain sign and precision');
+assert.equal(formatFiscalAmount(-7126000), '-712.6만 달러', 'P1627 displayed losses must retain sign and precision');
 assert.equal(formatFiscalAmount(null), '자료 없음', 'P1627 missing is not a zero');
-assert.equal(formatFiscalAmount(0), '$0M', 'P1627 an observed zero must remain zero');
-assert.equal(formatFiscalCompact(416161e6), '$416.2B', 'S20 table amounts read in billions like the paragraph');
-assert.equal(formatFiscalCompact(-147.8e9), '-$147.8B', 'S18/S20 the sign precedes the currency');
+assert.equal(formatFiscalAmount(0), '0달러', 'P1627 an observed zero must remain zero');
+assert.equal(formatFiscalCompact(416161e6), '4,162억 달러', 'S20 v58.80 table amounts read in the same Korean units as the paragraph');
+assert.equal(formatFiscalCompact(-147.8e9), '-1,478억 달러', 'S18/S20 the sign precedes the currency');
 assert.equal(formatFiscalCompact(null), '자료 없음', 'S20 missing is not a zero');
 
 const scale = fiscalBarGeometry([66e6, 33e6, 50e6, -7e6, 0, null]);
@@ -103,8 +103,8 @@ const root = { _aioSecFiscalHistory: { AEHR: compact }, _aioSecFiscalHistoryAt: 
 renderFiscalRead({ documentRef: doc, root, state: { id: 'AEHR', fundamentals: fixture } });
 const nodes = descendants(host);
 // 2026-10-13 review S20: the table reads in B/T/M units like the paragraph; the exact signed amount stays in the cell title.
-assert.ok(nodes.some((node) => node.tagName === 'table' && node.textContent.includes('-$7.1M')), 'S20 render must expose an annual amount table with signed compact income');
-assert.ok(nodes.some((node) => node.tagName === 'td' && node.title === '-$7.126M'), 'P1627/S20 the exact signed income must remain available on the cell');
+assert.ok(nodes.some((node) => node.tagName === 'table' && node.textContent.includes('-713만 달러')), 'S20 render must expose an annual amount table with signed compact income');
+assert.ok(nodes.some((node) => node.tagName === 'td' && node.title === '-712.6만 달러'), 'P1627/S20 the exact signed income must remain available on the cell');
 assert.ok(host.textContent.includes('분기 실적 자료 없음'), 'P1627 annual data must not masquerade as recent quarter data');
 assert.ok(host.textContent.includes('과거 기록의 표시 정밀도'), 'P1627 old whole-million history must disclose approximation');
 assert.ok(nodes.some((node) => node.tagName === 'a' && node.href.includes('/1040470/')), 'P1627 annual absence/reading must have a safe exact filing link');
@@ -356,6 +356,8 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.ok(sw.weaknesses.some((fact) => fact.id === 'ret3m'), 'v58.75 the weakest relative fact becomes a weakness');
   assert.ok(sw.facts.find((fact) => fact.id === 'fwdPe').text.includes('가벼운 편'), 'v58.75 a lower forward PER is the lighter price burden');
   assert.equal(lens.buildPeerStrengths(peerRows.slice(0, 3)), null, 'v58.75 fewer than four values gives no peer fact');
+  // v58.80 (first-users bundle 1): one peer group has one median, the peers' own (growth 10..30 → 20, not 22.5 with SELF).
+  assert.equal(sw.facts.find((fact) => fact.id === 'growth').median, 20, 'v58.80 the peer median excludes the company itself');
 
   const scenario = { status: 'current', crossroads: { leadId: 'aibust', items: [{ id: 'aibust', fit: '조건 충족 3/4' }] } };
   const situation = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], scenario });

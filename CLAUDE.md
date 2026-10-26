@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v58.79**
+- 현재 버전: **v58.80**
 - **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(현행 항목은 상단, §6은 압축 보관).
 - 이 파일에는 버전별 작업 요약을 **누적하지 않는다** (2026-07-18 통합 — CHANGELOG가 단일 출처).
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -40,6 +40,9 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 ## 작업 규칙
 
+- **문서와 코드가 어긋나면 코드 관례를 따른다** — CODE-MAP·스킬·핸드오프·메모리·이 파일의 설명이 지금 코드와 다르면 코드의 관례를 따르고, 최종 답변에 찾은 어긋남을 모두 적는다. 단 `AGENTS.md` 제품 결정·`RULES.md` 정책과 다른 코드는 결함으로 보고한다. 근거: 에이전트는 지시 파일이 낡아도 90% 이상 그쪽을 따르며, 이 한 문장이 코드 준수를 4%→91%로 바꿨다(arXiv 2610.30571, 2026-10-25)
+- **가능성 낮은 경계 사례에 복잡도를 더하지 않는다** — 드문 경합·보안 사례 대비 코드는 실패 양상·가능성·복잡도 비용을 먼저 설명하고 동의를 받은 뒤 넣는다(opencode AGENTS, 2026-10-25)
+- 변경 이유 추적은 `/why`(`node scripts/why-trace.mjs`), 선례 없는 화면 결정은 `/prototype`, 첫 사용자 관점 QA는 `/first-users`
 - **제품 결정·협업 원칙의 단일 출처는 `AGENTS.md`** (Product decisions + 협업 원칙: 소유자 요청도 근거로 검토·반대 의견 제시, 8화면 정보구조 통합, 원천 없는 위젯·근거 없는 등급 제거, 느린 데이터 정적화, AI는 OpenAI gpt-6-luna 공용 Worker · 웹검색 포함 월 $20 · AI 항상 사용·웹검색 자동(2026-10-11~12))
 - **자동 배포/커밋 금지** — 사용자가 해당 동작을 명시적으로 요청한 경우에만
 - **코드 전면 재작성 금지** — CODE-MAP/owner registry 기반으로 가장 낮은 공통 원인을 부분 패치

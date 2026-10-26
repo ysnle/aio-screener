@@ -6,6 +6,7 @@
 // next-four-quarter consensus EPS with 4-week up/down revision counts (consensus-estimates.json), each member's completed
 // close (screener row valuationPrice) and FRED DFII10. Nothing here is a forecast or a grade.
 
+import { dataStateText } from '../content/data-state.js';
 import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from '../fundamental/consensus-read.js';
 
 // A whole-index figure needs most of the index behind it; below this share of index weight it is withheld.
@@ -43,7 +44,8 @@ export function buildIndexEarnings({ rows = [], weights = null, consensus = null
   const closeCurrent = (row) => { const day = String(row?.factorSessionDate || '').slice(0, 10); const ms = day ? Date.parse(`${day}T00:00:00Z`) : NaN; return Number.isFinite(ms) && nowMs - ms <= CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS; };
   const members = weightRows(weights);
   const estimates = consensus?.rows && typeof consensus.rows === 'object' ? consensus.rows : null;
-  if (!members.length || !estimates) return { available: false, reason: !members.length ? '지수 구성 비중이 아직 없습니다.' : '컨센서스 자료를 불러오는 중입니다.' };
+  // v58.80 (first-users bundle 3): weights not loaded yet (null) is a load in progress, not "없습니다".
+  if (!members.length || !estimates) return { available: false, reason: `${!members.length ? dataStateText(weights == null ? 'loading' : 'absent', '지수 구성 비중') : dataStateText('loading', '컨센서스 자료')}.` };
   const bySym = new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row?.sym || row?.symbol || '').toUpperCase(), row]));
   const totalWeight = members.reduce((sum, row) => sum + row.weight, 0);
   const all = { up: 0, down: 0, netUp: 0, netDown: 0, members: 0, weight: 0 };

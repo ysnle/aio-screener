@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.79';
+const APP_VERSION = 'v58.80';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1818,7 +1818,7 @@ window._aioLRU = function(name, cap) {
     if (e.defaultPrevented || e.repeat) return; // P1604: the local role-button owner already activated it.
     if (e.key !== 'Enter' && e.key !== ' ') return;
     var el = e.target.closest && e.target.closest('[data-action]');
-    if (!el) return;
+    if (!el || (el !== e.target && e.target.closest('button, a[href], input, select, textarea, summary'))) return; // run-4 #9: Enter on 확인 inside the confirm backdrop closed it as a cancel
     if (el.tagName === 'BUTTON' || el.tagName === 'A') return; // native handles
     if (el.getAttribute('role') !== 'button' && !el.hasAttribute('tabindex')) return;
     e.preventDefault();
@@ -2136,7 +2136,7 @@ window._aioRefreshActionPlan = function() {
     var posEl = document.getElementById('home-action-position');
     var sentEl = document.getElementById('home-action-sentiment');
     var brEl = document.getElementById('home-action-breadth');
-    if (posEl && plan.position) posEl.textContent = '변동성 구간(' + plan.position.label + '): ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ')';
+    if (posEl && plan.position) posEl.textContent = '변동성 구간(' + plan.position.label + '): ' + plan.position.note + ' (VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(2)) + ')'; // one VIX rounding (first-users S4#11)
     if (sentEl && plan.sentiment) sentEl.textContent = '심리 환경(' + plan.sentiment.action + '): ' + plan.sentiment.note + ' (F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ')';
     if (brEl && plan.actions && plan.actions.length > 2) brEl.textContent = '' + plan.actions[plan.actions.length - 1];
     // 갱신 시점 시각 표시
@@ -2314,7 +2314,7 @@ document.addEventListener('click', function(e) {
 });
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Escape') return;
-  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
+  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ e.preventDefault(); t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
 });
 
 // v57.77: the core-signal-live hook (CP1-CP8 re-render into the absent #cp*-detail DOM) was removed.
@@ -3223,7 +3223,7 @@ if (typeof document !== 'undefined') {
         status: snapshotMeta.status || (serverMeta.marketSnapshotPublished === true ? 'published' : 'unpublished')
       });
       if (_aioRenderMarketSnapshotTopbar(snapshot)) return true;
-      _aioWriteQuoteStatus('unavailable', '미수신', '시세 출처 확인 중, 판정 보류', '실시간 시세 출처가 확인되지 않음, 현재 판단에 사용하지 않음', 'none');
+      _aioWriteQuoteStatus('unavailable', '시세 대기', '시세를 아직 받지 못함', '시세를 받는 중이거나 받지 못했습니다. 받기 전 숫자는 지금 판단에 쓰지 않습니다', 'none'); // v58.80 (first-users B25): plain words
       return false;
     } catch (_) { return false; }
   }
@@ -3903,7 +3903,7 @@ function _aioDefaultDecision(pageId) {
   var _fomcState = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('fomc') : { allowedUse:true, status:'CURRENT' };
   var _iranState = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('iranHormuzOil') : { allowedUse:true, status:'CURRENT' };
   var _fomcReason = _fomcReg.result && _fomcState.allowedUse
-    ? 'FOMC ' + (_fomcReg.eventDate || '') + ': ' + _aioTruncateAtWord(_fomcReg.result, 50)
+    ? 'FOMC ' + ((typeof window._aioReleaseKstLabel === 'function' && _fomcReg.eventDate && window._aioReleaseKstLabel('us-fomc', _fomcReg.eventDate)) ? window._aioReleaseKstLabel('us-fomc', _fomcReg.eventDate) + ' KST' : (_fomcReg.eventDate || '') + ' 미국') + ': ' + _aioTruncateAtWord(_fomcReg.result, 50) // first-users F09: one zone
     : _fomcReg.eventDate ? 'FOMC ' + _fomcReg.eventDate + ' 과거 참고(' + (_fomcState.ageDays != null ? _fomcState.ageDays + '일 경과' : '경과일 미상') + '), 현재 행동에는 최신 금리·달러 반응 필요' : '금리·달러 반응으로 FOMC 정책 경로 확인';
   var _iranReason = _iranReg.result && _iranState.allowedUse
     ? (_iranReg.label || '이란/유가') + ': ' + _aioTruncateAtWord(_iranReg.result, 40) + ', ' + wtiTxt
@@ -8947,7 +8947,8 @@ window.AIO.renderMacroNextRelease = function() {
   }
   // P1505: a release is named for the reader ("미국 CPI"), not by the agency code ("BLS CPI").
   var _releaseLabels = { 'us-nfp': '미국 고용보고서', 'us-cpi': '미국 CPI', 'us-pce': '미국 PCE 물가', 'us-ism-mfg': 'ISM 제조업 지수', 'us-ism-svc': 'ISM 서비스업 지수', 'us-retail': '미국 소매판매', 'us-fomc': 'FOMC 금리 결정', 'us-fed-rate': 'FOMC 금리 결정', 'kr-bok': '한국은행 금리 결정', 'conf-gtc-dc': 'NVIDIA GTC' };
-  el.textContent = '다음 주요 발표: ' + (function(d) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || '')); return m ? Number(m[2]) + '/' + Number(m[3]) + '(' + '일월화수목금토'.charAt(new Date(Date.UTC(+m[1], m[2] - 1, +m[3])).getUTCDay()) + ') ' : (d ? d + ' ' : ''); })(upcoming[0].date) + (_releaseLabels[upcoming[0].key] || upcoming[0].name); // v57.91: '10/28(수) FOMC 금리 결정'
+  var _kstWhen = typeof window._aioReleaseKstLabel === 'function' ? window._aioReleaseKstLabel(upcoming[0].key, upcoming[0].date) : null; // v58.80 first-users F09: KST like the body
+  el.textContent = '다음 주요 발표: ' + (_kstWhen ? _kstWhen + ' KST ' : '') + (_kstWhen ? '' : (function(d) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || '')); return m ? Number(m[2]) + '/' + Number(m[3]) + '(' + '일월화수목금토'.charAt(new Date(Date.UTC(+m[1], m[2] - 1, +m[3])).getUTCDay()) + ') ' : (d ? d + ' ' : ''); })(upcoming[0].date)) + (_releaseLabels[upcoming[0].key] || upcoming[0].name); // v57.91: '10/28(수) FOMC 금리 결정'
   el.setAttribute('data-runtime-state', 'official-reference');
   el.setAttribute('data-operational-use', 'calendar-only');
   return upcoming[0];
@@ -15407,11 +15408,11 @@ function applyDataSnapshot() {
     const age = updated ? (Date.now() - updated) : Infinity;
     const staleEl = document.getElementById('snapshot-stale-warning');
     if (staleEl) {
-      if (!isNaN(age) && age > 24 * 60 * 60 * 1000) {
+      if (updated && !isNaN(age) && age > 24 * 60 * 60 * 1000) { // v58.80 (first-users R2-29): no stamp read "Infinityh old"
         const hrs = Math.floor(age / 3600000);
-        var mdDate = S._marketDataDate || S._snapshotDate || 'unknown';
-        var tgDate = S._telegramDigestDate || (S._telegramDigestUpdated ? String(S._telegramDigestUpdated).slice(0, 10) : 'unknown');
-        staleEl.textContent = 'Static market snapshot as of ' + mdDate + ' (' + hrs + 'h old); news/theme digest as of ' + tgDate + '. Live quotes replace these fallback numbers automatically.';
+        var mdDate = S._marketDataDate || S._snapshotDate || '날짜 확인 불가';
+        var tgDate = S._telegramDigestDate || (S._telegramDigestUpdated ? String(S._telegramDigestUpdated).slice(0, 10) : '날짜 확인 불가');
+        staleEl.textContent = '시장 자료는 ' + mdDate + ' 기준(' + hrs + '시간 전), 뉴스·테마 요약은 ' + tgDate + ' 기준입니다. 실시간 시세가 들어오면 자동으로 바뀝니다.';
         staleEl.style.display = 'block';
 
         // 실시간 데이터 수신 감지 — 반복 체크 (5초 간격, 최대 2분)
@@ -17758,25 +17759,25 @@ window.AIO.updateSnapshotStaleBanner = function() {
   var updatedTs = marketUpdated ? new Date(marketUpdated).getTime() : 0;
   if (!updatedTs || isNaN(updatedTs)) return null;
   var hrs = Math.floor((Date.now() - updatedTs) / 3600000);
-  var marketDate = snap._marketDataDate || snap._snapshotDate || 'unknown';
-  var digestDate = snap._telegramDigestDate || (snap._telegramDigestUpdated ? String(snap._telegramDigestUpdated).slice(0, 10) : 'unknown');
+  var marketDate = snap._marketDataDate || snap._snapshotDate || '날짜 확인 불가';
+  var digestDate = snap._telegramDigestDate || (snap._telegramDigestUpdated ? String(snap._telegramDigestUpdated).slice(0, 10) : '날짜 확인 불가');
   if (hrs <= 24) {
     el.style.display = 'none';
     return { status: 'fresh', hours: hrs, marketDataDate: marketDate, telegramDigestDate: digestDate };
   }
   var currentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
   var coreLiveOk = !!(currentness && currentness.coreLiveOk);
-  var baseText = 'Static market snapshot as of ' + marketDate + ' (' + hrs + 'h old); news/theme digest as of ' + digestDate + '. ';
+  var baseText = '시장 자료는 ' + marketDate + ' 기준(' + hrs + '시간 전), 뉴스·테마 요약은 ' + digestDate + ' 기준입니다. ';
   el.style.display = 'block';
   el.setAttribute('data-operational-use', 'reference-only');
   el.setAttribute('data-source-kind', 'snapshot');
   if (coreLiveOk) {
-    el.textContent = baseText + 'Live quotes are active, so the static snapshot is reference-only.';
+    el.textContent = baseText + '실시간 시세가 들어오고 있어 이 자료는 참고용입니다.';
     el.style.background = 'var(--green-3)';
     el.style.borderColor = 'var(--blue-6)';
     el.style.color = 'var(--data-cyan)';
   } else {
-    el.textContent = baseText + 'Live quote coverage is incomplete; verify live values or public-data freshness before current-market decisions.';
+    el.textContent = baseText + '실시간 시세를 일부 받지 못해 화면 숫자가 이 기준일 값일 수 있습니다.';
     el.style.background = 'var(--red-3)';
     el.style.borderColor = 'var(--red-6)';
     el.style.color = 'var(--data-red)';
@@ -18470,8 +18471,18 @@ const tickerData = {
 // 이식 필요") can't express as a static data-arg. Named so data-action="..." can reach them.
 function tickerDirectSearchFromInput() {
   var el = document.getElementById('ticker-direct-search');
-  var v = el ? el.value.trim().toUpperCase() : '';
-  if (v) showTicker(v);
+  var v = el ? el.value.trim() : '';
+  if (!v) return;
+  // v58.80 (first-users F17): a typed symbol the app does not know (AAPLL, SIVB, -100) opened a full stock page with memo,
+  // watchlist and AI actions. A typed search is checked against the registries and the official US listing first (the
+  // same owner as the watchlist and holding boxes); only "not listed" is refused — an unreachable listing still opens.
+  var norm = typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(v) : v.toUpperCase();
+  if (typeof window._aioAcceptSymbol !== 'function' || (typeof window._aioIsKnownTicker === 'function' && window._aioIsKnownTicker(norm))) { showTicker(v.toUpperCase()); return; }
+  window._aioAcceptSymbol(v).then(function(r) {
+    if (r && (r.ok || r.reason === 'listing-unavailable')) showTicker((r.id || v).toUpperCase());
+    else if (typeof window._aioTickerSearchMiss === 'function') window._aioTickerSearchMiss(v);
+    else if (typeof showToast === 'function') showToast('"' + v + '" 종목을 찾지 못했습니다.');
+  });
 }
 
 function showTicker(tkr) {
@@ -18509,7 +18520,7 @@ function showTicker(tkr) {
   var pnlEl = document.getElementById('ticker-hero-pnl');
   var _thv = document.getElementById('ticker-hero-value');
   var hasPosition = d.value !== '—';
-  if (_thv && _thv.dataset.aioTickerPnlRenderer !== 'native') _thv.textContent = hasPosition ? d.value : '보유 종목 아님';
+  if (_thv && _thv.dataset.aioTickerPnlRenderer !== 'native') _thv.textContent = hasPosition ? d.value : '포트폴리오에 없는 종목';
   if (pnlEl && pnlEl.dataset.aioTickerPnlRenderer !== 'native') pnlEl.className = 'pnl' + (hasPosition ? ' pos' : '');
   // v53.6: 종목 개요(밸리AI 참조) — TV 대형 차트 + 가격/테마/팩터 좌측 레일 (index.html 정의)
   try { if (typeof window._aioRenderTickerOverview === 'function') window._aioRenderTickerOverview(tkr); } catch(_ovErr) {}

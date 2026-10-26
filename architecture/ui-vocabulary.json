@@ -15,7 +15,7 @@
       "pattern": "레짐",
       "preferred": "국면",
       "reason": "2026-10 IA: the 시장 상태 screen judges a 국면; the loan word is not used on screen.",
-      "allowedContexts": [{ "file": "js/aio-glossary.js", "pattern": "[(][^)]*레짐[^)]*[)]", "note": "v57.54: the glossary keeps the loan word in parentheses so a search for 레짐 still finds 시장 국면" }]
+      "allowedContexts": [{ "file": "js/aio-glossary.js", "pattern": "[(][^)]*레짐[^)]*[)]", "note": "v57.54: the glossary keeps the loan word in parentheses so a search for 레짐 still finds 시장 국면" }, { "file": "src/ui/components/term-marks.js", "pattern": "^시장 국면[(]Market Regime · 레짐[)]$", "note": "v58.80: the term-mark table names the glossary entry by its exact term; the loan word is not rendered" }]
     },
     {
       "id": "signal-screen",

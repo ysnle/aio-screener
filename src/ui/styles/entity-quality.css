@@ -42,6 +42,9 @@ button.stock-read-point-link { display:inline-block; min-height:24px; line-heigh
 .aio-hub-subject-pick:hover { background: var(--surface-1); }
 .aio-hub-subject-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (pointer: coarse) { .aio-hub-subject-pick { min-height: 44px; } }
+/* First-users run 4 (phone #13): the subject line is as tall with or without the '다른 종목' pill, so the tabs do not jump. */
+.aio-hub-subject { min-height: 28px; }
+@media (pointer: coarse) { .aio-hub-subject { min-height: 44px; } }
 @media (max-width: 700px) {
   .aio-hub-tabs[data-hub="stock"] { flex-wrap: wrap; overflow-x: visible; column-gap: 18px; row-gap: 0; }
   .aio-hub-tabs[data-hub="stock"] > .aio-hub-subject { order: -1; flex: 1 0 100%; margin-left: 0; flex-wrap: wrap; align-items: center; white-space: normal; min-width: 0; }

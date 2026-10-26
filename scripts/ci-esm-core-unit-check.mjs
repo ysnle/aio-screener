@@ -471,6 +471,17 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (timed?.error !== 'HTTP_TIMEOUT' || (await timeout).ok) fail('http: ignored abort published late success or never settled');
   const bodyTimeout = await createHttpClient({ defaultTimeoutMs: 5, fetchImpl: async () => ({ ok: true, status: 200, json: () => new Promise(() => {}) }) }).requestJson('fixture');
   if (bodyTimeout.error !== 'HTTP_TIMEOUT') fail('http: deadline excludes JSON body wait');
+  // P2072: on slow 3G a 397 KB body outlived the 8 s deadline and restarted forever. A streamed body that keeps
+  // moving finishes past the request deadline; one that stops for bodyStallMs is still cut.
+  const drip = (parts, gapMs) => new Response(new ReadableStream({ async start(c) { for (const part of parts) { await new Promise((r) => setTimeout(r, gapMs)); if (part == null) return; c.enqueue(new TextEncoder().encode(part)); } c.close(); } }));
+  const moving = await createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async () => drip(['{"rows":', '[1,', '2,', '3]', '}'], 20) }).requestJson('fixture');
+  if (!moving.ok || moving.data?.rows?.length !== 3) fail(`P2072 http: a moving body must finish past the request deadline (${moving.error})`);
+  const stalled = await createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async () => drip(['{"rows":', null], 10) }).requestJson('fixture');
+  if (stalled.ok || stalled.error !== 'HTTP_TIMEOUT') fail(`P2072 http: a stalled body must time out (${stalled.error})`);
+  // A body starved by a busy link (its first byte after bodyStallMs while another body keeps moving) is not cut.
+  const busyClient = createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async (url) => url === 'big' ? drip(['{"n":', '1', ',"m":', '2', ',"k":', '3}'], 25) : drip(['{"ok":1}'], 110) });
+  const [big, starved] = await Promise.all([busyClient.requestJson('big'), busyClient.requestJson('small')]);
+  if (!big.ok || !starved.ok || starved.data?.ok !== 1) fail(`P2072 http: a starved body beside a moving one must not be cut (${starved.error})`);
   // P1408: a 503 with an HTML body keeps its status; a 200 with an unparseable body is a parse failure.
   const htmlError = await createHttpClient({ fetchImpl: async () => ({ ok: false, status: 503, json: async () => { throw new SyntaxError('Unexpected token <'); } }) }).requestJson('fixture');
   const badBody = await createHttpClient({ fetchImpl: async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError('bad'); } }) }).requestJson('fixture');
@@ -992,6 +1003,16 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     d.resolve({ id: 'AFTER-DISPOSE', updatedAt: 'x' });
     const result = await inFlight;
     if (result !== null || calls.length !== 0) fail('entity orchestrator: dispose() did not suppress an in-flight resolution');
+  }
+  {
+    // v58.80 (first-users run 4): a failed fundamentals load re-reads the same ticker, at most three times.
+    const timers = [];
+    let reads = 0;
+    const provider = { readCurrent: async () => { reads += 1; return reads < 3 ? { id: 'AAPL' } : { id: 'AAPL', fundamentals: { symbol: 'AAPL' }, fundamentalsMeta: {} }; } };
+    const orchestrator = createEntityOrchestrator({ provider, commands: { setData: () => {} }, schedule: (fn, ms) => timers.push({ fn, ms }) });
+    await orchestrator.sync();
+    for (let i = 0; i < 5 && timers.length; i += 1) await timers.shift().fn();
+    if (reads !== 3 || timers.length) fail(`entity orchestrator: a failed fundamentals load must retry until it succeeds and then stop (reads ${reads}, pending ${timers.length})`);
   }
 }
 
@@ -2003,7 +2024,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 
   // S06/S18/S19: PER names its fiscal year and months since; losses read with the sign first; negative ROE says why.
   const { buildFiscalRead, formatUsdShort } = await load('src/domain/fundamental/fiscal-read.js');
-  if (formatUsdShort(-147.8e9) !== '-$147.8B' || formatUsdShort(416.2e9) !== '$416.2B') fail(`S18 signed USD format drifted: ${formatUsdShort(-147.8e9)}`);
+  if (formatUsdShort(-147.8e9) !== '-1,478억 달러' || formatUsdShort(416.2e9) !== '4,162억 달러') fail(`S18/F33 signed Korean-unit USD format drifted: ${formatUsdShort(-147.8e9)}`);
   const per = buildFiscalRead({ symbol: 'AAPL', row: { pe: 45, factorSessionDate: '2026-10-12' }, fundamentals: { symbol: 'AAPL', fiscalHistory: [{ periodEnd: '2024-09-28', revenue: 391e9, netIncome: 93.7e9, equity: 57e9 }, { periodEnd: '2025-09-27', revenue: 416e9, netIncome: 112e9, equity: 74e9 }] } });
   {
     // v58.20 review C1: a PER priced on earnings available to common (market cap 1600 / common 80 = 20) is not rebuilt
@@ -2108,6 +2129,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!cold || cold.state !== 'cold' || cold.cold < 3 || cold.streak < 1 || cold.components.length !== 5 || cold.history.length !== 504 || !cold.outcomes.all?.h63?.n || !('h21' in cold.outcomes.cold)) fail(`v57.54 a sharp selloff after a steady rise must read as a cold spell with outcomes, got ${JSON.stringify(cold && { state: cold.state, cold: cold.cold, streak: cold.streak })}`);
   if ('score' in cold || 'average' in cold || cold.components.some((row) => !(row.score >= 0 && row.score <= 100))) fail('v57.54 D02: the temperature carries component ranks, never an averaged score');
   if (temp.buildMarketTemperature(selloff.slice(0, 400)) !== null) fail('v57.54 fewer than two years of closes is not ranked');
+  {
+    // v58.80 (first-users bundle 1): the 20-session return is stored precisely enough that the screen rounds it once.
+    const n = selloff.length - 1;
+    const ret20 = selloff[n][1] / selloff[n - 20][1] - 1;
+    const stored = cold.components.find((row) => row.id === 'ret20')?.raw;
+    if (!(Math.abs(stored - ret20) < 1e-6)) fail(`v58.80 temperature raw must keep six places, got ${stored} for ${ret20}`);
+  }
   if (temp.TEMPERATURE_MARKETS.slice(0, 2).some((market) => market.region !== 'us') || temp.TEMPERATURE_MARKETS.findIndex((market) => market.id === 'kospi') < 2) fail('v57.54 US markets lead the temperature list; Korea and Japan follow');
   const { mergeSessions } = await load('scripts/build-market-temperature.mjs');
   const merged = mergeSessions([['2026-10-12', 6384.24], ['2026-10-13', null], ['2026-10-14', 6123.29]], [['2026-10-13', 6035.35]], 'kospi', Date.parse('2026-10-14T03:00:00Z'));
@@ -2196,7 +2224,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
   const fiscalUi = await load('src/ui/components/fiscal-read.js');
   if (fiscalUi.dartLinkHref({ receiptNo: '20250311001085' }) !== 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250311001085' || fiscalUi.dartLinkHref(null) !== 'https://dart.fss.or.kr/dsab007/main.do') fail('S12 DART link format drifted');
-  if (fiscalUi.formatFiscalCompact(416161e6) !== '$416.2B' || fiscalUi.formatFiscalCompact(-7126000) !== '-$7.1M') fail('S20 fiscal table must use B/T units');
+  if (fiscalUi.formatFiscalCompact(416161e6) !== '4,162억 달러' || fiscalUi.formatFiscalCompact(-7126000) !== '-713만 달러') fail('S20/F33 fiscal table must use 조·억·만 달러 units');
 }
 
 // ── domain/technical/follow-through.js (v57.87) ─────────────────────────────────────────────
@@ -2395,6 +2423,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const currentQuote = (price, extra = {}) => ({ price, observedAt: '2026-09-12T14:55:00Z', source: 'runtime-test-provider', sourceKind: 'LIVE', sourceTier: 'T2_LICENSED', rightsId: 'runtime-test-rights', revisionId: 'runtime-test-r1', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { status: 'live', freshness: 'live', timestampValid: true, ageMs: 5 * 60 * 1000, freshnessMs: 15 * 60 * 1000 }, ...extra, dailyPct: extra.dailyPct ?? extra.pct ?? null, changeBasis: extra.changeBasis || 'previous-close' });
   const live = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, sector: 'Technology' }], cash: 50 }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
   if (live.modelVersion !== 'portfolio-surface.v3' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || 'exposureCap' in live ||live.sectorBreakdown.length !== 2 || live.valuationState !== 'complete' || live.allowedUse !== 'reference-only' || live.decisionEligible !== false || live.snapshotFallbackBlocked !== true || live.costFallbackBlocked !== true) fail(`portfolio-surface: live/cash derivation or reference boundary drifted, got ${JSON.stringify(live)}`);
+  // v58.80 (first-users bundle 2): "평가 완료" with no cash entered still splits the stock value by sector.
+  const noCash = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, sector: 'Technology' }], cashBalances: [] }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
+  if (noCash.valuationState !== 'complete' || noCash.sectorBreakdown.length !== 1 || noCash.sectorBreakdown[0].pct !== 100 || noCash.sectorBreakdown[0].basis !== 'positions-only') fail(`v58.80 portfolio-surface: a valued book without cash splits the stock value, got ${JSON.stringify(noCash.sectorBreakdown)}`);
   const partial = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: null }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
   if (partial.positionValue !== null || partial.totalPnl !== null || partial.dailyChange !== null || partial.sectorBreakdown.length !== 0) fail(`portfolio-surface: partial holdings must not sum unknown rows as zero, got ${JSON.stringify(partial)}`);
   const closed = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: 0 }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: null, now: quoteNow, closeOf: (symbol) => (symbol === 'XYZ' ? { price: 25, date: '2026-10-13' } : { price: 99, date: '2026-10-13' }) });
@@ -4008,7 +4039,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (buildSentimentModel({}).synthesis.includes('치우치지 않은')) fail('P1399 no sentiment input must not read as balanced');
   // x-bookmarks 2026-10-18: the term card carries VIX ÷ √252 as the implied one-sigma daily move, on the ratio's own date.
   const vixRows = Array.from({ length: 10 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, spx: 6600, vix: 22.2, vix3m: 20 }));
-  if (!/VIX 22\.2 → S&P 500 하루 약 ±1\.4%/.test(buildSentimentModel({ history: vixRows }).cards.find((card) => card.id === 'term')?.change || '')
+  if (!/VIX 22\.20 → S&P 500 하루 약 ±1\.4%/.test(buildSentimentModel({ history: vixRows }).cards.find((card) => card.id === 'term')?.change || '')
     || /하루 약/.test(buildSentimentModel({}).cards.find((card) => card.id === 'term')?.change || '')) fail('x-bookmarks 2026-10-18: the VIX term card must show the implied daily move only when VIX is measured');
   if (/신용 스프레드.*(악화|경계)/.test(buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] }).synthesis)) fail('P1399 F&G alone must not claim credit stress');
   {
@@ -4853,6 +4884,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (!map.available || map.sizeBasis !== 'shares-times-close' || !map.missingNames.includes('MEGA') || !/MEGA/.test(map.lead)) fail('P1679 the fallback map must name the member it could not size');
   if (map.staleCount !== 1 || !/회색/.test(map.lead) || map.sectors.flatMap((s) => s.members).find((m) => m.sym === 'S39')?.ret !== null) fail('P1681 a member on an older close must be greyed and left out of the averages');
   if (map.periods.ret1d !== false || map.periods.ret1m !== true) fail('P1681 a Korean row ret1d must not enable the S&P 500 map 1일 tab');
+  const notYet = buildSectorMap({ rows: [], period: 'ret1m' });
+  if (notYet.available || /0개/.test(notYet.reason) || !/불러오는 중/.test(notYet.reason)) fail('P2068 a map with no screener rows yet must say it is loading, not "0 members"');
   const laid = layoutSectorMap(map, 960, 520);
   if (laid.tiles.length !== map.drawn || laid.tiles.some((t) => t.x + t.w > 960 + 1e-6 || t.y + t.h > 520 + 1e-6)) fail('P1679 every drawn member must get one tile inside the map');
   // Expert review M02: averages weight each member by its START-of-window size, w0 ∝ w_now / (1 + r). A member that
@@ -5513,6 +5546,40 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/원화 환산/.test(bondCushionCard(won).text)) fail('bond cushion card: the translation is named');
 }
 
+// ── v58.80 ETF look-through: S&P 500 trackers expanded with the published weights and merged with direct holdings ──
+{
+  const { lookThrough, lookThroughSentence } = await load('src/domain/portfolio/look-through.js');
+  const { portfolioLens } = await load('src/ui/components/portfolio-read.js');
+  const { assetClassOf } = await load('src/domain/portfolio/asset-class.js');
+  const sp500 = { asOf: '2026-10-22', totalWeight: 50, rows: [
+    { sym: 'NVDA', sector: 'Information Technology', weight: 10 }, { sym: 'AAPL', sector: 'Information Technology', weight: 10 },
+    { sym: 'GOOGL', sector: 'Communication', weight: 5 }, { sym: 'GOOG', sector: 'Communication', weight: 5 },
+    { sym: 'JPM', sector: 'Financials', weight: 10 }, { sym: 'BRK-B', sector: 'Financials', weight: 10 }] };
+  const isBond = (symbol) => !!assetClassOf(symbol);
+  // NVDA 300 direct + SPY 500 + VOO 300 (each 20% NVDA after the 50 → 100 rescale) + BRK.B 100 direct + TLT 200.
+  const rows = [{ symbol: 'NVDA', value: 300, sector: 'Technology' }, { symbol: 'SPY', value: 500, sector: 'ETF' }, { symbol: 'VOO', value: 300, sector: 'ETF' },
+    { symbol: 'BRK.B', value: 100, sector: 'Financial Services' }, { symbol: 'TLT', value: 200, sector: 'ETF' }];
+  const look = lookThrough({ rows, sp500, isBond, unpriced: ['IVV', 'QQQ'] });
+  const bySym = Object.fromEntries((look.exposures || []).map((line) => [line.symbol, line]));
+  // Stock part = 1200 (TLT out). NVDA = 300 + 160 = 460 → 38.3%; Alphabet = 160 as one line; BRK.B joins BRK-B.
+  if (!look.available || Math.abs(bySym.NVDA?.total - 460) > 1e-9 || Math.abs(bySym.NVDA.directPct - 25) > 1e-9 || bySym.NVDA.etfs.join() !== 'SPY,VOO') fail(`look-through: NVDA direct + via trackers ${JSON.stringify(bySym.NVDA)}`);
+  if (bySym.GOOG || Math.abs(bySym.GOOGL?.total - 160) > 1e-9 || Math.abs(bySym['BRK-B']?.direct - 100) > 1e-9 || bySym['BRK.B']) fail('look-through: share classes and dotted tickers merge into one line');
+  if (bySym.TLT || look.exposures[0].symbol !== 'NVDA' || look.overlap[0]?.symbol !== 'NVDA' || look.unpriced.join() !== 'IVV') fail('look-through: bonds stay out of the stock part, overlap leads with the largest tracker part, only trackers are named unpriced');
+  const tech = look.sectors.find((item) => item.key === 'Technology');
+  if (look.sectors[0].key !== 'Technology' || Math.abs(tech.pct - (460 + 160) / 1200 * 100) > 1e-9) fail(`look-through: GICS sectors fold into the screener keys ${JSON.stringify(look.sectors)}`);
+  // Effective N counts TLT as one line over the whole 1400, as the holdings-only figure does.
+  const expectN = 1 / [460, 160, 160, 260, 160, 200].reduce((sum, v) => sum + (v / 1400) ** 2, 0);
+  if (Math.abs(look.effectiveN - expectN) > 1e-9) fail(`look-through: effective N over expanded lines ${look.effectiveN} vs ${expectN}`);
+  const text = lookThroughSentence(look);
+  if (!/^NVDA는 직접 25\.0%에 SPY·VOO를 통해 13\.3%가 더해져 주식 부분의 38\.3%입니다\./.test(text) || !/IVV는 가격이 없어 펼치지 않았습니다/.test(text)) fail(`look-through sentence: ${text}`);
+  if (lookThrough({ rows: [{ symbol: 'NVDA', value: 1 }, { symbol: 'QQQ', value: 1 }], sp500, isBond }).available || lookThrough({ rows, sp500: null, isBond }).available) fail('look-through: no priced S&P 500 tracker or no weights renders nothing');
+  if (!/겹치지 않습니다/.test(lookThroughSentence(lookThrough({ rows: [{ symbol: 'SPY', value: 100 }], sp500, isBond })))) fail('look-through sentence: a tracker alone names no overlap');
+  const lens = portfolioLens({ surface: { rows: [...rows, { symbol: 'IVV', value: null, sector: 'ETF' }] }, sp500, sectorLabel: (name) => name });
+  if (!lens.lookThrough || lens.topSector?.name !== 'Technology' || Math.abs(lens.effectiveN - 1 / [300, 500, 300, 100, 200].reduce((sum, v) => sum + (v / 1400) ** 2, 0)) > 1e-9 || lens.lookThrough.unpriced.join() !== 'IVV')
+    fail('portfolioLens: trackers held → the look-through drives the sector card while the holdings-only effective N stays beside it');
+  if (portfolioLens({ surface: { rows: [{ symbol: 'NVDA', value: 1, sector: 'Technology' }] }, sp500 }).lookThrough !== null) fail('portfolioLens: no tracker held → no look-through');
+}
+
 // ── v58.XX expertise review: portfolio stress sensitivities from the book's own weekly returns ──
 {
   const { estimateBookSensitivities, scenarioImpact, krwTranslationPct, regressOne } = await load('src/domain/portfolio/stress-sensitivity.js');
@@ -5871,4 +5938,73 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (line?.points.length !== cmp.COMPARE_WINDOW || Math.abs(line.points.at(-1).value - up.at(-1).close) > 1e-9) fail('v58.79 rebasedLine: a symbol moving in proportion lands on the stock line');
   const returns = cmp.periodReturns(up);
   if (Math.abs(returns['1개월'] - (up.at(-1).close / up.at(-22).close - 1) * 100) > 1e-9 || cmp.periodReturns(up.slice(0, 30))['3개월'] !== null) fail('v58.79 periodReturns: close against the close n sessions earlier');
+}
+
+// v58.80 (first-users bundle 1): one name, one length, one number. The skeptic read the S&P 500 month as -1.5% (20) and
+// -1.0% (21) and the quarter as +2.6% (62 rows) and +2.8% (63): every screen that says 3개월/1개월 measures it the same way.
+{
+  const { MARKET_WINDOWS, closeChange, windowLabel } = await load('src/domain/market/market-windows.js');
+  const { indexReturns } = await load('src/domain/market/benchmarks.js');
+  const { homeParticipationSeries } = await load('src/ui/components/home-kpi-trend.js');
+  const { buildAssetPerformance } = await load('src/ui/components/macro-board.js');
+  const { RULES } = await load('src/domain/rules/thresholds.js');
+  const rows = [];
+  for (let t = Date.UTC(2026, 0, 2), i = 0; rows.length < 160; t += 86400000) {
+    const day = new Date(t).getUTCDay();
+    if (!day || day === 6) continue;
+    rows.push({ date: new Date(t).toISOString().slice(0, 10), spx: 6000 * (1 + 0.002 * i + 0.01 * Math.sin(i / 5)), breadth50: 50 });
+    i += 1;
+  }
+  const idx = indexReturns(rows, 'spx');
+  const macro = buildAssetPerformance(rows).rows.find((row) => row.field === 'spx');
+  const part = homeParticipationSeries(rows).spx;
+  const partMove = (part.at(-1).value / part[0].value - 1) * 100;
+  const near = (a, b) => Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) < 1e-9;
+  if (!near(idx.ret3m, closeChange(rows, 'spx', MARKET_WINDOWS.quarter)?.pct) || !near(partMove, idx.ret3m) || !near(macro?.m3, idx.ret3m)) fail(`v58.80 3개월 must be one number: ${JSON.stringify({ idx: idx.ret3m, part: partMove, macro: macro?.m3 })}`);
+  if (!near(macro?.m1, idx.ret1m) || near(idx.ret1m, closeChange(rows, 'spx', MARKET_WINDOWS.rule)?.pct)) fail('v58.80 1개월 (21) is one number and is not the 20-session rule window');
+  if (RULES.crossAsset.window !== MARKET_WINDOWS.rule || windowLabel(MARKET_WINDOWS.quarter) !== '3개월' || windowLabel(MARKET_WINDOWS.rule) !== '20거래일') fail('v58.80 the rule window and the labels come from one owner');
+}
+
+// v58.80 (first-users bundle 3): loading, failed and absent are three facts with one wording each, on every screen.
+{
+  const ds = await load('src/domain/content/data-state.js');
+  if (ds.artifactState({ value: undefined }) !== 'loading' || ds.artifactState({ value: null }) !== 'absent' || ds.artifactState({ value: null, failed: true }) !== 'failed' || ds.artifactState({ value: {} }) !== 'ready') fail('v58.80 artifactState: undefined = loading, null = absent, failed wins');
+  if (ds.dataStateText('loading', '실적 일정') !== '실적 일정을 불러오는 중입니다' || !/^공시 요약을 받지 못했습니다/.test(ds.dataStateText('failed', '공시 요약')) || ds.dataStateText('absent', '기록') !== '기록이 없습니다') fail('v58.80 dataStateText wording/particles');
+  const entity = { id: 'NVDA', fundamentals: null };
+  if (ds.entityFundamentalsState(entity, { requestedId: 'MSFT' }) !== 'loading' || ds.entityFundamentalsState(entity) !== 'failed' || ds.entityFundamentalsState({ ...entity, fundamentalsMeta: { checkedFor: 'NVDA' } }) !== 'absent' || ds.entityFundamentalsState({ ...entity, fundamentals: {} }) !== 'ready') fail('v58.80 entityFundamentalsState separates loading, failed and absent');
+  const { sharedArtifactState, screenerRowsState } = await load('src/data/shared-artifacts.js');
+  const fake = { __aioSharedArtifacts: { cal: { failedAt: 1, inFlight: null } } };
+  if (sharedArtifactState(fake, 'cal') !== 'failed' || sharedArtifactState({}, 'cal') !== 'loading' || sharedArtifactState({ cal: {} }, 'cal') !== 'ready' || screenerRowsState({}) !== 'loading') fail('v58.80 shared artifact state');
+  const { buildEarningsSchedule } = await load('src/domain/fundamental/analysis-read.js');
+  const failed = buildEarningsSchedule({ symbol: 'MSFT', calendar: null, calendarState: 'failed' });
+  const loading = buildEarningsSchedule({ symbol: 'MSFT', calendar: null, calendarState: 'loading' });
+  if (failed?.state !== 'failed' || /미확정/.test(failed.text) || loading?.state !== 'loading' || !/불러오는 중/.test(loading.text)) fail(`v58.80 a missing calendar is not "미확정": ${JSON.stringify({ failed, loading })}`);
+}
+
+// v58.80 (first-users bundle 6): one reader for typed numbers — refusals carry a reason, nothing is silently emptied.
+{
+  const { readNumericInput, NUMERIC_LIMITS } = await load('src/domain/shared/numeric-input.js');
+  const spec = { label: '달러 현금', min: 0, max: NUMERIC_LIMITS.cash.USD };
+  const cases = { '-100': false, '1e309': false, '99999999999999999999': false, abc: false, '1,000': 1000, ' 12.5 ': 12.5, '': null };
+  for (const [raw, want] of Object.entries(cases)) {
+    const read = readNumericInput(raw, spec);
+    if (want === false ? read.ok || !read.reason : !read.ok || read.value !== want) fail(`v58.80 readNumericInput(${JSON.stringify(raw)}) -> ${JSON.stringify(read)}`);
+  }
+  if (readNumericInput('', { ...spec, badInput: true }).ok || readNumericInput('2017.5', { label: '시작 연도', integer: true }).ok) fail('v58.80 badInput and integer refusals');
+  if (!/^달러 현금은 0 이상/.test(readNumericInput('-1', spec).reason)) fail('v58.80 refusal names its field with the right particle');
+}
+
+// v58.80 (first-users F29): the screener star and 포트폴리오 관심 종목 share one store; the old star array is folded in once.
+{
+  const { readWatchlistSymbols, toggleWatchlistSymbol, LEGACY_STAR_KEY, WATCHLISTS_KEY } = await load('src/data/watchlist-store.js');
+  const mem = new Map([[LEGACY_STAR_KEY, JSON.stringify(['NVDA'])], [WATCHLISTS_KEY, JSON.stringify([{ id: 'a', name: '반도체', tickers: [{ sym: 'MU' }] }])]]);
+  const storage = { getItem: (k) => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k) };
+  if (readWatchlistSymbols(storage, 1).join() !== 'MU,NVDA' || mem.has(LEGACY_STAR_KEY)) fail('v58.80 legacy star folded into the 관심 종목 list once');
+  const added = toggleWatchlistSymbol(storage, 'AAPL', 2);
+  if (!added.added || added.listName !== '반도체' || !added.watchlist.includes('AAPL')) fail(`v58.80 star adds to the chosen list: ${JSON.stringify(added)}`);
+  const removed = toggleWatchlistSymbol(storage, 'MU', 3);
+  if (removed.added || removed.watchlist.includes('MU')) fail('v58.80 un-star removes the symbol from every list');
+  const empty = new Map();
+  const bare = { getItem: (k) => (empty.has(k) ? empty.get(k) : null), setItem: (k, v) => empty.set(k, String(v)), removeItem: (k) => empty.delete(k) };
+  if (toggleWatchlistSymbol(bare, 'MSFT', 4).listName !== '관심 종목') fail('v58.80 star with no list makes "관심 종목"');
 }

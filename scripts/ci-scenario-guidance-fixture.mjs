@@ -644,6 +644,10 @@ console.log('scenario guidance fixture (basis card): PASS');
   const fadingOutlook = buildScenarioOutlook({ scenarios: buildMarketScenarios({ history: build(), now }), regime: buildMarketRegime({ history: build(), now }), sectors: [{ symbol: 'XLK', label: '기술', quadrant: 'Leading', ...recent }, { symbol: 'XLE', label: '에너지', quadrant: 'Leading' }, { symbol: 'XLU', label: '유틸리티', quadrant: 'Weakening' }] });
   const concentrationView = fadingOutlook.items.find((item) => item.id === 'concentration');
   assert.ok(/상대강도 선도\(RRG·약 50일 기준\): 에너지/.test(concentrationView.opportunity) && !/선도\(RRG·약 50일 기준\): [^.·]*기술/.test(concentrationView.opportunity) && /선도였지만 최근 5거래일 상대강도가 꺾인 업종: 기술/.test(concentrationView.opportunity), `v57.81 a fading 선도 is listed apart (${concentrationView.opportunity})`);
+  // v58.80 (first-users bundle 1): the linked form keeps the fading leader, so the parts add up to every Leading sector.
+  const expansionLinks = fadingOutlook.items.find((item) => item.id === 'expansion')?.opportunityLinks || [];
+  const linked = expansionLinks.filter((part) => /선도/.test(part.label)).flatMap((part) => part.links.map((link) => link.label));
+  assert.ok(linked.includes('기술') && linked.includes('에너지'), `v58.80 linked leaders keep the fading one (${JSON.stringify(expansionLinks)})`);
   // The themes screen's RRG neutral band: XLK at RS-Ratio 100.33 is 경계, not 선도.
   assert.ok(rrgBorder({ rsRatio: 100.33, rsMomentum: 102.02 }) && !rrgBorder({ rsRatio: 105, rsMomentum: 103.6 }), 'v57.81 RRG neutral band (shared with 테마·섹터)');
   const banded = buildScenarioOutlook({ scenarios: buildMarketScenarios({ history: build(), now }), regime: buildMarketRegime({ history: build(), now }), sectors: [{ symbol: 'XLK', label: '기술', quadrant: 'Leading', rsRatio: 100.33, rsMomentum: 102.02 }, { symbol: 'XLV', label: '헬스케어', quadrant: 'Leading', rsRatio: 105, rsMomentum: 103.6 }] });
@@ -1021,4 +1025,23 @@ console.log('scenario guidance fixture (basis card): PASS');
   const hits = files.flatMap((file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8').split('\n').map((line, i) => [file, i + 1, line]).filter(([, , line]) => /가능성이 (높|커|큽|크)/.test(line)).map(([f, n]) => `${f}:${n}`));
   assert.deepEqual(hits, [], `v57.83 unbacked qualitative probability in market copy: ${hits.join(', ')}`);
   console.log('scenario guidance fixture (v57.83 no unbacked probability in market copy): PASS');
+}
+
+// v58.80 (owner 2026-10-25): the 거시 asset card reads cross-asset relations on the same 20 sessions. On the 10/23 close
+// (10Y −19bp, S&P 500 −1.5%, SMH −13.1%, TLT +2.5%, WTI up, gold down) the reading names the semiconductor lead, the bond
+// flight, gold falling, falling rates not lifting stocks and rising oil with falling rates — in story order, at most three.
+{
+  const { buildCrossAssetRelations } = await import('../src/domain/macro/cross-asset-relations.js');
+  const oct = buildCrossAssetRelations(rows, { through: '2026-10-23' });
+  assert.equal(oct.asOf, '2026-10-23', 'v58.80 relations read on the asked close');
+  assert.deepEqual(oct.breaks.map((item) => item.id).sort(), ['oil-up-rates-down', 'rates-down-stocks-down', 'risk-off-gold-down'], 'v58.80 10/23 relations against the usual direction');
+  assert.ok(oct.driver?.startsWith('하락은 반도체가 이끌었습니다') && /장기채가 2\.5% 올라/.test(oct.flow || ''), 'v58.80 driver and bond flow named');
+  assert.ok(oct.reading.indexOf('금은') < oct.reading.indexOf('금리가 내렸는데도') && oct.reading.indexOf('금리가 내렸는데도') < oct.reading.indexOf('유가가'), 'v58.80 story order: havens, rates→stocks, oil→rates');
+  assert.ok(!/[+-]\d[\d.]*%\s*(올|내)/.test(oct.reading), 'v58.80 a size beside a verb carries no sign');
+  const sep = buildCrossAssetRelations(rows, { through: '2026-09-30' });
+  assert.deepEqual(sep.breaks, [], 'v58.80 a month that kept the usual relations names none');
+  assert.match(sep.reading, /평소 관계에서 크게 벗어나지 않았습니다/, 'v58.80 a quiet month says so');
+  const board = readFileSync(new URL('../src/ui/components/macro-board.js', import.meta.url), 'utf8');
+  assert.match(board, /buildCrossAssetRelations\(root\._aioHistory \|\| \[\], \{ through: model\.basis \|\| null \}\)/, 'v58.80 the asset card reading uses the card basis');
+  console.log('scenario guidance fixture (v58.80 cross-asset relations on the asset card): PASS');
 }

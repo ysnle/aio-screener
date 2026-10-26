@@ -15,7 +15,7 @@ if (!Array.isArray(history) || history.length < 2) fail('history.json must conta
 const fields = ['spx', 'nasdaq', 'dow', 'rut', 'vix', 'vvix', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'kosdaq', 'btc', 'usdkrw'];
 const errors = [];
 const fetchDataSource = readProducerSource();
-if (!/regularMarketPreviousCloseObservedAt:[\s\S]{0,260}closeBars\[closeBars\.length - 1\]\.timestamp/.test(fetchDataSource)) {
+if (!/regularMarketPreviousCloseObservedAt:[\s\S]{0,260}closeBars\[prevIndex \+ 1\]\??\.timestamp/.test(fetchDataSource)) { // v58.80: the bar after the previous one is the current bar (a weekend reopen bar is not)
   errors.push('fetch-data: previous completed close must use the current daily bar opening boundary, not the previous bar opening time');
 }
 // P1192 (P1095 권위): 완료 컷 행은 그 컷을 넘는 시각의 previous-completed-close를 담을 수 없다.

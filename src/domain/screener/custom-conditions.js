@@ -32,13 +32,13 @@ export const CUSTOM_CONDITIONS = Object.freeze([
       || (vcpStage === 'near_pivot' && (vcpShrinking === true || (vcpShrinking == null && vcpContractions == null))) },
   { id: 'vcp-breakout', group: '패턴', label: 'VCP 돌파 (피벗 위, 거래량 평소의 1.4배 이상)', fields: ['vcpStage'],
     test: ({ vcpStage }) => vcpStage === 'breakout' },
-  { id: 'tight', group: '패턴', label: '하루 평균 변동폭(ADR) {n}% 이하', value: 3, unit: '%', fields: ['adrPct'],
+  { id: 'tight', group: '패턴', label: '하루 평균 변동폭 {n}% 이하', value: 3, unit: '%', fields: ['adrPct'],
     test: ({ adrPct: a }, n) => a <= n },
   { id: 'rvol', group: '패턴', label: '거래량 20일 평균의 {n}배 이상', value: 1.5, unit: '배', fields: ['rvol20'],
     test: ({ rvol20: a }, n) => a >= n },
   // v57.87 (owner X-bookmark read 2026-10-16): follow-through evidence from technical/follow-through.js and two readings
   // of fields already published (ADR floor, 50-day extension in ADR units). Conditions, not entry or exit rules.
-  { id: 'adr-min', group: '패턴', label: '하루 평균 변동폭(ADR) {n}% 이상 (충분히 움직이는 종목)', value: 3, unit: '%', fields: ['adrPct'],
+  { id: 'adr-min', group: '패턴', label: '하루 평균 변동폭 {n}% 이상 (충분히 움직이는 종목)', value: 3, unit: '%', fields: ['adrPct'],
     test: ({ adrPct: a }, n) => a >= n },
   // v57.88 (review): a stock far below its 50-day line passed as "before extension"; the floor is the 부근 band.
   { id: 'not-extended', group: '패턴', label: '50일선 부근~위 변동폭의 {n}배 이내 (확장 전)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],

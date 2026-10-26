@@ -46,6 +46,14 @@ await assert.rejects(loadJsonArtifact(neverFetch, './never.json', { timeoutMs: 1
 assert.equal(timeoutAborted, true, 'timeout must abort the underlying request');
 assert.equal(artifactCacheSnapshot(neverFetch).inFlight, 0, 'timed-out request must leave no in-flight entry');
 
+// P2072: a slow but moving download (the 1 MB SEC summary on 3G) finishes past timeoutMs; a stalled one is cut.
+const drip = (parts, gapMs) => async () => new Response(new ReadableStream({ async start(c) { for (const part of parts) { await new Promise((r) => setTimeout(r, gapMs)); if (part == null) return; c.enqueue(new TextEncoder().encode(part)); } c.close(); } }));
+const slowFetch = drip(['{"a":', '[1,', '2]', '}'], 25);
+assert.deepEqual(await loadJsonArtifact(slowFetch, './slow.json', { timeoutMs: 30, stallMs: 80 }), { a: [1, 2] }, 'P2072 a moving body must finish past timeoutMs');
+const slowBudgetFetch = drip(['{"a":', '1}'], 25);
+assert.deepEqual(await loadJsonArtifact(slowBudgetFetch, './slow-budget.json', { timeoutMs: 30, stallMs: 80, maxBytes: 64 }), { a: 1 }, 'P2072 the byte-budget path streams too');
+await assert.rejects(loadJsonArtifact(drip(['{"a":', null], 10), './stalled.json', { timeoutMs: 30, stallMs: 60 }), /Artifact stalled/, 'P2072 a stalled body must be cut');
+
 let allConsumersAborted = false;
 const abortableFetch = (_url, { signal } = {}) => new Promise((_resolve, reject) => {
   signal?.addEventListener('abort', () => { allConsumersAborted = true; reject(Object.assign(new Error('aborted'), { name: 'AbortError' })); }, { once: true });

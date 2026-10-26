@@ -1,5 +1,6 @@
 // P1434: 종목 요약's lead block — one headline, two pictures (52-week position, return vs the S&P 500)
 // and the connected reading under them, then where the same question continues.
+import { DATA_STATE_CHIPS, dataStateText } from '../../domain/content/data-state.js';
 import { buildStockRead } from '../../domain/entity/stock-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
@@ -20,7 +21,7 @@ import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 import { isLendingFinancial, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { fiscalYearLabel } from '../../domain/fundamental/period.js';
-import { signedText as sharedSignedText } from '../../domain/shared/number.js';
+import { signedText as sharedSignedText, usdKoreanText } from '../../domain/shared/number.js';
 
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
@@ -165,7 +166,7 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
     tiles.push(checkTile(doc, { name: '추세', tone: tone('trend'), value: facts.trendLabel, detail: lines.join(', ') }));
   }
   if (read.position != null) {
-    tiles.push(checkTile(doc, { name: '위치', tone: tone('range'), value: `52주 범위 ${Math.round(read.position * 100)}%`, detail: read.high != null ? `52주 고점 대비 ${signedText(read.high)}` : '' }));
+    tiles.push(checkTile(doc, { name: '위치', tone: tone('range'), value: `52주 범위 ${Math.round(read.position * 100)}%`, detail: ['0%는 1년 최저, 100%는 최고', read.high != null ? `52주 고점 대비 ${signedText(read.high)}` : null].filter(Boolean).join(', ') }));
   }
   // 재무: the SEC annual record (US); a KRX listing reads DART; an ETF (no 재무 공시 next step) has no company filings.
   const isFund = !read.next.some((step) => step.route === 'fundamental');
@@ -179,16 +180,17 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null) {
     if (growth != null || margin != null) {
       tiles.push(checkTile(doc, { name: '재무', chip: fy ? (fiscalYearLabel(fy) || 'SEC') : 'SEC', stale,
         value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,
-        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%` : null, fy ? `${fy} 마감` : null, ttmTurn(own, margin, fy)].filter(Boolean).join(', ') }));
-    } else if (fundamentalsState === 'loading') tiles.push(checkTile(doc, { name: '재무', chip: '불러오는 중', value: 'SEC 연간 공시', detail: '공시 요약을 불러오는 중입니다' }));
+        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%${roe > 60 ? '(자기자본이 작아 크게 나옴)' : ''}` : null, fy ? `${fy} 마감` : null, ttmTurn(own, margin, fy)].filter(Boolean).join(', ') }));
+    } else if (fundamentalsState === 'loading') tiles.push(checkTile(doc, { name: '재무', chip: DATA_STATE_CHIPS.loading, value: 'SEC 연간 공시', detail: dataStateText('loading', '공시 요약') }));
     // Review: only a loaded projection without this issuer is a confirmed absence; a failed or unknown load says so.
-    else if (fundamentalsState === 'absent') tiles.push(checkTile(doc, { name: '재무', chip: '없음', stale: true, value: 'SEC 연간 공시 없음', detail: '수집된 연간 공시에 이 종목이 없습니다, 재무 공시 탭' }));
-    else tiles.push(checkTile(doc, { name: '재무', chip: '확인 불가', stale: true, value: 'SEC 공시 확인 불가', detail: '공시 요약을 받지 못했습니다, 잠시 뒤 다시 확인' }));
+    // v58.80 (bundle 3): the chips are the shared state words (data-state.js).
+    else if (fundamentalsState === 'absent') tiles.push(checkTile(doc, { name: '재무', chip: DATA_STATE_CHIPS.absent, stale: true, value: 'SEC 연간 공시 없음', detail: '수집된 연간 공시에 이 종목이 없습니다, 재무 공시 탭' }));
+    else tiles.push(checkTile(doc, { name: '재무', chip: DATA_STATE_CHIPS.failed, stale: true, value: 'SEC 공시 요약', detail: dataStateText('failed', '공시 요약') }));
   }
   // 위험: how far the price sits from its 50-day line in its own daily ranges, and the RSI — the stretch, not a forecast.
   if (facts.pct50 != null && facts.adr > 0) {
-    tiles.push(checkTile(doc, { name: '위험', tone: tone('extension'), value: `50일선 ${facts.pct50 >= 0 ? '위' : '아래'} ${(Math.abs(facts.pct50) / facts.adr).toFixed(1)}배`,
-      detail: ['일평균 변동폭 기준 거리', facts.rsi != null ? `RSI ${facts.rsi.toFixed(1)}` : null].filter(Boolean).join(', ') }));
+    tiles.push(checkTile(doc, { name: '위험', tone: tone('extension'), value: `50일선 ${facts.pct50 >= 0 ? '위' : '아래'}, 하루 움직임의 ${(Math.abs(facts.pct50) / facts.adr).toFixed(1)}배`,
+      detail: ['50일 평균가와의 거리를 평소 하루 움직임 폭으로 잰 값', facts.rsi != null ? `RSI ${facts.rsi.toFixed(1)}` : null].filter(Boolean).join(', ') }));
   } else if (facts.rsi != null) tiles.push(checkTile(doc, { name: '위험', value: `RSI ${facts.rsi.toFixed(1)}`, detail: '50일선 거리 자료 없음' }));
   if (!tiles.length) return null;
   const box = el(doc, 'div', null, 'v2-stock-checks');
@@ -206,7 +208,7 @@ function ttmTurn(own, margin, fy) {
   if (ttm?.basis !== 'ttm' || !Number.isFinite(value) || margin == null || !fy || !(String(ttm.through || '') > fy)) return null;
   if ((value > 0) === (margin > 0)) return null;
   const through = String(ttm.through).slice(5, 10).split('-').map(Number).join('/');
-  return `최근 4개 분기 순이익 ${value > 0 ? '흑자' : '적자'} ${value < 0 ? '-' : ''}$${(Math.abs(value) / 1e9).toFixed(2)}B(${through}까지)`;
+  return `최근 4개 분기 순이익 ${value > 0 ? '흑자' : '적자'} ${usdKoreanText(value)}(${through}까지)`;
 }
 
 export function relativeVisual(doc, read) {
@@ -274,7 +276,13 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   // sessions behind the market's latest completed close that factor session is.
   const benchmark = benchmarkRowFor(sym, root?._aioHistory || [], { through: row?.factorSessionDate || null });
   const rotation = currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now());
-  const alignedBenchmark = row?.factorSessionDate && benchmark.asOf === row.factorSessionDate ? benchmark : { ...benchmark, ret5d:null, ret1m:null, ret3m:null, ret6m:null }; // v57.84: the 5-day window too
+  // First-users F10 (runs 1-4): the stock's returns are adjusted closes (dividends in) but were set against the S&P 500 price
+  // index (+2.8%) while 포트폴리오 used SPY's adjusted return (+3.1%). A US stock now uses SPY's adjusted windows from the same
+  // factor session — one basis on both screens; without that row the index stays, as before.
+  const spyRow = benchmark.market === 'US' && sym !== 'SPY' ? list.find((item) => item?.sym === 'SPY' && item.factorSessionDate && item.factorSessionDate === row?.factorSessionDate) : null;
+  const num = (value) => (value != null && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null);
+  const spyBenchmark = spyRow && num(spyRow.ret3m) != null ? { ...benchmark, label: 'S&P 500(SPY, 배당 포함)', asOf: spyRow.factorSessionDate, ret5d: num(spyRow.ret5d), ret1m: num(spyRow.ret1m), ret3m: num(spyRow.ret3m), ret6m: num(spyRow.ret6m) } : null;
+  const alignedBenchmark = spyBenchmark || (row?.factorSessionDate && benchmark.asOf === row.factorSessionDate ? benchmark : { ...benchmark, ret5d:null, ret1m:null, ret3m:null, ret6m:null }); // v57.84: the 5-day window too
   const market = screenerMarket({ sym });
   const latestSession = market === 'KR' ? latestCompletedKrSession(Date.now()) : latestCompletedUsSession(Date.now(), { requirePrevious: false });
   const factorSession = String(row?.factorSessionDate || '').slice(0, 10);
@@ -350,7 +358,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   if (read.spans.some((span) => span.stock != null)) {
     const card = el(doc, 'div', null, 'sx-card v2-stock-card');
     const head = el(doc, 'div', null, 'sx-card__head');
-    head.append(el(doc, 'h3', `지수 대비, ${read.benchmarkLabel}`, 'sx-card__title'), el(doc, 'span', basisShort ? `${basisShort} 종가, 배당 포함` : '완료 종가', 'sx-card__meta'));
+    head.append(el(doc, 'h3', `지수 대비, ${read.benchmarkLabel}`, 'sx-card__title'), el(doc, 'span', basisShort ? `${basisShort} 종가, ${/SPY/.test(read.benchmarkLabel || '') ? '둘 다 배당 포함' : '종목은 배당 포함 · 지수는 가격만'}` : '완료 종가', 'sx-card__meta'));
     card.append(head, relativeVisual(doc, read));
     pair.append(card);
   }

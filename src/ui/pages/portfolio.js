@@ -1,4 +1,5 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
+import { screenerRowsState } from '../../data/shared-artifacts.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
@@ -24,7 +25,7 @@ import { signedText } from '../../domain/shared/number.js';
 // readiness text. P810 adds a bounded native hero projection for total value and total P/L;
 // P830 transfers the Vault-backed nine-column holdings table. Prices, risk, AI workbench,
 // and chart surfaces remain separately legacy-owned.
-function renderPortfolioStatus(documentRef, state, surface) {
+function renderPortfolioStatus(documentRef, state, surface, { pricesLoading = false } = {}) {
   const element = documentRef?.getElementById('pf-analysis-status');
   if (!element) return;
   const readState = surface?.readState || state?.readState || 'unavailable';
@@ -39,6 +40,9 @@ function renderPortfolioStatus(documentRef, state, surface) {
     element.textContent = surface?.totalAssets == null ? '현금만 보유 중입니다, 환율 자료가 없어 통화별 금액만 표시합니다' : '현금만 보유 중입니다, 총자산 = 현금';
   } else if (valuation === 'empty') {
     element.textContent = '포트폴리오 등록 후 자동 계산됩니다.';
+  } else if ((valuation === 'partial' || valuation === 'unavailable') && pricesLoading && (surface?.holdingCount ?? 0) > 0) {
+    // v58.80 (first-users bundle 3): on slow 3G the close list had not arrived and the row read "가격 없음" beside a known 10/23 close.
+    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가, 나머지 종목의 종가를 불러오는 중입니다. 받으면 총자산과 손익을 계산합니다`;
   } else if (valuation === 'partial') {
     // v57.86 (live review): the hero shows no partial total, so the line says the totals wait (it said the holding was "left out").
     element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가, 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다${closeNote(surface)}`; // v57.81: same words as the row state
@@ -159,14 +163,24 @@ const liveDataFor = (root, holdings, liveData) => {
 // v57.78 perf: one symbol map per render, shared by the close and sector lookups (each built its own from a fresh
 // bridge read). A non-empty native store set is read in place; an empty one defers to the bridge, which owns the
 // pre-publication fallback (screener-row-policy, same rule as scenario-outlook), then the bundled DB as before.
+// First-users run 4: every row source is read and a row with a close wins (an edit fell back to a close-less source).
+const closeField = (row) => finite(row?._valuationPrice ?? row?._valuationPePrice ?? row?._valuationPbPrice ?? row?.valuationPrice ?? row?.pePrice);
 function screenerRowsBySymbol(root, store) {
-  let rows = [];
-  try {
-    const nativeRows = store?.getState?.()?.screener?.rows;
-    rows = Array.isArray(nativeRows) && nativeRows.length ? nativeRows : (typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []);
-  } catch (_) { rows = []; }
-  if (!rows.length && Array.isArray(root?.SCREENER_DB)) rows = root.SCREENER_DB;
-  return new Map(rows.map((row) => [String(row?.sym || '').toUpperCase(), row]));
+  const sources = [];
+  try { sources.push(store?.getState?.()?.screener?.rows); } catch (_) { /* unreadable store */ }
+  try { sources.push(typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() : null); } catch (_) { /* legacy reader failed */ }
+  sources.push(root?.SCREENER_DB);
+  const map = new Map();
+  for (const rows of sources) {
+    if (!Array.isArray(rows)) continue;
+    for (const row of rows) {
+      const key = String(row?.sym || '').toUpperCase();
+      if (!key) continue;
+      const held = map.get(key);
+      if (!held || (!(closeField(held) > 0) && closeField(row) > 0)) map.set(key, row);
+    }
+  }
+  return map;
 }
 // v57.81: a holding that is a US listing outside the screener universe is read on demand (session cache, the reader's
 // two-at-a-time cap, at most eight new requests per render) and joins the symbol map with its own row; missing inputs
@@ -192,7 +206,7 @@ function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
   return (symbol) => {
     const row = bySymbol.get(String(symbol || '').toUpperCase()) || bySymbol.get(quoteSymbolOf(root, symbol));
     // v58.63 (SCR03): the canonical valuation close first, as every other close reader does.
-    const price = finite(row?._valuationPrice ?? row?._valuationPePrice ?? row?._valuationPbPrice ?? row?.valuationPrice ?? row?.pePrice);
+    const price = closeField(row);
     const own = onDemand.get(String(symbol || '').toUpperCase())?.lastClose;
     if ((price == null || price <= 0) && own) return { price: own.price, date: own.date };
     if (price != null && price > 0) return { price, date: row?.factorSessionDate || null };
@@ -209,6 +223,36 @@ let holdingQuoteRequestedAt = 0;
 const unquoted = (root, symbols) => symbols.filter((symbol) => !(Number(root?._liveData?.[symbol]?.price) > 0));
 let portfolioMounted = false;
 let rerenderPortfolio = null; // v58.75: the empty state's preview buttons repaint the mounted page
+// v58.80 (first-users F35): a second tab kept showing the old holdings until its next action. Holdings may be held
+// decrypted in this tab's memory, so a change from another tab is announced with a reload button rather than merged.
+let crossTabChanged = false;
+let crossTabListening = false;
+function paintCrossTabNotice(documentRef, root) {
+  const page = documentRef?.getElementById('page-portfolio');
+  if (!crossTabChanged || !page || documentRef.getElementById('pf-crosstab-note')) return;
+  const note = documentRef.createElement('div');
+  note.id = 'pf-crosstab-note';
+  note.className = 'pf-crosstab-note';
+  note.setAttribute('role', 'status');
+  const button = documentRef.createElement('button');
+  button.type = 'button';
+  button.className = 'aio-btn-table';
+  button.textContent = '다시 불러오기';
+  button.addEventListener('click', () => root?.location?.reload?.());
+  note.append(documentRef.createTextNode('다른 탭에서 포트폴리오가 바뀌었습니다. 이 탭에 반영하려면 다시 불러오세요. '), button);
+  page.prepend(note);
+}
+function listenCrossTab(documentRef, root) {
+  if (crossTabListening || typeof root?.addEventListener !== 'function') return;
+  crossTabListening = true;
+  root.addEventListener('storage', (event) => {
+    const key = String(event?.key || '');
+    if (key === 'aio_watchlists') { try { root.refreshWatchlistUI?.(); } catch (_) {} return; }
+    if (!key.startsWith('aio_portfolio_') || key === 'aio_portfolio_vault_optout') return;
+    crossTabChanged = true;
+    if (portfolioMounted) paintCrossTabNotice(documentRef, root);
+  });
+}
 function requestHoldingQuotes(root, rows, attempt = 0) { // attempt > 0: a retry, which alone passes the throttle
   const symbols = [...new Set((rows || []).filter((row) => row?.sourceKind !== 'live-quote').map((row) => quoteSymbolOf(root, row?.symbol)).filter(Boolean))].slice(0, 60);
   if (!symbols.length) return;
@@ -243,14 +287,15 @@ function renderCashBalances(documentRef, surface) {
   const amountOf = (code) => balances.find((row) => row.currency === code)?.amount;
   for (const [id, code] of [['pf-cash-krw-input', 'KRW'], ['pf-cash-usd-input', 'USD']]) {
     const input = documentRef?.getElementById(id);
-    if (!input || documentRef.activeElement === input) continue;
+    // v58.80 (bundle 6): a refused value stays on screen with its message until the reader corrects it.
+    if (!input || documentRef.activeElement === input || input.getAttribute('aria-invalid') === 'true') continue;
     const amount = amountOf(code);
     input.value = amount == null ? '' : String(amount);
   }
   const conversion = surface?.cashConversion || {};
   const each = balances.filter((row) => row.amount > 0).map((row) => formatSurfaceMoney(row.amount, row.currency || conversion.target || surface.declaredBaseCurrency));
   const unit = conversion.target || surface.declaredCashCurrency || surface.declaredBaseCurrency;
-  const heroText = surface.cash != null ? formatSurfaceMoney(surface.cash, unit) : each.length ? `${each.join(', ')}, 합계 보류` : '—';
+  const heroText = surface.cash != null ? formatSurfaceMoney(surface.cash, unit) : each.length ? `${each.join(', ')}, 합계 보류` : '입력 안 함'; // first-users run 4: '—' twice read as missing data
   setSurfaceText(documentRef, 'pf-cash-hero', heroText, surface.cash, surface);
   const line = documentRef?.getElementById('pf-cash-total');
   if (!line) return;
@@ -282,9 +327,12 @@ function renderPortfolioSurface(documentRef, page, surface) {
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
   setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${signedText(surface.totalPnlPct, 1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
-  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `오늘 ${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
+  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
+  // First-users run 4: with no day move yet the line read '1 종목, 오늘 — (—)'; it hides until a move exists.
+  const dailyLine = documentRef?.getElementById('pf-daily-line');
+  if (dailyLine) dailyLine.hidden = surface.dailyChange == null;
   renderCashBalances(documentRef, surface);
-  setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? '—' : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
+  setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? (surface.cash == null ? '' : '—') : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
   // E3/P1181 (11 P11-02): 통화 상태를 표시에 드러낸다 — 혼합 통화는 환산근거가 없어 합계를 만들지
   // 않았고, 그 이유를 화면이 말해야 '값 소실'과 '의도된 보류'를 구분할 수 있다.
   // v57.84 P1864: a USD/KRW conversion may use the app's own close instead of a declared leg; the note names which.
@@ -297,7 +345,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
       : surface.currencyState === 'mixed-without-conversion'
         ? `통화 혼합(${(surface.declaredCurrencies || []).join('/')}) — 환산 없어 합계 보류`
         : surface.currencyState === 'declared-single' ? `통화 ${surface.baseCurrency}`
-          : '통화 선택 전, 모두 같은 통화로 보고 계산';
+          : '기준 통화를 따로 고르지 않아 종목의 시장 통화 그대로 계산';
   // E3/P1196: 원가/시세 불일치는 이제 두 갈래다 — 선언된 leg로 환산됐으면 P&L이 성립하고, 근거가
   // 없으면 예전처럼 보류한다. 화면이 둘을 구분해야 "값 소실"과 "의도된 보류"가 구분된다.
   // v57.48 expert review #23: a converted cost uses today's declared rate, not the rate on the purchase date —
@@ -318,8 +366,8 @@ function renderPortfolioSurface(documentRef, page, surface) {
   const vixValue = liveVix ?? vixClose?.value ?? null;
   const band = vixBand(vixValue);
   const rule = band.blocked ? 'VIX 자료 없음'
-    : liveVix != null ? `VIX ${liveVix.toFixed(1)}, ${band.label}`
-      : `VIX ${vixClose.value.toFixed(1)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가), ${band.label}`;
+    : liveVix != null ? `VIX ${liveVix.toFixed(2)}, ${band.label}`
+      : `VIX ${vixClose.value.toFixed(2)}(${Number(vixClose.date.slice(5, 7))}/${Number(vixClose.date.slice(8, 10))} 종가), ${band.label}`;
   // v57.70 (2026-10-15 audit): "VIX 16.9 · 저변동 구간" stood while KOSPI was down 13% in five sessions. VIX is the US
   // option market's gauge; a Korean move of 5% or more over five completed sessions is named beside it.
   const historyRows = documentRef?.defaultView?._aioHistory || globalThis._aioHistory || [];
@@ -338,7 +386,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
   if (currentNode && !documentRef.getElementById('pf-learn-links')) {
     const links = documentRef.createElement('div');
     links.id = 'pf-learn-links';
-    for (const [lesson, label] of [['J3', '원리 레슨, 포지션 사이징'], ['J4', '원리 레슨, 손실과 생존']]) {
+    for (const [lesson, label] of [['J3', '한 종목에 얼마나 넣을까(원리)'], ['J4', '손실을 견디는 법(원리)']]) {
       const button = documentRef.createElement('button');
       button.type = 'button';
       button.className = 'flow-next-link';
@@ -359,7 +407,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
     if (surface.sectorBreakdown.length) {
       // v57.48 expert review #24: the denominator is stated once above the bars, not on every label.
       const basisHead = documentRef.createElement('div');
-      basisHead.textContent = '현금 포함 총자산 대비 비중';
+      basisHead.textContent = surface.sectorBreakdown[0]?.basis === 'positions-only' ? '현금 미입력, 주식 평가액 대비 비중' : '현금 포함 총자산 대비 비중';
       basisHead.className = 'pfp-basis';
       sectorElement.appendChild(basisHead);
       for (const sector of surface.sectorBreakdown) {
@@ -396,6 +444,9 @@ function tableCell(documentRef, headerId, value, className = 'pfp-cell') {
   cell.setAttribute('headers', headerId);
   cell.className = className;
   cell.textContent = value;
+  // v58.80 (first-users bundle 5): on a phone each row is a card and every value carries its column name (CSS ::before).
+  const label = documentRef.getElementById?.(headerId)?.textContent?.trim();
+  if (label) cell.dataset.label = label;
   return cell;
 }
 
@@ -568,7 +619,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     costCell.title = `원가 통화 ${holding?.costCurrency ? costCurrency : `${costCurrency}(추정)`}`;
     row.appendChild(costCell);
     // v57.81: one failure state for a holding whose quote and close both came back empty (any listed symbol is requested).
-    const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? '가격 없음' : money(price, priceCurrency));
+    const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? (root && screenerRowsState(root) === 'loading' ? '가격 불러오는 중' : '가격 없음') : money(price, priceCurrency));
     priceCellNode.style.color = price == null ? 'var(--text-muted)' : 'var(--text-primary)';
     const closeDated = rowData.sourceKind === 'completed-close' && rowData.closeDate ? `, 실시간 시세 대신 ${rowData.closeDate} 종가` : '';
     priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다, 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency}${closeDated}`;
@@ -739,7 +790,7 @@ function render({ root, documentRef, store, charts }) {
     const shown = derivePortfolioSurface({ state: shownState, liveData: {}, vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol), cashFx });
     renderPortfolioSurface(documentRef, page, shown);
     renderPortfolioHero(documentRef, shown);
-    renderPortfolioStatus(documentRef, shownState, shown);
+    renderPortfolioStatus(documentRef, shownState, shown, { pricesLoading: screenerRowsState(root) === 'loading' });
     renderPortfolioTable(documentRef, page, shownState, shown, { preview: true, root });
     renderPortfolioChart({ root, page, surface: shown, charts });
     const shownChecks = renderPortfolioChecks(documentRef, root, shown);
@@ -757,7 +808,7 @@ function render({ root, documentRef, store, charts }) {
   if (root) root._aioPortfolioAiRows = () => portfolioRowsForAI(root._aioPortfolioSurface, { sectorOf: (symbol) => (Array.isArray(root.SCREENER_DB) ? root.SCREENER_DB : []).find((row) => String(row?.sym || '').toUpperCase() === symbol)?.sector || null });
   renderPortfolioSurface(documentRef, page, surface);
   renderPortfolioHero(documentRef, surface);
-  renderPortfolioStatus(documentRef, state, surface);
+  renderPortfolioStatus(documentRef, state, surface, { pricesLoading: screenerRowsState(root) === 'loading' });
   renderPortfolioTable(documentRef, page, state, surface, { root });
   renderPortfolioChart({ root, page, surface, charts });
   const checks = renderPortfolioChecks(documentRef, root, surface);
@@ -870,6 +921,8 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       rerenderPortfolio = renderNow;
       bag.add(() => { if (rerenderPortfolio === renderNow) rerenderPortfolio = null; if (root) root.__aioPortfolioPreview = false; });
       renderNow();
+      listenCrossTab(documentRef, root);
+      paintCrossTabNotice(documentRef, root);
       bag.add(installTradeJournal({ documentRef, root, getSurface: () => root?._aioPortfolioSurface || null }));
       // v57.50 I05: what a research document sent the reader here to check (each entry to this route mounts again).
       renderKnowledgeArrival({ documentRef, root, routeId: 'portfolio' });

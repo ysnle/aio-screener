@@ -237,9 +237,11 @@ export function stageHistoryOf(history, row, limit = STRIP_DAYS) {
   return days.slice(-limit);
 }
 /** Hover note when part of the run was recomputed rather than recorded. */
+// v58.80 (lookahead review): the backfill applies today's theme members to past sessions, so the note says so — a name
+// added to a theme because it rose is hindsight the closes alone do not carry.
 export function recomputedNote(days) {
   const first = (Array.isArray(days) ? days : []).find((day) => !day.recomputed && !day.live && day.state !== undefined);
-  return days.some((day) => day.recomputed) ? `${first ? `${first.date.slice(5).replace('-', '/')} 이전` : '이 기간'}은 지금 규칙으로 종가에서 소급 계산한 단계입니다(신용·중심 시나리오 조건은 그날 값으로 다시 보지 않음).` : '';
+  return days.some((day) => day.recomputed) ? `${first ? `${first.date.slice(5).replace('-', '/')} 이전` : '이 기간'}은 지금 규칙과 지금 구성 종목으로 종가에서 소급 계산한 단계입니다(그날의 구성 종목·신용·중심 시나리오 조건은 다시 보지 않음).` : '';
 }
 /** The most recent session before the latest whose stage differs (within the strip), or null. */
 export function recentStageChange(days) {
@@ -429,8 +431,10 @@ function renderThemeStrengthMap(doc, root, playbook, interpretation) {
   const retRow = (row) => [name(row), pct(row.ret1m), row.ret1m == null ? '' : row.ret1m >= 0 ? 'is-up' : 'is-down', fact(row)];
   const cols = el(doc, 'div', null, 'thp-cols');
   cols.append(
-    column('강한 쪽, 1개월', strong.map(retRow), '주도 단계 테마 없음'),
-    column('약한 쪽, 1개월', weak.map(retRow), '약세 지속 단계 테마 없음'),
+    // v58.80 (first-users F11): "강한 쪽, 1개월: 헬스케어 +5.6%" sat above a sector table led by energy +10.8%; the column is
+    // the themes in the leading stage (with their 1-month return), not the month's biggest movers, and now says so.
+    column('주도 단계 테마 · 1개월', strong.map(retRow), '주도 단계 테마 없음'),
+    column('약세 단계 테마 · 1개월', weak.map(retRow), '약세 지속 단계 테마 없음'),
     column('바뀌는 중', changing.map(({ row, change }) => [name(row), `${stageName(change.from)} → ${stageName(change.to)}`, '', `${shortMd(change.date)}에 바뀜`]), '최근 3거래일 단계 변화 없음', true));
   const parts = [cols];
   const regime = interpretation?.regime, crossroads = interpretation?.crossroads;
@@ -438,7 +442,7 @@ function renderThemeStrengthMap(doc, root, playbook, interpretation) {
   if (regime?.overall || lead) {
     const counts = regime?.counts;
     const tail = rows.filter((row) => row.wind?.lead === 'tail').length, head = rows.filter((row) => row.wind?.lead === 'head').length;
-    parts.push(el(doc, 'p', `전체 시황: ${regime?.overall ? `시장 상태 '${regime.overall}'${counts ? `(양호 ${counts.favorable}·중립 ${counts.neutral}·부담 ${counts.burden})` : ''}` : '시장 상태 미확인'}${lead ? `, 선두 시나리오 '${shortTitle(lead.title)}' — 이 시나리오에서 테마 ${rows.length}개 중 ${WIND_LABELS.tail} ${tail}개, ${WIND_LABELS.head} ${head}개` : ''}.`, 'thp-strength-line'));
+    parts.push(el(doc, 'p', `전체 시황: ${regime?.overall ? `시장 상태 '${regime.overall}'${counts ? `(양호 ${counts.favorable}·중립 ${counts.neutral}·부담 ${counts.burden})` : ''}` : '시장 상태 미확인'}${lead ? `, 선두 시나리오 '${shortTitle(lead.title)}' — 이 시나리오에서 큰 테마 ${rows.length}개(세부 테마를 묶은 단위라 전체 순위의 수와 다름) 중 ${WIND_LABELS.tail} ${tail}개, ${WIND_LABELS.head} ${head}개` : ''}.`, 'thp-strength-line'));
   }
   // v58.79 (layout over captions): the basis sentence became the box's hover; the 테마 시나리오 section's 기준과 판정 규칙 fold
   // spells the same stage rule for a reader without a pointer.

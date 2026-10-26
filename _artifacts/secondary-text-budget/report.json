@@ -27,8 +27,8 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 2972,
-      "secondary": 343,
+      "total": 3158,
+      "secondary": 407,
       "lines": [
         {
           "chars": 47,
@@ -48,7 +48,7 @@
         {
           "chars": 27,
           "classes": "page-subtitle  page-head",
-          "text": "10월 25일 일요일, 10/23 미국 종가 기준"
+          "text": "10월 26일 월요일, 10/23 미국 종가 기준"
         },
         {
           "chars": 26,
@@ -67,35 +67,35 @@
         },
         {
           "chars": 16,
-          "classes": "sx-row__meta sx-row sx-rows home-participation-rows",
-          "text": "양호 0, 중립 3, 부담 3"
+          "classes": "home-index-fallback-note home-index-plot is-empty home-index-fallback home-index-card",
+          "text": "장중 그래프는 받지 못했습니다"
         },
         {
           "chars": 16,
-          "classes": "sx-row__meta sx-row home-breadth-link sx-rows home-participation-rows",
-          "text": "50일선, 200일선, 신고가"
+          "classes": "home-index-fallback-note home-index-plot is-empty home-index-fallback home-index-card",
+          "text": "장중 그래프는 받지 못했습니다"
         },
         {
-          "chars": 12,
-          "classes": "kpi-trend-caption kpi-trend is-interactive sh-home-kpi-strip-box-pad18",
-          "text": "20거래일 +11.8%"
+          "chars": 16,
+          "classes": "home-index-fallback-note home-index-plot is-empty home-index-fallback home-index-card",
+          "text": "장중 그래프는 받지 못했습니다"
         },
         {
-          "chars": 11,
-          "classes": "kpi-trend-caption kpi-trend is-interactive sh-home-kpi-strip-box",
-          "text": "20거래일 -1.5%"
+          "chars": 16,
+          "classes": "home-index-fallback-note home-index-plot is-empty home-index-fallback home-index-card",
+          "text": "장중 그래프는 받지 못했습니다"
         },
         {
-          "chars": 11,
-          "classes": "kpi-trend-caption kpi-trend is-interactive sh-home-kpi-strip-box-clickable",
-          "text": "20거래일 -5.4%"
+          "chars": 16,
+          "classes": "sx-row__meta sx-row sx-rows home-participation-rows",
+          "text": "양호 0, 중립 3, 부담 3"
         }
       ],
       "frames": [
         {
           "frame": "home.index-strip",
           "hasHead": true,
-          "asof": "분봉 없음",
+          "asof": "10/23 종가",
           "readings": [],
           "problems": []
         },
@@ -137,7 +137,7 @@
       ]
     },
     "signal": {
-      "total": 6454,
+      "total": 6479,
       "secondary": 237,
       "lines": [
         {
@@ -212,7 +212,7 @@
       ]
     },
     "breadth": {
-      "total": 1288,
+      "total": 1289,
       "secondary": 47,
       "lines": [
         {
@@ -336,13 +336,13 @@
       "frames": []
     },
     "briefing": {
-      "total": 5188,
-      "secondary": 802,
+      "total": 5110,
+      "secondary": 777,
       "lines": [
         {
           "chars": 47,
           "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/25 08:21 KST, S&P 500·미 10년물·WTI 10/23 종가"
+          "text": "생성 10/25 16:21 KST, S&P 500·미 10년물·WTI 10/23 종가"
         },
         {
           "chars": 47,
@@ -381,7 +381,7 @@
         },
         {
           "chars": 26,
-          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "classes": "briefing-event-meta briefing-event-body briefing-event is-today",
           "text": "EPS 예상 1.31, 매출 예상 358억 달러"
         },
         {
@@ -430,7 +430,7 @@
       "frames": []
     },
     "macro": {
-      "total": 6851,
+      "total": 6746,
       "secondary": 567,
       "lines": [
         {
@@ -505,7 +505,7 @@
       ]
     },
     "fxbond": {
-      "total": 2804,
+      "total": 2841,
       "secondary": 259,
       "lines": [
         {
@@ -589,7 +589,7 @@
       "frames": []
     },
     "themes": {
-      "total": 13411,
+      "total": 13461,
       "secondary": 782,
       "lines": [
         {
@@ -694,7 +694,7 @@
       ]
     },
     "theme-detail": {
-      "total": 16643,
+      "total": 16653,
       "secondary": 1262,
       "lines": [
         {
@@ -838,8 +838,8 @@
       "frames": []
     },
     "market-news": {
-      "total": 4867,
-      "secondary": 389,
+      "total": 5080,
+      "secondary": 371,
       "lines": [
         {
           "chars": 32,
@@ -847,14 +847,9 @@
           "text": "10/24 08:00 ~ 10/25 08:00 KST 기사"
         },
         {
-          "chars": 29,
+          "chars": 22,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "The Business Standard, 16시간 전"
-        },
-        {
-          "chars": 24,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance UK, 20시간 전"
+          "text": "Yahoo Finance UK, 1일 전"
         },
         {
           "chars": 22,
@@ -864,22 +859,22 @@
         {
           "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 10시간 전"
+          "text": "Yahoo Finance, 18시간 전"
         },
         {
           "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 11시간 전"
+          "text": "Bloomberg.com, 19시간 전"
         },
         {
           "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Seeking Alpha, 16시간 전"
+          "text": "Seeking Alpha, 23시간 전"
         },
         {
           "chars": 20,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Barchart.com, 13시간 전"
+          "text": "Barchart.com, 20시간 전"
         },
         {
           "chars": 19,
@@ -887,19 +882,24 @@
           "text": "EnergyNow.com, 1일 전"
         },
         {
-          "chars": 18,
+          "chars": 19,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Wolf Street, 9시간 전"
+          "text": "Wolf Street, 17시간 전"
         },
         {
           "chars": 16,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Barron's, 13시간 전"
+          "text": "Barron's, 20시간 전"
         },
         {
           "chars": 15,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Reuters, 12시간 전"
+          "text": "Reuters, 20시간 전"
+        },
+        {
+          "chars": 14,
+          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card news-intraday-card",
+          "text": "10/25 08:00 이후"
         }
       ],
       "frames": []
@@ -1093,7 +1093,7 @@
       "frames": []
     },
     "screener": {
-      "total": 2955,
+      "total": 2956,
       "secondary": 1076,
       "lines": [
         {

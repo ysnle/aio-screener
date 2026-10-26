@@ -79,7 +79,7 @@ export function installTermTooltips(documentRef, { root = globalThis } = {}) {
   const onFocusIn = (event) => { const tip = tipFrom(event); if (tip) open(tip); };
   const onFocusOut = (event) => { const tip = tipFrom(event); if (tip && !tip.contains(event.relatedTarget)) close(); };
   const onKey = (event) => {
-    if (event.key === 'Escape') close();
+    if (event.key === 'Escape' && openTip) { event.preventDefault(); close(); }
     else if ((event.key === 'Enter' || event.key === ' ') && event.target?.classList?.contains('tip-icon')) { event.preventDefault(); const tip = tipFrom(event); if (tip) (openTip === tip ? close() : open(tip)); }
   };
   const onScroll = () => close();

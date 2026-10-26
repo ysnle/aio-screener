@@ -6,7 +6,7 @@ import { buildPriceLevels, checkPricePlan } from '../../domain/technical/price-l
 import { SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText } from '../../domain/technical/setup-coach.js';
 import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
 import { EARNINGS_CALENDAR } from './fiscal-read.js';
-import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { el } from './dom.js';
@@ -51,7 +51,7 @@ function marketContextLine(root, regime) {
 }
 
 function checklistBlock(doc, root, sym, analysis, regime, tools) {
-  const earnings = /\.(KS|KQ)$/.test(sym) ? null : tools.buildEarningsSchedule({ symbol: sym, calendar: root?.[EARNINGS_CALENDAR.key] || null });
+  const earnings = /\.(KS|KQ)$/.test(sym) ? null : tools.buildEarningsSchedule({ symbol: sym, calendar: root?.[EARNINGS_CALENDAR.key] || null, calendarState: sharedArtifactState(root, EARNINGS_CALENDAR.key) });
   const list = tools.breakoutChecklist(analysis, { regime, earnings });
   if (root.__aioSetupCoach?.symbol === sym) root.__aioSetupCoach.checklist = list;
   const box = el(doc, 'div', null, 'chart-breakout-check');

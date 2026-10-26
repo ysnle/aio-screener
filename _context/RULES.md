@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-24
+last_verified: 2026-10-25
 confidence: medium
 target_version: v57.79
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
@@ -18,6 +18,18 @@ target_version: v57.79
 - **수집·신선도**: R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+
+## R726. 한 이름은 한 길이, 한 집합, 한 번의 반올림 (v58.80, P2074)
+
+**Rule**: 화면의 기간 이름(1개월·3개월·20거래일 등)은 src/domain/market/market-windows.js가 정한 길이 하나만 가리키고 sessionPointBack으로 잰다(행 개수 금지). 같은 동종·같은 지표의 중앙값·개수는 한 정의로 계산하고, 생산자는 화면이 한 번만 반올림하도록 원값을 충분한 자리로 싣는다. 출처·날짜가 달라 값이 다른 경우는 근거 카드에 그 이유를 적는다.
+
+**Validation**: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-fiscal-quality-fixture.mjs; node scripts/ci-scenario-guidance-fixture.mjs
+
+## R725. 과거 판정·소급 계산은 그날 이후 자료가 바뀌어도 같아야 한다 (v58.80, P2064) (v58.80, P2064)
+
+**Rule**: 과거 날짜의 판정·빈도·소급 계산은 그 날짜까지 관측된 자료만으로 정해진다. 그날 이후 값을 지우거나 바꿔도 결과가 같아야 하고, 오늘 판정은 파일이 보관하는 창 밖 이력 길이와 무관해야 한다. 수집 버킷이 아니라 관측일로 자른다. 종가 밖의 사후 정보(지금 구성 종목·지금 규칙)를 쓰면 화면에 밝힌다. 새 as-of 함수나 백필은 ci-lookahead-check에 대상을 추가한다.
+
+**Validation**: node scripts/ci-lookahead-check.mjs
 
 ## R724. 앱은 종목·가격·비중·시점을 고르지 않고, 고르는 법을 가르친다 (v58.75, P2037)
 

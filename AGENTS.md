@@ -1,14 +1,15 @@
 # AIO Screener — Agent Guide
 
-AIO Screener는 GitHub Pages의 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 버전·라우트·파일 크기·지식 상태는 이 문서에 복사하지 않고 [`_context/CURRENT-STATE.md`](./_context/CURRENT-STATE.md)와 원본 레지스트리에서 파생한다.
+AIO Screener는 GitHub Pages의 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 버전·라우트·파일 크기·지식 상태는 이 문서에 복사하지 않고 `_context/CURRENT-STATE.md`와 원본 레지스트리에서 파생한다.
 
 ## Mandatory preflight
 
 1. `git status --short`와 `version.json`으로 작업 트리 경계를 확인한다. 기존 dirty 변경은 사용자 소유다. 수정 전 `node scripts/qa-runner.mjs session-start --session <task-id>`로 기준선을 잡는다.
 2. `CURRENT-STATE.md`는 시작 시 한 번 읽는다. `_context/INDEX.md`(위치 탐색)와 `_context/WORKFLOW-GOVERNANCE.md`(QA·권한 상세)는 필요할 때만, 읽은 문서는 반복 로드하지 않는다.
-3. 스킬은 참조 문서이지 트리거 체인이 아니다. 도움이 될 때만 `SKILL.md`와 필요한 reference를 읽는다. 라우팅의 단일 트리거는 아래 Task routing 표이고, 강제는 게이트 실행과 보고 형식에만 둔다(R618).
+3. 스킬은 트리거 체인이 아닌 참조 문서다. 도움이 될 때만 `SKILL.md`와 필요한 reference를 읽는다. 라우팅은 아래 Task routing 표만 따르고, 강제는 게이트 실행·보고 형식에만 둔다(R618).
 4. `RULES.md`(맨 앞 핵심 규칙 색인부터), `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 ID·키워드로 검색한 범위만 읽는다.
 5. `index.html`은 `_context/CODE-MAP.md`에서 담당 구간을 찾아 그 범위만 수정한다.
+6. 문서(CODE-MAP·스킬·핸드오프·메모리)가 지금 코드와 어긋나면 코드 관례를 따르고 어긋난 곳을 최종 답변에 모두 적는다. 제품 결정·RULES 정책과 다른 코드는 결함이다(2026-10-25).
 
 ## Working agreement
 
@@ -16,7 +17,7 @@ AIO Screener는 GitHub Pages의 하이브리드 정적 셸 + native ESM 투자 �
 - 완료 = 구현 + 필요한 실행 + 결과 확인 + 발견된 관련 실패 수정. 중간 질문에 답한 뒤에도 원래 목표를 유지한다. 넓은 범위는 항목별 미검증 상태를 남기고, 자동 PASS를 의미 검수로 바꾸지 않는다. 로컬 수정·생성·격리 테스트에는 중복 확인을 요구하지 않는다.
 - 큰 작업의 독립 조사·리뷰는 범위가 명확한 서브에이전트(읽기 전용은 low/medium effort)에 위임하고, 파일 소유권을 나누며 결과는 주 담당자가 통합 검증한다.
 - 한국어로 결과와 근거를 간결하게 설명한다(에이전트 간 메시지도 정상 문장). 통과한 검사는 새 변경·실패·위험이 있을 때만 다시 돌린다.
-- **코딩 규율 (owner 2026-10-12):** ① 가정·해석 후보를 먼저 밝히고 더 단순한 방법이 있으면 말한다. 큰 작업·이미지 참조 작업은 기존 화면부터 찾고 3줄 계획을 밝힌다. 작은 수정은 묻지 않는다(2026-10-14). ② 요청을 푸는 최소 코드만 쓴다 — 추측성 기능, 한 번 쓰는 추상화, 요청 없는 옵션, 일어날 수 없는 오류 처리 금지. ③ 필요한 줄만 고치고 주변 스타일을 따른다. 자기 변경이 만든 미사용 코드만 지우고 무관한 죽은 코드는 보고만 한다. ④ 검증 가능한 목표로 바꾼다(버그는 재현 게이트 먼저, 여러 단계면 단계별 확인 방법). 사소한 변경은 판단껏 줄인다.
+- **코딩 규율 (owner 2026-10-12):** ① 가정·해석 후보를 먼저 밝히고 더 단순한 방법이 있으면 말한다. 큰 작업·이미지 참조 작업은 기존 화면부터 찾고 3줄 계획을 밝힌다. 작은 수정은 묻지 않는다(2026-10-14). ② 요청을 푸는 최소 코드만 쓴다 — 추측성 기능, 한 번 쓰는 추상화, 요청 없는 옵션, 일어날 수 없는 오류 처리 금지(드문 경합·보안 사례는 실패 양상·가능성·비용을 밝히고 동의받은 뒤). ③ 필요한 줄만 고치고 주변 스타일을 따른다. 자기 변경이 만든 미사용 코드만 지우고 무관한 죽은 코드는 보고만 한다. ④ 검증 가능한 목표로 바꾼다(버그는 재현 게이트 먼저, 여러 단계면 단계별 확인 방법). 사소한 변경은 판단껏 줄인다.
 - **협업 원칙 (owner 2026-10-01):** 소유자는 개발·운영 비전문가이며 함께 판단하는 관계를 원한다. 요청·기존 설계·이전 작업을 무조건 옳다고 보지 않는다. 데이터 무결성·비용·권리·사용자 가치와 충돌하면 근거(실측·공식 문서)와 함께 반대 의견과 대안을 먼저 내고, 틀린 전제는 바로잡는다. 기능을 없애거나 합치는 결정은 제안 후 승인받는다.
 - **사용자 가치 우선 (owner 2026-10-20, 반복 지시):** 이 저장소의 규칙·게이트·기준·과거 결정은 소유자와 이전 에이전트가 만든 작업물이지 정답이 아니다. 판단 순서는 ① 여러 사용자 입장에서 무엇이 좋고 편리한가 → ② 그것을 최대한 구현 → ③ 규칙·게이트가 막으면 그 규칙이 지금도 맞는지 다시 따져 틀렸으면 규칙·게이트를 근거와 함께 고친다(기록은 record-fix) → ④ 실제 한계(데이터 권리·비용·기술·데이터 정직성)가 있을 때만 버리고 이유를 밝힌다. "기존 데이터가 없다"는 버릴 이유가 아니다 — 무료 공식 출처로 수집·자동화할 수 있는지 먼저 검토한다. 비밀정보·AI 예산 상한·지어낸 숫자 금지·티커 추정 금지·매매 지시 금지는 사용자 보호 장치라 이 항목으로 완화하지 않는다.
 
@@ -53,7 +54,7 @@ Owner decisions every agent applies without re-asking; change only when the user
 | Supplied research or market framework | `integrate` |
 | Docs, skills, agents, hooks or knowledge drift | `knowledge-lint` |
 | Skill experiments and eval design | `autoresearch` |
-| Delegation, assumptions, post-batch trim, weekly retro | `.agents/skills/_shared/agent-prompt-anatomy.md`; `.claude/commands/{restate,assumptions,trim-pr,retro}.md` apply as written |
+| Delegation and working commands | `.agents/skills/_shared/agent-prompt-anatomy.md`; `.claude/commands/{restate,assumptions,why,prototype,first-users,trim-pr,retro}.md` apply as written |
 | Recording a fix (P/R/QA/CHANGELOG/status) | `node scripts/record-fix.mjs <entry.json>` after `bump-version`, then `generate-workspace-state --write` |
 
 ## Non-negotiable boundaries
@@ -70,19 +71,6 @@ Owner decisions every agent applies without re-asking; change only when the user
 
 ## Closeout
 
-Run `node scripts/qa-runner.mjs affected --session <task-id>` (pipeline: `architecture/qa-pipeline.json`); without a baseline pass the task-owned list via `--files <paths>` so unrelated dirty files never widen the run. Fix the whole failure batch, then `rerun-failed`. `full --no-cache` is for release/shared-shell certification (never two at once — they collide on `_artifacts/`), `external --no-cache` for deployed claims. Workspace-facing changes also run:
-
-```text
-node scripts/generate-workspace-state.mjs --check
-node scripts/ci-workspace-contract-check.mjs
-node scripts/ci-knowledge-lint-check.mjs
-node scripts/ci-skill-contract-check.mjs
-node scripts/ci-skill-eval-fixture-check.mjs
-node scripts/ci-ledger-integrity-check.mjs
-node scripts/ci-assertion-trace-check.mjs
-node scripts/sync-agent-profiles.mjs --check
-node scripts/sync-agent-skills.mjs --check
-git diff --check
-```
+Run `node scripts/qa-runner.mjs affected --session <task-id>` (pipeline: `architecture/qa-pipeline.json`); without a baseline pass the task-owned list via `--files <paths>` so unrelated dirty files never widen the run. Fix the whole failure batch, then `rerun-failed`. `full --no-cache` is for release/shared-shell certification (never two at once — they collide on `_artifacts/`), `external --no-cache` for deployed claims. Workspace-facing changes also run `node scripts/qa-runner.mjs --group preflight`, `--group workspace` (the pipeline owns the lists; v57.61) and `git diff --check`.
 
 Add the code/data/browser gates the touched surface selects. Final reports separate verified, blocked and unverified work and state whether commit/deploy occurred.

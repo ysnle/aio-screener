@@ -7,7 +7,7 @@ import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { parseSecStatements } from '../domain/fundamental/sec-statements.js';
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
-import { renderAnswerVisuals, chooseAnswerVisuals, attachAnswerVisuals } from '../ui/components/ai-answer-visuals.js';
+import { chooseAnswerVisuals } from '../ai/response/answer-visual-choice.js';
 import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
 import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } from '../ai/response/answer-principles.js';
 import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
@@ -18,12 +18,12 @@ import { isKnownSymbol, resolveHoldingInput, resolveRegisteredName, searchCandid
 import { hasFinalConsonant } from '../domain/content/korean-particle.js';
 import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
 import { stripEvidenceIds } from '../domain/briefing/evidence-text.js';
-import { releaseAtMs } from '../domain/briefing/schedule.js';
+import { releaseAtMs, formatKstWhen } from '../domain/briefing/schedule.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
 // Portfolio statistics/backtest is a native ESM module; importing it during
 // bootstrap keeps the classic regression surface available before lazy route
 // navigation while leaving the implementation out of aio-core.js.
-import { buildPortfolioBacktestLab, _statMean, _statStdDev, _calcDailyReturns, _quantileR7, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix } from '../domain/portfolio/backtest.js';
+import { _statMean, _statStdDev, _calcDailyReturns, _quantileR7, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix } from '../domain/portfolio/return-stats.js';
 import { assessAccountPerformance } from '../domain/portfolio/risk.js';
 import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } from '../data/portfolio-assumptions.js';
 import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
@@ -33,6 +33,7 @@ import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js'
 import { baseValueRows, baseValueNote } from '../ui/panels/portfolio-base-values.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
 import { BACKUP_SECTIONS, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
+import { readWatchlistSymbols, toggleWatchlistSymbol } from '../data/watchlist-store.js';
 import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBalances, setCashBalance, writeCashBalances } from '../data/portfolio-cash.js';
 import { appUsdKrwClose } from '../domain/portfolio/cash.js';
 import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker-symbol.js';
@@ -104,15 +105,23 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.AIO.parseSecStatements = parseSecStatements; // 2026-10-17 D8: replaces js/aio-chat.js _parseSECFinancials
   window.AIO.buildMarketContentContext = buildMarketContentContext;
   window.AIO.buildQuestionDomainContext = buildQuestionDomainContext;
-  window.AIO.renderAnswerVisuals = renderAnswerVisuals; // P1741: data-drawn figures under an AI answer
+  // P1741: data-drawn figures under an AI answer. v58.80 (bundle 4): the builders load with the first answer (both are async).
+  const answerVisuals = () => import('../ui/components/ai-answer-visuals.js');
+  window.AIO.renderAnswerVisuals = (options) => answerVisuals().then((module) => module.renderAnswerVisuals(options));
   window.AIO.chooseAnswerVisuals = chooseAnswerVisuals;
-window.AIO.attachAnswerVisuals = attachAnswerVisuals;
+  window.AIO.attachAnswerVisuals = (options) => answerVisuals().then((module) => module.attachAnswerVisuals(options));
 // P1740: chat prompt pieces moved out of js/aio-chat.js (answer shape, principles, policy lines, ticker resolver).
 Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, buildChatPolicyLines, resolveChatTickers, portfolioRowsLine });
   window.AIO.selectNativeSearch = selectNativeSearch;
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;
-  window.AIO.buildPortfolioBacktestLab = buildPortfolioBacktestLab;
+  // v58.80 (boot budget): the backtest engine loads on demand — when 포트폴리오 opens, when the form is read, or when the
+  // browser is idle after boot — and installs the same synchronous AIO.buildPortfolioBacktestLab the shell calls.
+  const backtestLab = () => import('../domain/portfolio/backtest.js').then((module) => { window.AIO.buildPortfolioBacktestLab = module.buildPortfolioBacktestLab; return module; });
+  window._aioLoadBacktestLab = backtestLab;
+  const warmBacktestLab = () => { backtestLab().catch(() => {}); };
+  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(warmBacktestLab);
+  else globalThis.setTimeout?.(warmBacktestLab, 4000)?.unref?.();
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
   // 호출해 결과를 그대로 렌더한다.
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
@@ -229,10 +238,25 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     write: (balances) => writeCashBalances(window.localStorage, balances),
     appFx: () => appUsdKrwClose(window._aioHistory || [])
   };
-  window._aioSaveCashBalance = (el) => {
+  // v58.80 (first-users F29): the screener star and 포트폴리오 관심 종목 share one store.
+  window._aioWatchlistGet = () => readWatchlistSymbols(window.localStorage);
+  window._aioWLToggle = (sym) => {
+    const result = toggleWatchlistSymbol(window.localStorage, sym);
+    if (result.added && result.listName) window.showToast?.(`${sym}: "${result.listName}" 목록에 추가했습니다.`);
+    try { window.dispatchEvent(new CustomEvent('aio:screener:watchlist', { detail: { symbol: sym, watchlist: result.watchlist } })); } catch (_) {}
+    return result;
+  };
+  // v58.80 (first-users bundle 6): typed numbers go through one reader (loaded on first use, outside the boot set).
+  const inputCheck = () => import('../ui/components/input-check.js');
+  window._aioReadBacktestInputs = () => Promise.all([inputCheck(), backtestLab()]).then(([{ readBacktestInputs }]) => readBacktestInputs(document));
+  window._aioSaveCashBalance = async (el) => {
     const currency = el?.dataset?.currency;
     if (!currency) return;
-    const next = setCashBalance(readCashBalances(window.localStorage).balances, currency, el.value);
+    // -100 and 1e309 emptied the field to $0 without a word, and twenty digits were kept.
+    const { checkNumericField, NUMERIC_LIMITS } = await inputCheck();
+    const read = checkNumericField(el, { label: currency === 'KRW' ? '원화 현금' : '달러 현금', min: 0, max: NUMERIC_LIMITS.cash[currency] ?? NUMERIC_LIMITS.amount });
+    if (!read.ok) return;
+    const next = setCashBalance(readCashBalances(window.localStorage).balances, currency, read.empty ? '' : String(read.value));
     const ack = writeCashBalances(window.localStorage, next);
     if (!ack.ok) window.showToast?.('현금을 저장하지 못했습니다 — 이전 금액이 그대로 남아 있습니다.');
     try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch (_) {}
@@ -247,11 +271,30 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     const at = releaseAtMs(key, date);
     return Number.isFinite(at) ? at > nowMs : date >= today;
   };
+  // v58.80 (first-users F09): the 거시 header named FOMC by its US date (10/28(수)) beside the body's 10/29(목) 03:00 KST.
+  window._aioReleaseKstLabel = (key, date) => { const at = releaseAtMs(key, date); return Number.isFinite(at) ? formatKstWhen(at).label : null; };
   window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
   const universeSymbols = () => new Set((typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [])
     .map((row) => String(row?.sym || row?.symbol || '').toUpperCase()).filter(Boolean));
   // 2026-10-17: the watchlist, price-alert and holding boxes accept symbols only; when a typed company name is refused,
   // the refusal names the listing candidates (registry names first, then the US listing) for the reader to type.
+  // First-users F22 (newcomer, runs 1-4): typing 애플 showed nothing until Enter. The stock search suggests registry and KRX
+  // names while typing (a native datalist; the symbol fills the box and Enter opens it as before).
+  const tickerSearch = document?.querySelector?.('#ticker-direct-search');
+  if (tickerSearch && !document.querySelector('#ticker-suggest')) {
+    const list = document.createElement('datalist');
+    list.id = 'ticker-suggest';
+    tickerSearch.after(list);
+    tickerSearch.setAttribute('list', 'ticker-suggest');
+    let suggestTimer = null;
+    tickerSearch.addEventListener('input', () => {
+      clearTimeout(suggestTimer);
+      suggestTimer = setTimeout(() => {
+        const picks = searchCandidates(tickerSearch.value, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
+        list.replaceChildren(...picks.map((pick) => { const option = document.createElement('option'); option.value = pick.symbol; option.label = pick.label; return option; }));
+      }, 120);
+    });
+  }
   window._aioListingNameSuggestion = (raw) => {
     const query = String(raw || '').trim();
     if (query.length < 2) return Promise.resolve('');
@@ -291,6 +334,10 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
     lead.textContent = query
       ? `'${query.slice(0, 40)}'${hasFinalConsonant(query.slice(0, 40)) ? '과' : '와'} 정확히 일치하는 종목이 없습니다. ${picks.length ? '아래에서 고르거나 티커·종목코드로 검색해 주세요.' : '티커(예: NVDA)·종목코드(예: 005930)·정확한 회사명으로 검색해 주세요.'}`
       : '티커·종목코드·회사명을 입력해 주세요.';
+    // v58.80 (first-users F17 residual): the refusal sat above the previous stock's full analysis, which read as the
+    // analysis of the typed symbol. The line now names whose analysis is still shown below.
+    const shown = window._currentTickerId;
+    if (shown && document.getElementById('page-ticker')?.classList.contains('active')) lead.textContent += ` 아래는 직전에 보던 ${window._currentTickerName && window._currentTickerName !== shown ? `${window._currentTickerName}(${shown})` : shown} 분석 그대로입니다.`;
     const list = document.createElement('div');
     list.className = 'ticker-search-picks';
     const addPick = (pick) => {

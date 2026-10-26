@@ -15,6 +15,7 @@ import { themeProfile } from '../../domain/scenarios/exposures.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { buildCloseSeries } from '../../domain/market/close-series.js';
 import { signedText } from '../../domain/shared/number.js';
+import { sharedArtifactState } from '../../data/shared-artifacts.js';
 
 const CALENDAR_KEY = '_aioEarningsCalendarArtifact';
 const consensusOf = (root, sym) => root?._aioConsensusEstimates?.rows?.[String(sym || '').toUpperCase()] || null;
@@ -55,7 +56,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const trailing = buildTrailingYearRead(quarters);
   const quarterRead = quarters.length >= 2 ? buildQuarterRead(quarters) : null;
   const marginCash = history.length ? buildMarginCashRead(history) : null;
-  const schedule = market === 'US' ? buildEarningsSchedule({ symbol: sym, calendar: root?.[CALENDAR_KEY], consensus }) : null;
+  const schedule = market === 'US' ? buildEarningsSchedule({ symbol: sym, calendar: root?.[CALENDAR_KEY], consensus, calendarState: sharedArtifactState(root, CALENDAR_KEY) }) : null;
   const levels = typeof root?._aioPriceLevelsFor === 'function' ? root._aioPriceLevelsFor(sym) : null;
   const financial = isLendingFinancial(sym, row?.sector);
   const close = Number(row?._valuationPrice ?? row?.valuationPrice) > 0 && /^\d{4}-\d{2}-\d{2}/.test(String(row?.factorSessionDate || '')) ? { value: Number(row._valuationPrice ?? row.valuationPrice), date: String(row.factorSessionDate).slice(0, 10) } : null;
@@ -162,10 +163,18 @@ export function renderStockContext(doc, root, host, ctx) {
   memo.type = 'button';
   memo.addEventListener('click', () => openThesisMemo(doc, root, thesisTemplate(stockLensContext(root, ctx.sym, { fundamentals: root.__aioLensFundamentals?.[ctx.sym] || null }))));
   actions.append(memo);
-  if (typeof root?.addToWatchlist === 'function') {
-    const watch = el(doc, 'button', '관심 종목에 추가', 'aio-btn-table');
+  if (typeof root?._aioWLToggle === 'function') {
+    // v58.80 (first-users run-3 B15): the button never changed state; it now says whether the stock is in a 관심 종목
+    // list and toggles through the one watchlist store (the toast names the list it went to).
+    const watch = el(doc, 'button', '', 'aio-btn-table');
     watch.type = 'button';
-    watch.addEventListener('click', () => { root.addToWatchlist(ctx.sym, '종목 화면에서 추가'); watch.textContent = '관심 종목 추가 요청함'; });
+    const paint = () => {
+      const held = (root._aioWatchlistGet?.() || []).includes(ctx.sym);
+      watch.textContent = held ? '관심 종목에서 빼기' : '관심 종목에 추가';
+      watch.setAttribute('aria-pressed', held ? 'true' : 'false');
+    };
+    paint();
+    watch.addEventListener('click', () => { root._aioWLToggle(ctx.sym); paint(); });
     actions.append(watch);
   }
   host.append(actions);

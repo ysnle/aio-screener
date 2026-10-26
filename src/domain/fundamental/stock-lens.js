@@ -5,14 +5,10 @@
 import { finiteFact as finite, fiscalYearLabel } from './period.js';
 import { themeProfile, windFor, WIND_LABELS, EXPOSURE_TAGS } from '../scenarios/exposures.js';
 import { BRANCHES } from '../market/macro-crossroads.js';
-import { signedText } from '../shared/number.js';
+import { signedText, usdKoreanText } from '../shared/number.js';
 
 const pct = (value, digits = 1) => (value == null ? null : `${value.toFixed(digits)}%`);
-const usdShort = (value) => {
-  const abs = Math.abs(value);
-  const body = abs >= 1e12 ? `${(abs / 1e12).toFixed(2)}T` : abs >= 1e9 ? `${(abs / 1e9).toFixed(1)}B` : `${(abs / 1e6).toFixed(0)}M`;
-  return `${value < 0 ? '-' : ''}$${body}`;
-};
+const usdShort = (value) => usdKoreanText(value); // first-users F33: one money format
 const branchTitle = (branch) => String(branch?.title || '').split(' — ')[0];
 export const UNCONFIRMED = '미확인';
 
@@ -33,9 +29,11 @@ export const STOCK_LENSES = Object.freeze({
     metrics: [M('revenueGrowth', '광고 경기와 사용자 확대가 매출 성장에 바로 드러납니다.'), M('operatingMargin', '플랫폼 지배력은 높은 영업이익률로 나타납니다.'),
       M('capexIntensity', 'AI 데이터센터 투자가 매출 대비 얼마나 큰지가 이익의 압박 요인입니다.'), M('fcfMargin', '투자를 하고도 현금이 남는지 확인합니다.'),
       M('shareholderReturn', '남는 현금을 자사주·배당으로 돌리는지가 주당 가치에 영향을 줍니다.'), M('revisions', '이익 전망 수정 방향이 투자 비용 부담을 먼저 반영합니다.')] },
-  hardware: { label: '하드웨어·인프라 장비', why: '설비투자 사이클에 매출이 따라가는 업종이라, 성장 속도와 마진, 투자 부담을 함께 봅니다.',
-    metrics: [M('revenueGrowth', '고객의 설비투자 속도가 매출 성장으로 나타납니다.'), M('grossMargin', '부품 원가와 가격 협상력이 매출총이익률에 드러납니다.'),
-      M('capexIntensity', '생산능력 확충이 매출보다 앞서는지 확인합니다.'), M('netCash', '사이클이 꺾일 때 버틸 재무 여력입니다.'), M('revisions', '고객 투자 계획 변화가 이익 전망에 먼저 반영됩니다.')] },
+  // v58.80 (first-users F32): SIC 3571 holds Apple next to server makers; "고객의 설비투자" misdescribed a device maker, so the
+  // lens names both buyers (기업 설비투자 · 소비자 교체 주기).
+  hardware: { label: '하드웨어·기기', why: '기업의 설비투자나 소비자의 기기 교체 주기에 매출이 따라가는 업종이라, 성장 속도와 마진, 투자 부담을 함께 봅니다.',
+    metrics: [M('revenueGrowth', '기업 고객의 설비투자나 소비자의 교체 수요가 매출 성장으로 나타납니다.'), M('grossMargin', '부품 원가와 가격 협상력이 매출총이익률에 드러납니다.'),
+      M('capexIntensity', '생산능력 확충이 매출보다 앞서는지 확인합니다.'), M('netCash', '사이클이 꺾일 때 버틸 재무 여력입니다.'), M('revisions', '고객의 투자 계획이나 신제품 수요 변화가 이익 전망에 먼저 반영됩니다.')] },
   energy: { label: '에너지', why: '유가·가스 가격이 이익을 직접 좌우하므로, 가격이 내려가도 현금을 남기는 체력과 주주환원을 봅니다.',
     metrics: [M('oilSensitivity', '유가 1달러 변화가 이익에 주는 영향 — 회사 공시(민감도 표)에서 확인합니다.'), M('fcfMargin', '설비투자 뒤에도 현금이 남는지가 업종의 핵심입니다.'),
       M('shareholderReturn', '남는 현금의 자사주·배당 환원 비율이 투자 매력의 큰 부분입니다.'), M('leverage', '유가가 내려갈 때 부채가 부담이 되는지 확인합니다.'), M('capexIntensity', '낮은 설비투자는 현금을 늘리지만 생산 유지 여력을 줄입니다.')] },
@@ -88,7 +86,7 @@ function sicLens(sic) {
 /** The SEC SIC code first (the issuer's own classification), then the AIO theme, then the sector. */
 export function lensIdFor({ sic = null, themeIds = [], sector = null } = {}) {
   const bySic = sicLens(sic);
-  if (bySic) return { id: bySic, basis: `SEC 산업분류 SIC ${sic}` };
+  if (bySic) return { id: bySic, basis: `미국 증권거래위원회 업종 분류(코드 ${sic})` };
   const theme = (themeIds || []).find((id) => THEME_LENS[id]);
   if (theme) return { id: THEME_LENS[theme], basis: 'AIO 테마' };
   if (SECTOR_LENS[sector]) return { id: SECTOR_LENS[sector], basis: '섹터' };
@@ -195,13 +193,17 @@ export function buildPeerStrengths(rows = [], { max = 3 } = {}) {
     if (value == null || values.length < 4) continue;
     const ordered = [...values].sort((a, b) => (fact.better === 'high' ? b - a : a - b));
     const rank = ordered.indexOf(value) + 1;
-    const sorted = [...values].sort((a, b) => a - b);
+    // v58.80 (first-users bundle 1): the median is the peers' own, without this company — the 재무 공시 theme card used
+    // peers only (ROE 24.3%) while this read counted the company too (26.2%), so one peer group had two medians.
+    const peerValues = rows.filter((row) => !row?.self).map((row) => finite(row[fact.id])).filter((v) => v != null);
+    if (!peerValues.length) continue;
+    const sorted = [...peerValues].sort((a, b) => a - b);
     const mid = sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
     const show = (v) => (fact.unit === '배' ? `${v.toFixed(1)}배` : `${v.toFixed(1)}%`);
     const side = (rank - 1) / Math.max(1, values.length - 1); // 0 = best, 1 = worst
     const versus = fact.better === 'low' ? (value < mid ? '보다 낮음' : value > mid ? '보다 높음' : '과 같음') : (value > mid ? '보다 높음' : value < mid ? '보다 낮음' : '과 같음');
     facts.push({ id: fact.id, label: fact.label, value, rank, n: values.length, median: mid, side,
-      text: `${fact.label} ${show(value)}로 동종 ${values.length}곳 중 ${rank}위(중앙값 ${show(mid)}${versus})${fact.id === 'fwdPe' ? (value < mid ? ', 이익 대비 가격 부담이 가벼운 편' : value > mid ? ', 이익 대비 가격 부담이 무거운 편' : '') : ''}` });
+      text: `${fact.label} ${show(value)}로 이 회사 포함 ${values.length}곳 중 ${rank}위(동종 ${peerValues.length}곳 중앙값 ${show(mid)}${versus})${fact.id === 'fwdPe' ? (value < mid ? ', 이익 대비 가격 부담이 가벼운 편' : value > mid ? ', 이익 대비 가격 부담이 무거운 편' : '') : ''}` });
   }
   if (!facts.length) return null;
   const strengths = facts.filter((f) => f.side < 0.5 && f.rank <= Math.ceil(f.n / 2)).sort((a, b) => a.side - b.side).slice(0, max);

@@ -13,6 +13,7 @@ import { readMarketRegime } from './market-regime.js';
 import { asOfChip, markFrame } from './section-frame.js';
 import { breadthScopeOf } from '../../domain/market/screener-breadth.js';
 import { signedText } from '../../domain/shared/number.js';
+import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
 
 // C25: the second cell is the Nasdaq-100 (^NDX); the briefing's "나스닥 종합" is the Composite.
 const CELLS = Object.freeze([
@@ -21,7 +22,7 @@ const CELLS = Object.freeze([
   { selector: '[data-live-price="^TNX"]', field: 'tnx', label: '미 10년 금리' },
   { selector: '[data-live-price="CL=F"]', field: 'wti', label: 'WTI' }
 ]);
-const SESSIONS = 20;
+const SESSIONS = MARKET_WINDOWS.rule;
 
 export function trendPoints(history, field, sessions = SESSIONS) {
   // sessions + 1 closes span `sessions` session-to-session changes. P1527: stop at the common close basis (the S&P 500's
@@ -69,7 +70,10 @@ export function renderHomeKpiTrends({ documentRef: doc, root, nowMs = Date.now()
   const heading = doc.getElementById?.('home-quote-basis');
   if (heading) {
     const state = HOME_QUOTE_HEADINGS[usWeekendClosed(nowMs) ? 'weekend' : 'open'];
-    heading.replaceChildren(doc.createTextNode('지금 시세 '), asOfChip(doc, state.chip, state.detail));
+    // v58.80 (first-users run-4): the weekend chip names the close the tiles hold (the skeptic found no date on them).
+    const lastClose = usWeekendClosed(nowMs) ? [...(Array.isArray(root?._aioHistory) ? root._aioHistory : [])].reverse().find((row) => Number(row?.spx) > 0)?.date : null;
+    const chip = lastClose ? `${state.chip}, ${Number(lastClose.slice(5, 7))}/${Number(lastClose.slice(8, 10))} 마감 값` : state.chip;
+    heading.replaceChildren(doc.createTextNode('지금 시세 '), asOfChip(doc, chip, state.detail));
   }
   const history = Array.isArray(root?._aioHistory) ? root._aioHistory : [];
   let drawn = 0;
@@ -108,18 +112,25 @@ export function renderHomeKpiTrends({ documentRef: doc, root, nowMs = Date.now()
 // P1599 (F100): the home verdict's core question — is the index rising with or without the stocks under it — as
 // two same-period charts side by side. Each keeps its own axis (index level vs % of stocks); the shared x-range
 // and a one-line read make the comparison, not a merged scale.
-const PARTICIPATION_SESSIONS = 63;
+// v58.80 (first-users bundle 1): the window was the last 63 rows, i.e. 62 changes, printed "62거래일 +2.6%" beside the
+// 3개월 +2.8% the 매크로 table and 종목 show. It is now the same 3개월 (63 sessions, sessionPointBack) as every other screen.
 export function homeParticipationSeries(history = []) {
   const basis = closeBasis(history);
-  return { spx: buildCloseSeries(history, 'spx', { through: basis }).slice(-PARTICIPATION_SESSIONS), b50: buildCloseSeries(history, 'breadth50', { through: basis }) }; // P1623: producer declares percent, including values below 1%.
+  const all = buildCloseSeries(history, 'spx', { through: basis });
+  const start = sessionPointBack(all, MARKET_WINDOWS.quarter);
+  return { spx: start ? all.filter((point) => point.date >= start.date) : all.slice(-(MARKET_WINDOWS.quarter + 1)), b50: buildCloseSeries(history, 'breadth50', { through: basis }) }; // P1623: producer declares percent, including values below 1%.
 }
 // v58.53 개편 v2 (2b): one card after the daily loop — a title that says what the two lines did, the two same-period charts
 // with their end values beside the captions, the one-line read, then link rows to the screens holding the depth.
 // It sits first in #home-depth (the fold of scenarios and the guide follows it); without that host it keeps the old
 // anchor after the close comparison.
-export function participationTitle(spxMove, b0, b1) {
+// v58.80 (first-users R2-12): the title said "참여 종목은 줄었습니다" while the line under it said participation was widening
+// again over 20 sessions; a recent turn against the window's direction is now part of the title too.
+export function participationTitle(spxMove, b0, b1, b20 = null) {
   if (!Number.isFinite(b0) || !Number.isFinite(b1)) return '지수와 참여 종목, 같은 기간';
   const flat = Math.abs(b1 - b0) < 0.5;
+  const turn = Number.isFinite(b20) && Math.abs(b1 - b20) >= 3 && !flat && Math.sign(b1 - b20) !== Math.sign(b1 - b0);
+  if (turn) return `${spxMove > 0 ? '지수는 올랐고' : '지수는 약했고'} 참여 종목은 ${b1 < b0 ? '줄었다가 최근 다시 늘고 있습니다' : '늘었다가 최근 다시 줄고 있습니다'}`;
   if (spxMove > 0) return flat ? '지수는 올랐고 참여 종목은 그대로입니다' : b1 < b0 ? '지수는 올랐지만 참여 종목은 줄었습니다' : '지수가 오르며 참여 종목도 늘었습니다';
   return flat ? '지수는 약했고 참여 종목은 그대로입니다' : b1 < b0 ? '지수와 참여 종목이 함께 약해졌습니다' : '지수는 약했지만 참여 종목은 늘었습니다';
 }
@@ -160,7 +171,7 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   const b1 = b50In[b50In.length - 1]?.value;
   // v57.86 (live review): the 62-session line read "참여 종목은 줄었습니다" while 시장 폭 said participation widened over 20
   // sessions (+6.1%p) — a recent move against the window's direction is named beside it.
-  const b20 = b50In.length > 21 ? b50In[b50In.length - 21].value : null;
+  const b20 = sessionPointBack(b50In, MARKET_WINDOWS.rule)?.value ?? null; // v58.80: 20 sessions, not 21 rows
   const recentTurn = b20 != null && b0 != null && b1 != null && Math.sign(b1 - b20) !== 0 && Math.sign(b1 - b20) !== Math.sign(b1 - b0) && Math.abs(b1 - b20) >= 3
     ? `. 최근 20거래일은 ${b20.toFixed(0)}% → ${b1.toFixed(0)}%로 ${b1 > b20 ? '다시 넓어지는 중입니다' : '다시 줄어드는 중입니다'}` : '';
   const hasBreadth = b50In.length >= 2;
@@ -169,20 +180,21 @@ function renderHomeParticipation({ documentRef: doc, root, history }) {
   const leadershipState = root ? readMarketRegime(root)?.leadershipVerdict?.state : null;
   const bridge = recentTurn && b1 > b20 && (leadershipState === 'break' || leadershipState === 'weak')
     ? ' 참여는 넓어지는데 주도주는 약해지는 중이라, 돈이 다른 업종으로 옮겨 가는 순환인지 동반 약세의 앞 단계인지가 다음 확인입니다.' : '';
+  const spanSessions = countOpenSessionsBetween(range[0], range[1], 'US');
   const read = hasBreadth
-    ? `${spx.length - 1}거래일 동안 S&P 500 ${signedText(spxMove, 1, '%')}, 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${recentTurn}.${bridge}`
-    : `${spx.length - 1}거래일 S&P 500 ${signedText(spxMove, 1, '%')}, 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다.`;
+    ? `${spanSessions === MARKET_WINDOWS.quarter ? '3개월' : `${spanSessions}거래일`} 동안 S&P 500 ${signedText(spxMove, 1, '%')}, 같은 기간 50일선 위 종목 ${b0.toFixed(0)}% → ${b1.toFixed(0)}%${recentTurn}.${bridge}`
+    : `${spanSessions}거래일 S&P 500 ${signedText(spxMove, 1, '%')}, 시장 폭 기록은 아직 같은 기간을 채우지 못했습니다.`;
   const head = doc.createElement('div');
   head.className = 'sx-card__head home-participation-head';
   const title = doc.createElement('h2');
   title.className = 'sx-card__title';
   title.id = 'home-participation-title';
-  title.textContent = participationTitle(spxMove, hasBreadth ? b0 : null, hasBreadth ? b1 : null);
+  title.textContent = participationTitle(spxMove, hasBreadth ? b0 : null, hasBreadth ? b1 : null, hasBreadth ? b20 : null);
   // v58.79 section frame: the head is the title and the last close as its chip (the period is the reading's first words);
   // the old "데이터 기준과 출처" row repeated the page's 데이터 출처 fold and left.
   const [, endMonth, endDay] = range[1].split('-').map(Number);
   head.classList.add('aio-frame-head');
-  head.append(title, asOfChip(doc, `${endMonth}/${endDay} 종가`, `최근 ${spx.length - 1}거래일, ${range[0]} ~ ${range[1]} 종가`));
+  head.append(title, asOfChip(doc, `${endMonth}/${endDay} 종가`, `최근 ${spanSessions}거래일, ${range[0]} ~ ${range[1]} 종가`));
   markFrame(host, 'home.participation');
   const note = doc.createElement('p');
   note.className = 'home-participation-read';

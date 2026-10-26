@@ -189,11 +189,18 @@ function drawChart(root, host, analysis, previous, kr = false) {
     // The legend names the dots; a label on the last bar was clipped at the chart's right edge.
     if (rs.highs.length) rsSeries.setMarkers(rs.highs.map((time) => ({ time, position: 'inBar', color: RS_LINE_COLOR, shape: 'circle', size: 0.6 })));
   }
-  const priceLine = (price, color, title, style = 2) => { if (price != null) candles.createPriceLine({ price, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true, title }); };
-  priceLine(analysis.pivot, '#ad7f58', '피벗', 0);
-  priceLine(analysis.prev.high, text, '전일 고가', 1);
-  priceLine(analysis.prev.low, text, '전일 저가', 1);
-  if (analysis.high52 > analysis.last.close * 1.002) priceLine(analysis.high52, grid === '#e8e2d9' ? '#999' : text, '52주 고점', 3);
+  // First-users run 4 (breaker #17): '피벗' sat under '전일 고가' when the two levels nearly matched. Levels within 0.4% of the
+  // last close share one axis label that names both; each keeps its own line.
+  const levels = [[analysis.pivot, '#ad7f58', '피벗', 0], [analysis.prev.high, text, '전일 고가', 1], [analysis.prev.low, text, '전일 저가', 1]];
+  if (analysis.high52 > analysis.last.close * 1.002) levels.push([analysis.high52, grid === '#e8e2d9' ? '#999' : text, '52주 고점', 3]);
+  const near = Math.abs(analysis.last.close) * 0.004;
+  const placed = [];
+  for (const [price, color, title, style] of levels.filter(([price]) => price != null).sort((x, y) => y[0] - x[0])) {
+    const group = placed.find((item) => Math.abs(item.price - price) <= near);
+    if (group) { group.titles.push(title); candles.createPriceLine({ price, color, lineWidth: 1, lineStyle: style, axisLabelVisible: false, title: '' }); continue; }
+    placed.push({ price, color, style, titles: [title] });
+  }
+  for (const item of placed) candles.createPriceLine({ price: item.price, color: item.color, lineWidth: 1, lineStyle: item.style, axisLabelVisible: true, title: item.titles.join('·') });
   // Contraction lows (depth) + descriptive events (8-day line, volume gap, squeeze, overheating).
   const toneColor = { favorable: up, burden: down, neutral: '#978365' };
   const markers = (analysis.vcp.valid ? analysis.vcp.contractions : []).map((row) => ({ time: analysis.bars[row.lowIndex].time, position: 'belowBar', color: '#ad7f58', shape: 'arrowUp', text: `수축 -${row.depth.toFixed(1)}%` }));
@@ -305,8 +312,12 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     set('stock-chart-status', '');
     // P1429: say which failure it is — no connection, an unknown ticker, or too little history.
     const retry = { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) };
+    // v58.80 (first-users run-4): the failure also says the last close the app already holds (the 요약 header's value).
+    let held = null;
+    try { held = payload == null ? root?._aioLastPublishedClose?.(sym) || null : null; } catch (_) { held = null; }
+    const heldText = held ? `앱에 있는 마지막 종가는 ${Number(held.date.slice(5, 7))}/${Number(held.date.slice(8, 10))} ${formatScreenerPrice(held.value, held.currency || (kr ? 'KRW' : 'USD'))}입니다(요약 탭과 같은 값). ` : '';
     const state = payload == null
-      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 중계 서버가 응답하지 않았습니다.', next: '잠시 후 다시 시도하거나 다른 종목으로 확인해 보세요.', action: retry })
+      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 중계 서버가 응답하지 않았습니다.', next: `${heldText}잠시 후 다시 시도하거나 다른 종목으로 확인해 보세요.`, action: retry })
       : bars.length === 0
         ? emptyState(doc, { title: `${sym}의 일봉이 없습니다`, reason: '티커가 맞는지 확인하세요. 한국 종목은 6자리 코드(예: 005930)로 검색합니다.' })
         : emptyState(doc, { title: `${sym}의 일봉이 ${bars.length}개뿐입니다`, reason: '추세·셋업 분석에는 최소 60거래일이 필요합니다.', next: '상장 직후 종목은 기록이 쌓인 뒤 분석됩니다.' });
@@ -385,7 +396,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   visuals.append(template);
   const list = el(doc, 'dl', null, 'regime-evidence');
   const structure = intervalStructure(analysis.bars);
-  const structureRows = [['단기 추세 (종가>5>10>20일선)', structure.short || '계산 불가'], ['장기 추세 (20>50>100>200일선)', structure.long || '기록 부족']];
+  const structureRows = [['단기 추세 (종가와 5·10·20일 평균선의 순서)', structure.short || '계산 불가'], ['장기 추세 (20·50·100·200일 평균선의 순서)', structure.long || '기록 부족']];
   for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (양호 ${regime.counts.favorable}, 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
   const more = el(doc, 'details', null, 'chart-evidence-more');
   more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 3}개)`), list);

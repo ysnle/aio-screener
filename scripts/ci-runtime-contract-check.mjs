@@ -1494,7 +1494,8 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
     roleGate && /_TICKER_WORD_OVERLAP\.has\(ticker\) \|\| _TICKER_ROLE_ACRONYM\.test\(ticker\)/.test(data) && /_TICKER_ROLE_ACRONYM\.test\(bare\)/.test(data));
   check('P1592/F16 the legacy cost-basis donut and sector mix yield to the native valued renderer',
     /c\.dataset\.aioPortfolioChartRenderer === 'native'/.test(pagesSource) && !/closest\('#page-portfolio\[data-aio-portfolio-chart-renderer/.test(pagesSource)
-      && /surf\.positionValue == null/.test(ui) && !/: \(entry\.cost \|\| 0\)/.test(ui));
+      // v58.80 first-users F19: the legacy sector bubble is retired outright; the native portfolio sector card owns the mix.
+      && !/_buildSectors/.test(ui) && !/: \(entry\.cost \|\| 0\)/.test(ui));
   check('P1592/F31 the skip link focuses the main region without writing a route hash',
     /a\.skip-link/.test(bootstrap) && /event\.preventDefault\(\)/.test(bootstrap) && /'#main-content'/.test(bootstrap));
   check('P1592/F30 the local news insight no longer writes a template summary into the translation cache',
@@ -1570,6 +1571,17 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
     restored?.clearedLive === 0 && restored.live === 2 && restored.registry.join() === 'dataStatus,signalDashboard', JSON.stringify(restored));
 }
 
+{
+  // v58.80 first-users run-1, behaviour only (P2066/P2069/P2070 are driven in the portfolio-vault and out-of-universe
+  // browser checks; the screener/fiscal loading wording is proven by the first-users run-2 phone persona).
+  const fomcKst = compatRoot._aioReleaseKstLabel?.('us-fomc', '2026-10-28');
+  check('P2067 the macro header names the FOMC release by its KST clock, the same day the body shows (10/28 ET → 10/29 KST)',
+    fomcKst === '10/29(목) 03:00', String(fomcKst));
+  const { closeFallback } = await import('../src/ui/components/home-index-strip.js');
+  const fb = closeFallback([{ date: '2026-10-22', spx: 6700 }, { date: '2026-10-23', spx: 6767 }], { close: 'spx', closeLabel: 'S&P 500' });
+  check('P2068 an index card whose intraday bars failed falls back to the last published close with its date',
+    fb?.date === '10/23' && fb.value === 6767 && Math.abs(fb.changePct - 1) < 1e-9, JSON.stringify(fb));
+}
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));

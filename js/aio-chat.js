@@ -1582,7 +1582,7 @@ function _aioBeginChatRequest(ctxId, query, options) {
     stopButton.className = sendButton.className;
     stopButton.textContent = '중지';
     stopButton.setAttribute('aria-label', '답변 생성 중지');
-    stopButton.addEventListener('click', function() { _aioCancelChatRequest(ctxId, 'user-cancelled'); });
+    stopButton.addEventListener('click', function() { if (Date.now() - run.startedAt < 800) return; _aioCancelChatRequest(ctxId, 'user-cancelled'); }); // first-users run 4 (breaker #7): the second click of a double-click on 전송 landed on 중지
     sendButton.parentNode.insertBefore(stopButton, sendButton.nextSibling);
     run.stopButton = stopButton;
   }
@@ -5265,7 +5265,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     }) : { blocked: true, reasons: ['action-permission-unavailable'], safeText: 'AI 안전 모드\n\n공통 행동 권한 검증을 사용할 수 없어 요청을 전송하지 않습니다.' };
   if (_uniPreProviderPermission.blocked === true) {
     inp.value = '';
-    _appendAIMsg('user', renderMarkdownLight(q));
+    _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>'));
     _appendAIMsg('ai', renderMarkdownLight(_uniPreProviderPermission.safeText || 'AI 안전 모드\n\n현재 요청은 행동 권한 경계를 통과하지 못했습니다.'));
     return;
   }
@@ -5314,14 +5314,14 @@ async function chatSendUnified(_aioDispatchOptions) {
       // with 'completed', so checking afterwards always looked cancelled and a timeout ended with no notice at all.
       var _uniUserCancelled = !!(_uniSignal && _uniSignal.aborted);
       _releaseUnifiedRun();
-      if (!_uniUserCancelled) _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice('WORKER_NOT_READY') : 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
+      if (!_uniUserCancelled) { _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>')); _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice('WORKER_NOT_READY') : 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.'); } // v58.80 (first-users F24): the question is shown above its failure notice (the box keeps it for a retry)
     }
     return;
   }
   if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }
   if (!_uniRoute.ok) {
     _releaseUnifiedRun();
-    _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
+    _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>')); _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
     return;
   }
   // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수
@@ -5345,7 +5345,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniUserMessage = { role: 'user', content: q };
   state.messages.push(_uniUserMessage);
   if (_uniRun) _uniRun.userMessage = _uniUserMessage;
-  _appendAIMsg('user', renderMarkdownLight(q));
+  _appendAIMsg('user', escHtml(q).replace(/\n/g, '<br>'));
   // 로딩 표시
   var loadBubble = _appendAIMsg('ai', '<span class="lch-muted">분석 중...</span>', 'ai-panel-loading');
   var aiBubble = null;

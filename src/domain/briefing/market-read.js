@@ -20,6 +20,7 @@ const DAY_MS = 86400000;
 import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile } from '../market/close-series.js';
 import { buildLeadershipVerdict } from '../market/leadership-verdict.js';
 import { signedText } from '../shared/number.js';
+import { withSubjectParticle } from '../content/korean-particle.js';
 import { breadthScopeOf } from '../market/screener-breadth.js';
 import { fearGreedBand } from '../sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
@@ -1107,9 +1108,9 @@ export function buildMarketRegime(input = {}) {
           : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip}, 200일선보다 ${buffer}% 넘게 아래(${fmt(spx.ma200 * (1 - buffer / 100), 0)} 미만)이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담${leadership.break && gap50 != null && gap50 >= 0 ? `, 주도 영역 이탈이 확인된 동안은 50일선(${fmt(spx.ma50, 0)}) 아래로 마감하기만 해도 부담` : ''}`; // v58.55: the leadership-break path the rule applies is named
     const rows = [
       ['S&P 500', `${fmt(spx.value)} (20일 ${signed(pct(spx.value, spx.d20))})`, alignments.spx],
-      ['50일선 대비', gap50 == null ? null : `${signed(gap50, 2)} (양호 진입 +${buffer}% 이상, 유지 ${holdAbovePct ? `+${holdAbovePct}%` : '50일선'} 이상)`, alignments.spx],
-      ['단기 추세 (종가>5>10>20일선)', structure.shortText, alignments.spx],
-      ['장기 추세 (20>50>100>200일선)', structure.longText, alignments.spx],
+      ['50일선 대비', gap50 == null ? null : `${signed(gap50, 2)} (50일선보다 ${buffer}% 넘게 위로 올라서면 양호, 그 뒤에는 ${holdAbovePct ? `${holdAbovePct}% 위` : '50일선 위'}에 머무는 동안 유지)`, alignments.spx],
+      ['단기 추세 (종가와 5·10·20일 평균선의 순서)', structure.shortText, alignments.spx],
+      ['장기 추세 (20·50·100·200일 평균선의 순서)', structure.longText, alignments.spx],
       ['50일선 / 200일선', spx.ma50 != null && spx.ma200 != null ? `${fmt(spx.ma50, 0)} / ${fmt(spx.ma200, 0)}` : null, alignments.spx],
       ['50일선 방향', rising == null ? null : rising ? '상승' : '하락', alignments.spx],
       ['1년 고점 대비', fromHigh == null ? null : signed(fromHigh), alignments.spx],
@@ -1307,7 +1308,7 @@ export function buildMarketRegime(input = {}) {
       return on ? 'burden' : point.d20 <= -R.move20dBp ? 'favorable' : 'neutral';
     };
     const yieldShow = (to, current) => [(to - current) * 100, 'bp', 0];
-    const changePoint = (bpLine) => ({ at: tnx.d20 + bpLine / 100, subject: '10년물 20일 변화가', mark: `${bpLine > 0 ? '+' : '-'}${Math.abs(bpLine)}bp(${fmt(tnx.d20 + bpLine / 100)}%)`, short: `20일 ${bpLine > 0 ? '+' : '-'}${Math.abs(bpLine)}bp, ${fmt(tnx.d20 + bpLine / 100)}%`, show: yieldShow });
+    const changePoint = (bpLine) => ({ at: tnx.d20 + bpLine / 100, subject: '10년물이', mark: `${fmt(tnx.d20 + bpLine / 100)}%(20거래일 전보다 ${bpLine > 0 ? '+' : '-'}${Math.abs(bpLine)}bp)`, short: `20일 ${bpLine > 0 ? '+' : '-'}${Math.abs(bpLine)}bp, ${fmt(tnx.d20 + bpLine / 100)}%`, show: yieldShow });
     const rangePoint = (share) => ({ at: tnx.yearMin + share * (tnx.yearMax - tnx.yearMin), subject: '10년물이', mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(tnx.yearMin + share * (tnx.yearMax - tnx.yearMin))}%)`, short: `1년 범위 ${Math.round(share * 100)}%, ${fmt(tnx.yearMin + share * (tnx.yearMax - tnx.yearMin))}%`, show: yieldShow });
     const ratesDistance = !tnx || tnx20 == null ? null : flipDistanceSearch({
       state, stateAt: (values) => ratesAt(values.tnx),
@@ -1397,7 +1398,7 @@ export function buildMarketRegime(input = {}) {
           : widening20 ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 20거래일 동안 ${signed(hy20, 0, 'bp')} 넓어졌습니다${hy5 != null ? `(최근 5일 ${signed(hy5, 0, 'bp')})` : ''} — 한 달째 확대라 안정으로 보지 않습니다.`
             : hy5 == null && hyBp < RULES.credit.tightBelowBp ? '스프레드 수준은 낮지만 5일 변화가 없어 방향을 확인하지 못했습니다.' : `신용은 크게 나쁘지 않지만 스프레드 수준·방향이나 헤지 수요가 경계선입니다(하이일드 ${fmt(hyBp, 0)}bp, 5일 ${signed(hy5, 0, 'bp')}${month}).`;
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? `하이일드 스프레드가 ${RULES.credit.stressAtBp}bp 아래이고 5일 확대가 +${RULES.credit.widen5dBp}bp 미만이며 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄면 중립으로 바뀜(같은 때 5일 확대가 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호)`
+      : state === 'burden' ? `하이일드 스프레드가 ${RULES.credit.stressAtBp}bp 아래이고 5일 확대가 +${RULES.credit.widen5dBp}bp 미만이며 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄면 중립, 그때 5일 확대도 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호로 바뀜`
         : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대, 풋/콜 ${RULES.credit.putCallHedgeAt} 이상 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
           : `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 20거래일 확대 +${RULES.credit.widen20dBp}bp 미만, 풋/콜 ${RULES.credit.putCallHedgeAt} 미만이면 양호, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`;
     axes.push(axis('credit', '신용과 위험선호', state, [
@@ -1444,7 +1445,9 @@ export function buildMarketRegime(input = {}) {
       return !oilHeld && w20 != null && d20 != null && w20 <= RULES.oil.fall20dPct && d20 <= 0 ? 'favorable' : 'neutral';
     };
     const changeShow = (stat) => (to, current) => [pct(to, stat.d20) - pct(current, stat.d20), '%p', 1];
-    const pricePoint = (stat, subject, name, line, digits) => ({ at: stat.d20 * (1 + line / 100), subject: `${subject} 20일 변화가`, mark: `${line > 0 ? '+' : line < 0 ? '-' : ''}${Math.abs(line)}%(${fmt(stat.d20 * (1 + line / 100), digits)})`, short: `${name} 20일 ${line > 0 ? '+' : line < 0 ? '-' : ''}${Math.abs(line)}%, ${fmt(stat.d20 * (1 + line / 100), digits)}`, show: changeShow(stat) });
+    // v58.80 (first-users bundle 2): "WTI 20일 변화가 +10%(101.65) 아래로" read as a price and a percent at once; the level
+    // comes first and the 20-session change explains it ("WTI가 101.65(20거래일 전보다 +10%) 아래로 내려가면").
+    const pricePoint = (stat, subject, name, line, digits) => ({ at: stat.d20 * (1 + line / 100), subject: withSubjectParticle(subject), mark: `${fmt(stat.d20 * (1 + line / 100), digits)}(20거래일 전${line ? `보다 ${line > 0 ? '+' : '-'}${Math.abs(line)}%` : '과 같은 수준'})`, short: `${name} 20일 ${line > 0 ? '+' : line < 0 ? '-' : ''}${Math.abs(line)}%, ${fmt(stat.d20 * (1 + line / 100), digits)}`, show: changeShow(stat) });
     const positionPoint = (stat, subject, name, share, digits) => stat.yearPosition == null ? null : { at: stat.yearMin + share * (stat.yearMax - stat.yearMin), subject, mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)})`, short: `${name} 1년 범위 ${Math.round(share * 100)}%, ${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)}`, show: (to, current) => [pct(to, current), '%', 1] };
     const commodityLevers = [
       wti?.d20 ? { key: 'wti', current: wti.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'wti', { through: basis })), points: [

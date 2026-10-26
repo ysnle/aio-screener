@@ -2113,18 +2113,7 @@ window._aioSetProfile = function(key) {
   try { localStorage.setItem('aio_trader_profile', key); } catch (_) {}
   try { window.dispatchEvent(new CustomEvent('aio:screener:profile', { detail:key })); } catch (_) {}
 };
-window._aioWatchlistGet = function() {
-  try { return JSON.parse(localStorage.getItem('aio_watchlist') || '[]'); } catch (_) { return []; }
-};
-window._aioWLToggle = function(sym) {
-  if (!sym) return;
-  var watchlist = window._aioWatchlistGet();
-  var index = watchlist.indexOf(sym);
-  if (index >= 0) watchlist.splice(index, 1);
-  else if (watchlist.length < 100) watchlist.push(sym);
-  try { localStorage.setItem('aio_watchlist', JSON.stringify(watchlist)); } catch (_) {}
- try { window.dispatchEvent(new CustomEvent('aio:screener:watchlist', { detail:{ symbol:sym, watchlist:watchlist } })); } catch (_) {}
-};
+// v58.80 (first-users F29): _aioWatchlistGet/_aioWLToggle read and write the 관심 종목 lists (src/data/watchlist-store.js).
 
 
 // v50.38 트랙1: 누락됐던 _fetchYahooChartData 복구 (핵심 버그 — 8곳에서 호출되나 정의 부재였음).
@@ -5230,9 +5219,9 @@ function _aioRenderOperatorNote() {
     '<div class="aio-operator-note-card aio-operator-note-priority aio-market-sentence" data-source-kind="REFERENCE" data-operational-use="reference-only" data-sentence-day="' + escHtml(line.day) + '">' +
       '<div class="aio-operator-note-meta">' +
         '<span class="aio-operator-note-kicker">오늘의 한 문장</span>' +
-        '<span class="aio-operator-note-date">' + escHtml(md) + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' +
+        '<span class="aio-operator-note-date">' + escHtml(md) + ' 작성' + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' + // v58.80 (first-users run-4): the writing day, not the close it reads
       '</div>' +
-      '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' +
+      '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' + (function(v) { return v ? '<div class="aio-operator-note-verdict">' + escHtml(v) + '</div>' : ''; })(typeof window._aioSentenceVerdict === 'function' ? window._aioSentenceVerdict() : '') +
     '</div>';
   el.style.display = 'block';
 }
@@ -5721,7 +5710,7 @@ window._aioStartServerDataPolling = _aioStartServerDataPolling;
 async function _aioLoadHistory() {
   try {
     var url = './public-data/history.json'; // v57.61 (perf): no ?t= — the no-cache fetch revalidates (304) instead of re-downloading 3MB each hour
-    var r = await fetch(url, { cache: 'no-cache' });
+    var pre = window.__aioHistoryPrefetch; window.__aioHistoryPrefetch = null; var r = await (pre ? pre.catch(function() { return fetch(url, { cache: 'no-cache' }); }) : fetch(url, { cache: 'no-cache' })); // the boot prefetch (index.html), once
     if (!r.ok) return null;
     var arr = await r.json();
     if (!Array.isArray(arr)) return null;
@@ -8993,7 +8982,7 @@ async function freeTranslateNews(items) {
   });
 
   if (needTrans.length === 0) {
-    if (statusEl) statusEl.textContent = _foreignCount ? '✓ 해외 기사 ' + _foreignCount + '건 번역 완료' : '한국어 기사만 있어 번역할 항목이 없습니다';
+    if (statusEl) statusEl.textContent = _foreignCount ? (function(ko) { return ko === _foreignCount ? '해외 기사 ' + _foreignCount + '건 모두 한국어 제목' : '해외 기사 ' + _foreignCount + '건 중 ' + ko + '건 한국어 제목, ' + (_foreignCount - ko) + '건은 원문 제목 그대로'; })(items.filter(function(i) { return i.title && !isKoreanText(i.title) && _hasUsableTranslation(i); }).length) : '한국어 기사만 있어 번역할 항목이 없습니다';
     if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError({ status: 200, message: 'success' }, { source: 'translation' });
     return;
   }
@@ -11555,7 +11544,7 @@ async function fetchLiveQuotes(requestedSymbols) {
 
   // ─── 1. 암호화폐: CoinGecko (완전 무료) → CF Worker 프록시 폴백 ────
   // v48.2: include_market_cap + include_24hr_vol 추가 — 거래량 스파이크 감지 + BTC 도미넌스 판단 가능
-  try {
+  if (Date.now() - (window._aioCryptoQuoteAt || 0) > 300000) try { window._aioCryptoQuoteAt = Date.now(); // v58.80 (first-users): crypto once per 5 min, not on every screen's quote request
     const cgUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true&include_last_updated_at=true';
     let d = null;
     // 직접 시도
@@ -12358,9 +12347,9 @@ function _aioMarkLiveSink(el, sym, d, policyKey, unavailable) {
     // plain status (참고·지연), and the raw codes stay in data-truth-issues for operators.
     var _truthCodes = (truth.issues || []).concat(truth.warnings || []).join(' ');
     var _truthWhen = ts ? new Date(Number(ts) < 1e12 ? Number(ts) * 1000 : Number(ts)) : null;
-    var _truthTime = _truthWhen && isFinite(_truthWhen.getTime()) ? ', 관측 ' + _truthWhen.toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    var _truthTime = _truthWhen && isFinite(_truthWhen.getTime()) ? ', 관측 ' + (function(p) { var g = function(t) { return (p.find(function(x) { return x.type === t; }) || {}).value || ''; }; return g('month') + '/' + g('day') + ' ' + g('hour') + ':' + g('minute') + ' KST'; })(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(_truthWhen)) : ''; // run-3 B7: one M/D HH:mm KST style
     if (truth.status === 'blocked' || truth.status === 'warn') {
-      el.title = (/stale/.test(_truthCodes) ? '지연된 값' : /snapshot|non_operational/.test(_truthCodes) ? '최근 수집본(참고용)' : '참고용 값') + _truthTime + ' — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.';
+      el.title = (/stale/.test(_truthCodes) ? '마지막으로 받은 값(장이 닫혀 있으면 마감 값)' : /snapshot|non_operational/.test(_truthCodes) ? '최근 수집본(참고용)' : '참고용 값') + _truthTime + ' — 화면 참고용이며 실시간 판단 근거로 쓰지 않습니다.';
     }
   }
   if (!unavailable && /unavailable|미수신|failed|실패/i.test(String(el.title || ''))) el.title = '';

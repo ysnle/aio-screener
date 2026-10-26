@@ -233,7 +233,13 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     // Codex browser audit H20: the calendar only says before-open / after-close; "21:00" was our placeholder hour
     // shown as if the company had announced it. Earnings rows show the US date and session, not a clock time.
     const usDate = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}`;
-    const whenLabel = row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} (시각 미정)` : `${usDate} 미국, 발표 시각 미정`;
+    // First-users F09: an after-close report sat under the next KST day with only its US date; the KST day is named too.
+    const kstMs = row.hour === 'amc' ? etWallClockToMs(row.date, [16, 0]) : row.hour === 'bmo' ? etWallClockToMs(row.date, [9, 30]) : null;
+    const kstDay = Number.isFinite(kstMs) ? new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric' }).format(new Date(kstMs)) : null;
+    // first-users run-2 R2-24: the list is in Korean time, so a label led by the US date read out of order ("10/27 장 마감 후"
+    // under "10/28 05:00 KST"). The Korean day leads; the US date and session follow.
+    const whenLabel = (row.hour === 'bmo' || row.hour === 'amc') && kstDay ? `한국 ${kstDay} ${row.hour === 'amc' ? '새벽' : '밤'} (미국 ${usDate} ${session}, 시각 미정)`
+      : row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} (시각 미정)` : `${usDate} 미국, 발표 시각 미정`;
     void when;
     // v57.88 (screen audit): '장 전' has no announced clock time — the 08:00 ET placeholder made it read '예정 시각 지남' at
     // 08:10 ET. It is past only once the regular session has opened (09:30 ET).
