@@ -1,3 +1,7 @@
+## v59.09 (2026-10-27)
+- **배포 후 텔레그램 검증 완화 (v59.09):** 20:52Z 갱신부터 공개 채널 4개 중 aetherjapanresearch의 미리보기가 'first page parsed no posts'로 실패했다. 그래서 'Verify released Pages and all external planes'(pages-telegram-coverage)가 모든 채널 무오류를 요구하며 v59.08 배포 뒤 검증을 계속 빨갛게 만들었다. 나머지 3개 채널과 다이제스트(2,464건)는 정상이었다. coverage는 정상 채널 3개 이상이면 통과하고, 실패 채널은 새 warning 검사 pages-telegram-channels (v59.09)가 이름과 함께 보여 준다(scripts/ci-external-pipeline-check.mjs). 해당 채널이 왜 파싱되지 않는지는 확인하지 못했다(클라우드에서 t.me 차단). PR #108, change-only.
+- R1 7곳 v59.09
+
 ## v59.08 (2026-10-27)
 - **레거시 분해 8/8 — 스크리너: 재무 팩터 안내 이동 (v59.08):** 스크리너의 재무 팩터 범위 안내(`#screener-fmp-status`, `#screener-fmp-reason`)를 `js/aio-data.js`의 `_aioRenderPipelineStatus`에서 `src/ui/components/screener-fmp-status.js`로 옮겼다. 파이프라인 상태는 스냅샷 meta를 넘기고, `src/app/legacy-screen-bridges.js`가 설치 때 마지막 meta로 한 번 그린다. 문구와 80% 기준은 그대로다. 키 없이 범위 값이 비었을 때 예전 코드는 `null.toFixed`에서 예외로 멈춰 초기 문구 '재무 자료 범위 확인 중'이 남고 뒤의 공개 준비도 갱신도 건너뛰었는데, 이제 같은 문구를 직접 쓰고 갱신도 이어진다. 이것으로 8화면의 화면 전용 레거시 쓰기가 모두 `src/`로 옮겨졌다.
 - **차트 '기록 이전' 라벨 겹침 수정 (P2104):** 시장 상태 추이 차트에서 시리즈 시작 전 빈 구간이 좁으면 '기록 이전' 라벨이 y축 숫자와 겹쳤다. 음영은 그대로 두고 라벨은 구간 안에 들어갈 때(60 단위 이상)만 쓴다.
