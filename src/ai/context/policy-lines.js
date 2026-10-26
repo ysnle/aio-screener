@@ -1,6 +1,8 @@
 // P1740: the policy rates, Korean official references and release calendar the screens already read (P1731–P1737),
 // in the chat's domain block. Each value carries its own reference date; a held (expired) value is said to be held,
 // never filled. includeKorea adds the BOK rate, Korean CPI and the export flash.
+import { releaseAtMs } from '../../domain/briefing/schedule.js';
+
 const day = (iso) => (/^\d{4}-\d{2}-\d{2}/.test(String(iso || '')) ? String(iso).slice(0, 10) : '');
 
 export function buildChatPolicyLines({ root = globalThis, includeKorea = false, now = Date.now() } = {}) {
@@ -34,7 +36,8 @@ export function buildChatPolicyLines({ root = globalThis, includeKorea = false, 
     const today = new Date(now).toISOString().slice(0, 10);
     const horizon = new Date(now + 21 * 86400000).toISOString().slice(0, 10);
     const upcoming = Object.entries(releases).map(([id, r]) => ({ id, name: r?.name || id, date: day(r?.nextRelease) }))
-      .filter((r) => r.date && r.date >= today && r.date <= horizon && r.id !== 'us-fed-rate' && (includeKorea || !/^kr-/.test(r.id)))
+      // v58.81: a release whose time has passed is not upcoming (the UTC date alone kept this morning's release listed).
+      .filter((r) => r.date && (Number.isFinite(releaseAtMs(r.id, r.date)) ? releaseAtMs(r.id, r.date) > now : r.date >= today) && r.date <= horizon && r.id !== 'us-fed-rate' && (includeKorea || !/^kr-/.test(r.id)))
       .sort((a, b) => a.date.localeCompare(b.date)).slice(0, 8);
     if (upcoming.length) out.push(`• 다가오는 공식 일정(3주): ${upcoming.map((r) => `${r.date.slice(5)} ${r.name}`).join(' · ')}`);
   } catch {}

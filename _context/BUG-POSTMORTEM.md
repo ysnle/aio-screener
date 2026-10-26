@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2093 - v58.81 - 13F 레인의 파일 크기 초과가 시장 데이터 갱신 전체를 막음 (2026-10-26)
+
+- symptom/reproduction: 2026-10-26 09:53Z부터 refresh-data가 7회 연속 실패해 공개 시세가 18:21 KST 관측에 멈췄고, 월요일 한국장 마감 뒤 미국 프리마켓(선물) 변화가 화면과 AI에 반영되지 않았다.
+- root_cause: 월요일 13F 신고 기간의 전체 체인이 public-data/masters/filings.json(502,329B)과 filing-discovery.json(495,589B)을 460,000B 예산 위로 키웠다. 13F 단계 자체 검사는 통과했고, 크기 검사는 뒤쪽 data 게이트 그룹(artifact-headroom)에서만 돌아 시장·뉴스·텔레그램 커밋까지 거부했다. v58.71의 13F 레인 격리(실패 시 HEAD로 복원)는 크기 초과를 실패로 보지 못했다.
+- fix: ci-artifact-size-headroom-check.mjs에 --only <prefix>를 추가하고 refresh-data의 13F 단계 끝에서 --only masters-로 실행한다. 초과하면 단계가 실패해 기존 복원 단계가 13F 파일을 마지막 공개본으로 되돌리고 나머지 갱신은 공개된다.
+- violated_rule: R603 (데이터 갱신 범위의 상태는 레인별로 격리)
+- prevention: 격리 가능한 레인(degradable lane)의 산출물 예산 검사는 그 레인 단계 안에서 실행해, 레인 실패가 다른 레인의 공개를 막지 않게 한다.
+- verification/residual: node scripts/ci-artifact-size-headroom-check.mjs --only masters- (5 budgets), 전체 실행 동일 결과; 워크플로 YAML에서 masters 단계 실패 시 masters-restore가 실행되는 조건 확인.
+
 ## P2092 - v58.80 - 이름을 입력하고 바로 Enter로 고르면 고른 종목의 후보 버튼이 검색칸 아래에 다시 생겼다 (2026-10-26)
 
 - symptom/reproduction: verify-aio stock: '삼성전자' 입력 뒤 Enter로 005930.KS를 연 다음에도 검색칸 아래에 '삼성전자 · 005930.KS' 후보가 남았고, 다음 검색에서 그 낡은 후보가 먼저 눌렸다.

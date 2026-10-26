@@ -47,9 +47,14 @@ const BUDGETS = [
   { id: 'consensus-estimates', bytes: size('public-data/consensus-estimates.json'), budget: 1_048_576 }
 ];
 
+// v58.81 (P2093, refresh 10/26): `--only <prefix>` checks one lane's budgets (the 13F lane runs it for `masters-`), so an
+// oversized lane file is caught inside its own degradable step and restored there instead of refusing the whole refresh.
+const onlyIndex = process.argv.indexOf('--only');
+const only = onlyIndex > -1 ? String(process.argv[onlyIndex + 1] || '') : null;
 const failures = [];
 const warnings = [];
-for (const row of BUDGETS) {
+const checked = only ? BUDGETS.filter((item) => item.id.startsWith(only)) : BUDGETS;
+for (const row of checked) {
   if (!row.bytes) continue;
   const share = row.bytes / row.budget;
   const line = `${row.id}: ${row.bytes.toLocaleString('en-US')} / ${row.budget.toLocaleString('en-US')} bytes (${Math.round(share * 100)}%)`;
@@ -69,7 +74,7 @@ const walk = (rel) => readdirSync(join(root, rel), { withFileTypes: true }).flat
   const child = `${rel}/${entry.name}`;
   return entry.isDirectory() ? walk(child) : [{ rel: child, bytes: statSync(join(root, child)).size }];
 });
-const publicFiles = existsSync(join(root, 'public-data')) ? walk('public-data') : [];
+const publicFiles = !only && existsSync(join(root, 'public-data')) ? walk('public-data') : [];
 for (const file of publicFiles) {
   if (file.rel === SEC_LEDGER_PATH) {
     const parts = Math.ceil(file.bytes / SEC_STORE_PART_MAX_BYTES);
@@ -87,4 +92,4 @@ if (failures.length) {
   console.error(`Artifact size headroom check failed:\n - ${failures.join('\n - ')}`);
   process.exit(1);
 }
-console.log(`Artifact size headroom OK: ${BUDGETS.filter((row) => row.bytes).length} budget(s), ${warnings.length} near limit.`);
+console.log(`Artifact size headroom OK: ${checked.filter((row) => row.bytes).length} budget(s), ${warnings.length} near limit.`);
