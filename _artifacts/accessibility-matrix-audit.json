@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-26T19:26:10.110Z",
-  "appRevision": "v59.02",
-  "gitHead": "fba69e003224783a41ccd2dcb6ec2e50785dbc05",
+  "observedAt": "2026-10-26T19:51:13.636Z",
+  "appRevision": "v59.03",
+  "gitHead": "de4c0c6de3a667e5174b3f709e09df3562526151",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -50,7 +50,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 2,
+      "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -77,30 +77,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "bp",
-          "width": 22,
-          "height": 25,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "%p",
-          "width": 22,
-          "height": 26,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 20,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -153,16 +131,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "KST",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -197,23 +167,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 24,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -248,23 +203,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 22,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -389,8 +329,15 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
+      "smallTargetExceptionCount": 2,
       "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "13F",
+          "width": 23,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        },
         {
           "id": "",
           "text": "GitHub Issues",
@@ -415,16 +362,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 24,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     }
