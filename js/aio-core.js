@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.80';
+const APP_VERSION = 'v58.84';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -8916,43 +8916,6 @@ window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {
 // the public helper.  No mechanical month advance or Date.now-as-release-date
 // fallback is permitted.
 window.AIO.refreshMacroCalendarFromOfficialSchedule();
-
-window.AIO.renderMacroNextRelease = function() {
-  var el = document.getElementById('macro-next-release');
-  var releases = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases, nowMs = Date.now(), notYet = typeof window._aioMacroReleaseNotYet === 'function' ? window._aioMacroReleaseNotYet : function(k, d, n, t) { return d >= t; }; // P1844 (codex F07): native release clock
-  if (!el) return null;
-  if (!releases) {
-    el.textContent = '공식 일정 원천 수신 대기';
-    el.setAttribute('data-runtime-state', 'unavailable');
-    el.setAttribute('data-operational-use', 'blocked');
-    return null;
-  }
-  var todayKst = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
-  }).format(new Date());
-  var upcoming = Object.keys(releases).map(function(key) {
-    return { key:key, name:releases[key].name, date:releases[key].nextRelease };
-  }).filter(function(item) {
-    return item.date && notYet(item.key, item.date, nowMs, todayKst);
-  }).sort(function(a, b) {
-    return a.date.localeCompare(b.date);
-  });
-  // v57.88 (screen audit): US first — the 미국 거시 header named 한국은행 (10/22) while the scenarios named FOMC (10/28).
-  upcoming = upcoming.filter(function(i) { return /^us-/.test(i.key); }).concat(upcoming.filter(function(i) { return !/^us-/.test(i.key); }));
-  if (!upcoming.length) {
-    el.textContent = '다음 주요 발표 일정 확인 필요';
-    el.setAttribute('data-runtime-state', 'unavailable');
-    el.setAttribute('data-operational-use', 'calendar-only');
-    return null;
-  }
-  // P1505: a release is named for the reader ("미국 CPI"), not by the agency code ("BLS CPI").
-  var _releaseLabels = { 'us-nfp': '미국 고용보고서', 'us-cpi': '미국 CPI', 'us-pce': '미국 PCE 물가', 'us-ism-mfg': 'ISM 제조업 지수', 'us-ism-svc': 'ISM 서비스업 지수', 'us-retail': '미국 소매판매', 'us-fomc': 'FOMC 금리 결정', 'us-fed-rate': 'FOMC 금리 결정', 'kr-bok': '한국은행 금리 결정', 'conf-gtc-dc': 'NVIDIA GTC' };
-  var _kstWhen = typeof window._aioReleaseKstLabel === 'function' ? window._aioReleaseKstLabel(upcoming[0].key, upcoming[0].date) : null; // v58.80 first-users F09: KST like the body
-  el.textContent = '다음 주요 발표: ' + (_kstWhen ? _kstWhen + ' KST ' : '') + (_kstWhen ? '' : (function(d) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || '')); return m ? Number(m[2]) + '/' + Number(m[3]) + '(' + '일월화수목금토'.charAt(new Date(Date.UTC(+m[1], m[2] - 1, +m[3])).getUTCDay()) + ') ' : (d ? d + ' ' : ''); })(upcoming[0].date)) + (_releaseLabels[upcoming[0].key] || upcoming[0].name); // v57.91: '10/28(수) FOMC 금리 결정'
-  el.setAttribute('data-runtime-state', 'official-reference');
-  el.setAttribute('data-operational-use', 'calendar-only');
-  return upcoming[0];
-};
 
 window.AIO.getMacroReleaseStaleAudit = function() {
   var reg = window.AIO_MACRO_CALENDAR;
@@ -18123,51 +18086,6 @@ window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
 // P1137/R623: NAV_ROUTE is the canonical 20 minus the derived-view and reference classes — derived, not re-listed.
 window.AIO_ROUTE_REGISTRY.classes.NAV_ROUTE = (window.AIO_ALL_ROUTE_PAGE_IDS || []).filter(function(id) { var c = window.AIO_ROUTE_REGISTRY.classes; return (c.DERIVED_VIEW || []).indexOf(id) < 0 && (c.REFERENCE || []).indexOf(id) < 0; });
 
-// v52.42 (P657/EF-16): kr-macro 카드별 기준일 노출이 산발적이었다(수출입 동향엔 "아카이브" 라벨이
-// 있지만 기준금리·물가·경기 카드엔 없음) — 이미 있는 _fieldTs(bok_rate/kr_macro)를 재사용해
-// 일관된 "기준: MM/DD (N일 전)" 배지를 3개 주요 카드에 부여(새 필드 신설 없음, R276 정신).
-window._aioRenderKrMacroFreshnessBadges = function() {
-  var S = window.DATA_SNAPSHOT || {};
-  var ts = S._fieldTs || {};
-  function badge(id, key) {
-    var el = document.getElementById(id);
-    var dateStr = ts[key];
-    if (!el) return;
-    if (!dateStr) {
-      el.textContent = '기준: 미수신';
-      el.style.color = 'var(--text-muted)';
-      el.setAttribute('data-runtime-state', 'unavailable');
-      return;
-    }
-    var days = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(dateStr) : Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
-    el.textContent = '기준: ' + dateStr.slice(5).replace('-', '/') + ' (' + days + '일 전)';
-    el.style.color = days > 30 ? 'var(--data-amber)' : 'var(--text-muted)';
-  }
-  badge('kr-macro-bokrate-freshness', 'bok_rate');
-  badge('kr-macro-cpi-freshness', 'kr_cpi');
-  badge('kr-macro-pmi-freshness', 'kr_pmi');
-};
-
-var _aioMacroCalendarSyncBound = false;
-var _initMacroPage = function() {
-  // P875: the release registry and the server snapshot are loaded on separate
-  // lanes. Re-render both calendar surfaces on entry and when the shared cut
-  // arrives so a cold direct route cannot remain stuck on "계산 중".
-  if (window.AIO && typeof window.AIO.renderMacroNextRelease === 'function') {
-    try { window.AIO.renderMacroNextRelease(); } catch(e) {}
-  }
-  if (!_aioMacroCalendarSyncBound) {
-    _aioMacroCalendarSyncBound = true;
-    document.addEventListener('aio:sharedMarketCut', function() {
-      if (!document.getElementById('page-macro')?.classList.contains('active')) return;
-      try { if (window.AIO && typeof window.AIO.renderMacroNextRelease === 'function') window.AIO.renderMacroNextRelease(); } catch(e) {}
-    });
-  }
-  // v53.7 (P725): 한국 매크로 통합 섹션 — 구 PAGES['kr-macro'].init에서 이관
-  if (typeof _aioRenderKrMacroFreshnessBadges === 'function') { try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }
-  // P1425: the yield-curve canvas and the FRED 12-month charts left the 거시 page with the native boards.
-}
-
 var _initFundamentalPage = function() {
   if (typeof _fundRecentSearches === 'function') { try { _fundRecentSearches(); } catch(e) {} }
   // The native entity slice fills the default surface from the bounded SEC projection.
@@ -18258,10 +18176,10 @@ var _safePageInitGlobal = function(pageId, fn) {
 }
 // P1339: b7bce36b nulled PAGES[route].init and orphaned these initializers (macro calendar/FRED/KR badges,
 // briefing strip, fundamental recent searches, guide chapters). One page-shown hook restores them without PAGES.init.
+// 2026-10-26: the macro initializer left with the 거시 · 금리 renderers (src/ui/components/macro-next-release.js).
 _aioPageBus.register('core-page-init-rewire', 'aio:pageShown', function(e) {
   var id = e && e.detail;
-  if (id === 'macro') _safePageInitGlobal('macro', _initMacroPage);
-  else if (id === 'briefing') _safePageInitGlobal('briefing', _initBriefingPage);
+  if (id === 'briefing') _safePageInitGlobal('briefing', _initBriefingPage);
   else if (id === 'fundamental') _safePageInitGlobal('fundamental', _initFundamentalPage);
   else if (id === 'guide') _safePageInitGlobal('guide', function() { _aioPolishRemainingPages('guide'); }); // idempotent via data-aio-remaining-polished
 });

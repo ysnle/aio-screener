@@ -1,3 +1,7 @@
+## v58.84 (2026-10-26)
+- **레거시 분해 1/8 — 거시 · 금리 (v58.84):** 거시 화면에 남아 있던 legacy 렌더러(다음 주요 발표 헤더 `window.AIO.renderMacroNextRelease`, 한국 거시 기준일 배지 `_aioRenderKrMacroFreshnessBadges`, `_initMacroPage`와 그 page-shown 훅)를 `js/aio-core.js`에서 지우고 `src/ui/components/macro-next-release.js`로 옮겼다. `src/ui/pages/market.js` 거시 렌더가 두 함수를 직접 부르고, 헤드리스 테스트·QA용 전역 이름은 `src/app/compatibility-globals.js`가 유지한다. 화면 출력·속성은 그대로이며, 발표 시각 판정은 legacy와 같은 부팅 브리지(`_aioMacroReleaseNotYet`/`_aioReleaseKstLabel`)를 읽어 새 모듈이 부팅 번들 청크를 쪼개지 않는다(전역 이름은 동적 import로 설치, 부팅 예산 안). legacy의 `aio:sharedMarketCut` 재렌더 리스너는 document에 걸려 있었지만 이벤트는 window로 발송돼 한 번도 실행되지 않았다 — 같은 서버 데이터 패스의 `aio:serverDataLoaded` 재렌더가 이미 헤더를 다시 그리므로 옮기지 않았다. 게이트 4건(structural·runtime-contract)이 새 위치를 읽는다.
+- R1 7곳 v58.84
+
 ## v58.80 (2026-10-25)
 - **미래 자료 누설 검사 (P2064/R725):** freqtrade의 lookahead·recursive 분석 방식으로 scripts/ci-lookahead-check.mjs를 추가했다. 과거 판정이 그날까지 자료로 다시 계산한 값과 같은지, 테마 단계 백필이 그날 이후 종가를 바꿔도 같은지, 오늘 판정이 오래된 이력에 기대지 않는지 본다. 이 검사가 백필이 지금 구성 종목을 과거에 쓴다는 점을 드러내, 단계 안내 문구가 이를 밝힌다.
 - **작업 지침 (v58.80, 소유자 제공 링크 8건):** CLAUDE.md·AGENTS.md에 '문서와 코드가 어긋나면 코드 관례를 따르고 어긋남을 모두 보고, 제품 결정과 다른 코드는 결함'(arXiv 2610.30571: 낡은 지시 파일을 90% 따르던 것이 한 문장으로 코드 준수 4%→91%)과 '가능성 낮은 경합·보안 사례에 복잡도를 더하려면 먼저 동의'(opencode)를 넣었다. AGENTS 마감 절의 손으로 복제한 게이트 10줄은 qa-runner preflight·workspace 그룹 실행으로 바꿨다(복제 목록이 게이트를 빠뜨린 v57.61 전례).
