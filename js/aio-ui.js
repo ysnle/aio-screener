@@ -1769,7 +1769,7 @@ window._aioDiagram = (function () {
           // typeof 가드 후 호출). initSignalDashboard()가 이미 페이지 진입 시 호출하므로 중복 안전.
           try { if (typeof window.refreshSignalDashboard === 'function') window.refreshSignalDashboard(); } catch(_) {}
           break;
-        // v58.87 (legacy decomposition 2/8 시장 상태): the breadth/sentiment diagram slots (#vis-breadth-regime,
+        // v58.88 (legacy decomposition 2/8 시장 상태): the breadth/sentiment diagram slots (#vis-breadth-regime,
         // #vis-sentiment-gauge) are gone; src/ui/components/breadth-board.js and src/ui/pages/sentiment.js own those routes.
         case 'briefing':
           _render('vis-briefing-pipeline', 'pipeline-status', _buildPipeline());

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v58.87';
+const APP_VERSION = 'v58.88';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2583,7 +2583,7 @@ if (typeof document !== 'undefined') {
       // v52.88 P703: sentiment 복합 판단은 시안 3b의 마지막 결론이다.
       // 상단으로 끌어올리던 구 로직을 제거해 헤더→F&G/VIX→지표→복합판단 순서를 보존한다.
       // v58.20: the breadth verdict move (#breadth-diag-signal) is gone — that element is no longer rendered anywhere.
-      // v58.87 (legacy decomposition 2/8 시장 상태): the signal lockout/exit-trigger reorder left with its DOM — none of
+      // v58.88 (legacy decomposition 2/8 시장 상태): the signal lockout/exit-trigger reorder left with its DOM — none of
       // #signal-lockout-control, #signal-exit-triggers, #entry-checklist-card or #sig-ticker-bar is rendered any more.
       // v57.76: the home conclusion-bar and market-summary-banner reorders were deleted with both anchors.
       // P1322: home order (KPI → cross assets → score → today's summary) is static in index.html; no runtime move.
@@ -2615,7 +2615,7 @@ if (typeof document !== 'undefined') {
   // P1411: the legacy briefing digest (#briefing-digest) was retired; the briefing is the native
   // connected read (src/ui/components/briefing-read.js) and no hidden copy is built any more.
 
-  // v58.87 (legacy decomposition 2/8 시장 상태): _aioGuardEmptyVerdicts left with its only box (#sent-analysis-text in
+  // v58.88 (legacy decomposition 2/8 시장 상태): _aioGuardEmptyVerdicts left with its only box (#sent-analysis-text in
   // #page-sentiment), which no renderer draws any more.
 
 
@@ -10051,7 +10051,7 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
   // v53.7 (P725): KR 테마 심볼은 이제 themes 페이지(통합 섹션)에서 수집 — KR 전용 라우트 퇴역
   var isKrThemePage = id === 'themes';
   var limit = (scope && scope.symbolLimit) || (isThemePage ? (isKrThemePage ? 900 : 650) : 260);
-  // v58.87: the signal lockout symbol input left with its control; the signal route collects no input symbol.
+  // v58.88: the signal lockout symbol input left with its control; the signal route collects no input symbol.
   if (id === 'technical') {
     // v57.76: the brief/TradingView ticker inputs were deleted; the 차트 tab shows the 종목 subject.
     _aioPushSymbol(out, window._aioLastOpenedSymbol);
