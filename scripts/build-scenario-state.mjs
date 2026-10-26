@@ -153,7 +153,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const themeDay = playbook.asOf;
   const themeHistory = mergeThemeHistory(previous?.themeHistory || [], themeBackfill).filter((row) => row.date !== themeDay);
   if (themeDay) themeHistory.push({ date: themeDay, themes: Object.fromEntries(snapshot.themes.map((row) => [themeKey(row), [row.ret1m == null ? null : Math.round(row.ret1m * 10) / 10, row.state]])) });
-  return {
+  const payload = {
     schemaVersion: SCENARIO_STATE_SCHEMA, status: SCENARIO_STATE_CURRENT, generatedAt: at,
     sourceLabel: 'AIO 공개 산출물(거시 기록·확정 종가·스크리너)로 갱신마다 재계산',
     basis: { macroAsOf: crossroads.asOf || null, themeAsOf: themeDay || null, themeAsOfByMarket: playbook.asOfByMarket || null, outcomesAt: outcomes?.generatedAt || null },
@@ -163,6 +163,18 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
     transitions: transitions.slice(-MAX_TRANSITIONS), eventOutcomes, lastScored,
     themeHistory: themeHistory.sort((a, b) => a.date.localeCompare(b.date)).slice(-MAX_THEME_DAYS)
   };
+  // Not part of scenario-state.json (non-enumerable): main() writes it as its own 1 KB artifact.
+  Object.defineProperty(payload, 'todayVerdict', { value: todayVerdictFrom(interpretation.regime, at), enumerable: false });
+  return payload;
+}
+
+// First-users F01 (run-5 phone): on slow 3G the 오늘 verdict waited ~40 s for 1.9 MB of scripts and history. The static
+// shell paints this record (the same interpretation the screen computes) until the screen's own render replaces it.
+export const TODAY_VERDICT_SCHEMA = 'today-verdict.v1';
+export function todayVerdictFrom(regime, at) {
+  if (!regime?.available || !regime.overall || !regime.asOf) return null;
+  return { schemaVersion: TODAY_VERDICT_SCHEMA, generatedAt: at, asOf: regime.asOf, overall: regime.overall,
+    heroLine: regime.heroLine || '', holdReason: regime.holdReason || null, counts: regime.counts || null };
 }
 
 async function main() {
@@ -174,6 +186,7 @@ async function main() {
   });
   if (!payload.crossroads.items.length) { console.warn('[scenario-state] no branches computed — artifact unchanged'); return; }
   await atomicWriteFile(PD('scenario-state.json'), JSON.stringify(payload));
+  if (payload.todayVerdict) await atomicWriteFile(PD('today-verdict.json'), JSON.stringify(payload.todayVerdict));
   console.log(`[scenario-state] lead=${payload.crossroads.leadId} alt=${payload.crossroads.altId} themes=${payload.themes.length} transitions=${payload.transitions.length} scored=${payload.eventOutcomes.length}`);
 }
 

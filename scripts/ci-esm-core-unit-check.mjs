@@ -6131,3 +6131,13 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const bare = { getItem: (k) => (empty.has(k) ? empty.get(k) : null), setItem: (k, v) => empty.set(k, String(v)), removeItem: (k) => empty.delete(k) };
   if (toggleWatchlistSymbol(bare, 'MSFT', 4).listName !== '관심 종목') fail('v58.80 star with no list makes "관심 종목"');
 }
+
+// v58.80 (first-users F01, run-5 phone): the static shell paints the produced verdict; the record is the shared interpretation's
+// regime fields only (the shell's request order is driven in verify-aio today).
+{
+  const { todayVerdictFrom } = await import(new URL('./build-scenario-state.mjs', import.meta.url));
+  if (todayVerdictFrom({ available: false, overall: '판정 대기' }, 'x') !== null) fail('v58.80 F01 no verdict record without an available regime');
+  const record = todayVerdictFrom({ available: true, overall: '다소 부담', asOf: '2026-10-23', heroLine: '한 줄', holdReason: null, counts: { burden: 3 }, axes: [1] }, '2026-10-26T00:00:00Z');
+  if (record?.overall !== '다소 부담' || record.asOf !== '2026-10-23' || 'axes' in record || record.schemaVersion !== 'today-verdict.v1') fail(`v58.80 F01 verdict record fields: ${JSON.stringify(record)}`);
+
+}

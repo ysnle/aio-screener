@@ -111,8 +111,8 @@ const bootModules = new Set(bootOutputs(build.metafile).map((file) => rel(path.j
 
 // 5. v58.80 (first-users F01): the module script sits at the end of a ~120 KB (gzip) index.html, so on a 50 KB/s line
 // bootstrap.js started only after the whole page had arrived (~13 s) and its static chunks after that (~32 s). The
-// boot set is announced in <head> as modulepreload, right after the data prefetch, so it downloads beside the legacy
-// scripts instead of after them. Order: the entry first, then its chunks.
+// boot set is announced as modulepreload (where: see below), so it downloads beside the legacy scripts instead of after
+// them. Order: the entry first, then its chunks.
 const indexPath = path.join(dist, 'index.html');
 // The page itself was ~117 KB gzip, of which ~19 KB were authoring comments and ~45 KB inline <style>. The shipped
 // copy drops HTML comments outside <script>/<style> and minifies each inline <style> (no runtime code reads comment
@@ -132,10 +132,13 @@ const indexHtml = indexParts.join('');
 if (/rel="modulepreload"/.test(indexHtml)) throw new Error('index.html already carries modulepreload links (built twice?)');
 const preloadOrder = [ESM_ENTRY, ...[...bootModules].filter((file) => file !== ESM_ENTRY).sort()];
 const preloadLinks = preloadOrder.map((file) => `  <link rel="modulepreload" href="./${file}">`).join('\n') + '\n';
-const prefetchEnd = indexHtml.indexOf('</script>', indexHtml.indexOf('__aioBootPrefetch'));
-const viewportEnd = indexHtml.indexOf('>', indexHtml.indexOf('<meta name="viewport"'));
-const insertAt = prefetchEnd >= 0 ? indexHtml.indexOf('\n', prefetchEnd) + 1 : viewportEnd >= 0 ? indexHtml.indexOf('\n', viewportEnd) + 1 : -1;
-if (insertAt <= 0) throw new Error('index.html: no <head> anchor for the modulepreload links');
+// First-users run-5 (phone, slow 3G): announced in <head>, the boot set (~517 KB gzip) shared the line with the page and its
+// one stylesheet, and nothing drew for ~40 s while the bootstrap still waited for every legacy defer script. It is now
+// announced just before the module script: the page and stylesheet arrive first (the static shell paints the produced
+// verdict), and the modules download beside the legacy scripts found at the same point.
+const moduleTag = indexHtml.search(/<script type="module" src="\.\/src\/app\/bootstrap\.js[^"]*"><\/script>/);
+const insertAt = moduleTag >= 0 ? indexHtml.lastIndexOf('\n', moduleTag) + 1 : -1;
+if (insertAt <= 0) throw new Error('index.html: no bootstrap module script to announce the boot modules before');
 fs.writeFileSync(indexPath, indexHtml.slice(0, insertAt) + preloadLinks + indexHtml.slice(insertAt));
 
 const builtFiles = [...GLOBAL_SCRIPTS, ...Object.keys(outputs).filter((file) => file.endsWith('.js')).sort(), STYLE_ENTRY, 'index.html'];

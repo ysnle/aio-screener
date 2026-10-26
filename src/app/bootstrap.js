@@ -256,7 +256,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const recorded = krDate && Array.isArray(root._aioHistory) && root._aioHistory.some((row) => row?.date === krDate && Number(row.kospi) > 0);
     const label = recorded ? `${Number(krDate.slice(5, 7))}/${Number(krDate.slice(8, 10))}` : '';
     if (!label || text.includes(`${label} 마감`)) return text;
-    const count = text.match(/ · 시세 \d+종$/)?.[0] || '';
+    // The count joins with a comma since the v58.7x wording pass (' · 시세' before); either keeps the Korean close beside the US one.
+    const count = text.match(/(?: · |, )시세 \d+종$/)?.[0] || '';
     return `${count ? text.slice(0, -count.length) : text} · 한국 ${label} 마감${count}`;
   };
   root._aioRegimePulse = () => regimePulse(root._aioMarketRegimeSummary()); // v58.52: the top pulse bar's verdict

@@ -500,6 +500,7 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
   .page-title { font-size: 28px !important; }
   .page-head { margin-bottom: 14px !important; }
   .aio-hub-tabs { float: none; display: flex; margin: 4px 0 12px !important; justify-content: stretch; }
+  .aio-hub-tabs[hidden][data-pending] { display: block !important; min-height: 48px; } /* run-5 CLS: the row arrived ~35 s in on slow 3G and pushed the page down */
   .aio-hub-seg { display: flex; width: 100%; }
   .aio-hub-seg > .aio-hub-tab { flex: 1 1 0; padding: 0 8px !important; }
   .aio-hub-subject { flex: 1 1 100%; flex-wrap: wrap; }
@@ -551,4 +552,5 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
 .sx-page-foot-version { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* First-users F08: the screen's menu name above a tab's own title ("시장 상태 ›" over 국면 판정). */
-.page-title[data-hub-label]::before { content: attr(data-hub-label) " ›"; display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--text-muted); }
+/* Run-5 (phone #5): the trailing " ›" read as a tappable path; the hub name is a label, not a link. */
+.page-title[data-hub-label]::before { content: attr(data-hub-label); display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--text-muted); }

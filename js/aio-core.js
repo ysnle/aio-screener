@@ -1784,7 +1784,7 @@ window._aioLRU = function(name, cap) {
       }
     }
   }
-  document.addEventListener('click', dispatch);
+  document.addEventListener('click', dispatch); window._aioCoreDispatch = true; // run-5 F01: the static shell stops holding taps
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() { normalizeDataActionA11y(document); }, { once: true });
   } else {

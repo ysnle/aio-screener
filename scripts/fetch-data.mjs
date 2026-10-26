@@ -159,8 +159,12 @@ async function main() {
   catch (error) { console.warn(`[fetch-data] market timeline kept previous: ${error?.message || error}`); }
   if (timelineRun.timeline) data.marketTimeline = timelineRun.timeline;
   try {
-    const headlineTranslation = await translateHeadlines([...(data.news || []), ...(data.newsIntraday || []), ...timelineRun.newHeadlines], {
-      previous: [...(previous?.news || []), ...(previous?.newsIntraday || []), ...(previous?.marketTimeline?.current?.headlines || [])],
+    // First-users F31: a slot sealed while translation was down kept English titles for its two days. Its selection and quotes
+    // stay sealed; only the missing Korean title is filled by a later run (after this cycle's own headlines, inside the cap).
+    const untranslatedSealed = (data.marketTimeline?.slots || []).flatMap((slot) => slot?.headlines || []).filter((row) => row && !row.titleKo);
+    const headlineTranslation = await translateHeadlines([...new Set([...(data.news || []), ...(data.newsIntraday || []), ...timelineRun.newHeadlines, ...untranslatedSealed])], {
+      previous: [...(previous?.news || []), ...(previous?.newsIntraday || []), ...(previous?.marketTimeline?.current?.headlines || []),
+        ...(previous?.marketTimeline?.slots || []).flatMap((slot) => slot?.headlines || [])],
       request: aiUsage.shared('headline-translation'),
       translate: aiUsage.workersTranslate('headline-translation') });
     data.meta.headlineTranslation = headlineTranslation;

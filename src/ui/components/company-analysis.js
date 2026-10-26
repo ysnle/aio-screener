@@ -51,16 +51,17 @@ function card(doc, title, status) {
 // P1624: this renderer reads existing issuer-keyed caches only; no provider or paid calls.
 export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state, fundamentalsState=null }) {
   const host=doc?.getElementById('ticker-company-analysis'); if (!host) return null;
+  host._aioCompanyArgs={state,fundamentalsState}; // late repaints use the latest route state (see renderStockRead)
   const id=String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
   if (!id) { host.hidden=true; host.replaceChildren(); root.__aioCompanyAnalysis=null; return null; }
   // First-users run 4 (breaker #11): a symbol the US listing refused has no company to summarise (it read '다음 실적 일정 미확정').
   if (root?._aioOnDemandSymbol?.(id)?.status === 'not-listed') { host.hidden=true; host.replaceChildren(); delete host.dataset.signature; root.__aioCompanyAnalysis=null; return null; }
   // P1654: Korean listings read OpenDART annual accounts (loaded once per TTL; re-render when a new copy arrives).
   // 2026-10-14 audit #5: the theme stage rows (scenario-state.json) are read here too, not only after 거시 opened them.
-  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); }).catch(() => {});
-  if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); }).catch(() => {});
+  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs}); }).catch(() => {});
+  if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs}); }).catch(() => {});
   requestFiscalHistory(root, () => {
-    if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState});
+    if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs});
   }, 'company');
   let rows=[]; try { rows=root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) {}
   // v57.81: an out-of-universe US listing reads its on-demand row and SEC record (same formulas, computed on request).
@@ -77,9 +78,9 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state,
   // details and keyboard focus survive; a changed model restores both after rebuilding.
   let keys = null;
   if (!/\.K[SQ]$/.test(id)) {
-    requestConsensusEstimates(root, () => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); });
-    refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); }).catch(() => {});
-    const analysis = loadFundamentalAnalysis(() => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,state,fundamentalsState}); });
+    requestConsensusEstimates(root, () => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs}); });
+    refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs}); }).catch(() => {});
+    const analysis = loadFundamentalAnalysis(() => { if (root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs}); });
     keys = keyMetricsLine(row, consensusRowFor(root, id), root?.[EARNINGS_CALENDAR.key]?.earnings, undefined, analysis?.buildEarningsSchedule({ symbol: id, calendar: root?.[EARNINGS_CALENDAR.key], consensus: consensusRowFor(root, id), calendarState: sharedArtifactState(root, EARNINGS_CALENDAR.key) }));
   }
   const signature=`${keys || ''}|${root?._aioSecIssuerSic?.[id] || ''}|${fundamentals?.accession || ''}|${JSON.stringify(model)}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}`; // stage chips follow a new scenario state

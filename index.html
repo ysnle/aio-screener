@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="preload" as="style" href="src/ui/styles/responsive.css">
   <script>/* v58.80 F01: the first screens' verdict reads data.json and history.json; both start here, before any stylesheet or script, and their loaders take them once (src/data/boot-prefetch.js). */(function(){try{var m=Math.floor(Date.now()/60000),p=window.__aioBootPrefetch={},go=function(k,u){p[k]={url:u,minute:m,at:Date.now(),res:fetch(u,{cache:'no-cache',priority:'high'})};p[k].res.catch(function(){});};go('data','./public-data/data.json?t='+m);go('history','./public-data/history.json');}catch(_){}})();</script>
   <!-- v34.6: 캐시 방지 — GitHub Pages에서 항상 최신 버전 제공 -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -29,18 +30,11 @@
   <!-- v30.11 perf: 폰트를 preload로 비동기 로드 → 렌더 차단 제거 -->
   <!-- v58.53 개편 v2: Pretendard Variable 단일 서체 (Noto Serif KR 폐기) -->
   <!-- P1756: the same v1.3.9 font as unicode-range subsets — only the ranges a page draws download (the single file was 2 MB). -->
-  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
-<!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=58.80" defer></script>
-<script src="./js/aio-kr-data.js?v=58.80" defer></script>
-<script src="./js/aio-pages.js?v=58.80" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=58.80">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=58.80">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=58.80">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=58.80">
-  <!-- v48.31 perf: CDN 스크립트 다운로드 hint. P1756: Chart.js / lightweight-charts are no longer preloaded — they load on first chart use. -->
-  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js">
-  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" rel="stylesheet">
+  <!-- First-users F01 (run-5 phone, slow 3G): the verdict screen first needs this HTML and its one stylesheet (preloaded at the top).
+       Script preloads and the font raced them for the same 50 KB/s, so nothing drew for ~40 s; the scripts are now found
+       where they run (end of body), and a slow or data-saving connection keeps the system Korean font. The 오늘 verdict
+       record (1 KB, build-scenario-state) is requested here and painted by the static shell under the hero. -->
+  <script>(function(){var c=navigator.connection||{};if(!(c.saveData||/(^|-)(2g|3g)$/.test(c.effectiveType||''))){var l=document.createElement('link');l.rel='stylesheet';l.id='aio-font-css';l.href='https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css';document.head.appendChild(l)}try{window._aioTodayVerdict=fetch('./public-data/today-verdict.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null}).catch(function(){return null})}catch(e){}})();</script>
   <style>
 :root {
   /* ═══════════════════════════════════════════════════════════════════════
@@ -3554,6 +3548,19 @@ button[data-filter-active="true"] {
       requestAnimationFrame(function() { requestAnimationFrame(function() { closeBootLoader('화면 준비 완료'); }); });
     }, { once:true });
     window.addEventListener('aio:liveDataReceived', function() { closeBootLoader('화면 준비 완료'); }, { once:true });
+    // First-users F01 (run-5 phone, CPU 4x): a menu tapped before js/aio-core.js wires data-action did nothing. The last such tap
+    // is held and replayed once the page is ready (DOMContentLoaded runs after the defer and module scripts).
+    var held = null;
+    document.addEventListener('click', function(e) {
+      if (window._aioCoreDispatch) return;
+      var el = e.target.closest && e.target.closest('[data-action]');
+      if (!el || (e.target.closest('a[href]'))) return;
+      e.preventDefault(); e.stopPropagation(); held = el;
+      if (sub) sub.textContent = '누른 메뉴는 준비되는 즉시 엽니다.';
+    }, true);
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() { var el = held; held = null; if (el && el.isConnected && window._aioCoreDispatch) el.click(); }, 0);
+    }, { once:true });
     setTimeout(function() { closeBootLoader('화면 준비 완료'); }, 3000);
   })();
   </script>
@@ -3799,6 +3806,7 @@ button[data-filter-active="true"] {
           </div>
         </div>
         <nav id="aio-hub-tabs" class="aio-hub-tabs" aria-label="화면 안 하위 메뉴" hidden></nav>
+        <script>(function(){var r=(location.hash.slice(1).split(/[?&\/]/)[0])||'home',n=document.getElementById('aio-hub-tabs');if(n&&!/^(themes|theme-detail|screener|portfolio)$/.test(r))n.dataset.pending='1'})();</script><!-- run-5 CLS: a phone holds the tab row's height until route-hubs.js draws it -->
         <!-- All pages will be inserted here -->
           <!-- ═══════════════ PAGE: HOME (오늘 · 요약) ═══════════════ -->
   <div class="page active" id="page-home">
@@ -3874,6 +3882,9 @@ button[data-filter-active="true"] {
       <details id="home-hero-why" class="sx-disclosure home-hero-why" hidden><summary>6개 축 근거</summary><ul id="home-hero-why-list" class="home-hero-why-list"></ul></details>
     </div>
     <aside id="home-hero-flips" class="sx-tile home-hero-flips" aria-labelledby="home-hero-flips-title" hidden></aside>
+    <!-- F01: the produced verdict (build-scenario-state, same interpretation as the screen) paints before the bundles run;
+         the screen's own render (market-regime.js renderHomeRegime) replaces every field it sets. -->
+    <script>(window._aioTodayVerdict||Promise.resolve(null)).then(function(v){var t=document.getElementById('home-hero-total'),m=/^\d{4}-(\d\d)-(\d\d)$/.exec(v&&v.asOf||'');if(!v||!v.overall||!m||!t||t.textContent!=='판정 대기')return;t.textContent=v.overall;t.dataset.firstPaint=v.asOf;var d=document.getElementById('home-hero-desc'),h=document.getElementById('home-hero-headline'),k=document.getElementById('home-date-label'),r=document.getElementById('regime-overall');if(d&&!d.textContent)d.textContent=v.heroLine||'';if(h)h.textContent=v.holdReason||'';if(r&&r.textContent==='판정 대기')r.textContent=v.overall;if(k){var day='';try{day=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'long'}).format(new Date())+', '}catch(e){}k.textContent=day+(+m[1])+'/'+(+m[2])+' 미국 종가 기준'}});</script>
   </section>
 
   <!-- v57.76: the close-basis comparison sits directly under the close-basis verdict (both read completed US closes);
@@ -4962,11 +4973,11 @@ button[data-filter-active="true"] {
       <h1 class="page-title">포트폴리오</h1>
       <!-- LC-43: the separate #pf-freshness-strip is hidden in the public 기본 화면, so the intro must
            not promise it. The visible evidence is the per-row price cell (통화·관측시각·출처 툴팁). -->
-      <div class="page-subtitle"><details class="pf-privacy sh-portfolio-fold"><summary class="sh-portfolio-toggle">저장·보안</summary><span class="sh-portfolio-box">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 누를 때만 종목명·섹터·비중·수익률이 전송되고(수량·매수가·메모 제외, 처음 한 번 동의 확인), 브라우저 기록을 지우거나 기기를 바꾸면 백업 파일로만 되살릴 수 있습니다.</span>
+      <div class="page-subtitle"><details class="pf-privacy sh-portfolio-fold"><summary class="sh-portfolio-toggle">이 브라우저에만 저장, 보안 설정</summary><span class="sh-portfolio-box">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 누를 때만 종목명·섹터·비중·수익률이 전송되고(수량·매수가·메모 제외, 처음 한 번 동의 확인), 브라우저 기록을 지우거나 기기를 바꾸면 백업 파일로만 되살릴 수 있습니다.</span>
         <!-- v58.68: moved from the sidebar card — the PIN protects the portfolio this page stores. -->
             <!-- v30.11: Vault PIN 보안 설정 -->
             <div style="font-size:12px;color:var(--data-purple);font-family:var(--font-mono);margin-bottom:5px;cursor:pointer;padding:4px 6px;background:rgba(var(--ink-rgb),0.08);border:0.5px solid rgba(var(--ink-rgb),0.2);border-radius:4px;text-align:center;" data-action="_aioNextSiblingToggle" data-pass-el="1">
-               저장 데이터 암호화 (PIN) <span id="vault-status-badge" style="font-size:12px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
+               저장 기록 잠금 (PIN, 직접 정하는 비밀번호) <span id="vault-status-badge" style="font-size:12px;margin-left:4px;"> 미설정</span> <span class="arrow">▼</span>
             </div>
             <div style="display:none;margin-bottom:6px;">
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">이 브라우저에 저장한 포트폴리오 기록과 자체 프록시 주소를 PIN으로 보호합니다. 공용 AI 연결 설정과는 별개입니다.</div>
@@ -6709,6 +6720,10 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
+  <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
+  <script src="./js/aio-workspace.js?v=58.80" defer></script>
+  <script src="./js/aio-kr-data.js?v=58.80" defer></script>
+  <script src="./js/aio-pages.js?v=58.80" defer></script>
   <script src="./js/aio-core.js?v=58.80" defer></script>
   <script src="./js/aio-data.js?v=58.80" defer></script>
   <script src="./js/aio-ui.js?v=58.80" defer></script>

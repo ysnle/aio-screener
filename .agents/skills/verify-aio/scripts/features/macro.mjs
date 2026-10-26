@@ -2,9 +2,9 @@
 import { openFromNav, tabTo, expectText, expectCount, expectTabs } from '../lib/drive.mjs';
 
 export default {
-  title: '거시와 금리 (거시 국면 · 금리 곡선 · 환율)',
+  title: '매크로 (거시 국면 · 금리 곡선 · 환율)',
   steps: [
-    ['nav 거시와 금리 → 거시 경제', (p) => openFromNav(p, '거시와 금리', 'page-macro')],
+    ['nav 매크로 → 거시 경제', (p) => openFromNav(p, '매크로', 'page-macro')],
     ['허브 탭 2개', (p) => expectTabs(p, ['거시 경제', '금리와 환율'])],
     ['다음 주요 발표 확정', async (p) => {
       await p.waitForFunction(() => { const t = document.querySelector('#macro-next-release')?.innerText.trim() || ''; return t && !/계산 중/.test(t); }, null, { timeout: 25000 });

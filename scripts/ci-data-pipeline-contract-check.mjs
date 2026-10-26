@@ -2460,8 +2460,8 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   await mt.summarizeMarketTimeline(blocked, { nowMs: at, request: async () => ({ text: 'NVDA 3% 상승' }) });
   check('v58.28 cadence: a blocked summary keeps the deterministic line and one retry',
     blocked.slots[0].summary.source === 'deterministic' && blocked.slots[0].summary.retry === 1 && blocked.slots[0].summary.reason === 'validator-blocked');
-  check('v58.28 cadence: the producer seals before translation and summarises after the macro reading; the weekend cadence runs at a slot boundary',
-    /sealMarketTimeline\(\{ previous: previous\?\.marketTimeline/.test(fetchData) && /\.\.\.timelineRun\.newHeadlines\]/.test(fetchData)
+  check('v58.28 cadence: the producer seals before translation (v58.80 F31: untranslated titles of a sealed slot join a later run) and summarises after the macro reading; the weekend cadence runs at a slot boundary',
+    /sealMarketTimeline\(\{ previous: previous\?\.marketTimeline/.test(fetchData) && /\.\.\.timelineRun\.newHeadlines, \.\.\.untranslatedSealed\]/.test(fetchData)
       && fetchData.indexOf('summarizeMarketTimeline(data.marketTimeline') > fetchData.indexOf('genMarketAnalysis(data, marketSnapshotForConsumers')
       && /'market-slot-boundary'/.test(read('scripts/refresh-cadence.mjs')));
   const audit = (timeline, generatedAt, meta = {}) => mt.auditMarketTimeline({ marketTimeline: timeline, meta: { generatedAt, ...meta } });

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T03:57:48.967Z",
+  "generatedAt": "2026-10-26T09:42:44.174Z",
   "routes": [
     {
       "id": "home",
@@ -125,10 +125,6 @@
         {
           "tag": "BUTTON",
           "name": "모든 시나리오와 선택지 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "모든 테마의 단계 →"
         },
         {
           "tag": "BUTTON",
@@ -288,7 +284,7 @@
         "지수 하루 흐름",
         "판단이 바뀌는 조건",
         "지난 마감 이후 변화",
-        "지금 시세 실시간·지연, 10/26 10:18 관측",
+        "지금 시세 실시간·지연, 10/26 12:51 관측",
         "밤사이 핵심 3건",
         "오늘 확인할 3가지",
         "내 종목",
@@ -831,6 +827,10 @@
         },
         {
           "tag": "BUTTON",
+          "name": "지수별 가격 온도 (참고) 근거 보기"
+        },
+        {
+          "tag": "BUTTON",
           "name": "공포에 팔고 환호에 사지 않기 — 리서치 라이브러리에서 개념 배우기"
         },
         {
@@ -869,6 +869,30 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
+        {
+          "tag": "A",
+          "name": "오일, 이란 리스크 평가로 6개월 만에 최고치에서 하락"
+        },
+        {
+          "tag": "A",
+          "name": "인도 중소형주에서 투자자들이 대출금 상환 압박에 빠져 탈출하다"
+        },
+        {
+          "tag": "A",
+          "name": "오일 가격, 연준 정책 결정이 이번 주 원화와 채권을 주도할 것"
+        },
+        {
+          "tag": "A",
+          "name": "[특징주] '솔리다임 상장 검토 철회' SK하이닉스, 장초반 2%대 상승"
+        },
+        {
+          "tag": "A",
+          "name": "[포토] 원/달러 환율, 코스피 동반 하락 출발"
+        },
+        {
+          "tag": "A",
+          "name": "한투운용, '中 운용사와 개발' 반도체 ETF 홍콩 증시 첫 상장"
+        },
         {
           "tag": "A",
           "name": "중금리대출 확대에…카드론 금리 석달 만에 13%대로 하락"
@@ -1022,30 +1046,6 @@
           "name": "폭동에 시장이 흔들리는 프랑스, 앞으로 어떻게 될까? 추가 시위 앞두고 투자자들이 주목하는 세 가지 질문"
         },
         {
-          "tag": "A",
-          "name": "유가 선물, 중동 및 러시아-우크라이나 우려로 상승"
-        },
-        {
-          "tag": "A",
-          "name": "[IPO챗] 내주 옵토닉스 등 7개사 수요예측…엠비디 공모주 청약"
-        },
-        {
-          "tag": "A",
-          "name": "[주末머니]외국인 38조 던졌는데도 내리는 환율, 여기까지 떨어진다고?"
-        },
-        {
-          "tag": "A",
-          "name": "S&P 500, 다우 지수는 다음 주 연준 회의를 앞두고 높은 유가로 인플레이션 우려로 하락 — AAPL, AXP, CART, UBER 주목"
-        },
-        {
-          "tag": "A",
-          "name": "주식, 중간 선거 이전에 다시 상승한 유가로 하락"
-        },
-        {
-          "tag": "A",
-          "name": "Anthropic IPO는 Vital Knowledge의 Crisafulli에 따르면 전체 시장에서 가장 큰 물음표"
-        },
-        {
           "tag": "BUTTON",
           "name": "발표 전에는 예측보다 준비 — 리서치 라이브러리에서 개념 배우기"
         },
@@ -1112,44 +1112,8 @@
     {
       "id": "technical",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "5분"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "15분"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "30분"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "1시간"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "4시간"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "일"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "주"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "월"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "다시 시도"
-        },
         {
           "tag": "BUTTON",
           "name": "시장 상태에서 근거 보기"
@@ -1210,9 +1174,7 @@
       "headings": [
         "차트",
         "SPY 일봉",
-        "이 화면을 볼 때 — 속지 말 것과 원칙",
-        "코스피",
-        "코스닥"
+        "이 화면을 볼 때 — 속지 말 것과 원칙"
       ]
     },
     {
@@ -2605,15 +2567,35 @@
         },
         {
           "tag": "A",
+          "name": "Shriram Finance share price target cut by multiple analysts but no 'sell' ratings on Nifty 50 stock"
+        },
+        {
+          "tag": "A",
+          "name": "Investors Flee India Small-Caps as Margin Calls Come Knocking"
+        },
+        {
+          "tag": "A",
+          "name": "Indian shares on track for muted open as oil concerns persist, Fed in focus"
+        },
+        {
+          "tag": "A",
+          "name": "CRWV, IREN, NBIS Extend Slide: Elon Musk Says Buying A Neocloud Is ‘Pointless’"
+        },
+        {
+          "tag": "A",
+          "name": "Oil prices, Fed policy decision to steer rupee, bonds this week"
+        },
+        {
+          "tag": "A",
           "name": "Oil eases from six-month highs amid US-Iran tensions, overbought signals emerge"
         },
         {
           "tag": "A",
-          "name": "KODEX 코스피200 커버드콜 2종, 올해 개인 순매수 4조 넘어"
+          "name": "코스피, 장 초반 5400선 후퇴 후 낙폭 축소…외국인·기관 '매수'"
         },
         {
           "tag": "A",
-          "name": "[미확인] Korea defense stocks surge on Kim Jong-un death rumor, plunge after China visit - CHOSUNBIZ"
+          "name": "Gold Steadies After Weekly Drop as Focus Shifts to Fed Meeting"
         },
         {
           "tag": "A",
@@ -2629,15 +2611,7 @@
         },
         {
           "tag": "A",
-          "name": "US Stock Futures Climb as Crude Oil Price Dips: Markets Wrap"
-        },
-        {
-          "tag": "A",
-          "name": "Anthropic's Claude accessed Georgia state vote count information behind paywall, Axios reports"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Prices Rise Despite Middle East Export Recovery"
+          "name": "한투운용, '中 운용사와 개발' 반도체 ETF 홍콩 증시 첫 상장"
         },
         {
           "tag": "A",
@@ -2673,7 +2647,15 @@
         },
         {
           "tag": "A",
+          "name": "Anthropic의 Claude, 유료 월 구독으로 막혀있는 조지아 주 투표 결과 데이터에 접근 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "머스크 “스페이스X, 부채 조달로 400억 달러 확보”…네오클라우드 업계 지각변동 전망 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "AI 지출에 대한 우려가 빅 테크의 강력한 실적을 침몰시키는 것 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -2689,10 +2671,6 @@
         },
         {
           "tag": "A",
-          "name": "앤스로픽의 클로드, 허가 없이 유료 장벽을 우회해 조지아주 유권자 데이터에 접근 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
           "name": "넥스트DC CEO, 호주 데이터센터 지연에 인센티브 포기 — 원문 새 창에서 열기"
         },
         {
@@ -2705,15 +2683,11 @@
         },
         {
           "tag": "A",
+          "name": "AI 거래에 더 많은 고통이 올 수 있다. 내가 그것을 포기하지 않는 이유 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
           "name": "중금리대출 확대에…카드론 금리 석달 만에 13%대로 하락 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "금 기술적 전망: XAU/USD 하락으로 더 깊은 매도 압력이 예상된다 — 원문 새 창에서 열기"
-        },
-        {
-          "tag": "A",
-          "name": "A 50% Yield? The AI Trade Is Getting Wild After CoreWeave — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -2729,7 +2703,7 @@
         },
         {
           "tag": "A",
-          "name": "지정학@insidertracking, 미국 속보, 10-2610월 26일 미주인 브리핑 • 이번 주 FOMC 금리 결정 · 미국 GDP·PCE 발표 • 마이크로소프트·구글·아마존 · 빅테크 실적 집"
+          "name": "거시@insidertracking, 미국 속보, 10-2610월 26일 미주인 브리핑 • 이번 주 FOMC 금리 결정 · 미국 GDP·PCE 발표 • 마이크로소프트·구글·아마존 · 빅테크 실적 집중"
         },
         {
           "tag": "A",

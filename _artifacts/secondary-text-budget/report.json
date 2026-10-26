@@ -27,7 +27,7 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 3412,
+      "total": 3419,
       "secondary": 417,
       "lines": [
         {
@@ -336,8 +336,8 @@
       "frames": []
     },
     "briefing": {
-      "total": 5298,
-      "secondary": 775,
+      "total": 5112,
+      "secondary": 749,
       "lines": [
         {
           "chars": 47,
@@ -348,11 +348,6 @@
           "chars": 46,
           "classes": "briefing-event-meta briefing-event-body briefing-event",
           "text": "연준이 가장 중시하는 물가 지표, 전년 동월 대비(%), 직전 3.4%, 근원 3%"
-        },
-        {
-          "chars": 43,
-          "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/26 10:19 KST, S&P 500·미 10년물 10/23 종가"
         },
         {
           "chars": 41,
@@ -398,6 +393,11 @@
           "chars": 26,
           "classes": "briefing-event-meta briefing-event-body briefing-event",
           "text": "EPS 예상 4.82, 매출 예상 925억 달러"
+        },
+        {
+          "chars": 26,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 7.01, 매출 예상 228억 달러"
         }
       ],
       "frames": []
@@ -799,13 +799,13 @@
       ]
     },
     "portfolio": {
-      "total": 337,
-      "secondary": 10,
+      "total": 378,
+      "secondary": 23,
       "lines": [
         {
-          "chars": 5,
+          "chars": 18,
           "classes": "sh-portfolio-toggle pf-privacy sh-portfolio-fold page-subtitle",
-          "text": "저장·보안"
+          "text": "이 브라우저에만 저장, 보안 설정"
         },
         {
           "chars": 5,
@@ -833,8 +833,8 @@
       "frames": []
     },
     "market-news": {
-      "total": 5129,
-      "secondary": 379,
+      "total": 5346,
+      "secondary": 395,
       "lines": [
         {
           "chars": 32,
@@ -842,14 +842,19 @@
           "text": "10/25 08:00 ~ 10/26 08:00 KST 기사"
         },
         {
-          "chars": 25,
+          "chars": 26,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "The Jerusalem Post, 5시간 전"
+          "text": "The Jerusalem Post, 11시간 전"
         },
         {
           "chars": 25,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Business Standard, 14시간 전"
+          "text": "Business Standard, 20시간 전"
+        },
+        {
+          "chars": 23,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "The Japan Times, 10시간 전"
         },
         {
           "chars": 22,
@@ -859,42 +864,37 @@
         {
           "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 10시간 전"
+          "text": "Investing.com, 10시간 전"
         },
         {
-          "chars": 20,
+          "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Investing.com, 5시간 전"
+          "text": "Bloomberg.com, 11시간 전"
         },
         {
-          "chars": 20,
+          "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 5시간 전"
+          "text": "Yahoo Finance, 11시간 전"
         },
         {
-          "chars": 20,
+          "chars": 18,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 6시간 전"
+          "text": "PYMNTS.com, 10시간 전"
         },
         {
           "chars": 17,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "PYMNTS.com, 5시간 전"
+          "text": "TOKENPOST, 15시간 전"
         },
         {
           "chars": 16,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "TOKENPOST, 9시간 전"
+          "text": "FXEmpire, 14시간 전"
         },
         {
           "chars": 15,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "FXEmpire, 9시간 전"
-        },
-        {
-          "chars": 14,
-          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card news-intraday-card",
-          "text": "10/26 08:00 이후"
+          "text": "Reuters, 10시간 전"
         }
       ],
       "frames": []
@@ -962,7 +962,7 @@
       "frames": []
     },
     "masters": {
-      "total": 2646,
+      "total": 2645,
       "secondary": 217,
       "lines": [
         {
@@ -971,9 +971,9 @@
           "text": "비교 행 30개(이번 분기 보유 29개, 전량 매도 1개) 중 가치 상위 10개, 변화 있는 행 먼저 30행 모두 보기"
         },
         {
-          "chars": 64,
+          "chars": 61,
           "classes": "masters-holdings-meta masters-filing-dates masters-detail-card rl-main",
-          "text": "보고분기 2026 Q2(2026-06-30), 13F-HR 제출 2026-08-14, 자료 검토 2026-10-19"
+          "text": "보고분기 2026 Q2(2026-06-30), -HR 제출 2026-08-14, 자료 검토 2026-10-19"
         },
         {
           "chars": 54,
@@ -994,6 +994,11 @@
           "chars": 5,
           "classes": "aio-note-fold masters-method-fold masters-holdings-section masters-change-ledger",
           "text": "분류 방법"
+        },
+        {
+          "chars": 3,
+          "classes": "aio-term masters-holdings-meta masters-filing-dates masters-detail-card",
+          "text": "13F"
         }
       ],
       "frames": []
@@ -1149,7 +1154,7 @@
         {
           "chars": 25,
           "classes": "page-subtitle scr-kicker",
-          "text": "대상 904종목 중 899종목 필수 필드 충족"
+          "text": "대상 904종목 중 895종목 필수 필드 충족"
         }
       ],
       "frames": []

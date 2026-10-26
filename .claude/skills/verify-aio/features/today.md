@@ -11,7 +11,7 @@ The 오늘 screen is the daily entry: a dashboard headline with the US-close ver
 ## How to get to it (user POV)
 
 - Sidebar 데일리 › 오늘 (default screen on first load).
-- Hub tabs 대시보드 / 브리핑 / 뉴스.
+- Hub tabs 요약 / 브리핑 / 뉴스.
 - Deep links `#home`, `#briefing`, `#market-news`.
 
 ## Driving it with verify-aio
@@ -20,7 +20,8 @@ Preconditions:
 
 - Doctor OK; `public-data/` has briefing and news snapshots.
 
-- **Open.** Click sidebar `오늘`. `page-home` active; hub tabs exactly `대시보드,브리핑,뉴스`.
+- **Open.** Click sidebar `오늘`. `page-home` active; hub tabs exactly `요약,브리핑,뉴스`.
+- **First-screen order (P2089).** `window._aioTodayVerdict` is a pending request for `public-data/today-verdict.json`; `<head>` preloads `responsive.css` and holds no legacy `js/aio-*` script or script preload.
 - **Verdict.** `#home-hero-headline` matches `/종가 기준.*6개 축/` (the placeholder `종가 기록을 불러오는 중입니다.` never counts).
 - **Briefing.** Tab `브리핑` → `page-briefing`; `#briefing-date-line` non-empty.
 - **News.** Tab `뉴스` → `page-market-news`; `#news-window-label` matches `/KST|직전 수집본/`, `#news-24h-count` has a digit, `#news-24h-sources` matches `/개 출처/`, `#market-news-count` non-empty.

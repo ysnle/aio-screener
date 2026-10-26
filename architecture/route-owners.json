@@ -35,7 +35,11 @@
     "ai-panel-chips",
     "pf-add-ticker",
     "pf-add-qty",
-    "pf-add-cost"
+    "pf-add-cost",
+    "home-hero-total",
+    "regime-overall",
+    "home-hero-headline",
+    "home-date-label"
   ],
   "domWriterIntersectionAllowlistNotes": {
     "aio-chart-cdn": "A05 (2026-10-12): color-theme.js reads the chart CDN script element to wait for load; index.html owns the element. No content write.",
@@ -53,7 +57,11 @@
     "sector-perf-bars": "P859: themes.js owns the normalized sector-performance bars; index.html renderSectorPerfBars is fenced by the mounted native bars marker and remains only a compatibility fallback.",
     "pf-add-ticker": "v58.80 (first-users F06/F25, P2083 batch): input-check.js readHoldingInputs validates the holding form for aio-workspace.js addPortfolioPosition — it reads the value and sets aria-invalid, focus and one note element after the field; aio-workspace.js owns the form, its values and saving.",
     "pf-add-qty": "v58.80 (first-users F06/F25, P2083 batch): input-check.js readHoldingInputs validates the holding form for aio-workspace.js addPortfolioPosition — it reads the value and sets aria-invalid, focus and one note element after the field; aio-workspace.js owns the form, its values and saving.",
-    "pf-add-cost": "v58.80 (first-users F06/F25, P2083 batch): input-check.js readHoldingInputs validates the holding form for aio-workspace.js addPortfolioPosition — it reads the value and sets aria-invalid, focus and one note element after the field; aio-workspace.js owns the form, its values and saving."
+    "pf-add-cost": "v58.80 (first-users F06/F25, P2083 batch): input-check.js readHoldingInputs validates the holding form for aio-workspace.js addPortfolioPosition — it reads the value and sets aria-invalid, focus and one note element after the field; aio-workspace.js owns the form, its values and saving.",
+    "home-hero-total": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
+    "regime-overall": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
+    "home-hero-headline": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
+    "home-date-label": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render."
   },
   "routes": {
     "home": {

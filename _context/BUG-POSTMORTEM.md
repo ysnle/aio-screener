@@ -6,6 +6,51 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2092 - v58.80 - 이름을 입력하고 바로 Enter로 고르면 고른 종목의 후보 버튼이 검색칸 아래에 다시 생겼다 (2026-10-26)
+
+- symptom/reproduction: verify-aio stock: '삼성전자' 입력 뒤 Enter로 005930.KS를 연 다음에도 검색칸 아래에 '삼성전자 · 005930.KS' 후보가 남았고, 다음 검색에서 그 낡은 후보가 먼저 눌렸다.
+- root_cause: 후보 목록은 입력 120ms 뒤에 채워지는데, 종목 선택(aio:entityChanged)은 목록만 비우고 대기 중인 채우기 타이머를 취소하지 않았다. 120ms 안의 선택 뒤에 타이머가 정규화된 값으로 목록을 다시 채웠다.
+- fix: 선택·초기화 때 대기 중인 채우기도 취소한다(compatibility-globals.js).
+- violated_rule: R726
+- prevention: verify-aio drive stock의 '한글 후보 애플' 단계가 직전 선택 뒤 AAPL 후보를 골라 연다.
+- verification/residual: verify-aio drive stock 데스크톱·휴대폰 10/10 통과.
+
+## P2091 - v58.80 - 한국 장 마감 뒤 상단 시세 칩이 '서버 10/23 마감, 시세 16종 · 한국 10/26 마감'으로 한국 마감을 종목 수 뒤에 붙였다 (2026-10-26)
+
+- symptom/reproduction: 2026-10-26(월) 한국 장 마감 뒤 ci-architecture-browser-check가 상단 칩 문구 '서버 10/23 마감, 시세 16종 · 한국 10/26 마감'에서 실패했다. 미국 마감과 한국 마감이 떨어져 읽히고 종목 수가 가운데 끼었다.
+- root_cause: bootstrap.js _aioWithKrClose는 종목 수 꼬리를 ' · 시세 N종'으로만 찾았는데, v58.7x 문구 정리 뒤 칩은 ', 시세 N종'(쉼표)으로 적는다. 꼬리를 못 찾아 한국 마감을 맨 끝에 붙였다. 한국 장 마감 뒤 저녁에만 보여 낮 시간 게이트는 통과했다.
+- fix: 꼬리를 ' · 시세 N종'과 ', 시세 N종' 둘 다로 찾아 '서버 10/23 마감 · 한국 10/26 마감, 시세 16종'으로 미국·한국 마감을 나란히 둔다.
+- violated_rule: R726
+- prevention: ci-architecture-browser-check의 상단 칩 문구 검사(QA-UX-07)가 한국 마감이 기록된 시간대에도 '서버 …, 시세 16종' 꼴을 요구한다.
+- verification/residual: qa-runner affected(browser-architecture 포함) 통과.
+
+## P2090 - v58.80 - 번역이 실패한 때 봉인된 시간대 묶음의 해외 헤드라인이 이틀 동안 영어로 남았다 (2026-10-26)
+
+- symptom/reproduction: F31(run-1 N/S/I): 해외 헤드라인이 번역되지 않았다. 현재 data.json에서 뉴스·장중 뉴스·다른 시간대는 모두 번역됐지만 marketTimeline 한 묶음(slot1)의 6건 중 2건 영어 제목에 titleKo가 없다.
+- root_cause: fetch-data는 그 실행에서 새로 들어온 시간대 헤드라인(newHeadlines)만 번역 목록에 넣었다. 봉인된 묶음은 다시 쓰지 않으므로, 봉인 때 번역이 실패하거나 상한에 걸린 제목은 보관 이틀 동안 번역 기회가 없었다.
+- fix: 봉인된 묶음에서 titleKo가 없는 헤드라인을 이번 실행의 번역 목록 뒤(같은 상한 30건 안)에 더하고, 이전 실행의 모든 묶음 번역을 재사용 목록에 넣는다. 묶음의 선택·시세·요약은 그대로이며 빠진 한국어 제목만 채운다. 같은 객체는 한 번만 보낸다.
+- violated_rule: R726
+- prevention: ci-esm-core-unit-check가 번역 목록에 봉인 묶음의 미번역 제목이 들어가는지 확인한다. 생산자 경로(Actions)이므로 다음 refresh-data 실행의 headlineTranslation 수치와 slot 헤드라인 titleKo를 확인한다.
+- verification/residual: node --check scripts/fetch-data.mjs. 로컬 생산자 실행 금지(AGENTS)로 실제 번역은 push 뒤 refresh-data에서 확인한다.
+
+## P2089 - v58.80 - 느린 3G 휴대폰에서 오늘 판정이 43초 뒤에야 보였고, 늦게 그려진 지수 카드·탭 줄이 읽던 화면을 밀었으며, 준비 전 탭은 무시됐다 (2026-10-26)
+
+- symptom/reproduction: run-5 phone #1·#2(F01): 느린 3G·CPU 4배에서 '판정 대기'가 약 40초 이어졌고(판정 41.7초), CLS 0.27(17초)·0.74(면책 고지는 이미 정적 셸로 옮김). 첫 탭이 무시됐다. 로컬 배포 번들 측정(HTTP/2, 50 KB/s, 400 ms, CPU 4배): 판정 43.5초, 그 전에 1.94 MB를 받음, CLS 0.24.
+- root_cause: 판정은 정적 셸이 아니라 모듈 부팅 뒤에만 그려졌고, 모듈 실행은 모든 레거시 defer 스크립트를 기다린다. 머리말에 걸린 모듈 미리 받기 53개(약 517 KB)·레거시 스크립트 미리 받기 4개·웹폰트 분할 파일(약 350 KB)이 HTML(84 KB)·스타일시트(69 KB)와 같은 대역폭을 나눠, 화면을 그리는 데 필요한 두 파일조차 16~22초에 도착했다. 지수 카드 줄(#home-index-strip)과 휴대폰 탭 줄은 빈 채로 높이 0이었다가 35초에 채워져 판정 카드를 밀었다. data-action 클릭은 js/aio-core.js가 실행된 뒤에만 연결됐다.
+- fix: 생산자 build-scenario-state가 화면과 같은 해석(interpretationFromArtifacts)의 판정 필드만 public-data/today-verdict.json(약 300 B)으로 쓰고(refresh-data에서 스테이지, 계보 감사 등록), 정적 셸이 머리말에서 받아 홈 히어로·국면 판정 제목·날짜 줄에 먼저 그린다. 화면 계산이 아직 없을 때 renderHomeRegime은 그 값을 '판정 대기'로 되돌리지 않고, 첫 실제 렌더가 넘겨받는다. 스타일시트를 맨 위에서 미리 받고, 레거시 스크립트 미리 받기를 없애며 머리말의 세 defer 스크립트를 aio-core 바로 앞으로 옮기고(R622 실행 순서 유지), 번들의 모듈 미리 받기는 부트 모듈 스크립트 바로 앞에 둔다. 느린 연결·데이터 절약에서는 웹폰트를 받지 않는다. 빈 지수 카드 줄은 화면 폭별로 그려질 높이를 잡고, 휴대폰 탭 줄은 탭이 있는 화면에서 48px를 잡는다. 준비 전 마지막 data-action 탭을 붙잡아 DOMContentLoaded 뒤 다시 실행한다.
+- violated_rule: R726
+- prevention: ci-esm-core-unit-check가 판정 기록의 필드(축 없음, 사용 불가 시 null)를, verify-aio drive today가 정적 셸의 판정 요청·스타일시트 미리 받기·머리말에 레거시 스크립트와 미리 받기가 없음을 확인한다. ci-version-check는 미리 받기가 있으면 실행 URL과 같아야 한다로 바뀌었다.
+- verification/residual: 로컬 배포 번들(HTTP/2 TLS, 50 KB/s, 400 ms, CPU 4배, iPhone 13): 판정 표시 43.5초 → 9.2초(그 전 1.94 MB → 177 KB), 실제 계산 렌더 41초(변화 없음), CLS 0.24 → 0.0001, 12초에 누른 '시장' 탭이 35초에 열림, 페이지 오류 0. 보통 속도에서는 웹폰트가 로드되고 판정·날짜 줄이 그대로다.
+
+## P2088 - v58.80 - 종목 요약의 재무 칸이 SEC 기록을 받은 뒤에도 10~15초 동안 '불러오는 중'으로 되돌아갔다 (2026-10-26)
+
+- symptom/reproduction: run-5 newcomer #8: 검색 후보로 애플을 고르면 아래 기업 요약은 FY2025 숫자를 바로 보였는데 위 재무 칸은 '불러오는 중'으로 10~15초를 기다렸다. 로컬 재현: 클릭 뒤 기업 요약 0.95초, 재무 칸 12.2초.
+- root_cause: SEC 표는 클릭 전에 이미 받아져 있었고 엔티티 동기화도 클릭 즉시 재무 기록을 상태에 넣었다(계측으로 확인). 그러나 renderStockRead·renderStockAnalysis·renderCompanyAnalysis가 늦게 오는 갱신(온디맨드 행, 13F, 시나리오 상태, 회계 이력, 컨센서스, 실적 일정)을 위해 건 콜백이 첫 렌더 때의 인자(재무 없음, 'loading')를 클로저로 붙잡고 있다가, 정상 렌더 뒤에 그 옛 인자로 다시 그렸다. 다음 시세 틱(약 12초)에야 최신 상태로 돌아왔다.
+- fix: 세 렌더러가 호출마다 최신 인자를 자기 호스트 노드에 두고(host._aioReadArgs, _aioAnalysisArgs, _aioCompanyArgs), 늦은 콜백은 그 최신 인자로 다시 그린다.
+- violated_rule: R726
+- prevention: R728 신설. verify-aio drive stock이 한글 후보로 애플을 고른 뒤 재무 칸이 4초 안에 '불러오는 중'을 벗어나는지 확인한다(이번 측정 0.8초).
+- verification/residual: Playwright(로컬 8795): 티커 화면에서 '애플' 후보 클릭 뒤 재무 칸 0.96초(이전 12.2초), 기업 요약과 같은 시점. ci-esm-core-unit-check 통과.
+
 ## P2087 - v58.80 - 같은 화면의 숫자가 서로 다른 기준·범위로 읽혔다: 반도체 카드 종목, 상대강도 기준, 유가 거리 단위, 맞춤 조건 결과 범위 (2026-10-26)
 
 - symptom/reproduction: 오늘의 반도체 카드가 실시간이면 SOXX, 대비책이면 SMH로 바뀌었다(breaker #2). 종목 화면 한 장에 S&P 3개월이 +3.1%(SPY 배당 포함)와 +2.8%(지수)로 따로 나왔다(skeptic #11). WTI 조건은 가격선(101.65)으로 적혀 있는데 남은 거리는 20일 변화율 %p(-1.8%p)였다(skeptic #1). 맞춤 조건 'RSI 30 이하'가 68종목으로 읽혔는데 결과 보기는 0종목이었고 유일한 출구 '모두 지우기'가 조건까지 지웠다(breaker #1, sev 3). 못 읽은 이모지·아랍어가 이름 검색으로 들어가 표가 0이 됐다(breaker #6).

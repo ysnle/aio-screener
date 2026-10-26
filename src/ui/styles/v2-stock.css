@@ -7,6 +7,9 @@
 #page-ticker .sh-ticker-row-baseline { flex-direction: column; align-items: flex-start; gap: 6px; }
 #page-ticker .sh-ticker-detail-name-stack { flex-direction: row; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; }
 #page-ticker #ticker-hero-name { margin: 0; }
+/* Run-5: the row above already names the place (#ticker-breadcrumb-main); the hub label inside the symbol's flex row pushed
+   the company name onto the label's line ('종목 ›   Apple Inc.'). */
+#page-ticker #ticker-hero-name[data-hub-label]::before { display: none; }
 #page-ticker #ticker-hero-fullname { font-size: 14px !important; color: var(--text-secondary) !important; }
 #page-ticker .sh-ticker-box { margin-left: 0; text-align: left; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 #page-ticker .v2-stock-price { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
@@ -433,8 +436,9 @@
   #page-ticker .v2-stock-search .q-chip { flex: 0 0 auto; min-height: 36px; }
   #page-technical .stock-chart-canvas { height: 300px; }
   #page-technical .stock-chart-layout > div:first-child { padding: 14px 12px 10px; }
-  #page-technical .stock-chart-intervals.sx-seg { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
-  #page-technical .stock-chart-intervals.sx-seg > button { flex: 0 0 auto; }
+  /* Run-5 (phone #14): a hidden-scrollbar strip cut '월' at the edge with no sign of more; eight periods fit as 4 x 2. */
+  #page-technical .stock-chart-intervals.sx-seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 100%; }
+  #page-technical .stock-chart-intervals.sx-seg > button { min-width: 0; padding: 0 4px !important; }
   .v2-themes-top__row { grid-template-columns: 20px minmax(0, 1fr) 62px; }
   .v2-themes-top__row > .sx-chip { display: none; }
   #page-themes .thp-perf-badge { width: 62px; padding-left: 2px; }

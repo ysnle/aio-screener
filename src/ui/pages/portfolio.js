@@ -538,7 +538,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     privacy.textContent = '보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN을 설정하면 암호화해 저장합니다.'; // P1593 (F108): same scope as the page header
     privacy.className = 'pfp-privacy'; // v57.91 (visual audit): one ~850px grey line became a readable block
     // v58.74 (text audit): the same notice sits in the page header's 저장·보안 fold; the empty state points to it.
-    privacy.textContent = '저장 범위와 보안은 위 \'저장·보안\'에 있습니다.';
+    privacy.textContent = '보유 내역은 이 브라우저에만 저장됩니다. 잠금(PIN)과 전송 범위는 위 \'보안 설정\'에 있습니다.';
     // v58.75 (persona review): the empty state's three ways in — add, import a backup, or a memory-only sample preview.
     const importButton = documentRef.createElement('button');
     importButton.type = 'button';

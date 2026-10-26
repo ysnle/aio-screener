@@ -87,7 +87,10 @@ const cachebusters = [...html.matchAll(/\?v=([\d.]+)"/g)].map((match) => match[1
 // A bare preload plus a versioned script silently downloads both resources.
 for (const name of ['aio-core', 'aio-data', 'aio-ui', 'aio-chat']) {
   const url = `./js/${name}.js?v=${versionNumber}`;
-  check(`${name} preload parity`, html.includes(`rel="preload" as="script" href="${url}"`) && html.includes(`<script src="${url}"`), `preload and script must both use ${url}`);
+  // v58.80 F01: the legacy scripts are no longer preloaded (they raced the first screen's HTML and stylesheet on slow
+  // lines); a preload that does come back must still name the executed URL.
+  const preloads = [...html.matchAll(new RegExp(`rel="preload" as="script" href="([^"]*${name}\.js[^"]*)"`, 'g'))].map((match) => match[1]);
+  check(`${name} preload parity`, html.includes(`<script src="${url}"`) && preloads.every((href) => href === url), `script and any preload must use ${url}`);
 }
 const wrongCachebusters = cachebusters.filter((value) => value !== versionNumber);
 check(

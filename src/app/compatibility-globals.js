@@ -313,7 +313,9 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
         }));
       }, 120);
     });
-    for (const type of ['aio:tickerViewReset', 'aio:entityChanged']) document.addEventListener(type, () => list.replaceChildren());
+    // A selection made within the 120 ms wait (typing, then Enter) also cancels the pending refill, which put the chosen
+    // company's own candidate back under the box.
+    for (const type of ['aio:tickerViewReset', 'aio:entityChanged']) document.addEventListener(type, () => { clearTimeout(suggestTimer); list.replaceChildren(); });
   }
   window._aioListingNameSuggestion = (raw) => {
     const query = String(raw || '').trim();

@@ -85,8 +85,13 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
   for (let tick = lo; tick <= hi + step / 1000; tick += step) ticks.push(tick);
   const tickLabels = ticks.map((tick) => format(tick));
   const trimmed = tickLabels.every((text) => /\d\.0+(?!\d)/.test(text)) ? tickLabels.map((text) => text.replace(/(\d)\.0+(?!\d)/, '$1')) : tickLabels;
+  // Run-5 (skeptic #14): thresholds are named in the value-axis column (a tag at the plot's right edge sat on the line's last
+  // point whenever the line ended inside the band); a tick label too close to one gives way, its gridline stays.
+  const axisRefs = refLines.filter((ref) => Number.isFinite(ref) && ref >= lo && ref <= hi && !ticks.some((tick) => Math.abs(tick - ref) < step / 1000));
+  const LABEL_GAP = 24; // viewBox units: a 13px label still clears its neighbour when a card draws the chart at ~0.55 scale
   ticks.forEach((tick, index) => {
     svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(tick), y2: y(tick), class: 'trend-chart-grid' }));
+    if (axisRefs.some((ref) => Math.abs(y(ref) - y(tick)) < LABEL_GAP)) return;
     const text = svgEl(doc, 'text', { x: PAD.left - 8, y: y(tick) + 4, 'text-anchor': 'end', class: 'trend-chart-axis' });
     text.textContent = trimmed[index];
     svg.append(text);
@@ -118,11 +123,14 @@ export function createTrendChart(doc, { series = [], refLines = [], format = (va
     svg.append(svgEl(doc, 'rect', { x: PAD.left, y: top.toFixed(1), width: plotW, height: Math.max(2, bottom - top).toFixed(1), rx: 6, class: 'trend-chart-band' }));
   }
   for (const ref of shownRefs) svg.append(svgEl(doc, 'line', { x1: PAD.left, x2: W - PAD.right, y1: y(ref), y2: y(ref), class: shownRefs.length >= 2 ? 'trend-chart-ref is-band-edge' : 'trend-chart-ref' }));
-  // v58.79 (layout over captions): a threshold names its own value at the plot's right edge (with a halo so the line
+  // v58.79 (layout over captions): a threshold names its own value (axis column since run-5; right edge when crowded; halo so the line
   // stays readable under it), so a card label no longer spells "기준선 40%·60%" — unless it sits on a labelled gridline.
   for (const ref of shownRefs) {
     if (ticks.some((tick) => Math.abs(tick - ref) < step / 1000)) continue;
-    const tag = svgEl(doc, 'text', { x: W - PAD.right - 2, y: (y(ref) - 3).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' });
+    // Two thresholds too close for the axis column: the upper one keeps the right-edge tag.
+    const crowded = shownRefs.some((other) => other !== ref && other < ref && Math.abs(y(other) - y(ref)) < LABEL_GAP);
+    const tag = svgEl(doc, 'text', !crowded ? { x: PAD.left - 8, y: (y(ref) + 4).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' }
+      : { x: W - PAD.right - 2, y: (y(ref) - 3).toFixed(1), 'text-anchor': 'end', class: 'trend-chart-ref-label' });
     tag.textContent = format(ref).replace(/(\d)\.0+(?!\d)/, '$1');
     svg.append(tag);
   }

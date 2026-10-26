@@ -27,6 +27,7 @@ Preconditions:
 - **Chart / filings.** Tabs `차트` → `page-technical`, `재무 공시` → `page-fundamental`; subject stays `NVDA` (failure if lost). Tab `요약` returns to the same hero.
 - **Chart follows the company.** On 차트, `#stock-chart-title` starts with `NVDA` (failure if it stayed on SPY or the previous company).
 - **Korean name.** Fill `삼성전자`, Enter. Subject `005930.KS`; hero name contains `삼성전자`.
+- **Korean candidate.** Fill `애플` (no Enter), click the `#ticker-suggest` button. Subject `AAPL`; the 재무 tile leaves '불러오는 중' within 4 s (P2088/R728: late repaints use the latest state).
 - **Invalid.** Fill `!!`, Enter. `#ticker-search-hint[role=status]` names the miss; the subject is unchanged.
 - **Proof.** `drive stock` evidence; `report.json` records `priceState`.
 

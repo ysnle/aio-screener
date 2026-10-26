@@ -444,7 +444,8 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const previous = previousRegime({ ...inputs, macroHistory: inputs?.macroHistory || root._aioMacroHistory || null }, regime);
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 6개 지표, 공개 기준선` : '종가 기록을 불러오는 중입니다.');
-  const overall = set('regime-overall', regime.available ? regime.overall : '판정 대기');
+  // F01: before the closes load, a verdict the static shell painted from today-verdict.json stays (not '판정 대기').
+  const overall = regime.available || !doc.getElementById('home-hero-total')?.dataset?.firstPaint ? set('regime-overall', regime.available ? regime.overall : '판정 대기') : doc.getElementById('regime-overall');
   if (overall) { overall.dataset.overall = regime.overall || ''; overall.setAttribute('aria-label', `미국 시장 판정: ${regime.available ? regime.overall : '판정 대기'}`); } // v57.77 (a11y 2.4.6)
   // The tally bar's legend carries the counts; this line stays for a held verdict (its reason) only.
   set('regime-counts', regime.available ? (regime.holdReason || (doc.getElementById('regime-tally') ? '' : summaryLine(regime))) : '');
@@ -662,20 +663,25 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   requestRegimeMacroHistory(root, doc, 'page-home', () => renderHomeRegime({ documentRef: doc, root, store }));
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   // v58.55 (design 2b): the page kicker above the 오늘 title — today's date (KST) · the close the verdict is based on.
-  const kicker = doc.getElementById('home-date-label');
+  // F01: the static shell may have painted the produced verdict (index.html, today-verdict.json); an unavailable regime
+  // (closes still loading) leaves it, and the first real render takes the fields over.
+  const heroTotal = doc.getElementById('home-hero-total');
+  const held = !regime.available && !!heroTotal?.dataset?.firstPaint;
+  if (!held && heroTotal?.dataset) delete heroTotal.dataset.firstPaint;
+  const kicker = held ? null : doc.getElementById('home-date-label');
   if (kicker) {
     let today = '';
     try { today = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'long' }).format(new Date()); } catch (_) { today = ''; }
     const text = [today, regime.available && regime.asOf ? `${shortDate(regime.asOf)} 미국 종가 기준` : ''].filter(Boolean).join(', ');
     if (text) kicker.textContent = text;
   }
-  set('home-hero-total', regime.available ? regime.overall : '판정 대기');
+  if (!held) set('home-hero-total', regime.available ? regime.overall : '판정 대기');
   // v58.79 (owner 2026-10-25, layout over captions): the close date is in the page subtitle and the six counts are the
   // axis chips below, so this line speaks only when the verdict is held (why) and stays empty (hidden) otherwise.
-  set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '')) : '종가 기록을 불러오는 중입니다.');
+  if (!held) set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '')) : '종가 기록을 불러오는 중입니다.');
   // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
   // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
-  set('home-hero-desc', regime.heroLine || '');
+  if (!held) set('home-hero-desc', regime.heroLine || '');
   paintLeadershipLine(doc, 'home-hero-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow);
   const why = doc.getElementById('home-hero-why');
   const whyList = doc.getElementById('home-hero-why-list');

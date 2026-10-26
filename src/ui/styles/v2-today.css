@@ -454,7 +454,11 @@
 
 /* Owner 2026-10-25: the four index ETFs' last regular session opens 오늘 (src/ui/components/home-index-strip.js). */
 #page-home .home-index-strip { margin: 0 0 16px; }
-#page-home .home-index-strip:empty { display: none; }
+/* First-users run-5 (phone, CLS): the strip is filled when the modules run (~35 s on slow 3G) and pushed the verdict the
+   static shell had already drawn off screen; its drawn height is held while it is empty (the renderer always fills it). */
+#page-home .home-index-strip:empty { min-height: 181px; }
+@media (max-width: 1100px) { #page-home .home-index-strip:empty { min-height: 341px; } }
+@media (max-width: 520px) { #page-home .home-index-strip:empty { min-height: 372px; } }
 #page-home .home-index-strip > .aio-frame-head { padding: 0 0 8px; }
 #page-home .home-index-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 #page-home .home-index-card { display: flex; flex-direction: column; gap: 6px; min-width: 0; margin: 0; padding: 12px 14px 10px; border: 0; border-radius: 12px; background: var(--bg-card); color: var(--text-primary); font: inherit; text-align: left; cursor: pointer; }

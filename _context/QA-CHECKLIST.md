@@ -37,6 +37,9 @@ confidence: medium
 - [x] QA-VOCAB-01: v58.80 선택지 비용 비교 어휘는 choice-words.js 한 곳에만 쓰이고 화면과 AI 프롬프트가 함께 읽는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-SEARCH-05: v58.80 종목 검색은 한글 이름을 입력하는 동안 후보 버튼을 보이고, 어느 화면에서 연 종목이든 재무 공시 최근 검색에 남으며, 화면 이동 직후에는 마우스가 움직이기 전까지 설명이 열리지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-BASIS-07: v58.80 한 화면의 같은 이름은 같은 기준이다: 반도체 카드는 SMH, 상대강도는 SPY 배당 포함(없으면 지수로 이름 표시), 가격선 조건의 거리는 가격 %, 맞춤 조건 결과 보기는 전체 종목에서 찾는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-REPAINT-01: v58.80 종목 요약의 늦은 다시 그리기(온디맨드·13F·시나리오·회계 이력)는 최신 재무 상태를 쓴다: 후보로 종목을 고른 뒤 재무 칸이 기업 요약과 같은 시점에 채워진다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
+- [x] QA-BOOT-09: v58.80 느린 연결의 첫 화면: 정적 셸이 today-verdict.json의 판정을 먼저 그리고, 스타일시트가 먼저 오며, 레거시·모듈 스크립트는 본문 끝에서 발견된다. 빈 지수 카드 줄·휴대폰 탭 줄은 높이를 잡고, 준비 전 탭은 준비 뒤 실행된다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive today
+- [x] QA-NEWS-36: v58.80 봉인된 시간대 묶음의 번역 없는 헤드라인은 다음 갱신의 번역 목록(상한 안)에 들어가 한국어 제목을 얻는다. 묶음의 선택·시세는 바뀌지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 
 ## v58.79 v58.79 섹션 틀, 보조 문구 상한 게이트, 오늘·테마와 섹터 문구 정리 (2026-10-25) (2026-10-25)
 

@@ -39,6 +39,18 @@ export default {
       const r = await heroState(p, '005930.KS');
       return { ...r, ...(await expectText(p, '#ticker-hero-name', { pattern: /삼성전자/ })) };
     }],
+    // v58.80 (P2088/R728): a candidate picked from the Korean-name list fills the 재무 tile with the company summary below it;
+    // a late repaint used to put the tile back on '불러오는 중' for ~12 s with the click-time arguments.
+    ['한글 후보 애플 → 재무 칸 즉시', async (p) => {
+      await p.fill('#ticker-direct-search', '애플');
+      const pick = p.locator('#ticker-suggest button', { hasText: 'AAPL' });
+      await pick.waitFor({ timeout: 5000 });
+      const started = Date.now();
+      await pick.click();
+      await heroState(p, 'AAPL');
+      await p.waitForFunction(() => { const tile = [...document.querySelectorAll('#ticker-read *')].find((n) => n.children.length && /^재무/.test((n.textContent || '').trim()) && n.textContent.length < 200); return tile && !/불러오는 중/.test(tile.textContent); }, null, { timeout: 4000 });
+      return { subject: 'AAPL', tileReadyMs: Date.now() - started };
+    }],
     ['잘못된 입력 → 안내, 화면 유지', async (p) => {
       // Codex audit F12: the miss is a persistent role=status hint beside the search (no toast); the subject stays.
       const before = await visibleText(p, SUBJECT);

@@ -73,6 +73,7 @@ function renderSubject(documentRef, nav, subject, root, routeId) {
 export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   const nav = documentRef?.getElementById?.('aio-hub-tabs');
   if (!nav) return null;
+  delete nav.dataset.pending; // the static shell's held height (index.html, phone CLS)
   // v58.80 (first-users F26): 도움말 is help, not research — the sidebar no longer marks 리서치 라이브러리; the topbar button does.
   const help = documentRef.getElementById?.('topbar-help-btn');
   if (help) { if (routeId === 'guide') help.setAttribute('aria-current', 'page'); else help.removeAttribute('aria-current'); }

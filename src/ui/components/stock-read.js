@@ -249,6 +249,9 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   if (!host) return null;
   const sym = String(symbol || '').trim().toUpperCase();
   host.dataset.aioStockReadRenderer = 'native';
+  // Run-5 (newcomer #8): the late repaints below (on-demand row, 13F, scenario state) re-render with the latest route state;
+  // their own closures held the click-time state, so a repaint after the SEC record arrived put the 재무 tile back on loading.
+  host._aioReadArgs = { fundamentals, fundamentalsState };
   const next = doc.getElementById('ticker-next');
   // v57.54: the 종목 screen's h1 (screen-reader heading; the hub line shows the subject visually).
   const title = doc.getElementById('ticker-page-title');
@@ -268,7 +271,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   // v57.81 (owner 2026-10-15): a US listing outside the published universe is read on demand with the screener's own
   // formulas (src/data/on-demand-symbol.js) instead of "기록 없음"; its row has no published rank.
   const onDemand = !rawRow && list.length && screenerMarket({ sym }) !== 'KR' ? onDemandRecord(root, sym, () => {
-    if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals, fundamentalsState });
+    if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, ...host._aioReadArgs });
   }) : null;
   const row = rawRow ? { ...rawRow, screenRank: rank >= 0 ? rank+1 : null } : onDemand?.status === 'ready' && onDemand.row ? { ...onDemand.row, screenRank: null } : null;
   // P1447: compare with the stock's own market index (KOSPI/KOSDAQ for KRX listings) over the same windows.
@@ -288,11 +291,11 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const factorSession = String(row?.factorSessionDate || '').slice(0, 10);
   const sessionLag = factorSession && latestSession?.date && factorSession < latestSession.date ? { session: factorSession, latest: latestSession.date, sessions: countOpenSessionsBetween(factorSession, latestSession.date, market) } : null;
   host.dataset.aioStockReadSymbol = sym;
-  const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals, fundamentalsState }); });
+  const thirteenF = /\.K[SQ]$/i.test(sym) ? null : thirteenFFor(root, sym, () => { if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, ...host._aioReadArgs }); });
   // The screener's validation verdict only when its record is already loaded (the 스크리너 screen loads it); the
   // US validation does not describe the KR ranking.
   const validation = market === 'US' && (root?._aioScreenerBacktestHistory || []).length ? summarizeValidation(root._aioScreenerBacktestHistory, root?._aioModelValidationStatus || null, root?._aioRankingWeights || null) : null;
-  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, fundamentals, fundamentalsState }); }).catch(() => {});
+  refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, ...host._aioReadArgs }); }).catch(() => {});
   const themeStages = themeStagesFor(root, { symbol: sym, themeIds: themeIdsFor(root, sym, Array.isArray(rows) ? rows : []) });
   const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), themeStages, regime: readMarketRegime(root), universeSize: ranked.length || null, validation, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
   if (title && read.available && read.name && read.name !== sym) title.textContent = `종목, ${read.name} (${sym})`;
@@ -393,11 +396,12 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
 export function renderStockAnalysis({ documentRef: doc, root, symbol, fundamentals = null, close = null, sector = null }) {
   const host = doc?.getElementById('ticker-analysis');
   if (!host) return null;
+  host._aioAnalysisArgs = { fundamentals, close, sector }; // late repaints use the latest state (see renderStockRead)
   const sym = String(symbol || '').trim().toUpperCase();
   const own = fundamentals && String(fundamentals.symbol || sym).toUpperCase() === sym ? fundamentals : null;
   if (!sym || /\.K[SQ]$/i.test(sym) || !own) { host.hidden = true; host.replaceChildren(); delete host.dataset.signature; return null; }
   requestFiscalHistory(root, () => {
-    if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, fundamentals, close, sector });
+    if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, ...host._aioAnalysisArgs });
   }, 'stock-analysis');
   const text = root?._aioSecFiscalHistory?.[sym];
   // v58.55 (review): the same precise latest year as 재무 공시 (reconcileFiscalHistory swaps the rounded USD-million row
@@ -409,7 +413,7 @@ export function renderStockAnalysis({ documentRef: doc, root, symbol, fundamenta
   // A history request still in flight: nothing to draw yet (the callback repaints), unless it already failed.
   if (!history.length && root?._aioSecFiscalHistory === undefined) { host.hidden = true; return null; }
   const analysis = loadFundamentalAnalysis(() => {
-    if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, fundamentals, close, sector });
+    if (String(root?._currentTickerId || '').toUpperCase() === sym) renderStockAnalysis({ documentRef: doc, root, symbol: sym, ...host._aioAnalysisArgs });
   });
   if (!analysis) return null; // first use: the cards module is loading (outside the boot bundle); the callback draws them
   const { dupontCard, reverseDcfCard, assetChainState } = analysis;

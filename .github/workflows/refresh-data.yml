@@ -428,6 +428,7 @@ jobs:
           stage_if_exists public-data/macro-history.json # P1426: 거시 direction reads
           stage_if_exists public-data/macro-calendar.json # P1654: FRED release schedule
           stage_if_exists public-data/stress-outcomes.json # P1661: VIX-band forward outcomes
+          stage_if_exists public-data/today-verdict.json # v58.80 F01: first-paint verdict (build-scenario-state)
           stage_if_exists public-data/scenario-outcomes.json # P1743: long-history branch/theme-stage outcomes (weekly)
           stage_if_exists public-data/scenario-state.json # P1743: per-refresh branches, themes, transitions, scored releases
           stage_if_exists public-data/market-temperature.json # v57.54: per-market price temperature (4-hour throttle)

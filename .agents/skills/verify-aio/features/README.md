@@ -33,7 +33,7 @@ Each feature file has an H1, one paragraph of user-visible behavior, then exactl
 
 - [오늘](./today.md) — dashboard verdict, briefing and news tabs.
 - [시장 상태](./market.md) — regime verdict, six-axis board, breadth and sentiment tabs.
-- [거시와 금리](./macro.md) — macro regime and rates/FX tabs.
+- [매크로](./macro.md) — macro regime and rates/FX tabs.
 - [테마와 섹터](./themes.md) — sector rotation list and inline theme detail.
 - [종목](./stock.md) — ticker search and the same company across 요약/차트/재무 공시.
 - [스크리너](./screener.md) — ranked rows and text search.
