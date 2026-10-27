@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T23:21:56.462Z",
-  "attemptedAt": "2026-10-27T23:21:56.462Z",
-  "lastSuccessfulAt": "2026-10-27T23:21:56.462Z",
+  "generatedAt": "2026-10-27T23:51:47.803Z",
+  "attemptedAt": "2026-10-27T23:51:47.803Z",
+  "lastSuccessfulAt": "2026-10-27T23:51:47.803Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T23:21:50.650Z",
-  "until": "2026-10-27T23:21:50.650Z",
+  "since": "2026-10-13T23:51:42.168Z",
+  "until": "2026-10-27T23:51:42.168Z",
   "current24hWindow": {
     "start": "2026-10-26T23:00:00.000Z",
     "end": "2026-10-27T23:00:00.000Z",
@@ -80,10 +80,10 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 222,
+      "count": 221,
       "freshCount": 0,
-      "eligibleTextCount": 209,
-      "selectedCount": 67,
+      "eligibleTextCount": 208,
+      "selectedCount": 65,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,50 +92,50 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1343,
+      "count": 1347,
       "freshCount": 40,
-      "eligibleTextCount": 1290,
+      "eligibleTextCount": 1293,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67571
+      "lastPostId": 67575
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 248,
+      "count": 249,
       "freshCount": 40,
-      "eligibleTextCount": 248,
-      "selectedCount": 99,
+      "eligibleTextCount": 249,
+      "selectedCount": 101,
       "error": null,
-      "lastPostId": 20853
+      "lastPostId": 20857
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 686,
+      "count": 687,
       "freshCount": 37,
-      "eligibleTextCount": 686,
+      "eligibleTextCount": 687,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 71116
+      "lastPostId": 71120
     }
   ],
-  "count": 2499,
-  "retainedItemCount": 469,
+  "count": 2504,
+  "retainedItemCount": 475,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2499,
-    "eligibleTextCount": 2433,
-    "mediaOnlyCount": 66,
-    "highSignalCount": 453,
-    "broadSignalCount": 1009,
+    "observedCount": 2504,
+    "eligibleTextCount": 2437,
+    "mediaOnlyCount": 67,
+    "highSignalCount": 454,
+    "broadSignalCount": 1016,
     "selectedRawCount": 406,
     "selectedEligibleCount": 406,
     "selectedRawCoveragePct": 16.7,
@@ -143,34 +143,36 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "semi": 601,
+    "credit": 126,
+    "earnings": 510,
+    "macro": 409,
+    "power": 319,
+    "market-note": 918,
+    "media-only": 67,
+    "kr-market": 145,
+    "ai-policy": 150,
+    "healthcare": 135,
     "geo": 378,
-    "market-note": 919,
-    "macro": 410,
-    "semi": 594,
-    "power": 317,
-    "earnings": 509,
     "japan": 132,
     "equity": 187,
-    "credit": 126,
-    "kr-market": 147,
-    "flows": 113,
-    "healthcare": 134,
-    "ai-policy": 150,
-    "media-only": 66,
+    "flows": 111,
     "optical": 37,
     "crypto": 4,
     "insider": 4
   },
   "tickerCounts": {
+    "000660.KS": 78,
+    "005940.KS": 2,
+    "285A.T": 2,
+    "AAPL": 18,
     "MU": 64,
     "005930.KS": 53,
-    "000660.KS": 70,
     "NVDA": 188,
     "GOOG": 108,
     "TSM": 96,
-    "AMZN": 62,
+    "AMZN": 61,
     "STX": 8,
-    "AAPL": 17,
     "ORCL": 11,
     "AMD": 24,
     "MSFT": 60,
@@ -215,7 +217,6 @@
     "028050.KS": 3,
     "068270.KS": 1,
     "016360.KS": 2,
-    "005940.KS": 1,
     "039490.KS": 1,
     "SPOT": 1,
     "COHR": 6,
@@ -251,14 +252,14 @@
     "UNH": 1
   },
   "themes": [
-    "Market Notes (919 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
-    "Semiconductors/Memory (594 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
-    "Earnings/Corporate (509 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (410 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
+    "Market Notes (918 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
+    "Semiconductors/Memory (601 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
+    "Earnings/Corporate (510 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
+    "Macro/Rates (409 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
     "Geopolitics (378 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (317 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "AI Power/Grid (319 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (187 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (150 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
+    "AI Policy/Export Controls (150 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
   "catalysts": [
     {
@@ -283,8 +284,8 @@
     },
     {
       "key": "000660.KS",
-      "count": 70,
-      "text": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
+      "count": 78,
+      "text": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고..."
     },
     {
       "key": "MU",
@@ -293,7 +294,7 @@
     },
     {
       "key": "AMZN",
-      "count": 62,
+      "count": 61,
       "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
     },
     {
@@ -329,7 +330,7 @@
       "topics": [
         "macro"
       ],
-      "count": 410,
+      "count": 409,
       "focus": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
     },
     {
@@ -356,7 +357,7 @@
       "topics": [
         "semi"
       ],
-      "count": 594,
+      "count": 601,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,..."
     },
     {
@@ -374,7 +375,7 @@
       "topics": [
         "power"
       ],
-      "count": 317,
+      "count": 319,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -384,7 +385,7 @@
         "ai-policy"
       ],
       "count": 150,
-      "focus": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
+      "focus": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
     },
     {
       "id": "kr-market",
@@ -392,7 +393,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 147,
+      "count": 145,
       "focus": ">>한국 증시, 글로벌 시장에서 유례없이 저평가… 시가총액 1조 달러 이상 시장 중 처음으로 PER 5배 하회 (중국언론) •한국 KOSPI의 향후 12개월 예상 PER은 4.2배까지 하락. 이는..."
     },
     {
@@ -419,8 +420,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 509,
-      "focus": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
+      "count": 510,
+      "focus": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고..."
     },
     {
       "id": "healthcare",
@@ -428,8 +429,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 134,
-      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life Sciences · Charles River Laboratories International · Concentra..."
+      "count": 135,
+      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life..."
     },
     {
       "id": "japan",
@@ -446,7 +447,7 @@
       "topics": [
         "flows"
       ],
-      "count": 113,
+      "count": 111,
       "focus": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%) 3위: NVIDIA CORP (8.72%) 4위: PROSHARES ULTRA QQQ ETF (6.61%)..."
     },
     {
@@ -464,7 +465,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 919,
+      "count": 918,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째..."
     }
   ],
@@ -709,6 +710,27 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "bornlupin/20856",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20856",
+      "datetime": "2026-10-27T23:40:02.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "earnings",
+        "semi",
+        "macro",
+        "power"
+      ],
+      "lead": 2,
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "285A.T",
+        "000660.KS"
+      ],
+      "summary": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% •..."
+    },
+    {
       "id": "insidertracking/67553",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67553",
@@ -777,13 +799,12 @@
       "datetime": "2026-10-27T20:52:46.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "ai-policy"
+        "ai-policy",
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -793,8 +814,7 @@
         "ADBE",
         "RKLB",
         "BA"
-      ],
-      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
+      ]
     },
     {
       "id": "insidertracking/67528",
@@ -1625,28 +1645,168 @@
         "AMZN",
         "CRWV"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25923",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25923",
-      "datetime": "2026-10-19T01:59:58.000Z",
-      "localDateKst": "2026-10-19",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "JP모건 BE Semiconductor(BESI) 리포트 (2026.10.19): HBM 하이브리드 본딩 도입 지연 가능성은 있으나 경쟁 구도는 불변, 단기 수주는 강할 전망 JP모건은 BESI에 대해...",
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "TSM",
-        "BE"
-      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/20857",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20857",
+      "datetime": "2026-10-27T23:48:00.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [
+        "000660.KS",
+        "005940.KS"
+      ],
+      "summary": "2026.10.28 08:47:10 기업명: SK하이닉스(시가총액: 979조 5,903억) A000660 보고서명: 주요사항보고서(자기주식취득결정) * 보통주 취득수량 :..."
+    },
+    {
+      "id": "insidertracking/67575",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67575",
+      "datetime": "2026-10-27T23:44:06.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "credit"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "메타, 자금조달 129조원으로 확대…증자공모 5배 초과청약 흥행"
+    },
+    {
+      "id": "HANAchina/71120",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71120",
+      "datetime": "2026-10-27T23:41:56.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "•SK하이닉스는 메모리 공급 부족 상황이 2030년까지 지속될 것으로 전망"
+    },
+    {
+      "id": "bornlupin/20856",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20856",
+      "datetime": "2026-10-27T23:40:02.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "earnings",
+        "semi",
+        "macro",
+        "power"
+      ],
+      "lead": 2,
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "285A.T",
+        "000660.KS"
+      ],
+      "summary": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% •..."
+    },
+    {
+      "id": "HANAchina/71118",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71118",
+      "datetime": "2026-10-27T23:33:55.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "earnings",
+        "semi",
+        "kr-market"
+      ],
+      "lead": 3,
+      "score": 79,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": ">>SK hynix 3분기 실적 및 주주환원 계획 •매출 : 104.62조원 (컨센서스 98.96조원 상회) •영업이익 : 83.33조원 (컨센서스 77.5조원 상회) •순이익 : 39.53조원 (컨센서스..."
+    },
+    {
+      "id": "bornlupin/20855",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20855",
+      "datetime": "2026-10-27T23:32:57.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "속보) SK하이닉스, 주주환원 100조...배당 30조·자사주 소각 60조"
+    },
+    {
+      "id": "HANAchina/71117",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71117",
+      "datetime": "2026-10-27T23:30:44.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi",
+        "power",
+        "ai-policy",
+        "healthcare"
+      ],
+      "lead": 1,
+      "score": 79,
+      "hasText": true,
+      "tickers": [
+        "AAPL"
+      ],
+      "summary": ">>CXMT, 중국 내 고객사 우선 공급…DRAM 공급 부족에 대만 업체 수혜 전망 (대만공상시보) •CXMT가 Apple의 저가 메모리 구매 요구와 대만 서버 업체의 DDR5 공급 문의를 거절한 것으로..."
+    },
+    {
+      "id": "insidertracking/67573",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67573",
+      "datetime": "2026-10-27T23:28:49.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "2026.10.28 08:28:11 기업명: SK하이닉스(시가총액: 979조 5,903억) A000660 보고서명: 연결재무제표기준영업(잠정)실적(공정공시) 매출액 : 1,046,155억(예상치 :..."
+    },
+    {
+      "id": "insidertracking/67572",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67572",
+      "datetime": "2026-10-27T23:28:48.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [
+        "285A.T",
+        "000660.KS"
+      ],
+      "summary": "2026.10.28 08:28:05 기업명: SK하이닉스(시가총액: 979조 5,903억) A000660 보고서명: 수시공시의무관련사항(공정공시) 제목 : 2026년 회계연도 주주환원 예상 규모 및 시행 방안..."
+    },
     {
       "id": "insidertracking/67571",
       "channel": "insidertracking",
@@ -1920,6 +2080,7 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -1933,8 +2094,7 @@
         "HAS",
         "RRC",
         "BKH"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life..."
+      ]
     },
     {
       "id": "insidertracking/67531",
@@ -1943,13 +2103,12 @@
       "datetime": "2026-10-27T20:52:46.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "ai-policy"
+        "ai-policy",
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -1959,8 +2118,7 @@
         "ADBE",
         "RKLB",
         "BA"
-      ],
-      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
+      ]
     },
     {
       "id": "insidertracking/67530",
@@ -2686,13 +2844,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>휴머노이드 로봇의 메모리 수요, 5년간 20배 증가? 머스크 “터무니없다…로봇의 메모리 수요는 모든 것을 넘어설 것”, 초지능은 이를 훨씬 능가 •머스크는 초지능을 별도 등급으로 구분하며, 초지능의 컴퓨팅...",
+      "lead": 1,
       "tickers": [
         "MU"
-      ],
-      "summary": ">>휴머노이드 로봇의 메모리 수요, 5년간 20배 증가? 머스크 “터무니없다…로봇의 메모리 수요는 모든 것을 넘어설 것”, 초지능은 이를 훨씬 능가 •머스크는 초지능을 별도 등급으로 구분하며, 초지능의 컴퓨팅..."
+      ]
     },
     {
       "id": "bornlupin/20845",
@@ -2720,12 +2878,12 @@
       "datetime": "2026-10-27T04:06:08.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI, ‘친구’에서 ‘적’으로…중국 CICC, 중국 클라우드 기업 ROIC 11.9% 추산…내수 구축 효과 미국보다 빨리 나타날 가능성 •추산에 따르면 중국 주요 클라우드 기업의 가중평균 ROIC는..."
+      "summary": ">>AI, ‘친구’에서 ‘적’으로…중국 CICC, 중국 클라우드 기업 ROIC 11.9% 추산…내수 구축 효과 미국보다 빨리 나타날 가능성 •추산에 따르면 중국 주요 클라우드 기업의 가중평균 ROIC는...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71077",
@@ -2734,12 +2892,12 @@
       "datetime": "2026-10-27T04:01:53.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>“토큰 소비량 72%를 차지하지만 지출 비중은 27%” — AI 강세론과 약세론의 핵심 쟁점 •OpenRouter 데이터에 따르면 토큰 수요는 20개월 만에 250배 급증했지만, 트래픽의 72%가 요금이..."
+      "summary": ">>“토큰 소비량 72%를 차지하지만 지출 비중은 27%” — AI 강세론과 약세론의 핵심 쟁점 •OpenRouter 데이터에 따르면 토큰 수요는 20개월 만에 250배 급증했지만, 트래픽의 72%가 요금이...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71074",
@@ -4333,14 +4491,14 @@
       "datetime": "2026-10-26T00:13:02.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
+      "summary": "어떤 산업이든 붐이 일어나면 수많은 기업이 우후죽순 생겨나고, 결국 경쟁력 있는 상위 기업들 중심으로 시장이 재편되는 것은 자연스러운 과정입니다. 모두가 성공하거나 모두가 망한다는 극단적인 시각이 오히려...",
       "tickers": [
         "BE"
-      ],
-      "summary": "어떤 산업이든 붐이 일어나면 수많은 기업이 우후죽순 생겨나고, 결국 경쟁력 있는 상위 기업들 중심으로 시장이 재편되는 것은 자연스러운 과정입니다. 모두가 성공하거나 모두가 망한다는 극단적인 시각이 오히려..."
+      ]
     },
     {
       "id": "bornlupin/20816",
@@ -4354,11 +4512,11 @@
         "credit",
         "semi"
       ],
-      "lead": 3,
       "score": 77,
       "hasText": true,
-      "tickers": [],
-      "summary": "일론 머스크 지난 몇 주 동안 채권시장은 AI 데이터센터 사업 이외에 상당한 규모의 독립적인 매출원이 없는 기업들에 대해 자금조달의 문을 사실상 거의 닫아버렸습니다. 스페이스X는 GPU 확보를 위해 400억..."
+      "summary": "일론 머스크 지난 몇 주 동안 채권시장은 AI 데이터센터 사업 이외에 상당한 규모의 독립적인 매출원이 없는 기업들에 대해 자금조달의 문을 사실상 거의 닫아버렸습니다. 스페이스X는 GPU 확보를 위해 400억...",
+      "lead": 3,
+      "tickers": []
     },
     {
       "id": "bornlupin/20815",
@@ -4367,13 +4525,13 @@
       "datetime": "2026-10-26T00:11:22.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "power",
         "ai-policy"
       ],
       "score": 58,
       "hasText": true,
-      "tickers": [],
-      "summary": "Chamath (26.9.20 글) 향후 12개월 안에 상위 3개 AI 모델이 오픈소스 모델이 될 것으로 전망. 이 모델들을 서비스하는 미국 클라우드 기업들이 경제적 승자가 될 것. 구체적으로 Nebius,..."
+      "summary": "Chamath (26.9.20 글) 향후 12개월 안에 상위 3개 AI 모델이 오픈소스 모델이 될 것으로 전망. 이 모델들을 서비스하는 미국 클라우드 기업들이 경제적 승자가 될 것. 구체적으로 Nebius,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/70993",
@@ -4399,15 +4557,12 @@
       "datetime": "2026-10-25T23:46:34.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "optical",
-        "kr-market",
-        "earnings",
-        "japan"
+        "earnings"
       ],
       "score": 61,
       "hasText": true,
-      "tickers": [],
-      "summary": "한투증권, RF머트리얼즈, 투자의견 매수, 목표주가 65,000원으로 상향 3분기 실적은 컨센서스 상회할 전망 3분기 매출액은 263억원(+80.2% YoY), 영업이익은 61억원(+223.8% YoY,..."
+      "summary": "한투증권, RF머트리얼즈, 투자의견 매수, 목표주가 65,000원으로 상향 3분기 실적은 컨센서스 상회할 전망 3분기 매출액은 263억원(+80.2% YoY), 영업이익은 61억원(+223.8% YoY,...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20813",
@@ -6621,24 +6776,6 @@
       ]
     },
     {
-      "id": "insidertracking/67088",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67088",
-      "datetime": "2026-10-23T05:26:48.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "semi"
-      ],
-      "score": 99,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 23일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 재무부는 특정 외국 국가의 AI 및 반도체 산업에 대한 미국인의 투자를 제한하는 새로운 규정을...",
-      "tickers": [
-        "NVDA",
-        "000660.KS",
-        "267250.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20780",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20780",
@@ -6682,21 +6819,6 @@
       "score": 52,
       "hasText": true,
       "summary": "2026.10.23 13:55:22 기업명: 기가비스(시가총액: 1조 2,232억) A420770 보고서명: 단일판매ㆍ공급계약체결 계약상대 : 한국 반도체 기판 제조회사 계약내용 : 반도체 기판 검사장비...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67085",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67085",
-      "datetime": "2026-10-23T04:42:45.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "geo"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "트럼프 대통령은 이란 문제와 관련해 “우리는 어떤 방식으로든 이란 문제를 매우 조만간 끝낼 것입니다. 어떤 방식이 될지는 저에게 거의 중요하지 않습니다. 매우 조만간 마무리될 것이며, 그렇게 되면 휘발유...",
-      "lead": 1,
       "tickers": []
     },
     {
@@ -6843,21 +6965,6 @@
         "SHOP",
         "TCOM"
       ]
-    },
-    {
-      "id": "insidertracking/67080",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67080",
-      "datetime": "2026-10-23T01:36:44.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": "이란 강경파, 핵무기 개발 공식화 촉구…중동 핵무장 위기 고조 미국과 이스라엘의 군사 공격 이후 이란 내부에서 핵무기 개발을 공식적으로 추진해야 한다는 목소리가 커지고 있음. 최고지도자 아야톨라 알리 하메네이...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25993",
@@ -7513,55 +7620,6 @@
       "tickers": [
         "AMD"
       ]
-    },
-    {
-      "id": "HANAchina/70840",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70840",
-      "datetime": "2026-10-22T06:05:38.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "semi"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "•중국 반도체 빠르게 낙폭 축소 •CXMT -4.5%에서 약보합까지 만회 •정부 개입 추정 자금은 계속 유입",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/70836",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70836",
-      "datetime": "2026-10-22T05:47:27.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "earnings",
-        "semi"
-      ],
-      "score": 82,
-      "hasText": true,
-      "summary": ">>젠슨 황, 핵심 쟁점에 답변: CoreWeave 부채, GPU 감가상각 기간, DeepSeek 추론의 높은 매출총이익률 •젠슨 황은 최근 AI 투자와 관련한 세 가지 핵심 쟁점에 답변. 첫째, GPU...",
-      "lead": 2,
-      "tickers": [
-        "NVDA",
-        "CRWV"
-      ]
-    },
-    {
-      "id": "HANAchina/70835",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70835",
-      "datetime": "2026-10-22T05:35:20.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "credit"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": "•중국 증시 자금조달 / 대출 순증 비율 •역대 최고인 40%를 넘어 60% 육박 •증시에도 부담으로 작용",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25981",
@@ -8409,54 +8467,6 @@
         "005930.KS",
         "000660.KS"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25939",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25939",
-      "datetime": "2026-10-20T05:17:11.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "OCP 2026에서 공개된 NVIDIA BlueField-4 기반 STX CMX 서버, 기존 RDIMM 대신 SoCAMM 메모리 모듈 채택 확인",
-      "tickers": [
-        "NVDA",
-        "STX"
-      ]
-    },
-    {
-      "id": "bornlupin/20722",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20722",
-      "datetime": "2026-10-20T01:13:44.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "IREN CEO Daniel Roberts 이번 주 자금 조달과 관련해 많은 질문을 받았습니다. 이에 따라 IREN( $IREN )에서 GPU 자금 조달이 일반적으로 어떻게 이루어지는지 설명하겠습니다. 첫째,...",
-      "tickers": [
-        "MSFT"
-      ]
-    },
-    {
-      "id": "bornlupin/20721",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20721",
-      "datetime": "2026-10-20T00:34:58.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "[메리츠증권 전기전자/IT부품 양승수] 코리아써키트(007810) : SoCAMM이 틔워줄 숨통 3Q26 Preview: 시장 컨센서스 소폭 상회 전망 - 3Q26 별도 기준 매출액과 영업이익 추정치를 각각...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8682,6 +8692,7 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -8695,8 +8706,7 @@
         "HAS",
         "RRC",
         "BKH"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life..."
+      ]
     },
     {
       "id": "insidertracking/67531",
@@ -8705,13 +8715,12 @@
       "datetime": "2026-10-27T20:52:46.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "ai-policy"
+        "ai-policy",
+        "equity"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -8721,8 +8730,7 @@
         "ADBE",
         "RKLB",
         "BA"
-      ],
-      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
+      ]
     },
     {
       "id": "insidertracking/67530",
@@ -9434,13 +9442,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>휴머노이드 로봇의 메모리 수요, 5년간 20배 증가? 머스크 “터무니없다…로봇의 메모리 수요는 모든 것을 넘어설 것”, 초지능은 이를 훨씬 능가 •머스크는 초지능을 별도 등급으로 구분하며, 초지능의 컴퓨팅...",
+      "lead": 1,
       "tickers": [
         "MU"
-      ],
-      "summary": ">>휴머노이드 로봇의 메모리 수요, 5년간 20배 증가? 머스크 “터무니없다…로봇의 메모리 수요는 모든 것을 넘어설 것”, 초지능은 이를 훨씬 능가 •머스크는 초지능을 별도 등급으로 구분하며, 초지능의 컴퓨팅..."
+      ]
     },
     {
       "id": "bornlupin/20845",
@@ -9468,12 +9476,12 @@
       "datetime": "2026-10-27T04:06:08.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI, ‘친구’에서 ‘적’으로…중국 CICC, 중국 클라우드 기업 ROIC 11.9% 추산…내수 구축 효과 미국보다 빨리 나타날 가능성 •추산에 따르면 중국 주요 클라우드 기업의 가중평균 ROIC는..."
+      "summary": ">>AI, ‘친구’에서 ‘적’으로…중국 CICC, 중국 클라우드 기업 ROIC 11.9% 추산…내수 구축 효과 미국보다 빨리 나타날 가능성 •추산에 따르면 중국 주요 클라우드 기업의 가중평균 ROIC는...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71077",
@@ -9482,12 +9490,12 @@
       "datetime": "2026-10-27T04:01:53.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>“토큰 소비량 72%를 차지하지만 지출 비중은 27%” — AI 강세론과 약세론의 핵심 쟁점 •OpenRouter 데이터에 따르면 토큰 수요는 20개월 만에 250배 급증했지만, 트래픽의 72%가 요금이..."
+      "summary": ">>“토큰 소비량 72%를 차지하지만 지출 비중은 27%” — AI 강세론과 약세론의 핵심 쟁점 •OpenRouter 데이터에 따르면 토큰 수요는 20개월 만에 250배 급증했지만, 트래픽의 72%가 요금이...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71074",
@@ -9820,7 +9828,7 @@
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
     "pt": 89,
-    "earnings": 32,
+    "earnings": 33,
     "macro": 3,
     "retail": 9
   },
@@ -11070,6 +11078,18 @@
       "ratingAction": "downgrade",
       "date": "2026-10-14",
       "post": "insidertracking/66142"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|000660.KS|2026-10-28",
+      "ticker": "000660.KS",
+      "name": ">>SK hynix",
+      "quarter": null,
+      "revenue": "beat",
+      "eps": null,
+      "guidance": null,
+      "date": "2026-10-28",
+      "post": "HANAchina/71118"
     },
     {
       "kind": "earnings",
