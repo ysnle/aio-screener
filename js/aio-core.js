@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.15';
+const APP_VERSION = 'v59.16';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2995,8 +2995,8 @@ window.AIO.loadQaAudits = function() {
 try {
   if ((typeof navigator !== 'undefined' && navigator.webdriver) || /(?:^|[?&])(?:qa|aioAudit)=1(?:&|$)/.test(location.search || '') || localStorage.getItem('aio_audit_mode') === 'detailed') window.AIO.loadQaAudits().catch(function() {});
 } catch (_) {}
-window.AIO.loadTests = function() {
-  return window.AIO.loadQaAudits().then(function() { return new Promise(function(resolve, reject) {
+window.AIO.loadTests = function() { // v59.16: the T-tests call the AI panel, which now loads after boot
+  return window.AIO.loadQaAudits().then(function() { return typeof window.AIO.loadChat === 'function' ? window.AIO.loadChat() : true; }).then(function() { return new Promise(function(resolve, reject) {
     if (window.__aioTestsLoaded || typeof window.AIO.runTests === 'function') { window.__aioTestsLoaded = true; return resolve(true); }
     try {
       var s = document.createElement('script');

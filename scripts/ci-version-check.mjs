@@ -85,7 +85,9 @@ check('CHANGELOG latest release header', new RegExp(`^##\\s+${versionRe}\\b`, 'm
 const cachebusters = [...html.matchAll(/\?v=([\d.]+)"/g)].map((match) => match[1]);
 // Preloads are reusable only when the request URL matches the executed script.
 // A bare preload plus a versioned script silently downloads both resources.
-for (const name of ['aio-core', 'aio-data', 'aio-ui', 'aio-chat']) {
+// v59.16 (roadmap 11): aio-chat is inserted after boot by src/app/chat-loader.js with the aio-core cachebuster, so it
+// has no static tag here (architecture/runtime-script-order.json lists it as lazy).
+for (const name of ['aio-core', 'aio-data', 'aio-ui']) {
   const url = `./js/${name}.js?v=${versionNumber}`;
   // v58.80 F01: the legacy scripts are no longer preloaded (they raced the first screen's HTML and stylesheet on slow
   // lines); a preload that does come back must still name the executed URL.

@@ -3720,7 +3720,10 @@ function chatFromChip(ctxId, q) {
 }
 
 // v29.1: 모든 채팅 헤더에 "대화 기록" 버튼 자동 주입
-document.addEventListener('DOMContentLoaded', function() {
+// v59.16: this script now loads after boot (src/app/chat-loader.js), usually after DOMContentLoaded, so its two
+// start-up blocks run at once when the document is already parsed.
+function _aioWhenDomReady(fn) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+_aioWhenDomReady(function() {
   document.querySelectorAll('.acp-header').forEach(function(header) {
     // 해당 채팅의 ctxId 추출 (가장 가까운 acp-messages의 id에서)
     const chatPanel = header.closest('.aio-chat');
@@ -4746,8 +4749,8 @@ function aiChipClick(el) {
 
 // showPage 연결: 페이지 전환 시 AI 맥락 자동 업데이트
 // v48.99: _aioPageBus 마이그 (P180)
-// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
-document.addEventListener('DOMContentLoaded', function() {
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿). v59.16: _aioWhenDomReady, as the script may load after it.
+_aioWhenDomReady(function() {
 _aioPageBus.register('html-ai-panel-shown', 'aio:pageShown', function(e) {
   if (e && e.detail) updateAIPanelContext(e.detail);
 });

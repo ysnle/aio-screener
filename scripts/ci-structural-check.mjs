@@ -162,11 +162,14 @@ const orderManifest = JSON.parse(read('architecture/runtime-script-order.json'))
 check('runtime script order must match architecture/runtime-script-order.json exactly (R622/P1135)'
   + (JSON.stringify(scriptOrder) === JSON.stringify(orderManifest.order) ? '' : `: html=[${scriptOrder.join(', ')}] manifest=[${orderManifest.order.join(', ')}]`),
   JSON.stringify(scriptOrder) === JSON.stringify(orderManifest.order));
+// v59.16 (roadmap 11): `lazy` lists runtime files that are inserted after boot (js/aio-chat.js via src/app/chat-loader.js)
+// instead of loading as static shell scripts.
+const lazyScripts = orderManifest.lazy || [];
 check('runtime script order manifest must list every measured runtime file exactly once (R622/P1135)',
-  orderManifest.order.length === new Set(orderManifest.order).size
-    && Object.keys(RUNTIME_SCRIPT_FILES).filter((f) => f !== 'index.html').every((f) => orderManifest.order.includes(f))
-    && orderManifest.order.every((f) => f in RUNTIME_SCRIPT_FILES),
-  `manifest=[${orderManifest.order.join(', ')}]`);
+  [...orderManifest.order, ...lazyScripts].length === new Set([...orderManifest.order, ...lazyScripts]).size
+    && Object.keys(RUNTIME_SCRIPT_FILES).filter((f) => f !== 'index.html').every((f) => orderManifest.order.includes(f) || lazyScripts.includes(f))
+    && [...orderManifest.order, ...lazyScripts].every((f) => f in RUNTIME_SCRIPT_FILES),
+  `manifest=[${orderManifest.order.join(', ')}] lazy=[${lazyScripts.join(', ')}]`);
 
 // ── P1138/R622: one global, one implementation ───────────────────────────────────────────────
 // P1132 shipped this shape: js/aio-ui.js declared `function _fetchYahooChartData` while

@@ -38,6 +38,7 @@ import { installConnectionPanel } from '../ui/panels/connections.js';
 import { installAskPanel } from '../ui/panels/ask-panel.js';
 import { applyProducedMacroCalendar } from '../data/macro-calendar.js';
 import { installResponsiveShell } from '../ui/components/responsive-shell.js';
+import { installChatLoader } from './chat-loader.js'; // v59.16 roadmap 11: the AI panel script loads after boot
 import { installChatSessions } from '../ui/components/chat-sessions.js'; // owner 2026-10-14: saved conversations
 import { installPanelContexts } from '../ai/context/panel-contexts.js'; // audit 2026-10-14: AI on masters/guide
 import { readMarketRegime } from '../ui/components/market-regime.js';
@@ -93,8 +94,12 @@ import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './ro
 // remain pure and reusable in Node/worker contexts without browser globals.
 if (typeof window !== 'undefined') {
   installCompatibilityGlobals(window); // v57.62: the window.* bridge assignments live in compatibility-globals.js
-try { installPanelContexts(window); } catch (_) { /* masters/guide keep the disabled panel */ }
-try { installChatSessions(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() }); } catch (_) { /* the panel keeps working without saved conversations */ }
+// v59.16 (roadmap 11): js/aio-chat.js loads after boot (src/app/chat-loader.js); the panel's context and session glue
+// installs once it has, in the order it used to run at boot.
+installChatLoader(window, document, { onLoaded: () => {
+  try { installPanelContexts(window); } catch (_) { /* masters/guide keep the disabled panel */ }
+  try { installChatSessions(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() }); } catch (_) { /* the panel keeps working without saved conversations */ }
+} });
 // Owner 2026-10-25: the 맞춤 profile and the touch chip fold load after boot (outside the boot module budget). Until the
 // profile module has loaded, a question carries the unset-profile line.
 import('../ui/components/ai-profile.js').then(({ installAIProfile }) => installAIProfile(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() })).catch(() => { /* answers fall back to the unset-profile line */ });

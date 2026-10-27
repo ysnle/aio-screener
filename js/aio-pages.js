@@ -136,10 +136,6 @@ function initSignalDashboard() {
   // v48.91: 타이머 레지스트리 등록
   _signalInterval = _aioRegisterTimer('signalDashboard', refreshSignalDashboard, T.SIGNAL_REFRESH);
 
-  // Init chat
-  if (window.CHAT_DEFAULT_CHIPS) {
-    chatRenderChips('signal', window.CHAT_DEFAULT_CHIPS['signal']);
-  }
   // Fetch fresh quotes for signal page
   if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
 }
