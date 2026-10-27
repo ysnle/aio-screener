@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T08:51:32.039Z",
-  "attemptedAt": "2026-10-27T08:51:32.039Z",
-  "lastSuccessfulAt": "2026-10-27T08:51:32.039Z",
+  "generatedAt": "2026-10-27T09:22:00.123Z",
+  "attemptedAt": "2026-10-27T09:22:00.123Z",
+  "lastSuccessfulAt": "2026-10-27T09:22:00.123Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T08:51:27.317Z",
-  "until": "2026-10-27T08:51:27.317Z",
+  "since": "2026-10-13T09:21:53.211Z",
+  "until": "2026-10-27T09:21:53.211Z",
   "current24hWindow": {
     "start": "2026-10-25T23:00:00.000Z",
     "end": "2026-10-26T23:00:00.000Z",
@@ -81,9 +81,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 238,
+      "count": 235,
       "freshCount": 0,
-      "eligibleTextCount": 224,
+      "eligibleTextCount": 222,
       "selectedCount": 68,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -93,71 +93,71 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1301,
+      "count": 1303,
       "freshCount": 37,
-      "eligibleTextCount": 1247,
+      "eligibleTextCount": 1249,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67481
+      "lastPostId": 67484
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 249,
+      "count": 251,
       "freshCount": 40,
-      "eligibleTextCount": 249,
+      "eligibleTextCount": 251,
       "selectedCount": 97,
       "error": null,
-      "lastPostId": 20848
+      "lastPostId": 20850
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 685,
+      "count": 680,
       "freshCount": 38,
-      "eligibleTextCount": 685,
-      "selectedCount": 121,
+      "eligibleTextCount": 680,
+      "selectedCount": 120,
       "error": null,
-      "lastPostId": 71094
+      "lastPostId": 71095
     }
   ],
-  "count": 2473,
-  "retainedItemCount": 471,
+  "count": 2469,
+  "retainedItemCount": 467,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2473,
-    "eligibleTextCount": 2405,
-    "mediaOnlyCount": 68,
-    "highSignalCount": 459,
-    "broadSignalCount": 1017,
-    "selectedRawCount": 406,
-    "selectedEligibleCount": 406,
+    "observedCount": 2469,
+    "eligibleTextCount": 2402,
+    "mediaOnlyCount": 67,
+    "highSignalCount": 460,
+    "broadSignalCount": 1014,
+    "selectedRawCount": 405,
+    "selectedEligibleCount": 405,
     "selectedRawCoveragePct": 16.9,
     "selectedOfObservedPct": 16.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 602,
-    "power": 325,
-    "credit": 126,
-    "macro": 412,
-    "geo": 361,
-    "equity": 192,
-    "ai-policy": 157,
-    "kr-market": 149,
+    "geo": 362,
+    "semi": 601,
     "earnings": 506,
-    "flows": 114,
-    "market-note": 906,
-    "media-only": 68,
+    "japan": 134,
+    "credit": 126,
+    "macro": 411,
+    "equity": 193,
+    "market-note": 907,
+    "power": 325,
+    "ai-policy": 155,
+    "kr-market": 149,
+    "flows": 113,
+    "media-only": 67,
     "healthcare": 135,
-    "japan": 133,
     "optical": 44,
     "crypto": 4,
     "insider": 6
@@ -165,11 +165,12 @@
   "tickerCounts": {
     "005930.KS": 51,
     "000660.KS": 68,
+    "MSFT": 59,
+    "GOOG": 102,
+    "AMZN": 60,
+    "CRWV": 25,
     "NVDA": 190,
     "TSM": 97,
-    "MSFT": 58,
-    "GOOG": 101,
-    "AMZN": 59,
     "MU": 67,
     "AVGO": 23,
     "009150.KS": 16,
@@ -192,7 +193,6 @@
     "APH": 1,
     "CEG": 1,
     "218410.KQ": 1,
-    "CRWV": 24,
     "SHOP": 5,
     "DB": 3,
     "T": 7,
@@ -254,14 +254,14 @@
     "ACN": 1
   },
   "themes": [
-    "Market Notes (906 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로...",
-    "Semiconductors/Memory (602 posts in 14-day research window): 2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION...",
+    "Market Notes (907 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로...",
+    "Semiconductors/Memory (601 posts in 14-day research window): 2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION...",
     "Earnings/Corporate (506 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (412 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록. VIX는 19.13으로 소폭 하락. FOMC 회의를 앞두고 기술주 중심의 상승 탄력이 둔화되는 가운데...",
-    "Geopolitics (361 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "Macro/Rates (411 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록. VIX는 19.13으로 소폭 하락. FOMC 회의를 앞두고 기술주 중심의 상승 탄력이 둔화되는 가운데...",
+    "Geopolitics (362 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
     "AI Power/Grid (325 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
-    "Equity/Analyst (192 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (157 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
+    "Equity/Analyst (193 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
+    "AI Policy/Export Controls (155 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
   ],
   "catalysts": [
     {
@@ -271,8 +271,8 @@
     },
     {
       "key": "GOOG",
-      "count": 101,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로..."
+      "count": 102,
+      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
     },
     {
       "key": "TSM",
@@ -296,13 +296,13 @@
     },
     {
       "key": "AMZN",
-      "count": 59,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로..."
+      "count": 60,
+      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
     },
     {
       "key": "MSFT",
-      "count": 58,
-      "text": "네이버, 브룩필드와 12조원 AI인프라 계약…AI팩토리 본격 공략 엔비디아는 네이버 3대 주주로 올라설 듯 3사 역할 분담으로 재무 부담 줄어 네이버가 글로벌 자산운용사 브룩필드와 약 12조원 규모의 컴퓨팅 인프라 확보 계약을 체결하면서 엔비디아와 함께 추진하는 글로벌 인공지능(AI) 팩토리 구축 사업이 본궤도에..."
+      "count": 59,
+      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
     },
     {
       "key": "005930.KS",
@@ -315,14 +315,14 @@
       "text": "2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI..."
     },
     {
+      "key": "CRWV",
+      "count": 25,
+      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
+    },
+    {
       "key": "AMD",
       "count": 25,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
-    },
-    {
-      "key": "CRWV",
-      "count": 24,
-      "text": "Bernstein, AI 인프라 자금조달 제약, 오히려 장기 호황에 긍정적 - 최근 코어위브(CoreWeave)의 부채 우려와 메타의 자금조달 계획으로 AI 인프라 투자의 금융 리스크 및 투자수익률에 대한..."
     }
   ],
   "categories": [
@@ -332,7 +332,7 @@
       "topics": [
         "macro"
       ],
-      "count": 412,
+      "count": 411,
       "focus": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록. VIX는 19.13으로 소폭 하락. FOMC 회의를 앞두고 기술주 중심의 상승 탄력이 둔화되는 가운데..."
     },
     {
@@ -341,7 +341,7 @@
       "topics": [
         "geo"
       ],
-      "count": 361,
+      "count": 362,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -351,7 +351,7 @@
         "credit"
       ],
       "count": 126,
-      "focus": "네이버, 브룩필드와 12조원 AI인프라 계약…AI팩토리 본격 공략 엔비디아는 네이버 3대 주주로 올라설 듯 3사 역할 분담으로 재무 부담 줄어 네이버가 글로벌 자산운용사 브룩필드와 약 12조원 규모의 컴퓨팅 인프라 확보 계약을 체결하면서 엔비디아와 함께 추진하는 글로벌 인공지능(AI) 팩토리 구축 사업이 본궤도에..."
+      "focus": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
     },
     {
       "id": "semi",
@@ -359,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 602,
+      "count": 601,
       "focus": "2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION..."
     },
     {
@@ -386,7 +386,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 157,
+      "count": 155,
       "focus": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
     },
     {
@@ -404,7 +404,7 @@
       "topics": [
         "equity"
       ],
-      "count": 192,
+      "count": 193,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각..."
     },
     {
@@ -440,7 +440,7 @@
       "topics": [
         "japan"
       ],
-      "count": 133,
+      "count": 134,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -449,7 +449,7 @@
       "topics": [
         "flows"
       ],
-      "count": 114,
+      "count": 113,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -467,7 +467,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 906,
+      "count": 907,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로..."
     }
   ],
@@ -711,6 +711,28 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "bornlupin/20849",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20849",
+      "datetime": "2026-10-27T09:09:11.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "credit",
+        "macro",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AMZN",
+        "CRWV"
+      ],
+      "summary": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점..."
+    },
     {
       "id": "bornlupin/20847",
       "channel": "bornlupin",
@@ -1624,26 +1646,67 @@
         "TSM",
         "BE"
       ]
-    },
-    {
-      "id": "HANAchina/70621",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70621",
-      "datetime": "2026-10-18T13:09:14.000Z",
-      "localDateKst": "2026-10-18",
-      "tags": [
-        "credit"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": ">>골드만삭스: 채권시장은 지나치게 비관적이거나 주식시장은 지나치게 낙관적… 클라우드 대형주 추가 15% 하락 가능성 •골드만삭스는 AI 관련 CSP의 신용 스프레드가 연중 최고 수준으로 확대됐지만 주가는...",
-      "lead": 1,
-      "tickers": [
-        "TSM"
-      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/20850",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20850",
+      "datetime": "2026-10-27T09:20:38.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "geo",
+        "semi",
+        "earnings",
+        "japan"
+      ],
+      "score": 75,
+      "hasText": true,
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "[단독] 삼전닉스, 역대급 환원…주주에 '210조+α' 푼다 하이닉스 60조 추가해 100조 삼전 110조…주주 신뢰 회복 삼성전자와 SK하이닉스가 210조원이 넘는 역대급 규모 주주환원에 나선다...."
+    },
+    {
+      "id": "bornlupin/20849",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20849",
+      "datetime": "2026-10-27T09:09:11.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "credit",
+        "macro",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AMZN",
+        "CRWV"
+      ],
+      "summary": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점..."
+    },
+    {
+      "id": "HANAchina/71095",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71095",
+      "datetime": "2026-10-27T08:52:54.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "macro",
+        "japan"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게..."
+    },
     {
       "id": "insidertracking/67481",
       "channel": "insidertracking",
@@ -2282,11 +2345,11 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 2,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">Anthropic, 예측시장에서는 올해 IPO 사실상 확정으로 판단 •Anthropic이 월요일 SEC에 S-1 서류를 제출했다고 공개하면서 투자자들은 처음으로 이 AI 플랫폼의 재무 상황을 핵심적으로..."
+      "summary": ">Anthropic, 예측시장에서는 올해 IPO 사실상 확정으로 판단 •Anthropic이 월요일 SEC에 S-1 서류를 제출했다고 공개하면서 투자자들은 처음으로 이 AI 플랫폼의 재무 상황을 핵심적으로...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/20833",
@@ -3987,17 +4050,14 @@
       "datetime": "2026-10-25T21:43:12.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "semi",
-        "earnings",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": "[단독]SK하이닉스, 日 키옥시아 지분 차익 16조원 특별배당 추진 투자 8년 만에 매각 이익 20조 주당 2만3000원 안팎 배당 예상 작년 배당 총액의 7배 규모 될듯 40조 자사주 매입, 이달 조기 완료...",
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "[단독]SK하이닉스, 日 키옥시아 지분 차익 16조원 특별배당 추진 투자 8년 만에 매각 이익 20조 주당 2만3000원 안팎 배당 예상 작년 배당 총액의 7배 규모 될듯 40조 자사주 매입, 이달 조기 완료..."
+      ]
     },
     {
       "id": "insidertracking/67265",
@@ -7727,26 +7787,6 @@
       ]
     },
     {
-      "id": "HANAchina/70810",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70810",
-      "datetime": "2026-10-21T22:52:34.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "score": 82,
-      "hasText": true,
-      "summary": "• 엔비디아 GTC 베를린 컨퍼런스가에서 공개한 공급망 증설 로드맵은 기판, 첨단 패키징, 테스트, 광학 등 4대 영역을 아우르고 있으며, 글로벌 AI 인프라 확충과 유럽 소버린 AI 공략을 위해...",
-      "lead": 2,
-      "tickers": [
-        "NVDA",
-        "MU",
-        "009150.KS"
-      ]
-    },
-    {
       "id": "bornlupin/20758",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20758",
@@ -8424,38 +8464,6 @@
         "GOOG",
         "META",
         "SNDK"
-      ]
-    },
-    {
-      "id": "bornlupin/20720",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20720",
-      "datetime": "2026-10-19T23:41:17.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": "OpenAI, 앤트로픽(Anthropic) IPO 앞두고 자금 조달 속도전 나서… 소식통 자금 조달 가속화: OpenAI가 경쟁사 앤트로픽의 11월 중순 기업공개(IPO)를 앞두고 투자 유치를 빠르게...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/20719",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20719",
-      "datetime": "2026-10-19T23:23:58.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "power"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "오라클(ORCL), 프로젝트 주피터 데이터센터 건설 빠르게 진행 중 프로젝트 주피터(Project Jupiter) 데이터센터 캠퍼스 건설이 빠르게 진행되고 있으며, 현장 공사도 순조롭게 진척되고 있습니다....",
-      "tickers": [
-        "ORCL",
-        "BE"
       ]
     }
   ],
