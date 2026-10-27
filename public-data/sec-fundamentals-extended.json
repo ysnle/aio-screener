@@ -1,6 +1,6 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-27T12:58:30.266Z",
+ "generatedAt": "2026-10-27T18:35:55.371Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -4510,13 +4510,13 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:40507004115",
-  "attemptedAt": "2026-10-27T12:58:15.985Z",
+  "runId": "gha:40560326783",
+  "attemptedAt": "2026-10-27T18:35:40.864Z",
   "sourceRevision": "sec-company-tickers:f5a8b5c09137999ca3815f91df8b97a3602f24d0818255001e38bc77aae9c472",
   "inputWatermarks": {
-   "universe": "2026-10-27T12:58:14.097Z",
-   "screener": "2026-10-27T12:57:29.407Z",
-   "previousArtifact": "2026-10-27T07:36:00.763Z"
+   "universe": "2026-10-27T18:35:38.668Z",
+   "screener": "2026-10-27T18:34:58.705Z",
+   "previousArtifact": "2026-10-27T12:58:30.266Z"
   },
   "batchLimit": 600,
   "counts": {
@@ -321329,8 +321329,8 @@
  "issuerSicCoverage": {
   "classified": 3856,
   "eligible": 3901,
-  "passAttempted": 46,
-  "passUpdated": 1,
+  "passAttempted": 45,
+  "passUpdated": 0,
   "passFailed": 0
  },
  "issuerSic": {
