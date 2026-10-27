@@ -146,7 +146,7 @@ check('P1736 fixture: the holiday tables enter review 61 days before the last re
 
 // ── Consumer wiring ─────────────────────────────────────────────────────────
 const ui = read('js/aio-ui.js');
-const dataJs = read('js/aio-data.js');
+const dataJs = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js'); // v59.34: the server data loader moved to src
 check('P1736 applyDataSnapshot holds expired BOK/KR CPI values as 기한 지남', /'bok-rate':\s*refHeld\('bokPolicy'/.test(core) && /'kr-cpi':\s*refHeld\('krInflation'/.test(core) && /'kr-cpi-yoy':\s*refHeld\('krInflation'/.test(core));
 check('P1737 v57.60 fed-target fallback and the CP2 text writer use AIO.getFedPolicyRange (the retired cp2-detail DOM sink stays gone)', /'fed-target':[^\n]*_fedRange/.test(core) && !/getElementById\('cp2-detail'\)/.test(core) && /function getCP2Text\(\)[\s\S]{0,700}getFedPolicyRange\(\)/.test(core));
 for (const file of ['src/ui/components/daily-loop.js', 'src/ui/components/briefing-read.js', 'src/ui/pages/market.js']) check(`P1737 ${file} reads the Fed range through AIO.getFedPolicyRange`, /getFedPolicyRange/.test(read(file)));

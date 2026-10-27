@@ -1,3 +1,7 @@
+## v59.34 (2026-10-27)
+- **서버 데이터 로더 분리 (레거시 다음 계층 4단계 부팅 순서, 3번째):** public-data/data.json을 DATA_SNAPSHOT과 기존 캐시에 반영하는 _aioLoadServerData와 공식 국채 곡선 반영(AIO_SERVER_TREASURY_FIELDS, _aioApplyServerTreasuryEvidence)을 js/aio-data.js에서 src/data/server-data-loader.js로 그대로 옮겼다(aio-data 약 305줄 감소). initV20DataEngine이 읽는 _aioServerMacroReady·_aioServerHyReady는 aio-data에 선언된 채로 남고 모듈이 공유 전역 범위에서 같은 이름을 갱신한다. 전후 Playwright 비교(스냅샷 국채 필드·출처, _fredData, 서버 메타 키, 만기별 금리 전역, 준비 플래그, 재호출 결과와 이벤트)가 같다.
+- R1 7곳 v59.34
+
 ## v59.33 (2026-10-27)
 - **데이터 갱신 스케줄러 분리 (레거시 다음 계층 4단계 부팅 순서, 2번째):** 작업 표(REFRESH_SCHEDULE)와 주기 타이머, 화면 진입 시 갱신과 화면별 작업 지도, 탭 숨김 일시정지·복귀, AIO.runScheduledRefresh와 감사 함수를 js/aio-data.js에서 src/app/refresh-scheduler.js로 그대로 옮겼다(aio-data 약 840줄 감소). 일시정지 상태는 이를 읽는 함수들과 한 범위에 함께 있고, 최상위 함수·var 이름은 기존 호출을 위해 window 전역으로 남는다. 설치는 DOMContentLoaded 전 모듈 부팅 시점이며, 전후 Playwright 비교(작업 표·타이머, 화면 지도, 숨김·복귀, 진입 갱신 호출, 감사 결과)가 같다.
 - R1 7곳 v59.33

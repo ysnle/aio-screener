@@ -624,7 +624,7 @@ const snapshot = json('public-data/market-snapshot.json');
 const snapshotStatus = json('public-data/market-snapshot-status.json');
 const screener = json('public-data/screener.json');
 const history = json('public-data/history.json');
-const dataRuntime = read('js/aio-data.js');
+const dataRuntime = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js'); // v59.34: the server data loader moved to src
 const coreRuntime = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const rows = [];
 
