@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.29';
+const APP_VERSION = 'v59.30';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -10628,40 +10628,34 @@ const _AioVault = {
   _pin: null, _derivedKey: null, _legacyDerivedKey: null, _salt: null, _publicMode: false,
   _lastDecryptVersion: null,
 
+  // v59.30: the cryptography itself lives in src/storage/vault-crypto.js (window._aioVaultCrypto); these methods keep
+  // the key state and the generation checks that cancel an operation when the vault locks mid-way.
   async deriveKey(pin, salt, iterations = AIO_VAULT_KDF_ITERATIONS) {
-    var enc = new TextEncoder();
-    var km = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt: salt, iterations: iterations, hash: 'SHA-256' },
-      km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
-    );
+    if (!window._aioVaultCrypto) throw new Error('vault-module-unavailable');
+    return window._aioVaultCrypto.deriveVaultKey(pin, salt, iterations);
   },
 
   async encrypt(plaintext) {
     if (!this._derivedKey) return plaintext;
-    var enc = new TextEncoder(), generation = this._generation;
-    var iv = crypto.getRandomValues(new Uint8Array(12));
-    var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, this._derivedKey, enc.encode(plaintext));
-    if (generation !== this._generation) throw new Error('vault-operation-cancelled'); var buf = new Uint8Array(4 + 12 + 16 + ct.byteLength);
-    buf.set(AIO_VAULT_V2_MAGIC, 0); buf.set(iv, 4); buf.set(this._salt, 16); buf.set(new Uint8Array(ct), 32);
-    return 'aio_enc::' + btoa(String.fromCharCode.apply(null, buf));
+    var crypt = window._aioVaultCrypto, generation = this._generation;
+    if (!crypt) throw new Error('vault-module-unavailable');
+    var sealed = await crypt.encryptVaultBytes(this._derivedKey, plaintext);
+    if (generation !== this._generation) throw new Error('vault-operation-cancelled');
+    return crypt.packVaultEnvelope(AIO_VAULT_V2_MAGIC, sealed.iv, this._salt, sealed.ciphertext);
   },
 
   async decrypt(stored) {
     if (!stored || !stored.startsWith('aio_enc::')) return stored;
     this._lastDecryptVersion = null; var generation = this._generation;
     try {
-      var raw = atob(stored.slice(9));
-      var buf = new Uint8Array(raw.length);
-      for (var i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
-      var isV2 = buf.length >= 36 && AIO_VAULT_V2_MAGIC.every(function(value, index) { return buf[index] === value; });
-      var key = isV2 ? this._derivedKey : this._legacyDerivedKey;
+      var crypt = window._aioVaultCrypto;
+      if (!crypt) return null;
+      var parts = crypt.parseVaultEnvelope(stored, AIO_VAULT_V2_MAGIC);
+      var key = parts.isV2 ? this._derivedKey : this._legacyDerivedKey;
       if (!key) return null;
-      var iv = isV2 ? buf.slice(4, 16) : buf.slice(0, 12);
-      var ct = isV2 ? buf.slice(32) : buf.slice(28);
-      var dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ct);
-      if (generation !== this._generation) return null; this._lastDecryptVersion = isV2 ? AIO_VAULT_KDF_VERSION : 1;
-      return new TextDecoder().decode(dec);
+      var text = await crypt.decryptVaultBytes(key, parts.iv, parts.ciphertext);
+      if (generation !== this._generation) return null; this._lastDecryptVersion = parts.isV2 ? AIO_VAULT_KDF_VERSION : 1;
+      return text;
     } catch(e) { return null; }
   },
 

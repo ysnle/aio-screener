@@ -6296,3 +6296,20 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const due = backupReminder({ holdingCount: 3, lastBackupAt: '2026-10-01T00:00:00Z', now });
   if (BACKUP_REMINDER_DAYS !== 30 || due?.days !== 32 || !due.text.includes('32일')) fail(`v58.84 a 32-day-old backup reminds with its age: ${JSON.stringify(due)}`);
 }
+
+// v59.30: the AioVault cryptography (src/storage/vault-crypto.js) round-trips a value, reads a v1 envelope, and refuses
+// a wrong key.
+{
+  const { deriveVaultKey, encryptVaultBytes, packVaultEnvelope, parseVaultEnvelope, decryptVaultBytes } = await load('src/storage/vault-crypto.js');
+  const magic = [0x41, 0x49, 0x4f, 2], salt = new Uint8Array(16).fill(7);
+  const key = await deriveVaultKey('2468', salt, 1000), wrong = await deriveVaultKey('1357', salt, 1000);
+  const sealed = await encryptVaultBytes(key, '개인 키 sk-test');
+  const stored = packVaultEnvelope(magic, sealed.iv, salt, sealed.ciphertext);
+  const parts = parseVaultEnvelope(stored, magic);
+  if (!stored.startsWith('aio_enc::') || !parts.isV2 || await decryptVaultBytes(key, parts.iv, parts.ciphertext) !== '개인 키 sk-test') fail('v59.30 a v2 vault envelope round-trips its value');
+  if (await decryptVaultBytes(wrong, parts.iv, parts.ciphertext).then(() => true, () => false)) fail('v59.30 a wrong vault key does not decrypt');
+  const legacy = await encryptVaultBytes(key, 'v1 value'), v1 = new Uint8Array(28 + legacy.ciphertext.byteLength);
+  v1.set(legacy.iv, 0); v1.set(salt, 12); v1.set(new Uint8Array(legacy.ciphertext), 28);
+  const v1Parts = parseVaultEnvelope('aio_enc::' + btoa(String.fromCharCode.apply(null, v1)), magic);
+  if (v1Parts.isV2 || await decryptVaultBytes(key, v1Parts.iv, v1Parts.ciphertext) !== 'v1 value') fail('v59.30 a v1 vault envelope is read as v1');
+}

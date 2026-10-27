@@ -1,3 +1,7 @@
+## v59.30 (2026-10-27)
+- **API 키 금고 암호화 함수 분리 (레거시 분해, 금고):** AioVault의 암호화 자체(PBKDF2-SHA256 키 유도, 값 하나의 AES-GCM 암호화·복호화, 'aio_enc::' 저장 봉투의 v2/v1 해석)를 순수 함수로 src/storage/vault-crypto.js에 옮기고 모듈 단위 검사(v2 왕복, 틀린 키 거부, v1 봉투 읽기)를 붙였다. 금고 객체는 그대로 js/aio-core.js의 lexical const _AioVault이고(P1350: window 속성 아님), 저장 키 이름·봉투 형식·KDF 반복 수·잠금 중 취소 검사도 그대로다. 소유자 결정 2026-10-27: 암호화 함수만 옮기고 저장 이름은 유지.
+- R1 7곳 v59.30
+
 ## v59.29 (2026-10-27)
 - **텔레그램 직접 수집기 분리 (레거시 다음 계층 3단계 공급자, 4번째):** 텔레그램 공개 채널 직접 수집(관련성 필터 isTelegramMsgRelevant: 주식·매크로·기관 리포트 키워드, 넓은 단어만이면 2개 이상 일치 필요, fetchTelegramDirect: t.me/s/ 채널 페이지를 fetchViaProxy로 읽어 뉴스 항목으로 변환)을 js/aio-data.js에서 src/data/providers/telegram-direct.js로 그대로 옮겼다(aio-data 약 160줄 감소). 이름은 Worker 실패 시 폴백으로 쓰는 fetchAllNews를 위해 window 전역으로 남는다. 동작은 같다.
 - R1 7곳 v59.29
