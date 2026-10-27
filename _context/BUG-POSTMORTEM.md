@@ -1,10 +1,19 @@
 ---
-last_verified: 2026-10-27
+last_verified: 2026-10-28
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2113 - v59.42 - 시간외 급변 종목이 수집됐는데 시황에 한 번도 언급되지 않음 (2026-10-28)
+
+- symptom/reproduction: 10/27 미국장 마감 뒤 data.afterHours에 STX -5.92%, HOOD -7.41%, NXPI -7.42%, TER -6% 등 8개 행이 20:21Z부터 매 실행 실렸지만, 20:21~22:51Z에 검증 통과한 시황 6건 중 어느 것도 '시간외'를 쓰지 않았다.
+- root_cause: v59.25 US_AFTER_HOURS 프롬프트가 '반도체·대형 기술주·한국 관련 업종과 닿으면 한 줄로 쓴다'는 선택 지시였고, 검증기에는 언급 여부 검사가 없어 모델이 블록을 건너뛰어도 통과했다(KOREA_LARGE_INTRADAY_MOVE·직전 세션 큰 움직임은 필수 지시 + 검증기 짝이 있었다).
+- fix: ±5% 이상 시간외 종목이 있으면 프롬프트가 반드시 한 줄을 요구하고, 검증기 afterHoursIssues가 그 종목 티커와 '시간외'가 본문에 없으면 after-hours-omitted로 막는다(재시도 안내 포함).
+- violated_rule: 프롬프트의 필수 언급은 검증기 짝을 둔다(v57.87 prior-session-move 패턴)
+- prevention: ci-esm-core-unit-check에 5% 이상 행 누락 차단·언급 통과·소폭 행 비강제 assertion
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; 10/27 실데이터 컨텍스트로 afterHoursIssues가 누락을 차단
 
 ## P2112 - v59.39 - Pages 배포가 자기 실행을 queued로 읽어 배포 후 검증에서 실패 (2026-10-27)
 

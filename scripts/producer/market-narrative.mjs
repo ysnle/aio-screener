@@ -447,7 +447,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
         // 07:33 KST) came after the US close but before 08:00; headlines after the US close count, the day before's do not.
         ? `원인은 아래 "08:00 이후 장중 속보(잠정)" 헤드라인(잠정이라고 표시)이나 직전 미국 장 마감(${usCloseAt || '미국 종가 시각'}) 뒤에 나온 HEADLINE_CONTEXT 헤드라인에만 귀속하라. 그보다 이전 헤드라인을 장중 움직임의 원인으로 쓰지 마라`
         : '08:00 이후 장중 헤드라인이 없다. 원인을 추정하지 말고 "장중 원인 헤드라인 미수집"이라고 쓴다') + '. 원화 방향은 USD/KRW 값으로만 판단한다(USD/KRW 상승 = 원화 약세)):\n' + koreaIntradayLines] : []),
-      ...(afterHoursLines ? ['US_AFTER_HOURS (직전 미국 정규장 마감 뒤 장 마감 후 실적 발표 종목의 시간외 지연 값, 잠정. 크게 움직인 종목이 반도체·대형 기술주·한국 관련 업종과 닿으면 한 줄로 쓴다: "CDNS 10/26 시간외 19:55 ET 기준 +2.40%(잠정)"처럼 시간외·ET 시각·잠정을 같은 문장에 쓰고 마감·종가라고 쓰지 마라. 이유는 실적 수치와 HEADLINE_CONTEXT 헤드라인에만 귀속하라):\n' + afterHoursLines] : []),
+      ...(afterHoursLines ? ['US_AFTER_HOURS (직전 미국 정규장 마감 뒤 장 마감 후 실적 발표 종목의 시간외 지연 값, 잠정. ±5% 이상 움직인 종목이 있으면 반드시 한 줄로 쓰고(반도체·대형 기술주·한국 관련 업종과 닿는 종목을 먼저), 그 밖의 종목은 닿을 때만 쓴다: "CDNS 10/26 시간외 19:55 ET 기준 +2.40%(잠정)"처럼 시간외·ET 시각·잠정을 같은 문장에 쓰고 마감·종가라고 쓰지 마라. 이유는 실적 수치와 HEADLINE_CONTEXT 헤드라인에만 귀속하라):\n' + afterHoursLines] : []),
       ...(crossMarketIntradayLines ? ['CROSS_MARKET_INTRADAY (미국 지수 선물·아시아 지수의 장중 지연 값. 한국 장이나 미국 장의 움직임을 설명할 때 반도체(SMH)·선물·아시아가 같은 방향으로 움직였다면 근거로 함께 쓴다. 쓰면 "나스닥 100 선물 장중 HH:MM KST 기준 +x.xx%"처럼 장중과 시각을 같은 문장에 쓰고 마감·종가라고 쓰지 마라):\n' + crossMarketIntradayLines] : []),
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')

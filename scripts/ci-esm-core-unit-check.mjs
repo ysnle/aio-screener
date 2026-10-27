@@ -4316,6 +4316,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 5, epsActual: null, epsEstimate: 1 }] }) === ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 5, epsActual: 1.2, epsEstimate: 1 }] })
     || ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 2.6 }] }) === ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 3.1 }] }))
     fail(`v59.25 after-hours lane: ${JSON.stringify({ whrMove, picked, lines, beforeClose, kept: kept === collected, sig: ah.afterHoursSignature(collected) })}`);
+  // v59.42: a 5%+ after-hours move in the packet must be named with 시간외 (live 10/27: STX/NXPI/TER never named)
+  const { afterHoursIssues } = await import('./lib/market-analysis-validate.mjs');
+  const ahCtx = `x\n${ah.afterHoursContextLines({ sessionDate: '2026-10-27', rows: [{ symbol: 'STX', changePct: -5.92, regularClose: 667.85, last: 628.28, observedAt: '2026-10-27T23:21:00Z', indexWeight: 0.22 }, { symbol: 'V', changePct: -0.89, regularClose: 401.86, last: 398.3, observedAt: '2026-10-27T23:20:00Z', indexWeight: 1.06 }] })}`;
+  if (afterHoursIssues('시간외 언급 없음', { context: ahCtx }).join() !== 'after-hours-omitted' || afterHoursIssues('STX 10/27 시간외 19:21 ET 기준 -5.92%(잠정)', { context: ahCtx }).length
+    || afterHoursIssues('없음', { context: ah.afterHoursContextLines({ sessionDate: '2026-10-27', rows: [{ symbol: 'V', changePct: -0.89, regularClose: 1, last: 1, observedAt: '2026-10-27T23:20:00Z', indexWeight: 1.06 }] }) }).length)
+    fail(`v59.42 a 5%+ after-hours move must be named: ${ahCtx}`);
 }
 
 // ── P1417: sub-theme relative strength — medians, exclusion, direction (no composite rating) ──

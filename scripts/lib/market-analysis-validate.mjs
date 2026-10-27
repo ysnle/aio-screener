@@ -697,6 +697,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
     && !/코스피|코스닥|KOSPI|KOSDAQ/i.test(body)) issues.push('korea-move-unaddressed');
   issues.push(...priorSessionMoveIssues(body, { context }));
   issues.push(...noLeadIssues(body, { context }));
+  issues.push(...afterHoursIssues(body, { context }));
   issues.push(...reversalDriverIssues(body, { reversal: marketAnalysisReversal(metricEvidence, changes, closedBasis) }));
   return {
     ok: issues.length === 0,
@@ -896,6 +897,17 @@ export function priorSessionMoveIssues(body, { context = '' } = {}) {
   return [];
 }
 
+// v59.42 (live 10/27): STX -5.9%, NXPI -7.4% and TER -6% were in US_AFTER_HOURS on every evening run and no reading
+// named one. An after-hours move of 5% or more in the packet is named with 시간외 (the prompt asks for one line).
+export const AFTER_HOURS_REQUIRED_PCT = 5;
+export function afterHoursIssues(body, { context = '' } = {}) {
+  const big = [...String(context || '').matchAll(/^- ([A-Z][A-Z.\-]{0,6}) \d{1,2}\/\d{1,2} 시간외 \d{2}:\d{2} ET 기준 ([+-]\d+(?:\.\d+)?)%/gm)]
+    .filter((match) => Math.abs(Number(match[2])) >= AFTER_HOURS_REQUIRED_PCT).map((match) => match[1]);
+  if (!big.length) return [];
+  const text = String(body || '');
+  return /시간외/.test(text) && big.some((symbol) => new RegExp(String.raw`(?<![A-Z])${symbol.replace('.', '\\.')}(?![A-Z])`).test(text)) ? [] : ['after-hours-omitted'];
+}
+
 // v57.87 (10/16 audit): the screen said no flow and no central scenario qualified ("보기 이릅니다", "중심 시나리오를
 // 정하지 않습니다") while the reading named 「소수 종목 주도」 as the closest flow and a favoured choice. When the context holds
 // that verdict, the reading carries it in its own words. v57.88: phrase-level — a bare 이르 also matched 이르면 / 이른바.
@@ -934,6 +946,7 @@ const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
   'korea-move-unaddressed': 'KOSPI moved 3% or more; add one line on it with its change (장중이면 "장중 HH:MM KST 기준")',
   'reversal-drivers-missing': 'the last completed close and the current session moved in opposite directions; give the reported reasons for the fall and for the rebound in separate sentences, each attributed to a dated headline ("10/20 WSJ 보도에 따르면 …")',
   'no-lead-overstated': 'REGIME_CONTEXT says no flow or central scenario qualifies yet; say so first ("아직 중심 흐름·시나리오를 정하기 이르다"), mention the best-matching one only with "핵심 조건 미충족", and do not name a favoured choice',
+  'after-hours-omitted': 'US_AFTER_HOURS lists an after-hours move of 5% or more; name at least one of those tickers in one line with 시간외, its ET time, the change and 잠정, never 종가',
   'prior-session-move-omitted': 'REGIME_CONTEXT lists a large completed-close move (직전 완료 세션의 큰 움직임); name that index with its close date (M/D) and change in one of the first two lines, separately from any in-session move',
   'axis-state-contradiction': 'a state word (양호/안정/부담) contradicts the axis state in REGIME_CONTEXT; use the packet state for that axis',
   'cross-market-session-dates-missing': 'KOSPI and the US index closed on different sessions; name both dates (M/D) in the sentence that compares them',
