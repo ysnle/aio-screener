@@ -15,6 +15,9 @@
 //   N5 new day    — the first run of a new 08:00 KST sentence day never reuses without a model call.
 //   N6 quarantine — a narrative restored by lane quarantine is null or a verified reading within 12 h (P1986).
 //
+// v59.25 re-read: the after-hours signature joins the reuse/attempt key as one more input; a change in it is the
+// existing "inputs moved" event, and it adds no model outcome, status or reuse path, so the events and invariants hold.
+//
 // Self-check (pstack create/maintain-formal-verification): the covered functions are fingerprinted in
 // architecture/model-check-coverage.json, and each VARIANT below (pre-P2000 and pre-P1986 code, a removed guard) must
 // break its invariant at depth VARIANT_DEPTH. When covered code changes: re-read the events and invariants above
