@@ -1,3 +1,7 @@
+## v59.36 (2026-10-27)
+- **부팅 순서 분리 (레거시 다음 계층 4단계 부팅 순서, 5번째):** js/aio-ui.js가 DOMContentLoaded에서 부르는 initV20DataEngine(서버 데이터 먼저 적용, 시간대별 공급자 단계, 주기 스케줄러 시작)을 js/aio-data.js에서 src/app/boot-sequence.js로 그대로 옮겼다(aio-data 약 110줄 감소). 읽는 부팅 단계 객체(_aioBootPhase), newsCache, 서버 준비 플래그는 기존 스크립트에 선언된 채로 남는다. 전후 Playwright 비교(부팅 단계 플래그, 등록된 타이머, 스케줄러 타이머, 뉴스 캐시, 서버 메타, 요청한 로컬 파일 목록)가 새 모듈 파일 요청을 빼면 같다.
+- R1 7곳 v59.36
+
 ## v59.35 (2026-10-27)
 - **공개 준비도 모델 분리 (레거시 다음 계층 4단계 부팅 순서, 4번째):** 개발자 모드 공개 상태 패널이 읽는 준비도 모델(_aioBuildPublicShareReadiness와 문구 도우미, AIO.getPublicShareReadiness, AIO.getDataReconciliationStatus)을 js/aio-data.js에서 src/data/public-readiness.js로 그대로 옮겼다(aio-data 약 175줄 감소). 패널을 그리는 _aioRenderPublicReadiness는 aio-data에 남는다. 전후 Playwright 비교(전체·경량 준비도, 대조 상태, 시각·출처·화면 문구, 개발자 모드 패널 HTML)가 같다.
 - R1 7곳 v59.35

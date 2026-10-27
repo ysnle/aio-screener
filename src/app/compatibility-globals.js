@@ -15,6 +15,7 @@ import { installNewsCache } from '../storage/news-cache.js'; // v59.31 roadmap 1
 import { installRefreshScheduler } from './refresh-scheduler.js'; // v59.33 roadmap 11: moved from js/aio-data.js
 import { installServerDataLoader } from '../data/server-data-loader.js'; // v59.34 roadmap 11: moved from js/aio-data.js
 import { installPublicReadiness } from '../data/public-readiness.js'; // v59.35 roadmap 11: moved from js/aio-data.js
+import { installBootSequence } from './boot-sequence.js'; // v59.36 roadmap 11: moved from js/aio-data.js
 import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from js/aio-chat.js
 import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from js/aio-chat.js
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
@@ -82,6 +83,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   try { installRefreshScheduler(window); } catch (error) { window.reportError?.(error); }
   installServerDataLoader(window);
   installPublicReadiness(window);
+  installBootSequence(window);
   installValidationStores(window);
   installApiHealth(window, document);
   installFreshnessEngine(window);
