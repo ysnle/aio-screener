@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 const source = readFileSync(new URL('../js/aio-data.js', import.meta.url), 'utf8');
+// v59.22: the relay transport moved to src/data/providers/proxy-transport.js; the harness runs its installer.
+const transport = readFileSync(new URL('../src/data/providers/proxy-transport.js', import.meta.url), 'utf8').replace('export function installProxyTransport', 'function installProxyTransport');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 // P1132/R619: the inline Yahoo chart helper moved from index.html's block F into js/aio-ui.js.
 const ui = readFileSync(new URL('../js/aio-ui.js', import.meta.url), 'utf8');
@@ -30,8 +32,7 @@ function harness({ fetcher, personal = '', clock = Date.now() } = {}) {
   };
   root.window = root;
   const context = vm.createContext(root);
-  // v57.76: the Finnhub WebSocket section that used to follow was removed; the Naver section heading is the next boundary.
-  vm.runInContext(section(source, 'const _cfWorkerUrl =', '// ═══ 4-1. Naver') + '\nwindow.registry = _PROXY_REGISTRY;', context);
+  vm.runInContext(transport + '\ninstallProxyTransport(window);\nwindow.registry = window._PROXY_REGISTRY;', context);
   return { root, context, store, calls, events, advance:ms=>{now+=ms;} };
 }
 const chart = (symbol='NVDA', interval='1d') => ({chart:{result:[{meta:{symbol,dataGranularity:interval,regularMarketPrice:124,regularMarketTime:1787918400},timestamp:[1787918400],indicators:{quote:[{open:[123],high:[125],low:[122],close:[124],volume:[100]}]}}]}});

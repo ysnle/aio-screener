@@ -20,7 +20,7 @@ const versionNum = version.replace(/^v/, '');
 const html = read('index.html');
 const visibleHtml = html.replace(/<!--[\s\S]*?-->/g, '');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js') + String.fromCharCode(10) + read('src/data/quality/validation-stores.js') + String.fromCharCode(10) + read('src/data/quality/api-health.js')) /* P1329: audits live in the QA bundle; v59.17/v59.18: the validation stores and API health state moved to src */;
-const data = read('js/aio-data.js');
+const data = read('js/aio-data.js') + String.fromCharCode(10) + read('src/data/providers/proxy-transport.js') /* v59.22: the relay transport moved to src */;
 const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js') + '\n' + read('src/data/providers/shared-ai-transport.js') + '\n' + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
@@ -82,7 +82,7 @@ const telegramConsumedTags = new Set(Object.values(telegramPageTags).flat());
 const staticBusters = [...html.matchAll(/<script\s+src="\.\/js\/aio-[^"]+\?v=([\d.]+)"/g)].map((m) => m[1]);
 check('all static aio script cachebusters match version.json', staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum), `found ${staticBusters.join(',')}, expected ${versionNum}`);
 
-const compatRoot = { _aioGetCanonicalScreenerRows: () => [{ sym: 'AAA', name: 'Alpha', sector: 'Energy', rank: 1, rsi: 20, signal: 'BUY' }] };
+const compatRoot = { addEventListener() {} /* v59.22: the proxy registry listens for aio:publicConfig */, _aioGetCanonicalScreenerRows: () => [{ sym: 'AAA', name: 'Alpha', sector: 'Energy', rank: 1, rsi: 20, signal: 'BUY' }] };
 (await import('../src/app/compatibility-globals.js')).installCompatibilityGlobals(compatRoot);
 const callableRefs = [...new Set([...chat.matchAll(/\b(_aio[A-Za-z0-9_]+)\s*\(/g)].map((m) => m[1]))]
   .filter((name) => !['_aioSafeMD', '_aioAskAiFromPageDecision'].includes(name));
