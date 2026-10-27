@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T13:01:02.680Z",
-  "attemptedAt": "2026-10-27T13:01:02.680Z",
-  "lastSuccessfulAt": "2026-10-27T13:01:02.680Z",
+  "generatedAt": "2026-10-27T13:59:00.016Z",
+  "attemptedAt": "2026-10-27T13:59:00.016Z",
+  "lastSuccessfulAt": "2026-10-27T13:59:00.016Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T13:00:56.269Z",
-  "until": "2026-10-27T13:00:56.269Z",
+  "since": "2026-10-13T13:58:53.947Z",
+  "until": "2026-10-27T13:58:53.947Z",
   "current24hWindow": {
     "start": "2026-10-25T23:00:00.000Z",
     "end": "2026-10-26T23:00:00.000Z",
@@ -81,20 +81,20 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 228,
+      "count": 227,
       "freshCount": 0,
-      "eligibleTextCount": 215,
+      "eligibleTextCount": 214,
       "selectedCount": 67,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1325,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 1270,
       "selectedCount": 120,
       "error": null,
@@ -105,9 +105,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 252,
+      "count": 250,
       "freshCount": 20,
-      "eligibleTextCount": 252,
+      "eligibleTextCount": 250,
       "selectedCount": 98,
       "error": null,
       "lastPostId": 20852
@@ -117,16 +117,16 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 684,
-      "freshCount": 40,
-      "eligibleTextCount": 684,
+      "count": 687,
+      "freshCount": 37,
+      "eligibleTextCount": 687,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 71102
+      "lastPostId": 71106
     }
   ],
   "count": 2489,
-  "retainedItemCount": 465,
+  "retainedItemCount": 449,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -135,8 +135,8 @@
     "observedCount": 2489,
     "eligibleTextCount": 2421,
     "mediaOnlyCount": 68,
-    "highSignalCount": 454,
-    "broadSignalCount": 1010,
+    "highSignalCount": 453,
+    "broadSignalCount": 1009,
     "selectedRawCount": 405,
     "selectedEligibleCount": 405,
     "selectedRawCoveragePct": 16.7,
@@ -144,27 +144,27 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 596,
-    "earnings": 511,
-    "market-note": 914,
-    "geo": 370,
+    "market-note": 915,
+    "macro": 411,
+    "flows": 114,
+    "earnings": 512,
+    "geo": 371,
+    "semi": 595,
     "kr-market": 148,
-    "power": 320,
-    "ai-policy": 153,
+    "power": 319,
+    "ai-policy": 152,
     "japan": 133,
     "healthcare": 133,
-    "macro": 410,
     "media-only": 68,
     "credit": 125,
     "equity": 189,
-    "flows": 113,
-    "optical": 40,
+    "optical": 38,
     "crypto": 4,
     "insider": 6
   },
   "tickerCounts": {
     "MU": 67,
-    "NVDA": 190,
+    "NVDA": 189,
     "GOOG": 103,
     "AVGO": 24,
     "AMZN": 61,
@@ -249,23 +249,22 @@
     "ASTS": 1,
     "BAC": 1,
     "AAOI": 2,
-    "UNH": 1,
-    "TER": 1
+    "UNH": 1
   },
   "themes": [
-    "Market Notes (914 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록....",
-    "Semiconductors/Memory (596 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을...",
-    "Earnings/Corporate (511 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (410 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
-    "Geopolitics (370 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (320 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Market Notes (915 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록....",
+    "Semiconductors/Memory (595 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을...",
+    "Earnings/Corporate (512 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
+    "Macro/Rates (411 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
+    "Geopolitics (371 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "AI Power/Grid (319 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (189 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (153 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
+    "AI Policy/Export Controls (152 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 190,
+      "count": 189,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을..."
     },
     {
@@ -331,7 +330,7 @@
       "topics": [
         "macro"
       ],
-      "count": 410,
+      "count": 411,
       "focus": "2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%..."
     },
     {
@@ -340,7 +339,7 @@
       "topics": [
         "geo"
       ],
-      "count": 370,
+      "count": 371,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -358,7 +357,7 @@
       "topics": [
         "semi"
       ],
-      "count": 596,
+      "count": 595,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을..."
     },
     {
@@ -367,7 +366,7 @@
       "topics": [
         "optical"
       ],
-      "count": 40,
+      "count": 38,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
@@ -376,7 +375,7 @@
       "topics": [
         "power"
       ],
-      "count": 320,
+      "count": 319,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -385,7 +384,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 153,
+      "count": 152,
       "focus": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
     },
     {
@@ -421,7 +420,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 511,
+      "count": 512,
       "focus": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -448,7 +447,7 @@
       "topics": [
         "flows"
       ],
-      "count": 113,
+      "count": 114,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -466,7 +465,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 914,
+      "count": 915,
       "focus": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록...."
     }
   ],
@@ -1627,6 +1626,36 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71105",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71105",
+      "datetime": "2026-10-27T13:06:27.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "macro",
+        "flows"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>“가격 상황이 이보다 나빴던 적은 없다”…은 가격, 역대급 투매 직면 (중국언론) •은 가격이 2020년 이후 가장 심각한 기술적 붕괴를 겪으며 200일 이동평균선 대비 25% 할인된 수준으로 하락함...."
+    },
+    {
+      "id": "HANAchina/71103",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71103",
+      "datetime": "2026-10-27T13:01:28.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>AI 서사가 흔들리기 시작하자, 오랫동안 시장에서 간과됐던 위험들이 서서히 수면 위로 떠오르고 있음 •Citadel 증권은 최근 주식시장 매도세가 AI 투자 수익에 대한 투자자들의 인내심이 약해지고 있음을..."
+    },
+    {
       "id": "HANAchina/71102",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71102",
@@ -1740,8 +1769,9 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "전쟁 종식을 위한 이란의 조건 관철 강조 최고국가안보회의는 국가 운영을 조율하는 핵심 기구다. 이란 최고국가안보회의 사무총장인 모흐센 레자이 소장은 이슬람혁명 최고지도자인 아야톨라 세예드 모즈타바 하메네이와..."
+      "summary": "전쟁 종식을 위한 이란의 조건 관철 강조 최고국가안보회의는 국가 운영을 조율하는 핵심 기구다. 이란 최고국가안보회의 사무총장인 모흐센 레자이 소장은 이슬람혁명 최고지도자인 아야톨라 세예드 모즈타바 하메네이와...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67495",
@@ -1750,14 +1780,13 @@
       "datetime": "2026-10-27T10:38:40.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "earnings",
-        "macro"
+        "earnings"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
-      "tickers": [],
-      "summary": "로열캐리비안그룹, 2026년 3분기 실적 발표. 조정 주당순이익(EPS)이 시장 예상치를 상회했으며, 연간 실적 가이던스 상향 조정. 2026년 3분기 실적 • 매출: 56억 달러 (예상 56억 1,000만..."
+      "summary": "로열캐리비안그룹, 2026년 3분기 실적 발표. 조정 주당순이익(EPS)이 시장 예상치를 상회했으며, 연간 실적 가이던스 상향 조정. 2026년 3분기 실적 • 매출: 56억 달러 (예상 56억 1,000만...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67491",
@@ -1768,11 +1797,11 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "UPS(유나이티드 파슬 서비스), 2026년 3분기 매출과 조정 주당순이익(EPS) 모두 시장 예상치 상회. 연간 실적 가이던스도 상향 조정. • 조정 EPS: 1.69달러(예상 1.62달러)로 시장 예상치..."
+      "summary": "UPS(유나이티드 파슬 서비스), 2026년 3분기 매출과 조정 주당순이익(EPS) 모두 시장 예상치 상회. 연간 실적 가이던스도 상향 조정. • 조정 EPS: 1.69달러(예상 1.62달러)로 시장 예상치...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67490",
@@ -1783,11 +1812,11 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "힐튼, 2026년 3분기 실적 발표. 매출은 시장 예상치를 하회했으나 조정 주당순이익(EPS)은 예상치 상회. 2026년 3분기 주요 실적 • 매출: 33억 달러(예상 33억 7,000만 달러)로 시장 예상치..."
+      "summary": "힐튼, 2026년 3분기 실적 발표. 매출은 시장 예상치를 하회했으나 조정 주당순이익(EPS)은 예상치 상회. 2026년 3분기 주요 실적 • 매출: 33억 달러(예상 33억 7,000만 달러)로 시장 예상치...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20851",
@@ -1872,17 +1901,16 @@
       "datetime": "2026-10-27T08:44:51.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
+      "summary": "10월 27일 한국 매일경제는 알리바바, 텐센트, 바이트댄스 등 중국 대형 클라우드 서비스 제공업체(CSP)들이 삼성전자 및 SK하이닉스와 서버용 DRAM 장기 공급계약(LTA)을 협의 중이라고 보도. 업계에...",
+      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "10월 27일 한국 매일경제는 알리바바, 텐센트, 바이트댄스 등 중국 대형 클라우드 서비스 제공업체(CSP)들이 삼성전자 및 SK하이닉스와 서버용 DRAM 장기 공급계약(LTA)을 협의 중이라고 보도. 업계에..."
+      ]
     },
     {
       "id": "insidertracking/67480",
@@ -1892,15 +1920,13 @@
       "localDateKst": "2026-10-27",
       "tags": [
         "credit",
-        "macro",
-        "semi",
         "power"
       ],
-      "lead": 1,
       "score": 94,
       "hasText": true,
-      "tickers": [],
-      "summary": "10월 27일 한국은행 조사국 김윤경 과장과 왕재곤 조사역이 'AI 산업 자금조달의 주요 특징과 리스크 평가' 보고서 발표. 보고서에 따르면 올해 들어 초대형 데이터센터 운영업체들은 장기 회사채를 중심으로,..."
+      "summary": "10월 27일 한국은행 조사국 김윤경 과장과 왕재곤 조사역이 'AI 산업 자금조달의 주요 특징과 리스크 평가' 보고서 발표. 보고서에 따르면 올해 들어 초대형 데이터센터 운영업체들은 장기 회사채를 중심으로,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20848",
@@ -2349,16 +2375,16 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 2,
       "score": 61,
       "hasText": true,
+      "summary": ">>Anthropic, Amazon보다 현금 많지만 지출도 커 (중국언론) •Anthropic은 2023년~2026년 상반기 약 1,400억 달러를 조달했으며, 이 중 1,100억 달러가 2026년 상반기에...",
+      "lead": 2,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN",
         "GOOGL"
-      ],
-      "summary": ">>Anthropic, Amazon보다 현금 많지만 지출도 커 (중국언론) •Anthropic은 2023년~2026년 상반기 약 1,400억 달러를 조달했으며, 이 중 1,100억 달러가 2026년 상반기에..."
+      ]
     },
     {
       "id": "HANAchina/71061",
@@ -2372,8 +2398,9 @@
       ],
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": "•한국은행 관계자: 민간소비는 올해 4분기부터 2027년 1분기까지 점진적으로 회복될 전망 •3분기 GDP 데이터에 따라 올해 경제성장률 전망치가 0.35%p 상향 조정 •HBM 생산 영향으로 내년 반도체..."
+      "summary": "•한국은행 관계자: 민간소비는 올해 4분기부터 2027년 1분기까지 점진적으로 회복될 전망 •3분기 GDP 데이터에 따라 올해 경제성장률 전망치가 0.35%p 상향 조정 •HBM 생산 영향으로 내년 반도체...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/71059",
@@ -2386,17 +2413,17 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 2,
       "score": 74,
       "hasText": true,
+      "summary": ">>Anthropic의 컴퓨팅 칩 구성: Nvidia 비중 42% •Anthropic이 전날 IPO를 공식 신청하면서 공개한 투자설명서에 따르면, 2025년 말부터 현재까지 컴퓨팅 자원 확보를 위해 체결한...",
+      "lead": 3,
       "tickers": [
         "NVDA",
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>Anthropic의 컴퓨팅 칩 구성: Nvidia 비중 42% •Anthropic이 전날 IPO를 공식 신청하면서 공개한 투자설명서에 따르면, 2025년 말부터 현재까지 컴퓨팅 자원 확보를 위해 체결한..."
+      ]
     },
     {
       "id": "HANAchina/71058",
@@ -7558,20 +7585,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70817",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70817",
-      "datetime": "2026-10-22T00:41:56.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "market-note"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>미국 주식 레버리지 확대가 한계에 부딪혔나? 월가, “대차대조표 여력 소진”… 헤지펀드에 ‘공매도 포지션 확대’ 권유 (중국언론) •내부 리스크 관리 한도에 도달하자 월가의 대응은 속도를 줄이는 것이...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/25976",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25976",
@@ -7677,23 +7690,6 @@
         "MS",
         "SHOP",
         "BCS"
-      ]
-    },
-    {
-      "id": "HANAchina/70812",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70812",
-      "datetime": "2026-10-21T23:07:08.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "• 대만 경제부장: 트럼프 미 대통령이 TSMC의 애리조나 투자로 미국이 곧 세계 반도체 생산의 50%를 차지할 것이라고 주장한 대해 , 궁밍신 대만 경제부장은 \" 어떻게 계산된 것인지 모르겠다 \"며 반문 •...",
-      "lead": 1,
-      "tickers": [
-        "TSM"
       ]
     },
     {
