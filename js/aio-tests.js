@@ -3219,26 +3219,13 @@
       'hasRoute=' + typeof window._aioHasClaudeRoute + ' chatSend=' + typeof window.chatSend + ' unifiedGate=' + /_aioHasClaudeRoute/.test(unifiedSrc865));
     var t866ok = false, t866detail = '';
     try {
-      var fixture866 = document.createElement('div');
-      fixture866.innerHTML = '<span id="t866-delta"></span>';
-      document.body.appendChild(fixture866);
-      if (typeof _aioSetDeltaEl === 'function') _aioSetDeltaEl('t866-delta', 0, 1, { suffix:'pp', decimals:0 });
-      var delta866 = document.getElementById('t866-delta');
       var regime866 = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime
         ? NARRATIVE_ENGINE.getBreadthRegime(32)
         : null;
-      t866ok = !!(delta866 && delta866.textContent === '0pp' && /is-flat/.test(delta866.className || '') &&
-        !/±/.test(delta866.textContent || '') &&
-        regime866 && /#ec5d5e/i.test(regime866.color || '') && /공포/.test(regime866.label || ''));
-      t866detail = JSON.stringify({
-        delta: delta866 && delta866.textContent,
-        deltaClass: delta866 && delta866.className,
-        regimeColor: regime866 && regime866.color,
-        regimeLabel: regime866 && regime866.label
-      });
-      fixture866.remove();
+      t866ok = !!(regime866 && /#ec5d5e/i.test(regime866.color || '') && /공포/.test(regime866.label || ''));
+      t866detail = JSON.stringify({ regimeColor: regime866 && regime866.color, regimeLabel: regime866 && regime866.label });
     } catch(e) { t866detail = 'ERR:' + e.message; }
-    _assert('T866 breadth_regime_contract_and_zero_delta_v5460: 32% breadth classifies fearful red and zero delta is neutral 0pp',
+    _assert('T866 breadth_regime_contract_v5460 (v59.38: the zero-delta half left with the retired delta display): 32% breadth classifies fearful red',
       t866ok,
       t866detail);
     _assert('T868 vkospi_failure_state_contract_v5234 → v58.76: repeated VKOSPI failures still clear the live flag',

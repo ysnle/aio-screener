@@ -298,7 +298,6 @@ export function installServerDataLoader(window = globalThis) {
       try { _aioRenderDataFreshness(); } catch(_) {} // v51.66: 신선도 타임스탬프 UI
       try { _aioCheckManualFieldStaleness(); } catch(_) {} // v51.66: 수동 필드 staleness 경고
       try { _aioUpdatePipelineStatusToggle(); } catch(_) {} // v52.15 P616: pill 개수 집계 → 1줄 요약+펼치기
-      try { _aioRenderDeltas(); } catch(_) {} // v51.67: 변화율 표시 (FRED MoM + F&G 전일 + 스코어)
       // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
       try { if (window.AIO && typeof window.AIO.refreshActivePageNarratives === 'function') window.AIO.refreshActivePageNarratives(); } catch(_) {}
       try {

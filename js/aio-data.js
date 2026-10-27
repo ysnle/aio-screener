@@ -3135,148 +3135,8 @@ window._aioGetFieldTs = function(category) {
   } catch(e) { return raw; }
 };
 
-// ═══ v51.67: 변화율(Delta) 표시 시스템 ══════════════════════════════════════
-// 지표별 극성: +1 = 오를수록 좋음(초록), -1 = 내릴수록 좋음(빨강), 0 = 중립(회색)
-var _AIO_DELTA_POLARITY = {
-  cpi: -1, coreCpi: -1, pce: -1, corePce: -1,  // 낮을수록 좋음 (인플레 둔화)
-  unemployment: -1,  // 낮을수록 좋음
-  nfp: +1,           // 높을수록 좋음 (고용 증가)
-  fedRate: 0,        // 중립 (금리 방향은 상황마다 다름)
-  fearGreed: 0,      // 중립 (극단적 탐욕·공포 모두 위험)
-  tradingScore: +1,
-  breadth5sma: +1, breadth20sma: +1, breadth50sma: +1,
-  vix: -1,
-};
-
-// delta 포맷: "+3.1pp" / "-0.5" / "0" 형태로 반환. 표시 여부와 색상 클래스 포함
-function _aioFormatDelta(delta, polarity, opts) {
-  if (delta == null || !isFinite(delta)) return null;
-  var dec = (opts && opts.decimals != null) ? opts.decimals : 1;
-  var suffix = (opts && opts.suffix) ? opts.suffix : '';
-  var abs = Math.abs(delta);
-  if (abs < 0.005) return { text: '0' + suffix, cls: 'is-flat' };
-  var sign = delta > 0 ? '+' : '';
-  var text = sign + delta.toFixed(dec) + suffix;
-  var cls = 'is-flat';
-  if (polarity !== 0) cls = (delta * polarity > 0) ? 'is-up' : 'is-down';
-  return { text: text, cls: cls };
-}
-
-// localStorage 기반 전일 대비 기준값 (트레이딩 스코어, 시장폭 — 실시간 계산값)
-var _AIO_DELTA_TODAY_KEY = 'aio_delta_today';
-var _AIO_DELTA_PREV_KEY  = 'aio_delta_prev';
-
-function _aioGetPrevDeltaRef() {
-  try {
-    var today = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
-    var raw = localStorage.getItem(_AIO_DELTA_TODAY_KEY);
-    if (raw) {
-      var snap = JSON.parse(raw);
-      if (snap.date && snap.date < today) {
-        // 날짜 바뀜 → 어제 스냅을 prev로 승격하고 today 초기화
-        localStorage.setItem(_AIO_DELTA_PREV_KEY, raw);
-        localStorage.removeItem(_AIO_DELTA_TODAY_KEY);
-      }
-    }
-    var prevRaw = localStorage.getItem(_AIO_DELTA_PREV_KEY);
-    return prevRaw ? JSON.parse(prevRaw) : null;
-  } catch(e) { return null; }
-}
-
-function _aioSaveDeltaRef() {
-  try {
-    var today = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
-    var snap = window.DATA_SNAPSHOT || {};
-    var tsVal = null;
-    try { if (typeof computeTradingScore === 'function') tsVal = computeTradingScore().total; } catch(e) {}
-    localStorage.setItem(_AIO_DELTA_TODAY_KEY, JSON.stringify({
-      date: today,
-      tradingScore: tsVal,
-      breadth5sma: typeof snap.breadth5sma === 'number' ? snap.breadth5sma : null,
-      breadth20sma: typeof snap.breadth20sma === 'number' ? snap.breadth20sma : null,
-      breadth50sma: typeof snap.breadth50sma === 'number' ? snap.breadth50sma : null,
-    }));
-  } catch(e) {}
-}
-
-// 단일 delta 엘리먼트 업데이트 헬퍼
-function _aioSetDeltaEl(id, delta, polarity, opts) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var fmt = _aioFormatDelta(delta, polarity, opts);
-  if (!fmt) { el.style.display = 'none'; el.removeAttribute('title'); el.removeAttribute('aria-label'); return; }
-  // LC-29: a bare "0" next to a score reads like a second score. A caller may pass a label so the
-  // change is named in the visible text AND the accessibility name (e.g. "전일 대비 0").
-  var label = (opts && opts.label) ? opts.label + ' ' : '';
-  el.textContent = label + fmt.text;
-  el.className = 'aio-metric-delta ' + fmt.cls;
-  el.style.cssText = 'display:inline;font-size:12px;font-family:var(--font-mono);margin-left:4px;';
-  el.setAttribute('title', label + fmt.text);
-  el.setAttribute('aria-label', label + fmt.text);
-}
-
-// v53.15/P738: use the just-fetched CNN previous-day score for the current
-// session and prevent a later snapshot repaint from overwriting that delta.
-var _fgLiveDelta = null;
-function _aioRenderLiveFearGreedDelta(score, previousScore) {
-  var current = Number(score);
-  var previous = Number(previousScore);
-  var _fgAppDelta = (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fearGreedDelta != null) ? Number(window.DATA_SNAPSHOT._fearGreedDelta) : null;
-  _fgLiveDelta = Number.isFinite(_fgAppDelta) ? _fgAppDelta
-    : (Number.isFinite(current) && Number.isFinite(previous) ? Math.round(current) - Math.round(previous) : null);
-  _aioSetDeltaEl('sentiment-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0, label: '전일 대비' });
-  return _fgLiveDelta; // P1428: home-fg-delta is native (completed-close basis, same as 투자 심리)
-}
-window._aioRenderLiveFearGreedDelta = _aioRenderLiveFearGreedDelta;
-
-// 통합 delta 렌더러 — 서버데이터 로드 후 + live quotes 갱신 후 호출
-function _aioRenderDeltas() {
-  var snap = window.DATA_SNAPSHOT || {};
-  var prev = _aioGetPrevDeltaRef();
-
-  // 1) FRED 매크로 MoM delta (서버에서 계산된 값)
-  _aioSetDeltaEl('cpi-yoy-delta',      snap._cpiDelta,        _AIO_DELTA_POLARITY.cpi,          { suffix: 'pp', decimals: 1 });
-  _aioSetDeltaEl('core-cpi-yoy-delta', snap._coreCpiDelta,    _AIO_DELTA_POLARITY.coreCpi,      { suffix: 'pp', decimals: 1 });
-  _aioSetDeltaEl('pce-yoy-delta',      snap._pceDelta,        _AIO_DELTA_POLARITY.pce,          { suffix: 'pp', decimals: 1 });
-  _aioSetDeltaEl('core-pce-yoy-delta', snap._corePceDelta,    _AIO_DELTA_POLARITY.corePce,      { suffix: 'pp', decimals: 1 });
-  // The server already publishes this delta in thousands ("141" = 141K). Dividing
-  // again rendered every NFP delta as 0 (P1074).
-  _aioSetDeltaEl('nfp-delta-tag',      snap._nfpDelta,
-                                                               _AIO_DELTA_POLARITY.nfp,          { suffix: 'K vs 전월', decimals: 0 });
-  _aioSetDeltaEl('unemployment-delta', snap._unemploymentDelta, _AIO_DELTA_POLARITY.unemployment, { suffix: 'pp', decimals: 2 });
-  _aioSetDeltaEl('fed-rate-delta',     snap._fedRateDelta,    _AIO_DELTA_POLARITY.fedRate,      { suffix: 'pp', decimals: 2 });
-
-  // 2) Fear & Greed 전일 delta (서버 CNN API previousScore 기반)
-  var _fgDeltaForRender = snap._fearGreedDelta != null ? snap._fearGreedDelta : _fgLiveDelta;
-  _aioSetDeltaEl('sentiment-fg-delta', _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0, label: '전일 대비' });
-
-  // 3) 트레이딩 스코어 전일 delta (localStorage)
-  if (prev && typeof prev.tradingScore === 'number') {
-    try {
-      var ts = computeTradingScore();
-      if (ts && typeof ts.total === 'number') {
-        _aioSetDeltaEl('score-delta-tag', ts.total - prev.tradingScore, _AIO_DELTA_POLARITY.tradingScore, { decimals: 0 });
-      }
-    } catch(e) {}
-  }
-
-  // 4) 시장폭(Breadth) 전일 delta (localStorage)
-  if (prev) {
-    _aioSetDeltaEl('breadth-5sma-delta',
-      (typeof snap.breadth5sma  === 'number' && typeof prev.breadth5sma  === 'number') ? snap.breadth5sma  - prev.breadth5sma  : null,
-      _AIO_DELTA_POLARITY.breadth5sma, { suffix: 'pp', decimals: 0 });
-    _aioSetDeltaEl('breadth-20sma-delta',
-      (typeof snap.breadth20sma === 'number' && typeof prev.breadth20sma === 'number') ? snap.breadth20sma - prev.breadth20sma : null,
-      _AIO_DELTA_POLARITY.breadth20sma, { suffix: 'pp', decimals: 0 });
-    _aioSetDeltaEl('breadth-50sma-delta',
-      (typeof snap.breadth50sma === 'number' && typeof prev.breadth50sma === 'number') ? snap.breadth50sma - prev.breadth50sma : null,
-      _AIO_DELTA_POLARITY.breadth50sma, { suffix: 'pp', decimals: 0 });
-  }
-
-  // 5) localStorage 기준값 저장 (날짜가 바뀔 때 자동 승격)
-  _aioSaveDeltaRef();
-}
-window._aioRenderDeltas = _aioRenderDeltas;
+// v59.38: the v51.67 delta display (_aioRenderDeltas, _aioSetDeltaEl, _aioRenderLiveFearGreedDelta and the aio_delta_* refs) is retired —
+// none of its 12 target ids exists in index.html or src/, so it painted nothing; 홈 F&G 전일 변화 is native (P1428).
 
 // v51.66: 전 페이지 데이터 신선도 UI — screener 듀얼 타임스탬프 + macro FRED 기준 시각
 function _aioRenderDataFreshness() {
@@ -10715,8 +10575,6 @@ function applyLiveQuotes(quotes) {
   }
   // v51.66: 가격 갱신 후 신선도 UI 업데이트 (스크리너 듀얼 타임스탬프)
   try { if (typeof _aioRenderDataFreshness === 'function') _aioRenderDataFreshness(); } catch(_) {}
-  // v51.67: 라이브 시세 갱신 후 트레이딩 스코어 delta 재계산
-  try { if (typeof _aioRenderDeltas === 'function') _aioRenderDeltas(); } catch(_) {}
 }
 
 function updateScreenerFromLiveData() {
@@ -11105,7 +10963,6 @@ async function fetchFearGreed() {
     const fg   = data.fear_and_greed;
     if (!fg) throw new Error('no data');
     const score = Math.round(fg.score);
-    _aioRenderLiveFearGreedDelta(score, fg.previous_close);
     // v48.0: CNN F&G 7개 서브컴포넌트 저장 — "왜 공포인가?" 설명용 + AI 프롬프트 품질 향상
     // CNN API가 제공: market_momentum_sp500, market_momentum_sp125, stock_price_strength,
     //                  stock_price_breadth, put_call_options, market_volatility_vix,
@@ -11138,7 +10995,6 @@ async function fetchFearGreed() {
       const fg2   = data2.fear_and_greed;
       if (!fg2 || fg2.score == null) throw new Error('no fear_and_greed in proxy response');
       const score2 = Math.round(fg2.score);
-      _aioRenderLiveFearGreedDelta(score2, fg2.previous_close);
       // v49.64 P334: helper 통합 (proxy 경로)
       _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', sourceTs: fg2.timestamp || data2.timestamp || new Date().toISOString(), operationalUse: 'reference-only' });
       return true;

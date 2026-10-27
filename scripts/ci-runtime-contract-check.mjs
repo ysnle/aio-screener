@@ -260,9 +260,8 @@ check('LC-34/P1217 news headline is a keyboard-reachable anchor', /className = '
 // LC-28/37/38/P1218: theme-detail panels observe one day's move; they must not expand it into
 // momentum, fund-flow, cause or ETF-preference claims.
 check('LC-28/37/38/P1218 theme detail does not assert flow or momentum from a day move', /가격 상승 참여 폭 \(당일\)/.test(themesPage) && /테마 당일 등락 구간/.test(themesPage) && !/광범위한 매수세/.test(themesPage) && !/자금이 순환하고 있어/.test(themesPage) && !/모멘텀이 살아있습니다/.test(themesPage) && !/같은 재료에 반응/.test(themesPage));
-// LC-29/P1219: a bare F&G delta read as a second score; the change is named in the visible text and
-// the accessibility name.
-check('LC-29/P1219 Fear & Greed delta is a named day-over-day change', /opts\.label/.test(data) && /label: '전일 대비'/.test(data) && /setAttribute\('aria-label', label \+ fmt\.text\)/.test(data));
+// LC-29/P1219 (v59.38): the legacy F&G delta writer retired with the delta display; the native home-fg-delta names
+// the change (전일 대비) and ci-architecture-browser-check reads it.
 // LC-19/21/P1220: the Guide must not turn a reference-only score into a trade instruction, and must
 // not advertise breadth/survey series the product does not provide.
 check('LC-19/21/P1220/P1428 Guide does not direct trades or claim unavailable breadth/surveys', !/45 미만이면 매매하지 않는/.test(html) && /예측력이 검증된 값이 아닙니다/.test(html) && !/200일선 위 비율 70%/.test(html) && !/AAII\/NAAIM\/크레딧/.test(html));
@@ -582,14 +581,12 @@ check('C06/P1699: briefing decision summary F&G uses the shared close reader, no
 check('VKOSPI failure state clears the live flag after repeated failures (v58.76)', /function _showVkospiFailureState/.test(krData) && /function _vkospiIsFailedState/.test(krData) && /window\._vkospiLiveOk = false/.test(krData) && !/function calcKrHealthScore/.test(ui) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
 check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(chat) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
 check(
-  'T866 v57.60 breadth surfaces share canonical regime color and zero delta renders neutral (the legacy _bbRegime ladder retired with updateBreadthBars)',
+  'T866 v57.60 breadth surfaces share canonical regime color (the legacy _bbRegime ladder retired with updateBreadthBars; v59.38: the zero-delta formatter retired with the delta display)',
   !/function\s+_bbRegime/.test(ui + core + data)
     && /function getBreadthRegime\(v\)/.test(core) // v57.77: the legacy breadth-bar colour writer retired; the canonical regime stays
     && !/bar\.style\.background\s*=\s*reg\.color/.test(core) // text-pin-ok: retirement absence
-    && /text:\s*'0'\s*\+\s*suffix/.test(data)
-    && !/text:\s*'±0'\s*\+\s*suffix/.test(data)
-    && /T866 breadth_regime_contract_and_zero_delta_v5460/.test(tests),
-  'signal and breadth pages must not split breadth color semantics or show plus/minus zero deltas'
+    && /T866 breadth_regime_contract_v5460/.test(tests),
+  'signal and breadth pages must not split breadth color semantics'
 );
 check(
   'technical snapshot weekly context exposes canonical and legacy aliases',
