@@ -2758,6 +2758,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       const readinessPreview = documentRef.getElementById('scr-readiness-preview');
       const whyPreview = documentRef.getElementById('scr-why-preview');
       const runHistory = documentRef.getElementById('scr-run-history');
+      // P2107: the list is static markup, so a read cut short by leaving the screen must not leave it marked as loading;
+      // the next visit's render only reads the archive when no read is marked.
+      bag.add(() => { if (runHistory?.dataset.archiveLoaded === 'loading') delete runHistory.dataset.archiveLoaded; });
       const outcomeLab = documentRef.getElementById('scr-outcome-lab');
       const operationsState = documentRef.getElementById('scr-ops-state');
        const defaultScreens = () => {

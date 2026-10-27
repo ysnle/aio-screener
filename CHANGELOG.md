@@ -1,3 +1,8 @@
+## v59.21 (2026-10-27)
+- **현금 저장이 입력한 금액을 저장 (PP2106):** 포트폴리오 현금 칸 저장이 숫자 검사 모듈을 불러오는 동안 화면이 다시 그려지면, 입력한 금액 대신 원래 금액을 저장해 그 통화 잔액을 지울 수 있던 문제를 고쳤다. 저장을 누른 순간의 값을 먼저 떠 둔다. 전체 QA에서 자주 실패하던 browser-vault 검사의 원인이다.
+- **스크리너 보관 목록 다시 읽기 (PP2107):** 보관한 실행 목록을 읽는 도중 화면을 떠났다가 돌아오면 목록이 '불러오는 중'에 멈춰 '저장 입력으로 재현' 버튼이 나오지 않던 문제를 고쳤다. 떠날 때 진행 표시를 지워 다음 방문에서 다시 읽는다. 전체 QA에서 간헐 실패하던 browser-screener-refresh 검사의 원인이다.
+- R1 7곳 v59.21
+
 ## v59.20 (2026-10-27)
 - **데이터 상태 표시 소유자 하나로 (레거시 다음 계층 4단계, 품질·근거):** 상단 데이터 상태 칩(#data-status-panel)과 데이터 경과 경고 배너(#snapshot-stale-warning)를 쓰는 코드가 js/aio-core.js·js/aio-data.js·js/aio-ui.js 세 곳에 흩어져 있던 것을 src/ui/components/data-status-surface.js 한 모듈로 그대로 옮겼다. 옮긴 것은 showDataError, 소스 상태 요약(_renderApiDashboard), 소스 실패 배너(_checkAllDeadBanner), AIO.updateSnapshotStaleBanner, updateDataStatusError·updateDataStatus이고, 스냅샷 경과 경고·저장소 차단 경고·에러 급증 알림은 원래 자리에서 모듈 함수를 부른다. 칩 안 문구의 인라인 스타일은 같은 값의 .dsp-msg 클래스로 바꿨다. 화면 동작은 같고, 부팅 모듈 한도는 옮긴 바이트만큼 올렸다.
 - R1 7곳 v59.20

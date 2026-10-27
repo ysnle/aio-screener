@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2107 - v59.21 - 스크리너 실행 보관 목록이 '불러오는 중'에 멈춤 (2026-10-27)
+
+- symptom/reproduction: 스크리너 화면에서 보관한 실행 목록을 읽는 도중 다른 화면으로 갔다가 돌아오면, 목록이 다시 읽히지 않아 '저장 입력으로 재현' 버튼이 새로 고칠 때까지 나타나지 않았다. 전체 QA의 browser-screener-refresh가 이 버튼 클릭 시간 초과로 간헐 실패한 원인이다.
+- root_cause: #scr-run-history는 정적 마크업이라 data-archive-loaded가 화면을 떠나도 남는다. 읽기 도중 떠나면 이전 마운트의 읽기는 결과를 버리고 'loading' 표시를 그대로 두었고, 다음 방문의 렌더는 표시가 없을 때만 목록을 읽으므로 다시 읽지 않았다.
+- fix: 화면을 떠날 때(마운트 정리) 표시가 'loading'이면 지워, 다음 방문의 렌더가 목록을 다시 읽게 한다.
+- violated_rule: 정적 DOM에 남기는 진행 표시는 그 작업을 버리는 정리 단계에서 함께 지워야 한다.
+- prevention: ci-screener-auto-refresh-browser-check에 목록을 읽는 순간 화면을 떠났다가 돌아와도 목록이 읽히는지 확인하는 v59.21 검사를 추가했다.
+- verification/residual: 수정 전 새 검사는 'loading'에 멈춰 실패했고, 수정 뒤 게이트 전체가 통과했다. MutationObserver로 읽기 시작 순간에 떠나는 Playwright 프로브로 결정적으로 재현했다.
+
+## P2106 - v59.21 - 현금 저장이 입력한 금액 대신 저장돼 있던 금액을 저장함 (2026-10-27)
+
+- symptom/reproduction: 포트폴리오에서 통화별 현금 칸에 금액을 넣고 저장할 때, 숫자 검사 모듈을 처음 불러오는 동안 포트폴리오가 다시 그려지면 입력한 금액이 저장되지 않고 그 칸의 이전 금액(비어 있었다면 빈 값, 즉 그 통화 잔액 삭제)이 저장됐다. 전체 QA에서 browser-vault의 v57.81 per_currency_boxes_save_and_drop_legacy_copy가 최근 다섯 번 중 네 번 실패한 원인이다.
+- root_cause: window._aioSaveCashBalance가 입력 칸 값을 지연 import(input-check.js)가 끝난 뒤에 읽었다. 그 사이의 렌더는 포커스가 없는 칸을 저장된 금액으로 다시 채우므로, 저장 함수는 다시 채워진 값을 읽었다. 보유 종목 입력(_aioReadHoldingInputs)은 같은 이유로 값을 먼저 떠 두고 있었다.
+- fix: 저장을 요청한 순간의 값과 badInput을 import 전에 떠 두고 checkNumericField에 넘긴다(보유 종목 입력과 같은 방식).
+- violated_rule: 지연 로드를 기다리는 입력 처리기는 기다리기 전에 입력값을 떠 둬야 한다(기다리는 동안 DOM이 다시 그려질 수 있다).
+- prevention: ci-portfolio-vault-e2e에 저장을 요청한 직후 칸을 다시 채워도 입력한 금액이 저장되는지 확인하는 v59.21 검사를 추가했다.
+- verification/residual: 수정 전 새 검사는 USD 잔액이 사라진 [{KRW 5000}]으로 실패했고, 수정 뒤 73개 검사가 모두 통과했다. 같은 경합을 Playwright 프로브로 결정적으로 재현했다.
+
 ## P2105 - v59.17 - 지연 로드된 AI 패널이 미리 채운 질문을 지움 (2026-10-27)
 
 - symptom/reproduction: v59.16 이후 실제 브라우저(자동화 아님)에서 채팅 스크립트가 아직 로드되지 않았을 때 화면의 'AI에게 묻기'(ask-panel), 기업 분석 버튼, 학습 질문 채우기를 누르면 패널은 열리지만 질문이 사라지고 전송되지 않았다.

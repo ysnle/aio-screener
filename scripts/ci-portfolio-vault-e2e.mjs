@@ -1120,6 +1120,17 @@ async function main() {
     check('v57.81 backup_round_trips_cash_balances_and_old_single_cash',
       cashModel.exported === twoBalances && cashModel.newRestored === twoBalances
       && cashModel.oldRestored === '[{"currency":"KRW","amount":250000}]', JSON.stringify(cashModel));
+    // v59.21 (P2106): a portfolio render while the number check loads refills an unfocused box with the stored amount;
+    // the save keeps the amount that was typed when it was asked for.
+    const refillRace = await page.evaluate(async () => {
+      const usdBox = document.getElementById('pf-cash-usd-input');
+      usdBox.value = '700';
+      const pending = window._aioSaveCashBalance(usdBox);
+      usdBox.value = '';
+      await pending;
+      return localStorage.getItem('aio_portfolio_cash_balances');
+    });
+    check('v59.21 cash_save_keeps_typed_amount_through_a_refill', refillRace === '[{"currency":"KRW","amount":5000},{"currency":"USD","amount":700}]', String(refillRace));
     if (!isLive) await runUsListingHoldingFixture(browser, check);
     report.page = await page.evaluate(() => ({ encryptedMarker: localStorage.getItem('aio_portfolio_data')?.slice(0, 9), optOut: localStorage.getItem('aio_portfolio_vault_optout') }));
   } catch (error) {

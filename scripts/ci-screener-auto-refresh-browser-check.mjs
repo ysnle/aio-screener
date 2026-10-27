@@ -227,6 +227,22 @@ try {
   if (replayed.resultHash !== recorded.resultHash || replayed.explanationsHash !== recorded.explanationsHash || replayed.rows < 800) throw new Error('persisted replay changed inputs/results after reload');
   await page.getByRole('button', { name: '보관 삭제', exact: true }).click();
   await page.waitForFunction(() => document.getElementById('scr-run-history')?.textContent.includes('보관한 사용자 실행 없음'));
+  // v59.21 (P2107): leaving the screen while the run archive is read, then coming back, reads it again instead of
+  // leaving the list marked as loading (its replay buttons never appeared).
+  const revisitArchive = await page.evaluate(async () => {
+    const list = () => document.getElementById('scr-run-history');
+    window.showPage('home');
+    delete list().dataset.archiveLoaded; // as on the first visit after a load
+    await new Promise((resolve) => {
+      const observer = new MutationObserver(() => { if (list().dataset.archiveLoaded === 'loading') { observer.disconnect(); window.showPage('home'); resolve(); } });
+      observer.observe(list(), { attributes: true, attributeFilter: ['data-archive-loaded'] });
+      window.showPage('screener');
+    });
+    window.showPage('screener');
+    for (let wait = 0; wait < 100 && list().dataset.archiveLoaded !== 'true'; wait += 1) await new Promise((resolve) => setTimeout(resolve, 100)); // the page clock is fixed
+    return list().dataset.archiveLoaded;
+  });
+  if (revisitArchive !== 'true') throw new Error(`v59.21 run archive stayed ${revisitArchive} after leaving the screen during its read`);
   await page.clock.setFixedTime(new Date(fixtureEpoch + 10 * 86400000));
   await page.evaluate(() => document.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { source: 'stale-fixture' } })));
   await page.waitForFunction(() => {

@@ -295,9 +295,12 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   window._aioSaveCashBalance = async (el) => {
     const currency = el?.dataset?.currency;
     if (!currency) return;
+    // P2106: the typed amount is taken before the lazy import, as for the holding form above — a portfolio render while
+    // the check loads refills the box with the stored amount, and that amount was saved instead of the typed one.
+    const typed = { value: el.value, badInput: !!el.validity?.badInput };
     // -100 and 1e309 emptied the field to $0 without a word, and twenty digits were kept.
     const { checkNumericField, NUMERIC_LIMITS } = await inputCheck();
-    const read = checkNumericField(el, { label: currency === 'KRW' ? '원화 현금' : '달러 현금', min: 0, max: NUMERIC_LIMITS.cash[currency] ?? NUMERIC_LIMITS.amount });
+    const read = checkNumericField(el, { label: currency === 'KRW' ? '원화 현금' : '달러 현금', min: 0, max: NUMERIC_LIMITS.cash[currency] ?? NUMERIC_LIMITS.amount, ...typed });
     if (!read.ok) return;
     const next = setCashBalance(readCashBalances(window.localStorage).balances, currency, read.empty ? '' : String(read.value));
     const ack = writeCashBalances(window.localStorage, next);
