@@ -2208,29 +2208,7 @@ function _formatSectorComparePrompt(sectorLabel, compareData) {
   return '\n\n' + lines.join('\n') + '\n';
 }
 
-// ── v30.15: 사용자 질문에서 티커 자동 감지 + 실시간 데이터 주입 ─────
-function _extractTickers(text) {
-  // 1. 명시적 US 티커 패턴: 대문자 1~5글자 (단독 또는 $ 접두사)
-  var tickers = [];
-  var seen = {};
-  // $AAPL 형식
-  var m1 = text.match(/\$([A-Z]{1,5})\b/g);
-  if (m1) m1.forEach(function(t) { var s = t.slice(1); if (!seen[s]) { seen[s]=1; tickers.push(s); } });
-  // 대문자 티커 (2~5글자, 문장 내에서 독립적으로 등장)
-  var m2 = text.match(/\b([A-Z]{2,5})\b/g);
-  var skipWords = {'AI':1,'OR':1,'AM':1,'AT':1,'BE':1,'BY':1,'DO':1,'GO':1,'IF':1,'IN':1,'IS':1,'IT':1,'MY':1,'NO':1,'OF':1,'ON':1,'SO':1,'TO':1,'UP':1,'US':1,'WE':1,
-    'ALL':1,'AND':1,'ARE':1,'BUT':1,'CAN':1,'DID':1,'FOR':1,'GET':1,'GOT':1,'HAS':1,'HAD':1,'HER':1,'HIM':1,'HIS':1,'HOW':1,'ITS':1,'LET':1,'MAY':1,'NEW':1,'NOT':1,'NOW':1,'OLD':1,'ONE':1,'OUR':1,'OUT':1,'OWN':1,'RUN':1,'SAY':1,'SET':1,'SHE':1,'THE':1,'TOO':1,'TRY':1,'TWO':1,'USE':1,'WAY':1,'WHO':1,'WHY':1,'WIN':1,'WON':1,'YES':1,'YET':1,'YOU':1,
-    'ALSO':1,'BEEN':1,'BEST':1,'BOTH':1,'BULL':1,'BEAR':1,'CALL':1,'COME':1,'EACH':1,'FROM':1,'GOOD':1,'HAVE':1,'HERE':1,'HIGH':1,'JUST':1,'KNOW':1,'LAST':1,'LIKE':1,'LONG':1,'LOOK':1,'MADE':1,'MAKE':1,'MORE':1,'MOST':1,'MUCH':1,'MUST':1,'NEED':1,'NEXT':1,'ONLY':1,'OVER':1,'SELL':1,'SOME':1,'SUCH':1,'TAKE':1,'TELL':1,'THAN':1,'THAT':1,'THEM':1,'THEN':1,'THEY':1,'THIS':1,'TIME':1,'VERY':1,'WANT':1,'WEEK':1,'WELL':1,'WENT':1,'WERE':1,'WHAT':1,'WHEN':1,'WILL':1,'WITH':1,'WORK':1,'YOUR':1,
-    'ABOUT':1,'AFTER':1,'COULD':1,'EVERY':1,'FIRST':1,'GREAT':1,'OTHER':1,'SHORT':1,'SINCE':1,'STILL':1,'THEIR':1,'THERE':1,'THESE':1,'THINK':1,'THOSE':1,'THREE':1,'TODAY':1,'UNDER':1,'WHERE':1,'WHICH':1,'WHILE':1,'WOULD':1,
-    'ETF':1,'IPO':1,'RSI':1,'MACD':1,'VIX':1,'ATR':1,'EMA':1,'SMA':1,'VCP':1,'SEPA':1,'VWAP':1,'FOMC':1,'GDP':1,'CPI':1,'PPI':1,'NFP':1,'PCE':1,'PMI':1,'ISM':1,'YOY':1,'MOM':1,'QOQ':1,'EPS':1,'PER':1,'PBR':1,'ROE':1,'ROA':1,'FCF':1,'DCF':1,'DDM':1,'NAV':1,'PEG':1,'FFR':1,'QE':1,'QT':1};
-  // P1550: finance acronyms and currency codes are not tickers (USD is a listed ETF symbol, SEC/CEO/FED/WTI are plain terms). X22/P1680: role/industry words ("멀티에셋 PM", "서버/HW") are tickers only when a company question follows ("PM 실적", "IR 주가"; PM/IR/HR/UI are listed); $PM always resolves.
-  var nonTickerAcronyms = {'SEC':1,'CEO':1,'CFO':1,'COO':1,'CTO':1,'USD':1,'KRW':1,'EUR':1,'JPY':1,'CNY':1,'GBP':1,'FED':1,'WTI':1,'ECB':1,'BOJ':1,'IMF':1,'OPEC':1,'NYSE':1,'FDA':1,'DOJ':1,'FTC':1,'KOSPI':1,'KRX':1}, roleOrIndustryWords = {'PM':1,'HW':1,'SW':1,'IB':1,'PE':1,'VC':1,'HY':1,'IG':1,'IR':1,'HR':1,'PR':1,'QA':1,'UI':1,'UX':1,'OS':1,'CIO':1,'AUM':1,'CFA':1,'LP':1,'GP':1,'EM':1,'DM':1,'ESG':1,'OEM':1,'ODM':1,'SAAS':1,'API':1,'GPU':1,'CPU':1,'HBM':1,'DRAM':1,'NAND':1,'EUV':1,'LLM':1,'IDC':1,'EV':1,'ESS':1,'TAM':1,'KPI':1,'CAGR':1,'EBIT':1,'ROIC':1,'WACC':1,'OAS':1,'BEI':1,'TIPS':1,'ACM':1,'CCC':1,'RRG':1,'ADR':1,'OHLC':1,'IC':1,'VAR':1,'CAPEX':1,'OPEX':1};
-  if (m2) m2.forEach(function(t) { if (!seen[t] && !skipWords[t] && !nonTickerAcronyms[t] && (!roleOrIndustryWords[t] || new RegExp('\\b' + t + '\\b\\s*(?:의\\s*)?(?:주가|실적|매출|종목|주식|티커|배당|차트|목표가|어때|전망|stock|shares|earnings)', 'i').test(text))) { seen[t]=1; tickers.push(t); } });
-  // 한국 종목코드 (6자리 숫자)
-  var m3 = text.match(/\b(\d{6})\b/g);
-  if (m3) m3.forEach(function(c) { var s = c + '.KS'; if (!seen[s]) { seen[s]=1; tickers.push(s); } });
-  return tickers.slice(0, 5); // v34.4: 최대 5개 (기본 데이터), 심층 비교는 chatSend에서 3개로 재제한
-}
+// _extractTickers moved to src/ai/entity/extract-tickers.js (v59.14, roadmap item 11; window._extractTickers).
 
 // P1740: typed symbols + plan-resolved company names + nickname table (src/ai/entity/chat-tickers.js).
 function _aioResolveChatTickers(q, questionPlan, state, options) {
@@ -2293,27 +2271,7 @@ async function _fetchTickerTrend(ticker) {
   } catch(e) { return null; }
 }
 
-// ─────────────────────────────────────────────────────────────────
-// v49.58 P321 R107 신규: _withTimeout — promise를 N ms 후 강제 fallback
-// 채팅 fetch가 hang 시 응답 30초+ 지연 차단. 11 fetch 모두 graceful degradation.
-// 사용: _withTimeout(promise, 2500, null) — 2.5초 내 미해결 시 null 반환
-// ─────────────────────────────────────────────────────────────────
-function _withTimeout(promise, ms, fallback, onTimeout) {
-  if (!promise || typeof promise.then !== 'function') return Promise.resolve(fallback);
-  var waitMs = ms == null ? 2500 : Math.max(0, Number(ms) || 0);
-  var to;
-  var timeoutPromise = new Promise(function(resolve) {
-    to = setTimeout(function() {
-      try { if (typeof onTimeout === 'function') onTimeout(); } catch(_) {}
-      resolve(fallback);
-    }, waitMs);
-  });
-  return Promise.race([
-    promise.then(function(v) { clearTimeout(to); return v; }).catch(function() { clearTimeout(to); return fallback; }),
-    timeoutPromise
-  ]);
-}
-window._withTimeout = _withTimeout;
+// _withTimeout moved to src/platform/with-timeout.js (v59.14, roadmap item 11; window._withTimeout).
 
 // v49.66 P350 R121: _chatTickerCache 통계 — hit/miss/eviction/size 가시화
 window.AIO = window.AIO || {};
@@ -4417,54 +4375,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ── 종목 · 재무 공시 search: moved to src/ui/components/fundamental-search.js (v59.12, roadmap item 11) ──
-
-// v48.8: FMP 무료 250/day 쿼터 카운터 — 하루 단위 리셋. 200+ 시 UI 경고.
-// v48.9: 범용 쿼터 카운터로 확장 — 공유 키 API 전체 커버 (Twelve Data/AV/NewsData)
-//        각 API의 공식 무료 한도를 _QUOTA_LIMITS에 선언. localStorage aio_quota_{provider} 일일 키별 관리.
-// P1422: local counters do not observe another browser or another application.
-var _QUOTA_LIMITS = {
-  fmp:        { daily: 250,  label: 'FMP 재무제표' },
-  twelveData: { daily: 800,  label: 'Twelve Data 지표' },
-  alphaVantage:{ daily: 25,  label: 'Alpha Vantage breadth' },
-  newsdata:   { daily: 200,  label: 'NewsData.io 뉴스' },
-  rss2json:   { daily: 10000,label: 'rss2json' },
-};
-function _bumpApiCounter(providerKey) {
-  try {
-    var lim = _QUOTA_LIMITS[providerKey];
-    if (!lim) return 0;
-    if (window.AIO && typeof window.AIO.tryAcquireAIQuota === 'function') {
-      var atomicQuota = window.AIO.tryAcquireAIQuota(providerKey, lim.daily);
-      if (atomicQuota && atomicQuota.handled) {
-        if (!atomicQuota.allowed) _aioLog('error', 'fetch', lim.label + ' 일일 한도 도달 또는 quota lock — ' + providerKey + ' 호출 스킵');
-        return atomicQuota.count;
-      }
-    }
-    var today = new Date().toISOString().slice(0,10);
-    var lsKey = 'aio_quota_' + providerKey;
-    var raw = localStorage.getItem(lsKey);
-    var q = raw ? JSON.parse(raw) : { date: today, count: 0 };
-    if (q.date !== today) q = { date: today, count: 0 };
-    q.count = (q.count || 0) + 1;
-    localStorage.setItem(lsKey, JSON.stringify(q));
-    var warnAt = Math.floor(lim.daily * 0.8);
-    if (q.count === warnAt) _aioLog('warn', 'fetch', lim.label + ' 일일 한도(' + lim.daily + ') 80% 도달 — 남은 ' + (lim.daily - q.count) + '회');
-    if (q.count >= lim.daily) _aioLog('error', 'fetch', lim.label + ' 일일 한도 도달! ' + providerKey + ' 호출 스킵 — 24h 후 리셋');
-    return q.count;
-  } catch(e) { return 0; }
-}
-function _isQuotaExceeded(providerKey) {
-  try {
-    var lim = _QUOTA_LIMITS[providerKey];
-    if (!lim) return false;
-    var raw = localStorage.getItem('aio_quota_' + providerKey);
-    if (!raw) return false;
-    var q = JSON.parse(raw);
-    var today = new Date().toISOString().slice(0,10);
-    return q.date === today && q.count >= lim.daily;
-  } catch(e) { return false; }
-}
-
+// _bumpApiCounter/_isQuotaExceeded moved to src/data/api-quota.js (v59.14, roadmap item 11).
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // P1131/R619: index.html의 마지막 인라인 블록 G(사이드바·AI 패널 토글 + 통합 chatSendUnified
@@ -4474,29 +4385,7 @@ function _isQuotaExceeded(providerKey) {
 // _appendAIMsg/chatSendUnified/aiChipClick이며, 이들은 여기서 전역 함수 선언으로 남으므로
 // index.html의 data-action 위임과 core의 호출부가 그대로 동작한다(호출은 모두 DOMContentLoaded 이후).
 // ═══════════════════════════════════════════════════════════════════════════════
-// v40.4: 왼쪽 사이드바 토글
-function toggleSidebar() {
-  var sb = document.querySelector('.sidebar');
-  if (!sb) return;
-  sb.classList.toggle('collapsed');
-  // 토글 버튼 아이콘 변경
-  var btn = document.getElementById('sidebar-toggle-btn');
-  var isCollapsed = sb.classList.contains('collapsed');
-  if (btn) { btn.textContent = isCollapsed ? '☰' : ''; btn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true'); }
-  // 상태 저장
-  try { localStorage.setItem('aio_sidebar_collapsed', sb.classList.contains('collapsed') ? '1' : ''); } catch(e) {}
-}
-// 페이지 로드 시 사이드바 상태 복원 + 데스크톱에서 토글 버튼 표시
-(function() {
-  var btn = document.getElementById('sidebar-toggle-btn');
-  if (btn) btn.style.display = 'inline-block';
-  try {
-    if (localStorage.getItem('aio_sidebar_collapsed') === '1') {
-      var sb = document.querySelector('.sidebar');
-      if (sb) { sb.classList.add('collapsed'); if (btn) btn.textContent = '☰'; }
-    }
-  } catch(e) {}
-})();
+// toggleSidebar and the collapsed-state restore moved to src/ui/components/sidebar-toggle.js (v59.14, roadmap item 11).
 
 // v40.4: 통합 AI 사이드 패널 로직
 var _aiCurrentCtx = null;

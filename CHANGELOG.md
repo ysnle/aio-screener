@@ -1,3 +1,7 @@
+## v59.14 (2026-10-27)
+- **부팅 공용 도우미 분리 (레거시 다음 계층 1단계, 채팅):** 채팅과 상관없이 부팅 때 쓰이던 도우미 네 가지를 js/aio-chat.js에서 src로 옮겼다. 응답 대기 한도(_withTimeout → src/platform/with-timeout.js), 무료 공급자 일일 호출 계수(_bumpApiCounter·_isQuotaExceeded → src/data/api-quota.js), 질문 속 티커 찾기(_extractTickers → src/ai/entity/extract-tickers.js), 데스크톱 사이드바 접기와 저장 상태 복원(toggleSidebar → src/ui/components/sidebar-toggle.js, 저장은 src/data/shell-prefs.js)이다. 동작과 창 이름은 그대로이며, 부팅 모듈 한도는 옮긴 바이트만큼 올렸다.
+- R1 7곳 v59.14
+
 ## v59.12 (2026-10-27)
 - **종목 · 재무 공시 검색 분리 (레거시 다음 계층 1단계, 채팅):** 재무 공시 검색(검색창, 최근 검색 목록, 보고서 초기화, SEC·Yahoo 수집과 30분 보고서 캐시)을 그 화면과 상관없던 js/aio-chat.js에서 src/ui/components/fundamental-search.js로 옮겼다. 문구, 8초 수집 한도, 요청 순번, AI 질문 미리 채우기는 그대로다. 함수는 화면 브리지와 함께 부팅 직후 설치되고, 그 전에 들어온 검색(다른 화면에서 연 경우)은 설치 때 실행된다. 이로써 _currentTickerId·Name·Sym의 js/ 쓰기 주체가 aio-core 하나로 줄어 동결 목록에서 뺐다.
 - R1 7곳 v59.12
