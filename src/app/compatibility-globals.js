@@ -8,6 +8,7 @@ import { installApiHealth } from '../data/quality/api-health.js'; // v59.18 road
 import { installValidationStores } from '../data/quality/validation-stores.js'; // v59.17 roadmap 11: moved from js/aio-core.js
 import { installProxyTransport } from '../data/providers/proxy-transport.js'; // v59.22 roadmap 11: moved from js/aio-data.js
 import { installNaverUsCollector } from '../data/providers/naver-us.js'; // v59.26 roadmap 11: moved from js/aio-data.js
+import { installNaverKrCollector } from '../data/providers/naver-kr.js'; // v59.28 roadmap 11: moved from js/aio-data.js
 import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from js/aio-chat.js
 import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from js/aio-chat.js
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
@@ -66,6 +67,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   const document = root.document;
   installProxyTransport(window);
   installNaverUsCollector(window);
+  installNaverKrCollector(window);
   installValidationStores(window);
   installApiHealth(window, document);
   installFreshnessEngine(window);

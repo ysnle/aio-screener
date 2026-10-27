@@ -653,7 +653,7 @@ async function fetchVkospiDynamic() {
 }
 
 // ── 5. 시가총액 동적 추출 (fetchKrNaverQuotes 결과에서 확장) ──
-// fetchKrNaverQuotes의 개별 종목 응답에서 marketCap 필드를 추출하여 KR_STOCK_DB에 반영
+// fetchKrNaverQuotes(v59.28~ src/data/providers/naver-kr.js)가 개별 종목 응답마다 window 전역 _enrichMarketCap(code, data)로 marketCap을 KR_STOCK_DB에 반영
 function _enrichMarketCap(code, data) {
   if (!data) return;
   // v46.4: 쉼표/공백 포함 문자열 파싱 방어

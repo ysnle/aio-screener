@@ -1,3 +1,7 @@
+## v59.28 (2026-10-27)
+- **네이버 한국 수집기 분리 (레거시 다음 계층 3단계 공급자, 3번째):** 네이버 파이낸스 한국 수집(fetchKrNaverQuotes: KOSPI·KOSDAQ 지수와 KR_STOCK_DB 전 종목을 Yahoo 호환 행으로, fetchKrDailyCandles: 자체 캔들 차트용 fchart 일봉)을 js/aio-data.js에서 src/data/providers/naver-kr.js로 그대로 옮겼다(aio-data 약 275줄 감소). 이름은 기존 호출(fetchLiveQuotes, 한국 동적 로더, aio-kr-data)을 위해 window 전역으로 남는다. 동작은 같다.
+- R1 7곳 v59.28
+
 ## v59.27 (2026-10-27)
 - **운영 7일 기록 저장 (P2110):** 실측 운영 창을 refresh-data가 6시간마다 저장해, 실시간 시세 게이트가 soak 0일에 영원히 막히지 않게 했습니다.
 - **AI $20은 목표 (소유자 2026-10-27):** 월 $20·하루 한도가 답변을 막지 않고, 넘으면 주간 운영 점검이 경고합니다(Origin·앱 토큰·분당 20회 제한은 유지). `AI_MONTHLY_BUDGET_MODE=hard`로 되돌릴 수 있습니다.
