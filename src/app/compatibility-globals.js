@@ -11,6 +11,7 @@ import { installNaverUsCollector } from '../data/providers/naver-us.js'; // v59.
 import { installNaverKrCollector } from '../data/providers/naver-kr.js'; // v59.28 roadmap 11: moved from js/aio-data.js
 import { installTelegramCollector } from '../data/providers/telegram-direct.js'; // v59.29 roadmap 11: moved from js/aio-data.js
 import { installVaultCrypto } from '../storage/vault-crypto.js'; // v59.30 roadmap 11: the AioVault cryptography from js/aio-core.js
+import { installNewsCache } from '../storage/news-cache.js'; // v59.31 roadmap 11: moved from js/aio-data.js
 import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from js/aio-chat.js
 import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from js/aio-chat.js
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
@@ -72,6 +73,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   installNaverUsCollector(window);
   installNaverKrCollector(window);
   installTelegramCollector(window);
+  installNewsCache(window);
   installValidationStores(window);
   installApiHealth(window, document);
   installFreshnessEngine(window);
