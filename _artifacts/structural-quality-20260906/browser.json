@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T12:38:30.978Z",
+  "generatedAt": "2026-10-27T12:57:17.722Z",
   "routes": [
     {
       "id": "home",
@@ -65,10 +65,6 @@
         {
           "tag": "A",
           "name": "국제유가, 이란·사우디 회동에 하락…WTI 1.5%↓"
-        },
-        {
-          "tag": "A",
-          "name": "10/27 01:15 구성 종목 BE +5.5%, Bernstein SocGen, 마진 강세로 Bloom Energy 주가 목표치를 상향 조정"
         },
         {
           "tag": "BUTTON",
@@ -290,7 +286,6 @@
         "지난 마감 이후 변화",
         "지금 시세 실시간·지연, 10/27 21:21 관측",
         "밤사이 핵심 3건",
-        "움직인 종목과 같은 날 보도",
         "오늘 확인할 3가지",
         "내 종목",
         "다가오는 일정",
@@ -541,6 +536,7 @@
         "코스피",
         "코스닥",
         "원 / 달러",
+        "외국인 순매수",
         "한국한국 종목의 참여도와 3개월 수익률 상위 테마",
         "3개월 수익률 상위 한국 테마, 표본 중앙값",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
@@ -618,10 +614,6 @@
         {
           "tag": "BUTTON",
           "name": "닛케이 225: 보통 범위 — 다섯 요소 순위 8~20(하위 10% 2개, 상위 10% 0개)"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "지수별 가격 온도 (참고) 근거 보기"
         },
         {
           "tag": "BUTTON",
@@ -3685,9 +3677,679 @@
     {
       "id": "atlas",
       "exists": true,
-      "moduleState": "loading",
-      "controls": [],
-      "headings": []
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "INPUT",
+          "name": "리서치 라이브러리 통합 검색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "관리형 AI 서비스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "가동률·작업 구성"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "클라우드 장기 약정"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "돈은 숫자가 아니라 미래의 선택권이다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "물가가 오르면 돈이 줄지 않아도 가난해진다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리는 기다림과 위험에 붙는 가격이다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "중앙은행은 금리로 경제의 속도를 바꾼다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미국채 금리는 금융시스템의 기준점이다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "정책금리 인하 국면의 장기채 약세 — 기간 프리미엄"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 인상기의 주가 — 왜 오르는지가 수준보다 중요하다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "금리 상승기 은행 순이자이익 감소 요인"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "같은 TGA 증가가 역레포 잔고에 따라 금리에 다르게 번지는 구조"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체436"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "분석 노트71"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "칼럼12"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "원리 레슨112"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 지도60"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업 지도95"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 기초48"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "대가 보유 종목38"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "주제"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "제목"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "안 읽은 글"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "GPU 임대 — 산업 지도, 주제 네오클라우드·GPU 금융"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "컴퓨트 용량 예약 — 산업 지도, 주제 네오클라우드·GPU 금융"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "리스·고정비 부담 — 산업 지도, 주제 네오클라우드·GPU 금융"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "고객 집중도 — 산업 지도, 주제 네오클라우드·GPU 금융"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "임대 수익률과 조달비용 — 산업 지도, 주제 네오클라우드·GPU 금융"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스위치 반도체 — 산업 지도, 주제 네트워크·광학·CPO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "광학 모듈 — 산업 지도, 주제 네트워크·광학·CPO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "실리콘 포토닉스 — 산업 지도, 주제 네트워크·광학·CPO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CPO·공동 패키징 광학 — 산업 지도, 주제 네트워크·광학·CPO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI Cluster Fabric — 산업 지도, 주제 네트워크·광학·CPO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "탐지→결정 작전 사슬 — 산업 지도, 주제 드론·방산·자율 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "C2·ISR·전자전 — 산업 지도, 주제 드론·방산·자율 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "자율성·사람의 통제 — 산업 지도, 주제 드론·방산·자율 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "드론 생산·소모 — 산업 지도, 주제 드론·방산·자율 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "방산 조달 경제성 — 산업 지도, 주제 드론·방산·자율 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SRAM·캐시 — 산업 지도, 주제 메모리·스토리지·데이터 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DRAM·HBM — 산업 지도, 주제 메모리·스토리지·데이터 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NAND Flash — 산업 지도, 주제 메모리·스토리지·데이터 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기업·데이터센터용 SSD — 산업 지도, 주제 메모리·스토리지·데이터 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CXL·메모리 공유(풀링) — 산업 지도, 주제 메모리·스토리지·데이터 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "엣지 SoC·NPU — 산업 지도, 주제 온디바이스·Physical AI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기기 메모리·전력 한계 — 산업 지도, 주제 온디바이스·Physical AI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "센서·인지 — 산업 지도, 주제 온디바이스·Physical AI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "제어·구동 — 산업 지도, 주제 온디바이스·Physical AI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시뮬레이션·디지털 트윈 — 산업 지도, 주제 온디바이스·Physical AI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "로켓 물리·발사 에너지 — 산업 지도, 주제 우주·항공·재사용 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "로켓 재사용·재발사 준비 — 산업 지도, 주제 우주·항공·재사용 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "위성 데이터 경제성 — 산업 지도, 주제 우주·항공·재사용 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Artemis 프로그램 구조 — 산업 지도, 주제 우주·항공·재사용 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "항공·우주 공급망 — 산업 지도, 주제 우주·항공·재사용 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "양자 컴퓨팅 — 산업 지도, 주제 인접 미래 기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "광자 컴퓨팅 — 산업 지도, 주제 인접 미래 기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "뉴로모픽 시스템 — 산업 지도, 주제 인접 미래 기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "차세대 에너지 시스템 — 산업 지도, 주제 인접 미래 기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미래 기술 불확실성 게이트 — 산업 지도, 주제 인접 미래 기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기업 역할·가치 포착 — 산업 지도, 주제 자본시장·기업 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "매출 품질·가시성 — 산업 지도, 주제 자본시장·기업 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "마진·비용 구조 — 산업 지도, 주제 자본시장·기업 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "대차대조표·자금조달 — 산업 지도, 주제 자본시장·기업 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 기대·주가 — 산업 지도, 주제 자본시장·기업 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "구리·도체 — 산업 지도, 주제 자원·소재·산업재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "리튬·저장 소재 — 산업 지도, 주제 자원·소재·산업재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "희토류·영구자석 — 산업 지도, 주제 자원·소재·산업재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "채굴·정제·재활용 — 산업 지도, 주제 자원·소재·산업재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업 장비 병목 — 산업 지도, 주제 자원·소재·산업재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "가속기 IT 부하 — 산업 지도, 주제 전력·에너지·전력망"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "발전원 구성 — 산업 지도, 주제 전력·에너지·전력망"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "송전·변전소 — 산업 지도, 주제 전력·에너지·전력망"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전력망 접속 대기열 — 산업 지도, 주제 전력·에너지·전력망"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "변압기·개폐 장치 — 산업 지도, 주제 전력·에너지·전력망"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "수출통제 — 산업 지도, 주제 지정학·산업정책·보안"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "공급망 회복력 — 산업 지도, 주제 지정학·산업정책·보안"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 보조금·인센티브 — 산업 지도, 주제 지정학·산업정책·보안"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "사이버보안·소버린 AI — 산업 지도, 주제 지정학·산업정책·보안"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "국가안보 위험 — 산업 지도, 주제 지정학·산업정책·보안"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "2.5D 패키징 — 산업 지도, 주제 첨단 패키징·기판"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D 적층 — 산업 지도, 주제 첨단 패키징·기판"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "인터포저·브리지 — 산업 지도, 주제 첨단 패키징·기판"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ABF·FC-BGA 기판 — 산업 지도, 주제 첨단 패키징·기판"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유리기판 — 산업 지도, 주제 첨단 패키징·기판"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "하이퍼스케일러 클라우드 — 산업 지도, 주제 클라우드·AI 플랫폼, 읽음"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "관리형 AI 서비스 — 산업 지도, 주제 클라우드·AI 플랫폼"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "가동률·작업 구성 — 산업 지도, 주제 클라우드·AI 플랫폼"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "클라우드 장기 약정 — 산업 지도, 주제 클라우드·AI 플랫폼"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "감가상각 주기 — 산업 지도, 주제 클라우드·AI 플랫폼"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "EDA·IP·설계 생태계 — 산업 지도, 주제 파운드리·장비·소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "미세공정 노드 — 산업 지도, 주제 파운드리·장비·소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 공정 장비 — 산업 지도, 주제 파운드리·장비·소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "반도체 소재·화학물질 — 산업 지도, 주제 파운드리·장비·소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "생산능력·수율·가동률 — 산업 지도, 주제 파운드리·장비·소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "랙 전력 밀도 — 산업 지도, 주제 AI 데이터센터·서버·냉각"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "액체 냉각 — 산업 지도, 주제 AI 데이터센터·서버·냉각"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "열 설계 — 산업 지도, 주제 AI 데이터센터·서버·냉각"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 서버 플랫폼 — 산업 지도, 주제 AI 데이터센터·서버·냉각"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "PUE·시설 에너지 효율 — 산업 지도, 주제 AI 데이터센터·서버·냉각"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 수익모델 — 산업 지도, 주제 AI 설비투자·ROIC·기업 재무"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CAPEX·리스 — 산업 지도, 주제 AI 설비투자·ROIC·기업 재무"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "감가상각·내용연수 — 산업 지도, 주제 AI 설비투자·ROIC·기업 재무"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FCF·자금조달 — 산업 지도, 주제 AI 설비투자·ROIC·기업 재무"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ROIC·반대 시나리오 — 산업 지도, 주제 AI 설비투자·ROIC·기업 재무"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "15편 더 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업 지도 19개 분야"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 기초 7개 층"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "관계 가이드 5편"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "클라우드·AI 플랫폼"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "하이퍼스케일러 클라우드"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "관리형 AI 서비스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "가동률·작업 구성"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "클라우드 장기 약정"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "감가상각 주기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "네오클라우드·GPU 금융"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 연산·주문형 반도체"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "메모리·스토리지·데이터 이동"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "파운드리·장비·소재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "첨단 패키징·기판"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "네트워크·광학·CPO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 데이터센터·서버·냉각"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전력·에너지·전력망"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "온디바이스·Physical AI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 설비투자·ROIC·기업 재무"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Physical AI·로보틱스·자율성"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "드론·방산·자율 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "우주·항공·재사용 시스템"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 응용 산업"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "자원·소재·산업재"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "지정학·산업정책·보안"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "자본시장·기업 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "인접 미래 기술"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1하이퍼스케일러 클라우드여러 작업 부하를 한 시설과 소프트웨어 층에서 통합"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "2관리형 AI 서비스모델 사용의 복잡성을 서비스 운영 층으로 흡수"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3가동률·작업 구성수요의 양뿐 아니라 시간대·모델·고객별 사용 패턴을 해석"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "4클라우드 장기 약정미래 매출의 단서지만 실제 사용량·해지·회계 인식과는 다름"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "5감가상각 주기매출 성장과 회계비용·자산 회수 속도를 연결"
+        },
+        {
+          "tag": "A",
+          "name": "U.S. DOE Data Centers"
+        },
+        {
+          "tag": "A",
+          "name": "Microsoft / SEC EDGAR, 2026 Q3 Form 10-Q"
+        },
+        {
+          "tag": "A",
+          "name": "Amazon Web Services, Cloud computing overview"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "7층 애플리케이션 — 산업·업무 AI, 피지컬 AI, 방산·우주 설명 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Tesla, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Rocket Lab, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Palantir, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "6층 모델 — 파운데이션 모델, 추론 서비스 설명 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "5층 클라우드 — 연산 임대, 플랫폼, 네오클라우드 설명 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Amazon Web Services (모회사 Amazon), 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "4층 데이터센터, 전력 — 서버, 냉각, 전력망 설명 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Vertiv, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3층 네트워크 — 스위치, 광통신 설명 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Broadcom, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Coherent, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NVIDIA, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "2층 반도체, 메모리 — GPU, 맞춤형 칩, HBM, SSD 설명 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Micron, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Sandisk, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AMD, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1층 장비, 파운드리 — 공정, 노광, 패키징, 소재 설명 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TSMC, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ASML, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MP Materials, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Samsung Electronics, 종목 요약 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AI 설비투자·ROIC·기업 재무"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "지정학·산업정책·보안"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "자본시장·기업 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "인접 미래 기술"
+        }
+      ],
+      "headings": [
+        "산업 지도",
+        "클라우드·AI 플랫폼",
+        "자주 빗나가는 해석",
+        "AI 산업 아틀라스"
+      ]
     },
     {
       "id": "guide",
