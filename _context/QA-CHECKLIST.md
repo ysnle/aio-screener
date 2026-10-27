@@ -4,9 +4,9 @@ last_verified: 2026-10-27
 confidence: medium
 ---
 
-## v59.31 사용자·운영 번거로움 제거 (2026-10-27)
+## v59.32 사용자·운영 번거로움 제거 (2026-10-27)
 
-- [x] QA-FRICTION-06: v59.31: 소유자가 실시간 시세(Yahoo, 5분 Cloudflare 경로)를 가족용으로 허용(2026-10-27)해 rightsReviewed=true, 대기 0일로 fastQuotes가 켜지고, 결정이 기록되면 fast·권리 차단 항목이 닫힌다. 실시간 경로가 실패하거나 오래되면 30분 스냅숏으로 돌아간다. verify_by: node scripts/ci-fast-plane-consumer-gate.mjs; node scripts/ci-operations-status-check.mjs
+- [x] QA-FRICTION-06: v59.32: 소유자가 실시간 시세(Yahoo, 5분 Cloudflare 경로)를 가족용으로 허용(2026-10-27)해 rightsReviewed=true, 대기 0일로 fastQuotes가 켜지고, 결정이 기록되면 fast·권리 차단 항목이 닫힌다. 실시간 경로가 실패하거나 오래되면 30분 스냅숏으로 돌아간다. verify_by: node scripts/ci-fast-plane-consumer-gate.mjs; node scripts/ci-operations-status-check.mjs
 
 ## v59.27 사용자·운영 번거로움 제거 (2026-10-27)
 

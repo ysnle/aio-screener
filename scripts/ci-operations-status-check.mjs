@@ -242,7 +242,7 @@ if (!['CURRENT', 'OPERATOR_REQUIRED', 'BLOCKED', 'STALE'].includes(operations.pl
 if (operations.planes?.fast?.status !== 'OPERATOR_REQUIRED') fail('fast plane must remain operator-required until endpoint and soak evidence exist');
 if (!/^https:\/\/aio-screener-data-plane\.[^/]+\.workers\.dev$/.test(String(operations.planes?.fast?.endpoint || ''))) fail('fast plane endpoint must identify the deployed data-plane base URL without a path suffix');
 if (operations.planes.fast.health?.status === 'CURRENT' && operations.planes.fast.health?.statusCode !== 200) fail('fast plane current health evidence must be HTTP 200');
-// v59.28: the blockers close once the owner's rights decision and the quote feature are both in place
+// v59.32: the blockers close once the owner's rights decision and the quote feature are both in place
 // (ci-fast-plane-consumer-gate checks the promoted side); until then they must stay published.
 if (operations.featureAvailability?.quotes?.availability !== 'AVAILABLE') {
   if (!operations.blockers?.includes('fast_plane_soak_and_rights_review_required')) fail('missing blocker fast_plane_soak_and_rights_review_required');

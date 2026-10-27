@@ -524,7 +524,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const blockers = [];
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
   if (!durableFreshness.fresh) blockers.push('durable_market_cycle_stale');
-  // v59.28 (owner 2026-10-27): the rights decision is recorded in worker-endpoints.json; once it is made and the
+  // v59.32 (owner 2026-10-27): the rights decision is recorded in worker-endpoints.json; once it is made and the
   // quote feature is available these are no longer open blockers.
   if (quoteAvailability.availability !== 'AVAILABLE') blockers.push('fast_plane_soak_and_rights_review_required');
   if (fastConfig.rightsReviewed !== true) blockers.push('provider_rights_review_required');
