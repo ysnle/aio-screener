@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.26';
+const APP_VERSION = 'v59.27';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -4827,7 +4827,7 @@ window.AIO.redactPortfolioForAI = function(positions, options) {
 
 var _aioPortfolioAIConsentMemory = false;
 var _aioPortfolioJournalAIConsentMemory = false; // P1350: notes are a separate, explicit grant.
-// v59.26 (owner 2026-10-27, trusted household): a grant is remembered on this device instead of being asked
+// v59.27 (owner 2026-10-27, trusted household): a grant is remembered on this device instead of being asked
 // again in every tab. Public-PC mode keeps it in this session only and clears it on switch (_aioVaultPublicMode).
 function _aioConsentStore() {
   try { return typeof _AioVault !== 'undefined' && _AioVault && _AioVault._publicMode ? sessionStorage : localStorage; } catch(_) { return null; }

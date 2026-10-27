@@ -4,13 +4,13 @@ last_verified: 2026-10-27
 confidence: medium
 ---
 
-## v59.26 사용자·운영 번거로움 제거 (2026-10-27)
+## v59.27 사용자·운영 번거로움 제거 (2026-10-27)
 
 - [x] QA-FRICTION-01: P2110: refresh-data가 6시간마다 측정한 운영 창을 커밋해 fast 평면 soak 일수가 실측값으로 채워진다. verify_by: node scripts/ci-operations-slo-window-check.mjs
-- [x] QA-FRICTION-02: v59.26: AI_MONTHLY_BUDGET_MODE=target에서는 $20을 넘어도 거절·검색 제거·연결별 월 몫 차단 없이 답하고, 주간 운영 점검이 금액 없이 초과를 경고한다. 하루 한도는 3000/연결당 1000의 폭주 방지선으로만 남는다. verify_by: node worker/openai-contract.test.mjs; node scripts/ci-operations-weekly-review-check.mjs
-- [x] QA-FRICTION-03: v59.26: Worker·Pages 수동 재배포는 ci_run_id/expected_sha를 비우면 최신 성공 main CI를 스스로 찾고, 같은 정확-실행 검사를 그대로 통과해야 배포한다. verify_by: node scripts/ci-cloudflare-deployment-contract-check.mjs
-- [x] QA-FRICTION-04: v59.26: 포트폴리오 AI 전송 동의(복기 노트 포함)는 기기에 한 번 저장되고, 공용 PC 모드에서는 세션에만 남으며 전환 시 지워진다. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-FRICTION-05: v59.26: AIO_OPERATOR_TOKEN 저장소 Secret이 없어도 주간 운영 점검이 AIO_AUTOMATION_TOKEN으로 공용 AI 월 사용량을 읽고, 그 토큰은 Worker에만 보낸다. verify_by: node scripts/ci-operations-weekly-review-check.mjs; node worker/openai-contract.test.mjs
+- [x] QA-FRICTION-02: v59.27: AI_MONTHLY_BUDGET_MODE=target에서는 $20을 넘어도 거절·검색 제거·연결별 월 몫 차단 없이 답하고, 주간 운영 점검이 금액 없이 초과를 경고한다. 하루 한도는 3000/연결당 1000의 폭주 방지선으로만 남는다. verify_by: node worker/openai-contract.test.mjs; node scripts/ci-operations-weekly-review-check.mjs
+- [x] QA-FRICTION-03: v59.27: Worker·Pages 수동 재배포는 ci_run_id/expected_sha를 비우면 최신 성공 main CI를 스스로 찾고, 같은 정확-실행 검사를 그대로 통과해야 배포한다. verify_by: node scripts/ci-cloudflare-deployment-contract-check.mjs
+- [x] QA-FRICTION-04: v59.27: 포트폴리오 AI 전송 동의(복기 노트 포함)는 기기에 한 번 저장되고, 공용 PC 모드에서는 세션에만 남으며 전환 시 지워진다. verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-FRICTION-05: v59.27: AIO_OPERATOR_TOKEN 저장소 Secret이 없어도 주간 운영 점검이 AIO_AUTOMATION_TOKEN으로 공용 AI 월 사용량을 읽고, 그 토큰은 Worker에만 보낸다. verify_by: node scripts/ci-operations-weekly-review-check.mjs; node worker/openai-contract.test.mjs
 
 ## v59.10 가족 코드 제거 (v59.10) (2026-10-26)
 

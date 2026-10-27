@@ -5,7 +5,7 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v59.26';
+const SW_VERSION = 'v59.27';
 const SW_BUILD = '2026-10-27T19:40:00+09:00';
 // v57.54 review: code can ship without a version bump (post-deploy fixes), so the cache-first shell is also keyed
 // on the shipped code. pages-deploy.yml replaces 'local' with a hash of the staged index.html + js/ + src/; a data-only

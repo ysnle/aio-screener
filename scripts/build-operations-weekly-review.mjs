@@ -56,7 +56,7 @@ async function repoSizeKb(fetchImpl, token, repo) {
   return Number.isSafeInteger(body?.size) ? body.size : null;
 }
 
-// v59.26: falls back to the automation token the Worker also accepts here, so no extra secret is needed.
+// v59.27: falls back to the automation token the Worker also accepts here, so no extra secret is needed.
 async function aiUsage(fetchImpl, operatorToken, automationToken) {
   if (!operatorToken && !automationToken) return { configured: false };
   const url = new URL(endpoints.proxy.operatorAiUsagePath, endpoints.proxy.baseUrl).href;

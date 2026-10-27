@@ -8,7 +8,7 @@ enabled = true
 head_sampling_rate = 0.1
 
 [vars]
-# v59.26 (owner 2026-10-27): the daily counts are a runaway backstop for a stuck client, not a household limit;
+# v59.27 (owner 2026-10-27): the daily counts are a runaway backstop for a stuck client, not a household limit;
 # a family day never reaches them. The 20/min RATE_LIMIT_OPENAI binding below stays the abuse speed bump.
 AI_DAILY_CAP = "3000"
 # P1759: each browser connection (HMAC of UTC day + IP, IPv6 grouped by /64; raw IPs never stored) gets at
@@ -22,7 +22,7 @@ AI_PER_CLIENT_DAILY_CAP = "1000"
 # Failed/cancelled/unknown usage retains its full reservation. Never an invoice.
 # A dedicated OpenAI project/key must not be used outside this Worker.
 AI_MONTHLY_BUDGET_USD = "20"
-# v59.26 (owner 2026-10-27): "$20 is a target to keep, not a hard stop; I top up the OpenAI balance when
+# v59.27 (owner 2026-10-27): "$20 is a target to keep, not a hard stop; I top up the OpenAI balance when
 # more is needed." target = same ledger and budget state, no refusal, no search removal, no per-connection
 # month share; the weekly operations review opens the over-target issue. Remove (or 'hard') to fail closed.
 AI_MONTHLY_BUDGET_MODE = "target"
@@ -38,7 +38,7 @@ AI_MAX_OUTPUT_TOKENS = "16000"
 # Per-provider daily ceiling for /relay (operator-key server-side fetches).
 RELAY_DAILY_CAP = "2000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v59.26"
+AIO_APP_REVISION = "v59.27"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 # 2026-10-14: Workers AI for headline translation (/workers-ai/translate, automation token only).

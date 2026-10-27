@@ -6,7 +6,7 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
-## P2110 - v59.26 - 운영 7일 기록이 저장소에 쌓이지 않아 실시간 시세 soak가 영원히 0일 (2026-10-27)
+## P2110 - v59.27 - 운영 7일 기록이 저장소에 쌓이지 않아 실시간 시세 soak가 영원히 0일 (2026-10-27)
 
 - symptom/reproduction: public-data/operations-slo-window.json이 2026-08-24부터 SOURCE_TEMPLATE_ONLY로 남아 planes.fast.soak.observedDays가 항상 0이었다. 공급자 권리 검토를 마쳐도 실시간 시세(fast quotes)는 soak 미충족으로 켜질 수 없었다.
 - root_cause: watchdog이 매 실행 실측 창을 만들지만 권한이 contents: read라 artifact로만 올렸고, 커밋 권한이 있는 refresh-data는 창을 만들지 않았다. build-operations-status는 커밋된 템플릿만 읽었다.

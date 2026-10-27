@@ -299,15 +299,15 @@ for (const wf of ['.github/workflows/deploy-ai-proxy.yml', '.github/workflows/de
   const text = readFileSync(wf, 'utf8');
   check(wf + ' deploys only from a push to this repository, never a fork workflow_run (P1334/R674)', text.includes("github.event.workflow_run.event == 'push'") && text.includes('github.event.workflow_run.head_repository.full_name == github.repository') && text.includes(`[ "$ci_event" = 'push' ]`) && text.includes('[ "$ci_repo" = "$GITHUB_REPOSITORY" ]'));
 }
-// v59.26: a manual redeploy needs no run id typed in — blank resolves the newest successful main push CI,
+// v59.27: a manual redeploy needs no run id typed in — blank resolves the newest successful main push CI,
 // which then passes every exact-run check above unchanged (Pages resolves the run and its SHA the same way).
 for (const [wf, text] of [['deploy-ai-proxy.yml', proxyWorkflow], ['deploy-data-plane.yml', dataWorkflow]]) {
-  check(wf + ' v59.26 a blank manual ci_run_id resolves the latest successful main push CI', /ci_run_id:[\s\S]*?required: false/.test(text)
+  check(wf + ' v59.27 a blank manual ci_run_id resolves the latest successful main push CI', /ci_run_id:[\s\S]*?required: false/.test(text)
     && text.includes('actions/workflows/ci.yml/runs?branch=main&event=push&status=success&per_page=1') && text.indexOf('Resolved latest successful main push CI run') < text.indexOf('case "$run_id" in'));
 }
-check('pages-deploy.yml v59.26 a blank manual dispatch resolves the latest successful main CI run and its SHA', /expected_sha:[\s\S]*?required: false/.test(pagesWorkflow)
+check('pages-deploy.yml v59.27 a blank manual dispatch resolves the latest successful main CI run and its SHA', /expected_sha:[\s\S]*?required: false/.test(pagesWorkflow)
   && pagesWorkflow.includes('actions/workflows/ci.yml/runs?branch=main&status=success&per_page=1') && pagesWorkflow.indexOf('Resolved latest successful main CI run') < pagesWorkflow.indexOf('case "$run_id" in'));
-check('v59.26 the $20 month is a target in production (owner 2026-10-27) and the Worker keeps the hard mode available', /AI_MONTHLY_BUDGET_MODE = "target"/.test(proxyToml) && /aiBudgetIsTarget/.test(worker) && /if \(!budgetTarget && \(legacyUnknown \|\| monthlyReservedMicroUsd \+ amount > body\.monthlyCapMicroUsd\)\)/.test(worker));
+check('v59.27 the $20 month is a target in production (owner 2026-10-27) and the Worker keeps the hard mode available', /AI_MONTHLY_BUDGET_MODE = "target"/.test(proxyToml) && /aiBudgetIsTarget/.test(worker) && /if \(!budgetTarget && \(legacyUnknown \|\| monthlyReservedMicroUsd \+ amount > body\.monthlyCapMicroUsd\)\)/.test(worker));
 if (errors.length) {
   console.error('Cloudflare deployment contract failed:');
   errors.forEach((error) => console.error(` - ${error}`));

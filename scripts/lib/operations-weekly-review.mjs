@@ -69,7 +69,7 @@ function aiBudgetFinding(usage) {
   if (!Number.isSafeInteger(reserved) || !Number.isSafeInteger(budget) || budget <= 0 || reserved < 0) {
     return { id: 'ai-monthly-budget', label, status: 'UNKNOWN', note: '사용량을 읽지 못했습니다.' };
   }
-  // v59.26: $20 is a target, not a stop (owner 2026-10-27) — passing it keeps answers flowing, so the
+  // v59.27: $20 is a target, not a stop (owner 2026-10-27) — passing it keeps answers flowing, so the
   // review says so and points at the balance the owner tops up instead of promising a block.
   if (reserved > budget) {
     return { id: 'ai-monthly-budget', label, status: 'WARN', note: `이번 달 예약액이 목표 예산을 넘었습니다. AI는 계속 동작하니, OpenAI 잔액이 충분한지 확인하세요.` };

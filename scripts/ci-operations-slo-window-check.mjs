@@ -181,12 +181,12 @@ check('P1166 manual runs do not substitute for scheduled arrivals', manualOnly.s
   check('v57.83 the lane names its denominator basis', withHistory.windows['30d'].domains.market.expectedRunsBasis === 'cadence-history' && withHistory.windows['30d'].domains.screener.expectedRunsBasis === 'current-cron-backfilled');
 }
 
-// v59.26: the committed window is refreshed by the producer (6-hour throttle) and staged with the data commit,
+// v59.27: the committed window is refreshed by the producer (6-hour throttle) and staged with the data commit,
 // so the fast-quote soak reads measured days instead of the template's permanent 0.
 {
   const refresh = await readFile(new URL('../.github/workflows/refresh-data.yml', import.meta.url), 'utf8');
   const step = refresh.indexOf('Refresh rolling operations evidence');
-  check('v59.26 refresh-data refreshes the rolling window before operations-status reads it and stages it', step > 0 && step < refresh.indexOf('node scripts/fetch-data.mjs')
+  check('v59.27 refresh-data refreshes the rolling window before operations-status reads it and stages it', step > 0 && step < refresh.indexOf('node scripts/fetch-data.mjs')
     && refresh.includes('node scripts/build-operations-slo-window.mjs --out "$RUNNER_TEMP/operations-slo-window.json"')
     && /stage_if_exists public-data\/operations-slo-window\.json/.test(refresh) && /-lt 21600/.test(refresh));
 }

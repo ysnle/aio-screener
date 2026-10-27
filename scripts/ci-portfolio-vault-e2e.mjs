@@ -1058,7 +1058,7 @@ async function main() {
       const journalSuccess=window._aioSavePortfolioJournal()?.ok===true;
       return {partial,full,mixed,stale,invalidCalendar,noUnexpectedNotes,preview,rememberedOnDevice,revoked,journalFailure:ack?.ok===false && !toasts.some((value)=>value.includes('저장 완료')),journalSuccess};
     });
-    check('v59.26 AI_consent_is_remembered_on_this_device_until_revoked',aiPrivacy.rememberedOnDevice===true && aiPrivacy.revoked===true,JSON.stringify({remembered:aiPrivacy.rememberedOnDevice,revoked:aiPrivacy.revoked}));
+    check('v59.27 AI_consent_is_remembered_on_this_device_until_revoked',aiPrivacy.rememberedOnDevice===true && aiPrivacy.revoked===true,JSON.stringify({remembered:aiPrivacy.rememberedOnDevice,revoked:aiPrivacy.revoked}));
     check('P1350 AI_missing_price_keeps_unknown',aiPrivacy.partial.every((row)=>row.allocationPct===null) && aiPrivacy.partial[1].returnPct===null,JSON.stringify(aiPrivacy.partial));
     check('P1350 AI_matching_current_valuation_positive_control',aiPrivacy.full.every((row)=>row.allocationPct===50 && row.returnPct===50),JSON.stringify(aiPrivacy.full));
     check('P1350 AI_currency_mismatch_holds_weights',aiPrivacy.mixed.every((row)=>row.allocationPct===null),JSON.stringify(aiPrivacy.mixed));

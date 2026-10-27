@@ -283,7 +283,7 @@ async function main() {
     check('P1312/P1421 private usage undiscoverable without token', (await worker.fetch(new Request('https://worker.example/_ops/ai-usage'), privateEnv)).status === 404);
     const automationUsage = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Automation-Token': TOKEN } }), fixture.env);
     const wrongAutomation = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Automation-Token': 'wrong-fixture-token-' + 'x'.repeat(32) } }), fixture.env);
-    check('v59.26 the automation token reads private usage without an operator secret; a wrong one stays undiscoverable', automationUsage.status === 200 && Number.isSafeInteger((await automationUsage.json()).monthlyBudgetMicroUsd) && wrongAutomation.status === 404);
+    check('v59.27 the automation token reads private usage without an operator secret; a wrong one stays undiscoverable', automationUsage.status === 200 && Number.isSafeInteger((await automationUsage.json()).monthlyBudgetMicroUsd) && wrongAutomation.status === 404);
     const wrongOperator = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Operator-Token': 'wrong-fixture-token-' + 'x'.repeat(32) } }), privateEnv);
     const operatorPost = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { method: 'POST', headers: { 'X-AIO-Operator-Token': TOKEN } }), privateEnv);
     check('P1421 invalid operator secret and authorized non-GET requests rejected privately with no-store', wrongOperator.status === 404 && operatorPost.status === 405 && [wrongOperator, operatorPost, privateUsage].every(response => response.headers.get('Cache-Control') === 'no-store' && !response.headers.has('Access-Control-Allow-Origin')));
@@ -446,15 +446,15 @@ async function main() {
     const exhausted = harness(ledgerAt(exhaustedSpent), { AI_MONTHLY_BUDGET_USD: '1' }), exhaustedBefore = upstreamCalls;
     const exhaustedResponse = await worker.fetch(req(searchBody, { headers: ip('198.51.100.73') }), exhausted.env), exhaustedJson = await exhaustedResponse.json();
     check('P1759 exhausted month denies before upstream with budget-state header and no Retry-After', exhaustedResponse.status === 429 && exhaustedJson.error.code === 'monthly-budget' && exhaustedResponse.headers.get('X-AIO-Budget-State') === 'exhausted' && !exhaustedResponse.headers.has('Retry-After') && upstreamCalls === exhaustedBefore, { status: exhaustedResponse.status, json: exhaustedJson, state: exhaustedResponse.headers.get('X-AIO-Budget-State'), ra: exhaustedResponse.headers.get('Retry-After') });
-    // v59.26 (owner 2026-10-27): target mode keeps the ledger and state but never refuses or strips search.
+    // v59.27 (owner 2026-10-27): target mode keeps the ledger and state but never refuses or strips search.
     const overTarget = harness(ledgerAt(monthCap + 5000), { AI_MONTHLY_BUDGET_USD: '1', AI_MONTHLY_BUDGET_MODE: 'target' }); lastRequest = null;
     const overTargetResponse = await worker.fetch(req(searchBody, { headers: ip('198.51.100.74') }), overTarget.env); await overTargetResponse.arrayBuffer();
-    check('v59.26 a month past its target still answers with hosted search and records the spend',
+    check('v59.27 a month past its target still answers with hosted search and records the spend',
       overTargetResponse.status === 200 && JSON.parse(lastRequest.init.body).tools?.[0]?.type === 'web_search' && !overTargetResponse.headers.has('X-AIO-Web-Search-Removed')
       && overTargetResponse.headers.get('X-AIO-Budget-State') === 'exhausted' && overTargetResponse.headers.get('X-AIO-Budget-Saver') === '0'
       && overTarget.saved().months[currentMonth] > monthCap + 5000, { status: overTargetResponse.status, state: overTargetResponse.headers.get('X-AIO-Budget-State') });
     const overTargetHealth = await (await worker.fetch(req(undefined, { path: '/health', method: 'GET', headers: ip('198.51.100.74') }), overTarget.env)).json();
-    check('v59.26 target-mode health keeps search available and names the mode without amounts',
+    check('v59.27 target-mode health keeps search available and names the mode without amounts',
       overTargetHealth.ai.budgetMode === 'target' && overTargetHealth.ai.budgetSaver.active === false && overTargetHealth.ai.webSearchAvailable === true && !/MicroUsd|monthlyBudget/.test(JSON.stringify(overTargetHealth)), overTargetHealth.ai);
     // /health: coarse state + caller's own remaining questions; no amounts.
     const healthOf = async (fixture, address) => (await worker.fetch(req(undefined, { path: '/health', method: 'GET', headers: ip(address) }), fixture.env)).json();

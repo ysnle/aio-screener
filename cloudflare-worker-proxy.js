@@ -9,7 +9,7 @@ export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-bu
  * Required: OPENAI_API_KEY, AIO_QUOTA_DO. Actions additionally requires the
  * same 32+ character AIO_AUTOMATION_TOKEN in GitHub and Worker secrets.
  * AI_MONTHLY_BUDGET_USD defaults to $20 and accepts only $0-$20; AI_MONTHLY_BUDGET_MODE=target makes it a
- * target that is reported and alerted on but never refuses (v59.26, owner 2026-10-27). AI_DAILY_CAP
+ * target that is reported and alerted on but never refuses (v59.27, owner 2026-10-27). AI_DAILY_CAP
  * defaults to 300; AI_MAX_OUTPUT_TOKENS defaults to 4000 (up to 16384, v57.61).
  * P1759: AI_PER_CLIENT_DAILY_CAP (default 150, 1-1000, clamped to AI_DAILY_CAP) bounds each browser
  * connection per UTC day in the same DO admission; below 20% of the month hosted search is removed.
@@ -611,7 +611,7 @@ async function handleOperatorFeedback(request, env, origin) {
 async function handleOperatorAiUsage(request, env) {
   const configuredToken = env?.AIO_OPERATOR_TOKEN;
   const suppliedToken = request.headers.get('X-AIO-Operator-Token');
-  // v59.26: the automation token (already able to spend through /openai) may read these counters too, so the
+  // v59.27: the automation token (already able to spend through /openai) may read these counters too, so the
   // weekly review needs no separate AIO_OPERATOR_TOKEN repository secret to see the month.
   const automationReader = !suppliedToken && await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'));
   if (!automationReader && !await matchesOperatorToken(configuredToken, suppliedToken)) return privateOperatorResponse(null, 404);
@@ -719,7 +719,7 @@ function nextUtcDayStartMs(now = Date.now()) {
   return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1);
 }
 
-// v59.26 (owner 2026-10-27): "$20 and the daily caps are targets to keep, not hard stops — I top up the
+// v59.27 (owner 2026-10-27): "$20 and the daily caps are targets to keep, not hard stops — I top up the
 // OpenAI balance when more is needed." AI_MONTHLY_BUDGET_MODE=target keeps the same ledger and budget
 // state but never refuses, removes web search or splits the month per connection because of it; the
 // weekly operations review raises the over-target alert. Unset (or 'hard') keeps the fail-closed bound.
