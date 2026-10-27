@@ -242,8 +242,13 @@ if (!['CURRENT', 'OPERATOR_REQUIRED', 'BLOCKED', 'STALE'].includes(operations.pl
 if (operations.planes?.fast?.status !== 'OPERATOR_REQUIRED') fail('fast plane must remain operator-required until endpoint and soak evidence exist');
 if (!/^https:\/\/aio-screener-data-plane\.[^/]+\.workers\.dev$/.test(String(operations.planes?.fast?.endpoint || ''))) fail('fast plane endpoint must identify the deployed data-plane base URL without a path suffix');
 if (operations.planes.fast.health?.status === 'CURRENT' && operations.planes.fast.health?.statusCode !== 200) fail('fast plane current health evidence must be HTTP 200');
-for (const blocker of ['fast_plane_soak_and_rights_review_required', 'provider_rights_review_required']) {
-  if (!operations.blockers?.includes(blocker)) fail(`missing blocker ${blocker}`);
+// v59.28: the blockers close once the owner's rights decision and the quote feature are both in place
+// (ci-fast-plane-consumer-gate checks the promoted side); until then they must stay published.
+if (operations.featureAvailability?.quotes?.availability !== 'AVAILABLE') {
+  if (!operations.blockers?.includes('fast_plane_soak_and_rights_review_required')) fail('missing blocker fast_plane_soak_and_rights_review_required');
+}
+if (JSON.parse(fs.readFileSync(new URL('../architecture/worker-endpoints.json', import.meta.url), 'utf8')).fastQuotes?.rightsReviewed !== true) {
+  if (!operations.blockers?.includes('provider_rights_review_required')) fail('missing blocker provider_rights_review_required');
 }
 const unresolved = reconciliation.categories.filter((category) => category.status !== 'MATCH').map((category) => category.categoryId).sort();
 // v58.63 (architecture audit A24/GV03): the rule is "no completion while categories are unresolved"; it used to refuse

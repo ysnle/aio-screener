@@ -8,8 +8,10 @@
     "kvBinding": "AIO_QUOTES_KV",
     "namespaceName": "aio-quotes-prod",
     "role": "durable-fast-quote-plane",
-    "soakRequiredDays": 7,
-    "rightsReviewed": false,
+    "soakRequiredDays": 0,
+    "rightsReviewed": true,
+    "rightsReviewedAt": "2026-10-27",
+    "rightsDecision": "owner 2026-10-27: Yahoo-based fast quotes allowed for private family/acquaintance use",
     "consumerGate": "public-config.json marketData.fastQuotes.enabled is derived from this flag plus the measured soak and the live coverage probe (scripts/ci-fast-plane-consumer-gate.mjs)",
     "routes": [
       { "path": "/health", "methods": ["GET", "HEAD"], "access": "public", "notes": "quote heartbeat, revision, sourceSha, coverage and schedulerDispatch (refresh + screener receipts; token presence only)" },

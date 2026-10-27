@@ -524,8 +524,10 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const blockers = [];
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
   if (!durableFreshness.fresh) blockers.push('durable_market_cycle_stale');
-  blockers.push('fast_plane_soak_and_rights_review_required');
-  blockers.push('provider_rights_review_required');
+  // v59.28 (owner 2026-10-27): the rights decision is recorded in worker-endpoints.json; once it is made and the
+  // quote feature is available these are no longer open blockers.
+  if (quoteAvailability.availability !== 'AVAILABLE') blockers.push('fast_plane_soak_and_rights_review_required');
+  if (fastConfig.rightsReviewed !== true) blockers.push('provider_rights_review_required');
   if (!proxyHealthy) blockers.push('ai_proxy_deploy_or_readiness_required');
   if (secCoverage.coveragePct < 80) blockers.push('sec_fundamentals_coverage_below_80_percent');
   const status = createOperationsStatus({
@@ -608,7 +610,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
           evidenceFresh: fastEvidence.fastEvidenceFresh === true,
           evidenceEvaluatedAt: now
         },
-        soak: { requiredDays: 7, observedDays: Number(fastEvidence.fastSoakObservedDays || 0), targetSuccessRate: 0.99 },
+        soak: { requiredDays: Number(fastConfig.soakRequiredDays ?? 7), observedDays: Number(fastEvidence.fastSoakObservedDays || 0), targetSuccessRate: 0.99 },
         readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: fastEndpoint === 'not-configured' ? 'OPERATOR_REQUIRED' : 'CURRENT', lastCallSucceeded: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', dataCurrent: Number(fastEvidence.fastHealthStatus) === 200 && fastEvidence.fastEvidenceFresh === true ? 'CURRENT' : 'UNKNOWN', licensedForUse: 'REVIEW_REQUIRED' }
       },
       // P1166 (17 작업 단위 3 / 06 O05): 이 producer는 브라우저 실행·Pages 도달·SW revision 일치를

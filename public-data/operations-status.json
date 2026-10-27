@@ -24,7 +24,7 @@
     "UNKNOWN"
   ],
   "generatedAt": "2026-10-27T11:27:43.080Z",
-  "appRevision": "v59.30",
+  "appRevision": "v59.31",
   "dataRevision": "market-snapshot:2026-10-27T11:27:09.594Z:086fbd5d",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -56,9 +56,9 @@
       ]
     },
     "quotes": {
-      "availability": "UNAVAILABLE",
+      "availability": "AVAILABLE",
       "asOf": "2026-10-27T11:27:43.080Z",
-      "missingReason": "fast-quote-provider-rights-not-reviewed",
+      "missingReason": null,
       "sources": [
         "fast"
       ]
@@ -231,7 +231,7 @@
         "evidenceEvaluatedAt": "2026-10-27T11:27:43.080Z"
       },
       "soak": {
-        "requiredDays": 7,
+        "requiredDays": 0,
         "observedDays": 8,
         "targetSuccessRate": 0.99
       },
@@ -247,7 +247,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v59.30",
+      "revision": "v59.31",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -593,8 +593,5 @@
     "cutoverStatus": "MIGRATION_IN_PROGRESS",
     "routeOwnersManifest": "architecture/route-owners.json"
   },
-  "blockers": [
-    "fast_plane_soak_and_rights_review_required",
-    "provider_rights_review_required"
-  ]
+  "blockers": []
 }

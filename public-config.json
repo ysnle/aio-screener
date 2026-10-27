@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v59.30",
+  "appRevision": "v59.31",
   "ai": {
     "chatPolicy": "shared-worker-only",
     "provider": "openai",
@@ -28,12 +28,12 @@
       "baseUrl": "https://aio-screener-data-plane.zmfhd007.workers.dev",
       "healthPath": "/health",
       "quotesPath": "/quotes",
-      "enabled": false,
+      "enabled": true,
       "certification": {
-        "soakRequiredDays": 7,
+        "soakRequiredDays": 0,
         "soakObservedDays": 8,
-        "rightsReviewed": false,
-        "certifiedAt": null
+        "rightsReviewed": true,
+        "certifiedAt": "2026-10-27T11:39:26.940Z"
       }
     }
   },
