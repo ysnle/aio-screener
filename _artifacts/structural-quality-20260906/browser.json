@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-27T12:57:17.722Z",
+  "generatedAt": "2026-10-27T13:20:29.813Z",
   "routes": [
     {
       "id": "home",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
         {
           "tag": "BUTTON",
@@ -24,247 +24,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "추세부담"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭양호"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "변동성중립"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리양호"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "신용과 위험선호부담"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "달러와 원자재중립"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "환율 (원, 엔), 참고중립"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "판정 근거와 지수 차트 보기 →"
-        },
-        {
-          "tag": "A",
-          "name": "아우디, 미국 첫 공장 발표…엔비디아·마이크론이 실적 호황 주도"
-        },
-        {
-          "tag": "A",
-          "name": "앤트로픽은 엔비디아를 제외한 모든 매그니피센트 세븐 회사보다 직원당 더 많은 수익을 창출한다"
-        },
-        {
-          "tag": "A",
-          "name": "국제유가, 이란·사우디 회동에 하락…WTI 1.5%↓"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "전체 뉴스와 채널 소식 → 뉴스"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "포트폴리오에서 추가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "7일 일정과 시장 해석 → 브리핑"
-        },
-        {
-          "tag": "BUTTON",
           "name": "6개 축 근거와 읽은 값양호 2, 중립 2, 부담 2"
         },
         {
           "tag": "BUTTON",
           "name": "시장 폭 상세50일선, 200일선, 신고가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헬스케어"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "세 가지 시장 흐름 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "방산/항공우주 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비재 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헬스케어 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "한국 K-푸드·통신 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "한국 에너지 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "모든 시나리오와 선택지 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "맞히기보다 조건으로 생각하기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "기다림도 선택이다 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'틀렸다'의 기준을 먼저 정하기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "하루 반등·하루 급락 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "신용 스프레드 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "수익보다 먼저 살아남기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "맞히기보다 조건으로 생각하기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "기다림도 선택이다 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "공포에 팔고 환호에 사지 않기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "놓칠까 봐 쫓지 않기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "나눠서 들어가기 (분할 접근) — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'틀렸다'의 기준을 먼저 정하기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "확신이 아니라 감당할 손실로 크기 정하기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "발표 전에는 예측보다 준비 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리는 어느 쪽 끝이 움직였는지로 읽기 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "큰 흐름이 작은 흐름을 거른다 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'많이 빠졌으니 싸다' — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "하루 반등·하루 급락 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'지수 신고가 = 시장 전체가 강함' — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'금리 인하는 무조건 호재' — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헤드라인과 확인 안 된 소문 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'과거에 이랬으니 이번에도' — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'조건 충족 수 = 확률' — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거래량 없는 돌파 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "이미 멀리 달아난 뒤의 진입 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "뉴스로 생긴 갭 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "'순위가 높으면 오른다' — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "이익 전망이 고쳐지는 방향 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "확정 종가와 공식 발표 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "신용 스프레드 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "기준선과 함께 보는 과거 빈도 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "숫자는 기대·자기 역사와 비교해서 — 리서치 라이브러리에서 개념 배우기"
         },
         {
           "tag": "BUTTON",
@@ -282,21 +46,8 @@
       "headings": [
         "오늘",
         "지수 하루 흐름",
-        "판단이 바뀌는 조건",
-        "지난 마감 이후 변화",
-        "지금 시세 실시간·지연, 10/27 21:21 관측",
-        "밤사이 핵심 3건",
-        "오늘 확인할 3가지",
-        "내 종목",
-        "다가오는 일정",
-        "내 종목 뉴스",
-        "지수는 올랐고 참여 종목은 줄었다가 최근 다시 늘고 있습니다",
-        "지금 흐름과 다음 발표",
-        "오늘의 가이드 — 상황, 시나리오, 대응, 배울 것",
-        "여러 시나리오를 함께 놓고 보면",
-        "지향할 것",
-        "지양할 것",
-        "오늘 해당하는 원칙"
+        "지금 시세 실시간·지연, 10/27 21:59 관측",
+        "지수는 올랐고 참여 종목은 줄었다가 최근 다시 늘고 있습니다"
       ]
     },
     {
@@ -2165,19 +1916,27 @@
         },
         {
           "tag": "A",
-          "name": "Fed rate hikes are coming, but not this week: CNBC survey"
+          "name": "Wall St on pace for higher open as oil pulls back ahead of Fed decision"
         },
         {
           "tag": "A",
-          "name": "Fed expected to hold rates steady, but Warsh may point way to more hikes"
+          "name": "Morning Call Sheet: Anthropic IPO risks, AI spending, earnings and Fed outlook"
+        },
+        {
+          "tag": "A",
+          "name": "SpaceX, Tesla and Anthropic may reshape the S&P 500—but not right away"
+        },
+        {
+          "tag": "A",
+          "name": "Tech stocks rally as AI trade revives"
+        },
+        {
+          "tag": "A",
+          "name": "Bond investors are thinking less about the Fed and more about AI, deficits"
         },
         {
           "tag": "A",
           "name": "Memory Stocks Lost Their Mojo and Strong Earnings Aren’t Helping"
-        },
-        {
-          "tag": "A",
-          "name": "Anthropic’s ‘Adjusted’ Profit Exposes Wall Street’s Earnings Game"
         },
         {
           "tag": "A",
@@ -2189,15 +1948,11 @@
         },
         {
           "tag": "A",
+          "name": "코스피 반등에도 국고채 금리 일제히↓…3년물 2개월래 최저(종합)"
+        },
+        {
+          "tag": "A",
           "name": "Oil Prices Fall as Traders Assess Iran Diplomacy, Saudi Attacks"
-        },
-        {
-          "tag": "A",
-          "name": "[특징주] 반도체주, 앤트로픽 훈풍에 급등…삼전·닉스 4∼5%대↑(종합)"
-        },
-        {
-          "tag": "A",
-          "name": "Gold retreats on stronger dollar; traders brace for Fed"
         },
         {
           "tag": "A",
@@ -2206,10 +1961,6 @@
         {
           "tag": "A",
           "name": "코스피, 4%대 급등세 지속…외국인·기관 쌍끌이 순매수"
-        },
-        {
-          "tag": "A",
-          "name": "Asian stocks surge as Anthropic IPO lifts sentiment ahead of earnings, central banks"
         },
         {
           "tag": "A",
