@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v59.41 — 올인원 투자 터미널</title>
+  <title>AIO Screener v59.42 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -6706,12 +6706,12 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=59.41" defer></script>
-  <script src="./js/aio-kr-data.js?v=59.41" defer></script>
-  <script src="./js/aio-pages.js?v=59.41" defer></script>
-  <script src="./js/aio-core.js?v=59.41" defer></script>
-  <script src="./js/aio-data.js?v=59.41" defer></script>
-  <script src="./js/aio-ui.js?v=59.41" defer></script>
+  <script src="./js/aio-workspace.js?v=59.42" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.42" defer></script>
+  <script src="./js/aio-pages.js?v=59.42" defer></script>
+  <script src="./js/aio-core.js?v=59.42" defer></script>
+  <script src="./js/aio-data.js?v=59.42" defer></script>
+  <script src="./js/aio-ui.js?v=59.42" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -6767,7 +6767,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.41" defer></script>
+<script src="./js/aio-glossary.js?v=59.42" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -6775,7 +6775,7 @@ button[data-filter-active="true"] {
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">이상해요</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.41</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--dir-up)">빨강</span>·내리면 <span style="color:var(--dir-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">이상해요</button>, <span class="sx-page-foot-version" id="app-version-badge">v59.42</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->
