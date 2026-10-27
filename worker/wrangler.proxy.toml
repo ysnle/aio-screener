@@ -62,7 +62,7 @@ new_sqlite_classes = ["AIOQuotaDurableObject"]
 # one share their counters (deliberate, so a limit can span Workers) — do not reuse these three.
 # `period` must be either 10 or 60. Bindings are not visible in the Cloudflare dashboard; observe
 # them through Workers Logs (429s) instead.
-# Requires wrangler >= 4.36.0 (deploy-ai-proxy.yml installs 4.120.0).
+# Requires wrangler >= 4.36.0 (deploy-ai-proxy.yml installs 4.153.0).
 [[ratelimits]]
 name = "RATE_LIMIT_PROXY"
 namespace_id = "1001"
