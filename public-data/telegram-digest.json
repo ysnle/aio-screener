@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T06:21:28.441Z",
-  "attemptedAt": "2026-10-27T06:21:28.441Z",
-  "lastSuccessfulAt": "2026-10-27T06:21:28.441Z",
+  "generatedAt": "2026-10-27T06:54:21.460Z",
+  "attemptedAt": "2026-10-27T06:54:21.460Z",
+  "lastSuccessfulAt": "2026-10-27T06:54:21.460Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T06:21:22.753Z",
-  "until": "2026-10-27T06:21:22.753Z",
+  "since": "2026-10-13T06:54:16.438Z",
+  "until": "2026-10-27T06:54:16.438Z",
   "current24hWindow": {
     "start": "2026-10-25T23:00:00.000Z",
     "end": "2026-10-26T23:00:00.000Z",
@@ -90,11 +90,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1293,
-      "freshCount": 36,
+      "freshCount": 17,
       "eligibleTextCount": 1240,
       "selectedCount": 120,
       "error": null,
@@ -105,9 +105,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 251,
+      "count": 248,
       "freshCount": 20,
-      "eligibleTextCount": 251,
+      "eligibleTextCount": 248,
       "selectedCount": 97,
       "error": null,
       "lastPostId": 20845
@@ -117,45 +117,45 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 681,
+      "count": 680,
       "freshCount": 38,
-      "eligibleTextCount": 681,
+      "eligibleTextCount": 680,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71085
+      "lastPostId": 71086
     }
   ],
-  "count": 2469,
-  "retainedItemCount": 466,
+  "count": 2465,
+  "retainedItemCount": 445,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2469,
-    "eligibleTextCount": 2402,
+    "observedCount": 2465,
+    "eligibleTextCount": 2398,
     "mediaOnlyCount": 67,
-    "highSignalCount": 458,
-    "broadSignalCount": 1018,
+    "highSignalCount": 457,
+    "broadSignalCount": 1016,
     "selectedRawCount": 407,
     "selectedEligibleCount": 407,
-    "selectedRawCoveragePct": 16.9,
+    "selectedRawCoveragePct": 17,
     "selectedOfObservedPct": 16.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "equity": 193,
+    "semi": 603,
+    "kr-market": 150,
+    "equity": 192,
     "earnings": 507,
-    "semi": 605,
-    "macro": 410,
+    "macro": 409,
     "geo": 359,
     "flows": 113,
-    "market-note": 901,
-    "power": 322,
+    "market-note": 900,
+    "power": 321,
     "credit": 123,
-    "ai-policy": 159,
+    "ai-policy": 157,
     "japan": 135,
-    "kr-market": 149,
     "media-only": 67,
     "healthcare": 134,
     "optical": 45,
@@ -172,7 +172,7 @@
     "009150.KS": 16,
     "MS": 7,
     "MRNA": 1,
-    "MSFT": 56,
+    "MSFT": 55,
     "AMZN": 57,
     "GOOGL": 2,
     "TSLA": 95,
@@ -184,11 +184,11 @@
     "AAPL": 15,
     "BE": 37,
     "APO": 2,
-    "AMD": 28,
+    "AMD": 25,
     "CRM": 1,
     "AMAT": 2,
     "MRVL": 2,
-    "ORCL": 11,
+    "ORCL": 10,
     "APH": 1,
     "CEG": 1,
     "218410.KQ": 1,
@@ -240,7 +240,7 @@
     "IT": 2,
     "ALAB": 1,
     "NBIS": 1,
-    "V": 5,
+    "V": 4,
     "SMTC": 1,
     "BX": 1,
     "373220.KS": 2,
@@ -254,14 +254,14 @@
     "ACN": 1
   },
   "themes": [
-    "Market Notes (901 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로...",
-    "Semiconductors/Memory (605 posts in 14-day research window): 2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION...",
+    "Market Notes (900 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로...",
+    "Semiconductors/Memory (603 posts in 14-day research window): 2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION...",
     "Earnings/Corporate (507 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (410 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록. VIX는 19.13으로 소폭 하락. FOMC 회의를 앞두고 기술주 중심의 상승 탄력이 둔화되는 가운데...",
+    "Macro/Rates (409 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록. VIX는 19.13으로 소폭 하락. FOMC 회의를 앞두고 기술주 중심의 상승 탄력이 둔화되는 가운데...",
     "Geopolitics (359 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (322 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
-    "Equity/Analyst (193 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (159 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
+    "AI Power/Grid (321 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Equity/Analyst (192 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
+    "AI Policy/Export Controls (157 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
   ],
   "catalysts": [
     {
@@ -301,7 +301,7 @@
     },
     {
       "key": "MSFT",
-      "count": 56,
+      "count": 55,
       "text": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
     },
     {
@@ -316,7 +316,7 @@
     },
     {
       "key": "AMD",
-      "count": 28,
+      "count": 25,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -332,7 +332,7 @@
       "topics": [
         "macro"
       ],
-      "count": 410,
+      "count": 409,
       "focus": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록. VIX는 19.13으로 소폭 하락. FOMC 회의를 앞두고 기술주 중심의 상승 탄력이 둔화되는 가운데..."
     },
     {
@@ -359,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 605,
+      "count": 603,
       "focus": "2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION..."
     },
     {
@@ -377,7 +377,7 @@
       "topics": [
         "power"
       ],
-      "count": 322,
+      "count": 321,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -386,7 +386,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 159,
+      "count": 157,
       "focus": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
     },
     {
@@ -395,7 +395,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 149,
+      "count": 150,
       "focus": "스포티파이(SPOT) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장 및 가입자 확대. 3분기 매출은 50억유로로 고정환율 기준 전년 대비 14% 증가. 월간 활성 사용자(MAU)는 7억..."
     },
     {
@@ -404,7 +404,7 @@
       "topics": [
         "equity"
       ],
-      "count": 193,
+      "count": 192,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각..."
     },
     {
@@ -467,7 +467,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 901,
+      "count": 900,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로..."
     }
   ],
@@ -1646,6 +1646,22 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71086",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71086",
+      "datetime": "2026-10-27T06:53:48.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "semi",
+        "kr-market"
+      ],
+      "lead": 1,
+      "score": 60,
+      "hasText": true,
+      "tickers": [],
+      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 높은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%"
+    },
+    {
       "id": "insidertracking/67466",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67466",
@@ -2266,19 +2282,16 @@
       "datetime": "2026-10-26T20:49:43.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "geo",
-        "semi",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "score": 74,
       "hasText": true,
+      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억...",
       "tickers": [
         "NVDA",
         "AVGO",
         "MU"
-      ],
-      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억..."
+      ]
     },
     {
       "id": "insidertracking/67423",
@@ -7856,22 +7869,6 @@
       ]
     },
     {
-      "id": "HANAchina/70804",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70804",
-      "datetime": "2026-10-21T09:15:52.000Z",
-      "localDateKst": "2026-10-21",
-      "tags": [
-        "macro",
-        "japan"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>소식통: BOJ, 다음 주 회의에서 물가상승률이 2% 목표에 도달했는지 판단할 예정 •관계자들은 수요일, 일본은행이 다음 주 금융정책회의에서 기조적 물가상승률이 2% 목표에 도달했는지 평가할 예정이라고...",
-      "lead": 2,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20750",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20750",
@@ -8553,19 +8550,16 @@
       "datetime": "2026-10-26T20:49:43.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "geo",
-        "semi",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "score": 74,
       "hasText": true,
+      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억...",
       "tickers": [
         "NVDA",
         "AVGO",
         "MU"
-      ],
-      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억..."
+      ]
     },
     {
       "id": "insidertracking/67423",
