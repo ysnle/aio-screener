@@ -8,24 +8,18 @@ enabled = true
 head_sampling_rate = 0.1
 
 [vars]
-# v59.27 (owner 2026-10-27): the daily counts are a runaway backstop for a stuck client, not a household limit;
-# a family day never reaches them. The 20/min RATE_LIMIT_OPENAI binding below stays the abuse speed bump.
-AI_DAILY_CAP = "3000"
+AI_DAILY_CAP = "300"
 # P1759: each browser connection (HMAC of UTC day + IP, IPv6 grouped by /64; raw IPs never stored) gets at
 # most this many AI requests per UTC day inside the same DO admission. Bounded 1-1000 and clamped to
 # AI_DAILY_CAP. Authenticated GitHub Actions requests are not per-client limited. Optional secret
 # AI_CLIENT_KEY_SALT separates the client-key HMAC from OPENAI_API_KEY (the fallback key material).
 # v57.61: 200 (2/3 of the day). Retries of one question no longer count; the $20 month stays the hard stop.
-AI_PER_CLIENT_DAILY_CAP = "1000"
+AI_PER_CLIENT_DAILY_CAP = "200"
 # P1421: all AIO browser + GitHub Actions AI shares one UTC-month authority.
 # Reserve worst input/output cost before dispatch, settle only verified usage.
 # Failed/cancelled/unknown usage retains its full reservation. Never an invoice.
 # A dedicated OpenAI project/key must not be used outside this Worker.
 AI_MONTHLY_BUDGET_USD = "20"
-# v59.27 (owner 2026-10-27): "$20 is a target to keep, not a hard stop; I top up the OpenAI balance when
-# more is needed." target = same ledger and budget state, no refusal, no search removal, no per-connection
-# month share; the weekly operations review opens the over-target issue. Remove (or 'hard') to fail closed.
-AI_MONTHLY_BUDGET_MODE = "target"
 # P1608: conditional search is metered by the same authority, max 2 calls.
 AI_WEB_SEARCH_ENABLED = "true"
 # P1433 (owner, 2026-10-04): October 2026 prior spend on this OpenAI path was $0 (the new route never
@@ -68,7 +62,7 @@ new_sqlite_classes = ["AIOQuotaDurableObject"]
 # one share their counters (deliberate, so a limit can span Workers) — do not reuse these three.
 # `period` must be either 10 or 60. Bindings are not visible in the Cloudflare dashboard; observe
 # them through Workers Logs (429s) instead.
-# Requires wrangler >= 4.36.0 (deploy-ai-proxy.yml installs 4.120.0).
+# Requires wrangler >= 4.36.0 (deploy-ai-proxy.yml installs 4.153.0).
 [[ratelimits]]
 name = "RATE_LIMIT_PROXY"
 namespace_id = "1001"

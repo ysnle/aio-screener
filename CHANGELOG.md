@@ -6,6 +6,10 @@
 - **운영 Secret 하나 줄이기:** 주간 운영 점검이 이미 있는 자동화 토큰으로 AI 월 사용량을 읽어, `AIO_OPERATOR_TOKEN`을 따로 등록하지 않아도 $20 초과 경고가 동작합니다.
 - R1 7곳 v59.27
 
+## v59.26 (2026-10-27)
+- **네이버 미국 수집기 분리 (레거시 다음 계층 3단계 공급자, 2번째):** 네이버 미국 종목 수집(NYSE 상장 목록 _NAVER_NYSE, 10분 캐시 _naverUSCache, Yahoo→Reuters 코드 변환 _toNaverReuters, fetchNaverUSData의 기본·통합·연간 재무 조회)을 js/aio-data.js에서 src/data/providers/naver-us.js로 그대로 옮겼다(aio-data 89줄 감소). 이름은 기존 호출(aio-core 연구 점검, aio-chat 종목 답변)을 위해 window 전역으로 남는다. 동작은 같다.
+- R1 7곳 v59.26
+
 ## v59.25 (2026-10-27)
 - **미국 시간외 움직임을 시황에 연결 (v59.25):** 10/26 마감 뒤 Celestica +9%, Whirlpool -8.5%, Cadence +2.4%처럼 실적 발표 뒤 시간외에서 크게 움직인 종목이 08:00 KST 시황에 전혀 들어오지 않던 공백을 메운다. `scripts/producer/after-hours.mjs`가 그날 장 마감 후 실적 발표 종목(earnings-calendar.json hour=amc, 지수 비중 순 최대 8개)을 Yahoo 5분봉(includePrePost)으로 읽어 16:00~20:00 ET 마지막 체결을 정규장 종가와 비교해 `data.afterHours`(잠정·reference-only)에 싣고, 3% 이상이거나 지수 비중 0.1% 이상인 종목만 US_AFTER_HOURS 블록으로 프롬프트와 검증 컨텍스트에 넣는다. 정수 % 단위 시그니처로만 재생성해 AI 호출이 늘지 않게 했다.
 - R1 7곳 v59.25

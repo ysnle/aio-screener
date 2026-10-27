@@ -6706,12 +6706,12 @@ button[data-filter-active="true"] {
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=59.26" defer></script>
-  <script src="./js/aio-kr-data.js?v=59.26" defer></script>
-  <script src="./js/aio-pages.js?v=59.26" defer></script>
-  <script src="./js/aio-core.js?v=59.26" defer></script>
-  <script src="./js/aio-data.js?v=59.26" defer></script>
-  <script src="./js/aio-ui.js?v=59.26" defer></script>
+  <script src="./js/aio-workspace.js?v=59.27" defer></script>
+  <script src="./js/aio-kr-data.js?v=59.27" defer></script>
+  <script src="./js/aio-pages.js?v=59.27" defer></script>
+  <script src="./js/aio-core.js?v=59.27" defer></script>
+  <script src="./js/aio-data.js?v=59.27" defer></script>
+  <script src="./js/aio-ui.js?v=59.27" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -6767,7 +6767,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=59.26" defer></script>
+<script src="./js/aio-glossary.js?v=59.27" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

@@ -4827,34 +4827,21 @@ window.AIO.redactPortfolioForAI = function(positions, options) {
 
 var _aioPortfolioAIConsentMemory = false;
 var _aioPortfolioJournalAIConsentMemory = false; // P1350: notes are a separate, explicit grant.
-// v59.27 (owner 2026-10-27, trusted household): a grant is remembered on this device instead of being asked
-// again in every tab. Public-PC mode keeps it in this session only and clears it on switch (_aioVaultPublicMode).
-function _aioConsentStore() {
-  try { return typeof _AioVault !== 'undefined' && _AioVault && _AioVault._publicMode ? sessionStorage : localStorage; } catch(_) { return null; }
-}
-function _aioConsentWrite(key, on) {
-  try { [localStorage, sessionStorage].forEach(function(store) { store.removeItem(key); }); } catch(_) {}
-  if (!on) return;
-  try { var store = _aioConsentStore(); if (store) store.setItem(key, '1'); } catch(_) {}
-}
-function _aioConsentRead(key) {
-  try { return localStorage.getItem(key) === '1' || sessionStorage.getItem(key) === '1'; } catch(_) { return false; }
-}
 window.AIO.setPortfolioAIConsent = function(enabled) {
   _aioPortfolioAIConsentMemory = enabled === true;
   if (!enabled) window.AIO.setPortfolioJournalAIConsent(false);
-  _aioConsentWrite('aio_portfolio_ai_consent_v1', _aioPortfolioAIConsentMemory);
+  try {
+    if (_aioPortfolioAIConsentMemory) sessionStorage.setItem('aio_portfolio_ai_consent_v1', '1');
+    else sessionStorage.removeItem('aio_portfolio_ai_consent_v1');
+  } catch(_) {}
   return _aioPortfolioAIConsentMemory;
 };
 window.AIO.hasPortfolioAIConsent = function() {
-  return _aioPortfolioAIConsentMemory || _aioConsentRead('aio_portfolio_ai_consent_v1');
+  if (_aioPortfolioAIConsentMemory) return true;
+  try { return sessionStorage.getItem('aio_portfolio_ai_consent_v1') === '1'; } catch(_) { return false; }
 };
-window.AIO.setPortfolioJournalAIConsent = function(enabled) {
-  _aioPortfolioJournalAIConsentMemory = enabled === true && window.AIO.hasPortfolioAIConsent();
-  _aioConsentWrite('aio_portfolio_journal_ai_consent_v1', _aioPortfolioJournalAIConsentMemory);
-  return _aioPortfolioJournalAIConsentMemory;
-};
-window.AIO.hasPortfolioJournalAIConsent = function() { return (_aioPortfolioJournalAIConsentMemory || _aioConsentRead('aio_portfolio_journal_ai_consent_v1')) && window.AIO.hasPortfolioAIConsent(); };
+window.AIO.setPortfolioJournalAIConsent = function(enabled) { _aioPortfolioJournalAIConsentMemory = enabled === true && window.AIO.hasPortfolioAIConsent(); return _aioPortfolioJournalAIConsentMemory; };
+window.AIO.hasPortfolioJournalAIConsent = function() { return _aioPortfolioJournalAIConsentMemory && window.AIO.hasPortfolioAIConsent(); };
 window.AIO.getPortfolioAIPrivacyPreview = function(positions, options) {
   options = options || {};
   var consent = options.consent === true || window.AIO.hasPortfolioAIConsent();
@@ -4867,7 +4854,7 @@ window.AIO.getPortfolioAIPrivacyPreview = function(positions, options) {
     fields: _AIO_AI_PORTFOLIO_FIELDS.concat(options.includeJournal === true && window.AIO.hasPortfolioJournalAIConsent() ? ['currentJournal', 'recentJournal'] : []),
     excludedFields: _AIO_AI_PORTFOLIO_EXCLUDED_FIELDS.filter(function(field) { return field !== 'journal' || options.includeJournal !== true || !window.AIO.hasPortfolioJournalAIConsent(); }),
     noteIncluded: consent && options.includeJournal === true && window.AIO.hasPortfolioJournalAIConsent(),
-    storage: 'device-consent-revocable'
+    storage: 'session-consent-only'
   };
 };
 window.AIO.getChatHistoryPolicy = function() {
