@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T22:21:39.952Z",
-  "attemptedAt": "2026-10-27T22:21:39.952Z",
-  "lastSuccessfulAt": "2026-10-27T22:21:39.952Z",
+  "generatedAt": "2026-10-27T22:51:44.050Z",
+  "attemptedAt": "2026-10-27T22:51:44.050Z",
+  "lastSuccessfulAt": "2026-10-27T22:51:44.050Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T22:21:35.587Z",
-  "until": "2026-10-27T22:21:35.587Z",
+  "since": "2026-10-13T22:51:37.858Z",
+  "until": "2026-10-27T22:51:37.858Z",
   "current24hWindow": {
     "start": "2026-10-25T23:00:00.000Z",
     "end": "2026-10-26T23:00:00.000Z",
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1332,
-      "freshCount": 20,
-      "eligibleTextCount": 1279,
+      "count": 1336,
+      "freshCount": 40,
+      "eligibleTextCount": 1283,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67557
+      "lastPostId": 67564
     },
     {
       "channel": "bornlupin",
@@ -122,62 +122,62 @@
       "eligibleTextCount": 687,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 71112
+      "lastPostId": 71114
     }
   ],
-  "count": 2490,
-  "retainedItemCount": 448,
+  "count": 2494,
+  "retainedItemCount": 461,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2490,
-    "eligibleTextCount": 2424,
+    "observedCount": 2494,
+    "eligibleTextCount": 2428,
     "mediaOnlyCount": 66,
-    "highSignalCount": 452,
-    "broadSignalCount": 1009,
+    "highSignalCount": 451,
+    "broadSignalCount": 1008,
     "selectedRawCount": 405,
     "selectedEligibleCount": 405,
     "selectedRawCoveragePct": 16.7,
-    "selectedOfObservedPct": 16.3,
+    "selectedOfObservedPct": 16.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 913,
-    "geo": 375,
     "semi": 593,
-    "credit": 127,
-    "macro": 411,
-    "earnings": 511,
-    "kr-market": 148,
+    "power": 316,
+    "earnings": 510,
+    "geo": 376,
     "equity": 188,
+    "market-note": 915,
+    "credit": 126,
+    "macro": 410,
+    "kr-market": 147,
     "flows": 115,
-    "power": 318,
     "healthcare": 134,
     "ai-policy": 150,
-    "japan": 132,
+    "japan": 131,
     "media-only": 66,
     "optical": 37,
     "crypto": 4,
     "insider": 4
   },
   "tickerCounts": {
+    "NVDA": 188,
+    "GOOG": 108,
+    "TSM": 96,
+    "AMZN": 62,
+    "STX": 8,
     "AAPL": 17,
-    "NVDA": 187,
-    "GOOG": 107,
     "ORCL": 11,
-    "AMD": 25,
-    "MSFT": 61,
+    "AMD": 24,
+    "MSFT": 60,
     "AVGO": 26,
     "TSLA": 94,
     "000660.KS": 69,
-    "STX": 7,
     "MU": 63,
-    "AMZN": 61,
     "005930.KS": 52,
     "CRWV": 25,
-    "TSM": 96,
     "009150.KS": 16,
     "MS": 7,
     "MRNA": 1,
@@ -252,24 +252,24 @@
     "UNH": 1
   },
   "themes": [
-    "Market Notes (913 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
-    "Semiconductors/Memory (593 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
-    "Earnings/Corporate (511 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (411 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
-    "Geopolitics (375 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (318 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Market Notes (915 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
+    "Semiconductors/Memory (593 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해...",
+    "Earnings/Corporate (510 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
+    "Macro/Rates (410 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
+    "Geopolitics (376 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "AI Power/Grid (316 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (188 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (150 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
+    "AI Policy/Export Controls (150 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 187,
-      "text": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
+      "count": 188,
+      "text": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%, 다우 +0.03%, 러셀2000 +1.16% 기록. 필라델피아 반도체지수는 장중 2% 이상 상승했으며,..."
     },
     {
       "key": "GOOG",
-      "count": 107,
+      "count": 108,
       "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
@@ -285,7 +285,7 @@
     {
       "key": "000660.KS",
       "count": 69,
-      "text": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
+      "text": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%, 다우 +0.03%, 러셀2000 +1.16% 기록. 필라델피아 반도체지수는 장중 2% 이상 상승했으며,..."
     },
     {
       "key": "MU",
@@ -293,14 +293,14 @@
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
-      "key": "MSFT",
-      "count": 61,
-      "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
+      "key": "AMZN",
+      "count": 62,
+      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
     },
     {
-      "key": "AMZN",
-      "count": 61,
-      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
+      "key": "MSFT",
+      "count": 60,
+      "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
       "key": "005930.KS",
@@ -318,9 +318,9 @@
       "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
-      "key": "AMD",
+      "key": "CRWV",
       "count": 25,
-      "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
+      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
     }
   ],
   "categories": [
@@ -330,8 +330,8 @@
       "topics": [
         "macro"
       ],
-      "count": 411,
-      "focus": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
+      "count": 410,
+      "focus": "2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%..."
     },
     {
       "id": "geo",
@@ -339,7 +339,7 @@
       "topics": [
         "geo"
       ],
-      "count": 375,
+      "count": 376,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -348,7 +348,7 @@
       "topics": [
         "credit"
       ],
-      "count": 127,
+      "count": 126,
       "focus": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
@@ -358,7 +358,7 @@
         "semi"
       ],
       "count": 593,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해..."
     },
     {
       "id": "optical",
@@ -375,7 +375,7 @@
       "topics": [
         "power"
       ],
-      "count": 318,
+      "count": 316,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -385,7 +385,7 @@
         "ai-policy"
       ],
       "count": 150,
-      "focus": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
+      "focus": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
     },
     {
       "id": "kr-market",
@@ -393,7 +393,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 148,
+      "count": 147,
       "focus": ">>한국 증시, 글로벌 시장에서 유례없이 저평가… 시가총액 1조 달러 이상 시장 중 처음으로 PER 5배 하회 (중국언론) •한국 KOSPI의 향후 12개월 예상 PER은 4.2배까지 하락. 이는..."
     },
     {
@@ -420,7 +420,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 511,
+      "count": 510,
       "focus": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -430,7 +430,7 @@
         "healthcare"
       ],
       "count": 134,
-      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life..."
+      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life Sciences · Charles River Laboratories International · Concentra..."
     },
     {
       "id": "japan",
@@ -438,7 +438,7 @@
       "topics": [
         "japan"
       ],
-      "count": 132,
+      "count": 131,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -448,7 +448,7 @@
         "flows"
       ],
       "count": 115,
-      "focus": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
+      "focus": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%) 3위: NVIDIA CORP (8.72%) 4위: PROSHARES ULTRA QQQ ETF (6.61%)..."
     },
     {
       "id": "insider",
@@ -465,7 +465,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 913,
+      "count": 915,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째..."
     }
   ],
@@ -738,11 +738,14 @@
       "datetime": "2026-10-27T20:57:27.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "flows"
+        "flows",
+        "macro",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -765,7 +768,8 @@
         "XLV",
         "HAS",
         "IVZ"
-      ]
+      ],
+      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
     },
     {
       "id": "insidertracking/67531",
@@ -774,12 +778,13 @@
       "datetime": "2026-10-27T20:52:46.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "ai-policy",
-        "equity"
+        "credit",
+        "macro",
+        "semi",
+        "ai-policy"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -789,7 +794,8 @@
         "ADBE",
         "RKLB",
         "BA"
-      ]
+      ],
+      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
     },
     {
       "id": "insidertracking/67528",
@@ -798,11 +804,13 @@
       "datetime": "2026-10-27T20:50:19.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi"
+        "credit",
+        "semi",
+        "power",
+        "equity"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -814,7 +822,8 @@
         "AVGO",
         "MU",
         "ORCL"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,..."
     },
     {
       "id": "insidertracking/67527",
@@ -823,21 +832,21 @@
       "datetime": "2026-10-27T20:49:28.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
+        "credit",
         "macro",
-        "earnings",
+        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
-      "lead": 3,
       "tickers": [
         "NVDA",
         "AMD",
         "GOOG",
         "AVGO",
         "000660.KS"
-      ]
+      ],
+      "summary": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
     },
     {
       "id": "insidertracking/67521",
@@ -1643,6 +1652,61 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71114",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71114",
+      "datetime": "2026-10-27T22:44:50.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 68,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "GOOG"
+      ],
+      "summary": "• 엔비디아의 차세대 '베라 루빈(Vera Rubin)' 플랫폼 본격 생산과 함께 폭스콘이 주문의 최대 50%(최소 40~45%)를 확보하며 업계 1위 점유율을 차지할 전망 • 또한 스페이스X의 AI 서버..."
+    },
+    {
+      "id": "HANAchina/71113",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71113",
+      "datetime": "2026-10-27T22:39:52.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "geo",
+        "semi"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "TSM"
+      ],
+      "summary": "• 인텔이 이스라엘 양자 소프트웨어 선도 스타트업인 클래식(Classiq)을 인수(2027년 상반기 완료 예정)하여 하드웨어부터 소프트웨어까지 아우르는 풀스택 '원스톱 양자 컴퓨팅 솔루션' 구축을 추진 •..."
+    },
+    {
+      "id": "insidertracking/67563",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67563",
+      "datetime": "2026-10-27T22:30:54.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 56,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "오픈AI가 인공지능(AI) 에이전트의 코드 실행과 도구 구동을 위해 오라클 클라우드에서 엔비디아의 베라(Vera) CPU를 본격 도입할 예정. 초기 테스트에서 베라 CPU는 주요 x86 CPU 대비 파이썬..."
+    },
+    {
       "id": "HANAchina/71110",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71110",
@@ -1735,12 +1799,13 @@
       "datetime": "2026-10-27T20:58:55.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
+        "macro",
         "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "소파이(SOFI) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 3분기 조정 순매출은 14억달러로 전년 대비 44% 증가. 조정 EBITDA는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "소파이(SOFI) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 3분기 조정 순매출은 14억달러로 전년 대비 44% 증가. 조정 EBITDA는..."
     },
     {
       "id": "insidertracking/67535",
@@ -1749,11 +1814,14 @@
       "datetime": "2026-10-27T20:57:27.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "flows"
+        "flows",
+        "macro",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1776,7 +1844,8 @@
         "XLV",
         "HAS",
         "IVZ"
-      ]
+      ],
+      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
     },
     {
       "id": "insidertracking/67533",
@@ -1789,7 +1858,6 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -1803,7 +1871,8 @@
         "HAS",
         "RRC",
         "BKH"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life..."
     },
     {
       "id": "insidertracking/67531",
@@ -1812,12 +1881,13 @@
       "datetime": "2026-10-27T20:52:46.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "ai-policy",
-        "equity"
+        "credit",
+        "macro",
+        "semi",
+        "ai-policy"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging...",
       "tickers": [],
       "listTickers": [
         "MSFT",
@@ -1827,7 +1897,8 @@
         "ADBE",
         "RKLB",
         "BA"
-      ]
+      ],
+      "summary": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
     },
     {
       "id": "insidertracking/67530",
@@ -1838,13 +1909,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": "블룸버그에 따르면 SK하이닉스 자회사 솔리다임이 미국 내 450억 달러 규모 반도체 공장 건설을 논의하는 동시에 중국 다롄에 위치한 기존 생산시설의 업그레이드 승인을 추진 중. 솔리다임은 중국 다롄 공장...",
-      "lead": 1,
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "블룸버그에 따르면 SK하이닉스 자회사 솔리다임이 미국 내 450억 달러 규모 반도체 공장 건설을 논의하는 동시에 중국 다롄에 위치한 기존 생산시설의 업그레이드 승인을 추진 중. 솔리다임은 중국 다롄 공장..."
     },
     {
       "id": "insidertracking/67528",
@@ -1853,11 +1924,13 @@
       "datetime": "2026-10-27T20:50:19.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi"
+        "credit",
+        "semi",
+        "power",
+        "equity"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1869,7 +1942,8 @@
         "AVGO",
         "MU",
         "ORCL"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,..."
     },
     {
       "id": "insidertracking/67527",
@@ -1878,21 +1952,21 @@
       "datetime": "2026-10-27T20:49:28.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
+        "credit",
         "macro",
-        "earnings",
+        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
-      "lead": 3,
       "tickers": [
         "NVDA",
         "AMD",
         "GOOG",
         "AVGO",
         "000660.KS"
-      ]
+      ],
+      "summary": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
     },
     {
       "id": "insidertracking/67524",
@@ -1901,12 +1975,12 @@
       "datetime": "2026-10-27T20:46:09.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
-      "summary": "2026년 10월 28일 미장 마감 S&P 500 - 7,722.60 +0.60% 다우 30 - 52,377.57 +0.03% 나스닥 - 26,477.81 +1.18% 러셀 2000 - 2,818.87...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 10월 28일 미장 마감 S&P 500 - 7,722.60 +0.60% 다우 30 - 52,377.57 +0.03% 나스닥 - 26,477.81 +1.18% 러셀 2000 - 2,818.87..."
     },
     {
       "id": "insidertracking/67523",
@@ -2634,10 +2708,10 @@
       ],
       "score": 61,
       "hasText": true,
+      "summary": ">>금의 안전자산 논리 변화! Morgan Stanley: 주식 폭락 때는 효과 제한적이지만 미 국채 위기에는 헤지 역할 •Morgan Stanley는 주식시장 위험을 헤지하는 금의 역할이 예전 같지 않다고...",
       "tickers": [
         "MS"
-      ],
-      "summary": ">>금의 안전자산 논리 변화! Morgan Stanley: 주식 폭락 때는 효과 제한적이지만 미 국채 위기에는 헤지 역할 •Morgan Stanley는 주식시장 위험을 헤지하는 금의 역할이 예전 같지 않다고..."
+      ]
     },
     {
       "id": "bornlupin/20844",
@@ -6749,25 +6823,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67078",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67078",
-      "datetime": "2026-10-23T01:28:13.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "japan"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": "메타 Muse 일본 출시, 북미 외 첫 해외 시장 진출 : 메타가 10월 23일부터 개인 AI 에이전트 Muse를 일본에서 정식 제공. 지난 9월 미국·캐나다 출시 이후 첫 해외 시장 진출로,...",
-      "lead": 1,
-      "tickers": [
-        "GOOG",
-        "SHOP",
-        "TCOM"
-      ]
-    },
-    {
       "id": "bornlupin/20775",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20775",
@@ -7539,22 +7594,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70823",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70823",
-      "datetime": "2026-10-22T01:58:17.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "•CXMT -3.10% •CATL(홍콩) -4.6% •본토•홍콩 기술주•소비주 동반 낙폭 확대 •3Q 실적 경계감, 해외 금리 부담 지속",
-      "lead": 2,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20762",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20762",
@@ -7592,20 +7631,6 @@
         "MU",
         "009150.KS"
       ]
-    },
-    {
-      "id": "HANAchina/70820",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70820",
-      "datetime": "2026-10-22T00:55:01.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>AI 리스크를 어떻게 헤지할 것인가? (중국 CICC 증권) •CICC는 현금, 중국 국채, 고배당주 등 방어적 자산을 배분하는 것 외에도 달러 약세 거래가 AI 리스크를 헤지할 수 있다고 판단함. AI...",
-      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25977",
