@@ -1,4 +1,4 @@
-// v59.39 (roadmap 11, layer 5 score/ranking): the trader-profile storage boundary moved out of js/aio-data.js unchanged —
+// v59.40 (roadmap 11, layer 5 score/ranking): the trader-profile storage boundary moved out of js/aio-data.js unchanged —
 // window.AIO_TRADER_PROFILES, the saved-profile read and write (aio_trader_profile) and _aioFactorWeights, which resolves
 // the saved profile through the pure deriveFactorWeights. The table itself is src/domain/screener/trader-profiles.js.
 // src/app/compatibility-globals.js installs this before DOMContentLoaded.

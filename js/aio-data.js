@@ -2094,7 +2094,7 @@ var SCR_KEYWORD_ALIASES = {
 };
 
 
-// v59.39: the trader profiles (AIO_TRADER_PROFILES, _aioGetActiveProfile, _aioSetProfile) moved to src/domain/screener/trader-profiles.js and src/app/trader-profiles.js.
+// v59.40: the trader profiles (AIO_TRADER_PROFILES, _aioGetActiveProfile, _aioSetProfile) moved to src/domain/screener/trader-profiles.js and src/app/trader-profiles.js.
 // v58.80 (first-users F29): _aioWatchlistGet/_aioWLToggle read and write the 관심 종목 lists (src/data/watchlist-store.js).
 
 
@@ -7927,26 +7927,7 @@ function getTimeAgo(date) {
   return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
 }
 
-/* ── 뉴스→시그널 통합: 뉴스 감성 집계 ─────────────────────── */
-// RM-03 (continued): single-implementation calls — scoring formulas live in
-// src/domain/news/scoring.js (computeNewsSentimentScore/computeNewsRiskSignals), exposed via
-// window.AIO_ARCH so these legacy wrappers and any native consumer share one model (R352/F-03).
-function computeNewsSentimentScore(items) {
-  var sourceItems = Array.isArray(items) ? items : newsCache;
-  var _fn = window.AIO_ARCH && typeof window.AIO_ARCH.computeNewsSentimentScore === 'function' ? window.AIO_ARCH.computeNewsSentimentScore : null;
-  if (_fn) return _fn({ items: sourceItems || [], now: Date.now() });
-  // P1285/R635: without the shared eligibility/minimum-sample model, legacy
-  // compatibility must not publish its old neutral baseline as an observation.
-  return { score: null, label: '분석 엔진 준비 중', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0, sampleSufficient: false };
-}
-
-/* ── 뉴스→시그널 통합: 매크로 리스크 집계 ──────────────────── */
-function computeNewsRiskSignals(items) {
-  var sourceItems = Array.isArray(items) ? items : newsCache;
-  var _fn = window.AIO_ARCH && typeof window.AIO_ARCH.computeNewsRiskSignals === 'function' ? window.AIO_ARCH.computeNewsRiskSignals : null;
-  if (_fn) return _fn({ items: sourceItems || [], now: Date.now() });
-  return [];
-}
+// v59.41: computeNewsSentimentScore/computeNewsRiskSignals (wrappers over src/domain/news/scoring.js) moved to src/app/score-entry-points.js.
 
 // ── 상태 ────────────────────────────────────────────────────────
 let newsCache = [];
@@ -10604,7 +10585,7 @@ function _aioApplyScreenerBreadth(sd) {
 }
 window._aioApplyScreenerBreadth = _aioApplyScreenerBreadth;
 
-// v59.39: _aioFactorWeights (the saved trader profile through deriveFactorWeights) moved to src/app/trader-profiles.js.
+// v59.40: _aioFactorWeights (the saved trader profile through deriveFactorWeights) moved to src/app/trader-profiles.js.
 
 // Legacy unification (2026-10-17): the legacy re-run of the factor ranking is retired. It
 // ranked the same canonical rows the native screener orchestrator had already ranked with the same model and inputs,

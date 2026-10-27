@@ -1198,7 +1198,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const legacyFacadeNewsSource = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
   // v57.78: the loop audit (getAutonomousLoopAudit) moved to the on-demand QA bundle.
   const legacyQaAuditNewsSource = readFileSync(path.join(root, 'js/aio-qa-audits.js'), 'utf8');
-  const legacyScoreFallback = legacyNewsSource.match(/function computeNewsSentimentScore\(items\) \{[\s\S]*?\n\}/)?.[0] || '';
+  // v59.41: the legacy news wrapper moved to src/app/score-entry-points.js (indented inside its installer).
+  const scoreEntrySource = readFileSync(path.join(root, 'src/app/score-entry-points.js'), 'utf8');
+  const legacyScoreFallback = scoreEntrySource.match(/function computeNewsSentimentScore\(items\) \{[\s\S]*?\n  \}/)?.[0] || '';
   if (!/if \(!_bucketScore \|\| _bucketScore\.sampleSufficient !== true \|\| Number\(_bucketScore\.total\) < _minNewsSample \|\| _bucketScore\.score == null\) continue/.test(legacyNewsSource)
     || !/if \(ns && ns\.sampleSufficient === true && Number\(ns\.total\) >= _minNewsSample && ns\.score != null && Number\.isFinite\(Number\(ns\.score\)\)\) \{\s*_nsh\.push/.test(legacyNewsSource)
     || !/_normalizeNewsHistory\(window\._newsSentimentHistory\)/.test(legacyNewsSource)
@@ -1512,7 +1514,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const facade = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
   if (!/input\.mode = normalizeSignalScoreMode\(/.test(readersSource)) fail('P1214 signal-mode: the native runtime reader must thread the declared mode into the score input');
   // P1338: the facade's third score-input copy was deleted; the legacy wrapper reads the one native path.
-  const legacyCore = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  // v59.41: the wrapper (computeTradingScore) moved to src/app/score-entry-points.js.
+  const legacyCore = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8') + readFileSync(path.join(root, 'src/app/score-entry-points.js'), 'utf8');
   if (/readTradingScoreInputs|runtimeEvidenceStatus/.test(facade) || !/_aioReadTradingScoreInputs/.test(legacyCore)) fail('P1214/P1338 signal-mode: the legacy score must read the shared native inputs (mode included), not its own copy');
 
   // ── QA-SIG-27 (P1263): 체크리스트 3상 집계는 모드 독립이고, 집계 결과가 자기 모드 revision을
@@ -6314,7 +6317,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (v1Parts.isV2 || await decryptVaultBytes(key, v1Parts.iv, v1Parts.ciphertext) !== 'v1 value') fail('v59.30 a v1 vault envelope is read as v1');
 }
 
-// v59.39: the screener trader profiles (src/domain/screener/trader-profiles.js) keep the weight vectors they had in
+// v59.40: the screener trader profiles (src/domain/screener/trader-profiles.js) keep the weight vectors they had in
 // js/aio-data.js, and deriveFactorWeights treats each as an explicit user profile. A change here is a model change.
 {
   const { TRADER_PROFILES } = await load('src/domain/screener/trader-profiles.js');
@@ -6326,9 +6329,22 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     value: { momentum: 0.12, trend: 0.15, lowvol: 0.15, size: 0.08, value: 0.30, quality: 0.15, kalman: 0.05 },
     lowrisk: { momentum: 0.10, trend: 0.15, lowvol: 0.38, size: 0.05, value: 0.12, quality: 0.15, kalman: 0.05 }
   };
-  if (JSON.stringify(Object.keys(TRADER_PROFILES)) !== JSON.stringify(Object.keys(expected))) fail(`v59.39 trader profile keys drifted: ${Object.keys(TRADER_PROFILES)}`);
+  if (JSON.stringify(Object.keys(TRADER_PROFILES)) !== JSON.stringify(Object.keys(expected))) fail(`v59.40 trader profile keys drifted: ${Object.keys(TRADER_PROFILES)}`);
   for (const [key, weights] of Object.entries(expected)) {
-    if (JSON.stringify(TRADER_PROFILES[key]?.weights) !== JSON.stringify(weights)) fail(`v59.39 trader profile ${key} weights drifted: ${JSON.stringify(TRADER_PROFILES[key]?.weights)}`);
-    if (weights && deriveFactorWeights({ profile: TRADER_PROFILES[key] }).source !== 'explicit-user-profile') fail(`v59.39 trader profile ${key} resolves as an explicit user profile`);
+    if (JSON.stringify(TRADER_PROFILES[key]?.weights) !== JSON.stringify(weights)) fail(`v59.40 trader profile ${key} weights drifted: ${JSON.stringify(TRADER_PROFILES[key]?.weights)}`);
+    if (weights && deriveFactorWeights({ profile: TRADER_PROFILES[key] }).source !== 'explicit-user-profile') fail(`v59.40 trader profile ${key} resolves as an explicit user profile`);
   }
+}
+
+// v59.41: AIO.diagnoseBreadthConsensus moved to src/domain/market/breadth-consensus.js unchanged; the registry is passed
+// in. The weights (5SMA .10 · 20SMA .20 · 50SMA .30 · McClellan .20 · Weinstein .10 · golden cross .10), the band scores
+// and the verdict cut-offs are pinned here. A change here is a model change.
+{
+  const { diagnoseBreadthConsensus } = await load('src/domain/market/breadth-consensus.js');
+  const reg = { BREADTH: { getLabel: (v) => v < 20 ? { signal: 'capitulation', label: 'low' } : v < 40 ? { signal: 'bearish', label: 'weak' } : v < 60 ? { signal: 'mixed', label: 'mid' } : v < 80 ? { signal: 'bullish', label: 'good' } : { signal: 'overbought', label: 'hot' } } };
+  const empty = diagnoseBreadthConsensus({}, reg), noReg = diagnoseBreadthConsensus({ sma50: 70 }, null);
+  if (empty.verdict !== '—' || empty.score !== null || noReg.verdict !== '—') fail('v59.41 breadth consensus without inputs or registry is held');
+  const mixed = diagnoseBreadthConsensus({ sma5: 10, sma20: 50, sma50: 70, mcclellan: 'bearish', weinstein: 'bullish', goldenCross: 'neutral' }, reg);
+  if (Math.abs(mixed.consensus - 0.25) > 1e-12 || mixed.verdict !== '강세 우위' || mixed.conflict?.positiveCount !== 3 || mixed.conflict?.negativeCount !== 1) fail(`v59.41 breadth consensus weights drifted: ${JSON.stringify(mixed)}`);
+  if (diagnoseBreadthConsensus({ sma50: 30, mcclellan: 'bearish' }, reg).verdict !== '약세 합의') fail('v59.41 breadth consensus reads two bearish signals as 약세 합의');
 }

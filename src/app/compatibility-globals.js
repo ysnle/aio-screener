@@ -16,7 +16,8 @@ import { installRefreshScheduler } from './refresh-scheduler.js'; // v59.33 road
 import { installServerDataLoader } from '../data/server-data-loader.js'; // v59.34 roadmap 11: moved from js/aio-data.js
 import { installPublicReadiness } from '../data/public-readiness.js'; // v59.35 roadmap 11: moved from js/aio-data.js
 import { installBootSequence } from './boot-sequence.js'; // v59.36 roadmap 11: moved from js/aio-data.js
-import { installTraderProfiles } from './trader-profiles.js'; // v59.39 roadmap 11: moved from js/aio-data.js
+import { installTraderProfiles } from './trader-profiles.js'; // v59.40 roadmap 11: moved from js/aio-data.js
+import { installScoreEntryPoints } from './score-entry-points.js'; // v59.41 roadmap 11: moved from js/aio-core.js and js/aio-data.js
 import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from js/aio-chat.js
 import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from js/aio-chat.js
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
@@ -86,6 +87,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   installPublicReadiness(window);
   installBootSequence(window);
   installTraderProfiles(window);
+  installScoreEntryPoints(window);
   installValidationStores(window);
   installApiHealth(window, document);
   installFreshnessEngine(window);

@@ -1,4 +1,4 @@
-// v59.39 (roadmap 11, layer 5 score/ranking): the screener trader profiles moved out of js/aio-data.js unchanged — a
+// v59.40 (roadmap 11, layer 5 score/ranking): the screener trader profiles moved out of js/aio-data.js unchanged — a
 // profile is a requested weight vector that src/domain/screener/factor-weights.js deriveFactorWeights normalizes; balanced
 // carries no weights and takes the model default. Weight changes need the owner (2026-10-27 factor backtest review).
 export const TRADER_PROFILES = {

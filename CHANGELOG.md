@@ -1,3 +1,7 @@
+## v59.41 (2026-10-27)
+- **점수 진입점을 src/로 이전 (로드맵 11 레이어 5-2):** computeTradingScore(20초 모드별 캐시 래퍼, 모델은 이미 src/domain/signal/trading-score.js)와 computeNewsSentimentScore·computeNewsRiskSignals(src/domain/news/scoring.js 래퍼)는 그대로 src/app/score-entry-points.js의 installScoreEntryPoints로, AIO.diagnoseBreadthConsensus(시장폭 합의 판정)는 본문 그대로 src/domain/market/breadth-consensus.js로 옮겼다(임계값 레지스트리만 인자로 받는다). 가중치·컷오프는 바꾸지 않았다. 전후 Playwright 비교에서 네 가지 모드의 매매 점수 전체 결과, 뉴스 감성·리스크 신호, 시장폭 합의 6개 입력 사례, 화면의 점수 요소가 같다(경과 시간 ageMs만 측정 시각 차이). ci-esm-core-unit-check가 시장폭 합의 가중치·컷오프를 고정한다. v59.40 트레이더 프로필 주석·검사 라벨에 남은 v59.39 표기도 v59.40으로 바로잡았다.
+- R1 7곳 v59.41
+
 ## v59.40 (2026-10-27)
 - **트레이더 프로필을 src/로 이전 (로드맵 11 레이어 5-1):** 프로필 정의(균형·모멘텀·스윙·가치·저위험 가중치)는 그대로 src/domain/screener/trader-profiles.js로, 저장·선택·가중치 해석(AIO_TRADER_PROFILES, _aioGetActiveProfile, _aioSetProfile, _aioFactorWeights)은 src/app/trader-profiles.js의 installTraderProfiles로 옮겼다. 가중치 값은 바꾸지 않았다. 전후 Playwright 비교에서 스크리너 전체 유니버스(1,143종목)의 순위·복합 z점수·표가 5개 프로필 모두 같다. ci-esm-core-unit-check가 프로필 키·가중치 벡터를 고정한다.
 - R1 7곳 v59.40
