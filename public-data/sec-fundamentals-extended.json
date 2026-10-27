@@ -1,6 +1,6 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-27T18:35:55.371Z",
+ "generatedAt": "2026-10-27T22:32:20.904Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -8,8 +8,8 @@
  "model": "sec-fy-normalized-v2",
  "eligible": 3901,
  "stored": 3540,
- "attempted": 0,
- "updated": 0,
+ "attempted": 1,
+ "updated": 1,
  "failures": [
   {
    "symbol": "AACI",
@@ -4510,24 +4510,24 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:40560326783",
-  "attemptedAt": "2026-10-27T18:35:40.864Z",
-  "sourceRevision": "sec-company-tickers:f5a8b5c09137999ca3815f91df8b97a3602f24d0818255001e38bc77aae9c472",
+  "runId": "gha:40594740229",
+  "attemptedAt": "2026-10-27T22:32:08.793Z",
+  "sourceRevision": "sec-company-tickers:76b92fbacfc1a5a8715a32bb5f923df4c79a8062b615735542081ddff6977b46",
   "inputWatermarks": {
-   "universe": "2026-10-27T18:35:38.668Z",
-   "screener": "2026-10-27T18:34:58.705Z",
-   "previousArtifact": "2026-10-27T12:58:30.266Z"
+   "universe": "2026-10-27T22:32:07.446Z",
+   "screener": "2026-10-27T22:31:37.289Z",
+   "previousArtifact": "2026-10-27T18:35:55.371Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3901,
-   "attempted": 0,
-   "updated": 0,
-   "retained": 3540,
+   "attempted": 1,
+   "updated": 1,
+   "retained": 3539,
    "pendingEligible": 361
   },
   "thisBatch": {
-   "updated": 0,
+   "updated": 1,
    "terminalUnsupported": 0,
    "transientFailed": 0,
    "recorded": 0
@@ -4538,10 +4538,10 @@
    "transientFailed": 18,
    "legacyUnknown": 0
   },
-  "lastSuccessfulObservation": "2026-10-27T07:32:15.158Z",
+  "lastSuccessfulObservation": "2026-10-27T22:32:08.793Z",
   "publication": {
-   "status": "NOT_ATTEMPTED",
-   "reason": "no target was due in this batch",
+   "status": "SUCCESS",
+   "reason": "every attempted target was updated",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -275514,98 +275514,6 @@
    "roeBasis": "average-equity",
    "equityPrior": 268152000
   },
-  "WEAV": {
-   "symbol": "WEAV",
-   "cik": "0001609151",
-   "entityName": "Weave Communications, Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-03-05",
-   "acceptedAt": "2026-03-05T21:15:54.000Z",
-   "availableAt": "2026-03-05T21:15:54.000Z",
-   "transportFetchedAt": "2026-10-25T07:35:42.500Z",
-   "reportAgeDays": 298,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001609151-26-000016",
-    "netIncome": "0001609151-26-000016",
-    "equity": "0001609151-26-000016",
-    "sharesOutstanding": "0001609151-26-000016"
-   },
-   "operandAvailability": {
-    "revenue": "2026-03-05T21:15:54.000Z",
-    "netIncome": "2026-03-05T21:15:54.000Z",
-    "equity": "2026-03-05T21:15:54.000Z",
-    "sharesOutstanding": "2026-03-05T21:15:54.000Z",
-    "priorRevenue": "2026-03-05T21:15:54.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-03-05T21:15:54.000Z",
-    "margin": "2026-03-05T21:15:54.000Z",
-    "roe": "2026-03-05T21:15:54.000Z",
-    "pe": "2026-03-05T21:15:54.000Z",
-    "pb": "2026-03-05T21:15:54.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-25T07:35:42.500Z",
-   "form": "10-K",
-   "accession": "0001609151-26-000016",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 239024000,
-   "netIncome": -28052000,
-   "equity": 82384000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 78648611,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-03-02",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 214,
-    "acceptedTimeCount": 214,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 17,
-   "margin": -11.7,
-   "roe": -37.6,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": -20543000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-06T20:08:22.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 66968000
-  },
   "WEN": {
    "symbol": "WEN",
    "cik": "0000030697",
@@ -321321,6 +321229,89 @@
    "roe": -59.9,
    "roeBasis": "average-equity",
    "equityPrior": 137025000
+  },
+  "FCDH": {
+   "symbol": "FCDH",
+   "cik": "0001951294",
+   "entityName": "Forcendra Holding Ltd",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "T1_OFFICIAL",
+   "sourceKind": "T1_OFFICIAL",
+   "rightsId": "PUBLIC_REFERENCE",
+   "model": "sec-fy-normalized-v2",
+   "availabilityModel": "sec-pit-availability.v1",
+   "periodType": "FY",
+   "fiscalPeriodEnd": "2025-12-31",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-04-30",
+   "acceptedAt": "2026-04-30T15:59:52.000Z",
+   "availableAt": "2026-04-30T15:59:52.000Z",
+   "transportFetchedAt": "2026-10-27T22:32:10.358Z",
+   "reportAgeDays": 301,
+   "reportRecency": "recent-fy",
+   "accessionByField": {
+    "revenue": "0001493152-26-019820",
+    "netIncome": "0001493152-26-019820",
+    "equity": "0001493152-26-019820",
+    "sharesOutstanding": null
+   },
+   "operandAvailability": {
+    "revenue": "2026-04-30T15:59:52.000Z",
+    "netIncome": "2026-04-30T15:59:52.000Z",
+    "equity": "2026-04-30T15:59:52.000Z",
+    "sharesOutstanding": null,
+    "priorRevenue": "2026-04-30T15:59:52.000Z"
+   },
+   "derivedAvailability": {
+    "revGrowth": "2026-04-30T15:59:52.000Z",
+    "margin": "2026-04-30T15:59:52.000Z",
+    "roe": "2026-04-30T15:59:52.000Z",
+    "pe": "2026-04-30T15:59:52.000Z",
+    "pb": "2026-04-30T15:59:52.000Z"
+   },
+   "allowedUse": "research-relative-ranking-only",
+   "qualityStatus": "CURRENT",
+   "quality": {
+    "status": "CURRENT",
+    "stale": false,
+    "decisionUse": false,
+    "allowedUse": "reference"
+   },
+   "fetchedAt": "2026-10-27T22:32:10.358Z",
+   "form": "20-F",
+   "accession": "0001493152-26-019820",
+   "accountingStandard": "US-GAAP",
+   "reportingCurrency": "USD",
+   "revenue": 7521447,
+   "netIncome": -8611637,
+   "equity": 4137396,
+   "equityBasis": "parent",
+   "sharesOutstanding": null,
+   "sharesCheck": "foreign-share-basis-unverified",
+   "sharesBasis": null,
+   "sharesObservedAt": null,
+   "normalizerVersion": "sec-normalizer.2026-10-24",
+   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "equity",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "pit": {
+    "schemaVersion": "sec-pit-facts.v1",
+    "status": "accepted-time-partial",
+    "observationCount": 89,
+    "acceptedTimeCount": 89,
+    "observationsDropped": "extended-ledger-compact"
+   },
+   "revGrowth": -8.8,
+   "margin": -114.5,
+   "roe": -317.9,
+   "roeBasis": "average-equity",
+   "equityPrior": 1279918
   }
  },
  "scope": "extended",
@@ -328875,6 +328866,12 @@
    "description": "State Commercial Banks",
    "cik": "0000932781",
    "observedAt": "2026-10-26T07:32:18.839Z"
+  },
+  "FCDH": {
+   "sic": "7311",
+   "description": "Services-Advertising Agencies",
+   "cik": "0001951294",
+   "observedAt": "2026-10-27T22:32:08.793Z"
   },
   "FCF": {
    "sic": "6021",
@@ -343455,12 +343452,6 @@
    "description": "Miscellaneous Chemical Products",
    "cik": "0000105132",
    "observedAt": "2026-10-27T07:32:15.158Z"
-  },
-  "WEAV": {
-   "sic": "7372",
-   "description": "Services-Prepackaged Software",
-   "cik": "0001609151",
-   "observedAt": "2026-10-25T07:33:38.735Z"
   },
   "WEN": {
    "sic": "5810",
