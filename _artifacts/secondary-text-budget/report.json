@@ -27,8 +27,8 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 3581,
-      "secondary": 414,
+      "total": 3748,
+      "secondary": 410,
       "lines": [
         {
           "chars": 47,
@@ -36,9 +36,9 @@
           "text": "연정 구성에 따라 이란·중동 정책 기대가 바뀌어 유가 위험 프리미엄이 움직일 수 있음"
         },
         {
-          "chars": 39,
+          "chars": 35,
           "classes": "aio-operator-note-title aio-operator-note-card aio-operator-note-priority aio-market-sentence",
-          "text": "유가 부담은 잦아들어도 AI 투자 약화가 시장의 축을 흔들고 있습니까?"
+          "text": "큰 상승은 반등의 시작인가, 약해진 기술주 주도력과의 괴리인가?"
         },
         {
           "chars": 29,
@@ -336,13 +336,13 @@
       "frames": []
     },
     "briefing": {
-      "total": 5614,
-      "secondary": 881,
+      "total": 5334,
+      "secondary": 812,
       "lines": [
         {
-          "chars": 47,
+          "chars": 60,
           "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/27 10:21 KST, S&P 500·VIX·미 10년물 10/26 종가"
+          "text": "생성 10/27 10:53 KST, S&P 500 10/26 종가, 코스피 10/27 10:32 KST 장중"
         },
         {
           "chars": 47,
@@ -356,23 +356,13 @@
         },
         {
           "chars": 41,
-          "classes": "briefing-event-meta briefing-event-body briefing-event is-today is-passed",
-          "text": "EPS 1.67 (예상 0.67), 매출 37억 달러 (예상 37억 달러)"
-        },
-        {
-          "chars": 41,
-          "classes": "briefing-event-meta briefing-event-body briefing-event is-today is-passed",
-          "text": "EPS 2.11 (예상 2.09), 매출 16억 달러 (예상 16억 달러)"
-        },
-        {
-          "chars": 41,
           "classes": "briefing-event-meta briefing-event-body briefing-event",
           "text": "정책금리와 향후 경로 — 모든 자산 가격의 기준, 현재 3.75-4.00%"
         },
         {
           "chars": 30,
           "classes": "briefing-event-meta  aio-section briefing-block",
-          "text": "나머지 실적 발표 183건은 아래 이번 주 실적 목록에"
+          "text": "나머지 실적 발표 175건은 아래 이번 주 실적 목록에"
         },
         {
           "chars": 28,
@@ -398,6 +388,16 @@
           "chars": 26,
           "classes": "briefing-event-meta briefing-event-body briefing-event is-today",
           "text": "EPS 예상 0.91, 매출 예상 133억 달러"
+        },
+        {
+          "chars": 26,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 3.50, 매출 예상 123억 달러"
+        },
+        {
+          "chars": 26,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 4.82, 매출 예상 925억 달러"
         }
       ],
       "frames": []
@@ -430,7 +430,7 @@
       "frames": []
     },
     "macro": {
-      "total": 7056,
+      "total": 7052,
       "secondary": 560,
       "lines": [
         {
@@ -505,8 +505,8 @@
       ]
     },
     "fxbond": {
-      "total": 2735,
-      "secondary": 267,
+      "total": 2727,
+      "secondary": 259,
       "lines": [
         {
           "chars": 36,
@@ -522,11 +522,6 @@
           "chars": 18,
           "classes": "briefing-h2-note briefing-h2 briefing-block rates-block sx-card sx-card--hero mk-curve-card",
           "text": "공식 국채 곡선, 10/26 기준"
-        },
-        {
-          "chars": 16,
-          "classes": "basis-chip is-off trend-card-tags trend-card",
-          "text": "10/23, 1거래일 전 종가"
         },
         {
           "chars": 15,
@@ -567,6 +562,11 @@
           "chars": 9,
           "classes": "mk-rsum__note mk-rsum mk-rsum-col",
           "text": "오르면 원화 약세"
+        },
+        {
+          "chars": 9,
+          "classes": "mk-rsum__note mk-rsum mk-rsum-col",
+          "text": "내리면 엔화 강세"
         }
       ],
       "frames": []
@@ -833,7 +833,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 5076,
+      "total": 5146,
       "secondary": 370,
       "lines": [
         {
@@ -844,7 +844,7 @@
         {
           "chars": 30,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance Singapore, 4시간 전"
+          "text": "Yahoo Finance Singapore, 5시간 전"
         },
         {
           "chars": 22,
@@ -854,7 +854,7 @@
         {
           "chars": 20,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 8시간 전"
+          "text": "Yahoo Finance, 9시간 전"
         },
         {
           "chars": 20,
@@ -869,7 +869,7 @@
         {
           "chars": 20,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 5시간 전"
+          "text": "Bloomberg.com, 6시간 전"
         },
         {
           "chars": 20,
@@ -884,7 +884,7 @@
         {
           "chars": 16,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "TheStreet, 7시간 전"
+          "text": "TheStreet, 8시간 전"
         },
         {
           "chars": 14,
@@ -962,7 +962,7 @@
       "frames": []
     },
     "masters": {
-      "total": 2656,
+      "total": 2655,
       "secondary": 217,
       "lines": [
         {
@@ -971,9 +971,9 @@
           "text": "비교 행 30개(이번 분기 보유 29개, 전량 매도 1개) 중 가치 상위 10개, 변화 있는 행 먼저 30행 모두 보기"
         },
         {
-          "chars": 64,
+          "chars": 61,
           "classes": "masters-holdings-meta masters-filing-dates masters-detail-card rl-main",
-          "text": "보고분기 2026 Q2(2026-06-30), 13F-HR 제출 2026-08-14, 자료 검토 2026-10-26"
+          "text": "보고분기 2026 Q2(2026-06-30), -HR 제출 2026-08-14, 자료 검토 2026-10-26"
         },
         {
           "chars": 54,
@@ -994,6 +994,11 @@
           "chars": 5,
           "classes": "aio-note-fold masters-method-fold masters-holdings-section masters-change-ledger",
           "text": "분류 방법"
+        },
+        {
+          "chars": 3,
+          "classes": "aio-term masters-holdings-meta masters-filing-dates masters-detail-card",
+          "text": "13F"
         }
       ],
       "frames": []
