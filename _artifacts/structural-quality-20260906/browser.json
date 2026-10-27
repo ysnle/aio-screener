@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T02:37:05.563Z",
+  "generatedAt": "2026-10-27T02:57:36.310Z",
   "routes": [
     {
       "id": "home",
@@ -65,10 +65,6 @@
         {
           "tag": "A",
           "name": "국제유가, 이란·사우디 회동에 하락…WTI 1.5%↓"
-        },
-        {
-          "tag": "A",
-          "name": "10/27 01:15 구성 종목 BE +5.5%, Bernstein SocGen, 마진 강세로 Bloom Energy 주가 목표치를 상향 조정"
         },
         {
           "tag": "BUTTON",
@@ -288,9 +284,8 @@
         "지수 하루 흐름",
         "판단이 바뀌는 조건",
         "지난 마감 이후 변화",
-        "지금 시세 실시간·지연, 10/27 10:52 관측",
+        "지금 시세 실시간·지연, 10/27 11:50 관측",
         "밤사이 핵심 3건",
-        "움직인 종목과 같은 날 보도",
         "오늘 확인할 3가지",
         "내 종목",
         "다가오는 일정",
@@ -530,6 +525,8 @@
         "국면 판정",
         "혼조",
         "미국 시장 6개 지표",
+        "이 국면에서 네 가지 선택지의 득실",
+        "판단이 바뀌는 가장 가까운 조건",
         "이 조합이 뜻하는 것",
         "다음에 확인할 것",
         "1년 중 지금 위치 — 6개 지표 레이더",
@@ -541,7 +538,6 @@
         "코스피",
         "코스닥",
         "원 / 달러",
-        "외국인 순매수",
         "한국한국 종목의 참여도와 3개월 수익률 상위 테마",
         "3개월 수익률 상위 한국 테마, 표본 중앙값",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
@@ -550,8 +546,148 @@
     {
       "id": "breadth",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
+        {
+          "tag": "SELECT",
+          "name": "52주 신고가 − 신저가 종목 수 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CRL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NDAQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CTAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "XOM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CVX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "IFF"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HAS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TECH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CHTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NFLX"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FSLR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TKO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CBRE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TMUS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "APP"
+        },
+        {
+          "tag": "SELECT",
+          "name": "4% 이상 상승 − 하락 종목 수 (5일 합계) 날짜 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LITE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "P"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "COHR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "SNPS"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "AKAM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TSLA"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "LMT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CIEN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TXN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "NXPI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ADI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DOW"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "INTC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FICO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DASH"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "CHTR"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RDDT"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태에서 추세 축과 함께 보기 →"
+        },
         {
           "tag": "BUTTON",
           "name": "지수보다 참여와 주도 영역 보기 — 리서치 라이브러리에서 개념 배우기"
@@ -563,11 +699,40 @@
         {
           "tag": "BUTTON",
           "name": "확정 종가와 공식 발표 — 리서치 라이브러리에서 개념 배우기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "테마와 섹터 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스크리너 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 상태 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →"
         }
       ],
       "headings": [
         "시장 폭",
         "시장 폭 판정",
+        "참여도 — 이동평균 위 종목 비율",
+        "20일선 위 종목 비율",
+        "50일선 위 종목 비율",
+        "200일선 위 종목 비율",
+        "40일선 위 종목 비율",
+        "상승 종목 비율 (10일 평균)",
+        "누적 상승-하락 종목 수 (A/D 라인)",
+        "강한 종목 수 — 신고가·신저가, 급등락",
+        "52주 신고가 − 신저가 종목 수",
+        "4% 이상 상승 − 하락 종목 수 (5일 합계)",
+        "지수 확인 — 분배일과 S&P 500",
+        "S&P 500 (같은 기간 비교)",
+        "S&P 500 매도 우위일(분배일, 최근 25거래일)",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
       ]
     },
@@ -619,6 +784,10 @@
         {
           "tag": "BUTTON",
           "name": "닛케이 225: 5개 요소 중 3개가 최근 3년 하위 10% — 강한 냉각 1거래일째"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "지수별 가격 온도 (참고) 근거 보기"
         },
         {
           "tag": "BUTTON",
@@ -821,6 +990,10 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "10년 기간 프리미엄 (Kim-Wright) 근거 보기"
+        },
         {
           "tag": "BUTTON",
           "name": "테마 화면의 S&P 500 이익 전망"
@@ -1804,11 +1977,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "반도체 -16.5%"
+          "name": "반도체 -17.5%"
         },
         {
           "tag": "BUTTON",
-          "name": "유틸리티 +2.4%"
+          "name": "유틸리티 -5.4%"
         },
         {
           "tag": "BUTTON",
@@ -1816,19 +1989,19 @@
         },
         {
           "tag": "BUTTON",
-          "name": "광통신/포토닉스 -18.5%"
+          "name": "광통신/포토닉스 -14.2%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 -21.1%"
+          "name": "AI 인프라/데이터센터 -15.8%"
         },
         {
           "tag": "BUTTON",
-          "name": "AI 인프라/데이터센터 -21.1%"
+          "name": "AI 인프라/데이터센터 -15.8%"
         },
         {
           "tag": "BUTTON",
-          "name": "산업재 +1.6%"
+          "name": "산업재 +2.1%"
         },
         {
           "tag": "BUTTON",
@@ -2170,6 +2343,22 @@
         },
         {
           "tag": "A",
+          "name": "코스피, 4%대 급등세 지속…외국인·기관 쌍끌이 순매수"
+        },
+        {
+          "tag": "A",
+          "name": "Oil Falls Amid Diplomatic Efforts to Ease U.S.-Iran Hostilities"
+        },
+        {
+          "tag": "A",
+          "name": "Asian stocks surge as Anthropic IPO lifts sentiment ahead of earnings, central banks"
+        },
+        {
+          "tag": "A",
+          "name": "Asian Chip Stocks Rise as Anthropic IPO Filing Rekindles AI Bets"
+        },
+        {
+          "tag": "A",
           "name": "U.S. Treasury Yields at 5% Fail to Tighten Financial Conditions"
         },
         {
@@ -2178,23 +2367,11 @@
         },
         {
           "tag": "A",
-          "name": "앤트로픽 창업자 7명, 상장후 의결권 50.1% 행사(종합)"
+          "name": "Oil extends losses as Iran mediation efforts ease escalation fears"
         },
         {
           "tag": "A",
           "name": "코스피 오르고 원·달러 환율 떨어지고"
-        },
-        {
-          "tag": "A",
-          "name": "Gold Steadies Above $4,000 With Fed Rate Decision in Focus"
-        },
-        {
-          "tag": "A",
-          "name": "More Oil Is Now Coming Out of the Persian Gulf Than Before the Iran War"
-        },
-        {
-          "tag": "A",
-          "name": "Oil Futures Rise as Attacks on Saudi Arabia, U.S.-Iran Risks Persist"
         },
         {
           "tag": "A",
@@ -2306,11 +2483,11 @@
         },
         {
           "tag": "A",
-          "name": "주식분석@insidertracking, 미국 속보, 10-2710월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.7"
+          "name": "지정학@insidertracking, 미국 속보, 10-2710월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70"
         },
         {
           "tag": "A",
-          "name": "시장소식@insidertracking, 미국 속보, 10-27블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록"
+          "name": "지정학@insidertracking, 미국 속보, 10-27블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록."
         },
         {
           "tag": "A",
@@ -2322,7 +2499,7 @@
         },
         {
           "tag": "A",
-          "name": "시장소식@insidertracking, 미국 속보, 10-27브라질 증시가 루이스 이나시우 룰라 다 시우바 대통령의 예상 밖 재선 이후 역사적인 폭락을 기록. 브라질 대표 주가지수인 이보베스파 지수"
+          "name": "거시@insidertracking, 미국 속보, 10-27브라질 증시가 루이스 이나시우 룰라 다 시우바 대통령의 예상 밖 재선 이후 역사적인 폭락을 기록. 브라질 대표 주가지수인 이보베스파 지수는 "
         },
         {
           "tag": "A",
