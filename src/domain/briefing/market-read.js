@@ -1071,8 +1071,8 @@ export function buildMarketRegime(input = {}) {
         spxPoint(spx.ma50 * (1 + buffer / 100), `50일선+${buffer}%`),
         spxPoint(spx.ma50 * (1 + holdAbovePct / 100), holdAbovePct ? `50일선+${holdAbovePct}%` : '50일선'),
         spxPoint(spx.ma50, '50일선'),
-        spxPoint(spx.ma50 * (1 - buffer / 100), `50일선−${buffer}%`),
-        spxPoint(spx.ma200 * (1 - buffer / 100), `200일선−${buffer}%`)
+        spxPoint(spx.ma50 * (1 - buffer / 100), `50일선 ${buffer}% 아래`),
+        spxPoint(spx.ma200 * (1 - buffer / 100), `200일선 ${buffer}% 아래`)
       ] }],
       assumptions: [
         { key: 'rising', label: '50일선 상승 전환', holds: !!rising },

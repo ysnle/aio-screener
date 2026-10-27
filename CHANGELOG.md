@@ -1,5 +1,6 @@
 ## v59.42 (2026-10-28)
 - **시간외 급변 종목을 시황에 반드시 언급 (P2113):** 10/27 밤 STX·HOOD·NXPI·TER가 시간외 -6~-7%였고 수집도 됐지만 시황이 한 번도 쓰지 않았다. ±5% 이상 행이 있으면 프롬프트가 한 줄을 요구하고 검증기가 누락을 막는다.
+- **Trend flip-point copy:** the S&P 500 flip points below the 50/200-day lines read `200일선 1% 아래` instead of `200일선−1%`. The rendered-copy lint (unicode-minus-number) caught it once the index came close enough to the 200-day line for that point to show.
 - R1 7곳 v59.42
 
 ## v59.41 (2026-10-27)
