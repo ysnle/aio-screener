@@ -27,8 +27,8 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 3520,
-      "secondary": 415,
+      "total": 3581,
+      "secondary": 414,
       "lines": [
         {
           "chars": 47,
@@ -138,7 +138,7 @@
     },
     "signal": {
       "total": 6204,
-      "secondary": 237,
+      "secondary": 229,
       "lines": [
         {
           "chars": 42,
@@ -151,11 +151,6 @@
           "text": "10/26 미국 종가 기준, 6개 지표, 공개 기준선"
         },
         {
-          "chars": 25,
-          "classes": "is-burden mk-tally__legend mk-tally",
-          "text": "부담 3(추세·신용과 위험선호·달러와 원자재)"
-        },
-        {
           "chars": 22,
           "classes": "mk-watch__note mk-watch__text mk-watch__item",
           "text": "발표별 시나리오는 거시 화면에서 봅니다."
@@ -163,12 +158,17 @@
         {
           "chars": 20,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "WTI 20일 +10%, 101.65"
+          "text": "WTI 20일 +10%, 101.86"
         },
         {
           "chars": 19,
           "classes": "sx-card__meta  mk-fold",
           "text": "오늘, 5거래일 전, 20거래일 전"
+        },
+        {
+          "chars": 17,
+          "classes": "is-burden mk-tally__legend mk-tally",
+          "text": "부담 2(추세·신용과 위험선호)"
         },
         {
           "chars": 16,
@@ -336,13 +336,13 @@
       "frames": []
     },
     "briefing": {
-      "total": 5549,
+      "total": 5614,
       "secondary": 881,
       "lines": [
         {
           "chars": 47,
           "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/27 09:51 KST, S&P 500·VIX·미 10년물 10/26 종가"
+          "text": "생성 10/27 10:21 KST, S&P 500·VIX·미 10년물 10/26 종가"
         },
         {
           "chars": 47,
@@ -409,7 +409,7 @@
         {
           "chars": 32,
           "classes": "theme-strength-basis tech-regime-head aio-section tech-regime",
-          "text": "10/26 미국 종가 기준, 양호 2, 중립 1, 부담 3"
+          "text": "10/26 미국 종가 기준, 양호 2, 중립 2, 부담 2"
         },
         {
           "chars": 28,
@@ -430,13 +430,13 @@
       "frames": []
     },
     "macro": {
-      "total": 7061,
-      "secondary": 567,
+      "total": 7052,
+      "secondary": 560,
       "lines": [
         {
-          "chars": 139,
+          "chars": 132,
           "classes": "page-subtitle  page-head",
-          "text": "거시 6요인 중 부담은 3개(통화정책, 유가·달러, 신용)이고, 성장·물가 국면은 방향 보류입니다. 조건이 가장 많이 맞는 시나리오는 'AI 투자 꺾임'(조건 충족 3/4)입니다. 다음 갈림길은 10/29(목) 03:00 KST FOMC 회의입니다."
+          "text": "거시 6요인 중 부담은 2개(통화정책, 신용)이고, 성장·물가 국면은 방향 보류입니다. 조건이 가장 많이 맞는 시나리오는 'AI 투자 꺾임'(조건 충족 3/4)입니다. 다음 갈림길은 10/29(목) 03:00 KST FOMC 회의입니다."
         },
         {
           "chars": 124,
@@ -833,7 +833,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 5015,
+      "total": 5076,
       "secondary": 370,
       "lines": [
         {
@@ -879,7 +879,7 @@
         {
           "chars": 18,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "TradingView, 6시간 전"
+          "text": "TradingView, 7시간 전"
         },
         {
           "chars": 16,
@@ -962,7 +962,7 @@
       "frames": []
     },
     "masters": {
-      "total": 2656,
+      "total": 2655,
       "secondary": 217,
       "lines": [
         {
@@ -971,9 +971,9 @@
           "text": "비교 행 30개(이번 분기 보유 29개, 전량 매도 1개) 중 가치 상위 10개, 변화 있는 행 먼저 30행 모두 보기"
         },
         {
-          "chars": 64,
+          "chars": 61,
           "classes": "masters-holdings-meta masters-filing-dates masters-detail-card rl-main",
-          "text": "보고분기 2026 Q2(2026-06-30), 13F-HR 제출 2026-08-14, 자료 검토 2026-10-26"
+          "text": "보고분기 2026 Q2(2026-06-30), -HR 제출 2026-08-14, 자료 검토 2026-10-26"
         },
         {
           "chars": 54,
@@ -994,6 +994,11 @@
           "chars": 5,
           "classes": "aio-note-fold masters-method-fold masters-holdings-section masters-change-ledger",
           "text": "분류 방법"
+        },
+        {
+          "chars": 3,
+          "classes": "aio-term masters-holdings-meta masters-filing-dates masters-detail-card",
+          "text": "13F"
         }
       ],
       "frames": []
