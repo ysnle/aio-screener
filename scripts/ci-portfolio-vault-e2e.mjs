@@ -1050,15 +1050,19 @@ async function main() {
       const rememberedOnDevice = localStorage.getItem('aio_portfolio_ai_consent_v1')==='1' && localStorage.getItem('aio_portfolio_journal_ai_consent_v1')==='1';
       window.AIO.setPortfolioAIConsent(false);
       const revoked = !window.AIO.hasPortfolioJournalAIConsent() && localStorage.getItem('aio_portfolio_ai_consent_v1')===null && localStorage.getItem('aio_portfolio_journal_ai_consent_v1')===null;
+      // A grant from a normal tab (shared localStorage) is not visible to a public-PC tab.
+      localStorage.setItem('aio_portfolio_ai_consent_v1','1'); _AioVault._publicMode = true;
+      const publicIgnoresDeviceGrant = window.AIO.hasPortfolioAIConsent() === false;
+      _AioVault._publicMode = false; localStorage.removeItem('aio_portfolio_ai_consent_v1');
       const originalSet = Storage.prototype.setItem, originalToast = window.showToast, toasts=[];
       window.showToast=(value)=>toasts.push(String(value));
       Storage.prototype.setItem=function(key,value){ if(key==='aio_portfolio_journal_v1') throw new DOMException('quota','QuotaExceededError'); return originalSet.call(this,key,value); };
       let ack;
       try { ack=window._aioSavePortfolioJournal(); } finally { Storage.prototype.setItem=originalSet; window.showToast=originalToast; }
       const journalSuccess=window._aioSavePortfolioJournal()?.ok===true;
-      return {partial,full,mixed,stale,invalidCalendar,noUnexpectedNotes,preview,rememberedOnDevice,revoked,journalFailure:ack?.ok===false && !toasts.some((value)=>value.includes('저장 완료')),journalSuccess};
+      return {partial,full,mixed,stale,invalidCalendar,noUnexpectedNotes,preview,rememberedOnDevice,revoked,publicIgnoresDeviceGrant,journalFailure:ack?.ok===false && !toasts.some((value)=>value.includes('저장 완료')),journalSuccess};
     });
-    check('v59.27 AI_consent_is_remembered_on_this_device_until_revoked',aiPrivacy.rememberedOnDevice===true && aiPrivacy.revoked===true,JSON.stringify({remembered:aiPrivacy.rememberedOnDevice,revoked:aiPrivacy.revoked}));
+    check('v59.27 AI_consent_is_remembered_on_this_device_until_revoked',aiPrivacy.rememberedOnDevice===true && aiPrivacy.revoked===true && aiPrivacy.publicIgnoresDeviceGrant===true,JSON.stringify({remembered:aiPrivacy.rememberedOnDevice,revoked:aiPrivacy.revoked,publicIgnoresDeviceGrant:aiPrivacy.publicIgnoresDeviceGrant}));
     check('P1350 AI_missing_price_keeps_unknown',aiPrivacy.partial.every((row)=>row.allocationPct===null) && aiPrivacy.partial[1].returnPct===null,JSON.stringify(aiPrivacy.partial));
     check('P1350 AI_matching_current_valuation_positive_control',aiPrivacy.full.every((row)=>row.allocationPct===50 && row.returnPct===50),JSON.stringify(aiPrivacy.full));
     check('P1350 AI_currency_mismatch_holds_weights',aiPrivacy.mixed.every((row)=>row.allocationPct===null),JSON.stringify(aiPrivacy.mixed));

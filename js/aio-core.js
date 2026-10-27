@@ -4838,7 +4838,8 @@ function _aioConsentWrite(key, on) {
   try { var store = _aioConsentStore(); if (store) store.setItem(key, '1'); } catch(_) {}
 }
 function _aioConsentRead(key) {
-  try { return localStorage.getItem(key) === '1' || sessionStorage.getItem(key) === '1'; } catch(_) { return false; }
+  // A public-PC tab reads only its own session grant: a grant made in a normal tab must not reach it.
+  try { var store = _aioConsentStore(); return !!store && store.getItem(key) === '1'; } catch(_) { return false; }
 }
 window.AIO.setPortfolioAIConsent = function(enabled) {
   _aioPortfolioAIConsentMemory = enabled === true;
