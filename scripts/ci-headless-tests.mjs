@@ -181,6 +181,27 @@ async function main() {
       return route.abort();
     });
 
+    // Diagnostics only: CI reports `requestfailed net::ERR_ABORTED` on localhost public-data files without naming who
+    // aborted them. Record the JS stack of every abort that reaches a public-data fetch so the failure line can name it.
+    await page.addInitScript(() => {
+      const trace = window.__aioAbortTrace = [];
+      const nativeAbort = AbortController.prototype.abort;
+      AbortController.prototype.abort = function (...args) {
+        try { if (!this.signal.aborted) this.signal.__aioAbortStack = new Error('abort').stack; } catch (_) {}
+        return nativeAbort.apply(this, args);
+      };
+      const nativeFetch = window.fetch;
+      window.fetch = function fetch(input, init) {
+        const url = String(input?.url || input);
+        const signal = init?.signal || input?.signal;
+        if (signal && !signal.aborted && /\/public-data\//.test(url) && trace.length < 200) {
+          const startedAt = Math.round(performance.now());
+          signal.addEventListener('abort', () => trace.push({ url, startedAt, abortedAt: Math.round(performance.now()), reason: String(signal.reason?.message || signal.reason || ''), stack: signal.__aioAbortStack || null }), { once: true });
+        }
+        return Reflect.apply(nativeFetch, this ?? window, arguments);
+      };
+    });
+
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForFunction(
       () => typeof window.AIO === 'object' && typeof window.AIO.loadTests === 'function',
@@ -296,6 +317,15 @@ async function main() {
       for (const e of unexpectedRuntime.slice(0, 20)) console.error(`  - ${e.kind} | ${e.text} | ${e.source}`);
       exitCode = 1;
     }
+    const abortTrace = runtimeErrors.some((error) => error.kind === 'requestfailed')
+      ? await page.evaluate(() => window.__aioAbortTrace || []).catch(() => [])
+      : [];
+    if (abortTrace.length) {
+      console.error(`\n[ci-headless-tests] abort trace for public-data fetches (${abortTrace.length}):`);
+      for (const entry of abortTrace.slice(0, 20)) console.error(`  - ${entry.url} started=${entry.startedAt}ms aborted=${entry.abortedAt}ms reason=${entry.reason || '-'}\n${String(entry.stack || '(no JS stack: aborted outside AbortController.abort)').split('\n').slice(1, 9).map((line) => `      ${line.trim()}`).join('\n')}`);
+    } else if (runtimeErrors.some((error) => error.kind === 'requestfailed')) {
+      console.error('\n[ci-headless-tests] abort trace: no public-data fetch signal was aborted (the browser cancelled the request itself)');
+    }
 
     if (unexpected.length) {
       const failedGroups = [...new Set([
@@ -328,6 +358,7 @@ async function main() {
       expectedSkipped,
       runtimeErrors,
       expectedBlockedNetwork,
+      abortTrace,
       runtime: { allowlisted: allowlistedRuntime, unexpected: unexpectedRuntime, unusedAllowlist: unusedRuntimeAllowlist }
     });
   } catch (e) {
