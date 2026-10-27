@@ -2,6 +2,7 @@
 // installCompatibilityGlobals(window) at the same point of boot; `window`/`document` below are the passed root so the
 // assignments read exactly as they did in bootstrap (gates match these lines).
 import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
+import { installFreshnessEngine } from '../data/quality/freshness-engine.js'; // v59.19 roadmap 11: moved from js/aio-core.js
 import { installApiHealth } from '../data/quality/api-health.js'; // v59.18 roadmap 11: moved from js/aio-core.js
 import { installValidationStores } from '../data/quality/validation-stores.js'; // v59.17 roadmap 11: moved from js/aio-core.js
 import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from js/aio-chat.js
@@ -62,6 +63,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   const document = root.document;
   installValidationStores(window);
   installApiHealth(window, document);
+  installFreshnessEngine(window);
   installSharedRoute(window);
   // v59.15 roadmap 11: the AI request/response pipeline (moved from js/aio-chat.js) loads right after boot, outside the boot set; translation and the chat send wait for it.
   window._aioAIPipelineReady = import('../ai/response/request-pipeline.js').then((m) => { m.installAIRequestPipeline(window, document); }).catch(() => {});

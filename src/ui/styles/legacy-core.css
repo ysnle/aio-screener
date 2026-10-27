@@ -13,3 +13,8 @@
 #snapshot-stale-warning .lco-retry { font-size: var(--fs-sm); padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-weight: 600; font-family: var(--font-mono);  }
 #snapshot-stale-warning .lco-retry-dead { background: var(--red-5); border: 0.5px solid var(--red-8); color: var(--red-12); }
 #snapshot-stale-warning .lco-retry-warn { background: var(--amber-3); border: 0.5px solid var(--amber-6); color: var(--amber-12); }
+/* v59.19: FRESHNESS_ENGINE.staleBadge (src/data/quality/freshness-engine.js) — the old inline style's colours; 11px rises to the --fs-min floor */
+.aio-stale-badge { font-size: var(--fs-min); font-family: var(--font-mono); }
+.aio-stale-badge--fresh { color: #3dd68c; }
+.aio-stale-badge--aging { color: #ffa057; }
+.aio-stale-badge--stale { color: #ec5d5e; }

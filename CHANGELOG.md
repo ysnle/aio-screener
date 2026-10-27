@@ -1,3 +1,7 @@
+## v59.19 (2026-10-27)
+- **데이터 신선도 엔진 분리 (레거시 다음 계층 3단계, 품질·근거):** 데이터 종류별 신선도 기준(FRESHNESS_ENGINE), 캐시 감사용 AIO_Cache, 피드 상태(_aioFeedHealth), 마지막 수집 시각 기록(_lastFetch·_markFetch)을 js/aio-core.js에서 src/data/quality/freshness-engine.js로 그대로 옮겼다. 신선도 배지의 인라인 스타일은 .aio-stale-badge 클래스로 바꾸면서 글자 크기를 11px에서 최소 글자 크기(--fs-min)로 맞췄고, 쓰이지 않던 fontSize 옵션은 뺐다. 그 밖의 동작은 같고, 부팅 모듈 한도는 옮긴 바이트만큼 올렸다.
+- R1 7곳 v59.19
+
 ## v59.18 (2026-10-27)
 - **데이터 소스 상태 분리 (레거시 다음 계층 2단계, 품질·근거):** API별 상태 레지스트리(window._apiHealth), 외부 소스 상태 계약(AIO.normalizeExternalSourceState·setExternalSourceState), 모든 수집이 부르는 _reportApiOk·_reportApiError를 js/aio-core.js에서 src/data/quality/api-health.js로 그대로 옮겼다(코어 99줄 감소). 데이터 상태 패널과 소스 실패 배너를 그리는 함수는 같은 요소의 다른 쓰기와 함께 코어에 남았다. 동작은 같고, 부팅 모듈 한도는 옮긴 바이트만큼 올렸다.
 - R1 7곳 v59.18
