@@ -4273,61 +4273,8 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
   };
 };
 
-function updateDataStatusError(status, msg) {
-  var panel = document.getElementById('data-status-panel');
-  if (!panel) return;
-  var colors = {ok:'#3dd68c', warn:'#ffa057', error:'#e5484d'};
-  panel.style.color = colors[status] || 'var(--gold-11)';
-  panel.innerHTML = (status === 'ok' ? '<span class="sd sd-g"></span>' : status === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-r"></span>') + ' ' + escHtml(msg);
-}
-
-function updateDataStatus() {
-  try {
-    if (window.AIO && typeof window.AIO.getRefreshState === 'function') {
-      var refreshState = window.AIO.getRefreshState();
-      if (refreshState && refreshState.active) return;
-    }
-  } catch(_) {}
-  const el = document.getElementById('data-status-panel');
-  if (!el) return;
-  const now = Date.now();
-  // v38.3: stale 감지 — 마지막 시세 갱신이 10분 이상 경과하면 경고
-  const lastQuoteTs = window._quoteTimestamps ? Math.max(0, ...Object.values(window._quoteTimestamps)) : 0;
-  const staleMin = lastQuoteTs > 0 ? Math.floor((now - lastQuoteTs) / 60000) : -1;
-
-  // 프록시 stale 캐시 사용 중 표시
-  const proxyStale = window._aioProxyStaleSince
-    ? ', <span class="lda-st-stale">stale ' + (window._aioProxyStaleAgeMin || '?') + '분</span>'
-    : '';
-
-  // SW 버전 툴팁용 — 비동기 쿼리이므로 마지막으로 수신한 값 캐시
-  const swVer = window._aioSWVersion || '';
-  const titleExtra = swVer ? `, SW ${swVer}` : '';
-
-  const appVer = (typeof APP_VERSION === 'string' ? APP_VERSION : (window.AIO && window.AIO.version) || '');
-  const swMismatch = !!(swVer && appVer && swVer !== appVer);
-  const swBadge = swMismatch
-    ? ', <span class="lda-st-swbad">SW ' + escHtml(swVer) + '≠' + escHtml(appVer) + '</span>'
-    : (swVer ? ', <span class="lda-st-sw">SW ' + escHtml(swVer) + '</span>' : '');
-  if (swMismatch && window._aioSWMismatchLogged !== swVer + ':' + appVer) {
-    window._aioSWMismatchLogged = swVer + ':' + appVer;
-    if (typeof _aioLog === 'function') _aioLog('warn', 'sw', 'Service worker version mismatch: ' + swVer + ' vs app ' + appVer);
-    if (typeof showDataError === 'function') showDataError('SW', 'service worker version mismatch - refresh will rotate cache', 'warn');
-  }
-
-  if (staleMin > 10) {
-    el.innerHTML = `<span style="font-size:12px;color:var(--amber-11);font-weight:700;">시세 ${staleMin}분 전 갱신</span>${proxyStale}`;
-    el.title = `마지막 시세 갱신: ${new Date(lastQuoteTs).toLocaleTimeString('ko-KR')} — ${staleMin}분 경과${titleExtra}`;
-  } else if (staleMin >= 0) {
-    const t = new Date(lastQuoteTs).toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
-    el.innerHTML = `<span style="font-size:12px;color:var(--text-muted);">시세 ${t} 갱신</span>${proxyStale}`;
-    el.title = `정상 갱신 중${titleExtra}`;
-  } else {
-    el.innerHTML = `<span style="font-size:12px;color:var(--text-muted);">데이터 갱신 중...</span>${proxyStale}`;
-    el.title = `연결 중${titleExtra}`;
-  }
-  if (swBadge) el.innerHTML += swBadge;
-}
+// v59.20: updateDataStatusError and updateDataStatus moved to src/ui/components/data-status-surface.js (one owner of the
+// data-status surfaces).
 
 // 현재 controller의 SW 버전을 비동기로 조회하고 controller 전환마다 재확인한다.
 function _querySWVersion() {

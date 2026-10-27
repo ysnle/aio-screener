@@ -1,3 +1,7 @@
+## v59.20 (2026-10-27)
+- **데이터 상태 표시 소유자 하나로 (레거시 다음 계층 4단계, 품질·근거):** 상단 데이터 상태 칩(#data-status-panel)과 데이터 경과 경고 배너(#snapshot-stale-warning)를 쓰는 코드가 js/aio-core.js·js/aio-data.js·js/aio-ui.js 세 곳에 흩어져 있던 것을 src/ui/components/data-status-surface.js 한 모듈로 그대로 옮겼다. 옮긴 것은 showDataError, 소스 상태 요약(_renderApiDashboard), 소스 실패 배너(_checkAllDeadBanner), AIO.updateSnapshotStaleBanner, updateDataStatusError·updateDataStatus이고, 스냅샷 경과 경고·저장소 차단 경고·에러 급증 알림은 원래 자리에서 모듈 함수를 부른다. 칩 안 문구의 인라인 스타일은 같은 값의 .dsp-msg 클래스로 바꿨다. 화면 동작은 같고, 부팅 모듈 한도는 옮긴 바이트만큼 올렸다.
+- R1 7곳 v59.20
+
 ## v59.19 (2026-10-27)
 - **데이터 신선도 엔진 분리 (레거시 다음 계층 3단계, 품질·근거):** 데이터 종류별 신선도 기준(FRESHNESS_ENGINE), 캐시 감사용 AIO_Cache, 피드 상태(_aioFeedHealth), 마지막 수집 시각 기록(_lastFetch·_markFetch)을 js/aio-core.js에서 src/data/quality/freshness-engine.js로 그대로 옮겼다. 신선도 배지의 인라인 스타일은 .aio-stale-badge 클래스로 바꾸면서 글자 크기를 11px에서 최소 글자 크기(--fs-min)로 맞췄고, 쓰이지 않던 fontSize 옵션은 뺐다. 그 밖의 동작은 같고, 부팅 모듈 한도는 옮긴 바이트만큼 올렸다.
 - R1 7곳 v59.19

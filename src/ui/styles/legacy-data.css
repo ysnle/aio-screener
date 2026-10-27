@@ -5,6 +5,14 @@
 #data-status-panel .lda-st-stale { color: var(--amber-11); }
 #data-status-panel .lda-st-swbad { color: var(--red-11); }
 #data-status-panel .lda-st-sw { color: var(--text-muted); }
+/* v59.20: status messages written by src/ui/components/data-status-surface.js — the old inline span styles, same values */
+#data-status-panel .dsp-msg { font-size: 12px; }
+#data-status-panel .dsp-msg--error { color: #e5484d; }
+#data-status-panel .dsp-msg--info { color: #3dd68c; }
+#data-status-panel .dsp-msg--warn { color: #ffa057; }
+#data-status-panel .dsp-msg--muted { color: var(--text-muted); }
+#data-status-panel .dsp-msg--late { color: var(--amber-11); font-weight: 700; }
+#data-status-panel .dsp-msg--surge { color: var(--red-11); font-weight: 700; }
 /* Pipeline status bar (#aio-pipeline-status-bar in #page-home: old inline 10px rendered 12px) */
 #aio-pipeline-status-bar .stale-manual-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: var(--fs-xs); background: var(--gold-3); border: 0.5px solid var(--amber-6); color: var(--amber-11); cursor: default; }
 #aio-pipeline-status-bar .lda-pipe { display: inline-flex; align-items: center; gap: 4px; background: var(--black-a4);  padding: 3px 8px; border-radius: 4px; font-size: var(--fs-xs); }

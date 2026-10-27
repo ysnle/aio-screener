@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.19';
+const APP_VERSION = 'v59.20';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -50,10 +50,8 @@ const APP_VERSION = 'v59.19';
   function _checkRateThreshold() {
     var sum = _rateCounter.warn + _rateCounter.error;
     if (sum >= RATE_THRESHOLD) {
-      var panel = document.getElementById('data-status-panel');
-      if (panel) {
-        panel.innerHTML = '<span style="color:var(--red-11);font-size:12px;font-weight:700;">에러 급증 — 최근 1분 ' + sum + '건 (error ' + _rateCounter.error + ', warn ' + _rateCounter.warn + ')</span>';
-      }
+      // v59.20: the notice is written by src/ui/components/data-status-surface.js (one owner of #data-status-panel).
+      if (typeof window._aioShowErrorSurge === 'function') window._aioShowErrorSurge(sum, _rateCounter.error, _rateCounter.warn);
     }
   }
 
@@ -10462,39 +10460,7 @@ window._aioUppercaseInput = function(el) {
   document.addEventListener('input', dispatchInput);
 })();
 
-// ── v30.10: 글로벌 에러 표시 유틸리티 (사용자 피드백 제공) ─────────────
-// 에러 유형: 'api' | 'parse' | 'dom' | 'network'
-// 심각도: 'warn' (노란색, 자동 소멸) | 'error' (빨간색, 수동 닫기)
-window._aioErrors = window._aioErrors || {};
-function showDataError(area, msg, severity) {
-  severity = severity || 'warn';
-  var key = area + ':' + msg;
-  if (window._aioErrors[key]) return; // 중복 표시 방지
-  window._aioErrors[key] = Date.now();
-  // 30초 후 자동 소멸 (warn) / 60초 (error)
-  var ttl = severity === 'error' ? 60000 : 30000;
-  setTimeout(function() { delete window._aioErrors[key]; }, ttl);
-  // data-status-panel에 표시 (있는 경우)
-  var panel = document.getElementById('data-status-panel');
-  if (panel) {
-    try {
-      var refreshState = window.AIO && typeof window.AIO.getRefreshState === 'function' ? window.AIO.getRefreshState() : null;
-      if (refreshState && refreshState.active && severity !== 'error') {
-        _aioLog('warn', area, msg);
-        return;
-      }
-    } catch(_) {}
-    var icon = severity === 'error' ? '<span class="sd sd-r"></span>' : severity === 'info' ? '<span class="sd sd-g"></span>' : '<span class="sd sd-y"></span>';
-    var color = severity === 'error' ? '#e5484d' : severity === 'info' ? '#3dd68c' : '#ffa057';
-    panel.innerHTML = '<span style="color:' + color + ';font-size:12px;">' + icon + ' ' + escHtml(area) + ': ' + escHtml(msg) + '</span>';
-    setTimeout(function() {
-      if (panel.innerHTML.indexOf(msg) !== -1) {
-        panel.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">데이터 갱신 중...</span>';
-      }
-    }, ttl);
-  }
-  _aioLog('warn', area, msg);
-}
+// v59.20: showDataError (and window._aioErrors) moved to src/ui/components/data-status-surface.js (one owner of the data-status surfaces).
 
 // ═══ v30.11: 차트 데이터 검증 게이트 (공통 유틸리티) ══════════════════
 // 모든 Chart.js 차트 생성 전에 데이터를 검증하고,
@@ -10583,67 +10549,10 @@ function _parseYFChartResponse(raw) {
 // v59.18 (roadmap 11): the API health registry, the external source state contract and _reportApiOk/_reportApiError moved
 // to src/data/quality/api-health.js (installed by src/app/compatibility-globals.js); the panel and banner writers stay here.
 
-var _lastDashRender = 0;
-function _renderApiDashboard() {
-  try {
-    var refreshState = window.AIO && typeof window.AIO.getRefreshState === 'function' ? window.AIO.getRefreshState() : null;
-    if (refreshState && refreshState.active) return;
-  } catch(_) {}
-  var now = Date.now();
-  if (now - _lastDashRender < 2000) return; // 2초 스로틀
-  _lastDashRender = now;
-  var panel = document.getElementById('data-status-panel');
-  if (!panel) return;
-  var dots = { ok: '<span class="sd sd-g"></span>', warn: '<span class="sd sd-y"></span>', error: '<span class="sd sd-r"></span>', unknown: '<span class="sd sd-w"></span>' };
-  var parts = [];
-  Object.values(window._apiHealth).forEach(function(h) {
-    var elapsed = '';
-    if (h.lastOk) {
-      var sec = Math.round((now - h.lastOk) / 1000);
-      elapsed = sec < 60 ? sec + '초' : Math.round(sec / 60) + '분';
-    }
-    parts.push((dots[h.status] || '<span class="sd sd-w"></span>') + ' ' + escHtml(h.label) + (elapsed ? '(' + elapsed + ')' : ''));
-  });
-  panel.innerHTML = parts.join(' &middot; ');
-  panel.title = '데이터 소스 상태\n' + Object.values(window._apiHealth).map(function(h) {
-    var dot = h.status === 'ok' ? '●' : h.status === 'warn' ? '●' : h.status === 'error' ? '●' : '○';
-    return dot + ' ' + h.label + ': ' + (h.lastMsg || h.status);
-  }).join('\n');
-}
+// v59.20: _renderApiDashboard moved to src/ui/components/data-status-surface.js (one owner of the data-status surfaces).
 
 var _retryAllInProgress = false;
-function _checkAllDeadBanner() {
-  // v38.3: 전체 API 모니터링 (finnhub, fear-greed, exchange-rate 포함)
-  var apis = Object.keys(window._apiHealth);
-  var deadCount = 0, warnCount = 0, deadNames = [];
-  apis.forEach(function(k) {
-    var h = window._apiHealth[k];
-    if (!h) return;
-    if (h.status === 'error') { deadCount++; deadNames.push(h.label); }
-    else if (h.status === 'warn') { warnCount++; }
-  });
-  var banner = document.getElementById('snapshot-stale-warning');
-  if (!banner) return;
-  if (deadCount >= 3) {
-    var nameStr = deadNames.slice(0, 4).join(', ') + (deadNames.length > 4 ? ' 외 ' + (deadNames.length - 4) + '개' : '');
-    banner.innerHTML = '다수 데이터 소스 연결 실패 (' + deadCount + '/' + apis.length + '): ' + nameStr +
-      ' — 캐시 데이터 표시 중 ' +
-      '<button id="btn-retry-all-apis" data-action="_retryAllFailedApis" class="lco-retry lco-retry-dead"> 수동 재연결</button>';
-    banner.style.display = 'block';
-    banner.style.background = 'var(--red-4)';
-    banner.style.borderColor = 'var(--red-6)';
-    banner.style.color = 'var(--orange-11)';
-  } else if (deadCount >= 1 || warnCount >= 2) {
-    banner.innerHTML = '일부 데이터 소스(' + deadCount + '개 실패, ' + warnCount + '개 불안정)가 응답하지 않습니다. 해당 항목은 마지막 수신 데이터를 표시합니다.' +
-      (deadCount >= 1 ? ' <button id="btn-retry-all-apis" data-action="_retryAllFailedApis" class="lco-retry lco-retry-warn"> 재연결</button>' : '');
-    banner.style.display = 'block';
-    banner.style.background = 'var(--gold-3)';
-    banner.style.borderColor = 'var(--amber-6)';
-    banner.style.color = 'var(--amber-11)';
-  } else {
-    banner.style.display = 'none';
-  }
-}
+// v59.20: _checkAllDeadBanner moved to src/ui/components/data-status-surface.js (one owner of the data-status surfaces).
 
 // v38.3: 실패한 API 일괄 재시도
 async function _retryAllFailedApis() {
@@ -14578,45 +14487,8 @@ function applyDataSnapshot() {
 
     } catch(seedErr) { if (typeof _aioLog === 'function') _aioLog('warn', 'snap', '_liveData seed failed: ' + (seedErr && seedErr.message)); }
 
-    // v34.2: Staleness 경고 — 스냅샷 기준이지만 실시간 데이터가 들어오면 자동 해제
-    // 개선: 고정 12초 타이머 → 반복 폴링 + 이벤트 리스너로 확실히 해제
-    const updated = (S._marketDataUpdated || S._updated) ? new Date(S._marketDataUpdated || S._updated).getTime() : 0;
-    const age = updated ? (Date.now() - updated) : Infinity;
-    const staleEl = document.getElementById('snapshot-stale-warning');
-    if (staleEl) {
-      if (updated && !isNaN(age) && age > 24 * 60 * 60 * 1000) { // v58.80 (first-users R2-29): no stamp read "Infinityh old"
-        const hrs = Math.floor(age / 3600000);
-        var mdDate = S._marketDataDate || S._snapshotDate || '날짜 확인 불가';
-        var tgDate = S._telegramDigestDate || (S._telegramDigestUpdated ? String(S._telegramDigestUpdated).slice(0, 10) : '날짜 확인 불가');
-        staleEl.textContent = '시장 자료는 ' + mdDate + ' 기준(' + hrs + '시간 전), 뉴스·테마 요약은 ' + tgDate + ' 기준입니다. 실시간 시세가 들어오면 자동으로 바뀝니다.';
-        staleEl.style.display = 'block';
-
-        // 실시간 데이터 수신 감지 — 반복 체크 (5초 간격, 최대 2분)
-        // v48.14 (Agent W11): 2분 폴링 루프 제거 — 순수 이벤트 구독으로 전환
-        // aio:liveDataReceived + aio:liveQuotes 둘 다 구독해서 stale 해제
-        // 첫 로드 후 45초 내 아무 이벤트 없으면 마지막 1회 확인 (만약 이벤트 누락)
-        var _onStaleLiveFire = function(ev) {
-          if (ev && ev.detail && ev.detail.coreCoverageOk === false) return;
-          try {
-            var audit = window.AIO && typeof window.AIO.getDataFreshnessAudit === 'function' ? window.AIO.getDataFreshnessAudit() : null;
-            if (audit && audit.liveCoverage && audit.liveCoverage.coreOk === false && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._isFallback !== false) return;
-          } catch(_audit) {}
-          if (staleEl) staleEl.style.display = 'none';
-          window.removeEventListener('aio:liveDataReceived', _onStaleLiveFire);
-          window.removeEventListener('aio:liveQuotes', _onStaleLiveFire);
-        };
-        window.addEventListener('aio:liveDataReceived', _onStaleLiveFire, { once: true });
-        window.addEventListener('aio:liveQuotes', _onStaleLiveFire, { once: true });
-        // fallback: 45초 후 1회 확인 (이벤트 누락 대비)
-        setTimeout(function() {
-          var liveTs = window._quoteTimestamps || {};
-          var hasRecent = Object.values(liveTs).some(function(t) { return Date.now() - t < 120000; });
-          if (hasRecent) _onStaleLiveFire();
-        }, 45000);
-      } else {
-        staleEl.style.display = 'none';
-      }
-    }
+    // v59.20: the snapshot-age warning moved to src/ui/components/data-status-surface.js (_aioApplySnapshotStaleWarning).
+    if (typeof _aioApplySnapshotStaleWarning === 'function') _aioApplySnapshotStaleWarning(S);
 
     // v57.77: the CP1-CP8 detail writer and the risk-monitor stale badges left with their absent DOM.
     if (typeof _aioRenderHomeVix === 'function') _aioRenderHomeVix(); // v57.64: home VIX cell repaints from every snapshot apply
@@ -16927,39 +16799,7 @@ function _aioExternalReferenceMap(externalReferences) {
   try { window.AIO.applyPageContractCompatibility(); } catch(_) {}
 })();
 
-window.AIO.updateSnapshotStaleBanner = function() {
-  var el = document.getElementById('snapshot-stale-warning');
-  if (!el) return null;
-  var snap = window.DATA_SNAPSHOT || {};
-  var marketUpdated = snap._marketDataUpdated || snap._updated;
-  var updatedTs = marketUpdated ? new Date(marketUpdated).getTime() : 0;
-  if (!updatedTs || isNaN(updatedTs)) return null;
-  var hrs = Math.floor((Date.now() - updatedTs) / 3600000);
-  var marketDate = snap._marketDataDate || snap._snapshotDate || '날짜 확인 불가';
-  var digestDate = snap._telegramDigestDate || (snap._telegramDigestUpdated ? String(snap._telegramDigestUpdated).slice(0, 10) : '날짜 확인 불가');
-  if (hrs <= 24) {
-    el.style.display = 'none';
-    return { status: 'fresh', hours: hrs, marketDataDate: marketDate, telegramDigestDate: digestDate };
-  }
-  var currentness = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit() : null;
-  var coreLiveOk = !!(currentness && currentness.coreLiveOk);
-  var baseText = '시장 자료는 ' + marketDate + ' 기준(' + hrs + '시간 전), 뉴스·테마 요약은 ' + digestDate + ' 기준입니다. ';
-  el.style.display = 'block';
-  el.setAttribute('data-operational-use', 'reference-only');
-  el.setAttribute('data-source-kind', 'snapshot');
-  if (coreLiveOk) {
-    el.textContent = baseText + '실시간 시세가 들어오고 있어 이 자료는 참고용입니다.';
-    el.style.background = 'var(--green-3)';
-    el.style.borderColor = 'var(--blue-6)';
-    el.style.color = 'var(--data-cyan)';
-  } else {
-    el.textContent = baseText + '실시간 시세를 일부 받지 못해 화면 숫자가 이 기준일 값일 수 있습니다.';
-    el.style.background = 'var(--red-3)';
-    el.style.borderColor = 'var(--red-6)';
-    el.style.color = 'var(--data-red)';
-  }
-  return { status: coreLiveOk ? 'reference-only' : 'warn', hours: hrs, coreLiveOk: coreLiveOk, marketDataDate: marketDate, telegramDigestDate: digestDate };
-};
+// v59.20: AIO.updateSnapshotStaleBanner moved to src/ui/components/data-status-surface.js (one owner of the data-status surfaces).
 
 window.AIO.applyMarketCurrentnessGuard = function(opts) {
   opts = opts || {};

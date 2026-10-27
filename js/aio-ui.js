@@ -63,8 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   (function() {
     try { localStorage.setItem('_ls_test', '1'); localStorage.removeItem('_ls_test'); }
     catch(e) {
-      var w = document.getElementById('snapshot-stale-warning');
-      if (w) { w.textContent = '브라우저 저장이 차단되어 포트폴리오·설정이 저장되지 않습니다.'; w.style.display = 'block'; }
+      if (typeof _aioShowStorageBlockedWarning === 'function') _aioShowStorageBlockedWarning(); // v59.20: src/ui/components/data-status-surface.js
     }
   })();
 
