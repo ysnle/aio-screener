@@ -7,14 +7,12 @@
     "getApiKey": "Deliberate dual-order compatibility contract, stated at js/aio-core.js:1420-1424: the later-loaded export MAY overwrite the inline function, so the export handles both shapes — a no-arg legacy call returns the Claude key, an explicit storageKey call keeps the provider lookup contract. Both execution orders are safe by construction, so this is recorded rather than merged. ci-ai-chat-reliability-contract-check asserts the overload explicitly and ci-chat-resilience-check asserts the sidebar save path, so neither owner can be deleted without a gate noticing."
   },
   "frozenStateOwners": [
-    "_currentTickerId",
-    "_currentTickerName",
-    "_currentTickerSym",
     "_glossaryCat"
   ],
   "frozenStateOwnerNotes": {
     "whyFrozen": "Each of these is shared mutable state with exactly one writer per moment, not two implementations: e.g. js/aio-core.js, js/aio-ui.js and js/aio-chat.js each set window._currentTickerId when their own surface changes the selected entity. Freezing them makes a NEW dual owner impossible to add unnoticed without rewriting behaviour that has worked for many versions.",
     "notFrozenBecauseBroken": "They are frozen as visibility, not as approval. Converging them (one owner per state variable) is real work with real behaviour risk and needs its own evidence, so it is tracked as QA-EXHAUST-95 rather than done blind in a refactor commit.",
-    "ratchet": "scripts/ci-structural-check.mjs fails if a frozen name stops being dual-owned — the list can only shrink."
+    "ratchet": "scripts/ci-structural-check.mjs fails if a frozen name stops being dual-owned — the list can only shrink.",
+    "shrunk": "v59.12 (roadmap 11): _currentTickerId, _currentTickerName and _currentTickerSym left the list. Their other js/ writer was the 재무 공시 search, which moved from js/aio-chat.js to src/ui/components/fundamental-search.js, so js/aio-core.js is the only js/ writer."
   }
 }

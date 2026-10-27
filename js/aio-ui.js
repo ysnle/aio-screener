@@ -3106,6 +3106,7 @@ window._renderFundNews = _renderFundNews;
 window._renderFundSources = _renderFundSources;
 window._renderFundMultiPeriod = _renderFundMultiPeriod;
 window._renderFundVariance = _renderFundVariance;
+window._renderFundQualitative = _renderFundQualitative; // v59.12: called by src/ui/components/fundamental-search.js
 // AIO.FundPage: 기업분석 렌더링 함수 공개 API (aio-chat.js → aio-ui.js 물리 이동 대상)
 window.AIO = window.AIO || {};
 

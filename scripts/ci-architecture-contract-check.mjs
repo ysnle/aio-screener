@@ -148,7 +148,6 @@ const legacyRuntimeSource = ['js/aio-workspace.js', 'js/aio-kr-data.js', 'js/aio
 if (fs.existsSync(path.join(root, 'js/aio-macro-tech.js'))) fail('legacy unification: retired js/aio-macro-tech.js returned');
 // P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
 const workspaceSource = read('js/aio-workspace.js');
-const chatSource = read('js/aio-chat.js');
 const inferenceEfficiencySource = read('src/domain/ai/inference-efficiency.js');
 const marketPageContractSource = read('src/ui/pages/market.js');
 const indexSource = read('index.html');
@@ -178,7 +177,7 @@ const themesPageSource = read('src/ui/pages/themes.js');
 if (!bootstrapSource.includes('const ingestSentiment') || !bootstrapSource.includes('ingestSentiment,')) fail('sentiment canonical ingest gateway missing');
 if (!dataSource.includes('AIO_ARCH.ingestSentiment')) fail('legacy sentiment producer gateway notification missing');
 if (!bootstrapSource.includes('createRuntimeReaders') || /create[A-Za-z]+Provider\(\{\s*read:\s*legacy\.read/.test(bootstrapSource)) fail('native route providers must use data-layer runtime readers rather than legacy.read projections');
-if (!chatSource.includes("'aio:entityChanged'") || !bootstrapSource.includes("legacy.on('aio:entityChanged', syncEntity.sync)")) fail('fundamental ticker selection must invalidate the native entity projection before optional provider work');
+if (!read('src/ui/components/fundamental-search.js').includes("'aio:entityChanged'") /* v59.12: the 재무 공시 search moved from js/aio-chat.js */ || !bootstrapSource.includes("legacy.on('aio:entityChanged', syncEntity.sync)")) fail('fundamental ticker selection must invalidate the native entity projection before optional provider work');
 if (burnDown.retiredDataShowPageMonkeyPatch && (/const originalShowPage\s*=\s*window\.showPage/.test(dataSource) || /window\.showPage\s*=\s*function\s*\(pageId/.test(dataSource))) {
   fail('retired aio-data showPage monkey patch returned');
 }

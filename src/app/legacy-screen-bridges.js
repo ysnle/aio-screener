@@ -15,6 +15,7 @@ import { renderPortfolioRiskMetrics, renderPortfolioRiskStatus } from '../ui/com
 import { renderScreenerFmpStatus } from '../ui/components/screener-fmp-status.js';
 import { organizeGuideChapters } from '../ui/components/guide-chapters.js';
 import { renderWatchlist, readWatchlistSelect, readWatchlistInputs, clearWatchlistInputs } from '../ui/components/portfolio-watchlist.js';
+import { createFundamentalSearch, fundSearchQuick, renderFundRecentSearches, resetFundamentalReport } from '../ui/components/fundamental-search.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
@@ -73,4 +74,12 @@ export function installLegacyScreenBridges(root, documentRef) {
   // v59.08 스크리너: the 재무 팩터 coverage note (_aioRenderPipelineStatus calls it; the last meta is painted now).
   root._aioRenderScreenerFmpStatus = (meta) => renderScreenerFmpStatus(meta, at);
   if (root._aioScreenerFmpMeta) root._aioRenderScreenerFmpStatus(root._aioScreenerFmpMeta);
+  // v59.12 종목 · 재무 공시: the search, its 최근 검색 chips and the report reset (moved from js/aio-chat.js); the list is
+  // painted now and a search asked before this module loaded runs now.
+  root.fundamentalSearch = createFundamentalSearch(at);
+  root.fundSearchQuick = (ticker) => fundSearchQuick(ticker, root.fundamentalSearch, at);
+  root._fundRecentSearches = (ticker) => renderFundRecentSearches(ticker, at);
+  root._resetFundamentalReport = (message) => resetFundamentalReport(message, at);
+  root._fundRecentSearches();
+  if (root._aioFundSearchPending) { root._aioFundSearchPending = false; root.fundamentalSearch(); }
 }

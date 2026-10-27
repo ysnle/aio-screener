@@ -39,7 +39,12 @@
     "home-hero-total",
     "regime-overall",
     "home-hero-headline",
-    "home-date-label"
+    "home-date-label",
+    "vis-fundamental",
+    "vis-fundamental-radar",
+    "fund-search-input",
+    "fund-rpt-fincharts",
+    "fund-fin-meta"
   ],
   "domWriterIntersectionAllowlistNotes": {
     "aio-chart-cdn": "A05 (2026-10-12): color-theme.js reads the chart CDN script element to wait for load; index.html owns the element. No content write.",
@@ -61,7 +66,12 @@
     "home-hero-total": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
     "regime-overall": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
     "home-hero-headline": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
-    "home-date-label": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render."
+    "home-date-label": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
+    "vis-fundamental": "v59.12 (roadmap 11): fundamental-search.js hides the 재무 공시 factor radar when a new search resets the report; js/aio-ui.js _aioRenderFundamentalRadar draws and shows it afterwards. The same reset-then-paint pair as before the move from js/aio-chat.js.",
+    "vis-fundamental-radar": "v59.12 (roadmap 11): fundamental-search.js clears the radar text on a report reset; js/aio-ui.js _aioRenderFundamentalRadar paints it afterwards.",
+    "fund-search-input": "v59.12 (roadmap 11): fundamental-search.js reads the 재무 공시 search box and a 최근 검색 chip fills it; js/aio-core.js _aioFundSearchFill/_aioShowFundamentalChart fill it from other screens before calling the search.",
+    "fund-rpt-fincharts": "v59.12 (roadmap 11): fundamental-search.js shows the quarterly chart card before the fetch; js/aio-ui.js _renderFundamentalFinancialsCharts owns its content.",
+    "fund-fin-meta": "v59.12 (roadmap 11): fundamental-search.js writes the waiting line (분기 재무 수신 대기) before the fetch; js/aio-ui.js _renderFundamentalFinancialsCharts replaces it with the result."
   },
   "routes": {
     "home": {

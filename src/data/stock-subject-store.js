@@ -13,7 +13,7 @@ export function saveStockSubject(root = globalThis, subject = null) {
   try { root?.sessionStorage?.setItem(SUBJECT_KEY, JSON.stringify({ symbol: subject?.symbol || '', name: subject?.name || '' })); } catch (_) { /* storage blocked */ }
 }
 
-// v58.80 run-5: 재무 공시's 최근 검색 (localStorage aio_fund_recent, read by js/aio-chat.js _fundRecentSearches) only heard
+// v58.80 run-5: 재무 공시's 최근 검색 (localStorage aio_fund_recent, drawn by src/ui/components/fundamental-search.js) only heard
 // its own search box, so a company opened from 요약 or another screen never appeared there. Every subject change records it.
 const RECENT_KEY = 'aio_fund_recent';
 export function rememberRecentSymbol(root = globalThis, symbol = '') {
@@ -23,4 +23,12 @@ export function rememberRecentSymbol(root = globalThis, symbol = '') {
     const next = [symbol, ...(Array.isArray(list) ? list : []).filter((item) => item !== symbol)].slice(0, 8);
     root.localStorage.setItem(RECENT_KEY, JSON.stringify(next));
   } catch (_) { /* storage blocked */ }
+}
+
+// The 재무 공시 최근 검색 list as stored, newest first (src/ui/components/fundamental-search.js draws it).
+export function readRecentSymbols(root = globalThis) {
+  try {
+    const list = JSON.parse(root?.localStorage?.getItem(RECENT_KEY) || '[]');
+    return Array.isArray(list) ? list : [];
+  } catch (_) { return []; }
 }

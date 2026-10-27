@@ -1496,7 +1496,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && priced?.pe === 2 && priced.peEarningsBasis === 'ttm' && priced.peEarningsThrough === '2026-06-30'
       && debt.map((r) => r.value).join() === '8,7,5'
       && twd?.currency === 'TWD' && twd.metrics.pe == null && twd.metrics.marketCap == null && twd.revenue.map((r) => r.year).join() === '2023,2024'
-      && !/_parseSECFinancials\(/.test(chatSource) && /window\.AIO\.parseSecStatements\(secFin/.test(chatSource) && /window\.AIO\.parseSecStatements = parseSecStatements/.test(bridgeSource);
+      && !/_parseSECFinancials\(/.test(chatSource) && /root\.AIO\.parseSecStatements\(secFin/.test(readFileSync(new URL('../src/ui/components/fundamental-search.js', import.meta.url), 'utf8')) /* v59.12: the 재무 공시 search moved from js/aio-chat.js */ && /window\.AIO\.parseSecStatements = parseSecStatements/.test(bridgeSource);
     detail = JSON.stringify({ ttm: ttm.peEarnings, roe: [ttm.roe, ttm.roeBasis], common: withCommon.peEarnings?.value, noPrior: [noPrior.roe, noPrior.roeBasis], pe: priced?.pe, debt: debt.map((r) => r.value), twd: twd && { cur: twd.currency, years: twd.revenue.map((r) => r.year) } });
   } catch (error) { detail = error.message; }
   check('P1910 SEC audit (owner-approved D1/D2/D6/D7/D8): TTM and common-earnings P/E, average-equity ROE, one concept per series, ESM statements parser', ok, detail.slice(0, 700));

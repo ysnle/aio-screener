@@ -296,6 +296,11 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   window._aioReleaseKstLabel = (key, date) => { const at = releaseAtMs(key, date); return Number.isFinite(at) ? formatKstWhen(at).label : null; };
   // Roadmap item 11: the globals of screen code moved out of js/ (macro v58.85, home VIX v58.91, news chips v58.92,
   // news progress v58.93, home action plan v58.94) are installed from one lazy module, outside the boot set.
+  // v59.12 종목 · 재무 공시: the search moved out of js/aio-chat.js and is installed with the bridges; a search asked
+  // before they load (a deep link from another screen) runs on install. The report state starts empty, as before.
+  window._fundAnalysisData = null;
+  window._fundCache = window._fundCache || {};
+  window.fundamentalSearch = () => { window._aioFundSearchPending = true; };
   import('./legacy-screen-bridges.js').then((m) => m.installLegacyScreenBridges(window, document)).catch(() => {});
   window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
   const universeSymbols = () => new Set((typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [])

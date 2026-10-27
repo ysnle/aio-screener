@@ -1356,7 +1356,7 @@ async function fetchSECFrame(concept, period, taxonomy) {
   return window._secFrames[cacheKey];
 }
 
-// 백분위 순위 계산 helper — fetchSECFrame 결과에서 특정 CIK의 percentile + 섹터 평균/중위수 요약
+// 백분위 순위 계산 helper — fetchSECFrame 결과에서 특정 CIK의 percentile + 섹터 평균/중위수 요약 (v59.12: src/ui/components/fundamental-search.js calls _secFrameRank by its window name)
 function _secFrameRank(frame, cik, cikList) {
   if (!frame || !Array.isArray(frame.data)) return null;
   var items = cikList && cikList.length > 0

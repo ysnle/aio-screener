@@ -68,9 +68,10 @@ check(!/async function (?:analyzeTickerDeep|initDeepAnalysisSection)\(/.test(ui)
 check(/function _aioOpenTechnicalAnalysis\(ticker\)[\s\S]{0,700}window\._aioChartRequest = sym;[\s\S]{0,120}showPage\('technical'\)/.test(core), 'P1753 technical bridge opens the native chart route for the selected subject');
 
 const invalid = context({ _currentTickerId: 'NVDA', _currentTickerName: 'NVIDIA', _fundAnalysisData: { ticker: 'NVDA' }, AIO: { state: {} } });
-vm.runInContext(section(chat, 'function _resetFundamentalReport(message)', '// ── 기업분석 렌더러'), invalid.root);
+// v59.12: the 재무 공시 search moved from js/aio-chat.js to src/ui/components/fundamental-search.js.
+const { createFundamentalSearch } = await import('../src/ui/components/fundamental-search.js');
 invalid.root.document.getElementById('fund-search-input').value = '<invalid>';
-await invalid.root.fundamentalSearch();
+await createFundamentalSearch({ documentRef: invalid.root.document, root: invalid.root })();
 check(invalid.root._currentTickerId === '' && invalid.root._fundAnalysisData === null, 'invalid fundamental search clears previous identity and report data');
 check(invalid.nodes.get('vis-fundamental').style.display === 'none' && invalid.nodes.get('vis-fundamental-radar').textContent === '', 'invalid fundamental search also clears the secondary factor visualization');
 
@@ -86,7 +87,7 @@ check(!core.includes('window._aioFillEntryFromTicker =') && !core.includes('p * 
 // matters for the absence check too — pinned to index.html it would now pass vacuously.
 check(!ui.includes('모멘텀 강세(비중 확대)') && !ui.includes('Leading</strong>: 초강세'), 'relative strength labels do not prescribe trades');
 check(!ui.includes('function _daKeyLevels(') && !ui.includes('function _daDestroyCharts('), 'P1753 retired deep-analysis multi-timeframe level panel stays gone');
-check(chat.includes("var _period = 'CY' + _year + 'Q' + _q;") && !chat.includes("var _period = 'CY' + _year + 'Q' + _q + 'I'"), 'SEC revenue/net-income frames use duration periods, not instant periods');
+check(read('src/ui/components/fundamental-search.js').includes('const period = `CY${year}Q${quarter}`;') && !read('src/ui/components/fundamental-search.js').includes('Q${quarter}I'), 'SEC revenue/net-income frames use duration periods, not instant periods');
 check(read('src/app/bootstrap.js').includes("legacy.on('aio:entityChanged', syncAnalysis.sync)"), 'native analysis refreshes when entity selection changes');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const suppliedBridge = read('src/ui/knowledge/supplied-material-bridge.js');
