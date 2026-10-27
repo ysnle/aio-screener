@@ -9,6 +9,8 @@
 // Silence is measured across every streamed body: on a throttled link one large download can starve the others for
 // tens of seconds (screener-universe.json got no byte for 19 s beside screener.json), which is a busy link, not a dead one.
 let networkProgressAt = 0;
+// A timer that runs this much after its due time was held by a busy page (P2108).
+const LATE_TIMER_MS = 1000;
 export async function readBodyText(response, { stallMs = 20_000, onStall } = {}) {
   const reader = response?.body?.getReader?.();
   if (!reader) return response.text();
@@ -16,14 +18,18 @@ export async function readBodyText(response, { stallMs = 20_000, onStall } = {})
   let text = '';
   let timer = null;
   let ownProgressAt = Date.now();
+  let due = 0;
+  const arm = (ms) => { due = Date.now() + ms; timer = setTimeout(check, ms); };
   const check = () => {
+    // P2108: a check that runs late was held by a busy page, during which no chunk could be read; look again shortly.
+    if (Date.now() - due > LATE_TIMER_MS) { arm(LATE_TIMER_MS); return; }
     const idle = Date.now() - Math.max(ownProgressAt, networkProgressAt);
-    if (idle < stallMs) { timer = setTimeout(check, stallMs - idle); return; }
+    if (idle < stallMs) { arm(stallMs - idle); return; }
     onStall?.();
     reader.cancel().catch(() => {});
   };
   try {
-    timer = setTimeout(check, stallMs);
+    arm(stallMs);
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;

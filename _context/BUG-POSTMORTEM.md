@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2108 - v59.23 - 바쁜 페이지에서 도착한 자료 응답을 시간 초과로 버림 (2026-10-27)
+
+- symptom/reproduction: 공용 자료(stress-outcomes.json, market-temperature.json, screener.json 등)를 받는 동안 페이지가 긴 동기 작업으로 마감 시각을 넘겨 바쁘면, 이미 도착했거나 받는 중인 응답이 '시간 초과'로 중단되고 그 자료는 1분간 다시 읽히지 않았다. 헤드리스 QA에서 requestfailed net::ERR_ABORTED로 main CI를 두 번 막은 원인이다.
+- root_cause: loadJsonArtifact의 머리글 마감 타이머와 readBodyText의 정지 감시 타이머는 페이지가 바쁜 동안 밀려 있다가, 바쁜 작업이 끝나면 대기 중인 네트워크 작업보다 먼저 실행될 수 있다. 그때 경과 시간만 보고 요청을 중단했으므로, 늦게 실행된 타이머가 네트워크가 아니라 페이지의 지연을 시간 초과로 판정했다.
+- fix: 두 타이머 모두 예정 시각보다 1초 넘게 늦게 실행되면 페이지가 바빴던 것으로 보고, 중단하지 않고 1초 뒤에 다시 확인한다. 제때 실행된 타이머의 시간 초과·정지 판정은 그대로다.
+- violated_rule: 타임아웃은 네트워크가 느린 것과 페이지가 바쁜 것을 구분해야 한다(밀려서 늦게 실행된 타이머로 도착한 응답을 버리지 않는다).
+- prevention: ci-artifact-cache-check에 마감 뒤에 줄 선 응답을 긴 동기 작업 뒤에도 받는지 확인하는 v59.23 검사를 추가했다.
+- verification/residual: 수정 전 새 검사는 'Artifact timeout after 100ms'로 실패했고 수정 뒤 통과했다. 브라우저에서 마감을 넘기는 3초 동기 작업 중 stress-outcomes.json을 읽는 Playwright 프로브가 수정 전 세 번 모두 시간 초과, 수정 뒤 세 번 모두 성공했다.
+
 ## P2107 - v59.21 - 스크리너 실행 보관 목록이 '불러오는 중'에 멈춤 (2026-10-27)
 
 - symptom/reproduction: 스크리너 화면에서 보관한 실행 목록을 읽는 도중 다른 화면으로 갔다가 돌아오면, 목록이 다시 읽히지 않아 '저장 입력으로 재현' 버튼이 새로 고칠 때까지 나타나지 않았다. 전체 QA의 browser-screener-refresh가 이 버튼 클릭 시간 초과로 간헐 실패한 원인이다.

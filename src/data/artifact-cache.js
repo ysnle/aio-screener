@@ -18,6 +18,9 @@ export function stableFetcher(root = globalThis) {
   return bound;
 }
 
+// A timer that runs this much after its due time was held by a busy page (P2108).
+const LATE_TIMER_MS = 1000;
+
 function createAbortError() {
   try { return new DOMException('Artifact request aborted', 'AbortError'); }
   catch { const error = new Error('Artifact request aborted'); error.name = 'AbortError'; return error; }
@@ -121,7 +124,13 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
   let fail = null;
   const timeoutPromise = new Promise((_, reject) => {
     fail = (reason) => { controller.abort(); reject(new Error(`${reason}: ${key}`)); };
-    entry.timer = setTimeout(() => fail(`Artifact timeout after ${timeout}ms`), timeout);
+    // P2108: a deadline that fires late means the page was busy (a long task), not that the network was slow, and the
+    // response may be queued behind it; give it a short grace instead of aborting a request that already arrived.
+    const arm = (ms) => {
+      const due = Date.now() + ms;
+      entry.timer = setTimeout(() => (Date.now() - due > LATE_TIMER_MS ? arm(LATE_TIMER_MS) : fail(`Artifact timeout after ${timeout}ms`)), ms);
+    };
+    arm(timeout);
   });
   const fetchPromise = Promise.resolve()
     .then(() => {

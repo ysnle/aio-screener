@@ -140,4 +140,14 @@ clearArtifactCache(stableFetcher(boundRoot));
 assert.equal(artifactCacheSnapshot(stableFetcher(boundRoot)).resolved, 0, 'v57.77: clearing the root fetcher clears its store');
 assert.equal(artifactCacheSnapshot(stableFetcher(otherRoot)).resolved, 1, 'v58.64 M1 clearing one root leaves the other root store');
 
+// v59.23 (P2108): a deadline held past its time by a long task must not abort a response queued behind it.
+let lateResolve = null;
+const lateFetch = () => new Promise((resolve) => { lateResolve = () => resolve({ ok: true, json: async () => ({ late: true }) }); });
+const lateLoad = loadJsonArtifact(lateFetch, './late.json', { timeoutMs: 100 }).catch((error) => ({ error: error.message }));
+setImmediate(() => lateResolve?.()); // runs after the timers phase, as the network task behind the deadline does
+const busyUntil = Date.now() + 1300;
+while (Date.now() < busyUntil) { /* a long synchronous task */ }
+const lateValue = await lateLoad;
+assert.equal(lateValue.late, true, `v59.23 a late deadline gives the queued response its turn (${JSON.stringify(lateValue)})`);
+
 console.log(JSON.stringify({ ok: true, calls, isolatedCalls, timeoutAborted, allConsumersAborted, integrity: true, byteBudget: true, constraintCalls, abortedRetryIsolation: true, boundCalls, contract: 'artifact-cache.v5' }));
