@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T12:21:52.122Z",
-  "attemptedAt": "2026-10-27T12:21:52.122Z",
-  "lastSuccessfulAt": "2026-10-27T12:21:52.122Z",
+  "generatedAt": "2026-10-27T13:01:02.680Z",
+  "attemptedAt": "2026-10-27T13:01:02.680Z",
+  "lastSuccessfulAt": "2026-10-27T13:01:02.680Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T12:21:47.773Z",
-  "until": "2026-10-27T12:21:47.773Z",
+  "since": "2026-10-13T13:00:56.269Z",
+  "until": "2026-10-27T13:00:56.269Z",
   "current24hWindow": {
     "start": "2026-10-25T23:00:00.000Z",
     "end": "2026-10-26T23:00:00.000Z",
@@ -81,9 +81,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 232,
+      "count": 228,
       "freshCount": 0,
-      "eligibleTextCount": 219,
+      "eligibleTextCount": 215,
       "selectedCount": 67,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -93,21 +93,21 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1324,
+      "count": 1325,
       "freshCount": 40,
-      "eligibleTextCount": 1269,
+      "eligibleTextCount": 1270,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67517
+      "lastPostId": 67520
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 253,
+      "count": 252,
       "freshCount": 20,
-      "eligibleTextCount": 253,
+      "eligibleTextCount": 252,
       "selectedCount": 98,
       "error": null,
       "lastPostId": 20852
@@ -117,26 +117,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 683,
-      "freshCount": 38,
-      "eligibleTextCount": 683,
+      "count": 684,
+      "freshCount": 40,
+      "eligibleTextCount": 684,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 71100
+      "lastPostId": 71102
     }
   ],
-  "count": 2492,
-  "retainedItemCount": 467,
+  "count": 2489,
+  "retainedItemCount": 465,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2492,
-    "eligibleTextCount": 2424,
+    "observedCount": 2489,
+    "eligibleTextCount": 2421,
     "mediaOnlyCount": 68,
-    "highSignalCount": 459,
-    "broadSignalCount": 1014,
+    "highSignalCount": 454,
+    "broadSignalCount": 1010,
     "selectedRawCount": 405,
     "selectedEligibleCount": 405,
     "selectedRawCoveragePct": 16.7,
@@ -144,48 +144,48 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 600,
-    "power": 325,
-    "ai-policy": 154,
-    "earnings": 512,
-    "geo": 369,
-    "japan": 134,
+    "semi": 596,
+    "earnings": 511,
     "market-note": 914,
-    "healthcare": 134,
-    "kr-market": 149,
-    "macro": 411,
+    "geo": 370,
+    "kr-market": 148,
+    "power": 320,
+    "ai-policy": 153,
+    "japan": 133,
+    "healthcare": 133,
+    "macro": 410,
     "media-only": 68,
     "credit": 125,
-    "equity": 192,
+    "equity": 189,
     "flows": 113,
-    "optical": 42,
+    "optical": 40,
     "crypto": 4,
     "insider": 6
   },
   "tickerCounts": {
-    "NVDA": 191,
+    "MU": 67,
+    "NVDA": 190,
     "GOOG": 103,
     "AVGO": 24,
     "AMZN": 61,
     "AAPL": 16,
     "005930.KS": 52,
-    "000660.KS": 69,
+    "000660.KS": 67,
     "MSFT": 59,
     "CRWV": 25,
     "TSM": 96,
-    "MU": 67,
     "009150.KS": 16,
     "MS": 7,
     "MRNA": 1,
     "GOOGL": 2,
-    "TSLA": 94,
+    "TSLA": 93,
     "RDDT": 2,
     "LITE": 9,
     "FDX": 1,
     "META": 17,
     "BE": 37,
     "APO": 2,
-    "AMD": 23,
+    "AMD": 22,
     "CRM": 1,
     "AMAT": 2,
     "MRVL": 2,
@@ -254,18 +254,18 @@
   },
   "themes": [
     "Market Notes (914 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록....",
-    "Semiconductors/Memory (600 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을...",
-    "Earnings/Corporate (512 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (411 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
-    "Geopolitics (369 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (325 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
-    "Equity/Analyst (192 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (154 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
+    "Semiconductors/Memory (596 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을...",
+    "Earnings/Corporate (511 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
+    "Macro/Rates (410 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
+    "Geopolitics (370 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "AI Power/Grid (320 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Equity/Analyst (189 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
+    "AI Policy/Export Controls (153 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 191,
+      "count": 190,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을..."
     },
     {
@@ -280,18 +280,18 @@
     },
     {
       "key": "TSLA",
-      "count": 94,
+      "count": 93,
       "text": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
-    },
-    {
-      "key": "000660.KS",
-      "count": 69,
-      "text": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록...."
     },
     {
       "key": "MU",
       "count": 67,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
+    },
+    {
+      "key": "000660.KS",
+      "count": 67,
+      "text": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록...."
     },
     {
       "key": "AMZN",
@@ -331,7 +331,7 @@
       "topics": [
         "macro"
       ],
-      "count": 411,
+      "count": 410,
       "focus": "2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%..."
     },
     {
@@ -340,7 +340,7 @@
       "topics": [
         "geo"
       ],
-      "count": 369,
+      "count": 370,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -358,7 +358,7 @@
       "topics": [
         "semi"
       ],
-      "count": 600,
+      "count": 596,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을..."
     },
     {
@@ -367,7 +367,7 @@
       "topics": [
         "optical"
       ],
-      "count": 42,
+      "count": 40,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. *..."
     },
     {
@@ -376,7 +376,7 @@
       "topics": [
         "power"
       ],
-      "count": 325,
+      "count": 320,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -385,7 +385,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 154,
+      "count": 153,
       "focus": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
     },
     {
@@ -394,7 +394,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 149,
+      "count": 148,
       "focus": "스포티파이(SPOT) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장 및 가입자 확대. 3분기 매출은 50억유로로 고정환율 기준 전년 대비 14% 증가. 월간 활성 사용자(MAU)는 7억..."
     },
     {
@@ -403,7 +403,7 @@
       "topics": [
         "equity"
       ],
-      "count": 192,
+      "count": 189,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각..."
     },
     {
@@ -421,7 +421,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 512,
+      "count": 511,
       "focus": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -430,7 +430,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 134,
+      "count": 133,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · AMN Healthcare Services · Bio-Techne · Charles River Laboratories International ·..."
     },
     {
@@ -439,7 +439,7 @@
       "topics": [
         "japan"
       ],
-      "count": 134,
+      "count": 133,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -1626,6 +1626,37 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/71102",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71102",
+      "datetime": "2026-10-27T12:58:31.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 56,
+      "hasText": true,
+      "tickers": [
+        "MU"
+      ],
+      "summary": ">>PCB·CCL 공급 부족 수혜…모건스탠리·골드만삭스, 대만 3개 종목 공통 추천 (대만경제일보) •모건스탠리와 골드만삭스는 AI 서버 업그레이드에 따른 PCB 공급망 수요가 강한 가운데 공급 병목이..."
+    },
+    {
+      "id": "insidertracking/67519",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67519",
+      "datetime": "2026-10-27T12:23:12.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "geo"
+      ],
+      "score": 55,
+      "hasText": true,
+      "tickers": [],
+      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
+    },
     {
       "id": "insidertracking/67517",
       "channel": "insidertracking",
@@ -3036,20 +3067,6 @@
         "005930.KS",
         "000660.KS"
       ]
-    },
-    {
-      "id": "insidertracking/67388",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67388",
-      "datetime": "2026-10-26T12:32:42.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "geo"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다....",
-      "tickers": []
     },
     {
       "id": "insidertracking/67387",
@@ -7677,22 +7694,6 @@
       "lead": 1,
       "tickers": [
         "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/70811",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70811",
-      "datetime": "2026-10-21T23:03:03.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "power"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "• PSMC: 성숙 공정의 공급 부족이 지속되면서 2027년 가격 10~20% 인상 목표. MOSFET 및 IGBT의 내년 물량 중 약 80%가 장기 계약으로 체결 되었으며, AI 서버용 전력관리...",
-      "tickers": [
-        "MU"
       ]
     },
     {
