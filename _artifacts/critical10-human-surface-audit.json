@@ -1,5 +1,5 @@
 {
-  "version": "v59.39",
+  "version": "v59.40",
   "viewport": {
     "width": 1440,
     "height": 1000
@@ -8,7 +8,7 @@
     {
       "routeId": "home",
       "status": "ok",
-      "focusableCount": 18,
+      "focusableCount": 17,
       "pageTitle": "오늘",
       "audit": {
         "status": "ok",
@@ -39,7 +39,7 @@
               "headerText": "오늘 결론시장환경 관찰 — 중립 구간, 예측 검증 미확립 데이터: 참고10/26 미국 정규장 종가 기준기준 시각 10/27 08:00시점 불일치근거 상태 참고 관측, 예측력 미검증 10/26 미국 정규장 종가 기준. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다. 보조 입력 미수신: VVIX, Put/Call.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:53:59.209Z"
+          "generatedAt": "2026-10-27T14:15:39.464Z"
         },
         "accessibility": {
           "status": "ok",
@@ -62,11 +62,29 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:53:59.210Z"
+          "generatedAt": "2026-10-27T14:15:39.466Z"
         },
-        "generatedAt": "2026-10-27T13:53:59.210Z"
+        "generatedAt": "2026-10-27T14:15:39.466Z"
       },
       "tabSequence": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "S&P 500, 10/26 종가 7,676.77. 장중 그래프는 받지 못했습니다. 누르면 SPY 차트로 이동(이 지수를 따르는 ETF)",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "나스닥 100, 10/26 종가 29,273.40. 장중 그래프는 받지 못했습니다. 누르면 QQQ 차트로 이동(이 지수를 따르는 ETF)",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "반도체, 10/26 종가 541.62. 장중 그래프는 받지 못했습니다. 누르면 SMH 차트로 이동",
+          "tabindex": ""
+        },
         {
           "tag": "BUTTON",
           "id": "",
@@ -101,12 +119,6 @@
           "tag": "SUMMARY",
           "id": "",
           "name": "근거와 바뀌는 조건",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "한국 참고: 뚜렷한 우위 없음",
           "tabindex": ""
         },
         {
@@ -170,12 +182,6 @@
           "tabindex": ""
         },
         {
-          "tag": "SPAN",
-          "id": "",
-          "name": "WTI",
-          "tabindex": "0"
-        },
-        {
           "tag": "SUMMARY",
           "id": "",
           "name": "전체 조건 보기",
@@ -204,19 +210,13 @@
           "id": "",
           "name": "나스닥 100 현물 29,273.410/26 종가 +1.09%, 선물 시세 대기 중 — — 나스닥 100 현물 — — 20거래일 -3.3%",
           "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "20거래일 -3.3%",
-          "tabindex": "0"
         }
       ]
     },
     {
       "routeId": "signal",
       "status": "ok",
-      "focusableCount": 80,
+      "focusableCount": 54,
       "pageTitle": "국면 판정",
       "audit": {
         "status": "ok",
@@ -247,7 +247,7 @@
               "headerText": "시장 환경 참고시장환경 관찰 — 중립 구간, 예측 검증 미확립 데이터: 참고10/26 미국 정규장 종가 기준기준 시각 10/27 08:00시점 불일치근거 상태 참고 관측, 예측력 미검증 10/26 미국 정규장 종가 기준. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다. 보조 입력 미수신: VVIX, Put/Call.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:01.436Z"
+          "generatedAt": "2026-10-27T14:15:41.745Z"
         },
         "accessibility": {
           "status": "ok",
@@ -270,35 +270,11 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:01.447Z"
+          "generatedAt": "2026-10-27T14:15:41.773Z"
         },
-        "generatedAt": "2026-10-27T13:54:01.447Z"
+        "generatedAt": "2026-10-27T14:15:41.773Z"
       },
       "tabSequence": [
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "SMH",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "주도 영역",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "주도주",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "시장 폭",
-          "tabindex": "0"
-        },
         {
           "tag": "SUMMARY",
           "id": "",
@@ -308,7 +284,7 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "지난 25거래일 추이와 계산 방법",
+          "name": "테마 94개 하루 흐름",
           "tabindex": ""
         },
         {
@@ -398,12 +374,6 @@
         {
           "tag": "SPAN",
           "id": "",
-          "name": "KST",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
           "name": "FOMC",
           "tabindex": "0"
         },
@@ -418,13 +388,43 @@
           "id": "",
           "name": "국면",
           "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "산업재",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "경기소비재",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "소재",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "에너지",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "헬스케어",
+          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "breadth",
       "status": "ok",
-      "focusableCount": 8,
+      "focusableCount": 42,
       "pageTitle": "시장 폭",
       "audit": {
         "status": "ok",
@@ -455,7 +455,7 @@
               "headerText": "시장 폭 판단판단 보류, 일부 근거 부분 확보 데이터: 스냅샷기준 시각 10/27 08:00시점 부분 일치근거 상태 저장 관측, 예측력 미검증 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:02.750Z"
+          "generatedAt": "2026-10-27T14:15:43.373Z"
         },
         "accessibility": {
           "status": "ok",
@@ -478,9 +478,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:02.760Z"
+          "generatedAt": "2026-10-27T14:15:43.390Z"
         },
-        "generatedAt": "2026-10-27T13:54:02.760Z"
+        "generatedAt": "2026-10-27T14:15:43.390Z"
       },
       "tabSequence": [
         {
@@ -663,7 +663,7 @@
               "headerText": "심리 결론판단 보류, 최신 근거 미수신 데이터: 미수신기준 시각 10/27 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다., 10/26 미국 정규장 종가 기준. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다. 보조 입력 미수신: VVIX, Put/Call.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:04.109Z"
+          "generatedAt": "2026-10-27T14:15:43.837Z"
         },
         "accessibility": {
           "status": "ok",
@@ -686,46 +686,16 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:04.124Z"
+          "generatedAt": "2026-10-27T14:15:43.854Z"
         },
-        "generatedAt": "2026-10-27T13:54:04.124Z"
+        "generatedAt": "2026-10-27T14:15:43.854Z"
       },
       "tabSequence": [
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "공포·탐욕",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "하이일드 스프레드",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "bp",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "%p",
-          "tabindex": "0"
-        },
         {
           "tag": "SUMMARY",
           "id": "",
           "name": "이어서 읽기",
           "tabindex": ""
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "VIX",
-          "tabindex": "0"
         },
         {
           "tag": "SUMMARY",
@@ -834,13 +804,43 @@
           "id": "",
           "name": "이상해요",
           "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 상태 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매크로 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마와 섹터 페이지",
+          "tabindex": "0"
         }
       ]
     },
     {
       "routeId": "briefing",
       "status": "ok",
-      "focusableCount": 3,
+      "focusableCount": 6,
       "pageTitle": "브리핑",
       "audit": {
         "status": "ok",
@@ -871,7 +871,7 @@
               "headerText": "시장 요약시장환경 관찰 — 중립 구간, 예측 검증 미확립 데이터: 참고10/26 미국 정규장 종가 기준기준 시각 10/27 08:00시점 불일치근거 상태 참고 관측, 예측력 미검증 10/26 미국 정규장 종가 기준. 변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다. 보조 입력 미수신: VVIX, Put/Call.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:05.118Z"
+          "generatedAt": "2026-10-27T14:15:45.098Z"
         },
         "accessibility": {
           "status": "ok",
@@ -894,9 +894,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:05.118Z"
+          "generatedAt": "2026-10-27T14:15:45.098Z"
         },
-        "generatedAt": "2026-10-27T13:54:05.118Z"
+        "generatedAt": "2026-10-27T14:15:45.098Z"
       },
       "tabSequence": [
         {
@@ -1079,7 +1079,7 @@
               "headerText": "차트 판단판단 보류, 최신 근거 미수신 데이터: 미수신기준 시각 10/27 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 기술 점수는 실시간 가격과 저장된 보조지표를 함께 씁니다. 단독 매수 신호가 아닙니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:05.681Z"
+          "generatedAt": "2026-10-27T14:15:45.813Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1102,9 +1102,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:05.701Z"
+          "generatedAt": "2026-10-27T14:15:45.835Z"
         },
-        "generatedAt": "2026-10-27T13:54:05.701Z"
+        "generatedAt": "2026-10-27T14:15:45.835Z"
       },
       "tabSequence": [
         {
@@ -1256,7 +1256,7 @@
     {
       "routeId": "macro",
       "status": "ok",
-      "focusableCount": 115,
+      "focusableCount": 138,
       "pageTitle": "거시 경제",
       "audit": {
         "status": "ok",
@@ -1287,7 +1287,7 @@
               "headerText": "오늘 거시 판단판단 보류, 최신 근거 미수신 데이터: 기준 미확인기준 시각 10/27 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 FRED/FMP 키 미수신 구간은 스냅샷 거시로 표시하고 현재 판단 강도를 낮춥니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:07.003Z"
+          "generatedAt": "2026-10-27T14:15:47.588Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1310,9 +1310,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:07.092Z"
+          "generatedAt": "2026-10-27T14:15:47.739Z"
         },
-        "generatedAt": "2026-10-27T13:54:07.092Z"
+        "generatedAt": "2026-10-27T14:15:47.739Z"
       },
       "tabSequence": [
         {
@@ -1495,7 +1495,7 @@
               "headerText": "FX/Rates 판단판단 보류, 최신 근거 미수신 데이터: 미수신기준 시각 10/27 08:00시점 불일치근거 상태 입력 확인 필요, 예측력 미검증 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:07.547Z"
+          "generatedAt": "2026-10-27T14:15:48.283Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1518,9 +1518,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:07.565Z"
+          "generatedAt": "2026-10-27T14:15:48.291Z"
         },
-        "generatedAt": "2026-10-27T13:54:07.565Z"
+        "generatedAt": "2026-10-27T14:15:48.291Z"
       },
       "tabSequence": [
         {
@@ -1545,12 +1545,6 @@
           "tag": "SUMMARY",
           "id": "",
           "name": "설명",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "10년 기간 프리미엄 (Kim-Wright) 근거 보기",
           "tabindex": ""
         },
         {
@@ -1666,6 +1660,12 @@
           "id": "scroll-top-btn",
           "name": "맨 위로 스크롤",
           "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "면책 고지",
+          "tabindex": ""
         }
       ]
     },
@@ -1703,7 +1703,7 @@
               "headerText": "기업 분석 준비판단 보류, 일부 근거 부분 확보 데이터: 스냅샷기준 시각 10/27 08:00시점 부분 일치근거 상태 저장 관측, 예측력 미검증 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:08.045Z"
+          "generatedAt": "2026-10-27T14:15:48.831Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1726,9 +1726,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:08.049Z"
+          "generatedAt": "2026-10-27T14:15:48.839Z"
         },
-        "generatedAt": "2026-10-27T13:54:08.049Z"
+        "generatedAt": "2026-10-27T14:15:48.839Z"
       },
       "tabSequence": [
         {
@@ -1880,7 +1880,7 @@
     {
       "routeId": "themes",
       "status": "ok",
-      "focusableCount": 252,
+      "focusableCount": 61,
       "pageTitle": "테마와 섹터",
       "audit": {
         "status": "ok",
@@ -1911,7 +1911,7 @@
               "headerText": "테마 회전 지도판단 보류, 일부 근거 부분 확보 데이터: 스냅샷기준 시각 10/27 08:00시점 부분 일치근거 상태 저장 관측, 예측력 미검증 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다.AI에게 묻기"
             }
           ],
-          "generatedAt": "2026-10-27T13:54:08.757Z"
+          "generatedAt": "2026-10-27T14:15:49.585Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1934,9 +1934,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-10-27T13:54:08.817Z"
+          "generatedAt": "2026-10-27T14:15:49.594Z"
         },
-        "generatedAt": "2026-10-27T13:54:08.817Z"
+        "generatedAt": "2026-10-27T14:15:49.594Z"
       },
       "tabSequence": [
         {
@@ -2087,6 +2087,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-10-27T13:53:56.758Z",
+  "generatedAt": "2026-10-27T14:15:36.825Z",
   "status": "pass"
 }

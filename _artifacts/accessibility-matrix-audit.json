@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-27T13:54:10.182Z",
-  "appRevision": "v59.39",
-  "gitHead": "f24e2c49c73deb928362bfa6aea0ab7289633fce",
+  "observedAt": "2026-10-27T14:15:51.405Z",
+  "appRevision": "v59.40",
+  "gitHead": "d8243d06d994111276f9f890f8e69e17b7fc61d1",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -77,23 +77,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "bp",
-          "width": 22,
-          "height": 25,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 20,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -146,48 +131,13 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 6,
+      "smallTargetExceptionCount": 1,
       "smallTargetExceptions": [
         {
           "id": "",
-          "text": "CPI",
-          "width": 23,
-          "height": 26,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "%p",
-          "width": 22,
-          "height": 26,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "PER",
+          "text": "KST",
           "width": 23,
           "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "bp",
-          "width": 15,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "WTI",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 23,
-          "height": 26,
           "exception": "wcag-inline-text"
         }
       ],
