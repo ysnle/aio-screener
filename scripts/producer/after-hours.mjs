@@ -3,6 +3,7 @@
 // The day's after-close reporters (earnings-calendar.json, hour=amc) are read from Yahoo's 5-minute chart with
 // extended hours: the last 16:00-20:00 ET print of that session against the regular close. Provisional, reference-only.
 import { fetchJSON } from '../lib/producer-http.mjs';
+import { AFTER_HOURS_REQUIRED_PCT } from '../lib/market-analysis-validate.mjs';
 
 export const AFTER_HOURS_MAX = 8;
 export const AFTER_HOURS_MENTION_PCT = 3; // a move this large, or an index-weight leader, is offered to the reading
@@ -105,8 +106,9 @@ export function afterHoursContextLines(afterHours) {
 }
 
 // Reuse key: the rows the prompt carries, with whole-percent moves, so a few cents of after-hours drift does not buy a new
-// model call while a row crossing the mention edge (into or out of the prompt) or a newly reported EPS does.
+// model call while a row crossing the mention edge (into or out of the prompt) or a newly reported EPS does. A `!` marks
+// a move the validator requires the reading to name (v59.42), so +4.7% → +5.2% reopens a reading that may omit it.
 export function afterHoursSignature(afterHours) {
   const rows = mentionedRows(afterHours);
-  return rows.length ? `${afterHours.sessionDate}:${rows.map((row) => `${row.symbol}${Math.round(row.changePct)}${eps(row)}`).join(',')}` : '';
+  return rows.length ? `${afterHours.sessionDate}:${rows.map((row) => `${row.symbol}${Math.round(row.changePct)}${Math.abs(row.changePct) >= AFTER_HOURS_REQUIRED_PCT ? '!' : ''}${eps(row)}`).join(',')}` : '';
 }
