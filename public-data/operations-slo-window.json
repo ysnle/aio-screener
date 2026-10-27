@@ -1,11 +1,11 @@
 {
   "schemaVersion": "operations-slo-window.v3",
   "status": "NOT_CERTIFIED",
-  "observedAt": "2026-08-24T15:00:00.000Z",
-  "collectionMode": "SOURCE_TEMPLATE_ONLY",
+  "observedAt": "2026-10-27T11:26:40.079Z",
+  "collectionMode": "MEASURED_RUNTIME",
   "query": {
     "repository": "ysnle/aio-screener",
-    "cutoff": "2026-08-24T15:00:00.000Z",
+    "cutoff": "2026-09-27T11:26:40.079Z",
     "workflows": {
       "market": "refresh-data.yml",
       "screener": "refresh-screener.yml",
@@ -14,32 +14,41 @@
     "completeness": {
       "market": {
         "workflow": "refresh-data.yml",
-        "pagesFetched": 0,
-        "maxPages": 10,
-        "paginationComplete": false,
-        "truncated": null,
-        "excluded": null
+        "pagesFetched": 8,
+        "maxPages": 30,
+        "paginationComplete": true,
+        "truncated": false,
+        "excluded": {
+          "nonCompleted": 0,
+          "outsideWindow": 2
+        }
       },
       "screener": {
         "workflow": "refresh-screener.yml",
-        "pagesFetched": 0,
-        "maxPages": 10,
-        "paginationComplete": false,
-        "truncated": null,
-        "excluded": null
+        "pagesFetched": 2,
+        "maxPages": 30,
+        "paginationComplete": true,
+        "truncated": false,
+        "excluded": {
+          "nonCompleted": 0,
+          "outsideWindow": 1
+        }
       },
       "watchdog": {
         "workflow": "data-watchdog.yml",
-        "pagesFetched": 0,
-        "maxPages": 10,
-        "paginationComplete": false,
-        "truncated": null,
-        "excluded": null
+        "pagesFetched": 11,
+        "maxPages": 30,
+        "paginationComplete": true,
+        "truncated": false,
+        "excluded": {
+          "nonCompleted": 0,
+          "outsideWindow": 0
+        }
       },
       "alerts": {
-        "pagesFetched": 0,
+        "pagesFetched": 1,
         "maxPages": 3,
-        "paginationComplete": false
+        "paginationComplete": true
       }
     }
   },
@@ -54,90 +63,113 @@
     "market": {
       "workflow": "refresh-data.yml",
       "required": true,
-      "expectedRuns": null,
-      "observedRuns": 0,
-      "scheduledArrivalRate": null,
-      "manualRunsExcluded": 0,
-      "successRate": null,
-      "observedDays": 0,
-      "status": "NOT_OBSERVED"
+      "expectedRuns": 1470,
+      "observedRuns": 601,
+      "scheduledArrivalRate": 0.127211,
+      "manualRunsExcluded": 97,
+      "successRate": 0.66223,
+      "observedDays": 31,
+      "status": "DEGRADED"
     },
     "screener": {
       "workflow": "refresh-screener.yml",
       "required": true,
-      "expectedRuns": null,
-      "observedRuns": 0,
-      "scheduledArrivalRate": null,
-      "manualRunsExcluded": 0,
-      "successRate": null,
-      "observedDays": 0,
-      "status": "NOT_OBSERVED"
+      "expectedRuns": 150,
+      "observedRuns": 114,
+      "scheduledArrivalRate": 0.76,
+      "manualRunsExcluded": 41,
+      "successRate": 0.736842,
+      "observedDays": 31,
+      "status": "DEGRADED"
     },
     "watchdog": {
       "workflow": "data-watchdog.yml",
       "required": true,
-      "expectedRuns": null,
-      "observedRuns": 0,
-      "scheduledArrivalRate": null,
+      "expectedRuns": 720,
+      "observedRuns": 46,
+      "scheduledArrivalRate": 0.063889,
       "manualRunsExcluded": 0,
-      "successRate": null,
-      "observedDays": 0,
-      "status": "NOT_OBSERVED"
+      "successRate": 0.456522,
+      "observedDays": 10,
+      "status": "DEGRADED"
     }
   },
   "windows": {
     "7d": {
       "requiredDays": 7,
-      "observedDays": 0,
-      "status": "INSUFFICIENT_EVIDENCE",
+      "observedDays": 8,
+      "status": "FAIL",
       "domains": {
         "market": {
           "workflow": "refresh-data.yml",
           "required": true,
-          "expectedRuns": null,
-          "observedRuns": 0,
+          "expectedRuns": 342,
+          "expectedRunsBasis": "cadence-history",
+          "measures": "workflow-execution",
+          "observedRuns": 334,
+          "scheduledRuns": 48,
+          "automatedDispatchRuns": 286,
+          "deliveryRate": 0.976608,
           "manualRunsExcluded": 0,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
           "cancelledRuns": 0,
-          "scheduledArrivalRate": null,
-          "completed": 0,
-          "succeeded": 0,
-          "failed": 0,
-          "successRate": null,
-          "observedDays": 0,
-          "exactSourceIdentityCoverage": null,
-          "status": "NOT_OBSERVED"
+          "scheduledArrivalRate": 0.140351,
+          "completed": 334,
+          "succeeded": 185,
+          "failed": 149,
+          "successRate": 0.553892,
+          "observedDays": 8,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
         },
         "screener": {
           "workflow": "refresh-screener.yml",
           "required": true,
-          "expectedRuns": null,
-          "observedRuns": 0,
-          "manualRunsExcluded": 0,
+          "expectedRuns": 35,
+          "expectedRunsBasis": "current-cron-backfilled",
+          "measures": "workflow-execution",
+          "observedRuns": 34,
+          "scheduledRuns": 34,
+          "automatedDispatchRuns": 0,
+          "deliveryRate": 0.971429,
+          "manualRunsExcluded": 15,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
           "cancelledRuns": 0,
-          "scheduledArrivalRate": null,
-          "completed": 0,
-          "succeeded": 0,
-          "failed": 0,
-          "successRate": null,
-          "observedDays": 0,
-          "exactSourceIdentityCoverage": null,
-          "status": "NOT_OBSERVED"
+          "scheduledArrivalRate": 0.971429,
+          "completed": 34,
+          "succeeded": 25,
+          "failed": 9,
+          "successRate": 0.735294,
+          "observedDays": 8,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
         },
         "watchdog": {
           "workflow": "data-watchdog.yml",
           "required": true,
-          "expectedRuns": null,
-          "observedRuns": 0,
+          "expectedRuns": 168,
+          "expectedRunsBasis": "cadence-history",
+          "measures": "workflow-execution",
+          "observedRuns": 36,
+          "scheduledRuns": 36,
+          "automatedDispatchRuns": 0,
+          "deliveryRate": 0.214286,
           "manualRunsExcluded": 0,
-          "cancelledRuns": 0,
-          "scheduledArrivalRate": null,
-          "completed": 0,
-          "succeeded": 0,
-          "failed": 0,
-          "successRate": null,
-          "observedDays": 0,
-          "exactSourceIdentityCoverage": null,
-          "status": "NOT_OBSERVED"
+          "nonScheduledRunsExcluded": 623,
+          "nonScheduledEventBreakdown": {
+            "workflow_run": 623
+          },
+          "cancelledRuns": 1,
+          "scheduledArrivalRate": 0.214286,
+          "completed": 36,
+          "succeeded": 14,
+          "failed": 22,
+          "successRate": 0.388889,
+          "observedDays": 8,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
         }
       },
       "coverage": {
@@ -146,98 +178,121 @@
           "screener",
           "watchdog"
         ],
-        "missingDomains": [
-          "market",
-          "screener",
-          "watchdog"
-        ],
-        "incompleteSources": [
-          "market",
-          "screener",
-          "watchdog",
-          "alerts"
-        ],
-        "everyRequiredDomainObserved": false,
-        "everySourcePaginated": false
+        "missingDomains": [],
+        "incompleteSources": [],
+        "everyRequiredDomainObserved": true,
+        "everySourcePaginated": true
       },
       "artifact": {
-        "completed": 0,
-        "succeeded": 0,
-        "failed": 0,
-        "successRate": null,
-        "observedDays": 0,
-        "exactSourceIdentityCoverage": null
+        "completed": 82,
+        "succeeded": 56,
+        "failed": 26,
+        "successRate": 0.682927,
+        "observedDays": 8,
+        "exactSourceIdentityCoverage": 1
       },
       "watchdog": {
         "workflow": "data-watchdog.yml",
         "required": true,
-        "expectedRuns": null,
-        "observedRuns": 0,
+        "expectedRuns": 168,
+        "expectedRunsBasis": "cadence-history",
+        "measures": "workflow-execution",
+        "observedRuns": 36,
+        "scheduledRuns": 36,
+        "automatedDispatchRuns": 0,
+        "deliveryRate": 0.214286,
         "manualRunsExcluded": 0,
-        "cancelledRuns": 0,
-        "scheduledArrivalRate": null,
-        "completed": 0,
-        "succeeded": 0,
-        "failed": 0,
-        "successRate": null,
-        "observedDays": 0,
-        "exactSourceIdentityCoverage": null,
-        "status": "NOT_OBSERVED"
+        "nonScheduledRunsExcluded": 623,
+        "nonScheduledEventBreakdown": {
+          "workflow_run": 623
+        },
+        "cancelledRuns": 1,
+        "scheduledArrivalRate": 0.214286,
+        "completed": 36,
+        "succeeded": 14,
+        "failed": 22,
+        "successRate": 0.388889,
+        "observedDays": 8,
+        "exactSourceIdentityCoverage": 1,
+        "status": "DEGRADED"
       },
-      "source": "operator-runtime-artifact-required"
+      "source": "github-actions-api"
     },
     "30d": {
       "requiredDays": 30,
-      "observedDays": 0,
+      "observedDays": 10,
       "status": "INSUFFICIENT_EVIDENCE",
       "domains": {
         "market": {
           "workflow": "refresh-data.yml",
           "required": true,
-          "expectedRuns": null,
-          "observedRuns": 0,
-          "manualRunsExcluded": 0,
-          "cancelledRuns": 0,
-          "scheduledArrivalRate": null,
-          "completed": 0,
-          "succeeded": 0,
-          "failed": 0,
-          "successRate": null,
-          "observedDays": 0,
-          "exactSourceIdentityCoverage": null,
-          "status": "NOT_OBSERVED"
+          "expectedRuns": 1470,
+          "expectedRunsBasis": "cadence-history",
+          "measures": "workflow-execution",
+          "observedRuns": 601,
+          "scheduledRuns": 187,
+          "automatedDispatchRuns": 414,
+          "deliveryRate": 0.408844,
+          "manualRunsExcluded": 97,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
+          "cancelledRuns": 1,
+          "scheduledArrivalRate": 0.127211,
+          "completed": 601,
+          "succeeded": 398,
+          "failed": 203,
+          "successRate": 0.66223,
+          "observedDays": 31,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
         },
         "screener": {
           "workflow": "refresh-screener.yml",
           "required": true,
-          "expectedRuns": null,
-          "observedRuns": 0,
-          "manualRunsExcluded": 0,
+          "expectedRuns": 150,
+          "expectedRunsBasis": "current-cron-backfilled",
+          "measures": "workflow-execution",
+          "observedRuns": 114,
+          "scheduledRuns": 114,
+          "automatedDispatchRuns": 0,
+          "deliveryRate": 0.76,
+          "manualRunsExcluded": 41,
+          "nonScheduledRunsExcluded": 0,
+          "nonScheduledEventBreakdown": {},
           "cancelledRuns": 0,
-          "scheduledArrivalRate": null,
-          "completed": 0,
-          "succeeded": 0,
-          "failed": 0,
-          "successRate": null,
-          "observedDays": 0,
-          "exactSourceIdentityCoverage": null,
-          "status": "NOT_OBSERVED"
+          "scheduledArrivalRate": 0.76,
+          "completed": 114,
+          "succeeded": 84,
+          "failed": 30,
+          "successRate": 0.736842,
+          "observedDays": 31,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
         },
         "watchdog": {
           "workflow": "data-watchdog.yml",
           "required": true,
-          "expectedRuns": null,
-          "observedRuns": 0,
+          "expectedRuns": 720,
+          "expectedRunsBasis": "cadence-history",
+          "measures": "workflow-execution",
+          "observedRuns": 46,
+          "scheduledRuns": 46,
+          "automatedDispatchRuns": 0,
+          "deliveryRate": 0.063889,
           "manualRunsExcluded": 0,
-          "cancelledRuns": 0,
-          "scheduledArrivalRate": null,
-          "completed": 0,
-          "succeeded": 0,
-          "failed": 0,
-          "successRate": null,
-          "observedDays": 0,
-          "exactSourceIdentityCoverage": null,
-          "status": "NOT_OBSERVED"
+          "nonScheduledRunsExcluded": 954,
+          "nonScheduledEventBreakdown": {
+            "workflow_run": 954
+          },
+          "cancelledRuns": 1,
+          "scheduledArrivalRate": 0.063889,
+          "completed": 46,
+          "succeeded": 21,
+          "failed": 25,
+          "successRate": 0.456522,
+          "observedDays": 10,
+          "exactSourceIdentityCoverage": 1,
+          "status": "DEGRADED"
         }
       },
       "coverage": {
@@ -246,90 +301,109 @@
           "screener",
           "watchdog"
         ],
-        "missingDomains": [
-          "market",
-          "screener",
-          "watchdog"
-        ],
-        "incompleteSources": [
-          "market",
-          "screener",
-          "watchdog",
-          "alerts"
-        ],
-        "everyRequiredDomainObserved": false,
-        "everySourcePaginated": false
+        "missingDomains": [],
+        "incompleteSources": [],
+        "everyRequiredDomainObserved": true,
+        "everySourcePaginated": true
       },
       "artifact": {
-        "completed": 0,
-        "succeeded": 0,
-        "failed": 0,
-        "successRate": null,
-        "observedDays": 0,
-        "exactSourceIdentityCoverage": null
+        "completed": 301,
+        "succeeded": 234,
+        "failed": 67,
+        "successRate": 0.777409,
+        "observedDays": 31,
+        "exactSourceIdentityCoverage": 1
       },
       "watchdog": {
         "workflow": "data-watchdog.yml",
         "required": true,
-        "expectedRuns": null,
-        "observedRuns": 0,
+        "expectedRuns": 720,
+        "expectedRunsBasis": "cadence-history",
+        "measures": "workflow-execution",
+        "observedRuns": 46,
+        "scheduledRuns": 46,
+        "automatedDispatchRuns": 0,
+        "deliveryRate": 0.063889,
         "manualRunsExcluded": 0,
-        "cancelledRuns": 0,
-        "scheduledArrivalRate": null,
-        "completed": 0,
-        "succeeded": 0,
-        "failed": 0,
-        "successRate": null,
-        "observedDays": 0,
-        "exactSourceIdentityCoverage": null,
-        "status": "NOT_OBSERVED"
+        "nonScheduledRunsExcluded": 954,
+        "nonScheduledEventBreakdown": {
+          "workflow_run": 954
+        },
+        "cancelledRuns": 1,
+        "scheduledArrivalRate": 0.063889,
+        "completed": 46,
+        "succeeded": 21,
+        "failed": 25,
+        "successRate": 0.456522,
+        "observedDays": 10,
+        "exactSourceIdentityCoverage": 1,
+        "status": "DEGRADED"
       },
-      "source": "operator-runtime-artifact-required"
+      "source": "github-actions-api"
     }
   },
   "metrics": {
     "artifact": {
-      "completed": 0,
-      "succeeded": 0,
-      "failed": 0,
-      "successRate": null,
-      "observedDays": 0,
-      "exactSourceIdentityCoverage": null
+      "completed": 301,
+      "succeeded": 234,
+      "failed": 67,
+      "successRate": 0.777409,
+      "observedDays": 31,
+      "exactSourceIdentityCoverage": 1
     },
     "watchdog": {
       "workflow": "data-watchdog.yml",
       "required": true,
-      "expectedRuns": null,
-      "observedRuns": 0,
+      "expectedRuns": 720,
+      "expectedRunsBasis": "cadence-history",
+      "measures": "workflow-execution",
+      "observedRuns": 46,
+      "scheduledRuns": 46,
+      "automatedDispatchRuns": 0,
+      "deliveryRate": 0.063889,
       "manualRunsExcluded": 0,
-      "cancelledRuns": 0,
-      "scheduledArrivalRate": null,
-      "completed": 0,
-      "succeeded": 0,
-      "failed": 0,
-      "successRate": null,
-      "observedDays": 0,
-      "exactSourceIdentityCoverage": null,
-      "status": "NOT_OBSERVED"
+      "nonScheduledRunsExcluded": 954,
+      "nonScheduledEventBreakdown": {
+        "workflow_run": 954
+      },
+      "cancelledRuns": 1,
+      "scheduledArrivalRate": 0.063889,
+      "completed": 46,
+      "succeeded": 21,
+      "failed": 25,
+      "successRate": 0.456522,
+      "observedDays": 10,
+      "exactSourceIdentityCoverage": 1,
+      "status": "DEGRADED"
     }
   },
   "failureRecovery": {
-    "failureCount": 0,
-    "recoveryCount": 0,
-    "consecutiveFailuresMax": 0,
-    "dedupedAlerts": null,
-    "status": "INSUFFICIENT_EVIDENCE"
+    "failureCount": 25,
+    "recoveryCount": 126,
+    "consecutiveFailuresMax": 164,
+    "dedupedAlerts": {
+      "issueCount": 8,
+      "workflowCount": 8,
+      "duplicateMarkerCount": 0,
+      "openCount": 0,
+      "closedCount": 8,
+      "deduped": true,
+      "pagesFetched": 1,
+      "paginationComplete": true,
+      "source": "github-issues-api"
+    },
+    "status": "MEASURED_DEDUPED"
   },
   "revisionLanes": {
     "liveRevision": null,
     "dataRevision": null,
     "localFixturePromotesLive": false,
-    "sourceShaCoverage": null
+    "sourceShaCoverage": 1
   },
   "certification": {
     "thirtyDaySlo": "OPERATOR_REQUIRED",
-    "alertDedupe": "OPERATOR_REQUIRED",
+    "alertDedupe": "PASS",
     "publicPromotionAllowed": false
   },
-  "reason": "This checked-in file is a fail-closed source template. The watchdog uploads a private runtime artifact built from GitHub Actions history; local fixtures never promote it. Per-domain lanes and query completeness are published so a missing data domain cannot be hidden by another domain's aggregate."
+  "reason": "Per-domain lanes measure scheduled arrival and success independently; a required domain with zero observed runs in the window cannot be certified. Actions history measures execution success and recovery; repository issues measure workflow-keyed alert dedupe. Provider rights, live revision, and public promotion remain independent operator evidence."
 }
