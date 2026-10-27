@@ -7,7 +7,7 @@
  "allowedUse": "reference-only",
  "weekStart": "2026-10-26",
  "weekEnd": "2026-11-02",
- "generatedAt": "2026-10-27T12:51:39.772Z",
+ "generatedAt": "2026-10-27T18:29:36.778Z",
  "largeCapCoverage": {
   "basis": "S&P 500 top 30 by index weight + universe ADR listings",
   "watchCount": 36,
@@ -472,6 +472,7 @@
   "IRM": "2026-11-05|bmo",
   "KMB": "2026-11-05|bmo",
   "KRMN": "2026-11-05|",
+  "KTOS": "2026-11-05|",
   "LAMR": "2026-11-05|",
   "LITE": "2026-11-05|amc",
   "LYFT": "2026-11-05|amc",
@@ -514,6 +515,8 @@
   "DK": "2026-11-06|bmo",
   "HUM": "2026-11-06|bmo",
   "MRNA": "2026-11-06|bmo",
+  "OKLO": "2026-11-06|",
+  "PPL": "2026-11-06|",
   "VST": "2026-11-06|",
   "WULF": "2026-11-06|",
   "CEG": "2026-11-09|",
@@ -540,6 +543,7 @@
   "HL": "2026-11-11|amc",
   "LAC": "2026-11-11|",
   "MARA": "2026-11-11|",
+  "NBIS": "2026-11-11|",
   "RDW": "2026-11-11|",
   "VSAT": "2026-11-11|",
   "AMAT": "2026-11-12|amc",
@@ -569,7 +573,6 @@
   "KLIC": "2026-11-18|amc",
   "LOW": "2026-11-18|bmo",
   "LUNR": "2026-11-18|",
-  "OKLO": "2026-11-18|",
   "P": "2026-11-18|",
   "ROST": "2026-11-18|",
   "TDG": "2026-11-18|amc",
@@ -586,6 +589,7 @@
   "DELL": "2026-11-23|",
   "FLNC": "2026-11-23|amc",
   "HPQ": "2026-11-23|amc",
+  "J": "2026-11-23|amc",
   "KEYS": "2026-11-23|amc",
   "NTNX": "2026-11-23|",
   "SMTC": "2026-11-23|",
@@ -596,7 +600,6 @@
   "ADSK": "2026-11-24|",
   "BBY": "2026-11-24|",
   "BIDU": "2026-11-24|bmo",
-  "J": "2026-11-24|amc",
   "MDT": "2026-11-24|",
   "SJM": "2026-11-24|",
   "DE": "2026-11-25|amc",
@@ -2151,8 +2154,8 @@
    "epsEstimate": 1.9082,
    "revenueEstimate": 52680923,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 2.12,
+   "revenueActual": 61390000
   },
   {
    "symbol": "ESS",
@@ -2521,8 +2524,8 @@
    "epsEstimate": 1.5915,
    "revenueEstimate": 607761900,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.94,
+   "revenueActual": 599330000
   },
   {
    "symbol": "ITW",
@@ -3217,12 +3220,12 @@
   {
    "symbol": "THFF",
    "date": "2026-10-27",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": 2.0655,
    "revenueEstimate": 76415340,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 2.31,
+   "revenueActual": 74960000
   },
   {
    "symbol": "TK",
@@ -3377,12 +3380,12 @@
   {
    "symbol": "WCCB",
    "date": "2026-10-27",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": 1.375,
    "revenueEstimate": 37230000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null
+   "epsActual": 1.5,
+   "revenueActual": 38410000
   },
   {
    "symbol": "WERN",
@@ -10525,6 +10528,16 @@
    "revenueActual": null
   },
   {
+   "symbol": "CWH",
+   "date": "2026-11-02",
+   "hour": null,
+   "epsEstimate": 0.1417,
+   "revenueEstimate": 1666881315,
+   "indexWeight": null,
+   "epsActual": null,
+   "revenueActual": null
+  },
+  {
    "symbol": "DAVA",
    "date": "2026-11-02",
    "hour": "bmo",
@@ -11175,6 +11188,16 @@
    "revenueActual": null
   },
   {
+   "symbol": "NSSC",
+   "date": "2026-11-02",
+   "hour": null,
+   "epsEstimate": 0.3852,
+   "revenueEstimate": 53113103,
+   "indexWeight": null,
+   "epsActual": null,
+   "revenueActual": null
+  },
+  {
    "symbol": "O",
    "date": "2026-11-02",
    "hour": "amc",
@@ -11500,6 +11523,16 @@
    "hour": null,
    "epsEstimate": 0.3315,
    "revenueEstimate": 45580230,
+   "indexWeight": null,
+   "epsActual": null,
+   "revenueActual": null
+  },
+  {
+   "symbol": "SNDX",
+   "date": "2026-11-02",
+   "hour": null,
+   "epsEstimate": -0.5002,
+   "revenueEstimate": 83605228,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null
