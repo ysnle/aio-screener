@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2111 - v59.37 - 홈 금 등락이 반올림하면 0인데 -0.00%로 표시 (2026-10-27)
+
+- symptom/reproduction: 홈 기준 시세 줄의 금(GC=F) 변화율이 -0.00%로 찍혀 browser-rendered-copy-lint가 main에서 실패했다(2026-10-27 13시 데이터).
+- root_cause: js/aio-data.js의 data-live-chg 채우기가 부호를 반올림 전 값(pct >= 0)으로 정하고 pct.toFixed(2)를 그대로 붙여, -0.004% 같은 값이 '-0.00%'가 됐다. src/domain/shared/number.js의 signedText는 이미 반올림한 숫자로 부호를 정한다.
+- fix: 부호를 찍힌 자릿수 기준으로 정한다(%·bp·abs 모두). 반올림해 0이면 부호 없이 '0.00%'이고 색·▲▼도 보합(a11y-hold)으로 둔다.
+- violated_rule: v58.80 first-users R2-27: 색과 부호는 찍힌 숫자를 따른다.
+- prevention: scripts/ci-rendered-copy-lint-check.mjs의 negative-zero 규칙이 렌더된 홈에서 이 표시를 잡는다(이번에 잡았다).
+- verification/residual: node scripts/ci-rendered-copy-lint-check.mjs PASS; qa:full
+
 ## P2110 - v59.27 - 운영 7일 기록이 저장소에 쌓이지 않아 실시간 시세 soak가 영원히 0일 (2026-10-27)
 
 - symptom/reproduction: public-data/operations-slo-window.json이 2026-08-24부터 SOURCE_TEMPLATE_ONLY로 남아 planes.fast.soak.observedDays가 항상 0이었다. 공급자 권리 검토를 마쳐도 실시간 시세(fast quotes)는 soak 미충족으로 켜질 수 없었다.

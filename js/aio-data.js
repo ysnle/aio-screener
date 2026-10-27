@@ -9810,10 +9810,13 @@ window.AIO.applyLiveDataToDom = function(opts) {
       if (pct != null && _aioLivePrice(d) == null) pct = null;
       stats.touched += 1;
       if (pct != null) {
-        el.textContent = (function(unit, p) { var move = p - p / (1 + pct / 100), pctText = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%'; return unit === 'bp' ? (move >= 0 ? '+' : '') + (move * 100).toFixed(1) + 'bp' : unit === 'abs' ? (move >= 0 ? '+' : '') + move.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + pctText + ')' : pctText; })(el.getAttribute('data-chg-unit'), _aioLivePrice(d)); // P1381/P1387: yields move in basis points; headline cards show the point move with the percent
+        // P2111: the sign follows the printed digits (as signedText), so a move that rounds to zero is "0.00%", not "-0.00%".
+        var shownPct = Number(Math.abs(pct).toFixed(2)) === 0 ? 0 : pct;
+        var signOf = function(v, digits) { return Number(Math.abs(v).toFixed(digits)) === 0 ? '' : v > 0 ? '+' : '-'; };
+        el.textContent = (function(unit, p) { var move = p - p / (1 + pct / 100), pctText = signOf(pct, 2) + Math.abs(pct).toFixed(2) + '%'; return unit === 'bp' ? signOf(move * 100, 1) + Math.abs(move * 100).toFixed(1) + 'bp' : unit === 'abs' ? signOf(move, 2) + Math.abs(move).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + pctText + ')' : pctText; })(el.getAttribute('data-chg-unit'), _aioLivePrice(d)); // P1381/P1387: yields move in basis points; headline cards show the point move with the percent
         if (el.classList) {
           el.classList.remove('pos', 'neg', 'a11y-up', 'a11y-dn', 'a11y-hold');
-          el.classList.add(pct >= 0 ? 'pos' : 'neg', pct > 0 ? 'a11y-up' : pct < 0 ? 'a11y-dn' : 'a11y-hold'); // P1387: ▲/▼ glyph set with the value, not by a later sweep
+          el.classList.add(shownPct >= 0 ? 'pos' : 'neg', shownPct > 0 ? 'a11y-up' : shownPct < 0 ? 'a11y-dn' : 'a11y-hold'); // P1387: ▲/▼ glyph set with the value, not by a later sweep
         }
         _aioMarkLiveSink(el, sym, d, 'quote', false);
         stats.filled += 1;
