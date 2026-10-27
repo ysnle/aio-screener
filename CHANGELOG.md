@@ -1,3 +1,7 @@
+## v59.29 (2026-10-27)
+- **텔레그램 직접 수집기 분리 (레거시 다음 계층 3단계 공급자, 4번째):** 텔레그램 공개 채널 직접 수집(관련성 필터 isTelegramMsgRelevant: 주식·매크로·기관 리포트 키워드, 넓은 단어만이면 2개 이상 일치 필요, fetchTelegramDirect: t.me/s/ 채널 페이지를 fetchViaProxy로 읽어 뉴스 항목으로 변환)을 js/aio-data.js에서 src/data/providers/telegram-direct.js로 그대로 옮겼다(aio-data 약 160줄 감소). 이름은 Worker 실패 시 폴백으로 쓰는 fetchAllNews를 위해 window 전역으로 남는다. 동작은 같다.
+- R1 7곳 v59.29
+
 ## v59.28 (2026-10-27)
 - **네이버 한국 수집기 분리 (레거시 다음 계층 3단계 공급자, 3번째):** 네이버 파이낸스 한국 수집(fetchKrNaverQuotes: KOSPI·KOSDAQ 지수와 KR_STOCK_DB 전 종목을 Yahoo 호환 행으로, fetchKrDailyCandles: 자체 캔들 차트용 fchart 일봉)을 js/aio-data.js에서 src/data/providers/naver-kr.js로 그대로 옮겼다(aio-data 약 275줄 감소). 이름은 기존 호출(fetchLiveQuotes, 한국 동적 로더, aio-kr-data)을 위해 window 전역으로 남는다. 동작은 같다.
 - R1 7곳 v59.28
