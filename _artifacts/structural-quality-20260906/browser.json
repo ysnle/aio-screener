@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T11:05:57.079Z",
+  "generatedAt": "2026-10-27T11:26:30.931Z",
   "routes": [
     {
       "id": "home",
@@ -53,196 +53,8 @@
     {
       "id": "signal",
       "exists": true,
-      "moduleState": "ready",
+      "moduleState": "loading",
       "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "S&P 500 종가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "나스닥 100 종가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "러셀 2000 종가"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "기술 분석에서 이동평균 직접 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭에서 원리 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "20일선 위 종목 비율 (단기)"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "50일선 위 종목 비율"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "200일선 위 종목 비율"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "시장 폭 화면에서 구성 종목 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VIX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "VIX / 3개월 VIX"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 화면에서 기간 구조 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제에서 원리 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "미 10년물 명목금리"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "10년 실질금리(TIPS)"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "10년 기대인플레이션"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리·환율 화면에서 실질금리와 기간 프리미엄 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 노트, 현재가치(할인) →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제에서 원리 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "하이일드 스프레드(OAS)"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "최하위(CCC)·B 등급 가산금리 격차"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "금리·환율 화면에서 하이일드 스프레드 추이 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제에서 원리 보기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "WTI 선물"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "달러 인덱스"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 화면에서 물가·유동성 흐름 보기 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "개념 노트, 한 상품의 가격 상승과 전반적 물가 상승 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "산업재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "경기소비재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "소재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "에너지"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헬스케어"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "경기소비재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "소재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "에너지"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헬스케어"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "정유"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "사이버보안"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "데이터/AI 플랫폼"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "헬스케어"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "필수소비재"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "유틸리티"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "다음 발표별 시나리오 → 거시"
-        },
         {
           "tag": "BUTTON",
           "name": "이익 전망이 고쳐지는 방향 — 리서치 라이브러리에서 개념 배우기"
@@ -254,42 +66,16 @@
         {
           "tag": "BUTTON",
           "name": "신용 스프레드 — 리서치 라이브러리에서 개념 배우기"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "S&P 500 차트 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "투자 심리 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "거시 경제 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "테마와 섹터 →"
         }
       ],
       "headings": [
         "국면 판정",
-        "혼조",
+        "판정 대기",
         "미국 시장 6개 지표",
         "이 조합이 뜻하는 것",
         "다음에 확인할 것",
         "1년 중 지금 위치 — 6개 지표 레이더",
-        "지금 시장 흐름 — 세 가지 중 어디에 가까운가",
-        "고른 상승",
-        "소수 종목 주도",
-        "소수 주도 → 동반 약세 전환 확인 중",
         "한국 시장 참고",
-        "코스피",
-        "코스닥",
-        "원 / 달러",
-        "외국인 순매수",
-        "한국한국 종목의 참여도와 3개월 수익률 상위 테마",
-        "3개월 수익률 상위 한국 테마, 표본 중앙값",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
       ]
     },
