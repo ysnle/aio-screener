@@ -1,3 +1,7 @@
+## v59.40 (2026-10-27)
+- **트레이더 프로필을 src/로 이전 (로드맵 11 레이어 5-1):** 프로필 정의(균형·모멘텀·스윙·가치·저위험 가중치)는 그대로 src/domain/screener/trader-profiles.js로, 저장·선택·가중치 해석(AIO_TRADER_PROFILES, _aioGetActiveProfile, _aioSetProfile, _aioFactorWeights)은 src/app/trader-profiles.js의 installTraderProfiles로 옮겼다. 가중치 값은 바꾸지 않았다. 전후 Playwright 비교에서 스크리너 전체 유니버스(1,143종목)의 순위·복합 z점수·표가 5개 프로필 모두 같다. ci-esm-core-unit-check가 프로필 키·가중치 벡터를 고정한다.
+- R1 7곳 v59.40
+
 ## v59.39 (2026-10-27)
 - **Pages 배포 후 검증 오탐 수정 (P2112):** 배포 중인 자기 실행을 GitHub가 'queued'로 보여줄 때 검증이 실패하던 것을 고쳤다. 다른 실행은 여전히 받지 않는다.
 - R1 7곳 v59.39

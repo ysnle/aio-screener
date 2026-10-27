@@ -6313,3 +6313,22 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const v1Parts = parseVaultEnvelope('aio_enc::' + btoa(String.fromCharCode.apply(null, v1)), magic);
   if (v1Parts.isV2 || await decryptVaultBytes(key, v1Parts.iv, v1Parts.ciphertext) !== 'v1 value') fail('v59.30 a v1 vault envelope is read as v1');
 }
+
+// v59.39: the screener trader profiles (src/domain/screener/trader-profiles.js) keep the weight vectors they had in
+// js/aio-data.js, and deriveFactorWeights treats each as an explicit user profile. A change here is a model change.
+{
+  const { TRADER_PROFILES } = await load('src/domain/screener/trader-profiles.js');
+  const { deriveFactorWeights } = await load('src/domain/screener/factor-weights.js');
+  const expected = {
+    balanced: null,
+    momentum: { momentum: 0.40, trend: 0.25, lowvol: 0.08, size: 0.05, value: 0.06, quality: 0.06, kalman: 0.10 },
+    swing: { momentum: 0.30, trend: 0.28, lowvol: 0.12, size: 0.07, value: 0.07, quality: 0.07, kalman: 0.09 },
+    value: { momentum: 0.12, trend: 0.15, lowvol: 0.15, size: 0.08, value: 0.30, quality: 0.15, kalman: 0.05 },
+    lowrisk: { momentum: 0.10, trend: 0.15, lowvol: 0.38, size: 0.05, value: 0.12, quality: 0.15, kalman: 0.05 }
+  };
+  if (JSON.stringify(Object.keys(TRADER_PROFILES)) !== JSON.stringify(Object.keys(expected))) fail(`v59.39 trader profile keys drifted: ${Object.keys(TRADER_PROFILES)}`);
+  for (const [key, weights] of Object.entries(expected)) {
+    if (JSON.stringify(TRADER_PROFILES[key]?.weights) !== JSON.stringify(weights)) fail(`v59.39 trader profile ${key} weights drifted: ${JSON.stringify(TRADER_PROFILES[key]?.weights)}`);
+    if (weights && deriveFactorWeights({ profile: TRADER_PROFILES[key] }).source !== 'explicit-user-profile') fail(`v59.39 trader profile ${key} resolves as an explicit user profile`);
+  }
+}

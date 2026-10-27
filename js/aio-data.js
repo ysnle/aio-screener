@@ -2094,25 +2094,7 @@ var SCR_KEYWORD_ALIASES = {
 };
 
 
-// ARX-10: native screener owns controls, table, factor panel, and backtest DOM.
-var AIO_TRADER_PROFILES = {
-  balanced: { label:'균형', desc:'고정 균형 가중 (시장 국면 자동 조정은 검증 전이라 미적용)', weights:null },
-  momentum: { label:'모멘텀', desc:'단기 추세 추종, 1~4주 보유', weights:{momentum:0.40,trend:0.25,lowvol:0.08,size:0.05,value:0.06,quality:0.06,kalman:0.10} },
-  swing: { label:'스윙', desc:'중기 기술적 매매, 2~8주 보유', weights:{momentum:0.30,trend:0.28,lowvol:0.12,size:0.07,value:0.07,quality:0.07,kalman:0.09} },
-  value: { label:'가치', desc:'저평가 장기 투자, 3~12개월 보유', weights:{momentum:0.12,trend:0.15,lowvol:0.15,size:0.08,value:0.30,quality:0.15,kalman:0.05} },
-  lowrisk: { label:'저리스크', desc:'방어적 저변동 우선, 하락방어 포커스', weights:{momentum:0.10,trend:0.15,lowvol:0.38,size:0.05,value:0.12,quality:0.15,kalman:0.05} }
-};
-window.AIO_TRADER_PROFILES = AIO_TRADER_PROFILES;
-window._aioGetActiveProfile = function() {
-  var profile = null;
-  try { profile = localStorage.getItem('aio_trader_profile'); } catch (_) {}
-  return profile && AIO_TRADER_PROFILES[profile] ? profile : 'balanced';
-};
-window._aioSetProfile = function(key) {
-  if (!key || !AIO_TRADER_PROFILES[key]) key = 'balanced';
-  try { localStorage.setItem('aio_trader_profile', key); } catch (_) {}
-  try { window.dispatchEvent(new CustomEvent('aio:screener:profile', { detail:key })); } catch (_) {}
-};
+// v59.39: the trader profiles (AIO_TRADER_PROFILES, _aioGetActiveProfile, _aioSetProfile) moved to src/domain/screener/trader-profiles.js and src/app/trader-profiles.js.
 // v58.80 (first-users F29): _aioWatchlistGet/_aioWLToggle read and write the 관심 종목 lists (src/data/watchlist-store.js).
 
 
@@ -10622,30 +10604,7 @@ function _aioApplyScreenerBreadth(sd) {
 }
 window._aioApplyScreenerBreadth = _aioApplyScreenerBreadth;
 
-// ── v50.52 Track2: 멀티팩터 랭킹 엔진 (기관/퀀트급) ──
-// 정적 BUY/HOLD 태그(editorial)는 보존하고, 가격 파생 4팩터로 객관적 퀀트 랭크를 부가한다.
-//   momentum(ret1/3/6m) · trend(가격 vs SMA50/200) · low-vol(연율 변동성, 역방향) · size(log mcap).
-//   각 팩터를 섹터 상대 z-score(표본<5면 유니버스 상대) + winsorize(±3σ) → 가중합 → composite rank는 0~100 percentile, factorScores는 섹터 기준 정규화 점수(z 스케일, percentile 아님).
-//   팩터 데이터(screener.json) 없으면 null → 소비자는 정적 signal 폴백(무회귀).
-// v50.54 3A: marketState 기반 가중은 검토용 proposal로만 산출한다.
-//   위험회피/선호/후기사이클 틸트는 live/backtest 정의 패리티와 사람 검토를 거쳐
-//   명시적으로 승격하기 전까지 실제 랭크에 적용하지 않고 NEUTRAL 가중을 유지한다.
-window._aioFactorWeights = function(ms) {
-  // P763/ARX-10 follow-up: storage/profile lookup remains here, but deterministic weight math
-  // belongs to the native pure module and is shared by native + compatibility consumers.
-  var _weightFn = window.AIO_ARCH && typeof window.AIO_ARCH.deriveFactorWeights === 'function' ? window.AIO_ARCH.deriveFactorWeights : null;
-  if (!_weightFn) return null;
-  // v57.50 C09: the regime input is the 시장 상태 screen's overall verdict (bootstrap), not the legacy marketState.
-  if (typeof window._aioScreenRegimeWeightInput === 'function') { try { ms = window._aioScreenRegimeWeightInput(); } catch(_) { ms = null; } }
-  try {
-    var profileKey = localStorage.getItem('aio_trader_profile');
-    if (profileKey && profileKey !== 'balanced' && typeof AIO_TRADER_PROFILES !== 'undefined') {
-      var prof = AIO_TRADER_PROFILES[profileKey];
-      if (prof && prof.weights) return _weightFn({ marketState: ms || null, profile: prof });
-    }
-  } catch(_) {}
-  return _weightFn({ marketState: ms || null, profile: null });
-};
+// v59.39: _aioFactorWeights (the saved trader profile through deriveFactorWeights) moved to src/app/trader-profiles.js.
 
 // Legacy unification (2026-10-17): the legacy re-run of the factor ranking is retired. It
 // ranked the same canonical rows the native screener orchestrator had already ranked with the same model and inputs,
