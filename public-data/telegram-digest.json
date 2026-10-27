@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T01:21:27.476Z",
-  "attemptedAt": "2026-10-27T01:21:27.476Z",
-  "lastSuccessfulAt": "2026-10-27T01:21:27.476Z",
+  "generatedAt": "2026-10-27T01:53:44.283Z",
+  "attemptedAt": "2026-10-27T01:53:44.283Z",
+  "lastSuccessfulAt": "2026-10-27T01:53:44.283Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T01:21:20.209Z",
-  "until": "2026-10-27T01:21:20.209Z",
+  "since": "2026-10-13T01:53:38.554Z",
+  "until": "2026-10-27T01:53:38.554Z",
   "current24hWindow": {
     "start": "2026-10-25T23:00:00.000Z",
     "end": "2026-10-26T23:00:00.000Z",
@@ -90,12 +90,12 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1292,
-      "freshCount": 39,
-      "eligibleTextCount": 1239,
+      "count": 1291,
+      "freshCount": 19,
+      "eligibleTextCount": 1238,
       "selectedCount": 120,
       "error": null,
       "lastPostId": 67448
@@ -105,38 +105,38 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 249,
+      "count": 250,
       "freshCount": 40,
-      "eligibleTextCount": 249,
+      "eligibleTextCount": 250,
       "selectedCount": 96,
       "error": null,
-      "lastPostId": 20842
+      "lastPostId": 20843
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 683,
-      "freshCount": 38,
-      "eligibleTextCount": 683,
+      "count": 684,
+      "freshCount": 40,
+      "eligibleTextCount": 684,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71063
+      "lastPostId": 71068
     }
   ],
-  "count": 2473,
-  "retainedItemCount": 472,
+  "count": 2474,
+  "retainedItemCount": 460,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2473,
-    "eligibleTextCount": 2406,
+    "observedCount": 2474,
+    "eligibleTextCount": 2407,
     "mediaOnlyCount": 67,
     "highSignalCount": 464,
-    "broadSignalCount": 1025,
+    "broadSignalCount": 1023,
     "selectedRawCount": 406,
     "selectedEligibleCount": 406,
     "selectedRawCoveragePct": 16.9,
@@ -144,15 +144,15 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 610,
+    "ai-policy": 164,
+    "earnings": 509,
+    "geo": 359,
+    "market-note": 900,
+    "semi": 608,
     "japan": 139,
     "kr-market": 154,
-    "ai-policy": 163,
-    "earnings": 506,
-    "market-note": 900,
     "equity": 191,
-    "macro": 414,
-    "geo": 358,
+    "macro": 413,
     "media-only": 67,
     "healthcare": 134,
     "optical": 47,
@@ -167,7 +167,7 @@
     "GOOG": 98,
     "AMZN": 57,
     "GOOGL": 2,
-    "NVDA": 191,
+    "NVDA": 190,
     "TSLA": 95,
     "TSM": 99,
     "RDDT": 2,
@@ -254,18 +254,18 @@
   },
   "themes": [
     "Market Notes (900 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로...",
-    "Semiconductors/Memory (610 posts in 14-day research window): 2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION...",
-    "Earnings/Corporate (506 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (414 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
-    "Geopolitics (358 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "Semiconductors/Memory (608 posts in 14-day research window): 2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION...",
+    "Earnings/Corporate (509 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
+    "Macro/Rates (413 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
+    "Geopolitics (359 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
     "AI Power/Grid (324 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (191 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (163 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
+    "AI Policy/Export Controls (164 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 191,
+      "count": 190,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미국·캐나다·영국·인도 일부 조직의 약 6만 명을 대상으로 자발적 퇴직 프로그램을 제시한 것으로..."
     },
     {
@@ -331,7 +331,7 @@
       "topics": [
         "macro"
       ],
-      "count": 414,
+      "count": 413,
       "focus": "2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%..."
     },
     {
@@ -340,7 +340,7 @@
       "topics": [
         "geo"
       ],
-      "count": 358,
+      "count": 359,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -358,7 +358,7 @@
       "topics": [
         "semi"
       ],
-      "count": 610,
+      "count": 608,
       "focus": "2026년 10월 26일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.06%) 2위: SPACE EXPLORATION..."
     },
     {
@@ -385,7 +385,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 163,
+      "count": 164,
       "focus": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
     },
     {
@@ -421,7 +421,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 506,
+      "count": 509,
       "focus": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -971,21 +971,17 @@
       "datetime": "2026-10-25T04:32:58.000Z",
       "localDateKst": "2026-10-25",
       "tags": [
-        "semi",
-        "macro",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN",
         "TSM"
-      ],
-      "summary": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game..."
+      ]
     },
     {
       "id": "HANAchina/70962",
@@ -1665,6 +1661,22 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71068",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71068",
+      "datetime": "2026-10-27T01:41:39.000Z",
+      "localDateKst": "2026-10-27",
+      "tags": [
+        "ai-policy",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>Anthropic 투자설명서에서 가장 주목할 만한 세부 사항 •매출은 5개 분기 만에 약 30배 증가, 2분기에는 이미 흑자로 전환했지만 상반기 장부상 순손실은 807억 달러에 달함. 컴퓨팅 비용 계약은..."
+    },
+    {
       "id": "insidertracking/67448",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67448",
@@ -2039,19 +2051,16 @@
       "datetime": "2026-10-26T20:49:43.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "geo",
-        "semi",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "score": 74,
       "hasText": true,
+      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억...",
       "tickers": [
         "NVDA",
         "AVGO",
         "MU"
-      ],
-      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억..."
+      ]
     },
     {
       "id": "insidertracking/67423",
@@ -2060,13 +2069,12 @@
       "datetime": "2026-10-26T20:32:09.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 58,
       "hasText": true,
-      "tickers": [],
-      "summary": "블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록. 독일의 상황은 더욱 심각해 천연가스 비축률이 61%를 소폭 웃도는..."
+      "summary": "블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록. 독일의 상황은 더욱 심각해 천연가스 비축률이 61%를 소폭 웃도는...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67421",
@@ -2077,11 +2085,11 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "앰코테크놀로지, 2026년 3분기 실적 발표. 매출과 주당순이익(EPS) 모두 시장 예상치 하회. 4분기 실적 가이던스도 시장 기대치에 미달. 2026년 3분기 주요 실적 • 매출: 19억 9,000만..."
+      "summary": "앰코테크놀로지, 2026년 3분기 실적 발표. 매출과 주당순이익(EPS) 모두 시장 예상치 하회. 4분기 실적 가이던스도 시장 기대치에 미달. 2026년 3분기 주요 실적 • 매출: 19억 9,000만...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67417",
@@ -2093,11 +2101,10 @@
         "geo",
         "power"
       ],
-      "lead": 2,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "미국 국방부가 대규모 전쟁 발생 시 민간 전력망과 수도 공급, 연료 운송, 글로벌 공급망이 중단되더라도 미국 본토의 모든 주요 군사기지가 최소 90일간 독립적으로 작전을 수행할 수 있도록 하는 대규모 국방..."
+      "summary": "미국 국방부가 대규모 전쟁 발생 시 민간 전력망과 수도 공급, 연료 운송, 글로벌 공급망이 중단되더라도 미국 본토의 모든 주요 군사기지가 최소 90일간 독립적으로 작전을 수행할 수 있도록 하는 대규모 국방...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67414",
@@ -2106,12 +2113,12 @@
       "datetime": "2026-10-26T20:25:35.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "브라질 증시가 루이스 이나시우 룰라 다 시우바 대통령의 예상 밖 재선 이후 역사적인 폭락을 기록. 브라질 대표 주가지수인 이보베스파 지수는 장중 최대 17.34% 급락하며 수십 년 만에 최대 장중 낙폭 기록...."
+      "summary": "브라질 증시가 루이스 이나시우 룰라 다 시우바 대통령의 예상 밖 재선 이후 역사적인 폭락을 기록. 브라질 대표 주가지수인 이보베스파 지수는 장중 최대 17.34% 급락하며 수십 년 만에 최대 장중 낙폭 기록....",
+      "tickers": []
     },
     {
       "id": "insidertracking/67408",
@@ -2896,14 +2903,13 @@
       "datetime": "2026-10-26T06:56:49.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국·이스라엘의 추가 공격 논의가 진행되는 민감한 시점에 사우디·튀르키예·파키스탄 당국자들 이란 방문 •사우디아, 파키스탄, 튀르키예의 고위 당국자들이 26일 테헤란을 방문해 이란과 ‘역내 자체 안보’..."
+      "summary": ">>미국·이스라엘의 추가 공격 논의가 진행되는 민감한 시점에 사우디·튀르키예·파키스탄 당국자들 이란 방문 •사우디아, 파키스탄, 튀르키예의 고위 당국자들이 26일 테헤란을 방문해 이란과 ‘역내 자체 안보’...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71021",
@@ -3829,21 +3835,17 @@
       "datetime": "2026-10-25T04:32:58.000Z",
       "localDateKst": "2026-10-25",
       "tags": [
-        "semi",
-        "macro",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN",
         "TSM"
-      ],
-      "summary": "노무라: AI 군비 경쟁 지속 확률 75%, 2027년 메모리 반도체 부족 사실상 확정 노무라 글로벌 메모리 리서치팀은 최신 보고서를 통해 빅테크 기업들의 AI 군비 경쟁이 멈추기 어려운 ‘치킨 게임(Game..."
+      ]
     },
     {
       "id": "bornlupin/20801",
@@ -7995,22 +7997,6 @@
       ]
     },
     {
-      "id": "HANAchina/70782",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70782",
-      "datetime": "2026-10-20T23:14:33.000Z",
-      "localDateKst": "2026-10-21",
-      "tags": [
-        "market-note"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "• 대만증권거래소(TWSE)는 대만 증시의 리레이팅과 글로벌 경쟁력 강화를 위해 4대 업그레이드 조치를 즉시 시행. • 1) 중장기 재무전망 공시 요건 대폭 완화. 시가총액 500억 NTD 이상 및...",
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
       "id": "bornlupin/20737",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20737",
@@ -8601,19 +8587,16 @@
       "datetime": "2026-10-26T20:49:43.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "geo",
-        "semi",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "score": 74,
       "hasText": true,
+      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억...",
       "tickers": [
         "NVDA",
         "AVGO",
         "MU"
-      ],
-      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억..."
+      ]
     },
     {
       "id": "insidertracking/67423",
@@ -8622,13 +8605,12 @@
       "datetime": "2026-10-26T20:32:09.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 58,
       "hasText": true,
-      "tickers": [],
-      "summary": "블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록. 독일의 상황은 더욱 심각해 천연가스 비축률이 61%를 소폭 웃도는..."
+      "summary": "블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록. 독일의 상황은 더욱 심각해 천연가스 비축률이 61%를 소폭 웃도는...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67421",
@@ -8639,11 +8621,11 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "앰코테크놀로지, 2026년 3분기 실적 발표. 매출과 주당순이익(EPS) 모두 시장 예상치 하회. 4분기 실적 가이던스도 시장 기대치에 미달. 2026년 3분기 주요 실적 • 매출: 19억 9,000만..."
+      "summary": "앰코테크놀로지, 2026년 3분기 실적 발표. 매출과 주당순이익(EPS) 모두 시장 예상치 하회. 4분기 실적 가이던스도 시장 기대치에 미달. 2026년 3분기 주요 실적 • 매출: 19억 9,000만...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67417",
@@ -8655,11 +8637,10 @@
         "geo",
         "power"
       ],
-      "lead": 2,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "미국 국방부가 대규모 전쟁 발생 시 민간 전력망과 수도 공급, 연료 운송, 글로벌 공급망이 중단되더라도 미국 본토의 모든 주요 군사기지가 최소 90일간 독립적으로 작전을 수행할 수 있도록 하는 대규모 국방..."
+      "summary": "미국 국방부가 대규모 전쟁 발생 시 민간 전력망과 수도 공급, 연료 운송, 글로벌 공급망이 중단되더라도 미국 본토의 모든 주요 군사기지가 최소 90일간 독립적으로 작전을 수행할 수 있도록 하는 대규모 국방...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67414",
@@ -8668,12 +8649,12 @@
       "datetime": "2026-10-26T20:25:35.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "브라질 증시가 루이스 이나시우 룰라 다 시우바 대통령의 예상 밖 재선 이후 역사적인 폭락을 기록. 브라질 대표 주가지수인 이보베스파 지수는 장중 최대 17.34% 급락하며 수십 년 만에 최대 장중 낙폭 기록...."
+      "summary": "브라질 증시가 루이스 이나시우 룰라 다 시우바 대통령의 예상 밖 재선 이후 역사적인 폭락을 기록. 브라질 대표 주가지수인 이보베스파 지수는 장중 최대 17.34% 급락하며 수십 년 만에 최대 장중 낙폭 기록....",
+      "tickers": []
     },
     {
       "id": "insidertracking/67408",
@@ -9444,14 +9425,13 @@
       "datetime": "2026-10-26T06:56:49.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국·이스라엘의 추가 공격 논의가 진행되는 민감한 시점에 사우디·튀르키예·파키스탄 당국자들 이란 방문 •사우디아, 파키스탄, 튀르키예의 고위 당국자들이 26일 테헤란을 방문해 이란과 ‘역내 자체 안보’..."
+      "summary": ">>미국·이스라엘의 추가 공격 논의가 진행되는 민감한 시점에 사우디·튀르키예·파키스탄 당국자들 이란 방문 •사우디아, 파키스탄, 튀르키예의 고위 당국자들이 26일 테헤란을 방문해 이란과 ‘역내 자체 안보’...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71021",
