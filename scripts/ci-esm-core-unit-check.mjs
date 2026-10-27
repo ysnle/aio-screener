@@ -4287,6 +4287,31 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const gapped = priorSessionMoveLines([['2026-10-20', 557], ['2026-10-22', 523.35]].map(([date, smh]) => ({ date, smh })));
   if (!/^직전 완료 세션의 큰 움직임: 반도체\(SMH\) 10\/22 종가 -6\.04%/.test(us) || gapped)
     fail(`v58.68 US-first prior-session lines wrong: ${JSON.stringify({ us, gapped })}`);
+  // v59.24: WTI's last close (10/23) behind the latest S&P 500 close (10/26) is not the prior session's move
+  const staleOil = priorSessionMoveLines([['2026-10-22', 99.47, 7650], ['2026-10-23', 103.27, 7623.68], ['2026-10-26', null, 7676.77]].map(([date, wti, spx]) => ({ date, wti, spx })));
+  const freshOil = priorSessionMoveLines([['2026-10-22', 99.47, 7650], ['2026-10-23', 103.27, 7623.68]].map(([date, wti, spx]) => ({ date, wti, spx })));
+  if (staleOil || !/WTI 10\/23 종가 \+3\.82%/.test(freshOil)) fail(`v59.24 a WTI close older than the latest US close must not lead: ${JSON.stringify({ staleOil, freshOil })}`);
+  // v59.25: after-hours lane — the day's amc reporters, the last 16:00-20:00 ET print against the regular close
+  const ah = await import('./producer/after-hours.mjs');
+  const t = (iso) => Date.parse(iso) / 1000;
+  const chart = (close, prints) => ({ chart: { result: [{ meta: { regularMarketPrice: close, regularMarketTime: t('2026-10-26T20:00:00Z') },
+    timestamp: prints.map(([iso]) => t(iso)), indicators: { quote: [{ close: prints.map(([, v]) => v) }] } }] } });
+  const whr = chart(80, [['2026-10-26T19:55:00Z', 80.1], ['2026-10-26T20:30:00Z', 75], ['2026-10-26T23:55:00Z', 73.2], ['2026-10-27T00:05:00Z', 70]]);
+  const whrMove = ah.afterHoursMoveFromChart(whr, '2026-10-26');
+  const cal = { earnings: [['WHR', 'amc', null, -0.21, 0.8], ['CDNS', 'amc', 0.13, 2.11, 2.09], ['KO', 'bmo', 0.56], ['ARE', 'amc', 0.01]].map(([symbol, hour, indexWeight, epsActual, epsEstimate]) => ({ symbol, date: '2026-10-26', hour, indexWeight, epsActual, epsEstimate })) };
+  const picked = ah.afterHoursCandidates(cal, '2026-10-26').map((row) => row.symbol);
+  const collected = await ah.collectAfterHours({ calendar: cal, sessionDate: '2026-10-26', nowMs: Date.parse('2026-10-26T23:20:00Z'),
+    fetchChart: async (symbol) => (symbol === 'WHR' ? whr : symbol === 'CDNS' ? chart(300, [['2026-10-26T23:50:00Z', 307.2]]) : chart(50, [['2026-10-26T21:00:00Z', 50.2]])) });
+  const lines = ah.afterHoursContextLines(collected);
+  const beforeClose = await ah.collectAfterHours({ calendar: cal, sessionDate: '2026-10-26', nowMs: Date.parse('2026-10-26T18:00:00Z'), fetchChart: async () => whr });
+  const kept = await ah.collectAfterHours({ calendar: cal, sessionDate: '2026-10-26', previous: collected, nowMs: Date.parse('2026-10-27T09:00:00Z'), fetchChart: async () => { throw new Error('offline'); } });
+  if (whrMove?.last !== 73.2 || whrMove.changePct !== -8.5 || picked.join() !== 'CDNS,ARE,WHR'
+    || !/^- WHR 10\/26 시간외 19:55 ET 기준 -8\.50% \(정규장 종가 80 대비 73\.2, EPS -0\.21 \(예상 0\.80\)\)/m.test(lines) || !/CDNS 10\/26 시간외 19:50 ET 기준 \+2\.40%/.test(lines) || /ARE/.test(lines)
+    || ah.afterHoursContextLines({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 5, regularClose: 1, last: 1.05, observedAt: '2026-10-26T21:00:00Z', epsActual: null, epsEstimate: null }] }).includes('EPS')
+    || (await ah.collectAfterHours({ calendar: cal, sessionDate: '2026-10-26', previous: collected, nowMs: Date.parse('2026-10-27T00:20:00Z'), fetchChart: async (symbol) => { if (symbol === 'WHR') throw new Error('offline'); return chart(300, [['2026-10-26T23:58:00Z', 309]]); } })).rows.map((row) => `${row.symbol}${row.changePct}`).join() !== 'CDNS3,ARE3,WHR-8.5'
+    || beforeClose !== null || kept !== collected || ah.afterHoursMoveFromChart(whr, '2026-10-27') !== null || ah.afterHoursSignature(collected) !== '2026-10-26:CDNS2,WHR-8'
+    || ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 2.6 }] }) === ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 3.1 }] }))
+    fail(`v59.25 after-hours lane: ${JSON.stringify({ whrMove, picked, lines, beforeClose, kept: kept === collected, sig: ah.afterHoursSignature(collected) })}`);
 }
 
 // ── P1417: sub-theme relative strength — medians, exclusion, direction (no composite rating) ──

@@ -2406,7 +2406,10 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && nc.buildNarrativeContext({ nowMs: at }).text === '');
   check('v58.24 the market-analysis prompt carries NARRATIVE_CONTEXT with attribution, rumour and no-number rules',
     /NARRATIVE_CONTEXT \(/.test(fetchData) && /readNarrativeContext\(\{ nowMs \}\)/.test(fetchData) && /"루머" 또는 "미확인"/.test(fetchData) && /METRIC_EVIDENCE가 아니므로 쓰지 않는다/.test(fetchData)
-      && /narrativeSignature: narrativeContext\.signature/.test(fetchData));
+      // v59.25: the reuse key is the narrative signature plus the after-hours key when one exists
+      && /narrativeSignature: inputSignature/.test(fetchData) && /inputSignature = afterHoursKey \? [^\n]*narrativeContext\.signature/.test(fetchData));
+  check('v59.25 the market-analysis prompt carries US_AFTER_HOURS with 시간외 + ET time, and the validator context includes it',
+    /US_AFTER_HOURS \(/.test(fetchData) && /시간외·ET 시각·잠정을 같은 문장에/.test(fetchData) && /context: afterHoursLines \? /.test(fetchData));
 }
 
 // 2026-10-19 cadence (owner): the macro read keeps its 08:00 KST 24h cycle; micro slots end 06/12/18/24 KST, are sealed

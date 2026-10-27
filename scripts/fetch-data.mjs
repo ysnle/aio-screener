@@ -26,7 +26,7 @@ import { createAiUsage, marketAnalysisOutcome } from './producer/ai-usage.mjs';
 import { sealMarketTimeline, summarizeMarketTimeline } from './lib/market-timeline.mjs';
 import { compareUsdKrwCrossCheck } from './lib/macro-sources.mjs';
 import { deriveCyclePublication } from './lib/news-selection.mjs';
-import { REPO_ROOT, OUT, HIST, MARKET_SNAPSHOT_OUT } from './producer/paths.mjs';
+import { REPO_ROOT, OUT, HIST, MARKET_SNAPSHOT_OUT, EARNINGS_CALENDAR_OUT } from './producer/paths.mjs';
 import { SYMBOLS, fetchHistory, collectVerifiedQuotes } from './producer/quotes.mjs';
 import { deriveFredPlane } from './producer/fred.mjs';
 import { updateHistory } from './producer/history.mjs';
@@ -34,6 +34,7 @@ import { SCREENER_OUT, enrichScreener } from './producer/screener.mjs';
 import { enrichScreenerExtended } from './producer/screener-extended.mjs';
 import { writeMacroHistory, MACRO_CALENDAR_OUT, writeMacroCalendar } from './producer/macro-history.mjs';
 import { translateHeadlines, genMarketAnalysis, applyMarketAnalysis } from './producer/market-narrative.mjs';
+import { collectAfterHours, nyParts as afterHoursNyParts } from './producer/after-hours.mjs';
 import { readPreviousPlanes, sourcePlanes, collectSourcePlanes } from './producer/source-planes.mjs';
 import { mergeMacroPlanes, buildMarketSurveys } from './producer/macro-merge.mjs';
 import { buildDomainReceipts } from './producer/receipts.mjs';
@@ -171,6 +172,13 @@ async function main() {
     aiUsage.note('headline-translation', headlineTranslation.provider ? 'translated' : headlineTranslation.pending ? (headlineTranslation.reason || 'unparsed') : 'nothing-new');
     console.log(`[fetch-data] headline translation: reused ${headlineTranslation.reused}, new ${headlineTranslation.translated}/${headlineTranslation.pending}${headlineTranslation.provider ? ` via ${headlineTranslation.provider}` : ''}${headlineTranslation.freeReason ? ` (free path: ${headlineTranslation.freeReason})` : ''}${headlineTranslation.reason ? ` (${headlineTranslation.reason})` : ''}`);
   } catch (error) { console.warn(`[fetch-data] headline translation skipped: ${error?.message || error}`); }
+  // v59.25: the after-close reporters' after-hours moves for the latest US session (the S&P 500 quote's own NY date).
+  try {
+    const spxAt = Date.parse((marketSnapshotForConsumers?.quotes || []).find((row) => row?.metricId === 'market.index.spx')?.observedAt || '');
+    const earningsCalendar = JSON.parse(await readFile(EARNINGS_CALENDAR_OUT, 'utf8').catch(() => 'null'));
+    data.afterHours = await collectAfterHours({ calendar: earningsCalendar, sessionDate: Number.isFinite(spxAt) ? afterHoursNyParts(spxAt).date : null, previous: previous?.afterHours || null });
+    console.log(`[fetch-data] after-hours: ${data.afterHours ? `${data.afterHours.rows.length} rows for ${data.afterHours.sessionDate}` : 'none'}`);
+  } catch (error) { data.afterHours = null; console.warn(`[fetch-data] after-hours skipped: ${error?.message || error}`); }
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null, request: aiUsage.shared('market-analysis') });
   applyMarketAnalysis(data, marketAnalysis, { previous: previous?.marketAnalysis || null });
   aiUsage.note('market-analysis', marketAnalysisOutcome(marketAnalysis, aiUsage.receipt().purposes['market-analysis']));

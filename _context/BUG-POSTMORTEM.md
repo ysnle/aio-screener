@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2109 - v59.24 - 08:00 KST 시황이 사흘 전 WTI 종가로 시작 (2026-10-27)
+
+- symptom/reproduction: 2026-10-26 미국장 마감 뒤 23:21Z 시황 첫 줄이 '10/23 WTI 종가 +3.82%로 유가·물가 부담이 커졌다'였다. 실제 WTI는 10/26 -1.46%(101.76달러) 정산, 같은 날 주도 재료(앤트로픽 IPO 공식화, 나스닥 +0.82%)는 시황에서 빠졌다.
+- root_cause: CL=F는 18:00 ET(22:00Z)에 다음 세션을 다시 열고, Yahoo는 일봉이 넘어가기 전까지 금요일 정산을 previous close로 준다. 그래서 23:00Z 컷의 10/26 행에는 WTI가 10/23 값으로 carried-forward 되고, priorSessionMoveLines가 그 마지막 WTI 종가(10/23)를 '직전 완료 세션의 큰 움직임'으로 프롬프트 첫 두 줄에 강제했다(검증기 priorSessionMoveIssues도 이 줄을 요구).
+- fix: priorSessionMoveLines가 미국 필드의 마지막 종가 날짜가 최신 S&P 500 종가 날짜보다 이르면 그 줄을 빼도록 했다. 지수 종가가 10/26으로 넘어간 뒤 10/23 유가 급등은 더 이상 '직전 세션'으로 앞세워지지 않는다.
+- violated_rule: 완료 종가는 그 세션 날짜로만 쓴다(v57.81 종가 세션 규칙)
+- prevention: ci-esm-core-unit-check에 WTI 10/23 / S&P 500 10/26 이력에서 줄이 생기지 않는 assertion 추가
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs, node scripts/ci-data-pipeline-contract-check.mjs; 실데이터 history.json으로 priorSessionMoveLines가 빈 문자열
+
 ## P2108 - v59.23 - 바쁜 페이지에서 도착한 자료 응답을 시간 초과로 버림 (2026-10-27)
 
 - symptom/reproduction: 공용 자료(stress-outcomes.json, market-temperature.json, screener.json 등)를 받는 동안 페이지가 긴 동기 작업으로 마감 시각을 넘겨 바쁘면, 이미 도착했거나 받는 중인 응답이 '시간 초과'로 중단되고 그 자료는 1분간 다시 읽히지 않았다. 헤드리스 QA에서 requestfailed net::ERR_ABORTED로 main CI를 두 번 막은 원인이다.

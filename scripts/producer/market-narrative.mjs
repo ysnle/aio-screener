@@ -20,6 +20,7 @@ import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js
 import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
+import { afterHoursContextLines, afterHoursSignature } from './after-hours.mjs';
 import { EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
@@ -120,10 +121,15 @@ export function priorSessionMoveLines(history = []) {
   const L = RULES.leadership;
   // v58.71 (pipeline audit): KOSPI is checked on the KRX calendar and WTI on the US one (CME follows US holidays), and a
   // five-session change needs exactly five sessions; a missing row made a two-session change read as "M/D 종가".
+  // v59.24 (live 2026-10-26 08:20 KST): CL=F reopens at 18:00 ET and Yahoo keeps Friday's settle as its previous close
+  // until the bar rolls, so the 08:00 KST reading opened with "WTI 10/23 종가 +3.82%" while oil had settled -1.46% on 10/26.
+  // A US line whose last close is older than the latest S&P 500 close is not the 직전 완료 세션 and is left out.
+  const usLatest = buildCloseSeries(history, 'spx').filter((point) => Number(point?.value) > 0).at(-1)?.date || null;
   for (const [field, label, edge, market] of [['spx', 'S&P 500', PRIOR_SESSION_MOVE_1D_PCT, 'US'], ['ndx', '나스닥 100', L.shockNdx1dPct, 'US'], ['smh', '반도체(SMH)', L.shockSemis1dPct, 'US'], ['kospi', '코스피', PRIOR_SESSION_MOVE_1D_PCT, 'KR'], ['wti', 'WTI', PRIOR_SESSION_MOVE_1D_PCT, 'US']]) {
     const series = buildCloseSeries(history, field).filter((point) => Number(point?.value) > 0);
     if (series.length < 2) continue;
     const last = series.at(-1), prior = series.at(-2), back5 = series.length >= 6 ? series.at(-6) : null;
+    if (market === 'US' && usLatest && last.date < usLatest) continue;
     const consecutive = countOpenSessionsBetween(prior.date, last.date, market) === 1;
     const d1 = consecutive ? (last.value / prior.value - 1) * 100 : null;
     const d5 = back5 && countOpenSessionsBetween(back5.date, last.date, market) === 5 ? (last.value / back5.value - 1) * 100 : null;
@@ -336,7 +342,10 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
   // is still yesterday's writes afresh once (a reading generated earlier that same day is reusable again).
   const sentenceDayOpen = previous?.sentence?.day !== marketSentenceDay(nowMs) && marketSentenceDay(Date.parse(previous?.generatedAt || '') || 0) !== marketSentenceDay(nowMs);
   const headlineContext = buildMarketAnalysisHeadlineContext(data);
-  const reused = sentenceDayOpen ? null : reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext, narrativeSignature: narrativeContext.signature, nowMs });
+  // v59.25: a new after-hours move (whole-percent key) reopens the reading, like a new narrative theme does.
+  const afterHoursKey = afterHoursSignature(data?.afterHours);
+  const inputSignature = afterHoursKey ? `${narrativeContext.signature || ''}|ah:${afterHoursKey}` : narrativeContext.signature;
+  const reused = sentenceDayOpen ? null : reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext, narrativeSignature: inputSignature, nowMs });
   if (reused) {
     console.log(`[fetch-data] marketAnalysis evidence and headlines unchanged — reusing verified analysis from ${reused.generatedAt} (no AI call)`);
     return reused;
@@ -345,7 +354,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
   // every 30-minute run (nights and weekends too) spent two model calls on the same material for up to 12 h. The blocked
   // attempt's inputs (evidence, news, headlines, themes, sentence day) are kept as a key; the same key does not call again.
   const evidenceIds = (rows) => [...new Set((Array.isArray(rows) ? rows : []).map((row) => String(row?.evidenceId || '')))].sort().join(',');
-  const attemptKey = createHash('sha1').update([evidenceIds(metricEvidence), evidenceIds(newsEvidence), evidenceIds(headlineContext), String(narrativeContext.signature || ''), marketSentenceDay(nowMs)].join('|')).digest('hex').slice(0, 16);
+  const attemptKey = createHash('sha1').update([evidenceIds(metricEvidence), evidenceIds(newsEvidence), evidenceIds(headlineContext), String(inputSignature || ''), marketSentenceDay(nowMs)].join('|')).digest('hex').slice(0, 16);
   if (previous?.blockedAttemptKey === attemptKey) {
     const reason = previous.retained?.reason || previous.reason || 'analysis-blocked';
     const again = retainVerifiedMarketAnalysis(previous, { reason, nowMs });
@@ -384,7 +393,9 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // v57.81: the same completed closes feed REGIME_CONTEXT and the validator's completed-close basis for in-session rows.
     const historyRows = history || await readHistoryRows(); // v57.86: `history` is a fixture seam (a dated test must not read rows published after it)
     const regimeContext = buildMarketAnalysisRegimeContext(data, historyRows);
-    const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: regimeContext, history: historyRows });
+    // v59.25: the after-hours lines are part of the packet the validator checks numbers against.
+    const afterHoursLines = afterHoursContextLines(data?.afterHours);
+    const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: afterHoursLines ? `${regimeContext}\n${afterHoursLines}` : regimeContext, history: historyRows });
     // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
     // v57.81: computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
     // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
@@ -436,6 +447,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
         // 07:33 KST) came after the US close but before 08:00; headlines after the US close count, the day before's do not.
         ? `원인은 아래 "08:00 이후 장중 속보(잠정)" 헤드라인(잠정이라고 표시)이나 직전 미국 장 마감(${usCloseAt || '미국 종가 시각'}) 뒤에 나온 HEADLINE_CONTEXT 헤드라인에만 귀속하라. 그보다 이전 헤드라인을 장중 움직임의 원인으로 쓰지 마라`
         : '08:00 이후 장중 헤드라인이 없다. 원인을 추정하지 말고 "장중 원인 헤드라인 미수집"이라고 쓴다') + '. 원화 방향은 USD/KRW 값으로만 판단한다(USD/KRW 상승 = 원화 약세)):\n' + koreaIntradayLines] : []),
+      ...(afterHoursLines ? ['US_AFTER_HOURS (직전 미국 정규장 마감 뒤 장 마감 후 실적 발표 종목의 시간외 지연 값, 잠정. 크게 움직인 종목이 반도체·대형 기술주·한국 관련 업종과 닿으면 한 줄로 쓴다: "CDNS 10/26 시간외 19:55 ET 기준 +2.40%(잠정)"처럼 시간외·ET 시각·잠정을 같은 문장에 쓰고 마감·종가라고 쓰지 마라. 이유는 실적 수치와 HEADLINE_CONTEXT 헤드라인에만 귀속하라):\n' + afterHoursLines] : []),
       ...(crossMarketIntradayLines ? ['CROSS_MARKET_INTRADAY (미국 지수 선물·아시아 지수의 장중 지연 값. 한국 장이나 미국 장의 움직임을 설명할 때 반도체(SMH)·선물·아시아가 같은 방향으로 움직였다면 근거로 함께 쓴다. 쓰면 "나스닥 100 선물 장중 HH:MM KST 기준 +x.xx%"처럼 장중과 시각을 같은 문장에 쓰고 마감·종가라고 쓰지 마라):\n' + crossMarketIntradayLines] : []),
       'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
       'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
@@ -502,7 +514,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     }
     if (!text || !semantic.ok) return { ...retainOrFallback(semantic.issues.join(',')), blockedAttemptKey: attemptKey };
     return { ...buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove, largeMoveDirection,
-      narrativeSignature: narrativeContext.signature, narrativeThemes: narrativeContext.themes.map(({ id, label, telegramCount, recentCount, tickerCount }) => ({ id, label, telegramCount, recentCount, tickerCount })) };
+      narrativeSignature: inputSignature, narrativeThemes: narrativeContext.themes.map(({ id, label, telegramCount, recentCount, tickerCount }) => ({ id, label, telegramCount, recentCount, tickerCount })) };
   } catch (error) {
     return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);
   }
