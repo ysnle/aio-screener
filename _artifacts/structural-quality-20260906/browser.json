@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T23:49:14.737Z",
+  "generatedAt": "2026-10-27T00:19:41.829Z",
   "routes": [
     {
       "id": "home",
@@ -46,7 +46,7 @@
       "headings": [
         "오늘",
         "지수 하루 흐름",
-        "지금 시세 실시간·지연, 10/27 08:21 관측",
+        "지금 시세 실시간·지연, 10/27 08:54 관측",
         "지수는 올랐고 참여 종목은 줄었다가 최근 다시 늘고 있습니다"
       ]
     },
@@ -276,6 +276,8 @@
         "국면 판정",
         "혼조",
         "미국 시장 6개 지표",
+        "이 국면에서 네 가지 선택지의 득실",
+        "판단이 바뀌는 가장 가까운 조건",
         "이 조합이 뜻하는 것",
         "다음에 확인할 것",
         "1년 중 지금 위치 — 6개 지표 레이더",
@@ -287,7 +289,6 @@
         "코스피",
         "코스닥",
         "원 / 달러",
-        "외국인 순매수",
         "한국한국 종목의 참여도와 3개월 수익률 상위 테마",
         "3개월 수익률 상위 한국 테마, 표본 중앙값",
         "이 화면을 볼 때 — 속지 말 것과 원칙"
@@ -517,11 +518,11 @@
         },
         {
           "tag": "BUTTON",
-          "name": "S&P 500: 보통 범위 — 다섯 요소 순위 11~76"
+          "name": "S&P 500: 보통 범위 — 다섯 요소 순위 16~76"
         },
         {
           "tag": "BUTTON",
-          "name": "나스닥 종합: 보통 범위 — 다섯 요소 순위 7~50(하위 10% 2개, 상위 10% 0개)"
+          "name": "나스닥 종합: 보통 범위 — 다섯 요소 순위 13~49"
         },
         {
           "tag": "BUTTON",
@@ -740,10 +741,6 @@
       "exists": true,
       "moduleState": "ready",
       "controls": [
-        {
-          "tag": "BUTTON",
-          "name": "10년 기간 프리미엄 (Kim-Wright) 근거 보기"
-        },
         {
           "tag": "BUTTON",
           "name": "테마 화면의 S&P 500 이익 전망"
@@ -1147,14 +1144,6 @@
         },
         {
           "tag": "BUTTON",
-          "name": "테마 상세, 구성 종목 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "스크리너에서 부동산 종목 보기 →"
-        },
-        {
-          "tag": "BUTTON",
           "name": "미국 금융"
         },
         {
@@ -1200,14 +1189,6 @@
         {
           "tag": "BUTTON",
           "name": "미국 해외 대형 ADR"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "테마 상세, 구성 종목 →"
-        },
-        {
-          "tag": "BUTTON",
-          "name": "스크리너에서 해외 대형 ADR 종목 보기 →"
         },
         {
           "tag": "BUTTON",
@@ -2089,11 +2070,27 @@
         },
         {
           "tag": "A",
+          "name": "More Oil Is Now Coming Out of the Persian Gulf Than Before the Iran War"
+        },
+        {
+          "tag": "A",
+          "name": "앤트로픽 창업자 7명, 상장후 의결권 50.1% 행사"
+        },
+        {
+          "tag": "A",
+          "name": "Asian Stocks to Gain as Anthropic Files for IPO: Markets Wrap"
+        },
+        {
+          "tag": "A",
+          "name": "Equities end higher as Anthropic's IPO filing buoys AI stocks"
+        },
+        {
+          "tag": "A",
           "name": "[마켓뷰] 코스피, '앤트로픽발 훈풍'에 반등 시도하나"
         },
         {
           "tag": "A",
-          "name": "앤트로픽 상장시 주요 주주 아마존·구글도 '잭폿'"
+          "name": "Oil Declines as Diplomacy Offers Hope of Mideast Deescalation"
         },
         {
           "tag": "A",
@@ -2109,11 +2106,11 @@
         },
         {
           "tag": "A",
-          "name": "트렌드 헤지 펀드는 2024년 이후 가장 나쁜 주를 보았다: AI 주가 하락, 골드만삭스 — 원문 새 창에서 열기"
+          "name": "이스라엘 선거와 미 중간 선거에 따라 금, 은 가격이 결정된다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "이스라엘 선거와 미 중간 선거에 따라 금, 은 가격이 결정된다 — 원문 새 창에서 열기"
+          "name": "트렌드 헤지 펀드는 2024년 이후 가장 나쁜 주를 보았다: AI 주가 하락, 골드만삭스 — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -2122,10 +2119,6 @@
         {
           "tag": "BUTTON",
           "name": "중요도순"
-        },
-        {
-          "tag": "A",
-          "name": "이란 전쟁 전보다 페르시아만에서 더 많은 원유가 나오고 있다 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -2141,15 +2134,19 @@
         },
         {
           "tag": "A",
-          "name": "Rambus falls despite earnings beat on muted guidance outlook — 원문 새 창에서 열기"
+          "name": "실적 예상치 상회에도 가이던스 전망이 부진해 Rambus 주가 하락 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "주식은 바쁜 주 이전에 상승하며 원유 가격이 완화된다 — 원문 새 창에서 열기"
+          "name": "세 가지 위험이 겹치며 AI 거래의 실수 여지가 거의 없다고 경고한 Citadel Securities — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
           "name": "금 가격은 주간 하락 이후 안정되며 연준 회의에 초점이 맞춰진다 — 원문 새 창에서 열기"
+        },
+        {
+          "tag": "A",
+          "name": "오일, 이란 리스크 평가로 6개월 만에 최고치에서 하락 — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
@@ -2161,15 +2158,15 @@
         },
         {
           "tag": "A",
-          "name": "분석가, 실적 앞두고 Robinhood 주식 예측 업데이트 — 원문 새 창에서 열기"
+          "name": "UBS Sets Bold Amazon Stock Target Ahead of Earnings — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "5 Defensive Stocks to Buy to Avoid the AI Bubble — 원문 새 창에서 열기"
+          "name": "Gold Futures Pick Up As Oil Prices Pull Back — 원문 새 창에서 열기"
         },
         {
           "tag": "A",
-          "name": "Stocks making the biggest moves midday: Lockheed Martin, JetBlue, CoreWeave, Surgery Partners & more — 원문 새 창에"
+          "name": "Analyst updates Robinhood stock forecast ahead of earnings — 원문 새 창에서 열기"
         },
         {
           "tag": "BUTTON",
@@ -2205,7 +2202,7 @@
         },
         {
           "tag": "A",
-          "name": "지정학@insidertracking, 미국 속보, 10-27블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록."
+          "name": "시장소식@insidertracking, 미국 속보, 10-27블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록"
         },
         {
           "tag": "A",
@@ -2217,7 +2214,7 @@
         },
         {
           "tag": "A",
-          "name": "거시@insidertracking, 미국 속보, 10-27브라질 증시가 루이스 이나시우 룰라 다 시우바 대통령의 예상 밖 재선 이후 역사적인 폭락을 기록. 브라질 대표 주가지수인 이보베스파 지수는 "
+          "name": "시장소식@insidertracking, 미국 속보, 10-27브라질 증시가 루이스 이나시우 룰라 다 시우바 대통령의 예상 밖 재선 이후 역사적인 폭락을 기록. 브라질 대표 주가지수인 이보베스파 지수"
         },
         {
           "tag": "A",
