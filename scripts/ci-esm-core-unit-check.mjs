@@ -4309,7 +4309,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || !/^- WHR 10\/26 시간외 19:55 ET 기준 -8\.50% \(정규장 종가 80 대비 73\.2, EPS -0\.21 \(예상 0\.80\)\)/m.test(lines) || !/CDNS 10\/26 시간외 19:50 ET 기준 \+2\.40%/.test(lines) || /ARE/.test(lines)
     || ah.afterHoursContextLines({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 5, regularClose: 1, last: 1.05, observedAt: '2026-10-26T21:00:00Z', epsActual: null, epsEstimate: null }] }).includes('EPS')
     || (await ah.collectAfterHours({ calendar: cal, sessionDate: '2026-10-26', previous: collected, nowMs: Date.parse('2026-10-27T00:20:00Z'), fetchChart: async (symbol) => { if (symbol === 'WHR') throw new Error('offline'); return chart(300, [['2026-10-26T23:58:00Z', 309]]); } })).rows.map((row) => `${row.symbol}${row.changePct}`).join() !== 'CDNS3,ARE3,WHR-8.5'
-    || beforeClose !== null || kept !== collected || ah.afterHoursMoveFromChart(whr, '2026-10-27') !== null || ah.afterHoursSignature(collected) !== '2026-10-26:CDNS2,WHR-8'
+    || beforeClose !== null || kept !== collected || ah.afterHoursMoveFromChart(whr, '2026-10-27') !== null || ah.afterHoursSignature(collected) !== '2026-10-26:CDNS2, EPS 2.11 (예상 2.09),WHR-8, EPS -0.21 (예상 0.80)'
+    || ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 5, epsActual: null, epsEstimate: 1 }] }) === ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 5, epsActual: 1.2, epsEstimate: 1 }] })
     || ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 2.6 }] }) === ah.afterHoursSignature({ sessionDate: '2026-10-26', rows: [{ symbol: 'X', changePct: 3.1 }] }))
     fail(`v59.25 after-hours lane: ${JSON.stringify({ whrMove, picked, lines, beforeClose, kept: kept === collected, sig: ah.afterHoursSignature(collected) })}`);
 }

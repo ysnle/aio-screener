@@ -105,8 +105,8 @@ export function afterHoursContextLines(afterHours) {
 }
 
 // Reuse key: the rows the prompt carries, with whole-percent moves, so a few cents of after-hours drift does not buy a new
-// model call while a row crossing the mention edge (into or out of the prompt) does.
+// model call while a row crossing the mention edge (into or out of the prompt) or a newly reported EPS does.
 export function afterHoursSignature(afterHours) {
   const rows = mentionedRows(afterHours);
-  return rows.length ? `${afterHours.sessionDate}:${rows.map((row) => `${row.symbol}${Math.round(row.changePct)}`).join(',')}` : '';
+  return rows.length ? `${afterHours.sessionDate}:${rows.map((row) => `${row.symbol}${Math.round(row.changePct)}${eps(row)}`).join(',')}` : '';
 }
