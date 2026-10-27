@@ -181,10 +181,35 @@ async function main() {
       return route.abort();
     });
 
-    // Diagnostics only: CI reports `requestfailed net::ERR_ABORTED` on localhost public-data files without naming who
-    // aborted them. Record the JS stack of every abort that reaches a public-data fetch so the failure line can name it.
+    // Under the route interception above, Chromium sometimes reports `requestfailed net::ERR_ABORTED` for a localhost
+    // public-data fetch whose body the page has already read to the end (observed 2026-10-27: macro-calendar, screener,
+    // stress-outcomes and market-temperature, with no AbortController involved). The page records which bodies it read in
+    // full, and the JS stack of every abort that reaches a public-data fetch, so a real abort still fails and names its caller.
     await page.addInitScript(() => {
       const trace = window.__aioAbortTrace = [];
+      const bodyDone = window.__aioBodyDone = {};
+      const nativeGetReader = ReadableStream.prototype.getReader;
+      ReadableStream.prototype.getReader = function (...args) {
+        const reader = nativeGetReader.apply(this, args);
+        if (this.__aioUrl) reader.__aioUrl = this.__aioUrl;
+        return reader;
+      };
+      const nativeRead = ReadableStreamDefaultReader.prototype.read;
+      ReadableStreamDefaultReader.prototype.read = function (...args) {
+        const result = nativeRead.apply(this, args);
+        const url = this.__aioUrl;
+        if (url) result.then((chunk) => { if (chunk.done) bodyDone[url] = true; }, () => {});
+        return result;
+      };
+      for (const method of ['text', 'json', 'arrayBuffer', 'blob']) {
+        const nativeMethod = Response.prototype[method];
+        Response.prototype[method] = function (...args) {
+          const result = nativeMethod.apply(this, args);
+          const url = this.url;
+          if (/\/public-data\//.test(url)) result.then(() => { bodyDone[url] = true; }, () => {});
+          return result;
+        };
+      }
       const nativeAbort = AbortController.prototype.abort;
       AbortController.prototype.abort = function (...args) {
         try { if (!this.signal.aborted) this.signal.__aioAbortStack = new Error('abort').stack; } catch (_) {}
@@ -198,7 +223,9 @@ async function main() {
           const startedAt = Math.round(performance.now());
           signal.addEventListener('abort', () => trace.push({ url, startedAt, abortedAt: Math.round(performance.now()), reason: String(signal.reason?.message || signal.reason || ''), stack: signal.__aioAbortStack || null }), { once: true });
         }
-        return Reflect.apply(nativeFetch, this ?? window, arguments);
+        const response = Reflect.apply(nativeFetch, this ?? window, arguments);
+        if (/\/public-data\//.test(url)) response.then((res) => { try { if (res.body) res.body.__aioUrl = res.url; } catch (_) {} }, () => {});
+        return response;
       };
     });
 
@@ -290,8 +317,15 @@ async function main() {
       unexpected.push({ label: 'GROUP_SENTINEL', detail: JSON.stringify(sentinelResult) });
     }
 
+    const pageNetwork = runtimeErrors.some((error) => error.kind === 'requestfailed')
+      ? await page.evaluate(() => ({ trace: window.__aioAbortTrace || [], bodyDone: Object.keys(window.__aioBodyDone || {}) })).catch(() => ({ trace: [], bodyDone: [] }))
+      : { trace: [], bodyDone: [] };
+    const abortTrace = pageNetwork.trace;
+    const readBodies = new Set(pageNetwork.bodyDone);
+    const deliveredAborts = runtimeErrors.filter((error) => error.kind === 'requestfailed' && /ERR_ABORTED/.test(error.text) && readBodies.has(error.source));
+    const gatedRuntime = runtimeErrors.filter((error) => !deliveredAborts.includes(error));
     const allowlistedRuntime = runtimeErrors.filter((error) => runtimeAllowlist.some((entry) => matchesAllowlist(error, entry)));
-    const unexpectedRuntime = runtimeErrors.filter((error) => !runtimeAllowlist.some((entry) => matchesAllowlist(error, entry)));
+    const unexpectedRuntime = gatedRuntime.filter((error) => !runtimeAllowlist.some((entry) => matchesAllowlist(error, entry)));
     const unusedRuntimeAllowlist = runtimeAllowlist.filter((entry) => !runtimeErrors.some((error) => matchesAllowlist(error, entry)));
 
     if (expectedSkipped.length) {
@@ -317,13 +351,14 @@ async function main() {
       for (const e of unexpectedRuntime.slice(0, 20)) console.error(`  - ${e.kind} | ${e.text} | ${e.source}`);
       exitCode = 1;
     }
-    const abortTrace = runtimeErrors.some((error) => error.kind === 'requestfailed')
-      ? await page.evaluate(() => window.__aioAbortTrace || []).catch(() => [])
-      : [];
+    if (deliveredAborts.length) {
+      console.log(`\n[ci-headless-tests] ERR_ABORTED after the page read the whole body ${deliveredAborts.length}건 (delivered, 비차단):`);
+      for (const entry of deliveredAborts.slice(0, 20)) console.log(`  - ${entry.source}`);
+    }
     if (abortTrace.length) {
       console.error(`\n[ci-headless-tests] abort trace for public-data fetches (${abortTrace.length}):`);
       for (const entry of abortTrace.slice(0, 20)) console.error(`  - ${entry.url} started=${entry.startedAt}ms aborted=${entry.abortedAt}ms reason=${entry.reason || '-'}\n${String(entry.stack || '(no JS stack: aborted outside AbortController.abort)').split('\n').slice(1, 9).map((line) => `      ${line.trim()}`).join('\n')}`);
-    } else if (runtimeErrors.some((error) => error.kind === 'requestfailed')) {
+    } else if (unexpectedRuntime.some((error) => error.kind === 'requestfailed')) {
       console.error('\n[ci-headless-tests] abort trace: no public-data fetch signal was aborted (the browser cancelled the request itself)');
     }
 
@@ -359,6 +394,7 @@ async function main() {
       runtimeErrors,
       expectedBlockedNetwork,
       abortTrace,
+      deliveredAborts,
       runtime: { allowlisted: allowlistedRuntime, unexpected: unexpectedRuntime, unusedAllowlist: unusedRuntimeAllowlist }
     });
   } catch (e) {
