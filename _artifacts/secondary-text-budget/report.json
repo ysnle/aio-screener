@@ -27,7 +27,7 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 3812,
+      "total": 3818,
       "secondary": 410,
       "lines": [
         {
@@ -336,13 +336,13 @@
       "frames": []
     },
     "briefing": {
-      "total": 5357,
+      "total": 5325,
       "secondary": 800,
       "lines": [
         {
           "chars": 50,
           "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/27 19:21 KST, S&P 500 10/26 종가, 코스피 10/27 종가"
+          "text": "생성 10/27 19:35 KST, S&P 500 10/26 종가, 코스피 10/27 종가"
         },
         {
           "chars": 47,
@@ -430,7 +430,7 @@
       "frames": []
     },
     "macro": {
-      "total": 7174,
+      "total": 7170,
       "secondary": 560,
       "lines": [
         {
@@ -833,7 +833,7 @@
       "frames": []
     },
     "market-news": {
-      "total": 5431,
+      "total": 5394,
       "secondary": 390,
       "lines": [
         {
@@ -889,7 +889,7 @@
         {
           "chars": 15,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Reuters, 13시간 전"
+          "text": "Reuters, 14시간 전"
         },
         {
           "chars": 15,
@@ -962,7 +962,7 @@
       "frames": []
     },
     "masters": {
-      "total": 2656,
+      "total": 2655,
       "secondary": 217,
       "lines": [
         {
@@ -971,9 +971,9 @@
           "text": "비교 행 30개(이번 분기 보유 29개, 전량 매도 1개) 중 가치 상위 10개, 변화 있는 행 먼저 30행 모두 보기"
         },
         {
-          "chars": 64,
+          "chars": 61,
           "classes": "masters-holdings-meta masters-filing-dates masters-detail-card rl-main",
-          "text": "보고분기 2026 Q2(2026-06-30), 13F-HR 제출 2026-08-14, 자료 검토 2026-10-26"
+          "text": "보고분기 2026 Q2(2026-06-30), -HR 제출 2026-08-14, 자료 검토 2026-10-26"
         },
         {
           "chars": 54,
@@ -994,6 +994,11 @@
           "chars": 5,
           "classes": "aio-note-fold masters-method-fold masters-holdings-section masters-change-ledger",
           "text": "분류 방법"
+        },
+        {
+          "chars": 3,
+          "classes": "aio-term masters-holdings-meta masters-filing-dates masters-detail-card",
+          "text": "13F"
         }
       ],
       "frames": []
