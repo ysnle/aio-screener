@@ -19,7 +19,7 @@ const errors = [];
 const check = (label, condition) => { if (!condition) errors.push(label); };
 
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-const chat = read('js/aio-chat.js') + String.fromCharCode(10) + read('src/data/providers/shared-ai-transport.js'); // v59.11: the shared AI route moved to the transport module
+const chat = read('js/aio-chat.js') + String.fromCharCode(10) + read('src/data/providers/shared-ai-transport.js') + String.fromCharCode(10) + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
 const data = read('js/aio-data.js');
 const html = read('index.html');
 // P1136/R620: the sidebar credential-save handler (and other user-state writers) moved with
@@ -129,7 +129,7 @@ const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { default: assert } = await import('node:assert/strict');
 
-const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
 const start = source.indexOf('async function callSharedAi(');
 const end = source.indexOf('// ── 스크리너 질의', start);
 assert(start >= 0 && end > start);
@@ -241,7 +241,7 @@ const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { createAIKnowledgeRetriever } = await import('../src/ai/retrieval/knowledge.js');
 const { evaluateResearchEvidenceFloor } = await import('../src/ai/research/evidence.js');
-const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
 const section = (a,b) => { const start=source.indexOf(a), end=source.indexOf(b,start); assert(start>=0 && end>start); return source.slice(start,end); };
 const states = {}, button = { disabled: true }, documentListeners = {};
 const root = { AbortController, setTimeout, clearTimeout, URL, console, document: {

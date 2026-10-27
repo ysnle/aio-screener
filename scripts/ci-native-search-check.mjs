@@ -39,7 +39,7 @@ const externalResult = { citations: [cite], researchEvidence: { currentClaimsAll
 assert.equal(select({ externalResult }), false, 'P1608 sufficient optional external evidence avoids duplicate paid search');
 assert.equal(attachNativeSearch({ input: 'test' }, { enabled: true, health: { ai: {} } }).tools, undefined, 'P1608 old Worker gets no unsupported tool');
 
-const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
 const optional = { requirement: 'OPTIONAL', currentSensitive: false };
 assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 재무 요약' }, internalReferenceEvidence: { deep: true } }), false, 'P1608 existing company evidence avoids optional search');
 assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 경쟁 해자' }, internalReferenceEvidence: { deep: true } }), true, 'P1608 financial evidence alone does not cover a moat question');

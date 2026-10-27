@@ -7,6 +7,8 @@ import { chromium } from 'playwright';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const shell = readFileSync(path.join(root, 'index.html'), 'utf8').replace(/\r\n/g, '\n');
 const chat = readFileSync(path.join(root, 'js', 'aio-chat.js'), 'utf8').replace(/\r\n/g, '\n');
+// v59.15: the public disclosure helpers moved to the AI request/response pipeline module (indented inside its installer).
+const pipeline = readFileSync(path.join(root, 'src', 'ai', 'response', 'request-pipeline.js'), 'utf8').replace(/\r\n/g, '\n');
 
 function sliceBetween(source, startMarker, endMarker, label) {
   const start = source.indexOf(startMarker);
@@ -30,9 +32,9 @@ const appendAIMsg = sliceBetween(chat, 'function _appendAIMsg(', '\n\nasync func
 
 // Use the shared disclosure helper from the production chat module. Its small
 // dependency slice is self-contained and keeps this gate offline/provider-free.
-const disclosureFormat = sliceBetween(chat, 'function _aioPublicAIFormatAsOf(', '\n\nfunction _aioBuildAIResponseDisclosure', 'disclosure formatter');
-const disclosureBuild = sliceBetween(chat, 'function _aioBuildAIResponseDisclosure(', '\n\n// P1539', 'disclosure builder');
-const disclosureAppend = sliceBetween(chat, 'function _aioAppendAIPublicDisclosure(', '\n\nif (typeof window !==', 'disclosure renderer');
+const disclosureFormat = sliceBetween(pipeline, 'function _aioPublicAIFormatAsOf(', '\n\n  function _aioBuildAIResponseDisclosure', 'disclosure formatter');
+const disclosureBuild = sliceBetween(pipeline, 'function _aioBuildAIResponseDisclosure(', '\n\n  // P1539', 'disclosure builder');
+const disclosureAppend = sliceBetween(pipeline, 'function _aioAppendAIPublicDisclosure(', '\n\n  window._AIO_PUBLIC_AI_POLICY =', 'disclosure renderer');
 const citationCanonical = sliceBetween(chat, 'function _aioCanonicalResearchUrl(', '\n\n/** 검색 출처 → UI HTML */', 'citation URL normalizer');
 const citationsHtml = sliceBetween(chat, 'function _searchCitationsHTML(', '\n\nfunction _aioResearchFailureForUser', 'citation renderer');
 const disclosureFixture = [

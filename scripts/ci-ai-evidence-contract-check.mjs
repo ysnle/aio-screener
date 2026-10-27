@@ -165,7 +165,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const data = read('js/aio-data.js');
-const chat = read('js/aio-chat.js');
+const chat = (read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js'));
 
 const helperStart = core.indexOf('var _AIO_CLAIM_SCHEMA_VERSION');
 const helperEnd = core.indexOf('function _aioClaimEvidenceList', helperStart);
@@ -333,7 +333,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 // Keep source-slice contracts independent of the checkout's CRLF/LF mode.
 // The assertion is about wiring and evidence semantics, not line endings.
 const read = file => fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n?/g, '\n');
-const chat = read('js/aio-chat.js');
+const chat = (read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js'));
 const html = read('index.html');
 
 const helperStart = chat.indexOf('function _aioBuildChatAnalysisContext(');
@@ -476,7 +476,7 @@ const { selectPublicEarnings } = await import('../src/data/providers/earnings.js
 const { assessWorkerSetup } = await import('./check-worker-setup.mjs');
 
 // P1607: execute the actual keyless AI consumer, not a parallel implementation.
-const chat = readFileSync(new URL('../js/aio-chat.js',import.meta.url),'utf8');
+const chat = (readFileSync(new URL('../js/aio-chat.js',import.meta.url),'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js',import.meta.url),'utf8'));
 const start = chat.indexOf('async function _fetchDeepCompareData(');
 const end = chat.indexOf('// 기업 내부 비교 데이터', start);
 const facts = { symbol:'NVDA', source:'SEC EDGAR companyfacts', periodType:'FY', observedAt:'2026-01-31', filedAt:'2026-03-01', coverage:['revenue','netIncome'], revenue:123, netIncome:0 };

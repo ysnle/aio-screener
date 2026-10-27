@@ -1,3 +1,7 @@
+## v59.15 (2026-10-27)
+- **AI 요청·응답 파이프라인 분리 (레거시 다음 계층 1단계, 채팅):** 공개 AI 정책, 요청 객체, 스트림별 인용·오류 저장소, 근거 수집, 답변 검증 파이프라인, 답변 근거 표시를 js/aio-chat.js에서 src/ai/response/request-pipeline.js로 옮겼다(채팅 파일 약 620줄 감소). 이 모듈은 부팅 직후 부팅 묶음 밖에서 불러오며, 뉴스 자동 번역·callSharedAi·채팅 전송은 모듈이 아직 없을 때만 그 로드를 기다린다. 창 이름과 동작은 그대로이고, 답변 근거 상자의 인라인 스타일은 같은 값의 lch-disc 클래스로 바꿨다.
+- R1 7곳 v59.15
+
 ## v59.14 (2026-10-27)
 - **부팅 공용 도우미 분리 (레거시 다음 계층 1단계, 채팅):** 채팅과 상관없이 부팅 때 쓰이던 도우미 네 가지를 js/aio-chat.js에서 src로 옮겼다. 응답 대기 한도(_withTimeout → src/platform/with-timeout.js), 무료 공급자 일일 호출 계수(_bumpApiCounter·_isQuotaExceeded → src/data/api-quota.js), 질문 속 티커 찾기(_extractTickers → src/ai/entity/extract-tickers.js), 데스크톱 사이드바 접기와 저장 상태 복원(toggleSidebar → src/ui/components/sidebar-toggle.js, 저장은 src/data/shell-prefs.js)이다. 동작과 창 이름은 그대로이며, 부팅 모듈 한도는 옮긴 바이트만큼 올렸다.
 - R1 7곳 v59.14

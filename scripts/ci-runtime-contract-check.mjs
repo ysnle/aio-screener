@@ -22,7 +22,7 @@ const visibleHtml = html.replace(/<!--[\s\S]*?-->/g, '');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const data = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
-const chat = read('js/aio-chat.js') + '\n' + read('src/data/providers/shared-ai-transport.js'); // v59.11: the shared AI route moved to the transport module
+const chat = read('js/aio-chat.js') + '\n' + read('src/data/providers/shared-ai-transport.js') + '\n' + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
 const pagesSource = read('js/aio-pages.js');
 // P1134/R620: the KR/SEC data plane extracted from inline block C lives in js/aio-kr-data.js.

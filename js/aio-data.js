@@ -9167,6 +9167,7 @@ async function autoTranslateNews(items) { (items || []).forEach(function(i) { if
       // v52.76/WP-AI1: translation uses the same request envelope and final
       // response pipeline as chat/retry. If the shared pipeline is absent,
       // fail closed into the existing local/free translation fallback.
+      if (typeof _aioCreateAIRequestObject !== 'function' && window._aioAIPipelineReady) await window._aioAIPipelineReady; // v59.15: the pipeline module loads after boot
       const _translationRequest = typeof _aioCreateAIRequestObject === 'function'
         ? _aioCreateAIRequestObject('auto-translation', { ctxId: 'news-translation', query: prompt })
         : null;

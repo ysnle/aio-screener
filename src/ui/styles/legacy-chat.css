@@ -21,6 +21,7 @@
 
 /* AI panel (#ai-panel, a direct child of <body>, outside .page/.sidebar/.topbar): no inline font-size substring rule
    applied, so sizes stay literal. Sub-12px items (disclosure box, model/source badges, retry notes) stay inline. */
+details.lch-disc { margin: 5px 0; padding: 5px 7px; background: var(--gold-3); color: var(--text-muted); font-size: 12px; line-height: 1.45; } /* v59.15: the AI answer disclosure box (was an inline style) */
 #ai-panel-msgs .lch-disc-sum { cursor: pointer; font-size: 12px; line-height: 1.6; }
 #ai-panel-msgs .lch-disc-body { padding-top: 6px; font-size: 12px; overflow-wrap: anywhere; white-space: pre-line; }
 #ai-panel-msgs .lch-code { background: var(--white-a2); padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 0.88em; }

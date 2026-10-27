@@ -374,7 +374,7 @@ check('P1244 E6/A05 a ready floor with a verified binding is distinguishable fro
 // made the gate defend the defect. These assertions pin the meaning instead: the collector stamps
 // the request id its stream was started with, no shared request-id slot survives, and two
 // interleaved streams cannot observe each other's citations (executed, not read as source text).
-const chatSource = fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const chatSource = fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + fs.readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
 check('P1245 the chat citation collector stamps its own stream request id, not a shared global',
   /requestId: _streamRequestId, queryId: _streamRequestId/.test(chatSource)
   && !/window\._aioActiveAIRequestId/.test(chatSource)
@@ -431,7 +431,7 @@ check('research-capability-separates-chat', capability.status === 'READY' && cap
 const boundedRunnerFailure = await createAIAnswerOrchestrator({ now: () => new Date('2026-07-28T12:00:00Z') }).execute({ query:'시장 원리', legacyRunner: async () => { throw new Error('secret internal detail'); } });
 check('orchestrator-does-not-leak-runner-error', boundedRunnerFailure.error === 'legacy_runner_failed' && !JSON.stringify(boundedRunnerFailure).includes('secret internal detail'));
 
-const chat = read('js/aio-chat.js');
+const chat = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
 const bindingContext = vm.createContext({ window: { AIO_ARCH: { getAIOrchestrator: () => ({ answerPublication }) } }, URL });
 vm.runInContext(chat.slice(chat.indexOf('function _aioAIClaimEvidenceId('), chat.indexOf('function _aioRunAIResponsePipeline(')), bindingContext);
 const bindingRow = { evidenceId: 'quote:NVDA', metric: 'price', ticker: 'NVDA', scale: 'raw', value: 120, unit: 'USD', asOf: '2026-09-01T12:00:00Z', source: 'exchange', sourceUrl: 'https://nasdaq.com/quote/NVDA', status: 'ok' };
@@ -582,7 +582,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const staleRows = buildCloseBasisEvidence({ history: history.filter((row) => row.date <= '2026-10-02'), credit: {}, rates: {}, now: Date.parse('2026-10-13T04:00:00Z') });
   detail('#7 an old close basis publishes no close-basis evidence (same hold as the regime board)', staleRows.length === 0, String(staleRows.length));
 
-  const chatSource = read('js/aio-chat.js');
+  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const coreSource = read('js/aio-core.js');
   const orchestrator = createAIAnswerOrchestrator({ now: () => new Date('2026-10-13T04:00:00Z') });
   const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (text, options = {}) => orchestrator.parseAnswerPlanText(text, options), renderAIAnswerPlan: (plan, options = {}) => orchestrator.renderAnswerPlan(plan, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
@@ -662,7 +662,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
 {
   const { classifyQuestionIntent } = await import('../src/ai/intent/taxonomy.js');
   const { companyEntitySymbols } = await import('../src/ai/orchestrator/question-planner.js');
-  const chat = read('js/aio-chat.js');
+  const chat = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
   check('P1740 colloquial trade question is an action question', classifyQuestionIntent('NVDA 지금 사도 돼?').actionRequested === true && classifyQuestionIntent('삼성전자 살까?').actionRequested === true);
   check('P1740 a company named in Korean is an entity question', classifyQuestionIntent('엔비디아 어때?', { hasEntity: true }).intents.includes('ENTITY_ANALYSIS'));
   const namedPlan = createQuestionPlan({ query: '엔비디아랑 삼성전자 실적 비교해줘', route: 'home', root: {}, now: new Date('2026-10-13T03:00:00Z') });
@@ -919,11 +919,11 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   }
   {
     // v58.77: the "웹검색 중" status line turns into what happened; an older settled line is left alone.
-    const chat = read('js/aio-chat.js');
-    const from = chat.indexOf('function _aioSettleWebSearchStatus(text) {');
+    const chat = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+    const from = chat.indexOf('function _aioSettleWebSearchStatus(text) {'); // v59.15: indented inside the pipeline module
     const lines = [{ textContent: '웹검색 중', dataset: { settled: '1' } }, { textContent: '웹검색 중', dataset: {} }];
     const fakeDocument = { querySelectorAll: () => lines.filter((line) => !line.dataset.settled) };
-    new Function('document', `${chat.slice(from, chat.indexOf('\n}\n', from) + 2)}\n_aioSettleWebSearchStatus('끝');`)(fakeDocument);
+    new Function('document', `${chat.slice(from, chat.indexOf('\n  }\n', from) + 4)}\n_aioSettleWebSearchStatus('끝');`)(fakeDocument);
     check('v58.77 web search: the pending status line is settled once the answer arrives', from > 0 && lines[1].textContent === '끝' && lines[1].dataset.settled === '1' && lines[0].textContent === '웹검색 중');
   }
   // Behaviour on a small fake DOM: the real modules run; no source text is pinned.
@@ -988,7 +988,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   }
   {
     // The legacy context builder delegates to the installed profile and falls back to the do-not-assume line.
-    const chat = read('js/aio-chat.js');
+    const chat = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
     const from = chat.indexOf('function _buildUserProfileContext() {');
     const fn = new Function('window', chat.slice(from, chat.indexOf('\n}\n', from) + 2) + '\nreturn _buildUserProfileContext();');
     check('v58.77 profile: _buildUserProfileContext uses window.AIO.aiProfileContext and keeps the unset fallback',
@@ -1002,7 +1002,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const krTechFiles = ['js/aio-chat.js', 'js/aio-core.js', 'js/aio-ui.js', 'js/aio-qa-audits.js', 'src/ai/intent/taxonomy.js'];
   const stale = krTechFiles.filter((file) => /['"|]kr-tech['"|)]/.test(read(file)));
   check(`P1758 retired kr-tech chat context has no context, alias, tag or tier entry (${stale.join(', ') || 'none'})`, stale.length === 0);
-  const chatSource = read('js/aio-chat.js');
+  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const panelMap = chatSource.slice(chatSource.indexOf('var _aiCtxMap = {'), chatSource.indexOf('};', chatSource.indexOf('var _aiCtxMap = {')));
   check('P1758 the technical screen keeps its own AI context (where the KR technical section lives)', /'technical':'technical'/.test(panelMap) && /technical:_aioCreateEvidenceContext\(/.test(chatSource));
 }
@@ -1011,7 +1011,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   // v57.54: kr-macro (CHAT_CONTEXTS) and kr-themes (panel key, chips, context) had no route after the 19→8 consolidation —
   // KR macro lives inside 거시 and KR themes inside 테마, answered by `macro` / `themes`. Retired like kr-tech (P1758).
   // `kr-macro` survives only as the question-selected Korean domain block (P1740, market-content.js) — not a context.
-  const chatSource = read('js/aio-chat.js');
+  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const block = (start) => { const at = chatSource.indexOf(start); return at < 0 ? '' : chatSource.slice(at, chatSource.indexOf('};', at)); };
   const contexts = block('const CHAT_CONTEXTS = {'), panelMap = block('var _aiCtxMap = {'), chips = block('var _aiDefaultChips = {');
   const live = [['CHAT_CONTEXTS', contexts], ['_aiCtxMap', panelMap], ['_aiDefaultChips', chips]].filter(([, text]) => /['"]kr-(?:macro|themes)['"]\s*:/.test(text)).map(([name]) => name);
