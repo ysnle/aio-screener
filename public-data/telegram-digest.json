@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T21:21:37.764Z",
-  "attemptedAt": "2026-10-27T21:21:37.764Z",
-  "lastSuccessfulAt": "2026-10-27T21:21:37.764Z",
+  "generatedAt": "2026-10-27T21:51:42.368Z",
+  "attemptedAt": "2026-10-27T21:51:42.368Z",
+  "lastSuccessfulAt": "2026-10-27T21:51:42.368Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T21:21:32.671Z",
-  "until": "2026-10-27T21:21:32.671Z",
+  "since": "2026-10-13T21:51:37.268Z",
+  "until": "2026-10-27T21:51:37.268Z",
   "current24hWindow": {
     "start": "2026-10-25T23:00:00.000Z",
     "end": "2026-10-26T23:00:00.000Z",
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1329,
-      "freshCount": 60,
-      "eligibleTextCount": 1276,
+      "count": 1333,
+      "freshCount": 40,
+      "eligibleTextCount": 1280,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67552
+      "lastPostId": 67557
     },
     {
       "channel": "bornlupin",
@@ -114,29 +114,29 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 686,
-      "freshCount": 19,
-      "eligibleTextCount": 686,
+      "count": 685,
+      "freshCount": 37,
+      "eligibleTextCount": 685,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 71106
+      "lastPostId": 71110
     }
   ],
-  "count": 2488,
-  "retainedItemCount": 474,
+  "count": 2491,
+  "retainedItemCount": 457,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2488,
-    "eligibleTextCount": 2422,
+    "observedCount": 2491,
+    "eligibleTextCount": 2425,
     "mediaOnlyCount": 66,
-    "highSignalCount": 451,
-    "broadSignalCount": 1009,
+    "highSignalCount": 452,
+    "broadSignalCount": 1010,
     "selectedRawCount": 405,
     "selectedEligibleCount": 405,
     "selectedRawCoveragePct": 16.7,
@@ -144,17 +144,17 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "geo": 373,
-    "market-note": 912,
-    "macro": 410,
+    "geo": 375,
+    "market-note": 913,
+    "semi": 594,
+    "credit": 127,
+    "macro": 411,
     "earnings": 511,
     "kr-market": 148,
     "equity": 188,
     "flows": 115,
-    "semi": 593,
     "power": 318,
     "healthcare": 134,
-    "credit": 126,
     "ai-policy": 150,
     "japan": 132,
     "media-only": 66,
@@ -163,14 +163,15 @@
     "insider": 4
   },
   "tickerCounts": {
-    "MSFT": 60,
-    "GOOG": 105,
+    "NVDA": 187,
+    "GOOG": 107,
+    "ORCL": 11,
+    "AMD": 25,
+    "MSFT": 61,
+    "AVGO": 26,
     "TSLA": 94,
     "000660.KS": 69,
     "STX": 7,
-    "NVDA": 187,
-    "AMD": 24,
-    "AVGO": 25,
     "MU": 64,
     "AMZN": 61,
     "AAPL": 16,
@@ -190,7 +191,6 @@
     "CRM": 1,
     "AMAT": 2,
     "MRVL": 2,
-    "ORCL": 10,
     "APH": 1,
     "CEG": 1,
     "218410.KQ": 1,
@@ -252,11 +252,11 @@
     "UNH": 1
   },
   "themes": [
-    "Market Notes (912 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록....",
-    "Semiconductors/Memory (593 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을...",
+    "Market Notes (913 posts in 14-day research window): 2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록....",
+    "Semiconductors/Memory (594 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을...",
     "Earnings/Corporate (511 posts in 14-day research window): 앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수...",
-    "Macro/Rates (410 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
-    "Geopolitics (373 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "Macro/Rates (411 posts in 14-day research window): 2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%...",
+    "Geopolitics (375 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
     "AI Power/Grid (318 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (188 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
     "AI Policy/Export Controls (150 posts in 14-day research window): 2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
@@ -269,8 +269,8 @@
     },
     {
       "key": "GOOG",
-      "count": 105,
-      "text": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%, 다우 +0.03%, 러셀2000 +1.16% 기록. 필라델피아 반도체지수는 장중 2% 이상 상승했으며,..."
+      "count": 107,
+      "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
       "key": "TSM",
@@ -293,13 +293,13 @@
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
-      "key": "AMZN",
+      "key": "MSFT",
       "count": 61,
-      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
+      "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
-      "key": "MSFT",
-      "count": 60,
+      "key": "AMZN",
+      "count": 61,
       "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
     },
     {
@@ -314,13 +314,13 @@
     },
     {
       "key": "AVGO",
-      "count": 25,
-      "text": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%, 다우 +0.03%, 러셀2000 +1.16% 기록. 필라델피아 반도체지수는 장중 2% 이상 상승했으며,..."
+      "count": 26,
+      "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
-      "key": "CRWV",
+      "key": "AMD",
       "count": 25,
-      "text": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점 더 선별적으로 배분되고 있다. 1. AI 컴퓨팅 공급 부족 지속 - 마이크로소프트(MSFT),..."
+      "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     }
   ],
   "categories": [
@@ -330,7 +330,7 @@
       "topics": [
         "macro"
       ],
-      "count": 410,
+      "count": 411,
       "focus": "2026년 10월 27일 미국 증시 브리핑 미국 증시는 AI 관련주 강세와 국채금리 하락에 힘입어 상승 마감. S&P 500 +0.70%, 나스닥 +0.82%, 다우 +0.28%, 러셀 2000 +0.43%..."
     },
     {
@@ -339,7 +339,7 @@
       "topics": [
         "geo"
       ],
-      "count": 373,
+      "count": 375,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -348,8 +348,8 @@
       "topics": [
         "credit"
       ],
-      "count": 126,
-      "focus": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging their IPO” · 이번엔 거대한 expenditure commitments가 핵심 떡밥 · 손실보다 앞으로..."
+      "count": 127,
+      "focus": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
       "id": "semi",
@@ -357,7 +357,7 @@
       "topics": [
         "semi"
       ],
-      "count": 593,
+      "count": 594,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 메타의 주식 발행에 30억 달러를 투자하고 AI 인프라 협력을 확대. 메타는 차세대 AI 에이전트를 위해 엔비디아의 Vera Rubin 시스템·Vera CPU·Spectrum-X·BlueField-4 도입을..."
     },
     {
@@ -394,7 +394,7 @@
         "kr-market"
       ],
       "count": 148,
-      "focus": "스포티파이(SPOT) Q3 2026 어닝콜 요약 > 긍정 요인: • 매출 성장 및 가입자 확대. 3분기 매출은 50억유로로 고정환율 기준 전년 대비 14% 증가. 월간 활성 사용자(MAU)는 7억..."
+      "focus": ">>한국 증시, 글로벌 시장에서 유례없이 저평가… 시가총액 1조 달러 이상 시장 중 처음으로 PER 5배 하회 (중국언론) •한국 KOSPI의 향후 12개월 예상 PER은 4.2배까지 하락. 이는..."
     },
     {
       "id": "equity",
@@ -465,7 +465,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 912,
+      "count": 913,
       "focus": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록...."
     }
   ],
@@ -709,6 +709,28 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/67553",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67553",
+      "datetime": "2026-10-27T21:27:24.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "AVGO"
+      ],
+      "summary": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달..."
+    },
     {
       "id": "insidertracking/67535",
       "channel": "insidertracking",
@@ -1265,44 +1287,6 @@
       ]
     },
     {
-      "id": "insidertracking/67137",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67137",
-      "datetime": "2026-10-23T22:47:06.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "flows",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/10/01 ~ 2026/10/23 (10월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "AMD",
-        "GOOG",
-        "TSM",
-        "LITE",
-        "BE",
-        "RKLB",
-        "GOOGL",
-        "MRK",
-        "PEP",
-        "TMO",
-        "GS",
-        "NKE",
-        "IONQ",
-        "SMR",
-        "CLS",
-        "TEM",
-        "HOOD",
-        "SHOP",
-        "O",
-        "TEAM"
-      ]
-    },
-    {
       "id": "HANAchina/70913",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70913",
@@ -1672,6 +1656,47 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/71110",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71110",
+      "datetime": "2026-10-27T21:31:17.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "GOOG",
+        "ORCL"
+      ],
+      "summary": ">>Cerebras 주가 10% 이상 상승…Oracle, Cerebras·Google 칩 최초 도입하고 Nvidia와의 협력 규모 ‘수 기가와트급’으로 확대 •Oracle은 Cerebras의 AI 칩을..."
+    },
+    {
+      "id": "insidertracking/67553",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67553",
+      "datetime": "2026-10-27T21:27:24.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "AVGO"
+      ],
+      "summary": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달..."
+    },
     {
       "id": "insidertracking/67547",
       "channel": "insidertracking",
@@ -2049,17 +2074,14 @@
       "datetime": "2026-10-27T12:17:35.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "geo",
-        "semi",
-        "power",
-        "japan"
+        "semi"
       ],
       "score": 74,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 27일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 엔비디아는 메타에 30억 달러를 투자할 계획이라고 CNBC가 보도. • 인텔은 양자컴퓨팅 스타트업...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 27일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 엔비디아는 메타에 30억 달러를 투자할 계획이라고 CNBC가 보도. • 인텔은 양자컴퓨팅 스타트업..."
+      ]
     },
     {
       "id": "insidertracking/67515",
@@ -2068,12 +2090,12 @@
       "datetime": "2026-10-27T11:50:06.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "로이터에 따르면 핀란드 대통령 알렉산데르 스투브와 노르웨이 총리 요나스 가르 스퇴레가 화요일 블라디미르 푸틴 러시아 대통령과 전화 통화를 진행한 뒤 볼로디미르 젤렌스키 우크라이나 대통령과도 통화. 핀란드..."
+      "summary": "로이터에 따르면 핀란드 대통령 알렉산데르 스투브와 노르웨이 총리 요나스 가르 스퇴레가 화요일 블라디미르 푸틴 러시아 대통령과 전화 통화를 진행한 뒤 볼로디미르 젤렌스키 우크라이나 대통령과도 통화. 핀란드...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67514",
@@ -2085,13 +2107,13 @@
         "earnings",
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "아마존은 2026년 디바이스 사업에서 6억 1,200만 달러의 매출총손실이 발생할 것으로 내부 전망. 이는 당초 목표였던 4억 3,800만 달러보다 손실 규모가 확대된 수준. 내부 문서에서는 메모리 반도체...",
+      "lead": 1,
       "tickers": [
         "AMZN"
-      ],
-      "summary": "아마존은 2026년 디바이스 사업에서 6억 1,200만 달러의 매출총손실이 발생할 것으로 내부 전망. 이는 당초 목표였던 4억 3,800만 달러보다 손실 규모가 확대된 수준. 내부 문서에서는 메모리 반도체..."
+      ]
     },
     {
       "id": "insidertracking/67497",
@@ -2104,8 +2126,9 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "전쟁 종식을 위한 이란의 조건 관철 강조 최고국가안보회의는 국가 운영을 조율하는 핵심 기구다. 이란 최고국가안보회의 사무총장인 모흐센 레자이 소장은 이슬람혁명 최고지도자인 아야톨라 세예드 모즈타바 하메네이와..."
+      "summary": "전쟁 종식을 위한 이란의 조건 관철 강조 최고국가안보회의는 국가 운영을 조율하는 핵심 기구다. 이란 최고국가안보회의 사무총장인 모흐센 레자이 소장은 이슬람혁명 최고지도자인 아야톨라 세예드 모즈타바 하메네이와...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67495",
@@ -2114,14 +2137,13 @@
       "datetime": "2026-10-27T10:38:40.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "earnings",
-        "macro"
+        "earnings"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
-      "tickers": [],
-      "summary": "로열캐리비안그룹, 2026년 3분기 실적 발표. 조정 주당순이익(EPS)이 시장 예상치를 상회했으며, 연간 실적 가이던스 상향 조정. 2026년 3분기 실적 • 매출: 56억 달러 (예상 56억 1,000만..."
+      "summary": "로열캐리비안그룹, 2026년 3분기 실적 발표. 조정 주당순이익(EPS)이 시장 예상치를 상회했으며, 연간 실적 가이던스 상향 조정. 2026년 3분기 실적 • 매출: 56억 달러 (예상 56억 1,000만...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67491",
@@ -2438,11 +2460,11 @@
         "semi",
         "kr-market"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
-      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%"
     },
     {
       "id": "insidertracking/67466",
@@ -2469,11 +2491,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은..."
     },
     {
       "id": "HANAchina/71084",
@@ -2486,9 +2508,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만..."
     },
     {
       "id": "insidertracking/67463",
@@ -2562,13 +2583,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": ">>휴머노이드 로봇의 메모리 수요, 5년간 20배 증가? 머스크 “터무니없다…로봇의 메모리 수요는 모든 것을 넘어설 것”, 초지능은 이를 훨씬 능가 •머스크는 초지능을 별도 등급으로 구분하며, 초지능의 컴퓨팅...",
-      "lead": 1,
       "tickers": [
         "MU"
-      ]
+      ],
+      "summary": ">>휴머노이드 로봇의 메모리 수요, 5년간 20배 증가? 머스크 “터무니없다…로봇의 메모리 수요는 모든 것을 넘어설 것”, 초지능은 이를 훨씬 능가 •머스크는 초지능을 별도 등급으로 구분하며, 초지능의 컴퓨팅..."
     },
     {
       "id": "bornlupin/20845",
@@ -2596,12 +2617,12 @@
       "datetime": "2026-10-27T04:06:08.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 57,
       "hasText": true,
-      "summary": ">>AI, ‘친구’에서 ‘적’으로…중국 CICC, 중국 클라우드 기업 ROIC 11.9% 추산…내수 구축 효과 미국보다 빨리 나타날 가능성 •추산에 따르면 중국 주요 클라우드 기업의 가중평균 ROIC는...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI, ‘친구’에서 ‘적’으로…중국 CICC, 중국 클라우드 기업 ROIC 11.9% 추산…내수 구축 효과 미국보다 빨리 나타날 가능성 •추산에 따르면 중국 주요 클라우드 기업의 가중평균 ROIC는..."
     },
     {
       "id": "HANAchina/71077",
@@ -2610,12 +2631,12 @@
       "datetime": "2026-10-27T04:01:53.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>“토큰 소비량 72%를 차지하지만 지출 비중은 27%” — AI 강세론과 약세론의 핵심 쟁점 •OpenRouter 데이터에 따르면 토큰 수요는 20개월 만에 250배 급증했지만, 트래픽의 72%가 요금이...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>“토큰 소비량 72%를 차지하지만 지출 비중은 27%” — AI 강세론과 약세론의 핵심 쟁점 •OpenRouter 데이터에 따르면 토큰 수요는 20개월 만에 250배 급증했지만, 트래픽의 72%가 요금이..."
     },
     {
       "id": "HANAchina/71074",
@@ -2624,12 +2645,13 @@
       "datetime": "2026-10-27T03:04:04.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 62,
       "hasText": true,
-      "summary": ">>페트로차이나 에틸렌 생산량, 역대 같은 기간 최고치 기록 (중국언론) •《중국석유보》에 따르면, 올해 1~3분기 페트로차이나의 에틸렌 생산량은 전년 동기 대비 26.4% 증가해 역대 최고치를 기록. 현재...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>페트로차이나 에틸렌 생산량, 역대 같은 기간 최고치 기록 (중국언론) •《중국석유보》에 따르면, 올해 1~3분기 페트로차이나의 에틸렌 생산량은 전년 동기 대비 26.4% 증가해 역대 최고치를 기록. 현재..."
     },
     {
       "id": "HANAchina/71072",
@@ -2642,10 +2664,10 @@
       ],
       "score": 61,
       "hasText": true,
-      "summary": ">>금의 안전자산 논리 변화! Morgan Stanley: 주식 폭락 때는 효과 제한적이지만 미 국채 위기에는 헤지 역할 •Morgan Stanley는 주식시장 위험을 헤지하는 금의 역할이 예전 같지 않다고...",
       "tickers": [
         "MS"
-      ]
+      ],
+      "summary": ">>금의 안전자산 논리 변화! Morgan Stanley: 주식 폭락 때는 효과 제한적이지만 미 국채 위기에는 헤지 역할 •Morgan Stanley는 주식시장 위험을 헤지하는 금의 역할이 예전 같지 않다고..."
     },
     {
       "id": "bornlupin/20844",
@@ -6807,22 +6829,6 @@
       ]
     },
     {
-      "id": "insidertracking/67074",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67074",
-      "datetime": "2026-10-23T00:36:17.000Z",
-      "localDateKst": "2026-10-23",
-      "tags": [
-        "earnings"
-      ],
-      "score": 73,
-      "hasText": true,
-      "summary": "웨스턴디지털(WDC) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 1분기 매출은 44억달러로 전년 대비 55% 증가. 매출총이익률은 58.1%로 전년 대비 약...",
-      "tickers": [
-        "WDC"
-      ]
-    },
-    {
       "id": "bornlupin/20774",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20774",
@@ -7647,21 +7653,6 @@
       "tickers": [
         "MU"
       ]
-    },
-    {
-      "id": "HANAchina/70819",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70819",
-      "datetime": "2026-10-22T00:52:04.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "•한국은행, 기준금리 3%로 동결 •시장 예상 부합",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "aetherjapanresearch/25976",
