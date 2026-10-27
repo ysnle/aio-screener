@@ -287,6 +287,7 @@ const running = { ...exact, name: 'Deploy GitHub Pages', status: 'in_progress', 
 const pagesExpected = { ...expected, name: running.name };
 check('P1351 only explicit current Pages release may be in progress', !isTrustedDeploymentRun(running, pagesExpected) && isTrustedDeploymentRun(running, { ...pagesExpected, allowInProgress: true }));
 check('P1351 in-progress exception never accepts another Pages run', !isTrustedDeploymentRun(running, { ...pagesExpected, runId: 124, allowInProgress: true }));
+check('P2112 the current Pages release reported as queued is still its own run', isTrustedDeploymentRun({ ...running, status: 'queued' }, { ...pagesExpected, allowInProgress: true }) && !isTrustedDeploymentRun({ ...running, status: 'queued' }, pagesExpected) && !isTrustedDeploymentRun({ ...running, status: 'queued' }, { ...pagesExpected, runId: 124, allowInProgress: true }));
 for (const workflow of [proxyWorkflow, dataWorkflow]) {
   const guard = workflow.slice(workflow.indexOf('Recheck main head immediately before Worker mutation'), workflow.indexOf('      - name: Deploy', workflow.indexOf('Recheck main head immediately before Worker mutation')));
   check('P1351 Worker mutation guard has no manual bypass', guard.includes('branches/main') && !guard.includes("then echo 'safe=true'"));

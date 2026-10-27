@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2112 - v59.39 - Pages 배포가 자기 실행을 queued로 읽어 배포 후 검증에서 실패 (2026-10-27)
+
+- symptom/reproduction: v59.37 Deploy GitHub Pages(40512716912)가 사이트는 v59.37로 올라갔는데 external-pipeline 검증 12회 모두 pages-deployment-run-provenance 실패로 끝났다(run status=queued, conclusion 없음). 그 결과 watchdog도 빨갛게 됐다.
+- root_cause: scripts/deployment-provenance.mjs의 현재 배포 예외가 status === 'in_progress'만 받았다. GitHub API는 배포 작업이 도는 동안에도 같은 실행을 'queued'로 돌려줄 때가 있어, 자기 자신(GITHUB_RUN_ID와 같은 실행)을 신뢰하지 못했다. ci-external-pipeline-check의 isCurrentReleaseRun도 같은 조건이었다.
+- fix: 현재 배포 실행(GITHUB_RUN_ID와 id가 같은 Pages 실행)에 한해 'queued'도 진행 중으로 인정한다. 다른 실행 id, 완료 전 실행을 일반 검증에서 받아주지는 않는다.
+- violated_rule: P1351: 현재 Pages 배포 실행만 진행 중 예외를 받는다(이번엔 그 예외가 API 상태 하나만 알았다).
+- prevention: scripts/ci-cloudflare-deployment-contract-check.mjs의 P2112 검사: queued인 현재 실행은 허용, 예외 없이·다른 run id로는 거부.
+- verification/residual: node scripts/ci-cloudflare-deployment-contract-check.mjs; qa:full
+
 ## P2111 - v59.37 - 홈 금 등락이 반올림하면 0인데 -0.00%로 표시 (2026-10-27)
 
 - symptom/reproduction: 홈 기준 시세 줄의 금(GC=F) 변화율이 -0.00%로 찍혀 browser-rendered-copy-lint가 main에서 실패했다(2026-10-27 13시 데이터).

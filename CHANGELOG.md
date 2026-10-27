@@ -1,3 +1,7 @@
+## v59.39 (2026-10-27)
+- **Pages 배포 후 검증 오탐 수정 (P2112):** 배포 중인 자기 실행을 GitHub가 'queued'로 보여줄 때 검증이 실패하던 것을 고쳤다. 다른 실행은 여전히 받지 않는다.
+- R1 7곳 v59.39
+
 ## v59.38 (2026-10-27)
 - **그리지 않던 변화율(delta) 표시 퇴역:** v51.67 변화율 표시(_aioRenderDeltas, _aioSetDeltaEl, _aioRenderLiveFearGreedDelta, 극성 표와 aio_delta_today/prev 기준값)가 쓰던 12개 요소(cpi-yoy-delta, score-delta-tag, breadth-5sma-delta 등)가 index.html과 src/ 어디에도 없어 아무것도 그리지 않았다. 함수와 호출 4곳(서버 데이터 적용, 라이브 시세 후, CNN F&G 직접·프록시 경로)을 지웠고, T866은 시장폭 국면 검사만 남겼다. 홈 F&G 전일 변화는 이미 native(P1428)라 그대로다. 전후 Playwright 비교(4개 화면의 변화율 요소 id·클래스·문구·표시)가 같다. 사용자 브라우저에 남은 aio_delta_* 키는 더 쓰이지 않는다.
 - R1 7곳 v59.38

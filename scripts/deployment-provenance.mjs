@@ -7,7 +7,8 @@ export function isTrustedDeploymentRun(run, { repository, name, sha, runId, allo
     && /^[0-9a-f]{40}$/.test(sha || '') && run?.head_sha === sha
     && ['push', 'workflow_dispatch', 'workflow_run'].includes(run?.event)
     && ((run?.status === 'completed' && run?.conclusion === 'success')
-      || (allowInProgress && run?.status === 'in_progress'));
+      // P2112: the API can still report the running release as 'queued' while its own deploy job runs.
+      || (allowInProgress && ['in_progress', 'queued'].includes(run?.status)));
 }
 
 export async function resolveProvenanceRun(runs, runId, readExact) {

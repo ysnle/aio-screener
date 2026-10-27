@@ -170,7 +170,7 @@ async function observeOnce() {
           result.github[id].cadence = cadence;
           check(`github-${id}-cadence (P1596)`, cadence.ok, JSON.stringify(cadence), 'warning');
         }
-        const isCurrentReleaseRun = mode === 'release' && id === 'pages' && latest?.status === 'in_progress' && (!process.env.GITHUB_RUN_ID || String(latest.id) === String(process.env.GITHUB_RUN_ID));
+        const isCurrentReleaseRun = mode === 'release' && id === 'pages' && ['in_progress', 'queued'].includes(latest?.status) && (!process.env.GITHUB_RUN_ID || String(latest.id) === String(process.env.GITHUB_RUN_ID));
         // P1665: the watchdog cannot certify itself — treating its own previous failure as an error latched every
         // later run red after one upstream failure (observed 6 consecutive failures, 2026-10-11~12).
         const selfObservation = mode === 'watchdog' && id === 'watchdog';
