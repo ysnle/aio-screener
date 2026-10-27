@@ -1,6 +1,6 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-27T07:36:00.763Z",
+ "generatedAt": "2026-10-27T12:58:30.266Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -8,8 +8,8 @@
  "model": "sec-fy-normalized-v2",
  "eligible": 3901,
  "stored": 3540,
- "attempted": 583,
- "updated": 565,
+ "attempted": 0,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -4510,27 +4510,27 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:40467054540",
-  "attemptedAt": "2026-10-27T07:32:15.158Z",
+  "runId": "gha:40507004115",
+  "attemptedAt": "2026-10-27T12:58:15.985Z",
   "sourceRevision": "sec-company-tickers:f5a8b5c09137999ca3815f91df8b97a3602f24d0818255001e38bc77aae9c472",
   "inputWatermarks": {
-   "universe": "2026-10-27T07:32:12.506Z",
-   "screener": "2026-10-27T07:31:35.336Z",
-   "previousArtifact": "2026-10-26T22:35:48.513Z"
+   "universe": "2026-10-27T12:58:14.097Z",
+   "screener": "2026-10-27T12:57:29.407Z",
+   "previousArtifact": "2026-10-27T07:36:00.763Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3901,
-   "attempted": 583,
-   "updated": 565,
-   "retained": 2975,
+   "attempted": 0,
+   "updated": 0,
+   "retained": 3540,
    "pendingEligible": 361
   },
   "thisBatch": {
-   "updated": 565,
+   "updated": 0,
    "terminalUnsupported": 0,
-   "transientFailed": 18,
-   "recorded": 18
+   "transientFailed": 0,
+   "recorded": 0
   },
   "ledger": {
    "total": 361,
@@ -4540,8 +4540,8 @@
   },
   "lastSuccessfulObservation": "2026-10-27T07:32:15.158Z",
   "publication": {
-   "status": "PARTIAL",
-   "reason": "some attempted targets were not updated",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -321327,10 +321327,10 @@
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3855,
+  "classified": 3856,
   "eligible": 3901,
-  "passAttempted": 30,
-  "passUpdated": 0,
+  "passAttempted": 46,
+  "passUpdated": 1,
   "passFailed": 0
  },
  "issuerSic": {
@@ -325263,6 +325263,12 @@
    "description": "Miscellaneous Electrical Machinery, Equipment & Supplies",
    "cik": "0002086841",
    "observedAt": "2026-10-16T05:43:02.604Z"
+  },
+  "CBC": {
+   "sic": "6022",
+   "description": "State Commercial Banks",
+   "cik": "0002065601",
+   "observedAt": "2026-10-27T12:58:15.985Z"
   },
   "CBFV": {
    "sic": "6022",
