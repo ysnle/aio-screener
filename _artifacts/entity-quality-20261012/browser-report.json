@@ -6,9 +6,9 @@
     "P1626",
     "P1627"
   ],
-  "version": "v59.23",
+  "version": "v59.25",
   "sourceHashes": {
-    "index.html": "efff23e3df444209b588bc889325d52de03c8ae957069fdbe70cc6dadd6bef1b",
+    "index.html": "68e56087996a6baa8c421f7c5d49f3a21afedb1e6ce2ccf4d8ab8e6cd61452b2",
     "src/ui/pages/entity.js": "a3170397766ae3f35b1318db66f852b90f0599b76d4f2176d3e2bc6d1211f8bf",
     "src/ui/pages/screener.js": "0a3b13c9c32b77a86cabc9dc0f44984b0b1cf134f5ae8071390fe6d96b564dc7",
     "src/ui/pages/analysis.js": "84298a9cd2c9ca98a42c26f5baea7f391677c2fba3322d5bb5625b4a5b551db0",
@@ -60,66 +60,6 @@
   ],
   "observations": [
     {
-      "label": "tablet-light",
-      "summary": {
-        "price": "$84.64",
-        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
-        "business": "Aehr Test Systems 무엇을 하는 회사종목 등록 정보",
-        "source": "https://finance.yahoo.com/quote/AEHR/history/",
-        "canvas": {
-          "width": 736,
-          "height": 380
-        },
-        "lastDate": "2026-10-09",
-        "native": "native",
-        "chart": {
-          "real": true,
-          "points": 23,
-          "pixels": 7269
-        },
-        "active": "page-ticker",
-        "signed": [
-          {
-            "down": true,
-            "left": 0,
-            "width": 50,
-            "title": "AEHR -45.8%"
-          },
-          {
-            "down": true,
-            "left": 49.15,
-            "width": 0.85,
-            "title": "S&P 500(SPY, 배당 포함) -0.8%"
-          },
-          {
-            "down": true,
-            "left": 29.1,
-            "width": 20.9,
-            "title": "AEHR -19.1%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 3.9,
-            "title": "S&P 500(SPY, 배당 포함) +3.6%"
-          },
-          {
-            "down": true,
-            "left": 10.65,
-            "width": 39.35,
-            "title": "AEHR -36.0%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 8.26,
-            "title": "S&P 500(SPY, 배당 포함) +7.6%"
-          }
-        ]
-      },
-      "fixtureRequests": 1
-    },
-    {
       "label": "phone-light",
       "summary": {
         "price": "$84.64",
@@ -135,7 +75,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 3980
+          "pixels": 3989
         },
         "active": "page-ticker",
         "signed": [
@@ -180,7 +120,67 @@
       "fixtureRequests": 1
     },
     {
-      "label": "tablet-light/summary",
+      "label": "tablet-light",
+      "summary": {
+        "price": "$84.64",
+        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
+        "business": "Aehr Test Systems 무엇을 하는 회사종목 등록 정보",
+        "source": "https://finance.yahoo.com/quote/AEHR/history/",
+        "canvas": {
+          "width": 736,
+          "height": 380
+        },
+        "lastDate": "2026-10-09",
+        "native": "native",
+        "chart": {
+          "real": true,
+          "points": 23,
+          "pixels": 7214
+        },
+        "active": "page-ticker",
+        "signed": [
+          {
+            "down": true,
+            "left": 0,
+            "width": 50,
+            "title": "AEHR -45.8%"
+          },
+          {
+            "down": true,
+            "left": 49.15,
+            "width": 0.85,
+            "title": "S&P 500(SPY, 배당 포함) -0.8%"
+          },
+          {
+            "down": true,
+            "left": 29.1,
+            "width": 20.9,
+            "title": "AEHR -19.1%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 3.9,
+            "title": "S&P 500(SPY, 배당 포함) +3.6%"
+          },
+          {
+            "down": true,
+            "left": 10.65,
+            "width": 39.35,
+            "title": "AEHR -36.0%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 8.26,
+            "title": "S&P 500(SPY, 배당 포함) +7.6%"
+          }
+        ]
+      },
+      "fixtureRequests": 1
+    },
+    {
+      "label": "phone-light/summary",
       "layout": {
         "route": "page-ticker",
         "overflow": 0,
@@ -188,7 +188,7 @@
       }
     },
     {
-      "label": "phone-light/summary",
+      "label": "tablet-light/summary",
       "layout": {
         "route": "page-ticker",
         "overflow": 0,
@@ -211,7 +211,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 3956
+          "pixels": 3988
         },
         "active": "page-ticker",
         "signed": [
@@ -1116,7 +1116,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 9661
+          "pixels": 9623
         },
         "active": "page-ticker",
         "signed": [
@@ -1184,7 +1184,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 9612
+          "pixels": 9626
         },
         "active": "page-ticker",
         "signed": [
@@ -1252,7 +1252,7 @@
         "chart": {
           "real": true,
           "points": 23,
-          "pixels": 7428
+          "pixels": 7607
         },
         "active": "page-ticker",
         "signed": [
@@ -1456,6 +1456,73 @@
       }
     },
     {
+      "label": "desktop-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "$198.8510/26 종가",
+          "ret3m": 256.3
+        },
+        {
+          "symbol": "TEAM",
+          "price": "$223.4110/26 종가",
+          "ret3m": 123.5
+        },
+        {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 88.6
+        },
+        {
+          "symbol": "RBRK",
+          "price": "—",
+          "ret3m": 86.7
+        },
+        {
+          "symbol": "P",
+          "price": "$131.3310/26 종가",
+          "ret3m": 79.9
+        },
+        {
+          "symbol": "GTLB",
+          "price": "$56.6510/26 종가",
+          "ret3m": 71.8
+        },
+        {
+          "symbol": "ZS",
+          "price": "$260.4510/26 종가",
+          "ret3m": 71.8
+        },
+        {
+          "symbol": "ESTC",
+          "price": "$106.2910/26 종가",
+          "ret3m": 71.2
+        },
+        {
+          "symbol": "PAYC",
+          "price": "$268.2510/26 종가",
+          "ret3m": 66.1
+        },
+        {
+          "symbol": "OKTA",
+          "price": "$220.0110/26 종가",
+          "ret3m": 61.5
+        },
+        {
+          "symbol": "PLTR",
+          "price": "$198.8410/26 종가",
+          "ret3m": 61
+        },
+        {
+          "symbol": "VEEV",
+          "price": "$318.1810/26 종가",
+          "ret3m": 58.1
+        }
+      ],
+      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개"
+    },
+    {
       "label": "desktop-light",
       "fiscal": {
         "rows": 19,
@@ -1555,140 +1622,6 @@
     },
     {
       "label": "desktop-dark",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "$198.8510/26 종가",
-          "ret3m": 256.3
-        },
-        {
-          "symbol": "TEAM",
-          "price": "$223.4110/26 종가",
-          "ret3m": 123.5
-        },
-        {
-          "symbol": "APPN",
-          "price": "—",
-          "ret3m": 88.6
-        },
-        {
-          "symbol": "RBRK",
-          "price": "—",
-          "ret3m": 86.7
-        },
-        {
-          "symbol": "P",
-          "price": "$131.3310/26 종가",
-          "ret3m": 79.9
-        },
-        {
-          "symbol": "GTLB",
-          "price": "$56.6510/26 종가",
-          "ret3m": 71.8
-        },
-        {
-          "symbol": "ZS",
-          "price": "$260.4510/26 종가",
-          "ret3m": 71.8
-        },
-        {
-          "symbol": "ESTC",
-          "price": "$106.2910/26 종가",
-          "ret3m": 71.2
-        },
-        {
-          "symbol": "PAYC",
-          "price": "$268.2510/26 종가",
-          "ret3m": 66.1
-        },
-        {
-          "symbol": "OKTA",
-          "price": "$220.0110/26 종가",
-          "ret3m": 61.5
-        },
-        {
-          "symbol": "PLTR",
-          "price": "$198.8410/26 종가",
-          "ret3m": 61
-        },
-        {
-          "symbol": "VEEV",
-          "price": "$318.1810/26 종가",
-          "ret3m": 58.1
-        }
-      ],
-      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개"
-    },
-    {
-      "label": "tablet-dark",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "$198.8510/26 종가",
-          "ret3m": 256.3
-        },
-        {
-          "symbol": "TEAM",
-          "price": "$223.4110/26 종가",
-          "ret3m": 123.5
-        },
-        {
-          "symbol": "APPN",
-          "price": "—",
-          "ret3m": 88.6
-        },
-        {
-          "symbol": "RBRK",
-          "price": "—",
-          "ret3m": 86.7
-        },
-        {
-          "symbol": "P",
-          "price": "$131.3310/26 종가",
-          "ret3m": 79.9
-        },
-        {
-          "symbol": "GTLB",
-          "price": "$56.6510/26 종가",
-          "ret3m": 71.8
-        },
-        {
-          "symbol": "ZS",
-          "price": "$260.4510/26 종가",
-          "ret3m": 71.8
-        },
-        {
-          "symbol": "ESTC",
-          "price": "$106.2910/26 종가",
-          "ret3m": 71.2
-        },
-        {
-          "symbol": "PAYC",
-          "price": "$268.2510/26 종가",
-          "ret3m": 66.1
-        },
-        {
-          "symbol": "OKTA",
-          "price": "$220.0110/26 종가",
-          "ret3m": 61.5
-        },
-        {
-          "symbol": "PLTR",
-          "price": "$198.8410/26 종가",
-          "ret3m": 61
-        },
-        {
-          "symbol": "VEEV",
-          "price": "$318.1810/26 종가",
-          "ret3m": 58.1
-        }
-      ],
-      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개"
-    },
-    {
-      "label": "desktop-dark",
       "market": "KR",
       "listing": [
         {
@@ -1762,6 +1695,73 @@
         "missing": "—"
       },
       "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "tablet-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "$198.8510/26 종가",
+          "ret3m": 256.3
+        },
+        {
+          "symbol": "TEAM",
+          "price": "$223.4110/26 종가",
+          "ret3m": 123.5
+        },
+        {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 88.6
+        },
+        {
+          "symbol": "RBRK",
+          "price": "—",
+          "ret3m": 86.7
+        },
+        {
+          "symbol": "P",
+          "price": "$131.3310/26 종가",
+          "ret3m": 79.9
+        },
+        {
+          "symbol": "GTLB",
+          "price": "$56.6510/26 종가",
+          "ret3m": 71.8
+        },
+        {
+          "symbol": "ZS",
+          "price": "$260.4510/26 종가",
+          "ret3m": 71.8
+        },
+        {
+          "symbol": "ESTC",
+          "price": "$106.2910/26 종가",
+          "ret3m": 71.2
+        },
+        {
+          "symbol": "PAYC",
+          "price": "$268.2510/26 종가",
+          "ret3m": 66.1
+        },
+        {
+          "symbol": "OKTA",
+          "price": "$220.0110/26 종가",
+          "ret3m": 61.5
+        },
+        {
+          "symbol": "PLTR",
+          "price": "$198.8410/26 종가",
+          "ret3m": 61
+        },
+        {
+          "symbol": "VEEV",
+          "price": "$318.1810/26 종가",
+          "ret3m": 58.1
+        }
+      ],
+      "note": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개"
     },
     {
       "label": "desktop-dark/screener",
