@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-10-27T03:00:44.840Z",
-  "appRevision": "v59.22",
-  "gitHead": "54ec8f4ec92cebbfc884f6f9ee0888e93cb3082a",
+  "observedAt": "2026-10-27T03:11:21.012Z",
+  "appRevision": "v59.23",
+  "gitHead": "bd9e7bde14bcea63f5d17e95c4e37245dfe76813",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -77,8 +77,30 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 3,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "bp",
+          "width": 22,
+          "height": 25,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "%p",
+          "width": 22,
+          "height": 26,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "VIX",
+          "width": 20,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
