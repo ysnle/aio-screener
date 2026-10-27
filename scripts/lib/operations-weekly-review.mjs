@@ -62,12 +62,17 @@ function repoSizeFinding(sizeKb) {
 function aiBudgetFinding(usage) {
   const label = '공용 AI 월 예산';
   if (!usage || usage.configured === false) {
-    return { id: 'ai-monthly-budget', label, status: 'NOT_CONFIGURED', note: 'AIO_OPERATOR_TOKEN이 없어 확인하지 않았습니다.' };
+    return { id: 'ai-monthly-budget', label, status: 'NOT_CONFIGURED', note: 'AIO_OPERATOR_TOKEN·AIO_AUTOMATION_TOKEN이 없어 확인하지 않았습니다.' };
   }
   const reserved = usage.monthlyReservedMicroUsd;
   const budget = usage.monthlyBudgetMicroUsd;
   if (!Number.isSafeInteger(reserved) || !Number.isSafeInteger(budget) || budget <= 0 || reserved < 0) {
     return { id: 'ai-monthly-budget', label, status: 'UNKNOWN', note: '사용량을 읽지 못했습니다.' };
+  }
+  // v59.26: $20 is a target, not a stop (owner 2026-10-27) — passing it keeps answers flowing, so the
+  // review says so and points at the balance the owner tops up instead of promising a block.
+  if (reserved > budget) {
+    return { id: 'ai-monthly-budget', label, status: 'WARN', note: `이번 달 예약액이 목표 예산을 넘었습니다. AI는 계속 동작하니, OpenAI 잔액이 충분한지 확인하세요.` };
   }
   return reserved * 100 >= budget * WEEKLY_REVIEW_POLICY.aiMonthlyWarnPercent
     ? { id: 'ai-monthly-budget', label, status: 'WARN', note: `이번 달 예약액이 예산의 ${WEEKLY_REVIEW_POLICY.aiMonthlyWarnPercent}% 이상입니다. OpenAI 대시보드의 실제 청구액을 확인하세요.` }

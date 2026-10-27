@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2110 - v59.26 - 운영 7일 기록이 저장소에 쌓이지 않아 실시간 시세 soak가 영원히 0일 (2026-10-27)
+
+- symptom/reproduction: public-data/operations-slo-window.json이 2026-08-24부터 SOURCE_TEMPLATE_ONLY로 남아 planes.fast.soak.observedDays가 항상 0이었다. 공급자 권리 검토를 마쳐도 실시간 시세(fast quotes)는 soak 미충족으로 켜질 수 없었다.
+- root_cause: watchdog이 매 실행 실측 창을 만들지만 권한이 contents: read라 artifact로만 올렸고, 커밋 권한이 있는 refresh-data는 창을 만들지 않았다. build-operations-status는 커밋된 템플릿만 읽었다.
+- fix: refresh-data producer가 fetch-data 전에 build-operations-slo-window를 6시간 간격으로 실행해 측정 창을 public-data에 쓰고 데이터 커밋에 함께 올린다. 수집 실패는 continue-on-error로 이전 파일을 유지한다.
+- violated_rule: R603 데이터 갱신 범위 상태와 운영 증거의 단일 출처
+- prevention: scripts/ci-operations-slo-window-check.mjs의 P2110 검사가 refresh 단계 순서·스테이징·6시간 throttle을 확인한다.
+- verification/residual: 측정 창 fixture로 ci-operations-slo-window-check·ci-operations-contract-check·ci-fast-plane-consumer-gate PASS 확인 후 템플릿 복원. 실제 저장은 다음 refresh-data 실행에서 확인한다.
+
 ## P2109 - v59.24 - 08:00 KST 시황이 사흘 전 WTI 종가로 시작 (2026-10-27)
 
 - symptom/reproduction: 2026-10-26 미국장 마감 뒤 23:21Z 시황 첫 줄이 '10/23 WTI 종가 +3.82%로 유가·물가 부담이 커졌다'였다. 실제 WTI는 10/26 -1.46%(101.76달러) 정산, 같은 날 주도 재료(앤트로픽 IPO 공식화, 나스닥 +0.82%)는 시황에서 빠졌다.

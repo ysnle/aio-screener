@@ -22,6 +22,9 @@ assert.equal(parseGithubTokenExpiration('next tuesday'), null, 'v58.84 unparseab
   assert.equal(status(review, 'cloudflare-token'), 'CLEAR', 'v58.84 a token without expiry is clear');
   assert.equal(status(review, 'repo-size'), 'CLEAR', 'v58.84 725 MB is under the 900 MB warning');
   assert.equal(status(review, 'ai-monthly-budget'), 'WARN', 'v58.84 85% of the month warns');
+  const overTarget = evaluateWeeklyReview({ now: NOW, aiUsage: { configured: true, monthlyReservedMicroUsd: 23_000_000, monthlyBudgetMicroUsd: 20_000_000 } });
+  const overFinding = overTarget.findings.find(finding => finding.id === 'ai-monthly-budget');
+  assert.ok(overFinding.status === 'WARN' && /목표 예산을 넘었습니다/.test(overFinding.note) && /계속 동작/.test(overFinding.note) && !/\d+%/.test(overFinding.note), 'v59.26 a month past its $20 target warns that AI keeps answering, without the amount');
   assert.equal(review.needsAction, true, 'v58.84 a warning needs action');
   const body = renderWeeklyReviewMarkdown(review, WEEKLY_REVIEW_MARKER);
   assert.ok(body.startsWith(WEEKLY_REVIEW_MARKER), 'v58.84 the issue body carries the marker');
@@ -70,6 +73,21 @@ assert.equal(parseGithubTokenExpiration('next tuesday'), null, 'v58.84 unparseab
     if (call.url.startsWith('https://api.cloudflare.com/')) assert.equal(call.auth, 'Bearer cf', 'v58.84 the Cloudflare token goes only to Cloudflare');
     if (call.url.includes('/_ops/ai-usage')) assert.equal(call.auth, 'op', 'v58.84 the operator token goes only to the Worker');
   }
+}
+
+{
+  // v59.26: with no AIO_OPERATOR_TOKEN the review reads the month with the automation token, sent only to the Worker.
+  const seen = [];
+  const fetchImpl = async (url, init) => {
+    seen.push({ url: String(url), headers: init.headers });
+    if (String(url).includes('/_ops/ai-usage')) return Response.json({ monthlyReservedMicroUsd: 1_000_000, monthlyBudgetMicroUsd: 20_000_000 });
+    return Response.json({ size: 742_000 });
+  };
+  const review = await collectWeeklyReview({ fetchImpl, now: NOW, env: { GITHUB_REPOSITORY: 'o/r', GITHUB_TOKEN: 'gh', AIO_AUTOMATION_TOKEN: 'auto' } });
+  assert.equal(status(review, 'ai-monthly-budget'), 'CLEAR', 'v59.26 the automation token reads the month when no operator token exists');
+  const usageCall = seen.find(call => call.url.includes('/_ops/ai-usage'));
+  assert.ok(usageCall?.headers['X-AIO-Automation-Token'] === 'auto' && !usageCall.headers['X-AIO-Operator-Token'], 'v59.26 the automation fallback uses its own header');
+  assert.ok(seen.filter(call => !call.url.includes('/_ops/ai-usage')).every(call => !Object.values(call.headers || {}).includes('auto')), 'v59.26 the automation token goes only to the Worker');
 }
 
 console.log('ci-operations-weekly-review-check: PASS');

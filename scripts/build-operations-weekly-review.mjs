@@ -56,10 +56,11 @@ async function repoSizeKb(fetchImpl, token, repo) {
   return Number.isSafeInteger(body?.size) ? body.size : null;
 }
 
-async function aiUsage(fetchImpl, operatorToken) {
-  if (!operatorToken) return { configured: false };
+// v59.26: falls back to the automation token the Worker also accepts here, so no extra secret is needed.
+async function aiUsage(fetchImpl, operatorToken, automationToken) {
+  if (!operatorToken && !automationToken) return { configured: false };
   const url = new URL(endpoints.proxy.operatorAiUsagePath, endpoints.proxy.baseUrl).href;
-  const res = await request(fetchImpl, url, { 'X-AIO-Operator-Token': operatorToken });
+  const res = await request(fetchImpl, url, operatorToken ? { 'X-AIO-Operator-Token': operatorToken } : { 'X-AIO-Automation-Token': automationToken });
   const body = res?.ok ? await res.json().catch(() => null) : null;
   return { configured: true, monthlyReservedMicroUsd: body?.monthlyReservedMicroUsd, monthlyBudgetMicroUsd: body?.monthlyBudgetMicroUsd };
 }
@@ -70,7 +71,7 @@ export async function collectWeeklyReview({ fetchImpl = globalThis.fetch, env = 
     githubDispatchToken(fetchImpl, env.AIO_REFRESH_DISPATCH_TOKEN, repo),
     cloudflareToken(fetchImpl, env.CLOUDFLARE_API_TOKEN, env.CLOUDFLARE_ACCOUNT_ID),
     repoSizeKb(fetchImpl, env.GITHUB_TOKEN, repo),
-    aiUsage(fetchImpl, env.AIO_OPERATOR_TOKEN)
+    aiUsage(fetchImpl, env.AIO_OPERATOR_TOKEN, env.AIO_AUTOMATION_TOKEN)
   ]);
   return evaluateWeeklyReview({ now, githubDispatchToken: dispatch, cloudflareToken: cloudflare, repoSizeKb: size, aiUsage: usage });
 }

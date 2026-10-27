@@ -8,7 +8,8 @@ export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-bu
  * route or direct Actions provider call belongs to the shared AI budget.
  * Required: OPENAI_API_KEY, AIO_QUOTA_DO. Actions additionally requires the
  * same 32+ character AIO_AUTOMATION_TOKEN in GitHub and Worker secrets.
- * AI_MONTHLY_BUDGET_USD defaults to $20 and accepts only $0-$20. AI_DAILY_CAP
+ * AI_MONTHLY_BUDGET_USD defaults to $20 and accepts only $0-$20; AI_MONTHLY_BUDGET_MODE=target makes it a
+ * target that is reported and alerted on but never refuses (v59.26, owner 2026-10-27). AI_DAILY_CAP
  * defaults to 300; AI_MAX_OUTPUT_TOKENS defaults to 4000 (up to 16384, v57.61).
  * P1759: AI_PER_CLIENT_DAILY_CAP (default 150, 1-1000, clamped to AI_DAILY_CAP) bounds each browser
  * connection per UTC day in the same DO admission; below 20% of the month hosted search is removed.
@@ -444,7 +445,7 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
   const budgetStatus = method !== 'HEAD' && configured && configurationValid && authorityReady && hasDurableObjectNamespace(env)
     ? await readClientBudgetStatus(env, clientIp) : null;
   const budgetState = budgetStatus ? budgetStatus.budgetState : 'unknown';
-  const budgetSaverActive = budgetState === 'low' || budgetState === 'exhausted';
+  const budgetSaverActive = !aiBudgetIsTarget(env) && (budgetState === 'low' || budgetState === 'exhausted');
   const payload = {
     schemaVersion: 'aio-worker-health.v1',
     ok: true,
@@ -460,7 +461,8 @@ async function healthResponse(origin, env, method = 'GET', appToken = '', client
       // removes hosted web search from new requests itself; webSearchAvailable is what a client should gate on.
       budgetState,
       budgetSaver: { active: budgetSaverActive, webSearch: !budgetSaverActive, label: budgetSaverActive ? AI_BUDGET_SAVER_LABEL : null },
-      webSearchAvailable: paidWebSearchEnabled(env) && budgetState === 'ok',
+      webSearchAvailable: paidWebSearchEnabled(env) && (budgetState === 'ok' || (aiBudgetIsTarget(env) && budgetState !== 'unknown')),
+      budgetMode: aiBudgetIsTarget(env) ? 'target' : 'hard',
       client: budgetStatus && Number.isSafeInteger(budgetStatus.clientLimit)
         ? { dailyLimit: budgetStatus.clientLimit, remainingToday: budgetStatus.clientRemaining, resetsAt: budgetStatus.resetsAt, basis: 'utc-day-per-connection' }
         : null },
@@ -609,7 +611,10 @@ async function handleOperatorFeedback(request, env, origin) {
 async function handleOperatorAiUsage(request, env) {
   const configuredToken = env?.AIO_OPERATOR_TOKEN;
   const suppliedToken = request.headers.get('X-AIO-Operator-Token');
-  if (!await matchesOperatorToken(configuredToken, suppliedToken)) return privateOperatorResponse(null, 404);
+  // v59.26: the automation token (already able to spend through /openai) may read these counters too, so the
+  // weekly review needs no separate AIO_OPERATOR_TOKEN repository secret to see the month.
+  const automationReader = !suppliedToken && await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'));
+  if (!automationReader && !await matchesOperatorToken(configuredToken, suppliedToken)) return privateOperatorResponse(null, 404);
   if (request.method !== 'GET') return privateOperatorResponse({ error: 'GET required' }, 405);
   if (!hasAtomicQuotaBinding(env)) return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
 
@@ -714,6 +719,12 @@ function nextUtcDayStartMs(now = Date.now()) {
   return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1);
 }
 
+// v59.26 (owner 2026-10-27): "$20 and the daily caps are targets to keep, not hard stops — I top up the
+// OpenAI balance when more is needed." AI_MONTHLY_BUDGET_MODE=target keeps the same ledger and budget
+// state but never refuses, removes web search or splits the month per connection because of it; the
+// weekly operations review raises the over-target alert. Unset (or 'hard') keeps the fail-closed bound.
+const aiBudgetIsTarget = env => String(env?.AI_MONTHLY_BUDGET_MODE || '').trim().toLowerCase() === 'target';
+
 function aiBudgetState(reservedMicroUsd, capMicroUsd, legacyUnknown) {
   const remaining = capMicroUsd - reservedMicroUsd;
   if (legacyUnknown || capMicroUsd <= 0 || remaining < AI_BUDGET_EXHAUSTED_FLOOR_MICRO_USD) return 'exhausted';
@@ -733,7 +744,7 @@ function aiAdmissionHeaders(reservation) {
   const headers = {};
   if (AI_BUDGET_STATES.includes(reservation?.budgetState)) {
     headers['X-AIO-Budget-State'] = reservation.budgetState;
-    headers['X-AIO-Budget-Saver'] = reservation.budgetState === 'ok' ? '0' : '1';
+    headers['X-AIO-Budget-Saver'] = reservation.budgetState === 'ok' || reservation.budgetTarget === true ? '0' : '1';
   }
   if (reservation?.budgetSaverApplied === true) headers['X-AIO-Web-Search-Removed'] = '1';
   if (Number.isSafeInteger(reservation?.clientLimit) && Number.isSafeInteger(reservation?.clientRemaining)) {
@@ -1061,6 +1072,7 @@ export class AIOQuotaDurableObject {
         const isAi = dayKey.startsWith('claude:');
         const monthKey = dayKey.slice(7, 14);
         let amount = body.reservationMicroUsd, budgetState = null, budgetSaverApplied = false, clientKey = null, clientCap = null, clientUsed = 0, waiverKey = null;
+        const budgetTarget = isAi && aiBudgetIsTarget(this.env);
         if (isAi) {
           const day = dayKey.slice(7);
           const instant = Date.parse(`${day}T00:00:00Z`);
@@ -1082,10 +1094,10 @@ export class AIOQuotaDurableObject {
           const legacyUnknown = this.counts.legacyUnknownMonths[monthKey] === true;
           budgetState = aiBudgetState(monthlyReservedMicroUsd, body.monthlyCapMicroUsd, legacyUnknown);
           // P1759: below 20% of the month, a searched request is admitted (if at all) as its no-search variant.
-          if (budgetState !== 'ok' && Number.isSafeInteger(body.saverReservationMicroUsd) && body.saverReservationMicroUsd >= 1 && body.saverReservationMicroUsd < amount) {
+          if (!budgetTarget && budgetState !== 'ok' && Number.isSafeInteger(body.saverReservationMicroUsd) && body.saverReservationMicroUsd >= 1 && body.saverReservationMicroUsd < amount) {
             amount = body.saverReservationMicroUsd; budgetSaverApplied = true;
           }
-          if (legacyUnknown || monthlyReservedMicroUsd + amount > body.monthlyCapMicroUsd) {
+          if (!budgetTarget && (legacyUnknown || monthlyReservedMicroUsd + amount > body.monthlyCapMicroUsd)) {
             result = { ok: false, reserved: false, count, reason: legacyUnknown ? 'legacy-month-spend-unknown' : 'monthly-budget', monthlyReservedMicroUsd, budgetState };
             return;
           }
@@ -1112,12 +1124,12 @@ export class AIOQuotaDurableObject {
         // v58.82: a household shares one address, so three or four searched answers in flight at once (each reserving
         // the ~$0.27 upper bound until settlement) reach the share although real spend is far lower. The answer is then
         // admitted without web search when that variant fits, as in the month's saver mode, instead of being refused.
-        if (spendKey && clientSpent > 0 && clientSpent + amount > clientShare && !budgetSaverApplied
+        if (!budgetTarget && spendKey && clientSpent > 0 && clientSpent + amount > clientShare && !budgetSaverApplied
           && Number.isSafeInteger(body.saverReservationMicroUsd) && body.saverReservationMicroUsd >= 1 && body.saverReservationMicroUsd < amount
           && clientSpent + body.saverReservationMicroUsd <= clientShare) {
           amount = body.saverReservationMicroUsd; budgetSaverApplied = true;
         }
-        if (spendKey && clientSpent > 0 && clientSpent + amount > clientShare) {
+        if (!budgetTarget && spendKey && clientSpent > 0 && clientSpent + amount > clientShare) {
           result = { ok: false, reserved: false, duplicate: false, count, reason: 'client-daily-cap', budgetState, clientSpendLimited: true };
           return;
         }
@@ -1135,6 +1147,7 @@ export class AIOQuotaDurableObject {
         if (isAi) {
           result.budgetState = budgetState;
           result.budgetSaverApplied = budgetSaverApplied;
+          if (budgetTarget) result.budgetTarget = true;
           if (clientKey) { result.clientLimit = clientCap; result.clientRemaining = Math.max(0, clientCap - clientUsed - 1); }
         }
         return;

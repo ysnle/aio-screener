@@ -40,6 +40,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           AIO_OPERATOR_TOKEN: ${{ secrets.AIO_OPERATOR_TOKEN }}
+          AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
         run: |
           set -euo pipefail
           node scripts/build-operations-weekly-review.mjs --status-file "$RUNNER_TEMP/review.status" > "$RUNNER_TEMP/review.md"

@@ -92,6 +92,23 @@ jobs:
         with:
           node-version: '24'
 
+      # v59.26: the 7/30-day run evidence used to live only in watchdog artifacts, so the committed window stayed a
+      # template and the fast-quote soak read 0 days forever. The producer now refreshes it (every 6 h) before
+      # operations-status reads it; a failed collection keeps the previous file and never blocks the data cycle.
+      - name: Refresh rolling operations evidence (6-hour throttle)
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          observed="$(jq -r 'if .collectionMode == "SOURCE_TEMPLATE_ONLY" then "" else (.observedAt // "") end' public-data/operations-slo-window.json 2>/dev/null || true)"
+          if [ -n "$observed" ] && [ $(( $(date -u +%s) - $(date -u -d "$observed" +%s 2>/dev/null || echo 0) )) -lt 21600 ]; then
+            echo "operations evidence observed at $observed is under 6 h old; keeping it"; exit 0
+          fi
+          node scripts/build-operations-slo-window.mjs --out "$RUNNER_TEMP/operations-slo-window.json"
+          node -e "const a=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); if(!a||a.collectionMode==='SOURCE_TEMPLATE_ONLY'||!a.windows?.['7d']) process.exit(1)" "$RUNNER_TEMP/operations-slo-window.json"
+          cp "$RUNNER_TEMP/operations-slo-window.json" public-data/operations-slo-window.json
+
       - name: Fetch market data
         id: fetch-market
         env:
@@ -446,6 +463,7 @@ jobs:
           stage_if_exists public-data/market-snapshot.json
           stage_if_exists public-data/market-snapshot-status.json
           stage_if_exists public-data/operations-status.json
+          stage_if_exists public-data/operations-slo-window.json # v59.26: rolling 7/30-day run evidence (6-hour throttle)
           stage_if_exists public-config.json
           stage_if_exists public-data/reconciliation-status.json
           stage_if_exists public-data/screener.json

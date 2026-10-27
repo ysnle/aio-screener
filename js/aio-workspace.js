@@ -1413,7 +1413,7 @@ window._aioPortfolioAsk = function(kind) {
       return;
     }
     showConfirmModal('포트폴리오 AI 전송 미리보기',
-      'AI에는 종목명·섹터·검증 가능한 비중·수익률만 전송합니다. 계좌ID·사용자ID·이메일·수량·매수가·목표가·메모는 제외됩니다.' + (kind === 'journal' ? ' 이번 복기 요청에는 현재 작성 노트와 최근 저장 노트 최대 3개도 전송합니다. 노트의 개인정보는 직접 확인하세요.' : '') + ' 이번 세션에서만 동의할까요?',
+      'AI에는 종목명·섹터·검증 가능한 비중·수익률만 전송합니다. 계좌ID·사용자ID·이메일·수량·매수가·목표가·메모는 제외됩니다.' + (kind === 'journal' ? ' 이번 복기 요청에는 현재 작성 노트와 최근 저장 노트 최대 3개도 전송합니다. 노트의 개인정보는 직접 확인하세요.' : '') + ' 이 기기에서 한 번만 동의하면 다음부터 묻지 않습니다(공용 PC 모드에서는 이번 세션만). 동의할까요?',
       function() {
         if (window.AIO && typeof window.AIO.setPortfolioAIConsent === 'function') window.AIO.setPortfolioAIConsent(true);
         if (kind === 'journal' && window.AIO && typeof window.AIO.setPortfolioJournalAIConsent === 'function') window.AIO.setPortfolioJournalAIConsent(true);

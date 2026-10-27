@@ -7924,7 +7924,7 @@
     var consentOn = window.AIO.getPortfolioAIPrivacyPreview(fixture, { consent: true });
     window.AIO.setPortfolioAIConsent(oldConsent);
     _assert('T961 portfolio_send_preview_opt_in (WP-AI5): session consent is required before send',
-      consentOff.status === 'consent-required' && consentOff.sendable === false && consentOn.status === 'ready' && consentOn.sendable === true && consentOn.storage === 'session-consent-only',
+      consentOff.status === 'consent-required' && consentOff.sendable === false && consentOn.status === 'ready' && consentOn.sendable === true && consentOn.storage === 'device-consent-revocable',
       JSON.stringify({ off: consentOff, on: consentOn }));
 
     var oldHistory = window.AIO.getChatHistoryPolicy();

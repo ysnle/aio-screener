@@ -20,12 +20,12 @@ on:
   workflow_dispatch:
     inputs:
       ci_run_id:
-        description: Completed CI run that produced the release attestation
-        required: true
+        description: Completed CI run that produced the release attestation (blank = latest successful main CI)
+        required: false
         type: string
       expected_sha:
-        description: Exact lowercase 40-hex SHA that CI attested
-        required: true
+        description: Exact lowercase 40-hex SHA that CI attested (blank = that run's SHA)
+        required: false
         type: string
 
 concurrency:
@@ -67,6 +67,10 @@ jobs:
           else
             run_id="$DISPATCH_RUN_ID"
             expected_sha="$DISPATCH_SHA"
+            # A manual republish no longer needs a run id or SHA typed in: blank resolves the newest successful
+            # main CI run, and its own head SHA becomes the expectation that every check below re-asserts.
+            if [ -z "$run_id" ]; then run_id="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?branch=main&status=success&per_page=1" --jq '.workflow_runs[0].id // ""')"; echo "Resolved latest successful main CI run: ${run_id:-none}"; fi
+            if [ -z "$expected_sha" ] && [ -n "$run_id" ]; then expected_sha="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" --jq '.head_sha // ""')"; fi
           fi
           case "$run_id" in ''|null|*[!0-9]*) echo "::error::deploy requires a numeric CI run id"; exit 1;; esac
           case "$expected_sha" in *[!0-9a-f]*) echo "::error::expected sha must be lowercase hex: $expected_sha"; exit 1;; esac
