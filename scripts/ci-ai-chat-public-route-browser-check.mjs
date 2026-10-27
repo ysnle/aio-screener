@@ -19,7 +19,7 @@ try {
   await context.addInitScript(() => localStorage.clear());
   const page = await context.newPage();
   page.on('pageerror', (error) => errors.push(String(error)));
-  await page.route('**/*', async (route) => {
+  const routeFixture = async (route) => {
     const request = route.request();
     const url = request.url();
     if (url.startsWith(localBase) && new URL(url).pathname === '/public-config.json') {
@@ -61,7 +61,8 @@ try {
       return route.fulfill({ status: 200, headers: { 'content-type': 'text/event-stream', 'access-control-allow-origin': localBase, 'x-aio-max-tokens': '1500' }, body });
     }
     return route.abort();
-  });
+  };
+  await page.route('**/*', routeFixture);
 
   await page.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.callSharedAi === 'function' && typeof window._aioEnsureClaudeRoute === 'function' && typeof window.AIO_ARCH?.parseAIAnswerPlan === 'function', { timeout: 30000 });
@@ -125,8 +126,29 @@ try {
     await autoTranslateNews([{ title: 'Kept item fixture one', source: 'fixture', desc: '' }, { title: 'Omit item fixture two', source: 'fixture', desc: '' }]);
     return _translationCache.has(_tcKey('Kept item fixture one')) && _translationCache.has(_tcKey('Omit item fixture two'));
   });
+  // v59.16 (roadmap 11): a real reader's browser (navigator.webdriver false) loads js/aio-chat.js only on first use or
+  // when idle. Asking from a page before that must load the panel, replay the queued open and send, and reach the Worker.
+  const lazyContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await lazyContext.addInitScript(() => { localStorage.clear(); Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false }); });
+  const lazyPage = await lazyContext.newPage();
+  lazyPage.on('pageerror', (error) => errors.push('lazy: ' + String(error)));
+  await lazyPage.route('**/*', routeFixture);
+  await lazyPage.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await lazyPage.waitForFunction(() => typeof window.AIO?.loadChat === 'function' && typeof window._aioAskInPanel === 'function', { timeout: 30000 });
+  const lazyBefore = await lazyPage.evaluate(() => ({ chatScript: !!document.querySelector('script[src*="aio-chat.js"]'), getChatState: typeof window.getChatState }));
+  await lazyPage.evaluate(() => window._aioAskInPanel('지연 로드 경로 확인'));
+  await lazyPage.waitForFunction(() => typeof window.getChatState === 'function' && document.getElementById('ai-panel')?.classList.contains('open'), { timeout: 30000 });
+  await lazyPage.waitForFunction(() => /지연 로드 경로 확인/.test(document.getElementById('ai-panel-msgs')?.textContent || ''), { timeout: 30000 });
+  const lazyAfter = await lazyPage.evaluate(() => ({ sessions: !!window.__aioChatSessions, expanded: document.getElementById('topbar-ai-btn')?.getAttribute('aria-expanded') }));
+  await lazyPage.waitForFunction(() => /공용 경로의 완결된 응답/.test(document.getElementById('ai-panel-msgs')?.textContent || ''), { timeout: 30000 }).catch(() => {});
+  const lazyAnswered = await lazyPage.evaluate(() => /공용 경로의 완결된 응답/.test(document.getElementById('ai-panel-msgs')?.textContent || ''));
+  const lazySent = observedRequests.some((candidate) => JSON.stringify(candidate.body?.input || '').includes('지연 로드 경로 확인'));
+  await lazyContext.close();
   const failures = [];
   const assert = (label, condition) => { if (!condition) failures.push(label); };
+  if (!(lazyBefore.chatScript === false && lazyBefore.getChatState === 'undefined')) failures.push('v59.16 reader browser boots without the chat script');
+  if (!(lazyAfter.sessions === true && lazyAfter.expanded === 'true')) failures.push('v59.16 an ask before the chat loads opens the panel with saved-conversation glue');
+  if (!(lazySent && lazyAnswered)) failures.push('P2105 the queued send keeps the filled question, reaches the Worker and publishes the answer');
   assert('P1423: concurrent translation preserves the requested item', queuedTranslation === true);
   // P1421: translation must share the same authority and expose no provider key.
   assert('shared Luna translation reaches completed JSON', translation === '공용 번역 연결 확인');

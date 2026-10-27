@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import vm from 'node:vm';
 import { dedupeNewsArticles, groupNewsStories, resolveNewsIssuers, newsArticleKey } from '../src/domain/news/stories.js';
 import { normalizeNews } from '../src/data/normalize/news.js';
+import { installValidationStores } from '../src/data/quality/validation-stores.js';
 import { buildMarketRead } from '../src/domain/briefing/market-read.js';
 import { buildBriefingSchedule } from '../src/domain/briefing/schedule.js';
 import { secFilingUrl } from '../src/domain/fundamental/sec-report.js';
@@ -62,11 +61,9 @@ assert.deepEqual(resolveNewsIssuers({ title: '삼전 급락' }, [], { '005930.KS
   assert.deepEqual(resolveNewsIssuers({ title: 'Watch $tslax into the close' }, [], tesla), [], 'P1755 explicit symbol boundary still enforced after the prefilter');
 }
 assert.equal(normalizeNews({ fetchedAt: '2026-10-10T00:00:00Z', items: [{ ...row, publishedAt: row.pubDate }] }).items[0].fetchedAt, '2026-10-10T00:00:00Z', 'P1601: collection distinct from publication');
-const core = readFileSync('js/aio-core.js', 'utf8');
-const storeSource = core.slice(core.indexOf('const NewsStore ='), core.indexOf('// ── DataHealth'));
-const context = vm.createContext({ window: {}, Date, Set, JSON });
-vm.runInContext(storeSource + '\nglobalThis.testStore = NewsStore;', context);
-assert.equal(context.testStore.filter([{ ...row }, { ...row, link: 'https://example.test/article?id=2' }, correction]).length, 3, 'P1601: legacy early boot retains query ids and changed versions');
+// v59.17: the legacy NewsStore moved to src/data/quality/validation-stores.js; the fixture runs the module itself.
+const { NewsStore: legacyNewsStore } = installValidationStores({});
+assert.equal(legacyNewsStore.filter([{ ...row }, { ...row, link: 'https://example.test/article?id=2' }, correction]).length, 3, 'P1601: legacy early boot retains query ids and changed versions');
 
 const schedule = buildBriefingSchedule({ nowMs: Date.parse('2026-10-09T00:00:00Z'), names: { NVDA: 'NVIDIA' }, earningsMeta: { source: 'fixture-calendar' },
   earnings: [{ symbol: 'NVDA', date: '2026-10-09', hour: 'amc', epsEstimate: 1 }, { symbol: 'NVDA', date: '2026-10-09', hour: 'amc', epsActual: 1.2, epsEstimate: 1 }, { symbol: 'NVDA', date: '2026-10-12', hour: 'bmo' }] });

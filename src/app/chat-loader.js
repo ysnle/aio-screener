@@ -21,9 +21,20 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     try { onLoaded(); } catch (_) { /* session/context glue is optional; the panel itself still works */ }
     // Calls made before the load are replayed as they were made. Nothing else runs: the first page shown at boot never
     // reached the panel's aio:pageShown listener before either, and opening the panel sets its context.
-    for (const [name, self, args] of queue.splice(0)) {
-      try { if (typeof root[name] === 'function' && root[name] !== stubs[name]) root[name].apply(self, args); } catch (_) { /* one failed replay must not drop the rest */ }
+    // A caller fills the question box between opening and sending (ask-panel, 기업 분석, 학습 질문). Opening clears the
+    // box when the context changes, which used to happen before the fill; so a replayed send gets the text that was in the
+    // box when it was queued, and a fill with no send is put back after the replay.
+    const input = doc.getElementById('ai-panel-inp');
+    const filled = input ? input.value : '';
+    const calls = queue.splice(0);
+    for (const [name, self, args, draft] of calls) {
+      try {
+        if (typeof root[name] !== 'function' || root[name] === stubs[name]) continue;
+        if (name === 'chatSendUnified' && input) input.value = draft;
+        root[name].apply(self, args);
+      } catch (_) { /* one failed replay must not drop the rest */ }
     }
+    if (input && filled && !input.value && !input.disabled && calls.length && calls[calls.length - 1][0] !== 'chatSendUnified') input.value = filled;
   };
   const load = () => pending || (pending = new Promise((resolve, reject) => {
     const script = doc.createElement('script');
@@ -34,7 +45,7 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
   }));
   for (const name of ENTRY_POINTS) {
     if (typeof root[name] === 'function') continue;
-    stubs[name] = function (...args) { queue.push([name, this, args]); load().catch(() => {}); };
+    stubs[name] = function (...args) { queue.push([name, this, args, doc.getElementById('ai-panel-inp')?.value || '']); load().catch(() => {}); };
     root[name] = stubs[name];
   }
   root.AIO.loadChat = load;

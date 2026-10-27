@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2105 - v59.17 - 지연 로드된 AI 패널이 미리 채운 질문을 지움 (2026-10-27)
+
+- symptom/reproduction: v59.16 이후 실제 브라우저(자동화 아님)에서 채팅 스크립트가 아직 로드되지 않았을 때 화면의 'AI에게 묻기'(ask-panel), 기업 분석 버튼, 학습 질문 채우기를 누르면 패널은 열리지만 질문이 사라지고 전송되지 않았다.
+- root_cause: 호출자는 패널 열기 → 입력창 채우기 → 전송 순서로 부른다. 지연 로드 스텁은 열기와 전송만 줄을 세우고 채우기는 즉시 실행되므로, 로드 뒤 다시 실행된 열기(updateAIPanelContext)가 맥락 변경으로 입력창을 비운 다음에 전송이 실행됐다. 게이트는 webdriver에서 채팅을 즉시 불러와 이 경로를 실행하지 않았다.
+- fix: src/app/chat-loader.js가 줄 세운 호출마다 그 순간의 입력창 값을 기록해, 다시 실행하는 전송에는 그 값을 되돌려 넣고, 전송 없이 채우기만 한 경우에는 다시 실행 뒤 비워진 입력창에 채운 값을 복원한다.
+- violated_rule: 지연 로드 브리지는 로드 전 호출을 로드 후와 같은 결과로 재생해야 한다(호출 사이의 DOM 상태 포함).
+- prevention: ci-ai-chat-public-route-browser-check에 navigator.webdriver=false 문맥을 추가해, 채팅 스크립트 없이 부팅하고 로드 전 질문이 패널을 열고 Worker까지 전송되어 답을 게시하는지 확인한다.
+- verification/residual: 수정 전 새 문맥은 질문 표시 대기에서 30초 시간 초과로 실패했고, 수정 뒤 통과했다. 채우기만 하는 경로는 Playwright 프로브로 입력값 유지를 확인했다.
+
 ## P2104 - v59.08 - 시장 상태 추이 차트의 '기록 이전' 라벨이 좁은 빈 구간에서 y축 숫자와 겹침 (2026-10-27)
 
 - symptom/reproduction: browser-viewport가 desktop 1280·1440의 breadth 화면에서 SVG 텍스트 겹침 1건으로 실패했다('기록 이전'과 y축 '6'). PR #106 CI에서 두 번 연속 재현됐다(머지 후 main에서도 같은 데이터면 재현).
