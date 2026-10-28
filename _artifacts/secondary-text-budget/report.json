@@ -27,13 +27,13 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 3664,
-      "secondary": 380,
+      "total": 3622,
+      "secondary": 377,
       "lines": [
         {
-          "chars": 35,
+          "chars": 38,
           "classes": "aio-operator-note-title aio-operator-note-card aio-operator-note-priority aio-market-sentence",
-          "text": "큰 상승은 반등의 시작인가, 약해진 기술주 주도력과의 괴리인가?"
+          "text": "큰 상승은 반도체 기대의 회복인가, 인공지능 투자 우려 속 반등인가?"
         },
         {
           "chars": 29,
@@ -53,7 +53,7 @@
         {
           "chars": 27,
           "classes": "kpi-fallback-note kpi-fallback is-interactive sh-home-kpi-strip-box-clickable",
-          "text": "10/26 종가 +1.09%, 선물 시세 대기 중"
+          "text": "10/27 종가 +1.29%, 선물 시세 대기 중"
         },
         {
           "chars": 26,
@@ -137,8 +137,8 @@
       ]
     },
     "signal": {
-      "total": 5543,
-      "secondary": 275,
+      "total": 4842,
+      "secondary": 285,
       "lines": [
         {
           "chars": 42,
@@ -146,14 +146,19 @@
           "text": "10/27 마감, 코스피 5,638.34 (+3.1%, 5거래일 +1.5%)"
         },
         {
+          "chars": 37,
+          "classes": "regime-chart-note regime-axis-history mk-axis__detail",
+          "text": "하이일드 스프레드는 수준과 5거래일 확대·축소를 구분해서 읽습니다."
+        },
+        {
           "chars": 29,
           "classes": "page-subtitle  page-head",
           "text": "10/27 미국 종가 기준, 6개 지표, 공개 기준선"
         },
         {
-          "chars": 28,
-          "classes": "regime-chart-note regime-axis-history mk-axis__detail",
-          "text": "는 수준과 5거래일 확대·축소를 구분해서 읽습니다."
+          "chars": 22,
+          "classes": "is-burden mk-tally__legend mk-tally",
+          "text": "부담 2(신용과 위험선호·달러와 원자재)"
         },
         {
           "chars": 22,
@@ -161,9 +166,9 @@
           "text": "발표별 시나리오는 거시 화면에서 봅니다."
         },
         {
-          "chars": 20,
+          "chars": 19,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "WTI 20일 +10%, 101.86"
+          "text": "WTI 20일 +10%, 98.32"
         },
         {
           "chars": 19,
@@ -181,24 +186,19 @@
           "text": "20일 +25bp, 327bp"
         },
         {
-          "chars": 14,
-          "classes": "is-burden mk-tally__legend mk-tally",
-          "text": "부담 1(신용과 위험선호)"
-        },
-        {
           "chars": 13,
           "classes": "is-favorable mk-tally__legend mk-tally",
           "text": "양호 2(시장 폭·금리)"
         },
         {
+          "chars": 13,
+          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
+          "text": "50일선+1% 7,774"
+        },
+        {
           "chars": 12,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
           "text": "5거래일 전 17.31"
-        },
-        {
-          "chars": 11,
-          "classes": "basis-chip is-off sx-disclosure__card sx-disclosure__body mk-axis__body",
-          "text": "10/26~10/27"
         }
       ],
       "frames": [
@@ -212,7 +212,7 @@
       ]
     },
     "breadth": {
-      "total": 1192,
+      "total": 1117,
       "secondary": 49,
       "lines": [
         {
@@ -336,8 +336,8 @@
       "frames": []
     },
     "briefing": {
-      "total": 4793,
-      "secondary": 740,
+      "total": 4575,
+      "secondary": 714,
       "lines": [
         {
           "chars": 46,
@@ -348,11 +348,6 @@
           "chars": 46,
           "classes": "briefing-event-meta briefing-event-body briefing-event",
           "text": "의회 다수당에 따라 재정·관세·규제 기대가 바뀌어 금리·업종별 흐름이 갈릴 수 있음"
-        },
-        {
-          "chars": 44,
-          "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/28 07:51 KST, S&P 500·VIX·코스피 10/27 종가"
         },
         {
           "chars": 41,
@@ -398,6 +393,11 @@
           "chars": 26,
           "classes": "briefing-event-meta briefing-event-body briefing-event",
           "text": "EPS 예상 3.83, 매출 예상 177억 달러"
+        },
+        {
+          "chars": 25,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 5.32, 매출 예상 99억 달러"
         }
       ],
       "frames": []
@@ -409,7 +409,7 @@
         {
           "chars": 32,
           "classes": "theme-strength-basis tech-regime-head aio-section tech-regime",
-          "text": "10/27 미국 종가 기준, 양호 2, 중립 3, 부담 1"
+          "text": "10/27 미국 종가 기준, 양호 2, 중립 2, 부담 2"
         },
         {
           "chars": 28,
@@ -430,13 +430,13 @@
       "frames": []
     },
     "macro": {
-      "total": 7170,
-      "secondary": 560,
+      "total": 7140,
+      "secondary": 567,
       "lines": [
         {
-          "chars": 132,
+          "chars": 139,
           "classes": "page-subtitle  page-head",
-          "text": "거시 6요인 중 부담은 2개(통화정책, 신용)이고, 성장·물가 국면은 방향 보류입니다. 조건이 가장 많이 맞는 시나리오는 'AI 투자 꺾임'(조건 충족 3/4)입니다. 다음 갈림길은 10/29(목) 03:00 KST FOMC 회의입니다."
+          "text": "거시 6요인 중 부담은 3개(통화정책, 유가·달러, 신용)이고, 성장·물가 국면은 방향 보류입니다. 조건이 가장 많이 맞는 시나리오는 'AI 투자 꺾임'(조건 충족 3/4)입니다. 다음 갈림길은 10/29(목) 03:00 KST FOMC 회의입니다."
         },
         {
           "chars": 124,
@@ -505,8 +505,8 @@
       ]
     },
     "fxbond": {
-      "total": 2719,
-      "secondary": 267,
+      "total": 2681,
+      "secondary": 259,
       "lines": [
         {
           "chars": 36,
@@ -522,21 +522,6 @@
           "chars": 18,
           "classes": "briefing-h2-note briefing-h2 briefing-block rates-block sx-card sx-card--hero mk-curve-card",
           "text": "공식 국채 곡선, 10/27 기준"
-        },
-        {
-          "chars": 16,
-          "classes": "basis-chip is-off trend-card-tags trend-card",
-          "text": "10/26, 1거래일 전 종가"
-        },
-        {
-          "chars": 16,
-          "classes": "basis-chip is-off trend-card-tags trend-card",
-          "text": "10/26, 1거래일 전 종가"
-        },
-        {
-          "chars": 16,
-          "classes": "basis-chip is-off trend-card-tags trend-card",
-          "text": "10/26, 1거래일 전 종가"
         },
         {
           "chars": 15,
@@ -567,6 +552,21 @@
           "chars": 11,
           "classes": "rates-guide",
           "text": "수익률 곡선 읽는 법"
+        },
+        {
+          "chars": 11,
+          "classes": "briefing-h2-note briefing-h2 briefing-block rates-block",
+          "text": "10/27 종가 기준"
+        },
+        {
+          "chars": 9,
+          "classes": "mk-rsum__note mk-rsum mk-rsum-col",
+          "text": "오르면 원화 약세"
+        },
+        {
+          "chars": 9,
+          "classes": "mk-rsum__note mk-rsum mk-rsum-col",
+          "text": "내리면 엔화 강세"
         }
       ],
       "frames": []
@@ -589,7 +589,7 @@
       "frames": []
     },
     "themes": {
-      "total": 13233,
+      "total": 13051,
       "secondary": 740,
       "lines": [
         {
@@ -694,13 +694,13 @@
       ]
     },
     "theme-detail": {
-      "total": 16358,
+      "total": 16176,
       "secondary": 1224,
       "lines": [
         {
           "chars": 158,
           "classes": "thp-why-list theme-detail-native-section thp-why",
-          "text": "최근 20거래일 거시 축: 10년물 금리 -0.29%p(물가 둔화 + 고용 완만 쪽 움직임, 이 테마에 부담), 신용과 위험선호 '부담'(신용 경색 쪽 움직임, 이 테마에 수혜). 성격(정책, 지정학 수요, 경기 방어)과 시나리오를 잇는 사전 기준이며, 인과를 측정한 값은 아닙니다."
+          "text": "최근 20거래일 거시 축: 10년물 금리 -0.24%p(물가 둔화 + 고용 완만 쪽 움직임, 이 테마에 부담), 신용과 위험선호 '부담'(신용 경색 쪽 움직임, 이 테마에 수혜). 성격(정책, 지정학 수요, 경기 방어)과 시나리오를 잇는 사전 기준이며, 인과를 측정한 값은 아닙니다."
         },
         {
           "chars": 74,
@@ -833,18 +833,28 @@
       "frames": []
     },
     "market-news": {
-      "total": 5522,
-      "secondary": 395,
+      "total": 5606,
+      "secondary": 423,
       "lines": [
         {
-          "chars": 70,
-          "classes": "page-subtitle  page-head",
-          "text": "직전 수집본, 10/26 08:00 ~ 10/27 08:00 KST 기사 — 이번 10/28 08:00 수집본은 아직 없습니다"
+          "chars": 44,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "Crude Oil Prices Today | OilPrice.com, 7시간 전"
         },
         {
-          "chars": 29,
+          "chars": 32,
+          "classes": "page-subtitle  page-head",
+          "text": "10/27 08:00 ~ 10/28 08:00 KST 기사"
+        },
+        {
+          "chars": 23,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance Singapore, 1일 전"
+          "text": "Business Insider, 7시간 전"
+        },
+        {
+          "chars": 22,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "Financial Times, 8시간 전"
         },
         {
           "chars": 22,
@@ -852,49 +862,39 @@
           "text": "이 화면을 볼 때 — 속지 말 것과 원칙"
         },
         {
-          "chars": 19,
+          "chars": 21,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 1일 전"
+          "text": "Morgan Stanley, 8시간 전"
         },
         {
-          "chars": 19,
+          "chars": 20,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 1일 전"
+          "text": "Bloomberg.com, 8시간 전"
         },
         {
-          "chars": 19,
+          "chars": 20,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "EnergyNow.com, 1일 전"
+          "text": "Yahoo Finance, 5시간 전"
         },
         {
-          "chars": 19,
+          "chars": 20,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 1일 전"
+          "text": "Yahoo Finance, 7시간 전"
         },
         {
-          "chars": 19,
+          "chars": 20,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "investingLive, 1일 전"
+          "text": "Traders Union, 7시간 전"
         },
         {
-          "chars": 19,
+          "chars": 18,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 1일 전"
+          "text": "TradingView, 5시간 전"
         },
         {
-          "chars": 17,
+          "chars": 18,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "TradingView, 1일 전"
-        },
-        {
-          "chars": 14,
-          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card news-intraday-card",
-          "text": "10/27 08:00 이후"
-        },
-        {
-          "chars": 13,
-          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card",
-          "text": "10/27 08:00까지"
+          "text": "TradingView, 8시간 전"
         }
       ],
       "frames": []
@@ -962,7 +962,7 @@
       "frames": []
     },
     "masters": {
-      "total": 2656,
+      "total": 2655,
       "secondary": 217,
       "lines": [
         {
@@ -971,9 +971,9 @@
           "text": "비교 행 30개(이번 분기 보유 29개, 전량 매도 1개) 중 가치 상위 10개, 변화 있는 행 먼저 30행 모두 보기"
         },
         {
-          "chars": 64,
+          "chars": 61,
           "classes": "masters-holdings-meta masters-filing-dates masters-detail-card rl-main",
-          "text": "보고분기 2026 Q2(2026-06-30), 13F-HR 제출 2026-08-14, 자료 검토 2026-10-26"
+          "text": "보고분기 2026 Q2(2026-06-30), -HR 제출 2026-08-14, 자료 검토 2026-10-26"
         },
         {
           "chars": 54,
@@ -994,6 +994,11 @@
           "chars": 5,
           "classes": "aio-note-fold masters-method-fold masters-holdings-section masters-change-ledger",
           "text": "분류 방법"
+        },
+        {
+          "chars": 3,
+          "classes": "aio-term masters-holdings-meta masters-filing-dates masters-detail-card",
+          "text": "13F"
         }
       ],
       "frames": []

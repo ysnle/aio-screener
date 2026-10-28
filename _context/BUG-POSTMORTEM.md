@@ -6,6 +6,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2122 - v59.42 - 추세 지지선 이름이 숫자 앞에 유니코드 마이너스를 써서 오늘 화면 문장에 '200일선−1%'가 나감 (2026-10-28)
+
+- symptom/reproduction: 10/28 데이터 갱신 뒤 오늘 화면 문장에 'S&P 500이 7,226(200일선−1%) 아래로 마감하면 추세 → 부담'이 나왔고, 렌더 문구 린트가 unicode-minus-number 새 위반 1건으로 실패했다.
+- root_cause: src/domain/briefing/market-read.js의 추세 전환 거리 지점 이름 '50일선−${buffer}%'·'200일선−${buffer}%'가 U+2212를 썼다. 이 지점은 지수가 50일선 아래로 내려온 날에만 가장 가까운 지점으로 뽑혀서, 기존 고정 자료로는 화면에 나온 적이 없었다(2026-10-21 커밋 3b4fc977 이후 잠복).
+- fix: 두 지점 이름을 ASCII 마이너스('50일선-1%', '200일선-1%')로 바꿨다. 같은 패턴은 생성되는 시장 숫자 중에서는 이 두 곳뿐이고, 나머지는 린트 예외인 장문 지식·연구 본문이다.
+- violated_rule: R-부호 규칙(RULES: 화면에 나가는 부호 있는 숫자는 ASCII 마이너스, 숫자 앞 U+2212 금지).
+- prevention: scripts/ci-rendered-copy-lint-check.mjs unicode-minus-number 규칙이 실제 데이터로 잡았다. 소스 검색(src·js에서 생성 시장 문자열의 '−${' 패턴)으로 남은 곳이 없음을 확인했다.
+- verification/residual: 수정 전 browser-rendered-copy-lint FAIL(unicode-minus-number 1, 10/28 데이터), 수정 뒤 같은 데이터로 node scripts/ci-rendered-copy-lint-check.mjs 통과.
+
 ## P2121 - v59.42 - 레거시 화면 결함 3건: 한국 테마 시총 칸이 늘 '—', 예전 포트폴리오 표의 손실 부호 누락, Ctrl/Cmd+R 새로고침 가로채기 (2026-10-28)
 
 - symptom/reproduction: (1) 한국 테마 상세 표의 '시총' 칸이 항상 '—'였다. (2) 예전 포트폴리오 표(native 표가 없을 때의 대체 표)는 손실 금액을 부호 없이 Math.abs로 보여줬고, 일간 등락이 없으면 0으로 쳐서 가격을 상승색으로 칠했다. (3) R 단축키가 Ctrl/Cmd를 확인하지 않아 Ctrl+R을 누르면 페이지 새로고침 대신 시세만 다시 받았다. 레거시 감사 9위와 leave 표의 셸 항목.
