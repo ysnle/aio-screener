@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-28T04:51:45.583Z",
-  "attemptedAt": "2026-10-28T04:51:45.583Z",
-  "lastSuccessfulAt": "2026-10-28T04:51:45.583Z",
+  "generatedAt": "2026-10-28T05:21:48.094Z",
+  "attemptedAt": "2026-10-28T05:21:48.094Z",
+  "lastSuccessfulAt": "2026-10-28T05:21:48.094Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-14T04:51:39.259Z",
-  "until": "2026-10-28T04:51:39.259Z",
+  "since": "2026-10-14T05:21:42.440Z",
+  "until": "2026-10-28T05:21:42.440Z",
   "current24hWindow": {
     "start": "2026-10-26T23:00:00.000Z",
     "end": "2026-10-27T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 221,
+      "count": 219,
       "freshCount": 0,
-      "eligibleTextCount": 208,
+      "eligibleTextCount": 206,
       "selectedCount": 63,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -92,21 +92,21 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1367,
-      "freshCount": 40,
-      "eligibleTextCount": 1313,
+      "count": 1364,
+      "freshCount": 38,
+      "eligibleTextCount": 1310,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67614
+      "lastPostId": 67616
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 248,
+      "count": 245,
       "freshCount": 20,
-      "eligibleTextCount": 248,
+      "eligibleTextCount": 245,
       "selectedCount": 103,
       "error": null,
       "lastPostId": 20861
@@ -121,54 +121,54 @@
       "eligibleTextCount": 682,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 71141
+      "lastPostId": 71143
     }
   ],
-  "count": 2518,
-  "retainedItemCount": 461,
+  "count": 2510,
+  "retainedItemCount": 459,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2518,
-    "eligibleTextCount": 2451,
+    "observedCount": 2510,
+    "eligibleTextCount": 2443,
     "mediaOnlyCount": 67,
-    "highSignalCount": 452,
-    "broadSignalCount": 1017,
+    "highSignalCount": 450,
+    "broadSignalCount": 1012,
     "selectedRawCount": 406,
     "selectedEligibleCount": 406,
     "selectedRawCoveragePct": 16.6,
-    "selectedOfObservedPct": 16.1,
+    "selectedOfObservedPct": 16.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 923,
-    "macro": 405,
-    "earnings": 507,
-    "semi": 603,
-    "power": 317,
+    "macro": 404,
     "geo": 386,
+    "semi": 600,
+    "power": 318,
+    "market-note": 922,
+    "healthcare": 134,
+    "earnings": 501,
     "kr-market": 145,
-    "flows": 111,
+    "flows": 110,
     "ai-policy": 149,
     "media-only": 67,
-    "credit": 126,
-    "healthcare": 133,
+    "credit": 125,
     "crypto": 5,
-    "equity": 186,
+    "equity": 185,
     "japan": 129,
     "optical": 34,
     "insider": 4
   },
   "tickerCounts": {
+    "NVDA": 188,
+    "GOOG": 112,
     "000660.KS": 82,
     "009150.KS": 17,
-    "TSLA": 94,
-    "GOOG": 111,
-    "MU": 66,
-    "NVDA": 187,
-    "005930.KS": 53,
+    "TSLA": 93,
+    "MU": 65,
+    "005930.KS": 52,
     "AVGO": 27,
     "STX": 9,
     "V": 3,
@@ -176,11 +176,11 @@
     "005940.KS": 2,
     "285A.T": 2,
     "AAPL": 18,
-    "TSM": 96,
+    "TSM": 95,
     "AMZN": 61,
     "ORCL": 11,
     "AMD": 22,
-    "MSFT": 59,
+    "MSFT": 58,
     "CRWV": 25,
     "MS": 7,
     "MRNA": 1,
@@ -188,7 +188,7 @@
     "RDDT": 2,
     "LITE": 7,
     "FDX": 1,
-    "META": 17,
+    "META": 16,
     "BE": 37,
     "APO": 2,
     "CRM": 1,
@@ -205,7 +205,7 @@
     "PANW": 1,
     "EQIX": 1,
     "FCEL": 1,
-    "SNDK": 8,
+    "SNDK": 7,
     "BMY": 2,
     "WDC": 12,
     "RKLB": 3,
@@ -251,34 +251,34 @@
     "BAC": 1
   },
   "themes": [
-    "Market Notes (923 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
-    "Semiconductors/Memory (603 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
-    "Earnings/Corporate (507 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
-    "Macro/Rates (405 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
+    "Market Notes (922 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
+    "Semiconductors/Memory (600 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
+    "Earnings/Corporate (501 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
+    "Macro/Rates (404 posts in 14-day research window): 2026년 10월 28일 미국 증시 프리마켓 브리핑 미국 증시 선물은 FOMC 금리 결정과 빅테크 실적 발표를 앞두고 혼조세. 다우 선물 -0.17%, S&P500 선물 +0.02%, 나스닥100 선물 +0.28%, 러셀2000 선물 -0.18% 기록. 기술주 중심의 상대적 강세가 나타나는 가운데 VIX는...",
     "Geopolitics (386 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (317 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
-    "Equity/Analyst (186 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
+    "AI Power/Grid (318 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Equity/Analyst (185 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
     "AI Policy/Export Controls (149 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 187,
+      "count": 188,
       "text": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
     },
     {
       "key": "GOOG",
-      "count": 111,
+      "count": 112,
       "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달..."
     },
     {
       "key": "TSM",
-      "count": 96,
+      "count": 95,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
       "key": "TSLA",
-      "count": 94,
+      "count": 93,
       "text": "2026년 10월 27일 미국 레딧 베스트 게시물 분석 > Anthropic / AI IPO - Exit Liquidity 공포 · Anthropic IPO 관련 글 폭발 · IPO filing 자체가 WSB..."
     },
     {
@@ -288,7 +288,7 @@
     },
     {
       "key": "MU",
-      "count": 66,
+      "count": 65,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -298,12 +298,12 @@
     },
     {
       "key": "MSFT",
-      "count": 59,
+      "count": 58,
       "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달..."
     },
     {
       "key": "005930.KS",
-      "count": 53,
+      "count": 52,
       "text": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록...."
     },
     {
@@ -329,8 +329,8 @@
       "topics": [
         "macro"
       ],
-      "count": 405,
-      "focus": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
+      "count": 404,
+      "focus": "2026년 10월 28일 미국 증시 프리마켓 브리핑 미국 증시 선물은 FOMC 금리 결정과 빅테크 실적 발표를 앞두고 혼조세. 다우 선물 -0.17%, S&P500 선물 +0.02%, 나스닥100 선물 +0.28%, 러셀2000 선물 -0.18% 기록. 기술주 중심의 상대적 강세가 나타나는 가운데 VIX는..."
     },
     {
       "id": "geo",
@@ -347,7 +347,7 @@
       "topics": [
         "credit"
       ],
-      "count": 126,
+      "count": 125,
       "focus": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "semi"
       ],
-      "count": 603,
+      "count": 600,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,..."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "power"
       ],
-      "count": 317,
+      "count": 318,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -401,7 +401,7 @@
       "topics": [
         "equity"
       ],
-      "count": 186,
+      "count": 185,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 507,
+      "count": 501,
       "focus": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고..."
     },
     {
@@ -428,7 +428,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 133,
+      "count": 134,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "flows"
       ],
-      "count": 111,
+      "count": 110,
       "focus": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
     },
     {
@@ -464,7 +464,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 923,
+      "count": 922,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째..."
     }
   ],
@@ -708,6 +708,31 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/67616",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67616",
+      "datetime": "2026-10-28T05:08:46.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "2026년 10월 28일 미국 증시 프리마켓 브리핑 미국 증시 선물은 FOMC 금리 결정과 빅테크 실적 발표를 앞두고 혼조세. 다우 선물 -0.17%, S&P500 선물 +0.02%, 나스닥100 선물..."
+    },
     {
       "id": "bornlupin/20856",
       "channel": "bornlupin",
@@ -1270,27 +1295,6 @@
       ]
     },
     {
-      "id": "insidertracking/67211",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67211",
-      "datetime": "2026-10-24T23:19:26.000Z",
-      "localDateKst": "2026-10-25",
-      "tags": [
-        "credit",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "뱅크오브아메리카(BofA)에 따르면 AI 하이퍼스케일러 기업들의 장기 회사채 신용 스프레드가 2026년 10월 기준 130bp까지 상승. 구글, 아마존, 메타, 엔비디아, 오라클, 마이크로소프트 등 주요 AI...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "AMZN"
-      ]
-    },
-    {
       "id": "HANAchina/70913",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70913",
@@ -1642,6 +1646,52 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/67616",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67616",
+      "datetime": "2026-10-28T05:08:46.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "2026년 10월 28일 미국 증시 프리마켓 브리핑 미국 증시 선물은 FOMC 금리 결정과 빅테크 실적 발표를 앞두고 혼조세. 다우 선물 -0.17%, S&P500 선물 +0.02%, 나스닥100 선물..."
+    },
+    {
+      "id": "insidertracking/67615",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67615",
+      "datetime": "2026-10-28T05:03:28.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 99,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "GOOG",
+        "000660.KS"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 28일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 국방부 추산에 따르면 이란 전쟁 관련 군사작전 비용이 470억 달러를 돌파. 이 중 탄약 재고 보충에..."
+    },
+    {
       "id": "HANAchina/71140",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71140",
@@ -1991,8 +2041,8 @@
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "메타, 자금조달 129조원으로 확대…증자공모 5배 초과청약 흥행"
+      "summary": "메타, 자금조달 129조원으로 확대…증자공모 5배 초과청약 흥행",
+      "tickers": []
     },
     {
       "id": "HANAchina/71120",
@@ -2589,15 +2639,14 @@
       "datetime": "2026-10-27T12:58:31.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>PCB·CCL 공급 부족 수혜…모건스탠리·골드만삭스, 대만 3개 종목 공통 추천 (대만경제일보) •모건스탠리와 골드만삭스는 AI 서버 업그레이드에 따른 PCB 공급망 수요가 강한 가운데 공급 병목이...",
       "tickers": [
         "MU"
-      ],
-      "summary": ">>PCB·CCL 공급 부족 수혜…모건스탠리·골드만삭스, 대만 3개 종목 공통 추천 (대만경제일보) •모건스탠리와 골드만삭스는 AI 서버 업그레이드에 따른 PCB 공급망 수요가 강한 가운데 공급 병목이..."
+      ]
     },
     {
       "id": "insidertracking/67519",
@@ -6509,34 +6558,6 @@
       ]
     },
     {
-      "id": "insidertracking/67126",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67126",
-      "datetime": "2026-10-23T22:34:12.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "2026년 10월 24일 미장 마감 S&P 500 - 7,623.68 -0.52% 다우 30 - 52,215.16 -1.23% 나스닥 - 25,955.34 -0.21% 러셀 2000 - 2,775.90...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67125",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67125",
-      "datetime": "2026-10-23T22:32:00.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "geo"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 10월 24일 트럼프·이란 전쟁 · 트럼프 “이란 전쟁을 매우 빠르게 끝낼 수 있다” 발언 · 트럼프 “전쟁을 끝낼지, 자연스럽게 약화하도록 둘지가 문제”...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/70924",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70924",
@@ -8862,15 +8883,14 @@
       "datetime": "2026-10-27T12:58:31.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>PCB·CCL 공급 부족 수혜…모건스탠리·골드만삭스, 대만 3개 종목 공통 추천 (대만경제일보) •모건스탠리와 골드만삭스는 AI 서버 업그레이드에 따른 PCB 공급망 수요가 강한 가운데 공급 병목이...",
       "tickers": [
         "MU"
-      ],
-      "summary": ">>PCB·CCL 공급 부족 수혜…모건스탠리·골드만삭스, 대만 3개 종목 공통 추천 (대만경제일보) •모건스탠리와 골드만삭스는 AI 서버 업그레이드에 따른 PCB 공급망 수요가 강한 가운데 공급 병목이..."
+      ]
     },
     {
       "id": "insidertracking/67517",
