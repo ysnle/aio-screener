@@ -3,6 +3,7 @@
 // wrapper read from its own globals (`newsCache`, `Date.now()`) is now an explicit parameter.
 // The formulas (bull/bear keyword scoring, sentiment banding, risk-signal thresholds) are
 // originally transcribed unchanged. v2 corrects lexical collisions and requires credit-stress context.
+import { keywordHit } from './keyword-match.js';
 export const NEWS_SCORING_MODEL_VERSION = 'news-scoring.v2';
 export const MIN_NEWS_ANALYSIS_SAMPLE = 5;
 
@@ -22,10 +23,10 @@ export function normalizeNewsSentimentHistory(points, limit = 24) {
 const BULL_KEYWORDS = ['surge', 'rally', 'beat', 'outperform', 'upgrade', 'record high', 'soar', 'market boom', 'bull', 'recovery', '급등', '상승', '호재', '상향', '돌파', '신고가', '반등', '회복'];
 const BEAR_KEYWORDS = ['crash', 'plunge', 'miss', 'downgrade', 'sell-off', 'collapse', 'fear', 'crisis', 'trade war', 'default', 'military', 'conflict', 'sanctions', '급락', '하락', '악재', '하향', '폭락', '위기', '전쟁', '부도'];
 
-// English terms match words and common inflections, never substrings in names or unrelated words.
-const keywordPatterns = new Map([...BULL_KEYWORDS, ...BEAR_KEYWORDS].filter((kw) => /^[a-z]/.test(kw)).map((kw) => [kw, new RegExp('(?:^|[^a-z])' + kw + '(?:s|es|d|ed|ing)?(?=$|[^a-z])', 'i')]));
+// English terms match words and common inflections, never substrings in names or unrelated words (keyword-match.js).
+const STANCE_FORMS = { suffix: '(?:s|es|d|ed|ing)' };
 function hasKeyword(text, keyword) {
-  return keywordPatterns.has(keyword) ? keywordPatterns.get(keyword).test(text) : text.includes(keyword);
+  return keywordHit(text, keyword, STANCE_FORMS);
 }
 
 export function classifyNewsTextStance(text) {

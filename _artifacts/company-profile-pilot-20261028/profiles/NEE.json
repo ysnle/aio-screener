@@ -1,0 +1,125 @@
+{
+  "symbol": "NEE",
+  "name": "NextEra Energy, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "NextEra Energy fourth-quarter and full-year 2025 financial results (8-K exhibit 99)", "url": "https://www.sec.gov/Archives/edgar/data/753308/000075330826000007/neeq42025exhibit99.htm", "publisher": "NextEra Energy / SEC EDGAR", "date": "2026-01-27" },
+    { "id": "s2", "kind": "10-K", "title": "NextEra Energy Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/753308/000075330826000015/nee-20251231.htm", "publisher": "NextEra Energy / SEC EDGAR", "date": "2026-02-13" },
+    { "id": "s3", "kind": "8-K", "title": "NextEra Energy third-quarter 2026 financial results (8-K exhibit 99)", "url": "https://www.sec.gov/Archives/edgar/data/0000753308/000075330826000077/neeq32026exhibit99.htm", "publisher": "NextEra Energy / SEC EDGAR", "date": "2026-10-21" },
+    { "id": "s4", "kind": "news", "title": "NextEra Energy Q3 2026: EPS beats, revenue misses, Dominion deal advances", "url": "https://247wallst.com/cards/nextera-energy-q3-2026-earnings-nee-01m5f4gwr48rwk2zjpkchrhsz5", "publisher": "24/7 Wall St.", "date": "2026-10-21" },
+    { "id": "s5", "kind": "news", "title": "NEE CY26 Q3 earnings summary (FPL large-load target; secondary aggregator)", "url": "https://stockhub.kr/en/insights/20261021-nee-cy26q3-earnings", "publisher": "StockHub", "date": "2026-10-21" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/nee/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "NextEra Energy는 플로리다 최대 규제 전력회사 FPL(600만 개 이상 고객 계정, 약 1,200만 명)과 미국 최대급 재생에너지·저장장치 개발·운영사 NextEra Energy Resources(NEER)를 가진 지주회사다. FY2025 매출 274.1억 달러 중 FPL이 182.6억, NEER이 87.6억 달러였다. FPL은 규제 자본(요율 기반)에 허용된 수익을 얻고, NEER은 장기 계약(용량의 약 95%)으로 전력을 판다.",
+    "src": ["s1", "s2"]
+  },
+  "businessModel": {
+    "text": "FPL은 플로리다 규제당국이 승인한 요율로 투자비에 수익을 얻는 구조라, 규제 자본이 늘어나는 만큼 이익이 커진다(Q3 2026 규제 자본 전년 대비 약 9.2% 증가, 2032년까지 900억~1,000억 달러 투자 계획). NEER은 풍력·태양광·배터리·원전·가스 프로젝트를 개발해 장기 전력구매계약(PPA)으로 팔고, 최근에는 대형 부하(데이터센터) 허브를 수수료 방식으로 개발한다. 높은 투자 규모 때문에 부채·자본시장 조달 비용이 이익을 좌우한다.",
+    "src": ["s3", "s1", "s2"]
+  },
+  "revenueStructure": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "segments": [
+      { "name": "FPL (Florida Power & Light)", "revenue": 18.26, "unit": "USD bn", "share": 66.6, "yoy": 7.3, "src": ["s1"] },
+      { "name": "NextEra Energy Resources", "revenue": 8.76, "unit": "USD bn", "share": 32.0, "yoy": 16.2, "src": ["s1"] },
+      { "name": "Corporate & Other", "revenue": 0.39, "unit": "USD bn", "share": 1.4, "yoy": 103.1, "src": ["s1"] }
+    ],
+    "recurringShare": "규제 유틸리티(FPL) 매출 66.6%와 장기 계약된 NEER 용량(약 95%)으로 대부분이 계약·규제 기반 반복 매출이다(비율은 계산·서술 기준).",
+    "geography": "FPL은 플로리다, NEER은 미국 44개 주와 캐나다 4개 주에서 운영(2025-12-31). FPL 매출 중 도매·산업 고객은 약 5%.",
+    "text": "share·yoy는 보도자료 표(FY2025 274.12억, FY2024 247.53억 달러)에서 계산했고 로컬 SEC 데이터 274.12억 달러와 일치한다. 이익 기준으로는 FPL 50.1억, NEER 29.8억, 기타 -11.5억 달러(GAAP 순이익)다. 매출은 헤지·연료비 전가로 흔들리므로 전문가는 매출보다 조정 EPS를 본다.",
+    "src": ["s1", "s2"]
+  },
+  "productPortfolio": [
+    { "name": "FPL 규제 발전·송배전", "role": "순발전용량 35,963MW(2025-12-31). 50MW 이상·부하율 85% 이상 대형 부하용 요금제를 2025 요율 합의로 도입", "src": ["s2"] },
+    { "name": "NEER 재생에너지·배터리 저장", "role": "순발전용량 약 37,505MW. 계약 개발 잔고 약 36.7GW(2026-09-30 이후 콜 시점), Q3 신규 3.7GW 중 배터리 2.4GW", "src": ["s2", "s3"] },
+    { "name": "원자력 (Duane Arnold 재가동, Point Beach)", "role": "Google PPA 기반 Duane Arnold 재가동을 2029년 1분기까지 목표, DOE 대출 최대 19억 달러 체결. Point Beach 약 1GW 20년 PPA(승인 대기)", "src": ["s1", "s3"] },
+    { "name": "대형 부하(데이터센터) 허브", "role": "연방 허브 3곳 약 16.5GW(텍사스 2·펜실베이니아 1) 수수료 방식 개발, 켄터키 Paducah 가스 최대 2GW+배터리 2.6GW 계획, 잠재 허브 30곳(연말 40곳 예상)", "src": ["s3"] }
+  ],
+  "valueChain": {
+    "position": "downstream",
+    "suppliers": ["풍력·태양광 모듈·배터리 공급사", "가스터빈 공급사", "송전 연결(RTO/ISO) 승인"],
+    "customers": ["플로리다 소매 고객 600만 개 이상 계정", "전력회사·협동조합 등 PPA 상대방", "하이퍼스케일러·데이터센터 (Google PPA 등)", "미 연방 허브 프로젝트"],
+    "concentration": "FPL 매출은 소매 고객 기반이 중심이고 도매·산업 고객은 약 5%(2025). NEER의 상대방별 비중은 확인 못함.",
+    "text": "발전 설비를 사서 짓고 운영하는 최종 전력 공급자 위치다. AI 데이터센터 체인에서는 장비 회사(GEV·VRT)의 고객이자, 하이퍼스케일러에 전력을 공급하는 쪽이다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["데이터센터·대형 부하 전력 수요 (하이퍼스케일러의 빠른 전력 확보 수요를 회사가 언급)", "플로리다 인구·고객 증가", "원전 재가동·신규 원전 PPA", "FPL 대형 부하 목표 8GW로 상향(2차 요약)"],
+    "supplyConstraints": ["송전 연결 대기와 RTO/ISO 규정 변경", "세액공제·관세 정책 변화가 재생에너지 경제성에 영향", "가스터빈 등 장비 조달 경쟁", "금리 상승 시 자금 조달 비용 증가"],
+    "text": "NEER 잔고는 2025년 말 약 30GW에서 Q3 2026 약 36.7GW로 늘었다(2025년 신규 13.5GW 역대 최대). 수요는 충분하지만 실제 성장 속도는 계통 연결·인허가·장비·정책이 정한다.",
+    "src": ["s1", "s3", "s2", "s5"]
+  },
+  "competition": {
+    "peers": ["D", "DUK", "SO", "AEP", "CEG", "VST", "BEP"],
+    "moat": "규모(약 80GW 발전·저장 용량)와 개발 경험에서 오는 조달·자금 비용 우위, 그리고 낮은 비용의 규제 유틸리티 FPL. 10-K는 대부분 고객에게 FPL 비용이 자가발전보다 낮다고 쓴다.",
+    "threats": "10-K는 더 효율적인 태양광·세제 혜택·규제 변화가 자가발전 경쟁력을 바꿀 수 있다고 적는다. 데이터센터 전력 시장에서는 원전·가스 독립발전사(CEG·VST 등)와 경쟁하며, 재생에너지 세액공제 축소가 NEER에 불리하다. (peers는 업계 일반 구분)",
+    "src": ["s2"]
+  },
+  "governance": {
+    "ceo": "John W. Ketchum, since 2022 (2022-03 사장 겸 CEO, 현재 회장·사장·CEO)",
+    "control": "widely held",
+    "insiderOwnership": null,
+    "capitalReturn": "분기 배당 0.5665→0.6232달러(2026-02 인상), 2025년 보통주 배당 총 46.8억 달러. 주당배당 성장 목표: 2026년까지 연 약 10%(2024 기준), 2026년 말~2028년 연 6%.",
+    "notes": "직원 약 17,400명(2025-12-31). FPL CEO는 Armando Pimentel Jr.(2023-02 취임). Dominion Energy와 합병 추진 중: 2026-09-03 양사 주주 승인, 버지니아·사우스캐롤라이나 최종 명령 2027-01 예상, 2027년 하반기 종결 목표, 리치먼드 공동 본사.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "aiRelevance": {
+    "role": "infrastructure-enabler",
+    "text": "AI 데이터센터에 실제 전력을 공급하는 발전·유틸리티 쪽이다. 데이터센터 매출 비중은 공시되지 않았지만, 대형 부하 허브·원전 PPA·FPL 대형 부하 요금제가 성장 계획의 한 축이 됐다.",
+    "evidence": "Duane Arnold 재가동이 Google PPA로 가능해졌다는 회사 설명, 연방 허브 3곳 약 16.5GW와 2026년 초기 자금 57억 달러, 잠재 허브 30곳(연말 40곳 예상) (Q3 2026 보도자료).",
+    "src": ["s1", "s3"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "adjusted EPS", "value": "3.92~4.02달러, 상단 목표", "givenOn": "2026-10-21", "src": ["s3"] },
+      { "period": "2025~2032", "metric": "adjusted EPS CAGR", "value": "연 8% 이상 (2025년 3.71달러 기준), 2032~2035년도 같은 목표", "givenOn": "2026-10-21", "src": ["s3"] },
+      { "period": "2026~2028", "metric": "dividend per share growth", "value": "2026년까지 연 약 10%, 2026년 말~2028년 연 6%", "givenOn": "2026-10-21", "src": ["s3"] },
+      { "period": "Dominion 합병 후", "metric": "combined targets", "value": "규제 자본 연 약 11% 성장, 조정 EPS 연 9% 이상(2032년까지)", "givenOn": "2026-10-21", "src": ["s3"] },
+      { "period": "FY2026", "metric": "FPL capex", "value": "약 120억 달러", "givenOn": "2026-10-21", "src": ["s3"] }
+    ],
+    "style": "annual",
+    "text": "연간 조정 EPS 범위와 장기 성장률(CAGR)로 가이던스한다. 2025년 조정 EPS 3.71달러(+8.2%)로 장기 목표 범위를 지켰고, Q3 2026 조정 EPS 1.24달러는 컨센서스 1.20달러를 넘었다.",
+    "src": ["s1", "s3", "s6"]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09 분기) 합계 4.04달러(범위 3.55~4.56), 직전 4개 분기 실적 합 4.02달러. 최근 4주 상향 2건·하향 1건. 최근 4개 분기 모두 컨센서스를 소폭 상회.",
+    "src": ["s6"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "FPL regulatory capital employed growth", "why": "규제 유틸리티 이익의 직접 동인. Q3 2026 약 9.2%." },
+      { "metric": "NEER backlog and quarterly origination (GW)", "why": "NEER 미래 이익의 선행지표. 2025년 말 30GW → 약 36.7GW." },
+      { "metric": "Adjusted EPS vs 8%+ CAGR path", "why": "회사가 스스로 내건 성장 약속을 지키는지가 밸류에이션의 근거." },
+      { "metric": "Large-load hubs and data center contracts", "why": "AI 전력 수요가 실제 계약으로 바뀌는 속도." },
+      { "metric": "Interest rates and credit metrics", "why": "자본집약 사업이라 금리와 조달 비용이 이익과 배수를 함께 움직인다." },
+      { "metric": "Dominion merger regulatory milestones", "why": "합병 승인 조건(요금 크레딧 등)이 결합 회사 이익에 영향." }
+    ],
+    "valuationFrame": "전문가는 유틸리티를 향후 12개월 조정 EPS 대비 주가배수(Forward P/E)와 배당수익률, 규제 자본 성장률로 비교하고, NEER은 계약 현금흐름 할인 또는 잔고 기반으로 따로 평가하는 합산 방식(SOTP)을 쓴다. 10년물 금리와의 스프레드도 함께 본다.",
+    "thesisChecks": ["조정 EPS가 연 8% 이상 경로를 유지하는가", "NEER 분기 신규 계약이 3GW 안팎 이상 이어지는가", "FPL 규제 자본 성장과 요율 합의가 유지되는가", "데이터센터 허브가 실제 계약·자금 집행으로 이어지는가", "Dominion 합병이 감당 가능한 조건으로 승인되는가"],
+    "breakSignals": ["연간 EPS 가이던스 하향 또는 CAGR 목표 축소", "재생에너지 세액공제 축소·관세로 잔고 취소 증가", "금리 급등과 신용등급 압박", "합병 승인 조건이 과도하거나 무산", "허리케인 등 재해 비용의 요율 회수 불확실성"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-11~12", "event": "버지니아·사우스캐롤라이나 Dominion 합병 청문회", "src": ["s3"] },
+      { "date": "2027-01 (예상)", "event": "버지니아·사우스캐롤라이나 최종 명령, FY2026 실적과 2027 가이던스", "src": ["s3"] },
+      { "date": "2027-02", "event": "노스캐롤라이나 전문가 증인 청문회 시작", "src": ["s3"] },
+      { "date": "수시", "event": "대형 부하 허브·하이퍼스케일러 전력 계약 발표, 재생에너지 세제·관세 정책 변화", "src": ["s3", "s2"] }
+    ],
+    "eventReaction": "유틸리티 특성상 분기 EPS 소폭 상회만으로는 크게 움직이지 않는 경향이 있고, 장기 성장률 약속 유지·NEER 신규 계약 규모·데이터센터 계약 소식과 금리 방향에 더 반응한다. Q3 2026은 EPS 상회·매출 미달이었다(2차 보도).",
+    "watchConditions": ["NEER 분기 신규 계약 GW와 잔고 증감", "연간 EPS 가이던스 범위 내 위치(상단 목표 유지 여부)", "10년물 국채 금리 방향", "합병 규제 절차 진행과 승인 조건", "데이터센터 허브 계약·자금 집행 공시", "컨센서스 EPS 상향·하향 건수 추이"],
+    "src": ["s3", "s4", "s6"]
+  },
+  "unverified": [
+    "데이터센터 관련 매출 비중 (미공시)",
+    "FPL 대형 부하 목표 8GW 상향은 2차 요약 기준",
+    "Q3 2026 매출 미달 여부와 실적 후 주가 반응은 2차 보도 기준",
+    "Dominion 합병 교환비율·거래 구조",
+    "2026~2030 세그먼트별 설비투자 계획 수치",
+    "내부자 지분율",
+    "NEER 고객별 매출 집중도",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "high - 세그먼트 매출·이익·가이던스·합병 일정이 회사 8-K와 10-K에서 왔다. 대형 부하 목표 등 일부 콜 발언만 2차 요약 기준이다."
+}

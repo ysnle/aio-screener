@@ -1,0 +1,131 @@
+{
+  "symbol": "LLY",
+  "name": "Eli Lilly and Company",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Lilly reports fourth-quarter 2025 financial results and provides 2026 guidance (repost of company release)", "url": "https://seekingalpha.com/pr/20387250", "publisher": "Seeking Alpha (company release text)", "date": "2026-02-04" },
+    { "id": "s2", "kind": "earnings-release", "title": "Lilly reports second-quarter 2026 financial results, raises full-year guidance (repost of company release)", "url": "https://www.biospace.com/press-releases/lilly-reports-second-quarter-2026-financial-results-raises-full-year-guidance-and-highlights-continued-growth-and-pipeline-progress", "publisher": "BioSpace (company release text)", "date": "2026-08-05" },
+    { "id": "s3", "kind": "other", "title": "Lilly 4Q25 - D+O sales total nearly $15 billion (+59%) (product-level FY2025 diabetes/obesity table)", "url": "https://cckb.closeconcerns.com/r/ca4ddc01", "publisher": "Close Concerns", "date": "2026-02-04" },
+    { "id": "s4", "kind": "10-K", "title": "Eli Lilly Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/59478/000005947826000013/lly-20251231.htm", "publisher": "Eli Lilly / SEC EDGAR", "date": "2026-02-12" },
+    { "id": "s5", "kind": "other", "title": "Eli Lilly (LLY) - Q3 2026 Earnings Preview (consensus and Q2 call commentary)", "url": "https://www.hudson-labs.com/research/eli-lilly-q3-2026-earnings-preview-lly-revenue-eps-preview", "publisher": "Hudson Labs", "date": "2026-10-06" },
+    { "id": "s6", "kind": "news", "title": "Eli Lilly earnings preview Q3 2026 (only search snippet read; page returned 403)", "url": "https://www.spglobal.com/market-intelligence/en/news-insights/research/2026/10/eli-lilly-earnings-preview-q3-2026", "publisher": "S&P Global Market Intelligence", "date": "2026-10-21" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/lly/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "Eli Lilly는 당뇨·비만(인크레틴), 항암, 면역, 신경과학 전문의약품을 개발·제조해 도매상을 거쳐 병원·약국에 판다. FY2025 매출 651.8억 달러 가운데 Mounjaro와 Zepbound 두 제품이 365억 달러로 약 56%를 차지해, 사실상 GLP-1 계열 비만·당뇨 치료제 회사가 됐다. 이익은 높은 총마진(FY2025 83.0%)의 특허 의약품에서 나온다.",
+    "src": ["s1"]
+  },
+  "businessModel": {
+    "text": "단일 사업부(인체용 의약품)로 약 90개국에서 판매하며, 신약을 특허 기간 동안 고가에 판매해 그 이익을 R&D(FY2025 133억 달러, 매출의 약 20%)에 재투자하는 전형적 대형 제약 모델이다. 수요를 따라가기 위해 노스캐롤라이나·위스콘신·인디애나·앨라배마·아일랜드·독일 등에 생산시설을 대거 증설 중이다. 미국 정부와 약가·접근성 관련 자발적 합의를 맺어, 가격을 내주고 물량(보험·메디케어 적용 확대)을 얻는 구조로 바뀌고 있다.",
+    "src": ["s4", "s1", "s2"]
+  },
+  "revenueStructure": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "segments": [
+      { "name": "Mounjaro (tirzepatide, 당뇨)", "revenue": 22.965, "unit": "USD bn", "share": 35.2, "yoy": 99, "src": ["s1"] },
+      { "name": "Zepbound (tirzepatide, 비만)", "revenue": 13.542, "unit": "USD bn", "share": 20.8, "yoy": 175, "src": ["s1"] },
+      { "name": "Verzenio (유방암)", "revenue": 5.723, "unit": "USD bn", "share": 8.8, "yoy": 8, "src": ["s1"] },
+      { "name": "Trulicity (당뇨)", "revenue": 4.276, "unit": "USD bn", "share": 6.6, "yoy": -19, "src": ["s3"] },
+      { "name": "Jardiance/Glyxambi (로열티 포함 계상)", "revenue": 3.431, "unit": "USD bn", "share": 5.3, "yoy": 3, "src": ["s3"] },
+      { "name": "Humalog (인슐린)", "revenue": 2.168, "unit": "USD bn", "share": 3.3, "yoy": -7, "src": ["s3"] },
+      { "name": "기타 제품 (Taltz, Kisunla, Ebglyss, Jaypirca, 기타 인슐린 등; 총매출에서 뺀 계산값)", "revenue": 13.074, "unit": "USD bn", "share": 20.1, "yoy": null, "src": ["s1", "s3"] }
+    ],
+    "recurringShare": null,
+    "geography": "FY2025 미국 434.8억 달러(약 67%), 미국 외 217.0억 달러(10-K). Q2 2026에는 미국 144억(+33%), 미국 외 86억 달러(+80%)로 해외 비중이 커졌는데, 해외 성장은 중국 국가보험목록(NRDL) 등재로 Mounjaro 물량이 113% 늘고 실현가가 36% 내려간 결과다.",
+    "text": "share는 FY2025 총매출 651.79억 달러 대비 계산값이고, '기타'는 확인된 6개 제품을 뺀 잔여다. Trulicity·Jardiance·Humalog는 회사 원표가 아닌 Close Concerns 표 기준이다. 최근 분기(Q2 2026) Mounjaro 99.4억(+91%), Zepbound 49.3억 달러(+46%)로 두 제품 의존도가 더 높아졌다.",
+    "src": ["s1", "s3", "s4", "s2"]
+  },
+  "productPortfolio": [
+    { "name": "Mounjaro / Zepbound (tirzepatide)", "role": "GIP/GLP-1 이중 작용 주사제. 당뇨·비만 매출의 핵심이자 회사 성장의 대부분", "src": ["s1", "s2"] },
+    { "name": "Foundayo (orforglipron, 경구 GLP-1)", "role": "2026년 미국 비만 출시, Q2 2026 첫 분기 매출 9,800만 달러. 해외 주요 시장 출시는 2027년 예정", "src": ["s2", "s5"] },
+    { "name": "Retatrutide (3중 작용 주사제, 개발 중)", "role": "Phase 3 TRIUMPH에서 비만·수면무호흡·무릎 골관절염 통증 데이터 패키지 완료, 2027년 1분기 미국 BLA 제출 예정", "src": ["s2"] },
+    { "name": "Verzenio, Jaypirca, Inluriyo (항암)", "role": "유방암·혈액암 제품군. Verzenio FY2025 57.2억 달러(+8%)", "src": ["s1", "s2"] },
+    { "name": "Kisunla (알츠하이머)", "role": "Q2 2026 매출 1.67억 달러로 초기 성장 단계", "src": ["s2"] },
+    { "name": "Ebglyss, Omvoh, Taltz (면역)", "role": "피부염·장질환·건선 제품. Ebglyss Q2 2026 +131%", "src": ["s2", "s1"] },
+    { "name": "Trulicity, Humalog 등 기존 당뇨 제품", "role": "감소 국면의 성숙 제품 (Trulicity FY2025 -19%)", "src": ["s3"] }
+  ],
+  "valueChain": {
+    "position": "downstream",
+    "suppliers": ["자체 API·주사펜 생산시설 (미국·유럽 다수 신규 부지)", "외부 위탁생산사 (구체적 이름 미확인)"],
+    "customers": ["미국 3대 도매상 McKesson, Cencora, Cardinal Health", "약국혜택관리사(PBM)·보험사·메디케어 (실질 지불자)", "환자 직접 현금결제 채널 (Zepbound 현금가 인하 언급)"],
+    "concentration": "10-K: McKesson·Cencora·Cardinal Health 세 도매상이 각각 연결매출의 '상당 비율'을 차지하며, 그 외 10% 넘는 고객은 없음. 정확한 비율은 확인 못함.",
+    "text": "Lilly는 약을 개발·생산하고, 유통은 소수 도매상이, 가격과 환자 접근은 PBM·보험·정부가 정한다. 그래서 매출은 처방 수요보다 보험 적용 범위와 순가격(리베이트 차감 후)에 더 크게 좌우된다.",
+    "src": ["s4", "s2"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["비만 치료 보험 적용 확대 (메디케어 Part D의 Foundayo·Zepbound 체중관리 적용, 2026-06 발표)", "해외 출시와 중국 NRDL 등재에 따른 물량 증가 (Q2 2026 미국 외 물량 +113%)", "경구제 Foundayo로 주사 기피 환자층 확보", "비만 동반질환(수면무호흡·골관절염 등) 적응증 확장"],
+    "supplyConstraints": ["회사가 대규모 생산시설(앨라배마 API 60억, 유럽 경구제 30억 달러 등) 증설 중으로, 생산능력이 성장 속도의 전제", "상업보험 적용률이 약 50%에서 정체, 2027년 전 큰 변화 없을 것이라는 경영진 언급"],
+    "text": "수요는 크지만 가격은 내려가는 구조다: Q2 2026 미국 물량 +37%에 실현가 -3%(조정 제외 시 약 -9%), 회사는 연간 가격 하락을 10%대 초중반으로 안내하고 물량이 이를 넘을 것이라 본다. 실적은 '물량 증가율 - 가격 하락률'의 차이로 결정된다.",
+    "src": ["s2", "s1", "s5"]
+  },
+  "competition": {
+    "peers": ["NVO", "AMGN", "PFE", "MRK", "AZN", "BMY"],
+    "moat": "tirzepatide의 체중감량 효과와 대규모 생산능력, 그리고 주사제·경구제·차세대 3중 작용제(retatrutide)로 이어지는 비만 파이프라인. FY2025 총마진 83.0%가 가격 결정력을 보여준다.",
+    "threats": "10-K는 중국 등 시장의 경쟁, 제네릭·바이오시밀러·조제(compounded) 제품을 위험으로 명시한다. 미국 외 제네릭 세마글루타이드, 정부 약가 압박, Novo Nordisk 등 비만 치료제 경쟁사와의 가격 경쟁이 핵심 변수다.",
+    "src": ["s4", "s5", "s1"]
+  },
+  "governance": {
+    "ceo": "David A. Ricks, since 2017 (회장 겸 사장·CEO)",
+    "control": "widely held (Lilly Endowment 재단이 최대 주주로 알려져 있으나 지분율 원문 미확인)",
+    "insiderOwnership": null,
+    "capitalReturn": "FY2025 자사주 41억 달러 매입(2024-12 승인 150억 달러 프로그램), 2025년 말 잔여 한도 109억 달러. FY2025 주당 배당 6.00달러(+15%), Q2 2026 분기 배당 1.73달러(+15%).",
+    "notes": "2025년 말 직원 약 50,000명(미국 외 27,000명). 2026년 가이던스는 발생 후 인식하는 인수 IPR&D 비용을 제외하므로, 인수(Ventyx, Adverum, AtaiBeckley 등)가 있을 때마다 EPS 가이던스가 깎일 수 있다(Q2 2026 주당 3.03달러).",
+    "src": ["s4", "s1", "s2"]
+  },
+  "aiRelevance": {
+    "role": "limited",
+    "text": "매출과 실적은 비만·당뇨 치료제 수요가 결정하며, AI는 본업의 직접 동인이 아니다. 신약 개발·제조에 AI를 쓰는지는 이번 조사 범위의 자료에서 정량 근거를 찾지 못했다.",
+    "evidence": "조사한 실적 발표·10-K 발췌에서 AI 관련 매출·투자 수치 확인 못함.",
+    "src": ["s1", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "850억~870억 달러 (직전 820억~850억, 최초 2026-02 800억~830억)", "givenOn": "2026-08-05", "src": ["s2", "s1"] },
+      { "period": "FY2026", "metric": "non-GAAP performance margin", "value": "49.0%~50.5% (직전 47.0%~48.5%)", "givenOn": "2026-08-05", "src": ["s2"] },
+      { "period": "FY2026", "metric": "non-GAAP EPS", "value": "35.50~36.50달러 (기초 사업 +2.78달러 상향을 Q2 IPR&D 3.03달러가 상쇄)", "givenOn": "2026-08-05", "src": ["s2"] },
+      { "period": "FY2026", "metric": "non-GAAP tax rate", "value": "18%~19%", "givenOn": "2026-08-05", "src": ["s2"] }
+    ],
+    "style": "annual",
+    "text": "연초에 연간 매출·마진·EPS 범위를 주고 분기마다 고친다. 2026년에는 매출 가이던스를 두 번 올렸다(800~830억 → 820~850억 → 850~870억 달러). EPS는 인수 IPR&D를 사후에 반영하므로 매출만큼 깨끗하게 올라가지 않는다.",
+    "src": ["s1", "s2"]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06 분기) 합계 35.94달러(범위 35.30~37.04), 직전 4개 분기 실적 합 31.49달러. 최근 4주 상향 1건·하향 4건. Q2 2026은 실적 8.38달러로 추정 6.01달러를 크게 넘었다. 2026-10-06 Hudson Labs 집계로 Q3 2026 매출 컨센서스 223.6억 달러, FY2026 매출 컨센서스 885억 달러로 회사 가이던스 상단(870억)보다 높다.",
+    "src": ["s7", "s5"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "Mounjaro·Zepbound 분기 매출과 미국/해외 분해", "why": "매출의 절반 이상. 미국은 가격, 해외는 물량이 성장을 끌고 있어 둘을 나눠 봐야 한다." },
+      { "metric": "미국 물량 증가율 vs 실현가 변화", "why": "가격 하락(회사 안내 10%대 초중반)을 물량이 얼마나 넘는지가 매출 성장의 본질." },
+      { "metric": "Foundayo 처방·신규 환자 점유율", "why": "경구제가 새 환자층을 여는지, 주사제를 잠식하는지 판단 근거." },
+      { "metric": "연간 매출 가이던스 vs 컨센서스", "why": "컨센서스(885억)가 이미 가이던스 상단 위에 있어, 상향 폭이 기대에 못 미치면 실망으로 읽힌다." },
+      { "metric": "파이프라인 마일스톤 (retatrutide BLA, eloralintide)", "why": "tirzepatide 이후 성장의 연속성을 결정한다." }
+    ],
+    "valuationFrame": "대형 제약은 보통 향후 12개월 EPS 대비 주가배수(Forward P/E)로 보지만, Lilly는 비만 시장 성장을 반영해 업계 평균보다 높은 배수를 받으므로 2027~2030년 비만 매출 경로(물량 × 순가격)를 전제로 한 장기 EPS 성장률과 함께 본다. 인수 IPR&D가 GAAP·non-GAAP EPS를 흔들어 일회성 조정에 주의한다.",
+    "thesisChecks": ["매 분기 매출 가이던스 상향이 이어지는가", "미국 가격 하락이 회사 안내 범위 안에 머물고 물량이 이를 넘는가", "Foundayo 램프가 신규 환자 확대로 이어지는가", "retatrutide 2027년 1분기 BLA 제출이 일정대로 진행되는가", "상업보험 적용률이 개선되는가"],
+    "breakSignals": ["가격 하락폭이 회사 안내를 넘거나 물량 성장 둔화", "가이던스 상향 중단 또는 하향", "정부 약가 규제 강화 또는 메디케어 적용 후퇴", "경쟁 비만약의 가격 인하·효능 우위 데이터", "생산 차질이나 대형 인수의 IPR&D 비용 반복"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-10-29", "event": "Q3 2026 실적 발표 (Foundayo 첫 완전 분기, 가이던스 수정 여부)", "src": ["s6"] },
+      { "date": "2027 Q1", "event": "retatrutide 미국 BLA 제출", "src": ["s2"] },
+      { "date": "2027", "event": "Foundayo 해외 주요 시장 출시 (UAE·사우디·멕시코 선출시)", "src": ["s5"] },
+      { "date": "수시", "event": "AtaiBeckley 인수 종결 등 인수에 따른 IPR&D 비용 인식", "src": ["s2"] }
+    ],
+    "eventReaction": "주가는 분기 EPS보다 Mounjaro·Zepbound 매출이 기대를 넘는지와 연간 매출 가이던스 상향 폭에 반응하는 경향이 있다. 이번에는 컨센서스가 가이던스 상단을 이미 넘어 있어, 상향 폭과 Foundayo 초기 수치가 관전 포인트다.",
+    "watchConditions": ["실적 발표 때 연간 매출 가이던스와 컨센서스(약 885억 달러)의 차이", "미국 실현가 변화율과 물량 증가율", "Foundayo 분기 매출과 경영진의 처방 점유율 언급", "컨센서스 EPS 상향·하향 건수 추이 (최근 4주 하향 우세)", "약가·메디케어 관련 정책 발표", "인수 발표 시 IPR&D 비용 규모"],
+    "src": ["s2", "s5", "s7", "s6"]
+  },
+  "unverified": [
+    "FY2025 Taltz, Kisunla, Ebglyss, Jaypirca 등 개별 제품 연간 매출 (회사 원표 접근 실패, 기타로 합산)",
+    "Trulicity·Jardiance·Humalog 수치는 회사 원표가 아닌 Close Concerns 표",
+    "3대 도매상 각각의 매출 비중",
+    "Lilly Endowment 지분율과 내부자 지분",
+    "Foundayo FDA 승인 날짜 (S&P 검색 요약은 2026년 4월이라 하나 원문 미확인)",
+    "Q3 2026 실적일 2026-10-29는 S&P 검색 요약 기준, 회사 공지 직접 확인 못함",
+    "AI 활용 관련 정량 근거",
+    "반복 매출 비중 (해당 개념 없음)"
+  ],
+  "confidence": "medium-high - 총매출·주력 제품·가이던스는 회사 보도자료와 10-K에서 왔다. 일부 제품 수치와 실적일은 2차 출처다."
+}

@@ -1,0 +1,129 @@
+{
+ "schemaVersion": "aio-review-eval-run.v1",
+ "date": "2026-10-28",
+ "reviewer": {
+  "profile": ".claude/agents/code-reviewer.md (architecture/agent-profiles.json)",
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "grouping": "4 reviewers, 3-4 shuffled opaque packets each"
+ },
+ "review_md_sha256": "0ed09f666a78a54a2a75bb7913d0e2c2d697cc640d4a45ad180ad22b4b2989a1",
+ "blindness": "fresh repo per case with only base+head (depth 1, no refs, random dir name); packets numbered, map kept outside the reviewers folder",
+ "score": {
+  "bug_cases": 10,
+  "hits": [
+   "rev-P2105",
+   "rev-P2091"
+  ],
+  "clean_cases": 3,
+  "findings_on_clean": 0
+ },
+ "findings": {
+  "rev-P2111": [
+   {
+    "file": "src/domain/news/earnings-context.js",
+    "line": 30,
+    "tag": "Important",
+    "claim": "A company is matched to a headline by the first 4+ letter word of its name (Bank, United, American, General, Advanced), and nothing checks that the headline is about earnings. So 'Regional bank stocks slide' while BAC reports, or 'United States retail sales beat' while UAL reports, gets another company's EPS/revenue line attached on the home news feed (reproduced with node)."
+   },
+   {
+    "file": "js/aio-data.js",
+    "line": 11402,
+    "tag": "Important",
+    "claim": "The score cascade stops once minCount raw rows clear the threshold, but maxPerTopic=1 is applied only afterwards (line 11438). When 4 or more items scoring 90+ share one topic, the cascade stops at 90, the topic cap cuts them to 1, and home shows a single headline again, which is the exact failure P1380 claims to fix."
+   },
+   {
+    "file": "js/aio-data.js",
+    "line": 15685,
+    "tag": "Pre-existing",
+    "claim": "The legacy home gauge maps a null tradingScore to the else branch, '위험 · 방어' plus the extreme-weakness note (null <= 25 is true). computeTradingScore can already return total:null; this change adds two more null paths in place of 50."
+   }
+  ],
+  "rev-P2053": [
+   {
+    "file": "src/ui/components/portfolio-read.js",
+    "line": 55,
+    "tag": "Important",
+    "claim": "The E02 edit put the comment before the return statement, so '// E02: ... return { ret3m: SPY ... }' is now commented out and the if-body is the following 'return bench'. US holdings are never measured against SPY's adjusted (dividends-included) return; they always get the price-index benchmark, which misstates excess return and the attribution against the dividend-adjusted stock returns."
+   },
+   {
+    "file": "scripts/fetch-data.mjs",
+    "line": 4666,
+    "tag": "Important",
+    "claim": "updateHistory moved ahead of the line that sets data.meta.marketSnapshotRevision (4693). In a cycle where the snapshot is not published (marketSnapshotForConsumers null, retainedRevision only), the history row's marketSnapshotRevision becomes null instead of the retained revision, and ci-history-field-time-contract-check (latest row requires marketSnapshotRevision) fails the data commit."
+   }
+  ],
+  "rev-P2092": [
+   {
+    "file": "src/ui/components/home-kpi-trend.js",
+    "line": 72,
+    "tag": "Important",
+    "claim": "The '지금 시세' chip time is the maximum observedAt across all of window._liveData (BTC-USD, KR stocks, watchlist symbols), not across the tiles under it. When any other symbol has refreshed but ES=F/NQ=F/^TNX/CL=F are stale or failed, the chip shows a fresh 'MM/DD HH:MM 관측' time beside stale values."
+   },
+   {
+    "file": "src/ui/pages/themes.js",
+    "line": 1011,
+    "tag": "Important",
+    "claim": "dirColor defaults to 1-digit rounding, but these values print with 2 digits (here and at 652 in 1d/1w mode, 1213, 1448). A move such as +0.04% is printed signed yet drawn uncoloured, which breaks the change's own rule that the colour follows the printed sign (createChip passes 2 correctly)."
+   }
+  ],
+  "rev-P2109": [
+   {
+    "file": "scripts/lib/market-analysis-validate.mjs",
+    "line": 767,
+    "tag": "Important",
+    "claim": "noLeadIssues arms on any REGIME_CONTEXT containing '보기 이릅니다', but renderScenarioOutlookContext always includes every scenario's caution text, and the expansion caution reads '...확산이라고 보기 이릅니다.' (src/domain/market/scenario-outlook.js:101). So even when a lead flow qualifies, a reading that names it without words like 이르/정하지 않 is rejected as 'no-lead-overstated', and the retry help tells the model to say no flow or scenario qualifies yet. The AI then states a false verdict, or a valid reading is dropped. The fixture's synthetic context '중심 흐름: 고른 상승' has no caution text, so the gate does not catch this."
+   }
+  ],
+  "rev-clean-d8243d06": [],
+  "rev-P2105": [
+   {
+    "file": "src/app/chat-loader.js",
+    "line": 24,
+    "tag": "Important",
+    "claim": "A question asked before js/aio-chat.js loads is silently lost. Callers (src/ui/panels/ask-panel.js:11-15, js/aio-workspace.js:1437-1446, js/aio-core.js:4076-4084) fill #ai-panel-inp and then call the stubbed toggleAIPanel/updateAIPanelContext/chatSendUnified. The replay runs toggleAIPanel first, which calls updateAIPanelContext; because _aiCurrentCtx is still null the context counts as changed, so it clears aiInp.value. chatSendUnified then reads an empty input and returns. Before this change, toggle ran synchronously before the input was filled. This affects home and theme ask chips and the portfolio AI actions during the window between first paint and the idle load."
+   }
+  ],
+  "rev-clean-f6b79438": [],
+  "rev-P2091": [
+   {
+    "file": "src/domain/portfolio/portfolio-read.js",
+    "line": 32,
+    "tag": "Important",
+    "claim": "rrgRecentReading (src/domain/themes/recent-check.js:200) now starts its clause with ', ' instead of ' · ', but rotationQuadrant still strips only the ' · ' prefix (lines 31-32). A held portfolio row in a reversal or near-line quadrant then reads \"'선도' 사분면이지만 , 최근 5거래일 상대강도 ...\" or \"...사이)이고 , 최근 5거래일...\" in the portfolio held-note."
+   },
+   {
+    "file": "src/app/bootstrap.js",
+    "line": 257,
+    "tag": "Important",
+    "claim": "The quote-status producers (src/domain/market/quote-currentness.js:47-48, js/aio-core.js:3248) now append ', 시세 N종', but _aioWithKrClose still matches only the ' · 시세 N종' suffix. After a KRX close, the top bar puts the Korean close label after the count ('10/23 마감, 시세 12종 · 한국 10/24 마감') instead of before it, and mixes the two separators."
+   }
+  ],
+  "rev-P2045": [
+   {
+    "file": "src/ai/policy/conduct.js",
+    "line": 57,
+    "tag": "Important",
+    "claim": "DEFENSIVE (line 19: 탐지|적발|감시|피하려면|'왜 ' ...) is checked before EXECUTION and overrides it. Any evasion request that names the thing it wants to avoid now passes as EDUCATIONAL instead of PROHIBITED_INSTRUCTION, for example '감시를 피하려면 선행매매를 어떻게 숨기나요', '탐지 안 되게 시세조종하는 법 단계별로 알려줘' and '적발 피하려면 허위루머 퍼뜨리는 방법'. All of these were blocked at the base commit, and no conductCases row in ci-ai-intelligence-contract-check covers evasion."
+   }
+  ],
+  "rev-P2104": [
+   {
+    "file": "worker/data-plane.js",
+    "line": 60,
+    "tag": "Important",
+    "claim": "dispatchRefreshData passes redirect: 'error' to fetch for both the runs lookup (line 60) and the dispatch POST (line 71); Cloudflare Workers reject redirect:'error' with a TypeError (the repo's own P1433 note in cloudflare-worker-proxy.js:566), so on the deployed data-plane every 20/50-minute slot ends in requestJson's catch with status 0 -> reason 'workflow-observation-failed' and refresh-data is never dispatched; ci-data-plane-contract-check passes only because it injects a Node fetchImpl"
+   }
+  ],
+  "rev-P2106": [],
+  "rev-P2047": [
+   {
+    "file": "js/aio-chat.js",
+    "line": 555,
+    "tag": "Important",
+    "claim": "the new pricedImperative pattern (P2037) only matches integer prices: the sentence splitter at line 569 cuts on every '.', so an AI answer such as '손절은 177.50달러에서 하세요.' or '목표가는 $212.5로 설정하세요.' is split into '손절은 177.' + '50달러에서 하세요.' and neither part matches, so the priced trade instruction reaches the screen untouched (verified by running _aioApplyAIActionGate: the 178달러 form is replaced, the 177.50달러 form is not)"
+   }
+  ],
+  "rev-clean-94ccd17f": []
+ }
+}

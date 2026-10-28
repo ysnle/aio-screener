@@ -20,7 +20,7 @@ const versionNum = version.replace(/^v/, '');
 const html = read('index.html');
 const visibleHtml = html.replace(/<!--[\s\S]*?-->/g, '');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js') + String.fromCharCode(10) + read('src/data/quality/validation-stores.js') + String.fromCharCode(10) + read('src/data/quality/api-health.js') + String.fromCharCode(10) + read('src/app/score-entry-points.js')) /* P1329: audits live in the QA bundle; v59.17/v59.18: the validation stores and API health state moved to src; v59.41: the score entry points */;
-const data = read('js/aio-data.js') + String.fromCharCode(10) + read('src/data/providers/proxy-transport.js') /* v59.22: the relay transport moved to src */ + String.fromCharCode(10) + read('src/storage/news-cache.js') /* v59.31: the IndexedDB news cache moved to src */ + String.fromCharCode(10) + read('src/app/refresh-scheduler.js') /* v59.33: the refresh scheduler moved to src */ + String.fromCharCode(10) + read('src/data/server-data-loader.js') /* v59.34: the server data loader moved to src */ + String.fromCharCode(10) + read('src/data/public-readiness.js') /* v59.35: the public readiness model moved to src */ + String.fromCharCode(10) + read('src/app/boot-sequence.js') /* v59.36: the boot sequence moved to src */;
+const data = read('js/aio-data.js') + String.fromCharCode(10) + read('src/data/providers/proxy-transport.js') /* v59.22: the relay transport moved to src */ + String.fromCharCode(10) + read('src/storage/news-cache.js') /* v59.31: the IndexedDB news cache moved to src */ + String.fromCharCode(10) + read('src/app/refresh-scheduler.js') /* v59.33: the refresh scheduler moved to src */ + String.fromCharCode(10) + read('src/data/server-data-loader.js') /* v59.34: the server data loader moved to src */ + String.fromCharCode(10) + read('src/data/public-readiness.js') /* v59.35: the public readiness model moved to src */ + String.fromCharCode(10) + read('src/app/boot-sequence.js') /* v59.36: the boot sequence moved to src */ + String.fromCharCode(10) + read('src/domain/news/selection.js') + String.fromCharCode(10) + read('src/domain/news/selection-keywords.js') /* v59.42: news scoring, keywords and selection moved to src */;
 const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js') + '\n' + read('src/data/providers/shared-ai-transport.js') + '\n' + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
@@ -230,7 +230,7 @@ check('P1753 P1538 retired ticker deep analysis stays gone and issues no entry v
 // P1212/E2 LC-41: the legacy factor-backtest canvas promoted null/undefined IC, spread, hit-rate and
 // sample count to 0 (`bt.quantileSpread || 0`, `ic[key] || 0`), so an empty backtest rendered as
 // measured zeros beside `n=0`. Missing stays missing.
-check('LC-41/P1212 legacy factor-backtest does not promote missing values to zero', /function\s+_factorBacktest/.test(ui) && /var num = function\s*\(v\)/.test(ui) && /계산 불가, 표본 없음/.test(ui) && !/bt\.quantileSpread \|\| 0/.test(ui));
+check('LC-41/P1212 (v59.42: the sinkless legacy factor-backtest diagram is deleted) missing backtest values are never promoted to zero', !/function\s+_factorBacktest/.test(ui) && !/bt\.quantileSpread \|\| 0/.test(ui));
 // P1214/E2 LC-26: the mode is one declared revision shared by the legacy toggle, the native reader
 // and the facade — and the copy must not promise a per-mode threshold the model does not produce.
 check('P1753 E2/LC-26/P1214 signal mode has one writer and the retired pill writers stay gone', /bridge\.set\(/.test(data) && /aio:signalScoreModeChanged/.test(data) && !/임계값 65점/.test(data) && !/getElementById\('sig-(?:sw-btn|dy-btn|mode-desc)'\)/.test(data));
@@ -1048,9 +1048,9 @@ check('WO-4: viewport matrix collects real pageerror/console.error signal per ro
 check('WO-4: viewport matrix\'s console.error allowlist only excludes verified-expected noise (the offline-test-harness net::ERR_FAILED side effect and the app\'s own intentional API-health warn→error escalation log), not a blanket suppression', /net::ERR_FAILED/.test(viewportScript) && /warn\\s\*→\\s\*error/.test(viewportScript));
 check('WO-4: zeroCanvases detection actually queries and filters real <canvas> elements instead of the previous always-empty declared-but-unpopulated array', /querySelectorAll\('canvas'\)/.test(viewportScript) && /clientWidth === 0 \|\| cv\.clientHeight === 0/.test(viewportScript));
 check('WO-4: a small-text policy is adopted and enforced (8px-and-below fails the gate; 9px stays observation-only pending a dedicated remediation pass, per the static scan showing ~34 pre-existing 9px instances vs ~0-1 at 7-8px)', /tinyTextCriticalCount/.test(viewportScript) && /html text at\/below 8px/.test(viewportScript));
-check('WO-4: js/aio-ui.js _pricePosition() label/value SVG text baselines are spaced enough to not collide (F-01 fix — was 10px apart at 10px font, now 14px)', /slY \+ 35/.test(ui) && /slY \+ 21/.test(ui));
+check('WO-4 (v59.42): the sinkless price-position diagram whose label baselines F-01 spaced is deleted', !/function _pricePosition\(/.test(ui));
 check('H2-02: FULL_INIT route matrix has route-specific settle predicates, semantic theme-detail proof, and unhandled rejection capture', /async function settleRoute/.test(viewportScript) && /routeSemanticReady/.test(viewportScript) && /__AIO_UNHANDLED_REJECTIONS__/.test(viewportScript) && /unhandledRejectionCount/.test(viewportScript));
-check('H2-03: price-position markers clamp both SVG edges and have a browser fixture regression', /Math\.max\(0, Math\.min\(\(\(v - lo\) \/ range\) \* 366, 366\)\)/.test(ui) && /T921 price_position_svg_marker_fixture/.test(tests));
+check('H2-03 (v59.42): the price-position diagram is deleted and the browser suite pins that only the factor radar remains', !/function _pricePosition\(/.test(ui) && /T921 v59\.42 the diagram engine keeps only the factor radar/.test(tests));
 
 // v52.5x (P669/WO-8): documentation currency check — CODE-MAP.md's file-size table/target_version
 // drifting silently against actual code was exactly the kind of "operational fact vs. doc drift"
@@ -1106,8 +1106,8 @@ check('P1756 H3-F: the deferred Chart requests the primary on first use, the sec
     const outside = [...new Set(themes.flatMap((theme) => theme.leaders || []))].filter((symbol) => !universe.has(symbol));
     if (outside.length) console.log(`::warning::P1588 theme members without published returns (not ranked): ${outside.join(',')}`);
   }
-}check('P1568: put/call ratios are never derived from the total ratio when the equity/index ratio is missing',
-  /async function fetchPutCallRatios\(\)/.test(data) && !/total\s*\*\s*0\.72|total\s*\*\s*1\.18/.test(data) && /if \(!isFinite\(equity\)\) equity = null;/.test(data));
+}check('P1568 (v59.42: the uncalled option-sentiment chain is deleted): put/call ratios are never derived from the total ratio',
+  !/async function fetchPutCallRatios\(\)|async function fetchOptionSentiment\(\)/.test(data) && !/total\s*\*\s*0\.72|total\s*\*\s*1\.18/.test(data));
 check('P1569 P1756: Chart secondary and lightweight-charts loaders pin Subresource Integrity like the primary',
   /var CHART_SECONDARY = \{ src: 'https:\/\/cdnjs\.cloudflare\.com\/[^']+chart\.umd\.min\.js', integrity: 'sha384-[A-Za-z0-9+/=]{64}' \};/.test(html)
     && /var LWC_SOURCE = \{ src: 'https:\/\/unpkg\.com\/lightweight-charts@4\.2\.0\/[^']+', integrity: 'sha384-[A-Za-z0-9+/=]{64}' \};/.test(html)
@@ -1275,7 +1275,8 @@ const screenerBreadthFailsClosed = readScreenerBreadth(breadthFixture({})).us?.s
   && readScreenerBreadth(breadthFixture({ coveragePct: 84 })).us === null
   && readScreenerBreadth(breadthFixture({ observedAt: new Date(Date.now() - 97 * 3600000).toISOString() })).us === null;
 check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && screenerBreadthFailsClosed && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
-check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
+check('v59.42 the service-worker version reply (runs while the module graph may still be loading) calls the src-installed updateDataStatus only after checking it exists', (() => { const sw = (data.match(/function _querySWVersion\(\)[\s\S]*?\n\}/) || [''])[0]; return /typeof window\.updateDataStatus === 'function'\) window\.updateDataStatus\(\)/.test(sw) && !/[^.]\bupdateDataStatus\(\);/.test(sw.replace(/typeof window\.updateDataStatus[^\n]*/, '')); })());
+check('LIVE3-04 v59.42: no Yahoo quote is written into an official FRED slot (the _syncYahooToFred bridge is retired)', !/function _syncYahooToFred|_syncYahooToFred\(\);|_YAHOO_FRED_MAP\s*=|'yahoo-realtime:'|'yahoo-calc:\^TNX/.test(data + core));
 check('LIVE3-05: MOVE/SKEW regimes require live observations, missing values render unavailable, and SKEW has one native read model', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core) && !/sent-skew-value/.test(html) /* P1396: the sourceless SKEW card and its page read model were retired */ && !/_bridge\('\^SKEW'/.test(ui));
 check('LIVE3-06 v57.60: late breadth producer refreshes signal and home consumers atomically; the retired updateBreadthBars DOM writer stays gone', !/updateBreadthBars/.test(data + ui + core + pagesSource) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
 // P1670: the briefing index sub-card left with _aioRenderBriefingMarketAnalysis; keep the guard that no

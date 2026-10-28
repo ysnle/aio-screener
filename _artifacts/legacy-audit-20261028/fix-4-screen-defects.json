@@ -1,0 +1,18 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-28",
+  "p": {
+    "title": "레거시 화면 결함 3건: 한국 테마 시총 칸이 늘 '—', 예전 포트폴리오 표의 손실 부호 누락, Ctrl/Cmd+R 새로고침 가로채기",
+    "symptom": "(1) 한국 테마 상세 표의 '시총' 칸이 항상 '—'였다. (2) 예전 포트폴리오 표(native 표가 없을 때의 대체 표)는 손실 금액을 부호 없이 Math.abs로 보여줬고, 일간 등락이 없으면 0으로 쳐서 가격을 상승색으로 칠했다. (3) R 단축키가 Ctrl/Cmd를 확인하지 않아 Ctrl+R을 누르면 페이지 새로고침 대신 시세만 다시 받았다. 레거시 감사 9위와 leave 표의 셸 항목.",
+    "root_cause": "(1) _enrichMarketCap이 KR_STOCK_DB를 배열처럼 length로 돌았지만 KR_STOCK_DB는 코드로 키를 단 객체라 한 번도 쓰지 않았다. 네이버 응답의 시총 단위도 확인된 적이 없다. (2) pnlSign이 손실이면 ''이고 금액 칸은 Math.abs를 써서 부호가 사라졌다. dailyPct는 값이 없을 때 0으로 대체됐다. (3) 키 처리기가 숫자 단축키와 달리 수정 키를 확인하지 않았다.",
+    "fix": "(1) _enrichMarketCap, src/data/providers/naver-kr.js의 호출, 원천 없는 '시총' 열을 지웠다. 시총은 원천과 단위를 확인한 뒤에만 다시 넣는다. (2) 손실은 '-'를 붙이고, 비율 칸은 숫자 자체의 부호를 쓰며, 일간 등락이 없으면 가격은 중립색이다. (3) R은 Ctrl/Cmd/Alt가 없을 때만 시세 새로고침이다.",
+    "violated_rule": "AGENTS: 원천 없는 위젯 제거, 근거 없는 대체값 금지.",
+    "prevention": "새 실행 게이트는 없다. 결함마다 코드 주석(v59.42)으로 이유를 남겼고, 레거시 감사 보고서가 같은 클래스(숫자 대체값, 규칙 두 개)의 남은 위치를 나열한다.",
+    "verification": "node --check js/aio-kr-data.js js/aio-workspace.js js/aio-ui.js src/data/providers/naver-kr.js. 화면 확인은 브라우저 QA에서 한다."
+  },
+  "r": null,
+  "changelog": [
+    "**레거시 화면 결함 3건 ({P}):** 늘 '—'이던 한국 테마 시총 칸을 없앴고, 예전 포트폴리오 표가 손실에 '-'를 붙이며 등락이 없으면 중립색을 쓰게 했다. Ctrl/Cmd+R은 다시 브라우저 새로고침이다."
+  ],
+  "note": "v59.42 {P}: KR market-cap column, legacy portfolio loss sign, Ctrl+R."
+}

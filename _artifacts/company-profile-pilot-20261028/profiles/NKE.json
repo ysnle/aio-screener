@@ -1,0 +1,444 @@
+{
+  "symbol": "NKE",
+  "name": "NIKE, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "May 31 (FY2026 ended 2026-05-31)",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "NIKE, Inc. Reports Fiscal 2026 Fourth Quarter and Full Year Results",
+      "url": "https://about.nike.com/newsroom/releases/nike-inc-reports-fiscal-2026-fourth-quarter-and-full-year-results",
+      "publisher": "NIKE",
+      "date": "2026-06-30"
+    },
+    {
+      "id": "s2",
+      "kind": "10-K",
+      "title": "NIKE Form 10-K for fiscal year ended 2026-05-31 (first 100k characters read)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000320187/000032018726000088/nke-20260531.htm",
+      "publisher": "NIKE / SEC EDGAR",
+      "date": "2026-07-15"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "NIKE Form ARS FY2026 - revenue by geography table (seen via search snippet; filing day not checked)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000320187/000130817926000376/nke015577-ars.pdf",
+      "publisher": "NIKE / SEC EDGAR",
+      "date": "2026-07"
+    },
+    {
+      "id": "s4",
+      "kind": "earnings-release",
+      "title": "NIKE, Inc. Reports Fiscal 2027 First Quarter Results (search snippet of company release)",
+      "url": "https://about.nike.com/newsroom/releases/nike-inc-reports-fiscal-2027-first-quarter-results",
+      "publisher": "NIKE",
+      "date": "2026-10-01"
+    },
+    {
+      "id": "s5",
+      "kind": "call-transcript",
+      "title": "Nike (NKE) Q1 2027 Earnings Call Transcript",
+      "url": "https://www.webull.com/news/15677874570593280",
+      "publisher": "Webull",
+      "date": "2026-10-01"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "Nike beats Q1 profit estimates but sees fiscal 2027 revenue falling high single digits",
+      "url": "https://investinglive.com/stocks/nike-beats-q1-profit-estimates-but-sees-fiscal-2027-revenue-falling-high-single-digits/",
+      "publisher": "investingLive",
+      "date": "2026-10-01"
+    },
+    {
+      "id": "s7",
+      "kind": "news",
+      "title": "Nike kaempft mit China-Schwaeche und tiefem Aktienkurs (Investor Day 2026-11-16/17; accessed date)",
+      "url": "https://ms-aktuell.de/?p=156159",
+      "publisher": "ms-aktuell",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s8",
+      "kind": "news",
+      "title": "Nike co-founder Knight will step down as chairman (Swoosh LLC Class A control)",
+      "url": "https://lasvegassun.com/news/2015/jun/30/nike-co-founder-knight-will-step-down-chairman/",
+      "publisher": "Las Vegas Sun (AP)",
+      "date": "2015-06-30"
+    },
+    {
+      "id": "s9",
+      "kind": "proxy",
+      "title": "NIKE DEF 14A 2022 (Swoosh, LLC holds 233,500,000 Class A shares; filing day not checked)",
+      "url": "https://www.sec.gov/Archives/edgar/data/320187/000032018722000041/nike2022proxy.htm",
+      "publisher": "NIKE / SEC EDGAR",
+      "date": "2022"
+    },
+    {
+      "id": "s10",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/nke/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s11",
+      "kind": "news",
+      "title": "Nike Stock Falls After Hours as It Guides to a Revenue Decline (headline seen via search)",
+      "url": "https://www.asktraders.com/?p=255354",
+      "publisher": "AskTraders",
+      "date": "2026-10-01"
+    }
+  ],
+  "overview": {
+    "text": "Nike는 운동화·의류·용품을 NIKE·Jordan·Converse 브랜드로 설계·마케팅하고, 생산은 외부 위탁공장에 맡겨 도매(리테일러)와 직판(매장·디지털)으로 판다. FY2026 매출 464억 달러는 전년과 같았고(환율 제외 -2%), 순이익은 31억 달러(-3%)로 턴어라운드 초기 단계다. 이익은 브랜드 가격 결정력과 총마진(FY2026 42.9%)에서 나온다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "businessModel": {
+    "text": "공장을 갖지 않는 브랜드 회사로, 수요 창출(광고·스폰서십, FY2026 48억 달러)에 돈을 쓰고 위탁생산 제품을 판다. 이전 경영진의 직판 집중 전략 이후, 현 경영진은 도매 관계를 복원하고(FY2026 도매 +6%, 직판 -6%) 러닝 등 스포츠 중심 'Sport Offense' 전략으로 돌아섰다. 2026-10에는 운영모델 개편 'Pace'를 발표해 누적 약 25억 달러 비용 절감(대부분 FY29~FY30)을 목표로 한다.",
+    "src": [
+      "s1",
+      "s4",
+      "s5"
+    ]
+  },
+  "revenueStructure": {
+    "period": "FY2026 (ended 2026-05-31)",
+    "segments": [
+      {
+        "name": "North America (NIKE Brand)",
+        "revenue": 20.511,
+        "unit": "USD bn",
+        "share": 44.2,
+        "yoy": 5,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Europe, Middle East & Africa (NIKE Brand)",
+        "revenue": 12.572,
+        "unit": "USD bn",
+        "share": 27.1,
+        "yoy": 3,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Greater China (NIKE Brand)",
+        "revenue": 5.847,
+        "unit": "USD bn",
+        "share": 12.6,
+        "yoy": -11,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Asia Pacific & Latin America (NIKE Brand)",
+        "revenue": 6.243,
+        "unit": "USD bn",
+        "share": 13.5,
+        "yoy": 0,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Converse",
+        "revenue": 1.174,
+        "unit": "USD bn",
+        "share": 2.5,
+        "yoy": -31,
+        "src": [
+          "s3",
+          "s1"
+        ]
+      },
+      {
+        "name": "Global Brand Divisions + Corporate (총매출에서 뺀 계산값)",
+        "revenue": 0.051,
+        "unit": "USD bn",
+        "share": 0.1,
+        "yoy": null,
+        "src": [
+          "s3",
+          "s2"
+        ]
+      }
+    ],
+    "recurringShare": null,
+    "geography": "북미가 NIKE Brand 매출의 약 45%로 유일한 성장 지역(+5%)이고, 중화권은 -11%(환율 제외 -13%)로 가장 약했다. EMEA는 보고 기준 +3%지만 환율 제외 -3%였다.",
+    "text": "share는 FY2026 총매출 463.98억 달러(SEC 공시) 대비 계산값이고, 지역 금액은 ARS 표의 검색 발췌 기준이다. 채널로 보면 도매 275억(+6%), NIKE Direct 177억 달러(-6%, 디지털 -12%)로 도매 비중이 다시 커졌다. 최근 분기(Q1 FY2027) 매출은 112억 달러(-4%), 중화권 11.8억 달러(환율 제외 -26%)로 하락이 깊어졌다.",
+    "src": [
+      "s3",
+      "s1",
+      "s2",
+      "s4",
+      "s5"
+    ]
+  },
+  "productPortfolio": [
+    {
+      "name": "NIKE Brand 신발",
+      "role": "매출의 최대 품목 (품목별 금액은 확인 못함). 러닝이 연속 두 자릿수 성장, Vomero 등 맥스쿠션 점유율 1년 새 약 3배",
+      "src": [
+        "s5"
+      ]
+    },
+    {
+      "name": "NIKE Brand 의류·용품",
+      "role": "신발과 함께 팔리는 의류·장비. 축구·농구가 북미 성장 기여",
+      "src": [
+        "s5"
+      ]
+    },
+    {
+      "name": "Jordan Brand",
+      "role": "회사가 '더 손봐야 할 사업'으로 지목하고 재정비 중",
+      "src": [
+        "s4"
+      ]
+    },
+    {
+      "name": "NIKE Sportswear (라이프스타일)",
+      "role": "재정비 대상. 과거 성장 축이었으나 클래식 프랜차이즈 정리 중",
+      "src": [
+        "s4"
+      ]
+    },
+    {
+      "name": "Converse",
+      "role": "FY2026 11.7억 달러(-31%), Q1 FY2027도 환율 제외 -28%로 전 지역 하락",
+      "src": [
+        "s3",
+        "s5"
+      ]
+    }
+  ],
+  "valueChain": {
+    "position": "downstream",
+    "suppliers": [
+      "신발 위탁생산 15곳 (베트남 약 52%, 인도네시아 27%, 중국 16%; 상위 4곳이 약 60%)",
+      "의류 위탁생산 64곳 (베트남 34%, 캄보디아 15%, 중국 12%)"
+    ],
+    "customers": [
+      "도매 리테일러 (스포츠용품점·백화점 등)",
+      "NIKE Direct (자사 매장·디지털 앱)"
+    ],
+    "concentration": "FY2026 10% 이상 단일 고객 없음. 미국 상위 3개 고객이 미국 매출의 약 29%, 미국 외 상위 3개 고객이 미국 외 매출의 약 16%.",
+    "text": "Nike는 디자인·브랜드·유통을 쥐고 생산은 동남아 위탁공장에 의존한다. 그래서 관세·환율·물류비가 총마진을 직접 흔든다(Q4 FY2026 총마진 49.2%에는 IEEPA 관세 환급 예상분 약 900bp가 포함).",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "demandSupply": {
+    "demandDrivers": [
+      "러닝·축구·농구 등 퍼포먼스 신제품 사이클",
+      "도매 파트너 재고 확보(sell-in)와 소비자 판매(sell-through)",
+      "중화권 소비와 디지털 채널 정리",
+      "프로모션·할인 축소 여부"
+    ],
+    "supplyConstraints": [
+      "베트남·인도네시아 등 소수 국가 위탁생산 집중과 관세",
+      "재고 수준 (Q1 FY2027 78억 달러, -3%)",
+      "클래식 프랜차이즈 정리에 따른 시장 재설정(marketplace reset)"
+    ],
+    "text": "공급보다 수요가 문제인 국면이다: CFO가 판매(sell-through)가 어렵고 환경이 더 어려워졌다고 했고, 중화권은 여러 시즌에 걸친 재설정이 필요하다고 했다. 회사는 재고를 관리하며 할인과 시장 재설정을 감수하는 중이다.",
+    "src": [
+      "s1",
+      "s5",
+      "s2"
+    ]
+  },
+  "competition": {
+    "peers": [
+      "ADDYY",
+      "DECK",
+      "ONON",
+      "LULU",
+      "UAA",
+      "VFC"
+    ],
+    "moat": "세계 최대 스포츠 브랜드 인지도, 선수·리그 스폰서십과 연 48억 달러 수요 창출 예산, 광범위한 도매 유통망. 다만 매출 정체로 해자가 약해졌다는 의심을 받는 국면이다.",
+    "threats": "10-K가 adidas, Anta, ASICS, Deckers(HOKA), Li Ning, lululemon, New Balance, On, Puma, Under Armour, V.F.를 경쟁사로 명시한다. 러닝 신흥 브랜드(On·HOKA)와 중국 현지 브랜드(Anta·Li Ning)의 점유율 확대가 핵심 위협이다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "governance": {
+    "ceo": "Elliott Hill, since 2024 (사장 겸 CEO)",
+    "control": "dual-class: 비상장 Class A(약 2.81억 주)가 이사회 4분의 3을 선출하며, 대부분을 창업자 측 Swoosh, LLC가 보유",
+    "insiderOwnership": "Swoosh, LLC가 Class A 2.335억 주 보유(2022 위임장 기준). 2026 위임장은 확인 못함. 2026-07-08 기준 Class A 약 2.814억 주, Class B 약 12.0억 주(10-K).",
+    "capitalReturn": "FY2026 배당 24억 달러(+5%), 자사주 1.23억 달러(180만 주)로 매입은 사실상 중단 수준(4년 180억 달러 프로그램). Q1 FY2027 배당 약 6.1억 달러, 경영진은 배당을 자본배분의 최우선이라 언급.",
+    "notes": "직원 약 73,000명(2026-05-31). CFO는 Matthew Friend에서 Dave Denton으로 교체됐다(교체일 미확인). 2017년 이후 첫 Investor Day를 2026-11-16~17 개최 예정.",
+    "src": [
+      "s2",
+      "s8",
+      "s9",
+      "s1",
+      "s5",
+      "s7"
+    ]
+  },
+  "aiRelevance": {
+    "role": "limited",
+    "text": "실적은 제품 사이클·도매 관계·중국 소비가 결정하며, AI는 본업의 직접 동인이 아니다. 조사한 실적 콜·10-K 발췌에서 AI 관련 매출이나 투자 수치는 확인하지 못했다.",
+    "evidence": "Q1 FY2027 콜 발췌에서 AI 언급 확인 못함.",
+    "src": [
+      "s5"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2027",
+        "metric": "revenue",
+        "value": "전년 대비 high-single-digit 감소",
+        "givenOn": "2026-10-01",
+        "src": [
+          "s4",
+          "s5"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "adjusted diluted EPS",
+        "value": "1.15~1.35달러 (Pace 구조조정 비용 약 0.15달러 제외)",
+        "givenOn": "2026-10-01",
+        "src": [
+          "s4",
+          "s5"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "EBIT / SG&A",
+        "value": "EBIT는 매출보다 큰 폭 감소, SG&A는 전년 대비 감소",
+        "givenOn": "2026-10-01",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "revenue",
+        "value": "EMEA 사이버위크 할인·북미 sell-in 기저로 약 400bp 역풍 (절대 범위 미제시)",
+        "givenOn": "2026-10-01",
+        "src": [
+          "s5"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "text": "분기 실적 때 다음 분기와 연간 방향을 말로 안내하는 편이며, FY2026 4분기 발표 때는 수치 가이던스를 주지 않았다. Q1 FY2027 EPS 0.48달러는 추정(0.43달러)을 넘었지만, 연간 매출 감소 가이던스가 더 크게 읽혔다.",
+    "src": [
+      "s1",
+      "s4",
+      "s6",
+      "s10"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-11~2027-08 분기) 합계 1.25달러(범위 0.74~1.76), 직전 4개 분기 실적 합 1.56달러. 최근 4주 상향 0건·하향 20건으로 가이던스 이후 일제히 하향됐다.",
+    "src": [
+      "s10"
+    ]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      {
+        "metric": "환율 제외 매출 성장률 (지역별, 특히 북미·중화권)",
+        "why": "보고 기준은 환율로 왜곡된다. 북미 성장이 중화권 하락을 얼마나 상쇄하는지가 핵심."
+      },
+      {
+        "metric": "총마진 (관세·할인·물류 분해)",
+        "why": "관세 환급 같은 일회성 요인을 빼고 할인 축소로 마진이 회복되는지 본다."
+      },
+      {
+        "metric": "재고 증감률 vs 매출 증감률",
+        "why": "재고가 매출보다 빨리 줄면 할인 압박이 끝나간다는 신호."
+      },
+      {
+        "metric": "도매 vs NIKE Direct(디지털) 성장률",
+        "why": "도매 복원 전략의 진척과 디지털 정리 속도를 보여준다."
+      },
+      {
+        "metric": "러닝 등 퍼포먼스 카테고리 성장과 Converse·Jordan 추이",
+        "why": "턴어라운드가 신제품으로 이어지는지 확인."
+      }
+    ],
+    "valuationFrame": "브랜드 소비재는 향후 12개월 EPS 대비 주가배수(Forward P/E)와 배당수익률로 보지만, 턴어라운드 국면에서는 저점 이익이 낮아 배수가 높아 보이므로 정상화 이익(과거 마진 수준 회복 가정)으로 역산하는 방식을 함께 쓴다. Pace 절감 효과는 FY29~FY30에 집중돼 단기 이익에는 반영이 늦다.",
+    "thesisChecks": [
+      "북미 성장이 유지되는가 (Q1 FY2027 +2%)",
+      "중화권 하락폭이 회사 안내대로 진행되다 바닥을 찍는가",
+      "재고 감소와 할인 축소로 총마진이 개선되는가",
+      "Investor Day에서 제시할 중기 목표가 신뢰할 만한가",
+      "FY2027 EPS가 가이던스(1.15~1.35달러) 안에 들어오는가"
+    ],
+    "breakSignals": [
+      "연간 매출 감소 가이던스가 더 깊어짐",
+      "북미 성장 정체 또는 역성장",
+      "재고가 매출보다 빠르게 증가",
+      "관세 추가 인상이나 환급 무산에 따른 마진 훼손",
+      "배당 유지 우선 방침의 변경"
+    ]
+  },
+  "tradingUse": {
+    "catalysts": [
+      {
+        "date": "2026-11-16 ~ 2026-11-17",
+        "event": "Investor Day (2017년 이후 처음, 중기 성장·재무 계획 발표 예정)",
+        "src": [
+          "s7",
+          "s5"
+        ]
+      },
+      {
+        "date": "수시",
+        "event": "미국 관세 정책·IEEPA 관세 환급 진행",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "eventReaction": "주가는 분기 EPS 상회보다 다음 분기·연간 매출 안내에 반응해 왔다. Q1 FY2027은 EPS가 추정을 넘었지만 FY2027 매출 high-single-digit 감소 안내로 시간외 하락했다. 이번에는 Investor Day의 중기 목표가 첫 시험대다.",
+    "watchConditions": [
+      "실적 발표 때 환율 제외 지역별 매출, 특히 중화권 하락폭",
+      "총마진에서 관세·할인 효과를 뺀 기초 개선폭",
+      "재고 증감률과 매출 증감률의 차이",
+      "Investor Day 중기 매출·마진 목표와 Pace 절감 일정",
+      "컨센서스 EPS 수정 방향 (최근 4주 하향 20건)",
+      "관세 관련 정책 발표"
+    ],
+    "src": [
+      "s4",
+      "s5",
+      "s6",
+      "s10",
+      "s7",
+      "s11"
+    ]
+  },
+  "unverified": [
+    "FY2026 품목별(신발·의류·용품) 매출",
+    "지역별 매출은 ARS 표의 검색 발췌 기준 (원문 직접 열람 못함)",
+    "Global Brand Divisions·Corporate 개별 금액 (총매출에서 뺀 잔여로만 표시)",
+    "2026 위임장 기준 Swoosh 보유 주식과 의결 구조 변화",
+    "CFO 교체일",
+    "Q2 FY2027 실적 발표일 (회사 미공지)",
+    "Investor Day 날짜는 2차 출처(독일어 기사·콜 요약)이며 회사 공지 직접 확인 못함",
+    "Q1 FY2027 발표 후 주가 반응 폭",
+    "AI 관련 정량 근거"
+  ],
+  "confidence": "medium-high - 연간·분기 실적과 공급망·경쟁사는 회사 보도자료와 10-K에서 왔다. 지역별 표와 Investor Day 날짜는 검색 발췌·2차 출처 기준이다."
+}

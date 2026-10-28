@@ -3,8 +3,12 @@
 // fetchTelegramDirect (the public t.me/s/ channel page through fetchViaProxy, parsed into feed items). The names stay
 // window globals for fetchAllNews, which uses them as the Worker fallback. src/app/compatibility-globals.js installs
 // this before DOMContentLoaded.
+import { keywordMatcher, matchedKeywords } from '../../domain/news/keyword-match.js';
+import { isBlacklistedNewsText } from '../../domain/news/selection.js';
+
 export function installTelegramCollector(window = globalThis) {
   // ── 텔레그램 메시지 관련성 필터 (주식/매크로/기관 리포트 선별) ────
+  let tgExclude = null;
   function isTelegramMsgRelevant(text) {
     if (!text || text.length < 12) return false;  // v33.5: 20→12 (CJK 문자는 정보밀도 높아 18자도 완전한 문장)
     const t = text.toLowerCase();
@@ -14,14 +18,13 @@ export function installTelegramCollector(window = globalThis) {
       'giveaway','airdrop','free tokens','sign up','telegram bot','promo code','referral',
       '경품','추첨','텔레그램 봇','프로모션','레퍼럴',
       '무료 이벤트','무료 참여','무료 가입','무료 체험','무료 쿠폰','무료 배송'];
-    if (spamKW.some(kw => t.includes(kw))) return false;
     // v31.8→v34.1: 비금융 콘텐츠 강화 차단 + NEWS_BLACKLIST_KW 통합
     const tgBlackKW = ['recipe','workout','dating','celebrity','movie review','game review',
       'horoscope','astrology','meme coin','shitcoin','pump signal','buy signal guaranteed',
       '연예','아이돌','드라마','맛집','운동법','별자리','밈코인','펌핑','100배'];
-    if (tgBlackKW.some(kw => t.includes(kw))) return false;
-    // v34.1: 글로벌 블랙리스트도 적용 (지역 뉴스 등)
-    if (NEWS_BLACKLIST_KW.some(kw => t.includes(kw.toLowerCase()))) return false;
+    // P2116: English keywords match whole words ('ad ' no longer drops "lead ", 'dating' no longer drops "updating").
+    tgExclude ||= keywordMatcher([...spamKW, ...tgBlackKW]);
+    if (tgExclude(t) || isBlacklistedNewsText(t)) return false;
     // v39.0: 너무 광범위한 단독 키워드 매칭 방지 — 이 키워드만 1개 매칭되면 불충분
     // "space"만으로 통과 → 우주와 무관한 맥락 가능, "stock"만으로 통과 → 비금융 맥락 가능
     const _TG_BROAD_KW = new Set(['space','market','report','note','stock','share','investment',
@@ -97,7 +100,7 @@ export function installTelegramCollector(window = globalThis) {
       '利上げ','利下げ','景気','株式','投資','企業','収益','配当','防衛','宇宙','ロケット','衛星','原発','原子力',
     ];
     // v39.0: 매칭된 키워드 수집 — 광범위 키워드만 1개 매칭이면 불통과
-    const matchedKW = relevantKW.filter(kw => t.includes(kw));
+    const matchedKW = matchedKeywords(t, relevantKW);
     if (matchedKW.length === 0) return false;
     // 매칭된 키워드 중 구체적(비광범위) 키워드가 1개 이상이면 통과
     const hasSpecificKW = matchedKW.some(kw => !_TG_BROAD_KW.has(kw));

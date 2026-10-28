@@ -1,0 +1,127 @@
+{
+  "symbol": "JPM",
+  "name": "JPMorgan Chase & Co.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "JPMorgan Chase 3Q26 earnings release narrative (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000019617/000162828026065582/a3q26erfexhibit991narrative.htm", "publisher": "JPMorgan Chase / SEC EDGAR", "date": "2026-10-13" },
+    { "id": "s2", "kind": "8-K", "title": "JPMorgan Chase 3Q26 earnings presentation (incl. 2026 outlook slide)", "url": "https://www.sec.gov/Archives/edgar/data/0000019617/000162828026065616/a3q26_earningsxpresentat.htm", "publisher": "JPMorgan Chase / SEC EDGAR", "date": "2026-10-13" },
+    { "id": "s3", "kind": "10-K", "title": "JPMorgan Chase 2025 Form 10-K (segment results p.64, repurchases Item 5, executive officers Item 10, workforce)", "url": "https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/quarterly-earnings/2025/4th-quarter/corp-10k-2025.pdf", "publisher": "JPMorgan Chase IR", "date": "2026-02-13" },
+    { "id": "s4", "kind": "earnings-release", "title": "JPMorganChase Reports Fourth-Quarter 2025 Net Income of $13.0 Billion; Full-Year 2025 Net Income of $57.0 Billion", "url": "https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/quarterly-earnings/2025/4th-quarter/d868c7ef-1670-465d-ba75-c2b36ddbcc6b.pdf", "publisher": "JPMorgan Chase IR", "date": "2026-01-13" },
+    { "id": "s5", "kind": "8-K", "title": "JPMorgan Chase 4Q25 earnings presentation (FY2025 summary and original 2026 outlook)", "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026001915/a4q25_earningsxpresentat.htm", "publisher": "JPMorgan Chase / SEC EDGAR", "date": "2026-01-13" },
+    { "id": "s6", "kind": "news", "title": "JPMorgan expects about $19.8B technology spend in 2026 (Zacks; URL as indexed)", "url": "https://www.zacks.com/stock/news/2874939/{https:/www.zackstrade.com/2019-1-dollar}", "publisher": "Zacks", "date": "2026-10-28" },
+    { "id": "s7", "kind": "news", "title": "JP Morgan Chase reclassifies AI spending as core infrastructure (roughly $2B allocated to AI)", "url": "https://m.bankingexchange.com/news-feed/item/10520-jp-morgan-chase-reclassifies-ai-spending-as-core-infrastructure?Itemid=257", "publisher": "Banking Exchange", "date": "2026-10-28" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/jpm/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "JPMorgan Chase는 미국 최대 은행 지주회사로, 개인·소상공인 예금과 카드·대출(CCB), 기업금융·투자은행·트레이딩·결제(CIB), 자산·자산가 관리(AWM)를 함께 운영한다. 2025년 관리기준 순매출 1,855.8억 달러(보고기준 1,824.5억), 순이익 570억 달러, ROTCE 20%였다. 이익은 예금으로 조달해 대출·증권에 운용하는 이자이익과 수수료·트레이딩 수익에서 나온다.",
+    "src": ["s3", "s4"]
+  },
+  "businessModel": {
+    "text": "평균 예금 약 2.5조 달러(2025)를 값싼 조달원으로 삼아 대출·증권에서 이자 차익(NII, 2025년 954억 달러)을 얻고, 투자은행 수수료·트레이딩·자산관리 수수료(비이자수익 870억 달러)로 보완한다. 은행이므로 손실 흡수 자본(CET1)과 대손비용 관리가 사업의 한계를 정한다. 2025-12-30 Apple 카드 포트폴리오 선도 매입 약정을 맺어 약 24개월 뒤 인수 예정이다.",
+    "src": ["s3", "s4"]
+  },
+  "revenueStructure": {
+    "period": "FY2025 (managed basis net revenue)",
+    "segments": [
+      { "name": "Consumer & Community Banking (CCB)", "revenue": 76.029, "unit": "USD bn", "share": 41.0, "yoy": 6.3, "src": ["s3"] },
+      { "name": "Commercial & Investment Bank (CIB)", "revenue": 78.454, "unit": "USD bn", "share": 42.3, "yoy": 11.9, "src": ["s3"] },
+      { "name": "Asset & Wealth Management (AWM)", "revenue": 24.073, "unit": "USD bn", "share": 13.0, "yoy": 11.6, "src": ["s3"] },
+      { "name": "Corporate", "revenue": 7.025, "unit": "USD bn", "share": 3.8, "yoy": -59.6, "src": ["s3"] }
+    ],
+    "recurringShare": "이자이익(NII) 954억 달러가 보고기준 순매출의 약 52% (2025, 계산값). NII 중 Markets 제외분 926억 달러.",
+    "geography": null,
+    "text": "관리기준(managed, 세금감면 수익을 과세 환산한 비GAAP) 순매출 합계 1,855.81억 달러이며, 보고기준은 1,824.47억 달러다. share·yoy는 10-K 표에서 계산했고, Corporate 감소는 2024년 Visa 지분 이익 79억 달러의 기저효과다. Q3 2026 관리기준 순매출은 509억 달러(+8%)로 CCB 212억·CIB 227억·AWM 69억 달러였다.",
+    "src": ["s3", "s1", "s2"]
+  },
+  "productPortfolio": [
+    { "name": "Chase 소매은행·자산관리 (Banking & Wealth Management)", "role": "예금 조달 기반. 5,083개 지점(2025말, 48개 주), 2025년 순신규 당좌계좌 170만", "src": ["s3", "s4"] },
+    { "name": "Card Services & Auto", "role": "카드 대출 이자와 수수료. Q3 2026 카드 평균대출 2,501억 달러, 카드 순상각률 2.91%", "src": ["s1", "s2"] },
+    { "name": "Home Lending", "role": "주택담보대출·서비싱. 4Q25 매출 12억 달러로 비중 작음", "src": ["s4"] },
+    { "name": "Investment Banking·Lending·Payments (Banking & Payments)", "role": "기업 자문·인수 수수료(2025 글로벌 IB 수수료 1위, 점유율 8.4%)와 결제 수익(4Q25 사상 최대 51억 달러)", "src": ["s4"] },
+    { "name": "Markets & Securities Services", "role": "채권·주식 트레이딩과 수탁. 2025 Markets 매출 357.8억 달러(+19%), Q3 2026 103억 달러(+15%)", "src": ["s3", "s2"] },
+    { "name": "Asset & Wealth Management", "role": "운용 수수료. Q3 2026 고객자산 7.9조, AUM 5.2조 달러", "src": ["s2"] }
+  ],
+  "valueChain": {
+    "position": "service",
+    "suppliers": ["예금자 (조달)", "채권·우선주 투자자", "기술·클라우드 공급자 (2026 기술지출 약 198억 달러 예상)"],
+    "customers": ["미국 개인·소상공인", "대기업·금융기관·정부", "자산가·기관 투자자"],
+    "concentration": "단일 고객 의존 없음 (분산된 예금·대출 기반)",
+    "text": "은행은 예금·자본시장에서 자금을 모아 대출·증권·결제 서비스로 돌려주는 중개자다. 규모가 클수록 조달 비용과 기술 투자에서 유리하며, 직원 318,512명(2025말, 66개국)이 이를 운영한다.",
+    "src": ["s3", "s6"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["금리 수준과 곡선 (예금 마진·NII)", "대출 수요 (Q3 2026 평균대출 +10%, 약 1.6조 달러)", "자본시장 거래량 (트레이딩·IB 수수료)", "주가 수준 (AWM 운용 수수료)", "소비자 지출 (카드 매출액 2025 +7%)"],
+    "supplyConstraints": ["규제 자본: CET1 표준법 비율 14.5%(2025말) → 13.9%(Q3 2026), 위험가중자산 증가", "신용 비용: 2025 대손비용 142억 달러(+33%, Apple 카드 관련 22억 포함)", "금리 상승 시 매도가능증권 평가손 (Q3 2026 기타포괄손실 121억 달러 확대 보도)"],
+    "text": "은행의 '공급'은 자본이다. 대출과 트레이딩을 늘릴수록 위험가중자산이 커져 CET1 비율이 내려가므로, 자사주 매입 여력과 성장이 서로 자본을 다툰다. Q3 2026 순 자사주 매입이 6.64억 달러로 줄어든 것이 그 예다.",
+    "src": ["s1", "s3", "s4", "s2"]
+  },
+  "competition": {
+    "peers": ["BAC", "C", "WFC", "GS", "MS"],
+    "moat": "미국 최대 예금 기반에 따른 낮은 조달비용, 소매·기업·투자은행·자산관리를 한 지붕에서 교차판매하는 규모, 위기 때 오히려 점유율을 넓혀 온 자본력(2025 ROTCE 20%, CCB ROE 32%).",
+    "threats": "핀테크·비은행 대출자의 결제·대출 잠식, 규제 자본 요건 변화, 경기 둔화 시 카드·기업 신용 손실, 트레이딩 호황의 반락.",
+    "src": ["s3", "s4"]
+  },
+  "governance": {
+    "ceo": "James (Jamie) Dimon, since 2005 (CEO 2005-12, 이사회 의장 2006-12)",
+    "control": "widely held",
+    "insiderOwnership": null,
+    "capitalReturn": "2025 자사주 1.144억 주 316.4억 달러 매입(평균 276.55달러), 2025-07 신규 500억 달러 한도, 2025말 잔여 334억 달러. 4Q25 배당 주당 1.50달러, Q3 2026 주당 1.65달러(41억→44억 달러). Q3 2026 순 자사주 매입 6.64억 달러로 축소, 순배당성향(LTM) 61%(2025말 82%).",
+    "notes": "Dimon 승계 계획은 이번 조사에서 확인하지 않았다. CFO Jeremy Barnum(2021-05~), CRO Ashley Bacon(2013-06~).",
+    "src": ["s3", "s4", "s1"]
+  },
+  "aiRelevance": {
+    "role": "adopter",
+    "text": "AI를 파는 회사가 아니라 대규모로 도입하는 회사로, 비용 효율·사기 탐지·영업 생산성에서 효과를 노린다. 10-K는 AI 과잉 의존·미흡 도입을 모두 위험 요인으로 적는다.",
+    "evidence": "2026 기술지출 약 198억 달러(+10%) 예상(경영진, Zacks 보도), 이 중 AI 약 20억 달러 배정(Banking Exchange 보도). 회사 원문 수치는 확인 못함.",
+    "src": ["s6", "s7", "s3"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "net interest income", "value": "약 1,062억 달러 (Q3까지 782억 + Q4 약 280억; 1월 최초 약 1,030억에서 상향)", "givenOn": "2026-10-13", "src": ["s2", "s5"] },
+      { "period": "FY2026", "metric": "NII ex-Markets", "value": "약 972억 달러 (1월 최초 약 950억)", "givenOn": "2026-10-13", "src": ["s2", "s5"] },
+      { "period": "FY2026", "metric": "adjusted expense", "value": "약 1,086억 달러 (1월 최초 약 1,050억)", "givenOn": "2026-10-13", "src": ["s2", "s5"] },
+      { "period": "FY2026", "metric": "Card Services NCO rate", "value": "약 3.2% (1월 최초 약 3.4%)", "givenOn": "2026-10-13", "src": ["s2", "s5"] }
+    ],
+    "style": "annual",
+    "text": "보도자료 본문에는 전망이 없고, 실적 발표 슬라이드에서 연간 NII·비용·카드 상각률을 '시장 상황에 따라'라는 단서와 함께 제시하며 분기마다 갱신한다. 2026년에는 NII와 비용 전망이 함께 올라갔고 카드 손실 전망은 낮아졌다.",
+    "src": ["s2", "s5", "s1"]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-27, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 25.19달러(범위 24.56~26.10), 직전 4개 분기 23.06달러. 최근 4주 상향 11건·하향 6건으로 상향 우세.",
+    "src": ["s8"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "Net interest income (ex-Markets)", "why": "매출의 절반 이상. 금리·예금 마진·대출 성장의 합. 연간 가이던스 변화가 핵심이다." },
+      { "metric": "Provision / net charge-offs / reserve build", "why": "신용 비용. 특히 카드 순상각률과 충당금 적립이 경기 신호다." },
+      { "metric": "CET1 ratio (Standardized)", "why": "자본 여력. 높으면 자사주 매입·성장 투자 여지, 낮아지면 환원 축소." },
+      { "metric": "ROTCE", "why": "유형자기자본 대비 수익률. 은행 가치평가(P/TBV)의 근거다. 2025년 20%." },
+      { "metric": "Adjusted expense / overhead ratio", "why": "투자·보상비 증가가 매출을 앞지르는지 본다." },
+      { "metric": "Markets and IB fees", "why": "변동성 큰 수익원. 호황의 지속성을 가려 본다." }
+    ],
+    "valuationFrame": "전문가는 은행을 주로 주가/유형순자산(P/TBV)과 지속 가능한 ROTCE의 관계로 평가한다(ROTCE가 자본비용보다 높을수록 높은 P/TBV 정당화). 보조로 Forward P/E와 배당·자사주 포함 총환원율을 본다.",
+    "thesisChecks": ["NII 가이던스가 유지·상향되는가", "카드 순상각률이 전망(약 3.2%) 안에 머무는가", "CET1 비율이 감소 후 안정되는가", "ROTCE 20% 안팎(일회성 제외)이 유지되는가", "비용 증가가 매출 증가를 크게 앞지르지 않는가"],
+    "breakSignals": ["NII 가이던스 하향", "충당금 적립 급증 또는 카드 상각률 전망 상향", "CET1 추가 하락으로 자사주 매입 중단", "트레이딩·IB 수익 급감", "규제 자본 요건 강화", "경영 승계 불확실성"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적과 2027 NII·비용 전망", "src": [] },
+      { "date": "매년 6월 (추정)", "event": "연준 스트레스 테스트 결과와 자본 계획(배당·자사주) 발표", "src": [] },
+      { "date": "수시", "event": "연준 금리 결정과 장기금리 변화 (NII·증권 평가손)", "src": ["s1"] }
+    ],
+    "eventReaction": "주가는 분기 EPS보다 연간 NII 가이던스 변경, 충당금·카드 손실 추이, 자사주 매입 속도에 반응하는 경향이 있다. Q3 2026은 증권 매각손 6.58억 달러로 보고 EPS 5.57달러(제외 시 5.75달러)였고, CET1 하락과 자사주 매입 축소가 함께 나와 자본 여력이 관전 포인트가 됐다.",
+    "watchConditions": ["실적 발표 슬라이드의 연간 NII·비용 전망 변경 폭", "충당금 적립 규모와 카드 순상각률", "CET1 비율 추이와 분기 순 자사주 매입액", "Markets·IB 수수료 전년 대비 증감", "장기금리 변화와 기타포괄손익", "컨센서스 EPS 상향·하향 건수 추이"],
+    "src": ["s1", "s2", "s8"]
+  },
+  "unverified": [
+    "지역별 매출 (미국·해외 비중)",
+    "Q3 2026 기타포괄손실 121억 달러 확대 (검색 요약에서 나온 값, 8-K 원문에서 직접 확인 못함)",
+    "Q3 2026 실적에 대한 컨센서스 대비·주가 반응",
+    "2026 기술지출 198억 달러·AI 20억 달러 (2차 보도, 회사 원문 미확인; Zacks URL 형태 이상)",
+    "Dimon 승계 계획과 경영진 지분율",
+    "4Q26 실적 발표일과 2027 스트레스 테스트 일정",
+    "CET1 2025말 비율: 보도자료 14.5%, 10-K 요약표 14.6%로 차이 (보도자료 값 사용)"
+  ],
+  "confidence": "high - 매출·이익·자본·가이던스가 10-K와 회사 8-K 실적 자료에서 왔다. AI 지출과 주가 반응만 2차 출처이거나 미확인이다."
+}

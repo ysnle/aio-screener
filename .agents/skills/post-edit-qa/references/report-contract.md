@@ -12,6 +12,17 @@ Use this reference when writing the final QA report.
 6. Fixed items.
 7. Gates run with exact command names.
 8. Unverified or blocked surfaces.
+9. Risk and how to revert (main has no PR template, so the report carries it): the riskiest path touched (REVIEW.md risk paths named), what a user would see if it is wrong, and the one step that undoes it (`git revert <sha>`, a flag, a redeploy).
+
+## Not Evidence (2026-10-28)
+
+Proof is something observed in this session on the surface the claim is about. These are not evidence and are never reported as PASS:
+
+- A handoff, memory or earlier report saying it was verified. Re-run or say unverified.
+- A gate that also passes on the pre-fix state, or a mocked test for user-visible behaviour.
+- A static or headless PASS offered for a browser or live claim.
+- A reviewer agent agreeing, or the author model grading its own output.
+- "Should work", a plan, or a command that was written but not run.
 
 ## Number Claims (2026-10-16)
 

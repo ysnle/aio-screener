@@ -1,0 +1,129 @@
+{
+  "symbol": "COST",
+  "name": "Costco Wholesale Corporation",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "Sunday nearest end of August (FY2026: 52 weeks ended 2026-08-30)",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Costco Wholesale Corporation Reports Fourth Quarter and Fiscal Year 2026 Operating Results", "url": "https://s201.q4cdn.com/287523651/files/doc_news/Costco-Wholesale-Corporation-Reports-Fourth-Quarter-and-Fiscal-Year-2026-Operating-Results-2026.pdf", "publisher": "Costco IR (GlobeNewswire)", "date": "2026-09-24" },
+    { "id": "s2", "kind": "8-K", "title": "Costco Q4 FY2026 8-K exhibit 99.2 (comparable sales detail, membership, renewal rates, one-time items)", "url": "https://www.sec.gov/Archives/edgar/data/0000909832/000090983226000084/costex9928-k92426.htm", "publisher": "Costco / SEC EDGAR", "date": "2026-09-24" },
+    { "id": "s3", "kind": "10-K", "title": "Costco Form 10-K for fiscal year ended 2026-08-30", "url": "https://www.sec.gov/Archives/edgar/data/0000909832/000090983226000093/cost-20260830.htm", "publisher": "Costco / SEC EDGAR", "date": "2026-10-07" },
+    { "id": "s4", "kind": "other", "title": "Costco annual income statement incl. Warehouse Ancillary and Other Businesses line (third-party data page)", "url": "https://stockanalysis.com/stocks/cost/financials/?p=annual", "publisher": "StockAnalysis", "date": "2026-10-28" },
+    { "id": "s5", "kind": "earnings-release", "title": "Costco Wholesale Corporation Reports September Sales Results", "url": "https://www.globenewswire.com/news-release/2026/10/07/3376846/0/en/index.html", "publisher": "Costco (GlobeNewswire)", "date": "2026-10-07" },
+    { "id": "s6", "kind": "news", "title": "Costco September 2026 sales update summary (gas effect, traffic)", "url": "https://quartr.com/events/costco-wholesale-corporation-cost-monthly-sales-update-september-2026_3s0B06f1", "publisher": "Quartr", "date": "2026-10-07" },
+    { "id": "s7", "kind": "news", "title": "Costco (COST) stock falls despite earnings win: what's behind the muted response", "url": "https://parameter.io/costco-cost-stock-falls-despite-earnings-win-whats-behind-the-muted-response/", "publisher": "Parameter", "date": "2026-09-25" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/cost/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "Costco는 유료 회원에게만 제한된 품목(창고당 활성 SKU 4,000개 미만)을 낮은 마진으로 파는 회원제 창고형 할인점이다. FY2026 총매출 3,031.5억 달러 중 상품 순매출이 2,972.5억, 회원비가 59.1억 달러였고, 939개 창고(미국·푸에르토리코 647곳)를 운영한다. 매출 대부분은 상품에서 나오지만, 이익의 큰 부분은 회원비에서 나온다.",
+    "src": ["s1", "s3"]
+  },
+  "businessModel": {
+    "text": "상품은 원가에 가깝게 팔아(Q4 FY2026 총마진율 11.02%) 회원을 모으고, 회원비(미국 기본 연 65달러, Executive는 추가 연회비)로 이익을 채운다. FY2026 회원비 59.07억 달러는 영업이익 116.85억 달러의 약 51%에 해당한다(계산값). 갱신율이 높을수록 이 이익 흐름이 안정적이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "revenueStructure": {
+    "period": "FY2026 (52 weeks ended 2026-08-30)",
+    "segments": [
+      { "name": "Foods and Sundries", "revenue": 116.788, "unit": "USD bn", "share": 38.5, "yoy": null, "src": ["s3"] },
+      { "name": "Non-Foods", "revenue": 77.375, "unit": "USD bn", "share": 25.5, "yoy": null, "src": ["s3"] },
+      { "name": "Fresh Foods", "revenue": 41.715, "unit": "USD bn", "share": 13.8, "yoy": null, "src": ["s3"] },
+      { "name": "Warehouse Ancillary and Other Businesses (gas, pharmacy, optical, travel 등)", "revenue": 61.369, "unit": "USD bn", "share": 20.2, "yoy": 20, "src": ["s4", "s3"] },
+      { "name": "Membership fees", "revenue": 5.907, "unit": "USD bn", "share": 1.9, "yoy": 11.0, "src": ["s1"] }
+    ],
+    "recurringShare": "회원비 59.07억 달러는 총매출의 1.9%지만 영업이익의 약 51% (FY2026, 계산값). 전 세계 갱신율 89.8%, 미국·캐나다 92.3% (Q4 FY2026).",
+    "geography": "FY2026 총매출 미국 2,198.23억, 캐나다 405.61억 달러(10-K 감사보고서 언급). 기타 해외는 차감 계산 시 약 427.7억 달러.",
+    "text": "4개 상품군 합계는 순매출 2,972.47억 달러와 일치하며, share는 총매출 3,031.54억 달러 대비 계산값이다. 부대사업(Ancillary)은 숫자를 서드파티 표에서 가져왔고 4개 상품군 합계가 순매출과 맞아 검산했다. 10-K는 핵심 상품 매출 +8%, 부대사업 +20%로 설명한다.",
+    "src": ["s3", "s4", "s1"]
+  },
+  "productPortfolio": [
+    { "name": "Foods and Sundries / Fresh Foods", "role": "매출의 절반 이상. 방문 빈도를 만드는 식료품·생필품", "src": ["s3"] },
+    { "name": "Non-Foods (가전·의류·가구 등)", "role": "매출의 약 4분의 1. 경기 민감 품목", "src": ["s3"] },
+    { "name": "Warehouse Ancillary (주유소·약국·안경·여행 등)", "role": "FY2026 +20% 성장. 휘발유 가격이 보고 매출을 크게 흔든다", "src": ["s3", "s4"] },
+    { "name": "Kirkland Signature 자체 브랜드", "role": "매출 비중이 커지고 있다(10-K, 비율 미공개). 가격 경쟁력과 마진의 원천", "src": ["s3"] },
+    { "name": "디지털 (e-commerce, 앱)", "role": "FY2026 디지털 연계 비교매출 +20.9%. 온라인 SKU 9,000~11,000개", "src": ["s1", "s3"] },
+    { "name": "회원권 (Gold Star·Executive)", "role": "유료 회원 8,410만, Executive 4,230만(매출의 75.6%) (Q4 FY2026)", "src": ["s2"] }
+  ],
+  "valueChain": {
+    "position": "downstream",
+    "suppliers": ["글로벌 소비재·식품 제조사", "Kirkland Signature 위탁 제조사", "휘발유 공급자"],
+    "customers": ["개인 회원 (Gold Star)", "사업자 회원", "Executive 회원 (2% 리워드)"],
+    "concentration": "단일 고객 의존 없음. 유료 회원 8,410만, 카드 소지자 1억 5,040만 명 (Q4 FY2026).",
+    "text": "Costco는 제조사에서 대량 매입해 회원에게 직접 파는 최종 유통 단계다. 품목 수를 줄여 품목당 구매량을 키우는 것이 매입 협상력의 원천이다. 직원은 약 35.5만 명(FY2026 말)이다.",
+    "src": ["s2", "s3"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["회원 수 증가 (유료 회원 +3.8%)", "신규 창고 출점 (FY2026 순증 25곳, FY2027 최대 33곳 계획)", "방문 빈도 (Q4 FY2026 전사 트래픽 +3.3%, 9월 +4.7%)", "인플레이션기 가치 소비 수요", "휘발유 가격 (9월 보고 비교매출에 약 3.8%p 기여)"],
+    "supplyConstraints": ["관세: Q4 FY2026에 IEEPA 관세 환급 일회성 이익 주당 0.15달러", "부지 확보와 출점 속도 (FY2027 설비투자 약 75억 달러 계획)", "인건비·의료비 상승 (10-K 위험 요인)"],
+    "text": "수요는 회원 증가·출점·방문 빈도로 늘고, 보고 매출은 휘발유 가격과 환율로 크게 흔들린다. 그래서 전문가들은 '휘발유·환율 제외' 비교매출과 트래픽을 진짜 수요로 본다.",
+    "src": ["s2", "s3", "s5", "s6"]
+  },
+  "competition": {
+    "peers": ["WMT", "TGT", "KR", "AMZN", "BJ"],
+    "moat": "회원비가 이익을 받치므로 상품을 원가에 가깝게 팔 수 있고, 적은 SKU로 품목당 구매력을 키운다. 미국·캐나다 갱신율 92.3%가 충성도를 보여준다.",
+    "threats": "10-K가 Walmart·Target·Kroger·Amazon, 창고형 경쟁자로 Sam's Club·BJ's를 명시한다. 회원비 성장 둔화(3분기 연속 감속 보도)와 디지털 배송 경쟁이 쟁점이다.",
+    "src": ["s3", "s2", "s7"]
+  },
+  "governance": {
+    "ceo": "Ron M. Vachris, since 2024 (2022-02~2023-12 사장 겸 COO; 10-K에 CEO 취임일 명시 없음)",
+    "control": "widely held",
+    "insiderOwnership": null,
+    "capitalReturn": "FY2026 배당 현금 24.58억 달러, 선언 배당 주당 5.54달러. 2026-04 분기 배당 1.30→1.47달러로 인상. FY2026 자사주 매입 8.48억 달러, 2023-01 승인 40억 달러 프로그램 잔여 11.15억 달러(2027-01 만료).",
+    "notes": "FY2026 말 현금 202억 달러, 장기부채(유동 포함) 약 61.6억 달러로 순현금 상태(계산값). 과거 특별배당 관행은 이번 조사에서 확인하지 않았다.",
+    "src": ["s3", "s1"]
+  },
+  "aiRelevance": {
+    "role": "limited",
+    "text": "AI 공급자나 플랫폼이 아니며, 실적을 움직이는 것은 회원·트래픽·출점이다. AI 관련 공개 지표는 이번 조사에서 찾지 못했다.",
+    "evidence": "회사 공시에서 AI 매출·비용 수치 확인 못함. 디지털 연계 비교매출 +20.9%(FY2026)가 가장 가까운 기술 지표.",
+    "src": ["s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2027", "metric": "new warehouses", "value": "최대 33곳 (이전 5곳 포함), 연말 약 967곳 추정", "givenOn": "2026-10-07", "src": ["s3", "s2"] },
+      { "period": "FY2027", "metric": "capital expenditures", "value": "약 75억 달러 (변경 가능)", "givenOn": "2026-10-07", "src": ["s3"] }
+    ],
+    "style": "none",
+    "text": "Costco는 매출·EPS 가이던스를 주지 않는다. 대신 매월 순매출·비교매출을 발표해 시장이 분기 실적을 미리 추정하게 하고, 연간으로는 출점 수와 설비투자 계획만 밝힌다.",
+    "src": ["s3", "s5"]
+  },
+  "estimates": {
+    "text": "Q4 FY2026 EPS 6.75달러는 시장 예상 약 6.55달러를 넘었다(보도). AIO 로컬 스냅샷(2026-10-27, Zacks via Nasdaq) 향후 4개 분기(2026-11~2027-08) EPS 합계 22.61달러(범위 21.71~23.37), 직전 4개 분기 20.45달러, 최근 4주 상향 6건·하향 6건으로 방향 중립.",
+    "src": ["s7", "s8"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "Comparable sales ex-gas and FX", "why": "휘발유·환율 효과를 뺀 진짜 기존점 성장. FY2026 전사 +6.6%." },
+      { "metric": "Traffic vs ticket", "why": "방문 증가(트래픽)가 객단가보다 질 좋은 성장으로 본다." },
+      { "metric": "Membership fee income growth", "why": "영업이익의 약 절반. 2024-09 회비 인상 효과가 줄면서 성장률이 둔화하는지 본다." },
+      { "metric": "Renewal rate (US & Canada, worldwide)", "why": "회원 충성도. 디지털 가입자 증가로 전 세계 갱신율이 희석되는지도 본다." },
+      { "metric": "Paid members and Executive penetration", "why": "Executive 회원은 연회비가 높고 매출의 75.6%를 차지한다." },
+      { "metric": "Gross margin ex-gas and SG&A ratio", "why": "얇은 마진 구조라 몇 bp 변화도 이익에 크게 반영된다." }
+    ],
+    "valuationFrame": "전문가는 주로 Forward P/E와 EV/EBITDA를 보지만, Costco는 회원비 기반의 안정성 때문에 일반 유통보다 높은 배수가 붙는 경우가 많아, 배수가 성장률(비교매출·EPS 성장) 대비 정당한지를 따진다. 회원비 흐름을 구독형 이익으로 따로 가치평가하기도 한다.",
+    "thesisChecks": ["휘발유·환율 제외 비교매출이 6% 안팎을 유지하는가", "트래픽이 계속 늘어나는가", "미국·캐나다 갱신율이 92%대를 지키는가", "회원비 성장이 회비 인상 효과 소멸 뒤에도 유지되는가", "출점 계획(FY2027 최대 33곳)이 이행되는가"],
+    "breakSignals": ["비교매출(조정) 급감 또는 트래픽 감소", "갱신율 하락", "회원비 성장률의 추가 둔화", "총마진 압박 (관세·가격 투자)", "SG&A 비율 상승이 지속"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-11 초 (추정, 회사 미확정)", "event": "10월 월간 매출·비교매출 발표", "src": ["s5"] },
+      { "date": "2026-12 중순 (추정, 회사 미확정)", "event": "Q1 FY2027 실적과 회원비·갱신율", "src": [] },
+      { "date": "수시", "event": "회비 인상 발표, 관세 정책 변화, 휘발유 가격 급변", "src": ["s2", "s3"] }
+    ],
+    "eventReaction": "Costco는 매월 매출을 공개하므로 분기 실적 자체의 놀라움은 작고, 주가는 회원비 성장률·갱신율·마진 세부에 반응한다. Q4 FY2026에는 EPS가 예상을 넘었지만 회원비 감속 우려로 반응이 미지근했고, 보도마다 주가 방향이 엇갈린다.",
+    "watchConditions": ["월간 비교매출의 휘발유·환율 제외 수치와 트래픽", "분기 실적의 회원비 증가율과 갱신율", "총마진(휘발유 제외)과 SG&A 비율 변화", "관세 관련 일회성 항목 여부", "컨센서스 EPS 상향·하향 건수 추이"],
+    "src": ["s5", "s2", "s7", "s8"]
+  },
+  "unverified": [
+    "상품군별 FY2025 매출과 성장률 (FY2026 값만 확인)",
+    "부대사업 613.69억 달러는 서드파티 표 값 (순매출 합계로 검산)",
+    "기타 해외 총매출 (차감 계산값)",
+    "Executive 연회비 금액과 2024-09 인상 폭",
+    "Kirkland Signature 매출 비중",
+    "Vachris CEO 정확한 취임일",
+    "경영진·내부자 지분율",
+    "Q4 FY2026 발표 뒤 주가 반응 (보도 간 상충)",
+    "Q1 FY2027 실적 발표일과 10월 매출 발표일",
+    "AI 관련 지표"
+  ],
+  "confidence": "high - 매출·회원비·비교매출·갱신율이 회사 보도자료·8-K·10-K에서 왔다. 부대사업 금액과 주가 반응만 2차 출처다."
+}

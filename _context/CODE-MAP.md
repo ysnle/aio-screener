@@ -431,7 +431,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `getTradingDecisionLogicAudit` | 22474 | 트레이딩 로직 감사 |
 | `runEvidenceDeploymentGate` | 22609 | **배포 게이트 — 계약 기대값 기반 strict/warn 산출** |
 
-> news surface 계약(`AIO_NEWS_SURFACE_CONTRACTS` / `buildNewsSurfaceModel` / `getNewsSurfaceAudit`)은 `js/aio-data.js`에 위치(아래 표).
+> 뉴스 채점·제외·선별(`scoreItem` / `classifyTopic` / 키워드 목록 / `AIO_NEWS_SURFACE_CONTRACTS` / `buildNewsSurfaceModel` / `getNewsSurfaceAudit`)은 v59.42에 `src/domain/news/selection.js`(목록 `selection-keywords.js`, 단일 키워드 규칙 `keyword-match.js`)로 옮겼다. 창 이름은 `src/app/news-selection-entry-points.js`가 유지한다.
 
 ### `js/aio-data.js`
 
@@ -449,14 +449,8 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `runScheduledRefresh` | 4760 | 수동 강제 갱신 |
 | `ensureFreshDataForUse` | 4906 | page/chat selective freshness preflight |
 | `AIO_NEWS_SOURCES` | 6293 | RSS/뉴스 소스 |
-| `MACRO_KW` | 6445 | 매크로 키워드 |
-| `TECH_KW` | 6856 | 기술/AI 키워드 |
 | `KNOWN_TICKERS` | 7577 | 티커 Set |
-| `scoreItem` | 8404 | 뉴스 중요도 점수 + LRU 캐시 |
-| `classifyTopic` | 8791 | 뉴스 토픽 분류 |
 | `renderFeed` | 10594 | 시장 뉴스 렌더 |
-| `AIO_NEWS_SURFACE_CONTRACTS` | 10128 | home/briefing/market-news 단일 계약(R203) |
-| `buildNewsSurfaceModel` / `getNewsSurfaceAudit` | 10376 / 10475 | 뉴스 표면 모델/감사 |
 | `_aioGetCurrentHomeWeeklyNews` | 10825 | HOME 고정 뉴스 freshness filter |
 | `renderHomeFeed` | 10837 | 홈 뉴스 렌더 |
 | `computeNewsSentimentScore` / `computeNewsRiskSignals` | 11702 / 11736 | 뉴스 감성/리스크 — js/aio-core.js의 computeTradingScore가 소비(v51.98 Phase 3 A3로 이관, §3) |
@@ -530,7 +524,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | 배포 게이트/evidence 감사 | `js/aio-core.js:20527~22687`(contracts→evidence→trading→deployment gate) |
 | 데이터 진실성/교차소스 | `js/aio-core.js:20535~20807` |
 | DATA_SNAPSHOT 갱신 | `js/aio-core.js:18620~18898`, freshness/pipeline audit 18108~18440 |
-| 뉴스 선별/렌더 | `js/aio-data.js:8404~10900` |
+| 뉴스 채점·제외·선별 | `src/domain/news/selection.js` (목록 `selection-keywords.js`, 규칙 `keyword-match.js`; 창 이름 `src/app/news-selection-entry-points.js`) — 수집·번역·티커는 `js/aio-data.js` |
 | RSI/기술지표 (서버·클라 이중 구현, 공식은 v51.91에 단일화됨 — 진단 C1 해소) | 서버 `scripts/fetch-data.mjs:1082`(`_rsi14`, Wilder) = 클라 `js/aio-core.js:18612`(`_calcRSILast`, Wilder) — 파라미터 드리프트만 잔여 감시 대상 (좌표 2026-07-21 재확인) |
 | 팩터 랭킹/백테스트 (진단 C2 — 의도적 live 7팩터 vs server 4팩터 서브셋, P759 domain 추출 완료) | `src/domain/screener/factor-ranks.js:105` `computeFactorRanks` → legacy `js/aio-data.js:15947` projection; 서버 `scripts/fetch-data.mjs:1173` `backtestFactors`는 look-ahead/data-coverage 사유로 모멘텀/추세/저변동/kalman 4팩터만 사용 |
 | 페이지 전환/init 가드 | `js/aio-core.js:22841~23313`(destroyPageCharts/showPage), 각 page init 함수 |

@@ -65,11 +65,13 @@ export const HOME_QUOTE_HEADINGS = Object.freeze({
 });
 
 const KST_PARTS = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-function latestObservedKst(live) {
-  const stamps = Object.values(live || {}).map((row) => row?.observedAt ?? row?.quoteEnvelope?.observedAt)
+// P2115: the time comes from the tiles shown under the heading only, and it is the oldest of them — a fresh BTC or
+// looked-up ticker in _liveData used to label stale futures, yield or oil tiles as just observed.
+export function tileObservedKst(live, symbols = []) {
+  const stamps = symbols.map((symbol) => live?.[symbol]).map((row) => row?.observedAt ?? row?.quoteEnvelope?.observedAt)
     .map((at) => (typeof at === 'number' ? at * (at < 1e12 ? 1000 : 1) : Date.parse(at))).filter(Number.isFinite);
   if (!stamps.length) return null;
-  const part = Object.fromEntries(KST_PARTS.formatToParts(new Date(Math.max(...stamps))).map((item) => [item.type, item.value]));
+  const part = Object.fromEntries(KST_PARTS.formatToParts(new Date(Math.min(...stamps))).map((item) => [item.type, item.value]));
   return `${part.month}/${part.day} ${part.hour}:${part.minute}`;
 }
 
@@ -81,7 +83,10 @@ export function renderHomeQuoteHeading({ documentRef: doc, root, nowMs = Date.no
     const lastClose = usWeekendClosed(nowMs) ? [...(Array.isArray(root?._aioHistory) ? root._aioHistory : [])].reverse().find((row) => Number(row?.spx) > 0)?.date : null;
     // v58.80 run-5 (skeptic #1/#2): on a weekday the live tiles carried no time beside 시장 상태's dated closes; the chip
     // names the newest quote's KST observation time.
-    const observed = lastClose ? null : latestObservedKst(root?._liveData);
+    // A cell holds a futures and an index price and CSS shows one (or a fallback close); only a price on screen counts.
+    const tiles = [...(doc.getElementById?.('home-kpi-strip')?.querySelectorAll?.('.is-interactive:not([hidden]) [data-live-price]') || [])]
+      .filter((el) => typeof el.getClientRects !== 'function' || el.getClientRects().length > 0);
+    const observed = lastClose ? null : tileObservedKst(root?._liveData, [...new Set(tiles.map((el) => el.getAttribute('data-live-price')))]);
     const chip = lastClose ? `${state.chip}, ${Number(lastClose.slice(5, 7))}/${Number(lastClose.slice(8, 10))} 마감 값` : observed ? `${state.chip}, ${observed} 관측` : state.chip;
     heading.replaceChildren(doc.createTextNode('지금 시세 '), asOfChip(doc, chip, state.detail));
   }

@@ -649,7 +649,7 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
     const value = documentRef.createElement('span');
     value.textContent = row.pct == null ? '—' : `${signedText(row.pct, mode === '1d' || mode === '1w' ? 2 : 1)}%`;
     value.className = 'thp-perf-value';
-    value.style.color = dirColor(row.pct);
+    value.style.color = dirColor(row.pct, mode === '1d' || mode === '1w' ? 2 : 1); // P2115: colour follows the printed digits
     const vsSpy = documentRef.createElement('span');
     vsSpy.textContent = row.vsSpy == null ? '' : `${signedText(row.vsSpy, 1)}%p`;
     vsSpy.className = 'thp-perf-vs';
@@ -1008,7 +1008,7 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) 
   const pct = typeof detail.pct === 'number' && Number.isFinite(detail.pct) ? detail.pct : null;
   performance.textContent = pct == null ? '당일 등락 대기' : `${signedText(pct, 2)}%`;
   performance.className = 'thp-summary-pct';
-  performance.style.color = dirColor(pct);
+  performance.style.color = dirColor(pct, 2);
 
   const header = documentRef.createElement('div');
   header.className = 'thp-summary-header';
@@ -1210,7 +1210,7 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
     const performance = documentRef.createElement('span');
     performance.textContent = pct == null ? '시세 대기' : `${signedText(pct, 2)}%`;
     performance.className = 'thp-subtheme-pct';
-    performance.style.color = dirColor(pct);
+    performance.style.color = dirColor(pct, 2);
     title.append(name, performance);
     card.appendChild(title);
 
@@ -1445,7 +1445,7 @@ function renderThemeDetailLeaders({ documentRef, root, store, themeId = null }) 
     const pct = documentRef.createElement('span');
     pct.textContent = quote?.pct == null ? '등락률 대기' : `${signedText(quote.pct, 2)}%`;
     pct.className = 'thp-leader-pct';
-    pct.style.color = dirColor(quote?.pct ?? null);
+    pct.style.color = dirColor(quote?.pct ?? null, 2);
     card.append(ticker, price, pct);
     cards.appendChild(card);
   });

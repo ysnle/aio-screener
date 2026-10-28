@@ -29,10 +29,11 @@
       "description": "AIO Screener 변경 리뷰. index.html뿐 아니라 native ESM·데이터·워크플로·생성물 계약을 함께 점검한다.",
       "purpose": "Review the actual diff for correctness, security, data semantics, lifecycle ownership, generated-source drift and missing regression coverage.",
       "checks": [
+        "Read REVIEW.md first: it defines what counts as a defect here, the risk paths to name separately, what not to review, the report format and the round limit.",
         "Start from git diff and map each producer, transformer, consumer and gate affected by the change.",
         "Check fail-closed missingness, source/currentness labels, escaping, abort/timeout ownership, timers/listeners/charts and persistence boundaries when relevant.",
         "Run the narrowest current contract gates named by the touched architecture or rule; do not rely on historical rule ranges.",
-        "Return actionable findings with exact files and tight line ranges; return no findings when there is no material defect."
+        "Return actionable findings with exact files and tight line ranges, led by the REVIEW.md count line (Important n · Pre-existing n, or 발견 없음); on a re-review look only at the diff since the last round and the findings still open."
       ]
     },
     "performance-analyzer": {

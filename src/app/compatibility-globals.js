@@ -12,6 +12,7 @@ import { installNaverKrCollector } from '../data/providers/naver-kr.js'; // v59.
 import { installTelegramCollector } from '../data/providers/telegram-direct.js'; // v59.29 roadmap 11: moved from js/aio-data.js
 import { installVaultCrypto } from '../storage/vault-crypto.js'; // v59.30 roadmap 11: the AioVault cryptography from js/aio-core.js
 import { installNewsCache } from '../storage/news-cache.js'; // v59.31 roadmap 11: moved from js/aio-data.js
+import { installNewsSelection } from './news-selection-entry-points.js'; // v59.42 roadmap 11: news scoring and selection moved from js/aio-data.js
 import { installRefreshScheduler } from './refresh-scheduler.js'; // v59.33 roadmap 11: moved from js/aio-data.js
 import { installServerDataLoader } from '../data/server-data-loader.js'; // v59.34 roadmap 11: moved from js/aio-data.js
 import { installPublicReadiness } from '../data/public-readiness.js'; // v59.35 roadmap 11: moved from js/aio-data.js
@@ -62,7 +63,6 @@ import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js'
 import { KR_THEME_LABELS } from '../domain/themes/kr-themes.js';
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 import { completedBars } from '../ui/components/chart-bars.js';
-import { keywordMayMatch, textPairs } from '../domain/news/keyword-prefilter.js';
 import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
 import { installPageCompleteness } from '../data/page-completeness.js';
 import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
@@ -80,6 +80,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   installNaverKrCollector(window);
   installTelegramCollector(window);
   installNewsCache(window);
+  installNewsSelection(window);
   // Runs the scheduler's load-time setup, which needs js/aio-data.js's fetchers; if that script did not load, the error is
   // reported as its classic script error was and the rest of boot continues, as before the move.
   try { installRefreshScheduler(window); } catch (error) { window.reportError?.(error); }
@@ -113,8 +114,6 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._calcMaxDrawdown = _calcMaxDrawdown;
   window._pearsonCorr = _pearsonCorr;
   window._calcCorrelationMatrix = _calcCorrelationMatrix;
-  window._aioTextPairs = textPairs; // v57.91 (P1901): news keyword prefilter read by js/aio-data.js scoreItem
-  window._aioKwMay = keywordMayMatch;
   // Legacy unification (2026-10-17): the chat's screener query engine moved here from js/aio-data.js. Every call reads
   // the canonical rows the native screener orchestrator ranked (no second ranking run) and the producer's factor date.
   const screenerState = (path) => { try { return window.AIO_ARCH?.getScreenerState?.(path) ?? null; } catch (_) { return null; } };

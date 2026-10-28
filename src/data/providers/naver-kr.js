@@ -133,8 +133,6 @@ export function installNaverKrCollector(window = globalThis) {
                 regularMarketChange: chgVal,
                  _source: 'live:naver-fb', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
               });
-              // v35.7: 시가총액 동적 추출
-              if (typeof _enrichMarketCap === 'function') _enrichMarketCap(code, data);
             }
           } catch(e) {}
         }));

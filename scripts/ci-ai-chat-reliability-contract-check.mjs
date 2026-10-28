@@ -353,7 +353,8 @@ assert(toggleUi.includes('updateQuotaBadge()') && !toggleUi.includes('classList'
 const consumeUi=ui.slice(ui.indexOf('function consumeLLMQuery()'),ui.indexOf('// Init on load'));
 assert(consumeUi.indexOf('if (!route.ready)') >= 0 && consumeUi.indexOf('return false') > consumeUi.indexOf('if (!route.ready)') && consumeUi.indexOf('return false') < consumeUi.indexOf('getQuota()'), 'v57.77 a missing route fails closed before any quota accounting');
 assert(!consumeUi.includes('getLLMState'), 'v57.77 no OFF/unlimited quota shortcut'); // text-pin-ok: retirement absence
-assert(consumeUi.includes('settle(false)') && consumeUi.includes('saveQuota(quota)'));
+assert(consumeUi.includes('saveQuota(quota)') && !consumeUi.includes('showConfirmModal') && !/dailyQueryLimit|calcDailyLimit/.test(ui), 'v59.42 the browser keeps no daily AI limit of its own and never asks to go over one; the Worker owns the cap');
+assert(/function _aioWorkerClientQuota\(\)[\s\S]{0,400}health\.ai\.client/.test(ui) && quotaUi.includes('_aioWorkerClientQuota()'), 'v59.42 the quota badge shows the Worker-reported ai.client allowance');
 // v57.62: quota and freshness preflight contracts read the unified panel (the per-page chatSend copy was retired).
 const quotaAwait=unifiedChat.indexOf('_qOk = await consumeLLMQuery();');
 assert(quotaAwait>=0 && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) > quotaAwait && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) < unifiedChat.indexOf("inp.value = '';", quotaAwait), 'v57.62 unified quota await rejects a cancelled epoch before clearing the input');

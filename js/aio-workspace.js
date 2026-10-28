@@ -18,7 +18,6 @@
 
 // AI credentials are server-only; these compatibility helpers never read a saved key.
 function getApiKey() { return ''; }
-function loadSidebarApiKey() {}
 
 
 // v57.77: the #sidebar-api-key listener was deleted with its input (P1421: AI keys are server-only).
@@ -776,15 +775,16 @@ function renderPortfolio() {
   const rows = positions.map(p => { // #3: per-row cells stay in each position's own currency; no cross-currency total is summed here
     const live = ld[p.ticker];
     const currentPrice = live && isFinite(live.price) && live.price > 0 ? live.price : null;
-    const dailyPct = live ? (live.pct != null ? live.pct : 0) : 0;
+    const dailyPct = live && live.pct != null && isFinite(live.pct) ? Number(live.pct) : null; // v59.42: no day change is not 0 (it coloured the price as up)
     const posValue = currentPrice != null ? currentPrice * p.qty : null;
     const posCost = p.cost * p.qty;
     const pnl = posValue != null ? posValue - posCost : null;
     const pnlPct = pnl != null && posCost > 0 ? (pnl / posCost * 100) : null;
 
     const pnlColor = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
-    const pnlSign = pnl != null && pnl >= 0 ? '+' : '';
-    const priceColor = live ? (dailyPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)') : 'var(--text-muted)';
+    // v59.42: the amount cell prints Math.abs(pnl), so a loss needs its own '-' (it showed as a bare amount, colour only).
+    const pnlSign = pnl == null ? '' : pnl >= 0 ? '+' : '-';
+    const priceColor = dailyPct == null ? 'var(--text-muted)' : dailyPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     const liveTag = live ? '' : ' <span class="wsl-note">(시세 미수신)</span>';
 
     var _eTk = escHtml(p.ticker); // v46.9: XSS 방어
@@ -798,7 +798,7 @@ function renderPortfolio() {
       <td headers="pf-th-cost" class="pfp-cell">${_pfLegacyMoney(p.cost, _cur)}</td>
       <td headers="pf-th-price" class="pfp-cell" style="color:${priceColor};">${currentPrice == null ? '—' : _pfLegacyMoney(currentPrice, _cur)}${liveTag}</td>
       <td headers="pf-th-pnl" class="pfp-cell is-bold" style="color:${pnlColor};">${pnl == null ? '—' : pnlSign+_pfLegacyMoney(Math.abs(pnl), _cur, 0)}</td>
-      <td headers="pf-th-pct" class="pfp-cell is-bold" style="color:${pnlColor};">${pnlPct == null ? '—' : pnlSign+pnlPct.toFixed(1)+'%'}</td>
+      <td headers="pf-th-pct" class="pfp-cell is-bold" style="color:${pnlColor};">${pnlPct == null ? '—' : (pnlPct >= 0 ? '+' : '')+pnlPct.toFixed(1)+'%'}</td>
       <td headers="pf-th-day" class="pfp-cell">—</td>
       <td headers="pf-th-target" class="pfp-cell">${p.target && p.target > 0 ? (currentPrice != null ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--dir-up)' : 'var(--dir-down)'; return _pfLegacyMoney(p.target, _cur, 0)+'<div class="pfp-upside" style="color:'+uColor+';">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : _pfLegacyMoney(p.target, _cur, 0)+'<div class="wsl-sub">상승여력 대기</div>') : '<span class="wsl-sub">미설정</span>'}</td>
       <td headers="pf-th-weight" class="pfp-cell is-bold is-sans" id="pf-weight-${_eTk}">—</td>

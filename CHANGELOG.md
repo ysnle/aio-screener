@@ -1,3 +1,23 @@
+## v59.42 (2026-10-28)
+- **qa-runner --files 공백 구분 거부 (P2113):** `--files a b`가 a만 남기고 나머지를 조용히 버려 QA가 좁게 돌던 것을, 쉼표 목록을 쓰라는 안내와 함께 멈추게 했다.
+- **리뷰 기준 REVIEW.md 신설 (v59.42):** Claude Code 팀 리뷰 방식(2026-10)과 tstack sol-loop를 이 저장소에 맞춰, 무엇이 결함인지(지어낸 숫자·문서/레지스트리 거짓·정본 분기·예산/비밀·수명주기·증명 못 하는 게이트), 변경 경로로 정하는 위험(워크플로·Worker·sw.js·원장 스크립트·에이전트 권한), 보지 않는 경로, 보고 형식(Important·Pre-existing 개수, 없으면 발견 없음, 파일:줄), 최대 3라운드 수렴을 한 곳에 적었다. cstack과 code-reviewer 프로필(architecture/agent-profiles.json → sync)이 읽는다.
+- **사고 기반 리뷰어 평가 (v59.42):** architecture/review-eval-cases.jsonl에 BUG-POSTMORTEM의 실제 결함을 들여온 커밋 10건(P2045·P2047·P2053·P2091·P2092·P2104·P2105·P2106·P2109·P2111, 결함 파일·줄 확인)과 깨끗한 커밋 3건을 담고, scripts/review-eval.mjs가 사례 확인(--check)·리뷰어 입력(--packet)·채점(--score: recall, 깨끗한 사례 발견 수)을 한다. 리뷰어 프롬프트·REVIEW.md·모델을 바꾸면 다시 채점한다.
+- **expect 출력 테스트 (v59.42):** React 컴파일러 fixture·Ron Minsky expect test 방식으로 scripts/ci-expect-output-check.mjs를 추가했다. scripts/fixtures/expect/*.cases.mjs가 순수 도메인 함수(시장 기울기 9건, 지난 마감 이후 변화 4건)를 고정 입력으로 돌려 사용자가 읽는 전체 문장을 .expect.md에 남기고, 바뀌면 diff로 보여 준다(--update 후 diff 검토). core 그룹 게이트로 등록.
+- **작업 지침 정리 (v59.42):** CLAUDE.md를 claude-md-improver 기준으로 점검해 코드 리뷰 행, 핸드오프는 맥락이지 증거가 아니라는 원칙(tstack takeover/modernize), 생성 파일 손편집 금지와 각 생성기, 중복된 AGENTS 정본 문장 통합을 반영했다. post-edit-qa 보고 계약에 '증거가 아닌 것' 목록과 위험·되돌리는 방법 항목을 더했다.
+- **AI 매매 지시 차단 소수점 가격 누락 수정 (P2114):** '손절은 177.50달러에서 하세요.'처럼 소수점 가격이 든 지시가 문장 분리 때문에 그대로 나가던 것을 막았다.
+- **리뷰어 평가 첫 실측 (v59.42):** review-eval --packet을 완전 블라인드로 바꿨다 — 사례마다 base·head 두 커밋만 받은 새 저장소(ref·이후 이력 없음, 무작위 폴더 이름)에 검증 대상 REVIEW.md를 넣고, 정리는 리뷰어가 아니라 실행자가 한다. 첫 판은 사례 id가 경로와 파일 이름에 드러나 중단·재실행했다. 블라인드 기준선(code-reviewer 프로필, 리뷰어 4명): recall 2/10(P2105·P2091), 깨끗한 사례 3건 발견 0. 결과는 _artifacts/review-eval/2026-10-28-baseline.json. 빗나간 8건에서도 리뷰어는 다른 실제 결함을 짚었고, 그중 4건은 지금도 남아 있다(홈 헤드라인 단계 판정·지금 시세 시각·테마 색/부호·포트폴리오 쉼표 — 후속).
+- **작업 지침 (v59.42):** CLAUDE.md에 이번 세션에서 실제로 걸린 Windows·Git Bash 함정 4줄(heredoc 백슬래시, execSync의 ^, 로컬 클론의 shallow 표시, bump 뒤 전 그룹 QA 시간)을 소유자 승인을 받아 더했다.
+- **리뷰어 평가가 짚은 화면 결함 4건 수정 (P2115):** 같은 토픽에 고득점 기사가 몰려도 오늘 헤드라인이 4건 나오고, '지금 시세' 시각은 화면에 보이는 타일 중 가장 오래된 관측 시각을 쓰며, 테마 색은 찍힌 자릿수의 부호를 따르고, 포트폴리오 회전 문장에 쉼표가 남지 않는다.
+- **/restate 6번 '더 크게 말고 더 깊게' (v59.42):** 분석·데이터·리뷰 작업 전에 네 질문에 답한다 — 이 분야 최고 실무자가 요청 밖에서 할 일, 요약이 아닌 가장 원천 자료(SEC 공시·FRED/BLS 시계열·산출물·로그), 이름 있는 방법(이벤트 스터디·비중첩 표본·재생), 우리 둘 말고 결과가 맞다는 것을 보여 줄 것(틀린 답에 실패하는 게이트·재생·라이브 화면). 그다음 과제를 그 깊은 판으로 다시 쓴다(Felix Rieseberg, 2026-10-13).
+- **뉴스 제외 목록 오탐 수정 (P2116):** 영어 키워드를 단어 단위로 비교해, 'nfl' 때문에 inflation이 든 기사가 통째로 빠지던 문제를 고쳤다(오늘 피드에서 2건 복구, 새로 막힌 기사 0건). 한글 키워드는 그대로 부분 일치다.
+- **뉴스 채점·선별 이전 (P2117/R730):** 뉴스 키워드 목록·채점·제외·화면 선별을 js/aio-data.js(−2,780줄)에서 src/domain/news/selection.js로 옮기고, 모든 목록이 keyword-match.js 한 규칙(영어 단어+복수, 한국어 부분 문자열, 한 글자는 단독)을 쓴다. 'tax'⊂'taxi', 'surge'⊂'Surgery', '핵'⊂'핵심' 오탐과 복수형·조사 누락이 사라지고, P2116 매처가 놓친 'could reach $100' 스팸을 다시 막는다. 현재 서버 점수 피드의 화면 선별 변화 0건; expect 스위트 news-selection 추가.
+- **AI 하루 20회 브라우저 한도 제거 (P2118):** 21번째 질문부터 뜨던 '일일 한도 초과' 확인창을 없앴다. 한도는 공용 Worker(연결당 150회)가 정하고, 배지는 Worker가 알려준 남은 횟수를 보여준다.
+- **장중 금리를 FRED 공식 값으로 덮던 경로 제거 (P2119):** 거시·금리 화면의 FRED 칸이 장중 Yahoo 금리·VIX를 공식 값처럼 보여주던 것을 없앴다. FRED 칸은 공식 관측값과 날짜만 보여준다.
+- **부팅 중 updateDataStatus 미정의 오류 수정 (P2120/R731):** 서비스 워커 버전 응답이 모듈 설치보다 먼저 도착하면 나던 부팅 오류를 막았다. src가 설치하는 전역을 부팅 경로에서 부를 때는 존재부터 확인한다.
+- **레거시 화면 결함 3건 (P2121):** 늘 '—'이던 한국 테마 시총 칸을 없앴고, 예전 포트폴리오 표가 손실에 '-'를 붙이며 등락이 없으면 중립색을 쓰게 했다. Ctrl/Cmd+R은 다시 브라우저 새로고침이다.
+- **레거시 js/ 감사와 죽은 코드 정리 (v59.42):** _artifacts/legacy-audit-20261028/REPORT.md에 js/ 기능 묶음을 사용자 피해 순으로 정리했다(상위 10, 다음 5, 지울 것, 둘 것). 그중 호출자나 그릴 곳이 없는 코드를 지웠다. aio-ui.js 도식 엔진은 재무 공시 팩터 레이더만 남기고 9종과 빌더를 지웠다(약 450줄). 그 밖에 옵션 심리 체인, DATE_ENGINE.krxStatus, 디버그 로그 함수, 버튼 없는 _aioFetchLiveQuotes, 빈 테마 상수 3개, 빈 loadSidebarApiKey도 지웠다. 고정 문자열 검사는 '없어야 한다' 검사로 바꿨다.
+- R1 7곳 v59.42
+
 ## v59.41 (2026-10-27)
 - **점수 진입점을 src/로 이전 (로드맵 11 레이어 5-2):** computeTradingScore(20초 모드별 캐시 래퍼, 모델은 이미 src/domain/signal/trading-score.js)와 computeNewsSentimentScore·computeNewsRiskSignals(src/domain/news/scoring.js 래퍼)는 그대로 src/app/score-entry-points.js의 installScoreEntryPoints로, AIO.diagnoseBreadthConsensus(시장폭 합의 판정)는 본문 그대로 src/domain/market/breadth-consensus.js로 옮겼다(임계값 레지스트리만 인자로 받는다). 가중치·컷오프는 바꾸지 않았다. 전후 Playwright 비교에서 네 가지 모드의 매매 점수 전체 결과, 뉴스 감성·리스크 신호, 시장폭 합의 6개 입력 사례, 화면의 점수 요소가 같다(경과 시간 ageMs만 측정 시각 차이). ci-esm-core-unit-check가 시장폭 합의 가중치·컷오프를 고정한다. v59.40 트레이더 프로필 주석·검사 라벨에 남은 v59.39 표기도 v59.40으로 바로잡았다.
 - R1 7곳 v59.41

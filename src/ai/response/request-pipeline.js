@@ -573,7 +573,8 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       var head = clause.slice(Math.max(0, m.index - 12), m.index);
       return negated.test(m[0]) || negated.test(tail) || /^\s*(?:is\s+not|isn't|not)\b/i.test(tail) || /\b(?:not|never|don't|do\s+not)\s+$/i.test(head);
     };
-    var sentences = raw.match(/[^.!?。\n]+(?:[.!?。]+|\n|$)\s*/g) || [raw];
+    // P2114: a decimal point ("177.50달러") does not end a sentence; splitting there let a priced imperative with cents through.
+    var sentences = raw.match(/(?:[^.!?。\n]|\.(?=\d))+(?:[.!?。]+|\n|$)\s*/g) || [raw];
     var replaced = 0;
     var out = sentences.map(function(sentence) {
       // A negation counts only inside the clause that carries the directive ("지금 매수하세요, 이것은 지시가 아닙니다" is replaced).

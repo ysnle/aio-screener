@@ -1,0 +1,8 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-28",
+  "changelog": [
+    "**레거시 js/ 감사와 죽은 코드 정리 (v59.42):** _artifacts/legacy-audit-20261028/REPORT.md에 js/ 기능 묶음을 사용자 피해 순으로 정리했다(상위 10, 다음 5, 지울 것, 둘 것). 그중 호출자나 그릴 곳이 없는 코드를 지웠다. aio-ui.js 도식 엔진은 재무 공시 팩터 레이더만 남기고 9종과 빌더를 지웠다(약 450줄). 그 밖에 옵션 심리 체인, DATE_ENGINE.krxStatus, 디버그 로그 함수, 버튼 없는 _aioFetchLiveQuotes, 빈 테마 상수 3개, 빈 loadSidebarApiKey도 지웠다. 고정 문자열 검사는 '없어야 한다' 검사로 바꿨다."
+  ],
+  "note": "v59.42: legacy js/ audit report; dead diagram types, option chain and small dead helpers deleted."
+}

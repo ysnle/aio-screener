@@ -80,6 +80,12 @@ const has = (name) => argv.includes(name);
 const requestedGroup = option('--group');
 const profile = argv[0] && !argv[0].startsWith('-') ? argv[0] : (requestedGroup ? 'group' : 'affected');
 const explicitFilesOption = option('--files');
+// P2113: `--files a b` kept only `a` and dropped the rest without a word, so a task's QA ran on one file.
+const strayFile = explicitFilesOption !== null ? argv[argv.indexOf('--files') + 2] : undefined;
+if (strayFile !== undefined && !strayFile.startsWith('-')) {
+  console.error(`[qa] --files takes one comma-separated list; "${strayFile}" was given as a separate argument. Use --files ${explicitFilesOption},${strayFile}`);
+  process.exit(2);
+}
 const sinceRef = option('--since');
 const sessionName = option('--session');
 const noCache = has('--no-cache') || process.env.CI === 'true';

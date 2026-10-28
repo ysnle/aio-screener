@@ -27,14 +27,9 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 3730,
-      "secondary": 410,
+      "total": 3664,
+      "secondary": 380,
       "lines": [
-        {
-          "chars": 47,
-          "classes": "daily-event-why daily-event daily-schedule",
-          "text": "연정 구성에 따라 이란·중동 정책 기대가 바뀌어 유가 위험 프리미엄이 움직일 수 있음"
-        },
         {
           "chars": 35,
           "classes": "aio-operator-note-title aio-operator-note-card aio-operator-note-priority aio-market-sentence",
@@ -48,12 +43,12 @@
         {
           "chars": 27,
           "classes": "page-subtitle  page-head",
-          "text": "10월 27일 화요일, 10/26 미국 종가 기준"
+          "text": "10월 28일 수요일, 10/27 미국 종가 기준"
         },
         {
           "chars": 27,
           "classes": "kpi-fallback-note kpi-fallback is-interactive sh-home-kpi-strip-box",
-          "text": "10/26 종가 +0.70%, 선물 시세 대기 중"
+          "text": "10/27 종가 +0.60%, 선물 시세 대기 중"
         },
         {
           "chars": 27,
@@ -64,6 +59,11 @@
           "chars": 26,
           "classes": "daily-event-why daily-event daily-schedule",
           "text": "정책금리와 향후 경로 — 모든 자산 가격의 기준"
+        },
+        {
+          "chars": 17,
+          "classes": "daily-event-why daily-event daily-schedule",
+          "text": "연준이 가장 중시하는 물가 지표"
         },
         {
           "chars": 16,
@@ -88,14 +88,14 @@
         {
           "chars": 16,
           "classes": "aio-operator-note-verdict aio-operator-note-card aio-operator-note-priority aio-market-sentence",
-          "text": "10/26 종가 기준 '혼조'"
+          "text": "10/27 종가 기준 '혼조'"
         }
       ],
       "frames": [
         {
           "frame": "home.index-strip",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
@@ -130,15 +130,15 @@
         {
           "frame": "home.participation",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         }
       ]
     },
     "signal": {
-      "total": 6204,
-      "secondary": 229,
+      "total": 5543,
+      "secondary": 275,
       "lines": [
         {
           "chars": 42,
@@ -148,7 +148,12 @@
         {
           "chars": 29,
           "classes": "page-subtitle  page-head",
-          "text": "10/26 미국 종가 기준, 6개 지표, 공개 기준선"
+          "text": "10/27 미국 종가 기준, 6개 지표, 공개 기준선"
+        },
+        {
+          "chars": 28,
+          "classes": "regime-chart-note regime-axis-history mk-axis__detail",
+          "text": "는 수준과 5거래일 확대·축소를 구분해서 읽습니다."
         },
         {
           "chars": 22,
@@ -166,11 +171,6 @@
           "text": "오늘, 5거래일 전, 20거래일 전"
         },
         {
-          "chars": 17,
-          "classes": "is-burden mk-tally__legend mk-tally",
-          "text": "부담 2(추세·신용과 위험선호)"
-        },
-        {
           "chars": 16,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
           "text": "1년 범위 80%, 5.04%"
@@ -178,7 +178,12 @@
         {
           "chars": 16,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "20일 +25bp, 318bp"
+          "text": "20일 +25bp, 327bp"
+        },
+        {
+          "chars": 14,
+          "classes": "is-burden mk-tally__legend mk-tally",
+          "text": "부담 1(신용과 위험선호)"
         },
         {
           "chars": 13,
@@ -186,39 +191,34 @@
           "text": "양호 2(시장 폭·금리)"
         },
         {
-          "chars": 10,
+          "chars": 12,
           "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "50일선 7,697"
+          "text": "5거래일 전 17.31"
         },
         {
-          "chars": 10,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "50일선 위 60%"
-        },
-        {
-          "chars": 6,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "VIX 18"
+          "chars": 11,
+          "classes": "basis-chip is-off sx-disclosure__card sx-disclosure__body mk-axis__body",
+          "text": "10/26~10/27"
         }
       ],
       "frames": [
         {
           "frame": "signal.scenarios",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         }
       ]
     },
     "breadth": {
-      "total": 1224,
+      "total": 1192,
       "secondary": 49,
       "lines": [
         {
           "chars": 31,
           "classes": "page-subtitle  page-head",
-          "text": "10/26 미국 종가 기준, S&P 500 499개 종목"
+          "text": "10/27 미국 종가 기준, S&P 500 499개 종목"
         },
         {
           "chars": 2,
@@ -269,38 +269,43 @@
       "frames": []
     },
     "sentiment": {
-      "total": 2017,
-      "secondary": 227,
+      "total": 2026,
+      "secondary": 231,
       "lines": [
         {
           "chars": 33,
           "classes": "page-subtitle  page-head",
-          "text": "10/26 미국 종가 기준, 날짜가 다른 지표는 카드에 표시"
+          "text": "10/27 미국 종가 기준, 날짜가 다른 지표는 카드에 표시"
         },
         {
           "chars": 22,
           "classes": "basis-chip temp-head briefing-block market-temperature",
-          "text": "10/26 종가, 전일 대비 +0.70%"
+          "text": "10/27 종가, 전일 대비 +0.60%"
         },
         {
           "chars": 20,
           "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/26 기준, 7개 중 6개 반영"
+          "text": "10/27 기준, 7개 중 6개 반영"
+        },
+        {
+          "chars": 17,
+          "classes": "basis-chip trend-card-tags trend-card",
+          "text": "10/22, 오래됨(판정 제외)"
         },
         {
           "chars": 16,
           "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/21, 3거래일 전 주간"
+          "text": "10/21, 4거래일 전 주간"
         },
         {
           "chars": 14,
           "classes": "temp-tile-meta temp-tile is-none is-selected temp-group-grid",
-          "text": "10/26 종가 +0.7%"
+          "text": "10/27 종가 +0.6%"
         },
         {
           "chars": 14,
           "classes": "temp-tile-meta temp-tile is-none temp-group-grid",
-          "text": "10/26 종가 +0.8%"
+          "text": "10/27 종가 +1.2%"
         },
         {
           "chars": 14,
@@ -320,12 +325,7 @@
         {
           "chars": 13,
           "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/23, 1거래일 전"
-        },
-        {
-          "chars": 13,
-          "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/22, 2거래일 전"
+          "text": "10/26, 1거래일 전"
         },
         {
           "chars": 13,
@@ -336,33 +336,68 @@
       "frames": []
     },
     "briefing": {
-      "total": 818,
-      "secondary": 78,
+      "total": 4793,
+      "secondary": 740,
       "lines": [
         {
-          "chars": 32,
+          "chars": 46,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "연준이 가장 중시하는 물가 지표, 전년 동월 대비(%), 직전 3.4%, 근원 3%"
+        },
+        {
+          "chars": 46,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "의회 다수당에 따라 재정·관세·규제 기대가 바뀌어 금리·업종별 흐름이 갈릴 수 있음"
+        },
+        {
+          "chars": 44,
           "classes": "ai-analysis-scope basis-chip  briefing-ai",
-          "text": "생성 10/27 22:58 KST, 코스피 10/27 종가"
+          "text": "생성 10/28 07:51 KST, S&P 500·VIX·코스피 10/27 종가"
         },
         {
-          "chars": 22,
-          "classes": "xr-h3 xr-section mg-guide mg-screen-lessons",
-          "text": "이 화면을 볼 때 — 속지 말 것과 원칙"
+          "chars": 41,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "정책금리와 향후 경로 — 모든 자산 가격의 기준, 현재 3.75-4.00%"
         },
         {
-          "chars": 14,
-          "classes": "page-subtitle  sh-briefing-row",
-          "text": "2026-10-27 (화)"
+          "chars": 30,
+          "classes": "briefing-event-meta  aio-section briefing-block",
+          "text": "나머지 실적 발표 133건은 아래 이번 주 실적 목록에"
         },
         {
-          "chars": 5,
-          "classes": "aio-note-fold ai-analysis-note-fold",
-          "text": "해설 범위"
+          "chars": 28,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 3.11, 매출 예상 1,320억 달러"
         },
         {
-          "chars": 5,
-          "classes": "briefing-h2-note briefing-h2 aio-section briefing-block",
-          "text": "한국 시간"
+          "chars": 28,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 2.00, 매출 예상 2,063억 달러"
+        },
+        {
+          "chars": 28,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 4.12, 매출 예상 1,045억 달러"
+        },
+        {
+          "chars": 28,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 2.02, 매출 예상 1,155억 달러"
+        },
+        {
+          "chars": 26,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 4.82, 매출 예상 925억 달러"
+        },
+        {
+          "chars": 26,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 6.61, 매출 예상 228억 달러"
+        },
+        {
+          "chars": 26,
+          "classes": "briefing-event-meta briefing-event-body briefing-event",
+          "text": "EPS 예상 3.83, 매출 예상 177억 달러"
         }
       ],
       "frames": []
@@ -374,7 +409,7 @@
         {
           "chars": 32,
           "classes": "theme-strength-basis tech-regime-head aio-section tech-regime",
-          "text": "10/26 미국 종가 기준, 양호 2, 중립 2, 부담 2"
+          "text": "10/27 미국 종가 기준, 양호 2, 중립 3, 부담 1"
         },
         {
           "chars": 28,
@@ -406,7 +441,7 @@
         {
           "chars": 124,
           "classes": "mk-rate-tile__note mk-taylor__tension mk-rate-tile mk-taylor mk-rate-strip__grid",
-          "text": "정책금리는 준칙보다 1.03%p 낮고, 2년물은 기준금리 중간값보다 0.80%p 높습니다 — 시장 금리는 준칙 쪽(더 높은 금리)으로 기울어 있습니다. 2년물에는 기간 프리미엄도 섞여 있어 정책 예상으로 단정하지 않습니다."
+          "text": "정책금리는 준칙보다 1.03%p 낮고, 2년물은 기준금리 중간값보다 0.83%p 높습니다 — 시장 금리는 준칙 쪽(더 높은 금리)으로 기울어 있습니다. 2년물에는 기간 프리미엄도 섞여 있어 정책 예상으로 단정하지 않습니다."
         },
         {
           "chars": 65,
@@ -426,7 +461,7 @@
         {
           "chars": 23,
           "classes": "macro-gauge-caption macro-gauge-wrap mk-maxis__facts",
-          "text": "2년물 − 기준금리 중간값, +0.80%p"
+          "text": "2년물 − 기준금리 중간값, +0.83%p"
         },
         {
           "chars": 22,
@@ -451,32 +486,32 @@
         {
           "chars": 8,
           "classes": "sx-meta mk-rate-tile mk-rate-strip__grid",
-          "text": "10/23 관측"
+          "text": "10/26 관측"
         },
         {
           "chars": 8,
           "classes": "sx-meta mk-rate-tile mk-rate-strip__grid",
-          "text": "10/26 관측"
+          "text": "10/27 관측"
         }
       ],
       "frames": [
         {
           "frame": "macro.crossroads",
           "hasHead": true,
-          "asof": "10/26 관측",
+          "asof": "10/27 관측",
           "readings": [],
           "problems": []
         }
       ]
     },
     "fxbond": {
-      "total": 2726,
-      "secondary": 259,
+      "total": 2719,
+      "secondary": 267,
       "lines": [
         {
           "chars": 36,
           "classes": "page-subtitle  page-head",
-          "text": "10/26 미국 종가 기준, 국채 금리 10/26 공식 고시 기준"
+          "text": "10/27 미국 종가 기준, 국채 금리 10/27 공식 고시 기준"
         },
         {
           "chars": 22,
@@ -486,7 +521,22 @@
         {
           "chars": 18,
           "classes": "briefing-h2-note briefing-h2 briefing-block rates-block sx-card sx-card--hero mk-curve-card",
-          "text": "공식 국채 곡선, 10/26 기준"
+          "text": "공식 국채 곡선, 10/27 기준"
+        },
+        {
+          "chars": 16,
+          "classes": "basis-chip is-off trend-card-tags trend-card",
+          "text": "10/26, 1거래일 전 종가"
+        },
+        {
+          "chars": 16,
+          "classes": "basis-chip is-off trend-card-tags trend-card",
+          "text": "10/26, 1거래일 전 종가"
+        },
+        {
+          "chars": 16,
+          "classes": "basis-chip is-off trend-card-tags trend-card",
+          "text": "10/26, 1거래일 전 종가"
         },
         {
           "chars": 15,
@@ -501,37 +551,22 @@
         {
           "chars": 13,
           "classes": "macro-stat-meta macro-stat macro-stat-grid",
-          "text": "10/16, 6거래일 전"
+          "text": "10/23, 2거래일 전"
         },
         {
           "chars": 12,
           "classes": "sx-meta mk-rsum mk-rsum-col",
-          "text": "10/26 2년물 관측"
+          "text": "10/27 2년물 관측"
         },
         {
           "chars": 11,
           "classes": "rates-curve-key is-prev rates-curve-legend rates-curve-wrap",
-          "text": "1개월 전, 9/25"
+          "text": "1개월 전, 9/28"
         },
         {
           "chars": 11,
           "classes": "rates-guide",
           "text": "수익률 곡선 읽는 법"
-        },
-        {
-          "chars": 11,
-          "classes": "briefing-h2-note briefing-h2 briefing-block rates-block",
-          "text": "10/26 종가 기준"
-        },
-        {
-          "chars": 9,
-          "classes": "mk-rsum__note mk-rsum mk-rsum-col",
-          "text": "오르면 원화 약세"
-        },
-        {
-          "chars": 9,
-          "classes": "mk-rsum__note mk-rsum mk-rsum-col",
-          "text": "내리면 엔화 강세"
         }
       ],
       "frames": []
@@ -554,8 +589,8 @@
       "frames": []
     },
     "themes": {
-      "total": 12646,
-      "secondary": 769,
+      "total": 13233,
+      "secondary": 740,
       "lines": [
         {
           "chars": 74,
@@ -563,34 +598,29 @@
           "text": "지수보다 앞서지만 긴 추세 수익률이 0 이하 — 덜 하락한 것, 1개월도 뒤처지지 않음. 조건별 득실로 비용이 작은 쪽: 관망 9개."
         },
         {
-          "chars": 69,
-          "classes": "tp-stage-note  tp-stage-row",
-          "text": "긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음. 조건별 득실로 비용이 작은 쪽: 보유 유지·관망 1개, 보유 유지 1개."
-        },
-        {
           "chars": 66,
           "classes": "tp-stage-note  tp-stage-row",
           "text": "긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음. 조건별 득실로 비용이 작은 쪽: 관망 3개."
         },
         {
+          "chars": 59,
+          "classes": "tp-stage-note  tp-stage-row",
+          "text": "긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음. 조건별 득실로 비용이 작은 쪽: 보유 유지·관망 1개."
+        },
+        {
+          "chars": 55,
+          "classes": "xr-basis tp-card",
+          "text": "3개월 +5.5%, 성격: AI 설비투자 사이클, 경기 민감, 장기 성장, 고PER (할인율 민감)"
+        },
+        {
           "chars": 54,
           "classes": "tp-stage-note  tp-stage-row",
-          "text": "긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함. 조건별 득실로 비용이 작은 쪽: 관망 14개."
+          "text": "긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함. 조건별 득실로 비용이 작은 쪽: 관망 13개."
         },
         {
           "chars": 50,
           "classes": "tp-stage-note  tp-stage-row",
-          "text": "긴 추세가 지수와 비슷함. 조건별 득실로 비용이 작은 쪽: 관망 13개, 보유 유지 2개."
-        },
-        {
-          "chars": 46,
-          "classes": "xr-basis tp-card",
-          "text": "3개월 -13.1%, 성격: 경기 방어, 금리 민감 배당 (리츠, 유틸리티, 통신)"
-        },
-        {
-          "chars": 43,
-          "classes": "xr-basis tp-card",
-          "text": "3개월 -7.3%, 성격: 달러, 환율 민감 (수출, 해외 매출), 경기 민감"
+          "text": "긴 추세가 지수와 비슷함. 조건별 득실로 비용이 작은 쪽: 관망 14개, 보유 유지 3개."
         },
         {
           "chars": 42,
@@ -603,11 +633,6 @@
           "text": "단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인)."
         },
         {
-          "chars": 38,
-          "classes": "xr-basis tp-card",
-          "text": "3개월 -8.8%, 성격: 금리 민감 배당 (리츠, 유틸리티, 통신)"
-        },
-        {
           "chars": 36,
           "classes": "trend-card-note capex-flow-card",
           "text": "광 트랜시버 5.5, 스위치 4.5, 네트워크 칩 3, 케이블 2"
@@ -616,34 +641,44 @@
           "chars": 35,
           "classes": "trend-card-note capex-flow-card",
           "text": "계통 연결·자가발전 10, 전력 분배 6.5, 현장 배전 3.5"
+        },
+        {
+          "chars": 33,
+          "classes": "xr-basis tp-card",
+          "text": "3개월 +2.1%, 성격: 경기 민감, 에너지, 원자재 가격"
+        },
+        {
+          "chars": 22,
+          "classes": "xr-h3 xr-section mg-guide mg-screen-lessons",
+          "text": "이 화면을 볼 때 — 속지 말 것과 원칙"
         }
       ],
       "frames": [
         {
           "frame": "themes.rrg",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
         {
           "frame": "themes.sector-map",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
         {
           "frame": "themes.playbook",
           "hasHead": true,
-          "asof": "미국 10/26, 한국 10/27",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
         {
           "frame": "themes.ranking",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
@@ -659,8 +694,8 @@
       ]
     },
     "theme-detail": {
-      "total": 15995,
-      "secondary": 1342,
+      "total": 16358,
+      "secondary": 1224,
       "lines": [
         {
           "chars": 158,
@@ -668,24 +703,14 @@
           "text": "최근 20거래일 거시 축: 10년물 금리 -0.29%p(물가 둔화 + 고용 완만 쪽 움직임, 이 테마에 부담), 신용과 위험선호 '부담'(신용 경색 쪽 움직임, 이 테마에 수혜). 성격(정책, 지정학 수요, 경기 방어)과 시나리오를 잇는 사전 기준이며, 인과를 측정한 값은 아닙니다."
         },
         {
-          "chars": 100,
-          "classes": "thp-why-list theme-detail-native-section thp-why",
-          "text": "같은 날 보도: LMT +5.1% — 주식시장에서 가장 큰 변동을 보이는 주식: Lockheed Martin, JetBlue, CoreWeave, Surgery Partners 외"
-        },
-        {
           "chars": 74,
           "classes": "tp-stage-note  tp-stage-row",
           "text": "지수보다 앞서지만 긴 추세 수익률이 0 이하 — 덜 하락한 것, 1개월도 뒤처지지 않음. 조건별 득실로 비용이 작은 쪽: 관망 9개."
         },
         {
-          "chars": 69,
-          "classes": "tp-stage-note  tp-stage-row",
-          "text": "긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음. 조건별 득실로 비용이 작은 쪽: 보유 유지·관망 1개, 보유 유지 1개."
-        },
-        {
           "chars": 68,
           "classes": "thp-why-list theme-detail-native-section thp-why",
-          "text": "이익 전망: 최근 4주 구성 종목 상향 46건, 하향 44건(21/22종목) — 가격 움직임에 전망 상향이 같이 있습니다."
+          "text": "이익 전망: 최근 4주 구성 종목 상향 52건, 하향 41건(21/22종목) — 가격 움직임에 전망 상향이 같이 있습니다."
         },
         {
           "chars": 66,
@@ -693,24 +718,29 @@
           "text": "긴 추세는 앞서나 50일선 위 비율·조건·최근 5거래일이 받쳐 주지 않음. 조건별 득실로 비용이 작은 쪽: 관망 3개."
         },
         {
+          "chars": 59,
+          "classes": "tp-stage-note  tp-stage-row",
+          "text": "긴 추세가 지수보다 앞서고 1개월도 뒤처지지 않음. 조건별 득실로 비용이 작은 쪽: 보유 유지·관망 1개."
+        },
+        {
+          "chars": 58,
+          "classes": "thp-why-list theme-detail-native-section thp-why",
+          "text": "섹터 회전: 대표 ETF ITA가 10거래일 전 '후행'에서 지금 '개선'으로 옮겼습니다(SPY 대비)."
+        },
+        {
+          "chars": 55,
+          "classes": "xr-basis tp-card",
+          "text": "3개월 +5.5%, 성격: AI 설비투자 사이클, 경기 민감, 장기 성장, 고PER (할인율 민감)"
+        },
+        {
           "chars": 54,
           "classes": "tp-stage-note  tp-stage-row",
-          "text": "긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함. 조건별 득실로 비용이 작은 쪽: 관망 14개."
+          "text": "긴 추세가 지수보다 뒤처지고 1개월도 앞서지 못함. 조건별 득실로 비용이 작은 쪽: 관망 13개."
         },
         {
           "chars": 50,
           "classes": "tp-stage-note  tp-stage-row",
-          "text": "긴 추세가 지수와 비슷함. 조건별 득실로 비용이 작은 쪽: 관망 13개, 보유 유지 2개."
-        },
-        {
-          "chars": 47,
-          "classes": "thp-why-list theme-detail-native-section thp-why",
-          "text": "섹터 회전: 대표 ETF ITA가 10거래일 전과 같은 '개선' 자리(SPY 대비)."
-        },
-        {
-          "chars": 46,
-          "classes": "xr-basis tp-card",
-          "text": "3개월 -13.1%, 성격: 경기 방어, 금리 민감 배당 (리츠, 유틸리티, 통신)"
+          "text": "긴 추세가 지수와 비슷함. 조건별 득실로 비용이 작은 쪽: 관망 14개, 보유 유지 3개."
         },
         {
           "chars": 44,
@@ -719,36 +749,41 @@
         },
         {
           "chars": 43,
-          "classes": "xr-basis tp-card",
-          "text": "3개월 -7.3%, 성격: 달러, 환율 민감 (수출, 해외 매출), 경기 민감"
+          "classes": "xr-basis theme-detail-native-section tp-detail theme-detail-native-section",
+          "text": "5거래일 +3.3%, 1개월 +0.7%, 6개월 -3.8%, 조건 충족 1/4"
+        },
+        {
+          "chars": 42,
+          "classes": "trend-card-note capex-flow-card",
+          "text": "가속기 25, 메모리 15, CPU·서버 10 (이 중 반도체 장비 약 8)"
         }
       ],
       "frames": [
         {
           "frame": "themes.rrg",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
         {
           "frame": "themes.sector-map",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
         {
           "frame": "themes.playbook",
           "hasHead": true,
-          "asof": "미국 10/26, 한국 10/27",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
         {
           "frame": "themes.ranking",
           "hasHead": true,
-          "asof": "10/26 종가",
+          "asof": "10/27 종가",
           "readings": [],
           "problems": []
         },
@@ -798,18 +833,18 @@
       "frames": []
     },
     "market-news": {
-      "total": 5456,
-      "secondary": 388,
+      "total": 5522,
+      "secondary": 395,
       "lines": [
         {
-          "chars": 32,
+          "chars": 70,
           "classes": "page-subtitle  page-head",
-          "text": "10/26 08:00 ~ 10/27 08:00 KST 기사"
+          "text": "직전 수집본, 10/26 08:00 ~ 10/27 08:00 KST 기사 — 이번 10/28 08:00 수집본은 아직 없습니다"
         },
         {
-          "chars": 31,
+          "chars": 29,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance Singapore, 17시간 전"
+          "text": "Yahoo Finance Singapore, 1일 전"
         },
         {
           "chars": 22,
@@ -817,49 +852,49 @@
           "text": "이 화면을 볼 때 — 속지 말 것과 원칙"
         },
         {
-          "chars": 21,
+          "chars": 19,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 21시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 17시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "EnergyNow.com, 17시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Yahoo Finance, 17시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "investingLive, 17시간 전"
-        },
-        {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg.com, 18시간 전"
+          "text": "Yahoo Finance, 1일 전"
         },
         {
           "chars": 19,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "TradingView, 20시간 전"
+          "text": "Bloomberg.com, 1일 전"
         },
         {
-          "chars": 15,
+          "chars": 19,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Reuters, 17시간 전"
+          "text": "EnergyNow.com, 1일 전"
         },
         {
-          "chars": 15,
+          "chars": 19,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Reuters, 17시간 전"
+          "text": "Yahoo Finance, 1일 전"
+        },
+        {
+          "chars": 19,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "investingLive, 1일 전"
+        },
+        {
+          "chars": 19,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "Bloomberg.com, 1일 전"
+        },
+        {
+          "chars": 17,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "TradingView, 1일 전"
+        },
+        {
+          "chars": 14,
+          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card news-intraday-card",
+          "text": "10/27 08:00 이후"
+        },
+        {
+          "chars": 13,
+          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card",
+          "text": "10/27 08:00까지"
         }
       ],
       "frames": []
@@ -1053,68 +1088,68 @@
       "frames": []
     },
     "screener": {
-      "total": 700,
-      "secondary": 116,
+      "total": 3070,
+      "secondary": 1131,
       "lines": [
         {
-          "chars": 39,
+          "chars": 94,
+          "classes": "scr-why-factor-evidence sx-factor scr-why-factor",
+          "text": "비중 29%, 기여 14.4 — 중기(3~12개월) 승자가 이후에도 앞서던 경향(Jegadeesh·Titman 1993) — 여기서는 1·3·6개월 수익률을 섞어 씁니다"
+        },
+        {
+          "chars": 92,
+          "classes": "scr-status-full scr-table-status-text scr-table-status sx-meta",
+          "text": "균형 상대 순위 조건 통과 329종목, 시총 큰 순(시총 확인 306종목 먼저) — 순위가 우연과 구별되지 않아 기본은 시총 순, 전체 순위 머리글을 누르면 순위 순"
+        },
+        {
+          "chars": 90,
+          "classes": "sx-tile scr-why-preview scr-why-drawer sx-inspector scr-split",
+          "text": "종가가 50일선 아래, 200일선 위에 있습니다. 3개월 수익률(+14.8%)은 S&P 500보다 9.1%p 높습니다. 빠진 필수값 없음, 걸린 반대 조건 2개."
+        },
+        {
+          "chars": 90,
+          "classes": "scr-why-factor-evidence sx-factor scr-why-factor",
+          "text": "비중 17%, 기여 12.2 — 변동성이 낮은 종목의 위험 대비 수익이 더 높던 저변동 이상 현상(Ang 외 2006, Frazzini·Pedersen 2014)"
+        },
+        {
+          "chars": 88,
+          "classes": "scr-why-factor-evidence sx-factor scr-why-factor",
+          "text": "비중 10%, 기여 9.0 — 수익성이 높은 기업이 장기 초과수익을 내던 경향(Novy-Marx 2013, 매출총이익 기준) — 여기서는 ROE·마진·매출성장"
+        },
+        {
+          "chars": 62,
+          "classes": "scr-why-status sx-meta scr-why-drawer sx-inspector scr-split",
+          "text": "조건 통과, 순위 계산 가능, 조건 통과 종목 중 208위, 전체 백분위 74, 표시 항목 자료 83.8% 수신"
+        },
+        {
+          "chars": 56,
+          "classes": "sx-meta scr-excess-legend  scr-why-section",
+          "text": "진한 막대 = 종목, 옅은 막대 = S&P 500(SPY), 오른쪽 = 차이, 둘 다 10/27 종가"
+        },
+        {
+          "chars": 40,
+          "classes": "sx-btn sx-btn--primary scr-why-actions scr-why-drawer sx-inspector",
+          "text": "종목 분석 열기 차트·가격 레벨·내 계획 점검 관심 종목 추가 비교 추가"
+        },
+        {
+          "chars": 36,
+          "classes": "scr-why-section",
+          "text": "점수를 만든 요인 S&P 500 대비 수익률 52주 범위 안 위치"
+        },
+        {
+          "chars": 35,
           "classes": "sx-meta scr-stats-line  aio-section",
-          "text": "· 총 종목, 조건 통과 · 그중 팩터 백분위 80 이상 · 사용 팩터"
+          "text": "· 총 종목, 조건 통과 · 그중 팩터 80 이상 · 사용 팩터"
         },
         {
-          "chars": 22,
-          "classes": "xr-h3 xr-section mg-guide mg-screen-lessons",
-          "text": "이 화면을 볼 때 — 속지 말 것과 원칙"
+          "chars": 33,
+          "classes": "scr-population-holder sx-meta",
+          "text": "미국 순위 계산 810종목(기본 종목 범위), 표시 329개"
         },
         {
-          "chars": 13,
-          "classes": "sx-meta scr-stats-line",
-          "text": "기본 균형 비중으로 합산"
-        },
-        {
-          "chars": 9,
+          "chars": 25,
           "classes": "page-subtitle scr-kicker",
-          "text": "팩터 데이터 대기"
-        },
-        {
-          "chars": 8,
-          "classes": "sx-row__meta sx-row sx-rows scr-more-rows",
-          "text": "사후 검증 보기"
-        },
-        {
-          "chars": 8,
-          "classes": "sx-row__meta sx-row sx-rows scr-more-rows",
-          "text": "사후 검증 보기"
-        },
-        {
-          "chars": 8,
-          "classes": "sx-row__meta sx-row sx-rows scr-more-rows",
-          "text": "사후 검증 보기"
-        },
-        {
-          "chars": 2,
-          "classes": "sx-meta scr-result-count scr-filterbar-end scr-filter-sheet",
-          "text": "종목"
-        },
-        {
-          "chars": 2,
-          "classes": "sx-meta scr-toolbar scr-filter-sheet",
-          "text": "컬럼"
-        },
-        {
-          "chars": 1,
-          "classes": "sx-meta scr-result-count scr-filterbar-end",
-          "text": "0"
-        },
-        {
-          "chars": 1,
-          "classes": "sx-meta scr-stats-line",
-          "text": "—"
-        },
-        {
-          "chars": 1,
-          "classes": "sx-meta scr-stats-line",
-          "text": "—"
+          "text": "대상 904종목 중 899종목 필수 필드 충족"
         }
       ],
       "frames": []

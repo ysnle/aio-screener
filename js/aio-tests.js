@@ -7574,24 +7574,9 @@
     _assert('T918 breadth_chart_runtime_only_contract v57.60: no legacy breadth chart writer (initBreadthPage / _aioBreadthCanvasRender) remains',
       typeof window.initBreadthPage !== 'function' && typeof window._aioBreadthCanvasRender !== 'function',
       'init=' + typeof window.initBreadthPage + ' canvas=' + typeof window._aioBreadthCanvasRender);
-    var svgHolder919 = null, svgIssues919 = [];
-    try {
-      var svgHtml919 = window._aioDiagram && window._aioDiagram.getSvg('price-position', { sym:'FIX', price:700, sma50:725, sma200:669, ath:759, ret3m:3, rsi:55 });
-      svgHolder919 = document.createElement('div');
-      svgHolder919.style.cssText = 'position:absolute;left:-10000px;top:0;width:420px;height:170px;';
-      svgHolder919.innerHTML = svgHtml919 || '';
-      document.body.appendChild(svgHolder919);
-      var texts919 = Array.prototype.slice.call(svgHolder919.querySelectorAll('text'));
-      [['200MA','$669'],['50MA','$725'],['ATH','$759']].forEach(function(pair) {
-        var label = texts919.filter(function(el) { return (el.textContent || '').trim() === pair[0]; })[0];
-        var value = texts919.filter(function(el) { return (el.textContent || '').trim() === pair[1]; })[0];
-        if (!label || !value) { svgIssues919.push(pair[0] + ':missing'); return; }
-        var lb = label.getBBox(), vb = value.getBBox();
-        if (vb.y < lb.y + lb.height) svgIssues919.push(pair[0] + ':overlap');
-      });
-    } catch (e919) { svgIssues919.push(String(e919 && e919.message || e919)); }
-    if (svgHolder919 && svgHolder919.parentNode) svgHolder919.parentNode.removeChild(svgHolder919);
-    _assert('T921 price_position_svg_marker_fixture (H2-03): marker labels and values remain non-overlapping in the regression fixture', svgIssues919.length === 0, JSON.stringify(svgIssues919));
+    var diagramTypes921 = window._aioDiagram && typeof window._aioDiagram.types === 'function' ? window._aioDiagram.types() : null;
+    _assert('T921 v59.42 the diagram engine keeps only the factor radar (the price-position fixture left with its sinkless diagram)',
+      !!diagramTypes921 && diagramTypes921.join(',') === 'factor-radar', JSON.stringify(diagramTypes921));
   }
 
   // Group92: v52.59/H2-04 AI failure contract — every AI surface must classify
@@ -8481,10 +8466,9 @@
         JSON.stringify({ missing:breadthMissing, observed:breadthObserved, legacyWriter:typeof window.updateBreadthBars }));
     } finally { window._aioScreenerBreadth = breadthOld; }
 
-    var fredBridgeSrc = typeof _syncYahooToFred === 'function' ? String(_syncYahooToFred) : '';
-    _assert('T1037 treasury_bridge_no_default_2y: missing 2Y cannot fabricate or overwrite an official T10Y2Y observation',
-      !!fredBridgeSrc && fredBridgeSrc.indexOf(": 4.0") < 0 && fredBridgeSrc.indexOf("!fd['T10Y2Y']") >= 0 && fredBridgeSrc.indexOf('Number(window._live2Y)') >= 0,
-      'official guard=' + (fredBridgeSrc.indexOf("!fd['T10Y2Y']") >= 0));
+    _assert('T1037 v59.42 official FRED slots hold official observations only: the Yahoo→FRED bridge is retired',
+      typeof _syncYahooToFred === 'undefined' && typeof _YAHOO_FRED_MAP === 'undefined',
+      'bridge=' + typeof _syncYahooToFred);
 
     var tailBoardSrc = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.renderTailRiskBoard ? String(NARRATIVE_ENGINE.renderTailRiskBoard) : '';
     var skewUnavailable1038 = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getSKEWRegime(null).available === false;
@@ -8673,7 +8657,7 @@
 
     // P1551: the chat diagram path applies the same unavailable guard as the page renderer.
     var svgGuard = window._aioDiagram && typeof window._aioDiagram.getSvg === 'function'
-      ? [window._aioDiagram.getSvg('score-breakdown', { available: false }), window._aioDiagram.getSvg('economic-cycle', { available: false }), window._aioDiagram.getSvg('sentiment-gauge', { available: false })]
+      ? [window._aioDiagram.getSvg('factor-radar', { available: false })] // v59.42: the other diagram types were deleted
       : null;
     _assert('P1551 T_p1551_2 채팅 다이어그램은 입력이 없으면 기본값(0/100, MID, 0.0)을 그리지 않는다',
       !!svgGuard && svgGuard.every(function(svg) { return svg === ''; }), JSON.stringify(svgGuard && svgGuard.map(function(svg) { return svg.length; })));

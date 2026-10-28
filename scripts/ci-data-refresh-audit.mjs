@@ -785,7 +785,8 @@ add('G3', 'Crypto', quote('BTC-USD')?.observedAt, 'daily', `BTC=${quote('BTC-USD
 const sourceChecks = {
   // P1134/R620: these KR functions and the catalyst meta block moved from index.html's inline
   // block C to js/aio-kr-data.js — the audit must read the file that now owns them.
-  fetchKrNaverQuotes: /fetchKrNaverQuotes/.test(read('js/aio-kr-data.js')),
+  // v59.28 moved fetchKrNaverQuotes to src/data/providers/naver-kr.js; v59.42 removed the last js/ comment naming it.
+  fetchKrNaverQuotes: /async function fetchKrNaverQuotes\(/.test(read('src/data/providers/naver-kr.js')),
   renderKrThemePerfBars: /renderKrThemePerfBars/.test(read('js/aio-kr-data.js')),
   themeCatalystRetired: /KR_THEME_CATALYSTS_META[\s\S]{0,120}status:'unavailable'/.test(read('js/aio-kr-data.js'))
 };

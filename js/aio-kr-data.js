@@ -406,7 +406,7 @@ function showKrThemeDetail(themeId) {
     var pcs=pct!==null?((pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
     var lt=d?'<span class="krl-live is-on">● 수신</span>':'<span class="krl-live">○</span>';
     var rankIcon=idx===0?' ':idx===1?' ':idx===2?' ':'';
-    rows+='<tr class="krl-d-row'+(idx%2===0?' is-alt':'')+'"><td class="krl-d-c is-name" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span class="krl-accent">'+(info.name||t.code)+'</span> <span class="krl-d-go">↗</span><div class="krl-d-meta">'+(info.sector||'')+', '+t.code+'</div></td><td class="krl-d-c is-fig">'+ps+'</td><td class="krl-d-c is-fig is-heavy" style="color:'+pCol+';">'+pcs+'</td><td class="krl-d-c is-ctr is-xs is-muted">'+(info.mcap||'—')+'</td><td class="krl-d-c is-ctr is-xs">'+(t.wLabel||(Math.round(t.w*10)/10)+'%')+'</td><td class="krl-d-c is-ctr">'+lt+'</td></tr>';
+    rows+='<tr class="krl-d-row'+(idx%2===0?' is-alt':'')+'"><td class="krl-d-c is-name" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span class="krl-accent">'+(info.name||t.code)+'</span> <span class="krl-d-go">↗</span><div class="krl-d-meta">'+(info.sector||'')+', '+t.code+'</div></td><td class="krl-d-c is-fig">'+ps+'</td><td class="krl-d-c is-fig is-heavy" style="color:'+pCol+';">'+pcs+'</td><td class="krl-d-c is-ctr is-xs">'+(t.wLabel||(Math.round(t.w*10)/10)+'%')+'</td><td class="krl-d-c is-ctr">'+lt+'</td></tr>';
   });
 
   var tn=(CN[themeId]||themeId).replace(/[^가-힣a-zA-Z0-9\/\s]/g,'').trim();
@@ -448,7 +448,6 @@ function showKrThemeDetail(themeId) {
           '<th class="krl-d-th is-l">종목</th>'+
           '<th class="krl-d-th is-r">현재가</th>'+
           '<th class="krl-d-th is-r">등락률</th>'+
-          '<th class="krl-d-th is-ctr">시총</th>'+
           '<th class="krl-d-th is-ctr">비중</th>'+
           '<th class="krl-d-th is-ctr">소스</th>'+
         '</tr></thead><tbody>'+rows+'</tbody></table></div>'+
@@ -652,25 +651,9 @@ async function fetchVkospiDynamic() {
   }
 }
 
-// ── 5. 시가총액 동적 추출 (fetchKrNaverQuotes 결과에서 확장) ──
-// fetchKrNaverQuotes(v59.28~ src/data/providers/naver-kr.js)가 개별 종목 응답마다 window 전역 _enrichMarketCap(code, data)로 marketCap을 KR_STOCK_DB에 반영
-function _enrichMarketCap(code, data) {
-  if (!data) return;
-  // v46.4: 쉼표/공백 포함 문자열 파싱 방어
-  var mcapRaw = String(data.marketCap || data.marketCapitalization || '0').replace(/[,\s]/g, '');
-  var mcap = parseFloat(mcapRaw);
-  if (!isFinite(mcap) || mcap <= 0) return;
-  // KR_STOCK_DB에서 해당 종목 찾아 시총 업데이트
-  if (typeof KR_STOCK_DB !== 'undefined') {
-    var sym = code + (code.length === 6 ? '.KS' : '');
-    for (var i = 0; i < KR_STOCK_DB.length; i++) {
-      if (KR_STOCK_DB[i].code === code || KR_STOCK_DB[i].sym === sym) {
-        KR_STOCK_DB[i].mcap = Math.round(mcap / 1e12 * 10) / 10; // 조원 단위
-        break;
-      }
-    }
-  }
-}
+// v59.42: _enrichMarketCap is retired. It walked KR_STOCK_DB by index, but KR_STOCK_DB is an object keyed by code, so it
+// never wrote a value and the theme-detail '시총' column always read '—'. The column left with it (a sourceless cell);
+// a market cap returns only with a checked source and unit.
 
 // ══════════════════════════════════════════════════════════════════
 // v29.4: Korean Market Data — 대폭 강화

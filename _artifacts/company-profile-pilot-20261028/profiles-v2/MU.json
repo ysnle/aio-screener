@@ -1,0 +1,231 @@
+{
+  "symbol": "MU",
+  "name": "Micron Technology, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "Thursday closest to August 31 (FY2026 ended 2026-09-03, 53 weeks)",
+  "oneLine": "Micron은 AI 가속기 옆에 붙는 HBM과 서버 메모리를 직접 공장에서 찍어 파는 미국 메모리 회사로, AI가 만든 메모리 부족 덕에 FY2026 매출이 3.6배로 뛰었지만 HBM 점유율은 SK hynix·삼성에 이은 3위다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Micron Reports Results for the Fourth Quarter and Full Year of Fiscal 2026 (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000723125/000072312526000018/a2026q4ex991-pressrelease.htm", "publisher": "Micron / SEC EDGAR", "date": "2026-09-30" },
+    { "id": "s2", "kind": "10-K", "title": "Micron Form 10-K for fiscal year ended 2026-09-03 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0000723125/000072312526000023/mu-20260903.htm", "publisher": "Micron / SEC EDGAR", "date": "2026-09-03" },
+    { "id": "s3", "kind": "call-transcript", "title": "Micron (MU) Q4 2026 Earnings Call Transcript (partly AI-generated, publisher warns of errors)", "url": "https://www.webull.com/news/15672802111996928", "publisher": "Webull", "date": "2026-09-30" },
+    { "id": "s4", "kind": "earnings-release", "title": "Micron Technology, Inc. Reports Record Results for the Third Quarter of Fiscal 2026 (company release repost)", "url": "https://seekingalpha.com/pr/20563085", "publisher": "Seeking Alpha (GlobeNewswire company release)", "date": "2026-06-24" },
+    { "id": "s5", "kind": "news", "title": "SanDisk co-founder Mehrotra appointed as CEO of Micron (date = appointment effective date; article date not checked)", "url": "https://www.datacenterdynamics.com/en/news/sandisk-co-founder-mehrotra-appointed-as-ceo-of-micron/", "publisher": "DatacenterDynamics", "date": "2017-05-08" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/mu/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" },
+    { "id": "s7", "kind": "other", "title": "Global DRAM and HBM Market Share: Quarterly (Q2 2026)", "url": "https://counterpointresearch.com/insights/global-dram-and-hbm-market-share", "publisher": "Counterpoint Research", "date": "2026-09-02" },
+    { "id": "s8", "kind": "news", "title": "NVIDIA provisional HBM4 allocation and Samsung 1c DRAM capacity (citing Hankyung)", "url": "https://www.trendforce.com/news/?p=53076", "publisher": "TrendForce", "date": "2026-02-09" },
+    { "id": "s9", "kind": "news", "title": "Beyond memory, Nvidia CEO signals widening work with SK Group (HBM4 share estimates for Vera Rubin)", "url": "https://www.koreaherald.com/article/10761132", "publisher": "The Korea Herald", "date": "2026-06-01" },
+    { "id": "s10", "kind": "other", "title": "Micron earnings Q1 FY2027 expected date (tracker, not company-confirmed; read from search summary, accessed date)", "url": "https://days.to/micron-earnings", "publisher": "days.to", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "DRAM·NAND를 직접 생산하는 세계 3강 체제의 규모 - Q2 2026 DRAM 매출 점유율 24% (Counterpoint)",
+      "1-gamma 공정이 비트 출력의 과반인 공정 기술, 중국 경쟁사보다 '최소 2세대 앞섰다'는 회사 주장 (10-K·콜)",
+      "26건의 다년 전략 고객 계약(SCA)으로 2030년까지 생산 비트의 약 35%를 묶은 물량 (콜)",
+      "미국 기반 메모리 제조사로서 CHIPS 보조금을 받는 아이다호·뉴욕·버지니아 프로젝트 (10-K)"
+    ],
+    "text": "메모리는 성능 규격이 표준화된 범용품에 가까워, Micron의 힘은 브랜드보다 '누가 더 싸고 촘촘하게 찍느냐'는 공정·원가 경쟁력에서 나온다. 전 세계에서 이 규모로 DRAM을 만드는 회사는 삼성·SK hynix·Micron 세 곳뿐이고, Micron은 DRAM 매출 점유율 24%로 그중 하나다. 최근에는 고객과 다년 계약(SCA)을 맺어 생산의 약 35%를 묶어 두는 방식으로, 가격이 출렁이는 사이클 산업의 약점을 줄이려 하고 있다.",
+    "src": ["s7", "s2", "s3"]
+  },
+
+  "design": {
+    "text": "이 공정 위에서 회사가 설계·생산하는 것은 DRAM과 NAND 두 기술이며, FY2026부터는 고객 시장별 네 부문으로 보고한다. Cloud Memory(CMBU)는 HBM과 하이퍼스케일러용 메모리, Core Data Center(CDBU)는 서버 DRAM·데이터센터 SSD, Mobile and Client(MCBU)는 스마트폰·PC 메모리, Automotive and Embedded(AEBU)는 자동차·산업용이다. AI에서 가장 중요한 제품은 GPU 바로 옆에 쌓아 올리는 HBM으로, 2026년 HBM4를 양산하고 NVIDIA와 맞춤형 HBM4E를 공동 설계 중이다.",
+    "src": ["s2", "s3"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 팹 - 대만(DRAM 생산의 과반), 싱가포르, 일본, 미국, 말레이시아, 중국, 인도",
+      "외부 파운드리 - HBM4E의 베이스 다이 (HBM4는 자체 베이스 다이) (콜)",
+      "반도체 장비·소재 공급사 (이름 미확인)"
+    ],
+    "text": "Micron은 설계만 하는 팹리스와 달리 웨이퍼를 직접 찍는 종합 메모리 제조사라, 생산능력은 곧 클린룸과 장비에 넣는 돈이다. 지금은 클린룸 공간이 업계 전체의 병목이어서, 아이다호 신규 팹 첫 웨이퍼는 2027년 중반, 싱가포르 신규 클린룸은 2028년 하반기에야 나온다. HBM4E부터는 베이스 다이를 외부 파운드리에 맡겨, 메모리 회사도 일부 공정을 외부에 의존하게 됐다.",
+    "src": ["s2", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "NVIDIA - HBM 고객 (콜에서 유일하게 이름 언급, 맞춤형 HBM4E 'NV HBM' 공동 설계)",
+      "하이퍼스케일러·서버 OEM - 서버 DRAM·SSD (CMBU·CDBU)",
+      "스마트폰·PC 제조사 (MCBU)",
+      "자동차·산업 고객 (AEBU)"
+    ],
+    "channel": "주로 제조사·하이퍼스케일러에 직접 판매하며, 다년 SCA와 분기·연간 계약 가격을 함께 쓴다.",
+    "concentration": "상위 10개 고객이 FY2026 매출의 절반 이상 (10-K). 10% 이상 단일 고객 비중은 미확인.",
+    "text": "이렇게 만든 메모리의 주 구매자는 이제 데이터센터다. FY2026 매출의 약 60%가 데이터센터 최종시장에서 나왔고, Q4에는 CDBU(180억 달러)와 CMBU(163억 달러)가 매출의 과반을 차지했다. 상위 10개 고객이 매출의 절반 이상이라, 소수 GPU·클라우드 회사의 주문이 곧 실적이다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 연구소·클라우드 이용자", "to": "하이퍼스케일러 (AI 서버 구매)", "what": "AI 연산 수요와 클라우드 이용료" },
+      { "from": "하이퍼스케일러·AI 클라우드", "to": "NVIDIA 등 가속기 회사", "what": "HBM이 탑재된 GPU·가속기 시스템 구매" },
+      { "from": "NVIDIA 등 가속기 회사", "to": "Micron", "what": "HBM 대금 (연 단위로 물량·가격 사전 확정, 2027년분 가격 대폭 인상)" },
+      { "from": "하이퍼스케일러·서버 OEM·스마트폰·PC 제조사", "to": "Micron", "what": "DRAM·SSD 대금 (계약가·SCA 가격 밴드, 일부 고객 예치금)" },
+      { "from": "Micron", "to": "장비·소재 업체, 외부 파운드리", "what": "클린룸·장비 설비투자(FY2026 순 273.7억 달러), HBM4E 베이스 다이" }
+    ],
+    "pricing": "개당(비트당) 제품 판매. 가격은 공급·수요로 정해지는 계약가·현물가를 따르며, SCA는 다년 take-or-pay 구조로 매출의 약 4분의 3이 정해진 가격 틀, 약 4분의 1은 주기적 재협상 대상 (콜). HBM은 연 단위로 미리 물량·가격을 정하며, 회사는 2027년분 가격을 '크게' 올렸다.",
+    "text": "돈은 AI 서버를 사는 클라우드에서 출발해 두 갈래로 Micron에 들어온다. 하나는 GPU 회사가 HBM을 사는 길이고, 다른 하나는 클라우드와 서버 업체가 일반 DRAM·SSD를 사는 길이다. 가격은 공급 부족이 정하는데, Micron은 다년 계약(SCA)으로 물량과 가격 틀을 미리 묶어 하강기 충격을 줄이려 한다.",
+    "src": ["s3", "s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-09-03, 53 weeks)",
+    "revenue": { "value": 133.19, "unit": "USD bn", "yoy": 256.3 },
+    "grossMargin": 80.7,
+    "operatingMargin": 74.6,
+    "netMargin": 63.8,
+    "operatingCashFlow": { "value": 89.68, "unit": "USD bn" },
+    "freeCashFlow": { "value": 62.31, "unit": "USD bn" },
+    "segments": [
+      { "name": "Cloud Memory (CMBU)", "revenue": 43.085, "unit": "USD bn", "share": 32.3, "yoy": 219, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Core Data Center (CDBU)", "revenue": 37.592, "unit": "USD bn", "share": 28.2, "yoy": 420, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Mobile and Client (MCBU)", "revenue": 36.601, "unit": "USD bn", "share": 27.5, "yoy": 209, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Automotive and Embedded (AEBU)", "revenue": 15.886, "unit": "USD bn", "share": 11.9, "yoy": 234, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "제품별 매출 (FY2026)", "value": "DRAM 1,006.8억, NAND 317.9억 달러", "src": ["s2"] },
+      { "name": "Q4 FY2026 매출·총마진", "value": "매출 542.3억 달러, GAAP 총마진 86.8%", "src": ["s1"] },
+      { "name": "Q4 FY2026 부문별 영업이익률", "value": "CMBU 76%, CDBU 85%, MCBU 88%, AEBU 79% - HBM이 포함된 CMBU가 가장 낮음", "src": ["s1"] },
+      { "name": "SCA 커버리지", "value": "26건, 2030년까지 생산 비트의 약 35%; FY2027 출하의 75% 이상 확정 (콜)", "src": ["s3"] },
+      { "name": "HBM 점유율 (매출 기준)", "value": "Q2 2026 18% (Q1 21%) - SK hynix 50%, 삼성 33%", "src": ["s7"] }
+    ],
+    "text": "공급 부족이 가격을 끌어올린 결과, FY2026 매출은 1,331.9억 달러로 전년의 3.6배가 됐고 영업이익률은 약 75%, 순이익은 850억 달러에 달했다. 눈여겨볼 점은 Q4 부문별 영업이익률에서 HBM이 들어간 CMBU(76%)가 일반 메모리 부문(85~88%)보다 낮았다는 것이다. 회사는 2027년분 HBM 가격을 크게 올린 이유를 바로 이 일반 DRAM과의 수익성 격차를 좁히기 위해서라고 설명했다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-09-03)",
+    "items": [
+      { "use": "capex", "value": 27.37, "unit": "USD bn", "src": ["s1"] },
+      { "use": "R&D", "value": 5.65, "unit": "USD bn", "src": ["s1"] },
+      { "use": "debt repayment", "value": 10.04, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.65, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "임직원 주식보상 세금 원천징수용 자사주 취득", "value": 1.13, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 0.61, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "번 돈의 가장 큰 쓰임은 공장이다. FY2026 순 설비투자는 273.7억 달러(정부 보조금 차감 전 307.1억)로, R&D 56.5억 달러의 다섯 배 가까이 된다. 남은 현금으로는 부채 100억 달러를 갚아 총부채를 51.8억 달러까지 줄였고 현금·투자자산은 734.8억 달러로 쌓였으며, 자사주·배당은 합쳐 13억 달러 남짓으로 작다. FY2027에도 설비투자 증가분의 대부분은 2028년 말 이후 가동할 클린룸 건설에 쓰겠다고 밝혀, 이익을 주주환원보다 증설에 먼저 돌리는 구조다.",
+    "src": ["s1", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "memory",
+    "position": "AI 가속기(GPU·XPU) 바로 옆에 쌓는 HBM과, AI 서버에 들어가는 일반 DRAM·SSD를 공급하는 메모리 층. 가속기 한 개에 들어가는 HBM 용량이 세대마다 늘어 연산 칩과 함께 커지는 자리다.",
+    "dependsOn": ["semicap-foundry (장비 업체, HBM4E 베이스 다이 외부 파운드리)", "클린룸 건설·전력 (아이다호 2027 중반, 싱가포르 2028 하반기)", "정부 보조금 (미국 CHIPS)"],
+    "sellsTo": ["chips-compute (NVIDIA 등 가속기 회사 - HBM)", "cloud-infrastructure (하이퍼스케일러 - 서버 DRAM·SSD)", "devices (스마트폰·PC·자동차)"],
+    "aiRevenue": "HBM 매출 금액은 미공개. FY2026 데이터센터 최종시장 매출 비중 약 60% (10-K), CMBU 매출 430.9억 달러.",
+    "upside": "AI 가속기 출하와 가속기당 HBM 용량이 함께 늘면서 HBM과 서버 메모리 수요가 커진다. HBM은 같은 비트를 만드는 데 웨이퍼를 더 많이 써서 일반 DRAM 공급까지 빠듯하게 만들고, 회사는 이 때문에 2027년 업계 DRAM 공급 증가가 둔화된다고 본다.",
+    "risk": "HBM 점유율이 Q1 2026 21%에서 Q2 18%로 내려갔고, 삼성이 HBM4로 빠르게 따라붙고 있다. 세 회사의 증설이 2027~2028년에 한꺼번에 열리거나 AI 설비투자가 줄면, 지금의 부족이 과잉으로 바뀌어 가격과 이익이 함께 꺾일 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Micron은 NVIDIA 같은 '칩·연산' 층 바로 위쪽, 가속기에 메모리를 대는 '메모리' 층에 있다. 연산 칩이 팔릴수록 HBM과 서버 메모리가 같이 팔리지만, 이 층의 주도권은 점유율 50%의 SK hynix가 쥐고 있고 Micron은 18%로 3위다. 메모리 부족이 이어지는 한 Micron은 점유율이 낮아도 가격 덕에 크게 벌지만, 사이클이 돌아서면 3위 업체가 먼저 압박을 받는다.",
+    "src": ["s2", "s3", "s7"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "HBM (AI 가속기용 고대역폭 메모리)", "rivals": ["SK hynix", "Samsung Electronics"], "position": "follower", "share": "Q2 2026 매출 기준 18% (Q1 21%), SK hynix 50%, 삼성 33% - Counterpoint, 2026-09-02", "src": ["s7"] },
+      { "arena": "NVIDIA Vera Rubin용 HBM4 배분", "rivals": ["SK hynix", "Samsung Electronics"], "position": "follower", "share": "업계 추정 SK hynix 60~70%, 삼성 25~30%, Micron 보조 공급 (Korea Herald 2026-06-01). 2025년 말 잠정 배분은 SK hynix 50% 중반, 삼성 20% 중반, Micron 약 20% (TrendForce 2026-02-09, 한경 인용)", "src": ["s9", "s8"] },
+      { "arena": "DRAM 전체", "rivals": ["Samsung Electronics", "SK hynix", "CXMT", "Nanya"], "position": "challenger", "share": "Q2 2026 매출 기준 24% (Q1 22%), 삼성 38%, SK hynix 25%, CXMT 10% - Counterpoint, 2026-09-02", "src": ["s7"] },
+      { "arena": "NAND·SSD", "rivals": ["Samsung Electronics", "SK hynix", "Kioxia", "Sandisk", "YMTC"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "1-gamma 공정, 미국 기반 생산, NVIDIA와의 맞춤형 HBM4E 공동 설계, 다년 SCA 물량. 일반 DRAM 점유율은 Q1 22%에서 Q2 24%로 올라 SK hynix(25%)와 거의 같아졌다.",
+    "threats": "삼성이 HBM4 출하로 HBM 점유율을 한 분기 만에 21%에서 33%로 끌어올렸고(Counterpoint), SK hynix는 Vera Rubin용 HBM4의 다수를 확보한 것으로 추정된다. 중국 CXMT는 DRAM 점유율 10%까지 올라왔다.",
+    "text": "이 층의 경쟁은 HBM과 일반 DRAM에서 정반대로 흘러간다. HBM에서는 SK hynix가 절반을 쥔 가운데 삼성이 HBM4로 급히 올라오면서 Micron은 21%에서 18%로 밀려 3위가 됐고, 다음 NVIDIA 세대(Vera Rubin)에서도 '보조 공급' 위치라는 추정이 많다. 반대로 일반 DRAM에서는 점유율을 24%로 올려 SK hynix와 거의 나란해졌다. 회사는 HBM 점유율을 무리하게 쫓기보다 DRAM 전체 점유율 수준에 맞추겠다고 말하며, NVIDIA 맞춤형 HBM4E로 다음 세대를 노린다.",
+    "src": ["s7", "s9", "s8", "s3"]
+  },
+
+  "strategy": {
+    "goal": "HBM 점유율을 DRAM 전체 점유율 수준으로 유지하고, FY2027 동안 마진을 넓히며 R&D를 10억 달러 이상 늘린다 (콜). 수치 TAM 전망은 이번에 갱신하지 않았다.",
+    "roadmap": [
+      { "when": "Q1 FY2027", "what": "매출 615억 달러 ±15억, GAAP 총마진 약 86% 가이드", "src": ["s1"] },
+      { "when": "2027 (calendar)", "what": "HBM4에서 HBM4E로 전환, NVIDIA 맞춤형 'NV HBM' 램프; 싱가포르 HBM 시설 램프", "src": ["s3", "s2"] },
+      { "when": "2027 중반", "what": "아이다호 신규 팹 첫 웨이퍼 출하", "src": ["s3"] },
+      { "when": "2028 하반기", "what": "싱가포르 신규 클린룸 가동", "src": ["s3"] },
+      { "when": "2030", "what": "SCA 26건이 생산 비트의 약 35%를 덮는 기간 종료 시점", "src": ["s3"] }
+    ],
+    "vision": "메모리를 AI 시스템 성능을 정하는 핵심 부품으로 끌어올리고, 다년 계약으로 사이클을 완화한 '덜 출렁이는 메모리 회사'가 되겠다는 그림이다.",
+    "text": "이 경쟁에서 회사가 택한 길은 물량보다 맞춤형과 계약이다. 2027년 NVIDIA와 공동 설계한 HBM4E로 다음 세대 자리를 노리고, 아이다호(2027 중반)·싱가포르(2028 하반기) 클린룸으로 공급을 넓힌다. 동시에 SCA를 26건까지 늘려 2030년까지 생산의 약 35%를 묶어, 가격이 꺾일 때 바닥을 받칠 장치를 만들고 있다.",
+    "src": ["s3", "s1"]
+  },
+
+  "governance": {
+    "line": "2017-05부터 SanDisk 공동창업자 Sanjay Mehrotra가 CEO로 이끌며, 순현금(현금·투자 734.8억 vs 부채 51.8억 달러) 상태에서도 분기 배당 0.15달러와 소규모 자사주 매입만 하는 증설 우선 기조다.",
+    "src": ["s5", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q1 FY2027", "metric": "revenue", "value": "615억 달러 ±15억", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "gross margin", "value": "GAAP 약 85.95%, non-GAAP 약 86.25%", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "operating expenses", "value": "GAAP 약 23.1억, non-GAAP 약 20.6억 달러", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "diluted EPS", "value": "GAAP 37.84달러 ±1.00, non-GAAP 38.15달러 ±1.00", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "FY2027", "metric": "margin / R&D", "value": "FY2027 동안 마진 확대, R&D 10억 달러 이상 증가 (콜 발언, 수치 가이드 아님)", "givenOn": "2026-09-30", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "track": "직전 분기는 가이드를 크게 넘었다: Q4 FY2026 가이드 매출 500억 ±10억·non-GAAP EPS 31.00달러 → 실제 542.3억 달러·33.42달러.",
+    "src": ["s4", "s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 176.51달러(범위 165.11~191.64), 직전 4개 분기 74.77달러. 최근 4주 상향 32건·하향 0건으로 강한 상향 방향.",
+    "src": ["s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q1 FY2027 매출·총마진이 가이드(615억 달러, 약 86%)를 충족·상회",
+      "Counterpoint 다음 분기 HBM 점유율이 18%에서 반등",
+      "NVIDIA 맞춤형 HBM4E 인증·램프가 2027년 일정대로 진행",
+      "SCA 건수·커버리지가 계속 늘고 가격 틀이 유지",
+      "아이다호 팹이 2027년 중반 첫 웨이퍼 일정 유지"
+    ],
+    "breaks": [
+      "DRAM·NAND 계약·현물 가격 상승 둔화 또는 하락 전환",
+      "총마진 가이드가 전 분기 대비 하락",
+      "HBM 점유율이 계속 하락하거나 NVIDIA 차세대 배분에서 밀린다는 보도",
+      "삼성·SK hynix·CXMT의 대규모 증설 발표",
+      "SCA 고객의 재협상·이행 지연, 고객 재고 증가 언급",
+      "대만 생산 차질 등 지정학 위험 (DRAM 생산 과반이 대만)"
+    ],
+    "keyNumbers": [
+      { "name": "총마진", "why": "메모리 사이클 위치를 보여주는 온도계" },
+      { "name": "DRAM·NAND 가격 방향과 비트 출하", "why": "이익은 가격×물량이며 지금은 가격이 주도" },
+      { "name": "HBM 점유율 (Counterpoint 분기)", "why": "AI 핵심 제품에서 3위 위치가 굳는지" },
+      { "name": "CMBU 영업이익률", "why": "HBM 가격 인상이 실제로 수익성 격차를 좁히는지" },
+      { "name": "업계 3사 설비투자·클린룸 일정", "why": "다음 공급 과잉의 시점" },
+      { "name": "SCA 커버리지", "why": "하강기 물량·가격 하단 방어력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-12 중순 (추정, 회사 미확정; 트래커는 12-16 추정, 전년은 12-17)", "event": "Q1 FY2027 실적과 Q2 가이던스", "src": ["s10"] },
+      { "date": "매 분기", "event": "삼성전자·SK hynix 실적과 메모리 가격·증설 발언, NVIDIA 실적(HBM 수요)", "src": ["s2", "s3"] },
+      { "date": "분기마다 (Counterpoint 등)", "event": "HBM·DRAM 점유율 발표", "src": ["s7"] },
+      { "date": "2027 중반", "event": "아이다호 신규 팹 첫 웨이퍼 (회사 일정)", "src": ["s3"] }
+    ],
+    "reaction": "주가는 분기 실적보다 다음 분기 총마진·EPS 가이드와 경영진의 가격·공급 발언에 반응한다. 이익이 역사적 고점 영역일 때는 가이드 상회가 이어져도 '가격 상승 둔화' 같은 한마디가 사이클 정점 신호로 읽힐 수 있고, 한국 메모리 업체 실적이 먼저 나오면 그 내용이 선반영되기도 한다.",
+    "conditions": [
+      "다음 분기 매출·총마진 가이드와 컨센서스의 차이",
+      "DRAM·NAND 가격 방향 언급 (상승 폭 둔화 여부)",
+      "HBM 점유율과 NVIDIA 세대별 배분 보도",
+      "업계 3사 설비투자·클린룸 증설 발표",
+      "SCA 건수·커버리지 변화",
+      "컨센서스 EPS 상향·하향 건수 추이 (현재 상향 32건)"
+    ]
+  },
+
+  "unverified": [
+    "HBM 매출 금액·연환산 규모 (회사 미공개)",
+    "Micron의 Vera Rubin용 HBM4 배분 비율 (업계 추정만 있고 출처 간 차이 큼)",
+    "SK hynix·Micron의 HBM 웨이퍼 생산능력 수치",
+    "FY2027 설비투자 가이던스 금액 (콜에서 미제시)",
+    "10% 이상 단일 고객 비중과 국가별 매출",
+    "SCA 고객 예치금 금액",
+    "2026-10 자사주 한도 증액 금액",
+    "Q1 FY2027 실적 발표일 (회사 미공지, s10은 검색 요약에서 읽음)",
+    "녹취록(s3)은 부분 AI 생성이라 SCA·HBM 가격 발언은 원문 대조 필요",
+    "10-K 제출일 (s2 날짜는 회계연도 말)"
+  ],
+  "confidence": "high - 실적·현금흐름·가이던스는 8-K와 10-K에서 왔고, HBM 점유율은 Counterpoint 분기 자료지만 NVIDIA 세대별 배분은 언론 추정이라 medium 수준이다."
+}

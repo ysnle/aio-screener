@@ -435,6 +435,12 @@
           "script": "scripts/ci-esm-core-unit-check.mjs"
         },
         {
+          "id": "expect-output",
+          "script": "scripts/ci-expect-output-check.mjs",
+          "remedy": "node scripts/ci-expect-output-check.mjs --update, then review the .expect.md diff",
+          "inputs": ["src/domain/**", "scripts/fixtures/expect/**", "scripts/ci-expect-output-check.mjs"]
+        },
+        {
           "id": "page-decision-reference",
           "script": "scripts/ci-page-decision-reference-check.mjs"
         },
@@ -2115,6 +2121,7 @@
             "js/aio-core.js",
             "js/aio-qa-audits.js",
             "js/aio-kr-data.js",
+            "src/data/providers/naver-kr.js",
             "src/data/server-data.js"
           ]
         },

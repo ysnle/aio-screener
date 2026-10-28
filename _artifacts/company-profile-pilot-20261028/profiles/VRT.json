@@ -1,0 +1,127 @@
+{
+  "symbol": "VRT",
+  "name": "Vertiv Holdings Co",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Vertiv Q4 and full-year 2025 results (8-K exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1674101/000167410126000006/exhibit991vrt02112026.htm", "publisher": "Vertiv / SEC EDGAR", "date": "2026-02-11" },
+    { "id": "s2", "kind": "10-K", "title": "Vertiv Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1674101/000167410126000008/vrt-20251231.htm", "publisher": "Vertiv / SEC EDGAR", "date": "2026-02-13" },
+    { "id": "s3", "kind": "earnings-release", "title": "Vertiv Reports Strong Second Quarter 2026 ... Raises Full Year 2026 Guidance Across All Key Metrics", "url": "https://investors.vertiv.com/news/news-details/2026/Vertiv-Reports-Strong-Second-Quarter-2026-with-Diluted-EPS-Growth-of-53-Adjusted-Diluted-EPS-Growth-of-60-Raises-Full-Year-2026-Guidance-Across-All-Key-Metrics/default.aspx", "publisher": "Vertiv", "date": "2026-07-29" },
+    { "id": "s4", "kind": "call-transcript", "title": "Earnings call transcript: Vertiv tops Q2 2026 EPS forecast", "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-vertiv-tops-q2-2026-eps-forecast-shares-rise-premarket-93CH-4824087", "publisher": "Investing.com", "date": "2026-07-30" },
+    { "id": "s5", "kind": "ir-site", "title": "Vertiv Announces Date of Third Quarter 2026 Earnings Release and Conference Call", "url": "https://investors.vertiv.com/news/news-details/2026/Vertiv-Announces-Date-of-Third-Quarter-2026-Earnings-Release-and-Conference-Call/", "publisher": "Vertiv", "date": "2026-10-14" },
+    { "id": "s6", "kind": "10-Q", "title": "Vertiv Form 10-Q for quarter ended 2026-06-30 (date = period end; repurchase authorization status)", "url": "https://www.sec.gov/Archives/edgar/data/0001674101/000162828026050609/vrt-20260630.htm", "publisher": "Vertiv / SEC EDGAR", "date": "2026-06-30" },
+    { "id": "s7", "kind": "8-K", "title": "Vertiv declares Q2 2026 quarterly dividend (8-K exhibit; date = declaration date per search snippet)", "url": "https://www.sec.gov/Archives/edgar/data/0001674101/000162828026040031/exhibit991vrt-q22026divide.htm", "publisher": "Vertiv / SEC EDGAR", "date": "2026-06-03" },
+    { "id": "s8", "kind": "ir-site", "title": "Vertiv fact sheet 2026 (as of 2025-12-31; PDF encrypted, figures taken from search index snippet)", "url": "https://www.vertiv.com/491ab0/globalassets/documents/infographics/vertiv-fact-sheet-en-gl-2026.pdf", "publisher": "Vertiv", "date": "2025-12-31" },
+    { "id": "s9", "kind": "proxy", "title": "Vertiv DEF 14A 2026 (CEO tenure; only search snippet read, accessed date)", "url": "https://www.sec.gov/Archives/edgar/data/0001674101/000119312526174898/d18663ddef14a.htm", "publisher": "Vertiv / SEC EDGAR", "date": "2026-10-28" },
+    { "id": "s10", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/vrt/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "Vertiv는 데이터센터·통신망·산업 시설에 전력(UPS·배전·스위치기어)과 열관리(냉방·액체냉각) 장비, 랙·모니터링 소프트웨어, 유지보수 서비스를 판다. FY2025 매출 102.3억 달러(+27.7%) 가운데 제품이 82.1억, 서비스·부품이 20.2억 달러였다. 회사 자료상 최종시장 매출의 약 85%가 데이터센터다.",
+    "src": ["s1", "s2", "s8"]
+  },
+  "businessModel": {
+    "text": "데이터센터 건설 프로젝트에 전력·냉각 장비를 공급하고, 설치 기반에서 서비스·부품 매출을 반복적으로 얻는 구조다. 대형 프로젝트는 선수금과 마일스톤 수금을 받아 이연매출이 쌓이며, 수주잔고 대부분은 12~18개월 안에 출하된다. 자체 생산능력 확장(2026년 설비투자 매출의 약 4%)과 인수(2025년 약 11.8억 달러)로 열관리·액체냉각 역량을 넓히고 있다.",
+    "src": ["s2", "s3", "s4", "s1"]
+  },
+  "revenueStructure": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "segments": [
+      { "name": "Americas", "revenue": 6.39, "unit": "USD bn", "share": 62.4, "yoy": 41.9, "src": ["s1"] },
+      { "name": "Asia Pacific", "revenue": 2.02, "unit": "USD bn", "share": 19.7, "yoy": 17.5, "src": ["s1"] },
+      { "name": "EMEA", "revenue": 1.82, "unit": "USD bn", "share": 17.8, "yoy": 1.7, "src": ["s1"] }
+    ],
+    "recurringShare": "서비스·부품 20.23억 달러로 FY2025 매출의 약 19.8% (계산값). 계약형 반복 매출 비중은 별도 공시 확인 못함.",
+    "geography": "보고 세그먼트가 지역 단위다: 미주 62%, 아시아태평양 20%, EMEA 18% (FY2025). Q2 2026에는 미주 20.7억(+29.2%), APAC 7.2억(+28.5%), EMEA 4.8억 달러(+1.7%, 유기적 -2.4%).",
+    "text": "share는 FY2025 매출 102.30억 달러 대비 계산값이고, 세 지역 합이 총매출과 같다(로컬 SEC 데이터 102.30억 달러와 일치). 성장은 미주 AI 데이터센터가 이끌고 EMEA는 정체다. 제품(82.07억)·서비스(20.23억) 구분은 지역 세그먼트와 별개의 분류다.",
+    "src": ["s1", "s3"]
+  },
+  "productPortfolio": [
+    { "name": "Critical power (AC·DC 전력관리, UPS, 저·중압 스위치기어, 에너지저장)", "role": "데이터센터 전력 공급·백업. 800V DC 랙·포드 아키텍처는 2026년 고객 검증, 2027년 배치 계획", "src": ["s2", "s4"] },
+    { "name": "Thermal management (공랭·칠러·열배출, 액체냉각 CDU)", "role": "고밀도 AI 랙 발열 처리. ThermoKey(열배출), Strategic Thermal Labs(콜드플레이트) 인수로 보강", "src": ["s2", "s4"] },
+    { "name": "랙·통합 인프라·모니터링 소프트웨어", "role": "IT 장비 수용과 원격 관리, 사전 제작형 모듈 공급", "src": ["s2"] },
+    { "name": "Services & spares (예방정비, 원격감시, 부품, PurgeRite 배관 세정)", "role": "설치 기반에서 나오는 반복 매출, FY2025 20.2억 달러", "src": ["s1", "s2", "s4"] }
+  ],
+  "valueChain": {
+    "position": "midstream",
+    "suppliers": ["다수 공급사 분산 조달 (10-K, 특정 공급사 미기재)", "자체 공장 약 300개 거점·40여 개국"],
+    "customers": ["클라우드·하이퍼스케일러", "뉴클라우드(AI 클라우드)", "코로케이션 사업자", "통신망 사업자", "기업·산업 고객"],
+    "concentration": "10-K는 대형 고객이 고객 기반의 '상당 부분'이라고만 쓰고 비율을 공시하지 않음(확인 범위 내).",
+    "text": "GPU·서버 회사와 데이터센터 건설사 사이에서 '그레이 스페이스'(전력·냉각) 장비를 공급하는 위치다. NVIDIA GB300·Vera Rubin 기반 데이터센터 설계 협업을 언급하며, GPU 세대 전환이 전력·냉각 사양을 바꿀 때마다 제품 교체 수요가 생긴다.",
+    "src": ["s2", "s4"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["AI·일반 컴퓨트 데이터센터 투자 (CEO: 수요가 계속 강해짐)", "랙 밀도 상승에 따른 액체냉각·고전압 전력 전환", "메가와트당 장비 단가 상승 (CFO: 상승을 확신)", "2025-12-31 수주잔고 150억 달러, 전년 72억 달러의 약 2배"],
+    "supplyConstraints": ["Q2 2026 대형 다단계 프로젝트 실행·공급망 혼잡으로 매출 일부가 하반기로 이연", "자체 공장 간 연계 학습곡선", "관세 원가 부담 (회사는 2026년 가격-원가 플러스 전망)", "말레이시아 조호르·미주·EMEA 칠러 증설 진행 중"],
+    "text": "수주가 매출보다 훨씬 빨리 늘어(Q4 2025 수주 전년 대비 약 252%, 북투빌 약 2.9배) 잔고가 매출의 약 1.5년치로 쌓였다. 이제 실적의 관건은 수요가 아니라 생산·설치 실행 속도이며, Q2 매출 미달이 이를 보여줬다.",
+    "src": ["s1", "s2", "s3", "s4"]
+  },
+  "competition": {
+    "peers": ["ETN", "JCI", "nVent (NVT)", "Schneider Electric (비미국 상장)", "Legrand (비미국 상장)", "Delta Electronics (대만 상장)"],
+    "moat": "전력·냉각을 한 회사가 함께 설계·공급하고 글로벌 서비스망을 갖춘 점, NVIDIA 차세대 플랫폼과의 공동 설계 레퍼런스. 조정 영업이익률이 FY2025 20.4%에서 Q2 2026 22.6%로 올라 가격 결정력을 시사한다.",
+    "threats": "10-K가 Schneider Electric·Eaton·Legrand·Huawei를 대형 경쟁사로, Delta·Stulz·Johnson Controls·Socomec을 니치 경쟁사로 명시한다. 액체냉각·800V DC 전환기에 표준이 바뀌면 신규 진입자나 GPU 업체 레퍼런스 설계에 점유율을 잃을 위험이 있다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "governance": {
+    "ceo": "Giordano Albertazzi, since 2023 (2023-01-01 취임)",
+    "control": "widely held, Class A 보통주",
+    "insiderOwnership": null,
+    "capitalReturn": "분기 배당 주당 0.0625달러(2026년 3월·6월 선언). FY2025 배당 지급 6,660만 달러, 2025년 자사주 매입 없음. 2023-11-29 승인된 30억 달러 매입 한도(2027년 말까지) 중 2026-06-30 기준 24억 달러 잔여, 2026년 매입 없음.",
+    "notes": "직원 약 34,000명(2025-12-31). 경영진은 자사주 매입을 '기회적'으로 검토한다고 했고 현금은 인수·증설에 우선 쓰고 있다. 집행회장(Executive Chairman) 직위는 10-K에 언급되나 이름은 확인 범위에서 못 봤다.",
+    "src": ["s9", "s7", "s1", "s6", "s2", "s4"]
+  },
+  "aiRelevance": {
+    "role": "infrastructure-enabler",
+    "text": "AI 연산을 만드는 회사는 아니지만, AI 랙 밀도가 높아질수록 필요한 전력·냉각 장비의 핵심 공급자다. 매출 성장과 수주잔고 급증이 AI 데이터센터 투자와 직접 연결된다.",
+    "evidence": "최종시장 약 85%가 데이터센터(회사 자료), 2025-12-31 수주잔고 150억 달러(+109%), Q4 2025 유기적 수주 전년 대비 약 252%, NVIDIA GB300·Vera Rubin 800V DC 사이트 협업 언급.",
+    "src": ["s8", "s1", "s4"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "net sales", "value": "36.5억~38.5억 달러 (유기적 +34~36%)", "givenOn": "2026-07-29", "src": ["s3"] },
+      { "period": "Q3 2026", "metric": "adjusted operating margin", "value": "24.0~25.0% (조정 영업이익 8.98억~9.38억 달러)", "givenOn": "2026-07-29", "src": ["s3"] },
+      { "period": "Q3 2026", "metric": "adjusted diluted EPS", "value": "1.77~1.83달러", "givenOn": "2026-07-29", "src": ["s3"] },
+      { "period": "FY2026", "metric": "net sales", "value": "138억~142억 달러 (유기적 +30~32%)", "givenOn": "2026-07-29", "src": ["s3"] },
+      { "period": "FY2026", "metric": "adjusted diluted EPS", "value": "6.65~6.75달러 (GAAP 5.82~5.92달러)", "givenOn": "2026-07-29", "src": ["s3"] },
+      { "period": "FY2026", "metric": "adjusted free cash flow", "value": "24억~26억 달러", "givenOn": "2026-07-29", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "text": "다음 분기와 연간 매출·조정 영업이익·EPS·FCF를 범위로 낸다. 연간 가이던스는 2월 매출 132.5억~137.5억·EPS 5.97~6.07달러에서 7월 138억~142억·6.65~6.75달러로 올랐다. Q2는 EPS가 컨센서스를 넘었지만 매출은 약 1억 달러 미달해 '이익은 상회, 매출 타이밍은 미달' 패턴이었다.",
+    "src": ["s1", "s3", "s4"]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06 분기) 합계 7.79달러(범위 7.60~8.03), 직전 4개 분기 실적 합 5.29달러. 최근 4주 상향 7건·하향 2건.",
+    "src": ["s10"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "Organic orders / book-to-bill", "why": "향후 매출의 선행지표. Q4 2025 북투빌 약 2.9배 이후 수주 증가율이 어디서 정상화되는지를 본다." },
+      { "metric": "Backlog (and conversion)", "why": "150억 달러 잔고가 계획대로 매출로 전환되는지, 즉 실행 능력의 척도." },
+      { "metric": "Adjusted operating margin", "why": "가격-원가(관세 포함)와 생산성의 결과. 2026년 23.3~24.3% 가이던스 달성 여부." },
+      { "metric": "Americas organic growth", "why": "매출의 62%이자 AI 데이터센터 수요의 중심." },
+      { "metric": "Adjusted free cash flow and deferred revenue", "why": "선수금이 늘면 FCF가 좋아 보이므로, 이연매출 변화와 함께 질을 본다." }
+    ],
+    "valuationFrame": "전문가는 향후 12개월 EPS 대비 주가배수와 EV/EBITDA를 쓰고, 수주잔고·하이퍼스케일러 설비투자 전망으로 2~3년 매출을 역산한다. 장비 산업 특성상 수주 사이클 정점에 높은 배수를 주는 위험을 함께 검토한다.",
+    "thesisChecks": ["수주 증가와 잔고가 유지되는가", "Q2에 밀린 미주 매출이 하반기에 실제로 회수되는가", "조정 영업이익률이 가이던스 범위로 확대되는가", "액체냉각·800V DC 제품이 계획대로 검증·출하되는가", "연간 가이던스가 다시 상향되는가"],
+    "breakSignals": ["북투빌 1배 미만이 이어지거나 잔고 감소", "매출 이연이 반복되며 가이던스 하향", "관세·원가로 마진 가이던스 하향", "주요 고객의 데이터센터 착공 지연·설비투자 삭감", "표준 전환기에 경쟁사 레퍼런스 설계 채택"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-10-28 (장 시작 전)", "event": "Q3 2026 실적 발표와 11시(동부) 컨퍼런스콜 — 조사 시점에 결과 미색인", "src": ["s5"] },
+      { "date": "2027-02 (추정)", "event": "FY2026 실적과 첫 2027 연간 가이던스", "src": ["s1"] },
+      { "date": "하이퍼스케일러 분기 실적 시즌 (매 분기)", "event": "Microsoft·Alphabet·Amazon·Meta 설비투자 전망", "src": ["s4"] }
+    ],
+    "eventReaction": "Q2에서는 매출 미달에도 EPS 상회와 연간 가이던스 상향으로 장전 주가가 약 4.9% 올랐다. 즉 이 종목은 분기 매출보다 연간 가이던스 방향, 수주·잔고 코멘트, 마진에 더 크게 반응하는 경향이 있다.",
+    "watchConditions": ["연간 매출·EPS 가이던스 상향 또는 하향 여부", "수주·북투빌·잔고 숫자를 계속 공시하는지와 그 증감", "미주 유기적 성장률과 EMEA 회복 여부", "조정 영업이익률이 가이던스 범위 안인지", "이연매출과 FCF의 동행 여부", "컨센서스 EPS 상향·하향 건수 추이"],
+    "src": ["s4", "s3", "s1", "s10"]
+  },
+  "unverified": [
+    "Q3 2026 실적(2026-10-28 발표)의 매출·수주·잔고·가이던스 — 조사 시점 웹에 미색인",
+    "2026년 분기 수주·잔고 금액 (Q2 보도자료·콜에서 수치 미공시; 분기 수주 공시 중단 여부 미확인)",
+    "데이터센터 매출 비중 85%는 암호화된 팩트시트의 검색 스니펫 기준",
+    "최대 고객 매출 비중 (10-K에 비율 미기재로 보임)",
+    "내부자 지분율",
+    "집행회장 이름·직위 (David Cote 여부 미확인)",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "medium - FY2025·Q2 2026 수치는 회사 보도자료와 10-K에서 왔으나, 오늘 발표된 Q3 결과와 2026년 수주·잔고를 확인하지 못했다."
+}

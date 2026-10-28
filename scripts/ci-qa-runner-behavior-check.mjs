@@ -165,6 +165,8 @@ try {
   if (explicitAffected.status !== 0) fail('runner explicit affected file selection failed', explicitAffected);
   const affectedSelection = JSON.parse(explicitAffected.stdout);
   if (affectedSelection.changeSource !== 'explicit-files' || affectedSelection.groups.join(',') !== 'preflight,fixture') fail('runner did not isolate affected selection to the explicit task file set', explicitAffected);
+  const spacedFiles = run('affected', '--files', 'scripts/fixtures/qa-gate-fixture.mjs', 'index.html', '--list');
+  if (spacedFiles.status !== 2 || !/comma-separated/.test(spacedFiles.stderr)) fail('P2113 runner accepted space-separated --files paths and silently dropped all but the first', spacedFiles);
   const sessionStart = run('session-start', '--session', 'behavior-fixture');
   if (sessionStart.status !== 0 || !existsSync(join(cacheDir, 'sessions', 'behavior-fixture.json'))) fail('runner did not create a task-session baseline', sessionStart);
 

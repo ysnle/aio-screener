@@ -77,7 +77,7 @@ check(invalid.nodes.get('vis-fundamental').style.display === 'none' && invalid.n
 
 // P1672: #sr-levels-container left the technical page; the stock-chart component draws price levels now.
 check(!macroTech.includes('function updateSRLevels'), 'retired legacy price reference-line writer stays retired');
-check(!section(ui, 'function _factorRadar(d)', '// ── 4. pipeline-status').includes('|| 50') && ui.includes('Object.assign({}, row.factorScores || {}, { rsi: row.rsi })'), 'factor visualizations preserve zero/missing values and canonical scores');
+check(!section(ui, 'function _factorRadar(d)', '  var _fns = {').includes('|| 50') && ui.includes('Object.assign({}, row.factorScores || {}, { rsi: row.rsi })'), 'factor visualizations preserve zero/missing values and canonical scores');
 const themes = read('src/ui/pages/themes.js');
 check(themes.includes("catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록')") && themes.includes('appendUnclassified();'), 'missing RRG observations do not remove the independent theme exploration path');
 

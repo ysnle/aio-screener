@@ -1,0 +1,129 @@
+{
+  "symbol": "NOW",
+  "name": "ServiceNow, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "ServiceNow Reports Second Quarter 2026 Financial Results (8-K exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000072/erq2fy26.htm", "publisher": "ServiceNow / SEC EDGAR", "date": "2026-07-22" },
+    { "id": "s2", "kind": "earnings-release", "title": "ServiceNow Reports Fourth Quarter and Full Year 2025 Financial Results; Board Authorizes Additional $5B for Share Repurchase Program", "url": "https://investor.servicenow.com/news/news-details/2026/ServiceNow-Reports-Fourth-Quarter-and-Full-Year-2025-Financial-Results-Board-of-Directors-Authorizes-Additional-5B-for-Share-Repurchase-Program/default.aspx", "publisher": "ServiceNow IR", "date": "2026-01-28" },
+    { "id": "s3", "kind": "10-K", "title": "ServiceNow Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000007/now-20251231.htm", "publisher": "ServiceNow / SEC EDGAR", "date": "2026-01-29" },
+    { "id": "s4", "kind": "8-K", "title": "ServiceNow Reports First Quarter 2026 Financial Results (8-K exhibit; Armis closing 2026-04-20 as summarised by search, page not opened; date = Armis close date, release date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0001373715/000137371526000054/erq1fy26.htm", "publisher": "ServiceNow / SEC EDGAR", "date": "2026-04-20" },
+    { "id": "s5", "kind": "news", "title": "ServiceNow to acquire Armis (company announcement, approx. $7.75B cash)", "url": "https://www.businesswire.com/news/home/20251222437177/en/ServiceNow-to-acquire-Armis-to-expand-cyber-exposure-and-security-across-the-full-attack-surface-in-IT-OT-and-medical-devices-for-companies-governments-and-critical-infrastructure-worldwide", "publisher": "Business Wire (company release)", "date": "2025-12-22" },
+    { "id": "s6", "kind": "ir-site", "title": "ServiceNow to Announce Third Quarter 2026 Financial Results on October 28", "url": "https://investor.servicenow.com/news/news-details/2026/ServiceNow-to-Announce-Third-Quarter-2026-Financial-Results-on-October-28/default.aspx", "publisher": "ServiceNow IR", "date": "2026-10-28" },
+    { "id": "s7", "kind": "news", "title": "NOW Stock Surges on Q2 Beat, Then Fades on AI Selloff", "url": "https://trendspider.com/blog/servicenow-stock-q2-beat-ai-selloff/", "publisher": "TrendSpider", "date": "2026-07-24" },
+    { "id": "s8", "kind": "other", "title": "Bill McDermott member profile (Chairman and CEO, ServiceNow)", "url": "https://businessroundtable.org/members/bill-mcdermott", "publisher": "Business Roundtable", "date": "2026-10-28" },
+    { "id": "s9", "kind": "news", "title": "ServiceNow Q3 earnings preview (Zacks consensus: revenue $4.09B, EPS $1.02)", "url": "https://finance.yahoo.com/markets/stocks/articles/servicenow-q3-earnings-loom-hold-170300623.html", "publisher": "Zacks via Yahoo Finance", "date": "2026-10-28" },
+    { "id": "s10", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/now/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "ServiceNow는 기업의 IT·고객지원·인사·보안 업무 흐름을 하나의 클라우드 플랫폼(Now Platform)에서 자동화하는 소프트웨어를 대기업·정부에 구독으로 판다. FY2025 매출 132.8억 달러 중 구독 매출이 128.8억 달러(97%)로, 거의 전부가 반복 매출이다. 2025년 말 고객은 약 8,700곳이다.",
+    "src": ["s3", "s2"]
+  },
+  "businessModel": {
+    "text": "고객은 다년 구독 계약을 맺고, 매출은 대부분 구독 기간에 걸쳐 인식된다. 일부 AI·데이터 제품은 사용량 기반 요금이 붙고, 소수 고객(주로 정부)은 자체 데이터센터 설치형을 쓰는데 이 경우 매출 일부가 선인식된다(FY2025 약 4.9억 달러). 계약이 먼저 쌓이고 매출이 뒤따르므로 미인식 계약 잔액(RPO·cRPO)이 선행 지표다.",
+    "src": ["s3", "s1"]
+  },
+  "revenueStructure": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "segments": [
+      { "name": "Subscription", "revenue": 12.883, "unit": "USD bn", "share": 97.0, "yoy": 21.0, "src": ["s3", "s2"] },
+      { "name": "Professional services and other", "revenue": 0.395, "unit": "USD bn", "share": 3.0, "yoy": 17, "src": ["s3"] }
+    ],
+    "recurringShare": "구독 매출 비중 97% (FY2025). 구독 갱신율은 Q2 2026 기준 98%로 보도됐으나 회사 원문에서는 확인 못함.",
+    "geography": "FY2025 북미 외 매출 비중 37% (10-K). 지역별 금액은 확인 못함.",
+    "text": "share는 FY2025 총매출 132.78억 달러 대비 계산값이고, 구독 yoy는 전년 106.46억 달러 대비 계산값이다. 최근 분기(Q2 2026) 구독 매출은 38.77억 달러로 24.5% 성장했고, cRPO 132억 달러(+21%), RPO 290억 달러(+21%)였다. Q2에는 미국 연방정부 설치형 매출이 Q3에서 앞당겨진 효과가 있었다.",
+    "src": ["s3", "s2", "s1"]
+  },
+  "productPortfolio": [
+    { "name": "IT 서비스·운영 관리 (ITSM/ITOM)", "role": "IT 요청·장애·자산 관리. 회사의 출발점이자 핵심 고객 기반", "src": ["s3"] },
+    { "name": "고객 서비스·인사·업무 흐름 (CSM, HR, Creator 워크플로)", "role": "IT 밖 부서로 플랫폼 확장, 고객당 매출 확대 수단", "src": ["s3"] },
+    { "name": "ServiceNow AI (Now Assist, Otto, AI 에이전트)", "role": "생성형·에이전트 AI 유료 기능. Q2 2026 AI 연간계약가치(ACV) 10억 달러 돌파", "src": ["s1"] },
+    { "name": "Moveworks", "role": "직원용 AI 어시스턴트. 2025-12-15 인수 완료(주식 발행)", "src": ["s3"] },
+    { "name": "보안 (Armis 포함 사이버 노출·보안 운영)", "role": "IT·OT·의료기기 자산 보안. Armis 인수 약 77.5억 달러(현금) 발표 후 2026-04-20 완료", "src": ["s5", "s4"] }
+  ],
+  "valueChain": {
+    "position": "platform",
+    "suppliers": ["자체 프라이빗 클라우드 데이터센터 (북미·남미·유럽·아시아·호주)", "퍼블릭 클라우드 사업자", "기술 파트너 AWS, Google, Microsoft, NVIDIA"],
+    "customers": ["대기업 IT·운영 부서", "정부 (미국 연방 포함)", "고객서비스·인사 부서"],
+    "concentration": "10% 이상 단일 고객은 확인 못함. ACV 500만 달러 초과 고객 603곳(2025말) → 658곳(Q2 2026, +23%).",
+    "text": "ServiceNow는 기업 업무 시스템 위에 얹히는 '업무 흐름 계층' 플랫폼이다. 인프라는 자체 데이터센터와 퍼블릭 클라우드를 함께 쓰고, 판매는 직접 영업과 파트너 생태계로 한다. 대형 고객이 늘수록 계약 잔액이 커진다.",
+    "src": ["s3", "s2", "s1"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["기업 IT 예산과 디지털 전환·자동화 투자", "AI 에이전트 도입 (Q2 2026 에이전트 운영 고객 9개월간 9배, 회사 언급)", "미국 연방정부 지출 (Q2 설치형 매출 앞당김)", "보안 지출 (Armis 편입)"],
+    "supplyConstraints": ["물리적 공급 제약은 작음. 대신 AI 사용량 증가와 하이퍼스케일러 이전 비용이 단기 총마진 압박 요인으로 거론됨", "Armis 인수로 2026 연간 이익률 가이던스 하향 (non-GAAP 영업이익률 32%→31.5%, FCF 마진 36%→35%)"],
+    "text": "소프트웨어라 공급보다 수요가 관건이며, 수요는 기업이 업무 자동화에 돈을 쓰는 속도로 정해진다. 2026년 시장의 핵심 질문은 'AI가 ServiceNow 같은 업무 플랫폼을 대체하느냐, 더 팔게 해주느냐'다.",
+    "src": ["s1", "s2", "s7"]
+  },
+  "competition": {
+    "peers": ["MSFT", "ORCL", "SAP", "CRM", "WDAY"],
+    "moat": "대기업 핵심 업무 흐름에 깊이 들어가 있어 바꾸기 어렵고(보도 기준 갱신율 98%), 단일 데이터 모델 플랫폼 위에 IT·고객·인사·보안 제품을 계속 얹을 수 있다. FY2026 non-GAAP 구독 총마진 가이던스 81%가 가격 결정력을 보여준다.",
+    "threats": "10-K가 Microsoft·Oracle·SAP·Salesforce·Workday를 경쟁자로 명시한다. 2026년에는 OpenAI 등 AI 모델 회사의 기업용 에이전트 플랫폼이 기존 업무 플랫폼을 우회할 수 있다는 우려가 주가를 눌렀다.",
+    "src": ["s3", "s1", "s7"]
+  },
+  "governance": {
+    "ceo": "Bill McDermott, since 2019 (2019-11 합류, 현재 회장 겸 CEO; 전 SAP CEO)",
+    "control": "widely held (창업자 Fred Luddy는 이사회 잔류)",
+    "insiderOwnership": null,
+    "capitalReturn": "배당 없음(10-K: 당분간 지급 계획 없음). 2026-01 자사주 한도 50억 달러 추가, 20억 달러 가속 자사주매입(ASR) 예고. 2026년 상반기 자사주 매입 22.25억 달러(전년 동기 6.59억), Q2에는 매입 없음. 2025-12-17 5대1 액면분할.",
+    "notes": "직원 29,187명(2025말, 미국 14,601명). 최근 인수가 잦아(Moveworks, Logik.io, Veza, Armis) 통합 성과가 지배구조 점검 항목이다.",
+    "src": ["s8", "s3", "s2", "s1"]
+  },
+  "aiRelevance": {
+    "role": "platform",
+    "text": "기업 업무 흐름 위에 AI 에이전트를 얹어 파는 플랫폼으로, AI가 새 매출원이 될 수도, 좌석·업무 대체로 위협이 될 수도 있는 양면 위치다. 회사는 장기적으로 ACV의 30%를 AI에서 내겠다는 목표를 제시했다.",
+    "evidence": "Q2 2026 ServiceNow AI 연간계약가치(ACV) 10억 달러 돌파, AI 순신규 ACV가 예상 상회(CFO).",
+    "src": ["s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "subscription revenue", "value": "39.75~39.80억 달러 (+20.5%, 고정환율 +20%)", "givenOn": "2026-07-22", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "cRPO growth", "value": "+19.5% (고정환율 +20%)", "givenOn": "2026-07-22", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "non-GAAP operating margin", "value": "31%", "givenOn": "2026-07-22", "src": ["s1"] },
+      { "period": "FY2026", "metric": "subscription revenue", "value": "157.60~157.80억 달러 (+22.5%, 상향)", "givenOn": "2026-07-22", "src": ["s1"] },
+      { "period": "FY2026", "metric": "non-GAAP subscription gross margin / operating margin / FCF margin", "value": "81% / 31.5% / 35%", "givenOn": "2026-07-22", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "text": "다음 분기 구독 매출·cRPO 성장률·영업이익률과 연간 구독 매출·마진을 제시한다. 연간 구독 매출 가이던스는 1월 155.3~155.7억에서 7월 157.6~157.8억 달러로 올랐지만, 인수 효과로 이익률 가이던스는 내려갔다. Q2 실제 구독 매출 38.77억 달러는 시장 예상을 넘었다.",
+    "src": ["s2", "s1", "s7"]
+  },
+  "estimates": {
+    "text": "Zacks 기준 Q3 2026 컨센서스는 매출 40.9억 달러(+20%), 조정 EPS 1.02달러(2026-10-28 보도). AIO 로컬 스냅샷(2026-10-27)은 향후 4개 분기 EPS 합계 2.50달러, 최근 4주 상향·하향 0건이나, 분기 실적 이력(Q2 0.40달러)이 회사 조정 EPS 0.90달러와 달라 기준(GAAP 여부)이 불분명하다.",
+    "src": ["s9", "s10", "s7"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "Subscription revenue growth (constant currency)", "why": "매출의 97%. 환율 효과를 뺀 성장률이 실제 수요 속도다." },
+      { "metric": "cRPO growth", "why": "향후 12개월 안에 인식될 계약 잔액. 다음 분기 구독 매출의 선행 지표로 가장 많이 본다." },
+      { "metric": "RPO", "why": "다년 계약 전체 잔액. 대형 장기 계약의 크기를 보여준다." },
+      { "metric": "Customers over $5M ACV", "why": "대형 고객 확대 속도. 고객당 매출 증가 전략이 작동하는지 확인한다." },
+      { "metric": "AI ACV (Now Assist / ServiceNow AI)", "why": "AI가 위협이 아니라 매출원이라는 근거. 2026 Q2 10억 달러 돌파." },
+      { "metric": "Non-GAAP operating margin and FCF margin", "why": "성장과 수익성 균형(Rule of 40). 인수 비용과 AI 연산 비용 영향을 본다." }
+    ],
+    "valuationFrame": "전문가는 주로 기업가치 대비 매출(EV/Sales)·잉여현금흐름 배수(EV/FCF)와 성장률을 함께 보고, 성장률+FCF 마진(Rule of 40)으로 동종 SaaS와 비교한다. 주식보상비용이 크므로 GAAP와 non-GAAP 이익 차이를 따로 확인한다.",
+    "thesisChecks": ["cRPO 성장률이 가이던스(19.5%)를 넘는가", "구독 매출 성장이 20% 안팎에서 유지되는가", "AI ACV가 계속 빠르게 늘어나는가", "Armis 편입 후에도 연간 이익률 가이던스를 지키는가", "갱신율이 98% 수준을 유지하는가"],
+    "breakSignals": ["cRPO 성장률 급감 또는 가이던스 하회", "연간 구독 매출 가이던스 하향", "AI 에이전트 경쟁으로 좌석 감소·가격 인하 신호", "연방정부 지출 축소로 대형 계약 지연", "인수 통합 비용 확대로 마진 가이던스 추가 하향"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-10-28 (장 마감 후)", "event": "Q3 2026 실적 발표 및 Q4·연간 가이던스", "src": ["s6"] },
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 FY2027 첫 연간 가이던스", "src": [] },
+      { "date": "수시", "event": "OpenAI 등 AI 모델 회사의 기업용 에이전트 발표, 동종 소프트웨어(Pegasystems·IBM 등) 실적", "src": ["s7"] }
+    ],
+    "eventReaction": "주가는 구독 매출 자체보다 cRPO 성장률과 다음 분기·연간 가이던스 상향 폭에 반응한다. Q2 2026에는 실적이 예상을 넘었지만 연간 가이던스 상향 폭이 작고 AI 경쟁 우려가 겹쳐 장전 7~8% 상승이 하락으로 뒤집혔다.",
+    "watchConditions": ["cRPO 성장률과 가이던스(19.5%)의 차이", "연방정부 앞당김 효과를 뺀 Q3 구독 매출", "AI ACV 및 에이전트 고객 수 공개 여부", "ACV 500만 달러 초과 고객 증가율", "동종 소프트웨어 실적과 AI 플랫폼 발표에 대한 섹터 반응", "컨센서스 EPS 상향·하향 건수 추이"],
+    "src": ["s1", "s7", "s10"]
+  },
+  "unverified": [
+    "구독 갱신율 98% (보도 인용, 회사 원문 미확인)",
+    "지역별 매출 금액 (북미 외 37%만 확인)",
+    "10% 이상 단일 고객 여부",
+    "경영진·내부자 지분율",
+    "Armis 최종 취득가 (발표가 약 77.5억 달러, 10-Q 원문 미확인)",
+    "Moveworks 인수 금액",
+    "FY2025 연간 자사주 매입 총액",
+    "Q4 2026 실적 발표일",
+    "Q3 2026 실제 실적 (발표일이 조사일 장 마감 후)"
+  ],
+  "confidence": "medium - 매출·계약잔액·가이던스는 회사 보도자료와 10-K에서 왔지만, 갱신율·주가 반응은 2차 보도이고 Q3 실적이 조사 당일 발표 예정이라 곧 낡는다."
+}

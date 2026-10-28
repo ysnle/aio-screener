@@ -1,10 +1,91 @@
 ---
-last_verified: 2026-10-27
+last_verified: 2026-10-28
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2121 - v59.42 - 레거시 화면 결함 3건: 한국 테마 시총 칸이 늘 '—', 예전 포트폴리오 표의 손실 부호 누락, Ctrl/Cmd+R 새로고침 가로채기 (2026-10-28)
+
+- symptom/reproduction: (1) 한국 테마 상세 표의 '시총' 칸이 항상 '—'였다. (2) 예전 포트폴리오 표(native 표가 없을 때의 대체 표)는 손실 금액을 부호 없이 Math.abs로 보여줬고, 일간 등락이 없으면 0으로 쳐서 가격을 상승색으로 칠했다. (3) R 단축키가 Ctrl/Cmd를 확인하지 않아 Ctrl+R을 누르면 페이지 새로고침 대신 시세만 다시 받았다. 레거시 감사 9위와 leave 표의 셸 항목.
+- root_cause: (1) _enrichMarketCap이 KR_STOCK_DB를 배열처럼 length로 돌았지만 KR_STOCK_DB는 코드로 키를 단 객체라 한 번도 쓰지 않았다. 네이버 응답의 시총 단위도 확인된 적이 없다. (2) pnlSign이 손실이면 ''이고 금액 칸은 Math.abs를 써서 부호가 사라졌다. dailyPct는 값이 없을 때 0으로 대체됐다. (3) 키 처리기가 숫자 단축키와 달리 수정 키를 확인하지 않았다.
+- fix: (1) _enrichMarketCap, src/data/providers/naver-kr.js의 호출, 원천 없는 '시총' 열을 지웠다. 시총은 원천과 단위를 확인한 뒤에만 다시 넣는다. (2) 손실은 '-'를 붙이고, 비율 칸은 숫자 자체의 부호를 쓰며, 일간 등락이 없으면 가격은 중립색이다. (3) R은 Ctrl/Cmd/Alt가 없을 때만 시세 새로고침이다.
+- violated_rule: AGENTS: 원천 없는 위젯 제거, 근거 없는 대체값 금지.
+- prevention: 새 실행 게이트는 없다. 결함마다 코드 주석(v59.42)으로 이유를 남겼고, 레거시 감사 보고서가 같은 클래스(숫자 대체값, 규칙 두 개)의 남은 위치를 나열한다.
+- verification/residual: node --check js/aio-kr-data.js js/aio-workspace.js js/aio-ui.js src/data/providers/naver-kr.js. 화면 확인은 브라우저 QA에서 한다.
+
+## P2120 - v59.42 - 부팅 중 서비스 워커 버전 응답이 아직 설치되지 않은 updateDataStatus를 불러 'updateDataStatus is not defined' (2026-10-28)
+
+- symptom/reproduction: 부팅 때 콘솔에 'updateDataStatus is not defined'(js/aio-data.js 서비스 워커 버전 응답)가 났다. 레거시 감사 7위.
+- root_cause: v59.20에서 updateDataStatus가 src/ui/components/data-status-surface.js로 옮겨 window 전역으로 설치되는데, 설치는 src/app/bootstrap.js의 정적 모듈 그래프 평가 뒤다. js/aio-data.js는 로드 즉시 _querySWVersion()을 부르고, 그 MessageChannel 응답이 모듈 그래프가 받아지는 사이 도착하면 확인 없이 updateDataStatus()를 불렀다. 같은 파일의 _reportApiOk는 typeof로 확인하고 이 호출만 확인하지 않았다.
+- fix: 응답 처리에서 typeof window.updateDataStatus === 'function'일 때만 부른다. 표면은 다음 렌더(refresh-scheduler)에서 _aioSWVersion을 직접 읽으므로 설치 전 응답은 이번 한 번의 갱신만 건너뛴다.
+- violated_rule: R731
+- prevention: R731과 scripts/ci-runtime-contract-check.mjs v59.42 검사: _querySWVersion 응답은 window.updateDataStatus 존재를 확인한 뒤에만 부른다. 감사 스캔에서 src가 설치하는 전역을 js/가 확인 없이 부르는 곳은 109곳이었고 대부분 부팅 뒤에만 실행된다. 부팅 경로 전체 게이트는 열린 후속 항목이다.
+- verification/residual: node --check js/aio-data.js, node scripts/ci-runtime-contract-check.mjs OK. 느린 네트워크 부팅에서 콘솔 오류가 사라졌는지는 브라우저 확인이 남았다.
+
+## P2119 - v59.42 - 거시·금리가 장중 Yahoo 금리·VIX를 FRED 공식 값으로 표시 — Yahoo→FRED 브릿지 퇴역 (2026-10-28)
+
+- symptom/reproduction: Yahoo 시세의 뉴욕 날짜가 FRED 관측일보다 새로우면 ^TNX/^TYX/^FVX/^VIX 장중 값이 _fredData[DGS10/DGS30/DGS5/VIXCLS]와 MacroStore에 검증 없이 들어갔고, src/ui/pages/market.js는 그 값을 'FRED:DGS10' 출처로 보여줬다. 이전 FRED 값이 없으면 prevValue가 현재 값이라 변화가 0으로 보였다. T10Y2Y도 장중 시세로 만들어 넣었다. 레거시 감사 3위.
+- root_cause: v31.9 _syncYahooToFred가 'FRED 지연을 Yahoo 실시간으로 보완'하려고 공식 시계열 칸에 장중 시세를 덮어썼다. 장중 시세 경로와 공식 종가 경로가 한 칸을 같이 썼다.
+- fix: js/aio-data.js에서 _YAHOO_FRED_MAP과 _syncYahooToFred, applyLiveQuotes의 호출을 지웠다. FRED 칸은 공식 관측만 담고, 장중 값은 _liveData에만 남는다.
+- violated_rule: AGENTS: 종가 기준 점수와 출처 정직성. 공식 시계열 칸에 다른 원천 값을 넣지 않는다.
+- prevention: scripts/ci-runtime-contract-check.mjs LIVE3-04(v59.42)는 브릿지 정의·호출과 'yahoo-realtime:' 출처가 없을 것을 검사하고, js/aio-tests.js T1037은 _syncYahooToFred·_YAHOO_FRED_MAP이 정의되지 않았을 것을 검사한다.
+- verification/residual: node scripts/ci-runtime-contract-check.mjs OK. 장중에 거시·금리 10년물이 전일 FRED 값과 날짜로 보이는지는 push 뒤 브라우저에서 확인해야 한다.
+
+## P2118 - v59.42 - AI 질문이 브라우저 자체 하루 20회 한도에서 확인창으로 막힘 — 실제 한도는 Worker의 연결당 150회 (2026-10-28)
+
+- symptom/reproduction: 같은 브라우저에서 21번째 질문부터 매번 '일일 한도 초과, 계속 질문하시겠습니까?' 확인창이 떴고 배지는 '0/20'이었다. 공용 Worker는 연결당 하루 150회(AI_PER_CLIENT_DAILY_CAP)를 허용하고 /health의 ai.client에 남은 횟수를 알려주지만 아무도 읽지 않았다. 레거시 감사(_artifacts/legacy-audit-20261028/REPORT.md) 1위.
+- root_cause: js/aio-ui.js LLM_BUDGET.dailyQueryLimit 20과 consumeLLMQuery의 초과 확인창은 개인 키 시절 비용 관리용으로, AI가 공용 Worker로 옮기고(P1421) 항상 켜진 뒤(P1653)에도 남았다. 한 일(하루 한도)에 규칙이 두 개였다.
+- fix: 브라우저 쪽 한도·초과 확인창·overBudget 집계를 지웠다. 배지는 _aioWorkerClientQuota()로 Worker가 보고한 ai.client.dailyLimit/remainingToday를 보여주고, 값이 없으면 '—'다. 로컬 llm_quota는 사용 횟수 기록만 남는다.
+- violated_rule: AGENTS: AI는 공용 Worker로 항상 사용(월 $20 목표). 한도는 Worker가 소유한다.
+- prevention: scripts/ci-ai-chat-reliability-contract-check.mjs v59.42 검사 2개: consumeLLMQuery에 showConfirmModal이 없고 dailyQueryLimit/calcDailyLimit이 없을 것, 배지가 health.ai.client를 읽는 _aioWorkerClientQuota()를 쓸 것.
+- verification/residual: node scripts/ci-ai-chat-reliability-contract-check.mjs OK(3 sections). 라이브 배지의 Worker 남은 횟수 표시는 push 뒤 브라우저에서 확인해야 한다.
+
+## P2117 - v59.42 - 뉴스 키워드 목록마다 비교 규칙이 달라 부분 문자열 오탐이 점수·제외를 바꿈 — 뉴스 채점·선별을 src/domain/news 한 곳으로 이전 (2026-10-28)
+
+- symptom/reproduction: P2116 뒤에도 같은 종류가 남아 있었다. 긴급어·우선 토픽·정치·정책·스팸·핵심 인물·발언어·소식통·텔레그램 관련어 목록은 부분 문자열로 비교해 'tax'가 'taxi', 'surge'가 'Surgery Partners', '핵'이 '핵심', 'rate'가 'corporate' 안에서 맞았다. 반대로 MACRO/TECH/MED/ANALYST·금융 관련성 목록은 유니코드 단어 경계(_wordHit)라 'chips'·'hedge funds'·'stocks' 같은 복수형과 '반도체는'·'실적공개'처럼 조사·합성어가 붙은 한국어를 놓쳤다. 2026-10-27 로컬 피드 40건을 클라이언트 채점기로 다시 매기면 11건의 점수·토픽이 이 차이로 바뀌었고('Trend hedge funds saw worst week …'는 금융어 0건으로 제외, 'Investors Flee India Small-Caps as Margin Calls …'는 23점), P2116 매처는 끝 경계 때문에 'could reach $100' 가격 예측 스팸을 더 이상 막지 못했다(로컬 미푸시).
+- root_cause: 뉴스 채점·제외·선별 코드 2,780줄이 js/aio-data.js에 있었고 목록마다 비교 방식을 따로 골랐다(substring, _wordHit, P1428 토픽 정규식, P2116 매처, scoring.js 정규식). 규칙을 한 곳에서 정하는 소유자가 없어 한 목록을 고치면 다른 목록이 그대로 남았다.
+- fix: src/domain/news/keyword-match.js 한 규칙으로 모든 목록을 비교한다: 영어(ASCII)는 단어 단위 + 복수 -s/-es(동사 목록은 -d/-ed/-ing), 경계는 글자·숫자로 끝나는 쪽에서만 본다('could reach $100'); 한국어 등은 부분 문자열, 한 글자('금','은','핵','밈')는 홀로 있을 때만. 키워드 목록은 src/domain/news/selection-keywords.js로 그대로 복사, scoreItem·classifyTopic·calcNewsImpactVector·isUnverifiedClaim·화면 계약·buildNewsSurfaceModel은 순수 모듈 src/domain/news/selection.js로 옮기고 창 의존은 env로 받는다. src/app/news-selection-entry-points.js가 기존 창 이름(scoreItem, classifyTopic, getSentimentFromText, calcNewsImpactVector, AIO_NEWS_SURFACE_CONTRACTS, AIO.buildNewsSurfaceModel/getNewsSelectionAudit/getNewsSurfaceAudit, _aioNewsDedupeKey, _aioNormalizeNewsItem, MACRO_KW/TECH_KW)을 유지한다. getSentimentFromText는 scoring.js 감성 모델(classifyNewsTextStance)을 쓴다. 텔레그램 수집기도 같은 매처를 import한다. js/aio-data.js에서 2,780줄 삭제.
+- violated_rule: AGENTS 정보구조: 병합마다 레거시 js/ 소유를 src/로 옮기고 대체된 코드를 지운다. 같은 결함 클래스(P1428, P2116)가 목록별로 반복됐다.
+- prevention: R730: 뉴스 키워드 목록은 keyword-match.js로만 비교한다. scripts/fixtures/expect/news-selection.cases.mjs가 고정 피드 22건의 점수·토픽·제외와 오늘·브리핑·시장 뉴스(전체/한국/기업)·기술 분석 줄 선별, P2115 혼잡 토픽, 키워드 규칙 표를 출력해 .expect.md 차이로 리뷰한다. ci-esm-core-unit-check의 P2116 검사는 모듈을 직접 실행하도록 옮겼고 taxi/tax, Surgery/surge, 금리가/금리, 금리/금, 핵심/핵, 'could reach $100', 밈주식을 확인한다(이전 코드에서는 tax⊂taxi·surge⊂surgery·핵⊂핵심이 맞고 'could reach $100'이 빠짐을 node vm으로 확인). ci-architecture-contract-check의 헤드라인 전용 기사 텍스트 핀은 동작 검사로 바꿨다.
+- verification/residual: 같은 40건 피드·고정 시각으로 이전/이후 비교: 서버 점수 그대로 쓰는 현재 화면 11개 선별 변화 0건, 블랙리스트 변화 0건. 클라이언트 재채점 경로에서는 11건 점수·토픽 변화(복수형, 한국어 조사, Surgery) — 전부 이 규칙으로 설명됨, 오늘 화면은 4건 중 2건 교체(Gold Futures·Gold Steadies 진입). 로컬 브라우저(서비스 워커 해제)에서 콘솔 오류 없이 새 모듈 실행 확인. 정적: ci-esm-core-unit-check, ci-expect-output-check, ci-architecture/data-pipeline/runtime-contract-check, ci-text-pin-ratchet-check, ci-boot-bundle-budget-check(부트 상한 raw 1,559→1,698 KB, gzip 572→628 KB — 옮겨진 바이트, aio-data.js는 −194.5 KB/−74.9 KB gzip) 통과.
+
+## P2116 - v59.42 - 뉴스 제외 목록이 영어 키워드를 부분 문자열로 비교해 inflation 기사 등을 버림 (2026-10-28)
+
+- symptom/reproduction: P2115 회귀 검사 fixture를 만들다 발견했다. 'nfl'이 'inflation' 안에 있어 inflation이 든 영어 기사가 모두 블랙리스트로 빠졌다. 2026-10-28 로컬 피드 52건 중 블랙리스트에 걸린 5건 가운데 2건('… Inflation Report', 'Iran Seeks to Curb Inflation …')이 이런 오탐이었다. 'dating'⊂'updating', 'nba'⊂'unbanked', 텔레그램 스팸어 'ad '⊂'lead '도 같은 방식으로 걸렸다.
+- root_cause: js/aio-data.js의 뉴스 점수기(하드 블랙리스트)와 _aioNewsIsBlacklisted, src/data/providers/telegram-direct.js의 isTelegramMsgRelevant가 NEWS_BLACKLIST_KW와 텔레그램 스팸·비금융 목록을 text.includes(kw)로 비교했다. 영어는 단어 경계 없이 다른 단어 속 글자에도 걸린다.
+- fix: 공용 _aioKeywordMatcher를 만들었다. 영어(ASCII) 키워드는 단어 전체(복수 -s/-es 허용)로만 맞고, 한글 등 비ASCII 키워드는 조사가 붙으므로 지금처럼 부분 문자열로 맞는다. 세 곳 모두 이 매처를 쓴다. 키워드 목록 자체는 바꾸지 않았다.
+- violated_rule: 제외 필터는 의도한 단어에만 걸려야 한다 — 시장 핵심 기사를 조용히 버리지 않는다.
+- prevention: scripts/ci-esm-core-unit-check.mjs P2116 검사: aio-data.js의 목록·매처를 그대로 실행해 inflation·updating·unbanked 기사는 남고 NFL·Kardashian·best laptops·아파트·강원도 기사는 빠지며, 텔레그램 'lead '는 남고 'ad '는 빠진다(수정 전 실패 확인).
+- verification/residual: 브라우저(로컬 8765) 현재 피드 52건: 기존 차단 5건 → 3건, 풀린 2건은 모두 inflation 기사, 새로 차단된 기사 0건. ci-esm-core-unit PASS. 'Foreign affairs'처럼 목록 단어('affair')의 복수형은 전과 같이 막힌다(목록 정책은 그대로).
+
+## P2115 - v59.42 - 리뷰어 평가가 짚은 화면 결함 4건: 홈 헤드라인 1건만 표시, 지금 시세 관측 시각, 테마 색/부호, 포트폴리오 쉼표 (2026-10-28)
+
+- symptom/reproduction: 블라인드 리뷰어 평가(v59.42)의 부수 지적 4건이 HEAD에서 재현됐다. (1) 같은 토픽에 90점 기사가 몰리면 오늘 화면 헤드라인이 4건이 아니라 1건만 나왔다(브라우저 재현 visibleCount 1). (2) '지금 시세' 칩이 화면에 없는 BTC·조회 종목의 최신 시각(10/28 10:17)을 붙여, 몇 시간 전 선물·금리 타일까지 방금 관측한 것처럼 읽혔다. (3) 테마 화면이 +0.04%처럼 두 자리로 찍은 값을 한 자리로 반올림해 색을 정해, 부호가 있는 값이 보합 색으로 그려질 수 있었다. (4) 포트폴리오 회전 문장이 "'선도' 사분면이지만 , 최근 5거래일 …"처럼 쉼표를 남겼다.
+- root_cause: (1) js/aio-data.js buildNewsSurfaceModel의 점수 단계(minScoreCascade)가 원시 행 수로 멈출지 정했지만, 그 뒤 같은 기사 묶기와 토픽당 1건 제한이 행을 다시 줄였다. (2) home-kpi-trend.js가 _liveData 전체에서 가장 새 시각을 골랐다. (3) themes.js dirColor 호출이 기본 digits=1을 써서 표시 자릿수(2)와 달랐다. (4) recent-check.js의 반전 절은 ', '로 시작하는데 portfolio-read.js는 ' · '만 떼었다.
+- fix: (1) 단계 판정을 실제로 보일 수 있는 건수(같은 기사 1건·토픽당 maxPerTopic)로 센다. (2) 칩 시각은 화면에 보이는 타일의 가격 중 가장 오래된 관측 시각이다(CSS로 숨긴 가격 제외, tileObservedKst). (3) 색을 정하는 자릿수를 찍힌 자릿수와 맞췄다(652·1011·1213·1448행). (4) 앞머리 ', '와 ' · '를 모두 뗀다.
+- violated_rule: 화면 문장·색·시각은 화면에 찍힌 값과 같은 근거를 따른다(같은 값 같은 판정).
+- prevention: (1) ci-rendered-copy-lint-check의 P2115 페이지 검사: 90점 macro 5건 + 다른 토픽 3건 → 헤드라인 4건·토픽 4종(수정 전 ['macro'] 1건으로 실패 확인; js/aio-tests.js는 크기 래칫 때문에 쓰지 않음). (2) scripts/fixtures/expect/home-quote-heading 기대 출력(수정 전 모든 경우 10:17로 실패 확인). (4) scripts/fixtures/expect/portfolio-rotation 기대 출력(수정 전 ', 최근' 남음 확인). (3) ci-rendered-copy-lint-check의 P2115 불변식: 19개 라우트에서 부호 있는 수치의 인라인 색이 찍힌 부호와 다르면 실패, canary로 검출기 확인. 오프라인 fixture에 경계값이 없어 이 테마 사례 자체의 페이지 단위 red는 재현하지 못했다.
+- verification/residual: 브라우저(로컬 8765): 헤드라인 1→4건, 칩 10:17(BTC)→03:59(가장 오래된 타일 ^TNX). expect 4 suite, rendered-copy-lint(새 불변식·canary) PASS. 테마 실데이터 22개 값 불일치 0(경계값 없음).
+
+## P2114 - v59.42 - AI 매매 지시 차단이 소수점 가격(177.50달러)이 든 지시를 통과시킴 (2026-10-28)
+
+- symptom/reproduction: 사고 기반 리뷰어 평가 중 블라인드 리뷰어가 v58.75 변경에서 지적했고 HEAD에서 재현했다. '손절은 178달러에서 하세요.'는 안내문으로 바뀌지만 '손절은 177.50달러에서 하세요.', '매수는 $212.5에서 하세요.', 'NVDA 212.5달러 매수.'는 그대로 화면에 나갔다.
+- root_cause: src/ai/response/request-pipeline.js _aioApplyAIActionGate의 문장 분리 정규식 /[^.!?。 ]+(?:[.!?。]+| |$)/가 소수점에서도 문장을 끊어, '손절은 177.'과 '50달러에서 하세요.'로 나뉜 조각이 어느 지시 패턴에도 맞지 않았다.
+- fix: 숫자 바로 앞의 '.'(소수점)는 문장 끝으로 보지 않는다(lookahead만 사용 — 구형 iPad Safari는 lookbehind를 못 읽는다). 지시 패턴은 그대로다.
+- violated_rule: R698: 화면과 AI는 개인 매매 지시(가격·수량·시점)를 내지 않는다.
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs의 P2114 검사: 소수점 가격이 든 사실 문장은 그대로, 소수점 가격 지시 4종은 안내문으로 바뀐다(수정 전 실패 확인).
+- verification/residual: 수정 전 P2114 검사 FAIL, 수정 후 ci-ai-intelligence·ci-ai-chat-reliability·ci-runtime-contract PASS. 실제 AI 응답 화면 확인은 하지 않음(유료 호출).
+
+## P2113 - v59.42 - qa-runner --files가 공백으로 나눈 경로를 첫 번째만 남기고 조용히 버림 (2026-10-28)
+
+- symptom/reproduction: node scripts/qa-runner.mjs affected --files REVIEW.md CLAUDE.md scripts/ci-expect-output-check.mjs ... --explain 이 preflight 12개 게이트만 골랐다. 쉼표로 이으면 같은 파일 묶음이 6개 그룹 121개 게이트를 고른다. 공백 구분은 오류 없이 첫 파일만 변경으로 보고 나머지를 버려, 작업 QA가 좁게 돌고 PASS처럼 보일 수 있었다.
+- root_cause: scripts/qa-runner.mjs의 option('--files')가 바로 다음 인자 하나만 읽고, 그 뒤에 남은 경로 인자를 검사하지 않았다. AGENTS.md·스킬은 `--files <paths>`라고만 적어 공백 구분을 막지 않았다.
+- fix: --files 값 뒤에 '-'로 시작하지 않는 인자가 오면 쉼표 목록을 쓰라는 안내와 함께 exit 2로 멈춘다. 쉼표 목록·다른 옵션 조합은 그대로다.
+- violated_rule: R618: 강제는 게이트 실행·보고 형식에 둔다 — 게이트 선택이 조용히 좁아지면 보고가 사실과 달라진다.
+- prevention: scripts/ci-qa-runner-behavior-check.mjs의 P2113 검사: 공백으로 나눈 --files는 exit 2와 comma-separated 안내.
+- verification/residual: node scripts/qa-runner.mjs affected --files REVIEW.md CLAUDE.md --list → exit 2; node scripts/ci-qa-runner-behavior-check.mjs PASS
 
 ## P2112 - v59.39 - Pages 배포가 자기 실행을 queued로 읽어 배포 후 검증에서 실패 (2026-10-27)
 

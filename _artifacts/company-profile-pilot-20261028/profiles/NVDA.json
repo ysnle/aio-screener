@@ -1,0 +1,133 @@
+{
+  "symbol": "NVDA",
+  "name": "NVIDIA Corporation",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "late January (FY2026 ended 2026-01-25)",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "NVIDIA Announces Financial Results for Second Quarter Fiscal 2027", "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Second-Quarter-Fiscal-2027/", "publisher": "NVIDIA", "date": "2026-08-26" },
+    { "id": "s2", "kind": "8-K", "title": "NVIDIA Announces Financial Results for Fourth Quarter and Fiscal 2026 (8-K exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000019/q4fy26pr.htm", "publisher": "NVIDIA / SEC EDGAR", "date": "2026-02-25" },
+    { "id": "s3", "kind": "10-K", "title": "NVIDIA Form 10-K for fiscal year ended 2026-01-25", "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm", "publisher": "NVIDIA / SEC EDGAR", "date": "2026-02-25" },
+    { "id": "s4", "kind": "earnings-release", "title": "NVIDIA Announces Financial Results for First Quarter Fiscal 2027 (repost of company release)", "url": "https://www.hpcwire.com/off-the-wire/nvidia-announces-financial-results-for-1st-quarter-fiscal-2027/", "publisher": "HPCwire (company release text)", "date": "2026-05-20" },
+    { "id": "s5", "kind": "8-K", "title": "NVIDIA Q1 FY27 CFO Commentary (new Data Center / Edge Computing reporting framework)", "url": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000051/q1fy27cfocommentary.htm", "publisher": "NVIDIA / SEC EDGAR", "date": "2026-05-20" },
+    { "id": "s6", "kind": "10-Q", "title": "NVIDIA Form 10-Q for quarter ended 2026-07-26 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000075/nvda-20260726.htm", "publisher": "NVIDIA / SEC EDGAR", "date": "2026-07-26" },
+    { "id": "s7", "kind": "call-transcript", "title": "Nvidia (NVDA) Q2 FY2027 Earnings Call Transcript", "url": "https://www.webull.com/news/15497781742806016", "publisher": "Webull", "date": "2026-08-26" },
+    { "id": "s8", "kind": "proxy", "title": "NVIDIA DEF 14A 2026 (filing 0001045810-26-000036; only cover page indexed)", "url": "https://www.boardroomalpha.com/sec/nvda-def-14a-2026-05-12-0001045810-26-000036", "publisher": "Boardroom Alpha (SEC filing mirror)", "date": "2026-05-12" },
+    { "id": "s9", "kind": "news", "title": "Jensen Huang Net Worth in 2026: NVIDIA Fortune, Stock Holdings (cites 2026 proxy table; accessed date)", "url": "https://legalunitedstates.com/?p=82942", "publisher": "Legal United States", "date": "2026-10-28" },
+    { "id": "s10", "kind": "10-K", "title": "NVIDIA Form 10-K FY2018 - executive officers (Huang co-founded 1993, President and CEO since inception)", "url": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581018000010/nvda-2018x10k.htm", "publisher": "NVIDIA / SEC EDGAR", "date": "2018-02-28" },
+    { "id": "s11", "kind": "other", "title": "Nvidia Earnings Q3 FY2027 expected date (tracker, not company-confirmed; accessed date)", "url": "https://days.to/nvidia-earnings", "publisher": "days.to", "date": "2026-10-28" },
+    { "id": "s12", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/nvda/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "NVIDIA는 GPU 가속 컴퓨팅 플랫폼(칩·네트워킹·시스템·소프트웨어)을 클라우드 사업자, AI 클라우드, 기업, PC·자동차 고객에게 판다. FY2026 매출 2,159억 달러 가운데 데이터센터가 1,937억 달러로 약 90%를 차지해, 사실상 AI 데이터센터 인프라 회사다. 이익은 높은 총마진(FY2026 GAAP 71.1%, 최근 분기 75.0%)의 하드웨어·시스템 판매에서 나온다.",
+    "src": ["s2", "s3", "s1"]
+  },
+  "businessModel": {
+    "text": "회사는 스스로를 '데이터센터 규모 AI 인프라 회사'로 정의하며, 모든 GPU에서 돌아가는 CUDA 개발 플랫폼을 축으로 칩·NVLink/이더넷 네트워킹·랙 시스템을 묶어 판다. 생산은 TSMC 등 외부 파운드리에 맡기는 팹리스 구조라 자본지출 부담은 작지만, 공급계약 약정은 크다(2026-07-26 기준 공급·생산능력 약정 2,790억 달러). 최근에는 AI 연구소 지분투자(약 500억 달러)와 6개 인프라 자본사 금융 플랫폼 등 고객 자금조달까지 관여하고 있다.",
+    "src": ["s3", "s6", "s7", "s1"]
+  },
+  "revenueStructure": {
+    "period": "FY2026 (ended 2026-01-25)",
+    "segments": [
+      { "name": "Data Center", "revenue": 193.7, "unit": "USD bn", "share": 89.7, "yoy": 68, "src": ["s2"] },
+      { "name": "Gaming", "revenue": 16.0, "unit": "USD bn", "share": 7.4, "yoy": 41, "src": ["s2"] },
+      { "name": "Professional Visualization", "revenue": 3.2, "unit": "USD bn", "share": 1.5, "yoy": 70, "src": ["s2"] },
+      { "name": "Automotive", "revenue": 2.3, "unit": "USD bn", "share": 1.1, "yoy": 39, "src": ["s2"] },
+      { "name": "OEM & Other", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "src": [] }
+    ],
+    "recurringShare": null,
+    "geography": "FY2026 매출의 31%가 미국 밖에 본사를 둔 고객에서 발생(10-K). 지역별 금액은 확인 못함. 중국 데이터센터 컴퓨트는 사실상 배제된 상태로, Q3 FY2027 가이던스에도 중국 데이터센터 컴퓨트 매출을 넣지 않았다.",
+    "text": "share는 FY2026 총매출 2,159억 달러 대비 계산값이다. FY2026 데이터센터 내 컴퓨트는 59%, 네트워킹은 142% 성장했다. FY2027부터 보고 체계가 Data Center(Hyperscale·ACIE)와 Edge Computing 두 플랫폼으로 바뀌었고, Q2 FY2027에는 데이터센터 890억 달러(Hyperscale 약 490억·ACIE 약 400억), Edge 72억 달러였다.",
+    "src": ["s2", "s3", "s5", "s1", "s7"]
+  },
+  "productPortfolio": [
+    { "name": "Blackwell / Blackwell Ultra 데이터센터 GPU·랙", "role": "FY2026~FY2027 상반기 데이터센터 매출의 주력 플랫폼", "src": ["s2", "s4"] },
+    { "name": "Vera Rubin 플랫폼", "role": "차세대 랙. 본격 양산 진입, Q3 FY2027 데이터센터 매출의 약 20% 예상", "src": ["s1"] },
+    { "name": "네트워킹 (NVLink, Spectrum-X/Spectrum-6 이더넷, InfiniBand)", "role": "GPU 클러스터를 묶는 연결. FY2026 데이터센터 네트워킹 142% 성장, Spectrum-X 매출 전년 대비 2.6배(Q2 FY2027)", "src": ["s3", "s7", "s1"] },
+    { "name": "Vera CPU, BlueField-4 DPU, Groq 3 LPX 추론 가속기", "role": "CPU·스토리지/보안 처리·추론 전용으로 제품군 확장", "src": ["s1"] },
+    { "name": "CUDA, NVIDIA AI Enterprise 등 소프트웨어", "role": "개발 생태계 잠금 효과와 유료 소프트웨어 라이선스", "src": ["s3"] },
+    { "name": "Edge Computing (GeForce RTX·RTX Spark, 워크스테이션, DRIVE Hyperion, Isaac 로보틱스)", "role": "PC·게임·자동차·로봇용. Q2 FY2027 매출 72억 달러, 전년 대비 27% 성장", "src": ["s1", "s5"] }
+  ],
+  "valueChain": {
+    "position": "platform",
+    "suppliers": ["TSMC (파운드리)", "Samsung Electronics (파운드리·메모리)", "SK hynix (HBM 메모리, 다년 파트너십)", "Micron (메모리)", "Hon Hai, Wistron, Fabrinet (조립·테스트)", "CoWoS 첨단 패키징"],
+    "customers": ["하이퍼스케일러 (Microsoft Azure, Google Cloud, Oracle OCI 등)", "AI 클라우드 (CoreWeave, Nebius 등)", "프런티어 AI 연구소", "기업·산업 고객", "PC·자동차 OEM"],
+    "concentration": "FY2026 직접 고객 2곳이 각각 총매출의 22%, 14% (합계 36%, 주로 Compute & Networking). 2026-07-26 기준 매출채권은 상위 5개 직접 고객이 22%, 14%, 13%, 11%, 10%.",
+    "text": "NVIDIA는 설계와 시스템 통합을 맡고, 웨이퍼·메모리·패키징·조립은 외부 공급망에 의존한다. 고객은 소수 대형 클라우드에 집중돼 있어, 이들의 설비투자 계획이 곧 수요 신호다.",
+    "src": ["s3", "s6", "s1"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["상위 5개 하이퍼스케일러 설비투자 (회사 언급: 2026년 약 8,000억, 2027년 1.3조 달러)", "AI 클라우드·기업·국가 AI 인프라 수요 (ACIE, Q2 FY2027 전년 대비 138% 성장)", "추론·에이전트 AI 확산", "제3자 자본 조달 플랫폼 (목표 5,000억 달러 이상, 본계약 전제)"],
+    "supplyConstraints": ["회사는 FY2028 전망 자체를 공급 제약 전망으로 설명, 병목이 최소 FY2028 말까지 지속된다고 언급", "메모리 가격 급등으로 Q4 FY2027 총마진이 71~72%에서 바닥을 칠 것이라고 언급", "부지·전력·건물 확보에 2~3년 소요", "중국 수출 통제: 중국 데이터센터 컴퓨트 시장에서 사실상 배제"],
+    "text": "수요는 회사 공급 능력보다 크다는 것이 경영진 주장이며, 실적의 상한은 웨이퍼·HBM·패키징·전력 공급이 정한다. 공급 약정이 한 분기 만에 1,190억에서 2,790억 달러로 커진 것은 수요 확신의 표시이자, 수요가 꺾일 때 재고·약정 손실 위험이기도 하다(FY2026 1분기 H20 관련 45억 달러 비용 선례).",
+    "src": ["s7", "s6", "s3"]
+  },
+  "competition": {
+    "peers": ["AMD", "AVGO", "INTC", "MRVL", "GOOGL", "AMZN", "MSFT", "ANET", "CSCO"],
+    "moat": "CUDA 소프트웨어 생태계와 칩·네트워킹·랙 시스템을 한 번에 공급하는 풀스택 능력, 그리고 대규모 공급 약정으로 확보한 생산능력. FY2026 GAAP 총마진 71.1%가 가격 결정력을 보여준다.",
+    "threats": "10-K가 경쟁자로 AMD·Huawei·Intel, 자체 칩을 만드는 Alphabet·Amazon·Microsoft·Alibaba·Baidu, 네트워킹에서 Arista·Cisco·Marvell 등을 명시한다. 고객의 자체 ASIC 확대와 중국 시장 상실(현지 업체로 구매 유도)이 핵심 위협이다.",
+    "src": ["s3", "s2"]
+  },
+  "governance": {
+    "ceo": "Jen-Hsun (Jensen) Huang, since 1993 (공동창업, 설립 때부터 사장 겸 CEO)",
+    "control": "founder-led, single-class widely held",
+    "insiderOwnership": "2026 위임장 기준 Huang 수익적 소유 약 8.706억 주, 약 3.58% (2026-03-23 기준; 재단 보유 약 5,868만 주 포함). 2차 출처 인용이며 위임장 원표는 직접 확인 못함.",
+    "capitalReturn": "FY2026 자사주 2.82억 주 404억 달러 매입, 배당 9.74억 달러 (총 주주환원 411억 달러). 2026-05-18 자사주 한도 800억 달러 추가, 분기 배당 0.01→0.25달러로 인상. Q2 FY2027 주주환원 약 260억 달러, 잔여 한도 약 990억 달러.",
+    "notes": "직원 약 42,000명(38개국, R&D 31,000명). 단일 의결권 구조로 보이나 주식 종류는 원문에서 별도 확인하지 않았다.",
+    "src": ["s10", "s8", "s9", "s3", "s4", "s1"]
+  },
+  "aiRelevance": {
+    "role": "direct-supplier",
+    "text": "AI 학습·추론 연산의 핵심 공급자로, 매출 대부분이 AI 데이터센터에서 나온다. AI 투자 사이클의 강도가 곧 이 회사 실적이다.",
+    "evidence": "Q2 FY2027 데이터센터 매출 890억 달러로 총매출 962억 달러의 92% 이상, 전년 대비 117% 성장.",
+    "src": ["s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "revenue", "value": "1,080억 달러 ±2% (중국 데이터센터 컴퓨트 매출 미포함)", "givenOn": "2026-08-26", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "gross margin (GAAP·non-GAAP)", "value": "74.0% ±50bp", "givenOn": "2026-08-26", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "operating expenses", "value": "GAAP 약 92억, non-GAAP 약 90억 달러", "givenOn": "2026-08-26", "src": ["s1"] },
+      { "period": "Q4 FY2027", "metric": "gross margin", "value": "71~72%에서 바닥 (메모리 가격 영향, 콜 발언)", "givenOn": "2026-08-26", "src": ["s7"] },
+      { "period": "FY2028", "metric": "revenue growth", "value": "전년 대비 약 70% (공급 제약 전제, 콜 발언)", "givenOn": "2026-08-26", "src": ["s7"] }
+    ],
+    "style": "quarterly",
+    "text": "다음 분기 매출·총마진·영업비용을 범위로 제시한다. 최근 두 분기는 가이던스를 넘었다: Q1 FY2027 가이던스 780억 → 실제 816억, Q2 가이던스 910억 → 실제 962억 달러. FY2028 연간 성장률을 콜에서 언급한 것은 예외적이다.",
+    "src": ["s2", "s4", "s1", "s7"]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07 분기) 합계 12.06달러(범위 11.02~13.12), 직전 4개 분기 실적 합 6.90달러. 최근 4주 상향 4건·하향 0건으로 상향 방향.",
+    "src": ["s12"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "Data Center revenue (Hyperscale vs ACIE)", "why": "매출의 90% 이상. 하이퍼스케일러 의존이 줄고 AI 클라우드·기업으로 넓어지는지를 본다." },
+      { "metric": "Gross margin", "why": "가격 결정력과 신제품 램프·메모리 원가의 결과. 회사가 Q4 FY2027 하락을 예고했으므로 바닥 확인이 관건." },
+      { "metric": "Next-quarter revenue guide vs consensus", "why": "주가는 실적보다 다음 분기 가이던스의 크기에 반응한다." },
+      { "metric": "Supply and capacity commitments", "why": "수요 확신의 크기이자 하강기 손실 위험. 매출 대비 증가 속도를 본다." },
+      { "metric": "Customer concentration", "why": "상위 2개 고객이 매출 36%(FY2026). 소수 고객의 설비투자 변경이 바로 실적에 반영된다." },
+      { "metric": "Networking revenue growth", "why": "랙·클러스터 단위 판매가 늘고 있는지 보여준다." }
+    ],
+    "valuationFrame": "전문가는 주로 향후 12개월 EPS 대비 주가배수(Forward P/E)와 성장률을 함께 보고(PEG), 하이퍼스케일러 설비투자 전망에서 데이터센터 매출을 역산한다. 사이클 산업이므로 정점 이익에 배수를 주는 위험을 따로 검토한다.",
+    "thesisChecks": ["매 분기 가이던스 상회가 이어지는가", "Vera Rubin 전환이 계획대로(Q3 데이터센터의 약 20%) 진행되는가", "총마진이 회사가 말한 71~72% 바닥 근처에서 멈추는가", "하이퍼스케일러 설비투자 계획이 유지·상향되는가", "ACIE 비중이 계속 늘어 고객 집중이 완화되는가"],
+    "breakSignals": ["매출 가이던스가 컨센서스를 밑돌거나 성장률이 급감", "총마진이 회사 예고보다 더 내려감", "주요 클라우드의 설비투자 삭감 또는 자체 ASIC 전환 발표", "공급 약정·재고 관련 대규모 비용 인식 (H20 선례)", "수출 통제 추가 강화", "고객 금융 지원(지분투자·신용보강)에서 부실 발생"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-11 중순 (추정, 회사 미확정)", "event": "Q3 FY2027 실적 발표 및 Q4 가이던스", "src": ["s11"] },
+      { "date": "하이퍼스케일러 분기 실적 시즌 (매 분기)", "event": "Microsoft·Alphabet·Amazon·Oracle 등의 설비투자 전망 발표", "src": ["s7"] },
+      { "date": "수시", "event": "미국 대중국 수출 허가·통제 변경 (H20·H200 라이선스)", "src": ["s3"] }
+    ],
+    "eventReaction": "주가는 분기 매출 자체보다 다음 분기 매출 가이던스가 컨센서스를 얼마나 넘는지, 그리고 총마진 가이던스에 반응하는 경향이 있다. 이번에는 Q4 총마진 하락이 이미 예고돼 있어, 실제 폭이 예고 범위(71~72%) 안인지가 관전 포인트다.",
+    "watchConditions": ["실적 발표 때 다음 분기 매출 가이던스와 컨센서스의 차이", "총마진 가이던스와 메모리 가격 언급", "데이터센터 내 Hyperscale·ACIE 성장률", "10-Q의 공급·생산능력 약정 증감과 매출채권 고객 집중", "하이퍼스케일러 설비투자 전망 변화", "컨센서스 EPS 상향·하향 건수 추이"],
+    "src": ["s1", "s6", "s7", "s12"]
+  },
+  "unverified": [
+    "FY2026 OEM & Other 매출 (보도자료 발췌에서 미확인)",
+    "반복 매출(소프트웨어·서비스) 비중",
+    "지역별 매출 금액 (미국·대만·중국 등)",
+    "Q2 FY2027 네트워킹 매출 금액 (전분기 대비 18% 성장만 확인)",
+    "Huang 지분율 3.58%는 위임장 원표가 아닌 2차 출처",
+    "Q3 FY2027 실적 발표일 (회사 미공지, 추정치만)",
+    "10-Q 제출일 (s6 날짜는 분기말)"
+  ],
+  "confidence": "high - 핵심 수치가 회사 보도자료·10-K·10-Q에서 왔다. 콜 발언(FY2028 70%, Q4 마진 바닥)은 서드파티 녹취록 기준이다."
+}

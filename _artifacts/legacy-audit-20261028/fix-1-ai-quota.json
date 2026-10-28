@@ -1,0 +1,18 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-28",
+  "p": {
+    "title": "AI 질문이 브라우저 자체 하루 20회 한도에서 확인창으로 막힘 — 실제 한도는 Worker의 연결당 150회",
+    "symptom": "같은 브라우저에서 21번째 질문부터 매번 '일일 한도 초과, 계속 질문하시겠습니까?' 확인창이 떴고 배지는 '0/20'이었다. 공용 Worker는 연결당 하루 150회(AI_PER_CLIENT_DAILY_CAP)를 허용하고 /health의 ai.client에 남은 횟수를 알려주지만 아무도 읽지 않았다. 레거시 감사(_artifacts/legacy-audit-20261028/REPORT.md) 1위.",
+    "root_cause": "js/aio-ui.js LLM_BUDGET.dailyQueryLimit 20과 consumeLLMQuery의 초과 확인창은 개인 키 시절 비용 관리용으로, AI가 공용 Worker로 옮기고(P1421) 항상 켜진 뒤(P1653)에도 남았다. 한 일(하루 한도)에 규칙이 두 개였다.",
+    "fix": "브라우저 쪽 한도·초과 확인창·overBudget 집계를 지웠다. 배지는 _aioWorkerClientQuota()로 Worker가 보고한 ai.client.dailyLimit/remainingToday를 보여주고, 값이 없으면 '—'다. 로컬 llm_quota는 사용 횟수 기록만 남는다.",
+    "violated_rule": "AGENTS: AI는 공용 Worker로 항상 사용(월 $20 목표). 한도는 Worker가 소유한다.",
+    "prevention": "scripts/ci-ai-chat-reliability-contract-check.mjs v59.42 검사 2개: consumeLLMQuery에 showConfirmModal이 없고 dailyQueryLimit/calcDailyLimit이 없을 것, 배지가 health.ai.client를 읽는 _aioWorkerClientQuota()를 쓸 것.",
+    "verification": "node scripts/ci-ai-chat-reliability-contract-check.mjs OK(3 sections). 라이브 배지의 Worker 남은 횟수 표시는 push 뒤 브라우저에서 확인해야 한다."
+  },
+  "r": null,
+  "changelog": [
+    "**AI 하루 20회 브라우저 한도 제거 ({P}):** 21번째 질문부터 뜨던 '일일 한도 초과' 확인창을 없앴다. 한도는 공용 Worker(연결당 150회)가 정하고, 배지는 Worker가 알려준 남은 횟수를 보여준다."
+  ],
+  "note": "v59.42 {P}: browser AI 20/day limit removed; badge shows the Worker allowance."
+}

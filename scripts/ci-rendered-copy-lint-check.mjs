@@ -53,6 +53,21 @@ export function lintLines(text, route) {
   }
   return found;
 }
+// P2115: a signed number drawn in the rising/falling/flat colour must carry that sign as printed — 테마 coloured a
+// printed +0.04% flat because the colour rounded to one decimal while the text showed two. Runs inside the page.
+export function signColourMismatches(selector) {
+  const out = [];
+  for (const el of document.querySelectorAll(`${selector} [style*="color"]`)) {
+    const colour = el.style.color || '';
+    const got = /--dir-up/.test(colour) ? 'up' : /--dir-down/.test(colour) ? 'down' : /--text-primary/.test(colour) ? 'flat' : null;
+    const text = (el.textContent || '').trim();
+    const match = got && !el.children.length && text.match(/^([+\-−]?)\d[\d,]*(?:\.\d+)?\s*(?:%p|%|bp)?$/);
+    if (!match) continue;
+    const want = !/[1-9]/.test(text) ? 'flat' : match[1] === '+' ? 'up' : match[1] ? 'down' : null;
+    if (want && want !== got) out.push(`${text} drawn ${got}`);
+  }
+  return out;
+}
 const fold = (line) => String(line).replace(/[+\-−]?\d[\d,.]*/g, '#').replace(/\b[A-Z]{2,5}\b/g, 'SYM').replace(/\s+/g, ' ').slice(0, 90);
 
 const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
@@ -78,6 +93,8 @@ if (isMain) {
         return active.innerText || '';
       });
       for (const hit of lintLines(text, route)) offenders.push({ route, ...hit });
+      const mismatched = await page.evaluate(signColourMismatches, '.page.active');
+      if (mismatched.length) failures.push({ message: `P2115 ${route}: a signed number's colour disagrees with its printed sign`, detail: mismatched.slice(0, 10) });
     }
     // Canary: the detector must see each rule in an injected paragraph, and leave a clean sentence alone.
     const canaryText = await page.evaluate(() => {
@@ -93,6 +110,25 @@ if (isMain) {
     const clean = lintLines('코스피 10/23 +0.3%, 원/달러 -0.2%입니다. 2년물 − 기준금리 0.82%p', 'canary');
     const missing = COPY_RULES.map(([rule]) => rule).filter((rule) => !seen.has(rule));
     if (missing.length || clean.length) failures.push({ message: 'rendered copy lint canary failed (v58.74)', detail: { missing, clean } });
+    await page.evaluate(() => {
+      const host = document.createElement('div');
+      host.id = 'sign-colour-canary';
+      host.innerHTML = '<span style="color: var(--text-primary)">+0.04%</span><span style="color: var(--dir-up)">+0.04%</span><span style="color: var(--dir-down)">-1.2%p</span><span style="color: var(--text-primary)">0.00%</span>';
+      document.querySelector('.page.active').appendChild(host);
+    });
+    const colourCanary = await page.evaluate(signColourMismatches, '#sign-colour-canary');
+    await page.evaluate(() => document.getElementById('sign-colour-canary')?.remove());
+    if (colourCanary.join('|') !== '+0.04% drawn flat') failures.push({ message: 'P2115 sign-colour canary failed', detail: colourCanary });
+    // P2115: what 오늘 can show — five 90-point macro stories used to stop the home cascade at 90, and the one-per-topic
+    // cap then left a single headline. The cascade must count what the cap leaves.
+    const homeNews = await page.evaluate(() => {
+      const now = Date.now(), at = new Date(now - 3 * 3600000).toISOString();
+      const row = (topic, title, score, k) => ({ title, source: 'Reuters', tier: 1, country: 'us', topic, score, pubDate: at, link: `https://example.test/${topic}-${k}` });
+      const items = ['Core prices ease for third month', 'Treasury yields jump after CPI', 'Powell signals patience on cuts', 'Payrolls beat forecasts in October', 'Dollar firms on hawkish Fed minutes'].map((title, k) => row('macro', title, 95 - k, k))
+        .concat([['energy', 'Oil supply cut lifts crude'], ['geo', 'Border talks stall again'], ['earnings', 'Chipmaker beats revenue guide']].map(([topic, title], k) => row(topic, title, 80 - k, k)));
+      return window.AIO.buildNewsSurfaceModel('home', items, { nowMs: now, windowStart: now - 24 * 3600000, windowEnd: now }).items.map((item) => item.topic);
+    });
+    if (homeNews.length !== 4 || new Set(homeNews).size !== 4) failures.push({ message: 'P2115 one crowded 90-point topic must still leave four home headlines', detail: homeNews });
     await page.close();
   } catch (error) { failures.push({ message: error.message, stack: error.stack }); }
   finally { await closeAll({ browser, server }); }

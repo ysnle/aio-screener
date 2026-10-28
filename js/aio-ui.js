@@ -103,9 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════
-//  LLM QUOTA SYSTEM
-//  - ON: daily limit tracked in localStorage (resets at midnight)
-//  - OFF: unlimited, no quota deducted
+//  LLM QUOTA READOUT
+//  - the shared Worker owns the daily cap; the browser shows its reported allowance
+//  - localStorage keeps only a per-day usage count
 // ═══════════════════════════════════════════════════════════════════════
 // v30.13: LLM 예산 관리 시스템 (Budget Management)
 // v31.3: 적응형 모델 — 기본 Haiku 4.5, 복잡도별 Sonnet/Thinking 자동 승격
@@ -208,10 +208,6 @@ function _detectQueryComplexity(query, ctxId) {
   return 'luna';
 }
 
-const LLM_BUDGET = {
-  dailyQueryLimit: 20,
-  pricingAvailable: false
-};
 function getSelectedModel() {
   return 'luna'; // v31.3: 기본 Haiku (질문별 자동 승격은 chatSend에서 처리)
 }
@@ -220,8 +216,14 @@ function getModelConfig(modelKey) {
   return LLM_MODELS[modelKey || getSelectedModel()] || LLM_MODELS.luna;
 }
 
-function calcDailyLimit() {
-  return LLM_BUDGET.dailyQueryLimit;
+// v59.42: the shared Worker owns the daily allowance (AI_PER_CLIENT_DAILY_CAP, 150 per connection by default) and
+// reports it in /health as ai.client. The browser's own 20/day limit and its over-limit confirm contradicted that
+// (AI is always on) and stopped questions the Worker would have answered, so the badge now shows the Worker's count.
+function _aioWorkerClientQuota() {
+  var state = window._aioLastClaudeRouteState;
+  var client = state && state.ok === true && state.health && state.health.ai && state.health.ai.client;
+  if (!client || !Number.isFinite(client.dailyLimit) || client.dailyLimit <= 0 || !Number.isFinite(client.remainingToday)) return null;
+  return { dailyLimit: client.dailyLimit, remainingToday: Math.max(0, Math.min(client.dailyLimit, client.remainingToday)) };
 }
 
 // v57.77: getLLMState() retired — the AI ON/OFF switch track left with P1653 (AI is always on),
@@ -296,7 +298,6 @@ function updateQuotaBadge() {
   const modelEl = cachedEl('llm-model-label');
   const costEl  = cachedEl('llm-daily-cost');
 
-  const dailyLimit = calcDailyLimit();
   const model = getModelConfig();
   const route = getLLMRouteReadiness();
 
@@ -314,27 +315,23 @@ function updateQuotaBadge() {
   }
 
   if (swLabel) { swLabel.textContent = String(route.label || '사용 가능').split(/ · |, /)[0]; swLabel.title = route.label || '사용 가능'; swLabel.className = 'llm-switch-label on'; }
-  if (capEl)   capEl.textContent = dailyLimit + '회';
   if (modelEl) modelEl.textContent = '채팅·심층·번역 GPT-6 Luna';
 
-  const quota     = getQuota();
-  const used      = quota.used;
-  const remaining = Math.max(0, dailyLimit - used);
-  const pct       = Math.min(100, Math.round(used / dailyLimit * 100));
-  const overBudget= quota.overBudget || 0;
+  // The Worker's count is the only allowance; without it (older Worker, health not read yet) the numbers stay '—'.
+  const allowance = _aioWorkerClientQuota();
+  const remaining = allowance ? allowance.remainingToday : null;
+  const pct       = allowance ? Math.round((allowance.dailyLimit - remaining) / allowance.dailyLimit * 100) : 0;
+  const grade = !allowance ? 'green' : remaining === 0 ? 'empty' : remaining <= Math.ceil(allowance.dailyLimit * 0.2) ? 'warn' : 'green';
 
-  const grade = remaining === 0 ? (overBudget > 0 ? 'over' : 'empty') : remaining <= Math.ceil(dailyLimit * 0.2) ? 'warn' : 'green';
-
-  if (remEl)  { remEl.textContent = remaining + '회' + (overBudget > 0 ? ' (한도 초과 ' + overBudget + '회)' : ''); remEl.className = 'llm-quota-val ' + grade; }
-  if (progEl) { progEl.style.width = Math.min(pct, 100) + '%'; progEl.className = 'llm-prog-fill' + (grade !== 'green' ? ' ' + grade : ''); }
+  if (capEl)  capEl.textContent = allowance ? allowance.dailyLimit + '회' : '—';
+  if (remEl)  { remEl.textContent = allowance ? remaining + '회' : '—'; remEl.className = 'llm-quota-val ' + grade; }
+  if (progEl) { progEl.style.width = pct + '%'; progEl.className = 'llm-prog-fill' + (grade !== 'green' ? ' ' + grade : ''); }
   if (costEl) costEl.textContent = '비용 정보: 공급자 청구 원천 미연결';
 
-  if (badge)    badge.textContent = remaining + '/' + dailyLimit;
+  if (badge)    badge.textContent = allowance ? remaining + '/' + allowance.dailyLimit : '—';
   if (hdrBadge) {
-    // v50.13: 헤더 배지는 'AI · 모델'만 — 남은 횟수(remaining/dailyLimit)는 옆 #llm-quota가 단독 표시(중복 제거).
-    const hdrText = overBudget > 0
-      ? 'AI 일일 한도 초과, +' + overBudget + '회'
-      : 'AI, ' + model.label;
+    // v50.13: 헤더 배지는 'AI · 모델'만 — 남은 횟수는 옆 #llm-quota가 단독 표시(중복 제거).
+    const hdrText = 'AI, ' + model.label;
     hdrBadge.textContent = hdrText;
     hdrBadge.style.color = grade === 'green' ? 'var(--blue-11)' : grade === 'warn' ? 'var(--amber-11)' : 'var(--orange-11)';
     hdrBadge.style.borderColor = grade === 'green' ? 'var(--accent-border)' : grade === 'warn' ? 'var(--amber-6)' : 'var(--data-red-soft)';
@@ -357,25 +354,8 @@ function consumeLLMQuery() {
     if (typeof updateQuotaBadge === 'function') updateQuotaBadge();
     return false;
   }
+  // The daily cap is the Worker's (it refuses past it); the local count is usage telemetry only.
   const quota = getQuota();
-  const dailyLimit = calcDailyLimit();
-  const model = getModelConfig();
-
-  if (quota.used >= dailyLimit) {
-    return new Promise(function(resolve) {
-      var settled = false;
-      function settle(value) { if (settled) return; settled = true; resolve(value); }
-      showConfirmModal('일일 한도 초과',
-        '일일 사용 한도(' + dailyLimit + '회)를 모두 사용했습니다.\n공급자 가격·환율 원천이 연결되지 않아 추가 비용은 이 화면에서 계산하지 않습니다.\n계속 질문하시겠습니까?',
-        function() {
-          quota.overBudget = (quota.overBudget || 0) + 1;
-          quota.used += 1;
-          saveQuota(quota);
-          updateQuotaBadge();
-          settle(true);
-        }, '', function() { settle(false); });
-    });
-  }
   quota.used += 1;
   saveQuota(quota);
   updateQuotaBadge();
@@ -385,7 +365,6 @@ function consumeLLMQuery() {
 // Init on load
 /* v20: DOMContentLoaded Handler #2 - UI Keys/Quota */
 document.addEventListener('DOMContentLoaded', () => {
-  loadSidebarApiKey();
   // v31.3: 적응형 모델 — 기본 Haiku, 질문 복잡도에 따라 Sonnet/Thinking 자동 승격
   updateQuotaBadge();
 
@@ -1169,10 +1148,12 @@ window.renderDataQualityBadge = renderDataQualityBadge;
 window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 
 // ──────────────────────────────────────────────────────────────────────────────
-// v50.81 _aioDiagram — 10-type 인라인 SVG 다이어그램 엔진
+// v50.81 _aioDiagram — 인라인 SVG 다이어그램 엔진 (v59.42: factor-radar만 남음)
 // 외부 라이브러리 불필요. JS → SVG 문자열 생성 → innerHTML 주입.
 // API: window._aioDiagram.render(type, el, data) / .getSvg(type, data)
-// 용도: 10개 페이지 시각 패널(Phase2) + AI 채팅 자동 시각화(Phase3)
+// v59.42: the other nine types (score-breakdown, market-regime, pipeline-status, economic-cycle, price-position,
+// sector-bubble, yield-curve, sentiment-gauge, factor-backtest) drew into vis-* slots that no markup has any more, so
+// they were deleted with their builders. The 재무 공시 factor radar (vis-fundamental-radar) is the one live sink.
 // ──────────────────────────────────────────────────────────────────────────────
 window._aioDiagram = (function () {
   var C = {
@@ -1186,9 +1167,7 @@ window._aioDiagram = (function () {
   function _esc(s) {
     return escHtml(String(s || ''));
   }
-  function _n(v, d) { return (typeof v === 'number' && isFinite(v)) ? v.toFixed(d || 0) : '—'; }
   function _cl(v, lo, hi) { return Math.max(lo, Math.min(hi, v || 0)); }
-  function _pctCol(v) { return v > 0 ? 'var(--dir-up)' : v < 0 ? 'var(--dir-down)' : C.muted; }
   function _scoreCol(s) { return s >= 75 ? C.green : s >= 60 ? C.cyan : s >= 45 ? C.amber : C.red; }
   function _alphaRgb(hex, a) {
     // Convert #rrggbb → rgba(r,g,b,a)
@@ -1220,82 +1199,6 @@ window._aioDiagram = (function () {
   function _o(cx, cy, r, fill, stroke, sw) {
     return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + (fill || 'none') + '"' +
       (stroke ? ' stroke="' + stroke + '" stroke-width="' + (sw || 1) + '"' : '') + '/>';
-  }
-
-  // ── 1. score-breakdown: 거래 점수 분해 플로우 ─────────────────
-  function _scoreBreakdown(d) {
-    var total = _cl(d.total || 0, 0, 100);
-    var comps = d.components || [
-      { label: 'VIX 국면',   value: d.vixScore || 0,  max: 20 },
-      { label: 'SPX 추세',   value: d.spxScore || 0,  max: 20 },
-      { label: '시장 폭',    value: d.breadth  || 0,  max: 20 },
-      { label: 'F&G 심리',  value: d.fg       || 0,  max: 20 },
-      { label: 'M7 모멘텀', value: d.m7       || 0,  max: 20 },
-    ];
-    var col = _scoreCol(total);
-    var W = 460, H = 200, out = '';
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 20, '거래 점수 분해', C.text, 10, 700);
-    var cx = 390, cy = 100, r = 46;
-    out += _o(cx, cy, r, _alphaRgb(C.bgSolid, 0.6), col, 2.5);
-    out += _t(cx, cy - 3, _n(total), col, 26, 900, 'middle');
-    out += _t(cx, cy + 14, '/ 100', C.muted, 10, 400, 'middle');
-    var band = total >= 75 ? '스트레스 적음' : total >= 60 ? '스트레스 일부' : total >= 45 ? '중립' : total >= 30 ? '주의' : '위험';
-    out += _r(cx - 32, cy + 22, 64, 15, _alphaRgb(col, 0.14), 4, col, 1);
-    out += _t(cx, cy + 33, band, col, 10, 700, 'middle');
-    var y0 = 34;
-    comps.forEach(function (c, i) {
-      var y = y0 + i * 30;
-      var pct = _cl(c.value / (c.max || 20), 0, 1);
-      var cc = _scoreCol(pct * 100);
-      out += _t(14, y + 11, c.label, C.muted, 10);
-      out += _r(90, y + 3, 190, 10, 'color-mix(in srgb, var(--text-primary) 8%, transparent)', 3);
-      out += _r(90, y + 3, Math.round(190 * pct), 10, _alphaRgb(cc, 0.65), 3);
-      out += _t(286, y + 12, _n(c.value, 0) + '/' + c.max, cc, 10, 700);
-      if (i === 2) out += _l(310, y + 8, 352, cy, 'color-mix(in srgb, var(--text-primary) 16%, transparent)');
-    });
-    out += _l(310, 44, 348, cy, 'color-mix(in srgb, var(--text-primary) 10%, transparent)');
-    out += _l(310, 164, 348, cy, 'color-mix(in srgb, var(--text-primary) 10%, transparent)');
-    return _svg(W, H, out);
-  }
-
-  // ── 2. market-regime: 시장 레짐 포지셔닝 사분면 ──────────────
-  function _marketRegime(d) {
-    var regime = d.regime || 'NEUTRAL';
-    var score = _cl(d.score || 50, 0, 100);
-    var vix = Number(d.vix);
-    var spyPct = _cl(d.spyScore || 50, 0, 100);
-    var vixPct = _cl(d.vixScore || 50, 0, 100);
-    var W = 440, H = 200, out = '';
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '시장 국면 포지셔닝', C.text, 10, 700);
-    var qx = 110, qy = 26, qw = 200, qh = 155;
-    out += _r(qx, qy, qw / 2, qh / 2, _alphaRgb(C.red, 0.07), 0, C.border, 0.5);
-    out += _r(qx + qw / 2, qy, qw / 2, qh / 2, _alphaRgb(C.green, 0.07), 0, C.border, 0.5);
-    out += _r(qx, qy + qh / 2, qw / 2, qh / 2, _alphaRgb(C.amber, 0.07), 0, C.border, 0.5);
-    out += _r(qx + qw / 2, qy + qh / 2, qw / 2, qh / 2, _alphaRgb(C.cyan, 0.07), 0, C.border, 0.5);
-    out += _l(qx + qw / 2, qy, qx + qw / 2, qy + qh, 'color-mix(in srgb, var(--text-primary) 16%, transparent)');
-    out += _l(qx, qy + qh / 2, qx + qw, qy + qh / 2, 'color-mix(in srgb, var(--text-primary) 16%, transparent)');
-    out += _t(qx + qw / 2, qy - 5, '위험선호', C.muted, 10, 600, 'middle');
-    out += _t(qx + qw / 2, qy + qh + 12, '위험회피', C.muted, 10, 600, 'middle');
-    out += _t(qx + qw / 4, qy + 11, 'Bear Rally', C.red, 10, 600, 'middle');
-    out += _t(qx + qw * 3 / 4, qy + 11, 'Bull Trend', C.green, 10, 600, 'middle');
-    out += _t(qx + qw / 4, qy + qh - 6, '방어 포지션', C.amber, 10, 600, 'middle');
-    out += _t(qx + qw * 3 / 4, qy + qh - 6, '회복 추세', C.cyan, 10, 600, 'middle');
-    var dotX = qx + _cl((spyPct / 100) * qw, 8, qw - 8);
-    var dotY = qy + _cl(((100 - vixPct) / 100) * qh, 8, qh - 8);
-    var col = _scoreCol(score);
-    out += _o(dotX, dotY, 9, _alphaRgb(col, 0.18), col, 2);
-    out += _o(dotX, dotY, 3.5, col);
-    var rx = 332, ry = 56;
-    out += _r(rx, ry, 94, 68, _alphaRgb(col, 0.10), 6, col, 1);
-    out += _t(rx + 47, ry + 16, regime, col, 10, 700, 'middle');
-    out += _t(rx + 47, ry + 31, '점수 ' + _n(score), C.muted, 10, 600, 'middle');
-    // v57.50 C13: the shared VIX bands (RULES.volatility 18/25/32 via _aioVixBandIndex), not a private 18/25 pair.
-    var _vb = typeof window._aioVixBandIndex === 'function' ? window._aioVixBandIndex(vix) : (vix >= 32 ? 3 : vix >= 25 ? 2 : vix >= 18 ? 1 : 0);
-    out += _t(rx + 47, ry + 47, 'VIX ' + _n(vix, 1), _vb >= 2 ? C.red : _vb === 1 ? C.amber : C.green, 10, 700, 'middle');
-    out += _t(rx + 47, ry + 61, ['저변동 구간', '통상 범위', '변동성 경계 구간', '고변동 구간'][_vb] || '', C.muted, 10, 400, 'middle');
-    return _svg(W, H, out);
   }
 
   // ── 3. factor-radar: 팩터 레이더 (6각형) ─────────────────────
@@ -1353,286 +1256,8 @@ window._aioDiagram = (function () {
     return _svg(W, H, out);
   }
 
-  // ── 4. pipeline-status: 데이터 파이프라인 현황 ───────────────
-  function _pipelineStatus(d) {
-    var meta = d.meta || {};
-    var items = [
-      { label: 'Yahoo 시세',   ok: (meta.symbolsOk || 0) >= 60, val: (meta.symbolsOk || 0) + ' 심볼' },
-      { label: 'Fear & Greed', ok: !!meta.fearGreedOk,           val: d.fg != null ? String(d.fg) : '—' },
-      { label: 'FRED 거시',  ok: !!meta.fredFetchOk,           val: meta.fredHasKey ? (meta.fredFetchOk ? (meta.macroKeyCount || '?') + '개' : '키↑실패') : 'Secret 미등록' },
-      { label: '뉴스 RSS',     ok: !!meta.newsOk,                val: (meta.newsCount || 0) + '건' },
-      { label: 'Telegram',     ok: !!d.telegramOk,               val: d.telegramCount ? d.telegramCount + '건' : '—' },
-      { label: 'Screener',     ok: !!d.screenerOk,               val: d.screenerCount ? d.screenerCount + '/' + (d.screenerUniverse || '?') : '—' },
-    ];
-    var W = 420, H = 185, out = '';
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 19, '데이터 파이프라인 현황', C.text, 10, 700);
-    var ageMin = meta.ageMin;
-    var ageCol = ageMin == null ? C.muted : ageMin < 60 ? C.green : ageMin < 180 ? C.amber : C.red;
-    out += _t(W - 14, 19, ageMin != null ? ageMin + '분 전' : '—', ageCol, 10, 600, 'end');
-    items.forEach(function (it, i) {
-      var col2 = i % 2, row = Math.floor(i / 2);
-      var x = 14 + col2 * 204, y = 34 + row * 42;
-      out += _r(x, y, 196, 34, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 5, it.ok ? _alphaRgb(C.green, 0.22) : _alphaRgb(C.red, 0.18), 1);
-      out += _t(x + 10, y + 13, it.label, C.muted, 10, 600);
-      out += _t(x + 10, y + 27, it.val, it.ok ? C.green : C.red, 10, 700);
-      out += _t(x + 186, y + 13, it.ok ? '✓' : '✗', it.ok ? C.green : C.red, 11, 900, 'end');
-    });
-    return _svg(W, H, out);
-  }
-
-  // ── 5. economic-cycle: 경기 사이클 위치 ──────────────────────
-  function _economicCycle(d) {
-    var stage = d.stage || 'MID';
-    var W = 390, H = 210, cx = 130, cy = 115, R = 70, out = '';
-    var stageMap = { EARLY: 0, MID: 1, LATE: 2, CONTRACTION: 3 };
-    var stageNames = ['초기 확장', '중기 성장', '후기 사이클', '수축'];
-    var stageCols = [C.green, C.cyan, C.amber, C.red];
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '경기 사이클 포지셔닝', C.text, 10, 700);
-    for (var i = 0; i < 4; i++) {
-      var a0 = (i / 4) * Math.PI * 2 - Math.PI / 2;
-      var a1 = ((i + 1) / 4) * Math.PI * 2 - Math.PI / 2;
-      var active = (stageMap[stage] || 0) === i;
-      var col = stageCols[i];
-      var inner = R * 0.35;
-      var x0 = cx + inner * Math.cos(a0), y0 = cy + inner * Math.sin(a0);
-      var x1 = cx + R * Math.cos(a0),     y1 = cy + R * Math.sin(a0);
-      var x2 = cx + R * Math.cos(a1),     y2 = cy + R * Math.sin(a1);
-      var x3 = cx + inner * Math.cos(a1), y3 = cy + inner * Math.sin(a1);
-      out += '<path d="M' + x0.toFixed(1) + ',' + y0.toFixed(1) +
-        'L' + x1.toFixed(1) + ',' + y1.toFixed(1) +
-        'A' + R + ',' + R + ',0,0,1,' + x2.toFixed(1) + ',' + y2.toFixed(1) +
-        'L' + x3.toFixed(1) + ',' + y3.toFixed(1) +
-        'A' + inner + ',' + inner + ',0,0,0,' + x0.toFixed(1) + ',' + y0.toFixed(1) + 'Z"' +
-        ' fill="' + (active ? _alphaRgb(col, 0.25) : 'color-mix(in srgb, var(--text-primary) 6%, transparent)') + '"' +
-        ' stroke="' + (active ? col : 'color-mix(in srgb, var(--text-primary) 13%, transparent)') + '" stroke-width="' + (active ? 2 : 0.5) + '"/>';
-      var lam = (a0 + a1) / 2;
-      var lx = cx + R * 0.66 * Math.cos(lam), ly = cy + R * 0.66 * Math.sin(lam);
-      out += _t(lx.toFixed(1), (ly + 3).toFixed(1), stageNames[i], active ? col : C.muted, 10, active ? 700 : 400, 'middle');
-    }
-    out += _o(cx, cy, inner, _alphaRgb(C.bgSolid, 0.8));
-    out += _t(cx, cy + 4, stage, stageCols[stageMap[stage] || 0], 10, 900, 'middle');
-    var indicators = [
-      ['CPI',  _n(Number(d.cpi), 1) + '%',  Number(d.cpi) > 3.5 ? C.red : Number(d.cpi) > 2 ? C.amber : C.green],
-      ['금리', _n(Number(d.fedRate), 2) + '%', Number(d.fedRate) > 4.5 ? C.red : C.amber],
-      ['실업', _n(Number(d.unemployment), 1) + '%', Number(d.unemployment) > 4.5 ? C.red : C.green],
-    ];
-    indicators.forEach(function (row, i) {
-      var ry = 30 + i * 54;
-      out += _r(225, ry, 146, 46, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 5, _alphaRgb(row[2], 0.2), 1);
-      out += _t(233, ry + 15, row[0], C.muted, 10, 600);
-      out += _t(233, ry + 34, row[1], row[2], 14, 900);
-    });
-    return _svg(W, H, out);
-  }
-
-  // ── 6. price-position: 가격 위치 (MA/ATH 슬라이더) ──────────
-  function _pricePosition(d) {
-    var sym = d.sym || '—';
-    function observed(v) { return v == null || !isFinite(Number(v)) ? null : Number(v); }
-    var price = observed(d.price), sma50 = observed(d.sma50), sma200 = observed(d.sma200);
-    var ath = observed(d.ath), ret3m = observed(d.ret3m), rsi = observed(d.rsi);
-    var W = 420, H = 170, out = '';
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, sym + ' 가격 포지셔닝', C.text, 10, 700);
-    if ([price, sma50, sma200, ath, ret3m, rsi].some(function(v) { return v == null; })) {
-      out += _t(210, 88, 'OHLCV·MA·ATH·RSI 원천 미수신', C.muted, 12, 600, 'middle');
-      return _svg(W, H, out);
-    }
-    var lo = Math.min(sma200, price) * 0.96, hi = Math.max(ath, price) * 1.03;
-    var range = hi - lo || 1;
-    // H2-03: clamp both ends so malformed/future values cannot place marker text
-    // outside the SVG viewport; the observed label/value collision is covered by
-    // T921 and the 390/768/1024/1440 matrix gate.
-    var tx = function (v) { return 18 + Math.max(0, Math.min(((v - lo) / range) * 366, 366)); };
-    var slY = 48;
-    out += _r(18, slY, 366, 8, 'color-mix(in srgb, var(--text-primary) 8%, transparent)', 4);
-    out += _r(18, slY, _cl(tx(sma200) - 18, 0, 366), 8, _alphaRgb(C.red, 0.18), 4);
-    out += _r(tx(sma200), slY, _cl(tx(sma50) - tx(sma200), 0, 366), 8, _alphaRgb(C.amber, 0.22));
-    out += _r(tx(sma50), slY, _cl(tx(ath) - tx(sma50), 0, 366), 8, _alphaRgb(C.green, 0.22));
-    [[sma200, '200MA', C.amber], [sma50, '50MA', C.cyan], [ath, 'ATH', C.green]].forEach(function (m) {
-      var mx = tx(m[0]);
-      out += _l(mx, slY - 2, mx, slY + 10, m[2], 1.5);
-      out += _t(mx, slY + 21, m[1], m[2], 10, 600, 'middle');
-      // v52.5x/WO-4(F-01): label(baseline slY+21)과 값(이전 slY+31) 사이 10px 간격이 10px 폰트의
-      // 실제 글리프 높이(대략 어센트+디센트 ~10px)와 거의 같아 브라우저 폰트 메트릭에 따라
-      // bounding box가 겹칠 수 있었다(실측: mobile390/tablet768/laptop1024/desktop1440 4곳 전부
-      // technical route에서 200MA/50MA/ATH 라벨-값 3쌍 전부 겹침 검출). 값 라인을 slY+35로 내려
-      // 두 텍스트 baseline 간격을 14px로 넓혀 여유를 둠(SVG 높이 H=170, 하단 stats 행은 H-50=120
-      // 부터 시작이라 4px 이동은 다른 요소와 충돌하지 않음).
-      out += _t(mx, slY + 35, '$' + _n(m[0]), m[2], 10, 400, 'middle');
-    });
-    var prx = tx(price);
-    out += _r(prx - 7, slY - 6, 14, 20, _alphaRgb(C.cyan, 0.18), 3, C.cyan, 1.5);
-    out += _t(prx, slY + 5, '$' + _n(price), C.text, 10, 900, 'middle');
-    out += _t(prx, slY - 10, sym, C.text, 10, 700, 'middle');
-    var stats = [
-      ['3M 수익', _n(ret3m, 1) + '%', _pctCol(ret3m)],
-      ['RSI', _n(rsi, 1), rsi >= 70 ? C.red : rsi <= 30 ? C.green : C.cyan],
-      ['vs 50MA', _n((price / (sma50 || 1) - 1) * 100, 1) + '%', price > sma50 ? C.green : C.red],
-      ['vs ATH', _n((price / (ath || 1) - 1) * 100, 1) + '%', price >= ath * 0.97 ? C.green : price >= ath * 0.9 ? C.amber : C.red],
-    ];
-    stats.forEach(function (s, i) {
-      var x = 14 + i * 100;
-      out += _r(x, H - 50, 92, 40, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
-      out += _t(x + 6, H - 34, s[0], C.muted, 10);
-      out += _t(x + 6, H - 16, s[1], s[2], 11, 700);
-    });
-    return _svg(W, H, out);
-  }
-
-  // ── 7. sector-bubble: 섹터 배분 버블 ─────────────────────────
-  function _sectorBubble(d) {
-    var sectors = (d.sectors && d.sectors.length) ? d.sectors : [{ name: '데이터없음', weight: 100, perf: 0 }];
-    var W = 430, H = 200, out = '';
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '섹터 집중도 분석', C.text, 10, 700);
-    var maxW = Math.max.apply(null, sectors.map(function (s) { return s.weight || 0; })) || 1;
-    var x = 18;
-    sectors.slice(0, 8).forEach(function (s, i) {
-      var r = 14 + (s.weight / maxW) * 28;
-      var col = (s.perf || 0) > 1 ? C.green : (s.perf || 0) < -1 ? C.red : C.amber;
-      var cy2 = H / 2 + (i % 2 === 0 ? -10 : 10);
-      out += _o((x + r).toFixed(0), cy2.toFixed(0), r.toFixed(0), _alphaRgb(col, 0.12), col, 1.5);
-      out += _t((x + r).toFixed(0), (cy2 - 4).toFixed(0), s.name || '?', C.text, 10, 700, 'middle');
-      out += _t((x + r).toFixed(0), (cy2 + 8).toFixed(0), Math.round(s.weight || 0) + '%', col, 10, 700, 'middle');
-      x += r * 2 + 6;
-    });
-    return _svg(W, H, out);
-  }
-
-  // ── 8. yield-curve: 금리 기간구조 ────────────────────────────
-  function _yieldCurve(d) {
-    var pts = [
-      { term: '1M',  rate: Number(d.irx) },
-      { term: '2Y',  rate: Number(d.twoY) },
-      { term: '5Y',  rate: Number(d.fvx) },
-      { term: '10Y', rate: Number(d.tnx) },
-      { term: '30Y', rate: Number(d.tyx) },
-    ];
-    var W = 380, H = 180, out = '';
-    var minR = Math.min.apply(null, pts.map(function (p) { return p.rate; })) - 0.3;
-    var maxR = Math.max.apply(null, pts.map(function (p) { return p.rate; })) + 0.3;
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '금리 기간구조 (수익률곡선)', C.text, 10, 700);
-    var cX = 44, cY = 28, cW = 310, cH = 120;
-    [0, 0.5, 1].forEach(function (t) {
-      var y = (cY + cH - t * cH).toFixed(0);
-      out += _l(cX, y, cX + cW, y, 'color-mix(in srgb, var(--text-primary) 10%, transparent)');
-      out += _t(cX - 4, (+y + 3).toFixed(0), (minR + t * (maxR - minR)).toFixed(1) + '%', C.muted, 10, 400, 'end');
-    });
-    var mapped = pts.map(function (p, i) {
-      var x = (cX + i * (cW / (pts.length - 1))).toFixed(1);
-      var y = (cY + cH - ((p.rate - minR) / (maxR - minR)) * cH).toFixed(1);
-      return { x: x, y: y, term: p.term, rate: p.rate };
-    });
-    var areaD = 'M' + mapped[0].x + ',' + mapped[0].y;
-    mapped.slice(1).forEach(function (p) { areaD += 'L' + p.x + ',' + p.y; });
-    areaD += 'L' + mapped[mapped.length - 1].x + ',' + (cY + cH) + 'L' + mapped[0].x + ',' + (cY + cH) + 'Z';
-    out += '<path d="' + areaD + '" fill="' + _alphaRgb(C.cyan, 0.08) + '"/>';
-    var lineD = 'M' + mapped[0].x + ',' + mapped[0].y;
-    mapped.slice(1).forEach(function (p) { lineD += 'L' + p.x + ',' + p.y; });
-    out += '<path d="' + lineD + '" fill="none" stroke="' + C.cyan + '" stroke-width="2"/>';
-    mapped.forEach(function (p) {
-      out += _o(p.x, p.y, 3.5, C.cyan);
-      out += _t(p.x, (+p.y - 7).toFixed(0), p.term, C.muted, 10, 600, 'middle');
-      out += _t(p.x, (+p.y + 14).toFixed(0), p.rate.toFixed(2), C.cyan, 10, 700, 'middle');
-    });
-    var inverted = d.twoY && d.tnx && d.twoY > d.tnx;
-    var shape = inverted ? '역전 Inverted' : '정상 Normal';
-    var shapeCol = inverted ? C.red : C.green;
-    out += _r(W - 104, H - 24, 96, 18, _alphaRgb(shapeCol, 0.12), 4, shapeCol, 1);
-    out += _t(W - 56, H - 11, shape, shapeCol, 10, 700, 'middle');
-    return _svg(W, H, out);
-  }
-
-  // ── 9. sentiment-gauge: 다중 심리 게이지 ─────────────────────
-  function _sentimentGauge(d) {
-    var gauges = [
-      { label: 'Fear & Greed', v: _cl(Number(d.fg), 0, 100), min: 0, max: 100, inv: false, lo: '공포', hi: '탐욕',   unit: '' },
-      { label: 'VIX',          v: _cl(Number(d.vix), 0, 60),  min: 0, max: 60,  inv: true,  lo: '안정', hi: '극공포', unit: '' },
-      { label: 'VVIX',         v: _cl(Number(d.vvix), 70, 180), min: 70, max: 180, inv: true, lo: '안정', hi: '극공포', unit: '' },
-      { label: 'AAII Bear%',   v: _cl(Number(d.aaiiBear), 0, 70),  min: 0, max: 70,  inv: true,  lo: '낙관', hi: '비관',   unit: '%' },
-    ];
-    var W = 420, H = 192, out = '';
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '시장 심리 게이지', C.text, 10, 700);
-    gauges.forEach(function (g, i) {
-      var y = 30 + i * 40;
-      var norm = (g.v - g.min) / (g.max - g.min);
-      if (g.inv) norm = 1 - norm;
-      var col = norm >= 0.66 ? C.green : norm >= 0.33 ? C.amber : C.red;
-      out += _t(14, y + 13, g.label, C.muted, 10, 600);
-      out += _r(120, y + 2, 224, 10, 'color-mix(in srgb, var(--text-primary) 8%, transparent)', 3);
-      out += _r(120, y + 2, Math.round(224 * 0.40), 10, _alphaRgb(C.green, 0.28), 3);
-      out += _r(120 + Math.round(224 * 0.40), y + 2, Math.round(224 * 0.33), 10, _alphaRgb(C.amber, 0.28));
-      out += _r(120 + Math.round(224 * 0.73), y + 2, Math.round(224 * 0.27), 10, _alphaRgb(C.red, 0.28));
-      var nx = 120 + Math.round(224 * _cl(norm, 0, 1));
-      out += _r(nx - 1, y - 1, 3, 14, col, 1);
-      out += _t(350, y + 13, _n(g.v, g.unit === '%' ? 1 : 1) + g.unit, col, 10, 700);
-      out += _t(120, y + 25, g.lo, C.muted, 10);
-      out += _t(344, y + 25, g.hi, C.muted, 10, 400, 'end');
-    });
-    return _svg(W, H, out);
-  }
-
-  // ── 10. factor-backtest: 팩터 IC 백테스트 ────────────────────
-  function _factorBacktest(d) {
-    var bt = d.backtest || {};
-    // LC-41: null/미수신 값을 0으로 승격하지 않는다. 이전에는 quantileSpread·ic·hitRate·표본 수에
-    // 폴백 0을 적용해, 표본이 없어도 IC 0.000·스프레드 0.00%가 '측정된 0'처럼 보였다.
-    var num = function(v) { return (v == null || v === '' || typeof v === 'boolean' || !isFinite(Number(v))) ? null : Number(v); };
-    var ic = bt.ic || {};
-    var spread = num(bt.quantileSpread), hit = num(bt.hitRate), n = num(bt.n);
-    var hasSample = n != null && n > 0;
-    var factors = [
-      { label: '모멘텀', key: 'momentum' },
-      { label: '추세',   key: 'trend' },
-      { label: '저변동', key: 'lowvol' },
-      { label: '종합',   key: 'composite' },
-    ];
-    var W = 400, H = 192, out = '';
-    out += _r(0, 0, W, H, C.bg, 8, C.border);
-    out += _t(14, 18, '팩터 과거 검증, 순위와 수익률의 같은 방향 정도', C.text, 10, 700);
-    out += _t(W - 14, 18, hasSample ? 'n=' + n : (n === 0 ? 'n=0, 표본 없음' : 'n 미수신'), C.muted, 10, 400, 'end');
-    factors.forEach(function (f, i) {
-      var v = num(ic[f.key]);
-      var measured = hasSample && v != null;
-      var y = 28 + i * 36;
-      var col = !measured ? C.muted : v > 0.05 ? C.green : v > 0 ? C.cyan : v > -0.05 ? C.amber : C.red;
-      var barW = Math.round(Math.abs(measured ? v : 0) * 700);
-      var midX = 182;
-      out += _t(14, y + 13, f.label, C.muted, 10, 600);
-      out += _r(70, y + 3, 224, 12, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 2);
-      out += _l(midX, y, midX, y + 18, 'color-mix(in srgb, var(--text-primary) 22%, transparent)');
-      if (measured && v >= 0) {
-        out += _r(midX, y + 3, Math.min(barW, 112), 12, _alphaRgb(col, 0.55), 2);
-      } else if (measured) {
-        out += _r(Math.max(midX - Math.min(barW, 112), 70), y + 3, Math.min(barW, 112), 12, _alphaRgb(col, 0.55), 2);
-      }
-      out += _t(300, y + 13, measured ? _n(v, 3) : '계산 불가', col, 10, 700);
-    });
-    out += _r(14, H - 46, 180, 36, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
-    out += _t(20, H - 29, '분위 스프레드', C.muted, 10);
-    out += _t(20, H - 13, hasSample && spread != null ? _n(spread, 2) + '%' : '계산 불가, 표본 없음', hasSample && spread != null ? (spread > 2 ? C.green : spread > 0 ? C.amber : C.red) : C.muted, hasSample && spread != null ? 12 : 10, 700);
-    out += _r(204, H - 46, 180, 36, 'color-mix(in srgb, var(--text-primary) 6%, transparent)', 4, C.border, 1);
-    out += _t(210, H - 29, '방향 적중률', C.muted, 10);
-    out += _t(210, H - 13, hasSample && hit != null ? _n(hit, 1) + '%' : '계산 불가, 표본 없음', hasSample && hit != null ? (hit > 55 ? C.green : hit > 45 ? C.amber : C.red) : C.muted, hasSample && hit != null ? 12 : 10, 700);
-    return _svg(W, H, out);
-  }
-
   var _fns = {
-    'score-breakdown': _scoreBreakdown,
-    'market-regime':   _marketRegime,
     'factor-radar':    _factorRadar,
-    'pipeline-status': _pipelineStatus,
-    'economic-cycle':  _economicCycle,
-    'price-position':  _pricePosition,
-    'sector-bubble':   _sectorBubble,
-    'yield-curve':     _yieldCurve,
-    'sentiment-gauge': _sentimentGauge,
-    'factor-backtest': _factorBacktest,
   };
 
   return {
@@ -1671,85 +1296,6 @@ window._aioDiagram = (function () {
 // 각 페이지 진입(aio:pageShown) 시 _aioDiagram 엔진으로 시각화 주입
 // ──────────────────────────────────────────────────────────────────────────────
 (function () {
-  function _snap() { return window.DATA_SNAPSHOT || {}; }
-
-  function _econStage(snap) {
-    if ([snap.cpi,snap.fedRate,snap.usUnemploy].some(function(v){ return v == null || v === ''; })) return 'UNAVAILABLE';
-    var cpi = Number(snap.cpi), rate = Number(snap.fedRate), u = Number(snap.usUnemploy);
-    if (![cpi, rate, u].every(Number.isFinite)) return 'UNAVAILABLE';
-    if (u >= 5.2 || (u >= 4.8 && cpi < 2.5)) return 'CONTRACTION';
-    if (cpi >= 3.8 && rate >= 4.8) return 'LATE';
-    if (cpi >= 2.5 || rate >= 3.0) return 'MID';
-    return 'EARLY';
-  }
-
-  function _buildPipeline() {
-    var snap = _snap();
-    var live = window._liveData || {};
-    var lk = Object.keys(live);
-    var symOk = lk.filter(function (k) { return live[k] && typeof live[k].price === 'number'; }).length;
-    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-    var fg = fgMetric && fgMetric.value != null ? fgMetric.value : null;
-    var ageMin = null;
-    try {
-      var ts = snap._snapshotDate || snap.ts;
-      if (ts) ageMin = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);
-    } catch (e) {}
-    var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    var scrLen = Array.isArray(scrRows) ? scrRows.length : 0;
-    return {
-      fg: fg,
-      telegramOk: !!(window._telegramDigest),
-      telegramCount: (window._telegramDigest && window._telegramDigest.posts) || 0,
-      screenerOk: scrLen > 0,
-      screenerCount: scrLen,
-      screenerUniverse: scrLen || '?',
-      meta: {
-        symbolsOk: symOk,
-        fearGreedOk: fg != null,
-        fredFetchOk: !!(snap.cpi || snap.fedRate),
-        fredHasKey: !!(snap.cpi),
-        macroKeyCount: [snap.cpi, snap.fedRate, snap.usUnemploy, snap.tnx2y, snap.dxy].filter(Boolean).length,
-        newsOk: !!(window._newsItems && window._newsItems.length > 0),
-        newsCount: (window._newsItems && window._newsItems.length) || 0,
-        ageMin: ageMin,
-      },
-    };
-  }
-
-  function _buildEcon() {
-    var snap = _snap();
-    if ([snap.cpi,snap.fedRate,snap.usUnemploy].some(function(v){ return v == null || v === ''; })) return { available:false };
-    var cpi = Number(snap.cpi), rate = Number(snap.fedRate), unemployment = Number(snap.usUnemploy);
-    if (![cpi,rate,unemployment].every(Number.isFinite)) return { available:false };
-    return {
-      stage:        _econStage(snap),
-      cpi:          cpi,
-      fedRate:      rate,
-      unemployment: unemployment,
-    };
-  }
-
-  // v57.76: _buildPrice (SPY 가격 포지션 card on the 차트 tab and its chat auto-visual) was deleted with the card; its only input
-  // (window._spyPositionStats from the deleted updateTechIndicators) no longer exists.
-
-  function _buildYield() {
-    var curve = window.AIO && typeof window.AIO.getUsTreasuryCurveEvidence === 'function' ? window.AIO.getUsTreasuryCurveEvidence() : null;
-    if (!curve || !curve.complete) return { available:false };
-    return {
-      irx:curve.threeM, twoY:curve.twoY, fvx:curve.fiveY, tnx:curve.tenY, tyx:curve.thirtyY
-    };
-  }
-
-  function _buildBacktest() {
-    return { backtest: (typeof _aioScreenerFactorBacktest === 'function' && _aioScreenerFactorBacktest()) || {} };
-  }
-
-  function _render(elId, type, data) {
-    var el = document.getElementById(elId);
-    if (el && window._aioDiagram) window._aioDiagram.render(type, el, data);
-  }
-
   function _aioRenderPageDiagram(pid) {
     try {
       // The architecture bootstrap owns the home/signal decision surfaces.  The
@@ -1769,20 +1315,6 @@ window._aioDiagram = (function () {
           break;
         // v58.88 (legacy decomposition 2/8 시장 상태): the breadth/sentiment diagram slots (#vis-breadth-regime,
         // #vis-sentiment-gauge) are gone; src/ui/components/breadth-board.js and src/ui/pages/sentiment.js own those routes.
-        case 'briefing':
-          _render('vis-briefing-pipeline', 'pipeline-status', _buildPipeline());
-          _render('vis-briefing-cycle',    'economic-cycle',   _buildEcon());
-          break;
-        case 'macro':
-          _render('vis-macro-cycle', 'economic-cycle', _buildEcon());
-          _render('vis-macro-yield', 'yield-curve',    _buildYield());
-          break;
-        case 'fxbond':
-          _render('vis-fxbond-yield', 'yield-curve', _buildYield());
-          break;
-        case 'screener':
-          _render('vis-screener-backtest', 'factor-backtest', _buildBacktest());
-          break;
         case 'portfolio': {
           // v58.80 (first-users F19): this legacy bubble drew "Technology 100%" (English, cost basis) above the native
           // 섹터 배분 card, which waits for a valuation and said "평가액이 확인되면 섹터 비중이 표시됩니다" — two answers to one
@@ -1797,7 +1329,7 @@ window._aioDiagram = (function () {
     }
   }
 
-  var VIS_PAGES = ['home','signal','breadth','sentiment','briefing','macro','fxbond','screener','portfolio']; // v57.76: technical has no diagram slot
+  var VIS_PAGES = ['signal','portfolio']; // v59.42: the briefing/macro/fxbond/screener diagram slots are gone
 
   // 페이지 전환 훅
   if (window._aioPageBus) {
@@ -3449,8 +2981,8 @@ document.addEventListener('keydown', function(e) {
     return;
   }
 
-  // R = refresh live data
-  if (e.key === 'r' || e.key === 'R') {
+  // R = refresh live data. v59.42: plain R only — Ctrl/Cmd+R is the browser's page reload and must not be swallowed.
+  if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey) {
     e.preventDefault();
     if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
     return;

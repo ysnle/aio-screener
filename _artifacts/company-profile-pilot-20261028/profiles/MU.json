@@ -1,0 +1,130 @@
+{
+  "symbol": "MU",
+  "name": "Micron Technology, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "Thursday closest to August 31 (FY2026 ended 2026-09-03, 53 weeks)",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Micron Reports Results for the Fourth Quarter and Full Year of Fiscal 2026 (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000723125/000072312526000018/a2026q4ex991-pressrelease.htm", "publisher": "Micron / SEC EDGAR", "date": "2026-09-30" },
+    { "id": "s2", "kind": "10-K", "title": "Micron Form 10-K for fiscal year ended 2026-09-03 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0000723125/000072312526000023/mu-20260903.htm", "publisher": "Micron / SEC EDGAR", "date": "2026-09-03" },
+    { "id": "s3", "kind": "call-transcript", "title": "Micron (MU) Q4 2026 Earnings Call Transcript (partly AI-generated, publisher warns of errors)", "url": "https://www.webull.com/news/15672802111996928", "publisher": "Webull", "date": "2026-09-30" },
+    { "id": "s4", "kind": "earnings-release", "title": "Micron Technology, Inc. Reports Record Results for the Third Quarter of Fiscal 2026 (company release repost)", "url": "https://seekingalpha.com/pr/20563085", "publisher": "Seeking Alpha (GlobeNewswire company release)", "date": "2026-06-24" },
+    { "id": "s5", "kind": "news", "title": "SanDisk co-founder Mehrotra appointed as CEO of Micron (date = appointment effective date; article date not checked)", "url": "https://www.datacenterdynamics.com/en/news/sandisk-co-founder-mehrotra-appointed-as-ceo-of-micron/", "publisher": "DatacenterDynamics", "date": "2017-05-08" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/mu/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "Micron은 DRAM(HBM 포함)과 NAND 메모리·스토리지를 만들어 클라우드·데이터센터, PC·모바일, 자동차·산업 고객에게 판다. FY2026 매출은 1,331.9억 달러로 전년 373.8억 달러의 약 3.6배였고, DRAM이 1,006.8억 달러로 대부분이다. 이익은 메모리 가격과 비트 출하량에 따라 크게 출렁이며, FY2026 non-GAAP 총마진은 81.1%였다.",
+    "src": ["s1", "s2"]
+  },
+  "businessModel": {
+    "text": "자체 팹(대만·싱가포르·일본·미국·말레이시아·중국·인도)에서 웨이퍼를 직접 생산하는 종합 메모리 제조사로, 설비투자 규모가 크다(FY2026 순 설비투자 273.7억 달러). 최근에는 다년 take-or-pay 전략적 고객 계약(SCA)으로 물량·가격 밴드를 묶고 고객 예치금·신용장을 받는 방식으로 사이클 변동을 줄이려 한다. 콜 기준 SCA는 26건, 2030년까지 총 생산 비트의 약 35%를 덮는다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "revenueStructure": {
+    "period": "FY2026 (ended 2026-09-03, 53 weeks)",
+    "segments": [
+      { "name": "Cloud Memory (CMBU)", "revenue": 43.085, "unit": "USD bn", "share": 32.3, "yoy": 219, "src": ["s2"] },
+      { "name": "Core Data Center (CDBU)", "revenue": 37.592, "unit": "USD bn", "share": 28.2, "yoy": 420, "src": ["s2"] },
+      { "name": "Mobile and Client (MCBU)", "revenue": 36.601, "unit": "USD bn", "share": 27.5, "yoy": 209, "src": ["s2"] },
+      { "name": "Automotive and Embedded (AEBU)", "revenue": 15.886, "unit": "USD bn", "share": 11.9, "yoy": 234, "src": ["s2"] },
+      { "name": "All Other", "revenue": 0.024, "unit": "USD bn", "share": 0.0, "yoy": null, "src": ["s2"] }
+    ],
+    "recurringShare": "해당 없음(제품 판매). 대신 SCA가 2030년까지 생산 비트의 약 35%를 덮고, FY2027 출하의 75% 이상이 배분·계약으로 확정됐다는 콜 발언이 있다.",
+    "geography": "FY2026 매출의 약 1/3이 미국 밖에 본사를 둔 고객, 약 70%가 미국 밖 고객 거점으로 출하(10-K). 콜에서는 FY2027 중국 노출이 한 자릿수 %로 줄어든다고 언급.",
+    "text": "share·yoy는 10-K 세그먼트 표(합계 1,331.88억 달러, 전년 CMBU 135.2억·CDBU 72.3억·MCBU 118.6억·AEBU 47.5억 달러)로 계산한 값이다. 제품별로는 DRAM 1,006.8억, NAND 317.9억 달러이며, 데이터센터 최종시장이 매출의 약 60%였다. Q4만 보면 CDBU 180.0억·CMBU 162.8억 달러로 데이터센터 두 부문이 과반이다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "productPortfolio": [
+    { "name": "HBM (HBM3E 12-high, HBM4 36GB 12-high, HBM4E)", "role": "AI 가속기용 고대역폭 메모리. 2026년 HBM4 양산 시작, HBM4E는 2027년 램프 예정. NVIDIA와 맞춤형 HBM4E 공동 설계", "src": ["s2", "s3"] },
+    { "name": "데이터센터 DRAM (서버용 DDR5·LPDDR 등)", "role": "CDBU 매출의 중심. FY2026 CDBU 매출 375.9억 달러", "src": ["s2"] },
+    { "name": "데이터센터 SSD·NAND", "role": "AI 데이터 저장. FY2026 NAND 매출 317.9억 달러", "src": ["s2"] },
+    { "name": "모바일·PC 메모리와 스토리지", "role": "MCBU. FY2026 매출 366.0억 달러", "src": ["s2"] },
+    { "name": "자동차·산업·임베디드 메모리", "role": "AEBU. FY2026 매출 158.9억 달러", "src": ["s2"] }
+  ],
+  "valueChain": {
+    "position": "upstream",
+    "suppliers": ["반도체 장비 업체 (클린룸·노광·증착 등, 이름 미확인)", "외부 파운드리 (HBM4E 베이스 다이는 외부 공정, 콜 발언)", "소재·화학 공급사"],
+    "customers": ["NVIDIA (HBM, 콜에서 유일하게 이름 언급)", "하이퍼스케일러·서버 OEM", "스마트폰·PC 제조사", "자동차·산업 고객"],
+    "concentration": "상위 10개 고객이 최근 3개년 각각 매출의 약 절반(FY2026은 절반 이상). 10% 이상 단일 고객 비중은 확인 못함.",
+    "text": "Micron은 웨이퍼를 직접 만드는 최상류 부품 공급자로, GPU·서버·스마트폰 업체가 고객이다. FY2026 DRAM 생산의 과반이 대만 팹에서 나와 지역 집중 위험이 있다.",
+    "src": ["s2", "s3"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["AI 가속기용 HBM 수요 (HBM이 2028년까지 일반 DRAM보다 빠르게 성장한다는 회사 전망)", "AI 서버의 일반 DRAM·SSD 수요 (데이터센터가 FY2026 매출의 약 60%)", "추론·에이전트 AI 확산", "다년 SCA로 고정된 고객 물량"],
+    "supplyConstraints": ["클린룸 공간이 업계 핵심 제약, 증설 후 의미 있는 출하까지 수 분기 지연 (콜)", "아이다호 신규 팹 첫 웨이퍼 2027년 중반, 싱가포르 신규 클린룸 2028년 하반기 (콜)", "Q1 FY2027 가이드는 비트 성장 한 자릿수, 원가 두 자릿수 증가 전제 (콜)"],
+    "text": "현재 메모리 가격은 공급 부족이 정한다. 회사는 2027년 업계 DRAM 공급 증가가 둔화되고 NAND 비트 성장은 20% 중반이라고 본다(콜). 사이클 산업이므로 신규 팹이 열리는 2027~2028년이 가격 방향의 분기점이다.",
+    "src": ["s3", "s2"]
+  },
+  "competition": {
+    "peers": ["005930", "000660", "SNDK"],
+    "moat": "DRAM·NAND 3강 체제의 규모, 1-gamma 공정이 비트 출력의 과반인 기술 위치, 그리고 다년 SCA로 묶은 고객 물량. 단, 메모리는 범용 성격이 강해 해자는 가격 결정력보다 원가·기술 격차에 가깝다.",
+    "threats": "10-K가 경쟁자로 Samsung Electronics, SK hynix, Kioxia, Sandisk, 중국의 CXMT·YMTC를 명시한다. 경쟁사 증설과 중국 업체의 추격이 다음 공급 과잉의 원인이 될 수 있고, HBM 점유율 경쟁도 치열하다.",
+    "src": ["s2", "s3"]
+  },
+  "governance": {
+    "ceo": "Sanjay Mehrotra, since 2017-05 (SanDisk 공동창업자; 이사회 의장 겸임은 2차 출처로만 확인되어 미기재)",
+    "control": "widely held (원문에서 지분 구조 별도 확인 안 함)",
+    "insiderOwnership": null,
+    "capitalReturn": "FY2026 자사주 매입 6.5억 달러(별도 임직원 주식 세금원천 11.27억 달러). 분기 배당 주당 0.15달러(2026-10-29 지급). 10-K에 2026-10 자사주 한도 증액이 후속사건으로 표시되나 금액은 미확인.",
+    "notes": "직원 약 61,000명(2026-09-03). 미국 CHIPS 보조금·투자세액공제를 받는 아이다호·뉴욕·버지니아 프로젝트가 있다. 순현금 상태: 현금·투자자산 734.8억 달러, 부채 약 51.8억 달러.",
+    "src": ["s5", "s1", "s2"]
+  },
+  "aiRelevance": {
+    "role": "direct-supplier",
+    "text": "AI 가속기의 HBM과 AI 서버 메모리·SSD를 직접 공급한다. AI 수요가 메모리 공급 부족과 가격 급등을 일으켜 FY2026 실적을 만들었다.",
+    "evidence": "FY2026 데이터센터 최종시장 매출 비중 약 60%(10-K), Cloud Memory 부문(HBM 포함) 매출 430.9억 달러로 전년 135.2억 달러 대비 약 3.2배.",
+    "src": ["s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q1 FY2027", "metric": "revenue", "value": "615억 달러 ±15억", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "gross margin", "value": "GAAP 약 85.95%, non-GAAP 약 86.25%", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "operating expenses", "value": "GAAP 약 23.1억, non-GAAP 약 20.6억 달러", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "diluted EPS", "value": "GAAP 37.84달러 ±1.00, non-GAAP 38.15달러 ±1.00", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "FY2027", "metric": "margin / R&D", "value": "FY2027 동안 마진 확대 예상, R&D 10억 달러 이상 증가 (콜 발언, 수치 가이드 아님)", "givenOn": "2026-09-30", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "text": "다음 분기 매출·총마진·영업비용·EPS를 범위로 제시한다. 직전 분기는 가이던스를 크게 넘었다: Q4 FY2026 가이드 매출 500억 ±10억·non-GAAP EPS 31.00달러 → 실제 542.3억 달러·33.42달러.",
+    "src": ["s4", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-11~2027-08 분기) 합계 176.51달러(범위 165.11~191.64), 직전 4개 분기 74.77달러. 최근 4주 상향 32건·하향 0건으로 강한 상향 방향.",
+    "src": ["s6"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "DRAM·NAND 평균판매가격(ASP)과 비트 출하 증가율", "why": "메모리 실적은 가격×물량이다. 현재 이익은 가격 상승이 주도하므로 가격 둔화가 가장 먼저 이익을 깎는다." },
+      { "metric": "Gross margin", "why": "사이클 위치를 보여주는 온도계. 87% 수준은 역사적 고점 영역이며 방향 전환이 중요하다." },
+      { "metric": "HBM 비중·가격 (calendar 2027 계약)", "why": "가장 수익성 높고 장기 계약된 제품. HBM4/HBM4E 고객 인증 진행이 점유율을 정한다." },
+      { "metric": "Capex와 업계 증설 계획", "why": "Micron·Samsung·SK hynix의 증설 합계가 다음 공급 과잉 시점을 정한다." },
+      { "metric": "SCA 커버리지와 고객 예치금", "why": "하강기에 물량·가격 하단을 얼마나 지켜주는지. 밴드 하단 조건이 핵심." },
+      { "metric": "재고일수(회사·고객)", "why": "고객 재고 축적은 사이클 정점의 전형적 신호다." }
+    ],
+    "valuationFrame": "메모리는 사이클 산업이라 전문가는 정점 이익의 P/E를 낮게, 저점에서는 높게 보는 역설을 감안하고, 주가순자산배수(P/B)와 사이클 평균 이익을 함께 본다. SCA로 사이클이 완화됐다는 주장이 높은 배수를 정당화하는지가 논쟁점이다.",
+    "thesisChecks": ["분기 가이던스 상회와 컨센서스 상향이 이어지는가", "HBM4/HBM4E 인증·공급이 계획대로 진행되는가", "SCA 신규 체결과 가격 밴드가 유지되는가", "업계 DRAM 공급 증가가 회사 전망대로 둔화되는가", "아이다호(2027 중반)·싱가포르(2028 하반기) 증설이 일정대로인가"],
+    "breakSignals": ["메모리 현물·계약 가격 하락 전환", "총마진 가이드의 분기 대비 하락", "고객 재고 증가 또는 주문 축소 언급", "경쟁사·중국 업체의 대규모 증설 발표", "SCA 고객의 계약 재협상·이행 지연", "대만 생산 차질 등 지정학 위험"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-12 (Q1 FY2027 실적, 날짜 회사 미공지)", "event": "Q1 FY2027 실적과 Q2 가이던스", "src": [] },
+      { "date": "매 분기", "event": "Samsung·SK hynix 실적과 메모리 가격·증설 발언, NVIDIA 실적(HBM 수요)", "src": ["s2", "s3"] },
+      { "date": "2027 중반", "event": "아이다호 신규 팹 첫 웨이퍼 출하 (회사 일정)", "src": ["s3"] },
+      { "date": "calendar 2027", "event": "HBM4E 램프와 2027년 HBM 가격 반영", "src": ["s2", "s3"] }
+    ],
+    "eventReaction": "주가는 분기 실적보다 다음 분기 총마진·EPS 가이드와 경영진의 가격·공급 발언에 반응한다. 지금처럼 이익이 고점 영역일 때는 가이드 상회가 이어져도 '가격 상승 둔화' 같은 언급 하나가 사이클 정점 신호로 읽힐 수 있다.",
+    "watchConditions": ["다음 분기 매출·총마진 가이드와 컨센서스의 차이", "DRAM·NAND 가격 방향 언급 (상승 폭 둔화 여부)", "업계 3사 설비투자·클린룸 증설 발표", "SCA 건수·커버리지 변화", "컨센서스 EPS 상향·하향 건수 추이 (현재 상향 32건)", "한국 메모리 업체 실적·수출 데이터"],
+    "src": ["s1", "s3", "s6"]
+  },
+  "unverified": [
+    "HBM 매출 금액·연환산 규모와 HBM 점유율 (회사 미공개)",
+    "10% 이상 단일 고객 비중",
+    "국가별 매출 금액",
+    "FY2027 설비투자 가이던스 금액",
+    "2026-10 자사주 한도 증액 금액",
+    "SCA 고객 예치금 금액",
+    "Q1 FY2027 실적 발표일 (회사 미공지)",
+    "HBM 공급 제약 지속 기간에 대한 회사 발언 (2차 보도에만 있어 제외)",
+    "10-K 제출일 (s2 날짜는 회계연도 말)",
+    "Mehrotra 이사회 의장 겸임 시점"
+  ],
+  "confidence": "high - 매출·세그먼트·가이던스는 8-K 보도자료와 10-K에서 확인했다. SCA 커버리지·증설 일정·업계 공급 전망은 부분 AI 생성 녹취록 기준이다."
+}

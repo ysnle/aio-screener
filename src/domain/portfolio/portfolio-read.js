@@ -8,6 +8,8 @@ import { sectorLabel } from '../screener/screener-read.js';
 // v57.50 I11: one sector vocabulary on the portfolio screen — the screener's labels (기술·헬스케어·부동산 …), plus the
 // two portfolio-only buckets. 'Financial Services' is the import alias of the screener's Financials.
 const PORTFOLIO_ONLY_SECTORS = Object.freeze({ CASH: '현금', Unclassified: '미분류' });
+// P2115: recent-check.js leads its clause with ', ' since v58.73 (' · ' before); strip either so no stray ' ,' is printed.
+const CLAUSE_LEAD = /^(?:, | · )/;
 export function portfolioSectorLabel(name) {
   return PORTFOLIO_ONLY_SECTORS[name] || sectorLabel(name === 'Financial Services' ? 'Financials' : name);
 }
@@ -29,8 +31,8 @@ function rotationQuadrant(item) {
   const reading = rrgRecentReading(item, item?.relativeStrength || null);
   // v57.84 (owner decision 3-3): the settled quadrant (own-noise band + hysteresis), as on 테마 · 섹터.
   const base = QUADRANT[reading?.quadrant || item.quadrant];
-  if (reading?.border) return { label: '판정 보류(기준선 부근)', tone: 'neutral', held: true, base: base.label, why: `상대강도가 100 부근(${reading.between} 사이)${reading.clause ? `이고 ${reading.clause.replace(/^ · /, '')}` : ''}` };
-  if (reading?.reversal) return { label: `${base.label}, ${reading.reversal === 'fell' ? '약화 중' : '반등 중'}`, tone: 'neutral', held: true, base: base.label, why: reading.clause.replace(/^ · /, '') };
+  if (reading?.border) return { label: '판정 보류(기준선 부근)', tone: 'neutral', held: true, base: base.label, why: `상대강도가 100 부근(${reading.between} 사이)${reading.clause ? `이고 ${reading.clause.replace(CLAUSE_LEAD, '')}` : ''}` };
+  if (reading?.reversal) return { label: `${base.label}, ${reading.reversal === 'fell' ? '약화 중' : '반등 중'}`, tone: 'neutral', held: true, base: base.label, why: reading.clause.replace(CLAUSE_LEAD, '') };
   return { ...base, held: false, base: base.label, why: '' };
 }
 

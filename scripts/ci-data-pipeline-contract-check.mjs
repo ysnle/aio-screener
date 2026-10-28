@@ -283,7 +283,7 @@ const fetchData = readProducerSource();
 const fetchTelegram = read('scripts/fetch-telegram-digest.mjs');
 const reconciliationBuilder = read('scripts/build-reconciliation-status.mjs');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js'); // v59.34/v59.35: the server data loader and the public readiness model moved to src
+const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js') + '\n' + read('src/domain/news/selection.js') + '\n' + read('src/app/news-selection-entry-points.js') /* v59.42: news scoring and selection moved to src */; // v59.34/v59.35: the server data loader and the public readiness model moved to src
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
 const screenerPage = read('src/ui/pages/screener.js');
@@ -1969,7 +1969,7 @@ check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener 
     && readScreenerBreadth(us({ observedAt: new Date(Date.now() - 97 * 3600000).toISOString() })).us === null);
 }
 check('v57.78: quant readiness audit had no production caller and stays retired (research-only ranking contract is enforced by validate-screener-artifact)', !/getQuantReadinessAudit/.test(data)); // text-pin-ok: retirement absence
-check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && /legacy_kalman_scale/.test(data));
+check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && !/function _aioScreenerFactorBacktest/.test(data)); // v59.42: the legacy old-scale withholding left with its only reader (the deleted factor-backtest diagram); the producer writes log_pct_day (scripts/lib/factors.mjs)
 check('app exposes public-data operational meta', /window\._serverDataMeta/.test(data) && /fredHasKey/.test(data) && /marketAnalysisOk/.test(data) && /telegramMemoOverlay/.test(data));
 check('P1421 core data pipeline audit exposes publicData and shared AI availability', /getDataPipelineAudit/.test(core) && /publicData/.test(core) && /server FRED_API_KEY not configured/.test(core) && /if \(!serverPublicData\.marketAnalysisOk\)/.test(core) && /server AI market analysis unavailable; shared Worker configuration, budget or provider response needs verification/.test(core));
 check('v57.78: AIO.getOperationalHealth had no production caller and stays retired', !/getOperationalHealth/.test(core)); // text-pin-ok: retirement absence

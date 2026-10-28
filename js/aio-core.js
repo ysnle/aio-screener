@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.41';
+const APP_VERSION = 'v59.42';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2096,9 +2096,7 @@ window._aioShowFundamentalChart = function(ticker) {
 };
 // v58.20: the chat "차트 자세히 보기" card handler (_aioShowTechnicalChart, P1669) is gone — the card itself was retired in
 // v57.62 (T812) and nothing called the handler. Chart navigation goes through _aioOpenTechnicalAnalysis.
-window._aioFetchLiveQuotes = function() {
-  if (typeof window.fetchLiveQuotes === 'function') window.fetchLiveQuotes();
-};
+// v59.42: window._aioFetchLiveQuotes (a button handler whose button no markup has) is deleted.
 // v49.40 P294 — home Action Item ↻ 갱신 버튼 핸들러 신설 (R96 위반 시정)
 // v49.39까지 index.html L4063 data-action="_aioRefreshActionPlan" 버튼은 핸들러 미정의 → click 무동작.
 // v49.39 R96 audit이 knownAliases로 false-positive 통과시켰으나 실제로는 silent no-op.
@@ -10480,24 +10478,12 @@ function _parseYFChartResponse(raw) {
 
 // ═══ PRODUCTION: Suppress console.log ═══════════════════════════════
 (function() {
-  const _origLog = console.log;
   console.log = function() {};
   // Keep console.warn and console.error for debugging
   // _debugWarn: verbose warnings only shown in debug mode (proxy fallback, etc.)
   window._aioDebug = false;
   window._debugWarn = function() { if (window._aioDebug) console.warn.apply(console, arguments); };
-  window._enableDebugLog = function() {
-    console.log = _origLog;
-    window._aioDebug = true;
-    console.log('[AIO] 디버그 모드 활성화 — console.log 복원, verbose 경고 표시');
-    console.log('[AIO] window._apiHealth 로 API 상태 확인 가능');
-    console.log('[AIO] window._proxyHealth 로 프록시 상태 확인 가능');
-    console.log('[AIO] REFRESH_SCHEDULE 로 갱신 스케줄 확인 가능');
-  };
-  window._disableDebugLog = function() {
-    console.log = function() {};
-    window._aioDebug = false;
-  };
+  // v59.42: the _enableDebugLog/_disableDebugLog console helpers had no caller and are deleted.
 })();
 
 // ═══ v30.11 Task 8: API 상태 대시보드 (API Health Registry) ═════════
@@ -14093,19 +14079,8 @@ const DATE_ENGINE = (function() {
   function fmtKrBasis(d) { return fmtMD(d) + ' 기준'; }
   function fmtYMbasis(d) { return d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + ' 기준'; }
 
-  // KRX 장 상태 (KST 기준)
-  function krxStatus() {
-    var kst = nowKST();
-    var dow = kst.getDay();
-    if (dow === 0 || dow === 6) return { status: 'closed', label: '주말 휴장' };
-    if (!hasMarketCalendar('KR', kst.getFullYear())) return { status: 'unknown', label: '연간 거래소 달력 미등록' };
-    if (!isKrTradingDay(kst)) return { status: 'closed', label: '공휴일 휴장' };
-    var t = kst.getHours() * 60 + kst.getMinutes(), hours = krSessionMinutes(kst);
-    if (t >= hours[0] && t < hours[1] - 30) return { status: 'open', label: '장중' };
-    if (t >= hours[1] - 30 && t < hours[1]) return { status: 'after', label: '시간외 거래' };
-    if (t >= hours[0] - 60 && t < hours[0]) return { status: 'pre', label: '프리마켓' };
-    return { status: 'closed', label: '장 마감' };
-  }
+  // v59.42: DATE_ENGINE.krxStatus is deleted. Nothing called it, and its session edges (open until close-30,
+  // a 60-minute pre-market) disagreed with _getKrxSession, the KRX session clock every live path uses.
 
   // 현재 주간 범위 (월~금)
   function currentWeekRange() {
@@ -14170,7 +14145,6 @@ const DATE_ENGINE = (function() {
     krSessionMinutes: krSessionMinutes,
     marketCalendarStatus: marketCalendarStatus,
     marketCloseMinute: marketCloseMinute,
-    krxStatus: krxStatus,
     currentWeekRange: currentWeekRange,
     fmtMD: fmtMD,
     fmtYMD: fmtYMD,

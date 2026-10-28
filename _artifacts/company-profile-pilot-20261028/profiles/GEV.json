@@ -1,0 +1,128 @@
+{
+  "symbol": "GEV",
+  "name": "GE Vernova Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "GE Vernova fourth quarter and full-year 2025 results (8-K press release exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/1996810/000199681026000012/gevpressrelease4q25.htm", "publisher": "GE Vernova / SEC EDGAR", "date": "2026-01-28" },
+    { "id": "s2", "kind": "8-K", "title": "GE Vernova second quarter 2026 results (8-K press release exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/0001996810/000199681026000147/gevpressrelease2q26.htm", "publisher": "GE Vernova / SEC EDGAR", "date": "2026-07-22" },
+    { "id": "s3", "kind": "call-transcript", "title": "GE Vernova 2Q 2026 Results & Outlook webcast transcript (company PDF)", "url": "https://www.gevernova.com/sites/default/files/gev_webcast_transcript_07222026.pdf", "publisher": "GE Vernova", "date": "2026-07-22" },
+    { "id": "s4", "kind": "ir-site", "title": "GE Vernova to report third quarter 2026 results on October 28 (company notice; accessed date)", "url": "https://www.gevernova.com/news/print/pdf/node/144181", "publisher": "GE Vernova", "date": "2026-10-28" },
+    { "id": "s5", "kind": "news", "title": "GE Vernova gas turbine backlog hits 116 GW as Power orders more than double", "url": "https://www.turbomachinerymag.com/view/ge-vernova-gas-turbine-backlog-hits-116-gw-as-power-orders-more-than-double", "publisher": "Turbomachinery International", "date": "2026-07-23" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/gev/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "GE Vernova는 가스터빈·증기·원전(SMR) 발전설비와 그 서비스(Power), 육상·해상 풍력(Wind), 변압기·스위치기어·송배전 장비와 그리드 소프트웨어(Electrification)를 전력회사·발전사업자·산업·데이터센터 고객에게 판다. FY2025 매출 380.7억 달러 중 Power가 197.7억 달러로 절반을 넘는다. 이익은 대형 설비 판매보다 설치 기반 장기 서비스와 최근 급등한 가스터빈 가격에서 커지고 있다.",
+    "src": ["s1", "s3"]
+  },
+  "businessModel": {
+    "text": "가스터빈은 슬롯 예약 계약(SRA)과 선수금으로 생산 슬롯을 먼저 팔고, 이후 정식 주문·출하·수십 년 서비스로 이어지는 구조다. 선수금 덕분에 2026년 FCF 가이던스(115억~125억 달러)가 EBITDA보다 크게 나오며, 증설 비용도 고객 선수금으로 충당한다고 회사가 밝혔다. 풍력은 적자 사업(2026년 약 4억 달러 EBITDA 손실 가이던스)으로 수익성을 낮추고 있다.",
+    "src": ["s2", "s3"]
+  },
+  "revenueStructure": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "segments": [
+      { "name": "Power", "revenue": 19.77, "unit": "USD bn", "share": 51.9, "yoy": 9, "src": ["s1"] },
+      { "name": "Electrification", "revenue": 9.64, "unit": "USD bn", "share": 25.3, "yoy": 28, "src": ["s1"] },
+      { "name": "Wind", "revenue": 9.11, "unit": "USD bn", "share": 23.9, "yoy": -6, "src": ["s1"] },
+      { "name": "Corporate / eliminations (계산 잔차)", "revenue": -0.45, "unit": "USD bn", "share": -1.2, "yoy": null, "src": ["s1"] }
+    ],
+    "recurringShare": null,
+    "geography": null,
+    "text": "share는 FY2025 매출 380.68억 달러(로컬 SEC 데이터와 일치) 대비 계산값이며, 제거·기타 항목은 세그먼트 합에서 역산한 값이다. 2026년부터 Prolec GE(변압기) 100% 인수가 반영돼 Q2 2026 Electrification 매출은 36.4억 달러(+68%), 그중 Prolec GE 8.6억 달러였다. FY2025 수주 593억 달러(유기적 +34%)로 매출의 약 1.6배였다.",
+    "src": ["s1", "s2"]
+  },
+  "productPortfolio": [
+    { "name": "Gas Power (HA 대형 가스터빈, 항공 전용형 aeroderivative)", "role": "핵심 성장 동력. 2026-06-30 기준 장비 잔고 53GW + SRA 63GW = 116GW, 연말 125GW 이상 목표", "src": ["s2"] },
+    { "name": "Power 서비스", "role": "설치 기반 업그레이드·정비. 고가 장기 서비스로 2030년대까지 성장 언급", "src": ["s3"] },
+    { "name": "원자력 (BWRX-300 SMR), 증기, 수력", "role": "장기 옵션. 온타리오 프로젝트 진행, Q2에 미국 기술 선정 2건 추가", "src": ["s3"] },
+    { "name": "Electrification (변압기·Prolec GE, 스위치기어, HVDC, 그리드 소프트웨어)", "role": "송배전·데이터센터 전력 연결. 2026-06-30 장비 잔고 406억 달러", "src": ["s2"] },
+    { "name": "솔리드스테이트 변압기(SST)·중압 UPS 블록", "role": "데이터센터용 신제품. 5MW SST 시제품을 2026년 말 첫 하이퍼스케일러에 인도 예정", "src": ["s3"] },
+    { "name": "Wind (육상·해상 풍력)", "role": "적자 축소 단계. Q2 2026 매출 20.3억 달러, EBITDA 마진 -13.6%", "src": ["s2"] }
+  ],
+  "valueChain": {
+    "position": "midstream",
+    "suppliers": ["주조·단조품·블레이드 등 공급망 (회사: 2030년 30GW 생산에 필요한 공급망 상당 부분 확보)", "자체 공장 (가스터빈 기존 공장 증설)"],
+    "customers": ["전력회사·독립발전사업자", "데이터센터 사업자·하이퍼스케일러 (가스 계약 GW의 약 20%)", "약 26개국 약 100개 가스 고객", "송전망 운영자·산업 고객"],
+    "concentration": "단일 고객 매출 비중은 확인 못함. 가스 계약 GW 기준 약 80% 전통 고객, 약 20% 데이터센터.",
+    "text": "AI 데이터센터와 발전 사이에서 '전력을 만드는 설비'(가스터빈)와 '전력을 연결하는 설비'(변압기·스위치기어)를 함께 공급한다. 회사는 데이터센터 1GW당 약 3억 달러 매출을 얻으며, 신규 그리드 제품으로 2~3배 확대 가능하다고 언급했다.",
+    "src": ["s3", "s5"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["AI 데이터센터·전기화에 따른 전력 수요 증가", "가스터빈 계약이 2031년까지 체결, 2030년까지 대부분 매진 전망", "Electrification 데이터센터 수주 2026 상반기 50억 달러 이상(2025년 연간의 2배 이상)", "그리드 현대화와 생산세액공제 적격 스위치기어 프로젝트"],
+    "supplyConstraints": ["가스터빈 연간 생산 20GW(2026 Q3 달성) → 2028년 24GW → 2030년 30GW 목표로 공급이 병목", "풍력: 인허가 지연·232조 관세 불확실성으로 수주 부진, 해상풍력 프로젝트 비용", "2026년 R&D+설비투자 약 30% 증가"],
+    "text": "수요가 생산 슬롯보다 커서 가격이 오르고 있다: 2026 상반기 가스 장비 수주 가격이 2025년 4분기보다 20% 이상 높았다. 실적의 상한은 생산능력과 SRA의 주문 전환 속도이고, 하방 위험은 풍력 손실과 대형 프로젝트 실행이다.",
+    "src": ["s3", "s2"]
+  },
+  "competition": {
+    "peers": ["SIEGY (Siemens Energy)", "MHVYF (Mitsubishi Heavy)", "ETN", "HUBB", "Hitachi Energy (비상장 자회사)", "VWDRY (Vestas)"],
+    "moat": "대형 가스터빈은 소수 업체 과점 시장이고 설치 기반이 수십 년 서비스 매출을 만든다. 생산 슬롯이 2030년까지 대부분 찼다는 점이 가격 결정력을 준다(Power EBITDA 마진 Q2 2026 18.8%).",
+    "threats": "경쟁사 증설로 가스터빈 공급이 늘면 가격 상승세가 꺾일 수 있다. 데이터센터 전력이 연료전지·원전·배터리 등 대체 수단으로 이동하거나, 풍력 손실이 장기화되는 것도 위협이다. (경쟁사 목록은 회사 공시가 아닌 업계 일반 구분)",
+    "src": ["s3", "s2"]
+  },
+  "governance": {
+    "ceo": "Scott Strazik (CEO, 취임 연도 원문 미확인)",
+    "control": "widely held",
+    "insiderOwnership": null,
+    "capitalReturn": "자사주 매입 한도 2026-01에 60억→100억 달러로 확대, Q2 2026까지 누적 약 70억 달러(1,240만 주, 평균 560달러) 매입·잔여 약 30억 달러. 2026 상반기 430만 주를 평균 854달러에 매입. 분기 배당 0.25→0.50달러(2025-12-09 선언). 상반기 주주환원 39억 달러.",
+    "notes": "CFO는 Ken Parks. 투자등급 신용 유지 방침, 2028년까지 G&A 6억 달러 절감 목표. China XD 지분(약 6억 달러)과 Proficy를 매각해 포트폴리오를 단순화 중.",
+    "src": ["s1", "s2", "s3", "s4"]
+  },
+  "aiRelevance": {
+    "role": "infrastructure-enabler",
+    "text": "AI 데이터센터의 전력 공급(가스터빈)과 계통 연결(변압기·스위치기어) 양쪽에서 수요를 받는다. 다만 데이터센터는 가스 계약의 약 20%로, 나머지 80%는 전통 전력 수요라 AI만의 회사는 아니다.",
+    "evidence": "가스 계약 GW의 약 20%가 데이터센터(Q2 2026 콜), Electrification 데이터센터 수주 Q2 27억·상반기 50억 달러 이상, 데이터센터 1GW당 약 3억 달러 매출(콜, 2차 보도).",
+    "src": ["s3", "s5"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "455억~465억 달러 (이전 445억~455억)", "givenOn": "2026-07-22", "src": ["s2"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA margin", "value": "12~14% (유지)", "givenOn": "2026-07-22", "src": ["s2"] },
+      { "period": "FY2026", "metric": "free cash flow", "value": "115억~125억 달러 (이전 65억~75억)", "givenOn": "2026-07-22", "src": ["s2"] },
+      { "period": "FY2026", "metric": "segments", "value": "Power 유기적 매출 +18~20%·마진 17~19%; Electrification 매출 145억~150억 달러·마진 18~20%; Wind 매출 low-double-digit 감소·EBITDA 손실 약 4억 달러", "givenOn": "2026-07-22", "src": ["s2"] },
+      { "period": "Q3 2026", "metric": "segment color", "value": "Power EBITDA 마진 약 17~18%, Electrification 매출 38억~40억 달러, 전사 매출 성장·마진 확대·FCF 플러스", "givenOn": "2026-07-22", "src": ["s3"] },
+      { "period": "FY2028", "metric": "outlook", "value": "매출 560억 달러, 조정 EBITDA 마진 20%, 2025~2028 누적 FCF 240억 달러 이상", "givenOn": "2026-01-28", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "text": "연간 매출·EBITDA 마진·FCF와 세그먼트 범위를 내고 다음 분기는 방향만 말한다. 2026 매출 가이던스는 1월 440억~450억 → Q2 455억~465억 달러로 두 번 올랐고 FCF는 50억~55억에서 115억~125억 달러로 두 배 이상 상향됐다. 반면 Q2 EPS는 2.47달러로 컨센서스 3.17달러를 밑돌았다.",
+    "src": ["s1", "s2", "s6"]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06 분기) 합계 20.12달러(범위 15.97~22.99, 추정치 간 편차 큼), 직전 4개 분기 실적 합 19.48달러(2025년 4분기 세금 혜택 13.39달러 포함). 최근 4주 상향 5건·하향 3건.",
+    "src": ["s6", "s1"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "Gas GW under contract (backlog + SRA)", "why": "가스터빈 수요의 가장 직접적인 지표. 연말 125GW 목표 달성과 SRA의 주문 전환 속도를 본다." },
+      { "metric": "Orders and total backlog", "why": "Q2 말 1,760억 달러. 회사는 2027년 초 2,000억 달러를 언급했다(2차 보도)." },
+      { "metric": "Gas equipment pricing", "why": "상반기 수주 가격이 직전 분기 대비 20% 이상 상승. 가격 상승이 멈추면 마진 확대 논리가 약해진다." },
+      { "metric": "Electrification data center orders and margin", "why": "AI 데이터센터 노출이 가장 빠르게 늘어나는 부문." },
+      { "metric": "Wind EBITDA loss", "why": "전사 마진을 끌어내리는 요인. 약 4억 달러 손실 가이던스를 지키는지." },
+      { "metric": "Free cash flow vs down payments", "why": "FCF가 선수금에 크게 의존하므로 수주가 둔화되면 FCF가 먼저 꺾인다." }
+    ],
+    "valuationFrame": "전문가는 2028년 목표(매출 560억, 마진 20%)를 기준으로 EV/EBITDA와 FCF 수익률을 계산하고, 가스 잔고·SRA와 가격 상승을 근거로 이익 경로를 추정한다. 서비스 비중이 큰 설치 기반 사업이라 장기 서비스 가치를 따로 평가하기도 한다.",
+    "thesisChecks": ["가스 GW 계약이 연말 125GW 이상으로 늘어나는가", "SRA가 계획대로 정식 주문으로 전환되는가", "Power·Electrification 마진이 가이던스 범위 상단으로 가는가", "풍력 손실이 가이던스 안에서 줄어드는가", "2028년 목표가 유지·상향되는가"],
+    "breakSignals": ["가스 장비 수주 가격 상승 중단 또는 SRA 취소", "데이터센터 고객의 전력 프로젝트 지연", "경쟁사 증설로 슬롯 매진 기간 단축", "해상풍력 추가 비용 인식", "선수금 감소로 FCF 가이던스 하향"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-10-28 (장 시작 전, 웹캐스트 07:30 ET)", "event": "Q3 2026 실적 발표 — 조사 시점에 결과 미색인", "src": ["s4"] },
+      { "date": "2027-01 (추정)", "event": "FY2026 실적과 2027 가이던스, 2028 목표 갱신 여부", "src": ["s1"] },
+      { "date": "수시", "event": "대형 데이터센터·하이퍼스케일러 전력 계약, 풍력 관세·인허가 정책 변화", "src": ["s3"] }
+    ],
+    "eventReaction": "Q2에는 EPS가 컨센서스를 밑돌았지만 수주 88% 증가와 매출·FCF 가이던스 상향이 함께 나왔다. 이 종목은 분기 EPS보다 수주·GW 계약·가격과 연간 가이던스 변화에 더 민감한 경향이 있다.",
+    "watchConditions": ["가스 GW 계약(잔고+SRA)과 연말 125GW 목표 진척", "총 수주·잔고 증감과 북투빌", "가스 장비 가격 언급", "Electrification 데이터센터 수주 규모", "풍력 손실이 가이던스 안인지", "연간 매출·FCF 가이던스 변화와 컨센서스 상향·하향 건수"],
+    "src": ["s2", "s3", "s6"]
+  },
+  "unverified": [
+    "Q3 2026 실적(2026-10-28 발표) 수치 — 조사 시점 웹에 미색인",
+    "Corporate/eliminations 매출은 세그먼트 합에서 역산한 값 (원문 미확인)",
+    "FY2025 지역별 매출",
+    "서비스 매출(반복 매출) 비중과 총 잔고의 장비·서비스 구분",
+    "Scott Strazik CEO 취임 연도",
+    "최대 고객 매출 비중, 내부자 지분율",
+    "데이터센터 1GW당 약 3억 달러 매출과 2027년 초 잔고 2,000억 달러 발언은 2차 보도 기준",
+    "경쟁사 목록은 10-K 원문 대조 안 함"
+  ],
+  "confidence": "medium - 연간·Q2 수치와 가이던스는 회사 8-K와 공식 녹취록에서 왔지만, 오늘 발표된 Q3 결과와 10-K 세부(지역·고객·경영진)는 확인하지 못했다."
+}

@@ -1,8 +1,12 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-27
+last_verified: 2026-10-28
 confidence: medium
 ---
+
+## v59.42 뉴스 키워드 규칙 단일화 (2026-10-28)
+
+- [ ] QA-NEWS-RULE-01: 다음 refresh-data 뒤 라이브에서 브라우저 RSS 기사가 섞였을 때 오늘·브리핑·시장 뉴스 선별이 expect 스위트와 같은 규칙으로 움직이는지(복수형·한국어 조사 기사 포함, taxi·Surgery 같은 오탐 없음) 확인. verify_by: push 뒤 라이브 시장 뉴스 화면에서 window._allNewsItems의 RSS 기사(_serverBackstop 아님)를 window.scoreItem·classifyTopic으로 다시 매겨 expect 스위트 규칙과 비교, node scripts/ci-expect-output-check.mjs
 
 ## v59.32 사용자·운영 번거로움 제거 (2026-10-27)
 

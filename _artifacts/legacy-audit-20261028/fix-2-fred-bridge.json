@@ -1,0 +1,18 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-28",
+  "p": {
+    "title": "거시·금리가 장중 Yahoo 금리·VIX를 FRED 공식 값으로 표시 — Yahoo→FRED 브릿지 퇴역",
+    "symptom": "Yahoo 시세의 뉴욕 날짜가 FRED 관측일보다 새로우면 ^TNX/^TYX/^FVX/^VIX 장중 값이 _fredData[DGS10/DGS30/DGS5/VIXCLS]와 MacroStore에 검증 없이 들어갔고, src/ui/pages/market.js는 그 값을 'FRED:DGS10' 출처로 보여줬다. 이전 FRED 값이 없으면 prevValue가 현재 값이라 변화가 0으로 보였다. T10Y2Y도 장중 시세로 만들어 넣었다. 레거시 감사 3위.",
+    "root_cause": "v31.9 _syncYahooToFred가 'FRED 지연을 Yahoo 실시간으로 보완'하려고 공식 시계열 칸에 장중 시세를 덮어썼다. 장중 시세 경로와 공식 종가 경로가 한 칸을 같이 썼다.",
+    "fix": "js/aio-data.js에서 _YAHOO_FRED_MAP과 _syncYahooToFred, applyLiveQuotes의 호출을 지웠다. FRED 칸은 공식 관측만 담고, 장중 값은 _liveData에만 남는다.",
+    "violated_rule": "AGENTS: 종가 기준 점수와 출처 정직성. 공식 시계열 칸에 다른 원천 값을 넣지 않는다.",
+    "prevention": "scripts/ci-runtime-contract-check.mjs LIVE3-04(v59.42)는 브릿지 정의·호출과 'yahoo-realtime:' 출처가 없을 것을 검사하고, js/aio-tests.js T1037은 _syncYahooToFred·_YAHOO_FRED_MAP이 정의되지 않았을 것을 검사한다.",
+    "verification": "node scripts/ci-runtime-contract-check.mjs OK. 장중에 거시·금리 10년물이 전일 FRED 값과 날짜로 보이는지는 push 뒤 브라우저에서 확인해야 한다."
+  },
+  "r": null,
+  "changelog": [
+    "**장중 금리를 FRED 공식 값으로 덮던 경로 제거 ({P}):** 거시·금리 화면의 FRED 칸이 장중 Yahoo 금리·VIX를 공식 값처럼 보여주던 것을 없앴다. FRED 칸은 공식 관측값과 날짜만 보여준다."
+  ],
+  "note": "v59.42 {P}: Yahoo-to-FRED intraday bridge retired."
+}

@@ -1,0 +1,134 @@
+{
+  "symbol": "CAT",
+  "name": "Caterpillar Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Caterpillar Q2 2026 results press release (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000018230/000001823026000040/ex991toformcat2q2026earnin.htm", "publisher": "Caterpillar / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s2", "kind": "earnings-release", "title": "Caterpillar Reports Fourth-Quarter and Full-Year 2025 Results", "url": "https://investors.caterpillar.com/news/news-details/2026/Caterpillar-Reports-Fourth-Quarter-and-Full-Year-2025-Results/default.aspx", "publisher": "Caterpillar", "date": "2026-01-29" },
+    { "id": "s3", "kind": "call-transcript", "title": "4Q 2025 Caterpillar Inc. Earnings Conference Call Transcript (company IR PDF)", "url": "https://s25.q4cdn.com/358376879/files/doc_financials/2025/q4/updated/4Q-2025-Caterpillar-Inc-Earnings-Conference-Call_Transcript.pdf", "publisher": "Caterpillar", "date": "2026-01-29" },
+    { "id": "s4", "kind": "10-K", "title": "Caterpillar Form 10-K for FY2025 (employees, dealers read directly; segment sales figures from search excerpt of the filing)", "url": "https://www.sec.gov/Archives/edgar/data/18230/000001823026000008/cat-20251231.htm", "publisher": "Caterpillar / SEC EDGAR", "date": "2026-02-13" },
+    { "id": "s5", "kind": "ir-site", "title": "Power & Energy Investor Presentation 2026 (URL path 2026/03; exact day not checked)", "url": "https://s25.q4cdn.com/358376879/files/doc_downloads/2026/03/Power-Energy-Investor-Presentation-2026.pdf", "publisher": "Caterpillar", "date": "2026-03-01" },
+    { "id": "s6", "kind": "news", "title": "Caterpillar Cashes In On AI Buildout, Raises 2026 Sales Outlook (Benzinga)", "url": "https://www.webull.com/news/15344734114046976", "publisher": "Benzinga via Webull", "date": "2026-08-04" },
+    { "id": "s7", "kind": "news", "title": "Can Caterpillar's $72B Backlog Save Its Stock From a 10% Slump?", "url": "https://247wallst.com/investing/2026/10/25/can-caterpillars-72b-backlog-save-its-stock-from-a-10-slump/", "publisher": "24/7 Wall St.", "date": "2026-10-25" },
+    { "id": "s8", "kind": "ir-site", "title": "Caterpillar to announce 3Q 2026 financial results on Oct. 29 (media advisory)", "url": "https://www.caterpillar.com/en/news/corporate-press-releases/h/caterpillar-to-announce-3q-2026-financial-results-on-oct-29.html", "publisher": "Caterpillar", "date": "2026-10-15" },
+    { "id": "s9", "kind": "ir-site", "title": "Caterpillar Chief Executive Officer Joe Creed Elected Chairman of the Board", "url": "https://investors.caterpillar.com/news/news-details/2026/Caterpillar-Chief-Executive-Officer-Joe-Creed-Elected-Chairman-of-the-Board/default.aspx", "publisher": "Caterpillar", "date": "2026-01-06" },
+    { "id": "s10", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/cat/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+  "overview": {
+    "text": "Caterpillar는 건설·광산 장비, 엔진·가스터빈·발전기, 기관차를 만들어 전 세계 딜러망(미국 41곳, 해외 109곳)을 통해 팔고, 금융(Financial Products)과 부품·서비스로 반복 수익을 더한다. FY2025 매출 676억 달러로 사상 최대였고, 데이터센터 발전 수요 덕에 Power & Energy가 가장 큰·가장 빠른 사업이 됐다. 2026년 2분기 매출은 205억 달러로 처음 200억 달러를 넘었다.",
+    "src": ["s2", "s4", "s3", "s1"]
+  },
+  "businessModel": {
+    "text": "장비는 독립 딜러가 재고를 들고 최종 고객에게 팔기 때문에, 회사 매출은 '최종 판매 + 딜러 재고 증감'으로 결정된다. 장비가 설치된 뒤 부품·정비 서비스 매출이 FY2025 240억 달러로, 2030년 300억 달러가 목표다. 회사는 MP&E 잉여현금흐름(FY2025 95억 달러)의 사실상 전부를 장기적으로 주주에게 돌려주겠다고 한다.",
+    "src": ["s3"]
+  },
+  "revenueStructure": {
+    "period": "FY2025 (ended 2025-12-31, Rail 이관 전 구조)",
+    "segments": [
+      { "name": "Construction Industries (내부거래 포함 세그먼트 매출)", "revenue": 25.1, "unit": "USD bn", "share": 37.1, "yoy": -1.6, "src": ["s4"] },
+      { "name": "Resource Industries (내부거래 포함 세그먼트 매출)", "revenue": 12.5, "unit": "USD bn", "share": 18.5, "yoy": null, "src": ["s4"] },
+      { "name": "Power & Energy (외부 매출, Rail 포함)", "revenue": 27.1, "unit": "USD bn", "share": 40.2, "yoy": null, "src": ["s4"] },
+      { "name": "Financial Products (연결 기준 수익)", "revenue": 3.6, "unit": "USD bn", "share": 5.3, "yoy": 4.7, "src": ["s2"] },
+      { "name": "기타·내부거래 조정 (합계 맞춤용 계산값)", "revenue": -0.7, "unit": "USD bn", "share": -1.0, "yoy": null, "src": ["s2", "s4"] }
+    ],
+    "recurringShare": "부품·서비스 매출 FY2025 240억 달러(총매출의 약 36%, 계산값). 장비 판매와 달리 설치 기반에서 반복 발생.",
+    "geography": "FY2025 지역별 금액 미확인. 2026년 2분기에는 중동 최종 판매가 약해졌다고 CEO가 언급.",
+    "text": "FY2025 총매출 675.9억 달러 = 기계·Power & Energy 판매 639.8억 + 금융 36.1억 달러. CI·RI는 내부거래가 포함된 세그먼트 매출이라, 합계를 맞추려 조정 행을 넣었다(계산값). 2026년부터 Rail이 Resource Industries로 옮겨졌고, 2026년 2분기는 CI 83.5억(+35%), P&E 82.4억(+17%), RI 46.5억(+20%) 달러였다.",
+    "src": ["s2", "s4", "s3", "s1"]
+  },
+  "productPortfolio": [
+    { "name": "Construction Industries (굴착기·로더 등 건설장비)", "role": "2026년 2분기 매출 83.5억 달러로 전년 대비 35% 증가, 최대 세그먼트로 복귀. 딜러 재고 변화에 가장 민감", "src": ["s1", "s3"] },
+    { "name": "Resource Industries (광산 트럭·자율주행 운반, 2026년부터 Rail 포함)", "role": "자율주행 운반트럭 2025년 말 827대 운행(2024년 690대), 2030년 2024년 대비 3배 목표", "src": ["s3", "s1"] },
+    { "name": "Power Generation (대형 왕복엔진 발전기, Solar 가스터빈)", "role": "FY2025 매출 100억 달러 초과(+30% 이상), P&E 외부 매출의 43%. 2026년 2분기 30.98억 달러(+29%), 주로 데이터센터용", "src": ["s3", "s5", "s1"] },
+    { "name": "Oil & Gas (가스 압축용 엔진·터빈)", "role": "P&E 외부 매출의 32%, FY2025 사상 최대. 2026년 2분기 20.44억 달러(+9%)", "src": ["s5", "s3", "s1"] },
+    { "name": "Industrial (산업용 엔진)", "role": "P&E 외부 매출의 25%, 2026년 2분기 16.53억 달러(+9%)", "src": ["s5", "s1"] },
+    { "name": "Financial Products (Cat Financial 등)", "role": "고객·딜러 금융. FY2025 수익 36.1억 달러(+4.7%), 2026년 2분기 9.62억 달러", "src": ["s2", "s1"] }
+  ],
+  "valueChain": {
+    "position": "midstream",
+    "suppliers": ["부품·소재 공급망 (관세 영향: FY2025 순증분 관세 약 17억 달러)", "자체 대형엔진·가스터빈 생산능력 (2030년까지 2024년 대비 대형엔진 2배, 가스터빈 2.5배 확장)"],
+    "customers": ["독립 딜러 (미국 41곳, 해외 109곳, 190개국)", "건설사·광산사 (예: Vale 자율주행 90대 이상 혼합 차량)", "데이터센터 개발사 (예: AIP Monarch 캠퍼스 2GW 발전기 주문)", "가스 압축·파이프라인 사업자", "철도 사업자"],
+    "concentration": "최대 고객 비중 공시 확인 못함. 판매는 딜러망을 거친다.",
+    "text": "회사가 만든 장비를 딜러가 재고로 들고 최종 고객에게 판다. 그래서 딜러가 재고를 늘리면 회사 매출이 실수요보다 커지고, 줄이면 작아진다(FY2025 기계 딜러 재고 5억 달러 감소).",
+    "src": ["s3", "s4", "s5"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["데이터센터 전력: 백업용 왕복엔진과 주전원(prime power)용 엔진·터빈 수요. 1GW 이상 데이터센터 주전원 주문 4건(2026-01 기준)", "북미 건설: 데이터센터 건설 가속이 건설장비 수요도 끌어올림", "가스 압축(Oil & Gas)", "수주잔고: 2026년 2분기 말 721억 달러, 전년 대비 346억 달러 증가"],
+    "supplyConstraints": ["P&E 성장은 생산능력 증설 속도에 묶여 있음(2030년까지 매년 증설)", "관세: 2026년 증분 관세비용 약 22억 달러 예상(2분기 기준, 1월에는 26억 달러)", "수주잔고 중 12개월 내 출하 비중이 59%로 과거 평균보다 낮음(다년 주문 증가)"],
+    "text": "수요는 생산능력보다 크고, 특히 데이터센터 발전 설비는 다년 일정으로 주문이 쌓이고 있다. 수주잔고가 2025년 말 510억에서 2026년 2분기 말 721억 달러로 늘었다. 관세는 원가를 누르지만 2분기에는 IEEPA 관세 환급 예상분 3.92억 달러가 이익에 더해졌다.",
+    "src": ["s3", "s6", "s7", "s1"]
+  },
+  "competition": {
+    "peers": ["DE", "CMI", "GEV", "TEX"],
+    "moat": "세계 최대 규모의 딜러·서비스망, 넓은 설치 기반에서 나오는 부품·서비스 매출(240억 달러), 그리고 왕복엔진(최대 10MW)부터 가스터빈(최대 39MW)까지 갖춘 발전 포트폴리오와 현장 단위 전력 솔루션.",
+    "threats": "건설장비에서 Komatsu 등 해외 업체, 발전에서 40MW 이상 대형 터빈 업체와의 경쟁, 관세 비용, 데이터센터 투자 둔화. 경쟁사 목록은 공시에서 확인하지 않은 작성자 판단이다.",
+    "src": ["s3", "s5"]
+  },
+  "governance": {
+    "ceo": "Joe (Joseph E.) Creed, since 2025 (2025-05-01 CEO 취임, 2026-04-01부터 이사회 의장 예정으로 발표)",
+    "control": "widely held",
+    "insiderOwnership": null,
+    "capitalReturn": "FY2025 자사주 52억 달러, 배당 27억 달러로 총 79억 달러(MP&E 잉여현금흐름의 84%). 32년 연속 배당 증액. 2026년 1분기에 2025년 30억 달러보다 큰 가속 자사주매입(ASR) 예고. 2026년 2분기 자사주 15억, 배당 7억 달러.",
+    "notes": "전임 Jim Umpleby는 2026-04-01 집행의장·이사직에서 은퇴하기로 발표, 선임 사외이사는 Debra Reed-Klages. 직원 약 11.8만 명(2025년 말). 의장 승계가 실제로 이뤄졌는지는 이후 공시로 확인하지 않았다.",
+    "src": ["s9", "s3", "s1", "s4"]
+  },
+  "aiRelevance": {
+    "role": "infrastructure-enabler",
+    "text": "AI 데이터센터의 백업·주전원 발전 설비(왕복엔진 발전기, Solar 가스터빈)를 공급한다. 전력망 연결이 늦어지자 데이터센터가 현장 자체 발전을 찾으면서 주전원 주문이 늘고 있다.",
+    "evidence": "Power Generation 매출 FY2025 100억 달러 초과(+30% 이상), 2026년 2분기 +29%로 회사는 '주로 데이터센터 용도'라고 밝힘. AIP에 2GW 발전기 주문(2026년 말~2027년 인도).",
+    "src": ["s3", "s1", "s5"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "sales and revenues growth", "value": "전년 대비 10% 중후반(mid-to-high teens), 4월의 low-double-digit에서 상향", "givenOn": "2026-08-04", "src": ["s6"] },
+      { "period": "FY2026", "metric": "incremental tariff cost", "value": "약 22억 달러 (3분기 약 6억 달러)", "givenOn": "2026-08-04", "src": ["s6", "s7"] },
+      { "period": "FY2026", "metric": "MP&E capex", "value": "약 35억 달러", "givenOn": "2026-08-04", "src": ["s6", "s3"] },
+      { "period": "FY2026", "metric": "restructuring costs", "value": "3억~3.5억 달러", "givenOn": "2026-08-04", "src": ["s6"] },
+      { "period": "3Q/4Q 2026", "metric": "dealer inventory", "value": "3분기 소폭 증가, 4분기 10억 달러 넘게 감소 (보도 기준)", "givenOn": "2026-08-04", "src": ["s7"] },
+      { "period": "FY2026 (1월 최초)", "metric": "adjusted operating margin", "value": "2025년보다 높지만 목표 범위 하단 근처(관세 포함), MP&E 잉여현금흐름은 2025년보다 소폭 감소", "givenOn": "2026-01-29", "src": ["s3"] }
+    ],
+    "style": "annual",
+    "text": "연간 매출 성장률·마진 위치(목표 범위 대비)·관세·설비투자를 정성적 범위로 주고, 분기별로는 다음 분기 흐름(딜러 재고·관세)을 설명한다. 2026년에는 1월 '5~7% 상단'에서 4월 low-double-digit, 8월 mid-to-high teens로 두 번 올렸다. 2분기 조정 EPS 8.17달러는 컨센서스 6.25달러를 크게 넘었다.",
+    "src": ["s3", "s6", "s10"]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06 분기) 합계 29.67달러(범위 27.92~32.74), 직전 4개 분기 실적 합 23.82달러. 최근 4주 상향 9건·하향 1건. 보도 기준 3분기 컨센서스는 EPS 약 7.03달러, 매출 206.9억 달러.",
+    "src": ["s10", "s7"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "수주잔고와 12개월 내 출하 비중", "why": "미래 매출의 가시성. 잔고는 늘지만 12개월 내 비중(59%)이 낮아지는 것은 다년 데이터센터 주문 때문이다." },
+      { "metric": "딜러 재고 변화", "why": "회사 매출과 최종 수요 사이의 차이. 딜러 재고를 쌓은 분기는 매출이 부풀고, 줄이는 분기는 눌린다(4분기 10억 달러 감소 예고)." },
+      { "metric": "최종 고객 판매(retail sales to users)", "why": "딜러 재고 효과를 뺀 실수요. 회사가 실적 8-K 부속자료(Exhibit 99.2)로 공시한다." },
+      { "metric": "Power Generation 매출 성장률", "why": "데이터센터 전력 수요의 직접 지표이자 가장 빠른 성장 동력." },
+      { "metric": "조정 영업이익률 (관세 포함·제외)", "why": "회사가 매출 수준별 목표 범위를 공개하므로, 범위 안 위치로 가격·원가 관리를 평가한다." },
+      { "metric": "MP&E 잉여현금흐름", "why": "주주환원의 재원. 증설 투자(설비투자 35억 달러)로 2026년은 소폭 감소 예상." }
+    ],
+    "valuationFrame": "전문가는 경기순환 기계업으로 보고 정상화 이익 대비 P/E와 EV/EBITDA, 잉여현금흐름 수익률을 본다. 다만 데이터센터 발전·서비스 비중이 커지면서 사이클 정점 할인을 덜 주는지가 논쟁점이고, 수주잔고·서비스 매출 성장으로 그 근거를 따진다.",
+    "thesisChecks": ["수주잔고가 계속 늘고 데이터센터 주전원 주문이 이어지는가", "대형엔진·가스터빈 증설이 계획대로 매출로 연결되는가", "관세 비용을 가격·원가로 흡수해 마진이 목표 범위 중간으로 가는가", "건설장비 최종 수요(딜러 재고 효과 제외)가 유지되는가", "서비스 매출이 2030년 300억 달러 경로에 있는가"],
+    "breakSignals": ["수주잔고 감소 또는 데이터센터 주문 취소·연기", "딜러 재고 감소폭이 예고보다 커지거나 최종 판매가 꺾임", "관세 비용 확대로 마진이 목표 범위 아래로 하락", "가격 실현(price realization)이 음(-)으로 전환", "하이퍼스케일러 설비투자 삭감 발표"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-10-29", "event": "3Q 2026 실적 발표(미 중부 05:30)와 애널리스트 콜(07:30), 2026년 전망 재확인·조정", "src": ["s8"] },
+      { "date": "매 분기 실적일", "event": "최종 고객 판매(retail sales) 부속자료 8-K Exhibit 99.2 공시", "src": ["s1"] },
+      { "date": "2026년 말~2027년", "event": "AIP 2GW 발전기 인도 시작, 데이터센터 주전원 매출 인식", "src": ["s3"] },
+      { "date": "수시", "event": "미국 관세 정책·IEEPA 관세 환급 관련 변화", "src": ["s1", "s6"] }
+    ],
+    "eventReaction": "주가는 분기 EPS 자체보다 수주잔고 증감, 연간 매출 성장 가이던스 변화, 그리고 다음 분기 딜러 재고·관세 설명에 반응하는 경향이 있다. 2분기 발표일에는 가이던스 상향과 함께 장전 11% 넘게 올랐고, 3분기 발표 직전 한 달(10-23까지)에는 약 15% 내려 기대가 높은 상태에서 반응 폭이 크다(보도 기준).",
+    "watchConditions": ["실적 발표 때 수주잔고 금액과 12개월 내 출하 비중", "연간 매출 성장 가이던스(현재 mid-to-high teens) 유지·변경", "Power Generation 성장률과 데이터센터 신규 주문 언급", "딜러 재고 변화 계획(4분기 감소 폭)", "관세 비용 추정치와 마진의 목표 범위 내 위치", "컨센서스 EPS 상향·하향 건수"],
+    "src": ["s1", "s6", "s7", "s10"]
+  },
+  "unverified": [
+    "FY2025 세그먼트 외부 매출(CI·RI)과 P&E 외부 매출 271.4억 달러는 10-K 원표가 아닌 검색 발췌 기준, CI·RI는 내부거래 포함 수치",
+    "FY2025 Rail 이관 후 재작성(2026-03 8-K) 세그먼트 수치",
+    "FY2025 지역별 매출",
+    "Power Generation 2분기 성장률: 회사 자료 +29%(외부 매출)와 보도 +72%가 엇갈림",
+    "2분기 말 수주잔고 12개월 내 출하 59%, 딜러 재고 3·4분기 전망은 2차 보도 기준",
+    "Creed의 이사회 의장 취임(2026-04-01) 실제 완료 여부",
+    "내부자 지분율, 최대 고객 비중",
+    "2026년 2분기 기준 MP&E 잉여현금흐름 연간 전망"
+  ],
+  "confidence": "medium - 분기 실적·연간 실적·콜 발언은 회사 자료에서 왔지만, FY2025 세그먼트 매출은 10-K 검색 발췌라 원표 대조가 필요하고 2분기 가이던스 상향 세부는 보도 기준이다."
+}

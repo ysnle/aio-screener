@@ -1176,10 +1176,7 @@ var KR_INSIGHT_MAP = {
 //  v38.3: 테마별 맞춤 인사이트 데이터 (레퍼런스 기반)
 // ═══════════════════════════════════════════════════════════════
 var THEME_INSIGHTS = Object.freeze({});
-var SUB_THEME_INSIGHTS = Object.freeze({});
-
-var THEME_NARRATIVES_META = Object.freeze({ status:'unavailable', reason:'정적 기업·산업 수치 제거 — 시세·뉴스 증거만 허용' });
-var THEME_NARRATIVES = Object.freeze({});
+// v59.42: SUB_THEME_INSIGHTS, THEME_NARRATIVES and THEME_NARRATIVES_META (empty, never read) are deleted.
 // ═══════════════════════════════════════════════════════════════
 // 한국 22개 테마 구조적 내러티브 (why / valueChain / playerRoles)
 // kr-theme 상세 페이지 + Top 3 한국 핫테마 AI 프롬프트 주입용

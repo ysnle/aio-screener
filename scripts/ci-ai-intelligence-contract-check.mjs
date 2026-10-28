@@ -649,6 +649,11 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const levelReplaced = ['손절은 178달러에서 하세요.', '목표가는 210달러로 잡으세요.', '손절가는 178달러에 두세요.'];
   detail('v58.75 directive gate: level methods kept, priced imperatives replaced',
     levelKept.every((text) => gate(text).text === text) && levelReplaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify([...levelKept, ...levelReplaced].map(gate)));
+  // P2114: the sentence splitter broke "177.50" at its decimal point, so a priced imperative with cents reached the screen.
+  const centsKept = ['말씀하신 손절가 177.50달러는 스윙 저점 아래입니다.', '종가는 212.5달러였고 20일선은 205.25달러입니다.'];
+  const centsReplaced = ['손절은 177.50달러에서 하세요.', '매수는 $212.5에서 하세요.', 'NVDA 212.5달러 매수.', '손절가는 177.50달러로 하세요.'];
+  detail('P2114 directive gate: decimal prices stay in facts and are replaced in priced imperatives',
+    centsKept.every((text) => gate(text).text === text) && centsReplaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify([...centsKept, ...centsReplaced].map(gate)));
 
   // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
   // the old chat simulator must stay retired.

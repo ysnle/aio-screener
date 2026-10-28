@@ -1,0 +1,126 @@
+{
+  "symbol": "PRCT",
+  "name": "PROCEPT BioRobotics Corporation",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "PROCEPT BioRobotics Reports Fourth Quarter 2025 Financial Results and Updates 2026 Revenue Guidance (repost of company release)", "url": "https://seekingalpha.com/pr/20414076", "publisher": "Seeking Alpha (GlobeNewswire company release text)", "date": "2026-02-25" },
+    { "id": "s2", "kind": "earnings-release", "title": "PROCEPT BioRobotics Reports Second Quarter 2026 Financial Results (repost of company release)", "url": "https://www.biospace.com/press-releases/procept-biorobotics-reports-second-quarter-2026-financial-results", "publisher": "BioSpace (company release text)", "date": "2026-08-04" },
+    { "id": "s3", "kind": "10-K", "title": "PROCEPT BioRobotics Form 10-K for fiscal year ended 2025-12-31 (first 100k characters read)", "url": "https://www.sec.gov/Archives/edgar/data/1588978/000158897826000009/prct-20251231.htm", "publisher": "PROCEPT BioRobotics / SEC EDGAR", "date": "2026-02-26" },
+    { "id": "s4", "kind": "earnings-release", "title": "PROCEPT BioRobotics President and CEO Dr. Reza Zadno to Retire, Company Appoints Larry L. Wood as New President and CEO (day of release not checked)", "url": "https://www.biospace.com/press-releases/procept-biorobotics-president-and-ceo-dr-reza-zadno-to-retire-company-appoints-larry-l-wood-as-new-president-and-ceo", "publisher": "BioSpace (company release text)", "date": "2025-07" },
+    { "id": "s5", "kind": "news", "title": "Procept BioRobotics (NASDAQ:PRCT) Q2 In Line, But Unchanged Guidance Sinks Shares", "url": "https://www.chartmill.com/news/PRCT/Chartmill-52675-Procept-BioRobotics-NASDAQPRCT-Q2-In-Line-But-Unchanged-Guidance-Sinks-Shares", "publisher": "Chartmill", "date": "2026-08-04" },
+    { "id": "s6", "kind": "news", "title": "PROCEPT BioRobotics posts quarterly earnings results (procedure shortfall attributed to legacy AquaBeam accounts; search summary)", "url": "https://www.marketbeat.com/instant-alerts/procept-biorobotics-nasdaqprct-posts-quarterly-earnings-results-misses-expectations-by-001-eps-2026-08-04/", "publisher": "MarketBeat", "date": "2026-08-04" },
+    { "id": "s7", "kind": "news", "title": "PROCEPT BioRobotics to Report Third Quarter 2026 Financial Results on November 4th, 2026 (company announcement repost)", "url": "https://finviz.com/news/401388/procept-biorobotics-to-report-third-quarter-2026-financial-results-on-november-4th-2026", "publisher": "Finviz (GlobeNewswire)", "date": "2026-10-12" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/prct/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" },
+    { "id": "s9", "kind": "8-K", "title": "PROCEPT Q3 2025 earnings release 8-K exhibit (initial 2026 guidance $410-430M; seen via search snippet only; day not checked)", "url": "https://www.sec.gov/Archives/edgar/data/1588978/000158897825000049/prct_q32025earningsrelease.htm", "publisher": "PROCEPT BioRobotics / SEC EDGAR", "date": "2025-10" }
+  ],
+  "overview": {
+    "text": "PROCEPT BioRobotics는 양성전립선비대증(BPH) 수술용 로봇 HYDROS/AquaBeam과, 시술마다 한 번 쓰고 버리는 핸드피스를 병원에 판다. 워터젯으로 전립선 조직을 절제하는 'Aquablation' 시술을 하는 유일한 회사다. FY2025 매출 3.08억 달러(+37%)의 소형 성장주로 아직 적자(순손실 9,560만 달러)다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "businessModel": {
+    "text": "로봇 시스템을 병원에 판매·리스(새 HYDROS 평균 판매가 약 49.5만 달러)한 뒤, 시술마다 핸드피스(평균 약 3,550달러)와 서비스 매출이 반복되는 '면도기-면도날' 모델이다. 설치 대수가 늘고 대당 시술 건수가 늘수록 반복 매출이 커진다. 생산은 캘리포니아 산호세 자체 공장에서 하며, 부품 공급업체는 거의 모두 단일 공급원이다.",
+    "src": ["s2", "s3"]
+  },
+  "revenueStructure": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "segments": [
+      { "name": "U.S. system sales and rentals", "revenue": 93.0, "unit": "USD mn", "share": 30.2, "yoy": 18.3, "src": ["s1"] },
+      { "name": "U.S. handpieces and consumables", "revenue": 159.669, "unit": "USD mn", "share": 51.8, "yoy": 44.4, "src": ["s1"] },
+      { "name": "U.S. service", "revenue": 17.709, "unit": "USD mn", "share": 5.7, "yoy": 56.5, "src": ["s1"] },
+      { "name": "International", "revenue": 37.676, "unit": "USD mn", "share": 12.2, "yoy": 56.8, "src": ["s1"] }
+    ],
+    "recurringShare": "핸드피스·소모품+서비스 1.774억 달러로 FY2025 매출의 약 57.6% (계산값). 시술 건수에 연동되는 반복 매출이다.",
+    "geography": "FY2025 미국 2.704억 달러(약 88%), 해외 3,770만 달러(약 12%). 해외는 영국·일본 보험 결정 이후 직판 인력을 늘리는 중이다.",
+    "text": "share·yoy는 회사 보도자료 표(FY2025 3.0805억, FY2024 2.2450억 달러)에서 계산했다. Q2 2026 매출은 9,450만 달러(+19%)로 시스템 2,910만(+32%), 핸드피스 4,840만(+12%), 서비스 600만, 해외 1,110만 달러(+15%)였다. 시스템 매출이 핸드피스보다 빨리 늘고 있어, 설치는 늘지만 대당 활용도는 기대에 못 미치는 국면이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "productPortfolio": [
+    { "name": "HYDROS 로봇 시스템", "role": "2024-08 출시 차세대 시스템. AI 기반 FirstAssist 시술 계획 기능 포함. 기존 AquaBeam 계정보다 계정당 시술 건수가 높다고 회사가 밝힘", "src": ["s3", "s2"] },
+    { "name": "AquaBeam (구형 시스템)", "role": "기존 설치 기반. Q2 2026 시술 부진의 원인으로 지목됐고 교체(replacement) 전략 대상", "src": ["s2", "s6"] },
+    { "name": "일회용 핸드피스·소모품", "role": "시술마다 사용, 매출의 과반을 차지하는 반복 매출원", "src": ["s1", "s3"] },
+    { "name": "전립선암 적응증 프로그램 (WATER IV PCa 등)", "role": "근치적 전립선절제술과 비교하는 무작위 시험(최대 280명, 10년 추적), Q2 2026 등록 완료. BPH 다음 성장 옵션", "src": ["s3", "s2"] }
+  ],
+  "valueChain": {
+    "position": "midstream",
+    "suppliers": ["단일 공급원 부품업체 다수 (이름 미공개)", "초음파 시스템·프로브 외부 제조사"],
+    "customers": ["미국 병원 (주 고객)", "외래수술센터(ASC)", "유통업체·리스사", "해외 직판(영국·일본)과 유통 파트너"],
+    "concentration": "10% 이상 고객 공시 여부는 읽은 10-K 범위에서 확인 못함.",
+    "text": "회사는 로봇과 핸드피스를 직접 생산하고, 병원이 시스템을 사서 비뇨기과 의사가 시술한다. 병원 수익성은 메디케어 외래(HOPPS)·입원(IPPS) 지급액에 달려 있어, 보험 수가가 곧 수요의 조건이다.",
+    "src": ["s3"]
+  },
+  "demandSupply": {
+    "demandDrivers": ["미국 BPH 환자 약 4,000만 명, 수술 환자 연 약 40만 명 (회사 추정 미국 시장 약 300억 달러)", "2026-01-01 Category I CPT 코드 52597 부여 (의사 수가가 TURP와 비슷하다고 회사 설명)", "모든 메디케어 지역 계약자 적용, 미국 남성 약 95% 보험 접근 (회사 추정)", "미국비뇨기과학회(AUA) 지침에서 Aquablation 권고 강화"],
+    "supplyConstraints": ["산호세 단일 공장과 단일 공급원 부품 의존", "병원 자본 지출(장비 구매) 결정 속도", "구형 AquaBeam 계정의 낮은 활용도"],
+    "text": "수요 측 핵심은 '설치 대수 × 계정당 시술 건수'다. 미국 설치 기반은 2025년 말 718대에서 2026-06 말 816대로 늘었지만, Q2 2026 미국 시술은 약 13,100건(+21%)에 그쳐 회사가 연간 시술 가이던스를 낮췄다.",
+    "src": ["s3", "s1", "s2"]
+  },
+  "competition": {
+    "peers": ["BSX", "TFX", "ISRG"],
+    "moat": "Aquablation을 시행하는 유일한 로봇 플랫폼이며, 약 250편의 동료심사 논문과 2026년 Category I CPT 코드라는 임상·보험 진입장벽을 쌓았다. 설치된 로봇은 핸드피스 반복 매출로 고객을 묶는다.",
+    "threats": "10-K가 절제술(TURP, Boston Scientific 레이저 등), 비절제 시술(Teleflex UroLift, Boston Scientific Rezum), 약물 치료를 경쟁으로 명시하며 더 큰 회사들과 경쟁한다고 밝힌다. 병원 입장에서 기존 TURP 대비 장비 투자 정당성이 핵심 장벽이다.",
+    "src": ["s3", "s2"]
+  },
+  "governance": {
+    "ceo": "Larry L. Wood, since 2025 (2025-09-02 취임, 전 Edwards Lifesciences TAVR 그룹 사장)",
+    "control": "widely held (지배주주 확인 못함)",
+    "insiderOwnership": null,
+    "capitalReturn": "적자 성장 기업으로 배당·자사주 매입 공시 확인 못함. 2026-06 말 현금·현금성자산 2.279억 달러(제한현금 포함 약 2.31억 달러), 2025년 말 2.895억 달러.",
+    "notes": "CEO 교체 직후 국면:전임 Reza Zadno(2020~2025) 은퇴, 이사회 의장 Thomas M. Prescott. 신임 CEO 아래 영업조직 재편과 분기 말 구매 인센티브 폐지를 단행했다.",
+    "src": ["s4", "s2", "s1"]
+  },
+  "aiRelevance": {
+    "role": "adopter",
+    "text": "AI는 제품 기능(초음파 영상으로 해부학적 위치를 찾아 절제 범위를 계획)으로 쓰이며, 회사는 HYDROS를 'AI 기반 로봇'으로 마케팅한다. AI 자체가 매출원은 아니고 시술 편의·차별화 요소다.",
+    "evidence": "10-K: 2024-08 HYDROS와 함께 FirstAssist AI 기능 출시, AI 해부 인식·시술 계획 개선 계획.",
+    "src": ["s3", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "3.9억~4.1억 달러 (+27%~33%), 2026-08 재확인", "givenOn": "2026-08-04", "src": ["s2"] },
+      { "period": "FY2026", "metric": "U.S. procedures", "value": "54,000~56,000건 (+25%~29%), 2026-02 제시한 +39%~48%에서 하향", "givenOn": "2026-08-04", "src": ["s2", "s1"] },
+      { "period": "FY2026", "metric": "gross margin", "value": "약 65%", "givenOn": "2026-08-04", "src": ["s2"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA", "value": "손실 3,000만~3,500만 달러 (2026-02 손실 1,700만~3,000만에서 악화)", "givenOn": "2026-08-04", "src": ["s2", "s1"] }
+    ],
+    "style": "annual",
+    "text": "연간 매출·시술 건수·총마진·조정 EBITDA를 범위로 주고, 분기 가이던스(2026-02에 Q1 매출 7,900만~8,200만 달러)도 가끔 준다. 2026 매출 가이던스는 2025-10 최초 4.1억~4.3억에서 2026-02 3.9억~4.1억 달러로 낮아졌고, 2026-08에는 매출은 유지하되 시술 건수와 EBITDA를 낮췄다. Q4 2025는 재고 축소·인센티브 폐지로 매출이 기대에 못 미쳤다.",
+    "src": ["s9", "s1", "s2"]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06 분기) 합계 -1.32달러(범위 -1.48~-1.15, 추정 최소 3건), 직전 4개 분기 실적 합 -1.94달러. 최근 4주 수정 0건으로 커버리지가 얇다. 최근 실적은 Q4 2025 -0.53달러(추정 -0.32), Q2 2026 -0.47달러(추정 -0.46).",
+    "src": ["s8"]
+  },
+  "expertLens": {
+    "keyMetrics": [
+      { "metric": "미국 시술 건수와 계정당 활용도", "why": "핸드피스 반복 매출의 원천. 설치만 늘고 활용도가 정체하면 성장 모델이 약해진다." },
+      { "metric": "신규 설치·교체 대수와 설치 기반", "why": "미래 반복 매출의 기반. 구형 AquaBeam → HYDROS 교체 속도도 활용도에 영향." },
+      { "metric": "핸드피스 매출 성장률 vs 시스템 매출 성장률", "why": "Q2 2026 시스템 +32% 대비 핸드피스 +12%로 격차가 커졌다. 반복 매출 비중이 늘어야 질이 좋아진다." },
+      { "metric": "총마진·조정 EBITDA 손실 폭과 현금 잔고", "why": "적자 기업은 흑자 전환 전 현금이 버티는지가 관건 (2026-06 말 약 2.3억 달러)." },
+      { "metric": "보험 수가 (CPT 52597, HOPPS 지급액)", "why": "병원·의사의 시술 유인을 결정한다." }
+    ],
+    "valuationFrame": "적자 의료기기 성장주는 보통 기업가치/매출(EV/Sales) 배수와 매출 성장률, 그리고 흑자 전환 시점을 함께 본다. 설치 기반 × 계정당 시술 × 핸드피스 단가로 반복 매출을 추정하는 방식이 흔하다. 커버리지가 얇아 컨센서스 자체의 신뢰도가 낮다는 점도 감안한다.",
+    "thesisChecks": ["분기 미국 시술 건수가 하향된 연간 가이던스(54,000~56,000건) 경로를 따르는가", "HYDROS 계정당 시술이 구형 대비 높다는 회사 주장이 숫자로 확인되는가", "핸드피스 매출 성장률이 회복되는가", "조정 EBITDA 손실이 가이던스 범위 안에 머무는가", "전립선암 적응증 데이터가 예정대로 나오는가"],
+    "breakSignals": ["매출 가이던스 추가 하향 (이미 2025-10 이후 한 번 하향)", "시술 건수 가이던스 재하향", "현금 소진 가속에 따른 증자 필요성", "수가 인하 또는 보험 적용 후퇴", "경쟁 시술(UroLift·Rezum 등) 대비 임상·경제성 열세 데이터"]
+  },
+  "tradingUse": {
+    "catalysts": [
+      { "date": "2026-11-04 (장 마감 후, 컨퍼런스콜 16:30 ET)", "event": "Q3 2026 실적 발표, 시술 건수와 가이던스 재확인 여부", "src": ["s7"] },
+      { "date": "2026-11-04 또는 2027-02 (2026 가이던스는 2025-10 Q3 실적 때 처음 제시됨)", "event": "2027 연간 매출 가이던스 첫 제시", "src": ["s9", "s1"] },
+      { "date": "미정", "event": "전립선암 적응증(WATER IV PCa 등) 데이터와 규제 진행", "src": ["s3", "s2"] }
+    ],
+    "eventReaction": "주가는 매출보다 가이던스와 시술 건수에 반응해 왔다. Q2 2026은 매출이 추정(9,277만 달러)을 넘었지만, 시장이 기대한 가이던스 상단 쪽 상향이 없자 시간외 약 5.8% 하락했다. 소형주라 커버리지가 얇아 발표 때 변동이 크다.",
+    "watchConditions": ["분기 미국 시술 건수와 전년 대비 성장률", "핸드피스 매출 성장률과 시스템 매출 성장률의 격차", "연간 매출·시술·EBITDA 가이던스 변경 여부", "분기 말 현금 잔고 변화", "AquaBeam 교체 진척과 계정당 시술 언급", "컨센서스 추정 건수와 수정 방향 (커버리지 얇음)"],
+    "src": ["s2", "s5", "s8"]
+  },
+  "unverified": [
+    "10% 이상 고객 여부 (10-K 앞부분만 읽음)",
+    "직원 수",
+    "내부자·기관 지분율과 지배 구조 세부",
+    "2026-02 시술 가이던스의 절대 건수 (성장률 39%~48%만 확인, 계산 시 약 60,000~64,000건)",
+    "Q2 2026 신규 설치 대수 (보도자료 하이라이트 65대 중 교체 14대, 설치 기반 표 51대로 불일치)",
+    "CEO 교체 발표의 정확한 날짜, 2025-10 최초 2026 가이던스 발표일 (검색 요약만 확인)",
+    "2027 가이던스와 전립선암 데이터 일정",
+    "소형주로 전문 리서치·컨센서스 커버리지가 얇아 경쟁 점유율, 병원 활용도 분포 등 독립 검증 자료 부족"
+  ],
+  "confidence": "medium - 매출·가이던스·사업 구조는 회사 보도자료와 10-K에서 왔으나, 소형주라 2차 분석·컨센서스가 얇고 일부 수치는 검색 요약에 의존했다."
+}

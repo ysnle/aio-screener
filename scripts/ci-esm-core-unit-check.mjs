@@ -4425,6 +4425,25 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/_aioKrIndexCloseRead\('kospi'/.test(chatSource) || !/고른 상승·소수 종목 주도·동반 약세/.test(chatSource) || !/_aioKrVerifiedDayChange\(t, _lastBarDate/.test(chatSource)) fail('P1728/P1729 the chat header and technical block must use the verified KR change and the three flows');
 }
 
+// P2116: the news exclusion lists match English keywords as whole words — 'nfl' inside "inflation" dropped every
+// inflation headline (2 of 5 blocked items in the 2026-10-28 feed). Korean keywords stay substring matches.
+// v59.42: every news list uses one matcher (src/domain/news/keyword-match.js) — scoring, topics, exclusion, Telegram.
+{
+  const hit = (await load('src/domain/news/selection.js')).isBlacklistedNewsText;
+  const kept = ['Stocks Rise Pre-Bell as Traders Await Fed Policy Decision, Inflation Report', 'Iran Seeks to Curb Inflation, Expand Food Subsidies', 'Updating guidance, Nvidia lifts outlook', 'Unbanked users drive fintech growth', '밈주식 열풍에 거래대금 급증'];
+  const dropped = ['NFL ratings slip again', 'Kardashian launches brand', 'Best laptops of the year', '아파트값 상승', '강원도 산불', 'This token could reach $100 by 2027'];
+  const wrong = [...kept.filter(hit).map((t) => `dropped: ${t}`), ...dropped.filter((t) => !hit(t)).map((t) => `kept: ${t}`)];
+  if (wrong.length) fail(`P2116 news blacklist matches whole English words and Korean substrings: ${wrong.join(' | ')}`);
+  const { keywordHit } = await load('src/domain/news/keyword-match.js');
+  const rule = [['taxi drivers', 'tax', false], ['new taxes', 'tax', true], ['surgery partners', 'surge', false], ['ai chips', 'chip', true], ['금리가 오른다', '금리', true], ['금리 상승', '금', false], ['핵심 인재', '핵', false], ['북한 핵 실험', '핵', true]];
+  const misses = rule.filter(([text, keyword, expected]) => keywordHit(text, keyword) !== expected);
+  if (misses.length) fail(`P2117 one keyword rule (whole English words + plural, Korean substrings, lone syllables stand alone): ${JSON.stringify(misses)}`);
+  const { installTelegramCollector } = await load('src/data/providers/telegram-direct.js');
+  const tg = {};
+  installTelegramCollector(tg);
+  if (!tg.isTelegramMsgRelevant('Lead time for chips shrinks as stock market earnings beat') || tg.isTelegramMsgRelevant('Join our ad channel for stock market tips')) fail('P2116 Telegram spam words match whole words: "lead " is kept, "ad " still drops');
+}
+
 // P1730: the provisional post-08:00 news slot — after the bundle end, not already in the bundle, newest first, at most six.
 {
   const { selectIntradayNews } = await load('src/domain/news/stories.js');

@@ -246,7 +246,13 @@ if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fa
   if (/_aioRenderBriefingDigest\s*=|briefing-digest'/.test(coreSource + dataSource)) fail('legacy briefing digest renderer returned');
 }
 if (newsPageSource.includes('renderStories')) fail('news.js content-rendering helper (renderStories) returned after RM-01 removed it');
-if (!dataSource.includes("return 'headline-only'") || !dataSource.includes("row.contentDepth !== 'headline-only'") || !dataSource.includes("bodyText.length >= 40 ? 'summary' : 'headline-only'")) fail('headline-only news must remain outside verified/AI evidence');
+{ // v59.42: news selection moved to src/domain/news/selection.js — checked by behaviour, not source text.
+  const { normalizeNewsItem, NEWS_SURFACE_CONTRACTS } = await import(pathToFileURL(path.join(root, 'src/domain/news/selection.js')));
+  const nowMs = Date.parse('2026-10-27T00:00:00Z');
+  const row = (desc) => normalizeNewsItem('briefing', { title: 'Fed holds rates', source: 'Reuters', tier: 1, desc, pubDate: new Date(nowMs - 3600000).toISOString() }, NEWS_SURFACE_CONTRACTS.briefing, nowMs, null);
+  const bare = row(''), full = row('The statement kept the policy range and signalled patience on further cuts.');
+  if (bare.contentDepth !== 'headline-only' || bare.verificationStatus !== 'headline-only' || bare.eligibleForAi || full.contentDepth !== 'summary' || full.verificationStatus !== 'verified-current' || !full.eligibleForAi) fail('headline-only news must remain outside verified/AI evidence');
+}
 for (const marker of ['isNewsAnalysisEligible', 'isNewsHeadlineOnly(item)', "label: '본문 없음'"]) { // P1672: the '본문/검증 필요' risk copy left with the sentiment strip
   if (!newsPageSource.includes(marker)) fail(`native news evidence-depth boundary missing: ${marker}`);
 }

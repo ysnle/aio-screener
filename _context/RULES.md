@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-10-26
+last_verified: 2026-10-28
 confidence: medium
 target_version: v57.79
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
@@ -18,6 +18,18 @@ target_version: v57.79
 - **수집·신선도**: R634 신선도 감사에 stale을 통과시키는 모드가 없다 · R641 화면 판단과 운영 상태는 같은 신선도 경계 · R654 SEC 소유 공시와 13F는 서로 다른 주기 · R701 blocking 게이트 PASS를 전체 정상으로 올리지 않는다
 - **운영·AI**: R652 Worker 자동 배포는 CI 증거와 롤백 대상이 있어야 · R657 운영 알림은 증거를 남기고 닫힌 쪽으로 실패 · R681 모든 AI는 공용 Worker 한 경로로, 웹검색 포함 월 $20 이하 예산을 함께 쓴다
 - **화면**: R697 등급·검증 안 된 합산·행동 지시 없이 측정한 조건과 근거만 보인다 · R669 데스크톱·휴대폰·아이패드가 같은 라우트·데이터를 쓰고 레이아웃만 적응한다 · R703 한 사용자 입력은 한 owner가 처리하고 색 테마는 storage 실패와 무관
+
+## R731. src가 설치하는 window 전역을 js/가 부팅 경로에서 부를 때는 존재를 먼저 확인한다 (v59.42, P2120)
+
+**Rule**: js/의 classic 스크립트는 src/ 모듈이 window에 설치하는 함수(compatibility-globals.js 등)를 로드 즉시 실행되는 코드나 그 콜백(서비스 워커 메시지, 타이머, 초기 fetch)에서 부를 때 typeof 확인을 거친다. 모듈 평가는 defer 스크립트보다 늦기 때문이다. 이관(js→src)할 때 남는 js/ 호출자를 같이 점검한다.
+
+**Validation**: scripts/ci-runtime-contract-check.mjs v59.42 _querySWVersion 검사(P2120).
+
+## R730. 뉴스 키워드 목록은 하나의 규칙(keyword-match.js)으로만 비교한다 (v59.42, P2117)
+
+**Rule**: 뉴스 채점·토픽·제외·관련성·텔레그램 필터의 키워드 목록은 src/domain/news/keyword-match.js(keywordHit/keywordMatcher/matchedKeywords/countKeywords)로만 비교한다. 영어는 단어 단위 + 복수(동사 목록은 시제 접미사 옵션), 한국어는 부분 문자열, 한 글자는 홀로 있을 때만. 목록에 직접 .includes()·indexOf·자체 정규식을 쓰지 않는다. 출처 이름 목록(PREMIUM_SOURCES 등)과 의도된 패턴 정규식(클릭베이트, 비금융 제목 패턴)은 키워드 목록이 아니다.
+
+**Validation**: node scripts/ci-expect-output-check.mjs (news-selection 스위트) · node scripts/ci-esm-core-unit-check.mjs (P2116/P2117 키워드 규칙 검사)
 
 ## R729. 격리 레인의 크기 예산은 레인 안에서 검사 (v58.81, P2093)
 
