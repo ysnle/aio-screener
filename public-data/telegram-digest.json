@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-28T04:22:07.332Z",
-  "attemptedAt": "2026-10-28T04:22:07.332Z",
-  "lastSuccessfulAt": "2026-10-28T04:22:07.332Z",
+  "generatedAt": "2026-10-28T04:51:45.583Z",
+  "attemptedAt": "2026-10-28T04:51:45.583Z",
+  "lastSuccessfulAt": "2026-10-28T04:51:45.583Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-14T04:22:01.566Z",
-  "until": "2026-10-28T04:22:01.566Z",
+  "since": "2026-10-14T04:51:39.259Z",
+  "until": "2026-10-28T04:51:39.259Z",
   "current24hWindow": {
     "start": "2026-10-26T23:00:00.000Z",
     "end": "2026-10-27T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1366,
+      "count": 1367,
       "freshCount": 40,
-      "eligibleTextCount": 1312,
+      "eligibleTextCount": 1313,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67613
+      "lastPostId": 67614
     },
     {
       "channel": "bornlupin",
@@ -117,25 +117,25 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 682,
-      "freshCount": 38,
+      "freshCount": 36,
       "eligibleTextCount": 682,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 71135
+      "lastPostId": 71141
     }
   ],
-  "count": 2517,
-  "retainedItemCount": 463,
+  "count": 2518,
+  "retainedItemCount": 461,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2517,
-    "eligibleTextCount": 2450,
+    "observedCount": 2518,
+    "eligibleTextCount": 2451,
     "mediaOnlyCount": 67,
     "highSignalCount": 452,
-    "broadSignalCount": 1016,
+    "broadSignalCount": 1017,
     "selectedRawCount": 406,
     "selectedEligibleCount": 406,
     "selectedRawCoveragePct": 16.6,
@@ -143,17 +143,17 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 924,
-    "geo": 385,
+    "market-note": 923,
+    "macro": 405,
+    "earnings": 507,
     "semi": 603,
-    "earnings": 506,
+    "power": 317,
+    "geo": 386,
     "kr-market": 145,
     "flows": 111,
-    "macro": 404,
     "ai-policy": 149,
     "media-only": 67,
     "credit": 126,
-    "power": 316,
     "healthcare": 133,
     "crypto": 5,
     "equity": 186,
@@ -251,12 +251,12 @@
     "BAC": 1
   },
   "themes": [
-    "Market Notes (924 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
+    "Market Notes (923 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
     "Semiconductors/Memory (603 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
-    "Earnings/Corporate (506 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
-    "Macro/Rates (404 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
-    "Geopolitics (385 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (316 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Earnings/Corporate (507 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
+    "Macro/Rates (405 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
+    "Geopolitics (386 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "AI Power/Grid (317 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (186 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
     "AI Policy/Export Controls (149 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
@@ -329,7 +329,7 @@
       "topics": [
         "macro"
       ],
-      "count": 404,
+      "count": 405,
       "focus": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "geo"
       ],
-      "count": 385,
+      "count": 386,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -374,7 +374,7 @@
       "topics": [
         "power"
       ],
-      "count": 316,
+      "count": 317,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 506,
+      "count": 507,
       "focus": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고..."
     },
     {
@@ -464,7 +464,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 924,
+      "count": 923,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째..."
     }
   ],
@@ -1642,6 +1642,38 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71140",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71140",
+      "datetime": "2026-10-28T04:49:24.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>JPMorgan: AI가 견인하는 이익 성장이 지속된다면 미국 증시는 10년물 미 국채 금리가 5.5~6.0%까지 상승하는 것을 감내할 수 있음 •JPMorgan은 약 80년간의 역사적 데이터를 바탕으로,..."
+    },
+    {
+      "id": "HANAchina/71137",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71137",
+      "datetime": "2026-10-28T04:43:47.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "lead": 1,
+      "score": 55,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>모건스탠리 퀀트팀 : AI 반도체주는 아직 하락이 끝나지 않았으며, “반등시 비중 축소” 권고 •모건스탠리 퀀트팀은 반도체와 데이터센터 관련주의 매도세가 아직 끝나지 않았으며, 반도체 지수의 현재 흐름이..."
+    },
+    {
       "id": "insidertracking/67612",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67612",
@@ -2778,11 +2810,11 @@
         "macro",
         "japan"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게..."
+      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67481",
@@ -7602,40 +7634,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70851",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70851",
-      "datetime": "2026-10-22T09:08:25.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "earnings"
-      ],
-      "score": 59,
-      "hasText": true,
-      "summary": ">>테슬라, AI 청사진은 커지지만 월가 설득은 여전히 어려워 (중국언론) •테슬라의 3분기 매출은 280억 달러, 매출총이익률은 19.6%로 시장 예상을 웃돌았지만, 연구개발비 등 영업비용 증가로 이익...",
-      "lead": 1,
-      "tickers": [
-        "TSLA"
-      ]
-    },
-    {
-      "id": "HANAchina/70850",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70850",
-      "datetime": "2026-10-22T09:03:32.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>CXMT, 4F² 구조에 승부수…마이크론은 “실질적 이점 없어” 채택 거부 •CXMT는 월초 기존 주류 6F²보다 단위 면적당 트랜지스터수를 늘릴 수 있는 4F² DRAM 구조 공개 •마이크론의 스콧...",
-      "lead": 1,
-      "tickers": [
-        "MU"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25981",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25981",
@@ -9071,11 +9069,11 @@
         "macro",
         "japan"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게..."
+      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67481",

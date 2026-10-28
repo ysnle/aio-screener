@@ -9,12 +9,12 @@
     "serverMode": "shared-worker-only",
     "healthPath": "/health",
     "maxTokens": "worker-advertised",
-    "routeStatus": "DISABLED",
-    "routeReason": "WORKER_AI_PROVIDER_MISMATCH",
+    "routeStatus": "PUBLISHED",
+    "routeReason": null,
     "routeEvidence": {
-      "status": "OPERATOR_REQUIRED",
+      "status": "CURRENT",
       "source": "periodic-live-health",
-      "observedAt": "2026-10-28T04:21:52.885Z",
+      "observedAt": "2026-10-28T04:51:38.427Z",
       "observationStatus": "SUCCESS"
     }
   },
