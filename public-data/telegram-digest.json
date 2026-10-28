@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-28T08:51:57.333Z",
-  "attemptedAt": "2026-10-28T08:51:57.333Z",
-  "lastSuccessfulAt": "2026-10-28T08:51:57.333Z",
+  "generatedAt": "2026-10-28T09:21:58.944Z",
+  "attemptedAt": "2026-10-28T09:21:58.944Z",
+  "lastSuccessfulAt": "2026-10-28T09:21:58.944Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-14T08:51:51.545Z",
-  "until": "2026-10-28T08:51:51.545Z",
+  "since": "2026-10-14T09:21:54.183Z",
+  "until": "2026-10-28T09:21:54.183Z",
   "current24hWindow": {
     "start": "2026-10-26T23:00:00.000Z",
     "end": "2026-10-27T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 215,
+      "count": 214,
       "freshCount": 0,
-      "eligibleTextCount": 202,
+      "eligibleTextCount": 201,
       "selectedCount": 63,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -97,81 +97,81 @@
       "eligibleTextCount": 1301,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67627
+      "lastPostId": 67629
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 247,
+      "count": 246,
       "freshCount": 20,
-      "eligibleTextCount": 247,
+      "eligibleTextCount": 246,
       "selectedCount": 104,
       "error": null,
       "lastPostId": 20864
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 682,
-      "freshCount": 37,
-      "eligibleTextCount": 682,
+      "count": 678,
+      "freshCount": 18,
+      "eligibleTextCount": 678,
       "selectedCount": 121,
       "error": null,
       "lastPostId": 71152
     }
   ],
-  "count": 2499,
-  "retainedItemCount": 459,
+  "count": 2493,
+  "retainedItemCount": 451,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2499,
-    "eligibleTextCount": 2432,
+    "observedCount": 2493,
+    "eligibleTextCount": 2426,
     "mediaOnlyCount": 67,
-    "highSignalCount": 452,
-    "broadSignalCount": 1015,
+    "highSignalCount": 451,
+    "broadSignalCount": 1012,
     "selectedRawCount": 408,
     "selectedEligibleCount": 408,
     "selectedRawCoveragePct": 16.8,
-    "selectedOfObservedPct": 16.3,
+    "selectedOfObservedPct": 16.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 601,
+    "geo": 390,
+    "semi": 600,
     "optical": 35,
-    "kr-market": 147,
-    "earnings": 496,
+    "kr-market": 145,
+    "earnings": 495,
     "japan": 130,
-    "market-note": 910,
-    "geo": 389,
+    "market-note": 907,
     "equity": 186,
-    "credit": 126,
+    "credit": 125,
     "macro": 404,
     "power": 318,
     "media-only": 67,
-    "flows": 111,
+    "flows": 110,
     "healthcare": 135,
-    "ai-policy": 148,
+    "ai-policy": 147,
     "crypto": 5,
     "insider": 4
   },
   "tickerCounts": {
     "TSLA": 94,
-    "TSM": 96,
+    "TSM": 95,
     "000660.KS": 83,
     "BABA": 2,
-    "005930.KS": 54,
+    "005930.KS": 53,
     "NVDA": 189,
-    "MU": 65,
+    "MU": 64,
     "GOOG": 111,
     "009150.KS": 17,
-    "AVGO": 27,
+    "AVGO": 26,
     "STX": 9,
     "V": 3,
     "HOOD": 1,
@@ -251,14 +251,14 @@
     "BAC": 1
   },
   "themes": [
-    "Market Notes (910 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
-    "Semiconductors/Memory (601 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
-    "Earnings/Corporate (496 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
+    "Market Notes (907 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
+    "Semiconductors/Memory (600 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
+    "Earnings/Corporate (495 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
     "Macro/Rates (404 posts in 14-day research window): 2026년 10월 28일 미국 증시 프리마켓 브리핑 미국 증시 선물은 FOMC 금리 결정과 빅테크 실적 발표를 앞두고 혼조세. 다우 선물 -0.17%, S&P500 선물 +0.02%, 나스닥100 선물 +0.28%, 러셀2000 선물 -0.18% 기록. 기술주 중심의 상대적 강세가 나타나는 가운데 VIX는...",
-    "Geopolitics (389 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "Geopolitics (390 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
     "AI Power/Grid (318 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (186 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (148 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
+    "AI Policy/Export Controls (147 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
   "catalysts": [
     {
@@ -273,7 +273,7 @@
     },
     {
       "key": "TSM",
-      "count": 96,
+      "count": 95,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -288,7 +288,7 @@
     },
     {
       "key": "MU",
-      "count": 65,
+      "count": 64,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -303,7 +303,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 54,
+      "count": 53,
       "text": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록...."
     },
     {
@@ -313,7 +313,7 @@
     },
     {
       "key": "AVGO",
-      "count": 27,
+      "count": 26,
       "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "geo"
       ],
-      "count": 389,
+      "count": 390,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "credit"
       ],
-      "count": 126,
+      "count": 125,
       "focus": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달..."
     },
     {
@@ -356,7 +356,7 @@
       "topics": [
         "semi"
       ],
-      "count": 601,
+      "count": 600,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,..."
     },
     {
@@ -383,7 +383,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 148,
+      "count": 147,
       "focus": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 147,
+      "count": 145,
       "focus": ">>한국 증시, 글로벌 시장에서 유례없이 저평가… 시가총액 1조 달러 이상 시장 중 처음으로 PER 5배 하회 (중국언론) •한국 KOSPI의 향후 12개월 예상 PER은 4.2배까지 하락. 이는..."
     },
     {
@@ -419,7 +419,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 496,
+      "count": 495,
       "focus": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고..."
     },
     {
@@ -446,7 +446,7 @@
       "topics": [
         "flows"
       ],
-      "count": 111,
+      "count": 110,
       "focus": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
     },
     {
@@ -464,7 +464,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 910,
+      "count": 907,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째..."
     }
   ],
@@ -1646,6 +1646,21 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/67629",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67629",
+      "datetime": "2026-10-28T09:10:55.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "geo"
+      ],
+      "lead": 1,
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "이스라엘 총선 개표율이 76.89%에 도달한 가운데, 어느 진영도 과반 의석 확보에 실패. 네타냐후 총리 진영은 기존 55석에서 54석으로 1석 감소했으며, 야권 역시 49석에서 47석으로 2석 감소. 반면..."
+    },
+    {
       "id": "HANAchina/71152",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71152",
@@ -1989,17 +2004,17 @@
         "semi",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 69,
       "hasText": true,
+      "summary": ">>OpenAI, 구글 TPU 칩 구매 추진…엔비디아의 지배적 지위에 도전 •오랫동안 엔비디아 칩을 주문해 온 OpenAI가 구글 TPU 칩 구매를 추진할 계획인 것으로 알려짐. 이는 구글의 칩 사업에 큰...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>OpenAI, 구글 TPU 칩 구매 추진…엔비디아의 지배적 지위에 도전 •오랫동안 엔비디아 칩을 주문해 온 OpenAI가 구글 TPU 칩 구매를 추진할 계획인 것으로 알려짐. 이는 구글의 칩 사업에 큰..."
+      ]
     },
     {
       "id": "HANAchina/71129",
@@ -2010,14 +2025,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
+      "summary": ">>알리바바·텐센트·바이트댄스, DRAM 장기 공급계약 체결 추진…중국 클라우드 대기업들, 반도체 공급 확보 가속화 (중국언론 인용) •알리바바, 텐센트, 바이트댄스 등 중국 클라우드 서비스 대기업들이...",
+      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>알리바바·텐센트·바이트댄스, DRAM 장기 공급계약 체결 추진…중국 클라우드 대기업들, 반도체 공급 확보 가속화 (중국언론 인용) •알리바바, 텐센트, 바이트댄스 등 중국 클라우드 서비스 대기업들이..."
+      ]
     },
     {
       "id": "insidertracking/67598",
@@ -2058,11 +2073,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•뉴질랜드 중앙은행(RBNZ)이 시장의 25bp 금리 인상 예상을 깨고 금리를 동결함. 중앙은행은 금리 동결 결정을 4대 3의 표결로 통과"
+      "summary": "•뉴질랜드 중앙은행(RBNZ)이 시장의 25bp 금리 인상 예상을 깨고 금리를 동결함. 중앙은행은 금리 동결 결정을 4대 3의 표결로 통과",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71124",
@@ -2071,15 +2086,14 @@
       "datetime": "2026-10-28T01:09:00.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "credit",
-        "macro"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
+      "summary": ">>630억 달러, 사상 최대 규모 AI 인프라 금융 조달! 브로드컴 CEO가 직접 나섰고, 월가는 내년 1분기 ‘대규모 채권 발행’ 주시 •앤트로픽긔 칩 임대를 지원하는 이번 거래는 AI 부채시장이 자금을...",
       "tickers": [
         "AVGO"
-      ],
-      "summary": ">>630억 달러, 사상 최대 규모 AI 인프라 금융 조달! 브로드컴 CEO가 직접 나섰고, 월가는 내년 1분기 ‘대규모 채권 발행’ 주시 •앤트로픽긔 칩 임대를 지원하는 이번 거래는 AI 부채시장이 자금을..."
+      ]
     },
     {
       "id": "insidertracking/67587",
@@ -2153,13 +2167,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "•SK하이닉스: 2029년까지 DRAM과 HBM 생산 물량이 모두 완판",
+      "lead": 1,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "•SK하이닉스: 2029년까지 DRAM과 HBM 생산 물량이 모두 완판"
+      ]
     },
     {
       "id": "bornlupin/20859",
@@ -2216,13 +2230,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "•SK하이닉스는 메모리 공급 부족 상황이 2030년까지 지속될 것으로 전망",
+      "lead": 1,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "•SK하이닉스는 메모리 공급 부족 상황이 2030년까지 지속될 것으로 전망"
+      ]
     },
     {
       "id": "bornlupin/20856",
@@ -2256,13 +2270,13 @@
         "semi",
         "kr-market"
       ],
-      "lead": 3,
       "score": 79,
       "hasText": true,
+      "summary": ">>SK hynix 3분기 실적 및 주주환원 계획 •매출 : 104.62조원 (컨센서스 98.96조원 상회) •영업이익 : 83.33조원 (컨센서스 77.5조원 상회) •순이익 : 39.53조원 (컨센서스...",
+      "lead": 3,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": ">>SK hynix 3분기 실적 및 주주환원 계획 •매출 : 104.62조원 (컨센서스 98.96조원 상회) •영업이익 : 83.33조원 (컨센서스 77.5조원 상회) •순이익 : 39.53조원 (컨센서스..."
+      ]
     },
     {
       "id": "bornlupin/20855",
@@ -2287,18 +2301,15 @@
       "datetime": "2026-10-27T23:30:44.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 79,
       "hasText": true,
+      "summary": ">>CXMT, 중국 내 고객사 우선 공급…DRAM 공급 부족에 대만 업체 수혜 전망 (대만공상시보) •CXMT가 Apple의 저가 메모리 구매 요구와 대만 서버 업체의 DDR5 공급 문의를 거절한 것으로...",
+      "lead": 1,
       "tickers": [
         "AAPL"
-      ],
-      "summary": ">>CXMT, 중국 내 고객사 우선 공급…DRAM 공급 부족에 대만 업체 수혜 전망 (대만공상시보) •CXMT가 Apple의 저가 메모리 구매 요구와 대만 서버 업체의 DDR5 공급 문의를 거절한 것으로..."
+      ]
     },
     {
       "id": "insidertracking/67573",
@@ -2356,13 +2367,12 @@
       "datetime": "2026-10-27T23:04:47.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "macro",
-        "semi"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 10월 소비자신뢰지수(CCI)가 66.27로 전월 대비 2.5pt 하락(전 항목 100 미만으로 비관적)한 가운데, '향후 6개월 내구재 구매 시점' 지표는 82.97로 10.81pt 폭락하며..."
+      "summary": "• 대만 10월 소비자신뢰지수(CCI)가 66.27로 전월 대비 2.5pt 하락(전 항목 100 미만으로 비관적)한 가운데, '향후 6개월 내구재 구매 시점' 지표는 82.97로 10.81pt 폭락하며...",
+      "tickers": []
     },
     {
       "id": "bornlupin/20853",
@@ -2392,13 +2402,12 @@
       "datetime": "2026-10-27T22:53:53.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
         "japan"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 미·중·일 무역 장벽에 따른 대만 반사이익. 일본과 중국의 상호 고정밀 공작기계 수출 규제로 글로벌 공급 공백이 발생하면서, 북미와 동남아의 대체 주문이 대만 공작기계 업체로 대거 유입 • 일본 공작기계..."
+      "summary": "• 미·중·일 무역 장벽에 따른 대만 반사이익. 일본과 중국의 상호 고정밀 공작기계 수출 규제로 글로벌 공급 공백이 발생하면서, 북미와 동남아의 대체 주문이 대만 공작기계 업체로 대거 유입 • 일본 공작기계...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71114",
@@ -2407,18 +2416,16 @@
       "datetime": "2026-10-27T22:44:50.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 68,
       "hasText": true,
+      "summary": "• 엔비디아의 차세대 '베라 루빈(Vera Rubin)' 플랫폼 본격 생산과 함께 폭스콘이 주문의 최대 50%(최소 40~45%)를 확보하며 업계 1위 점유율을 차지할 전망 • 또한 스페이스X의 AI 서버...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "GOOG"
-      ],
-      "summary": "• 엔비디아의 차세대 '베라 루빈(Vera Rubin)' 플랫폼 본격 생산과 함께 폭스콘이 주문의 최대 50%(최소 40~45%)를 확보하며 업계 1위 점유율을 차지할 전망 • 또한 스페이스X의 AI 서버..."
+      ]
     },
     {
       "id": "HANAchina/71113",
@@ -2427,16 +2434,15 @@
       "datetime": "2026-10-27T22:39:52.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "geo",
-        "semi"
+        "geo"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": "• 인텔이 이스라엘 양자 소프트웨어 선도 스타트업인 클래식(Classiq)을 인수(2027년 상반기 완료 예정)하여 하드웨어부터 소프트웨어까지 아우르는 풀스택 '원스톱 양자 컴퓨팅 솔루션' 구축을 추진 •...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 인텔이 이스라엘 양자 소프트웨어 선도 스타트업인 클래식(Classiq)을 인수(2027년 상반기 완료 예정)하여 하드웨어부터 소프트웨어까지 아우르는 풀스택 '원스톱 양자 컴퓨팅 솔루션' 구축을 추진 •..."
+      ]
     },
     {
       "id": "insidertracking/67563",
@@ -6621,26 +6627,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67132",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67132",
-      "datetime": "2026-10-23T22:40:38.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 10월 24일 미국 레딧 베스트 게시물 분석 > AI / OpenAI / Data Centers - Bubble 논쟁 계속 · OpenAI valuation target 하향 게시물 등장 · AI...",
-      "tickers": [
-        "NVDA",
-        "TSLA",
-        "AAPL",
-        "BE"
-      ]
-    },
-    {
       "id": "HANAchina/70924",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/70924",
@@ -8445,13 +8431,12 @@
       "datetime": "2026-10-27T22:53:53.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
         "japan"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 미·중·일 무역 장벽에 따른 대만 반사이익. 일본과 중국의 상호 고정밀 공작기계 수출 규제로 글로벌 공급 공백이 발생하면서, 북미와 동남아의 대체 주문이 대만 공작기계 업체로 대거 유입 • 일본 공작기계..."
+      "summary": "• 미·중·일 무역 장벽에 따른 대만 반사이익. 일본과 중국의 상호 고정밀 공작기계 수출 규제로 글로벌 공급 공백이 발생하면서, 북미와 동남아의 대체 주문이 대만 공작기계 업체로 대거 유입 • 일본 공작기계...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71114",
@@ -8460,18 +8445,16 @@
       "datetime": "2026-10-27T22:44:50.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 68,
       "hasText": true,
+      "summary": "• 엔비디아의 차세대 '베라 루빈(Vera Rubin)' 플랫폼 본격 생산과 함께 폭스콘이 주문의 최대 50%(최소 40~45%)를 확보하며 업계 1위 점유율을 차지할 전망 • 또한 스페이스X의 AI 서버...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "GOOG"
-      ],
-      "summary": "• 엔비디아의 차세대 '베라 루빈(Vera Rubin)' 플랫폼 본격 생산과 함께 폭스콘이 주문의 최대 50%(최소 40~45%)를 확보하며 업계 1위 점유율을 차지할 전망 • 또한 스페이스X의 AI 서버..."
+      ]
     },
     {
       "id": "HANAchina/71113",
@@ -8480,16 +8463,15 @@
       "datetime": "2026-10-27T22:39:52.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "geo",
-        "semi"
+        "geo"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": "• 인텔이 이스라엘 양자 소프트웨어 선도 스타트업인 클래식(Classiq)을 인수(2027년 상반기 완료 예정)하여 하드웨어부터 소프트웨어까지 아우르는 풀스택 '원스톱 양자 컴퓨팅 솔루션' 구축을 추진 •...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 인텔이 이스라엘 양자 소프트웨어 선도 스타트업인 클래식(Classiq)을 인수(2027년 상반기 완료 예정)하여 하드웨어부터 소프트웨어까지 아우르는 풀스택 '원스톱 양자 컴퓨팅 솔루션' 구축을 추진 •..."
+      ]
     },
     {
       "id": "insidertracking/67563",
