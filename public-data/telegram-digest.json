@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-28T00:03:05.629Z",
-  "attemptedAt": "2026-10-28T00:03:05.629Z",
-  "lastSuccessfulAt": "2026-10-28T00:03:05.629Z",
+  "generatedAt": "2026-10-28T00:55:25.604Z",
+  "attemptedAt": "2026-10-28T00:55:25.604Z",
+  "lastSuccessfulAt": "2026-10-28T00:55:25.604Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-14T00:02:58.678Z",
-  "until": "2026-10-28T00:02:58.678Z",
+  "since": "2026-10-14T00:55:19.257Z",
+  "until": "2026-10-28T00:55:19.257Z",
   "current24hWindow": {
     "start": "2026-10-26T23:00:00.000Z",
     "end": "2026-10-27T23:00:00.000Z",
@@ -83,7 +83,7 @@
       "count": 221,
       "freshCount": 0,
       "eligibleTextCount": 208,
-      "selectedCount": 65,
+      "selectedCount": 64,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,90 +92,90 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1347,
+      "count": 1344,
       "freshCount": 40,
-      "eligibleTextCount": 1293,
+      "eligibleTextCount": 1290,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67576
+      "lastPostId": 67580
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 249,
+      "count": 250,
       "freshCount": 40,
-      "eligibleTextCount": 249,
-      "selectedCount": 101,
+      "eligibleTextCount": 250,
+      "selectedCount": 102,
       "error": null,
-      "lastPostId": 20858
+      "lastPostId": 20859
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 687,
-      "freshCount": 19,
-      "eligibleTextCount": 687,
+      "count": 683,
+      "freshCount": 38,
+      "eligibleTextCount": 683,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 71120
+      "lastPostId": 71121
     }
   ],
-  "count": 2504,
-  "retainedItemCount": 459,
+  "count": 2498,
+  "retainedItemCount": 472,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2504,
-    "eligibleTextCount": 2437,
+    "observedCount": 2498,
+    "eligibleTextCount": 2431,
     "mediaOnlyCount": 67,
-    "highSignalCount": 453,
-    "broadSignalCount": 1015,
+    "highSignalCount": 449,
+    "broadSignalCount": 1009,
     "selectedRawCount": 406,
     "selectedEligibleCount": 406,
     "selectedRawCoveragePct": 16.7,
-    "selectedOfObservedPct": 16.2,
+    "selectedOfObservedPct": 16.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "geo": 379,
     "semi": 601,
-    "flows": 112,
-    "credit": 126,
-    "earnings": 510,
-    "macro": 409,
-    "power": 318,
     "market-note": 917,
-    "media-only": 67,
-    "kr-market": 145,
+    "equity": 188,
+    "geo": 376,
+    "earnings": 505,
     "ai-policy": 149,
-    "healthcare": 135,
+    "flows": 110,
+    "credit": 124,
+    "macro": 404,
+    "power": 316,
+    "media-only": 67,
+    "kr-market": 142,
+    "healthcare": 132,
     "japan": 132,
-    "equity": 187,
     "optical": 36,
     "crypto": 4,
     "insider": 4
   },
   "tickerCounts": {
-    "000660.KS": 78,
+    "000660.KS": 79,
+    "GOOG": 109,
     "005940.KS": 2,
     "285A.T": 2,
     "AAPL": 18,
     "MU": 64,
     "005930.KS": 52,
     "NVDA": 188,
-    "GOOG": 108,
     "TSM": 96,
     "AMZN": 61,
     "STX": 8,
     "ORCL": 11,
     "AMD": 23,
-    "MSFT": 60,
+    "MSFT": 59,
     "AVGO": 26,
     "TSLA": 94,
     "CRWV": 25,
@@ -248,17 +248,16 @@
     "007660.KS": 1,
     "ASTS": 1,
     "BAC": 1,
-    "AAOI": 1,
-    "UNH": 1
+    "AAOI": 1
   },
   "themes": [
     "Market Notes (917 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
     "Semiconductors/Memory (601 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
-    "Earnings/Corporate (510 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
-    "Macro/Rates (409 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
-    "Geopolitics (379 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (318 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
-    "Equity/Analyst (187 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
+    "Earnings/Corporate (505 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
+    "Macro/Rates (404 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
+    "Geopolitics (376 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "AI Power/Grid (316 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Equity/Analyst (188 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
     "AI Policy/Export Controls (149 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
   "catalysts": [
@@ -269,7 +268,7 @@
     },
     {
       "key": "GOOG",
-      "count": 108,
+      "count": 109,
       "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
@@ -284,7 +283,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 78,
+      "count": 79,
       "text": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고..."
     },
     {
@@ -299,7 +298,7 @@
     },
     {
       "key": "MSFT",
-      "count": 60,
+      "count": 59,
       "text": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
@@ -330,7 +329,7 @@
       "topics": [
         "macro"
       ],
-      "count": 409,
+      "count": 404,
       "focus": "2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,..."
     },
     {
@@ -339,7 +338,7 @@
       "topics": [
         "geo"
       ],
-      "count": 379,
+      "count": 376,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -348,7 +347,7 @@
       "topics": [
         "credit"
       ],
-      "count": 126,
+      "count": 124,
       "focus": "10월 28일 미주인 브리핑 • 나스닥 1.18% 상승 · 반도체 중심 매수세 유입 • 소파이 13% 급등 · 보잉 11% 급락 • 브로드컴 630억 달러 AI 인프라 금융조달 • 메타 975억 달러 자금조달 계획 · AMD 협력 확대 • 트럼프, 베네수엘라 원유 100만 배럴 인수 발표 • 이스라엘 총선 과반..."
     },
     {
@@ -375,7 +374,7 @@
       "topics": [
         "power"
       ],
-      "count": 318,
+      "count": 316,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -393,7 +392,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 145,
+      "count": 142,
       "focus": ">>한국 증시, 글로벌 시장에서 유례없이 저평가… 시가총액 1조 달러 이상 시장 중 처음으로 PER 5배 하회 (중국언론) •한국 KOSPI의 향후 12개월 예상 PER은 4.2배까지 하락. 이는..."
     },
     {
@@ -402,7 +401,7 @@
       "topics": [
         "equity"
       ],
-      "count": 187,
+      "count": 188,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각..."
     },
     {
@@ -420,7 +419,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 510,
+      "count": 505,
       "focus": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고..."
     },
     {
@@ -429,7 +428,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 135,
+      "count": 132,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amneal Pharmaceuticals · AMN Healthcare Services · AtriCure · Bio-Techne · Caris Life..."
     },
     {
@@ -447,7 +446,7 @@
       "topics": [
         "flows"
       ],
-      "count": 112,
+      "count": 110,
       "focus": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
     },
     {
@@ -1645,6 +1644,38 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71121",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71121",
+      "datetime": "2026-10-28T00:50:32.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "•SK하이닉스: 2029년까지 DRAM과 HBM 생산 물량이 모두 완판"
+    },
+    {
+      "id": "bornlupin/20859",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20859",
+      "datetime": "2026-10-28T00:17:55.000Z",
+      "localDateKst": "2026-10-28",
+      "tags": [
+        "geo",
+        "earnings"
+      ],
+      "score": 55,
+      "hasText": true,
+      "tickers": [],
+      "summary": "\"지니언스, 금융권 보안 규제 강화 수혜 기대돼\"-한국 한국투자증권은 28일 지니언스에 대해 금융당국의 보안 점검 확대와 개인정보 유출 처벌 강화 조치로 주력 제품의 추가 수주가 본격화될 것으로 전망했다 ...."
+    },
+    {
       "id": "bornlupin/20857",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20857",
@@ -2000,15 +2031,12 @@
       "datetime": "2026-10-27T21:00:32.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "geo",
-        "kr-market",
-        "equity",
         "earnings"
       ],
       "score": 63,
       "hasText": true,
-      "tickers": [],
-      "summary": "코카콜라(KO) Q3 2026 어닝콜 요약 > 긍정 요인: • 견조한 매출 및 판매량 성장. 3분기 판매량(Unit Case)은 전년 대비 5% 증가했으며 유기적 매출은 7% 성장. 다양한 지역과 브랜드에서..."
+      "summary": "코카콜라(KO) Q3 2026 어닝콜 요약 > 긍정 요인: • 견조한 매출 및 판매량 성장. 3분기 판매량(Unit Case)은 전년 대비 5% 증가했으며 유기적 매출은 7% 성장. 다양한 지역과 브랜드에서...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67536",
@@ -2017,13 +2045,12 @@
       "datetime": "2026-10-27T20:58:55.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "macro",
         "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "소파이(SOFI) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 3분기 조정 순매출은 14억달러로 전년 대비 44% 증가. 조정 EBITDA는..."
+      "summary": "소파이(SOFI) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 3분기 조정 순매출은 14억달러로 전년 대비 44% 증가. 조정 EBITDA는...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67535",
@@ -2498,11 +2525,11 @@
         "macro",
         "japan"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게..."
     },
     {
       "id": "insidertracking/67481",
@@ -2568,13 +2595,13 @@
         "semi",
         "equity"
       ],
+      "lead": 2,
       "score": 51,
       "hasText": true,
-      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임....",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임...."
     },
     {
       "id": "HANAchina/71093",
@@ -2583,15 +2610,17 @@
       "datetime": "2026-10-27T08:25:31.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "earnings"
+        "semi",
+        "kr-market",
+        "earnings",
+        "flows"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락...",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락..."
     },
     {
       "id": "HANAchina/71092",
@@ -2600,16 +2629,18 @@
       "datetime": "2026-10-27T08:23:05.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "market-note"
+        "power",
+        "equity",
+        "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요..."
     },
     {
       "id": "HANAchina/71091",
@@ -2618,13 +2649,14 @@
       "datetime": "2026-10-27T07:41:46.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "macro"
+        "macro",
+        "credit"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기..."
     },
     {
       "id": "bornlupin/20847",
@@ -2695,9 +2727,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’"
     },
     {
       "id": "HANAchina/71086",
@@ -2709,11 +2740,11 @@
         "semi",
         "kr-market"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
-      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%"
     },
     {
       "id": "insidertracking/67466",
@@ -2740,11 +2771,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은..."
     },
     {
       "id": "HANAchina/71084",
@@ -2757,9 +2788,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만..."
     },
     {
       "id": "insidertracking/67463",
@@ -4326,19 +4356,17 @@
       "datetime": "2026-10-26T02:12:42.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "semi",
-        "earnings",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "애플 폴더블폰 ‘아이폰 듀오’ 공급 부족… 주문 30% 추가, 폭스콘·TSMC 등 공급망 수혜 기대 1. 아이폰 듀오 출시 직후 완판, 애플 주문 30% 확대 - 애플 최초의 폴더블 스마트폰 아이폰...",
+      "lead": 1,
       "tickers": [
         "TSM",
         "005930.KS",
         "APH"
-      ],
-      "summary": "애플 폴더블폰 ‘아이폰 듀오’ 공급 부족… 주문 30% 추가, 폭스콘·TSMC 등 공급망 수혜 기대 1. 아이폰 듀오 출시 직후 완판, 애플 주문 30% 확대 - 애플 최초의 폴더블 스마트폰 아이폰..."
+      ]
     },
     {
       "id": "HANAchina/71005",
@@ -7593,23 +7621,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70841",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70841",
-      "datetime": "2026-10-22T06:16:25.000Z",
-      "localDateKst": "2026-10-22",
-      "tags": [
-        "semi"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": ">>TrendForce : 2027년 서버 CPU 출하량 전년 대비 40% 이상 증가, Arm 기반 제품의 시장점유율 지속 확대 •TrendForce의 최신 AI 서버 산업 보고서, AI 서비스 업체들이 AI...",
-      "lead": 1,
-      "tickers": [
-        "AMD"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/25981",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25981",
@@ -8435,26 +8446,6 @@
       "tickers": [
         "GOOG"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25940",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25940",
-      "datetime": "2026-10-20T05:32:48.000Z",
-      "localDateKst": "2026-10-20",
-      "tags": [
-        "semi"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "JP모건 APAC코멘트(TSMC/SK하닉) TSMC: 투자자들은 NVHBM 4e 로직 베이스 다이의 TSMC 외주화가 TSMC의 가치를 높이는 요인이라고 보고 있습니다. 고쿨은 엔비디아가 자사 솔루션으로...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "TSM",
-        "005930.KS",
-        "000660.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -8604,15 +8595,12 @@
       "datetime": "2026-10-27T21:00:32.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "geo",
-        "kr-market",
-        "equity",
         "earnings"
       ],
       "score": 63,
       "hasText": true,
-      "tickers": [],
-      "summary": "코카콜라(KO) Q3 2026 어닝콜 요약 > 긍정 요인: • 견조한 매출 및 판매량 성장. 3분기 판매량(Unit Case)은 전년 대비 5% 증가했으며 유기적 매출은 7% 성장. 다양한 지역과 브랜드에서..."
+      "summary": "코카콜라(KO) Q3 2026 어닝콜 요약 > 긍정 요인: • 견조한 매출 및 판매량 성장. 3분기 판매량(Unit Case)은 전년 대비 5% 증가했으며 유기적 매출은 7% 성장. 다양한 지역과 브랜드에서...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67536",
@@ -8621,13 +8609,12 @@
       "datetime": "2026-10-27T20:58:55.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "macro",
         "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "소파이(SOFI) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 3분기 조정 순매출은 14억달러로 전년 대비 44% 증가. 조정 EBITDA는..."
+      "summary": "소파이(SOFI) Q3 2026 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 3분기 조정 순매출은 14억달러로 전년 대비 44% 증가. 조정 EBITDA는...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67535",
@@ -9088,11 +9075,11 @@
         "macro",
         "japan"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게..."
     },
     {
       "id": "insidertracking/67481",
@@ -9158,13 +9145,13 @@
         "semi",
         "equity"
       ],
+      "lead": 2,
       "score": 51,
       "hasText": true,
-      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임....",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임...."
     },
     {
       "id": "HANAchina/71093",
@@ -9173,15 +9160,17 @@
       "datetime": "2026-10-27T08:25:31.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "earnings"
+        "semi",
+        "kr-market",
+        "earnings",
+        "flows"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락...",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락..."
     },
     {
       "id": "HANAchina/71092",
@@ -9190,16 +9179,18 @@
       "datetime": "2026-10-27T08:23:05.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "market-note"
+        "power",
+        "equity",
+        "earnings"
       ],
       "score": 65,
       "hasText": true,
-      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요..."
     },
     {
       "id": "HANAchina/71091",
@@ -9208,13 +9199,14 @@
       "datetime": "2026-10-27T07:41:46.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "macro"
+        "macro",
+        "credit"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기..."
     },
     {
       "id": "bornlupin/20847",
@@ -9285,9 +9277,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’"
     },
     {
       "id": "HANAchina/71086",
@@ -9299,11 +9290,11 @@
         "semi",
         "kr-market"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
-      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%"
     },
     {
       "id": "insidertracking/67466",
@@ -9330,11 +9321,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은..."
     },
     {
       "id": "HANAchina/71084",
@@ -9347,9 +9338,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만..."
     },
     {
       "id": "insidertracking/67463",
