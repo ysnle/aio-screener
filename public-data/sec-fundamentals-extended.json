@@ -1,14 +1,14 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-28T07:33:10.056Z",
+ "generatedAt": "2026-10-28T22:33:45.143Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3899,
- "stored": 3539,
- "attempted": 18,
+ "eligible": 3898,
+ "stored": 3537,
+ "attempted": 0,
  "updated": 0,
  "failures": [
   {
@@ -4501,36 +4501,36 @@
   "TRBG",
   "TREO"
  ],
- "pointInTimeCoverage": 3539,
- "pointInTimeAcceptedCoverage": 3539,
+ "pointInTimeCoverage": 3537,
+ "pointInTimeAcceptedCoverage": 3537,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 360,
+ "nextRefreshCandidates": 361,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:40650002440",
-  "attemptedAt": "2026-10-28T07:32:39.262Z",
-  "sourceRevision": "sec-company-tickers:f5a8b5c09137999ca3815f91df8b97a3602f24d0818255001e38bc77aae9c472",
+  "runId": "gha:40779884802",
+  "attemptedAt": "2026-10-28T22:33:31.815Z",
+  "sourceRevision": "sec-company-tickers:76b92fbacfc1a5a8715a32bb5f923df4c79a8062b615735542081ddff6977b46",
   "inputWatermarks": {
-   "universe": "2026-10-28T07:32:37.364Z",
-   "screener": "2026-10-28T07:31:57.217Z",
-   "previousArtifact": "2026-10-28T06:36:38.076Z"
+   "universe": "2026-10-28T22:33:29.912Z",
+   "screener": "2026-10-28T22:32:48.009Z",
+   "previousArtifact": "2026-10-28T07:33:10.056Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3899,
-   "attempted": 18,
+   "eligible": 3898,
+   "attempted": 0,
    "updated": 0,
-   "retained": 3539,
-   "pendingEligible": 360
+   "retained": 3537,
+   "pendingEligible": 361
   },
   "thisBatch": {
    "updated": 0,
    "terminalUnsupported": 0,
-   "transientFailed": 18,
-   "recorded": 18
+   "transientFailed": 0,
+   "recorded": 0
   },
   "ledger": {
    "total": 361,
@@ -4540,8 +4540,8 @@
   },
   "lastSuccessfulObservation": "2026-10-28T06:36:12.719Z",
   "publication": {
-   "status": "NO_REFRESH_RETAINED",
-   "reason": "every attempted target failed; previously stored rows stay published",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -6342,98 +6342,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 423294672
-  },
-  "ACA": {
-   "symbol": "ACA",
-   "cik": "0001739445",
-   "entityName": "Arcosa, Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-02-27",
-   "acceptedAt": "2026-02-27T15:55:08.000Z",
-   "availableAt": "2026-02-27T15:55:08.000Z",
-   "transportFetchedAt": "2026-10-25T07:36:45.781Z",
-   "reportAgeDays": 298,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001739445-26-000029",
-    "netIncome": "0001739445-26-000029",
-    "equity": "0001739445-26-000029",
-    "sharesOutstanding": "0001739445-26-000029"
-   },
-   "operandAvailability": {
-    "revenue": "2026-02-27T15:55:08.000Z",
-    "netIncome": "2026-02-27T15:55:08.000Z",
-    "equity": "2026-02-27T15:55:08.000Z",
-    "sharesOutstanding": "2026-02-27T15:55:08.000Z",
-    "priorRevenue": "2026-02-27T15:55:08.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-02-27T15:55:08.000Z",
-    "margin": "2026-02-27T15:55:08.000Z",
-    "roe": "2026-02-27T15:55:08.000Z",
-    "pe": "2026-02-27T15:55:08.000Z",
-    "pb": "2026-02-27T15:55:08.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-25T07:36:45.781Z",
-   "form": "10-K",
-   "accession": "0001739445-26-000029",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 2883400000,
-   "netIncome": 208400000,
-   "equity": 2641400000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 49044022,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-01-15",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 283,
-    "acceptedTimeCount": 283,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 12.2,
-   "margin": 7.2,
-   "roe": 8.2,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "common",
-    "value": 490600000,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-05T20:23:46.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 2428200000
   },
   "ACAD": {
    "symbol": "ACAD",
@@ -174723,94 +174631,6 @@
    "roeBasis": "average-equity",
    "equityPrior": 508813000
   },
-  "NATH": {
-   "symbol": "NATH",
-   "cik": "0000069733",
-   "entityName": "NATHANS FAMOUS, INC.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2026-03-29",
-   "observedAt": "2026-03-29",
-   "filedAt": "2026-06-09",
-   "acceptedAt": "2026-06-09T11:00:52.000Z",
-   "availableAt": "2026-06-09T11:00:52.000Z",
-   "transportFetchedAt": "2026-10-26T22:34:58.599Z",
-   "reportAgeDays": 212,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001437749-26-019923",
-    "netIncome": "0001437749-26-019923",
-    "equity": "0001437749-26-019923",
-    "sharesOutstanding": "0001437749-26-019923"
-   },
-   "operandAvailability": {
-    "revenue": "2026-06-09T11:00:52.000Z",
-    "netIncome": "2026-06-09T11:00:52.000Z",
-    "equity": "2026-06-09T11:00:52.000Z",
-    "sharesOutstanding": "2026-06-09T11:00:52.000Z",
-    "priorRevenue": "2026-06-09T11:00:52.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-06-09T11:00:52.000Z",
-    "margin": "2026-06-09T11:00:52.000Z",
-    "roe": "2026-06-09T11:00:52.000Z",
-    "pe": "2026-06-09T11:00:52.000Z",
-    "pb": "2026-06-09T11:00:52.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-10-26T22:34:58.599Z",
-   "form": "10-K",
-   "accession": "0001437749-26-019923",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 162063000,
-   "netIncome": 20020000,
-   "equity": -14223000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 4094405,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-06-05",
-   "normalizerVersion": "sec-normalizer.2026-10-24",
-   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 389,
-    "acceptedTimeCount": 389,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 9.4,
-   "margin": 12.4,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "common",
-    "value": 19921000,
-    "through": "2026-06-28",
-    "availableAt": "2026-08-07T11:00:48.000Z",
-    "derivedQuarter": true
-   }
-  },
   "NATL": {
    "symbol": "NATL",
    "cik": "0001974138",
@@ -321211,9 +321031,9 @@
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3855,
-  "eligible": 3899,
-  "passAttempted": 41,
+  "classified": 3853,
+  "eligible": 3898,
+  "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
  },
@@ -321390,12 +321210,6 @@
    "sic": "6282",
    "description": "Investment Advice",
    "cik": "0001814287",
-   "observedAt": "2026-10-25T07:33:38.735Z"
-  },
-  "ACA": {
-   "sic": "3440",
-   "description": "Fabricated Structural Metal Products",
-   "cik": "0001739445",
    "observedAt": "2026-10-25T07:33:38.735Z"
   },
   "ACAA": {
@@ -335328,12 +335142,6 @@
    "sic": "4400",
    "description": "Water Transportation",
    "cik": "0001000177",
-   "observedAt": "2026-10-26T22:32:21.536Z"
-  },
-  "NATH": {
-   "sic": "5812",
-   "description": "Retail-Eating  Places",
-   "cik": "0000069733",
    "observedAt": "2026-10-26T22:32:21.536Z"
   },
   "NATL": {
