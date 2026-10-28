@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-27T23:51:47.803Z",
-  "attemptedAt": "2026-10-27T23:51:47.803Z",
-  "lastSuccessfulAt": "2026-10-27T23:51:47.803Z",
+  "generatedAt": "2026-10-28T00:03:05.629Z",
+  "attemptedAt": "2026-10-28T00:03:05.629Z",
+  "lastSuccessfulAt": "2026-10-28T00:03:05.629Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-13T23:51:42.168Z",
-  "until": "2026-10-27T23:51:42.168Z",
+  "since": "2026-10-14T00:02:58.678Z",
+  "until": "2026-10-28T00:02:58.678Z",
   "current24hWindow": {
     "start": "2026-10-26T23:00:00.000Z",
     "end": "2026-10-27T23:00:00.000Z",
@@ -97,7 +97,7 @@
       "eligibleTextCount": 1293,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67575
+      "lastPostId": 67576
     },
     {
       "channel": "bornlupin",
@@ -109,15 +109,15 @@
       "eligibleTextCount": 249,
       "selectedCount": 101,
       "error": null,
-      "lastPostId": 20857
+      "lastPostId": 20858
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 687,
-      "freshCount": 37,
+      "freshCount": 19,
       "eligibleTextCount": 687,
       "selectedCount": 120,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2504,
-  "retainedItemCount": 475,
+  "retainedItemCount": 459,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,8 +134,8 @@
     "observedCount": 2504,
     "eligibleTextCount": 2437,
     "mediaOnlyCount": 67,
-    "highSignalCount": 454,
-    "broadSignalCount": 1016,
+    "highSignalCount": 453,
+    "broadSignalCount": 1015,
     "selectedRawCount": 406,
     "selectedEligibleCount": 406,
     "selectedRawCoveragePct": 16.7,
@@ -143,21 +143,21 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "geo": 379,
     "semi": 601,
+    "flows": 112,
     "credit": 126,
     "earnings": 510,
     "macro": 409,
-    "power": 319,
-    "market-note": 918,
+    "power": 318,
+    "market-note": 917,
     "media-only": 67,
     "kr-market": 145,
-    "ai-policy": 150,
+    "ai-policy": 149,
     "healthcare": 135,
-    "geo": 378,
     "japan": 132,
     "equity": 187,
-    "flows": 111,
-    "optical": 37,
+    "optical": 36,
     "crypto": 4,
     "insider": 4
   },
@@ -167,14 +167,14 @@
     "285A.T": 2,
     "AAPL": 18,
     "MU": 64,
-    "005930.KS": 53,
+    "005930.KS": 52,
     "NVDA": 188,
     "GOOG": 108,
     "TSM": 96,
     "AMZN": 61,
     "STX": 8,
     "ORCL": 11,
-    "AMD": 24,
+    "AMD": 23,
     "MSFT": 60,
     "AVGO": 26,
     "TSLA": 94,
@@ -252,14 +252,14 @@
     "UNH": 1
   },
   "themes": [
-    "Market Notes (918 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
+    "Market Notes (917 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째...",
     "Semiconductors/Memory (601 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 오라클 AI 월드에서 엔비디아 Vera Rubin 슈퍼클러스터를 멀티기가와트 규모로 확대하고,...",
     "Earnings/Corporate (510 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
     "Macro/Rates (409 posts in 14-day research window): 2026년 10월 28일 미국 증시 브리핑 미국 증시는 FOMC 통화정책 결정과 빅테크 실적 발표를 앞두고 AI·반도체 중심의 매수세가 유입되며 상승 마감. S&P500 +0.60%, 나스닥 +1.18%,...",
-    "Geopolitics (378 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
-    "AI Power/Grid (319 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
+    "Geopolitics (379 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "AI Power/Grid (318 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (187 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
-    "AI Policy/Export Controls (150 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
+    "AI Policy/Export Controls (149 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
   "catalysts": [
     {
@@ -304,7 +304,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 53,
+      "count": 52,
       "text": "2026년 10월 27일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 +0.29%, S&P500 선물 +0.12%, 나스닥100 선물 -0.10%, 러셀2000 선물 +0.19% 기록...."
     },
     {
@@ -339,7 +339,7 @@
       "topics": [
         "geo"
       ],
-      "count": 378,
+      "count": 379,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -366,7 +366,7 @@
       "topics": [
         "optical"
       ],
-      "count": 37,
+      "count": 36,
       "focus": "StoneX, 루멘텀( $LITE ), 매수 의견으로 커버리지 개시 , 목표주가 $1,200 NPO 수요 가속화 * 루멘텀의 NPO 사업 모멘텀이 강화되면서 2028 회계연도 투자 전망이 앞당겨지고 있음. * 경영진에 따르면 기존 2028년 말~2029년 말로 예상했던 수요가 2027년 말~2028년 초로 약 1년..."
     },
     {
@@ -375,7 +375,7 @@
       "topics": [
         "power"
       ],
-      "count": 319,
+      "count": 318,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이..."
     },
     {
@@ -384,7 +384,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 150,
+      "count": 149,
       "focus": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
     },
     {
@@ -447,8 +447,8 @@
       "topics": [
         "flows"
       ],
-      "count": 111,
-      "focus": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%) 3위: NVIDIA CORP (8.72%) 4위: PROSHARES ULTRA QQQ ETF (6.61%)..."
+      "count": 112,
+      "focus": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
     },
     {
       "id": "insider",
@@ -465,7 +465,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 918,
+      "count": 917,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 28일 🇺🇸 아메리카 • 트럼프 대통령은 미국이 베네수엘라산 원유 100만 배럴을 인수할 예정이며, 이는 향후 수십억 배럴 규모로 확대될 원유 공급의 첫 번째..."
     }
   ],
@@ -759,14 +759,11 @@
       "datetime": "2026-10-27T20:57:27.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "flows",
-        "macro",
-        "semi",
-        "power"
+        "flows"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -789,8 +786,7 @@
         "XLV",
         "HAS",
         "IVZ"
-      ],
-      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
+      ]
     },
     {
       "id": "insidertracking/67531",
@@ -2036,14 +2032,11 @@
       "datetime": "2026-10-27T20:57:27.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "flows",
-        "macro",
-        "semi",
-        "power"
+        "flows"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2066,8 +2059,7 @@
         "XLV",
         "HAS",
         "IVZ"
-      ],
-      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
+      ]
     },
     {
       "id": "insidertracking/67533",
@@ -2506,11 +2498,11 @@
         "macro",
         "japan"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게..."
+      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67481",
@@ -2576,13 +2568,13 @@
         "semi",
         "equity"
       ],
-      "lead": 2,
       "score": 51,
       "hasText": true,
+      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임....",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임...."
+      ]
     },
     {
       "id": "HANAchina/71093",
@@ -2591,17 +2583,15 @@
       "datetime": "2026-10-27T08:25:31.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "semi",
-        "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락..."
+      ]
     },
     {
       "id": "HANAchina/71092",
@@ -2610,18 +2600,16 @@
       "datetime": "2026-10-27T08:23:05.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "power",
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "score": 65,
       "hasText": true,
+      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요..."
+      ]
     },
     {
       "id": "HANAchina/71091",
@@ -2630,14 +2618,13 @@
       "datetime": "2026-10-27T07:41:46.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "macro",
-        "credit"
+        "macro"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기..."
+      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20847",
@@ -2708,8 +2695,9 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’"
+      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71086",
@@ -2721,11 +2709,11 @@
         "semi",
         "kr-market"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%"
+      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67466",
@@ -2752,11 +2740,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은..."
+      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71084",
@@ -2769,8 +2757,9 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만..."
+      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67463",
@@ -4389,16 +4378,15 @@
       "datetime": "2026-10-26T01:23:16.000Z",
       "localDateKst": "2026-10-26",
       "tags": [
-        "semi",
         "power"
       ],
       "score": 68,
       "hasText": true,
+      "summary": "AI 투자, 1년 늦으면 비용 더 커진다! 기술 대기업들 전력·부지 확보 경쟁 구글 대만 전 총괄 젠리펑 주요 발언 1. AI 인프라 투자, 1년만 늦어도 비용 급증 - 구글을 비롯한 기술 대기업들이 막대한...",
       "tickers": [
         "GOOG",
         "CEG"
-      ],
-      "summary": "AI 투자, 1년 늦으면 비용 더 커진다! 기술 대기업들 전력·부지 확보 경쟁 구글 대만 전 총괄 젠리펑 주요 발언 1. AI 인프라 투자, 1년만 늦어도 비용 급증 - 구글을 비롯한 기술 대기업들이 막대한..."
+      ]
     },
     {
       "id": "HANAchina/71000",
@@ -8648,14 +8636,11 @@
       "datetime": "2026-10-27T20:57:27.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "flows",
-        "macro",
-        "semi",
-        "power"
+        "flows"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8678,8 +8663,7 @@
         "XLV",
         "HAS",
         "IVZ"
-      ],
-      "summary": "2026년 10월 27일 서학개미 순매수 미국 주식 TOP 50 1위: SPACE EXPLORATION TECHN-CL A (18.39%) 2위: PROSHARES ULTRAPRO QQQ ETF (8.86%)..."
+      ]
     },
     {
       "id": "insidertracking/67533",
@@ -9104,11 +9088,11 @@
         "macro",
         "japan"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게..."
+      "summary": ">>BOJ의 근원 물가 지표 3% 돌파…이번 주 동결하더라도 12월 금리 인상 가능성 커져 •일본의 9월 근원물가 상승률이 3.2%로 급등해 3년 만에 최고치를 기록, BOJ의 물가 목표인 2%를 크게...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67481",
@@ -9174,13 +9158,13 @@
         "semi",
         "equity"
       ],
-      "lead": 2,
       "score": 51,
       "hasText": true,
+      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임....",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>엔비디아, Meta 지분 30억 달러 투자 추진…AI 비서 Muse 협력 강화 •엔비디아와 Meta가 대규모 전략적 협력에 합의했으며, 엔비디아는 Meta에 30억 달러 규모의 지분 투자를 추진할 예정임...."
+      ]
     },
     {
       "id": "HANAchina/71093",
@@ -9189,17 +9173,15 @@
       "datetime": "2026-10-27T08:25:31.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "semi",
-        "kr-market",
-        "earnings",
-        "flows"
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.10.26, 월) 🇨🇳 중국 본토 증시는 이번 주 집중된 3분기 실적 발표를 앞둔 경계감 속에 급락. 창업판지수와 과창50지수는 장중 투매가 심화되며 각각 3.4%, 4.8% 하락..."
+      ]
     },
     {
       "id": "HANAchina/71092",
@@ -9208,18 +9190,16 @@
       "datetime": "2026-10-27T08:23:05.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "power",
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "score": 65,
       "hasText": true,
+      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": ">>200억 달러 자금이 TMT에서 이탈한 가운데, 골드만삭스 트레이딩 데스크는 AI 관련주 선별 매수를 권고하며 4대 투자 방향을 제시 (중국언론) •골드만삭스 트레이딩 데스크는 이번 AI 주가 급락이 수요..."
+      ]
     },
     {
       "id": "HANAchina/71091",
@@ -9228,14 +9208,13 @@
       "datetime": "2026-10-27T07:41:46.000Z",
       "localDateKst": "2026-10-27",
       "tags": [
-        "macro",
-        "credit"
+        "macro"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기..."
+      "summary": ">>블랙록: AI 채권 투자 기회, 장기 미국 국채보다 매력적 •블랙록의 채권 부문 CIO 릭 리더는 AI를 중심으로 한 부채 조달 열풍이 최근 수년간 가장 매력적인 채권 투자 기회를 창출하고 있으며, 장기...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20847",
@@ -9306,8 +9285,9 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’"
+      "summary": "•공상은행, 건설은행 장중 신고가 경신 •30년 국채 선물 가격 연중 신고가 **당대회중인데 중국 투심은 ‘튀어튀어’",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71086",
@@ -9319,11 +9299,11 @@
         "semi",
         "kr-market"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%"
+      "summary": "•중국 반도체 과창50지수 -4.4% 급락 •구성종목 49개 하락세, 기관 다시 이탈 •로컬 기관 여전히 많은 테크 포지션 투매 •최근 KOSPI 연동성 크게 약화 •CXMT는 +1.5%",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67466",
@@ -9350,11 +9330,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은..."
+      "summary": ">>중국 30년물 국채선물, 연중 최고치 경신 •중국 30년물 국채선물 주력 계약이 상승세를 이어가며 현재 0.45% 오른 118.54를 기록중. 장중 고가는 118.56으로, 연중 최고치를 다시 경신. 같은...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71084",
@@ -9367,8 +9347,9 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만..."
+      "summary": ">>(요약) 골드만삭스 경고: 정유공장 가동 중단 규모, 기존 최악의 예상치 초과…글로벌 석유제품 공급 부족, 2027년까지 지속 가능성 •골드만삭스는 중동과 러시아의 정유공장 가동 중단 규모가 하루 580만...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67463",
