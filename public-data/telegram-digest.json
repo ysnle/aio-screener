@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-28T14:21:32.230Z",
-  "attemptedAt": "2026-10-28T14:21:32.230Z",
-  "lastSuccessfulAt": "2026-10-28T14:21:32.230Z",
+  "generatedAt": "2026-10-28T14:23:36.049Z",
+  "attemptedAt": "2026-10-28T14:23:36.049Z",
+  "lastSuccessfulAt": "2026-10-28T14:23:36.049Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-14T14:21:27.498Z",
-  "until": "2026-10-28T14:21:27.498Z",
+  "since": "2026-10-14T14:23:26.116Z",
+  "until": "2026-10-28T14:23:26.116Z",
   "current24hWindow": {
     "start": "2026-10-26T23:00:00.000Z",
     "end": "2026-10-27T23:00:00.000Z",
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 682,
-      "freshCount": 36,
+      "freshCount": 18,
       "eligibleTextCount": 682,
       "selectedCount": 121,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2481,
-  "retainedItemCount": 448,
+  "retainedItemCount": 436,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -1993,19 +1993,16 @@
       "datetime": "2026-10-28T08:33:13.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "optical",
-        "kr-market",
-        "earnings"
+        "market-note"
       ],
       "score": 85,
       "hasText": true,
+      "summary": "중화권 마감 시황 (26.10.28, 수) 🇨🇳 중국 본토 증시는 글로벌 AI 랠리 재점화와 Physical AI 모멘텀이 맞물리며 강력한 기술주 반등장을 연출. 양대 시장 거래대금은 전일 대비...",
       "tickers": [
         "TSLA",
         "TSM",
         "000660.KS"
-      ],
-      "summary": "중화권 마감 시황 (26.10.28, 수) 🇨🇳 중국 본토 증시는 글로벌 AI 랠리 재점화와 Physical AI 모멘텀이 맞물리며 강력한 기술주 반등장을 연출. 양대 시장 거래대금은 전일 대비..."
+      ]
     },
     {
       "id": "insidertracking/67625",
@@ -2044,14 +2041,14 @@
       "localDateKst": "2026-10-28",
       "tags": [
         "credit",
-        "macro",
         "power",
-        "kr-market"
+        "kr-market",
+        "flows"
       ],
       "score": 85,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>노무라: 달러의 최대 신규 리스크는 AI 자금 이탈 •AI 관련 자금의 대규모 유입이 달러의 안전자산 성격을 바꾸고 있음. 노무라는 AI 투자 논리가 흔들릴 경우 외국인 자금이 미국 주식, 회사채, 전력..."
+      "summary": ">>노무라: 달러의 최대 신규 리스크는 AI 자금 이탈 •AI 관련 자금의 대규모 유입이 달러의 안전자산 성격을 바꾸고 있음. 노무라는 AI 투자 논리가 흔들릴 경우 외국인 자금이 미국 주식, 회사채, 전력...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67622",
@@ -2075,18 +2072,16 @@
       "datetime": "2026-10-28T06:29:27.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "flows",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
+      "summary": ">>골드만삭스 메모리 전문가 회의: 생산능력 확대에도 ‘당장의 갈증을 해소하기 어려움’, DRAM 가격 상승은 2028년까지 지속될 가능성, 내년 HBM 평균 가격 122% 급등 전망 (중국언론)...",
+      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": ">>골드만삭스 메모리 전문가 회의: 생산능력 확대에도 ‘당장의 갈증을 해소하기 어려움’, DRAM 가격 상승은 2028년까지 지속될 가능성, 내년 HBM 평균 가격 122% 급등 전망 (중국언론)..."
+      ]
     },
     {
       "id": "bornlupin/20863",
@@ -2134,11 +2129,11 @@
         "macro",
         "kr-market"
       ],
-      "lead": 2,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>인도 중앙은행 총재, 첫 공식 입장 표명: 환율 방어를 위해 금리 수단을 활용할 가능성 (중국언론) •인도 중앙은행이 루피화 방어에 나섰음. 은행 시스템의 초과 유동성은 11조 루피에서 4,620억 루피로..."
+      "summary": ">>인도 중앙은행 총재, 첫 공식 입장 표명: 환율 방어를 위해 금리 수단을 활용할 가능성 (중국언론) •인도 중앙은행이 루피화 방어에 나섰음. 은행 시스템의 초과 유동성은 11조 루피에서 4,620억 루피로...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/71144",
@@ -2151,10 +2146,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "•대만 가권지수 +2% 상승 마감 •반도체주 강세 주도. TSMC는 +1%",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "•대만 가권지수 +2% 상승 마감 •반도체주 강세 주도. TSMC는 +1%"
+      ]
     },
     {
       "id": "insidertracking/67616",
@@ -2205,14 +2201,13 @@
       "datetime": "2026-10-28T04:49:24.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>JPMorgan: AI가 견인하는 이익 성장이 지속된다면 미국 증시는 10년물 미 국채 금리가 5.5~6.0%까지 상승하는 것을 감내할 수 있음 •JPMorgan은 약 80년간의 역사적 데이터를 바탕으로,..."
+      "summary": ">>JPMorgan: AI가 견인하는 이익 성장이 지속된다면 미국 증시는 10년물 미 국채 금리가 5.5~6.0%까지 상승하는 것을 감내할 수 있음 •JPMorgan은 약 80년간의 역사적 데이터를 바탕으로,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71137",
@@ -2224,11 +2219,11 @@
         "semi",
         "power"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>모건스탠리 퀀트팀 : AI 반도체주는 아직 하락이 끝나지 않았으며, “반등시 비중 축소” 권고 •모건스탠리 퀀트팀은 반도체와 데이터센터 관련주의 매도세가 아직 끝나지 않았으며, 반도체 지수의 현재 흐름이..."
+      "summary": ">>모건스탠리 퀀트팀 : AI 반도체주는 아직 하락이 끝나지 않았으며, “반등시 비중 축소” 권고 •모건스탠리 퀀트팀은 반도체와 데이터센터 관련주의 매도세가 아직 끝나지 않았으며, 반도체 지수의 현재 흐름이...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67612",
@@ -2252,15 +2247,16 @@
       "datetime": "2026-10-28T03:47:22.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
       "score": 56,
       "hasText": true,
+      "summary": "•키옥시아 주가 +16% 급등 •앞서 SK하이닉스 시장 예상치를 웃도는 실적 발표",
+      "lead": 2,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "•키옥시아 주가 +16% 급등 •앞서 SK하이닉스 시장 예상치를 웃도는 실적 발표"
+      ]
     },
     {
       "id": "bornlupin/20861",
