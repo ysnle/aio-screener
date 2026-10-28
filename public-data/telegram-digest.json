@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-28T14:23:36.049Z",
-  "attemptedAt": "2026-10-28T14:23:36.049Z",
-  "lastSuccessfulAt": "2026-10-28T14:23:36.049Z",
+  "generatedAt": "2026-10-28T15:21:44.924Z",
+  "attemptedAt": "2026-10-28T15:21:44.924Z",
+  "lastSuccessfulAt": "2026-10-28T15:21:44.924Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-14T14:23:26.116Z",
-  "until": "2026-10-28T14:23:26.116Z",
+  "since": "2026-10-14T15:21:39.736Z",
+  "until": "2026-10-28T15:21:39.736Z",
   "current24hWindow": {
     "start": "2026-10-26T23:00:00.000Z",
     "end": "2026-10-27T23:00:00.000Z",
@@ -113,26 +113,26 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 682,
-      "freshCount": 18,
-      "eligibleTextCount": 682,
+      "count": 683,
+      "freshCount": 36,
+      "eligibleTextCount": 683,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71172
+      "lastPostId": 71173
     }
   ],
-  "count": 2481,
-  "retainedItemCount": 436,
+  "count": 2482,
+  "retainedItemCount": 446,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2481,
-    "eligibleTextCount": 2414,
+    "observedCount": 2482,
+    "eligibleTextCount": 2415,
     "mediaOnlyCount": 67,
     "highSignalCount": 448,
     "broadSignalCount": 1008,
@@ -143,9 +143,9 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "geo": 393,
     "macro": 404,
     "earnings": 498,
-    "geo": 392,
     "market-note": 902,
     "semi": 598,
     "equity": 184,
@@ -253,7 +253,7 @@
     "Semiconductors/Memory (598 posts in 14-day research window): 2026년 10월 28일 프리마켓 주요 종목 동향 상승 종목 ULBI (+144.65%) ENS, 3억2,000만 달러 규모 전액 현금 거래로 Ultralife 인수 추진 VRT (+15.73%) 주당순이익 예상치 $0.39 상회, 매출도 예상치 상회 UCTT (+15.09%) Needham, Buy 투자의견 유지...",
     "Earnings/Corporate (498 posts in 14-day research window): SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% • 영업이익 83.33조원: QoQ +38%, YoY +632% • 영업이익률 80%: 전분기 76% → 사상 최고...",
     "Macro/Rates (404 posts in 14-day research window): 2026년 10월 28일 미국 증시 프리마켓 브리핑 미국 증시 선물은 FOMC 금리 결정과 빅테크 실적 발표를 앞두고 혼조세. 다우 선물 -0.17%, S&P500 선물 +0.02%, 나스닥100 선물...",
-    "Geopolitics (392 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
+    "Geopolitics (393 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀....",
     "AI Power/Grid (311 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 일론 머스크는 AI 데이터센터 사업 외에 충분한 매출 기반이 없는 기업들에 대한 채권시장의 자금 조달이...",
     "Equity/Analyst (184 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — AI 인프라 확충을 위해 총 350억 달러 규모의 자본조달을 추진. 클래스 A 보통주 선도매각...",
     "Korea Market (148 posts in 14-day research window): >>한국 증시, 글로벌 시장에서 유례없이 저평가… 시가총액 1조 달러 이상 시장 중 처음으로 PER 5배 하회 (중국언론) •한국 KOSPI의 향후 12개월 예상 PER은 4.2배까지 하락. 이는..."
@@ -336,7 +336,7 @@
       "topics": [
         "geo"
       ],
-      "count": 392,
+      "count": 393,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 26일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상 타결 또는 군사적 대응 확대 여부에 대한 결정이 임박했다고 밝혀...."
     },
     {
@@ -1993,16 +1993,19 @@
       "datetime": "2026-10-28T08:33:13.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "market-note"
+        "semi",
+        "optical",
+        "kr-market",
+        "earnings"
       ],
       "score": 85,
       "hasText": true,
-      "summary": "중화권 마감 시황 (26.10.28, 수) 🇨🇳 중국 본토 증시는 글로벌 AI 랠리 재점화와 Physical AI 모멘텀이 맞물리며 강력한 기술주 반등장을 연출. 양대 시장 거래대금은 전일 대비...",
       "tickers": [
         "TSLA",
         "TSM",
         "000660.KS"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.10.28, 수) 🇨🇳 중국 본토 증시는 글로벌 AI 랠리 재점화와 Physical AI 모멘텀이 맞물리며 강력한 기술주 반등장을 연출. 양대 시장 거래대금은 전일 대비..."
     },
     {
       "id": "insidertracking/67625",
@@ -2041,14 +2044,14 @@
       "localDateKst": "2026-10-28",
       "tags": [
         "credit",
+        "macro",
         "power",
-        "kr-market",
-        "flows"
+        "kr-market"
       ],
       "score": 85,
       "hasText": true,
-      "summary": ">>노무라: 달러의 최대 신규 리스크는 AI 자금 이탈 •AI 관련 자금의 대규모 유입이 달러의 안전자산 성격을 바꾸고 있음. 노무라는 AI 투자 논리가 흔들릴 경우 외국인 자금이 미국 주식, 회사채, 전력...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>노무라: 달러의 최대 신규 리스크는 AI 자금 이탈 •AI 관련 자금의 대규모 유입이 달러의 안전자산 성격을 바꾸고 있음. 노무라는 AI 투자 논리가 흔들릴 경우 외국인 자금이 미국 주식, 회사채, 전력..."
     },
     {
       "id": "insidertracking/67622",
@@ -2072,16 +2075,18 @@
       "datetime": "2026-10-28T06:29:27.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi"
+        "semi",
+        "flows",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
-      "summary": ">>골드만삭스 메모리 전문가 회의: 생산능력 확대에도 ‘당장의 갈증을 해소하기 어려움’, DRAM 가격 상승은 2028년까지 지속될 가능성, 내년 HBM 평균 가격 122% 급등 전망 (중국언론)...",
-      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>골드만삭스 메모리 전문가 회의: 생산능력 확대에도 ‘당장의 갈증을 해소하기 어려움’, DRAM 가격 상승은 2028년까지 지속될 가능성, 내년 HBM 평균 가격 122% 급등 전망 (중국언론)..."
     },
     {
       "id": "bornlupin/20863",
@@ -2129,11 +2134,11 @@
         "macro",
         "kr-market"
       ],
+      "lead": 2,
       "score": 60,
       "hasText": true,
-      "summary": ">>인도 중앙은행 총재, 첫 공식 입장 표명: 환율 방어를 위해 금리 수단을 활용할 가능성 (중국언론) •인도 중앙은행이 루피화 방어에 나섰음. 은행 시스템의 초과 유동성은 11조 루피에서 4,620억 루피로...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>인도 중앙은행 총재, 첫 공식 입장 표명: 환율 방어를 위해 금리 수단을 활용할 가능성 (중국언론) •인도 중앙은행이 루피화 방어에 나섰음. 은행 시스템의 초과 유동성은 11조 루피에서 4,620억 루피로..."
     },
     {
       "id": "HANAchina/71144",
@@ -2146,11 +2151,10 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": "•대만 가권지수 +2% 상승 마감 •반도체주 강세 주도. TSMC는 +1%",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "•대만 가권지수 +2% 상승 마감 •반도체주 강세 주도. TSMC는 +1%"
     },
     {
       "id": "insidertracking/67616",
@@ -2201,13 +2205,14 @@
       "datetime": "2026-10-28T04:49:24.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "macro"
+        "macro",
+        "earnings"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": ">>JPMorgan: AI가 견인하는 이익 성장이 지속된다면 미국 증시는 10년물 미 국채 금리가 5.5~6.0%까지 상승하는 것을 감내할 수 있음 •JPMorgan은 약 80년간의 역사적 데이터를 바탕으로,...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>JPMorgan: AI가 견인하는 이익 성장이 지속된다면 미국 증시는 10년물 미 국채 금리가 5.5~6.0%까지 상승하는 것을 감내할 수 있음 •JPMorgan은 약 80년간의 역사적 데이터를 바탕으로,..."
     },
     {
       "id": "HANAchina/71137",
@@ -2219,11 +2224,11 @@
         "semi",
         "power"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": ">>모건스탠리 퀀트팀 : AI 반도체주는 아직 하락이 끝나지 않았으며, “반등시 비중 축소” 권고 •모건스탠리 퀀트팀은 반도체와 데이터센터 관련주의 매도세가 아직 끝나지 않았으며, 반도체 지수의 현재 흐름이...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>모건스탠리 퀀트팀 : AI 반도체주는 아직 하락이 끝나지 않았으며, “반등시 비중 축소” 권고 •모건스탠리 퀀트팀은 반도체와 데이터센터 관련주의 매도세가 아직 끝나지 않았으며, 반도체 지수의 현재 흐름이..."
     },
     {
       "id": "insidertracking/67612",
@@ -2247,16 +2252,15 @@
       "datetime": "2026-10-28T03:47:22.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 56,
       "hasText": true,
-      "summary": "•키옥시아 주가 +16% 급등 •앞서 SK하이닉스 시장 예상치를 웃도는 실적 발표",
-      "lead": 2,
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "•키옥시아 주가 +16% 급등 •앞서 SK하이닉스 시장 예상치를 웃도는 실적 발표"
     },
     {
       "id": "bornlupin/20861",
@@ -9719,10 +9723,10 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 92,
-    "earnings": 51,
+    "pt": 80,
+    "earnings": 46,
     "macro": 3,
-    "retail": 9
+    "retail": 8
   },
   "signals": [
     {
@@ -10846,174 +10850,6 @@
       "post": "bornlupin/20648"
     },
     {
-      "kind": "pt",
-      "key": "pt|SPCX|Piper Sandler|2026-10-14",
-      "ticker": "SPCX",
-      "broker": "Piper Sandler",
-      "ptFrom": 98,
-      "ptTo": 54,
-      "currency": "USD",
-      "direction": "cut",
-      "rating": "hold",
-      "ratingAction": null,
-      "date": "2026-10-14",
-      "post": "aetherjapanresearch/25836"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|ASTS|Piper Sandler|2026-10-14",
-      "ticker": "ASTS",
-      "broker": "Piper Sandler",
-      "ptFrom": 98,
-      "ptTo": 54,
-      "currency": "USD",
-      "direction": "cut",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-14",
-      "post": "aetherjapanresearch/25836"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|ALB|Mizuho|2026-10-14",
-      "ticker": "ALB",
-      "broker": "Mizuho",
-      "ptFrom": null,
-      "ptTo": 130,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "buy",
-      "ratingAction": "upgrade",
-      "date": "2026-10-14",
-      "post": "insidertracking/66235"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|HPE|Barclays|2026-10-14",
-      "ticker": "HPE",
-      "broker": "Barclays",
-      "ptFrom": null,
-      "ptTo": 77,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "hold",
-      "ratingAction": "downgrade",
-      "date": "2026-10-14",
-      "post": "insidertracking/66251"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|DELL|Barclays|2026-10-14",
-      "ticker": "DELL",
-      "broker": "Barclays",
-      "ptFrom": null,
-      "ptTo": 574,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "hold",
-      "ratingAction": "downgrade",
-      "date": "2026-10-14",
-      "post": "insidertracking/66251"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|ORCL|Mizuho|2026-10-14",
-      "ticker": "ORCL",
-      "broker": "Mizuho",
-      "ptFrom": null,
-      "ptTo": 320,
-      "currency": "USD",
-      "direction": "hold",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-14",
-      "post": "insidertracking/66235"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|NOW|Citi|2026-10-14",
-      "ticker": "NOW",
-      "broker": "Citi",
-      "ptFrom": 154,
-      "ptTo": 170,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-14",
-      "post": "insidertracking/66235"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|HPE|-|2026-10-14",
-      "ticker": "HPE",
-      "broker": null,
-      "ptFrom": 83,
-      "ptTo": 77,
-      "currency": "USD",
-      "direction": "cut",
-      "rating": "hold",
-      "ratingAction": "downgrade",
-      "date": "2026-10-14",
-      "post": "insidertracking/66235"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|DELL|-|2026-10-14",
-      "ticker": "DELL",
-      "broker": null,
-      "ptFrom": 603,
-      "ptTo": 574,
-      "currency": "USD",
-      "direction": "cut",
-      "rating": "hold",
-      "ratingAction": "downgrade",
-      "date": "2026-10-14",
-      "post": "insidertracking/66235"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|NTAP|-|2026-10-14",
-      "ticker": "NTAP",
-      "broker": null,
-      "ptFrom": null,
-      "ptTo": 219,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "hold",
-      "ratingAction": "downgrade",
-      "date": "2026-10-14",
-      "post": "insidertracking/66235"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|CORZ|Citizens|2026-10-14",
-      "ticker": "CORZ",
-      "broker": "Citizens",
-      "ptFrom": null,
-      "ptTo": 30,
-      "currency": "USD",
-      "direction": "hold",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-14",
-      "post": "insidertracking/66235"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|ADBE|HSBC|2026-10-14",
-      "ticker": "ADBE",
-      "broker": "HSBC",
-      "ptFrom": null,
-      "ptTo": 267,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "hold",
-      "ratingAction": "downgrade",
-      "date": "2026-10-14",
-      "post": "insidertracking/66142"
-    },
-    {
       "kind": "earnings",
       "key": "earnings|000660.KS|2026-10-28",
       "ticker": "000660.KS",
@@ -11564,66 +11400,6 @@
       "guidance": "raise",
       "date": "2026-10-15",
       "post": "insidertracking/66375"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|BLK|2026-10-14",
-      "ticker": "BLK",
-      "name": null,
-      "quarter": null,
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-10-14",
-      "post": "insidertracking/66251"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|STT|2026-10-14",
-      "ticker": "STT",
-      "name": null,
-      "quarter": null,
-      "revenue": "inline",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-10-14",
-      "post": "insidertracking/66251"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|BAC|2026-10-14",
-      "ticker": "BAC",
-      "name": "Bank of America",
-      "quarter": "2026Q3",
-      "revenue": null,
-      "eps": "miss",
-      "guidance": null,
-      "date": "2026-10-14",
-      "post": "insidertracking/66225"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|FAST|2026-10-14",
-      "ticker": "FAST",
-      "name": null,
-      "quarter": null,
-      "revenue": "inline",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-10-14",
-      "post": "insidertracking/66251"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|MS|2026-10-14",
-      "ticker": "MS",
-      "name": "Morgan Stanley",
-      "quarter": "2026Q3",
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-10-14",
-      "post": "insidertracking/66232"
     },
     {
       "kind": "macro",
@@ -12319,88 +12095,6 @@
       "inverseShare": 0,
       "top10Share": 86.06,
       "post": "insidertracking/66391"
-    },
-    {
-      "kind": "retail",
-      "key": "retail|순매수|2026-10-14",
-      "side": "buy",
-      "date": "2026-10-14",
-      "top": [
-        {
-          "rank": 1,
-          "name": "DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF",
-          "share": 66.72,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 2,
-          "name": "IRIS ENERGY LTD",
-          "share": 2.98,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 3,
-          "name": "LUMENTUM HOLDINGS INC",
-          "share": 2.76,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 4,
-          "name": "SPACE EXPLORATION TECHN-CL A",
-          "share": 2.72,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 5,
-          "name": "NVIDIA CORP",
-          "share": 2.17,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 6,
-          "name": "DIREXION SHARES ETF TRUST DAILY MSCI SOUTH KOREA BULL",
-          "share": 2.04,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 7,
-          "name": "FIGS INC CL A",
-          "share": 1.82,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 8,
-          "name": "MICRON TECHNOLOGY INC",
-          "share": 1.6,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 9,
-          "name": "IONQ INC",
-          "share": 1.17,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 10,
-          "name": "SNDSK CRP ORD WI",
-          "share": 1.13,
-          "leveraged": false,
-          "inverse": false
-        }
-      ],
-      "leveragedLongShare": 70.43,
-      "inverseShare": 0,
-      "top10Share": 85.11,
-      "post": "insidertracking/66270"
     }
   ]
 }
