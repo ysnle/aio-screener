@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-29T15:22:01.687Z",
-  "attemptedAt": "2026-10-29T15:22:01.687Z",
-  "lastSuccessfulAt": "2026-10-29T15:22:01.687Z",
+  "generatedAt": "2026-10-29T15:35:17.290Z",
+  "attemptedAt": "2026-10-29T15:35:17.290Z",
+  "lastSuccessfulAt": "2026-10-29T15:35:17.290Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-15T15:21:55.707Z",
-  "until": "2026-10-29T15:21:55.707Z",
+  "since": "2026-10-15T15:35:11.149Z",
+  "until": "2026-10-29T15:35:11.149Z",
   "current24hWindow": {
     "start": "2026-10-27T23:00:00.000Z",
     "end": "2026-10-28T23:00:00.000Z",
@@ -113,29 +113,29 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 685,
-      "freshCount": 20,
-      "eligibleTextCount": 685,
+      "count": 686,
+      "freshCount": 40,
+      "eligibleTextCount": 686,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71229
+      "lastPostId": 71230
     }
   ],
-  "count": 2436,
-  "retainedItemCount": 439,
+  "count": 2437,
+  "retainedItemCount": 452,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2436,
-    "eligibleTextCount": 2365,
+    "observedCount": 2437,
+    "eligibleTextCount": 2366,
     "mediaOnlyCount": 71,
-    "highSignalCount": 443,
-    "broadSignalCount": 971,
+    "highSignalCount": 444,
+    "broadSignalCount": 972,
     "selectedRawCount": 407,
     "selectedEligibleCount": 407,
     "selectedRawCoveragePct": 17.2,
@@ -143,12 +143,13 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "semi": 562,
+    "power": 301,
+    "equity": 172,
     "macro": 393,
     "earnings": 485,
     "geo": 399,
     "kr-market": 146,
-    "semi": 561,
-    "power": 300,
     "healthcare": 130,
     "credit": 123,
     "market-note": 881,
@@ -157,16 +158,16 @@
     "ai-policy": 141,
     "japan": 115,
     "optical": 40,
-    "equity": 171,
     "crypto": 5,
     "insider": 3
   },
   "tickerCounts": {
-    "AMZN": 63,
-    "GOOG": 132,
+    "AAPL": 15,
+    "MSFT": 70,
+    "GOOG": 133,
+    "AMZN": 64,
     "PLTR": 7,
     "NVDA": 184,
-    "MSFT": 69,
     "GOOGL": 5,
     "LLY": 2,
     "MRK": 2,
@@ -180,7 +181,6 @@
     "MRVL": 7,
     "LITE": 12,
     "006400.KS": 4,
-    "AAPL": 14,
     "ORCL": 12,
     "CMG": 1,
     "AMD": 22,
@@ -249,12 +249,12 @@
   },
   "themes": [
     "Market Notes (881 posts in 14-day research window): 2026년 10월 28일 프리마켓 주요 종목 동향 상승 종목 ULBI (+144.65%) ENS, 3억2,000만 달러 규모 전액 현금 거래로 Ultralife 인수 추진 VRT (+15.73%) 주당순이익...",
-    "Semiconductors/Memory (561 posts in 14-day research window): 2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”...",
+    "Semiconductors/Memory (562 posts in 14-day research window): 2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”...",
     "Earnings/Corporate (485 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (399 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 국방부 추산에 따르면 이란 전쟁 관련 군사작전 비용이 470억 달러를 돌파. 이 중 탄약 재고 보충에...",
     "Macro/Rates (393 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
-    "AI Power/Grid (300 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (171 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "AI Power/Grid (301 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (172 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "Korea Market (146 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
   "catalysts": [
@@ -265,7 +265,7 @@
     },
     {
       "key": "GOOG",
-      "count": 132,
+      "count": 133,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -280,12 +280,12 @@
     },
     {
       "key": "MSFT",
-      "count": 69,
+      "count": 70,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전 가능성도 검토 중이라고 Semafor가 보도. • 뱅크오브아메리카는 연준이 2026년 12월과 2027년..."
     },
     {
       "key": "AMZN",
-      "count": 63,
+      "count": 64,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -353,7 +353,7 @@
       "topics": [
         "semi"
       ],
-      "count": 561,
+      "count": 562,
       "focus": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -371,7 +371,7 @@
       "topics": [
         "power"
       ],
-      "count": 300,
+      "count": 301,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -398,7 +398,7 @@
       "topics": [
         "equity"
       ],
-      "count": 171,
+      "count": 172,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -1663,6 +1663,28 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71230",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71230",
+      "datetime": "2026-10-29T15:34:08.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "semi",
+        "power",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 76,
+      "hasText": true,
+      "tickers": [
+        "AAPL",
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": ">>20년간 가격 인하 압박을 받아온 메모리 업체들, AI를 통해 Apple에 ‘복수’ •AI 데이터센터 수요 급증으로 메모리 가격이 상승하면서 Apple과 공급업체 간 협상력이 역전되고 있음. 과거..."
+    },
+    {
       "id": "HANAchina/71229",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71229",
@@ -2105,14 +2127,14 @@
       "datetime": "2026-10-29T05:01:37.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%"
     },
     {
       "id": "HANAchina/71208",
@@ -2121,13 +2143,15 @@
       "datetime": "2026-10-29T04:18:31.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "kr-market"
+        "kr-market",
+        "earnings",
+        "flows"
       ],
+      "lead": 1,
       "score": 58,
       "hasText": true,
-      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화..."
     },
     {
       "id": "bornlupin/20885",
@@ -2157,14 +2181,14 @@
       "datetime": "2026-10-29T02:57:23.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "earnings",
-        "ai-policy"
+        "ai-policy",
+        "earnings"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
-      "summary": ">>ChatGPT 모멘트가 도래하기 전까지 수익화 서두르지 않는 Unitree Robotics •Unitree Robotics의 3분기 매출은 전년 동기 대비 약 70% 증가, G1 휴머노이드 로봇은 이미...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>ChatGPT 모멘트가 도래하기 전까지 수익화 서두르지 않는 Unitree Robotics •Unitree Robotics의 3분기 매출은 전년 동기 대비 약 70% 증가, G1 휴머노이드 로봇은 이미..."
     },
     {
       "id": "insidertracking/67720",
@@ -2240,13 +2264,14 @@
       "datetime": "2026-10-29T02:19:57.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "macro"
+        "macro",
+        "credit"
       ],
+      "lead": 1,
       "score": 74,
       "hasText": true,
-      "summary": ">>미국은 어느 정도의 고금리를 감당할 수 있을까? (CICC) •CICC는 10월 FOMC에서 연준이 기준금리를 3.75~4%로 동결, 시장도 큰 반응을 보이지 않았다고 분석. 그러나 표면적인 안정과 달리...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국은 어느 정도의 고금리를 감당할 수 있을까? (CICC) •CICC는 10월 FOMC에서 연준이 기준금리를 3.75~4%로 동결, 시장도 큰 반응을 보이지 않았다고 분석. 그러나 표면적인 안정과 달리..."
     },
     {
       "id": "bornlupin/20883",
@@ -2310,15 +2335,16 @@
       "datetime": "2026-10-29T01:36:27.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "•삼성전자, 27년 상반기 HBM4E 양산 시작 계획 •2026년 주주환원 규모가 총 90조-110조원에 이를 것으로 예상, 이 중 35조원은 이미 계획•완료 •나머지 주주환원에는 대규모 자사주 매입 및 소각...",
-      "lead": 1,
       "tickers": [
         "005930.KS"
-      ]
+      ],
+      "summary": "•삼성전자, 27년 상반기 HBM4E 양산 시작 계획 •2026년 주주환원 규모가 총 90조-110조원에 이를 것으로 예상, 이 중 35조원은 이미 계획•완료 •나머지 주주환원에는 대규모 자사주 매입 및 소각..."
     },
     {
       "id": "bornlupin/20880",
@@ -2363,14 +2389,16 @@
       "datetime": "2026-10-29T00:54:39.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "market-note"
+        "macro",
+        "power",
+        "equity"
       ],
       "score": 74,
       "hasText": true,
-      "summary": ">>글로벌 채권 발행 규모 사상 최고치 경신 •올해 글로벌 채권 발행을 통한 자금 조달 규모는 6.61조 달러로 전년 대비 15% 증가했으며, 2025년의 사상 최고 기록을 두 달 앞당겨 넘어섬. 핵심 동력은...",
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": ">>글로벌 채권 발행 규모 사상 최고치 경신 •올해 글로벌 채권 발행을 통한 자금 조달 규모는 6.61조 달러로 전년 대비 15% 증가했으며, 2025년의 사상 최고 기록을 두 달 앞당겨 넘어섬. 핵심 동력은..."
     },
     {
       "id": "HANAchina/71191",
@@ -2380,13 +2408,14 @@
       "localDateKst": "2026-10-29",
       "tags": [
         "macro",
-        "credit"
+        "credit",
+        "geo"
       ],
+      "lead": 2,
       "score": 79,
       "hasText": true,
-      "summary": ">>베선트, “월가 안심시키기”… 미국 국채·AI 자금조달·연준 추가 금리 인상 모두 문제없어 •베선트는 AI 자금조달 분야에서 채권 수익률이 두 자릿수까지 치솟을 수 있다는 우려가 있지만 “전혀 문제없다”고...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>베선트, “월가 안심시키기”… 미국 국채·AI 자금조달·연준 추가 금리 인상 모두 문제없어 •베선트는 AI 자금조달 분야에서 채권 수익률이 두 자릿수까지 치솟을 수 있다는 우려가 있지만 “전혀 문제없다”고..."
     },
     {
       "id": "HANAchina/71188",
@@ -7242,24 +7271,6 @@
       "summary": ">>미국과 이란, 일촉즉발…주말 긴장 고조! 유가 4월 이후 처음으로 117달러 돌파, 월간 10% 이상 상승 (중국언론) •중동 정세가 급격히 악화되고 있음. 호르무즈 해협에서 초대형 유조선 2척이 기뢰에...",
       "lead": 1,
       "tickers": []
-    },
-    {
-      "id": "HANAchina/70935",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70935",
-      "datetime": "2026-10-24T01:48:50.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "semi"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>YMTC, DRAM 기술 돌파 가속화 (대만공상시보) •글로벌 시장조사업체에 따르면, YMTC는 전송 속도 9,600MT/s의 LPDDR5X 메모리를 개발 중이며, 우한 Fab 3 공장에서 양산할 계획임....",
-      "lead": 1,
-      "tickers": [
-        "MU",
-        "005930.KS"
-      ]
     },
     {
       "id": "bornlupin/20792",
