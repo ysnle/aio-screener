@@ -1,0 +1,229 @@
+{
+  "symbol": "C",
+  "name": "Citigroup Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Citigroup은 전 세계 기업의 돈을 움직이는 결제·수탁(Services)과 글로벌 트레이딩을 축으로 한 미국 대형 은행으로, 해외 소매 사업을 정리하는 구조조정을 마치고 수익률을 올리는 '재건' 단계에 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Citigroup Third Quarter 2026 Results and Key Metrics (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000831001/000110465926115323/c-ex99d1.htm", "publisher": "Citigroup / SEC EDGAR", "date": "2026-10-13" },
+    { "id": "s2", "kind": "8-K", "title": "Citigroup Fourth Quarter and Full Year 2025 Results (8-K Exhibit 99.1; read via BoardroomAlpha mirror of the SEC filing)", "url": "https://www.boardroomalpha.com/sec/c-8-k-2026-01-14-0001104659-26-003604/c-20260114xex99d1.htm", "publisher": "Citigroup via BoardroomAlpha", "date": "2026-01-14" },
+    { "id": "s3", "kind": "news", "title": "Citi investor day: reorg, transformation, RoTCE targets (11-13% for 2027-28, 14-15% medium term, $30B buyback, ~20,000 job cuts)", "url": "https://www.bankingdive.com/news/citi-investor-day-reorg-transformation-return-tangible-common-equity-target-fraser/819611/", "publisher": "Banking Dive", "date": "2026-05-07" },
+    { "id": "s4", "kind": "news", "title": "Citi shares edge lower as bank reveals investor day ROTCE targets (read via search summary)", "url": "https://www.investing.com/news/stock-market-news/citi-shares-fall-as-bank-reveals-investor-day-rotce-targets-4667601", "publisher": "Investing.com", "date": "2026-05-07" },
+    { "id": "s5", "kind": "ir-site", "title": "Citi unveils Citi Stylus Workspaces with agentic AI (press release; read via search summary)", "url": "https://www.citigroup.com/global/news/press-release/2025/citi-unveils-citi-stylus-workspaces-agentic-ai-turbocharging-productivity", "publisher": "Citigroup", "date": "2025-09" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/c/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s7", "kind": "ir-site", "title": "Citi Investor Day 2026 FAQs (investment in modern platforms incl. AI, data, digital assets; read via search summary)", "url": "https://www.citigroup.com/global/investors/events-and-presentations/investor-day-2026/faqs", "publisher": "Citigroup", "date": "2026-05" }
+  ],
+
+  "moat": {
+    "sources": [
+      "기업 대상 글로벌 결제·수탁 네트워크(Services) - 2025 매출 213억 달러, RoTCE 28% 이상",
+      "수십 개국에 걸친 현지 은행 라이선스와 기업 고객 기반 (국가 수 미확인)",
+      "글로벌 채권·통화 트레이딩 - 2025 Markets 매출 220억 달러",
+      "Q3 2026 평균 예금 약 1.5조 달러"
+    ],
+    "text": "Citi의 힘은 다국적 기업이 여러 나라에서 돈을 받고 보내고 보관할 때 쓰는 결제·수탁 망에서 나온다. 이 Services 사업은 2025년 매출 213억 달러에 RoTCE 28% 이상을 내 회사에서 가장 수익성이 높다. 같은 기업·기관 고객에게 채권·통화 트레이딩(2025년 220억 달러)을 함께 팔 수 있다는 점이 두 번째 뿌리다.",
+    "src": ["s2", "s1"]
+  },
+
+  "design": {
+    "text": "회사는 2026년 기준 Services(결제·무역금융·증권 수탁), Markets(채권·주식 트레이딩), Banking(투자은행·기업 대출), Wealth(자산관리), U.S. Consumer Cards(미국 카드)와 All Other(Banamex 등 정리 중인 Legacy Franchises와 본사)로 보고한다. 2025년까지는 미국 소매은행과 카드를 합친 USPB로 보고했기 때문에, 2025년과 2026년 사업부 숫자는 그대로 비교되지 않는다.",
+    "src": ["s1", "s2"]
+  },
+
+  "make": {
+    "model": "financial",
+    "partners": [
+      "예금자(대부분 기업 운영 예금) - Q3 2026 평균 예금 약 1.5조 달러",
+      "채권·우선주 투자자 - 장기 조달과 규제 자본",
+      "규제 자본 - CET1 비율 12.8% (Q3 2026)",
+      "AI 도구 - Citi Assist·Citi Stylus Workspaces (사내, 모델 업체명 미공시)"
+    ],
+    "text": "은행이 '만드는' 것은 예금과 자본으로 만든 대출·결제·트레이딩 능력이다. Citi는 약 1.5조 달러 예금을 기반으로 평균 대출 8,090억 달러(+12%)를 운용하고, 트레이딩 재고와 결제 유동성을 제공한다. 자본 여유가 큰 편이라 CET1 비율 12.8%로 2025말 13.2%에서 조금만 내려왔다.",
+    "src": ["s1", "s2", "s5"]
+  },
+
+  "sell": {
+    "customers": [
+      "다국적 기업·금융기관·정부 (Services, Banking)",
+      "헤지펀드·자산운용사 등 기관 투자자 (Markets) - Q3 2026 프라임 잔고 40% 이상 증가",
+      "자산가 (Wealth)",
+      "미국 카드 고객 (U.S. Consumer Cards)"
+    ],
+    "channel": "기업 커버리지 은행가와 Services 결제·수탁 플랫폼(기업), 트레이딩 데스크(기관), Wealth 어드바이저(자산가), 카드 제휴·디지털 채널(카드; 제휴사명 미확인).",
+    "concentration": "단일 고객 의존 공시 없음. 기업·기관 고객 비중이 크다.",
+    "text": "이 능력은 주로 기업과 기관에게 팔린다. 다국적 기업은 Services로 각국 자금을 관리하고, 기관은 Markets 데스크에서 채권·통화를 거래하며 돈을 빌린다(Q3 2026 프라임 잔고 40% 이상 증가). 미국 카드와 Wealth가 개인 쪽 판매를 맡지만, 이익의 중심은 기업 쪽이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "다국적 기업·금융기관", "to": "Services", "what": "결제·자금관리·수탁 수수료와 운영 예금의 이자 차익 (Q3 2026 66억 달러)" },
+      { "from": "기관 투자자", "to": "Markets", "what": "채권·통화(44억)와 주식(17억 달러) 매매 스프레드·수수료, 프라임 금융 이자" },
+      { "from": "기업", "to": "Banking", "what": "자문·인수 수수료(Q3 2026 13.5억 달러)와 기업 대출 이자" },
+      { "from": "미국 카드 사용자", "to": "U.S. Consumer Cards", "what": "카드 대출 이자와 수수료 (Q3 2026 47억 달러)" },
+      { "from": "자산가", "to": "Wealth", "what": "자산 비례 자문·운용 보수와 예금·대출 이자 (Q3 2026 33억 달러)" }
+    ],
+    "pricing": "기업 운영 예금과 대출의 이자 차익, 거래당 결제·수탁 수수료, 트레이딩 스프레드, 카드 이자, 자산관리 보수가 섞여 있다.",
+    "text": "돈은 기업이 돈을 움직일 때 가장 많이 들어온다. Services의 결제·수탁 수수료와 예금 차익, Markets의 매매 수익이 Q3 2026 매출 238억 달러의 절반을 넘고, 미국 카드와 Wealth가 나머지를 채운다. 그래서 세계 교역과 기업 자금 흐름, 시장 변동성이 Citi 매출을 함께 움직인다.",
+    "src": ["s1"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 85.2, "unit": "USD bn", "yoy": 5.6 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 16.8,
+    "operatingCashFlow": null,
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "Services", "revenue": 21.3, "unit": "USD bn", "share": 25.0, "yoy": 8, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Markets", "revenue": 22.0, "unit": "USD bn", "share": 25.8, "yoy": 11, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Banking", "revenue": 8.3, "unit": "USD bn", "share": 9.7, "yoy": 31, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Wealth", "revenue": 8.6, "unit": "USD bn", "share": 10.1, "yoy": 14, "operatingMargin": null, "src": ["s2"] },
+      { "name": "U.S. Personal Banking (USPB)", "revenue": 21.0, "unit": "USD bn", "share": 24.6, "yoy": 5, "operatingMargin": null, "src": ["s2"] },
+      { "name": "All Other (managed basis)", "revenue": 4.4, "unit": "USD bn", "share": 5.2, "yoy": -41, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "RoTCE / ROE", "value": "FY2025 7.7% / 6.8%; Q3 2026 11.5% / 10.1%", "src": ["s2", "s1"] },
+      { "name": "효율성 비율", "value": "FY2025 64.7% → Q3 2026 58.5%", "src": ["s2", "s1"] },
+      { "name": "CET1 비율", "value": "13.2% (2025말, 요구치보다 160bp 높음) → 12.8% (Q3 2026)", "src": ["s2", "s1"] },
+      { "name": "신용 비용", "value": "FY2025 충당금 103억, 순신용손실 91억 달러; Q3 2026 충당금 26억, 순신용손실 22억 달러", "src": ["s2", "s1"] },
+      { "name": "사업부 순이익 (FY2025)", "value": "Services 71억, Markets 59억, USPB 31억, Banking 23억, Wealth 15억 달러, All Other -45억 달러", "src": ["s2"] },
+      { "name": "주당 유형순자산", "value": "97.06달러(2025말) → 101.59달러(Q3 2026)", "src": ["s2", "s1"] },
+      { "name": "Q3 2026 사업부 매출", "value": "Services 66억(+15%), Markets 61억(+6%), U.S. Consumer Cards 47억(보합), Wealth 33억(+15%), Banking 17억(+2%), All Other 14억 달러", "src": ["s1"] }
+    ],
+    "text": "2025년 매출은 852억 달러(+5.6%), 순이익 143억 달러였지만, 러시아 AO Citibank 매각 손실 12억 달러와 Banamex 관련 영업권 손상 같은 정리 비용 때문에 RoTCE는 7.7%에 그쳤다. 이익은 Services(71억)와 Markets(59억)에 몰리고, 정리 중인 All Other가 45억 달러 손실로 전체를 끌어내렸다. 2026년에는 이 부담이 줄어 Q3 순이익 52억 달러(+40%), RoTCE 11.5%로 올라왔다.",
+    "src": ["s2", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "buybacks", "value": 13.0, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "2025년에는 자사주 약 130억 달러를 포함해 약 176억 달러를 주주에게 돌려줘 순이익보다 많이 환원했다(배당성향 133%). Q3 2026에도 자사주와 배당으로 41억 달러를 냈고, 2026년 5월 투자자의 날에는 여러 해에 걸친 300억 달러 자사주 매입을 발표했다. 자본 여유가 큰 만큼 환원을 앞세우는 것이 지금의 우선순위다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 파는 회사가 아니라 쓰는 회사. 사내 생성형 AI 도구 Citi Assist와 Citi Stylus Workspaces를 배포했고 2025-09에는 Stylus에 에이전트 기능을 넣었으며, 투자자의 날 자료에서 AI·데이터·디지털 자산 플랫폼 투자를 강조했다.",
+    "dependsOn": ["models-platforms (외부 AI 모델 - 업체명 미공시)", "cloud-infrastructure (데이터·클라우드 플랫폼)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 운영 비용, 규제 보고 정비, 직원 생산성으로 나타남"],
+    "aiRevenue": null,
+    "upside": "Citi에 AI는 구조조정의 연장선이다. 회사는 약 2만 명 감원과 관리 단계 축소를 진행했고, AI 도구로 정책 확인·문서 작업·개발을 줄이면 효율성 비율(Q3 2026 58.5%)을 더 낮출 수 있다. 결제·디지털 자산 플랫폼 현대화는 Services 경쟁력에도 연결된다.",
+    "risk": "Citi는 데이터 관리·위험 통제 문제로 규제를 받아 왔기 때문에 AI 도입이 같은 통제 문제를 새로 만들면 비용이 커진다. 핀테크·스테이블코인 기반 결제가 기업 결제 수수료를 잠식할 수도 있다.",
+    "text": "그래서 AI 가치사슬에서 Citi는 맨 끝의 도입자다. AI 매출은 없고, 사내 AI 도구와 플랫폼 현대화로 비용과 운영 위험을 줄이는 것이 목표다. 관건은 투자자의 날에 말한 투자가 2027~2028년 RoTCE 11~13% 목표로 이어지느냐다.",
+    "src": ["s5", "s7", "s3", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "기업 결제·자금관리·수탁 (Services)", "rivals": ["JPMorgan", "Bank of America", "HSBC", "BNY", "State Street"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "채권·통화 트레이딩", "rivals": ["JPMorgan", "Goldman Sachs", "Bank of America", "Morgan Stanley"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "투자은행 (자문·인수)", "rivals": ["JPMorgan", "Goldman Sachs", "Morgan Stanley", "Bank of America"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "미국 신용카드", "rivals": ["JPMorgan Chase", "Capital One", "American Express", "Bank of America"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "자산관리", "rivals": ["Morgan Stanley", "JPMorgan", "UBS", "Bank of America"], "position": "challenger", "share": null, "src": ["s1"] }
+    ],
+    "edge": "다국적 기업용 결제·수탁 망과 현지 라이선스, 채권·통화 트레이딩 규모.",
+    "threats": "JPMorgan의 결제·투자은행 확장, 트레이딩 호황의 반락, 미국 카드 신용 손실, 규제 개선 작업 지연, 핀테크·스테이블코인 결제.",
+    "text": "Citi가 강한 곳은 기업 결제와 채권·통화 트레이딩이고, Q3 2026 Services 매출이 15% 늘며 이 축이 성장을 이끌었다. 반면 투자은행·카드·자산관리에서는 JPMorgan 같은 대형 경쟁사를 쫓는 쪽이고, 미국 카드 매출은 Q3 2026에 보합이었다. 회사는 Services와 Wealth를 키우고 비용을 줄여 수익률 격차를 좁히는 방식으로 맞선다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "strategy": {
+    "goal": "2026 RoTCE 10~11%(초과 달성 예상), 2027~2028 RoTCE 11~13%(특이 항목 제외), 2029~2031 중기 14~15%. 여러 해에 걸친 300억 달러 자사주 매입.",
+    "roadmap": [
+      { "when": "2025-12-15", "what": "Banamex 지분 25% 매각 완료", "src": ["s2"] },
+      { "when": "2025 4분기", "what": "러시아 AO Citibank 매각 계획에 따른 손실 12억 달러 반영", "src": ["s2"] },
+      { "when": "2026 1분기", "what": "규제 보고·후선 업무 개선 작업 약 90% 완료 (회사 언급)", "src": ["s3"] },
+      { "when": "2026", "what": "RoTCE 10~11% 목표 초과 예상, 투자 일부 앞당김", "src": ["s1"] },
+      { "when": "2027~2028", "what": "RoTCE 11~13%, 2028년에는 범위 상단 지향", "src": ["s3", "s4"] },
+      { "when": "2029~2031", "what": "RoTCE 14~15%", "src": ["s3"] }
+    ],
+    "vision": "Fraser는 단순해진 다섯 축(Services·Markets·Banking·Wealth·카드)으로 기업 결제와 자산관리를 키우고, 정리 사업을 걷어 내 경쟁사 수준의 지속 가능한 수익률을 내는 은행을 그린다.",
+    "text": "앞으로의 계획은 정리를 끝내고 수익률을 단계적으로 올리는 것이다. Banamex 지분 매각과 러시아 사업 매각으로 해외 소매를 걷어 내고, 2027~2028년 RoTCE 11~13%를 거쳐 2031년까지 14~15%에 가겠다고 했다. 그 사이 300억 달러 자사주 매입이 주당 가치를 함께 키우는 구조다.",
+    "src": ["s2", "s3", "s1"]
+  },
+
+  "governance": {
+    "line": "Jane Fraser CEO가 이끄는 지분 분산 회사로, 이사회 의장 겸직과 승계 계획은 확인하지 못했고 2025년 약 176억 달러를 환원한 데 이어 300억 달러 자사주 매입을 진행 중이다.",
+    "src": ["s2", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "RoTCE", "value": "10~11% 목표 초과 예상", "givenOn": "2026-10-13", "src": ["s1"] },
+      { "period": "2027-2028", "metric": "RoTCE (ex notable items)", "value": "11~13%", "givenOn": "2026-05-07", "src": ["s3", "s4"] },
+      { "period": "2029-2031", "metric": "RoTCE", "value": "14~15%", "givenOn": "2026-05-07", "src": ["s3"] },
+      { "period": "multi-year", "metric": "share repurchase", "value": "300억 달러", "givenOn": "2026-05-07", "src": ["s3"] }
+    ],
+    "style": "annual",
+    "track": "2026년 RoTCE 목표 10~11%에 대해 Q3 2026 RoTCE 11.5%로 초과 중이고, 회사도 연간 초과를 예상했다. Q3 실적 자료에는 매출·비용의 수치 전망이 없었다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 12.65달러(범위 11.68~13.78), 직전 4개 분기 10.87달러. 최근 4주 상향 9건·하향 3건으로 상향 우세.",
+    "src": ["s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "RoTCE가 11%대 이상을 유지하며 11~13% 범위 안착",
+      "Services 매출이 두 자릿수 가까이 성장",
+      "효율성 비율이 60% 아래에서 유지",
+      "Banamex 잔여 지분 정리 등 All Other 손실 축소",
+      "300억 달러 자사주 매입이 분기마다 꾸준히 집행"
+    ],
+    "breaks": [
+      "규제 개선 작업 지연이나 새 제재",
+      "미국 카드 순신용손실 확대",
+      "트레이딩 매출 급감",
+      "CET1 비율이 요구치에 가까워져 환원 축소",
+      "정리 사업에서 추가 대규모 손실"
+    ],
+    "keyNumbers": [
+      { "name": "RoTCE", "why": "2027~2028 목표 11~13%까지의 경로" },
+      { "name": "Services 매출과 순이익", "why": "가장 수익성 높은 핵심 사업" },
+      { "name": "효율성 비율·총비용", "why": "구조조정과 AI 효과" },
+      { "name": "순신용손실과 충당금 적립", "why": "카드 신용의 신호" },
+      { "name": "CET1 비율과 분기 환원액", "why": "300억 달러 매입 여력" },
+      { "name": "All Other 손실", "why": "정리 사업 부담이 줄어드는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적과 2027 전망", "src": [] },
+      { "date": "매년 6월 (추정)", "event": "연준 스트레스 테스트 결과와 자본 계획", "src": [] },
+      { "date": "수시", "event": "Banamex 잔여 지분 처리, 규제 개선 작업 관련 발표, 연준 금리 결정", "src": [] }
+    ],
+    "reaction": "주가는 RoTCE 목표 달성 경로와 비용, 자사주 매입 속도에 반응하는 경향이 있다. 2026년 5월 투자자의 날에는 RoTCE 목표가 기대보다 보수적이라는 평가 속에 주가가 소폭 밀렸고, Q3 2026에는 RoTCE 11.5%와 Services +15%가 나왔다.",
+    "conditions": [
+      "분기 RoTCE와 연간 목표 대비 위치",
+      "Services·Markets 매출 증감",
+      "효율성 비율과 총비용",
+      "순신용손실·충당금 적립",
+      "CET1 비율과 분기 환원액",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "사업부 합계 856억이 보고 매출 852억과 약 4억 달러 차이 (All Other를 관리 기준으로 보고하면서 생기는 조정분으로 추정)",
+    "2026년 사업부 재편(USPB → U.S. Consumer Cards, 소매은행의 Wealth 이동 추정)의 정확한 경계와 2025 재작성 수치",
+    "FY2025 배당 총액 (총 환원 약 176억 - 자사주 약 130억으로 약 46억 달러로 추정되나 원문 미확인)",
+    "FY2025 RoTCE: 회사 보도자료 7.7%, Banking Dive 8.8% (특이 항목 기준 차이로 추정) - 본문은 7.7% 사용",
+    "은행 특성상 총마진·영업이익률·영업현금흐름·잉여현금흐름은 null (순이익률은 143억/852억 계산값)",
+    "AI 도구 접근 직원 수(보도상 17.5만 명 이상)와 AI 효과 금액",
+    "Services·트레이딩 점유율과 영업 국가 수 ('leader'/'challenger'는 판단)",
+    "Banamex 잔여 지분 IPO 일정, 러시아 매각 완료 여부",
+    "약 2만 명 감원의 진행 상황",
+    "Fraser 이사회 의장 겸직 여부와 승계 계획",
+    "4Q26 실적 발표일"
+  ],
+  "confidence": "high - 매출·이익·사업부·자본·환원은 회사 8-K 실적 자료에서 왔다(FY2025는 SEC 원문의 미러 사본). 투자자의 날 세부와 AI 정보는 보도·요약이라 medium 수준이다."
+}

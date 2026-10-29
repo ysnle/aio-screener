@@ -64,7 +64,10 @@ try {
     const receipts = meta.domainReceipts || {};
     for (const domain of ['market-quotes', 'news', 'macro-fred', 'macro-bls', 'macro-bea', 'treasury-curve', 'surveys-aaii', 'options-put-call']) check(`P1256 domain receipt ${domain} is published`, !!receipts[domain]);
     check('P1950 the pinned producer clock stays inside the stored news cycle', !Number.isFinite(cycleEnd) || data.meta?.newsCycleEnd === before.meta.newsCycleEnd, `${data.meta?.newsCycleEnd} vs ${before.meta?.newsCycleEnd} (pinned ${new Date(pinned).toISOString()})`);
-    check('P1256 a failed news plane keeps the previous bundle', Array.isArray(data.news) && data.news.length === (Array.isArray(before.news) ? before.news.length : 0), `${data.news?.length} vs ${before.news?.length}`);
+    // The carried rows are re-selected under the current rules (fetchNews: a tightened filter or cap still drops them), so
+    // the bundle is the previous one or a subset of it, never empty and never a row the previous run did not publish.
+    const beforeLinks = new Set((before.news || []).map((row) => row.link));
+    check('P1256 a failed news plane keeps the previous bundle', Array.isArray(data.news) && (data.news.length > 0 || !before.news?.length) && data.news.every((row) => beforeLinks.has(row.link)), `${data.news?.length} vs ${before.news?.length}`);
     // P1950: once the cycle has rolled over, the previous cycle's articles are not carried into the new cycle's bundle
     // (the receipt keeps their last date; meta would otherwise label them as the current cycle).
     if (Number.isFinite(nextRefresh) && Array.isArray(before.news)) {

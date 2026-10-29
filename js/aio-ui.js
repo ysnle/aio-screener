@@ -1561,7 +1561,7 @@ function _renderFundFinancials(d) {
   var isSEC = !inc.revenue && secRevVal; // SEC 폴백 사용 여부
 
   var html = '';
-  html += card('시가총액', mktCap > 0 ? '$' + _fmtNum(mktCap) : 'N/A', p.sector || (isSEC ? 'SEC XBRL' : ''));
+  html += card('시가총액', mktCap > 0 ? '$' + _fmtNum(mktCap) : 'N/A', p.sector ? escHtml(p.sector) : (isSEC ? 'SEC XBRL' : '')); // v59.42: provider sector escaped
   html += card('P/E', _fn(peVal) !== null ? peVal.toFixed(1) + 'x' : 'N/A', (m.peRatio || p.pe) ? '공급자 기준' : sm.peBasis === 'ttm' ? '시가총액 ÷ 최근 4개 분기 순이익(' + String(sm.peThrough || '').slice(0, 7) + '까지)' : '시가총액 ÷ 최근 회계연도 순이익');
   html += card('ROE', _fn(roeVal) !== null ? (roeVal * 100).toFixed(1) + '%' : 'N/A', r.returnOnEquity ? '공급자 기준' : sm.roeBasis === 'average-equity' ? '순이익 ÷ 평균 자기자본(전년·당해 말)' : '순이익 ÷ 기말 자기자본');
   var vc = inc.revenue ? '$' : cur;
@@ -2154,12 +2154,22 @@ function _renderFundPeers(d) {
   if (!el || !body || !d.peers || !d.peers.length) return;
   var html = '<div class="lu-wrap6">';
   d.peers.slice(0, 12).forEach(function(p) {
-    html += '<div class="lu-peer" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + p + '</div>';
+    html += '<div class="lu-peer" data-action="_aioFundSearchFill" data-arg="' + escHtml(p) + '">' + escHtml(p) + '</div>'; // v59.42: the label is escaped too
   });
   html += '</div>';
   html += '<div class="lu-sm-mut-t6">클릭하면 해당 기업 분석으로 이동합니다</div>';
   body.innerHTML = html;
   el.style.display = 'block';
+}
+
+// v59.42: one reading of an EPS surprise row for the report tables and chart — a missing actual or estimate gives no
+// figure ('—', a gap in the chart) instead of $0.00 and a Beat/Miss computed against 0.
+function _fundFinite(v) { return v != null && v !== '' && isFinite(v) ? Number(v) : null; }
+function _fundEps(v) { var n = _fundFinite(v); return n == null ? '—' : '$' + n.toFixed(2); }
+function _fundSurprise(s) {
+  var actual = _fundFinite(s && s.actualEarningResult), est = _fundFinite(s && s.estimatedEarning);
+  var diff = actual != null && est != null ? actual - est : null;
+  return { actual: actual, est: est, diff: diff, pct: diff != null && est !== 0 ? diff / Math.abs(est) * 100 : null };
 }
 
 function _renderFundEarnings(d) {
@@ -2182,7 +2192,7 @@ function _renderFundEarnings(d) {
       var quarter = (e.year && e.quarter) ? (e.year + ' Q' + e.quarter) : '';
       html += '<div class="lu-earn-box">';
       html += '<div class="lu-split-base">';
-      html += '<span class="lu-earn-date">' + (e.date || '-') + '</span>';
+      html += '<span class="lu-earn-date">' + escHtml(e.date || '-') + '</span>';
       if (hourLabel) html += '<span class="lu-earn-hour">' + hourLabel + '</span>';
       html += '</div>';
       if (quarter) html += '<div class="lu-xs-mut-t3">' + quarter + '</div>';
@@ -2199,15 +2209,14 @@ function _renderFundEarnings(d) {
     html += '<div class="lu-scrollx"><table class="lu-tbl-sm">';
     html += '<tr class="lu-bb"><th class="lu-th-l6x">분기</th><th class="lu-th-r6">실제 EPS</th><th class="lu-th-r6">예상 EPS</th><th class="lu-th-r6">서프라이즈</th></tr>';
     d.fmpSurprises.forEach(function(s) {
-      var diff = s.actualEarningResult - s.estimatedEarning;
-      var pct = s.estimatedEarning != null && isFinite(s.estimatedEarning) && s.estimatedEarning !== 0 ? (diff / Math.abs(s.estimatedEarning) * 100) : null; // no estimate: no figure, not 0%
-      var c = diff >= 0 ? '#3dd68c' : '#ec5d5e';
-      var label = diff >= 0 ? 'Beat' : 'Miss';
+      var sp = _fundSurprise(s); // v59.42: a missing EPS is '—', not $0.00 and a made-up Beat/Miss
+      var c = sp.diff == null ? 'var(--text-muted)' : sp.diff >= 0 ? '#3dd68c' : '#ec5d5e';
+      var label = sp.diff >= 0 ? 'Beat' : 'Miss';
       html += '<tr class="lu-bb2">';
-      html += '<td class="lu-td6-lbl">' + (s.date||'') + '</td>';
-      html += '<td class="lu-td6-v">$' + (s.actualEarningResult||0).toFixed(2) + '</td>';
-      html += '<td class="lu-td6-vm">$' + (s.estimatedEarning||0).toFixed(2) + '</td>';
-      html += '<td class="lu-td6-b" style="color:' + c + ';">' + (pct === null ? '—' : label + ' ' + _fmtPct(pct)) + '</td>';
+      html += '<td class="lu-td6-lbl">' + escHtml(s.date || '') + '</td>';
+      html += '<td class="lu-td6-v">' + _fundEps(s.actualEarningResult) + '</td>';
+      html += '<td class="lu-td6-vm">' + _fundEps(s.estimatedEarning) + '</td>';
+      html += '<td class="lu-td6-b" style="color:' + c + ';">' + (sp.pct == null ? '—' : label + ' ' + _fmtPct(sp.pct)) + '</td>';
       html += '</tr>';
     });
     html += '</table></div>';
@@ -2476,20 +2485,20 @@ function _renderFundVariance(d) {
       '<th class="lu-th-r56">QoQ 변화</th>' +
       '<th class="lu-th-r56">서프라이즈</th></tr>';
     sorted.forEach(function(s, idx) {
-      var prev = idx > 0 ? sorted[idx - 1].actualEarningResult : null;
-      var qoq = (prev !== null) ? s.actualEarningResult - prev : null;
-      var diff = s.actualEarningResult - s.estimatedEarning;
-      var diffPct = s.estimatedEarning ? (diff / Math.abs(s.estimatedEarning) * 100) : 0;
-      var beatC = diff >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+      // v59.42: a missing actual or estimate read '$0.00' and 'Beat +0.0%' (a zero estimate gave 0%); it is '—' now.
+      var sp = _fundSurprise(s);
+      var prev = idx > 0 ? _fundFinite(sorted[idx - 1].actualEarningResult) : null;
+      var qoq = prev != null && sp.actual != null ? sp.actual - prev : null;
+      var beatC = sp.diff == null ? 'var(--text-muted)' : sp.diff >= 0 ? 'var(--data-green)' : 'var(--data-red)';
       var qoqC = qoq === null ? 'var(--text-muted)' : qoq >= 0 ? 'var(--data-green)' : 'var(--data-red)';
       html += '<tr class="lu-bb2">';
-      html += '<td class="lu-td58-lbl">' + (s.date || '').slice(0, 7) + '</td>';
-      html += '<td class="lu-td56">$' + (s.estimatedEarning || 0).toFixed(2) + '</td>';
-      html += '<td class="lu-td56-b">$' + (s.actualEarningResult || 0).toFixed(2) + '</td>';
+      html += '<td class="lu-td58-lbl">' + escHtml((s.date || '').slice(0, 7)) + '</td>';
+      html += '<td class="lu-td56">' + _fundEps(s.estimatedEarning) + '</td>';
+      html += '<td class="lu-td56-b">' + _fundEps(s.actualEarningResult) + '</td>';
       html += '<td class="lu-td56" style="color:' + qoqC + ';">' +
         (qoq === null ? '—' : (qoq >= 0 ? '+' : '') + '$' + qoq.toFixed(2)) + '</td>';
       html += '<td class="lu-td56-beat" style="color:' + beatC + ';">' +
-        (diff >= 0 ? 'Beat +' : 'Miss ') + diffPct.toFixed(1) + '%</td>';
+        (sp.pct == null ? '—' : (sp.diff >= 0 ? 'Beat +' : 'Miss ') + sp.pct.toFixed(1) + '%') + '</td>';
       html += '</tr>';
     });
     html += '</table></div>';
@@ -2577,10 +2586,11 @@ function _renderFundVariance(d) {
       canvas.style.display = 'block';
       var sorted2 = surprises.slice().reverse();
       var labels = sorted2.map(function(s) { return (s.date || '').slice(0, 7); });
-      var actuals = sorted2.map(function(s) { return s.actualEarningResult || 0; });
-      var estimates = sorted2.map(function(s) { return s.estimatedEarning || 0; });
-      var diffs2 = sorted2.map(function(s) { return s.actualEarningResult - s.estimatedEarning; });
-      var barColors = diffs2.map(function(dv) { return dv >= 0 ? 'rgba(61,214,140,0.75)' : 'rgba(236,93,94,0.75)'; });
+      // v59.42: a missing EPS is a gap (null), not a bar or point at 0.
+      var actuals = sorted2.map(function(s) { return _fundFinite(s.actualEarningResult); });
+      var estimates = sorted2.map(function(s) { return _fundFinite(s.estimatedEarning); });
+      var diffs2 = sorted2.map(function(s) { return _fundSurprise(s).diff; });
+      var barColors = diffs2.map(function(dv) { return dv == null ? 'rgba(128,128,128,0.75)' : dv >= 0 ? 'rgba(61,214,140,0.75)' : 'rgba(236,93,94,0.75)'; });
       var ctx2 = (window._aioSetupCanvas) ? window._aioSetupCanvas(canvas, canvas.offsetWidth || 400, canvas.offsetHeight || 220) : canvas.getContext('2d');  // v48.96 P2-3: DPR
       var _newChart = new Chart(ctx2, {
         type: 'bar',

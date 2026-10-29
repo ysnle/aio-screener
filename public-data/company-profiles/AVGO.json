@@ -1,0 +1,241 @@
+{
+  "symbol": "AVGO",
+  "name": "Broadcom Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "early November (FY2025 ended 2025-11-02; FY2026 Q4 ends 2026-11-01)",
+  "oneLine": "Broadcom은 Google TPU 같은 고객 맞춤형 AI 칩(XPU)과 AI 클러스터를 잇는 이더넷 칩을 설계하고 VMware 소프트웨어로 현금을 버는 회사로, 2026년 들어 AI 매출이 전사 매출의 절반을 넘으며 'NVIDIA GPU의 대안'을 공급하는 핵심 축이 됐다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Broadcom Inc. Announces Third Quarter Fiscal Year 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001730168/000173016826000076/avgo-08022026x8kxex99.htm", "publisher": "Broadcom / SEC EDGAR", "date": "2026-09-02" },
+    { "id": "s2", "kind": "8-K", "title": "Broadcom Inc. Announces Fourth Quarter and Fiscal Year 2025 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000116/avgo-11022025x8kxex99.htm", "publisher": "Broadcom / SEC EDGAR", "date": "2025-12-11" },
+    { "id": "s3", "kind": "10-K", "title": "Broadcom Form 10-K for fiscal year ended 2025-11-02 (filing date per AIO SEC snapshot)", "url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000121/avgo-20251102.htm", "publisher": "Broadcom / SEC EDGAR", "date": "2025-12-18" },
+    { "id": "s4", "kind": "8-K", "title": "Broadcom Inc. Announces Second Quarter Fiscal Year 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001730168/000173016826000051/avgo-05032026x8kxex99.htm", "publisher": "Broadcom / SEC EDGAR", "date": "2026-06-03" },
+    { "id": "s5", "kind": "call-transcript", "title": "Broadcom Q3 2026 Earnings Call Transcript (machine-generated, publisher warns of errors)", "url": "https://www.webull.com/news/15511095937917952", "publisher": "Webull", "date": "2026-09-02" },
+    { "id": "s6", "kind": "other", "title": "Broadcom earnings Q4 FY2026 expected date (tracker, not company-confirmed; accessed date)", "url": "https://days.to/broadcom-earnings", "publisher": "days.to", "date": "2026-10-28" },
+    { "id": "s7", "kind": "ir-site", "title": "Broadcom Inc. to Announce Fourth Quarter and Fiscal Year 2025 Financial Results on Thursday, December 11, 2025 (prior-year timing pattern)", "url": "https://investors.broadcom.com/news-releases/news-release-details/broadcom-inc-announce-fourth-quarter-and-fiscal-year-2025", "publisher": "Broadcom", "date": "2025-11-11" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/avgo/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" },
+    { "id": "s9", "kind": "other", "title": "Broadcom documents index quoting 10-Q for quarter ended 2026-05-03 (customer concentration; secondary, accessed date)", "url": "https://equibles.com/stocks/avgo/documents", "publisher": "Equibles", "date": "2026-10-28" },
+    { "id": "s10", "kind": "news", "title": "Broadcom Q2 Results Disappoint Despite Record Revenue Driven by AI (software below expectations; shares fell)", "url": "https://app.sentisense.ai/stories/broadcom-q2-results-disappoint-despite-record-revenue-driven-by-ai-06042026", "publisher": "SentiSense", "date": "2026-06-04" },
+    { "id": "s11", "kind": "news", "title": "Broadcom reports strong Q3, sees AI chip revenue accelerating in Q4 (article date not checked; accessed date)", "url": "https://www.constellationr.com/insights/news/broadcom-reports-strong-q3-sees-ai-chip-revenue-accelerating-q4", "publisher": "Constellation Research", "date": "2026-10-28" },
+    { "id": "s12", "kind": "news", "title": "Broadcom Set To Dominate Custom AI Chip Market With 60% Share By 2027, Counterpoint Says", "url": "https://finviz.com/news/288744/broadcom-set-to-dominate-custom-ai-chip-market-with-60-share-by-2027-counterpoint-says", "publisher": "Benzinga via Finviz (Counterpoint Research)", "date": "2026-01-27" },
+    { "id": "s13", "kind": "news", "title": "Google expands Marvell partnership for custom AI chips (agreement signed 2026-07-29, Marvell filing 2026-08-19)", "url": "https://techwireasia.com/2026/08/google-expands-marvell-partnership-for-custom-ai-chips/", "publisher": "Techwire Asia", "date": "2026-08-20" },
+    { "id": "s14", "kind": "other", "title": "AMD vs NVIDIA AI GPU market share 2026 (synthesis of Bloomberg Intelligence, IDC, Silicon Analysts estimates; figure carried from NVDA v2 profile, not re-fetched)", "url": "https://siliconanalysts.com/analysis/amd-vs-nvidia-ai-gpu-market-share-2026", "publisher": "Silicon Analysts", "date": "2026-04-13" }
+  ],
+
+  "moat": {
+    "sources": [
+      "하이퍼스케일러와 여러 세대에 걸쳐 칩을 공동 설계해 온 관계 - Google TPU는 장기 공급계약, Meta MTIA는 2027년까지 3세대 (콜)",
+      "AI 클러스터를 잇는 이더넷 스위치 칩 라인업 - Tomahawk 6가 XPU를 만드는 거의 모든 AI 하이퍼스케일러에 배치, Tomahawk 7(200Tbps) 테이프아웃 (콜)",
+      "SerDes·광부품(EML·CW 레이저)·패키징 기판까지 이어지는 자체 부품 기술과 공급 확보 (콜)",
+      "VMware 인프라 소프트웨어의 높은 고착성과 이익률 - Q3 FY2026 소프트웨어 영업이익률 약 84% (콜)"
+    ],
+    "text": "Broadcom의 힘은 범용 칩을 많이 파는 데서가 아니라, Google·Meta 같은 고객과 칩을 여러 세대에 걸쳐 함께 설계해 온 관계에서 나온다. 고객이 자기 AI 모델에 맞춘 칩을 원할 때 고속 신호 처리(SerDes), 이더넷 스위치, 광부품, 패키징을 한 번에 제공할 수 있는 회사가 드물기 때문이다. 여기에 VMware 소프트웨어가 84% 수준의 영업이익률로 꾸준한 현금을 대 주는 것이 두 번째 기둥이다.",
+    "src": ["s5", "s3"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 설계하는 것은 두 부문으로 보고된다. 반도체 부문은 고객 맞춤형 AI 가속기(XPU: Google TPU, Meta MTIA, OpenAI·Anthropic용 칩), AI 네트워킹(Tomahawk 이더넷 스위치·PCIe 스위치·광 DSP·레이저), 그리고 브로드밴드·스토리지·무선 같은 비AI 칩으로 이뤄진다. 인프라 소프트웨어 부문은 VMware Cloud Foundation과 새 VMware Private AI Cloud 등 기업용 소프트웨어를 담는다.",
+    "src": ["s5", "s3", "s1"]
+  },
+
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "TSMC - 웨이퍼 생산 (파운드리)",
+      "ASE, Amkor, SPIL - 패키징·테스트",
+      "Foxconn - 조립",
+      "HBM 메모리 공급사 - XPU에 탑재 (업체명 미공시)",
+      "레이저(EML·CW)·기판 - 일부는 자체 생산, 싱가포르 자체 기판 팹은 FY2027부터 가동 예정"
+    ],
+    "text": "설계한 칩의 대부분은 외부에서 만든다. 웨이퍼는 TSMC, 패키징·테스트는 ASE·Amkor·SPIL이 맡고, XPU에는 외부에서 산 HBM이 올라간다. 다만 병목이 된 부품은 직접 챙겨서, 인화인듐 레이저 생산능력을 전년 대비 세 배 이상 늘리고 FY2027부터 싱가포르 자체 기판 팹을 돌리겠다고 밝혔다.",
+    "src": ["s3", "s5"]
+  },
+
+  "sell": {
+    "customers": [
+      "Google - TPU와 AI 네트워킹 장기계약, 연 '수백억 달러' 규모 TPU (콜)",
+      "Anthropic - 2026년 Ironwood 1GW, 2027년 TPU v8i 5GW, 2028년 추가 10GW; 2027년 최대 XPU 고객 예상 (콜)",
+      "OpenAI - 2027년 Jalapeno 1.3GW, 2028년 5GW 이상; 2028년 2위 XPU 고객 예상 (콜)",
+      "Meta - MTIA 3세대, 2028년까지 3GW (콜)",
+      "XPU 고객은 총 6곳, 나머지는 이름 미공개 (콜)",
+      "VMware 기업 고객, 유통사·OEM 경유 범용 칩 고객"
+    ],
+    "channel": "XPU는 고객과 직접 다년 계약, 범용 칩은 유통사 비중이 커서 FY2025 매출의 48%가 유통사 경유. 소프트웨어는 기업에 직접·파트너 판매.",
+    "concentration": "FY2025 유통사 1곳 직접 매출이 총매출의 32%, 모든 채널 합산 상위 5개 최종 고객 약 40% (10-K). 2026-05-03 분기에는 유통사 1곳 42%, 상위 5개 약 45% (2차 인용).",
+    "text": "이렇게 만든 XPU는 소수의 AI 큰손에게 기가와트(GW) 단위로 팔린다. Google이 가장 오래된 고객이지만, 회사는 2027년에는 Anthropic이 최대 XPU 고객이 되고 2028년에는 OpenAI가 2위가 될 것으로 본다. AI가 커질수록 상위 5개 고객 비중이 40%에서 45%로 오르는 등 집중도가 높아지고 있다.",
+    "src": ["s5", "s3", "s9"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "Anthropic·OpenAI·Google·Meta", "what": "AI 구독료·API 사용료·광고 매출" },
+      { "from": "Apollo·Blackstone 등 금융 파트너 (XPV 플랫폼)", "to": "Anthropic·OpenAI의 컴퓨트 배치", "what": "칩·랙 구매 자금 조달 (첫 350억 달러 트랜치는 Anthropic 1GW용)" },
+      { "from": "Google·Meta·Anthropic·OpenAI 등 XPU 고객 6곳", "to": "Broadcom", "what": "맞춤형 XPU·AI 네트워킹 대금 (다년 공급계약, GW 단위 배치)" },
+      { "from": "하이퍼스케일러·OEM (유통사 경유 포함)", "to": "Broadcom", "what": "Tomahawk 스위치 칩·NIC·광부품 대금 (개당)" },
+      { "from": "기업 IT 부서", "to": "Broadcom (VMware)", "what": "소프트웨어 구독 라이선스 (ARR 전년 대비 +15%)" },
+      { "from": "Broadcom", "to": "TSMC·패키징 업체·HBM 공급사", "what": "웨이퍼·패키징·메모리 대금" }
+    ],
+    "pricing": "XPU는 고객별 다년 계약 아래 개당·시스템 단위로 판매되며, 메모리 함량이 높아 총마진은 낮고 영업이익률은 유지되는 구조. 네트워킹 칩은 개당 판매. VMware는 구독(연간 반복 매출). XPV 금융 구조에서 회사는 '소폭의 잔존가치 보증'을 제공할 수 있다고 밝혔다.",
+    "text": "돈은 AI 이용료에서 출발해 AI 연구소와 하이퍼스케일러가 칩을 살 때 Broadcom 매출이 된다. 새로 생긴 고리는 금융이다: Apollo·Blackstone과 만든 XPV 플랫폼이 OpenAI·Anthropic의 컴퓨트 구매 자금을 대고, 첫 350억 달러는 Anthropic 1GW 배치에 쓰였다. 소프트웨어는 이와 별개로 기업 구독료가 매년 반복해 들어오는 흐름이다.",
+    "src": ["s5", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-11-02)",
+    "revenue": { "value": 63.887, "unit": "USD bn", "yoy": 23.9 },
+    "grossMargin": 67.8,
+    "operatingMargin": 39.9,
+    "netMargin": 36.2,
+    "operatingCashFlow": { "value": 27.537, "unit": "USD bn" },
+    "freeCashFlow": { "value": 26.914, "unit": "USD bn" },
+    "segments": [
+      { "name": "Semiconductor solutions", "revenue": 36.858, "unit": "USD bn", "share": 57.7, "yoy": 22, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Infrastructure software", "revenue": 27.029, "unit": "USD bn", "share": 42.3, "yoy": 26, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q3 FY2026) 매출·이익률", "value": "매출 295.9억 달러, 반도체 208.4억(+127%)·소프트웨어 87.5억(+29%); 총마진 75%, 영업이익률 67.9% (콜)", "src": ["s1", "s5"] },
+      { "name": "Q3 FY2026 AI 반도체 매출", "value": "167억 달러(+221%), 총매출의 약 56% (계산값). XPU가 73%(약 122억, 계산값), 네트워킹 약 27%(약 45억, 계산값)", "src": ["s1", "s5"] },
+      { "name": "비AI 반도체", "value": "Q3 FY2026 약 42억 달러, 전년 대비 +5%", "src": ["s5"] },
+      { "name": "VMware 소프트웨어", "value": "Q3 FY2026 ARR +15%, 총마진 94%, 영업이익률 약 84%", "src": ["s5"] },
+      { "name": "다년 AI 매출 목표", "value": "FY2026 약 580억, FY2027 약 1,150억, FY2028 약 2,300억 달러 (콜)", "src": ["s5"] }
+    ],
+    "text": "이 흐름이 FY2025에 매출 638.9억 달러, 영업이익률 약 40%, 잉여현금흐름 269억 달러로 나타났다(GAAP 영업이익률은 VMware 인수 무형자산 상각을 포함). FY2026에는 판이 바뀌어 Q3 한 분기 AI 반도체가 167억 달러로 매출의 절반을 넘었고, 그중 73%가 XPU였다. 이익은 두 곳에 몰리는데, 성장은 AI 반도체가, 가장 높은 이익률(약 84%)은 소프트웨어가 맡는다.",
+    "src": ["s2", "s1", "s5"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-11-02)",
+    "items": [
+      { "use": "R&D", "value": 10.977, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.623, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 0.0, "unit": "USD bn", "src": ["s2"] },
+      { "use": "debt repayment", "value": 18.478, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 11.142, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 2.45, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "임직원 주식보상 세금 원천징수용 자사주 취득", "value": 3.86, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "벌어들인 현금(FY2025 잉여현금흐름 269억 달러)의 가장 큰 쓰임은 VMware 인수 때 진 빚을 갚는 데(185억 달러) 있었고, 그다음이 배당 111억 달러였다. 설비투자는 6억 달러에 그쳐 공장 대신 R&D(110억 달러)에 돈을 쓰는 팹리스 구조가 그대로 보인다. FY2026에는 분기 배당을 0.65달러로 올리고 9개월 동안 자사주 84.5억 달러를 사는 등, 부채 축소에서 주주환원 쪽으로 무게가 옮겨가는 중이다.",
+    "src": ["s2", "s1", "s5"]
+  },
+
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "GPU를 사지 않고 자기 칩을 만들려는 하이퍼스케일러·AI 연구소의 설계·생산 대행자이자, 그 칩들을 수만 개 단위로 묶는 이더넷 스위치 칩 공급자. 가속기와 네트워킹 두 층에 동시에 걸쳐 있다.",
+    "dependsOn": ["semicap-foundry (TSMC 첨단 웨이퍼, ASE·Amkor·SPIL 패키징)", "memory (XPU용 HBM, 업체명 미공시)", "기판·레이저 (일부 자체, 싱가포르 기판 팹 FY2027)", "power-energy·data-center-real-estate (고객 측 부지·전력·건물)"],
+    "sellsTo": ["cloud-infrastructure (Google, Meta)", "models-platforms (Anthropic, OpenAI)", "networking·서버 OEM (스위치 칩)", "ai-adopter (VMware Private AI Cloud 기업 고객)"],
+    "aiRevenue": "Q3 FY2026 AI 반도체 매출 167억 달러, 총매출 295.9억 달러의 약 56% (2026-09-02 발표, 비율은 계산값). Q4 FY2026 가이드 217억 달러.",
+    "upside": "고객별 GW 배치 계획(Anthropic 2027년 5GW·2028년 추가 10GW, OpenAI 2028년 5GW 이상, Meta 2028년까지 3GW)이 그대로 XPU 매출로 들어오고, 클러스터가 커질수록 이더넷 스위치·광부품 수요가 함께 늘어난다. 회사 목표는 FY2027 약 1,150억, FY2028 약 2,300억 달러 AI 매출이다.",
+    "risk": "고객 6곳에 매출이 몰려 한 고객의 계획 변경이 곧 실적이다. Google이 Marvell과 TPU 관련 칩 계약을 넓히는 등 고객이 설계 파트너를 나누거나 직접 설계할 수 있고, XPU의 메모리 함량 증가가 총마진을 깎는다. XPV 금융 구조의 잔존가치 보증도 하강기 부담이 될 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Broadcom은 NVIDIA와 같은 '칩·연산' 층에 있지만, 완제품 GPU를 파는 대신 고객 이름을 단 칩을 대신 만들어 주는 자리다. AI 매출이 이미 전사 매출의 절반을 넘었으니 Google·Anthropic·OpenAI·Meta의 컴퓨트 계획이 곧 실적이다. 위쪽에서는 TSMC 웨이퍼와 HBM이 상한을 정하고, 아래쪽에서는 고객 몇 곳의 설계 선택이 수요를 정한다.",
+    "src": ["s1", "s5", "s13"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "맞춤형 AI 가속기 설계 파트너 (XPU/ASIC)", "rivals": ["Marvell (AWS Trainium·Microsoft Maia 협력으로 보도)", "MediaTek", "고객 자체 설계 조직"], "position": "leader", "share": "Counterpoint 2027E AI 서버 컴퓨트 ASIC 설계 점유율 약 60%, Marvell 약 8%로 하락 전망 (2026-01-27 보도)", "src": ["s12", "s13"] },
+      { "arena": "AI 가속기 전체 (GPU 포함)", "rivals": ["NVIDIA", "AMD"], "position": "challenger", "share": "Broadcom 커스텀 ASIC 2026E 약 12~15% (Silicon Analysts 추정, 2026-04-13)", "src": ["s14", "s5"] },
+      { "arena": "AI 네트워킹 (이더넷 스위치 칩)", "rivals": ["NVIDIA (Spectrum-X·InfiniBand)", "Marvell", "Cisco (자체 칩)"], "position": "leader", "share": null, "src": ["s5", "s3"] },
+      { "arena": "인프라 소프트웨어 (가상화·프라이빗 클라우드)", "rivals": ["대형 기업용 소프트웨어 업체 (10-K, 이름 미특정)"], "position": "leader", "share": null, "src": ["s3"] }
+    ],
+    "edge": "다세대 공동 설계 관계, 칩·네트워킹·광부품을 함께 내는 범위, 그리고 '공급을 확보했다'는 FY2027 물량. 회사는 맞춤형 XPU가 GPU의 절반 비용으로 돌고, TPU v8i는 Vera Rubin과 대등하거나 앞선다고 주장한다.",
+    "threats": "Google이 2026-07-29 Marvell과 TPU 생태계용 칩 계약을 넓혔고, 두 회사 모두 TPU 물량 배분을 공개하지 않는다. NVIDIA는 GPU와 Spectrum-X 네트워킹을 묶어 팔아 Broadcom 스위치 칩 자리를 노린다.",
+    "text": "이 자리의 경쟁은 두 겹이다. 맞춤형 칩 설계 시장 안에서는 Broadcom이 2027년 약 60% 점유가 예상되는 1위이지만, Google이 Marvell과의 협력을 넓히는 등 고객이 파트너를 나누려는 움직임이 있다. 더 큰 시장에서는 GPU를 파는 NVIDIA와 직접 맞서는데, Broadcom은 '같은 성능을 절반 비용에'라는 논리로 고객의 GPU 의존을 줄여 주는 쪽에 선다. 네트워킹에서도 NVIDIA가 GPU와 묶어 파는 Spectrum-X가 가장 직접적인 경쟁자다.",
+    "src": ["s12", "s13", "s14", "s5"]
+  },
+
+  "strategy": {
+    "goal": "AI 매출을 FY2027 약 1,150억, FY2028 약 2,300억 달러로 매년 두 배씩 키우고 FY2028 EPS 30달러 초과를 목표로 한다 (콜, 분기마다 갱신하지 않겠다고 언급).",
+    "roadmap": [
+      { "when": "Q3 FY2026", "what": "Google TPU v8i 양산 출하 시작, Tomahawk Ultra(이더넷 스케일업) 배치 시작", "src": ["s5"] },
+      { "when": "Q4 FY2026", "what": "AI 반도체 매출 217억 달러 가이드 (+236%)", "src": ["s1"] },
+      { "when": "FY2027", "what": "싱가포르 자체 기판 팹 가동, Tomahawk 7(200Tbps, 테이프아웃 완료) 후속 램프", "src": ["s5"] },
+      { "when": "2027", "what": "Anthropic TPU v8i 5GW, OpenAI Jalapeno 1.3GW 배치; AI 매출 약 1,150억 달러", "src": ["s5"] },
+      { "when": "2028", "what": "Anthropic 추가 10GW, OpenAI 5GW 이상, Meta 누적 3GW; XPV 플랫폼으로 20GW 이상 지원; AI 매출 약 2,300억 달러", "src": ["s5"] }
+    ],
+    "vision": "모든 대형 AI 연구소와 하이퍼스케일러가 결국 자기 칩을 갖게 되며, 그 칩과 이를 잇는 이더넷 네트워크를 Broadcom이 공급한다는 그림이다. 소프트웨어는 VMware Private AI Cloud로 기업 내부 AI까지 넓힌다.",
+    "text": "이 경쟁을 이기기 위해 회사가 택한 길은 고객별 GW 계획을 공개적으로 묶어 두는 것이다. 2027년 Anthropic 5GW와 OpenAI 1.3GW, 2028년 추가 15GW 이상을 언급하며 FY2028까지 AI 매출을 네 배 가까이 키우겠다고 했다. 이를 받치기 위해 기판 팹과 레이저 생산을 직접 늘리고, 금융 파트너를 붙여 고객의 구매 자금 문제까지 풀어 주는 방식이다.",
+    "src": ["s5", "s1"]
+  },
+
+  "governance": {
+    "line": "2006-03부터 Hock Tan이 사장 겸 CEO로 이끄는 인수합병형 회사로, 분기 배당을 0.65달러로 15년 연속 올리고 2026-12-31까지 유효한 100억 달러 자사주 매입 한도를 운영한다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 FY2026", "metric": "revenue", "value": "약 348억 달러 (+93% YoY)", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "Q4 FY2026", "metric": "AI semiconductor revenue", "value": "217억 달러 (+236% YoY); XPU·네트워킹 각각 약 세 배 (콜)", "givenOn": "2026-09-02", "src": ["s1", "s5"] },
+      { "period": "Q4 FY2026", "metric": "non-GAAP operating income", "value": "매출의 약 66%", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "Q4 FY2026", "metric": "segment revenue / gross margin", "value": "반도체 약 261억, 소프트웨어 약 87억 달러, 총마진 약 73% (콜)", "givenOn": "2026-09-02", "src": ["s5"] },
+      { "period": "FY2027 / FY2028", "metric": "AI revenue / EPS", "value": "약 1,150억 / 약 2,300억 달러, FY2028 EPS 30달러 초과 (콜)", "givenOn": "2026-09-02", "src": ["s5"] }
+    ],
+    "style": "quarterly",
+    "track": "직전 분기는 가이드를 소폭 넘었다: Q3 가이드 매출 약 294억·AI 160억 → 실제 295.9억·167억 달러. FY2026 AI 매출 전망도 6월 560억에서 9월 580억 달러로 올렸다.",
+    "src": ["s4", "s1", "s5"]
+  },
+
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 15.67달러(범위 14.66~16.80), 직전 4개 분기 8.57달러. 최근 4주 상향 1건·하향 0건. 이 데이터의 Q3 EPS(3.03)는 회사 non-GAAP EPS(3.32)와 기준이 달라 직접 비교하지 않는다.",
+    "src": ["s8", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q4 FY2026 AI 매출이 217억 달러 가이드를 충족·상회",
+      "Anthropic·OpenAI·Meta의 GW 배치 일정이 유지되거나 XPU 고객 수가 6곳에서 늘어남",
+      "총마진이 내려가도 영업이익률이 약 66% 근처를 유지",
+      "VMware ARR 성장과 소프트웨어 매출이 기대 수준 유지",
+      "싱가포르 기판 팹과 Tomahawk 7 램프가 FY2027 일정대로 진행"
+    ],
+    "breaks": [
+      "주요 XPU 고객의 프로그램 지연·축소, 또는 Marvell·MediaTek·자체 설계로의 물량 이전 발표",
+      "영업이익률 가이드가 66% 아래로 하향",
+      "AI 매출 가이드 미달 또는 다년 목표 철회",
+      "XPV 잔존가치 보증 등 금융 관련 우발 부담이 커짐",
+      "중국 관련 수출·규제 강화 (FY2025 매출의 17%가 중국 출하)"
+    ],
+    "keyNumbers": [
+      { "name": "AI 반도체 매출 (XPU vs 네트워킹)", "why": "매출 과반이자 성장의 전부" },
+      { "name": "총마진 vs 영업이익률", "why": "메모리 함량 높은 XPU 확대의 이익 희석 정도" },
+      { "name": "유통사·상위 5개 고객 비중", "why": "소수 고객 의존이 얼마나 커지는지" },
+      { "name": "소프트웨어 매출·ARR", "why": "AI 바깥의 현금 기둥이 유지되는지" },
+      { "name": "잉여현금흐름과 순부채", "why": "배당·자사주·부채 상환 여력" },
+      { "name": "고객별 GW 배치 언급", "why": "다년 AI 목표의 실제 경로" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-12 중순 (추정, 회사 미확정; 전년은 12-11 발표)", "event": "Q4 FY2026 실적과 Q1 FY2027 가이던스", "src": ["s6", "s7"] },
+      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "Google·Meta의 설비투자 전망, OpenAI·Anthropic의 컴퓨트 계약 발표", "src": ["s5"] },
+      { "date": "수시", "event": "Marvell·MediaTek의 하이퍼스케일러 ASIC 수주 발표", "src": ["s13"] },
+      { "date": "2026-12-31", "event": "100억 달러 자사주 매입 한도 만료", "src": ["s3"] }
+    ],
+    "reaction": "주가는 AI 매출 가이던스 크기와 소프트웨어 매출의 기대 충족 여부에 반응해 왔다. 2026-06 실적은 기록적 매출에도 소프트웨어가 기대에 못 미쳐 하락했고, 2026-09에는 다음 분기 매출 가이드가 컨센서스를 소폭 밑돌았지만 다년 AI 목표가 심리를 받쳤다(모두 2차 보도).",
+    "conditions": [
+      "다음 분기 AI 매출 가이던스와 컨센서스의 차이",
+      "총마진 가이드 하락 폭 대비 영업이익률 유지 여부",
+      "소프트웨어 매출·ARR 성장률",
+      "10-Q의 유통사·상위 5개 고객 비중 추이",
+      "XPU 고객 수와 고객별 GW 계획 언급, 경쟁 설계사의 수주 소식",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "XPU와 네트워킹 매출 금액 (Q3 비율 73%만 공시, 금액은 계산값)",
+    "AI 네트워킹(이더넷 스위치 칩) 시장 점유율",
+    "HBM 공급사 이름과 TSMC 공정 노드",
+    "Google TPU 물량의 Broadcom·Marvell·MediaTek 배분 (회사들 미공개)",
+    "Marvell의 AWS Trainium·Microsoft Maia 협력은 검색 요약 기반",
+    "s14 Silicon Analysts 수치는 NVDA v2 프로필에서 이월했고 이번에 다시 열지 않음",
+    "반복 매출 비중과 중국 외 지역별 매출",
+    "Hock Tan 등 내부자 지분율",
+    "Q4 FY2026 실적 발표일 (회사 미공지)",
+    "2026-05-03 분기 고객 집중도 42%/45%는 10-Q 원문이 아닌 2차 인용",
+    "주가 반응 서술은 2차 보도 기반",
+    "부문별 영업이익률 (소프트웨어 약 84%는 콜 발언, 반도체는 녹취 정정 혼선으로 미기재)",
+    "FY2026 9개월 자사주 매입 84.5억 달러와 기존 한도 잔여 75.5억 달러의 관계"
+  ],
+  "confidence": "high - 매출·현금흐름·가이던스는 8-K와 10-K에서 왔고, 고객별 GW 계획과 다년 목표는 기계 생성 녹취록 기준이며 경쟁 점유율은 제3자 추정이라 medium 수준이다."
+}

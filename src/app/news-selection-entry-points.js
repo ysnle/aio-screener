@@ -6,7 +6,7 @@
 // src/app/compatibility-globals.js installs this before DOMContentLoaded.
 import {
   scoreItem, classifyTopic, newsTextSentiment, calcNewsImpactVector, buildNewsSurfaceModel, newsSelectionAudit,
-  normalizeNewsItem, newsDedupeKey, NEWS_SURFACE_CONTRACTS
+  normalizeNewsItem, newsDedupeKey, NEWS_SURFACE_CONTRACTS, telegramItemQueryRelevance
 } from '../domain/news/selection.js';
 import { MACRO_KW, TECH_KW } from '../domain/news/selection-keywords.js';
 import { briefingWindowKST } from '../domain/news/scoring.js';
@@ -55,6 +55,7 @@ export function installNewsSelection(window = globalThis) {
   window.TECH_KW = TECH_KW;
   window._aioNewsDedupeKey = (item) => newsDedupeKey(item, env); // the RSS fetch dedupes with the story key
   window._aioNormalizeNewsItem = (surfaceId, item, contract, nowMs, cycleWindow) => normalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow, env);
+  window.AIO.telegramQueryRelevance = telegramItemQueryRelevance; // js/aio-chat.js Telegram item ranking
   window.AIO.buildNewsSurfaceModel = (surfaceId, items, opts) => {
     const model = buildNewsSurfaceModel(surfaceId, items, opts, env);
     window._aioNewsSurfaceModels = window._aioNewsSurfaceModels || {};
@@ -62,9 +63,10 @@ export function installNewsSelection(window = globalThis) {
     return model;
   };
   // The classic audit counted surface eligibility through a global that never existed, so homeEligible,
-  // briefingEligible and marketNewsEligible were always 0 and the 뉴스 page source kind is held at SNAPSHOT on that
-  // (js/aio-core.js). Counting them changes that label, so they stay 0 until the owner decides (v59.42 report).
-  window.AIO.getNewsSelectionAudit = (items) => newsSelectionAudit(Array.isArray(items) ? items : newsItems(), env);
+  // briefingEligible and marketNewsEligible were always 0 and js/aio-core.js held the 뉴스 page source kind at SNAPSHOT
+  // however many articles it showed. v59.42 (owner-approved): counted on the same surface models the pages build.
+  const auditEnv = { ...env, buildSurface: (surfaceId, items, opts) => buildNewsSurfaceModel(surfaceId, items, opts, env) };
+  window.AIO.getNewsSelectionAudit = (items) => newsSelectionAudit(Array.isArray(items) ? items : newsItems(), auditEnv);
   window.AIO.getNewsSurfaceAudit = (opts = {}) => {
     const rows = {};
     // v50.41: primary 뉴스 surface(home/briefing/market-news)만 — 분석 페이지 topic-strip은 getConnectiveLayerAudit가 담당.

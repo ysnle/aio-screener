@@ -1,0 +1,230 @@
+{
+  "symbol": "ANET",
+  "name": "Arista Networks, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Arista는 수만 개의 GPU를 하나의 AI 클러스터로 묶는 고속 이더넷 스위치와 그 운영체제(EOS)를 파는 회사로, NVIDIA가 GPU와 묶어 파는 네트워킹에 맞서 '개방형 이더넷'의 대표 주자 역할을 한다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Arista Networks, Inc. Reports Second Quarter 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001596532/000159653226000174/ex991q226-earningsrelease.htm", "publisher": "Arista / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s2", "kind": "10-K", "title": "Arista Networks Form 10-K for fiscal year ended 2025-12-31 (filing date per AIO SEC snapshot)", "url": "https://www.sec.gov/Archives/edgar/data/1596532/000159653226000013/anet-20251231.htm", "publisher": "Arista / SEC EDGAR", "date": "2026-02-17" },
+    { "id": "s3", "kind": "news", "title": "Arista Networks Q2 Earnings Call Highlights (date = call date; article date not checked)", "url": "https://www.nasdaq.com/articles/arista-networks-q2-earnings-call-highlights", "publisher": "Nasdaq / MarketBeat", "date": "2026-08-04" },
+    { "id": "s4", "kind": "other", "title": "Arista Networks (ANET) Q2 2026 earnings summary", "url": "https://quartr.com/events/arista-networks-inc-anet-q2-2026_3sBpLkZh", "publisher": "Quartr", "date": "2026-08-04" },
+    { "id": "s5", "kind": "ir-site", "title": "Arista Networks to Announce Q3 2026 Financial Results on Tuesday, November 3, 2026", "url": "https://www.arista.com/company/news/press-release/24817-pr-20261006", "publisher": "Arista", "date": "2026-10-06" },
+    { "id": "s6", "kind": "proxy", "title": "Arista Networks DEF 14A 2026 (ownership table not reached in fetched sections)", "url": "https://www.sec.gov/Archives/edgar/data/1596532/000119312526158942/d66465ddef14a.htm", "publisher": "Arista / SEC EDGAR", "date": "2026-04-16" },
+    { "id": "s7", "kind": "10-K", "title": "Arista Networks Form 10-K for fiscal year 2024 (names Meta Platforms and Microsoft as >10% customers; date = period end, filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/1596532/000159653225000028/anet-20241231.htm", "publisher": "Arista / SEC EDGAR", "date": "2024-12-31" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/anet/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" },
+    { "id": "s9", "kind": "earnings-release", "title": "Arista Networks, Inc. Reports Fourth Quarter and Year End 2025 Financial Results (company IR PDF)", "url": "https://s21.q4cdn.com/861911615/files/doc_news/Arista-Networks-Inc--Reports-Fourth-Quarter-and-Year-End-2025-Financial-Results-2026.pdf", "publisher": "Arista", "date": "2026-02-12" },
+    { "id": "s10", "kind": "other", "title": "Ethernet Switch Market Surges 43.4% to $18.9B in 2Q26 as AI Infrastructure Demand Drives Record Datacenter Spending", "url": "https://www.idc.com/resource-center/blog/ethernet-switch-market-surges-43-4-to-18-9b-in-2q26-as-ai-infrastructure-demand-drives-record-datacenter-spending/", "publisher": "IDC", "date": "2026-09-11" },
+    { "id": "s11", "kind": "other", "title": "Ethernet extends lead in AI scale-out networks despite strong InfiniBand rebound (Q1 2026)", "url": "https://www.delloro.com/news/ethernet-extends-lead-in-ai-scale-out-networks-despite-strong-infiniband-rebound/", "publisher": "Dell'Oro Group", "date": "2026-06-02" },
+    { "id": "s12", "kind": "news", "title": "NVIDIA Spectrum-X Ethernet Switches Speed Up Networks for Meta and Oracle", "url": "https://investor.nvidia.com/news/press-release-details/2025/NVIDIA-Spectrum-X-Ethernet-Switches-Speed-Up-Networks-for-Meta-and-Oracle/", "publisher": "NVIDIA", "date": "2025-10-13" },
+    { "id": "s13", "kind": "news", "title": "So will Arista die Zehn-Milliarden-Grenze knacken (2025 Analyst Day targets)", "url": "https://stock3.com/news/so-will-arista-will-die-zehn-milliarden-grenze-knacken-16653158", "publisher": "stock3", "date": "2025-09-12" }
+  ],
+
+  "moat": {
+    "sources": [
+      "모든 제품에 같은 코드로 도는 단일 운영체제 EOS와 CloudVision 관리 소프트웨어 (10-K)",
+      "Microsoft·Meta 같은 초대형 데이터센터에서 검증된 고성능 이더넷 시스템 설계 - Etherlink AI 패브릭 누적 고객 100곳 이상 (콜 요약)",
+      "특정 GPU에 묶이지 않는 개방형 이더넷 표준 진영 - ESUN(스케일업 이더넷) 공동 추진 (보도자료)",
+      "범용 칩을 써서 칩 세대 교체를 빠르게 따라가는 구조 (10-K)"
+    ],
+    "text": "Arista의 힘은 스위치 칩이 아니라 그 위에서 도는 소프트웨어에서 나온다. 모든 장비가 같은 운영체제(EOS)를 쓰기 때문에 하이퍼스케일러는 수십만 대 장비를 한 방식으로 자동화·관리할 수 있고, 이 검증 이력이 대형 고객이 쉽게 바꾸지 못하는 이유다. 또 특정 GPU 회사에 묶이지 않는 개방형 이더넷을 내세워, NVIDIA가 아닌 칩(XPU)을 쓰는 고객까지 모두 받을 수 있다.",
+    "src": ["s2", "s3", "s9"]
+  },
+
+  "design": {
+    "text": "이 소프트웨어 위에서 회사가 설계하는 것은 단일 사업 부문으로 보고되며, 제품과 서비스만 나눠 공시한다. 제품은 AI 백엔드·데이터센터용 Etherlink·7000 시리즈 스위치(100Tbps급 7060X-E7, 1.6T 플랫폼 포함), 라우팅, 캠퍼스 유무선 장비, Broadcom에서 사들인 VeloCloud SD-WAN이다. 서비스는 이 설치 기반에 붙는 유지보수·지원과 CloudVision·AI 운영 에이전트(AVA) 같은 소프트웨어다.",
+    "src": ["s2", "s3", "s9"]
+  },
+
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "Broadcom - 스위칭 칩 주 공급사 (10-K)",
+      "Jabil, Sanmina, Foxconn(Hon Hai) - 위탁 생산 (10-K)",
+      "메모리·광모듈 등 부품 공급사 (이름 미확인)"
+    ],
+    "text": "Arista는 스위치의 두뇌인 칩을 직접 만들지 않고 주로 Broadcom에서 사며, 조립은 Jabil·Sanmina·Foxconn에 맡긴다. 그래서 AI 네트워킹 시장에서 Broadcom은 공급사이자, 스스로 칩을 팔아 화이트박스 스위치를 가능하게 하는 간접 경쟁자이기도 하다. 칩·메모리가 부족해지자 회사는 구매약정을 97억 달러까지 늘려 물량을 미리 잡아 두었다(콜 요약).",
+    "src": ["s2", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "Microsoft, Meta Platforms - FY2024 10-K가 10% 초과 고객으로 명시",
+      "기타 클라우드·AI 타이탄과 AI 클라우드(네오클라우드)",
+      "기업·금융 고객 (캠퍼스·데이터센터)",
+      "서비스 사업자"
+    ],
+    "channel": "대형 클라우드에는 직접 판매, 기업 고객에는 채널 파트너·시스템 통합업체를 함께 쓴다.",
+    "concentration": "FY2025 최종 고객 2곳이 총매출의 26%, 16% (합계 42%). FY2025 10-K는 이름을 밝히지 않았으나 FY2024 10-K는 Meta Platforms와 Microsoft를 10% 초과 고객으로 명시.",
+    "text": "이렇게 만든 장비는 소수의 초대형 클라우드에 집중적으로 팔린다. FY2025에는 고객 두 곳이 매출의 42%를 차지했고, 전년 공시로 보면 Microsoft와 Meta다. 지역으로도 미주가 매출의 79%라서, 미국 하이퍼스케일러의 데이터센터 투자 계획이 곧 Arista의 수요다.",
+    "src": ["s2", "s7"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "Microsoft·Meta 등 클라우드·AI 타이탄", "what": "AI 서비스·클라우드 이용료" },
+      { "from": "클라우드·AI 타이탄, AI 클라우드", "to": "Arista", "what": "AI 백엔드·프런트엔드 스위치 구매 (시스템당), 대형 배치는 고객 인수 조건 충족 후 매출 인식" },
+      { "from": "기업·금융 고객", "to": "Arista (채널 파트너 경유 포함)", "what": "캠퍼스·데이터센터 장비 구매" },
+      { "from": "설치 기반 고객", "to": "Arista", "what": "유지보수·지원 계약과 소프트웨어 구독 (FY2025 서비스 매출 14.29억 달러)" },
+      { "from": "Arista", "to": "Broadcom·Jabil·Sanmina·Foxconn", "what": "스위칭 칩·위탁 생산 대금 (구매약정 97억 달러, 콜 요약)" }
+    ],
+    "pricing": "하드웨어는 시스템당 판매, 서비스는 기간 계약. 대형 AI 배치는 고객 인수(acceptance) 조건 때문에 대금이 먼저 이연매출로 쌓였다가 나중에 매출로 넘어간다 (2026-06-30 이연매출 유동 51.0억·비유동 17.7억 달러).",
+    "text": "돈은 AI 서비스 이용료가 클라우드의 설비투자가 되고, 클라우드가 GPU 클러스터를 지을 때 네트워크 장비 대금으로 Arista에 들어온다. 특징은 대형 AI 배치에서 대금이 바로 매출이 되지 않고, 고객이 시스템을 받아들일 때까지 이연매출로 쌓인다는 점이다. 그래서 2026년 중반 쌓인 약 68.7억 달러(계산값)의 이연매출은 앞으로 매출로 넘어올 대기 물량 역할을 한다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 9.006, "unit": "USD bn", "yoy": 28.6 },
+    "grossMargin": 64.1,
+    "operatingMargin": 42.8,
+    "netMargin": 39.0,
+    "operatingCashFlow": { "value": 4.372, "unit": "USD bn" },
+    "freeCashFlow": { "value": 4.252, "unit": "USD bn" },
+    "segments": [
+      { "name": "Product", "revenue": 7.577, "unit": "USD bn", "share": 84.1, "yoy": 28.8, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Service", "revenue": 1.429, "unit": "USD bn", "share": 15.9, "yoy": 27.7, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q2 2026) 매출", "value": "30.36억 달러(+37.7%), 제품 26.05억·서비스 4.31억 달러", "src": ["s1"] },
+      { "name": "이연매출 (2026-06-30)", "value": "유동 51.0억, 비유동 17.7억 달러", "src": ["s1"] },
+      { "name": "2026 AI 패브릭 매출 목표", "value": "35억 달러 이상 (5월 32.5억에서 상향, 콜 요약) - 2026 매출 전망 126억 달러의 약 28% (계산값)", "src": ["s3", "s4"] },
+      { "name": "구매약정·재고", "value": "구매약정 97억 달러(콜 요약), 재고 25.4억 달러", "src": ["s3", "s1"] },
+      { "name": "지역별 매출 (FY2025)", "value": "미주 79.1%, EMEA 11.9%, 아시아태평양 9.0%", "src": ["s2"] }
+    ],
+    "text": "이 구조가 FY2025에 매출 90.1억 달러(+28.6%), GAAP 영업이익률 42.8%, 순이익률 약 39%로 나타났다. 공장이 없어 설비투자는 1.2억 달러에 불과해 영업현금흐름 43.7억 달러가 거의 그대로 잉여현금(약 42.5억 달러, 계산값)이 된다. 2026년 2분기에는 첫 30억 달러 분기를 기록했고, 회사는 2026년 매출을 약 126억 달러로 세 번째 상향했다.",
+    "src": ["s9", "s1", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 1.237, "unit": "USD bn", "src": ["s9"] },
+      { "use": "capex", "value": 0.120, "unit": "USD bn", "src": ["s9"] },
+      { "use": "acquisitions", "value": 0.300, "unit": "USD bn", "src": ["s9"] },
+      { "use": "buybacks", "value": 1.603, "unit": "USD bn", "src": ["s9"] },
+      { "use": "dividends", "value": 0.0, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "벌어들인 현금(FY2025 잉여현금 약 42.5억 달러)의 쓰임은 단순하다. 자사주 매입 16.0억 달러, VeloCloud 인수 3.0억 달러, 그리고 매출의 약 14%인 R&D 12.4억 달러이며, 배당은 하지 않는다. 남은 현금은 쌓여서 2025년 말 현금·유가증권이 약 107억 달러가 됐고, 2026년 상반기에는 자사주를 사지 않아 공급 확보(구매약정)에 여력을 남겨 두는 모습이다.",
+    "src": ["s9", "s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "GPU·XPU 수천~수십만 개를 하나의 학습·추론 클러스터로 잇는 백엔드(스케일아웃) 이더넷 패브릭과, 데이터센터의 프런트엔드·코어 네트워크를 공급한다. 랙 안에서 GPU끼리 묶는 스케일업은 아직 NVIDIA NVLink가 주도하고, Arista는 ESUN 이더넷으로 이 영역 진입을 추진한다.",
+    "dependsOn": ["chips-compute (Broadcom 스위칭 칩)", "위탁 생산 (Jabil, Sanmina, Foxconn)", "memory·광모듈 부품", "고객의 GPU·XPU 배치 일정 (NVIDIA, Broadcom XPU, AMD)"],
+    "sellsTo": ["cloud-infrastructure (Microsoft, Meta 등 AI 타이탄)", "AI 클라우드(네오클라우드)", "ai-adopter (기업·금융 데이터센터)"],
+    "aiRevenue": "2026년 AI 패브릭 매출 목표 35억 달러 이상, 2026 매출 전망 약 126억 달러의 약 28% (콜 요약, 비율은 계산값). 2025 애널리스트데이 당시 AI 네트워킹 약 15억 달러였다고 보도됨.",
+    "upside": "GPU 클러스터가 커질수록 GPU당 필요한 스위치·포트가 늘고, 1.6T 세대 전환(2027년 양산)이 단가를 올린다. NVIDIA가 아닌 XPU를 쓰는 클러스터는 개방형 이더넷을 선호해, Broadcom XPU 확대도 Arista 수요가 된다.",
+    "risk": "NVIDIA가 GPU와 Spectrum-X를 묶어 팔면 Arista 자리가 줄고, Meta·Oracle은 이미 Spectrum-X 채택을 발표했다. 대형 고객이 Celestica 같은 화이트박스 장비로 옮기거나, 상위 2개 고객(매출 42%)이 투자를 줄이면 바로 실적에 영향이 온다.",
+    "text": "그래서 AI 가치사슬에서 Arista는 연산 칩과 클라우드 사이의 '네트워킹' 층에 있다. GPU가 많이 깔릴수록 이를 잇는 스위치가 함께 필요하지만, 이 층의 가장 큰 공급자는 GPU를 파는 NVIDIA이기도 하다. Arista의 성장은 결국 고객이 NVIDIA 묶음 대신 개방형 이더넷을 얼마나 고르느냐에 달려 있다.",
+    "src": ["s3", "s4", "s2", "s12", "s13"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "AI 백엔드 이더넷 (스케일아웃)", "rivals": ["Celestica (화이트박스)", "NVIDIA Spectrum-X", "Cisco"], "position": "challenger", "share": "Q1 2026 Dell'Oro 기준 3위 (1위 Celestica, 2위 NVIDIA, 4위 Cisco); 이연된 AI 매출을 포함하면 1·2위와 매우 근접 - 2026-06-02", "src": ["s11"] },
+      { "arena": "AI 백엔드 패브릭 기술 (이더넷 vs InfiniBand)", "rivals": ["NVIDIA InfiniBand (Quantum)"], "position": "leader", "share": "Q1 2026 AI 클러스터 데이터센터 스위치 매출의 약 3분의 2가 이더넷, InfiniBand는 같은 분기 세 배 이상 성장 - Dell'Oro 2026-06-02", "src": ["s11"] },
+      { "arena": "데이터센터 이더넷 스위치 전체", "rivals": ["NVIDIA", "Cisco", "Huawei", "HPE"], "position": "challenger", "share": "2Q26 IDC 데이터센터 이더넷 매출 점유율 18.7% (NVIDIA 20.4%, Cisco 18.2%) - 2026-09-11", "src": ["s10"] },
+      { "arena": "스케일업 (랙 내부 GPU 연결)", "rivals": ["NVIDIA NVLink", "Broadcom Tomahawk Ultra 기반 장비"], "position": "niche", "share": null, "src": ["s9", "s2"] },
+      { "arena": "캠퍼스·기업 네트워킹", "rivals": ["Cisco", "HPE(Juniper)", "Extreme Networks", "Huawei"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "검증된 EOS 소프트웨어, GPU·XPU 어느 쪽에도 붙는 개방형 이더넷, 1.6T·액체냉각 신제품. 2026-06 기준 이연된 AI 매출까지 넣으면 AI 백엔드 1·2위와 거의 같은 규모다.",
+    "threats": "NVIDIA는 2Q26 데이터센터 이더넷 매출을 전년 대비 181% 늘려 IDC 기준 1위가 됐고, Meta·Oracle이 Spectrum-X 채택을 발표했다(2025-10-13). Celestica 등 화이트박스가 AI 백엔드 1위이며, Cisco도 하이퍼스케일러 AI 백엔드 점유율을 가장 빠르게 늘렸다.",
+    "text": "이 층의 경쟁은 세 방향에서 온다. 첫째는 GPU와 네트워크를 함께 파는 NVIDIA로, 2Q26 데이터센터 이더넷에서 20.4%로 Arista(18.7%)를 앞질렀고 Meta·Oracle을 Spectrum-X 고객으로 확보했다. 둘째는 하이퍼스케일러가 직접 소프트웨어를 얹어 쓰는 Celestica 같은 화이트박스로, AI 백엔드 1위다. Arista는 이연된 매출까지 넣으면 이들과 거의 같은 규모라는 점, 그리고 InfiniBand 대신 이더넷이 AI 클러스터의 약 3분의 2를 차지하게 된 흐름을 무기로 삼는다.",
+    "src": ["s10", "s11", "s12"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 약 126억 달러(약 40% 성장), 총마진 62~64%, 영업이익률 48~49%, AI 패브릭 35억·캠퍼스 12.5억 달러 이상 (콜 요약). 2025-09 애널리스트데이에서는 2026년 매출 약 105억 달러를 제시했었다.",
+    "roadmap": [
+      { "when": "2025-10", "what": "OCP에서 스케일업용 개방형 이더넷 ESUN 워크스트림 공동 발표", "src": ["s9"] },
+      { "when": "2026-11-03", "what": "Q3 2026 실적과 2026 전망 갱신", "src": ["s5"] },
+      { "when": "2026 H2", "what": "1.6T AI 패브릭 플랫폼(액체냉각 옵션 포함) 소수 초대형 고객과 시험 운용", "src": ["s3"] },
+      { "when": "2027", "what": "1.6T 제품 양산 배치", "src": ["s3"] },
+      { "when": "2026", "what": "캠퍼스 매출 12.5억 달러 이상 (VeloCloud 포함)", "src": ["s3", "s13"] }
+    ],
+    "vision": "AI 클러스터의 스케일아웃·스케일업·데이터센터 간 연결(스케일어크로스)을 모두 개방형 이더넷 하나로 묶고, 같은 EOS를 캠퍼스와 지점까지 넓혀 '데이터와 AI 센터' 전체의 네트워크 회사가 되겠다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사가 택한 길은 세대 교체 속도와 영역 확장이다. 2026년 하반기 1.6T 장비를 초대형 고객과 시험한 뒤 2027년 양산하고, ESUN으로 NVLink가 쥔 랙 내부 연결까지 이더넷으로 넘보려 한다. 동시에 캠퍼스·SD-WAN으로 AI 바깥의 매출을 키워 상위 고객 의존을 낮추려 하며, 연간 전망을 105억에서 126억 달러로 올린 것도 이 확장의 결과다.",
+    "src": ["s3", "s9", "s13"]
+  },
+
+  "governance": {
+    "line": "Jayshree Ullal이 CEO 겸 이사회 의장으로 이끌고, 배당 없이 15억 달러 자사주 매입 프로그램(2025-12-31 잔여 약 8.18억 달러)으로만 주주환원을 한다.",
+    "src": ["s2", "s6"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "약 33억 달러", "givenOn": "2026-08-04", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "non-GAAP operating margin", "value": "48~49%", "givenOn": "2026-08-04", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "non-GAAP diluted EPS", "value": "1.06~1.08달러", "givenOn": "2026-08-04", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "gross margin", "value": "약 63% (콜 요약)", "givenOn": "2026-08-04", "src": ["s4"] },
+      { "period": "FY2026", "metric": "revenue / margins", "value": "매출 약 126억 달러(약 40% 성장), 총마진 62~64%, 영업이익률 48~49%, 캠퍼스 12.5억·AI 패브릭 35억 달러 이상 (콜 요약)", "givenOn": "2026-08-04", "src": ["s3", "s4"] }
+    ],
+    "style": "quarterly",
+    "track": "2026년 연간 전망은 애널리스트데이 105억 → 5월 115억 → 8월 126억 달러로 세 번 올랐고, Q1 2026 가이드는 약 26억 달러였다. Q2 매출 30.36억 달러는 가이드 약 28억 달러를 넘었다(콜 요약).",
+    "src": ["s1", "s3", "s9", "s13"]
+  },
+
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 4.22달러(범위 3.82~4.47), 직전 4개 분기 3.16달러. 최근 4주 상향·하향 각 0건으로 실적 발표 전 정체 상태.",
+    "src": ["s8"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q3 2026 매출이 약 33억 달러 가이드를 넘고 2026 연간 전망이 다시 올라감",
+      "이연매출이 계속 늘거나 매출로 순조롭게 넘어옴",
+      "총마진이 62~64% 범위 유지",
+      "Dell'Oro·IDC 다음 분기 자료에서 AI 백엔드·데이터센터 이더넷 순위 유지 또는 상승",
+      "AI 패브릭 고객이 상위 2곳 밖으로 넓어지고 1.6T가 2027년 양산 일정 유지"
+    ],
+    "breaks": [
+      "연간 전망 동결·하향 또는 다음 분기 가이드가 컨센서스 미달",
+      "총마진이 62% 아래로 하락",
+      "Microsoft·Meta의 벤더 다변화, 화이트박스나 Spectrum-X로의 대규모 전환 언급",
+      "NVIDIA의 데이터센터 이더넷 점유율 격차 확대",
+      "이연매출 감소와 재고·구매약정의 동반 증가"
+    ],
+    "keyNumbers": [
+      { "name": "다음 분기 매출 가이드와 연간 전망 상향 폭", "why": "세 번 올린 회사라 상향 폭이 기대에 들어가 있다" },
+      { "name": "이연매출 (제품)", "why": "AI 배치가 매출로 넘어올 대기 물량" },
+      { "name": "구매약정·재고", "why": "수요 확신이자 하강기 부담" },
+      { "name": "총마진 (62~64%)", "why": "메모리·칩 원가와 대형 고객 가격 압박의 결과" },
+      { "name": "상위 2개 고객 비중", "why": "매출 42%를 차지하는 고객의 벤더 선택" },
+      { "name": "외부 점유율 (Dell'Oro AI 백엔드, IDC 데이터센터 이더넷)", "why": "NVIDIA·화이트박스 대비 위치" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-03 (장 마감 후, 콜 13:30 PT)", "event": "Q3 2026 실적과 Q4 가이던스·2026 전망 갱신 (회사 공지)", "src": ["s5"] },
+      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "Microsoft·Meta 등의 설비투자 전망", "src": ["s7"] },
+      { "date": "매 분기", "event": "NVIDIA 네트워킹 매출, Broadcom AI 네트워킹 발언", "src": ["s2"] },
+      { "date": "분기마다", "event": "Dell'Oro·IDC 이더넷 스위치 점유율 발표", "src": ["s10", "s11"] }
+    ],
+    "reaction": "기대가 높은 성장주라 실적이 가이드를 넘어도 연간 전망 상향 폭이나 총마진·고객 발언이 기대에 못 미치면 하락할 수 있다. NVIDIA의 네트워킹 고객 발표만으로도 주가가 흔들린 적이 있어(2025-10 Spectrum-X 발표 당일 하락 보도), 경쟁 뉴스에도 민감하다.",
+    "conditions": [
+      "Q4 매출 가이드와 2026 연간 전망의 상향 폭",
+      "총마진 가이드와 메모리·부품 원가 언급",
+      "이연매출·구매약정·재고 증감 (10-Q)",
+      "상위 고객 집중도와 신규 AI 고객 언급",
+      "NVIDIA Spectrum-X·화이트박스 관련 대형 고객 발표",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "FY2025 10% 초과 고객 2곳의 이름 (FY2024 10-K 기준 Meta·Microsoft로 추정 연결)",
+    "2026 연간 매출·마진·AI·캠퍼스 목표, 구매약정 97억 달러, 1.6T 일정은 콜 요약(2차) 기반, 녹취 원문 미확인",
+    "2025 애널리스트데이 목표(2026년 105억, AI 약 15억→25억 달러)는 독일어 2차 보도 기반",
+    "AI 백엔드 시장 점유율 퍼센트 (Dell'Oro는 순위만 공개)",
+    "InfiniBand의 정확한 점유율",
+    "2025-10 Spectrum-X 발표 당일 주가 하락은 2차 보도(검색 요약) 기반",
+    "Ullal CEO 취임 연도와 창업자·내부자 지분율",
+    "소프트웨어 구독 매출 금액",
+    "Meta·Oracle의 Spectrum-X 채택이 Arista 매출에 준 실제 영향"
+  ],
+  "confidence": "medium - FY2025 실적·현금흐름은 회사 보도자료와 10-K 원문이고 점유율은 IDC·Dell'Oro 자료지만, 2026 연간 목표와 로드맵은 콜 원문 대신 2차 요약에 의존했다."
+}

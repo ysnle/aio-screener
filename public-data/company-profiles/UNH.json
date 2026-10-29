@@ -1,0 +1,231 @@
+{
+  "symbol": "UNH",
+  "name": "UnitedHealth Group Incorporated",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "UnitedHealth Group은 미국 최대 건강보험(UnitedHealthcare)과 병원·의사 네트워크·약제관리·헬스케어 IT(Optum)를 한 회사에 묶은 기업으로, 2025년 의료비 급증으로 무너진 이익률을 2026년 보험료 재조정과 비용 절감으로 되살리는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "UnitedHealth Group Reports 2025 Results and Issues 2026 Outlook (headline figures)", "url": "https://www.unitedhealthgroup.com/newsroom/2026/2026-01-27-uhg-reports-2025-results-and-issues-2026-outlook.html", "publisher": "UnitedHealth Group", "date": "2026-01-27" },
+    { "id": "s2", "kind": "earnings-release", "title": "UnitedHealth Group Reports 2025 Results and Issues 2026 Outlook (repost of company release: segment revenue/earnings, people served, MCR, cash, 2026 segment outlook)", "url": "https://seekingalpha.com/pr/20376719", "publisher": "Seeking Alpha (company release text)", "date": "2026-01-27" },
+    { "id": "s3", "kind": "earnings-release", "title": "UnitedHealth Group Reports Third Quarter 2026 Results (repost of company release)", "url": "https://finviz.com/news/401499/unitedhealth-group-reports-third-quarter-2026-results", "publisher": "Finviz (company release text)", "date": "2026-10-13" },
+    { "id": "s4", "kind": "news", "title": "UnitedHealth Group Raises 2026 Outlook As Q3 Operating Earnings Rise To $6.6 Billion (Optum Health revenue $22.9bn -10%, margin 3.2%; Optum Insight $5.5bn; 13-16% long-term growth from 2027; read via search summary)", "url": "https://pulse2.com/unitedhealth-group-raises-2026-outlook-as-q3-operating-earnings-rise-to-6-6-billion", "publisher": "Pulse 2.0", "date": "2026-10-13" },
+    { "id": "s5", "kind": "other", "title": "Medicare Advantage in 2026: Enrollment Update and Key Trends (parent-organization shares, March 2026 data)", "url": "https://www.kff.org/medicare/medicare-advantage-enrollment-update-and-key-trends/", "publisher": "KFF", "date": "2026-07-01" },
+    { "id": "s6", "kind": "news", "title": "CMS gives Medicare Advantage rates a 2.48% bump for 2027 plan year in final rule (advance notice was 0.09%; read via search summary)", "url": "https://www.fiercehealthcare.com/regulatory/cms-gives-medicare-advantage-rates-248-bump-2027-plan-year-final-rule", "publisher": "Fierce Healthcare", "date": "2026-04-06" },
+    { "id": "s7", "kind": "news", "title": "UnitedHealth Group spotlights AI investments as part of operational turnaround (nearly $1.5bn AI investment in 2026, about $1bn cost savings target; read via search summary, exact day not checked)", "url": "https://www.fiercehealthcare.com/payers/unitedhealth-group-boosts-2026-outlook-it-posts-q1-earnings-revenue-beat", "publisher": "Fierce Healthcare", "date": "2026-04" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/unh/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "규모 - 2025년 UnitedHealthcare 4,980만 명, Optum Health 9,500만 명 고객, 매출 4,476억 달러",
+      "보험·진료·약제관리·데이터가 한 회사 안에서 이어지는 수직 통합 (Optum Rx 2025년 조제 16.6억 건)",
+      "메디케어 어드밴티지 1위 - 2026년 가입자 점유율 26% (KFF)",
+      "보험 청구·진료 데이터를 다루는 Optum Insight 소프트웨어·분석 사업"
+    ],
+    "text": "UnitedHealth의 힘은 보험료를 받는 보험사, 진료를 하는 의사 네트워크, 약값을 관리하는 PBM, 이를 연결하는 IT를 모두 한 회사가 가진다는 데서 나온다. 2025년 보험 가입자 4,980만 명과 처방 16.6억 건이라는 규모가 병원·제약사와의 협상력이 되고, 메디케어 어드밴티지에서는 26%로 1위다. 다만 이 통합 구조는 규제 당국의 감시 대상이기도 해, 강점과 위험이 같은 곳에서 나온다.",
+    "src": ["s2", "s5"]
+  },
+
+  "design": {
+    "text": "이 구조는 두 사업 묶음, 네 개 보고 부문으로 나뉜다. UnitedHealthcare는 고용주·개인 보험, 메디케어 어드밴티지, 저소득층(메디케이드) 보험을 팔고, Optum은 Optum Health(의사 그룹·외래 진료·가치기반 진료), Optum Insight(병원·보험사용 데이터·소프트웨어·청구 처리), Optum Rx(약제관리 PBM과 전문약국)로 구성된다. 각 Optum 사업은 UnitedHealthcare와 외부 고객 모두에게 서비스를 판다.",
+    "src": ["s2"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "병원·의사·약국 네트워크 - UnitedHealthcare 가입자 진료를 맡는 외부 공급자 (개별 계약 미공시)",
+      "Optum Health 소속 의사·클리닉 - 가치기반 진료 환자를 직접 진료",
+      "제약사 - Optum Rx가 약값·리베이트를 협상하는 상대",
+      "정부(CMS·주정부) - 메디케어 어드밴티지·메디케이드 보험료를 내는 최대 지불자"
+    ],
+    "text": "보험사에게 '만든다'는 것은 보험료를 받고 그 돈으로 가입자의 진료비를 지급할 네트워크를 짜는 일이다. UnitedHealthcare는 외부 병원·의사와 수가를 계약하고, 일부 환자는 Optum Health 소속 의사가 직접 진료한다. 그래서 원가의 대부분은 의료비이며, 보험료 대비 의료비 비율(MCR)이 2025년 89.1%로 오르자 이익이 크게 줄었다.",
+    "src": ["s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "고용주와 개인 (상업 건강보험)",
+      "메디케어 가입 고령자 - 메디케어 어드밴티지 약 930만 명(2026년 3월, KFF)",
+      "주정부 메디케이드 프로그램",
+      "외부 보험사·병원 (Optum Insight 소프트웨어·청구 처리)",
+      "고용주·보험사 고객의 약제 혜택 (Optum Rx)"
+    ],
+    "channel": "고용주 직접 영업과 보험 중개인, 메디케어 가입 시즌 판매, 주정부 입찰, 병원·보험사 대상 기업 영업.",
+    "concentration": "연방 정부(메디케어·메디케이드)가 최대 지불자다. 정확한 정부 매출 비중은 이번 조사에서 확인하지 못했다.",
+    "text": "보험 상품은 고용주·개인·정부 세 갈래로 팔린다. 그중 메디케어 어드밴티지는 정부가 1인당 보험료를 내는 시장으로, UnitedHealth 가입자는 2026년에 약 65만 명 줄어 점유율이 29%에서 26%로 내려갔다. 회사가 이익률을 회복하려고 수익성 낮은 지역과 상품을 정리한 결과로, 2026년 Q3 보험 고객 수는 4,830만 명이다.",
+    "src": ["s5", "s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "고용주·개인·CMS·주정부", "to": "UnitedHealthcare", "what": "월 보험료 (메디케어 어드밴티지는 정부가 1인당 정액 지급)" },
+      { "from": "UnitedHealthcare", "to": "병원·의사·Optum Health", "what": "진료비 지급 - 보험료의 약 88~89% (MCR)" },
+      { "from": "UnitedHealthcare·외부 고용주", "to": "Optum Rx", "what": "처방약 비용과 관리 수수료 (2025년 조제 16.6억 건)" },
+      { "from": "제약사", "to": "Optum Rx", "what": "약값 리베이트·할인 - 상당 부분은 고객에게 전달" },
+      { "from": "병원·보험사", "to": "Optum Insight", "what": "소프트웨어·데이터 분석·청구 처리 서비스 요금" }
+    ],
+    "pricing": "보험은 가입자 1인당 월 보험료이고, 이익은 보험료에서 의료비와 운영비를 뺀 몫이다(2026년 Q3 MCR 88.4%, 운영비율 12.8%). PBM은 처방 건당 수수료·스프레드, Optum Health는 진료 행위별 또는 1인당 정액(가치기반) 계약, Optum Insight는 소프트웨어·서비스 계약이다.",
+    "text": "돈은 보험료로 들어와 대부분 진료비로 나간다. 남는 폭이 얇아서, 2025년처럼 의료 이용이 예상보다 늘면 MCR이 85.5%에서 89.1%로 오르며 이익이 한 해 만에 크게 줄어든다. 회사 안에서는 같은 돈이 Optum Health·Optum Rx로 다시 흘러 매출이 겹치기 때문에, 부문 매출을 더하면 연결 매출보다 1,734억 달러가 많다.",
+    "src": ["s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 447.6, "unit": "USD bn", "yoy": 12 },
+    "grossMargin": null,
+    "operatingMargin": 4.2,
+    "netMargin": 2.7,
+    "operatingCashFlow": { "value": 19.7, "unit": "USD bn" },
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "UnitedHealthcare (건강보험)", "revenue": 344.9, "unit": "USD bn", "share": 77.1, "yoy": null, "operatingMargin": 2.7, "src": ["s2"] },
+      { "name": "Optum Rx (약제관리 PBM)", "revenue": 154.7, "unit": "USD bn", "share": 34.6, "yoy": null, "operatingMargin": 4.7, "src": ["s2"] },
+      { "name": "Optum Health (진료·가치기반 진료)", "revenue": 102.0, "unit": "USD bn", "share": 22.8, "yoy": null, "operatingMargin": -0.3, "src": ["s2"] },
+      { "name": "Optum Insight (데이터·소프트웨어·청구 처리)", "revenue": 19.4, "unit": "USD bn", "share": 4.3, "yoy": null, "operatingMargin": 13.4, "src": ["s2"] },
+      { "name": "부문 간 내부거래 제거 (연결 매출에서 부문 합을 뺀 계산값)", "revenue": -173.4, "unit": "USD bn", "share": -38.7, "yoy": null, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "의료비율(MCR)", "value": "2025년 89.1% (조정 88.9%, 2024년 85.5%); Q3 2026 88.4% (전년 89.9%); 2026 전망 88.8% ±0.5%p", "src": ["s2", "s3"] },
+      { "name": "운영비율", "value": "Q3 2026 12.8% (전년 13.5%); 2026 전망 12.8% ±0.5%p", "src": ["s3", "s2"] },
+      { "name": "고객 수", "value": "UnitedHealthcare 2025말 4,980만 명 → Q3 2026 4,830만 명; 2026 전망 4,690만~4,750만 명", "src": ["s2", "s3"] },
+      { "name": "Optum Rx 조정 처방 건수", "value": "2025년 16.6억 건(2024년 16.2억); Q3 2026 3.93억 건(전년 4.14억)", "src": ["s2", "s3"] },
+      { "name": "Q3 2026 실적", "value": "매출 1,127억 달러(전년 1,132억), 영업이익 66억(전년 43억), UnitedHealthcare 매출 863억·영업이익 28억, Optum 매출 669억·영업이익 37억 달러", "src": ["s3"] },
+      { "name": "Optum Health 이익률", "value": "Q3 2026 매출 229억 달러(-10%), 영업이익률 3.2% (전년 0.2%); 장기 목표 6~8%", "src": ["s4"] },
+      { "name": "부채비율(debt-to-capital)", "value": "2026-09-30 41.7%, 연말 목표 약 40%", "src": ["s3"] }
+    ],
+    "text": "2025년 매출은 4,476억 달러(+12%)로 늘었지만 영업이익은 190억 달러(이익률 4.2%), 순이익률은 2.7%로 내려앉았다. 이익을 깎은 곳은 보험(영업이익률 2.7%)과 Optum Health(적자)였고, 사이버 공격 관련 28억 달러 비용도 들어 있다. 2026년 Q3에는 MCR이 88.4%로 내려오면서 분기 영업이익이 43억에서 66억 달러로 회복됐다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "dividends", "value": 7.9, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 5.5, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "other", "label": "2026 설비투자 계획", "value": 3.8, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "2026 AI 투자 계획 (보도 기준)", "value": 1.5, "unit": "USD bn", "src": ["s7"] }
+    ],
+    "text": "2025년 영업현금흐름 197억 달러 중 배당 79억과 자사주 55억 달러가 주주에게 돌아갔다. 2026년 계획은 배당 약 80억, 자사주 약 25억, 설비투자 약 38억 달러로 자사주를 줄였는데, 3분기까지 이미 자사주 50억·배당 62억 달러를 써 계획보다 환원이 빨랐다. 동시에 부채비율을 연말 약 40%로 낮추려 해, 이익 회복분이 부채 감축과 환원에 나뉘어 쓰인다.",
+    "src": ["s2", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 사서 보험 청구·사전승인·고객 응대·약국 상담에 쓰는 대규모 사용자이며, Optum Insight를 통해 병원·보험사에 AI가 들어간 청구·분석 소프트웨어를 팔기도 한다. 2026년 AI에 약 15억 달러를 투자한다는 보도가 있다.",
+    "dependsOn": ["models-platforms (외부 AI 모델 - 업체명 미확인)", "cloud-infrastructure (클라우드 공급자 - 미확인)"],
+    "sellsTo": ["병원·보험사 (Optum Insight 소프트웨어)", "자체 보험·약국 운영 (비용 절감)"],
+    "aiRevenue": null,
+    "upside": "AI로 청구 처리·사전승인·콜센터 비용을 줄이면 운영비율(2026년 Q3 12.8%)이 내려가 이익률이 오른다. 회사는 2026년 약 10억 달러 비용 절감을 주로 AI·머신러닝에서 찾겠다고 한 것으로 보도됐다.",
+    "risk": "AI로 보험금 지급·사전승인을 빠르게 거절한다는 비판이 소송과 규제 조사로 이어질 수 있다. Optum Insight 소프트웨어도 AI 기반 경쟁 제품에 밀릴 수 있다.",
+    "text": "그래서 AI 가치사슬에서 UnitedHealth는 '도입자'에 가깝다. AI 매출을 따로 공시하지 않고, 효과는 운영비율 하락으로 나타나며 Q3 2026에 이 비율이 13.5%에서 12.8%로 내려왔다. 반대로 보험 심사에 AI를 쓰는 것은 규제 위험을 키우는 일이기도 하다.",
+    "src": ["s7", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "메디케어 어드밴티지", "rivals": ["Humana", "CVS Health (Aetna)", "Elevance Health", "Kaiser Permanente"], "position": "leader", "share": "2026년 가입자 기준 UnitedHealth 26%(약 930만 명, 2025년 29%), Humana 20%, CVS 12%, Kaiser 6%, Elevance 5% (KFF, 2026년 3월 데이터)", "src": ["s5"] },
+      { "arena": "고용주·개인 상업 건강보험", "rivals": ["Elevance Health", "Cigna", "CVS Health (Aetna)", "지역 Blue Cross 플랜"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "약제관리(PBM)", "rivals": ["CVS Caremark", "Cigna Express Scripts"], "position": "challenger", "share": null, "src": ["s2"] },
+      { "arena": "외래 진료·가치기반 진료", "rivals": ["CVS (Oak Street Health)", "Amazon (One Medical)", "병원 계열 의사 그룹"], "position": "challenger", "share": null, "src": ["s4"] },
+      { "arena": "헬스케어 데이터·청구 소프트웨어", "rivals": ["Oracle Health", "Epic", "기타 청구·분석 소프트웨어 업체"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "보험·진료·약제관리·데이터를 한 회사가 가진 통합 구조와 업계 최대 규모의 가입자·처방 건수.",
+    "threats": "Humana의 메디케어 어드밴티지 점유율 확대, 정부의 보험료 인상 폭과 위험조정 규칙 변화, PBM 규제, 보험·진료 통합에 대한 반독점 감시, 의료 이용 급증의 재발.",
+    "text": "메디케어 어드밴티지에서 UnitedHealth는 여전히 1위지만, 수익성을 위해 가입자를 줄이는 사이 Humana가 17%에서 20%로 올라와 격차가 좁아졌다. 회사는 점유율보다 이익률을 택했고, 2027년 정부 보험료 인상률이 최초안 0.09%에서 최종 2.48%로 올라간 것이 이 전략에 숨통을 틔웠다. 진료(Optum Health) 쪽은 가치기반 환자 수를 줄여 이익률을 0.2%에서 3.2%로 올리는 중이다.",
+    "src": ["s5", "s6", "s4"]
+  },
+
+  "strategy": {
+    "goal": "2026년 조정 EPS 20.50달러 이상(세 차례 상향), 2027년부터 장기 EPS 성장률 13~16% 복귀, Optum Health 영업이익률 6~8%를 목표로 제시했다.",
+    "roadmap": [
+      { "when": "2026", "what": "보험료·상품 재설계로 MCR을 2025년 89.1%에서 88%대로 낮추고 수익성 낮은 메디케어 어드밴티지 지역 정리", "src": ["s2", "s3"] },
+      { "when": "2026", "what": "AI 투자 약 15억 달러, 비용 약 10억 달러 절감 목표 (보도)", "src": ["s7"] },
+      { "when": "2026 연말", "what": "부채비율(debt-to-capital) 약 40%로 축소", "src": ["s3"] },
+      { "when": "2027 플랜 연도", "what": "메디케어 어드밴티지 정부 보험료 평균 2.48% 인상 적용 (CMS 최종 고시)", "src": ["s6"] },
+      { "when": "2027 이후", "what": "장기 EPS 성장률 13~16% 복귀, Optum Health 이익률 6~8% (여러 해 걸림)", "src": ["s4"] }
+    ],
+    "vision": "Hemsley CEO는 2025년을 '도전에 정면으로 맞선 해'로 규정하고, 보험과 Optum의 운영 규율을 되살려 다시 두 자릿수 이익 성장을 내는 통합 헬스케어 회사로 돌아가겠다고 말한다.",
+    "text": "앞으로의 계획은 덩치를 키우기보다 이익률을 회복하는 데 맞춰져 있다. 2026년에는 보험료 재설계와 AI 비용 절감으로 MCR과 운영비율을 낮추고, 2027년에는 정부의 2.48% 보험료 인상을 바탕으로 장기 목표인 EPS 13~16% 성장으로 돌아가려 한다. Optum Health의 이익률 목표 6~8%는 회사 스스로도 여러 해가 걸린다고 말한다.",
+    "src": ["s2", "s3", "s7", "s6", "s4"]
+  },
+
+  "governance": {
+    "line": "Stephen Hemsley CEO가 이끄는 지분 분산 회사로, 2026년 3분기까지 배당 62억·자사주 50억 달러를 돌려주며 부채비율을 약 40%로 낮추는 중이다.",
+    "src": ["s2", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "adjusted EPS", "value": "20.50달러 이상 (1월 최초 17.75달러 초과)", "givenOn": "2026-10-13", "src": ["s3", "s2"] },
+      { "period": "FY2026", "metric": "GAAP EPS", "value": "19.50달러 이상 (1월 최초 17.10달러 초과)", "givenOn": "2026-10-13", "src": ["s3", "s2"] },
+      { "period": "FY2026", "metric": "revenue (January outlook)", "value": "4,390억 달러 초과 (-2%); 10월 갱신치는 이번 조사에서 미확인", "givenOn": "2026-01-27", "src": ["s2"] },
+      { "period": "FY2026", "metric": "medical care ratio (January outlook)", "value": "88.8% ±0.5%p", "givenOn": "2026-01-27", "src": ["s2"] },
+      { "period": "2027+", "metric": "long-term EPS growth", "value": "연 13~16%", "givenOn": "2026-10-13", "src": ["s4"] }
+    ],
+    "style": "annual",
+    "track": "2026년 EPS 전망은 1월 이후 세 번 올라갔다(조정 17.75 초과 → 20.50 이상). Q3 2026 조정 EPS 4.69달러는 컨센서스 4.12달러를 넘었다.",
+    "src": ["s2", "s3", "s4", "s8"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 조정 EPS 합계 22.27달러(범위 19.14~25.76), 직전 4개 분기 실적 합 20.41달러. 최근 4주 상향 18건·하향 6건으로 상향 우세.",
+    "src": ["s8"]
+  },
+
+  "watch": {
+    "confirms": [
+      "MCR이 88%대 이하에서 안정",
+      "운영비율이 12%대로 계속 하락 (AI·비용 절감 효과)",
+      "Optum Health 영업이익률이 분기마다 개선",
+      "2027년 가이던스가 장기 목표 13~16% 성장과 맞게 나옴",
+      "부채비율 40% 근처 달성 후 자사주 매입 유지"
+    ],
+    "breaks": [
+      "의료 이용 급증으로 MCR 재상승",
+      "메디케어 어드밴티지 보험료·위험조정 규칙의 불리한 변경",
+      "PBM·보험-진료 통합에 대한 규제 조치",
+      "AI 보험 심사를 둘러싼 소송·규제 확대",
+      "가입자 감소가 예상보다 커져 매출이 크게 줄어듦"
+    ],
+    "keyNumbers": [
+      { "name": "의료비율(MCR)", "why": "1%p 차이가 이익을 크게 흔든다" },
+      { "name": "운영비율", "why": "AI·비용 절감이 실제로 나오는지" },
+      { "name": "Optum Health 영업이익률", "why": "6~8% 목표까지의 진척" },
+      { "name": "메디케어 어드밴티지 가입자 수와 점유율", "why": "이익률 회복의 대가" },
+      { "name": "연간 EPS 가이던스", "why": "올해 세 번 상향된 숫자의 지속성" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망 (13~16% 성장 경로 확인)", "src": [] },
+      { "date": "2027-01~04 (매년 일정, 추정)", "event": "CMS 2028 메디케어 어드밴티지 예비·최종 보험료 고시", "src": ["s6"] },
+      { "date": "2026 하반기 (보도, 날짜 미확인)", "event": "투자자의 날 가능성", "src": [] }
+    ],
+    "reaction": "주가는 분기 EPS보다 MCR과 연간 EPS 가이던스 변화에 크게 반응하는 경향이 있다. Q3 2026에는 MCR 개선과 세 번째 가이던스 상향이 함께 나오며 주가가 약 3% 올랐다는 보도가 있다.",
+    "conditions": [
+      "분기 MCR과 전년 대비 변화",
+      "연간 EPS 가이던스 변경 폭",
+      "메디케어 어드밴티지 정부 보험료 고시와 위험조정 규칙",
+      "Optum Health 이익률과 가치기반 환자 수",
+      "컨센서스 EPS 상향·하향 건수 추이 (최근 4주 상향 우세)"
+    ]
+  },
+
+  "unverified": [
+    "부문별 영업이익률은 2025년 보고 영업이익 ÷ 부문 매출로 계산 (조정 기준이 아님)",
+    "부문 매출 합(6,210억 달러)이 연결 매출보다 많아 내부거래 제거 -1,734억 달러를 계산값으로 넣음; share는 연결 매출 대비",
+    "2025년 부문별 전년 대비 성장률, 설비투자·잉여현금흐름 (회사 자료에서 확인 못함)",
+    "2026년 매출·MCR 전망의 10월 갱신치 (1월 값만 확인)",
+    "Optum Health Q3 2026 수치와 장기 13~16% 목표는 2차 보도(s4 검색 요약)",
+    "AI 투자 약 15억 달러와 10억 달러 비용 절감은 2차 보도(일부는 16억 달러로 보도)",
+    "상업 보험 'leader' 판단과 PBM·진료·소프트웨어 점유율",
+    "정부 지불자 매출 비중",
+    "DOJ 등 규제 조사 진행 상황 (이번 조사에서 확인 못함)",
+    "Q3 2026 실적 후 주가 약 3% 상승은 2차 보도",
+    "Q4 2026 실적 발표일과 투자자의 날 일정"
+  ],
+  "confidence": "medium-high - 매출·부문 실적·MCR·가이던스는 회사 보도자료(재게시본 포함)에서 왔다. Optum Health 세부, 장기 목표, AI 지출은 2차 보도다."
+}

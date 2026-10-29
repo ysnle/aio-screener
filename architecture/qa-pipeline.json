@@ -403,6 +403,11 @@
           "script": "scripts/ci-market-session-contract-check.mjs"
         },
         {
+          "id": "event-briefs",
+          "script": "scripts/ci-event-briefs-check.mjs",
+          "remedy": "v59.42 event briefs: the producer runs on scripts/fixtures/event-briefs only; a dropped-figure or basis failure means a number now reaches a brief without being in its fetched source"
+        },
+        {
           "id": "boot-budget",
           "script": "scripts/ci-boot-bundle-budget-check.mjs",
           "remedy": "move the new static import behind import(); a budget raise in architecture/boot-budget.json needs a reason in the commit"
@@ -1276,6 +1281,16 @@
         {
           "id": "artifact-headroom",
           "script": "scripts/ci-artifact-size-headroom-check.mjs"
+        },
+        {
+          "id": "company-profile-contract",
+          "script": "scripts/ci-company-profile-contract-check.mjs",
+          "inputs": [
+            "public-data/company-profiles/**",
+            "src/domain/entity/company-story.js",
+            "scripts/ci-company-profile-contract-check.mjs",
+            "scripts/sync-company-profiles.mjs"
+          ]
         }
       ]
     },

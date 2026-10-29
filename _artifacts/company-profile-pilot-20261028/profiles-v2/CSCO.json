@@ -1,0 +1,599 @@
+{
+  "symbol": "CSCO",
+  "name": "Cisco Systems, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "late July (FY2026 ended 2026-07-25)",
+  "oneLine": "Cisco는 기업·통신사·데이터센터를 잇는 스위치·라우터와 보안·관측 소프트웨어를 파는 세계 최대 네트워크 장비 회사로, 하이퍼스케일러 AI 주문이 붙으면서 FY2027 매출 두 자릿수 성장을 제시했다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Cisco Reports Fourth Quarter and Fiscal Year 2026 Earnings",
+      "url": "https://investor.cisco.com/news/news-details/2026/CISCO-REPORTS-FOURTH-QUARTER-AND-FISCAL-YEAR-2026-EARNINGS/default.aspx",
+      "publisher": "Cisco",
+      "date": "2026-08-12"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Cisco Reports Fourth Quarter and Fiscal Year 2026 Earnings (PR Newswire copy; Q4 product-line and margin detail)",
+      "url": "https://www.webull.com.au/news-detail/15391656769430528",
+      "publisher": "Webull (PR Newswire text)",
+      "date": "2026-08-12"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "Cisco Form 10-K for fiscal year ended 2026-07-25 (purchase commitments; read via search summary because sec.gov returns 403)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000858877/000085887726000132/csco-20260725.htm",
+      "publisher": "Cisco / SEC EDGAR",
+      "date": "2026-09-02"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "Cisco (CSCO) FY2026 annual results analysis: AI infrastructure orders, purchase commitments, margins, peers (third-party digest of 10-K)",
+      "url": "https://sec-api.io/insights/cisco-csco-fy2026-annual-results-analysis-ai-infrastructure-orders-purchase-commitments-margins-peers-and-scenarios-to-fy2030",
+      "publisher": "sec-api.io",
+      "date": "2026-10-12"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "Ethernet Switch Market Surges 43.4% to $18.9B in 2Q26 as AI Infrastructure Demand Drives Record Datacenter Spending",
+      "url": "https://www.idc.com/resource-center/blog/ethernet-switch-market-surges-43-4-to-18-9b-in-2q26-as-ai-infrastructure-demand-drives-record-datacenter-spending/",
+      "publisher": "IDC",
+      "date": "2026-09-11"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "CSCO earnings calendar (expected Q1 FY2027 date, not company-confirmed; accessed date)",
+      "url": "https://therighttrader.com/earnings-calendar/csco",
+      "publisher": "The Right Trader",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/csco/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-27"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "세계 최대 이더넷 스위치·라우터 설치 기반 - IDC 2Q26 스위치 전체 점유율 28.7%, 라우터 34.7%로 모두 1위",
+      "자체 설계 네트워크 칩 Silicon One과 시스템·광학·소프트웨어를 묶는 능력",
+      "시스템통합업체·통신사·리셀러·유통사로 이어진 전 세계 채널과 채널 금융(FY2026 299억 달러)",
+      "보안(Splunk 포함)·관측·협업 소프트웨어와 서비스로 쌓인 RPO 467억 달러"
+    ],
+    "text": "Cisco의 힘은 전 세계 기업·통신사 네트워크에 깔린 장비 설치 기반에서 나온다. 한 번 Cisco 장비와 운영 체계로 짠 네트워크는 바꾸기 어렵고, 이 위에 보안·관측 소프트웨어와 유지보수 계약이 얹혀 RPO가 467억 달러까지 쌓였다. 최근에는 자체 칩 Silicon One으로 하이퍼스케일러 AI 네트워크에도 들어가, 설치 기반 밖으로 새 수요를 열고 있다.",
+    "src": [
+      "s1",
+      "s4",
+      "s5"
+    ]
+  },
+  "design": {
+    "text": "이 기반 위에서 회사가 파는 것은 제품 네 갈래와 서비스로 보고된다. Networking(스위치·라우터·무선·Silicon One 기반 시스템·광학)이 FY2026 매출의 약 55%로 가장 크고, Security(방화벽·Splunk 보안 등), Collaboration(Webex 등), Observability(Splunk Observability·ThousandEyes 등)가 뒤를 잇는다. 나머지 약 24%는 기술 지원과 유지보수 서비스다.",
+    "src": [
+      "s1",
+      "s4"
+    ]
+  },
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "계약 제조업체 (이름 미공시) - 회로기판 조립·테스트·수리·제품 조립",
+      "제한·단일 공급원 부품 공급사 - 메모리 등 (이름 미공시)",
+      "Silicon One 칩 - 자체 설계 (파운드리명 미확인)"
+    ],
+    "text": "Cisco는 칩과 시스템을 설계하고 조립·테스트는 계약 제조업체에 맡긴다. AI 주문이 늘면서 계약 제조업체·공급사와의 재고 구매 약정이 2026-07-25 기준 약 172억 달러로 1년 전(약 76억)의 두 배를 넘었고, 회사는 그 원인으로 Silicon One 제품과 메모리 확보를 꼽았다. 공장을 갖지 않는 대신 이 약정이 수요 확신의 크기이자 하강기 위험이 된다.",
+    "src": [
+      "s3",
+      "s4"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "기업 (캠퍼스·지사 네트워크, 보안)",
+      "통신사·서비스 사업자 (라우팅)",
+      "하이퍼스케일러 - FY2026 AI 인프라 주문 93억 달러 (회사명 미공시)",
+      "공공 기관"
+    ],
+    "channel": "상당 부분을 시스템통합업체·서비스 사업자·리셀러·유통사 같은 채널 파트너를 통해 팔고, 나머지는 직접 판매한다. 채널 금융 규모는 FY2026 299억 달러.",
+    "concentration": "단일 고객 10% 이상 공시는 확인하지 못함. 하이퍼스케일러 AI 주문은 FY2026 93억 달러로 제품 주문의 일부.",
+    "text": "이렇게 만든 장비는 대부분 채널 파트너를 거쳐 수많은 기업과 통신사에 팔려 고객이 넓게 퍼져 있다. 달라진 점은 하이퍼스케일러가 직접 큰 손으로 들어온 것으로, FY2026 AI 인프라 주문이 93억 달러였고 4분기 제품 주문은 전년 대비 35%(하이퍼스케일러 제외 25%) 늘었다. 지역별로도 4분기 미주 +18%, EMEA +19%, APJC +14%로 고르게 늘었다.",
+    "src": [
+      "s1",
+      "s4"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "기업·통신사·공공 기관",
+        "to": "시스템통합업체·리셀러·유통사",
+        "what": "네트워크 구축 프로젝트 대금"
+      },
+      {
+        "from": "채널 파트너",
+        "to": "Cisco",
+        "what": "스위치·라우터·보안 장비 대금 (대당·시스템당), 채널 금융 이용"
+      },
+      {
+        "from": "하이퍼스케일러",
+        "to": "Cisco",
+        "what": "AI 데이터센터용 Silicon One 시스템·광학 직접 구매"
+      },
+      {
+        "from": "설치 고객",
+        "to": "Cisco",
+        "what": "보안·관측 소프트웨어 구독료와 유지보수 서비스 계약료 (RPO 467억 달러)"
+      },
+      {
+        "from": "Cisco",
+        "to": "계약 제조업체·부품 공급사",
+        "what": "조립·부품 대금 (구매 약정 약 172억 달러)"
+      }
+    ],
+    "pricing": "하드웨어는 대당·시스템당 판매, 소프트웨어는 구독·라이선스, 서비스는 다년 유지보수 계약. RPO는 제품 234억·서비스 233억 달러로 거의 반반이다.",
+    "text": "돈은 기업·통신사가 채널 파트너에게 네트워크 구축비를 내고, 파트너가 Cisco 장비를 사면서 들어온다. 여기에 하이퍼스케일러가 AI용 시스템을 직접 사는 새 통로가 생겼다. 장비를 판 뒤에는 소프트웨어 구독과 유지보수 계약이 다년간 이어져, 매출의 일부가 RPO로 미리 쌓여 있다.",
+    "src": [
+      "s1",
+      "s3",
+      "s4"
+    ]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-07-25)",
+    "revenue": {
+      "value": 63.325,
+      "unit": "USD bn",
+      "yoy": 12
+    },
+    "grossMargin": 64.5,
+    "operatingMargin": 24.3,
+    "netMargin": 21.0,
+    "operatingCashFlow": {
+      "value": 14.177,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 12.767,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Networking (product)",
+        "revenue": 34.668,
+        "unit": "USD bn",
+        "share": 54.7,
+        "yoy": 22,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Security (product)",
+        "revenue": 8.232,
+        "unit": "USD bn",
+        "share": 13.0,
+        "yoy": 2,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Collaboration (product)",
+        "revenue": 4.3,
+        "unit": "USD bn",
+        "share": 6.8,
+        "yoy": 4,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Observability (product)",
+        "revenue": 1.095,
+        "unit": "USD bn",
+        "share": 1.7,
+        "yoy": 4,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Services",
+        "revenue": 15.03,
+        "unit": "USD bn",
+        "share": 23.7,
+        "yoy": 0,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "최근 분기 (Q4 FY2026) 매출·마진",
+        "value": "매출 173억 달러(+18%), Networking 97.9억(+28%), Security 22.3억(+14%), non-GAAP 총마진 66.3% (전년 68.4%)",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "제품 주문 증가율 (Q4 FY2026)",
+        "value": "전체 +35%, 하이퍼스케일러 제외 +25%, Networking +40%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "하이퍼스케일러 AI 인프라",
+        "value": "주문 FY2026 93억 달러(Q4 40억), 매출 FY2026 약 40억 → FY2027 약 75억 달러 예상",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "RPO",
+        "value": "467억 달러(+7%): 제품 234억(+9%), 서비스 233억(+6%) - 2026-07-25",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "재고 구매 약정",
+        "value": "약 172억 달러 (전년 약 76억) - 2026-07-25",
+        "src": [
+          "s3",
+          "s4"
+        ]
+      }
+    ],
+    "text": "이 구조가 FY2026에 매출 633억 달러(+12%), GAAP 총마진 64.5%, 영업이익률 24.3%를 냈고, 이익은 네트워킹 장비와 서비스·소프트웨어의 높은 마진에서 나온다. 성장은 거의 전부 Networking(+22%)에서 왔고 Security는 +2%, 서비스는 제자리였다. 4분기에는 매출이 18% 늘었지만 non-GAAP 총마진이 66.3%로 1년 전보다 2%p 낮아져, 하이퍼스케일러 물량과 원가 부담이 마진을 누르기 시작했다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-07-25)",
+    "items": [
+      {
+        "use": "R&D",
+        "value": 9.563,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 1.41,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 0.516,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 6.106,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 6.553,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "벌어들인 현금(FY2026 잉여현금흐름 약 128억 달러)의 대부분인 127억 달러가 배당 66억과 자사주 매입 61억으로 주주에게 돌아갔다. R&D 비용은 96억 달러로 매출의 15% 수준이고, 설비투자는 14억 달러에 그친다. 인수는 Galileo(관측)·Astrix(비인간 ID 보안) 등 5억 달러 규모로 작아, Splunk 이후에는 큰 인수보다 주주환원과 연구개발에 무게를 두고 있다.",
+    "src": [
+      "s1",
+      "s4"
+    ]
+  },
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 데이터센터 안팎을 잇는 이더넷 스위치·라우터·광학을 공급한다. 하이퍼스케일러의 AI 클러스터 네트워크(Silicon One 시스템)와, 기업이 AI를 쓰면서 늘어나는 캠퍼스·보안·관측 수요 양쪽에 걸쳐 있다.",
+    "dependsOn": [
+      "semicap-foundry (Silicon One 칩 생산 파운드리)",
+      "memory (메모리 부품 확보)",
+      "계약 제조업체 (조립·테스트)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (하이퍼스케일러)",
+      "ai-adopter (AI를 도입하는 기업·공공)",
+      "통신사·서비스 사업자"
+    ],
+    "aiRevenue": "하이퍼스케일러 AI 인프라 매출 FY2026 약 40억 달러(매출의 약 6%), FY2027 약 75억 달러 예상, FY2026 주문 93억 달러 (2026-08-12 발표)",
+    "upside": "하이퍼스케일러 AI 네트워크 매출이 FY2027 약 75억 달러로 두 배 가까이 늘고, 기업이 AI 트래픽에 맞춰 캠퍼스·보안 장비를 바꾸는 교체 수요가 겹치면 매출이 커진다. 회사는 FY2027 매출 722~734억 달러를 제시했다.",
+    "risk": "데이터센터 네트워크에서 NVIDIA·Arista·화이트박스에 밀리는 것, 하이퍼스케일러 물량의 낮은 마진, 메모리 원가 상승, 커진 구매 약정이 수요 둔화 때 재고 부담이 되는 것.",
+    "text": "그래서 AI 가치사슬에서 Cisco는 GPU 사이와 데이터센터 사이를 잇는 '네트워킹' 층에 있다. 아직 AI 매출은 전체의 6% 정도지만 FY2027에 거의 두 배로 늘 것으로 회사는 본다. 다만 데이터센터 안쪽에서는 Cisco보다 NVIDIA·Arista의 점유율이 높아, AI 수혜는 기업 네트워크 교체와 하이퍼스케일러 물량 양쪽에서 함께 확인해야 한다.",
+    "src": [
+      "s1",
+      "s5"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "이더넷 스위치 (전체)",
+        "rivals": [
+          "Arista",
+          "Huawei",
+          "HPE (Juniper 포함)",
+          "NVIDIA"
+        ],
+        "position": "leader",
+        "share": "IDC 2Q26 전체 28.7% (1위, 매출 54억 달러 +36.2%), Arista 13.4%, Huawei 8.2%, HPE 6.1% - 2026-09-11",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "arena": "데이터센터 이더넷 스위치",
+        "rivals": [
+          "NVIDIA",
+          "Arista",
+          "화이트박스(Celestica 등)"
+        ],
+        "position": "challenger",
+        "share": "IDC 2Q26 데이터센터 18.2% (매출 22억 달러), NVIDIA 20.4%(1위), Arista 18.7% - 2026-09-11",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "arena": "라우터",
+        "rivals": [
+          "Huawei",
+          "HPE (Juniper 포함)",
+          "Nokia"
+        ],
+        "position": "leader",
+        "share": "IDC 2Q26 34.7% (1위, 16억 달러 +31.6%), Huawei 29.9%, HPE 10.7% - 2026-09-11",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "arena": "네트워크·클라우드 보안",
+        "rivals": [
+          "Palo Alto Networks",
+          "Fortinet",
+          "Zscaler"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "관측·협업 소프트웨어",
+        "rivals": [
+          "Datadog",
+          "Dynatrace",
+          "Microsoft Teams",
+          "Zoom"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      }
+    ],
+    "edge": "전체 스위치·라우터 시장 1위 설치 기반, Silicon One 자체 칩, 채널망, 보안·관측 소프트웨어 묶음. 2Q26 스위치 매출 성장률(+36.2%)이 Arista(+37.6%)와 비슷해 점유율을 지키고 있다.",
+    "threats": "데이터센터 스위치에서는 NVIDIA(20.4%)와 Arista(18.7%)가 Cisco(18.2%)보다 앞서 있고, 보안은 연간 +2%로 경쟁사보다 느리다. 라우터에서는 Huawei가 바짝 뒤따른다.",
+    "text": "경쟁은 시장마다 다르다. 전체 스위치와 라우터에서는 Cisco가 여전히 1위지만, AI가 가장 빨리 크는 데이터센터 스위치에서는 NVIDIA·Arista에 이은 3위다. 회사는 Silicon One으로 하이퍼스케일러를 공략하고 보안·관측을 네트워크에 묶어 맞서지만, 보안 매출이 FY2026에 2%밖에 늘지 않아 이 묶음 전략이 숫자로 나오는지가 관건이다.",
+    "src": [
+      "s5",
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "회사는 '네트워킹 슈퍼사이클'이 진행 중이라고 말하며 FY2027 매출 722~734억 달러(FY2026 대비 약 14~16%), non-GAAP EPS 5.05~5.11달러를 제시했다.",
+    "roadmap": [
+      {
+        "when": "Q1 FY2027 (2026-08~10)",
+        "what": "매출 180~182억 달러, non-GAAP 영업이익률 35.5~36.5% 가이던스",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "하이퍼스케일러 AI 인프라 매출 약 75억 달러 (FY2026 약 40억)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2026 Q4 완료",
+        "what": "Galileo(관측)·Astrix Securities(비인간 ID 보안) 인수",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "구매 약정 172억 달러로 Silicon One 제품·메모리 공급 확보",
+        "src": [
+          "s3",
+          "s4"
+        ]
+      }
+    ],
+    "vision": "고객이 어디에서 AI를 돌리든 그 네트워크와 보안을 책임지는 회사가 되겠다는 그림으로, CEO는 '보안 네트워킹'의 차별성을 강조한다.",
+    "text": "경쟁을 이기기 위해 회사는 AI 데이터센터 물량과 기업 네트워크 교체를 동시에 잡으려 한다. FY2027 가이던스는 매출 두 자릿수 성장으로 FY2026(+12%)보다 높고, 그 중 하이퍼스케일러 AI 매출이 약 35억 달러를 더 보탠다. 이를 위해 부품 약정을 두 배 넘게 늘려 둔 만큼, 주문이 매출로 제때 바뀌는지가 다음 확인 지점이다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "governance": {
+    "line": "Chuck Robbins CEO가 이끌며, FY2026에 잉여현금흐름과 비슷한 127억 달러를 배당(분기 0.42달러)과 자사주 매입으로 돌려줬고 매입 한도 81억 달러가 남아 있다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q1 FY2027",
+        "metric": "revenue",
+        "value": "180~182억 달러",
+        "givenOn": "2026-08-12",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q1 FY2027",
+        "metric": "non-GAAP gross margin / operating margin",
+        "value": "총마진 65~66%, 영업이익률 35.5~36.5%",
+        "givenOn": "2026-08-12",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q1 FY2027",
+        "metric": "EPS",
+        "value": "non-GAAP 1.32~1.34달러, GAAP 1.08~1.10달러",
+        "givenOn": "2026-08-12",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "revenue / EPS",
+        "value": "매출 722~734억 달러, non-GAAP EPS 5.05~5.11달러, GAAP EPS 4.00~4.06달러",
+        "givenOn": "2026-08-12",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "확인하지 못함 - Q4 FY2026 실제치(매출 173억 달러)와 직전 가이던스 범위를 대조할 자료를 이번에 읽지 못했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) 합계 4.43달러(범위 4.19~4.78), 직전 4개 분기 합 3.67달러. 최근 4주 상향 1건·하향 1건으로 방향 중립. 회사 non-GAAP EPS와 산출 기준이 다를 수 있다.",
+    "src": [
+      "s7"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "하이퍼스케일러 AI 매출이 FY2027 약 75억 달러 경로를 따라감",
+      "하이퍼스케일러 제외 제품 주문도 두 자릿수 성장을 이어감 (기업 교체 수요)",
+      "non-GAAP 총마진이 가이던스 65~66% 범위를 지킴",
+      "IDC 데이터센터 스위치 점유율이 오르거나 유지",
+      "Security 매출 성장률이 한 자릿수 초반에서 올라감"
+    ],
+    "breaks": [
+      "제품 주문 증가율 급감 또는 하이퍼스케일러 주문 공백",
+      "총마진이 가이던스 아래로 떨어짐 (메모리 원가·물량 믹스)",
+      "구매 약정·재고 관련 비용 인식",
+      "데이터센터 스위치 점유율이 NVIDIA·화이트박스로 더 빠짐",
+      "RPO 증가율 둔화로 서비스·소프트웨어 기반 약화"
+    ],
+    "keyNumbers": [
+      {
+        "name": "제품 주문 증가율 (하이퍼스케일러 포함·제외)",
+        "why": "미래 매출의 선행 지표"
+      },
+      {
+        "name": "하이퍼스케일러 AI 주문·매출",
+        "why": "AI 수혜의 직접 크기"
+      },
+      {
+        "name": "non-GAAP 총마진",
+        "why": "물량 믹스와 원가 부담의 결과"
+      },
+      {
+        "name": "RPO",
+        "why": "구독·서비스 반복 매출의 바닥"
+      },
+      {
+        "name": "재고 구매 약정",
+        "why": "수요 확신의 크기이자 하강기 위험"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11-11 전후 (추정, 회사 미확정; 일부 일정표는 11-10)",
+        "event": "Q1 FY2027 실적과 Q2 가이던스",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "date": "분기마다",
+        "event": "IDC 이더넷 스위치·라우터 점유율 발표",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "date": "매 분기 (하이퍼스케일러 실적 시즌)",
+        "event": "Microsoft·Alphabet·Amazon·Meta 설비투자 전망",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "reaction": "성숙한 대형주라 분기 매출보다 제품 주문 증가율, 다음 분기·연간 가이던스, 총마진 방향에 반응하는 경향이 있다. 이번에는 하이퍼스케일러 AI 주문 규모와 총마진 하락 폭이 함께 비교된다.",
+    "conditions": [
+      "실적 발표 때 다음 분기 매출 가이던스와 컨센서스의 차이",
+      "제품 주문 증가율과 하이퍼스케일러 AI 주문 금액",
+      "non-GAAP 총마진과 메모리 원가 언급",
+      "10-Q의 구매 약정·재고 변화",
+      "연간 가이던스 유지·상향 여부",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "보안·관측·협업 경쟁사 목록은 업계 일반 구도로 적었고 점유율 자료 없음",
+    "10-K의 단일 고객 10% 이상 여부와 최대 유통사 비중 (확인 못함)",
+    "계약 제조업체 이름과 Silicon One 파운드리 (10-K에 이름 미기재로 보도됨)",
+    "재고 구매 약정 172억 달러는 sec.gov 403으로 검색 요약·sec-api.io 2차 분석에서 읽음",
+    "채널 금융 299억 달러는 sec-api.io 2차 분석에서 읽음",
+    "FY2026 잉여현금흐름 127.7억 달러는 영업현금흐름(141.8억)-설비투자(14.1억) 계산값",
+    "부문별 영업이익률 (회사는 지역 부문만 보고)",
+    "ARR·구독 매출 금액 (보도자료 미기재)",
+    "Q4 FY2026 실제치 vs 직전 가이던스 비교",
+    "Q1 FY2027 실적 발표일 (회사 미공지, 일정표 간 11-10/11-11 불일치)",
+    "하이퍼스케일러 고객 이름 (미공시)"
+  ],
+  "confidence": "high - 실적·주문·가이던스는 회사 보도자료 원문이고 점유율은 IDC 원문이다. 공급망·채널 세부는 10-K 원문 대신 2차 요약에 의존했다."
+}

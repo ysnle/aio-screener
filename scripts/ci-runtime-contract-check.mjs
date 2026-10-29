@@ -303,11 +303,18 @@ check('LC-07/LC-87/P1268 one owner for market-news summary and source-count deno
   && /return ns/.test(legacyNewsSummaryWriter)
   && /deriveNewsSummary/.test(nativeNewsSummaryWriter)
   && !/data-news-source-count/.test(nativeNewsSummaryWriter)
-  && /AIO_NEWS_SOURCES\.length/.test(data)
   // verify-aio registry probe (2026-10-13): the keyword-sentiment strip left the page in P1391, so the
   // registry names the summary elements that are still rendered.
   && (newsRouteOwner?.nativePrimarySurface || []).includes('#page-market-news #news-24h-count')
   && /compatibility scoring producer/.test(newsRouteOwner?.legacyWriterEvidence?.join(' ') || ''));
+// v59.42 coverage pass: production news is the server bundle only (P1756: the browser RSS run is skipped while it is
+// fresh and the shared Worker refuses the feed hosts otherwise), so the browser list keeps the Telegram channels alone.
+{
+  const at = data.indexOf('const AIO_NEWS_SOURCES = [');
+  const browserNewsSources = at < 0 ? [] : runInNewContext(data.slice(at + 'const AIO_NEWS_SOURCES = '.length, data.indexOf('\n];', at) + 2));
+  const rssSources = browserNewsSources.filter((source) => source.type !== 'telegram');
+  check('v59.42 the browser news list holds Telegram channels only (no dead RSS feeds)', at >= 0 && browserNewsSources.length > 0 && rssSources.length === 0, rssSources.length + ' RSS feeds');
+}
 // LC-31/P1230/P1268: query topics stay review-only for topic-driven scoring while text sentiment remains possible.
 check('LC-31/P1230/P1268 feed-query topics do not drive article-topic risk signals',
   /isNewsTopicReviewRequired/.test(newsScoring)
@@ -905,7 +912,7 @@ check('all news acquisition paths converge on one visible summary state updater'
 check('closed AI panel is inert and its trigger owns expanded state and focus return', /id="topbar-ai-btn"[\s\S]{0,300}aria-expanded="false"[\s\S]{0,300}aria-controls="ai-panel"/.test(html) && /id="ai-panel"[\s\S]{0,220}aria-hidden="true" inert/.test(html) && /p\.setAttribute\('inert', ''\)/.test(chat) && /p\.removeAttribute\('inert'\)/.test(chat) && /btn\.focus\(\)/.test(chat));
 check('KR theme cards preserve progressive density after live updates', /stockIdx < 5/.test(krData) && /kr-theme-card-more/.test(html + krData) && /catalyst\.length > 260/.test(krData) && /catFullEl\.textContent = catalyst/.test(krData) && /closest\('\.kr-ticker-pill, details, summary, \[data-stop\]'\)/.test(krData));
 check('P1671 KR supply requests are retired with their schedule entry', !/krSupply/.test(data + core) && !/fetchKrSupplyData/.test(data + core + krData + ui));
-check('empty portfolio hides non-computable panels and exposes one first-position CTA', /var _pfEmpty = positions\.length === 0/.test(html + workspace) && /el\.hidden = _pfEmpty/.test(html + workspace) && /class="pf-empty-state"/.test(html + workspace) && />첫 종목 추가</.test(html + workspace));
+check('empty portfolio hides non-computable panels and exposes one first-position CTA', /var _pfEmpty = positions\.length === 0/.test(html + workspace) && /el\.hidden = _pfEmpty/.test(html + workspace) && /row.className = 'pf-empty-state'/.test(portfolioPage) && /addButton.textContent = '첫 종목 추가'/.test(portfolioPage)); // v59.42: the empty-state row is the native page's
 // P1670: the briefing news list (and its .briefing-news-title clamp) left with _aioRenderBriefingMarketAnalysis;
 // news titles render through getDisplayTitle in news.js / daily-loop.js, which keep this translation guard.
 check('briefing and news display titles reject failed or non-Korean cached translations', /!cached\.ko_title \|\| !isKoreanText\(cached\.ko_title\)/.test(data) && !/class="briefing-news-title"/.test(data + core));
@@ -1151,8 +1158,9 @@ check('H2-16: documentation and knowledge gates are wired for the final handoff 
 // repeated global currentness scans on the user main thread. The status banner is informational only.
 check('PERF-BOOT-01: boot status banner is nonblocking and has a 3s hard timeout', /id="aio-boot-loader"/.test(html) && /#aio-boot-loader[\s\S]{0,500}pointer-events:\s*none/.test(html) && /closeBootLoader\('화면 준비 완료'\); \}, 3000/.test(html));
 check('PERF-BOOT-02: automatic ops push uses light mode by default and reserves getAutoOpsReadiness for explicit/detailed audit mode', /var full = opts\.full === true \|\| \(A\.isDetailedAuditMode/.test(core) && /if \(full && A\.getAutoOpsReadiness\)/.test(core) && /mode: full \? 'full' : 'light'/.test(core));
-check('PERF-BOOT-03: currentness guard defaults to the active route and batches DOM reads before writes', /document\.querySelector\('\.page\.active'\)/.test(core) && /var liveRows =[\s\S]{0,500}\.map\(function\(el\)/.test(core) && /liveRows\.forEach\(function\(row\)/.test(core));
-check('PERF-BOOT-04: live quotes debounce the scoped guard and retired 6s\/18s whole-document rescans stay absent', /scheduleMarketCurrentnessGuard\(250, 'live-quotes'\)/.test(data) && /window\.AIO\.scheduleMarketCurrentnessGuard = _aioScheduleMarketCurrentnessGuard/.test(core) && !/_aioScheduleMarketCurrentnessGuard\(6000/.test(core) && !/_aioScheduleMarketCurrentnessGuard\(18000/.test(core));
+// v59.42: the currentness guard (PERF-BOOT-03's subject) is retired; it must not come back as a per-event DOM rewrite.
+check('PERF-BOOT-03 (P2130): the retired currentness guard stays absent', !/applyMarketCurrentnessGuard\s*=\s*function/.test(core) && !/applyTextSurfaceHygiene\s*=\s*function/.test(core));
+check('PERF-BOOT-04 (P2130): live quotes debounce the snapshot banner refresh and retired 6s\/18s whole-document rescans stay absent', /scheduleSnapshotStaleBanner\(250\)/.test(data) && /window\.AIO\.scheduleSnapshotStaleBanner = _aioScheduleSnapshotStaleBanner/.test(core) && !/_aioScheduleSnapshotStaleBanner\(6000/.test(core) && !/_aioScheduleSnapshotStaleBanner\(18000/.test(core));
 
 check('PERF-BOOT-05: public readiness uses materialized runtime state while full share audits remain explicit/dev-only', /var detailed = opts\.full === true/.test(data) && /if \(detailed\) \{[\s\S]{0,500}getShareReadinessAudit/.test(data) && /_aioBuildPublicShareReadiness\(\{ full: false \}\)/.test(data) && /_aioSchedulePublicReadiness/.test(data) && exists('scripts/ci-boot-interaction-check.mjs') && qaHas('scripts/ci-boot-interaction-check.mjs', 'browser-runtime'));
 check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and all three budgets remain independent', /requestAnimationFrame\(\(\) => requestAnimationFrame\(resolvePaint\)\)/.test(bootInteractionGate) && bootInteractionGate.indexOf('resolvePaint') < bootInteractionGate.indexOf("showPage('signal')") && /fcpMs > 2500/.test(bootInteractionGate) && /routeMs > 2000/.test(bootInteractionGate) && /maxLongTaskMs > 2500/.test(bootInteractionGate));
@@ -1160,7 +1168,7 @@ check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and al
 // v52.75 (WP-AI0): public AI beta safety boundary + unverified auto-analysis block.
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
 check('v57.62 WP-AI0: the unified chat path gates streaming/final output and persists gated text only', /_uniChunkResult\.text/.test(chat) && /_publicGate = _uniDoneResult\.actionGate/.test(chat) &&/state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
-check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미, 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
+check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미, 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(html)); // v59.42: the chat-injected header tag is deleted; the panel line carries the policy attribute
 let wpAi0SemanticGate = false;
 {
   const { buildServerDataMeta } = await import('../src/data/server-data.js');
@@ -1200,7 +1208,7 @@ check('WP-AI3: regression fixtures cover intent, relevance, deterministic order,
 // v52.79 (WP-AI4/5): external data boundary, portfolio privacy consent, and
 // one shared financial-conduct/action-permission gate.
 check('WP-AI4: untrusted external text is normalized, injection-audited, and wrapped as NEWS/WEB/TELEGRAM data', /sanitizeAIUntrustedText/.test(core) && /buildAIUntrustedBlock/.test(core) && /sourceKind=UNTRUSTED/.test(core) && /NEWS_TELEGRAM/.test(chat + html) && (/WEB_SEARCH/.test(chat + html) || !/_aiWebSearch/.test(chat)) /* P1655: no browser search text to wrap */ && /SecurityFlags/.test(data));
-check('WP-AI4: chat history has explicit off mode, 30-day retention, bounded entries, and sanitized storage', /getChatHistoryPolicy/.test(core) && /setChatHistoryEnabled/.test(core) && /prepareChatHistoryEntry/.test(core) && /CHAT_HISTORY_MAX = 50/.test(html + workspace) && /retentionDays/.test(html + workspace) && /_aioChatHistoryToggle/.test(core));
+check('WP-AI4: chat history has explicit off mode, 30-day retention, bounded entries, and sanitized storage', /getChatHistoryPolicy/.test(core) && /setChatHistoryEnabled/.test(core) && /prepareChatHistoryEntry/.test(core) && /CHAT_HISTORY_MAX = 50/.test(html + workspace) && /retentionDays/.test(html + workspace)); // v59.42: the toggle lived only in the unreachable 대화 기록 overlay, deleted with it
 check('WP-AI5: portfolio AI uses a field allowlist, redaction preview, and session-only opt-in before unified send', /redactPortfolioForAI/.test(core) && /getPortfolioAIPrivacyPreview/.test(core) && /setPortfolioAIConsent/.test(core) && /포트폴리오 AI 전송 미리보기/.test(html + workspace) && /계좌ID.*제외/.test(html + workspace));
 check('WP-AI5/P1120: prohibited conduct still blocks while personalized direct action and probability gaps remain explicit limitations', /evaluateAIActionPermission/.test(core) && /conductAudit/.test(chat) && /prohibited-conduct/.test(core) && /suitability-context-missing/.test(core) && /current-evidence-limited/.test(core) && /decision-grade/.test(core) && /uncalibrated-probability-claim/.test(core) && !/safeText: 'AI 안전 모드\\n\\n적합성 정보와 현재 decision-grade/.test(core));
 // v57.62: the per-page chatSend copy was retired; these read the unified chat entry point.
@@ -1242,8 +1250,10 @@ check('WP-AI13: retrieval quality exposes recall/precision/source-tier/temporal 
 check('R460/P905: conduct policy blocks prohibited execution only while read-only legal, tax, and investment analysis remains available',
   /getFinancialConductPolicy/.test(core) && /classifyFinancialConduct/.test(core) && /BLOCKED_P0/.test(core) && /EDUCATIONAL_ALLOWED/.test(core) && /conductAudit/.test(core)
   && !/status:'LEGAL_REVIEW_REQUIRED'/.test(core));
-check('R460/P905: both chat surfaces advertise conditional analysis and downgrade research outages without erasing the answer',
-  /투자·법률·세무 조건부 분석/.test(html) && /투자·법률·세무 조건부 분석/.test(chat) &&
+// v59.42: the second surface (a policy tag injected into .aio-chat headers) left with those panels; the one AI panel's
+// #ai-panel-policy line in index.html carries the scope statement.
+check('R460/P905: the AI panel advertises conditional analysis and downgrades research outages without erasing the answer',
+  /투자·법률·세무 조건부 분석/.test(html) &&
   /research-evidence-unavailable/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(html));
 check('WP-AI13/14: regression fixtures cover retrieval, conduct, shared pipeline, claim-scoped degradation, malformed-plan recovery, and partial-stream concealment', /_testV5283RetrievalQualityAndConduct/.test(tests) && /T983/.test(tests) && /T984/.test(tests) && /T986/.test(tests) && /T987/.test(tests) && /T988/.test(tests) && /T989/.test(tests) && /T990/.test(tests) && /T990c/.test(tests) && /T990d/.test(tests) && /T990e/.test(tests) && /T990f/.test(tests) && /T990g/.test(tests));
 
@@ -1575,7 +1585,7 @@ check('P1275/P1737 v57.60: CP2 Fed range comes from AIO.getFedPolicyRange, retir
     && /function getCP2Text\(\)[\s\S]{0,900}getFedPolicyRange\(\)[\s\S]{0,900}Fed 목표범위/.test(core)
     && !/공식 정책금리 참고 '\s*\+\s*c\.fedRate/.test(core)
     && !/cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed 3\.50-3\.75%/.test(core)
-    && /sourceUrl:\s*'https:\/\/www\.federalreserve\.gov\/newsevents\/pressreleases\/monetary20260916a\.htm'/.test(core));
+    && /sourceUrl:\s*'https:\/\/www\.federalreserve\.gov\/newsevents\/pressreleases\/monetary20261028a\.htm'/.test(core));
 
 const macroCalendarStart = core.indexOf('window.AIO_MACRO_CALENDAR = {');
 const macroCalendarEnd = core.indexOf('\n};', macroCalendarStart);

@@ -1,0 +1,212 @@
+{
+  "symbol": "AMAT",
+  "name": "Applied Materials, Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "last Sunday of October (FY2025 ended 2025-10-26)",
+  "oneLine": "Applied Materials는 칩 공장에 들어가는 증착·식각·검사 장비를 가장 폭넓게 파는 세계 최대 반도체 장비 회사로, AI용 선단 로직·DRAM·첨단 패키징 투자가 늘며 2026년 장비 매출 성장률 전망을 세 차례 올렸다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Applied Materials Announces Fourth Quarter and Fiscal Year 2025 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/6951/000162828025051998/exhibit991q42025earningsre.htm", "publisher": "Applied Materials / SEC EDGAR", "date": "2025-11-13" },
+    { "id": "s2", "kind": "earnings-release", "title": "Applied Materials Announces Third Quarter 2026 Results (company release repost)", "url": "https://seekingalpha.com/pr/20619045", "publisher": "Seeking Alpha (company release)", "date": "2026-08-13" },
+    { "id": "s3", "kind": "call-transcript", "title": "Applied Mat Q3 2026 Earnings Call Transcript (auto-generated)", "url": "https://www.webull.com/news/15397763217384448", "publisher": "Webull", "date": "2026-08-13" },
+    { "id": "s4", "kind": "investor-day", "title": "Applied Materials Investor Breakfast 2026 (SEMICON West) - slide summary on a third-party gallery, not the company file", "url": "https://2slides.com/gallery/applied-materials-investor-breakfast-2026", "publisher": "2Slides (summary of company deck)", "date": "2026-10-13" },
+    { "id": "s5", "kind": "10-K", "title": "Lam Research Form 10-K FY2026 - competitors named by product area (Applied Materials in deposition and etch)", "url": "https://www.sec.gov/Archives/edgar/data/707549/000070754926000037/lrcx-20260628.htm", "publisher": "Lam Research / SEC EDGAR", "date": "2026-08-07" },
+    { "id": "s6", "kind": "10-K", "title": "KLA Form 10-K FY2026 - competitors named in process control (Applied Materials, ASML, Hitachi High-Tech, Lasertec, Onto)", "url": "https://www.sec.gov/Archives/edgar/data/319201/000031920126000027/klac-20260630.htm", "publisher": "KLA / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s7", "kind": "other", "title": "AIO local SEC companyfacts snapshot (FY2025 revenue growth 4.4%), public-data/sec-fundamentals.json", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000006951.json", "publisher": "SEC EDGAR via AIO", "date": "2026-10-13" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/amat/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s9", "kind": "ir-site", "title": "Applied Materials to Report Fourth Quarter and Fiscal 2026 Results (date read from search summary; page returned 403)", "url": "https://ir.appliedmaterials.com/news-releases/news-release-details/applied-materials-report-fourth-quarter-and-fiscal-2026-results", "publisher": "Applied Materials Investor Relations", "date": "2026-10-22" }
+  ],
+  "moat": {
+    "sources": [
+      "가장 넓은 장비 포트폴리오 - 증착·식각·CMP·도금·에피·이온주입·e-beam 계측까지, 새 칩 구조에 필요한 핵심 기술 다수 보유(회사 주장)",
+      "전 세계에 깔린 장비 설치 기반과 서비스 - FY2025 AGS 매출 63.9억 달러, 3.7만 개 이상 챔버가 AIx 소프트웨어에 연결",
+      "고객과 차세대 공정을 함께 개발하는 EPIC 센터 (11개 협업, Broadcom 참여)",
+      "대형 고객의 8분기 순환 전망과 약 5년 로드맵 가시성"
+    ],
+    "text": "Applied Materials의 힘은 칩 공장에서 쓰는 장비 종류를 가장 많이 갖고 있다는 데서 나온다. 트랜지스터 구조가 GAA·후면 전력·HBM 적층·첨단 패키징처럼 복잡해질수록 여러 공정을 한 회사가 묶어 풀어 줄 수 있어야 하는데, 회사는 이 신구조에 필요한 상위 기술 대부분을 갖고 있다고 말한다. 여기에 전 세계 설치 장비에서 나오는 서비스 매출이 두 번째 뿌리다.",
+    "src": ["s1", "s3", "s4"]
+  },
+  "design": {
+    "text": "회사가 파는 것은 세 부문으로 보고된다. Semiconductor Systems는 웨이퍼 위에 막을 쌓고 깎고 다듬는 공정 장비(증착·식각·CMP·도금·에피·e-beam 검사 등), Applied Global Services(AGS)는 설치 장비의 부품·서비스·업그레이드와 구형 장비, 'Corporate and other'에는 디스플레이 장비가 들어간다. 2026년에는 DRAM용 Centura Prime, HBM용 Producer Avila 등 신제품 6종을 냈다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 제조 - 제조 공간을 수년간 거의 두 배로 늘렸고 2026년 싱가포르 신규 센터 가동",
+      "부품 공급망 - 공급사명은 이 자료에서 확인하지 않음",
+      "EPIC 센터 협업사 - Broadcom, Screen, UC Berkeley 등"
+    ],
+    "text": "이런 장비는 회사가 직접 설계하고 자체 공장에서 조립한다. 회사는 2028년까지 분기 장비 출하 능력을 지금의 두 배로 늘리는 생산능력 목표를 세웠고, 한 분기에만 제조·서비스 인력 1,500명 이상을 더 뽑았다. 다만 고객 쪽 클린룸이 언제 준비되느냐가 2027년 성장의 상한이 된다고 밝혔다.",
+    "src": ["s3"]
+  },
+  "sell": {
+    "customers": [
+      "파운드리·로직 칩 제조사 - FY2025 장비 매출의 67%",
+      "DRAM 제조사 (HBM 포함) - 26%",
+      "플래시 메모리 제조사 - 7%",
+      "디스플레이 패널 제조사 (Corporate and other)"
+    ],
+    "channel": "칩·패널 제조사에 직접 판매·설치하고 장기 서비스 계약을 맺는 방식. 회사는 2030년 서비스의 약 70%를 구독형으로 만들겠다는 목표를 제시했다.",
+    "concentration": "10% 이상 고객명과 비중은 이 자료에서 확인하지 못함. 지역으로는 중국이 FY2025 매출의 30%(85.3억 달러), FY2026 3분기 28%.",
+    "text": "장비를 사는 곳은 파운드리·로직이 3분의 2, 메모리가 3분의 1인 구조다. 최근에는 DRAM(HBM 패키징 포함) 장비 매출이 전년 대비 52% 늘며 비중이 커지고 있다. 지역으로는 중국이 FY2025 매출의 30%로 가장 크지만, 3분기에는 28%로 내려오고 대만·한국 비중이 올라왔다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스·클라우드 수요", "to": "칩 설계사·하이퍼스케일러", "what": "AI 가속기·서버 구매" },
+      { "from": "칩 설계사", "to": "파운드리·메모리 제조사 (TSMC, Samsung, SK hynix, Micron 등)", "what": "웨이퍼·HBM 대금" },
+      { "from": "파운드리·메모리 제조사", "to": "Applied Materials", "what": "공정 장비 대금 (대당 판매)" },
+      { "from": "설치 장비를 가진 칩 제조사", "to": "Applied Materials (AGS)", "what": "부품·서비스·업그레이드 대금, 장기 계약·구독" },
+      { "from": "Applied Materials", "to": "주주", "what": "배당·자사주 매입 (잉여현금흐름의 80~100% 환원 목표)" }
+    ],
+    "pricing": "장비는 대당 판매, AGS는 부품·서비스 계약과 구독형 장기 계약. 회사는 가치 기반 가격 책정으로 3년간 약 3%p 마진을 올렸다고 설명했다.",
+    "text": "돈은 AI 칩 수요가 칩 제조사의 공장 증설로 바뀌고, 그 설비투자가 장비 대금으로 Applied에 들어오는 순서로 흐른다. 장비가 한 번 깔리면 수년간 부품·서비스 대금이 따라오고, 회사는 이를 구독형 계약으로 바꿔 경기와 덜 연동되는 매출로 만들고 있다. 그렇게 번 현금은 잉여현금흐름의 80~100%를 주주에게 돌려준다는 원칙으로 나간다.",
+    "src": ["s3", "s4"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-10-26)",
+    "revenue": { "value": 28.368, "unit": "USD bn", "yoy": 4.4 },
+    "grossMargin": 48.7,
+    "operatingMargin": 29.2,
+    "netMargin": 24.7,
+    "operatingCashFlow": { "value": 7.958, "unit": "USD bn" },
+    "freeCashFlow": { "value": 5.698, "unit": "USD bn" },
+    "segments": [
+      { "name": "Semiconductor Systems", "revenue": 20.798, "unit": "USD bn", "share": 73.3, "yoy": 4.5, "operatingMargin": 35.5, "src": ["s1"] },
+      { "name": "Applied Global Services", "revenue": 6.385, "unit": "USD bn", "share": 22.5, "yoy": 2.6, "operatingMargin": 28.1, "src": ["s1"] },
+      { "name": "Corporate and Other (Display 10.6억 달러 포함)", "revenue": 1.185, "unit": "USD bn", "share": 4.2, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q3 FY2026) 매출·마진", "value": "매출 91.15억 달러(전년 대비 +25%), GAAP 총마진 50.3%, 영업이익률 33.7%, non-GAAP EPS 3.50달러", "src": ["s2"] },
+      { "name": "Q3 FY2026 부문별", "value": "Semiconductor Systems 70.4억(영업이익률 37.7%), AGS 17.81억(+22%, 30.1%), Other 2.94억 달러", "src": ["s2", "s3"] },
+      { "name": "장비 매출 시장별 비중 (Q3 FY2026)", "value": "파운드리·로직 67%, DRAM 26%, 플래시 7%", "src": ["s2"] },
+      { "name": "CY2026 사업별 성장 전망", "value": "장비 매출 30% 이상(추가 상향), 첨단 패키징 70% 이상, 공정 진단·제어 50% 이상, AGS 20% 이상", "src": ["s3"] },
+      { "name": "WFE 점유율", "value": "CY2025 18.3% (TechInsights 기준, 회사 발표 자료 인용)", "src": ["s4"] }
+    ],
+    "text": "FY2025에는 매출 283.7억 달러(+4.4%), 영업이익률 29.2%로 성장이 더뎠고, 중국이 매출의 30%를 차지했다. 이익의 중심은 영업이익률 35.5%의 장비 부문이고, 서비스(AGS)는 28.1%로 더 안정적인 두 번째 축이다. FY2026 들어 성장이 빨라져 3분기 매출은 91.2억 달러(+25%)로 사상 최대였고, 총마진도 13분기 연속 전년 대비 올랐다.",
+    "src": ["s1", "s7", "s2", "s3"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-10-26)",
+    "items": [
+      { "use": "R&D", "value": 3.57, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 2.26, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 4.895, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 1.384, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "FY2025에 번 잉여현금흐름 57억 달러보다 많은 62.8억 달러(자사주 48.95억, 배당 13.84억)를 주주에게 돌려줬다. 연구개발·엔지니어링에 35.7억 달러, 설비투자에 22.6억 달러를 써서 EPIC 센터와 생산능력을 키웠다. FY2026 3분기에도 8.6억 달러를 환원했고 남은 자사주 매입 한도는 128억 달러다.",
+    "src": ["s1", "s3"]
+  },
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "AI 칩을 만드는 파운드리와 HBM을 만드는 메모리 공장, 그리고 칩을 묶는 첨단 패키징 라인에 공정 장비를 공급하는 장비 층.",
+    "dependsOn": [
+      "부품·소재 공급망",
+      "고객의 클린룸·팹 건설 (2027년 성장의 상한)"
+    ],
+    "sellsTo": [
+      "semicap-foundry (TSMC, Samsung, Intel 등 파운드리·로직)",
+      "memory (DRAM·HBM·NAND 제조사)",
+      "후공정·첨단 패키징 라인"
+    ],
+    "aiRevenue": "AI 전용 매출은 별도 공시 없음. 회사는 선단 파운드리·로직, DRAM, 첨단 패키징이 2026년 WFE 성장의 약 80%를 차지한다고 설명하고, CY2025~2030 WFE 성장의 약 75%를 AI 관련 시장으로 본다 (2026-08-13, 2026-10-13).",
+    "upside": "AI 칩이 GAA·후면 전력 같은 새 구조로 가고 HBM 적층과 첨단 패키징이 늘수록 칩 한 장에 들어가는 증착·식각·검사 공정 수가 늘어 장비 수요가 커진다.",
+    "risk": "AI 설비투자 감속, 고객 클린룸 지연, 대중국 수출통제(중국이 매출의 약 30%), 2027년 증설이 공급 능력보다 앞서 증산 비용이 마진을 누르는 경우.",
+    "text": "그래서 AI 가치사슬에서 Applied는 TSMC·메모리 제조사가 공장을 지을 때 장비를 대는 층에 있다. ASML이 회로를 '찍는' 장비라면 Applied는 막을 '쌓고 깎는' 장비를 가장 넓게 파는 회사여서, 칩 구조가 복잡해질수록 매출 기회가 커진다. 그 대신 고객 설비투자가 멈추면 1~2분기 시차를 두고 바로 영향을 받는다.",
+    "src": ["s3", "s4"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "WFE(반도체 전공정 장비) 전체", "rivals": ["ASML", "Lam Research", "Tokyo Electron", "KLA"], "position": "leader", "share": "CY2025 18.3% (TechInsights, 회사 발표 자료 인용 - 2Slides 요약)", "src": ["s4"] },
+      { "arena": "증착 (CVD·ALD·PVD·에피)", "rivals": ["Lam Research", "ASM International", "Tokyo Electron", "Wonik IPS"], "position": "leader", "share": null, "src": ["s5", "s3"] },
+      { "arena": "식각", "rivals": ["Lam Research", "Tokyo Electron", "Hitachi High-Tech"], "position": "challenger", "share": null, "src": ["s5"] },
+      { "arena": "공정 진단·제어 (e-beam 계측·검사)", "rivals": ["KLA", "ASML (e-beam)", "Hitachi High-Tech", "Onto Innovation"], "position": "challenger", "share": null, "src": ["s6", "s3"] },
+      { "arena": "첨단 패키징 장비", "rivals": ["Lam Research", "Tokyo Electron", "후공정 장비 전문사"], "position": "leader", "share": null, "src": ["s3"] }
+    ],
+    "edge": "가장 넓은 장비 조합으로 새 칩 구조의 여러 공정을 묶어 푸는 능력, DRAM 공정 장비 1위·첨단 패키징 선두·e-beam 계측 선두라는 회사 주장, 3.7만 챔버가 연결된 서비스 기반.",
+    "threats": "식각·증착에서 Lam·Tokyo Electron과의 공정별 점유율 경쟁, 공정 제어에서 KLA의 지배력, 중국 자국 장비사의 성장과 대중국 규제.",
+    "text": "장비 시장에서 Applied는 점유율 1위지만 공정마다 강자가 다르다. 식각은 Lam과 Tokyo Electron이, 검사·계측은 KLA가 강하고, Applied는 증착과 여러 공정을 묶는 통합 해법에서 앞선다. 회사는 2030년까지 WFE 점유율을 2%p 이상 올리고, 선단 파운드리·로직 내 점유율을 45% 미만에서 53% 이상으로, DRAM 내 점유율을 40% 미만에서 50% 이상으로 높이겠다고 했다.",
+    "src": ["s4", "s5", "s6", "s3"]
+  },
+  "strategy": {
+    "goal": "CY2030 목표(2026-10-13 투자자 행사, 2차 요약): WFE 점유율 2%p 이상 상승, AGS 매출 120억 달러 이상(연 10%대 중반 성장), 디스플레이·포토닉스 20억 달러 이상, non-GAAP 총마진 약 54%, 영업이익률 약 40%.",
+    "roadmap": [
+      { "when": "Q4 FY2026 (2026-08~10)", "what": "매출 102.5억 달러 ±5억, 장비 약 79억(+62%), AGS 약 18.4억 달러", "src": ["s2", "s3"] },
+      { "when": "2026-10", "what": "실리콘밸리 EPIC 센터 공개(10-12)와 투자자 행사(10-13)", "src": ["s3", "s4"] },
+      { "when": "CY2027", "what": "'또 한 번의 기록적 성장의 해' 예상, 클린룸 확보가 성장 속도를 제한", "src": ["s3"] },
+      { "when": "2028", "what": "분기 장비 출하 능력 현재의 두 배 (생산능력 목표)", "src": ["s3"] },
+      { "when": "CY2030", "what": "총마진 약 54%, 영업이익률 약 40%, 연결 챔버 9만 개 이상, 서비스 구독 비중 약 70%", "src": ["s4"] }
+    ],
+    "vision": "AI가 이끄는 반도체 산업 확대(2030년 1.7조~3.2조 달러 외부 전망 인용) 속에서 '재료공학'으로 새 칩 구조를 가능하게 하는 회사가 되고, 서비스를 구독형으로 바꿔 경기 민감도를 낮추겠다는 그림이다.",
+    "text": "이 경쟁에서 이기려고 회사는 세 가지를 동시에 한다. EPIC 센터에서 고객과 차세대 공정을 함께 개발해 신규 공정 장비 자리를 먼저 차지하고, 2028년까지 출하 능력을 두 배로 늘리며, 서비스를 구독형으로 바꿔 매출을 안정시킨다. 2030년 목표는 회사 자료를 요약한 2차 출처로 확인한 것이라 원문 대조가 필요하다.",
+    "src": ["s3", "s4"]
+  },
+  "governance": {
+    "line": "CEO Gary Dickerson과 CFO Bryce Hill이 이끌며, 잉여현금흐름의 80~100%를 배당·자사주로 돌려주는 원칙 아래 남은 자사주 매입 한도가 128억 달러다.",
+    "src": ["s3"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q4 FY2026", "metric": "revenue", "value": "102.5억 달러 ±5억 (전년 대비 약 +51%)", "givenOn": "2026-08-13", "src": ["s2", "s3"] },
+      { "period": "Q4 FY2026", "metric": "non-GAAP EPS", "value": "4.02달러 ±0.20", "givenOn": "2026-08-13", "src": ["s2"] },
+      { "period": "Q4 FY2026", "metric": "non-GAAP gross margin / opex", "value": "총마진 약 50.4%, 영업비용 약 15.8억 달러", "givenOn": "2026-08-13", "src": ["s3"] },
+      { "period": "CY2026", "metric": "Semiconductor Systems growth", "value": "30% 이상에서 추가 상향 (2월 20% 이상 → 5월 30% 이상 → 8월 그 이상)", "givenOn": "2026-08-13", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "track": "올해 장비 성장 전망을 2월·5월·8월 세 번 연속 올렸고, Q3 FY2026 매출 91.2억 달러로 사상 최대를 기록했다. 직전 분기 가이던스 대비 실제치는 이 자료에서 확인하지 못했다.",
+    "src": ["s3", "s2"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 17.31달러(범위 16.33~18.48), 직전 4개 분기 실적 합 10.91달러. 최근 4주 상향 3건·하향 1건.",
+    "src": ["s8"]
+  },
+  "watch": {
+    "confirms": [
+      "Q4 FY2026 매출이 102.5억 달러 ±5억 범위 안이고 장비 매출 약 79억 달성",
+      "DRAM·첨단 패키징 매출이 계속 빠르게 늘어남",
+      "AGS가 20% 이상 성장하며 구독형 비중 확대",
+      "2027년 '기록적 성장' 전망이 11월 실적에서 유지됨",
+      "총마진이 50%대에서 꾸준히 오름"
+    ],
+    "breaks": [
+      "다음 분기 가이던스가 시장 기대를 밑돌거나 2027년 전망 후퇴",
+      "대중국 수출통제 강화로 중국 매출 급감",
+      "고객 클린룸 지연으로 출하가 대거 밀림",
+      "증산 비용으로 총마진이 50% 아래로 내려감",
+      "주요 신공정(GAA·후면 전력·HBM)에서 경쟁사에 장비 자리를 내줌"
+    ],
+    "keyNumbers": [
+      { "name": "Semiconductor Systems 매출·시장별 비중", "why": "AI 투자가 어느 공정으로 들어오는지 보여준다" },
+      { "name": "다음 분기 매출·EPS 가이던스", "why": "주가가 가장 크게 반응하는 숫자" },
+      { "name": "중국 매출 비중", "why": "규제 위험과 성장의 질" },
+      { "name": "AGS 성장률", "why": "경기와 덜 연동되는 반복 매출의 크기" },
+      { "name": "총마진", "why": "가치 기반 가격과 증산 비용의 결과" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-12", "event": "Q4 FY2026·연간 실적과 Q1 FY2027 가이던스 (장 마감 후 통화 16:30 ET, Q1은 14주 분기)", "src": ["s9", "s3"] },
+      { "date": "매 분기", "event": "TSMC·Samsung·SK hynix·Micron 설비투자 계획", "src": ["s3"] },
+      { "date": "수시", "event": "미국 대중국 반도체 장비 수출통제 변경", "src": ["s1"] }
+    ],
+    "reaction": "분기 실적보다 다음 분기 매출·EPS 가이던스와 다음 해 WFE·장비 성장 언급에 반응하는 경향이 있다. 중국 비중 변화와 규제 뉴스에도 민감하다.",
+    "conditions": [
+      "다음 분기 가이던스와 컨센서스의 차이",
+      "CY2027 성장에 대한 정량·정성 언급",
+      "DRAM·첨단 패키징·공정 제어 매출 성장률",
+      "중국 매출 비중 변화",
+      "총마진 방향과 증산 비용 언급",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "10% 이상 고객명과 비중 (FY2025 10-K를 열지 못함)",
+    "CY2030 목표·WFE 점유율 18.3%·부문별 점유율 목표는 회사 원문 덱(403 차단)이 아닌 2Slides 요약에서 읽음",
+    "Q3 FY2026 직전 가이던스 대비 실제치",
+    "AI 관련 매출 금액",
+    "FY2025 부문 영업이익률 외 Display 단독 수치는 보도자료 주석 기준(매출 10.6억, 영업이익 2.35억 달러)",
+    "Q4 FY2026 실적 발표일 2026-11-12는 회사 IR 공지(s9, 2026-10-22)를 검색 요약에서 읽었고 원문 페이지는 403으로 열지 못함 (일부 달력은 11-13으로 표기)",
+    "통화 녹취록(s3)은 자동 생성본이라 일부 이름 표기 오류가 있음"
+  ],
+  "confidence": "medium - 실적·부문·현금 사용은 8-K와 보도자료에서 왔지만, 2030 목표와 점유율은 2차 요약이고 고객 집중도는 확인하지 못했다."
+}

@@ -1,0 +1,242 @@
+{
+  "symbol": "APP",
+  "name": "AppLovin Corporation",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "AppLovin은 모바일 게임 등 앱 안의 광고 자리를 AI 추천 엔진으로 광고주와 연결하는 광고 플랫폼으로, 앱 사업을 판 뒤 매출 대비 순이익률이 60%를 넘는 'AI 광고 기계'가 됐다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "AppLovin Announces Second Quarter 2026 Financial Results (PDF with financial statements)",
+      "url": "https://s21.q4cdn.com/165405286/files/doc_financials/2026/q2/AppLovin-2Q26-Earnings-Press-Release.pdf",
+      "publisher": "AppLovin",
+      "date": "2026-08-05"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "AppLovin Announces Fourth Quarter and Full Year 2025 Financial Results (PDF with financial statements)",
+      "url": "https://s21.q4cdn.com/165405286/files/doc_financials/2025/q4/v2/4Q25-AppLovin-Press-Release.pdf",
+      "publisher": "AppLovin",
+      "date": "2026-02-11"
+    },
+    {
+      "id": "s3",
+      "kind": "news",
+      "title": "AppLovin Q2 2026 earnings: a rare earnings miss (Mobile Dev Memo, hosted copy)",
+      "url": "https://gameindustrylibrary.com/documents/applovin-q2-2026-earnings-a-rare-earnings-miss",
+      "publisher": "Mobile Dev Memo via Game Industry Library",
+      "date": "2026-08-06"
+    },
+    {
+      "id": "s4",
+      "kind": "call-transcript",
+      "title": "AppLovin Q2 2026 earnings call transcript (read from search summary only; page returned 403)",
+      "url": "https://www.gurufocus.com/stock/FRA:6RV/transcripts/9014630",
+      "publisher": "GuruFocus",
+      "date": "2026-08-05"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local SEC companyfacts snapshot (public-data/sec-fundamentals.json), 10-K FY ended 2025-12-31, accession 0001751008-26-000010",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001751008.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-02-19"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/app/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "AI 광고 추천 모델 - 어떤 사용자에게 어떤 광고를 보여야 설치·구매가 일어나는지 예측 (회사는 모델 개선을 성장의 핵심으로 설명)",
+      "광고 자리(인벤토리)와 광고주를 함께 쥔 양면 네트워크 - 앱 개발자의 광고 수익화 도구와 광고 구매 도구를 함께 운영",
+      "극단적으로 가벼운 비용 구조 - FY2025 매출 대비 영업이익률 약 76%, 조정 EBITDA 마진 84% (Q2 2026)"
+    ],
+    "text": "AppLovin의 힘은 수많은 앱의 광고 자리와 광고주를 한 플랫폼에 모아 놓고, AI 모델로 어떤 광고가 어떤 사용자에게서 성과를 낼지 예측하는 데서 나온다. 광고가 잘 맞을수록 광고주는 더 쓰고, 앱 개발자는 더 많은 광고 수익을 얻어 광고 자리를 계속 맡기는 순환이 생긴다. 이 엔진은 사람이나 공장이 거의 필요 없어 매출의 4분의 3 이상이 영업이익으로 남는다.",
+    "src": ["s2", "s1", "s4"]
+  },
+  "design": {
+    "text": "이 엔진 위에서 회사가 파는 것은 광고 플랫폼 하나다. 2025년에 자체 모바일 게임(앱) 사업을 매각해 중단사업으로 돌렸고, 지금은 광고주가 앱 설치·구매를 사는 도구와 앱 개발자가 광고 자리를 파는 도구, 그리고 성과 측정 도구를 묶어 '기업이 고객을 찾고 수익을 내도록 돕는 엔드투엔드 광고 솔루션'으로 설명한다. 게임 광고주에서 출발해 전자상거래 등 게임 밖 광고주로 넓히는 중이다.",
+    "src": ["s1", "s2"]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "AI 학습·추론용 연산 자원 - 공급 업체명은 이번 조사에서 확인 못함 (Q2 2026 콜에서 연산 비용 증가 언급)",
+      "앱 개발자·퍼블리셔 - 광고 자리(인벤토리) 공급자",
+      "앱 마켓·모바일 운영체제 생태계 (iOS·Android)"
+    ],
+    "text": "AppLovin은 공장 없이 AI 모델과 광고 거래 시스템으로 서비스를 만든다. 원가는 주로 데이터 처리·AI 연산 비용과 결제 수수료 등으로, FY2025 매출원가는 매출의 약 12%(6.65억 달러)에 그쳤다. 다만 Q2 2026에는 새 모델 개발과 학습에 쓰는 연산 비용이 늘어 R&D가 전년 대비 두 배 넘게(4,400만 → 9,990만 달러) 커졌다.",
+    "src": ["s2", "s1", "s4"]
+  },
+  "sell": {
+    "customers": [
+      "모바일 게임 등 앱 광고주 - 사용자 확보(설치·인앱 구매)를 성과 기준으로 구매",
+      "게임 밖 광고주 (전자상거래 등) - 확장 중인 고객층 (규모 미공시)",
+      "앱 개발자·퍼블리셔 - 광고 자리를 팔아 수익을 얻는 공급 측 고객"
+    ],
+    "channel": "온라인 셀프서비스 광고 도구와 직접 영업을 함께 쓴다. 채널별 비중은 이번 조사에서 확인하지 못했다.",
+    "concentration": "주요 고객 집중 공시는 이번 조사에서 확인하지 못함 (null).",
+    "text": "이 플랫폼은 광고주와 앱 개발자 양쪽에 팔린다. 광고주는 성과가 나는 만큼 광고비를 쓰고, 앱 개발자는 자기 앱의 광고 자리를 AppLovin 네트워크에 내놓아 수익을 얻는다. 성장 이야기의 다음 장은 게임 광고주를 넘어 전자상거래 같은 일반 광고주를 얼마나 끌어오느냐다.",
+    "src": ["s1", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "앱 사용자", "to": "앱 개발자·퍼블리셔", "what": "광고 시청 (무료 게임·앱 안에서)" },
+      { "from": "광고주 (게임·전자상거래 등)", "to": "AppLovin", "what": "성과 기준 광고비 (설치·구매·목표 수익률 기준 입찰)" },
+      { "from": "AppLovin", "to": "앱 개발자·퍼블리셔", "what": "광고 자리 대가 (광고 수익 배분)" },
+      { "from": "AppLovin", "to": "연산·데이터 인프라 공급자", "what": "AI 학습·추론과 데이터 처리 비용" }
+    ],
+    "pricing": "성과 기반 광고 과금. 광고주가 설치·구매 같은 결과에 입찰하고, AppLovin은 광고주 지출과 퍼블리셔 지급 사이의 몫을 매출로 인식하는 것으로 보인다(순액·총액 인식 기준은 이번 조사에서 확인하지 못함).",
+    "text": "돈은 광고주가 결과(설치·구매)에 대해 내는 광고비로 들어오고, 그중 일부가 광고 자리를 내준 앱 개발자에게 나간다. AI 모델이 광고를 더 잘 맞히면 같은 광고 자리에서 더 많은 결과가 나와 광고주 지출과 AppLovin 몫이 함께 커진다. 그래서 매출 성장이 모델 개선 속도에 직접 묶여 있다.",
+    "src": ["s1", "s2", "s4"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 5.481, "unit": "USD bn", "yoy": 70 },
+    "grossMargin": 87.9,
+    "operatingMargin": 75.8,
+    "netMargin": 60.8,
+    "operatingCashFlow": { "value": 3.971, "unit": "USD bn" },
+    "freeCashFlow": { "value": 3.952, "unit": "USD bn" },
+    "segments": [
+      { "name": "Advertising (단일 사업; 앱 사업은 2025년 매각·중단사업 처리)", "revenue": 5.481, "unit": "USD bn", "share": 100, "yoy": 70, "operatingMargin": 75.8, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "조정 EBITDA·마진", "value": "FY2025 45.12억 달러(+87%); Q2 2026 16.14억 달러, 마진 84% (전년 81%)", "src": ["s2", "s1"] },
+      { "name": "최근 분기 (Q2 2026)", "value": "매출 19.24억 달러(+53%), 영업이익 14.94억, 순이익 12.67억(순이익률 66%), 잉여현금흐름 8.63억 달러", "src": ["s1"] },
+      { "name": "상반기 2026", "value": "매출 37.66억 달러(+56%), 순이익 24.72억 달러, 영업현금흐름 21.60억 달러", "src": ["s1"] },
+      { "name": "비용 증가", "value": "Q2 2026 R&D 9,990만 달러 (전년 4,400만), 매출원가 2.258억 (전년 1.551억)", "src": ["s1"] },
+      { "name": "재무상태", "value": "현금 30.5억 달러, 장기부채 35.2억 달러 (2026-06-30)", "src": ["s1"] }
+    ],
+    "text": "이 구조가 FY2025에 매출 54.8억 달러(+70%), 영업이익 41.5억 달러(영업이익률 약 76%), 순이익 33.3억 달러를 만들었다. 이익은 전부 광고 한 사업에서 나오며, 매출원가가 매출의 약 12%뿐이라 매출이 늘면 거의 그대로 이익이 된다. 최근 분기에도 매출 +53%, 순이익률 66%로 높은 수익성이 이어졌지만, 시장 기대에는 소폭 못 미쳤다.",
+    "src": ["s2", "s1", "s3", "s5"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "buybacks", "value": 2.192, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "주식보상 원천징수 세금 납부 (순주식 결제)", "value": 0.392, "unit": "USD bn", "src": ["s2"] },
+      { "use": "R&D", "value": 0.227, "unit": "USD bn", "src": ["s2"] },
+      { "use": "debt repayment", "value": 0.2, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.019, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "무형자산·비상장 지분 매입", "value": 0.048, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "번 현금(FY2025 잉여현금흐름 39.5억 달러)의 가장 큰 쓰임은 자사주 매입 21.9억 달러와 주식보상 관련 세금 납부 3.9억 달러로, 합쳐 25.8억 달러가 주주 쪽으로 갔다. 설비투자는 거의 없고(약 0.2억 달러), R&D 비용도 2.3억 달러로 작다. 2026년 상반기에도 자사주 15.3억 달러를 사들여, 남는 현금을 주식 수 축소에 쓰는 방향이 분명하다.",
+    "src": ["s2", "s1"]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 추천 모델을 핵심 엔진으로 쓰는 광고 플랫폼. AI 인프라를 팔지 않고, AI로 광고 성과를 높여 광고비의 더 큰 몫을 가져가는 'AI를 돈으로 바꾸는' 응용 층이다.",
+    "dependsOn": [
+      "cloud-infrastructure·chips-compute (모델 학습·추론 연산 - 공급 업체 미확인)",
+      "devices (iOS·Android 모바일 생태계와 앱 마켓)"
+    ],
+    "sellsTo": [
+      "앱·게임 광고주",
+      "전자상거래 등 게임 밖 광고주",
+      "앱 개발자·퍼블리셔 (광고 수익화)"
+    ],
+    "aiRevenue": "사업 전체가 AI 추천 모델에 기반하지만 'AI 매출'을 따로 공시하지는 않음. FY2025 광고 매출 54.8억 달러.",
+    "upside": "모델이 좋아질수록 같은 광고 자리에서 더 많은 설치·구매가 일어나 광고주 지출이 늘고, 게임 밖 광고주로 확장되면 시장 자체가 커진다.",
+    "risk": "Q2 2026에 경영진은 모델 개선 폭이 기대보다 작았고 새 모델 학습 연산 비용이 늘었다고 설명했다(콜 요약 기준). 모델 경쟁력이 정체되면 성장률이 바로 꺾이고, 연산 비용 증가가 마진을 누를 수 있다.",
+    "text": "그래서 AI 가치사슬에서 AppLovin은 AI를 사서 쓰는 쪽이 아니라 AI 모델 자체로 돈을 버는 응용 층에 있다. 매출이 모델 성능에 직접 묶여 있어, Q2 2026처럼 모델 개선이 더디면 시장 기대에 못 미치고 연산 비용은 오히려 늘어나는 양쪽 압박이 생긴다. AI 연산을 얼마나 써서 모델을 키우느냐가 비용과 성장을 동시에 정한다.",
+    "src": ["s1", "s2", "s3", "s4"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "모바일 앱 광고 (사용자 확보)", "rivals": ["Unity (ironSource)", "Google AdMob", "Meta Audience Network", "Moloco", "Mintegral"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "앱 광고 수익화 (미디에이션)", "rivals": ["Unity LevelPlay", "Google AdMob"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "전자상거래·일반 성과형 광고", "rivals": ["Meta", "Google", "Amazon Ads", "TikTok"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "AI 추천 모델의 성과, 광고 자리와 광고주를 함께 쥔 네트워크, 높은 마진으로 모델에 계속 재투자할 여력.",
+    "threats": "게임 밖 광고에서는 Meta·Google이라는 훨씬 큰 AI 광고 회사와 정면으로 부딪치고, 모바일 앱 광고에서는 Unity·Moloco 등이 모델을 따라잡을 수 있다. 점유율 수치와 경쟁사 목록은 이번 조사에서 1차 자료로 확인하지 못했다.",
+    "text": "이 자리를 놓고 모바일 게임 광고에서는 Unity·Google·Moloco 등과, 확장하려는 일반 성과형 광고에서는 Meta·Google·Amazon과 겨룬다. AppLovin의 무기는 모델 성과 하나여서, 게임 광고에서 쌓은 정확도를 전자상거래 광고주에게도 보여줄 수 있느냐가 승부다. Q2 2026의 기대 미달은 이 모델 우위가 영원하지 않을 수 있다는 점을 시장에 상기시켰다.",
+    "src": ["s3", "s4", "s2"]
+  },
+  "strategy": {
+    "goal": "구체적인 장기 수치 목표는 이번 조사에서 확인하지 못했다. 회사는 분기마다 매출과 조정 EBITDA(마진 83~84%)만 가이던스로 준다.",
+    "roadmap": [
+      { "when": "Q3 2026", "what": "매출 20.55억~20.85억 달러, 조정 EBITDA 17.10억~17.40억 달러(마진 83%) 가이던스", "src": ["s1"] },
+      { "when": "2026", "what": "새 AI 모델 학습·개발 투자 확대 (Q2 R&D 전년 대비 2배 이상)", "src": ["s1", "s4"] },
+      { "when": "2026 이후", "what": "게임 밖(전자상거래 등) 광고주 확대 - 시점과 규모는 이번 조사에서 1차 자료로 확인 못함", "src": [] }
+    ],
+    "vision": "모든 규모의 기업이 이상적인 고객과 연결되도록 돕는 광고 기술 회사라는 그림을 회사 소개에서 제시한다.",
+    "text": "경쟁에 대한 회사의 답은 모델에 더 많은 연산을 넣어 성과를 다시 끌어올리는 것이다. Q3 2026 가이던스는 매출 20억 달러대 초반으로 성장은 이어지지만 조정 EBITDA 마진은 83%로 직전 분기 84%보다 낮게 잡혔다. 모델 투자가 다음 분기 성과 개선으로 돌아오는지가 이 전략의 시험대다.",
+    "src": ["s1", "s4"]
+  },
+  "governance": {
+    "line": "공동창업자 Adam Foroughi가 CEO로 이끄는 것으로 알려진 차등의결권(Class A·Class B) 구조 회사로, 2026-06-30 기준 Class B 주식 3,021만 주가 남아 있고 잉여현금 대부분을 자사주 매입에 쓴다.",
+    "src": ["s1", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "20.55억~20.85억 달러", "givenOn": "2026-08-05", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "adjusted EBITDA", "value": "17.10억~17.40억 달러 (마진 83%)", "givenOn": "2026-08-05", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q1 2026 가이던스 17.45억~17.75억 달러 대비 실제 매출 약 18.42억 달러(상반기 37.66억 - Q2 19.24억으로 계산)로 상단을 넘었지만, Q2 2026은 매출 19.2억·조정 EBITDA 16.1억 달러로 시장 컨센서스(약 19.4억·16.3억)에 소폭 못 미쳤다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 AIO 컨센서스 스냅샷(Nasdaq/Zacks): 향후 4개 분기 EPS 합계 17.80달러(범위 16.45~18.84, 8개 추정), 직전 4개 분기 실적 합 13.01달러. 최근 4주 상향 0건·하향 4건으로 하향 방향이다. 직전 분기 실적 3.76달러는 GAAP 희석 EPS와 같다.",
+    "src": ["s6", "s1"]
+  },
+  "watch": {
+    "confirms": [
+      "분기 매출이 가이던스 상단을 다시 넘음",
+      "조정 EBITDA 마진이 83~84% 유지 (연산 비용 흡수)",
+      "게임 밖 광고주 매출·광고주 수가 처음 공시되거나 빠르게 늘어남",
+      "모델 개선 효과가 다음 분기 성장률로 확인됨",
+      "자사주 매입으로 주식 수가 계속 감소 (2026-06-30 3.35억 주)"
+    ],
+    "breaks": [
+      "두 분기 연속 시장 기대 미달",
+      "R&D·연산 비용 증가가 매출 증가보다 빨라져 마진 하락",
+      "모바일 운영체제의 광고 추적·개인정보 정책 변경",
+      "Meta·Google 등과의 전자상거래 광고 경쟁에서 성과 부진",
+      "컨센서스 EPS 하향이 계속됨"
+    ],
+    "keyNumbers": [
+      { "name": "매출 성장률 vs 가이던스", "why": "모델 성과가 곧 매출이라 가장 직접적인 신호" },
+      { "name": "조정 EBITDA 마진", "why": "연산 비용 증가를 흡수하는지 확인" },
+      { "name": "R&D·매출원가 증가율", "why": "모델 투자 강도와 원가 압력" },
+      { "name": "잉여현금흐름과 자사주 매입", "why": "주주환원 여력" },
+      { "name": "컨센서스 EPS 수정 방향", "why": "Q2 미달 이후 기대 조정 정도" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 초 (추정, 회사 미공지)", "event": "Q3 2026 실적 발표와 Q4 가이던스", "src": [] }
+    ],
+    "reaction": "주가는 매출·조정 EBITDA가 가이던스와 컨센서스를 넘는지, 다음 분기 가이던스가 기대보다 높은지에 크게 반응하는 경향이 있다. Q2 2026 발표 뒤에는 소폭 미달과 보수적 가이던스로 주가가 장중 최대 21% 하락했다는 보도가 있었다.",
+    "conditions": [
+      "실적 발표 때 매출·조정 EBITDA와 컨센서스 차이",
+      "다음 분기 매출 가이던스와 컨센서스 차이",
+      "조정 EBITDA 마진 가이던스 (83% 유지 여부)",
+      "R&D·연산 비용 언급과 모델 개선 설명",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+  "unverified": [
+    "제품 이름(AppDiscovery·MAX·Axon·Adjust 등)과 전자상거래 광고 확장의 시점·규모 - 2025 10-K와 주주서한을 열지 못해 1차 확인 못함",
+    "Q2 2026 '모델 개선 폭이 작고 연산 비용 증가' 설명은 콜 녹취록 원문이 아닌 검색 요약",
+    "Q2 2026 컨센서스(매출 약 19.4억·조정 EBITDA 약 16.3억)와 장중 21% 하락은 2차 기사(Mobile Dev Memo) 기준",
+    "매출 인식 기준(순액/총액)과 퍼블리셔 지급 구조",
+    "연산 인프라 공급 업체, 주요 고객 집중도, 지역별 매출",
+    "매각한 앱 사업의 인수자 이름 (현금흐름표의 매각 대금 4.07억 달러만 확인)",
+    "CEO 이름과 Class B 주식의 주당 의결권 수 (회사 자료로 이번에 확인 못함)",
+    "광고 시장 점유율과 경쟁사 목록 (업계 일반 구도 정리)",
+    "Q3 2026 실적 발표일",
+    "FY2025 설비투자 약 0.19억 달러는 영업현금흐름 - 잉여현금흐름(유형자산 매입+금융리스 상환)으로 계산"
+  ],
+  "confidence": "medium - 재무제표·현금흐름·가이던스는 회사 보도자료 PDF 원문에서 왔지만, 제품·전략·경쟁·Q2 설명은 2차 요약에 기대고 있다."
+}

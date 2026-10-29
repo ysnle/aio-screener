@@ -1,0 +1,209 @@
+{
+  "symbol": "ASML",
+  "name": "ASML Holding N.V. (ADR)",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (reports in EUR under US GAAP)",
+  "oneLine": "ASML은 최첨단 칩을 찍는 데 꼭 필요한 EUV 노광 장비를 사실상 혼자 만드는 네덜란드 회사로, AI용 선단 로직과 DRAM 증설이 몰리며 2026년 매출이 약 36% 늘어날 전망이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "ASML reports €11.7 billion total net sales and €5.0 billion net income in Q3 2026 (Form 6-K exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/0000937966/000162828026065813/pressreleasefinancialresul.htm", "publisher": "ASML / SEC EDGAR", "date": "2026-10-14" },
+    { "id": "s2", "kind": "call-transcript", "title": "ASML (ASML) Q3 2026 Earnings Call Transcript", "url": "https://www.fool.com/earnings/call-transcripts/2026/10/14/asml-asml-q3-2026-earnings-call-transcript/", "publisher": "The Motley Fool", "date": "2026-10-14" },
+    { "id": "s3", "kind": "earnings-release", "title": "ASML reports €32.7 billion total net sales and €9.6 billion net income in 2025 (Form 6-K exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/937966/000162828026003701/pressreleasefinancialresul.htm", "publisher": "ASML / SEC EDGAR", "date": "2026-01-28" },
+    { "id": "s4", "kind": "call-transcript", "title": "Transcript Investor Call ASML Q4/FY 2025 results (CEO Christophe Fouquet, CFO Roger Dassen)", "url": "https://ourbrand.asml.com/m/285dcba22c2bf203/original/2026_01_28-ASML-Transcript-investor-call-Q4-2025.pdf", "publisher": "ASML", "date": "2026-01-28" },
+    { "id": "s5", "kind": "10-K", "title": "ASML Form 20-F FY2017 - Carl Zeiss SMT single supplier of optical columns (date = period end; older filing)", "url": "https://www.sec.gov/Archives/edgar/data/0000937966/000093796618000007/a2017integratedreportbased.htm", "publisher": "ASML / SEC EDGAR", "date": "2017-12-31" },
+    { "id": "s6", "kind": "10-K", "title": "ASML Form 20-F FY2012 - Cymer as main EUV light-source supplier, acquisition agreed (date = period end; older filing)", "url": "https://www.sec.gov/Archives/edgar/data/0000937966/000119312513053249/d347771d20f.htm", "publisher": "ASML / SEC EDGAR", "date": "2012-12-31" },
+    { "id": "s7", "kind": "ir-site", "title": "TSMC 3Q26 Quarterly Management Report - ASML and TSMC large-format photomask initiative for High-NA EUV (2026-09-08)", "url": "https://investor.tsmc.com/english/encrypt/files/encrypt_file/qr/phase4_reports/2026-10/f53a64fd40fc0b453f94e077e5aba8cad506f27b/3Q26%20ManagementReport.pdf", "publisher": "TSMC Investor Relations", "date": "2026-10-15" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/asml/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+  "moat": {
+    "sources": [
+      "EUV 노광 기술 - 2025년 EUV 시스템 48대(High-NA 포함) 판매, 선단 로직·DRAM 공정의 필수 장비",
+      "Carl Zeiss SMT 광학계와 자회사 Cymer 광원으로 이어진 독점적 공급망",
+      "설치된 장비에서 나오는 서비스·업그레이드 매출(Installed Base Management, 2025년 82억 유로)",
+      "수십 년 쌓인 고객 공정과의 공동 개발 - Low-NA 생산성 로드맵과 High-NA 도입"
+    ],
+    "text": "ASML의 힘은 13.5nm 극자외선(EUV)으로 회로를 찍는 장비를 상업적으로 만드는 곳이 사실상 이 회사뿐이라는 데서 나온다. 장비 안의 광학계는 Carl Zeiss SMT가 ASML에만 공급하고, 광원은 자회사로 인수한 Cymer가 맡아 공급망 자체가 진입장벽이다. 한 번 깔린 장비는 수십 년 서비스·업그레이드 매출을 낳아, 2025년에는 그 몫이 82억 유로였다.",
+    "src": ["s4", "s5", "s6"]
+  },
+  "design": {
+    "text": "이 기술로 ASML이 파는 것은 크게 세 가지다. 최선단층을 찍는 EUV 장비(Low-NA NXE, High-NA EXE), 그보다 덜 미세한 층을 찍는 DUV 장비(ArF 액침·건식, KrF, i-line), 그리고 계측·검사 장비다. 여기에 이미 설치된 장비의 서비스·생산성 업그레이드를 묶은 Installed Base Management가 따로 보고된다.",
+    "src": ["s4", "s1"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Carl Zeiss SMT - 노광 장비 광학계(optical column) 단일 공급사 (20-F FY2017 기준)",
+      "Cymer (2013년 인수, 자회사) - EUV 광원",
+      "자체 조립 - 네덜란드 Veldhoven 등 (공장 위치는 이 자료에서 별도 확인하지 않음)"
+    ],
+    "text": "ASML은 수천 개 부품을 외부 공급망에서 받아 직접 조립·시험하는 장비 제조사다. 그중 핵심인 광학계는 Carl Zeiss SMT가 유일한 공급사여서, 과거에도 Zeiss 생산능력이 ASML 출하 대수를 제한한 적이 있다. 회사는 2027년 Low-NA EUV와 DUV 액침 생산능력을 30% 늘리고 2028년에는 그 이상을 검토하는데, 고객 쪽 클린룸 완공이 늦으면 설치가 밀릴 수 있다고 말했다.",
+    "src": ["s5", "s6", "s2", "s1"]
+  },
+  "sell": {
+    "customers": [
+      "선단 로직 파운드리 (TSMC, Samsung, Intel 등) - 2025년 로직 시스템 매출 161억 유로",
+      "메모리 제조사 (DRAM·HBM 중심) - 2025년 메모리 시스템 매출 84억 유로",
+      "중국 고객 (주로 DUV) - 2025년 시스템 매출의 33%, 2026년 총매출의 약 20% 예상"
+    ],
+    "channel": "칩 제조사에 직접 판매·설치하고 서비스 계약을 맺는 방식.",
+    "concentration": "고객별 매출 비중은 이 자료에서 확인하지 못함. 지역으로는 중국 비중이 2025년 시스템 매출 33%에서 2026년 총매출 약 20%로 낮아지는 중.",
+    "text": "장비를 사는 곳은 전 세계에 손꼽히는 칩 제조사들이다. 2025년 시스템 매출 245억 유로 중 로직이 161억, 메모리가 84억 유로였고, 2026년에는 메모리 시스템 매출이 약 75% 늘며 무게가 메모리로 옮겨가고 있다. 수출통제 영향으로 중국 비중은 2025년 33%에서 2026년 약 20%로 내려왔다.",
+    "src": ["s4", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스·클라우드 수요", "to": "칩 설계사·하이퍼스케일러", "what": "AI 가속기·서버 구매" },
+      { "from": "칩 설계사", "to": "파운드리·메모리 제조사 (TSMC, Samsung, SK hynix 등)", "what": "웨이퍼·HBM 대금" },
+      { "from": "파운드리·메모리 제조사", "to": "ASML", "what": "EUV·DUV 장비 대금 (대당 판매, 선금·설치 단계별 인식)" },
+      { "from": "칩 제조사 (설치 기반)", "to": "ASML", "what": "서비스·생산성 업그레이드 대금 (Installed Base Management)" },
+      { "from": "ASML", "to": "Carl Zeiss SMT 등 공급망", "what": "광학계·부품 대금" }
+    ],
+    "pricing": "장비 대당 판매가 중심이고, 설치된 장비의 서비스·업그레이드로 반복 매출을 받는다. 회사는 핵심 제품에 '가치 기반 가격'을 적용해 값을 올렸고, 효과는 2027년부터 나타나 2028년에 온전히 반영된다고 밝혔다.",
+    "text": "돈은 AI 칩 수요가 파운드리·메모리 증설로 바뀌고, 그 설비투자의 일부가 ASML 장비 대금으로 들어오는 순서로 흐른다. 장비를 한 번 팔면 이후 수년간 서비스·업그레이드 대금이 따라오므로 매출의 약 4분의 1이 설치 기반에서 나온다. 회사가 2027년부터 핵심 장비 값을 올리기로 한 것은, 대체재가 없는 공급자라는 위치를 가격으로 바꾸는 단계다.",
+    "src": ["s2", "s4"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 32.667, "unit": "EUR bn", "yoy": 15.6 },
+    "grossMargin": 52.8,
+    "operatingMargin": null,
+    "netMargin": 29.4,
+    "operatingCashFlow": { "value": null, "unit": "EUR bn" },
+    "freeCashFlow": { "value": 11.0, "unit": "EUR bn" },
+    "segments": [
+      { "name": "EUV system sales", "revenue": 11.6, "unit": "EUR bn", "share": 35.5, "yoy": 39, "operatingMargin": null, "src": ["s4"] },
+      { "name": "DUV system sales", "revenue": 12.0, "unit": "EUR bn", "share": 36.7, "yoy": -6, "operatingMargin": null, "src": ["s4"] },
+      { "name": "Metrology & Inspection system sales", "revenue": 0.825, "unit": "EUR bn", "share": 2.5, "yoy": 28, "operatingMargin": null, "src": ["s4"] },
+      { "name": "Installed Base Management", "revenue": 8.193, "unit": "EUR bn", "share": 25.1, "yoy": 26, "operatingMargin": null, "src": ["s3", "s4"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q3 2026) 매출·마진", "value": "총매출 116.62억 유로 (사상 최대), 시스템 84억(EUV 41억 - High-NA 1대 포함, 비EUV 43억), 설치 기반 32.89억, 총마진 57.5%, 순이익 49.6억 유로(Mistral AI 지분 평가이익 약 5억 포함)", "src": ["s1", "s2"] },
+      { "name": "Q3 2026 판매 대수", "value": "신규 노광 장비 113대, 중고 8대", "src": ["s1"] },
+      { "name": "수주잔고", "value": "2025년 말 약 388억 유로 (2025년 순수주 280억 유로)", "src": ["s3", "s4"] },
+      { "name": "Low-NA EUV 출하 대수", "value": "2026년 약 65대 예상 (2025년 44대)", "src": ["s2"] },
+      { "name": "2026년 시장별 시스템 매출 전망", "value": "로직 약 +10%(선단 로직 +25% 이상), 메모리 약 +75%, 중국 총매출의 약 20%", "src": ["s2"] }
+    ],
+    "text": "그 결과 2025년 매출은 326.7억 유로(전년 대비 +15.6%), 순이익률 29.4%였고, 성장은 EUV(+39%)와 설치 기반(+26%)이 이끌었다. 2026년은 더 가팔라서 3분기에만 116.6억 유로, 총마진 57.5%를 기록했고 연간 매출 440억~450억 유로를 예고했다. 같은 장비라도 EUV 비중이 클수록 마진이 높아져, 매출 증가보다 이익 증가가 더 빠른 구간이다.",
+    "src": ["s3", "s4", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 4.7, "unit": "EUR bn", "src": ["s4"] },
+      { "use": "other", "label": "배당·자사주 매입 합계 (분리 금액 미확인)", "value": 8.5, "unit": "EUR bn", "src": ["s4"] },
+      { "use": "capex", "value": null, "unit": "EUR bn", "src": [] }
+    ],
+    "text": "벌어들인 현금(2025년 잉여현금흐름 110억 유로)의 큰 줄기는 R&D 47억 유로(매출의 약 14%)와 주주환원 85억 유로다. 2026년 1월에는 2028년 말까지 최대 120억 유로의 새 자사주 매입을 시작해 3분기에만 약 41억 유로를 샀고, 2025년 배당은 주당 7.50유로로 17% 올렸다. 동시에 2027~2028년 생산능력 30% 이상 증설을 준비하고 있어, 기술 투자와 환원을 함께 키우는 쪽이다.",
+    "src": ["s4", "s3", "s1", "s2"]
+  },
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "AI 칩과 HBM을 만드는 파운드리·메모리 공장에 가장 미세한 회로를 찍는 노광 장비를 공급하는 장비 층의 맨 앞단. EUV는 대체 공급자가 없다.",
+    "dependsOn": [
+      "Carl Zeiss SMT 광학계, Cymer 광원 등 부품 공급망",
+      "고객의 클린룸·팹 건설 일정 (2027~2028년 설치 관건)"
+    ],
+    "sellsTo": [
+      "semicap-foundry (TSMC, Samsung, Intel 파운드리)",
+      "memory (DRAM·HBM 제조사)"
+    ],
+    "aiRevenue": "AI 전용 매출은 별도 공시 없음. 회사는 데이터센터·AI 인프라 확대가 선단 로직·DRAM 고객의 증설로 이어져 EUV 수요를 키운다고 설명 (2026-01-28, 2026-10-14).",
+    "upside": "AI 가속기가 4nm에서 노광 집약도가 높은 3nm·2nm로 옮겨가고, DRAM이 멀티 패터닝 DUV를 단일 EUV로 바꾸면 웨이퍼당 EUV 사용이 늘어난다. 회사는 2027·2028년 수요가 계획된 공급을 넘을 것이라고 말했다.",
+    "risk": "AI 설비투자 감속 시 고객 증설 연기, 고객 클린룸 지연, 대중국 수출통제 강화, 2026년 강했던 업그레이드 수요의 지속성, 증산 비용이 마진을 일부 상쇄할 가능성.",
+    "text": "그래서 AI 가치사슬에서 ASML은 TSMC·메모리 제조사보다 한 칸 더 위, 공장을 짓는 데 필요한 장비 층에 있다. AI 칩이 미세 공정으로 갈수록, HBM 수요로 DRAM 증설이 늘수록 EUV 주문이 늘어나는 구조다. 반대로 칩 제조사가 증설을 미루면 1~2년 뒤 장비 매출로 그 충격이 늦게 도착한다.",
+    "src": ["s4", "s2"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "EUV 노광 장비", "rivals": ["상업적 경쟁자 없음 (대체 기술: 멀티 패터닝 DUV)"], "position": "leader", "share": null, "src": ["s4"] },
+      { "arena": "DUV 노광 장비 (ArF 액침·건식, KrF)", "rivals": ["Nikon", "Canon", "중국 자국 장비사"], "position": "leader", "share": null, "src": ["s4"] },
+      { "arena": "계측·검사 (YieldStar, e-beam 멀티빔)", "rivals": ["KLA", "Applied Materials", "Hitachi High-Tech"], "position": "challenger", "share": null, "src": ["s4", "s2"] }
+    ],
+    "edge": "EUV를 만드는 유일한 회사라는 위치, Zeiss·Cymer로 묶인 공급망, Low-NA 생산성 향상(NXE:3800F 시간당 260장)과 High-NA 로드맵.",
+    "threats": "실질적 위협은 경쟁사보다 고객의 증설 속도와 수출통제다. 중국은 DUV 비중이 큰 시장이어서 규제가 강해지면 DUV 매출이 줄고, 장기적으로 중국 자국 장비 개발이 대체를 노린다.",
+    "text": "EUV에서는 비교할 경쟁자가 없고, DUV에서만 Nikon·Canon이 뒤를 따르는 구도다. 그래서 ASML의 경쟁은 다른 장비사보다 '고객이 EUV 대신 DUV 멀티 패터닝을 계속 쓸지'와의 싸움에 가깝고, 회사는 장비 생산성을 높여 EUV 한 번 노광이 더 싸지도록 만드는 전략을 쓴다. 계측·검사는 KLA가 강한 시장이라 ASML은 도전자 위치다.",
+    "src": ["s4", "s2"]
+  },
+  "strategy": {
+    "goal": "2030년 매출 기회 440억~600억 유로, 총마진 56~60% (2024년 Capital Markets Day 제시, 2026-01 재확인). 2026년 매출 440억~450억 유로(약 +36%)로 2030년 하단에 4년 일찍 도달하는 셈이다.",
+    "roadmap": [
+      { "when": "4Q26", "what": "매출 142억~152억 유로, 총마진 약 57%", "src": ["s1"] },
+      { "when": "2027 초", "what": "NXE:3800F (시간당 260장) 소량 도입, 차세대 DUV 액침 시간당 330장", "src": ["s2"] },
+      { "when": "2027", "what": "Low-NA EUV·DUV 액침 생산능력 30% 증설, 가치 기반 가격 인상 효과 시작", "src": ["s1", "s2"] },
+      { "when": "2028", "what": "생산능력 추가 증설 검토(30% 이상), Samsung High-NA 양산 도입 계획", "src": ["s1", "s2"] },
+      { "when": "2030~2031", "what": "TSMC High-NA 양산 도입(2030), TSMC와 12인치 포토마스크 파일럿(2031)", "src": ["s2", "s7"] }
+    ],
+    "vision": "AI가 끌어올리는 노광 집약도 상승 속에서 Low-NA 생산성과 High-NA 도입으로 '노광 비용'을 계속 낮춰, 멀티 패터닝을 EUV 단일 노광으로 바꾸는 흐름의 중심에 서겠다는 그림이다.",
+    "text": "이런 위치에서 회사가 택한 길은 생산능력 증설과 장비 세대 교체를 동시에 하는 것이다. 2027년 30% 증설과 새 NXE:3800F로 공급을 늘리고, High-NA는 Intel에 이어 Samsung(2028), TSMC(2030)로 넓힌다. 고객들이 2029~2030년 물량까지 주문하겠다고 하지만, 회사는 전체 수요를 확인하기 전까지 그 주문을 받지 않고 있다.",
+    "src": ["s2", "s1", "s4"]
+  },
+  "governance": {
+    "line": "CEO Christophe Fouquet와 CFO Roger Dassen이 이끌며, 2025년 배당을 주당 7.50유로로 17% 올리고 2026~2028년 최대 120억 유로 자사주 매입(대부분 소각)을 진행하는 꾸준한 환원 기조다.",
+    "src": ["s3", "s4", "s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "4Q26", "metric": "total net sales", "value": "142억~152억 유로", "givenOn": "2026-10-14", "src": ["s1"] },
+      { "period": "4Q26", "metric": "gross margin / opex", "value": "총마진 약 57%, R&D 약 12억, SG&A 약 4억 유로, 설치 기반 매출 약 37억 유로", "givenOn": "2026-10-14", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "total net sales / gross margin", "value": "440억~450억 유로(약 +36%), 총마진 약 56%", "givenOn": "2026-10-14", "src": ["s1", "s2"] },
+      { "period": "2030", "metric": "revenue opportunity / gross margin", "value": "440억~600억 유로, 총마진 56~60%", "givenOn": "2026-01-28", "src": ["s4"] }
+    ],
+    "style": "quarterly",
+    "track": "2026년 연간 전망은 1월 340억~390억 유로(총마진 51~53%)에서 10월 440억~450억 유로(약 56%)로 크게 올라왔다. 2025년 4분기 매출 97억 유로는 가이던스 범위 안이었다.",
+    "src": ["s3", "s4", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(ADR 조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 60.78달러(범위 54.44~67.24, 추정 기관 수 적음), 직전 4개 분기 실적 합 40.62달러. 최근 4주 상향 5건·하향 0건.",
+    "src": ["s8"]
+  },
+  "watch": {
+    "confirms": [
+      "4Q26 매출이 142억~152억 유로 범위 안에 들고 총마진 약 57% 유지",
+      "2027년 전망 발표에서 성장 지속과 30% 증설 일정 재확인",
+      "메모리(DRAM·HBM) 고객의 EUV 레이어 확대가 이어짐",
+      "High-NA가 Samsung·TSMC 양산 일정대로 채택됨",
+      "가치 기반 가격 인상이 2027년 마진에 반영되기 시작"
+    ],
+    "breaks": [
+      "고객이 클린룸·팹 건설 지연으로 장비 인도를 미룸",
+      "대중국 수출통제 강화로 DUV 매출이 예상보다 빨리 감소",
+      "AI 설비투자 축소로 선단 로직·메모리 증설 계획 하향",
+      "업그레이드 수요가 꺾여 설치 기반 매출 성장 둔화",
+      "증산 비용으로 총마진이 가이던스 아래로 내려감"
+    ],
+    "keyNumbers": [
+      { "name": "분기 매출·총마진 가이던스", "why": "2026년부터 수주를 분기 공시하지 않아 가장 중요한 선행 신호" },
+      { "name": "EUV 시스템 매출과 대수", "why": "AI 선단 공정 증설이 실제로 장비로 들어오는 속도" },
+      { "name": "로직 vs 메모리 시스템 매출 비중", "why": "수요의 축이 어디로 옮겨가는지 보여준다" },
+      { "name": "중국 비중", "why": "수출통제 위험과 DUV 매출의 크기" },
+      { "name": "설치 기반(IBM) 매출", "why": "경기와 덜 연동되는 반복 매출" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-04", "event": "2026년 중간배당 주당 1.88유로 지급", "src": ["s1"] },
+      { "date": "2027-01 하순 (추정, 회사 미공지)", "event": "4Q26·FY2026 실적과 2027년 전망", "src": [] },
+      { "date": "수시", "event": "미국·네덜란드 대중국 반도체 장비 수출통제 변경", "src": ["s4"] },
+      { "date": "매 분기", "event": "TSMC·Samsung·SK hynix 설비투자 계획 발표", "src": ["s7"] }
+    ],
+    "reaction": "수주를 더 이상 분기 공시하지 않아, 주가는 다음 분기 매출·총마진 가이던스와 다음 해 성장 언급에 반응하는 경향이 있다. 1월 실적에서 나오는 새해 전망이 연중 가장 큰 이벤트다.",
+    "conditions": [
+      "다음 분기 매출·총마진 가이던스 범위와 컨센서스 차이",
+      "다음 해 성장률에 대한 경영진의 정성적 언급",
+      "EUV 대수·High-NA 출하 언급",
+      "중국 비중 전망 변화",
+      "TSMC·메모리 3사 설비투자 계획 수정",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "FY2025 영업이익률·영업현금흐름·설비투자 금액 (보도자료 발췌에서 확인 못함)",
+    "FY2025 배당과 자사주 매입의 분리 금액 (합계 85억 유로만 확인)",
+    "고객별 매출 비중과 10% 이상 고객명 (20-F FY2025 원문을 열지 못함 - 문서가 커서 가져오기 실패)",
+    "노광 장비 시장 점유율 수치 (출처 간 80~90%로 엇갈려 미기재)",
+    "Zeiss 단일 공급·Cymer 관련 내용은 오래된 20-F(FY2017, FY2012) 기준이며 최신 20-F로 대조하지 않음",
+    "2026년부터 분기 수주를 공시하지 않는다는 내용은 2차 보도 기준 (Q3 2026 보도자료에 수주 수치 없음은 확인)",
+    "부문 합계 324.2억 유로와 총매출 326.7억 유로의 차이 약 0.5억 유로 (반올림·분류 차이로 추정)",
+    "4Q26 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "high - 매출·마진·제품별 매출·가이던스는 회사 보도자료와 회사 게시 녹취록에서 왔고, 공급망 서술은 오래된 20-F, 점유율은 미기재로 남겼다."
+}

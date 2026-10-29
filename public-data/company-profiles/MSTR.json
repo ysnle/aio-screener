@@ -1,0 +1,557 @@
+{
+  "symbol": "MSTR",
+  "name": "Strategy Inc (formerly MicroStrategy)",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "December 31 (latest filed period: six months ended 2026-06-30)",
+  "oneLine": "Strategy는 기업용 분석 소프트웨어 회사의 껍데기 위에서 보통주·우선주·전환사채로 돈을 모아 약 84.8만 개의 비트코인을 사 모은 세계 최대 비트코인 보유 상장사로, 주가와 이익이 사실상 비트코인 가격과 자본 조달 여력에 따라 움직인다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "10-Q",
+      "title": "Strategy Inc Form 10-Q for the quarter ended 2026-06-30",
+      "url": "https://www.sec.gov/Archives/edgar/data/1050446/000105044626000044/mstr-20260630.htm",
+      "publisher": "Strategy / SEC EDGAR",
+      "date": "2026-08-03"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Strategy Announces Second Quarter 2026 Financial Results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001050446/000162828026051027/mstr-20260730x8kxex991.htm",
+      "publisher": "Strategy / SEC EDGAR",
+      "date": "2026-07-30"
+    },
+    {
+      "id": "s3",
+      "kind": "8-K",
+      "title": "Strategy Acquires 250 BTC and Repurchases $192 Million of STRC (8-K Exhibit 99.1, period 2026-10-05 to 2026-10-11)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001050446/000119312526419726/mstr-ex99_1.htm",
+      "publisher": "Strategy / SEC EDGAR",
+      "date": "2026-10-12"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "SEC EDGAR companyfacts FY2025 (revenue 477.2M, net loss 3.85B; 10-K accession 0001050446-26-000020) via AIO public-data/sec-fundamentals.json",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001050446.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-10-14"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "Strategy Inc (MSTR) Earnings Date: Q3 2026 report 2026-10-29 after close (company confirmed on 2026-10-08 per this page; read via search summary)",
+      "url": "https://primexbt.com/for-traders/mstr-earnings-date/",
+      "publisher": "PrimeXBT",
+      "date": "2026-10"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/mstr/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s7",
+      "kind": "news",
+      "title": "Strategy posts about $21 billion Q3 paper gain, balances STRC buybacks with more bitcoin (cites company disclosure: Q3 unrealized gain 20.91B, deferred tax 1.88B, 334 BTC bought 10-01 to 10-04, USD Reserve 4.88B; read via fetched article, filing not opened)",
+      "url": "https://www.itiger.com/news/1195546392",
+      "publisher": "Tiger Brokers news",
+      "date": "2026-10-06"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "상장 기업 중 최대 비트코인 보유 - 848,250 BTC (2026-10-11), 매입 원가 640억 달러",
+      "다층 자본 조달 장치 - 보통주 ATM, 5종 영구 우선주(STRF·STRC·STRE·STRK·STRD), 전환사채",
+      "현금 완충 - USD Reserve 48.8억 달러 (2026-10-11), 배당·이자용",
+      "창업자 Michael Saylor의 비트코인 전략 브랜드"
+    ],
+    "text": "Strategy의 경쟁력은 기술보다 자본 시장을 다루는 능력에 있다. 보통주를 시장에서 수시로 팔고(ATM), 연 8~12% 배당을 주는 영구 우선주 5종과 전환사채를 발행해 그 돈으로 비트코인을 사며, 2026-10-11 기준 848,250 BTC를 쌓았다. 비트코인이 오르면 이 자본 조달 장치가 더 쉽게 돌아가고, 내리면 반대로 조달 비용이 무거워지는 구조다.",
+    "src": [
+      "s3",
+      "s1",
+      "s2"
+    ]
+  },
+  "design": {
+    "text": "회사가 내놓는 것은 두 가지다. 하나는 원래 사업인 기업용 분석 소프트웨어(구독·라이선스·유지보수·컨설팅)로, 회사는 이를 'AI 기반 기업 분석 소프트웨어'라고 부른다. 다른 하나는 비트코인을 담보로 한 증권들인데, 경영진은 우선주들을 '디지털 크레딧'이라는 새 자산군으로 키우겠다고 말한다. 매출은 거의 전부 소프트웨어에서 나오지만, 회사 가치의 대부분은 비트코인이다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "보통주 ATM 투자자 - 상반기 공모 순입금 82.5억 달러",
+      "우선주 투자자 (STRF 10%, STRC 변동금리(12%로 인상), STRE 10%, STRK 8%, STRD 10%) - 상반기 75.3억 달러",
+      "전환사채 투자자 - 원금 67.1억 달러 (2026-06말)",
+      "비트코인 수탁·거래 상대방 (업체명 이번 조사에서 미확인)",
+      "기업 소프트웨어 고객 - 분석 소프트웨어 매출원"
+    ],
+    "text": "이 회사에서 '생산'은 증권을 발행해 비트코인으로 바꾸는 일이다. 2026년 상반기에 보통주로 82.5억 달러, 우선주로 75.3억 달러를 모아 약 174,895 BTC(136.7억 달러)를 샀다. 소프트웨어는 사내 개발·판매하는 작은 사업으로 남아 있어, 보유 자산의 크기는 사실상 자본 시장이 얼마나 돈을 대 주느냐가 정한다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "기업 고객 - 분석 소프트웨어 구독·지원 (고객명 미확인)",
+      "보통주 투자자 - 비트코인 노출을 원하는 주식 투자자",
+      "우선주·전환사채 투자자 - 고정·변동 배당과 이자를 원하는 투자자"
+    ],
+    "channel": "소프트웨어는 직접 영업·파트너, 증권은 증권사를 통한 ATM(시장가 분할 매각)과 공모.",
+    "concentration": "소프트웨어 고객 집중도는 이번 조사에서 확인하지 못함",
+    "text": "그래서 Strategy는 두 부류의 '고객'에게 판다. 소프트웨어는 기업 고객에게 구독·지원으로 팔고, 증권은 비트코인 노출을 원하는 주식 투자자와 배당을 원하는 우선주 투자자에게 판다. 실제 주가를 움직이는 쪽은 두 번째 고객이 회사 증권을 얼마나, 어떤 값에 사 주느냐다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "보통주 투자자 (ATM)",
+        "to": "Strategy",
+        "what": "MSTR 주식 매입 대금 - 상반기 82.5억 달러"
+      },
+      {
+        "from": "우선주·전환사채 투자자",
+        "to": "Strategy",
+        "what": "STRC 등 우선주 대금 상반기 75.3억 달러, 회사는 연 8~12% 배당 지급"
+      },
+      {
+        "from": "Strategy",
+        "to": "비트코인 시장",
+        "what": "비트코인 매입 - 상반기 136.7억 달러, 10-05~10-11 주간 250 BTC"
+      },
+      {
+        "from": "기업 고객",
+        "to": "Strategy 소프트웨어",
+        "what": "구독·라이선스·지원·서비스료 - 상반기 2.47억 달러"
+      },
+      {
+        "from": "Strategy",
+        "to": "우선주·사채 투자자",
+        "what": "배당·이자 지급 - 상반기 우선주 배당 6.30억 달러 (USD Reserve와 일부 비트코인 매각으로 충당)"
+      }
+    ],
+    "pricing": "소프트웨어는 구독·라이선스 요금. 회사 전체의 '수익'은 비트코인 평가 손익(공정가치 회계)이며, 조달 비용은 우선주 배당률(8~12%)과 전환사채 이자다.",
+    "text": "돈의 흐름은 대부분 증권 투자자에서 비트코인으로 한 방향으로 흐른다. 소프트웨어가 버는 상반기 2.47억 달러는 우선주 배당 6.30억 달러도 감당하지 못하므로, 배당과 이자는 USD Reserve와 새 증권 발행, 일부 비트코인 매각으로 메운다. 회사는 2026-07-26까지 배당 일부를 위해 비트코인 2.18억 달러어치를 팔았다고 밝혔다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "H1 2026 (six months ended 2026-06-30)",
+    "revenue": {
+      "value": 246.668,
+      "unit": "USD mn",
+      "yoy": null
+    },
+    "grossMargin": 66.9,
+    "operatingMargin": null,
+    "netMargin": null,
+    "operatingCashFlow": {
+      "value": 9.85,
+      "unit": "USD mn"
+    },
+    "freeCashFlow": null,
+    "segments": [
+      {
+        "name": "Subscription services (구독)",
+        "revenue": 121.737,
+        "unit": "USD mn",
+        "share": 49.4,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Product licenses (라이선스)",
+        "revenue": 9.168,
+        "unit": "USD mn",
+        "share": 3.7,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Product support (유지보수)",
+        "revenue": 84.435,
+        "unit": "USD mn",
+        "share": 34.2,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Other services (컨설팅 등)",
+        "revenue": 31.328,
+        "unit": "USD mn",
+        "share": 12.7,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "비트코인 보유량",
+        "value": "약 846,000 BTC (2026-06-30) → 843,775 (07-26) → 848,250 (10-11)",
+        "src": [
+          "s1",
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "name": "비트코인 원가 / 공정가치",
+        "value": "원가 639.4억 / 공정가치 496.7억 달러 (2026-06-30); 10-11 기준 원가 640.0억, 평균 매입가 75,444달러",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "BTC Yield / BTC Gain (회사 지표, YTD)",
+        "value": "4.5% / 29,997 BTC (2026-07-26 기준)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "BTC Hurdle ARR (회사가 말하는 실효 조달 비용)",
+        "value": "10.8% (2026-07-30 발표)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "비트코인 평가손 (미실현)",
+        "value": "상반기 227.7억 달러, Q2 83.2억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "순손실 / 희석 EPS",
+        "value": "상반기 보통주 귀속 순손실 213.9억 달러, EPS -62.32달러; Q2 -86.2억, EPS -24.45달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "부채·우선주·현금 완충",
+        "value": "전환사채 원금 67.1억, 우선주 청산우선권 154.6억 달러 (06말); USD Reserve 37.5억(07-30) → 48.8억 달러(10-11)",
+        "src": [
+          "s1",
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "name": "Q2 소프트웨어 매출",
+        "value": "1.224억 달러(+6.9%), 총마진 66.6%",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Q3 2026 비트코인 미실현 평가익 (회사 사전 공시, 2차 출처)",
+        "value": "약 209.1억 달러, 관련 이연법인세 비용 18.8억 달러 (2026-10-06 보도)",
+        "src": [
+          "s7"
+        ]
+      }
+    ],
+    "text": "소프트웨어 매출은 상반기 2.47억 달러, 총마진 약 67%로 작지만 이익이 나는 사업이고, 구독 매출이 절반을 차지한다. 하지만 같은 기간 비트코인 미실현 평가손 227.7억 달러가 반영돼 영업손실 228억 달러, 보통주 귀속 순손실 214억 달러가 났다. 즉 이 회사의 손익은 소프트웨어가 아니라 분기 말 비트코인 가격이 정하며, FY2025도 매출 4.77억 달러에 순손실 38.5억 달러였다.",
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
+  },
+  "useOfCash": {
+    "period": "H1 2026 (six months ended 2026-06-30)",
+    "items": [
+      {
+        "use": "other",
+        "label": "비트코인 매입",
+        "value": 13.672,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 1.379,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "label": "우선주 배당",
+        "value": 0.63,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "label": "STRC 우선주 재매입 (10-05~10-11 주간)",
+        "value": 0.192,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "text": "모은 돈의 대부분은 다시 비트코인으로 간다. 상반기에 비트코인 136.7억 달러를 샀고, 5월에는 2029년 만기 전환사채 원금 15억 달러를 13.8억 달러에 사들여 사채를 82.1억에서 67.1억 달러로 줄였다. 10월에는 비트코인 매입이 주간 250 BTC로 줄어든 대신 액면 아래에서 거래되는 STRC 우선주를 1.92억 달러어치 되사, 새 매입보다 자본 구조 관리에 무게가 옮겨 간 모습이다.",
+    "src": [
+      "s1",
+      "s2",
+      "s3"
+    ]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 가치사슬에 실질적 자리가 없다. 회사는 소프트웨어를 'AI 기반 기업 분석'이라고 소개하지만 매출이 작고, 회사 가치는 비트코인 보유에서 나온다.",
+    "dependsOn": [
+      "비트코인 가격과 자본 시장 (AI 계층과 무관)"
+    ],
+    "sellsTo": [
+      "기업 분석 소프트웨어 고객 (소규모)"
+    ],
+    "aiRevenue": null,
+    "upside": "AI 분석 기능이 소프트웨어 구독(상반기 1.22억 달러)을 키울 수는 있지만, 회사 전체 손익에 미치는 영향은 비트코인 가격 변동에 비해 매우 작다.",
+    "risk": "AI 투자 붐이 위험자산 선호를 바꾸면 비트코인과 이 회사 증권에 대한 수요가 간접적으로 흔들릴 수 있다(이는 해석이며 회사 공시 내용이 아님).",
+    "text": "그래서 AI 가치사슬에서 Strategy는 '제한적'으로 분류한다. AI는 소프트웨어 제품 설명에 들어 있을 뿐 매출 비중이 작고, 투자자가 보는 변수는 비트코인 가격과 우선주·보통주 발행 여건이다. AI 관련 판단은 이 회사보다 비트코인 채굴·데이터센터 기업에서 보는 편이 맞다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "비트코인 투자 수단 (주식 시장 안)",
+        "rivals": [
+          "현물 비트코인 ETF",
+          "다른 비트코인 보유 상장사"
+        ],
+        "position": "leader",
+        "share": "상장사 중 최대 보유 848,250 BTC (회사 공시); 시장 점유율 수치는 미확인",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "고배당 '디지털 크레딧' (우선주)",
+        "rivals": [
+          "일반 우선주·하이일드 채권",
+          "다른 회사의 비트코인 담보 증권"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "arena": "기업용 분석 소프트웨어",
+        "rivals": [
+          "대형 클라우드 BI 도구 (업체명은 이번 조사 출처에 없음)"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": []
+      }
+    ],
+    "edge": "가장 큰 비트코인 보유량, 5종 우선주와 ATM을 동시에 돌리는 조달 장치, 창업자의 비트코인 브랜드.",
+    "threats": "현물 ETF가 더 싸고 단순한 비트코인 노출을 제공, 비트코인 하락 시 주가 프리미엄 축소와 조달 비용 상승, 우선주 가격이 액면 아래로 밀리면 신규 발행이 막힘.",
+    "text": "주식 시장에서 비트코인을 사는 방법은 이제 현물 ETF와 다른 보유 기업 등 여러 가지라, Strategy는 '레버리지와 수익률을 얹은 비트코인'이라는 차별점으로 경쟁한다. 그 핵심이 우선주인데, 10월에는 STRC가 액면 아래에서 거래돼 회사가 되사들이는 상황이었다. 결국 경쟁력은 비트코인 가격과 자기 증권 가격이 버텨 줄 때만 유지된다.",
+    "src": [
+      "s3",
+      "s1",
+      "s2"
+    ]
+  },
+  "strategy": {
+    "goal": "BTC Yield(주당 비트코인 증가율)를 높이고 '디지털 크레딧'을 새 자산군으로 키운다는 방향을 제시했다. 2026년 수치 목표(BTC Yield·이익)는 Q2 발표문에 없다.",
+    "roadmap": [
+      {
+        "when": "2026-05",
+        "what": "2029년 만기 전환사채 원금 15억 달러를 13.8억 달러에 재매입",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "when": "2026 Q3",
+        "what": "STRC 배당률 12.00%로 인상, 10억 달러 STRC 재매입 프로그램과 10억 달러 MSTR 자사주 매입 프로그램 설정",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2026-10-11 기준",
+        "what": "ATM 잔여 발행 한도 MSTR 188.1억, STRC 175.1억 달러 등",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2026-10-29",
+        "what": "Q3 2026 실적 발표 (장 마감 후, 2차 출처)",
+        "src": [
+          "s5"
+        ]
+      }
+    ],
+    "vision": "Executive Chairman Michael Saylor는 비즈니스 모델을 계속 바꿔 '디지털 크레딧을 새로운 자산군으로' 세우겠다고 말한다.",
+    "text": "앞으로의 계획은 비트코인을 계속 늘리되, 그 돈을 보통주보다 우선주로 더 많이 조달하는 것이다. 다만 2026년 하반기에는 STRC 배당률을 12%로 올리고 액면 아래 우선주를 되사는 등 조달 장치를 지키는 데 힘을 쓰고 있다. 10-29 Q3 실적에서 비트코인 평가 손익과 함께 이 조달 장치가 어떻게 돌아가는지가 드러난다.",
+    "src": [
+      "s2",
+      "s3",
+      "s5"
+    ]
+  },
+  "governance": {
+    "line": "창업자 Michael Saylor가 Executive Chairman, Phong Le가 CEO, Andrew Kang이 CFO를 맡고 있으며(지배 지분 구조는 이번 조사에서 미확인), 이익을 배당하지 않고 증권 발행 대금을 비트코인에 쏟는 자본 정책이다.",
+    "src": [
+      "s2"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "2026",
+        "metric": "BTC Yield / 이익 목표",
+        "value": "Q2 발표문에 수치 가이던스 없음",
+        "givenOn": "2026-07-30",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "style": "none",
+    "track": "실적 가이던스를 내지 않고, 매주 8-K로 비트코인 매입·ATM 사용·USD Reserve를 공개한다. 이 주간 공시가 사실상의 진행 보고다.",
+    "src": [
+      "s2",
+      "s3"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 2026-09~2027-06 4개 분기 EPS 합계 80.65달러이지만 범위가 25.13~146.35달러로 매우 넓고 최소 추정 1건이다. 직전 4개 분기 실적 합계는 -97.21달러. 비트코인 가격에 따라 EPS가 크게 바뀌어 컨센서스의 의미가 약하다.",
+    "src": [
+      "s6"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "주간 8-K에서 비트코인 매입이 이어지고 BTC Yield가 플러스 유지",
+      "STRC 등 우선주가 액면 근처로 회복해 신규 발행 재개",
+      "USD Reserve가 배당·이자 수년치를 계속 덮음",
+      "비트코인 매각 없이 배당 충당"
+    ],
+    "breaks": [
+      "배당 충당을 위한 비트코인 매각 확대",
+      "우선주 액면 할인 지속으로 발행 중단",
+      "보통주 발행이 주당 비트코인을 줄이는 수준(BTC Yield 마이너스)",
+      "전환사채 만기 대응을 위한 비트코인 매각"
+    ],
+    "keyNumbers": [
+      {
+        "name": "비트코인 보유량과 평균 매입가",
+        "why": "회사 가치의 대부분"
+      },
+      {
+        "name": "BTC Yield",
+        "why": "증권 발행이 주주에게 득인지 실인지"
+      },
+      {
+        "name": "USD Reserve와 연간 배당·이자",
+        "why": "비트코인을 팔지 않고 버틸 기간"
+      },
+      {
+        "name": "우선주(STRC 등) 가격 대 액면",
+        "why": "조달 장치가 열려 있는지"
+      },
+      {
+        "name": "분기 말 비트코인 가격",
+        "why": "GAAP 손익을 결정"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-10-28 (미 동부, 한국 10-29 새벽)",
+        "event": "FOMC 금리 결정 - 위험자산·비트코인 변동성 (일정 출처 미첨부)",
+        "src": []
+      },
+      {
+        "date": "2026-10-29 장 마감 후",
+        "event": "Q3 2026 실적과 웨비나",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "date": "매주 월요일 무렵",
+        "event": "비트코인 매입·ATM·USD Reserve 8-K",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "date": "2026-11-03",
+        "event": "미국 중간선거 - 암호자산 규제 입법 환경 (일정 출처 미첨부)",
+        "src": []
+      }
+    ],
+    "reaction": "주가는 실적보다 비트코인 가격과 자본 조달 소식에 먼저 반응한다. Q2 2026에는 순손실 82억 달러를 냈지만 비트코인 평가손이 이미 알려진 상태라, 실적 자체보다 우선주 배당률 인상·재매입 같은 자본 정책이 관심을 받았다.",
+    "conditions": [
+      "비트코인 가격과 분기 말 대비 변화",
+      "주간 8-K의 매입량, 자금원(보통주·우선주), USD Reserve",
+      "STRC·STRF 등 우선주 가격과 액면 대비 할인 폭",
+      "비트코인 매각 여부와 금액",
+      "FOMC 이후 금리·달러 변화와 위험자산 흐름",
+      "전환사채 만기·재매입 일정"
+    ]
+  },
+  "unverified": [
+    "H1 2026 매출 전년 대비 증가율 (Q2만 +6.9% 확인)",
+    "영업이익률·순이익률은 비트코인 평가손 때문에 수천 %대 음수가 돼 의미가 없어 null",
+    "잉여현금흐름 (설비투자 미확인)",
+    "Q3 2026 실적 발표일은 2차 출처 (회사 원문 미열람)",
+    "USD Reserve가 덮는 기간 (07-30 발표 '2.1년 이상', 10월 기준 미확인)",
+    "mNAV(시가총액/비트코인 가치) - 이번 조사에서 미확인",
+    "Saylor의 의결권 지배 구조와 지분율",
+    "상반기 비트코인 매각: 10-Q 약 1,395 BTC(0.83억 달러) vs 발표문 YTD 2.18억 달러(07-26까지) - 기간 차이",
+    "경쟁자 이름(현물 ETF, 다른 보유사, BI 도구)은 출처 문서가 아니라 일반 분류",
+    "FOMC·중간선거 일정은 사용자 제공 맥락과 일반 일정 기준",
+    "Q3 2026 평가익 209.1억 달러와 이연법인세 18.8억 달러는 회사 8-K 원문이 아니라 2차 출처(s7) 보도 - Q3 실적 발표에서 확인 필요"
+  ],
+  "confidence": "medium - 재무·보유량·자본 구조는 10-Q와 회사 8-K에서 왔지만, 회사 가치가 매일 바뀌는 비트코인 가격에 달려 있고 Q3 실적이 하루 뒤 나온다."
+}

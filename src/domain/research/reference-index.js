@@ -624,6 +624,15 @@ export const SUPPLIED_MATERIALS_META = deepFreeze({
 });
 
 export const SUPPLIED_MATERIAL_CLAIM_IDS = deepFreeze([
+  "claim-20261028-contract-duration-multiple",
+  "claim-20261028-data-center-stages",
+  "claim-20261028-hyperscaler-capex-grid",
+  "claim-20261028-value-capture-cost-of-capital",
+  "claim-20261028-put-flow-direction",
+  "claim-20261028-loose-tape-confirmation",
+  "claim-20261028-counterparty-funding-chain",
+  "claim-20261028-static-level-base-rate",
+  "claim-20261028-risk-weight-vs-cap-weight",
   "claim-20261018-forced-seller-chain",
   "claim-20261018-ai-infra-credit-ladder",
   "claim-20261018-volatility-base-rates",

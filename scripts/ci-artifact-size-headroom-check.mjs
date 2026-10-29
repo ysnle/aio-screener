@@ -44,7 +44,12 @@ const BUDGETS = [
   // universe map; fiscal-read.js EARNINGS_CALENDAR 512 KiB) and consensus estimates (surprise history; 1 MiB).
   { id: 'sec-fiscal-history', bytes: size('public-data/sec-fiscal-history.json'), budget: 1_048_576 },
   { id: 'earnings-calendar', bytes: size('public-data/earnings-calendar.json'), budget: 524_288 },
-  { id: 'consensus-estimates', bytes: size('public-data/consensus-estimates.json'), budget: 1_048_576 }
+  { id: 'consensus-estimates', bytes: size('public-data/consensus-estimates.json'), budget: 1_048_576 },
+  // v59.42: ~120 days of FOMC and mover briefs (~3-5 KB each) plus a release text while its call summary is pending;
+  // the client reads at most 1 MiB (src/data/event-artifacts.js EVENT_BRIEFS).
+  { id: 'event-briefs', bytes: size('public-data/event-briefs.json'), budget: 1_048_576 },
+  // v59.42: 50 top-name weight rows; the client reads at most 64 KiB (src/data/event-artifacts.js KR_INDEX_WEIGHTS).
+  { id: 'kr-index-weights', bytes: size('public-data/kr-index-weights.json'), budget: 65_536 }
 ];
 
 // v58.81 (P2093, refresh 10/26): `--only <prefix>` checks one lane's budgets (the 13F lane runs it for `masters-`), so an

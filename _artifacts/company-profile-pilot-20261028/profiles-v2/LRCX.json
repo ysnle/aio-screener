@@ -1,0 +1,207 @@
+{
+  "symbol": "LRCX",
+  "name": "Lam Research Corporation",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "last Sunday of June (FY2026 ended 2026-06-28)",
+  "oneLine": "Lam Research는 칩 위의 막을 깎고(식각) 쌓는(증착) 장비의 강자로, 특히 메모리 공정에 강해 AI가 만든 DRAM·HBM·NAND 투자 덕에 2026년 9월 분기 매출이 전년 대비 54% 늘었다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Lam Research Corporation Reports Financial Results for the Quarter Ended September 27, 2026 (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000707549/000070754926000052/lrcx_exhibitx991xq1x2027.htm", "publisher": "Lam Research / SEC EDGAR", "date": "2026-10-21" },
+    { "id": "s2", "kind": "8-K", "title": "Lam Research Reports Financial Results for the Quarter and Fiscal Year Ended June 28, 2026 (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000707549/000070754926000033/lrcx_exhibitx991xq4x2026.htm", "publisher": "Lam Research / SEC EDGAR", "date": "2026-07-29" },
+    { "id": "s3", "kind": "10-K", "title": "Lam Research Form 10-K for fiscal year ended 2026-06-28", "url": "https://www.sec.gov/Archives/edgar/data/707549/000070754926000037/lrcx-20260628.htm", "publisher": "Lam Research / SEC EDGAR", "date": "2026-08-07" },
+    { "id": "s4", "kind": "call-transcript", "title": "Lam Research Q1 (FY2027) Earnings Call Highlights", "url": "https://www.marketbeat.com/instant-alerts/transcript-lam-research-q1-earnings-call-highlights-2026-10-21/", "publisher": "MarketBeat", "date": "2026-10-21" },
+    { "id": "s5", "kind": "other", "title": "AIO local SEC companyfacts snapshot (FY2026 revenue growth 26%), public-data/sec-fundamentals.json", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000707549.json", "publisher": "SEC EDGAR via AIO", "date": "2026-10-07" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/lrcx/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s7", "kind": "investor-day", "title": "Applied Materials Investor Breakfast 2026 - CY2025 WFE share baseline (TechInsights) for context, third-party slide summary", "url": "https://2slides.com/gallery/applied-materials-investor-breakfast-2026", "publisher": "2Slides (summary of Applied Materials deck)", "date": "2026-10-13" }
+  ],
+  "moat": {
+    "sources": [
+      "고종횡비(깊고 좁은 구멍) 식각 기술 - 3D NAND·DRAM 커패시터·HBM 실리콘 관통 전극(TSV) 공정의 핵심",
+      "텅스텐·몰리브덴 ALD/CVD(ALTUS), 도금(SABRE 3D) 등 금속 증착 장비",
+      "설치 장비 기반의 서비스·업그레이드 사업 (FY2026 고객지원 관련 매출 83.5억 달러)",
+      "EUV 건식 레지스트(Aether) 등 새 공정 기술"
+    ],
+    "text": "Lam의 힘은 칩 위에 깊고 좁은 구멍을 정확히 깎아 내는 식각 기술에서 나온다. 수백 층을 쌓는 3D NAND, 더 촘촘해지는 DRAM, 칩을 위아래로 잇는 HBM 관통 전극이 모두 이 기술에 기댄다. 여기에 이미 깔린 장비의 업그레이드·서비스 매출이 FY2026 전체 매출의 약 36%를 차지해 두 번째 기둥이 된다.",
+    "src": ["s3", "s2", "s4"]
+  },
+  "design": {
+    "text": "이 기술로 Lam이 파는 장비는 세 갈래다. 식각(Akara·Kiyo 도체 식각, Vantex·Flex 유전체 식각, Syndion 실리콘 관통 식각), 증착(ALTUS·Striker ALD, VECTOR PECVD, SABRE 도금), 세정(Coronus 베벨 세정 등)이고, EUV용 건식 레지스트 Aether가 새로 더해졌다. 매출은 신규 장비인 '시스템'과 서비스·부품·업그레이드·구형 장비(Reliant)를 묶은 '고객지원 관련 매출'로 나눠 보고된다.",
+    "src": ["s3", "s2"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 제조 - 미국 California·Oregon·Ohio, 오스트리아, 한국, 말레이시아, 대만 생산·창고 시설",
+      "핵심 부품 공급망 - 일부 부품은 단일 또는 소수 공급사, 대체 공급원 확보가 늘 가능하지는 않음 (10-K)"
+    ],
+    "text": "장비는 Lam이 직접 설계해 미국·말레이시아·한국 등 자체 시설에서 만든다. 10-K는 일부 핵심 부품이 단일·소수 공급사에 의존하고 조달 기간이 길다고 밝혔고, 실제로 회사는 단기 부품 부족과 고객 클린룸 제약 때문에 12월 분기 출하 일부가 3월 분기로 밀린다고 말했다. 그래서 지금은 수요보다 공급·설치 속도가 성장의 제약이다.",
+    "src": ["s3", "s4"]
+  },
+  "sell": {
+    "customers": [
+      "메모리 제조사 (Micron, Samsung, SK hynix) - FY2026 시스템 매출의 39%",
+      "파운드리 (TSMC 등) - 54%",
+      "로직·종합반도체(IDM) - 7%"
+    ],
+    "channel": "칩 제조사에 직접 판매·설치하고 서비스 계약을 맺는 방식.",
+    "concentration": "10-K는 Micron, Samsung, SK hynix, TSMC를 주요 고객으로 명시하지만 비중은 이 자료에서 확인하지 못함. 지역으로는 FY2026 중국 34%, 대만 22%, 한국 19%.",
+    "text": "장비를 사는 곳은 Micron·Samsung·SK hynix·TSMC 같은 소수 대형 칩 제조사다. FY2026에는 시스템 매출의 54%가 파운드리, 39%가 메모리였지만, 9월 분기에는 메모리가 46%로 올라 파운드리와 같아졌고 메모리 장비 매출은 전년 대비 120% 늘었다. 지역으로는 중국이 FY2026 매출의 34%로 가장 큰데, 회사는 12월 분기 중국 매출이 '상당히 낮아진다'고 예고했다.",
+    "src": ["s3", "s4"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스·클라우드 수요", "to": "AI 가속기 설계사·하이퍼스케일러", "what": "GPU·서버 구매 (HBM·SSD 포함)" },
+      { "from": "가속기 설계사·서버 업체", "to": "메모리·파운드리 제조사 (SK hynix, Samsung, Micron, TSMC)", "what": "HBM·DRAM·NAND·웨이퍼 대금" },
+      { "from": "메모리·파운드리 제조사", "to": "Lam Research", "what": "식각·증착 장비 대금 (대당 판매)" },
+      { "from": "설치 장비를 가진 칩 제조사", "to": "Lam Research (고객지원)", "what": "부품·서비스·업그레이드·구형 장비 대금" },
+      { "from": "Lam Research", "to": "주주", "what": "배당(분기 0.33달러)·자사주 매입" }
+    ],
+    "pricing": "장비는 대당 판매, 고객지원 사업은 부품·서비스 계약과 기존 장비 업그레이드. NAND 고객은 새 공장보다 기존 장비 층수 업그레이드에 돈을 써 업그레이드 매출이 크다.",
+    "text": "돈은 AI 서버가 HBM과 고용량 SSD를 더 많이 요구하면서 메모리 제조사의 증설·전환 투자로 바뀌고, 그중 식각·증착 장비 대금이 Lam으로 들어오는 순서로 흐른다. NAND 고객이 새 공장 대신 기존 장비를 더 높은 층수로 업그레이드하는 데 돈을 쓰기 때문에, 고객지원 매출도 함께 커진다. 그 현금은 배당과 자사주 매입으로 주주에게 돌아간다.",
+    "src": ["s4", "s2", "s1"]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-06-28)",
+    "revenue": { "value": 23.233, "unit": "USD bn", "yoy": 26 },
+    "grossMargin": 50.5,
+    "operatingMargin": 35.3,
+    "netMargin": 31.3,
+    "operatingCashFlow": { "value": 5.858, "unit": "USD bn" },
+    "freeCashFlow": { "value": 4.891, "unit": "USD bn" },
+    "segments": [
+      { "name": "Systems revenue", "revenue": 14.885, "unit": "USD bn", "share": 64.1, "yoy": null, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Customer support-related revenue and other", "revenue": 8.347, "unit": "USD bn", "share": 35.9, "yoy": null, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (2026년 9월 분기) 매출·마진", "value": "매출 82.19억 달러(전 분기 대비 +22%, 전년 대비 +54%), GAAP 총마진 52.3%, 영업이익률 40.0%(처음 40% 돌파), GAAP EPS 2.19달러", "src": ["s1", "s4"] },
+      { "name": "9월 분기 시스템 매출 시장별", "value": "메모리 46%(NAND 26%), 파운드리 46%, 로직·기타 8%", "src": ["s4"] },
+      { "name": "고객지원(CSBG) 매출", "value": "9월 분기 약 24.9억 달러, 전년 대비 +40%; 2026년 30% 이상, 2027년 15% 이상 성장 전망", "src": ["s1", "s4"] },
+      { "name": "WFE 시장 전망 (회사)", "value": "CY2026 1,500억 달러대 중반, CY2027 2,000억 달러 이상(예비)", "src": ["s4"] },
+      { "name": "지역별 매출 (9월 분기)", "value": "중국 35%, 한국 20%, 대만 18%, 일본 9%, 미국 8%", "src": ["s1"] }
+    ],
+    "text": "이 흐름이 FY2026 매출 232.3억 달러(+26%), 영업이익률 35.3%, 순이익률 31.3%로 나타났다. 이익은 시스템 매출 148.9억과 고객지원 매출 83.5억 달러 양쪽에서 나오며, 고객지원 쪽이 경기 하강기 완충 역할을 한다. 최신 9월 분기는 매출 82.2억 달러에 영업이익률이 처음 40%를 넘어, 매출 증가가 이익률 상승으로 이어지는 구간에 있다.",
+    "src": ["s2", "s3", "s5", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-06-28)",
+    "items": [
+      { "use": "R&D", "value": 2.376, "unit": "USD bn", "src": ["s3"] },
+      { "use": "capex", "value": 0.966, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 3.851, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 1.271, "unit": "USD bn", "src": ["s2", "s3"] }
+    ],
+    "text": "FY2026 잉여현금흐름 약 48.9억 달러 보다 많은 51.2억 달러(자사주 매입 38.5억, 배당 12.7억)를 주주에게 돌려줬다. R&D에는 매출의 10.2%인 23.8억 달러를 썼고, 공장이 가벼운 장비 회사라 설비투자는 9.7억 달러에 그쳤다. 9월 분기에는 분기 배당을 0.26달러에서 0.33달러로 올렸고, 환원 규모는 그 분기 잉여현금흐름의 약 41%였다.",
+    "src": ["s2", "s3", "s1", "s4"]
+  },
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "AI 서버에 들어가는 HBM·DRAM·NAND와 선단 로직 칩을 만드는 공장에 식각·증착 장비를 공급하는 장비 층. 메모리 쪽 비중이 큰 것이 특징이다.",
+    "dependsOn": [
+      "부품 공급망 (단일·소수 공급 부품 포함)",
+      "고객의 클린룸·팹 건설 (2027년 Tier 1 신규 팹 10곳 가동 예상)"
+    ],
+    "sellsTo": [
+      "memory (SK hynix, Samsung, Micron)",
+      "semicap-foundry (TSMC 등 파운드리·로직)",
+      "첨단 패키징 라인"
+    ],
+    "aiRevenue": "AI 전용 매출은 별도 공시 없음. 회사는 파운드리 로직과 DRAM이 올해 누적 시스템 매출 성장의 약 80%를 차지했고, 첨단 패키징 매출이 CY2026 약 70% 늘 것이라고 밝혔다 (2026-10-21).",
+    "upside": "HBM 적층과 DRAM 미세화, NAND 고층화(256단 이상·384단급), 후면 전력 공급, 첨단 패키징이 모두 식각·증착 공정 수를 늘린다. 회사는 CY2027 WFE가 2,000억 달러를 넘고 DRAM이 성장을 이끈다고 본다.",
+    "risk": "메모리 가격·투자 주기 하강, 중국 매출 급감(12월 분기 예고), 부품 부족·클린룸 지연으로 출하 이연, 대중국 수출통제.",
+    "text": "그래서 AI 가치사슬에서 Lam은 메모리·파운드리 공장에 장비를 대는 층에 있고, 같은 장비 회사 중에서도 메모리 노출이 가장 큰 편이다. AI 서버가 HBM과 고용량 SSD를 더 많이 쓰면 그 증설이 Lam 장비 주문으로 이어진다. 반대로 메모리 업황이 꺾이면 장비 회사 중 가장 먼저, 가장 크게 흔들리는 위치이기도 하다.",
+    "src": ["s4", "s3"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "식각", "rivals": ["Applied Materials", "Tokyo Electron", "Hitachi High-Tech"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "증착 (ALD·CVD·도금)", "rivals": ["Applied Materials", "ASM International", "Wonik IPS"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "세정", "rivals": ["Screen Holdings", "Semes", "Tokyo Electron"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "WFE 전체", "rivals": ["Applied Materials (CY2025 18.3%)", "ASML", "Tokyo Electron", "KLA"], "position": "challenger", "share": null, "src": ["s7", "s4"] }
+    ],
+    "edge": "메모리 고종횡비 식각의 강점, 후면 전력 공정에서 선두 고객의 4개 제품 공정 장비(tool-of-record) 선정, HBM·로직용 Syndion 식각 신규 자리 4곳, 넓은 설치 기반 업그레이드.",
+    "threats": "Applied Materials·Tokyo Electron과의 공정별 자리 경쟁, 중국 자국 장비사의 성장과 중국 매출 감소, 메모리 투자 주기.",
+    "text": "식각에서는 Lam이 강자이고 Applied·Tokyo Electron이 뒤를 쫓는 구도이며, 증착과 세정에서는 Applied·ASM·Screen 등과 경쟁하는 도전자다. 회사는 2026년이 세 번째 연속 WFE 성장률을 웃도는 해라고 말하며, 근거로 시장 확대와 점유율 상승을 들었지만 점유율 수치는 내놓지 않았다. 새 공정이 생길 때마다 '공정 장비 선정'을 따내는 것이 점유율 싸움의 실체다.",
+    "src": ["s3", "s4"]
+  },
+  "strategy": {
+    "goal": "CY2026 시스템 매출 40% 이상 성장(12월 분기 가이던스 중간값 기준), 고객지원 2026년 30% 이상·2027년 15% 이상 성장, Aether 건식 레지스트 2030년 전후까지 누적 매출 약 25억 달러.",
+    "roadmap": [
+      { "when": "2026-12 분기", "what": "매출 86억 달러 ±4억, 총마진 52.5% ±1, 영업이익률 40.5% ±1; 중국 매출 크게 감소", "src": ["s1", "s4"] },
+      { "when": "2027-03 분기", "what": "12월 분기에서 밀린 출하가 이연 반영", "src": ["s4"] },
+      { "when": "CY2027", "what": "WFE 2,000억 달러 이상(예비), Tier 1 신규 팹 10곳 가동, DRAM 주도 성장", "src": ["s4"] },
+      { "when": "~2030", "what": "Aether 건식 레지스트 누적 매출 약 25억 달러 (이전 전망보다 약 10억 상향)", "src": ["s4"] }
+    ],
+    "vision": "AI가 요구하는 3D 구조(고층 NAND, HBM 적층, 후면 전력, 첨단 패키징)가 늘수록 '깎고 쌓는' 공정이 늘어난다는 관점에서, 식각·증착의 기술 우위를 새 공정마다 장비 선정으로 바꾸겠다는 그림이다.",
+    "text": "이 경쟁에서 회사는 새로 생기는 공정의 장비 자리를 먼저 따내는 데 집중한다. 후면 전력, HBM 관통 식각, 패널 단위 패키징 도금, EUV 건식 레지스트가 그 예이고, 고객지원 사업으로 기존 장비를 업그레이드해 매출을 반복시킨다. 단기 과제는 수요가 아니라 부품과 고객 클린룸이 따라오는 속도다.",
+    "src": ["s4"]
+  },
+  "governance": {
+    "line": "CEO Tim Archer가 이끌며, FY2026 잉여현금흐름보다 많은 금액을 자사주·배당으로 환원했고 9월 분기에 분기 배당을 0.33달러로 올렸다(남은 자사주 한도 약 30억 달러).",
+    "src": ["s1", "s4", "s3"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "2026-12 분기 (Q2 FY2027)", "metric": "revenue", "value": "86억 달러 ±4억", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "2026-12 분기", "metric": "gross / operating margin", "value": "총마진 52.5% ±1%, 영업이익률 40.5% ±1%", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "2026-12 분기", "metric": "diluted EPS", "value": "2.33달러 ±0.15 (희석 주식 12.53억 주)", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "CY2026 / CY2027", "metric": "WFE (industry)", "value": "CY2026 1,500억 달러대 중반, CY2027 2,000억 달러 이상(예비)", "givenOn": "2026-10-21", "src": ["s4"] }
+    ],
+    "style": "quarterly",
+    "track": "9월 분기는 가이던스(매출 81억 ±4억, 총마진 52.0%, EPS 2.15달러)를 모두 소폭 웃돌았다: 실제 매출 82.2억, 총마진 52.3%, GAAP EPS 2.19달러.",
+    "src": ["s2", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 10.12달러(범위 9.46~10.63), 직전 4개 분기 실적 합 6.76달러. 최근 4주 상향 23건·하향 9건으로 대체로 상향이지만 하향도 섞였다.",
+    "src": ["s6"]
+  },
+  "watch": {
+    "confirms": [
+      "12월 분기 매출이 86억 달러 ±4억 안에 들고 영업이익률 40% 이상 유지",
+      "중국 감소를 다른 지역(한국·대만) 메모리·파운드리 매출이 메움",
+      "3월 분기에 이연 출하가 실제로 반영됨",
+      "CY2027 WFE 2,000억 달러 이상 전망이 유지·상향",
+      "고객지원 매출이 30%대 성장 유지"
+    ],
+    "breaks": [
+      "메모리 가격 하락으로 DRAM·NAND 고객이 투자를 줄임",
+      "중국 매출 감소 폭이 예고보다 큼",
+      "부품 부족·클린룸 지연이 2027년까지 이어져 출하가 계속 밀림",
+      "다음 분기 가이던스가 시장 기대를 밑돎",
+      "신공정 장비 선정에서 경쟁사에 자리를 내줌"
+    ],
+    "keyNumbers": [
+      { "name": "시스템 매출 중 메모리·파운드리 비중", "why": "AI 메모리 투자가 얼마나 들어오는지 보여준다" },
+      { "name": "중국 매출 비중", "why": "가장 큰 지역이자 12월 분기 감소 예고" },
+      { "name": "다음 분기 매출·EPS 가이던스", "why": "주가가 가장 크게 반응하는 숫자" },
+      { "name": "고객지원 관련 매출", "why": "업그레이드·서비스의 반복 매출 크기" },
+      { "name": "WFE 전망 (회사 제시)", "why": "다음 해 업황에 대한 회사의 시각" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미공지)", "event": "2026년 12월 분기 실적과 3월 분기 가이던스", "src": [] },
+      { "date": "매 분기", "event": "SK hynix·Samsung·Micron·TSMC 설비투자 계획 발표", "src": ["s4"] },
+      { "date": "수시", "event": "메모리 가격 동향, 미국 대중국 장비 수출통제 변경", "src": ["s3"] }
+    ],
+    "reaction": "분기 실적보다 다음 분기 가이던스, 중국 매출 전망, 회사가 제시하는 다음 해 WFE 규모에 반응하는 경향이 있다. 메모리 업체 실적과 메모리 가격 뉴스에도 함께 움직이기 쉽다.",
+    "conditions": [
+      "다음 분기 매출 가이던스 중간값과 컨센서스의 차이",
+      "중국 비중 변화와 회사 설명",
+      "회사 제시 CY2027 WFE 규모의 수정",
+      "메모리 3사의 설비투자 계획과 메모리 가격 방향",
+      "출하 이연 규모 언급",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "FY2026 시스템 매출의 DRAM·NAND 분리 비중 (메모리 39%만 확인)",
+    "10% 이상 고객별 매출 비중 (10-K는 주요 고객 이름만 확인)",
+    "부문별 영업이익률 (회사는 단일 보고 부문)",
+    "식각·증착 시장 점유율 수치",
+    "FY2026 잉여현금흐름 48.9억 달러는 영업현금흐름(58.58억)에서 설비·무형자산 투자(9.66억)를 빼 계산한 값",
+    "FY2026 매출 성장률 26%는 AIO의 SEC companyfacts 스냅샷 기준(FY2025 매출 원문 미대조)",
+    "남은 자사주 한도 약 30억 달러는 통화 요약 기준 (10-K 기준 2026-06-28 40.4억 달러)",
+    "통화 내용은 MarketBeat 요약(s4)에서 읽었고 원문 녹취록은 열지 않음",
+    "12월 분기 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "high - 실적·매출 구성·현금 사용·지역 비중은 8-K와 10-K에서 왔고, 통화 발언(WFE·시장별 비중)은 2차 요약 기준이다."
+}

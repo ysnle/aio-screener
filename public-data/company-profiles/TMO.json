@@ -1,0 +1,225 @@
+{
+  "symbol": "TMO",
+  "name": "Thermo Fisher Scientific Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Thermo Fisher는 실험실 장비·시약·소모품부터 신약 위탁 개발·생산과 임상시험 대행까지 제약·연구기관이 쓰는 거의 모든 것을 파는 '과학의 공급업체'로, 2026년 제약사 연구개발 지출이 되살아나며 성장률이 다시 올라오고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Thermo Fisher Scientific Reports Fourth Quarter and Full Year 2025 Results (8-K exhibit PDF: income statement, segment table, cash flow)", "url": "https://fortune.com/company-assets/1727/quartr/earnings-release-8-k-3088f-2026-01-29-11-43-06.pdf", "publisher": "Thermo Fisher Scientific (8-K copy via Quartr/Fortune)", "date": "2026-01-29" },
+    { "id": "s2", "kind": "8-K", "title": "Thermo Fisher Scientific Q3 2026 earnings release (8-K Exhibit 99.1: segments, nine-month cash flow, divestiture, Precure, AI-Automation Innovation Center)", "url": "https://last10k.com/sec-filings/tmo/0000097745-26-000173.htm", "publisher": "Thermo Fisher Scientific / SEC EDGAR via last10k", "date": "2026-10-21" },
+    { "id": "s3", "kind": "call-transcript", "title": "TMO CY26 Q3 earnings call summary (FY2026 guidance $47.70-48.20bn revenue, adj. EPS $25.13-25.43, China, tariff refunds into AI; AI-assisted secondary summary)", "url": "https://stockhub.kr/en/insights/20261021-tmo-cy26q3-earnings-call", "publisher": "StockHub", "date": "2026-10-21" },
+    { "id": "s4", "kind": "news", "title": "Thermo Fisher Scientific Q3 Earnings Exceed Estimates, Shares Rise (prior guidance $47.4-48.1bn, FCF $7-7.5bn; read via search summary)", "url": "https://www.kucoin.com/news/flash/thermo-fisher-scientific-q3-earnings-exceed-estimates-shares-rise", "publisher": "KuCoin News", "date": "2026-10-21" },
+    { "id": "s5", "kind": "news", "title": "Thermo Fisher Scientific to Accelerate Life Science Breakthroughs with OpenAI (read via search summary)", "url": "https://www.businesswire.com/news/home/20251016668531/en/Thermo-Fisher-Scientific-to-Accelerate-Life-Science-Breakthroughs-with-OpenAI", "publisher": "Business Wire (company release)", "date": "2025-10-16" },
+    { "id": "s6", "kind": "news", "title": "Thermo Fisher completes $8.9B buyout of Clario ($8.875bn cash, $125M in Jan 2027, up to $400M earn-out; read via search summary)", "url": "https://medtechdive.com/news/thermo-fisher-completes-89b-buyout-of-clario/815638/", "publisher": "MedTech Dive", "date": "2026-03" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/tmo/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s8", "kind": "news", "title": "Thermo Fisher Scientific reports 9% revenue growth as third quarter earnings beat estimates (segment growth and consensus comparison)", "url": "https://finviz.com/news/405542/thermo-fisher-scientific-reports-9-revenue-growth-as-third-quarter-earnings-beat-estimates", "publisher": "InvestorsHub via Finviz", "date": "2026-10-21" }
+  ],
+
+  "moat": {
+    "sources": [
+      "한 곳에서 장비·시약·소모품·서비스를 모두 사는 원스톱 구매 - FY2025 매출 445.6억 달러",
+      "제약사 공정에 한 번 들어가면 바꾸기 어려운 시약·바이오공정 소모품 (생명과학 솔루션 부문 이익률 36.3%)",
+      "위탁 개발·생산(CDMO)과 임상시험 대행(PPD), 임상 데이터(Clario)를 묶은 제약 서비스",
+      "꾸준한 인수 능력 - 2025년 M&A 약정 130억 달러"
+    ],
+    "text": "Thermo Fisher의 힘은 연구자와 제약사가 필요한 것을 한 회사에서 모두 살 수 있게 한 규모에서 나온다. 특히 제약 공정에 한 번 승인된 시약·바이오공정 소모품은 바꾸려면 규제 재승인이 필요해, 생명과학 솔루션 부문이 36%대 이익률을 낸다. 회사는 이 현금으로 매년 대형 인수를 해 신약 개발 단계 전체로 서비스를 넓혀 왔다.",
+    "src": ["s1"]
+  },
+
+  "design": {
+    "text": "이 구조는 네 부문으로 보고된다. 생명과학 솔루션(바이오공정·세포·유전자 분석 시약과 장비), 분석 기기(질량분석기·전자현미경·크로마토그래피), 특수 진단(임상 진단 검사, 2026년 Q3 미생물 사업 매각), 실험실 제품·바이오제약 서비스(Fisher 유통 채널, CDMO, PPD 임상시험 대행, Clario 임상 데이터)다. 마지막 부문이 매출의 절반 이상을 차지한다.",
+    "src": ["s1", "s2", "s6"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "자체 장비·시약 공장과 위탁 생산 공장 (CDMO 사이트, 2025년 Sanofi Ridgefield 무균 충전 공장 인수)",
+      "외부 제조사 제품을 함께 파는 Fisher 실험실 유통망",
+      "Clario - 임상시험 데이터 플랫폼 (2026 인수 완료, 88.75억 달러)",
+      "OpenAI - 임상시험 사업 등 회사 전반 AI 도입 협업 (2025-10)",
+      "Mayo Clinic - 단백질체 기반 진단 Precure 공동 출범 (2026 Q3)"
+    ],
+    "text": "Thermo Fisher는 장비와 시약을 직접 만들면서, 동시에 다른 회사 제품을 실험실에 공급하는 유통업자이기도 하다. 제약 서비스에서는 고객의 약을 대신 개발·생산하고(CDMO) 임상시험을 대행하며(PPD), 2026년에는 임상 데이터 회사 Clario를 88.75억 달러에 인수해 이 사슬을 넓혔다. 그래서 한 회사 안에 제조업·유통업·서비스업이 섞여 있다.",
+    "src": ["s1", "s6", "s5", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "제약·바이오텍 기업 (연구 시약, 바이오공정, CDMO, 임상시험 대행)",
+      "대학·정부 연구기관 (연구비 집행 시기에 민감)",
+      "산업·응용 분야 고객 (화학·식품·반도체 소재 분석)",
+      "병원·진단 검사실 (특수 진단)"
+    ],
+    "channel": "직접 영업과 자체 Fisher 유통 채널, 전자상거래. 제약 서비스는 장기 계약.",
+    "concentration": null,
+    "text": "고객은 크게 제약·바이오텍, 대학·정부 연구기관, 산업 고객, 진단 검사실로 나뉜다. 제약사 지출이 가장 큰 축이며, 2026년 Q3 경영진은 제약사의 임상 연구·상업화 지출이 '정상 궤도로 돌아왔다'고 말했다. 대학·정부 쪽은 미국 연구비 집행 일정에 따라 흔들리는 위험 요인으로 꼽혔다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "제약·바이오텍·연구기관", "to": "Thermo Fisher 생명과학·실험실 제품", "what": "시약·소모품 반복 구매와 실험실 유통 대금" },
+      { "from": "제약·바이오텍·산업 고객", "to": "Thermo Fisher 분석 기기", "what": "질량분석기·전자현미경 등 장비 구매와 서비스 계약" },
+      { "from": "제약사", "to": "Thermo Fisher 바이오제약 서비스", "what": "CDMO 생산 계약, PPD 임상시험 대행 수수료, Clario 데이터 플랫폼 이용료" },
+      { "from": "병원·진단 검사실", "to": "Thermo Fisher 특수 진단", "what": "진단 검사 시약·키트 구매" }
+    ],
+    "pricing": "시약·소모품은 반복 구매(매출의 상당 부분), 장비는 1회 판매 뒤 서비스 계약, CDMO·임상시험은 프로젝트 단위 장기 계약이다. 장비 매출은 고객의 설비 예산에, 서비스 매출은 제약사 R&D 예산에 따라 움직인다.",
+    "text": "돈은 시약처럼 반복해서 들어오는 매출과, 장비처럼 고객의 예산 주기를 타는 매출, 그리고 제약사의 신약 개발 단계마다 받는 서비스 수수료로 나뉜다. 2026년 Q3에 바이오제약 서비스가 들어 있는 부문이 15% 성장한 반면 진단은 6% 줄었는데, 이는 Clario 인수와 미생물 사업 매각이 함께 반영된 결과다. 그래서 숫자를 볼 때는 인수·매각을 뺀 유기적 성장률(Q3 6%)이 더 중요하다.",
+    "src": ["s2", "s8"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 44.556, "unit": "USD bn", "yoy": 4 },
+    "grossMargin": 41.5,
+    "operatingMargin": 17.4,
+    "netMargin": 15.0,
+    "operatingCashFlow": { "value": 7.818, "unit": "USD bn" },
+    "freeCashFlow": { "value": 6.337, "unit": "USD bn" },
+    "segments": [
+      { "name": "Laboratory Products and Biopharma Services (실험실 제품·바이오제약 서비스)", "revenue": 23.984, "unit": "USD bn", "share": 53.8, "yoy": 3.6, "operatingMargin": 14.0, "src": ["s1"] },
+      { "name": "Life Sciences Solutions (생명과학 솔루션)", "revenue": 10.374, "unit": "USD bn", "share": 23.3, "yoy": 7.7, "operatingMargin": 36.3, "src": ["s1"] },
+      { "name": "Analytical Instruments (분석 기기)", "revenue": 7.554, "unit": "USD bn", "share": 17.0, "yoy": 1.2, "operatingMargin": 23.0, "src": ["s1"] },
+      { "name": "Specialty Diagnostics (특수 진단)", "revenue": 4.676, "unit": "USD bn", "share": 10.5, "yoy": 3.6, "operatingMargin": 26.9, "src": ["s1"] },
+      { "name": "부문 간 내부거래 제거 (Eliminations)", "revenue": -2.033, "unit": "USD bn", "share": -4.6, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "유기적 매출 성장률", "value": "FY2025 2% (보고 4%); Q3 2026 6% (보고 9%); 9개월 누적 2026 4%", "src": ["s1", "s2"] },
+      { "name": "조정 영업이익률", "value": "FY2025 22.7%, Q3 2026 24.5% (전년 23.3%)", "src": ["s1", "s2"] },
+      { "name": "조정 EPS", "value": "FY2025 22.87달러(+5%), Q3 2026 6.68달러(+15%)", "src": ["s1", "s2"] },
+      { "name": "Q3 2026 부문 매출·이익률", "value": "실험실 제품·바이오제약 서비스 68.6억(15.5%), 생명과학 27.2억(37.6%), 분석 기기 20.0억(26.9%), 특수 진단 11.0억 달러(31.0%)", "src": ["s2"] },
+      { "name": "중국 매출", "value": "Q3 2026 유기적 성장 10% 초반대 (경영진 언급, 2차 요약)", "src": ["s3"] }
+    ],
+    "text": "이 구조로 2025년 매출 445.6억 달러(+4%, 유기적 +2%), 영업이익 77.5억 달러(이익률 17.4%), 순이익 67억 달러를 냈다. 매출은 실험실 제품·서비스 부문이 절반 이상이지만 이익률은 14%로 낮고, 시약 중심의 생명과학 부문이 36%로 가장 높다. 2026년에는 유기적 성장이 Q3 6%로 올라오며 조정 영업이익률도 24.5%로 개선됐다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "acquisitions", "value": 4.037, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 3.0, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 1.525, "unit": "USD bn", "src": ["s1"] },
+      { "use": "R&D", "value": 1.397, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 0.636, "unit": "USD bn", "src": ["s1"] },
+      { "use": "debt repayment", "value": 2.412, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "2026년 1~9월 현금 인수 (Clario 포함)", "value": 8.877, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "잉여현금흐름 63.4억 달러는 주로 인수(40.4억)와 자사주(30억 달러)에 쓰였고, 배당은 6.4억 달러로 작다. 2025년에 약정한 인수가 130억 달러에 이르러 부채를 77.6억 달러 새로 냈고, 2026년 9개월 동안 Clario 등 인수에 88.8억, 자사주에 40억 달러를 더 썼다. 이 회사의 우선순위는 분명히 '인수로 사업 범위를 넓히고 남는 돈으로 자사주를 사는 것'이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI 신약 개발이 늘수록 실험 검증에 필요한 시약·장비·임상 서비스를 파는 공급자이면서, 스스로도 OpenAI와 협업해 임상시험 사업과 사내 업무에 AI를 도입하는 사용자다. 2026년 Q3에는 한국에 AI-자동화 혁신센터를 열었다.",
+    "dependsOn": ["models-platforms (OpenAI)", "Clario 임상 데이터 플랫폼"],
+    "sellsTo": ["AI로 후보물질을 찾는 제약·바이오텍 (검증 실험용 시약·장비·CDMO)", "임상시험을 맡기는 제약사 (AI가 들어간 PPD·Clario 서비스)"],
+    "aiRevenue": null,
+    "upside": "AI가 신약 후보를 더 많이 만들수록 그것을 검증·생산·임상하는 물량이 늘어 시약·CDMO·임상 서비스 수요가 커질 수 있다. 임상시험에 AI를 쓰면 PPD·Clario의 처리 속도와 이익률도 오를 수 있다.",
+    "risk": "AI가 실험을 시뮬레이션으로 대체하면 일부 실험 수요가 줄 수 있고, AI 투자 자체는 아직 매출로 공시되지 않는다. 회사가 AI 도입에 돌린 관세 환급 6,000만 달러 같은 금액은 2차 요약에서만 확인된다.",
+    "text": "그래서 AI 가치사슬에서 Thermo Fisher는 신약 개발 AI의 '뒤쪽'에서 실험과 임상을 받쳐 주는 도입자이자 공급자다. AI 관련 매출은 공시되지 않고, 효과는 제약사 R&D 지출과 임상 서비스 성장률로 나타난다. 2026년 Q3 바이오제약 서비스 부문 15% 성장이 이 흐름의 간접 신호다.",
+    "src": ["s5", "s2", "s3", "s6"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "생명과학 시약·바이오공정 소모품", "rivals": ["Danaher (Cytiva)", "Merck KGaA (MilliporeSigma)", "Sartorius"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "분석 기기 (질량분석·전자현미경)", "rivals": ["Agilent", "Waters", "Bruker", "Danaher (SCIEX)"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "위탁 개발·생산 (CDMO)", "rivals": ["Lonza", "Samsung Biologics", "WuXi Biologics"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "임상시험 대행 (CRO)·임상 데이터", "rivals": ["IQVIA", "ICON", "Medpace"], "position": "challenger", "share": null, "src": ["s6"] },
+      { "arena": "실험실 제품 유통", "rivals": ["Avantor (VWR)"], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "연구부터 생산·임상까지 신약 개발 전 단계를 한 회사가 공급하는 폭, 꾸준한 인수, 경영 시스템(PPI)을 통한 비용 관리.",
+    "threats": "제약사 R&D 지출 둔화, 미국 대학·정부 연구비 축소, 중국 경기와 현지 경쟁사, 관세, 대형 인수의 통합 위험.",
+    "text": "Thermo Fisher는 경기장마다 다른 강자와 맞선다. 시약·바이오공정에서는 Danaher·Merck KGaA와, 분석 기기에서는 Agilent·Waters와, CDMO에서는 Lonza·Samsung Biologics와, 임상 대행에서는 IQVIA와 경쟁한다. 회사의 전략은 한 분야의 1등보다 이 모든 단계를 묶어 제약사가 한 곳에서 해결하게 만드는 것이며, Clario 인수가 임상 쪽 빈 곳을 메운 사례다.",
+    "src": ["s1", "s6"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 477억~482억 달러(유기적 약 4%), 조정 EPS 25.13~25.43달러, 잉여현금흐름 70억~75억 달러를 제시했다(2차 요약 기준). 인수와 자사주로 주당 이익을 꾸준히 키우는 것이 회사의 일관된 목표다.",
+    "roadmap": [
+      { "when": "2026-03 (완료)", "what": "Clario 인수 완료 - 88.75억 달러, 2027-01 1.25억 달러 추가 지급, 2026~2027 실적에 따른 최대 4억 달러 추가", "src": ["s6"] },
+      { "when": "2026 Q3 (완료)", "what": "미생물(microbiology) 사업 매각, 매각 대금 10.2억 달러(순)", "src": ["s2"] },
+      { "when": "2026 Q3", "what": "Mayo Clinic과 단백질체 진단 Precure 출범, 한국 AI-자동화 혁신센터 개소", "src": ["s2"] },
+      { "when": "2026 Q4", "what": "유기적 성장 약 4% 전망 (Q3에 일부 제약 서비스가 앞당겨짐, 2차 보도)", "src": ["s4"] },
+      { "when": "2027-01", "what": "Clario 추가 지급 1.25억 달러", "src": ["s6"] }
+    ],
+    "vision": "Casper CEO는 PPI 경영 시스템과 '업계 최고의 영업 엔진'으로 고객이 신약을 더 빨리 내놓게 돕는 과학 서비스 플랫폼을 그리며, AI로 연구·임상 과정을 빠르게 만드는 것을 그 일부로 둔다.",
+    "text": "앞으로의 계획은 인수한 사업을 통합하면서 성장이 빠른 제약 서비스 쪽으로 무게를 더 싣는 것이다. Clario를 사들이고 미생물 진단을 팔았으며, Mayo Clinic과 진단 신사업을 시작하고 AI 도입을 넓히고 있다. 회사는 2026년 매출 전망을 477억~482억 달러로 올렸지만 4분기 유기적 성장은 4%로 보수적으로 잡았다.",
+    "src": ["s6", "s2", "s3", "s4"]
+  },
+
+  "governance": {
+    "line": "Marc Casper CEO가 이끄는 지분 분산 회사로, 배당은 작고(2025년 6.4억 달러) 대신 대형 인수와 자사주 매입(2026년 9개월 40억 달러)에 현금을 집중한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "477억~482억 달러 (직전 474억~481억, 2차 보도)", "givenOn": "2026-10-21", "src": ["s3", "s4"] },
+      { "period": "FY2026", "metric": "organic revenue growth", "value": "약 4% (상향, 2차 요약)", "givenOn": "2026-10-21", "src": ["s3", "s4"] },
+      { "period": "FY2026", "metric": "adjusted EPS", "value": "25.13~25.43달러 (2차 요약)", "givenOn": "2026-10-21", "src": ["s3", "s4"] },
+      { "period": "FY2026", "metric": "free cash flow", "value": "70억~75억 달러 (2차 보도)", "givenOn": "2026-10-21", "src": ["s4", "s3"] }
+    ],
+    "style": "annual",
+    "track": "Q3 2026 조정 EPS 6.68달러는 컨센서스 6.40달러를, 매출 121.4억 달러는 기대 119.5억 달러를 넘었고 연간 전망을 올렸다. 다만 회사 실적 발표문에는 가이던스가 없고 컨퍼런스콜에서만 제시되어, 숫자는 2차 자료로 확인했다.",
+    "src": ["s8", "s2", "s3"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 조정 EPS 합계 26.80달러(범위 26.00~27.36), 직전 4개 분기 실적 합 24.72달러. 최근 4주 상향 8건·하향 9건으로 엇갈림.",
+    "src": ["s7"]
+  },
+
+  "watch": {
+    "confirms": [
+      "유기적 성장률이 4~6%대를 유지",
+      "제약사 R&D·임상 지출 회복 언급이 이어짐",
+      "조정 영업이익률이 24% 이상에서 유지",
+      "Clario 통합 후 임상 서비스 성장 지속",
+      "잉여현금흐름이 가이던스(70억~75억 달러) 범위에 도달"
+    ],
+    "breaks": [
+      "제약·바이오텍 지출 재위축",
+      "미국 대학·정부 연구비 삭감 확대",
+      "중국 수요 둔화",
+      "관세 비용 재부상",
+      "대형 인수 후 이익률 하락이나 차입 부담 확대"
+    ],
+    "keyNumbers": [
+      { "name": "유기적 매출 성장률", "why": "인수·매각을 뺀 실제 수요" },
+      { "name": "실험실 제품·바이오제약 서비스 부문 성장률", "why": "제약사 R&D 지출의 직접 신호" },
+      { "name": "조정 영업이익률", "why": "가격·비용 관리 능력" },
+      { "name": "연간 매출·EPS 가이던스", "why": "콜에서만 나오는 회사 전망" },
+      { "name": "인수 금액과 순차입", "why": "자본 배분의 위험" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 가이던스 (콜에서 발표)", "src": [] },
+      { "date": "2027-01", "event": "Clario 추가 지급 1.25억 달러", "src": ["s6"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 유기적 성장률과 콜에서 나오는 연간 전망에 반응하는 경향이 있다. Q3 2026에는 실적과 가이던스가 기대를 넘어 주가가 올랐다는 보도가 있지만, 4분기 성장 전망이 보수적이라는 지적도 함께 나왔다.",
+    "conditions": [
+      "실적 콜의 연간 매출·EPS 가이던스 변경 폭",
+      "유기적 성장률과 부문별 성장률",
+      "제약·바이오텍, 대학·정부 고객의 지출 언급",
+      "중국·관세 관련 언급",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "FY2026 가이던스(매출·EPS·FCF·유기적 성장)는 회사 발표문에 없고 2차 요약(s3 AI 요약, s4 검색 요약)에서만 확인",
+    "Q4 2026 유기적 성장 4% 전망과 관세 환급 6,000만 달러의 AI 재투자는 2차 자료",
+    "Clario 인수 완료 날짜 (2026-03 보도 기준, 정확한 날 미확인)",
+    "총마진은 손익계산서의 매출원가 260.5억 달러로 계산; PDF 표 배치가 깨져 비용 항목 순서를 해석해 R&D 13.97억 달러로 읽음",
+    "고객군별(제약·학계·산업·진단) 매출 비중",
+    "OpenAI 협업의 구체 성과와 AI 관련 매출",
+    "각 경쟁 영역의 시장 점유율 ('leader' 표시는 판단)",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "medium-high - 2025년 실적·부문·현금흐름과 2026년 Q3 실적은 회사 8-K 자료에서 왔다. 2026년 가이던스와 일부 콜 발언은 2차 요약이다."
+}

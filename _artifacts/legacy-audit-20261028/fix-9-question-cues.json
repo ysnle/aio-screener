@@ -1,0 +1,18 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-29",
+  "p": {
+    "title": "AI 질문 분류의 영어 단서가 부분 문자열로 걸렸다 ('operating'에 per, 'know'에 now, 'threshold'에 hold)",
+    "symptom": "AI 패널의 답 형식과 미리 받을 자료가 엉뚱한 단어로 정해졌다. 'operating margin'은 용어 설명 질문으로, 'corporate bond'·'I know'는 최신 뉴스가 필요한 질문으로, 'threshold'·'holders'는 매수·매도 판단 질문으로, 'fintech'는 기업 심층 분석으로 분류됐다. 반대로 심층 분석 단서는 대소문자를 구분해 'Analyze NVDA'는 놓쳤다. 레거시 감사 2위.",
+    "root_cause": "js/aio-chat.js(_aioChatAnswerPolicy의 asksDecision/asksSimple, _DEEP_ANALYSIS_KW, 비교 단서)와 js/aio-core.js(_aioLooksFreshIntent, _aioAIClassifyIntent의 근거·누락 단서)가 영어 단어를 정규식이나 indexOf 부분 문자열로 비교했다. 뉴스 쪽은 R730으로 공용 규칙을 쓰게 됐지만 AI 질문 단서는 따로 남아 있었다.",
+    "fix": "src/ai/intent/question-cues.js로 단서 목록과 판정 함수 7개를 옮겼다. 영어 단서는 공용 keywordHit(src/domain/news/keyword-match.js) 규칙으로 단어 전체만, 대소문자 없이 맞춘다. 한국어 단서는 어미가 붙으므로 전과 같은 부분 문자열이다. window._aioQuestionCues로 설치하고 js/ 쪽 다섯 곳은 _aioQuestionCue로 이 모듈을 부른다.",
+    "violated_rule": "R730(키워드는 하나의 규칙으로 비교) 정신. S1 부분 문자열 매칭 클래스.",
+    "prevention": "scripts/ci-esm-core-unit-check.mjs v59.42 question cues 검사 13건(오탐 제거와 한국어 유지).",
+    "verification": "39개 질문 전후 비교: 바뀐 판정 9건 모두 영어 오탐 제거 8건과 'Tell me about NVDA' 심층 분석 인식 1건, 한국어 질문 변화 0건. 새 브라우저 컨텍스트에서 답 정책·데이터 요청·심층·비교·근거/누락 분류가 모듈을 거쳐 동작했고 오류 0건."
+  },
+  "r": null,
+  "changelog": [
+    "**AI 질문 분류 단서를 src로 이전 ({P}):** 'operating margin'이 용어 질문으로, 'corporate bond'가 최신 뉴스 질문으로, 'threshold'가 매수·매도 판단으로 잘못 분류되던 부분 문자열 비교를 단어 단위 비교로 바꿨다. 한국어 질문은 전과 같다."
+  ],
+  "note": "v59.42 {P}: AI question cues moved to src/ai/intent/question-cues.js with whole-word English matching."
+}

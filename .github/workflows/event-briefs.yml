@@ -1,0 +1,84 @@
+name: Event briefs (FOMC and market-mover earnings)
+
+# v59.42 (owner audit 2026-10-28): scripts/fetch-event-briefs.mjs writes public-data/event-briefs.json from the Fed
+# statement, the SEC 8-K/6-K Ex.99 of the mover list and the DART 공정공시, summarised by the shared Worker AI. A run
+# without a new source document or a pending call summary makes no AI request and no commit. :07/:27/:47 keep clear of
+# refresh-data (:17/:47 is shared only with the cheap no-op path), data-watchdog (:23) and refresh-screener (:53).
+on:
+  schedule:
+    - cron: '7,27,47 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: event-briefs
+  cancel-in-progress: false
+
+jobs:
+  briefs:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      # Once per KRX session after 16:10 KST (the script exits early otherwise); a failure keeps the previous file.
+      - name: Refresh KOSPI/KOSDAQ weight proxies
+        continue-on-error: true
+        run: node scripts/fetch-kr-index-weights.mjs
+
+      - name: Build event briefs
+        env:
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+          AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+          AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
+        run: |
+          set -euo pipefail
+          node scripts/fetch-event-briefs.mjs
+
+      - name: Commit and dispatch CI
+        id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "aio-data-bot"
+          git config user.email "actions@github.com"
+          for f in public-data/event-briefs.json public-data/kr-index-weights.json; do
+            if [ -e "$f" ]; then git add -- "$f"; fi
+          done
+          # A run that only re-checked sources changes generatedAt alone; that file is not committed.
+          if ! git diff --staged --quiet -- public-data/event-briefs.json \
+            && [ -z "$(git diff --staged -- public-data/event-briefs.json | grep -E '^[-+][^-+]' | grep -v '"generatedAt"' || true)" ]; then
+            git restore --staged -- public-data/event-briefs.json
+            echo "event-briefs.json: only the timestamp changed"
+          fi
+          if git diff --staged --quiet; then
+            echo "No event-brief or weight changes"
+            exit 0
+          fi
+          ts=$(date -u +"%Y-%m-%dT%H:%MZ")
+          git commit -m "data: event briefs ${ts}"
+          attempt=1
+          until git push; do
+            if [ "$attempt" -ge 5 ]; then
+              echo "::error::git push failed after 5 attempts"
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
+            attempt=$((attempt + 1))
+            sleep $((attempt * 3 + RANDOM % 5))
+          done
+          final_sha="$(git rev-parse HEAD)"
+          gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="event-briefs"
+          echo "Dispatched CI for event-brief commit $final_sha"

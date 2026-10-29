@@ -86,7 +86,7 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   const roleWords = ['AI','PM','HW','SW','IR','HR','PR','UI','UX','IB','PE','VC','EM','DM','CEO','CFO','CIO','ESG','GPU','CPU','HBM','LLM','EV','ESS'];
   const requested = (text.match(/\b[A-Z]{1,6}(?:\.(?:KS|KQ))?\b|\b\d{6}(?:\.(?:KS|KQ))?\b/g) || []).filter(id => !['RSI','MACD','EMA','SMA','ADX','VCP','OHLCV','USD','KRW'].includes(id) && (!roleWords.includes(id) || id === company?.symbol || id === cached?.symbol));
   const sameIssuer = requested.some(id => id === cached?.symbol || (/^\d{6}$/.test(id) && cached?.symbol === `${id}.KS`) || (/^\d{6}$/.test(id) && cached?.symbol === `${id}.KQ`));
-  if(company?.symbol && /기업|회사|사업|경쟁|해자|재무|실적|현금|위험|분석/.test(text) && (requested.includes(company.symbol) || (ctxId==='ticker' && !requested.length))) parts.push(companyAnalysisContext(company));
+  if(company?.symbol && /기업|회사|사업|경쟁|해자|재무|실적|현금|위험|분석/.test(text) && (requested.includes(company.symbol) || (ctxId==='ticker' && !requested.length))) { parts.push(companyAnalysisContext(company)); const story = root.__aioCompanyStories?.context?.[company.symbol]; if (story) parts.push(story); }
   if (cached?.symbol && /차트|시나리오|매물대|가격대|돌파|저항|지지/i.test(text) && (sameIssuer || (ctxId === 'technical' && !requested.length))) {
     const scenarios = buildChartScenarios(cached.analysis), profile = buildVolumeByPrice(cached.analysis?.bars || []);
     if (scenarios.available) parts.push(`화면과 동일한 ${cached.symbol} 완료 일봉 기준 ${scenarios.asOf}. 조건부 흐름(예측 확률/목표가가 아님):\n${scenarios.scenarios.map(item => `${item.title}: ${item.text}`).join('\n')}`);

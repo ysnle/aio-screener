@@ -5,6 +5,15 @@
 // US cue, Asia together, the won, Korea-only — so the reader sees several links at once instead of one cause.
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession, usWeekendClosed } from './market-calendar.js';
 import { signedText } from '../shared/number.js';
+import { indexContributors, contributorsSentence, krWeightRows, sp500WeightRows } from './move-attribution.js';
+
+// attribution = { rows (screener), krWeights (kr-index-weights.json), usWeights (screener indexWeights), briefs, telegram, news }
+function leadersFor(attribution, { weights, sessionDate, indexChange, indexName, sessionCloseMs }) {
+  const model = indexContributors({ rows: attribution.rows, weights, sessionDate, indexChange });
+  if (!model) return null;
+  const sentence = contributorsSentence(model, { indexName, sessionCloseMs, briefs: attribution.briefs, telegram: attribution.telegram, news: attribution.news });
+  return sentence ? { ...model, ...sentence } : null;
+}
 
 export const SESSION_BRIDGE_VERSION = 'session-bridge.v1';
 const MINUTE = 60000;
@@ -92,7 +101,7 @@ function reading(quotes, id, nowMs) {
 const sideOf = (value, threshold = BRIDGE_RULES.movePct) => value == null ? null : value >= threshold ? 1 : value <= -threshold ? -1 : 0;
 
 /** Candidate drivers of the latest Korean session, each checked against the same day's numbers. */
-export function koreaLinks({ kospi, kosdaq, nasdaq: nasdaqRow, semis, nikkei: nikkeiRow, hangseng: hangsengRow, usdkrw: usdkrwRow }) {
+export function koreaLinks({ kospi, kosdaq, nasdaq: nasdaqRow, semis, nikkei: nikkeiRow, hangseng: hangsengRow, usdkrw: usdkrwRow }, { krLeaders = null } = {}) {
   if (kospi?.change == null) return [];
   // Only cues the Korean session could have traded on: the US session completed before the KOSPI observation, and Asia
   // rows of the same KST date. A US session that ran after the Korean close (06:00 KST next morning) is not a cause.
@@ -136,9 +145,16 @@ export function koreaLinks({ kospi, kosdaq, nasdaq: nasdaqRow, semis, nikkei: ni
     const excess = Math.max(Math.abs(kr), Math.abs(kosdaq?.change ?? 0)) - Math.max(...outside);
     const gap = kosdaq?.change != null ? kosdaq.change - kr : null;
     const verdict = excess >= BRIDGE_RULES.koreaExcessPct ? 'supports' : 'against';
-    const gapText = gap != null && Math.abs(gap) >= BRIDGE_RULES.kosdaqGapPct ? ` 코스닥이 코스피보다 ${Math.abs(gap).toFixed(1)}%p ${gap < 0 ? '더 빠져' : '더 올라'} 중소형·테마주 쪽 움직임이 컸습니다.` : '';
+    // P2127: the wording follows the day's direction — on an up day a KOSDAQ below the KOSPI rose less, it did not fall.
+    const kqSide = sideOf(kosdaq?.change, 0.1);
+    const gapText = gap == null || Math.abs(gap) < BRIDGE_RULES.kosdaqGapPct ? ''
+      : kqSide !== 0 && kqSide !== krSide ? ` 코스닥은 반대로 ${pct(kosdaq.change)} 움직여 코스피와 ${Math.abs(gap).toFixed(1)}%p 벌어졌습니다 — 대형주와 중소형주가 갈린 날입니다.`
+        : Math.abs(kosdaq.change) > Math.abs(kr) ? ` 코스닥이 코스피보다 ${Math.abs(gap).toFixed(1)}%p 더 ${krSide > 0 ? '올라' : '빠져'} 중소형·테마주 쪽 움직임이 컸습니다.`
+          : ` 코스닥은 코스피보다 ${Math.abs(gap).toFixed(1)}%p 덜 ${krSide > 0 ? '올라' : '빠져'} 대형주 쪽 움직임이 컸습니다.`;
     links.push({ id: 'local', label: '한국 고유 요인', verdict, evidence: `코스피 ${pct(kr)}${kosdaq?.change != null ? `, 코스닥 ${pct(kosdaq.change)}` : ''}`,
-      text: (verdict === 'supports' ? `바깥 신호보다 ${excess.toFixed(1)}%p 더 움직여 국내 수급·업종·개별 소식의 몫이 큽니다.` : '바깥 신호와 비슷한 크기라 국내 요인만으로 볼 필요는 적습니다.') + gapText });
+      text: (verdict === 'supports' ? `바깥 신호보다 ${excess.toFixed(1)}%p 더 움직여 국내 수급·업종·개별 소식의 몫이 큽니다.` : '바깥 신호와 비슷한 크기라 국내 요인만으로 볼 필요는 적습니다.') + gapText
+        // v59.42 (owner audit 2026-10-28): the names behind the move, with the item published around that session.
+        + (krLeaders?.text ? ` ${krLeaders.text}` : '') });
   }
   return links;
 }
@@ -147,20 +163,30 @@ export function koreaLinks({ kospi, kosdaq, nasdaq: nasdaqRow, semis, nikkei: ni
  * @param {object} input { nowMs, snapshot } — snapshot is the published market snapshot (quotes + evidenceQuotes)
  * @returns the clock, the readings it used with their age, the Korea links and the next-link lines
  */
-export function buildSessionBridge({ nowMs = Date.now(), snapshot = null } = {}) {
+export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attribution = null } = {}) {
   const clock = marketClock(nowMs);
   const quotes = quoteMap(snapshot);
   const read = (id) => reading(quotes, id, nowMs);
-  const r = { es: read('ES=F'), nq: read('NQ=F'), kospi: read('^KS11'), kosdaq: read('^KQ11'), nasdaq: read('^IXIC'), semis: read('SMH'), nikkei: read('^N225'), hangseng: read('^HSI'), usdkrw: read('KRW=X'), wti: read('CL=F'), vix: read('^VIX') };
+  const r = { es: read('ES=F'), nq: read('NQ=F'), kospi: read('^KS11'), kosdaq: read('^KQ11'), nasdaq: read('^IXIC'), semis: read('SMH'), nikkei: read('^N225'), hangseng: read('^HSI'), usdkrw: read('KRW=X'), wti: read('CL=F'), vix: read('^VIX'), spx: read('^GSPC') };
   const lines = [];
   // Korea's latest session (date in KST) with its candidate drivers.
   const krDate = r.kospi?.observedAt ? kstParts(Date.parse(r.kospi.observedAt)).date : null;
-  const links = koreaLinks(r);
-  const supported = links.filter((link) => link.verdict === 'supports').map((link) => link.label);
+  // v59.42: the contributors of the latest Korean session (completed sessions only: a live session's screener rows
+  // are still the previous close) and of the last completed US session.
   const krLive = clock.kr.phase === 'regular' && krDate === clock.kstDate;
+  const krLeaders = attribution && krDate && !krLive ? leadersFor(attribution, { weights: krWeightRows(attribution.krWeights), sessionDate: krDate, indexChange: r.kospi?.change ?? null,
+    indexName: '코스피', sessionCloseMs: Date.parse(`${krDate}T15:30:00+09:00`) }) : null;
+  const lastUsSession = attribution ? latestCompletedUsSession(nowMs, { requirePrevious: false }) : null;
+  const spxSameSession = r.spx?.observedAt && lastUsSession && nyParts(Date.parse(r.spx.observedAt)).date === lastUsSession.date ? r.spx.change : null;
+  const usLeaders = lastUsSession ? leadersFor(attribution, { weights: sp500WeightRows(attribution.usWeights), sessionDate: lastUsSession.date, indexChange: spxSameSession,
+    indexName: 'S&P 500', sessionCloseMs: lastUsSession.closeMs }) : null;
+  const links = koreaLinks(r, { krLeaders });
+  const supported = links.filter((link) => link.verdict === 'supports').map((link) => link.label);
   const koreaHead = r.kospi?.change != null ? `한국장 ${md(krDate)} ${krLive ? `진행 중(${kstClock(Date.parse(r.kospi.observedAt))} 관측)` : '마감'} 코스피 ${pct(r.kospi.change)}${r.kosdaq?.change != null ? `, 코스닥 ${pct(r.kosdaq.change)}` : ''}` : null;
-  const koreaRead = !links.length ? null : supported.length ? `맞아떨어지는 근거: ${supported.join(' · ')}${supported.length > 1 ? ' — 한 가지 원인이 아니라 여러 요인이 겹친 날입니다' : ''}.`
-    : '확인한 바깥 요인 어느 것도 크게 맞지 않아 원인을 하나로 단정하지 않습니다.';
+  // The face names the leaders and their dated item in words; the numbers sit in the folded '한국 고유 요인' line.
+  const leaderNames = krLeaders ? ` 지수를 끈 종목: ${krLeaders.pieces.map((piece) => `${piece.name}${piece.dated?.kind === 'brief' ? `(${piece.dated.text})` : ''}`).join(', ')}.` : '';
+  const koreaRead = !links.length ? (leaderNames.trim() || null) : (supported.length ? `맞아떨어지는 근거: ${supported.join(' · ')}${supported.length > 1 ? ' — 한 가지 원인이 아니라 여러 요인이 겹친 날입니다' : ''}.`
+    : '확인한 바깥 요인 어느 것도 크게 맞지 않아 원인을 하나로 단정하지 않습니다.') + leaderNames;
   // Futures since the previous settlement — the market-implied direction into the US open.
   const futures = [['S&P 500 선물', r.es], ['나스닥 100 선물', r.nq]].filter(([, row]) => row?.change != null);
   const ages = futures.map(([, row]) => row.ageMin);
@@ -191,10 +217,11 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null } = {})
   const snapshotAgeMin = Number.isFinite(Date.parse(snapshot?.generatedAt || '')) ? Math.max(0, Math.round((nowMs - Date.parse(snapshot.generatedAt)) / MINUTE)) : null;
   return {
     schemaVersion: SESSION_BRIDGE_VERSION,
-    available: !!(koreaHead || futuresLine),
+    available: !!(koreaHead || futuresLine || usLeaders),
     clock,
     clockLine: clockLine(clock),
     koreaHead, koreaRead, links,
+    krLeaders, usLeaders: usLeaders ? { ...usLeaders, line: `직전 미국장 ${md(lastUsSession.date)}: ${usLeaders.text}` } : null,
     futuresLine, futuresStale, next, oil,
     snapshotAgeMin,
     readings: r
@@ -207,6 +234,8 @@ export function renderSessionBridgeContext(model) {
     `[장 시계와 연결 점검, ${SESSION_BRIDGE_VERSION}] ${model.clockLine}. 판정(6개 지표)은 직전 미국 종가 기준이고, 아래는 그 뒤 시세의 연결 점검입니다(매매 지시 아님).`,
     model.koreaHead ? `${model.koreaHead}. ${model.koreaRead || ''}` : '',
     ...model.links.map((link) => `- ${link.label}(${link.verdict === 'supports' ? '근거 맞음' : link.verdict === 'partial' ? '일부 맞음' : link.verdict === 'against' ? '근거 약함' : '판단 보류'}): ${link.evidence}. ${link.text}`),
+    model.krLeaders && !model.links.some((link) => link.id === 'local') ? `한국 ${model.krLeaders.text}` : '',
+    model.usLeaders?.line || '',
     model.futuresLine ? `미국 선물: ${model.futuresLine}` : '',
     model.next || '', model.oil || ''
   ].filter(Boolean).join('\n');

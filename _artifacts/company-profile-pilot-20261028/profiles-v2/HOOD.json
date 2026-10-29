@@ -1,0 +1,500 @@
+{
+  "symbol": "HOOD",
+  "name": "Robinhood Markets, Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "December 31 (latest quarter Q3 2026, reported 2026-10-27)",
+  "oneLine": "Robinhood는 수수료 없는 주식 앱에서 출발해 옵션·예측시장·암호자산·은행·은퇴계좌까지 한 앱에 담은 미국 개인 투자자 플랫폼으로, 개인 투자자의 거래 열기와 예측시장 같은 새 상품의 성장이 가장 빨리 드러나는 회사다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Robinhood Reports Third Quarter 2026 Results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001783879/000178387926000164/q32026robinhoodexhibit991.htm",
+      "publisher": "Robinhood / SEC EDGAR",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s2",
+      "kind": "8-K",
+      "title": "Robinhood Reports Second Quarter 2026 Results (8-K Exhibit 99.1; headline figures read via search summary)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001783879/000178387926000113/q22026robinhoodexhibit991.htm",
+      "publisher": "Robinhood / SEC EDGAR",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "s3",
+      "kind": "news",
+      "title": "Robinhood Reports Revenues Up 32% To Record $1.31 Billion For Q2 2026 (net income, revenue lines, June 2026 reduction in force; read via search summary)",
+      "url": "https://pulse2.com/robinhood-reports-revenues-up-32-to-record-1-31-billion-for-q2-2026",
+      "publisher": "Pulse 2.0",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "SEC EDGAR companyfacts FY2025 (revenue 4.473B, net income 1.883B; 10-K/A) via AIO public-data/sec-fundamentals.json",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001783879.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-10-14"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/hood/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "Robinhood misses Q3 earnings estimates as crypto revenue falls, prediction markets grow (EPS 0.51 vs 0.55 expected, revenue 1.42B vs about 1.43B expected, close about 94.61 before results, slipped after hours)",
+      "url": "https://decrypt.co/382004/robinhood-misses-q3-earnings-crypto-prediction-markets",
+      "publisher": "Decrypt",
+      "date": "2026-10-27"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "젊은 개인 투자자 기반 - 펀딩 고객 2,870만 명, 투자 계좌 3,040만 개 (Q3 2026)",
+      "빠른 상품 출시 - 연환산 매출 1억 달러 이상 사업 14개, HOOD Summit에서 신상품 17개 발표",
+      "유료 구독 묶음 - Gold 구독자 520만 명(+34%, 채택률 18%)",
+      "자체 청산·암호자산(Bitstamp)·블록체인(Robinhood Chain) 인프라"
+    ],
+    "text": "Robinhood의 힘은 쉬운 앱으로 모은 젊은 개인 투자자 기반과 새 상품을 빨리 붙이는 속도에 있다. Q3 2026 펀딩 고객은 2,870만 명이고, 연환산 매출 1억 달러를 넘는 사업이 14개까지 늘었다. 여기에 Gold 구독(520만 명)이 고객을 묶고, 자체 청산·암호자산 거래소·블록체인이 비용과 상품 폭을 받쳐 준다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "이 고객 기반 위에서 회사가 파는 것은 세 종류로 보고된다. 거래 기반 매출(옵션·주식·암호자산·예측시장 같은 이벤트 계약), 순이자 매출(신용거래 대출·현금 스윕·증권 대여), 기타 매출(Gold 구독, Trump Accounts 서비스 등)이다. 이 밖에 Robinhood Banking(예금 약 50억 달러), Gold 카드(130만 명), 자동 투자 Strategies(35만 명), Susquehanna와의 합작사 Rothera가 새 사업으로 붙어 있다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "시장 조성자 - 고객 주문을 받아 체결하고 주문 흐름 대가 지급 (업체명·비중은 이번 조사에서 미확인)",
+      "Susquehanna - 합작사 Rothera 파트너 (첫 분기 연환산 매출 1억 달러 돌파)",
+      "Bitstamp - 인수한 암호자산 거래소 (Q3 거래대금 290억 달러)",
+      "Robinhood Chain - 자체 블록체인 (첫 분기 DEX 거래 800억 달러 이상)",
+      "이벤트 계약 거래소 - 예측시장 상품 (상대방 명칭 미확인)"
+    ],
+    "text": "Robinhood가 만드는 것은 자체 앱과 청산 인프라로 돌리는 증권·암호자산 서비스다. 주식·옵션 주문은 시장 조성자에게 넘겨 체결하고 그 대가를 받으며, 암호자산은 Bitstamp와 자체 블록체인으로 직접 처리하는 비중을 늘리고 있다. 2026년 6월에는 인력 감축을 발표해 구조조정 비용이 들었다(2차 출처).",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "미국 개인 투자자 - 펀딩 고객 2,870만 명, 계좌당 매출(ARPU) 200달러 (Q3 2026)",
+      "적극 투자자 - Gold 구독자 520만 명, 신용거래 잔고 221억 달러",
+      "아동 계좌 - Trump Accounts 자동 등록 약 7,000만 명",
+      "해외 고객 - 영국 암호자산, 두바이(DFSA 인가, 2027 출시 예정), Bitstamp 기관"
+    ],
+    "channel": "자체 모바일 앱·웹 직접 판매. 기관 암호자산은 Bitstamp, 아동 계좌는 정부 프로그램(Trump Accounts) 경로.",
+    "concentration": "개인 고객 분산. 매출은 옵션 거래 비중이 가장 큼 (Q3 2026 거래 기반 매출의 46%)",
+    "text": "이 서비스는 거의 전부 자체 앱으로 개인에게 직접 팔린다. 고객 수 증가는 연 7%로 느려졌지만, 고객 한 명이 맡기는 돈과 내는 돈(ARPU 200달러)이 늘면서 매출이 커진다. 최근에는 Trump Accounts와 해외(영국·두바이)로 새 고객층을 넓히고 있다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "개인 투자자",
+        "to": "시장 조성자·거래소",
+        "what": "주식·옵션 주문 (수수료 0원), 이벤트 계약·암호자산 주문"
+      },
+      {
+        "from": "시장 조성자·거래소",
+        "to": "Robinhood",
+        "what": "거래 기반 매출 8.67억 달러 (옵션 3.99억, 이벤트 계약 1.73억, 주식 1.21억, 암호자산 1.20억)"
+      },
+      {
+        "from": "신용거래 고객·현금 잔고·대여 증권",
+        "to": "Robinhood",
+        "what": "순이자 매출 4.15억 달러 (신용 잔고 221억, 현금 스윕 323억 달러)"
+      },
+      {
+        "from": "Gold 구독자·Trump Accounts",
+        "to": "Robinhood",
+        "what": "기타 매출 1.42억 달러 (구독료·서비스 매출)"
+      }
+    ],
+    "pricing": "주문 흐름 대가와 스프레드(거래 기반), 신용거래·현금·증권 대여 금리 차이(순이자), 월 구독료(Gold), 서비스 수수료.",
+    "text": "고객은 거래 수수료를 내지 않지만, 주문을 체결하는 시장 조성자와 거래소가 주는 대가가 거래 기반 매출이 된다. 여기에 고객의 신용거래 대출 이자와 맡긴 현금의 금리 차이가 순이자 매출로, Gold 구독료가 기타 매출로 더해진다. 그래서 거래가 뜨거울수록, 금리가 높을수록 매출이 커지는 두 축 구조다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (quarter ended 2026-09-30)",
+    "revenue": {
+      "value": 1.424,
+      "unit": "USD bn",
+      "yoy": 12
+    },
+    "grossMargin": null,
+    "operatingMargin": 48.1,
+    "netMargin": 33.4,
+    "operatingCashFlow": null,
+    "freeCashFlow": null,
+    "segments": [
+      {
+        "name": "Transaction-based revenues (거래 기반)",
+        "revenue": 0.867,
+        "unit": "USD bn",
+        "share": 60.9,
+        "yoy": 19,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Net interest revenues (순이자)",
+        "revenue": 0.415,
+        "unit": "USD bn",
+        "share": 29.1,
+        "yoy": -9,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Other revenues (기타, Gold·Trump Accounts 등)",
+        "revenue": 0.142,
+        "unit": "USD bn",
+        "share": 10,
+        "yoy": 61,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "거래 기반 매출 세부 (Q3 2026)",
+        "value": "옵션 3.99억(+31%), 이벤트 계약 1.73억(6배 이상), 주식 1.21억(+41%), 암호자산 1.20억(-55%) 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "총 플랫폼 자산 / 순입금",
+        "value": "3,960억 달러(+19%) / 157억 달러(연율 17%), 최근 12개월 710억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "펀딩 고객 / Gold 구독자 / ARPU",
+        "value": "2,870만(+7%) / 520만(+34%) / 200달러(+5%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "거래량",
+        "value": "주식 9,920억 달러(+53%), 옵션 9.05억 계약(+48%), 이벤트 계약 164억 건(7배 이상), 암호자산 500억 달러(-38%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "신용거래 잔고 / 현금 스윕",
+        "value": "221억 달러(+59%) / 323억 달러(-9%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "이익 지표",
+        "value": "순이익 4.76억(-14%), 희석 EPS 0.51(-16%), 조정 EPS 0.60, 조정 EBITDA 8.08억 달러(+9%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "9개월 누적 매출",
+        "value": "38.0억 달러(+19%)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "Q3 2026 매출은 14.2억 달러(+12%)로 성장이 이어졌지만 Q2의 +32%보다 크게 느려졌고, 순이익은 4.76억 달러로 14% 줄었다. 옵션·주식·예측시장 매출은 크게 늘었지만 암호자산 매출이 55% 줄고 순이자 매출이 증권 대여 감소와 단기 금리 하락으로 9% 줄었다. 매출 대비 순이익률은 약 33%, 영업비용 7.39억 달러를 뺀 영업이익률은 약 48%다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "useOfCash": {
+    "period": "Q3 2026 (quarter ended 2026-09-30)",
+    "items": [
+      {
+        "use": "buybacks",
+        "value": 0.025,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "2026 조정 영업비용·주식보상 전망 상단 (연간 계획)",
+        "value": 2.75,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "벌어들인 돈은 주로 신상품과 마케팅에 다시 들어가고, 주주환원은 작다. Q3 자사주 매입은 2,500만 달러(약 20만 주, 평균 약 105달러)에 그쳤고, 2024년 3분기 이후 누적은 13억 달러다. 대신 2026년 조정 영업비용·주식보상 전망을 26.75~27.5억 달러로 상단만 2,500만 달러 낮춰, 투자는 유지하면서 비용 증가를 억누르는 모습이다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 파는 회사가 아니라 AI를 투자 앱 기능으로 붙이는 도입자. HOOD Summit에서 Robinhood Agents를 발표했고, 에이전트 거래 계좌 약 20만 개가 열려 누적 거래대금 16억 달러 이상을 만들었다.",
+    "dependsOn": [
+      "models-platforms (외부 AI 모델 - 업체명 이번 조사에서 미확인)",
+      "cloud-infrastructure"
+    ],
+    "sellsTo": [
+      "개인 투자자 (AI 에이전트 거래·분석 기능, Gold 구독 가치)"
+    ],
+    "aiRevenue": "에이전트 거래 계좌 약 20만 개, 누적 거래대금 16억 달러 이상 (Q3 2026) - 매출액은 미공시",
+    "upside": "AI 에이전트가 고객 대신 매매·리밸런싱을 하면 거래 건수와 Gold 구독 가치가 함께 오를 수 있다. 고객 상담·운영 자동화로 비용 증가를 억누르는 효과도 기대할 수 있다(회사 수치 미확인).",
+    "risk": "에이전트 거래가 고객 손실이나 규제 문제로 이어지면 평판과 규제 위험이 커진다. 대형 증권사도 같은 AI 기능을 붙이면 차별점이 줄어든다.",
+    "text": "그래서 AI 가치사슬에서 Robinhood는 맨 끝의 '도입자'다. AI 에이전트 계좌 20만 개와 거래대금 16억 달러는 시작 단계 수치이며, 같은 분기 주식 거래대금 9,920억 달러에 비하면 아주 작다. 관건은 AI 기능이 거래와 구독을 늘리는 쪽으로 쌓이느냐다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "미국 개인 주식·옵션 거래",
+        "rivals": [
+          "Charles Schwab",
+          "Interactive Brokers",
+          "Fidelity",
+          "Webull (출처 외 일반 분류)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "예측시장 (이벤트 계약)",
+        "rivals": [
+          "Kalshi",
+          "Polymarket",
+          "Coinbase"
+        ],
+        "position": "leader",
+        "share": "Q3 2026 이벤트 계약 164억 건, 매출 1.73억 달러 (점유율 수치 미확인)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "개인 암호자산 거래",
+        "rivals": [
+          "Coinbase",
+          "Kraken"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "은퇴·은행·카드",
+        "rivals": [
+          "대형 증권사·은행",
+          "핀테크 은행"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "젊은 고객에 맞춘 앱 경험, 신상품 출시 속도(사업 14개가 연환산 1억 달러 이상), Gold 구독 묶음, 예측시장 조기 진입.",
+    "threats": "대형 증권사의 수수료·기능 추격, 예측시장 규제 변화, 암호자산 경기 하락, 금리 하락에 따른 순이자 매출 감소, 주문 흐름 대가 규제.",
+    "text": "주식·옵션에서 Robinhood는 대형 증권사를 쫓는 도전자이지만, 예측시장에서는 Q3에 이벤트 계약 164억 건을 처리하며 가장 빠르게 큰 쪽이다. 암호자산에서는 Coinbase와 붙는데, 이번 분기에는 시장 하락으로 암호자산 매출이 55% 줄었다. 회사의 전략은 한 앱에 상품을 계속 붙여 고객이 다른 곳으로 갈 이유를 없애는 것이다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "모든 자산을 한 앱에서 거래·보관·대출하는 금융 플랫폼. 2026년 조정 영업비용·주식보상 26.75~27.5억 달러 범위 안에서 성장을 이어 간다는 것이 확인된 수치 목표다.",
+    "roadmap": [
+      {
+        "when": "HOOD Summit 2026 발표 (출시 시점 개별 미확인)",
+        "what": "Robinhood Agents, 일부 미국 주식 24시간 거래, 미국 고객 영구선물, 실적 계약 등 신상품 17개",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "두바이(DFSA 인가) 상품 출시",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 Q3 시작",
+        "what": "Trump Accounts 아동 약 7,000만 명 자동 등록",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 Q3",
+        "what": "Robinhood Chain 메인넷 첫 분기 (DEX 거래 800억 달러 이상, 체인 수수료 5,000만 달러 이상)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "vision": "CEO Vlad Tenev는 개인 투자자가 기관과 같은 도구를 쓰는 글로벌 금융 플랫폼, 그리고 토큰화·블록체인 위의 금융을 그린다(비전 문구는 발표문 신상품 목록에서 정리).",
+    "text": "앞으로의 계획은 거래 상품을 넓히고(24시간 주식, 영구선물, 실적 계약), AI 에이전트와 블록체인으로 새 방식의 거래를 여는 것이다. 동시에 은행·카드·은퇴계좌·아동 계좌로 거래하지 않을 때도 돈이 머물게 해 경기 민감도를 낮추려 한다. 해외는 영국 암호자산에 이어 2027년 두바이로 넓힌다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "공동창업자 Vlad Tenev가 CEO 겸 의장, Shiv Verma가 CFO를 맡고 있고(창업자 의결권 구조는 이번 조사에서 미확인), 배당 없이 작은 규모의 자사주 매입과 재투자를 우선한다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "adjusted operating expenses and SBC",
+        "value": "26.75~27.5억 달러 (이전 26.75~27.75억에서 상단 하향)",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "매출 가이던스는 내지 않고 연간 비용 범위만 제시하며, 이번에는 상단을 낮췄다. 실제 Q3 조정 영업비용·주식보상은 6.64억 달러(+8%)로 매출 증가율(+12%)보다 낮았다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28 00:47Z, Zacks via Nasdaq) 2026-09~2027-06 4개 분기 EPS 합계 2.58달러(범위 2.33~2.82), 직전 4개 분기 2.27달러. 최근 4주 상향 20건·하향 2건으로 상향 우세. 스냅샷 구간에 방금 발표된 Q3 2026이 아직 들어 있어 갱신 전 값이며, 보도 기준 Q3 희석 EPS 0.51달러는 예상치 약 0.55달러를 밑돌았다.",
+    "src": [
+      "s5",
+      "s1",
+      "s6"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "순입금이 연율 두 자릿수 유지",
+      "예측시장·옵션 매출 증가가 암호자산 감소를 계속 메움",
+      "Gold 구독자와 ARPU 증가",
+      "조정 영업비용 증가율이 매출 증가율보다 낮게 유지",
+      "신상품(24시간 주식·영구선물·Agents)의 매출 전환"
+    ],
+    "breaks": [
+      "예측시장 규제 강화로 이벤트 계약 매출 급감",
+      "개인 거래 열기 식음 (옵션·주식 거래량 감소)",
+      "금리 하락과 증권 대여 감소로 순이자 매출 추가 하락",
+      "순입금 둔화와 고객 증가 정체",
+      "주문 흐름 대가 규제 변화"
+    ],
+    "keyNumbers": [
+      {
+        "name": "순입금과 총 플랫폼 자산",
+        "why": "고객이 돈을 맡기는 속도"
+      },
+      {
+        "name": "옵션·이벤트 계약 매출",
+        "why": "가장 빠른 성장원"
+      },
+      {
+        "name": "순이자 매출과 신용 잔고",
+        "why": "금리 민감 매출"
+      },
+      {
+        "name": "Gold 구독자·ARPU",
+        "why": "고객당 수익성"
+      },
+      {
+        "name": "조정 영업비용·주식보상",
+        "why": "연간 범위 안의 비용 규율"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-10-28 (미 동부, 한국 10-29 새벽)",
+        "event": "FOMC 금리 결정 - 순이자 매출과 개인 투자 심리 (일정 출처 미첨부)",
+        "src": []
+      },
+      {
+        "date": "2026-11-03",
+        "event": "미국 중간선거 - 선거 관련 이벤트 계약 거래와 예측시장 규제 환경 (일정 출처 미첨부)",
+        "src": []
+      },
+      {
+        "date": "매월 중순 (관례, 추정)",
+        "event": "월간 운영 지표(순입금·거래량) 공개",
+        "src": []
+      },
+      {
+        "date": "2027-02 (추정, 회사 미확정)",
+        "event": "Q4 2026·FY2026 실적",
+        "src": []
+      }
+    ],
+    "reaction": "주가는 매출보다 순입금, 거래량, 새 사업(예측시장 등)의 성장 속도와 비용 전망에 반응하는 경향이 있다. Q3 2026은 희석 EPS 0.51달러가 예상치 약 0.55달러에, 매출 14.2억 달러가 예상치 약 14.3억 달러에 조금 못 미쳤고, 발표 전 약 94.61달러로 마감한 주가는 시간외에서 밀렸다. 다음 날 정규장 변동 폭은 확인하지 못했다.",
+    "conditions": [
+      "월간 지표의 순입금·주식·옵션·이벤트 계약 거래량",
+      "암호자산 가격과 Robinhood 앱·Bitstamp 거래대금",
+      "단기 금리 변화 (FOMC 결과)와 현금 스윕 잔고",
+      "예측시장 관련 규제·소송 뉴스와 중간선거 전후 이벤트 계약 거래량",
+      "연간 비용 전망 변경",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ],
+    "src": [
+      "s1",
+      "s6"
+    ]
+  },
+  "unverified": [
+    "매출 14.24억 달러는 세 매출 항목의 합(발표문 헤드라인은 14.2억 달러); 기타 거래 기반 매출 약 0.54억 달러는 차감 계산",
+    "영업이익률·순이익률은 발표문 숫자로 계산한 값, 영업·잉여현금흐름은 분기 발표문에 없어 null",
+    "시장 조성자별 주문 흐름 대가 비중과 업체명",
+    "남은 자사주 매입 한도 (발표문에 없음)",
+    "Q2 2026 비교 수치(매출 +32%, 순이익 5.73억 등)는 2차 출처 검색 요약",
+    "창업자 의결권 구조와 지분율",
+    "AI 에이전트 관련 매출, AI 비용 절감 효과",
+    "주식·옵션 시장 점유율, 예측시장 점유율",
+    "월간 지표 공개 시점과 Q4 실적일은 추정",
+    "FOMC·중간선거 일정은 사용자 제공 맥락과 일반 일정 기준",
+    "Q3 실적 다음 날 정규장 주가 변동 폭 (시간외 하락만 2차 출처로 확인)",
+    "Q3 컨센서스(EPS 약 0.55달러, 매출 약 14.3억 달러)와 발표 전 종가 94.61달러는 2차 출처(Decrypt)"
+  ],
+  "confidence": "high - Q3 2026 숫자는 하루 전 나온 8-K 실적 발표문에서 왔다. 경쟁 점유율, 실적 후 반응, Q2 비교 일부는 2차 출처이거나 미확인이다."
+}

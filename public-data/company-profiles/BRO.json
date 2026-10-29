@@ -1,0 +1,232 @@
+{
+  "symbol": "BRO",
+  "name": "Brown & Brown, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Brown & Brown은 보험 위험을 직접 지지 않고 기업·개인과 보험사 사이에서 보험을 중개·설계해 보험료에 비례한 수수료를 받는 세계 5위권 보험 중개사로, 지금은 재산보험료 하락과 'AI 직판' 우려라는 두 바람을 동시에 맞고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Brown & Brown, Inc. announces third quarter 2026 results (8-K exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000079282/000119312526432142/bro-ex99_1.htm", "publisher": "Brown & Brown / SEC EDGAR", "date": "2026-10-26" },
+    { "id": "s2", "kind": "8-K", "title": "Brown & Brown, Inc. announces fourth quarter 2025 results (8-K exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/79282/000119312526022760/bro-ex99_1.htm", "publisher": "Brown & Brown / SEC EDGAR", "date": "2026-01-26" },
+    { "id": "s3", "kind": "10-K", "title": "Brown & Brown Form 10-K for fiscal year 2025", "url": "https://www.sec.gov/Archives/edgar/data/79282/000119312526046984/bro-20251231.htm", "publisher": "Brown & Brown / SEC EDGAR", "date": "2026-02-11" },
+    { "id": "s4", "kind": "call-transcript", "title": "Brown & Brown (BRO) Q3 2026 Earnings Call Transcript", "url": "https://www.fool.com/earnings/call-transcripts/2026/10/27/brown-brown-bro-q3-2026-earnings-call-transcript/", "publisher": "The Motley Fool", "date": "2026-10-27" },
+    { "id": "s5", "kind": "news", "title": "Brown & Brown Q3 2026 Earnings Call: Specialty Distribution organic falls 0.8%; Retail 2.6%", "url": "https://finance.biggo.com/news/US_BRO_2026-10-27", "publisher": "BigGo Finance", "date": "2026-10-27" },
+    { "id": "s6", "kind": "news", "title": "Brown & Brown, Inc. completes the acquisition of Accession Risk Management Group (company release via Barchart)", "url": "https://www.barchart.com/story/news/33819899/brown-brown-inc-completes-the-acquisition-of-accession-risk-management-group", "publisher": "Barchart (GlobeNewswire)", "date": "2025-08-01" },
+    { "id": "s7", "kind": "ir-site", "title": "Brown & Brown, Inc. announces quarterly cash dividend ($0.165)", "url": "https://brownandbrown.gcs-web.com/news-releases/news-release-details/brown-brown-inc-announces-quarterly-cash-dividend-63", "publisher": "Brown & Brown IR", "date": "2026-07-22" },
+    { "id": "s8", "kind": "news", "title": "Insurance Broker Stocks Sink as AI App Sparks Disruption Fears", "url": "https://amp.insurancejournal.com/news/national/2026/02/10/857525.htm", "publisher": "Insurance Journal", "date": "2026-02-10" },
+    { "id": "s9", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/bro/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" },
+    { "id": "s10", "kind": "news", "title": "Earnings call transcript: Brown & Brown Q3 2026 profit miss weighs on shares", "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-brown--brown-q3-2026-profit-miss-weighs-on-shares-93CH-4975862", "publisher": "Investing.com", "date": "2026-10-27" },
+    { "id": "s11", "kind": "news", "title": "2026 brokers profiles: World's 10 Largest Insurance Brokers (global rank; U.S. revenue table figures read from search summary)", "url": "https://www.businessinsurance.com/2026-brokers-profiles-Worlds-10-Largest-Insurance-Brokers/", "publisher": "Business Insurance", "date": "2026-06-26" }
+  ],
+
+  "moat": {
+    "sources": [
+      "잘게 분산된 고객 기반 - 최대 고객 비중이 Retail 커미션·수수료의 0.6% (2025, 10-K)",
+      "분권형 영업 조직과 국내 47개 주 468곳·해외 15개국 246곳 사무소",
+      "프로그램(MGA)·도매 같은 전문 유통 역량 - 보험사 대신 상품을 설계·인수 대행",
+      "반복 인수합병으로 쌓은 규모 - Business Insurance 2026 세계 브로커 순위 5위"
+    ],
+    "text": "Brown & Brown의 힘은 보험 위험을 지지 않으면서 수많은 작은 고객의 보험을 매년 갱신해 주는 반복 수수료 구조에서 나온다. 최대 고객이 Retail 커미션의 0.6%에 불과할 만큼 고객이 분산돼 있고, 전국에 흩어진 지점이 각자 영업하는 분권형 조직이 지역 고객을 붙잡는다. 여기에 보험사를 대신해 상품을 설계하는 프로그램 사업과 꾸준한 인수합병이 규모를 키워, 2026년 세계 브로커 순위 5위에 올랐다.",
+    "src": ["s3", "s11"]
+  },
+
+  "design": {
+    "text": "이 기반 위에서 회사가 '설계'하는 것은 보험 상품 자체가 아니라 고객에게 맞는 보험 배치와 일부 특화 상품이다. Accession 인수 뒤 부문은 두 개로 재편됐는데, Retail은 기업·공공·전문직·개인의 손해보험·직원복리 보험 중개와 자동차 딜러용 보증상품을 맡고, Specialty Distribution은 보험사를 대신해 특정 업종 상품을 만들고 인수 대행하는 Programs(MGA/MGU)와 일반 보험사가 받지 않는 위험을 초과·잉여(E&S) 시장에 배치하는 Wholesale Brokerage로 이뤄진다. 연방 홍수보험을 대행하는 Wright National Flood 등 부수 보험 사업도 있다.",
+    "src": ["s3", "s6"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "보험사 - 실제 위험을 인수하고 보험금을 지급 (보험사별 집중도는 미공시)",
+      "E&S·재보험 시장 - 일반 보험사가 받지 않는 위험의 인수처",
+      "Programs 사업의 위임 보험사 - Brown & Brown이 대신 심사·인수 업무를 하지만 위험은 보험사가 짐",
+      "연방 홍수보험 프로그램 - Wright National Flood의 대행(write-your-own) 구조"
+    ],
+    "text": "그래서 이 회사에서 '생산'은 보험사가 위험을 떠안고, Brown & Brown이 그 위험을 고객에 맞게 찾아 배치하거나 보험사 대신 심사하는 분업으로 이뤄진다. 위험을 지지 않으므로 큰 재해가 나도 보험금을 물지 않지만, 대신 보험사가 얼마의 가격에 얼마나 받아 주느냐에 매출이 묶인다. 실제로 2026년에는 일반 보험사들이 E&S 물건을 다시 가져가면서 도매 물량이 줄었다.",
+    "src": ["s3", "s4"]
+  },
+
+  "sell": {
+    "customers": [
+      "중소·대기업 (손해보험·직원복리)",
+      "공공·준공공 기관, 전문직, 개인",
+      "자동차·RV 딜러 (보증상품)",
+      "다른 소매 중개사 (Wholesale 도매 채널)"
+    ],
+    "channel": "Retail은 지역 지점의 직접 영업, Wholesale은 다른 중개사를 통한 도매, Programs는 대리점·중개사 네트워크를 통한 상품 유통.",
+    "concentration": "최대 고객 비중: Retail 커미션·수수료의 0.6%, Specialty Distribution의 약 7.2% (2025, 10-K). 해외 사업 매출 8.43억 달러(약 14%).",
+    "text": "이렇게 배치한 보험은 지역 지점을 통해 기업·개인에게 직접, 또는 다른 중개사를 거쳐 도매로 팔린다. 고객이 잘게 분산돼 있어 개별 이탈 위험은 작고, 2025년 해외 매출은 8.43억 달러(약 14%)로 대부분 미국이다. Q3 2026 Retail 오가닉 성장 2.6%는 신규 계약과 직원복리·보증 수요가 이끌었다.",
+    "src": ["s3", "s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업·개인 고객", "to": "보험사 (Brown & Brown 경유)", "what": "보험료 - 중개사가 잠시 보관하는 수탁 자금 포함" },
+      { "from": "보험사", "to": "Brown & Brown", "what": "보험료의 일정 비율 커미션 (2025 커미션·수수료 57.63억 달러, 고객 직접 자문 수수료 포함)" },
+      { "from": "보험사", "to": "Brown & Brown", "what": "손해율이 좋을 때 주는 성과 커미션 (2025 2.55억 달러)" },
+      { "from": "수탁 보험료·현금", "to": "Brown & Brown", "what": "이자·투자 수익 (2025 투자·기타 1.39억 달러)" },
+      { "from": "소매 중개사", "to": "Brown & Brown Wholesale → E&S 보험사", "what": "어려운 위험 배치, Brown & Brown은 중간 커미션 수취" }
+    ],
+    "pricing": "보험료에 비례한 커미션과 일부 정액 자문 수수료, 보험사 손해율에 연동된 성과 커미션, 수탁 자금 이자. 그래서 보험료율(가격)이 오르면 같은 고객에서 매출이 늘고, 내리면 줄어든다.",
+    "text": "돈은 고객이 낸 보험료에서 출발해 보험사로 가고, 그 일부가 커미션으로 Brown & Brown에 돌아온다. 2025년 수익 59억 달러 중 커미션·수수료가 57.6억 달러로 거의 전부이고, 보험사 손해율이 좋을 때 받는 성과 커미션 2.55억 달러와 수탁 자금 이자가 더해진다. 커미션이 보험료에 비례하므로 이 회사 매출은 사실상 보험 가격 지수와 같이 움직인다.",
+    "src": ["s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 5.902, "unit": "USD bn", "yoy": 22.8 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 17.9,
+    "operatingCashFlow": { "value": 1.45, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.382, "unit": "USD bn" },
+    "segments": [
+      { "name": "Retail", "revenue": 3.406, "unit": "USD bn", "share": 57.7, "yoy": null, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Specialty Distribution (Programs + Wholesale Brokerage)", "revenue": 2.409, "unit": "USD bn", "share": 40.8, "yoy": null, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Other", "revenue": 0.087, "unit": "USD bn", "share": 1.5, "yoy": null, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "오가닉 매출 성장률", "value": "FY2025 2.8%; 2026년 1~9월 0.3%; Q3 2026 1.2%(성과 커미션 포함 1.5%) - Retail 2.6%, Specialty Distribution -0.8%", "src": ["s2", "s1", "s4"] },
+      { "name": "EBITDAC 마진", "value": "FY2025 EBITDAC 20.6억 달러(34.9%), 조정 21.2억(35.9%); Q3 2026 조정 34.6%(-200bp, 절반 이상이 이자수익 약 2,900만 달러 감소)", "src": ["s2", "s4"] },
+      { "name": "세전이익률", "value": "FY2025 23.2% (세전이익 13.71억 달러)", "src": ["s2"] },
+      { "name": "EPS", "value": "FY2025 희석 3.16달러(-8.7%), 조정 4.26달러(+10.9%); Q3 2026 조정 1.07달러", "src": ["s2", "s4"] },
+      { "name": "Q3 2026 매출", "value": "17.2억 달러 (+7.4%)", "src": ["s4", "s10"] },
+      { "name": "보험료율 동향 (Q3 2026)", "value": "1차 캐주얼티 +2~5%, 의료 +9~11%, E&S 재산 -15~-35%, 비재해 재산 0~-5%", "src": ["s4"] }
+    ],
+    "text": "이 구조가 2025년에 매출 59억 달러(+22.8%), 순이익 10.54억 달러(순이익률 약 18%), 조정 EBITDAC 마진 35.9%를 만들었다. 하지만 매출 증가의 대부분은 Accession 인수 효과였고 인수를 뺀 오가닉 성장은 2.8%였으며, 2026년 1~9월에는 0.3%로 내려왔다. 이익은 Retail이 매출의 58%로 가장 크고, 재산보험 가격 하락을 직접 맞는 Specialty Distribution이 지금 약한 고리다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "acquisitions", "value": 7.854, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 0.194, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0.100, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.068, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "2025년 현금의 압도적 쓰임은 인수로, Accession 등에 현금 78.5억 달러를 썼고 이 때문에 연말 총부채가 76.1억 달러로 불었다. 2026년에는 방향이 바뀌어 1~9월 자사주 7.5억 달러를 사들이고 배당 1.69억 달러를 지급했으며, 경영진은 우선순위를 인재 채용, 자사주, 부채 상환, 선별적 인수 순으로 말했다. 큰 인수를 소화하는 동안 오가닉 성장이 약해지자 주주환원과 부채 축소로 무게를 옮긴 셈이다.",
+    "src": ["s2", "s1", "s4"]
+  },
+
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI를 만들거나 팔지 않는 서비스 업종으로, AI를 업무 효율화에 쓰는 도입자이면서 AI 보험 비교·직판 플랫폼에 중개 수요를 빼앗길 수 있는 노출 업종이다.",
+    "dependsOn": ["models-platforms (Anthropic Claude, Microsoft Copilot)", "software-applications (자체 COMPASS 위험관리 시스템)"],
+    "sellsTo": ["AI를 팔지 않음 - 효과는 중개 인력 생산성과 고객 위험 분석 서비스로 나타남"],
+    "aiRevenue": null,
+    "upside": "AI는 이 회사에 '비용 레버'다. Q3 2026 콜에서 Claude를 45일 만에 6,000명 넘는 직원에게 배포해 활성 사용률 90% 이상이라고 했고, 전 직원이 1년째 Copilot을 쓰며, AI와 자체 데이터를 묶은 COMPASS를 Retail 위험관리에 내놓았다. 다만 생산성·비용 절감 금액은 공개하지 않았다.",
+    "risk": "AI는 '위협'이기도 하다. 2026-02-03 Insurify가 ChatGPT 기반 자동차보험 비교 앱을 내놓고 Anthropic의 업무 자동화 도구가 나오자 2026-02-09 S&P 500 보험 지수가 3.9% 빠지고 WTW -12%, AJG -9.9%, AON -9.3%가 됐다. 단순 개인보험부터 중개가 생략될 수 있다는 우려다.",
+    "text": "그래서 AI 가치사슬에서 Brown & Brown은 AI를 쓰는 쪽이자 AI에 흔들릴 수 있는 쪽에 서 있다. 경영진은 'AI는 우리 모델의 파괴자가 아니라 가속기'라며 Claude·Copilot 전사 배포로 비용을 낮추려 하고, Bloomberg Intelligence 분석가도 AI를 실존 위협보다 '힘을 키우는 도구'로 봤다. 복잡한 기업 보험일수록 사람의 자문이 필요해 방어력이 크지만, 개인보험 비중이 큰 부분부터 직판 앱의 압력이 올 수 있다.",
+    "src": ["s4", "s8"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "Retail 기업·개인 보험 중개", "rivals": ["Marsh (MMC)", "Aon", "Arthur J. Gallagher", "WTW", "Alliant", "Hub", "Lockton"], "position": "challenger", "share": "Business Insurance 2026 세계 브로커 순위 5위; 미국 고객 매출 기준 2025년 약 49.4억 달러로 5위 (검색 요약, 2026-06-26)", "src": ["s11"] },
+      { "arena": "Programs (MGA/MGU, 보험사 대신 상품 설계·인수 대행)", "rivals": ["다른 대형 중개사의 MGA 사업", "보험사 직접 인수"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "Wholesale·E&S 도매 중개", "rivals": ["도매 전문 중개사", "E&S 물건을 되찾는 일반(admitted) 보험사"], "position": "challenger", "share": null, "src": ["s3", "s4"] },
+      { "arena": "AI 보험 비교·직판", "rivals": ["Insurify (ChatGPT 앱)", "직판 보험사", "기술 회사"], "position": "challenger", "share": null, "src": ["s8", "s3"] }
+    ],
+    "edge": "분산된 고객, 분권형 지역 영업, 프로그램·도매 전문 유통, Accession으로 커진 규모와 시너지.",
+    "threats": "재산보험 약세장 장기화, 일반 보험사의 E&S 물건 회수, 대형 경쟁사(Marsh·Aon·Gallagher)의 가격 경쟁과 인재 영입, AI 직판의 개인보험 잠식.",
+    "text": "경쟁은 세 겹이다. 대형 중개 시장에서는 Marsh·Aon·Gallagher·WTW 다음인 5위권 도전자로 지역 중견 기업 고객에 강하고, Programs·도매 시장에서는 보험사가 직접 물건을 되가져가는 것이 경쟁자 역할을 한다. 2026년 새로 생긴 경기장은 AI 직판으로, 회사는 분산된 기업 고객과 COMPASS 같은 위험 분석 서비스를 내세워 '가격 비교만으로는 대체되지 않는 자문'을 지키려 한다.",
+    "src": ["s11", "s4", "s8"]
+  },
+
+  "strategy": {
+    "goal": "중간 목표로 매출 80억 달러를 언급했고(콜), 2027 오가닉 성장 Retail 2~4%·Specialty Distribution 1~3%, Accession 순시너지 2028년 말 연환산 1.75억 달러를 제시했다.",
+    "roadmap": [
+      { "when": "Q4 2026", "what": "오가닉 성장 Retail 2~3%, Specialty Distribution -2~-4%, EBITDAC 마진 전년보다 낮음", "src": ["s4"] },
+      { "when": "2026", "what": "Accession EBITDAC 시너지 약 5,000만 달러 (기존 3,000~4,000만에서 상향)", "src": ["s4"] },
+      { "when": "2027-01-01 전후", "what": "연초 재산·재해보험 갱신 - 업계 재해 재산보험료율 10~20% 하락 전망, 회사는 높은 쪽에 무게", "src": ["s4"] },
+      { "when": "FY2027", "what": "오가닉 Retail 2~4%, Specialty Distribution 1~3%로 플러스 전환", "src": ["s4"] },
+      { "when": "2028년 말", "what": "Accession 연환산 순시너지 1.75억 달러 (통합비 3년 2.5~3억 달러)", "src": ["s4"] }
+    ],
+    "vision": "인수합병과 분권형 영업으로 계속 몸집을 키우면서, AI는 수년짜리 대형 프로그램 대신 1년 단위로 성과를 재는 투자로 넣어 생산성을 높이는 '현금 창출형 중개 플랫폼'이다.",
+    "text": "앞으로의 계획은 큰 인수를 소화하고 가격 하락기를 버티는 것이다. 2026년에는 Accession 시너지를 약 5,000만 달러로, 2028년 말 목표를 1.75억 달러로 올렸고, 2027년에는 Specialty Distribution 오가닉을 1~3% 플러스로 되돌리겠다고 한다. 그 전에 연초 재산보험 갱신에서 가격이 10~20% 더 내려갈 수 있다고 스스로 경고한 만큼, 2027년 초 숫자가 이 계획의 첫 검증대다.",
+    "src": ["s4"]
+  },
+
+  "governance": {
+    "line": "2009년부터 J. Powell Brown이 CEO, 창업 가문의 J. Hyatt Brown이 이사회 의장인 가문 영향력이 큰 회사로, 33년 연속 배당을 올리면서 2026년에는 자사주 매입을 늘리고 있다.",
+    "src": ["s3", "s4", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "Retail organic revenue growth (ex-contingents)", "value": "2~3%", "givenOn": "2026-10-27", "src": ["s4"] },
+      { "period": "Q4 2026", "metric": "Specialty Distribution organic revenue growth (ex-contingents)", "value": "-2~-4%", "givenOn": "2026-10-27", "src": ["s4"] },
+      { "period": "Q4 2026", "metric": "Specialty Distribution contingent commissions", "value": "전년 대비 1,400~1,600만 달러 감소", "givenOn": "2026-10-27", "src": ["s4"] },
+      { "period": "Q4 2026", "metric": "EBITDAC margin", "value": "전년보다 낮음 (수치 없음)", "givenOn": "2026-10-27", "src": ["s4"] },
+      { "period": "FY2027", "metric": "organic revenue growth (ex-contingents)", "value": "Retail 2~4%, Specialty Distribution 1~3%", "givenOn": "2026-10-27", "src": ["s4"] },
+      { "period": "2026 / end-2028", "metric": "Accession EBITDAC synergies", "value": "2026년 약 5,000만 달러, 2028년 말 연환산 순시너지 1.75억 달러", "givenOn": "2026-10-27", "src": ["s4"] }
+    ],
+    "style": "quarterly",
+    "track": "매출·EPS 숫자 가이던스 없이 콜에서 부문별 오가닉 범위와 마진 방향을 말로 제시한다. Q3 2026 Specialty Distribution 오가닉 -0.8%는 이전 분기에 하반기 2~4%를 말했다는 보도와 비교하면 기대를 밑돌았다(이전 가이던스 원문 미확인).",
+    "src": ["s4", "s5"]
+  },
+
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 4.78달러(범위 4.63~5.01), 직전 4개 분기 4.46달러, 최근 4주 상향 1건·하향 1건으로 중립. Q3 2026 조정 EPS 1.07달러는 예상(AIO 스냅샷 1.08달러, Investing.com 1.09달러)을 소폭 밑돌았고 매출 17.2억 달러도 예상 17.6억 달러에 못 미쳤다.",
+    "src": ["s9", "s1", "s10"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Retail 오가닉이 제시 범위(Q4 2~3%, 2027 2~4%) 안에서 유지",
+      "Specialty Distribution 오가닉이 2027년 플러스(1~3%)로 돌아옴",
+      "연초 재산보험 갱신 가격 하락이 10~20% 범위 안에서 멈춤",
+      "Accession 시너지가 상향 목표대로 쌓이고 통합비가 범위(2.5~3억 달러) 안",
+      "자사주 매입과 부채 축소가 함께 진행"
+    ],
+    "breaks": [
+      "연초 재산보험 갱신에서 예상보다 큰 가격 하락",
+      "Retail 오가닉이 2% 아래로 하락",
+      "EBITDAC 마진 하락이 이자수익 외 요인으로 확대",
+      "일반 보험사의 E&S 물건 회수 가속",
+      "AI 직판이 기업 보험 중개로 번진다는 증거"
+    ],
+    "keyNumbers": [
+      { "name": "부문별 오가닉 성장률", "why": "인수 효과를 뺀 본업 성장" },
+      { "name": "조정 EBITDAC 마진", "why": "규모·통합 효과와 이자수익 감소의 순효과" },
+      { "name": "재산·캐주얼티 보험료율", "why": "커미션 기반 그 자체" },
+      { "name": "Accession 시너지·통합비", "why": "96억 달러 인수의 성과" },
+      { "name": "수탁 자금 이자수익", "why": "금리 하락기 마진 하방 요인" },
+      { "name": "총부채", "why": "자사주·추가 인수 여력의 한도" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 전년 Q4 발표 2026-01-26 기준)", "event": "Q4·FY2026 실적과 2027 부문별 오가닉 전망 재확인", "src": ["s2"] },
+      { "date": "2027-01-01 전후", "event": "연초 재산·재해보험 갱신 가격", "src": ["s4"] },
+      { "date": "분기 중 (보통 실적 발표 직전)", "event": "분기 배당 결의", "src": ["s7"] },
+      { "date": "수시", "event": "AI 보험 비교·직판 서비스 출시와 브로커 업종 반응", "src": ["s8"] }
+    ],
+    "reaction": "주가는 EPS보다 오가닉 성장률과 다음 분기 부문별 오가닉 발언에 크게 반응한다. Q3 2026 발표 뒤에는 EPS·매출이 예상에 조금 못 미치고 오가닉·마진 둔화가 겹쳐 시간외에서 약 4.1% 내렸다(Investing.com 기준).",
+    "conditions": [
+      "부문별 오가닉 성장률이 회사 제시 범위 안인지",
+      "E&S·재해 재산보험료율 하락 폭 변화",
+      "동종 브로커(AJG·AON·MMC·WTW)와 보험 지수의 동반 움직임",
+      "AI 보험 직판 뉴스에 대한 업종 반응",
+      "컨센서스 EPS 상향·하향 건수 추이",
+      "금리 경로(수탁 이자수익 영향)"
+    ]
+  },
+
+  "unverified": [
+    "총마진·영업이익률은 중개업 보고 체계와 맞지 않아 null (대신 EBITDAC·세전이익률 기재); FCF는 영업현금흐름-설비투자 계산값",
+    "Business Insurance 미국 매출 표(약 49.4억 달러, 5위)는 검색 요약에서 읽음 - 원문 표 미확인",
+    "부문별 2025년 성장률과 부문별 이익률",
+    "커미션 vs 수수료 비중, 보험사별 집중도",
+    "Programs·Wholesale 시장 점유율과 경쟁사 이름 (position은 판단)",
+    "AI 도입의 생산성·비용 절감 금액 (회사 미공개)",
+    "매출 80억 달러 목표의 시점 (콜 발언, 자동 생성 녹취록)",
+    "최신 분기 배당액 (9% 인상 언급; 확인된 최근 결의는 0.165달러)",
+    "내부자·창업 가문 지분율",
+    "이전 분기 제시한 하반기 Specialty Distribution 2~4% 가이던스 원문",
+    "다음 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "medium - 재무·현금흐름은 8-K와 10-K에서 왔지만, 가이던스·가격 동향·AI 사용은 서드파티 콜 녹취록에, 순위는 업계지 검색 요약에 의존한다."
+}

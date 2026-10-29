@@ -17,14 +17,22 @@ try {
   await page.setContent('<div id="chat-home-msgs"></div><div><button id="chat-home-btn">전송</button></div>');
   // v59.11: the cancellation helpers live in the shared transport module (moved from js/aio-chat.js).
   await page.addScriptTag({ type: 'module', content: readFileSync(new URL('../src/data/providers/shared-ai-transport.js', import.meta.url), 'utf8') + '\ninstallSharedRoute(window);' });
+  // v59.42: chatAppendMsg (per-page #chat-<ctx>-msgs) is deleted; the fixture appends its own bubbles and, like the
+  // unified panel, passes appendCancelNotice.
   await page.addScriptTag({ content:
     section('const chatState = {};', '// ── Text processing helpers') + '\n' +
-    section('function chatAppendMsg(', 'function _aioChatError(')
+    `function chatAppendMsg(ctxId, role, html, id) {
+      const container = document.getElementById('chat-' + ctxId + '-msgs');
+      const wrap = document.createElement('div'); wrap.className = 'acp-msg ' + role;
+      const bubble = document.createElement('div'); bubble.className = 'acp-bubble'; if (id) bubble.id = id; bubble.innerHTML = html;
+      wrap.appendChild(bubble); container.appendChild(wrap); return bubble;
+    }
+    const fixtureCancelNotice = () => chatAppendMsg('home', 'ai', '<span role="status">답변 생성이 중지되었습니다.</span>');`
   });
   await page.evaluate(() => {
     const state = getChatState('home');
     state.messages = [{ role: 'user', content: '완료 질문' }, { role: 'assistant', content: '완료 답변' }];
-    const run = _aioBeginChatRequest('home', '중단 질문');
+    const run = _aioBeginChatRequest('home', '중단 질문', { appendCancelNotice: fixtureCancelNotice });
     run.userMessage = { role: 'user', content: '중단 질문' };
     state.messages.push(run.userMessage);
     chatAppendMsg('home', 'ai', '<span class="chat-dots"><span>·</span><span>·</span><span>·</span></span>', 'chat-home-loading'); // v57.62: chatShowLoading (per-page only) retired
@@ -76,16 +84,7 @@ try {
     fixtureWriteDenied = true;
     return _getChatHistory().map(row => row.q);
   }), ['보존 질문']);
-  await page.locator('#chat-home-btn').focus();
-  await page.evaluate(() => openChatHistory('home'));
-  assert.equal(await page.getByRole('dialog', { name: '대화 기록 (home) - 1건' }).count(), 1);
-  assert.equal(await page.evaluate(() => document.activeElement.getAttribute('aria-label')), '대화 기록 닫기');
-  await page.keyboard.press('Tab');
-  assert.equal(await page.evaluate(() => document.activeElement.textContent), '전체 삭제');
-  await page.keyboard.press('Shift+Tab');
-  assert.equal(await page.evaluate(() => document.activeElement.getAttribute('aria-label')), '대화 기록 닫기');
-  await page.keyboard.press('Escape');
-  assert.equal(await page.getByRole('dialog').count(), 0);
-  assert.equal(await page.evaluate(() => document.activeElement.id), 'chat-home-btn');
-  console.log('Chat UI state Chromium fixture PASS: keyboard stop, cancelled turn isolation, route cancellation, stale epoch, completion cleanup, malformed/expired history isolation, dialog focus trap and restoration. Offline isolated DOM evidence.');
+  // v59.42: the unreachable 대화 기록 overlay (openChatHistory) is deleted, so its dialog focus checks went with it.
+  assert.equal(await page.evaluate(() => typeof window.openChatHistory), 'undefined', 'v59.42 the retired chat history overlay stays absent');
+  console.log('Chat UI state Chromium fixture PASS: keyboard stop, cancelled turn isolation, route cancellation, stale epoch, completion cleanup, malformed/expired history isolation, retired history overlay absent (v59.42). Offline isolated DOM evidence.');
 } finally { await browser.close(); }

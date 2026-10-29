@@ -1,0 +1,569 @@
+{
+  "symbol": "DELL",
+  "name": "Dell Technologies Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "late January / early February (FY2026 ended 2026-01-30)",
+  "oneLine": "Dell은 PC와 서버·스토리지를 만들어 파는 회사인데, NVIDIA GPU를 꽂은 AI 서버 랙이 폭증하면서 FY2027 매출 전망이 1,920억 달러(약 +70%)로 뛰어 AI 서버 조립·공급의 대표 주자가 됐다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Dell Technologies Fiscal 2Q27 Financial Results (company release dated 2026-09-01, republished with editor comments)",
+      "url": "https://www.storagenewsletter.com/2026/09/03/dell-technologies-fiscal-2q27-financial-results/",
+      "publisher": "StorageNewsletter (Dell release text)",
+      "date": "2026-09-03"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Dell Technologies Delivers Fourth Quarter and Full-Year Fiscal 2026 Results (release tables)",
+      "url": "https://www.01net.it/dell-technologies-delivers-fourth-quarter-and-full-year-fiscal-2026-results/",
+      "publisher": "01net (Business Wire release text)",
+      "date": "2026-02-26"
+    },
+    {
+      "id": "s3",
+      "kind": "earnings-release",
+      "title": "Dell Technologies Fiscal 4Q26 and FY26 Financial Results (FY27 guidance, AI orders and backlog)",
+      "url": "https://www.storagenewsletter.com/2026/03/05/dell-technologies-fiscal-4q26-and-fy26-financial-results/",
+      "publisher": "StorageNewsletter (Dell release text)",
+      "date": "2026-03-05"
+    },
+    {
+      "id": "s4",
+      "kind": "call-transcript",
+      "title": "Dell Technologies Q2 FY2027 earnings call (article with partial transcript)",
+      "url": "https://www.tradingkey.com/news/transcripts/262145053-tradingkey",
+      "publisher": "TradingKey",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/dell/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-27"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "세계적 공급망과 대량 조립 능력 - 분기 AI 서버 164억 달러를 출하하는 규모",
+      "NVIDIA 플랫폼을 랙 단위로 가장 먼저 내놓는 협력 관계 (Vera Rubin 랙 첫 출하)",
+      "6,500곳 이상의 AI 서버 고객과 기업 PC·서버·스토리지 영업망",
+      "자체 스토리지 제품(PowerStore, 신제품 Lightning 파일 시스템)과 서비스·금융 묶음"
+    ],
+    "text": "Dell의 힘은 칩을 만드는 데 있지 않고, 남이 만든 GPU·CPU·메모리를 받아 수천 대 규모의 랙으로 빠르게 조립해 납품하는 공급망과 영업망에서 나온다. NVIDIA의 새 플랫폼을 가장 먼저 랙으로 내놓을 수 있다는 점이 AI 클라우드 고객을 끌어오고, 기존 기업 고객에게는 PC·서버·스토리지를 함께 판다. 물량이 커질수록 부품 확보와 조립 단가에서 규모의 이점이 커지는 구조다.",
+    "src": [
+      "s1",
+      "s4"
+    ]
+  },
+  "design": {
+    "text": "이 공급망으로 회사가 파는 것은 두 그룹으로 보고된다. ISG(인프라 솔루션)는 AI 최적화 서버, 일반 서버·네트워킹, 스토리지를 담고 FY2026 매출의 약 54%였다. CSG(클라이언트 솔루션)는 기업용(Commercial)과 소비자용(Consumer) PC·주변기기로 약 45%이고, 나머지는 기타 사업이다.",
+    "src": [
+      "s2",
+      "s3"
+    ]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "NVIDIA - AI 서버의 GPU·랙 플랫폼 (Vera Rubin 랙 첫 출하)",
+      "DRAM·NAND 메모리 공급사 - 가장 부족한 부품 (공급사명 미공시)",
+      "CPU·디스크·광학 부품·기판 공급사 - 공급 부족 품목 (이름 미공시)",
+      "자체 조립 시설과 외부 위탁 생산 - 비중·업체명 미확인"
+    ],
+    "text": "Dell은 핵심 칩을 사 와서 서버와 PC로 설계·조립하고, 생산 일부는 외부에 맡기는 혼합 구조다. 2026년 2분기 콜에서 회사는 DRAM과 NAND가 가장 부족하고 CPU·디스크·광학 부품·기판도 빠듯하다고 말했다. 부품 가격이 오르면서 서버 한 대 가격도 올라, 매출 성장의 일부가 물가 효과라는 점도 인정했다.",
+    "src": [
+      "s4",
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "AI 클라우드(네오클라우드)·국가 AI(소버린)·고빈도 거래 회사·기업 - AI 서버 고객 6,500곳 이상 (최근 3개 분기에 3,300곳 추가)",
+      "기업 (일반 서버·스토리지·기업용 PC 교체)",
+      "소비자 (PC)"
+    ],
+    "channel": "직접 영업과 채널 파트너(리셀러·유통사)를 함께 쓴다. AI 서버는 대형 고객에 직접 랙 단위로 납품한다.",
+    "concentration": "고객별 매출 비중은 공시되지 않음. AI 수요가 네오클라우드·소버린·기업으로 넓어지고 있다고 설명.",
+    "text": "이렇게 조립한 AI 서버는 6,500곳이 넘는 고객에게 팔리며, 최근 3개 분기에만 3,300곳이 늘었다. 회사는 대형 네오클라우드와 국가 AI 계약을 계속 따내는 동시에 기업 고객 수와 재구매도 늘고 있다고 말한다. PC 쪽은 대기업의 교체 수요로 기업용이 22% 늘었지만, 가격에 민감한 고객은 교체를 미루고 있다.",
+    "src": [
+      "s4",
+      "s1"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "AI 서비스 이용자·기업",
+        "to": "네오클라우드·소버린 AI·기업 데이터센터",
+        "what": "AI 연산 이용료·자체 AI 투자 예산"
+      },
+      {
+        "from": "네오클라우드·소버린·기업",
+        "to": "Dell",
+        "what": "AI 서버 랙 구매 대금 (시스템당, 수주 후 출하 시 인식; 수주잔고 950억 달러)"
+      },
+      {
+        "from": "기업·소비자",
+        "to": "Dell (직접·채널 파트너 경유)",
+        "what": "PC·일반 서버·스토리지 대금과 서비스 계약료"
+      },
+      {
+        "from": "Dell",
+        "to": "NVIDIA·메모리·부품 공급사",
+        "what": "GPU·CPU·DRAM·NAND 구매 대금 (원가의 대부분)"
+      }
+    ],
+    "pricing": "주로 시스템 한 대·랙 한 세트 단위 판매다. AI 서버는 GPU 원가 비중이 커서 매출은 크지만 마진율이 낮고, 스토리지·서비스·일반 서버가 마진을 보탠다. 부품 가격 상승분은 판매가에 반영된다.",
+    "text": "돈은 AI를 쓰려는 클라우드·국가·기업이 Dell에 랙 대금을 내면서 들어오고, 그 상당 부분은 곧바로 NVIDIA와 메모리 회사로 다시 나간다. 그래서 Dell의 매출은 AI 수요만큼 크게 늘지만 남는 몫은 얇아, FY2026 총마진율이 20.0%였다. 주문이 출하보다 빨리 쌓여 수주잔고가 950억 달러까지 늘었다는 것은 앞으로 수 분기 매출이 이미 줄 서 있다는 뜻이다.",
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-01-30)",
+    "revenue": {
+      "value": 113.538,
+      "unit": "USD bn",
+      "yoy": 19
+    },
+    "grossMargin": 20.0,
+    "operatingMargin": 7.2,
+    "netMargin": 5.2,
+    "operatingCashFlow": {
+      "value": 11.2,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 8.567,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "ISG - AI-optimized servers",
+        "revenue": 24.683,
+        "unit": "USD bn",
+        "share": 21.7,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "ISG - Traditional servers & networking",
+        "revenue": 19.512,
+        "unit": "USD bn",
+        "share": 17.2,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "ISG - Storage",
+        "revenue": 16.631,
+        "unit": "USD bn",
+        "share": 14.6,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "CSG - Commercial",
+        "revenue": 44.062,
+        "unit": "USD bn",
+        "share": 38.8,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "CSG - Consumer",
+        "revenue": 6.922,
+        "unit": "USD bn",
+        "share": 6.1,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Other businesses (총매출에서 ISG·CSG를 뺀 계산값)",
+        "revenue": 1.728,
+        "unit": "USD bn",
+        "share": 1.5,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "그룹별 FY2026 매출·영업이익",
+        "value": "ISG 608억 달러(+40%), 영업이익 71억(이익률 약 11.7%); CSG 510억 달러(+5%), 영업이익 28억(-5%, 이익률 약 5.5%)",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "AI 서버 주문·출하·수주잔고 (FY2026)",
+        "value": "주문 640억 달러 이상, 출하 250억 달러 이상, FY2027 진입 수주잔고 430억 달러",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "최근 분기 (Q2 FY2027) 매출·이익",
+        "value": "매출 470억 달러(+58%), ISG 318억(+89%; AI 서버 164억 +100%, 일반 서버·네트워킹 105억 +122%, 스토리지 49억 +26%), CSG 150억(+20%), GAAP EPS 6.34달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Q2 FY2027 AI 서버 수주",
+        "value": "주문 609억 달러, 최근 12개월 주문 1,317억 달러, 분기말 수주잔고 950억 달러",
+        "src": [
+          "s1",
+          "s4"
+        ]
+      },
+      {
+        "name": "Q2 FY2027 그룹 영업이익률",
+        "value": "ISG 15.0% (+6.2%p), CSG 7.6%, 총마진율 약 21%",
+        "src": [
+          "s1",
+          "s4"
+        ]
+      }
+    ],
+    "text": "이 구조가 FY2026에 매출 1,135억 달러(+19%), 총마진 20.0%, 영업이익률 7.2%를 냈고, 두 그룹 영업이익 합(99억 달러)의 약 70%가 ISG에서 나왔다. AI 서버가 이미 매출의 22%가 됐고, FY2027 2분기에는 분기 매출이 470억 달러(+58%)로 뛰며 ISG 영업이익률이 15%까지 올라왔다. 다만 같은 분기 영업현금흐름은 22억 달러로 이익보다 작아, AI 서버 재고와 운전자본에 현금이 묶이고 있다.",
+    "src": [
+      "s2",
+      "s3",
+      "s1",
+      "s4"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-01-30)",
+    "items": [
+      {
+        "use": "R&D",
+        "value": 3.142,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 2.633,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 6.014,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 1.459,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "FY2026 잉여현금흐름 약 86억 달러 가운데 75억 달러가 자사주 매입 60억과 배당 15억으로 주주에게 갔고, 설비투자(소프트웨어 개발비 포함)는 26억, R&D는 31억 달러로 매출의 3% 수준이다. 회사는 배당을 20% 올리고 자사주 매입 한도를 100억 달러 늘렸으며, FY2027 2분기에만 43억 달러를 돌려줬다. 공장보다 주주환원에 돈을 쓰는 조립·유통형 회사의 모습이다.",
+    "src": [
+      "s2",
+      "s3",
+      "s4"
+    ]
+  },
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "GPU를 직접 설계하지 않고, NVIDIA 등 칩을 받아 AI 서버·랙 시스템으로 조립해 클라우드·국가·기업에 납품하는 '연산 시스템 통합' 자리. 스토리지와 네트워킹을 함께 붙여 판다.",
+    "dependsOn": [
+      "chips-compute (NVIDIA GPU·CPU)",
+      "memory (DRAM·NAND·HBM - 가장 부족한 부품)",
+      "networking·광학 부품",
+      "power-energy (고객 데이터센터 전력)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (네오클라우드)",
+      "models-platforms (AI 연구소)",
+      "ai-adopter (국가 AI·기업·금융 회사)"
+    ],
+    "aiRevenue": "AI 최적화 서버 매출 FY2026 246.8억 달러(매출의 21.7%), Q2 FY2027 164억 달러, FY2027 약 740억 달러 전망 (2026-09-01)",
+    "upside": "AI 수주잔고 950억 달러가 출하되며 매출이 직접 늘고, AI 서버 옆에 붙는 스토리지·네트워킹·일반 서버 교체가 마진을 보탠다.",
+    "risk": "AI 서버 마진이 얇아 GPU·메모리 원가 상승을 다 넘기지 못하면 이익률이 떨어지고, 대형 네오클라우드의 자금 경색·주문 취소, Supermicro·HPE·ODM 직판과의 가격 경쟁에 노출된다.",
+    "text": "그래서 AI 가치사슬에서 Dell은 칩과 클라우드 사이에서 칩을 서버로 바꿔 주는 연산 시스템 층에 있다. AI 서버가 FY2027에 약 740억 달러로 회사 매출의 40%에 가까워질 전망이라, 클라우드·국가 AI 투자가 곧 Dell의 매출이다. 반대로 마진 대부분은 칩 회사로 넘어가므로, 같은 AI 호황에서도 Dell이 남기는 몫은 부품 가격과 고객 협상력에 따라 달라진다.",
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "AI 서버·랙 시스템",
+        "rivals": [
+          "Super Micro Computer",
+          "HPE",
+          "Foxconn·Quanta·Wiwynn 등 ODM 직판",
+          "Lenovo"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "일반 서버",
+        "rivals": [
+          "HPE",
+          "Lenovo",
+          "Super Micro Computer"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "스토리지",
+        "rivals": [
+          "NetApp",
+          "Pure Storage",
+          "HPE"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "PC",
+        "rivals": [
+          "Lenovo",
+          "HP Inc.",
+          "Apple"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      }
+    ],
+    "edge": "NVIDIA 새 플랫폼의 빠른 랙 출하, 6,500곳 이상 고객 기반, 스토리지·서비스·금융을 함께 묶는 능력, 대량 부품 조달력.",
+    "threats": "ODM이 하이퍼스케일러에 직접 파는 구조, Supermicro·HPE의 가격 경쟁, 메모리 원가 급등, 소수 대형 네오클라우드 계약에 대한 의존.",
+    "text": "AI 서버 시장에서 Dell의 상대는 Supermicro·HPE 같은 브랜드 서버 회사와, 하이퍼스케일러에 직접 납품하는 대만 ODM이다. Dell은 가장 큰 하이퍼스케일러보다 네오클라우드·국가·기업 고객을 넓게 잡고, 스토리지와 서비스를 붙여 차별화하려 한다. 다만 이번 조사에서 AI 서버 점유율 자료는 확인하지 못해, 경쟁 강도는 주문·마진 추이로 판단해야 한다.",
+    "src": [
+      "s4"
+    ]
+  },
+  "strategy": {
+    "goal": "FY2027 매출 약 1,920억 달러(약 +70%), AI 서버 매출 약 740억 달러, non-GAAP EPS 25.50달러를 제시했다 (2026-09-01).",
+    "roadmap": [
+      {
+        "when": "Q3 FY2027 (2026-08~10)",
+        "what": "매출 약 490억 달러(약 +80%), AI 서버 약 190억 달러, ISG 약 +145%, non-GAAP EPS 약 6.50달러",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "AI 서버 약 740억 달러, 스토리지 약 200억 달러",
+        "src": [
+          "s1",
+          "s4"
+        ]
+      },
+      {
+        "when": "2026 H2",
+        "what": "NVIDIA Vera Rubin 랙 시스템 출하 확대 (첫 출하 완료)",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "when": "2026 H2",
+        "what": "AI용 병렬 파일 시스템 Lightning 베타 → 출시",
+        "src": [
+          "s4"
+        ]
+      }
+    ],
+    "vision": "AI가 클라우드에서 국가·기업으로 넓어질 때, 그 모든 곳에 AI 서버와 스토리지를 공급하는 'AI 인프라 공급자'가 되겠다는 그림이다.",
+    "text": "경쟁을 이기기 위해 회사는 물량과 고객 폭을 동시에 키우고 있다. 연간 매출 전망을 2월 1,380~1,420억 달러에서 9월 1,920억 달러까지 거듭 올렸고, 그 증가분 대부분이 AI 서버다. 동시에 스토리지와 일반 서버를 AI 랙에 붙여 팔아 얇은 마진을 보완하려는 것이 다음 단계의 핵심이다.",
+    "src": [
+      "s3",
+      "s1",
+      "s4"
+    ]
+  },
+  "governance": {
+    "line": "창업자 Michael Dell이 이끄는 회사로, 배당을 20% 올리고 자사주 매입 한도를 100억 달러 늘리는 등 현금을 적극적으로 주주에게 돌려주고 있다.",
+    "src": [
+      "s3"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q3 FY2027",
+        "metric": "revenue",
+        "value": "약 490억 달러 (중간값, 약 +80%), AI 서버 약 190억 달러",
+        "givenOn": "2026-09-01",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "period": "Q3 FY2027",
+        "metric": "non-GAAP EPS",
+        "value": "약 6.50달러 (중간값)",
+        "givenOn": "2026-09-01",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "revenue",
+        "value": "약 1,920억 달러 (250억 달러 상향, 약 +69~70%), AI 서버 약 740억 달러",
+        "givenOn": "2026-09-01",
+        "src": [
+          "s1",
+          "s4"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "EPS",
+        "value": "GAAP 24.37달러, non-GAAP 25.50달러",
+        "givenOn": "2026-09-01",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "FY2027 매출 전망을 2월 1,380~1,420억(중간값 1,400억)에서, 9월 '250억 달러 상향'으로 1,920억 달러까지 올렸다(직전 값은 약 1,670억으로 계산됨). AI 서버 전망도 약 500억 → 약 740억 달러로 커졌다.",
+    "src": [
+      "s3",
+      "s1",
+      "s4"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) 합계 27.71달러(범위 24.43~33.60, 추정치 최소 7건), 직전 4개 분기 합 17.35달러. 최근 4주 상향·하향 0건.",
+    "src": [
+      "s5"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "AI 서버 주문이 출하를 계속 웃돌아 수주잔고가 유지·증가",
+      "ISG 영업이익률이 두 자릿수를 지킴 (Q3 가이드: 전년 대비 1%p 남짓 상승)",
+      "스토리지 매출이 두 자릿수 성장을 이어감",
+      "영업현금흐름이 이익을 따라잡음",
+      "AI 고객 수와 기업 고객 비중이 계속 늘어남"
+    ],
+    "breaks": [
+      "AI 서버 주문 급감 또는 대형 계약 취소·지연",
+      "메모리·부품 원가 상승을 가격에 못 넘겨 ISG 마진 하락",
+      "영업현금흐름 부진이 길어져 재고·매출채권이 쌓임",
+      "PC 교체 수요 둔화로 CSG 매출 감소",
+      "대형 네오클라우드 고객의 자금 문제"
+    ],
+    "keyNumbers": [
+      {
+        "name": "AI 서버 주문·출하·수주잔고",
+        "why": "다음 분기 매출의 직접 신호"
+      },
+      {
+        "name": "ISG 영업이익률",
+        "why": "얇은 AI 서버 마진을 얼마나 지키는지"
+      },
+      {
+        "name": "총마진율",
+        "why": "부품 원가 전가 능력"
+      },
+      {
+        "name": "영업현금흐름",
+        "why": "성장이 현금으로 바뀌는지"
+      },
+      {
+        "name": "CSG 매출 성장률",
+        "why": "PC 교체 주기와 기업 IT 예산"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11 하순 (추정, 회사 미확정)",
+        "event": "Q3 FY2027 실적 - 가이던스 약 490억 달러·AI 서버 약 190억 달러 대비 실제치",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "date": "2026-11 중순 (NVIDIA 실적, 회사 미확정)",
+        "event": "NVIDIA 데이터센터 매출·공급 발언 - Dell AI 서버의 상류 신호",
+        "src": []
+      },
+      {
+        "date": "수시",
+        "event": "DRAM·NAND 가격 변동과 공급 부족 뉴스",
+        "src": [
+          "s4"
+        ]
+      }
+    ],
+    "reaction": "주가는 AI 서버 주문·수주잔고 규모와 연간 매출 전망 상향 폭, 그리고 ISG 마진에 크게 반응하는 경향이 있다. 마진이 얇은 사업이라 매출이 커도 마진이나 현금흐름이 실망스러우면 반응이 엇갈릴 수 있다.",
+    "conditions": [
+      "AI 서버 주문과 수주잔고의 분기 변화",
+      "연간 매출·EPS 전망 변경 폭과 컨센서스의 차이",
+      "ISG·CSG 영업이익률과 메모리 원가 언급",
+      "분기 영업현금흐름과 재고 변화",
+      "AI 고객 수와 고객 유형(네오클라우드·소버린·기업) 발언",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "AI 서버·스토리지·PC 경쟁사 목록과 점유율 (자료 확인 못함, 업계 일반 구도로 적음)",
+    "FY2026 라인별(AI 서버·일반 서버·스토리지·Commercial·Consumer) 전년 대비 증가율",
+    "'기타 사업' 17.28억 달러는 총매출에서 ISG·CSG 합을 뺀 계산값 (VMware 재판매 등으로 추정되나 미확인)",
+    "FY2026 잉여현금흐름 85.7억 달러는 영업현금흐름(112억)-설비투자·자본화 소프트웨어(26.3억) 계산값",
+    "그룹별 영업이익률(ISG 11.7%, CSG 5.5%)은 발표 금액으로 계산한 값",
+    "Q2 FY2027 총마진율: 콜 기사 21.1%, 검색 요약 GAAP 20.9%·non-GAAP 21.1%로 기준 불명확",
+    "생산 구조(자체 공장 vs 위탁 생산 비중, 업체명)",
+    "AI 서버 고객 이름 (콜 기사에 미기재)",
+    "Michael Dell 지분·의결권 비율과 창업자 CEO 경영 구조 (이번에 읽은 자료에는 이름이 나오지 않음)",
+    "직전 FY2027 매출 전망 약 1,670억 달러가 언제(5월 Q1 발표 추정) 제시됐는지 미확인",
+    "Q2 FY2027 콜 녹취는 일부만 공개된 기사 기반",
+    "Q3 FY2027 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "medium - FY2026 실적표와 분기 숫자는 회사 보도자료 전재본이지만, 가이던스 세부·고객·공급망은 부분 녹취 기사에 의존했고 경쟁 점유율 자료가 없다."
+}

@@ -16,11 +16,23 @@
 | R 키 | Ctrl/Cmd/Alt가 없을 때만 시세 새로고침 (P2121) |
 | 죽은 코드 | 도식 9종과 빌더, 옵션 체인, `DATE_ENGINE.krxStatus`, 디버그 로그 함수, `_aioFetchLiveQuotes`, 빈 테마 상수 3개, `loadSidebarApiKey` 삭제 |
 
-남긴 죽은 코드:
-- 테스트·브라우저 검사가 붙잡고 있는 것: `openChatHistory`, `chatRenderChips`와 `CHAT_DEFAULT_CHIPS`, `vixRegime`, `_aioVixPercentile`, `calcLiveRS`, `renderDataQualityBadge`, `_aioApplyEventFreshnessGate`, 결정 헤더.
-- 스케줄러가 부르는 빈 함수: `fetchBreadthData`, `fetchAllFredData`.
+### 2차 배치 (2026-10-29, 원장 P2129~P2133과 정리 1건)
 
-이것들은 테스트·스케줄러와 함께 정리해야 해서 다음 배치로 남겼다. 2·4·5·8·10위 이관도 남았다.
+| 항목 | 결과 |
+|---|---|
+| 죽은 코드 2차 | 채팅 칩, 대화 기록 창, 머리말 주입기, `chatAppendMsg`, `_aioApplyEventFreshnessGate`, `calcLiveRS`, `_aioVixPercentile`·`vixRegime`, `_aioToggleWhiteSpace`, `applyTextSurfaceHygiene` 삭제. 붙잡던 검사는 동작·부재 검사로 바꿈 |
+| 6위 포트폴리오 | 예전 행 생성기 삭제(진입마다 '(시세 미수신)' 행이 0.7~1.4초 보였다). 관심 종목은 `src/data/watchlist-store.js` 하나로 쓰며 tickers 없는 목록이 더는 지워지지 않음 (P2129) |
+| 5위 현재성 가드 | DOM 쓰기 퇴역. 18개 화면 전후 글자 수 동일, 남은 효과였던 시장 심리 문단의 잘못된 툴팁 제거. 배너 갱신은 유지 (P2130) |
+| 2위 AI 질문 단서 | `src/ai/intent/question-cues.js`로 이전, 영어는 단어 단위. 39개 질문 중 한국어 변화 0건 (P2131) |
+| 4위 시장 판단 엔진 | 대체 분석 문장이 시장 상태 종합 판정을 따름, '?' 라벨·정책 정규식·선택 목록 이스케이프 (P2132). 엔진 자체의 riskScore 등은 감사용으로 남음 |
+| 10위 재무 보고서 | 없는 EPS의 $0.00·가짜 Beat/Miss·0 막대, 순부채 0 처리, 동종 기업·업종 이스케이프 (P2133). 렌더러의 src 이전은 하지 않음 |
+| 8위 텔레그램 | news-pipeline 세션이 맡음. 머리말 'N건'과 채널명 이스케이프 위치를 그 세션에 전달 |
+
+남은 것:
+- 스케줄러가 부르는 빈 함수 `fetchBreadthData`, `fetchAllFredData`(후자는 API 상태 칸에 FRED를 주기적으로 '오류'로 올린다).
+- `renderDataQualityBadge`(테스트만 부름), 결정 헤더.
+- 대화 기록 켜기/끄기는 지운 대화 기록 창이 유일한 UI였다. 지금은 켤 방법이 없다 — 제품 결정이 필요하다.
+- 10위 렌더러 약 1,300줄의 src 이전, 4위 `computeMarketState`의 남은 자체 판정 필드 정리.
 
 ## 범위와 방법
 

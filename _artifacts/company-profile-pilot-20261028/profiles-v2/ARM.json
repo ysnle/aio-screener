@@ -1,0 +1,206 @@
+{
+  "symbol": "ARM",
+  "name": "Arm Holdings plc",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "March 31 (FY2026 ended 2026-03-31)",
+  "oneLine": "Arm은 스마트폰 칩 대부분과 늘어나는 AI 데이터센터 CPU의 설계도(명령어 구조·CPU 설계)를 빌려주고 라이선스료와 칩 1개당 로열티를 받는 회사로, 2026년부터는 자체 AI CPU 칩까지 팔기 시작해 '설계도 회사'에서 '칩 회사'로 넘어가는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "6-K", "title": "Arm Q1 FY2027 shareholder letter (6-K Exhibit 99.2, quarter ended 2026-06-30)", "url": "https://www.sec.gov/Archives/edgar/data/1973239/000197323926000113/exhibit992fye27q130-junx26.htm", "publisher": "Arm Holdings / SEC EDGAR", "date": "2026-07-29" },
+    { "id": "s2", "kind": "6-K", "title": "Arm Q4 FY2026 shareholder letter (6-K Exhibit 99.2, quarter and year ended 2026-03-31)", "url": "https://www.sec.gov/Archives/edgar/data/1973239/000197323926000062/exhibit992fye26q431-marx26.htm", "publisher": "Arm Holdings / SEC EDGAR", "date": "2026-05-06" },
+    { "id": "s3", "kind": "other", "title": "Arm Holdings Form 20-F for fiscal year ended 2026-03-31", "url": "https://www.sec.gov/Archives/edgar/data/1973239/000197323926000097/arm-20260331.htm", "publisher": "Arm Holdings / SEC EDGAR", "date": "2026-05-26" },
+    { "id": "s4", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/arm/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s5", "kind": "ir-site", "title": "Arm Announces Earnings Release Date for Second Quarter Fiscal Year Ending 2027", "url": "https://newsroom.arm.com/news/arm-announces-earnings-release-date-for-second-quarter-fiscal-year-ending-2027", "publisher": "Arm", "date": "2026-10-05" },
+    { "id": "s6", "kind": "ir-site", "title": "Arm Appoints Rene Haas as Chief Executive Officer", "url": "https://newsroom.arm.com/news/arm-appoints-rene-haas-as-ceo", "publisher": "Arm", "date": "2022-02-08" }
+  ],
+  "moat": {
+    "sources": [
+      "스마트폰 애플리케이션 프로세서의 표준 명령어 구조 - 모바일 AP가 매출의 최대 시장, 로열티의 약 43%",
+      "수십 년 쌓인 소프트웨어 생태계 - 운영체제·앱이 Arm 구조 위에서 돌아 다른 구조로 바꾸기 어렵다",
+      "저전력 CPU 설계 - 데이터센터에서 NVIDIA Vera, Google Axion, Microsoft Cobalt, AWS Graviton이 모두 Arm 기반",
+      "Armv9·CSS(완성형 서브시스템)로 칩당 로열티율을 높이는 가격 사다리"
+    ],
+    "text": "Arm의 힘은 표준이라는 데서 나온다. 스마트폰 칩 대부분이 Arm 명령어 구조를 쓰고 그 위에 운영체제와 앱이 쌓여 있어, 칩 회사가 다른 구조로 옮기기 매우 어렵다. 이 표준이 저전력이 중요한 AI 데이터센터로 퍼지며 NVIDIA·Google·Microsoft·AWS의 서버 CPU가 모두 Arm 기반이 됐고, 신형 구조(Armv9)와 완성형 설계(CSS)로 칩 하나당 받는 몫도 커지고 있다.",
+    "src": ["s3", "s1", "s2"]
+  },
+  "design": {
+    "text": "회사가 설계해 파는 것은 세 층이다. 첫째는 명령어 구조와 CPU·GPU·NPU 코어 설계(IP), 둘째는 이를 묶어 칩 회사가 바로 쓰게 만든 완성형 서브시스템(CSS), 셋째는 2026년 처음 내놓은 자체 양산 칩 Arm AGI CPU다. 매출은 라이선스·기타(설계 사용권)와 로열티(칩 출하당) 두 갈래로 보고된다.",
+    "src": ["s3", "s2", "s1"]
+  },
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "IP 사업은 생산이 없다 - 칩 회사(라이선시)가 설계를 받아 자기 칩을 만든다",
+      "Arm AGI CPU - 외부 파운드리와 위탁 생산업체가 생산 (20-F에 업체명 미기재)",
+      "제3자 반도체 제품 공급 약정 - 향후 12개월 약 1억 달러",
+      "Arm China - Arm이 지배하지 않는 독립 회사로 중국 시장 접근 창구"
+    ],
+    "text": "Arm은 원래 아무것도 만들지 않는다. 설계도를 칩 회사에 빌려주면 NVIDIA·Qualcomm·AWS 같은 라이선시가 자기 칩을 만들어 팔고, 그래서 총마진이 97.5%에 이른다. 2026년 자체 칩 Arm AGI CPU를 내면서 처음으로 외부 파운드리에 생산을 맡기는 팹리스 구조가 생겼고, 이 사업은 IP보다 마진이 낮다.",
+    "src": ["s3", "s2", "s1"]
+  },
+  "sell": {
+    "customers": [
+      "스마트폰 칩 회사 (모바일 AP가 로열티의 약 43%)",
+      "데이터센터 CPU 설계사 - NVIDIA Vera, Google Axion, Microsoft Cobalt 200, AWS Graviton5, Qualcomm Dragonfly C1000",
+      "자동차·IoT·PC·로봇 칩 회사",
+      "Arm AGI CPU 구매 고객 - 미국·중국의 복수 고객, FY2027~FY2028 수요 20억 달러 이상",
+      "관계사 (SoftBank 그룹 등) - FY2026 매출의 30%"
+    ],
+    "channel": "칩 회사와 직접 라이선스 계약. 중국은 독립 회사인 Arm China를 통한다.",
+    "concentration": "FY2026 관계사 매출 14.99억 달러(30%), Arm China 약 16%. 소수 고객 비중이 크다고 20-F에 명시 (개별 비율은 확인 못 함).",
+    "text": "설계도는 칩 회사에 직접 빌려주고, 중국은 Arm이 지배하지 않는 Arm China가 매출의 약 16%를 맡는다. FY2026 매출의 30%가 대주주 SoftBank 그룹 등 관계사에서 나와, 외부 고객 매출과 관계사 매출을 나눠 볼 필요가 있다. 이제는 자체 칩 AGI CPU를 사는 고객도 생겨 Arm이 일부 라이선시와 같은 시장에서 경쟁하게 됐다.",
+    "src": ["s3", "s1", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "스마트폰·서버·자동차 최종 구매자", "to": "휴대폰 제조사·클라우드·자동차 OEM 등", "what": "기기·서비스 구매 대금" },
+      { "from": "기기 제조사·클라우드", "to": "칩 회사 (NVIDIA, Qualcomm, AWS, Google, Microsoft 등 라이선시)", "what": "Arm 기반 칩 구매 대금" },
+      { "from": "칩 회사", "to": "Arm", "what": "설계 사용권 라이선스료 (선불·계약 기간)" },
+      { "from": "칩 회사", "to": "Arm", "what": "칩 출하 1개당 로열티 (물량이 많을수록 단가 하락, 최소 로열티 있음)" },
+      { "from": "클라우드·AI 인프라 고객", "to": "Arm", "what": "Arm AGI CPU 칩 대금 (개당)" }
+    ],
+    "pricing": "라이선스료(설계 접근권)와 칩당 로열티. 로열티는 물량이 늘수록 칩당 단가가 낮아지되 최소 로열티가 있고, Armv9·CSS는 칩당 로열티율이 더 높다. AGI CPU는 칩 개당 판매.",
+    "text": "돈은 칩 회사가 Arm 설계를 쓰기로 할 때 라이선스료로 한 번, 그 칩이 팔릴 때마다 로열티로 또 한 번 들어온다. 라이선스는 몇 년 뒤의 로열티를 예고하는 선행 지표이고, 로열티는 칩 출하량과 칩당 로열티율의 곱이다. 여기에 2026년부터 자체 칩 판매라는 세 번째 흐름이 더해졌다.",
+    "src": ["s3", "s2", "s1"]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-03-31)",
+    "revenue": { "value": 4.92, "unit": "USD bn", "yoy": 23 },
+    "grossMargin": 97.5,
+    "operatingMargin": 18.3,
+    "netMargin": 18.4,
+    "operatingCashFlow": { "value": 1.524, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.882, "unit": "USD bn" },
+    "segments": [
+      { "name": "Royalty", "revenue": 2.613, "unit": "USD bn", "share": 53.1, "yoy": 21, "operatingMargin": null, "src": ["s2"] },
+      { "name": "License and other", "revenue": 2.307, "unit": "USD bn", "share": 46.9, "yoy": 25, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q1 FY2027) 매출·이익", "value": "매출 12.89억 달러(+22%; 로열티 7.15억 +22%, 라이선스 5.74억 +23%), GAAP 영업이익률 7.1%, non-GAAP 41.2%", "src": ["s1"] },
+      { "name": "데이터센터 로열티", "value": "Q4 FY2026·Q1 FY2027 모두 전년 대비 2배 이상", "src": ["s2", "s1"] },
+      { "name": "연환산 계약가치(ACV)", "value": "16.6억 달러, 전년 대비 +22% (Q4 FY2026); RPO 20.71억 달러(-7%), Q1 FY2027부터 RPO 공시 중단", "src": ["s2", "s1"] },
+      { "name": "Arm AGI CPU 고객 수요", "value": "FY2027~FY2028 20억 달러 초과 (직전 분기 10억 달러에서 상향)", "src": ["s1"] },
+      { "name": "non-GAAP 영업이익률", "value": "FY2026 43.0% (FY2025 46.7%)", "src": ["s2"] }
+    ],
+    "text": "이 구조가 FY2026에 매출 49.2억 달러(+23%)로 나타났고, 로열티(26.1억)와 라이선스(23.1억)가 거의 반반이다. 총마진은 97.5%지만 GAAP 영업이익률은 18.3%에 그쳤는데, R&D가 27.8억 달러로 매출의 절반이 넘기 때문이다. 자체 칩 개발로 R&D가 늘며 non-GAAP 영업이익률도 46.7%에서 43.0%로 내려왔다.",
+    "src": ["s2"]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-03-31)",
+    "items": [
+      { "use": "R&D", "value": 2.776, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.545, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "베스팅 주식 관련 원천징수세 납부", "value": 0.529, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "현금의 가장 큰 쓰임은 R&D 27.8억 달러(GAAP, non-GAAP 19.1억 +43%)로, 자체 칩과 데이터센터 CPU 설계에 돈을 쏟고 있다. 설비투자도 5.5억 달러로 전년(2.2억)의 두 배 넘게 늘었고, 배당은 계획이 없다. 2025-10에는 DreamBig Semiconductor를 약 2.65억 달러에 인수하기로 해 칩 사업 역량을 사 오는 중이다.",
+    "src": ["s2", "s3"]
+  },
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "AI 데이터센터 CPU의 설계도 공급자이자, 2026년부터는 자체 AI CPU(Arm AGI CPU)를 파는 칩 공급자. NVIDIA Vera, Google Axion, Microsoft Cobalt, AWS Graviton 같은 AI 서버 CPU가 Arm 설계 위에 서 있어, AI 연산 칩 옆의 '두뇌 CPU' 자리를 쥐고 있다.",
+    "dependsOn": [
+      "semicap-foundry (자체 칩 생산용 외부 파운드리 - 업체명 미공시)",
+      "라이선시의 칩 출하 (NVIDIA, AWS, Google, Microsoft, Qualcomm 등)"
+    ],
+    "sellsTo": [
+      "chips-compute (NVIDIA·Qualcomm 등 칩 설계사에 IP)",
+      "cloud-infrastructure (AWS·Google·Microsoft 자체 CPU, AGI CPU 구매 고객)",
+      "devices (스마트폰·PC·자동차 칩)"
+    ],
+    "aiRevenue": "데이터센터 로열티가 Q1 FY2027 전년 대비 2배 이상 (금액 미공시). Arm AGI CPU 고객 수요 FY2027~FY2028 20억 달러 초과, 회사는 이 사업을 150억 달러 기회로 제시 (2026-05-06·2026-07-29)",
+    "upside": "에이전트 AI가 늘수록 GPU 옆에서 작업을 나누는 CPU 수요가 커지고, 그 CPU가 Arm 기반이면 칩당 높은 로열티가 들어온다. 회사는 에이전트 AI CPU 기회를 2030년 1,000억 달러 이상으로 본다. 자체 칩은 칩 1개당 로열티보다 훨씬 큰 금액을 직접 매출로 잡는다.",
+    "risk": "자체 칩이 NVIDIA·Qualcomm 같은 라이선시와 경쟁해 관계가 틀어질 수 있고, 칩 사업은 IP보다 마진이 낮다. RISC-V 같은 무료 오픈소스 구조와 스마트폰 경기(메모리 부족)도 위험이다.",
+    "text": "그래서 AI 가치사슬에서 Arm은 '칩·연산' 층의 가장 위, 설계도 단계에 있다. 데이터센터 로열티가 2배 넘게 늘며 AI 효과가 이미 들어오고 있고, 자체 칩 AGI CPU로 같은 층의 완제품 칩까지 내려오고 있다. 다만 설계도를 사 가는 고객과 칩 시장에서 맞붙는다는 새로운 긴장이 생겼다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "CPU 명령어 구조 (스마트폰·PC·서버)", "rivals": ["x86 (Intel·AMD)", "RISC-V (무료 오픈소스)", "칩 회사 자체 구조"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "데이터센터 CPU 설계", "rivals": ["Intel Xeon", "AMD EPYC", "RISC-V 서버 칩"], "position": "challenger", "share": null, "src": ["s3", "s1"] },
+      { "arena": "자체 AI CPU 칩 (Arm AGI CPU)", "rivals": ["NVIDIA Vera", "Qualcomm Dragonfly C1000", "AMD EPYC", "Intel Xeon"], "position": "follower", "share": null, "src": ["s1"] },
+      { "arena": "AI 가속기 (NPU)", "rivals": ["고객 자체 AI 가속기"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "스마트폰에서 이미 표준인 생태계, 저전력 설계, 주요 클라우드 자체 CPU가 모두 Arm 기반이라는 데이터센터 확산.",
+    "threats": "RISC-V의 무료 대안, x86의 서버 기반, 그리고 자체 칩 사업으로 라이선시(NVIDIA·Qualcomm)와 경쟁하게 된 구조.",
+    "text": "명령어 구조 경쟁에서 Arm은 스마트폰의 표준이고 서버에서는 x86을 빠르게 따라잡는 쪽이다. 20-F는 x86, 무료 오픈소스인 RISC-V, 칩 회사의 자체 구조를 주요 경쟁으로 든다. 새로 들어간 자체 칩 시장에서는 오히려 자기 라이선시인 NVIDIA Vera·Qualcomm Dragonfly와 맞서는 후발 주자다.",
+    "src": ["s3", "s1"]
+  },
+  "strategy": {
+    "goal": "회사는 Arm AGI CPU 사업을 150억 달러 기회로, 에이전트 AI CPU 시장을 2030년 1,000억 달러 이상으로 제시했다. 칩당 로열티율이 높은 Armv9·CSS 확산과 데이터센터 점유율 확대가 기존 사업의 축이다.",
+    "roadmap": [
+      { "when": "FY2026 Q4", "what": "첫 양산 칩 Arm AGI CPU 출시", "src": ["s2"] },
+      { "when": "Q1 FY2027", "what": "AGI CPU 초기 제품을 복수 고객에 인도, FY2027~FY2028 수요 20억 달러 초과", "src": ["s1"] },
+      { "when": "FY2027 Q2 말까지", "what": "DreamBig Semiconductor 인수 완료 예정 (약 2.65억 달러)", "src": ["s3"] },
+      { "when": "Q2 FY2027", "what": "매출 13.8억 달러 ±0.5억, non-GAAP EPS 0.47달러 ±0.04 가이던스", "src": ["s1"] },
+      { "when": "2030", "what": "에이전트 AI CPU 시장 1,000억 달러 이상 전망", "src": ["s2"] }
+    ],
+    "vision": "모든 연산이 일어나는 곳(스마트폰·PC·자동차·로봇·데이터센터)의 기본 CPU 플랫폼이 되고, 설계도에서 완성형 서브시스템, 자체 칩까지 고객이 원하는 형태로 Arm 기술을 공급하겠다는 그림이다.",
+    "text": "그래서 Arm의 전략은 가치사슬을 한 칸씩 내려가는 것이다. 설계도(IP)에서 완성형 서브시스템(CSS)으로, 다시 자체 칩(AGI CPU)으로 내려갈수록 칩 하나에서 가져가는 금액이 커진다. 대가는 높은 R&D 부담과 라이선시와의 경쟁이며, FY2027~2028 AGI CPU 수요 20억 달러가 실제 매출로 바뀌는지가 첫 확인 지점이다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "governance": {
+    "line": "SoftBank 그룹이 지분 약 86.4%(2026-05-21)를 가진 지배주주이고 그중 약 72.0%가 SoftBank 대출 담보로 잡혀 있으며, 2022-02부터 Arm CEO인 Rene Haas는 2026-04부터 SoftBank Group International CEO도 겸하고, 배당 계획은 없다.",
+    "src": ["s3", "s6"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q2 FY2027", "metric": "revenue", "value": "13.8억 달러 ±0.5억", "givenOn": "2026-07-29", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "non-GAAP diluted EPS", "value": "0.47달러 ±0.04", "givenOn": "2026-07-29", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "non-GAAP operating expenses", "value": "약 7.8억 달러", "givenOn": "2026-07-29", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q1 FY2027 매출 12.89억 달러는 가이던스 12.6억 ±0.5억의 중간값을 넘었고, non-GAAP EPS 0.45달러는 가이던스 0.40 ±0.04 상단을 넘었다.",
+    "src": ["s2", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 1.37달러(범위 1.03~1.70), 직전 4개 분기 실적 합 0.92달러. 최근 4주 상향·하향 0건.",
+    "src": ["s4"]
+  },
+  "watch": {
+    "confirms": [
+      "데이터센터 로열티가 2배 이상 성장을 이어 가고 회사가 금액이나 비중을 공개",
+      "Arm AGI CPU 출하가 매출로 잡히기 시작하고 수요 20억 달러가 더 늘어남",
+      "Armv9·CSS 비중 확대로 칩당 로열티율 상승이 지속",
+      "라이선스 매출과 연환산 계약가치(ACV) 성장 유지 - 미래 로열티의 선행 지표"
+    ],
+    "breaks": [
+      "주요 라이선시가 자체 칩 사업을 이유로 Arm과의 관계를 줄이거나 RISC-V로 전환 발표",
+      "스마트폰 출하 감소로 로열티 성장 둔화",
+      "R&D 증가로 non-GAAP 영업이익률이 계속 하락",
+      "Arm China·관계사 매출 관련 문제 (지배하지 않는 중국 법인, SoftBank 관련 거래)"
+    ],
+    "keyNumbers": [
+      { "name": "로열티 매출 성장률", "why": "실제 칩 출하와 칩당 단가를 함께 보여 준다" },
+      { "name": "라이선스 매출·ACV", "why": "몇 년 뒤 로열티의 선행 지표" },
+      { "name": "데이터센터 로열티 성장", "why": "AI 수혜의 직접 지표" },
+      { "name": "AGI CPU 매출·수요", "why": "칩 회사로의 전환이 숫자로 보이는 곳" },
+      { "name": "non-GAAP 영업이익률", "why": "자체 칩 투자 부담의 크기" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-04 (장 마감 후, 콜 오후 2시 미 태평양시간, 회사 공지)", "event": "Q2 FY2027 실적과 Q3 가이던스", "src": ["s5"] },
+      { "date": "매 분기", "event": "NVIDIA·Qualcomm·AWS 등 라이선시의 Arm 기반 칩 출시·출하", "src": ["s1"] },
+      { "date": "수시", "event": "SoftBank 그룹 자금 조달·지분 담보 관련 소식", "src": ["s3"] }
+    ],
+    "reaction": "주가는 다음 분기 매출 가이던스와 로열티 성장률, 그리고 최근에는 AGI CPU 수요 규모 발표에 크게 반응한다. 지분의 86%를 SoftBank가 가져 유통 주식이 적어 움직임이 큰 편이고, SoftBank의 자금 상황도 주가 변수가 된다.",
+    "conditions": [
+      "실적 발표 때 다음 분기 매출·EPS 가이던스와 컨센서스의 차이",
+      "로열티와 라이선스 성장률, 데이터센터 로열티 언급",
+      "AGI CPU 수요·출하 업데이트",
+      "non-GAAP 영업비용 가이던스 증가 속도",
+      "SoftBank의 Arm 지분 담보·매각 관련 공시",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "데이터센터 로열티 금액과 매출 비중 - 회사가 성장률만 공개",
+    "개별 대형 고객의 매출 비중 - 20-F 해당 표를 읽지 못함",
+    "지역별 매출 (중국·미국·대만·한국) - 20-F 해당 부분을 읽지 못함 (Arm China 약 16%만 확인)",
+    "FY2026 잉여현금흐름 8.82억 달러는 회사 non-GAAP 정의값 (영업현금흐름 15.24억 - 설비투자 5.45억 = 9.79억과 다름; 차이 항목 미확인)",
+    "Arm AGI CPU 생산 파운드리 이름",
+    "자사주 매입 프로그램 여부·금액 - 검색에서 확인되지 않음",
+    "경쟁 영역의 점유율 - 확인한 출처 없음",
+    "FY2026 순이익률 18.4%는 순이익 9.04억 / 매출 49.2억으로 계산; s3 날짜는 SEC 접수일"
+  ],
+  "confidence": "high - 실적·매출 구조·고객 집중·지배구조는 회사 6-K 주주서한과 20-F에서 왔다. 지역별 매출과 개별 고객 비중, 점유율은 확인하지 못했다."
+}

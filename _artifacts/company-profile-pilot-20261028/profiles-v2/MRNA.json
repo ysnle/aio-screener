@@ -1,0 +1,227 @@
+{
+  "symbol": "MRNA",
+  "name": "Moderna, Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Moderna는 mRNA 기술로 코로나·독감·RSV 백신을 파는 회사로, 백신 매출이 팬데믹 뒤 90% 가까이 줄어 적자가 이어지지만 Merck와 함께 개발한 맞춤형 암 백신(intismeran)이 2026년 흑색종 3상에서 재발 위험을 42% 낮추면서 주가가 그 한 가지 기대에 크게 기대고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "call-transcript", "title": "Moderna Q4 2025 earnings call transcript (FY2025 revenue, opex, cash, 2026 framework, approvals, customers)", "url": "https://stockanalysis.com/stocks/mrna/transcripts/394581-q4-2025/", "publisher": "StockAnalysis (Quartr transcript)", "date": "2026-02-13" },
+    { "id": "s2", "kind": "call-transcript", "title": "Moderna Q2 2026 earnings call transcript (Q2 results, updated 2026 framework, litigation settlement, pipeline)", "url": "https://stockanalysis.com/stocks/mrna/transcripts/659044-q2-2026/", "publisher": "StockAnalysis (Quartr transcript)", "date": "2026-07-31" },
+    { "id": "s3", "kind": "call-transcript", "title": "Moderna study update: INTerpath-001 Phase 3 intismeran + pembrolizumab in adjuvant melanoma", "url": "https://stockanalysis.com/stocks/mrna/transcripts/758731-study-update/", "publisher": "StockAnalysis (Quartr transcript)", "date": "2026-10-24" },
+    { "id": "s4", "kind": "call-transcript", "title": "Moderna at Bernstein 3rd Annual Healthcare Forum (Merck 50/50 economics, BLA priority, 'only mRNA platform company left')", "url": "https://stockanalysis.com/stocks/mrna/transcripts/743393-bernstein-insights-healthcare-leaders-and-disruptors-3rd-annual-healthcare-forum/", "publisher": "StockAnalysis (Quartr transcript)", "date": "2026-09-23" },
+    { "id": "s5", "kind": "call-transcript", "title": "Moderna at Morgan Stanley 24th Annual Global Healthcare Conference (mFLUSIVA approved in US, five approved products, breakeven 2028)", "url": "https://stockanalysis.com/stocks/mrna/transcripts/743335-morgan-stanley-24th-annual-global-healthcare-conference/", "publisher": "StockAnalysis (Quartr transcript)", "date": "2026-09-14" },
+    { "id": "s6", "kind": "other", "title": "Moderna quarterly income statement Q1 2025-Q2 2026 (revenue, operating income, net income; third-party data page)", "url": "https://stockanalysis.com/stocks/mrna/financials/?p=quarterly", "publisher": "StockAnalysis", "date": "2026-10-29" },
+    { "id": "s7", "kind": "other", "title": "Moderna cash flow statement FY2025/FY2024/TTM (third-party data page)", "url": "https://stockanalysis.com/stocks/mrna/financials/cash-flow-statement/", "publisher": "StockAnalysis", "date": "2026-10-29" },
+    { "id": "s8", "kind": "10-K", "title": "AIO local SEC companyfacts snapshot of Moderna FY2025 10-K (revenue $1.944bn, net loss $2.822bn, revenue growth -39.9%), public-data/sec-fundamentals.json", "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001682852", "publisher": "SEC EDGAR via AIO", "date": "2026-02-20" },
+    { "id": "s9", "kind": "other", "title": "Moderna stock overview (market cap $85.50B, +718.7% one year; next earnings 2026-11-06; headlines incl. ~18% one-day drop after melanoma data, William Blair downgrade)", "url": "https://stockanalysis.com/stocks/mrna/", "publisher": "StockAnalysis", "date": "2026-10-29" },
+    { "id": "s10", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/mrna/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s11", "kind": "other", "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - MRNA 2026-11-06 before market open", "url": "https://finnhub.io/docs/api", "publisher": "Finnhub via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "mRNA 플랫폼 - 같은 기술로 백신·암 치료제·희귀질환 약을 빠르게 설계 (승인 제품 5개)",
+      "Merck와 50:50로 나누는 맞춤형 암 백신 intismeran - 흑색종 3상 재발·사망 위험 42% 감소",
+      "환자별 신항원 맞춤 생산 능력 - 3상에서 99% 이상 생산 성공, 조직 채취부터 투여까지 6~8주",
+      "경쟁 mRNA 플랫폼의 이탈 - CEO는 '남은 유일한 mRNA 플랫폼 회사'라고 표현"
+    ],
+    "text": "Moderna의 해자는 mRNA라는 설계 플랫폼 자체다. 같은 기술로 코로나·독감·RSV 백신을 만들었고, 이제는 환자 종양마다 다른 신항원을 넣은 맞춤형 암 백신을 6~8주 안에 만들어 내는 데까지 넓혔다. 다만 이 기술이 돈이 되는 것은 아직 코로나 백신뿐이라, 해자의 가치는 암 백신이 실제 허가와 매출로 이어지는지에 달려 있다.",
+    "src": ["s3", "s4", "s5"]
+  },
+
+  "design": {
+    "text": "회사가 파는 것은 호흡기 백신이다. 코로나 백신 Spikevax와 2세대 mNEXSPIKE, RSV 백신 mRESVIA, 미국에서 승인된 독감 백신 mFLUSIVA, 유럽에서 승인된 독감·코로나 혼합 백신(mCOMBRIAX)까지 5개 제품이 승인됐다. 개발 중인 것은 Merck와 함께하는 암 백신 intismeran(흑색종·폐암·신장암·방광암), 희귀질환(프로피온산혈증 PA, 메틸말론산혈증 MMA), 노로바이러스 백신 등이다.",
+    "src": ["s5", "s2", "s3"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 mRNA 생산 시설 - 매사추세츠 전용 시설에서 암 백신 출시 대비",
+      "캐나다·호주 - 현지 생산을 포함한 정부 장기 계약 (2026년 연간 효과 전액 반영 예정)",
+      "Merck - intismeran 공동 개발·상업화, 비용과 이익 50:50 (사실상 합작)",
+      "Recordati - 프로피온산혈증(PA) 치료제 전 세계 상업화 파트너 (2028년 출시 가능성)"
+    ],
+    "text": "Moderna는 mRNA 백신을 직접 만든다. 캐나다·호주와는 현지 생산을 포함한 장기 공급 계약을 맺었고, 암 백신은 환자 한 명 한 명의 종양 조직에서 신항원을 찾아 맞춤 생산하는 방식이라 3상에서 99% 이상 생산에 성공했다. 상업화는 혼자 하지 않고, 암 백신은 Merck와 비용·이익을 반씩 나누며 희귀질환 약은 Recordati에 판매를 맡긴다.",
+    "src": ["s1", "s2", "s3", "s4"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 소매 약국 - 미국 코로나 백신 시장의 약 4분의 3이 소매 (mNEXSPIKE 2025~26 시즌 미국 소매 점유율 약 24%)",
+      "각국 정부 - 영국(봄 접종 2억 달러 주문), 캐나다·호주(장기 계약), 멕시코·대만(다년 계약), 브라질",
+      "유럽 - 경쟁사 팬데믹 계약이 2026년 끝나 2027년부터 약 18억 달러 호흡기 백신 시장이 열릴 것으로 회사가 예상",
+      "암 백신 - 앞으로 병원 (Merck와 함께 병원별 투여 체계 구축 중)"
+    ],
+    "channel": "미국은 소매 약국·도매 채널, 해외는 정부 조달 계약.",
+    "concentration": "FY2025 미국 약 12억 달러(약 62%), 미국 외 약 7억 달러(약 38%). 개별 고객 비중은 확인하지 못했다.",
+    "text": "백신은 미국에서는 약국을 통해, 해외에서는 정부 조달로 팔린다. 그래서 매출이 가을·겨울 접종 시즌에 몰리고(2025년 Q3 10.2억 달러, Q2 1.5억 달러), 미국 접종 권고 정책과 각국 정부 계약에 크게 흔들린다. 유럽은 경쟁사 팬데믹 계약이 끝나는 2027년부터 다시 열릴 시장으로 회사가 기대하는 곳이다.",
+    "src": ["s1", "s2", "s6"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "접종자·보험사·정부", "to": "약국·병원", "what": "백신 접종 비용 (미국은 주로 보험 적용)" },
+      { "from": "약국·도매상", "to": "Moderna (미국)", "what": "백신 도즈당 대금 - 가을 접종 시즌에 집중" },
+      { "from": "각국 정부 (영국·캐나다·호주 등)", "to": "Moderna (해외)", "what": "정부 조달 계약 대금 (예: 영국 봄 접종 2억 달러)" },
+      { "from": "Moderna·Merck", "to": "intismeran 공동 사업", "what": "개발 비용 50:50 분담, 출시 후 이익 50:50" }
+    ],
+    "pricing": "백신은 도즈당 가격으로 팔고, 매출은 접종률과 시즌 길이에 따라 크게 달라진다. 암 백신은 환자 1인당 맞춤 치료제가 될 예정이나 가격은 아직 정해지지 않았다(회사 '데이터가 나오기 전 논의는 이르다').",
+    "text": "지금의 돈은 거의 모두 계절성 백신에서 들어온다. 한 해 매출의 대부분이 가을 접종 시즌 한두 분기에 몰리기 때문에, 나머지 분기에는 매출 1~4억 달러로 연구비를 감당하지 못해 적자가 커진다. 앞으로는 Merck와 반씩 나누는 암 백신 이익이 두 번째 돈줄이 될 수 있지만, 가격과 출시 시점은 아직 정해지지 않았다.",
+    "src": ["s6", "s1", "s4", "s5"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 1.944, "unit": "USD bn", "yoy": -39.9 },
+    "grossMargin": 55.3,
+    "operatingMargin": -158.1,
+    "netMargin": -145.2,
+    "operatingCashFlow": { "value": -1.873, "unit": "USD bn" },
+    "freeCashFlow": { "value": -2.065, "unit": "USD bn" },
+    "segments": [
+      { "name": "미국 (반올림 값)", "revenue": 1.2, "unit": "USD bn", "share": 62, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "미국 외 (반올림 값)", "revenue": 0.7, "unit": "USD bn", "share": 38, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "현금·투자자산", "value": "2025말 81억 달러(대출 6억 달러 포함) → 2026 Q2말 69억 달러; 2026말 전망 47억~52억 달러", "src": ["s1", "s2"] },
+      { "name": "FY2025 GAAP 비용", "value": "매출원가 8.68억, R&D 31억, SG&A 10억 달러; 영업비용 전년 대비 22억 달러(30%) 감소", "src": ["s1"] },
+      { "name": "분기 매출 (계절성)", "value": "2025 Q1 1.08억, Q2 1.42억, Q3 10.16억, Q4 6.78억; 2026 Q1 3.89억, Q2 1.45억 달러", "src": ["s6"] },
+      { "name": "2026 Q2 실적", "value": "매출 1.45억 달러(+2%, 미국 60%), 순손실 7.82억 달러(주당 1.97달러), R&D 6.51억(-7%), SG&A 2.16억(-6%)", "src": ["s2"] },
+      { "name": "intismeran 흑색종 3상 (INTerpath-001)", "value": "무재발 생존 HR 0.58 (p<0.001), 2년 무재발률 82.2% vs 70%, 원격전이 HR 0.62; 전체 생존은 미성숙", "src": ["s3"] }
+    ],
+    "text": "2025년 매출은 19.4억 달러로 전년보다 40% 줄었고, 순손실은 28억 달러(순이익률 -145%)였다. 매출 거의 전부가 코로나 백신이라 접종 시즌이 아닌 분기에는 매출이 1억 달러대로 떨어지고, 연 31억 달러의 R&D가 그대로 적자가 된다. 회사는 영업비용을 1년 만에 30% 줄였지만 여전히 현금을 태우는 단계로, 연말 현금은 81억 달러였다.",
+    "src": ["s8", "s1", "s6"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 3.1, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.192, "unit": "USD bn", "src": ["s7"] },
+      { "use": "buybacks", "value": 0.002, "unit": "USD bn", "src": ["s7"] },
+      { "use": "other", "label": "소송 합의금 지급 (2026-07, 2026년 매출원가에 9억 달러 반영)", "value": 0.95, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "2026 R&D 계획 (7월 갱신)", "value": 2.9, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "Moderna의 현금은 주주 환원이 아니라 연구비로 나간다. 2025년 R&D 31억 달러가 매출을 넘었고 영업현금흐름은 -18.7억 달러였으며, 부족분은 기존 현금과 신용한도 6억 달러 인출로 메웠다. 2026년에는 R&D를 29억 달러로 줄이는 대신 7월에 소송 합의금 9.5억 달러를 냈고, 최근에는 전환사채도 발행해 암 백신 출시 자금을 마련했다.",
+    "src": ["s1", "s7", "s2", "s5"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 파는 회사가 아니라 mRNA 서열 설계와 맞춤형 암 백신의 신항원 선별에 컴퓨터 설계를 쓰는 사용자다. CEO는 코로나 백신을 컴퓨터로 빠르게 설계한 경험을 들며 AI 활용을 강조한다.",
+    "dependsOn": ["models-platforms (설계용 AI·컴퓨팅 - 업체명 미확인)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 백신·암 백신 설계 속도로 나타남"],
+    "aiRevenue": null,
+    "upside": "환자별로 34개 신항원을 골라 6~8주 안에 맞춤 백신을 만드는 과정은 계산 설계에 크게 의존한다. 설계·생산이 빨라지고 싸지면 암 백신을 더 많은 암종으로 넓힐 수 있다.",
+    "risk": "AI 효과는 공시되지 않고, 지금의 사업 위험은 AI보다 임상 결과와 백신 정책에서 나온다. 다른 제약사도 같은 도구로 신항원 설계를 따라 할 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Moderna는 '도입자'다. 맞춤형 암 백신의 신항원 선별처럼 계산 설계가 핵심인 공정을 갖고 있지만, AI 관련 매출이나 지출은 공시하지 않는다. 주가를 움직이는 것은 AI가 아니라 암 백신 임상 데이터다.",
+    "src": ["s4", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "코로나 백신", "rivals": ["Pfizer/BioNTech", "Novavax/Sanofi"], "position": "challenger", "share": "mNEXSPIKE 2025~26 시즌 미국 소매 시장 약 24% (회사 발언, 전체 Moderna 점유율 아님)", "src": ["s1", "s2"] },
+      { "arena": "독감 백신", "rivals": ["Sanofi", "CSL Seqirus", "GSK"], "position": "follower", "share": null, "src": ["s5"] },
+      { "arena": "RSV 백신", "rivals": ["GSK (Arexvy)", "Pfizer (Abrysvo)"], "position": "follower", "share": null, "src": ["s1"] },
+      { "arena": "맞춤형 암 백신 (개인 맞춤 신항원 치료)", "rivals": ["BioNTech", "기타 신항원 백신 개발사"], "position": "leader", "share": null, "src": ["s3", "s4"] }
+    ],
+    "edge": "보조요법 흑색종에서 1차·2차 평가변수를 모두 충족한 첫 맞춤형 암 백신 데이터, Merck의 Keytruda와 묶인 조합, mRNA 경쟁 플랫폼의 이탈.",
+    "threats": "코로나 백신 수요 감소와 미국 접종 정책 변화, 독감·RSV 시장에서 늦은 진입, 암 백신 전체 생존 데이터 미확정과 첫 6개월 효과 부재(초기 HR 0.99), 병원 투여 체계 구축 속도.",
+    "text": "백신 시장에서 Moderna는 Pfizer·Sanofi·GSK 같은 거대 제약사를 쫓는 입장이고, 독감·RSV에서는 늦게 들어왔다. 반대로 맞춤형 암 백신에서는 처음으로 3상을 성공시켜 앞서 나갔지만, 효과가 투여 6개월 뒤부터 나타나고(초기 HR 0.99, 이후 0.42) 전체 생존 데이터가 아직 없어 시장의 해석이 엇갈렸다. 회사는 Merck와 함께 빠른 허가 신청과 폐암·신장암·방광암으로의 확장으로 이 우위를 굳히려 한다.",
+    "src": ["s3", "s4", "s9"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 최대 10% 성장, 현금 비용 약 40억 달러, 연말 현금 47억~52억 달러를 제시했고, 2028년 현금 손익분기를 목표로 한다. 장기적으로는 백신 회사에서 암·희귀질환까지 가진 mRNA 의약품 회사로 바뀌려 한다.",
+    "roadmap": [
+      { "when": "2026 (진행 중)", "what": "intismeran 흑색종 BLA를 '가능한 한 빨리' 제출 (구체 일정 미공개)", "src": ["s4", "s3"] },
+      { "when": "2026 Q4 (가능성)", "what": "프로피온산혈증(PA) 등록용 데이터 발표", "src": ["s2", "s4"] },
+      { "when": "2026~2027", "what": "intismeran 신장암·방광암 중간 분석, 폐암 3상 무작위 배정 완료", "src": ["s2", "s4"] },
+      { "when": "2026-11-06 (Finnhub 일정, 장 시작 전)", "what": "Q3 2026 실적 발표", "src": ["s11", "s9"] },
+      { "when": "2027", "what": "유럽 호흡기 백신 시장 재개방 기대 (경쟁사 팬데믹 계약 종료 후)", "src": ["s1"] },
+      { "when": "2028", "what": "현금 손익분기 목표", "src": ["s5"] }
+    ],
+    "vision": "Bancel CEO는 'Moderna는 처음부터 코로나 백신 회사가 아니었다'며, 하나의 mRNA 플랫폼으로 백신·암·희귀질환 약을 계속 내놓는 회사를 그린다.",
+    "text": "앞으로의 순서는 암 백신 허가 신청, 다른 암종으로의 확장, 그리고 2028년 현금 손익분기다. 그 사이 백신 사업은 비용을 줄이며 독감·혼합 백신으로 매출을 지키고, 유럽 시장이 다시 열리는 2027년을 기다린다. 하지만 2026년 연말 현금 전망이 47억~52억 달러로 줄어드는 만큼, 손익분기까지 얼마나 버틸 수 있는지가 함께 시험받는다.",
+    "src": ["s4", "s5", "s2", "s1"]
+  },
+
+  "governance": {
+    "line": "Stéphane Bancel CEO가 이끌며, 배당은 없고 자사주 매입도 사실상 없이(2025년 200만 달러) 현금을 연구개발과 암 백신 출시에 쓴다.",
+    "src": ["s4", "s7"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "최대 10% 성장 (2월과 같음, 9월 컨퍼런스에서 재확인)", "givenOn": "2026-07-31", "src": ["s2", "s1", "s5"] },
+      { "period": "FY2026", "metric": "cash costs (SBC·감가상각 제외)", "value": "약 40억 달러 (2월 약 42억)", "givenOn": "2026-07-31", "src": ["s2", "s1"] },
+      { "period": "FY2026", "metric": "GAAP operating expenses", "value": "47억 달러 (소송 비용 9억 달러 제외), 매출원가 17억 달러(소송 9억 포함), R&D 29억, SG&A 약 10억", "givenOn": "2026-07-31", "src": ["s2"] },
+      { "period": "FY2026", "metric": "year-end cash and investments", "value": "47억~52억 달러 (2월 55억~60억, 소송 합의금 반영)", "givenOn": "2026-07-31", "src": ["s2", "s1"] },
+      { "period": "2028", "metric": "cash breakeven", "value": "목표 유지", "givenOn": "2026-09-14", "src": ["s5"] }
+    ],
+    "style": "annual",
+    "track": "2025년에는 현금 비용이 최초 전망보다 약 12억 달러 적었고, 2026년에도 R&D·매출원가 전망을 낮췄다. 다만 연말 현금 전망은 소송 합의금 때문에 2월보다 약 8억 달러 내려갔다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 -7.20달러(범위 -8.22~-5.91), 직전 4개 분기 실적 합 -5.77달러. 최근 4주 상향 0건·하향 3건.",
+    "src": ["s10"]
+  },
+
+  "watch": {
+    "confirms": [
+      "intismeran 흑색종 BLA 제출과 FDA 접수",
+      "흑색종 전체 생존 데이터가 긍정적으로 나옴",
+      "신장암·방광암·폐암 intismeran 데이터 성공",
+      "현금 비용이 가이던스(약 40억 달러) 이하로 유지",
+      "독감 mFLUSIVA와 혼합 백신의 첫 시즌 매출"
+    ],
+    "breaks": [
+      "BLA 지연이나 FDA의 추가 데이터 요구",
+      "다른 암종 intismeran 임상 실패",
+      "코로나 백신 접종률 추가 하락 또는 미국 접종 권고 축소",
+      "연말 현금이 전망 하단(47억 달러) 아래로 떨어짐",
+      "2028 손익분기 목표 철회"
+    ],
+    "keyNumbers": [
+      { "name": "현금·투자자산 잔액", "why": "손익분기까지 버틸 수 있는 기간" },
+      { "name": "분기 순손실과 현금 비용", "why": "비용 절감의 실제 속도" },
+      { "name": "가을 시즌 백신 매출 (Q3·Q4)", "why": "연간 매출의 대부분이 몰린다" },
+      { "name": "intismeran 임상 일정과 데이터", "why": "기업가치의 대부분이 걸린 자산" },
+      { "name": "mNEXSPIKE·독감 백신 점유율", "why": "기존 사업의 방어력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-06 (장 시작 전, Finnhub 일정)", "event": "Q3 2026 실적 - 가을 백신 시즌 첫 분기, 2026 가이던스 수정 여부", "src": ["s11", "s9"] },
+      { "date": "2026 Q4 (가능성)", "event": "프로피온산혈증(PA) 등록용 데이터", "src": ["s2", "s4"] },
+      { "date": "시점 미공개", "event": "intismeran 흑색종 BLA 제출, NEJM 논문 게재", "src": ["s4", "s3"] }
+    ],
+    "reaction": "주가는 실적보다 임상 데이터에 훨씬 크게 반응한다. 최근 1년 시가총액이 약 8배(855억 달러) 커졌다가, 2026-10 흑색종 상세 데이터 발표 무렵 하루 약 18% 떨어졌다는 보도가 있을 만큼 변동성이 크다.",
+    "conditions": [
+      "intismeran 관련 FDA 제출·심사 일정 공시",
+      "다른 암종 중간 분석 결과 발표",
+      "분기 실적의 현금 잔액과 연말 현금 전망",
+      "미국 백신 접종 권고·정책 변화",
+      "컨센서스 EPS 상향·하향 건수 추이와 애널리스트 의견 변경"
+    ]
+  },
+
+  "unverified": [
+    "제품별 매출(Spikevax·mNEXSPIKE·mRESVIA) - 회사 콜에서 나누지 않음; 지역 매출은 반올림 값(12억+7억)이라 합이 19억으로 총매출 19.44억 달러의 98%",
+    "영업이익률은 StockAnalysis 분기 영업손실 합(-30.7억 달러)으로 계산; 총마진은 콜의 매출원가 8.68억 달러로 계산",
+    "현금흐름(영업·설비투자·자사주)은 서드파티(StockAnalysis) 값",
+    "2026년 소송 합의 상대방과 내용 (금액 9.5억 달러만 확인)",
+    "최근 전환사채 발행 규모 (애널리스트가 26억 달러로 언급, 회사 확인 없음)",
+    "mFLUSIVA 미국 승인 날짜 (2026-08-05 PDUFA였고 9월에 '승인 제품'으로 언급)",
+    "intismeran BLA 제출 시점, 가격, 흑색종 HR의 신뢰구간",
+    "시가총액 855억 달러·1년 +719%, 하루 약 18% 하락은 StockAnalysis 화면과 뉴스 제목 기준",
+    "AI 관련 지출·성과",
+    "Q3 2026 실적 발표일은 Finnhub 일정 기준 (회사 공지 미확인)",
+    "이번 작업 중 웹 검색 한도에 걸려 회사 보도자료 원문 대신 콜 전사본을 주 자료로 사용"
+  ],
+  "confidence": "medium - 재무 수치와 가이던스는 회사 실적 콜 전사본에서 왔고 연간 매출·순손실은 SEC 10-K 값과 일치한다. 제품별 매출, 현금흐름 세부, 시가총액 변동은 서드파티 자료다."
+}

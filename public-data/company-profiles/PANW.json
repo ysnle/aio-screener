@@ -1,0 +1,261 @@
+{
+  "symbol": "PANW",
+  "name": "Palo Alto Networks, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "July 31 (FY2026 ended 2026-07-31)",
+  "oneLine": "Palo Alto Networks는 방화벽에서 출발해 클라우드·보안운영·ID 보안까지 사들이며 '보안 플랫폼 하나로 통합'을 파는 최대 보안 회사로, CyberArk 인수 뒤 AI 에이전트 계정 보호까지 전선을 넓혔다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Palo Alto Networks Reports Fiscal Fourth Quarter and Fiscal Year 2026 Financial Results",
+      "url": "https://www.paloaltonetworks.com/company/press/2026/palo-alto-networks-reports-fiscal-fourth-quarter-and-fiscal-year-2026-financial-results",
+      "publisher": "Palo Alto Networks",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s2",
+      "kind": "call-transcript",
+      "title": "Palo Alto Networks (PANW) Q4 2026 earnings summary (AI-generated summary of the call)",
+      "url": "https://quartr.com/events/palo-alto-networks-inc-panw-q4-2026_3YZ8mjLB",
+      "publisher": "Quartr",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s3",
+      "kind": "news",
+      "title": "Palo Alto Networks Completes $25B Acquisition Of CyberArk For Identity Security Push",
+      "url": "https://www.crnasia.com/news-network/2026/palo-alto-networks-completes-25b-acquisition-of-cyberark-for-identity-security-push",
+      "publisher": "CRN Asia",
+      "date": "2026-02-11"
+    },
+    {
+      "id": "s4",
+      "kind": "10-Q",
+      "title": "Palo Alto Networks Form 10-Q for quarter ended 2026-01-31 - Chronosphere purchase consideration (read from search summary; sec.gov page not fetched; date = period end)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1327567/000132756726000005/panw-20260131.htm",
+      "publisher": "Palo Alto Networks / SEC EDGAR",
+      "date": "2026-01-31"
+    },
+    {
+      "id": "s5",
+      "kind": "call-transcript",
+      "title": "Palo Alto Networks Reports Q4 2026 Results: Full Earnings Call Transcript (read from search summary; page returned 403)",
+      "url": "https://www.benzinga.com/node/61966173",
+      "publisher": "Benzinga",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local SEC companyfacts snapshot (public-data/sec-fundamentals.json), 10-K FY ended 2026-07-31, accession 0001327567-26-000023",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001327567.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-09-10"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/panw/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "방화벽·SASE 설치 기반 - 네트워크 보안이 여전히 가장 큰 사업",
+      "플랫폼화(platformization) - 여러 보안 제품을 한 계약으로 묶어 이전 업체를 대체, Q4 FY2026 순증 플랫폼화 220건 이상",
+      "대형 인수로 빈칸을 채우는 능력 - CyberArk(ID 보안, 250억 달러), Chronosphere(관측성) 인수 완료",
+      "7만 이상 고객 기반과 210억 달러 RPO(남은 계약 잔고)"
+    ],
+    "text": "Palo Alto Networks의 힘은 기업 네트워크 입구를 지키는 방화벽에서 쌓은 고객 기반 위에, 클라우드·보안운영·ID 보안을 하나의 계약으로 묶어 파는 '플랫폼화'에 있다. 회사는 빈 영역을 직접 만들기보다 CyberArk·Chronosphere 같은 대형 인수로 빠르게 채웠고, 이제 거의 모든 주요 보안 분야에 제품을 갖게 됐다. 계약이 다년 묶음이라 남은 계약 잔고(RPO)가 210억 달러로 연 매출의 약 두 배다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "design": {
+    "text": "이 플랫폼은 회사 설명대로 크게 세 묶음이다. Network & AI Security는 차세대 방화벽(하드웨어·소프트웨어)과 SASE, AI 모델·에이전트 보호 제품 Prisma AIRS를 담고, Cortex는 XSIAM 보안운영·클라우드 보안을, Idira는 CyberArk에서 온 ID·권한 보안을 담는다. 매출은 제품(주로 방화벽 장비)과 구독·지원 두 줄로 보고된다.",
+    "src": ["s1", "s5", "s3"]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "방화벽 하드웨어 - 외부 위탁생산(업체명은 이번 조사에서 확인 못함)",
+      "CyberArk (2026-02 인수 완료) - ID·권한 보안 제품군",
+      "Chronosphere (2026-01-29 인수 완료) - 관측성·데이터 처리",
+      "Embrace·Console·Koi Security 등 소규모 인수 - 플랫폼 기능 보강"
+    ],
+    "text": "소프트웨어와 클라우드 서비스는 직접 만들고, 방화벽 장비는 외부 생산을 거쳐 제품 매출로 잡힌다. 최근 2년 제품 라인업을 넓힌 핵심 수단은 인수로, Chronosphere(2026-01-29)와 CyberArk(2026-02-11) 두 건이 회사 역사상 가장 큰 인수였다. 이 때문에 FY2026에는 인수 관련 비용과 무형자산 상각이 GAAP 이익을 크게 눌렀다.",
+    "src": ["s1", "s3", "s4", "s2"]
+  },
+  "sell": {
+    "customers": [
+      "대기업·정부·통신사 보안 조직 - 고객 7만 이상",
+      "여러 제품을 한 계약으로 묶는 플랫폼화 고객 - Q4 FY2026 순증 220건 이상",
+      "AI 모델·에이전트를 도입하는 기업 - Prisma AIRS ARR 1억 달러 돌파"
+    ],
+    "channel": "리셀러·유통사·서비스 사업자 등 파트너 채널과 직접 영업을 함께 쓴다. 채널별 비중은 이번 조사에서 확인하지 못했다.",
+    "concentration": "주요 고객 집중 공시는 이번 조사에서 확인하지 못함 (null).",
+    "text": "만든 제품은 7만 곳 이상의 기업·정부 고객에게 팔리며, 성장의 중심은 여러 제품을 한 번에 바꾸는 '플랫폼화' 계약이다. 이런 계약은 기존 업체 제품을 교체하면서 다년 약정으로 들어오기 때문에 RPO가 빠르게 쌓인다. AI 쪽에서는 Prisma AIRS가 출시 4분기 만에 ARR 1억 달러를 넘었다는 것이 회사 설명이다.",
+    "src": ["s1", "s2", "s5"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업·정부 보안 조직", "to": "리셀러·유통사·서비스 사업자", "what": "보안 플랫폼 계약 대금 (다년 묶음 포함)" },
+      { "from": "리셀러·유통사 및 직접 고객", "to": "Palo Alto Networks (Product)", "what": "방화벽 장비 대금, 판매 시점 인식" },
+      { "from": "리셀러·유통사 및 직접 고객", "to": "Palo Alto Networks (Subscription & support)", "what": "보안 구독·클라우드 서비스·지원 계약, 기간에 걸쳐 인식 (RPO 212억 달러)" },
+      { "from": "AI를 도입하는 기업", "to": "Palo Alto Networks (Prisma AIRS)", "what": "AI 모델·에이전트 보호 구독" }
+    ],
+    "pricing": "매출의 약 80%가 구독·지원(기간 인식), 약 20%가 방화벽 장비 판매. 플랫폼화 계약은 여러 제품을 다년 묶음으로 판다.",
+    "text": "돈은 고객이 파트너나 회사에 내는 계약 대금으로 들어와, 장비 값은 바로 제품 매출이 되고 구독·지원은 계약 기간에 나눠 매출이 된다. 그래서 회사는 차세대 보안(NGS) ARR과 RPO를 앞으로의 매출을 보여주는 핵심 숫자로 쓴다. FY2026 말 NGS ARR은 91억 달러(+63%)로, 그 안에는 인수한 회사들의 ARR도 포함돼 있다.",
+    "src": ["s1", "s2"]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-07-31)",
+    "revenue": { "value": 11.48, "unit": "USD bn", "yoy": 24.5 },
+    "grossMargin": 70.4,
+    "operatingMargin": 6.1,
+    "netMargin": 2.7,
+    "operatingCashFlow": { "value": 4.553, "unit": "USD bn" },
+    "freeCashFlow": { "value": 4.414, "unit": "USD bn" },
+    "segments": [
+      { "name": "Product", "revenue": 2.28, "unit": "USD bn", "share": 19.9, "yoy": 26.5, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Subscription and support", "revenue": 9.2, "unit": "USD bn", "share": 80.1, "yoy": 24, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "Next-Generation Security (NGS) ARR", "value": "91.0억 달러 (FY2026 말, +63%, 인수분 포함), Q4 순증 약 10억 달러", "src": ["s1"] },
+      { "name": "잔여 이행의무 (RPO)", "value": "212억 달러 (+34%, 2026-07-31)", "src": ["s1"] },
+      { "name": "non-GAAP 영업이익률", "value": "FY2026 약 29.2% (non-GAAP 영업이익 33.56억 달러 기준 계산), Q4 29.6%", "src": ["s1", "s2"] },
+      { "name": "조정 잉여현금흐름 마진", "value": "FY2026 38.4% (44.14억 달러)", "src": ["s1"] },
+      { "name": "최근 분기 (Q4 FY2026)", "value": "매출 34.1억 달러(+34%), GAAP 영업이익 1.72억, GAAP 순손실 2.82억 달러", "src": ["s1"] },
+      { "name": "플랫폼화", "value": "Q4 FY2026 순증 플랫폼화 220건 이상", "src": ["s2"] }
+    ],
+    "text": "이 구조가 FY2026에 매출 114.8억 달러(+24.5%)를 만들었지만, 대형 인수 비용과 무형자산 상각 탓에 GAAP 영업이익률은 약 6%, 순이익률은 약 3%에 그쳤다. 반면 인수 비용을 뺀 non-GAAP 영업이익률은 약 29%, 조정 잉여현금흐름은 44.1억 달러(마진 38.4%)로 현금 창출력은 그대로다. Q4에는 GAAP 순손실 2.82억 달러가 나와 회계 이익과 현금 흐름의 차이가 더 벌어졌다.",
+    "src": ["s1", "s6"]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-07-31)",
+    "items": [
+      { "use": "R&D", "value": 2.552, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.44, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "label": "Chronosphere 현금 대가 (CyberArk 현금분은 미확인)", "value": 2.842, "unit": "USD bn", "src": ["s4"] },
+      { "use": "other", "label": "본사 부지 매입", "value": 0.091, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "FY2026 현금의 가장 큰 쓰임은 인수였다. CyberArk는 주당 현금 45달러와 Palo Alto 주식 2.2005주를 주는 250억 달러 규모 거래였고, Chronosphere에는 현금 약 28.4억 달러가 들어갔다. 그 밖에 R&D 25.5억 달러, 설비투자 4.4억 달러, 본사 부지 0.9억 달러를 썼으며, 자사주 매입 금액은 이번 조사에서 확인하지 못했다.",
+    "src": ["s1", "s3", "s4"]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI를 도입하는 기업의 네트워크·클라우드·AI 모델·에이전트 계정을 지키는 보안 소프트웨어와 장비를 판다. AI 시대에는 사람뿐 아니라 기계·에이전트 계정까지 보호해야 한다는 논리로 CyberArk를 샀다.",
+    "dependsOn": [
+      "cloud-infrastructure (클라우드 보안·SASE 서비스 운영)",
+      "chips-compute·하드웨어 위탁생산 (방화벽 장비)",
+      "models-platforms (Prisma AIRS가 보호하는 AI 모델·에이전트 생태계)"
+    ],
+    "sellsTo": [
+      "ai-adopter (AI 모델·에이전트를 도입하는 기업·정부)",
+      "통신사·대기업·정부 보안 조직"
+    ],
+    "aiRevenue": "Prisma AIRS ARR 1억 달러 돌파 (출시 4분기 내, Q4 FY2026 콜 발언으로 보도, 2026-09-01). AI 보안 전체 매출은 미공시.",
+    "upside": "AI 에이전트가 늘수록 보호할 계정과 권한이 늘어나 Idira(CyberArk)·Prisma AIRS·XSIAM 판매가 커진다. 경영진은 NGS ARR을 FY2030 200억 달러로 키우겠다는 목표를 유지했다.",
+    "risk": "Microsoft·CrowdStrike 등과의 AI 보안 경쟁, 대형 인수 통합 실패, 방화벽 장비 교체 주기 둔화. AI가 보안 운영을 자동화하면 기존 제품 가격 구조가 바뀔 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Palo Alto Networks는 AI를 도입하는 기업을 지키는 응용 소프트웨어 층에 있다. AI 관련 수치로 확인되는 것은 Prisma AIRS ARR 1억 달러 정도로 전체 NGS ARR 91억 달러에 비하면 아직 작다. 회사의 AI 베팅은 오히려 에이전트 계정 보호를 위해 산 CyberArk에 담겨 있어, 그 통합 성과가 AI 효과를 가늠하는 잣대다.",
+    "src": ["s1", "s3", "s5"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "차세대 방화벽·네트워크 보안", "rivals": ["Fortinet", "Cisco", "Check Point"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "SASE (클라우드 보안 접속)", "rivals": ["Zscaler", "Cisco", "Fortinet", "Netskope", "Cato Networks"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "보안운영·SIEM (Cortex XSIAM)", "rivals": ["Splunk (Cisco)", "Microsoft Sentinel", "CrowdStrike", "Google SecOps"], "position": "challenger", "share": null, "src": ["s5"] },
+      { "arena": "ID·권한 보안 (Idira/CyberArk)", "rivals": ["Microsoft Entra", "Okta", "CrowdStrike"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "AI 보안 (Prisma AIRS)", "rivals": ["CrowdStrike Falcon AIDR", "Microsoft", "Cisco"], "position": "challenger", "share": null, "src": ["s5"] }
+    ],
+    "edge": "거의 모든 보안 분야 제품을 한 계약으로 묶을 수 있는 폭, 방화벽 고객 기반, 대형 인수를 실행할 현금 창출력(조정 FCF 마진 38.4%).",
+    "threats": "Fortinet의 저가 방화벽, Zscaler의 클라우드 보안 접속, CrowdStrike·Microsoft의 엔드포인트·SIEM·ID 확장. 점유율 수치는 이번 조사에서 1차 자료로 확인하지 못했다.",
+    "text": "이 자리를 놓고 네트워크에서는 Fortinet·Cisco와, 클라우드 접속에서는 Zscaler와, 보안운영·ID·AI 보안에서는 CrowdStrike·Microsoft와 동시에 겨룬다. Palo Alto의 전략은 개별 제품 하나로 이기기보다 여러 제품을 묶어 기존 업체를 한꺼번에 밀어내는 것이다. 다만 인수로 넓힌 영역은 통합이 끝나야 경쟁력이 되므로, 플랫폼화 건수와 NGS ARR의 유기적 성장 속도가 승패를 보여준다.",
+    "src": ["s1", "s2", "s3", "s5"]
+  },
+  "strategy": {
+    "goal": "FY2030 NGS ARR 200억 달러, FY2028 조정 FCF 마진 40%. FY2027 매출 141억~142억 달러(+23~24%).",
+    "roadmap": [
+      { "when": "Q1 FY2027 (2026-10 분기)", "what": "NGS ARR 95.4억~95.6억 달러, 매출 33.0억~33.1억 달러 가이던스", "src": ["s1"] },
+      { "when": "FY2027 (2027-07 종료)", "what": "NGS ARR 110.75억~111.75억 달러, RPO 252억~254억 달러, non-GAAP 영업이익률 29.5%, 조정 FCF 마진 38%", "src": ["s1"] },
+      { "when": "FY2028", "what": "조정 FCF 마진 40%", "src": ["s1"] },
+      { "when": "FY2030", "what": "NGS ARR 200억 달러", "src": ["s1"] }
+    ],
+    "vision": "사람·기계·AI 에이전트의 모든 계정과 모든 연결을 한 플랫폼에서 지키는 'AI 시대 보안 플랫폼'을 말한다.",
+    "text": "경쟁에 대한 회사의 답은 '더 넓게 묶기'다. CyberArk·Chronosphere 통합으로 FY2027 NGS ARR을 110억 달러 이상으로 키우고, FY2030에는 200억 달러에 닿겠다고 한다. 인수 효과가 빠진 뒤에도 성장률이 20%대를 지키는지가 이 계획의 시험대다.",
+    "src": ["s1", "s3"]
+  },
+  "governance": {
+    "line": "CEO Nikesh Arora가 대형 인수로 플랫폼을 넓히는 전략을 이끌며, FY2026 현금은 주주환원보다 CyberArk·Chronosphere 인수에 집중됐다.",
+    "src": ["s3", "s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q1 FY2027", "metric": "revenue", "value": "33.0억~33.1억 달러 (+33~34%)", "givenOn": "2026-09-01", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "non-GAAP diluted EPS", "value": "0.96~0.98달러", "givenOn": "2026-09-01", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue", "value": "141억~142억 달러 (+23~24%)", "givenOn": "2026-09-01", "src": ["s1"] },
+      { "period": "FY2027", "metric": "NGS ARR", "value": "110.75억~111.75억 달러 (+22~23%)", "givenOn": "2026-09-01", "src": ["s1"] },
+      { "period": "FY2027", "metric": "non-GAAP diluted EPS", "value": "4.16~4.19달러", "givenOn": "2026-09-01", "src": ["s1"] },
+      { "period": "FY2027", "metric": "adjusted FCF margin", "value": "38.0%", "givenOn": "2026-09-01", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "직전 분기 가이던스와 실제의 비교는 이번 조사에서 확인하지 못했다. Q4 FY2026 NGS ARR 순증이 약 10억 달러로 사상 최대였다는 것이 회사 설명이다.",
+    "src": ["s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 AIO 컨센서스 스냅샷(Nasdaq/Zacks): 향후 4개 분기 EPS 합계 2.32달러(범위 2.09~2.64, 14개 추정), 직전 4개 분기 실적 합 2.06달러, 최근 4주 상향·하향 0건. 피드의 EPS 회계 기준(GAAP/조정)은 회사 수치와 맞지 않아 확인이 필요하다.",
+    "src": ["s7"]
+  },
+  "watch": {
+    "confirms": [
+      "인수 효과를 뺀 NGS ARR 성장률이 20%대 이상 유지",
+      "플랫폼화 순증 건수가 분기 200건 이상 유지",
+      "CyberArk(Idira) 교차판매 사례와 수치 공개",
+      "Prisma AIRS ARR이 계속 빠르게 늘어남",
+      "조정 FCF 마진이 FY2028 40% 경로를 따라감"
+    ],
+    "breaks": [
+      "인수 효과가 빠진 뒤 NGS ARR 성장률 급감",
+      "RPO 증가율이 매출 증가율보다 크게 낮아짐",
+      "GAAP 적자 분기가 이어지고 인수 관련 손상 발생",
+      "방화벽 제품 매출 감소와 Fortinet·Zscaler로의 이탈 언급",
+      "플랫폼화 계약의 할인·유예 조건이 FCF를 깎음"
+    ],
+    "keyNumbers": [
+      { "name": "NGS ARR (유기적 vs 인수분)", "why": "회사가 성장을 보여주는 핵심 숫자" },
+      { "name": "RPO", "why": "다년 계약 잔고로 앞으로의 매출 바닥" },
+      { "name": "플랫폼화 순증 건수", "why": "묶음 판매 전략의 성과" },
+      { "name": "조정 FCF 마진", "why": "GAAP 이익이 작은 회사의 실제 현금 창출력" },
+      { "name": "GAAP 영업이익", "why": "인수 비용 부담이 줄어드는 속도" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 중하순 (추정, 회사 미공지)", "event": "Q1 FY2027 실적 발표", "src": [] },
+      { "date": "수시", "event": "CrowdStrike·Fortinet·Zscaler 실적과 보안 예산 언급", "src": [] }
+    ],
+    "reaction": "주가는 분기 매출보다 NGS ARR·RPO와 연간 가이던스 변화에 민감한 경향이 있다. 대형 인수 뒤라서 인수분을 뺀 성장률과 GAAP 손익을 함께 본다.",
+    "conditions": [
+      "실적 발표 때 NGS ARR과 가이던스 범위 비교",
+      "RPO 증가율과 매출 증가율의 차이",
+      "플랫폼화 순증 건수",
+      "GAAP 영업이익과 인수 관련 비용",
+      "FY2027 조정 FCF 마진 38% 가이던스 유지 여부"
+    ]
+  },
+  "unverified": [
+    "FY2026 자사주 매입 금액 (보도자료 미기재)",
+    "CyberArk 인수의 현금 지급분과 회계상 취득 대가 (250억 달러는 발표 기준)",
+    "Chronosphere 현금 대가 28.42억 달러는 10-Q 원문이 아닌 검색 요약에서 읽음 (발표 가치 33.5억 달러와 차이)",
+    "인수분을 뺀 유기적 NGS ARR·매출 성장률",
+    "Prisma AIRS ARR 1억 달러는 콜 녹취록 원문이 아닌 검색 요약에서 확인",
+    "방화벽·SASE·SIEM·ID 보안 시장 점유율",
+    "방화벽 위탁생산 업체명, 채널별·지역별 매출, 고객 집중도",
+    "Idira 플랫폼 명칭과 범위는 검색 요약에서 확인 (회사 원문 미열람)",
+    "Q1 FY2027 실적 발표일",
+    "CEO 외 이사회 의장 등 지배구조 세부"
+  ],
+  "confidence": "medium - FY2026 실적·가이던스는 회사 보도자료 원문에서 왔지만, 인수 현금·유기적 성장·AI 매출·점유율은 2차 요약이거나 확인하지 못했다."
+}

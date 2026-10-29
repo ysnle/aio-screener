@@ -1,12 +1,16 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-10-28
+last_verified: 2026-10-29
 confidence: medium
 ---
 
 ## v59.42 뉴스 키워드 규칙 단일화 (2026-10-28)
 
 - [ ] QA-NEWS-RULE-01: 다음 refresh-data 뒤 라이브에서 브라우저 RSS 기사가 섞였을 때 오늘·브리핑·시장 뉴스 선별이 expect 스위트와 같은 규칙으로 움직이는지(복수형·한국어 조사 기사 포함, taxi·Surgery 같은 오탐 없음) 확인. verify_by: push 뒤 라이브 시장 뉴스 화면에서 window._allNewsItems의 RSS 기사(_serverBackstop 아님)를 window.scoreItem·classifyTopic으로 다시 매겨 expect 스위트 규칙과 비교, node scripts/ci-expect-output-check.mjs
+- [ ] QA-NEWS-LABEL-01: 뉴스 화면 출처 표시가 기사가 있을 때 '스냅샷'이 아니라 계약 상한(DELAYED, 지연)으로 나오는지. verify_by: 로컬/라이브 시장 뉴스 화면에서 window.AIO.getNewsSelectionAudit().marketNewsEligible > 0과 페이지 sourceKind DELAYED 확인
+- [ ] QA-NEWS-COV-01: push 뒤 첫 refresh-data에서 새 피드 5개가 healthy이고 묶음에 에너지·암호화폐·헬스케어·일본/중국/유럽 기사가 실리며 3등급이 12건 이하인지. verify_by: public-data/data.json meta.newsFeedHealth의 새 피드 status/kept/selected와 news[].tier·topic 집계
+- [ ] QA-VERIFY-62: event-briefs.yml의 첫 Actions 실행이 10/18 이후 무버 실적(META 10/21, MSFT·GOOGL 10/28, SK하이닉스·삼성전자 DART 잠정 실적)과 10/28 FOMC 성명·기자회견(녹취록이 있으면 녹취록(예비), 없으면 보도 기준)을 채우고, 글마다 costLedger에 비용이 남으며, 오늘 '주요 발표 요약'과 종목 화면에 보인다. verify_by: push 후 event-briefs.yml 실행 로그 + public-data/event-briefs.json의 briefs·costLedger·skippedFilings 확인 + node scripts/ci-event-briefs-check.mjs
+- [ ] QA-VERIFY-63: kr-index-weights.json이 한국장 마감 뒤(16:10 KST 이후) 채워지고, 세션 브리지 한국 고유 요인 줄과 직전 미국장 줄이 지수를 끈 종목과 같은 날 뉴스·텔레그램을 붙이며, 실적 달력의 미확정 대형주는 SEC 8-K 2.02로 이미 발표했는지 이유를 단다. verify_by: push 후 event-briefs.yml·refresh-screener.yml 실행 + public-data/kr-index-weights.json, public-data/earnings-calendar.json largeCapCoverage.recentlyReported·unconfirmedReasons 확인
 
 ## v59.32 사용자·운영 번거로움 제거 (2026-10-27)
 

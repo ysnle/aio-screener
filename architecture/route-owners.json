@@ -448,7 +448,6 @@
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-data.js:_aioUpdateNewsSourceMeta writes [data-news-source-count] from the stable registered-source registry; native news.js does not overwrite it with the filtered result source count",
         "js/aio-data.js:_aioUpdateNewsSummaryFromItems remains a compatibility scoring producer for chart/signal consumers and no longer writes the native summary sinks"
       ],
       "p1209Boundary": "news.js renders normalized display text through text nodes after one bounded entity decode; URLs are excluded and hostile markup remains inert text.",

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.42';
+const APP_VERSION = 'v59.43';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2127,12 +2127,6 @@ window._aioUpdateBannerClose = function() {
   var b = document.getElementById('update-banner');
   if (b) b.classList.remove('show');
 };
-window._aioToggleWhiteSpace = function(el) {
-  if (!el) return;
-  var t = el.querySelector('.ch-item-a');
-  if (!t) return;
-  t.style.whiteSpace = t.style.whiteSpace === 'normal' ? 'nowrap' : 'normal';
-};
 
 // v57.76: _aioDetectTickerPattern (the 요약 tab 최근 3봉 형태 text) was deleted with its section; the 차트 tab chart shows the bars.
 // P1430: the manual 가격·추세 위치 점검 calculator (_aioFillEntryFromTicker) was retired with its ticker section.
@@ -2668,7 +2662,7 @@ if (typeof document !== 'undefined') {
         // 이벤트 플래그(토픽 기반 — classifyTopic 실키)
         if (topic === 'geo') eventFlags.geopolitical += w;
         if (topic === 'earnings') eventFlags.earnings += w;
-        if (topic === 'macro') { eventFlags.macro += w; if (/(fed|fomc|rate|금리|연준|cpi|pce|관세|tariff)/i.test(text)) eventFlags.policy += w; }
+        if (topic === 'macro') { eventFlags.macro += w; if (/(\b(?:fed|fomc|rates?|cpi|pce|tariffs?)\b|금리|연준|관세)/i.test(text)) eventFlags.policy += w; } // v59.42: whole English words ('rate' hit "corporate", 'fed' hit "FedEx")
         if (topic === 'semi' || topic === 'energy') eventFlags.supply += w;
       });
       var total = bull + bear + warn + neut;
@@ -2842,14 +2836,20 @@ if (typeof document !== 'undefined') {
       var num = function(v, d){ return (typeof v === 'number' && isFinite(v)) ? v : d; };
       // 1) 레짐 (변동성 + 심리)
       var vixTxt = window._aioSafeFixed(ms.vix, 1, '—');
-      var regimePart = '변동성 ' + (ms.vixBandLabel || '—') + '(VIX ' + vixTxt + ')'
-        + ', 투자심리 ' + (ms.fgZoneLabel || '—') + '(F&G ' + (ms.fg != null ? Math.round(ms.fg) : '—') + ')';
-      // 2) 사이클 + 시장폭
-      var cyclePart = '경기 국면 ' + (ms.cyclePhase || '—') + (ms.cycleScore != null ? '(위치 ' + ms.cycleScore + '/100)' : '')
-        + ', 시장폭 ' + (ms.breadthConsensus || '—');
-      // 3) 리스크 종합
-      var riskLabelKo = { high: '높음', elevated: '경계', moderate: '보통', low: '낮음', unknown: '판정 대기' }[ms.riskLevel] || ms.riskLevel;
-      var riskPart = '종합 리스크 ' + riskLabelKo + (ms.riskScore != null ? '(' + ms.riskScore + '/100)' : '');
+      // v59.42: a missing VIX or F&G has no band ('?' was printed); the label is '—'.
+      var vixLabel = ms.vix == null || ms.vixBandLabel === '?' ? '—' : (ms.vixBandLabel || '—');
+      var fgLabel = ms.fg == null || ms.fgZoneLabel === '?' ? '—' : (ms.fgZoneLabel || '—');
+      var regimePart = '변동성 ' + vixLabel + '(VIX ' + vixTxt + ')'
+        + ', 투자심리 ' + fgLabel + '(F&G ' + (ms.fg != null ? Math.round(ms.fg) : '—') + ')';
+      // 2) + 3) v59.42: the verdict is the 시장 상태 screen's overall and axis counts (src/domain/market/market-regime.js via
+      //   _aioMarketRegimeSummary), not this engine's own riskScore/cyclePhase/breadth consensus. The fallback text used to
+      //   read "종합 리스크 낮음(17/100), 경기 국면 환경 양호, 시장폭 강세 우위" while the screen beside it read 혼조 (2/2/2).
+      var rs = null;
+      try { rs = typeof window._aioMarketRegimeSummary === 'function' ? window._aioMarketRegimeSummary() : null; } catch(_) { rs = null; }
+      var verdictKo = rs && rs.available && rs.overall ? rs.overall : '판정 보류';
+      var cyclePart = '시장 상태 종합 ' + verdictKo
+        + (rs && rs.available && rs.counts ? '(양호 ' + rs.counts.favorable + ', 중립 ' + rs.counts.neutral + ', 부담 ' + rs.counts.burden + ')' : '');
+      var riskPart = '';
       // 4) 주도 뉴스/감성
       var topicKo = { macro: '거시', geo: '지정학', semi: '반도체', earnings: '실적', energy: '에너지', crypto: '크립토', equity: '주식', defense: '방산', analyst: '애널리스트' };
       var newsPart = '';
@@ -2865,10 +2865,10 @@ if (typeof document !== 'undefined') {
         actionPart = '변동성 환경(' + (ms.actionPlan.position.label || '—') + '): ' + (ms.actionPlan.position.note || '')
           + (ms.actionPlan.newsTilt === 'defensive' ? ' (뉴스: 부정 우위)' : ms.actionPlan.newsTilt === 'constructive' ? ' (뉴스: 긍정 우위)' : '');
       }
-      var oneLine = '지금은 변동성 ' + (ms.vixBandLabel || '—') + ', ' + (ms.fgZoneLabel || '—') + ' 심리, '
-        + (ms.cyclePhase || '—') + ', 리스크 ' + riskLabelKo + (ns.available && ns.bias !== 'neutral' ? ', 뉴스 ' + (ns.bias === 'bullish' ? '긍정' : '부정') : '') + ' 환경입니다.';
-      var full = [oneLine, '① ' + regimePart, '② ' + cyclePart, '③ ' + riskPart]
-        .concat(newsPart ? ['④ ' + newsPart] : [])
+      var oneLine = '지금은 변동성 ' + vixLabel + ', ' + fgLabel + ' 심리, 시장 상태 종합 ' + verdictKo
+        + (ns.available && ns.bias !== 'neutral' ? ', 뉴스 ' + (ns.bias === 'bullish' ? '긍정' : '부정') : '') + ' 환경입니다.';
+      var full = [oneLine, '① ' + regimePart, '② ' + cyclePart]
+        .concat(newsPart ? ['③ ' + newsPart] : [])
         .concat(actionPart ? ['→ ' + actionPart] : []).join('\n');
       return { available: true, oneLine: oneLine, full: full,
         parts: { regime: regimePart, cycle: cyclePart, risk: riskPart, news: newsPart, action: actionPart },
@@ -3200,7 +3200,8 @@ window._aioRRPopulateSelect = function() {
   var current = sel.value;
   sel.innerHTML = '<option value="">포지션에서 자동 입력...</option>' +
     positions.map(function(p){
-      return '<option value="' + p.ticker + '">' + p.ticker + ', ' + p.qty + '주 @ $' + Number(p.cost).toFixed(2) + '</option>';
+      var tk = escHtml(p.ticker); // v59.42: a stored ticker is escaped (it was raw HTML in the option)
+      return '<option value="' + tk + '">' + tk + ', ' + escHtml(p.qty) + '주 @ $' + Number(p.cost).toFixed(2) + '</option>';
     }).join('');
   if (current && positions.some(function(p){return p.ticker===current;})) sel.value = current;
 };
@@ -3224,19 +3225,8 @@ window._aioCloseGlossary = function() {
   if (typeof _glossaryPreviousFocus !== 'undefined') _glossaryPreviousFocus = null;
   if (previousFocus && document.contains(previousFocus) && !previousFocus.disabled) { try { previousFocus.focus(); } catch (_) {} }
 };
-window._aioChatHistoryClear = function() {
-  if (typeof window.showConfirmModal !== 'function') return;
-  window.showConfirmModal('대화 기록 전체 삭제', '모든 대화 기록이 영구 삭제됩니다. 계속하시겠습니까?', function() {
-    try { localStorage.removeItem('aio_chat_history'); localStorage.removeItem('aio_chat_sessions_v1'); localStorage.removeItem('aio_chat_active_session'); } catch(_){}
-    var ov = document.querySelector('.chat-history-overlay');
-    if (ov) { if (ov._aioClose) ov._aioClose(); else ov.remove(); }
-  }, '');
-};
-window._aioChatHistoryClose = function(el) {
-  if (!el) return;
-  var ov = el.closest('.chat-history-overlay');
-  if (ov) { if (ov._aioClose) ov._aioClose(); else ov.remove(); }
-};
+// v59.42: the 대화 기록 overlay handlers (_aioChatHistoryClear/_aioChatHistoryClose/_aioChatHistoryToggle,
+// _aioToggleWhiteSpace) left with the unreachable overlay (js/aio-workspace.js).
 window._aioFetchAllNewsForce = function() {
   if (typeof window.isFetching !== 'undefined') window.isFetching = false;
   if (typeof window.fetchAllNews === 'function') window.fetchAllNews(true);
@@ -3453,7 +3443,7 @@ window.AIO_SOURCE_KIND = {
 
 window.AIO_EVENT_FRESHNESS_REGISTRY = {
   // P1081: 끝난 이벤트 결과만 등록. 관심 윈도우 ~60일, 만료 시 data-refresh에서 명시적 제거(R605).
-  fomc: { eventDate: '2026-09-16', label: 'FOMC', result: '25bp 인상, 3.75-4.00% (12-0 만장일치)', policyRange: '3.75-4.00%', nextCheckpoint: '10/28 FOMC', maxClaimAgeDays: 42, source: 'Federal Reserve FOMC statement', sourceUrl: 'https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm' }
+  fomc: { eventDate: '2026-10-28', label: 'FOMC', result: '동결, 3.75-4.00% (10-2, Cook·Hammack 25bp 인상 소수의견)', policyRange: '3.75-4.00%', nextCheckpoint: '12/9 FOMC', maxClaimAgeDays: 42, source: 'Federal Reserve FOMC statement', sourceUrl: 'https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm' }
 };
 
 // v52.55/H3-B: 사건 서사는 결과를 보존하되 현재 행동 주장으로 자동 승격하지 않는다.
@@ -4393,14 +4383,6 @@ window.AIO.getUserResearchPipelineAudit = function() {
     uiPolicy: (window.AIO_USER_RESEARCH_REFRESH_CONTRACT || {}).uiPolicy
   };
 };
-window._aioChatHistoryToggle = function() {
-  if (!window.AIO || typeof window.AIO.getChatHistoryPolicy !== 'function' || typeof window.AIO.setChatHistoryEnabled !== 'function') return;
-  var policy = window.AIO.getChatHistoryPolicy();
-  var next = window.AIO.setChatHistoryEnabled(policy.enabled === false);
-  if (typeof window.showToast === 'function') window.showToast(next.enabled ? '채팅 기록 저장을 켰습니다. 이후 대화만 민감정보를 가린 뒤 저장합니다.' : '채팅 기록 저장을 끄고 기존 기록을 삭제했습니다.');
-  var ov = document.querySelector('.chat-history-overlay');
-  if (ov) { if (ov._aioClose) ov._aioClose(); else ov.remove(); }
-};
 
 // v52.78/WP-AI3: deterministic question-intent retrieval for user-supplied
 // research. Reference material is ranked and compacted separately from LIVE,
@@ -4471,10 +4453,10 @@ function _aioAIClassifyIntent(query, ctxId) {
   try { plan = window.AIO_ARCH && typeof window.AIO_ARCH.planAIQuestion === 'function' ? window.AIO_ARCH.planAIQuestion({ query:String(query || ''), route:ctxId }) : null; } catch(_) { plan = null; }
   var canonical = (plan && plan.intent && plan.intent.intents) || [];
   if (plan && plan.intent && plan.intent.actionRequested) intent = 'action';
-  else if (/출처|근거|검증|불일치|상충|source|evidence|conflict|mismatch|verify/.test(q)) intent = 'evidence';
+  else if (_aioQuestionCue('asksEvidenceCue', q)) intent = 'evidence';
   else if (canonical.indexOf('COMPARISON') >= 0) intent = 'comparison';
   else if (plan && plan.currentSensitive) intent = 'current';
-  else if (/없|모르|미수집|누락|확인 불가|missing|unknown|unavailable/.test(q)) intent = 'missing';
+  else if (_aioQuestionCue('asksMissingCue', q)) intent = 'missing';
   else if (canonical.indexOf('MARKET_CAUSAL') >= 0 || canonical.indexOf('EDUCATION') >= 0) intent = 'mechanism';
   var required = {
     action: ['currentEvidence', 'conditions', 'risks', 'asOf'],
@@ -5509,38 +5491,13 @@ window._aioRenderAllPageDecisionHeaders = function() {
   });
 };
 
-window._aioApplyEventFreshnessGate = function() {
-  try {
-    var fomc = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc;
-    if (!fomc) return;
-    // 날짜·텍스트를 레지스트리에서 단일 경로로 읽어 DOM에 반영
-    var fomcDate = fomc.eventDate || '';
-    var fomcResult = fomc.result || (fomcDate ? 'FOMC ' + fomcDate + ' 결과 확인 구간' : 'FOMC 결과 확인 구간');
-    var fomcNextCP = fomc.nextCheckpoint || '금리·달러 방향 확인';
-    var fomcLabel = fomc.label || 'FOMC';
-    var claim = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('fomc') : { allowedUse:true, status:'CURRENT' };
-    var claimPrefix = claim.allowedUse ? '' : '과거 참고, ';
-    // v57.60: retired cp2-detail and macro-fed-meaning sinks removed (nodes no longer exist; macro Fed meaning is native).
-    document.querySelectorAll('[data-snap="fomc"]').forEach(function(el) {
-      el.textContent = fomcDate ? fomcDate + ' 결과' : fomcLabel + ' 결과';
-       el.setAttribute('data-source-kind', claim.allowedUse ? 'SNAPSHOT' : 'REFERENCE');
-       el.setAttribute('data-as-of', fomcDate);
-       el.setAttribute('data-claim-state', claim.status);
-      el.title = fomcResult;
-    });
-    document.querySelectorAll('[data-evidence-id*="fomc"], [data-evidence-id*="fed-rate"], [data-evidence-id*="kr-us-rate-calendar"]').forEach(function(el) {
-      if (!el) return;
-       el.setAttribute('data-source-kind', claim.allowedUse ? 'SNAPSHOT' : 'REFERENCE');
-       el.setAttribute('data-as-of', fomcDate);
-       el.setAttribute('data-claim-state', claim.status);
-    });
-  } catch(_) {}
-};
+// v59.42: _aioApplyEventFreshnessGate is deleted. It stamped [data-snap="fomc"] and fomc/fed-rate [data-evidence-id]
+// nodes, and no markup or writer creates either any more, so its four boot runs and every page-show run did nothing.
 
 if (window._aioPageBus && typeof window._aioPageBus.register === 'function') {
   window._aioPageBus.register('core-page-decision-v5070', 'aio:pageShown', function(e) {
     var id = e && e.detail;
-    if (id) setTimeout(function() { window._aioRenderPageDecisionHeader(id); window._aioApplyEventFreshnessGate(); }, 40);
+    if (id) setTimeout(function() { window._aioRenderPageDecisionHeader(id); }, 40);
   });
   window._aioPageBus.register('core-page-decision-live-v5070', 'aio:liveQuotes', function() {
     setTimeout(function() {
@@ -5553,14 +5510,13 @@ if (window._aioPageBus && typeof window._aioPageBus.register === 'function') {
 
 if (document && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', function() {
-    try { window._aioRenderAllPageDecisionHeaders(); window._aioApplyEventFreshnessGate(); } catch(_) {}
-    setTimeout(function() { try { window._aioRenderAllPageDecisionHeaders(); window._aioApplyEventFreshnessGate(); } catch(_) {} }, 450);
-    setTimeout(function() { try { window._aioApplyEventFreshnessGate(); } catch(_) {} }, 1400);
+    try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {}
+    setTimeout(function() { try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {} }, 450);
   });
 }
 
 if (document && document.readyState !== 'loading') {
-  try { window._aioRenderAllPageDecisionHeaders(); window._aioApplyEventFreshnessGate(); } catch(_) {}
+  try { window._aioRenderAllPageDecisionHeaders(); } catch(_) {}
 }
 
 
@@ -7101,8 +7057,9 @@ window.AIO.computeEvEbitda = async function(ticker) {
     }
   } catch(_) {}
   if (!fin || !fin.ebitda || !mcap) return { ticker: ticker, available: false, reason: 'EV/EBITDA 계산 불가 (mcap 또는 EBITDA 미수신)' };
-  // EV ≈ mcap + netDebt
-  var ev = mcap + (fin.netDebt || 0);
+  // EV ≈ mcap + netDebt. v59.42: an unreported net debt is not 0 — EV fell to the market cap and read 'cheap'.
+  if (fin.netDebt == null || !isFinite(fin.netDebt)) return { ticker: ticker, available: false, reason: 'EV/EBITDA 계산 불가 (순부채 미수신)' };
+  var ev = mcap + Number(fin.netDebt);
   var evEbitda = ev / fin.ebitda;
   // Peer comparison: SCREENER_DB 같은 sector 평균 (간이)
   var peerAvg = null;
@@ -8760,8 +8717,8 @@ window.AIO_MACRO_CALENDAR = {
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
     // 유지, 확인됨) lastRelease로 승격. 7/28-29 회의도 종료되어 다음 결정일(9/16)로 이동.
-    'us-fomc':      { name: 'FOMC 금리 결정',   frequency: 'every-6-7-weeks',      lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fomc', sepMeeting: null, source: 'Federal Reserve official calendar', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
-    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fedRate', source: 'FOMC 결정', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
+    'us-fomc':      { name: 'FOMC 금리 결정',   frequency: 'every-6-7-weeks',      lastRelease: '2026-10-28', nextRelease: '2026-12-09', dataField: 'fomc', sepMeeting: null, source: 'Federal Reserve official calendar', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
+    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-10-28', nextRelease: '2026-12-09', dataField: 'fedRate', source: 'FOMC 결정', sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm' },
     // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/16)
     // v52.42: 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
     'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-10-22', nextRelease: '2026-11-26', dataField: 'bokRate', source: '한국은행 금통위', sourceUrl: 'https://www.bok.or.kr/eng/bbs/E0000627/view.do?menuNo=400022&nttId=10094301' }, // P1002: 8/27 공식 결정(2.75%→3.00%) 수신 후 10/22 공식 일정으로 이동; v58.74: 10/22 동결(3.00% 유지, 10/23 공식 추이표 확인) 후 11/26으로 이동
@@ -8784,7 +8741,7 @@ window.AIO_MACRO_OFFICIAL_SCHEDULES = {
 // and the commit that last changed the row). The expiry registry pairs it with the last date the row covers.
 window.AIO_MACRO_OFFICIAL_SCHEDULES_ASOF = {
   'us-nfp': '2026-10-02', 'us-cpi': '2026-10-10', 'us-pce': '2026-10-01', 'us-ism-mfg': '2026-10-02', 'us-ism-svc': '2026-10-02',
-  'us-retail': '2026-10-10', 'us-fomc': '2026-10-19', 'us-fed-rate': '2026-10-19', 'kr-bok': '2026-08-29'
+  'us-retail': '2026-10-10', 'us-fomc': '2026-10-29', 'us-fed-rate': '2026-10-29', 'kr-bok': '2026-08-29'
 };
 
 // The schedule arrays above are an official-calendar artifact, not a promise
@@ -10110,9 +10067,14 @@ window.AIO.getChatContextFreshnessAudit = function() {
   };
 };
 
+// v59.42: the AI question keyword cues live in src/ai/intent/question-cues.js (window._aioQuestionCues, loaded with
+// the AI panel by src/app/chat-loader.js); English cues match whole words there ('now' no longer hits "know", 'rate' no longer hits "corporate").
+function _aioQuestionCue(name, text) {
+  var cues = window._aioQuestionCues;
+  try { return !!(cues && typeof cues[name] === 'function' && cues[name](text)); } catch (_) { return false; }
+}
 function _aioLooksFreshIntent(query) {
-  var q = String(query || '').toLowerCase();
-  return /latest|recent|today|now|this week|news|current|fresh|earnings|guidance|cpi|fomc|fed|rate|tariff|최신|최근|오늘|지금|현재|뉴스|소식|상황|발표|실적|가이던스|금리|관세/.test(q);
+  return _aioQuestionCue('looksFreshCue', query);
 }
 
 window.AIO.getDataRequirementProfile = function(scope) {
@@ -13421,7 +13383,7 @@ window._aioStockStaleInfo = function(sym) {
 // this schema; missing or stale producers must render unavailable.
 const AIO_MANUAL_REFERENCE = Object.freeze({
   fedPolicy: Object.freeze({
-    value: '3.75-4.00', status: '인상', asOf: '2026-09-16', next: '2026-10-28',
+    value: '3.75-4.00', status: '동결', asOf: '2026-10-28', next: '2026-12-09',
     source: 'Federal Reserve', sourceKind: 'official-primary',
     sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
     operationalUse: 'reference-only'
@@ -15871,31 +15833,8 @@ function _aioExternalReferenceMap(externalReferences) {
     };
   }
 
-  window.AIO.applyTextSurfaceHygiene = function(root) {
-    root = root || document;
-    var changed = 0;
-    try {
-      Array.prototype.slice.call(root.querySelectorAll('.page:not(#page-guide) span, .page:not(#page-guide) small')).forEach(function(el) {
-        var t = _aioTextNorm(el.textContent || '');
-        if (!t) return;
-        if (/^(\[PRIMARY\]|\[SECONDARY\])$|^(v4[0-9]\.\d{1,3}\/R\d+.*|R\d{2,3}\s+ACTION_RULES|v49\.\d+\/R\d+\s+PAGE_PURPOSE_REGISTRY)$/i.test(t)) {
-          el.setAttribute('data-text-role', 'developer-note');
-          el.setAttribute('aria-hidden', 'true');
-          el.style.display = 'none';
-          changed++;
-        }
-      });
-      Array.prototype.slice.call(root.querySelectorAll('.page:not(#page-guide) [title]')).forEach(function(el) {
-        var title = el.getAttribute('title') || '';
-        if (/(v4[0-9]\.\d{1,3}\/R\d+|DATA_SNAPSHOT|ACTION_RULES|WEIGHT_REGISTRY)/i.test(title)) {
-          el.setAttribute('data-original-title', title);
-          el.setAttribute('title', 'Data policy and source status are available in the audit console.');
-          changed++;
-        }
-      });
-    } catch(_) {}
-    return { status:'ok', changed:changed, generatedAt:new Date().toISOString() };
-  };
+  // v59.42: AIO.applyTextSurfaceHygiene is deleted. Its one boot pass hid [PRIMARY]/version-marker spans and rewrote
+  // DATA_SNAPSHOT/ACTION_RULES tooltips; no markup carries either now (0 changes on every route). getTextSurfaceAudit stays.
 
   window.AIO.getTextSurfaceContracts = function() {
     return AIO_TEXT_SURFACE_CONTRACTS;
@@ -15965,15 +15904,6 @@ function _aioExternalReferenceMap(externalReferences) {
     };
   };
 
-  if (typeof document !== 'undefined') {
-    try {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() { try { window.AIO.applyTextSurfaceHygiene(document); } catch(_) {} }, { once:true });
-      } else {
-        window.AIO.applyTextSurfaceHygiene(document);
-      }
-    } catch(_) {}
-  }
 
   function _evidenceId(pageId, kind, key, idx) {
     var raw = [pageId || 'unknown', kind || 'item', key || idx || '0'].join(':').toLowerCase();
@@ -16679,100 +16609,25 @@ function _aioExternalReferenceMap(externalReferences) {
 
 // v59.20: AIO.updateSnapshotStaleBanner moved to src/ui/components/data-status-surface.js (one owner of the data-status surfaces).
 
-window.AIO.applyMarketCurrentnessGuard = function(opts) {
-  opts = opts || {};
-  var root = opts.root || (opts.includeHidden === true ? document : (document.querySelector('.page.active') || document.getElementById('page-home') || document));
-  var scopedOpts = Object.assign({}, opts, { root: root });
-  var audit = window.AIO.getMarketCurrentnessAudit ? window.AIO.getMarketCurrentnessAudit(scopedOpts) : null;
-  try {
-    // DOM read와 write를 분리해 각 sink마다 강제 layout이 반복되는 현상을 막는다.
-    var liveRows = Array.prototype.slice.call(root.querySelectorAll(AIO_CURRENTNESS_LIVE_SELECTOR)).map(function(el) {
-      return {
-        el: el,
-        visible: opts.includeHidden === true || !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length)),
-        txt: String(el.textContent || '').replace(/\s+/g, ' ').trim(),
-        hasLineage: !!(el.getAttribute('data-source-kind') && el.getAttribute('data-operational-use'))
-      };
-    });
-    liveRows.forEach(function(row) {
-      var el = row.el;
-      if (!row.visible) return;
-      var txt = row.txt;
-      if (!txt || /(로딩 중|데이터 로딩|수신 대기|불러오지 못했습니다|Loading|unavailable|^—$)/i.test(txt)) {
-        el.setAttribute('data-operational-use', 'reference-only');
-        el.setAttribute('data-source-kind', 'unavailable');
-        el.title = '실시간 데이터 미수신, 현재 시장 판단 제외';
-        if (/로딩 중|데이터 로딩|수신 대기/.test(txt) && txt.length <= 24) {
-          el.textContent = '수신 실패, 판단 제외';
-        }
-      } else if (!row.hasLineage) {
-        el.setAttribute('data-operational-use', 'reference-only');
-        el.setAttribute('data-source-kind', 'unknown');
-        el.title = '출처 메타데이터 미확인, 현재 시장 판단 제외';
-      }
-    });
-    var narrativeRows = _aioCollectDecisionNarratives(root).map(function(el) {
-      return {
-        el: el,
-        visible: opts.includeHidden === true || !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length)),
-        native: !!(el && Object.keys(el.dataset || {}).some(function(key) { return /renderer$/i.test(key) && el.dataset[key] === 'native'; })),
-        txt: String(el && el.textContent || '').replace(/\s+/g, ' ').trim(),
-        hasUse: !!(el && el.getAttribute('data-operational-use'))
-      };
-    });
-    narrativeRows.forEach(function(row) {
-      var el = row.el;
-      if (!el || !row.visible || row.native) return;
-      var txt = row.txt;
-      if (/로딩 중|데이터 로딩|수신 대기|계산중/.test(txt)) {
-        el.setAttribute('data-operational-use', 'reference-only');
-        el.setAttribute('data-source-kind', 'unavailable');
-        el.title = '분석 데이터 미수신, 현재 시장 판단 제외';
-        if (txt.length <= 180) {
-          el.textContent = '데이터 수신 지연, 현재 시장 판단 제외';
-        }
-      } else if (txt && !row.hasUse) {
-        el.setAttribute('data-operational-use', 'reference-only');
-        el.setAttribute('data-source-kind', 'mixed');
-        el.title = '혼합 출처 분석, 보조 참고용';
-      }
-    });
-    window.AIO.updateSnapshotStaleBanner && window.AIO.updateSnapshotStaleBanner();
-  } catch(e) {
-    if (window.AIO && window.AIO.recordDataQualityIssue) {
-      window.AIO.recordDataQualityIssue({ source: 'market-currentness-guard', severity: 'warn', message: e && e.message || String(e) });
-    }
-  }
-  return audit;
-};
-
+// v59.42: AIO.applyMarketCurrentnessGuard is retired. After each boot, route change and quote batch it rewrote
+// tooltips and data-operational-use on the active page's live values and narratives; at the end of a pass over all
+// routes its only lasting change was a wrong '혼합 출처 분석, 보조 참고용' tooltip and reference-only mark on the native
+// #sentiment-synthesis ([id*="thesis"] matched "synthesis"). AIO.getMarketCurrentnessAudit (read-only) stays, and the
+// snapshot banner it refreshed is refreshed on the same three events here.
 if (typeof document !== 'undefined') {
-  var _aioCurrentnessGuardTimer = null;
-  var _aioScheduleMarketCurrentnessGuard = function(delay, reason) {
-    if (_aioCurrentnessGuardTimer) clearTimeout(_aioCurrentnessGuardTimer);
-    _aioCurrentnessGuardTimer = setTimeout(function() {
-      _aioCurrentnessGuardTimer = null;
-      try {
-        if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') {
-          window.AIO.applyMarketCurrentnessGuard({ reason: reason || 'scheduled' });
-        }
-      } catch(_) {}
+  var _aioStaleBannerTimer = null;
+  var _aioScheduleSnapshotStaleBanner = function(delay) {
+    if (_aioStaleBannerTimer) clearTimeout(_aioStaleBannerTimer);
+    _aioStaleBannerTimer = setTimeout(function() {
+      _aioStaleBannerTimer = null;
+      try { if (window.AIO && typeof window.AIO.updateSnapshotStaleBanner === 'function') window.AIO.updateSnapshotStaleBanner(); } catch(_) {}
     }, delay || 0);
   };
-  window.AIO.scheduleMarketCurrentnessGuard = _aioScheduleMarketCurrentnessGuard;
-  _aioPageBus.register('core-dynamic-narratives-live', 'aio:liveQuotes', function() {
-    _aioScheduleMarketCurrentnessGuard(400, 'live-quotes');
-  });
-  _aioPageBus.register('core-dynamic-narratives-shown', 'aio:pageShown', function() {
-    _aioScheduleMarketCurrentnessGuard(300, 'page-shown');
-  });
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    _aioScheduleMarketCurrentnessGuard(1200, 'boot');
-  } else {
-    document.addEventListener('DOMContentLoaded', function(){
-      _aioScheduleMarketCurrentnessGuard(1200, 'boot');
-    });
-  }
+  window.AIO.scheduleSnapshotStaleBanner = _aioScheduleSnapshotStaleBanner;
+  _aioPageBus.register('core-snapshot-banner-live', 'aio:liveQuotes', function() { _aioScheduleSnapshotStaleBanner(400); });
+  _aioPageBus.register('core-snapshot-banner-shown', 'aio:pageShown', function() { _aioScheduleSnapshotStaleBanner(300); });
+  if (document.readyState === 'complete' || document.readyState === 'interactive') _aioScheduleSnapshotStaleBanner(1200);
+  else document.addEventListener('DOMContentLoaded', function() { _aioScheduleSnapshotStaleBanner(1200); });
 }
 
 // P845: showPage can be called by the compatibility facade before this map is

@@ -4,7 +4,7 @@
 // share·MDD 라벨/shapre 라벨/exportPortfolio/importPortfolio), 백테스트 랩(runPortfolioBacktestLab;
 // 결과 렌더러는 src/ui/components/portfolio-backtest-lab.js), 워치리스트(getWatchlists/saveWatchlists/createWatchlist/switchWatchlist/
 // addToWatchlist; 화면은 src/ui/components/portfolio-watchlist.js), 투자 일지와 채팅 이력(PF_JOURNAL_KEY/CHAT_HISTORY_LS/
-// CHAT_DEFAULT_CHIPS/_aioBuildPortfolioActionPrompt), 공용 헬퍼(showToast/_escHtmlSafe/fmtN).
+// _aioBuildPortfolioActionPrompt), 공용 헬퍼(showToast/_escHtmlSafe/fmtN).
 //
 // 왜 이 파일이 defer 그룹의 첫 번째인가: 원래 이 블록은 core·data·ui보다 먼저 실행되는 인라인이었고,
 // 다른 런타임이 자기 평가 시점에 이 블록의 전역을 읽는다. 실행 위치를 보존하지 않으면 파일 하나가
@@ -759,65 +759,18 @@ function renderPortfolio() {
   try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
 
   if (positions.length === 0) {
-    // v48.3: 빈 상태 안내 강화 — 폰트 크기 상향 + 명확한 3단계 가이드
-    if (!_nativePortfolioTable) tbody.innerHTML = '<tr class="pf-empty-state"><td colspan="10" class="pfp-empty">' +
-      '<div class="pfp-empty-title">포트폴리오가 비어 있습니다</div>' +
-      '<div>종목을 추가하면 변동성·섹터 쏠림·시장 국면과의 연결이 여기에 나타납니다.</div>' +
-      '<button class="aio-btn-table primary pfp-add" data-action="_aioTogglePortfolioEntry">첫 종목 추가</button>' +
-      '<div class="wsl-pf-privacy">보유 내역은 이 브라우저에만 저장됩니다. AI 분석을 직접 누를 때만 종목·섹터·비중·수익률이 전송됩니다(수량·매수가·메모 제외). PIN을 설정하면 암호화해 저장합니다.</div>' +
-      '</td></tr>';
+    // v59.42: the empty-state row is the native page's (src/ui/pages/portfolio.js renderPortfolioTable); this one was
+    // replaced within ~1.4 s of every portfolio entry.
     // v48.3: 빈 상태에서도 도넛 리셋(이전 데이터 잔존 방지)
     if (typeof drawPositionDonut === 'function') drawPositionDonut();
     try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
     return;
   }
 
-  const rows = positions.map(p => { // #3: per-row cells stay in each position's own currency; no cross-currency total is summed here
-    const live = ld[p.ticker];
-    const currentPrice = live && isFinite(live.price) && live.price > 0 ? live.price : null;
-    const dailyPct = live && live.pct != null && isFinite(live.pct) ? Number(live.pct) : null; // v59.42: no day change is not 0 (it coloured the price as up)
-    const posValue = currentPrice != null ? currentPrice * p.qty : null;
-    const posCost = p.cost * p.qty;
-    const pnl = posValue != null ? posValue - posCost : null;
-    const pnlPct = pnl != null && posCost > 0 ? (pnl / posCost * 100) : null;
-
-    const pnlColor = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
-    // v59.42: the amount cell prints Math.abs(pnl), so a loss needs its own '-' (it showed as a bare amount, colour only).
-    const pnlSign = pnl == null ? '' : pnl >= 0 ? '+' : '-';
-    const priceColor = dailyPct == null ? 'var(--text-muted)' : dailyPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
-    const liveTag = live ? '' : ' <span class="wsl-note">(시세 미수신)</span>';
-
-    var _eTk = escHtml(p.ticker); // v46.9: XSS 방어
-    // v48.3 CRITICAL FIX: 기존 return `<tr...>`; 세미콜론+닫기 backtick 조기 종료로 이하 <td> 라인이 JS SyntaxError
-    //                     → <script> 블록 전체 로드 실패 → save/render/add/edit/remove 전부 undefined
-    //                     → 사용자 체감 "저장 안 됨 / 초기화". 단일 template literal로 재구성 + font-size 9px→11px/12px (R17/P37).
-    var _cur = _pfLegacyCurrencyOf(p); // P1449: row cells are denominated in the position's currency
-    return `<tr class="pfp-row" data-action="showTicker" data-arg="${_eTk}">
-      <td headers="pf-th-ticker" class="pfp-ticker"><b class="wsl-strong">${escHtml(p.ticker)}</b>${p.memo ? '<div class="pfp-memo">'+escHtml(p.memo)+'</div>' : ''}</td>
-      <td headers="pf-th-qty" class="pfp-cell">${p.qty}</td>
-      <td headers="pf-th-cost" class="pfp-cell">${_pfLegacyMoney(p.cost, _cur)}</td>
-      <td headers="pf-th-price" class="pfp-cell" style="color:${priceColor};">${currentPrice == null ? '—' : _pfLegacyMoney(currentPrice, _cur)}${liveTag}</td>
-      <td headers="pf-th-pnl" class="pfp-cell is-bold" style="color:${pnlColor};">${pnl == null ? '—' : pnlSign+_pfLegacyMoney(Math.abs(pnl), _cur, 0)}</td>
-      <td headers="pf-th-pct" class="pfp-cell is-bold" style="color:${pnlColor};">${pnlPct == null ? '—' : (pnlPct >= 0 ? '+' : '')+pnlPct.toFixed(1)+'%'}</td>
-      <td headers="pf-th-day" class="pfp-cell">—</td>
-      <td headers="pf-th-target" class="pfp-cell">${p.target && p.target > 0 ? (currentPrice != null ? (function(){ var upside = ((p.target - currentPrice)/currentPrice*100); var uColor = upside >= 0 ? 'var(--dir-up)' : 'var(--dir-down)'; return _pfLegacyMoney(p.target, _cur, 0)+'<div class="pfp-upside" style="color:'+uColor+';">'+(upside>=0?'+':'')+upside.toFixed(1)+'%</div>'; })() : _pfLegacyMoney(p.target, _cur, 0)+'<div class="wsl-sub">상승여력 대기</div>') : '<span class="wsl-sub">미설정</span>'}</td>
-      <td headers="pf-th-weight" class="pfp-cell is-bold is-sans" id="pf-weight-${_eTk}">—</td>
-      <td headers="pf-th-manage" class="pfp-manage">
-        <button data-action="_aioTechnicalTicker" data-arg="${_eTk}" data-stop="1" class="pfp-manage-btn" title="차트 분석" aria-label="차트 분석">차트</button>
-        <button data-action="_aioEditPosition" data-arg="${_eTk}" data-stop="1" class="pfp-manage-btn" title="수정" aria-label="수정">수정</button>
-        <button data-action="_aioRemovePosition" data-arg="${_eTk}" data-stop="1" aria-label="${_eTk} 포지션 삭제" class="pfp-manage-btn" title="삭제">삭제</button>
-      </td>
-    </tr>`;
-  });
-  if (!_nativePortfolioTable) tbody.innerHTML = rows.join('');
-
-  // Update weights
-  var _bw = typeof _pfBaseValues === 'function' ? _pfBaseValues(positions) : { blocked: true, rows: [] }, _bt = _bw.rows.reduce(function(s, r) { return s + r.value; }, 0); // #3: base-currency weights, no cost stand-in
-  if (!_nativePortfolioTable) positions.forEach(p => {
-    const row = _bw.blocked ? null : _bw.rows.find(function(r) { return r.sym === p.ticker; });
-    const el = document.getElementById('pf-weight-' + p.ticker);
-    if (el) el.textContent = row && _bt > 0 ? (row.value / _bt * 100).toFixed(1) + '%' : '—';
-  });
+  // v59.42: the holdings rows are built by the native page only (renderPortfolioTable, which flags the tbody 'native').
+  // The legacy row builder painted first on every portfolio entry and showed each holding as "(시세 미수신)" with no
+  // price, P&L or weight for ~0.7-1.4 s until native replaced it, so before native mounts a neutral row stands in.
+  if (!_nativePortfolioTable) tbody.innerHTML = '<tr><td colspan="10" class="pfp-empty">보유 ' + positions.length + '종목을 불러오는 중입니다</td></tr>';
 
   // v40.4: 포지션 도넛 + 섹터 브레이크다운 갱신
   drawPositionDonut();
@@ -931,20 +884,7 @@ function _aioRenderPortfolioHoldingCharts(positions, ld) {
 }
 window._aioRenderPortfolioHoldingCharts = _aioRenderPortfolioHoldingCharts;
 
-// P1449 (LC-45 residual): legacy fallback table cells stop hard-coding `$`. A position's cost/
-// price/target are denominated in their own declared currency — raw `$` labels are wrong when a
-// .KS holding's cost/target is KRW.
-function _pfLegacyMoney(amount, currency, digits = 2) {
-  var code = String(currency || 'USD').trim().toUpperCase();
-  if (amount == null) return '—';
-  var fix = Number.isFinite(Number(digits)) ? Number(digits) : 2;
-  var text = Math.abs(Number(amount)).toLocaleString('en', { minimumFractionDigits: fix, maximumFractionDigits: fix });
-  return code === 'USD' ? '$' + text : code === 'KRW' ? '₩' + Math.round(Number(amount)).toLocaleString('en') : text + (/^[A-Z]{3}$/.test(code) ? ' ' + code : '');
-}
-function _pfLegacyCurrencyOf(position) {
-  return String((position && (position.costCurrency || position.currency)) || '').trim().toUpperCase()
-    || (/\.KS|\.KQ/.test(String((position && position.ticker) || '')) ? 'KRW' : 'USD');
-}
+// v59.42: _pfLegacyMoney / _pfLegacyCurrencyOf (P1449) left with the legacy row builder; native rows format money per currency.
 // v57.77: updatePortfolioSummary() only fed the retired 포트폴리오 자동 진단 (#pf-analysis-text) and left with it.
 
 function refreshPortfolioPrices() {
@@ -1487,19 +1427,19 @@ function importPortfolio(event) {
 // ══════════════════════════════════════════════════════════════════════
 // 다중 워치리스트 시스템 — localStorage CRUD + Live Price + SCREENER_DB 연동
 // ══════════════════════════════════════════════════════════════════════
-var WL_STORAGE_KEY = 'aio_watchlists';
 var WL_ACTIVE_KEY = 'aio_watchlist_active';
 
+// v59.42: one store — src/data/watchlist-store.js (window._aioWatchlistStore, installed at boot) reads and writes the
+// lists. This copy dropped a list with no tickers array on read, so the next save deleted it; the store repairs it.
+// Every caller is a user action or a render that waits for the same boot, so before it nothing is read or written.
 function getWatchlists() {
-  try {
-    var raw = localStorage.getItem(WL_STORAGE_KEY);
-    if (!raw) return [];
-    var parsed = JSON.parse(raw); // v58.82: null·tickers 없는 목록이 화면 갱신을 깨뜨렸다
-    return Array.isArray(parsed) ? parsed.filter(function(l) { return l && Array.isArray(l.tickers); }) : [];
-  } catch(e) { return []; }
+  try { return window._aioWatchlistStore ? window._aioWatchlistStore.read() : []; } catch(e) { return []; }
 }
 function saveWatchlists(lists) {
-  try { localStorage.setItem(WL_STORAGE_KEY, JSON.stringify(lists)); } catch(e) { showToast('관심목록을 저장하지 못했습니다(브라우저 저장 공간 부족).'); }
+  var ok = false;
+  try { ok = !!(window._aioWatchlistStore && window._aioWatchlistStore.write(lists)); } catch(e) { ok = false; }
+  if (!ok) showToast(window._aioWatchlistStore ? '관심목록을 저장하지 못했습니다(브라우저 저장 공간 부족).' : '관심목록을 아직 불러오는 중입니다. 잠시 뒤 다시 시도하세요.');
+  return ok;
 }
 function getActiveWatchlistId() {
   return localStorage.getItem(WL_ACTIVE_KEY) || '';
@@ -1701,73 +1641,8 @@ if (document.getElementById('page-portfolio') && document.getElementById('page-p
 }
 });
 
-// ── v29.1: Default suggestion chips — 심도 높은 전문 질문 ──────────────
-const CHAT_DEFAULT_CHIPS = {
-  // v35.4 B6: 기존 빈 페이지에 자연스러운 질문 추가
-  home: [
-    '오늘 시장 종합 분석해줘',
-    '현재 국면에서 역사적으로 어떤 패턴이 있었어?',
-    '지금 시장 상태에서 양호·부담 요인과 빠진 근거를 데이터로 보여줘',
-    '시장 스코어 기반 대응 전략은?'
-  ],
-  sentiment: [
-    '지금 F&G 수준에서 역사적으로 어땠어?',
-    '현재 공포/탐욕 구간의 과거 수익률 데이터는?',
-    'VIX 이 수준에서 과거에 어떤 일이 있었어?',
-    '심리 지표 종합 분석해줘'
-  ],
-  breadth: [
-    '시장폭이 이 수준이면 어떤 의미야?',
-    '지금 상승 종목 비율로 보면 시장 건강한 거야?',
-    '과거 비슷한 시장폭에서 어떻게 됐어?',
-    'McClellan 지표 해석해줘'
-  ],
-  signal: [
-    '트레이딩 스코어와 시장 건강도가 엇갈리는 이유와 이 해석이 틀릴 조건은?',
-    '현재 VIX 수준이 기존 위험 가정에 주는 시사점과 반대 근거는?',
-    '시장 국면(상승/조정/하락)별로 섹터 성과가 어떻게 달랐는지 데이터로 보여줘',
-    '풋콜 비율과 공포탐욕 지수가 지금 뭘 시사하고 있어?'
-  ],
-  // P1135 follow-up: the short macro/technical chips used to be overwritten from js/aio-macro-tech.js after this
-  // literal ran; that file is retired, so the effective chips are declared here once.
-  macro: ['금리·물가 확인', '공식 발표 일정', '환율 영향 점검'],
-  technical: ['기술적 구조 확인', '추세 무효화 조건', '변동성 점검'],
-  fundamental: [
-    'Mag7 실적 성장률 둔화 구간에서 PEG 기준 종목 비교와 전제 조건은?',
-    'AI capex 사이클에서 수혜-피해 밸류체인을 FCF 기준으로 정리해줘',
-    'TSMC vs 삼성 파운드리 점유율 전쟁에서 투자자가 봐야 할 핵심 지표는?',
-    '현재 HY 스프레드와 기업 부도율 추세가 Credit Cycle 어디쯤이야?'
-  ],
-  themes: [
-    'AI 인프라(전력·쿨링·HBM)와 AI 소프트웨어의 근거 차이와 무효화 조건은?',
-    'AI 추론 효율에서 메모리 근접성과 하드웨어 특화도의 trade-off를 설명해줘',
-    'Bloomberg AI 거래 순환도에서 서비스·투자·하드웨어 연결을 역할별로 분해해줘',
-    '방산 테마가 구조적 성장인지 이벤트 드리븐인지 판단 근거 줘',
-    '원전 르네상스 테마의 수혜 밸류체인과 시장 규모 전망해줘',
-    'GLP-1 비만치료제 시장 확대가 식품·보험·헬스케어에 미칠 2차 파급효과는?',
-    '위성통신·우주산업 테마의 현재 성숙도와 핵심 수혜 기업 분석해줘',
-    '리쇼어링·공급망 재편 수혜 섹터와 관세 리스크 분석해줘'
-  ],
-  'theme-detail': [
-    '이 테마의 TAM 성장률과 현재 침투율 가정이 틀릴 조건은?',
-    '대장주 vs 후발주자 밸류에이션 갭이 정당한지 분석해줘',
-    '이 테마에 대한 기관 포지셔닝(13F, 숏Interest) 현황은?',
-    '관련 ETF의 구성종목·비용·추적오차 비교해줘'
-  ],
-  briefing: [
-    '오늘 시장 데이터로 Bull/Bear/Base 시나리오별 트리거와 무효화 조건을 정리해줘',
-    '현재 포지셔닝 데이터(Put/Call, AAII, 기관 플로우)가 뭘 시사해?',
-    '지금 시장 국면에서 Risk/Reward 판단이 틀릴 조건과 빠진 근거는?',
-    '최근 뉴스 흐름과 가격 움직임 사이에 디버전스가 있어?'
-  ],
-  portfolio: [
-    '내 포트폴리오의 팩터 노출도(성장·가치·모멘텀·변동성) 분석해줘',
-    '내 포트폴리오의 과거 표본 VaR 95%가 무엇을 뜻하고 어떤 경우에 초과될 수 있는지 설명해줘',
-    '섹터별 비중과 상관관계에서 확인되는 집중 위험을 보여줘',
-    '내 종목들 중 어닝 시즌에 가장 리스크 높은 포지션은?'
-  ]
-};
-window.CHAT_DEFAULT_CHIPS = CHAT_DEFAULT_CHIPS;
+// v59.42: CHAT_DEFAULT_CHIPS is deleted. Its only reader, chatRenderChips, wrote into per-page #chat-<ctx>-chips
+// containers that no markup has; the AI panel's chips come from aio-chat.js _aiDefaultChips.
 
 // ═══ v29.1: 대화 기록 localStorage 저장/열람 시스템 ═══════════════════
 // v48.27 (P8): 200→100건 + 응답 300→200자 truncate (한글 UTF-8 3bytes 고려, ~100KB 한도)
@@ -1855,60 +1730,8 @@ function saveChatEntry(ctxId, question, answer) {
   return _saveChatHistory(history);
 }
 
-function openChatHistory(ctxId) {
-  // 기존 오버레이 제거
-  let overlay = document.getElementById('chat-history-overlay');
-  if (overlay) { if (overlay._aioClose) overlay._aioClose(); else overlay.remove(); }
-  const previousFocus = document.activeElement;
-
-  const history = _getChatHistory().filter(h => !ctxId || h.ctx === ctxId).reverse();
-
-  overlay = document.createElement('div');
-  overlay.id = 'chat-history-overlay';
-  overlay.className = 'chat-history-overlay open';
-  overlay._aioClose = function() {
-    overlay.remove();
-    if (previousFocus && previousFocus.isConnected && typeof previousFocus.focus === 'function') previousFocus.focus();
-  };
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay._aioClose(); });
-  overlay.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); overlay._aioClose(); }
-    if (e.key !== 'Tab') return;
-    const controls = Array.from(overlay.querySelectorAll('button:not([disabled]),[tabindex="0"]'));
-    const first = controls[0], last = controls[controls.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  });
-
-  const ctxLabel = ctxId ? ((window.CHAT_CONTEXTS && window.CHAT_CONTEXTS[ctxId] && window.CHAT_CONTEXTS[ctxId].label) || ctxId) : '전체';
-  overlay.innerHTML = `
-    <div class="chat-history-panel" role="dialog" aria-modal="true" aria-labelledby="chat-history-title">
-      <div class="ch-header">
-        <span class="ch-title" id="chat-history-title">대화 기록 (${escHtml(ctxLabel)}) - ${history.length}건</span>
-        <div class="wsl-ch-tools">
-          ${history.length > 0 ? '<button data-action="_aioChatHistoryClear" style="background:none;border:0.5px solid var(--red-6);color:var(--data-red);font-size:12px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
-          <button data-action="_aioChatHistoryToggle" style="background:none;border:0.5px solid var(--gold-6);color:var(--text-muted);font-size:12px;padding:3px 8px;border-radius:4px;cursor:pointer;">${window.AIO && typeof window.AIO.getChatHistoryPolicy === 'function' && window.AIO.getChatHistoryPolicy().enabled === false ? '기록 켜기 (선택)' : '기록 끄기·삭제'}</button>
-          <button class="ch-close" aria-label="대화 기록 닫기" data-action="_aioChatHistoryClose" data-pass-el="1">X</button>
-        </div>
-      </div>
-      <div class="ch-list">
-        ${history.length === 0 ? '<div class="ch-empty">저장된 대화 기록이 없습니다.<br>기록은 기본 OFF이며, 직접 켠 이후 대화만 민감정보를 가린 뒤 저장합니다.</div>' :
-          history.map((h, i) => {
-            const dt = new Date(h.ts);
-            const timeStr = dt.toLocaleDateString('ko-KR', {month:'short',day:'numeric'}) + ' ' + dt.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
-            const ctxBadge = h.ctx ? '<span style="font-size:12px;background:rgba(var(--ink-rgb),0.1);color:var(--data-cyan);padding:1px 5px;border-radius:4px;margin-right:6px;">' + escHtml(h.ctx) + '</span>' : '';
-            return '<div class="ch-item" data-action="_aioToggleWhiteSpace" data-pass-el="1">' +
-              '<div class="ch-item-q">' + ctxBadge + escHtml(h.q || '') + '</div>' +
-              '<div class="ch-item-a">' + (h.a ? escHtml(h.a) : '(응답 없음)') + '</div>' +
-              '<div class="ch-item-time">' + timeStr + '</div>' +
-            '</div>';
-          }).join('')
-        }
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-  overlay.querySelector('.ch-close').focus();
-}
+// v59.42: openChatHistory (the 대화 기록 overlay) is deleted. Its only opener was a header button injected into
+// .aio-chat .acp-header panels that no markup has, so the overlay could not be reached.
 
 // ── System prompts per context ─────────────────────────────────────────
 // ═══ 글로벌 라이브데이터 주입 헬퍼 ═════════════════════════════════

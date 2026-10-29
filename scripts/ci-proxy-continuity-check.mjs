@@ -182,11 +182,7 @@ vm.runInContext(section(source, 'function _aioPlanQuoteGroups(', 'async function
 const groups=observations._aioPlanQuoteGroups(['NVDA','NVDA','BRK-B','<bad>'],['^GSPC','KRW=X']);
 check(groups.flat().join(',')==='NVDA,BRK-B,^GSPC,KRW=X' && groups.every(group=>group.length<=5), 'request-owned quote scope deduplicates and validates symbols without hidden catalogue fanout');
 observations.window=observations;
-observations._aioHistorySeries=()=>Array.from({length:60},(_,i)=>({value:i+1}));
-vm.runInContext(section(source, 'function _aioVixPercentile(', 'function vixRegime('), observations);
-check(observations._aioVixPercentile(30)===50, 'P1753 VIX percentile uses actual observed sample');
-observations._aioHistorySeries=()=>Array.from({length:59},(_,i)=>({value:i+1}));
-check(observations._aioVixPercentile(30)===null, 'P1753 insufficient VIX sample never uses a fabricated distribution');
+check(!/function _aioVixPercentile\(|function vixRegime\(/.test(source), 'v59.42 the uncalled legacy VIX percentile and regime helpers are deleted (P1753: no fabricated VIX distribution can return through them)');
 check(!/function vixToPercentile\(/.test(source), 'P1753 the retired vixToPercentile compatibility wrapper stays gone');
 check(!source.includes('(82.5 -') && !/goldWeeklyPct\s*=/.test(section(source, 'function applyLiveQuotes(', 'function updateScreenerFromLiveData(')), 'quote application cannot invent HY spread or turn daily gold return into weekly return');
 console.log(`Proxy continuity: ${checks} PASS (offline VM; no live/provider or browser claim)`);

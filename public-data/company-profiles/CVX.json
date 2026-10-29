@@ -1,0 +1,224 @@
+{
+  "symbol": "CVX",
+  "name": "Chevron Corporation",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Chevron은 퍼미안·가이아나·카자흐스탄에서 원유·가스를 캐고 정유까지 하는 대형 통합 석유회사로, Hess 인수로 생산이 사상 최대가 된 데다 Microsoft 데이터센터에 가스발전 전력을 대는 계약까지 맺어 유가와 AI 전력 수요를 함께 탄다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Chevron Reports Fourth Quarter 2025 Results (Exhibit 99.1 PDF, copy hosted by Fortune/Quartr)", "url": "https://fortune.com/company-assets/1941/quartr/earnings-release-8-k-7cb29-2026-01-30-11-07-17.pdf", "publisher": "Chevron (via Fortune/Quartr)", "date": "2026-01-30" },
+    { "id": "s2", "kind": "8-K", "title": "Chevron Reports First Quarter 2026 Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000093410/000009341026000110/a03312026ex9918-k.htm", "publisher": "Chevron / SEC EDGAR", "date": "2026-05-01" },
+    { "id": "s3", "kind": "8-K", "title": "Chevron Reports Second Quarter 2026 Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000093410/000009341026000162/a06302026ex9918-k.htm", "publisher": "Chevron / SEC EDGAR", "date": "2026-07-31" },
+    { "id": "s4", "kind": "10-K", "title": "Chevron Form 10-K for fiscal year 2025 (employees, refining capacity, competition, data center power project)", "url": "https://www.sec.gov/Archives/edgar/data/93410/000009341026000078/cvx-20251231.htm", "publisher": "Chevron / SEC EDGAR", "date": "2026-02-24" },
+    { "id": "s5", "kind": "news", "title": "Chevron Eyes 150% EPS Jump on Oct. 30 (Q3 2026 earnings preview)", "url": "https://247wallst.com/investing/2026/10/26/chevron-eyes-150-eps-jump-on-oct-30-but-are-the-risks-already-priced-in/", "publisher": "24/7 Wall St.", "date": "2026-10-26" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/cvx/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" }
+  ],
+
+  "moat": {
+    "sources": [
+      "저원가 대형 자원 - 퍼미안 하루 100만 배럴(석유환산) 목표 달성(2025), Hess 인수로 가이아나 Stabroek 지분 확보, 카자흐스탄 TCO 하루 약 100만 배럴",
+      "생산 규모 - 2026년 2분기 하루 407만 배럴(석유환산), 전년 대비 +20%",
+      "정유·판매까지 잇는 통합 구조 - 하루 180만 배럴 정제 능력, 미국 정제 가동률 97% 초과(Q2 2026)",
+      "비용 절감과 재무 여력 - 구조적 비용 절감 연 30억 달러 달성(목표 30억~40억, 2026말), 순부채비율 13.1%(2026-06)"
+    ],
+    "text": "Chevron의 힘은 원가가 낮고 오래가는 대형 자원을 여러 대륙에 나눠 가진 데서 시작한다. 퍼미안 셰일은 2025년 하루 100만 배럴(석유환산)을 넘겼고, 2025년 Hess 인수로 가이아나 심해를, 카자흐스탄 TCO 확장으로 또 하나의 대형 유전을 더했다. 여기에 정유·판매 사업이 유가 하락기에 이익을 일부 받쳐 주고, 연 30억 달러 비용 절감과 낮은 부채가 배당을 39년 연속 늘릴 수 있게 했다.",
+    "src": ["s1", "s3", "s4"]
+  },
+
+  "design": {
+    "text": "이 자원 위에서 회사가 내놓는 것은 Upstream(원유·천연가스·LNG 생산)과 Downstream(휘발유·디젤·항공유·윤활유·석유화학·재생디젤) 두 사업으로 보고된다. 여기에 새 사업으로 데이터센터용 전력(서부 텍사스 가스발전), 리튬(텍사스·아칸소 Smackover 약 13.5만 순에이커), 수소를 키우고 있다. 2025년 루이지애나 Geismar 재생디젤 공장은 하루 7,000배럴에서 22,000배럴로 확장했다.",
+    "src": ["s1"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 운영 - 퍼미안 시추·생산, 멕시코만 심해(Anchor·Ballymore·Stampede·Whale), 자체 정유소",
+      "Tengizchevroil(TCO) - 50% 지분 관계사, Future Growth Project 가동으로 하루 약 100만 배럴",
+      "가이아나 Stabroek 광구 (Hess 인수로 확보, 비운영) - Yellowtail 첫 생산, Hammerhead 투자 결정",
+      "Microsoft·Engine No. 1 - 서부 텍사스 데이터센터 발전 프로젝트 협력 (Q1 2026 독점 협상 → Q2 2026 20년 전력구매계약)",
+      "한국 계열 정유소 - 국제 정제 부문 관계사 (회사명은 보도자료에 미기재)"
+    ],
+    "text": "ExxonMobil처럼 Chevron도 대부분을 직접 캐고 정제한다. 다만 큰 유전 상당수를 관계사 지분(카자흐스탄 TCO 50%)이나 비운영 지분(가이아나)으로 갖고 있어, 이익과 현금이 관계사 배당과 대여금 상환 형태로 들어오는 몫이 크다. 데이터센터 전력 같은 새 사업은 Microsoft·Engine No. 1과 손잡고, Chevron은 퍼미안 가스 공급과 발전소 개발을 맡는 구조다.",
+    "src": ["s1", "s2", "s3", "s4"]
+  },
+
+  "sell": {
+    "customers": [
+      "연료 도매·소매·산업 고객 (미국 정제제품 판매 Q2 2026 하루 132만 배럴, 국제 129만 배럴)",
+      "원유·가스 구매자 (정유사, 유틸리티, LNG 구매자)",
+      "Microsoft - 서부 텍사스 데이터센터 전력 약 2.67GW, 20년 계약 (Q2 2026)",
+      "석유화학·윤활유 고객"
+    ],
+    "channel": "원유·가스는 시장 거래와 장기 계약, 연료는 도매·브랜드 주유소·산업 고객 직접 판매, 데이터센터 전력은 장기 전력구매계약(PPA).",
+    "concentration": "고객 집중 공시 확인 못함. 원자재 성격상 특정 고객 의존은 낮고, Microsoft 전력 계약이 첫 대형 단일 고객 계약이다.",
+    "text": "생산한 원유·가스와 연료는 수많은 정유사·유통사·산업 고객에게 시장 가격으로 팔린다. 그래서 수요 신호는 특정 고객이 아니라 유가와 정제마진에서 나타난다. 예외가 새 전력 사업인데, Microsoft와 맺은 20년 약 2.67GW 계약은 가격이 미리 정해진 장기 매출이라는 점에서 기존 사업과 성격이 다르다.",
+    "src": ["s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "정유사·가스 구매자", "to": "Chevron Upstream", "what": "원유·가스 판매 (브렌트·지역 가스 시세 연동 실현가격)" },
+      { "from": "운전자·항공사·산업 고객", "to": "Chevron Downstream", "what": "정제 제품 대금 - 이익은 원유값과 제품값의 차이(정제마진)" },
+      { "from": "Tengizchevroil(TCO)", "to": "Chevron", "what": "관계사 배당과 대여금 상환 (2025년 첫 대여금 상환, Q1 2026 10억 달러)" },
+      { "from": "Microsoft 데이터센터", "to": "Chevron 전력 사업", "what": "20년 전력구매계약 대금 (약 2.67GW, 가격 조건 미공시)" }
+    ],
+    "pricing": "원자재 가격을 받아들이는 구조(price taker)다. Upstream 이익은 실현 유가·가스가, Downstream 이익은 정제마진에 달려 있고, 회사는 분기 전 '민감도·전망' 자료로 가격 효과를 미리 알린다. 전력 사업만 장기 고정 계약이다.",
+    "text": "돈은 원유·가스 판매와 연료 판매 두 길로 들어오고, 카자흐스탄 TCO에서 오는 배당·대여금 상환이 세 번째 길이다. 2025년에는 브렌트가 연평균 69달러로 내려 Upstream 이익이 줄었지만, 2026년 2분기에는 브렌트가 평균 104달러로 뛰면서 Upstream 82억, Downstream 49억 달러를 함께 벌었다. 앞으로는 Microsoft 전력 계약이 유가와 무관한 네 번째 길이 된다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 189.031, "unit": "USD bn", "yoy": -6.8 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 6.5,
+    "operatingCashFlow": { "value": 33.9, "unit": "USD bn" },
+    "freeCashFlow": { "value": 16.6, "unit": "USD bn" },
+    "segments": [
+      { "name": "U.S. Upstream (부문 이익 58.15억 달러; 매출 미확인)", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "International Upstream (부문 이익 70.07억 달러; 매출 미확인)", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "U.S. Downstream (부문 이익 13.75억 달러; 매출 미확인)", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "International Downstream (부문 이익 16.47억 달러; 매출 미확인)", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "All Other (순비용 35.45억 달러)", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "생산량", "value": "FY2025 하루 372.3만 배럴(석유환산, +12%, 사상 최대); Q2 2026 407만 배럴(+20%)", "src": ["s1", "s3"] },
+      { "name": "실현가격·브렌트", "value": "FY2025 브렌트 평균 69달러, 미국 원유·액체 실현가 48.13달러; Q2 2026 브렌트 104달러, 미국 70.80달러·국제 96.41달러", "src": ["s1", "s3"] },
+      { "name": "정제 처리량", "value": "Q2 2026 미국 하루 107만 배럴(가동률 97% 초과, 기록), 국제 59.8만 배럴", "src": ["s3"] },
+      { "name": "ROCE", "value": "FY2025 6.6%; Q2 2026 21.4%", "src": ["s1", "s3"] },
+      { "name": "순부채비율", "value": "15.6% (2025말) → 13.1% (2026-06), Q2 2026 부채 84억 달러 감축(기록)", "src": ["s1", "s3"] },
+      { "name": "확인매장량", "value": "2025말 약 106억 배럴(석유환산), 매장량 대체율 158%", "src": ["s1"] }
+    ],
+    "text": "이 가격 구조가 2025년 총수입 1,890억 달러에 순이익 123억 달러(순이익률 약 6.5%, 계산값)라는 결과로 나타났다. 이익은 Upstream이 128억 달러로 대부분을 냈고, Downstream은 30억 달러, 본사 비용 등 All Other가 -35억 달러였다. 2026년에는 유가가 뛰어 2분기에만 순이익 121억, 영업현금흐름 226억 달러를 벌어 1년치에 가까운 이익을 한 분기에 냈다.",
+    "src": ["s1", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "capex", "value": 17.3, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "관계사 설비투자 (TCO 등, Chevron 몫)", "value": 1.8, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 12.8, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 12.1, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "label": "Hess 주식 매입 (2025년 초)", "value": 2.2, "unit": "USD bn", "src": ["s1"] },
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "벌어들인 현금(2025 영업현금흐름 339억 달러)은 설비투자 173억 달러에 먼저 들어갔고, 그 증가분에는 Hess 자산 투자와 데이터센터 전력 투자가 포함됐다. 주주에게는 배당 128억, 자사주 121억, Hess 주식 매입 22억 달러로 합계 271억 달러를 돌려줘 번 돈보다 많이 환원했고, 부족분은 부채로 메워 총부채가 408억 달러로 늘었다. 2026년 2분기에는 유가 급등으로 생긴 현금으로 자사주 31억 달러를 사면서 부채를 기록적인 84억 달러 줄였다.",
+    "src": ["s1", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "power-energy",
+    "position": "AI 데이터센터에 '계량기 뒤(behind-the-meter)' 가스발전 전력을 직접 공급하는 발전 사업자. 서부 텍사스에서 퍼미안 가스로 돌리는 발전소를 개발하고, Microsoft와 약 2.67GW·20년 전력구매계약을 맺었다(Q2 2026).",
+    "dependsOn": ["퍼미안 천연가스 (자체 생산)", "Engine No. 1 (프로젝트 협력사)", "가스터빈 제조사 (회사명 미확인)", "전력·환경 인허가"],
+    "sellsTo": ["cloud-infrastructure (Microsoft 데이터센터)", "data-center-real-estate (추가 고객 미정)"],
+    "aiRevenue": "아직 매출 없음. Microsoft 20년 PPA 약 2.67GW 체결(2026-07-31 보도자료), 계약 금액·가동 시점 미공시",
+    "upside": "장기 고정 계약이라 유가와 무관한 안정 매출이 생기고, 자기 퍼미안 가스의 판로가 하나 더 열린다. 첫 프로젝트가 성공하면 다른 하이퍼스케일러로 같은 모델을 넓힐 수 있다.",
+    "risk": "발전소 건설비가 2025년 설비투자를 늘린 요인이었고, 가동 전까지는 비용만 든다. AI 효율 개선이나 원전·재생에너지 선호로 가스발전 수요가 줄 수 있고, 전체 이익에서 차지하는 몫은 유가 변동에 비해 작다.",
+    "text": "그래서 AI 가치사슬에서 Chevron은 '전력·에너지' 층에 실제 계약을 갖고 들어온 석유회사다. 2025년 데이터센터 전력 투자를 시작해 2026년 1분기 Microsoft·Engine No. 1과 독점 협상을, 2분기에는 약 2.67GW 20년 전력구매계약을 맺어 첫 대형 고객을 확보했다. 다만 아직 매출은 없고, 지금 이익을 움직이는 것은 여전히 유가와 정제마진이다.",
+    "src": ["s1", "s2", "s3", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "원유·가스 생산 (Upstream)", "rivals": ["ExxonMobil", "Shell", "TotalEnergies", "BP", "ConocoPhillips", "국영 석유회사"], "position": "leader", "share": null, "src": ["s4", "s1"] },
+      { "arena": "정유·연료 판매 (Downstream)", "rivals": ["ExxonMobil", "Marathon Petroleum", "Valero", "Phillips 66", "국영 석유회사"], "position": "challenger", "share": null, "src": ["s4"] },
+      { "arena": "데이터센터 전력 (가스발전)", "rivals": ["ExxonMobil", "유틸리티·독립 발전사", "원전·재생에너지 사업자"], "position": "challenger", "share": "Microsoft 약 2.67GW 계약 1건 (Q2 2026)", "src": ["s3"] },
+      { "arena": "리튬·저탄소 연료", "rivals": ["ExxonMobil", "리튬 전문 기업"], "position": "niche", "share": null, "src": ["s1"] }
+    ],
+    "edge": "퍼미안·가이아나·TCO 같은 저원가 장수명 자원, Hess 통합 시너지(연 15억 달러, 초기 목표보다 50% 많음), 데이터센터 전력에서 첫 대형 계약 확보.",
+    "threats": "유가 하락, 중동·카자흐스탄 등 지정학 위험에 따른 생산 차질, 정제마진 정상화, 가이아나 등 비운영 자산의 개발 일정, 신사업(전력·리튬)의 수익성.",
+    "text": "10-K가 말하듯 석유 산업의 모든 분야에서 경쟁은 치열하고, Chevron의 맞수는 같은 대형 석유사와 국영 석유회사다. Chevron은 Hess 통합 시너지를 1년 안에 연 15억 달러(초기 목표의 1.5배)로 키우고 비용을 연 30억 달러 줄이는 '원가 경쟁'으로 맞선다. 새 경기장인 데이터센터 전력에서는 Microsoft라는 첫 대형 고객을 확보해 유틸리티·독립 발전사와 경쟁한다.",
+    "src": ["s4", "s3"]
+  },
+
+  "strategy": {
+    "goal": "2026년 말까지 구조적 비용 연 30억~40억 달러 절감(2024년 수준 대비), Hess 시너지 확대, 퍼미안·가이아나·멕시코만 생산 성장, 신에너지(전력·리튬·수소) 육성. 2026 설비투자 예산과 자사주 매입 범위는 이번 조사에서 확인하지 못했다.",
+    "roadmap": [
+      { "when": "2026 상반기", "what": "구조적 비용 절감 연 30억 달러 달성 (목표보다 6개월 빠름), Hess 시너지 연 15억 달러", "src": ["s3"] },
+      { "when": "2026 상반기", "what": "이스라엘 Tamar·Leviathan 확장 가동 시작, Leviathan 가스 확장 투자 결정(일 21억 입방피트)", "src": ["s2", "s1"] },
+      { "when": "2026-10-30", "what": "Q3 2026 실적 발표", "src": ["s5"] },
+      { "when": "2026말", "what": "구조적 비용 절감 30억~40억 달러 목표 시한", "src": ["s1", "s3"] },
+      { "when": "미정", "what": "서부 텍사스 데이터센터 발전소 가동 (Microsoft 20년 PPA, 시점 미공시)", "src": ["s3"] },
+      { "when": "미정", "what": "가이아나 Hammerhead(7번째 개발) 생산 시작 (2025년 투자 결정)", "src": ["s1"] }
+    ],
+    "vision": "Wirth 회장은 '저렴하고 믿을 수 있으며 더 깨끗한 에너지'를 내세우며, 석유·가스 사업을 키우고 운영의 탄소 집약도를 낮추면서 새 에너지 사업을 함께 키우는 그림을 제시한다.",
+    "text": "앞으로의 계획은 Hess로 커진 몸집을 더 싸게 운영하는 것이다. 비용 절감 연 30억 달러를 목표보다 6개월 먼저 달성했고 2026년 말까지 최대 40억 달러를 노린다. 동시에 가이아나·멕시코만·이스라엘 가스 확장으로 생산을 더 늘리고, 데이터센터 전력과 리튬을 석유 이후의 성장 옵션으로 키운다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "governance": {
+    "line": "Mike Wirth가 회장 겸 CEO로 이끄는 지분 분산 회사로, 2026년 분기 배당을 주당 1.78달러로 4% 올려 39년 연속 연간 배당 증가를 이어 가고 2025년 자사주 121억 달러를 매입했다.",
+    "src": ["s1", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "2026말", "metric": "structural cost reductions", "value": "연 30억~40억 달러 (Q2 2026 연 30억 달러 달성)", "givenOn": "2026-07-31", "src": ["s3", "s1"] },
+      { "period": "FY2026", "metric": "capex / buyback range", "value": null, "givenOn": "2026-01-30", "src": [] }
+    ],
+    "style": "quarterly",
+    "track": "보도자료에는 연간 전망 숫자가 거의 없고, 분기 실적 한 달 전 별도 '민감도·전망' 자료로 가격 효과와 생산 전망을 알린다. Q1 2026은 설비투자가 '전망 범위 안'이라고만 밝혔다. 비용 절감은 목표보다 빨리 달성했다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-27, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 20.23달러(범위 14.13~24.13), 직전 4개 분기 10.84달러. 최근 4주 상향 12건·하향 4건으로 상향 우세하며, 추정 범위가 넓어 유가 전망 차이가 크다.",
+    "src": ["s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "생산량이 하루 400만 배럴(석유환산) 이상을 유지",
+      "구조적 비용 절감이 연 30억 달러를 넘어 40억 달러로 진행",
+      "순부채비율이 계속 내려가면서 자사주 매입 유지",
+      "Microsoft 발전 프로젝트의 착공·가동 일정 공개 또는 추가 데이터센터 고객 확보",
+      "TCO 배당·대여금 상환이 계속 들어옴"
+    ],
+    "breaks": [
+      "유가 급락으로 Upstream 이익이 2025년 수준(브렌트 69달러)으로 되돌아감",
+      "중동·카자흐스탄 생산 차질 확대",
+      "부채를 늘려 자사주를 사는 구조로 회귀",
+      "데이터센터 전력 프로젝트 지연이나 비용 초과",
+      "정제마진 급락"
+    ],
+    "keyNumbers": [
+      { "name": "브렌트와 실현 유가", "why": "이익의 가장 큰 변수" },
+      { "name": "생산량(MBOED)", "why": "Hess 통합 효과와 성장의 근거" },
+      { "name": "조정 FCF와 순부채비율", "why": "배당·자사주의 재원" },
+      { "name": "구조적 비용 절감 진행", "why": "유가와 무관하게 회사가 통제하는 변수" },
+      { "name": "Downstream 이익과 정제 가동률", "why": "유가 하락기의 완충" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-10-30", "event": "Q3 2026 실적 발표 (보도 기준)", "src": ["s5"] },
+      { "date": "2027-01 하순 (추정)", "event": "Q4·FY2026 실적, 매장량과 2027 계획", "src": [] },
+      { "date": "수시", "event": "OPEC+ 결정과 중동 정세 (유가)", "src": ["s2"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 유가 방향, 자사주 매입 속도, 생산 증가율에 반응하는 경향이 있다. 2026년 1분기에는 파생상품 시가평가·LIFO 회계로 약 29억 달러의 불리한 시점 효과가 보고 이익을 눌러, 보고 EPS와 조정 EPS 차이를 함께 봐야 했다.",
+    "conditions": [
+      "분기 평균 브렌트와 실현가격",
+      "조정 EPS와 보고 EPS 사이 시점 효과 규모",
+      "분기 자사주 매입액과 순부채비율",
+      "생산량과 Hess 자산 기여",
+      "데이터센터 전력 사업 진행 공시",
+      "컨센서스 EPS 상향·하향 건수와 추정 범위"
+    ]
+  },
+
+  "unverified": [
+    "부문별 매출 (10-K 재무제표 주석 미확인) - 부문은 이익만 기재, 부문 매출 합계 대조 불가",
+    "매출 기준: 총수입(Total revenues and other income) 1,890.3억 달러 사용, 판매·영업수입은 1,844.3억(전년 대비 -4.6%)",
+    "자사주 매입: 본문 121억, 현금흐름 표 122억 달러 차이 (본문 사용)",
+    "2026 설비투자 예산과 자사주 매입 가이던스 범위 ('민감도·전망' 자료 미확인)",
+    "Microsoft PPA의 금액·가격·가동 시점, 가스터빈 공급사",
+    "가이아나 Stabroek 지분율과 생산량, 퍼미안·TCO 2026 생산량 분리 수치",
+    "연구개발비",
+    "Q3 2026 실적 발표일 (2차 보도 기준)",
+    "고객 집중도"
+  ],
+  "confidence": "high - 매출·이익·현금·생산·환원은 회사 8-K 보도자료(Q4 2025, Q1·Q2 2026)에서 왔다. 부문 매출과 2026 투자·환원 가이던스는 확인하지 못했다."
+}

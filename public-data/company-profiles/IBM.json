@@ -1,0 +1,558 @@
+{
+  "symbol": "IBM",
+  "name": "International Business Machines Corporation",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "IBM은 Red Hat 하이브리드 클라우드·데이터·자동화 소프트웨어와 메인프레임, 컨설팅을 함께 파는 기업용 IT 회사로, 기업이 AI를 자기 데이터와 시스템 위에서 돌리게 돕는 쪽으로 사업을 다시 짜고 있다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "IBM Releases Third-Quarter Results (company release text)",
+      "url": "https://finviz.com/news/405858/ibm-releases-third-quarter-results",
+      "publisher": "Finviz (IBM release text)",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "IBM Releases Fourth-Quarter Results (FY2025)",
+      "url": "https://newsroom.ibm.com/2026-01-28-IBM-RELEASES-FOURTH-QUARTER-RESULTS",
+      "publisher": "IBM",
+      "date": "2026-01-28"
+    },
+    {
+      "id": "s3",
+      "kind": "news",
+      "title": "IBM delivers strong Q3, sees 4% to 5% revenue growth in 2026 (call remarks: Red Hat, IBM Z, quantum)",
+      "url": "https://www.constellationr.com/insights/news/ibm-delivers-strong-q3-sees-4-5-revenue-growth-2026",
+      "publisher": "Constellation Research",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "IBM completes $11bn Confluent acquisition (read via search summary)",
+      "url": "https://www.channelweb.co.uk/news-network/2026/ibm-completes-11bn-confluent-acquisition",
+      "publisher": "ChannelWeb",
+      "date": "2026-03-17"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "IBM shows off next-gen AI acceleration, on-chip DPU for big iron (Telum II and Spyre on Samsung 5nm; read via search summary)",
+      "url": "https://www.nextplatform.com/compute/2024/08/27/ibm-shows-off-next-gen-ai-acceleration-on-chip-dpu-for-big-iron/1640250",
+      "publisher": "The Next Platform",
+      "date": "2024-08-27"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/ibm/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "대형 은행·보험·정부의 핵심 거래를 처리하는 IBM Z 메인프레임 설치 기반 (메인프레임 고객 85%가 용량 유지·확대)",
+      "Red Hat OpenShift·Linux로 여러 클라우드와 자체 데이터센터를 묶는 하이브리드 클라우드 표준 (OpenShift ARR 24억 달러)",
+      "HashiCorp·Apptio·Confluent 인수로 넓힌 자동화·실시간 데이터 소프트웨어",
+      "대기업과 수십 년 이어진 컨설팅·지원 관계"
+    ],
+    "text": "IBM의 힘은 은행과 정부의 핵심 시스템이 이미 IBM 메인프레임과 소프트웨어 위에서 돌고 있다는 데서 나온다. 이런 시스템은 바꾸는 비용과 위험이 커서 고객이 쉽게 떠나지 않고, 메인프레임 고객 85%가 용량을 유지하거나 늘리고 있다. 여기에 Red Hat이 여러 클라우드를 하나로 묶는 표준 역할을 하면서, IBM은 '어느 클라우드를 쓰든 그 아래 층'을 파는 회사가 됐다.",
+    "src": [
+      "s3",
+      "s2"
+    ]
+  },
+  "design": {
+    "text": "이 기반 위에서 회사가 파는 것은 네 부문으로 보고된다. Software(Red Hat 하이브리드 클라우드, 자동화, 데이터, 거래처리 소프트웨어)가 FY2025 매출의 약 44%로 가장 크고, Consulting(전략·기술 컨설팅, 운영 대행)이 약 31%, Infrastructure(IBM Z 메인프레임, Power·스토리지 같은 분산 인프라, 지원)가 약 23%다. Financing은 고객의 IBM 제품 구매를 돕는 금융 부문이다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "Samsung Foundry - IBM이 설계한 Telum II 프로세서와 Spyre AI 가속기 생산 (5nm)",
+      "소프트웨어·컨설팅 - 자체 개발·자체 인력",
+      "Confluent·HashiCorp·Apptio - 인수로 편입한 소프트웨어 플랫폼"
+    ],
+    "text": "IBM은 소프트웨어와 컨설팅을 직접 만들고, 하드웨어는 칩을 직접 설계해 외부 파운드리에 맡긴다. 최신 메인프레임 z17의 Telum II 프로세서와 Spyre AI 가속기는 Samsung 5nm 공정에서 생산된다. 2026-03-17에는 약 110억 달러에 Confluent 인수를 마쳐, 실시간 데이터 스트리밍을 자체 소프트웨어 묶음에 넣었다.",
+    "src": [
+      "s5",
+      "s4",
+      "s3"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "대형 금융기관·보험사 (메인프레임 거래처리)",
+      "정부·공공 기관",
+      "대기업 (하이브리드 클라우드·자동화·컨설팅)",
+      "Confluent 고객 6,500여 곳 (Fortune 500의 40%)"
+    ],
+    "channel": "대기업 직접 영업과 컨설팅 조직이 중심이며, 소프트웨어는 파트너·클라우드 마켓플레이스를 함께 쓴다.",
+    "concentration": "단일 고객 집중 공시는 확인하지 못함.",
+    "text": "이 제품들은 주로 대기업·금융기관·정부에 직접 영업으로 팔리고, 컨설팅 조직이 소프트웨어 도입을 함께 끌고 간다. 고객 한 곳에 대한 의존은 공시되지 않아 넓게 퍼진 구조로 보인다. Confluent 인수로 Fortune 500의 40%를 포함한 6,500여 고객이 새로 들어왔다.",
+    "src": [
+      "s4",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "은행·정부·대기업",
+        "to": "IBM Software",
+        "what": "Red Hat·데이터·자동화 소프트웨어 구독료·라이선스·유지보수료"
+      },
+      {
+        "from": "은행·정부·대기업",
+        "to": "IBM Consulting",
+        "what": "프로젝트·운영 대행 용역비 (인력·기간 기준)"
+      },
+      {
+        "from": "메인프레임·서버 고객",
+        "to": "IBM Infrastructure",
+        "what": "IBM Z·Power·스토리지 하드웨어 대금과 지원 계약료"
+      },
+      {
+        "from": "장비 구매 고객",
+        "to": "IBM Financing",
+        "what": "구매 대금 할부·리스 이자"
+      },
+      {
+        "from": "IBM",
+        "to": "Samsung Foundry 등 부품 공급사",
+        "what": "메인프레임 칩 생산 대금"
+      }
+    ],
+    "pricing": "소프트웨어는 구독·연간 라이선스·사용량 기반이 섞여 있고 반복 매출 비중이 높다. 컨설팅은 프로젝트·인력 단가, 메인프레임은 시스템 판매 후 수년간 소프트웨어·지원 매출이 따라오는 구조다.",
+    "text": "돈은 같은 고객에게서 세 갈래로 들어온다. 소프트웨어 구독료와 유지보수가 가장 크고 꾸준하며, 컨설팅 용역비와 메인프레임 판매 대금이 그 뒤를 잇는다. 메인프레임은 신제품 주기에 따라 매출이 출렁이지만, 그 위에서 도는 거래처리 소프트웨어 매출은 주기와 상관없이 이어진다.",
+    "src": [
+      "s2",
+      "s1",
+      "s3"
+    ]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": {
+      "value": 67.535,
+      "unit": "USD bn",
+      "yoy": 7.6
+    },
+    "grossMargin": 58.2,
+    "operatingMargin": null,
+    "netMargin": 15.7,
+    "operatingCashFlow": {
+      "value": 13.193,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 14.734,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Software",
+        "revenue": 29.962,
+        "unit": "USD bn",
+        "share": 44.4,
+        "yoy": 10.6,
+        "operatingMargin": 33.1,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Consulting",
+        "revenue": 21.055,
+        "unit": "USD bn",
+        "share": 31.2,
+        "yoy": 1.8,
+        "operatingMargin": 11.7,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Infrastructure",
+        "revenue": 15.718,
+        "unit": "USD bn",
+        "share": 23.3,
+        "yoy": 12.1,
+        "operatingMargin": 22.0,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Financing",
+        "revenue": 0.737,
+        "unit": "USD bn",
+        "share": 1.1,
+        "yoy": 3.3,
+        "operatingMargin": 70.7,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Other",
+        "revenue": 0.063,
+        "unit": "USD bn",
+        "share": 0.1,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "GAAP 세전이익률 (IBM은 영업이익 대신 세전이익을 핵심 이익 지표로 씀)",
+        "value": "FY2025 15.3% (+6.1%p), Q3 2026 GAAP 14.6%·operating 19.3%",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "최근 분기 (Q3 2026) 매출",
+        "value": "171억 달러(+5%, 고정환율 +6%): Software 78억(+8%, Red Hat +11%, Data +19%), Consulting 53억(보합), Infrastructure 37억(+4%, IBM Z -20%, 분산 인프라 +31%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "생성형 AI 누적 수주(book of business)",
+        "value": "125억 달러 이상 (2026-01-28 발표 기준, 누적치)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "OpenShift ARR",
+        "value": "24억 달러 (Q3 2026 콜)",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "잉여현금흐름·차입",
+        "value": "2026 1~3분기 누적 잉여현금흐름 78억 달러, 총차입 638억 달러(IBM Financing 차입 127억 포함) - 2026-09-30",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "이 구조가 FY2025에 매출 675억 달러(+8%), 총마진 58.2%, 순이익률 약 16%를 냈고, 이익은 마진 33%의 소프트웨어와 메인프레임 주기에 올라탄 인프라에서 주로 나온다. 컨설팅은 매출의 31%지만 마진이 12%로 낮고 성장도 2%에 그쳤다. 2026년 3분기에는 소프트웨어가 8% 늘며 회복했지만, 메인프레임은 신제품 효과가 지나며 20% 줄었다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      {
+        "use": "R&D",
+        "value": 8.316,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 1.617,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 8.294,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 6.255,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "FY2025 잉여현금흐름 147억 달러는 인수 83억 달러와 배당 63억 달러에 거의 다 쓰였고, R&D 비용은 83억 달러로 매출의 12% 수준이다. 2026년에는 1~3분기에만 인수에 114억 달러(Confluent 약 110억 포함)를 써서 총차입이 638억 달러로 늘었다. 자사주 매입보다 소프트웨어 인수와 꾸준한 배당 인상(분기 1.68 → 1.69달러)을 택하는 회사다.",
+    "src": [
+      "s2",
+      "s1",
+      "s4"
+    ]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "기업이 AI 모델·에이전트를 자기 데이터와 기존 시스템 위에서 돌리게 해 주는 소프트웨어(watsonx, Red Hat AI, Confluent 실시간 데이터)와 도입 컨설팅, AI 추론을 지원하는 메인프레임(Spyre)을 공급한다.",
+    "dependsOn": [
+      "semicap-foundry (Samsung 5nm - Telum II·Spyre)",
+      "models-platforms (자체 Granite 및 외부 모델)",
+      "cloud-infrastructure (하이퍼스케일러 위에서 도는 Red Hat)"
+    ],
+    "sellsTo": [
+      "ai-adopter (은행·보험·정부·대기업)"
+    ],
+    "aiRevenue": "생성형 AI 누적 수주 125억 달러 이상 (2026-01-28 발표, 소프트웨어+컨설팅 합산 누적치). Q3 2026 금액은 확인 못함",
+    "upside": "기업 AI 도입이 늘수록 데이터 정리(Confluent·watsonx.data), 자동화, 하이브리드 클라우드 소프트웨어와 도입 컨설팅 수요가 함께 늘어, 마진 높은 소프트웨어 매출로 이어진다.",
+    "risk": "AI 코딩·에이전트 도구가 컨설팅 인력 수요를 줄이는 대체 효과, 하이퍼스케일러가 같은 소프트웨어를 묶어 파는 경쟁, 고객 IT 예산이 GPU로 쏠리는 것.",
+    "text": "그래서 AI 가치사슬에서 IBM은 칩이나 클라우드가 아니라 기업이 실제로 AI를 쓰는 '소프트웨어·도입' 층에 있다. CEO는 고객이 AI를 키우면서 '비용이 얼마이고 누가 통제하느냐'를 묻는다며, 자기 데이터센터와 여러 클라우드에 걸친 통제를 IBM의 답으로 내세운다. 반대로 AI가 컨설팅 일을 자동화하면 매출의 31%인 컨설팅이 먼저 압박받는다.",
+    "src": [
+      "s3",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "하이브리드 클라우드·컨테이너 플랫폼",
+        "rivals": [
+          "VMware (Broadcom)",
+          "AWS·Microsoft·Google 자체 관리형 Kubernetes"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "IT 컨설팅",
+        "rivals": [
+          "Accenture",
+          "Deloitte",
+          "인도계 IT 서비스 (TCS, Infosys)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "메인프레임·고신뢰 거래처리",
+        "rivals": [
+          "클라우드 이전 (AWS·Microsoft 등)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "데이터·자동화 소프트웨어 (AI용)",
+        "rivals": [
+          "Microsoft",
+          "Snowflake",
+          "Databricks",
+          "ServiceNow"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "양자 컴퓨팅",
+        "rivals": [
+          "Google",
+          "Quantinuum",
+          "IonQ"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": []
+      }
+    ],
+    "edge": "메인프레임 설치 기반과 Red Hat 표준, 은행·정부와의 오랜 관계, 그리고 여러 클라우드에 걸친 '통제권'을 파는 위치.",
+    "threats": "하이퍼스케일러의 자체 소프트웨어 묶음, Accenture 등 컨설팅 경쟁과 AI 자동화로 인한 단가 하락, 메인프레임 업무의 클라우드 이전.",
+    "text": "경쟁은 부문마다 상대가 다르다. 소프트웨어에서는 Microsoft와 데이터 플랫폼 회사들이, 컨설팅에서는 Accenture 등이, 메인프레임에서는 '클라우드로 옮기자'는 흐름 자체가 경쟁자다. IBM은 특정 클라우드에 묶이지 않는 하이브리드 표준과 실시간 데이터를 결합해 맞서지만, 공식 점유율 자료는 이번에 확인하지 못했다.",
+    "src": [
+      "s3"
+    ]
+  },
+  "strategy": {
+    "goal": "2026년 고정환율 매출 성장 4~5%, 잉여현금흐름 전년 대비 10억 달러 이상 증가 (2026-10-21 기준). 1월에는 5% 이상 성장을 제시했었다.",
+    "roadmap": [
+      {
+        "when": "2026-03-17 완료",
+        "what": "Confluent 인수 (약 110억 달러) - watsonx.data·MQ·webMethods·IBM Z와 결합",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "when": "2026 진행 중",
+        "what": "AI 제품을 Confluent·watsonx(Bob·Orchestrate)·HashiCorp/Apptio·Red Hat 네 플랫폼으로 정리",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2026-12-10",
+        "what": "IBM Quantum Day - 양자 사업 세부 공개 예정 (2026년 기업 고객 16건 계약)",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "z17 주기",
+        "what": "z17 메인프레임 6개 분기 누적으로 이전 주기 대비 10억 달러 이상 추가 매출",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "vision": "기업이 어느 클라우드·어느 모델을 쓰든 비용과 통제권을 쥐고 AI를 돌리게 해 주는 하이브리드 클라우드·AI 회사, 그리고 장기적으로 양자 컴퓨팅의 선두 회사가 되겠다는 그림이다.",
+    "text": "경쟁을 이기기 위해 회사가 택한 것은 소프트웨어 인수로 AI 데이터 층을 채우는 것이다. HashiCorp에 이어 Confluent까지 사들여 AI 제품을 네 플랫폼으로 묶었고, 메인프레임에는 AI 가속기를 넣었다. 다만 연간 성장 전망이 1월 5% 이상에서 4~5%로 낮아져, 인수 효과를 빼면 기존 사업 성장이 느리다는 점은 남아 있다.",
+    "src": [
+      "s3",
+      "s4",
+      "s2",
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "Arvind Krishna CEO와 James Kavanaugh CFO가 이끌며, 분기 배당을 1.69달러로 올리는 등 배당을 꾸준히 늘리고 남는 현금은 소프트웨어 인수에 쓰는 회사다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "constant-currency revenue growth",
+        "value": "4~5% (환율 영향은 중립 전망)",
+        "givenOn": "2026-10-21",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "free cash flow",
+        "value": "전년(147억 달러) 대비 10억 달러 이상 증가 (상향)",
+        "givenOn": "2026-10-21",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "1월 제시치(고정환율 매출 5% 이상, 잉여현금흐름 약 +10억 달러)에서 10월 기준 매출 4~5%로 낮아졌고 잉여현금흐름은 '10억 달러 이상'으로 올라갔다. Q3 2026 조정 EPS 2.95달러는 시장 예상보다 0.08달러 높았다는 보도가 있다.",
+    "src": [
+      "s2",
+      "s1",
+      "s3"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 12.98달러(범위 12.49~13.56), 직전 4개 분기 합 12.31달러. 최근 4주 상향 8건·하향 5건.",
+    "src": [
+      "s6"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Software 매출 성장률이 8% 이상 유지되고 Red Hat 예약 증가율이 10%대 후반을 지킴",
+      "Confluent 편입 뒤 Data 부문 성장률 유지",
+      "컨설팅 매출이 보합에서 플러스로 돌아섬",
+      "잉여현금흐름이 전년 대비 10억 달러 이상 증가 전망을 달성",
+      "생성형 AI 누적 수주가 계속 늘어남"
+    ],
+    "breaks": [
+      "연간 매출 성장 전망 추가 하향",
+      "Software 성장률이 한 자릿수 초반으로 둔화",
+      "컨설팅 매출 감소 확대 (AI 자동화·고객 예산 축소)",
+      "인수로 늘어난 차입 대비 현금흐름 부진",
+      "메인프레임 감소가 z17 주기 예상보다 깊어짐"
+    ],
+    "keyNumbers": [
+      {
+        "name": "Software 매출 성장률 (Red Hat·Data·자동화)",
+        "why": "이익의 중심이자 밸류에이션의 근거"
+      },
+      {
+        "name": "Consulting 매출 성장률",
+        "why": "AI가 인력 사업에 주는 영향"
+      },
+      {
+        "name": "잉여현금흐름",
+        "why": "배당과 인수를 감당하는 원천"
+      },
+      {
+        "name": "IBM Z 매출",
+        "why": "제품 주기와 거래처리 소프트웨어의 선행 신호"
+      },
+      {
+        "name": "생성형 AI 누적 수주",
+        "why": "AI 수요의 직접 크기"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정; 2026-01-28 발표 패턴)",
+        "event": "Q4·FY2026 실적과 2027 연간 전망",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "date": "2026-12-10",
+        "event": "IBM Quantum Day",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "date": "2026-12-31",
+        "event": "Confluent 편입 첫 회계연도 마감 - 연간 매출 4~5%·잉여현금흐름 +10억 달러 이상 전망 달성 여부",
+        "src": [
+          "s1",
+          "s4"
+        ]
+      }
+    ],
+    "reaction": "실적 자체보다 Software 성장률과 연간 전망 유지·상향 여부에 반응하는 경향이 있다. 2026년 3분기는 매출·EPS가 예상을 넘었지만 연간 매출 전망을 그대로 두고 일부가 지연 계약 효과였다는 해석이 나오며 반응이 제한됐다는 보도가 있다.",
+    "conditions": [
+      "Software 성장률과 Red Hat 예약 증가율",
+      "연간 매출 성장·잉여현금흐름 전망 변경 여부",
+      "컨설팅 매출 방향과 AI 관련 비중 언급",
+      "IBM Z 매출 감소 폭",
+      "인수 후 차입·이자 비용 변화",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "영업이익률 (IBM은 영업이익을 따로 내지 않고 세전이익률을 씀 - FY2025 GAAP 세전이익률 15.3%)",
+    "부문 operatingMargin 칸의 값은 회사가 보고한 '부문 세전이익률(segment profit margin)'임",
+    "FY2025 잉여현금흐름 147억 달러가 영업현금흐름 132억 달러보다 큰 것은 IBM 정의(Financing 채권 변동 제외)에 따른 것",
+    "FY2025 자사주 매입 금액 (보도자료 미기재)",
+    "Q3 2026 기준 생성형 AI 누적 수주 금액",
+    "Confluent 인수 완료 보도는 검색 요약에서 읽음 (회사 보도자료 원문 미확인)",
+    "Telum II·Spyre의 Samsung 5nm 생산은 2024-08 발표 시점 보도 기준",
+    "경쟁 구도의 경쟁사 목록은 업계 일반 구도로 적었고 점유율 자료 없음",
+    "연간 성장 전망이 1월 '5% 이상'에서 언제 '4~5%'로 바뀌었는지 (중간 분기 발표 미확인)",
+    "Q3 EPS 예상 상회 폭과 주가 반응은 2차 보도",
+    "Q4 2026 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "medium - 실적·부문·현금흐름은 회사 보도자료 원문이지만, 인수·칩 생산·콜 발언은 보도와 검색 요약에 의존했고 경쟁 점유율 자료가 없다."
+}

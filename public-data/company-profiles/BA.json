@@ -1,0 +1,269 @@
+{
+  "symbol": "BA",
+  "name": "The Boeing Company",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Boeing은 Airbus와 세계 대형 여객기 시장을 나눠 가진 두 회사 중 하나로, 7,000억 달러가 넘는 주문 잔고를 갖고도 생산 정상화가 늦어 아직 현금을 거의 못 버는 '회복 중인 공장' 이야기가 주가를 움직인다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Boeing Reports Third Quarter Results (Q3 2026, 8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000012927/000162828026067411/a202609sep308kprex991.htm",
+      "publisher": "Boeing / SEC EDGAR",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Boeing Reports Fourth Quarter Results (Q4 and FY2025, 8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/12927/000162828026003518/a202512dec318kprex991.htm",
+      "publisher": "Boeing / SEC EDGAR",
+      "date": "2026-01-27"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "Boeing (BA) Q3 2026 Earnings Preview (states FY2026 FCF $1B-$3B reaffirmed, 737/787 delivery outlook)",
+      "url": "https://www.hudson-labs.com/research/boeing-q3-2026-earnings-preview-ba-results-and-outlook",
+      "publisher": "Hudson Labs",
+      "date": "2026-10-06"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "Airbus and Boeing Report December 2025 Commercial Aircraft Orders and Deliveries (read from search summary, page not fetched)",
+      "url": "https://flightplan.forecastinternational.com/2026/01/15/airbus-and-boeing-report-december-2025-commercial-aircraft-orders-and-deliveries/",
+      "publisher": "Forecast International",
+      "date": "2026-01-15"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/ba/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO earnings calendar snapshot (Finnhub calendar/earnings: Q3 2026 estimate vs actual), public-data/earnings-calendar.json",
+      "url": "https://finnhub.io/docs/api",
+      "publisher": "Finnhub via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "세계 대형 여객기 시장이 사실상 Boeing·Airbus 두 회사 구조 - 인증·생산 진입장벽이 매우 높음",
+      "기록적 주문 잔고 7,454억 달러 (2026-09-30), 상업용 항공기 6,300대 이상",
+      "수십 년 쌓인 운항 기단 - 부품·정비·훈련 서비스(BGS) 매출이 계속 붙는 설치 기반",
+      "미국 국방 핵심 공급사 - 해군 6세대 전투기 F/A-XX 설계 업체로 선정"
+    ],
+    "text": "Boeing의 힘은 새 회사가 거의 들어올 수 없는 두 회사 시장에 있다는 데서 나온다. 항공사는 기단을 바꾸는 데 수십 년이 걸리므로 한 번 Boeing 기종을 쓰면 부품·정비·훈련까지 계속 Boeing에 돈을 낸다. 그 결과 생산 문제로 몇 년간 고전했는데도 주문 잔고는 7,454억 달러로 사상 최대다.",
+    "src": ["s1", "s2"]
+  },
+  "design": {
+    "text": "이런 시장 위에서 회사는 세 부문으로 보고한다. Commercial Airplanes(BCA)는 737·767·777(777X 포함)·787 여객기와 화물기를, Defense, Space & Security(BDS)는 전투기·급유기(KC-46)·위성·우주 프로그램을 설계한다. Global Services(BGS)는 운항 중인 민간·군용 기체의 부품·정비·개조·훈련 서비스를 판다.",
+    "src": ["s1", "s2"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 최종 조립 - 737·787·777X 최종 조립 라인 (공장명은 이번 자료에서 확인 안 함)",
+      "Spirit AeroSystems - 동체 등 대형 구조물, 2025-12 Boeing이 인수해 내재화",
+      "엔진·부품 공급망 - 3분기 상업 마진을 누른 요인으로 '공급망 비용 증가'를 명시 (업체명 미기재)"
+    ],
+    "text": "Boeing은 여객기를 자체 공장에서 최종 조립하지만, 동체와 엔진·부품은 넓은 공급망에 기댄다. 가장 큰 구조물 공급사였던 Spirit AeroSystems를 2025년 12월 인수해 품질 관리를 직접 쥐려 하고 있다. 그래도 2026년 3분기 상업 부문 적자의 원인으로 공급망 비용 상승과 향후 생산 속도 조정 비용을 꼽아, 공급망이 여전히 회복의 병목이다.",
+    "src": ["s2", "s1"]
+  },
+  "sell": {
+    "customers": [
+      "항공사와 항공기 리스사 (BCA) - 2025년 상업용 인도 600대",
+      "미국 국방부·NASA와 해외 정부 (BDS) - BDS 백로그의 23%가 미국 외 고객",
+      "운항사와 각국 군 (BGS 부품·정비·훈련)"
+    ],
+    "channel": "항공사·리스사·정부와 직접 계약하는 장기 판매. 국방은 미국 정부 계약과 해외 정부 계약.",
+    "concentration": "10% 이상 단일 고객 비중은 이번 자료에서 확인 못 함. 미국 정부가 BDS의 최대 고객.",
+    "text": "만든 기체는 전 세계 항공사와 리스사, 그리고 미국 정부를 중심으로 한 국방 고객에게 팔린다. 상업 쪽은 2025년 600대를 인도해 2018년 이후 최대였지만 주문이 그보다 훨씬 많이 쌓여 있다. 국방 쪽은 미국 정부가 핵심이고 BDS 백로그의 23%는 해외 고객이다.",
+    "src": ["s2", "s1"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "항공사·리스사", "to": "Boeing BCA", "what": "주문 계약 후 항공기 인도 때 대금 대부분 수령 (대당 판매)" },
+      { "from": "미국 국방부·NASA·해외 정부", "to": "Boeing BDS", "what": "개발·생산 계약 대금 (고정가·원가가산 계약)" },
+      { "from": "운항사·각국 군", "to": "Boeing BGS", "what": "부품 판매, 정비·개조·훈련 서비스 요금" },
+      { "from": "Boeing", "to": "Spirit AeroSystems(인수 후 내부)·엔진·부품 공급사", "what": "동체·엔진·부품 구매 대금" }
+    ],
+    "pricing": "여객기는 대당 판매로 인도 시점에 매출과 현금이 크게 들어온다. 국방은 프로젝트 계약이며 고정가 개발 계약에서 비용 초과 손실(reach-forward loss)이 생길 수 있다. 서비스는 부품·정비 건별 요금.",
+    "text": "돈은 대부분 항공기를 인도하는 순간 들어오기 때문에, 공장이 계획한 속도로 비행기를 내보내느냐가 곧 현금흐름이다. 그래서 2024년처럼 생산이 막히면 주문이 쌓여도 현금은 -120억 달러까지 빠져나갔고, 인도가 600대로 회복한 2025년에야 영업현금흐름이 +11억 달러로 돌아섰다. 안정적으로 현금을 버는 쪽은 마진이 높은 서비스(BGS)다.",
+    "src": ["s2", "s1"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 89.463, "unit": "USD bn", "yoy": 34.5 },
+    "grossMargin": null,
+    "operatingMargin": 4.8,
+    "netMargin": 2.5,
+    "operatingCashFlow": { "value": 1.065, "unit": "USD bn" },
+    "freeCashFlow": { "value": -1.877, "unit": "USD bn" },
+    "segments": [
+      { "name": "Commercial Airplanes", "revenue": 41.494, "unit": "USD bn", "share": 46.4, "yoy": 81.5, "operatingMargin": -17.1, "src": ["s2"] },
+      { "name": "Defense, Space & Security", "revenue": 27.234, "unit": "USD bn", "share": 30.4, "yoy": 13.9, "operatingMargin": -0.5, "src": ["s2"] },
+      { "name": "Global Services (Digital Aviation Solutions 매각이익 포함)", "revenue": 20.923, "unit": "USD bn", "share": 23.4, "yoy": 4.9, "operatingMargin": 64.4, "src": ["s2"] },
+      { "name": "Unallocated items, eliminations and other", "revenue": -0.188, "unit": "USD bn", "share": -0.2, "yoy": null, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "총 백로그", "value": "7,454억 달러 (2026-09-30, 사상 최대): BCA 6,118억(6,300대 이상), BDS 1,005억, BGS 327억", "src": ["s1"] },
+      { "name": "상업용 인도량", "value": "2025년 600대 (737 447·767 30·777 35·787 88); 2026년 9개월 475대, Q3 161대", "src": ["s2", "s1"] },
+      { "name": "최근 분기 (Q3 2026) 매출·마진", "value": "매출 241.9억 달러(+4%), GAAP 영업이익률 1.5%; BCA -6.5%, BDS 6.2%(HRL 매각이익 2.52억 포함), BGS 18.3%", "src": ["s1"] },
+      { "name": "생산 속도", "value": "737은 월 47대 안정화 진행, 787은 월 8대 안정 (Q3 2026)", "src": ["s1"] },
+      { "name": "현금·부채", "value": "현금·유가증권 207억, 부채 459억 달러 (2026-09-30)", "src": ["s1"] }
+    ],
+    "text": "FY2025 매출은 898억 달러로 인도 회복 덕에 34% 늘었고 영업이익률은 4.8%로 흑자 전환했다. 하지만 이 흑자는 Global Services에 잡힌 Digital Aviation Solutions 매각이익 96억 달러 덕분이고, 상업 부문은 영업이익률 -17.1%로 여전히 큰 적자였다. 2026년 3분기에도 상업 부문은 -6.5%로 적자가 이어져, 이익은 서비스와 일회성 매각이익에 기대는 구조다.",
+    "src": ["s2", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 3.615, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 2.942, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 0.331, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": null, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "잉여현금흐름이 -19억 달러였던 2025년에는 쓸 수 있는 돈이 많지 않았다. R&D 36억, 설비투자 29억 달러가 중심이고, 배당은 의무전환우선주 3.31억 달러뿐으로 보통주 주주환원은 없었다. 대신 자산 매각으로 약 106억 달러를 받아 Spirit AeroSystems 인수와 재무구조 방어에 쓰는 '버티는' 자본 배분이다.",
+    "src": ["s2"]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 데이터센터 공급망 밖에 있는 항공기·방산 제조사. 실적은 항공 여객 수요, 생산 속도, 국방 예산에 달려 있다.",
+    "dependsOn": [
+      "항공 엔진·부품 공급망",
+      "미국 국방 예산과 FAA 인증"
+    ],
+    "sellsTo": [
+      "항공사·리스사",
+      "미국·해외 정부 국방 고객"
+    ],
+    "aiRevenue": null,
+    "upside": "AI가 직접 매출로 오지는 않는다. 생산·품질 관리나 국방 시스템에 AI를 쓰는 효과는 회사 공시로 확인되지 않았다.",
+    "risk": "AI 관련 직접 위험은 작다. 다만 2025년에 매각한 Digital Aviation Solutions(디지털 항공 소프트웨어) 같은 데이터 사업을 덜어낸 만큼, 데이터·소프트웨어 서비스 성장의 몫은 줄었다.",
+    "text": "그래서 AI 가치사슬에서 Boeing은 직접 연결이 거의 없는 '제한적' 자리다. 주가를 움직이는 것은 GPU 수요가 아니라 737 생산 속도와 FAA 인증, 국방 계약이다. AI 테마로 해석하기보다 생산 회복 기업으로 보는 편이 실적과 맞는다.",
+    "src": ["s1", "s2"]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "상업용 여객기 (단일통로·광동체)",
+        "rivals": ["Airbus", "COMAC"],
+        "position": "challenger",
+        "share": "2025년 말 주문 잔고 Airbus 8,748대(A320ceo 제외) vs Boeing 6,713대(777-300ER 제외) - Forecast International 집계, 2026-01-15",
+        "src": ["s4", "s2"]
+      },
+      {
+        "arena": "국방 항공기·우주",
+        "rivals": ["Lockheed Martin", "Northrop Grumman", "General Dynamics"],
+        "position": "challenger",
+        "share": null,
+        "src": ["s1"]
+      },
+      {
+        "arena": "항공기 부품·정비 서비스",
+        "rivals": ["Airbus 서비스", "독립 정비업체(MRO)", "엔진 제조사 애프터마켓"],
+        "position": "leader",
+        "share": null,
+        "src": ["s2"]
+      }
+    ],
+    "edge": "두 회사 구조의 여객기 시장, 사상 최대 주문 잔고, 높은 마진의 서비스 사업, 해군 F/A-XX 선정과 737-7/-10 인증 획득.",
+    "threats": "Airbus가 더 많은 주문 잔고와 생산 안정성을 갖고 있고, 생산 차질이 다시 생기면 항공사가 주문을 옮길 수 있다. 고정가 국방 개발 계약의 비용 초과와 공급망 비용 상승도 이익을 깎는다.",
+    "text": "여객기 시장에서 Boeing은 둘 중 하나이지만 지금은 쫓아가는 쪽이다. 2025년 말 주문 잔고는 Airbus 8,748대, Boeing 6,713대였고, 그 격차의 상당 부분은 지난 몇 년 Boeing의 생산·품질 문제에서 생겼다. Boeing은 737 생산을 월 47대로 안정시키고 737-7/-10 인증을 받아 인도를 늘리는 방식으로 따라잡으려 하며, 국방에서는 F/A-XX 선정이 새로운 기회다.",
+    "src": ["s4", "s1"]
+  },
+  "strategy": {
+    "goal": "CEO Kelly Ortberg는 안전·품질·실행을 최우선으로 내세운다. FY2026 잉여현금흐름 10~30억 달러, 737 인도 약 500대, 787 인도 90~100대가 시장에 알려진 목표다(2차 출처).",
+    "roadmap": [
+      { "when": "2026 Q3 ~ Q4", "what": "737-7 개정 형식증명(Q3), 737-10 인증(10월) 획득 - 두 기종 인도 시작 준비", "src": ["s1"] },
+      { "when": "2026 ~ 2027", "what": "737 월 47대 안정화 후 52대로 증산 (North Line 인증 필요)", "src": ["s1", "s3"] },
+      { "when": "2026 ~ 2027", "what": "787 월 8대에서 10대로 증산 목표", "src": ["s1", "s3"] },
+      { "when": "2027", "what": "777X(777-9) 첫 인도", "src": ["s1"] },
+      { "when": "선정 절차 완료 후", "what": "해군 F/A-XX 6세대 전투기 계약 백로그 반영 (현재 미반영)", "src": ["s1"] }
+    ],
+    "vision": "생산 시스템을 안정시켜 주문 잔고를 꾸준한 인도와 현금으로 바꾸고, Spirit AeroSystems 내재화로 품질을 직접 통제하는 회사로 돌아가는 것.",
+    "text": "따라잡기 위한 회사의 순서는 먼저 생산 속도를 안정시키고(737 월 47→52대, 787 월 8→10대), 막혀 있던 신기종 인증을 풀어 인도를 늘리는 것이다. 737-7과 737-10은 2026년 하반기에 인증을 받았고, 777X는 2027년 첫 인도가 남은 관문이다. 매 단계가 FAA 승인과 공급망 회복에 걸려 있어 일정이 회사 뜻대로만 움직이지는 않는다.",
+    "src": ["s1", "s3"]
+  },
+  "governance": {
+    "line": "CEO Kelly Ortberg가 생산·품질 회복을 이끌고 있으며, 2025년 배당은 의무전환우선주에만 지급되고 보통주 주주환원은 없는 재무 회복 단계다.",
+    "src": ["s1", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "free cash flow", "value": "10~30억 달러 (2차 출처가 '재확인'으로 전함, 회사 문서 미대조)", "givenOn": "2026-10-06", "src": ["s3"] },
+      { "period": "FY2026", "metric": "deliveries", "value": "737 약 500대, 787 90~100대 (2차 출처)", "givenOn": "2026-10-06", "src": ["s3"] },
+      { "period": "Q3 2026 release", "metric": "outlook", "value": "보도자료에는 수치 가이던스 없음", "givenOn": "2026-10-27", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "Q3 2026 매출 241.9억 달러는 Finnhub 집계 예상 245.6억 달러를 밑돌았고, 핵심 EPS -0.34달러도 예상 -0.21달러보다 나빴다. 9개월 잉여현금흐름은 -3.6억 달러여서 연간 10~30억 달러를 맞추려면 4분기에 큰 현금 유입이 필요하다.",
+    "src": ["s6", "s1", "s3"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 1.09달러(범위 -0.29~2.80, 추정치 수 최소 5), 직전 4개 분기 실적 합 -10.34달러. 최근 4주 상향 2건·하향 5건으로 하향 쪽이 많다.",
+    "src": ["s5"]
+  },
+  "watch": {
+    "confirms": [
+      "월별 상업용 인도량이 늘고 737 월 47대가 유지된 뒤 52대 승인",
+      "상업 부문 영업이익률이 적자 폭을 줄여 0%에 접근",
+      "분기 잉여현금흐름이 연속 플러스",
+      "777X 인증 일정 유지와 2027년 첫 인도",
+      "F/A-XX 계약이 백로그에 반영"
+    ],
+    "breaks": [
+      "품질 문제나 FAA 제재로 생산 속도 제한",
+      "777X·KC-46 등에서 새로운 대규모 비용 초과 손실",
+      "공급망 비용 상승이 계속 상업 마진을 끌어내림",
+      "연간 잉여현금흐름 목표 하향",
+      "주요 항공사의 주문 취소나 Airbus로의 전환"
+    ],
+    "keyNumbers": [
+      { "name": "월별·분기별 상업용 인도량", "why": "매출과 현금이 들어오는 속도" },
+      { "name": "737·787 월 생산 속도", "why": "회복 계획의 진척" },
+      { "name": "잉여현금흐름", "why": "이익보다 현금으로 회복을 확인" },
+      { "name": "BCA 영업이익률", "why": "본업 수익성의 바닥 확인" },
+      { "name": "총 백로그", "why": "수요가 유지되는지" },
+      { "name": "부채·현금 잔고", "why": "재무 여력" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "매월 (추정)", "event": "월간 주문·인도 실적 공개", "src": ["s1"] },
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 현금흐름 전망", "src": ["s2"] },
+      { "date": "2027", "event": "777X 첫 인도와 인증 진행", "src": ["s1"] },
+      { "date": "수시", "event": "FAA의 737 증산 승인, F/A-XX 계약 확정", "src": ["s1", "s3"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 잉여현금흐름, 인도량, 생산 속도와 인증 소식에 더 크게 반응하는 경향이 있다. 2025년 9개월 동안 777X·767 비용 초과 손실이 51.4억 달러(2026년 같은 기간 0.86억)였던 것처럼, 이런 손실 공시는 이익 전망을 크게 바꾸는 사건이다.",
+    "conditions": [
+      "월간 인도량이 분기 목표 속도와 맞는지",
+      "분기 잉여현금흐름 부호와 연간 목표 유지 여부",
+      "BCA 마진과 비용 초과 손실 공시",
+      "FAA 승인·인증 일정 변화",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "FY2026 잉여현금흐름 10~30억 달러와 인도 목표는 Hudson Labs 프리뷰(s3) 기준이며 Q3 실적 콜에서 유지됐는지 확인 못 함",
+    "Q3 2026 실적 콜 내용 (녹취록 미확인)",
+    "FY2025 Global Services 영업이익률 64.4%는 Digital Aviation Solutions 매각이익(약 96억 달러) 포함 - 매각이익 제외 마진 미계산",
+    "Spirit AeroSystems 인수 금액과 현금 지급액 (보도자료에 'December 인수'만 기재)",
+    "총마진 (Boeing은 매출총이익을 따로 보고하지 않음)",
+    "10% 이상 단일 고객 비중, 미국 정부 매출 비중",
+    "엔진 공급사별 의존도",
+    "선수금·인도 시 잔금 구조는 업계 일반 구조로 서술했고 이번 자료에서 금액 확인 안 함",
+    "Airbus·Boeing 잔고 수치(s4)는 검색 요약에서 읽었고 원문 페이지는 열지 않음",
+    "국방·서비스 시장 점유율",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "medium - 실적·백로그·인도·현금흐름은 회사 8-K에서 왔지만, 2026년 연간 가이던스는 2차 프리뷰에 기대고 Q3 콜 발언을 확인하지 못했다."
+}

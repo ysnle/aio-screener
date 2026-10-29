@@ -7,6 +7,7 @@ import { PACKET_20261014_SOURCES, PACKET_20261014_IMAGES, PACKET_20261014_CLAIMS
 import { PACKET_20261015_SOURCES, PACKET_20261015_CLAIMS } from './packet-20261015.js';
 import { PACKET_20261016_SOURCES, PACKET_20261016_CLAIMS, PACKET_20261016_AUDIT } from './packet-20261016-x-bookmarks.js';
 import { PACKET_20261018_SOURCES, PACKET_20261018_CLAIMS, PACKET_20261018_AUDIT } from './packet-20261018-x-bookmarks.js';
+import { PACKET_20261028_SOURCES, PACKET_20261028_CLAIMS, PACKET_20261028_AUDIT } from './packet-20261028-x-bookmarks.js';
 
 export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   id: 'supplied-materials-2026-08-29',
@@ -117,6 +118,9 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   // The bookmarks added after the 10/16 ledger, read on 2026-10-18 — the sources the new frames cite and what was left to existing notes.
   packet20261018Observations: PACKET_20261018_SOURCES,
   packet20261018Audit: PACKET_20261018_AUDIT,
+  // v59.43: the bookmarks added after the 10/18 read, read on 2026-10-28 with every attached image.
+  packet20261028Observations: PACKET_20261028_SOURCES,
+  packet20261028Audit: PACKET_20261028_AUDIT,
   packet20261013Observations: Object.freeze([
     Object.freeze({ id: 'nutlope-2109322388420841789', author: 'Hassan El Mghari', sourceUrl: 'https://x.com/nutlope/status/2109322388420841789', publishedAtKst: '2026-10-12T01:37:01+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'ADOPTED', summary: '읽을거리를 책등 서가로 보여 주는 라이브러리(영상 2개, 프레임 확인): 주제 색 책등·주제 칩과 개수·정렬·책 펼침 카드·읽음 표시·문장 선택 후 질문. 리서치 라이브러리 서가로 반영(P1674). 북마크 자동 수집 에이전트와 생성 표지 그림은 로그인·로컬 프로듀서 금지·자산 부재로 제외.' }),
     Object.freeze({ id: 'RealSimpleAriel-2109785574366224632', author: 'RealSimpleAriel', sourceUrl: 'https://x.com/RealSimpleAriel/status/2109785574366224632', publishedAtKst: '2026-10-13T08:17:33+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'ALREADY_COVERED', summary: '일일 리캡(영상 18분): 메모리·광통신·반도체 약세와 에너지·필수소비재 주도, 그룹 ETF 기간별 성과, 이동평균 대비 ATR 배수. 테마 화면의 1·3·6개월 순위·50일선 참여·방향과 섹터 1일·1주 성과, 차트 ATR 확장(P1507)이 이미 같은 질문을 다룸.' }),
@@ -140,6 +144,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   ]),
   sourceObservations: Object.freeze([
     // v57.54: the 2026-10-14 sources a claim cites (the rest stay in packet20261014Observations with their disposition).
+    ...PACKET_20261028_SOURCES,
     ...PACKET_20261018_SOURCES,
     ...PACKET_20261016_SOURCES,
     ...PACKET_20261015_SOURCES,
@@ -200,6 +205,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
       'allowedConsumers', 'blockedConsumers', 'currentnessBoundary'
     ]),
     claims: Object.freeze([
+      ...PACKET_20261028_CLAIMS,
       ...PACKET_20261018_CLAIMS,
       ...PACKET_20261016_CLAIMS,
       ...PACKET_20261015_CLAIMS,

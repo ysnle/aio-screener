@@ -1,0 +1,226 @@
+{
+  "symbol": "BRK-B",
+  "name": "Berkshire Hathaway Inc. (Class B)",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Berkshire Hathaway는 보험(GEICO 등)에서 모은 플로트와 철도(BNSF)·전력(BHE)·제조·유통 자회사가 버는 현금을 다시 기업 인수와 주식 투자에 굴리는 복합 지주회사로, 2026년부터 Greg Abel이 CEO를 맡아 약 3,600억 달러 현금을 어떻게 쓰는지가 핵심이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Berkshire Hathaway news release: second quarter and first six months 2026 operating results", "url": "https://www.berkshirehathaway.com/news/aug0826.pdf", "publisher": "Berkshire Hathaway", "date": "2026-08-08" },
+    { "id": "s2", "kind": "10-Q", "title": "Berkshire Hathaway Form 10-Q for the quarter ended 2026-06-30 (liquidity, OxyChem and Taylor Morrison acquisitions, top holdings, repurchases)", "url": "https://www.berkshirehathaway.com/qtrly/2ndqtr26.pdf", "publisher": "Berkshire Hathaway", "date": "2026-08-08" },
+    { "id": "s3", "kind": "10-K", "title": "Berkshire Hathaway 2025 Annual Report (Form 10-K, Note 26 segment data, MD&A, and Greg Abel's shareholder letter)", "url": "https://www.berkshirehathaway.com/2025ar/2025ar.pdf", "publisher": "Berkshire Hathaway", "date": "2026-02-28" },
+    { "id": "s4", "kind": "news", "title": "Berkshire Hathaway's new CEO Greg Abel spends a chunk of the company's massive cashpile (AP; Alphabet stake about $10B, read via search summary)", "url": "https://ny1.com/nyc/all-boroughs/ap-top-news/2026/08/08/berkshire-hathaways-new-ceo-greg-abel-spends-a-chunk-of-the-companys-massive-cashpile", "publisher": "Associated Press via NY1", "date": "2026-08-08" }
+  ],
+
+  "moat": {
+    "sources": [
+      "보험 플로트 - 2025말 약 1,760억 달러, 2026-06-30 약 1,775억 달러의 '먼저 받고 나중에 지급하는' 돈",
+      "현금과 미 국채 - 2025말 3,700억 달러 초과, 2026-06-30 보험·기타 부문 순 3,592억 달러",
+      "대체가 어려운 실물 자산 - 미국 서부 철도(BNSF)와 규제 전력망(BHE)",
+      "분권형 운영과 '자금 조달 조건 없이 빠르게 답하는' 인수자 평판"
+    ],
+    "text": "Berkshire의 힘은 보험료를 먼저 받아 두고 보험금은 나중에 지급하는 구조에서 나온다. 이 플로트가 2025말 약 1,760억 달러였고, 그 해 손해보험 합산비율 87.1%로 보험 영업 자체도 이익을 냈다. 여기에 철도·전력 같은 대체 불가능한 자산과 3,700억 달러가 넘는 현금, 그리고 매도자에게 '빨리, 조건 없이' 답하는 인수자 평판이 두 번째·세 번째 뿌리다.",
+    "src": ["s3", "s2"]
+  },
+
+  "design": {
+    "text": "그 돈이 들어가 있는 사업은 Note 26 기준 일곱 묶음으로 보고된다. 보험(GEICO·BH Primary·재보험 BHRG), BNSF 철도, BHE(전력·가스·파이프라인·부동산 중개), 제조(Precision Castparts·Lubrizol·Marmon·IMC 등), 서비스·유통(NetJets·자동차 딜러·가구 등), McLane(식품 도매), Pilot(트럭 휴게소·연료)이다. 2026-01-02 OxyChem(약 94억 달러)과 2026-07-24 주택건설사 Taylor Morrison(약 68억 달러)을 사들여 제조 쪽이 더 넓어졌다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "보험 계약자 - 플로트의 원천 (GEICO 2025 경과보험료 444.8억 달러)",
+      "자회사 경영진 - 51개 비보험 사업을 분권형으로 운영 (회사 서한)",
+      "Precision Castparts·Lubrizol·Marmon·IMC - 항공 부품·특수화학·산업재 자체 제조",
+      "BNSF·BHE - 자체 철도망과 발전·송배전 설비 (2025 설비투자 각 38억·106억 달러)",
+      "Occidental - OxyChem 매도 상대방이며 지분법 투자처"
+    ],
+    "text": "Berkshire는 직접 물건을 만드는 회사이면서 동시에 돈을 굴리는 회사다. 철도·전력·화학·항공부품은 자회사가 자기 설비로 생산하고, 보험은 계약자에게서 받은 보험료로 '상품'을 만든다. 2025년 연결 설비투자 209억 달러 중 BHE가 106억, BNSF가 38억 달러로 절반 이상이 이 두 인프라 회사에 들어갔다.",
+    "src": ["s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 개인 운전자 (GEICO) - 2024 기준 미국 자동차보험 점유율 약 11.6%, 3위",
+      "기업·보험사 (BH Primary·BHRG 재보험)",
+      "화주 (BNSF 철도 운송)",
+      "전력·가스 소비자와 데이터센터 사업자 (BHE)",
+      "편의점·식당 체인 (McLane - Walmart 약 17.2%, 7-Eleven 약 13.3%, Yum! Brands 약 13.3%)",
+      "트럭 운전자·여행객 (Pilot - 2025 연료 약 109억 갤런 판매)"
+    ],
+    "channel": "GEICO는 직판(온라인·전화), 상업보험·재보험은 중개인, 철도·전력은 계약·규제 요금, 제조는 직판과 유통망, McLane·Pilot은 도매·직영 점포.",
+    "concentration": "그룹 전체로는 단일 고객 의존 없음. 자회사 McLane은 Walmart 약 17.2%, 7-Eleven·Yum! Brands 각 약 13.3% (2025)",
+    "text": "이렇게 만든 상품과 서비스는 거의 미국 경제 전체에 팔린다. 2025년 판매·서비스·리스 매출 2,096억 달러의 87%, 철도·전력 매출 497억 달러의 96%가 미국에서 나왔다. 고객이 매우 분산돼 있어 한 고객보다 미국 경기, 금리, 대형 재해가 더 중요하다.",
+    "src": ["s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "보험 계약자 (GEICO·기업·보험사)", "to": "Berkshire 보험 자회사", "what": "보험료 선수령 (2025 경과보험료 889억 달러) - 보험금은 나중에 지급, 그 사이 플로트로 운용" },
+      { "from": "보험 플로트·현금", "to": "미 국채·주식 (Apple·American Express·Coca-Cola·Alphabet 등)", "what": "이자·배당 수입 (2025 보험 투자수익 세전 153억 달러)" },
+      { "from": "화주·전력 소비자", "to": "BNSF·BHE", "what": "운임과 규제 전기·가스 요금 (2025 매출 235억·263억 달러)" },
+      { "from": "산업·소비자 고객", "to": "제조·서비스·유통·McLane·Pilot", "what": "제품 판매·서비스·리스 대금 (2025 합계 2,143억 달러)" },
+      { "from": "자회사", "to": "Berkshire 본사", "what": "배당 송금 (보험 자회사 2025년 290억 달러) - 본사가 인수·자사주·투자에 재배분" }
+    ],
+    "pricing": "보험은 위험에 맞춘 보험료(언더라이팅 이익 + 플로트 운용수익), 철도는 운임, 전력은 규제 당국이 정한 요금, 제조·유통은 제품 단가, 투자는 이자·배당·시세차익이다.",
+    "text": "돈은 두 단계로 돈다. 먼저 각 자회사가 보험료·운임·전기요금·제품 대금을 벌고, 남는 현금을 본사로 올려 보낸다(보험 자회사만 2025년 290억 달러). 본사는 이 돈을 국채·주식·기업 인수·자사주 중 가장 나은 곳에 다시 배분하는데, 이 재배분이 Berkshire가 하는 핵심 일이다.",
+    "src": ["s3"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 371.444, "unit": "USD bn", "yoy": 0.0 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 18.0,
+    "operatingCashFlow": { "value": 45.969, "unit": "USD bn" },
+    "freeCashFlow": { "value": 25.042, "unit": "USD bn" },
+    "segments": [
+      { "name": "Insurance (premiums earned + investment income)", "revenue": 104.212, "unit": "USD bn", "share": 28.1, "yoy": -0.8, "operatingMargin": 23.7, "src": ["s3"] },
+      { "name": "Manufacturing", "revenue": 78.487, "unit": "USD bn", "share": 21.1, "yoy": 1.6, "operatingMargin": 16.0, "src": ["s3"] },
+      { "name": "McLane", "revenue": 50.998, "unit": "USD bn", "share": 13.7, "yoy": -1.8, "operatingMargin": 1.3, "src": ["s3"] },
+      { "name": "Service and retailing", "revenue": 42.647, "unit": "USD bn", "share": 11.5, "yoy": 7.0, "operatingMargin": 9.5, "src": ["s3"] },
+      { "name": "Pilot Travel Centers", "revenue": 42.198, "unit": "USD bn", "share": 11.4, "yoy": -10.0, "operatingMargin": 0.5, "src": ["s3"] },
+      { "name": "Berkshire Hathaway Energy (BHE)", "revenue": 26.297, "unit": "USD bn", "share": 7.1, "yoy": -0.2, "operatingMargin": 8.9, "src": ["s3"] },
+      { "name": "BNSF", "revenue": 23.533, "unit": "USD bn", "share": 6.3, "yoy": -0.2, "operatingMargin": 30.5, "src": ["s3"] },
+      { "name": "Corporate, eliminations and other", "revenue": 3.072, "unit": "USD bn", "share": 0.8, "yoy": null, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "영업이익(operating earnings, 세후, 투자손익 제외)", "value": "FY2025 약 444.9억 달러(사업부 세후 이익 합산 계산값); Q2 2026 129.8억 달러(+16%), 상반기 243.3억 달러", "src": ["s3", "s1"] },
+      { "name": "사업부 세후 이익 (FY2025)", "value": "보험 언더라이팅 72.6억, 보험 투자수익 125.1억, BNSF 54.8억, BHE 39.8억, 제조·서비스·유통 136.5억 달러", "src": ["s3"] },
+      { "name": "보험 플로트와 합산비율", "value": "플로트 약 1,760억 달러(2025말) → 약 1,775억 달러(2026-06-30); 손해보험 합산비율 87.1%(2025, 5년 평균 90.7%)", "src": ["s3", "s1"] },
+      { "name": "현금·미 국채", "value": "3,700억 달러 초과(2025말, 회사 서한); 보험·기타 부문 순 3,592억 달러(2026-06-30)", "src": ["s3", "s2"] },
+      { "name": "주식 포트폴리오", "value": "2,978억 달러(2025말); Apple·American Express·Coca-Cola·Moody's 시가 1,586억, 일본 5대 상사 354억 달러", "src": ["s3"] },
+      { "name": "BNSF 영업이익률", "value": "34.5%(2025) vs 32.0%(2024); 1%p 개선마다 영업현금 약 2.3억 달러", "src": ["s3"] }
+    ],
+    "text": "이 돈의 흐름이 2025년 매출 3,714억 달러와 순이익 670억 달러를 만들었지만, 순이익에는 주식 평가이익 307억 달러와 Kraft Heinz·Occidental 손상 83억 달러가 섞여 있어 회사는 영업이익(약 445억 달러)을 더 의미 있는 숫자로 본다. 이익은 보험(투자수익 125억 + 언더라이팅 73억)과 제조·서비스·유통(137억)에 몰려 있고, 매출 비중이 큰 McLane·Pilot의 세전 이익률은 1% 안팎이다. 2026년 2분기 영업이익은 130억 달러로 16% 늘었다.",
+    "src": ["s3", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31), 2026 상반기 보완",
+    "items": [
+      { "use": "capex", "value": 20.927, "unit": "USD bn", "src": ["s3"] },
+      { "use": "acquisitions", "value": 1.074, "unit": "USD bn", "src": ["s3"] },
+      { "use": "buybacks", "value": 0, "unit": "USD bn", "src": ["s3"] },
+      { "use": "dividends", "value": 0, "unit": "USD bn", "src": ["s3"] },
+      { "use": "other", "label": "상장 주식 매수 (같은 해 매도 306.9억 달러)", "value": 16.923, "unit": "USD bn", "src": ["s3"] },
+      { "use": "acquisitions", "value": 9.704, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 4.8, "unit": "USD bn", "src": ["s2", "s1"] }
+    ],
+    "text": "2025년에는 번 돈 대부분이 설비투자(209억 달러)와 국채로 갔고, 자사주 매입과 배당은 0이었으며 주식은 산 것(169억)보다 판 것(307억)이 많았다. Abel이 CEO가 된 2026년에는 흐름이 바뀌어 상반기에 OxyChem 등 인수에 97억 달러, 자사주에 48억 달러(대부분 2분기)를 썼고 7월에는 Taylor Morrison을 68억 달러에 샀다. 배당은 '유보한 1달러가 1달러 이상의 시장가치를 만들 수 있는 한' 지급하지 않는다는 방침이 유지된다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI를 만들거나 파는 회사는 아니지만 두 갈래로 AI에 노출돼 있다. BHE는 AI 연산이 키우는 전력 수요에 맞춰 발전·송전망을 짓는 쪽이고, 주식 포트폴리오에는 2026-06-30 기준 5대 보유 종목에 Alphabet과 Apple이 들어 있다.",
+    "dependsOn": ["power-energy (BHE 자체 발전·송전 설비)", "규제 당국의 요금 승인", "models-platforms·devices 기업 주가 (Alphabet·Apple 보유)"],
+    "sellsTo": ["데이터센터·하이퍼스케일러 (BHE 전력 공급)", "AI 인프라 건설 수요가 닿는 제조 자회사 (예: 데이터센터용 구조물 - 10-K 사업 설명)"],
+    "aiRevenue": null,
+    "upside": "데이터센터 전력 수요가 BHE의 요금 기반(투자 자산)을 키우고, 보유한 Alphabet·Apple 주가와 배당이 오르면 순자산이 커진다. 회사 서한은 하이퍼스케일러용 인프라 비용은 그 고객이 부담해야 한다는 조건을 달았다.",
+    "risk": "BHE가 데이터센터 수요를 믿고 과잉 투자했다가 수요가 꺾이면 비용 회수가 어려워질 수 있고, AI 대형주 주가가 꺾이면 분기 순이익에 큰 평가손이 찍힌다. 서부 산불 소송(남은 청구 약 500억 달러)은 BHE 투자 여력을 제약한다.",
+    "text": "그래서 AI 가치사슬에서 Berkshire는 직접 수혜자가 아니라 '노출된' 회사다. AI 매출은 공시되지 않으며, 효과는 BHE의 전력 투자와 보유 주식 평가로 간접적으로 들어온다. Abel은 데이터센터 수요를 반기면서도 위험과 보상이 맞을 때만 투자한다고 선을 그었다.",
+    "src": ["s3", "s2", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "미국 개인 자동차보험 (GEICO)", "rivals": ["State Farm", "Progressive", "Allstate", "USAA"], "position": "challenger", "share": "약 11.6%, 3위 (A.M. Best 2024 기준, 10-K 인용)", "src": ["s3"] },
+      { "arena": "재보험·상업보험 (BHRG·BH Primary)", "rivals": ["글로벌 재보험사·상업보험사 (10-K 일반 서술)"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "미국 서부 화물철도 (BNSF)", "rivals": ["Union Pacific (서부 주 경쟁자)", "트럭 운송"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "기업 인수 (대형 비상장·상장 기업 매수)", "rivals": ["사모펀드", "전략적 인수자"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "트럭 휴게소·연료 (Pilot)", "rivals": ["Love's", "TravelCenters of America", "지역 독립 운영자"], "position": "leader", "share": "회사 설명: 북미 최대 트래블센터 운영자 (점유율 수치 없음)", "src": ["s3"] }
+    ],
+    "edge": "가장 싼 장기 자금(플로트), 거대한 현금, 무차입 수준의 재무, 그리고 '조건 없이 빨리 답하는' 인수자 평판.",
+    "threats": "보험 가격 하락 사이클(회사도 2025년 하반기부터 가격 둔화를 언급), Union Pacific–Norfolk Southern 합병으로 커지는 철도 경쟁자, BHE 산불 소송, 현금을 쓸 곳을 찾지 못해 수익률이 국채 수준에 머무는 위험.",
+    "text": "각 사업은 자기 경기장에서 대체로 상위권이다. GEICO는 미국 자동차보험 3위(약 11.6%)이고, BNSF는 미국 서부에서 Union Pacific과 양강을 이루며, 2025년 손해보험 합산비율 87.1%는 업계 평균보다 좋았다. 다만 회사 서한은 보험 가격이 2025년 하반기부터 꺾이기 시작해 한동안 인수 물량이 줄 수 있다고 했고, BNSF 영업이익률 34.5%도 업계 최고 수준과 격차가 크다고 인정했다.",
+    "src": ["s3"]
+  },
+
+  "strategy": {
+    "goal": "회사는 매출·이익 목표를 제시하지 않는다. Abel은 '국채보다 생산적인 사업의 소유'를 지향하고, 내재가치 아래에서만 자사주를 사며, BNSF 영업이익률을 '몇 년 안에 상당히' 끌어올리겠다고 했다.",
+    "roadmap": [
+      { "when": "2026-01-02 완료", "what": "OxyChem 인수 (약 94억 달러) - Lubrizol CEO가 함께 맡음", "src": ["s2", "s3"] },
+      { "when": "2026 상반기", "what": "자사주 48억 달러 매입 재개 (2025년 0)", "src": ["s2", "s1"] },
+      { "when": "2026-07-24 완료", "what": "Taylor Morrison Home 인수 (약 68억 달러)", "src": ["s2"] },
+      { "when": "2026 하반기", "what": "BHE·BNSF 남은 설비투자 약 86억 달러 예정", "src": ["s2"] },
+      { "when": "향후 수년", "what": "BNSF 영업이익률을 업계 최고 수준에 가깝게 개선", "src": ["s3"] }
+    ],
+    "vision": "Abel은 분권형 문화와 '요새 같은 재무'를 지키면서, 기회가 오면 큰돈을 빠르게 집중 투자하는 Berkshire를 그린다. 현금은 후퇴의 신호가 아니라 '마른 화약(dry powder)'이라고 표현했다.",
+    "text": "앞으로의 계획은 쌓아 둔 현금을 규율 있게 쓰는 것이다. 2026년 들어 OxyChem·Taylor Morrison 인수와 자사주 매입으로 이미 흐름이 바뀌었고, 남은 과제는 BNSF 효율 개선과 BHE의 데이터센터 전력 투자를 조건에 맞게 고르는 일이다. 배당은 계속 없고, 주가가 내재가치 아래일 때 자사주를 사는 방식이 유지된다.",
+    "src": ["s2", "s3"]
+  },
+
+  "governance": {
+    "line": "2026-01-01부터 Greg Abel이 CEO(투자·자본배분 최종 책임)를, Warren Buffett이 이사회 의장을 맡고 Class A·B 두 종류 주식이 상장돼 있으며, 배당 없이 내재가치 이하에서만 자사주를 사는 원칙을 유지한다.",
+    "src": ["s3", "s1"]
+  },
+
+  "guidance": {
+    "latest": [],
+    "style": "none",
+    "track": "Berkshire는 실적 전망을 내지 않는다. 대신 분기 보도자료에서 영업이익·자사주 매입액·플로트를, 10-Q에서 현금과 인수 내역을 공개한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "분기 영업이익(투자손익 제외)이 전년보다 늘어남",
+      "자사주 매입이 분기마다 이어짐",
+      "현금이 인수·주식 매수로 줄면서도 영업이익이 함께 늘어남",
+      "손해보험 합산비율이 100% 아래에서 유지되고 플로트가 증가",
+      "BNSF 영업이익률이 34.5%에서 더 오름"
+    ],
+    "breaks": [
+      "GEICO 등 보험 언더라이팅 이익의 연속 감소",
+      "대형 재해로 분기 언더라이팅 손실",
+      "BHE 산불 소송 배상 확대 또는 신용도 하락",
+      "현금이 쌓이기만 하고 자사주·인수가 멈춤",
+      "대형 인수 후 손상차손 (Kraft Heinz·Occidental 같은 사례 반복)"
+    ],
+    "keyNumbers": [
+      { "name": "분기 영업이익", "why": "순이익은 주식 평가손익 때문에 의미가 약하다고 회사가 직접 말한다" },
+      { "name": "자사주 매입액", "why": "경영진이 주가를 내재가치 아래로 본다는 유일한 공개 신호" },
+      { "name": "현금·국채 잔고", "why": "자본배분 속도와 방향을 보여 준다" },
+      { "name": "보험 언더라이팅 이익과 플로트", "why": "그룹 자금의 원천이 건강한지 확인" },
+      { "name": "BNSF 영업이익률", "why": "경영진이 직접 개선을 약속한 숫자" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 초 (추정, 관례상 11월 첫째 토요일 전후 - 회사 미확정)", "event": "Q3 2026 영업이익·10-Q 공개", "src": [] },
+      { "date": "2026-11 중순 (추정)", "event": "분기 보유 주식 공시(13F)로 매수·매도 종목 확인", "src": [] },
+      { "date": "2027-02 말 (추정)", "event": "2026 연차보고서와 Abel 주주서한", "src": [] }
+    ],
+    "reaction": "주가는 순이익보다 영업이익 증감, 자사주 매입 규모, 현금 잔고 변화, 대형 인수 발표에 반응하는 경향이 있다. 2026년 1분기 자사주 약 2.3억 달러가 실망을 줬다는 보도가 있었고, 2분기에는 45억 달러로 늘어 관심이 다시 모였다(보도 기준).",
+    "conditions": [
+      "분기 영업이익 전년 대비 증감과 사업부별 기여",
+      "분기 자사주 매입액과 공시 주식 수 변화",
+      "현금·국채 잔고의 증감 방향",
+      "13F에서 확인되는 신규·청산 종목",
+      "GEICO 손해율·합산비율 추이",
+      "BHE 산불 소송 진행 상황"
+    ]
+  },
+
+  "unverified": [
+    "Q3 2026 실적 발표일 (회사 미공시 - 관례 기준 추정)",
+    "FY2025 영업이익 약 444.9억 달러는 10-K 사업부 세후 이익 합산 계산값 (회사가 FY 합계를 따로 표기했는지 미확인)",
+    "잉여현금흐름 250.4억 달러는 영업현금 459.7억 - 설비투자 209.3억 계산값 (회사 정의 FCF 없음)",
+    "세그먼트 operatingMargin은 Note 26 세전이익 / 매출 계산값, 보험은 (언더라이팅 + 투자수익) / (경과보험료 + 투자수익)",
+    "총마진·영업이익률은 복합 지주회사 특성상 의미가 약해 null",
+    "Alphabet 지분 규모 약 100억 달러와 1분기 자사주 약 2.3억 달러는 AP·검색 요약 기준 (10-Q는 5대 보유 종목 명단만 확인)",
+    "컨센서스 EPS - AIO 로컬 스냅샷이 BRK-B를 수집하지 못함(unavailable)",
+    "Pilot·재보험 시장 점유율 수치",
+    "2026-06-30 현금 '약 3,600억 달러'는 보험·기타 부문 순 3,592억 달러 기준 (철도·전력 부문 현금 제외)"
+  ],
+  "confidence": "high - 매출·세그먼트·현금·인수 내역은 2025 연차보고서(10-K)와 2026 2분기 10-Q·보도자료 원문에서 왔다. AI 노출과 일부 자사주·투자 규모는 보도 기준이라 그 부분만 medium이다."
+}

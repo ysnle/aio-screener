@@ -971,10 +971,7 @@ function _aioCancelChatRequest(ctxId, reason) {
     streaming.removeAttribute('id');
   }
   var silentCancel = ['history-cleared', 'superseded', 'route-changed', 'context-changed'].indexOf(run.cancelReason) >= 0;
-  if (!silentCancel) {
-    if (run.appendCancelNotice) run.appendCancelNotice(run.cancelReason);
-    else if (typeof chatAppendMsg === 'function') chatAppendMsg(ctxId, 'ai', '<span role="status">답변 생성이 중지되었습니다.</span>');
-  }
+  if (!silentCancel && run.appendCancelNotice) run.appendCancelNotice(run.cancelReason); // the unified panel always supplies it
   _aioReleaseChatRequest(run);
   return true;
 }
@@ -1126,34 +1123,8 @@ function renderMarkdownLight(text) {
   return html.join('');
 }
 
-// ── Render suggestion chips ────────────────────────────────────────────
-function chatRenderChips(ctxId, chips) {
-  var el = document.getElementById('chat-' + ctxId + '-chips');
-  if (!el) return;
-  if (!chips || chips.length === 0) {
-    chips = (window.CHAT_DEFAULT_CHIPS && window.CHAT_DEFAULT_CHIPS[ctxId]) || [];
-  }
-  el.innerHTML = chips.map(function(q) {
-    var safeQ = escHtml(q).replace(/'/g, '&#39;');
-    return '<div class="q-chip" data-action="chatFromChip" data-arg="' + escHtml(ctxId) + '" data-arg2="' + safeQ + '" title="' + escHtml(q) + '">' + escHtml(q) + '</div>';
-  }).join('');
-}
-
-// ── Append a message bubble ────────────────────────────────────────────
-function chatAppendMsg(ctxId, role, html, id) {
-  var container = document.getElementById('chat-' + ctxId + '-msgs');
-  if (!container) return null;
-  var wrap = document.createElement('div');
-  wrap.className = 'acp-msg ' + role;
-  var bubble = document.createElement('div');
-  bubble.className = 'acp-bubble';
-  if (id) bubble.id = id;
-  bubble.innerHTML = html;
-  wrap.appendChild(bubble);
-  container.appendChild(wrap);
-  container.scrollTop = container.scrollHeight;
-  return bubble;
-}
+// v59.42: chatRenderChips and chatAppendMsg are deleted. They wrote into per-page #chat-<ctx>-chips / -msgs
+// containers that no markup has (the unified AI panel uses #ai-panel-msgs through _appendAIMsg).
 
 function _aioChatError(error, status) {
   var normalized = typeof window._aioSetLastAiError === 'function'
@@ -2479,43 +2450,13 @@ async function _fetchTickerDataForChat(tickers, opts) {
 
 // 기업 내부 비교 의도 감지 (비즈니스 모델, 수익 구조, 해자, 경쟁력 등)
 // v34.4: 심층 키워드 배열을 공유 함수로 분리
-var _DEEP_ANALYSIS_KW = [
-    '비즈니스 모델','비즈니스모델','사업 모델','사업모델','수익 모델','수익모델',
-    '수익 구조','수익구조','매출 구조','매출구조','사업 구조','사업구조','revenue structure','business model',
-    '해자','moat','경쟁 우위','경쟁우위','competitive advantage','경쟁력',
-    '기술력','기술 경쟁','tech','technology','R&D','연구개발','연구 개발',
-    '전환비용','switching cost','네트워크 효과','network effect',
-    '브랜드 파워','brand','규모의 경제','economies of scale',
-    '진입 장벽','진입장벽','barrier','사업 포트폴리오','포트폴리오',
-    '세그먼트','segment','사업부','사업 부문','지역별 매출',
-    '경영진','CEO','리더십','leadership','내부자','insider',
-    '공급망','supply chain','밸류체인','value chain',
-    '핵심 역량','core competence','차별화','differentiation',
-    '종합 분석','종합분석','심층 분석','심층분석','딥다이브','deep dive','기업 분석','기업분석',
-    // v50.70: 기본 분석 요청도 17개 관점 자동 적용 — 티커 + 아래 키워드 조합 시 트리거
-    '분석해','분석 해','분석좀','분석 좀','분석하','분석 하','분석을','분석 을',
-    '알려줘','알려 줘','알려주','알려 주','설명해','설명 해','설명좀','설명 좀',
-    '어때','어떄','어떻게 생각','어떻게 봐','어떻게봐','전망','투자','매수','매도',
-    '살만','살 만','사도 될','사도될','괜찮','좋아','좋은가','어떤 회사','어떤회사',
-    'analyze','analysis','tell me','explain','overview','invest','buy','sell',
-    '리포트','report','리서치','research','조사','평가','검토','review',
-    '재무','실적','펀더멘털','fundamental','적정가','목표가','밸류','valuation'
-];
+// v59.42: the deep-analysis and compare cue lists moved to src/ai/intent/question-cues.js (English cues match whole
+// words, case-insensitive: 'tech' no longer hits "fintech", and "Analyze NVDA" now hits 'analyze').
 function _hasDeepAnalysisKw(text) {
-  return _DEEP_ANALYSIS_KW.some(function(k) { return text.indexOf(k) !== -1; });
+  return _aioQuestionCue('deepAnalysisCue', text);
 }
 function _detectDeepCompareIntent(text) {
-  var compareKw = [
-    '비교','compare','vs','VS','대비','차이','다른점','다른 점','어떻게 다','뭐가 다','무엇이 다',
-    '분석','analysis','어느 쪽','어디가','누가 더','어떤 게','둘 다','둘다','각각',
-    '장단점','장점','단점','강점','약점','우위','열위','좋은 점','나쁜 점',
-    '뭐가 좋','뭘 사','어떤 걸','어떤 게 더','뭐가 낫','뭐가 나',
-    'pros','cons','advantage','disadvantage','strength','weakness',
-    'better','worse','pick','choose','prefer','which'
-  ];
-  var hasDeep = _hasDeepAnalysisKw(text);
-  var hasCompare = compareKw.some(function(k) { return text.indexOf(k) !== -1; });
-  return hasDeep && hasCompare;
+  return _aioQuestionCue('deepCompareCue', text);
 }
 
 // 기업 내부 심층 데이터 조회 (비즈니스 모델, 수익 세그먼트, 해자 추론 지표)
@@ -3026,8 +2967,9 @@ function _aioChatAnswerPolicy(query, ctxId, detectedTickers, screenerResult) {
   var hasTicker = tickers.length > 0;
   var hasScreener = !!(screenerResult && screenerResult.matched);
   var isBroadRecommendation = !!(screenerResult && screenerResult.mode === 'diversified-recommendation');
-  var asksDecision = intent.wantsAction || /추천|골라|뽑아|사도|살까|매수|매도|보유|손절|익절|비중|전망|목표|entry|exit|buy|sell|hold|trim|target|outlook/.test(q);
-  var asksSimple = intent.intents.indexOf('EXPLAIN_BEGINNER') >= 0 || /간단|요약|한줄|뜻|뭐야|무슨\s*의미|정의|per|pbr|roe|용어/.test(q);
+  // v59.42: cue words in src/ai/intent/question-cues.js ('per' no longer hits "operating", 'hold' no longer hits "threshold").
+  var asksDecision = intent.wantsAction || _aioQuestionCue('asksDecisionCue', q);
+  var asksSimple = intent.intents.indexOf('EXPLAIN_BEGINNER') >= 0 || _aioQuestionCue('asksSimpleCue', q);
   var asksFreshMarket = intent.wantsFresh || intent.intents.indexOf('MACRO_LINKAGE') >= 0;
   return {
     intent: intent,
@@ -3178,16 +3120,10 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
     try {
       var broadItems = window.AIO_TELEGRAM_BROAD_ITEMS || (tg && tg.rawBroadItems) || [];
       if (needsThemeNews && broadItems.length) {
-        var qLower = String(query || '').toLowerCase();
+        // v59.42: ranked by src/domain/news/selection.js telegramItemQueryRelevance (one keyword rule; 엔비디아 is not 엔).
+        var relevance = window.AIO && window.AIO.telegramQueryRelevance;
         var scored = broadItems.map(function(it) {
-          var rel = 0;
-          if (Array.isArray(it.tickers)) it.tickers.forEach(function(t) { if (qLower.indexOf(t.toLowerCase()) >= 0) rel += 4; });
-          if (Array.isArray(it.tags)) it.tags.forEach(function(tag) { if (qLower.indexOf(tag) >= 0) rel += 2; });
-          var textLower = (it.text || it.summary || '').toLowerCase(); // P715: summary-only 호환
-          ['반도체','메모리','mlcc','금리','코스피','ai','etf','목표주가','달러','엔','상향','하향'].forEach(function(kw) {
-            if (qLower.indexOf(kw) >= 0 && textLower.indexOf(kw) >= 0) rel += 1;
-          });
-          return { it: it, rel: rel };
+          return { it: it, rel: typeof relevance === 'function' ? relevance(it, query) : 0 };
         }).sort(function(a, b) { return (b.rel - a.rel) || (b.it.score - a.it.score); });
         var picked = scored.filter(function(x) { return x.rel > 0; }).slice(0, 12);
         if (picked.length) {
@@ -3719,39 +3655,9 @@ function chatFromChip(ctxId, q) {
   return chatSendUnified();
 }
 
-// v29.1: 모든 채팅 헤더에 "대화 기록" 버튼 자동 주입
-// v59.16: this script now loads after boot (src/app/chat-loader.js), usually after DOMContentLoaded, so its two
-// start-up blocks run at once when the document is already parsed.
 function _aioWhenDomReady(fn) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
-_aioWhenDomReady(function() {
-  document.querySelectorAll('.acp-header').forEach(function(header) {
-    // 해당 채팅의 ctxId 추출 (가장 가까운 acp-messages의 id에서)
-    const chatPanel = header.closest('.aio-chat');
-    if (!chatPanel) return;
-    if (!header.querySelector('[data-ai-public-policy="beta-research"]')) {
-      var policyTag = document.createElement('span');
-      policyTag.setAttribute('data-ai-public-policy', 'beta-research');
-      policyTag.textContent = '학습·리서치용';
-      policyTag.title = '읽기 전용 리서치. 투자·법률·세무 조건부 분석과 수치 시나리오는 제공하며, 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.';
-      policyTag.style.cssText = 'font-size:12px;color:var(--data-amber);font-family:var(--font-mono);margin-left:auto;white-space:nowrap;';
-      header.appendChild(policyTag);
-    }
-    const msgsEl = chatPanel.querySelector('.acp-messages');
-    if (!msgsEl || !msgsEl.id) return;
-    const ctxId = msgsEl.id.replace('chat-', '').replace('-msgs', '');
-    // 이미 있으면 스킵
-    if (header.querySelector('.acp-history-btn')) return;
-    const btn = document.createElement('button');
-    btn.className = 'acp-history-btn';
-    btn.textContent = '기록';
-    btn.title = '이전 대화 기록 열람';
-    btn.addEventListener('click', function() { openChatHistory(ctxId); });
-    // clear 버튼 앞에 삽입
-    const clearBtn = header.querySelector('.acp-clear');
-    if (clearBtn) header.insertBefore(btn, clearBtn);
-    else header.appendChild(btn);
-  });
-});
+// v59.42: the per-panel header injector (policy tag + 대화 기록 button) is deleted; .aio-chat .acp-header panels no
+// longer exist, and the one AI panel shows its policy line in #ai-panel-policy (index.html).
 
 // ── 종목 · 재무 공시 search: moved to src/ui/components/fundamental-search.js (v59.12, roadmap item 11) ──
 // _bumpApiCounter/_isQuotaExceeded moved to src/data/api-quota.js (v59.14, roadmap item 11).
@@ -4631,7 +4537,6 @@ async function chatSendUnified(_aioDispatchOptions) {
       // visualization generated from the original question.
       if (_publicGate && _publicGate.blocked === true) {
         if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
-        if (typeof chatRenderChips === 'function') chatRenderChips(ctxId, extractChips(visible));
         _releaseUnifiedRun();
         return;
       }

@@ -1,0 +1,238 @@
+{
+  "symbol": "NFLX",
+  "name": "Netflix, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Netflix는 전 세계 3억 2,500만 명 이상의 유료 회원에게 월 구독료와 광고로 돈을 버는 세계 최대 구독형 스트리밍 회사로, 지금은 YouTube와 TV 시청 시간을 다투며 AI를 제작비 절감 도구로 쓰기 시작했다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Netflix Q3 2026 Shareholder Letter (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001065280/000106528026000290/ex991_q326.htm", "publisher": "Netflix / SEC EDGAR", "date": "2026-10-20" },
+    { "id": "s2", "kind": "8-K", "title": "Netflix Q4 2025 Shareholder Letter (8-K Exhibit 99.1; FY2025 results and 2026 guidance)", "url": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000033/ex991_q425.htm", "publisher": "Netflix / SEC EDGAR", "date": "2026-01-20" },
+    { "id": "s3", "kind": "news", "title": "Paramount Pays Netflix $2.8 Billion Breakup Fee After Warner Bros. Deal Win (accessed date)", "url": "https://www.thewrap.com/industry-news/deals-ma/paramount-pays-netflix-warner-bros-breakup-fee/", "publisher": "TheWrap", "date": "2026-10-28" },
+    { "id": "s4", "kind": "news", "title": "Netflix exits Warner Bros. Discovery deal as Paramount prevails (accessed date)", "url": "https://www.emarketer.com/content/netflix-exits-warner-bros--discovery-deal-paramount-prevails", "publisher": "EMARKETER", "date": "2026-10-28" },
+    { "id": "s5", "kind": "proxy", "title": "Netflix 2026 Proxy Statement (DEF 14A, filing 0001193125-26-159286)", "url": "https://www.boardroomalpha.com/sec/nflx-def-14a-2026-04-16-0001193125-26-159286", "publisher": "Netflix / Boardroom Alpha mirror", "date": "2026-04-16" },
+    { "id": "s6", "kind": "news", "title": "Netflix Q3 2026 Earnings Cut Ad Outlook (accessed date)", "url": "https://www.insiderfinance.io/news/netflix-q3-2026-earnings-cut-ad-outlook", "publisher": "InsiderFinance", "date": "2026-10-28" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/nflx/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-27" },
+    { "id": "s8", "kind": "10-K", "title": "Netflix Form 10-K for fiscal year 2025 (AWS reliance language read from search summary; date = period end, filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000034/nflx-20251231.htm", "publisher": "Netflix / SEC EDGAR", "date": "2025-12-31" },
+    { "id": "s9", "kind": "news", "title": "Netflix made 17 minutes of a documentary twice as fast and at half the cost amid a $20 billion projected cost for content (Q2 2026 call)", "url": "https://fortune.com/2026/07/16/netflix-made-17-minutes-of-a-documentary-twice-as-fast-and-at-half-the-cost-amid-a-20-billion-projected-cost-for-content/", "publisher": "Fortune", "date": "2026-07-16" },
+    { "id": "s10", "kind": "news", "title": "Nielsen The Gauge August 2026: YouTube record 15.8% of US TV time, Netflix 7.7%", "url": "https://www.tubefilter.com/2026/10/22/nielsen-the-gauge-youtube-record-watch-time-share-us-tv/amp/", "publisher": "Tubefilter (Nielsen data)", "date": "2026-10-22" },
+    { "id": "s11", "kind": "news", "title": "Netflix acquires Ben Affleck's InterPositive to boost filmmaking AI (deal announced 2026-03-05 per article; article date not checked)", "url": "https://gulfnews.com/entertainment/netflix-acquires-ben-afflecks-interpositive-to-boost-filmmaking-ai-1.500465437", "publisher": "Gulf News", "date": "2026-03-05" },
+    { "id": "s12", "kind": "news", "title": "Streaming Giant Acquires AI Film Startup for $587 Million to Reshape Content Production (aggregator citing 10-Q; accessed date)", "url": "https://www.itiger.com/news/1173673231", "publisher": "Tiger Brokers news", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "세계 최대 구독 기반 - FY2025 말 유료 회원 3억 2,500만 명 이상으로 같은 콘텐츠 비용을 가장 많은 사람에게 나눔",
+      "전 세계 동시 배급과 현지 제작 - 한 지역에서 만든 작품을 네 개 지역(UCAN·EMEA·LATAM·APAC) 전체에 판매",
+      "시청 데이터 기반 추천·편성 - 무엇을 만들고 누구에게 보여줄지 결정",
+      "직접 소비자와 연결된 유통 - 중간 유통사 없이 구독료와 광고를 직접 받음"
+    ],
+    "text": "Netflix의 힘은 규모다. 3억 2,500만 명 넘는 유료 회원이 있으니 같은 드라마 한 편의 제작비를 경쟁사보다 훨씬 많은 사람에게 나눌 수 있고, 그래서 FY2025 영업이익률이 29.5%까지 올라왔다. 여기에 시청 데이터로 무엇을 만들지 정하고, 중간 유통사 없이 시청자에게 직접 파는 구조가 그 규모를 지켜 준다.",
+    "src": ["s2"]
+  },
+
+  "design": {
+    "text": "이 회원 기반에 회사가 내놓는 상품은 광고형·광고 없는 구독 요금제이고, 그 안에 직접 만들거나 사들인 영화·드라마·예능, NFL 같은 라이브 스포츠·이벤트, 게임이 담긴다. 광고형 요금제 위에는 자체 광고 기술 스택과 프로그래매틱 판매 제휴를 쌓고 있다. 단일 사업 부문으로 보고하며 매출은 UCAN·EMEA·LATAM·APAC 네 지역으로 나눠 공시한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "제작사·스튜디오·크리에이터 - 자체 오리지널 제작 (생성형 AI 작업 흐름이 2026년 약 300편에 쓰임)",
+      "콘텐츠 라이선서 - Disney 신작·라이브러리, TF1 제휴",
+      "스포츠 리그·이벤트 권리자 - NFL(추수감사절 전야·크리스마스 경기), Fury vs Joshua 복싱",
+      "Amazon Web Services - 대부분의 컴퓨팅을 의존하는 클라우드 (10-K)",
+      "InterPositive - 2026년 인수한 AI 영상 편집 도구 회사 (자체 보유)",
+      "광고 판매 파트너 - MercadoLibre(중남미), AdForm(유럽), 글로벌 CTV 프로그래매틱 마켓"
+    ],
+    "text": "Netflix가 '만드는' 것은 공장 제품이 아니라 콘텐츠라서, 제작사·스튜디오와 계약해 오리지널을 만들고 Disney·TF1 같은 곳에서 작품을 사 온다. 2026년에는 생성형 AI 작업 흐름이 약 300편에 쓰였고, 한 다큐멘터리의 AI 보정 장면 17분은 두 배 빠르게 절반 비용으로 만들었다고 회사가 밝혔다. 서비스를 돌리는 컴퓨팅은 대부분 AWS에 의존하므로, 기술 인프라는 빌려 쓰는 구조다.",
+    "src": ["s1", "s8", "s9", "s11"]
+  },
+
+  "sell": {
+    "customers": [
+      "전 세계 개인 구독자 - 3억 2,500만 명 이상 (FY2025 말)",
+      "광고주 - 광고형 요금제의 시청자에게 광고 노출, 2027년 15개국 추가 출시"
+    ],
+    "channel": "자체 앱·웹사이트로 직접 구독 판매하고, 광고는 자체 영업과 DSP·프로그래매틱 마켓을 통해 판다.",
+    "concentration": "개인 구독자 대상이라 고객 집중 없음 (단일 고객 공시 미확인). 지역 매출은 UCAN이 약 44%로 가장 크다 (FY2025, 계산값).",
+    "text": "이렇게 모은 작품은 중간 유통사 없이 자체 앱으로 전 세계 개인에게 직접 팔린다. 고객이 수억 명의 개인이라 한 고객에 쏠릴 위험은 없고, 매출의 약 44%가 미국·캐나다에서 나온다. 최근에는 시청자에게 광고를 보여 주는 두 번째 고객층인 광고주가 붙으면서, 2027년 3월부터 광고형 요금제를 15개국에 더 늘린다.",
+    "src": ["s2", "s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "회원", "to": "Netflix", "what": "월 구독료 (광고형은 더 싸고, 가격 인상이 성장의 한 축)" },
+      { "from": "광고주 → DSP·프로그래매틱 파트너", "to": "Netflix", "what": "광고형 요금제 시청자 대상 광고비 (노출 과금)" },
+      { "from": "Netflix", "to": "제작사·스튜디오·라이선서 (Disney, TF1 등)", "what": "제작비·라이선스료 (FY2025 콘텐츠 현금지출 171억 달러)" },
+      { "from": "Netflix", "to": "NFL 등 스포츠·이벤트 권리자", "what": "라이브 중계권료" },
+      { "from": "Netflix", "to": "Amazon Web Services", "what": "클라우드 컴퓨팅 이용료 (금액 미공시)" }
+    ],
+    "pricing": "구독은 요금제별 월 정액이며 2026년 가격 인상에 대한 회원 반응은 과거 인상과 비슷했다고 회사가 밝혔다. 광고는 노출 기준 판매이고 프로그래매틱 거래를 늘리고 있다.",
+    "text": "돈은 회원의 월 구독료로 들어와 대부분 콘텐츠 제작·구매비로 다시 나간다. FY2025에는 콘텐츠에 171억 달러를 현금으로 썼고 상각비는 164억 달러여서, 2026년에도 현금지출을 상각비의 약 1.1배로 묶어 이익이 현금으로 남게 한다는 것이 회사 계획이다. 광고 매출이 붙으면 같은 콘텐츠로 버는 돈이 늘어나는 구조다.",
+    "src": ["s2", "s1"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 45.2, "unit": "USD bn", "yoy": 16 },
+    "grossMargin": null,
+    "operatingMargin": 29.5,
+    "netMargin": 24.3,
+    "operatingCashFlow": { "value": 10.1, "unit": "USD bn" },
+    "freeCashFlow": { "value": 9.5, "unit": "USD bn" },
+    "segments": [
+      { "name": "UCAN (미국·캐나다)", "revenue": 19.96, "unit": "USD bn", "share": 44.2, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "EMEA", "revenue": 14.52, "unit": "USD bn", "share": 32.1, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "LATAM", "revenue": 5.36, "unit": "USD bn", "share": 11.9, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "APAC", "revenue": 5.35, "unit": "USD bn", "share": 11.8, "yoy": null, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q3 2026)", "value": "매출 128.7억 달러(+12%), 영업이익률 34.6%, EPS 0.87달러, 잉여현금흐름 28.8억 달러", "src": ["s1"] },
+      { "name": "Q3 2026 지역별 성장 (보고 기준)", "value": "UCAN +11%, EMEA +11%, LATAM +17%, APAC +12%", "src": ["s1"] },
+      { "name": "콘텐츠 현금지출 vs 상각", "value": "FY2025 171억 vs 164억 달러; Q3 2026 51.6억 vs 42.4억 달러; 2026년 목표 비율 약 1.1배", "src": ["s2", "s1"] },
+      { "name": "광고 매출", "value": "FY2025 15억 달러 이상(2.5배 이상 증가), 2026년 목표 약 27억 달러 (기존 약 30억)", "src": ["s2", "s1"] },
+      { "name": "미국 TV 시청 시간 점유율 (Nielsen)", "value": "2026-08 Netflix 7.7%(2위), YouTube 15.8%(1위)", "src": ["s10"] }
+    ],
+    "text": "이 구조가 FY2025에 매출 452억 달러(+16%), 영업이익률 29.5%, 순이익률 약 24%로 나타났다. 회원 수를 분기마다 공시하지 않으므로 매출 성장률이 수요를 보여 주는 주 지표인데, Q3 2026에는 +12%로 2026년 1분기 +16%보다 느려졌다. 대신 영업이익률은 Q3 34.6%로 높아져, 성장보다 수익성이 먼저 오르는 단계다.",
+    "src": ["s2", "s1", "s9"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "other", "label": "콘텐츠 제작·구매 현금지출", "value": 17.1, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 9.1, "unit": "USD bn", "src": ["s2"] },
+      { "use": "R&D", "value": 3.4, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.69, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 0, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "번 돈의 가장 큰 쓰임은 콘텐츠로, FY2025 콘텐츠 현금지출 171억 달러는 자사주 매입 91억 달러의 거의 두 배다. 설비투자는 7억 달러에 그쳐 공장이 아니라 작품에 돈을 쓰는 회사임이 드러난다. WBD 인수를 포기하고 Paramount로부터 해지 수수료 28억 달러를 받은 뒤 Q3 2026에 자사주 48억 달러를 사들였고(잔여 한도 223억 달러), AI 편집 도구 회사 InterPositive도 인수했다.",
+    "src": ["s2", "s1", "s3", "s11", "s12"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 만들거나 파는 쪽이 아니라 쓰는 쪽이다. 생성형 AI를 후반 작업·특수효과·자막 현지화·추천·광고 제작에 넣어 콘텐츠 원가와 광고 효율을 개선하려 한다.",
+    "dependsOn": ["cloud-infrastructure (AWS에 대부분의 컴퓨팅 의존)", "models-platforms·software-applications (생성형 AI 제작 도구, 인수한 InterPositive)"],
+    "sellsTo": ["개인 구독자", "광고주 (AI로 Netflix IP 기반 맞춤 광고 제작 시험)"],
+    "aiRevenue": null,
+    "upside": "AI로 제작 시간과 비용을 줄이면 같은 콘텐츠 예산으로 더 많은 작품을 만들 수 있고, 2026년 최대 200억 달러로 예상되는 콘텐츠 비용의 증가 속도를 늦춰 마진을 높일 수 있다.",
+    "risk": "AI가 영상 제작 문턱을 낮추면 YouTube 같은 무료·사용자 제작 플랫폼의 경쟁력이 커져 TV 시청 시간을 더 빼앗길 수 있다. 창작자 반발도 위험 요인이다.",
+    "text": "그래서 AI 가치사슬에서 Netflix는 맨 끝의 'AI 활용 기업'이다. AI 관련 매출은 공시되지 않고, 효과는 매출이 아니라 콘텐츠 원가와 광고 효율 쪽에서 나타날 것으로 회사는 설명한다. 다만 AI가 누구나 영상을 만들 수 있게 할수록 YouTube 같은 플랫폼과의 시청 시간 경쟁이 거세질 수 있어, AI는 도구이자 위협이다.",
+    "src": ["s2", "s8", "s9", "s11"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "미국 TV 시청 시간 (모든 영상)", "rivals": ["YouTube", "Disney (Disney+·Hulu)", "Amazon Prime Video", "Paramount Skydance (WBD 인수 후)", "선형 TV"], "position": "challenger", "share": "2026-08 미국 TV 시청 시간 7.7%(2위), YouTube 15.8% - Nielsen The Gauge, Tubefilter 2026-10-22", "src": ["s10", "s2"] },
+      { "arena": "유료 구독 스트리밍 (SVOD)", "rivals": ["Disney+", "Amazon Prime Video", "Paramount+·HBO Max (Paramount Skydance)", "Apple TV"], "position": "leader", "share": null, "src": ["s2", "s4"] },
+      { "arena": "CTV 광고", "rivals": ["YouTube", "Amazon Prime Video 광고", "Roku"], "position": "follower", "share": null, "src": ["s1", "s2"] },
+      { "arena": "라이브 스포츠 중계권", "rivals": ["Amazon (NFL·NBA)", "YouTube", "기존 방송사"], "position": "niche", "share": null, "src": ["s2", "s1"] }
+    ],
+    "edge": "가장 큰 구독 기반과 전 세계 동시 배급, 동종 스트리밍 대비 높은 영업이익률(2026년 목표 31.5%), 그리고 광고·라이브로 같은 회원에게서 더 버는 능력.",
+    "threats": "YouTube가 미국 TV 시청 시간의 15.8%로 Netflix의 두 배가 됐고, Paramount Skydance가 WBD를 인수하며 대형 경쟁 스튜디오가 생긴다. 광고는 제품 출시 지연으로 2026년 목표를 낮췄다.",
+    "text": "경쟁 상대는 다른 스트리밍만이 아니라 모든 여가 시간이라고 회사 스스로 말하고, 그 싸움에서 가장 앞선 것은 YouTube다. 2026년 8월 미국 TV 시청 시간에서 YouTube는 15.8%, Netflix는 7.7%로 두 배 차이가 난다. Netflix는 유료 구독에서는 1위를 지키면서 라이브 스포츠와 광고로 시청 시간과 회원당 매출을 늘리는 방식으로 맞서지만, 광고 목표를 낮춘 것은 이 전략이 아직 시험 중임을 보여 준다.",
+    "src": ["s2", "s10", "s1", "s4"]
+  },
+
+  "strategy": {
+    "goal": "매년 영업이익률을 높이는 것이 회사가 반복해 제시하는 목표로, 2026년 31.5%(2025년 29.5%), 매출 511억 달러(+13%), 잉여현금흐름 약 120억 달러를 제시했다.",
+    "roadmap": [
+      { "when": "Q4 2026", "what": "역대 최대 라이브 편성 - NFL 추수감사절 전야 경기, 크리스마스 NFL 더블헤더, Fury vs Joshua", "src": ["s1"] },
+      { "when": "Q4 2026", "what": "매출 134억 달러, 영업이익률 26.0%(인력 감축 영향 약 1.2%p) 가이던스", "src": ["s1"] },
+      { "when": "2027-03", "what": "광고형 요금제 첫 묶음 출시 (유럽 9개국, 콜롬비아·페루·뉴질랜드), 2027년 총 15개국", "src": ["s1"] },
+      { "when": "2027", "what": "시청 보고서(What We Watched)를 연 1회로 변경", "src": ["s9"] },
+      { "when": "2026~", "what": "InterPositive 등 AI 제작 도구 확대로 후반 작업 비용·시간 절감", "src": ["s9", "s11"] }
+    ],
+    "vision": "더 많은 사람이 더 오래 보는 서비스를 만들어 구독·광고·라이브·게임으로 회원당 매출을 키우고, 규모의 경제로 마진을 계속 넓히겠다는 그림이다.",
+    "text": "이 경쟁을 이기기 위한 계획은 대형 인수가 아니라 내부 성장이다. WBD 인수를 포기한 뒤 회사는 라이브 스포츠를 최대 규모로 늘리고, 2027년에 광고형 요금제를 15개국 더 열며, AI 도구로 제작비 증가 속도를 늦추는 쪽을 택했다. 매출 성장률이 둔화되는 만큼, 마진을 매년 올리겠다는 약속을 지키는지가 계획의 성패를 보여 준다.",
+    "src": ["s1", "s3", "s9"]
+  },
+
+  "governance": {
+    "line": "Ted Sarandos·Greg Peters 공동 CEO 체제의 단일 주식 구조 회사로, 공동 창업자 Reed Hastings는 2026 주총에서 이사 재선임에 나서지 않았으며, 배당 없이 자사주 매입(Q3 2026 48억 달러, 잔여 223억 달러)으로 환원한다.",
+    "src": ["s5", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "revenue", "value": "134억 달러 (+12%, 환율 중립 +11%)", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "operating margin", "value": "26.0% (인력 감축 영향 약 1.2%p 포함), 영업이익 35억 달러", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "diluted EPS", "value": "0.67달러", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "revenue", "value": "511억 달러 (+13%; 직전 중간값보다 약 0.2% 낮음, 1월 최초 가이던스 507억~517억)", "givenOn": "2026-10-20", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "operating margin", "value": "31.5% 유지 (2025년 29.5%)", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "free cash flow", "value": "약 120억 달러 (기존 125억, Q4 부동산 거래 영향)", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "ad revenue", "value": "약 27억 달러 (기존 약 30억)", "givenOn": "2026-10-20", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "연간 매출 전망은 1월 507억~517억 달러에서 7월 510억~514억 달러로 좁혀졌다가 10월 511억 달러로 정해졌고, 영업이익률 31.5% 목표는 연중 유지됐다. 광고 목표는 30억에서 27억 달러로 낮아졌다.",
+    "src": ["s2", "s9", "s1", "s6"]
+  },
+
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기 합계 3.55달러(범위 3.35~3.74), 직전 4개 분기 실적 합 2.93달러, 최근 4주 상향 9건·하향 19건으로 Q3 발표 후 하향 우위.",
+    "src": ["s7"]
+  },
+
+  "watch": {
+    "confirms": [
+      "매출 성장률이 두 자릿수를 유지 (Q4 가이던스 +12%)",
+      "2026년 영업이익률 31.5% 달성과 2027년 더 높은 목표 제시",
+      "낮춘 광고 목표(약 27억 달러) 달성과 2027-03 광고 국가 확대가 일정대로 진행",
+      "Nielsen 시청 시간 점유율이 YouTube와의 격차를 좁힘",
+      "콘텐츠 현금지출/상각 비율이 약 1.1배에 머묾"
+    ],
+    "breaks": [
+      "매출 성장률이 한 자릿수로 둔화",
+      "연간 마진 목표 하향 또는 2027년 마진 확대 목표 부재",
+      "광고 목표 추가 하향",
+      "Paramount Skydance·WBD 합병 후 라이선스 콘텐츠 회수",
+      "콘텐츠 현금지출이 상각보다 크게 늘어 잉여현금흐름 감소"
+    ],
+    "keyNumbers": [
+      { "name": "매출 성장률 (환율 중립)과 지역별 성장", "why": "회원 수를 공시하지 않아 수요의 주 지표" },
+      { "name": "영업이익률 vs 연간 목표", "why": "회사가 매년 약속하는 핵심 숫자" },
+      { "name": "광고 매출", "why": "두 번째 성장축의 실행력" },
+      { "name": "잉여현금흐름과 콘텐츠 현금/상각 비율", "why": "이익이 현금으로 남는지" },
+      { "name": "Nielsen TV 시청 시간 점유율", "why": "YouTube와의 시간 경쟁 결과" },
+      { "name": "자사주 매입 규모", "why": "인수 포기 후 자본 배분 방향" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 (추수감사절 전야)", "event": "NFL 첫 추수감사절 전야 경기 생중계 - Q4 라이브 편성 시작", "src": ["s1"] },
+      { "date": "2026-12-25", "event": "크리스마스 NFL 더블헤더 생중계", "src": ["s1"] },
+      { "date": "2026 연내 (날짜 미정)", "event": "Nielsen 9·10월 Gauge 동시 발표 (방법론 변경 후)", "src": [] },
+      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "Q4 2026 실적과 2027 연간 가이던스 (매출·영업이익률·광고)", "src": [] },
+      { "date": "2027-03", "event": "광고형 요금제 신규 국가 첫 묶음 출시", "src": ["s1"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 다음 분기·연간 매출 가이던스와 마진 목표, 광고 매출 전망에 반응하는 경향이 있다. Q2 2026 발표 후에는 성장률 둔화로 시간외 최대 9% 하락했다는 보도가 있고, Q3 발표 후 EPS 추정치가 하향 우위로 돌아선 것은 광고 목표 하향과 연간 매출 소폭 하향이 반영된 것으로 읽힌다.",
+    "conditions": [
+      "Q4 실적의 매출 134억 달러·영업이익률 26.0% 가이던스 대비 결과",
+      "1월 발표의 2027 매출 성장률·영업이익률·광고 목표",
+      "광고 매출 실적과 프로그래매틱 확대 진행",
+      "Nielsen 시청 시간 점유율 변화",
+      "자사주 매입 속도와 잔여 한도",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "총마진 (매출원가 미추출로 null)",
+    "FY2025 지역별 매출 성장률과 지역별 영업이익률",
+    "AI 관련 매출·비용 수치 (회사 미공시)",
+    "InterPositive 인수 금액 (약 5.87억 달러는 10-Q를 인용한 2차 출처) 과 정확한 발표일",
+    "2026년 콘텐츠 비용 '최대 200억 달러'는 보도 기준이며 회사 확정치 아님",
+    "AWS 이용료 금액, 자체 CDN(Open Connect) 역할 - 10-K 원문 미확인",
+    "10-K 명시 경쟁사 전체 목록 (주주서한의 YouTube·Amazon·Instagram 예시만 확인)",
+    "SVOD·CTV 광고 시장 점유율",
+    "Nielsen 9·10월 Gauge 발표일, s10 기사에는 Netflix·YouTube 외 수치 없음",
+    "Q4 2026 실적 발표일 (회사 미공지)",
+    "2026 현재 유료 회원 수 (분기 공시 없음)",
+    "s8 10-K 제출일 (날짜는 회계연도 말)",
+    "공동 CEO 취임 연도, 현재 이사회 의장"
+  ],
+  "confidence": "high - 실적·가이던스·콘텐츠 지출·자본배분은 회사 주주서한(8-K)에서 왔다. AI 활용·시청 점유율·인수 금액은 언론 보도 기준이라 medium 수준이다."
+}

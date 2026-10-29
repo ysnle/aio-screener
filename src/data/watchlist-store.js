@@ -45,6 +45,18 @@ function foldLegacyStars(storage, now) {
   try { storage.removeItem(LEGACY_STAR_KEY); } catch (_) {}
 }
 
+// v59.42: the 포트폴리오 관심 종목 lists (js/aio-workspace.js getWatchlists/saveWatchlists) read and write here too, so this
+// is the one writer. That copy hid a list with no tickers array and deleted it on its next save, and it never folded
+// the old star array; such a list is kept here with an empty tickers array.
+export function readWatchlists(storage, now = Date.now()) {
+  foldLegacyStars(storage, now);
+  return readLists(storage).map((list) => (Array.isArray(list.tickers) ? list : { ...list, tickers: [] }));
+}
+
+export function writeWatchlists(storage, lists) {
+  return writeLists(storage, Array.isArray(lists) ? lists.filter((list) => list && typeof list === 'object') : []);
+}
+
 export function readWatchlistSymbols(storage, now = Date.now()) {
   foldLegacyStars(storage, now);
   const out = [];

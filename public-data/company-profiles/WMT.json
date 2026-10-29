@@ -1,0 +1,226 @@
+{
+  "symbol": "WMT",
+  "name": "Walmart Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "January 31 (FY2026 ended 2026-01-31)",
+  "oneLine": "Walmart는 연매출 7,130억 달러의 세계 최대 소매업체로, 매장을 물류 거점 삼아 온라인 배송·광고·멤버십을 키우면서 '싼 가격의 마트'에서 '광고와 플랫폼으로 이익을 내는 유통 회사'로 바뀌는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Walmart reports second quarter results (Q2 FY27 earnings release incl. segment tables and guidance)", "url": "https://corporate.walmart.com/content/dam/corporate/documents/newsroom/2026/08/20/walmart-releases-q2-fy27-earnings/q2-fy27-earnings-release.pdf", "publisher": "Walmart", "date": "2026-08-20" },
+    { "id": "s2", "kind": "call-transcript", "title": "Walmart Q2 FY2027 earnings call corrected transcript (Sparky, automation, eCommerce margins, guidance commentary)", "url": "https://corporate.walmart.com/content/dam/corporate/documents/newsroom/2026/08/20/walmart-releases-q2-fy27-earnings/q2-fy27-earnings-call-transcript.pdf", "publisher": "Walmart / FactSet CallStreet", "date": "2026-08-20" },
+    { "id": "s3", "kind": "earnings-release", "title": "Walmart reports Q4 results (Q4 FY26 and full fiscal 2026, segment tables, cash flow, FY27 guidance)", "url": "https://corporate.walmart.com/content/dam/corporate/documents/newsroom/2026/02/19/walmart-releases-q4-fy26-earnings/q4-fy26-earnings-release.pdf", "publisher": "Walmart", "date": "2026-02-19" },
+    { "id": "s4", "kind": "ir-site", "title": "Walmart releases Q2 FY27 earnings (newsroom summary: ROI, tariff refunds, Sam's Club and International eCommerce)", "url": "https://corporate.walmart.com/news/2026/08/20/walmart-releases-q2-fy27-earnings", "publisher": "Walmart", "date": "2026-08-20" },
+    { "id": "s5", "kind": "news", "title": "Walmart continues OpenAI partnership, shifts shopping experience (Instant Checkout replaced by Sparky inside ChatGPT and Gemini; read via search summary)", "url": "https://hardwareretailing.com/walmart-continues-openai-partnership-shifts-shopping-experience/", "publisher": "Hardware Retailing", "date": "2026-03" },
+    { "id": "s6", "kind": "proxy", "title": "Walmart 2026 proxy statement (DEF 14A) beneficial ownership table - Walton Enterprises 44.11% (sec.gov blocked here; row read via search-result excerpt)", "url": "https://www.sec.gov/Archives/edgar/data/0000104169/000119312526173673/wmt-20260423.htm", "publisher": "Walmart / SEC EDGAR", "date": "2026-04-23" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/wmt/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "구매 규모 - FY2026 매출 7,132억 달러로 공급업체 협상력과 최저가 유지",
+      "1만 900개 이상 매장이 곧 배송 거점 - 매장 출고 픽업·배송이 온라인 성장을 이끎",
+      "주 2억 8천만 명 방문 고객 데이터를 쓰는 광고 사업 - FY2026 약 64억 달러(+46%)",
+      "멤버십(Walmart+·Sam's Club) - Q2 FY27 멤버십 수수료 수입 +17%"
+    ],
+    "text": "Walmart의 힘은 압도적인 구매 규모에서 시작한다. FY2026 매출 7,132억 달러로 공급업체에서 가장 싸게 사서 가장 싸게 팔고, 매주 2억 8천만 명이 1만 900개 이상 매장과 앱을 찾는다. 이 매장망이 그대로 배송 거점이 되고, 고객 데이터가 광고(FY2026 약 64억 달러)와 멤버십 수입으로 바뀌는 것이 새로 생긴 두 번째·세 번째 뿌리다.",
+    "src": ["s3", "s1"]
+  },
+
+  "design": {
+    "text": "이 기반 위에서 회사는 세 개 사업부로 보고한다. Walmart U.S.는 미국 할인점·슈퍼센터와 온라인·마켓플레이스·광고(Walmart Connect)를, Walmart International은 Walmex(멕시코)·Flipkart(인도)·중국·캐나다 등 미국 밖 사업을, Sam's Club U.S.는 유료 회원제 창고형 매장을 맡는다. 회사는 마켓플레이스·풀필먼트·멤버십·광고를 한 번 만들어 여러 나라에 펼치는 '플랫폼 전략'을 강조한다.",
+    "src": ["s3", "s1", "s2"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "식품·생활용품·일반상품 공급업체 - 상품 매입 (업체별 비중 미공시)",
+      "마켓플레이스 판매자 - 미국 마켓플레이스 매출 +50% 이상 (Q2 FY27), 거의 절반이 Walmart 풀필먼트 이용",
+      "자동화 물류 - 미국 3,100개 매장이 자동화 화물 공급, 온라인 출고 물량 50% 이상이 자동화 시설 처리",
+      "OpenAI·Google - ChatGPT·Gemini 안에서 쇼핑 비서 Sparky 제공 (2차 보도)",
+      "VIZIO·Vibe - 광고 사업용 인수 자산"
+    ],
+    "text": "소매업체에서 '만든다'는 것은 상품을 사 와서 고객 가까이 가져다 놓는 일이다. Walmart는 수많은 공급업체에서 상품을 사고, 매장·물류센터 자동화로 그 비용을 낮춘다(미국 3,100개 매장이 자동화 화물 공급을 받음). 여기에 외부 판매자가 Walmart 사이트에서 파는 마켓플레이스와 풀필먼트 서비스를 얹어, 재고를 직접 사지 않고도 상품 구색을 넓힌다.",
+    "src": ["s2", "s4"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 가계 - Walmart U.S. FY2026 순매출 4,830억 달러",
+      "해외 소비자 - 멕시코·인도·중국·캐나다 등 (International 1,304억 달러)",
+      "소상공인·회원 - Sam's Club U.S. 930억 달러",
+      "광고주(공급업체 포함) - Walmart Connect, Flipkart Ads",
+      "마켓플레이스 판매자 - 판매 수수료·풀필먼트 이용료"
+    ],
+    "channel": "매장(1만 900개 이상), 매장 출고 픽업·배송, 웹사이트·앱, 마켓플레이스, 유료 멤버십(Walmart+·Sam's Club).",
+    "concentration": "개인 소비자 대상이라 단일 고객 의존 없음",
+    "text": "이 상품은 미국 가계가 가장 큰 고객이고(Walmart U.S. 순매출 4,830억 달러), 해외와 Sam's Club이 그 뒤를 잇는다. 팔리는 창구는 점점 온라인으로 옮겨 가 Q2 FY27 미국 매출의 약 23%가 온라인이었고, 그중 상당 부분을 매장이 직접 배송한다. 고객이 넓게 퍼져 있어 한 고객보다 미국 가계의 소득과 물가가 더 중요하다.",
+    "src": ["s3", "s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "소비자", "to": "Walmart U.S.·International·Sam's Club", "what": "상품 구매 대금 (FY2026 순매출 7,064억 달러) - 매입원가를 뺀 매출총이익률 약 24%" },
+      { "from": "회원", "to": "Walmart+·Sam's Club", "what": "연회비 (멤버십·기타 수입 FY2026 67.5억 달러, Q2 FY27 멤버십 수수료 +17%)" },
+      { "from": "광고주·공급업체", "to": "Walmart Connect·Flipkart Ads·VIZIO", "what": "검색·화면 광고비 (FY2026 약 64억 달러) - 순매출 또는 매출원가 차감으로 기록" },
+      { "from": "마켓플레이스 판매자", "to": "Walmart", "what": "판매 수수료와 풀필먼트 이용료" }
+    ],
+    "pricing": "상품은 '매일 낮은 가격(EDLP)'으로 남기는 소매 마진, 멤버십은 연회비, 광고는 노출·성과 기반 광고비, 마켓플레이스는 판매 수수료와 물류 이용료다.",
+    "text": "돈은 대부분 상품 판매로 들어오지만 남는 몫은 얇아, FY2026 영업이익률은 4.2%였다. 그래서 회사는 마진이 높은 광고·멤버십·마켓플레이스 수입을 키워 같은 매출에서 더 많이 남기려 한다. CFO는 이 덕분에 미국 온라인 사업이 2026년 상반기에 두 자릿수 증분 마진을 냈다고 밝혔다.",
+    "src": ["s3", "s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "revenue": { "value": 713.163, "unit": "USD bn", "yoy": 4.7 },
+    "grossMargin": 24.2,
+    "operatingMargin": 4.2,
+    "netMargin": 3.1,
+    "operatingCashFlow": { "value": 41.565, "unit": "USD bn" },
+    "freeCashFlow": { "value": 14.9, "unit": "USD bn" },
+    "segments": [
+      { "name": "Walmart U.S. (net sales + membership & other income)", "revenue": 485.599, "unit": "USD bn", "share": 68.1, "yoy": 4.4, "operatingMargin": 5.2, "src": ["s3"] },
+      { "name": "Walmart International", "revenue": 131.988, "unit": "USD bn", "share": 18.5, "yoy": 7.0, "operatingMargin": 3.9, "src": ["s3"] },
+      { "name": "Sam's Club U.S.", "revenue": 95.540, "unit": "USD bn", "share": 13.4, "yoy": 3.2, "operatingMargin": 2.6, "src": ["s3"] },
+      { "name": "Corporate and support (membership & other income)", "revenue": 0.036, "unit": "USD bn", "share": 0.0, "yoy": null, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "Walmart U.S. 기존점 매출(comp, 연료 제외)", "value": "FY2026 4.6%; Q2 FY27 2.6% (약가 상한 규제로 125bp 역풍 포함)", "src": ["s3", "s1"] },
+      { "name": "온라인(eCommerce) 성장률", "value": "Q4 FY26 글로벌 +24%; Q2 FY27 글로벌 +23%, 미국 +24%, Sam's +26%, 해외 +19%", "src": ["s3", "s1", "s4"] },
+      { "name": "광고 사업", "value": "FY2026 약 64억 달러(+46%, VIZIO 포함); Q2 FY27 글로벌 +38%, Walmart Connect(ex-VIZIO) +43%", "src": ["s3", "s1"] },
+      { "name": "멤버십 수수료 수입", "value": "Q4 FY26 +15.1%, Q2 FY27 +17% (글로벌)", "src": ["s3", "s1"] },
+      { "name": "Sam's Club 기존점 매출(연료 제외)", "value": "FY2026 5.1%; Q2 FY27 4.4%", "src": ["s3", "s1"] },
+      { "name": "ROI / ROA", "value": "FY2026 ROI 15.1%, ROA 8.2%; 직전 12개월(2026-07-31) ROI 15.4%, ROA 8.0%", "src": ["s3", "s1"] }
+    ],
+    "text": "이 구조가 FY2026에 매출 7,132억 달러(+4.7%)와 영업이익 298억 달러, 순이익 219억 달러를 만들었다. 이익의 대부분은 Walmart U.S.(영업이익 252억 달러, 이익률 5.2%)에서 나오고, 해외(51억)와 Sam's Club(24억)은 이익률 2~4%대다. 최근 분기(Q2 FY27)는 매출 1,879억 달러(+5.9%)에 영업이익이 28.8% 늘었는데, 관세 환급 효과가 섞여 있어 회사는 2·3분기를 함께 보라고 했다.",
+    "src": ["s3", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "items": [
+      { "use": "capex", "value": 26.642, "unit": "USD bn", "src": ["s3"] },
+      { "use": "buybacks", "value": 8.088, "unit": "USD bn", "src": ["s3"] },
+      { "use": "dividends", "value": 7.507, "unit": "USD bn", "src": ["s3"] },
+      { "use": "debt repayment", "value": 2.625, "unit": "USD bn", "src": ["s3"] },
+      { "use": "acquisitions", "value": 0.053, "unit": "USD bn", "src": ["s3"] }
+    ],
+    "text": "벌어들인 영업현금 416억 달러 중 가장 큰 몫(266억 달러)은 자동화 물류·매장·배송망에 다시 들어갔다. 남은 돈으로 자사주 81억, 배당 75억 달러를 돌려줬고, 2026년 2월에는 300억 달러 규모의 새 자사주 매입 한도를 승인했다(7월 말 잔여 251억 달러). FY2027 설비투자 전망은 순매출의 약 3.5%에서 약 4.0%로 올라가 투자가 우선이라는 신호를 줬다.",
+    "src": ["s3", "s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 파는 회사가 아니라 쇼핑·물류·광고에 대규모로 쓰는 회사. 자체 쇼핑 비서 Sparky를 앱과 ChatGPT·Gemini 안에서 운영하고, 물류 자동화와 광고 타기팅에 AI를 쓴다.",
+    "dependsOn": ["models-platforms (OpenAI·Google 등 외부 모델 - 2차 보도)", "cloud-infrastructure (클라우드 공급자 - 업체명 미공시)", "물류 자동화 설비 공급업체 (업체명 미공시)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 온라인 전환율·객단가·물류비와 광고 수입으로 나타남"],
+    "aiRevenue": null,
+    "upside": "Sparky 사용 고객은 1년 새 70% 늘었고, Sparky로 쇼핑하는 고객은 주문당 40% 더 쓴다고 CEO가 밝혔다(Q2 FY27 콜). 자동화로 온라인 출고 물량의 50% 이상을 처리해 배송 단가를 낮추고, AI 기반 광고가 높은 마진으로 이익률을 끌어올린다.",
+    "risk": "쇼핑이 ChatGPT·Gemini 같은 외부 AI 비서 안에서 이뤄지면 고객 접점과 광고 지면을 플랫폼에 내줄 수 있다. 회사도 실적 자료의 위험 요인에 AI 기술 확산에서 오는 경쟁 압력과 '에이전트형 플랫폼'의 고객 수용을 명시했다.",
+    "text": "그래서 AI 가치사슬에서 Walmart는 맨 끝의 '도입자'에 있다. AI 매출은 없지만, Sparky와 물류 자동화가 객단가·배송비를 통해 이익에 닿는다. 관건은 고객이 외부 AI 비서로 쇼핑할 때도 Walmart가 결제와 광고 지면을 지키느냐이며, 2차 보도에 따르면 ChatGPT 안 즉시결제는 2026년 3월 Sparky 앱 방식으로 바뀌었다.",
+    "src": ["s2", "s1", "s5"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "미국 식료품·생활용품 오프라인 소매", "rivals": ["Costco", "Target", "Kroger", "Aldi", "달러 스토어"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "미국 온라인 쇼핑·마켓플레이스", "rivals": ["Amazon", "Target", "Temu·Shein"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "리테일 미디어(유통 광고)", "rivals": ["Amazon Ads", "Instacart", "Kroger Precision Marketing"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "유료 회원제 창고형 매장 (Sam's Club)", "rivals": ["Costco", "BJ's Wholesale"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "인도 온라인 쇼핑 (Flipkart)", "rivals": ["Amazon India", "Reliance"], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "가장 낮은 가격을 지탱하는 구매 규모, 매장을 배송 거점으로 쓰는 속도, 고객 데이터를 광고로 바꾸는 능력.",
+    "threats": "Amazon의 배송 속도·광고 규모, Costco의 회원 충성도, 저가 온라인 플랫폼, 외부 AI 비서가 고객 접점을 가져가는 변화, 약가 상한 규제 같은 헬스케어 정책.",
+    "text": "이 규모로 Walmart는 오프라인 소매에서 확실한 1위이고, 회사는 분기마다 '폭넓은 점유율 상승'을 보고한다. 온라인과 광고에서는 Amazon을 쫓는 2위권으로, 미국 온라인 매출 +24%와 광고 +38%(Q2 FY27)로 격차를 줄이는 중이다. 회사는 매장 출고 빠른 배송과 마켓플레이스·멤버십 묶음으로 '가격과 속도를 함께' 주는 방식으로 맞선다.",
+    "src": ["s1", "s3", "s4"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 순매출 4.0~5.0%(고정환율), 조정 영업이익 7.0~8.5% 성장, 조정 EPS 2.80~2.87달러를 제시했다. 장기적으로는 매출보다 이익이 빠르게 느는 '이익 구성 다변화(광고·멤버십·마켓플레이스)'를 목표로 한다.",
+    "roadmap": [
+      { "when": "2026-02", "what": "300억 달러 자사주 매입 한도 승인", "src": ["s3"] },
+      { "when": "2026 상반기", "what": "미국 마켓플레이스를 멕시코·캐나다로 확장, 캐나다 Walmart+ 출시, 광고 기술 Vibe 인수", "src": ["s2"] },
+      { "when": "FY2027", "what": "설비투자를 순매출의 약 4.0%로 확대 (자동화·배송망)", "src": ["s1", "s2"] },
+      { "when": "FY2027 하반기", "what": "관세 환급분을 가격 인하와 고객 경험에 재투자", "src": ["s1"] },
+      { "when": "진행 중", "what": "Sparky를 쇼핑 비서에서 식단 계획·재주문 등으로 확장, '에이전트형 경험' 선도", "src": ["s2", "s5"] }
+    ],
+    "vision": "CEO John Furner는 고객에게 '가격·속도·편리함을 모두' 주는 기술 기반 옴니채널 소매업체를 그리고, 한 번 만든 플랫폼 기능을 여러 나라에 빠르게 확산하는 회사를 강조한다.",
+    "text": "앞으로의 계획은 매장망 위에 플랫폼 사업을 더 얹는 것이다. 마켓플레이스·멤버십·광고를 멕시코·캐나다 등으로 넓히고, FY2027 설비투자를 순매출의 약 4%로 늘려 자동화와 빠른 배송을 키운다. 회사는 관세 환급분을 하반기 가격에 다시 쓰겠다고 해, 단기 이익보다 점유율을 우선하는 방향을 분명히 했다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "governance": {
+    "line": "John Furner가 사장 겸 CEO로 이끌고(2026-02 실적 발표부터 CEO로 표기), 창업 가문 회사 Walton Enterprises가 약 44%를 가진 지배주주 구조이며, 2026년 300억 달러 자사주 한도와 주당 연 0.99달러 배당으로 주주환원을 이어 간다.",
+    "src": ["s3", "s6", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2027", "metric": "net sales growth (constant currency)", "value": "4.0~5.0% (2월 최초 3.5~4.5%)", "givenOn": "2026-08-20", "src": ["s1"] },
+      { "period": "FY2027", "metric": "adjusted operating income growth (cc)", "value": "7.0~8.5% (최초 6.0~8.0%)", "givenOn": "2026-08-20", "src": ["s1"] },
+      { "period": "FY2027", "metric": "adjusted EPS", "value": "2.80~2.87달러 (최초 2.75~2.85달러)", "givenOn": "2026-08-20", "src": ["s1"] },
+      { "period": "FY2027", "metric": "capital expenditures", "value": "순매출의 약 4.0% (최초 약 3.5%)", "givenOn": "2026-08-20", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "net sales growth (cc) / adjusted EPS", "value": "3.0~3.75% / 0.62~0.64달러 (Flipkart 행사 시기 이동으로 100bp 이상 역풍)", "givenOn": "2026-08-20", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "FY2027 전망은 5월에 유지, 8월에 매출·이익·EPS를 모두 소폭 올렸다. CFO는 20억 달러 이상의 연료비 증가와 약해진 소비 환경을 감안해 '신중하게 조금만' 올렸다고 설명했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) EPS 합계 3.00달러(범위 2.85~3.22), 직전 4개 분기 2.83달러. 최근 4주 상향 4건·하향 0건.",
+    "src": ["s7"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Walmart U.S. 기존점 매출이 핵심 품목 기준 3~4% 범위를 유지 (CFO 언급 범위)",
+      "광고·멤버십 성장률이 매출 성장률보다 계속 높음",
+      "영업이익이 매출보다 빠르게 늘어남 (조정 기준)",
+      "미국 온라인 사업의 증분 마진이 두 자릿수를 유지",
+      "Sparky 사용자·객단가 지표가 계속 공개되고 개선"
+    ],
+    "breaks": [
+      "기존점 거래 건수 감소 전환",
+      "관세 환급 효과를 빼고도 영업이익 성장이 전망 하단 아래로 떨어짐",
+      "광고 성장률 급둔화",
+      "설비투자 증가에도 잉여현금흐름이 계속 감소",
+      "외부 AI 비서 경유 쇼핑에서 결제·광고 주도권 상실"
+    ],
+    "keyNumbers": [
+      { "name": "Walmart U.S. comp sales (연료 제외)", "why": "매출의 약 68%를 차지하는 본업의 체력" },
+      { "name": "광고 성장률", "why": "이익률 개선의 가장 큰 지렛대" },
+      { "name": "조정 영업이익 성장률", "why": "회사가 제시한 핵심 가이던스 지표" },
+      { "name": "멤버십 수수료 수입", "why": "반복되는 고마진 수입" },
+      { "name": "잉여현금흐름", "why": "설비투자 확대와 주주환원이 같은 현금을 나눠 쓴다" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 중순 (추정, 회사 미확정)", "event": "Q3 FY2027 실적과 연간 전망 갱신", "src": [] },
+      { "date": "2027-02 중순 (추정)", "event": "Q4 FY2027 실적과 FY2028 전망", "src": [] },
+      { "date": "2026-11 말", "event": "블랙프라이데이·연말 쇼핑 시즌 (Flipkart 행사 시기는 Q3·Q4 사이에서 이동)", "src": ["s1"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 Walmart U.S. 기존점 매출, 광고·온라인 성장률, 연간 전망 변경 폭에 반응하는 경향이 있다. Q2 FY27은 EPS가 예상을 넘었지만 미국 기존점 매출(2.6%)이 기대에 못 미쳤다는 보도가 있었다.",
+    "conditions": [
+      "Walmart U.S. 기존점 매출과 거래 건수·객단가 구성",
+      "광고·멤버십 성장률",
+      "연간 조정 영업이익·EPS 전망 변경 폭",
+      "관세 환급 효과를 뺀 기초 영업이익 성장률",
+      "설비투자 비율과 잉여현금흐름",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "세그먼트 매출은 순매출 + 멤버십·기타 수입 합산 (회사 표는 두 줄로 따로 표기), 세그먼트 영업이익률은 순매출 대비",
+    "총마진 24.2%는 매출총이익 1,710억 / 순매출 7,064억 기준 (회사 정의)",
+    "경쟁 구도(경쟁사 명단)는 이번 조사에서 10-K 경쟁 항목을 직접 읽지 않아 업계 일반 구도 기준, 점유율 수치 없음",
+    "OpenAI·Google 협업 세부(즉시결제 중단 시점·조건)는 2차 보도 기준",
+    "Walton Enterprises 44.11%는 위임장(DEF 14A) 표를 검색 결과 발췌로 확인 (sec.gov 접근 차단)",
+    "John Furner CEO 취임 정확한 날짜 (Q4 FY26 보도자료에 사장 겸 CEO로 표기된 것만 확인)",
+    "Q3 FY2027 실적 발표일",
+    "Q2 FY27 미국 기존점 매출이 기대에 못 미쳤다는 평가는 언론 보도 기준"
+  ],
+  "confidence": "high - 매출·세그먼트·현금흐름·가이던스는 회사 실적 보도자료와 콜 원문에서 왔다. AI 협업 세부와 지배주주 지분율, 경쟁 구도는 2차 자료 또는 일반 구도라 medium이다."
+}

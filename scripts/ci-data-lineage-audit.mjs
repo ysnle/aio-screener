@@ -103,6 +103,10 @@ const POLICIES = {
   // explicit key-required state), never a silent success (P1102).
   'earnings-calendar.json': { kind: 'weekly-calendar-reference', timestamp: ['generatedAt'], custom: 'earnings-week', maxAgeHours: 24 * 8 },
   'consensus-estimates.json': { kind: 'rotating-consensus-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 },
+  // v59.42: event-driven briefs (event-briefs.yml); committed only when a brief changes, so quiet weeks between earnings
+  // seasons are expected — the bound is one quarter.
+  'event-briefs.json': { kind: 'event-brief-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 100 },
+  'kr-index-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // v59.42: KOSPI/KOSDAQ weight proxies after each KRX close (event-briefs.yml; + holiday tolerance)
   'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'] },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
   'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1426: FRED observations behind the 거시 direction reads (refresh-data)

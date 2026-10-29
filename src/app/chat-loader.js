@@ -36,10 +36,14 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     }
     if (input && filled && !input.value && !input.disabled && calls.length && calls[calls.length - 1][0] !== 'chatSendUnified') input.value = filled;
   };
+  // v59.42: the AI question keyword cues (src/ai/intent/question-cues.js, read by the panel's answer policy and the chat
+  // data profile through root._aioQuestionCues) load with the panel, outside the boot set; the replay waits for them.
+  const loadCues = () => import('../ai/intent/question-cues.js').then((cues) => { root._aioQuestionCues = cues; }).catch(() => {});
   const load = () => pending || (pending = new Promise((resolve, reject) => {
+    const cuesReady = loadCues();
     const script = doc.createElement('script');
     script.src = './js/aio-chat.js?v=' + scriptVersion(doc);
-    script.onload = () => { replay(); resolve(true); };
+    script.onload = () => { cuesReady.then(() => { replay(); resolve(true); }); };
     script.onerror = () => { pending = null; reject(new Error('aio-chat.js 로드 실패')); };
     doc.head.appendChild(script);
   }));

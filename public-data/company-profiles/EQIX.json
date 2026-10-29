@@ -1,0 +1,701 @@
+{
+  "symbol": "EQIX",
+  "name": "Equinix, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Equinix는 전 세계 핵심 도시의 데이터센터에 기업·클라우드·네트워크를 모아 서로 직접 연결해 주는 데이터센터 REIT로, AI가 학습에서 추론으로 옮겨갈수록 '연결이 모이는 장소'로서 가치가 커진다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Equinix Reports Second-Quarter Results, Raises 2026 Guidance and Long-Term Outlook (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001101239/000110123926000145/a991eqix-q226xpr.htm",
+      "publisher": "Equinix / SEC EDGAR",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Equinix Provides Robust 2026 Outlook Driven by Strong Fourth-Quarter Results (Q4/FY2025 release, IR site)",
+      "url": "https://investor.equinix.com/sec-filings/all-sec-filings/content/0001101239-26-000030/february112026pressrelease-.htm",
+      "publisher": "Equinix",
+      "date": "2026-02-11"
+    },
+    {
+      "id": "s3",
+      "kind": "call-transcript",
+      "title": "Equinix Q2 2026 earnings call summary (third-party, generated from the call)",
+      "url": "https://vectorshift.ai/research/companies/equinix/earnings/2026-q2",
+      "publisher": "VectorShift",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "Equinix to Post Q3 Earnings: What's in Store for the Stock? (Zacks; date = accessed, article date not checked)",
+      "url": "https://www.tradingview.com/news/zacks:fcd75a5d9094b:0-equinix-to-post-q3-earnings-what-s-in-store-for-the-stock/",
+      "publisher": "Zacks via TradingView",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "Equinix shares fall on soft third-quarter forecast (Reuters)",
+      "url": "https://www.thestar.com.my/tech/tech-news/2026/07/30/equinix-shares-fall-on-soft-third-quarter-forecast",
+      "publisher": "The Star / Reuters",
+      "date": "2026-07-30"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "Equinix top brass reshuffle: Google's Adaire Fox-Martin to take over as CEO",
+      "url": "https://w.media/equinix-top-brass-reshuffle-googles-adaire-fox-martin-to-take-over-as-ceo/",
+      "publisher": "W.Media",
+      "date": "2024-03-13"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/eqix/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s8",
+      "kind": "news",
+      "title": "CPP Investments to Join GIC in New JV Supporting Expanding xScale Program (>$15B JV, >1.5 GW US hyperscale capacity, Equinix 25%)",
+      "url": "https://www.gic.com.sg/newsroom/all/equinix-agrees-to-form-greater-than-15b-jv-to-expand-hyperscale-data-centers-in-the-u-s-and-support-growing-ai-and-cloud-innovation/",
+      "publisher": "GIC",
+      "date": "2024-10-01"
+    },
+    {
+      "id": "s9",
+      "kind": "ir-site",
+      "title": "Equinix Accelerates AI Inference for Enterprises with NVIDIA and Together AI (Equinix Inference Exchange)",
+      "url": "https://newsroom.equinix.com/2026-09-02-Equinix-Accelerates-AI-Inference-for-Enterprises-with-NVIDIA-and-Together-AI",
+      "publisher": "Equinix",
+      "date": "2026-09-02"
+    },
+    {
+      "id": "s10",
+      "kind": "news",
+      "title": "CPP Investments And Equinix Complete $4 Billion Acquisition Of atNorth",
+      "url": "https://pulse2.com/cpp-investments-and-equinix-complete-4-billion-acquisition-of-atnorth/",
+      "publisher": "Pulse 2.0",
+      "date": "2026-09-02"
+    },
+    {
+      "id": "s11",
+      "kind": "ir-site",
+      "title": "Equinix press releases list (MEDIA ALERT: Equinix Sets Conference Call for Third-Quarter Results, 2026-10-01)",
+      "url": "https://investor.equinix.com/news-events/press-releases",
+      "publisher": "Equinix",
+      "date": "2026-10-01"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "같은 건물 안에 고객·클라우드·네트워크가 모인 연결 생태계 - 인터커넥션 50만 회선 이상 (2025년 말)",
+      "전 세계 핵심 도시의 입지와 전력 확보 - 전력이 귀한 도시일수록 신규 진입이 어렵다",
+      "반복 매출 구조 - FY2025 매출의 94.8%가 매월 반복되는 수익, 분기 이탈률(MRR churn) 약 2% 안팎",
+      "xScale JV로 외부 자본(GIC·CPP Investments)을 끌어와 대형 시설을 짓는 자본 구조"
+    ],
+    "text": "Equinix의 힘은 건물보다 그 안에 모인 '연결 상대'에서 나온다. 한 시설에 클라우드·통신사·기업·AI 회사가 함께 있어, 고객은 회선 하나로 수많은 상대와 직접 연결할 수 있고, 2025년 말 이런 연결이 50만 회선을 넘었다. 상대가 많을수록 떠나기 어려워져 매출의 95% 가까이가 매달 반복되며, 전력이 부족한 핵심 도시의 기존 입지는 새로 따라 하기 어렵다.",
+    "src": [
+      "s2",
+      "s3"
+    ]
+  },
+  "design": {
+    "text": "이 생태계 위에서 회사가 파는 것은 상품 유형으로 나누면 넷이다. 코로케이션은 고객 장비를 둘 캐비닛·전력·냉각이고, 인터커넥션은 건물 안 크로스커넥트와 Equinix Fabric·Cloud Router 같은 가상 연결이며, 관리형 인프라는 장비 운영 대행이다. 여기에 하이퍼스케일러용 대형 시설을 JV로 짓는 xScale과, 2027년 1분기 출시 예정인 AI 추론 서비스 Equinix Inference Exchange가 더해진다.",
+    "src": [
+      "s2",
+      "s1",
+      "s9"
+    ]
+  },
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "전력회사 - 전력 계약이 확장의 전제 (프랑크푸르트·암스테르담·애시번 등은 전력 제약)",
+      "건설·부지 - 2025년 말 52개 대형 확장 프로젝트 진행, 2026년 2분기 33개 시장 52개 프로젝트",
+      "GIC·CPP Investments - 미국 xScale JV 파트너 (각 37.5%, Equinix 25%), 150억 달러 이상 투자·1.5GW 이상 목표",
+      "CPP Investments·Partners Group - 북유럽 atNorth 공동 인수 (Equinix 약 34%, 2026-09 완료)",
+      "NVIDIA·Cisco - 표준 'AI 팩토리' 아키텍처, NVIDIA·Together AI - Inference Exchange 플랫폼 운영"
+    ],
+    "text": "Equinix는 땅과 전력을 확보해 데이터센터를 직접 짓고 소유·운영하는 회사다. 연결이 중요한 소매 시설은 자기 돈으로, 하이퍼스케일러용 대형 시설은 GIC·CPP Investments와 만든 xScale JV로 지어 자본 부담을 나눈다. AI 쪽에서는 GPU를 직접 사지 않고, NVIDIA·Cisco·Together AI가 장비와 소프트웨어를 대고 Equinix는 공간·전력·연결을 제공하는 분업을 택했다.",
+    "src": [
+      "s2",
+      "s1",
+      "s3",
+      "s8",
+      "s9",
+      "s10"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "기업 (금융·제조·소매 등, 사설 AI·하이브리드 클라우드)",
+      "클라우드·하이퍼스케일러 (소매 시설의 접속 거점과 xScale 대형 임대)",
+      "AI 모델 회사 - 상위 10곳 중 8곳이 Equinix에서 핵심 네트워킹 워크로드 운영 (콜 발언)",
+      "네오클라우드 - 상위 10곳 중 8곳 (콜 발언)",
+      "통신·네트워크 사업자"
+    ],
+    "channel": "직접 영업과 파트너·리셀러를 함께 쓴다. 소매 고객은 캐비닛 단위 계약, 하이퍼스케일러는 xScale JV와 MW 단위 장기 임대를 맺는다.",
+    "concentration": "고객 집중 수치 미공시. CEO는 지역·산업·상품 어디에도 집중 위험이 없다고 말함(콜 발언).",
+    "text": "이렇게 지은 공간은 수천 곳의 고객에게 잘게 나눠 팔린다. 기업과 클라우드, 통신사가 같은 건물에 들어오는 이유는 서로 연결하기 위해서이며, 최근에는 AI 모델 회사와 네오클라우드 상위 10곳 중 8곳이 핵심 네트워킹을 Equinix에 두고 있다. 대형 AI 학습 수요는 xScale로, 연결이 중요한 추론·기업 수요는 소매 시설로 받는 두 갈래 판매 구조다.",
+    "src": [
+      "s3",
+      "s2",
+      "s8"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "기업·AI 회사·클라우드",
+        "to": "Equinix (소매 IBX)",
+        "what": "캐비닛·전력 월 요금 (MRR, 다년 계약)"
+      },
+      {
+        "from": "같은 건물의 고객들",
+        "to": "Equinix",
+        "what": "크로스커넥트·Fabric 회선당 월 요금 (2026년 2분기 인터커넥션 매출 4.53억 달러)"
+      },
+      {
+        "from": "하이퍼스케일러",
+        "to": "xScale JV (GIC·CPP·Equinix)",
+        "what": "MW 단위 장기 임대료"
+      },
+      {
+        "from": "xScale JV",
+        "to": "Equinix",
+        "what": "지분 25%의 몫과 개발·운영 수수료 (임대 체결 시 일회성 수수료 포함)"
+      },
+      {
+        "from": "Equinix",
+        "to": "전력회사·건설사",
+        "what": "전력비와 건설비 (2026년 설비투자 50억~60억 달러)"
+      },
+      {
+        "from": "Equinix",
+        "to": "주주",
+        "what": "REIT 배당 (2026년 약 20.4억 달러 예상)"
+      }
+    ],
+    "pricing": "공간·전력은 월 정액(MRR)에 매년 가격 인상이 붙고, 인터커넥션은 회선당 월 요금, 설치비는 일회성으로 받는다. xScale은 JV 지분 이익과 수수료로 들어와, 임대 체결 분기에 일회성 수수료가 실적을 부풀릴 수 있다.",
+    "text": "돈은 고객이 매달 내는 공간·전력 요금과 회선 요금으로 꾸준히 들어온다. 연결이 하나 늘 때마다 매출이 쌓이면서 이탈은 줄어드는 구조라, 인터커넥션은 매출의 약 18%지만 해자의 핵심이다. 하이퍼스케일 임대료는 JV로 들어가 Equinix에는 지분 몫과 수수료로 돌아오고, 벌어들인 현금의 큰 부분은 다시 전력과 건설, 그리고 REIT 배당으로 나간다.",
+    "src": [
+      "s1",
+      "s2",
+      "s3",
+      "s8"
+    ]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": {
+      "value": 9.22,
+      "unit": "USD bn",
+      "yoy": 5
+    },
+    "grossMargin": 51.1,
+    "operatingMargin": 20,
+    "netMargin": 14.6,
+    "operatingCashFlow": {
+      "value": 3.91,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Colocation (상면·전력)",
+        "revenue": 6.475,
+        "unit": "USD bn",
+        "share": 70.3,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Interconnection (연결)",
+        "revenue": 1.655,
+        "unit": "USD bn",
+        "share": 18,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Managed infrastructure",
+        "revenue": 0.466,
+        "unit": "USD bn",
+        "share": 5.1,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Other recurring",
+        "revenue": 0.143,
+        "unit": "USD bn",
+        "share": 1.6,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Non-recurring (설치비·xScale 수수료 등)",
+        "revenue": 0.478,
+        "unit": "USD bn",
+        "share": 5.2,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "AFFO·주당 AFFO",
+        "value": "FY2025 AFFO 37.61억 달러(+12%), 희석 주당 AFFO 38.33달러(+9%); 2026년 2분기 주당 AFFO 11.78달러(+19%)",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "조정 EBITDA 마진",
+        "value": "FY2025 45.30억 달러·49%, 2026년 2분기 13.96억 달러·53%",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "지역별 매출 (보고 세그먼트)",
+        "value": "FY2025 Americas 41.11억(44.6%), EMEA 31.30억(34.0%), Asia-Pacific 19.76억 달러(21.4%)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "예약·연결·이탈",
+        "value": "2026년 2분기 연간 환산 총 예약 4.24억 달러, 인터커넥션 순증 9,700회선(최고), MRR churn 1.8%(콜 요약)",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "반복 매출 비중",
+        "value": "FY2025 94.8%; 2026년 2분기 반복 23.77억·비반복 2.48억 달러 (xScale 일회성 수수료 영향)",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      }
+    ],
+    "text": "이 구조가 FY2025에 매출 92.2억 달러(+5%), 조정 EBITDA 마진 49%, 주당 AFFO 38.33달러라는 결과로 나타났다. 매출의 70%가 코로케이션이지만 성장은 인터커넥션과 xScale이 끌고, 2026년 2분기에는 매출이 16% 늘고 EBITDA 마진이 53%까지 올랐다. 다만 영업현금흐름 39.1억 달러보다 설비·부동산 투자가 커서, 잉여현금흐름은 약 -17억 달러(계산값)로 성장 투자를 빚과 자본 조달로 메우는 구조다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 4.6,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "데이터센터 부지·부동산 매입",
+        "value": 0.99,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 0.25,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 1.86,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 1.2,
+        "unit": "USD bn",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "벌어들인 현금보다 더 많은 돈이 새 데이터센터로 들어간다. FY2025 설비투자는 약 46억 달러(반복 2.8억 + 신규 43.1억), 부지 매입 9.9억 달러였고, REIT 배당으로 18.6억 달러를 냈으며, 부족분은 선순위채 43.1억 달러 발행으로 메웠다. 2026년에는 설비투자 가이던스를 2월 36.6억~41.6억에서 7월 50억~60억 달러로 올리고 atNorth 인수에 8.95억 달러를 약정해, 배당을 지키면서 AI 수요에 맞춰 공급을 서둘러 늘리는 쪽에 무게를 뒀다.",
+    "src": [
+      "s2",
+      "s1",
+      "s10"
+    ]
+  },
+  "aiChain": {
+    "layer": "data-center-real-estate",
+    "position": "AI 연산 장비가 들어갈 공간·전력·냉각과, 그 장비를 클라우드·데이터·사용자와 잇는 연결을 공급한다. 대형 학습용은 xScale JV로, 추론·기업 AI는 소매 시설과 Equinix Fabric으로, 2027년부터는 Inference Exchange로 추론 서비스 장터까지 넓힌다.",
+    "dependsOn": [
+      "power-energy (전력회사, 핵심 도시 전력 제약)",
+      "부지·건설",
+      "xScale JV 자본 파트너 (GIC, CPP Investments)",
+      "chips-compute·networking 파트너 (NVIDIA, Cisco)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (하이퍼스케일러, 네오클라우드)",
+      "models-platforms (AI 모델 회사, Together AI)",
+      "ai-adopter (사설 AI를 돌리는 기업, 규제 산업의 데이터 주권 수요)"
+    ],
+    "aiRevenue": "AI 매출 비중은 공시하지 않는다. 2025년 4분기 최대 거래의 약 60%가 AI 워크로드 주도였고(회사 발표), 2026년 2분기 최대 거래 대부분이 AI 관련이었다(콜 요약).",
+    "upside": "AI가 학습에서 추론으로 옮겨가면 사용자·데이터 가까운 도시에서 여러 클라우드·모델과 연결해야 하므로 소매 상면과 인터커넥션 수요가 늘고, 대형 학습 수요는 xScale 임대로 들어온다. 회사는 이를 근거로 2027~2029년 매출 성장 전망을 연 7~10%에서 10~13%로 올렸다.",
+    "risk": "하이퍼스케일러가 대형 시설을 직접 짓거나 대형 임대 전문 업체에 몰아주면 xScale 몫이 줄고, AI 장비의 전력 밀도가 높아져 기존 시설 개조 비용이 커질 수 있다. 투자 확대로 레버리지가 오르는데 금리가 높으면 자본비용 부담이 커진다.",
+    "text": "그래서 AI 가치사슬에서 Equinix는 '데이터센터 부동산' 층에 있지만, 단순히 공간을 빌려주는 자리보다 한 칸 위인 '연결 장터'에 가깝다. NVIDIA GPU가 학습을 끝낸 모델은 사용자 가까운 도시에서 여러 클라우드·데이터와 맞물려 추론을 돌려야 하는데, 그 접점이 Equinix 건물 안 크로스커넥트와 Fabric이다. 2026년 9월에는 NVIDIA·Together AI와 Inference Exchange를 발표해, 연결 장터를 추론 서비스 장터로 넓히려 한다.",
+    "src": [
+      "s2",
+      "s3",
+      "s1",
+      "s9",
+      "s8"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "리테일 코로케이션·인터커넥션",
+        "rivals": [
+          "Digital Realty (ServiceFabric)",
+          "NTT Global Data Centers",
+          "지역 사업자"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "arena": "하이퍼스케일 대형 임대 (xScale)",
+        "rivals": [
+          "Digital Realty",
+          "QTS (Blackstone)",
+          "Vantage",
+          "Aligned",
+          "하이퍼스케일러 자체 건설"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s8",
+          "s3"
+        ]
+      },
+      {
+        "arena": "클라우드 연결 서비스 (Fabric·Cloud Router)",
+        "rivals": [
+          "Megaport",
+          "Digital Realty",
+          "클라우드 자체 전용선"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "arena": "기업 AI 추론 인프라",
+        "rivals": [
+          "하이퍼스케일 클라우드 (AWS·Azure·Google Cloud)",
+          "네오클라우드 (CoreWeave 등)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s9",
+          "s1"
+        ]
+      }
+    ],
+    "edge": "같은 건물 안에 모인 연결 상대(50만 회선 이상), 전력이 귀한 핵심 도시 입지, 낮은 이탈률, JV로 외부 자본을 끌어오는 능력.",
+    "threats": "하이퍼스케일러의 자체 건설과 대형 임대 전문 업체의 가격 경쟁, 전력 확보 경쟁, 금리 상승에 따른 자본비용 증가(회사는 계획 기간 가중 자본비용 약 150bp 상승을 가정).",
+    "text": "이 장터를 두고 경쟁은 두 무대에서 벌어진다. 연결이 핵심인 소매 코로케이션에서는 Digital Realty·NTT가 상대지만, 이미 모인 연결 상대 수에서 Equinix가 앞서 이탈률이 분기 2% 안팎에 머문다. 반면 전력과 땅의 크기로 싸우는 하이퍼스케일 임대에서는 QTS·Vantage 같은 대형 전문 업체와 하이퍼스케일러 자체 건설이 강해, Equinix는 xScale JV로 외부 자본을 끌어와 따라붙는 위치다.",
+    "src": [
+      "s2",
+      "s3",
+      "s8"
+    ]
+  },
+  "strategy": {
+    "goal": "2027~2029년 매출 연 10~13% 성장, 주당 AFFO 연 9~12% 성장, 2029년 조정 EBITDA 마진 53% 이상, 주당 배당 성장률을 주당 AFFO 성장률에 맞춤 (2026-07-29 상향).",
+    "roadmap": [
+      {
+        "when": "2026-01",
+        "what": "조지아 Hampton 자산을 xScale JV에 편입 - JV 파트너와 150억 달러 투자의 첫 단계",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2026-09",
+        "what": "atNorth(북유럽) 40억 달러 공동 인수 완료, Equinix 약 34%",
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "when": "2027년 1분기",
+        "what": "Equinix Inference Exchange 출시 예정 (NVIDIA 참조 아키텍처 + Together AI 플랫폼, 200개 이상 오픈 모델)",
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "when": "2027~2029",
+        "what": "연 50억~70억 달러 설비투자 (이전 30억~40억에서 상향)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "장기",
+        "what": "미국 xScale JV로 100MW 이상 캠퍼스 여러 곳, 1.5GW 이상 신규 용량",
+        "src": [
+          "s8"
+        ]
+      }
+    ],
+    "vision": "AI 시대의 '디지털 인프라 장터'로서, 학습은 xScale에서, 추론과 기업 AI는 연결이 모인 도시 거점에서 받는 분산 AI 인프라의 중심이 되겠다는 그림이다.",
+    "text": "경쟁에서 이기기 위해 회사가 택한 것은 투자 속도를 높이는 길이다. 연간 설비투자 전망을 30억~40억에서 50억~70억 달러로 올리고, JV와 공동 인수로 외부 자본을 끌어와 대형 용량을 늘린다. 동시에 Inference Exchange처럼 연결 위에 서비스를 얹어, 공간 임대업에서 AI 추론의 접점으로 자리를 옮기려 한다.",
+    "src": [
+      "s1",
+      "s8",
+      "s9",
+      "s10"
+    ]
+  },
+  "governance": {
+    "line": "전 Google Cloud 사업총괄 Adaire Fox-Martin이 2024년부터 CEO를 맡고 전임 Charles Meyers가 집행의장으로 이동했으며, REIT로서 배당을 2026년 10% 올린 분기 5.16달러로 11년 연속 늘렸다.",
+    "src": [
+      "s6",
+      "s2"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "revenue",
+        "value": "102.05억~102.85억 달러 (직전 101.44억~102.44억에서 상향)",
+        "givenOn": "2026-07-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "AFFO per share (diluted)",
+        "value": "42.69~43.29달러 (직전 42.31~43.11, 2월 최초 41.93~42.74)",
+        "givenOn": "2026-07-29",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "adjusted EBITDA",
+        "value": "52.10억~52.70억 달러 (마진 약 51%)",
+        "givenOn": "2026-07-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "capex",
+        "value": "총 50억~60억 달러 (2월 36.55억~41.55억에서 상향), 반복 2.9억~3.1억 달러, xScale JV 투자 제외",
+        "givenOn": "2026-07-29",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "period": "Q3 2026",
+        "metric": "revenue / adjusted EBITDA",
+        "value": "매출 25.25억~25.75억 달러, 조정 EBITDA 12.75억~13.15억 달러",
+        "givenOn": "2026-07-29",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "2027~2029",
+        "metric": "long-term outlook",
+        "value": "매출 연 10~13%, 주당 AFFO 연 9~12%, 2029년 EBITDA 마진 53% 이상, 연 설비투자 50억~70억 달러",
+        "givenOn": "2026-07-29",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "2026년에는 2월 이후 매 분기 연간 매출·주당 AFFO 범위를 올렸다. 다만 2분기 발표 때 3분기 매출 가이던스 중간값이 시장 예상(25.8억 달러)을 밑돌아 주가가 약 3% 내렸다.",
+    "src": [
+      "s1",
+      "s2",
+      "s5"
+    ]
+  },
+  "estimates": {
+    "text": "Zacks 기준 3분기 주당 AFFO 컨센서스는 10.51달러로 최근 3개월 0.21달러 하향, 3분기 매출 컨센서스는 25.7억 달러. 2026-10-27 AIO 로컬 스냅샷은 향후 4개 분기 합 39.48달러(범위 38.99~39.99, 4주 상·하향 0건)로 직전 4개 분기 합 41.31달러보다 낮아, 회사 연간 가이던스와 지표 정의가 다를 수 있다.",
+    "src": [
+      "s4",
+      "s7"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "MRR이 불변환율 정규화 기준 두 자릿수 성장을 유지",
+      "MRR churn이 2~2.5% 범위 하단에 머묾",
+      "예약과 인터커넥션 순증이 계속 늘어남",
+      "xScale 일회성 수수료를 뺀 반복 매출 성장이 가이던스를 받쳐줌",
+      "Inference Exchange가 2027년 1분기에 출시되고 고객을 모음",
+      "레버리지 상승이 계획 범위 안에서 관리됨"
+    ],
+    "breaks": [
+      "churn이 2.5%를 넘거나 예약 증가율 둔화",
+      "가이던스가 xScale 일회성 수수료에 점점 기댐",
+      "전력 확보 실패로 핵심 도시 증설 지연",
+      "금리 급등으로 자본비용이 신규 시설 수익률에 근접",
+      "주당 AFFO 가이던스 하향"
+    ],
+    "keyNumbers": [
+      {
+        "name": "주당 AFFO와 성장률",
+        "why": "REIT의 실질 현금이익이자 배당의 기준"
+      },
+      {
+        "name": "MRR 성장률과 churn",
+        "why": "반복 매출의 속도와 이탈"
+      },
+      {
+        "name": "연간 환산 총 예약",
+        "why": "몇 분기 뒤 MRR이 될 선행지표"
+      },
+      {
+        "name": "인터커넥션 순증·매출",
+        "why": "연결 장터 해자의 강도"
+      },
+      {
+        "name": "xScale 임대 MW와 일회성 수수료",
+        "why": "AI 대형 수요의 지표이자 실적 부풀림 요인"
+      },
+      {
+        "name": "설비투자·순부채",
+        "why": "공격적 투자가 재무를 압박하는지"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-10-28 (장 마감 후, 보도 기준; 회사 미디어 알림 2026-10-01)",
+        "event": "3Q 2026 실적 발표와 2026년 가이던스 갱신",
+        "src": [
+          "s4",
+          "s11"
+        ]
+      },
+      {
+        "date": "2027년 1분기",
+        "event": "Equinix Inference Exchange 출시 예정",
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "date": "2027년 2월 (2026-02-11 선례)",
+        "event": "4Q·연간 실적과 2027년 첫 가이던스",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "date": "수시",
+        "event": "xScale JV 신규 임대·자본 조달 발표",
+        "src": [
+          "s2",
+          "s8"
+        ]
+      },
+      {
+        "date": "FOMC 등 금리 이벤트",
+        "event": "장기 금리 변화 (REIT 할인율·자본비용)",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "reaction": "주가는 분기 주당 AFFO가 예상을 넘는지보다 다음 분기 매출 가이던스와 연간 주당 AFFO 범위 변화에 반응하는 경향이 있다. 2분기에는 실적 호조·연간 상향에도 3분기 매출 가이던스가 약해 주가가 약 3% 내렸고, 시장은 xScale 일회성 수수료를 뺀 반복 성장을 따로 본다.",
+    "conditions": [
+      "3분기 매출이 가이던스(25.25억~25.75억 달러)와 컨센서스(25.7억 달러) 대비 어디인가",
+      "연간 주당 AFFO 범위(42.69~43.29달러) 유지·상향 여부",
+      "MRR churn과 예약 금액",
+      "xScale 일회성 수수료 규모와 이를 뺀 마진",
+      "설비투자 가이던스와 순부채 추이, 장기 금리",
+      "컨센서스 주당 AFFO 수정 방향"
+    ]
+  },
+  "unverified": [
+    "상품 유형별·지역별 매출의 전년 대비 증감률",
+    "잉여현금흐름: 계산값(-16.8억 달러, 영업현금흐름 - 설비투자 - 부동산 매입)과 보도자료 표기(-25.72억)가 달라 정의 확인 전까지 표시하지 않음",
+    "총마진·영업이익률·순이익률은 매출총이익 47.09억, 영업이익 18.48억, 순이익 13.50억 달러로 계산한 값",
+    "AI 관련 매출·예약 비중 수치 (회사 미공시)",
+    "리테일·하이퍼스케일 코로케이션 시장 점유율 (최신 Synergy 자료 미확인), 경쟁사 목록과 position 판정은 작성자 판단",
+    "MRR churn·AI 고객 비중·레버리지 등 콜 수치는 서드파티 요약 기준",
+    "3분기 실적 발표 시각(2026-10-28 장 마감 후)은 Zacks 기사 기준, 회사 미디어 알림 본문은 열지 않음",
+    "Inference Exchange 2027년 1분기 출시는 2차 보도 기준",
+    "xScale JV(GIC·CPP)의 종결 여부와 현재 운영 용량",
+    "AIO 로컬 컨센서스가 회사 연간 가이던스와 어긋나는 이유",
+    "내부자 지분율, 자사주 매입 여부, Fox-Martin 정확한 취임일"
+  ],
+  "confidence": "medium - 연간·분기 실적과 가이던스는 회사 보도자료에서 왔지만, churn·AI 고객 비중 등 운영 지표는 서드파티 콜 요약이고 경쟁 점유율은 최신 자료를 찾지 못했다."
+}

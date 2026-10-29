@@ -16,6 +16,16 @@ import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifac
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
+// v59.43: the story renderer loads with the first story page, not at boot (architecture/boot-budget.json).
+let storyRenderer = null;
+let storyRendererLoad = null;
+function storyRendererOr(onReady) {
+  if (storyRenderer) return storyRenderer;
+  storyRendererLoad ||= import('../components/company-story.js').then((mod) => { storyRenderer = mod; });
+  storyRendererLoad.then(onReady, () => {});
+  return null;
+}
+import { requestCompanyStory, companyStoryFor, COMPANY_PROFILE_INDEX } from '../../data/company-profiles.js';
 import { entityFundamentalsState } from '../../domain/content/data-state.js';
 import { finiteNumber as finite, signedText, usdKoreanText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
@@ -195,14 +205,31 @@ function renderSummaryIdentity(documentRef, root, state) {
   const profile = businessProfileFor(id, row, metadata);
   // 2026-10-14 audit #10: the hero already carries the name; the section heading says what it answers.
   const title = documentRef.createElement('h2'); title.textContent = /ETF|지수/.test(profile.kind) ? '무엇을 추종하는 상품' : '무엇을 하는 회사';
-  const description = documentRef.createElement('p');
-  // P1630: no producer publishes businessProfile yet. v57.79: a sector word plus "종목 등록 정보" read as an empty box,
-  // so the section stays hidden until a sourced description exists (the classification lives in the company card below).
-  description.textContent = profile.description || '';
-  profileNode.hidden = !profile.description;
-  const source = documentRef.createElement(profile.sourceUrl ? 'a' : 'span'); source.textContent = profile.source;
-  if (profile.sourceUrl) { source.href = profile.sourceUrl; source.target = '_blank'; source.rel = 'noopener noreferrer'; }
-  profileNode.replaceChildren(title, description, source);
+  // v59.43: a researched company story (public-data/company-profiles/) fills this section for the listings it covers.
+  requestCompanyStory(root, id, () => { if (String(root?._currentTickerId || '').toUpperCase() === id) renderSummaryIdentity(documentRef, root, state); });
+  const story = companyStoryFor(root, id);
+  const renderer = story ? storyRendererOr(() => { if (String(root?._currentTickerId || '').toUpperCase() === id) renderSummaryIdentity(documentRef, root, state); }) : null;
+  if (story && renderer) {
+    const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
+    // The stale note depends on this symbol's report rows (date and actuals), not on how many rows the calendar has.
+    const signature = `${id}|${story.researchedAt}|${earnings.filter((row) => String(row?.symbol || '').toUpperCase() === id).map((row) => `${row.date}:${row.epsActual ?? row.revenueActual ?? ''}`).join(',')}`;
+    if (profileNode.dataset.storySignature !== signature) {
+      profileNode.replaceChildren(title);
+      renderer.renderCompanyStory(documentRef, profileNode, { profile: story, earnings, peers: root?.[COMPANY_PROFILE_INDEX.key]?.profiles || [], openTicker: (symbol) => root?.showTicker?.(symbol) });
+      profileNode.dataset.storySignature = signature;
+    }
+    profileNode.hidden = false;
+  } else {
+    delete profileNode.dataset.storySignature;
+    const description = documentRef.createElement('p');
+    // P1630: no producer publishes businessProfile yet. v57.79: a sector word plus "종목 등록 정보" read as an empty box,
+    // so the section stays hidden until a sourced description exists (the classification lives in the company card below).
+    description.textContent = profile.description || '';
+    profileNode.hidden = !profile.description;
+    const source = documentRef.createElement(profile.sourceUrl ? 'a' : 'span'); source.textContent = profile.source;
+    if (profile.sourceUrl) { source.href = profile.sourceUrl; source.target = '_blank'; source.rel = 'noopener noreferrer'; }
+    profileNode.replaceChildren(title, description, source);
+  }
   // The heading no longer repeats the name; the section still names its issuer for assistive tech and checks.
   profileNode.dataset.issuerName = profile.name;
   profileNode.setAttribute('aria-label', `${profile.name} — ${title.textContent}`);

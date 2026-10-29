@@ -1,0 +1,18 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-29",
+  "p": {
+    "title": "포트폴리오: 진입마다 '(시세 미수신)' 행이 잠깐 보이고, 관심 종목 목록 하나가 다음 저장 때 사라짐",
+    "symptom": "(1) 포트폴리오 화면에 들어갈 때마다 예전 표 생성기가 먼저 그려져, 보유 종목이 가격·손익·비중 없이 '(시세 미수신)'으로 0.7~1.4초 보였다가 native 표로 바뀌었다. (2) 관심 종목에 tickers 배열이 없는 목록이 있으면 화면에서 숨겨졌고, 다른 목록에 종목을 하나 추가하면 그 목록이 저장소에서 지워졌다. 스크리너 별표의 예전 배열(aio_watchlist)도 스크리너를 거치기 전에는 목록에 보이지 않았다. 레거시 감사 6위.",
+    "root_cause": "(1) renderPortfolio(js/aio-workspace.js)는 native 표가 tbody에 'native' 표시를 달기 전에 행을 만들었고, native는 언마운트 때 그 표시를 지워 재진입마다 같은 일이 반복됐다. (2) aio_watchlists를 쓰는 곳이 둘이었다. getWatchlists는 tickers 없는 목록을 읽을 때 버렸고 saveWatchlists는 남은 것만 다시 썼다. src/data/watchlist-store.js는 그런 목록을 고쳐 두고 별표 배열도 합쳤다.",
+    "fix": "(1) 예전 행 생성기, 빈 상태 행, 비중 루프, _pfLegacyMoney/_pfLegacyCurrencyOf를 지웠다. native가 붙기 전에는 '보유 N종목을 불러오는 중입니다' 한 줄만 보인다. (2) src/data/watchlist-store.js에 readWatchlists/writeWatchlists를 두고 window._aioWatchlistStore로 설치했다. getWatchlists/saveWatchlists는 이 저장소만 거친다(유일한 쓰기 경로). tickers 없는 목록은 빈 목록으로 남고 예전 별표도 합쳐진다.",
+    "violated_rule": "AGENTS: 한 데이터에 한 소유자. 같은 키에 쓰는 코드가 둘이면 규칙이 갈린다.",
+    "prevention": "scripts/ci-esm-core-unit-check.mjs v59.42 watchlist 검사(tickers 없는 목록 유지·별표 합치기·쓰기 결과). 빈 포트폴리오 런타임 검사는 native 빈 상태(src/ui/pages/portfolio.js)를 읽는다.",
+    "verification": "Playwright 전후 기록: 빈·2종목·홈 경유 진입 세 경우 모두 최종 표가 같고, 중간 화면은 '(시세 미수신)' 행 대신 불러오는 중 한 줄이다. 관심 목록 정상 데이터는 전후 동일, tickers 없는 목록은 전에는 추가 한 번에 삭제되고 지금은 남는다, 별표 NVDA는 지금 합쳐져 보인다. 오류 0건."
+  },
+  "r": null,
+  "changelog": [
+    "**포트폴리오 표와 관심 종목 저장소 정리 ({P}):** 화면에 들어갈 때마다 보유 종목이 '(시세 미수신)'으로 잠깐 보이던 예전 표 생성기를 지웠다. 관심 종목은 src 저장소 하나만 쓰고, 다음 저장 때 사라지던 목록과 스크리너 별표가 이제 그대로 남는다."
+  ],
+  "note": "v59.42 {P}: legacy portfolio row builder removed (flash of unpriced rows); one watchlist store keeps lists without tickers."
+}

@@ -1,0 +1,249 @@
+{
+  "symbol": "SNOW",
+  "name": "Snowflake Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "January 31 (FY2026 ended 2026-01-31)",
+  "oneLine": "Snowflake는 기업 데이터를 AWS·Azure·Google 클라우드 위에 모아 분석하고 이제 AI 에이전트까지 돌리게 해 주는 '쓴 만큼 내는' 데이터 플랫폼으로, AI 사용이 늘며 세 분기 연속 성장이 빨라졌다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Snowflake Reports Financial Results for the Second Quarter of Fiscal 2027 (company release text reposted)",
+      "url": "https://www.01net.it/snowflake-reports-financial-results-for-the-second-quarter-of-fiscal-2027/",
+      "publisher": "01net (Snowflake / Business Wire release text)",
+      "date": "2026-09-02"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Snowflake Reports Financial Results for the Fourth Quarter and Full-Year of Fiscal 2026 (company release text reposted)",
+      "url": "https://www.01net.it/snowflake-reports-financial-results-for-the-fourth-quarter-and-full-year-of-fiscal-2026/",
+      "publisher": "01net (Snowflake / Business Wire release text)",
+      "date": "2026-02-25"
+    },
+    {
+      "id": "s3",
+      "kind": "news",
+      "title": "AI And Data Momentum: Key Takeaways From Snowflake's Q2 Results (article undated; covers 2026-09-02 report)",
+      "url": "https://www.crnasia.com/news-network/2026/key-takeaways-from-snowflake-s-q2-financial-results",
+      "publisher": "CRN Asia",
+      "date": "2026-09-02"
+    },
+    {
+      "id": "s4",
+      "kind": "ir-site",
+      "title": "Snowflake Expands AWS Collaboration with $6B Commitment to Accelerate Enterprise Agentic AI Adoption (read from search summary)",
+      "url": "https://www.snowflake.com/news/snowflake-expands-aws-collaboration-with-6b-commitment-to-accelerate-enterprise-agentic-ai-adoption/",
+      "publisher": "Snowflake",
+      "date": "2026-05-27"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local SEC companyfacts snapshot (public-data/sec-fundamentals.json), 10-K FY ended 2026-01-31, accession 0001640147-26-000008",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001640147.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-03-20"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/snow/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "세 개 클라우드(AWS·Azure·Google Cloud) 어디서나 같은 방식으로 쓰는 데이터 플랫폼 - 고객이 특정 클라우드에 묶이지 않음",
+      "한 번 옮겨 온 기업 데이터의 무게 - 순매출유지율(NRR) 126%로 기존 고객이 해마다 더 씀",
+      "대기업 고객 기반 - Forbes Global 2000 중 829곳, 연 100만 달러 이상 고객 828곳 (Q2 FY2027)",
+      "데이터 옆에서 바로 돌리는 AI 기능 - CoCo(코딩·데이터 에이전트) 9,100개 이상 계정"
+    ],
+    "text": "Snowflake의 힘은 기업이 흩어진 데이터를 한곳에 옮겨 놓으면 그 위에서 분석·공유·AI까지 이어서 쓰게 되는 '데이터의 무게'에서 나온다. 데이터를 다시 옮기는 일은 비싸고 번거로워서, 기존 고객이 해마다 26% 더 쓰는 순매출유지율 126%가 나온다. 세 클라우드 어디서든 같은 방식으로 돌아간다는 점도 특정 클라우드에 묶이기 싫은 대기업에게 이유가 된다.",
+    "src": ["s1", "s2"]
+  },
+  "design": {
+    "text": "이 데이터 위에서 회사가 파는 것은 데이터 저장·처리(웨어하우스·데이터 레이크), 데이터 공유, 그리고 Cortex 계열 AI 기능이다. AI 쪽은 코딩·데이터 에이전트 CoCo(옛 Cortex Code), 업무용 AI 에이전트 CoWork(옛 Snowflake Intelligence), Cortex AI Gateway와 Cortex Sense로 구성되고, 관측성 업체 Observe와 TensorStax 인수로 영역을 넓혔다. 매출은 플랫폼 사용료인 제품 매출과 전문 서비스 매출로 나뉜다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "Amazon Web Services - 주요 인프라, 5년간 Graviton 연산·AI에 60억 달러 사용 약정 (2026-05-27)",
+      "Microsoft Azure·Google Cloud - 같은 플랫폼을 운영하는 다른 두 클라우드",
+      "Natoma - Cortex AI Gateway에 통합",
+      "Observe·TensorStax - FY2026에 인수한 관측성·AI 데이터 엔지니어링 기술"
+    ],
+    "text": "Snowflake는 자체 데이터센터 없이 AWS·Azure·Google Cloud의 서버를 빌려 서비스를 만든다. 그래서 원가의 핵심은 클라우드 이용료이며, 2026-05에는 AWS에 5년간 60억 달러를 쓰겠다는 회사 역사상 최대 약정을 맺었다. 이 구조 때문에 제품 총마진은 GAAP 70.9%, non-GAAP 74.7%(Q2 FY2027)로 클라우드 원가에 좌우된다.",
+    "src": ["s4", "s1", "s2"]
+  },
+  "sell": {
+    "customers": [
+      "대기업 데이터·IT 조직 - 전체 고객 14,554곳 (2026-07-31, +32%)",
+      "Forbes Global 2000 기업 829곳",
+      "연 100만 달러 이상 고객 828곳(+27%), 1,000만 달러 이상 65곳",
+      "공개된 사례 고객: BlackRock, 1Password, Indeed, Sayari 등"
+    ],
+    "channel": "직접 영업이 중심이며, AWS Marketplace 등 클라우드 마켓플레이스와 시스템 통합 파트너(BlueCloud 등)를 함께 쓴다.",
+    "concentration": "주요 고객 집중 공시는 이번 조사에서 확인하지 못함 (null).",
+    "text": "이 플랫폼은 대기업 데이터 조직에 팔리며, 고객 1만 4천여 곳 가운데 연 100만 달러 이상 쓰는 828곳이 매출의 큰 몫을 차지하는 구조다. 판매는 직접 영업과 함께 AWS Marketplace를 통한 공동 판매가 커지고 있어, AWS 약정에도 마켓플레이스 판매 확대가 담겼다. 최근 분기 신규 고객은 692곳으로 32% 늘었다.",
+    "src": ["s1", "s3", "s4"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업 데이터·AI 사용자", "to": "Snowflake", "what": "크레딧(연산·저장 사용량) 약정 구매 또는 사용량 기준 결제" },
+      { "from": "AWS Marketplace 구매 고객", "to": "AWS → Snowflake", "what": "고객의 클라우드 약정 예산으로 Snowflake 구매" },
+      { "from": "Snowflake", "to": "AWS·Microsoft Azure·Google Cloud", "what": "서버·저장소·AI 연산 이용료 (AWS 5년 60억 달러 약정)" },
+      { "from": "AI 기능 사용자 (CoCo·CoWork)", "to": "Snowflake", "what": "AI 질의·에이전트 실행에 쓰인 크레딧 사용량" }
+    ],
+    "pricing": "사용량 과금(consumption). 고객은 크레딧을 미리 약정하거나 쓴 만큼 내고, 매출은 실제 사용 시점에 인식된다. AI 기능도 같은 크레딧으로 과금된다.",
+    "text": "돈은 고객이 쓴 연산·저장 사용량만큼 들어오기 때문에, 계약 금액보다 '실제로 얼마나 쓰느냐'가 매출을 정한다. AI 기능도 같은 크레딧을 소비하므로 AI 활용이 늘면 데이터 처리량과 함께 매출이 늘어나는 구조이고, 회사는 AI가 전체 플랫폼 사용을 끌어올린다고 설명한다. 들어온 돈의 상당 부분은 다시 클라우드 3사에 인프라 비용으로 나간다.",
+    "src": ["s1", "s3", "s4"]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "revenue": { "value": 4.684, "unit": "USD bn", "yoy": 29.2 },
+    "grossMargin": null,
+    "operatingMargin": -30.6,
+    "netMargin": -28.4,
+    "operatingCashFlow": { "value": 1.222, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.12, "unit": "USD bn" },
+    "segments": [
+      { "name": "Product revenue", "revenue": 4.472, "unit": "USD bn", "share": 95.5, "yoy": 29, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Professional services and other (총매출 - 제품 매출로 계산)", "revenue": 0.212, "unit": "USD bn", "share": 4.5, "yoy": null, "operatingMargin": null, "src": ["s5", "s2"] }
+    ],
+    "industryMetric": [
+      { "name": "순매출유지율 (NRR)", "value": "125% (FY2026 말) → 126% (Q2 FY2027)", "src": ["s2", "s1"] },
+      { "name": "잔여 이행의무 (RPO)", "value": "97.7억 달러 (FY2026 말, +42%) → 90.0억 달러 (Q2 FY2027, +30%)", "src": ["s2", "s1"] },
+      { "name": "제품 총마진", "value": "FY2026 GAAP 72%, non-GAAP 76%; Q2 FY2027 GAAP 70.9%, non-GAAP 74.7%", "src": ["s2", "s1"] },
+      { "name": "최근 분기 (Q2 FY2027)", "value": "총매출 15.5억 달러(+35%), 제품 매출 14.919억(+37%), GAAP 영업손실 2.63억, non-GAAP 영업이익 2.37억(15.3%), 순손실 1.917억 달러", "src": ["s1", "s3"] },
+      { "name": "대형 고객", "value": "연 100만 달러 이상 828곳(+27%), Forbes G2000 829곳, 전체 14,554곳 (Q2 FY2027)", "src": ["s1", "s3"] }
+    ],
+    "text": "이 사용량 구조가 FY2026에 매출 46.8억 달러(+29%)를 만들었지만, 주식보상 비용이 커서 GAAP 영업손실이 14.4억 달러(영업이익률 약 -31%)였다. 그럼에도 현금은 남아 영업현금흐름 12.2억, 잉여현금흐름 11.2억 달러(마진 24%)를 기록했다. 최근 분기에는 제품 매출 성장률이 37%로 세 분기 연속 빨라졌고, non-GAAP 영업이익률도 15.3%로 올라왔다.",
+    "src": ["s2", "s1", "s5"]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "items": [
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "capex", "value": 0.102, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "label": "Observe·TensorStax 인수 (금액 미확인)", "value": null, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "other", "label": "AWS 5년 인프라 사용 약정 (2026-05, 비용 약정)", "value": 6, "unit": "USD bn", "src": ["s4"] }
+    ],
+    "text": "자체 공장이나 데이터센터가 없어 FY2026 설비투자는 약 1억 달러(영업현금흐름 - 잉여현금흐름)에 그친다. 대신 돈은 인력·연구개발과 인수(Observe·TensorStax), 그리고 클라우드 이용 약정으로 간다. AWS에 5년간 60억 달러를 약정한 것은 현금 지출 계획이 아니라 앞으로 쓸 인프라 비용을 미리 묶어 둔 것이지만, AI 수요를 크게 본다는 회사의 판단을 보여준다.",
+    "src": ["s2", "s4"]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 모델을 직접 만들지 않고, 기업 데이터가 모인 플랫폼 안에서 외부 모델을 붙여 분석·에이전트를 돌리게 해 주는 데이터·AI 플랫폼. AI가 쓸 '기업 데이터'를 쥐고 있는 자리다.",
+    "dependsOn": [
+      "cloud-infrastructure (AWS·Azure·Google Cloud 서버와 AI 연산)",
+      "models-platforms (Cortex에서 쓰는 외부 AI 모델)"
+    ],
+    "sellsTo": [
+      "ai-adopter (데이터로 AI 에이전트를 만드는 대기업)",
+      "데이터 분석·엔지니어링 조직"
+    ],
+    "aiRevenue": "AI 매출 금액은 공시되지 않음. CFO는 Q2 FY2027에 AI 매출이 의미 있게 늘었다고만 언급 (2026-09-02). CoCo 9,100개 이상, CoWork 5,800개 계정.",
+    "upside": "AI 질의와 에이전트 실행도 크레딧을 소비하므로, AI 활용이 늘면 데이터 처리량과 함께 사용료가 늘어난다. 회사는 시장 규모가 FY2026 2,250억 달러에서 FY2031 4,600억 달러로 커진다고 본다.",
+    "risk": "Databricks나 클라우드 3사의 자체 데이터·AI 서비스로 고객이 옮겨 갈 수 있고, AI 연산 원가가 오르면 제품 총마진이 눌린다(Q2 FY2027 GAAP 제품 총마진 70.9%로 FY2026 72%보다 낮음).",
+    "text": "그래서 AI 가치사슬에서 Snowflake는 클라우드 인프라 위에서 기업 데이터를 AI와 이어 주는 응용 플랫폼 층에 있다. AI 매출은 따로 공시되지 않지만, AI 기능이 같은 크레딧을 쓰기 때문에 제품 매출 성장률 재가속이 AI 효과를 간접적으로 보여준다. 동시에 AI 연산 비용이 원가에 바로 붙어 총마진이 소폭 내려간 것도 같은 숫자에서 읽힌다.",
+    "src": ["s1", "s2", "s3", "s4"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "클라우드 데이터 웨어하우스·레이크하우스", "rivals": ["Databricks", "Google BigQuery", "Amazon Redshift", "Microsoft Fabric"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "기업용 AI 에이전트·데이터 AI", "rivals": ["Databricks", "Microsoft", "Google", "Palantir"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "관측성 (Observe 인수 후)", "rivals": ["Datadog", "Splunk (Cisco)", "Palo Alto Networks (Chronosphere)"], "position": "niche", "share": null, "src": ["s2"] }
+    ],
+    "edge": "세 클라우드 어디서나 같은 플랫폼, 대기업 데이터가 이미 올라와 있다는 점, AI 기능을 같은 크레딧으로 바로 켤 수 있는 편의성.",
+    "threats": "Databricks의 오픈 포맷·AI 중심 공세와, 클라우드 3사가 자기 데이터 서비스를 묶어 싸게 파는 것. 점유율 수치는 이번 조사에서 확인하지 못했다.",
+    "text": "이 자리를 놓고 가장 직접 부딪치는 상대는 Databricks이고, 동시에 인프라를 빌려 주는 AWS·Microsoft·Google이 자기 데이터 서비스로 경쟁하는 '파트너이자 경쟁자' 구조다. Snowflake는 AWS와 대형 약정을 맺어 공동 판매를 넓히고, AI 에이전트 제품을 데이터 바로 옆에 두는 방식으로 맞선다. 점유율 대신 순매출유지율과 신규 고객 증가율이 경쟁 성과를 보여주는 숫자다.",
+    "src": ["s1", "s2", "s4"]
+  },
+  "strategy": {
+    "goal": "FY2027 제품 매출 60.7억 달러(+36%), non-GAAP 영업이익률 14.5%, 조정 FCF 마진 23%. 경영진은 FY2028 4분기 GAAP 흑자를 향해 가고 있다고 말했다. 시장 규모는 FY2031 4,600억 달러로 제시.",
+    "roadmap": [
+      { "when": "Q3 FY2027 (2026-10 분기)", "what": "제품 매출 15.88억~15.93억 달러(+37~38%), non-GAAP 영업이익률 15.5%", "src": ["s1"] },
+      { "when": "FY2027 (2027-01 종료)", "what": "제품 매출 60.7억 달러(+36%, 58.4억에서 상향), non-GAAP 제품 총마진 74%, 영업이익률 14.5%, 조정 FCF 마진 23%", "src": ["s1"] },
+      { "when": "2026~2031 (5년)", "what": "AWS Graviton 연산·AI에 60억 달러 사용 약정, AWS Marketplace 공동 판매 확대", "src": ["s4"] },
+      { "when": "Q4 FY2028", "what": "GAAP 흑자 전환 목표 (CEO 발언)", "src": ["s3"] }
+    ],
+    "vision": "기업 데이터가 있는 곳에서 AI 에이전트가 일하는 'AI 데이터 클라우드'를 만든다는 그림이다.",
+    "text": "경쟁에 대한 회사의 답은 AI 제품을 데이터 옆에 두고 AWS와 함께 판매를 넓히는 것이다. FY2027 제품 매출 가이던스를 연초 56.6억에서 60.7억 달러로 두 번 올렸고, FY2028 4분기에는 GAAP 흑자를 내겠다고 한다. 성장 재가속이 이어지는 동안 주식보상 비용을 얼마나 줄이느냐가 흑자 전환의 열쇠다.",
+    "src": ["s1", "s2", "s3", "s4"]
+  },
+  "governance": {
+    "line": "CEO Sridhar Ramaswamy와 CFO Brian Robins가 이끌며, GAAP 적자 상태에서 주식보상 비용이 큰 회사로 자사주 매입 규모는 이번 조사에서 확인하지 못했다.",
+    "src": ["s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "product revenue", "value": "15.88억~15.93억 달러 (+37~38%)", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "non-GAAP operating margin", "value": "15.5%", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "FY2027", "metric": "product revenue", "value": "60.7억 달러 (+36%)", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "FY2027", "metric": "non-GAAP operating margin / adjusted FCF margin", "value": "14.5% / 23.0%", "givenOn": "2026-09-02", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "FY2027 제품 매출 가이던스를 56.6억(2026-02-25) → 58.4억 → 60.7억 달러(2026-09-02)로 연속 상향했다.",
+    "src": ["s2", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 AIO 컨센서스 스냅샷(Nasdaq/Zacks): 향후 4개 분기 EPS 합계 -1.23달러(범위 -1.87~-0.39, 11개 추정), 직전 4개 분기 실적 합 -2.78달러로 손실 축소 방향. 최근 4주 상향·하향 0건. 피드의 회계 기준은 확인하지 못했다.",
+    "src": ["s6"]
+  },
+  "watch": {
+    "confirms": [
+      "제품 매출 성장률이 가이던스(37~38%) 수준을 유지",
+      "순매출유지율 126% 이상 유지 또는 상승",
+      "연 100만 달러 이상 고객 수 증가율 유지",
+      "AI 매출 금액이 처음 공시되거나 AI 계정 수가 계속 늘어남",
+      "GAAP 영업손실이 줄어들어 FY2028 흑자 경로를 따라감"
+    ],
+    "breaks": [
+      "제품 매출 성장률 둔화 (사용량 과금이라 고객 최적화에 바로 반응)",
+      "제품 총마진이 AI 연산 원가로 계속 하락",
+      "RPO 증가율이 매출 증가율보다 크게 낮아짐",
+      "Databricks·클라우드 3사로의 대형 고객 이탈 사례",
+      "AWS 약정 사용량이 수요보다 앞서 비용 부담으로 바뀜"
+    ],
+    "keyNumbers": [
+      { "name": "제품 매출 성장률", "why": "사용량 과금 회사의 실제 수요" },
+      { "name": "순매출유지율 (NRR)", "why": "기존 고객의 사용 확대 속도" },
+      { "name": "RPO", "why": "약정된 앞으로의 사용 금액" },
+      { "name": "제품 총마진", "why": "클라우드·AI 연산 원가 압력" },
+      { "name": "GAAP 영업이익률", "why": "주식보상을 포함한 실제 수익성" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 하순~12 초 (추정, 회사 미공지)", "event": "Q3 FY2027 실적 발표와 연간 가이던스 갱신", "src": [] },
+      { "date": "수시", "event": "AWS·Microsoft·Google 클라우드 실적과 데이터·AI 서비스 가격 변화", "src": [] }
+    ],
+    "reaction": "사용량 과금 회사라서 주가는 제품 매출 가이던스와 NRR에 크게 반응하는 경향이 있다. Q2 FY2027 발표 뒤에는 연간 가이던스 상향과 함께 시간외 거래에서 23% 넘게 올랐다는 보도가 있었다.",
+    "conditions": [
+      "실적 발표 때 제품 매출과 다음 분기 가이던스 범위 비교",
+      "NRR과 100만 달러 이상 고객 수 변화",
+      "제품 총마진 추이 (AI 연산 원가)",
+      "AI 관련 계정 수나 매출 공시 여부",
+      "GAAP 영업손실 축소 속도"
+    ]
+  },
+  "unverified": [
+    "FY2026 전체 총마진 (보도자료는 제품 총마진만 제시; grossMargin은 null)",
+    "전문 서비스 및 기타 매출 2.12억 달러는 SEC 총매출 46.84억 - 제품 매출 44.72억으로 계산",
+    "FY2026 R&D 비용, 자사주 매입 금액, Observe·TensorStax 인수 금액",
+    "설비투자 약 1.02억 달러는 영업현금흐름 - 잉여현금흐름으로 계산한 추정치",
+    "AI 매출 금액 (회사 미공시)",
+    "클라우드별(AWS·Azure·Google) 매출 비중",
+    "데이터 플랫폼 시장 점유율",
+    "AWS 60억 달러 약정 세부는 회사 공지 원문이 아닌 검색 요약에서 읽음",
+    "CRN Asia 기사(s3)의 날짜는 기사에 표시되지 않아 실적 발표일로 기재; CoWork 계정 수 5,800은 보도자료 기준(기사 표기 오타)",
+    "Q3 FY2027 실적 발표일",
+    "컨센서스 피드의 EPS 회계 기준"
+  ],
+  "confidence": "medium - 실적·가이던스·고객 지표는 회사 보도자료 재게시본에서 왔지만, 비용 항목·자사주·AI 매출·점유율은 확인하지 못했다."
+}

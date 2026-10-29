@@ -1,0 +1,252 @@
+{
+  "symbol": "CRWD",
+  "name": "CrowdStrike Holdings, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "January 31 (FY2026 ended 2026-01-31)",
+  "oneLine": "CrowdStrike는 PC·서버·클라우드·계정에 심은 하나의 Falcon 에이전트로 해킹을 막는 구독형 보안 회사로, AI 에이전트가 늘어날수록 지켜야 할 대상이 커진다는 주장으로 성장이 다시 빨라지고 있다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "CrowdStrike Reports Second Quarter Fiscal Year 2027 Financial Results (company release text reposted)",
+      "url": "https://finviz.com/news/385905/crowdstrike-reports-second-quarter-fiscal-year-2027-financial-results",
+      "publisher": "Finviz (CrowdStrike release text)",
+      "date": "2026-08-26"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "CrowdStrike Reports Fourth Quarter and Fiscal Year 2026 Financial Results (company release text reposted)",
+      "url": "https://www.01net.it/crowdstrike-reports-fourth-quarter-and-fiscal-year-2026-financial-results/",
+      "publisher": "01net (CrowdStrike release text)",
+      "date": "2026-03-03"
+    },
+    {
+      "id": "s3",
+      "kind": "call-transcript",
+      "title": "CRWD 2Q27 earnings call summary (partial; full transcript behind sign-up)",
+      "url": "https://transcripts.platformaeronaut.com/summaries/CRWD-2Q27-AI-Summary",
+      "publisher": "PlatformAeronaut",
+      "date": "2026-08-26"
+    },
+    {
+      "id": "s4",
+      "kind": "8-K",
+      "title": "CrowdStrike 8-K exhibit announcing four-for-one stock split (read from search summary; sec.gov page not fetched)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001535527/000153552726000022/crwd-20260603xex991.htm",
+      "publisher": "CrowdStrike / SEC EDGAR",
+      "date": "2026-06-03"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local SEC companyfacts snapshot (public-data/sec-fundamentals.json), 10-K FY ended 2026-01-31, accession 0001535527-26-000010",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001535527.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-03-05"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/crwd/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "하나의 경량 Falcon 에이전트와 클라우드 플랫폼 - 엔드포인트·클라우드·ID·SIEM·노출관리·AI 보안 모듈을 같은 데이터 위에 추가",
+      "모듈을 늘릴수록 쓰는 구조 - 구독 고객의 51%가 6개 이상, 26%가 8개 이상 모듈 사용 (Q2 FY2027)",
+      "Falcon Flex 약정형 구매 - Flex 채택 고객의 ARR 22.9억 달러, 전년 대비 +101%",
+      "수많은 기기에서 모이는 위협 데이터와 AI 탐지 (AIDR 등 AI 보안 제품으로 확장)"
+    ],
+    "text": "CrowdStrike의 힘은 고객 기기에 한 번 심은 Falcon 에이전트 위에 새 보안 기능을 모듈로 계속 얹을 수 있다는 데서 나온다. 구독 고객 절반 이상이 6개 이상 모듈을 쓰고 있어, 보안 담당자 입장에서는 여러 회사 제품을 섞는 것보다 한 플랫폼을 넓혀 쓰는 편이 쉽다. 여기에 미리 금액을 약정하고 모듈을 자유롭게 꺼내 쓰는 Falcon Flex가 붙으면서, 한 번 들어간 고객이 쓰는 금액이 빠르게 늘어나는 구조가 만들어졌다.",
+    "src": ["s1", "s2"]
+  },
+  "design": {
+    "text": "이 플랫폼 위에서 회사가 파는 것은 엔드포인트 보호에서 출발해 클라우드 보안, ID(계정) 보호, 차세대 SIEM, 노출 관리, 그리고 AI 탐지·대응(Falcon AIDR)까지 넓어졌다. 최근에는 사람·기계·AI 에이전트의 계정을 계속 검증하는 Continuous Identity for AI Agents를 내놨고, XM Cyber 기술 자산 인수에 합의했다. 매출은 구독과 전문 서비스(사고 대응·컨설팅) 두 줄로 보고된다.",
+    "src": ["s1", "s2"]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "AWS - 클라우드·차세대 SIEM 공동 개발, Project QuiltWorks 확장 (Q2 FY2027 발표)",
+      "Cerebras Systems - AI 추론 협업",
+      "Databricks·Google Cloud·Microsoft Azure·Kong·LiteLLM 등 - Falcon AIDR가 연결되는 AI 게이트웨이 파트너",
+      "Schwarz Digits - 파트너십 확대 (유럽)"
+    ],
+    "text": "CrowdStrike는 공장 없이 소프트웨어와 클라우드 서비스로 제품을 만든다. 탐지 데이터를 처리하는 클라우드 인프라와 AI 연산은 AWS 같은 클라우드 파트너, Cerebras 같은 AI 칩 회사와의 협업에 기대며, AI 보안 제품은 Databricks·Google Cloud·Azure 등 AI 게이트웨이에 붙는 방식으로 퍼진다. 원가 대부분이 클라우드 운영비라서 구독 총마진은 GAAP 78%, non-GAAP 81% 수준에서 움직인다.",
+    "src": ["s1", "s2"]
+  },
+  "sell": {
+    "customers": [
+      "기업·정부의 보안 조직 (CISO) - 구독 고객 중심",
+      "Falcon Flex 약정 고객 - 이 고객들의 ARR 22.9억 달러 (2026-07-31)",
+      "AI 모델·에이전트를 도입하는 기업 - AIDR·AI 에이전트 ID 보호 수요"
+    ],
+    "channel": "직접 영업과 파트너(클라우드 마켓플레이스·리셀러·보안 서비스 업체)를 함께 쓴다. 채널별 비중은 이번 조사에서 확인하지 못했다.",
+    "concentration": "주요 고객 집중 공시는 이번 조사에서 확인하지 못함 (null).",
+    "text": "이렇게 만든 플랫폼은 기업과 정부의 보안 조직에 연간 구독으로 팔린다. 최근 성장의 중심은 금액을 미리 약정하고 모듈을 골라 쓰는 Falcon Flex 고객으로, 이들의 ARR이 1년 만에 두 배가 됐다. AI 에이전트를 들이는 기업이 늘면서 AI 탐지·대응과 에이전트 계정 보호가 새 판매 품목으로 붙고 있다.",
+    "src": ["s1", "s3"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업·정부 보안 조직", "to": "CrowdStrike (직접 또는 리셀러·클라우드 마켓플레이스 경유)", "what": "Falcon 모듈 연간 구독료 (기기·사용자·데이터량 기준)" },
+      { "from": "Falcon Flex 고객", "to": "CrowdStrike", "what": "다년 약정 금액을 미리 정하고 필요한 모듈을 꺼내 쓰는 약정형 구독" },
+      { "from": "AI를 도입하는 기업", "to": "CrowdStrike", "what": "Falcon AIDR 등 AI 보안 사용료 (토큰 기반 과금 언급)" },
+      { "from": "사고를 겪은 고객", "to": "CrowdStrike Services", "what": "사고 대응·컨설팅 전문 서비스 수수료" },
+      { "from": "CrowdStrike", "to": "AWS 등 클라우드·AI 연산 파트너", "what": "탐지 데이터 처리와 AI 연산 비용" }
+    ],
+    "pricing": "구독이 매출의 약 95%. 모듈별 구독과 Falcon Flex 약정형 구독이 중심이며, AI 보안(AIDR)은 토큰 기반 과금이 소개됐다. 전문 서비스는 건별 수수료.",
+    "text": "돈은 보안 조직이 내는 연간 구독료로 들어오고, 그 크기는 회사가 핵심 지표로 쓰는 ARR(연간 반복 매출)로 먼저 잡힌다. Flex 약정이 커질수록 고객은 추가 계약 없이 모듈을 늘리므로, ARR 증가가 매출 증가보다 먼저 나타난다. 들어온 돈의 상당 부분은 다시 클라우드·AI 연산 비용으로 나간다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "revenue": { "value": 4.812, "unit": "USD bn", "yoy": 22 },
+    "grossMargin": 74.7,
+    "operatingMargin": -6.1,
+    "netMargin": -3.4,
+    "operatingCashFlow": { "value": 1.61, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.24, "unit": "USD bn" },
+    "segments": [
+      { "name": "Subscription", "revenue": 4.565, "unit": "USD bn", "share": 94.9, "yoy": 21, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Professional services", "revenue": 0.247, "unit": "USD bn", "share": 5.1, "yoy": 28.7, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "ARR / 순증 ARR", "value": "FY2026 말 ARR 52.5억 달러(+24%), 연간 순증 ARR 10.1억 달러; Q2 FY2027 말 ARR 58.4억 달러(+25%), 분기 순증 ARR 3.328억 달러(+51%, 분기 최대)", "src": ["s2", "s1", "s3"] },
+      { "name": "Falcon Flex 채택 고객 ARR", "value": "16.9억 달러 (FY2026 말, +120% 이상) → 22.9억 달러 (Q2 FY2027, +101%)", "src": ["s2", "s1"] },
+      { "name": "구독 총마진", "value": "GAAP 78%, non-GAAP 81% (FY2026·Q2 FY2027)", "src": ["s2", "s1"] },
+      { "name": "최근 분기 (Q2 FY2027)", "value": "매출 14.71억 달러(+26%), GAAP 영업손실 0.33억 달러, non-GAAP 영업이익 3.716억 달러, 영업현금흐름 5.303억·잉여현금흐름 3.774억 달러", "src": ["s1"] },
+      { "name": "모듈 채택", "value": "구독 고객 중 6개 이상 51%, 7개 이상 35%, 8개 이상 26% (Q2 FY2027)", "src": ["s1"] }
+    ],
+    "text": "이 구독 구조가 FY2026에 매출 48.1억 달러를 만들었지만, 주식보상 비용 등이 반영된 GAAP 기준으로는 영업손실 2.93억 달러(영업이익률 약 -6%)였다. 반면 현금은 많이 남아 영업현금흐름 16.1억, 잉여현금흐름 12.4억 달러(매출의 약 26%)를 기록했다. 최근 분기(Q2 FY2027)에는 GAAP 순이익이 530만 달러로 흑자 전환했고, 순증 ARR이 전년 대비 51% 늘어 성장 재가속이 숫자로 확인됐다.",
+    "src": ["s2", "s1", "s5"]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "items": [
+      { "use": "R&D", "value": 1.385, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.37, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "buybacks", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "번 현금의 가장 큰 쓰임은 R&D로, FY2026 연구개발비가 13.8억 달러로 매출의 약 29%였다. 설비투자(장비·자체 개발 소프트웨어 자본화)는 영업현금흐름과 잉여현금흐름의 차이로 약 3.7억 달러로 추정된다. 자사주 매입은 연도 말 이후 약 5,060만 달러 규모만 확인돼, 주주환원보다 제품 확장과 인수(XM Cyber 기술 자산 등)에 무게를 두는 단계로 읽힌다.",
+    "src": ["s2", "s1"]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 인프라를 직접 만들지 않고, AI를 도입하는 기업의 기기·클라우드·계정·AI 모델과 에이전트를 지키는 보안 소프트웨어를 판다. 동시에 자체 탐지에도 AI를 쓴다.",
+    "dependsOn": [
+      "cloud-infrastructure (AWS 등 클라우드 파트너)",
+      "chips-compute (Cerebras 등 AI 추론 연산 협업)",
+      "models-platforms·AI 게이트웨이 (Databricks, Google Cloud, Azure, Kong, LiteLLM 등과 AIDR 연동)"
+    ],
+    "sellsTo": [
+      "ai-adopter (AI 모델·에이전트를 들이는 기업과 정부)",
+      "모든 산업의 기업 보안 조직"
+    ],
+    "aiRevenue": "AI 보안 매출 금액은 공시되지 않음. Q2 FY2027 콜 요약에 따르면 AIDR ending ARR이 직전 분기 대비 약 3배로 늘었다는 언급이 있으나 금액은 미공시 (2026-08-26).",
+    "upside": "기업이 AI 에이전트를 많이 쓸수록 보호할 계정(사람·기계·에이전트)과 공격 표면이 늘어나 모듈 판매와 Flex 약정이 커진다. 경영진은 AI 보안을 회사 역사상 가장 큰 시장 기회라고 표현했다.",
+    "risk": "Microsoft처럼 운영체제·클라우드를 가진 회사가 AI 보안을 묶음으로 제공하면 가격 압박이 생길 수 있고, AI가 보안 운영 인력을 줄이면 좌석 기반 수요가 바뀔 수 있다. 대규모 서비스 장애 같은 품질 사고는 신뢰를 직접 흔든다.",
+    "text": "그래서 AI 가치사슬에서 CrowdStrike는 맨 아래 칩이나 클라우드가 아니라, AI를 도입하는 기업을 지키는 응용 소프트웨어 층에 있다. AI가 늘수록 지켜야 할 계정과 데이터가 늘어난다는 논리로 AIDR과 에이전트 ID 보호를 팔고 있지만, AI 보안 매출 자체는 아직 따로 공시되지 않는다. 결국 AI 효과는 순증 ARR과 Flex 채택 속도로 간접 확인해야 한다.",
+    "src": ["s1", "s3"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "엔드포인트 보호 (EDR/XDR)", "rivals": ["Microsoft Defender", "SentinelOne", "Palo Alto Networks Cortex", "Trend Micro"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "클라우드 보안 (CNAPP)", "rivals": ["Palo Alto Networks Prisma Cloud", "Wiz (Google)", "Microsoft"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "ID 보안", "rivals": ["Microsoft Entra", "Okta", "Palo Alto Networks (CyberArk)"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "차세대 SIEM·보안 운영", "rivals": ["Splunk (Cisco)", "Palo Alto Networks XSIAM", "Microsoft Sentinel", "Google SecOps"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "AI 보안 (모델·에이전트 보호)", "rivals": ["Palo Alto Networks Prisma AIRS", "Microsoft", "신생 AI 보안 업체"], "position": "challenger", "share": null, "src": ["s1", "s3"] }
+    ],
+    "edge": "에이전트 하나로 여러 모듈을 얹는 단일 플랫폼, Flex 약정으로 쉬워진 추가 구매, 그리고 AI 게이트웨이·클라우드 파트너와의 연동 속도.",
+    "threats": "Microsoft의 묶음 판매와 Palo Alto Networks의 대형 인수(CyberArk 등)를 앞세운 플랫폼 통합 경쟁. 경쟁사 이름과 점유율 수치는 이번 조사에서 1차 자료로 확인하지 못했다.",
+    "text": "이 자리를 놓고 엔드포인트에서는 Microsoft·SentinelOne과, 클라우드·ID·SIEM에서는 Palo Alto Networks·Microsoft·Google과 겨룬다. 경쟁 구도는 '누가 더 많은 보안 기능을 한 플랫폼에 묶느냐'로 바뀌고 있어, CrowdStrike는 Flex 약정과 모듈 확장으로, Palo Alto는 대형 인수로 같은 목표를 쫓는다. 점유율 수치는 확인하지 못해 순증 ARR 속도를 대신 보는 것이 현실적이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "strategy": {
+    "goal": "FY2036까지 ending ARR 200억 달러 (FY2026 말 52.5억 달러 기준). FY2027 순증 ARR +34%(중간값), 잉여현금흐름 마진 최소 30%.",
+    "roadmap": [
+      { "when": "Q3 FY2027 (2026-10 분기)", "what": "ARR 61.84억~61.88억 달러, 순증 ARR 3.43억~3.47억 달러, 매출 15.23억~15.29억 달러 가이던스", "src": ["s1", "s3"] },
+      { "when": "FY2027 (2027-01 종료)", "what": "ARR 66.03억~66.12억 달러, 순증 ARR 13.5억~13.59억 달러, 매출 59.91억~60.11억 달러, FCF 마진 30% 이상", "src": ["s1", "s3"] },
+      { "when": "2026 H2", "what": "XM Cyber 기술 자산 인수, AI 에이전트 계정 보호(Continuous Identity) 확대, AIDR의 AI 게이트웨이 연동 확대", "src": ["s1"] },
+      { "when": "FY2036", "what": "ending ARR 200억 달러 목표", "src": ["s2"] }
+    ],
+    "vision": "AI 시대의 보안을 GPU·에이전트·프롬프트 층까지 한 플랫폼에서 지키는 회사가 되겠다는 그림을 제시한다.",
+    "text": "경쟁에 대한 회사의 답은 모듈을 계속 늘리고 AI 보안으로 영역을 넓히는 것이다. 단기로는 FY2027 순증 ARR 34% 성장과 FCF 마진 30% 이상을, 장기로는 FY2036 ARR 200억 달러(현재의 약 4배)를 제시했다. 이 목표가 맞으려면 Flex 고객 확대와 AI 보안 신제품이 꾸준히 순증 ARR을 키워야 한다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "governance": {
+    "line": "CEO George Kurtz와 CFO Burt Podbere가 이끌며, 2026-07-02부터 4대1 주식분할이 반영됐고 자사주 매입은 소규모(연도 말 이후 약 5,060만 달러)에 그쳐 현금은 주로 성장 투자에 쓴다.",
+    "src": ["s3", "s4", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "revenue", "value": "15.232억~15.292억 달러 (+23~24%)", "givenOn": "2026-08-26", "src": ["s1", "s3"] },
+      { "period": "Q3 FY2027", "metric": "net new ARR", "value": "3.43억~3.47억 달러 (+29~31%)", "givenOn": "2026-08-26", "src": ["s3"] },
+      { "period": "FY2027", "metric": "revenue", "value": "59.911억~60.111억 달러", "givenOn": "2026-08-26", "src": ["s1"] },
+      { "period": "FY2027", "metric": "net new ARR growth", "value": "+34% (중간값, 630bp 상향)", "givenOn": "2026-08-26", "src": ["s1"] },
+      { "period": "FY2027", "metric": "non-GAAP diluted EPS", "value": "1.25~1.26달러 (분할 후 기준)", "givenOn": "2026-08-26", "src": ["s1"] },
+      { "period": "FY2027", "metric": "free cash flow margin", "value": "30% 이상", "givenOn": "2026-08-26", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "track": "FY2027 매출 가이던스를 처음 58.676억~59.276억 달러(2026-03-03)에서 59.911억~60.111억 달러(2026-08-26)로 올렸고, Q2 순증 ARR은 가이던스 상단을 4,500만 달러 이상 넘었다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 AIO 컨센서스 스냅샷(Nasdaq/Zacks): 향후 4개 분기 EPS 합계 0.08달러(범위 -0.01~0.28, 13개 추정), 직전 4개 분기 실적 합 0.11달러. 직전 분기 실적 0.01달러가 GAAP EPS와 같아 이 피드는 GAAP 기준으로 보인다. 최근 4주 상향·하향 0건.",
+    "src": ["s6", "s1"]
+  },
+  "watch": {
+    "confirms": [
+      "순증 ARR이 FY2027 가이던스(13.5억 달러 이상)를 따라가거나 넘음",
+      "Falcon Flex 채택 고객 ARR 증가율이 높은 수준 유지",
+      "6·7·8개 이상 모듈 채택 비율이 계속 오름",
+      "GAAP 영업이익 흑자 전환",
+      "AI 보안(AIDR) 관련 수치가 처음으로 공시됨"
+    ],
+    "breaks": [
+      "순증 ARR 증가율이 다시 꺾임",
+      "Flex 약정 고객의 실제 사용(소진)이 약정에 못 미쳐 갱신 금액 축소",
+      "Microsoft·Palo Alto의 묶음 판매로 가격 인하 압력 언급 증가",
+      "대규모 서비스 장애 등 신뢰 사고 재발",
+      "FCF 마진이 30% 가이던스를 밑돔"
+    ],
+    "keyNumbers": [
+      { "name": "순증 ARR", "why": "회사가 성장 속도를 가장 직접 보여주는 숫자" },
+      { "name": "ending ARR", "why": "다음 해 매출의 바닥" },
+      { "name": "Falcon Flex 고객 ARR", "why": "플랫폼 확장 전략의 성과" },
+      { "name": "구독 총마진", "why": "클라우드·AI 연산 원가 압력 확인" },
+      { "name": "잉여현금흐름 마진", "why": "GAAP 적자와 현금 창출의 차이를 보여줌" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 하순~12 초 (추정, 회사 미공지)", "event": "Q3 FY2027 실적 발표와 Q4 가이던스", "src": [] },
+      { "date": "수시", "event": "Microsoft·Palo Alto Networks 보안 제품 발표와 가격 정책", "src": [] }
+    ],
+    "reaction": "주가는 매출보다 순증 ARR과 다음 분기 순증 ARR 가이던스에 크게 반응하는 경향이 있다. 이번 FY2027은 순증 ARR 성장률 가이던스를 이미 34%로 올려 둔 상태라, 하반기 실적이 그 높아진 기준을 넘는지가 관심사다.",
+    "conditions": [
+      "실적 발표 때 분기 순증 ARR과 가이던스 범위 비교",
+      "FY2027 순증 ARR 성장률 가이던스 유지·상향 여부",
+      "Falcon Flex 고객 ARR 증가율",
+      "GAAP 영업손익과 FCF 마진",
+      "AI 보안 제품 관련 공시 수치 등장 여부"
+    ]
+  },
+  "unverified": [
+    "FY2026 자사주 매입 금액과 인수 현금 지출 (10-K 현금흐름표 미열람; 연도 말 이후 약 5,060만 달러 매입만 확인)",
+    "FY2026 설비투자 약 3.7억 달러는 영업현금흐름 16.1억 - 잉여현금흐름 12.4억으로 계산한 추정치",
+    "엔드포인트·클라우드·ID·SIEM 시장 점유율 (1차·신뢰할 만한 최신 수치 미확인)",
+    "주요 고객 집중도, 채널별 매출 비중, 지역별 매출",
+    "AI 보안(AIDR) ARR 금액 - 콜 요약의 '직전 분기 대비 약 3배'는 2차 요약",
+    "제품별 ARR (차세대 SIEM, 클라우드, ID)",
+    "주식분할 일정(2026-07-02 분할 반영 거래)은 SEC 8-K 원문을 열지 못하고 검색 요약으로 확인",
+    "Q3 FY2027 실적 발표일",
+    "경쟁사 목록은 업계 일반 구도를 정리한 것이며 회사 10-K 경쟁사 목록과 대조하지 않음",
+    "컨센서스 피드의 EPS 회계 기준 (GAAP로 추정)"
+  ],
+  "confidence": "medium - 실적·ARR·가이던스는 회사 보도자료 원문(재게시본)에서 왔지만, 10-K 현금흐름표·경쟁 점유율·AI 매출은 확인하지 못했다."
+}

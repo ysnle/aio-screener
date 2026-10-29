@@ -366,7 +366,7 @@ assert(!source.includes('function _aioChatAbortPromise('));
 // v57.60: suggestion chips (KR theme buttons, follow-up chips) go through the unified AI panel; the retired per-page
 // #chat-<ctx>-inp lookup (P1653) only produced a missing-input toast.
 {
-  const chip = section('function chatFromChip(ctxId, q) {', '// v29.1:');
+  const chip = section('function chatFromChip(ctxId, q) {', 'function _aioWhenDomReady(fn)');
   assert(chip.includes("getElementById('ai-panel-inp')") && chip.includes('chatSendUnified()') && !chip.includes("'chat-' + ctxId + '-inp'") && !/\bchatSend\(ctxId/.test(chip), 'v57.60 chatFromChip routes to the unified AI panel');
 }
 assert(source.includes('function _aioCanonicalSuppliedMaterialsContext(') && source.includes('var canonicalRegistry = window.AIO && window.AIO.SUPPLIED_MATERIALS_REFERENCE;'));

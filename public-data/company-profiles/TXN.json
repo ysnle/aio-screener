@@ -1,0 +1,208 @@
+{
+  "symbol": "TXN",
+  "name": "Texas Instruments Incorporated",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Texas Instruments는 전원·신호를 다루는 아날로그 칩과 마이크로컨트롤러를 자체 300mm 공장에서 직접 만들어 10만 곳 넘는 고객에게 파는 회사로, 6년 대규모 설비투자를 끝내고 산업·자동차·데이터센터 회복으로 현금이 다시 불어나는 국면에 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "TI reports Q3 2026 financial results and shareholder returns (8-K Exhibit 99)", "url": "https://www.sec.gov/Archives/edgar/data/97476/000009747626000165/q32026txnex99-eredgar.htm", "publisher": "Texas Instruments / SEC EDGAR", "date": "2026-10-21" },
+    { "id": "s2", "kind": "8-K", "title": "TI reports Q4 2025 and 2025 financial results and shareholder returns (8-K Exhibit 99)", "url": "https://www.sec.gov/Archives/edgar/data/97476/000009747626000003/q42025txnex99-eredgar.htm", "publisher": "Texas Instruments / SEC EDGAR", "date": "2026-01-27" },
+    { "id": "s3", "kind": "10-K", "title": "Texas Instruments Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/97476/000009747626000059/txn-20251231.htm", "publisher": "Texas Instruments / SEC EDGAR", "date": "2026-02-06" },
+    { "id": "s4", "kind": "8-K", "title": "TI reports Q2 2026 financial results and shareholder returns (8-K Exhibit 99)", "url": "https://www.sec.gov/Archives/edgar/data/97476/000009747626000148/q22026txnex99-eredgar.htm", "publisher": "Texas Instruments / SEC EDGAR", "date": "2026-07-22" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/txn/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s6", "kind": "call-transcript", "title": "Texas Instruments Q3 2026 earnings call transcript (third-party transcript page)", "url": "https://www.earningswhispers.com/transcript/TXN/Q32026", "publisher": "Earnings Whispers", "date": "2026-10-21" },
+    { "id": "s7", "kind": "8-K", "title": "TI board names Haviv Ilan chairman effective January 2026 as Rich Templeton retires (8-K Exhibit 99)", "url": "https://www.sec.gov/Archives/edgar/data/97476/000095010325013275/dp235861_ex99.htm", "publisher": "Texas Instruments / SEC EDGAR", "date": "2025-10-16" }
+  ],
+  "moat": {
+    "sources": [
+      "자체 300mm 웨이퍼 공장 - 300mm 웨이퍼의 미포장 칩 원가가 200mm보다 약 40% 낮다 (10-K)",
+      "8만 개가 넘는 제품과 10만 곳이 넘는 고객 - 한 제품·한 고객 의존이 낮고 제품 수명이 길다",
+      "매출 80% 이상을 TI.com 포함 직접 판매 - 고객 관계와 수요 정보를 직접 쥔다",
+      "자체 생산 비중이 높아 공급 부족기에도 물량을 낼 수 있는 생산능력 (대부분의 웨이퍼·조립·테스트 내부 처리)"
+    ],
+    "text": "TI의 힘은 공장에 있다. 다른 아날로그 회사들이 외부 파운드리나 200mm 공장을 쓸 때 TI는 300mm 공장을 직접 지어 칩 원가를 약 40% 낮췄고, 이 원가 우위로 8만 개가 넘는 제품을 10만 곳 넘는 고객에게 오래 공급한다. 고객의 80% 이상과 직접 거래해 수요를 먼저 보는 것도 강점이다.",
+    "src": ["s3"]
+  },
+  "design": {
+    "text": "이런 공장에서 만드는 제품은 두 사업부로 보고된다. Analog는 전원 관리(전압 변환·배터리·모터 구동)와 신호 처리(증폭기·데이터 변환기·인터페이스) 칩이고, Embedded Processing은 마이크로컨트롤러와 프로세서다. 나머지 Other에는 DLP 프로젝션 칩, 계산기, ASIC 등이 들어간다.",
+    "src": ["s3", "s2"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 300mm 공장 - 텍사스 Richardson·Sherman, 유타 Lehi",
+      "북미·아시아·일본·유럽의 자체 웨이퍼 공장과 조립·테스트 공장",
+      "외부 파운드리·조립 업체 - 일부만 사용, 10-K에 업체명 미기재",
+      "미국 정부 CHIPS Act - Sherman·Lehi 300mm 공장 3곳에 최대 16억 달러 직접 지원, 투자세액공제 35%"
+    ],
+    "text": "TI는 설계한 칩을 대부분 직접 만드는 종합반도체 회사다. 2025년 웨이퍼 생산·조립·테스트의 대부분을 내부에서 했고, 텍사스 Richardson·Sherman과 유타 Lehi의 300mm 공장이 중심이다. 미국 CHIPS Act로 최대 16억 달러 지원과 35% 투자세액공제를 받으며, 6년간 이어진 대규모 설비투자가 거의 끝나 2026년 설비투자는 20억~30억 달러로 줄어든다.",
+    "src": ["s3"]
+  },
+  "sell": {
+    "customers": [
+      "산업 장비 (2025 매출의 33%)",
+      "자동차 (33%)",
+      "개인 전자기기 (21%)",
+      "데이터센터 - 서버 연산·네트워킹·랙 전원·열관리 (9%)",
+      "통신 장비 (3%), 계산기 (약 1%)"
+    ],
+    "channel": "2025 매출의 80% 이상이 TI.com을 포함한 직접 판매, 20% 미만이 유통사 경유.",
+    "concentration": "최종 고객 1곳이 2025·2024년 각각 매출의 12% (주로 Analog). 지역별로는 미국 38%, 중국 21%, EMEA 21%, 기타 아시아 11%, 일본 7% (2025).",
+    "text": "만든 칩은 산업(33%)과 자동차(33%)에 가장 많이 팔리고, 데이터센터는 9%로 아직 작지만 회사가 성장 시장으로 꼽는다. 80% 이상을 직접 팔기 때문에 유통 재고에 휘둘리는 정도가 덜하고, 최대 고객 한 곳이 12%를 차지한다. 매출의 21%가 중국에서 나와 미중 관계도 변수다.",
+    "src": ["s3"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "공장·자동차·가전·데이터센터 최종 사용자", "to": "산업 장비·자동차·전자기기·서버 제조사", "what": "완제품 구매 대금" },
+      { "from": "장비·자동차·전자기기 제조사", "to": "TI (TI.com·직접 판매, 매출의 80% 이상)", "what": "아날로그·임베디드 칩 대금 (개당, 소량 다품종)" },
+      { "from": "장비 제조사 (소량 구매)", "to": "유통사 → TI", "what": "유통사 경유 칩 대금 (매출의 20% 미만)" },
+      { "from": "미국 정부", "to": "TI", "what": "CHIPS Act 직접 지원금(2025년 3.35억 달러 수령)과 투자세액공제" }
+    ],
+    "pricing": "칩 개당 판매. 제품 수가 많고 단가가 낮으며 수명이 길다. 자체 공장 원가가 낮아 가동률이 오르면 마진이 크게 오른다.",
+    "text": "돈은 공장·자동차·가전 수요에서 출발해 장비 제조사가 TI 칩을 살 때 들어오고, 그 대부분이 중간 유통 없이 TI로 직접 들어온다. 자체 공장을 쓰는 만큼 매출이 늘면 고정비가 분산돼 이익이 매출보다 훨씬 빨리 는다. 여기에 미국 정부의 CHIPS Act 지원금과 세액공제가 설비투자 부담을 덜어 준다.",
+    "src": ["s3", "s2"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 17.682, "unit": "USD bn", "yoy": 13 },
+    "grossMargin": 57.0,
+    "operatingMargin": 34.1,
+    "netMargin": 28.3,
+    "operatingCashFlow": { "value": 7.153, "unit": "USD bn" },
+    "freeCashFlow": { "value": 2.938, "unit": "USD bn" },
+    "segments": [
+      { "name": "Analog", "revenue": 14.006, "unit": "USD bn", "share": 79.2, "yoy": 15, "operatingMargin": 38.6, "src": ["s2"] },
+      { "name": "Embedded Processing", "revenue": 2.697, "unit": "USD bn", "share": 15.3, "yoy": 6, "operatingMargin": 11.3, "src": ["s2"] },
+      { "name": "Other", "revenue": 0.979, "unit": "USD bn", "share": 5.5, "yoy": 3, "operatingMargin": 31.4, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q3 2026) 매출·마진", "value": "매출 60.6억 달러(전년 대비 +28%, 전 분기 대비 +11%), 총마진 약 64.2%, 영업이익률 약 47.5% (보도자료 금액으로 계산)", "src": ["s1"] },
+      { "name": "Q3 2026 사업부별", "value": "Analog 49.1억(+32%, 영업이익 25.1억), Embedded 8.6억(+21%, 영업이익 2.3억), Other 2.9억(-6%)", "src": ["s1"] },
+      { "name": "최근 12개월 잉여현금흐름", "value": "84.2억 달러 (영업현금흐름 99.0억 - 설비투자 25.8억), 2026-09-30 기준", "src": ["s1"] },
+      { "name": "최종 시장 비중 (2025)", "value": "산업 33%, 자동차 33%, 개인 전자기기 21%, 데이터센터 9%, 통신 3%", "src": ["s3"] },
+      { "name": "Q3 2026 시장별 성장 (콜 발언)", "value": "데이터센터 전년 대비 약 +95%·전 분기 대비 약 +20%로 분기 매출의 약 13%, 산업 +40% 이상, 자동차 10%대 중반 성장", "src": ["s6"] },
+      { "name": "재고 (2026-09-30)", "value": "47억 달러, 재고일수 194일 (콜 발언)", "src": ["s6"] }
+    ],
+    "text": "이 구조가 FY2025에 매출 177억 달러(+13%), 영업이익률 34%로 나타났고, 이익의 거의 전부(영업이익 54억 달러)가 Analog에서 나온다. 잉여현금흐름이 29억 달러로 작았던 것은 설비투자 46억 달러 때문이다. 2026년 Q3에는 매출이 28% 늘고 설비투자가 줄면서 영업이익률 약 47%, 최근 12개월 잉여현금흐름 84억 달러로 공장 투자의 효과가 숫자로 나오기 시작했다.",
+    "src": ["s2", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 2.083, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 4.55, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 4.999, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 1.477, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "FY2025에는 설비투자 46억 달러와 배당 50억 달러가 현금 쓰임의 두 축이었고, 잉여현금흐름(29억)보다 많은 돈을 배당·자사주(합계 65억)로 돌려줘 부족분은 차입·보유현금에 기댔다. 2026년에는 설비투자가 20억~30억 달러로 줄어 최근 12개월 잉여현금흐름이 84억 달러로 늘었고, 배당(52억)을 충분히 감당하게 됐다. 자사주 매입 한도는 2025-12-31 기준 188억 달러가 남아 있다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI 서버와 랙에 들어가는 전원 변환·관리, 열관리, 네트워킹용 아날로그 칩 공급자. AI 연산 칩 자체가 아니라 그 칩에 전기를 안정적으로 공급하고 신호를 주고받게 하는 주변 부품을 만든다.",
+    "dependsOn": [
+      "자체 300mm 공장 (외부 파운드리 의존 낮음)",
+      "semicap-foundry (웨이퍼 장비 공급사)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (서버·랙 제조사를 통한 데이터센터 전원·네트워킹)",
+      "ai-adopter (산업 자동화·로봇)",
+      "devices (자동차·개인 전자기기)"
+    ],
+    "aiRevenue": "데이터센터 시장이 2025 매출의 9% (약 16억 달러로 계산), Q3 2026에는 분기 매출의 약 13%로 전년 대비 약 95% 성장 (콜 발언). AI 전용 매출은 별도 공시 없음",
+    "upside": "AI 랙의 전력이 커질수록 전압 변환·전원 관리 칩 수요가 늘고, 회사는 데이터센터 반도체 성장이 이어질 것으로 본다. CEO는 Q3 2026 성장을 산업·자동차·데이터센터의 고른 성장으로 설명했다.",
+    "risk": "AI 비중이 작아 AI 투자 사이클의 수혜가 제한적이고, 데이터센터 전원 칩 시장에는 경쟁자가 많다. 주력 시장인 산업·자동차가 꺾이면 AI 성장이 그 하락을 메우기 어렵다.",
+    "text": "그래서 AI 가치사슬에서 TI는 연산의 중심이 아니라 AI 서버에 전원과 신호를 공급하는 주변부에 있고, 2025년 9%였던 데이터센터 비중이 Q3 2026에는 약 13%로 올라왔다. 실적의 방향은 여전히 산업·자동차 경기가 정하지만, AI는 가장 빨리 크는 추가 성장 동력이 됐다.",
+    "src": ["s3", "s1", "s6"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "아날로그 (전원 관리·신호 처리)", "rivals": ["Analog Devices", "Infineon", "STMicroelectronics", "NXP", "Microchip", "중국 아날로그 업체"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "마이크로컨트롤러·임베디드 프로세서", "rivals": ["NXP", "Renesas", "STMicroelectronics", "Microchip", "Infineon"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "데이터센터 전원", "rivals": ["Infineon", "Monolithic Power Systems", "Analog Devices", "Renesas"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "300mm 자체 공장의 원가 우위와 공급 능력, 8만 개 제품 폭, 80% 이상의 직접 고객 관계.",
+    "threats": "중국 업체의 저가 공세(중국 매출 21%), 경쟁사의 가격 인하, 데이터센터 전원 같은 고성장 영역의 전문 업체들.",
+    "text": "10-K는 경쟁사를 '수십 개의 크고 작은 회사, 아시아의 신흥 업체 포함'이라고만 쓴다. TI는 원가와 공급 능력으로 넓은 아날로그 시장을 지키는 반면, 마이크로컨트롤러와 데이터센터 전원처럼 전문 업체가 강한 영역에서는 도전자 입장이다. 특히 중국 업체가 원가 경쟁으로 들어오는 것이 장기 위협으로 꼽힌다.",
+    "src": ["s3"]
+  },
+  "strategy": {
+    "goal": "회사는 장기적으로 주당 잉여현금흐름 성장을 최우선 목표로 둔다. 10-K는 6년간의 높은 설비투자 사이클이 거의 끝나 앞으로 설비투자가 주당 잉여현금흐름 성장의 더 큰 동력이 될 것이라고 설명한다.",
+    "roadmap": [
+      { "when": "2026", "what": "설비투자 20억~30억 달러로 축소 (2025년 46억)", "src": ["s3"] },
+      { "when": "2025-12-31 이후", "what": "새로 가동되는 제조 설비의 투자세액공제가 25%에서 35%로 상향", "src": ["s3"] },
+      { "when": "CHIPS Act 마일스톤별", "what": "Sherman·Lehi 300mm 공장 3곳에 최대 16억 달러 지원금 수령", "src": ["s3"] },
+      { "when": "Q4 2026", "what": "매출 58억~63억 달러, EPS 2.45~2.79달러 가이던스 - 회사는 데이터센터·산업·자동차 생산 증가로 계절성보다 강한 분기로 설명", "src": ["s1", "s6"] },
+      { "when": "2027-01 실적 발표·2027-02", "what": "2027년 가격 협상 결과(1월 콜)와 2027년 설비투자 상세(2월) 공개 예정; 말레이시아 후공정 공장 증설 진행", "src": ["s6"] }
+    ],
+    "vision": "산업·자동차를 중심으로 데이터센터까지, 아날로그와 임베디드 칩의 넓은 포트폴리오를 낮은 원가로 장기간 공급해 주당 잉여현금흐름을 꾸준히 키우는 회사.",
+    "text": "그래서 TI의 전략은 새 시장을 크게 여는 것보다 이미 지은 공장을 채우는 것이다. 2026년 설비투자가 절반 가까이 줄고 매출이 회복되면서 잉여현금흐름이 빠르게 늘고 있고, 회사는 이를 주당 잉여현금흐름 성장으로 연결하겠다고 말한다.",
+    "src": ["s3", "s1"]
+  },
+  "governance": {
+    "line": "2023년부터 CEO를 맡은 Haviv Ilan이 2026-01부터 회장도 겸하며, 배당을 매년 올려 2025년 주당 5.50달러를 선언했고 자사주 매입 한도 188억 달러를 남겨 둔 채 최근 12개월 잉여현금흐름(84억 달러)의 약 61%를 배당(52억 달러)으로 돌려준다.",
+    "src": ["s1", "s3", "s7"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "revenue", "value": "58억~63억 달러", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "EPS", "value": "2.45~2.79달러", "givenOn": "2026-10-21", "src": ["s1"] },
+      { "period": "FY2026", "metric": "capital expenditures", "value": "약 20억~30억 달러", "givenOn": "2026-02-06", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "track": "Q3 2026 매출 60.6억 달러는 가이던스 56.5억~61.5억의 상단부였고, EPS 2.62달러는 가이던스 2.23~2.57달러를 넘었다.",
+    "src": ["s4", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 10.87달러(범위 9.29~11.77), 직전 4개 분기 실적 합 7.71달러. 최근 4주 상향 32건·하향 0건으로 강한 상향.",
+    "src": ["s5"]
+  },
+  "watch": {
+    "confirms": [
+      "산업·자동차 매출의 전년 대비 성장이 이어짐",
+      "총마진이 64% 안팎을 유지하며 공장 가동률 상승 효과가 지속",
+      "설비투자가 계획대로 줄어 최근 12개월 잉여현금흐름이 계속 증가",
+      "데이터센터 비중이 9%에서 올라감"
+    ],
+    "breaks": [
+      "다음 분기 가이던스가 계절성보다 크게 낮아 산업·자동차 재고 조정 재개 신호",
+      "총마진 하락 (가동률 저하나 가격 인하)",
+      "중국 경쟁 업체의 가격 공세나 중국 매출 감소",
+      "설비투자가 다시 늘어나는 계획 발표"
+    ],
+    "keyNumbers": [
+      { "name": "분기 매출 전 분기 대비 성장률", "why": "아날로그 경기 사이클의 위치를 보여 준다" },
+      { "name": "총마진", "why": "공장 가동률과 가격의 결과" },
+      { "name": "최근 12개월 잉여현금흐름", "why": "회사가 스스로 내세우는 최우선 지표" },
+      { "name": "Analog 매출 성장률", "why": "이익의 거의 전부가 이 사업부에서 나온다" },
+      { "name": "설비투자", "why": "잉여현금흐름 개선의 속도" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미공지 - 전년 Q4 발표는 2026-01-27)", "event": "Q4 2026 실적 발표와 Q1 2027 가이던스", "src": ["s2"] },
+      { "date": "수시", "event": "미중 무역·관세와 중국 아날로그 업체 동향", "src": ["s3"] }
+    ],
+    "reaction": "TI는 아날로그 업황의 선행 지표로 읽혀서, 주가는 당분기 실적보다 다음 분기 매출 가이던스가 계절성 대비 강한지 약한지에 반응하는 경향이 있다. 실적 발표가 업계에서 이른 편이라 다른 아날로그·마이크로컨트롤러 회사 주가에도 영향을 준다.",
+    "conditions": [
+      "다음 분기 매출 가이던스 중간값과 컨센서스의 차이",
+      "CEO가 언급하는 산업·자동차·데이터센터 수요 방향",
+      "총마진 변화와 가동률 언급",
+      "최근 12개월 잉여현금흐름과 설비투자 추이",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "경쟁사 이름 - 10-K는 경쟁사를 명시하지 않아 일반적으로 알려진 업체를 적었으며 문서로 확인하지 않음",
+    "시장 점유율 - 확인한 출처 없음",
+    "Q3 2026 보도자료의 시장별 매출 비중 - 보도자료에 금액 없음",
+    "데이터센터 매출 약 16억 달러는 2025 매출 × 9%로 계산한 값",
+    "최대 고객(12%)의 이름 - 10-K에 미기재",
+    "Q3 2026 데이터센터 비중(약 13%)·성장률(약 95%)과 산업·자동차 성장률, 재고 수치는 제3자 녹취록 페이지(s6) 기준이며 회사 녹취록 원문과 대조하지 않음",
+    "CEO 취임 시점은 8-K(s7)의 '2023년부터' 표현 기준이며 정확한 날짜는 회사 원문으로 확인하지 않음",
+    "Q4 2026 실적 발표일 - 2026-10-29 기준 회사 공지 없음 (전년 Q4 발표 2026-01-27 기준 추정)",
+    "구매 약정 금액 - 10-K 해당 부분을 읽지 못함",
+    "총마진·영업이익률·사업부 영업이익률은 보도자료 금액으로 계산한 값"
+  ],
+  "confidence": "high - 실적·현금흐름·시장 비중·생산 구조는 모두 회사 8-K 보도자료와 10-K에서 왔다. 경쟁사 이름과 점유율만 출처가 없다."
+}

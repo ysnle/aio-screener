@@ -1,0 +1,223 @@
+{
+  "symbol": "COIN",
+  "name": "Coinbase Global, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31; latest quarter Q2 2026)",
+  "oneLine": "Coinbase는 미국 최대 규제 암호자산 거래소이자 수탁 회사로, 거래 수수료와 USDC 스테이블코인 수익을 함께 벌며 주식·파생·예측시장까지 한 앱에 담는 'Everything Exchange'로 넓히는 중이라 암호자산 거래 경기와 규제 입법을 동시에 보여 준다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Coinbase Q4 and Full Year 2025 Shareholder Letter (8-K Exhibit 99.1, IR copy)", "url": "https://s27.q4cdn.com/397450999/files/doc_financials/2025/q4/coin-20260212.pdf", "publisher": "Coinbase IR", "date": "2026-02-12" },
+    { "id": "s2", "kind": "8-K", "title": "Coinbase Q2 2026 earnings deck (8-K exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/0001679788/000167978826000087/q226earningsdeck_sec.htm", "publisher": "Coinbase / SEC EDGAR", "date": "2026-07-30" },
+    { "id": "s3", "kind": "news", "title": "Press Release: Coinbase Announces Date of Third Quarter 2026 Financial Results (2026-10-29 after close; read via search summary)", "url": "https://www.itiger.com/hans/news/2675522322", "publisher": "Business Wire via Tiger Brokers", "date": "2026-10-14" },
+    { "id": "s4", "kind": "news", "title": "Coinbase Q2 2026 misses expectations, shares fall about 5% after hours; Armstrong bets on AI agent finance and x402 (read via search summary)", "url": "https://yellow.com/zh-hk/news/coinbase次季業績遜預期股價挫5％-armstrong押注ai代理金融與x402", "publisher": "Yellow.com", "date": "2026-07-30" },
+    { "id": "s5", "kind": "news", "title": "Coinbase Global Q1 earnings call highlights (prediction markets $100M annualized revenue in March 2026; >90% of onchain agentic volume on Base; read via search summary)", "url": "https://www.nasdaq.com/articles/coinbase-global-q1-earnings-call-highlights", "publisher": "Nasdaq", "date": "2026-05" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/coin/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "신뢰받는 규제 수탁 - 2025년 전 세계 암호자산의 약 12%가 Coinbase에 보관",
+      "미국 규제 라이선스와 정책 영향력 - 규제 명확화의 수혜 위치",
+      "USDC 유통 파트너 지위 - Coinbase 상품 내 평균 USDC 200억 달러 (Q2 2026, 유통량의 30% 이상)",
+      "파생 유동성 - Deribit 인수로 암호자산 옵션·미결제약정 세계 1위"
+    ],
+    "text": "Coinbase의 힘은 '가장 믿을 수 있는 보관소'라는 데서 시작한다. 2025년 전 세계 암호자산의 약 12%가 Coinbase에 맡겨져 있었고, 이 자산 기반 위에 거래·스테이킹·대출·결제를 얹는다. 여기에 USDC 스테이블코인 유통에서 나오는 수익과 Deribit 인수로 얻은 파생 유동성이 두 번째·세 번째 뿌리다.",
+    "src": ["s1", "s2"]
+  },
+
+  "design": {
+    "text": "이 자산 기반 위에서 회사가 내놓는 상품은 크게 거래와 구독·서비스로 보고된다. 거래 쪽은 개인 현물 거래, 기관 거래(Prime), 파생(미국 선물·영구선물, Deribit 옵션), 주식·ETF 거래, 예측시장이고, 구독·서비스 쪽은 USDC 스테이블코인 수익, 스테이킹 보상, 대출 이자, Coinbase One 구독, Base 블록체인이다. 2026년 우선순위는 Everything Exchange 확장, 스테이블코인·결제 확대, Base로 '온체인' 이용자 늘리기 세 가지다.",
+    "src": ["s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "Circle - USDC 발행사, Coinbase가 USDC 준비금 수익을 나눠 받음 (계약 조건은 이번 조사에서 미확인)",
+      "Deribit - 2025년 인수한 암호자산 옵션 거래소",
+      "Kalshi - 미국 예측시장 초기 주문 흐름 공급",
+      "Base - 자체 개발 블록체인 (L2)",
+      "ETF 발행사 - 현물·스테이킹 ETF 수탁·협력"
+    ],
+    "text": "Coinbase가 만드는 것은 자체 소프트웨어로 돌리는 거래·수탁 플랫폼이다. 2025년 말 직원은 4,951명이며, 기술·개발비 16.7억 달러가 가장 큰 비용이다. 일부 상품은 협력사에 기대는데, USDC는 Circle이 발행하고 예측시장의 초기 주문은 Kalshi가 공급한다.",
+    "src": ["s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "개인 투자자 - 앱 현물 거래와 Coinbase One 구독 (유료 구독자 약 100만 명, 2025말)",
+      "기관 - 헤지펀드·자산운용사·ETF 발행사·기업 (Prime, 수탁, 대출)",
+      "개발자·기업 - 결제 API, Base, Coinbase Business",
+      "파생 트레이더 - Deribit·미국 선물"
+    ],
+    "channel": "자체 앱·웹(개인), 기관 영업과 Prime 플랫폼(기관), API·개발자 도구(기업), Shopify Payments 같은 파트너 결제 연동.",
+    "concentration": "단일 고객 비중 미확인. 매출은 개인 거래 수수료 비중이 가장 큼 (2025년 소비자 거래 매출 33.2억 달러, 총매출의 46%)",
+    "text": "이 플랫폼은 개인, 기관, 개발자·기업 세 무리에게 팔린다. 매출은 여전히 개인 거래 수수료가 가장 크지만(2025년 33.2억 달러), 회사는 기관·파생·결제 쪽을 키워 개인 거래 경기에 덜 흔들리게 하려 한다. 2025년 기준 연환산 매출 1억 달러를 넘는 상품이 12개라고 밝혔다.",
+    "src": ["s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "개인 투자자", "to": "Coinbase", "what": "현물 거래 수수료·스프레드 - 2025년 소비자 거래 매출 33.2억 달러" },
+      { "from": "기관·파생 트레이더", "to": "Coinbase (Prime·Deribit)", "what": "거래 수수료 - 2025년 기관 거래 매출 4.8억 달러" },
+      { "from": "USDC 준비금 운용 수익 (Circle 경유)", "to": "Coinbase", "what": "스테이블코인 매출 - 2025년 13.5억 달러, Q2 2026 2.92억 달러" },
+      { "from": "블록체인 네트워크 (스테이킹)", "to": "Coinbase", "what": "스테이킹 보상 중 수수료 몫 - 2025년 6.8억 달러" },
+      { "from": "Coinbase", "to": "USDC 보유 고객", "what": "USDC 보상 지급 (판매·마케팅 비용으로 처리)" }
+    ],
+    "pricing": "거래당 수수료와 스프레드(거래 매출), USDC 준비금 이자 공유(스테이블코인), 스테이킹 보상의 일정 비율, 월 구독료(Coinbase One), 대출 이자.",
+    "text": "돈은 거래 수수료와 '자산을 맡겨 두는 대가'의 두 길로 들어온다. 2025년 거래 매출이 40.6억 달러, 스테이블코인·스테이킹·구독 등 구독·서비스 매출이 28.3억 달러였다. 거래 매출은 암호자산 가격과 거래량에, 스테이블코인 매출은 USDC 잔고와 금리에 달려 있어, 금리가 내리면 두 번째 수익원이 줄어든다.",
+    "src": ["s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 7.1813, "unit": "USD bn", "yoy": 9 },
+    "grossMargin": null,
+    "operatingMargin": 20.0,
+    "netMargin": 17.6,
+    "operatingCashFlow": { "value": 2.426, "unit": "USD bn" },
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "Transaction revenue (거래 매출)", "revenue": 4.0554, "unit": "USD bn", "share": 56.5, "yoy": 1.7, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Subscription and services revenue (구독·서비스)", "revenue": 2.828, "unit": "USD bn", "share": 39.4, "yoy": 22.6, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Corporate interest and other income (기업 이자 등)", "revenue": 0.2979, "unit": "USD bn", "share": 4.1, "yoy": 10.0, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "총 거래량", "value": "2025년 5.2조 달러(+156%), 시장 점유율 2배; Q2 2026 1.30조 달러(현물 1,464억, 파생 1.03조)", "src": ["s1", "s2"] },
+      { "name": "플랫폼 자산 (Assets on Platform)", "value": "2,460억 달러 (Q2 2026, 전년 4,250억 - 주로 ETF 유출)", "src": ["s2"] },
+      { "name": "Coinbase 상품 내 평균 USDC", "value": "200억 달러 (Q2 2026, 전년 140억); USDC 평균 시가총액 770억 달러", "src": ["s2"] },
+      { "name": "Q2 2026 실적", "value": "총매출 12.20억 달러(-19%), 거래 매출 5.99억, 구독·서비스 5.55억, 순손실 3.60억, 조정 EBITDA 2.08억 달러", "src": ["s2"] },
+      { "name": "스테이블코인 매출", "value": "2025년 13.49억 달러; Q2 2026 2.92억 달러(전년 3.09억)", "src": ["s1", "s2"] },
+      { "name": "현금", "value": "현금·현금성 86.1억 달러 (Q2 2026, 결제용 스테이블코인 29.6억 포함), 가용 자원 약 100억 달러", "src": ["s2"] }
+    ],
+    "text": "2025년 총매출 71.8억 달러(+9%), 영업이익 14.4억 달러, 순이익 12.6억 달러로 영업이익률은 약 20%였다. 그러나 2026년 들어 암호자산 가격이 내리면서 Q2 총매출이 12.2억 달러(-19%)로 줄고 순손실 3.6억 달러를 냈으며, 현물 거래량은 1,464억 달러로 전년보다 35% 적었다. 그나마 구독·서비스 매출이 순매출의 48%를 채워 거래 급감의 충격을 일부 막았다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 1.6706, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 0.742, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.790, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "투자용 암호자산 매입", "value": 0.788, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "번 돈은 기술 개발, 인수, 자사주 매입으로 나뉜다. 2025년에 기술·개발비 16.7억 달러를 쓰고 Deribit·Echo 등 인수에 현금 7.4억 달러를, 자사주에 7.9억 달러(현금 기준)를 썼으며 전환사채 29.6억 달러를 새로 발행했다. 2026년 상반기에는 자사주 매입이 12.4억 달러로 늘어, 주가 하락기에 희석을 줄이는 쪽으로 돈을 돌렸다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI 에이전트가 스테이블코인으로 대금을 주고받는 '에이전트 결제'의 결제 레일(x402 표준, Base 블록체인)을 제공하고, 내부적으로는 AI로 개발 생산성을 높이는 회사.",
+    "dependsOn": ["models-platforms (AI 에이전트를 만드는 모델·플랫폼)", "Circle USDC (결제 수단)"],
+    "sellsTo": ["AI 에이전트 개발자 (x402, 결제 API, Embedded Wallets)", "Base 위의 앱·에이전트"],
+    "aiRevenue": null,
+    "upside": "회사는 Q2 2026 온체인 에이전트 스테이블코인 거래량의 99% 이상이 Base에서 일어났다고 밝혔다. 에이전트 결제가 커지면 USDC 잔고·Base 수수료·결제 API 사용이 함께 늘 수 있다. 내부적으로는 엔지니어 1인당 코드 변경 요청이 1년 새 2.2배가 됐다고 했다.",
+    "risk": "에이전트 결제의 절대 규모는 아직 공개되지 않았고 Q2 Base 매출은 전 분기보다 줄었다. 표준이 다른 블록체인이나 카드망으로 기울면 Base의 우위가 사라질 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Coinbase는 'AI가 돈을 옮기는 길'에 노출돼 있다. 에이전트 스테이블코인 거래가 거의 Base에서 일어난다는 점은 앞선 위치를 보여 주지만, 이 부문의 매출은 공개되지 않아 아직 실적을 움직일 크기인지 확인할 수 없다. 당장 손익을 좌우하는 것은 여전히 암호자산 거래량과 USDC 잔고다.",
+    "src": ["s2", "s1", "s4", "s5"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "미국 개인 암호자산 현물 거래", "rivals": ["Robinhood", "Kraken", "핀테크 앱 (출처 외 일반 분류)"], "position": "leader", "share": null, "src": [] },
+      { "arena": "암호자산 파생 (옵션·영구선물)", "rivals": ["글로벌 해외 거래소 (업체명 출처에 없음)", "CME"], "position": "leader", "share": "Deribit 인수로 옵션 거래량·미결제약정 세계 1위 (회사 발표), 파생 점유율 사상 최고 (Q2 2026)", "src": ["s1", "s2"] },
+      { "arena": "기관 수탁·ETF 보관", "rivals": ["대형 수탁 은행", "다른 암호자산 수탁사"], "position": "leader", "share": "전 세계 암호자산의 약 12% 보관 (2025, 회사 발표)", "src": ["s1"] },
+      { "arena": "스테이블코인 결제", "rivals": ["다른 스테이블코인 발행사", "카드 네트워크 (Visa 등)"], "position": "challenger", "share": "USDC 유통량의 30% 이상이 Coinbase 상품 안에 보관 (Q2 2026)", "src": ["s2"] },
+      { "arena": "주식·예측시장 (Everything Exchange)", "rivals": ["Robinhood", "Kalshi", "증권사"], "position": "challenger", "share": "예측시장 2026-03 연환산 매출 1억 달러 (2차 출처)", "src": ["s5", "s1"] }
+    ],
+    "edge": "규제 신뢰와 수탁 규모, USDC 유통 파트너 지위, Deribit 파생 유동성, Base 블록체인.",
+    "threats": "Robinhood 등 앱 증권사의 암호자산·예측시장 공세, 해외 거래소의 파생 경쟁, 금리 하락에 따른 스테이블코인 수익 감소, 개인 거래 수수료율 하락.",
+    "text": "Coinbase는 파생과 수탁에서는 선두이지만, 주식·예측시장으로 들어가면서 Robinhood 같은 앱 증권사와 정면으로 붙는다. 회사의 대응은 '한 앱에서 모든 자산'을 거래하게 해 이용자를 묶는 것이고, 수수료율이 낮은 Advanced·Coinbase One 쪽으로 거래가 옮겨 가는 것을 감수한다. 개인 현물 점유율 수치는 이번 조사에서 확인하지 못했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "strategy": {
+    "goal": "2026년 세 가지 우선순위: Everything Exchange 확장, 스테이블코인·결제 확대, Base로 '세상을 온체인으로'. 수치 장기 목표는 이번 조사에서 확인하지 못했다.",
+    "roadmap": [
+      { "when": "2026 상반기", "what": "주식·ETF 거래, 예측시장, 토큰화 주식 출시", "src": ["s1"] },
+      { "when": "출시 예정 (Q2 2026 발표)", "what": "미국 고객의 CFTC 규제 경로를 통한 글로벌 영구선물 접근, Deribit 통합 유동성", "src": ["s2"] },
+      { "when": "2026", "what": "x402·결제 API·Embedded Wallets로 에이전트·기업 스테이블코인 결제 확대", "src": ["s1"] },
+      { "when": "2026-10-29", "what": "Q3 2026 실적 발표 (장 마감 후, X·YouTube 라이브 Q&A)", "src": ["s3"] }
+    ],
+    "vision": "회사는 규제가 명확해지면 암호자산이 '모든 금융 서비스를 업데이트할 것'이라고 보고, 모든 자산을 거래·보관·결제하는 하나의 온체인 금융 플랫폼을 그린다.",
+    "text": "앞으로의 계획은 거래 경기에 덜 흔들리도록 상품을 넓히는 것이다. 주식·예측시장·영구선물을 한 앱에 넣고, USDC 결제와 에이전트 결제 레일로 수수료 외 매출을 키운다. 경영진은 암호자산 경기가 '생각만큼 좋지도 나쁘지도 않다'며 하락기에 자사주 매입과 인수를 이어 간다고 밝혔다.",
+    "src": ["s1", "s2"]
+  },
+
+  "governance": {
+    "line": "공동창업자 Brian Armstrong가 CEO로 이끌며 Class B 주식 4,104만 주(전체 2.68억 주 중, 2025말)가 별도로 있는 이중 주식 구조이고, 배당 없이 자사주 매입(2026-01 20억 달러 추가 승인)으로 주주환원을 한다.",
+    "src": ["s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "transaction revenue (QTD)", "value": "7월 26일까지 약 1.30억 달러 (전망이 아닌 진행치)", "givenOn": "2026-07-30", "src": ["s2"] },
+      { "period": "Q3 2026", "metric": "subscription and services revenue", "value": "5.00~5.80억 달러", "givenOn": "2026-07-30", "src": ["s2"] },
+      { "period": "Q3 2026", "metric": "adjusted expenses (T&D + G&A + S&M, 무형자산 상각 제외)", "value": "9.80~10.80억 달러", "givenOn": "2026-07-30", "src": ["s2"] },
+      { "period": "Q3 2026", "metric": "transaction expense", "value": "순매출의 10%대 중반", "givenOn": "2026-07-30", "src": ["s2"] }
+    ],
+    "style": "quarterly",
+    "track": "2025년에는 매 분기 매출·비용 전망을 맞추거나 넘었다고 회사가 밝혔다. Q2 2026은 매출이 시장 예상(약 12.9억 달러, 2차 출처)에 못 미쳤다.",
+    "src": ["s1", "s4"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 2026-09~2027-06 4개 분기 EPS 합계 0.83달러(범위 -2.18~5.02), 직전 4개 분기 1.54달러. 최근 4주 상향 6건·하향 12건으로 하향 우세.",
+    "src": ["s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "구독·서비스 매출이 가이던스 상단 근처로 유지",
+      "Coinbase 상품 내 USDC 평균 잔고가 계속 사상 최고",
+      "파생·예측시장·주식 거래가 현물 거래 감소를 메움",
+      "조정 비용이 가이던스 범위 안",
+      "미국 암호자산 시장구조 법안(CLARITY Act) 진전"
+    ],
+    "breaks": [
+      "현물 거래량과 소비자 거래 매출의 추가 급감",
+      "금리 하락이나 USDC 잔고 감소로 스테이블코인 매출 축소",
+      "플랫폼 자산의 계속된 유출",
+      "Base·에이전트 결제가 매출로 이어지지 않음",
+      "규제 입법 지연 또는 불리한 규정"
+    ],
+    "keyNumbers": [
+      { "name": "소비자 현물 거래량과 거래 매출", "why": "가장 큰 매출원이자 경기 신호" },
+      { "name": "스테이블코인 매출과 평균 USDC 잔고", "why": "거래 외 매출의 핵심" },
+      { "name": "구독·서비스 매출 비중", "why": "경기 방어력" },
+      { "name": "조정 비용", "why": "하락기 수익성" },
+      { "name": "파생 거래량·점유율", "why": "Deribit 인수 효과" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-10-28 (미 동부, 한국 10-29 새벽)", "event": "FOMC 금리 결정 - 위험자산·스테이블코인 금리 수익 (일정 출처 미첨부)", "src": [] },
+      { "date": "2026-10-29 장 마감 후", "event": "Q3 2026 실적과 라이브 Q&A", "src": ["s3"] },
+      { "date": "2026-11-03", "event": "미국 중간선거 - 암호자산 시장구조 입법 환경 (일정 출처 미첨부)", "src": [] }
+    ],
+    "reaction": "주가는 암호자산 가격과 거래량에 먼저 움직이고, 실적일에는 분기 중 거래 매출 진행치와 다음 분기 구독·서비스 전망에 반응하는 경향이 있다. Q2 2026은 매출이 예상에 못 미치고 GAAP 손실이 커 시간외에서 약 5% 하락했다고 보도됐다(2차 출처).",
+    "conditions": [
+      "비트코인·이더리움 가격과 현물 거래량 추이",
+      "실적 자료의 분기 중 거래 매출 진행치",
+      "다음 분기 구독·서비스 매출 전망 범위",
+      "평균 USDC 잔고와 단기 금리 (FOMC 결과 포함)",
+      "암호자산 입법·규제 뉴스",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "Circle과의 USDC 수익 배분 계약 조건 (이번 조사에서 미열람)",
+    "잉여현금흐름 - 설비투자가 현금흐름표에 별도 표시되지 않아 null",
+    "총마진은 거래소 특성상 null, 영업·순이익률은 2025 손익계산서 계산값",
+    "Q2 2026 월간 거래 이용자 수·Coinbase One 구독자 수 (자료에 숫자 없음)",
+    "미국 개인 현물 거래 점유율",
+    "예측시장 연환산 매출 1억 달러, Q2 시간외 5% 하락, Q2 매출 컨센서스 약 12.9억 달러는 2차 출처(검색 요약)",
+    "Q3 2026 실적 발표일은 보도자료 재게재본(검색 요약)으로 확인",
+    "Deribit 인수 총액(주식 포함) - 현금흐름표의 인수 현금 7.4억 달러만 확인",
+    "경쟁자 일부 이름은 출처 문서가 아니라 일반 분류",
+    "FOMC·중간선거 일정은 사용자 제공 맥락과 일반 일정 기준"
+  ],
+  "confidence": "high - 2025 연간 숫자는 주주서한(8-K)에서, 2026 Q2 숫자와 Q3 전망은 8-K 실적 자료에서 왔다. Q3 실적이 하루 뒤 나오고 일부 경쟁·반응 정보는 2차 출처다."
+}

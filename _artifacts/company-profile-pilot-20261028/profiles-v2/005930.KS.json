@@ -1,0 +1,216 @@
+{
+  "symbol": "005930.KS",
+  "name": "Samsung Electronics Co., Ltd. (삼성전자)",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (K-IFRS 연결)",
+  "oneLine": "삼성전자는 메모리·파운드리 반도체와 스마트폰·TV·가전·디스플레이를 함께 하는 회사로, 2026년 3분기 영업이익 107.4조 원 중 106.5조 원을 반도체(DS)가 벌어 지금은 사실상 AI 메모리 회사로 움직인다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Samsung Electronics Announces Third Quarter 2026 Results", "url": "https://news.samsungsemiconductor.com/global/samsung-electronics-announces-third-quarter-2026-results/", "publisher": "Samsung Semiconductor Newsroom", "date": "2026-10-29" },
+    { "id": "s2", "kind": "news", "title": "Samsung Q3 2026 slides: first tech firm to top 100T won profit (AI-assisted summary of earnings presentation; page date 2026-10-28)", "url": "https://www.investing.com/news/company-news/samsung-q3-2026-slides-first-tech-firm-to-top-100t-won-profit-93CH-4981381", "publisher": "Investing.com", "date": "2026-10-29" },
+    { "id": "s3", "kind": "earnings-release", "title": "Samsung Electronics Announces Fourth Quarter and FY 2025 Results", "url": "https://news.samsung.com/be_fr/samsung-electronics-announces-fourth-quarter-and-fy-2025-results", "publisher": "Samsung Newsroom", "date": "2026-01-29" },
+    { "id": "s4", "kind": "ir-site", "title": "Samsung Electronics IR - Board of Directors (accessed date)", "url": "https://www.samsung.com/global/ir/governance-csr/board-of-directors/", "publisher": "Samsung Electronics", "date": "2026-10-28" },
+    { "id": "s5", "kind": "other", "title": "Global HBM market share Q2 2026 (revenue basis)", "url": "https://counterpointresearch.com/ko/insights/global-hbm-market-share-q2-2026", "publisher": "Counterpoint Research", "date": "2026-09-03" },
+    { "id": "s6", "kind": "other", "title": "Global DRAM and HBM Market Share: Quarterly (Q2 2026)", "url": "https://counterpointresearch.com/insights/global-dram-and-hbm-market-share", "publisher": "Counterpoint Research", "date": "2026-09-02" },
+    { "id": "s7", "kind": "earnings-release", "title": "SK hynix Announces 3Q26 Financial Results (company release copy)", "url": "https://www.stocktitan.net/news/SKHY/sk-hynix-announces-3q26-financial-fcr2bh8ikc0x.html", "publisher": "StockTitan (company release copy)", "date": "2026-10-27" }
+  ],
+
+  "moat": {
+    "sources": [
+      "세계 최대 DRAM 생산능력 - Q2 2026 DRAM 매출 점유율 38%로 1위 (Counterpoint)",
+      "메모리·파운드리·패키징을 한 회사에서 하는 구조 - HBM 베이스 다이를 자체 파운드리에서 생산",
+      "순현금 197.6조 원과 연 84.4조 원 규모 설비투자 능력",
+      "스마트폰·TV·가전의 글로벌 브랜드와 유통망"
+    ],
+    "text": "삼성전자의 첫 번째 힘은 규모다. Counterpoint 기준 2026년 2분기 DRAM 매출 점유율이 38%로 1위이고, 2026년 한 해 설비투자를 약 84.4조 원 쓸 수 있을 만큼 현금(순현금 197.6조 원)이 쌓여 있다. 여기에 메모리와 파운드리를 함께 가진 덕분에 HBM의 바닥 칩(베이스 다이)을 자기 파운드리에서 만들 수 있다는 점이 HBM4에서 따라잡는 데 쓰인 무기다.",
+    "src": ["s6", "s1", "s2"]
+  },
+  "design": {
+    "text": "이 규모 위에서 회사는 두 큰 부문으로 보고한다. DS(반도체) 부문은 메모리(HBM·서버 DRAM·SSD), 파운드리(2nm·4nm 위탁생산), System LSI(모바일 SoC, 2억 화소 이미지센서)로 이뤄지고, DX 부문은 MX·네트워크(Galaxy 스마트폰·통신장비)와 VD·DA(TV·가전)다. 이 밖에 자회사 삼성디스플레이(SDC, OLED)와 Harman(오디오·전장)이 있다.",
+    "src": ["s1", "s2"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 메모리·파운드리 팹 (한국) - 8nm 이하 수요가 생산능력을 넘어 한국·미국 증설",
+      "미국 텍사스 테일러 파운드리 팹 - 가동 시작 단계",
+      "자체 HBM 베이스 다이 생산 (파운드리 'HBM B-Die' 매출)",
+      "삼성디스플레이 - 8.6세대 IT OLED 증산"
+    ],
+    "text": "설계한 제품은 대부분 자기 공장에서 만든다. 메모리와 파운드리 팹은 한국에 몰려 있고, 회사는 8nm 이하 파운드리 수요가 생산능력을 넘어 한국과 미국에서 증설하며 텍사스 테일러 팹도 가동을 시작한다고 밝혔다. 3분기 설비투자 29.0조 원 중 27.2조 원이 DS 부문이었을 만큼 투자 거의 전부가 반도체로 간다.",
+    "src": ["s1", "s2"]
+  },
+  "sell": {
+    "customers": [
+      "AI 가속기 설계사·하이퍼스케일러 (HBM·서버 DRAM·SSD) - 장기계약 10개 주요 고객 체결, 10개 협의 중",
+      "파운드리 고객 - '주요 하이퍼스케일러를 포함한 2nm HPC 고객', 맞춤형 SoC 고객 (이름 비공개)",
+      "통신사·유통 채널·소비자 (Galaxy 스마트폰, TV, 가전)",
+      "모바일 제조사 (삼성디스플레이 OLED)"
+    ],
+    "channel": "반도체는 고객사 직접 판매와 다년 장기계약, 스마트폰·TV·가전은 통신사·유통 파트너를 통한 판매.",
+    "concentration": "고객별 매출 비중은 이번 자료에서 확인하지 못함.",
+    "text": "반도체는 AI 가속기 회사와 클라우드 사업자에게 직접 팔리고, 회사는 메모리 장기계약을 10개 주요 고객과 맺고 10개와 협의 중이라고 했다. 목표는 중장기 생산능력의 60~70%를 다년 계약으로 묶는 것이다. 반면 스마트폰·TV·가전은 통신사와 유통 채널을 거쳐 소비자에게 가며, 이쪽은 3분기 영업적자를 냈다.",
+    "src": ["s2", "s1"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "클라우드·AI 연구소", "what": "구독료·API·클라우드 이용료" },
+      { "from": "클라우드·AI 가속기 설계사", "to": "삼성전자 DS 부문", "what": "HBM·서버 DRAM·SSD 대금 (장기계약 목표 가격), 파운드리 웨이퍼 위탁생산 대금" },
+      { "from": "소비자·통신사·유통 채널", "to": "삼성전자 DX 부문", "what": "Galaxy 스마트폰·TV·가전 판매 대금 (대당)" },
+      { "from": "삼성전자", "to": "주주", "what": "분기 배당 (3Q26 주당 4,601원, 총 30조 원)·자사주 매입 소각" }
+    ],
+    "pricing": "메모리는 물량×평균판매가격이며 회사는 2027년 HBM 공급이 합의된 목표 가격으로 매진됐다고 밝혔다. 파운드리는 웨이퍼당 위탁생산 가격, 완제품은 대당 판매.",
+    "text": "돈이 들어오는 길은 두 갈래지만 지금은 한쪽으로 쏠려 있다. AI 설비투자에서 출발한 돈이 HBM·서버 메모리 대금으로 DS 부문에 들어오는 길이 이익의 거의 전부이고, 소비자가 스마트폰·TV를 사는 DX 쪽 길은 매출은 크지만 이익을 거의 남기지 못한다. 그래서 메모리 가격이 회사 전체 이익을 결정한다.",
+    "src": ["s1", "s2"]
+  },
+  "earnings": {
+    "period": "3Q26 (quarter ended 2026-09-30, K-IFRS 연결)",
+    "revenue": { "value": 195.3, "unit": "KRW tn", "yoy": 127 },
+    "grossMargin": 69.3,
+    "operatingMargin": 55.0,
+    "netMargin": 38.5,
+    "operatingCashFlow": { "value": 98.6, "unit": "KRW tn" },
+    "freeCashFlow": { "value": 71.7, "unit": "KRW tn" },
+    "segments": [
+      { "name": "DS (반도체: 메모리·파운드리·System LSI)", "revenue": 147.1, "unit": "KRW tn", "share": 75.3, "yoy": 344, "operatingMargin": 72.4, "src": ["s1", "s2"] },
+      { "name": "DX (MX·네트워크 37.7조, VD·DA 13.9조 포함)", "revenue": 52.1, "unit": "KRW tn", "share": 26.7, "yoy": null, "operatingMargin": -1.5, "src": ["s1", "s2"] },
+      { "name": "SDC (삼성디스플레이)", "revenue": 8.0, "unit": "KRW tn", "share": 4.1, "yoy": null, "operatingMargin": 13.8, "src": ["s1", "s2"] },
+      { "name": "Harman", "revenue": 4.3, "unit": "KRW tn", "share": 2.2, "yoy": null, "operatingMargin": 14.0, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "메모리 사업 매출 (DS 내)", "value": "3Q26 140.7조 원 (전분기 +16%, 전년 +427%), 분기 매출·영업이익 사상 최대", "src": ["s2", "s1"] },
+      { "name": "HBM4 비중", "value": "3Q26 HBM4 매출이 전분기 대비 세 배 이상, 전체 HBM 매출의 60%; 2027년 HBM 공급은 합의된 목표 가격으로 매진", "src": ["s2"] },
+      { "name": "HBM / DRAM 매출 점유율 (Counterpoint)", "value": "HBM Q2 2026 33% (Q1 21%), DRAM Q2 2026 38% (1위)", "src": ["s5", "s6"] },
+      { "name": "부문별 영업이익 (3Q26)", "value": "DS 106.5조, SDC 1.1조, Harman 0.6조, MX·네트워크 -0.6조, VD·DA -0.2조 원", "src": ["s1", "s2"] },
+      { "name": "현금·순현금", "value": "현금성자산 214.8조, 순현금 197.6조 원 (전분기 167.6조), ROE 57%", "src": ["s2"] },
+      { "name": "FY2025 연간", "value": "매출 333.6조, 영업이익 43.6조 원, R&D 37.7조 원", "src": ["s3"] }
+    ],
+    "text": "그 결과 3분기 매출은 195.3조 원(전년 대비 +127%), 영업이익 107.4조 원으로 영업이익률이 55%였고, 2025년 한 해 영업이익(43.6조 원)의 두 배 반을 한 분기에 벌었다. 이익의 99%는 DS 부문(영업이익 106.5조 원, 이익률 72%)에서 나왔고, 스마트폰·TV·가전을 묶은 DX 부문은 0.8조 원 적자였다. 회사는 환율 변동이 3분기 이익을 약 10조 원 줄였다고 밝혔다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "useOfCash": {
+    "period": "3Q26 (분기)",
+    "items": [
+      { "use": "capex", "value": 29.0, "unit": "KRW tn", "src": ["s1"] },
+      { "use": "R&D", "value": 14.4, "unit": "KRW tn", "src": ["s2"] },
+      { "use": "buybacks", "value": 12.5, "unit": "KRW tn", "src": ["s2"] },
+      { "use": "dividends", "value": 30, "unit": "KRW tn", "src": ["s1"] }
+    ],
+    "text": "벌어들인 돈은 먼저 반도체 증설로 간다. 3분기 설비투자는 29.0조 원(DS 27.2조 원)으로 전분기보다 12.2조 원 늘었고, 2026년 전체로는 약 84.4조 원(DS 76.8조 원)을 계획한다. 동시에 3분기 배당을 주당 4,601원·총 30조 원으로 결정하고 자사주 12.5조 원을 사들였으며, 2026년 주주환원 총액을 90~110조 원으로 제시해 투자와 환원을 함께 키우고 있다(배당 30조 원은 결정액, 3분기 실제 지급은 2.5조 원).",
+    "src": ["s1", "s2"]
+  },
+  "aiChain": {
+    "layer": "memory",
+    "position": "AI 가속기에 들어가는 HBM과 AI 서버용 DRAM·SSD의 세계 최대 생산자 중 하나이며, 파운드리로 AI 칩·HBM 베이스 다이 위탁생산까지 하는 메모리+제조 공급자.",
+    "dependsOn": [
+      "semicap-foundry (노광·증착·식각 장비)",
+      "power-energy (한국·텍사스 팹 전력)",
+      "자체 팹 증설 (테일러 팹 포함)"
+    ],
+    "sellsTo": [
+      "chips-compute (HBM을 탑재하는 AI 가속기 설계사)",
+      "cloud-infrastructure (하이퍼스케일러 - 장기계약, 2nm HPC 위탁생산)",
+      "devices (자사·타사 스마트폰·PC)"
+    ],
+    "aiRevenue": "AI 매출을 따로 공시하지 않음. 3Q26 메모리 매출 140.7조 원, HBM4가 HBM 매출의 60% (2026-10-29 발표 자료 요약 기준)",
+    "upside": "HBM4 점유율이 올라가고 서버 DRAM·SSD 가격이 오를수록 DS 이익이 늘며, 2nm HPC 수주가 늘면 파운드리 적자 축소로 이어진다. 회사는 2026년 2nm 수주가 2025년의 두 배 이상이 될 것이라고 했다.",
+    "risk": "AI 설비투자가 꺾이면 메모리 가격이 먼저 떨어지고, 이익의 99%가 DS에 몰려 있어 충격이 그대로 온다. 부품 원가 상승이 스마트폰·가전 마진을 더 누를 수 있고, 첨단 공정·새 팹의 실행 위험도 회사가 직접 언급했다.",
+    "text": "그래서 AI 가치사슬에서 삼성전자는 SK하이닉스와 같은 '메모리' 층에 있으면서, 파운드리로 칩 제조 층에도 한 발을 걸치고 있다. 지금 이익을 만드는 것은 메모리 쪽이며, 파운드리는 2nm 수주로 성장 이야기를 쌓는 단계다. 완제품 사업은 오히려 메모리 가격 상승을 원가로 떠안는 쪽이다.",
+    "src": ["s1", "s2"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "HBM", "rivals": ["SK hynix", "Micron"], "position": "challenger", "share": "Q2 2026 매출 기준 33% (Q1 21%) 2위, SK hynix 50%, Micron 18% - Counterpoint, 2026-09-03", "src": ["s5"] },
+      { "arena": "DRAM 전체", "rivals": ["SK hynix", "Micron", "CXMT"], "position": "leader", "share": "Q2 2026 매출 기준 38% 1위, SK hynix 25%, Micron 24%, CXMT 10% - Counterpoint, 2026-09-02", "src": ["s6"] },
+      { "arena": "파운드리 (첨단 공정 위탁생산)", "rivals": ["TSMC", "Intel Foundry"], "position": "challenger", "share": null, "src": ["s1", "s2"] },
+      { "arena": "스마트폰", "rivals": ["Apple", "중국 안드로이드 제조사"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "OLED 디스플레이", "rivals": ["LG Display", "BOE"], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "DRAM 1위 규모, 메모리·파운드리 결합(HBM 베이스 다이 자체 생산), 현금 여력. HBM4에서는 3분기 매출이 세 배 이상 늘며 HBM 점유율이 DRAM 점유율 수준에 도달했다고 회사가 밝혔다.",
+    "threats": "HBM 1위 SK하이닉스는 장기계약으로 2027~2028년 생산능력의 절반 이상을 묶었다. 중국 CXMT가 DRAM 점유율을 Q1 8%에서 Q2 10%로 키우고 있고, 파운드리에서는 TSMC가 첨단 공정을 주도한다.",
+    "text": "HBM에서 삼성은 추격자다. Counterpoint 기준 Q1 21%에서 Q2 33%로 빠르게 올라왔지만 SK하이닉스(50%)와는 아직 차이가 있고, 회사는 HBM4 확대와 2027년 매진 물량으로 그 차이를 줄이려 한다. 일반 DRAM에서는 1위지만 아래에서 CXMT가 올라오고, 파운드리에서는 TSMC를 쫓는 위치다. 결국 경쟁의 핵심은 HBM4에서 얼마나 빨리 1위와의 간격을 좁히느냐다.",
+    "src": ["s5", "s6", "s2", "s7"]
+  },
+  "strategy": {
+    "goal": "메모리 공급 부족이 2027년까지 이어지고 더 빠듯해질 것으로 보며, 중장기 생산능력의 60~70%를 다년 계약으로 묶고, 파운드리는 4nm·2nm 중심으로 키우겠다고 밝혔다.",
+    "roadmap": [
+      { "when": "4Q26", "what": "파운드리 매출 두 자릿수 성장 (2세대 2nm 모바일, 4nm NPU 램프, 메모리 관련 제품)", "src": ["s1", "s2"] },
+      { "when": "2026", "what": "설비투자 약 84.4조 원 (DS 76.8조, SDC 3.9조), 2nm 수주 2025년 대비 두 배 이상", "src": ["s1", "s2"] },
+      { "when": "2026~2027", "what": "텍사스 테일러 팹 가동 시작, 8nm 이하 한국·미국 증설", "src": ["s2"] },
+      { "when": "2027", "what": "HBM 공급 목표 가격으로 매진, 장기계약 10곳 체결·10곳 협의, 8.6세대 IT OLED 증산", "src": ["s2"] },
+      { "when": "2027-01 말", "what": "이사회에서 다음 주주환원 정책 확정", "src": ["s1"] }
+    ],
+    "vision": "메모리에서는 HBM·서버 DRAM·SSD로 AI 인프라의 핵심 공급자가 되고, 파운드리에서는 2nm로 하이퍼스케일러 칩을 수주해 메모리·파운드리·패키징을 한 번에 제공하는 회사가 되겠다는 그림이다.",
+    "text": "추격을 위해 회사가 택한 것은 돈을 크게 쓰는 길이다. 2026년 설비투자를 2025년보다 31.7조 원 늘린 약 84.4조 원으로 잡았고, 4분기와 2027년에는 HBM4와 2nm 파운드리를 성장의 두 축으로 내세웠다. 주주환원은 2026년 90~110조 원으로 제시한 뒤 2027년 1월 이사회에서 다음 정책을 정하기로 했다.",
+    "src": ["s1", "s2"]
+  },
+  "governance": {
+    "line": "이사회 의장은 사외이사(신제윤)이고 DS 부문은 전영현 부회장, DX 부문은 노태문 사장이 각각 대표이사로 이끌며, 2026년 주주환원을 90~110조 원으로 제시했다.",
+    "src": ["s4", "s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "4Q26", "metric": "파운드리 매출", "value": "두 자릿수 성장 및 이익 개선 지속", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "설비투자", "value": "약 84.4조 원 (DS 76.8조, SDC 3.9조)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "주주환원 총액", "value": "90~110조 원 (약 35조 원 집행·계획, 55~75조 원 남음)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "2027", "metric": "HBM 공급", "value": "합의된 목표 가격으로 매진", "givenOn": "2026-10-29", "src": ["s2"] }
+    ],
+    "style": "none",
+    "track": "매출·이익 수치 가이던스를 내지 않고 사업별 방향만 제시하므로 비교할 숫자가 없다.",
+    "src": ["s1"]
+  },
+  "estimates": {
+    "text": "컨센서스 수치는 확인하지 못했다. 같은 페이지 관련 기사 제목은 순이익이 예상을 밑돌아 주가가 내렸다고 하지만 본문은 주가 상승을 적고 있어 상충한다(s2).",
+    "src": ["s2"]
+  },
+  "watch": {
+    "confirms": [
+      "Counterpoint HBM 점유율이 33%에서 계속 상승",
+      "HBM4 비중이 60%를 넘어 더 커지고 장기계약 체결 고객이 10곳에서 늘어남",
+      "파운드리가 4Q26 두 자릿수 성장과 이익 개선을 실제로 기록",
+      "2026년 주주환원 90~110조 원 중 남은 55~75조 원 집행",
+      "DX 부문 적자 축소"
+    ],
+    "breaks": [
+      "메모리 가격이 전분기 대비 하락 전환",
+      "HBM 점유율 정체 또는 하락",
+      "테일러 팹·2nm 수율 문제로 파운드리 일정 지연",
+      "DX 적자 확대 (부품 원가 상승)",
+      "대규모 설비투자가 수요보다 빨리 늘어 공급 과잉"
+    ],
+    "keyNumbers": [
+      { "name": "DS 부문 영업이익", "why": "회사 이익의 99%" },
+      { "name": "메모리 매출과 HBM4 비중", "why": "AI 메모리 추격 속도" },
+      { "name": "HBM 점유율 (Counterpoint)", "why": "SK하이닉스와의 간격" },
+      { "name": "설비투자와 순현금", "why": "증설 속도와 환원 여력의 균형" },
+      { "name": "DX 영업이익률", "why": "메모리 원가 상승이 완제품을 얼마나 누르는지" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 말", "event": "이사회 주주환원 정책 확정 (4Q26 실적 시기와 겹칠 가능성 - 날짜 미공지)", "src": ["s1"] },
+      { "date": "분기마다 (9월 초 전후)", "event": "Counterpoint HBM·DRAM 점유율 발표", "src": ["s5", "s6"] },
+      { "date": "분기마다", "event": "SK하이닉스 실적 - HBM 경쟁 구도 비교", "src": ["s7"] }
+    ],
+    "reaction": "주가는 DS 부문 이익, HBM 관련 발언(점유율·HBM4 비중·장기계약), 주주환원 규모에 반응하는 경향이 있다. 3Q26 확정 실적 날의 주가 반응은 자료 간 상충해 확인하지 못했다.",
+    "conditions": [
+      "실적 발표 때 DS 영업이익과 메모리 매출 변화",
+      "HBM4 비중·장기계약 고객 수 언급",
+      "Counterpoint 점유율의 분기 변화",
+      "남은 주주환원(55~75조 원)의 집행 형태와 시점",
+      "파운드리 2nm 수주·테일러 팹 진행 발표",
+      "환율 변동 폭 (3분기 이익 약 10조 원 감소 요인)"
+    ]
+  },
+  "unverified": [
+    "3Q26 순이익 75.1조·총마진 69.3%·영업현금흐름 98.6조·R&D 14.4조·자사주 매입 12.5조는 Investing.com의 AI 보조 요약(s2)에서 읽었고 회사 원본 표로 대조하지 않음",
+    "잉여현금흐름 71.7조 원은 영업현금흐름 98.6조에서 유형자산 취득 26.9조를 뺀 계산값",
+    "부문 매출 합계(약 211.5조)는 내부거래 제거 전이라 연결 매출 195.3조와 맞지 않음; DX·SDC·Harman의 전년 대비 증감률 미확인",
+    "DX 영업이익률 -1.5%, SDC 13.8%, Harman 14.0%는 부문 매출·이익으로 계산한 값",
+    "파운드리·System LSI 개별 매출과 손익",
+    "파운드리·스마트폰·OLED 시장 점유율",
+    "지배주주(총수 일가·계열사) 지분 구조",
+    "3Q26 컨센서스와 실적 발표일 주가 반응 (s2 내부 상충)",
+    "4Q26 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "medium - 매출·부문 이익·설비투자·환원은 회사 보도자료(s1)에서 왔지만 순이익·현금흐름·HBM4 비중은 발표 자료의 2차 요약(s2)에 기대고 있다."
+}

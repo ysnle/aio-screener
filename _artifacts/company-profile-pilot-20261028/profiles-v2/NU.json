@@ -1,0 +1,217 @@
+{
+  "symbol": "NU",
+  "name": "Nu Holdings Ltd. (Nubank)",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (latest quarter Q2 2026, reported 2026-08-13)",
+  "oneLine": "Nu Holdings(누뱅크)는 지점 없이 앱만으로 브라질·멕시코·콜롬비아에서 1억 3,900만 명에게 카드·대출·예금을 제공하는 중남미 최대 디지털 은행으로, 낮은 비용과 AI 신용 모델로 기존 은행보다 높은 수익률을 내는지, 그리고 미국 진출이 통하는지를 보여 준다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Nu Holdings Ltd. Reports Second Quarter 2026 Financial Results", "url": "https://nu.com/en/newsroom/company/nu-holdings-ltd-reports-second-quarter-2026-financial-results", "publisher": "Nu Holdings", "date": "2026-08-13" },
+    { "id": "s2", "kind": "other", "title": "NuHeadlines #50 (company newsletter: Q2 2026 recap, Nu Mexico bank start 2026-08-06, new CFO, AI ranking)", "url": "https://cdn.nubank.com.br/newsletter/nuheadlines-editions/50/nuheadlines-50-en.html", "publisher": "Nu Holdings", "date": "2026-08-19" },
+    { "id": "s3", "kind": "ir-site", "title": "Nu Holdings investor relations home (Q2 2026 documents; Investor Day listed for 2026-12-08 to 12-09)", "url": "https://nu.com/en/investors/en/", "publisher": "Nu Holdings", "date": "2026-10-28" },
+    { "id": "s4", "kind": "news", "title": "Nu secures approval to establish US national bank (OCC conditional approval for Nubank, N.A., 2026-01-29; capitalize within 12 months, open within 18 months; read via search summary)", "url": "https://www.nu.com/en/newsroom/company/nu-secures-approval-to-establish-us-national-bank", "publisher": "Nu Holdings", "date": "2026-01-29" },
+    { "id": "s5", "kind": "news", "title": "Nu Holdings Q2 2026: revenue $5.88B (+39%), net income $1.06B vs $637.0M, EPS $0.22 vs $0.20 consensus (read via search summary)", "url": "https://goldesel.de/aktien/news/nu-holdings-ubertrifft-q2-gewinn-und-umsatz-nettoergebnis-uber-1-mrd-usd-roe-steigt-auf-33", "publisher": "Goldesel", "date": "2026-08-13" },
+    { "id": "s6", "kind": "news", "title": "Nubank US banking charter OCC approval (US launch could come mid-to-late 2027; read via search summary)", "url": "https://fintool.com/news/nubank-us-banking-charter-occ-approval", "publisher": "Fintool", "date": "2026-01" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/nu/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "지점 없는 저비용 구조 - 효율성 비율 19.5% (Q2 2026)",
+      "거대한 고객 기반과 높은 활성도 - 고객 1억 3,900만 명, 월 활성률 83.5%",
+      "자체 AI 신용 모델 - nuFormer가 카드(브라질·멕시코)와 브라질 무담보 대출에 실제 적용",
+      "값싼 예금 조달 - 예금 453억 달러로 대출 394억 달러보다 많음"
+    ],
+    "text": "Nu의 힘은 지점이 없어 고객 한 명을 모시는 비용이 매우 낮다는 데서 시작한다. Q2 2026 효율성 비율 19.5%로 비용이 매출 이익의 5분의 1 수준이고, 1억 3,900만 고객 중 83.5%가 매달 앱을 쓴다. 이 고객 데이터를 자체 AI 신용 모델(nuFormer)에 넣어 대출 심사를 정교하게 하는 것이 세 번째 뿌리다.",
+    "src": ["s1", "s2"]
+  },
+
+  "design": {
+    "text": "이 기반 위에서 Nu가 파는 상품은 카드, 대출, 예금·투자로 나뉜다. 신용 포트폴리오 394억 달러 중 신용카드가 260억, 무담보 개인 대출이 103억, 담보 대출이 31억 달러이고, 예금은 453억 달러다. 2026년에는 중간 소득층용 구독 등급 Croma를 내놓았고, 멕시코에서는 2026-08-06부터 정식 은행으로 영업을 시작했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "make": {
+    "model": "financial",
+    "partners": [
+      "예금자 - 핵심 조달원 (예금 453억 달러, Q2 2026)",
+      "카드 네트워크 - 카드 결제 처리 (Mastercard 등, 이번 조사 출처에서 미확인)",
+      "자체 기술 - 앱, nuFormer 신용 모델, 고객 상담 AI 에이전트",
+      "규제 당국 - 브라질·멕시코 은행 인가, 미국 OCC 조건부 인가 (2026-01-29)"
+    ],
+    "text": "은행인 Nu가 '만드는' 것은 예금으로 모은 돈을 카드·대출로 바꾸는 일이다. 예금 453억 달러가 대출 394억 달러보다 많아 외부 차입에 크게 기대지 않으며, 심사·상담·운영은 자체 기술로 돌린다. 브라질 고객 상담 대화의 60% 이상을 AI 에이전트가 사람과 같은 수준 이상으로 처리한다고 회사는 밝혔다.",
+    "src": ["s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "브라질 개인 - 약 1억 1,800만 명 (월 활성률 86% 이상)",
+      "멕시코 개인 - 1,580만 명(7월 1,600만 명), 성인 인구의 약 16%",
+      "콜롬비아 개인 - 500만 명 이상",
+      "소상공인 (규모 미확인)"
+    ],
+    "channel": "자체 모바일 앱 직접 판매 (지점 없음), 입소문·추천 중심.",
+    "concentration": "개인 고객 분산. 지역 집중은 큼 - 고객의 약 85%가 브라질 (1.18억/1.39억)",
+    "text": "이 상품은 지점 없이 앱으로만 팔리며, 고객의 대부분은 브라질에 있다. Q2에만 약 400만 명이 새로 들어왔고, 멕시코는 1,600만 명으로 이 나라 최대 디지털 은행이 됐다. 브라질 비중이 큰 만큼 브라질 금리·경기·규제가 회사 전체 실적을 좌우한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "브라질·멕시코·콜롬비아 예금자", "to": "Nu", "what": "예금 453억 달러 - Nu는 예금 이자를 지급" },
+      { "from": "카드·대출 고객", "to": "Nu", "what": "카드 할부·리볼빙·대출 이자 (신용 포트폴리오 394억 달러) - 순이자이익 37억 달러 (Q2 2026)" },
+      { "from": "가맹점 (카드 결제망 경유)", "to": "Nu", "what": "카드 결제 수수료(interchange) 등 수수료 매출" },
+      { "from": "Nu", "to": "대손 비용", "what": "연체·부도 손실 충당 (90일 이상 연체율 6.9%)" }
+    ],
+    "pricing": "대출 이자 스프레드가 중심이고, 카드 결제 수수료와 구독·서비스 수수료, 예금 운용 이익(float)이 더해진다. Q2 2026 매출총이익 구성은 신용 41%, 수수료 25%, 예금 운용(float) 34%.",
+    "text": "돈은 예금으로 모은 돈을 카드·대출 이자로 굴려 남기는 길과, 카드 결제 수수료로 들어온다. Q2 2026 순이자이익은 37억 달러, 순이자마진은 22.9%로 기존 은행보다 훨씬 높은데, 그만큼 연체 위험이 큰 고객층에 빌려주기 때문에 대손 비용을 뺀 위험조정 순이자마진은 12.4%다. 매출총이익의 41%가 신용, 25%가 수수료, 34%가 예금 운용에서 나왔다.",
+    "src": ["s1"]
+  },
+
+  "earnings": {
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "revenue": { "value": 5.9, "unit": "USD bn", "yoy": 39 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": null,
+    "operatingCashFlow": null,
+    "freeCashFlow": null,
+    "segments": [],
+    "industryMetric": [
+      { "name": "순이익 / ROE", "value": "약 11억 달러(+49%, 환율 중립) / 연환산 33%", "src": ["s1", "s2"] },
+      { "name": "매출총이익", "value": "24억 달러 (+43% YoY, +25% QoQ, 환율 중립)", "src": ["s1"] },
+      { "name": "순이자이익 / 순이자마진 / 위험조정 순이자마진", "value": "37억 달러 / 22.9% / 12.4% (Q1 2026 9.5%)", "src": ["s1"] },
+      { "name": "효율성 비율", "value": "19.5% (Q2 2025 21.3%, Q1 2026 17.6%)", "src": ["s1"] },
+      { "name": "신용 포트폴리오 / 예금", "value": "394억 달러(+37%) - 카드 260억, 무담보 103억, 담보 31억 / 453억 달러(+18%)", "src": ["s1"] },
+      { "name": "연체율", "value": "15~90일 4.8%(16bp 개선), 90일 이상 6.9%(전 분기 대비 35bp 상승)", "src": ["s1", "s2"] },
+      { "name": "고객 / 활성률 / ARPAC", "value": "1억 3,900만 명 / 83.5% / 월 약 17달러", "src": ["s1"] },
+      { "name": "매출총이익 구성", "value": "신용 41%, 수수료 25%, 예금 운용(float) 34%", "src": ["s1"] }
+    ],
+    "text": "Q2 2026 총매출은 약 59억 달러(+39%, 환율 중립)이고, 분기 순이익이 처음으로 10억 달러를 넘어 ROE 33%를 냈다. 이익은 주로 카드·대출 이자에서 나오지만, 위험조정 순이자마진이 한 분기 만에 9.5%에서 12.4%로 뛴 반면 90일 이상 연체율도 6.9%로 올라 수익과 신용 위험이 함께 커지고 있다. 매출·이익 증가율은 회사가 환율 중립 기준으로 발표하므로 달러 환산 실제 증가율과 다를 수 있다.",
+    "src": ["s1", "s2", "s5"]
+  },
+
+  "useOfCash": {
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "items": [
+      { "use": "customer financing", "label": "고객 대출 (신용 포트폴리오 잔액, 2026-06말)", "value": 39.4, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "미국 Nubank, N.A. 설립 자본 (인가 후 12개월 내 납입, 금액 미확인)", "value": null, "unit": "USD bn", "src": ["s4"] },
+      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "은행인 Nu에게 가장 큰 돈의 쓰임은 고객 대출을 늘리는 것이어서, 신용 포트폴리오가 1년 새 37% 커진 394억 달러가 됐다. 이익은 배당보다 성장 자본으로 남겨 두는 쪽이며(배당 지급은 이번 조사에서 확인하지 못함), 멕시코 은행 전환과 미국 은행 설립에 자본을 넣고 있다. 미국 은행은 2026-01-29 조건부 인가 후 12개월 안에 자본을 채워야 한다.",
+    "src": ["s1", "s4"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 파는 회사가 아니라 신용 심사와 고객 응대에 대규모로 쓰는 도입자. 자체 모델 nuFormer를 카드(브라질·멕시코)와 브라질 무담보 대출 세 포트폴리오에 적용하고, 브라질 상담 대화의 60% 이상을 AI 에이전트가 처리한다.",
+    "dependsOn": ["models-platforms (외부 기반 모델 여부 미확인, nuFormer는 자체 개발)", "cloud-infrastructure (공급자 미확인)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 대출 심사 정확도와 상담 비용에서 나타남"],
+    "aiRevenue": null,
+    "upside": "더 정확한 신용 모델은 같은 연체율에서 더 많이 빌려주거나 같은 대출에서 손실을 줄여 위험조정 마진을 높인다. AI 상담은 고객당 비용을 낮춰 이미 낮은 효율성 비율을 유지하게 돕는다.",
+    "risk": "신용 모델이 경기 침체 같은 새 상황에서 틀리면 연체가 한꺼번에 늘 수 있다(90일 이상 연체율이 이미 6.9%로 상승). 경쟁 은행도 같은 AI를 쓰면 데이터 우위가 줄어든다.",
+    "text": "그래서 AI 가치사슬에서 Nu는 맨 끝의 '도입자'에 있다. AI 매출은 없고, 효과는 대출 심사와 고객 상담 비용에서 나타나며, 회사는 Evident AI 지수 기준 중남미에서 가장 AI가 성숙한 은행이라고 소개한다. 관건은 AI 신용 모델이 연체 상승기에도 위험조정 마진을 지켜 주느냐다.",
+    "src": ["s1", "s2"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "브라질 개인 금융 (카드·대출·예금)", "rivals": ["Itaú Unibanco", "Bradesco", "Banco do Brasil", "Caixa", "Mercado Pago", "Banco Inter (출처 외 일반 분류)"], "position": "leader", "share": "회사는 브라질 최대 민간 은행이자 소비자 주거래 1위라고 주장 (점유율 수치 미확인)", "src": ["s2"] },
+      { "arena": "멕시코 디지털 은행", "rivals": ["BBVA México", "Banorte", "Mercado Pago (출처 외 일반 분류)"], "position": "leader", "share": "멕시코 최대 디지털 은행, 고객 1,600만 명·성인 인구의 약 16% (회사 발표)", "src": ["s2", "s1"] },
+      { "arena": "콜롬비아 개인 금융", "rivals": ["Bancolombia 등 기존 은행 (출처 외 일반 분류)"], "position": "challenger", "share": "고객 500만 명 이상", "src": ["s1"] },
+      { "arena": "미국 소비자 금융 (진출 준비)", "rivals": ["미국 대형 카드사·핀테크"], "position": "follower", "share": null, "src": ["s4"] }
+    ],
+    "edge": "지점 없는 비용 구조(효율성 19.5%), 1억 3,900만 명의 데이터와 AI 신용 모델, 예금이 대출보다 많은 조달 구조.",
+    "threats": "브라질 기존 대형 은행과 Mercado Pago의 디지털 추격, 브라질 금리·신용 경기 악화, 멕시코 연체, 미국 진출 비용과 실행 위험.",
+    "text": "브라질에서 Nu는 회사 말로 이미 최대 민간 은행이고, 멕시코에서도 최대 디지털 은행이 됐다. 경쟁은 기존 대형 은행과 Mercado Pago 같은 다른 디지털 금융에서 오지만, 이번 조사에서는 이들과의 점유율 비교 수치를 확인하지 못했다. Goldman Sachs는 Nu와 경쟁사의 격차가 벌어지고 있다고 평가했다고 회사 소식지는 전한다.",
+    "src": ["s2", "s1"]
+  },
+
+  "strategy": {
+    "goal": "공개된 수치 목표는 확인하지 못했다. 경영진은 '다음 10년을 위해 계속 짓는' 장기 최적화를 강조한다.",
+    "roadmap": [
+      { "when": "2026-08-06", "what": "Nu Mexico 정식 은행 영업 시작", "src": ["s2"] },
+      { "when": "2026-12-08 ~ 12-09", "what": "Investor Day (IR 사이트 공지)", "src": ["s3"] },
+      { "when": "2027-01 무렵 (인가 후 12개월 내)", "what": "미국 Nubank, N.A. 자본 납입 (FDIC·연준 승인 필요)", "src": ["s4"] },
+      { "when": "2027 중후반 (2차 출처), 인가 후 18개월 내", "what": "미국 은행 개점", "src": ["s4", "s6"] },
+      { "when": "2027", "what": "브라질 사무소 2곳 추가", "src": ["s2"] }
+    ],
+    "vision": "창업자 David Vélez는 장기 최적화를 강조하며, 중남미에서 검증한 저비용 디지털 은행 모델을 미국 등 더 큰 시장으로 넓히는 그림을 그린다.",
+    "text": "앞으로의 계획은 브라질에서 번 돈으로 멕시코·콜롬비아를 키우고, 그다음 미국에 들어가는 것이다. 멕시코는 8월 정식 은행이 됐고, 미국은 2026-01-29 OCC 조건부 인가를 받아 18개월 안에 개점해야 한다. 12월 8~9일 Investor Day에서 이 확장의 숫자가 나올지가 다음 관전 포인트다.",
+    "src": ["s2", "s4", "s3"]
+  },
+
+  "governance": {
+    "line": "창업자 David Vélez가 CEO로 이끌고 2026년 7월 Rob Livingston이 CFO로 합류했으며, 미국 사업은 공동창업자 Cristina Junqueira가 맡는다(지배 구조·의결권은 이번 조사에서 미확인); 이익은 배당보다 성장에 재투자한다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "-", "metric": "공식 수치 가이던스", "value": "이번 조사에서 확인하지 못함 (Q2 발표문·소식지에 수치 목표 없음)", "givenOn": "2026-08-13", "src": ["s1", "s2"] }
+    ],
+    "style": "none",
+    "track": "가이던스를 내지 않는다. Q2 2026은 매출(약 58.8억 달러)과 EPS(0.22달러 대 예상 0.20달러)가 시장 예상을 넘었다고 보도됐다(2차 출처).",
+    "src": ["s5"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 2026-09~2027-06 4개 분기 EPS 합계 1.05달러(범위 1.00~1.09, 최소 추정 2건), 직전 4개 분기 0.77달러. 최근 4주 상향·하향 0건.",
+    "src": ["s7"]
+  },
+
+  "watch": {
+    "confirms": [
+      "위험조정 순이자마진이 12% 안팎에서 유지",
+      "90일 이상 연체율 상승이 멈춤",
+      "효율성 비율 20% 안팎 유지",
+      "멕시코 고객·예금 증가와 은행 전환 후 수익성",
+      "미국 은행의 FDIC·연준 승인 진전"
+    ],
+    "breaks": [
+      "90일 이상 연체율이 계속 오르고 위험조정 마진 하락",
+      "브라질 금리·규제 변화로 카드 이자 수익 축소",
+      "고객 증가 둔화와 활성률 하락",
+      "미국 진출 비용이 이익을 크게 깎음",
+      "헤알·페소 약세로 달러 환산 실적 악화"
+    ],
+    "keyNumbers": [
+      { "name": "위험조정 순이자마진", "why": "이자 수익에서 손실을 뺀 실제 수익력" },
+      { "name": "15~90일·90일 이상 연체율", "why": "신용 위험의 선행 신호" },
+      { "name": "ROE", "why": "은행 가치평가의 근거" },
+      { "name": "효율성 비율", "why": "저비용 구조 유지 여부" },
+      { "name": "멕시코 고객·예금", "why": "브라질 밖 성장의 증거" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 중순 (추정, 회사 미확정)", "event": "Q3 2026 실적", "src": [] },
+      { "date": "2026-12-08 ~ 12-09", "event": "Investor Day", "src": ["s3"] },
+      { "date": "2026-10-28 (미 동부, 한국 10-29 새벽)", "event": "FOMC 금리 결정 - 달러·신흥국 통화 흐름 (일정 출처 미첨부)", "src": [] },
+      { "date": "수시", "event": "브라질 중앙은행 금리 결정과 헤알 환율 (일정 미확인)", "src": [] }
+    ],
+    "reaction": "주가는 순이익보다 ROE, 연체율, 위험조정 마진과 고객 증가에 반응하는 경향이 있다. Q2 2026에는 분기 순이익이 처음 10억 달러를 넘고 예상을 웃돌며 주가가 올랐다는 보도가 있었다(2차 출처, 상승 폭은 출처마다 다름).",
+    "conditions": [
+      "분기 90일 이상 연체율과 위험조정 순이자마진 방향",
+      "ROE와 효율성 비율",
+      "멕시코 고객 수·예금 증가",
+      "미국 은행 인가 진행 (FDIC·연준)",
+      "헤알·페소 대 달러 환율 (FOMC 이후 포함)",
+      "브라질 금리 방향"
+    ]
+  },
+
+  "unverified": [
+    "Q2 2026 총매출 정확치 - 회사는 '약 59억 달러', 2차 출처는 58.8억 달러",
+    "매출 항목별(이자 수익·수수료 수익) 달러 분할을 찾지 못해 segments 비움",
+    "총마진·영업이익률·순이익률·현금흐름은 은행 특성과 원문 부재로 null (순이익/매출 약 18%는 2차 출처 값으로 계산 가능)",
+    "모든 증가율이 환율 중립(FXN) 기준 - 달러 환산 증가율 미확인 (2차 출처는 순이익 6.37억에서 10.6억 달러)",
+    "Q3 2026 실적 발표일 (IR 사이트에 없음)",
+    "미국 은행 FDIC·연준 승인 상태, 개점 시점 2027 중후반은 2차 출처",
+    "배당 지급 여부, 자사주 매입",
+    "브라질·멕시코 시장 점유율 수치; 경쟁자 이름 일부는 출처 문서가 아니라 일반 분류",
+    "카드 네트워크 파트너 명칭",
+    "FOMC 일정은 사용자 제공 맥락 기준"
+  ],
+  "confidence": "medium - 핵심 지표는 회사 Q2 2026 발표문과 소식지에서 왔지만 매출 정확치와 매출 항목 분할, 달러 기준 증가율을 원문으로 확인하지 못했고 Q3 실적이 아직 나오지 않았다."
+}

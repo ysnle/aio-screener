@@ -6,8 +6,19 @@ import { buildSessionBridge, renderSessionBridgeContext } from '../../domain/mar
 import { buildMarketLean, renderMarketLeanContext } from '../../domain/market/market-lean.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { MARKET_TEMPERATURE, STRESS_OUTCOMES, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
+import { KR_INDEX_WEIGHTS, EVENT_BRIEFS } from '../../data/event-artifacts.js';
+import { selectNewsItems } from '../../state/selectors/news.js';
 
 const VERDICT_WORDS = Object.freeze({ supports: '근거 맞음', partial: '일부 맞음', against: '근거 약함', unknown: '판단 보류' });
+
+// v59.42: what the contributor lines read — screener rows, the two weight sources, briefs, Telegram posts and headlines.
+function attributionOf(root, store) {
+  const state = store?.getState?.() || {};
+  let rows = state.screener?.rows;
+  if (!Array.isArray(rows) || !rows.length) { try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; } }
+  return { rows, krWeights: root?.[KR_INDEX_WEIGHTS.key] || null, usWeights: state.screener?.metadata?.indexWeights || null, briefs: root?.[EVENT_BRIEFS.key]?.briefs || [],
+    telegram: [...(root?.AIO_TELEGRAM_CURRENT_ITEMS || []), ...(root?.AIO_TELEGRAM_BROAD_ITEMS || [])], news: selectNewsItems(state) };
+}
 
 function snapshotOf(root, store) {
   return store?.getState?.()?.marketSnapshot || root?.AIO_ARCH?.getMarketSnapshot?.() || null;
@@ -24,7 +35,7 @@ function exposeContextReaders(root, store, currentRegime) {
   root.__aioMarketNowContext = (text = '') => {
     const lean = () => { const regime = currentRegime(); return leanModel(root, regime?.available ? regime : null); };
     return [
-      SESSION_QUESTION.test(text) ? renderSessionBridgeContext(buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store) })) : '',
+      SESSION_QUESTION.test(text) ? renderSessionBridgeContext(buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store), attribution: attributionOf(root, store) })) : '',
       LEAN_QUESTION.test(text) ? renderMarketLeanContext(lean()) : ''
     ].filter(Boolean).join('\n');
   };
@@ -37,9 +48,12 @@ function leanModel(root, regime) {
   return buildMarketLean({ regime, stress: root?.[STRESS_OUTCOMES.key] || null, temperature: root?.[MARKET_TEMPERATURE.key] || null, vix });
 }
 
-export function paintSessionBridge(doc, root, store, anchor) {
+export function paintSessionBridge(doc, root, store, anchor, rerender = null) {
   if (!doc || !anchor) return null;
-  const model = buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store) });
+  for (const spec of [KR_INDEX_WEIGHTS, EVENT_BRIEFS]) {
+    if (sharedArtifactIsStale(root, spec.key, spec)) refreshSharedArtifact(root, spec).then(({ changed }) => { if (changed && typeof rerender === 'function') rerender(); }).catch(() => {});
+  }
+  const model = buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store), attribution: attributionOf(root, store) });
   let box = doc.getElementById('home-session-bridge');
   if (!model.available) { if (box) box.hidden = true; return model; }
   if (!box) { box = el(doc, 'div', null, 'session-bridge'); box.id = 'home-session-bridge'; anchor.insertAdjacentElement('afterend', box); }
@@ -64,7 +78,7 @@ export function paintSessionBridge(doc, root, store, anchor) {
     more.append(el(doc, 'summary', `원인 후보 ${model.links.length}가지 점검`), list);
     nodes.push(more);
   }
-  for (const [text, className] of [[model.futuresLine ? `미국 선물: ${model.futuresLine}` : null, model.futuresStale ? 'session-bridge__line is-stale' : 'session-bridge__line'], [model.next, 'session-bridge__line'], [model.oil, 'session-bridge__line']]) {
+  for (const [text, className] of [[model.usLeaders?.line || null, 'session-bridge__line'], [model.futuresLine ? `미국 선물: ${model.futuresLine}` : null, model.futuresStale ? 'session-bridge__line is-stale' : 'session-bridge__line'], [model.next, 'session-bridge__line'], [model.oil, 'session-bridge__line']]) {
     if (text) nodes.push(el(doc, 'p', text, className));
   }
   box.replaceChildren(...nodes);
@@ -116,6 +130,6 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
 // The 오늘 hero call (src/ui/components/market-regime.js renderHomeRegime): clock and links under the Korea line, lean under the leaders.
 export function paintHome(doc, root, store, regime, rerender, currentRegime) {
   exposeContextReaders(root, store, currentRegime);
-  paintSessionBridge(doc, root, store, doc.getElementById('home-kr-line') || doc.getElementById('home-hero-headline'));
+  paintSessionBridge(doc, root, store, doc.getElementById('home-kr-line') || doc.getElementById('home-hero-headline'), rerender);
   paintMarketLean(doc, root, regime?.available ? regime : null, doc.getElementById('home-hero-leaders'), rerender);
 }

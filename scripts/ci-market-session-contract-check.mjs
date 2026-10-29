@@ -158,6 +158,15 @@ check('temporal evidence separates event/observed/collected/published', temporal
   const politics = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-24T02:00:00Z'), days: 7 }).map((row) => row.id);
   const afterVote = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-29T00:00:00Z'), days: 7 }).map((row) => row.id);
   check('v58.74 a scheduled election is in the 7-day schedule and leaves it once the polls have closed', politics.includes('il-knesset-2026') && !politics.includes('us-midterm-2026') && !afterVote.includes('il-knesset-2026') && afterVote.includes('us-midterm-2026'), { politics, afterVote });
+  // v59.42 (owner audit 2026-10-28): the home schedule's 3-day window still lists the 11/3 midterm through its lead window;
+  // an entry past its expiry is dropped and reported, and every entry carries its source and review date.
+  const { scheduledEventProblems, activeScheduledEvents } = await import('../src/domain/briefing/scheduled-events.js');
+  const homeWindow = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-29T13:00:00Z'), days: 3 }).filter((row) => row.id === 'us-midterm-2026');
+  const expired = activeScheduledEvents({ nowMs: Date.parse('2026-11-11T00:00:00Z'), days: 30, registry: [{ id: 'x', atKst: '2026-11-12T00:00:00+09:00', expiresAt: '2026-11-10', source: 's', reviewedAt: '2026-10-29' }] });
+  check('v59.42 a major registered event shows through its lead window and expires', homeWindow.length === 1 && homeWindow[0].major === true && expired.length === 0
+    && !scheduledEventProblems({ nowMs: Date.parse('2026-10-29T00:00:00Z') }).some((problem) => problem.level === 'error')
+    && scheduledEventProblems({ nowMs: Date.parse('2026-11-11T00:00:00Z') }).some((problem) => problem.id === 'us-midterm-2026' && problem.level === 'warn'), { homeWindow, expired });
+  for (const problem of scheduledEventProblems()) if (problem.level === 'warn') console.warn(`[scheduled-events] ${problem.id}: ${problem.reason}`);
   check('P1735 2027 KRX holidays come from the registry (Chuseok 9/14-16)', JSON.stringify(chuseok2027) === JSON.stringify(['krx-holiday-2027-09-14', 'krx-holiday-2027-09-15', 'krx-holiday-2027-09-16']), chuseok2027);
 }
 

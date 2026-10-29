@@ -1,0 +1,573 @@
+{
+  "symbol": "SMCI",
+  "name": "Super Micro Computer, Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "June 30 (FY2026 ended 2026-06-30)",
+  "oneLine": "Supermicro는 NVIDIA 등 GPU를 넣은 AI 서버와 랙을 직접 설계·조립해 클라우드와 기업에 빠르게 공급하는 회사로, 2026년 9월 분기 예비 매출을 185억~195억 달러로 가이던스보다 크게 올려 잡았지만 낮은 마진·대규모 재고·높은 고객 집중을 함께 안고 있다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Supermicro Announces Fourth Quarter and Full Fiscal Year 2026 Financial Results (preliminary, unaudited)",
+      "url": "https://www.supermicro.com/en/pressreleases/supermicro-announces-fourth-quarter-and-full-fiscal-year-2026-financial-results",
+      "publisher": "Supermicro",
+      "date": "2026-08-11"
+    },
+    {
+      "id": "s2",
+      "kind": "other",
+      "title": "AIO local SEC companyfacts snapshot, public-data/sec-fundamentals.json (FY2026 10-K filed 2026-08-31, accession 0001375365-26-000022)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001375365.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-08-31"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/smci/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "AIO local earnings calendar snapshot, public-data/earnings-calendar.json (SMCI 2026-11-03 after close; not company-confirmed in this session)",
+      "url": "https://www.nasdaq.com/market-activity/earnings",
+      "publisher": "AIO earnings calendar",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s5",
+      "kind": "earnings-release",
+      "title": "Supermicro Provides First Quarter of Fiscal Year 2027 Preliminary Business Update (unaudited; call 2026-11-03 5pm ET)",
+      "url": "https://www.supermicro.com/en/pressreleases/supermicro-provides-first-quarter-fiscal-year-2027-preliminary-business-update",
+      "publisher": "Supermicro",
+      "date": "2026-10-20"
+    },
+    {
+      "id": "s6",
+      "kind": "ir-site",
+      "title": "Supermicro Announces Completion of Independent Investigation and Continued Enhancement of Export Compliance Program",
+      "url": "https://www.supermicro.com/de-de/pressreleases/supermicro-announces-completion-independent-investigation-and-continued-enhancement",
+      "publisher": "Supermicro",
+      "date": "2026-08-20"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "Financial analysis of Super Micro Computer fiscal 2026 (10-K XBRL tables: net sales by customer location, services and software, convertible notes, bank debt, mandatory convertible preferred)",
+      "url": "https://sec-api.io/insights/financial-analysis-of-super-micro-computer-fiscal-2026",
+      "publisher": "sec-api.io",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s8",
+      "kind": "news",
+      "title": "Super Micro revenue surges 78% but margin pressures and control gaps linger (reads FY2026 10-K: AR concentration, supplier concentration, internal control status)",
+      "url": "https://stockti.com/super-micro-revenue-surges-78-but-margin-pressures-and-control-gaps-linger",
+      "publisher": "StockTi",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s9",
+      "kind": "news",
+      "title": "Super Micro reports nine customers with revenue above $1B in FY26, up from four last year (CFO remarks; Q4 guide range)",
+      "url": "https://cryptobriefing.com/super-micro-nine-billion-dollar-customers-fy26/",
+      "publisher": "Crypto Briefing",
+      "date": "2026-08-11"
+    },
+    {
+      "id": "s10",
+      "kind": "10-K",
+      "title": "Super Micro Computer Form 10-K FY2025, Competition section (read through a web-search excerpt; sec.gov blocked)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1375365/000137536525000027/smci-20250630.htm",
+      "publisher": "SEC EDGAR",
+      "date": "2025-08-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "Building Block 설계 - 표준 부품 모듈을 조합해 새 GPU가 나오면 빠르게 서버를 내놓는 방식 (DCBBS: 데이터센터 단위 빌딩블록)",
+      "미국·대만·네덜란드 자체 설계·생산 (회사 설명)",
+      "랙 단위 통합·시험 후 출하하는 '전체 AI/IT 솔루션' 공급",
+      "대형 고객 주문을 소화하는 생산·재고 규모 - 지난 1년 신규 수주 600억 달러 이상"
+    ],
+    "text": "Supermicro의 강점은 칩이 아니라 속도다. 표준화된 '빌딩 블록' 모듈을 조합해 GPU 공급사가 새 칩을 내면 가장 빨리 서버와 랙으로 만들어 내고, 이를 데이터센터 전체 단위(DCBBS)로 묶어 공급한다. 미국·대만·네덜란드에서 직접 설계·생산하는 체계가 이 속도를 받친다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "이 방식으로 회사가 설계하는 것은 AI·범용 서버, 스토리지, 그리고 이를 묶은 랙과 데이터센터 단위 솔루션이다. CEO는 이를 '전체 AI/IT 솔루션' 전략이라 부르며, DCBBS 구조의 확산이 수익성을 높이고 있다고 말한다. 부문별 매출은 이번에 확인한 보도자료에 나오지 않는다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "단일 최대 공급사 - FY2026 총 구매액의 63.1% (FY2025 64.4%; 회사명 미공시, 2차 자료로 확인)",
+      "NVIDIA·AMD 등 - GPU·CPU 공급 (GB200·GB300 시스템이 FY2026 증가분의 대부분; 공급사별 비중 미공시)",
+      "자체 공장 - 미국, 대만, 네덜란드에서 설계·생산",
+      "은행 차입 40.6억 + 전환사채 46.6억 달러, 의무전환우선주 42.3억 달러 (2026-06-30)"
+    ],
+    "text": "Supermicro는 공장을 직접 가진 조립·통합 회사다. GPU·CPU·메모리 같은 비싼 부품을 사서 자체 공장에서 서버와 랙으로 만들고 시험해 출하하는데, FY2026 구매액의 63%가 한 공급사에 몰려 있었다. 그래서 대형 주문이 몰리면 부품을 먼저 사 둬야 하고, 2026년 6월 말 재고가 129억 달러로 1년 전 47억 달러의 약 2.7배가 됐다.",
+    "src": [
+      "s1",
+      "s7",
+      "s8"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "대형 AI 데이터센터·클라우드 고객 (이름 미공시) - FY2026 매출 10억 달러 이상 고객 9곳 (FY2025 4곳, CFO 발언)",
+      "기업·채널 고객 - 지난 1년 '수백 곳'의 기업 및 기타 고객 추가",
+      "지역 - 미국 70.9%, 아시아 15.5%, 유럽 6.8%, 기타 6.7% (FY2026 고객 소재지 기준)"
+    ],
+    "channel": "직접 판매와 유통·재판매 채널을 함께 쓴다(채널별 비중 미확인).",
+    "concentration": "2026-06-30 매출채권의 52.6%가 고객 세 곳(23.0%·17.1%·12.5%)에 몰려 있다. 고객별 매출 비중은 이번에 확인하지 못했다. 회사는 더 큰 고객을 겨냥하며 집중이 커질 수 있다고 경고한다.",
+    "text": "이렇게 만든 시스템은 대형 AI 데이터센터 고객과 기업에 팔린다. FY2026에는 매출 10억 달러가 넘는 고객이 9곳으로 1년 새 두 배 넘게 늘었고, 매출채권의 절반 이상이 세 고객에게 묶여 있을 만큼 큰 고객 의존이 크다. 회사는 지난 1년 600억 달러 넘는 신규 수주로 FY2027을 시작했다며, 기업 고객 비중을 늘려 마진을 높이려 한다.",
+    "src": [
+      "s1",
+      "s7",
+      "s8",
+      "s9"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "AI 서비스 이용자·기업",
+        "to": "클라우드·AI 데이터센터 운영사",
+        "what": "AI 서비스·클라우드 이용료"
+      },
+      {
+        "from": "클라우드·AI 데이터센터·기업",
+        "to": "Supermicro",
+        "what": "AI 서버·랙 시스템 대금 (대당·랙당, 대형 프로젝트 단위)"
+      },
+      {
+        "from": "Supermicro",
+        "to": "NVIDIA·AMD 등 부품 공급사",
+        "what": "GPU·CPU·메모리 등 부품 대금 (재고 129억 달러)"
+      },
+      {
+        "from": "은행·전환사채·우선주 투자자",
+        "to": "Supermicro",
+        "what": "운전자본 조달 (FY2026 재무활동 유입 95억 달러)"
+      }
+    ],
+    "pricing": "하드웨어를 대당·랙당으로 판매한다. 매출원가의 대부분이 GPU 등 구매 부품이라 총이익률이 10%대로 낮고, 고객·제품 구성에 따라 크게 움직인다.",
+    "text": "돈은 클라우드·기업의 서버 구매 대금으로 들어오지만, 그 전에 부품 대금이 먼저 나간다. 매출의 대부분이 GPU 같은 남의 부품 값이라 총이익률이 FY2026 10.8%에 그치고, 재고와 매출채권(61억 달러)이 쌓이면서 연간 영업현금흐름은 -68억 달러였다. 즉 매출이 빨리 늘수록 운전자본 부담도 함께 커지는 구조다.",
+    "src": [
+      "s1",
+      "s7"
+    ]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-06-30, preliminary unaudited release; 10-K filed 2026-08-31)",
+    "revenue": {
+      "value": 39.063,
+      "unit": "USD bn",
+      "yoy": 78
+    },
+    "grossMargin": 10.8,
+    "operatingMargin": 7.1,
+    "netMargin": 5.7,
+    "operatingCashFlow": {
+      "value": -6.81,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": -6.972,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "지역: 미국 (고객 소재지 기준, 단일 보고 부문)",
+        "revenue": 27.69,
+        "unit": "USD bn",
+        "share": 70.9,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "지역: 아시아",
+        "revenue": 6.063,
+        "unit": "USD bn",
+        "share": 15.5,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "지역: 유럽",
+        "revenue": 2.675,
+        "unit": "USD bn",
+        "share": 6.8,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "name": "지역: 기타",
+        "revenue": 2.635,
+        "unit": "USD bn",
+        "share": 6.7,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s7"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "Q1 FY2027 예비 실적 (2026-09 분기, 미감사)",
+        "value": "매출 185억~195억 달러 (가이던스 145억~155억), 총이익률 12.0~12.5% (가이던스 10.4~10.8%); 회사는 AI 플랫폼 수요와 고객·제품 구성을 이유로 들었다",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "name": "Q4 FY2026 매출·마진",
+        "value": "매출 111.2억 달러(전분기 102억, 전년 58억), GAAP 총이익률 17.5%(전분기 9.9%), 순이익 11.78억 달러, 조정 EBITDA 16.69억(15.0%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "수주",
+        "value": "지난 1년 신규 수주 600억 달러 이상, FY2027 진입 수주잔고 사상 최대 (금액 미공시)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "재고·매출채권 (2026-06-30)",
+        "value": "재고 129억 달러(전년 47억), 매출채권 61억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "현금·차입 (2026-06-30)",
+        "value": "현금 75억 달러, 은행 차입·전환사채 87억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "구매 약정 (2026-06-30)",
+        "value": "단기 구매 약정 342억 달러",
+        "src": [
+          "s7"
+        ]
+      }
+    ],
+    "text": "이 구조가 FY2026에 매출 390.6억 달러(+78%), 총이익률 10.8%, 영업이익률 약 7%, 순이익 22.3억 달러(5.7%)로 나타났다. 4분기에는 총이익률이 17.5%로 뛰었는데, 회사는 기업 고객 비중과 DCBBS 확산을 이유로 들었다. 반면 재고가 82억 달러 넘게 늘어 연간 영업현금흐름은 -68억 달러였고, 10월 예비 발표에서 9월 분기 매출은 185억~195억 달러, 총이익률은 12%대로 제시됐다.",
+    "src": [
+      "s1",
+      "s2",
+      "s5",
+      "s7"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-06-30)",
+    "items": [
+      {
+        "use": "R&D",
+        "value": 0.771,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.162,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "재고 증가 (운전자본, 잔액 차이로 계산)",
+        "value": 8.2,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "FY2026 현금의 가장 큰 쓰임은 설비가 아니라 재고였다. 재고 잔액이 47억에서 129억 달러로 약 82억 달러 늘었고, 설비투자는 1.6억 달러, R&D는 7.7억 달러에 그쳤다. 자사주 매입은 FY2025 2억 달러 이후 없었고, 부족한 운전자본은 은행 차입·전환사채·의무전환우선주로 채웠다.",
+    "src": [
+      "s1",
+      "s7"
+    ]
+  },
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "GPU 칩을 받아 실제로 데이터센터에 꽂히는 서버·랙 시스템으로 만들어 공급하는 '시스템 통합' 자리. 칩 설계사(NVIDIA·AMD)와 클라우드 사이에 있다.",
+    "dependsOn": [
+      "chips-compute (NVIDIA·AMD GPU, CPU; 단일 공급사가 구매액의 63%)",
+      "memory (HBM 탑재 GPU, 서버 DRAM·SSD)",
+      "운전자본 조달 (은행·전환사채·우선주)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (클라우드·AI 데이터센터 운영사)",
+      "ai-adopter (기업 고객)"
+    ],
+    "aiRevenue": "AI 서버 매출 비중은 공시되지 않음. FY2026 서버·스토리지 증가분 171억 달러 중 153억 달러가 GPU·랙 제품(주로 GB200·GB300 시스템)에서 나왔다는 10-K 기반 2차 분석이 있다.",
+    "upside": "GPU 세대 교체와 AI 데이터센터 증설이 이어지면 서버 대수와 랙 단위 매출이 함께 커진다. 회사는 FY2027 매출 650억~720억 달러를 제시했다.",
+    "risk": "GPU 공급사가 랙 단위 설계를 직접 표준화하면 통합 업체의 몫이 줄 수 있고, 대만 ODM과 Dell·HPE 같은 경쟁이 가격을 누른다. 수출통제 관련 이사회 조사는 2026-08-20 회사에 불리한 발견 없이 끝났지만, 정부 당국의 조사는 계속되고 있다.",
+    "text": "그래서 AI 가치사슬에서 Supermicro는 칩(NVIDIA·AMD)을 받아 클라우드가 쓸 수 있는 완성 시스템으로 바꾸는 '연산 시스템' 자리에 있다. AI 설비투자가 늘면 매출은 크게 늘지만, 가치의 대부분은 위쪽 칩 회사가 가져가 마진이 얇다. 그래서 같은 AI 호황에서도 매출 성장과 이익률·현금흐름이 따로 움직일 수 있다.",
+    "src": [
+      "s1",
+      "s6",
+      "s7"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "AI 서버·랙 시스템",
+        "rivals": [
+          "Dell Technologies",
+          "Hewlett Packard Enterprise",
+          "Lenovo",
+          "ODM (Foxconn, Quanta Computer, Wiwynn)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "arena": "범용 x86 서버·스토리지",
+        "rivals": [
+          "Cisco",
+          "Dell Technologies",
+          "HPE",
+          "Lenovo"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s10"
+        ]
+      }
+    ],
+    "edge": "새 GPU를 가장 빨리 제품화하는 빌딩 블록 설계, 데이터센터 단위(DCBBS) 통합 공급, 자체 생산.",
+    "threats": "대형 클라우드가 ODM과 직접 거래하면 중간 통합 업체의 역할이 줄고, 10-K도 ODM이 자체 브랜드 제품으로 경쟁자가 되고 있다고 적는다. Dell·HPE는 기업 고객 영업망과 금융 지원으로 맞서고, 내부통제 미비(IT 일반통제 1건)와 컴플라이언스 이력은 대형 고객의 선택에 영향을 줄 수 있다.",
+    "text": "이 자리에서 Supermicro는 10-K가 꼽는 대로 Cisco·Dell·HPE·Lenovo 같은 글로벌 업체, 그리고 Foxconn·Quanta·Wiwynn 같은 ODM과 경쟁한다. 회사는 신제품 출시 속도와 데이터센터 단위 통합으로 차별화하고, 기업 고객을 늘려 마진을 높이는 전략이다. 경쟁사 목록은 FY2025 10-K 기준이고 점유율 자료는 확인하지 못했다.",
+    "src": [
+      "s1",
+      "s8",
+      "s10"
+    ]
+  },
+  "strategy": {
+    "goal": "FY2027 매출 650억~720억 달러. 기업 고객 비중 확대와 DCBBS 확산으로 수익성을 높이고, 기술·생산 규모·글로벌 컴플라이언스에 계속 투자한다.",
+    "roadmap": [
+      {
+        "when": "2026-10-20 (Q1 FY2027 예비)",
+        "what": "9월 분기 매출 185억~195억 달러, 총이익률 12.0~12.5%로 가이던스(145억~155억, 10.4~10.8%) 상회 예비 발표",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "when": "2026-11-03",
+        "what": "Q1 FY2027 확정 실적과 Q2 가이던스 발표",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "매출 650억~720억 달러 (FY2026 대비 약 66~84% 증가; 8월 제시, 10월 예비 발표에서는 연간 갱신 없음)",
+        "src": [
+          "s1",
+          "s5"
+        ]
+      },
+      {
+        "when": "진행 중",
+        "what": "이사회가 전면 채택한 수출 컴플라이언스 개선안 이행, 정부 조사 협조",
+        "src": [
+          "s6"
+        ]
+      }
+    ],
+    "vision": "서버 한 대가 아니라 데이터센터 전체를 빌딩 블록으로 설계·공급하는 '전체 AI/IT 솔루션' 회사가 되는 것.",
+    "text": "회사의 다음 목표는 FY2027 매출을 650억~720억 달러로 키우는 것이고, 첫 분기(2026년 9월 분기)는 예비 기준 185억~195억 달러로 가이던스 상단을 크게 넘었다. 4분기 17.5%에서 12%대로 내려온 총이익률이 기업 고객과 DCBBS로 어디서 자리 잡는지가 이 계획의 질을 정한다. 수출통제 이사회 조사는 8월에 끝났지만 정부 조사는 계속된다.",
+    "src": [
+      "s1",
+      "s5",
+      "s6"
+    ]
+  },
+  "governance": {
+    "line": "창업자 Charles Liang이 사장 겸 CEO로 이끌며, 수출통제 관련 이사회 독립 조사는 2026-08-20 '과거 재무제표를 믿을 수 없다는 증거 없음'으로 끝났지만 FY2026 말 내부통제는 IT 일반통제 1건 미비로 비효과적 판정을 받았고, 자사주 매입과 배당은 없었다.",
+    "src": [
+      "s1",
+      "s6",
+      "s8"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q1 FY2027 (예비)",
+        "metric": "net sales / gross margin",
+        "value": "185억~195억 달러 / 12.0~12.5% (기존 145억~155억 / 10.4~10.8%에서 상향된 예비 추정)",
+        "givenOn": "2026-10-20",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "period": "Q1 FY2027",
+        "metric": "net sales",
+        "value": "145억~155억 달러",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q1 FY2027",
+        "metric": "diluted EPS (GAAP / non-GAAP)",
+        "value": "0.89~0.98 / 1.01~1.10달러",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "net sales",
+        "value": "650억~720억 달러",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "Q4 FY2026 매출 111.2억 달러는 직전 가이던스 110억~125억 달러의 하단 근처였다(2차 자료). Q1 FY2027은 예비 발표 기준 매출·총이익률 모두 가이던스를 크게 넘었다. 회사는 분기 중 예비 실적을 따로 발표하는 일이 잦다.",
+    "src": [
+      "s1",
+      "s2",
+      "s5",
+      "s9"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 4.09달러(범위 3.29~5.39, 최소 6명), 직전 4개 분기 실적 합 3.12달러. 최근 4주 상향 4건·하향 0건으로 상향 방향.",
+    "src": [
+      "s3"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "11-03 확정 매출·총이익률이 예비 범위(185억~195억, 12.0~12.5%) 안에서 나옴",
+      "FY2027 650억~720억 달러 가이던스 유지·상향",
+      "재고가 매출로 빠지며 영업현금흐름 흑자 지속",
+      "IT 일반통제 미비 해소와 정부 조사 무사 종결",
+      "10억 달러 이상 고객 수 증가와 기업 고객 비중 확대"
+    ],
+    "breaks": [
+      "총이익률이 다시 10% 안팎으로 하락",
+      "재고·매출채권이 매출보다 빠르게 늘어남",
+      "정부 조사에서 회사 차원의 제재·고객 이탈",
+      "가이던스 하향 또는 대형 주문 지연",
+      "추가 전환사채·우선주 발행 등 희석성 조달"
+    ],
+    "keyNumbers": [
+      {
+        "name": "총이익률",
+        "why": "얇은 마진 사업의 이익을 결정"
+      },
+      {
+        "name": "분기 매출 vs 가이던스",
+        "why": "FY2027 650억~720억 경로 확인"
+      },
+      {
+        "name": "재고·영업현금흐름",
+        "why": "성장이 현금을 얼마나 묶는지"
+      },
+      {
+        "name": "순차입(은행 40.6억 + 전환사채 46.6억 - 현금 75억)",
+        "why": "운전자본 조달 부담"
+      },
+      {
+        "name": "고객 집중 (10억 달러 이상 고객 수, 매출채권 상위 3곳 비중)",
+        "why": "대형 고객 한두 곳이 분기를 좌우"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11-03 17:00 ET (회사 확정)",
+        "event": "Q1 FY2027 실적 발표와 Q2 가이던스",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "date": "수시",
+        "event": "분기 중 예비 실적 발표, 정부 수출통제 조사 관련 공시",
+        "src": [
+          "s5",
+          "s6"
+        ]
+      }
+    ],
+    "reaction": "주가는 매출 성장보다 총이익률과 다음 분기 가이던스에 민감하고, 회계·지배구조·컴플라이언스 관련 공시에 크게 흔들려 왔다. 이번에는 이미 예비 수치가 나와 있어, 확정치가 예비 범위와 맞는지와 Q2·FY2027 가이던스가 관전 포인트다.",
+    "conditions": [
+      "확정 매출·총이익률이 10-20 예비 범위 안인지",
+      "다음 분기 매출 가이던스와 FY2027 650억~720억 유지 여부",
+      "재고·매출채권·영업현금흐름 변화",
+      "정부 수출통제 조사·내부통제 관련 공시",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+  "unverified": [
+    "FY2026 실적은 보도자료 시점 예비·미감사 수치 - 10-K(2026-08-31) 원문과 직접 대조하지 않음 (AIO SEC 스냅샷의 매출 390.63억·순이익 22.30억 달러는 일치)",
+    "Q1 FY2027 수치는 회사 예비 추정(미감사)이며 EPS·영업비용은 공개되지 않음",
+    "영업이익률 7.1%는 보도자료 영업이익 27.70억 달러로 계산",
+    "재고 증가 82억 달러는 재고 잔액 차이(128.96억 - 약 47억)로 계산한 값이며 현금흐름표 항목이 아님",
+    "잉여현금흐름 -69.7억 달러는 영업현금흐름 - 설비투자로 계산",
+    "지역별 매출·구매 약정·의무전환우선주·GPU 랙 증가분은 sec-api.io가 10-K XBRL을 정리한 2차 자료에서 읽음 (sec.gov 차단)",
+    "매출채권 집중(3곳 52.6%)·공급사 집중(63.1%)·내부통제 판정은 StockTi 기사가 10-K를 읽은 2차 자료",
+    "10억 달러 이상 고객 9곳과 Q4 가이던스 110억~125억 달러는 Crypto Briefing 기사에서만 확인",
+    "고객별 매출 비중과 대형 고객 이름, 최대 공급사 이름",
+    "AI 서버 매출 비중 - 공시되지 않음",
+    "경쟁사 목록은 FY2025 10-K를 검색 발췌로 읽음 (FY2026 10-K 목록 미확인), 점유율 없음",
+    "Charles Liang의 지분율",
+    "정부 당국 수출통제 조사의 범위·일정"
+  ],
+  "confidence": "medium - 실적·가이던스·예비 실적·조사 결과는 회사 보도자료 원문에서 읽었지만, 고객·공급사 집중과 지역 매출은 10-K를 읽은 2차 자료에 의존한다."
+}

@@ -815,6 +815,7 @@ export function buildNewsSurfaceModel(surfaceId, items, opts = {}, env = {}) {
 /** Score buckets, topics, sources, tiers and per-surface eligibility of `items` (the 뉴스 선별 audit). */
 export function newsSelectionAudit(items, env = {}) {
   const sourceItems = Array.isArray(items) ? items : [];
+  const nowMs = typeof env.now === 'function' ? env.now() : Date.now();
   const audit = {
     generatedAt: new Date().toISOString(),
     checked: sourceItems.length,
@@ -822,7 +823,7 @@ export function newsSelectionAudit(items, env = {}) {
     topics: {},
     sources: {},
     tiers: {},
-    verification: { verifiedCurrent: 0, current: 0, secondaryOnly: 0, unverified: 0, stale: 0 },
+    verification: { 'verified-current': 0, current: 0, 'headline-only': 0, 'secondary-only': 0, unverified: 0, stale: 0 }, // newsVerificationStatus names
     homeEligible: 0,
     briefingEligible: 0,
     marketNewsEligible: 0,
@@ -836,7 +837,9 @@ export function newsSelectionAudit(items, env = {}) {
     const topic = item && (item.topic || classifyTopic(item)) || 'general';
     const source = String(item && item.source || 'unknown');
     const tier = String(newsSourceTier(item));
-    const status = newsVerificationStatus(item); // no age given: every row counts as stale, as before the move
+    // v59.42: the row's age against the 뉴스 page window (it was passed none, so every row counted as stale).
+    const ageHours = (nowMs - newsPubMs(item)) / 3600000;
+    const status = newsVerificationStatus(item, ageHours, NEWS_SURFACE_CONTRACTS['market-news']);
     const reasons = Array.isArray(item && item._scoreReasons) ? item._scoreReasons : [];
     if (score >= 90) audit.scoreBuckets.gte90++;
     else if (score >= 70) audit.scoreBuckets.gte70++;
@@ -857,4 +860,18 @@ export function newsSelectionAudit(items, env = {}) {
     try { audit.marketNewsEligible = build('market-news', sourceItems, {}).items.length; } catch (_) {}
   }
   return audit;
+}
+
+// v59.42 coverage pass: how well a Telegram post answers an AI-chat question (js/aio-chat.js ranks the digest's broad
+// items with it). The tickers, tags and shared topic words compare under the one keyword rule; '엔' stands alone or as
+// 엔화/엔저/엔고, so '엔비디아' is not the yen.
+const TELEGRAM_QUERY_KW = ['반도체', '메모리', 'mlcc', '금리', '코스피', 'ai', 'etf', '목표주가', '달러', '엔', '엔화', '엔저', '엔고', '상향', '하향'];
+export function telegramItemQueryRelevance(item, query) {
+  const q = String(query || '').toLowerCase();
+  const text = String((item && (item.text || item.summary)) || '').toLowerCase();
+  let rel = 0;
+  for (const ticker of Array.isArray(item && item.tickers) ? item.tickers : []) if (ticker && keywordHit(q, String(ticker).toLowerCase())) rel += 4;
+  for (const tag of Array.isArray(item && item.tags) ? item.tags : []) if (tag && keywordHit(q, String(tag).toLowerCase())) rel += 2;
+  for (const kw of TELEGRAM_QUERY_KW) if (keywordHit(q, kw) && keywordHit(text, kw)) rel += 1;
+  return rel;
 }

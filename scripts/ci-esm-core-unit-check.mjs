@@ -1854,6 +1854,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (moved.revision === observed.revision || !/1\.21/.test(moved.narratives.find((row) => row.claimId === 'sentiment.put-call')?.text || '')) fail('W01/P1143 sentiment ViewModel: a new 1.21 observation must move card and narrative to one new revision');
   const missingPc = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: null }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
   const missingPcNarrative = missingPc.narratives.find((row) => row.claimId === 'sentiment.put-call');
+  {
+    // v59.43: a 5-session 10-year drop with HY OAS widening by the watch amount is a flight to safety, not a supportive rate move.
+    const { defensiveYieldDrop } = await load('src/domain/market/regime-radar.js');
+    const ty = [{ date: '2026-10-20', value: 5.10 }, { date: '2026-10-27', value: 4.99 }];
+    const wide = defensiveYieldDrop(ty, [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 320 }], '2026-10-27', '2026-10-20');
+    const calm = defensiveYieldDrop(ty, [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 305 }], '2026-10-27', '2026-10-20');
+    const rising = defensiveYieldDrop([{ date: '2026-10-20', value: 4.9 }, { date: '2026-10-27', value: 5.0 }], [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 330 }], '2026-10-27', '2026-10-20');
+    if (wide?.yieldBp !== -11 || wide?.oasBp !== 20 || calm !== null || rising !== null) fail(`v59.43 defensive yield drop: got ${JSON.stringify({ wide, calm, rising })}`);
+  }
+  // v59.43 P2134: a put/call volume ratio cannot tell bought from sold puts, so the band never claims hedging demand.
+  if (/하락 대비 수요|헤지 수요/.test(putCallBand(1.21)?.label || '') || !/풋 거래/.test(putCallBand(1.21)?.label || '')) fail(`P2134 put/call band must name the volume tilt only, got ${putCallBand(1.21)?.label}`);
   if (putCallBand(null)?.blocked !== true || putCallNeedlePosition(null) !== '판정 보류' || missingPcNarrative?.status !== 'withheld') fail(`W01/P1143 sentiment ViewModel: missing P/C must withhold, got ${JSON.stringify(missingPcNarrative)}`);
   const missingSpy = deriveSentimentViewModel({ values: { fearGreed: 42, vix: 17, spyChg: null }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
   if (spyMoveState(null)?.state !== 'missing' || spyMoveState(0)?.state !== 'observed' || missingSpy.narratives.find((row) => row.claimId === 'sentiment.spy-vix-divergence')?.status !== 'withheld') fail('W01/P1143 sentiment ViewModel: missing SPY move must stay missing, never 0% flat');
@@ -2224,6 +2235,19 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet18.PACKET_20261018_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('x-bookmarks 2026-10-18 frames must be lessons on a path, cite unique listed sources, reach the claim ledger and stay out of rank/score');
     if (top('강제 매도인지 펀더멘털 하락인지 어떻게 구분해') !== 'supplied-material:claim-20261018-forced-seller-chain' || top('VIX로 하루 예상 변동폭 계산') !== 'supplied-material:claim-20261018-volatility-base-rates'
       || top('메모리 주가가 D램 가격보다 먼저 움직이나') !== 'supplied-material:claim-20261018-memory-cycle-lead') fail('x-bookmarks 2026-10-18 chat retrieval must reach the new frames');
+    // v59.43 x-bookmarks 2026-10-28: the same contract for the bookmarks added after the 10/18 read; the audit rows add up
+    // to the new bookmarks and no source repeats an earlier packet.
+    const packet28 = await load('src/domain/research/packet-20261028-x-bookmarks.js');
+    const ids28 = new Set(packet28.PACKET_20261028_SOURCES.map((row) => row.id));
+    const audit28 = packet28.PACKET_20261028_AUDIT;
+    if (packet28.PACKET_20261028_FRAMES.length !== audit28.framesAdded
+      || packet28.PACKET_20261028_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id) || frame.sourceRefs.some((id) => !ids28.has(id)) || !claimIds.has(`claim-20261028-${frame.id}`))
+      || ids28.size !== packet28.PACKET_20261028_SOURCES.length || [...ids28].some((id) => ids16.has(id) || ids18.has(id))
+      || audit28.inScope + audit28.agentPractice + audit28.unrelated !== audit28.newSinceLedger || Object.values(audit28.repoState).reduce((a, b) => a + b, 0) !== audit28.newSinceLedger
+      || packet28.PACKET_20261028_SOURCES.flatMap((row) => row.checks).some((row) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(row.state) || !row.basis)
+      || packet28.PACKET_20261028_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.43 x-bookmarks 2026-10-28 frames must be lessons on a path, cite unique listed sources, reach the claim ledger, add up and stay out of rank/score');
+    if (top('풋콜 비율이 높으면 하락 대비 수요야') !== 'supplied-material:claim-20261028-put-flow-direction' || top('장기 공급 계약 기간이 PER 배수를 바꾸나') !== 'supplied-material:claim-20261028-contract-duration-multiple'
+      || top('하이퍼스케일러 실적에서 설비투자 늘리면 왜 주가가 빠져') !== 'supplied-material:claim-20261028-hyperscaler-capex-grid') fail('v59.43 x-bookmarks 2026-10-28 chat retrieval must reach the new frames');
   }
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
@@ -4441,6 +4465,27 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { installTelegramCollector } = await load('src/data/providers/telegram-direct.js');
   const tg = {};
   installTelegramCollector(tg);
+  // v59.42 coverage pass: the AI chat ranks Telegram posts for a question by shared keywords; '엔' matched inside
+  // '엔비디아' and 'ai' inside 'said', so an Nvidia question pulled yen posts. One keyword rule here too.
+  const { telegramItemQueryRelevance } = await load('src/domain/news/selection.js');
+  const tgRel = typeof telegramItemQueryRelevance === 'function' ? [
+    telegramItemQueryRelevance({ text: '엔비디아 실적 발표 앞두고 반도체 강세', tickers: [] }, '엔비디아 전망은?'),
+    telegramItemQueryRelevance({ text: '엔화 약세에 엔/달러 150 돌파', tickers: [] }, '엔화 전망'),
+    telegramItemQueryRelevance({ text: 'He said again the market is fine', tickers: [] }, 'ai 반도체'),
+    telegramItemQueryRelevance({ text: 'NVDA beats', tickers: ['NVDA'] }, 'nvda 어때'),
+  ] : null;
+  if (!tgRel || tgRel.join() !== '0,1,0,4') fail(`v59.42 Telegram chat relevance uses the one keyword rule (엔비디아≠엔, said≠ai): ${JSON.stringify(tgRel)}`);
+  // v59.42 coverage pass: the 뉴스 page source label reads the audit's market-news eligibility, which counted through a
+  // global that never existed and was always 0, so the page was held at SNAPSHOT however many articles it showed.
+  const { installNewsSelection } = await load('src/app/news-selection-entry-points.js');
+  const { briefingWindowKST } = await load('src/domain/news/scoring.js');
+  const nowIso = new Date(briefingWindowKST(Date.now()).end - 2 * 3600000).toISOString(); // inside the completed cycle
+  const host = { extractTickers: () => [], getDisplayTickers: () => [], getDisplayTitle: (item) => item.title, _serverDataMeta: {} };
+  installNewsSelection(host);
+  const auditRows = ['Fed holds rates as inflation cools', 'Nvidia chips rally on AI demand', 'Treasury yields slip after jobs report']
+    .map((title, k) => ({ title, desc: '', source: 'Reuters', tier: 1, country: 'us', topic: 'macro', score: 80 - k, pubDate: nowIso, link: `https://e.test/${k}` }));
+  const newsAudit = host.AIO.getNewsSelectionAudit(auditRows);
+  if (!(newsAudit.marketNewsEligible > 0) || newsAudit.verification.stale === auditRows.length) fail(`v59.42 the news selection audit counts market-news eligibility and current rows: ${JSON.stringify({ eligible: newsAudit.marketNewsEligible, verification: newsAudit.verification })}`);
   if (!tg.isTelegramMsgRelevant('Lead time for chips shrinks as stock market earnings beat') || tg.isTelegramMsgRelevant('Join our ad channel for stock market tips')) fail('P2116 Telegram spam words match whole words: "lead " is kept, "ad " still drops');
 }
 
@@ -6183,6 +6228,26 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const empty = new Map();
   const bare = { getItem: (k) => (empty.has(k) ? empty.get(k) : null), setItem: (k, v) => empty.set(k, String(v)), removeItem: (k) => empty.delete(k) };
   if (toggleWatchlistSymbol(bare, 'MSFT', 4).listName !== '관심 종목') fail('v58.80 star with no list makes "관심 종목"');
+  // v59.42: the portfolio list CRUD shares this store; a list with no tickers array is repaired, not dropped (and so deleted).
+  const { readWatchlists, writeWatchlists } = await load('src/data/watchlist-store.js');
+  const kept = new Map([[WATCHLISTS_KEY, JSON.stringify([{ id: 'a', name: 'x', tickers: [{ sym: 'MU' }] }, { id: 'b', name: 'old' }, null])], [LEGACY_STAR_KEY, JSON.stringify(['NVDA'])]]);
+  const keptStore = { getItem: (k) => (kept.has(k) ? kept.get(k) : null), setItem: (k, v) => kept.set(k, String(v)), removeItem: (k) => kept.delete(k) };
+  const lists = readWatchlists(keptStore, 5);
+  if (lists.map((l) => l.id + ':' + l.tickers.map((t) => t.sym).join('/')).join() !== 'a:MU/NVDA,b:' || !writeWatchlists(keptStore, lists) || JSON.parse(kept.get(WATCHLISTS_KEY)).length !== 2) fail(`v59.42 one watchlist store keeps a list without tickers: ${JSON.stringify(lists)}`);
+}
+
+// v59.42: the AI question cues match English words whole (no 'per' in "operating", 'now' in "know", 'hold' in
+// "threshold") and Korean cues as substrings, as before.
+{
+  const c = await load('src/ai/intent/question-cues.js');
+  const wrong = [
+    [c.asksSimpleCue('What is the operating margin?'), false], [c.asksSimpleCue('삼성전자 PER이 뭐야'), true],
+    [c.looksFreshCue('I know corporate bonds'), false], [c.looksFreshCue('오늘 시장 상황'), true], [c.looksFreshCue('rates this week'), true],
+    [c.asksDecisionCue('the 50-day threshold'), false], [c.asksDecisionCue('NVDA 지금 사도 돼?'), true], [c.asksDecisionCue('hold or trim MSFT'), true],
+    [c.deepAnalysisCue('fintech names'), false], [c.deepAnalysisCue('Analyze NVDA'), true], [c.deepCompareCue('NVDA vs AMD 비즈니스 모델'), true],
+    [c.asksMissingCue('데이터가 없어요'), true], [c.asksEvidenceCue('이 숫자 출처'), true]
+  ].map(([got, want], i) => (got === want ? null : i)).filter((i) => i != null);
+  if (wrong.length) fail(`v59.42 question cues: cases ${wrong.join(',')} wrong`);
 }
 
 // v58.80 (first-users F01, run-5 phone): the static shell paints the produced verdict; the record is the shared interpretation's
@@ -6255,7 +6320,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 // v58.81 (owner 2026-10-26): the market clock and Korea↔US link check — Monday 22:13 KST is the US pre-market with the
 // open 17 minutes away; a KOSDAQ fall far larger than every outside cue is named Korea-led; old futures are flagged.
 {
-  const { buildSessionBridge, marketClock } = await load('src/domain/market/session-bridge.js');
+  const { buildSessionBridge, koreaLinks, marketClock } = await load('src/domain/market/session-bridge.js');
   const q = (instrumentId, value, changePct, observedAt) => ({ instrumentId, value, changePct, observedAt });
   const snapshot = { generatedAt: '2026-10-26T09:21:00Z', quotes: [q('^KS11', 5469, -1.46, '2026-10-26T06:32:50Z'), q('^KQ11', 727, -3.26, '2026-10-26T06:33:00Z'), q('^IXIC', 25955, -0.21, '2026-10-23T21:15:59Z'), q('KRW=X', 1323.8, 0.01, '2026-10-26T09:20:59Z'), q('CL=F', 100.7, -2.45, '2026-10-26T09:11:08Z')],
     evidenceQuotes: [q('ES=F', 7683, 0.31, '2026-10-26T09:11:06Z'), q('NQ=F', 29187, 0.24, '2026-10-26T09:11:08Z'), q('^N225', 62189, -0.8, '2026-10-26T06:45:03Z'), q('^HSI', 23211, 0.51, '2026-10-26T08:08:28Z')] };
@@ -6279,6 +6344,30 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (nextDayFx.links.some((link) => link.id === 'fx')) fail('v58.81 a next-day FX reading is not a cause of the previous Korean session');
   if (morning.links.some((link) => link.id === 'us') || morning.next !== null || sat.next !== null || sat.futuresStale || !/주말 휴장/.test(friNight.us.label))
     fail(`v58.81 bridge review cases: ${JSON.stringify({ links: morning.links.map((l) => l.id), next: [morning.next, sat.next], stale: sat.futuresStale, fri: friNight.us.label })}`);
+  // P2127 (owner audit 2026-10-28): the KOSDAQ gap follows the day's direction — on 10/28 the KOSPI rose 6.6% and the
+  // KOSDAQ 3.7%, so the KOSDAQ rose less; it did not "fall more". Down days and an opposite-direction KOSDAQ as well.
+  const gapLine = (kospi, kosdaq) => koreaLinks({ kospi: { change: kospi, observedAt: '2026-10-28T06:35:00Z' }, kosdaq: { change: kosdaq }, nikkei: { change: 0.9, observedAt: '2026-10-28T06:30:00Z' } }).find((link) => link.id === 'local')?.text || '';
+  const upLess = gapLine(6.6, 3.7), upMore = gapLine(2, 4), downLess = gapLine(-4, -1.5), downMore = gapLine(-1.5, -3.3), split = gapLine(3, -0.5);
+  if (/빠져/.test(upLess) || !/덜 올라/.test(upLess) || !/대형주/.test(upLess) || !/더 올라/.test(upMore) || !/중소형/.test(upMore)
+    || !/덜 빠져/.test(downLess) || !/더 빠져/.test(downMore) || !/반대/.test(split) || /더 (올라|빠져)|덜 (올라|빠져)/.test(split))
+    fail(`P2127 KOSDAQ gap wording follows the day's direction: ${JSON.stringify({ upLess, upMore, downLess, downMore, split })}`);
+  // v59.42 (owner audit 2026-10-28): the 한국 고유 요인 line names the contributors (weight × same-session return) and each
+  // one's dated item — the filing brief first; a market wrap that tags many symbols is not this name's news.
+  const { indexContributors, contributorsSentence, datedItemFor } = await load('src/domain/market/move-attribution.js');
+  const rows = [{ sym: '000660.KS', name: 'SK하이닉스', ret1d: 10.89, factorSessionDate: '2026-10-28' }, { sym: '005930.KS', name: '삼성전자', ret1d: 9, factorSessionDate: '2026-10-28' },
+    { sym: '373220.KS', name: 'LG에너지솔루션', ret1d: -2.3, factorSessionDate: '2026-10-28' }, { sym: '402340.KS', name: 'SK스퀘어', ret1d: 13, factorSessionDate: '2026-10-27' }];
+  const weights = [{ sym: '005930.KS', weightPct: 29.6 }, { sym: '000660.KS', weightPct: 22.7 }, { sym: '373220.KS', weightPct: 1.9 }, { sym: '402340.KS', weightPct: 2.5 }];
+  const leaders = indexContributors({ rows, weights, sessionDate: '2026-10-28', indexChange: 6.6 });
+  const closeMs = Date.parse('2026-10-28T15:30:00+09:00');
+  const wrap = { tickers: ['005930.KS', '000660.KS', 'NVDA', 'AAPL', 'MU', 'TSM'], datetime: '2026-10-28T01:00:00Z', summary: '삼성전자 SK하이닉스 미국 증시 브리핑' };
+  const sentence = contributorsSentence(leaders, { indexName: '코스피', sessionCloseMs: closeMs, briefs: [{ symbol: '000660.KS', period: '2026년 3분기', publishedAt: '2026-10-28T00:00:00+09:00' }], telegram: [wrap],
+    news: [{ title: 'Samsung Electronics shares jump on buyback', pubDate: '2026-10-28T02:00:00Z' }] });
+  const leaderLine = koreaLinks({ kospi: { change: 6.6, observedAt: '2026-10-28T06:35:00Z' }, kosdaq: { change: 3.7 }, nikkei: { change: 0.9, observedAt: '2026-10-28T06:30:00Z' } }, { krLeaders: sentence }).find((link) => link.id === 'local')?.text || '';
+  if (leaders?.items.map((item) => item.sym).join() !== '005930.KS,000660.KS' || !/SK하이닉스 \+10\.9%\(기여 \+2\.5%p, 10\/28 2026년 3분기 실적 발표\)/.test(leaderLine)
+    || !/삼성전자 \+9%\(기여 \+2\.7%p, 10\/28 Samsung Electronics shares jump/.test(leaderLine) || /SK스퀘어/.test(leaderLine)
+    || datedItemFor({ sym: '000660.KS', name: 'SK하이닉스' }, { sessionCloseMs: closeMs, telegram: [wrap] }) !== null
+    || datedItemFor({ sym: 'GE', name: 'GE' }, { sessionCloseMs: closeMs, news: [{ title: 'GE shares rise', pubDate: '2026-10-28T02:00:00Z' }] }) !== null)
+    fail(`v59.42 Korea contributors and dated items: ${JSON.stringify({ leaders, leaderLine })}`);
 }
 
 // v58.81 (owner 2026-10-26): the probabilistic lean — a frequency votes only beyond its sampling noise on 30+ cases, the

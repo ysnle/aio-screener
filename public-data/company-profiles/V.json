@@ -1,0 +1,234 @@
+{
+  "symbol": "V",
+  "name": "Visa Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "September 30 (FY2026 ended 2026-09-30)",
+  "oneLine": "Visa는 카드를 직접 발급하거나 돈을 빌려주지 않고 전 세계 은행·가맹점 사이의 결제를 승인·정산해 주고 건당·금액당 수수료를 받는 세계 최대 결제 네트워크로, 소비와 해외여행 경기, 그리고 AI 에이전트 결제·스테이블코인 같은 새 결제 방식이 기존 망을 넓히는지 잠식하는지를 함께 보여 준다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Visa Fiscal Fourth Quarter and Full-Year 2026 Financial Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001403161/000140316126000126/q42026earningsrelease.htm", "publisher": "Visa / SEC EDGAR", "date": "2026-10-27" },
+    { "id": "s2", "kind": "call-transcript", "title": "Visa (V) Q4 2026 Earnings Call Transcript (call held 2026-10-27)", "url": "https://www.fool.com/earnings/call-transcripts/2026/10/28/visa-v-q4-2026-earnings-call-transcript/", "publisher": "The Motley Fool", "date": "2026-10-28" },
+    { "id": "s3", "kind": "10-K", "title": "Visa Form 10-K for fiscal year ended 2025-09-30 (business model, scale, data centers, competitors, employees; filing day not checked)", "url": "https://www.sec.gov/Archives/edgar/data/1403161/000140316125000089/v-20250930.htm", "publisher": "Visa / SEC EDGAR", "date": "2025-11" },
+    { "id": "s4", "kind": "news", "title": "Earnings call transcript: Visa tops Q4 2026 estimates, shares slip after hours (headline as indexed; article body not opened)", "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-visa-tops-q4-2026-estimates-shares-slip-after-hours-93CH-4977161", "publisher": "Investing.com", "date": "2026-10-27" },
+    { "id": "s5", "kind": "news", "title": "Visa Q4 FY2026 preview: consensus about $3.43 EPS and $12.08B revenue (read via search summary)", "url": "https://www.earningswhispers.com/article/V/20807", "publisher": "Earnings Whispers", "date": "2026-10" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/v/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "양면 네트워크 규모 - 결제 자격(카드·토큰) 52억 개, 가맹점·지갑 접점 4억 곳 이상 (FY2026 콜)",
+      "VisaNet 처리망 - FY2026 처리 거래 2,813억 건, 4개 글로벌 데이터센터",
+      "은행·가맹점이 바꾸기 어려운 표준 - 대면 결제의 85%가 탭 결제, 자격의 50% 이상 토큰화",
+      "결제 데이터 위의 부가 서비스(VAS) - FY2026 매출 약 140억 달러 (+30%)"
+    ],
+    "text": "Visa의 힘은 카드를 가진 사람이 많을수록 가맹점이 Visa를 받아야 하고, 가맹점이 많을수록 은행이 Visa 카드를 내야 하는 양면 네트워크에서 나온다. FY2026에 52억 개의 결제 자격과 2,813억 건의 처리 거래가 이 망을 지나갔다. 여기에 토큰화·탭 결제 같은 표준과 사기 방지·데이터 서비스가 얹혀, 은행과 가맹점이 다른 망으로 옮기는 비용이 커진다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "design": {
+    "text": "이 망 위에서 Visa가 파는 것은 회사가 보고하는 네 가지 매출로 나뉜다. 서비스 매출(카드 결제 금액에 비례하는 브랜드·지원 수수료), 데이터 처리 매출(승인·정산·청산 처리 건당 수수료), 해외 거래 매출(국경 간 결제와 환전 수수료), 기타 매출(VAS·컨설팅·마케팅 서비스 등)이며, 은행·가맹점에 돌려주는 고객 인센티브를 빼서 순매출을 만든다. 2026-08-03에는 행동 기반 사기 탐지 기업 BioCatch를 현금 24억 달러에 인수하기로 하며 부가 서비스 쪽을 더 넓히고 있다.",
+    "src": ["s1", "s3"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "VisaNet - 승인·청산·정산 처리망, 4개 글로벌 데이터센터 (자체 운영)",
+      "발급 은행 - 카드 발급과 신용 공여 (Visa는 직접 하지 않음)",
+      "매입 은행·결제대행사 - 가맹점 모집과 정산",
+      "디지털 파트너·지갑 - 탭·토큰 결제 접점",
+      "BioCatch - 인수 예정 사기 탐지 기업 (24억 달러, FY2027 2분기 말까지 완료 예정)"
+    ],
+    "text": "Visa가 '만드는' 것은 공장 제품이 아니라 자체 데이터센터에서 돌리는 처리 서비스다. 10-K는 Visa가 카드를 발급하거나 신용을 제공하거나 카드 이용자 수수료를 정하지 않는 '4자 모델'의 망 운영자라고 설명한다. 그래서 대출 손실 위험은 은행이 지고, Visa는 FY2025 기준 약 34,100명의 인력과 4개 데이터센터로 처리 용량과 보안을 유지하는 데 집중한다.",
+    "src": ["s3", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "발급 은행 (카드사) - 서비스·데이터 처리 수수료를 내는 직접 고객",
+      "매입 은행·결제대행사 - 가맹점 쪽 처리 수수료",
+      "가맹점·디지털 지갑 - 4억 곳 이상의 결제 접점 (간접)",
+      "기업·정부 - 상업 결제와 송금(CMS, Visa Direct)"
+    ],
+    "channel": "은행·결제대행사와의 다년 계약(직접), 카드 이용자와 가맹점은 은행을 통해 간접적으로 닿는다.",
+    "concentration": "최대 고객 비중은 이번 조사에서 확인하지 못함. FY2027에는 결제 금액의 약 25%가 계약 갱신 대상 (FY2026 약 20%)",
+    "text": "Visa의 직접 고객은 카드를 발급하는 은행과 가맹점을 모으는 매입 은행이고, 소비자와 가맹점은 이들을 거쳐 Visa 망을 쓴다. 은행과의 계약은 다년 계약이며, 갱신 때 은행을 붙잡으려고 주는 인센티브가 매출에서 빠진다. 경영진은 FY2027에 결제 금액의 약 25%가 갱신 대상이어서 인센티브 부담이 커질 수 있다고 밝혔다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "카드 이용자", "to": "가맹점", "what": "Visa 카드·토큰으로 결제 (FY2026 결제 금액 +9%, 고정환율 기준)" },
+      { "from": "가맹점", "to": "매입 은행", "what": "가맹점 수수료 - 대부분은 발급 은행 몫인 interchange로, Visa가 직접 받는 돈이 아님" },
+      { "from": "발급·매입 은행", "to": "Visa", "what": "서비스 매출(결제 금액 비례) + 데이터 처리 매출(건당), FY2026 각각 199억·234억 달러" },
+      { "from": "해외 결제·환전 고객 (은행 경유)", "to": "Visa", "what": "해외 거래 매출, FY2026 153억 달러 (국경 간 결제 +13%)" },
+      { "from": "은행·가맹점·기업", "to": "Visa 부가 서비스", "what": "사기 방지·데이터·마케팅·송금 서비스료 (VAS FY2026 약 140억 달러)" },
+      { "from": "Visa", "to": "발급 은행·가맹점", "what": "고객 인센티브 지급 (FY2026 183억 달러, 매출에서 차감)" }
+    ],
+    "pricing": "결제 금액에 비례하는 요율(서비스), 처리 건당 수수료(데이터 처리), 국경 간 거래와 환전 요율(해외), 서비스별 요금(VAS). 은행에 주는 인센티브를 빼서 순매출로 잡는다.",
+    "text": "돈은 소비자가 결제할 때마다 은행을 거쳐 Visa로 들어온다. Visa는 결제 금액에 비례하는 서비스 매출과 처리 건당 데이터 처리 매출을 받고, 해외 결제에는 더 높은 요율의 해외 거래 매출을 붙이며, 이 총액에서 은행에 돌려주는 인센티브 183억 달러를 뺀다. 그래서 소비 금액, 결제 건수, 해외여행이 동시에 늘 때 매출이 가장 빨리 자란다.",
+    "src": ["s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-09-30)",
+    "revenue": { "value": 45.903, "unit": "USD bn", "yoy": 15 },
+    "grossMargin": null,
+    "operatingMargin": 61.2,
+    "netMargin": 51.2,
+    "operatingCashFlow": { "value": 23.728, "unit": "USD bn" },
+    "freeCashFlow": { "value": 22.057, "unit": "USD bn" },
+    "segments": [
+      { "name": "Service revenue (서비스 매출)", "revenue": 19.918, "unit": "USD bn", "share": 43.4, "yoy": 14, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Data processing revenue (데이터 처리 매출)", "revenue": 23.374, "unit": "USD bn", "share": 50.9, "yoy": 17, "operatingMargin": null, "src": ["s1"] },
+      { "name": "International transaction revenue (해외 거래 매출)", "revenue": 15.251, "unit": "USD bn", "share": 33.2, "yoy": 8, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Other revenue (기타 매출)", "revenue": 5.677, "unit": "USD bn", "share": 12.4, "yoy": 40, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Client incentives (고객 인센티브, 차감)", "revenue": -18.317, "unit": "USD bn", "share": -39.9, "yoy": 16, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "결제 금액 증가율 (고정환율)", "value": "FY2026 +9%, Q4 +9% (미국 Q4 +10%)", "src": ["s1", "s2"] },
+      { "name": "국경 간 결제 증가율 (고정환율)", "value": "FY2026 전체 +13%(유럽 역내 제외 +12%), Q4 +14%", "src": ["s1"] },
+      { "name": "처리 거래 건수", "value": "FY2026 2,813억 건(+9%), Q4 742억 건(+10%)", "src": ["s1"] },
+      { "name": "부가 서비스(VAS) 매출", "value": "FY2026 약 140억 달러(+30%), Q4 40억 달러(+31%, 고정환율)", "src": ["s2"] },
+      { "name": "상업·송금 솔루션(CMS) 매출 증가율", "value": "FY2026 +19%", "src": ["s2"] },
+      { "name": "Q4 FY2026 실적", "value": "순매출 121.39억 달러(+13%), GAAP EPS 3.19달러, 비GAAP EPS 3.48달러(+17%)", "src": ["s1"] },
+      { "name": "소송 충당금", "value": "FY2026 17.64억 달러(FY2025 25.62억), Q4 4.74억 달러", "src": ["s1"] },
+      { "name": "결제 자격·토큰·탭", "value": "자격 52억 개(+6%), 50% 이상 토큰화, 대면 결제 탭 비중 85%", "src": ["s2"] }
+    ],
+    "text": "이 구조가 FY2026에 순매출 459억 달러(+15%)와 GAAP 순이익 235억 달러를 만들어, 순이익률은 약 51%, GAAP 영업이익률은 약 61%다. 매출 총액에서 가장 큰 덩어리는 데이터 처리(234억)와 서비스(199억) 매출이고, 가장 빨리 자란 것은 VAS가 들어 있는 기타 매출(+40%)이다. 반면 인센티브가 매출의 약 40%를 깎아 먹고 소송 충당금 17.6억 달러가 GAAP 이익을 누른다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-09-30)",
+    "items": [
+      { "use": "buybacks", "value": 20.451, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 5.112, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 1.671, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 0.705, "unit": "USD bn", "src": ["s1"] },
+      { "use": "debt repayment", "value": 5.565, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "미국 소송 에스크로 예치 (발표문 기재, 시점은 분기 미확인)", "value": 0.405, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "설비 투자가 작아 영업현금흐름 237억 달러의 대부분이 주주에게 돌아간다. FY2026에는 자사주 205억 달러(약 6,100만 주)와 배당 51억 달러로 합계 256억 달러를 돌려줬고, 분기 배당은 16% 올린 주당 0.78달러가 됐다. 설비 투자는 17억 달러에 그쳤고, 대신 BioCatch(24억 달러, 미완료) 같은 부가 서비스 인수에 돈을 쓰기 시작했다. 9월 말 남은 자사주 매입 한도는 244억 달러다.",
+    "src": ["s1"]
+  },
+
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI 인프라를 파는 회사가 아니라, AI 에이전트가 사람 대신 결제하는 '에이전트 커머스'가 어느 결제망을 쓰느냐에 직접 노출된 결제 네트워크. 사기 탐지 같은 자체 AI는 VAS 매출로 판다.",
+    "dependsOn": ["models-platforms (AI 에이전트·쇼핑 서비스를 만드는 AI 파트너, 약 50곳 연동)", "cloud-infrastructure (자체 데이터센터 4곳 + 외부 공급자, 업체명 미확인)"],
+    "sellsTo": ["AI 에이전트 플랫폼·디지털 파트너 (에이전트용 토큰·인증)", "발급 은행·가맹점 (AI 사기 탐지 등 VAS)"],
+    "aiRevenue": null,
+    "upside": "AI 에이전트가 결제할 때 Visa 토큰과 인증을 쓰면 결제 건수와 VAS 매출이 함께 늘어난다. 회사는 연동된 AI 파트너가 약 50곳이고 두 배쯤 늘 것으로 본다고 했으며, BioCatch 인수로 AI 기반 사기 탐지 상품도 키운다.",
+    "risk": "경영진 스스로 에이전트 결제는 아직 아주 초기이고 사업에서 작은 비중이라고 말했다. AI 에이전트가 카드 대신 스테이블코인이나 계좌 이체를 쓰는 쪽으로 가면 Visa 망을 우회할 수 있다(회사는 스테이블코인 정산을 직접 열어 대응 중, 연환산 250억 달러 이상).",
+    "text": "그래서 AI 가치사슬에서 Visa는 칩이나 모델이 아니라 'AI가 돈을 쓰는 순간'에 서 있다. AI 매출은 따로 공개되지 않고, 경영진도 에이전트 결제는 아직 작다고 인정한다. 관건은 AI 에이전트 결제가 Visa 토큰 위에서 일어나느냐, 스테이블코인 같은 다른 길로 새느냐이며, Visa는 두 길 모두에 발을 걸치는 쪽을 택했다.",
+    "src": ["s2", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "글로벌 카드 결제 네트워크", "rivals": ["Mastercard", "American Express", "Discover/Diners Club", "JCB", "UnionPay"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "계좌 기반 실시간 결제·송금", "rivals": ["각국 실시간 계좌이체망 (구체 명칭은 이번 조사에서 미확인)", "핀테크 송금 업체"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "스테이블코인·디지털 화폐 결제", "rivals": ["스테이블코인 발행사와 블록체인 결제망 (10-K가 위험으로 언급)"], "position": "challenger", "share": null, "src": ["s3", "s2"] },
+      { "arena": "사기 방지·결제 데이터 서비스 (VAS)", "rivals": ["Mastercard 부가 서비스", "전문 보안·인증 기업"], "position": "leader", "share": null, "src": ["s1", "s2"] },
+      { "arena": "중국 국내 결제 처리", "rivals": ["UnionPay"], "position": "niche", "share": "중국 인민은행이 국내 거래 처리 준비를 승인 (FY2026 콜), 점유율 없음", "src": ["s2"] }
+    ],
+    "edge": "52억 개 자격과 4억 곳 이상 접점의 양면 네트워크, 토큰·탭 결제 표준, 그리고 그 위에서 30%씩 자라는 VAS.",
+    "threats": "계좌 기반 실시간 결제와 스테이블코인의 카드 우회, 갱신 주기에 따른 인센티브 상승, 미국 interchange 소송과 규제, 해외여행 위축.",
+    "text": "카드 네트워크 경쟁에서 Visa는 Mastercard·American Express 등과 맞서는 선두이지만, 이번 조사에서 공시된 점유율은 확인하지 못했다. 새로운 경쟁은 같은 카드망보다 계좌 이체와 스테이블코인 쪽에서 오며, 10-K도 디지털 화폐를 경쟁 요인으로 든다. Visa의 대응은 스테이블코인 정산을 직접 열고(연환산 250억 달러 이상), 사기 방지·데이터 서비스로 은행을 묶어 두는 것이다.",
+    "src": ["s3", "s2"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 조정 순매출 증가율 '낮은 두 자릿수', 조정 영업비용도 낮은 두 자릿수(매출보다 약간 낮게), 조정 EPS 증가율 낮은 두 자릿수~10%대 초반, VAS 증가율 20%대 초중반.",
+    "roadmap": [
+      { "when": "FY2027 2분기 말까지 (2027-03 무렵)", "what": "BioCatch 인수(현금 24억 달러) 완료 예정", "src": ["s1", "s2"] },
+      { "when": "FY2027", "what": "결제 금액 약 25%의 은행 계약 갱신 (인센티브 증가 요인)", "src": ["s2"] },
+      { "when": "FY2027 중", "what": "AI 에이전트 결제 파트너 약 50곳에서 대략 두 배로 확대 기대", "src": ["s2"] },
+      { "when": "2026-09-30 시작", "what": "Open USD(OUSD) 가동, 스테이블코인 정산 확대", "src": ["s2"] },
+      { "when": "시점 미정", "what": "중국 본토 국내 거래 처리 준비 (인민은행 승인)", "src": ["s2"] }
+    ],
+    "vision": "CEO McInerney는 '2027년과 그 이후에는 신뢰가 Visa의 다음 성장 동력'이라고 말하며, 결제망 위에 보안·인증·데이터를 얹은 신뢰 인프라를 그린다.",
+    "text": "앞으로의 계획은 결제망의 성장 속도가 느려지는 만큼 부가 서비스로 메우는 것이다. FY2027 매출 증가율을 15%에서 낮은 두 자릿수로 낮춰 제시했고, 2분기가 가장 낮을 것으로 봤다. 대신 VAS를 20%대 초중반으로 키우고, BioCatch 인수와 스테이블코인·에이전트 결제로 '신뢰'를 다음 성장 축으로 삼겠다고 했다.",
+    "src": ["s2", "s1"]
+  },
+
+  "governance": {
+    "line": "CEO Ryan McInerney와 CFO Chris Suh가 이끄는 지분 분산 회사로, 소송 관련 class B·C 주식이 따로 있으며 FY2026에 순이익보다 많은 256억 달러를 자사주·배당으로 돌려주는 주주환원 기조다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2027", "metric": "adjusted net revenue growth (constant dollar)", "value": "낮은 두 자릿수, 2분기가 저점", "givenOn": "2026-10-27", "src": ["s2"] },
+      { "period": "FY2027", "metric": "adjusted operating expense growth", "value": "낮은 두 자릿수 (매출보다 약간 낮게)", "givenOn": "2026-10-27", "src": ["s2"] },
+      { "period": "FY2027", "metric": "adjusted EPS growth", "value": "낮은 두 자릿수 ~ 10%대 초반", "givenOn": "2026-10-27", "src": ["s2"] },
+      { "period": "FY2027", "metric": "tax rate", "value": "약 19%", "givenOn": "2026-10-27", "src": ["s2"] },
+      { "period": "Q1 FY2027", "metric": "net revenue growth / EPS growth", "value": "낮은 두 자릿수(Q4보다 약간 낮음, 월드컵 효과 소멸) / 10%대 중반의 하단", "givenOn": "2026-10-27", "src": ["s2"] }
+    ],
+    "style": "annual",
+    "track": "Q4 FY2026 비GAAP EPS 3.48달러는 사전 컨센서스 약 3.43달러(2차 출처)를 넘었고, 낮은 세율(18.4%)의 도움도 받았다. 전망은 보도자료가 아니라 실적 콜에서 고정환율·조정 기준으로 제시된다.",
+    "src": ["s1", "s2", "s5"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 2026-09~2027-06 4개 분기 EPS 합계 14.43달러(범위 14.10~14.73), 직전 4개 분기 12.78달러. 최근 4주 상향 6건·하향 1건. 스냅샷 구간에 방금 발표된 Q4 FY2026(실적 3.48달러)이 아직 포함돼 있어 갱신 전 값으로 본다.",
+    "src": ["s6", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "분기 순매출 증가율이 가이던스(낮은 두 자릿수) 안에 머묾",
+      "국경 간 결제 증가율이 두 자릿수 유지",
+      "VAS 증가율 20%대 초중반 유지",
+      "인센티브 증가율이 총매출 증가율보다 낮아짐",
+      "AI 에이전트 결제 파트너 수와 스테이블코인 정산 규모 증가"
+    ],
+    "breaks": [
+      "결제 금액 증가율이 한 자릿수 초반으로 둔화",
+      "중동 분쟁 등으로 해외 결제 증가율 급락",
+      "대형 은행 계약 갱신에서 인센티브 급증 또는 경쟁망 이탈",
+      "미국 interchange 소송·입법으로 수수료 구조 변경",
+      "에이전트·스테이블코인 결제가 Visa 토큰을 거치지 않는 쪽으로 정착"
+    ],
+    "keyNumbers": [
+      { "name": "결제 금액·처리 건수 증가율", "why": "서비스·데이터 처리 매출의 직접 원인" },
+      { "name": "국경 간 결제 증가율", "why": "요율이 가장 높은 매출의 원천" },
+      { "name": "고객 인센티브 증가율", "why": "갱신 주기가 순매출을 깎는 크기" },
+      { "name": "VAS 매출 증가율", "why": "다음 성장 축이 작동하는지" },
+      { "name": "소송 충당금", "why": "GAAP 이익과 현금 유출의 변수" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-10-28 (미 동부, 한국 10-29 새벽)", "event": "FOMC 금리 결정 - 소비·달러 환율 경로 (일정 출처 미첨부)", "src": [] },
+      { "date": "2026-11-03", "event": "미국 중간선거 - interchange·카드 규제 입법 환경 (일정 출처 미첨부)", "src": [] },
+      { "date": "2026-11-10 / 2026-12-01", "event": "분기 배당 기준일 / 지급일 (주당 0.78달러)", "src": ["s1"] },
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q1 FY2027 실적", "src": [] }
+    ],
+    "reaction": "주가는 분기 EPS보다 결제 금액·국경 간 결제 증가율과 다음 해 전망 문구에 반응하는 경향이 있다. Q4 FY2026은 매출·EPS가 사전 컨센서스를 넘었지만, FY2027 매출 증가율 전망이 15%에서 낮은 두 자릿수로 낮아지며 시간외에서 약세였다는 보도가 있었다(헤드라인 기준).",
+    "conditions": [
+      "월별·분기별 미국 결제 금액과 국경 간 결제 증가율 공개치",
+      "FY2027 전망 문구(낮은 두 자릿수) 유지 여부",
+      "인센티브 증가율 대 총매출 증가율",
+      "interchange 소송·입법 뉴스와 소송 충당금",
+      "달러 환율과 해외여행 지표 (FOMC 이후 환율 변화 포함)",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "최대 고객·상위 5개 고객 매출 비중 (10-K 해당 부분 미확인)",
+    "Visa의 카드 네트워크 점유율 (공시 수치 미확인)",
+    "FY2025 미국·해외 매출 분할 (검색 요약에서만 보여 제외)",
+    "R&D(기술) 지출 금액 - 발표문에 별도 항목 없음",
+    "소송 에스크로 4.05억 달러 예치 시점과 FY2026 현금흐름상 처리",
+    "영업이익률·순이익률·잉여현금흐름은 발표문 숫자로 계산한 값 (FCF = 영업현금흐름 - 설비투자)",
+    "인센티브를 음수 세그먼트로 넣어 세그먼트 합계 = 순매출 45,903백만 달러",
+    "AI 에이전트 결제 매출 규모 (회사는 '작다'고만 언급)",
+    "실적 후 주가 반응 (s4 헤드라인만 확인, 본문 미열람)",
+    "10-K 제출일 (2025-11로 기재, 정확한 날짜 미확인)",
+    "FOMC·중간선거 일정은 사용자 제공 맥락과 일반 일정 기준, 출처 문서 미첨부"
+  ],
+  "confidence": "high - 매출·이익·현금흐름·주주환원은 8-K 실적 발표문에서, FY2027 전망과 VAS·에이전트 수치는 실적 콜 전사본에서 왔다. 경쟁 점유율과 고객 집중도는 확인하지 못했다."
+}

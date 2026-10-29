@@ -1,0 +1,18 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-29",
+  "p": {
+    "title": "현재성 가드가 시장 심리 화면의 native 종합 문단에 '혼합 출처 분석, 보조 참고용' 툴팁과 참고용 표시를 달았다",
+    "symptom": "시장 심리 화면의 #sentiment-synthesis와 #sentiment-synthesis-more에 마우스를 올리면 '혼합 출처 분석, 보조 참고용'이 떴고, data-operational-use가 reference-only로 바뀌어 텍스트 감사가 이 문단을 보관 자료로 건너뛰었다. 부팅·화면 진입·시세 묶음마다 활성 화면 전체를 다시 훑었다. 레거시 감사 5위.",
+    "root_cause": "AIO.applyMarketCurrentnessGuard(js/aio-core.js)가 서술 문단을 [id*=\"thesis\"] 같은 부분 일치 선택자로 모았고 'synthesis'가 'thesis'에 걸렸다. native 판별은 renderer 데이터 속성만 봤는데 이 문단에는 그 속성이 없었다. 18개 화면 전체를 돈 결과 이 가드가 끝까지 남긴 변화는 이것뿐이었다.",
+    "fix": "가드의 DOM 쓰기와 예약 실행을 지웠다. 읽기 전용 AIO.getMarketCurrentnessAudit은 남겼다. 가드가 마지막에 부르던 스냅샷 배너 갱신은 AIO.scheduleSnapshotStaleBanner로 같은 세 사건(부팅·화면 진입·시세 묶음)에서 계속 돈다.",
+    "violated_rule": "S1 부분 문자열 매칭 클래스(레거시 감사): id 부분 일치로 대상을 고르면 다른 소유자의 요소를 건드린다.",
+    "prevention": "scripts/ci-runtime-contract-check.mjs PERF-BOOT-03(가드 부재)·PERF-BOOT-04(배너 갱신 예약), js/aio-tests.js T386(가드 퇴역, 배너 예약 존재)·T391/T393/T394(감사 탐지 유지).",
+    "verification": "Playwright 18개 화면 전후: 가드 변경 26건 → 0건, 화면 글자 수 18개 모두 동일, sentiment의 잘못된 툴팁 2개 → 0개. 50시간 지난 스냅샷을 흉내 내자 화면 이동 뒤 배너가 다시 표시됐다. 런타임 계약 검사 OK."
+  },
+  "r": null,
+  "changelog": [
+    "**현재성 가드 퇴역 ({P}):** 시장 심리 화면의 종합 문단에 엉뚱하게 붙던 '혼합 출처 분석, 보조 참고용' 툴팁이 사라졌다. 화면마다 문단을 다시 훑던 가드를 지웠고, 오래된 자료 배너는 같은 때 계속 갱신된다."
+  ],
+  "note": "v59.42 {P}: AIO.applyMarketCurrentnessGuard DOM writes retired (wrong tooltip on #sentiment-synthesis); stale banner refresh kept."
+}

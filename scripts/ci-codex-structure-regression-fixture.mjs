@@ -20,7 +20,7 @@ import { isNonMetricNumber } from './lib/market-analysis-numbers.mjs';
 import { marketAnalysisLargeMove } from './lib/market-analysis-validate.mjs';
 import { discreteQuarterSeries } from '../src/domain/fundamental/sec-earnings.js';
 import { dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
-import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle, newsFloorDropReason, newsHeadlineUnverified } from './lib/news-selection.mjs';
+import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle, newsFloorDropReason, newsHeadlineUnverified, selectNewsBundle, NEWS_FEED_FLOORS } from './lib/news-selection.mjs';
 import { narrativeVerification } from './lib/narrative-context.mjs';
 import { reportVerification } from '../src/domain/news/report-verification.js';
 import { buildDomainReceipts } from './producer/receipts.mjs';
@@ -105,6 +105,35 @@ assert.equal(topicHitsOf('ValleyCentral Voting Guide: 2026 midterm elections'), 
 assert.ok(topicHitsOf('Data center backlash set to sway midterm elections') > 0, 'an election story with a market topic stays');
 assert.equal(scoreServerNewsItem({ title: 'BE Stock Just Changed EVERYTHING — Bloom Energy (rMCZTrTnh0)', source: 'X', scoringNowMs: now }).selectionReason, 'clickbait-filter');
 assert.equal(topicHitsOf('Investing in the public benefit - Anthropic', 'Anthropic'), 0, 'the publisher suffix is not topic evidence');
+// v59.42 news coverage pass: "won't" is not the won, an approval rating is not an analyst rating, "margin for error" is not a margin.
+const ruleLabels = (title) => scoreServerNewsItem({ title, source: 'X', scoringNowMs: now }).selectionReason.split(' | ').map((r) => r.replace(/[+-]\d+$/, ''));
+assert.ok(!ruleLabels('Hormuz flows won’t solve the energy challenge').includes('fx-bonds-commodities'), "P2123 won't is not the currency");
+assert.ok(ruleLabels('Korean won slides past 1,450 per dollar').includes('fx-bonds-commodities'), 'P2123 the won stays a currency');
+assert.ok(!ruleLabels('US midterm elections: Trump approval rating falls to new low').includes('analyst-action'), 'P2123 an approval rating is not an analyst action');
+assert.ok(ruleLabels('KeyBanc downgrades Carpenter Technology stock rating').includes('analyst-action'), 'P2123 a stock rating stays an analyst action');
+assert.ok(!ruleLabels("Citadel says AI trade has little margin for error").includes('earnings-guidance'), 'P2123 margin for error is not a margin');
+assert.ok(ruleLabels('Bernstein raises Bloom Energy price target on margin strength').includes('earnings-guidance'), 'P2123 a margin stays an earnings word');
+// v59.42 coverage pass: tier 3 held 18 of 40 slots on 10/27; at most 12 per bundle, and a tier-3 row needs two topic hits.
+const W = ['amber','birch','cobalt','delta','ember','fjord','garnet','harbor','indigo','juniper','krypton','lumen','meadow','nickel','onyx','prairie','quartz','raven','sierra','tundra','umber','violet','willow','xenon','yarrow','zephyr','acorn','basalt','cedar','dune'];
+const poolRow = (k, tier, score, topicHits) => ({ title: `${W[k]} ${W[(k + 7) % 30]}works lifts ${W[(k + 13) % 30]}ville output`, link: `https://e.test/${k}`, source: `Pub${k}`, tier, score, topicHits, topic: 'macro', ts: now - k * 60000 });
+const pool = [...Array.from({ length: 16 }, (_, k) => poolRow(k, 3, 90 - k, k < 14 ? 2 : 1)), ...Array.from({ length: 14 }, (_, k) => poolRow(16 + k, 1, 60 - k, 1))];
+const bundle = selectNewsBundle(pool, []).out;
+assert.equal(bundle.filter((row) => row.tier === 3).length, 12, 'v59.42 tier 3 holds at most 12 slots');
+assert.equal(bundle.filter((row) => row.tier === 1).length, 14, 'v59.42 tier 1 fills the rest');
+// Question headlines (3.6% of published rows) and buy-list listicles (1.1%) rank below the same topic stated as news.
+assert.ok(ruleLabels('Is the AI trade over as Nvidia slides?').includes('question-headline'), 'v59.42 a question headline is down-ranked');
+assert.ok(ruleLabels('3 Semiconductor Stocks to Buy Before Earnings').includes('listicle'), 'v59.42 a buy-list listicle is down-ranked');
+assert.ok(!ruleLabels('Nvidia slides as AI trade cools').includes('question-headline'), 'v59.42 a statement is not a question headline');
+// Coverage (owner-approved): energy, crypto, healthcare and Japan/China/Europe had no feed, no rule and no seat.
+for (const title of ['Bitcoin slides below $80,000 as ETF outflows grow', 'FDA approves Lilly obesity pill', 'Bank of Japan holds; Nikkei slips', 'ECB signals December cut as Stoxx 600 rises', 'Natural gas prices jump on cold snap']) {
+  assert.ok(topicHitsOf(title) > 0, `v59.42 market topic: ${title}`);
+}
+for (const topic of ['energy', 'crypto', 'healthcare']) {
+  assert.ok(NEWS_FEEDS.some((feed) => feed.topic === topic), `v59.42 a ${topic} feed`);
+  assert.ok(NEWS_FEED_FLOORS.some(([key]) => key === topic), `v59.42 a ${topic} seat`);
+}
+assert.ok(NEWS_FEEDS.some((feed) => /federalreserve.gov/.test(feed.url)), 'v59.42 the Federal Reserve press-release feed (official, free)');
+assert.equal(scoreServerNewsItem({ title: 'Federal Reserve issues FOMC statement', source: 'Federal Reserve', feedTier: 1, scoringNowMs: now }).selectionReason.split(' | ')[1], 'source-tier1+16', 'v59.42 the Fed is tier 1');
 assert.equal(newsSameEvent(newsHeadlineSignature('Yardeni Lowers S&P 500 Target to 7,900 Despite Maintaining 2027 Earnings Forecast'), newsHeadlineSignature('Yardeni Research Cuts S&P 500 Year-End Target to 7,900 on Lower Valuation Expectations')), true, 'a shared comma-grouped figure marks one event');
 const oilCap = createNewsTopicCap();
 oilCap.add('Oil dips as Trump waives Russia energy sanctions'); oilCap.add('Oil prices slide as sanctions relief on Russian crude raises hopes');

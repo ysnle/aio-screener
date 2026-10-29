@@ -20,7 +20,6 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { moveNewsList, moveNewsRows } from './market-timeline.js';
 import { newsImpactChain, todayChecks } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
-
 function call(root, name, arg, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn(arg) ?? fallback) : fallback; } catch (_) { return fallback; }
 }
@@ -288,7 +287,10 @@ function renderSchedule(doc, host, root) {
     return fullSchedule;
   }
   const list = el(doc, 'ul', null, 'daily-schedule');
-  for (const row of schedule.slice(0, 5)) {
+  // v59.42: a major registered event (the US midterm) listed by its lead window keeps a place among the five rows.
+  const shown = schedule.slice(0, 5);
+  for (const row of schedule.slice(5)) if (row.major && !shown.some((item) => item.major)) shown.splice(shown.length - 1, 1, row);
+  for (const row of shown) {
     const li = el(doc, 'li', null, `daily-event${row.today ? ' is-today' : ''}`);
     // v58.53 개편 v2 (2b): a date tile (KST weekday + day) leads the row; the full time stays on the row's second line.
     const day = Number.isFinite(row.atMs) ? new Date(row.atMs + 9 * 3600000) : null;
@@ -628,6 +630,11 @@ export function renderDailyLoop({ documentRef: doc, root, store, regime = null }
   const schedule = parts.schedule ? renderSchedule(doc, parts.schedule, root) : [];
   if (parts.news) renderMyNews(doc, parts.news, root, store, names?.names || []);
   renderOvernight(doc, host, root, store); // v58.75 (persona review)
+  // v59.42: FOMC and mover earnings briefs (a lazy chunk: the block and its artifact are not part of the boot set).
+  import('./event-briefs.js').then(({ paintHomeBriefs }) => {
+    const repaint = () => { if (doc.getElementById('page-home')?.classList?.contains('active')) paintHomeBriefs(doc, root, host, null); };
+    paintHomeBriefs(doc, root, host, repaint);
+  }).catch(() => {});
   renderTodayChecks(doc, host, root, regime || readMarketRegime(root), schedule); // v58.75 ('고르는 법' E4)
   host.dataset.aioDailyLoopRenderer = 'native';
   return { changes, names };

@@ -1,0 +1,219 @@
+{
+  "symbol": "AMGN",
+  "name": "Amgen Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Amgen은 단백질 의약품(바이오의약품)을 직접 만드는 최대급 바이오 회사로, 콜레스테롤 약 Repatha와 골다공증 약 Evenity 등이 성장하는 사이 비만 신약 MariTide가 다음 큰 승부처다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Amgen Reports Second Quarter 2026 Financial Results (incl. raised 2026 guidance, MariTide Phase 3 status)", "url": "https://www.amgen.com/newsroom/press-releases/2026/08/amgen-reports-second-quarter-2026-financial-results", "publisher": "Amgen", "date": "2026-08-04" },
+    { "id": "s2", "kind": "earnings-release", "title": "Amgen Reports Fourth Quarter and Full Year 2025 Financial Results (incl. cash flow, capital return, original 2026 guidance)", "url": "https://www.amgen.com/newsroom/press-releases/2026/02/amgen-reports-fourth-quarter-and-full-year-2025-financial-results", "publisher": "Amgen", "date": "2026-02-03" },
+    { "id": "s3", "kind": "other", "title": "AIO local SEC companyfacts snapshot (FY2025 10-K: revenue, net income, equity), public-data/sec-fundamentals.json", "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000318154&type=10-K", "publisher": "SEC EDGAR via AIO", "date": "2026-02-13" },
+    { "id": "s4", "kind": "earnings-release", "title": "Merck Q2 2026 results news release (FDA approval of LIPFENDRA, first once-daily oral PCSK9 inhibitor - competitor to Repatha)", "url": "https://www.merck.com/wp-content/uploads/sites/124/2026/08/Merck-News-Release-08-04-26-Merck-Co.-Inc.-Rahway-N.J.-USA-Announces-Second-Quarter-2026-Financial-Results.pdf", "publisher": "Merck", "date": "2026-08-04" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/amgn/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "바이오의약품 제조 역량 - 생산이 어려운 단백질·항체 약을 대규모로 직접 생산",
+      "넓은 제품군 - 2025 제품 매출 351.5억 달러, 1억 달러 이상 제품 다수",
+      "임상·허가 역량 - 2025 R&D 72.7억 달러(+22%)",
+      "바이오시밀러 사업 - 다른 회사 약의 특허가 끝날 때 복제 바이오약으로 매출 확보(Pavblu 등)"
+    ],
+    "text": "Amgen의 힘은 살아 있는 세포로 단백질 약을 만드는, 따라 하기 어려운 제조 역량에서 시작한다. 이 역량으로 콜레스테롤·뼈·염증·항암·희귀질환에 걸쳐 2025년 제품 매출 351.5억 달러를 냈고, R&D에 72.7억 달러(+22%)를 썼다. 다른 회사 약의 특허가 끝나면 같은 제조 역량으로 바이오시밀러를 내놓는 것도 이 회사만의 두 번째 수익원이다.",
+    "src": ["s2"]
+  },
+
+  "design": {
+    "text": "이 역량으로 회사가 파는 약은 몇 개 분야로 나뉜다. 일반 의약(Repatha 콜레스테롤, Evenity·Prolia 골다공증), 염증(Enbrel, Otezla, AstraZeneca와 함께하는 Tezspire), 항암(Xgeva, Blincyto, Imdelltra, Kyprolis, Vectibix, Nplate), 희귀질환(Horizon 인수로 얻은 Tepezza·Krystexxa·Uplizna), 바이오시밀러(Pavblu, Amjevita, Wezlana)다. 개발 중인 비만 주사제 MariTide가 가장 큰 차세대 후보다.",
+    "src": ["s2", "s1"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 바이오의약품 공장 - 푸에르토리코가 핵심 생산 거점 (보도자료 위험 요인 기재)",
+      "AstraZeneca - Tezspire 공동 개발·판매 (계약 조건 이번 조사에서 미확인)",
+      "UCB - Evenity 공동 사업 (계약 조건 이번 조사에서 미확인)"
+    ],
+    "text": "Amgen은 약을 대부분 자체 공장에서 만들고, 푸에르토리코를 핵심 생산 거점으로 둔다. 2025년 설비투자는 18.6억 달러였고 2026년에는 약 26억 달러로 늘려 생산 능력을 키운다. 일부 약은 AstraZeneca·UCB 같은 다른 제약사와 공동으로 개발·판매한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 의약품 도매상 (업체명·비중 이번 조사에서 미확인)",
+      "병원·클리닉 - Prolia·Xgeva·Blincyto 등 주사제 투여처",
+      "전문 약국 - Repatha·Otezla 등 자가 투여 약",
+      "해외 각국 보험·정부 - 2025 해외 제품 매출 94.9억 달러"
+    ],
+    "channel": "미국은 도매상·전문 약국을 거쳐 병원·환자에게, 해외는 각국 자회사·유통 파트너로 판매",
+    "concentration": "미국 제품 매출 256.6억 달러로 제품 매출의 약 73% (2025); 고객별 비중 미확인",
+    "text": "이렇게 만든 약은 주로 미국에서 팔린다. 2025년 제품 매출 351.5억 달러 중 미국이 256.6억 달러로 약 73%였다. 주사제는 병원·클리닉에서, Repatha처럼 환자가 직접 놓는 약은 전문 약국을 통해 나가며, 실제 비용은 보험사와 정부가 낸다.",
+    "src": ["s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "환자·보험사·Medicare", "to": "병원·전문 약국", "what": "투약 비용 지급 (보험 급여 기준)" },
+      { "from": "병원·전문 약국", "to": "도매상", "what": "의약품 구매 대금" },
+      { "from": "도매상", "to": "Amgen", "what": "제품 대금 - 정가에서 리베이트·할인을 뺀 순매출 (2025 제품 매출 351.5억 달러)" },
+      { "from": "공동 사업 파트너 등", "to": "Amgen", "what": "기타 매출 - 이익 배분·로열티 등 (2025 16.0억 달러)" }
+    ],
+    "pricing": "제품 단위 판매. 순가격(정가 - 보험사·정부 리베이트)과 처방 물량이 매출을 정한다. Q2 2026에는 대부분 성장 약이 물량으로, Prolia·Xgeva·Enbrel·Otezla는 순가격 하락으로 움직였다.",
+    "text": "돈은 보험사·정부가 낸 약값이 병원·약국과 도매상을 거쳐 순가격으로 Amgen에 들어오는 구조다. Q2 2026 제품 매출은 9% 늘었는데 Repatha(+37%)·Evenity(+38%)·Tezspire(+42%)는 처방 물량이 이끌었다. 반대로 Enbrel은 순가격이 22% 떨어졌고, Prolia·Xgeva는 바이오시밀러 경쟁으로 물량과 가격이 함께 빠졌다.",
+    "src": ["s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 36.751, "unit": "USD bn", "yoy": 10 },
+    "grossMargin": null,
+    "operatingMargin": 25.8,
+    "netMargin": 21.0,
+    "operatingCashFlow": { "value": 9.958, "unit": "USD bn" },
+    "freeCashFlow": { "value": 8.1, "unit": "USD bn" },
+    "segments": [
+      { "name": "Product sales - U.S.", "revenue": 25.656, "unit": "USD bn", "share": 69.8, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Product sales - Rest of world", "revenue": 9.492, "unit": "USD bn", "share": 25.8, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Other revenues", "revenue": 1.603, "unit": "USD bn", "share": 4.4, "yoy": 14.7, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "성장 제품 매출 (FY2025)", "value": "Repatha 30.2억(+36%), Evenity 21.0억(+34%), Tezspire 14.8억(+52%), Blincyto 15.6억(+28%), Imdelltra 6.3억, Pavblu 7.0억 달러", "src": ["s2"] },
+      { "name": "감소 제품 매출", "value": "Enbrel FY2025 22.3억(-33%); Q2 2026 Prolia 7.6억(-32%), Xgeva 3.5억(-34%), Otezla 4.9억(-21%)", "src": ["s2", "s1"] },
+      { "name": "Non-GAAP 영업이익률 (제품 매출 대비)", "value": "FY2025 46.1%(-0.8%p); Q2 2026 48.4%", "src": ["s2", "s1"] },
+      { "name": "EPS", "value": "FY2025 GAAP 14.23 / non-GAAP 21.84달러; Q2 2026 GAAP 4.37 / non-GAAP 6.29달러", "src": ["s2", "s1"] },
+      { "name": "부채", "value": "546억 달러(2025말) → 573억 달러(2026-06-30), 현금 140억 달러", "src": ["s1"] }
+    ],
+    "text": "이 구조가 2025년 매출 367.5억 달러(+10%)와 순이익 77억 달러(순이익률 약 21%)를 만들었다. 제품 매출 대비 GAAP 영업이익률은 25.8%지만 인수 무형자산 상각 등을 뺀 non-GAAP으로는 46.1%로, 바이오약의 본래 수익성은 높다. 최근 분기(Q2 2026)도 매출 100.5억 달러(+10%), non-GAAP EPS 6.29달러로 성장이 이어졌다.",
+    "src": ["s2", "s3", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 7.272, "unit": "USD bn", "src": ["s2"] },
+      { "use": "debt repayment", "value": 6.0, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 5.1, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 1.858, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "2025년 잉여현금흐름 81억 달러는 R&D 다음으로 부채 상환(60억 달러)과 배당(51억 달러)에 쓰였고, 자사주는 사지 않았다. 2023년 Horizon 인수로 늘어난 부채를 줄이는 것이 우선이었다는 뜻이다. 2026년에는 설비투자를 약 26억 달러로 늘리고 자사주를 최대 30억 달러까지 살 수 있다고 했으며, 분기 배당은 주당 2.52달러로 6% 올렸다.",
+    "src": ["s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 팔지 않고 신약 설계·임상·제조에 쓰는 쪽. 이번에 읽은 실적 자료에는 AI 지출이나 효과 수치가 없다.",
+    "dependsOn": ["models-platforms (AI 모델 - 업체명 미확인)", "cloud-infrastructure / chips-compute (연산 자원 - 업체명 미확인)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 R&D 속도와 제조 효율로 나타남"],
+    "aiRevenue": null,
+    "upside": "AI가 단백질·항체 설계와 임상 대상자 선정을 빠르게 하면 연 70억 달러대 R&D의 생산성이 올라가고, MariTide처럼 대형 3상 프로그램의 진행 속도에도 도움이 된다.",
+    "risk": "AI 직접 위험은 작다. 경쟁사가 AI로 비만·심혈관 신약을 더 빨리 내면 Amgen의 차세대 약이 늦게 도착할 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Amgen은 '도입자'다. 공시된 AI 매출은 없고, 효과는 R&D와 제조 효율로 나타나야 하지만 이번 조사에서 회사의 AI 수치는 확인하지 못했다. 주가를 움직이는 것은 AI보다 MariTide 임상과 성장 제품의 처방 흐름이다.",
+    "src": []
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "비만 (MariTide 개발 중)", "rivals": ["Eli Lilly (Zepbound)", "Novo Nordisk (Wegovy)"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "콜레스테롤 저하 (Repatha)", "rivals": ["Merck (Lipfendra, 2026 승인 경구 PCSK9)", "Novartis (Leqvio)", "스타틴 제네릭"], "position": "leader", "share": null, "src": ["s1", "s4"] },
+      { "arena": "골다공증·뼈 (Prolia·Xgeva·Evenity)", "rivals": ["denosumab 바이오시밀러 회사들"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "염증 (Enbrel·Otezla·Tezspire)", "rivals": ["AbbVie", "Johnson & Johnson", "Sanofi/Regeneron", "바이오시밀러"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "바이오시밀러 (Pavblu 등)", "rivals": ["원조약 회사(Regeneron 등)", "다른 바이오시밀러 회사"], "position": "leader", "share": null, "src": ["s1"] }
+    ],
+    "edge": "직접 만드는 바이오약 제조 규모, 심혈관 결과 데이터를 가진 Repatha, 여러 성장 제품이 동시에 크는 포트폴리오, 바이오시밀러 경험.",
+    "threats": "Prolia·Xgeva 바이오시밀러 잠식, 경구 PCSK9 등 새 콜레스테롤 약, Lilly·Novo가 선점한 비만 시장, 미국 약가 정책, Tavneos 미국 시장 철수 요청 같은 규제 위험.",
+    "text": "가장 주목받는 경기장은 비만인데, 여기서 Amgen은 Lilly·Novo를 뒤쫓는 도전자이고 MariTide는 아직 3상 진행 중이다. 이미 강한 콜레스테롤 시장에서는 Repatha가 물량으로 크지만, 2026년 Merck의 먹는 PCSK9 약 Lipfendra가 승인돼 새 경쟁이 생겼다. 뼈 분야에서는 Prolia·Xgeva가 바이오시밀러에 매출을 내주는 대신 Evenity가 그 공백을 일부 메운다.",
+    "src": ["s1", "s4"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 382억~394억 달러, non-GAAP EPS 22.30~23.50달러를 제시했다. CEO는 '다음 10년까지 성장을 이어 갈 수 있다'고 말하며, 장기 매출 목표 수치는 이번 조사에서 확인하지 못했다.",
+    "roadmap": [
+      { "when": "2026 (진행 중)", "what": "MariTide 3상 MARITIME-1·2(비만, 당뇨 유무) 진행, 심혈관·심부전·수면무호흡 3상 등록 중", "src": ["s1"] },
+      { "when": "2026 중", "what": "MariTide 제2형 당뇨 3상 3건 시작 예정", "src": ["s1"] },
+      { "when": "2026", "what": "설비투자 약 26억 달러, 자사주 최대 30억 달러", "src": ["s1", "s2"] },
+      { "when": "2026-06-01 이후", "what": "FDA의 Tavneos 미국 시장 자진 철수 요청에 대한 청문 요청", "src": ["s1"] }
+    ],
+    "vision": "의장 겸 CEO Robert Bradway는 '다음 10년까지 성장을 이어 갈 수 있다고 확신한다'며, 기존 성장 제품과 MariTide 같은 차세대 약으로 특허 만료 제품의 공백을 넘는 그림을 그린다.",
+    "text": "앞으로의 계획은 Repatha·Evenity·Tezspire 같은 성장 제품으로 Prolia·Xgeva의 바이오시밀러 공백을 메우는 동안, MariTide로 비만이라는 가장 큰 시장에 들어가는 것이다. MariTide는 비만·당뇨·심혈관·수면무호흡 등 여러 3상이 동시에 진행 중이라 결과가 나오기 시작하면 회사 가치에 큰 변수가 된다. 생산 능력을 미리 키우려고 2026년 설비투자를 약 26억 달러로 늘렸다.",
+    "src": ["s1", "s2"]
+  },
+
+  "governance": {
+    "line": "의장 겸 CEO Robert A. Bradway가 이끄는 지분 분산 회사로, 2025년에는 자사주 없이 부채 60억 달러를 갚고 배당 51억 달러를 냈으며 2026년 분기 배당을 주당 2.52달러로 6% 올렸다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "total revenues", "value": "382억~394억 달러 (2월 최초 370억~384억)", "givenOn": "2026-08-04", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "non-GAAP EPS", "value": "22.30~23.50달러 (직전 21.70~23.10, 2월 최초 21.60~23.00)", "givenOn": "2026-08-04", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "GAAP EPS", "value": "15.80~17.08달러 (2월 최초 15.45~16.94)", "givenOn": "2026-08-04", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "capital expenditures", "value": "약 26억 달러", "givenOn": "2026-08-04", "src": ["s1"] },
+      { "period": "FY2026", "metric": "share repurchases", "value": "최대 30억 달러", "givenOn": "2026-08-04", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "2026년 들어 매출·EPS 전망을 올렸고, 최근 4개 분기 non-GAAP EPS는 모두 컨센서스를 웃돌았다(AIO 스냅샷: Q2 2026 6.29 대 5.60달러).",
+    "src": ["s1", "s2", "s5"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 23.49달러(범위 22.11~24.75), 직전 4개 분기 실적 22.37달러. 최근 4주 상향 9건·하향 2건으로 상향이 많다.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Repatha·Evenity·Tezspire·Imdelltra의 물량 성장 지속",
+      "MariTide 3상 결과가 경쟁 약과 비슷하거나 더 나은 체중 감소·내약성",
+      "Prolia·Xgeva 감소를 성장 제품이 넘어서 제품 매출 성장 유지",
+      "부채 감소와 자사주 매입 재개",
+      "연간 매출·EPS 전망 추가 상향"
+    ],
+    "breaks": [
+      "MariTide 3상 실패·안전성 문제·지연",
+      "경구 PCSK9 등장 뒤 Repatha 성장 둔화",
+      "바이오시밀러 잠식이 예상보다 빠름",
+      "Tavneos 철수 확정 등 규제 악재 확대",
+      "미국 약가 정책으로 순가격 하락폭 확대"
+    ],
+    "keyNumbers": [
+      { "name": "제품 매출 성장률 (물량·가격 분해)", "why": "성장의 질을 보여 줌" },
+      { "name": "Repatha·Evenity 매출", "why": "현재 성장 엔진" },
+      { "name": "Prolia·Xgeva 감소폭", "why": "바이오시밀러 공백의 크기" },
+      { "name": "MariTide 3상 결과", "why": "차세대 최대 변수" },
+      { "name": "Non-GAAP 영업이익률과 잉여현금흐름", "why": "배당·부채 상환 여력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 초 (추정, 회사 미확정)", "event": "Q3 2026 실적 발표", "src": [] },
+      { "date": "미정", "event": "MariTide 3상(MARITIME-1·2) 결과 발표", "src": ["s1"] }
+    ],
+    "reaction": "주가는 분기 실적보다 MariTide 등 대형 임상 소식과 연간 전망 변경, 바이오시밀러 잠식 속도에 크게 반응하는 경향이 있다. 비만 시장에 대한 기대가 커서 경쟁사(Lilly·Novo)의 비만 약 데이터에도 함께 움직이기 쉽다.",
+    "conditions": [
+      "성장 제품의 물량 증가율과 순가격 변화",
+      "Prolia·Xgeva 감소 속도",
+      "연간 매출·EPS 전망 변경 폭",
+      "MariTide 임상 일정과 결과 발표 여부",
+      "경쟁사 비만·콜레스테롤 약 데이터",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "총마진 (보도자료에 미표기, null) - 영업이익률은 회사 기준인 '제품 매출 대비' GAAP 값",
+    "순이익률은 SEC 10-K 순이익 77.1억 달러를 총매출로 나눈 계산값",
+    "미국·해외 제품 매출의 전년 대비 증감률",
+    "AstraZeneca(Tezspire)·UCB(Evenity) 공동 사업의 계약 조건과 Amgen 몫",
+    "미국 도매상 이름과 고객별 매출 비중",
+    "Q3 2026 실적 발표일 (회사 공지 미확인)",
+    "MariTide 3상 결과 발표 시점",
+    "AI 활용·지출 (회사 공시 미확인)",
+    "Horizon 인수(2023) 금액과 남은 인수 부채 규모",
+    "경쟁 구도의 시장 점유율"
+  ],
+  "confidence": "high - 매출·제품·현금흐름·가이던스를 회사 실적 보도자료 두 건에서 직접 읽었다. 공동 사업 조건과 AI, 실적 일정은 미확인이다."
+}

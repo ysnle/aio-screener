@@ -99,6 +99,14 @@ export const NEWS_FEEDS = [
   // Google's relevance ranking returned oil and gold. Two narrative feeds, each with a slot floor (NEWS_FEED_FLOORS).
   { query: 'CoreWeave OR OpenAI OR Anthropic OR neocloud OR "AI bubble" OR "AI spending" OR "data center debt" OR "memory prices" OR DRAM OR CXMT when:2d', source: 'Google News - AI narrative/Memory', topic: 'semi', country: 'us', tier: 1 },
   { query: '"hedge funds" OR deleveraging OR "margin calls" OR "private credit" OR gilts OR "French bonds" OR "European debt" OR "midterm elections" when:2d', source: 'Google News - Positioning/Sovereign/Politics', topic: 'credit', country: 'global', tier: 1 },
+  // v59.42 coverage pass (owner-approved, free sources only): the 476 rows published since 10/20 carried no energy,
+  // crypto, healthcare or Japan/China/Europe topic — only the oil words of the geopolitics feed. One query each, one seat
+  // each (NEWS_FEED_FLOORS), and the Federal Reserve's own press releases (official, tier 1, scored by the same rules).
+  { query: '"oil prices" OR "natural gas" OR OPEC OR "energy stocks" OR "copper prices" OR "power prices" OR uranium when:2d', source: 'Google News - Energy/Commodities', topic: 'energy', country: 'global', tier: 2 },
+  { query: 'bitcoin OR ethereum OR "crypto market" OR stablecoin OR "bitcoin ETF" when:2d', source: 'Google News - Crypto', topic: 'crypto', country: 'global', tier: 2 },
+  { query: '"FDA approval" OR "FDA approves" OR biotech stocks OR drugmaker OR GLP-1 OR "Eli Lilly" OR "Novo Nordisk" when:2d', source: 'Google News - Healthcare/Biotech', topic: 'healthcare', country: 'us', tier: 2 },
+  { query: '"Bank of Japan" OR Nikkei OR "European Central Bank" OR "Stoxx 600" OR "China stocks" OR "Hang Seng" OR PBOC when:2d', source: 'Google News - Japan/China/Europe', topic: 'macro', country: 'global', tier: 1 },
+  { url: 'https://www.federalreserve.gov/feeds/press_all.xml', source: 'Federal Reserve', topic: 'macro', country: 'us', tier: 1 },
 ].map(feed => feed.url ? feed : ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
 
 const SERVER_NEWS_PRIORITY_RULES = [
@@ -113,12 +121,19 @@ const SERVER_NEWS_PRIORITY_RULES = [
   { label: 'deleveraging-positioning', points: 12, re: /\b(deleverag\w*|hedge funds?|margin calls?|forced selling|liquidations?|unwind(?:s|ing)?|crowded trades?|short squeeze|momentum (?:crash|unwind)|risk parity)\b/i },
   { label: 'sovereign-fiscal', points: 10, re: /\b(gilts?|bunds?|jgbs?|sovereign debt|fiscal deficit|debt crisis|bond vigilantes|term premium|(?:french|european|italian|japanese) (?:debt|bonds?))\b/i },
   { label: 'politics-elections', points: 8, re: /\b(midterms?|midterm elections?|government shutdown|debt ceiling)\b/i },
-  { label: 'earnings-guidance', points: 10, re: /\b(earnings|revenue|eps|guidance|outlook|margin|buyback|dividend|preannounces?)\b/i },
-  { label: 'analyst-action', points: 8, re: /\b(upgrade|downgrade|price target|rating|initiates|overweight|underweight|buy rating|sell rating)\b/i },
-  { label: 'fx-bonds-commodities', points: 8, re: /\b(dollar|yen|euro|yuan|won|dxy|forex|gold|copper|credit spread|yield curve)\b/i },
+  { label: 'earnings-guidance', points: 10, re: /\b(earnings|revenue|eps|guidance|outlook|margins?(?! for error| calls?)|buyback|dividend|preannounces?)\b/i },
+  { label: 'analyst-action', points: 8, re: /\b(upgrade|downgrade|price target|(?<!(?:approval|economic|popularity|favorability) )rating|initiates|overweight|underweight|buy rating|sell rating)\b/i },
+  // v59.42 coverage pass (476 published rows since 10/20): `won` matched "won't" 3 of 3 times, `rating` an approval or
+  // economic rating 2 of 5, `margin` "margin for error" 2 of 6.
+  { label: 'fx-bonds-commodities', points: 8, re: /\b(dollar|yen|euro|yuan|won(?!['’]t)|dxy|forex|gold|copper|credit spread|yield curve)\b/i },
   // P1504: broad market vocabulary — counts toward the topic floor with a small weight so 'Nasdaq hits new high,
   // 10-year yield tops 5.3%' or 'global bond sell-off' are not dropped as off-topic.
   { label: 'market-general', points: 4, re: /\b(stocks?|stock market|wall street|equities|s&p 500|nasdaq|dow jones|russell 2000|yields?|bonds?|10-year|30-year|treasur(?:y|ies)|oil|crude|commodit(?:y|ies)|futures|markets?)\b/i },
+  // v59.42 coverage pass: the topics the new feeds bring (a feed's topic is not evidence; the headline is).
+  { label: 'energy-commodities', points: 8, re: /\b(natural gas|energy stocks?|power prices?|electricity prices?|uranium|coal|copper prices?|refin(?:ery|ers|ing) margins?)\b/i },
+  { label: 'crypto', points: 6, re: /\b(bitcoin|btc|ether(?:eum)?|crypto(?:currenc(?:y|ies))?|stablecoins?|spot (?:bitcoin|ether) etfs?|coinbase|microstrategy)\b/i },
+  { label: 'healthcare-biotech', points: 6, re: /\b(fda|biotech|pharma(?:ceuticals?)?|drugmakers?|glp-1|obesity (?:drug|pill)s?|weight[- ]loss drugs?|clinical trials?|eli lilly|lilly|novo nordisk)\b/i },
+  { label: 'global-markets', points: 8, re: /\b(boj|bank of japan|ecb|european central bank|pboc|nikkei|topix|hang seng|shanghai composite|csi 300|stoxx(?: 600)?|dax|ftse|cac 40|china stimulus|jgb yields?)\b/i },
   { label: 'mega-cap', points: 8, re: /\b(aapl|apple|msft|microsoft|nvda|nvidia|amzn|amazon|meta|tesla|tsla|googl|google|avgo|broadcom|amd|oracle|orcl|jpm|exxon|xom)\b/i },
 ];
 
@@ -131,7 +146,7 @@ const SERVER_NEWS_VIDEO_REPOST_RE = /\([A-Za-z0-9_-]{10,11}\)\s*$/;
 export function newsHeadlineUnverified(text) {
   return reportIsUnconfirmed(text);
 }
-const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC)\b/i;
+const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC|Federal Reserve)\b/i; // v59.42: the Fed's own press-release feed is official
 // P1720: the Korean-edition feed labels these same tier-2 publishers in Korean (연합뉴스 = Yonhap), which `\b` never
 // matches around Hangul, so a Yonhap headline ranked as tier 3. Same publishers, their Korean labels — not new sources.
 // v57.69 (P1804, 2026-10-15 crash audit): the intraday slot admits tier 1-2 only, and every Korean economic daily ranked
@@ -175,7 +190,7 @@ const SERVER_NEWS_PRIORITY_RULES_KO = [
 export function krSlotTopic(title) {
   const text = String(title || '');
   if (KR_INDEX_MOVE_RE.test(text)) return 'index-move';
-  if (/환율|원[·\s]?달러|원\/달러|달러\/원|USD\/KRW|\bwon\b/i.test(text)) return 'fx';
+  if (/환율|원[·\s]?달러|원\/달러|달러\/원|USD\/KRW|\bwon\b(?!['’]t)/i.test(text)) return 'fx';
   return null;
 }
 
@@ -264,6 +279,15 @@ export function scoreServerNewsItem(item) {
   if (sourceTier >= 4) {
     score -= 8;
     reasons.push('low-quality-source-8');
+  }
+  // v59.42 coverage pass: question headlines (17 of 476 published rows) and buy-list listicles (5) rank below news.
+  if (/\?\s*$/.test(headline)) {
+    score -= 6;
+    reasons.push('question-headline-6');
+  }
+  if (/^\d+\s+.*\b(?:stocks?|picks?|etfs?)\b.*\bto (?:buy|own|hold|avoid)\b|\bshould you buy\b|\bis it (?:a good )?time to buy\b/i.test(headline)) {
+    score -= 10;
+    reasons.push('listicle-10');
   }
 
   score = Math.max(0, Math.min(100, Math.round(score)));
@@ -396,7 +420,9 @@ export function newsDisplayTopic(title, topic) {
 
 // P1373 floors by feed topic; owner 2026-10-18 adds the two narrative feeds by feed name (their topics reuse the news
 // screen's labels, semi/credit, so the floor cannot key on topic alone).
-export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2]]);
+export const NEWS_TIER3_CAP = 12; // of the 40-slot bundle; see selectNewsBundle
+export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2],
+  ['energy', 1], ['crypto', 1], ['healthcare', 1], ['Google News - Japan/China/Europe', 2]]); // v59.42 coverage seats
 
 // 2026-10-19 data audit: 4 of 11 feeds returned nothing usable in a run and nothing recorded which, so a feed that died
 // (a changed URL, a query Google stopped answering) would only show as a slowly thinner bundle. Each run publishes per-feed
@@ -449,6 +475,110 @@ export function carriedNewsCandidates(carry, cycle) {
     });
   }
   return out;
+}
+
+// The 08:00 bundle from scored candidates: Korean reserved slots, per-topic floors, then the score-ordered fill, under
+// the per-source, same-event and topic caps. Pure, so the expect suite can print what a fixed pool publishes.
+export function selectNewsBundle(items, krItems) {
+  // US/글로벌: 점수순 정렬, 한국: 최신순 정렬
+  // Equal scores go to the better-tier publisher first, so a topic cap keeps Reuters over a blog repeating it.
+  items.sort((a, b) => (b.score || 0) - (a.score || 0) || (a.tier || 9) - (b.tier || 9) || (b.ts || 0) - (a.ts || 0));
+  krItems.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
+  const seen = new Set();
+  const out = [];
+  // P1504: one source may hold at most three of the forty slots (AD HOC NEWS held five).
+  const perSource = new Map();
+  const SOURCE_CAP = 3;
+  const sourceKey = (it) => String(it.source || it.feedSource || '').trim().toLowerCase();
+  const sourceFull = (it) => (perSource.get(sourceKey(it)) || 0) >= SOURCE_CAP;
+  // v59.42 coverage pass (owner-approved): aggregators and trade sites (tier 3) held 18 of 40 slots on 10/27 and 49% of
+  // the 476 rows published since 10/20, 103 of their 139 publishers once. At most TIER3_CAP slots, and outside the Korean
+  // seats (few Korean outlets) a tier-3 headline needs two topic hits; tier 1-2 candidates fill the rest.
+  let tier3Taken = 0;
+  const tier3Blocked = (it, needTwoHits = true) => Number(it.tier) >= 3
+    && (tier3Taken >= NEWS_TIER3_CAP || (needTwoHits && !(it.topicHits >= 2)));
+  // Owner 2026-10-12: one event, one slot. Two outlets reporting the same story (same specific figure, or nearly
+  // the same headline) used two of the slots; the higher-scored one is kept because candidates arrive score-ordered.
+  const pickedGrams = [];
+  const sameEvent = (it) => {
+    const mine = newsHeadlineSignature(it.title);
+    return pickedGrams.some((other) => newsSameEvent(mine, other));
+  };
+  // Google News appends " - Source" to every title; the source is shown separately.
+  const cleanTitle = (it) => cleanNewsTitle(it.title, it.source, it._sourceRaw);
+  // N11: paraphrases of one story share key entities ("oil" + "saudi"); see createNewsTopicCap.
+  const topicCap = createNewsTopicCap();
+  const topicFull = (it) => topicCap.full(cleanTitle(it));
+  let carriedPicked = 0;
+  const carriedRows = new WeakSet();
+  function pushItem(it) {
+    if (it.carried) carriedPicked += 1;
+    if (Number(it.tier) >= 3) tier3Taken += 1;
+    pickedGrams.push(newsHeadlineSignature(it.title));
+    perSource.set(sourceKey(it), (perSource.get(sourceKey(it)) || 0) + 1);
+    topicCap.add(cleanTitle(it));
+    out.push({
+      title: cleanTitle(it), link: it.link, source: it.source,
+      guid: it.guid, sourceArticleId: it.sourceArticleId, fetchedAt: it.fetchedAt, evidenceKind: it.evidenceKind,
+      pubDate: it.pubDate, topic: newsDisplayTopic(cleanTitle(it), it.topic), country: it.country,
+      tier: it.tier, score: it.score, selectionReason: it.selectionReason,
+      feedSource: it.feedSource,
+      ...(it.verification ? { verification: it.verification } : {}),
+      sourceTierLabel: serverNewsSourceTierLabel(it.tier),
+      contentDepth: 'headline-only',
+      eventTime: isFinite(it.ts) && it.ts > 0 ? new Date(it.ts).toISOString() : null,
+      eventTimeKind: 'published',
+      independenceKey: String(it.source || it.feedSource || '').trim().toLowerCase() || null,
+      newsCyclePolicy: it.newsCyclePolicy,
+      newsCycleStart: it.newsCycleStart,
+      newsCycleEnd: it.newsCycleEnd,
+      newsCycleLabel: it.newsCycleLabel,
+    });
+    if (it.carried) carriedRows.add(out[out.length - 1]);
+  }
+  // 한국 뉴스 최대 3슬롯 먼저 예약
+  // Live audit 2026-10-21: three of forty slots for the Korean session (22 in-window Korean items, 0 placed from the Korea
+  // feed on a +3.3% sidecar day). US leads; Korea keeps five reserved seats.
+  const KR_SLOTS = 5;
+  // v57.87 (10/16 audit): three won-dollar headlines filled all three Korean slots on the KOSPI −7.6% day. Inside the
+  // reserved slots one headline per Korean topic (환율 · 지수 움직임); further ones compete in the score-ordered fill.
+  const krTopicTaken = new Set();
+  for (const it of krIndexStoryFirst(krItems)) {
+    if (out.length >= KR_SLOTS) break;
+    if (sourceFull(it) || topicFull(it) || tier3Blocked(it, false)) continue;
+    const k = newsArticleKey(it);
+    if (seen.has(k) || sameEvent(it)) continue;
+    const krTopic = krSlotTopic(it.title);
+    if (krTopic && krTopicTaken.has(krTopic)) continue;
+    if (krTopic) krTopicTaken.add(krTopic);
+    seen.add(k);
+    pushItem(it);
+  }
+  // P1373: score-only ranking let semis/macro/geo fill every slot (fxbond and credit got 0 of 40).
+  // Reserve a small floor per under-covered topic before the score-ordered fill.
+  for (const [topic, floor] of NEWS_FEED_FLOORS) {
+    let taken = 0;
+    for (const it of items) {
+      if (taken >= floor || out.length >= 40) break;
+      if (it.topic !== topic && it.feedSource !== topic) continue;
+      if (sourceFull(it) || topicFull(it) || tier3Blocked(it)) continue;
+      const k = newsArticleKey(it);
+      if (seen.has(k) || sameEvent(it)) continue;
+      seen.add(k);
+      pushItem(it);
+      taken += 1;
+    }
+  }
+  // 나머지 슬롯을 US/글로벌 뉴스로 채움
+  for (const it of items) {
+    if (out.length >= 40) break;
+    if (sourceFull(it) || topicFull(it) || tier3Blocked(it)) continue;
+    const k = newsArticleKey(it);
+    if (seen.has(k) || sameEvent(it)) continue;
+    seen.add(k);
+    pushItem(it);
+  }
+  return { out, carriedPicked, carriedRows };
 }
 
 // P1720: the caller passes the run's attempt time so the collected cycle and meta.newsCycleEnd are one cut even when a
@@ -534,97 +664,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
     if (!(row.topicHits > 0) || row.tier >= 4 || !(row.score > 0)) continue;
     (row.topic === 'kr' ? krItems : items).push(row);
   }
-  // US/글로벌: 점수순 정렬, 한국: 최신순 정렬
-  // Equal scores go to the better-tier publisher first, so a topic cap keeps Reuters over a blog repeating it.
-  items.sort((a, b) => (b.score || 0) - (a.score || 0) || (a.tier || 9) - (b.tier || 9) || (b.ts || 0) - (a.ts || 0));
-  krItems.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
-  const seen = new Set();
-  const out = [];
-  // P1504: one source may hold at most three of the forty slots (AD HOC NEWS held five).
-  const perSource = new Map();
-  const SOURCE_CAP = 3;
-  const sourceKey = (it) => String(it.source || it.feedSource || '').trim().toLowerCase();
-  const sourceFull = (it) => (perSource.get(sourceKey(it)) || 0) >= SOURCE_CAP;
-  // Owner 2026-10-12: one event, one slot. Two outlets reporting the same story (same specific figure, or nearly
-  // the same headline) used two of the slots; the higher-scored one is kept because candidates arrive score-ordered.
-  const pickedGrams = [];
-  const sameEvent = (it) => {
-    const mine = newsHeadlineSignature(it.title);
-    return pickedGrams.some((other) => newsSameEvent(mine, other));
-  };
-  // Google News appends " - Source" to every title; the source is shown separately.
-  const cleanTitle = (it) => cleanNewsTitle(it.title, it.source, it._sourceRaw);
-  // N11: paraphrases of one story share key entities ("oil" + "saudi"); see createNewsTopicCap.
-  const topicCap = createNewsTopicCap();
-  const topicFull = (it) => topicCap.full(cleanTitle(it));
-  let carriedPicked = 0;
-  const carriedRows = new WeakSet();
-  function pushItem(it) {
-    if (it.carried) carriedPicked += 1;
-    pickedGrams.push(newsHeadlineSignature(it.title));
-    perSource.set(sourceKey(it), (perSource.get(sourceKey(it)) || 0) + 1);
-    topicCap.add(cleanTitle(it));
-    out.push({
-      title: cleanTitle(it), link: it.link, source: it.source,
-      guid: it.guid, sourceArticleId: it.sourceArticleId, fetchedAt: it.fetchedAt, evidenceKind: it.evidenceKind,
-      pubDate: it.pubDate, topic: newsDisplayTopic(cleanTitle(it), it.topic), country: it.country,
-      tier: it.tier, score: it.score, selectionReason: it.selectionReason,
-      feedSource: it.feedSource,
-      ...(it.verification ? { verification: it.verification } : {}),
-      sourceTierLabel: serverNewsSourceTierLabel(it.tier),
-      contentDepth: 'headline-only',
-      eventTime: isFinite(it.ts) && it.ts > 0 ? new Date(it.ts).toISOString() : null,
-      eventTimeKind: 'published',
-      independenceKey: String(it.source || it.feedSource || '').trim().toLowerCase() || null,
-      newsCyclePolicy: it.newsCyclePolicy,
-      newsCycleStart: it.newsCycleStart,
-      newsCycleEnd: it.newsCycleEnd,
-      newsCycleLabel: it.newsCycleLabel,
-    });
-    if (it.carried) carriedRows.add(out[out.length - 1]);
-  }
-  // 한국 뉴스 최대 3슬롯 먼저 예약
-  // Live audit 2026-10-21: three of forty slots for the Korean session (22 in-window Korean items, 0 placed from the Korea
-  // feed on a +3.3% sidecar day). US leads; Korea keeps five reserved seats.
-  const KR_SLOTS = 5;
-  // v57.87 (10/16 audit): three won-dollar headlines filled all three Korean slots on the KOSPI −7.6% day. Inside the
-  // reserved slots one headline per Korean topic (환율 · 지수 움직임); further ones compete in the score-ordered fill.
-  const krTopicTaken = new Set();
-  for (const it of krIndexStoryFirst(krItems)) {
-    if (out.length >= KR_SLOTS) break;
-    if (sourceFull(it) || topicFull(it)) continue;
-    const k = newsArticleKey(it);
-    if (seen.has(k) || sameEvent(it)) continue;
-    const krTopic = krSlotTopic(it.title);
-    if (krTopic && krTopicTaken.has(krTopic)) continue;
-    if (krTopic) krTopicTaken.add(krTopic);
-    seen.add(k);
-    pushItem(it);
-  }
-  // P1373: score-only ranking let semis/macro/geo fill every slot (fxbond and credit got 0 of 40).
-  // Reserve a small floor per under-covered topic before the score-ordered fill.
-  for (const [topic, floor] of NEWS_FEED_FLOORS) {
-    let taken = 0;
-    for (const it of items) {
-      if (taken >= floor || out.length >= 40) break;
-      if (it.topic !== topic && it.feedSource !== topic) continue;
-      if (sourceFull(it) || topicFull(it)) continue;
-      const k = newsArticleKey(it);
-      if (seen.has(k) || sameEvent(it)) continue;
-      seen.add(k);
-      pushItem(it);
-      taken += 1;
-    }
-  }
-  // 나머지 슬롯을 US/글로벌 뉴스로 채움
-  for (const it of items) {
-    if (out.length >= 40) break;
-    if (sourceFull(it) || topicFull(it)) continue;
-    const k = newsArticleKey(it);
-    if (seen.has(k) || sameEvent(it)) continue;
-    seen.add(k);
-    pushItem(it);
-  }
+  const { out, carriedPicked, carriedRows } = selectNewsBundle(items, krItems);
   // P1720: the provisional intraday slot rides on the same array without entering its JSON (non-enumerable), so every
   // existing consumer of `news` keeps the canonical 08:00 bundle unchanged.
   // Published rows that came only from the previous run (no feed returned them this time): the receipt's `updated`.

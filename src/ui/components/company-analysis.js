@@ -13,7 +13,6 @@ import { sectorLabel } from '../../domain/screener/screener-read.js';
 import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
-
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : ''; };
 // v57.55 review (8m, semi-expert panel): the numbers a reader looks for first, on one line, each with its own date. US
 // listings only (Korean listings have their own OpenDART block); a value that is not there is left out, never estimated.
@@ -84,6 +83,11 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state,
     keys = keyMetricsLine(row, consensusRowFor(root, id), root?.[EARNINGS_CALENDAR.key]?.earnings, undefined, analysis?.buildEarningsSchedule({ symbol: id, calendar: root?.[EARNINGS_CALENDAR.key], consensus: consensusRowFor(root, id), calendarState: sharedArtifactState(root, EARNINGS_CALENDAR.key) }));
   }
   const signature=`${keys || ''}|${root?._aioSecIssuerSic?.[id] || ''}|${fundamentals?.accession || ''}|${JSON.stringify(model)}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}`; // stage chips follow a new scenario state
+  // v59.42: the latest FOMC-day / earnings brief of this symbol sits under the summary (its own element and signature).
+  import('./event-briefs.js').then(({ paintTickerBrief }) => {
+    if (root?._currentTickerId && root._currentTickerId !== id) return;
+    paintTickerBrief(doc, root, id, host, () => { if (root?._currentTickerId === id) paintTickerBrief(doc, root, id, host, null); });
+  }).catch(() => {});
   if (host.dataset.signature===signature && host.childElementCount) return model;
   const wasOpen=host.querySelector('.company-analysis-expanded')?.open||false;
   const observationsOpen=host.querySelector('.company-analysis-observations')?.open||false;

@@ -1,0 +1,229 @@
+{
+  "symbol": "ACN",
+  "name": "Accenture plc",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "August 31 (FY2026 ended 2026-08-31)",
+  "oneLine": "Accenture는 약 81만 명의 인력으로 기업의 전략·IT·AI 도입을 대신 설계하고 운영해 주는 세계 최대 IT 서비스 회사로, AI가 일감을 늘리는지 줄이는지를 가장 먼저 보여 주는 회사다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Accenture Reports Fourth-Quarter and Full-Year Fiscal 2026 Results (incl. FY2027 outlook)", "url": "https://newsroom.accenture.com/content/4q-full-fy26-earnings/accenture-reports-fourth-quarter-and-full-year-fiscal-2026-results.pdf", "publisher": "Accenture Newsroom", "date": "2026-10-01" },
+    { "id": "s2", "kind": "10-K", "title": "Accenture plc Form 10-K for fiscal year ended 2026-08-31 (competition, workforce, segments, R&D, learning, AI workforce)", "url": "https://www.sec.gov/Archives/edgar/data/0001467373/000146737326000049/acn-20260831.htm", "publisher": "Accenture / SEC EDGAR", "date": "2026-10" },
+    { "id": "s3", "kind": "call-transcript", "title": "Accenture Q4 FY2026 earnings call transcript (AI clients, partners, acquisitions, pricing, federal, Middle East; read via summary)", "url": "https://www.webull.com/news/15673140247086080", "publisher": "Webull", "date": "2026-10-01" },
+    { "id": "s4", "kind": "news", "title": "Accenture posts record AI bookings in Q1 FY26 - last quarter of separate advanced AI disclosure (read via search summary)", "url": "https://briefing.com/story-stocks/archive/2025/12/18/accenture-posts-record-ai-bookings-and-solid-eps-growth-cautious-guidance-keeps-lid-on-shares-(acn)", "publisher": "Briefing.com", "date": "2025-12-18" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/acn/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "규모와 인력 - 약 814,000명(2026-08-31), AI·데이터 인력 약 110,000명",
+      "최상위 고객 관계 - Diamond 고객 317곳, 분기 1억 달러 이상 수주 연 141건(FY2026)",
+      "기술 파트너 생태계 - 상위 10개 생태계 파트너 관련 업무가 FY2026 매출의 60% 이상",
+      "인수와 재교육에 쓰는 돈 - FY2026 인수 49억 달러(17건), 교육 약 10억 달러, R&D 10억 달러"
+    ],
+    "text": "Accenture의 힘은 세계 최대 기업들의 핵심 시스템을 이미 맡고 있다는 관계와, 그 일을 해낼 약 81만 명의 인력에서 나온다. 최대 고객인 Diamond 고객이 317곳이고, FY2026에만 분기 1억 달러 이상 수주가 141건이었다. 여기에 클라우드·소프트웨어·AI 기술 기업 생태계와의 협업(상위 10개 파트너 업무가 매출의 60% 이상)과, 매년 인수·교육에 쓰는 수십억 달러가 경쟁자가 따라오기 어려운 벽을 만든다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "design": {
+    "text": "이 인력으로 회사가 파는 것은 크게 두 가지 일의 형태로 보고된다. Consulting(전략·경영 컨설팅, 시스템 구축, AI 도입 프로젝트)이 FY2026 매출 369억 달러, Managed Services(IT 운영·애플리케이션 관리·업무 아웃소싱의 다년 계약)가 373억 달러였다. 같은 매출을 산업별로 나누면 Products(제조·소비재) 225억, Health & Public Service 152억, Financial Services 140억, CMT 127억, Resources 99억 달러다.",
+    "src": ["s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "자체 인력 약 814,000명 - 서비스 생산의 거의 전부 (가동률 93%, 자발적 이직률 13%)",
+      "상위 10개 기술 생태계 파트너 - 관련 업무가 FY2026 매출의 60% 이상 (파트너 명단은 이번 조사에서 미확인)",
+      "Anthropic - AI·보안·안전 업무 파트너 (비독점, 회사 언급)",
+      "Palantir - 사업 그룹 단위 파트너십",
+      "Dell - FY2027부터 프라이빗 AI 파트너",
+      "FY2026 인수 17건(49억 달러) - Ookla 등, 운영기술(OT) 보안 Dragos 인수는 FY2027 Q1로 이연"
+    ],
+    "text": "서비스 회사에서 '만든다'는 것은 사람과 도구를 고객 문제에 배치하는 일이다. Accenture는 약 81만 명을 가동률 93%로 돌리고, 클라우드·소프트웨어·AI 회사의 제품 위에 자체 자산을 얹어 결과물을 만든다. 부족한 역량은 인수로 채우는데, FY2026에 17건·49억 달러를 썼고 FY2027에도 약 50억 달러를 계획한다.",
+    "src": ["s2", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "글로벌 대기업 - Diamond 고객 317곳 (최대 관계)",
+      "정부·공공기관 - Health & Public Service FY2026 매출 152억 달러, 미국 연방 포함",
+      "금융기관 - Financial Services 140억 달러",
+      "제조·소비재·유통 - Products 225억 달러",
+      "통신·미디어·기술 기업 - CMT 127억 달러"
+    ],
+    "channel": "직접 영업(고객사 경영진 대상 컨설팅·수주), 기술 파트너와의 공동 영업, 다년 Managed Services 계약 갱신",
+    "concentration": "최대 고객·상위 고객 비중은 이번 조사에서 미확인 (지역별로는 Americas 49%, EMEA 36%, Asia Pacific 14%)",
+    "text": "이렇게 만든 서비스는 세계 대기업과 정부에 직접 팔린다. FY2026 매출의 49%가 Americas, 36%가 EMEA, 14%가 Asia Pacific에서 나왔고, 산업으로는 제조·소비재(Products)가 가장 크다. 컨설팅 계약은 대부분 12개월 미만이고 약 30일 통지로 해지될 수 있어, 경기와 고객 예산에 빠르게 반응한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "고객 기업 경영진", "to": "Accenture", "what": "신규 수주 (FY2026 845억 달러, book-to-bill 1.1) - 계약을 먼저 따고 매출은 수행하며 인식" },
+      { "from": "고객 기업", "to": "Accenture Consulting", "what": "프로젝트 수수료 - 투입 인력·기간 또는 고정가·성과 기준 (FY2026 매출 369억 달러)" },
+      { "from": "고객 기업", "to": "Accenture Managed Services", "what": "다년 운영·아웃소싱 계약의 정기 수수료 (FY2026 매출 373억 달러)" },
+      { "from": "Accenture", "to": "직원 약 81만 명", "what": "인건비 - 매출원가의 대부분 (총마진 32.0%)" },
+      { "from": "Accenture", "to": "기술 파트너 (클라우드·소프트웨어·AI 회사)", "what": "고객 프로젝트에 쓰이는 라이선스·클라우드 비용 (파트너별 금액 미공시)" }
+    ],
+    "pricing": "수주 후 수행하며 받는 서비스 수수료: 투입 시간·인력 기준, 고정가, 성과 연동 계약이 섞여 있고(비중 미공시), Managed Services는 다년 정기 계약이다.",
+    "text": "돈은 '수주 → 수행 → 청구' 순서로 들어온다. FY2026 신규 수주는 845억 달러로 매출 742억 달러보다 많아(book-to-bill 1.1) 앞으로 할 일이 쌓였다는 뜻이고, Managed Services 수주는 book-to-bill 1.2로 특히 강했다. 비용의 대부분은 사람이라 총마진은 32% 안팎에서 움직이며, 같은 인력으로 더 많은 일을 하는 AI 생산성이 곧 가격 인하 압력이 되기도 한다.",
+    "src": ["s1", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-08-31)",
+    "revenue": { "value": 74.18, "unit": "USD bn", "yoy": 6 },
+    "grossMargin": 32.0,
+    "operatingMargin": 15.4,
+    "netMargin": 11.5,
+    "operatingCashFlow": { "value": 12.36, "unit": "USD bn" },
+    "freeCashFlow": { "value": 11.62, "unit": "USD bn" },
+    "segments": [
+      { "name": "Americas", "revenue": 36.55, "unit": "USD bn", "share": 49.3, "yoy": 4, "operatingMargin": 17.1, "src": ["s1", "s2"] },
+      { "name": "EMEA", "revenue": 26.96, "unit": "USD bn", "share": 36.3, "yoy": 9, "operatingMargin": 12.7, "src": ["s1", "s2"] },
+      { "name": "Asia Pacific", "revenue": 10.68, "unit": "USD bn", "share": 14.4, "yoy": 7, "operatingMargin": 16.2, "src": ["s1", "s2"] }
+    ],
+    "industryMetric": [
+      { "name": "신규 수주 / book-to-bill", "value": "FY2026 845.4억 달러, 1.1 (Consulting 408.6억·1.1, Managed Services 436.7억·1.2); Q4 221.7억 달러, 1.2", "src": ["s1"] },
+      { "name": "일의 형태별 매출 (FY2026)", "value": "Consulting 368.8억 달러 (+5%, 현지통화 +3%), Managed Services 373.0억 달러 (+8%, 현지통화 +6%)", "src": ["s1"] },
+      { "name": "대형 수주", "value": "분기 1억 달러 이상 수주 연 141건 (전년 대비 12건 증가), Q4 37건", "src": ["s1", "s3"] },
+      { "name": "인력 지표", "value": "약 814,000명, 가동률 93%, 자발적 이직률 13%", "src": ["s2"] },
+      { "name": "조정 영업이익률 / 조정 EPS", "value": "15.8% (+20bp) / 13.97달러 (+8%); GAAP EPS 13.56달러", "src": ["s1"] },
+      { "name": "매출채권 회수일(DSO)", "value": "50일 (2025-08말 47일)", "src": ["s1"] }
+    ],
+    "text": "이 구조가 FY2026 매출 742억 달러(달러 기준 +6%, 현지통화 +5%), GAAP 영업이익 114억 달러(영업이익률 15.4%), 순이익 85억 달러를 만들었다. 지역별 영업이익률은 Americas 17.1%, Asia Pacific 16.2%, EMEA 12.7%로 매출이 가장 빨리 는 EMEA가 이익률은 가장 낮다. 영업현금흐름 124억 달러에서 설비투자 7.4억 달러만 빼면 잉여현금흐름이 116억 달러로, 순이익보다 현금이 많이 남는 사업이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-08-31)",
+    "items": [
+      { "use": "buybacks", "value": 7.5, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 3.99, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 4.94, "unit": "USD bn", "src": ["s1", "s3"] },
+      { "use": "R&D", "value": 1.0, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "직원 교육·역량 개발 (약 4,600만 시간)", "value": 1.0, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.74, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "설비가 거의 필요 없는 회사라 번 현금은 주주환원과 인수로 간다. FY2026에는 자사주 75억 달러와 배당 40억 달러로 사상 최대 115억 달러를 돌려줬고, 인수에 49억 달러, 교육과 R&D에 각각 약 10억 달러를 썼다. FY2027에도 최소 95억 달러 환원과 약 50억 달러 인수를 계획하고, 분기 배당은 1.71달러로 5% 올렸다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 모델·칩을 만들지 않고, 기업이 AI를 실제 업무에 넣도록 전략·데이터 정비·시스템 구축·운영을 해 주는 '도입 대행' 자리. 프런티어 AI 회사와 클라우드·소프트웨어 회사의 기술을 고객 현장에 연결한다.",
+    "dependsOn": ["models-platforms (Anthropic 등 프런티어 AI 회사 - 회사는 상위 3개 프런티어 회사의 1위 파트너라고 언급)", "cloud-infrastructure (클라우드 사업자)", "software-applications (Palantir 등 기업용 소프트웨어)"],
+    "sellsTo": ["ai-adopter (AI를 도입하는 대기업·정부)"],
+    "aiRevenue": "FY2026 연간 AI 매출은 미공시. 마지막 별도 공시는 Q1 FY2026 advanced AI 수주 약 22억 달러·매출 약 11억 달러(2차 출처). FY2026에 400곳 이상이 첫 advanced AI 프로젝트를 시작(회사 언급).",
+    "upside": "AI 도입에는 데이터 정리, 기존 시스템 연결, 업무 재설계, 보안이 필요해 큰 기업일수록 외부 인력을 쓴다. AI·데이터 인력 약 110,000명과 신흥 AI·데이터 파트너 8곳 관련 수주가 FY2025 대비 3배 이상 늘었다고 회사는 밝혔다.",
+    "risk": "AI가 코딩·운영을 자동화하면 같은 일에 필요한 인력이 줄어 매출이 깎일 수 있다(AI 디플레이션). 10-K는 AI가 서비스 수요를 줄일 위험과 AI 전문 신생 기업을 새 경쟁자로 적었고, Q4에는 여러 영역에서 가격이 낮아졌다고 CFO가 말했다.",
+    "text": "그래서 AI 가치사슬에서 Accenture는 모델과 기업 사이를 잇는 '구현' 계층에 있다. 회사는 AI 효율화로 줄어드는 일보다 새로 생기는 AI 일이 더 크다고 말하지만, 이를 숫자로 보여 주던 AI 수주 별도 공시는 Q1 FY2026을 끝으로 멈췄다. 따라서 수주 성장률과 가격 추이가 AI가 순효과로 도움이 되는지를 보여 주는 대리 지표가 된다.",
+    "src": ["s3", "s2", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "IT 컨설팅·시스템 구축", "rivals": ["대형 다국적 IT 서비스 회사", "회계법인 계열 컨설팅", "전략 컨설팅사"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "IT 운영·아웃소싱 (Managed Services)", "rivals": ["인도계 IT 서비스 회사", "대형 다국적 IT 서비스 회사", "고객사 내부 IT·글로벌 역량 센터(GCC)"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "AI 도입·구현", "rivals": ["AI 전문 신생 기업", "AI 회사의 직접 배치 엔지니어(FDE) 조직", "대형 IT 서비스 회사"], "position": "leader", "share": null, "src": ["s2", "s3"] },
+      { "arena": "공공·연방 IT", "rivals": ["정부 전문 IT 서비스 회사", "대형 다국적 IT 서비스 회사"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "최대 규모의 인력과 고객 관계, 기술 파트너 생태계, 인수로 역량을 빠르게 사는 재무 여력, 업계 최대급 교육 투자.",
+    "threats": "AI로 인한 인력 단가·물량 하락, 저가 인도계 업체와 고객 내부 GCC, AI 회사의 직접 영업, 미국 연방 지출 변화, 중동 매출 약 10억 달러(연환산) 타격.",
+    "text": "경쟁은 인도계 IT 서비스 회사와 회계법인 컨설팅, 고객 내부 IT 조직, 그리고 새로 등장한 AI 전문 기업에서 동시에 온다. 10-K는 경쟁사 이름 대신 이 범주들을 적었고, 특히 AI 신생 기업과 고객사의 글로벌 역량 센터를 새 위협으로 꼽았다. Accenture는 규모·인수·교육으로 AI 일감을 먼저 가져가는 방식으로 맞서며, FY2027 가이던스는 치열한 가격 경쟁이 계속된다고 가정한다.",
+    "src": ["s2", "s3"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 매출 현지통화 3~6% 성장(인수 기여 약 2.5%p), 조정 영업이익률 10~30bp 개선, 최소 95억 달러 주주환원을 제시했다. 회사는 스스로를 기업 '재창조(reinvention)' 파트너로 규정한다.",
+    "roadmap": [
+      { "when": "FY2027 Q1 (2026-09~11)", "what": "매출 189.5억~196억 달러 (현지통화 2~6%), Dragos 인수 마무리 예정", "src": ["s1", "s3"] },
+      { "when": "FY2027", "what": "인수 약 50억 달러, 모든 지역 채용(FY2026보다 느리게, 신입 비중 확대)", "src": ["s3"] },
+      { "when": "FY2027부터", "what": "Dell과 프라이빗 AI 파트너십", "src": ["s3"] },
+      { "when": "향후 5년", "what": "AI 안전 사업·연구소에 최소 10억 달러 투자", "src": ["s2", "s3"] },
+      { "when": "2027-01-28", "what": "정기 주주총회", "src": ["s2"] }
+    ],
+    "vision": "CEO Julie Sweet은 AI를 '순풍(tailwind)'으로 보고, AI 효율화보다 큰 새 일감을 가져와 모든 고객의 재창조를 맡는 회사가 되겠다고 말한다.",
+    "text": "앞으로의 계획은 AI 일감을 인수와 재교육으로 먼저 잡는 것이다. FY2027에 약 50억 달러를 인수에 쓰고 AI 안전 사업에 5년간 10억 달러를 넣으며, 채용은 계속하되 속도를 늦추고 신입 비중을 늘린다. 경영진은 FY2027 매출을 현지통화 3~6% 성장으로 제시했는데, 하단은 중동과 재량 지출 악화를, 상단은 중동 무성장을 가정한다.",
+    "src": ["s1", "s3", "s2"]
+  },
+
+  "governance": {
+    "line": "2019-09부터 CEO, 2021-09부터 의장인 Julie Sweet이 이끄는 아일랜드 법인(plc)으로, 지배주주 없이 FY2026 사상 최대 115억 달러를 환원했고 2026-09 자사주 60억 달러 한도를 추가 승인했다.",
+    "src": ["s2", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2027", "metric": "revenue growth (local currency)", "value": "3~6% (환율 영향 0%, 인수 기여 약 2.5%p)", "givenOn": "2026-10-01", "src": ["s1", "s3"] },
+      { "period": "FY2027", "metric": "operating margin", "value": "15.9~16.1% (조정 기준 10~30bp 개선)", "givenOn": "2026-10-01", "src": ["s1"] },
+      { "period": "FY2027", "metric": "GAAP diluted EPS", "value": "14.39~14.81달러 (조정 EPS 대비 3~6% 증가)", "givenOn": "2026-10-01", "src": ["s1"] },
+      { "period": "FY2027", "metric": "free cash flow", "value": "110억~118억 달러 (영업현금흐름 119억~127억, 설비투자 9억)", "givenOn": "2026-10-01", "src": ["s1"] },
+      { "period": "FY2027", "metric": "capital return", "value": "최소 95억 달러", "givenOn": "2026-10-01", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "revenue", "value": "189.5억~196억 달러 (현지통화 2~6%, 환율 약 -1%)", "givenOn": "2026-10-01", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "FY2026 매출은 가이던스(현지통화 3~4%)를 웃도는 5%였고, Q4 매출 186.8억 달러도 제시 범위(177.5억~184억 달러) 상단을 넘었다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-11~2027-08) EPS 합계 14.69달러(범위 14.03~15.41), 직전 4개 분기 실적 13.96달러. 최근 4주 상향 12건·하향 8건으로 상향이 약간 많다.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "분기 book-to-bill 1.0 이상 유지, 특히 Managed Services 대형 수주",
+      "현지통화 매출 성장이 3~6% 범위 중간 이상",
+      "1억 달러 이상 대형 수주 건수 증가",
+      "가격 하락에도 조정 영업이익률 개선 유지",
+      "인력 증가보다 매출 증가가 빠름 (인당 매출 상승)"
+    ],
+    "breaks": [
+      "Consulting 수주의 book-to-bill이 1.0 아래로 계속 내려감",
+      "AI로 인한 갱신 계약 축소가 신규 범위 확대를 넘어섬",
+      "현지통화 매출 성장이 인수 기여(약 2.5%p)보다 낮아짐 (자체 성장 정체)",
+      "미국 연방·중동 매출 추가 악화",
+      "DSO 상승이 계속돼 현금 전환이 나빠짐"
+    ],
+    "keyNumbers": [
+      { "name": "신규 수주와 book-to-bill", "why": "향후 매출의 선행 지표" },
+      { "name": "현지통화 매출 성장률 (인수 제외)", "why": "AI 디플레이션 여부를 가장 직접 보여 줌" },
+      { "name": "조정 영업이익률", "why": "가격 압력을 생산성으로 상쇄하는지" },
+      { "name": "인력 수·가동률", "why": "AI로 인한 인력 대비 매출 변화" },
+      { "name": "잉여현금흐름과 주주환원", "why": "자사주·배당의 재원" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-13", "event": "분기 배당 1.71달러 지급 (기준일 2026-10-13)", "src": ["s1"] },
+      { "date": "2026-12 중하순 (추정, 회사 미확정)", "event": "Q1 FY2027 실적과 가이던스 갱신", "src": [] },
+      { "date": "2027-01-28", "event": "정기 주주총회", "src": ["s2"] }
+    ],
+    "reaction": "주가는 EPS보다 신규 수주·book-to-bill과 다음 분기·연간 매출 가이던스에 크게 반응하는 경향이 있다. 최근에는 AI가 IT 서비스 일감을 줄일 것이라는 우려가 할인 요인이어서, AI 관련 고객 수·파트너십 발언과 가격 추이가 함께 읽힌다.",
+    "conditions": [
+      "분기 신규 수주와 Consulting·Managed Services별 book-to-bill",
+      "현지통화 매출 성장률에서 인수 기여를 뺀 값",
+      "다음 분기 매출 가이던스 범위와 컨센서스 비교",
+      "조정 영업이익률 변화와 가격 관련 발언",
+      "인력 수 증감과 가동률",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "최대 고객·상위 100대 고객 매출 비중 (10-K 해당 부분 미확인)",
+    "계약 형태별(투입 시간·고정가·성과 연동) 매출 비중",
+    "상위 10개 생태계 파트너 명단 (Microsoft·SAP 등 일반적으로 알려진 파트너는 이번 조사에서 확인하지 않음)",
+    "FY2026 연간 AI 수주·매출 (회사가 Q1 FY2026 이후 별도 공시 중단; Q1 수치는 2차 출처 요약)",
+    "Dragos 인수 금액 (콜 요약에 약 30억 달러가 FY2027 Q1로 이연됐다는 표현이 있으나 원문이 흐려 미확인)",
+    "인수 49.4억 달러는 현금흐름표 '사업·투자 매입(순)' 값으로 투자 지분 일부가 섞여 있을 수 있음",
+    "R&D·교육비 각 약 10억 달러는 10-K 서술 기준(콜 원문은 흐림)",
+    "10-K 정확한 제출일 (2026-10로만 기재)",
+    "세그먼트 영업이익률은 10-K 세그먼트 영업이익(62.4억·34.4억·17.3억 달러)을 매출로 나눈 계산값",
+    "Q1 FY2027 실적 발표일",
+    "s3 콜 내용은 Webull 게시 녹취의 요약본 기준"
+  ],
+  "confidence": "high - 매출·이익·현금·가이던스는 회사 보도자료와 10-K에서 왔다. AI 매출과 고객 집중도는 공시가 없어 medium 수준이다."
+}

@@ -1,0 +1,571 @@
+{
+  "symbol": "HD",
+  "name": "The Home Depot, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "Sunday nearest January 31 (FY2025 ended 2026-02-01)",
+  "oneLine": "Home Depot는 미국 최대 주택 개량 소매업체로, 집수리하는 개인과 시공 전문가(Pro)에게 자재·공구를 팔며 SRS·GMS 인수로 전문 건자재 유통까지 넓혀 미국 주택 경기와 금리를 가장 먼저 비추는 회사다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "The Home Depot Announces Second Quarter Fiscal 2026 Results; Reaffirms Fiscal 2026 Guidance (incl. financial statements)",
+      "url": "https://ir.homedepot.com/~/media/Files/H/HomeDepot-IR/press-release/q2-2026-earnings-release.pdf",
+      "publisher": "The Home Depot IR",
+      "date": "2026-08-18"
+    },
+    {
+      "id": "s2",
+      "kind": "call-transcript",
+      "title": "Home Depot Q2 2026 earnings call transcript (comps by month, tariff refunds, Magic Apron, delivery speed, CEO leave)",
+      "url": "https://ir.homedepot.com/~/media/Files/H/HomeDepot-IR/2026/hd-2q26-transcript.pdf",
+      "publisher": "The Home Depot IR",
+      "date": "2026-08-18"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "The Home Depot Fiscal 2025 Annual Report (Form 10-K: segment note, product lines, customers, competition, cash flow)",
+      "url": "https://ir.homedepot.com/~/media/Files/H/HomeDepot-IR/2026/thd-annualreport-2025.pdf",
+      "publisher": "The Home Depot IR",
+      "date": "2026-03"
+    },
+    {
+      "id": "s4",
+      "kind": "earnings-release",
+      "title": "Home Depot Announces Fourth Quarter and Fiscal 2025 Results (dividend increase, fiscal 2026 guidance)",
+      "url": "https://corporate.homedepot.com/news/earnings/home-depot-announces-fourth-quarter-2025-earnings",
+      "publisher": "The Home Depot",
+      "date": "2026-02"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "Home Depot CEO medical leave, interim plans (Ann-Marie Campbell runs operations, Richard McPhail finance and Pro subsidiaries; read via search summary)",
+      "url": "https://www.digitalcommerce360.com/2026/08/13/home-depot-ceo-medical-leave-interim-plans/",
+      "publisher": "Digital Commerce 360",
+      "date": "2026-08-13"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/hd/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "점포망과 입지 - 2,364개 매장(2026 Q2말), 매장 평균 약 10만 4천 제곱피트",
+      "구매 규모와 브랜드 협상력 - 독점·자체 브랜드 확보",
+      "Pro 생태계 - 전담 영업, 배송, 거래 신용, Pro Xtra 로열티, SRS·GMS 전문 유통망 1,340곳 이상",
+      "매장을 배송 거점으로 쓰는 연결형 쇼핑 - 재고 소포 상품 65% 이상 당일·익일 배송"
+    ],
+    "text": "Home Depot의 힘은 미국 전역 2,364개 대형 매장과 그 안의 3만~4만 개 상품 구색에서 나온다. 같은 매장이 개인 고객과 시공 전문가(Pro) 모두의 출발점이고, 회사는 '거의 모든 Pro가 Home Depot에서 산다'고 말한다. 여기에 SRS·GMS의 전문 유통 지점 1,340곳 이상과 매장 기반 빠른 배송이 더해져 경쟁사가 따라오기 어려운 Pro 생태계를 만든다.",
+    "src": [
+      "s1",
+      "s3",
+      "s2"
+    ]
+  },
+  "design": {
+    "text": "회사는 두 덩어리로 보고한다. Primary 부문은 미국·캐나다·멕시코 매장과 온라인에서 건자재(Building Materials), 인테리어(Décor), 공구·정원(Hardlines) 세 제품군과 설치·렌탈 서비스, HD Supply의 시설 유지보수(MRO) 자재를 판다. 'Other'로 표시되는 SRS(GMS 포함)는 지붕재·조경·수영장·석고보드 같은 전문 건자재를 시공업자에게 공급하는 네 개 사업으로 운영된다.",
+    "src": [
+      "s3"
+    ]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "국내외 공급업체 - 브랜드·자체 브랜드 상품 공급 (일부는 베트남·대만·중국 등에서 직수입)",
+      "자체 물류·배송망 - 유통·풀필먼트 센터와 매장 출고",
+      "SRS·GMS 지점 - 전문 건자재 재고·배송 장비를 갖춘 1,340곳 이상",
+      "설치 서비스 파트너 - 바닥재·주방·창호 등 시공 (DIFM 고객 대상)"
+    ],
+    "text": "소매·유통 회사로서 Home Depot가 '만드는' 것은 상품을 사 와서 필요한 곳에 빨리 가져다 놓는 능력이다. 상품은 국내외 공급업체에서 사고, 회사는 배송 경로를 고르는 자체 알고리즘과 매장·물류센터를 묶어 배송 리드타임을 18개월 동안 약 45% 줄였다. 설치 서비스는 외부 시공 파트너가 맡아, 직접 시공하지 않고도 '대신 해 주는(DIFM)' 수요를 잡는다.",
+    "src": [
+      "s3",
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "DIY 고객 - 직접 수리·개량하는 주택 소유자",
+      "Pro 고객 - 리모델러·종합건설사·주택건설사·시설 관리자·전기·배관·지붕·조경 등 전문 시공업자 (10-K는 데이터센터 공사도 언급)",
+      "DIFM 고객 - 시공을 맡기는 주택 소유자",
+      "시설 관리 고객 (HD Supply) - 다가구·호텔·병원·정부 주택"
+    ],
+    "channel": "매장, homedepot.com과 앱(FY2025 매출의 15.9%), Pro 전담 영업, SRS·GMS 지점 배송, 설치 서비스.",
+    "concentration": "단일 고객 의존 없음 (공시상 주요 고객 없음)",
+    "text": "이 상품은 집을 고치는 개인(DIY)과 이를 업으로 하는 Pro라는 두 무리의 고객에게 팔린다. 2026년 2분기에는 Pro 매출이 DIY보다 좋았고, 회사는 Pro에게 전담 영업·거래 신용·대량 배송 같은 여섯 가지 역량을 새로 쌓는 중이다. 판매 창구는 매장이 중심이지만 온라인이 FY2025 매출의 15.9%까지 커졌다.",
+    "src": [
+      "s3",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "DIY·DIFM 주택 소유자",
+        "to": "Home Depot 매장·온라인",
+        "what": "자재·공구·가전 구매와 설치 서비스 대금 (FY2025 서비스 매출 56.5억 달러)"
+      },
+      {
+        "from": "Pro 시공업자",
+        "to": "Home Depot 매장·Pro 영업",
+        "what": "대량 자재 구매 - 거래 신용(Pro Trade Credit)으로 외상 결제 가능"
+      },
+      {
+        "from": "지붕·조경·수영장·실내 시공업자",
+        "to": "SRS(GMS 포함) 지점",
+        "what": "전문 건자재 납품 대금 (FY2025 Other 매출 127억 달러, 지붕재 약 53%)"
+      },
+      {
+        "from": "다가구·호텔·병원 시설",
+        "to": "HD Supply",
+        "what": "유지보수(MRO) 자재와 부가 서비스 대금"
+      }
+    ],
+    "pricing": "제품 단가에 붙는 소매·유통 마진(FY2025 매출총이익률 33.3%)이 거의 전부이고, 설치·렌탈 서비스 요금과 Pro 대상 우대 가격·거래 신용이 더해진다.",
+    "text": "돈은 대부분 상품을 팔아 남기는 마진으로 들어온다. FY2025 매출 1,647억 달러 중 상품이 1,590억, 서비스가 57억 달러였고, 매출총이익률은 33.3%였다. 마진이 낮은 전문 유통(SRS·GMS) 비중이 커지면서 총이익률은 0.1%p 내려갔는데, 회사는 대신 Pro 고객의 지갑 점유율을 넓히는 쪽을 택했다.",
+    "src": [
+      "s3"
+    ]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2026-02-01, 52 weeks vs 53 weeks in FY2024)",
+    "revenue": {
+      "value": 164.683,
+      "unit": "USD bn",
+      "yoy": 3.2
+    },
+    "grossMargin": 33.3,
+    "operatingMargin": 12.7,
+    "netMargin": 8.6,
+    "operatingCashFlow": {
+      "value": 16.325,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 12.646,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Primary segment (U.S., Canada, Mexico stores, online, HD Supply)",
+        "revenue": 151.966,
+        "unit": "USD bn",
+        "share": 92.3,
+        "yoy": -0.7,
+        "operatingMargin": 13.5,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Other (SRS incl. GMS, non-reportable)",
+        "revenue": 12.717,
+        "unit": "USD bn",
+        "share": 7.7,
+        "yoy": 98.5,
+        "operatingMargin": 2.5,
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "기존점 매출(comparable sales)",
+        "value": "FY2025 +0.3%(미국 +0.5%; 객단가 +1.4%, 거래 건수 -1.0%); Q2 FY2026 +1.7%(미국 +1.3%; 객단가 +2.8%, 거래 -1.0%)",
+        "src": [
+          "s3",
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "1,000달러 초과 고액 거래",
+        "value": "Q2 FY2026 거래 건수 +2.4%",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Primary 제품군 매출 (FY2025)",
+        "value": "Building Materials 524억, Décor 517억, Hardlines 478억 달러",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "온라인 매출",
+        "value": "FY2025 매출의 15.9%(+8.7%, 같은 주 기준 +10.4%); Q2 FY2026 +11%",
+        "src": [
+          "s3",
+          "s2"
+        ]
+      },
+      {
+        "name": "투하자본수익률(ROIC)",
+        "value": "24.8% (직전 12개월, Q2 FY2026) vs 27.2% (1년 전)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "점포·지점",
+        "value": "매장 2,364개, SRS 지점 1,340곳 이상 (2026 Q2말)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "그 결과 FY2025 매출은 1,647억 달러로 3.2% 늘었지만, 늘어난 몫은 SRS·GMS 인수(약 63억 달러)에서 왔고 본업인 Primary 부문 매출은 0.7% 줄었다(전년이 53주였던 영향 포함). 이익은 Primary 부문에 몰려 있어 영업이익 209억 달러 중 206억 달러(이익률 13.5%)가 여기서 나왔고, 전문 유통 부문 이익률은 2.5%에 그쳤다. 최근 분기(Q2 FY2026)는 매출 479억 달러(+5.7%), 기존점 +1.7%로 예상보다 좋았다.",
+    "src": [
+      "s3",
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2026-02-01)",
+    "items": [
+      {
+        "use": "dividends",
+        "value": 9.152,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 5.41,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 5.04,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 3.679,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "text": "회사가 밝힌 순서는 재투자 → 배당 → 남는 돈으로 자사주다. FY2025에는 영업현금 163억 달러로 배당 92억, GMS 인수 54억, 설비투자 37억 달러를 쓰고 부채 50억 달러를 갚았으며, 자사주는 사지 않았다. 2026년 2월 분기 배당을 주당 2.33달러로 1.3% 올렸고(156분기 연속 배당), FY2026 설비투자는 약 40억 달러(매출의 약 2.5%)로 계획했다.",
+    "src": [
+      "s3",
+      "s4",
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 파는 회사가 아니라 쇼핑·현장 업무에 쓰는 회사. 자체 생성형 AI 도구 Magic Apron을 웹·앱과 매장 통로에서 쓰고, 도면을 읽어 자재 목록과 견적을 뽑는 Blueprint Takeoffs 도구를 Pro에게 제공한다.",
+    "dependsOn": [
+      "models-platforms (외부 AI 모델 - 업체명 미공시)",
+      "cloud-infrastructure (업체명 미공시)"
+    ],
+    "sellsTo": [
+      "AI 자체를 팔지 않음 - 효과는 온라인 전환율·객단가와 Pro 견적 속도로 나타남",
+      "데이터센터 공사 시공업자 (10-K가 Pro 고객 유형으로 언급, 관련 매출 미공시)"
+    ],
+    "aiRevenue": null,
+    "upside": "회사는 Magic Apron 도입 뒤 온라인 전환율이 '회사 역사상 최고'라고 밝혔고, 이 도구는 매달 수백만 건의 질문을 받는다(Q2 FY2026 콜). 도면 기반 견적 도구가 Pro의 대형 프로젝트 수주를 돕고, 데이터센터 같은 비주거 공사 수요가 전문 유통 부문 매출로 이어질 여지가 있다.",
+    "risk": "10-K는 온라인·AI 도구가 가격 비교와 경쟁사 진입을 쉽게 해 경쟁을 키운다고 적었다. 외부 AI 쇼핑 비서가 상품 비교의 출발점이 되면 Home Depot의 가격 결정력이 약해질 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Home Depot는 '도입자'다. AI 매출은 없고, Magic Apron과 견적 도구가 전환율·객단가·Pro 생산성을 통해 이익에 닿는다. 반대로 AI가 가격 비교를 쉽게 만드는 점은 회사도 위험으로 꼽는다.",
+    "src": [
+      "s3",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "미국 주택 개량 대형 소매",
+        "rivals": [
+          "Lowe's",
+          "Menards",
+          "지역 철물점·건자재상"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "Pro 대상 건자재 공급",
+        "rivals": [
+          "Lowe's Pro",
+          "지역 목재·건자재 유통",
+          "배관·전기 전문 도매상"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "전문 건자재 유통 (지붕·조경·수영장·석고보드)",
+        "rivals": [
+          "Beacon",
+          "ABC Supply",
+          "Pool Corp",
+          "L&W Supply"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "온라인 주택 개량 용품",
+        "rivals": [
+          "Amazon",
+          "Wayfair",
+          "Lowe's 온라인"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "시설 유지보수 자재 (MRO)",
+        "rivals": [
+          "Grainger",
+          "Ferguson",
+          "Fastenal"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "edge": "가장 큰 매장망과 구색, Pro 전용 역량(영업·신용·배송), SRS·GMS의 전문 유통과 매장 간 상품·물류 공유.",
+    "threats": "주택 거래 감소와 고금리로 대형 리모델링 수요 위축, 경쟁사의 Pro 유통 인수, 온라인·AI 도구가 키우는 가격 경쟁, 관세와 연료·원가 상승.",
+    "text": "이 규모로 Home Depot는 미국 주택 개량 소매의 1위이고, CFO는 FY2026에도 점유율을 계속 늘릴 것이라고 했다. 다만 10-K는 이 업계가 '매우 경쟁적이고 파편화돼 있다'고 쓰며, 전문 유통에서는 이미 강한 지역·전국 유통업체와 겨룬다. 회사는 SRS·GMS의 외부 자재와 매장의 실내 자재를 묶어 '한 곳에서 다 사는' Pro를 늘리는 방식으로 맞선다.",
+    "src": [
+      "s3",
+      "s2"
+    ]
+  },
+  "strategy": {
+    "goal": "FY2026 총매출 약 2.5~4.5% 성장, 기존점 보합~+2%, 조정 영업이익률 약 12.8~13.0%를 제시했다. 장기적으로는 Pro 지갑 점유율 확대와 '연결형 쇼핑 경험'으로 시장보다 빠른 성장을 노린다.",
+    "roadmap": [
+      {
+        "when": "FY2026",
+        "what": "신규 매장 약 15개, SRS 신규 지점 40~50곳",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "when": "FY2026",
+        "what": "SRS 유기적 매출 한 자릿수 중반 성장 목표",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2026-08",
+        "what": "수만 개 상품 3시간 이내 익스프레스 배송 전국 도입",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "FY2026",
+        "what": "설비투자 약 40억 달러 (매출의 약 2.5%)",
+        "src": [
+          "s3",
+          "s1"
+        ]
+      },
+      {
+        "when": "진행 중",
+        "what": "Magic Apron을 매장 통로·현지 매장 정보까지 확장",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "vision": "회사는 '핵심과 문화', '마찰 없는 연결형 경험', 'Pro에서 이기기' 세 축으로 DIY·DIFM·Pro 모든 고객이 프로젝트 전체를 한 곳에서 해결하는 주택 개량 생태계를 그린다.",
+    "text": "앞으로의 계획은 매장 위에 Pro 역량과 빠른 배송을 더 얹는 것이다. FY2026에는 매장 약 15개와 SRS 지점 40~50곳을 늘리고, 8월에는 3시간 익스프레스 배송을 전국으로 넓혔다. 경영진은 주택 거래가 역사적 저점에 있어 언젠가 반등할 것으로 보지만 시점은 예측하지 않고, 그 전까지는 작은 수리 수요와 점유율 확대로 버틴다는 입장이다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "의장 겸 CEO Ted Decker가 2026년 8월부터 일시 병가 중이라 Ann-Marie Campbell(수석 부사장)이 일상 운영을, CFO Richard McPhail이 재무와 Pro 자회사를 맡고 있으며, FY2025에는 자사주 없이 배당 92억 달러로만 주주에게 돌려줬다.",
+    "src": [
+      "s2",
+      "s5",
+      "s3"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "FY2026",
+        "metric": "total sales growth",
+        "value": "약 2.5~4.5% (2월 제시, 8월 재확인)",
+        "givenOn": "2026-08-18",
+        "src": [
+          "s1",
+          "s4"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "comparable sales growth",
+        "value": "약 보합~+2.0%",
+        "givenOn": "2026-08-18",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "gross margin / operating margin / adjusted operating margin",
+        "value": "약 33.1% / 12.4~12.6% / 12.8~13.0%",
+        "givenOn": "2026-08-18",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "diluted EPS and adjusted diluted EPS growth",
+        "value": "약 보합~+4% (기준 14.23 / 14.69달러)",
+        "givenOn": "2026-08-18",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "capital expenditures",
+        "value": "매출의 약 2.5%",
+        "givenOn": "2026-08-18",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "annual",
+    "track": "FY2026 전망은 2월 제시 후 2분기에 그대로 유지됐다. 2분기에 받은 관세 환급 7.3억 달러(그중 6.85억이 매출원가 차감)는 연료·에너지·원가 상승을 상쇄하는 데 쓰여 연간으로는 효과가 거의 없을 것이라고 회사가 설명했다.",
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) EPS 합계 15.41달러(범위 14.79~16.15), 직전 4개 분기 14.81달러. 최근 4주 상향 0건·하향 2건.",
+    "src": [
+      "s6"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "기존점 매출이 전망 상단(+2%) 쪽으로 가고 거래 건수 감소가 멈춤",
+      "1,000달러 초과 고액 거래가 계속 늘어 대형 프로젝트 회복 신호",
+      "Pro 매출이 DIY보다 꾸준히 좋음",
+      "SRS 유기적 성장이 한 자릿수 중반을 달성",
+      "주택 거래(기존주택 매매)와 모기지 금리의 개선"
+    ],
+    "breaks": [
+      "기존점 매출이 다시 마이너스로 전환",
+      "관세 환급 효과가 사라진 뒤 총이익률이 전망(약 33.1%) 아래로 하락",
+      "ROIC의 추가 하락 (인수 효과 부진)",
+      "CEO 공백 장기화 또는 승계 불확실성 확대",
+      "배당 성장 둔화와 자사주 재개 지연"
+    ],
+    "keyNumbers": [
+      {
+        "name": "기존점 매출과 객단가·거래 건수",
+        "why": "본업 수요의 직접 지표"
+      },
+      {
+        "name": "고액 거래(1,000달러 초과) 증감",
+        "why": "대형 리모델링 회복 여부"
+      },
+      {
+        "name": "총이익률과 조정 영업이익률",
+        "why": "전문 유통 믹스와 원가 압력의 결과"
+      },
+      {
+        "name": "SRS 유기적 성장률",
+        "why": "인수 전략이 통하는지 확인"
+      },
+      {
+        "name": "ROIC",
+        "why": "대형 인수 이후 자본 효율"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11 중순 (추정, 회사 미확정)",
+        "event": "Q3 FY2026 실적과 연간 전망 재확인 여부",
+        "src": []
+      },
+      {
+        "date": "수시",
+        "event": "Ted Decker 복귀 또는 리더십 관련 발표 (회사는 '몇 달 안' 복귀 기대)",
+        "src": [
+          "s2",
+          "s5"
+        ]
+      }
+    ],
+    "reaction": "주가는 분기 EPS보다 기존점 매출, 연간 전망 유지·변경, 주택 거래와 금리 뉴스에 반응하는 경향이 있다. Decker의 병가 발표 직후 주가가 약 2.4% 내렸다는 보도가 있었다.",
+    "conditions": [
+      "기존점 매출과 월별 흐름 (회사가 콜에서 월별 수치 공개)",
+      "연간 매출·이익률·EPS 전망 변경 여부",
+      "고액 거래와 Pro·DIY 상대 성과",
+      "모기지 금리와 기존주택 매매 건수",
+      "관세·연료비 등 원가 변화에 대한 회사 언급",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "세그먼트 표는 Primary와 Other(SRS 비보고 부문 합산) 두 줄뿐이며, Other의 전년 대비 +98.5%는 SRS 인수(2024-06) 시점 차이와 GMS(2025-09) 인수 효과",
+    "잉여현금흐름 126.5억 달러는 영업현금 163.3억 - 설비투자 36.8억 계산값",
+    "경쟁사 명단은 10-K의 일반 서술(이름 미기재)을 바탕으로 한 업계 일반 구도이며 점유율 수치 없음",
+    "Q4 FY2025 보도자료 정확한 발표일과 10-K 제출일 (IR 페이지에서 날짜 미확인)",
+    "CEO 병가 세부(복귀 시점)와 주가 반응 약 2.4%는 언론 보도 기준",
+    "Q3 FY2026 실적 발표일",
+    "데이터센터 관련 매출 규모 (10-K는 고객 유형으로만 언급)"
+  ],
+  "confidence": "high - 매출·세그먼트·현금흐름·가이던스는 FY2025 10-K와 2026 2분기 보도자료·콜 원문에서 왔다. 경쟁 구도와 리더십 공백 세부는 일반 구도 또는 보도 기준이라 medium이다."
+}

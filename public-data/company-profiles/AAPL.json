@@ -1,0 +1,637 @@
+{
+ "symbol": "AAPL",
+ "name": "Apple Inc.",
+ "researchedAt": "2026-10-29",
+ "fiscalYearEnd": "late September (FY2025 ended 2025-09-27)",
+ "oneLine": "Apple은 iPhone을 중심으로 한 기기와 그 위의 App Store·구독 서비스로 돈을 버는 회사로, 2026년에는 iPhone 판매가 20% 넘게 다시 늘었지만 메모리 값 급등과 첨단 칩 공급 부족, 새 CEO 체제와 Google Gemini 기반 AI가 동시에 시험대에 올라 있다.",
+ "sources": [
+  {
+   "id": "s1",
+   "kind": "earnings-release",
+   "title": "Apple FY25 Q4 Condensed Consolidated Financial Statements (quarter and fiscal year ended 2025-09-27; release day not checked, month shown)",
+   "url": "https://www.apple.com/newsroom/pdfs/fy2025-q4/FY25_Q4_Consolidated_Financial_Statements.pdf",
+   "publisher": "Apple Newsroom",
+   "date": "2025-10"
+  },
+  {
+   "id": "s2",
+   "kind": "earnings-release",
+   "title": "Apple reports third quarter results (fiscal Q3 2026, quarter ended 2026-06-27)",
+   "url": "https://www.apple.com/newsroom/2026/07/apple-reports-third-quarter-results/",
+   "publisher": "Apple Newsroom",
+   "date": "2026-07-30"
+  },
+  {
+   "id": "s3",
+   "kind": "earnings-release",
+   "title": "Apple FY26 Q3 Condensed Consolidated Financial Statements",
+   "url": "https://www.apple.com/newsroom/pdfs/fy2026q3/FY26_Q3_Consolidated_Financial_Statements.pdf",
+   "publisher": "Apple Newsroom",
+   "date": "2026-07-30"
+  },
+  {
+   "id": "s4",
+   "kind": "call-transcript",
+   "title": "Apple Q3 Earnings Call Highlights (September-quarter guidance, memory costs, supply constraints; read via search summary, page fetch timed out)",
+   "url": "https://www.nasdaq.com/articles/apple-q3-earnings-call-highlights",
+   "publisher": "Nasdaq",
+   "date": "2026-07-30"
+  },
+  {
+   "id": "s5",
+   "kind": "news",
+   "title": "Apple FQ3 2026 earnings preview and July 30 update (Tim Cook's last call as CEO; stock reaction)",
+   "url": "https://www.regardsofwallstreet.com/news/apple-aapl-fq3-2026-earnings-july-30-tim-cook-final-call",
+   "publisher": "Regards of Wall Street",
+   "date": "2026-07-29"
+  },
+  {
+   "id": "s6",
+   "kind": "news",
+   "title": "Apple CEO Tim Cook stepping down, to be replaced by John Ternus (read via search summary)",
+   "url": "https://www.computerworld.com/article/4161059/apple-ceo-tim-cook-stepping-down-to-be-replaced-by-john-ternus.html",
+   "publisher": "Computerworld",
+   "date": "2026-04-20"
+  },
+  {
+   "id": "s7",
+   "kind": "news",
+   "title": "Apple and Google multi-year deal: Google models to underpin Apple Foundation Models and future Siri (read via search summary; day not checked)",
+   "url": "https://www.androidauthority.com/apple-siri-google-gemini-deal-3631890",
+   "publisher": "Android Authority",
+   "date": "2026-01"
+  },
+  {
+   "id": "s8",
+   "kind": "news",
+   "title": "Apple's Gemini deal with Google could be worth about $5 billion (citing Financial Times; read via search summary)",
+   "url": "https://www.businesstoday.in/amp/technology/news/story/apples-new-ai-strategy-with-google-may-be-valued-at-rs-500-crores-report-511123-2026-01-16",
+   "publisher": "Business Today",
+   "date": "2026-01-16"
+  },
+  {
+   "id": "s9",
+   "kind": "other",
+   "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+   "url": "https://www.nasdaq.com/market-activity/stocks/aapl/earnings",
+   "publisher": "Nasdaq / Zacks via AIO",
+   "date": "2026-10-28"
+  },
+  {
+   "id": "s10",
+   "kind": "news",
+   "title": "Apple to report Q426 earnings on Monday, November 2nd (after market close; call 2:00 p.m. PT, first call led by CEO John Ternus with CFO Kevan Parekh)",
+   "url": "https://macdailynews.com/2026/10/07/apple-to-report-q426-earnings-on-monday-november-2nd/",
+   "publisher": "MacDailyNews",
+   "date": "2026-10-07"
+  }
+ ],
+ "moat": {
+  "sources": [
+   "iPhone·Mac·iPad·Watch와 iOS·macOS를 함께 설계하는 하드웨어+소프트웨어 통합",
+   "기기 위에 쌓인 서비스 생태계 - 2025 서비스 매출 1,092억 달러, 매출총이익률 75%",
+   "프리미엄 브랜드와 가격 결정력 - 2026 Q3 매출총이익률 50.1%(관세 환급 약 2%p 포함)",
+   "연 1,000억 달러 안팎의 영업현금흐름과 대규모 자사주 매입"
+  ],
+  "text": "Apple의 힘은 기기와 운영체제를 한 회사가 함께 설계해, 한 번 iPhone을 쓴 사람이 Mac·Watch·서비스까지 묶어 쓰게 만드는 데서 나온다. 이렇게 묶인 사용자에게 App Store·iCloud·Music 같은 서비스를 팔아 2025년 서비스에서만 1,092억 달러를 벌었고, 서비스 매출총이익률은 75%에 이른다. 브랜드가 강해 원가가 올라도 가격을 지킬 수 있다는 점이 세 번째 뿌리다.",
+  "src": [
+   "s1",
+   "s2",
+   "s3"
+  ]
+ },
+ "design": {
+  "text": "회사는 매출을 다섯 범주로 보고한다. iPhone, Mac, iPad, 웨어러블·홈·액세서리(Watch·AirPods 등), 그리고 App Store·광고·클라우드·결제·콘텐츠 구독을 묶은 서비스다. 기기 안의 시스템 칩(SoC)도 직접 설계하며, AI 기능은 2026년부터 Google 모델을 바탕으로 한 Apple Foundation Models로 보강한다(양사 발표, 보도 기준).",
+  "src": [
+   "s1",
+   "s4",
+   "s7"
+  ]
+ },
+ "make": {
+  "model": "mixed",
+  "partners": [
+   "SoC 첨단 공정 파운드리 - Cook은 공급 제약의 주원인이 첨단 제조 공정 확보라고 언급, 업체명은 이번 조사 원문에서 미확인",
+   "메모리 공급사 - 2026 Q3·Q4 원가 상승의 최대 요인, 업체명 미확인",
+   "외주 조립 파트너 - 이번 조사에서 업체명 미확인",
+   "Google - Apple Foundation Models의 바탕이 되는 AI 모델 (2026-01 발표, 보도 기준 약 50억 달러)"
+  ],
+  "text": "Apple은 칩과 소프트웨어를 직접 설계하지만, 칩 생산과 기기 조립은 외부 파트너에 맡기는 구조다. 그래서 2026년에는 공급망이 그대로 실적 변수가 됐는데, Cook은 6월 분기에 메모리를 3월보다 비싸게 샀고 9월 분기에는 더 오를 것이라 했으며, 첨단 공정 부족으로 iPhone·Mac·iPad 공급 제약이 크게 늘 것이라고 밝혔다(콜 요약 기준). 설비투자는 2026 회계연도 1~9개월 68억 달러로 크지 않아, 제조 능력보다 조달 협상력이 중요하다.",
+  "src": [
+   "s4",
+   "s3",
+   "s7",
+   "s8"
+  ]
+ },
+ "sell": {
+  "customers": [
+   "전 세계 소비자 - 미주 1,784억, 유럽 1,110억, 중화권 644억, 일본 287억, 기타 아시아태평양 337억 달러 (FY2025)",
+   "기업·교육 기관 고객 (세부 비중 미공시)",
+   "통신사·유통사 - iPhone 판매 채널 (비중 미확인)",
+   "앱 개발자·광고주 - App Store 수수료·검색 광고 (서비스 매출에 포함)"
+  ],
+  "channel": "Apple Store(오프라인·온라인) 직접 판매와 통신사·도매·소매 유통을 함께 쓴다. 서비스는 기기 안에서 직접 결제된다.",
+  "concentration": "단일 고객 의존 공시는 이번 조사에서 미확인. 지역으로는 미주가 43%, 제품으로는 iPhone이 50%(FY2025).",
+  "text": "이 기기는 Apple Store와 통신사·유통사를 통해 전 세계 소비자에게 팔리고, 2025년에는 미주가 매출의 43%, 중화권이 15%였다. 중화권은 2025년 4% 줄었다가 2026 Q3에 22% 늘며 다시 성장 동력이 됐다. 기기를 산 사람은 그 안에서 서비스를 계속 결제하므로, 판매 대수가 쌓일수록 서비스 매출 기반이 커진다.",
+  "src": [
+   "s1",
+   "s3"
+  ]
+ },
+ "moneyFlow": {
+  "steps": [
+   {
+    "from": "소비자",
+    "to": "Apple Store·통신사·유통사",
+    "what": "iPhone·Mac·iPad·Watch 구매 대금 (대당 판매)"
+   },
+   {
+    "from": "통신사·유통사",
+    "to": "Apple (제품 매출)",
+    "what": "도매 대금 - FY2025 제품 매출 3,070억 달러"
+   },
+   {
+    "from": "기기 사용자",
+    "to": "Apple (서비스 매출)",
+    "what": "iCloud·Music·TV+ 등 구독료와 App Store 결제 - FY2025 1,092억 달러"
+   },
+   {
+    "from": "앱 개발자",
+    "to": "Apple (서비스 매출)",
+    "what": "App Store 판매 수수료"
+   },
+   {
+    "from": "Apple",
+    "to": "칩 파운드리·메모리·조립 파트너",
+    "what": "부품·제조 대금 (FY2025 제품 원가 1,941억 달러)"
+   }
+  ],
+  "pricing": "기기는 대당 판매(프리미엄 가격), 서비스는 월 구독과 App Store 거래 수수료다. 제품 매출총이익률은 FY2025 37%, 서비스는 75%.",
+  "text": "돈은 먼저 기기 판매로 크게 들어오고, 이후 같은 사용자가 내는 구독료와 앱 결제가 꾸준히 더해진다. 제품은 매출의 74%지만 매출총이익률이 37%에 그치는 반면, 서비스는 26% 매출로 이익률 75%를 내 전체 매출총이익의 약 42%를 차지한다. 그래서 부품값이 오르면 제품 쪽 이익이 먼저 눌리고, 서비스가 그 충격을 받쳐 주는 구조다.",
+  "src": [
+   "s1"
+  ]
+ },
+ "earnings": {
+  "period": "FY2025 (ended 2025-09-27)",
+  "revenue": {
+   "value": 416.161,
+   "unit": "USD bn",
+   "yoy": 6.4
+  },
+  "grossMargin": 46.9,
+  "operatingMargin": 32.0,
+  "netMargin": 26.9,
+  "operatingCashFlow": {
+   "value": 111.482,
+   "unit": "USD bn"
+  },
+  "freeCashFlow": {
+   "value": 98.767,
+   "unit": "USD bn"
+  },
+  "segments": [
+   {
+    "name": "iPhone",
+    "revenue": 209.586,
+    "unit": "USD bn",
+    "share": 50.4,
+    "yoy": 4.2,
+    "operatingMargin": null,
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "name": "Mac",
+    "revenue": 33.708,
+    "unit": "USD bn",
+    "share": 8.1,
+    "yoy": 12.4,
+    "operatingMargin": null,
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "name": "iPad",
+    "revenue": 28.023,
+    "unit": "USD bn",
+    "share": 6.7,
+    "yoy": 5.0,
+    "operatingMargin": null,
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "name": "Wearables, Home and Accessories",
+    "revenue": 35.686,
+    "unit": "USD bn",
+    "share": 8.6,
+    "yoy": -3.6,
+    "operatingMargin": null,
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "name": "Services",
+    "revenue": 109.158,
+    "unit": "USD bn",
+    "share": 26.2,
+    "yoy": 13.5,
+    "operatingMargin": null,
+    "src": [
+     "s1"
+    ]
+   }
+  ],
+  "industryMetric": [
+   {
+    "name": "제품 / 서비스 매출총이익률",
+    "value": "FY2025 36.8% / 75.4%; 2026 Q3 40.1% / 75.6%",
+    "src": [
+     "s1",
+     "s3"
+    ]
+   },
+   {
+    "name": "최근 분기 (2026 Q3, 6월 분기)",
+    "value": "매출 1,094.2억 달러(+16%), iPhone 542.5억(+22%), Mac 103.5억(+29%), 서비스 307.4억(+12%), 희석 EPS 2.02달러(관세 환급 0.11달러 포함)",
+    "src": [
+     "s3",
+     "s2"
+    ]
+   },
+   {
+    "name": "중화권 매출",
+    "value": "FY2025 643.8억 달러(-4%); 2026 Q3 188.2억 달러(+22%)",
+    "src": [
+     "s1",
+     "s3"
+    ]
+   },
+   {
+    "name": "연구개발비 증가",
+    "value": "2026 회계연도 1~9개월 340.4억 달러 (+33%)",
+    "src": [
+     "s3"
+    ]
+   },
+   {
+    "name": "직원 수",
+    "value": "15만 명 이상 (2026-07 보도자료)",
+    "src": [
+     "s2"
+    ]
+   }
+  ],
+  "text": "2025 회계연도 매출은 4,162억 달러(+6%)였고 영업이익률 32%, 순이익 1,120억 달러였다. 매출의 절반은 iPhone이지만 이익의 큰 몫은 이익률 75%의 서비스에서 나온다. 2026년 들어서는 iPhone 판매가 다시 빨라져 6월 분기 매출이 16% 늘었고, 연구개발비는 1~9개월 33% 늘어 AI와 신제품 투자를 키우는 모습이다.",
+  "src": [
+   "s1",
+   "s3"
+  ]
+ },
+ "useOfCash": {
+  "period": "FY2025 (ended 2025-09-27)",
+  "items": [
+   {
+    "use": "buybacks",
+    "value": 90.711,
+    "unit": "USD bn",
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "use": "R&D",
+    "value": 34.55,
+    "unit": "USD bn",
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "use": "dividends",
+    "value": 15.421,
+    "unit": "USD bn",
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "use": "capex",
+    "value": 12.715,
+    "unit": "USD bn",
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "use": "debt repayment",
+    "value": 10.932,
+    "unit": "USD bn",
+    "src": [
+     "s1"
+    ]
+   }
+  ],
+  "text": "다른 빅테크와 달리 Apple은 번 돈의 대부분을 주주에게 돌려준다. 2025 회계연도에 자사주 907억 달러와 배당 154억 달러를 지급해 잉여현금흐름 988억 달러를 넘겼고, 설비투자는 127억 달러에 그쳤다. 2026 회계연도 1~9개월에도 자사주 621억, 배당 118억 달러를 지급했으며, 대신 연구개발비를 33% 늘려 AI 쪽 투자는 설비가 아니라 인력·개발과 외부 모델 계약으로 하고 있다.",
+  "src": [
+   "s1",
+   "s3",
+   "s7"
+  ]
+ },
+ "aiChain": {
+  "layer": "devices",
+  "position": "AI가 실제로 사람 손에 닿는 기기 층. 전 세계에 깔린 기기(설치 대수는 이번 조사에서 미확인)에 Apple Intelligence를 넣고, 모델은 자체 개발과 Google 모델 기반 Apple Foundation Models를 함께 쓴다.",
+  "dependsOn": [
+   "models-platforms (Google 모델 - 2026-01 다년 계약 발표, 보도 기준)",
+   "semicap-foundry (첨단 공정 SoC 생산)",
+   "memory (DRAM·NAND - 2026 원가 급등)"
+  ],
+  "sellsTo": [
+   "소비자 (기기와 구독)",
+   "앱 개발자 (기기 안 AI 기능을 쓰는 앱 생태계)"
+  ],
+  "aiRevenue": null,
+  "upside": "AI 기능이 기기 교체를 앞당기면 iPhone·Mac 판매가 늘고, 늘어난 사용자 기반이 서비스 매출로 이어진다. 데이터센터 투자 부담이 작아 AI 비용이 이익률을 덜 깎는다.",
+  "risk": "AI 경쟁에서 자체 모델이 뒤처져 Google 모델에 기대야 하는 점, AI 데이터센터 수요가 메모리 값을 끌어올려 기기 원가를 높이는 점(2026 Q4 매출총이익률 가이던스 47~48%), AI 비서가 앱 생태계의 중심을 Apple 밖으로 옮길 가능성.",
+  "text": "그래서 AI 가치사슬에서 Apple은 맨 끝의 기기 층에 있다. AI 데이터센터에 수천억 달러를 쓰는 대신 모델 일부를 Google에서 가져오는 쪽을 택했고, AI 효과는 기기 교체 수요로만 나타난다. 오히려 지금 Apple에 가장 크게 닿는 AI의 영향은 데이터센터용 메모리 수요가 부품값을 끌어올리는 비용 쪽이다.",
+  "src": [
+   "s7",
+   "s8",
+   "s4",
+   "s1"
+  ]
+ },
+ "competition": {
+  "arenas": [
+   {
+    "arena": "스마트폰",
+    "rivals": [
+     "Samsung",
+     "Google Pixel",
+     "Huawei",
+     "Xiaomi"
+    ],
+    "position": "leader",
+    "share": null,
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "arena": "PC·태블릿",
+    "rivals": [
+     "Windows PC 제조사(Lenovo·HP·Dell)",
+     "Samsung",
+     "Microsoft Surface"
+    ],
+    "position": "challenger",
+    "share": null,
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "arena": "웨어러블",
+    "rivals": [
+     "Samsung",
+     "Garmin",
+     "Google"
+    ],
+    "position": "leader",
+    "share": null,
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "arena": "앱 마켓·구독 서비스",
+    "rivals": [
+     "Google Play",
+     "Spotify",
+     "Netflix"
+    ],
+    "position": "leader",
+    "share": null,
+    "src": [
+     "s1"
+    ]
+   },
+   {
+    "arena": "AI 비서·AI 기기",
+    "rivals": [
+     "Google Gemini",
+     "OpenAI",
+     "Meta (AI 안경)",
+     "Samsung Galaxy AI"
+    ],
+    "position": "follower",
+    "share": null,
+    "src": [
+     "s7"
+    ]
+   }
+  ],
+  "edge": "하드웨어·소프트웨어·서비스를 한 회사가 묶어 주는 생태계, 프리미엄 가격 결정력, 대규모 사용자 기반.",
+  "threats": "AI 기능에서의 열세, 중국 시장의 현지 업체 경쟁, App Store 수수료 규제, 관세와 부품값 상승.",
+  "text": "기기 시장에서 Apple은 프리미엄 스마트폰·웨어러블·앱 마켓의 강자지만, AI 비서에서는 Google·OpenAI를 따라가는 처지라 Google 모델과 손을 잡았다. 중국에서는 현지 업체와 맞서는데 2026 Q3 중화권 22% 성장으로 반등 신호를 보였다. 회사의 승부수는 AI를 독자 서비스로 팔기보다 기기 경험 안에 녹여, 생태계에 묶인 사용자를 지키는 것이다.",
+  "src": [
+   "s7",
+   "s3",
+   "s1"
+  ]
+ },
+ "strategy": {
+  "goal": "수치화된 장기 목표는 공개하지 않는다. 9월 분기 매출 9~11% 성장과 매출총이익률 47~48%를 제시했고, 새 CEO John Ternus 체제에서 하드웨어와 AI 기능을 함께 키우는 방향이다.",
+  "roadmap": [
+   {
+    "when": "2026-01 발표",
+    "what": "Google 모델 기반 Apple Foundation Models로 Siri 등 Apple Intelligence 보강 (다년 계약, 보도 기준)",
+    "src": [
+     "s7"
+    ]
+   },
+   {
+    "when": "2026-09-01",
+    "what": "John Ternus CEO 취임, Tim Cook 이사회 의장(Executive Chairman), Arthur Levinson 선임 사외이사로 이동",
+    "src": [
+     "s6"
+    ]
+   },
+   {
+    "when": "2026 Q4 (9월 분기)",
+    "what": "매출 +9~11%, iPhone 10%대 중반 성장, 영업비용 191억~194억 달러 가이던스",
+    "src": [
+     "s4"
+    ]
+   },
+   {
+    "when": "2026 하반기",
+    "what": "첨단 공정 부족으로 iPhone·Mac·iPad 공급 제약 확대 예상 (Cook)",
+    "src": [
+     "s4"
+    ]
+   }
+  ],
+  "vision": "기기·운영체제·칩·서비스를 하나로 설계해 개인정보를 지키는 개인용 AI를 기기 안에 넣고, 그 경험으로 사용자 생태계를 지키는 그림이다.",
+  "text": "앞으로의 계획은 하드웨어 엔지니어 출신 새 CEO 아래에서 기기 판매 회복세를 이어 가면서 AI 공백을 외부 모델로 메우는 것이다. 단기로는 메모리 원가와 칩 공급 제약이 이익률과 판매량의 상한을 정한다. 회사는 9월 분기에 iPhone이 10%대 중반으로 성장할 것으로 보면서도 공급 제약이 크게 늘 것이라고 함께 밝혔다.",
+  "src": [
+   "s6",
+   "s4",
+   "s7"
+  ]
+ },
+ "governance": {
+  "line": "2026-09-01부터 하드웨어 엔지니어링 출신 John Ternus가 CEO를, 전 CEO Tim Cook이 이사회 의장을 맡았고, 매년 1,000억 달러 안팎을 자사주·배당으로 돌려주는 주주환원 정책을 유지하고 있다(2026-07 분기 배당 주당 0.27달러).",
+  "src": [
+   "s6",
+   "s1",
+   "s2"
+  ]
+ },
+ "guidance": {
+  "latest": [
+   {
+    "period": "Q4 FY2026 (9월 분기)",
+    "metric": "revenue growth",
+    "value": "+9~11% (환율로 전분기 대비 약 2.5%p 낮아짐 가정)",
+    "givenOn": "2026-07-30",
+    "src": [
+     "s4"
+    ]
+   },
+   {
+    "period": "Q4 FY2026",
+    "metric": "gross margin",
+    "value": "47~48% (관세 환급 약 1%p 포함)",
+    "givenOn": "2026-07-30",
+    "src": [
+     "s4"
+    ]
+   },
+   {
+    "period": "Q4 FY2026",
+    "metric": "operating expenses",
+    "value": "191억~194억 달러",
+    "givenOn": "2026-07-30",
+    "src": [
+     "s4"
+    ]
+   },
+   {
+    "period": "Q4 FY2026",
+    "metric": "iPhone / Services growth",
+    "value": "iPhone 10%대 중반, 서비스는 6월 분기와 비슷 (환율 제외)",
+    "givenOn": "2026-07-30",
+    "src": [
+     "s4"
+    ]
+   },
+   {
+    "period": "Q3 FY2026 (참고: 직전 가이던스)",
+    "metric": "revenue growth / gross margin",
+    "value": "+14~17% / 47.5~48.5% → 실제 +16% / 50.1%",
+    "givenOn": "2026-04",
+    "src": [
+     "s5",
+     "s2"
+    ]
+   }
+  ],
+  "style": "quarterly",
+  "track": "6월 분기에는 매출이 가이던스 범위 안(16%), 매출총이익률은 관세 환급 덕에 범위를 넘었다(50.1%). 다만 9월 분기 매출 가이던스 9~11%는 시장 예상 약 12%보다 낮았다(보도 기준).",
+  "src": [
+   "s5",
+   "s2",
+   "s4"
+  ]
+ },
+ "estimates": {
+  "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 9.21달러(범위 8.65~9.69), 직전 4개 분기 8.61달러. 최근 4주 상향 4건·하향 1건.",
+  "src": [
+   "s9"
+  ]
+ },
+ "watch": {
+  "confirms": [
+   "iPhone 매출이 공급 제약에도 10%대 성장 유지",
+   "서비스 매출 증가율 두 자릿수 유지",
+   "메모리 원가 상승에도 매출총이익률이 가이던스(47~48%) 안",
+   "중화권 매출 성장 지속",
+   "Gemini 기반 Siri·Apple Intelligence가 기기 교체 수요로 이어지는 신호"
+  ],
+  "breaks": [
+   "공급 제약으로 iPhone 판매 감소",
+   "메모리 값 상승이 가격 인상으로도 메워지지 않아 매출총이익률 하락",
+   "App Store 수수료·검색 계약 관련 규제로 서비스 매출 둔화",
+   "중화권 매출 재감소",
+   "관세 환급 효과가 사라진 뒤 이익률 급락"
+  ],
+  "keyNumbers": [
+   {
+    "name": "iPhone 매출 증가율",
+    "why": "매출 절반이자 생태계 입구"
+   },
+   {
+    "name": "서비스 매출과 서비스 매출총이익률",
+    "why": "이익의 안정 축"
+   },
+   {
+    "name": "제품 매출총이익률",
+    "why": "메모리·관세 원가가 바로 보이는 곳"
+   },
+   {
+    "name": "중화권 매출",
+    "why": "가장 경쟁이 치열한 지역"
+   },
+   {
+    "name": "분기 자사주 매입액",
+    "why": "주당 이익 증가의 큰 원천"
+   }
+  ]
+ },
+ "trading": {
+  "calendar": [
+   {
+    "date": "2026-11-02 장 마감 후 (보도 기준, Apple IR 공지 인용)",
+    "event": "Q4 FY2026(9월 분기) 실적과 12월 분기 가이던스 - Ternus CEO 체제 첫 실적",
+    "src": [
+     "s10"
+    ]
+   },
+   {
+    "date": "2027-01 하순 (추정)",
+    "event": "Q1 FY2027(연말 성수기) 실적",
+    "src": []
+   }
+  ],
+  "reaction": "주가는 분기 실적보다 다음 분기 매출·매출총이익률 가이던스에 크게 반응하는 경향이 있다. 2026-07-30에는 실적이 기록이었지만 9월 분기 매출 가이던스가 예상보다 낮아 주가가 약 7.8% 하락했다고 보도됐다.",
+  "conditions": [
+   "다음 분기 매출 성장률 가이던스와 시장 예상의 차이",
+   "매출총이익률 가이던스와 메모리 원가 언급",
+   "iPhone·서비스·중화권 매출 증가율",
+   "공급 제약에 대한 경영진 표현 변화",
+   "분기 자사주 매입 규모",
+   "컨센서스 EPS 상향·하향 건수 추이"
+  ]
+ },
+ "unverified": [
+  "Q4 FY2026(9월 분기) 실적일 2026-11-02는 보도(MacDailyNews) 기준 - Apple IR 원문은 이번 조사에서 직접 미확인; 실적 자체는 아직 미발표",
+  "9월 분기 가이던스와 메모리·공급 제약 발언은 Nasdaq 콜 요약(검색 요약으로 읽음) 기준, 녹취 원문 미확인",
+  "칩 파운드리·메모리·조립 파트너 업체명 (10-K 원문 미확인)",
+  "Google 모델 계약 금액 약 50억 달러 (FT 인용 보도, 회사 미공시)와 Gemini 기반 Siri 출시 여부",
+  "가격 인상 여부와 범위 (보도마다 표현이 다름)",
+  "단일 고객·통신사 매출 비중",
+  "세그먼트(제품 범주)별 영업이익률 - 회사는 지역 세그먼트 이익만 보고하며 이번 조사에서 미확인",
+  "스마트폰·PC·웨어러블 시장 점유율 (경쟁 포지션은 판단)",
+  "주가 반응 -7.8%는 보도 기준(시간외인지 정규장인지 미확인)",
+  "FY2025 Q4 실적 발표 정확한 날짜 (10-K 제출일은 AIO SEC 스냅샷 기준 2025-10-31)"
+ ],
+ "confidence": "high - 매출·이익·현금·주주환원은 Apple이 공개한 재무제표(FY2025, FY2026 Q3)에서 왔다. 가이던스·공급망·AI 협력은 콜 요약과 보도에 기댄 부분이 있어 medium 수준이다."
+}

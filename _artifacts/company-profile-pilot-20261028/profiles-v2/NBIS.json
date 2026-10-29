@@ -1,0 +1,209 @@
+{
+  "symbol": "NBIS",
+  "name": "Nebius Group N.V.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Nebius는 직접 지은 데이터센터에 NVIDIA GPU를 깔아 Microsoft·Meta 같은 빅테크와 AI 기업에 빌려주는 암스테르담 본사의 AI 클라우드로, 연환산 매출(ARR)이 1년 새 6배 넘게 늘며 neocloud 성장의 대표 사례가 됐다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Nebius reports fourth quarter and full-year 2025 financial results (Business Wire release copy)", "url": "https://www.01net.it/nebius-reports-fourth-quarter-and-full-year-2025-financial-results/", "publisher": "01net (Business Wire release text)", "date": "2026-02-12" },
+    { "id": "s2", "kind": "earnings-release", "title": "Nebius Fiscal 2Q26 Financial Results (release tables reproduced)", "url": "https://www.storagenewsletter.com/?p=304756", "publisher": "StorageNewsletter", "date": "2026-08-20" },
+    { "id": "s3", "kind": "other", "title": "Nebius (NBIS) Q2 2026 earnings summary (ARR, guidance, capex, contracts)", "url": "https://quartr.com/events/nebius-group-n-v-nbis-q2-2026_ozKEzQzr", "publisher": "Quartr", "date": "2026-08-12" },
+    { "id": "s4", "kind": "ir-site", "title": "Nebius signs new AI infrastructure agreement with Meta (up to ~$27B, five years, Vera Rubin)", "url": "https://nebius.com/newsroom/nebius-signs-new-ai-infrastructure-agreement-with-meta", "publisher": "Nebius newsroom", "date": "2026-03-16" },
+    { "id": "s5", "kind": "news", "title": "Nebius Secures $17.4B Microsoft Deal for AI Infrastructure in NJ (Vineland; option to $19.4B)", "url": "https://www.vinelandcity.org/wp-content/uploads/2025/09/9.8.25-Nebius-Secures-17.4B-Microsoft-Deal-for-AI-Infrastructure-in-NJ.pdf", "publisher": "High Desert News Online (PDF hosted by City of Vineland)", "date": "2025-09-08" },
+    { "id": "s6", "kind": "ir-site", "title": "Nebius reports second quarter 2026 financial results (newsroom announcement; business description)", "url": "https://nebius.com/newsroom/nebius-reports-second-quarter-2026-financial-results", "publisher": "Nebius newsroom", "date": "2026-08-12" },
+    { "id": "s7", "kind": "other", "title": "Nebius Q4 2025 shareholder letter excerpts (ARR $1.25B vs $0.9-1.1B guide; 2026 ARR $7-9B; >2GW contracted power) - read via search result summary", "url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926013946/tm266173d1_ex99-2.htm", "publisher": "Nebius / SEC EDGAR (6-K exhibit, index only)", "date": "2026-02-12" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/nbis/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s9", "kind": "other", "title": "AIO local earnings calendar snapshot, public-data/earnings-calendar.json (NBIS 2026-11-11; not company-confirmed in this session)", "url": "https://www.nasdaq.com/market-activity/earnings", "publisher": "AIO earnings calendar", "date": "2026-10-28" },
+    { "id": "s10", "kind": "other", "title": "AIO local SEC companyfacts snapshot, public-data/sec-fundamentals.json (FY2025 20-F revenue, accession 0001104659-26-052948)", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001513845.json", "publisher": "SEC EDGAR via AIO", "date": "2026-04-30" }
+  ],
+  "moat": {
+    "sources": [
+      "자체 설계·건설하는 데이터센터와 확보 전력 - 2026년 말 계약 전력 목표 5GW",
+      "빅테크 장기 계약 - Microsoft(최대 194억 달러), Meta(최대 약 270억 달러)",
+      "고객 선급금이 설비투자의 50~60%를 대는 조달 구조",
+      "셀프서비스·단기 프리미엄·장기 전용 계약을 함께 운영하는 자체 클라우드 소프트웨어와 용량 경매"
+    ],
+    "text": "Nebius의 힘은 GPU를 꽂을 자리, 즉 직접 짓는 데이터센터와 확보한 전력에서 나온다. 여기에 Microsoft·Meta와 맺은 수십억 달러짜리 장기 계약이 신용이 되어, 고객 선급금이 설비투자의 절반 이상을 대 준다. 2026년 2분기 경매에서 Blackwell 가격이 이전 최고보다 15% 높게 낙찰될 만큼 용량 자체가 귀한 상황이 이 강점을 키운다.",
+    "src": ["s3", "s4", "s5"]
+  },
+  "design": {
+    "text": "회사가 파는 것은 AI 학습·추론용 GPU 클라우드다. 대형 고객에게는 전용 용량을 장기 계약으로, 다른 고객에게는 셀프서비스·단기 프리미엄 계약으로 판다. 그룹에는 이 AI 클라우드 외에 자율주행·배송로봇 Avride, 교육 TripleTen이 있고, ClickHouse·Toloka 지분도 갖고 있지만 2026년 2분기 매출의 약 98%가 AI 사업에서 나왔다.",
+    "src": ["s3", "s6"]
+  },
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "NVIDIA - GPU 플랫폼 (Blackwell, Meta 계약은 Vera Rubin 기반)",
+      "자체 데이터센터 - 미국 뉴저지 Vineland (Microsoft 전용) 등 여러 지역",
+      "고객 선급금 - 설비투자의 50~60% 충당",
+      "자본 시장 - 전환사채·워런트·자사주 매각 (Q2 2026 재무 유입 28.6억 달러)"
+    ],
+    "text": "Nebius는 데이터센터를 직접 지어 소유하고 그 안에 NVIDIA GPU를 채워 서비스를 만든다. 돈은 고객 선급금, Microsoft 계약을 담보로 한 차입, 그리고 신주·전환사채로 댄다. 2026년 2분기 설비투자만 56.6억 달러로 1년 전의 약 11배였다.",
+    "src": ["s2", "s3", "s5"]
+  },
+  "sell": {
+    "customers": [
+      "Microsoft - Vineland 전용 GPU 용량, 5년 174억 달러 보장(최대 194억 달러)",
+      "Meta - 5년 최대 약 270억 달러 (전용 120억 + 추가 구매 최대 150억), 2027년 초부터 공급",
+      "AI 기업·연구소 - Q2 2026에 평균 10억 달러 이상 대형 계약 4건",
+      "셀프서비스·단기 프리미엄 계약 고객"
+    ],
+    "channel": "대형 고객 직접 장기 계약과 셀프서비스 클라우드를 함께 쓴다. 최근에는 단기 프리미엄 계약과 자산 경량형 파트너십도 도입했다.",
+    "concentration": "고객별 매출 비중은 이번 조사에서 확인하지 못했다. 공개 계약 규모로 보면 Microsoft와 Meta 두 곳이 장기 수주의 큰 부분을 차지한다.",
+    "text": "이렇게 만든 용량은 빅테크 장기 계약과 AI 기업 고객에게 나눠 팔린다. Microsoft는 2025년 9월 5년 174억 달러, Meta는 2026년 3월 5년 최대 약 270억 달러를 약정했고, 2분기에도 10억 달러 이상 계약을 4건 더 맺었다. Meta 추가 구매분 150억 달러는 회사가 다른 고객에게 먼저 팔고 남는 것을 Meta가 사는 구조라, 수요 바닥을 받쳐 주는 역할을 한다.",
+    "src": ["s3", "s4", "s5"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자", "to": "Microsoft·Meta·AI 기업", "what": "AI 서비스 이용료·광고·구독" },
+      { "from": "Microsoft·Meta·AI 기업", "to": "Nebius", "what": "GPU 용량 장기 약정 이용료, 일부 선급금" },
+      { "from": "자본 시장·대출 기관", "to": "Nebius", "what": "전환사채·신주·계약 담보 차입" },
+      { "from": "Nebius", "to": "NVIDIA·건설·전력 공급사", "what": "GPU 구매, 데이터센터 건설, 전력비 (Q2 2026 설비투자 56.6억 달러)" }
+    ],
+    "pricing": "GPU 용량 사용료(장기 전용 계약, 셀프서비스 주문형, 단기 프리미엄 계약). 회사는 연환산 매출(ARR)로 사업 크기를 제시한다.",
+    "text": "돈은 빅테크의 AI 서비스 매출에서 나와 장기 약정료와 선급금으로 Nebius에 들어오고, 곧바로 GPU와 데이터센터 건설로 나간다. 고객 선급금이 설비투자의 50~60%를 대기 때문에 2026년 2분기 영업현금흐름이 22.5억 달러 흑자였다. 그래도 연간 설비투자 200억~250억 달러를 다 덮지는 못해 외부 조달이 계속 필요하다.",
+    "src": ["s2", "s3"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 0.53, "unit": "USD bn", "yoy": 479 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 5.5,
+    "operatingCashFlow": { "value": 0.385, "unit": "USD bn" },
+    "freeCashFlow": { "value": -3.681, "unit": "USD bn" },
+    "segments": [
+      { "name": "AI 클라우드 (Nebius core)", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": [] },
+      { "name": "Avride·TripleTen·기타", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": [] }
+    ],
+    "industryMetric": [
+      { "name": "ARR (연환산 매출)", "value": "12.5억 달러(2025 말, 가이던스 9억~11억 상회) → 19억(2026-03) → 30억 달러(2026-06, +598%)", "src": ["s3", "s7"] },
+      { "name": "최근 분기 (Q2 2026)", "value": "매출 5.823억 달러(+454%), AI 사업 5.75억(약 98%), 조정 EBITDA 2.362억(41%), 계속사업 순손실 1.904억", "src": ["s2", "s3"] },
+      { "name": "조정 EBITDA (FY2025)", "value": "-6,490만 달러 (Q4 2025 +1,500만 달러로 흑자 전환)", "src": ["s1"] },
+      { "name": "계약 전력", "value": "2025 말 2GW 이상 → 2026 말 목표 5GW; 2027년부터 매년 1GW 이상 신규 가동 계획", "src": ["s3", "s7"] },
+      { "name": "고객 선급금 비율", "value": "설비투자의 50~60%", "src": ["s3"] }
+    ],
+    "text": "FY2025 매출은 5.3억 달러로 전년의 약 5.8배였고, 계속사업 순이익 2,900만 달러(순이익률 약 5.5%)는 지분 매각 등 영업 외 요인 영향이 큰 반면 조정 EBITDA는 -6,490만 달러였다. 2026년에는 규모가 바뀌어 2분기 매출 5.82억 달러, 조정 EBITDA 마진 41%가 됐다. 다만 같은 분기 계속사업 순손실이 1.9억 달러라, 감가상각과 금융비용을 넘는 이익은 아직 아니다.",
+    "src": ["s1", "s2", "s3", "s10"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "capex", "value": 4.066, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "돈의 쓰임은 거의 한 곳, GPU와 데이터센터다. FY2025 설비투자는 40.7억 달러로 영업현금흐름(3.85억 달러)의 10배가 넘었고, 2026년에는 상반기에만 81억 달러 이상을 쓰고 연간 200억~250억 달러를 계획한다. 배당·자사주 매입은 없고, 오히려 자사주를 팔아 자금을 조달했다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "aiChain": {
+    "layer": "cloud-infrastructure",
+    "position": "직접 지은 데이터센터에 NVIDIA GPU를 깔아 빅테크와 AI 기업에 연산 용량을 공급하는 AI 전용 클라우드(neocloud). 하이퍼스케일러의 용량 부족분을 장기 계약으로 메워 주는 자리다.",
+    "dependsOn": [
+      "chips-compute (NVIDIA Blackwell·Vera Rubin)",
+      "power-energy (데이터센터 전력 확보)",
+      "자본 시장·고객 선급금"
+    ],
+    "sellsTo": [
+      "models-platforms·cloud-infrastructure (Microsoft, Meta)",
+      "AI 기업·연구소"
+    ],
+    "aiRevenue": "Q2 2026 AI 사업 매출 5.75억 달러, 그룹 매출의 약 98%. ARR 30억 달러(2026-06-30).",
+    "upside": "계약 전력이 가동으로 바뀌면 ARR이 그대로 매출이 된다. 회사는 2026년 말 ARR 70억~90억 달러, 연매출 30억~34억 달러를 제시했고, Meta 계약분은 2027년 초부터 들어온다.",
+    "risk": "빅테크가 자체 증설을 늘리면 장기 계약 갱신이 약해질 수 있고, GPU 세대 교체로 기존 장비 가치가 빨리 떨어질 수 있다. 연 200억 달러 넘는 설비투자를 외부 자금에 기대는 만큼 자본 시장이 닫히면 성장이 멈춘다.",
+    "text": "그래서 AI 가치사슬에서 Nebius는 CoreWeave와 같은 '클라우드 인프라' 층, 칩(NVIDIA)과 모델·플랫폼(Microsoft·Meta) 사이에 있다. 매출의 거의 전부가 AI 연산이라 AI 설비투자 흐름이 곧 실적이다. 위쪽의 GPU 공급·전력 확보와 아래쪽 빅테크의 외부 조달 의지가 동시에 맞아야 성장이 이어진다.",
+    "src": ["s3", "s4", "s5"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "AI 전용 GPU 클라우드 (neocloud)", "rivals": ["CoreWeave", "IREN", "Lambda", "Crusoe"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "하이퍼스케일 클라우드의 GPU 용량", "rivals": ["AWS", "Microsoft Azure", "Google Cloud", "Oracle OCI"], "position": "challenger", "share": null, "src": [] }
+    ],
+    "edge": "자체 데이터센터 설계·건설, 빅테크 두 곳의 장기 계약, 고객 선급금 중심 조달, 41% 조정 EBITDA 마진.",
+    "threats": "수주잔고가 훨씬 큰 CoreWeave, 전력 부지를 가진 IREN 같은 전 비트코인 채굴사, 하이퍼스케일러 자체 증설.",
+    "text": "이 자리에서 Nebius는 규모가 더 큰 CoreWeave, 전력 부지를 앞세운 IREN 같은 회사들과 같은 고객을 놓고 경쟁한다. Nebius는 데이터센터를 직접 지어 원가를 낮추고, 빅테크 계약을 지렛대로 더 큰 계약을 따내는 방식으로 이기려 한다. 경쟁사 목록과 점유율은 회사 공시가 아니라 업계 일반 구분이라 출처가 비어 있다.",
+    "src": ["s3", "s4"]
+  },
+  "strategy": {
+    "goal": "2026년 말 ARR 70억~90억 달러, 2026년 매출 30억~34억 달러, 조정 EBITDA 마진 약 40%, 설비투자 200억~250억 달러, 연말 계약 전력 5GW.",
+    "roadmap": [
+      { "when": "2026 말", "what": "ARR 70억~90억 달러, 계약 전력 5GW (2분기에 목표 상향)", "src": ["s3"] },
+      { "when": "2025 말~2026", "what": "Microsoft용 Vineland 데이터센터 용량을 여러 단계로 가동", "src": ["s5"] },
+      { "when": "2027 초", "what": "Meta 전용 Vera Rubin 용량(120억 달러) 공급 시작", "src": ["s4"] },
+      { "when": "2027년부터", "what": "매년 1GW 이상 신규 용량 가동", "src": ["s3"] }
+    ],
+    "vision": "창업자 Volozh는 Microsoft 계약을 '여러 대형 계약 중 첫 번째'라고 불렀고, Meta 계약은 핵심 AI 클라우드 사업을 키우는 장기 대형 계약 확보 전략의 일부라고 설명한다.",
+    "text": "다음 단계는 계약 전력 5GW를 실제 가동으로 바꾸고 2027년부터 매년 1GW 이상을 새로 여는 것이다. 회사는 2026년 가이던스를 유지하면서 ARR 70억~90억 달러를 목표로 하는데, 6월 말 ARR이 30억 달러라 하반기 가동 속도가 목표 달성의 관건이다. 2027년 초 Meta 전용 Vera Rubin 공급이 시작되면 성장의 두 번째 단계가 열린다.",
+    "src": ["s3", "s4", "s5"]
+  },
+  "governance": {
+    "line": "창업자 Arkady Volozh가 CEO로 이끄는 네덜란드 법인(N.V.)으로, 배당·자사주 매입 없이 신주·전환사채·자사주 매각으로 성장 자금을 댄다.",
+    "src": ["s2", "s4", "s5"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "ARR (연말)", "value": "70억~90억 달러 (유지)", "givenOn": "2026-08-12", "src": ["s3"] },
+      { "period": "FY2026", "metric": "revenue", "value": "30억~34억 달러 (유지)", "givenOn": "2026-08-12", "src": ["s3"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA margin", "value": "약 40%", "givenOn": "2026-08-12", "src": ["s3"] },
+      { "period": "FY2026", "metric": "capex", "value": "200억~250억 달러", "givenOn": "2026-08-12", "src": ["s3"] },
+      { "period": "2026 말", "metric": "contracted power", "value": "5GW (상향)", "givenOn": "2026-08-12", "src": ["s3"] }
+    ],
+    "style": "annual",
+    "track": "2025 말 ARR 12.5억 달러로 가이던스(9억~11억)를 넘었다. 2026 가이던스는 3월 Meta 계약 때와 8월 2분기 발표 때 모두 유지됐다.",
+    "src": ["s3", "s4", "s7"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기 합계 -1.11달러(범위 -3.68~1.45, 최소 3명), 직전 4개 분기 실적 합 -1.43달러. 최근 4주 상향 4건·하향 0건.",
+    "src": ["s8"]
+  },
+  "watch": {
+    "confirms": [
+      "3분기 ARR이 6월 말 30억 달러에서 빠르게 늘어 연말 70억~90억 경로에 올라감",
+      "조정 EBITDA 마진 약 40% 유지",
+      "새 대형 장기 계약 추가와 선급금 비율 유지",
+      "계약 전력 5GW 달성과 가동 일정 준수",
+      "Meta 전용 용량 2027년 초 공급 일정 유지"
+    ],
+    "breaks": [
+      "ARR 또는 매출 가이던스 하향",
+      "데이터센터 가동 지연",
+      "신규 조달 비용 급등 또는 조달 실패",
+      "GPU 임대 단가 하락",
+      "빅테크 계약 축소"
+    ],
+    "keyNumbers": [
+      { "name": "ARR", "why": "가동 용량과 매출 속도를 한 숫자로 보여 준다" },
+      { "name": "조정 EBITDA 마진", "why": "규모가 커지며 수익성이 유지되는지" },
+      { "name": "설비투자와 선급금 비율", "why": "외부 자금 의존도" },
+      { "name": "계약·가동 전력(GW)", "why": "성장의 물리적 상한" },
+      { "name": "현금 잔고", "why": "6월 말 약 80억 달러, 연간 설비투자 대비 여력" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-11 (캘린더 기준·회사 확정 여부 미확인)", "event": "Q3 2026 실적 발표와 ARR 업데이트", "src": ["s9"] },
+      { "date": "2027 초", "event": "Meta 전용 Vera Rubin 용량 공급 시작", "src": ["s4"] }
+    ],
+    "reaction": "주가는 대형 계약 발표에 크게 반응해 왔다. Microsoft 계약 발표 때 급등했고, Meta 계약 발표 때는 장전 약 14% 올랐다는 보도가 있었다. 실적 때는 ARR과 연간 가이던스 유지·상향 여부가 핵심이다.",
+    "conditions": [
+      "실적 발표 때 분기말 ARR과 연말 ARR 가이던스 유지 여부",
+      "새 대형 계약 규모와 선급금 조건",
+      "계약 전력·가동 일정 변화",
+      "설비투자 가이던스와 조달 계획",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+  "unverified": [
+    "FY2025 부문별 매출 (AI 클라우드·Avride·TripleTen) - 이번 조사에서 확인 못 함",
+    "FY2025 총이익률·영업이익률",
+    "순이익: 보도자료 총 순이익 1.017억, 계속사업 2,900만, AIO SEC 스냅샷 8,250만 달러로 기준이 달라 순이익률은 계속사업 기준(5.5%)만 기재",
+    "FY2025 잉여현금흐름 -36.8억 달러는 영업현금흐름(전체 3.848억) - 설비투자(40.66억)로 계산",
+    "고객별 매출 비중",
+    "Q2 2026 수치는 회사 보도자료 원문 PDF 대신 StorageNewsletter·Quartr에서 읽음",
+    "2025 말 ARR·초기 가이던스는 6-K 주주서한의 검색 요약에서 읽음 (원문 sec.gov 차단)",
+    "Microsoft 계약은 지역 언론 기사(PDF)에서 읽었고 6-K 원문 미확인",
+    "Meta 계약 발표 당일 주가 반응 약 14%는 검색 요약에서만 확인",
+    "경쟁사 목록과 점유율 - 출처 없음",
+    "Volozh의 지분·의결권 구조",
+    "Q3 2026 실적 발표일 회사 공식 확인"
+  ],
+  "confidence": "medium - 계약과 가이던스는 회사 발표와 복수 요약이 일치하지만, 연간 재무와 부문 정보는 원문 대신 보도자료 재게시본에서 왔고 일부는 확인하지 못했다."
+}

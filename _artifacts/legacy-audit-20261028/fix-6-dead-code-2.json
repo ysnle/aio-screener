@@ -1,0 +1,8 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-29",
+  "changelog": [
+    "**레거시 죽은 코드 2차 정리 (v59.42):** 검사나 예약 실행만 붙잡고 있던 코드를 지우고, 그 검사는 동작 검사나 '없어야 한다' 검사로 바꿨다. 지운 것: 표시 칸이 없는 채팅 칩(CHAT_DEFAULT_CHIPS, chatRenderChips, 테마 칩 덮어쓰기), 열 버튼이 없는 대화 기록 창(openChatHistory, _aioChatHistory*), 예전 채팅 머리말 주입기와 chatAppendMsg, 찍을 노드가 없는 _aioApplyEventFreshnessGate(부팅 4회와 화면 진입마다 돌았다), 호출자 없는 calcLiveRS·_aioVixPercentile·vixRegime·_aioToggleWhiteSpace, 0개 요소만 바꾸던 AIO.applyTextSurfaceHygiene."
+  ],
+  "note": "v59.42: dead code batch 2 (chat chips/history overlay/header injector, event freshness gate, calcLiveRS, VIX percentile, text hygiene) deleted; pins became behaviour or absence checks."
+}

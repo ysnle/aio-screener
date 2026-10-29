@@ -9,7 +9,9 @@ export const SENTIMENT_NARRATIVE_MODEL_VERSION = 'sentiment-narrative.v1';
 export function putCallBand(value) {
   const ratio = finite(value);
   if (ratio == null || ratio < 0 || ratio > 10) return Object.freeze({ value: null, label: '판정 보류', blocked: true });
-  if (ratio >= RULES.credit.putCallHedgeAt) return Object.freeze({ value: ratio, label: '풋 거래 비중이 높은 구간(하락 대비 수요 높음)', blocked: false });
+  // v59.43 (X bookmark 2113564247477342603): a volume ratio cannot tell bought puts (hedging) from sold puts (income
+  // selling, which leaves dealers short gamma), so the band names the volume tilt only.
+  if (ratio >= RULES.credit.putCallHedgeAt) return Object.freeze({ value: ratio, label: '풋 거래 비중이 높은 구간(산 풋인지 판 풋인지는 구분 안 됨)', blocked: false });
   if (ratio < RULES.credit.putCallOptimismBelow) return Object.freeze({ value: ratio, label: '콜 거래 비중이 높은 구간', blocked: false });
   return Object.freeze({ value: ratio, label: '균형 구간', blocked: false });
 }

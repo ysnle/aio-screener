@@ -1,0 +1,221 @@
+{
+  "symbol": "VLO",
+  "name": "Valero Energy Corporation",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Valero는 원유를 사서 휘발유·디젤·항공유로 바꿔 파는 미국의 대형 독립 정유사로, 원유를 캐지 않기 때문에 이익이 거의 전부 정제마진에 달려 있고 2026년 3분기에는 그 마진이 배럴당 39달러로 1년 전의 세 배가 됐다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Valero Energy Reports Third Quarter 2026 Results (8-K Exhibit 99.01)", "url": "https://www.sec.gov/Archives/edgar/data/0001035002/000162828026066795/a9302026exh9901earningsrel.htm", "publisher": "Valero / SEC EDGAR", "date": "2026-10-22" },
+    { "id": "s2", "kind": "10-Q", "title": "Valero Form 10-Q for quarter ended 2026-09-30 (cash flow statement, repurchase programs, DGD, Benicia; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0001035002/000162828026067679/vlo-20260930.htm", "publisher": "Valero / SEC EDGAR", "date": "2026-09-30" },
+    { "id": "s3", "kind": "earnings-release", "title": "Valero Energy Reports 2025 Fourth Quarter and Full Year Results (repost of company release)", "url": "https://seekingalpha.com/pr/20380504", "publisher": "Seeking Alpha (company release text)", "date": "2026-01-29" },
+    { "id": "s4", "kind": "10-K", "title": "Valero Form 10-K for fiscal year 2025 (refinery list, segment revenues, employees, AI and data-center risk text)", "url": "https://www.sec.gov/Archives/edgar/data/1035002/000162828026011499/vlo-20251231.htm", "publisher": "Valero / SEC EDGAR", "date": "2026-02-26" },
+    { "id": "s5", "kind": "call-transcript", "title": "Valero Energy Q3 2026 earnings call highlights (Q4 guidance, capital, market commentary)", "url": "https://www.marketbeat.com/instant-alerts/transcript-valero-energy-q3-earnings-call-highlights-2026-10-22/", "publisher": "MarketBeat", "date": "2026-10-22" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/vlo/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "대형·복잡 정유소 규모 - 15개 정유소(미국·캐나다·영국), 하루 약 320만 배럴 처리 능력(2025말)",
+      "멕시코만 연안 집중 - 국내 원유 접근과 원료 유연성, 수출 항만 (Port Arthur 43.5만, Corpus Christi 37만 배럴 등)",
+      "업계 최저 수준의 운영비 - Q3 2026 현금 운영비 배럴당 5.03달러, Q4 전망 4.85달러",
+      "저탄소 연료 사업 - Diamond Green Diesel(50% 합작, 연 약 12억 갤런), 에탄올 12개 공장(연 약 17억 갤런)"
+    ],
+    "text": "Valero의 힘은 크고 복잡한 정유소를 싸게, 쉬지 않고 돌리는 능력이다. 15개 정유소에서 하루 약 320만 배럴을 처리할 수 있고, 그 대부분이 원유를 싸게 들여오고 제품을 해외로 내보내기 좋은 멕시코만 연안에 있다. 정제마진은 회사가 정할 수 없지만 배럴당 5달러 안팎의 낮은 운영비와 높은 가동률 덕분에 마진이 오를 때 경쟁사보다 더 많이 남긴다.",
+    "src": ["s3", "s4", "s5"]
+  },
+
+  "design": {
+    "text": "이 설비로 회사가 만드는 것은 세 개 사업부로 보고된다. Refining은 휘발유·디젤·항공유와 석유화학 원료를, Renewable Diesel(Diamond Green Diesel)은 폐식용유·동물성 지방으로 재생디젤·재생나프타·지속가능항공유(SAF)를, Ethanol은 옥수수로 에탄올을 만든다. 2025년 매출의 약 95%가 Refining에서 나와, 사실상 정유회사로 보면 된다.",
+    "src": ["s4", "s2"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "원유·원료 공급자 - 국영 석유회사, 국제·미국 석유회사로부터 장기·현물 계약으로 구매 (국가별 비중 미공시)",
+      "Darling Ingredients - Diamond Green Diesel 50% 합작 파트너 (폐지방 원료 공급)",
+      "자체 정유소 15개 - Port Arthur 43.5만, Corpus Christi 37만, St. Charles 34만 배럴/일 등 (2025말)",
+      "Benicia(캘리포니아) - 2026-04 정제 설비 가동 완전 중단, 부지 재개발 검토"
+    ],
+    "text": "원유를 직접 캐지 않으니 원료는 전부 사 온다. 국영·국제·미국 석유회사로부터 장기 계약과 현물로 원유를 사서 자기 정유소에서 제품으로 바꾸고, 재생디젤은 Darling Ingredients와 50%씩 가진 합작사가 만든다. 2026년 4월에는 캘리포니아 Benicia 정유소(하루 17만 배럴)를 닫아, 규제와 비용이 큰 서부 해안에서 몸집을 줄이고 있다.",
+    "src": ["s4", "s2", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "도매 연료 구매자 - 유통업체, 주유소 체인, 산업·항공 고객 (Valero 브랜드 주유소 포함)",
+      "수출 고객 - 멕시코만에서 중남미 등으로 휘발유·디젤 수출",
+      "석유화학 원료 구매자",
+      "재생디젤·SAF 구매자 - 저탄소 연료 규제 시장(캘리포니아 등)"
+    ],
+    "channel": "파이프라인·선박·트럭을 통한 도매 판매와 수출. 소매 주유소는 직접 운영보다 브랜드 공급 방식(세부 비중 미확인).",
+    "concentration": "고객 집중 공시 확인 못함. 원자재 성격상 특정 고객 의존은 낮은 구조로 보인다.",
+    "text": "만든 연료는 도매로 유통업체와 주유소, 그리고 해외 구매자에게 팔린다. Q3 2026 콜에서 경영진은 미국 도매 휘발유 판매가 전년보다 4%, 디젤이 약 2% 늘었고 멕시코만의 휘발유·디젤 수출 수요도 강하다고 말했다. 고객이 흩어져 있어 수요 신호는 특정 고객이 아니라 제품 재고와 정제마진으로 나타난다.",
+    "src": ["s5", "s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "Valero", "to": "원유 공급자 (국영·국제·미국 석유회사)", "what": "원유·원료 구매 대금 (시장가격 연동)" },
+      { "from": "운전자·항공사·물류 고객", "to": "도매 유통업체·주유소", "what": "휘발유·디젤·항공유 구매" },
+      { "from": "도매 유통업체·수출 구매자", "to": "Valero Refining", "what": "정제 제품 대금 - 이익은 제품값과 원유값의 차이(정제마진, Q3 2026 배럴당 39.24달러)" },
+      { "from": "저탄소 연료 구매자", "to": "Diamond Green Diesel·Ethanol", "what": "재생디젤·SAF·에탄올 대금과 규제 크레딧 가치 (Q3 2026 재생디젤 갤런당 1.62달러 마진)" }
+    ],
+    "pricing": "원유 가격과 제품 가격 둘 다 시장이 정하고, Valero는 그 차이(정제마진)를 받는다. 매출은 유가에 따라 크게 출렁이지만 이익은 마진 × 처리량 - 운영비로 결정된다.",
+    "text": "돈의 흐름은 단순하다. 원유를 사서 제품을 팔고, 그 차이에서 운영비를 뺀 것이 이익이다. 2025년 배럴당 정제마진은 12.29달러였지만 2026년 3분기에는 39.24달러로 뛰었고, 처리량은 하루 약 297만 배럴로 비슷했는데 Refining 영업이익은 16억에서 88억 달러로 늘었다. 같은 설비, 같은 물량에서 마진만 바뀌어도 이익이 다섯 배가 되는 구조다.",
+    "src": ["s3", "s1"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 122.687, "unit": "USD bn", "yoy": -5.5 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 1.9,
+    "operatingCashFlow": { "value": 5.826, "unit": "USD bn" },
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "Refining (영업이익 40.40억 달러, 영업이익률 약 3.5% 계산값)", "revenue": 116.158, "unit": "USD bn", "share": 94.7, "yoy": null, "operatingMargin": 3.5, "src": ["s4", "s3"] },
+      { "name": "Ethanol (영업이익 3.74억 달러)", "revenue": 4.021, "unit": "USD bn", "share": 3.3, "yoy": null, "operatingMargin": 9.3, "src": ["s4", "s3"] },
+      { "name": "Renewable Diesel (영업손실 1.56억 달러)", "revenue": 2.508, "unit": "USD bn", "share": 2.0, "yoy": null, "operatingMargin": -6.2, "src": ["s4", "s3"] }
+    ],
+    "industryMetric": [
+      { "name": "배럴당 정제마진", "value": "FY2025 12.29달러(전년 10.62); Q3 2026 39.24달러(전년 동기 13.14)", "src": ["s3", "s1"] },
+      { "name": "정제 처리량", "value": "FY2025 하루 298.8만 배럴; Q3 2026 297.2만 배럴(전년 동기 308.7만)", "src": ["s3", "s1"] },
+      { "name": "현금 운영비", "value": "Q3 2026 배럴당 5.03달러, Q4 전망 약 4.85달러", "src": ["s5"] },
+      { "name": "Q3 2026 부문 영업이익", "value": "Refining 87.82억, Renewable Diesel 3.53억, Ethanol 2.72억 달러; 에탄올 생산 하루 480만 갤런(분기 최고)", "src": ["s1"] },
+      { "name": "주주환원 비율", "value": "조정 영업현금흐름 대비 FY2025 67%, Q3 2026 52%", "src": ["s3", "s1"] },
+      { "name": "순부채/자본", "value": "18% (2025말) → 4% (2026-09), 현금 98억 달러", "src": ["s3", "s1"] }
+    ],
+    "text": "2025년은 평범한 해였다. 매출 1,227억 달러에 순이익 23억 달러로 순이익률은 약 1.9%(계산값)에 불과했고, Benicia·Wilmington 자산손상 11.3억 달러가 이익을 깎았다. 그러나 2026년에는 정제마진이 급등해 3분기에만 매출 461억 달러, 순이익 68억 달러(주당 23.89달러)를 벌었고, 9개월 누적 순이익 118억 달러로 이미 2025년 연간의 다섯 배를 넘었다.",
+    "src": ["s3", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "9M 2026 (ended 2026-09-30)",
+    "items": [
+      { "use": "buybacks", "value": 6.198, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 1.059, "unit": "USD bn", "src": ["s2"] },
+      { "use": "debt repayment", "value": 2.541, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 1.23, "unit": "USD bn", "src": ["s1"] },
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "마진 급등으로 생긴 현금(9개월 영업현금흐름 139억 달러)은 대부분 주주에게 갔다. 9개월 동안 자사주 62억 달러를 사들여 전년 같은 기간(15억)의 네 배를 넘겼고, 배당 10.6억, 부채·리스 상환 25억 달러를 썼다. 반면 설비투자는 12.3억 달러로 크지 않아, 성장 투자보다 '번 만큼 돌려주는' 회사라는 점이 분명하며, 이사회는 2026-10-27에 100억 달러 자사주 프로그램을 추가 승인했다.",
+    "src": ["s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 가치사슬 밖의 정유사. 10-K는 AI 확산에 따른 데이터센터·전력 수요 증가를 에너지 환경 변화의 하나로 언급할 뿐, AI 관련 사업이나 매출은 없다.",
+    "dependsOn": ["AI와 직접 의존 관계 없음"],
+    "sellsTo": ["AI 기업에 직접 파는 것 없음 (디젤·천연가스 수요는 간접적으로 데이터센터 비상발전·건설과 연결될 수 있으나 공시 없음)"],
+    "aiRevenue": null,
+    "upside": "간접적이다. 회사는 2024년 사내 AI 위험·기회 검토 전담팀을 만들었고, 운영 효율에 AI를 쓸 수 있지만 효과를 수치로 밝히지 않았다.",
+    "risk": "10-K는 AI 같은 기술 사용 확대가 데이터센터와 전력 수요를 키운다고 적는데, 이는 에너지 정책·전력 가격 변화로 정유 비용에 영향을 줄 수 있다. 사이버보안 측면의 AI 위험도 언급된다.",
+    "text": "그래서 AI 가치사슬에서 Valero의 자리는 '제한적'이다. 데이터센터 전력 사업에 뛰어든 Chevron 같은 통합 석유사와 달리 Valero는 그런 계획을 밝히지 않았고, 이익은 정제마진이 정한다. AI는 사내 운영 도구와 에너지 수요 환경을 통해 멀리서만 닿는다.",
+    "src": ["s4", "s5"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "미국 정유 (멕시코만·중부)", "rivals": ["Marathon Petroleum", "Phillips 66", "ExxonMobil", "Chevron", "PBF Energy", "HF Sinclair"], "position": "leader", "share": null, "src": ["s4"] },
+      { "arena": "연료 수출 (중남미 등)", "rivals": ["미국 멕시코만 정유사", "아시아·중동 수출 정유소"], "position": "leader", "share": null, "src": ["s5"] },
+      { "arena": "재생디젤·SAF", "rivals": ["Neste", "정유사 전환 설비", "신규 재생연료 생산자"], "position": "leader", "share": null, "src": ["s4"] },
+      { "arena": "에탄올", "rivals": ["ADM", "POET", "Green Plains"], "position": "leader", "share": null, "src": ["s4"] }
+    ],
+    "edge": "멕시코만 연안의 대형 복합 정유소, 국내 원유·원료 유연성, 업계 최저 수준의 운영비, 높은 가동률과 수출 접근성.",
+    "threats": "정제마진 정상화, 해외 신규 대형 정유소 가동, 전기차 확산에 따른 휘발유 수요 감소, 캘리포니아 등 규제 비용, 재생연료 크레딧 가격 하락.",
+    "text": "정유는 누구나 같은 원유와 같은 제품 가격을 받는 사업이라, 경쟁은 '누가 더 싸게, 더 오래 돌리느냐'로 갈린다. Valero는 Q3 2026에 거의 최대 가동률로 돌렸고, 경영진은 멕시코만 정유사가 국내 원유 접근과 원료 유연성에서 유리하다고 말했다. 반대로 서부 해안 Benicia를 닫은 것처럼 경쟁력이 약한 설비는 정리하는 방식으로 대응한다.",
+    "src": ["s5", "s1", "s2"]
+  },
+
+  "strategy": {
+    "goal": "운영 안정성과 저비용 유지, 조정 영업현금흐름의 상당 부분을 주주에게 환원(2025 67%, Q3 2026 52%), 장기 현금 보유 목표 40억~50억 달러, 소규모 에탄올 확장과 탄소 저장 프로젝트.",
+    "roadmap": [
+      { "when": "2026-04", "what": "Benicia 정유소 정제 가동 중단 완료, 부지 재개발 검토", "src": ["s1", "s2"] },
+      { "when": "2026 Q3", "what": "St. Charles FCC 최적화(2.3억 달러) 일정·예산 내 완료 - 알킬레이트·휘발유 생산 증가", "src": ["s1", "s5"] },
+      { "when": "2026말", "what": "Port Arthur 디젤 수첨설비(DHT) 수리 완료 예정 (총 약 2.5억 달러, 상당 부분 보험)", "src": ["s5"] },
+      { "when": "2026-10-27", "what": "자사주 100억 달러 추가 승인 (7월 프로그램 잔액 30.3억 달러에 더해)", "src": ["s2"] },
+      { "when": "2027 하반기 ~ 2028 중반", "what": "소규모 에탄올 확장과 탄소 저장 프로젝트 가동 예정", "src": ["s5"] }
+    ],
+    "vision": "경영진은 배당을 '영구적 약속'으로 두고 꾸준히 늘리며, 남는 현금은 시간을 두고 주주에게 돌려준다는 원칙을 반복한다. 성장은 기존 운영 지역의 인수와 원료 유연성·최적화 투자로 수익률 기준을 넘을 때만 한다.",
+    "text": "앞으로의 계획은 '크게 짓기'보다 '잘 돌리고 돌려주기'다. St. Charles 개선처럼 작은 투자로 마진을 높이고, Benicia처럼 약한 설비는 닫으며, 장기 현금 목표(40억~50억 달러)를 넘는 돈은 자사주로 돌려준다. 9월 말 현금이 98억 달러로 목표의 두 배 가까이 쌓였고 100억 달러 자사주 승인이 새로 나와, 마진이 유지되는 한 환원이 계속 커질 여지가 있다.",
+    "src": ["s5", "s1", "s2"]
+  },
+
+  "governance": {
+    "line": "Lane Riggs가 회장 겸 CEO·사장으로 이끄는 지분 분산 회사로, 2026년 분기 배당을 주당 1.20달러(전년 1.13달러)로 올렸고 2025말 발행주식은 2.99억 주로 2014년 이후 42% 줄었다.",
+    "src": ["s5", "s1", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "refining throughput", "value": "멕시코만 185.5만~190.5만, 중부 44만~46만, 서부 10만~11만, 북대서양 48만~50만 배럴/일", "givenOn": "2026-10-22", "src": ["s5"] },
+      { "period": "Q4 2026", "metric": "refining cash operating expense", "value": "배럴당 약 4.85달러", "givenOn": "2026-10-22", "src": ["s5"] },
+      { "period": "Q4 2026", "metric": "renewable diesel sales / ethanol production", "value": "재생디젤 약 3.25억 갤런 / 에탄올 하루 약 490만 갤런", "givenOn": "2026-10-22", "src": ["s5"] },
+      { "period": "FY2026", "metric": "capital investments attributable to Valero", "value": "약 20억 달러(콜 기준; 1월 보도자료는 17억 달러)", "givenOn": "2026-10-22", "src": ["s5", "s3"] }
+    ],
+    "style": "quarterly",
+    "track": "EPS 가이던스는 없고 처리량·운영비 같은 운영 지표만 분기마다 제시한다. 이익은 회사가 통제할 수 없는 정제마진이 결정해, Q3 2026 조정 EPS 23.90달러는 컨센서스(약 21달러대)를 크게 넘었다.",
+    "src": ["s5", "s1"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 57.88달러(범위 27.40~70.36), 직전 4개 분기 44.48달러. 최근 4주 상향 10건·하향 3건으로 상향 우세하지만, 추정 범위가 두 배 넘게 벌어져 마진 전망 차이가 매우 크다.",
+    "src": ["s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "배럴당 정제마진이 2025년 평균(12.29달러)보다 훨씬 높은 수준을 유지",
+      "가동률이 높게 유지되고 Port Arthur 수리가 연말에 끝남",
+      "Q4 처리량이 가이던스 범위 안에 들어옴",
+      "자사주 매입이 새 100억 달러 승인 아래 계속됨",
+      "제품 재고가 낮게 유지되고 수출 수요가 강함"
+    ],
+    "breaks": [
+      "정제마진이 2025년 수준으로 빠르게 되돌아감",
+      "대형 정유소 사고나 예기치 않은 가동 중단",
+      "미국·해외 신규 정제 설비 증가로 공급 과잉",
+      "재생연료 크레딧 가격 하락으로 재생디젤 적자 재발",
+      "현금이 목표 이하로 줄어 자사주 매입 축소"
+    ],
+    "keyNumbers": [
+      { "name": "배럴당 정제마진", "why": "이익의 거의 전부를 정한다" },
+      { "name": "처리량과 가동률", "why": "마진에 곱해지는 물량" },
+      { "name": "배럴당 현금 운영비", "why": "경쟁사 대비 원가 우위" },
+      { "name": "분기 자사주 매입액과 환원 비율", "why": "현금이 주주에게 가는 속도" },
+      { "name": "미국 휘발유·디젤 재고", "why": "마진 방향의 선행 신호" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 투자 계획", "src": [] },
+      { "date": "매주 (EIA 재고 발표)", "event": "미국 휘발유·디젤 재고와 정유 가동률", "src": [] },
+      { "date": "수시", "event": "중동 정세와 원유·운임 변화 (Q3 콜: 멕시코만→아시아 VLCC 운임 배럴당 약 30~35달러, 2025년 약 5달러)", "src": ["s5"] }
+    ],
+    "reaction": "주가는 실적 자체보다 정제마진(크랙 스프레드)의 방향에 먼저 움직이는 경향이 있고, 실적일에는 처리량·운영비와 자사주 매입 속도가 확인 포인트가 된다. Q3 2026은 조정 EPS 23.90달러로 예상을 크게 넘었고 9개월 자사주 62억 달러가 함께 나왔다.",
+    "conditions": [
+      "멕시코만 3-2-1 크랙 스프레드 등 정제마진 지표의 방향",
+      "주간 제품 재고와 정유 가동률",
+      "분기 처리량이 가이던스 범위 안인지",
+      "분기 자사주 매입액과 현금 잔액",
+      "재생연료 크레딧 가격과 DGD 마진",
+      "컨센서스 EPS 상향·하향 건수와 추정 범위"
+    ]
+  },
+
+  "unverified": [
+    "FY2025 자사주·배당 분리 금액 (합계 40억 달러만 확인) - 그래서 사용처는 2026년 9개월(10-Q 현금흐름표) 기준으로 작성",
+    "FY2025 잉여현금흐름 (회사 미공시; 영업현금흐름 58.3억 - 투자 18.9억으로 약 39억 달러로 추정되나 칸은 비워 둠)",
+    "FY2025 전사 영업이익률 (총 영업이익 미확인), 부문 영업이익률은 부문 이익/외부 매출 계산값",
+    "2024년 부문 매출 (부문 yoy 비움), 부문 매출 합계 1,226.9억 달러로 보고 매출과 일치",
+    "2026 설비투자: 1월 보도자료 17억 달러 vs Q3 콜 요약 약 20억 달러 차이",
+    "주주환원 목표 비율 (공식 목표치 미확인)",
+    "원유 국가별 조달 비중, 브랜드 주유소 수, 고객 집중도",
+    "s2 10-Q 제출일 (기간 말일로 표기), s5는 콜 요약(2차 출처)",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "high - 매출·이익·마진·현금 사용은 회사 8-K·10-Q·10-K에서 왔다. Q4 가이던스와 시장 설명은 콜 요약(2차 출처)이다."
+}

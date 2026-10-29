@@ -1,0 +1,524 @@
+{
+  "symbol": "IREN",
+  "name": "IREN Limited",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "June 30 (FY2026 ended 2026-06-30)",
+  "oneLine": "IREN은 비트코인 채굴용으로 확보해 둔 대규모 전력 부지를 AI용 GPU 데이터센터로 바꾸는 회사로, Microsoft 97억 달러 계약을 계기로 매출의 중심이 채굴에서 AI 클라우드로 넘어가는 한가운데에 있다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "IREN Reports FY26 Results (GlobeNewswire release text)",
+      "url": "https://finviz.com/news/386423/iren-reports-fy26-results",
+      "publisher": "Finviz (GlobeNewswire release text)",
+      "date": "2026-08-27"
+    },
+    {
+      "id": "s2",
+      "kind": "news",
+      "title": "Microsoft signs $9.7 billion IREN deal for Nvidia GB300 capacity (reads 8-K filed 2025-11-03; Dell $5.8B purchase)",
+      "url": "https://techinformed.com/microsoft-signs-9-7-billion-iren-deal-for-nvidia-gb300-capacity/",
+      "publisher": "TechInformed",
+      "date": "2025-11-04"
+    },
+    {
+      "id": "s3",
+      "kind": "ir-site",
+      "title": "IREN company website (sites, secured power, locations)",
+      "url": "https://iren.com/",
+      "publisher": "IREN",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/iren/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local earnings calendar snapshot, public-data/earnings-calendar.json (IREN 2026-11-05; not company-confirmed in this session)",
+      "url": "https://www.nasdaq.com/market-activity/earnings",
+      "publisher": "AIO earnings calendar",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local SEC companyfacts snapshot, public-data/sec-fundamentals.json (FY2026 10-K revenue and net loss, accession 0001878848-26-000052)",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001878848.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-08-27"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "IREN Limited profile - key executives (William Roberts, Co-Founder, Co-CEO & Executive Director; CFO Anthony Lewis)",
+      "url": "https://finance.yahoo.com/quote/IREN/profile/",
+      "publisher": "Yahoo Finance",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s8",
+      "kind": "news",
+      "title": "IREN to Release Q1 FY27 Results on November 5, 2026 (GlobeNewswire release; call 5:00 p.m. ET)",
+      "url": "https://pluang.com/en/news-feed/iren-rilis-hasil-q1-fy27-5-november-2026",
+      "publisher": "GlobeNewswire via Pluang",
+      "date": "2026-10-22"
+    },
+    {
+      "id": "s9",
+      "kind": "news",
+      "title": "IREN stock drops as chair defends stock award to co-founders (co-CEOs Will and Dan Roberts, 9.1M RSUs each approved 2026-06-30)",
+      "url": "https://www.tipranks.com/news/iren-stock-drops-as-chair-defends-stock-award-to-co-founders",
+      "publisher": "TipRanks",
+      "date": "2026-07-09"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "이미 확보한 전력과 토지 - 5GW 이상 확보 전력, 8개 지역 6,000에이커 이상 (회사 웹사이트)",
+      "Texas Childress 750MW 캠퍼스 등 대형 부지를 직접 소유·개발",
+      "부지 개발부터 GPU 운영까지 하는 수직 통합 - Microsoft는 '완전 통합 AI 클라우드 구축·운영 역량'을 이유로 계약",
+      "재생에너지 기반 전력 조달 (회사 주장)"
+    ],
+    "text": "IREN의 뿌리는 GPU가 아니라 전력이다. 비트코인 채굴을 하며 확보해 둔 5GW 이상의 전력과 텍사스·캐나다 등 대형 부지가 있어, 전력 연결에 몇 년씩 걸리는 AI 데이터센터 시장에서 시간을 아낄 수 있다. Microsoft도 계약 이유로 확보 전력과 통합 운영 역량을 들었다.",
+    "src": [
+      "s2",
+      "s3"
+    ]
+  },
+  "design": {
+    "text": "이 전력 위에서 회사가 파는 것은 두 가지다. 하나는 NVIDIA GPU를 직접 소유·운영하며 빌려주는 AI 클라우드 서비스, 다른 하나는 줄여 가는 비트코인 채굴이다. FY2026에는 채굴 장비를 정리하며 AI용 액체냉각 데이터센터(Childress Horizon 1~4 등)로 부지를 바꾸는 중이었다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "NVIDIA - GB300 등 GPU (Microsoft 계약)",
+      "Dell - GPU·부대 장비 약 58억 달러 구매 계약 (2026년 3월부터 단계 공급)",
+      "Blue Owl·PIMCO - Mackenzie 증설용 24억 달러 GPU 금융 (고정 9.0%)",
+      "투자등급 GPU 금융 36억 달러 (Microsoft 계약용, 가중평균 6.0%)",
+      "Mirantis·Nostrum - FY2026 인수 (소프트웨어·운영 역량)"
+    ],
+    "text": "IREN은 부지·건물·전력·GPU를 모두 직접 소유하는 자산 보유형 회사다. GPU는 Dell을 통해 사고, 그 대금은 고객 선급금(GPU 설비투자의 45~55%)과 GPU 담보 금융으로 댄다. Microsoft 계약분은 금융과 선급금이 GPU 설비투자의 96%를 덮도록 짜여 있다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "Microsoft - 5년 약 97억 달러 GB300 클라우드 계약 (Childress 약 200MW IT)",
+      "선도 프런티어 AI 연구소 1곳 - 다년 계약 (이름 미공개)",
+      "AI 기업 - Cohere, Perplexity, Figure AI, Fal AI, Higgsfield AI, Prometheus",
+      "비트코인 네트워크 - 채굴 보상 (축소 중)"
+    ],
+    "channel": "직접 판매. 대형 고객과 3년 이상 다년 계약을 맺고, 2026년 용량은 대부분 판매 완료됐다고 회사는 말한다.",
+    "concentration": "고객별 매출 비중 미공시(이번 조사 기준). 계약 규모로는 Microsoft 97억 달러가 계약 ARR 40억 달러의 큰 부분으로 보이지만 비율은 확인하지 못함.",
+    "text": "이렇게 만든 AI 용량은 Microsoft를 축으로 AI 연구소와 AI 스타트업에 팔린다. 2025년 11월 Microsoft와 5년 97억 달러 계약을 맺은 뒤 Cohere·Perplexity 등과 프런티어 AI 연구소 한 곳이 더해졌다. 회사는 2026년 용량이 대부분 팔렸고, 2027년 용량도 상당 부분 막바지 협상 중이라고 밝혔다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "AI 서비스 이용자",
+        "to": "Microsoft·AI 연구소·AI 기업",
+        "what": "AI 서비스 이용료·구독"
+      },
+      {
+        "from": "Microsoft·AI 기업",
+        "to": "IREN",
+        "what": "GPU 클라우드 다년 계약 이용료 (MW당 연 2,000만 달러 이상), 선급금 (Microsoft는 트랜치별 20%)"
+      },
+      {
+        "from": "GPU 금융 기관 (Blue Owl·PIMCO 등)·전환사채 투자자",
+        "to": "IREN",
+        "what": "GPU 담보 대출·전환사채 (FY2026 전환사채 63억 달러)"
+      },
+      {
+        "from": "IREN",
+        "to": "Dell·NVIDIA·건설사",
+        "what": "GPU 구매(Dell 약 58억 달러), 데이터센터 건설"
+      },
+      {
+        "from": "비트코인 네트워크",
+        "to": "IREN",
+        "what": "채굴 보상 (FY2026 5.78억 달러, 축소 중)"
+      }
+    ],
+    "pricing": "AI 클라우드는 GPU 용량 다년 계약으로 MW당 매출로 가격을 말한다. 최근 3년 계약은 MW(IT)당 연 2,000만 달러 이상, 회수 기간 약 2년이고, 논의 중인 계약은 MW당 약 2,500만 달러다.",
+    "text": "AI 쪽 돈은 Microsoft 같은 고객의 다년 이용료와 선급금으로 들어오고, 그 전에 GPU 금융과 전환사채로 빌린 돈이 Dell로 나간다. 회사는 MW당 연 2,000만 달러 이상 매출에 약 2년 회수라는 계산을 내세운다. 반면 채굴 매출은 비트코인 가격과 난이도에 따라 흔들리고, 부지를 AI로 바꾸며 줄어드는 중이다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-06-30)",
+    "revenue": {
+      "value": 0.707,
+      "unit": "USD bn",
+      "yoy": 41
+    },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": -99.4,
+    "operatingCashFlow": {
+      "value": 2.1,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": -2.544,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Bitcoin Mining",
+        "revenue": 0.5782,
+        "unit": "USD bn",
+        "share": 81.8,
+        "yoy": 19,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "AI Cloud Services",
+        "revenue": 0.1288,
+        "unit": "USD bn",
+        "share": 18.2,
+        "yoy": 685,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "ARR",
+        "value": "계약 ARR 40억 달러(2026년 용량 기준, 2026 말 가동 목표) / 가동 ARR 10억 달러(2026-08-26)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Q4 FY2026 매출 구성",
+        "value": "총 1.372억 달러: AI 클라우드 7,050만(전분기 3,360만) vs 채굴 6,670만(전분기 1.112억) - 처음으로 AI가 채굴을 넘음",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "MW당 매출·회수 기간",
+        "value": "최근 3년 계약 MW(IT)당 연 2,000만 달러 이상, 회수 약 2년",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "조정 EBITDA",
+        "value": "FY2026 2.457억 달러(35%), Q4 1,920만 달러(14%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "IT 용량 목표",
+        "value": "누적 약 0.3GW(2026) → 약 0.8GW(2027), 데이터센터 파이프라인 5GW 이상",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "FY2026 매출은 7.07억 달러(+41%)였지만 82%가 아직 채굴이었고, AI 클라우드는 1.29억 달러로 8배 가까이 컸다. 채굴 장비 폐기 손상차손 6.39억 달러 탓에 순손실 7.03억 달러가 나왔고, 조정 EBITDA 마진도 54%에서 35%로 내려갔다. 영업현금흐름 21억 달러는 고객 선급금 등 이연수익 18.4억 달러 증가 덕분이라, 본업 현금 창출로 보기는 이르다.",
+    "src": [
+      "s1",
+      "s6"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-06-30)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 4.333,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 0.0925,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "전환사채 조기 전환 유도 지급",
+        "value": 1.6235,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "캡드콜(전환 희석 방어 옵션) 매입",
+        "value": 0.4489,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "FY2026에 IREN은 설비 29.98억 달러와 컴퓨터 하드웨어 13.35억 달러, 합계 약 43억 달러를 GPU와 데이터센터에 썼다. 돈은 전환사채 63억 달러와 신주 47.4억 달러로 마련했고, 그중 16.2억 달러는 기존 전환사채의 조기 전환을 유도하는 데, 4.5억 달러는 희석을 줄이는 캡드콜 매입에 썼다. 배당·자사주 매입은 없고, 자금은 전환 사업에 집중돼 있다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "cloud-infrastructure",
+    "position": "전력 부지를 가진 데이터센터 개발자이자 GPU 클라우드 운영자. 전력·부지(아래)와 AI 고객(위)을 잇는 자리에서 둘 다 직접 갖는다.",
+    "dependsOn": [
+      "power-energy (자체 확보 전력 5GW 이상)",
+      "chips-compute (NVIDIA GPU, Dell 경유)",
+      "GPU 금융·전환사채 시장"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure·models-platforms (Microsoft, 프런티어 AI 연구소)",
+      "AI 기업 (Cohere, Perplexity, Figure AI 등)"
+    ],
+    "aiRevenue": "FY2026 AI 클라우드 매출 1.288억 달러(매출의 18%), Q4 7,050만 달러(51%). 계약 ARR 40억 달러, 가동 ARR 10억 달러(2026-08-26).",
+    "upside": "계약 ARR 40억 달러가 2026 말까지 가동되면 FY2026 총매출의 5배가 넘는 연매출 규모가 된다. 남은 5GW 파이프라인을 MW당 2,000만~2,500만 달러에 팔 수 있다면 성장 여지가 크다.",
+    "risk": "가동·고객 인수 지연, 고객 집중(Microsoft), GPU 담보 금융의 높은 금리(비투자등급 9%), 전환사채 희석, GPU 세대 교체로 인한 장비 가치 하락. 회사도 계약 ARR은 매출 전망이 아니라고 밝힌다.",
+    "text": "그래서 AI 가치사슬에서 IREN은 '클라우드 인프라' 층이지만, CoreWeave·Nebius보다 한 단계 아래인 전력과 부지까지 직접 가진 점이 다르다. 전력이 가장 부족한 자원인 동안에는 이 자리가 유리하지만, GPU를 사고 운영하는 위험도 함께 진다. 성장의 열쇠는 계약된 40억 달러 ARR을 예정대로 가동하는 실행이다.",
+    "src": [
+      "s1",
+      "s2",
+      "s3"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "AI GPU 클라우드 (neocloud)",
+        "rivals": [
+          "CoreWeave",
+          "Nebius",
+          "Lambda",
+          "Crusoe"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "AI용 전력 부지·데이터센터 개발 (채굴사 전환)",
+        "rivals": [
+          "Core Scientific",
+          "Cipher Mining",
+          "TeraWulf",
+          "Hut 8"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": []
+      },
+      {
+        "arena": "비트코인 채굴",
+        "rivals": [
+          "MARA",
+          "Riot Platforms",
+          "CleanSpark"
+        ],
+        "position": "follower",
+        "share": null,
+        "src": []
+      }
+    ],
+    "edge": "직접 소유한 대형 전력 부지(Childress 750MW, Sweetwater 2,000MW 건설 중), 부지부터 GPU 운영까지 수직 통합, Microsoft 계약 실적.",
+    "threats": "전력 부지를 가진 다른 채굴사의 AI 전환, 자금력이 큰 neocloud와 하이퍼스케일러 자체 증설.",
+    "text": "IREN은 두 무리와 동시에 경쟁한다. 같은 GPU 클라우드에서는 CoreWeave·Nebius 같은 큰 회사와, 전력 부지에서는 AI로 전환하는 다른 비트코인 채굴사들과 맞선다. 회사는 부지를 임대해 주는 데 그치지 않고 GPU까지 직접 운영해 MW당 매출을 높이는 쪽을 택했다. 경쟁사 목록과 점유율은 회사 공시가 아니라 업계 일반 구분이라 출처가 비어 있다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "strategy": {
+    "goal": "2026년 12월 31일까지 ARR 40억 달러 가동, 누적 IT 용량 약 0.3GW(2026)·0.8GW(2027), 데이터센터 파이프라인 5GW 이상을 AI로 전환.",
+    "roadmap": [
+      {
+        "when": "2026 Q4",
+        "what": "Childress Horizon 3·4 인도 목표 (Microsoft 계약 4개 50MW 액체냉각 홀 완성)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-12-31",
+        "what": "ARR 40억 달러 가동 목표 (시운전·고객 인수 조건)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "Mackenzie·Canal Flats·Prince George 액체냉각 신규 배치, 누적 IT 약 0.8GW",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027~2028",
+        "what": "2027 용량 상당 부분 막바지 협상, 2028 용량 협상 진행",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "개발 중",
+        "what": "Sweetwater(텍사스, 2,000MW 건설 중), Oklahoma(1,600MW), Bundey(호주 800MW), Badajoz(스페인 300MW)",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      }
+    ],
+    "vision": "채굴 회사에서 벗어나, 직접 확보한 재생에너지 기반 전력 위에서 AI 학습·추론용 데이터센터와 GPU 클라우드를 통합 운영하는 회사가 되는 것.",
+    "text": "앞으로의 계획은 분명하다. 2026년 말까지 Microsoft용 Childress 네 개 홀을 완성해 ARR 40억 달러를 가동하고, 2027년에는 캐나다 부지와 Sweetwater로 용량을 약 0.8GW까지 늘린다. 채굴은 부지를 내주는 쪽으로 줄어들기 때문에, 앞으로 몇 분기 동안은 채굴 매출 감소와 AI 매출 증가가 겹쳐 보일 것이다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "governance": {
+    "line": "공동창업자 형제 Daniel Roberts와 William Roberts가 공동 CEO로 이끌고, FY2026 말 이사회가 두 사람에게 각각 약 910만 주의 RSU를 부여해 주주 반발을 샀으며, 배당·자사주 매입 없이 전환사채와 신주로 성장 자금을 댄다.",
+    "src": [
+      "s7",
+      "s9"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "2026-12-31",
+        "metric": "ARR (operational)",
+        "value": "40억 달러 가동 목표 (회사 내부 가정, 매출 전망 아님)",
+        "givenOn": "2026-08-27",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "2026 / 2027",
+        "metric": "cumulative IT capacity",
+        "value": "약 0.3GW / 약 0.8GW",
+        "givenOn": "2026-08-27",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "none",
+    "track": "분기 매출·이익 가이던스는 내지 않고 ARR·용량 목표를 제시한다. 목표 대비 실적 이력은 이번 조사에서 확인하지 못했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기 합계 -0.39달러(범위 -1.67~1.90, 최소 3명), 직전 4개 분기 실적 합 -1.44달러. 최근 4주 상향·하향 0건으로 커버리지가 얇다.",
+    "src": [
+      "s4"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Childress Horizon 3·4가 2026 4분기에 인도되고 가동 ARR이 10억에서 40억 달러 쪽으로 오름",
+      "AI 클라우드 매출이 분기마다 늘어 채굴 감소를 넘어섬",
+      "2027 용량 계약이 체결되고 MW당 단가 2,000만 달러 이상 유지",
+      "비투자등급 고객용 GPU 금융 금리가 내려감",
+      "영업현금흐름이 선급금이 아닌 이용료로 채워지기 시작"
+    ],
+    "breaks": [
+      "데이터센터 인도·고객 인수 지연",
+      "Microsoft 등 핵심 고객 계약 조건 변경",
+      "추가 손상차손이나 대규모 희석성 조달",
+      "MW당 계약 단가 하락",
+      "비트코인 가격 급락으로 전환 기간 현금 부족"
+    ],
+    "keyNumbers": [
+      {
+        "name": "가동 ARR vs 계약 ARR",
+        "why": "계약이 실제 매출로 바뀌는 속도"
+      },
+      {
+        "name": "AI 클라우드 분기 매출",
+        "why": "사업 전환의 진행도"
+      },
+      {
+        "name": "MW당 매출·회수 기간",
+        "why": "투자 수익성"
+      },
+      {
+        "name": "순차입금·전환사채 잔액",
+        "why": "재무 부담과 희석"
+      },
+      {
+        "name": "IT 용량 인도(GW)",
+        "why": "목표 대비 실행"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11-05 17:00 ET (회사 확정, 2026-10-22 공지)",
+        "event": "Q1 FY2027 실적 발표와 ARR·인도 일정 업데이트",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "date": "2026 Q4",
+        "event": "Childress Horizon 3·4 인도 목표",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "reaction": "주가는 분기 이익보다 새 대형 AI 계약, 가동 ARR, 데이터센터 인도 일정 같은 전환 진척 소식에 크게 반응하는 경향이 있다. 비트코인 가격도 채굴 매출을 통해 여전히 영향을 준다.",
+    "conditions": [
+      "실적 발표 때 가동 ARR과 계약 ARR의 차이",
+      "Horizon 3·4 인도 일정 유지 여부",
+      "2027 용량 계약 체결 소식과 MW당 단가",
+      "신규 전환사채·신주 발행 규모",
+      "비트코인 가격과 채굴 매출 비중"
+    ]
+  },
+  "unverified": [
+    "총이익률·영업이익률 (보도자료에서 확인 못 함)",
+    "FY2026 잉여현금흐름 -25.4억 달러는 영업현금흐름 21.0억 - (설비 29.98억 + 하드웨어 13.35억 + 무형 1.08억 + 선급·보증금 2.03억)으로 계산",
+    "고객별 매출 비중과 Microsoft 계약의 ARR 비중",
+    "Microsoft 계약 세부(트랜치별 20% 선급금이 24개월 후 상계)는 8-K를 읽은 TechInformed 기사에서 확인, 8-K 원문 미확인 (sec.gov 차단)",
+    "GPU 보유 대수",
+    "회사 IR 원문(gcs-web) 403 - 보도자료는 Finviz 게시본에서 읽음",
+    "경쟁사 목록과 점유율 - 출처 없음",
+    "공동 CEO 구조와 RSU 약 910만 주(각자)는 TipRanks 기사와 8-K·DEF 14A 검색 발췌로 확인, 8-K 원문 미확인 (sec.gov 차단; Yahoo 프로필은 William Roberts만 표시)",
+    "창업자 지분·의결권 비율 - 1차 자료 미확인"
+  ],
+  "confidence": "medium - FY2026 실적과 계약 지표는 회사 보도자료 전문 게시본에서 왔지만, 지배구조와 경쟁 구도는 확인하지 못했다."
+}

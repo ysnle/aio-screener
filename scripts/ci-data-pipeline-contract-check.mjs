@@ -2822,6 +2822,31 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
+// v59.42 coverage pass: a Telegram post reaches a stock memo when it names the ticker or the company. The English name
+// was a substring, so "Arm" matched "alarm" and "Meta" "metal"; it is a whole word now, Korean names stay substrings.
+{
+  const tgNamesFnText = extractFunctionSource(read('js/aio-data.js'), '_aioTelegramTextNames');
+  const names = tgNamesFnText ? new Function(`${tgNamesFnText}\nreturn _aioTelegramTextNames;`)() : null;
+  const cases = [['Fire alarm stocks rally', 'ARM', 'ARM Holdings', false], ['Arm jumps on royalty deal', 'ARM', 'ARM Holdings', true],
+    ['Base metal prices climb', 'META', 'Meta Platforms', false], ["Meta Platforms' capex grows", 'META', 'Meta Platforms', true],
+    ['SK하이닉스가 HBM 증설', '000660.KS', 'SK하이닉스', true], ['NVDA beats', 'NVDA', 'NVIDIA Corp', true]];
+  const wrong = names ? cases.filter(([text, sym, name, expected]) => names(text, sym, name) !== expected).map(([text]) => text) : ['function missing'];
+  check('v59.42 Telegram memo company names match whole words (no "Arm" in "alarm")', wrong.length === 0, wrong.join(' | '));
+}
+// v59.42 coverage pass: the Telegram feed card printed the channel name into HTML unescaped, and its header "N건" was
+// the count after the per-page cap, so seven matching posts read as five.
+{
+  const tgFeedFnText = extractFunctionSource(read('js/aio-data.js'), '_aioRenderTelegramFeedHtml');
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const posts = Array.from({ length: 7 }, (_, k) => ({ channel: k ? 'known' : '<b>x</b>', text: `post ${k}`, tags: ['macro'], score: k, localDateKst: '2026-10-28', url: 'https://t.me/s/x' }));
+  const win = { AIO_TELEGRAM_CURRENT_ITEMS: posts, AIO_TELEGRAM_WEEKLY_DIGEST: { channels: [1, 2, 3, 4] }, AIO: {} };
+  const render = tgFeedFnText ? new Function('window', '_TG_PAGE_TAGS', '_TG_PAGE_CFG', '_TG_CH_SRC', 'escHtml', 'escUrl', '_aioProcessTelegramItem', '_aioTelegramStandalone',
+    `${tgFeedFnText}\nreturn _aioRenderTelegramFeedHtml;`)(win, { 'market-news': ['macro'] }, { 'market-news': ['최신 소식', 5, false, 'date', false] }, { known: 'Known' }, esc, (u) => u,
+    () => ({ cat: { cls: 'c', label: '<i>tag</i>' }, hlHeadline: 'h', body: '', tickerHtml: '' }), () => true) : null;
+  const feedMarkup = render ? render('market-news') : '';
+  check('P2128 Telegram feed escapes the channel name and tag label and counts matching posts before the cap', !feedMarkup.includes('<b>x</b>') && !feedMarkup.includes('<i>tag</i>') && /5건 표시, 해당 7건/.test(feedMarkup), feedMarkup.slice(0, 300));
+}
+
 if (errors.length) {
   console.error('Data pipeline contract check failed:');
   errors.forEach((error) => console.error(' - ' + error));

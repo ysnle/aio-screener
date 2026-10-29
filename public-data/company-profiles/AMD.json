@@ -1,0 +1,226 @@
+{
+  "symbol": "AMD",
+  "name": "Advanced Micro Devices, Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "last Saturday of December (FY2025 ended 2025-12-27)",
+  "oneLine": "AMD는 서버 CPU(EPYC)·AI GPU(Instinct)·PC 칩을 설계하는 팹리스 회사로, NVIDIA의 가장 큰 상용 GPU 경쟁자이자 OpenAI·Anthropic·Meta가 함께 쓰는 '두 번째 AI 칩 공급자' 자리를 굳히는 중이라 AI 투자 다변화의 바로미터다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "AMD Reports Second Quarter 2026 Financial Results", "url": "https://ir.amd.com/news-events/press-releases/detail/1295/amd-reports-second-quarter-2026-financial-results", "publisher": "AMD", "date": "2026-08-04" },
+    { "id": "s2", "kind": "earnings-release", "title": "AMD Reports Fourth Quarter and Full Year 2025 Financial Results", "url": "https://ir.amd.com/news-events/press-releases/detail/1276/", "publisher": "AMD", "date": "2026-02-03" },
+    { "id": "s3", "kind": "10-K", "title": "AMD Form 10-K for fiscal year ended 2025-12-27 (IR-hosted PDF of SEC filing)", "url": "https://ir.amd.com/financial-information/sec-filings/content/0000002488-26-000018/0000002488-26-000018.pdf", "publisher": "AMD IR", "date": "2026-02-04" },
+    { "id": "s4", "kind": "call-transcript", "title": "AMD 2Q26 earnings call AI summary (partial; full transcript gated)", "url": "https://transcripts.platformaeronaut.com/summaries/AMD-2Q26-AI-Summary", "publisher": "Platform Aeronaut", "date": "2026-08-04" },
+    { "id": "s5", "kind": "ir-site", "title": "AMD to Report Fiscal Third Quarter 2026 Financial Results (Nov 3, 2026 after close)", "url": "https://ir.amd.com/news-events/press-releases/detail/1300/amd-to-report-fiscal-third-quarter-2026-financial-results", "publisher": "AMD", "date": "2026-10-06" },
+    { "id": "s6", "kind": "news", "title": "AMD Sets Ambitious AI, Earnings Goals Through 2030 (Financial Analyst Day 2025 coverage)", "url": "https://www.webull.com/news/13845000417043456", "publisher": "Webull (Benzinga)", "date": "2025-11-11" },
+    { "id": "s7", "kind": "news", "title": "AMD and OpenAI Announce Strategic Partnership to Deploy 6 Gigawatts of AMD GPUs", "url": "https://ir.amd.com/news-events/press-releases/detail/1260/amd-and-openai-announce-strategic-partnership-to-deploy-6-gigawatts-of-amd-gpus", "publisher": "AMD", "date": "2025-10-06" },
+    { "id": "s8", "kind": "news", "title": "OpenAI and AMD announce multibillion-dollar partnership; OpenAI could get up to 10 percent of AMD shares (warrant 160M shares)", "url": "https://tomshardware.com/tech-industry/openai-and-amd-announce-multibillion-dollar-partnership-amd-to-supply-6-gigawatts-in-chips-openai-could-get-up-to-10-percent-of-amd-shares-in-return", "publisher": "Tom's Hardware", "date": "2025-10-06" },
+    { "id": "s9", "kind": "news", "title": "AMD reaches 46% of server x86 CPU revenue (Mercury Research Q1 2026; accessed date)", "url": "https://www.tomshardware.com/pc-components/cpus/amd-reaches-46-percent-of-server-x86-cpu-revenue-intel-still-controls-70-percent-of-the-consumer-pc-market-share", "publisher": "Tom's Hardware (Mercury Research data)", "date": "2026-10-28" },
+    { "id": "s10", "kind": "other", "title": "AMD vs NVIDIA AI GPU market share 2026 (synthesis of Bloomberg Intelligence, IDC estimates)", "url": "https://siliconanalysts.com/analysis/amd-vs-nvidia-ai-gpu-market-share-2026", "publisher": "Silicon Analysts", "date": "2026-04-13" },
+    { "id": "s11", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/amd/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s12", "kind": "earnings-release", "title": "AMD Reports First Quarter 2026 Financial Results", "url": "https://ir.amd.com/news-events/press-releases/detail/1284/", "publisher": "AMD", "date": "2026-05-05" }
+  ],
+  "moat": {
+    "sources": [
+      "CPU·GPU·FPGA·네트워킹(AI NIC·DPU)을 모두 설계하고 Helios 랙으로 묶는 풀스택 능력 (ZT Systems 설계 조직 인수)",
+      "칩렛(chiplet) 설계와 TSMC 첨단 공정 조기 확보로 쌓은 서버 CPU 성능 우위 - x86 서버 CPU 매출 점유율 46.2% (Mercury Research Q1 2026)",
+      "오픈소스 ROCm 소프트웨어와 OpenAI·Anthropic·Meta·Microsoft와의 공동 최적화",
+      "x86 아키텍처 라이선스 - 사실상 Intel과 둘만 쓰는 PC·서버 표준"
+    ],
+    "text": "AMD의 힘은 서버 CPU에서 먼저 증명됐다. 작은 칩 조각을 이어 붙이는 칩렛 설계와 TSMC 최신 공정을 앞세워 x86 서버 CPU 매출 점유율을 46.2%까지 올렸고, 이 신뢰를 바탕으로 GPU·네트워킹·랙(Helios)까지 한 회사 것으로 공급하는 풀스택으로 넓히고 있다. NVIDIA의 CUDA에 비하면 소프트웨어(ROCm)가 약점이지만, 큰 고객과 직접 공동 최적화하는 방식으로 그 간격을 좁히는 중이다.",
+    "src": ["s3", "s9", "s1"]
+  },
+  "design": {
+    "text": "이 기술로 회사는 세 사업부를 보고한다. Data Center는 EPYC 서버 CPU, Instinct GPU(MI350, MI400 시리즈), DPU·AI NIC, 서버용 FPGA와 Helios 랙 시스템이고, Client and Gaming은 Ryzen PC 프로세서, Radeon 그래픽, 게임기용 세미커스텀 칩이다. Embedded는 Xilinx에서 온 FPGA·적응형 SoC와 임베디드 프로세서로 산업·자동차·통신 장비에 들어간다.",
+    "src": ["s3", "s1"]
+  },
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "TSMC - HPC·FPGA·적응형 SoC 웨이퍼 생산 (주력 파운드리)",
+      "GlobalFoundries - 12nm·14nm HPC 웨이퍼",
+      "UMC·Samsung Electronics - 프로그래머블 로직 IC 생산",
+      "Tongfu Microelectronics 합작 ATMP 2곳, SPIL, KYEC - 조립·테스트·패키징",
+      "Sanmina - ZT Systems 제조 사업 인수(2025-10), 랙 제조 파트너",
+      "HBM 메모리 공급사 - 10-K에 업체명 미기재"
+    ],
+    "text": "AMD는 설계만 하고 생산은 맡기는 팹리스 회사다. 웨이퍼는 대부분 TSMC가 찍고 구형 공정은 GlobalFoundries가, 조립·테스트는 Tongfu 합작사와 SPIL·KYEC가 맡는다. 2025년 ZT Systems를 사서 랙 설계 인력만 남기고 제조 공장은 Sanmina에 팔았는데, 공장 없이도 랙 단위 제품을 내기 위한 선택이다. 2025-12-27 기준 웨이퍼·기판 등 무조건 구매 약정은 약 122억 달러(이 중 2026년 85억 달러)다.",
+    "src": ["s3"]
+  },
+  "sell": {
+    "customers": [
+      "하이퍼스케일러·퍼블릭 클라우드 (Microsoft Azure, Oracle, Meta, AWS 등) - 서버 CPU·GPU의 상당 부분을 직접·간접 구매",
+      "AI 연구소 (OpenAI 6GW 계약, Anthropic 최대 2GW MI450 계약)",
+      "AI 클라우드·국가 AI (HUMAIN, Tensorwave, Vultr, Cirrascale 등 Helios 도입사)",
+      "PC OEM, 그래픽 보드 제조사, 게임기 업체(세미커스텀), 산업·자동차 장비사"
+    ],
+    "channel": "OEM·ODM을 통한 서버·PC 판매, 하이퍼스케일러 직접 판매, 유통사, 그래픽 보드(AIB) 제조사와 시스템 통합업체(SI)를 함께 쓴다.",
+    "concentration": "FY2025·FY2024 모두 매출의 10% 이상인 단일 고객 없음 (FY2023에는 Client and Gaming 고객 1곳이 18%). 2025-12-27 매출채권은 고객 1곳이 약 11%.",
+    "text": "만든 칩은 클라우드에는 직접, PC와 서버 제조사에는 OEM·ODM과 유통사를 거쳐 팔린다. NVIDIA와 달리 FY2025에 매출 10% 이상인 고객이 없을 만큼 분산돼 있었지만, 앞으로는 OpenAI 6GW와 Anthropic 최대 2GW 같은 초대형 AI 계약이 매출을 끌고 갈 구조라 집중도가 높아질 수 있다. 2026년 Q2에는 Helios 랙을 Anthropic·Meta·Microsoft·OpenAI·Oracle 등이 도입한다고 회사가 밝혔다.",
+    "src": ["s3", "s1", "s7"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "AI 연구소·클라우드 (OpenAI, Anthropic, Azure, Oracle 등)", "what": "AI 구독료·API·클라우드 이용료" },
+      { "from": "AI 연구소·클라우드", "to": "OEM·ODM·랙 제조사 (Sanmina 등) 또는 AMD 직접", "what": "Helios 랙·GPU 서버·EPYC 서버 구매" },
+      { "from": "OEM·ODM·클라우드·유통사", "to": "AMD", "what": "CPU·GPU·FPGA 칩 대금 (개당·시스템당)" },
+      { "from": "PC 구매자·게임기 업체", "to": "PC OEM·Sony·Microsoft 등 → AMD", "what": "Ryzen·Radeon·세미커스텀 칩 대금" },
+      { "from": "AMD", "to": "TSMC·GlobalFoundries·SPIL·Tongfu 합작사", "what": "웨이퍼·패키징·테스트 대금 (무조건 약정 122억 달러)" },
+      { "from": "AMD", "to": "OpenAI", "what": "배치 규모·주가 조건에 따라 최대 1억6천만 주 워런트(행사가 0.01달러) 부여 - 현금이 아닌 주식 희석 형태의 인센티브" }
+    ],
+    "pricing": "칩·보드·랙을 개당·시스템당 판매. 세미커스텀은 고객이 개발비(NRE)와 제품 가격을 따로 낸다. OpenAI 계약은 칩 구매와 별개로 배치 단계별 워런트가 붙는다.",
+    "text": "돈은 AI 서비스 이용료에서 출발해 클라우드가 서버와 랙을 살 때 AMD 칩 매출로 들어온다. PC·게임기 쪽은 소비자 지출이 OEM과 게임기 업체를 거쳐 들어오는 별도 흐름이다. 특이한 점은 OpenAI에 배치 규모와 주가 목표에 연동된 최대 1억6천만 주 워런트를 줬다는 것으로, 큰 고객을 잡는 대가를 주식 희석으로 치르는 구조다.",
+    "src": ["s3", "s7", "s8"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-27)",
+    "revenue": { "value": 34.639, "unit": "USD bn", "yoy": 34 },
+    "grossMargin": 50,
+    "operatingMargin": 10.7,
+    "netMargin": 12.5,
+    "operatingCashFlow": { "value": 6.493, "unit": "USD bn" },
+    "freeCashFlow": { "value": 5.519, "unit": "USD bn" },
+    "segments": [
+      { "name": "Data Center", "revenue": 16.635, "unit": "USD bn", "share": 48.0, "yoy": 32, "operatingMargin": 21.7, "src": ["s2"] },
+      { "name": "Client and Gaming (Client 10.64 + Gaming 3.91)", "revenue": 14.55, "unit": "USD bn", "share": 42.0, "yoy": 51, "operatingMargin": 19.6, "src": ["s2"] },
+      { "name": "Embedded", "revenue": 3.454, "unit": "USD bn", "share": 10.0, "yoy": -3, "operatingMargin": 36.0, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q2 2026) 매출·마진", "value": "매출 115.4억 달러(전년 대비 +50%), GAAP 총마진 54%, non-GAAP 56%, GAAP 영업이익 19.9억 달러(약 17.2%)", "src": ["s1"] },
+      { "name": "Q2 2026 사업부별 매출", "value": "Data Center 67.2억(+107%, 영업이익 21.0억), Client 30.6억(+23%), Gaming 7.8억(-31%), Embedded 9.8억(+19%)", "src": ["s1"] },
+      { "name": "x86 서버 CPU 점유율", "value": "매출 46.2%, 출하량 33.2% (Mercury Research, Q1 2026)", "src": ["s9"] },
+      { "name": "재고", "value": "약 85억 달러 (Q2 2026 말)", "src": ["s4"] },
+      { "name": "구매 약정", "value": "무조건 약정 약 122억 달러, 이 중 2026년 85억 달러 (2025-12-27 기준)", "src": ["s3"] }
+    ],
+    "text": "이 흐름이 FY2025 매출 346억 달러(+34%), GAAP 영업이익률 약 11%로 나타났고, 이익은 데이터센터(영업이익 36억 달러)와 PC(29억 달러)에 비슷하게 나뉘었다. GAAP 이익률이 낮은 것은 Xilinx 인수 무형자산 상각과 MI308 대중국 수출 통제 관련 약 4.4억 달러 재고 비용 때문이다. 2026년 Q2에는 데이터센터가 두 배 넘게 늘어 매출의 58%를 차지했고 데이터센터 영업이익률도 약 31%로 올라, 이익의 중심이 AI 쪽으로 옮겨가고 있다.",
+    "src": ["s2", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-27)",
+    "items": [
+      { "use": "R&D", "value": 8.091, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.974, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 1.76, "unit": "USD bn", "src": ["s3"] },
+      { "use": "buybacks", "value": 1.316, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "임직원 주식보상 세금 원천징수용 자사주 매입", "value": 0.607, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "벌어들인 돈(FY2025 잉여현금흐름 55억 달러)의 가장 큰 쓰임은 R&D 81억 달러로, 매출의 약 23%를 AI 실리콘·소프트웨어에 다시 넣는다. 인수(순현금 17.6억 달러; ZT Systems는 현금 32억 달러와 주식 830만 주)는 랙 설계 능력을 사기 위한 것이었고, 자사주 매입은 13억 달러에 그쳤으며 배당은 하지 않는다. 2026년 Q2에는 자사주 매입이 0이어서, 지금은 주주환원보다 AI 공급 능력과 재고(85억 달러) 확보에 현금을 쓰는 단계다.",
+    "src": ["s2", "s3", "s1", "s4"]
+  },
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "AI 데이터센터의 가속기(Instinct GPU)와 서버 CPU(EPYC)를 함께 공급하는 두 번째 상용 GPU 공급자. 2026년부터는 GPU·CPU·네트워킹을 묶은 Helios 랙으로 NVIDIA의 랙 시스템과 같은 자리를 노린다.",
+    "dependsOn": [
+      "semicap-foundry (TSMC 첨단 공정·패키징, GlobalFoundries)",
+      "memory (HBM 공급사 - 업체명 미공시)",
+      "조립·테스트 (Tongfu 합작사, SPIL, KYEC)",
+      "랙 제조 (Sanmina 등)"
+    ],
+    "sellsTo": [
+      "models-platforms (OpenAI, Anthropic)",
+      "cloud-infrastructure (Microsoft Azure, Oracle, Meta, Vultr, Tensorwave)",
+      "ai-adopter (기업·국가 AI: HUMAIN 등)",
+      "devices (PC OEM, 게임기)"
+    ],
+    "aiRevenue": "Instinct GPU 매출 금액은 별도 공시 없음. Data Center 사업부 Q2 2026 매출 67.2억 달러(총매출의 58%, 2026-08-04 발표)",
+    "upside": "OpenAI 6GW(첫 1GW는 MI450, 2026년 하반기 시작)와 Anthropic 최대 2GW 배치가 시작되면 GPU 매출이 계단식으로 늘고, AI 추론·에이전트 확산으로 서버 CPU 수요도 함께 오른다. 회사는 2H26 서버 매출 +80% 이상, 2027년 데이터센터 매출 2배 이상을 말했다.",
+    "risk": "NVIDIA의 1년 주기 신제품과 고객 자체 칩(TPU·Trainium)에 밀리거나, MI450·Helios 램프가 늦어지는 것. 대형 계약 몇 건에 대한 의존, OpenAI 워런트 희석, 대중국 수출 통제(MI308)도 위험이다.",
+    "text": "그래서 AI 가치사슬에서 AMD는 TSMC·HBM에서 부품을 받아 클라우드와 AI 연구소에 연산 능력을 넘기는 '칩·연산' 층에 NVIDIA와 나란히 있다. 다만 아직 GPU 매출을 따로 밝히지 않을 만큼 규모가 작고, 실적의 계단은 2026년 하반기 MI450·Helios 대량 배치가 제때 이뤄지느냐에 달려 있다.",
+    "src": ["s1", "s3", "s4", "s7"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "AI 가속기 (상용 GPU)", "rivals": ["NVIDIA (Blackwell·Vera Rubin)", "Intel"], "position": "challenger", "share": "2026E 약 7~10% (NVIDIA 약 75%) - Silicon Analysts가 Bloomberg Intelligence·IDC 등을 종합한 추정, 2026-04-13", "src": ["s10", "s3"] },
+      { "arena": "고객 자체 설계 칩 (커스텀 ASIC)", "rivals": ["Google TPU", "AWS Trainium", "Microsoft Maia", "Meta MTIA", "Broadcom·Marvell (설계 파트너)"], "position": "challenger", "share": null, "src": ["s3", "s10"] },
+      { "arena": "서버 CPU", "rivals": ["Intel Xeon", "NVIDIA Vera·Grace", "AWS Graviton 등 Arm 기반 자체 CPU"], "position": "leader", "share": "x86 서버 CPU 매출 점유율 46.2%, 출하량 33.2% (Mercury Research Q1 2026)", "src": ["s9", "s3"] },
+      { "arena": "PC CPU", "rivals": ["Intel", "Qualcomm·Apple 등 Arm 기반 PC 칩"], "position": "challenger", "share": "클라이언트 CPU 출하량 29.6%, 매출 31.4% (Mercury Research Q1 2026)", "src": ["s9", "s3"] },
+      { "arena": "FPGA·적응형 SoC", "rivals": ["Altera", "Lattice"], "position": "leader", "share": null, "src": ["s3"] }
+    ],
+    "edge": "서버 CPU에서 쌓은 고객 신뢰와 성능, CPU·GPU·네트워킹을 묶은 랙(Helios), NVIDIA 외 대안을 원하는 OpenAI·Anthropic·Meta·Microsoft의 이해관계.",
+    "threats": "NVIDIA의 세대 교체 속도와 CUDA 생태계, Google TPU의 외부 판매, Arm 기반 자체 서버 CPU 확산, HBM·첨단 패키징 공급 부족.",
+    "text": "경쟁은 영역마다 위치가 다르다. 서버 CPU에서는 Intel을 밀어내며 매출 점유율 46%의 사실상 선두가 됐지만, AI GPU에서는 외부 추정 점유율 한 자릿수의 도전자다. AMD의 무기는 NVIDIA 한 곳에 묶이기 싫은 대형 고객들과 함께 칩과 소프트웨어를 맞춰 가는 것이고, 동시에 고객 자체 칩과 Arm 서버 CPU라는 두 번째 전선도 막아야 한다.",
+    "src": ["s9", "s10", "s3", "s1"]
+  },
+  "strategy": {
+    "goal": "2025-11-11 Financial Analyst Day에서 향후 3~5년 매출 연평균 35% 이상, 데이터센터 60% 이상, 데이터센터 AI 80% 이상 성장, 총마진 55~58%, 영업이익률 35% 이상, EPS 약 20달러를 제시했다(2차 보도 기준). 데이터센터 TAM은 2030년 1조 달러 이상으로 본다.",
+    "roadmap": [
+      { "when": "2026 H2", "what": "Instinct MI450 시리즈와 Helios 랙 대량 배치 시작 - OpenAI 첫 1GW, Anthropic·Meta·Microsoft·Oracle 도입", "src": ["s1", "s7"] },
+      { "when": "2026", "what": "6세대 EPYC(Venice) 서버 CPU와 MI455X·MI430X 출시 (Q2 2026 발표)", "src": ["s1", "s2"] },
+      { "when": "2026 H2", "what": "서버 매출 전년 대비 80% 이상 성장 예상 (콜 발언)", "src": ["s4"] },
+      { "when": "2027", "what": "데이터센터 매출 전년 대비 2배 이상, 서버 매출 70% 이상 성장 예상 (콜 발언)", "src": ["s4"] },
+      { "when": "2030", "what": "Cisco·HUMAIN과의 합작사로 1GW AI 인프라 구축 계획", "src": ["s2"] }
+    ],
+    "vision": "AI 시스템은 칩이 아니라 연산·네트워킹·시스템·소프트웨어 전체의 혁신이 필요하다는 관점에서, 열린 생태계(ROCm·개방형 랙 표준)로 클라우드에서 PC·엣지까지 AI 연산을 공급하겠다고 말한다.",
+    "text": "경쟁을 이기는 방법으로 AMD가 고른 것은 랙 단위 제품과 열린 생태계다. 2026년 하반기 MI450·Helios를 OpenAI·Anthropic에 대량 배치하는 것이 첫 시험대이고, 경영진은 2027년 데이터센터 매출 2배 이상을 말한다. 분석가의 날에 제시한 3~5년 목표(매출 연 35% 이상, EPS 약 20달러)는 이 배치들이 계획대로 커진다는 전제 위에 있다.",
+    "src": ["s6", "s4", "s1", "s3"]
+  },
+  "governance": {
+    "line": "2014-10 고용계약 이후 Lisa Su가 이끌고 현재 회장·사장 겸 CEO를 맡으며, 배당 없이 140억 달러 자사주 매입 한도(2025-12-27 잔여 94억 달러)를 두고 있지만 2026년 상반기 매입은 2.2억 달러로 AI 투자에 현금을 우선한다.",
+    "src": ["s3", "s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "약 130억 달러 ±3억 (중간값 전년 대비 약 +41%)", "givenOn": "2026-08-04", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "non-GAAP gross margin", "value": "약 56%", "givenOn": "2026-08-04", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "non-GAAP operating expenses", "value": "약 36.5억 달러", "givenOn": "2026-08-04", "src": ["s4"] },
+      { "period": "2H 2026 / FY2027", "metric": "server revenue growth / Data Center revenue", "value": "2H26 서버 +80% 이상, 2027년 서버 +70% 이상, 2027년 데이터센터 매출 2배 이상 (콜 발언)", "givenOn": "2026-08-04", "src": ["s4"] }
+    ],
+    "style": "quarterly",
+    "track": "Q1 2026은 가이던스 98억 달러 ±3억에 대해 실제 102.5억 달러로 상단을 넘었다. Q2 2026은 가이던스 112억 달러 ±3억(non-GAAP 총마진 약 56%)에 대해 실제 115.4억 달러로 범위 상단을 넘었다.",
+    "src": ["s2", "s12", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 9.66달러(범위 6.69~12.40), 직전 4개 분기 실적 합 4.76달러. 최근 4주 상향 10건·하향 4건으로 상향 우위.",
+    "src": ["s11"]
+  },
+  "watch": {
+    "confirms": [
+      "Q3 2026 매출이 130억 달러 가이던스 상단을 넘고 Q4 가이던스가 데이터센터 가속을 확인",
+      "MI450·Helios가 2026년 하반기 OpenAI·Anthropic 등에 실제 출하되기 시작했다는 회사 확인",
+      "데이터센터 영업이익률이 30%대를 유지",
+      "x86 서버 CPU 매출 점유율이 계속 오름",
+      "Instinct GPU 매출을 별도로 밝히거나 연간 AI 매출 규모를 제시"
+    ],
+    "breaks": [
+      "MI450·Helios 램프 지연이나 대형 고객의 배치 축소 발표",
+      "총마진이 55% 밑으로 떨어짐 (랙 제품 저마진화)",
+      "재고가 매출보다 빠르게 늘어 비용 인식 발생 (MI308 선례)",
+      "주요 클라우드가 자체 칩 비중 확대를 이유로 AMD GPU 구매를 줄임",
+      "Arm 기반 서버 CPU로 인한 점유율 반락"
+    ],
+    "keyNumbers": [
+      { "name": "Data Center 매출·영업이익률", "why": "AI GPU와 서버 CPU의 합산 성적표" },
+      { "name": "다음 분기 매출 가이던스 vs 컨센서스", "why": "주가가 가장 크게 반응하는 숫자" },
+      { "name": "non-GAAP 총마진", "why": "랙 제품 확대가 수익성을 깎는지 확인" },
+      { "name": "재고·구매 약정", "why": "램프 자신감의 크기이자 하강기 손실 위험" },
+      { "name": "x86 서버 CPU 점유율", "why": "AI 추론 확산이 CPU 수요로 이어지는지" },
+      { "name": "OpenAI 워런트 베스팅 단계", "why": "배치 진척과 희석 규모를 동시에 보여 준다" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-03 (장 마감 후, 회사 공지)", "event": "Q3 2026 실적 발표와 Q4 가이던스", "src": ["s5"] },
+      { "date": "2026 H2", "event": "OpenAI 첫 1GW MI450 배치 시작 여부", "src": ["s7", "s3"] },
+      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "Microsoft·Meta·Oracle·Alphabet 설비투자 전망", "src": ["s1"] },
+      { "date": "수시", "event": "미국 대중국 수출 통제 변경 (MI308)", "src": ["s2"] }
+    ],
+    "reaction": "주가는 당분기 실적보다 다음 분기 가이던스와 데이터센터 성장 속도, 그리고 MI450·Helios 램프에 대한 경영진 발언에 크게 반응한다. Q2 2026 발표 직후에는 실적이 사상 최대였는데도 시간외에서 8% 넘게 떨어졌다는 보도가 있어, 높은 기대 대비 가이던스 폭이 관건이다.",
+    "conditions": [
+      "실적 발표 때 다음 분기 매출 가이던스와 컨센서스의 차이",
+      "Data Center 매출 성장률과 사업부 영업이익률",
+      "MI450·Helios 출하 시점과 고객 이름에 대한 언급",
+      "non-GAAP 총마진 가이던스의 방향",
+      "재고·구매 약정 변화",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "Instinct GPU(데이터센터 AI) 매출 금액 - 회사가 별도 공시하지 않음",
+    "Q2 2026 콜 세부(MI450 출하 시점, 공급 제약, 서버 점유율 발언)는 부분 요약(s4)에서만 확인했고 전체 녹취록은 읽지 못함",
+    "Financial Analyst Day 목표(매출 CAGR 35%+, EPS 약 20달러 등)는 2차 보도(s6) 기준이며 회사 자료 원문은 열지 않음",
+    "Q2 2026 발표 후 시간외 8% 하락은 KuCoin 블로그 단일 출처로 검색 요약에서만 확인",
+        "HBM 공급사 이름 - 10-K에 미기재",
+    "OpenAI 워런트 베스팅 조건의 주가 기준(600달러가 마지막 트랜치인지 여부) - 보도 간 해석 차이",
+    "Mercury Research 점유율은 Tom's Hardware 보도로 확인했고 원 보고서는 열지 않음; s9 날짜는 접근일",
+    "FY2025 영업이익률(10.7%)·순이익률(12.5%)·사업부 영업이익률은 보도자료 금액으로 계산한 값"
+  ],
+  "confidence": "high - 연간·분기 실적, 공급망, 고객 집중은 회사 보도자료와 10-K에서 왔고, 점유율·장기 목표·콜 세부는 2차 자료라 medium 수준이다."
+}

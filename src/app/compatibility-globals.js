@@ -55,7 +55,7 @@ import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js'
 import { baseValueRows, baseValueNote } from '../ui/panels/portfolio-base-values.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
 import { BACKUP_SECTIONS, backupReminder, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
-import { readWatchlistSymbols, toggleWatchlistSymbol } from '../data/watchlist-store.js';
+import { readWatchlists, readWatchlistSymbols, toggleWatchlistSymbol, writeWatchlists } from '../data/watchlist-store.js';
 import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBalances, setCashBalance, writeCashBalances } from '../data/portfolio-cash.js';
 import { appUsdKrwClose } from '../domain/portfolio/cash.js';
 import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker-symbol.js';
@@ -300,6 +300,8 @@ Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinci
   };
   // v58.80 (first-users F29): the screener star and 포트폴리오 관심 종목 share one store.
   window._aioWatchlistGet = () => readWatchlistSymbols(window.localStorage);
+  // v59.42: the named lists' CRUD in js/aio-workspace.js reads and writes through the same store (one writer).
+  window._aioWatchlistStore = { read: () => readWatchlists(window.localStorage), write: (lists) => writeWatchlists(window.localStorage, lists) };
   window._aioWLToggle = (sym) => {
     const result = toggleWatchlistSymbol(window.localStorage, sym);
     if (result.added && result.listName) window.showToast?.(`${sym}: "${result.listName}" 목록에 추가했습니다.`);

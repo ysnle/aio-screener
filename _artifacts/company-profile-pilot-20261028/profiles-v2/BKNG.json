@@ -1,0 +1,219 @@
+{
+  "symbol": "BKNG",
+  "name": "Booking Holdings Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Booking Holdings는 Booking.com·Priceline·Agoda·KAYAK·OpenTable로 전 세계 숙소·항공·렌터카 예약을 중개하고 수수료를 받는 세계 최대 온라인 여행 플랫폼으로, AI 에이전트가 여행 검색의 입구를 바꿀 수 있다는 점이 기회이자 가장 큰 위협이다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Booking Holdings Reports Financial Results for 4th Quarter and Full Year 2025 (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1075531/000107553126000008/q4-25bkngearningsrelease.htm", "publisher": "Booking Holdings / SEC EDGAR", "date": "2026-02-18" },
+    { "id": "s2", "kind": "8-K", "title": "Booking Holdings Reports Financial Results for 2nd Quarter 2026 (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1075531/000107553126000036/q2-26bkngearningsrelease.htm", "publisher": "Booking Holdings / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s3", "kind": "10-K", "title": "Booking Holdings Form 10-K for fiscal year 2025 (brands, business model, Gen AI, competition, DMA gatekeeper, employees, expenses, cash flow)", "url": "https://www.sec.gov/Archives/edgar/data/1075531/000107553126000009/bkng-20251231.htm", "publisher": "Booking Holdings / SEC EDGAR", "date": "2026-02-18" },
+    { "id": "s4", "kind": "news", "title": "Booking Holdings to webcast third quarter 2026 financial results on November 3 (company announcement repost; read via search summary)", "url": "https://finviz.com/news/399343/booking-holdings-to-webcast-third-quarter-2026-financial-results-on-november-3", "publisher": "Finviz", "date": "2026-10" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/bkng/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "세계 최대 숙소 공급망 - Booking.com 약 440만 개 숙소(호텔 약 50만, 주택·아파트 등 약 390만), 220개 이상 국가·지역",
+      "양면 네트워크 효과 - 숙소가 많아 여행자가 오고, 여행자가 많아 숙소가 들어온다 (2025 숙박 12.35억 박)",
+      "직접 유입 확대 - 최근 4개 분기 숙박의 50%대 중반이 직접 채널(앱·직접 방문)",
+      "결제와 Connected Trip - 회사가 결제를 맡는 merchant 비중 확대, 항공권 2025 +37%"
+    ],
+    "text": "Booking의 힘은 '숙소가 가장 많은 곳'이라는 데서 나온다. Booking.com에만 약 440만 개 숙소가 올라와 있어 여행자는 여기서 비교하고, 여행자가 많으니 호텔과 집주인은 수수료를 내고도 여기에 올린다. 회사는 이 순환에 앱 직접 유입(숙박의 50%대 중반)과 자체 결제를 더해, Google 같은 외부 검색에 덜 기대는 구조로 바꾸는 중이다.",
+    "src": ["s3", "s1"]
+  },
+
+  "design": {
+    "text": "이 플랫폼 위에서 회사는 다섯 개 브랜드를 운영한다. Booking.com은 세계 최대 온라인 숙소 예약 브랜드이고, Priceline은 미국 중심 할인 여행, Agoda는 아시아 숙소·항공, KAYAK은 여행 가격 비교 검색, OpenTable은 레스토랑 예약을 맡는다. 회사는 숙소·항공·렌터카·관광을 한 번에 묶는 'Connected Trip'과 AI 여행 플래너·AI 도우미·가격 비교 도구를 각 브랜드에 넣고 있다.",
+    "src": ["s3"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "숙소 공급자 - 호텔·리조트 약 50만 개, 주택·아파트 등 약 390만 개 (Booking.com)",
+      "항공사·렌터카·관광 사업자 - Q2 2026 항공권 1,700만 건(+3.7%), 렌터카 2,300만 일(-6.5%)",
+      "클라우드·소프트웨어 공급자 - 고정비 증가 요인으로 클라우드 비용과 소프트웨어 라이선스 명시 (업체명 미공시)",
+      "검색·광고 플랫폼 - 소비자 유입의 상당 부분을 외부 플랫폼(Google 등)에서 얻음",
+      "생성형 AI 기업 - '선도 생성형 AI 기업과의 협력'을 전략으로 명시 (업체명 미공시)"
+    ],
+    "text": "Booking은 호텔도 비행기도 갖고 있지 않다. 만드는 것은 숙소·항공 공급자와 여행자를 잇는 소프트웨어와 결제 시스템이고, 그 서비스는 클라우드 위에서 돌아간다. 그래서 원가의 큰 부분이 마케팅(2025년 81.9억 달러)과 인력·클라우드 비용이며, 생성형 AI 기업과의 협력을 전략 과제로 올려놓았다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "전 세계 여행자 - 2025 숙박 12.35억 박, 총 예약액 1,861억 달러",
+      "숙소·항공·렌터카 공급자 - 수수료를 내는 실제 매출 고객",
+      "광고주 - KAYAK 검색 연결·광고, OpenTable 예약·구독 수수료",
+      "미국 밖 비중이 큼 - 예약의 상당 부분이 미국 밖 국가에서 발생, 직원 약 2.43만 명 중 약 2.14만 명이 미국 밖"
+    ],
+    "channel": "자사 앱·웹사이트 직접 방문(숙박의 50%대 중반), Google 등 검색·메타검색 광고를 통한 유입, 일부 제휴 채널.",
+    "concentration": "단일 고객 집중 공시 없음. 다만 유입 측면에서 외부 검색 플랫폼(Google) 의존이 크다고 10-K가 밝힌다.",
+    "text": "회사의 '고객'은 둘이다. 여행자는 무료로 검색·예약하고, 돈은 그 예약을 받은 숙소·항공·렌터카 공급자가 수수료로 낸다. 여행자를 데려오는 길은 앱 직접 방문이 50%대 중반이고 나머지는 Google 같은 외부 플랫폼 광고에 기대, 2025년 마케팅비가 총 예약액의 4%대(Q4 4.5%)를 차지했다.",
+    "src": ["s1", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "여행자", "to": "Booking.com·Agoda·Priceline (merchant 거래)", "what": "회사가 예약 대금을 직접 받고 공급자에게 넘김 - 2025 merchant 예약액 1,300억 달러, 매출 177.6억 달러" },
+      { "from": "숙소 공급자", "to": "Booking.com (agency 거래)", "what": "여행자가 숙소에 직접 지불한 뒤 숙소가 수수료 지급 - 2025 agency 예약액 561억 달러, 매출 79.7억 달러" },
+      { "from": "Booking Holdings", "to": "Google 등 검색·광고 플랫폼", "what": "유입 광고비 - 2025 마케팅비 81.9억 달러" },
+      { "from": "광고주·레스토랑", "to": "KAYAK·OpenTable", "what": "검색 연결·광고 수수료와 예약·구독료 - 2025 11.9억 달러" }
+    ],
+    "pricing": "예약 금액에 비례한 수수료(take rate). merchant 거래는 결제를 회사가 맡아 결제 관련 수익까지 얻고, agency 거래는 숙소가 사후에 수수료를 낸다. KAYAK은 클릭당 광고, OpenTable은 예약·구독 수수료다.",
+    "text": "돈은 '예약액 × 수수료율'로 들어온다. 2025년 총 예약액 1,861억 달러에서 매출 269억 달러, 즉 약 14.5%(계산값)를 가져왔고, 그중 약 3분의 1에 가까운 돈(마케팅비 81.9억 달러)을 다시 Google 같은 유입 채널에 쓴다. 최근에는 결제를 회사가 맡는 merchant 매출이 Q2 2026에 15% 늘고 agency 매출은 7% 줄어, 돈이 회사를 거쳐 가는 비중이 커지고 있다.",
+    "src": ["s1", "s3", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 26.917, "unit": "USD bn", "yoy": 13 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 20.1,
+    "operatingCashFlow": { "value": 9.409, "unit": "USD bn" },
+    "freeCashFlow": { "value": 9.1, "unit": "USD bn" },
+    "segments": [
+      { "name": "Merchant revenues (회사 결제 거래)", "revenue": 17.755, "unit": "USD bn", "share": 66.0, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Agency revenues (숙소 결제 거래)", "revenue": 7.968, "unit": "USD bn", "share": 29.6, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Advertising and other (KAYAK·OpenTable 등)", "revenue": 1.194, "unit": "USD bn", "share": 4.4, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "숙박 수(room nights)", "value": "FY2025 12.35억 박(+8%); Q2 2026 3.25억 박(+5%)", "src": ["s1", "s2"] },
+      { "name": "총 예약액(gross bookings)", "value": "FY2025 1,861억 달러(+12%, 고정환율 약 +10%); Q2 2026 510억 달러(+9%)", "src": ["s1", "s2"] },
+      { "name": "조정 EBITDA와 마진", "value": "FY2025 99억 달러, 36.9%(전년 35.0%); Q2 2026 26.5억 달러, 36.0%", "src": ["s1", "s2"] },
+      { "name": "마케팅비/총 예약액", "value": "Q4 2025 4.5%(전년 4.2%); Q2 2026 4.7%(전년 4.6%)", "src": ["s1", "s2"] },
+      { "name": "대체 숙소(alternative accommodations) 숙박 증가율", "value": "Q4 2025 약 +9%; Q2 2026 +4%", "src": ["s1", "s2"] },
+      { "name": "조정 EPS (주식분할 반영 전/후)", "value": "FY2025 228.06달러(+22%, 분할 전); Q2 2026 2.54달러(+15%, 25대1 분할 후)", "src": ["s1", "s2"] }
+    ],
+    "text": "이 수수료 구조가 2025년 매출 269억 달러(+13%), 순이익 54억 달러(순이익률 20.1%), 조정 EBITDA 마진 36.9%를 만들었다. 설비가 거의 필요 없어 영업현금흐름 94억 달러 가운데 91억 달러가 잉여현금흐름으로 남는다. 2026년 2분기에는 매출 73.5억 달러(+8%)로 성장이 한 자릿수로 내려왔고, 보고 순이익은 두 배 넘게(+118%) 늘었지만 조정 순이익은 +8%로 본업 성장과 비슷했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "buybacks", "value": 6.44, "unit": "USD bn", "src": ["s1", "s3"] },
+      { "use": "dividends", "value": 1.248, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.31, "unit": "USD bn", "src": ["s1", "s3"] },
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "설비가 거의 필요 없으니 현금은 대부분 주주에게 간다. 2025년 자사주 64억 달러와 배당 12.5억 달러로 잉여현금흐름 91억 달러의 약 85%(계산값)를 돌려줬고, 설비투자는 약 3억 달러(영업현금흐름 - 잉여현금흐름 계산값)에 그쳤다. 2026년 상반기에는 자사주를 77.6억 달러로 더 빨리 사서, 6월 말 자기자본 결손이 -108억 달러로 커질 만큼 빚과 현금으로 주식을 줄이는 쪽을 택했다.",
+    "src": ["s1", "s3", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI를 만들지 않고 쓰는 쪽이지만, 여행 검색·예약의 '입구'가 AI 에이전트로 옮겨 가면 사업 모델 자체가 영향을 받는 플랫폼. 각 브랜드에 AI 여행 플래너·AI 도우미·가격 비교 도구를 넣었고, 생성형 AI 기업과의 협력을 전략 과제로 둔다.",
+    "dependsOn": ["models-platforms (생성형 AI 모델 - 협력사명 미공시)", "cloud-infrastructure (클라우드 비용이 고정비 증가 요인)", "Google 등 외부 검색 플랫폼 (유입)"],
+    "sellsTo": ["AI 에이전트·AI 검색이 예약을 넘겨줄 경우 그 연결 대상 (계약 공시 없음)", "여행자와 숙소·항공 공급자"],
+    "aiRevenue": null,
+    "upside": "AI 에이전트가 여행을 대신 예약하게 되면, 가장 많은 숙소와 결제·고객지원 인프라를 가진 Booking이 그 에이전트의 '공급 창고'가 될 수 있다. 변혁 프로그램(연 약 6.5억 달러 절감, 2027말)은 이런 전략 과제에 투자할 여력을 만드는 장치로 제시됐다.",
+    "risk": "10-K는 AI 생성 검색 결과를 포함한 검색 노출 경쟁이 클릭당 비용을 올릴 수 있고, 대형 기술 기업과 'AI 네이티브' 경쟁자가 위협이라고 적는다. AI 비서가 여행자와 직접 관계를 가져가면 Booking은 수수료를 깎이는 하청 공급자로 밀릴 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Booking은 'AI에 노출된' 자리에 있다. AI 매출은 없고, 대신 AI가 여행 검색의 입구를 Google 검색창에서 AI 비서로 옮길 때 그 흐름이 Booking을 거치느냐가 핵심이다. 회사는 앱 직접 유입(숙박의 50%대 중반)을 늘리고 AI 기능을 자기 앱에 넣어, 입구가 바뀌어도 여행자가 Booking 안에 머물게 하려 한다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "온라인 숙소 예약 (호텔)", "rivals": ["Expedia Group", "다른 온라인 여행사", "호텔 직접 예약"], "position": "leader", "share": "Booking.com은 예약 숙박 수 기준 세계 1위 온라인 숙소 예약 브랜드 (10-K, 점유율 수치 미공시)", "src": ["s3"] },
+      { "arena": "대체 숙소 (주택·아파트)", "rivals": ["Airbnb", "Vrbo (Expedia)"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "여행 검색·유입", "rivals": ["Google", "AI 네이티브 여행·검색 서비스", "메타검색"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "아시아 여행", "rivals": ["지역 온라인 여행사", "대형 기술 기업"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "가장 많은 숙소 공급, 높은 직접 유입 비중, 결제·고객지원 인프라, 업계 최고 수준의 조정 EBITDA 마진(36.9%).",
+    "threats": "Google·AI 네이티브 서비스가 여행 검색의 입구를 장악하는 것, Airbnb와의 대체 숙소 경쟁, EU 디지털시장법(DMA) 게이트키퍼 규제, 중동 분쟁 등 지정학에 따른 장거리 여행 둔화.",
+    "text": "경쟁은 두 방향에서 온다. 옆에서는 Expedia(Vrbo)·Airbnb와 다른 온라인 여행사가 같은 여행자를 두고 다투고, 위에서는 Google과 AI 네이티브 서비스가 여행자를 Booking에 보내기 전에 붙잡으려 한다. 회사는 EU에서 DMA 게이트키퍼로 지정돼 규제 부담도 지는데, 직접 유입을 늘리고 대체 숙소(Q2 2026 +4%)를 키워 Airbnb 영역까지 넓히는 방식으로 맞선다.",
+    "src": ["s3", "s2"]
+  },
+
+  "strategy": {
+    "goal": "고정환율 기준 장기 성장 알고리즘(수치는 이번 조사에서 미확인)보다 2026년에 약 100bp 더 빠르게 성장, 조정 EBITDA를 매출보다 빠르게 늘림, 변혁 프로그램으로 연 약 6.5억 달러 절감(2027말).",
+    "roadmap": [
+      { "when": "2026-04-02", "what": "25대1 주식분할 시행", "src": ["s1", "s2"] },
+      { "when": "2026 Q3", "what": "숙박 +3~5%, 예약액·매출·조정 EBITDA +4~6% (중동 분쟁 간접 영향 지속 가정)", "src": ["s2"] },
+      { "when": "FY2026", "what": "예약액·매출 한 자릿수 후반, 조정 EBITDA 한 자릿수 후반, 조정 EPS 10%대 초중반 (8월 기준)", "src": ["s2"] },
+      { "when": "2027말", "what": "변혁 프로그램 연 약 6.5억 달러 절감 실현 (상향)", "src": ["s2"] },
+      { "when": "진행 중", "what": "Connected Trip 확대와 각 브랜드 생성형 AI 기능(여행 플래너·AI 도우미·가격 비교)", "src": ["s3"] }
+    ],
+    "vision": "Fogel CEO는 생성형 AI 활용을 앞당겨 여행자와 공급자 모두에게 가치를 더하고, 숙소·항공·렌터카·관광·결제를 하나로 잇는 'Connected Trip'을 장기 그림으로 제시한다.",
+    "text": "앞으로의 계획은 '숙소 1등'을 '여행 전체 1등'으로 넓히는 것이다. 항공권(2025 +37%)과 관광 상품을 숙소에 묶는 Connected Trip, 각 브랜드의 AI 여행 플래너, 회사가 결제를 맡는 merchant 비중 확대가 그 도구다. 비용 쪽에서는 변혁 프로그램 절감 목표를 연 약 6.5억 달러로 올려, 성장이 둔화돼도 이익률을 지키려 한다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "governance": {
+    "line": "Glenn Fogel이 CEO 겸 사장, Ewout Steenbergen이 CFO를 맡는 지분 분산 회사로, 2026-04-02 25대1 주식분할 뒤 분기 배당 주당 0.42달러를 선언했고 6월 말 자사주 매입 한도가 145억 달러 남아 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "room nights / gross bookings / revenue / adjusted EBITDA (YoY)", "value": "+3~5% / +4~6% / +4~6% / +4~6% (환율이 매출 성장률 약 1%p 감소)", "givenOn": "2026-08-04", "src": ["s2"] },
+      { "period": "FY2026", "metric": "gross bookings and revenue growth", "value": "한 자릿수 후반 (2월 최초: 10%대 초반)", "givenOn": "2026-08-04", "src": ["s2", "s1"] },
+      { "period": "FY2026", "metric": "adjusted EPS growth", "value": "10%대 초중반 (2월 최초: 10%대 중반)", "givenOn": "2026-08-04", "src": ["s2", "s1"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA growth", "value": "한 자릿수 후반 (2월 최초: 매출보다 빠르게)", "givenOn": "2026-08-04", "src": ["s2", "s1"] }
+    ],
+    "style": "quarterly",
+    "track": "2026년 2월에 낸 연간 전망(예약액·매출 10%대 초반, 조정 EPS 10%대 중반)은 8월에 한 자릿수 후반, 10%대 초중반으로 낮아졌다. 회사는 중동 분쟁에 따른 항공료 상승·노선 감축·장거리 여행 둔화를 이유로 들었다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq, 분할 반영) 향후 4개 분기(2026-09~2027-06) EPS 합계 11.15달러(범위 10.74~11.73), 직전 4개 분기 9.61달러. 최근 4주 상향 2건·하향 1건으로 변화가 적다.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "숙박 증가율이 Q3 가이던스(+3~5%) 상단 이상으로 나옴",
+      "마케팅비/예약액 비율이 4%대 중반에서 안정",
+      "직접 유입 비중이 50%대 중반 이상으로 높아짐",
+      "merchant 매출 확대가 결제 수익과 함께 이익률을 지킴",
+      "AI 기능이 앱 사용과 직접 예약 증가로 이어진다는 회사 공시"
+    ],
+    "breaks": [
+      "숙박 증가율이 계속 둔화돼 연간 가이던스 추가 하향",
+      "마케팅비 비율 상승 (유입 비용 증가)",
+      "AI 비서·검색 플랫폼이 자체 예약 기능을 넓혀 Booking 유입 감소",
+      "EU DMA 등 규제로 수수료나 가격 조건 제한",
+      "중동 분쟁 등 지정학 충격으로 장거리 여행 감소 지속"
+    ],
+    "keyNumbers": [
+      { "name": "숙박 수 증가율", "why": "수요와 점유율의 가장 직접적인 지표" },
+      { "name": "총 예약액과 수수료율(매출/예약액)", "why": "돈이 들어오는 속도와 가격 결정력" },
+      { "name": "마케팅비/총 예약액", "why": "외부 유입 의존과 AI 검색 변화의 비용" },
+      { "name": "조정 EBITDA 마진", "why": "성장 둔화 속 효율의 결과" },
+      { "name": "분기 자사주 매입액", "why": "잉여현금흐름이 주주에게 가는 속도" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-03 (장 마감 후 약 16:00 ET, 콜 16:30 ET)", "event": "Q3 2026 실적과 Q4 전망", "src": ["s4"] },
+      { "date": "2027-02 중순 (추정)", "event": "Q4·FY2026 실적과 2027 연간 전망", "src": [] }
+    ],
+    "reaction": "주가는 분기 EPS보다 숙박 수 증가율과 다음 분기·연간 가이던스에 반응하는 경향이 있다. 2026년에는 중동 분쟁 영향으로 연간 전망이 한 차례 낮아져, Q3 실적에서는 숙박 증가율이 +3~5% 범위를 지키는지와 Q4 전망이 관전 포인트다.",
+    "conditions": [
+      "숙박 수 증가율이 가이던스 범위 안인지",
+      "다음 분기 예약액·EBITDA 가이던스의 방향",
+      "마케팅비/예약액 비율",
+      "merchant와 agency 매출의 증감",
+      "AI·검색 플랫폼 관련 회사 발언과 직접 유입 비중",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "영업이익률 (FY2025 영업이익 미확인), 매출 유형별 2024 대비 증감 (Q2 2026 비교만 확인)",
+    "설비투자 약 3.1억 달러는 영업현금흐름 94.09억 - 잉여현금흐름 91억 계산값 (10-K는 투자활동 순 3.13억 달러로 표현)",
+    "매출 유형 합계 269.17억 달러로 보고 매출과 일치",
+    "브랜드별 매출 비중 (Booking.com 비중), 국가별 매출",
+    "온라인 여행 시장 점유율 수치",
+    "협력하는 생성형 AI 기업 이름과 AI 관련 매출·비용",
+    "장기 성장 알고리즘의 구체 수치",
+    "Q3 2026 실적 발표일(11-03)은 회사 공지 재게시와 검색 요약 기준, s4 날짜는 월까지만 확인",
+    "연구개발비 (별도 공시 미확인)"
+  ],
+  "confidence": "high - 매출·예약·현금·가이던스는 회사 8-K와 10-K에서 왔다. AI 영향 판단은 10-K 위험 서술에 근거한 해석이라 medium 수준이다."
+}

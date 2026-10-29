@@ -1,0 +1,228 @@
+{
+  "symbol": "WFC",
+  "name": "Wells Fargo & Company",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Wells Fargo는 미국 소비자·중견기업 금융에 강한 대형 은행으로, 2025년 연준의 자산 상한(asset cap)이 풀린 뒤 대출과 예금을 다시 두 자릿수로 늘리며 '규제에서 성장으로' 넘어가는 중인 회사다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Wells Fargo Reports Third Quarter 2026 Net Income (8-K Exhibit 99.1 news release)", "url": "https://www.sec.gov/Archives/edgar/data/0000072971/000007297126000318/wfc3qer10-13x26ex991xrelea.htm", "publisher": "Wells Fargo / SEC EDGAR", "date": "2026-10-13" },
+    { "id": "s2", "kind": "earnings-release", "title": "Wells Fargo Reports Fourth Quarter 2025 Net Income of $5.4 billion (news release with full-year tables and CEO letter)", "url": "https://www.wellsfargo.com/assets/pdf/about/investor-relations/earnings/fourth-quarter-2025-earnings.pdf", "publisher": "Wells Fargo IR", "date": "2026-01-14" },
+    { "id": "s3", "kind": "earnings-release", "title": "Wells Fargo 4Q25 Quarterly Supplement (Combined Segment Results, year ended 2025-12-31, p.9)", "url": "https://www.wellsfargo.com/assets/pdf/about/investor-relations/earnings/fourth-quarter-2025-earnings-supplement.pdf", "publisher": "Wells Fargo IR", "date": "2026-01-14" },
+    { "id": "s4", "kind": "news", "title": "Wells Fargo CFO sees stronger 2026 loan growth, healthy US economy (Barclays conference; NII ~$50B and expense ~$55.7B unchanged)", "url": "https://www.kitco.com/news/off-the-wire/2026-09-15/wells-fargo-cfo-sees-stronger-2026-loan-growth-healthy-us-economy", "publisher": "Reuters via Kitco", "date": "2026-09-15" },
+    { "id": "s5", "kind": "news", "title": "Wells Fargo Q3 earnings coverage: full-year NII ~$50B kept, Q4 NII ~$13B (Zacks; URL as indexed; read via search summary)", "url": "https://www.zacks.com/stock/news/3008462/{https:/www.zackstrade.com/2019-1-dollar}", "publisher": "Zacks", "date": "2026-10" },
+    { "id": "s6", "kind": "news", "title": "Wells Fargo taps Google Cloud for agentic AI push (Agentspace for 2,000+ employees, expanding)", "url": "https://www.bankingdive.com/news/wells-fargo-google-cloud-agentic-AI/757057/", "publisher": "Banking Dive", "date": "2025-08-07" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/wfc/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s8", "kind": "earnings-release", "title": "Wells Fargo 4Q25 Financial Results presentation (CET1 10.6% at 2025-12-31)", "url": "https://www.wellsfargo.com/assets/pdf/about/investor-relations/earnings/fourth-quarter-2025-financial-results.pdf", "publisher": "Wells Fargo IR", "date": "2026-01-14" }
+  ],
+
+  "moat": {
+    "sources": [
+      "미국 전역의 소비자·소상공인 예금 기반 - Q3 2026 평균 예금 1.48조 달러(+11%)",
+      "중견기업(Commercial Banking) 대출·결제 관계 - 2025 사업부 순이익 41.8억 달러",
+      "자산 상한 해제(2025)로 다시 키울 수 있게 된 대차대조표 - Q3 2026 평균 대출 1.03조 달러(+11%)",
+      "5년간 총 150억 달러 비용 절감으로 마련한 재투자 여력"
+    ],
+    "text": "Wells Fargo의 힘은 미국 전역 소비자와 중견기업에 깔린 예금·대출 관계에서 나온다. 오랫동안 연준의 자산 상한 때문에 이 기반을 키우지 못했지만, 2025년 상한이 풀리면서 Q3 2026 평균 대출과 예금이 각각 11% 늘었다. 그동안 5년간 150억 달러를 줄인 비용 체질이 이제 성장 투자의 재원이 된다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "design": {
+    "text": "이 기반 위에서 회사는 네 사업부를 보고한다. Consumer Banking and Lending(CBL)은 예금·카드·주택·자동차 대출과 소상공인 금융을, Commercial Banking은 중견기업 대출·결제를, Corporate and Investment Banking(CIB)은 대기업 금융·투자은행·트레이딩을, Wealth and Investment Management(WIM)는 자산가 자산관리를 맡는다. 2026년 1분기에는 철도 화차 리스 사업을 팔아 비핵심 자산도 정리했다.",
+    "src": ["s3", "s1"]
+  },
+
+  "make": {
+    "model": "financial",
+    "partners": [
+      "예금자 - 핵심 조달원 (Q3 2026 평균 예금 1.48조 달러)",
+      "채권·우선주 투자자 - 장기 조달과 규제 자본",
+      "Google Cloud - Agentspace 등 AI 에이전트 도구 공급 (2025-08 확대 발표)",
+      "규제 자본 - CET1 비율 10.0% (Q3 2026, 잠정)"
+    ],
+    "text": "은행이 '만드는' 것은 예금과 자본으로 만든 대출·증권 포지션이다. Wells Fargo는 1.48조 달러 예금으로 1.03조 달러 대출을 내고 있고, 자산 상한이 사라져 이 규모를 다시 키울 수 있다. 그 대가로 자본을 더 쓰게 되어 CET1 비율이 2025말 10.6%에서 Q3 2026 10.0%로 내려왔다.",
+    "src": ["s1", "s8", "s6"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 개인·소상공인 (CBL) - Q3 2026 신규 신용카드 66만 개 이상",
+      "중견기업 (Commercial Banking)",
+      "대기업·기관 (CIB) - 투자은행·트레이딩·대출",
+      "자산가 (WIM) - Wells Fargo Premier·어드바이저"
+    ],
+    "channel": "지점·모바일 앱(개인), 기업 커버리지 은행가(중견·대기업), 트레이딩 데스크(기관), 자산관리 어드바이저(자산가).",
+    "concentration": "단일 고객 의존 없음 (분산된 예금·대출 기반)",
+    "text": "이렇게 만든 상품은 네 무리 고객에게 팔린다. 개인에게는 카드와 자동차 대출이 다시 성장 상품이 됐고(2025년 신규 카드 계좌 20% 이상 증가, 자동차 대출 잔액 +19%), 중견·대기업에는 대출과 투자은행 서비스를 함께 판다. 회사는 2025년 M&A 자문 순위가 12위에서 8위로 올랐다고 밝혀 투자은행 쪽 판매도 넓히는 중이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "개인·기업 예금자", "to": "Wells Fargo", "what": "예금 (Q3 2026 평균 1.48조 달러) - 은행은 예금 이자를 지급" },
+      { "from": "카드·주택·자동차·기업 대출 고객", "to": "Wells Fargo", "what": "대출 이자 (평균 대출 1.03조 달러) - 예금 이자와의 차이가 순이자이익(Q3 2026 125.2억 달러, 순이자마진 2.43%)" },
+      { "from": "카드 사용자·가맹점", "to": "CBL", "what": "카드 이자·수수료 (Q3 2026 카드 매출 17.1억 달러)" },
+      { "from": "자산가", "to": "WIM", "what": "자산 비례 자문·운용 보수" },
+      { "from": "중견·대기업", "to": "Commercial Banking·CIB", "what": "대출 이자, 결제 수수료, 투자은행 자문·인수 수수료, 트레이딩 수익" }
+    ],
+    "pricing": "이자 스프레드가 매출의 약 57%(2025년 837억 중 NII 475억)이고, 나머지는 자산관리 보수, 카드·예금 수수료, 투자은행·트레이딩 수익이다.",
+    "text": "돈은 두 길로 들어온다. 2025년 매출 837억 달러 중 475억이 이자 차익, 362억이 수수료였다. 자산 상한이 풀린 지금은 대출·예금 잔액이 늘면서 NII가 다시 자라는 국면이고, 회사는 2026년 NII 약 500억 달러, 4분기 약 130억 달러를 예상한다.",
+    "src": ["s2", "s1", "s4", "s5"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 83.699, "unit": "USD bn", "yoy": 1.7 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 25.5,
+    "operatingCashFlow": null,
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "Consumer Banking and Lending", "revenue": 37.362, "unit": "USD bn", "share": 44.6, "yoy": 3.2, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Commercial Banking", "revenue": 11.978, "unit": "USD bn", "share": 14.3, "yoy": -6.3, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Corporate and Investment Banking", "revenue": 19.232, "unit": "USD bn", "share": 23.0, "yoy": -0.6, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Wealth and Investment Management", "revenue": 16.328, "unit": "USD bn", "share": 19.5, "yoy": 5.8, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Corporate", "revenue": 0.747, "unit": "USD bn", "share": 0.9, "yoy": 121.0, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Reconciling items (taxable-equivalent)", "revenue": -1.948, "unit": "USD bn", "share": -2.3, "yoy": null, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "순이자이익(NII) / 비이자수익", "value": "FY2025 474.8억 / 362.2억 달러; Q3 2026 125.2억(+5%) / 93.5억 달러(-1%)", "src": ["s2", "s1"] },
+      { "name": "ROTCE / ROE", "value": "FY2025 14.6% / 12.4%; Q3 2026 16.3% / 13.8%", "src": ["s2", "s1"] },
+      { "name": "효율성 비율", "value": "FY2025 66%; Q3 2026 63%", "src": ["s2", "s1"] },
+      { "name": "CET1 비율 (표준법)", "value": "10.6% (2025말) → 10.0% (Q3 2026, 잠정)", "src": ["s8", "s1"] },
+      { "name": "순이자마진(NIM)", "value": "FY2025 2.64%; Q3 2026 2.43%", "src": ["s2", "s1"] },
+      { "name": "신용 비용", "value": "Q3 2026 충당금 10.3억, 순상각 9.83억 달러, 순상각률 0.38%", "src": ["s1"] },
+      { "name": "사업부 순이익 (FY2025)", "value": "CBL 78.7억, CIB 72.8억, Commercial 41.8억, WIM 21.2억 달러", "src": ["s3"] }
+    ],
+    "text": "이 두 수익원이 2025년 매출 837억 달러(+1.7%)와 순이익 213억 달러(EPS 6.26달러, +17%)를 만들었다. 매출이 거의 제자리였는데도 이익이 크게 는 것은 비용을 1% 미만으로 묶고 신용 손실이 16% 줄었기 때문이다. 이익은 CBL(78.7억)과 CIB(72.8억)에 모이고, Q3 2026에는 ROTCE가 16.3%로 올라 새 목표 17~18%에 가까워졌다.",
+    "src": ["s2", "s3", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "buybacks", "value": 18.0, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "2025년에는 자사주 180억 달러를 포함해 주주에게 230억 달러를 돌려줬고 주당 배당을 13% 올렸다. Q3 2026에도 자사주 2,860만 주(약 25억 달러)를 샀지만, 대출을 늘리느라 자본을 더 쓰면서 Q4 2025의 50억 달러보다 매입 규모가 줄었다. 자본이 성장과 환원 사이에서 다시 나뉘기 시작했다는 뜻이다.",
+    "src": ["s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 파는 회사가 아니라 쓰는 회사. Google Cloud의 Agentspace 등 AI 에이전트 도구를 2025년 2,000명 이상 직원에게 배포하고 전 부서로 넓히고 있으며, 정책 검색·문서 탐색·시장 정보·고객 응대에 쓴다.",
+    "dependsOn": ["models-platforms (Google Cloud Agentspace 등)", "cloud-infrastructure (Google Cloud)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 운영·고객 응대 비용과 직원 생산성으로 나타남"],
+    "aiRevenue": null,
+    "upside": "AI는 이미 진행 중인 비용 절감의 다음 단계다. 회사는 5년간 150억 달러를 줄였고 Q3 2026 인력은 전년보다 8% 적었는데, AI 도구가 정책 확인·문서 처리·고객 응대를 덜어 주면 같은 매출을 더 적은 비용으로 낼 수 있다.",
+    "risk": "AI 투자 성과가 늦으면 비용(2026 약 557억 달러 전망)만 늘고, 오랜 규제 문제를 겪은 은행이라 새 기술 도입의 통제 실패가 다시 감독 위험이 될 수 있다. 핀테크의 결제·대출 잠식도 위험이다.",
+    "text": "그래서 AI 가치사슬에서 Wells Fargo는 맨 끝의 도입자다. AI 매출은 없고, Google Cloud와 손잡은 에이전트 도구로 운영 효율을 높이는 것이 목적이다. 관건은 이 효과가 효율성 비율(Q3 2026 63%)을 더 낮추는지다.",
+    "src": ["s6", "s1", "s2", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "미국 소비자 예금·지점 금융", "rivals": ["JPMorgan Chase", "Bank of America", "Citigroup", "온라인 은행"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "중견기업 금융 (Commercial Banking)", "rivals": ["JPMorgan Chase", "Bank of America", "PNC", "U.S. Bancorp"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "투자은행 (M&A 자문·인수)", "rivals": ["JPMorgan", "Goldman Sachs", "Morgan Stanley", "Bank of America"], "position": "challenger", "share": "2025 M&A 자문 순위 12위 → 8위 (회사 발표)", "src": ["s2"] },
+      { "arena": "신용카드", "rivals": ["JPMorgan Chase", "Capital One", "Citigroup", "American Express"], "position": "challenger", "share": null, "src": ["s1", "s2"] },
+      { "arena": "자산관리", "rivals": ["Morgan Stanley", "Bank of America Merrill", "JPMorgan", "Charles Schwab"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "넓은 소비자·중견기업 관계, 자산 상한 해제로 생긴 성장 여력, 이미 줄여 놓은 비용 구조.",
+    "threats": "JPMorgan·Bank of America의 예금·투자은행 규모 우위, 금리 하락에 따른 NII 둔화, 카드 성장에 따른 신용 손실 증가, 재성장 과정의 자본 소모.",
+    "text": "대부분의 경기장에서 Wells Fargo는 최상위가 아니라 따라잡는 쪽이다. 다만 자산 상한이 풀리면서 '같은 운동장에서 경쟁할 수 있게 됐다'고 CEO가 말했고, M&A 자문 순위 8위 진입, 카드 신규 계좌 20% 이상 증가처럼 점유율을 넓히는 숫자가 나오고 있다. 회사는 커진 대차대조표로 대출과 투자은행을 함께 키우는 방식으로 맞선다.",
+    "src": ["s2", "s1"]
+  },
+
+  "strategy": {
+    "goal": "중기 ROTCE 17~18% (기존 15% 목표 달성 후 2026-01 상향). 2026년 NII 약 500억 달러, 비용 약 557억 달러를 예상한다.",
+    "roadmap": [
+      { "when": "2025", "what": "연준 자산 상한 해제와 여러 동의명령 종료", "src": ["s2"] },
+      { "when": "2026 1분기", "what": "철도 화차 리스 사업 매각", "src": ["s1"] },
+      { "when": "2026", "what": "NII 약 500억, 비용 약 557억 달러; 대출 성장은 기존 '중간 한 자릿수' 전망을 웃돌 것", "src": ["s4"] },
+      { "when": "4Q26", "what": "분기 NII 약 130억 달러", "src": ["s5"] },
+      { "when": "중기", "what": "ROTCE 17~18%", "src": ["s2"] }
+    ],
+    "vision": "Scharf는 단기 실적과 장기 투자 사이 균형을 강조하며, 제약 없는 대차대조표로 소비자·상업 금융을 함께 키워 대형 경쟁사 수준의 수익률을 내는 회사를 그린다.",
+    "text": "앞으로의 계획은 풀린 대차대조표를 성장으로 바꾸는 것이다. 회사는 2026년 대출 성장이 처음 예상보다 강하다고 했고, NII 약 500억 달러를 유지하면서 ROTCE를 17~18%로 끌어올리겠다고 했다. 결제·기술 역량 인수도 검토하지만 기준이 높다고 CFO가 말했다.",
+    "src": ["s2", "s4", "s1"]
+  },
+
+  "governance": {
+    "line": "Charlie Scharf 의장 겸 CEO가 이끄는 지분 분산 회사로, 승계 계획은 확인하지 못했고 2025년 자사주 180억 달러를 포함해 230억 달러를 환원했다.",
+    "src": ["s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "net interest income", "value": "약 500억 달러 (유지)", "givenOn": "2026-09-15", "src": ["s4", "s5"] },
+      { "period": "FY2026", "metric": "noninterest expense", "value": "약 557억 달러 (유지)", "givenOn": "2026-09-15", "src": ["s4"] },
+      { "period": "4Q26", "metric": "net interest income", "value": "약 130억 달러", "givenOn": "2026-10-13", "src": ["s5"] },
+      { "period": "medium term", "metric": "ROTCE target", "value": "17~18%", "givenOn": "2026-01-14", "src": ["s2"] }
+    ],
+    "style": "annual",
+    "track": "2026년 NII·비용 전망은 9월 컨퍼런스까지 유지됐고, 대출 성장 전망은 올라갔다. Q3 2026은 EPS 1.87달러로 컨센서스를 조금 넘었지만 매출 218.7억 달러와 NII는 예상에 못 미쳤다는 보도가 있다.",
+    "src": ["s4", "s5", "s1"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 7.84달러(범위 7.60~8.07), 직전 4개 분기 7.15달러. 최근 4주 상향 11건·하향 6건으로 상향 우세.",
+    "src": ["s7"]
+  },
+
+  "watch": {
+    "confirms": [
+      "평균 대출·예금이 두 자릿수 성장을 이어감",
+      "4Q26 NII가 약 130억 달러 근처에서 나옴",
+      "ROTCE가 16%대에서 17~18% 쪽으로 이동",
+      "효율성 비율이 60% 근처로 내려옴",
+      "CET1 비율이 10% 근처에서 안정되고 자사주 매입 지속"
+    ],
+    "breaks": [
+      "NII 전망 하향 또는 순이자마진 추가 하락",
+      "카드·상업 대출 순상각률 상승",
+      "CET1 비율이 더 내려가 자사주 매입 축소",
+      "규제 문제 재발 또는 새 제재",
+      "비용이 557억 달러 전망을 넘어섬"
+    ],
+    "keyNumbers": [
+      { "name": "순이자이익(NII)과 순이자마진", "why": "성장 국면의 핵심 수익원" },
+      { "name": "평균 대출·예금 증가율", "why": "자산 상한 해제 효과가 이어지는지" },
+      { "name": "ROTCE", "why": "17~18% 목표까지의 거리" },
+      { "name": "효율성 비율과 총비용", "why": "비용 절감과 AI 투자의 결과" },
+      { "name": "순상각률", "why": "카드·자동차 대출 확대의 신용 대가" },
+      { "name": "CET1 비율과 분기 자사주 매입액", "why": "성장과 환원의 자본 배분" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적과 2027 NII·비용 전망", "src": [] },
+      { "date": "매년 6월 (추정)", "event": "연준 스트레스 테스트 결과와 배당·자사주 계획", "src": [] },
+      { "date": "수시", "event": "연준 금리 결정과 장기금리 변화, 경영진 컨퍼런스 발언", "src": ["s4"] }
+    ],
+    "reaction": "주가는 EPS보다 NII 수준과 연간 NII 전망, 매출이 예상을 넘는지에 반응하는 경향이 있다. Q3 2026은 EPS는 컨센서스를 넘었지만 매출과 NII가 예상에 못 미쳤다는 보도가 나왔고, 9월 CFO 발언 때는 대출 성장 상향으로 주가가 오전에 약 3% 올랐다.",
+    "conditions": [
+      "NII 실적과 연간·다음 분기 NII 전망의 변화",
+      "평균 대출·예금 증가율",
+      "ROTCE와 효율성 비율",
+      "순상각률과 충당금 적립",
+      "CET1 비율과 분기 자사주 매입액",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "FY2025 배당 총액 (총 환원 230억 - 자사주 180억으로 약 50억 달러로 추정되나 원문 미확인)",
+    "은행 특성상 총마진·영업이익률·영업현금흐름·잉여현금흐름은 null (순이익률은 213.4억/837억 계산값)",
+    "사업부 합계는 Reconciling items(세전 환산 조정 -19.5억) 포함 시 보고 매출 836.99억과 일치",
+    "4Q26 NII 약 130억 달러와 Q3 매출·NII의 컨센서스 미달은 2차 보도(s5, 검색 요약) 기준",
+    "자산 상한 해제의 정확한 날짜 (s2는 2025년 해제라고만 기재)",
+    "Agentspace 전 직원 확대 진행 상황과 AI 효과 금액",
+    "Q3 2026 절대 인력 수 (전년 대비 -8%만 확인)",
+    "점유율 ('leader'/'challenger'는 판단), Commercial Banking 'leader'도 판단",
+    "Scharf 승계 계획",
+    "4Q26 실적 발표일"
+  ],
+  "confidence": "high - 매출·사업부·이익·자본·환원은 회사 실적 자료와 8-K에서 왔다. 4분기 NII 전망 일부와 AI 정보는 2차 보도라 medium 수준이다."
+}

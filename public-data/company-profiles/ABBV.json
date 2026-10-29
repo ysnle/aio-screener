@@ -1,0 +1,230 @@
+{
+  "symbol": "ABBV",
+  "name": "AbbVie Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "AbbVie는 세계 최대 매출 약이던 Humira의 특허 만료를 후속 면역질환 약 Skyrizi·Rinvoq로 메우는 데 성공한 제약사로, 이제 면역·신경과학·미용(Botox)을 축으로 성장 속도를 지키는 단계에 있다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "AbbVie Reports Second-Quarter 2026 Financial Results (incl. updated FY2026 EPS guidance, Apogee acquisition)", "url": "https://news.abbvie.com/2026-07-31-AbbVie-Reports-Second-Quarter-2026-Financial-Results", "publisher": "AbbVie Newsroom", "date": "2026-07-31" },
+    { "id": "s2", "kind": "earnings-release", "title": "AbbVie Reports Full-Year and Fourth-Quarter 2025 Financial Results (incl. 2026 guidance)", "url": "https://news.abbvie.com/2026-02-04-AbbVie-Reports-Full-Year-and-Fourth-Quarter-2025-Financial-Results", "publisher": "AbbVie Newsroom", "date": "2026-02-04" },
+    { "id": "s3", "kind": "call-transcript", "title": "AbbVie Q2 2026 earnings call summary (FY2026 revenue ~$67.6B, Q3 guide, Skyrizi IP, margins, leverage)", "url": "https://vectorshift.ai/research/companies/abbvie/earnings/2026-q2-summary", "publisher": "VectorShift", "date": "2026-07-31" },
+    { "id": "s4", "kind": "other", "title": "AbbVie cash flow statement FY2025/FY2024 (operating cash flow, capex, acquisitions, dividends, repurchases, debt) - secondary aggregation of 10-K", "url": "https://stockanalysis.com/stocks/abbv/financials/cash-flow-statement/", "publisher": "Stock Analysis", "date": "2026-10-29" },
+    { "id": "s5", "kind": "ir-site", "title": "AbbVie to Host Third Quarter 2026 Earnings Conference Call (results on 2026-10-30 before market open)", "url": "https://news.abbvie.com/2026-10-01-AbbVie-to-Host-Third-Quarter-2026-Earnings-Conference-Call", "publisher": "AbbVie Newsroom", "date": "2026-10-01" },
+    { "id": "s6", "kind": "other", "title": "AIO local SEC companyfacts snapshot (FY2025 10-K: revenue, net income, equity), public-data/sec-fundamentals.json", "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001551152&type=10-K", "publisher": "SEC EDGAR via AIO", "date": "2026-02-20" },
+    { "id": "s7", "kind": "news", "title": "AbbVie (ABBV) Up 6.1% Since Last Earnings Report (Skyrizi+Rinvoq 2026 > $31B vs 2027 long-term guide $31B; read via search summary)", "url": "https://www.nasdaq.com/articles/abbvie-abbv-61-last-earnings-report-can-it-continue", "publisher": "Zacks via Nasdaq", "date": "2026-03" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/abbv/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "면역질환 후속 약의 성공 - Skyrizi 2025 매출 175.6억 달러(+49.9%), Rinvoq 83.0억 달러(+39.1%)",
+      "긴 특허·자료 보호 - Skyrizi 자료 보호 2031년, 물질 특허 2033년, 그 뒤 특허는 2030년대 중반까지(회사 언급)",
+      "Botox 브랜드 - 치료용 37.7억, 미용 26.0억 달러(2025)",
+      "미국 시장 영업력 - 2025 매출의 약 76%가 미국"
+    ],
+    "text": "AbbVie의 힘은 한 블록버스터의 특허가 끝나기 전에 같은 의사·환자에게 다음 약을 넘겨주는 영업·임상 역량에서 나온다. Humira 매출이 2025년 45.4억 달러(-49.5%)로 반토막 나는 동안 Skyrizi(175.6억 달러)와 Rinvoq(83.0억 달러)가 그 자리를 넘치게 채웠다. Skyrizi는 물질 특허가 2033년까지라 다음 공백까지 시간이 길고, Botox라는 독보적 브랜드가 또 하나의 뿌리다.",
+    "src": ["s2", "s3"]
+  },
+
+  "design": {
+    "text": "이 역량으로 회사가 파는 약은 다섯 개 묶음으로 보고된다. 면역(Skyrizi·Rinvoq·Humira)이 2025년 304억 달러로 절반, 신경과학(조현병·양극성 장애 Vraylar, 치료용 Botox, 편두통 Qulipta·Ubrelvy, 파킨슨병 Vyalev)이 108억 달러, 항암(Imbruvica·Venclexta·Elahere·Epkinly)이 67억 달러다. 나머지는 미용(Botox Cosmetic·Juvederm) 49억, 안과 21억 달러와 기타 제품이다.",
+    "src": ["s2"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "자체 생산 시설 - 바이오의약품·저분자 약 대부분 (공장 수·위탁 비중은 이번 조사에서 미확인)",
+      "Apogee Therapeutics - 지분가치 약 109억 달러 인수(2026 Q3 완료 예정 발표), IL-13 항체 zumilokibart(APG777) 확보",
+      "공동 개발·판매 파트너 - Imbruvica, Venclexta, Epkinly 등 (파트너별 계약 조건은 이번 조사에서 미확인)"
+    ],
+    "text": "약은 대부분 자체 시설에서 만들고, 새 후보 물질은 인수와 라이선스로 들여온다. 2025년에만 인수 IPR&D·마일스톤 비용으로 50.2억 달러를 썼고, 2026년 7월에는 아토피 피부염 항체를 가진 Apogee를 약 109억 달러에 사기로 했다. 즉 '만드는' 일의 상당 부분이 외부 신약을 사서 자기 영업망에 태우는 것이다.",
+    "src": ["s2", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 의약품 도매상·전문 약국 (업체명·비중 이번 조사에서 미확인)",
+      "보험사·PBM·Medicare - 실제 비용 지불자",
+      "류마티스·피부과·소화기·신경과 전문의 처방",
+      "미용 시술 병원·의원 - Botox Cosmetic, Juvederm"
+    ],
+    "channel": "미국은 도매상·전문 약국을 거쳐 환자에게, 해외는 각국 자회사로, 미용 제품은 시술 의원에 직접 판매",
+    "concentration": "미국 매출 466.0억 달러로 전체의 약 76% (2025); 고객별 비중 미확인",
+    "text": "이렇게 확보한 약은 대부분 미국에서 팔린다. 2025년 미국 매출이 466억 달러로 전체의 약 76%라, 미국 보험사·PBM과의 가격 협상과 약가 정책이 실적을 좌우한다. 미용 제품은 성격이 달라 경기에 민감한 개인 소비에 가깝고, 2025년 미용 매출은 6.1% 줄었다.",
+    "src": ["s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "환자·고용주 보험·Medicare", "to": "보험사·PBM", "what": "보험료·본인부담금" },
+      { "from": "보험사·PBM", "to": "전문 약국·도매상", "what": "처방약 급여 지급 (AbbVie에 리베이트 협상)" },
+      { "from": "전문 약국·도매상", "to": "AbbVie", "what": "제품 대금 - 정가에서 리베이트·할인을 뺀 순매출" },
+      { "from": "미용 시술 의원", "to": "AbbVie (Aesthetics)", "what": "Botox Cosmetic·Juvederm 구매 대금 (보험 없는 현금 시장)" },
+      { "from": "해외 정부·보험", "to": "AbbVie 해외 법인", "what": "국가별 약가 기준 판매 대금 (2025 해외 매출 145.6억 달러)" }
+    ],
+    "pricing": "제품 단위 판매. 미국은 정가에서 PBM·보험사 리베이트를 뺀 순가격이 핵심이며, 회사는 Skyrizi·Rinvoq에 낮은 한 자릿수 가격 하락을 예상한다(2차 출처). 미용은 보험 없는 시장 가격이다.",
+    "text": "돈은 보험사·PBM이 정한 급여 조건에 따라 약국과 도매상을 거쳐 들어온다. 그래서 같은 처방량이라도 리베이트 협상과 정부 약가 정책이 순매출을 바꾸며, Imbruvica는 Q2 2026 미국 약가 협상(IRA)과 경쟁으로 29.4% 줄었다. 반대로 Skyrizi·Rinvoq는 적응증이 늘며 처방량 증가가 가격 하락을 크게 넘어서고 있다.",
+    "src": ["s1", "s3", "s7"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 61.16, "unit": "USD bn", "yoy": 8.6 },
+    "grossMargin": 70.2,
+    "operatingMargin": 24.7,
+    "netMargin": 6.9,
+    "operatingCashFlow": { "value": 19.03, "unit": "USD bn" },
+    "freeCashFlow": { "value": 17.816, "unit": "USD bn" },
+    "segments": [
+      { "name": "Immunology", "revenue": 30.406, "unit": "USD bn", "share": 49.7, "yoy": 14.0, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Neuroscience", "revenue": 10.767, "unit": "USD bn", "share": 17.6, "yoy": 19.6, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Oncology", "revenue": 6.655, "unit": "USD bn", "share": 10.9, "yoy": 1.5, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Aesthetics", "revenue": 4.86, "unit": "USD bn", "share": 7.9, "yoy": -6.1, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Eye Care", "revenue": 2.109, "unit": "USD bn", "share": 3.4, "yoy": -5.9, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Other Key Products", "revenue": 3.736, "unit": "USD bn", "share": 6.1, "yoy": 2.4, "operatingMargin": null, "src": ["s2"] },
+      { "name": "All other (residual, calculated)", "revenue": 2.627, "unit": "USD bn", "share": 4.3, "yoy": null, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "Skyrizi / Rinvoq / Humira 매출", "value": "FY2025 175.6억(+49.9%) / 83.0억(+39.1%) / 45.4억 달러(-49.5%); Q2 2026 55.1억(+24.4%) / 25.3억(+24.5%) / 7.6억 달러(-35.9%)", "src": ["s2", "s1"] },
+      { "name": "인수 IPR&D·마일스톤 비용", "value": "FY2025 50.2억 달러(주당 2.76달러); 2026 상반기 약 10억 달러(주당 0.58달러)", "src": ["s2", "s1"] },
+      { "name": "조정 EPS", "value": "FY2025 10.00달러(-1.2%); Q2 2026 3.65달러(+22.9%)", "src": ["s2", "s1"] },
+      { "name": "조정 마진 (2026 전망)", "value": "조정 총마진 84% 이상, 조정 영업이익률 약 47% 근접", "src": ["s3"] },
+      { "name": "신경과학 매출", "value": "FY2025 107.7억 달러(+19.6%); 2026 전망 127억 달러 (Vraylar 약 41억, 치료용 Botox 약 42억)", "src": ["s2", "s3"] }
+    ],
+    "text": "이 구조가 2025년 매출 611.6억 달러(+8.6%)를 만들었지만, GAAP 순이익은 42억 달러(순이익률 약 7%)에 그쳤다. 인수한 신약 후보 비용(IPR&D 50.2억 달러)과 인수 무형자산 상각을 바로 비용으로 처리하기 때문으로, 이를 뺀 조정 EPS는 10.00달러였다. 현금은 이익보다 훨씬 많아 영업현금흐름 190억 달러, 잉여현금흐름 178억 달러가 남았다.",
+    "src": ["s2", "s6", "s4"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "dividends", "value": 11.657, "unit": "USD bn", "src": ["s4"] },
+      { "use": "R&D", "value": 9.096, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 5.441, "unit": "USD bn", "src": ["s4"] },
+      { "use": "other", "label": "인수 IPR&D·마일스톤 비용 (손익 기준)", "value": 5.016, "unit": "USD bn", "src": ["s2"] },
+      { "use": "debt repayment", "value": 9.595, "unit": "USD bn", "src": ["s4"] },
+      { "use": "capex", "value": 1.214, "unit": "USD bn", "src": ["s4"] },
+      { "use": "buybacks", "value": 0.98, "unit": "USD bn", "src": ["s4"] }
+    ],
+    "text": "번 현금의 가장 큰 몫은 배당(2025년 약 117억 달러)이고, 그다음이 R&D(91억 달러)와 신약 후보를 사들이는 인수·라이선스다. 자사주 매입은 약 10억 달러로 작고, 부채는 갚은 만큼 다시 빌려(상환 96억, 발행 93억 달러) 수준을 유지했다. 2026년 Apogee 인수(약 109억 달러)로 순이자비용 전망이 약 29억 달러로 늘어, 회사는 인수 완료 후 2~3년 안에 순레버리지 약 2배를 목표로 한다.",
+    "src": ["s4", "s2", "s1", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 팔지 않고 신약 연구·임상·영업에 쓰는 쪽. 이번에 읽은 실적 자료와 콜 요약에는 AI 관련 언급이나 수치가 없었다.",
+    "dependsOn": ["models-platforms (AI 모델 - 업체명 미확인)", "cloud-infrastructure (클라우드 - 업체명 미확인)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 R&D·판매 비용 효율로 나타남"],
+    "aiRevenue": null,
+    "upside": "AI가 임상 대상 환자 선별과 신약 후보 평가를 빠르게 하면, 연 90억 달러대 R&D와 50억 달러대 외부 도입 비용의 성공률을 높일 수 있다.",
+    "risk": "AI 직접 위험은 작다. 경쟁사가 AI로 면역질환 신약을 더 빨리 내면 Skyrizi·Rinvoq의 성장 기간이 짧아질 수 있다.",
+    "text": "그래서 AI 가치사슬에서 AbbVie는 '도입자' 자리에 있고, 공시된 AI 매출이나 지출은 없다. 이 회사의 실적을 움직이는 것은 AI가 아니라 면역질환 약의 처방 확대와 신약 인수의 성공이다. AI 효과를 판단할 회사 수치는 이번 조사에서 찾지 못했다.",
+    "src": ["s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "면역질환 (건선·염증성 장질환·류마티스)", "rivals": ["Johnson & Johnson (Stelara·Tremfya)", "Eli Lilly", "Sanofi/Regeneron (Dupixent)", "Humira 바이오시밀러 (Amgen Amjevita 등)"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "신경과학 (정신질환·편두통·파킨슨병)", "rivals": ["Pfizer (편두통)", "Eli Lilly (편두통)", "Amgen (편두통)", "기타 정신질환 치료제 회사"], "position": "challenger", "share": null, "src": ["s2", "s3"] },
+      { "arena": "혈액암 (Imbruvica·Venclexta)", "rivals": ["AstraZeneca (Calquence)", "BeiGene (Brukinsa)"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "미용 (보툴리눔 톡신·필러)", "rivals": ["Galderma", "Evolus", "Revance"], "position": "leader", "share": null, "src": ["s2"] }
+    ],
+    "edge": "Skyrizi·Rinvoq의 적응증 폭과 긴 특허, Botox 브랜드, 미국 면역질환 전문의 대상 영업력, 해마다 신약을 사들이는 현금 창출력.",
+    "threats": "미국 약가 협상(IRA)과 PBM 가격 압박, 면역질환 경쟁 신약(경구 약 포함), Imbruvica 같은 기존 항암제의 점유율 하락, 미용 시장의 소비 둔화.",
+    "text": "면역질환 시장에서 AbbVie는 Skyrizi·Rinvoq로 1위에 올라섰고, Humira 바이오시밀러와의 경쟁은 이미 지나간 구간이 됐다. 지금의 경쟁은 J&J·Lilly·Sanofi의 신약과, 혈액암에서 AstraZeneca·BeiGene의 후속 약이 Imbruvica를 밀어내는 쪽에서 온다. 회사는 아토피 피부염(Apogee), 파킨슨병·경구 편두통처럼 각각 최대 매출 50억 달러 이상으로 보는 새 영역으로 넓혀 대응한다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 약 676억 달러, Skyrizi 217억 달러, 신경과학 127억 달러를 제시했다. Skyrizi+Rinvoq 합산은 2026년에 2027년 장기 목표(310억 달러)를 이미 넘을 것으로 본다(2차 출처).",
+    "roadmap": [
+      { "when": "2026 Q3", "what": "Apogee Therapeutics 인수 완료 예정 (zumilokibart, APG273)", "src": ["s1"] },
+      { "when": "2026 Q3", "what": "파킨슨병 치료제 tavapadon 미국 승인 예상", "src": ["s3"] },
+      { "when": "2026", "what": "Skyrizi 소아 건선·소아 건선성 관절염 승인, Rinvoq 백반증·원형탈모 유럽 승인 등 적응증 확대", "src": ["s1"] },
+      { "when": "2027", "what": "Skyrizi+Rinvoq 장기 목표 310억 달러 (2026년 조기 초과 예상)", "src": ["s7"] },
+      { "when": "인수 완료 후 2~3년", "what": "순레버리지 약 2배", "src": ["s3"] },
+      { "when": "2031 / 2033", "what": "Skyrizi 자료 보호 / 물질 특허 만료", "src": ["s3"] }
+    ],
+    "vision": "의장 겸 CEO Robert Michael은 '장기 전망이 매우 강하다'고 말하며, 면역·신경과학을 두 축으로 한 번 더 성장 사이클을 만드는 그림을 그린다.",
+    "text": "앞으로의 계획은 Skyrizi·Rinvoq의 적응증을 계속 늘리면서, 다음 성장축을 인수로 미리 사 두는 것이다. 2026년 Apogee 인수로 아토피 피부염 항체를 들였고, 파킨슨병 tavapadon과 편두통 신약으로 신경과학을 키운다. Skyrizi 물질 특허가 2033년까지라 다음 특허 절벽까지는 Humira 때보다 시간이 넉넉하다.",
+    "src": ["s1", "s3"]
+  },
+
+  "governance": {
+    "line": "의장 겸 CEO Robert A. Michael이 이끄는 지분 분산 회사로, 순이익보다 많은 연 약 117억 달러를 배당으로 지급하며 자사주 매입은 작게 유지한다.",
+    "src": ["s2", "s4"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "net revenues", "value": "약 676억 달러 (3억 달러 상향, 연초 대비 누적 6억 달러 상향)", "givenOn": "2026-07-31", "src": ["s3"] },
+      { "period": "FY2026", "metric": "adjusted diluted EPS", "value": "13.87~14.07달러 (직전 13.91~14.11, Apogee 희석 0.14달러 반영; 2월 최초 14.37~14.57은 IPR&D 제외 기준)", "givenOn": "2026-07-31", "src": ["s1", "s2"] },
+      { "period": "Q3 2026", "metric": "net revenues / adjusted EPS", "value": "약 172억 달러 / 3.84~3.88달러", "givenOn": "2026-07-31", "src": ["s3"] },
+      { "period": "FY2026", "metric": "Skyrizi net revenues", "value": "217억 달러 (1억 달러 상향)", "givenOn": "2026-07-31", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "track": "2026년에 매출 전망을 연속으로 올렸고, Q2 조정 EPS 3.65달러는 직전 컨센서스 3.64달러와 비슷했다(AIO 스냅샷). EPS 전망은 미리 예측하지 않는 IPR&D 비용과 인수 희석이 생길 때마다 낮춰 갱신된다.",
+    "src": ["s3", "s1", "s8"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 15.08달러(범위 14.75~15.51), 직전 4개 분기 실적 10.87달러. 최근 4주 상향 1건·하향 8건으로 하향이 많다(Apogee 희석 반영으로 추정).",
+    "src": ["s8"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Skyrizi·Rinvoq 합산 성장률 20%대 유지와 신규 적응증 승인",
+      "신경과학 매출이 2026 전망(127억 달러)을 넘음",
+      "tavapadon 승인과 초기 처방 확대",
+      "Apogee 인수 완료와 zumilokibart 3상 진행",
+      "순레버리지 하락이 계획대로 진행"
+    ],
+    "breaks": [
+      "Skyrizi·Rinvoq 성장률이 급격히 둔화",
+      "미국 약가 협상 대상 확대나 PBM 가격 압박으로 순가격 하락폭 확대",
+      "대형 인수의 IPR&D 비용이 반복돼 EPS 전망이 계속 하향",
+      "미용(Botox Cosmetic·Juvederm) 매출 감소 지속",
+      "Humira 외 기존 제품(Imbruvica 등)의 감소가 예상보다 빠름"
+    ],
+    "keyNumbers": [
+      { "name": "Skyrizi·Rinvoq 매출", "why": "면역 매출의 대부분이자 성장 엔진" },
+      { "name": "신경과학 매출", "why": "두 번째 성장축" },
+      { "name": "인수 IPR&D·마일스톤 비용", "why": "GAAP·조정 EPS를 크게 흔드는 항목" },
+      { "name": "조정 영업이익률", "why": "가격 압박 속 수익성" },
+      { "name": "순부채와 순레버리지", "why": "배당과 추가 인수 여력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-10-30", "event": "Q3 2026 실적 발표 (장 시작 전) 및 콘퍼런스콜", "src": ["s5"] },
+      { "date": "2027-02 초 (추정, 회사 미확정)", "event": "Q4 2026·연간 실적과 2027 가이던스", "src": [] }
+    ],
+    "reaction": "주가는 분기 EPS보다 Skyrizi·Rinvoq 매출과 연간 매출·EPS 전망 변경, 새 인수 발표에 크게 반응하는 경향이 있다. IPR&D 비용이 분기마다 달라 GAAP EPS 변동이 커서, 조정 EPS와 전망 변화가 함께 읽힌다.",
+    "conditions": [
+      "Skyrizi·Rinvoq 분기 매출과 성장률",
+      "연간 매출·조정 EPS 전망의 변경 폭과 이유(본업 vs IPR&D)",
+      "신경과학·미용 매출 추이",
+      "새 인수·라이선스 발표와 규모",
+      "미국 약가 정책 관련 발언",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "FY2025 영업현금흐름·잉여현금흐름·배당·자사주·인수·부채 상환·설비투자는 Stock Analysis 집계(2차) 기준 - 10-K 현금흐름표 원문은 이번에 열지 못함",
+    "총마진 70.2%·영업이익률 24.7%는 보도자료 손익 표를 읽은 요약 도구의 계산값 (회사가 연간 마진을 직접 명시하지 않음)",
+    "세그먼트 'All other' 26.3억 달러는 총매출에서 공시 묶음 합계를 뺀 계산값",
+    "FY2026 매출 약 676억 달러, Q3 가이던스, Skyrizi 217억 달러는 콜 요약(2차) 기준",
+    "Skyrizi+Rinvoq 2027 목표 310억 달러와 2026 초과 전망은 2차 기사 요약 기준 (s7 날짜 2026-03 추정)",
+    "Apogee 인수 실제 완료 여부와 날짜 (Q3 2026 완료 예정이라고만 확인)",
+    "Q3 2026 실적은 2026-10-30 발표 예정이라 미반영",
+    "공동 개발 파트너 이름과 계약 조건, 공장 수와 위탁 생산 비중",
+    "미국 도매상·전문 약국 고객별 매출 비중",
+    "AI 활용·지출 (회사 공시 미확인)",
+    "분기 배당액과 2026 배당 인상률"
+  ],
+  "confidence": "medium - 매출·제품·EPS 전망은 회사 보도자료에서 직접 왔지만, 현금 사용과 일부 가이던스(매출·Q3)는 2차 요약에서 왔다."
+}

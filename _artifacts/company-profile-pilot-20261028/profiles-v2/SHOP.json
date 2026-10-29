@@ -1,0 +1,589 @@
+{
+  "symbol": "SHOP",
+  "name": "Shopify Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Shopify는 수백만 상인이 온라인·오프라인 가게를 열고 결제까지 받게 해 주는 전자상거래 운영 플랫폼으로, 거래액(GMV)에 비례해 돈을 벌며 이제 ChatGPT 같은 AI 에이전트 안의 쇼핑 결제 통로를 노린다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Shopify Q2 2026 financial results (press release page)",
+      "url": "https://www.shopify.com/news/shopify-q2-2026-financial-results",
+      "publisher": "Shopify",
+      "date": "2026-08-05"
+    },
+    {
+      "id": "s2",
+      "kind": "8-K",
+      "title": "Shopify 8-K with Q2 2026 press release and financial statements (summary of the filing)",
+      "url": "https://www.stocktitan.net/sec-filings/SHOP/8-k-shopify-inc-reports-material-event-a0b40f87136b.html",
+      "publisher": "Stock Titan (SEC filing mirror)",
+      "date": "2026-08-05"
+    },
+    {
+      "id": "s3",
+      "kind": "earnings-release",
+      "title": "Shopify's Standout 2025: The Launchpad for a New Era of Commerce in 2026 (Q4 and FY2025 release with financial statements)",
+      "url": "https://www.stocktitan.net/news/SHOP/shopify-s-standout-2025-the-launchpad-for-a-new-era-of-commerce-in-07m967h23cgt.html",
+      "publisher": "Stock Titan (Shopify release text)",
+      "date": "2026-02-11"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "Shopify Q2 earnings call spotlights AI commerce and growth (read from search summary; day not confirmed)",
+      "url": "https://www.easternprogress.com/shopify-q2-earnings-call-spotlights-ai-commerce-and-growth/article_7b9e0495-102c-5521-bcae-1297105599a4.html",
+      "publisher": "The Eastern Progress (syndicated)",
+      "date": "2026-08"
+    },
+    {
+      "id": "s5",
+      "kind": "ir-site",
+      "title": "Bringing shopping into the future: The Fall '26 Edition for developers",
+      "url": "https://www.shopify.com/news/fall-26-edition-developer",
+      "publisher": "Shopify",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "Affirm named exclusive pay-over-time provider for Shop Pay Installments (read from search summary)",
+      "url": "https://www.businesswire.com/news/home/20250220212728/en",
+      "publisher": "Business Wire (Affirm)",
+      "date": "2025-02-20"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local SEC companyfacts snapshot (public-data/sec-fundamentals.json), 10-K FY ended 2025-12-31, accession 0001594805-26-000007",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001594805.json",
+      "publisher": "SEC EDGAR via AIO",
+      "date": "2026-02-11"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/shop/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s9",
+      "kind": "news",
+      "title": "Shopify Q2 results indicate a 'monster quarter' (payments penetration and channel growth read from search summary)",
+      "url": "https://retail-insider.com/retail-insider/2026/08/shopify-q2-results-indicate-a-monster-quarter/",
+      "publisher": "Retail Insider",
+      "date": "2026-08"
+    },
+    {
+      "id": "s10",
+      "kind": "ir-site",
+      "title": "Welcome to the first holiday season of the agentic era (title seen in Shopify newsroom listing; article body not opened)",
+      "url": "https://www.shopify.com/news/agentic-holiday-2026",
+      "publisher": "Shopify",
+      "date": "2026-10-06"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "상인이 가게·결제·재고·배송·마케팅을 한 곳에서 운영하는 통합 플랫폼 - 옮기기 어려운 운영 기반",
+      "Shop Pay·Shopify Payments 결제망 - Q2 2026 결제 침투율 GMV의 약 68%, Shop Pay GMV +53%",
+      "10억 개 이상 상품이 담긴 Catalog - AI 에이전트가 검색·장바구니·결제까지 쓰는 상품 데이터",
+      "거래 규모 - FY2025 GMV 3,784억 달러"
+    ],
+    "text": "Shopify의 힘은 상인이 가게 개설부터 결제·재고·배송까지 한 곳에서 운영하게 만들어, 사업이 커져도 떠나기 어렵게 하는 데 있다. 결제를 Shopify 안에서 받는 비율이 GMV의 약 3분의 2까지 올라오면서, 구매자 쪽에서도 Shop Pay라는 빠른 결제 버튼이 네트워크 효과를 만든다. 최근에는 10억 개 넘는 상품 데이터(Catalog)를 AI 에이전트에 열어, AI 쇼핑에서도 같은 결제망을 쓰게 하려 한다.",
+    "src": [
+      "s3",
+      "s4",
+      "s5",
+      "s9"
+    ]
+  },
+  "design": {
+    "text": "이 플랫폼에서 회사가 파는 것은 두 줄로 보고된다. Subscription Solutions는 온라인 스토어·POS·앱·테마 등 월 구독형 상점 운영 도구이고, Merchant Solutions는 Shopify Payments·Shop Pay·Shop Pay Installments·배송·자본(상인 대출) 등 거래에 붙는 서비스다. AI 쪽으로는 상인용 비서 Sidekick, 상품 데이터 Catalog, 에이전트용 Universal Commerce Protocol과 2026-10-28 공개한 Shop.dev·WebMCP 도구가 있다.",
+    "src": [
+      "s3",
+      "s5"
+    ]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "Affirm - 미국 Shop Pay Installments의 독점 할부 결제 제공 (2025-02 발표)",
+      "결제 처리·카드망 파트너 - Shopify Payments 처리 업체명은 이번 조사에서 1차 자료로 확인 못함",
+      "앱·테마 개발자 생태계 - Shopify App Store",
+      "AI 플랫폼 - ChatGPT, Copilot, Meta Muse 등이 같은 Catalog·결제를 쓸 수 있다고 소개 (2026-10-28)"
+    ],
+    "text": "Shopify는 공장이나 물류창고 없이 소프트웨어와 파트너망으로 서비스를 만든다. 결제의 실제 처리와 할부는 외부 금융 파트너(미국 할부는 Affirm)가 맡고, 앱 개발자 생태계가 기능을 채우며, AI 쪽에서는 ChatGPT·Copilot 같은 에이전트가 Shopify의 상품·결제 인프라에 붙는다. 그래서 FY2025 설비투자는 2,600만 달러에 불과하다.",
+    "src": [
+      "s6",
+      "s5",
+      "s3"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "중소 상인부터 대형 브랜드까지 전 세계 상인 (상인 수는 이번 조사에서 확인 못함)",
+      "오프라인 매장 상인 (POS) - Q2 2026 오프라인 GMV +32%",
+      "B2B 판매 상인 - Q2 2026 B2B GMV +76%",
+      "해외 상인 - Q2 2026 해외 GMV +37%, 북미 +28%"
+    ],
+    "channel": "온라인 직접 가입(셀프서비스)이 중심이고, 대형 브랜드(Plus·Enterprise)는 영업과 대행사·시스템 통합 파트너를 거친다.",
+    "concentration": "개별 상인 집중은 낮은 구조로 보이나 공시 수치는 확인하지 못함 (null).",
+    "text": "이 서비스는 스스로 가입하는 소상인부터 영업팀이 맡는 대형 브랜드까지 넓게 팔린다. 최근 성장은 북미보다 해외(+37%), 온라인보다 오프라인·B2B로 영역을 넓히는 데서 나오고 있다. AI 채널에서 들어온 주문은 전년 대비 약 세 배로 늘었다는 것이 콜 요약의 설명이다.",
+    "src": [
+      "s4",
+      "s9"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "소비자 (온라인·매장·AI 에이전트)",
+        "to": "상인",
+        "what": "상품 대금 (Q2 2026 GMV 1,155.7억 달러)"
+      },
+      {
+        "from": "상인",
+        "to": "Shopify (Merchant Solutions)",
+        "what": "결제 처리 수수료·환전·할부·배송·자본 서비스 수수료 (GMV에 비례)"
+      },
+      {
+        "from": "상인",
+        "to": "Shopify (Subscription Solutions)",
+        "what": "월 구독료와 앱·테마 수수료 (Q2 2026 MRR 2.21억 달러)"
+      },
+      {
+        "from": "Shopify",
+        "to": "결제 처리·카드망·Affirm 등 금융 파트너",
+        "what": "결제 처리 원가와 할부 파트너 몫"
+      },
+      {
+        "from": "AI 에이전트 (ChatGPT·Copilot 등)",
+        "to": "Shopify Catalog·Shop Pay",
+        "what": "에이전트 주문이 같은 결제망으로 들어오며 경영진은 온라인 스토어 거래와 같은 경제성이라고 설명"
+      }
+    ],
+    "pricing": "구독료(월 정액)와 거래 수수료(GMV 대비 일정 비율, take rate)의 혼합. 매출의 약 76%가 거래에 연동된 Merchant Solutions.",
+    "text": "돈은 소비자가 상인에게 낸 물건값(GMV)에서 출발해, 상인이 Shopify에 내는 결제 수수료와 월 구독료로 들어온다. 매출의 4분의 3이 거래 수수료라서 GMV가 커지면 매출이 함께 커지지만, 결제 원가를 파트너에게 넘겨야 해 총마진은 48% 수준에 머문다. AI 에이전트를 통한 주문도 같은 결제망을 타게 만들어, 쇼핑이 어디서 일어나든 수수료를 받는 구조를 지키려 한다.",
+    "src": [
+      "s2",
+      "s3",
+      "s4"
+    ]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": {
+      "value": 11.556,
+      "unit": "USD bn",
+      "yoy": 30
+    },
+    "grossMargin": 48.1,
+    "operatingMargin": 12.7,
+    "netMargin": 10.7,
+    "operatingCashFlow": {
+      "value": 2.033,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 2.007,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Merchant Solutions",
+        "revenue": 8.804,
+        "unit": "USD bn",
+        "share": 76.2,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Subscription Solutions",
+        "revenue": 2.752,
+        "unit": "USD bn",
+        "share": 23.8,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "GMV (거래액)",
+        "value": "FY2025 3,784.4억 달러(+29%); Q2 2026 1,155.7억 달러(+32%, 고정환율 +30%)",
+        "src": [
+          "s3",
+          "s2"
+        ]
+      },
+      {
+        "name": "MRR (월 반복 구독 매출)",
+        "value": "2.05억 달러 (2025-12-31) → 2.21억 달러 (2026-06-30)",
+        "src": [
+          "s3",
+          "s2"
+        ]
+      },
+      {
+        "name": "결제 침투율",
+        "value": "Q2 2026 GMV의 약 68% (+3%p), Shop Pay GMV +53%",
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "name": "최근 분기 (Q2 2026)",
+        "value": "매출 35.83억 달러(+34%), 매출총이익 17.08억(+31%), 영업이익 4.88억, 잉여현금흐름 6.54억 달러(마진 18%)",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "순이익과 지분투자",
+        "value": "Q2 2026 순이익 15.02억 달러 중 지분투자 평가이익 제외 시 4.39억 달러",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "이 구조가 FY2025에 매출 115.6억 달러(+30%), 영업이익 14.7억 달러(영업이익률 약 13%)를 만들었고, 잉여현금흐름도 20.1억 달러(마진 17%)였다. 부문별 이익은 공시되지 않아 구독과 거래 수수료 중 어느 쪽이 이익을 더 내는지는 확인할 수 없다. 최근 분기에는 매출 +34%, 영업이익 4.88억 달러로 성장과 이익이 함께 늘었고, 순이익 15억 달러에는 보유 지분 평가이익이 크게 섞여 있다.",
+    "src": [
+      "s3",
+      "s2",
+      "s7"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      {
+        "use": "R&D",
+        "value": 1.536,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.026,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 0.056,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 1.043,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": null,
+        "unit": "USD bn",
+        "src": []
+      }
+    ],
+    "text": "FY2025에 번 현금은 R&D 15.4억 달러와 전환사채 상환 10.4억 달러에 주로 쓰였고, 설비투자와 인수는 작았다. 2026-02에는 처음으로 최대 20억 달러 자사주 매입 프로그램을 시작해, Q2 2026 한 분기에만 14.2억 달러를 샀다. 투자 단계에서 주주환원 단계로 넘어가는 신호로 읽힌다.",
+    "src": [
+      "s3",
+      "s2"
+    ]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 에이전트가 물건을 찾고 결제하는 '상거래 실행 층'. 10억 개 이상 상품 데이터와 Shop Pay 결제를 ChatGPT·Copilot 등 에이전트와 앱에 연결한다.",
+    "dependsOn": [
+      "models-platforms (ChatGPT·Copilot·Meta Muse 등 AI 쇼핑 창구)",
+      "cloud-infrastructure (서비스 운영 클라우드 - 업체명 미확인)",
+      "결제 처리·금융 파트너 (Affirm 등)"
+    ],
+    "sellsTo": [
+      "상인 (Sidekick 등 AI 운영 도구, 에이전트 판매 채널)",
+      "AI 에이전트·앱 개발자 (Shop.dev로 Catalog·장바구니·결제 제공)"
+    ],
+    "aiRevenue": "AI 매출 금액은 공시되지 않음. Q2 2026 콜 요약: AI 경유 트래픽·주문이 전년 대비 약 3배, Catalog 기반 AI 검색 전환율이 스크래핑 데이터 대비 2배.",
+    "upside": "쇼핑이 AI 에이전트 안으로 옮겨 가도 결제가 Shop Pay를 거치면 GMV와 수수료가 그대로 Shopify로 들어온다. 경영진은 에이전트 거래도 온라인 스토어 거래와 같은 경제성이라고 말했다.",
+    "risk": "AI 플랫폼이 자체 결제를 붙이거나 수수료를 요구하면 Shopify의 몫이 줄 수 있고, 상점 웹사이트 방문이 줄면 상인이 구독 도구의 가치를 덜 느낄 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Shopify는 맨 끝에서 AI 에이전트의 주문을 실제 거래로 바꿔 주는 응용 층에 있다. 2026-10-28 공개한 Shop.dev는 어떤 에이전트든 키 없이 상품 검색·장바구니·결제를 쓰게 해, 쇼핑 창구가 바뀌어도 결제 통로를 차지하려는 시도다. AI 매출은 따로 나오지 않으므로 GMV와 결제 침투율이 AI 효과를 보여준다.",
+    "src": [
+      "s5",
+      "s4"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "전자상거래 플랫폼 (상점 운영 소프트웨어)",
+        "rivals": [
+          "Amazon (마켓플레이스·Buy with Prime)",
+          "WooCommerce",
+          "BigCommerce",
+          "Salesforce Commerce Cloud",
+          "Wix·Squarespace"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "온라인 결제·간편결제",
+        "rivals": [
+          "Apple Pay",
+          "PayPal",
+          "Stripe Link",
+          "Amazon Pay"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "arena": "오프라인 POS",
+        "rivals": [
+          "Block (Square)",
+          "Toast",
+          "Lightspeed"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "arena": "AI 에이전트 상거래 인프라",
+        "rivals": [
+          "AI 플랫폼 자체 결제 기능",
+          "Stripe",
+          "PayPal",
+          "Amazon"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s5",
+          "s4"
+        ]
+      }
+    ],
+    "edge": "상점 운영부터 결제까지 묶인 통합 플랫폼, 10억 개 이상 상품 Catalog, Shop Pay 결제 네트워크, 빠른 해외·오프라인 확장.",
+    "threats": "Amazon의 마켓플레이스와 판매자 도구, AI 플랫폼이 직접 결제를 쥐는 시나리오, 결제 분야의 Apple Pay·PayPal. 점유율 수치는 이번 조사에서 1차 자료로 확인하지 못했다.",
+    "text": "이 자리를 놓고 상점 운영에서는 Amazon과 WooCommerce·BigCommerce 등과, 결제에서는 Apple Pay·PayPal과, 매장에서는 Square·Toast와 겨룬다. Shopify의 방식은 상인을 Amazon처럼 한 장터에 모으는 대신 각자 브랜드 가게를 갖게 하고, 결제·물류·AI 채널을 뒤에서 대 주는 것이다. AI 쇼핑 시대에는 AI 플랫폼이 결제를 직접 쥘지, Shopify 같은 인프라를 빌려 쓸지가 가장 큰 경쟁 변수다.",
+    "src": [
+      "s5",
+      "s4",
+      "s9"
+    ]
+  },
+  "strategy": {
+    "goal": "구체적인 장기 수치 목표는 이번 조사에서 확인하지 못했다. 회사는 GMV·매출·매출총이익·잉여현금흐름이 모두 30% 넘게 성장하는 흐름과 FCF 마진 유지를 강조한다.",
+    "roadmap": [
+      {
+        "when": "Q3 2026",
+        "what": "매출 성장률 30% 초반, 매출총이익 성장 20% 중후반, 영업비용 매출의 33~34%, FCF 마진 10% 후반~20% 초반 가이던스",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "when": "2026-10-28 (Fall '26 Edition)",
+        "what": "Shop.dev(Catalog·로그인·장바구니·결제·Shop Pay를 모든 에이전트에 개방), Universal Checkout, 모든 스토어에 WebMCP 도구 탑재",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "when": "2026-02 이후",
+        "what": "최대 20억 달러 자사주 매입 프로그램 (만기 없음, 발행주식 5% 한도)",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2026 연말 쇼핑 시즌",
+        "what": "회사가 '에이전트 시대의 첫 연말 시즌'이라고 부른 AI 채널 판매 시험대",
+        "src": [
+          "s10"
+        ]
+      }
+    ],
+    "vision": "쇼핑이 어디서 일어나든(웹·매장·소셜·AI 에이전트) 상인이 Shopify 하나로 팔고 결제받는 '상거래 운영체제'가 되겠다는 그림이다.",
+    "text": "경쟁에 대한 회사의 답은 AI 쇼핑 창구에 상품 데이터와 결제를 먼저 깔아 두는 것이다. 2026-10-28 Fall '26 Edition에서 모든 에이전트에 Catalog·장바구니·결제를 열었고, 연말 시즌을 AI 채널의 첫 시험대로 본다. 동시에 처음으로 자사주를 대규모로 사들이며, 성장과 주주환원을 함께 가져가겠다는 신호를 줬다.",
+    "src": [
+      "s5",
+      "s1",
+      "s3"
+    ]
+  },
+  "governance": {
+    "line": "President Harley Finkelstein과 CFO Jeff Hoffmeister가 실적을 발표하며, 2026-02 첫 자사주 매입 프로그램(최대 20억 달러)으로 주주환원을 시작했다; 창업자 지배 구조 세부는 이번 조사에서 확인하지 못했다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q3 2026",
+        "metric": "revenue growth",
+        "value": "전년 대비 30% 초반",
+        "givenOn": "2026-08-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q3 2026",
+        "metric": "gross profit growth",
+        "value": "전년 대비 20% 중후반",
+        "givenOn": "2026-08-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q3 2026",
+        "metric": "operating expenses",
+        "value": "매출의 33~34%",
+        "givenOn": "2026-08-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q3 2026",
+        "metric": "free cash flow margin",
+        "value": "10% 후반~20% 초반",
+        "givenOn": "2026-08-05",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q3 2026",
+        "metric": "stock-based compensation",
+        "value": "1.5억 달러",
+        "givenOn": "2026-08-05",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "Q1 2026 가이던스(매출 30% 초반 성장) 이후 Q2 2026 매출이 +34%로 나왔다. 분기별 가이던스 대비 실제의 체계적 비교는 이번 조사에서 하지 못했다.",
+    "src": [
+      "s3",
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 AIO 컨센서스 스냅샷(Nasdaq/Zacks): 향후 4개 분기 EPS 합계 1.54달러(범위 0.92~1.93, 10개 추정), 직전 4개 분기 실적 합 1.24달러, 최근 4주 상향 2건·하향 1건. 직전 분기 실적 0.32달러는 GAAP(약 1.15달러)가 아닌 조정 기준으로 보인다.",
+    "src": [
+      "s8",
+      "s2"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "GMV 성장률 30% 안팎 유지",
+      "결제 침투율이 계속 오름 (68%에서 상승)",
+      "해외·오프라인·B2B GMV가 북미보다 빠르게 성장",
+      "AI 채널 주문 수치가 연말 시즌에 의미 있게 공개됨",
+      "FCF 마진이 가이던스 범위 상단 유지"
+    ],
+    "breaks": [
+      "GMV 성장률 급감 (소비 둔화)",
+      "매출총이익 성장률이 매출 성장률보다 계속 크게 낮아짐 (결제 원가·파트너 몫 증가)",
+      "AI 플랫폼이 자체 결제를 붙여 Shop Pay를 우회",
+      "영업비용 비율이 가이던스(33~34%)를 넘어섬",
+      "지분투자 평가손이 순이익을 크게 흔듦"
+    ],
+    "keyNumbers": [
+      {
+        "name": "GMV",
+        "why": "매출의 4분의 3을 움직이는 기초 거래량"
+      },
+      {
+        "name": "결제 침투율",
+        "why": "GMV에서 수수료를 얼마나 가져가는지"
+      },
+      {
+        "name": "매출총이익 성장률",
+        "why": "결제 비중 확대에 따른 마진 희석 확인"
+      },
+      {
+        "name": "MRR",
+        "why": "구독 기반 상인 수와 요금 수준"
+      },
+      {
+        "name": "FCF 마진",
+        "why": "회사가 강조하는 수익성 지표"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11 초 (추정, 회사 미공지)",
+        "event": "Q3 2026 실적 발표와 Q4 가이던스",
+        "src": []
+      },
+      {
+        "date": "2026-11 하순~12",
+        "event": "블랙프라이데이·사이버먼데이 상인 판매 집계 (AI 채널 첫 연말 시즌)",
+        "src": [
+          "s10"
+        ]
+      }
+    ],
+    "reaction": "주가는 GMV·매출 성장률과 다음 분기 매출·매출총이익 가이던스, FCF 마진에 반응하는 경향이 있다. 순이익은 지분투자 평가 손익이 섞여 반응 지표로 덜 쓰인다.",
+    "conditions": [
+      "실적 발표 때 GMV 성장률과 고정환율 성장률",
+      "다음 분기 매출·매출총이익 성장 가이던스",
+      "결제 침투율과 Shop Pay 성장률",
+      "AI 채널 주문·트래픽 관련 공시",
+      "자사주 매입 집행 속도"
+    ]
+  },
+  "unverified": [
+    "FY2025 부문별 전년 대비 성장률 (부문 금액만 1차 표에서 확인; Merchant Solutions +35%는 2차 요약)",
+    "결제 침투율 68%와 해외·오프라인·B2B·Shop Pay 성장률은 기사 원문이 아닌 검색 요약에서 확인",
+    "AI 채널 트래픽·주문 3배, Catalog 전환율 2배, '같은 경제성' 발언은 콜 녹취록 원문이 아닌 기사 요약",
+    "Shopify Payments 결제 처리 파트너명 (Stripe 여부 등 1차 자료 미확인)",
+    "상인 수, 지역별 매출 금액, 부문별 이익",
+    "창업자(Tobi Lütke)의 의결권 구조 등 지배구조 세부",
+    "FY2025 자사주 매입 (프로그램은 2026-02-17 시작)",
+    "전자상거래 플랫폼·결제 시장 점유율",
+    "s4·s9 기사 정확한 게재일",
+    "Q3 2026 실적 발표일"
+  ],
+  "confidence": "medium - 재무 수치는 회사 보도자료·8-K 재게시본의 표에서 왔지만, 결제 침투율·AI 채널 지표·파트너 세부는 2차 요약이다."
+}

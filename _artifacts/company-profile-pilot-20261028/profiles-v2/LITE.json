@@ -1,0 +1,635 @@
+{
+  "symbol": "LITE",
+  "name": "Lumentum Holdings Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "late June (FY2026 ended 2026-06-27)",
+  "oneLine": "Lumentum은 인화인듐(InP) 레이저 칩과 광 트랜시버·광 회로 스위치(OCS)를 만드는 광부품 회사로, AI 데이터센터 연결이 광으로 바뀌면서 수요가 공급을 30% 넘게 앞지를 만큼 매출이 1년 만에 두 배가 됐다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Lumentum Announces Fourth Quarter and Full Fiscal Year 2026 Results",
+      "url": "https://s21.q4cdn.com/377324469/files/doc_news/Lumentum-Announces-Fourth-Quarter-and-Full-Fiscal-Year-2026-Results-2026.pdf",
+      "publisher": "Lumentum IR",
+      "date": "2026-08-11"
+    },
+    {
+      "id": "s2",
+      "kind": "ir-site",
+      "title": "Lumentum Q4 FY26 Conference Call presentation (key points, product type revenue, guidance)",
+      "url": "https://s21.q4cdn.com/377324469/files/doc_financials/2026/q4/Q4-FY26-Earnings-Presentation_final.pdf",
+      "publisher": "Lumentum IR",
+      "date": "2026-08-11"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "Lumentum Form 10-K for fiscal year ended 2026-06-27 (operating cash flow $751.4M read from search excerpt; page not fetched, sec.gov 403)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001633978/000162828026057358/lite-20260627.htm",
+      "publisher": "Lumentum / SEC EDGAR",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "Financial analysis of Lumentum fiscal 2026 (10-K based: capex, FCF, customer concentration, convertible notes; accessed date)",
+      "url": "https://sec-api.io/insights/financial-analysis-of-lumentum-fiscal-2026",
+      "publisher": "sec-api.io",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s5",
+      "kind": "call-transcript",
+      "title": "Lumentum Q4 Earnings Call Highlights (OCS >$100M in Q1 FY27, CPO laser timing, capex $167M, pump lasers sold out)",
+      "url": "https://www.marketbeat.com/instant-alerts/lumentum-q4-earnings-call-highlights-2026-08-11/",
+      "publisher": "MarketBeat",
+      "date": "2026-08-11"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "Lumentum InP AI optics shortage (CEO remarks 2026-07-08, Greensboro 6-inch InP plant, Nvidia investment, Coherent/Sumitomo expansion)",
+      "url": "https://xenospectrum.com/en/lumentum-inp-ai-optics-shortage/",
+      "publisher": "XenoSpectrum",
+      "date": "2026-08-03"
+    },
+    {
+      "id": "s7",
+      "kind": "news",
+      "title": "Nvidia to invest $2 billion each in Lumentum, Coherent (Reuters via Yahoo Finance; read from search summary)",
+      "url": "https://finance.yahoo.com/news/nvidia-invest-4-billion-photonic-131110099.html",
+      "publisher": "Reuters / Yahoo Finance",
+      "date": "2026-03-02"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "TrendForce: EML suppliers (Lumentum, Coherent, Mitsubishi, Sumitomo, Broadcom), Nvidia pre-allocated capacity, lead times beyond 2027",
+      "url": "https://dramexchange.com/WeeklyResearch/Post/2/12549.html",
+      "publisher": "TrendForce / DRAMeXchange",
+      "date": "2025-12-08"
+    },
+    {
+      "id": "s9",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/lite/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s10",
+      "kind": "other",
+      "title": "AIO local earnings calendar snapshot (Finnhub calendar/earnings), public-data/earnings-calendar.json",
+      "url": "https://finnhub.io/docs/api",
+      "publisher": "Finnhub via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s11",
+      "kind": "news",
+      "title": "Lumentum, Astera Labs and Corning to demonstrate 1060 nm VCSEL-based PCIe over optics at 2026 OCP Global Summit (headline in news list)",
+      "url": "https://www.stocktitan.net/news/GLW/lumentum-astera-labs-and-corning-to-demonstrate-1060-nm-vcsel-based-tndqryjd7huj.html",
+      "publisher": "Stock Titan",
+      "date": "2026-10-12"
+    },
+    {
+      "id": "s12",
+      "kind": "other",
+      "title": "Lumentum (Wikipedia: spin-off from JDSU on 2015-08-01; accessed date)",
+      "url": "https://en.wikipedia.org/wiki/Lumentum",
+      "publisher": "Wikipedia",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s13",
+      "kind": "news",
+      "title": "Coherent Q4 financials see supply chain wins and scale-across opportunity (Coherent OCS revenue, CPO ramp, InP doubling)",
+      "url": "https://www.sdxcentral.com/news/coherent-q4-financials-see-supply-chain-wins-and-scale-across-opportunity/",
+      "publisher": "SDxCentral",
+      "date": "2026-08-14"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "인화인듐(InP) 레이저 칩 설계·제조 능력 - 100G·200G EML, CW 레이저, 초고출력 CPO 레이저, 협선폭·펌프 레이저",
+      "자체 InP 웨이퍼 공장과 생산능력 (일본 사가미하라·다카오, 영국 캐즈웰, 미국 그린즈버러 6인치 전환 추진)",
+      "칩부터 트랜시버·OCS 시스템까지 수직 통합 (Cloud Light 인수로 트랜시버 조립 확보)",
+      "NVIDIA의 20억 달러 투자와 다년 구매약정, OCS 다년·수십억 달러 구매계약 등 장기 고객 약정"
+    ],
+    "text": "Lumentum의 뿌리는 빛을 만드는 레이저 칩, 특히 인화인듐(InP) 웨이퍼로 만드는 EML·CW 레이저에 있다. 이 칩을 대량으로 만들 수 있는 회사가 손에 꼽을 만큼 적어서, 회사는 2026년 내내 고객 수요보다 30% 넘게 덜 출하하고 있다고 밝혔다. 칩 위에 트랜시버와 광 회로 스위치(OCS)까지 직접 만드는 수직 통합이 두 번째 뿌리다.",
+    "src": [
+      "s2",
+      "s5",
+      "s6",
+      "s8"
+    ]
+  },
+  "design": {
+    "text": "회사는 FY2026부터 옛 Cloud & Networking·Industrial Tech 대신 제품 유형 두 가지로 매출을 보고한다. Components는 데이터센터용 EML·CW 레이저, CPO용 초고출력 레이저, 장거리 연결용 협선폭 레이저, 펌프 레이저, 3D 센싱용 레이저 등 칩과 부품이다. Systems는 800G·1.6T 클라우드 트랜시버와 OCS처럼 부품을 묶은 완제품이다.",
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "자체 InP 팹 - 일본 사가미하라·다카오, 영국 캐즈웰 (생산능력 확대 진행)",
+      "미국 노스캐롤라이나 그린즈버러 - GaAs 라인을 6인치 InP로 전환하는 24만 제곱피트 공장, 2028년 중반 양산 예정 (보도)",
+      "위탁생산업체(CM) - OCS·모듈 조립 일부 (이름 미공개, 매입 집중도 18.2%)",
+      "InP 기판 - 업계 전반이 AXT 등 소수 업체에 의존 (중국은 2025-02 InP 기판을 수출통제 목록에 추가)"
+    ],
+    "text": "이런 칩은 회사가 직접 가진 InP 웨이퍼 공장에서 만들고, 트랜시버와 OCS 조립 일부는 위탁생산업체가 거든다. 병목은 조립이 아니라 레이저 칩이어서, 회사는 일본·영국 공장 증설에 더해 미국 그린즈버러 공장을 6인치 InP로 바꾸고 있다. 분기 설비투자가 1.67억 달러(Q4 FY2026)까지 늘어난 이유다.",
+    "src": [
+      "s5",
+      "s6",
+      "s4"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "하이퍼스케일러 - 자체 AI 클러스터용 1.6T 트랜시버, OCS (OCS는 다년·수십억 달러 구매계약)",
+      "트랜시버 제조사 - EML·CW 레이저 칩 구매 (여러 고객)",
+      "NVIDIA - 20억 달러 투자와 다년 구매약정·미래 생산능력 접근권 (2026-03, 비독점)",
+      "CPO 선도 고객 - 생산 계획 순항, 수요 신호 상향 (고객명 미공개)",
+      "통신·DCI 장비업체 - 협선폭·펌프 레이저 (펌프 레이저 다수 장기공급계약)",
+      "소비자 기기 고객 - 3D 센싱 레이저"
+    ],
+    "channel": "직접 판매. 칩은 트랜시버 제조사에, 트랜시버·OCS는 하이퍼스케일러에 직접 공급한다.",
+    "concentration": "FY2026 상위 2개 고객이 매출의 41.6% (전년 31.4%), 1개 고객이 매출채권의 30.4% - 10-K 기반 제3자 분석, 고객명 미공개",
+    "text": "만든 부품은 두 갈래로 팔린다. 레이저 칩은 트랜시버를 만드는 회사들에, 트랜시버와 OCS는 하이퍼스케일러에 바로 들어가며, 상위 두 고객이 FY2026 매출의 41.6%를 차지할 만큼 쏠림이 크다. NVIDIA는 2026-03 20억 달러를 투자하며 다년 구매약정과 미래 생산능력 접근권을 받아, 고객이 공급자의 증설을 돈으로 미리 잡아 두는 관계가 됐다.",
+    "src": [
+      "s4",
+      "s2",
+      "s5",
+      "s7",
+      "s6"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "AI 서비스 이용자·기업",
+        "to": "하이퍼스케일러·AI 클라우드",
+        "what": "클라우드·AI 이용료"
+      },
+      {
+        "from": "하이퍼스케일러",
+        "to": "Lumentum",
+        "what": "1.6T 트랜시버·OCS 시스템 대금 (OCS는 다년 구매계약)"
+      },
+      {
+        "from": "하이퍼스케일러·NVIDIA",
+        "to": "트랜시버 제조사",
+        "what": "800G·1.6T 광 트랜시버 구매"
+      },
+      {
+        "from": "트랜시버 제조사",
+        "to": "Lumentum",
+        "what": "EML·CW 레이저 칩 대금 (개당, 장기공급계약)"
+      },
+      {
+        "from": "NVIDIA",
+        "to": "Lumentum",
+        "what": "지분투자 20억 달러 + 다년 구매약정 (2026-03)"
+      }
+    ],
+    "pricing": "레이저 칩·트랜시버·OCS를 개당·시스템당 판다. 공급 부족 속에 장기공급계약으로 물량을 배분하며, 200G EML처럼 고속 제품 비중이 늘수록 평균 단가와 마진이 오른다.",
+    "text": "돈은 하이퍼스케일러가 광 트랜시버를 살 때 두 번 Lumentum에 들어온다. 직접 트랜시버·OCS를 팔 때, 그리고 다른 트랜시버 제조사가 Lumentum 레이저 칩을 사서 넣을 때다. 200G EML이 EML 매출의 25%를 넘는 등 고속 제품 비중이 커지면서 같은 물량에서도 매출과 마진이 함께 오르는 구조다.",
+    "src": [
+      "s2",
+      "s5",
+      "s7"
+    ]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-06-27)",
+    "revenue": {
+      "value": 3.014,
+      "unit": "USD bn",
+      "yoy": 83.2
+    },
+    "grossMargin": 41.7,
+    "operatingMargin": 17.4,
+    "netMargin": -230.1,
+    "operatingCashFlow": {
+      "value": 0.751,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 0.3,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Components",
+        "revenue": 2.0056,
+        "unit": "USD bn",
+        "share": 66.5,
+        "yoy": 79.7,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Systems",
+        "revenue": 1.0084,
+        "unit": "USD bn",
+        "share": 33.5,
+        "yoy": 90.7,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "최근 분기 (Q4 FY2026) 매출·마진",
+        "value": "매출 10.06억 달러(+109%), GAAP 총마진 47.4%·영업이익률 27.8%, non-GAAP 총마진 50.4%·영업이익률 36.6%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "FY2026 non-GAAP 실적",
+        "value": "non-GAAP 총마진 46.0%, 영업이익률 29.8%, 순이익 7.82억 달러(주당 8.67달러)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "일회성 손실",
+        "value": "전환사채 주식 전환에 따른 비현금 채무소멸손실 77.6억 달러 (Q4 FY2026) - GAAP 순손실 69.4억 달러의 원인",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "공급 부족 폭",
+        "value": "EML·펌프 레이저 출하가 고객 수요보다 30% 이상 부족 (2026-07 CEO 발언)",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "name": "제품 지표",
+        "value": "200G EML이 EML 매출의 25% 초과, 협선폭 레이저 10분기 연속 성장(+130% 이상), 펌프 레이저 +80% (Q4 FY2026)",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "text": "이 공급 부족 속에서 FY2026 매출은 30.1억 달러로 83% 늘었고, 4분기 매출은 10.1억 달러로 1년 전의 두 배가 넘었다. 회계상 순손실 69억 달러는 전환사채를 주식으로 바꾸며 생긴 77.6억 달러 비현금 손실 때문이고, 이를 뺀 non-GAAP 순이익은 7.8억 달러였다. 영업현금흐름 7.5억 달러가 설비투자를 감당하고도 남아 잉여현금흐름이 2년 만에 흑자로 돌아섰다.",
+    "src": [
+      "s1",
+      "s3",
+      "s4"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-06-27)",
+    "items": [
+      {
+        "use": "R&D",
+        "value": 0.3565,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.4513,
+        "unit": "USD bn",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s4"
+        ]
+      }
+    ],
+    "text": "번 돈은 거의 전부 생산능력에 들어간다. FY2026 설비투자는 4.5억 달러로 매출의 15%였고, 4분기 한 분기에만 1.67억 달러를 썼으며 자사주 매입과 배당은 없었다. 연말 현금·단기투자가 27억 달러로 19억 달러 늘어난 것은 NVIDIA 지분투자 등 외부 자금 덕분이어서, 회사는 이 돈을 InP 공장 증설에 쓰는 데 우선순위를 두고 있다.",
+    "src": [
+      "s4",
+      "s5",
+      "s1",
+      "s7"
+    ]
+  },
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 클러스터의 GPU·스위치를 빛으로 잇는 광 트랜시버 안의 레이저 칩을 공급하고, 트랜시버와 광 회로 스위치(OCS)를 직접 만든다. 앞으로 스위치·GPU 옆에 광을 붙이는 CPO·NPO의 외부 광원 레이저로 랙 안쪽 연결까지 넓히려 한다.",
+    "dependsOn": [
+      "InP 기판 (AXT 등 소수 업체, 중국 수출통제 영향)",
+      "자체 InP 웨이퍼 팹과 위탁 조립",
+      "고객의 GPU·스위치 출하 일정 (NVIDIA, 하이퍼스케일러)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (하이퍼스케일러 - 트랜시버·OCS)",
+      "chips-compute (NVIDIA - CPO·레이저, 구매약정)",
+      "networking (트랜시버 제조사 - 레이저 칩)"
+    ],
+    "aiRevenue": "AI 관련 매출 금액은 별도 공시 없음. 회사는 Q4 FY2026 매출 +100% 이상이 클라우드·AI 사업에서 나왔다고 설명 (2026-08-11)",
+    "upside": "GPU 한 대당 광 링크 수가 늘고 링크 속도가 800G→1.6T로 오를 때마다 레이저 칩 수와 단가가 함께 오른다. OCS와 CPO·NPO가 본격화하면 랙 내부 연결이라는 새 시장이 열린다.",
+    "risk": "공급 부족이 풀리면 가격이 내려갈 수 있고, 중국 업체의 InP 증설, 소수 고객 집중, 하이퍼스케일러 설비투자 감속, CPO 일정 지연이 위험이다.",
+    "text": "그래서 AI 가치사슬에서 Lumentum은 '네트워킹' 층 안에서도 빛을 만드는 가장 안쪽 부품을 맡는다. GPU가 늘고 연결 속도가 빨라질수록 레이저 칩이 더 많이, 더 비싸게 필요해지는데, 이 칩을 만들 수 있는 곳이 적어 지금은 공급이 매출 상한이다. 반대로 증설이 끝나는 2027~2028년에는 공급 부족이 주던 가격 결정력이 약해질 수 있다는 점이 같은 자리의 위험이다.",
+    "src": [
+      "s1",
+      "s2",
+      "s5",
+      "s6"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "데이터센터용 EML·CW 레이저 칩",
+        "rivals": [
+          "Coherent (Finisar)",
+          "Mitsubishi Electric",
+          "Sumitomo Electric",
+          "Broadcom"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s8",
+          "s6"
+        ]
+      },
+      {
+        "arena": "800G·1.6T 광 트랜시버",
+        "rivals": [
+          "Coherent",
+          "중국 트랜시버 업체 (이름 미확인)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s4",
+          "s5"
+        ]
+      },
+      {
+        "arena": "광 회로 스위치 (OCS)",
+        "rivals": [
+          "Coherent"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s5",
+          "s13"
+        ]
+      },
+      {
+        "arena": "CPO·NPO용 외부 광원 레이저",
+        "rivals": [
+          "Coherent"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s5",
+          "s13"
+        ]
+      }
+    ],
+    "edge": "고속 EML·CW·초고출력 레이저를 대량으로 만들 수 있는 InP 팹, 칩부터 트랜시버·OCS까지의 수직 통합, NVIDIA·하이퍼스케일러와의 다년 약정. 경영진은 엄격한 사양이 고객의 수율을 높여 준다고 주장한다.",
+    "threats": "Coherent가 6인치 InP로 2027년 말까지 생산능력을 다시 두 배 이상 늘리고, 중국 InP 증설이 가격을 누를 수 있다. 회사는 아직 중국 증설의 영향을 보지 못했다고 밝혔다.",
+    "text": "가장 직접적인 맞수는 같은 날 NVIDIA 투자를 받은 Coherent다. 두 회사 모두 6인치 InP로 생산능력을 늘리고 있고, 트랜시버 완제품 시장에서는 중국 업체들과도 부딪친다. Lumentum은 고속 레이저의 사양과 신뢰성, 그리고 OCS·CPO처럼 아직 경쟁자가 적은 새 제품으로 앞서 가려 하지만, 업체별 점유율은 이번 조사에서 확인하지 못했다.",
+    "src": [
+      "s6",
+      "s7",
+      "s8",
+      "s5",
+      "s13"
+    ]
+  },
+  "strategy": {
+    "goal": "Q1 FY2027 매출 가이던스 중간값 12.5억 달러로 '목표 모델'에 계획보다 한 분기 이상 빨리 도달했다고 밝혔고, 광이 랙 내부 연결까지 들어오며 광 TAM이 크게 늘어난다고 본다.",
+    "roadmap": [
+      {
+        "when": "Q1 FY2027 (2026-09 분기)",
+        "what": "처음으로 OCS 분기 매출 1억 달러 초과 예상, 매출 12.25억~12.75억 달러 가이던스",
+        "src": [
+          "s5",
+          "s1"
+        ]
+      },
+      {
+        "when": "2026 하반기~2027",
+        "what": "1.6T 트랜시버 램프(일부 자체 CW 레이저 사용), CW 레이저 수요 증가",
+        "src": [
+          "s2",
+          "s5"
+        ]
+      },
+      {
+        "when": "CY2026 말",
+        "what": "CPO용 초고출력 레이저가 의미 있는 매출로 진입",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "CY2027 하반기",
+        "what": "scale-up용 초고출력 레이저 칩 대량 출하 시작, 외부 광원(ELS) 모듈 첫 주문 납품",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "when": "2028",
+        "what": "고객 CPO 배치, NPO 시장 진입(2027 말~2028), 트레이 내 OCS 제품, 그린즈버러 6인치 InP 공장 양산(보도)",
+        "src": [
+          "s5",
+          "s6"
+        ]
+      }
+    ],
+    "vision": "광이 데이터센터 사이·랙 사이에서 랙 안쪽 GPU 연결까지 들어오는 흐름에서, 레이저 칩부터 스위치까지 빛의 전 구간을 공급하는 회사가 되겠다는 그림이다.",
+    "text": "경쟁을 이기기 위해 회사는 지금 팔고 있는 데이터센터 간·서버 간 광 연결 다음 단계를 미리 준비한다. 2026년 OCS와 1.6T, 2027년 하반기 CPO용 초고출력 레이저, 2028년 고객 CPO 배치로 이어지는 일정이며, 그 사이 InP 생산능력을 계속 늘려야 한다. 결국 계획의 성패는 수요보다 공장이 얼마나 빨리 늘어나느냐에 달려 있다.",
+    "src": [
+      "s5",
+      "s2",
+      "s1",
+      "s6"
+    ]
+  },
+  "governance": {
+    "line": "2015년 JDSU에서 분사한 회사로 Michael Hurlston이 사장 겸 CEO를 맡고 있으며, 배당·자사주 매입 없이 현금을 증설에 쓰고 2026년 4분기에 전환사채 일부를 주식으로 바꿔 부채를 줄였다.",
+    "src": [
+      "s12",
+      "s1",
+      "s4"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q1 FY2027",
+        "metric": "revenue",
+        "value": "12.25억~12.75억 달러",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q1 FY2027",
+        "metric": "non-GAAP operating margin",
+        "value": "39.5%~40.5%",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q1 FY2027",
+        "metric": "non-GAAP diluted EPS",
+        "value": "4.05~4.35달러 (희석주식 약 1.02억 주, 세율 16.5% 가정)",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "Q1 FY2027",
+        "metric": "OCS revenue",
+        "value": "처음으로 1억 달러 초과 (콜 발언)",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s5"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "Q4 FY2026 매출은 가이던스 범위 상단에 도달했고 non-GAAP 영업이익률·EPS는 범위 상단을 넘었다.",
+    "src": [
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 19.73달러(범위 17.40~21.14), 직전 4개 분기 실적 합 6.36달러. 최근 4주 상향 2건·하향 1건.",
+    "src": [
+      "s9"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Q1 FY2027 OCS 매출이 1억 달러를 넘고 이후 분기에도 늘어남",
+      "200G EML·CW 레이저 비중이 계속 오르고 non-GAAP 총마진이 50% 이상 유지",
+      "공급 부족 폭(30% 이상)이 생산능력 증설로 줄면서도 가격이 유지됨",
+      "1.6T 트랜시버 램프와 CPO 레이저 매출이 CY2026 말 시작",
+      "상위 고객 외 신규 고객 매출 증가로 집중도 완화"
+    ],
+    "breaks": [
+      "다음 분기 매출 가이던스가 컨센서스를 밑돎",
+      "레이저 가격 하락이나 중국 InP 증설 영향 언급",
+      "CPO·OCS 일정 지연",
+      "하이퍼스케일러 설비투자 하향",
+      "대형 고객의 주문 축소 또는 재고 조정"
+    ],
+    "keyNumbers": [
+      {
+        "name": "분기 매출과 다음 분기 가이던스",
+        "why": "공급 증설 속도가 곧 매출 상한"
+      },
+      {
+        "name": "non-GAAP 총마진·영업이익률",
+        "why": "고속 제품 비중과 가격 결정력의 결과"
+      },
+      {
+        "name": "OCS 분기 매출",
+        "why": "새 성장축이 실제 숫자로 커지는지"
+      },
+      {
+        "name": "Components vs Systems 성장률",
+        "why": "칩 판매와 완제품 판매의 균형"
+      },
+      {
+        "name": "분기 설비투자",
+        "why": "InP 증설 속도와 현금 부담"
+      },
+      {
+        "name": "상위 2개 고객 매출 비중",
+        "why": "고객 집중 위험"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11-05 (장 마감 후 예정, Finnhub)",
+        "event": "Q1 FY2027 실적 발표와 Q2 가이던스",
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "date": "2026-11-04 (예정, Finnhub)",
+        "event": "경쟁사 Coherent 실적 - InP 공급·가격 흐름 비교",
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "date": "2026-11-25 (예정, Finnhub)",
+        "event": "NVIDIA 실적 - 광 연결·CPO 수요 확인",
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "date": "2026-10 (OCP Global Summit)",
+        "event": "Astera Labs·Corning과 1060nm VCSEL 기반 PCIe over optics 시연",
+        "src": [
+          "s11"
+        ]
+      }
+    ],
+    "reaction": "주가는 다음 분기 매출 가이던스와 non-GAAP 영업이익률, 그리고 OCS·CPO 같은 새 제품의 일정 언급에 크게 반응하는 경향이 있다. GAAP 순이익은 전환사채 관련 일회성 항목으로 크게 흔들리므로 non-GAAP 숫자와 함께 봐야 한다.",
+    "conditions": [
+      "실적 발표 때 다음 분기 매출 가이던스와 컨센서스의 차이",
+      "OCS 매출이 1억 달러를 넘었는지",
+      "공급 부족 폭과 생산능력 증설 진척 언급",
+      "Coherent 실적에서 나오는 InP 공급·가격 신호",
+      "하이퍼스케일러 설비투자 전망 변화",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "영업현금흐름 7.51억 달러는 10-K 문구를 검색 요약으로 읽은 값이고, 설비투자 4.51억·잉여현금흐름 3.00억 달러와 고객 집중도는 10-K 기반 제3자 분석(sec-api.io)에서 옴 - 10-K 원문은 sec.gov 403으로 직접 확인하지 못함",
+    "FY2026 GAAP 순이익률 -230.1%는 순손실 69.35억 달러를 매출 30.14억 달러로 나눈 계산값 (일회성 비현금 손실 포함)",
+    "NVIDIA 20억 달러 투자의 정확한 구조(보통주·전환증권 여부)와 구매약정 금액 - 보도(검색 요약) 기준",
+    "CPO 선도 고객과 OCS 다년 구매계약 상대의 이름 (회사 미공개)",
+    "AI·클라우드 관련 매출 금액과 비중",
+    "부문(제품 유형)별 영업이익률",
+    "그린즈버러 공장 투자 규모·양산 시점은 보도 기준",
+    "업체별 EML·트랜시버·OCS 시장 점유율",
+    "트랜시버 시장의 중국 경쟁사 이름",
+    "CEO 취임 시점",
+    "InP 팹 위치(사가미하라·다카오·캐즈웰)와 약 40% 증설 목표는 2026-02 콜 요약(검색 결과)에서 읽은 내용이며 원문 미확인",
+    "Q1 FY2027 실적 발표일은 Finnhub 일정 기준, 회사 공지와 대조하지 않음"
+  ],
+  "confidence": "medium - 매출·마진·가이던스는 회사 보도자료와 발표 자료에서 왔지만, 현금흐름·고객 집중은 10-K를 직접 열지 못해 제3자 분석에 기댔고, 경쟁 구도는 점유율 자료가 없다."
+}

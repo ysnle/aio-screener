@@ -1,0 +1,553 @@
+{
+  "symbol": "CRWV",
+  "name": "CoreWeave, Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "CoreWeave는 NVIDIA GPU를 대량으로 사서 AI 연구소·빅테크에 장기 계약으로 빌려주는 AI 전용 클라우드로, 1,040억 달러 수주잔고와 대규모 차입을 함께 안고 있어 AI 인프라 투자의 속도와 자금 조달 여건을 동시에 보여 준다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "CoreWeave Reports Strong Fourth Quarter and Fiscal Year 2025 Results",
+      "url": "https://investors.coreweave.com/news/news-details/2026/CoreWeave-Reports-Strong-Fourth-Quarter-and-Fiscal-Year-2025-Results/",
+      "publisher": "CoreWeave IR",
+      "date": "2026-02-26"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "CoreWeave Reports Strong Second Quarter 2026 Results",
+      "url": "https://investors.coreweave.com/news/news-details/2026/CoreWeave-Reports-Strong-Second-Quarter-2026-Results/default.aspx",
+      "publisher": "CoreWeave IR",
+      "date": "2026-08-11"
+    },
+    {
+      "id": "s3",
+      "kind": "call-transcript",
+      "title": "CoreWeave Q2 Earnings Call Highlights (guidance, pricing, contracted power, financing)",
+      "url": "https://www.marketbeat.com/instant-alerts/coreweave-q2-earnings-call-highlights-2026-08-11/",
+      "publisher": "MarketBeat",
+      "date": "2026-08-11"
+    },
+    {
+      "id": "s4",
+      "kind": "other",
+      "title": "CoreWeave (CRWV) 2026 revenue analysis: top customer concentration exposure (reads FY2025 10-K and Q2 2026 10-Q)",
+      "url": "https://sec-api.io/insights/coreweave-crwv-2026-revenue-analysis-top-customer-concentration-exposure",
+      "publisher": "sec-api.io",
+      "date": "2026-09-08"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "CoreWeave tops $5 billion in revenue for 2025, projects more hypergrowth 2026, 2027 (initial FY2026 guidance)",
+      "url": "https://constellationr.com/insights/news/coreweave-tops-5-billion-revenue-2025",
+      "publisher": "Constellation Research",
+      "date": "2026-02-26"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "CoreWeave (CRWV) Q2 2026 earnings summary",
+      "url": "https://quartr.com/events/coreweave-inc-crwv-q2-2026_F6huCJA4",
+      "publisher": "Quartr",
+      "date": "2026-08-12"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/crwv/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "AIO local earnings calendar snapshot, public-data/earnings-calendar.json (CRWV 2026-11-16; not company-confirmed in this session)",
+      "url": "https://www.nasdaq.com/market-activity/earnings",
+      "publisher": "AIO earnings calendar",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s9",
+      "kind": "8-K",
+      "title": "CoreWeave 8-K: pricing of upsized convertible notes offering and capped call transactions (search result index only)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001769628/000176962826000432/crwv-20260917.htm",
+      "publisher": "CoreWeave / SEC EDGAR",
+      "date": "2026-09-17"
+    },
+    {
+      "id": "s10",
+      "kind": "news",
+      "title": "Nvidia-backed CoreWeave prices its IPO (competitor list as stated by the company: AWS, Google Cloud, IBM, Microsoft Azure, Oracle; smaller providers Crusoe and Lambda)",
+      "url": "https://finance.yahoo.com/news/nvidia-backed-coreweave-prices-ipo-020005634.html",
+      "publisher": "Investopedia via Yahoo Finance",
+      "date": "2025-03-28"
+    },
+    {
+      "id": "s11",
+      "kind": "ir-site",
+      "title": "CoreWeave Announces Date of Third Quarter 2026 Financial Results and Conference Call (2026-11-10, 5:00 PM ET)",
+      "url": "https://investors.coreweave.com/news/news-details/2026/CoreWeave-Announces-Date-of-Third-Quarter-2026-Financial-Results-and-Conference-Call/default.aspx",
+      "publisher": "CoreWeave",
+      "date": "2026-10-27"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "NVIDIA 신제품을 가장 먼저 가동하는 실행력 - Vera Rubin NVL72 첫 가동·검증 (Q2 2026)",
+      "AI 학습·추론 전용으로 짠 소프트웨어·운영 스택 (SUNK, 관리형 추론, 스토리지) - MLPerf 기록",
+      "장기 선계약을 담보로 한 대규모 자금 조달 능력 - Q2에만 약 180억 달러 조달",
+      "확보한 전력 - 가동 1.5GW, 계약 4.2GW"
+    ],
+    "text": "CoreWeave의 강점은 GPU 자체가 아니라, NVIDIA의 새 시스템을 누구보다 빨리 대규모로 돌려 고객에게 넘기는 실행력이다. 2026년 2분기에도 Vera Rubin NVL72를 처음 가동·검증한 클라우드였다. 여기에 대형 고객의 장기 계약을 담보로 돈을 빌려 GPU와 전력을 먼저 확보하는 금융 능력이 두 번째 뿌리다.",
+    "src": [
+      "s2",
+      "s3"
+    ]
+  },
+  "design": {
+    "text": "이 실행력 위에서 회사가 파는 것은 AI 전용 클라우드 서비스다. 핵심은 GPU 연산 용량 임대이고, 그 위에 스토리지·CPU·네트워킹·관리형 추론 같은 GPU 외 제품(Q2 2026 연환산 4억 달러 이상)과 다른 클라우드와 연결하는 CoreWeave Interconnect·SUNK Anywhere 같은 소프트웨어를 더한다.",
+    "src": [
+      "s2",
+      "s3"
+    ]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "NVIDIA - GPU 시스템 (Blackwell, Vera Rubin NVL72) 공급",
+      "데이터센터·전력 제공 사업자 - 회사는 공급처를 다변화하고 자체 전력 부지를 늘린다고 설명 (업체명 미확인)",
+      "대출 기관·채권 투자자 - 31억 달러 텀론, 100억 달러 이상 무담보채·전환사채, 유로본드",
+      "Jane Street - 10억 달러 전략 투자 (Q2 2026)"
+    ],
+    "text": "CoreWeave는 GPU 서버를 직접 사서 소유하고, 데이터센터 공간과 전력은 여러 사업자에게서 확보하는 방식으로 서비스를 만든다. 그래서 '생산'의 핵심은 NVIDIA에서 시스템을 받고, 그 대금을 빚으로 미리 치르는 것이다. 2026년 상반기 설비투자만 141억 달러였고, 2분기 순차입 조달이 135억 달러에 이른다.",
+    "src": [
+      "s2",
+      "s3"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "Microsoft - FY2025 매출의 약 67%",
+      "Q2 2026 기준 두 번째 고객 26%, 세 번째 고객 10% (이름은 이번 조사에서 확인 못 함)",
+      "AI 기업 - Cognition, Cursor, Midjourney, Runway, Databricks, Isomorphic Labs 등",
+      "금융·산업 - Jane Street, Hudson River Trading, Caterpillar, Bentley Systems 등"
+    ],
+    "channel": "직접 판매. 대형 고객과 여러 해짜리 용량 약정(take-or-pay 성격의 장기 계약)을 맺고, 일부는 단기·주문형으로 판다.",
+    "concentration": "FY2025 Microsoft가 매출의 약 67% (FY2024 최대 고객 62%, 상위 2개 77%). Q2 2026에는 2위 고객 26%, 3위 10%로 분산이 시작됨 - 2차 자료(sec-api.io)가 10-K·10-Q를 읽은 값.",
+    "text": "이렇게 만든 연산 용량은 소수의 거대 고객에게 장기 계약으로 팔린다. FY2025에는 Microsoft 한 곳이 매출의 약 67%를 차지했고, 2026년 2분기에는 다른 두 고객이 각각 26%, 10%를 차지해 집중이 조금씩 풀리고 있다. 동시에 AI 스타트업·금융·제조 고객이 매 분기 새로 붙어 고객층이 넓어지는 중이다.",
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "AI 서비스 이용자·기업",
+        "to": "AI 연구소·빅테크 (Microsoft 등)",
+        "what": "AI 구독료·API 이용료"
+      },
+      {
+        "from": "Microsoft·AI 연구소·기업",
+        "to": "CoreWeave",
+        "what": "GPU 연산 용량 장기 약정 이용료 (용량·시간 단위), 일부 선급"
+      },
+      {
+        "from": "은행·채권 투자자",
+        "to": "CoreWeave",
+        "what": "고객 계약을 담보로 한 대출·전환사채 (Q2 순조달 135억 달러)"
+      },
+      {
+        "from": "CoreWeave",
+        "to": "NVIDIA·서버 공급사",
+        "what": "GPU 시스템 구매 (Q2 설비투자 64억 달러)"
+      },
+      {
+        "from": "CoreWeave",
+        "to": "데이터센터·전력 사업자, 대출 기관",
+        "what": "임차료·전력비, 이자 (Q2 이자비용 6.4억 달러)"
+      }
+    ],
+    "pricing": "GPU 용량을 시간·용량 단위로 파는 사용료 모델이며, 대부분 여러 해 약정이다. 회사는 2026년 7월 전 제품 가격을 약 25% 올리고 부품 원가 상승분을 전가했다고 말했다.",
+    "text": "돈은 AI 서비스 이용료에서 출발해 Microsoft 같은 대형 고객의 장기 약정료로 CoreWeave에 들어오지만, 그보다 먼저 빚으로 빌린 돈이 NVIDIA로 나간다. 즉 계약 → 차입 → GPU 구매 → 가동 → 이용료 회수의 순서라서, 가동이 늦어지면 이자만 먼저 나간다. 2분기 이자비용 6.4억 달러가 순손실 6.26억 달러와 거의 같은 이유가 여기에 있다.",
+    "src": [
+      "s2",
+      "s3"
+    ]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": {
+      "value": 5.131,
+      "unit": "USD bn",
+      "yoy": 168
+    },
+    "grossMargin": 71.7,
+    "operatingMargin": -0.9,
+    "netMargin": -22.7,
+    "operatingCashFlow": {
+      "value": 3.058,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": -7.251,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "AI 클라우드 플랫폼 (단일 부문으로 가정)",
+        "revenue": 5.131,
+        "unit": "USD bn",
+        "share": 100,
+        "yoy": 168,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "수주잔고(backlog)",
+        "value": "668억 달러(2025-12-31) → 약 1,040억 달러(2026-06-30, +246%); 3분기 초 250억 달러 이상 추가 계약은 미포함",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "RPO와 전환 속도",
+        "value": "1,037억 달러(2026-06-30), 이 중 41%가 24개월 안에 매출로 전환 예정",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "name": "전력 용량",
+        "value": "가동 1.5GW, 계약 3.7GW(분기말) → 4.2GW(이후), 연말 가동 1.85GW 이상 목표",
+        "src": [
+          "s2",
+          "s3"
+        ]
+      },
+      {
+        "name": "최근 분기 (Q2 2026)",
+        "value": "매출 25.75억 달러(+112%), 조정 EBITDA 15.1억(59%), 조정 영업이익 1.28억(5%), GAAP 영업손실 4,900만, 순손실 6.26억",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "조정 EBITDA (FY2025)",
+        "value": "30.93억 달러, 마진 60%",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "이 구조가 FY2025에 매출 51.3억 달러(+168%)와 조정 EBITDA 마진 60%를 만들었지만, 감가상각 24.5억 달러와 이자비용 12.3억 달러를 빼면 순손실 11.7억 달러가 남았다. 영업현금흐름은 30.6억 달러 흑자였으나 설비투자 103억 달러를 빼면 잉여현금흐름은 약 -72.5억 달러다(계산값). 즉 이익은 아직 장부 위의 EBITDA에 있고, 현금은 계속 GPU로 들어가고 있다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 10.309,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "순이자비용",
+        "value": 1.229,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": null,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "벌어들인 현금과 빌린 돈은 거의 전부 GPU와 데이터센터로 간다. FY2025 설비투자는 103억 달러였고, 2026년에는 350억~390억 달러로 세 배 넘게 커질 예정이다. 배당이나 자사주 매입은 없고, Monolith·Marimo 같은 소형 인수(금액 미확인)와 늘어나는 이자 지급이 나머지 쓰임이다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "aiChain": {
+    "layer": "cloud-infrastructure",
+    "position": "NVIDIA GPU를 사서 AI 연구소·빅테크·기업에 연산 용량으로 빌려주는 'neocloud' 층. 하이퍼스케일러가 직접 짓지 못한 용량을 대신 지어 공급하는 자리다.",
+    "dependsOn": [
+      "chips-compute (NVIDIA Blackwell·Vera Rubin)",
+      "power-energy·data-center-real-estate (전력 부지·데이터센터 공급자)",
+      "부채·자본 시장 (텀론·전환사채·유로본드)"
+    ],
+    "sellsTo": [
+      "models-platforms (Microsoft, AI 연구소, Cognition·Cursor 등)",
+      "ai-adopter (Caterpillar, Bentley, 금융 트레이딩 회사)"
+    ],
+    "aiRevenue": "매출 거의 전부가 AI 연산 용량 판매. Q2 2026 매출 25.75억 달러, GPU 외 AI 제품 연환산 4억 달러 이상, 관리형 추론 예약 ARR 1억 달러 이상.",
+    "upside": "AI 학습·추론 수요가 늘어 장기 계약이 쌓이면 수주잔고가 매출로 전환되고, 가격 인상(7월 약 25%)과 가동률 상승이 이익률을 높인다. 회사는 연말 연환산 매출 185억~195억 달러를 제시했다.",
+    "risk": "고객 집중(Microsoft 약 67%), 하이퍼스케일러의 자체 증설로 수요 이탈, GPU 세대 교체에 따른 장부가 하락, 금리·신용 여건 악화 시 차입 비용 상승, 데이터센터 가동 지연.",
+    "text": "그래서 AI 가치사슬에서 CoreWeave는 NVIDIA(칩)와 AI 연구소(모델) 사이의 '클라우드 인프라' 층에 있다. 위쪽에서는 NVIDIA 공급과 전력이, 아래쪽에서는 소수 대형 고객의 계약이 실적을 정한다. 두 사이를 빚으로 잇는 구조라서, AI 수요뿐 아니라 신용 시장의 분위기도 이 회사의 성장 속도를 좌우한다.",
+    "src": [
+      "s2",
+      "s3",
+      "s4"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "AI 전용 GPU 클라우드 (neocloud)",
+        "rivals": [
+          "Lambda",
+          "Crusoe",
+          "Nebius (업계 구분)",
+          "IREN (업계 구분)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "arena": "범용 하이퍼스케일 클라우드의 GPU 용량",
+        "rivals": [
+          "AWS",
+          "Microsoft Azure",
+          "Google Cloud",
+          "Oracle OCI",
+          "IBM"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s10"
+        ]
+      }
+    ],
+    "edge": "NVIDIA 신제품 첫 가동, 1,040억 달러 수주잔고, 1.5GW 가동 전력, AI 전용 소프트웨어 스택. 최근 계약의 예상 공헌이익률이 이전보다 5~10%p 높다고 회사는 말한다.",
+    "threats": "하이퍼스케일러 자체 증설과 자체 칩, 같은 neocloud 경쟁사의 저가 공급, 최대 고객 Microsoft의 조달 전략 변화.",
+    "text": "이 자리를 두고 CoreWeave는 회사가 직접 꼽은 AWS·Google Cloud·IBM·Azure·Oracle 같은 대형 클라우드, 그리고 Crusoe·Lambda 같은 작은 GPU 클라우드와 동시에 경쟁하며, 대형 클라우드 일부는 고객이기도 하다. 회사는 가장 먼저 새 GPU를 가동하고 더 큰 계약을 따내는 '규모'로 이기려 하며, 실제로 수주잔고 규모는 이번에 조사한 neocloud 중 가장 크다. Nebius·IREN은 업계 구분으로 추가한 이름이고 점유율 자료는 없다.",
+    "src": [
+      "s2",
+      "s3",
+      "s10"
+    ]
+  },
+  "strategy": {
+    "goal": "2030년까지 최소 8GW 가동 전력, FY2026 매출 124억~132억 달러, 연말 연환산 매출 185억~195억 달러. GPU 외 소프트웨어·추론 제품으로 매출 구성을 넓힌다.",
+    "roadmap": [
+      {
+        "when": "2026 Q3",
+        "what": "매출 34.5억~36억 달러, 조정 영업이익 2억~2.6억 달러, 이자비용 8.6억~9.4억 달러, 설비투자 115억~135억 달러 가이던스",
+        "src": [
+          "s3",
+          "s6"
+        ]
+      },
+      {
+        "when": "2026 Q4",
+        "what": "조정 영업이익률 10%대 초반 전망, 연말 가동 전력 1.85GW 이상",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2026 말",
+        "what": "관리형 추론 예약 ARR 최소 2.5억 달러",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "첫 CoreWeave Omni 계약 본격 확대, 인도네시아 360MW 약 18개월 뒤 가동 시작",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "2030",
+        "what": "가동 전력 최소 8GW",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "vision": "AI 학습과 추론에 특화된 독립 클라우드로서, 여러 클라우드를 잇는 상호연결·소프트웨어까지 제공하는 'AI의 기본 인프라'가 되는 것.",
+    "text": "회사의 다음 단계는 계약된 전력(4.2GW)을 실제 가동으로 바꾸고, GPU 임대 외에 추론·스토리지·소프트웨어로 매출을 넓히는 것이다. FY2026 가이던스는 매출 124억~132억 달러, 설비투자 350억~390억 달러로 2월보다 올라갔다. 4분기 조정 영업이익률을 10%대 초반으로 예고한 만큼, 가동이 늘면서 이익률이 실제로 따라오는지가 핵심이다.",
+    "src": [
+      "s2",
+      "s3",
+      "s5"
+    ]
+  },
+  "governance": {
+    "line": "CEO Mike Intrator와 CFO Nitin Agrawal이 이끌며, 배당·자사주 매입 없이 빚과 신주·전환사채로 성장 자금을 대는 구조로, 2026년 9월에도 전환사채를 추가 발행했다.",
+    "src": [
+      "s3",
+      "s9"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q3 2026",
+        "metric": "revenue",
+        "value": "34.5억~36억 달러",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s3",
+          "s6"
+        ]
+      },
+      {
+        "period": "Q3 2026",
+        "metric": "adjusted operating income / interest / capex",
+        "value": "2억~2.6억 / 8.6억~9.4억 / 115억~135억 달러",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "revenue",
+        "value": "124억~132억 달러 (2월 120억~130억에서 상향)",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s3",
+          "s5"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "adjusted operating income",
+        "value": "9.6억~11.5억 달러",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s3",
+          "s6"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "capex",
+        "value": "350억~390억 달러 (2월 300억~350억에서 상향)",
+        "givenOn": "2026-08-11",
+        "src": [
+          "s3",
+          "s5"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "FY2026 매출·설비투자 가이던스를 8월에 올렸다. Q2 설비투자는 직전 가이던스를 약간 넘었다(회사 언급). Q2 매출과 Q2 매출 가이던스 범위의 대조는 원문으로 확인하지 못했다.",
+    "src": [
+      "s3",
+      "s5"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-27 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기 합계 -4.22달러(범위 -5.69~-0.93, 최소 9명), 직전 4개 분기 실적 합 -3.85달러. 최근 4주 상향 4건·하향 3건으로 방향이 엇갈린다.",
+    "src": [
+      "s7"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "수주잔고가 계속 늘고 Microsoft 외 고객 비중이 커짐",
+      "가동 전력이 연말 1.85GW 이상에 도달",
+      "조정 영업이익률이 4분기 10%대 초반으로 올라감",
+      "가중평균 차입 비용이 계속 내려감",
+      "GPU 외 제품·추론 ARR이 목표(연말 2.5억 달러 이상)를 넘음"
+    ],
+    "breaks": [
+      "데이터센터 가동 지연으로 매출 가이던스 하향",
+      "대형 고객 계약 축소·미갱신",
+      "이자비용이 조정 영업이익보다 빠르게 늘어남",
+      "차입 금리 상승 또는 신규 조달 실패",
+      "GPU 가격 하락으로 재계약 단가 하락"
+    ],
+    "keyNumbers": [
+      {
+        "name": "수주잔고와 24개월 내 전환 비율",
+        "why": "미래 매출의 크기와 속도"
+      },
+      {
+        "name": "가동 전력(GW)",
+        "why": "수주를 매출로 바꾸는 실제 병목"
+      },
+      {
+        "name": "조정 영업이익 vs 이자비용",
+        "why": "흑자 전환 가능성"
+      },
+      {
+        "name": "설비투자와 순차입 조달액",
+        "why": "성장 속도와 재무 부담"
+      },
+      {
+        "name": "최대 고객 비중",
+        "why": "고객 집중 위험"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11-10 17:00 ET (회사 확정, 2026-10-27 공지)",
+        "event": "Q3 2026 실적 발표와 Q4 가이던스",
+        "src": [
+          "s11"
+        ]
+      },
+      {
+        "date": "매 분기 (하이퍼스케일러·NVIDIA 실적 시즌)",
+        "event": "Microsoft 설비투자 전망과 NVIDIA 공급 일정",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "reaction": "주가는 매출보다 수주잔고 증가와 가이던스(특히 설비투자·가동 전력) 변화, 그리고 자금 조달 소식에 크게 반응한다. 이자비용과 설비투자가 함께 커지는 구조라 조달 금리와 일정 지연 소식에도 민감하다.",
+    "conditions": [
+      "실적 발표 때 수주잔고와 신규 대형 계약 규모",
+      "가동 전력 목표 유지 여부와 데이터센터 가동 일정",
+      "조정 영업이익 가이던스 대비 이자비용 가이던스",
+      "신규 차입·전환사채 발행 규모와 금리",
+      "최대 고객 비중 변화(10-Q)"
+    ]
+  },
+  "unverified": [
+    "단일 보고 부문 여부 - 10-K에서 직접 확인하지 못해 단일 부문으로 가정",
+    "Microsoft 67%와 Q2 2026 2·3위 고객 비중(26%·10%)은 sec-api.io가 10-K·10-Q를 읽은 2차 자료; 2·3위 고객 이름 미확인",
+    "OpenAI·Meta 계약 금액 (검색 요약에만 나와 미기재)",
+    "FY2025 잉여현금흐름 -72.5억 달러는 영업현금흐름 - 설비투자로 계산한 값",
+    "총이익률 71.7%는 매출과 매출원가로 계산한 값 (회사 미표기)",
+    "Monolith·Marimo 인수 금액",
+    "Q2 2026 매출 가이던스 범위(24.5억~26억 달러)는 검색 요약에서만 확인",
+    "데이터센터 공급 사업자 이름과 자체 소유 비율",
+    "경쟁사 목록은 IPO 당시(2025-03) 회사 설명을 전한 Investopedia 기사에서 읽음 - 최신 10-K 목록과 대조 못 함; Nebius·IREN은 업계 구분; 점유율 없음",
+    "2026년 9월 전환사채 발행 규모 (8-K 색인만 확인)"
+  ],
+  "confidence": "medium - 실적·가이던스는 회사 IR 보도자료와 콜 요약에서 왔지만, 고객 집중도는 2차 자료이고 경쟁 구도는 출처가 없다."
+}

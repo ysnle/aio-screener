@@ -825,19 +825,8 @@
       _assert('T99 timer_registry: _aioTimerRegistry 미존재 (missing)', false);
     }
 
-    // T100: empirical CDF is non-decreasing; insufficient history stays null.
-    if (typeof window._aioVixPercentile === 'function') {
-      var _vtp = window._aioVixPercentile;
-      // 기존 구간 단조 증가
-      var _v10 = _vtp(10), _v20 = _vtp(20), _v40 = _vtp(40), _v80 = _vtp(80);
-      var _vMissing = [_v10,_v20,_v40,_v80].every(function(v) { return v === null; });
-      _assert('T100 vix_mono: empirical rank or explicitly missing', _vMissing || ([_v10,_v20,_v40,_v80].every(function(v) { return Number.isFinite(v); }) && _v10 <= _v20 && _v20 <= _v40 && _v40 <= _v80), '10=' + _v10 + ',20=' + _v20 + ',40=' + _v40 + ',80=' + _v80);
-      var _v90 = _vtp(90), _v100 = _vtp(100);
-      _assert('T100 vix_mono_80plus: no invented tail', _vMissing ? _v90 === null && _v100 === null : _v80 <= _v90 && _v90 <= _v100, '80=' + _v80 + ',90=' + _v90 + ',100=' + _v100);
-      _assert('T100 vix_mono_80plus: bounded rank', _v100 === null || (_v100 >= 0 && _v100 <= 100), 'v100pct=' + _v100);
-    } else {
-      _assert('T100 P1753 vix_mono: _aioVixPercentile 미존재 (missing)', false);
-    }
+    // T100 (v59.42): the uncalled legacy VIX percentile helper is deleted.
+    _assert('T100 v59.42 legacy _aioVixPercentile is deleted (no caller)', typeof window._aioVixPercentile === 'undefined', typeof window._aioVixPercentile);
 
     // T101: _aioMemoStaleInfo DST grace — 3월에는 +1h 허용 여부 확인
     if (typeof window._aioMemoStaleInfo === 'function') {
@@ -1746,8 +1735,9 @@
       window.AIO && typeof window.AIO.getMarketCurrentnessAudit === 'function',
       'typeof=' + (window.AIO && typeof window.AIO.getMarketCurrentnessAudit));
 
-    _assert('T386_market_currentness_guard_available',
-      window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function' && typeof window.AIO.updateSnapshotStaleBanner === 'function',
+    // v59.42: the guard that rewrote live values' and narratives' tooltips is retired; the banner refresh it ran stays.
+    _assert('T386_market_currentness_guard_retired',
+      window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'undefined' && typeof window.AIO.scheduleSnapshotStaleBanner === 'function' && typeof window.AIO.updateSnapshotStaleBanner === 'function',
       'guard=' + (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard));
 
     var tempLive = document.createElement('span');
@@ -1762,7 +1752,7 @@
 
     var ops2 = _getFullAutoOpsAudit();
     _assert('T388_autoops_market_currentness_axis',
-      ops2 && ops2.marketCurrentness && ops2.commands && ops2.commands.marketCurrentness && ops2.commands.applyMarketCurrentnessGuard,
+      ops2 && ops2.marketCurrentness && ops2.commands && ops2.commands.marketCurrentness && !ops2.commands.applyMarketCurrentnessGuard,
       ops2 ? JSON.stringify(ops2.commands) : 'missing');
 
     _assert('T389_snapshot_banner_guard_command',
@@ -1781,47 +1771,21 @@
     tempLineage.textContent = '123.45';
     document.body.appendChild(tempLineage);
     var lineageAudit = window.AIO.getMarketCurrentnessAudit({ root: document.body, includeHidden: true });
-    window.AIO.applyMarketCurrentnessGuard({ includeHidden: true });
-    var lineageGuarded = tempLineage.getAttribute('data-operational-use') === 'reference-only' &&
-      tempLineage.getAttribute('data-source-kind') === 'unknown';
     tempLineage.remove();
-    _assert('T391_live_price_without_lineage_is_reference_only',
-      lineageAudit && lineageAudit.issues && lineageAudit.issues.some(function(x) { return x.type === 'visible-live-sink-missing-lineage' && x.key === '__AIO_LINEAGE__'; }) && lineageGuarded,
+    _assert('T391_live_price_without_lineage_is_reported',
+      lineageAudit && lineageAudit.issues && lineageAudit.issues.some(function(x) { return x.type === 'visible-live-sink-missing-lineage' && x.key === '__AIO_LINEAGE__'; }),
       lineageAudit ? JSON.stringify(lineageAudit.issues.slice(-3)) : 'missing');
 
-    var narrative = document.getElementById('opt-analysis-text');
-    var oldNarrUse = narrative && narrative.getAttribute('data-operational-use');
-    var oldNarrKind = narrative && narrative.getAttribute('data-source-kind');
-    var oldNarrTitle = narrative && narrative.title;
-    if (narrative) {
-      narrative.removeAttribute('data-operational-use');
-      narrative.removeAttribute('data-source-kind');
-      window.AIO.applyMarketCurrentnessGuard({ includeHidden: true });
-    }
-    var narrativeGuarded = !narrative || (
-      narrative.getAttribute('data-operational-use') === 'reference-only' &&
-      !!narrative.getAttribute('data-source-kind')
-    );
-    if (narrative) {
-      if (oldNarrUse) narrative.setAttribute('data-operational-use', oldNarrUse); else narrative.removeAttribute('data-operational-use');
-      if (oldNarrKind) narrative.setAttribute('data-source-kind', oldNarrKind); else narrative.removeAttribute('data-source-kind');
-      narrative.title = oldNarrTitle || '';
-    }
-    _assert('T392_analysis_text_without_lineage_is_reference_only',
-      narrativeGuarded,
-      narrative ? 'use=' + narrative.getAttribute('data-operational-use') + ' kind=' + narrative.getAttribute('data-source-kind') : 'no opt-analysis-text');
+    // v59.42: T392 tested only the retired guard's write (and #opt-analysis-text left with the options page in v50.35).
 
     var tempChg = document.createElement('span');
     tempChg.setAttribute('data-live-chg', '__AIO_CHG_LINEAGE__');
     tempChg.textContent = '+1.23%';
     document.body.appendChild(tempChg);
     var chgAudit = window.AIO.getMarketCurrentnessAudit({ root: document.body, includeHidden: true });
-    window.AIO.applyMarketCurrentnessGuard({ includeHidden: true });
-    var chgGuarded = tempChg.getAttribute('data-operational-use') === 'reference-only' &&
-      tempChg.getAttribute('data-source-kind') === 'unknown';
     tempChg.remove();
-    _assert('T393_live_change_without_lineage_is_reference_only',
-      chgAudit && chgAudit.issues && chgAudit.issues.some(function(x) { return x.type === 'visible-live-sink-missing-lineage' && x.key === '__AIO_CHG_LINEAGE__'; }) && chgGuarded,
+    _assert('T393_live_change_without_lineage_is_reported',
+      chgAudit && chgAudit.issues && chgAudit.issues.some(function(x) { return x.type === 'visible-live-sink-missing-lineage' && x.key === '__AIO_CHG_LINEAGE__'; }),
       chgAudit ? JSON.stringify(chgAudit.issues.slice(-5)) : 'missing');
 
     var tempDecision = document.createElement('div');
@@ -1829,12 +1793,9 @@
     tempDecision.textContent = 'Action item test: position sizing and market signal must carry source lineage.';
     document.body.appendChild(tempDecision);
     var decisionAudit = window.AIO.getMarketCurrentnessAudit({ root: document.body, includeHidden: true });
-    window.AIO.applyMarketCurrentnessGuard({ includeHidden: true });
-    var decisionGuarded = tempDecision.getAttribute('data-operational-use') === 'reference-only' &&
-      tempDecision.getAttribute('data-source-kind') === 'mixed';
     tempDecision.remove();
-    _assert('T394_decision_narrative_without_lineage_is_reference_only',
-      decisionAudit && decisionAudit.issues && decisionAudit.issues.some(function(x) { return x.type === 'visible-decision-narrative-missing-lineage' && x.id === 'briefing-action-item-test-card'; }) && decisionGuarded,
+    _assert('T394_decision_narrative_without_lineage_is_reported',
+      decisionAudit && decisionAudit.issues && decisionAudit.issues.some(function(x) { return x.type === 'visible-decision-narrative-missing-lineage' && x.id === 'briefing-action-item-test-card'; }),
       decisionAudit ? JSON.stringify(decisionAudit.issues.slice(-5)) : 'missing');
   }
 
@@ -5624,16 +5585,7 @@
     _assert('T798 v5028_news_backstop: _aioApplyNewsBackstop additive(자체 뉴스 시 미개입)+force 적용 (프록시 전멸 폴백)', t798ok, t798detail);
 
     // T799 (WO-7): VIX 퍼센타일 브리지 — 60일 미만이면 null(고정 CDF 폴백), 함수 정의
-    var t799ok = false, t799detail = '';
-    try {
-      var hasVixPct799 = typeof window._aioVixPercentile === 'function';
-      var r799 = hasVixPct799 ? window._aioVixPercentile(20) : 'n/a';
-      // 현재 history < 60일 → null 이어야 함(폴백 보장). 60일+면 0~100 숫자.
-      var gateOk799 = (r799 === null) || (typeof r799 === 'number' && r799 >= 0 && r799 <= 100);
-      t799ok = hasVixPct799 && gateOk799;
-      t799detail = 'fn=' + hasVixPct799 + ' result=' + r799 + ' (null=고정CDF폴백 정상)';
-    } catch(e) { t799detail = 'ERR:' + e.message; }
-    _assert('T799 v5028_vix_percentile_bridge: _aioVixPercentile 60일 게이트(부족 시 null→고정 CDF 폴백)', t799ok, t799detail);
+    _assert('T799 v59.42 the VIX percentile bridge left with the deleted helper', typeof window._aioVixPercentile === 'undefined', typeof window._aioVixPercentile);
 
     // T800 (v50.30 대체): 핵심 결론 섹션 재배치 — sentiment 복합판단/breadth 종합진단이 상단, signal lockout 후순위
     // P626-followup: found and fixed a real bug in _aioReorderCoreSections (js/aio-core.js) — the
@@ -6110,7 +6062,9 @@
       var synShapeOk = !!(syn && ('available' in syn) && typeof syn.oneLine === 'string' && typeof syn.full === 'string' && syn.parts);
       // 합성 내용이 marketState 라벨을 반영(빈 껍데기 아님)
       var ms820 = window.AIO.marketState;
-      var contentOk = !!(syn && syn.available && ms820 && ms820.vixBandLabel && syn.full.indexOf(ms820.vixBandLabel) >= 0 && syn.full.length > 30);
+      // v59.42: a missing VIX prints '—' (not the '?' band), and the verdict is the 시장 상태 overall.
+      var vixLabel820 = ms820 && (ms820.vix == null || ms820.vixBandLabel === '?') ? '—' : ms820 && ms820.vixBandLabel;
+      var contentOk = !!(syn && syn.available && ms820 && vixLabel820 && syn.full.indexOf('변동성 ' + vixLabel820) >= 0 && syn.full.indexOf('시장 상태 종합') >= 0 && syn.full.length > 30);
       var hasRenderFn = typeof window._aioRenderMarketAnalysisSinks === 'function';
       // home sink 요소 존재 + 렌더 후 placeholder 탈출
       var sink = document.getElementById('home-market-analysis');
@@ -6157,10 +6111,8 @@
     var t822ok = false, t822detail = '';
     try {
       var sources822 = Array.isArray(window.AIO_NEWS_SOURCES) ? window.AIO_NEWS_SOURCES.length : 0;
-      var sourceNodes822 = Array.prototype.slice.call(document.querySelectorAll('[data-news-source-count]'));
-      var sourceMeta822 = sources822 > 0 && sourceNodes822.length > 0 && sourceNodes822.every(function(node) {
-        return node.textContent.trim() === String(sources822);
-      });
+      // v59.42: the fold names the server feeds; the browser-list count left with the retired RSS feeds.
+      var sourceMeta822 = sources822 > 0 && !document.querySelector('[data-news-source-count]');
       var topics822 = ['semi', 'geo', 'bond', 'fx'].every(function(topic) {
         return !!document.querySelector('[data-news-topic="' + topic + '"]');
       });
@@ -6701,7 +6653,6 @@
         return m && m.decision && Array.isArray(m.reasons) && m.reasons.length === 3 && m.action && m.confidence && m.asOf && validKinds837[m.sourceKind];
       });
       if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('screener');
-      if (typeof window._aioApplyEventFreshnessGate === 'function') window._aioApplyEventFreshnessGate();
       var screenerHeader837 = document.querySelector('#page-screener .aio-decision-header');
       var aiBtn837 = screenerHeader837 && screenerHeader837.querySelector('[data-action="_aioAskAiFromPageDecision"][data-arg="screener"]');
       var fomcSnapshot837 = window.DATA_SNAPSHOT && /6\/17/.test(String(window.DATA_SNAPSHOT.fomc || '')) &&
@@ -8418,7 +8369,9 @@
     var rrgOldLd = window._liveData;
     try {
       window._liveData = { 'TST-RRG': { price: 100, pct: 1 }, SPY: { price: 700, pct: 0.5 } };
-      var rrgMissing = typeof calcLiveRS === 'function' ? calcLiveRS('TST-RRG') : null;
+      // v59.42: the uncalled legacy calcLiveRS wrapper is deleted; the same input goes to the one RRG model it wrapped.
+      var rrgFn = window.AIO_ARCH && typeof window.AIO_ARCH.computeRelativeRotation === 'function' ? window.AIO_ARCH.computeRelativeRotation : null;
+      var rrgMissing = rrgFn ? rrgFn({ history: null, benchmarkHistory: null, hasQuote: true, hasBenchmarkQuote: true }) : null;
       _assert('T1030 rrg_history_fail_closed: current-day quotes cannot replace relative-price history',
         rrgMissing && rrgMissing.quadrant === 'unknown' && rrgMissing.rsRatio === null,
         JSON.stringify(rrgMissing));

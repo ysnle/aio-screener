@@ -1,0 +1,201 @@
+{
+  "symbol": "WDC",
+  "name": "Western Digital Corporation (WD)",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "Friday nearest June 30 (FY2026 ended 2026-07-03)",
+  "oneLine": "Western Digital(WD)은 2025년 플래시 사업(Sandisk)을 떼어낸 뒤 클라우드 데이터센터용 하드디스크만 남긴 회사로, 매출의 약 90%가 클라우드에서 나오며 2026-10-22 발표한 분기 매출이 전년 대비 55% 늘었다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "WD Reports Fiscal First Quarter 2027 Financial Results", "url": "https://westerndigital.com/company/newsroom/press-releases/2026/2026-10-22-wd-reports-fiscal-first-quarter-2027-financial-results", "publisher": "Western Digital", "date": "2026-10-22" },
+    { "id": "s2", "kind": "earnings-release", "title": "WD Reports Fiscal Fourth Quarter and Fiscal Year 2026 Financial Results", "url": "https://www.westerndigital.com/company/newsroom/press-releases/2026/2026-08-05-wd-reports-fiscal-fourth-quarter-and-fiscal-year-2026-financial-results", "publisher": "Western Digital", "date": "2026-08-05" },
+    { "id": "s3", "kind": "earnings-release", "title": "WD fiscal 4Q26 and FY26 results (release repost with editorial comments: Sandisk proceeds, product mix, HDD share)", "url": "https://www.storagenewsletter.com/?p=304557", "publisher": "StorageNewsletter", "date": "2026-08-07" },
+    { "id": "s4", "kind": "other", "title": "Western Digital's FY2026 Results: AI Demand, Margins, and Customer Concentration (AI-generated 10-K summary; publisher warns of errors)", "url": "https://www.panabee.com/news/western-digital-earnings-2026-annual", "publisher": "Panabee", "date": "2026-08-14" },
+    { "id": "s5", "kind": "10-K", "title": "WD 10-K FY2026 (accession 0001628280-26-057139) via SEC companyfacts in AIO public-data/sec-fundamentals.json: revenue 12,919M, net income 9,424M, equity 8,864M", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000106040.json", "publisher": "SEC EDGAR companyfacts via AIO", "date": "2026-08-14" },
+    { "id": "s6", "kind": "call-transcript", "title": "Western Digital Q4 earnings call highlights (read from search summary: Cloud $3.3B, 89% of Q4 revenue, +43%)", "url": "https://www.nasdaq.com/articles/western-digital-q4-earnings-call-highlights", "publisher": "Nasdaq", "date": "2026-08-05" },
+    { "id": "s7", "kind": "10-K", "title": "WD Form 10-K FY2026 (sec.gov blocked here; Sandisk stake exit, FCF $3.5B, $3.1B returned, 44TB HAMR 1H CY2027 read from search summary)", "url": "https://www.sec.gov/Archives/edgar/data/0000106040/000162828026057139/wdc-20260703.htm", "publisher": "Western Digital / SEC EDGAR", "date": "2026-08-14" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/wdc/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s9", "kind": "earnings-release", "title": "Seagate Technology Reports Fiscal First Quarter 2027 Financial Results (competitor read-through)", "url": "https://investors.seagate.com/news/news-details/2026/Seagate-Technology-Reports-Fiscal-First-Quarter-2027-Financial-Results/default.aspx", "publisher": "Seagate", "date": "2026-10-27" }
+  ],
+
+  "moat": {
+    "sources": [
+      "HDD 3사 과점 - 점유율 약 42%로 Seagate(41%)와 1위를 다툼 (언론 코멘트)",
+      "ePMR·OptiNAND 기술을 40TB급까지 밀어붙이는 기존 기록 방식의 원가·신뢰성",
+      "상위 3개 클라우드 고객이 매출의 42%를 차지하는 대형 고객 관계",
+      "헤드·미디어를 포함한 자체 HDD 생산"
+    ],
+    "text": "WD의 힘은 세 회사만 남은 하드디스크 시장에서 가장 큰 몫(약 42%)을 가진 규모에서 나온다. 경쟁사가 먼저 HAMR로 넘어간 동안 WD는 검증된 ePMR 방식을 40TB급까지 끌어올려, 클라우드 고객이 믿고 쓰는 신뢰성과 원가를 무기로 삼았다. 매출의 42%를 내는 상위 3개 클라우드 고객과의 관계가 그 규모를 떠받친다.",
+    "src": ["s3", "s4", "s7"]
+  },
+  "design": {
+    "text": "Sandisk 분사 이후 WD가 설계하는 것은 하드디스크다. 데이터센터용 대용량 니어라인 HDD가 중심(Cloud, Q4 FY2026 매출의 약 89%)이고, 나머지는 PC·소비자용 드라이브와 외장 저장장치(Client·Consumer, 각각 약 5~6%)다. 다음 세대로 44TB HAMR 드라이브를 준비하고 있다.",
+    "src": ["s6", "s3", "s7"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 생산 - 헤드·미디어·드라이브 (공장 위치는 이번 조사에서 1차 문서로 확인하지 못함)",
+      "프리앰프·컨트롤러 등 일부 부품은 단일 공급원 의존 (10-K 요약, 업체명 미확인)"
+    ],
+    "text": "WD는 드라이브를 직접 만드는 제조사로, 핵심인 기록 헤드와 디스크도 자체 생산한다. 일부 프리앰프·컨트롤러 칩은 단일 공급원에 기대고 있어, 부품 한 곳이 막히면 출하가 흔들릴 수 있다. Q1 FY2027 설비투자는 영업현금흐름 16.0억과 잉여현금흐름 13.8억 달러의 차이로 보면 약 2.2억 달러다.",
+    "src": ["s4", "s1"]
+  },
+  "sell": {
+    "customers": [
+      "하이퍼스케일러·클라우드 데이터센터 (Cloud, Q4 FY2026 33억 달러, 매출의 89%) - 상위 3개 고객 합계 42%, 이름 미공시",
+      "PC·OEM (Client)",
+      "소비자·소매 (Consumer)"
+    ],
+    "channel": "클라우드 고객에는 직접 공급하고, Client·Consumer는 OEM과 소매 유통을 거친다(채널별 비중 미공시).",
+    "concentration": "FY2026 상위 3개 고객이 순매출의 42% (10-K 요약, 개별 비중 미확인).",
+    "text": "만든 드라이브는 거의 전부 클라우드로 간다. Q4 FY2026 Cloud 매출은 33억 달러로 전체의 89%였고, 상위 3개 고객이 연간 매출의 42%를 차지했다. 소수 고객 의존이 크기 때문에, 이들의 설비투자 계획이 곧 WD의 다음 분기 실적이다.",
+    "src": ["s6", "s4"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "하이퍼스케일러·클라우드", "what": "클라우드·AI 이용료, 데이터 저장료" },
+      { "from": "하이퍼스케일러·클라우드 (상위 3곳 42%)", "to": "WD", "what": "니어라인 HDD 대금 - 엑사바이트당 가격 (FY2026 Cloud 엑사바이트당 가격 +8%)" },
+      { "from": "PC OEM·소비자", "to": "WD", "what": "Client·Consumer 드라이브 대금 (개당)" },
+      { "from": "WD", "to": "주주·채권자", "what": "FY2026 자사주 25.9억 달러, 배당, Sandisk 지분을 이용한 부채 상환" }
+    ],
+    "pricing": "드라이브 개당 판매지만 클라우드에서는 엑사바이트당 가격이 기준이다. FY2026 Cloud 엑사바이트당 평균 가격이 8% 올랐다(10-K 요약).",
+    "text": "돈은 클라우드가 늘어나는 데이터를 담을 용량을 사면서 WD에 들어오고, 공급이 빠듯해 용량당 가격도 올랐다. 그 결과 Q1 FY2027 총마진이 57.8%로 1년 만에 14%p 넘게 뛰었다. 벌어들인 현금과 Sandisk 지분 처분 대금은 자사주와 부채 상환으로 나갔다.",
+    "src": ["s4", "s1", "s3"]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-07-03)",
+    "revenue": { "value": 12.919, "unit": "USD bn", "yoy": 36 },
+    "grossMargin": 48.9,
+    "operatingMargin": 34.5,
+    "netMargin": 72.9,
+    "operatingCashFlow": { "value": null, "unit": "USD bn" },
+    "freeCashFlow": { "value": 3.5, "unit": "USD bn" },
+    "segments": [
+      { "name": "단일 보고 기준 전체 (HDD; Cloud·Client·Consumer 연간 금액 미확인)", "revenue": 12.919, "unit": "USD bn", "share": 100, "yoy": 36, "operatingMargin": 34.5, "src": ["s2", "s5"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q1 FY2027, 2026-10-02 마감) 매출·마진", "value": "매출 43.8억 달러(전년 대비 +55%, 전분기 대비 +17%), GAAP 총마진 57.8%, 영업이익률 46.7%, 희석 EPS 4.63달러", "src": ["s1"] },
+      { "name": "Q4 FY2026 Cloud 매출", "value": "33억 달러, 매출의 89%, 전년 대비 +43%", "src": ["s6"] },
+      { "name": "Q1 FY2027 현금흐름", "value": "영업현금흐름 16.0억, 잉여현금흐름 13.8억 달러", "src": ["s1"] },
+      { "name": "Cloud 엑사바이트당 가격", "value": "FY2026 +8%", "src": ["s4"] },
+      { "name": "Sandisk 지분 관련 유입", "value": "FY2026 65억 달러 (Q4 20.5억), 2026-07-03 기준 지분 전량 정리", "src": ["s3", "s7"] }
+    ],
+    "text": "용량당 가격 상승으로 FY2026 매출은 129억 달러(+36%), 영업이익률 약 34%가 됐다. 순이익률 73%는 Sandisk 지분 정리에서 생긴 이익이 크게 들어간 숫자로, 회사 조정 순이익은 38.8억 달러(매출의 약 30%)다. 본업의 개선은 분기마다 빨라져 Q1 FY2027 영업이익률은 46.7%까지 올라왔다.",
+    "src": ["s2", "s5", "s1", "s3"]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-07-03)",
+    "items": [
+      { "use": "R&D", "value": 1.16, "unit": "USD bn", "src": ["s4"] },
+      { "use": "buybacks", "value": 2.59, "unit": "USD bn", "src": ["s4", "s7"] },
+      { "use": "dividends", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "other", "label": "Sandisk 지분을 이용한 부채 상환 (지분-부채 교환)", "value": null, "unit": "USD bn", "src": ["s7"] },
+      { "use": "capex", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "FY2026 잉여현금흐름 35억 달러 가운데 31억 달러를 배당과 자사주로 돌려줬고, 그중 자사주가 25.9억 달러(1,470만 주)다. 분사 때 남긴 Sandisk 지분은 부채와 맞바꾸는 방식으로 모두 정리해 빚을 줄였다. Q1 FY2027에는 분기 배당을 17% 올린 0.175달러로 정해, 현금을 대부분 주주에게 돌리는 방향이 분명하다.",
+    "src": ["s7", "s4", "s1"]
+  },
+  "aiChain": {
+    "layer": "memory",
+    "position": "AI와 클라우드가 만드는 대량 데이터를 가장 싼 용량당 비용으로 보관하는 저장 계층에 니어라인 HDD를 공급.",
+    "dependsOn": ["자체 헤드·미디어 생산", "단일 공급원 프리앰프·컨트롤러 칩"],
+    "sellsTo": ["cloud-infrastructure (하이퍼스케일러·클라우드)", "devices (PC OEM)", "소비자"],
+    "aiRevenue": null,
+    "upside": "AI 데이터 생성·보관이 늘면 클라우드 용량 수요와 엑사바이트당 가격이 함께 오르고, 상위 고객 의존이 큰 만큼 수요 증가가 바로 매출로 넘어온다.",
+    "risk": "HAMR 전환이 경쟁사보다 늦어 고용량 경쟁에서 밀릴 수 있고, 대용량 SSD 대체, 상위 3개 고객의 설비투자 변화가 위험이다.",
+    "text": "그래서 AI 가치사슬에서 WD는 Seagate와 함께 데이터를 쌓아 두는 맨 아래 저장 계층에 있다. 회사는 AI 매출을 따로 공시하지 않지만 매출의 약 90%가 클라우드라, 사실상 클라우드 저장 투자에 그대로 연동된다. 연산 칩만큼 화려하지는 않아도, AI가 데이터를 오래 남길수록 수요가 쌓이는 자리다.",
+    "src": ["s6", "s3", "s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "HDD 전체 (니어라인 중심)", "rivals": ["Seagate", "Toshiba"], "position": "leader", "share": "WD 약 42%, Seagate 41%, Toshiba 17% - StorageNewsletter 편집자 코멘트, 2026-08-07 (기준 기간 미표기)", "src": ["s3", "s4"] },
+      { "arena": "차세대 고용량 기록 기술 (HAMR)", "rivals": ["Seagate (Mozaic, HAMR 니어라인 엑사바이트 약 40%)"], "position": "follower", "share": null, "src": ["s7", "s3"] },
+      { "arena": "대용량 저장 계층 대체재 (QLC SSD)", "rivals": ["Sandisk", "Samsung", "SK hynix·Solidigm", "Micron"], "position": "leader", "share": null, "src": ["s4"] }
+    ],
+    "edge": "가장 큰 HDD 점유율, 검증된 ePMR의 신뢰성과 원가, 대형 클라우드 고객과의 깊은 관계.",
+    "threats": "Seagate가 HAMR 대량 출하로 고용량에서 앞서 있고, 대용량 QLC SSD가 용량당 원가 격차를 좁히고 있다.",
+    "text": "HDD 시장은 WD와 Seagate가 40%대 초반씩 나눠 가진 양강 구도다. 다만 고용량 기술에서는 Seagate가 HAMR을 먼저 대량 출하했고, WD는 ePMR을 40TB급까지 끌어올린 뒤 2027 상반기 44TB HAMR로 넘어가겠다는 추격자 입장이다. 그때까지 점유율을 지키는 것은 신뢰성과 고객 관계의 몫이다.",
+    "src": ["s3", "s7", "s9"]
+  },
+  "strategy": {
+    "goal": "클라우드 데이터 저장 수요의 지속성에 자신감을 보이며(CEO), 기술 전환을 차질 없이 진행하고 현금을 주주에게 돌려준다는 방침.",
+    "roadmap": [
+      { "when": "Q2 FY2027 (2026-12 분기)", "what": "매출 51억 달러 ±1억(전년 대비 +66~72%), 조정 총마진 60~61%, 조정 EPS 5.80달러 ±0.20 가이던스", "src": ["s1"] },
+      { "when": "2026-12-17", "what": "분기 배당 0.175달러(17% 인상) 지급", "src": ["s1"] },
+      { "when": "2027 상반기", "what": "44TB HAMR HDD 출시 - 고객 인증이 기대 이상이라고 회사 설명", "src": ["s7"] },
+      { "when": "HAMR 전 단계", "what": "ePMR을 40TB급까지 확대한 뒤 HAMR로 점진 전환", "src": ["s3"] }
+    ],
+    "vision": "AI 데이터 경제의 저장 인프라를 맡는다는 것이 회사의 자기 정의이며, 데이터가 늘어나는 한 HDD가 대용량 저장의 기본 계층으로 남는다는 그림.",
+    "text": "추격자인 HAMR에서 회사는 서두르기보다 ePMR을 최대한 늘리고 2027 상반기 44TB로 한 번에 넘어가는 길을 택했다. 그 사이 클라우드 수요가 강해 Q2 FY2027 가이던스는 전년 대비 최대 72% 성장, 총마진 60% 이상을 제시했다. 고객 인증이 순조롭다는 회사 설명이 실제 출하로 이어지는지가 다음 1년의 핵심이다.",
+    "src": ["s3", "s7", "s1"]
+  },
+  "governance": {
+    "line": "Irving Tan CEO와 Kris Sennesael CFO가 이끌며, Sandisk 지분을 모두 정리해 부채를 줄인 뒤 잔여 32.6억 달러 한도의 자사주 매입과 배당 인상으로 현금을 돌려주는 쪽이다.",
+    "src": ["s1", "s2", "s4", "s7"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q2 FY2027", "metric": "revenue", "value": "51억 달러 ±1억", "givenOn": "2026-10-22", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "non-GAAP gross margin", "value": "60~61%", "givenOn": "2026-10-22", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "non-GAAP operating expenses", "value": "4.0억~4.1억 달러", "givenOn": "2026-10-22", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "non-GAAP diluted EPS", "value": "5.80달러 ±0.20", "givenOn": "2026-10-22", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "최근 분기는 가이던스 상단을 넘었다: Q1 FY2027 가이던스 매출 41억 ±1억 → 실제 43.8억 달러, 조정 총마진 55~56% → 실제 58.1%, 조정 EPS 4.00 ±0.15 → 실제 4.64달러.",
+    "src": ["s2", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 23.42달러(범위 17.1~28.3), 직전 4개 분기 실적 합 12.51달러(10-22 발표 반영). 최근 4주 상향 5건·하향 1건.",
+    "src": ["s8"]
+  },
+  "watch": {
+    "confirms": [
+      "Q2 FY2027 매출이 가이던스(51억 달러) 안이나 위에서 나옴",
+      "총마진이 60% 이상으로 올라섬",
+      "44TB HAMR이 2027 상반기 일정대로 출시·인증",
+      "Cloud 엑사바이트당 가격이 계속 오름",
+      "자사주 매입과 배당 인상이 이어짐"
+    ],
+    "breaks": [
+      "가이던스 하향 또는 엑사바이트당 가격 하락",
+      "HAMR 출시 지연으로 Seagate와 용량 격차 확대",
+      "상위 3개 클라우드 고객의 주문 축소",
+      "단일 공급원 부품 차질",
+      "대용량 SSD로의 대체 가속"
+    ],
+    "keyNumbers": [
+      { "name": "다음 분기 매출 가이던스 vs 컨센서스", "why": "주가가 가장 크게 반응하는 숫자" },
+      { "name": "조정 총마진", "why": "가격 결정력의 결과" },
+      { "name": "Cloud 매출 비중·엑사바이트당 가격", "why": "AI·클라우드 저장 수요의 직접 신호" },
+      { "name": "HAMR 일정", "why": "경쟁사와의 기술 격차" },
+      { "name": "잉여현금흐름·자사주", "why": "주주환원 여력" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미공지)", "event": "Q2 FY2027 실적 발표", "src": ["s1", "s2"] },
+      { "date": "2026-12-17", "event": "분기 배당 0.175달러 지급 (기준일 12-04)", "src": ["s1"] },
+      { "date": "2027 상반기", "event": "44TB HAMR HDD 출시 예정", "src": ["s7"] },
+      { "date": "매 분기 (경쟁사·고객 실적)", "event": "Seagate 실적(2026-10-27 발표, Q2 가이던스 48억 달러)과 하이퍼스케일러 설비투자 전망", "src": ["s9"] }
+    ],
+    "reaction": "주가는 분기 결과보다 다음 분기 가이던스와 총마진 개선 폭에 반응하는 경향이 있다. 같은 업종의 Seagate 실적과 가이던스가 WD 주가에도 함께 반영되는 경우가 많아, 두 회사 발표를 짝으로 보는 것이 좋다.",
+    "conditions": [
+      "실적 발표 때 다음 분기 매출·총마진 가이던스와 컨센서스의 차이",
+      "Cloud 비중과 엑사바이트당 가격 언급",
+      "HAMR 인증·출시 일정 변화",
+      "Seagate 실적·가이던스와의 비교",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "FY2026 영업현금흐름·설비투자 (보도자료 연간 표 미확인; 잉여현금흐름 35억은 10-K 검색 요약)",
+    "FY2026 Cloud·Client·Consumer 연간 매출 금액 (Q4 Cloud 33억·89%만 확인, Client·Consumer 5~6%는 언론 코멘트)",
+    "FY2026 배당 총액과 Sandisk 지분-부채 교환으로 줄인 부채 금액",
+    "GAAP 순이익(93.0억~94.2억 달러)과 조정 순이익(38.8억)의 차이가 Sandisk 지분 이익이라는 해석 - 보도자료가 설명하지 않음",
+    "R&D 11.6억·자사주 25.9억·상위 3개 고객 42%는 AI 생성 10-K 요약(Panabee) 기준, 원문 미대조",
+    "44TB HAMR 2027 상반기 일정과 Sandisk 지분 전량 정리는 10-K 검색 요약에서 읽음 (sec.gov 차단)",
+    "HDD 점유율 수치는 언론 편집자 코멘트 (기준 기간 미표기)",
+    "공장 위치와 단일 공급원 부품 업체명",
+    "다음 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "medium - 분기 실적과 가이던스는 회사 보도자료에서 직접 읽었지만, 연간 현금흐름·고객 집중·로드맵은 10-K 원문을 열지 못해 요약 자료에 기댔다."
+}

@@ -1,0 +1,231 @@
+{
+  "symbol": "MRK",
+  "name": "Merck & Co., Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Merck(해외명 MSD)는 매출의 약 절반을 면역항암제 Keytruda 하나로 버는 대형 제약사로, Keytruda 특허 만료(2028년 예상) 전에 인수와 신약으로 다음 매출원을 채우는 것이 지금의 핵심 과제다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Merck Announces Third-Quarter 2026 Financial Results; Highlights Multiple Milestones (incl. updated FY2026 outlook)", "url": "https://www.merck.com/news/merck-co-inc-rahway-n-j-usa-announces-third-quarter-2026-financial-results-highlights-multiple-milestones-advancing-broad-diverse-pipeline/", "publisher": "Merck", "date": "2026-10-29" },
+    { "id": "s2", "kind": "earnings-release", "title": "Merck Announces Second-Quarter 2026 Financial Results (news release PDF, Terns charge, Lipfendra approval)", "url": "https://www.merck.com/wp-content/uploads/sites/124/2026/08/Merck-News-Release-08-04-26-Merck-Co.-Inc.-Rahway-N.J.-USA-Announces-Second-Quarter-2026-Financial-Results.pdf", "publisher": "Merck", "date": "2026-08-04" },
+    { "id": "s3", "kind": "8-K", "title": "Merck Q4 and full-year 2025 results news release (8-K Exhibit 99.1, incl. original 2026 outlook and Cidara charge)", "url": "https://www.sec.gov/Archives/edgar/data/310158/000110465926009495/tm264564d1_ex99-1.htm", "publisher": "Merck / SEC EDGAR", "date": "2026-02-03" },
+    { "id": "s4", "kind": "10-K", "title": "Merck Form 10-K for fiscal year 2025 (product sales table, segments, customer concentration names; partially read)", "url": "https://www.sec.gov/Archives/edgar/data/310158/000031015826000063/mrk-20251231.htm", "publisher": "Merck / SEC EDGAR", "date": "2026-02-24" },
+    { "id": "s5", "kind": "other", "title": "Merck cash flow statement FY2025/FY2024 (operating cash flow, capex, acquisitions, dividends, repurchases) - secondary aggregation of 10-K", "url": "https://stockanalysis.com/stocks/mrk/financials/cash-flow-statement/", "publisher": "Stock Analysis", "date": "2026-10-29" },
+    { "id": "s6", "kind": "news", "title": "Will Keytruda Aid MRK's Growth in 2026 After a Subdued Q3? (Keytruda loss of exclusivity in 2028; read via search summary)", "url": "https://www.nasdaq.com/articles/will-keytruda-aid-mrks-growth-2026-after-subdued-q3", "publisher": "Zacks via Nasdaq", "date": "2025-11" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/mrk/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s8", "kind": "news", "title": "Merck news releases list (Q3 2026 call notice, Moderna INTerpath-001 at ESMO, board election, West Point facility)", "url": "https://www.merck.com/media/news/", "publisher": "Merck", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "Keytruda(PD-1 면역항암제)의 적응증 폭 - 2025 매출 316.8억 달러, 회사 매출의 약 49%",
+      "백신 사업 - Gardasil(HPV), Capvaxive(폐렴구균) 등 규모 제조가 어려운 품목",
+      "대규모 임상·허가 역량 - 2025 R&D 158억 달러",
+      "동물의약품 - 2025 매출 63.5억 달러의 별도 수익원"
+    ],
+    "text": "Merck의 힘은 Keytruda가 폐암부터 유방암·자궁경부암·방광암까지 수많은 암종에서 표준 치료로 쓰이도록 쌓아 온 임상 데이터에서 나온다. 2025년 Keytruda 매출은 316.8억 달러로 회사 매출의 약 49%였다. 여기에 만들기 어려운 백신, 연 150억 달러대 R&D로 신약을 허가까지 끌고 가는 능력, 동물의약품이 나머지 뿌리다.",
+    "src": ["s4", "s3"]
+  },
+
+  "design": {
+    "text": "이 역량으로 회사가 내놓는 것은 두 사업부로 보고된다. Pharmaceutical은 항암제(Keytruda·Keytruda Qlex 피하주사, Welireg, AstraZeneca와의 Lynparza, Eisai와의 Lenvima), 백신(Gardasil, Capvaxive, Vaxneuvance), 심혈관·폐(Winrevair 폐동맥고혈압, Ohtuvayre COPD, 2026 승인된 먹는 PCSK9 억제제 Lipfendra), 당뇨(Januvia)와 수술 보조제(Bridion)를 포함한다. Animal Health는 가축용(Livestock)과 반려동물용(Bravecto 등) 의약품이다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "자체 생산·연구 시설 - 2026-10 미국 West Point(펜실베이니아) 바이오분석 시설 개소; WuXi Vaccines 시설 인수(10-K 언급)",
+      "AstraZeneca - Lynparza 공동 사업 (Merck는 이익 몫을 alliance revenue로 인식)",
+      "Eisai - Lenvima 공동 사업 (alliance revenue)",
+      "Moderna - 개인 맞춤 암 백신 intismeran 공동 개발",
+      "Gilead - 주 1회 경구 HIV 치료제(islatravir+lenacapavir) 공동 개발",
+      "Blackstone Life Sciences - R&D 비용 분담 계약 (Q2 2026 R&D 2억 달러 감소)"
+    ],
+    "text": "약은 주로 자체 공장에서 만들고, 일부 품목은 다른 제약사와 공동으로 개발·판매해 이익을 나눈다. Lynparza·Lenvima처럼 공동 판매하는 약은 매출 전체가 아니라 비용을 뺀 이익 몫만 매출로 잡히며, 개발비 일부는 Blackstone 같은 금융 파트너가 분담한다. 2025년 설비투자는 약 41억 달러였다.",
+    "src": ["s2", "s4", "s5", "s8"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 의약품 도매상 - McKesson, Cencora, Cardinal Health (10-K 고객 집중 항목, 비중은 미확인)",
+      "병원·암센터·의원 - Keytruda 등 주사제 투여처",
+      "정부·공공 백신 구매 - 유럽 입찰(tender), 미국 공공 부문",
+      "수의사·축산 농가·반려동물 보호자 - Animal Health"
+    ],
+    "channel": "미국은 대형 도매상을 거쳐 병원·약국으로, 해외는 각국 자회사와 정부 입찰로, 동물의약품은 수의 유통망으로 판매",
+    "concentration": "미국 3대 도매상이 주요 고객으로 기재됨 (비중 미확인)",
+    "text": "이렇게 만든 약은 미국에서는 McKesson·Cencora·Cardinal Health 같은 대형 도매상을 거쳐 병원과 약국으로 간다. 백신은 각국 정부와 공공 프로그램이 큰손이라 유럽 입찰 시점에 따라 분기 매출이 출렁이고, 2025년 Gardasil 매출은 39% 줄었다. 실제 비용은 대부분 보험사·정부(미국 Medicare 등)가 내므로 약가 정책이 판매량만큼 중요하다.",
+    "src": ["s4", "s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "환자·보험사·정부(Medicare 등)", "to": "병원·약국", "what": "투약 비용 지급 (보험 급여 기준가)" },
+      { "from": "병원·약국", "to": "도매상 (McKesson·Cencora·Cardinal Health)", "what": "의약품 구매 대금" },
+      { "from": "도매상·정부 백신 구매처", "to": "Merck", "what": "제품 판매 대금 (리베이트·할인 차감 후 순매출)" },
+      { "from": "AstraZeneca·Eisai 공동 사업", "to": "Merck", "what": "Lynparza·Lenvima 이익 배분 (alliance revenue)" },
+      { "from": "수의 유통망·축산 농가", "to": "Merck Animal Health", "what": "가축·반려동물 의약품 판매 대금" }
+    ],
+    "pricing": "제품 단위 판매(정가에서 보험사·정부 리베이트를 뺀 순가격)이며, 공동 사업 품목은 이익 몫만 인식한다. 미국 순가격과 해외 정부 입찰가가 수익을 좌우한다.",
+    "text": "돈은 환자가 아니라 보험사와 정부가 낸 돈이 도매상을 거쳐 Merck로 들어오는 구조다. 회사가 받는 것은 정가에서 리베이트를 뺀 순가격이라, 미국 약가 협상(IRA)이나 경쟁 제품 등장이 판매량 감소보다 먼저 매출을 깎는다. 실제로 Q3 2026 Januvia(-39%)와 Bridion(-67%)은 경쟁·제네릭 영향으로 크게 줄었다.",
+    "src": ["s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 65.011, "unit": "USD bn", "yoy": 1 },
+    "grossMargin": 74.8,
+    "operatingMargin": null,
+    "netMargin": 28.1,
+    "operatingCashFlow": { "value": 16.472, "unit": "USD bn" },
+    "freeCashFlow": { "value": 12.36, "unit": "USD bn" },
+    "segments": [
+      { "name": "Pharmaceutical", "revenue": 58.142, "unit": "USD bn", "share": 89.4, "yoy": 1, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Animal Health", "revenue": 6.354, "unit": "USD bn", "share": 9.8, "yoy": 8, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Other revenues", "revenue": 0.515, "unit": "USD bn", "share": 0.8, "yoy": -42, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "Keytruda/Keytruda Qlex 매출", "value": "FY2025 316.8억 달러(+7%, 매출의 약 49%); Q3 2026 86.0억 달러(+6%), 그중 피하주사 Qlex 8.3억 달러", "src": ["s3", "s4", "s1"] },
+      { "name": "신제품 매출 (Q3 2026)", "value": "Winrevair 6.94억(+93%), Welireg 3.07억(+56%), Capvaxive 2.63억(+8%), Ohtuvayre 1.84억 달러", "src": ["s1"] },
+      { "name": "Gardasil 매출", "value": "FY2025 52.3억 달러(-39%); Q3 2026 20.0억 달러(+14%)", "src": ["s3", "s1"] },
+      { "name": "Non-GAAP 총마진", "value": "FY2025 81.5%; Q3 2026 81.4%; 2026 전망 약 81%", "src": ["s3", "s1"] },
+      { "name": "인수 관련 일회성 R&D 비용 (2026)", "value": "Cidara 90억 달러(주당 3.62달러), Terns 57억 달러(주당 2.31달러), SciBrunch 라이선스 4억 달러(주당 0.12달러)", "src": ["s1"] },
+      { "name": "EPS", "value": "FY2025 GAAP 7.28 / non-GAAP 8.98달러; Q3 2026 GAAP 2.04 / non-GAAP 2.49달러", "src": ["s3", "s1"] }
+    ],
+    "text": "이 구조가 2025년 매출 650억 달러(+1%)와 순이익 183억 달러(순이익률 약 28%)를 만들었다. Gardasil이 39% 줄었는데도 매출이 늘어난 것은 Keytruda(+7%)와 신제품 덕분이다. 2026년은 인수 비용을 R&D로 바로 털어 1~9월 GAAP 순손실 5.1억 달러를 냈지만, Q3 2026만 보면 매출 180.9억 달러(+5%)에 non-GAAP 총마진 81.4%로 본업 수익성은 유지되고 있다.",
+    "src": ["s3", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 15.8, "unit": "USD bn", "src": ["s3"] },
+      { "use": "acquisitions", "value": 10.042, "unit": "USD bn", "src": ["s5"] },
+      { "use": "dividends", "value": 8.176, "unit": "USD bn", "src": ["s5"] },
+      { "use": "buybacks", "value": 5.084, "unit": "USD bn", "src": ["s5"] },
+      { "use": "capex", "value": 4.112, "unit": "USD bn", "src": ["s5"] }
+    ],
+    "text": "번 돈의 가장 큰 몫은 R&D(2025년 158억 달러)이고, 그다음이 Keytruda 이후를 위한 인수다. 2025년에는 COPD 치료제 Ohtuvayre를 가진 Verona Pharma를 약 100억 달러에 샀고, 2026년에는 Cidara(약 92억 달러, 독감 예방 항바이러스 MK-1406)와 Terns(57억 달러 비용)를 더했다. 그러면서도 배당 약 82억 달러와 자사주 약 51억 달러를 유지해, 인수 자금 일부는 차입(2025년 장기채 발행 약 139억 달러)으로 메웠다.",
+    "src": ["s3", "s5", "s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 팔지 않고 신약 발굴·임상·제조·영업에 쓰는 쪽. 이번에 읽은 회사 자료에는 AI 지출이나 효과 금액이 공시되어 있지 않다.",
+    "dependsOn": ["models-platforms (AI 모델·플랫폼 - 업체명 미확인)", "cloud-infrastructure (클라우드 - 업체명 미확인)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 R&D 생산성과 운영 비용으로 나타남"],
+    "aiRevenue": null,
+    "upside": "AI가 후보 물질 선별과 임상 설계를 빠르게 하면 연 150억 달러대 R&D의 성공 확률과 속도가 올라간다. 이는 Keytruda 특허 만료 전에 신약을 더 많이 내야 하는 Merck에게 가장 직접적인 혜택이다.",
+    "risk": "AI 직접 위험은 작다. 다만 경쟁사가 AI로 더 빨리 신약을 내면 Keytruda 이후 시장을 먼저 차지할 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Merck는 맨 끝의 '도입자'다. AI 매출은 없고, 효과는 R&D 효율로 나타나야 하지만 이번 조사에서 회사가 밝힌 AI 수치는 찾지 못했다. 이 회사의 주가를 움직이는 것은 AI보다 임상 결과와 Keytruda 이후 매출원이다.",
+    "src": []
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "면역항암제 (PD-1/PD-L1)", "rivals": ["Bristol-Myers Squibb (Opdivo)", "Roche (Tecentriq)", "AstraZeneca (Imfinzi)", "2028년 이후 바이오시밀러"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "HPV·폐렴구균 백신", "rivals": ["Pfizer (폐렴구균 백신)", "GSK", "중국 현지 HPV 백신"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "폐동맥고혈압 (Winrevair)", "rivals": ["Johnson & Johnson", "기존 표준 치료제"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "콜레스테롤 저하 (Lipfendra 경구 PCSK9)", "rivals": ["Amgen (Repatha 주사)", "Novartis (Leqvio 주사)", "스타틴 제네릭"], "position": "challenger", "share": null, "src": ["s2"] },
+      { "arena": "동물의약품", "rivals": ["Zoetis", "Elanco"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "Keytruda의 압도적 적응증과 피하주사(Qlex) 전환, 대규모 임상 역량, 인수로 확보한 심폐·감염 신약.",
+    "threats": "2028년 전후 Keytruda 특허 만료와 바이오시밀러, 미국 약가 협상(IRA), 백신 수요 변동(Gardasil), Januvia·Bridion 같은 기존 제품의 제네릭 잠식.",
+    "text": "가장 큰 경기장인 면역항암제에서 Merck는 1위지만, 경쟁자는 BMS·Roche 같은 동종 약보다 시간, 즉 특허 만료 뒤의 바이오시밀러다. 그래서 회사는 정맥주사를 피하주사 Keytruda Qlex로 바꾸고(Q3 2026 8.3억 달러), Winrevair·Lipfendra·Ohtuvayre처럼 다른 질환의 신약으로 매출원을 넓히는 방식으로 맞선다. 콜레스테롤 시장에서는 먹는 PCSK9 약 Lipfendra로 Amgen의 주사제 Repatha와 정면으로 붙는다.",
+    "src": ["s1", "s2", "s6"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 668억~673억 달러를 제시했고, 경영진은 인수와 파이프라인으로 Keytruda 특허 만료 이후에도 장기 성장을 이어 가겠다고 말한다. 장기 매출 목표 수치는 이번 조사에서 확인하지 못했다.",
+    "roadmap": [
+      { "when": "2025-10-07", "what": "Verona Pharma 인수 완료 (COPD 치료제 Ohtuvayre)", "src": ["s3"] },
+      { "when": "2026 Q1", "what": "Cidara 인수 (독감 예방 항바이러스 MK-1406, 일회성 비용 90억 달러)", "src": ["s3", "s1"] },
+      { "when": "2026 Q2", "what": "Terns 인수 (MK-4208), 먹는 PCSK9 억제제 Lipfendra FDA 승인", "src": ["s2"] },
+      { "when": "2027-03-22", "what": "ENFLONSIA 추가 적응증 FDA 결정 예정일", "src": ["s1"] },
+      { "when": "2027-04-22", "what": "IDVYNSO(doravirine/islatravir) HIV 치료제 FDA 결정 예정일", "src": ["s1"] },
+      { "when": "2027-06-15", "what": "sac-TMT(항체약물접합체) 자궁내막암 FDA 결정 예정일", "src": ["s1"] },
+      { "when": "2028 (예상)", "what": "Keytruda 특허 만료(loss of exclusivity)", "src": ["s6"] }
+    ],
+    "vision": "CEO Robert Davis는 '과학 중심 전략이 사업을 바꾸고 있다'며, Keytruda 한 제품에 기대던 회사를 항암·심폐·감염·면역에 걸친 다제품 회사로 바꾸는 그림을 제시한다.",
+    "text": "앞으로의 계획은 2028년 Keytruda 특허 만료 전에 다음 매출원을 줄 세우는 것이다. 2027년 상반기에 HIV·RSV·자궁내막암 신약의 FDA 결정이 줄줄이 잡혀 있고, Moderna와 만든 개인 맞춤 암 백신 intismeran은 Keytruda 병용 3상에서 재발·사망 위험을 42% 낮췄다. 경영진은 이 신약들과 피하주사 Keytruda로 매출 공백을 메우겠다고 본다.",
+    "src": ["s1", "s6", "s8"]
+  },
+
+  "governance": {
+    "line": "의장 겸 CEO Robert M. Davis가 이끄는 지분 분산 회사로, 2026-10 Paul J. Diaz를 이사로 선임했고 대형 인수 중에도 2025년 배당 약 82억 달러와 자사주 약 51억 달러를 유지했다.",
+    "src": ["s1", "s8", "s5"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "worldwide sales", "value": "668억~673억 달러 (8월 663억~673억, 2월 최초 655억~670억)", "givenOn": "2026-10-29", "src": ["s1", "s2", "s3"] },
+      { "period": "FY2026", "metric": "non-GAAP EPS", "value": "2.77~2.82달러 (8월 2.66~2.76, 2월 최초 5.00~5.15) - Cidara 3.62, Terns 2.31, SciBrunch 0.12달러 일회성 비용 포함", "givenOn": "2026-10-29", "src": ["s1", "s2", "s3"] },
+      { "period": "FY2026", "metric": "non-GAAP gross margin", "value": "약 81%", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "non-GAAP tax rate", "value": "32~33% (공제되지 않는 인수 비용 영향)", "givenOn": "2026-10-29", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "2026년 매출 전망은 2월 이후 두 번 좁히며 올라갔다. EPS 전망은 인수 일회성 비용(Terns·SciBrunch)을 넣을 때마다 내려가고 본업 개선분만큼 다시 올라가는 방식으로 갱신된다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Q3 발표 전, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 8.87달러(범위 8.63~9.06), 인수 비용이 반영된 직전 4개 분기 실적 3.21달러. 최근 4주 상향 1건·하향 5건으로 하향이 많았다. Q3 2026 실제 non-GAAP EPS는 2.49달러다.",
+    "src": ["s7", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Keytruda Qlex(피하주사) 비중이 빠르게 커짐",
+      "Winrevair·Welireg·Ohtuvayre·Lipfendra 매출 고성장 지속",
+      "2027년 FDA 결정(ENFLONSIA, IDVYNSO, sac-TMT) 승인",
+      "intismeran 등 대형 3상 데이터가 허가 신청으로 이어짐",
+      "Gardasil 매출 회복 지속"
+    ],
+    "breaks": [
+      "Keytruda 성장률이 낮은 한 자릿수 아래로 둔화",
+      "주요 신약의 허가 실패·지연 또는 안전성 문제",
+      "추가 대형 인수로 일회성 비용과 부채가 계속 늘어남",
+      "미국 약가 협상·정책으로 순가격 하락 확대",
+      "Keytruda 바이오시밀러 진입 시점이 앞당겨짐"
+    ],
+    "keyNumbers": [
+      { "name": "Keytruda·Keytruda Qlex 매출", "why": "매출의 절반, 특허 만료 전 마지막 성장 구간" },
+      { "name": "Keytruda 제외 매출 성장률", "why": "다음 매출원이 차오르는 속도" },
+      { "name": "신제품 매출 (Winrevair·Welireg·Ohtuvayre·Capvaxive·Lipfendra)", "why": "공백을 메울 후보" },
+      { "name": "Non-GAAP 총마진", "why": "가격·제품 구성 변화" },
+      { "name": "인수 관련 일회성 비용", "why": "EPS 가이던스를 크게 흔드는 항목" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-10-29", "event": "Q3 2026 실적 발표 및 콘퍼런스콜", "src": ["s1", "s8"] },
+      { "date": "2027-02 초 (추정, 회사 미확정)", "event": "Q4 2026·연간 실적과 2027 전망", "src": [] },
+      { "date": "2027-03-22 / 2027-04-22 / 2027-06-15", "event": "ENFLONSIA, IDVYNSO, sac-TMT FDA 결정 예정일", "src": ["s1"] }
+    ],
+    "reaction": "주가는 분기 실적보다 Keytruda 성장률, 주요 임상 결과 발표, 인수 소식과 그에 따른 일회성 비용에 크게 반응하는 경향이 있다. 2026년처럼 인수 비용이 EPS를 크게 낮출 때는 GAAP 손익보다 비용 제외 본업 숫자와 연간 매출 전망 변화가 함께 읽힌다.",
+    "conditions": [
+      "Keytruda 매출 성장률과 Qlex 비중",
+      "연간 매출 전망 변경 폭",
+      "일회성 비용을 뺀 본업 EPS 흐름",
+      "주요 학회·FDA 결정 일정과 결과",
+      "새 인수 발표 여부와 규모",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "Keytruda 특허 만료 2028년은 2차 기사 요약 기준이며 10-K 특허 표에서 직접 확인하지 못함 (s6 날짜도 2025-11로 추정)",
+    "FY2025 영업현금흐름·설비투자·인수·배당·자사주 금액은 Stock Analysis 집계(2차) 기준 - 10-K 현금흐름표 원문은 이번에 열지 못함",
+    "Verona 인수 금액 약 100억 달러는 현금흐름표 '인수(순)' 값 기준",
+    "영업이익률 (보도자료에 영업이익 미표기, null)",
+    "McKesson·Cencora·Cardinal Health 매출 비중",
+    "AI 지출·활용 효과 (회사 공시 미확인)",
+    "세그먼트별 이익",
+    "2026 배당 인상 여부와 자사주 매입 계획",
+    "Terns 인수 금액과 MK-4208 적응증, Cidara 거래 완료일",
+    "경쟁 구도의 시장 점유율",
+    "Q3 2026 수치는 회사 보도자료 웹페이지를 요약 도구로 읽은 값"
+  ],
+  "confidence": "medium - 매출·제품·가이던스는 회사 보도자료(오늘 발표한 Q3 포함)에서 왔지만, 현금 사용과 Keytruda 특허 만료 시점은 2차 출처다."
+}

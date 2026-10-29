@@ -1385,7 +1385,11 @@ function _aioCleanTelegramMemoText(text) {
   return s;
 }
 
-function _aioTelegramTextNames(text, sym, name) { var code = sym.replace(/\.(KS|KQ)$/, ''), bare = String(name || '').replace(/[\s,]*(Inc\.?|Corp\.?|Corporation|Co\.?|Ltd\.?|Holdings|plc|주식회사|\(주\))\s*$/i, '').trim(); return new RegExp('(^|[^A-Za-z0-9])' + code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^A-Za-z0-9])').test(text) || (bare.length >= 2 && text.toLowerCase().indexOf(bare.toLowerCase()) >= 0); }
+function _aioTelegramTextNames(text, sym, name) { var code = sym.replace(/\.(KS|KQ)$/, ''), bare = String(name || '').replace(/[\s,]*(Inc\.?|Corp\.?|Corporation|Co\.?|Ltd\.?|Holdings|plc|주식회사|\(주\))\s*$/i, '').trim(); var esc = function(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+  if (new RegExp('(^|[^A-Za-z0-9])' + esc(code) + '($|[^A-Za-z0-9])').test(text)) return true;
+  if (bare.length < 2) return false;
+  // v59.42: an English name is a whole word ('ARM' is not in 'alarm'); a Korean name stays a substring (조사 attach).
+  return /^[\x20-\x7e]+$/.test(bare) ? new RegExp('(^|[^a-z0-9])' + esc(bare.toLowerCase()) + '($|[^a-z0-9])').test(text.toLowerCase()) : text.toLowerCase().indexOf(bare.toLowerCase()) >= 0; }
 function _aioBuildTelegramMemoOverlay(raw, merged) {
   var items = [];
   // current24h → broadItems → topItems 순서 (P598: 서버는 더 이상 미압축 raw.items를 보내지 않는다).
@@ -1708,6 +1712,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
     if (sortBy === 'score') {
       filtered = filtered.slice().sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
     }
+    var matchedCount = filtered.length; // v59.42: the header says how many matched, not only how many fit
     filtered = filtered.slice(0, maxItems);
     if (!filtered.length) return statusMarkup('unavailable', 0, maxItems);
 
@@ -1729,7 +1734,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
     html += '<div class="tg-live-feed-hd">'
           + '<span class="tg-live-dot"></span>'
           + '<span class="tg-live-hd-label">' + feedLabel + '</span>'
-          + '<span class="tg-live-hd-ts" title="' + escHtml(windowLabel) + '">' + latestDate + ', ' + filtered.length + '건, 수집 당시 24시간 자료</span>'
+          + '<span class="tg-live-hd-ts" title="' + escHtml(windowLabel) + '">' + escHtml(latestDate) + ', ' + filtered.length + '건 표시' + (matchedCount > filtered.length ? ', 해당 ' + matchedCount + '건' : '') + ', 수집 당시 24시간 자료</span>'
           + '</div>';
 
     // 카드 렌더
@@ -1741,8 +1746,8 @@ function _aioRenderTelegramFeedHtml(pageId) {
       html += '<div class="tg-card">'
             + '<a href="' + escHtml(escUrl(it.url || '#')) + '" target="_blank" rel="noopener" class="tg-card-inner">'
             + '<div class="tg-card-hd">'
-            + '<span class="tg-cat ' + info.cat.cls + '">' + info.cat.label + '</span>'
-            + '<span class="tg-card-src">' + src + ', ' + date + '</span>'
+            + '<span class="tg-cat ' + info.cat.cls + '">' + escHtml(info.cat.label) + '</span>'
+            + '<span class="tg-card-src">' + escHtml(src) + ', ' + escHtml(date) + '</span>'
             + '</div>'
             + '<div class="tg-card-headline">' + info.hlHeadline + '</div>'
             + (showBody && info.body && (pageId !== 'market-news' || cardIdx < 3) ? '<div class="tg-card-body">' + info.body + '</div>' : '') // v57.54: the full feed opens 3 bodies, then headlines
@@ -3607,142 +3612,20 @@ var _aioBootPhase = (typeof window !== 'undefined' && window._aioBootPhase) || {
 // v59.36: the master boot sequence (initV20DataEngine) moved to src/app/boot-sequence.js.
 
 const AIO_NEWS_SOURCES = [
-  // ═══════════════════════════════════════════════════════════════════
-  // v31.8: 미국 시장 중점 — 주요 외신 대폭 확장 (US 40+ 소스)
-  // ═══════════════════════════════════════════════════════════════════
-
-  // ═══ TIER 1: 미국 주요 외신 (탑티어 — 최우선 노출) ═══
-  {name:'Reuters Markets',     url:'https://rsshub.app/reuters/market',                           country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'CNBC Top News',       url:'https://www.cnbc.com/id/100003114/device/rss/rss.html',       country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'CNBC Investing',      url:'https://www.cnbc.com/id/15839069/device/rss/rss.html',        country:'us', tier:1, flag:'US', topics:['equity','earnings']},
-  {name:'CNBC Economy',        url:'https://www.cnbc.com/id/20910258/device/rss/rss.html',        country:'us', tier:1, flag:'US', topics:['macro']},
-  {name:'WSJ Markets',         url:'https://feeds.a.dj.com/rss/RSSMarketsMain.xml',              country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'WSJ World',           url:'https://feeds.a.dj.com/rss/RSSWorldNews.xml',                country:'us', tier:1, flag:'US', topics:['geo','macro']},
-  {name:'Bloomberg',           url:'https://feeds.bloomberg.com/markets/news.rss',                country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'MarketWatch',         url:'https://feeds.content.dowjones.io/public/rss/mw_realtimeheadlines', country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'Barrons',             url:'https://www.barrons.com/feeds/articles/techtopstories.rss',   country:'us', tier:1, flag:'US', topics:['equity']},
-  {name:'Yahoo Finance',       url:'https://finance.yahoo.com/news/rssindex',                    country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'Seeking Alpha',       url:'https://seekingalpha.com/market_currents.xml',                country:'us', tier:1, flag:'--', topics:['equity','earnings']},
-  {name:'Investing.com',       url:'https://www.investing.com/rss/news.rss',                     country:'us', tier:1, flag:'--', topics:['macro','equity']},
-  {name:'Benzinga Markets',    url:'https://www.benzinga.com/feed',                              country:'us', tier:1, flag:'US', topics:['equity','earnings']},
-  {name:'S&P Global',          url:'https://www.spglobal.com/marketintelligence/en/rss-feed/all', country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'Nasdaq News',         url:'https://www.nasdaq.com/feed/rssoutbound?category=Markets',   country:'us', tier:1, flag:'US', topics:['equity','earnings']},
-  {name:'Nasdaq Analyst',      url:'https://www.nasdaq.com/feed/rssoutbound?category=Analyst+Activity', country:'us', tier:1, flag:'US', topics:['analyst','equity']},
-  {name:'CNN Business',        url:'https://rss.cnn.com/rss/money_latest.rss',                    country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  {name:'NYT Business',        url:'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml',   country:'us', tier:1, flag:'US', topics:['macro']},
-  {name:'FT Markets',          url:'https://www.ft.com/markets?format=rss',                      country:'eu', tier:1, flag:'UK', topics:['macro','equity']},
-  {name:'BBC Business',        url:'https://feeds.bbci.co.uk/news/business/rss.xml',              country:'eu', tier:1, flag:'UK', topics:['macro']},
-  {name:'The Economist Finance',url:'https://www.economist.com/finance-and-economics/rss.xml',    country:'eu', tier:1, flag:'UK', topics:['macro']},
-  {name:'Google News Finance',  url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', country:'us', tier:1, flag:'US', topics:['macro','equity']},
-  // v42.9: Axios 추가 — 미국 정치·외교·정책 속보에 강한 주류 매체 (소식통 인용 비중 높아 isUnverifiedClaim 배지 자동 적용)
-  {name:'Axios',               url:'https://api.axios.com/feed/',                                  country:'us', tier:1, flag:'US', topics:['macro','geo','policy']},
-  // v48.16 (integrate 2026-04-18): Washington Post — 미국 주·연방 정책(DC 규제, 에너지 정책) 보강
-  {name:'Washington Post Politics', url:'https://feeds.washingtonpost.com/rss/politics',             country:'us', tier:1, flag:'US', topics:['macro','policy','geo']},
-  {name:'Washington Post Business', url:'https://feeds.washingtonpost.com/rss/business',             country:'us', tier:1, flag:'US', topics:['macro','equity']},
-
-  // ═══ TIER 1: 텔레그램 큐레이션 채널 ═══
+  // v59.42 coverage pass (owner-approved): the 78 browser RSS feeds are retired. Production news is the server bundle
+  // (scripts/lib/news-selection.mjs NEWS_FEEDS); P1756 skipped this run while that bundle was fresh, and otherwise the
+  // shared Worker refused every feed host. The Telegram channels stay for the browser fallback and its pipeline audit.
   {name:'TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings','geo'], type:'telegram', tgSlug:'insidertracking', publicMirror:'https://t.me/s/insidertracking', pipelineRole:'us-fast-breaking'},  // v50.15: publicMirror 폴백(rsshub.app 불안정 시 t.me/s 공개프리뷰) + pipelineRole 명시
   {name:'TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin', publicMirror:'https://t.me/s/bornlupin', pipelineRole:'kr-semi-broker-notes'},  // v50.15: publicMirror 폴백 + pipelineRole(한국 반도체 sell-side 노트 집중)
   {name:'TG HANA China',             url:'https://rsshub.app/telegram/channel/HANAchina',            country:'cn', tier:1, flag:'TG', topics:['macro','equity','semi','power','optical','geo','japan','kr-market'], type:'telegram', tgSlug:'HANAchina', publicMirror:'https://t.me/s/HANAchina', pipelineRole:'china-em-supply-chain'},
   {name:'TG WalterBloomberg',       url:'https://rsshub.app/telegram/channel/walterbloomberg',       country:'us', tier:1, flag:'TG', topics:['macro','equity','earnings'],        type:'telegram', tgSlug:'walterbloomberg'},
   {name:'TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'TG', topics:['macro','equity','semi','geo','japan'], type:'telegram', tgSlug:'aetherjapanresearch', publicMirror:'https://t.me/s/aetherjapanresearch', pipelineRole:'asia-semi-flow'},
-  // v37.2: 속보·지정학·매크로 텔레그램 채널 추가 (v39.0: FirstSquawk/FinancialJuice 공개 미리보기 비활성 — 코드에서 자동 스킵)
   {name:'TG FirstSquawk',           url:'https://rsshub.app/telegram/channel/firstsquawk',           country:'us', tier:1, flag:'TG', topics:['macro','geo','energy','defense'],  type:'telegram', tgSlug:'firstsquawk'},
   {name:'TG FinancialJuice',        url:'https://rsshub.app/telegram/channel/financialjuicechannel', country:'us', tier:1, flag:'TG', topics:['macro','geo','energy'],            type:'telegram', tgSlug:'financialjuicechannel'},
-
-  // ═══ TIER 2: 미국 투자/분석 전문 ═══
-  {name:'Forbes Business',     url:'https://www.forbes.com/business/feed/',                       country:'us', tier:2, flag:'US', topics:['equity','macro']},
-  {name:'Business Insider',    url:'https://markets.businessinsider.com/rss/news',                country:'us', tier:2, flag:'US', topics:['equity','macro']},
-  {name:'Morningstar',         url:'https://www.morningstar.com/feeds/rss',                       country:'us', tier:2, flag:'US', topics:['equity','earnings']},
-  {name:'Zero Hedge',          url:'https://feeds.feedburner.com/zerohedge/feed',                 country:'us', tier:2, flag:'US', topics:['macro']},
-
-  // ═══ TIER 2: 테크·AI 전문 매체 (v37.3 추가) ═══
-  {name:'TechCrunch',          url:'https://techcrunch.com/feed/',                                country:'us', tier:2, flag:'', topics:['semi','equity','earnings']},
-  {name:'The Verge',           url:'https://www.theverge.com/rss/index.xml',                     country:'us', tier:2, flag:'', topics:['semi','equity']},
-  {name:'Ars Technica',        url:'https://feeds.arstechnica.com/arstechnica/index',             country:'us', tier:2, flag:'', topics:['semi']},
-  {name:'Wired Business',      url:'https://www.wired.com/feed/category/business/latest/rss',    country:'us', tier:2, flag:'', topics:['semi','equity']},
-  {name:'VentureBeat',         url:'https://venturebeat.com/feed/',                               country:'us', tier:2, flag:'', topics:['semi','equity']},
-  {name:'The Information',     url:'https://www.theinformation.com/feed',                         country:'us', tier:2, flag:'', topics:['semi','equity']},
-
-  // ═══ TIER 2: 반도체·AI ═══
-  {name:'TrendForce',          url:'https://www.trendforce.com/feed/',                            country:'us', tier:2, flag:'', topics:['semi','equity']},
-  {name:'Digitimes',           url:'https://www.digitimes.com/rss/rss.xml',                      country:'us', tier:2, flag:'', topics:['semi','equity']},
-  {name:'SemiAnalysis',        url:'https://www.semianalysis.com/feed',                           country:'us', tier:2, flag:'', topics:['semi']},
-  {name:'Tom\'s Hardware',     url:'https://www.tomshardware.com/feeds/all',                     country:'us', tier:2, flag:'', topics:['semi']},
-  {name:'EE Times',            url:'https://www.eetimes.com/feed/',                               country:'us', tier:2, flag:'', topics:['semi']},
-
-  // ═══ TIER 2: 테크/기업 뉴스 전문 (v38.4: 기업 딜/파트너십 커버리지 강화) ═══
-  {name:'HPCwire',             url:'https://www.hpcwire.com/feed/',                               country:'us', tier:2, flag:'', topics:['semi','equity']},
-  {name:'GeekWire',            url:'https://www.geekwire.com/feed/',                              country:'us', tier:2, flag:'', topics:['equity','semi']},
-  {name:'SimpleFlying',        url:'https://simpleflying.com/feed/',                              country:'us', tier:2, flag:'', topics:['equity']},
-  {name:'SpaceNews',           url:'https://spacenews.com/feed/',                                 country:'us', tier:2, flag:'--', topics:['equity','defense']},
-  {name:'Seeking Alpha News',  url:'https://seekingalpha.com/feed.xml',                           country:'us', tier:2, flag:'--', topics:['equity','earnings','macro']},
-  // v38.5: 기업 보도자료·파트너십 뉴스 커버리지 강화
-  {name:'PR Newswire Tech',    url:'https://www.prnewswire.com/rss/technology-latest-news/technology-latest-news-list.rss', country:'us', tier:2, flag:'', topics:['semi','equity','earnings']},
-  {name:'GlobeNewswire',       url:'https://www.globenewswire.com/RssFeed/subjectcode/42-Partnerships/feedTitle/GlobeNewswire%20-%20Partnerships', country:'us', tier:2, flag:'', topics:['equity','semi']},
-  {name:'Semiconductor Eng',   url:'https://semiengineering.com/feed/',                           country:'us', tier:2, flag:'', topics:['semi']},
-
-  // ═══ TIER 2: 에너지·원자재 ═══
-  {name:'OilPrice.com',        url:'https://oilprice.com/rss/main',                              country:'us', tier:2, flag:'', topics:['energy']},
-  {name:'Rigzone',             url:'https://www.rigzone.com/news/rss/rigzone_latest.aspx',       country:'us', tier:2, flag:'', topics:['energy']},
-  {name:'Platts/Commodities',  url:'https://www.spglobal.com/commodityinsights/en/rss-feed/all',  country:'us', tier:2, flag:'', topics:['energy']},
-  {name:'Kitco Gold',          url:'https://www.kitco.com/feed/',                                 country:'us', tier:2, flag:'', topics:['energy','macro']},
-
-  // ═══ TIER 2: 크립토 ═══
-  {name:'CoinDesk',            url:'https://www.coindesk.com/arc/outboundfeeds/rss/',             country:'us', tier:2, flag:'', topics:['crypto']},
-  {name:'The Block',           url:'https://www.theblock.co/rss.xml',                             country:'us', tier:2, flag:'', topics:['crypto']},
-  {name:'DL News',             url:'https://www.dlnews.com/rss/',                                 country:'us', tier:2, flag:'', topics:['crypto']},
-
-  // ═══ TIER 2: 지정학·방산 ═══
-  {name:'Reuters World',       url:'https://rsshub.app/reuters/world',                           country:'us', tier:2, flag:'', topics:['geo']},
-  {name:'AP Business',         url:'https://rsshub.app/apnews/topics/business',                  country:'us', tier:2, flag:'US', topics:['macro']},
-  {name:'Defense One',         url:'https://www.defenseone.com/rss/all/',                         country:'us', tier:2, flag:'', topics:['geo','defense']},
-  // v37.2: 중동·지정학 커버리지 보강
-  {name:'Al Jazeera English',  url:'https://www.aljazeera.com/xml/rss/all.xml',                  country:'qa', tier:2, flag:'', topics:['geo','macro','energy']},
-  {name:'Middle East Eye',     url:'https://www.middleeasteye.net/rss',                          country:'uk', tier:2, flag:'', topics:['geo','energy']},
-
-  // ═══ TIER 2: 아시아 외신 ═══
-  {name:'Nikkei Asia',         url:'https://asia.nikkei.com/rss/feed/nar',                        country:'jp', tier:2, flag:'JP', topics:['macro','equity']},
-  {name:'SCMP',                url:'https://www.scmp.com/rss/1/feed',                             country:'cn', tier:2, flag:'CN', topics:['macro','geo']},
-  {name:'Channel News Asia',   url:'https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511', country:'sg', tier:2, flag:'', topics:['macro']},
-
-  // ═══ TIER 1:  한국어 핵심 뉴스 (v34.6: tier 1로 승격 — 한국 시장 강화) ═══
-  {name:'연합뉴스 경제',         url:'https://www.yna.co.kr/rss/economy.xml',                      country:'kr', tier:1, flag:'KR', topics:['macro','equity']},
-  {name:'한국경제',              url:'https://www.hankyung.com/feed/finance',                       country:'kr', tier:1, flag:'KR', topics:['macro','equity']},
-  {name:'매일경제',              url:'https://www.mk.co.kr/rss/40300001/',                         country:'kr', tier:1, flag:'KR', topics:['macro','equity']},
-
-  // ═══ TIER 2:  한국어 뉴스 (보조 — 경제 전문지) ═══
-  {name:'구글뉴스 금융',         url:'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtdHZHZ0pMVWlnQVAB?hl=ko&gl=KR&ceid=KR:ko', country:'kr', tier:2, flag:'KR', topics:['macro','equity']},
-  {name:'연합인포맥스',           url:'https://news.einfomax.co.kr/rss/S1N35.xml',                  country:'kr', tier:2, flag:'KR', topics:['macro','equity']},
-  {name:'조선비즈',              url:'https://biz.chosun.com/rss/finance/',                        country:'kr', tier:2, flag:'KR', topics:['macro','equity']},
-  {name:'머니투데이',            url:'https://news.mt.co.kr/rss/finance.xml',                      country:'kr', tier:2, flag:'KR', topics:['macro','equity']},
-
-  // ═══ TIER 3: 유럽 ═══
-  {name:'Reuters EU',          url:'https://feeds.reuters.com/reuters/UKBusinessNews/',            country:'eu', tier:3, flag:'EU', topics:['macro','energy']},
-  {name:'ECB Press',           url:'https://www.ecb.europa.eu/rss/press.html',                    country:'eu', tier:3, flag:'EU', topics:['macro']},
-  {name:'Euronews Business',   url:'https://www.euronews.com/rss?level=tag&name=business',        country:'eu', tier:3, flag:'EU', topics:['macro']},
-
-  // ═══ TIER 3: 매크로·중앙은행 ═══
-  {name:'Fed Reserve',         url:'https://www.federalreserve.gov/feeds/press_all.xml',          country:'us', tier:3, flag:'', topics:['macro']},
-  {name:'IMF Blog',            url:'https://www.imf.org/en/News/rss?language=eng',                country:'us', tier:3, flag:'', topics:['macro']},
-  {name:'World Bank',          url:'https://blogs.worldbank.org/feed',                            country:'us', tier:3, flag:'', topics:['macro']},
-  {name:'BIS Speeches',        url:'https://www.bis.org/doclist/cbspeeches.rss',                  country:'eu', tier:3, flag:'', topics:['macro']},
-
-  // ═══ TIER 3: 한국어 보조 ═══
-  {name:'서울경제',              url:'https://www.sedaily.com/RSS/Economy',                         country:'kr', tier:3, flag:'KR', topics:['macro']},
-  // v38.3: 이데일리·아시아경제 제거 — RSS 피드 전부 사망 확인 (2026-03-29 브라우저 실테스트 완료)
-  // 이데일리: edaily_news/stock/economy.xml 전부 홈페이지 리다이렉트
-  // 아시아경제: all.xml(연예·스포츠 혼입), economy/stock/finance.xml 전부 404
 ];
 
 window.AIO_NEWS_SOURCES = AIO_NEWS_SOURCES;
-function _aioUpdateNewsSourceMeta() {
-  var count = AIO_NEWS_SOURCES.length;
-  document.querySelectorAll('[data-news-source-count]').forEach(function(el){ el.textContent = count; });
-  return count;
-}
-window._aioUpdateNewsSourceMeta = _aioUpdateNewsSourceMeta;
-_aioUpdateNewsSourceMeta();
+// v59.42: the 데이터 출처 fold names the server feeds; the browser-list count it printed is gone with the RSS feeds.
 
 // ── Global HTML escape ─────────────────────────────────────────
 // P1500 (owner 2026-10-06): no emoji or pictographs on screen. External text (headlines, the telegram
@@ -6428,8 +6311,7 @@ async function fetchLiveQuotes(requestedSymbols) {
     // P1326/R671: one presenter labels currentness from observation times (실시간/지연/종가/지난 시세).
     try { document.dispatchEvent(new CustomEvent('aio:quoteTopbar', { detail: { coreCoverageOk: coreCoverageOk } })); } catch(_topbarEvent) {}
     try {
-      if (window.AIO && typeof window.AIO.scheduleMarketCurrentnessGuard === 'function') window.AIO.scheduleMarketCurrentnessGuard(250, 'live-quotes');
-      else if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') window.AIO.applyMarketCurrentnessGuard({ reason: 'live-quotes' });
+      if (window.AIO && typeof window.AIO.scheduleSnapshotStaleBanner === 'function') window.AIO.scheduleSnapshotStaleBanner(250); // v59.42: the currentness guard it ran is retired
     } catch(_mcg) {}
   } else {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
@@ -6590,35 +6472,8 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
 };
 
 
-// ── Dynamic VIX Percentile ──────────────────────────────────────
-// Only the observed sample distribution is authoritative: minimum 60 observed sessions, not a
-// 52-week distribution or ticker IV rank.
-function _aioVixPercentile(vix) {
-  try {
-    if (typeof vix !== 'number' || !isFinite(vix)) return null;
-    var series = (typeof _aioHistorySeries === 'function') ? _aioHistorySeries('vix', 60) : null;
-    if (!series) return null;
-    var vals = series.map(function(p) { return p.value; }).filter(function(v) { return typeof v === 'number' && isFinite(v); });
-    if (vals.length < 60) return null;
-    var below = 0;
-    for (var i = 0; i < vals.length; i++) { if (vals[i] <= vix) below++; }
-    return Math.round((below / vals.length) * 1000) / 10; // 0~100, 0.1 단위
-  } catch (e) { return null; }
-}
-window._aioVixPercentile = _aioVixPercentile;
-
-function vixRegime(vix) {
-  // P1534/P1753: the 18 / 25 / 32 edges come from the one legacy band function (window._aioVixBandIndex,
-  // js/aio-core.js, pinned to src RULES.volatility by ci-domain-parity-check); colours are theme tokens.
-  var band = typeof window._aioVixBandIndex === 'function' ? window._aioVixBandIndex(vix) : null;
-  if (band == null) return { label: '—', color: 'var(--text-muted)' };
-  return [
-    { label: '저변동 구간', color: 'var(--data-cyan)' },
-    { label: '통상 범위', color: 'var(--text-secondary)' },
-    { label: '변동성 경계 구간', color: 'var(--data-amber)' },
-    { label: '고변동 구간', color: 'var(--data-red)' }
-  ][band];
-}
+// v59.42: _aioVixPercentile and vixRegime are deleted; neither had a runtime caller. The VIX bands live in
+// src RULES.volatility (via window._aioVixBandIndex) and the sentiment route's own read model.
 
 // ═══════════════════════════════════════════════════════════════════
 // v17: 정적 기본값 즉시 로드 — API 성공/실패 무관하게 항상 데이터 표시

@@ -1,0 +1,686 @@
+{
+  "symbol": "INTC",
+  "name": "Intel Corporation",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "late December (FY2025 ended 2025-12-27)",
+  "oneLine": "Intel은 PC·서버용 x86 CPU를 설계하면서 그 칩을 자기 공장에서 직접 찍는 회사로, AI가 추론·에이전트로 넓어지며 서버 CPU 수요가 공급을 넘어서자 '팔 수 있는 만큼 만들 수 있느냐'가 실적을 가르고 있다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Intel Reports Second-Quarter 2026 Financial Results (8-K exhibit, Intel IR copy)",
+      "url": "https://www.intc.com/filings-reports/all-sec-filings/content/0000050863-26-000155/q226earningsrelease.htm",
+      "publisher": "Intel",
+      "date": "2026-07-23"
+    },
+    {
+      "id": "s2",
+      "kind": "call-transcript",
+      "title": "CEO/CFO Earnings Call Comments - Q2 2026 prepared remarks (Lip-Bu Tan, Dave Zinsner)",
+      "url": "https://download.intel.com/newsroom/2026/earnings/Intel-Q22026-Earnings-Call.pdf",
+      "publisher": "Intel",
+      "date": "2026-07-23"
+    },
+    {
+      "id": "s3",
+      "kind": "earnings-release",
+      "title": "Intel Reports Fourth-Quarter and Full-Year 2025 Financial Results (8-K exhibit, Intel IR copy)",
+      "url": "https://www.intc.com/filings-reports/all-sec-filings/content/0000050863-26-000009/q425earningsrelease.htm",
+      "publisher": "Intel",
+      "date": "2026-01-22"
+    },
+    {
+      "id": "s4",
+      "kind": "10-K",
+      "title": "Intel Form 10-K for fiscal year ended 2025-12-27 (accession 0000050863-26-000011, Intel IR copy; also SEC companyfacts in AIO public-data/sec-fundamentals.json)",
+      "url": "https://www.intc.com/filings-reports/all-sec-filings/content/0000050863-26-000011/intc-20251227.htm",
+      "publisher": "Intel",
+      "date": "2026-01-23"
+    },
+    {
+      "id": "s5",
+      "kind": "earnings-release",
+      "title": "Intel Reports First-Quarter 2026 Financial Results (8-K exhibit, Intel IR copy)",
+      "url": "https://www.intc.com/filings-reports/all-sec-filings/content/0000050863-26-000077/q126earningsrelease.htm",
+      "publisher": "Intel",
+      "date": "2026-04-23"
+    },
+    {
+      "id": "s6",
+      "kind": "ir-site",
+      "title": "Intel to Report Third-Quarter 2026 Financial Results (title and date read from search result of the IR page)",
+      "url": "https://www.intc.com/news-events/press-releases/detail/1782/intel-to-report-third-quarter-2026-financial-results",
+      "publisher": "Intel",
+      "date": "2026-10-06"
+    },
+    {
+      "id": "s7",
+      "kind": "news",
+      "title": "Intel repurchases 49 percent stake in Ireland's Fab 34 for $14.2bn (figures read from search summary)",
+      "url": "https://www.datacenterdynamics.com/en/news/intel-repurchases-49-percent-stake-in-irelands-fab-34-for-142bn/",
+      "publisher": "DatacenterDynamics",
+      "date": "2026-04-01"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "Analysts note 20% drop in desktop CPU shipments during Q2 2026 (Mercury Research x86 share table)",
+      "url": "https://www.kitguru.net/components/cpu/joao-silva/analysts-note-20-drop-in-desktop-cpu-shipments-during-q2-2026/?type=News",
+      "publisher": "KitGuru (Mercury Research data)",
+      "date": "2026-08-24"
+    },
+    {
+      "id": "s9",
+      "kind": "10-K",
+      "title": "Intel FY2023 10-K XBRL: revenue by major customer (Dell, Lenovo, HP), Intel IR copy",
+      "url": "https://www.intc.com/filings-reports/all-sec-filings/xbrl_doc_only/3556",
+      "publisher": "Intel",
+      "date": "2024-01"
+    },
+    {
+      "id": "s10",
+      "kind": "ir-site",
+      "title": "Intel Appoints Lip-Bu Tan as Chief Executive Officer (read from search summary)",
+      "url": "https://www.intc.com/news-events/press-releases/detail/1730/intel-appoints-lip-bu-tan-as-chief-executive-officer",
+      "publisher": "Intel",
+      "date": "2025-03-12"
+    },
+    {
+      "id": "s11",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/intc/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "수십 년 쌓인 x86 소프트웨어·설치 기반 - PC와 서버 운영체제·애플리케이션이 x86 위에서 돌아간다",
+      "설계와 생산을 한 회사가 하는 구조 - 오리건·애리조나·아일랜드·이스라엘 자체 팹과 Intel 18A·14A 공정",
+      "첨단 패키징 기술 (EMIB-T, Foveros) - 여러 칩을 한 패키지로 묶는 능력",
+      "Dell·Lenovo·HP 등 PC OEM과 클라우드 고객과의 오래된 공급 관계"
+    ],
+    "text": "Intel의 힘은 세계 PC와 서버의 운영체제·소프트웨어가 x86 위에서 돌아간다는 설치 기반에서 나온다. 여기에 칩을 남의 공장이 아니라 자기 팹에서 만들고, 여러 칩을 한 패키지로 묶는 EMIB·Foveros 패키징까지 가진 것이 두 번째 뿌리다. 경영진은 'x86 CPU 프랜차이즈, 첨단 패키징, 웨이퍼 파운드리'를 세 가지 전략 자산으로 꼽는다.",
+    "src": [
+      "s2",
+      "s4"
+    ]
+  },
+  "design": {
+    "text": "이 기반 위에서 회사가 설계하는 것은 두 사업군으로 보고된다. Intel Products는 PC용 Core Ultra(최근 이름을 바꾼 CCPG, 클라이언트·피지컬 AI 그룹)와 서버용 Xeon·AI 가속기·맞춤형 칩(DCAI)을 설계하고, Intel Foundry는 웨이퍼 공정(Intel 7·3·18A, 개발 중인 14A)과 패키징을 내부와 외부 고객에게 제공한다. 2025-09에 Altera 지분 51%를 팔아 연결에서 뺐고, 자율주행 칩 Mobileye(지분 80%)는 기타 부문에 남아 있다.",
+    "src": [
+      "s1",
+      "s2",
+      "s3",
+      "s4"
+    ]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "Intel 자체 팹 - 오리건·애리조나·아일랜드·이스라엘 웨이퍼 생산, Intel 18A 오리건·애리조나 양산",
+      "조립·테스트 - 중국, 뉴멕시코, 베트남, 말레이시아 (말레이시아 첨단 패키징 공장 건설 중, 코스타리카는 베트남·말레이시아로 통합)",
+      "TSMC - 일부 제품 타일 생산 (14A가 중단되면 18A·18A-P 이후 노드를 TSMC로 옮길 것이라고 10-K가 명시)",
+      "UMC - 12nm 공정 협력, 2027년 생산 예정",
+      "Brookfield - 애리조나 팹 공동투자 파트너 (SCIP)",
+      "ASML - High NA EUV 장비 (Panther Lake 일부 생산에 사용)"
+    ],
+    "text": "설계한 칩의 대부분은 Intel Foundry가 오리건·애리조나·아일랜드·이스라엘 팹에서 찍고, 조립과 테스트는 아시아와 뉴멕시코 공장이 맡는다. 다만 일부 타일은 TSMC가 만들고 있어 완전한 자체 생산은 아니며, 10-K는 14A가 멈추면 다음 노드를 TSMC로 넘길 수 있다고 적었다. 공장을 가진 대가로 Intel Foundry는 2025년 103억 달러 영업손실을 냈고, 공장 건설 자금 일부는 Brookfield 같은 파트너와 나눠 댄다.",
+    "src": [
+      "s3",
+      "s4",
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "PC OEM·ODM (Dell, Lenovo, HP 등) - CCPG",
+      "클라우드 사업자(CSP)·기업·통신사 - DCAI 서버 CPU, Q2 2026 하이퍼스케일·엔터프라이즈 수요가 성장 견인",
+      "맞춤형 칩·설계 서비스 고객 (Fortinet 보안 프로세서 등)",
+      "외부 파운드리 고객 - 2025년 기준 회사 스스로 '아직 외부 고객이 적다'고 밝힘, Q2 2026 외부 파운드리 매출 2.93억 달러",
+      "엣지·로보틱스 고객 - Core Series 3 엣지 AI 설계 수주 130건"
+    ],
+    "channel": "OEM·ODM·클라우드 사업자에 직접 판매하는 비중이 크고, 유통사도 함께 쓴다. 파운드리는 외부 반도체 회사에 웨이퍼·패키징을 직접 판다.",
+    "concentration": "FY2023 기준 Dell 19%, Lenovo 11%, HP 10% (합계 40%). FY2025 고객별 비중은 이번에 확인하지 못함. FY2025 매출의 70%가 미국 밖, 24%가 중국 청구분.",
+    "text": "이렇게 만든 칩은 주로 PC를 조립하는 OEM과 서버를 사는 클라우드 사업자에게 간다. 가장 최근 확인된 FY2023에는 Dell·Lenovo·HP 세 곳이 매출의 40%를 차지했고, FY2025에는 매출의 24%가 중국으로 청구됐다. 외부 파운드리는 아직 작아서 Q2 2026 매출이 2.93억 달러였고, 회사가 키우려는 맞춤형 칩 설계 서비스는 같은 분기 매출이 전년 대비 약 3배로 늘었다.",
+    "src": [
+      "s9",
+      "s4",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "기업·소비자",
+        "to": "PC OEM (Dell, Lenovo, HP 등)",
+        "what": "AI PC·노트북·데스크톱 구매"
+      },
+      {
+        "from": "클라우드 사업자·기업",
+        "to": "서버 OEM·ODM 또는 Intel 직접",
+        "what": "Xeon 서버 구매 (AI 추론·에이전트용 범용 연산 포함)"
+      },
+      {
+        "from": "OEM·ODM·클라우드 사업자",
+        "to": "Intel Products (CCPG·DCAI)",
+        "what": "CPU·플랫폼 개당 대금, 맞춤형 칩 설계비"
+      },
+      {
+        "from": "Intel Products",
+        "to": "Intel Foundry",
+        "what": "내부 웨이퍼·패키징 대금 (2025년 내부 거래 제거액 177억 달러)"
+      },
+      {
+        "from": "외부 반도체 고객",
+        "to": "Intel Foundry",
+        "what": "웨이퍼·첨단 패키징(EMIB-T) 대금 (Q2 2026 외부 매출 2.93억 달러)"
+      },
+      {
+        "from": "Intel",
+        "to": "TSMC·장비·소재 공급사",
+        "what": "외주 타일 생산비, 장비(ASML 등)·기판·메모리 구매 (2026년 설비투자 200억 달러 이상)"
+      }
+    ],
+    "pricing": "CPU는 개당 판매가(ASP)로 받고, 제품 구성과 가격 인상이 마진을 움직인다(Q2 2026 마진 상승 요인으로 회사가 'higher ASPs due to mix and pricing actions'를 언급). Intel Foundry는 내부 제품군에 웨이퍼 대금을 청구하는 구조라 연결 매출에서는 내부 거래가 제거된다.",
+    "text": "돈은 PC와 서버를 사는 고객에서 출발해 OEM을 거쳐 CPU 대금으로 Intel Products에 들어온다. 그 Intel Products가 다시 Intel Foundry에 웨이퍼 값을 치르는 내부 흐름이 2025년 177억 달러였는데, 이는 연결 매출에서 빠지므로 Foundry의 매출 대부분은 사실상 회사 안에서 도는 돈이다. 외부 고객이 낸 파운드리 매출은 아직 분기 3억 달러 안팎이어서, 공장 비용을 외부에서 회수하는 고리가 얼마나 커지는지가 구조 변화의 핵심이다.",
+    "src": [
+      "s3",
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-27)",
+    "revenue": {
+      "value": 52.853,
+      "unit": "USD bn",
+      "yoy": -0.5
+    },
+    "grossMargin": 34.8,
+    "operatingMargin": -4.2,
+    "netMargin": -0.5,
+    "operatingCashFlow": {
+      "value": 9.697,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": -1.612,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Client Computing Group (CCG, 2026년 CCPG로 개명)",
+        "revenue": 32.228,
+        "unit": "USD bn",
+        "share": 61.0,
+        "yoy": -3.4,
+        "operatingMargin": 28.9,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Data Center and AI (DCAI)",
+        "revenue": 16.919,
+        "unit": "USD bn",
+        "share": 32.0,
+        "yoy": 4.9,
+        "operatingMargin": 20.2,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Intel Foundry (대부분 내부 매출)",
+        "revenue": 17.826,
+        "unit": "USD bn",
+        "share": 33.7,
+        "yoy": 2.9,
+        "operatingMargin": -57.9,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "All other (Mobileye, 2025-09-11까지 Altera 포함)",
+        "revenue": 3.563,
+        "unit": "USD bn",
+        "share": 6.7,
+        "yoy": -1.1,
+        "operatingMargin": 7.4,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "Intersegment eliminations (내부 거래 제거)",
+        "revenue": -17.683,
+        "unit": "USD bn",
+        "share": -33.5,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "최근 분기 (Q2 2026) 매출·마진",
+        "value": "매출 161억 달러(전년 대비 +25%), non-GAAP 총마진 41.8%(GAAP 40.4%), GAAP 영업이익률 11.1%, non-GAAP EPS 0.42달러. GAAP 순손실 110억 달러는 에스크로 주식 평가손실 125억 달러 때문",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "Q2 2026 부문 매출·영업이익",
+        "value": "CCPG 88.8억(영업이익 23.4억), DCAI 62.6억(+59%, 영업이익 24.7억, 이익률 약 40%), Intel Foundry 57.7억(영업손실 20.9억), 기타 7.0억 달러",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "외부 파운드리 매출",
+        "value": "Q2 2026 2.93억 달러",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "AI 관련 사업 비중",
+        "value": "Q2 2026 AI 주도 사업이 전년 대비 70% 이상 성장, 매출의 약 70% (회사 정의, 세부 구성 미공개)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "18A 생산",
+        "value": "Q2 2026 18A 산출량 목표 대비 약 25% 초과, 전 분기 대비 50% 이상 증가",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "현금·부채 (2026-06-27)",
+        "value": "현금 128.7억 + 단기투자 168.5억 달러, 단기부채 19.9억 + 장기부채 485.5억 달러",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "이 구조가 2025년에는 매출 529억 달러(전년과 비슷), GAAP 영업이익률 -4.2%로 나타났다. 이익은 PC(CCG 영업이익 93억)와 서버(DCAI 34억)에서 나오고, Intel Foundry의 103억 달러 손실과 본사 비용이 그것을 거의 다 지운다. 2026년 들어 서버 수요와 가격 인상으로 Q2 매출이 161억 달러(+25%), DCAI 영업이익률이 약 40%까지 올라 흐름이 바뀌었지만, Foundry는 여전히 분기 21억 달러 손실이다.",
+    "src": [
+      "s3",
+      "s1",
+      "s2"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-27)",
+    "items": [
+      {
+        "use": "R&D",
+        "value": 13.774,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 17.672,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 3.75,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "text": "2025년 영업현금흐름 97억 달러로는 총 설비투자 177억 달러를 감당하지 못해, 회사는 미국 정부·NVIDIA·SoftBank에 신주를 팔아 127억 달러, Altera 지분 매각으로 62억 달러, Mobileye 주식 매각으로 9억 달러, 공장 파트너 출자로 51억 달러를 모았다. 배당은 2025년에 없었고(2024년 16억 달러) 부채는 37.5억 달러를 갚았다. 2026년에는 아일랜드 Fab 34 지분 49%를 Apollo에서 약 142억 달러에 되사고 설비투자를 200억 달러 이상으로 올려, 주주환원보다 생산능력 확보에 돈을 몰고 있다.",
+    "src": [
+      "s3",
+      "s5",
+      "s7",
+      "s2"
+    ]
+  },
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "AI 데이터센터에서 GPU를 지휘하고 추론·에이전트 작업을 처리하는 범용 서버 CPU(Xeon)를 공급하고, 맞춤형 칩 설계와 웨이퍼·첨단 패키징(EMIB-T) 파운드리로 다른 AI 칩 회사의 생산 단계에도 들어가려 한다.",
+    "dependsOn": [
+      "semicap-foundry (ASML High NA EUV 등 장비, 일부 타일은 TSMC 생산)",
+      "memory·기판 공급 (회사가 기판·메모리 공급 확보를 직접 언급)",
+      "자체 팹 건설 자금 (Brookfield 등 공동투자 파트너, 정부 보조금)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (하이퍼스케일러 서버 CPU, Google Cloud 협력)",
+      "ai-adopter (기업·통신사 서버, 엣지·로보틱스)",
+      "devices (PC OEM의 AI PC)",
+      "chips-compute (외부 파운드리·패키징 고객, Fortinet 등 맞춤형 칩 고객)"
+    ],
+    "aiRevenue": "Q2 2026 'AI 주도 사업'이 매출의 약 70%, 전년 대비 70% 이상 성장 (회사 정의, 2026-07-23 콜). Q2 2026 DCAI 매출 62.6억 달러",
+    "upside": "AI가 학습에서 추론·에이전트로 넓어지면 서버당 CPU 수요가 늘고, 회사는 업계 서버 CPU 출하가 올해와 내년 두 자릿수 성장할 것으로 본다. 공급이 늘어나는 만큼 DCAI 매출과 가격이 오르고, 외부 고객이 18A-P·14A·EMIB-T를 쓰기 시작하면 Foundry 손실이 줄어든다.",
+    "risk": "AI 투자의 대부분이 GPU·가속기로 가고 Intel 가속기 존재감은 작다. 하이퍼스케일러 자체 Arm CPU와 AMD EPYC가 서버 점유율을 가져가고, 메모리 가격 상승이 PC 수요를 2026년 두 자릿수 감소로 누른다. 14A 외부 고객을 못 얻으면 공정 개발을 멈추고 TSMC 의존이 커질 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Intel은 GPU 옆에서 일하는 범용 CPU를 공급하는 '칩·연산' 층에 있고, 동시에 파운드리로 그 아래 생산 층까지 걸쳐 있다. 회사는 매출의 약 70%를 AI 주도 사업으로 분류하지만, 그 상당 부분은 AI 가속기가 아니라 서버 CPU와 AI PC다. 공급이 수요를 못 따라가는 지금은 생산 확대가 곧 매출이고, 장기로는 외부 칩 회사가 Intel 공장을 쓰느냐가 이 층에서의 위치를 정한다.",
+    "src": [
+      "s2",
+      "s1",
+      "s4"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "서버 CPU",
+        "rivals": [
+          "AMD (EPYC)",
+          "하이퍼스케일러 자체 칩 (Amazon, Google, Meta, Microsoft)",
+          "NVIDIA"
+        ],
+        "position": "leader",
+        "share": "Q2 2026 x86 서버 Intel 65.5%, AMD 34.5% (Mercury Research, KitGuru 보도 2026-08-24; 단위·매출 기준 미표기, Arm 서버 미포함)",
+        "src": [
+          "s8",
+          "s4"
+        ]
+      },
+      {
+        "arena": "PC CPU",
+        "rivals": [
+          "AMD",
+          "Apple (Arm)",
+          "Qualcomm (Arm)",
+          "MediaTek (Arm)"
+        ],
+        "position": "leader",
+        "share": "Q2 2026 x86 클라이언트 Intel 69.7% (데스크톱 65.1%, 모바일 71.1%) - Mercury Research, KitGuru 보도",
+        "src": [
+          "s8",
+          "s4"
+        ]
+      },
+      {
+        "arena": "AI 가속기·맞춤형 칩 (ASIC)",
+        "rivals": [
+          "NVIDIA",
+          "AMD",
+          "Broadcom (맞춤형 ASIC)"
+        ],
+        "position": "follower",
+        "share": null,
+        "src": [
+          "s4",
+          "s2"
+        ]
+      },
+      {
+        "arena": "선단 파운드리·첨단 패키징",
+        "rivals": [
+          "TSMC",
+          "Samsung",
+          "GlobalFoundries",
+          "UMC",
+          "SMIC"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s4",
+          "s2"
+        ]
+      }
+    ],
+    "edge": "x86 설치 기반, 공급이 부족한 시기에 자기 공장을 가진 점(18A 산출 목표 초과), 미국 내 선단 생산 능력, 패키징 기술(EMIB-T 수주 잔고 증가).",
+    "threats": "AMD가 Q2 2026 x86 서버 34.5%, 전체 x86 30.7%까지 올라왔고, 하이퍼스케일러 자체 칩과 Arm PC가 x86 바깥에서 자리를 넓힌다. 파운드리에서는 TSMC가 선단 공정의 주력이라 외부 고객을 데려오기가 어렵다.",
+    "text": "서버와 PC CPU에서 Intel은 여전히 x86 점유율 1위지만, AMD가 Q2 2026 서버 34.5%까지 올라오며 격차를 좁히고 있다. 회사는 공급 부족 시기에 자기 공장에서 더 많이 찍어 내는 것으로 맞서고, AI 가속기에서는 NVIDIA·AMD를 정면으로 쫓기보다 SambaNova 협력과 맞춤형 칩 설계로 우회한다. 파운드리에서는 TSMC라는 압도적 1위를 상대로 '미국 내 선단 공정과 패키징'을 내세우는 도전자 위치다.",
+    "src": [
+      "s8",
+      "s4",
+      "s2"
+    ]
+  },
+  "strategy": {
+    "goal": "경영진은 x86 프랜차이즈로 제품 리더십을 되찾고 Intel Foundry를 세계적 웨이퍼·패키징 파운드리로 세우는 것을 두 축으로 제시한다. 피지컬 AI·맞춤형 칩·첨단 패키징·외부 웨이퍼를 '머지않아 각각 연 수십억 달러 매출 기회'로 본다.",
+    "roadmap": [
+      {
+        "when": "2026-10",
+        "what": "Intel 14A PDK 0.9 외부 고객 제공 목표",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2026",
+        "what": "설비투자 200억 달러 이상(연초 예상보다 크게 상향), non-GAAP 영업비용 약 165억 달러",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2027",
+        "what": "EMIB-T 첨단 패키징 고객 제품 양산 램프 지원, 설비투자 2026년보다 크게 증가(대부분 미국)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2027 H2",
+        "what": "Intel 14A 내부 제품 리스크 생산",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2028",
+        "what": "Intel 14A 대량 생산 램프 (Q2 2026에 전면 투자 결정)",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "vision": "칩 하나에 모든 기능을 넣는 시대에서 여러 칩을 한 패키지로 묶는 시대로 넘어가면서, 범용 CPU부터 GPU·맞춤형 ASIC까지 설계·생산·패키징을 모두 할 수 있는 유일한 회사가 되겠다고 말한다.",
+    "text": "이 경쟁에서 이기기 위해 회사는 14A에 다시 전면 투자하기로 했다. 2027년 하반기 리스크 생산, 2028년 대량 생산 일정을 확정하고 설비투자를 2026년 200억 달러 이상, 2027년엔 그보다 크게 늘리겠다고 했다. 이 계획은 서버 수요가 2028년까지 이어지고 외부 파운드리 고객이 실제로 들어온다는 전제 위에 서 있다.",
+    "src": [
+      "s2"
+    ]
+  },
+  "governance": {
+    "line": "2025-03-18부터 Lip-Bu Tan이 CEO로 이끌며, 2025년 미국 정부(보통주 2.75억 주 + 에스크로 1.59억 주)·NVIDIA(50억 달러)·SoftBank(20억 달러)가 주요 주주로 들어왔고 배당은 2025년부터 지급하지 않는다.",
+    "src": [
+      "s10",
+      "s4",
+      "s3"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q3 2026",
+        "metric": "revenue",
+        "value": "158억~168억 달러 (중간값 163억)",
+        "givenOn": "2026-07-23",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "period": "Q3 2026",
+        "metric": "gross margin",
+        "value": "GAAP 41.0%, non-GAAP 42.0%",
+        "givenOn": "2026-07-23",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q3 2026",
+        "metric": "EPS attributable to Intel",
+        "value": "GAAP 0.31달러, non-GAAP 0.38달러",
+        "givenOn": "2026-07-23",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "non-GAAP operating expenses",
+        "value": "약 165억 달러",
+        "givenOn": "2026-07-23",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "gross capex",
+        "value": "200억 달러 이상 (2027년은 이보다 크게 증가)",
+        "givenOn": "2026-07-23",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "PC 소비 (업계)",
+        "value": "연간 두 자릿수 초반 % 감소, 하반기 계절성 하회 (메모리 가격·공급 제약)",
+        "givenOn": "2026-07-23",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "회사는 Q2 2026이 7개 분기 연속 자체 전망 초과라고 밝혔다. Q1 2026 가이던스 117억~127억 → 실제 136억, Q2 가이던스 138억~148억 → 실제 161억 달러로 두 분기 모두 상단을 넘었다.",
+    "src": [
+      "s3",
+      "s5",
+      "s1",
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 2026-09~2027-06 4개 분기 합계 1.16달러(범위 0.89~1.48, 추정치 11개), 직전 4개 분기 실적 합 0.62달러. 최근 4주 상향 7건·하향 0건으로 상향 방향.",
+    "src": [
+      "s11"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "DCAI 매출이 공급 확대와 함께 계속 늘고 영업이익률이 Q2 2026 수준(약 40%) 근처를 유지",
+      "18A 수율·산출량이 목표를 계속 넘고 Foundry 분기 손실이 줄어듦",
+      "14A 또는 18A-P 외부 고객 계약 공개, 외부 파운드리 매출이 분기 2.93억 달러에서 의미 있게 증가",
+      "EMIB-T 패키징 고객이 2027년 양산에 들어감",
+      "non-GAAP 총마진이 가이던스(Q3 42%)를 넘는 흐름 지속"
+    ],
+    "breaks": [
+      "서버 CPU 점유율이 AMD·Arm 쪽으로 빠르게 이동",
+      "14A 외부 고객을 확보하지 못해 공정 일정이 밀리거나 TSMC 의존 확대 발표",
+      "설비투자는 늘었는데 수요가 꺾여 공장 가동률·재고 손실 발생",
+      "PC 수요 감소 폭이 회사 예상(두 자릿수 초반)보다 커짐",
+      "부채 증가와 현금 소진으로 신용등급 압박"
+    ],
+    "keyNumbers": [
+      {
+        "name": "DCAI 매출·영업이익률",
+        "why": "AI 추론 수요가 Intel에 닿는 가장 직접적인 숫자"
+      },
+      {
+        "name": "Intel Foundry 영업손익과 외부 파운드리 매출",
+        "why": "공장 전략이 돈이 되는지 보여준다"
+      },
+      {
+        "name": "non-GAAP 총마진",
+        "why": "가격 인상·수율·제품 구성의 결과"
+      },
+      {
+        "name": "설비투자와 조정 잉여현금흐름",
+        "why": "생산 확대 비용을 스스로 감당하는지"
+      },
+      {
+        "name": "다음 분기 매출 가이던스 vs 컨센서스",
+        "why": "공급 증가 속도가 드러난다"
+      },
+      {
+        "name": "Mercury Research x86 서버 점유율",
+        "why": "AMD로의 이탈 속도"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-10-29 (미국 장 마감 후, 콜 오후 2시 PT)",
+        "event": "Q3 2026 실적 발표와 Q4 가이던스",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "date": "매 분기 (하이퍼스케일러 실적 시즌)",
+        "event": "클라우드 설비투자 전망과 서버 CPU 수요 언급",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "date": "매 분기 (Mercury Research 발표)",
+        "event": "x86 서버·클라이언트 점유율",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "date": "2026 H2~2027",
+        "event": "14A 외부 고객 계약·PDK 진행 발표 여부",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "reaction": "주가는 분기 실적 자체보다 다음 분기 매출·총마진 가이던스, 그리고 18A 수율·14A 외부 고객 같은 파운드리 진척 신호에 크게 반응하는 경향이 있다. 지금은 서버 공급이 수요를 못 따라가는 국면이라, 공급이 얼마나 빨리 늘어나는지가 숫자의 핵심이다.",
+    "conditions": [
+      "실적 발표 때 다음 분기 매출 가이던스와 컨센서스의 차이",
+      "non-GAAP 총마진 가이던스와 가격·제품 구성 언급",
+      "DCAI 성장률과 공급 제약 해소 시점 언급",
+      "Foundry 영업손실 변화와 외부 파운드리 매출",
+      "2026·2027 설비투자 계획 변경",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "Q3 2026 실적은 조사 시점(2026-10-29, 발표 전)에 나오지 않아 반영하지 않음 - 발표 후 갱신 필요",
+    "FY2025 고객별 매출 비중 (Dell·Lenovo·HP) - FY2025 10-K 해당 주석을 읽지 못해 FY2023 수치(s9)로 대신함",
+    "FY2025 자사주 매입 금액 - 보도자료 현금흐름표에 항목 없음",
+    "조정 잉여현금흐름 -16.1억 달러는 회사 non-GAAP 정의(정부 보조금·파트너 출자 차감 포함); 영업현금흐름에서 총 설비투자를 뺀 단순 계산은 약 -80억 달러",
+    "부문 합계는 내부 거래 제거(-176.8억 달러)를 음수 부문으로 넣어 총매출 528.5억 달러와 맞춤",
+    "Fab 34 지분 재매입 금액 142억 달러는 보도 요약(s7)에서 읽음; 재매입 완료 사실은 Q1 2026 보도자료(s5), Q2 누적 파트너 분배 143.4억 달러는 s1",
+    "미국 정부 지분율 % (10-K는 주식 수만 명시, '약 10%'는 2차 보도)",
+    "현 이사회 의장 (Frank Yeary 은퇴·Craig Barratt 선임 보도가 있으나 확인하지 못함)",
+    "Mercury Research 점유율이 출하량 기준인지 매출 기준인지 기사에 표기 없음, 1차 자료 미확인",
+    "FY2025 외부 파운드리 매출 연간 금액",
+    "'AI 주도 사업' 매출의 정의와 금액 구성",
+    "14A 평가 중인 외부 고객 이름 (보도는 있으나 회사 미공개)",
+    "s9의 정확한 공시일 (FY2023 10-K, 2024-01)"
+  ],
+  "confidence": "medium - 연간·분기 실적과 전망은 회사 보도자료·10-K·콜 원고에서 왔지만, 최신 고객 집중도와 점유율은 오래된 1차 자료나 2차 보도에 기대고 Q3 2026 실적이 곧 나올 예정이다."
+}

@@ -693,25 +693,8 @@ var _priceHistory = {};
 // collectPriceHistory의 세션 내 틱 push가 일봉 시계열을 밀어내며 오염시키는 것을 차단한다.
 var _priceHistoryDaily = {};
 
-// 라이브 데이터 기반 RS 근사 계산
-function calcLiveRS(sym) {
-  let ld = window._liveData || {};
-  var d = ld[sym], spy = ld['SPY'];
-
-  // P721: 일봉 종가 시계열(hydrateRRGDailyHistory)이 있으면 라이브 틱 존재와 무관하게 판정한다
-  // — RRG는 일봉 기반 지표이며, 종전의 틱 선행 게이트는 시세 지연 환경에서 히스토리가 있어도
-  // 전면 보류시키는 불필요한 결합이었다. 틱 기반 레거시 경로만 라이브 시세를 요구한다.
-  // RM-03 item 2: single-implementation call — RRG math (RS-Ratio/RS-Momentum/quadrant) lives in
-  // src/domain/themes/rrg.js (computeRelativeRotation), exposed via window.AIO_ARCH so this legacy
-  // wrapper and any native consumer share one model (R352/F-03: no parallel formula here).
-  var _rrgFn = window.AIO_ARCH && typeof window.AIO_ARCH.computeRelativeRotation === 'function' ? window.AIO_ARCH.computeRelativeRotation : null;
-  if (_rrgFn) {
-    return _rrgFn({ history: _priceHistory[sym] || null, benchmarkHistory: _priceHistory['SPY'] || null, hasQuote: !!d, hasBenchmarkQuote: !!spy });
-  }
-  // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
-  // mirrors the model's own "insufficient data" shape instead of duplicating the RRG formula here.
-  return { rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'quote_missing' };
-}
+// v59.42: calcLiveRS (a wrapper over AIO_ARCH.computeRelativeRotation) is deleted; nothing called it. The themes route
+// reads src/domain/themes/rrg.js through bootstrap (RM-03 item 2).
 
 // ══════════════════════════════════════════════════════════════════
 //  커스텀 테마 합산 (ETF 없는 테마: 정규화 수익률 기반)
@@ -1219,9 +1202,4 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
 });
 });
 
-// Theme chips only. No point-in-time FX, rates, policy, or market prose is embedded here.
-(function() {
-  if (window.CHAT_DEFAULT_CHIPS) {
-    window.CHAT_DEFAULT_CHIPS.themes = ['주도 섹터 근거','테마 데이터 상태','무효화 조건'];
-  }
-})();
+// v59.42: the CHAT_DEFAULT_CHIPS.themes override left with CHAT_DEFAULT_CHIPS (it had no reader).

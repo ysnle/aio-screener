@@ -8,6 +8,8 @@
 
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { createSecClient, requireSecUserAgent } from './lib/sec-edgar.mjs';
+import { SEC_TICKERS_URL, submissionsUrl, tickerCikMap, filingRowsWithItems, isResultsFiling } from './lib/sec-results-filings.mjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -63,6 +65,45 @@ export function largeCapScheduleGaps(earningsRows = [], { sp500Rows = [], univer
     unconfirmed,
     semantics: 'unconfirmed = not listed in this provider window; the issuer may or may not report in it (schedule unconfirmed, not "no report").'
   };
+}
+
+// v59.42 (owner audit 2026-10-28): META read 'unconfirmed' in the week after it had reported. A second free official
+// source settles the gap: an 8-K with Item 2.02 (Results of Operations) on EDGAR in the 45 days before the window means
+// the quarter is already out, so the name moves to `recentlyReported` with that filing. The rest stay unconfirmed with
+// the reason. Foreign issuers file 6-K without item numbers, so they are not settled this way.
+export const RECENT_REPORT_DAYS = 45;
+export function applyReportedFilings(coverage, filingsBySymbol = {}, { from, days = RECENT_REPORT_DAYS } = {}) {
+  const since = Date.parse(`${from}T00:00:00Z`) - days * 86400000;
+  const recentlyReported = [];
+  const unconfirmedReasons = {};
+  for (const sym of coverage.unconfirmed) {
+    const rows = filingsBySymbol[sym];
+    const filing = Array.isArray(rows) ? rows.filter((row) => isResultsFiling(row) && Date.parse(row.filingDate) >= since).sort((a, b) => String(b.filingDate).localeCompare(String(a.filingDate)))[0] : null;
+    if (filing) recentlyReported.push({ symbol: sym, date: filing.filingDate, source: 'SEC EDGAR 8-K Item 2.02', accession: filing.accession });
+    else unconfirmedReasons[sym] = Array.isArray(rows) ? 'not in the provider window and no results 8-K in the last 45 days: the date is not announced yet or the provider missed it'
+      : 'not in the provider window; no SEC check (foreign issuer or no CIK)';
+  }
+  const reported = new Set(recentlyReported.map((row) => row.symbol));
+  return { ...coverage, unconfirmed: coverage.unconfirmed.filter((sym) => !reported.has(sym)), recentlyReported, unconfirmedReasons,
+    secCheck: { source: 'SEC EDGAR submissions (8-K Item 2.02)', lookbackDays: days } };
+}
+
+async function withSecReportedCheck(coverage, { from }) {
+  let userAgent;
+  try { userAgent = requireSecUserAgent(); } catch { return { ...coverage, secCheck: { status: 'operator_configuration_required: SEC_USER_AGENT' } }; }
+  try {
+    const sec = createSecClient({ userAgent });
+    const ciks = tickerCikMap(await sec.json(SEC_TICKERS_URL));
+    const filingsBySymbol = {};
+    for (const sym of coverage.unconfirmed) {
+      const cik = ciks.get(sym) || ciks.get(sym.replace(/-/g, '.'));
+      if (cik) filingsBySymbol[sym] = filingRowsWithItems(await sec.json(submissionsUrl(cik)));
+    }
+    return applyReportedFilings(coverage, filingsBySymbol, { from });
+  } catch (error) {
+    console.log(`::warning::earnings calendar SEC check skipped (${error?.message || error})`);
+    return { ...coverage, secCheck: { status: 'error' } };
+  }
 }
 
 // v58.75 (persona review): the stock page asks "when is the next report?" and the week window answered only for names
@@ -187,7 +228,7 @@ async function main() {
     weekStart: from,
     weekEnd: to,
     generatedAt: new Date().toISOString(),
-    largeCapCoverage: largeCapScheduleGaps(earnings, { sp500Rows: sp500?.rows, universeRows: universe?.universe }),
+    largeCapCoverage: await withSecReportedCheck(largeCapScheduleGaps(earnings, { sp500Rows: sp500?.rows, universeRows: universe?.universe }), { from }),
     upcomingWindow: { from: isoDay(now), to: upcomingDays.at(-1) || to, weeks: UPCOMING_WEEKS, scope: 'screener universe (US listings)', format: 'SYM: date|hour (bmo before open, amc after close, dmh during hours, empty unknown)' },
     upcomingGaps,
     upcoming,

@@ -1,0 +1,224 @@
+{
+  "symbol": "PG",
+  "name": "The Procter & Gamble Company",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "June 30 (FY2026 ended 2026-06-30)",
+  "oneLine": "P&G는 Tide·Pampers·Gillette·Crest 같은 생활필수품 브랜드를 직접 만들어 Walmart 등 유통망에 파는 세계 최대 생활용품 회사로, 지금은 물량은 회복됐지만 원자재·에너지·운송비 상승을 생산성으로 얼마나 상쇄하느냐가 이익을 가른다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "P&G Announces Fourth Quarter and Fiscal Year 2026 Results", "url": "https://us.pg.com/newsroom/news-releases/PG-Announces-Fourth-Quarter-and-Fiscal-Year-2026-Results/", "publisher": "Procter & Gamble", "date": "2026-07-29" },
+    { "id": "s2", "kind": "earnings-release", "title": "P&G Announces Fiscal Year 2027 First Quarter Results", "url": "https://us.pg.com/newsroom/news-releases/PG-Announces-Fiscal-Year-2027-First-Quarter-Results/", "publisher": "Procter & Gamble", "date": "2026-10-22" },
+    { "id": "s3", "kind": "8-K", "title": "P&G FY2027 Q1 earnings slides (8-K exhibit: market share by category, guidance detail, restructuring)", "url": "https://www.sec.gov/Archives/edgar/data/0000080424/000008042426000252/slides.htm", "publisher": "Procter & Gamble / SEC EDGAR", "date": "2026-10-22" },
+    { "id": "s4", "kind": "10-K", "title": "P&G Form 10-K for fiscal year ended 2026-06-30 (customers, channels, market share, plants, employees, executive officers, Thorne agreement)", "url": "https://www.sec.gov/Archives/edgar/data/0000080424/000008042426000103/pg-20260630.htm", "publisher": "Procter & Gamble / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/pg/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "카테고리 1위 브랜드 묶음 - 면도 시장 50% 이상, 헤어케어 약 20%, 구강용품 약 30% 글로벌 점유율(10-K)",
+      "세계 최대 생활용품 유통 교섭력 - Walmart가 매출의 약 16%, 상위 10개 고객이 약 43%",
+      "자체 생산망 - 미국 24개, 해외 31개국 72개 제조 거점",
+      "생산성 프로그램 - Q1 FY27 총 생산성 절감이 영업이익률 250bp 기여"
+    ],
+    "text": "P&G의 힘은 '사람들이 매일 쓰고 잘 안 바꾸는' 카테고리에서 1위 브랜드를 여러 개 쥐고 있다는 데서 나온다. 면도기는 세계 점유율 50% 이상, 구강용품은 약 30%로 선두이고, 이런 브랜드 묶음 덕분에 Walmart 같은 대형 유통사와도 대등하게 협상한다. 여기에 직접 운영하는 96개 제조 거점과 해마다 원가를 깎는 생산성 프로그램이 원자재 가격이 올라도 이익을 지키는 완충 장치가 된다.",
+    "src": ["s4", "s2"]
+  },
+
+  "design": {
+    "text": "이 브랜드들은 다섯 개 사업부로 보고된다. Fabric & Home Care(Tide·Ariel·Downy)가 매출의 약 35%로 가장 크고, Baby·Feminine & Family Care(Pampers·Always·Charmin), Beauty(헤어·스킨·퍼스널케어), Health Care(Crest·Oral-B·개인 건강), Grooming(Gillette)이 뒤를 잇는다. 2026-10-01에는 건강보조제 회사 Thorne 인수(38억 달러 합의)를 마쳐 Health Care를 넓혔다.",
+    "src": ["s1", "s4", "s2"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 제조 - 미국 18개 주 24개, 해외 31개국 72개 거점 (직원 약 10.4만 명 중 49%가 제조직)",
+      "원료·포장재 공급업체 - 거의 모든 원료와 포장재를 외부에서 구매 (업체명 미공시)",
+      "운송·물류 업체 - 운송비가 FY27 비용 부담의 한 축 (업체명 미공시)",
+      "Clorox - Glad 합작 종료(2026-01), P&G 지분을 4.76억 달러에 매입"
+    ],
+    "text": "제품은 대부분 직접 만든다. P&G는 미국 24개와 해외 72개 공장을 운영하고, 원료와 포장재는 거의 전부 외부에서 사 온다. 그래서 유가와 운송비가 오르면 원가가 바로 올라가는 구조이며, FY27에는 원자재·에너지·운송비로 세후 약 14억 달러 부담을 예상한다.",
+    "src": ["s4", "s2", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "대형 할인점 - Walmart와 계열사가 매출의 약 16% (FY2024~2026 동일)",
+      "상위 10개 고객 - 매출의 약 43% (FY2026)",
+      "디지털 커머스(소셜 커머스 포함)·식료품점·회원제 창고형 매장·약국·전문점",
+      "미국 밖 매출이 연 매출의 50% 이상"
+    ],
+    "channel": "유통사에 도매로 판매(대형 할인점, 이커머스, 식료품점, 창고형 매장, 약국 등). 소비자 직접 판매 비중은 공시되지 않았다.",
+    "concentration": "Walmart 약 16%, 상위 10개 고객 약 43% (10-K)",
+    "text": "만든 제품은 소비자가 아니라 유통사에 먼저 팔린다. Walmart 한 곳이 매출의 약 16%, 상위 10개 유통사가 약 43%를 차지해 이들의 재고 정책과 판촉 조건이 분기 매출을 흔든다. 판매 지역은 미국 밖이 절반 이상이라 환율도 매출에 큰 영향을 준다.",
+    "src": ["s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "소비자", "to": "Walmart·이커머스·식료품점 등 유통사", "what": "세제·기저귀·면도기·치약 구매 (소매가)" },
+      { "from": "유통사", "to": "P&G 5개 사업부", "what": "도매 대금 - 가격 인상·판촉 할인 반영 후 순매출 (FY2026 870억 달러)" },
+      { "from": "P&G", "to": "원료·포장재·운송 공급업체", "what": "원가 지급 - FY27 원자재·에너지·운송 부담 세후 약 14억 달러 예상" },
+      { "from": "P&G", "to": "광고 매체·유통 판촉", "what": "브랜드 광고와 판촉비 (판매관리비의 핵심, 금액 미확인)" }
+    ],
+    "pricing": "제품 단위 판매(물량 × 가격 × 제품 구성). 유기적 매출 성장은 물량·가격·제품 구성 효과로 나눠 공시하며, Q1 FY27은 물량 +2.4%, 가격 +0.4%, 구성 +1.1%였다.",
+    "text": "돈은 '소비자 → 유통사 → P&G' 순서로 들어오고, P&G는 그 일부를 원료·운송 공급업체와 광고에 다시 쓴다. FY2026 유기적 매출 증가 1%는 거의 가격 인상에서 나왔지만, Q1 FY27의 4% 증가는 물량(+2.4%)과 고급 제품 구성(+1.1%)이 이끌어 성장의 질이 좋아졌다. 반면 원가 쪽에서는 원자재 효과만으로 총마진이 140bp 깎여 들어오는 돈과 나가는 돈의 차이가 좁아졌다.",
+    "src": ["s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-06-30)",
+    "revenue": { "value": 87.032, "unit": "USD bn", "yoy": 3.2 },
+    "grossMargin": 50.2,
+    "operatingMargin": 22.7,
+    "netMargin": 18.4,
+    "operatingCashFlow": { "value": 19.556, "unit": "USD bn" },
+    "freeCashFlow": { "value": 15.147, "unit": "USD bn" },
+    "segments": [
+      { "name": "Fabric & Home Care (세전이익 72.9억 달러, 세전이익률 24.0%)", "revenue": 30.314, "unit": "USD bn", "share": 34.8, "yoy": 2, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Baby, Feminine & Family Care (세전이익 51.5억 달러, 25.2%)", "revenue": 20.401, "unit": "USD bn", "share": 23.4, "yoy": 1, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Beauty (세전이익 34.7억 달러, 21.7%)", "revenue": 16.023, "unit": "USD bn", "share": 18.4, "yoy": 7, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Health Care (세전이익 31.6억 달러, 25.4%)", "revenue": 12.456, "unit": "USD bn", "share": 14.3, "yoy": 4, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Grooming (세전이익 19.7억 달러, 28.4%)", "revenue": 6.918, "unit": "USD bn", "share": 7.9, "yoy": 4, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Corporate (세전손실 6.6억 달러)", "revenue": 0.919, "unit": "USD bn", "share": 1.1, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "유기적 매출 성장(organic sales)", "value": "FY2026 +1%(가격 주도); Q1 FY27 +4.0% (물량 +2.4%, 가격 +0.4%, 구성 +1.1%), 10개 카테고리·6개 지역 모두 성장", "src": ["s1", "s2", "s3"] },
+      { "name": "코어 EPS", "value": "FY2026 6.89달러(+1%); Q1 FY27 2.00달러(+1%), 고정환율 기준 보합", "src": ["s1", "s2"] },
+      { "name": "글로벌 합산 가치 점유율", "value": "Q1 FY27 전년과 같은 수준, 상위 50개 카테고리·국가 조합 중 29개가 점유율 유지·확대", "src": ["s3"] },
+      { "name": "총마진 / 영업이익률", "value": "FY2026 50.2%(-100bp) / 22.7%(-160bp); Q1 FY27 49.8%(-160bp) / 25.5%(-70bp)", "src": ["s1", "s2"] },
+      { "name": "조정 FCF 생산성", "value": "FY2026 100%, Q1 FY27 93%, FY27 가이던스 85~90%", "src": ["s1", "s2"] }
+    ],
+    "text": "이 구조가 FY2026에 매출 870억 달러(+3%), 영업이익률 22.7%, 순이익 160억 달러(순이익률 약 18%, 계산값)를 만들었다. 매출은 Fabric & Home Care가 35%로 가장 크지만 세전이익률은 Grooming(28%)이 가장 높고, Beauty는 매출이 7% 늘었는데도 세전이익은 1%만 늘어 비용 부담이 컸다. Q1 FY27에는 매출 233억 달러(+4%)로 물량이 살아났지만 총마진이 160bp 떨어져 EPS는 1% 늘었다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-06-30)",
+    "items": [
+      { "use": "capex", "value": 4.409, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 10.232, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 5.028, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 3.8, "unit": "USD bn", "src": ["s4", "s2"] },
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "벌어들인 현금(FY2026 영업현금흐름 196억 달러)의 가장 큰 쓰임은 배당이다. 배당 102억 달러로 70년 연속 배당을 늘렸고 자사주 50억 달러를 더해 150억 달러 넘게 돌려줬으며, 설비투자는 44억 달러였다. FY27에도 배당 100억 달러 이상, 자사주 약 50억 달러를 유지하면서 38억 달러 Thorne 인수(FY27 1분기 말 완료)를 더해, 주주환원을 줄이지 않고 건강 카테고리를 사는 쪽을 택했다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 가치사슬 밖에 있는 생활필수품 제조사. 실적 자료에서 AI는 사업 전략이 아니라 위험 요인 목록(규제, 신기술의 책임 있는 도입)에만 등장한다.",
+    "dependsOn": ["AI와 직접 의존 관계 공시 없음", "디지털 커머스 플랫폼 (판매 채널)"],
+    "sellsTo": ["AI 기업에 파는 것 없음"],
+    "aiRevenue": null,
+    "upside": "AI가 이익에 닿는 길은 간접적이다. 디지털·소셜 커머스 채널이 커지면 광고 효율이 바뀌고, 생산성 프로그램(Q1 FY27 영업이익률 250bp 기여)에 자동화 도구가 쓰일 수 있지만 회사는 AI 효과를 수치로 밝히지 않았다.",
+    "risk": "10-K는 AI 같은 신기술을 제때·책임 있게 도입하지 못하는 것을 위험으로 들고, 디지털 마케팅·판매 플랫폼 요구가 더 파편화되는 것도 위험으로 적는다. AI 기반 쇼핑 추천이 브랜드 충성도를 약하게 만들 가능성도 있다.",
+    "text": "그래서 AI 가치사슬에서 P&G의 자리는 '제한적'이다. AI 매출도, 공시된 AI 투자 계획도 없고, 실적을 움직이는 것은 원자재값·물량·가격이다. AI는 디지털 판매 채널과 생산성 도구를 통해 간접적으로만 닿는다.",
+    "src": ["s2", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "면도 (Grooming)", "rivals": ["Edgewell (Schick)", "저가 온라인 면도 브랜드"], "position": "leader", "share": "세계 면도 시장 50% 이상 (10-K)", "src": ["s4"] },
+      { "arena": "구강용품", "rivals": ["Colgate-Palmolive", "Haleon", "Philips (전동칫솔)"], "position": "leader", "share": "세계 약 30% (Crest·Oral-B, 10-K); Q1 FY27 점유율 -0.6%p", "src": ["s4", "s3"] },
+      { "arena": "헤어케어·스킨케어", "rivals": ["Unilever", "L'Oréal", "Kenvue"], "position": "leader", "share": "헤어케어 세계 약 20% (10-K); 스킨케어 Q1 FY27 점유율 -0.6%p", "src": ["s4", "s3"] },
+      { "arena": "세탁·주방 세제 (Fabric & Home Care)", "rivals": ["Unilever", "Henkel", "Church & Dwight", "유통사 자체 브랜드"], "position": "leader", "share": "Fabric Care Q1 FY27 점유율 +0.4%p (절대 점유율 미공시)", "src": ["s3"] },
+      { "arena": "기저귀·생리대·화장지", "rivals": ["Kimberly-Clark", "Essity", "유통사 자체 브랜드"], "position": "leader", "share": "Baby Q1 FY27 +0.8%p, Family -0.5%p (절대 점유율 미공시)", "src": ["s3"] }
+    ],
+    "edge": "카테고리마다 1위 브랜드와 기술 혁신(제품 성능)으로 가격 프리미엄을 받고, 규모와 생산성 프로그램으로 원가 상승을 흡수한다.",
+    "threats": "유통사 자체 브랜드와 저가 제품으로의 소비자 이동, 원자재·운송비 상승, 구강·스킨케어 점유율 하락, 디지털 채널에서 신생 브랜드의 진입.",
+    "text": "경쟁 구도는 카테고리마다 다르지만 대부분에서 P&G가 1위다. 다만 Q1 FY27 점유율을 보면 Fabric Care(+0.4%p)·Baby(+0.8%p)는 올랐고 구강(-0.6%p)·스킨케어(-0.6%p)·Family(-0.5%p)는 내려가 전체 점유율은 제자리였다. 회사는 '더 좋은 제품을 더 좋은 가치로'라는 전략으로 제품 성능에 다시 투자해 점유율을 지키고, 그 비용은 생산성 절감으로 메우겠다는 입장이다.",
+    "src": ["s3", "s4", "s2"]
+  },
+
+  "strategy": {
+    "goal": "FY27 유기적 매출 +1~3%, 코어 EPS 보합~+3%(6.89~7.11달러), 조정 FCF 생산성 85~90%, 배당 100억 달러 이상·자사주 약 50억 달러. 장기 목표 수치는 이번 조사에서 확인하지 못했다.",
+    "roadmap": [
+      { "when": "2025-06 발표, 2년", "what": "포트폴리오·공급망·생산성 구조조정 계획 - FY26에 절반 이상 집행, 나머지 FY27", "src": ["s1", "s3"] },
+      { "when": "2026-10-01", "what": "Thorne 인수 완료 (38억 달러 합의, 2026-08-04 체결)", "src": ["s2", "s4"] },
+      { "when": "FY27 (2026-07 ~ 2027-06)", "what": "브랜드·제품 형태·판매 방식 정리로 유기적 매출 30~50bp 역풍 감수", "src": ["s1", "s3"] },
+      { "when": "FY27 하반기", "what": "원가 부담이 앞으로 몇 분기 동안 더 커질 것으로 회사가 예상", "src": ["s2"] }
+    ],
+    "vision": "Jejurikar CEO는 FY2026을 '기반을 다진 해'라고 부르며, 소비자에게 '우월한 제품을 우월한 가치로' 제공하는 전략을 더 강하게 밀고 그 투자를 생산성으로 충당하겠다고 했다.",
+    "text": "앞으로 1년의 계획은 '브랜드 정리 + 생산성 + 작은 인수'다. 구조조정으로 비핵심 브랜드와 판매 방식을 정리해 매출 일부를 포기하는 대신, 절감한 돈을 제품 혁신에 다시 넣고, Thorne 인수로 성장하는 건강보조제 시장에 들어갔다. 다만 회사 스스로 원가 부담이 앞으로 몇 분기 더 커진다고 말해, FY27 이익은 생산성이 원가를 얼마나 따라잡느냐에 달려 있다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "governance": {
+    "line": "Shailesh Jejurikar가 의장 겸 사장·CEO, Andre Schulten이 CFO를 맡는 지분 분산 회사로, 136년 연속 배당과 70년 연속 배당 증액을 이어 가며 FY27에도 배당 100억 달러 이상과 자사주 약 50억 달러를 계획한다.",
+    "src": ["s4", "s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2027", "metric": "organic sales growth", "value": "+1~3% (유지; 브랜드 정리 역풍 30~50bp 포함)", "givenOn": "2026-10-22", "src": ["s2", "s1"] },
+      { "period": "FY2027", "metric": "all-in net sales growth", "value": "+2~4% (7월 +1~3%에서 Thorne 반영해 상향)", "givenOn": "2026-10-22", "src": ["s2", "s1"] },
+      { "period": "FY2027", "metric": "core EPS growth", "value": "보합~+3% (6.89~7.11달러, 유지)", "givenOn": "2026-10-22", "src": ["s2"] },
+      { "period": "FY2027", "metric": "diluted EPS growth", "value": "+1~5% (6.62달러 기준, 유지)", "givenOn": "2026-10-22", "src": ["s2"] },
+      { "period": "FY2027", "metric": "commodity / interest headwinds (after tax)", "value": "원자재·에너지·운송 약 14억 달러(7월 약 10억), 순이자비용 3억 달러(7월 1.5억); 합계 주당 0.79달러 역풍(7월 0.56달러)", "givenOn": "2026-10-22", "src": ["s2", "s1"] },
+      { "period": "FY2027", "metric": "cash return", "value": "배당 100억 달러 이상, 자사주 약 50억 달러, FCF 생산성 85~90%", "givenOn": "2026-10-22", "src": ["s2"] }
+    ],
+    "style": "annual",
+    "track": "7월 첫 가이던스 뒤 3개월 만에 원가·이자 역풍이 주당 0.56달러에서 0.79달러로 커졌지만 EPS 범위는 유지했다. 역풍이 커진 만큼을 1분기 물량 회복과 생산성으로 메우겠다는 뜻이라, 남은 분기에 범위 하단 압력이 생길 수 있다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 7.09달러(범위 6.84~7.32), 직전 4개 분기 6.90달러. 최근 4주 상향 6건·하향 16건으로 하향이 우세하다.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "유기적 매출이 물량 주도로 +3% 이상을 이어감",
+      "총마진 하락 폭이 Q1 FY27 -160bp보다 줄어듦",
+      "글로벌 점유율이 유지되고 구강·스킨케어 점유율 하락이 멈춤",
+      "FY27 코어 EPS 가이던스(보합~+3%)가 유지됨",
+      "Thorne이 Health Care 성장에 더해짐"
+    ],
+    "breaks": [
+      "원가 역풍이 주당 0.79달러보다 더 커지거나 EPS 가이던스 하향",
+      "물량 회복이 가격 인상 뒤 다시 꺾임",
+      "Walmart 등 대형 유통사의 재고 축소",
+      "자체 브랜드로의 소비자 이동 확대",
+      "FCF 생산성이 85% 아래로 떨어져 주주환원 계획이 흔들림"
+    ],
+    "keyNumbers": [
+      { "name": "유기적 매출의 물량·가격·구성 분해", "why": "성장의 질을 보여 준다" },
+      { "name": "코어 총마진 변화(bp)", "why": "원가 부담과 생산성의 싸움" },
+      { "name": "세후 원가 역풍 금액", "why": "분기마다 바뀌는 EPS의 가장 큰 변수" },
+      { "name": "글로벌 합산 점유율", "why": "가격 결정력의 근거" },
+      { "name": "조정 FCF 생산성", "why": "배당 100억 달러의 재원" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "FY27 Q2 실적과 가이던스 재확인", "src": [] },
+      { "date": "수시", "event": "유가·운송비 변화 (원가 역풍 규모)", "src": ["s2"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 유기적 매출과 그 안의 물량, 그리고 연간 EPS 가이던스 유지 여부에 반응하는 경향이 있다. Q1 FY27은 코어 EPS 2.00달러에 물량 +2.4%가 나왔고, 원가 역풍 확대에도 가이던스를 유지한 것이 관전 포인트였다.",
+    "conditions": [
+      "유기적 매출 증가율과 물량 기여",
+      "코어 총마진 전년 대비 변화",
+      "연간 원가 역풍 추정치의 변경 폭",
+      "코어 EPS 가이던스 범위 유지 여부",
+      "카테고리별 점유율 변화",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "FY2026 연구개발비 (10-K 해당 부분 미확인)",
+    "잉여현금흐름 151.5억 달러는 영업현금흐름 195.6억 - 설비투자 44.1억 계산값 (회사는 조정 FCF 생산성 100%만 공시)",
+    "부문 세전이익률은 세전이익/부문 매출 계산값이라 operatingMargin 칸은 비워 둠",
+    "부문 매출 합계 870.3억 달러로 보고 매출 870.3억과 일치",
+    "지역별 매출 비중 (미국 밖 50% 이상만 확인), 이커머스 매출 비중",
+    "구조조정 비용 규모: 7월 보도자료 비핵심 비용 약 10억~16억 달러, 10월 슬라이드 세전 약 20억 달러로 표현 차이",
+    "Thorne 인수의 매출·이익 기여와 결제 방식",
+    "광고·판촉비 금액",
+    "세탁·기저귀 등 카테고리의 절대 점유율 (변화폭만 확인)",
+    "FY27 Q2 실적 발표일"
+  ],
+  "confidence": "high - 매출·이익·현금·가이던스·점유율 변화는 회사 보도자료와 10-K·8-K 슬라이드에서 왔다. AI 관련 판단은 공시 부재에 근거한 것이다."
+}

@@ -1,0 +1,224 @@
+{
+  "symbol": "CRM",
+  "name": "Salesforce, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "January 31 (FY2026 ended 2026-01-31)",
+  "oneLine": "Salesforce는 기업의 영업·고객서비스·마케팅 데이터를 담는 CRM 소프트웨어를 구독으로 파는 회사로, 지금은 그 위에 AI 에이전트(Agentforce)를 얹고 Anthropic Claude와 손잡아 'AI가 사람 대신 소프트웨어를 쓰는 시대'에도 자기 데이터가 중심에 남는지를 증명하는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Salesforce Delivers Record Fourth Quarter Fiscal 2026 Results (fiscal year ended 2026-01-31)", "url": "https://www.salesforce.com/news/press-releases/2026/02/25/fy26-q4-earnings/", "publisher": "Salesforce", "date": "2026-02-25" },
+    { "id": "s2", "kind": "earnings-release", "title": "Salesforce Delivers Record Second Quarter Fiscal 2027 Results (quarter ended 2026-07-31)", "url": "https://www.salesforce.com/news/press-releases/2026/08/26/fy27-q2-earnings/", "publisher": "Salesforce", "date": "2026-08-26" },
+    { "id": "s3", "kind": "ir-site", "title": "Salesforce and Anthropic Announce Claudeforce: The #1 AI Meets the #1 AI CRM", "url": "https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/", "publisher": "Salesforce", "date": "2026-08-26" },
+    { "id": "s4", "kind": "ir-site", "title": "Salesforce Completes Acquisition of Fin (formerly Intercom)", "url": "https://www.salesforce.com/news/press-releases/2026/09/10/salesforce-completes-acquisition-of-fin/", "publisher": "Salesforce", "date": "2026-09-10" },
+    { "id": "s5", "kind": "ir-site", "title": "Salesforce Signs Definitive Agreement to Acquire Braze (~$5.66B enterprise value, $47.50 per share cash)", "url": "https://www.salesforce.com/news/press-releases/2026/10/20/salesforce-signs-definitive-agreement-to-acquire-braze/", "publisher": "Salesforce", "date": "2026-10-20" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/crm/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s7", "kind": "other", "title": "AIO local SEC fundamentals snapshot (SEC EDGAR companyfacts; 10-K FY2026 accession 0001108524-26-000060, filed 2026-03-02) - revenue and net income", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001108524.json", "publisher": "SEC EDGAR via AIO", "date": "2026-03-02" }
+  ],
+
+  "moat": {
+    "sources": [
+      "기업 고객의 영업·서비스·마케팅 기록이 쌓인 CRM 데이터 - 회사는 스스로 '세계 1위 AI CRM'이라 부름",
+      "업무 규칙·워크플로·권한 관리가 들어 있는 플랫폼 - AI 에이전트가 이를 통해 '규칙을 지키며' 행동 (AIforce)",
+      "여러 해짜리 구독 계약 - 총 잔여수행의무(RPO) 724억 달러(FY26말)",
+      "Data 360·Informatica로 흩어진 기업 데이터를 모으는 능력 - Q2 FY27 레코드 104조 건 수집"
+    ],
+    "text": "Salesforce의 힘은 기업이 수십 년간 쌓은 고객 기록과 그 위의 업무 규칙이 이 회사 플랫폼 안에 있다는 데서 나온다. 데이터와 워크플로를 옮기기 어렵기 때문에 고객은 여러 해짜리 구독을 맺고, 그 결과 FY26말 RPO가 724억 달러에 이르렀다. AI 시대의 새 뿌리는 이 데이터와 규칙을 어떤 AI 에이전트든 안전하게 쓰도록 열어 주는 'AIforce'라는 연결 층이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "design": {
+    "text": "회사가 내놓는 것은 영업(Agentforce Sales), 고객서비스(Agentforce Service), 마케팅·커머스, 그리고 이를 묶는 Agentforce 360 플랫폼과 Data 360, 분석(Tableau), 협업(Slack), 데이터 통합(Informatica)이다. 회사는 이를 데이터(Data 360), 고객 앱(Customer 360), 에이전트(Agentforce), 연결 층(AIforce·SIForce) 네 층으로 설명한다. 2026년에는 고객센터 AI 에이전트 Fin을 인수했고 마케팅 플랫폼 Braze 인수를 추진 중이다.",
+    "src": ["s1", "s2", "s4", "s5"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "Anthropic - Claude가 Agentforce의 추론 모델(Atlas Reasoning Engine)로 쓰이고, Agentforce Vibes·Coworker 기본 모델 (Claudeforce, 2026-08-26)",
+      "Fin (구 Intercom) - 고객서비스 AI 에이전트와 자체 모델, 2026-09-10 인수 완료",
+      "Informatica - 데이터 통합, FY26 Q4부터 매출 기여 (Q2 FY27 4.56억 달러)",
+      "클라우드 호스팅 사업자 - 이번 조사에서 업체명 미확인"
+    ],
+    "text": "Salesforce는 공장이 없는 순수 소프트웨어·서비스 회사여서, '만든다'는 것은 개발자와 AI 모델 파트너, 인수한 회사로 제품을 짓는 일이다. AI의 두뇌 일부는 Anthropic의 Claude를 쓰고, 고객서비스 에이전트는 Fin을 사서 보강했으며, 데이터 통합은 Informatica를 인수해 메웠다. 그래서 이 회사의 '공급망'은 AI 모델 파트너와 인수 대상이다.",
+    "src": ["s3", "s4", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "대기업·중견기업 - 영업·서비스·마케팅 부서 (Q4 FY26 상위 10개 수주 모두 Agentforce 360·Data 360 포함)",
+      "산업별 고객 - 산업 특화 사업 ARR 66억 달러(FY26말, 약 +20%)",
+      "공공기관 - 미 육군 HR, 미 교통보안청(TSA) 등 Agentforce 도입 사례 (회사 보도자료 목록)",
+      "중소기업 - Fin 고객 3만 곳 이상 등"
+    ],
+    "channel": "직접 영업이 중심이며 파트너·시스템 통합업체를 함께 쓴다. 2026년부터는 Claude 같은 외부 AI 앱 안에서도 Salesforce 기능을 쓰게 하는 'Salesforce in Claude' 경로가 생겼다.",
+    "concentration": "단일 고객 의존 공시는 이번 조사에서 미확인. 고객 기반이 넓게 분산된 것으로 보이나 수치 미확인.",
+    "text": "이 소프트웨어는 주로 직접 영업 조직이 대기업에 여러 해짜리 구독으로 판다. Agentforce·Data 360 신규 예약의 60% 이상이 기존 고객의 추가 구매였다는 점에서, 새 AI 제품도 결국 이미 깔린 고객 기반 위에서 팔리고 있다. 최근에는 Claude 안에서 Salesforce 데이터를 쓰게 하는 경로가 열려, 판매 창구가 Salesforce 화면 밖으로도 넓어졌다.",
+    "src": ["s1", "s3", "s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업 고객", "to": "Salesforce", "what": "연 단위 구독료 (사용자 수·에디션 기준, 보통 선불 청구) - Q2 FY27 구독·지원 매출 108억 달러" },
+      { "from": "기업 고객", "to": "Salesforce (Agentforce)", "what": "AI 에이전트 사용료 - 프리미엄 에디션(Agentforce One 등)과 작업 단위(AWU) 기반, Agentforce ARR 15억 달러 이상" },
+      { "from": "기업 고객", "to": "Salesforce (전문 서비스)", "what": "도입·컨설팅 수수료" },
+      { "from": "Salesforce", "to": "Anthropic 등 AI 모델·클라우드 공급자", "what": "모델 사용료·호스팅 비용 (금액 미공시)" }
+    ],
+    "pricing": "기본은 사용자 수와 에디션에 따른 구독이고, AI는 프리미엄 에디션 가격과 에이전트가 처리한 작업(Agentic Work Unit) 기반 과금을 섞는다. 계약 금액 중 앞으로 12개월 안에 매출이 될 몫이 cRPO다.",
+    "text": "돈은 기업이 연 단위로 미리 내는 구독료로 들어와, 매출의 대부분(Q2 FY27 113억 중 108억 달러)이 구독·지원에서 나온다. 여기에 AI 에이전트가 더해지면서, 사람 수만큼 받던 과금이 에이전트가 처리한 일의 양만큼 받는 방식으로 일부 바뀌고 있다. 이 전환이 매출을 키울지, 사람 좌석 수 감소로 기존 구독을 줄일지가 지금 이 회사의 핵심 질문이다.",
+    "src": ["s2", "s1"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "revenue": { "value": 41.525, "unit": "USD bn", "yoy": 10 },
+    "grossMargin": null,
+    "operatingMargin": 20.1,
+    "netMargin": 18.0,
+    "operatingCashFlow": { "value": 15.0, "unit": "USD bn" },
+    "freeCashFlow": { "value": 14.4, "unit": "USD bn" },
+    "segments": [
+      { "name": "Subscription and support (FY 합계 미확인; Q4 FY26 107억 달러, +13%)", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Professional services and other (FY 합계 미확인)", "revenue": null, "unit": "USD bn", "share": null, "yoy": null, "operatingMargin": null, "src": [] }
+    ],
+    "industryMetric": [
+      { "name": "현재 잔여수행의무(cRPO, 12개월 내 매출)", "value": "351억 달러 (FY26말, +16%, Informatica 4%p 포함) → 335억 달러 (Q2 FY27, +14%)", "src": ["s1", "s2"] },
+      { "name": "총 잔여수행의무(RPO)", "value": "724억 달러 (FY26말, +14%) → 663억 달러 (Q2 FY27, +11%)", "src": ["s1", "s2"] },
+      { "name": "Agentforce ARR / Agentforce+Data 360 ARR", "value": "FY26말 8억 / 29억 달러 → Q2 FY27 15억 이상(+240%) / 약 39억 달러(+210%)", "src": ["s1", "s2"] },
+      { "name": "비GAAP 영업이익률", "value": "FY26 34.1%, Q2 FY27 34.1%", "src": ["s1", "s2"] },
+      { "name": "AI 작업량 (Agentic Work Units)", "value": "누적 24억 건(FY26말) → 70억 건(Q2 FY27), Q2에만 32억 건", "src": ["s1", "s2"] },
+      { "name": "최근 분기 (Q2 FY27)", "value": "매출 113억 달러(+11%, Informatica 4.56억 포함), GAAP EPS 4.29달러(+119%), 비GAAP EPS 5.90달러(+103%)", "src": ["s2"] }
+    ],
+    "text": "FY2026 매출은 415억 달러(+10%)였고 GAAP 영업이익률 20%, 비GAAP 34%로, 성장보다 이익률이 높은 성숙한 소프트웨어 회사의 숫자다. 이익은 거의 전부 구독에서 나오며, AI 제품은 아직 ARR 기준 수십억 달러 규모지만 200% 넘게 늘고 있다. Q2 FY27 EPS가 두 배 넘게 뛴 이유는 보도자료 본문에서 설명되지 않아, 본업 개선과 일회성 요인을 구분해 확인할 필요가 있다.",
+    "src": ["s1", "s7", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "items": [
+      { "use": "buybacks", "value": 12.7, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 1.6, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.6, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "Salesforce는 설비가 거의 필요 없어(FY26 설비투자 약 6억 달러, 영업현금흐름-잉여현금흐름으로 계산) 현금 대부분을 주주환원과 인수에 쓴다. FY26에 자사주 127억 달러와 배당 16억 달러를 지급했고, 2026년 2월 500억 달러 자사주 매입 한도와 250억 달러 가속 자사주 매입(ASR)을 시작했다. 동시에 Informatica·Fin·Contentful을 사들이고 Braze(기업가치 약 56.6억 달러)까지 추진해, AI 시대에 필요한 데이터·에이전트 능력을 사서 채우는 쪽에 돈을 쓰고 있다.",
+    "src": ["s1", "s2", "s4", "s5"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 모델 위에서 기업 업무를 실제로 처리하는 응용 소프트웨어 층. 기업 고객 데이터와 업무 규칙을 쥐고, 그 위에 AI 에이전트(Agentforce)를 돌리며, 외부 AI(Claude 등)가 그 데이터를 쓰게 하는 연결 층(AIforce)을 판다.",
+    "dependsOn": ["models-platforms (Anthropic Claude - Atlas Reasoning Engine 추론 모델, 기타 모델 공급사 미확인)", "cloud-infrastructure (호스팅 - 업체명 미확인)"],
+    "sellsTo": ["기업 영업·서비스·마케팅 부서", "공공기관", "외부 AI 앱 이용자 (Salesforce in Claude)"],
+    "aiRevenue": "Agentforce ARR 15억 달러 이상, Agentforce+Data 360 ARR 약 39억 달러 (Q2 FY27, 2026-07-31 기준)",
+    "upside": "AI 에이전트가 고객서비스·영업 업무를 대신하면 Salesforce는 사람 좌석이 아니라 처리한 일만큼 돈을 받을 수 있고, 회사는 2026년 하반기 유기적 매출 재가속을 예상한다(NNAOV 성장이 4년 만에 가장 강하다고 언급).",
+    "risk": "AI 에이전트가 사람 사용자를 줄이면 좌석 기반 구독이 줄 수 있고, Claude 같은 외부 AI가 사용자 화면이 되면 Salesforce가 뒤편 데이터 저장소로 밀릴 수 있다. AI 모델 사용료가 이익률을 깎을 위험도 있다.",
+    "text": "그래서 AI 가치사슬에서 Salesforce는 모델을 직접 만들기보다, 모델이 일을 하게 만드는 기업 데이터와 업무 규칙을 쥔 응용 소프트웨어 자리에 있다. AI 매출은 ARR 39억 달러로 전체 매출의 10% 안팎 규모지만 3배 가까이 늘고 있다. 관건은 AI가 좌석을 줄이는 속도보다 에이전트 과금이 커지는 속도가 빠르냐는 것이고, Claudeforce는 화면이 AI로 옮겨 가도 데이터 층은 지키겠다는 전략이다.",
+    "src": ["s2", "s3", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "CRM (영업·서비스·마케팅 소프트웨어)", "rivals": ["Microsoft Dynamics 365", "Oracle", "SAP", "HubSpot"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "고객서비스 AI 에이전트", "rivals": ["ServiceNow", "Zendesk", "Microsoft Copilot", "AI 스타트업 (Sierra, Decagon 등)"], "position": "leader", "share": null, "src": ["s4"] },
+      { "arena": "마케팅 자동화·고객 참여", "rivals": ["Adobe", "HubSpot", "Braze (인수 추진 중)"], "position": "challenger", "share": null, "src": ["s5"] },
+      { "arena": "기업 데이터 플랫폼·통합", "rivals": ["Snowflake", "Databricks", "Microsoft Fabric"], "position": "challenger", "share": null, "src": ["s2"] },
+      { "arena": "업무 협업", "rivals": ["Microsoft Teams", "Google Workspace"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "CRM 데이터와 업무 규칙을 가진 설치 기반, Agentforce·Data 360·Slack을 한 플랫폼에 묶은 구조, 연 140억 달러대 잉여현금으로 인수할 수 있는 힘.",
+    "threats": "Microsoft처럼 업무 도구와 AI를 묶어 파는 경쟁자, 외부 AI 에이전트가 CRM 화면을 대체하는 흐름, 좌석 수 감소, 인수 통합 위험.",
+    "text": "CRM에서 Salesforce는 오래된 1위지만, 경쟁의 장이 'AI 에이전트가 누구 데이터 위에서 일하느냐'로 옮겨 가고 있다. Microsoft는 업무 도구와 Copilot을 묶어 들어오고, 고객서비스 AI에서는 ServiceNow와 신생 AI 회사들이 경쟁한다. 회사는 Fin·Braze 같은 인수로 빈칸을 채우고, Anthropic과 손잡아 외부 AI 안에서도 Salesforce 데이터가 쓰이게 하는 방식으로 맞선다.",
+    "src": ["s4", "s5", "s3", "s1"]
+  },
+
+  "strategy": {
+    "goal": "FY2030 매출 630억 달러(Informatica 포함) 목표를 2026-02에 상향 제시했고, FY27 하반기 유기적 매출 재가속을 목표로 한다. Braze 발표 시점(2026-10-20)에 장기 목표 변경은 없다고 밝혔다.",
+    "roadmap": [
+      { "when": "FY27 Q3 (2026-08~10)", "what": "Fin 인수 완료(2026-09-10), Contentful 인수 완료 예정, 250억 달러 ASR 최종 정산(2026-10)", "src": ["s4", "s2"] },
+      { "when": "FY2027 (~2027-01)", "what": "매출 461억~464억 달러, 비GAAP 영업이익률 34.3%, 하반기 유기적 매출 재가속", "src": ["s2"] },
+      { "when": "FY2028 (2027-02~2028-01)", "what": "Braze 인수 완료 예정 (주주·규제 승인 조건)", "src": ["s5"] },
+      { "when": "FY2030", "what": "매출 630억 달러 목표 (Informatica 포함)", "src": ["s1"] }
+    ],
+    "vision": "Benioff는 Salesforce를 사람과 AI 에이전트가 한 플랫폼에서 함께 일하는 '에이전틱 엔터프라이즈의 운영체제'로 그리며, Claudeforce에서는 'UI가 곧 AI'라고 표현했다.",
+    "text": "앞으로의 계획은 AI 에이전트 회사로의 재정의를 인수와 제휴로 앞당기는 것이다. 올해 안에 Fin·Contentful을 붙이고 Braze는 다음 회계연도에 마무리하며, 그동안 하반기 유기적 성장 재가속을 숫자로 보여 주겠다고 했다. 대규모 자사주 매입과 인수를 동시에 하므로, 투자 판단의 기준은 AI ARR 성장이 cRPO와 매출 성장률로 번지느냐다.",
+    "src": ["s4", "s5", "s2", "s1", "s3"]
+  },
+
+  "governance": {
+    "line": "공동 창업자 Marc Benioff가 이사회 의장 겸 CEO, Robin Washington이 사장 겸 CFO·COO를 맡고 있으며, 500억 달러 자사주 매입 한도와 분기 배당 주당 0.44달러로 주주환원을 크게 늘리는 동시에 AI 인수를 이어 가고 있다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "revenue", "value": "114.2억~115.0억 달러 (+11~12%, Informatica 4%p 남짓 포함)", "givenOn": "2026-08-26", "src": ["s2"] },
+      { "period": "Q3 FY2027", "metric": "cRPO growth", "value": "약 +14% (Contentful·Fin 미포함)", "givenOn": "2026-08-26", "src": ["s2"] },
+      { "period": "FY2027", "metric": "revenue", "value": "461억~464억 달러 (+11~12%; 2월 최초 458억~462억)", "givenOn": "2026-08-26", "src": ["s2", "s1"] },
+      { "period": "FY2027", "metric": "operating margin GAAP / non-GAAP", "value": "20.1% / 34.3% (2월 최초 20.9% / 34.3%)", "givenOn": "2026-08-26", "src": ["s2", "s1"] },
+      { "period": "FY2027", "metric": "operating / free cash flow growth", "value": "약 +4~5% 유지 (2월 최초 영업현금흐름 +9~10%)", "givenOn": "2026-08-26", "src": ["s2", "s1"] },
+      { "period": "FY2030", "metric": "revenue target", "value": "630억 달러 (Informatica 포함)", "givenOn": "2026-02-25", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "FY27 매출 가이던스는 2월 458억~462억에서 8월 461억~464억 달러로 올랐다(인상분 2억 달러 중 유기적 1억, 인수 2억, 환율 -1억). 반면 GAAP 영업이익률과 현금흐름 증가율 전망은 2월보다 낮아졌다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) EPS 합계 10.25달러(범위 9.38~11.70), 직전 4개 분기 13.51달러(일회성 요인 포함 추정). 최근 4주 상향·하향 0건.",
+    "src": ["s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "cRPO 증가율이 가이던스(약 14%) 이상으로 유지·상승",
+      "Agentforce ARR이 분기마다 크게 늘고 AWU 사용량 증가",
+      "FY27 하반기 유기적 매출 성장률이 상반기보다 높아짐",
+      "비GAAP 영업이익률 34%대 유지",
+      "인수(Fin·Contentful·Braze) 후에도 이익률·현금흐름 가이던스 유지"
+    ],
+    "breaks": [
+      "cRPO 증가율 둔화와 신규 예약 감소",
+      "좌석 수 감소가 공개적으로 확인되거나 순유지율 하락",
+      "AI 모델 사용료로 매출총이익률 하락",
+      "현금흐름 전망 추가 하향",
+      "대형 인수가 이어지며 통합 비용과 희석이 커짐"
+    ],
+    "keyNumbers": [
+      { "name": "cRPO 증가율", "why": "향후 12개월 매출의 선행 지표" },
+      { "name": "Agentforce·Data 360 ARR", "why": "AI가 실제 매출이 되는 속도" },
+      { "name": "유기적 매출 성장률 (Informatica 제외)", "why": "인수 효과를 뺀 본업 성장" },
+      { "name": "비GAAP 영업이익률과 잉여현금흐름", "why": "주주환원과 인수 여력" },
+      { "name": "AWU(에이전트 작업량)", "why": "좌석 대신 사용량 과금으로 가는 흔적" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-12 초 (추정, 회사 미확정)", "event": "Q3 FY2027 실적과 FY27 가이던스 갱신 - Fin·Contentful 반영", "src": [] },
+      { "date": "2026-10", "event": "250억 달러 ASR 최종 정산 예정", "src": ["s2"] },
+      { "date": "FY2028 중 (2027-02~2028-01)", "event": "Braze 인수 완료 예정 (주주·규제 승인 조건)", "src": ["s5"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 cRPO 증가율과 연간 매출 가이던스, AI ARR 같은 성장 신호에 크게 반응하는 경향이 있다. AI 에이전트가 소프트웨어 좌석을 줄인다는 업종 전반의 우려가 커질 때 실적과 무관하게 함께 흔들리기도 한다.",
+    "conditions": [
+      "cRPO 증가율과 다음 분기 가이던스",
+      "연간 매출 가이던스 변경 중 유기적·인수·환율 분해",
+      "Agentforce ARR·AWU 증가 폭",
+      "영업이익률·현금흐름 가이던스 변경",
+      "신규 인수 발표와 규모",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "FY2026 구독·지원 / 전문 서비스 연간 매출 분리 (재무표가 보도자료 본문에 없어 미확인; 부문 합계 검증 불가)",
+    "FY2026 매출총이익률, 클라우드별(Sales·Service·Platform·Marketing·Integration) 매출",
+    "FY2026 설비투자 약 6억 달러는 영업현금흐름 150억 - 잉여현금흐름 144억으로 계산한 값",
+    "Informatica·Contentful·Fin 인수 금액",
+    "Q2 FY27 GAAP·비GAAP EPS가 두 배 넘게 뛴 원인 (전략 투자 평가이익 등 추정, 원문 미확인)",
+    "FY27 현금흐름 증가율 전망이 +9~10%에서 +4~5%로 바뀐 시점과 이유 (Q1 FY27 보도자료 미확인)",
+    "2026-09-16 투자자의 날 발표 내용 (FY30 목표 갱신 여부)",
+    "AI 모델 공급사 전체 목록과 사용료, 호스팅 클라우드 업체",
+    "CRM·고객서비스 AI 시장 점유율 (경쟁 포지션은 판단)",
+    "고객 집중도와 순유지율",
+    "Q3 FY2027 실적 발표일"
+  ],
+  "confidence": "medium - 매출·이익률·RPO·AI ARR·가이던스는 회사 보도자료에서 왔지만, 연간 부문 매출과 재무표 세부를 읽지 못해 일부는 null이나 계산값이다."
+}

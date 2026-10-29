@@ -1,0 +1,225 @@
+{
+  "symbol": "GS",
+  "name": "The Goldman Sachs Group, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Goldman Sachs는 기업 인수합병 자문·주식·채권 트레이딩에서 세계 최상위권인 투자은행이자 4조 달러 넘는 자산을 맡은 자산·자산가 관리사로, 자본시장 경기와 AI 관련 대형 거래가 실적에 가장 먼저 찍히는 회사다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Goldman Sachs Reports Third Quarter 2026 Earnings Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000886982/000088698226000529/a3q26gsearningsresults.htm", "publisher": "Goldman Sachs / SEC EDGAR", "date": "2026-10-13" },
+    { "id": "s2", "kind": "8-K", "title": "Goldman Sachs Reports Fourth Quarter and Full Year 2025 Earnings Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000008/a4q25gsearningsresults.htm", "publisher": "Goldman Sachs / SEC EDGAR", "date": "2026-01-15" },
+    { "id": "s3", "kind": "other", "title": "The Goldman Sachs Group (GS) Q3 2026 earnings summary (NII, ROTE YTD, charitable contribution, 2026 alternatives fundraising outlook; summary page dated 2026-10-15)", "url": "https://quartr.com/events/the-goldman-sachs-group-inc-gs-q3-2026_3Y4im9lh", "publisher": "Quartr", "date": "2026-10-15" },
+    { "id": "s4", "kind": "news", "title": "Goldman Sachs tops global M&A rankings with $1.48 trillion in deals (Reuters/LSEG data; read via search summary, exact day not checked)", "url": "https://in.marketscreener.com/news/goldman-sachs-tops-global-m-a-rankings-with-1-48-trillion-in-deals-ce7e59dfdf8af421", "publisher": "Reuters via MarketScreener", "date": "2026-01" },
+    { "id": "s5", "kind": "news", "title": "Goldman Sachs rolls out GS AI Assistant firm-wide (read via search summary)", "url": "https://fortune.com/2025/06/24/goldman-sachs-internal-ai-assistant", "publisher": "Fortune", "date": "2025-06-24" },
+    { "id": "s6", "kind": "news", "title": "Goldman Sachs eyes job cuts and hiring slowdown amid AI push, memo shows (OneGS 3.0; read via search summary, exact day not checked)", "url": "https://www.tradingview.com/news/reuters.com,2025:newsml_L3N3VV1FA:0-goldman-sachs-eyes-job-cuts-and-hiring-slowdown-amid-ai-push-memo-shows", "publisher": "Reuters via TradingView", "date": "2025-10" },
+    { "id": "s7", "kind": "other", "title": "The Goldman Sachs Group (GS) Q3 2025 earnings summary (through-the-cycle ROE 14-16% / ROTE 15-17% targets; read via search summary)", "url": "https://quartr.com/events/the-goldman-sachs-group-gs-q3-2025_3Y4iywzq", "publisher": "Quartr", "date": "2025-10" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/gs/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s9", "kind": "news", "title": "Goldman Sachs CEO Says AI Boom Is Still in the 'Early Innings' (Q2 2026 call coverage; read via search summary)", "url": "https://www.webull.com/news/15227068146852864", "publisher": "Webull News", "date": "2026-07" }
+  ],
+
+  "moat": {
+    "sources": [
+      "세계 1위 M&A 자문 프랜차이즈 - 2025년 자문 거래액 1.48조 달러, 자문 수수료 46억 달러로 1위 (LSEG 집계 보도)",
+      "주식 트레이딩·프라임 브로커리지 규모 - 2025 주식 부문 순매출 165.4억 달러(+23%)",
+      "대체투자 중심 자산관리 - 운용·감독자산(AUS) 4.10조 달러, 대체투자 AUS 4,910억 달러 (Q3 2026)",
+      "대기업·기관·초고액 자산가와의 오랜 관계와 브랜드"
+    ],
+    "text": "Goldman Sachs의 힘은 가장 큰 거래가 생길 때 가장 먼저 불려 가는 이름이라는 데서 나온다. 2025년 세계 M&A 자문 거래액 1.48조 달러로 1위를 했고, 같은 대형 고객에게 주식·채권 트레이딩과 자금 조달을 함께 제공한다. 여기에 4조 달러 넘는 자산을 맡은 자산·자산가 관리 사업이 변동이 덜한 수수료를 더해 준다.",
+    "src": ["s4", "s2", "s1"]
+  },
+
+  "design": {
+    "text": "이 프랜차이즈 위에서 회사는 세 개 사업부를 보고한다. Global Banking & Markets(GBM)는 투자은행 자문·인수, 채권·통화·원자재(FICC)와 주식 트레이딩·금융을, Asset & Wealth Management(AWM)는 펀드·대체투자 운용과 초고액 자산가 자문·대출을 맡는다. Platform Solutions는 Apple Card 등 소비자 플랫폼 사업이었는데, 카드 대출이 2025년 4분기 매각 예정 자산으로 옮겨지고 다른 발행사로 이관하기로 하면서 사실상 정리 단계에 있다.",
+    "src": ["s2", "s1"]
+  },
+
+  "make": {
+    "model": "financial",
+    "partners": [
+      "주주 자본과 규제 자본 - CET1 비율 12.4%(표준법, Q3 2026)",
+      "채권 투자자·예금자(Goldman Sachs Bank USA, Marcus) - 트레이딩·대출 자금 조달 (금액 미확인)",
+      "트레이딩 상대방·거래소·청산소 - 시장 조성과 금융 제공",
+      "외부 AI 모델 공급자 - GS AI Assistant에서 여러 모델 사용 (보도 기준)"
+    ],
+    "text": "투자은행이 '만드는' 것은 사람의 자문과 자본으로 떠안는 거래 포지션이다. 회사는 약 4.75만 명의 인력(Q3 2026말)으로 자문과 인수를 수행하고, 자본과 차입으로 고객 대신 주식·채권 재고를 들고 있다가 돌려준다. 이 생산의 상한도 자본이어서, 2026년 들어 트레이딩·금융 사업을 키우면서 CET1 비율이 2025말 14.4%에서 Q3 2026 12.4%로 내려왔다.",
+    "src": ["s1", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "대기업·사모펀드·정부 (M&A 자문·주식·채권 인수)",
+      "헤지펀드·자산운용사 등 기관 투자자 (트레이딩·프라임 브로커리지·금융)",
+      "초고액 자산가·연기금·기관 (자산·대체투자 운용, 사모 대출)"
+    ],
+    "channel": "투자은행가 커버리지 팀(기업), 트레이딩 데스크와 전자 플랫폼(기관), 프라이빗 웰스 어드바이저와 펀드 판매(자산가·기관).",
+    "concentration": "단일 고객 의존 공시 없음. 다만 매출의 약 70%가 GBM이라 자본시장 거래량에 집중돼 있다.",
+    "text": "이렇게 만든 서비스는 세 무리의 고객에게 각자 다른 창구로 팔린다. 기업은 은행가를 통해 자문·인수를, 기관 투자자는 트레이딩 데스크를 통해 주식·채권 거래와 차입을, 자산가와 연기금은 웰스 어드바이저와 펀드를 통해 운용을 맡긴다. 고객은 분산돼 있지만 수익원은 자본시장 거래 활동에 크게 쏠려 있다.",
+    "src": ["s2", "s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업·사모펀드", "to": "GBM 투자은행", "what": "M&A 자문 수수료와 주식·채권 인수 수수료 (Q3 2026 투자은행 수수료 32.2억 달러)" },
+      { "from": "헤지펀드·기관 투자자", "to": "GBM Equities", "what": "주식 매매 스프레드·수수료와 프라임 브로커리지 금융 이자 (Q3 2026 64.4억 달러)" },
+      { "from": "기관·기업", "to": "GBM FICC", "what": "채권·금리·통화·원자재 매매와 금융 (Q3 2026 34.7억 달러)" },
+      { "from": "자산가·연기금·펀드 투자자", "to": "AWM", "what": "자산 규모 비례 운용·자문 보수와 성과 보수 (Q3 2026 관리·기타 보수 35.9억 달러)" },
+      { "from": "초고액 자산가 대출 고객", "to": "AWM Private banking & lending", "what": "예금과 대출 이자 차익 (Q3 2026 8.3억 달러)" }
+    ],
+    "pricing": "거래당 수수료(자문·인수), 매매 스프레드와 금융 이자(트레이딩), 운용자산 비례 보수와 성과 보수(자산관리)가 중심이고, 순이자이익은 Q3 2026 37.7억 달러로 매출의 일부다.",
+    "text": "돈은 대부분 거래가 일어날 때 들어온다. 기업이 회사를 사고팔거나 주식·채권을 찍으면 자문·인수 수수료가, 투자자가 매매하고 돈을 빌리면 트레이딩 수익이 생긴다. 자산관리 보수는 시장이 출렁여도 운용자산에 비례해 꾸준히 들어와 이 변동을 일부 받쳐 준다.",
+    "src": ["s1", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 58.28, "unit": "USD bn", "yoy": 8.9 },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": 29.5,
+    "operatingCashFlow": null,
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "Global Banking & Markets", "revenue": 41.45, "unit": "USD bn", "share": 71.1, "yoy": 18, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Asset & Wealth Management", "revenue": 16.68, "unit": "USD bn", "share": 28.6, "yoy": 2, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Platform Solutions", "revenue": 0.151, "unit": "USD bn", "share": 0.3, "yoy": -93, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "GBM 사업별 순매출 (FY2025)", "value": "투자은행 수수료 93.4억(+21%), FICC 145.2억(+9%), 주식 165.4억 달러(+23%)", "src": ["s2"] },
+      { "name": "AWM 사업별 순매출 (FY2025)", "value": "관리·기타 보수 115.4억(+11%), 사모 은행·대출 33.5억(+16%), 투자 13.1억 달러(-50%)", "src": ["s2"] },
+      { "name": "ROE / ROTE", "value": "FY2025 ROE 15.0%; 2026 1~3분기 누적 ROE 20.7%, ROTE 22.4%; Q3 2026 연율 ROE 18.7%", "src": ["s2", "s1", "s3"] },
+      { "name": "효율성 비율", "value": "FY2025 64.4% → 2026 1~3분기 누적 59.4%", "src": ["s2", "s1"] },
+      { "name": "CET1 비율", "value": "표준법 14.4%(2025말) → 12.4%(Q3 2026); 고급법 15.0% → 13.6%", "src": ["s2", "s1"] },
+      { "name": "운용·감독자산(AUS)", "value": "4.10조 달러(Q3 2026말, 전년 3.45조); Q3 순유입 830억, 대체투자 순유입 340억, 대체투자 AUS 4,910억 달러", "src": ["s1"] },
+      { "name": "주당 장부가치", "value": "357.60달러(2025말) → 372.64달러(Q3 2026)", "src": ["s2", "s1"] }
+    ],
+    "text": "이 수익원들이 2025년 순매출 582.8억 달러와 순이익 171.8억 달러를 만들어 매출 대비 순이익률은 약 30%였다. 매출의 71%가 GBM이고 그중에서도 주식 트레이딩(165.4억)과 FICC(145.2억)가 가장 크다. 2026년은 더 강해서 1~3분기 누적 순매출 562.4억 달러(+25%), 누적 ROE 20.7%로 이미 2025년 연간 수준에 가까워졌고, Q3 2026에는 주식 트레이딩이 72% 늘었다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "buybacks", "value": 12.36, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 4.42, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "Q3 2026 일회성 자선 기부 (가속 집행)", "value": 0.45, "unit": "USD bn", "src": ["s3"] }
+    ],
+    "text": "번 돈은 규제 자본을 채운 뒤 주주에게 많이 돌아간다. 2025년 자사주 123.6억 달러와 배당 44.2억 달러로 모두 167.8억 달러를 환원했고, 분기 배당을 주당 4.00달러에서 4.50달러로, 다시 2026년 4분기분 5.00달러로 올렸다. Q3 2026에도 자사주 30억과 배당 14.9억 달러를 냈지만, CET1 비율이 내려온 만큼 트레이딩 사업에 자본을 더 쓰고 있다는 점이 함께 읽힌다.",
+    "src": ["s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI 제품을 파는 회사가 아니라, AI를 업무에 도입하면서 동시에 AI 인프라·기업 거래에 자문과 자금을 대는 금융 중개자. 사내 GS AI Assistant로 직원 생산성을 높이고, AI 관련 M&A·자금 조달·데이터센터 금융에서 수수료를 번다.",
+    "dependsOn": ["models-platforms (OpenAI GPT, Google Gemini, Anthropic Claude 등 여러 모델 - 보도 기준)", "cloud-infrastructure (클라우드·컴퓨팅 공급자, 업체명 미공시)"],
+    "sellsTo": ["AI 기업·하이퍼스케일러·데이터센터 개발사 - 자문·인수·금융 서비스 (금액 미공시)", "AI 테마에 투자하는 기관 투자자 - 트레이딩·운용"],
+    "aiRevenue": null,
+    "upside": "AI는 두 갈래로 이익에 닿는다. 하나는 AI 인프라 투자와 관련 기업 거래가 늘면서 생기는 자문·인수·금융 수수료이고(Solomon은 2026년 7월 AI 인프라 구축이 아직 '초기'라고 말함), 다른 하나는 OneGS 3.0에 따라 AI로 업무를 재설계해 인력 증가를 억제하는 비용 효과다.",
+    "risk": "AI 투자 열기가 식으면 관련 대형 거래와 주식 거래량이 함께 줄 수 있고, Solomon도 이 흐름이 '굴곡과 재조정' 없이 가지는 않을 것이라고 했다. AI 도입 과정의 오류·환각 위험과 인력 재편 비용도 있다.",
+    "text": "그래서 AI 가치사슬에서 Goldman은 맨 끝의 도입자이면서, AI 붐을 돈으로 바꾸는 금융 통로이기도 하다. AI 매출을 따로 공시하지는 않지만, AI 관련 거래가 투자은행 수수료와 주식 트레이딩 호황에 섞여 들어온다. 관건은 이 거래 흐름이 얼마나 오래 이어지고, 사내 AI가 효율성 비율을 얼마나 낮추느냐다.",
+    "src": ["s5", "s6", "s9", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "M&A 자문", "rivals": ["JPMorgan", "Morgan Stanley", "Bank of America", "부티크 자문사"], "position": "leader", "share": "2025 세계 M&A 자문 거래액·수수료 1위 (LSEG 집계 보도, 거래액 1.48조 달러, 수수료 46억 달러)", "src": ["s4"] },
+      { "arena": "주식 트레이딩·프라임 브로커리지", "rivals": ["Morgan Stanley", "JPMorgan", "Bank of America", "Citigroup"], "position": "leader", "share": null, "src": ["s2", "s1"] },
+      { "arena": "채권·통화·원자재(FICC)", "rivals": ["JPMorgan", "Citigroup", "Bank of America", "Morgan Stanley"], "position": "challenger", "share": null, "src": ["s2", "s1"] },
+      { "arena": "대체투자·자산관리", "rivals": ["Blackstone", "Apollo", "KKR", "Morgan Stanley", "JPMorgan AWM"], "position": "challenger", "share": null, "src": ["s1"] }
+    ],
+    "edge": "가장 큰 거래에 불려 가는 자문 브랜드, 주식 트레이딩 규모, 대체투자 운용 역량의 결합.",
+    "threats": "자본시장 거래 위축, 대형 은행(특히 JPMorgan)의 자문·트레이딩 점유율 확대, 사모 신용 전문 운용사의 대체투자 경쟁, 규제 자본 요건 변화.",
+    "text": "자문에서는 2025년 거래액·수수료 모두 1위였고, 주식 트레이딩은 2025년 165.4억 달러로 회사 최대 수익원이다. 반면 FICC와 대체투자에서는 각각 대형 은행과 Blackstone 같은 전문 운용사와 경쟁하는 도전자 위치다. 회사는 대체투자 모금을 2026년 약 1,500억 달러로 키우고 자산관리 보수 비중을 늘려 이 경쟁에 대응한다.",
+    "src": ["s4", "s2", "s3"]
+  },
+
+  "strategy": {
+    "goal": "경기 사이클 전체 기준 ROE 14~16%, ROTE 15~17%를 목표로 제시해 왔고(2차 요약 기준), 2026년 대체투자 모금 약 1,500억 달러를 예상한다.",
+    "roadmap": [
+      { "when": "2025-10 발표", "what": "OneGS 3.0 - AI를 축으로 업무를 재설계하고 연말까지 인력 증가 억제", "src": ["s6"] },
+      { "when": "2025-06 이후", "what": "GS AI Assistant 전사 배포, 개발자 코파일럿·Banker Copilot 등으로 확장", "src": ["s5"] },
+      { "when": "2025 4분기~", "what": "Apple Card 대출을 매각 예정 자산으로 분류하고 다른 발행사로 이관 (Platform Solutions 정리)", "src": ["s2", "s1"] },
+      { "when": "2026 연간", "what": "대체투자 모금 약 1,500억 달러, 4분기 성과 보수 높은 수준 유지 예상", "src": ["s3"] },
+      { "when": "2026-12-30", "what": "분기 배당 주당 5.00달러 지급 예정", "src": ["s1"] }
+    ],
+    "vision": "소비자 금융에서 물러나 투자은행·트레이딩과 자산·자산가 관리라는 두 핵심 프랜차이즈에 집중하고, AI로 운영을 재설계해 더 높은 수익성을 내는 회사.",
+    "text": "앞으로의 그림은 단순해진 두 축이다. 소비자 카드 사업은 Apple Card 이관으로 정리하고, 투자은행·트레이딩의 1위 자리를 지키면서 대체투자 모금을 2026년 약 1,500억 달러로 키워 안정적인 보수를 늘린다. 동시에 OneGS 3.0으로 AI를 업무 전반에 넣어 인력 증가를 억제하겠다는 것이 회사의 계획이다.",
+    "src": ["s2", "s3", "s6"]
+  },
+
+  "governance": {
+    "line": "David Solomon CEO가 이끄는 지분 분산 회사로, 승계 계획은 확인하지 못했으며 2025년 자사주·배당으로 167.8억 달러를 환원하고 분기 배당을 주당 5.00달러까지 올렸다.",
+    "src": ["s6", "s2", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "alternatives fundraising", "value": "약 1,500억 달러", "givenOn": "2026-10-13", "src": ["s3"] },
+      { "period": "4Q26", "metric": "incentive fees", "value": "높은 수준 유지 예상 (수치 없음)", "givenOn": "2026-10-13", "src": ["s3"] },
+      { "period": "FY2026", "metric": "effective tax rate", "value": "약 20%", "givenOn": "2026-10-13", "src": ["s3"] },
+      { "period": "through the cycle", "metric": "ROE / ROTE target", "value": "14~16% / 15~17% (2차 요약 기준)", "givenOn": "2025-10", "src": ["s7"] }
+    ],
+    "style": "none",
+    "track": "매출·이익 수치 가이던스는 내지 않고 대체투자 모금, 세율 같은 항목만 말로 제시한다. 투자은행 수수료 잔고(backlog)는 Q3 2026에 전분기 대비 줄었고 2025년 말보다도 약간 낮다고 밝혔다.",
+    "src": ["s3", "s1"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 71.40달러(범위 65.93~75.71), 직전 4개 분기 69.55달러. 최근 4주 상향 12건·하향 4건으로 상향 우세. Q3 2026 실제 EPS 17.01달러는 해당 스냅샷의 컨센서스 12.90달러를 크게 웃돌았다.",
+    "src": ["s8", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "투자은행 수수료 잔고(backlog)가 다시 늘고 자문 수수료가 회복",
+      "주식 트레이딩 순매출이 높은 수준을 유지",
+      "AUS 순유입과 대체투자 모금이 연 1,500억 달러 수준을 유지",
+      "효율성 비율이 60% 아래에서 유지",
+      "CET1 비율이 12%대에서 안정되고 자사주 매입 지속"
+    ],
+    "breaks": [
+      "M&A·주식 발행 시장 급랭으로 투자은행 수수료 감소",
+      "트레이딩 순매출 급감",
+      "CET1 비율 추가 하락으로 자사주 매입 축소",
+      "대체투자 순유출 또는 투자 평가손",
+      "Apple Card 이관 과정의 추가 평가손"
+    ],
+    "keyNumbers": [
+      { "name": "투자은행 수수료와 backlog 방향", "why": "다음 분기 자문·인수 수익의 선행 신호" },
+      { "name": "Equities·FICC 순매출", "why": "매출의 절반 이상을 차지하는 변동 수익원" },
+      { "name": "AWM 관리·기타 보수와 AUS 순유입", "why": "안정적인 수익원이 커지는지 확인" },
+      { "name": "ROE·ROTE", "why": "투자은행 가치평가(P/B)의 근거" },
+      { "name": "CET1 비율과 자사주 매입액", "why": "성장과 환원이 같은 자본을 나눠 쓴다" },
+      { "name": "효율성 비율", "why": "AI·OneGS 3.0 효과가 비용에 나타나는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 중순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적", "src": [] },
+      { "date": "2026-12-30", "event": "분기 배당 주당 5.00달러 지급", "src": ["s1"] },
+      { "date": "수시", "event": "연준 금리 결정, M&A·IPO 시장 동향, 대형 AI 거래 발표", "src": [] }
+    ],
+    "reaction": "주가는 투자은행 수수료와 트레이딩 순매출이 컨센서스를 얼마나 넘는지, 그리고 backlog 코멘트에 반응하는 경향이 있다. Q3 2026은 EPS 17.01달러로 컨센서스를 크게 넘었고 주식 트레이딩이 72% 늘었지만, backlog 감소와 CET1 하락이 함께 나왔다.",
+    "conditions": [
+      "투자은행 수수료 전년 대비 증감과 backlog 방향",
+      "Equities·FICC 순매출이 컨센서스 대비 어디에 있는지",
+      "AUS 순유입·대체투자 모금 속도",
+      "CET1 비율과 분기 자사주 매입액",
+      "세계 M&A·IPO 거래량 지표",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "은행 특성상 총마진·영업이익률·영업현금흐름·잉여현금흐름은 null (순이익률은 순이익 171.8억/순매출 582.8억 계산값)",
+    "ROE 14~16%·ROTE 15~17% 목표와 AWM 목표는 2차 요약에서만 확인, 회사 원문 미확인",
+    "2025 ROTE와 2025말 AUS 수치 (s2 본문에서 읽지 못함)",
+    "Apple Card 이관 상대방이 JPMorgan인지 GS 자료에서는 확인 못 함 (s2는 '다른 발행사'로만 기재), 이관 완료 시점",
+    "NEOS·LCN Capital Partners·Industry Ventures 인수 보도 (2차 검색 요약만, 금액·완료 미확인)",
+    "AI 관련 거래·데이터센터 금융 수수료 규모, GS AI Assistant 사용 인원과 효과",
+    "M&A 외 주식·FICC·대체투자 시장 점유율 ('leader'/'challenger'는 판단)",
+    "s4·s6·s7 정확한 날짜와 원문 (검색 요약 기준)",
+    "Q3 2026 순이자이익 37.7억과 누적 ROTE 22.4%는 s3 요약 기준",
+    "CEO 승계 계획과 이사회 의장 겸직 여부"
+  ],
+  "confidence": "high - 매출·이익·사업부·자본·환원은 회사 8-K 실적 자료에서 왔다. 장기 목표, AI 효과, 일부 점유율은 2차 요약이라 medium 수준이다."
+}

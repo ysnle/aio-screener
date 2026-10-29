@@ -97,8 +97,8 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       rules: `${RULES.credit.stressAtBp}bp 이상이거나 5일 사이 +${RULES.credit.widen5dBp}bp 이상 벌어지거나 20거래일 확대 폭이 자체 기록 상위 ${100 - RULES.credit.stress20dPct}%면 부담(20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄 때까지 유지), ${RULES.credit.tightBelowBp}bp 미만이면서 5일 확대가 없고 20거래일 확대가 +${RULES.credit.widen20dBp}bp 미만이며 풋/콜이 ${RULES.credit.putCallHedgeAt} 미만일 때만 양호, 그 밖은 중립입니다. 시장 상태의 '신용과 위험선호' 지표와 같은 판정입니다.` },
     { id: 'pcr', title: '풋/콜 비율', value: shown.pcr == null ? '—' : shown.pcr.toFixed(2), basis: alignmentLabel(alignments.pcr), basisStatus: alignments.pcr.status,
       // T10: the card reads the same RULES edges as the credit axis (1.1 hedging, below 0.7 optimism). D19: level only, neutral tone.
-      state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '하락 대비 수요 높음', tone: LEVEL_TONE } : pcr < RULES.credit.putCallOptimismBelow ? { label: '콜 우위 (낙관 쪽)', tone: LEVEL_TONE } : { label: '중립', tone: LEVEL_TONE }),
-      change: '', note: `미국 상장 옵션 전체에서 하락에 대비하는 풋옵션 거래가 콜옵션보다 얼마나 많은지 — 높을수록 방어적, ${RULES.credit.putCallHedgeAt} 이상 헤지 수요 높음, ${RULES.credit.putCallOptimismBelow} 미만 낙관` },
+      state: shown.pcr == null ? null : judged(pcr, pcr >= RULES.credit.putCallHedgeAt ? { label: '풋 거래 우세', tone: LEVEL_TONE } : pcr < RULES.credit.putCallOptimismBelow ? { label: '콜 우위 (낙관 쪽)', tone: LEVEL_TONE } : { label: '중립', tone: LEVEL_TONE }),
+      change: '', note: `미국 상장 옵션 전체에서 풋옵션 거래가 콜옵션보다 얼마나 많은지 — ${RULES.credit.putCallHedgeAt} 이상 풋 거래 우세, ${RULES.credit.putCallOptimismBelow} 미만 콜 거래 우세. 풋을 사서 대비한 거래인지 팔아서 수익을 낸 거래인지는 이 비율로 구분되지 않습니다` },
     { id: 'aaii', title: 'AAII 개인 설문', value: shown.bear == null ? '—' : `약세 ${shown.bear.toFixed(1)}%`, basis: credit.aaiiAsOf ? `${alignmentLabel(aaiiAlign)} 주간` : '미수신', basisStatus: isUsable(aaiiAlign) ? 'aligned' : aaiiAlign.status,
       // v57.50 D24/C04: no sourced 45% '비관' cut-off exists, so the state is the distance from AAII's published long-run average.
       state: shown.bear == null ? null : judged(bear, { label: `약세 장기 평균 대비 ${signedPp(bear - AAII_AVERAGE.bear)}`, tone: LEVEL_TONE }),
@@ -138,7 +138,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       '비관이 심리 지표를 넘어 자금 시장으로 퍼지는 모습입니다.'].filter(Boolean).join(' ');
   else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
   else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.`;
-  else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 헤지 수요가 낮음(풋/콜 ${pcr.toFixed(2)}) — 충격 대비가 약한 상태입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 헤지 수요는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 헤지 수요가 낮지는 않습니다`}.`;
+  else if (greedy) synthesis = hedgeLow ? `낙관이 강하고(F&G ${Math.round(fg)}) 콜 거래 비중이 높습니다(풋/콜 ${pcr.toFixed(2)}) — 옵션 거래까지 낙관 쪽으로 기운 상태입니다.` : `낙관이 강합니다(F&G ${Math.round(fg)}). 풋/콜 비율이 ${pcr == null ? '없어 옵션 거래의 기울기는 확인하지 못했습니다' : `${pcr.toFixed(2)}로 콜 거래 쪽으로 기울지는 않았습니다`}.`;
   else if (fgBand) synthesis = `F&G는 ${Math.round(fg)}(${fgBand.label}) — 한쪽으로 치우치지 않은 상태입니다.`;
   else synthesis = 'F&G가 기준일에 없어 가격 쪽 심리는 판단하지 않고, 개인 설문만 아래에 적습니다.';
   // Audit 2026-10-14: the summary carries the direction of the mood (F&G over 20 sessions), and the AAII reading joins the

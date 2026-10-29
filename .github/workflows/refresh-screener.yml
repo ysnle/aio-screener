@@ -102,6 +102,7 @@ jobs:
       - name: Refresh weekly earnings calendar (Finnhub free tier)
         env:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }} # v59.42: EDGAR 8-K Item 2.02 check for names the provider window misses
         run: |
           set -euo pipefail
           # fetch-earnings-calendar.mjs preserves the previous file and exits 0 when the key is

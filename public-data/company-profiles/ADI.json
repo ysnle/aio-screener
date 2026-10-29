@@ -1,0 +1,207 @@
+{
+  "symbol": "ADI",
+  "name": "Analog Devices, Inc.",
+  "researchedAt": "2026-10-29",
+  "fiscalYearEnd": "Saturday closest to October 31 (FY2025 ended 2025-11-01)",
+  "oneLine": "Analog Devices는 센서·데이터 변환기·전원 관리 같은 고성능 아날로그 칩으로 현실 세계 신호를 디지털로 바꿔 주는 회사로, 산업 회복과 AI 데이터센터(광통신·전원) 수요가 겹치며 2026년 매출이 40% 가까이 뛰는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Analog Devices Reports Fiscal Third Quarter 2026 Financial Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/6281/000000628126000072/adi3q26exhibit991earnings.htm", "publisher": "Analog Devices / SEC EDGAR", "date": "2026-08-19" },
+    { "id": "s2", "kind": "10-K", "title": "Analog Devices Form 10-K for fiscal year ended 2025-11-01", "url": "https://www.sec.gov/Archives/edgar/data/6281/000000628125000153/adi-20251101.htm", "publisher": "Analog Devices / SEC EDGAR", "date": "2025-11-25" },
+    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/adi/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s4", "kind": "earnings-release", "title": "Analog Devices Reports Record Fiscal Second Quarter 2026 Financial Results (wire copy)", "url": "https://www.placera.se/telegram/avanza/39_95431e41-f241-492c-a51e-27b58ee8a011.html", "publisher": "Analog Devices via Avanza/Placera", "date": "2026-05-20" },
+    { "id": "s5", "kind": "ir-site", "title": "Analog Devices to Report Fourth Quarter Fiscal Year 2026 Financial Results on Tuesday, November 24, 2026", "url": "https://www.analog.com/en/newsroom/press-releases/2026/10-22-2026-adi-report-4q-fy2026-financial-results.html", "publisher": "Analog Devices", "date": "2026-10-22" },
+    { "id": "s6", "kind": "other", "title": "Analog Devices (ADI) Q3 2026 earnings summary", "url": "https://quartr.com/events/analog-devices-inc-adi-q3-2026_3YUiYcdh", "publisher": "Quartr", "date": "2026-08-19" },
+    { "id": "s7", "kind": "ir-site", "title": "Analog Devices Appoints Vincent Roche CEO", "url": "https://investor.analog.com/news-releases/news-release-details/analog-devices-appoints-vincent-roche-ceo", "publisher": "Analog Devices", "date": "2013-05-06" }
+  ],
+  "moat": {
+    "sources": [
+      "고정밀 데이터 변환기·증폭기·센서 인터페이스 - 현실 신호(온도·압력·전파·전류)를 정확히 읽는 설계 노하우",
+      "7만5천 개가 넘는 제품(SKU), 한 칩이 수백 고객에게 쓰이는 넓은 고객 기반과 긴 제품 수명",
+      "자체 공장(Wilmington·Camas·Beaverton·Limerick)의 독자 공정과 TSMC 등 외부 파운드리를 함께 쓰는 하이브리드 생산",
+      "엔지니어 약 1만3천 명 (전체 직원 약 2만4,500명)"
+    ],
+    "text": "ADI의 힘은 아날로그 칩 중에서도 정밀도가 높은 쪽에 있다. 온도·압력·전파·전류 같은 현실 세계 신호를 오차 없이 읽어 디지털로 넘기는 칩은 설계 경험이 쌓여야 만들 수 있고, 한 번 장비에 들어가면 오래 쓰인다. 7만5천 개가 넘는 제품을 자체 독자 공정과 TSMC 생산을 섞어 공급하는 것이 이를 받친다.",
+    "src": ["s2"]
+  },
+  "design": {
+    "text": "회사는 단일 사업부로 보고하고 매출을 네 시장으로 나눈다. Industrial(공장 자동화·계측·항공방산·의료·에너지), Automotive(배터리 관리·차량 내 오디오·연결), Communications(무선 기지국·유선·데이터센터의 광통신과 전원), Consumer(휴대 기기·오디오)다. 2026년에는 데이터센터 전원 업체 Empower Semiconductor를 인수해 AI 서버용 전원 제품을 넓혔다.",
+    "src": ["s2", "s1"]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "자체 웨이퍼 공장 - 매사추세츠 Wilmington, 워싱턴 Camas, 오리건 Beaverton, 아일랜드 Limerick (독자 공정)",
+      "TSMC 등 외부 파운드리 - 연간 웨이퍼 수요의 절반 이상",
+      "자체 조립·웨이퍼 소트·테스트 - 필리핀·태국 (말레이시아 Penang 시설은 매각 예정)",
+      "외부 조립·테스트 하청업체 - 광범위하게 사용, 업체명 미기재"
+    ],
+    "text": "ADI는 공장과 외부 파운드리를 섞어 쓴다. 정밀 아날로그처럼 독자 공정이 중요한 칩은 미국·아일랜드의 자체 공장에서 만들고, 웨이퍼 수요의 절반 이상은 TSMC 등 외부 파운드리에서 받는다. 이렇게 하면 경기 하강기에 공장 고정비 부담을 줄이면서도 핵심 기술은 안에 둘 수 있다.",
+    "src": ["s2"]
+  },
+  "sell": {
+    "customers": [
+      "산업 장비 제조사 (FY2025 매출의 45%)",
+      "자동차 OEM·티어1 (30%)",
+      "소비자 기기 제조사 (13%)",
+      "통신·데이터센터 장비 제조사 (13%) - 데이터센터는 Communications의 세부 시장"
+    ],
+    "channel": "FY2025 매출의 약 56%가 외부 유통사 경유, 나머지는 OEM 직접 판매.",
+    "concentration": "10-K에서 단일 고객·유통사의 10% 초과 비중을 확인하지 못함. 지역별로는 미국 32.4억, 중국 28.6억(약 26%), 유럽 22.9억, 기타 아시아 14.9억, 일본 9.9억 달러 (FY2025).",
+    "text": "만든 칩은 산업(45%)과 자동차(30%)에 가장 많이 팔리고, 절반 넘게(56%) 유통사를 거쳐 수많은 중소 장비 제조사에게 간다. 이 때문에 유통 재고가 늘고 줄 때 매출이 실제 수요보다 크게 출렁이기도 한다. 중국 매출이 약 26%로 커서 미중 관계에도 민감하다.",
+    "src": ["s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "공장·병원·자동차·데이터센터 최종 사용자", "to": "산업 장비·자동차·통신 장비·서버 제조사", "what": "완제품·장비 구매 대금" },
+      { "from": "장비 제조사 (중소형 다수)", "to": "유통사", "what": "칩 구매 대금 (ADI 매출의 약 56%가 이 경로)" },
+      { "from": "유통사·대형 OEM", "to": "ADI", "what": "아날로그·혼합신호·전원 칩 대금 (개당)" },
+      { "from": "ADI", "to": "TSMC 등 외부 파운드리·조립 하청업체", "what": "웨이퍼·조립·테스트 대금" }
+    ],
+    "pricing": "칩 개당 판매. 고정밀 제품은 단가가 높고 제품 수명이 길어 가격 결정력이 비교적 크다.",
+    "text": "돈은 공장·자동차·데이터센터의 장비 투자에서 출발해, 장비 제조사가 칩을 살 때 대부분 유통사를 거쳐 ADI로 들어온다. 외부 파운드리 비중이 커서 매출이 줄 때 비용도 같이 줄일 수 있고, 매출이 늘면 자체 공장 가동률이 올라 마진이 크게 오른다.",
+    "src": ["s2", "s1"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-11-01)",
+    "revenue": { "value": 11.0197, "unit": "USD bn", "yoy": 17 },
+    "grossMargin": 61.5,
+    "operatingMargin": 26.6,
+    "netMargin": 20.6,
+    "operatingCashFlow": { "value": 4.812, "unit": "USD bn" },
+    "freeCashFlow": { "value": 4.279, "unit": "USD bn" },
+    "segments": [
+      { "name": "Industrial (end market; single operating segment)", "revenue": 4.929, "unit": "USD bn", "share": 44.7, "yoy": 15, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Automotive (end market)", "revenue": 3.278, "unit": "USD bn", "share": 29.7, "yoy": 16, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Consumer (end market)", "revenue": 1.4346, "unit": "USD bn", "share": 13.0, "yoy": 19, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Communications incl. Data Center (end market)", "revenue": 1.3779, "unit": "USD bn", "share": 12.5, "yoy": 26, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q3 FY2026) 매출·마진", "value": "매출 40.2억 달러(전년 대비 +40%), GAAP 총마진 67.3%(조정 72.5%), GAAP 영업이익률 40.1%(조정 50.0%)", "src": ["s1"] },
+      { "name": "Q3 FY2026 시장별 매출", "value": "Industrial 19.7억(+53%), Automotive 10.0억(+16%), Communications 6.6억(+84%, 데이터센터 주도), Consumer 4.0억(+6%)", "src": ["s1"] },
+      { "name": "최근 12개월 잉여현금흐름", "value": "49.4억 달러 (매출의 36%), 2026-08-01 기준", "src": ["s1"] },
+      { "name": "유통사 경유 매출 비중", "value": "약 56% (FY2025)", "src": ["s2"] }
+    ],
+    "text": "이 구조가 FY2025에 매출 110억 달러(+17%), GAAP 영업이익률 약 27%로 나타났다. GAAP 이익률이 조정 기준보다 낮은 것은 과거 인수에서 생긴 무형자산 상각(7.5억 달러) 때문이다. 2026년 들어 산업 회복과 데이터센터 수요가 겹치며 Q3 FY2026 매출이 40% 늘었고, 공장 가동률이 오르며 GAAP 총마진이 67.3%까지 올라왔다.",
+    "src": ["s2", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-11-01)",
+    "items": [
+      { "use": "R&D", "value": 1.766, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.534, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 1.924, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 2.165, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "FY2025 잉여현금흐름 43억 달러 가운데 배당 19억과 자사주 매입 약 22억을 합한 41억 달러를 주주에게 돌려줘, 거의 전부를 환원했다. R&D는 매출의 16%인 18억 달러다. 2026년에는 Empower Semiconductor 인수 등에 현금 15억 달러를 썼고, 최근 12개월 자사주 매입도 31억 달러로 늘려 환원과 데이터센터 확장을 함께 하고 있다.",
+    "src": ["s2", "s1"]
+  },
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI 데이터센터의 광통신 연결, 고속 신호, 서버 전원 관리(Empower 인수로 수직 전원 공급 강화) 칩 공급자. 연산 칩이 아니라 데이터를 빛으로 주고받고 전력을 칩까지 효율적으로 보내는 부품을 만든다.",
+    "dependsOn": [
+      "semicap-foundry (TSMC 등 외부 파운드리 - 웨이퍼 절반 이상)",
+      "자체 공장 (Wilmington·Camas·Beaverton·Limerick)"
+    ],
+    "sellsTo": [
+      "networking (광모듈·통신 장비 제조사)",
+      "cloud-infrastructure (서버·랙 제조사를 통한 데이터센터)",
+      "ai-adopter (산업 자동화·로봇 - 회사의 'Physical Intelligence' 비전)",
+      "devices (자동차·소비자 기기)"
+    ],
+    "aiRevenue": "데이터센터 매출은 별도 공시 없음. 데이터센터가 포함된 Communications가 Q3 FY2026 6.6억 달러(매출의 16%, 전년 대비 +84%), 회사는 성장이 '데이터센터와 산업이 주도'했다고 밝힘 (2026-08-19)",
+    "upside": "AI 클러스터가 커질수록 광통신 연결과 랙 전력 밀도가 늘어 고속 신호·전원 칩 수요가 함께 오른다. Empower 인수로 GPU 바로 옆에서 전압을 바꾸는 전원 제품까지 갖췄다.",
+    "risk": "데이터센터 비중이 아직 작아 산업·자동차 경기가 실적을 좌우하고, 데이터센터 전원 시장에는 전문 업체가 많다. AI 투자 둔화 시 Communications의 높은 성장률이 빠르게 꺾일 수 있다.",
+    "text": "그래서 AI 가치사슬에서 ADI는 연산 칩 옆에서 데이터와 전력을 나르는 부품 쪽에 있다. 데이터센터가 들어 있는 Communications가 84% 늘며 AI 효과가 숫자로 보이기 시작했지만, 매출의 70% 이상은 여전히 산업·자동차에서 나온다.",
+    "src": ["s1", "s2"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "고성능 아날로그·혼합신호 (데이터 변환기·증폭기)", "rivals": ["Texas Instruments", "Microchip", "Renesas", "중국 아날로그 업체"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "전원 관리 (산업·데이터센터)", "rivals": ["Texas Instruments", "Infineon", "Monolithic Power Systems", "Renesas"], "position": "challenger", "share": null, "src": ["s2", "s1"] },
+      { "arena": "자동차 배터리 관리·차량 연결", "rivals": ["Texas Instruments", "Infineon", "NXP", "STMicroelectronics"], "position": "leader", "share": null, "src": ["s2"] }
+    ],
+    "edge": "고정밀 신호 처리 설계 역량, 7만5천 개 제품과 긴 제품 수명, 자체 공정과 외부 파운드리를 섞은 유연한 원가 구조.",
+    "threats": "정부 지원을 받는 중국 업체의 추격(중국 매출 약 26%), 유통 재고 조정에 따른 매출 변동, 데이터센터 전원 시장의 전문 경쟁사.",
+    "text": "10-K는 경쟁사 이름 대신 신흥 업체와 정부 지원을 받는 해외 업체를 위협으로 든다. ADI는 정밀도가 중요한 고성능 아날로그에서 강하고, 데이터센터 전원처럼 새로 키우는 영역에서는 인수(Empower)로 도전자 자리를 메우는 방식이다. 중국 매출이 크기 때문에 중국 업체의 추격이 가장 구조적인 위협이다.",
+    "src": ["s2", "s1"]
+  },
+  "strategy": {
+    "goal": "회사는 AI 시대에 가치를 만들고 가져가는 데 고유한 강점이 있다고 말하며, 현실 세계와 상호작용하는 AI(Physical Intelligence)를 장기 방향으로 내세운다. 수치 장기 목표는 이번에 확인하지 못했다.",
+    "roadmap": [
+      { "when": "Q3 FY2026", "what": "Empower Semiconductor 인수 (데이터센터 전원), 인수 현금 15억 달러", "src": ["s1"] },
+      { "when": "Q4 FY2026", "what": "매출 43억 달러 ±1억, 조정 영업이익률 약 52%, 조정 EPS 3.86달러 가이던스", "src": ["s1"] },
+      { "when": "Q4 FY2026", "what": "조정 총마진 약 74%로 상승 예상 - 가격 조정·제품 구성·고정비 흡수 효과 (콜 요약)", "src": ["s6"] },
+      { "when": "2027~2030", "what": "2027년 견조한 성장, 데이터센터·에너지는 2030년까지 강한 두 자릿수 성장을 기대한다는 경영진 발언 (콜 요약)", "src": ["s6"] },
+      { "when": "FY2025 이후", "what": "말레이시아 Penang 조립·테스트 시설 매각 추진", "src": ["s2"] }
+    ],
+    "vision": "센서에서 클라우드까지 현실 세계 신호를 읽고 처리하는 칩으로 산업·자동차·의료·데이터센터의 'Physical Intelligence'를 받치는 회사.",
+    "text": "그래서 ADI는 기존 산업·자동차의 강점 위에 데이터센터를 새 성장축으로 얹고 있다. 2026년 Empower 인수로 AI 서버 전원 제품을 보강했고, 다음 분기에도 매출 43억 달러와 조정 영업이익률 52%를 제시해 회복세가 이어진다고 본다.",
+    "src": ["s1", "s2"]
+  },
+  "governance": {
+    "line": "2013-05부터 CEO를 맡은 Vincent Roche가 회장을 겸하며, 분기 배당 주당 1.10달러와 2025-11-01 기준 자사주 매입 잔여 한도 97억 달러를 두고 잉여현금흐름 거의 전부를 주주에게 돌려준다.",
+    "src": ["s1", "s2", "s7", "s5"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q4 FY2026", "metric": "revenue", "value": "43억 달러 ±1억", "givenOn": "2026-08-19", "src": ["s1"] },
+      { "period": "Q4 FY2026", "metric": "operating margin", "value": "GAAP 약 42.6% ±150bp, 조정 약 52.0% ±100bp", "givenOn": "2026-08-19", "src": ["s1"] },
+      { "period": "Q4 FY2026", "metric": "EPS", "value": "GAAP 3.14달러 ±0.15, 조정 3.86달러 ±0.15", "givenOn": "2026-08-19", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q3 FY2026 가이던스는 매출 39억 달러 ±1억, 조정 영업이익률 약 49% ±100bp, 조정 EPS 3.30달러 ±0.15였고, 실제는 매출 40.2억(범위 상단 초과)·조정 영업이익률 50.0%·조정 EPS 3.45달러(둘 다 범위 상단)였다. Q2 FY2026 매출 36.2억 달러도 기록이었다.",
+    "src": ["s4", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) 합계 15.93달러(범위 14.56~17.22), 직전 4개 분기 실적 합 11.26달러. 최근 4주 상향 4건·하향 0건.",
+    "src": ["s3"]
+  },
+  "watch": {
+    "confirms": [
+      "Q4 FY2026 매출이 43억 달러 가이던스를 넘고 FY2027 첫 분기 가이던스도 성장 지속",
+      "Communications(데이터센터) 성장률이 높게 유지되고 회사가 데이터센터 매출 규모를 밝힘",
+      "Industrial 매출 회복이 이어짐",
+      "총마진이 가동률 상승으로 높은 수준을 유지",
+      "Empower 인수 제품의 데이터센터 고객 채택"
+    ],
+    "breaks": [
+      "유통 재고가 다시 쌓여 매출 가이던스 하향",
+      "자동차 매출 둔화가 길어짐 (Q3 FY2026 +16%로 다른 시장보다 느림)",
+      "데이터센터 성장 둔화",
+      "중국 매출 감소나 중국 업체의 가격 공세"
+    ],
+    "keyNumbers": [
+      { "name": "Industrial 매출 성장률", "why": "매출의 절반 가까이를 차지하는 경기 민감 시장" },
+      { "name": "Communications 매출 성장률", "why": "AI 데이터센터 수요의 대리 지표" },
+      { "name": "조정 총마진·영업이익률", "why": "가동률 회복과 가격 결정력의 결과" },
+      { "name": "다음 분기 매출 가이던스 vs 컨센서스", "why": "주가 반응의 기준" },
+      { "name": "유통 재고 수준", "why": "매출의 56%가 유통사를 거쳐 수요 착시를 만든다" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-24 (오전 7시 발표, 10시 콜, 미 동부시간, 회사 공지)", "event": "Q4·FY2026 실적 발표와 Q1 FY2027 가이던스", "src": ["s5"] },
+      { "date": "수시", "event": "미국 관세·무역 제한 (회사가 위험 요인으로 명시)", "src": ["s1"] }
+    ],
+    "reaction": "주가는 다음 분기 매출 가이던스와 산업 시장 회복에 대한 경영진 발언, 그리고 최근에는 데이터센터 성장 속도에 반응하는 경향이 있다. TI 등 다른 아날로그 회사의 실적이 먼저 나와 업황 기대가 미리 형성되는 편이다.",
+    "conditions": [
+      "다음 분기 매출 가이던스 중간값과 컨센서스의 차이",
+      "시장별(Industrial·Automotive·Communications) 성장률 변화",
+      "조정 영업이익률 가이던스",
+      "유통 재고와 주문 동향 언급",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "데이터센터 매출 금액 - 회사가 Communications 안에 포함해 별도 공시하지 않음",
+    "경쟁사 이름 - 10-K가 명시하지 않아 일반적으로 알려진 업체를 적었으며 문서로 확인하지 않음; 점유율 출처 없음",
+    "FY2025 자사주 매입 약 21.6억 달러는 자본변동표의 액면·자본잉여금 차감액 합으로 계산 (현금흐름표 원문 미확인)",
+    "FY2025 설비투자 5.34억 달러와 잉여현금흐름 42.8억 달러는 순 유형자산 취득 기준 계산값",
+    "FY2025 영업이익(29.3억)과 영업이익률은 손익 항목으로 계산한 값",
+    "FY2025 인수 현금 지출과 단일 고객·유통사 비중 - 10-K 해당 부분 확인 못 함",
+    "Empower Semiconductor 인수 가격·완료일 - 보도자료에 미기재",
+    "수치로 된 장기 재무 목표 - 확인 못 함; 2027 성장·2030년까지 데이터센터·에너지 두 자릿수 성장 발언과 Q4 총마진 약 74%는 Quartr 요약(s6) 기준이며 녹취록 원문은 읽지 않음",
+    "Q2 FY2026 보도자료(s4)는 회사 사이트가 아닌 통신 재게재본으로 읽음; Q4 발표일 공지(s5)는 회사 페이지가 열리지 않아 검색 결과에 인용된 본문으로 확인"
+  ],
+  "confidence": "high - 실적·시장별 매출·생산 구조·현금흐름은 회사 8-K 보도자료와 10-K에서 왔다. 경쟁사·점유율·장기 목표는 출처가 없어 비어 있다."
+}

@@ -1,0 +1,210 @@
+{
+  "symbol": "PLTR",
+  "name": "Palantir Technologies Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Palantir는 정부와 기업의 흩어진 데이터를 하나의 운영 모델(Ontology)로 묶고 그 위에서 AI가 실제 업무를 하게 만드는 소프트웨어 회사로, 2026년 2분기 매출이 93% 늘며 'AI를 실제 현장에 적용하는' 수요의 대표 지표가 됐다.",
+  "sources": [
+    { "id": "s1", "kind": "10-K", "title": "Palantir Technologies Form 10-K for fiscal year ended 2025-12-31 (IR copy; platforms, competition, customers, segments, geography, income and cash flow statements)", "url": "https://investors.palantir.com/files/2025%20FY%20PLTR%2010-K.pdf", "publisher": "Palantir IR", "date": "2026-02-17" },
+    { "id": "s2", "kind": "earnings-release", "title": "Palantir Reports Q4 2025 U.S. Comm Revenue Growth of 137% Y/Y and Revenue Growth of 70% Y/Y; issues FY 2026 guidance (release text copy)", "url": "https://seekingalpha.com/pr/20384706", "publisher": "Seeking Alpha (Business Wire release text)", "date": "2026-02-02" },
+    { "id": "s3", "kind": "earnings-release", "title": "Palantir (PLTR) Q2 2026 earnings summary (release figures and guidance)", "url": "https://quartr.com/events/palantir-technologies-inc-pltr-q2-2026_33F7Xjix", "publisher": "Quartr", "date": "2026-08-03" },
+    { "id": "s4", "kind": "news", "title": "Palantir shares jump 12% as revenue nearly doubles and guidance climbs (TCV, remaining deal value, OCF, FY2026 adjusted operating income guide)", "url": "https://siliconangle.com/2026/08/03/palantir-shares-jump-12-revenue-nearly-doubles-guidance-climbs/", "publisher": "SiliconANGLE", "date": "2026-08-03" },
+    { "id": "s5", "kind": "call-transcript", "title": "PLTR 2Q26 AI Summary (commercial and government segment revenue for Q2 2026; public portion only)", "url": "https://transcripts.platformaeronaut.com/summaries/PLTR-2Q26-AI-Summary", "publisher": "PlatformAeronaut", "date": "2026-08-03" },
+    { "id": "s6", "kind": "news", "title": "Army, Palantir sign software enterprise agreement worth up to $10 billion (10-year, 75 contracts consolidated)", "url": "https://defensescoop.com/2025/07/31/army-palantir-software-enterprise-agreement-10-billion/", "publisher": "DefenseScoop", "date": "2025-07-31" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/pltr/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s8", "kind": "other", "title": "AIO local earnings calendar snapshot, public-data/earnings-calendar.json (PLTR 2026-11-02 after close; not company-confirmed in this session)", "url": "https://www.nasdaq.com/market-activity/earnings", "publisher": "AIO earnings calendar", "date": "2026-10-28" },
+    { "id": "s9", "kind": "other", "title": "AIO local SEC companyfacts snapshot, public-data/sec-fundamentals.json (FY2025 revenue and net income, accession 0001321655-26-000011)", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001321655.json", "publisher": "SEC EDGAR via AIO", "date": "2026-02-17" }
+  ],
+  "moat": {
+    "sources": [
+      "Ontology - 고객의 데이터·업무 규칙·의사결정을 하나의 디지털 모델로 묶는 Foundry의 핵심 계층 (10-K)",
+      "국방·정보기관에서 10년 넘게 검증된 Gotham과 보안 등급 배포 경험 - 상위 3개 고객 평균 거래 기간 10년",
+      "Apollo - 클라우드·온프레미스·기밀망 어디서나 같은 소프트웨어를 매일 업데이트하는 배포 계층",
+      "AIP - LLM을 고객 데이터와 업무 흐름에 안전하게 연결해 실제 운영에 쓰게 하는 플랫폼"
+    ],
+    "text": "Palantir의 힘은 AI 모델 자체가 아니라, 고객의 데이터와 업무 규칙을 Ontology라는 하나의 모델로 묶어 두는 데서 나온다. 한 번 이 모델이 깔리면 공급망·생산·작전 같은 핵심 업무가 그 위에서 돌아가므로 다른 제품으로 바꾸기 어렵다. 회사 스스로도 가장 큰 경쟁자는 고객이 직접 만드는 내부 시스템이라고 말하는데, 크고 복잡하고 실패 비용이 큰 문제일수록 Palantir가 이긴다는 것이 회사 설명이다.",
+    "src": ["s1"]
+  },
+  "design": {
+    "text": "이 기반 위에서 회사는 네 개의 소프트웨어 플랫폼을 판다. Gotham은 국방·정보기관용 분석·작전 플랫폼, Foundry는 기업과 기관 전체의 데이터 운영 플랫폼, Apollo는 이 둘을 어디서나 배포·업데이트하는 플랫폼, 그리고 2023년부터 배포한 AIP는 LLM을 Gotham·Foundry의 데이터와 업무에 연결하는 생성형 AI 플랫폼이다. 보고는 고객 기준으로 정부(Government)와 상업(Commercial) 두 부문으로 나뉜다.",
+    "src": ["s1"]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "Amazon Web Services - 일부 플랫폼 기능을 호스팅하는 외부 클라우드 (10-K)",
+      "Microsoft Azure - 외부 클라우드 호스팅 (10-K)",
+      "외부 클라우드 사업자와 최소 사용량 약정 - 미사용 시에도 비용 발생 가능 (10-K)",
+      "하도급 업체·현장 지원 인력 - 원가에 포함 (10-K)"
+    ],
+    "text": "Palantir는 공장이 없는 순수 소프트웨어 회사라서, '생산'은 자체 엔지니어가 만들고 AWS·Microsoft 같은 외부 클라우드 위에서 돌리는 구조다. 그래서 원가는 주로 인력과 클라우드 호스팅비이고, FY2025 총이익률이 약 82%에 이른다. 현장에 엔지니어를 보내 고객과 함께 구축하는 방식이 원가의 또 다른 축이다.",
+    "src": ["s1"]
+  },
+  "sell": {
+    "customers": [
+      "미국 정부 - 국방부·육군 등 (2025-07-31 육군 10년·최대 100억 달러 엔터프라이즈 계약)",
+      "미국 기업 - 제조·에너지·제약·유틸리티 등 (Q2 2026 미국 상업 매출 7.64억 달러, +149%)",
+      "해외 정부·기업 - FY2025 영국 매출 4.27억 달러(10%), 기타 해외 7.28억 달러(16%)",
+      "고객 수 1,049곳 (2026-06-30, 전년 대비 +24%)"
+    ],
+    "channel": "직접 판매가 중심이다. 크고 어려운 문제를 가진 대형 정부·기업 고객을 겨냥하고, 파일럿으로 먼저 도입한 뒤 계약을 넓히는 방식이다(10-K는 파일럿 비용을 영업비에 포함). 육군 계약은 재판매 수수료 없이 직접 계약으로 묶었다.",
+    "concentration": "FY2025 상위 3개 고객이 매출의 16% (FY2024 17%). 상위 20개 고객의 연평균 매출 9,390만 달러. FY2025 매출의 54%가 정부, 74%가 미국.",
+    "text": "이렇게 만든 소프트웨어는 직접 영업으로 대형 정부·기업에 팔린다. FY2025에는 매출의 54%가 정부, 74%가 미국에서 나왔고, 상위 3개 고객 비중은 16%로 특정 고객에 크게 기대지는 않는다. 최근에는 미국 기업 고객이 가장 빠르게 늘어, 2026년 2분기 미국 상업 매출이 전년 대비 149% 증가했다.",
+    "src": ["s1", "s3", "s6"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "미국 의회·국방부 예산", "to": "육군 등 정부 기관", "what": "국방·정보 예산 배정" },
+      { "from": "정부 기관 (예: 미 육군 엔터프라이즈 계약)", "to": "Palantir", "what": "소프트웨어 구독·라이선스, 운영·유지보수(O&M), 전문 서비스 대금 (다년 계약)" },
+      { "from": "기업 고객 (제조·에너지·제약 등)", "to": "Palantir", "what": "Foundry·AIP 구독료 - 파일럿 후 다년 계약으로 확장" },
+      { "from": "Palantir", "to": "AWS·Microsoft Azure", "what": "클라우드 호스팅비 (최소 사용량 약정)" },
+      { "from": "Palantir", "to": "직원·하도급 업체", "what": "엔지니어 인건비와 주식 보상" }
+    ],
+    "pricing": "주로 다년 구독·라이선스 계약. 소프트웨어와 운영·유지보수를 하나의 수행 의무로 묶어 계약 기간 동안 나눠 인식한다. 많은 고객이 12개월 미만 통지로 해지할 수 있어, 회사는 해지 가능 금액까지 포함한 '잔여 계약 가치(RDV)'를 따로 공시한다.",
+    "text": "돈은 국방 예산과 기업 IT·운영 예산에서 출발해 다년 구독 계약으로 Palantir에 들어온다. 계약은 길지만 해지가 쉬운 조항이 많아, 확정 잔여 의무(RPO)는 2025년 말 41억 달러인 반면 해지 가능분을 포함한 잔여 계약 가치는 112억 달러로 훨씬 크다. 나가는 돈은 인건비와 클라우드 호스팅비가 대부분이라, 매출이 늘수록 이익이 빠르게 커지는 구조다.",
+    "src": ["s1", "s6"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 4.475, "unit": "USD bn", "yoy": 56 },
+    "grossMargin": 82.4,
+    "operatingMargin": 31.6,
+    "netMargin": 36.3,
+    "operatingCashFlow": { "value": 2.134, "unit": "USD bn" },
+    "freeCashFlow": { "value": 2.27, "unit": "USD bn" },
+    "segments": [
+      { "name": "Government", "revenue": 2.402, "unit": "USD bn", "share": 53.7, "yoy": 53, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Commercial", "revenue": 2.073, "unit": "USD bn", "share": 46.3, "yoy": 60, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "부문 공헌이익률 (FY2025)", "value": "Government 약 66% (공헌이익 15.76억 달러), Commercial 약 66% (13.67억 달러)", "src": ["s1"] },
+      { "name": "최근 분기 (Q2 2026) 매출·이익", "value": "매출 19.35억 달러(+93%), 상업 9.45억(+110%)·정부 9.90억(+79%), 미국 상업 7.64억(+149%)·미국 정부 8.09억(+90%), GAAP 영업이익 9.12억(47%), 조정 영업이익 11.94억(62%), 순이익 10.62억(55%)", "src": ["s3", "s4", "s5"] },
+      { "name": "계약 지표 (Q2 2026)", "value": "총계약가치(TCV) 33.73억 달러(+49%), 미국 상업 TCV 21.32억(+153%), 미국 상업 잔여 계약 가치 62.38억(+124%), 100만 달러 이상 계약 220건", "src": ["s3", "s4"] },
+      { "name": "순매출유지율·Rule of 40 (Q2 2026)", "value": "NDR 157%, Rule of 40 점수 155%", "src": ["s3", "s4"] },
+      { "name": "잔여 계약 가치·RPO (2025-12-31)", "value": "잔여 계약 가치 112억 달러(상업 68억·정부 44억), RPO 41억 달러", "src": ["s1"] }
+    ],
+    "text": "이 구조가 FY2025에 매출 44.75억 달러(+56%), GAAP 영업이익률 약 32%, 순이익률 약 36%로 나타났다. 두 부문 모두 공헌이익률이 약 66%라 정부와 기업 어느 쪽이 커져도 이익률이 비슷하다. 2026년 들어서는 성장이 더 빨라져 2분기 매출이 93% 늘고 조정 영업이익률이 62%까지 올라갔으며, 조정 잉여현금흐름은 FY2025 22.7억 달러였다.",
+    "src": ["s1", "s2", "s3", "s9"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 0.558, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.034, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.075, "unit": "USD bn", "src": ["s1", "s2"] },
+      { "use": "other", "label": "비상장 기업 지분 매입", "value": 0.073, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "벌어들인 현금은 거의 쓰이지 않고 쌓이고 있다. FY2025 설비투자는 3,400만 달러, 자사주 매입은 7,500만 달러에 그쳤고, 연구개발비 5.58억 달러와 영업비 10.57억 달러가 주요 지출이다. 그 결과 2026년 6월 말 현금·단기 국채가 92억 달러, 차입금은 없어, 회사는 돈을 주주환원보다 인력과 영업 확대에 쓰는 성장 우선 기조다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "LLM과 클라우드 위에 앉아, 고객 데이터와 실제 업무 흐름을 AI에 연결하는 응용·운영 소프트웨어 계층. 모델을 만들지 않고, 모델이 현장에서 쓰이게 만드는 자리다.",
+    "dependsOn": [
+      "cloud-infrastructure (AWS, Microsoft Azure 호스팅)",
+      "models-platforms (AIP가 연결하는 외부 LLM)",
+      "고객 내부 데이터와 시스템 접근"
+    ],
+    "sellsTo": [
+      "미국·동맹국 정부 (국방·정보·보건)",
+      "ai-adopter (제조·에너지·제약·금융 등 대기업)"
+    ],
+    "aiRevenue": "AIP 단독 매출은 공시되지 않음. AIP가 주도한다고 회사가 설명하는 미국 상업 매출은 Q2 2026 7.64억 달러(+149%).",
+    "upside": "기업이 AI를 시험 단계에서 실제 운영으로 옮길수록 Ontology 위에 올라가는 업무가 늘고, 미국 상업 매출과 계약 가치가 직접 커진다. 회사는 FY2026 미국 상업 매출을 34.24억 달러 이상(+134% 이상)으로 제시했다.",
+    "risk": "LLM 회사나 대형 클라우드·소프트웨어 회사가 비슷한 '에이전트 운영' 기능을 기본 제공하면 차별성이 줄 수 있고, 정부 매출은 예산·정치 변수에 노출된다. 매우 높은 기대가 주가에 반영돼 있어 성장 둔화에 민감하다.",
+    "text": "그래서 AI 가치사슬에서 Palantir는 칩·클라우드·모델 위의 가장 끝, '응용' 층에 있다. GPU 투자가 실제 생산성으로 바뀌는지를 보여주는 자리라서, 이 회사 매출은 AI 투자의 '회수' 단계를 보여주는 지표로 읽힌다. 반대로 위쪽 모델 회사들이 응용 영역으로 내려오면 가장 먼저 경쟁을 받는 자리이기도 하다.",
+    "src": ["s1", "s3", "s4"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "기업 데이터·AI 운영 플랫폼", "rivals": ["고객 자체 개발(내부 IT·컨설팅 조합)", "대형 기업용 소프트웨어 회사", "시스템 통합업체"], "position": "leader", "share": null, "src": ["s1"] },
+      { "arena": "국방·정보 소프트웨어", "rivals": ["전통 방산·정부 계약업체", "신생 방산 기술 기업"], "position": "leader", "share": null, "src": ["s1", "s6"] },
+      { "arena": "생성형 AI 업무 적용 (AIP)", "rivals": ["새로 진입하는 기존 기업·신생 기업 (10-K)", "LLM 회사의 기업용 제품"], "position": "challenger", "share": null, "src": ["s1"] }
+    ],
+    "edge": "Ontology로 데이터와 업무를 묶어 바꾸기 어렵게 만들고, 국방에서 쌓은 보안 배포 경험을 기업으로 넓힌다. 육군은 75개 계약을 하나로 묶은 10년 엔터프라이즈 계약을 맺었다.",
+    "threats": "대형 소프트웨어 회사와 LLM 회사의 기업용 에이전트 제품, 고객의 자체 개발, 정부 예산 변화. 회사는 경쟁사 다수가 더 큰 자원과 인지도를 가졌다고 공시한다.",
+    "text": "이 자리를 노리는 경쟁자는 회사 스스로 첫째로 꼽는 고객의 자체 개발, 그리고 대형 소프트웨어·정부 계약업체·시스템 통합업체다. Palantir는 '크고 어렵고 실패하면 안 되는 문제'를 골라 들어가고, 한 번 들어간 고객에서 계약을 키우는 방식으로 이긴다. 순매출유지율 157%는 기존 고객이 1년 새 지출을 크게 늘렸다는 뜻이지만, 외부 점유율 자료는 이번 조사에서 확인하지 못했다.",
+    "src": ["s1", "s3", "s6"]
+  },
+  "strategy": {
+    "goal": "FY2026 매출 81.50억~81.58억 달러(약 +82%), 미국 상업 매출 34.24억 달러 이상, 조정 영업이익 48.89억~48.97억 달러, 조정 잉여현금흐름 45억~47억 달러를 제시했다. 2026년 매 분기 GAAP 영업이익·순이익 흑자를 예상한다.",
+    "roadmap": [
+      { "when": "2026 Q3", "what": "매출 21.60억~21.64억 달러, 조정 영업이익 12.92억~12.96억 달러 가이던스", "src": ["s3"] },
+      { "when": "FY2026", "what": "연간 가이던스를 2월 71.8억~72.0억 → 8월 81.50억~81.58억 달러로 두 차례 상향", "src": ["s2", "s3", "s4"] },
+      { "when": "2025-07 ~ 2035", "what": "미 육군 엔터프라이즈 계약(최대 100억 달러, 최장 10년) - 다른 국방부 기관도 사용 가능", "src": ["s6"] },
+      { "when": "2026 내내", "what": "R&D와 영업 투자를 계속하면서 분기별 GAAP 흑자 유지", "src": ["s3"] }
+    ],
+    "vision": "Foundry를 개별 기관을 넘어 산업 전체의 '중앙 운영 체제'로 만들고, AIP로 AI가 실제 의사결정과 업무를 수행하게 하는 것. CEO Karp는 Q2 2026에 'AI 주권(sovereignty) 수요가 풀렸다'고 말했다.",
+    "text": "경쟁을 이기기 위한 회사의 계획은 AIP로 기업 고객을 빠르게 늘리고, 정부에서는 개별 계약을 대형 엔터프라이즈 계약으로 묶는 것이다. 연간 가이던스를 두 번 올려 2026년 약 82% 성장을 제시했고, 미국 상업이 그 중심이다. 다음 확인 지점은 3분기에 가이던스(21.6억 달러)를 얼마나 넘는지와 4분기 가이던스의 기울기다.",
+    "src": ["s1", "s2", "s3", "s4", "s6"]
+  },
+  "governance": {
+    "line": "공동창업자 Alexander Karp가 CEO로 이끌고, Class F 주식과 의결권 약정으로 창업자 3인(Cohen·Karp·Thiel)에게 의결권이 집중된 구조이며, 자사주 매입은 FY2025 약 7,500만 달러로 작고 배당은 없다.",
+    "src": ["s1", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "21.60억~21.64억 달러", "givenOn": "2026-08-03", "src": ["s3"] },
+      { "period": "Q3 2026", "metric": "adjusted operating income", "value": "12.92억~12.96억 달러", "givenOn": "2026-08-03", "src": ["s3"] },
+      { "period": "FY2026", "metric": "revenue", "value": "81.50억~81.58억 달러 (약 +82%)", "givenOn": "2026-08-03", "src": ["s3", "s4"] },
+      { "period": "FY2026", "metric": "U.S. commercial revenue", "value": "34.24억 달러 초과 (+134% 이상)", "givenOn": "2026-08-03", "src": ["s3"] },
+      { "period": "FY2026", "metric": "adjusted operating income / adjusted FCF", "value": "48.89억~48.97억 / 45억~47억 달러", "givenOn": "2026-08-03", "src": ["s3", "s4"] }
+    ],
+    "style": "quarterly",
+    "track": "최근 가이던스를 크게 넘기고 올리는 패턴: Q2 2026 조정 영업이익 가이던스 10.63억~10.67억 → 실제 11.94억 달러. FY2026 매출 가이던스는 2월 71.8억~72.0억 → 5월 76.5억~76.6억 → 8월 81.5억~81.6억 달러로 상향.",
+    "src": ["s2", "s3", "s4"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 1.54달러(범위 1.28~1.92, 최소 7명), 직전 4개 분기 실적 합 0.98달러. 최근 4주 상향 2건·하향 1건.",
+    "src": ["s7"]
+  },
+  "watch": {
+    "confirms": [
+      "Q3 2026 매출이 가이던스 상단(21.64억 달러)을 넘고 FY2026 가이던스를 다시 올림",
+      "미국 상업 매출 성장률이 100% 이상 유지되고 미국 상업 TCV가 매출보다 빠르게 늘어남",
+      "순매출유지율(NDR)이 계속 오르거나 150% 이상 유지",
+      "육군 엔터프라이즈 계약처럼 다른 정부 기관의 통합 계약이 이어짐",
+      "조정 영업이익률 60% 안팎과 GAAP 흑자가 분기마다 유지"
+    ],
+    "breaks": [
+      "미국 상업 성장률이 급감하거나 TCV가 전년보다 줄어듦",
+      "가이던스 상향 폭이 작아지거나 하향",
+      "대형 정부 계약 해지·삭감 또는 예산 지연",
+      "대형 소프트웨어·LLM 회사의 기업용 에이전트 제품으로 고객 이탈 사례",
+      "주식 보상 급증으로 GAAP 이익과 조정 이익의 차이가 다시 커짐"
+    ],
+    "keyNumbers": [
+      { "name": "미국 상업 매출 성장률", "why": "AIP 수요를 가장 직접 보여 준다" },
+      { "name": "미국 상업 TCV·잔여 계약 가치", "why": "향후 매출의 선행 지표" },
+      { "name": "순매출유지율(NDR)", "why": "기존 고객 확장 속도" },
+      { "name": "다음 분기·연간 가이던스 상향 폭", "why": "주가가 가장 크게 반응하는 숫자" },
+      { "name": "조정 영업이익률과 GAAP 영업이익률 차이", "why": "주식 보상의 크기와 이익의 질" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-02 (장 마감 후, 캘린더 기준·회사 확정 여부 미확인)", "event": "Q3 2026 실적 발표와 Q4·FY2026 가이던스", "src": ["s8"] },
+      { "date": "수시", "event": "미 국방 예산·주요 정부 계약 발표", "src": ["s6"] }
+    ],
+    "reaction": "주가는 분기 실적 자체보다 미국 상업 성장률과 연간 가이던스 상향 폭에 크게 반응해 왔다. Q2 2026 발표 직후 시간외에서 12% 넘게 올랐는데, 옵션 시장은 약 12% 움직임을 반영하고 있었다.",
+    "conditions": [
+      "실적 발표 때 Q3 매출이 가이던스 상단을 얼마나 넘었는지",
+      "FY2026 매출·미국 상업 가이던스의 상향 폭",
+      "미국 상업 TCV와 NDR의 방향",
+      "정부 매출 성장률과 대형 계약 언급",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "국제 상업·국제 정부 매출 금액 (FY2025와 Q2 2026 모두 이번 조사에서 확인 못 함)",
+    "AIP 단독 매출 - 공시되지 않음",
+    "FY2025 비상장 지분 매입 7,300만 달러와 자사주 7,500만 달러는 10-K PDF의 깨진 표 레이아웃에서 읽은 값이라 행 대응을 완전히 확신하지 못함 (자사주는 s2 릴리스 텍스트로 교차 확인)",
+    "FY2025 조정 잉여현금흐름 22.7억 달러는 비GAAP이며 회사 정의 기준",
+    "Q2 2026 수치는 회사 보도자료 원문이 아니라 Quartr·SiliconANGLE·PlatformAeronaut 요약에서 읽음 (sec.gov·businesswire 접근 차단)",
+    "Maven Smart System 관련 예산·프로그램 지정 내용은 원문 확인 실패로 미기재",
+    "경쟁 영역별 시장 점유율",
+    "Q3 2026 실적 발표일의 회사 공식 확인",
+    "Q2 2026 조정 영업이익 가이던스 10.63억~10.67억 달러는 검색 요약에서 읽은 값으로 원문 대조 안 함"
+  ],
+  "confidence": "medium - FY2025 수치는 10-K IR 사본에서 직접 읽었지만, 최근 분기 수치는 보도자료 원문 대신 2차 요약에서 확인했다."
+}

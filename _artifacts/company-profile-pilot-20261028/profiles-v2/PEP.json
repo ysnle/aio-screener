@@ -1,0 +1,225 @@
+{
+  "symbol": "PEP",
+  "name": "PepsiCo, Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "last Saturday of December (FY2025 ended 2025-12-27)",
+  "oneLine": "PepsiCo는 Lay's·Doritos 같은 스낵과 Pepsi·Gatorade 음료를 함께 파는 세계적 식음료 회사로, 해외는 빠르게 크지만 매출의 절반이 넘는 북미가 부진해 '북미 회복'이 주가의 핵심 변수다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "PepsiCo Reports Third-Quarter 2026 Results (incl. updated fiscal 2026 guidance table)", "url": "https://investors.pepsico.com/docs/pepsico-5v9wci20/media/Files/investors/q3-2026-earnings-release.pdf", "publisher": "PepsiCo IR", "date": "2026-10-08" },
+    { "id": "s2", "kind": "call-transcript", "title": "PepsiCo Third Quarter 2026 Prepared Management Remarks (CEO and CFO commentary)", "url": "https://investors.pepsico.com/docs/pepsico-5v9wci20/media/Files/investors/q3-2026-prepared-management-remarks.pdf", "publisher": "PepsiCo IR", "date": "2026-10-08" },
+    { "id": "s3", "kind": "10-Q", "title": "PepsiCo Form 10-Q for the 12 and 36 weeks ended 2026-09-05 (segment tables, revenue disaggregation, cash flow)", "url": "https://investors.pepsico.com/docs/pepsico-5v9wci20/media/Files/investors/q3-2026-form-10q.pdf", "publisher": "PepsiCo IR", "date": "2026-10-08" },
+    { "id": "s4", "kind": "earnings-release", "title": "PepsiCo Reports Fourth Quarter and Full-Year 2025 Results; Affirms 2026 Financial Outlook; Announces Annual Dividend Increase", "url": "https://investors.pepsico.com/docs/pepsico-5v9wci20/media/Files/investors/q4-2025-earnings-release.pdf", "publisher": "PepsiCo IR", "date": "2026-02-03" },
+    { "id": "s5", "kind": "10-K", "title": "PepsiCo 2025 Form 10-K (segments, Walmart concentration, competition and IRI share, employees, AI strategy, segment table Note 1)", "url": "https://investors.pepsico.com/docs/pepsico-5v9wci20/media/Files/investors/q4-2025-form-10k.pdf", "publisher": "PepsiCo IR", "date": "2026-02" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/pep/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "스낵 1위 브랜드 묶음 - Lay's·Doritos·Cheetos·Ruffles·Tostitos, 미국과 세계 편의식품에서 선두 지위",
+      "직접 매장 배송(DSD) - 회사·보틀러 직원이 매장에 직접 배달하고 진열",
+      "음료와 스낵을 함께 파는 규모 - 2025 매출 939억 달러, 200개 이상 국가·지역",
+      "해외 성장 엔진 - 22분기 연속 최소 한 자릿수 중반 유기적 성장 (Q3 2026)"
+    ],
+    "text": "PepsiCo의 힘은 스낵에서 나온다. Lay's·Doritos·Cheetos 같은 브랜드가 미국과 세계 편의식품에서 선두 지위를 갖고 있고, 회사·보틀러 직원이 매장에 직접 배달하고 진열하는 DSD 시스템이 매대 자리를 지킨다. 여기에 음료(Pepsi·Gatorade·Mountain Dew)를 같은 유통망에 얹는 규모와, 22분기 연속 견조하게 큰 해외 사업이 두 번째·세 번째 뿌리다.",
+    "src": ["s5", "s2"]
+  },
+
+  "design": {
+    "text": "회사가 만드는 것은 편의식품과 음료이고, 2025년부터 여섯 개 부문으로 보고한다. 북미 스낵·식품(PFNA: Frito-Lay·Quaker), 북미 음료(PBNA), 해외 음료 원액 프랜차이즈(IB Franchise, SodaStream 포함), 유럽·중동·아프리카(EMEA), 중남미 식품(LatAm Foods), 아시아태평양 식품이다. 2025년 poppi(약 19.5억 달러)와 Siete(약 12억 달러)를 인수해 건강 지향 제품을 넓혔다.",
+    "src": ["s5"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "자체 공장 - 스낵 생산과 북미·EMEA 직영 병입 공장",
+      "독립·인가 보틀러 - 원액을 사서 Pepsi 등 완제품을 생산·유통 (Carlsberg와 유럽·아시아 병입 관계 확대)",
+      "위탁 생산업체와 합작사 - Unilever(Lipton 차), Starbucks(즉석 커피)",
+      "라이선스·유통 파트너 - Keurig Dr Pepper(Dr Pepper 등 제조·유통), Celsius Holdings(Celsius·Alani Nu·Rockstar 유통)",
+      "원재료 - 감자·식용유·옥수수·유제품·포장재 (원가 변동이 이익에 직접 영향)"
+    ],
+    "text": "생산은 회사 공장, 보틀러, 위탁 생산업체가 나눠 맡는다. 스낵은 주로 직접 만들고, 음료는 북미·EMEA에서 자체 병입하면서 다른 지역은 원액을 보틀러에게 판다. 직영 병입 음료 매출이 Q3 2026 연결 매출의 38%를 차지하는데, 10-Q는 이 완제품 사업이 원액보다 매출은 크지만 영업이익률은 낮다고 설명한다.",
+    "src": ["s5", "s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "대형 소매업체 - Walmart(Sam's Club 포함)가 2025 연결 매출의 약 14%",
+      "슈퍼·편의점·창고형 할인점·하드 디스카운터·온라인 소매업체",
+      "외식·급식 등 매장 밖(away-from-home) 채널 - 식당·피트니스·직장·레저",
+      "독립 보틀러와 유통업체"
+    ],
+    "channel": "DSD(직접 매장 배송), 고객 물류창고 납품, 유통업체, 온라인·직판(DTC).",
+    "concentration": "Walmart와 계열사 약 14% (2025, 전 부문 합산; 손실 시 PFNA·PBNA에 중대한 악영향이라고 10-K 명시)",
+    "text": "이 제품은 대부분 대형 소매업체를 거쳐 소비자에게 간다. Walmart 한 곳이 2025년 매출의 약 14%를 차지하고, 10-K는 대형 고객의 협상력이 커지고 일부 고객이 DSD에서 벗어나고 있다고 적었다. 그래서 회사는 식당·직장 같은 매장 밖 채널과 DTC를 새 성장 통로로 키우고 있다.",
+    "src": ["s5", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "소비자", "to": "Walmart·슈퍼·편의점·식당", "what": "스낵·음료 구매" },
+      { "from": "소매·외식 고객", "to": "PepsiCo (PFNA·PBNA·EMEA·LatAm·APAC)", "what": "완제품 납품 대금 - 판촉비·리베이트·진열비를 뺀 순매출로 기록" },
+      { "from": "독립 보틀러", "to": "PepsiCo (PBNA·IB Franchise)", "what": "원액·완제품 대금과 Aquafina 로열티" },
+      { "from": "PepsiCo", "to": "보틀러·소매업체", "what": "보틀러 지원금(bottler funding)과 판촉·진열 인센티브 - 매년 협상" }
+    ],
+    "pricing": "제품 단가 × 물량에서 판촉·리베이트를 뺀 순가격(effective net pricing)이 핵심이다. 해외 음료는 원액 판매와 로열티, 북미·EMEA 음료는 완제품 판매가다.",
+    "text": "돈은 거의 다 소매·외식 고객이 내는 제품 대금으로 들어오고, 그중 일부를 판촉·진열 인센티브로 다시 돌려준다. 그래서 가격을 얼마나 순수하게 받느냐(순가격)와 물량이 함께 매출을 정하는데, Q3 2026에는 북미 스낵에서 가격을 낮춰 물량을 늘리는 쪽을 택했다. 2025년 매출의 56%가 미국에서 나와 북미 성과가 전체를 좌우한다.",
+    "src": ["s5", "s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-27)",
+    "revenue": { "value": 93.925, "unit": "USD bn", "yoy": 2.3 },
+    "grossMargin": 54.1,
+    "operatingMargin": 12.2,
+    "netMargin": 8.8,
+    "operatingCashFlow": { "value": 12.087, "unit": "USD bn" },
+    "freeCashFlow": { "value": 8.200, "unit": "USD bn" },
+    "segments": [
+      { "name": "PepsiCo Beverages North America (PBNA)", "revenue": 28.197, "unit": "USD bn", "share": 30.0, "yoy": 1.5, "operatingMargin": 3.9, "src": ["s5"] },
+      { "name": "PepsiCo Foods North America (PFNA)", "revenue": 27.528, "unit": "USD bn", "share": 29.3, "yoy": 0.4, "operatingMargin": 22.4, "src": ["s5"] },
+      { "name": "Europe, Middle East and Africa (EMEA)", "revenue": 18.025, "unit": "USD bn", "share": 19.2, "yoy": 8.2, "operatingMargin": 11.7, "src": ["s5"] },
+      { "name": "Latin America Foods", "revenue": 10.549, "unit": "USD bn", "share": 11.2, "yoy": -0.2, "operatingMargin": 19.1, "src": ["s5"] },
+      { "name": "International Beverages Franchise (IB Franchise)", "revenue": 4.997, "unit": "USD bn", "share": 5.3, "yoy": 2.4, "operatingMargin": 35.4, "src": ["s5"] },
+      { "name": "Asia Pacific Foods", "revenue": 4.629, "unit": "USD bn", "share": 4.9, "yoy": 1.8, "operatingMargin": 8.0, "src": ["s5"] }
+    ],
+    "industryMetric": [
+      { "name": "유기적 매출 성장", "value": "FY2025 +1.7%; Q3 2026 +3.1%(Q4 2023 이후 최고), 36주 누적 +2.7%; 해외 Q3 +8%", "src": ["s4", "s1", "s2"] },
+      { "name": "Core EPS", "value": "FY2025 8.14달러(보고 6.00달러); Q3 2026 2.34달러(+2%), 고정환율 +1.5%", "src": ["s4", "s1"] },
+      { "name": "Core 영업이익률", "value": "Q3 2026 16.9%(-35bp), PFNA core 영업이익률 -280bp, 해외 +105bp", "src": ["s1", "s2"] },
+      { "name": "음료 / 편의식품 매출 비중", "value": "Q3 2026 PepsiCo 45% / 55%, 북미 54% / 46%, 해외 33% / 67%", "src": ["s3"] },
+      { "name": "해외 비중 (36주 누적 2026)", "value": "매출의 41%, core 부문 영업이익의 45%", "src": ["s2"] },
+      { "name": "에너지 음료 (Celsius 제휴)", "value": "카테고리 점유율 약 20% (Q3 2026 회사 언급)", "src": ["s2"] }
+    ],
+    "text": "그 결과 2025년 매출은 939억 달러(+2.3%), 보고 영업이익은 115억 달러였다(Rockstar 상표 손상 등 19.9억 달러 포함). 부문별로 보면 이익은 북미 스낵(PFNA, 이익률 22%)과 해외 음료 원액(35%)에 몰려 있고, 매출이 가장 큰 북미 음료(PBNA)는 손상차손 탓에 이익률 3.9%에 그쳤다. 최근 분기(Q3 2026)는 매출 253억 달러(+5.6%)로 해외가 이끌었지만, 북미 스낵 이익률이 가격 인하와 마케팅 투자로 2.8%p 떨어졌다.",
+    "src": ["s5", "s4", "s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-27)",
+    "items": [
+      { "use": "dividends", "value": 7.638, "unit": "USD bn", "src": ["s4"] },
+      { "use": "capex", "value": 4.415, "unit": "USD bn", "src": ["s4"] },
+      { "use": "acquisitions", "value": 3.391, "unit": "USD bn", "src": ["s4", "s5"] },
+      { "use": "debt repayment", "value": 4.082, "unit": "USD bn", "src": ["s4"] },
+      { "use": "buybacks", "value": 1.0, "unit": "USD bn", "src": ["s4"] }
+    ],
+    "text": "번 돈의 첫 번째 용도는 배당이다. 2025년 배당 76억 달러에 비해 자사주는 10억 달러에 그쳤고, 설비투자 44억 달러와 poppi·Siete 인수 34억 달러가 그 뒤를 이었다. 2026년에도 주주환원 계획은 89억 달러(배당 79억 + 자사주 10억)로 같고, 6월부터 연 배당을 5.92달러로 4% 올려 54년 연속 인상을 이어 가며, 2030년 2월까지 100억 달러 자사주 한도를 새로 만들었다.",
+    "src": ["s4", "s5", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "ai-adopter",
+    "position": "AI를 파는 회사가 아니라 영업·고객 지원·재고 관리에 쓰는 회사. 10-K는 기술 공급업체와 협력해 AI로 '시장 진출(go-to-market) 모델을 다시 설계'하고 실시간 재고 가시성을 확보한다고 적었다.",
+    "dependsOn": ["models-platforms (외부 AI·기술 공급업체 - 업체명 미공시)", "cloud-infrastructure (업체명 미공시)"],
+    "sellsTo": ["AI 자체를 팔지 않음 - 효과는 생산성 절감, 영업 효율, 고객 서비스로 나타남"],
+    "aiRevenue": null,
+    "upside": "회사는 자동화·네트워크 최적화·디지털화로 생산성 절감을 늘려 성장 투자 재원을 만든다고 밝혔고(Q3 2026), 2026년을 '역대 최대 생산성 절감의 해'로 목표했다. AI가 영업 인력의 업무와 재고 관리를 효율화하면 북미 이익률 회복을 돕는다.",
+    "risk": "10-K는 경영 환경 과제로 'AI 기술 확산을 포함한 치열한 경쟁'을 명시했고, AI 사용이 사이버 위험과 지식재산 분쟁을 키울 수 있다고 적었다. 소비 수요 자체는 AI보다 가격·건강 트렌드에 좌우된다.",
+    "text": "그래서 AI 가치사슬에서 PepsiCo는 '도입자'에 있고, 그 효과는 비용 절감 쪽이다. AI 매출은 없으며, 핵심은 AI·자동화로 만든 생산성 절감이 북미 가격 투자와 마케팅 비용을 얼마나 메워 주느냐다.",
+    "src": ["s5", "s2", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "짭짤한 스낵 (미국·세계)", "rivals": ["The Campbell's Company", "Utz Brands", "Mondelēz", "Mars", "Conagra", "Hormel", "자체 브랜드"], "position": "leader", "share": "회사: 다수 편의식품이 미국·세계에서 상당한 선두 지위 (수치 미공시); Q3 2026 미국 짭짤한 스낵 물량 점유율 상승", "src": ["s5", "s2"] },
+      { "arena": "청량음료·탄산 (미국)", "rivals": ["The Coca-Cola Company", "Keurig Dr Pepper", "Primo Brands"], "position": "challenger", "share": "미국 액상 청량음료(LRB) 측정 채널 소매 판매 약 16% vs Coca-Cola 약 20% (2025, IRI)", "src": ["s5"] },
+      { "arena": "에너지 음료", "rivals": ["Monster Beverage", "Red Bull"], "position": "challenger", "share": "Celsius 제휴 브랜드가 카테고리 약 20% (Q3 2026, 회사 언급)", "src": ["s2", "s5"] },
+      { "arena": "기능성 수분 보충 (Gatorade·Propel)", "rivals": ["The Coca-Cola Company", "Keurig Dr Pepper"], "position": "leader", "share": null, "src": ["s5", "s2"] },
+      { "arena": "해외 스낵·음료", "rivals": ["The Coca-Cola Company (해외 탄산 우위)", "Nestlé", "지역 업체"], "position": "leader", "share": "Q3 2026 누적 중국·브라질·인도 등 다수 국가에서 스낵 점유율 유지·상승 (수치 미공시)", "src": ["s2", "s5"] }
+    ],
+    "edge": "스낵 1위 브랜드와 DSD 진열력, 음료·스낵을 묶은 유통 규모, 견조한 해외 성장.",
+    "threats": "북미 탄산에서 카테고리보다 뒤처진 성과(회사 인정), 자체 브랜드와 저가 대체품, 건강 트렌드와 체중 감량 약물 확산에 따른 간식 수요 변화, 원재료(감자·유제품·식용유)와 관세 비용.",
+    "text": "이 브랜드 힘으로 PepsiCo는 스낵에서는 선두지만 음료에서는 Coca-Cola를 쫓는 2위다. 미국 청량음료 시장에서 약 16%로 Coca-Cola(약 20%)보다 작고, 회사도 Q3 2026에 미국 탄산 성과가 '카테고리를 밑돌았다'고 인정했다. 회사는 무설탕·기능성 음료와 단백질·식이섬유 스낵, 소포장 멀티팩(연 매출 35억 달러 이상)으로 성장 분야를 공략하고 있다.",
+    "src": ["s5", "s2"]
+  },
+
+  "strategy": {
+    "goal": "2026년 유기적 매출 약 3%, 순매출 약 6%, core EPS 2.5~3.5% 성장, 잉여현금 전환율 80% 이상을 제시했다. 전략 과제는 북미 재건, 해외 규모 확대, 빠르게 크는 세부 시장으로의 포트폴리오 전환, 매장 밖(away-from-home) 확대다.",
+    "roadmap": [
+      { "when": "2026", "what": "'역대 최대' 생산성 절감 목표 - 자동화·네트워크 최적화·디지털화", "src": ["s4", "s2"] },
+      { "when": "2026 Q4부터 수개월", "what": "추가 구조적 비용 절감(본사 비용 등) 시행", "src": ["s1", "s2"] },
+      { "when": "2026-06", "what": "연 배당 5.92달러로 4% 인상 (54년 연속)", "src": ["s4"] },
+      { "when": "검토 중", "what": "북미 스낵·음료의 공급망·영업 통합 모델 (투자수익·규모·점유율을 보며 선별 적용)", "src": ["s5"] },
+      { "when": "2030-02까지", "what": "100억 달러 자사주 매입 프로그램", "src": ["s4"] }
+    ],
+    "vision": "Laguarta CEO는 해외 사업의 힘 위에 북미를 '시급하게' 개선하고, 단백질·식이섬유·무설탕·기능성 제품으로 포트폴리오를 옮겨 가는 '하나의 PepsiCo'를 그린다.",
+    "text": "앞으로의 계획은 해외의 성장을 지키면서 북미를 고치는 것이다. Q3 2026에 회사는 북미 개선이 '예상보다 오래 걸린다'며 core EPS 전망을 낮추고, 추가 구조적 비용 절감을 수개월 안에 시행하겠다고 했다. 절감한 돈은 혁신·브랜드 마케팅과 가격 투자에 쓰여, 단기 이익보다 물량 회복을 먼저 노리는 방향이다.",
+    "src": ["s2", "s1"]
+  },
+
+  "governance": {
+    "line": "Ramon Laguarta가 의장 겸 CEO, 전 Walmart U.S. CFO 출신 Steve Schmitt가 CFO를 맡는 지분 분산 회사로, 54년 연속 배당 인상과 2026년 주주환원 89억 달러(배당 79억 + 자사주 10억)를 유지한다.",
+    "src": ["s5", "s2", "s4"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "organic revenue growth", "value": "약 +3% (직전 +2~4%)", "givenOn": "2026-10-08", "src": ["s1"] },
+      { "period": "FY2026", "metric": "net revenue growth", "value": "약 +6% (직전 +4~6%; 환율 +1.5%, 인수·매각 +1.5% 포함)", "givenOn": "2026-10-08", "src": ["s1"] },
+      { "period": "FY2026", "metric": "core constant currency EPS growth", "value": "+1~2% (직전 +4~6% 하단)", "givenOn": "2026-10-08", "src": ["s1"] },
+      { "period": "FY2026", "metric": "core EPS growth", "value": "+2.5~3.5% (직전 +5~7% 하단)", "givenOn": "2026-10-08", "src": ["s1"] },
+      { "period": "FY2026", "metric": "cash returns / capex / FCF conversion", "value": "89억 달러 / 매출의 5% 미만 / 80% 이상 (변동 없음)", "givenOn": "2026-10-08", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "2월에 제시한 2026 전망을 2분기까지 유지하다가 Q3에 매출은 올리고 이익은 낮췄다(core 고정환율 EPS +4~6% 하단 → +1~2%). CFO는 북미 core 영업이익률이 4분기에도 압박받을 것이라고 밝혔다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 8.49달러(범위 8.20~8.82), 직전 4개 분기 8.41달러. 최근 4주 상향 1건·하향 13건으로 Q3 전망 하향 뒤 추정치가 크게 내려가는 중.",
+    "src": ["s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "북미 스낵(PFNA) 유기적 매출이 플러스로 돌아서고 물량 점유율 상승이 이어짐",
+      "북미 음료 탄산 성과가 카테고리 수준을 회복",
+      "해외 유기적 성장이 한 자릿수 중반 이상을 유지",
+      "추가 비용 절감이 발표되고 core 영업이익률 하락이 멈춤",
+      "컨센서스 EPS 하향이 멈춤"
+    ],
+    "breaks": [
+      "북미 core 영업이익률이 추가 하락하고 2027 전망도 낮게 나옴",
+      "가격 인하에도 북미 물량이 늘지 않음",
+      "Walmart 등 대형 고객과의 조건 악화",
+      "감자·유제품 등 원가와 관세 비용 급등",
+      "해외 성장 둔화 (특히 중남미·중동)"
+    ],
+    "keyNumbers": [
+      { "name": "PFNA 유기적 매출과 core 영업이익률", "why": "회사 이익의 가장 큰 원천이 회복되는지" },
+      { "name": "PBNA 물량과 탄산 점유율", "why": "Coca-Cola와의 격차" },
+      { "name": "해외 유기적 성장률", "why": "현재 성장의 엔진" },
+      { "name": "core 고정환율 EPS 성장률", "why": "회사가 제시한 핵심 가이던스" },
+      { "name": "생산성 절감 규모", "why": "가격·마케팅 투자의 재원" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 초 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 전망, 연례 배당 인상 발표", "src": [] },
+      { "date": "2026 Q4~2027 초", "event": "추가 구조적 비용 절감 세부 발표 여부", "src": ["s1", "s2"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 북미 유기적 매출·이익률과 연간 core EPS 전망 변경에 반응하는 경향이 있다. Q3 2026은 매출·core EPS가 예상을 넘었지만 연간 이익 전망을 낮춰, 이후 추정치 하향(4주 하향 13건)이 이어졌다.",
+    "conditions": [
+      "PFNA·PBNA 유기적 매출과 core 영업이익률",
+      "해외 유기적 성장률",
+      "연간 core EPS 전망 변경 여부",
+      "추가 비용 절감 규모와 시기",
+      "원가(감자·식용유·유제품)와 관세 관련 언급",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "잉여현금흐름 82.0억 달러는 회사 정의(영업현금 - 설비투자 + 설비 매각대금) 계산값",
+    "세그먼트 영업이익률은 10-K 부문 영업이익 / 순매출 계산값이며 손상차손 포함(PBNA 3.9%는 Rockstar 손상 반영)",
+    "세그먼트 합계 939.25억 달러로 연결 매출과 일치 (부문 영업이익 합계 135.2억은 본사 비용 -20.2억 전)",
+    "FY2025 core 고정환율 EPS 성장률 (보도자료 표 정렬이 흐트러져 미확인)",
+    "10-K 제출 정확한 날짜 (2026-02로만 표기)",
+    "스낵 시장 점유율 수치 (회사는 '선두 지위'만 기술)",
+    "Q4 2026 실적 발표일",
+    "2026 상반기 이후 행동주의 투자자 관련 동향 (이번 조사에서 확인하지 않음)"
+  ],
+  "confidence": "high - 매출·세그먼트·현금흐름·가이던스는 2025 10-K, Q4 2025와 Q3 2026 보도자료·10-Q·경영진 발표문 원문에서 왔다. 시장 점유율 일부는 회사의 질적 서술만 있어 그 부분은 medium이다."
+}

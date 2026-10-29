@@ -1,0 +1,277 @@
+{
+  "symbol": "RKLB",
+  "name": "Rocket Lab Corp",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Rocket Lab은 소형 로켓 Electron으로 이름을 알렸지만 지금 매출의 3분의 2는 위성과 위성 부품을 만드는 데서 나오는 회사로, 중형 재사용 로켓 Neutron의 첫 비행과 Iridium 인수가 다음 단계의 성패를 가른다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Rocket Lab second quarter 2026 financial results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001819994/000181999426000061/rklb-08102026ex991.htm",
+      "publisher": "Rocket Lab / SEC EDGAR",
+      "date": "2026-08-10"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "Rocket Lab fourth quarter and full year 2025 financial results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000012/rklb-02262026ex991.htm",
+      "publisher": "Rocket Lab / SEC EDGAR",
+      "date": "2026-02-26"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "Rocket Lab Form 10-K for fiscal year ended 2025-12-31",
+      "url": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000013/rklb-20251231.htm",
+      "publisher": "Rocket Lab / SEC EDGAR",
+      "date": "2026-02-26"
+    },
+    {
+      "id": "s4",
+      "kind": "8-K",
+      "title": "Rocket Lab to Acquire Iridium (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1819994/000175392626001085/g085783_ex99-1.htm",
+      "publisher": "Rocket Lab / SEC EDGAR",
+      "date": "2026-06-29"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/rklb/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO earnings calendar snapshot (Finnhub calendar/earnings), public-data/earnings-calendar.json",
+      "url": "https://finnhub.io/docs/api",
+      "publisher": "Finnhub via AIO",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "꾸준히 성공한 발사 이력 - 2025년 Electron 21회 100% 성공, 그해 세계에서 두 번째로 많이 발사된 궤도 로켓 (10-K)",
+      "태양전지·반작용휠·광학·추진·항전까지 위성 부품을 직접 만드는 수직계열화 (Long Beach·Albuquerque·Tucson·Auckland)",
+      "자체 발사장 - 뉴질랜드 Mahia LC-1(민간 전용 2개 패드), 미국 Wallops LC-2, Neutron용 LC-3 건설 중",
+      "미국 국방 우주 계약 실적 - SDA Tracking Layer Tranche 3 위성 18기 8.16억 달러 등"
+    ],
+    "text": "Rocket Lab의 힘은 작은 로켓을 실패 없이 자주 쏘는 실적과, 위성에 들어가는 부품 대부분을 스스로 만드는 공급망에서 나온다. 발사와 위성 제작을 한 회사가 하므로 고객은 '위성을 만들어 궤도에 올려주는 것'까지 한 번에 맡길 수 있다. 이 조합으로 미국 국방 위성 계약을 따내면서, 발사 회사에서 우주 시스템 회사로 무게중심이 옮겨 갔다.",
+    "src": ["s3", "s2"]
+  },
+  "design": {
+    "text": "이런 기반 위에서 회사는 두 부문으로 보고한다. Launch Services는 소형 로켓 Electron, 극초음속 시험용 HASTE, 개발 중인 중형 재사용 로켓 Neutron(높이 43m, 재사용 시 저궤도 약 13,000kg)을 담는다. Space Systems는 위성 전체(Flatellite 등)와 태양광 패널·반작용휠·광학 센서 같은 위성 부품, 그리고 2025년 인수한 GEOST의 국방용 센서를 담는다.",
+    "src": ["s3", "s1"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 생산 - Long Beach(엔진·항전·위성), Auckland(로켓 R&D·복합재 탱크·배터리), Albuquerque(태양전지·태양광 패널), Tucson(광학)",
+      "단일·소수 공급사 - 복합재, 관성측정장치, 발사체 구조물 제작, 지상국 네트워크 서비스 (10-K, 업체명 미공개)",
+      "외부 제작 Neutron 1단 탱크 - 2026-01 탱크 검증 시험 실패 후 일정 조정 (10-K)"
+    ],
+    "text": "Rocket Lab은 설계한 것을 대부분 미국과 뉴질랜드의 자체 공장에서 만든다. 2025년에만 Electron 약 24대를 생산했다고 밝혔다. 다만 복합재와 관성측정장치 같은 일부 핵심 부품은 소수 공급사에 기대고 있고, 2026년 1월 Neutron 1단 탱크 시험 실패가 첫 비행 일정을 2026년 4분기로 미룬 것처럼 공급사 품질이 일정을 흔들 수 있다.",
+    "src": ["s3"]
+  },
+  "sell": {
+    "customers": [
+      "미국 정부 관련 계약 - 2025년 매출의 약 47% (2024년 33%): SDA, 우주군(Space Systems Command), NASA, 미사일방어청",
+      "위성을 만드는 대형 방산·우주 회사 (부품 공급; 10-K 고객 표기에 Lockheed Martin, Northrop Grumman, MDA 등)",
+      "상업 위성 운영사·군집위성 회사 (Electron 발사)",
+      "극초음속 시험 고객 (HASTE)"
+    ],
+    "channel": "정부·기업 고객과 직접 계약. 정부 위성은 주계약자로 수주하거나 대형 방산업체의 하도급으로 참여한다.",
+    "concentration": "2025년 상위 5개 고객이 매출의 약 49%, 백로그의 약 77% (10-K). 미국 정부 관련 매출 약 47%.",
+    "text": "만든 로켓과 위성은 소수의 대형 고객에게 팔린다. 2025년 상위 5개 고객이 매출의 49%를 차지했고, 미국 정부 관련 매출 비중은 1년 만에 33%에서 47%로 올랐다. 그래서 국방 우주 예산과 SDA 같은 기관의 발주 일정이 이 회사 매출의 가장 큰 변수가 됐다.",
+    "src": ["s3"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "미국 국방 우주 기관 (SDA·우주군·미사일방어청)", "to": "Rocket Lab", "what": "위성 설계·제작 계약 대금 (진행률에 따라 인식)" },
+      { "from": "대형 위성 제조사 (Lockheed Martin, Northrop Grumman 등)", "to": "Rocket Lab", "what": "태양광 패널·반작용휠·센서 등 부품 대금" },
+      { "from": "상업 위성 운영사·NASA", "to": "Rocket Lab", "what": "Electron 발사당 요금" },
+      { "from": "국방 시험 고객", "to": "Rocket Lab", "what": "HASTE 극초음속 시험 발사 요금" },
+      { "from": "Rocket Lab", "to": "복합재·관성측정장치 등 핵심 공급사", "what": "부품 대금" },
+      { "from": "(인수 완료 후) Iridium 위성통신 이용자", "to": "Rocket Lab", "what": "음성·데이터·위치 서비스 반복 이용료 (2027년 중반 완료 예정)" }
+    ],
+    "pricing": "발사는 건당 요금, 위성과 부품은 프로젝트·단가 계약(제품 매출), 개발 계약은 서비스 매출로 인식. Iridium 인수가 끝나면 처음으로 구독형 반복 서비스 매출이 생긴다.",
+    "text": "돈은 대부분 프로젝트 단위로 들어온다: 위성을 만들어 주거나 로켓을 한 번 쏠 때마다 받는 구조라 분기별 매출이 계약 진행 속도에 따라 출렁인다. 2025년 매출 6.02억 달러 중 제품 매출이 3.72억, 서비스가 2.30억 달러였다. 회사는 Iridium 인수로 위성통신 이용료라는 반복 매출을 더해 이 구조를 바꾸려 한다.",
+    "src": ["s2", "s3", "s4"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 601.8, "unit": "USD mn", "yoy": 38.0 },
+    "grossMargin": 34.4,
+    "operatingMargin": -38.0,
+    "netMargin": -32.9,
+    "operatingCashFlow": { "value": -165.5, "unit": "USD mn" },
+    "freeCashFlow": { "value": -321.8, "unit": "USD mn" },
+    "segments": [
+      { "name": "Space Systems", "revenue": 402.8, "unit": "USD mn", "share": 66.9, "yoy": 29.6, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Launch Services", "revenue": 199.0, "unit": "USD mn", "share": 33.1, "yoy": 58.7, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "백로그", "value": "23.6억 달러 (2026-06-30, 전년 대비 +137%); 2025-12-31 18.47억 달러 = Space Systems 13.72억 + Launch 4.76억", "src": ["s1", "s3"] },
+      { "name": "최근 분기 (Q2 2026) 매출·마진", "value": "매출 2.341억 달러(+62%), GAAP 총마진 약 36.1%, 비GAAP 41.5%, 조정 EBITDA -880만 달러, 순손실 4,930만 달러", "src": ["s1"] },
+      { "name": "부문 총이익 (매출 - 매출원가, 계산값)", "value": "FY2025 Space Systems 약 1.26억(약 31%), Launch 약 0.81억 달러(약 41%)", "src": ["s3"] },
+      { "name": "발사 횟수·발사 백로그", "value": "2025년 Electron 21회(HASTE 3회 포함, 100% 성공); 발사 백로그 90회 이상 (2026-08)", "src": ["s2", "s1"] },
+      { "name": "현금·유가증권", "value": "약 23.9억 달러 (2026-06-30; 현금 21.3억 + 유가증권 2.6억)", "src": ["s1"] }
+    ],
+    "text": "이 흐름이 FY2025에 매출 6.02억 달러(+38%), GAAP 총마진 34.4%를 만들었지만, Neutron 개발로 R&D가 2.71억 달러까지 늘어 영업손실률은 약 38%였다. 매출의 67%는 위성 쪽에서 나오지만 총이익률은 발사 쪽(약 41%)이 위성(약 31%)보다 높다. 2026년 2분기에는 분기 매출 2.34억 달러로 1년 새 62% 커졌고, 손실은 조정 EBITDA 기준 -880만 달러까지 줄었다.",
+    "src": ["s2", "s3", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 270.7, "unit": "USD mn", "src": ["s2"] },
+      { "use": "capex", "value": 156.3, "unit": "USD mn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 132.4, "unit": "USD mn", "src": ["s2", "s3"] }
+    ],
+    "text": "아직 영업현금흐름이 마이너스(-1.66억 달러)라서 투자는 주식 발행으로 메운다: 2025년 시장가 주식 발행(ATM)으로 11.46억 달러를 모았다. 그 돈은 Neutron 중심의 R&D 2.71억, 공장·발사장 설비투자 1.56억, GEOST 등 인수 1.32억 달러에 들어갔다. 2026년에는 Iridium(기업가치 약 80억 달러, 주당 현금 27달러 + 주식) 인수를 위해 36억 달러 브리지 대출 약정까지 받아, 성장 투자를 위해 지분과 부채를 모두 쓰는 단계다.",
+    "src": ["s2", "s4"]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 데이터센터·칩 공급망 밖에 있는 우주 발사·위성 제조 회사. 매출은 국방·과학·상업 위성 수요에 달려 있고 AI 관련 매출 공시는 없다.",
+    "dependsOn": [
+      "복합재·관성측정장치 등 우주 부품 공급사",
+      "미국 국방 우주 예산 (SDA·우주군)"
+    ],
+    "sellsTo": [
+      "미국 정부 국방·과학 기관",
+      "위성 제조사와 위성 운영사"
+    ],
+    "aiRevenue": null,
+    "upside": "AI 성장이 직접 매출로 오지는 않는다. 위성 통신·관측 데이터 수요가 늘거나 우주 기반 데이터 인프라가 커지면 발사·위성 제작 수요로 간접 연결될 수 있지만 회사 공시로 확인된 연결은 없다.",
+    "risk": "AI 투자 열기가 우주·고성장 주식 전반의 밸류에이션을 끌어올렸다가 식을 때 함께 흔들릴 수 있다는 정도의 간접 노출이다.",
+    "text": "그래서 AI 가치사슬 기준으로 Rocket Lab은 직접 연결이 거의 없는 '제한적' 자리에 있다. 이 회사의 실적을 움직이는 것은 GPU나 데이터센터가 아니라 국방 우주 예산과 Neutron 일정이다. AI 테마와 묶여 거래될 수는 있어도, 실적으로 이어지는 경로는 공시에서 확인되지 않는다.",
+    "src": ["s3", "s1"]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "소형 궤도 발사 (Electron)",
+        "rivals": ["SpaceX (공유 발사)", "Firefly", "중국·인도 등 해외 발사체"],
+        "position": "leader",
+        "share": "2025년 Electron은 세계에서 두 번째로 많이 발사된 궤도 로켓 (10-K)",
+        "src": ["s3"]
+      },
+      {
+        "arena": "중형 발사 (Neutron, 2026 Q4 이후)",
+        "rivals": ["SpaceX Falcon 9", "Blue Origin", "United Launch Alliance", "Northrop Grumman"],
+        "position": "challenger",
+        "share": null,
+        "src": ["s3"]
+      },
+      {
+        "arena": "위성 제작 (국방·상업)",
+        "rivals": ["Lockheed Martin", "Northrop Grumman", "York Space Systems", "L3Harris", "Airbus", "Thales Alenia Space"],
+        "position": "challenger",
+        "share": null,
+        "src": ["s3"]
+      },
+      {
+        "arena": "위성 부품",
+        "rivals": ["Honeywell Aerospace", "Redwire", "Collins Aerospace", "Beyond Gravity"],
+        "position": "niche",
+        "share": null,
+        "src": ["s3"]
+      }
+    ],
+    "edge": "발사와 위성 제작을 함께 제공하는 몇 안 되는 회사이고, Electron의 성공 기록과 자체 부품 공급망으로 국방 위성 주계약자 자리를 늘리고 있다.",
+    "threats": "Neutron이 늦어질수록 중형 발사 시장은 SpaceX가 계속 가져가고, 위성 제작에서는 Lockheed·Northrop 같은 대형 방산업체와 신생 위성 제조사 사이에서 가격 경쟁을 한다. 우주군 SB-AMTI 3.97억 달러 계약은 Neutron 발사를 전제로 한다.",
+    "text": "경쟁 구도는 로켓 크기에 따라 갈린다. 소형 발사에서는 Electron이 이미 세계 2위 발사 빈도를 가진 선두이지만, 돈이 큰 중형 발사에서는 SpaceX Falcon 9과 맞설 Neutron이 아직 날지 않았다. 회사는 위성 제작과 발사를 묶어 국방 계약을 따내는 방식으로 대형 방산업체 사이를 파고들고 있어, Neutron 첫 비행이 두 경기장 모두의 다음 단계를 여는 열쇠다.",
+    "src": ["s3", "s1"]
+  },
+  "strategy": {
+    "goal": "발사·위성 제작에 위성 서비스까지 더한 수직계열 우주 회사가 되는 것 - Iridium 인수 발표에서 회사가 내건 방향이다.",
+    "roadmap": [
+      { "when": "2026 Q3", "what": "매출 2.50~2.65억 달러 가이던스, 분기 중 10억 달러 이상 신규 계약 체결 (발표 시점까지)", "src": ["s1"] },
+      { "when": "2026 Q4", "what": "Neutron 1단 탱크를 발사대에 인도하는 일정 - 첫 비행 날짜는 회사가 다시 밝히지 않음", "src": ["s1", "s2"] },
+      { "when": "2026 이후", "what": "SDA Tracking Layer Tranche 3 위성 18기 제작 (8.16억 달러)", "src": ["s2"] },
+      { "when": "2027", "what": "GHOST 이동형 발사 시스템 첫 준궤도 발사 (Alaska Kodiak LC-4)", "src": ["s1"] },
+      { "when": "2027 중반", "what": "Iridium 인수 완료 예정 (주주·규제 승인 조건)", "src": ["s4"] }
+    ],
+    "vision": "로켓으로 위성을 올리고, 직접 만든 위성으로 서비스까지 제공하는 '우주 종합 회사'. Iridium의 L-band 주파수와 위성망으로 IoT·휴대폰 직접 통신·위치 서비스·국방 통신에 들어가겠다고 말한다.",
+    "text": "경쟁에서 앞서기 위한 회사의 순서는 Neutron으로 중형 발사 시장에 들어가고, 이미 키운 위성 제작 능력에 Iridium의 위성망과 반복 매출을 붙이는 것이다. Iridium은 2025년 매출 8.72억 달러, OEBITDA 4.95억 달러(마진 57%)로 지금 Rocket Lab보다 매출이 크고 이익이 난다. 그만큼 인수 완료(2027년 중반 예정)와 Neutron 첫 비행 두 가지가 이 계획의 실제 관문이다.",
+    "src": ["s4", "s1", "s2"]
+  },
+  "governance": {
+    "line": "창업자 Peter Beck이 사장·CEO·이사회 의장을 겸하고, 배당 없이 주식 발행(2025년 ATM 11.46억 달러)으로 성장 투자를 조달하는 회사다.",
+    "src": ["s3", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "2.50~2.65억 달러", "givenOn": "2026-08-10", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "gross margin (GAAP / non-GAAP)", "value": "29~31% / 35~37%", "givenOn": "2026-08-10", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "adjusted EBITDA", "value": "-1,700만 ~ -2,300만 달러", "givenOn": "2026-08-10", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "operating expenses (GAAP / non-GAAP)", "value": "1.43~1.49억 / 1.21~1.27억 달러", "givenOn": "2026-08-10", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q1 2026 매출 가이던스 1.85~2.00억 달러에 대해 실제 약 2.00억 달러(6개월 4.344억 - Q2 2.341억)로 상단에 도달했다. Neutron 첫 비행은 여러 차례 미뤄져 2026년 4분기 이후로 밀렸다.",
+    "src": ["s2", "s1"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 -0.17달러(범위 -0.18~-0.16, 추정치 수 최소 1로 표본 매우 적음), 직전 4개 분기 실적 합 -0.23달러. 최근 4주 상향·하향 0건.",
+    "src": ["s5"]
+  },
+  "watch": {
+    "confirms": [
+      "Neutron 첫 비행 성공과 이후 비행 일정 공개",
+      "백로그가 23.6억 달러에서 계속 늘고 Space Systems 계약이 이어짐",
+      "분기 매출이 가이던스 상단 이상으로 나오고 조정 EBITDA 손실이 줄어듦",
+      "Iridium 인수가 주주·규제 승인을 일정대로 통과",
+      "Electron 발사 빈도 유지와 무사고"
+    ],
+    "breaks": [
+      "Neutron 추가 지연이나 발사 실패 (SB-AMTI 3.97억 달러 계약이 Neutron에 걸려 있음)",
+      "총마진 하락이 이어짐 (Q3 가이던스 GAAP 29~31%로 Q2 약 36%보다 낮음)",
+      "미국 국방 우주 예산 삭감이나 SDA 발주 지연",
+      "Iridium 인수 자금 조달 과정의 대규모 지분 희석 또는 부채 부담",
+      "현금 소진 속도가 빨라짐"
+    ],
+    "keyNumbers": [
+      { "name": "백로그 (Space Systems / Launch)", "why": "1~2년 매출의 바닥" },
+      { "name": "분기 매출과 GAAP 총마진", "why": "성장과 수익성 개선 속도" },
+      { "name": "조정 EBITDA와 영업현금흐름", "why": "흑자 전환까지 남은 거리" },
+      { "name": "Neutron 일정", "why": "중형 발사 시장 진입과 일부 계약의 전제" },
+      { "name": "미국 정부 매출 비중", "why": "고객 집중도와 예산 민감도" },
+      { "name": "현금·유가증권 잔고", "why": "추가 주식 발행 필요성" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-09 (Finnhub 집계, 회사 확정 여부 미확인)", "event": "Q3 2026 실적 발표와 Q4 가이던스", "src": ["s6"] },
+      { "date": "2026 Q4 이후", "event": "Neutron 발사대 인도와 첫 비행 일정 공지", "src": ["s1"] },
+      { "date": "2027 중반", "event": "Iridium 인수 완료 (주주총회·규제 승인)", "src": ["s4"] },
+      { "date": "수시", "event": "SDA·우주군 대형 계약 발표", "src": ["s1", "s2"] }
+    ],
+    "reaction": "실적 숫자 자체보다 Neutron 일정 변화, 백로그와 대형 국방 계약 발표, 다음 분기 마진 가이던스에 크게 반응하는 경향이 있다. 추정치 수가 매우 적어 EPS 컨센서스 대비 서프라이즈의 의미는 작다.",
+    "conditions": [
+      "다음 분기 매출·조정 EBITDA 가이던스와 직전 분기 실적의 차이",
+      "Neutron 첫 비행 날짜의 확정·변경 여부",
+      "백로그 증감과 신규 국방 계약 규모",
+      "GAAP 총마진 방향 (위성 전체 제작 비중이 높아지면 낮아짐)",
+      "Iridium 인수 관련 자금 조달 방식"
+    ]
+  },
+  "unverified": [
+    "부문별 영업이익률 (10-K는 부문 매출과 매출원가만 공시; 부문 총이익률은 계산값)",
+    "FY2025 잉여현금흐름 -3.22억 달러는 영업현금흐름에서 설비투자를 뺀 계산값 (회사 미공시)",
+    "백로그 중 12개월 내 인식 비중과 2026-06-30 기준 부문별 백로그",
+    "10% 이상 단일 고객 이름과 비중 (상위 5개 합계 49%만 공시)",
+    "Neutron 첫 비행 날짜 (Q2 보도자료는 탱크의 발사대 인도 시점만 제시)",
+    "Q2 2026 가이던스 대비 실제 (Q2 가이던스 원문 미대조)",
+    "GEOST 총 인수가 (현금 지급 1.32억 달러만 확인)",
+    "Iridium 인수 후 합산 매출·백로그와 교환비율 세부",
+    "Peter Beck 지분율",
+    "Electron·위성 시장 점유율 수치",
+    "Q3 2026 실적 발표일의 회사 확정 여부"
+  ],
+  "confidence": "high - 매출·마진·현금흐름·백로그·인수 조건은 모두 10-K와 회사 8-K에서 왔고, 남은 공백은 회사가 공시하지 않은 항목(부문 이익, 고객명)이다."
+}

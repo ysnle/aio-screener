@@ -1,0 +1,515 @@
+{
+ "rule": "30일 평균 거래대금(public-data/screener.json dollarVolume30d) 상위, ETF·해외 상장·중복 주식 종류 제외: 미국 90 + 한국 10. 파일럿 20개 중 상위권 밖 5개(ANET BRO EQIX NEE PRCT)도 유지.",
+ "asOf": "2026-10-28T07:31:57.217Z",
+ "us": [
+  {
+   "sym": "MU",
+   "name": "Micron Technology",
+   "dv30": 26039416120
+  },
+  {
+   "sym": "NVDA",
+   "name": "NVIDIA",
+   "dv30": 23388509744
+  },
+  {
+   "sym": "META",
+   "name": "Meta Platforms",
+   "dv30": 16444972611
+  },
+  {
+   "sym": "SPCX",
+   "name": "SpaceX (Space Exploration Technologies)",
+   "dv30": 15825179687
+  },
+  {
+   "sym": "TSLA",
+   "name": "Tesla",
+   "dv30": 13864860236
+  },
+  {
+   "sym": "SNDK",
+   "name": "SanDisk",
+   "dv30": 13410685373
+  },
+  {
+   "sym": "AAPL",
+   "name": "Apple",
+   "dv30": 13272423246
+  },
+  {
+   "sym": "AMD",
+   "name": "Advanced Micro Devices",
+   "dv30": 12514605565
+  },
+  {
+   "sym": "INTC",
+   "name": "Intel",
+   "dv30": 11420142677
+  },
+  {
+   "sym": "MSFT",
+   "name": "Microsoft",
+   "dv30": 11077663465
+  },
+  {
+   "sym": "AMZN",
+   "name": "Amazon",
+   "dv30": 9264123019
+  },
+  {
+   "sym": "GOOGL",
+   "name": "Alphabet",
+   "dv30": 8596886175
+  },
+  {
+   "sym": "AVGO",
+   "name": "Broadcom",
+   "dv30": 7889948226
+  },
+  {
+   "sym": "MRVL",
+   "name": "Marvell Technology",
+   "dv30": 4959877719
+  },
+  {
+   "sym": "TSM",
+   "name": "TSMC",
+   "dv30": 4824688520
+  },
+  {
+   "sym": "LITE",
+   "name": "Lumentum",
+   "dv30": 4689962841
+  },
+  {
+   "sym": "PLTR",
+   "name": "Palantir",
+   "dv30": 4393421390
+  },
+  {
+   "sym": "BE",
+   "name": "Bloom Energy",
+   "dv30": 4340727217
+  },
+  {
+   "sym": "ORCL",
+   "name": "Oracle",
+   "dv30": 4095127987
+  },
+  {
+   "sym": "NBIS",
+   "name": "Nebius Group",
+   "dv30": 4090226435
+  },
+  {
+   "sym": "STX",
+   "name": "Seagate Tech",
+   "dv30": 3899142758
+  },
+  {
+   "sym": "DELL",
+   "name": "Dell Technologies",
+   "dv30": 3875655084
+  },
+  {
+   "sym": "MRNA",
+   "name": "Moderna",
+   "dv30": 3834332262
+  },
+  {
+   "sym": "WDC",
+   "name": "Western Digital",
+   "dv30": 3749313042
+  },
+  {
+   "sym": "CRWV",
+   "name": "CoreWeave",
+   "dv30": 3513485169
+  },
+  {
+   "sym": "MSTR",
+   "name": "MicroStrategy",
+   "dv30": 3206583381
+  },
+  {
+   "sym": "AMAT",
+   "name": "Applied Materials",
+   "dv30": 3137237722
+  },
+  {
+   "sym": "NFLX",
+   "name": "Netflix",
+   "dv30": 2942795435
+  },
+  {
+   "sym": "LRCX",
+   "name": "Lam Research",
+   "dv30": 2874968292
+  },
+  {
+   "sym": "LLY",
+   "name": "Eli Lilly",
+   "dv30": 2783706020
+  },
+  {
+   "sym": "JPM",
+   "name": "JPMorgan Chase",
+   "dv30": 2670922824
+  },
+  {
+   "sym": "ASML",
+   "name": "ASML Holdings",
+   "dv30": 2548167389
+  },
+  {
+   "sym": "V",
+   "name": "Visa",
+   "dv30": 2470278836
+  },
+  {
+   "sym": "BRK-B",
+   "name": "Berkshire Hathaway B",
+   "dv30": 2433582891
+  },
+  {
+   "sym": "WMT",
+   "name": "Walmart",
+   "dv30": 2406346979
+  },
+  {
+   "sym": "CRWD",
+   "name": "CrowdStrike",
+   "dv30": 2383350822
+  },
+  {
+   "sym": "GEV",
+   "name": "GE Vernova",
+   "dv30": 2377367156
+  },
+  {
+   "sym": "MDT",
+   "name": "Medtronic",
+   "dv30": 2376179113
+  },
+  {
+   "sym": "QCOM",
+   "name": "Qualcomm",
+   "dv30": 2235299377
+  },
+  {
+   "sym": "BAC",
+   "name": "Bank of America",
+   "dv30": 2210680807
+  },
+  {
+   "sym": "COST",
+   "name": "Costco",
+   "dv30": 2200201511
+  },
+  {
+   "sym": "UNH",
+   "name": "UnitedHealth",
+   "dv30": 2193824750
+  },
+  {
+   "sym": "CRM",
+   "name": "Salesforce",
+   "dv30": 2190889752
+  },
+  {
+   "sym": "HOOD",
+   "name": "Robinhood",
+   "dv30": 2190722975
+  },
+  {
+   "sym": "PANW",
+   "name": "Palo Alto Networks",
+   "dv30": 2168067620
+  },
+  {
+   "sym": "GS",
+   "name": "Goldman Sachs",
+   "dv30": 2147134978
+  },
+  {
+   "sym": "XOM",
+   "name": "Exxon Mobil",
+   "dv30": 2142142205
+  },
+  {
+   "sym": "CAT",
+   "name": "Caterpillar",
+   "dv30": 2036848744
+  },
+  {
+   "sym": "COHR",
+   "name": "Coherent Corp",
+   "dv30": 2027810032
+  },
+  {
+   "sym": "CSCO",
+   "name": "Cisco Systems",
+   "dv30": 1980227341
+  },
+  {
+   "sym": "JNJ",
+   "name": "Johnson & Johnson",
+   "dv30": 1956322125
+  },
+  {
+   "sym": "CVX",
+   "name": "Chevron",
+   "dv30": 1895907203
+  },
+  {
+   "sym": "TXN",
+   "name": "Texas Instruments",
+   "dv30": 1854029148
+  },
+  {
+   "sym": "BA",
+   "name": "Boeing",
+   "dv30": 1825151037
+  },
+  {
+   "sym": "KLAC",
+   "name": "KLA Corporation",
+   "dv30": 1799848254
+  },
+  {
+   "sym": "MA",
+   "name": "Mastercard",
+   "dv30": 1792146352
+  },
+  {
+   "sym": "TMO",
+   "name": "Thermo Fisher",
+   "dv30": 1682141304
+  },
+  {
+   "sym": "IREN",
+   "name": "IREN Limited",
+   "dv30": 1673645736
+  },
+  {
+   "sym": "CRDO",
+   "name": "Credo Technology",
+   "dv30": 1651399129
+  },
+  {
+   "sym": "NOW",
+   "name": "ServiceNow",
+   "dv30": 1637215908
+  },
+  {
+   "sym": "HD",
+   "name": "Home Depot",
+   "dv30": 1565365921
+  },
+  {
+   "sym": "COIN",
+   "name": "Coinbase",
+   "dv30": 1558467825
+  },
+  {
+   "sym": "ACN",
+   "name": "Accenture",
+   "dv30": 1532602244
+  },
+  {
+   "sym": "ARM",
+   "name": "ARM Holdings",
+   "dv30": 1525929605
+  },
+  {
+   "sym": "MRK",
+   "name": "Merck",
+   "dv30": 1518372744
+  },
+  {
+   "sym": "GE",
+   "name": "GE Aerospace",
+   "dv30": 1518148583
+  },
+  {
+   "sym": "KO",
+   "name": "Coca-Cola",
+   "dv30": 1502988845
+  },
+  {
+   "sym": "MCD",
+   "name": "McDonald's",
+   "dv30": 1494519438
+  },
+  {
+   "sym": "SHOP",
+   "name": "Shopify",
+   "dv30": 1439649271
+  },
+  {
+   "sym": "NKE",
+   "name": "Nike",
+   "dv30": 1435891520
+  },
+  {
+   "sym": "SMCI",
+   "name": "Super Micro Computer",
+   "dv30": 1434273659
+  },
+  {
+   "sym": "SNOW",
+   "name": "Snowflake",
+   "dv30": 1409214379
+  },
+  {
+   "sym": "PG",
+   "name": "Procter & Gamble",
+   "dv30": 1408198435
+  },
+  {
+   "sym": "IBM",
+   "name": "IBM",
+   "dv30": 1384861066
+  },
+  {
+   "sym": "RKLB",
+   "name": "Rocket Lab USA",
+   "dv30": 1380019980
+  },
+  {
+   "sym": "VLO",
+   "name": "Valero Energy",
+   "dv30": 1347577859
+  },
+  {
+   "sym": "ALAB",
+   "name": "Astera Labs",
+   "dv30": 1340613449
+  },
+  {
+   "sym": "ADI",
+   "name": "Analog Devices",
+   "dv30": 1331379839
+  },
+  {
+   "sym": "ABBV",
+   "name": "AbbVie",
+   "dv30": 1316454561
+  },
+  {
+   "sym": "PEP",
+   "name": "PepsiCo",
+   "dv30": 1315549952
+  },
+  {
+   "sym": "APP",
+   "name": "AppLovin",
+   "dv30": 1309960661
+  },
+  {
+   "sym": "WFC",
+   "name": "Wells Fargo",
+   "dv30": 1267171158
+  },
+  {
+   "sym": "VZ",
+   "name": "Verizon",
+   "dv30": 1266359697
+  },
+  {
+   "sym": "BKNG",
+   "name": "Booking Holdings",
+   "dv30": 1264893975
+  },
+  {
+   "sym": "NU",
+   "name": "Nu Holdings",
+   "dv30": 1257800125
+  },
+  {
+   "sym": "C",
+   "name": "Citigroup",
+   "dv30": 1248183981
+  },
+  {
+   "sym": "HPE",
+   "name": "Hewlett Packard Enterprise",
+   "dv30": 1244129699
+  },
+  {
+   "sym": "VRT",
+   "name": "Vertiv Holdings",
+   "dv30": 1243840556
+  },
+  {
+   "sym": "GLW",
+   "name": "Corning",
+   "dv30": 1228136409
+  },
+  {
+   "sym": "AMGN",
+   "name": "Amgen",
+   "dv30": 1203324009
+  }
+ ],
+ "kr": [
+  {
+   "sym": "000660.KS",
+   "name": "SK하이닉스",
+   "dv30": 3943523822
+  },
+  {
+   "sym": "005930.KS",
+   "name": "삼성전자",
+   "dv30": 3155296254
+  },
+  {
+   "sym": "009150.KS",
+   "name": "삼성전기",
+   "dv30": 672617197
+  },
+  {
+   "sym": "402340.KS",
+   "name": "SK스퀘어",
+   "dv30": 442187109
+  },
+  {
+   "sym": "036930.KQ",
+   "name": "주성엔지니어링",
+   "dv30": 257473985
+  },
+  {
+   "sym": "006400.KS",
+   "name": "삼성SDI",
+   "dv30": 192763609
+  },
+  {
+   "sym": "034020.KS",
+   "name": "두산에너빌리티",
+   "dv30": 130961587
+  },
+  {
+   "sym": "005380.KS",
+   "name": "현대차",
+   "dv30": 127753869
+  },
+  {
+   "sym": "105560.KS",
+   "name": "KB금융",
+   "dv30": 111076911
+  },
+  {
+   "sym": "012450.KS",
+   "name": "한화에어로스페이스",
+   "dv30": 108832451
+  }
+ ],
+ "keptFromPilot": [
+  "ANET",
+  "BRO",
+  "EQIX",
+  "NEE",
+  "PRCT"
+ ]
+}

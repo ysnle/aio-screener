@@ -720,8 +720,12 @@ if (!validateEvidence(evidence, { now: evidenceNow }).ok || evidence.allowedUse 
 const store = createEvidenceStore();
 store.ingest(evidence);
 if (store.get('fearGreed')?.evidenceId !== evidence.evidenceId) fail('evidence store read-back failed');
-const summary = deriveSentimentSummary({ fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22 });
+const summary = deriveSentimentSummary({ fearGreed: 42, vix9d: 16, vix: 17, vix3m: 20, vix6m: 22 });
 if (summary.blocked || summary.vixTermStructure.regime !== '콘탱고') fail('sentiment domain contract failed');
+// v59.43 P2134: VIX9D above VIX is a front-end inversion even while the back months slope up.
+const front = deriveSentimentSummary({ fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22 }).vixTermStructure;
+if (front.regime === '콘탱고' || front.frontInverted !== true || front.inverted !== true) fail(`P2134 VIX9D > VIX must read as a front-end inversion, got ${front.regime}`);
+if (deriveSentimentSummary({ fearGreed: 42, vix9d: 25, vix: 24, vix3m: 22, vix6m: 21 }).vixTermStructure.regime !== '백워데이션') fail('P2134 VIX above VIX3M must stay 백워데이션');
 const { createSentimentProvider } = await import(pathToFileURL(path.join(root, 'src/data/providers/sentiment.js')));
 const { createSentimentOrchestrator } = await import(pathToFileURL(path.join(root, 'src/data/orchestrators/sentiment.js')));
 const { createNewsProvider } = await import(pathToFileURL(path.join(root, 'src/data/providers/news.js')));

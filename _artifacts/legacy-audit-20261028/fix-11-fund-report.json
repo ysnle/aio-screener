@@ -1,0 +1,18 @@
+{
+  "version": "v59.42",
+  "date": "2026-10-29",
+  "p": {
+    "title": "재무 보고서: 없는 EPS가 $0.00과 Beat/Miss로, 순부채 미수신이 0으로 계산됐다",
+    "symptom": "기업 재무 보고서의 서프라이즈 표와 EPS 분기 표는 실제·예상 EPS가 없으면 $0.00을 찍었고, 예상치가 없으면 'Beat +0.0%', 실제치가 없으면 0과 비교한 Miss를 냈다. 서프라이즈 차트는 없는 값을 0 막대와 0 점으로 그렸다. AI가 읽는 EV/EBITDA는 순부채가 없으면 0으로 쳐서 EV가 시가총액으로 줄고 '싸다'가 나왔다. 동종 기업 이름·업종·실적 날짜는 이스케이프 없이 HTML에 들어갔다. 레거시 감사 10위.",
+    "root_cause": "js/aio-ui.js _renderFundEarnings·_renderFundVariance가 `(x || 0).toFixed(2)`와 `estimatedEarning ? … : 0`을 썼고, js/aio-core.js computeEvEbitda가 `fin.netDebt || 0`을 썼다. 공급자 문자열은 escHtml 없이 이어 붙였다.",
+    "fix": "EPS 한 행 읽기를 _fundFinite/_fundEps/_fundSurprise 하나로 모았다. 없는 값은 '—'와 차트 공백이고, 두 값이 모두 있을 때만 Beat/Miss를 낸다. 순부채가 없으면 EV/EBITDA는 '계산 불가(순부채 미수신)'다. 동종 기업 이름, 업종, 실적 날짜는 escHtml을 거친다. 렌더러를 src로 옮기는 일은 이번에 하지 않았다(열린 항목).",
+    "violated_rule": "AGENTS: 없는 값은 0이 아니다(P1164 계열). XSS 방어(R257 계열).",
+    "prevention": "새 실행 게이트는 없다. 세 함수가 표·차트의 유일한 EPS 읽기다.",
+    "verification": "Playwright 고정 자료 렌더: '2026-07-30 | $1.20 | $1.00 | Beat +20.0%', '2026-04-30 | — | $0.90 | —', '2026-01-30 | $0.80 | — | —'(전에는 $0.00과 Miss -100.0%). 동종 기업 이름의 <img> 태그는 글자로만 보이고 실행되지 않았다. 오류 0건."
+  },
+  "r": null,
+  "changelog": [
+    "**재무 보고서의 없는 값 처리 ({P}):** EPS가 없을 때 $0.00과 가짜 Beat/Miss를 찍던 표와 0 막대를 그리던 차트가 '—'와 빈칸을 쓴다. 순부채를 모르면 EV/EBITDA를 계산하지 않는다. 동종 기업 이름과 업종은 이스케이프한다."
+  ],
+  "note": "v59.42 {P}: fundamental report EPS/surprise fallbacks, EV netDebt, peer/sector escaping."
+}

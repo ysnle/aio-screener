@@ -22,8 +22,11 @@ export function vixTermStructure(values = {}) {
   if ([short, spot, medium, long].some((value) => value == null || value < 0)) {
     return Object.freeze({ regime: '판정 보류', inverted: null, blocked: true, points: Object.freeze({ short, spot, medium, long }) });
   }
-  const inverted = short > long || spot > medium;
-  return Object.freeze({ regime: inverted ? '백워데이션' : '콘탱고', inverted, blocked: false, points: Object.freeze({ short, spot, medium, long }) });
+  // v59.43 (X bookmark 2111332560634888446): VIX9D above VIX is a front-end inversion even while the 3- and 6-month
+  // points still slope up; it was reported as 콘탱고.
+  const full = short > long || spot > medium;
+  const front = !full && short > spot;
+  return Object.freeze({ regime: full ? '백워데이션' : front ? '앞쪽 역전(9일물 > 30일물)' : '콘탱고', inverted: full || front, frontInverted: front, blocked: false, points: Object.freeze({ short, spot, medium, long }) });
 }
 
 export function deriveSentimentSummary({ fearGreed, vix9d, vix, vix3m, vix6m } = {}) {

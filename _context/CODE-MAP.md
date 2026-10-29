@@ -448,17 +448,15 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `getRefreshSchedulerAudit` | 4461 | 스케줄러 진단 |
 | `runScheduledRefresh` | 4760 | 수동 강제 갱신 |
 | `ensureFreshDataForUse` | 4906 | page/chat selective freshness preflight |
-| `AIO_NEWS_SOURCES` | 6293 | RSS/뉴스 소스 |
+| `AIO_NEWS_SOURCES` | 3613 | 브라우저 텔레그램 채널 7곳(v59.42: RSS 78개 퇴역 — 뉴스는 서버 `scripts/lib/news-selection.mjs` NEWS_FEEDS) |
 | `KNOWN_TICKERS` | 7577 | 티커 Set |
-| `renderFeed` | 10594 | 시장 뉴스 렌더 |
-| `_aioGetCurrentHomeWeeklyNews` | 10825 | HOME 고정 뉴스 freshness filter |
-| `renderHomeFeed` | 10837 | 홈 뉴스 렌더 |
-| `computeNewsSentimentScore` / `computeNewsRiskSignals` | 11702 / 11736 | 뉴스 감성/리스크 — js/aio-core.js의 computeTradingScore가 소비(v51.98 Phase 3 A3로 이관, §3) |
-| `fetchOneFeed` | 11859 | 단일 피드 fetch |
-| `fetchAllNews` | 12191 | 뉴스 전체 수집 |
+| `_aioGetCurrentHomeWeeklyNews` | 4939 | HOME 고정 뉴스 freshness filter |
+| `computeNewsSentimentScore` / `computeNewsRiskSignals` | `src/app/score-entry-points.js` (v59.41) | 뉴스 감성/리스크 — js/aio-core.js의 computeTradingScore가 소비 |
+| `fetchOneFeed` | 5095 | 단일 피드 fetch(텔레그램 rsshub 폴백만) |
+| `fetchAllNews` | 5228 | 서버 뉴스 번들 적용(P1756) · 번들이 낡았을 때만 텔레그램 폴백 |
 | `fetchLiveQuotes` | 13212 | live quote pipeline + core coverage guard + cross-source 기록 |
 | `applyLiveQuotes` | 15029 | live quote store + DOM render sink |
-| `renderBriefingFeed` | 11101 | 브리핑 뉴스 렌더 |
+| `renderBriefingFeed` | 4994 | 브리핑 입력 무효화 신호만(렌더는 `src/ui/pages/news.js`) |
 | `vixToPercentile` | 14286 | VIX percentile 로그 외삽 |
 | `toggleSignalMode` | 16184 | signal UI mode state |
 | `_aioFactorWeights` | 15342 | storage/profile 입력을 pure `factor-weights.v1`에 연결하는 호환 브릿지 |

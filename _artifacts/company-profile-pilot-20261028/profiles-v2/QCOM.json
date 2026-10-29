@@ -1,0 +1,222 @@
+{
+  "symbol": "QCOM",
+  "name": "QUALCOMM Incorporated",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "last Sunday of September (FY2025 ended 2025-09-28)",
+  "oneLine": "Qualcomm은 스마트폰용 Snapdragon 칩과 이동통신 특허 로열티로 돈을 버는 회사로, Apple 모뎀 이탈과 메모리 부족에 따른 휴대폰 둔화를 자동차·IoT·데이터센터(AI 추론 칩)로 메울 수 있는지가 지금의 핵심 질문이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Qualcomm Announces Third Quarter Fiscal 2026 Results (IR PDF)", "url": "https://s204.q4cdn.com/645488518/files/doc_financials/2026/q3/FY2026-3rd-Quarter-Earnings-Release.pdf", "publisher": "Qualcomm", "date": "2026-07-29" },
+    { "id": "s2", "kind": "earnings-release", "title": "Qualcomm Announces Fourth Quarter and Fiscal 2025 Results (IR PDF)", "url": "https://s204.q4cdn.com/645488518/files/doc_financials/2025/q4/FY2025-4th-Quarter-Earnings-Release.pdf", "publisher": "Qualcomm", "date": "2025-11-05" },
+    { "id": "s3", "kind": "10-K", "title": "Qualcomm Form 10-K for fiscal year ended 2025-09-28", "url": "https://www.sec.gov/Archives/edgar/data/804328/000080432825000085/qcom-20250928.htm", "publisher": "Qualcomm / SEC EDGAR", "date": "2025-11-05" },
+    { "id": "s4", "kind": "investor-day", "title": "Qualcomm forecasts more than $15B in data center revenue by 2029 (reprint of Investor Day release)", "url": "https://tedmag.com/qualcomm-forecasts-more-than-15b-in-data-center-revenue-by-2029/", "publisher": "TED Magazine (company release text)", "date": "2026-06-26" },
+    { "id": "s5", "kind": "news", "title": "Qualcomm Q3 FY 2026: Automotive Growth Offsets Handset Weakness (call commentary)", "url": "https://futurumgroup.com/insights/qualcomm-q3-fy-2026-automotive-growth-offsets-handset-weakness/", "publisher": "Futurum Group", "date": "2026-08-03" },
+    { "id": "s6", "kind": "ir-site", "title": "Qualcomm Schedules Fourth Quarter and Fiscal 2026 Earnings Release and Conference Call (Nov 4, 2026)", "url": "https://www.qualcomm.com/news/releases/2026/10/qualcomm-schedules-fourth-quarter-and-fiscal-2026-earnings-relea", "publisher": "Qualcomm", "date": "2026-10-22" },
+    { "id": "s7", "kind": "news", "title": "Qualcomm AI200 and AI250 racks for AI inference (HUMAIN 200MW deployment)", "url": "https://www.verdict.co.uk/qualcomm-ai200-ai250-racks-ai-inference/", "publisher": "Verdict", "date": "2025-10-27" },
+    { "id": "s8", "kind": "other", "title": "Global Smartphone AP-SoC Market Share: Quarterly (Q2 2026; accessed date)", "url": "https://www.counterpointresearch.com/en/insights/global-smartphone-apsoc-market-share-quarterly", "publisher": "Counterpoint Research", "date": "2026-10-28" },
+    { "id": "s9", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/qcom/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
+    { "id": "s10", "kind": "news", "title": "Qualcomm Has Landed Two Hyperscaler Deals Worth Billions (Investor Day summary)", "url": "https://www.tikr.com/blog/qualcomm-has-landed-two-hyperscaler-deals-worth-billions-is-qcom-stock-priced-in", "publisher": "TIKR", "date": "2026-07-01" }
+  ],
+  "moat": {
+    "sources": [
+      "3G·4G·5G 이동통신 표준 필수 특허 - 휴대폰 제조사가 도매가의 일정 비율로 로열티를 낸다 (QTL, EBT 마진 72%)",
+      "모뎀·RF·애플리케이션 프로세서(Snapdragon)를 한 칩으로 묶는 저전력 통합 설계",
+      "자체 Oryon CPU 코어와 온디바이스 AI(NPU)로 휴대폰에서 PC·자동차·데이터센터로 확장",
+      "자동차 설계 수주 파이프라인 650억 달러 - 차량 개발 주기가 길어 한 번 들어가면 수년간 유지"
+    ],
+    "text": "Qualcomm의 뿌리는 이동통신 표준 특허다. 5G 휴대폰을 만드는 회사는 대부분 Qualcomm에 도매가 기준 로열티를 내야 해서, 칩을 안 사도 돈이 들어오는 구조(QTL)가 있다. 그 위에 모뎀과 프로세서를 한 칩에 넣는 저전력 설계 능력이 두 번째 뿌리이고, 이를 자동차·PC·데이터센터로 옮기는 것이 지금의 확장 전략이다.",
+    "src": ["s3", "s2", "s4"]
+  },
+  "design": {
+    "text": "이 기술로 회사는 두 사업부를 보고한다. QCT(칩)는 휴대폰용 Snapdragon·모뎀·RF, 자동차용 디지털 콕핏·ADAS 칩(Snapdragon Digital Chassis), PC·XR·산업용 IoT 칩을 설계하고, 2026년부터는 AI200·AI250 추론 가속기와 하이퍼스케일러용 맞춤 칩으로 데이터센터에 들어간다. QTL(라이선스)은 특허 포트폴리오를 휴대폰 제조사에 빌려주고 로열티를 받는다.",
+    "src": ["s3", "s1", "s7", "s5"]
+  },
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "TSMC - 주력 파운드리",
+      "Samsung Electronics - 파운드리",
+      "GlobalFoundries - 파운드리",
+      "ASE, Amkor Technology, SPIL, STATS ChipPAC - 조립·테스트",
+      "메모리(LPDDR 등) - 데이터센터 AI200 카드당 768GB LPDDR 탑재, 공급사 미공시"
+    ],
+    "text": "Qualcomm도 공장 없이 설계만 하는 팹리스다. 웨이퍼는 TSMC·Samsung·GlobalFoundries가 찍고, 조립·테스트는 ASE·Amkor·SPIL·STATS ChipPAC가 맡는다. 2025-09-28 기준 구매 약정은 151억 달러(12개월 내 105억)이고, 2026년에는 웨이퍼·패키징·메모리 원가가 일제히 올라 회사가 두 자릿수 가격 인상으로 대응하겠다고 밝혔다.",
+    "src": ["s3", "s1", "s5"]
+  },
+  "sell": {
+    "customers": [
+      "스마트폰 OEM - Apple, Samsung, Xiaomi가 FY2025 각각 매출의 10% 이상",
+      "중국 휴대폰 제조사 (사업의 상당 부분이 중국에 집중)",
+      "자동차 OEM·티어1 (BMW 차세대 ADAS·디지털 콕핏 주 연산 공급)",
+      "하이퍼스케일러 2곳 (맞춤 칩, 2026년 12월 분기부터 매출), HUMAIN (AI200·AI250 랙 200MW)"
+    ],
+    "channel": "휴대폰·자동차 OEM과 ODM에 직접 판매하고 일부는 유통사를 쓴다. 특허는 휴대폰 제조사와 직접 라이선스 계약을 맺는다.",
+    "concentration": "FY2025 Apple·Samsung·Xiaomi가 각각 연결 매출의 10% 이상 (정확한 비율은 10-K 본문에서 확인하지 못함). Apple은 자체 모뎀 사용을 늘리는 중이고 다음 iPhone에서 Qualcomm 비중은 기존 예상 20%보다 '상당히 낮을' 것이라고 회사가 언급.",
+    "text": "만든 칩은 소수의 휴대폰 제조사에 집중돼 팔린다. Apple·Samsung·Xiaomi 세 곳이 각각 매출의 10%를 넘고, 그중 Apple은 자체 모뎀으로 빠르게 옮겨 가고 있다. 그래서 회사는 자동차(BMW 등), 산업용 IoT, 하이퍼스케일러 2곳과의 맞춤 칩 계약으로 고객 기반을 넓히는 데 집중하고 있다.",
+    "src": ["s3", "s5"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "휴대폰 구매자", "to": "Apple·Samsung·Xiaomi 등 휴대폰 OEM", "what": "스마트폰 구매 대금" },
+      { "from": "휴대폰 OEM", "to": "Qualcomm QCT", "what": "Snapdragon·모뎀·RF 칩 대금 (개당)" },
+      { "from": "휴대폰 OEM", "to": "Qualcomm QTL", "what": "기기 도매가의 일정 비율로 분기마다 내는 특허 로열티 (일부 최소·상한·정액)" },
+      { "from": "자동차 OEM·산업 장비사·하이퍼스케일러", "to": "Qualcomm QCT", "what": "자동차·IoT 칩, AI 추론 랙·맞춤 칩 대금" },
+      { "from": "Qualcomm", "to": "TSMC·Samsung·GlobalFoundries·ASE·Amkor 등", "what": "웨이퍼·조립·테스트 대금 (구매 약정 151억 달러)" }
+    ],
+    "pricing": "칩은 개당 판매(2026년 원가 상승분 반영해 두 자릿수 가격 인상 예고). 특허는 기기 도매가 기준 비율 로열티로 분기 정산하며 일부 제품은 최소·상한 또는 정액.",
+    "text": "돈은 두 갈래로 들어온다. 휴대폰 제조사가 칩을 살 때 QCT 매출이 생기고, 그 휴대폰을 팔 때마다 도매가 기준 로열티가 QTL로 들어온다. 로열티는 원가가 거의 없어 EBT 마진이 70%를 넘으므로, 매출 비중은 13%지만 이익 기여는 훨씬 크다.",
+    "src": ["s3", "s2", "s5"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-09-28)",
+    "revenue": { "value": 44.284, "unit": "USD bn", "yoy": 14 },
+    "grossMargin": 55.4,
+    "operatingMargin": 27.9,
+    "netMargin": 12.5,
+    "operatingCashFlow": { "value": 14.012, "unit": "USD bn" },
+    "freeCashFlow": { "value": 12.82, "unit": "USD bn" },
+    "segments": [
+      { "name": "QCT (Handsets 27.79 + Automotive 3.96 + IoT 6.62); operatingMargin = segment EBT margin", "revenue": 38.367, "unit": "USD bn", "share": 86.6, "yoy": 16, "operatingMargin": 30, "src": ["s2"] },
+      { "name": "QTL (licensing); operatingMargin = segment EBT margin", "revenue": 5.582, "unit": "USD bn", "share": 12.6, "yoy": 0, "operatingMargin": 72, "src": ["s2"] },
+      { "name": "QSI·기타 조정 (총매출에서 두 사업부를 뺀 차액)", "revenue": 0.335, "unit": "USD bn", "share": 0.8, "yoy": null, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q3 FY2026) 매출·마진", "value": "매출 99.5억 달러(전년 대비 -4%), GAAP 총마진 약 53.1%, 영업이익률 약 16.3% (손익계산서 금액으로 계산)", "src": ["s1"] },
+      { "name": "Q3 FY2026 QCT 사업별 매출", "value": "Handsets 50.9억(-20%), Automotive 15.9억(+61%, 23분기 연속 두 자릿수 성장), IoT 18.3억(+9%); QCT EBT 마진 26%, QTL 12.8억·EBT 마진 69%", "src": ["s1"] },
+      { "name": "스마트폰 AP-SoC 출하 점유율", "value": "Q2 2026 MediaTek 31%, Qualcomm 23%, Apple 19% (Counterpoint)", "src": ["s8"] },
+      { "name": "자동차 연간 매출 런레이트", "value": "FY2026 말 약 70억 달러 예상 (기존 60억), 설계 수주 파이프라인 650억 달러", "src": ["s5", "s4"] },
+      { "name": "구매 약정", "value": "151억 달러, 12개월 내 105억 (2025-09-28)", "src": ["s3"] }
+    ],
+    "text": "이 구조가 FY2025에 매출 443억 달러(+14%), 영업이익률 약 28%로 나타났고, 이익은 QCT(EBT 117억)와 QTL(EBT 40억)에 나뉜다. 순이익률이 12.5%로 낮은 것은 미국 세법 개정에 따른 57억 달러 비현금 이연법인세 비용 때문이다. FY2026 들어서는 메모리 부족으로 휴대폰 생산이 줄고 Apple 매출이 빠지며 Q3 휴대폰 매출이 20% 감소했고, 자동차(+61%)가 그 일부를 메우는 중이다.",
+    "src": ["s2", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-09-28)",
+    "items": [
+      { "use": "R&D", "value": 9.042, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 1.192, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 0.743, "unit": "USD bn", "src": ["s2", "s3"] },
+      { "use": "buybacks", "value": 8.791, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 3.805, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "주식보상 베스팅 관련 세금 원천징수 납부", "value": 1.115, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "FY2025 잉여현금흐름 128억 달러는 거의 전부 주주에게 돌아갔다. 자사주 매입 88억과 배당 38억을 합한 126억 달러가 잉여현금흐름과 비슷하고, R&D는 매출의 20%인 90억 달러다. 다만 데이터센터로 가기 위해 Alphawave(기업가치 약 24억 달러, 2026년 1분기 완료 예정)와 Modular를 사들이고 FY2026 9개월 설비투자도 16억 달러로 늘어, 현금 쓰임이 환원에서 성장 투자 쪽으로 조금씩 옮겨 가고 있다.",
+    "src": ["s2", "s3", "s1"]
+  },
+  "aiChain": {
+    "layer": "devices",
+    "position": "휴대폰·PC·자동차·산업기기에서 AI를 직접 돌리는 온디바이스 AI 칩 공급자. 2026년부터 AI 추론 가속기(AI200·AI250)와 하이퍼스케일러 맞춤 칩으로 데이터센터 '칩·연산' 층에 새로 들어가는 중이다.",
+    "dependsOn": [
+      "semicap-foundry (TSMC, Samsung, GlobalFoundries)",
+      "memory (휴대폰·AI200용 LPDDR - 2026년 메모리 부족이 휴대폰 생산을 제약)",
+      "조립·테스트 (ASE, Amkor, SPIL, STATS ChipPAC)"
+    ],
+    "sellsTo": [
+      "devices (Apple·Samsung·Xiaomi 등 휴대폰, PC OEM)",
+      "ai-adopter (BMW 등 자동차, 산업·로봇)",
+      "cloud-infrastructure (하이퍼스케일러 2곳 맞춤 칩, HUMAIN 200MW 추론 랙)"
+    ],
+    "aiRevenue": "데이터센터 매출은 아직 별도 공시 없음. 회사 목표 FY2027 약 50억 달러, FY2029 150억 달러 이상 (2026-06 Investor Day, 2026-07-29 콜)",
+    "upside": "온디바이스 AI가 휴대폰·PC 교체 주기를 앞당기면 고가 칩 비중이 늘고, 하이퍼스케일러 맞춤 칩 2건이 2026년 12월 분기부터 매출에 들어오면 비휴대폰 매출 성장률이 FY2026 24%에서 FY2027 60% 이상으로 뛴다는 것이 회사 설명이다.",
+    "risk": "AI 데이터센터가 메모리를 빨아들여 휴대폰용 메모리가 부족해지고 값이 오르면 휴대폰 생산이 줄어 핵심 매출이 깎인다. 데이터센터 추론 칩 시장에서는 NVIDIA·AMD·Broadcom 맞춤 칩과의 경쟁이 검증되지 않았다.",
+    "text": "그래서 AI 가치사슬에서 Qualcomm은 지금은 AI를 기기 안에서 돌리는 '기기' 층에 있고, 데이터센터는 이제 막 첫 매출을 앞둔 단계다. 아이러니하게도 AI 데이터센터 붐이 메모리를 가져가며 휴대폰 생산을 줄여 단기적으로는 손해를 보고 있어, 데이터센터 매출이 이 손실을 얼마나 빨리 넘어서느냐가 관건이다.",
+    "src": ["s4", "s5", "s1", "s7"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "스마트폰 애플리케이션 프로세서·모뎀", "rivals": ["MediaTek", "Apple (자체 A 시리즈·자체 모뎀)", "Samsung Exynos", "UNISOC", "HiSilicon (Huawei)"], "position": "challenger", "share": "Q2 2026 출하 점유율 23% (MediaTek 31%, Apple 19%) - Counterpoint", "src": ["s8", "s3"] },
+      { "arena": "이동통신 특허 라이선스", "rivals": ["Nokia", "Ericsson", "Huawei", "InterDigital"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "자동차 디지털 콕핏·ADAS", "rivals": ["NVIDIA DRIVE", "Mobileye", "Tesla (자체)", "중국 자체 칩"], "position": "leader", "share": null, "src": ["s5", "s4"] },
+      { "arena": "데이터센터 AI 추론·맞춤 칩", "rivals": ["NVIDIA", "AMD", "Broadcom·Marvell (맞춤 칩)", "Google TPU"], "position": "follower", "share": null, "src": ["s7", "s5"] },
+      { "arena": "Windows PC 프로세서", "rivals": ["Intel", "AMD", "Apple (Mac)"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "저전력 통합 설계와 모뎀 기술, 원가 없는 특허 로열티, 자동차 수주 파이프라인 650억 달러.",
+    "threats": "Apple·Samsung 등 고객의 자체 칩 전환, MediaTek의 가격 경쟁, 중국 고객 비중과 미중 갈등, 데이터센터에서 검증되지 않은 후발 주자 지위.",
+    "text": "경쟁 위치는 영역마다 다르다. 스마트폰 칩 출하량에서는 MediaTek(31%)에 이은 2위(23%)이고 Apple이 자체 칩으로 19%까지 올라왔으며, 고객의 자체 칩 전환이 가장 큰 위협이다. 반대로 자동차에서는 BMW 등의 주 연산 공급사로 23분기 연속 두 자릿수 성장을 이어 가고 있고, 데이터센터에서는 아직 매출이 없는 후발 주자다.",
+    "src": ["s8", "s1", "s5", "s3"]
+  },
+  "strategy": {
+    "goal": "2026 Investor Day에서 FY2029 비휴대폰 매출 400억 달러(기존 목표의 약 2배), 데이터센터 150억 달러 이상, 자동차 100억, IoT 140억 달러 이상, non-GAAP EPS 18달러 이상을 제시했다. 휴대폰은 FY2029 QCT 매출의 약 3분의 1로 줄어드는 그림이다.",
+    "roadmap": [
+      { "when": "2026 (12월 분기)", "what": "하이퍼스케일러 2곳 맞춤 칩 매출 시작 - 구매주문 확보, 웨이퍼 투입 시작", "src": ["s5"] },
+      { "when": "2026", "what": "AI200 추론 랙 상용화, HUMAIN 200MW 배치 시작", "src": ["s7"] },
+      { "when": "2027", "what": "AI250 (근접 메모리 연산) 출시", "src": ["s7"] },
+      { "when": "FY2027 중반", "what": "첫 HBC 솔루션 출시, 데이터센터 매출 약 50억 달러 목표, 비휴대폰 매출 60% 이상 성장", "src": ["s5", "s1"] },
+      { "when": "FY2029", "what": "비휴대폰 매출 400억, 데이터센터 150억 달러 이상, EPS 18달러 이상", "src": ["s4"] }
+    ],
+    "vision": "AI가 개인 기기에서 대규모 인프라까지 확장되는 시대의 컴퓨팅 회사로, 에이전트 AI가 엣지 기기의 교체 주기를 일으키고 데이터센터에서는 저전력 추론으로 자리를 잡겠다고 말한다.",
+    "text": "그래서 회사가 택한 길은 휴대폰 의존을 줄이는 것이다. 2026년 말부터 하이퍼스케일러 맞춤 칩 매출이 들어오고, 2027년 AI250과 HBC로 데이터센터 제품을 넓혀 FY2029 비휴대폰 매출 400억 달러를 노린다. 이 목표가 맞으려면 휴대폰 감소보다 신사업 성장이 훨씬 빨라야 한다.",
+    "src": ["s4", "s5", "s7"]
+  },
+  "governance": {
+    "line": "Cristiano Amon 사장 겸 CEO가 이끌며, FY2025 잉여현금흐름 대부분(126억 달러)을 자사주와 배당(Q3 FY2026 주당 0.92달러)으로 돌려주고 2025-09-28 기준 자사주 매입 한도 72억 달러가 남아 있다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q4 FY2026", "metric": "revenue", "value": "97억~105억 달러 (QCT 84억~90억, QTL 12억~14억)", "givenOn": "2026-07-29", "src": ["s1"] },
+      { "period": "Q4 FY2026", "metric": "non-GAAP diluted EPS", "value": "2.05~2.25달러 (GAAP 1.22~1.42달러)", "givenOn": "2026-07-29", "src": ["s1"] },
+      { "period": "Q4 FY2026", "metric": "QCT EBT margin / handset revenue", "value": "QCT EBT 마진 23~25%, 휴대폰 매출 약 52억 달러 (콜 발언)", "givenOn": "2026-07-29", "src": ["s5"] },
+      { "period": "FY2027", "metric": "non-handset revenue growth / data center", "value": "비휴대폰 매출 60% 이상 성장, 데이터센터 약 50억 달러", "givenOn": "2026-07-29", "src": ["s1", "s5"] }
+    ],
+    "style": "quarterly",
+    "track": "Q3 FY2026 매출은 회사 표현으로 가이던스 상단에 도달했고 컨센서스 96.2억 달러를 넘었지만, Q4 EPS 가이던스는 컨센서스 2.35달러를 밑돌았다.",
+    "src": ["s1", "s5"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 6.60달러(범위 5.73~8.51), 직전 4개 분기 실적 합 8.84달러로 감소 예상. 최근 4주 상향 0건·하향 2건.",
+    "src": ["s9"]
+  },
+  "watch": {
+    "confirms": [
+      "하이퍼스케일러 맞춤 칩 매출이 2026년 12월 분기에 실제로 시작",
+      "자동차 매출이 분기 최대 기록을 이어 가고 연 70억 달러 런레이트 도달",
+      "가격 인상 효과로 QCT EBT 마진이 23~25% 저점에서 반등",
+      "중국 휴대폰 매출이 Q4 FY2026에 두 자릿수 전 분기 대비 성장",
+      "AI200 랙의 HUMAIN 외 신규 고객 발표"
+    ],
+    "breaks": [
+      "Apple 매출 감소가 예상보다 빠르거나 Samsung 차기 플래그십에서 비중 축소",
+      "메모리 부족이 길어져 Android 휴대폰 생산 감소가 FY2027까지 이어짐",
+      "데이터센터 매출 시작 지연이나 FY2027 50억 달러 목표 하향",
+      "QTL 로열티 분쟁·재계약 실패",
+      "미중 갈등으로 중국 고객 판매 제한"
+    ],
+    "keyNumbers": [
+      { "name": "QCT Handsets 매출", "why": "아직 매출의 절반 이상이며 Apple·메모리 영향이 바로 보인다" },
+      { "name": "Automotive·IoT 매출 성장률", "why": "다각화가 실제로 진행되는지" },
+      { "name": "QCT EBT 마진", "why": "원가 상승을 가격 인상으로 넘기는지" },
+      { "name": "데이터센터 매출 첫 공시", "why": "새 성장축이 숫자로 확인되는 시점" },
+      { "name": "다음 분기 EPS 가이던스 vs 컨센서스", "why": "최근 주가 반응의 기준" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-04 (장 마감 후, 회사 공지)", "event": "Q4·FY2026 실적 발표와 Q1 FY2027 가이던스", "src": ["s6"] },
+      { "date": "2026-12 분기", "event": "하이퍼스케일러 맞춤 칩 첫 매출 반영 여부", "src": ["s5"] },
+      { "date": "매년 9월 전후", "event": "신형 iPhone의 Qualcomm 모뎀 비중", "src": ["s5", "s3"] },
+      { "date": "수시", "event": "메모리 가격·공급 동향 (휴대폰 생산 제약)", "src": ["s1"] }
+    ],
+    "reaction": "주가는 휴대폰 매출 전망과 다음 분기 EPS 가이던스에 민감하고, 최근에는 데이터센터 고객·매출 시점 발언이 추가 변수가 됐다. Q3 FY2026에는 매출이 예상을 넘었지만 Q4 EPS 가이던스가 컨센서스를 밑돌았다.",
+    "conditions": [
+      "실적 발표 때 다음 분기 EPS·매출 가이던스와 컨센서스의 차이",
+      "QCT 휴대폰 매출과 Apple·중국 고객 언급",
+      "자동차·IoT 성장률과 비휴대폰 매출 비중",
+      "데이터센터 매출 시작 시점·고객 수 확인",
+      "메모리 가격 추이와 가격 인상 효과",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "Apple·Samsung·Xiaomi 각각의 매출 비중 (10-K는 각각 10% 이상이라고만 확인; 2차 자료의 21%·20%·13%는 고객명 미확인이라 미기재)",
+    "중국 매출 비중 - 10-K 국가별 매출 표를 읽지 못함",
+    "FY2025 QSI·기타 조정 0.335억 달러는 총매출에서 QCT·QTL을 뺀 계산값",
+    "사업부 마진은 영업이익률이 아닌 EBT 마진(회사 보고 기준)",
+    "Investor Day 목표는 회사 보도자료 재게재본(s4)과 TIKR 요약(s10)으로 확인했고 qualcomm.com 원문은 열리지 않음",
+    "Q3 FY2026 콜 세부(데이터센터 50억 달러, 자동차 런레이트, Apple 비중, 가격 인상)는 Futurum 분석(s5) 기준이며 녹취록 원문은 읽지 않음",
+    "특허 라이선스·자동차·데이터센터·PC 영역의 경쟁사 이름은 10-K가 명시하지 않아 일반적으로 알려진 업체를 적었으며 이번에 문서로 확인하지 않음 (스마트폰 칩 경쟁사만 Counterpoint로 확인)",
+    "Alphawave 인수 완료 여부와 최종 금액 (10-K 시점에는 미완료)",
+    "s7 날짜(2025-10-27)는 AI200 발표 시점 기준이며 기사 게시일은 확인하지 않음; s10 날짜는 추정",
+    "FY2025 총마진·영업이익률은 손익계산서 금액으로 계산한 값"
+  ],
+  "confidence": "high - 실적·현금흐름·공급망·고객 집중은 회사 보도자료와 10-K에서 왔고, Investor Day 목표와 콜 세부는 재게재·분석 자료라 medium 수준이다."
+}

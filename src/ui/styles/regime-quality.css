@@ -523,3 +523,16 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .market-lean__item[data-vote="1"], .market-lean__item[data-vote="-1"] { color: var(--text-primary); }
 .market-lean__note { margin: 0 0 2px; font-size: 12px; color: var(--text-secondary); }
 .market-lean__kr summary, .market-lean__more summary, .session-bridge__more summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); }
+
+/* v59.42: event briefs (오늘 '주요 발표 요약', 종목 '최근 실적 발표 요약'). */
+.event-brief { padding: 8px 0; border-top: 0.5px solid var(--border-subtle); }
+.event-brief:first-of-type { border-top: 0; }
+.event-brief__head { margin: 0; font-size: 13px; }
+.event-brief__when { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.event-brief__headline { margin: 2px 0 4px; font-size: 13px; color: var(--text-primary); }
+.event-brief__figures, .event-brief__list { margin: 0 0 4px; padding-left: 18px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.event-brief__sub { margin: 6px 0 2px; font-size: 12px; font-weight: 700; }
+.event-brief__note, .event-brief__source { margin: 4px 0 0; font-size: 12px; color: var(--text-secondary); }
+.event-brief__more summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); }
+.event-briefs--ticker { margin: 16px 0 0; }
+.event-brief__source a { color: var(--text-primary); text-decoration: underline; }

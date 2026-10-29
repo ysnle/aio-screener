@@ -1,10 +1,127 @@
 ---
-last_verified: 2026-10-28
+last_verified: 2026-10-29
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2135 - v59.43 - 10/28 FOMC 결과가 수기 레지스트리에 없어 시장 데이터 갱신이 13시간 넘게 게시 차단 (2026-10-29)
+
+- symptom/reproduction: 10/29 00:20Z부터 'Refresh market data' 스케줄러가 30분마다 실패해 data.json이 10/28 23:52Z에 멈췄다. 그 사이 PCE 발표와 빅테크 실적 뒤 시세·뉴스가 앱에 들어가지 못했다. 데이터 신선도 감시도 매번 실패했다.
+- root_cause: ci-data-refresh-audit의 E3(FOMC calendar)는 js/aio-core.js의 수기 FOMC 레지스트리(AIO_EVENT_FRESHNESS_REGISTRY.fomc, AIO_MACRO_CALENDAR us-fomc/us-fed-rate, AIO_MANUAL_REFERENCE.fedPolicy)를 기준으로 한다. 이 레지스트리가 9/16 결정에 머물렀고, 예정 회의일(10/28)이 지나자 E3가 STALE이 되어 갱신 후보가 fail-closed로 막혔다. 회의 결과를 사람이 옮겨 적어야 하는 구조라 회의마다 같은 차단이 생길 수 있다.
+- fix: 연준 공식 성명(monetary20261028a.htm)과 회의 일정(fomccalendars.htm)을 직접 확인해 10/28 결정을 등록했다: 동결, 3.75-4.00%, 10-2(Cook·Hammack 25bp 인상 소수의견), 다음 회의 12/9. 공식 일정 확인일을 10/29로 갱신하고, runtime 계약의 성명 URL 고정값을 바꿨다.
+- violated_rule: 느린 데이터 정적화·소유자 확인(AGENTS) — 일정이 정해진 수기 참조의 갱신 시점을 지키지 못함
+- prevention: ci-data-refresh-audit E3/E4와 ci-manual-reference-expiry가 OK인지 확인했다. 후속 제안: event-briefs 프로듀서가 이미 읽는 연준 성명으로 회의 다음 날 레지스트리 갱신 필요를 알리는 경고(자동 수정은 아님)를 소유자 결정으로 남긴다.
+- verification/residual: 로컬에서 수정 전 E3 STALE, 수정 후 E3 OK·E4 OK. runtime contract와 manual-reference-expiry 통과. 라이브 해제는 push 뒤 다음 스케줄러 실행으로 확인해야 한다.
+
+## P2134 - v59.43 - 투자 심리: 풋/콜 비율 1.1 이상을 '하락 대비 수요'로 단정하고, VIX9D > VIX 앞쪽 역전을 콘탱고로 표시 (2026-10-29)
+
+- symptom/reproduction: 투자 심리 카드가 풋/콜 비율 1.1 이상을 '하락 대비 수요 높음'(헤지 수요)으로 불렀다. 같은 비율은 풋을 판 수익형 거래(숏감마)에서도 나온다. VIX 기간구조는 9일물이 30일물보다 높아도 3·6개월물이 위에 있으면 '콘탱고'로 표시했다.
+- root_cause: putCallBand와 sentiment-board 라벨이 거래량 비율에 방향(매수 보험)을 붙였다. vixTermStructure는 VIX > VIX3M 또는 VIX3M > VIX6M만 역전으로 봤고 9일물을 비교하지 않았다. architecture-contract 테스트가 vix9d 18 > vix 17 입력을 콘탱고로 기대해 결함을 고정하고 있었다.
+- fix: 라벨을 '풋 거래 비중이 높은 구간(산 풋인지 판 풋인지는 구분 안 됨)'·'풋 거래 우세'로 바꾸고 카드 주석에 구분 불가를 적었다. vixTermStructure가 VIX9D > VIX를 '앞쪽 역전(9일물 > 30일물)'으로 표시하고 frontInverted를 낸다. 잘못된 테스트 입력을 고쳤다.
+- violated_rule: 근거 없는 판정 금지(AGENTS) — 관측이 구분하지 못하는 방향을 라벨이 단정
+- prevention: ci-esm-core-unit-check가 putCallBand 라벨에 '하락 대비 수요|헤지 수요'가 없고 '풋 거래'가 있는지, ci-architecture-contract-check가 앞쪽 역전·백워데이션·콘탱고 세 경우를 확인한다.
+- verification/residual: 수정 전 두 테스트가 실패(red), 수정 후 통과(green). X 북마크 JellyCrypto 2113564247477342603 대조에서 발견.
+
+## P2133 - v59.43 - 재무 보고서: 없는 EPS가 $0.00과 Beat/Miss로, 순부채 미수신이 0으로 계산됐다 (2026-10-29)
+
+- symptom/reproduction: 기업 재무 보고서의 서프라이즈 표와 EPS 분기 표는 실제·예상 EPS가 없으면 $0.00을 찍었고, 예상치가 없으면 'Beat +0.0%', 실제치가 없으면 0과 비교한 Miss를 냈다. 서프라이즈 차트는 없는 값을 0 막대와 0 점으로 그렸다. AI가 읽는 EV/EBITDA는 순부채가 없으면 0으로 쳐서 EV가 시가총액으로 줄고 '싸다'가 나왔다. 동종 기업 이름·업종·실적 날짜는 이스케이프 없이 HTML에 들어갔다. 레거시 감사 10위.
+- root_cause: js/aio-ui.js _renderFundEarnings·_renderFundVariance가 `(x || 0).toFixed(2)`와 `estimatedEarning ? … : 0`을 썼고, js/aio-core.js computeEvEbitda가 `fin.netDebt || 0`을 썼다. 공급자 문자열은 escHtml 없이 이어 붙였다.
+- fix: EPS 한 행 읽기를 _fundFinite/_fundEps/_fundSurprise 하나로 모았다. 없는 값은 '—'와 차트 공백이고, 두 값이 모두 있을 때만 Beat/Miss를 낸다. 순부채가 없으면 EV/EBITDA는 '계산 불가(순부채 미수신)'다. 동종 기업 이름, 업종, 실적 날짜는 escHtml을 거친다. 렌더러를 src로 옮기는 일은 이번에 하지 않았다(열린 항목).
+- violated_rule: AGENTS: 없는 값은 0이 아니다(P1164 계열). XSS 방어(R257 계열).
+- prevention: 새 실행 게이트는 없다. 세 함수가 표·차트의 유일한 EPS 읽기다.
+- verification/residual: Playwright 고정 자료 렌더: '2026-07-30 | $1.20 | $1.00 | Beat +20.0%', '2026-04-30 | — | $0.90 | —', '2026-01-30 | $0.80 | — | —'(전에는 $0.00과 Miss -100.0%). 동종 기업 이름의 <img> 태그는 글자로만 보이고 실행되지 않았다. 오류 0건.
+
+## P2132 - v59.43 - 시장 분석 대체 문장이 시장 상태 화면과 반대 판정을 냈다 (리스크 낮음·환경 양호 vs 혼조) (2026-10-29)
+
+- symptom/reproduction: 서버 검증 분석문이 없을 때 오늘·브리핑의 시장 분석 칸이 쓰는 대체 문장이 '종합 리스크 낮음(17/100), 경기 국면 환경 양호, 시장폭 강세 우위'라고 했는데, 같은 시각 시장 상태 화면은 '혼조(양호 2, 중립 2, 부담 2)'였다. VIX가 없으면 '변동성 ?'로 찍혔다. 같은 엔진의 뉴스 정책 신호는 'rate'가 'corporate'에, 'fed'가 'FedEx'에 걸렸고, 손익비 계산기 포지션 선택 목록은 저장된 티커를 이스케이프 없이 HTML에 넣었다. 레거시 감사 4위.
+- root_cause: AIO.computeMarketState(js/aio-core.js)가 riskScore·cyclePhase·시장폭 합의를 자체 공식으로 계산했고, AIO.synthesizeMarketAnalysis가 그 값을 그대로 문장으로 만들었다. 시장 판정의 소유자는 src/domain/market/market-regime.js(_aioMarketRegimeSummary)인데 이 경로만 그것을 읽지 않았다. 밴드가 없을 때의 라벨 '?'를 그대로 썼다.
+- fix: 대체 문장의 판정 부분을 시장 상태 종합과 축 개수(_aioMarketRegimeSummary)로 바꿨다. VIX·F&G 사실값은 그대로 두고, 값이 없으면 라벨은 '—'다. 정책 신호 정규식은 영어 단어 경계를 쓴다. 선택 목록의 티커와 수량은 escHtml을 거친다. 엔진의 riskScore 등은 감사용으로만 남는다(화면·AI 헤더·스크리너는 이미 읽지 않는다).
+- violated_rule: AGENTS: 한 판정에 한 소유자. 근거 없는 등급 금지.
+- prevention: js/aio-tests.js T820이 대체 문장에 '시장 상태 종합'과 '—' 처리를 요구한다.
+- verification/residual: Playwright 같은 시각 비교: 전 '지금은 변동성 ?, 공포 심리, 환경 양호, 리스크 낮음 환경입니다' → 후 '지금은 변동성 —, 공포 심리, 시장 상태 종합 혼조 환경입니다. ② 시장 상태 종합 혼조(양호 2, 중립 2, 부담 2)'. node --check js/aio-core.js.
+
+## P2131 - v59.43 - AI 질문 분류의 영어 단서가 부분 문자열로 걸렸다 ('operating'에 per, 'know'에 now, 'threshold'에 hold) (2026-10-29)
+
+- symptom/reproduction: AI 패널의 답 형식과 미리 받을 자료가 엉뚱한 단어로 정해졌다. 'operating margin'은 용어 설명 질문으로, 'corporate bond'·'I know'는 최신 뉴스가 필요한 질문으로, 'threshold'·'holders'는 매수·매도 판단 질문으로, 'fintech'는 기업 심층 분석으로 분류됐다. 반대로 심층 분석 단서는 대소문자를 구분해 'Analyze NVDA'는 놓쳤다. 레거시 감사 2위.
+- root_cause: js/aio-chat.js(_aioChatAnswerPolicy의 asksDecision/asksSimple, _DEEP_ANALYSIS_KW, 비교 단서)와 js/aio-core.js(_aioLooksFreshIntent, _aioAIClassifyIntent의 근거·누락 단서)가 영어 단어를 정규식이나 indexOf 부분 문자열로 비교했다. 뉴스 쪽은 R730으로 공용 규칙을 쓰게 됐지만 AI 질문 단서는 따로 남아 있었다.
+- fix: src/ai/intent/question-cues.js로 단서 목록과 판정 함수 7개를 옮겼다. 영어 단서는 공용 keywordHit(src/domain/news/keyword-match.js) 규칙으로 단어 전체만, 대소문자 없이 맞춘다. 한국어 단서는 어미가 붙으므로 전과 같은 부분 문자열이다. window._aioQuestionCues로 설치하고 js/ 쪽 다섯 곳은 _aioQuestionCue로 이 모듈을 부른다.
+- violated_rule: R730(키워드는 하나의 규칙으로 비교) 정신. S1 부분 문자열 매칭 클래스.
+- prevention: scripts/ci-esm-core-unit-check.mjs v59.42 question cues 검사 13건(오탐 제거와 한국어 유지).
+- verification/residual: 39개 질문 전후 비교: 바뀐 판정 9건 모두 영어 오탐 제거 8건과 'Tell me about NVDA' 심층 분석 인식 1건, 한국어 질문 변화 0건. 새 브라우저 컨텍스트에서 답 정책·데이터 요청·심층·비교·근거/누락 분류가 모듈을 거쳐 동작했고 오류 0건.
+
+## P2130 - v59.43 - 현재성 가드가 시장 심리 화면의 native 종합 문단에 '혼합 출처 분석, 보조 참고용' 툴팁과 참고용 표시를 달았다 (2026-10-29)
+
+- symptom/reproduction: 시장 심리 화면의 #sentiment-synthesis와 #sentiment-synthesis-more에 마우스를 올리면 '혼합 출처 분석, 보조 참고용'이 떴고, data-operational-use가 reference-only로 바뀌어 텍스트 감사가 이 문단을 보관 자료로 건너뛰었다. 부팅·화면 진입·시세 묶음마다 활성 화면 전체를 다시 훑었다. 레거시 감사 5위.
+- root_cause: AIO.applyMarketCurrentnessGuard(js/aio-core.js)가 서술 문단을 [id*="thesis"] 같은 부분 일치 선택자로 모았고 'synthesis'가 'thesis'에 걸렸다. native 판별은 renderer 데이터 속성만 봤는데 이 문단에는 그 속성이 없었다. 18개 화면 전체를 돈 결과 이 가드가 끝까지 남긴 변화는 이것뿐이었다.
+- fix: 가드의 DOM 쓰기와 예약 실행을 지웠다. 읽기 전용 AIO.getMarketCurrentnessAudit은 남겼다. 가드가 마지막에 부르던 스냅샷 배너 갱신은 AIO.scheduleSnapshotStaleBanner로 같은 세 사건(부팅·화면 진입·시세 묶음)에서 계속 돈다.
+- violated_rule: S1 부분 문자열 매칭 클래스(레거시 감사): id 부분 일치로 대상을 고르면 다른 소유자의 요소를 건드린다.
+- prevention: scripts/ci-runtime-contract-check.mjs PERF-BOOT-03(가드 부재)·PERF-BOOT-04(배너 갱신 예약), js/aio-tests.js T386(가드 퇴역, 배너 예약 존재)·T391/T393/T394(감사 탐지 유지).
+- verification/residual: Playwright 18개 화면 전후: 가드 변경 26건 → 0건, 화면 글자 수 18개 모두 동일, sentiment의 잘못된 툴팁 2개 → 0개. 50시간 지난 스냅샷을 흉내 내자 화면 이동 뒤 배너가 다시 표시됐다. 런타임 계약 검사 OK.
+
+## P2129 - v59.43 - 포트폴리오: 진입마다 '(시세 미수신)' 행이 잠깐 보이고, 관심 종목 목록 하나가 다음 저장 때 사라짐 (2026-10-29)
+
+- symptom/reproduction: (1) 포트폴리오 화면에 들어갈 때마다 예전 표 생성기가 먼저 그려져, 보유 종목이 가격·손익·비중 없이 '(시세 미수신)'으로 0.7~1.4초 보였다가 native 표로 바뀌었다. (2) 관심 종목에 tickers 배열이 없는 목록이 있으면 화면에서 숨겨졌고, 다른 목록에 종목을 하나 추가하면 그 목록이 저장소에서 지워졌다. 스크리너 별표의 예전 배열(aio_watchlist)도 스크리너를 거치기 전에는 목록에 보이지 않았다. 레거시 감사 6위.
+- root_cause: (1) renderPortfolio(js/aio-workspace.js)는 native 표가 tbody에 'native' 표시를 달기 전에 행을 만들었고, native는 언마운트 때 그 표시를 지워 재진입마다 같은 일이 반복됐다. (2) aio_watchlists를 쓰는 곳이 둘이었다. getWatchlists는 tickers 없는 목록을 읽을 때 버렸고 saveWatchlists는 남은 것만 다시 썼다. src/data/watchlist-store.js는 그런 목록을 고쳐 두고 별표 배열도 합쳤다.
+- fix: (1) 예전 행 생성기, 빈 상태 행, 비중 루프, _pfLegacyMoney/_pfLegacyCurrencyOf를 지웠다. native가 붙기 전에는 '보유 N종목을 불러오는 중입니다' 한 줄만 보인다. (2) src/data/watchlist-store.js에 readWatchlists/writeWatchlists를 두고 window._aioWatchlistStore로 설치했다. getWatchlists/saveWatchlists는 이 저장소만 거친다(유일한 쓰기 경로). tickers 없는 목록은 빈 목록으로 남고 예전 별표도 합쳐진다.
+- violated_rule: AGENTS: 한 데이터에 한 소유자. 같은 키에 쓰는 코드가 둘이면 규칙이 갈린다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v59.42 watchlist 검사(tickers 없는 목록 유지·별표 합치기·쓰기 결과). 빈 포트폴리오 런타임 검사는 native 빈 상태(src/ui/pages/portfolio.js)를 읽는다.
+- verification/residual: Playwright 전후 기록: 빈·2종목·홈 경유 진입 세 경우 모두 최종 표가 같고, 중간 화면은 '(시세 미수신)' 행 대신 불러오는 중 한 줄이다. 관심 목록 정상 데이터는 전후 동일, tickers 없는 목록은 전에는 추가 한 번에 삭제되고 지금은 남는다, 별표 NVDA는 지금 합쳐져 보인다. 오류 0건.
+
+## P2128 - v59.43 - 텔레그램 피드 카드가 채널 이름을 이스케이프 없이 HTML에 넣고, 머리글 'N건'이 화면 상한으로 자른 뒤의 수 (2026-10-29)
+
+- symptom/reproduction: _aioRenderTelegramFeedHtml(js/aio-data.js)은 알려지지 않은 채널의 원래 이름(it.channel)과 날짜를 그대로 HTML에 붙였다. 머리글의 'N건'은 페이지 상한(maxItems)으로 자른 뒤의 수라, 조건에 맞는 글이 7건이어도 '5건'으로 읽혔다.
+- root_cause: 카드 머리 문자열만 escHtml을 거치지 않았고, 상한 전 개수를 보관하지 않았다.
+- fix: 채널 이름·날짜를 escHtml로 감싸고, 머리글은 '5건 표시, 해당 7건'처럼 표시 수와 해당 수를 함께 적는다(같으면 표시 수만).
+- violated_rule: 외부 텍스트는 HTML에 넣기 전 이스케이프한다; 화면 수치는 무엇을 센 것인지 밝힌다.
+- prevention: ci-data-pipeline-contract-check가 함수를 추출해 '<b>x</b>' 채널 1개를 포함한 7건으로 렌더하고, 태그가 그대로 나오지 않는지와 '5건 표시, 해당 7건'을 확인한다.
+- verification/residual: 레드: 수정 전 채널 태그가 HTML에 그대로 나와 실패. 그린: 수정 뒤 통과.
+
+## P2127 - v59.43 - 코스닥·코스피 격차 문구가 그날 방향을 무시 (2026-10-28)
+
+- symptom/reproduction: 10/28 코스피 +6.6%, 코스닥 +3.7%인 상승일에 오늘 화면의 '한국 고유 요인' 줄이 '코스닥이 코스피보다 2.9%p 더 빠져 중소형·테마주 쪽 움직임이 컸습니다'라고 썼다. 코스닥은 빠진 것이 아니라 덜 올랐고, 실제로는 대형주(반도체)가 지수를 끈 날이었다.
+- root_cause: src/domain/market/session-bridge.js koreaLinks가 격차(코스닥−코스피)의 부호만 보고 음수면 '더 빠져', 양수면 '더 올라'로 썼다. 그날 지수 방향과 코스닥 자체의 방향을 보지 않아 상승일의 작은 상승, 하락일의 작은 하락, 반대 방향을 모두 거꾸로 설명했다.
+- fix: 문구를 그날 방향(코스피 부호)과 코스닥의 크기·방향으로 정한다: 같은 방향이고 코스닥이 더 크면 '더 올라/더 빠져'(중소형·테마주), 더 작으면 '덜 올라/덜 빠져'(대형주), 코스닥이 반대 방향이면 '코스닥은 반대로 …'(대형주와 중소형주가 갈린 날).
+- violated_rule: 화면 문장은 그날 숫자의 방향을 그대로 따른다(데이터 정직성).
+- prevention: scripts/ci-esm-core-unit-check.mjs가 상승일 덜 오름·더 오름, 하락일 덜 빠짐·더 빠짐, 반대 방향 다섯 경우의 문구를 고정한다(수정 전 red 확인).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs: 수정 전 'P2127 KOSDAQ gap wording' 실패(상승일 '더 빠져'), 수정 후 통과.
+
+## P2126 - v59.43 - AI 채팅의 텔레그램 글 관련성이 부분 문자열이라 '엔비디아' 질문에 엔화 글이, 'ai'가 'said' 안에서 맞음 (2026-10-28)
+
+- symptom/reproduction: js/aio-chat.js가 질문과 텔레그램 글의 공통 단어로 글을 골랐는데, '엔'은 '엔비디아' 안에서, 'ai'는 'said'·'again' 안에서, 티커는 질문 문장 어디서나 부분 문자열로 맞았다. 이전 규칙으로 '엔비디아 전망은?'과 '엔비디아 실적…' 글은 관련도 1, 'ai 반도체' 질문과 'He said again…' 글도 1이었다.
+- root_cause: 관련성 계산이 indexOf — R730이 없앤 결함 클래스가 채팅 파일에 남아 있었다.
+- fix: 관련성 계산을 src/domain/news/selection.js telegramItemQueryRelevance로 옮겨 keyword-match 규칙을 쓴다(영어 단어 단위, 한국어 부분 문자열, 한 글자 '엔'은 홀로 또는 엔화/엔저/엔고). 채팅은 window.AIO.telegramQueryRelevance를 부른다.
+- violated_rule: R730
+- prevention: ci-esm-core-unit-check: 엔비디아/엔화/said/NVDA 4건의 관련도가 0,1,0,4.
+- verification/residual: 레드: 함수가 없을 때 null로 실패. 그린: 0,1,0,4.
+
+## P2125 - v59.43 - 텔레그램 종목 메모가 영어 회사명을 부분 문자열로 맞춰 'ARM'이 'alarm' 안에서 맞음 (2026-10-28)
+
+- symptom/reproduction: _aioTelegramTextNames(js/aio-data.js)는 티커는 단어 단위로, 회사명은 부분 문자열로 비교했다. SCREENER_DB의 'ARM Holdings'는 접미사를 떼면 'ARM'이라 'Fire alarm stocks rally' 같은 글이 ARM 메모에 붙을 수 있었다.
+- root_cause: 회사명 비교가 text.indexOf(name) — R730이 뉴스 키워드 목록에서 없앤 같은 부분 문자열 결함 클래스.
+- fix: 영어(ASCII) 회사명은 단어 단위, 한국어 회사명은 부분 문자열(조사 결합) — R730 규칙과 같다.
+- violated_rule: R730 (키워드 하나의 규칙) — 회사명 매칭에도 같은 경계 규칙.
+- prevention: ci-data-pipeline-contract-check가 함수를 추출해 alarm/ARM, metal/Meta, SK하이닉스가, NVDA 티커 6건을 실행한다.
+- verification/residual: 레드: 수정 전 'Fire alarm stocks rally'가 ARM으로 맞아 실패. 그린: 수정 뒤 통과.
+
+## P2124 - v59.43 - 뉴스 선별 점검의 화면별 적격 수가 늘 0이라 뉴스 화면 출처 표시가 기사 수와 무관하게 '스냅샷'에 고정 (2026-10-28)
+
+- symptom/reproduction: window.AIO.getNewsSelectionAudit()의 homeEligible·briefingEligible·marketNewsEligible이 항상 0이었고, js/aio-core.js는 marketNewsEligible === 0이면 뉴스 화면 sourceKind를 SNAPSHOT으로 내렸다. 뉴스 화면 계약의 상한은 DELAYED(08:00 KST 완료 24h)인데 기사 40건이 보여도 '스냅샷'으로 표시됐다. 같은 점검은 행 나이를 넘기지 않아 모든 행을 stale로 셌다.
+- root_cause: 레거시 점검은 존재하지 않는 전역 buildNewsSurfaceModel을 불러 적격 수를 세었고, P2117 이전 때 동작 보존을 위해 그대로 0으로 두었다. newsVerificationStatus에 ageHours·contract를 주지 않았다.
+- fix: src/app/news-selection-entry-points.js가 점검 env에 buildSurface(화면이 쓰는 같은 buildNewsSurfaceModel)를 넘기고, newsSelectionAudit는 행 나이를 뉴스 화면 계약 창으로 잰다. 검증 집계 키를 실제 상태 이름('verified-current', 'headline-only' 등)으로 맞췄다.
+- violated_rule: AGENTS: 화면 라벨은 실제 상태에서 파생한다 — 죽은 전역 호출이 라벨을 고정했다.
+- prevention: ci-esm-core-unit-check: installNewsSelection을 가짜 창에 설치하고 완료 주기 안 기사 3건으로 marketNewsEligible > 0, stale ≠ 전체를 확인한다.
+- verification/residual: 레드: 수정 전 {eligible:0, stale:3}로 실패. 그린: 수정 뒤 통과. 브라우저 확인은 아래 QA 항목.
+
+## P2123 - v59.43 - 서버 뉴스 규칙이 "won't"를 원화로, 지지율(approval rating)을 애널리스트 등급으로, "margin for error"를 마진으로 셈 (2026-10-28)
+
+- symptom/reproduction: 10/20 이후 게시된 476건을 서버 채점기(scripts/lib/news-selection.mjs)로 다시 매기면 fx-bonds-commodities의 `won`이 맞은 3건이 모두 "won't"/"Won’t"였고(Hormuz flows won’t solve…, AI spending won't pay off), analyst-action의 `rating`은 5건 중 2건이 'Trump approval rating'·"Trump's economic rating", earnings-guidance의 `margin`은 6건 중 2건이 "margin for error"였다. 'US midterm elections: Trump approval rating falls to new low'는 rating 규칙 덕에 시장 토픽으로 통과해 묶음에 실렸다. krSlotTopic의 `단어 경계 won`도 같은 오탐으로 한국 환율 자리를 차지할 수 있었다.
+- root_cause: 정규식 단어 경계는 아포스트로피를 경계로 보므로 "won't"의 won이 단어가 되고, rating·margin은 앞뒤 맥락 없이 맞았다.
+- fix: won은 뒤에 't가 오면 제외(fx-bonds-commodities, krSlotTopic), rating은 approval·economic·popularity·favorability 뒤면 제외, margin은 'for error'·'calls' 앞이면 제외(margin calls는 deleveraging 규칙이 따로 셈).
+- violated_rule: R730 정신(키워드 오탐을 측정으로 찾고 규칙 하나로 고친다)을 서버 채점기에도 적용 — 서버 규칙은 별도 정규식 집합이다.
+- prevention: ci-codex-structure-regression-fixture: won't/Korean won, approval rating/stock rating, margin for error/margin strength 쌍을 채점해 규칙 라벨을 확인한다.
+- verification/residual: 레드: 수정 전 fixture가 "won't is not the currency"로 실패. 그린: 수정 뒤 OK. 476건 재채점: 오탐 7건 사라짐, 토픽 0건이 되는 행은 approval rating 1건뿐(정치 단독 → 바닥 규칙으로 제외, 의도).
 
 ## P2122 - v59.42 - 추세 지지선 이름이 숫자 앞에 유니코드 마이너스를 써서 오늘 화면 문장에 '200일선−1%'가 나감 (2026-10-28)
 

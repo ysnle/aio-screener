@@ -1,0 +1,230 @@
+{
+  "symbol": "VZ",
+  "name": "Verizon Communications Inc.",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Verizon은 미국 최대급 무선 통신망과 광통신(Fios·Frontier) 회선으로 매달 요금을 받는 통신사로, 2026년 1월 Frontier 인수 후 '무선+광통신 결합'과 가입자 순증 회복으로 체질을 바꾸는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Verizon Delivers Another Record-Breaking Quarter with 3Q 2026 Results (news release PDF, incl. raised 2026 guidance and AWS AI deal)", "url": "https://www.verizon.com/about/sites/default/files/verizon-3Q26-earnings-press-release.pdf", "publisher": "Verizon IR", "date": "2026-10-26" },
+    { "id": "s2", "kind": "earnings-release", "title": "Verizon Delivers on 2025 Financial Guidance with Highest Quarterly Net Adds Since 2019 (4Q25 news release PDF, incl. original 2026 guidance)", "url": "https://www.verizon.com/about/sites/default/files/verizon-4Q25-earnings-press-release.pdf", "publisher": "Verizon IR", "date": "2026-01-30" },
+    { "id": "s3", "kind": "10-K", "title": "Verizon 2025 Annual Report on Form 10-K (segments, competition, cash flow statement, buyback program, Frontier/Starry, employees)", "url": "https://www.sec.gov/Archives/edgar/data/732712/000073271226000015/a2025_aronform10-k.pdf", "publisher": "Verizon / SEC EDGAR", "date": "2026-02-17" },
+    { "id": "s4", "kind": "earnings-release", "title": "Verizon 3Q 2026 results with financial tables (segment revenue, segment EBITDA, debt) - repost of company release", "url": "https://finviz.com/news/407554/verizon-delivers-another-record-breaking-quarter-with-3q-2026-results-driven-by-strong-postpaid-phone-and-account-additions", "publisher": "Finviz (company release text)", "date": "2026-10-26" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/vz/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "전국 무선망과 주파수 - 2025말 Consumer 무선 소매 회선 약 1.16억(FWA 포함), 그중 83%가 후불",
+      "광통신 회선 - 2026-01-20 Frontier 인수로 광통신 커버리지 3,000만 가구·사업장 이상, 2026말 3,200만 패싱 예상",
+      "무선+유선 결합(convergence) - 총 브로드밴드 1,740만 회선(Q3 2026)",
+      "대형 고객 기반 - Fortune 500 거의 전부와 미국 정부·케이블사 MVNO(Comcast·Charter)에 도매망 제공"
+    ],
+    "text": "Verizon의 힘은 새로 깔기 매우 비싼 두 개의 망, 즉 전국 무선망과 광통신망을 이미 갖고 있다는 데서 나온다. 2025말 Consumer 무선 소매 회선은 약 1.16억 개였고, 2026-01-20 Frontier를 인수하며 광통신 커버리지가 3,000만 가구·사업장을 넘었다. 같은 고객에게 휴대폰과 집 인터넷을 함께 팔아 이탈을 줄이는 결합 전략이 이 망 위에서 돌아간다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "design": {
+    "text": "이 망 위에서 회사는 두 사업부로 상품을 판다. Consumer는 휴대폰 요금제·단말기·FWA(5G 집 인터넷)·Fios 광인터넷과 MVNO 도매망을, Business는 대기업·공공(Enterprise and Public Sector), 중소기업(Business Markets and Other), 통신사 도매(Wholesale)에 무선·광회선·IoT·보안·네트워크 관리 서비스를 제공한다. 2026년에는 Frontier(광통신)와 Starry(공동주택용 FWA)를 더했고, 국제 유선·관리형 네트워크 일부는 매각 예정으로 분류했다.",
+    "src": ["s3", "s4"]
+  },
+
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "주파수 면허 - 무선 서비스의 핵심 자산 (2025년 면허 취득 4.5억 달러)",
+      "네트워크 장비·단말 공급업체 - 10-K는 핵심 공급업체 의존을 위험으로 기재 (업체명은 이번 조사에서 미확인)",
+      "Frontier Communications - 2026-01-20 인수, 부채 포함 총 대가 약 223억 달러",
+      "Starry - 2026-01-30 인수한 공동주택용 FWA 사업자",
+      "Comcast·Charter - Verizon 망을 빌려 쓰는 MVNO 도매 고객 (2026-01 계약 개정)"
+    ],
+    "text": "통신사에게 '만든다'는 것은 망을 깔고 유지하는 일이다. Verizon은 2025년 설비투자로 170억 달러를 써 무선망과 광통신을 넓혔고, 2026년에는 Frontier를 부채 포함 약 223억 달러에 인수해 광통신 패싱을 한꺼번에 늘렸다. 장비와 단말은 외부 공급업체에서 사 오기 때문에, 10-K는 핵심 공급업체의 공급 차질을 주요 위험으로 적고 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 개인 가입자 (Consumer) - 2025 매출 1,068억 달러, 전체의 약 77%",
+      "대기업·공공기관 (Enterprise and Public Sector) - 2025 매출 135억 달러",
+      "중소기업 (Business Markets and Other) - 2025 매출 136억 달러",
+      "통신사 도매 (Wholesale) - 2025 매출 20억 달러, 일부는 경쟁 통신사",
+      "MVNO (Comcast·Charter 등) - Verizon 망을 빌려 자기 브랜드로 재판매",
+      "AWS - 2026 Q3 20억 달러 이상 규모의 분산 컴퓨팅·AI 인프라 계약"
+    ],
+    "channel": "직영 매장·온라인(직접), 대리점·유통 파트너(간접), 기업 영업 조직과 business solution provider, MVNO 도매",
+    "concentration": "단일 고객 의존 없음 (Wholesale 매출 일부는 소수 대형 통신사에서 발생, 10-K)",
+    "text": "이렇게 깐 망은 주로 미국 개인에게 팔린다. 2025년 Consumer 매출이 1,068억 달러로 전체의 약 77%였고, 기업·공공·도매를 합친 Business가 291억 달러였다. 개인은 직영 매장과 온라인·대리점에서, 기업은 영업 조직을 통해 가입하며, 케이블사들은 Verizon 망을 도매로 빌려 휴대폰 서비스를 재판매한다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "개인 가입자 (후불·선불)", "to": "Verizon Consumer", "what": "매달 휴대폰·FWA·Fios 요금 - 회선·계정 단위 월정액" },
+      { "from": "개인 가입자", "to": "Verizon Consumer", "what": "단말기 대금 - 대부분 할부(device payment plan)로 나눠 받음" },
+      { "from": "대기업·공공·중소기업", "to": "Verizon Business", "what": "무선·광회선·IoT·보안·네트워크 관리 계약 요금" },
+      { "from": "Comcast·Charter 등 MVNO, 통신사", "to": "Verizon (Consumer 도매·Business Wholesale)", "what": "망 사용 도매 요금" },
+      { "from": "AWS 등 하이퍼스케일러", "to": "Verizon (AI Connect)", "what": "광회선·분산 컴퓨팅 인프라 계약 (AWS 20억 달러 이상)" }
+    ],
+    "pricing": "월정액 구독(회선·계정당 요금, 데이터 등급별)이 핵심이고, 단말기는 할부 판매, 기업은 다년 계약, 도매는 사용량·계약 기반이다.",
+    "text": "돈은 대부분 매달 자동으로 들어오는 요금에서 나온다. Q3 2026 무선·브로드밴드 서비스 매출은 약 235억 달러로 2.9% 늘었고, 단말기 매출은 교체 주기가 길어지고 회사가 보조금을 줄이면서 9.0% 줄었다. 그래서 이 회사의 매출 질은 '몇 명이 새로 가입하고 몇 명이 떠나느냐'(순증·이탈률)와 요금 인상 폭이 결정한다.",
+    "src": ["s1", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 138.191, "unit": "USD bn", "yoy": 2.5 },
+    "grossMargin": null,
+    "operatingMargin": 21.2,
+    "netMargin": 12.4,
+    "operatingCashFlow": { "value": 37.137, "unit": "USD bn" },
+    "freeCashFlow": { "value": 20.126, "unit": "USD bn" },
+    "segments": [
+      { "name": "Consumer", "revenue": 106.807, "unit": "USD bn", "share": 77.3, "yoy": 3.8, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Business", "revenue": 29.069, "unit": "USD bn", "share": 21.0, "yoy": -1.6, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Corporate and other", "revenue": 2.642, "unit": "USD bn", "share": 1.9, "yoy": 1.3, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Eliminations", "revenue": -0.327, "unit": "USD bn", "share": -0.2, "yoy": null, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "후불 휴대폰 순증", "value": "Q4 2025 61.6만 (2019년 이후 최고), Q3 2026 40.6만; 2026 전망 110만~120만", "src": ["s2", "s1"] },
+      { "name": "후불 휴대폰 이탈률 (월)", "value": "Q3 2026 전체 0.94%, Consumer 0.87% (각각 전년 대비 4bp 개선)", "src": ["s1"] },
+      { "name": "무선·브로드밴드 서비스 매출 증가율", "value": "Q1 2026 1.6% → Q2 2.8% → Q3 2.9% (약 235억 달러), Q4 약 4.0% 전망", "src": ["s1"] },
+      { "name": "브로드밴드 회선", "value": "Q3 2026 총 1,740만; 분기 순증 31.4만 (FWA 15.9만, 광 15.5만); 광 패싱 2026말 3,200만 초과 예상, 중기 4,000만~5,000만 목표", "src": ["s1"] },
+      { "name": "세그먼트 EBITDA 마진 (FY2025)", "value": "Consumer 438억 달러 (41.0%), Business 66억 달러 (22.9%); 연결 조정 EBITDA 500억 달러", "src": ["s3", "s2"] },
+      { "name": "레버리지", "value": "순 무담보 부채 / 조정 EBITDA 2.2배 (2025말) → 2.3배 (Q3 2026, 순 무담보 부채 1,237억 달러)", "src": ["s2", "s1"] }
+    ],
+    "text": "이 요금이 2025년 매출 1,382억 달러, 영업이익 293억 달러(영업이익률 약 21%), 지배주주 순이익 172억 달러를 만들었다. 이익은 Consumer에 몰려 있어 Consumer EBITDA 마진이 41.0%로 Business(22.9%)의 두 배 가까이 된다. 최근 분기(Q3 2026)는 보조금 축소와 비용 절감으로 조정 EBITDA 138억 달러, 마진 40.2%로 회사 역대 최고였다.",
+    "src": ["s3", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "capex", "value": 17.011, "unit": "USD bn", "src": ["s3"] },
+      { "use": "dividends", "value": 11.481, "unit": "USD bn", "src": ["s3"] },
+      { "use": "buybacks", "value": 0, "unit": "USD bn", "src": ["s3"] },
+      { "use": "debt repayment", "value": 11.352, "unit": "USD bn", "src": ["s3"] },
+      { "use": "other", "label": "주파수 면허 취득", "value": 0.45, "unit": "USD bn", "src": ["s3"] }
+    ],
+    "text": "망 사업이라 번 현금의 가장 큰 몫은 설비투자(2025년 170억 달러)이고, 그다음이 배당(115억 달러)이다. 2025년에는 자사주를 사지 않았지만 2026-01-30 이사회가 250억 달러 매입 프로그램을 승인했고, 2026년 1~9월 배당 88억 달러와 자사주 40억 달러를 돌려줬다(연간 자사주 최대 45억 달러 예상). 동시에 Frontier 인수로 부채가 늘어, 현금흐름을 투자·배당·부채 관리에 나눠 쓰는 구조다.",
+    "src": ["s3", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 칩이나 모델을 만들지 않고, 데이터센터 사이·엣지를 잇는 광회선과 분산 컴퓨팅 인프라(AI Connect)를 하이퍼스케일러에게 제공하는 연결 계층. 2026 Q3 AWS와 20억 달러 이상 규모 계약을 맺었다.",
+    "dependsOn": ["networking (광·무선 장비 공급업체 - 업체명 미확인)", "power-energy (기지국·설비 전력)"],
+    "sellsTo": ["cloud-infrastructure (AWS 등 하이퍼스케일러)", "ai-adopter (AI 워크로드를 쓰는 기업 고객)"],
+    "aiRevenue": "AWS와 20억 달러 이상 규모 계약 (2026-10-26 발표, 기간·연도별 매출 인식 미공시); AI Connect 매출 자체는 미공시",
+    "upside": "AI 학습·추론이 여러 데이터센터와 엣지로 퍼질수록 장거리·도시권 광회선 수요가 늘어 Verizon의 광 자산을 높은 가격에 빌려줄 수 있다. 회사는 2026 설비투자 가이던스(160억~165억 달러)에 AI Connect용 성과 연동 투자를 포함했다.",
+    "risk": "AI 관련 매출은 연 매출 1,382억 달러에 비하면 아직 작아 주가를 움직이는 본업은 여전히 휴대폰 순증과 요금이다. 10-K는 경쟁사의 AI 활용에 뒤처질 위험과 AI가 사이버 위험을 키울 가능성을 함께 적었다.",
+    "text": "그래서 AI 가치사슬에서 Verizon은 칩·모델이 아니라 '연결' 자리에 있다. 하이퍼스케일러가 Verizon 광통신망으로 데이터센터와 엣지를 잇는 수요가 AWS와의 20억 달러 이상 계약으로 처음 크게 드러났다. 다만 이 계약은 전체 매출에 비해 작아, AI는 본업을 바꾸기보다 광 자산의 추가 수익원에 가깝다.",
+    "src": ["s1", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "미국 무선(휴대폰)", "rivals": ["AT&T", "T-Mobile US", "케이블 MVNO (Comcast, Charter - Verizon 망 사용)", "지역 통신사"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "가정용 브로드밴드 (광·FWA)", "rivals": ["케이블사", "AT&T 광통신", "T-Mobile FWA", "저궤도 위성 사업자"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "기업·공공 통신·네트워크 솔루션", "rivals": ["글로벌 통신사", "시스템 통합업체", "하드웨어·소프트웨어 업체"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "AI·데이터센터 광회선 (AI Connect)", "rivals": ["다른 장거리 광통신 사업자 (이번 조사에서 명단 미확인)"], "position": "challenger", "share": null, "src": ["s1"] }
+    ],
+    "edge": "넓은 무선망 품질 평판, Frontier 인수로 커진 광통신 범위, 휴대폰+집 인터넷 결합, 대기업·정부 고객 기반.",
+    "threats": "T-Mobile·AT&T의 가격·프로모션 경쟁, 케이블사의 저가 결합 상품(Verizon 망을 빌려 쓰면서 경쟁), 위성 인터넷, 공공 부문 예산 압박.",
+    "text": "이 망을 놓고 Verizon은 AT&T·T-Mobile과 휴대폰에서, 케이블사·위성과 집 인터넷에서 싸운다. 2025년 후불 휴대폰 순증이 약했던 탓에 새 CEO는 2026-01 'Verizon은 더 이상 경쟁사의 사냥터가 아니다'라고 선언했다(2026 순증 전망을 2025 실적의 2~3배로 제시). 이후 보조금 대신 단순 요금제·충성 고객 혜택으로 2026 Q3 후불 휴대폰 40.6만 순증과 이탈률 개선을 냈고, 프로모션 비용은 신규 획득 기준 41% 줄였다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "strategy": {
+    "goal": "2026년 후불 휴대폰 순증 110만~120만, 조정 EPS 5.04~5.06달러, 잉여현금흐름 성장률 12% 근접을 제시했다. 광 패싱은 2026말 3,200만 초과, 중기 4,000만~5,000만이 목표다.",
+    "roadmap": [
+      { "when": "2026-01-20", "what": "Frontier 인수 완료 - 광통신 31개 주와 워싱턴 D.C.로 확대", "src": ["s3"] },
+      { "when": "2026-01-30", "what": "Starry 인수 완료, 250억 달러 자사주 매입 프로그램 승인", "src": ["s3"] },
+      { "when": "2026", "what": "광 패싱 최소 200만 신규 구축, 2026말 총 3,200만 초과", "src": ["s2", "s1"] },
+      { "when": "2026 Q3", "what": "AWS와 20억 달러 이상 AI 인프라(분산 컴퓨팅) 계약", "src": ["s1"] },
+      { "when": "2026 Q4", "what": "무선·브로드밴드 서비스 매출 약 4.0% 성장 전망", "src": ["s1"] },
+      { "when": "중기 (연도 미명시)", "what": "광 패싱 4,000만~5,000만", "src": ["s1"] }
+    ],
+    "vision": "CEO Dan Schulman은 '여러 해에 걸친 성장 이야기의 1년 차'라고 말하며, 보조금 경쟁 대신 고객 만족·결합 상품으로 가입자와 마진을 함께 늘리는 통신사를 그린다.",
+    "text": "앞으로의 계획은 무선 고객에게 광통신을 붙여 파는 결합 회사가 되는 것이다. Frontier로 얻은 광 범위를 2026말 3,200만 패싱 이상, 중기 4,000만~5,000만으로 넓히고, 같은 광 자산을 AI 데이터센터 연결에도 빌려준다. 경영진은 Q4 2026 서비스 매출 성장이 약 4%로 빨라질 것으로 본다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "governance": {
+    "line": "2025년 10월 취임한 CEO Dan Schulman(전 PayPal CEO, 2018년부터 이사)이 비용 절감(2025 Q4 1.3만 명 이상 감원 발표)과 체질 개선을 이끄는 지분 분산 회사로, 분기 배당 0.69달러를 유지·인상해 왔고 2026년부터 자사주 매입을 재개했다.",
+    "src": ["s3", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "postpaid phone net additions", "value": "110만~120만 (직전: 75만~100만의 상단, 1월 최초 75만~100만)", "givenOn": "2026-10-26", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "adjusted EPS", "value": "5.04~5.06달러, 7.0~7.5% 성장 (1월 최초 4.90~4.95달러)", "givenOn": "2026-10-26", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "free cash flow growth", "value": "12.0% 근접 (직전 9~10%, 1월 최초 215억 달러 이상·약 7%)", "givenOn": "2026-10-26", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "cash flow from operations growth", "value": "3.5~5.0% (직전 2.0~4.0%, 1월 최초 375억~380억 달러)", "givenOn": "2026-10-26", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "mobility and broadband service revenue growth", "value": "2.5~3.0%의 상단, Q4 약 4.0%", "givenOn": "2026-10-26", "src": ["s1"] },
+      { "period": "FY2026", "metric": "capital expenditures", "value": "160억~165억 달러 (유지, AI Connect 투자 포함)", "givenOn": "2026-10-26", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "2026년에는 세 분기 연속으로 연간 가이던스를 올렸다. 2025년 가이던스도 4Q25 보도자료에서 달성했다고 밝혔다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 5.19달러(범위 5.08~5.31), 직전 4개 분기 실적 4.98달러. 최근 4주 상향 0건·하향 1건으로 추정치 변화가 거의 없다.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "후불 휴대폰 순증이 연 110만~120만 전망 범위 안에서 이어짐",
+      "이탈률이 전년 대비 계속 낮아짐",
+      "무선·브로드밴드 서비스 매출 성장률이 Q4 약 4%로 올라섬",
+      "광 패싱이 2026말 3,200만을 넘고 광 순증이 늘어남",
+      "조정 EBITDA 마진 40% 안팎 유지와 레버리지 하락",
+      "AWS 외 하이퍼스케일러 AI Connect 계약 추가"
+    ],
+    "breaks": [
+      "순증을 위해 보조금·프로모션 비용이 다시 커짐",
+      "이탈률 상승 또는 순증 둔화",
+      "서비스 매출 성장률이 2% 아래로 되돌아감",
+      "Frontier 통합 비용 증가로 잉여현금흐름 전망 하향",
+      "순 무담보 부채 / EBITDA 비율 상승"
+    ],
+    "keyNumbers": [
+      { "name": "후불 휴대폰 순증", "why": "체질 개선의 핵심 증거" },
+      { "name": "후불 휴대폰 이탈률", "why": "결합·충성 전략이 먹히는지 보여 줌" },
+      { "name": "무선·브로드밴드 서비스 매출 성장률", "why": "단말기를 뺀 진짜 매출 성장" },
+      { "name": "잉여현금흐름", "why": "배당과 자사주의 재원" },
+      { "name": "순 무담보 부채 / 조정 EBITDA", "why": "Frontier 인수 뒤 재무 여력" },
+      { "name": "광 패싱·광 순증", "why": "결합 전략의 기반" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적과 2027 가이던스", "src": [] },
+      { "date": "분기 중 수시", "event": "경쟁사(AT&T·T-Mobile) 실적의 순증·이탈률 비교", "src": [] }
+    ],
+    "reaction": "통신주는 매출보다 후불 휴대폰 순증, 이탈률, 잉여현금흐름 가이던스에 크게 반응하는 경향이 있다. Q3 2026은 총매출(343억 달러)이 서비스 매출 성장에도 단말기 매출 감소로 1.5% 성장에 그쳤지만 순증·EBITDA·가이던스 상향이 함께 나왔다.",
+    "conditions": [
+      "후불 휴대폰 순증과 이탈률이 경쟁사 대비 어떤지",
+      "서비스 매출 성장률과 단말기 매출 감소를 나눠 보기",
+      "프로모션 비용(획득·유지) 증감",
+      "잉여현금흐름·영업현금흐름 가이던스 변경 폭",
+      "순 무담보 부채 / EBITDA 비율과 자사주 매입 속도",
+      "AI Connect 계약 공시 여부"
+    ]
+  },
+
+  "unverified": [
+    "FY2025 Consumer·Business의 세그먼트 영업이익률 (10-K는 세그먼트 EBITDA 마진만 사용, 영업이익률 칸은 null)",
+    "총마진은 통신사 손익계산서 구조상 미표기 (null)",
+    "Consumer 매출에는 MVNO 도매가 포함되며 MVNO 매출 규모는 미확인",
+    "2026 FCF·영업현금흐름 가이던스의 달러 범위 (보도자료 본문은 증가율로만 제시; 2차 요약에는 FCF 224.4억~225.4억 달러 표기)",
+    "AWS 계약 20억 달러 이상의 기간·매출 인식 시점, AI Connect 누적 수주",
+    "네트워크 장비·단말 공급업체 이름과 의존도",
+    "FY2025 배당·설비투자 등은 10-K 현금흐름표 텍스트 추출값 (표 열 정렬을 원문 raw 모드로 재확인)",
+    "분기 배당 0.69달러 이후의 2026년 배당 인상 여부",
+    "4Q26 실적 발표일",
+    "Q3 2026 세그먼트 매출(Consumer 264.3억, Business 70.2억 달러)은 Finviz 재게시 표 기준"
+  ],
+  "confidence": "high - 매출·이익·현금흐름·가이던스는 회사 보도자료와 10-K에서 직접 읽었다. AI 매출 규모와 공급업체 정보는 공시가 적어 medium 이하다."
+}

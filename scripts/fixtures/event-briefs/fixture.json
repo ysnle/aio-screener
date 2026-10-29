@@ -1,0 +1,217 @@
+{
+  "now": "2026-10-28T23:10:00Z",
+  "macroCalendar": {
+    "us-fomc": [
+      "2026-09-16",
+      "2026-10-28",
+      "2026-12-09"
+    ]
+  },
+  "earnings": [
+    {
+      "symbol": "MSFT",
+      "date": "2026-10-28",
+      "hour": "amc",
+      "epsEstimate": 4.8165,
+      "revenueEstimate": 92493412748
+    }
+  ],
+  "fed": {
+    "20260916": "fed-statement-20260916.synthetic.txt",
+    "20261028": "fed-statement-20261028.synthetic.txt"
+  },
+  "fedTranscript": {},
+  "secTickers": {
+    "MSFT": 789019,
+    "GOOGL": 1652044
+  },
+  "secFilings": {
+    "789019": [
+      {
+        "accession": "0000950170-26-900001",
+        "form": "8-K",
+        "items": "2.02,9.01",
+        "filingDate": "2026-10-28",
+        "acceptedAt": "2026-10-28T20:05:00.000Z"
+      },
+      {
+        "accession": "0000950170-26-900000",
+        "form": "8-K",
+        "items": "5.07",
+        "filingDate": "2026-10-27",
+        "acceptedAt": "2026-10-27T20:05:00.000Z"
+      }
+    ],
+    "1652044": []
+  },
+  "secExhibits": {
+    "0000950170-26-900001": "msft-ex991.synthetic.txt"
+  },
+  "dartLists": {
+    "00164779": [
+      {
+        "rcpNo": "20261028800052",
+        "title": "[기재정정] 기업설명회(IR)개최(안내공시)",
+        "corpCode": "00164779",
+        "date": "2026-10-28"
+      },
+      {
+        "rcpNo": "20261028800036",
+        "title": "연결재무제표기준영업(잠정)실적(공정공시)",
+        "corpCode": "00164779",
+        "date": "2026-10-28"
+      }
+    ],
+    "00126380": [
+      {
+        "rcpNo": "20261028899999",
+        "title": "연결재무제표기준영업(잠정)실적(공정공시)",
+        "corpCode": "00999999",
+        "date": "2026-10-28"
+      }
+    ]
+  },
+  "dartDocs": {
+    "20261028800036": "dart-000660-20261028800036.txt"
+  },
+  "ai": {
+    "fomc-statement": {
+      "status": "completed",
+      "model": "gpt-6-luna",
+      "usage": {
+        "input_tokens": 9000,
+        "output_tokens": 900
+      },
+      "output": [
+        {
+          "type": "message",
+          "status": "completed",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "{\"headline\":\"정책금리 범위를 3-1/2 to 3-3/4 percent로 1/4 percentage point 내림\",\"figures\":[{\"metric\":\"policy_rate_range\",\"label\":\"정책금리 범위\",\"value\":\"3-1/2 to 3-3/4 percent\",\"text\":\"1/4 percentage point 인하\",\"quote\":\"the Committee decided to lower the target range for the federal funds rate by 1/4 percentage point to 3-1/2 to 3-3/4 percent\"},{\"metric\":\"vote\",\"label\":\"표결\",\"value\":\"nine members\",\"text\":\"찬성 nine members\",\"quote\":\"Voting for the monetary policy action were nine members.\"},{\"metric\":\"other\",\"label\":\"planted: number not in source\",\"value\":\"4.25 percent\",\"text\":\"\",\"quote\":\"Inflation has eased but remains somewhat elevated.\"}],\"changes\":[{\"label\":\"경기\",\"value\":\"\",\"text\":\"성장 둔화에서 완만한 확장으로 표현이 바뀜\",\"quote\":\"economic activity has been expanding at a moderate pace\"},{\"label\":\"planted: quote not in source\",\"value\":\"\",\"text\":\"물가 표현 강화\",\"quote\":\"Inflation has moved sharply higher\"}],\"dissents\":[{\"label\":\"반대\",\"value\":\"\",\"text\":\"동결을 주장한 반대 위원이 있음\",\"quote\":\"Voting against the action was one member, who preferred to maintain the target range at 3-3/4 to 4 percent.\"}],\"watch\":[\"다음 회의 성명의 고용 문구\",\"planted watch with an invented 12월 0.5%p 인하 figure\"]}"
+            }
+          ]
+        }
+      ]
+    },
+    "fomc-presser": {
+      "status": "completed",
+      "model": "gpt-6-luna",
+      "usage": {
+        "input_tokens": 14000,
+        "output_tokens": 700
+      },
+      "output": [
+        {
+          "type": "web_search_call",
+          "status": "completed"
+        },
+        {
+          "type": "message",
+          "status": "completed",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "{\"speaker\":\"연준 의장\",\"points\":[{\"text\":\"추가 인하는 회의마다 지표를 보고 정한다고 말함\",\"url\":\"https://www.reuters.com/markets/us/fed-presser\"},{\"text\":\"planted: 내년 금리 2.75% 전망 언급\",\"url\":\"https://www.reuters.com/markets/us/fed-presser-2\"},{\"text\":\"planted: off-domain source\",\"url\":\"https://example-blog.invalid/post\"}]}"
+            }
+          ]
+        }
+      ]
+    },
+    "earnings-MSFT": {
+      "status": "completed",
+      "model": "gpt-6-luna",
+      "usage": {
+        "input_tokens": 9000,
+        "output_tokens": 900
+      },
+      "output": [
+        {
+          "type": "message",
+          "status": "completed",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "{\"headline\":\"매출 $92.9 billion, 18% 증가\",\"figures\":[{\"metric\":\"revenue\",\"label\":\"매출\",\"value\":\"$92.9 billion\",\"text\":\"18% 증가\",\"quote\":\"Revenue was $92.9 billion and increased 18% (up 17% in constant currency).\"},{\"metric\":\"eps_diluted\",\"label\":\"희석 주당순이익\",\"value\":\"$4.95\",\"text\":\"20% 증가\",\"quote\":\"Diluted earnings per share was $4.95 and increased 20%.\"},{\"metric\":\"operating_income\",\"label\":\"planted: altered figure\",\"value\":\"$42.1 billion\",\"text\":\"\",\"quote\":\"Operating income was $41.2 billion and increased 21%.\"}],\"segments\":[{\"label\":\"Intelligent Cloud\",\"value\":\"$33.5 billion\",\"text\":\"Azure 39% 성장\",\"quote\":\"Revenue in Intelligent Cloud was $33.5 billion and increased 27%, with Azure and other cloud services revenue growth of 39%.\"}],\"guidance\":[{\"label\":\"설비투자\",\"value\":\"\",\"text\":\"2분기 설비투자는 전분기보다 늘어날 전망\",\"quote\":\"We expect capital expenditures to increase sequentially in the second quarter.\"}],\"watch\":[\"다음 분기 Azure 성장률\",\"설비투자 증가 속도\"]}"
+            }
+          ]
+        }
+      ]
+    },
+    "call-MSFT": {
+      "status": "completed",
+      "model": "gpt-6-luna",
+      "usage": {
+        "input_tokens": 12000,
+        "output_tokens": 600
+      },
+      "output": [
+        {
+          "type": "web_search_call",
+          "status": "completed"
+        },
+        {
+          "type": "message",
+          "status": "completed",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "{\"speaker\":\"CFO\",\"points\":[{\"text\":\"Azure 수요가 공급 능력을 계속 넘는다고 설명\",\"url\":\"https://www.microsoft.com/en-us/investor/events\"},{\"text\":\"planted: 내년 설비투자 $150 billion 언급\",\"url\":\"https://www.cnbc.com/msft-call\"}]}"
+            }
+          ]
+        }
+      ]
+    },
+    "call-000660.KS": {
+      "status": "completed",
+      "model": "gpt-6-luna",
+      "usage": {
+        "input_tokens": 11000,
+        "output_tokens": 600
+      },
+      "output": [
+        {
+          "type": "web_search_call",
+          "status": "completed"
+        },
+        {
+          "type": "message",
+          "status": "completed",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "{\"speaker\":\"\",\"points\":[{\"text\":\"HBM 수요가 내년 공급을 넘는다고 설명\",\"url\":\"https://news.skhynix.co.kr/q3-2026\"},{\"text\":\"3분기 매출 104.62조원으로 사상 최대\",\"url\":\"https://www.yna.co.kr/view/AKR2026\"},{\"text\":\"planted: 4분기 영업이익 90조원 전망\",\"url\":\"https://www.yna.co.kr/view/AKR2026b\"}]}"
+            }
+          ]
+        }
+      ]
+    },
+    "fomc-transcript": {
+      "status": "completed",
+      "model": "gpt-6-luna",
+      "usage": {
+        "input_tokens": 8000,
+        "output_tokens": 500
+      },
+      "output": [
+        {
+          "type": "message",
+          "status": "completed",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "{\"speaker\":\"연준 의장\",\"points\":[{\"text\":\"금리는 회의마다 지표를 보고 정하며 정해진 경로는 없다고 말함\"},{\"text\":\"대차대조표 축소는 지금 속도로 이어간다고 말함\"},{\"text\":\"planted: 내년 말 금리 3.1% 전망 언급\"}]}"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "symbol": "GE",
+  "name": "GE Aerospace (General Electric Company)",
+  "researchedAt": "2026-10-28",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "GE Aerospace는 세계 여객기 엔진 시장의 최대 기단(상업용 약 5만 대)을 가진 엔진 회사로, 엔진을 판 뒤 수십 년간 정비·부품으로 돈을 버는 구조라 매출의 약 70%가 서비스에서 나오고, 항공 여행이 늘수록 이익이 따라 붙는다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "GE Aerospace Announces Third Quarter 2026 Results (company PDF of the 8-K exhibit; segment tables, 2026 guidance raise)",
+      "url": "https://www.geaerospace.com/sites/default/files/geaerospace_webcast_pressrelease_10202026.pdf",
+      "publisher": "GE Aerospace",
+      "date": "2026-10-20"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "GE Aerospace Announces Fourth Quarter 2025 Results (Q4 and FY2025, 2026 guidance initiated; company PDF)",
+      "url": "https://www.geaerospace.com/sites/default/files/geaerospace_webcast_pressrelease_01222026_00.pdf",
+      "publisher": "GE Aerospace",
+      "date": "2026-01-22"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "GE Aerospace Form 10-K for fiscal year ended 2025-12-31 (company-hosted PDF copy)",
+      "url": "https://www.geaerospace.com/sites/default/files/geaerospace_10k_01292026.pdf",
+      "publisher": "GE Aerospace",
+      "date": "2026-01-29"
+    },
+    {
+      "id": "s4",
+      "kind": "investor-day",
+      "title": "GE Aerospace to acquire Consolidated Precision Products (CPP) - transaction presentation",
+      "url": "https://www.geaerospace.com/sites/default/files/GEAerospace_to_acquire_Consolidated_Precision_Products_Presentation.pdf",
+      "publisher": "GE Aerospace",
+      "date": "2026-09-08"
+    },
+    {
+      "id": "s5",
+      "kind": "earnings-release",
+      "title": "GE Aerospace Announces Second Quarter 2025 Results (raises 2028 outlook, capital return plan; company PDF)",
+      "url": "https://www.geaerospace.com/sites/default/files/geaerospace_webcast_pressrelease_07172025.pdf",
+      "publisher": "GE Aerospace",
+      "date": "2025-07-17"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/ge/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s7",
+      "kind": "news",
+      "title": "AI data centers' growing energy demand strains aircraft engine manufacturers (read from search summary, page not fetched)",
+      "url": "https://www.eplaneai.com/news/ai-data-centers-growing-energy-demand-strains-aircraft-engine-manufacturers",
+      "publisher": "ePlane AI",
+      "date": "2026-03-23"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "업계 최대 상업용 엔진 기단 - 상업용 약 5만 대·군용 약 3만 대 설치 기반 (주기된 기체 포함)",
+      "엔진 한 대가 수십 년 운항하며 정비·부품 수요를 만드는 애프터마켓 - 서비스가 매출의 약 70%",
+      "Safran과의 50:50 합작사 CFM International - 단일통로기 LEAP 엔진, 일부 Boeing 기종은 단독 엔진",
+      "장기 서비스 계약(LTSA) 잔고 - 서비스 관련 잔여 이행의무 1,630억 달러 (2025-12-31)"
+    ],
+    "text": "GE Aerospace의 힘은 이미 하늘을 날고 있는 엔진 수에서 나온다. 엔진은 한 번 비행기에 달리면 수십 년간 운항하고, 그동안 정기 정비와 부품 교체가 계속 필요하므로 설치 기반이 곧 미래 매출이다. 여객기 엔진은 인증과 개발에 수년이 걸려 새 회사가 들어오기 어렵고, 단일통로기에서는 Safran과 만든 CFM International의 LEAP가 핵심 자산이다.",
+    "src": ["s3"]
+  },
+  "design": {
+    "text": "이 설치 기반 위에서 회사는 두 부문으로 보고한다. Commercial Engines & Services(CES)는 단일통로기용 LEAP(CFM), 광동체기용 GEnx·GE90·GE9X, 지역·비즈니스기 엔진을 설계하고 정비·부품 서비스를 판다. Defense & Propulsion Technologies(DPT)는 F110·F404·F414 전투기 엔진, T700·T901 헬기 엔진, 해상용 LM2500과 Avio Aero·Unison·Dowty·Colibrium Additive의 부품·시스템을 맡는다.",
+    "src": ["s3"]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "CFM International - Safran Aircraft Engines와 50:50 비연결 합작사, CFM56·LEAP 생산",
+      "Engine Alliance - 50:50 합작사, GP7200 엔진",
+      "자체 공장 - 미국 23개 주·푸에르토리코 70개, 해외 23개국 62개 제조·정비 시설",
+      "핵심(priority) 공급사 - 소재 투입량이 Q3 2026 전년 대비 두 자릿수 증가 (업체명 미기재)",
+      "Consolidated Precision Products(CPP) - 터빈 블레이드(에어포일)·구조 주조품 공급사, 117.5억 달러에 인수 합의 (2027 하반기 완료 예정)"
+    ],
+    "text": "엔진은 자체 공장에서 만들되 LEAP처럼 Safran과 합작사로 나눠 생산하는 구조여서 '혼합형'이다. 최근 몇 년간 회사의 병목은 수요가 아니라 주조품·단조품 같은 부품 공급이었고, 10-K도 공급 제약 환경을 명시한다. 그래서 2026년 9월 핵심 주조품 공급사 CPP를 117.5억 달러에 사기로 해, 블레이드 수요가 2030년까지 30% 넘게 늘 것에 대비한 공급을 직접 쥐려 한다.",
+    "src": ["s3", "s1", "s4"]
+  },
+  "sell": {
+    "customers": [
+      "항공기 제작사 Boeing·Airbus (장착용 엔진 구매)",
+      "항공사·리스사 - 2026년 IndiGo LEAP-1A 1,000기 이상, Turkish Airlines LEAP-1B 300기 이상 + 600기 이상 기단 정비 계약",
+      "제3자 정비업체(MRO) - 예비 부품 구매와 정비 기술 라이선스",
+      "미국 정부와 해외 정부 - 미 해군 F414 지원 계약 최대 29억 달러, 인도 HAL F404 113기"
+    ],
+    "channel": "제작사·항공사·정부와 직접 계약. 단일통로기 엔진은 CFM International을 통해 판매하고, 서비스는 장기 서비스 계약·부품 계약·건별 정비로 판다.",
+    "concentration": "미국 정부 기관 매출이 2025년 총매출의 10%(2024년 12%). 미국 외 매출 비중 60%. 개별 항공사·제작사 비중은 공시 확인 못 함.",
+    "text": "만든 엔진은 Boeing·Airbus에 장착용으로 팔리지만, 실제 장기 고객은 엔진을 쓰는 항공사다. 항공사는 엔진을 고를 때 이후 수십 년의 정비 계약까지 함께 정하므로, 2026년 IndiGo·Turkish Airlines 같은 대형 주문이 곧 미래 서비스 매출이다. 국방 쪽은 미국 정부가 총매출의 10%를 차지하고, 매출의 60%는 미국 밖에서 나온다.",
+    "src": ["s3", "s1", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "항공사·리스사", "to": "Boeing·Airbus", "what": "항공기 구매 대금 (엔진 선택 포함)" },
+      { "from": "Boeing·Airbus", "to": "GE Aerospace·CFM International", "what": "장착용 엔진 구매 대금 (대당 판매, 마진이 낮은 구간)" },
+      { "from": "항공사", "to": "GE Aerospace CES", "what": "장기 서비스 계약 요금 (엔진 사용 시간 기준) 또는 건별 정비·예비 부품 대금" },
+      { "from": "제3자 MRO", "to": "GE Aerospace CES", "what": "예비 부품 구매, 정비 기술 라이선스료" },
+      { "from": "미국 국방부·해외 정부", "to": "GE Aerospace DPT", "what": "군용 엔진 생산·지원 계약 대금" },
+      { "from": "GE Aerospace", "to": "CPP 등 주조·단조·소재 공급사", "what": "블레이드·주조품·원자재 구매 대금" }
+    ],
+    "pricing": "새 엔진은 대당 판매로 장착용 판매 마진은 낮고, 이익은 정비·부품에서 난다. 장기 서비스 계약은 엔진 사용량(예: 사용 시간)에 따라 대금을 받고, 그 외 부품 계약과 건별(time and material) 정비가 있다.",
+    "text": "돈의 흐름은 '엔진은 싸게 깔고 정비로 회수한다'는 면도날-면도기 구조다. 실제로 2025년 4분기 CES 마진이 4.2%p 내려간 이유로 회사는 장착용 엔진 인도 증가(GE9X 포함)를 꼽았고, 이익을 끌어올린 것은 예비 부품과 정비 물량·가격이었다. 그래서 LEAP 기단이 정비 주기에 들어서는 지금이 이익이 커지는 구간이다.",
+    "src": ["s3", "s2", "s1"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 45.855, "unit": "USD bn", "yoy": 18.5 },
+    "grossMargin": null,
+    "operatingMargin": 21.4,
+    "netMargin": 19.0,
+    "operatingCashFlow": { "value": 8.543, "unit": "USD bn" },
+    "freeCashFlow": { "value": 7.694, "unit": "USD bn" },
+    "segments": [
+      { "name": "Commercial Engines & Services", "revenue": 33.314, "unit": "USD bn", "share": 72.6, "yoy": 23.9, "operatingMargin": 26.6, "src": ["s3", "s2"] },
+      { "name": "Defense & Propulsion Technologies", "revenue": 10.554, "unit": "USD bn", "share": 23.0, "yoy": 11.4, "operatingMargin": 12.3, "src": ["s3", "s2"] },
+      { "name": "Insurance (run-off 보험 사업)", "revenue": 3.533, "unit": "USD bn", "share": 7.7, "yoy": -1.3, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Eliminations and other", "revenue": -1.546, "unit": "USD bn", "share": -3.4, "yoy": null, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "잔여 이행의무(RPO, 백로그)", "value": "1,905.6억 달러 (2025-12-31): 장비 275.3억, 서비스 1,630.3억. CES RPO 1,698.2억(+11%). 상업 서비스 백로그 1,700억 달러 이상 (2026-09-30 기준 회사 발언)", "src": ["s3", "s1"] },
+      { "name": "엔진 인도량", "value": "2025년 상업용 2,386대(LEAP 1,802대, +28%), 군용 635대. 2026년 9개월 총 인도량 20% 이상 증가, LEAP +26%", "src": ["s3", "s1"] },
+      { "name": "수주", "value": "2025년 662억 달러(+32%). Q3 2026 190억 달러(+49%), CES 서비스 수주 +23%", "src": ["s2", "s1"] },
+      { "name": "최근 분기 (Q3 2026)", "value": "GAAP 매출 141.2억(+16%), 조정 매출 132.9억(+18%), 영업이익 29.9억(마진 22.5%), CES 마진 27.9%, DPT 마진 13.7%, FCF 20.4억(-14%)", "src": ["s1"] },
+      { "name": "서비스 비중", "value": "CES 매출의 75%, DPT 매출의 51%가 서비스 (FY2025); 회사 전체 매출의 약 70%가 애프터마켓", "src": ["s3"] },
+      { "name": "내부 정비(shop visit) 매출 성장률", "value": "2025년 +24%; Q3 2026 +12% (LEAP는 40% 이상)", "src": ["s3", "s1"] }
+    ],
+    "text": "FY2025 GAAP 매출은 458.6억 달러로 18.5% 늘었고, 보험 run-off를 뺀 조정 매출은 423.2억 달러(+21%), 조정 영업이익률은 21.4%였다. 이익은 거의 전부 CES에서 나와, CES 부문이익 88.6억 달러(마진 26.6%)가 DPT 13.0억 달러의 7배에 가깝다. 2026년 3분기에도 CES 마진 27.9%가 유지돼, 서비스가 이익을 끌고 가는 구조가 이어지고 있다.",
+    "src": ["s2", "s3", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "buybacks", "value": 7.551, "unit": "USD bn", "src": ["s3"] },
+      { "use": "dividends", "value": 1.452, "unit": "USD bn", "src": ["s3"] },
+      { "use": "R&D", "value": 1.580, "unit": "USD bn", "src": ["s3"] },
+      { "use": "capex", "value": 1.273, "unit": "USD bn", "src": ["s3", "s2"] },
+      { "use": "acquisitions", "value": 0.360, "unit": "USD bn", "src": ["s3"] }
+    ],
+    "text": "2025년 잉여현금흐름 76.9억 달러보다 많은 90억 달러를 자사주 매입(75.5억)과 배당(14.5억)으로 돌려줬다. 회사 자체 R&D는 15.8억 달러지만 고객·파트너 자금을 합한 총 R&D는 29.9억 달러이고, 설비투자는 12.7억 달러로 매출 대비 작다. 다만 2026년에는 117.5억 달러짜리 CPP 인수(현금과 신규 차입)를 결정해, 주주환원 중심에서 공급망 확보로 무게가 일부 옮겨 가고 있다.",
+    "src": ["s3", "s4"]
+  },
+  "aiChain": {
+    "layer": "limited",
+    "position": "AI 데이터센터 공급망 밖에 있는 항공 엔진·정비 회사. 실적은 항공 여행량, 엔진 정비 주기, 국방 예산에 달려 있다.",
+    "dependsOn": [
+      "주조품·단조품·고온 합금 공급망 (CPP 등)",
+      "Boeing·Airbus의 항공기 생산 속도",
+      "FAA·EASA 인증"
+    ],
+    "sellsTo": [
+      "항공기 제작사와 항공사·리스사",
+      "미국·해외 정부 국방 고객"
+    ],
+    "aiRevenue": null,
+    "upside": "AI가 직접 매출로 오지는 않는다. 회사는 CPP 인수 자료에서 AI와 연결 데이터로 블레이드 개발 기간을 줄이겠다고 밝혔지만 효과 금액은 공시하지 않았다.",
+    "risk": "AI 데이터센터용 가스터빈(항공 엔진 파생형) 수요가 고온 합금·정밀 단조품 같은 같은 부품을 두고 경쟁해 공급 병목을 키울 수 있다는 보도가 있다(2차 출처). CPP 매출의 약 20%도 발전·기타 시장에서 나온다.",
+    "text": "그래서 AI 가치사슬에서 GE Aerospace는 직접 연결이 거의 없는 '제한적' 자리다. AI와 닿는 지점은 오히려 부품 공급망으로, 데이터센터 발전용 터빈과 항공 엔진이 같은 주조·단조 능력을 나눠 쓰는 점이다. 주가는 GPU 수요가 아니라 LEAP 정비 물량과 인도 속도에 반응한다고 보는 편이 실적과 맞다.",
+    "src": ["s4", "s7", "s3"]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "단일통로기 엔진 (A320neo·737 MAX)",
+        "rivals": ["Pratt & Whitney (RTX) GTF"],
+        "position": "leader",
+        "share": "737 MAX는 CFM LEAP-1B 단독 엔진(10-K: 일부 Boeing 기종은 GE 엔진이 단독). A320neo 계열 LEAP-1A 대 GTF 점유율은 확인 못 함",
+        "src": ["s3"]
+      },
+      {
+        "arena": "광동체기 엔진 (777X·787·A330/A350)",
+        "rivals": ["Rolls-Royce", "Pratt & Whitney"],
+        "position": "leader",
+        "share": null,
+        "src": ["s3"]
+      },
+      {
+        "arena": "엔진 정비·예비 부품 애프터마켓",
+        "rivals": ["제3자 MRO 업체", "항공사 자체 정비 부문"],
+        "position": "leader",
+        "share": null,
+        "src": ["s3"]
+      },
+      {
+        "arena": "군용 엔진 (전투기·헬기)",
+        "rivals": ["Pratt & Whitney (RTX)", "Rolls-Royce"],
+        "position": "challenger",
+        "share": null,
+        "src": ["s3", "s1"]
+      }
+    ],
+    "edge": "업계 최대 설치 기반, LEAP 기단이 CFM56을 넘어 최대 기단이 될 전망(10-K), 1,700억 달러 이상의 상업 서비스 백로그, 그리고 공급망을 직접 늘리는 CPP 인수.",
+    "threats": "경쟁 엔진사는 큰 할인과 금융 지원으로 설치 기반을 사려 하고, 제3자 MRO가 정비 물량을 가져갈 수 있다(10-K). 엔진 내구성 문제, 공급 차질, 관세로 인한 장기 서비스 계약 수익성 하락도 위험이다.",
+    "text": "경쟁 구도는 시장마다 다르다. 단일통로기에서는 Pratt & Whitney GTF와 A320neo 엔진을 다투지만 737 MAX에는 LEAP만 달리고, 광동체기에서는 Rolls-Royce와 맞선다. 진짜 싸움터는 정비 시장으로, 회사는 세계 정비망에 10억 달러 넘는 투자를 진행하고 CFM이 IATA와 '열린 애프터마켓' 약속을 갱신하는 방식으로 제3자 MRO와 공존하며 물량을 지키려 한다.",
+    "src": ["s3", "s2"]
+  },
+  "strategy": {
+    "goal": "2028년 영업이익 약 115억 달러·잉여현금흐름 약 85억 달러(2025-07 상향 전망), 2024~2026년 주주환원 약 240억 달러, 2026년 이후 잉여현금흐름의 70% 이상 환원. 2026년 가이던스가 이미 영업이익 109~110억, FCF 91~94억 달러다.",
+    "roadmap": [
+      { "when": "2026 Q4", "what": "2026 가이던스: 조정 매출 약 19~20% 성장, 영업이익 109~110억, 조정 EPS 8.00~8.10달러, FCF 91~94억 달러", "src": ["s1"] },
+      { "when": "2027", "what": "상업 서비스 매출 '낮은 두 자릿수' 성장 전망", "src": ["s1"] },
+      { "when": "2027 (777X 인증 일정에 연동)", "what": "GE9X 매출 인식 본격화 - 이미 인도한 엔진의 매출은 midseal 인증 후 인식", "src": ["s1"] },
+      { "when": "2027 H2", "what": "CPP 인수 완료 예정 - 1년 차 조정 EPS·FCF 증가, 5년 차 두 자릿수 ROIC, 순 시너지 약 2억 달러 목표", "src": ["s4"] },
+      { "when": "2028", "what": "영업이익 약 115억·FCF 약 85억 달러 전망 (2025-07 기준, 이후 갱신 여부 미확인)", "src": ["s5"] },
+      { "when": "2030년대", "what": "CFM RISE(오픈 팬·소형 코어·하이브리드 전기) 기술 실증 - 판매 제품이 아닌 실증 프로그램", "src": ["s3", "s1"] }
+    ],
+    "vision": "LEAP·GE9X 기단을 넓혀 수십 년의 정비 매출로 바꾸고, FLIGHT DECK 운영 방식과 공급망 내재화로 인도 신뢰도를 높이며, RISE와 군용 적응형 사이클 엔진(XA102)으로 다음 세대 추진 기술을 준비하는 것.",
+    "text": "회사의 다음 수는 공급을 늘려 쌓인 주문을 인도와 정비로 바꾸는 것이다. 2026년 가이던스는 이미 두 번 올라 영업이익 109~110억 달러로, 2025년 7월 제시한 2028년 전망(약 115억)에 2년 앞서 가까워졌다. 그 뒤로는 2027년 GE9X 본격 인식과 CPP 통합, 이후 RISE 같은 차세대 엔진이 이어지는 순서다.",
+    "src": ["s1", "s2", "s5", "s4"]
+  },
+  "governance": {
+    "line": "2018년 10월부터 H. Lawrence Culp, Jr.가 회장 겸 CEO로 이끌고, 2025년 12월 200억 달러 자사주 매입 승인과 '잉여현금흐름 70% 이상 환원' 방침을 둔 주주환원형 회사다.",
+    "src": ["s3", "s5"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "adjusted revenue growth", "value": "약 19~20% (직전 high-teens)", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "FY2026", "metric": "operating profit", "value": "109~110억 달러 (직전 105.5~107.5억, 1월 최초 98.5~102.5억)", "givenOn": "2026-10-20", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "adjusted EPS", "value": "8.00~8.10달러 (직전 7.65~7.85, 1월 최초 7.10~7.40)", "givenOn": "2026-10-20", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "free cash flow", "value": "91~94억 달러 (직전 89~92억, 1월 최초 80~84억)", "givenOn": "2026-10-20", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "segment operating profit", "value": "CES 105~106억 달러(상향), DPT 16~17억 달러(유지)", "givenOn": "2026-10-20", "src": ["s1"] },
+      { "period": "FY2027", "metric": "commercial services revenue growth", "value": "낮은 두 자릿수", "givenOn": "2026-10-20", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "연초 가이던스를 시작으로 분기마다 올리는 패턴이다. 2026년 영업이익 가이던스는 1월 98.5~102.5억에서 10월 109~110억 달러로 올랐고, 2025년 실적(영업이익 90.6억·FCF 76.9억)도 2025년 7월 가이던스(82~85억·65~69억)를 넘었다. Q3 2026 조정 EPS 2.25달러는 컨센서스 2.02달러를 웃돌았다.",
+    "src": ["s1", "s2", "s5", "s6"]
+  },
+  "estimates": {
+    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 8.77달러(범위 8.44~9.12, 추정치 수 최소 4), 직전 4개 분기 실적 합 7.70달러. 최근 4주 상향 5건·하향 2건으로 상향 쪽이 많다.",
+    "src": ["s6"]
+  },
+  "watch": {
+    "confirms": [
+      "상업 서비스 수주와 내부 정비 매출이 두 자릿수 성장을 유지",
+      "LEAP 인도량 증가와 함께 CES 마진이 27% 안팎을 지킴",
+      "분기 잉여현금흐름이 연간 91~94억 달러 경로에 맞게 4분기에 회복",
+      "777X 인증 진행으로 GE9X 매출 인식이 시작",
+      "CPP 인수가 규제 승인을 받아 2027 하반기에 완료"
+    ],
+    "breaks": [
+      "LEAP·GE9X 내구성 문제로 예상 밖 정비 비용이나 보상 발생",
+      "주조품·단조품 공급 차질로 인도·정비 물량이 다시 막힘",
+      "항공 여객 수요 둔화로 정비 주기와 예비 부품 수요 감소",
+      "Boeing·Airbus 생산 차질로 장착용 엔진 인도 지연",
+      "관세·인플레이션으로 장기 서비스 계약 수익성 추정 하향"
+    ],
+    "keyNumbers": [
+      { "name": "CES 서비스 매출·수주 성장률", "why": "이익의 원천인 애프터마켓의 속도" },
+      { "name": "LEAP 인도량과 내부 정비(shop visit) 매출", "why": "기단 확대와 정비 주기 진입 확인" },
+      { "name": "CES 부문 영업이익률", "why": "장착용 엔진 증가가 마진을 얼마나 누르는지" },
+      { "name": "잉여현금흐름과 전환율", "why": "주주환원과 CPP 인수 재원" },
+      { "name": "RPO·서비스 백로그", "why": "수십 년 매출의 크기" },
+      { "name": "연간 가이던스 변경 폭", "why": "분기마다 올리는 패턴이 이어지는지" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027 가이던스 (Q3는 2026-10-20 발표)", "src": ["s2", "s1"] },
+      { "date": "매월 (Boeing·Airbus 인도 공시)", "event": "항공기 인도량 - 장착용 엔진 수요 신호", "src": ["s3"] },
+      { "date": "2027", "event": "777X 인증 진행과 GE9X 매출 인식", "src": ["s1"] },
+      { "date": "2027 H2", "event": "CPP 인수 완료와 규제 승인", "src": ["s4"] }
+    ],
+    "reaction": "주가는 분기 EPS보다 연간 가이던스 상향 폭, 상업 서비스 성장률, 잉여현금흐름에 더 크게 반응하는 경향이 있다. Q3 2026처럼 EPS가 예상을 웃돌아도 FCF가 전년보다 14% 줄면 현금 전환을 둘러싼 해석이 엇갈릴 수 있다.",
+    "conditions": [
+      "가이던스가 상향·유지·하향 중 어느 쪽인지와 그 폭",
+      "CES 서비스 매출 성장률이 회사 전망(2026 low-20s, 2027 낮은 두 자릿수) 안에 있는지",
+      "분기 FCF 부호와 연간 FCF 범위 대비 누적 진척 (9개월 67.3억 달러)",
+      "CES 마진 변화와 그 원인(장착용 엔진 비중, GE9X)",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "총마진 (회사는 매출총이익을 따로 보고하지 않음; 보험 매출이 섞여 있어 계산하지 않음)",
+    "operatingMargin 21.4%는 회사의 비GAAP 조정 영업이익률(보험 run-off 제외 조정 매출 기준); GAAP 세전 이익률은 21.8%",
+    "FY2025 'Eliminations and other' -15.46억 달러는 조정 매출에서 두 부문을 뺀 계산값 (보도자료의 Corporate & Other 표와 같은 구조)",
+    "2026년 9개월 자사주 매입·배당 금액 (Q3 보도자료에 없음, 10-Q 미확인)",
+    "2024~2026년 주주환원 약 240억 달러 계획의 진척률",
+    "2028년 전망(영업이익 약 115억·FCF 약 85억)이 2025-07 이후 갱신됐는지",
+    "Q3 2026 실적 콜 내용 (녹취록 본문을 열지 못함)",
+    "A320neo 계열 LEAP-1A 대 GTF 점유율, 광동체·군용 엔진 점유율",
+    "CFM International 합작사 이익의 GE 손익 반영 방식과 금액",
+    "개별 항공사·제작사별 매출 비중",
+    "AI 데이터센터용 터빈이 부품을 두고 경쟁한다는 내용(s7)은 검색 요약에서 읽었고 원문 미확인",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "high - 실적·부문·현금 사용·가이던스·RPO는 회사가 직접 올린 보도자료·10-K·인수 자료에서 왔고, 2차 출처는 AI 관련 위험 한 문장뿐이다. 점유율과 실적 콜 발언은 확인하지 못했다."
+}
