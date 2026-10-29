@@ -1,0 +1,323 @@
+{
+  "schemaVersion": "kr-index-weights.v1",
+  "generatedAt": "2026-10-29T14:14:41.740Z",
+  "producer": "scripts/fetch-kr-index-weights.mjs",
+  "source": "Naver Finance market-value ranking (KRX prices)",
+  "sourceKind": "T3_PUBLIC_DELAYED",
+  "allowedUse": "reference",
+  "basis": "Common-stock market-cap share at the previous close (preferred shares excluded) — a proxy for the index weight, not the official KRX weight. Top names only.",
+  "markets": {
+    "KOSPI": {
+      "asOf": "2026-10-29",
+      "count": 825,
+      "rows": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "weightPct": 29.57,
+          "ret1dPct": -4.75
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "weightPct": 22.71,
+          "ret1dPct": 1.95
+        },
+        {
+          "code": "402340",
+          "name": "SK스퀘어",
+          "weightPct": 2.54,
+          "ret1dPct": 3.47
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기",
+          "weightPct": 2.04,
+          "ret1dPct": -1.84
+        },
+        {
+          "code": "373220",
+          "name": "LG에너지솔루션",
+          "weightPct": 1.91,
+          "ret1dPct": -8.86
+        },
+        {
+          "code": "207940",
+          "name": "삼성바이오로직스",
+          "weightPct": 1.33,
+          "ret1dPct": -0.29
+        },
+        {
+          "code": "005380",
+          "name": "현대차",
+          "weightPct": 1.26,
+          "ret1dPct": -1.35
+        },
+        {
+          "code": "032830",
+          "name": "삼성생명",
+          "weightPct": 1.16,
+          "ret1dPct": 0.72
+        },
+        {
+          "code": "105560",
+          "name": "KB금융",
+          "weightPct": 1.14,
+          "ret1dPct": 1.95
+        },
+        {
+          "code": "028260",
+          "name": "삼성물산",
+          "weightPct": 1.1,
+          "ret1dPct": -0.15
+        },
+        {
+          "code": "068270",
+          "name": "셀트리온",
+          "weightPct": 0.92,
+          "ret1dPct": 0.42
+        },
+        {
+          "code": "006400",
+          "name": "삼성SDI",
+          "weightPct": 0.9,
+          "ret1dPct": 0.94
+        },
+        {
+          "code": "000270",
+          "name": "기아",
+          "weightPct": 0.88,
+          "ret1dPct": 0.65
+        },
+        {
+          "code": "055550",
+          "name": "신한지주",
+          "weightPct": 0.86,
+          "ret1dPct": 1.71
+        },
+        {
+          "code": "012450",
+          "name": "한화에어로스페이스",
+          "weightPct": 0.85,
+          "ret1dPct": -6.1
+        },
+        {
+          "code": "034020",
+          "name": "두산에너빌리티",
+          "weightPct": 0.82,
+          "ret1dPct": -7.65
+        },
+        {
+          "code": "034730",
+          "name": "SK",
+          "weightPct": 0.82,
+          "ret1dPct": -1.48
+        },
+        {
+          "code": "012330",
+          "name": "현대모비스",
+          "weightPct": 0.66,
+          "ret1dPct": 0.85
+        },
+        {
+          "code": "086790",
+          "name": "하나금융지주",
+          "weightPct": 0.65,
+          "ret1dPct": 4.34
+        },
+        {
+          "code": "329180",
+          "name": "HD현대중공업",
+          "weightPct": 0.63,
+          "ret1dPct": -4.9
+        },
+        {
+          "code": "000810",
+          "name": "삼성화재",
+          "weightPct": 0.59,
+          "ret1dPct": 2.51
+        },
+        {
+          "code": "035420",
+          "name": "NAVER",
+          "weightPct": 0.57,
+          "ret1dPct": -1.63
+        },
+        {
+          "code": "066570",
+          "name": "LG전자",
+          "weightPct": 0.55,
+          "ret1dPct": -4.14
+        },
+        {
+          "code": "010120",
+          "name": "LS ELECTRIC",
+          "weightPct": 0.52,
+          "ret1dPct": -4.31
+        },
+        {
+          "code": "096770",
+          "name": "SK이노베이션",
+          "weightPct": 0.49,
+          "ret1dPct": -6.59
+        },
+        {
+          "code": "005490",
+          "name": "POSCO홀딩스",
+          "weightPct": 0.47,
+          "ret1dPct": -2.3
+        },
+        {
+          "code": "316140",
+          "name": "우리금융지주",
+          "weightPct": 0.46,
+          "ret1dPct": 4.18
+        },
+        {
+          "code": "011200",
+          "name": "HMM",
+          "weightPct": 0.44,
+          "ret1dPct": 1.58
+        },
+        {
+          "code": "138040",
+          "name": "메리츠금융지주",
+          "weightPct": 0.43,
+          "ret1dPct": 6.88
+        },
+        {
+          "code": "033780",
+          "name": "KT&G",
+          "weightPct": 0.41,
+          "ret1dPct": 2.71
+        }
+      ]
+    },
+    "KOSDAQ": {
+      "asOf": "2026-10-29",
+      "count": 1760,
+      "rows": [
+        {
+          "code": "196170",
+          "name": "알테오젠",
+          "weightPct": 3.61,
+          "ret1dPct": 0.45
+        },
+        {
+          "code": "086520",
+          "name": "에코프로",
+          "weightPct": 2.42,
+          "ret1dPct": -4.04
+        },
+        {
+          "code": "247540",
+          "name": "에코프로비엠",
+          "weightPct": 2.22,
+          "ret1dPct": -5.54
+        },
+        {
+          "code": "036930",
+          "name": "주성엔지니어링",
+          "weightPct": 2,
+          "ret1dPct": -5.28
+        },
+        {
+          "code": "277810",
+          "name": "레인보우로보틱스",
+          "weightPct": 1.82,
+          "ret1dPct": -6.55
+        },
+        {
+          "code": "028300",
+          "name": "HLB",
+          "weightPct": 1.26,
+          "ret1dPct": -2.58
+        },
+        {
+          "code": "039030",
+          "name": "이오테크닉스",
+          "weightPct": 1.2,
+          "ret1dPct": -1.55
+        },
+        {
+          "code": "222800",
+          "name": "심텍",
+          "weightPct": 1.16,
+          "ret1dPct": -3.29
+        },
+        {
+          "code": "240810",
+          "name": "원익IPS",
+          "weightPct": 1.14,
+          "ret1dPct": -4.92
+        },
+        {
+          "code": "058470",
+          "name": "리노공업",
+          "weightPct": 1.12,
+          "ret1dPct": -3.15
+        },
+        {
+          "code": "000250",
+          "name": "삼천당제약",
+          "weightPct": 1.04,
+          "ret1dPct": -1.37
+        },
+        {
+          "code": "031980",
+          "name": "피에스케이홀딩스",
+          "weightPct": 0.97,
+          "ret1dPct": -0.05
+        },
+        {
+          "code": "108490",
+          "name": "로보티즈",
+          "weightPct": 0.94,
+          "ret1dPct": -3.81
+        },
+        {
+          "code": "403870",
+          "name": "HPSP",
+          "weightPct": 0.9,
+          "ret1dPct": -4.65
+        },
+        {
+          "code": "319660",
+          "name": "피에스케이",
+          "weightPct": 0.83,
+          "ret1dPct": -3.32
+        },
+        {
+          "code": "095340",
+          "name": "ISC",
+          "weightPct": 0.82,
+          "ret1dPct": -0.54
+        },
+        {
+          "code": "131290",
+          "name": "티에스이",
+          "weightPct": 0.71,
+          "ret1dPct": -6.18
+        },
+        {
+          "code": "084370",
+          "name": "유진테크",
+          "weightPct": 0.61,
+          "ret1dPct": -2.43
+        },
+        {
+          "code": "440110",
+          "name": "파두",
+          "weightPct": 0.59,
+          "ret1dPct": -3.04
+        },
+        {
+          "code": "357780",
+          "name": "솔브레인",
+          "weightPct": 0.57,
+          "ret1dPct": -1.89
+        }
+      ]
+    }
+  }
+}

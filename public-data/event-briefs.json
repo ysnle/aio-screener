@@ -1,0 +1,1060 @@
+{
+  "schemaVersion": "event-briefs.v1",
+  "generatedAt": "2026-10-29T14:15:06.540Z",
+  "producer": "scripts/fetch-event-briefs.mjs",
+  "cadence": "every 20 minutes (.github/workflows/event-briefs.yml); AI runs only for a new source document or a pending call summary",
+  "sourceKind": "T1_OFFICIAL",
+  "allowedUse": "reference",
+  "basis": "Primary sources: federalreserve.gov statements, SEC EDGAR 8-K/6-K Ex.99, DART 공정공시. Call and press-conference points are report-based until a transcript is available. Figures not found in the fetched source are dropped.",
+  "status": {
+    "fomc": "statement-ok",
+    "sec": "ok",
+    "dart": "ok",
+    "ai": "ok"
+  },
+  "aiReason": null,
+  "errors": [
+    "dart 005930.KS: 20261029800099 not parsed"
+  ],
+  "costLedger": {
+    "month": "2026-10",
+    "requests": 12,
+    "estimatedUsd": 0.107,
+    "rateCard": {
+      "inputUsdPerToken": 1.375e-7,
+      "outputUsdPerToken": 5.5e-7,
+      "searchUsdPerCall": 0.011
+    },
+    "perBriefEstimateUsd": {
+      "withoutSearch": 0.003,
+      "withOneSearch": 0.018
+    }
+  },
+  "skippedFilings": [
+    "0001046179-26-000728"
+  ],
+  "briefs": [
+    {
+      "id": "earnings-NOW-0001373715-26-000092",
+      "kind": "earnings",
+      "symbol": "NOW",
+      "nameKo": "서비스나우",
+      "eventDate": "2026-10-28",
+      "publishedAt": "2026-10-28T20:14:14.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000092/0001373715-26-000092-index.html",
+        "accession": "0001373715-26-000092",
+        "fetchedAt": "2026-10-29T14:15:06.540Z",
+        "sha256": "a20d76fd7fbaf11f1aad4d711358ac7822aace43ad21a3f19df262a6391c3036"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-NOW",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 10320,
+          "outputTokens": 2035,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00254
+        },
+        {
+          "purpose": "call-NOW",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 12852,
+          "outputTokens": 689,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01315
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "서비스나우, 구독 매출 성장과 수익성 지표에서 가이던스 상회",
+      "figures": [
+        {
+          "label": "구독 매출",
+          "value": "$3,988 million",
+          "text": "전년 대비 21% 증가, 고정환율 기준 20.5% 증가.",
+          "metric": "revenue",
+          "quote": "Subscription revenues of $3,988 million in Q3 2026, representing 21% year-over-year growth, 20.5% in constant currency",
+          "estimate": {
+            "value": 4135607751,
+            "surprisePct": -3.6,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "총매출",
+          "value": "$4,106 million",
+          "text": "전년 대비 20.5% 증가.",
+          "metric": "revenue",
+          "quote": "Total revenues of $4,106 million in Q3 2026, representing 20.5% year-over-year growth, 20% in constant currency",
+          "estimate": {
+            "value": 4135607751,
+            "surprisePct": -0.7,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "희석 주당순이익, GAAP",
+          "value": "$0.27",
+          "text": "3분기 GAAP 희석 주당순이익.",
+          "metric": "eps_diluted",
+          "quote": "Net income per share - diluted (2) $ 0.27 $ 0.48 $ 1.01 $ 1.29",
+          "estimate": {
+            "value": 1.0341,
+            "surprisePct": -73.9,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "희석 주당순이익, 비GAAP",
+          "value": "$1.00",
+          "text": "3분기 비GAAP 희석 주당순이익.",
+          "metric": "eps_diluted",
+          "quote": "Non-GAAP net income per share - diluted (2)(3) $ 1.00 $ 0.95 $ 2.87 $ 2.57",
+          "estimate": {
+            "value": 1.0341,
+            "surprisePct": -3.3,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "영업이익, GAAP",
+          "value": "$385 million",
+          "text": "영업이익률은 9.5%.",
+          "metric": "operating_income",
+          "quote": "Income from operations $ 385 9.5 % $ 1,338 32.5 %"
+        },
+        {
+          "label": "영업이익, 비GAAP",
+          "value": "$1,338 million",
+          "text": "비GAAP 영업이익률은 32.5%.",
+          "metric": "operating_income",
+          "quote": "Income from operations $ 385 9.5 % $ 1,338 32.5 %"
+        }
+      ],
+      "details": [
+        {
+          "label": "구독 매출",
+          "value": "$3,988 million",
+          "text": "전년 대비 21% 증가.",
+          "quote": "Subscription revenues $ 3,988 21 % $ 3,990 20.5 %"
+        },
+        {
+          "label": "전문 서비스 및 기타 매출",
+          "value": "$118 million",
+          "text": "전년 대비 10% 증가.",
+          "quote": "Professional services and other revenues $ 118 10 % $ 117 9 %"
+        }
+      ],
+      "detailTitle": "사업부문",
+      "guidance": [
+        {
+          "label": "다음 분기 구독 매출",
+          "value": "$4,245 - $4,255 million",
+          "text": "전년 대비 성장률 가이던스는 22.5% - 23%, 고정환율 기준 21.5%.",
+          "quote": "Subscription revenues $4,245 - $4,255 22.5% - 23% 21.5 %"
+        },
+        {
+          "label": "다음 분기 cRPO 성장률",
+          "value": "18.5%",
+          "text": "GAAP 및 고정환율 기준 성장률 가이던스.",
+          "quote": "cRPO 18.5 % 18.5 %"
+        },
+        {
+          "label": "다음 분기 영업이익률",
+          "value": "32%",
+          "text": "비GAAP 영업이익률 가이던스.",
+          "quote": "Income from operations 32 %"
+        },
+        {
+          "label": "연간 구독 매출",
+          "value": "$15,780 - $15,790 million",
+          "text": "전년 대비 성장률 가이던스는 22.5%, 고정환율 기준 21%.",
+          "quote": "Subscription revenues $15,780 - $15,790 22.5 % 21 %"
+        }
+      ],
+      "watch": [
+        "다음 실적 발표에서 구독 매출과 cRPO가 제시한 가이던스에 부합하는지 확인한다.",
+        "연간 구독 매출과 잉여현금흐름 마진 가이던스의 달성 여부를 확인한다.",
+        "AI 신규 계약가치 목표 및 실제 생산 환경의 AI 사용 추이를 확인한다."
+      ],
+      "dropped": [],
+      "callPoints": {
+        "title": "컨퍼런스콜 핵심",
+        "basis": "news-report",
+        "speaker": "Bill McDermott, CEO; Gina Mastantuono, 사장 겸 CFO",
+        "points": [
+          {
+            "text": "AI 수요가 예상보다 강해 AI 신규 ACV 기대치를 웃돌았고, 2026년 AI ACV 목표를 연초 10억 달러에서 17억 달러로 상향했다고 CFO가 설명했다.",
+            "url": "https://investor.servicenow.com/news/news-details/2026/ServiceNow-Reports-Third-Quarter-2026-Financial-Results/default.aspx"
+          },
+          {
+            "text": "경영진은 생산 환경의 에이전틱 AI 사용량이 연초 이후 전년 대비 13배 이상 늘었고, Q3에 500만 달러 초과 신규 ACV 계약 19건을 체결했다고 밝혔다.",
+            "url": "https://investor.servicenow.com/news/news-details/2026/ServiceNow-Reports-Third-Quarter-2026-Financial-Results/default.aspx"
+          },
+          {
+            "text": "투자·효율 측면에서 자본지출을 줄이는 자본효율적 모델을 강조하며, 연간 잉여현금흐름 마진 목표를 100bp 높여 36%로 제시했다.",
+            "url": "https://investor.servicenow.com/news/news-details/2026/ServiceNow-Reports-Third-Quarter-2026-Financial-Results/default.aspx"
+          },
+          {
+            "text": "가이던스 설명에서 회사는 2026년 비GAAP 영업이익률 31.5%, 구독 총이익률 81%를 제시했고, CEO는 AI·보안·기술부채를 통합 관리하는 ‘Control Tower’ 전략이 고객의 채택을 가속한다고 강조했다.",
+            "url": "https://newsroom.servicenow.com/press-releases/details/2026/ServiceNow-Reports-Third-Quarter-2026-Financial-Results/default.aspx"
+          },
+          {
+            "text": "공개된 회사 실적자료에는 컨퍼런스콜 질의응답의 구체적 문답이 확인되지 않아 Q&A 쟁점은 자료만으로 요약하지 않았다.",
+            "url": "https://investor.servicenow.com/financial-resources/financial-performance/default.aspx"
+          }
+        ],
+        "attempts": 1,
+        "done": true,
+        "searchedAt": "2026-10-29T14:15:06.540Z",
+        "dropped": [
+          {
+            "reason": "number-not-in-source",
+            "numbers": [
+              "8800",
+              "8000",
+              "9000"
+            ],
+            "text": "Q3 구독 매출은 39억8,800만 달러로 전년 대비 21% 늘었고, 비GAAP 영업이익률은 32.5%였다. 회사는 연간 구독 매출 가이던스를 157억8,000만~157억9,000만 달러로 제시했다."
+          }
+        ]
+      }
+    },
+    {
+      "id": "earnings-MSFT-0001193125-26-436122",
+      "kind": "earnings",
+      "symbol": "MSFT",
+      "nameKo": "마이크로소프트",
+      "eventDate": "2026-10-28",
+      "publishedAt": "2026-10-28T20:04:44.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436122/0001193125-26-436122-index.html",
+        "accession": "0001193125-26-436122",
+        "fetchedAt": "2026-10-29T14:15:06.540Z",
+        "sha256": "e73eb24531dda3259b808e9818cc37a29e6c0d27c0af69b3fb5194d8f68b0f3f"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-MSFT",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 5006,
+          "outputTokens": 812,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00113
+        },
+        {
+          "purpose": "call-MSFT",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 8916,
+          "outputTokens": 228,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02335
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "마이크로소프트 실적 발표",
+      "figures": [
+        {
+          "label": "매출",
+          "value": "$92.3 billion",
+          "text": "매출은 전년 동기 대비 19% 증가했다.",
+          "metric": "revenue",
+          "quote": "Revenue was $92.3 billion and increased 19%",
+          "estimate": {
+            "value": 92493412748,
+            "surprisePct": -0.2,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "영업이익",
+          "value": "$45.9 billion",
+          "text": "전년 동기 대비 21% 증가했다.",
+          "metric": "operating_income",
+          "quote": "Operating income was $45.9 billion and increased 21% (up 22% in constant currency)"
+        },
+        {
+          "label": "순이익(GAAP)",
+          "value": "$36.6 billion",
+          "text": "전년 동기 대비 32% 증가했다.",
+          "metric": "net_income",
+          "quote": "Net income was $36.6 billion and increased 32% on a GAAP basis, and was $36.4 billion and increased 18% (up 19% in constant currency) on a non-GAAP basis"
+        },
+        {
+          "label": "희석 주당순이익(GAAP)",
+          "value": "$4.92",
+          "text": "전년 동기 대비 32% 증가했다.",
+          "metric": "eps_diluted",
+          "quote": "Diluted earnings per share was $4.92 and increased 32% on a GAAP basis, and was $4.89 and increased 18% (up 19% in constant currency) on a non-GAAP basis",
+          "estimate": {
+            "value": 4.8165,
+            "surprisePct": 2.1,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "Microsoft Cloud 매출",
+          "value": "$63.9 billion",
+          "text": "전년 동기 대비 30% 증가했다.",
+          "metric": "other",
+          "quote": "Microsoft Cloud revenue was $63.9 billion and increased 30% (up 31% in constant currency)"
+        }
+      ],
+      "details": [],
+      "detailTitle": "사업부문",
+      "guidance": [],
+      "watch": [
+        "다음 실적 발표에서 분기 실적과 회사가 제시할 전망을 확인한다.",
+        "Microsoft Cloud와 Azure의 성장 흐름을 확인한다.",
+        "Agents and Infra 및 Devices and Consumer 사업부의 매출 흐름을 확인한다."
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "68",
+            "92279"
+          ],
+          "text": "매출총이익률 68% 매출총이익 $62,559 million, 매출 $92,279 million을 바탕으로 계산한 수치이므로 제외."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "48",
+            "365",
+            "17"
+          ],
+          "text": "Agents and Infra $76.8 billion 매출은 25% 증가했다. Azure 매출은 48% 증가했고, Microsoft 365 commercial cloud 매출은 보고 기준 17% 증가했다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "12",
+            "2",
+            "22"
+          ],
+          "text": "Devices and Consumer $15.5 billion 매출은 3% 감소했다. Search and advertising은 12% 증가했고, XBOX content and services는 2% 감소, Wind"
+        }
+      ],
+      "callPoints": {
+        "title": "컨퍼런스콜 핵심",
+        "basis": "news-report",
+        "speaker": "Satya Nadella, Amy Hood",
+        "points": [
+          {
+            "text": "마이크로소프트 공식 투자자 페이지는 FY2027 1분기 실적 컨퍼런스콜이 2026년 10월 28일 열렸으며, 발언자는 Satya Nadella CEO와 Amy Hood CFO라고 확인한다. 다만 확인 가능한 자료에는 콜의 발언 내용이 제공되지 않아 수요·투자·마진·가이던스·질의응답 쟁점을 검증해 요약할 수 없다.",
+            "url": "https://www.microsoft.com/en-us/investor/events/fy-2027/earnings-fy-2027-q1"
+          }
+        ],
+        "attempts": 1,
+        "done": true,
+        "searchedAt": "2026-10-29T14:15:06.540Z",
+        "dropped": []
+      }
+    },
+    {
+      "id": "earnings-GOOGL-0001652044-26-000080",
+      "kind": "earnings",
+      "symbol": "GOOGL",
+      "nameKo": "알파벳",
+      "eventDate": "2026-10-28",
+      "publishedAt": "2026-10-28T20:01:33.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/0001652044-26-000080-index.html",
+        "accession": "0001652044-26-000080",
+        "fetchedAt": "2026-10-29T14:15:06.540Z",
+        "sha256": "566b2c2bf1c3cf389e10153f2507420e6ef151006f94551f327ad548e21fe929"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-GOOGL",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 6642,
+          "outputTokens": 1171,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00156
+        },
+        {
+          "purpose": "call-GOOGL",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 12721,
+          "outputTokens": 377,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01296
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "Alphabet Announces Third Quarter 2026 Results",
+      "figures": [
+        {
+          "label": "매출",
+          "value": "$127.6 billion",
+          "text": "매출은 전년 대비 증가했다.",
+          "metric": "revenue",
+          "quote": "Consolidated Alphabet revenues increased 25% to $127.6 billion, reflecting strong performance across the business and our 13th consecutive quarter of double-digit revenue growth.",
+          "estimate": {
+            "value": 132020419167,
+            "surprisePct": -3.3,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "희석 EPS",
+          "value": "$2.12",
+          "text": "보통주 주주 귀속 순이익 기준 희석 EPS.",
+          "metric": "eps_diluted",
+          "quote": "Net income available to common stockholders was $26.2 billion and EPS was $2.12.",
+          "estimate": {
+            "value": 3.1095,
+            "surprisePct": -31.8,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "영업이익률",
+          "value": "31.8%",
+          "text": "회사 발표 기준 영업이익률.",
+          "metric": "margin",
+          "quote": "Consolidated Alphabet operating income increased 30% and operating margin was 31.8%."
+        },
+        {
+          "label": "보통주 주주 귀속 순이익",
+          "value": "$26.2 billion",
+          "text": "보통주 주주에게 귀속된 순이익.",
+          "metric": "net_income",
+          "quote": "Net income available to common stockholders was $26.2 billion and EPS was $2.12."
+        }
+      ],
+      "details": [
+        {
+          "label": "Google Services 영업이익",
+          "value": "$39,157 million",
+          "text": "분기 부문 영업이익.",
+          "quote": "Google Services $ 33,527 $ 39,157"
+        },
+        {
+          "label": "Other Bets 영업손실",
+          "value": "($2,047) million",
+          "text": "분기 부문 영업손실.",
+          "quote": "Other Bets (1,426) (2,047)"
+        }
+      ],
+      "detailTitle": "사업부문",
+      "guidance": [],
+      "watch": [
+        "다음 실적 발표에서 매출과 영업이익 추이를 확인한다.",
+        "Search 쿼리 성장세와 Google Cloud 수요가 이어지는지 확인한다.",
+        "AI 관련 비용과 Alphabet-level 활동의 영향을 살펴본다.",
+        "회사가 향후 분기 또는 연간 가이던스를 새로 제시하는지 확인한다."
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "40576"
+          ],
+          "text": "영업이익 $40,576 million 영업이익은 전년 대비 증가했다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "96302"
+          ],
+          "text": "Google Services 매출 $96,302 million Search & other 성장과 광고·구독 등 서비스 매출을 포함한다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "30709"
+          ],
+          "text": "Google Cloud 매출 $30,709 million AI 인프라·솔루션과 핵심 GCP 서비스가 성장에 기여했다."
+        },
+        {
+          "reason": "quote-not-in-source",
+          "text": "Google Cloud 영업이익 $11,121 million 분기 부문 영업이익."
+        },
+        {
+          "reason": "quote-not-in-source",
+          "text": "Other Bets 매출 $372 million 분기 부문 매출."
+        }
+      ],
+      "callPoints": {
+        "title": "컨퍼런스콜 핵심",
+        "basis": "news-report",
+        "speaker": "Sundar Pichai; Anat Ashkenazi",
+        "points": [
+          {
+            "text": "Pichai는 Gemini 앱이 사용자 10억 명에 도달했다고 말했고, AI 인프라와 솔루션에 대한 강한 고객 수요가 Google Cloud 성장을 이끌고 있다고 강조했다.",
+            "url": "https://apnews.com/article/1acf6aff00d4dc084c5243d613307388"
+          },
+          {
+            "text": "AP 보도에 따르면 3분기 매출은 전년 대비 늘었지만 시장 예상에 못 미쳤고, Search·YouTube 광고 성장 둔화 우려가 질의응답 및 투자자 쟁점으로 부각됐다.",
+            "url": "https://apnews.com/article/1acf6aff00d4dc084c5243d613307388"
+          },
+          {
+            "text": "이 보도에서 확인되는 콜 발언에는 마진에 대한 구체적 설명이 포함되지 않아 별도로 정리하지 않았다.",
+            "url": "https://apnews.com/article/1acf6aff00d4dc084c5243d613307388"
+          }
+        ],
+        "attempts": 1,
+        "done": true,
+        "searchedAt": "2026-10-29T14:15:06.540Z",
+        "dropped": [
+          {
+            "reason": "number-not-in-source",
+            "numbers": [
+              "2027"
+            ],
+            "text": "Ashkenazi는 2027년 자본지출이 계속 크게 늘어날 것으로 예상하며, 자세한 설명은 4분기 실적 발표에서 하겠다고 밝혔다."
+          }
+        ]
+      }
+    },
+    {
+      "id": "fomc-2026-10-28",
+      "kind": "fomc",
+      "symbol": null,
+      "nameKo": "FOMC",
+      "eventDate": "2026-10-28",
+      "publishedAt": "2026-10-28T18:00:00.000Z",
+      "status": "complete",
+      "ai": [
+        {
+          "purpose": "fomc-statement",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 931,
+          "outputTokens": 772,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00055
+        },
+        {
+          "purpose": "fomc-transcript",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 1157,
+          "outputTokens": 475,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00042
+        }
+      ],
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "FOMC statement (federalreserve.gov)",
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
+        "fetchedAt": "2026-10-29T14:15:06.540Z",
+        "sha256": "086d20d54975fdccdefe76327978a067272de546eaf5a8c814b6cbd69f6fb1f2"
+      },
+      "previousSource": {
+        "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm",
+        "date": "2026-09-16"
+      },
+      "basis": "primary-source",
+      "headline": "연준, 정책금리 범위 유지",
+      "figures": [
+        {
+          "label": "정책금리 범위",
+          "value": "3-3/4 to 4 percent",
+          "text": "정책금리 목표 범위를 유지했다.",
+          "quote": "The Committee decided to maintain the target range for the federal funds rate at 3-3/4 to 4 percent, in support of the Federal Reserve's dual mandate.",
+          "metric": "policy_rate_range"
+        },
+        {
+          "label": "표결",
+          "value": "10 - 2",
+          "text": "성명은 10 - 2 표결로 승인됐다.",
+          "quote": "The Federal Open Market Committee approved the following statement for release by a 10 - 2 vote:",
+          "metric": "vote"
+        }
+      ],
+      "details": [
+        {
+          "label": "경제활동",
+          "value": "solid에서 strong으로 변경",
+          "text": "경제활동 확장 속도를 ‘강한’ 수준으로 표현했다.",
+          "quote": "Economic activity is expanding at a strong pace."
+        },
+        {
+          "label": "물가 목표 복귀",
+          "value": "새 문구",
+          "text": "추가 정보가 적절한 정책 기조 결정에 도움이 될 것이라고 밝혔다.",
+          "quote": "The accumulation of more information will help the Committee determine the policy stance appropriate to ensure a timely return of inflation to the Committee's 2 percent goal."
+        },
+        {
+          "label": "정책 조치",
+          "value": "인상에서 유지로 변경",
+          "text": "직전 성명의 금리 인상 문구를 금리 범위 유지 문구로 바꿨다.",
+          "quote": "The Committee decided to maintain the target range for the federal funds rate at 3-3/4 to 4 percent, in support of the Federal Reserve's dual mandate."
+        }
+      ],
+      "detailTitle": "직전 성명 대비 바뀐 문구",
+      "dissents": [
+        {
+          "label": "Lisa D. Cook, Beth M. Hammack",
+          "value": "1/4 percentage point 인상 선호",
+          "text": "두 위원은 이번 회의에서 금리 범위 인상을 선호했다.",
+          "quote": "Voting against the monetary policy action were Lisa D. Cook and Beth M. Hammack, who preferred to raise the target range for the federal funds rate by 1/4 percentage point at this meeting."
+        }
+      ],
+      "watch": [
+        "다음 FOMC 성명과 정책 기조를 확인한다.",
+        "물가와 고용 지표를 살핀다.",
+        "추가 정보가 정책 판단에 미치는 영향을 확인한다."
+      ],
+      "dropped": [],
+      "callPoints": {
+        "title": "의장 기자회견",
+        "basis": "transcript",
+        "preliminary": true,
+        "speaker": "Kevin Warsh",
+        "points": [
+          {
+            "text": "고용 여건은 긍정적이지만 물가는 여전히 목표를 웃돈다고 평가했다. “So on the employment side of the Feds dual mandate, conditions are quite positive.” “But inflation is too high.”",
+            "url": "https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20261028.pdf"
+          },
+          {
+            "text": "에너지·관련 가격 상승이 다른 부문으로 확산되지 않고 기대인플레이션이 안정적으로 유지되도록 하는 것이 과제라고 밝혔다. “And our job is to ensure that relative price changes in some sectors do not broaden out across the economy, and that inflation expectations remain as they are anchored.”",
+            "url": "https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20261028.pdf"
+          },
+          {
+            "text": "금융 여건은 긴축됐지만 이를 긴축적이라고 단정하지 않았으며, 향후 정보에 따라 적절한 정책 수준을 판단하겠다고 말했다. “And while overall financial conditions are tighter, Im unwilling and unable to call them tight.” “The information we receive over the coming period will help us determine where we want policy to be.”",
+            "url": "https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20261028.pdf"
+          },
+          {
+            "text": "제공된 발췌문에는 대차대조표에 관한 발언이나 기자 질문과 답변이 포함되어 있지 않다. “Now my time is yours, and I welcome your questions.”",
+            "url": "https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20261028.pdf"
+          }
+        ],
+        "attempts": 0,
+        "transcriptAttempts": 1,
+        "done": true,
+        "searchedAt": "2026-10-29T14:15:06.540Z",
+        "dropped": [],
+        "transcriptUrl": "https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20261028.pdf"
+      }
+    },
+    {
+      "id": "earnings-000660.KS-20261028800036",
+      "kind": "earnings",
+      "symbol": "000660.KS",
+      "nameKo": "SK하이닉스",
+      "eventDate": "2026-10-28",
+      "publishedAt": "2026-10-28T00:00:00+09:00",
+      "publishedDateOnly": true,
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "DART 연결재무제표기준영업(잠정)실적(공정공시)",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261028800036",
+        "rcpNo": "20261028800036",
+        "fetchedAt": "2026-10-29T14:15:06.540Z",
+        "sha256": "93bcf5c998ce84aa510e5c4941801f3be3fca5b48afa78e97badda1652b5886c"
+      },
+      "status": "partial",
+      "basis": "primary-source",
+      "period": "2026년 3분기",
+      "headline": "2026년 3분기 잠정 실적: 영업이익 83.33조원(전분기 대비 +37.6%, 전년 대비 +632.1%)",
+      "figures": [
+        {
+          "metric": "revenue",
+          "label": "매출액",
+          "value": "104.62조원",
+          "text": "전분기 대비 +31.9%, 전년 대비 +327.9%",
+          "quote": "매출액 당해실적 104,615,483 79,318,746 31.9 - 24,448,929 327.9",
+          "derived": "104,615,483 백만원 환산"
+        },
+        {
+          "metric": "operating_income",
+          "label": "영업이익",
+          "value": "83.33조원",
+          "text": "전분기 대비 +37.6%, 전년 대비 +632.1%",
+          "quote": "영업이익 당해실적 83,333,818 60,542,608 37.6 - 11,383,390 632.1",
+          "derived": "83,333,818 백만원 환산"
+        },
+        {
+          "metric": "net_income",
+          "label": "당기순이익",
+          "value": "39.78조원",
+          "text": "전분기 대비 -57.7%, 전년 대비 +215.7%",
+          "quote": "당기순이익 당해실적 39,775,593 93,922,593 -57.7 - 12,597,538 215.7",
+          "derived": "39,775,593 백만원 환산"
+        }
+      ],
+      "details": [],
+      "detailTitle": "사업부문",
+      "guidance": [],
+      "watch": [],
+      "dropped": [],
+      "firstSeenAt": "2026-10-29T14:15:06.540Z",
+      "ai": [],
+      "checkText": "SK하이닉스/연결재무제표기준영업(잠정)실적(공정공시)/(2026.10.28)연결재무제표기준영업(잠정)실적(공정공시)\n연결재무제표 기준 영업(잠정)실적(공정공시)\n실적기간\n당기실적\n2026-07-01\n~\n2026-09-30\n전기실적\n2026-04-01\n~\n2026-06-30\n전년동기실적\n2025-07-01\n~\n2025-09-30\n당기누계실적\n2026-01-01\n~\n2026-09-30\n전년동기누적실적\n2025-01-01\n~\n2025-09-30\n※ 동 정보는 잠정치로서 향후 확정치와는 다를 수 있음.\n1. 연결실적내용\n단위 : 백만원, %\n구분\n당기실적\n전기실적\n전기대비\n전년동기실적\n전년동기대비\n(2026년 3분기)\n(2026년 2분기)\n증감율(%)\n흑자적자전환여부\n(2025년 3분기)\n증감율(%)\n흑자적자전환여부\n매출액\n당해실적\n104,615,483\n79,318,746\n31.9\n-\n24,448,929\n327.9\n-\n누계실적\n236,510,516\n-\n-\n-\n64,320,022\n267.7\n-\n영업이익\n당해실적\n83,333,818\n60,542,608\n37.6\n-\n11,383,390\n632.1\n-\n누계실적\n181,486,709\n-\n-\n-\n28,036,745\n547.3\n-\n법인세비용차감전계속사업이익\n당해실적\n50,708,500\n122,708,355\n-58.7\n-\n14,790,428\n242.8\n-\n누계실적\n225,033,713\n-\n-\n-\n32,812,240\n585.8\n-\n당기순이익\n당해실적\n39,775,593\n93,922,593\n-57.7\n-\n12,597,538\n215.7\n-\n누계실적\n174,044,095\n-\n-\n-\n27,701,949\n528.3\n-\n지배기업 소유주지분 순이익\n당해실적\n39,534,392\n93,820,236\n-57.9\n-\n12,595,195\n213.9\n-\n누계실적\n173,684,804\n-\n-\n-\n27,699,504\n527.0\n-\n-\n-\n-\n-\n-\n-\n-\n-\n2. 정보제공내역\n정보제공자\n당사 IR\n정보제공대상자\n투자자 및 언론사\n정보제공(예정)일자\n2026년 10월 28일\n정보제공(예정)시간\n오전 9시\n행사명(장소)\n2026년 3분기 실적발표 Conference Call\n3. 연락처\n관련부서\nIR\n전화번호\n031-5185-4114\n4. 기타 투자판단과 관련한 중요사항\n- 상기 금액은 한국채택국제회계기준(K-IFRS)에 따라 작성된 연결기준 영업실적이며, 외부감사인의 감사가 완료되지 않은 잠정치로서 향후 변동될 수 있습니다. - 회사의 기업설명회 자료는 발표 당일 홈페이지를 참조하시기 바랍니다. (https://www.skhynix.com → 투자정보 → 재무정보 → 실적발표)\n※ 관련공시\n2026-10-14 기업설명회(IR) 개최(안내공시)\n104.62조원 전분기 대비 +31.9%, 전년 대비 +327.9%\n83.33조원 전분기 대비 +37.6%, 전년 대비 +632.1%\n39.78조원 전분기 대비 -57.7%, 전년 대비 +215.7%"
+    },
+    {
+      "id": "earnings-TSLA-0001628280-26-066738",
+      "kind": "earnings",
+      "symbol": "TSLA",
+      "nameKo": "테슬라",
+      "eventDate": "2026-10-21",
+      "publishedAt": "2026-10-21T20:41:42.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026066738/0001628280-26-066738-index.html",
+        "accession": "0001628280-26-066738",
+        "fetchedAt": "2026-10-29T14:15:06.540Z",
+        "sha256": "c427e8939abeef050dc6f3618e0b2c79aadc73a03365a4254110d02870922a0a"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-TSLA",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 11526,
+          "outputTokens": 2054,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00271
+        },
+        {
+          "purpose": "call-TSLA",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 8947,
+          "outputTokens": 571,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02354
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "테슬라 Q3-2026 실적: 매출 $28,046M, GAAP 희석 EPS 0.22",
+      "figures": [
+        {
+          "label": "GAAP 희석 주당순이익",
+          "value": "0.22",
+          "text": "보통주 주주 귀속 GAAP 희석 EPS.",
+          "metric": "eps_diluted",
+          "quote": "EPS attributable to common stockholders, diluted (GAAP) 0.39 0.24 0.13 0.32 0.22"
+        },
+        {
+          "label": "비GAAP 희석 주당순이익",
+          "value": "0.48",
+          "text": "보통주 주주 귀속 비GAAP 희석 EPS.",
+          "metric": "eps_diluted",
+          "quote": "EPS attributable to common stockholders, diluted (non-GAAP) 0.50 0.50 0.41 0.33 0.48"
+        },
+        {
+          "label": "영업이익",
+          "value": "718",
+          "text": "GAAP 영업이익.",
+          "metric": "operating_income",
+          "quote": "Income from operations 1,624 1,409 941 398 718"
+        },
+        {
+          "label": "보통주 주주 귀속 GAAP 순이익",
+          "value": "787",
+          "text": "GAAP 기준 순이익.",
+          "metric": "net_income",
+          "quote": "Net income attributable to common stockholders (GAAP) 1,373 840 477 1,114 787"
+        },
+        {
+          "label": "보통주 주주 귀속 비GAAP 순이익",
+          "value": "1,697",
+          "text": "비GAAP 기준 순이익.",
+          "metric": "net_income",
+          "quote": "Net income attributable to common stockholders (non-GAAP) 1,770 1,761 1,453 1,153 1,697"
+        },
+        {
+          "label": "영업현금흐름",
+          "value": "$6.3B",
+          "text": "분기 영업현금흐름.",
+          "metric": "other",
+          "quote": "Operating cash flow of $6.3B"
+        }
+      ],
+      "details": [
+        {
+          "label": "로보택시",
+          "value": "",
+          "text": "오스틴에서 사이버캡을 로보택시 차량군에 투입하기 시작했다.",
+          "quote": "We began deployment of Cybercab into our Robotaxi fleet in Austin."
+        },
+        {
+          "label": "옵티머스",
+          "value": "",
+          "text": "프리몬트에서 양산 라인 생산을 시작했다.",
+          "quote": "Optimus production began in Fremont on our high-volume lines."
+        },
+        {
+          "label": "SI 컴퓨팅",
+          "value": "400 MW",
+          "text": "연말까지 SI 학습 컴퓨팅 용량을 확대할 계획이다.",
+          "quote": "We plan to reach 400 MW of SI training compute by the end of the year, supporting the development of both vehicle and humanoid robot autonomy software."
+        }
+      ],
+      "detailTitle": "사업부문",
+      "guidance": [
+        {
+          "label": "공장 가동",
+          "value": "",
+          "text": "공장 생산능력의 최대 활용을 목표로 한다.",
+          "quote": "We are focused on maximum capacity utilization at our factories."
+        },
+        {
+          "label": "유동성",
+          "value": "",
+          "text": "제품 로드맵과 장기 생산능력 확장 등에 필요한 유동성을 유지할 방침이다.",
+          "quote": "We will manage the business such that we ensure a strong balance sheet, maintaining sufficient liquidity to fund our product roadmap, long-term capacity expansion plans - including further vertical integration - and other expenses."
+        },
+        {
+          "label": "이익 구성",
+          "value": "",
+          "text": "장기적으로 하드웨어 이익과 함께 SI·소프트웨어·차량군 기반 이익이 가속화될 것으로 기대한다.",
+          "quote": "While we continue to execute on innovations to reduce the cost of manufacturing and operations, over time, we expect our hardware-related profits to be accompanied by an acceleration of SI, software and fleet-based profits."
+        },
+        {
+          "label": "제품·생산능력",
+          "value": "",
+          "text": "신규 공장 건설 전에 기존 생산능력을 활용하고 최적화하는 데 집중한다.",
+          "quote": "We remain focused on growing our sales volumes through a differentiated and efficiently managed product portfolio, which includes leveraging and optimizing our existing production capacity before building new factories and production lines."
+        }
+      ],
+      "watch": [
+        "다음 실적 발표에서 매출과 수익성 흐름을 확인한다.",
+        "배터리 공급 여건과 차량 생산·인도 추이를 확인한다.",
+        "에너지 저장 사업의 수요와 생산 확대 상황을 확인한다.",
+        "로보택시 운행 확대와 서비스 운영 지표를 확인한다."
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "28046"
+          ],
+          "text": "총매출 28,046 총매출은 전년 동기와 대체로 비슷했다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "20560"
+          ],
+          "text": "자동차 20,560 자동차 매출. 분기 중 배터리 공급이 차량 생산 증가의 제약 요인이었다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "2881"
+          ],
+          "text": "에너지 저장 2,881 에너지 발전·저장 매출. 텍사스 메가팩토리가 생산을 시작했고 수요와 수주 잔고가 강세였다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "4605"
+          ],
+          "text": "서비스 및 기타 4,605 서비스 및 기타 매출. 매출총이익은 전분기보다 늘어 기록을 세웠다."
+        }
+      ],
+      "callPoints": {
+        "title": "컨퍼런스콜 핵심",
+        "basis": "news-report",
+        "speaker": null,
+        "points": [
+          {
+            "text": "테슬라의 공식 안내에 따르면 경영진은 2026년 10월 21일 실적과 사업 전망을 논의하는 Q&A 웹캐스트를 진행했다.",
+            "url": "https://ir.tesla.com/press-release/tesla-third-quarter-2026-production-deliveries-and-deployments"
+          },
+          {
+            "text": "회사 분기보고서는 Cybercab·Tesla Semi 출시와 텍사스의 양극재·리튬 정제 공장 및 배터리 공장 생산 확대를 언급한다.",
+            "url": "https://ir.tesla.com/_flysystem/s3/sec/000162828026066775/tsla-20260930-gen.pdf"
+          },
+          {
+            "text": "회사 자료에서 차세대 차량 플랫폼, 자체 셀의 대량 생산, 자본·생산 비용 절감 및 제조 효율을 생산 확대의 방향으로 제시한다.",
+            "url": "https://ir.tesla.com/_flysystem/s3/sec/000162828026066775/tsla-20260930-gen.pdf"
+          },
+          {
+            "text": "확인 가능한 자료만으로는 컨퍼런스콜에서 수요·마진·가이던스와 관련해 경영진이 실제로 강조한 발언이나 질의응답 쟁점을 검증할 수 없어, 이를 콜의 발언 요약으로 단정하지 않는다.",
+            "url": "https://ir.tesla.com/webcast-2026-10-21"
+          }
+        ],
+        "attempts": 1,
+        "done": true,
+        "searchedAt": "2026-10-29T14:15:06.540Z",
+        "dropped": []
+      }
+    },
+    {
+      "id": "earnings-META-0001628280-26-066700",
+      "kind": "earnings",
+      "symbol": "META",
+      "nameKo": "메타",
+      "eventDate": "2026-10-21",
+      "publishedAt": "2026-10-21T20:03:35.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026066700/0001628280-26-066700-index.html",
+        "accession": "0001628280-26-066700",
+        "fetchedAt": "2026-10-29T14:15:06.540Z",
+        "sha256": "f9155d42ae9358a10c7c99ad4f3ee97fe5351cbbf06a168d83c99f5bfddf1a42"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-META",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 6045,
+          "outputTokens": 1504,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00166
+        },
+        {
+          "purpose": "call-META",
+          "at": "2026-10-29T14:15:06.540Z",
+          "inputTokens": 9105,
+          "outputTokens": 290,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02341
+        }
+      ],
+      "status": "partial",
+      "basis": "primary-source",
+      "headline": "메타 3분기 실적: 매출 $ 64,601, 순이익 $ 9,860",
+      "figures": [
+        {
+          "label": "3분기 매출",
+          "value": "$ 64,601",
+          "text": "전년 동기 $ 51,242에서 증가.",
+          "metric": "revenue",
+          "quote": "Revenue $ 64,601 $ 51,242 26 %"
+        },
+        {
+          "label": "3분기 영업이익",
+          "value": "$ 12,988",
+          "text": "영업이익률은 20 %.",
+          "metric": "operating_income",
+          "quote": "Income from operations $ 12,988 $ 20,535 (37) % Operating margin 20 % 40 %"
+        },
+        {
+          "label": "3분기 순이익",
+          "value": "$ 9,860",
+          "text": "전년 동기 $ 2,709.",
+          "metric": "net_income",
+          "quote": "Net income $ 9,860 $ 2,709 264 %"
+        },
+        {
+          "label": "희석 EPS",
+          "value": "$ 3.83",
+          "text": "전년 동기 $ 1.05.",
+          "metric": "eps_diluted",
+          "quote": "Diluted earnings per share (EPS) $ 3.83 $ 1.05 265 %"
+        },
+        {
+          "label": "3분기 매출 성장",
+          "value": "26 %",
+          "text": "보고 기준 및 환율 고정 기준 모두 전년 대비 증가.",
+          "metric": "other",
+          "quote": "Revenue was $64.60 billion, an increase of 26% year-over-year on both a reported and constant currency basis."
+        }
+      ],
+      "details": [],
+      "detailTitle": "사업부문",
+      "guidance": [
+        {
+          "label": "2026년 총비용",
+          "value": "$175-179 billion",
+          "text": "법적 절차 관련 비용을 반영해 전망 상향.",
+          "quote": "We now expect full year 2026 total expenses to be in the range of $175-179 billion."
+        },
+        {
+          "label": "2026년 자본지출",
+          "value": "$135-145 billion",
+          "text": "금융리스 원금 상환 포함.",
+          "quote": "We anticipate 2026 capital expenditures, including principal payments on finance leases, to be in the range of $135-145 billion, narrowed from our prior outlook of $130-145 billion."
+        },
+        {
+          "label": "4분기 세율",
+          "value": "15-17%",
+          "text": "세제 환경 변화가 없다는 전제.",
+          "quote": "Absent any changes to our tax landscape, we expect our fourth quarter 2026 tax rate to be between 15-17%."
+        }
+      ],
+      "watch": [
+        "다음 실적 발표에서 매출과 비용이 회사 가이던스에 부합하는지 확인.",
+        "청소년 관련 소송과 규제 사안의 진행 및 재무 영향 확인.",
+        "AI 투자가 광고 수익과 핵심 사업 성장에 미치는 효과 확인.",
+        "Reality Labs 손실 축소와 투자 재배분 진행 확인."
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "17117"
+          ],
+          "text": "Family of Apps 매출 64,158 영업이익은 $ 17,117."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "4129"
+          ],
+          "text": "Reality Labs 매출 443 영업손실은 (4,129)."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "14"
+          ],
+          "text": "광고 지표 10 % 광고 노출은 증가했고 광고당 평균 가격은 14 % 상승."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "1"
+          ],
+          "text": "4분기 매출 $73-76 billion 외환은 전년 대비 매출 성장에 약 1% 역풍으로 가정."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "2026"
+          ],
+          "text": "2026년 Reality Labs 손실 $18-19 billion 2025년보다 감소 전망."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "2027"
+          ],
+          "text": "2027년 Reality Labs 손실 around $15 billion 손실 축소 전망."
+        }
+      ],
+      "callPoints": {
+        "title": "컨퍼런스콜 핵심",
+        "basis": "news-report",
+        "speaker": null,
+        "points": [],
+        "attempts": 1,
+        "done": false,
+        "searchedAt": "2026-10-29T14:15:06.540Z",
+        "dropped": [
+          {
+            "reason": "url-not-allowed",
+            "text": "2026-10-21 실적 발표 컨퍼런스콜의 회사 자료나 보도를 확인하지 못해 수요·투자·마진·가이던스·질의응답 쟁점을 검증 가능한 내용으로 요약할 수 없습니다."
+          }
+        ]
+      },
+      "checkText": "Document Meta Reports Third Quarter 2026 Results Announces Establishment of New Class C Common Stock MENLO PARK, Calif. - October 21, 2026 - Meta Platforms, Inc. (Nasdaq: META) today reported financial results for the quarter ended September 30, 2026. \"We hit major milestones this quarter toward delivering personal superintelligence for everyone - including launching Muse and Muse Wonder, our first frontier model,\" said Mark Zuckerberg, Meta founder and CEO. \"Our investments are paying off, the core business is strong, and we're seeing velocity across the board.\" Third Quarter 2026 Financial Highlights Three Months Ended September 30, % Change In millions, except percentages and per share amounts 2026 2025 Revenue $ 64,601 $ 51,242 26 % Costs and expenses 51,613 30,707 68 % Income from operations $ 12,988 $ 20,535 (37) % Operating margin 20 % 40 % Provision for income taxes $ 3,141 $ 18,954 (83) % Effective tax rate 24 % 87 % Net income $ 9,860 $ 2,709 264 % Diluted earnings per share (EPS) $ 3.83 $ 1.05 265 % Agreement with U.S. State Attorneys General In August 2026, we announced an agreement with 52 attorneys general to resolve litigation related to teen mental health and social media, which provides for payments of up to approximately $18.59 billion. Third quarter 2026 costs and expenses includes a $9.89 billion charge related to this agreement. Excluding this charge, the third quarter 2026: • Income from operations of $12.99 billion would have increased by $9.89 billion to $22.88 billion. • Diluted EPS of $3.83 would have increased by $3.57 to $7.40. • Effective tax rate of 24% would have decreased by 7 percentage points to 17%. Third Quarter 2026 Operational and Other Financial Highlights • Family daily active people (DAP) - DAP was 3.64 billion on average for September 2026, an increase of 3% year-over-year. • Ad impressions - Ad impressions delivered across our Family of Apps increased by 10% year-over-year. • Average price per ad - Average price per ad increased by 14% year-over-year. • Revenue - Revenue was $64.60 billion, an increase of 26% year-over-year on both a reported and constant currency basis. • Costs and expenses - Total costs and expenses were $51.61 billion, an increase of 68% year-over-year. This includes the litigation charge as discussed above. • Capital expenditures - Capital expenditures, including principal payments on finance leases, were $34.91 billion. • Capital return program - Dividend and dividend equivalent payments were $1.36 billion. • Cash, cash equivalents, and marketable securities - Cash, cash equivalents, and marketable securities were $82.45 billion as of September 30, 2026. • Cash flow - Cash flow from operating activities was $32.79 billion, and free cash flow was negative $2.12 billion. (1) • Headcount - Headcount was 66,775 as of September 30, 2026, a decrease of 15% year-over-year. ____________________________________ (1) For more information on our free cash flow non-GAAP financial measure, see the sections entitled \"Non-GAAP Financial Measures\" and \"Reconciliation of GAAP to Non-GAAP Results\" in this press release. 1 CFO Outlook Commentary We expect fourth quarter 2026 total revenue to be in the range of $73-76 billion. Our guidance assumes foreign currency is an approximately 1% headwind to year-over-year total revenue growth, based on current exchange rates. We are raising our expense outlook to incorporate the $9.9 billion charge related to legal proceedings recognized in the third quarter. We now expect full year 2026 total expenses to be in the range of $175-179 billion. Excluding the third quarter legal charge, we continue to expect 2026 operating income to be above 2025 operating income. At a segment level, we now expect Reality Labs losses to decline compared to 2025 to a range of $18-19 billion. We anticipate 2026 capital expenditures, including principal payments on finance leases, to be in the range of $135-145 billion, narrowed from our prior outlook of $130-145 billion. Absent any changes to our tax landscape, we expect our fourth quarter 2026 tax rate to be between 15-17%. Additionally, we continue to monitor active legal and regulatory matters that could significantly impact our business and financial results. For example, we continue to see scrutiny on youth-related issues in several markets and have a number of youth-related trials scheduled in the coming months in the U.S. Looking beyond 2026, we are still developing our budget and capacity plans for next year, but we expect to continue investing aggressively to support both our core business and emerging AI initiatives. Our current capacity and what is scheduled to come online gives us the flexibility to allocate resources across model training, core business growth, and the development and support of new products. Our AI investments are already delivering substantial incremental advertising revenue through stronger engagement, better recommendations, and more efficient monetization. Building on this progress, our MSL investments are creating the technology and infrastructure needed to unlock significant new revenue opportunities and strengthen capabilities across the business. While these investments will take longer to generate returns than those in our core business, the breadth of monetization opportunities and internal efficiencies gives us confidence in their long-term potential. Looking ahead, although we are not providing a full-year 2027 revenue outlook, the benefits our AI investments are delivering to the core business, combined with emerging opportunities from model advances and product launches, position us to sustain strong overall revenue growth throughout 2027. Separately, we remain focused on improving Reality Labs profitability and expect losses to narrow next year to around $15 billion as we reallocate investment toward other priority areas, primarily AI. 2 Establishment of New Class C Common Stock The Board of Directors has approved the establishment of a new class of publicly listed, non-voting Class C common stock, with an effective date in January 2027. The approval by Meta's Board follows the unanimous recommendation of a Special Committee of disinterested and independent directors, which was established by the Board to evaluate the company's capital structure. The Special Committee and the Board determined that creating this new class of stock is advisable, fair, and in the best interests of Meta and its shareholders for a number of reasons, including: • Creating a New Class of Shares for Capital Raising, Employee Compensation, Potential Acquisitions, and Other General Corporate Purposes - The scale of investment required to compete, sustain growth, expand infrastructure, and pursue new strategic initiatives amidst the AI transformation taking place in the industry is significant. The Special Committee determined this new class of common stock will provide Meta the ability to finance its growth and help the company remain a leader among fierce competition both domestic and international. • Continuing to Maximize Long-Term Value for All Shareholders - Since Meta's formation, its management team has prioritized long-term goals and value creation, and its stock price has increased by more than 1,700% since its IPO. By contrast, over the same period, the S&P 500 has increased approximately 495%. The Special Committee wants Meta to continue innovating with an emphasis on long-term growth, which the creation of the Class C stock is intended to help facilitate. • Ensuring Founder and CEO Mark Zuckerberg Continues to Lead Meta into the Next Era - The Special Committee concluded that Mr. Zuckerberg is best suited to lead Meta into its next era and beyond. They recognized that Meta's track record of significant value creation for its shareholders is in large part due to his strong leadership, unique and creative vision, and exceptional management abilities. The creation of the Class C common stock will continue the founder-led model that has driven the company's success since its inception. Meta intends to file an amended and restated certificate of incorporation in Delaware to establish the Class C common stock, with an effective date of January 19, 2027. The Board has also declared a one-time stock dividend of one share of Class C common stock for each outstanding share of Class A common stock and Class B common stock, contingent upon, and to be paid after, the effectiveness of the amended and restated certificate of incorporation. The record date and payment date of the stock dividend will be determined by the Board at a later date. After the payment date of the stock dividend, we expect the market price for our Class A common stock to reflect the effect of a two-for-one stock split. The stock dividend will not change the voting power of any shareholder. The amended and restated certificate of incorporation has been approved by shareholder written consent. We have also entered into a Founder Alignment Agreement with Mr. Zuckerberg, which has terms related to his sales of Class C common stock received in the stock dividend, his service at the company, and conditions for potential future stock dividends of Class C common stock. Meta's Class A common stock will continue to trade on Nasdaq, and we intend to qualify the Class C common stock for listing on Nasdaq upon its issuance as a result of the stock dividend. More information will be available in our Report on Form 8-K and information statement to be filed with the Securities and Exchange Commission. Moelis & Company LLC served as independent financial advisor to the Special Committee and Morgan Stanley & Co. LLC served as financial advisor to Meta. 3 Webcast and Conference Call Information Meta will host a conference call to discuss its results at 1:30 p.m. PT / 4:30 p.m. ET today. The live webcast of the call can be accessed at the Meta Investor Relations website at investor.atmeta.com, along with the company's earnings press release, financial tables, and slide presentation. Following the call, a replay will be available at the same website. Transcripts of conference calls with publishing equity research analysts held today will also be posted to the investor.atmeta.com website. Disclosure Information Meta uses the investor.atmeta.com and meta.com/news websites as well as Mark Zuckerberg's Facebook profile (facebook.com/zuck), Instagram account (instagram.com/zuck) and Threads profile (threads.net/zuck) as means of disclosing material non-public information and for complying with its disclosure obligations under Regulation FD. About Meta Meta is building the future of human connection, powered by artificial intelligence and immersive technologies. When Facebook launched in 2004, it changed the way people connect. Apps like Messenger, Instagram, and WhatsApp further empowered billions around the world. Now, Meta is moving toward building experiences that foster deeper connections and unlock new possibilities. Contacts Investors: Rob Bevegni investor@meta.com / investor.atmeta.com Press: Matt Tye press@meta.com / meta.com/news 4 Forward-Looking Statements This press release contains forward-looking statements regarding our future business plans and expectations. These forward-looking statements are only predictions and may differ materially from actual results due to a variety of factors including: the impact of macroeconomic conditions on our business and financial results, including as a result of geopolitical events; our ability to retain or increase users and engagement levels; our reliance on advertising revenue; our dependency on data signals and mobile operating systems, networks, and standards that we do not control; changes to the content or application of third-party policies that impact our advertising practices; risks associated with new products and changes to existing products as well as other new business initiatives, including our artificial intelligence initiatives and Reality Labs efforts; our emphasis on community growth and engagement and the user experience over short-term financial results; maintaining and enhancing our brand and reputation; our ongoing privacy, safety, security, and content and advertising review and enforcement efforts; competition; risks associated with government actions that could restrict access to our products or impair our ability to sell advertising in certain countries; litigation and government inquiries; privacy, legislative, and regulatory concerns or developments; risks associated with acquisitions; security breaches; our ability to manage our scale and geographically-dispersed operations; and market conditions or other factors affecting capital return to stockholders. These and other potential risks and uncertainties that could cause actual results to differ from the results predicted are more fully detailed under the caption \"Risk Factors\" in our Quarterly Report on Form 10-Q filed with the SEC on July 30, 2026, which is available on our Investor Relations website at investor.atmeta.com and on the SEC website at www.sec.gov. Additional information will also be set forth in our Quarterly Report on Form 10-Q for the quarter ended September 30, 2026. In addition, please note that the date of this press release is October 21, 2026, and any forward-looking statements contained herein are based on assumptions that we believe to be reasonable as of this date. We undertake no obligation to update these statements as a result of new information or future events. For a discussion of limitations in the measurement of certain of our community metrics, see the section entitled \"Limitations of Key Metrics and Other Data\" in our most recent quarterly or annual report filed with the SEC. Non-GAAP Financial Measures To supplement our condensed consolidated financial statements, which are prepared and presented in accordance with generally accepted accounting principles in the United States (GAAP), we use the following non-GAAP financial measures: revenue excluding foreign exchange effect, advertising revenue excluding foreign exchange effect, and free cash flow. The presentation of these financial measures is not intended to be considered in isolation or as a substitute for, or superior to, financial information prepared and presented in accordance with GAAP. Investors are cautioned that there are material limitations associated with the use of non-GAAP financial measures as an analytical tool. In addition, these measures may be different from non-GAAP financial measures used by other companies, limiting their usefulness for comparison purposes. We compensate for these limitations by providing specific information regarding the GAAP amounts excluded from these non-GAAP financial measures. We believe these non-GAAP financial measures provide investors with useful supplemental information about the financial performance of our business, enable comparison of financial results between periods where certain items may vary independent of business performance, and allow for greater transparency with respect to key metrics used by management in operating our business. Our non-GAAP financial measures are adjusted for the following items: Foreign exchange effect on revenue . To calculate revenue on a constant currency basis, we translate current period revenue using the prior year's monthly exchange rates for our settlement or billing currencies other than the U.S. dollar, which we believe is a useful metric that facilitates comparison to our historical performance. Purchases of property and equipment; Principal payments on finance leases. We subtract both purchases of property and equipment, and principal payments on finance leases in our calculation of free cash flow because we believe that these two items collectively represent the amount of property and equipment we need to procure to support our business, regardless of whether we procure such property or equipment with a finance lease. We believe that this methodology can provide useful supplemental information to help investors better understand underlying trends in our business. Free cash flow is not intended to represent our residual cash flow available for discretionary expenditures. For more information on our non-GAAP financial measures and a reconciliation of GAAP to non-GAAP measures, see the \"Reconciliation of GAAP to Non-GAAP Results\" table in this press release. 5 META PLATFORMS, INC. CONDENSED CONSOLIDATED STATEMENTS OF INCOME (In millions, except per share amounts) (Unaudited) Three Months Ended September 30, Nine Months Ended September 30, 2026 2025 2026 2025 Revenue $ 64,601 $ 51,242 $ 181,712 $ 141,073 Costs and expenses: Cost of revenue 13,369 9,206 34,917 25,269 Research and development 20,054 15,144 59,409 40,237 Marketing and sales 3,333 2,845 9,672 8,581 General and administrative (1) 14,857 3,512 23,079 8,455 Total costs and expenses 51,613 30,707 127,077 82,542 Income from operations 12,988 20,535 54,635 58,531 Interest and other income (expense), net 13 1,128 (1,126) 2,047 Income before income taxes 13,001 21,663 53,509 60,578 Provision for income taxes 3,141 18,954 1,028 22,888 Net income $ 9,860 $ 2,709 $ 52,481 $ 37,690 Earnings per share: Basic $ 3.86 $ 1.08 $ 20.64 $ 14.96 Diluted $ 3.83 $ 1.05 $ 20.44 $ 14.62 Weighted-average shares used to compute earnings per share: Basic 2,552 2,517 2,543 2,520 Diluted 2,573 2,572 2,568 2,578 ____________________________________ (1) The third quarter 2026 general and administrative expenses include a $9.89 billion charge related to the August 2026 agreement with U.S. State Attorneys General to resolve litigation related to teen mental health and social media. 6 META PLATFORMS, INC. CONDENSED CONSOLIDATED BALANCE SHEETS (In millions) (Unaudited) September 30, 2026 December 31, 2025 Assets Current assets: Cash and cash equivalents $ 11,222 $ 35,873 Marketable securities 71,227 45,719 Accounts receivable, net 22,716 19,769 Prepaid expenses and other current assets 14,735 7,361 Total current assets 119,900 108,722 Non-marketable equity investments 32,624 27,524 Property and equipment, net 253,222 176,400 Operating lease right-of-use assets 26,576 20,404 Goodwill 23,421 24,534 Other assets 23,093 8,437 Total assets $ 478,836 $ 366,021 Liabilities and stockholders' equity Current liabilities: Accounts payable $ 19,097 $ 8,894 Operating lease liabilities, current 2,522 2,213 Accrued expenses and other current liabilities 41,392 30,729 Total current liabilities 63,011 41,836 Operating lease liabilities, non-current 28,651 22,940 Long-term debt 80,922 58,744 Long-term income taxes 20,521 21,005 Other liabilities 13,345 4,253 Total liabilities 206,450 148,778 Commitments and contingencies Stockholders' equity: Common stock and additional paid-in capital 108,244 95,793 Accumulated other comprehensive income (loss) (1,200) 271 Retained earnings 165,342 121,179 Total stockholders' equity 272,386 217,243 Total liabilities and stockholders' equity $ 478,836 $ 366,021 7 META PLATFORMS, INC. CONDENSED CONSOLIDATED STATEMENTS OF CASH FLOWS (In millions) (Unaudited) Three Months Ended September 30, Nine Months Ended September 30, 2026 2025 2026 2025 Cash flows from operating activities Net income $ 9,860 $ 2,709 $ 52,481 $ 37,690 Adjustments to reconcile net income to net cash provided by operating activities: Depreciation and amortization 7,154 4,963 19,509 13,205 Share-based compensation 7,363 5,555 21,053 14,537 Deferred income taxes 2,117 19,868 3,685 17,704 Unrealized (gain) and loss on equity investments 18 (962) 1,204 (642) Other (329) 17 (402) (359) Changes in assets and liabilities: Accounts receivable (999) (807) (3,272) 660 Prepaid expenses and other current assets (936) (1,033) (4,166) (348) Other assets (2,437) 33 (4,973) (209) Accounts payable 1,596 (63) 1,242 (637) Accrued expenses and other current liabilities 1,940 455 7,602 (2,883) Other liabilities 7,439 (736) 2,910 868 Net cash provided by operating activities 32,786 29,999 96,873 79,586 Cash flows from investing activities Purchases of property and equipment (33,942) (18,829) (83,055) (48,308) Purchases of marketable securities (41,875) (2,840) (117,467) (22,349) Sales and maturities of marketable securities 44,802 4,704 88,837 23,761 Payments for non-marketable equity investments (874) (3,046) (2,544) (18,260) Payments for held-for-sale assets (938) (1,022) (1,612) (1,797) Proceeds from data center venture distribution 1,037 - 1,037 - Acquisitions of businesses and intangible assets (111) (753) (584) (815) Other investing activities 923 (62) 1,079 (48) Net cash used in investing activities (30,978) (21,848) (114,309) (67,816) Cash flows from financing activities Taxes paid related to net share settlement of equity awards (4,064) (5,135) (12,768) (14,128) Repurchases of Class A common stock - (3,327) - (26,248) Payments for dividends and dividend equivalents (1,361) (1,330) (4,060) (3,986) Proceeds from issuance of long-term debt, net - - 24,910 - Principal payments on finance leases (964) (545) (2,769) (1,770) Other financing activities (344) 290 (2,631) 613 Net cash provided by (used in) financing activities (6,733) (10,047) 2,682 (45,519) Effect of exchange rate changes on cash, cash equivalents, restricted cash, and restricted cash equivalents 8 9 8 252 Net decrease in cash, cash equivalents, restricted cash, and restricted cash equivalents (4,917) (1,887) (14,746) (33,497) Cash, cash equivalents, restricted cash, and restricted cash equivalents at beginning of the period 29,271 13,828 39,100 45,438 Cash, cash equivalents, restricted cash, and restricted cash equivalents at end of the period $ 24,354 $ 11,941 $ 24,354 $ 11,941 Reconciliation of cash, cash equivalents, restricted cash, and restricted cash equivalents to the condensed consolidated balance sheets Cash and cash equivalents $ 11,222 $ 10,187 $ 11,222 $ 10,187 Restricted cash and restricted cash equivalents, included in prepaid expenses and other current assets 597 142 597 142 Restricted cash and restricted cash equivalents, included in other assets 12,535 1,612 12,535 1,612 Total cash, cash equivalents, restricted cash, and restricted cash equivalents $ 24,354 $ 11,941 $ 24,354 $ 11,941 Supplemental cash flow data Cash paid for income taxes, net $ 927 $ 749 $ 2,926 $ 6,293 8 Segment Results We report our financial results for our two reportable segments: Family of Apps (FoA) and Reality Labs (RL). FoA includes Facebook, Instagram, Messenger, WhatsApp, and other services. RL includes our virtual and augmented reality related consumer hardware, software, and content. The following table sets forth our segment information of revenue and income (loss) from operations: Segment Information (In millions) (Unaudited) Three Months Ended September 30, Nine Months Ended September 30, 2026 2025 2026 2025 Revenue: Advertising $ 63,061 $ 50,082 $ 177,449 $ 138,037 Other revenue 1,097 690 2,987 1,784 Family of Apps 64,158 50,772 180,436 139,821 Reality Labs 443 470 1,276 1,252 Total revenue $ 64,601 $ 51,242 $ 181,712 $ 141,073 Income (loss) from operations: Family of Apps $ 17,117 $ 24,967 $ 67,410 $ 71,702 Reality Labs (4,129) (4,432) (12,775) (13,171) Total income from operations $ 12,988 $ 20,535 $ 54,635 $ 58,531 9 Reconciliation of GAAP to Non-GAAP Results (In millions, except percentages) (Unaudited) Three Months Ended September 30, Nine Months Ended September 30, 2026 2025 2026 2025 GAAP revenue $ 64,601 $ 51,242 $ 181,712 $ 141,073 Foreign exchange effect on 2026 revenue using 2025 rates 113 (2,320) Revenue excluding foreign exchange effect $ 64,714 $ 179,392 GAAP revenue year-over-year change % 26 % 29 % Revenue excluding foreign exchange effect year-over-year change % 26 % 27 % GAAP advertising revenue $ 63,061 $ 50,082 $ 177,449 $ 138,037 Foreign exchange effect on 2026 advertising revenue using 2025 rates 96 (2,342) Advertising revenue excluding foreign exchange effect $ 63,157 $ 175,107 GAAP advertising revenue year-over-year change % 26 % 29 % Advertising revenue excluding foreign exchange effect year-over-year change % 26 % 27 % Net cash provided by operating activities $ 32,786 $ 29,999 $ 96,873 $ 79,586 Purchases of property and equipment (33,942) (18,829) (83,055) (48,308) Principal payments on finance leases (964) (545) (2,769) (1,770) Free cash flow $ (2,120) $ 10,625 $ 11,049 $ 29,508 10"
+    }
+  ]
+}
