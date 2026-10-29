@@ -12,7 +12,7 @@ export const SCHEDULED_EVENTS = Object.freeze([
     why: '연정 구성에 따라 이란·중동 정책 기대가 바뀌어 유가 위험 프리미엄이 움직일 수 있음',
     source: 'Israel Central Elections Committee (26th Knesset, 2026-10-27)', reviewedAt: '2026-10-24', leadDays: 7, expiresAt: '2026-10-31' }),
   Object.freeze({ id: 'us-midterm-2026', kind: 'election', atKst: '2026-11-04T09:00:00+09:00', label: '미국 중간선거 (11/3, 동부 투표 마감)',
-    why: '의회 다수당에 따라 재정·관세·규제 기대가 바뀌어 금리·업종별 흐름이 갈릴 수 있음. 개표는 한국 시간 11/4 오전부터, 접전 지역은 며칠 걸릴 수 있음',
+    why: '의회 다수당에 따라 재정·관세·규제 기대가 바뀌어 금리·업종 흐름이 갈릴 수 있음. 개표는 한국 시간 11/4 오전부터, 접전지는 며칠 걸릴 수 있음',
     source: '2 U.S.C. 7 (U.S. general election, 2026-11-03)', reviewedAt: '2026-10-29', leadDays: 10, expiresAt: '2026-11-10', major: true })
 ]);
 

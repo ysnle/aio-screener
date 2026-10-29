@@ -23,7 +23,7 @@ last_verified: 2026-10-29
 | `js/aio-data.js` | 8,152 | 515,382 |
 | `js/aio-ui.js` | 3,381 | 192,314 |
 | `js/aio-chat.js` | 4,662 | 356,261 |
-| `js/aio-tests.js` | 8,880 | 713,491 |
+| `js/aio-tests.js` | 8,883 | 713,742 |
 | `js/aio-glossary.js` | 417 | 114,404 |
 
 ## Workspace

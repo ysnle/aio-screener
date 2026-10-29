@@ -7454,8 +7454,11 @@
       _assert('T905 missing_event_claim_is_blocked', false, 'getEventClaimState missing');
       return;
     }
-    var current905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-09-17T00:00:00+09:00'));
-    var expired905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-11-20T00:00:00+09:00'));
+    // P2135: measured from the registry's own decision day, so recording the next meeting does not break the test.
+    var reg905 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
+    var day905 = Date.parse(reg905.eventDate + 'T00:00:00+09:00');
+    var current905 = window.AIO.getEventClaimState('fomc', day905 + 86400000);
+    var expired905 = window.AIO.getEventClaimState('fomc', day905 + (Number(reg905.maxClaimAgeDays) + 3) * 86400000);
     _assert('T905 missing_event_claim_is_blocked', current905.status === 'CURRENT' && current905.allowedUse === true && expired905.status === 'EXPIRED' && expired905.allowedUse === false, JSON.stringify({ current: current905, expired: expired905 }));
     var decisionSrc906 = typeof _aioDefaultDecision === 'function' ? _aioDefaultDecision.toString() : '';
     var gate906 = /getEventClaimState\(['"]fomc['"]\)/.test(decisionSrc906) && /_scoreBlocked/.test(decisionSrc906) && /판단 보류/.test(decisionSrc906);
