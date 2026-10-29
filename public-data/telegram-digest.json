@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-29T21:21:48.964Z",
-  "attemptedAt": "2026-10-29T21:21:48.964Z",
-  "lastSuccessfulAt": "2026-10-29T21:21:48.964Z",
+  "generatedAt": "2026-10-29T21:51:46.241Z",
+  "attemptedAt": "2026-10-29T21:51:46.241Z",
+  "lastSuccessfulAt": "2026-10-29T21:51:46.241Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-15T21:21:41.951Z",
-  "until": "2026-10-29T21:21:41.951Z",
+  "since": "2026-10-15T21:51:41.685Z",
+  "until": "2026-10-29T21:51:41.685Z",
   "current24hWindow": {
     "start": "2026-10-27T23:00:00.000Z",
     "end": "2026-10-28T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1352,
-      "freshCount": 60,
-      "eligibleTextCount": 1293,
+      "count": 1351,
+      "freshCount": 40,
+      "eligibleTextCount": 1292,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67821
+      "lastPostId": 67822
     },
     {
       "channel": "bornlupin",
@@ -116,26 +116,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 690,
+      "count": 689,
       "freshCount": 40,
-      "eligibleTextCount": 690,
+      "eligibleTextCount": 689,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71234
+      "lastPostId": 71236
     }
   ],
-  "count": 2442,
-  "retainedItemCount": 488,
+  "count": 2440,
+  "retainedItemCount": 462,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2442,
-    "eligibleTextCount": 2372,
+    "observedCount": 2440,
+    "eligibleTextCount": 2370,
     "mediaOnlyCount": 70,
-    "highSignalCount": 445,
-    "broadSignalCount": 974,
+    "highSignalCount": 446,
+    "broadSignalCount": 976,
     "selectedRawCount": 407,
     "selectedEligibleCount": 407,
     "selectedRawCoveragePct": 17.2,
@@ -143,31 +143,31 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "geo": 398,
-    "market-note": 884,
-    "earnings": 489,
+    "earnings": 491,
+    "power": 305,
+    "semi": 556,
+    "equity": 171,
+    "macro": 390,
+    "geo": 399,
+    "market-note": 881,
     "flows": 105,
-    "semi": 555,
     "optical": 40,
-    "power": 303,
-    "kr-market": 147,
-    "macro": 389,
+    "kr-market": 146,
     "healthcare": 130,
     "credit": 125,
-    "equity": 171,
-    "ai-policy": 138,
+    "ai-policy": 137,
     "japan": 113,
     "media-only": 70,
     "crypto": 4,
     "insider": 3
   },
   "tickerCounts": {
+    "SNDK": 9,
+    "AMZN": 71,
+    "GOOG": 134,
     "ABBV": 1,
     "CAT": 3,
-    "GOOG": 133,
-    "AMZN": 69,
     "SBUX": 1,
-    "SNDK": 8,
     "AAPL": 16,
     "MSFT": 73,
     "PLTR": 7,
@@ -250,14 +250,14 @@
     "NBIS": 1
   },
   "themes": [
-    "Market Notes (884 posts in 14-day research window): 2026년 10월 28일 프리마켓 주요 종목 동향 상승 종목 ULBI (+144.65%) ENS, 3억2,000만 달러 규모 전액 현금 거래로 Ultralife 인수 추진 VRT (+15.73%) 주당순이익...",
-    "Semiconductors/Memory (555 posts in 14-day research window): 2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”...",
-    "Earnings/Corporate (489 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (398 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 국방부 추산에 따르면 이란 전쟁 관련 군사작전 비용이 470억 달러를 돌파. 이 중 탄약 재고 보충에...",
-    "Macro/Rates (389 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
-    "AI Power/Grid (303 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Market Notes (881 posts in 14-day research window): 2026년 10월 28일 프리마켓 주요 종목 동향 상승 종목 ULBI (+144.65%) ENS, 3억2,000만 달러 규모 전액 현금 거래로 Ultralife 인수 추진 VRT (+15.73%) 주당순이익...",
+    "Semiconductors/Memory (556 posts in 14-day research window): 2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”...",
+    "Earnings/Corporate (491 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Geopolitics (399 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 28일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 국방부 추산에 따르면 이란 전쟁 관련 군사작전 비용이 470억 달러를 돌파. 이 중 탄약 재고 보충에...",
+    "Macro/Rates (390 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
+    "AI Power/Grid (305 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (171 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "Korea Market (147 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
+    "Korea Market (146 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
   "catalysts": [
     {
@@ -267,7 +267,7 @@
     },
     {
       "key": "GOOG",
-      "count": 133,
+      "count": 134,
       "text": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀 2000은 +1.01% 상승하며 대형 성장주에서 중소형주로의 자금 순환 확인. 알파벳의 실적 충격과 AI..."
     },
     {
@@ -287,7 +287,7 @@
     },
     {
       "key": "AMZN",
-      "count": 69,
+      "count": 71,
       "text": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀 2000은 +1.01% 상승하며 대형 성장주에서 중소형주로의 자금 순환 확인. 알파벳의 실적 충격과 AI..."
     },
     {
@@ -328,7 +328,7 @@
       "topics": [
         "macro"
       ],
-      "count": 389,
+      "count": 390,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "geo"
       ],
-      "count": 398,
+      "count": 399,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 28일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 국방부 추산에 따르면 이란 전쟁 관련 군사작전 비용이 470억 달러를 돌파. 이 중 탄약 재고 보충에..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "semi"
       ],
-      "count": 555,
+      "count": 556,
       "focus": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -373,7 +373,7 @@
       "topics": [
         "power"
       ],
-      "count": 303,
+      "count": 305,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 138,
+      "count": 137,
       "focus": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 147,
+      "count": 146,
       "focus": "Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
     },
     {
@@ -418,7 +418,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 489,
+      "count": 491,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -463,7 +463,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 884,
+      "count": 881,
       "focus": "2026년 10월 28일 프리마켓 주요 종목 동향 상승 종목 ULBI (+144.65%) ENS, 3억2,000만 달러 규모 전액 현금 거래로 Ultralife 인수 추진 VRT (+15.73%) 주당순이익..."
     }
   ],
@@ -1668,6 +1668,45 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71236",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71236",
+      "datetime": "2026-10-29T21:44:30.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "earnings",
+        "power",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "SNDK"
+      ],
+      "summary": ">>SanDisk, 2027회계연도 1분기 매출 전년비 378% 급증…2분기 매출 전망도 예상 상회, 데이터센터가 내년 성장 핵심 •SanDisk의 2027회계연도 1분기 매출은 110억 3,100만 달러로..."
+    },
+    {
+      "id": "insidertracking/67822",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67822",
+      "datetime": "2026-10-29T21:22:27.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "macro",
+        "geo",
+        "power",
+        "earnings"
+      ],
+      "score": 78,
+      "hasText": true,
+      "tickers": [
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": "10월 30일 미주인 브리핑 • 나스닥 1.38% 하락 · 러셀 2000 1.01% 상승 • 구글 13% 급락 · 시총 약 4,790억 달러 증발 • 인텔 시간외 16% 급락 • 아마존 AWS 39% 성장 ·..."
+    },
+    {
       "id": "insidertracking/67808",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67808",
@@ -2126,13 +2165,13 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "알파벳이 3분기 실적 발표 이후 프리마켓에서 11% 하락. 월가에서는 목표주가 하향 조정 13건과 투자의견 하향 조정 1건이 발생. 주요 투자은행 목표주가 하향 조정 • 씨티: 447달러 →...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": "알파벳이 3분기 실적 발표 이후 프리마켓에서 11% 하락. 월가에서는 목표주가 하향 조정 13건과 투자의견 하향 조정 1건이 발생. 주요 투자은행 목표주가 하향 조정 • 씨티: 447달러 →..."
+      ]
     },
     {
       "id": "insidertracking/67779",
@@ -2143,13 +2182,12 @@
       "tags": [
         "credit"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": "마이크로소프트, 2017년 이후 처음으로 미국 최고 등급 회사채를 발행.",
       "tickers": [
         "MSFT"
-      ],
-      "summary": "마이크로소프트, 2017년 이후 처음으로 미국 최고 등급 회사채를 발행."
+      ]
     },
     {
       "id": "HANAchina/71225",
@@ -2193,16 +2231,14 @@
       "datetime": "2026-10-29T10:34:53.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "Merck 2026년 3분기 실적 요약 실적 • 매출 $180.9억, YoY +5%, 예상 $173.3억 상회 • GAAP EPS $2.04, 전년 $2.32 • 조정 EPS $2.49, YoY -3%, 예상...",
       "tickers": [
         "MRK"
-      ],
-      "summary": "Merck 2026년 3분기 실적 요약 실적 • 매출 $180.9억, YoY +5%, 예상 $173.3억 상회 • GAAP EPS $2.04, 전년 $2.32 • 조정 EPS $2.49, YoY -3%, 예상..."
+      ]
     },
     {
       "id": "insidertracking/67772",
@@ -2211,16 +2247,14 @@
       "datetime": "2026-10-29T10:33:58.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "earnings",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": "Caterpillar 2026년 3분기 실적 요약 실적 • 매출 $206.8억, YoY +17%, 예상 $206.9억 소폭 하회 • GAAP EPS $7.13, 전년 $4.88 • 조정 EPS $7.20,...",
       "tickers": [
         "CAT"
-      ],
-      "summary": "Caterpillar 2026년 3분기 실적 요약 실적 • 매출 $206.8억, YoY +17%, 예상 $206.9억 소폭 하회 • GAAP EPS $7.13, 전년 $4.88 • 조정 EPS $7.20,..."
+      ]
     },
     {
       "id": "insidertracking/67769",
@@ -2231,11 +2265,11 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "L3해리스의 2026년 3분기 실적 발표. • 매출액: 60억 6,000만 달러(예상 59억 1,000만 달러 상회) • 주당순이익(EPS): 3.28달러 • 조정 영업이익률: 15.9%(예상 16.2%..."
+      "summary": "L3해리스의 2026년 3분기 실적 발표. • 매출액: 60억 6,000만 달러(예상 59억 1,000만 달러 상회) • 주당순이익(EPS): 3.28달러 • 조정 영업이익률: 15.9%(예상 16.2%...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/67764",
@@ -2244,16 +2278,14 @@
       "datetime": "2026-10-29T09:39:46.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": "뉴욕타임스에 따르면 미국 정보기관이 엔비디아 최고경영자(CEO) 젠슨 황과 긴밀한 관계를 맺은 중국인 사업가가 베이징에 정보를 전달해 온 정황을 포착했으나, 트럼프 대통령은 관련 보고를 받고도 별다른 조치를...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕타임스에 따르면 미국 정보기관이 엔비디아 최고경영자(CEO) 젠슨 황과 긴밀한 관계를 맺은 중국인 사업가가 베이징에 정보를 전달해 온 정황을 포착했으나, 트럼프 대통령은 관련 보고를 받고도 별다른 조치를..."
+      ]
     },
     {
       "id": "insidertracking/67762",
@@ -2266,10 +2298,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "엔비디아 최고경영자(CEO) 젠슨 황이 중국의 스파이 공작 표적으로 지목된 것으로 알려짐.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 최고경영자(CEO) 젠슨 황이 중국의 스파이 공작 표적으로 지목된 것으로 알려짐."
+      ]
     },
     {
       "id": "insidertracking/67761",
@@ -5849,21 +5881,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67417",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67417",
-      "datetime": "2026-10-26T20:27:01.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "score": 53,
-      "hasText": true,
-      "summary": "미국 국방부가 대규모 전쟁 발생 시 민간 전력망과 수도 공급, 연료 운송, 글로벌 공급망이 중단되더라도 미국 본토의 모든 주요 군사기지가 최소 90일간 독립적으로 작전을 수행할 수 있도록 하는 대규모 국방...",
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/26057",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26057",
@@ -7304,22 +7321,6 @@
       "hasText": true,
       "summary": ">>데이터센터에 ‘신용등급 하향’ 경고, S&P가 AI 부채 위기를 더욱 악화시킬 가능성 •S&P는 전력망 용량 제한, 환경 지속가능성 논란, 용도지역 계획 변경에 따른 프로젝트 지연이 데이터센터 프로젝트의...",
       "lead": 2,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/70936",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70936",
-      "datetime": "2026-10-24T01:51:59.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "geo",
-        "macro"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>미국과 이란, 일촉즉발…주말 긴장 고조! 유가 4월 이후 처음으로 117달러 돌파, 월간 10% 이상 상승 (중국언론) •중동 정세가 급격히 악화되고 있음. 호르무즈 해협에서 초대형 유조선 2척이 기뢰에...",
-      "lead": 1,
       "tickers": []
     },
     {
