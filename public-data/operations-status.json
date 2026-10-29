@@ -23,11 +23,11 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-10-29T07:31:47.749Z",
+  "generatedAt": "2026-10-29T13:52:15.249Z",
   "appRevision": "v59.43",
   "dataRevision": "market-snapshot:2026-10-28T23:51:02.262Z:4f450c1e",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
-  "overall": "OPERATOR_REQUIRED",
+  "overall": "BLOCKED",
   "overallBasis": {
     "planes": [
       "durable"
@@ -40,15 +40,15 @@
   },
   "featureAvailability": {
     "market-breadth": {
-      "availability": "AVAILABLE",
+      "availability": "UNAVAILABLE",
       "asOf": "2026-10-28T23:51:02.262Z",
-      "missingReason": null,
+      "missingReason": "durable-market-cycle-stale",
       "sources": [
         "durable"
       ]
     },
     "fundamental-ranking": {
-      "availability": "AVAILABLE",
+      "availability": "DEGRADED",
       "asOf": "2026-10-28T23:51:02.262Z",
       "missingReason": null,
       "sources": [
@@ -73,7 +73,7 @@
     },
     "screener-extended": {
       "availability": "AVAILABLE",
-      "asOf": "2026-10-28T22:40:00.029Z",
+      "asOf": "2026-10-29T07:39:22.881Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -180,8 +180,8 @@
   },
   "planes": {
     "durable": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "BLOCKED",
+      "statusCode": "CONFIGURED_BROKEN",
       "source": "github-actions",
       "lastSuccessfulAt": "2026-10-28T23:51:02.262Z",
       "coverage": {
@@ -193,22 +193,22 @@
         "tier1Observed": 5
       },
       "freshness": {
-        "fresh": true,
-        "withinSla": true,
+        "fresh": false,
+        "withinSla": false,
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-10-28T23:51:02.262Z",
-        "ageHours": 7.68,
+        "ageHours": 14.02,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-10-29T07:31:47.749Z",
-        "reason": null
+        "evaluatedAt": "2026-10-29T13:52:15.249Z",
+        "reason": "market-cycle-freshness-sla-exceeded"
       },
       "readiness": {
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
-        "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
+        "lastCallSucceeded": "BLOCKED",
+        "dataCurrent": "BLOCKED",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
@@ -228,7 +228,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-29T07:31:47.749Z"
+        "evidenceEvaluatedAt": "2026-10-29T13:52:15.249Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -296,7 +296,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-10-29T07:31:47.749Z"
+        "evidenceEvaluatedAt": "2026-10-29T13:52:15.249Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -330,10 +330,10 @@
   },
   "reconciliation": {
     "tier0": {
-      "status": "MATCH",
+      "status": "BLOCKED",
       "artifact": "market-snapshot:2026-10-28T23:51:02.262Z:4f450c1e",
-      "uiEvidence": "same-revision-contract",
-      "observedAtComplete": true
+      "uiEvidence": null,
+      "observedAtComplete": false
     },
     "artifact": "public-data/reconciliation-status.json",
     "categoryCount": 22,
@@ -595,5 +595,8 @@
     "cutoverStatus": "MIGRATION_IN_PROGRESS",
     "routeOwnersManifest": "architecture/route-owners.json"
   },
-  "blockers": []
+  "blockers": [
+    "durable_tier0_publish_blocked",
+    "durable_market_cycle_stale"
+  ]
 }
