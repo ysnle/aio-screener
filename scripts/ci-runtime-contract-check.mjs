@@ -1585,7 +1585,8 @@ check('P1275/P1737 v57.60: CP2 Fed range comes from AIO.getFedPolicyRange, retir
     && /function getCP2Text\(\)[\s\S]{0,900}getFedPolicyRange\(\)[\s\S]{0,900}Fed 목표범위/.test(core)
     && !/공식 정책금리 참고 '\s*\+\s*c\.fedRate/.test(core)
     && !/cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed 3\.50-3\.75%/.test(core)
-    && /sourceUrl:\s*'https:\/\/www\.federalreserve\.gov\/newsevents\/pressreleases\/monetary20261028a\.htm'/.test(core));
+    // P2135: the FOMC registry's statement URL names its own decision day, so the next meeting is recorded without editing this check.
+    && (() => { const m = core.match(/fomc:\s*\{\s*eventDate:\s*'(\d{4})-(\d{2})-(\d{2})'[^}]*sourceUrl:\s*'https:\/\/www\.federalreserve\.gov\/newsevents\/pressreleases\/monetary(\d{8})a\.htm'/); return !!m && m[4] === m[1] + m[2] + m[3]; })());
 
 const macroCalendarStart = core.indexOf('window.AIO_MACRO_CALENDAR = {');
 const macroCalendarEnd = core.indexOf('\n};', macroCalendarStart);
