@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-10-29T07:33:04.512Z",
+ "generatedAt": "2026-10-29T22:33:17.483Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3897,
+ "eligible": 3898,
  "stored": 3536,
- "attempted": 74,
- "updated": 74,
+ "attempted": 19,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -520,7 +520,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001826836.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -582,7 +582,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002072188.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -640,7 +640,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001732379.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -648,7 +648,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001929908.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -680,7 +680,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002076975.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -776,7 +776,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001821866.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -1130,7 +1130,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001290877.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -1523,7 +1523,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000825202.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -1557,6 +1557,16 @@
    "issuerTaxonomy": "US_GAAP",
    "filingForms": [],
    "attemptedAt": "2026-10-19T22:30:26.357Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
+   "symbol": "GBC",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
@@ -2341,7 +2351,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001784930.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2617,7 +2627,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001526475.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2874,7 +2884,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001569650.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -2987,7 +2997,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001492165.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3147,7 +3157,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001608741.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3232,7 +3242,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002102907.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3400,7 +3410,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001548536.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3685,11 +3695,15 @@
   },
   {
    "symbol": "THH",
-   "status": "TRANSIENT_PROVIDER_FAILURE",
-   "reasonCode": "provider-or-network-error",
-   "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002044241.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
-   "retryAfterMs": 86400000
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "foreign-issuer-without-us-gaap-taxonomy",
+   "reason": "foreign-issuer-without-us-gaap-taxonomy; issuerTaxonomy=FOREIGN_NON_US_GAAP",
+   "issuerTaxonomy": "FOREIGN_NON_US_GAAP",
+   "filingForms": [
+    "20-F/40-F"
+   ],
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
    "symbol": "TLAC",
@@ -3771,7 +3785,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002088375.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -3779,7 +3793,7 @@
    "status": "TRANSIENT_PROVIDER_FAILURE",
    "reasonCode": "provider-or-network-error",
    "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002041208.json HTTP 404",
-   "attemptedAt": "2026-10-28T07:32:39.262Z",
+   "attemptedAt": "2026-10-29T22:32:48.758Z",
    "retryAfterMs": 86400000
   },
   {
@@ -4443,6 +4457,7 @@
   "TCXB",
   "TDWD",
   "THEO",
+  "THH",
   "TLAC",
   "TLNC",
   "TLSA",
@@ -4479,7 +4494,8 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP"
+  "ZKP",
+  "GBC"
  ],
  "retryableFailures": [
   "AYA",
@@ -4497,7 +4513,6 @@
   "QQQX",
   "RML",
   "SCZM",
-  "THH",
   "TRBG",
   "TREO"
  ],
@@ -4506,42 +4521,42 @@
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 361,
+ "nextRefreshCandidates": 362,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:40835356171",
-  "attemptedAt": "2026-10-29T07:32:29.715Z",
+  "runId": "gha:40965784070",
+  "attemptedAt": "2026-10-29T22:32:48.758Z",
   "sourceRevision": "sec-company-tickers:76b92fbacfc1a5a8715a32bb5f923df4c79a8062b615735542081ddff6977b46",
   "inputWatermarks": {
-   "universe": "2026-10-29T07:32:27.734Z",
-   "screener": "2026-10-29T07:31:42.979Z",
-   "previousArtifact": "2026-10-28T22:33:45.143Z"
+   "universe": "2026-10-29T22:32:46.833Z",
+   "screener": "2026-10-29T22:32:10.928Z",
+   "previousArtifact": "2026-10-29T07:33:04.512Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3897,
-   "attempted": 74,
-   "updated": 74,
-   "retained": 3462,
-   "pendingEligible": 361
+   "eligible": 3898,
+   "attempted": 19,
+   "updated": 0,
+   "retained": 3536,
+   "pendingEligible": 362
   },
   "thisBatch": {
-   "updated": 74,
-   "terminalUnsupported": 0,
-   "transientFailed": 0,
-   "recorded": 0
+   "updated": 0,
+   "terminalUnsupported": 2,
+   "transientFailed": 17,
+   "recorded": 19
   },
   "ledger": {
-   "total": 361,
-   "terminalUnsupported": 343,
-   "transientFailed": 18,
+   "total": 362,
+   "terminalUnsupported": 345,
+   "transientFailed": 17,
    "legacyUnknown": 0
   },
   "lastSuccessfulObservation": "2026-10-29T07:32:29.715Z",
   "publication": {
-   "status": "SUCCESS",
-   "reason": "every attempted target was updated",
+   "status": "NO_REFRESH_RETAINED",
+   "reason": "every attempted target failed; previously stored rows stay published",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -320942,9 +320957,9 @@
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3852,
-  "eligible": 3897,
-  "passAttempted": 45,
+  "classified": 3853,
+  "eligible": 3898,
+  "passAttempted": 41,
   "passUpdated": 0,
   "passFailed": 0
  },
@@ -329408,6 +329423,12 @@
    "description": "Miscellaneous Electrical Machinery, Equipment & Supplies",
    "cik": "0001781446",
    "observedAt": "2026-10-26T07:32:18.839Z"
+  },
+  "GBC": {
+   "sic": "6022",
+   "description": "State Commercial Banks",
+   "cik": "0001070965",
+   "observedAt": "2026-10-29T22:32:48.758Z"
   },
   "GBCI": {
    "sic": "6022",
@@ -341299,7 +341320,7 @@
    "sic": "7990",
    "description": "Services-Miscellaneous Amusement & Recreation",
    "cik": "0002044241",
-   "observedAt": "2026-10-16T08:07:23.723Z"
+   "observedAt": "2026-10-29T22:32:48.758Z"
   },
   "THRM": {
    "sic": "3714",
