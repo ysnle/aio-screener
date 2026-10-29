@@ -1,6 +1,6 @@
 {
   "schemaVersion": "event-briefs.v1",
-  "generatedAt": "2026-10-29T19:44:26.060Z",
+  "generatedAt": "2026-10-29T23:38:56.951Z",
   "producer": "scripts/fetch-event-briefs.mjs",
   "cadence": "every 20 minutes (.github/workflows/event-briefs.yml); AI runs only for a new source document or a pending call summary",
   "sourceKind": "T1_OFFICIAL",
@@ -18,8 +18,8 @@
   ],
   "costLedger": {
     "month": "2026-10",
-    "requests": 13,
-    "estimatedUsd": 0.1201,
+    "requests": 15,
+    "estimatedUsd": 0.146,
     "rateCard": {
       "inputUsdPerToken": 1.375e-7,
       "outputUsdPerToken": 5.5e-7,
@@ -34,6 +34,219 @@
     "0001046179-26-000728"
   ],
   "briefs": [
+    {
+      "id": "earnings-AMZN-0001018724-26-000038",
+      "kind": "earnings",
+      "symbol": "AMZN",
+      "nameKo": "아마존",
+      "eventDate": "2026-10-29",
+      "publishedAt": "2026-10-29T20:05:27.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000038/0001018724-26-000038-index.html",
+        "accession": "0001018724-26-000038",
+        "fetchedAt": "2026-10-29T23:38:56.951Z",
+        "sha256": "95bd7bf6818ba0d931be2378f5ed2a77439965ef355bce2850ffb6c1c90e57c7"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-AMZN",
+          "at": "2026-10-29T23:38:56.951Z",
+          "inputTokens": 10745,
+          "outputTokens": 1705,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00242
+        },
+        {
+          "purpose": "call-AMZN",
+          "at": "2026-10-29T23:38:56.951Z",
+          "inputTokens": 8740,
+          "outputTokens": 598,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02353
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "아마존 3분기 매출 $201.9 billion, 영업이익 $28.1 billion",
+      "figures": [
+        {
+          "label": "순매출",
+          "value": "$201.9 billion",
+          "text": "전년 동기 대비 12% 증가.",
+          "metric": "revenue",
+          "quote": "Net sales increased 12% to $201.9 billion in the third quarter, compared with $180.2 billion in third quarter 2025.",
+          "estimate": {
+            "value": 206288109339,
+            "surprisePct": -2.1,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "희석 주당순이익",
+          "value": "$1.89 per diluted share",
+          "text": "전년 동기 $1.95에서 감소.",
+          "metric": "eps_diluted",
+          "quote": "Net income decreased to $20.7 billion in the third quarter, or $1.89 per diluted share, compared with $21.2 billion, or $1.95 per diluted share, in third quarter 2025.",
+          "estimate": {
+            "value": 2.001,
+            "surprisePct": -5.5,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "영업이익",
+          "value": "$28.1 billion",
+          "text": "전년 동기 $17.4 billion에서 증가.",
+          "metric": "operating_income",
+          "quote": "Operating income increased to $28.1 billion in the third quarter, compared with $17.4 billion in third quarter 2025."
+        },
+        {
+          "label": "영업이익률",
+          "value": "13.9%",
+          "text": "회사의 역대 최고 영업이익률.",
+          "metric": "margin",
+          "quote": "Operating income was $28.1 billion and operating margin was 13.9%-Amazon's highest operating margin ever"
+        },
+        {
+          "label": "순이익",
+          "value": "$20.7 billion",
+          "text": "전년 동기 $21.2 billion에서 감소.",
+          "metric": "net_income",
+          "quote": "Net income decreased to $20.7 billion in the third quarter, or $1.89 per diluted share, compared with $21.2 billion, or $1.95 per diluted share, in third quarter 2025."
+        }
+      ],
+      "details": [
+        {
+          "label": "북미 매출",
+          "value": "$112.9 billion",
+          "text": "전년 동기 대비 6% 증가.",
+          "quote": "North America segment sales increased 6% year-over-year to $112.9 billion."
+        },
+        {
+          "label": "북미 영업이익",
+          "value": "$8.7 billion",
+          "text": "전년 동기 $4.8 billion.",
+          "quote": "North America segment operating income was $8.7 billion, compared with $4.8 billion in third quarter 2025."
+        },
+        {
+          "label": "국제 매출",
+          "value": "$43.1 billion",
+          "text": "전년 동기 대비 5% 증가, 환율 변동 제외 시 8% 증가.",
+          "quote": "International segment sales increased 5% year-over-year to $43.1 billion, or increased 8% excluding changes in foreign exchange rates."
+        },
+        {
+          "label": "국제 영업이익",
+          "value": "$1.6 billion",
+          "text": "전년 동기 $1.2 billion.",
+          "quote": "International segment operating income was $1.6 billion, compared with $1.2 billion in third quarter 2025."
+        },
+        {
+          "label": "AWS 매출",
+          "value": "$46.0 billion",
+          "text": "전년 동기 대비 39% 증가.",
+          "quote": "AWS segment sales increased 39% year-over-year to $46.0 billion."
+        },
+        {
+          "label": "AWS 영업이익",
+          "value": "$17.8 billion",
+          "text": "전년 동기 $11.4 billion.",
+          "quote": "AWS segment operating income was $17.8 billion, compared with $11.4 billion in third quarter 2025."
+        }
+      ],
+      "detailTitle": "사업부문",
+      "guidance": [
+        {
+          "label": "4분기 순매출",
+          "value": "between $240.0 billion and $247.0 billion",
+          "text": "전년 동기 대비 성장률 12%~16% 전망.",
+          "quote": "Net sales are expected to be between $240.0 billion and $247.0 billion, or to grow between 12% and 16% compared with fourth quarter 2025."
+        },
+        {
+          "label": "4분기 영업이익",
+          "value": "between $28.5 billion and $33.5 billion",
+          "text": "전년 동기 실적은 $25.0 billion.",
+          "quote": "Operating income is expected to be between $28.5 billion and $33.5 billion, compared with $25.0 billion in fourth quarter 2025."
+        },
+        {
+          "label": "4분기 광고 매출",
+          "value": "in the high teens",
+          "text": "전년 동기 대비 성장 전망.",
+          "quote": "We expect year-over-year advertising revenue to grow in the high teens in fourth quarter 2026."
+        },
+        {
+          "label": "2026년 현금 자본지출",
+          "value": "approximately $220 billion",
+          "text": "회사는 연간 전망을 유지.",
+          "quote": "We continue to expect 2026 cash capital expenditures to be approximately $220 billion."
+        }
+      ],
+      "watch": [
+        "다음 실적 발표에서 매출과 영업이익이 회사 가이던스 범위에 부합하는지 확인",
+        "AWS 매출 성장과 영업이익 추이 확인",
+        "인공지능 인프라 투자에 따른 자본지출과 잉여현금흐름 변화 확인",
+        "광고 매출 성장 흐름 확인"
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "12"
+          ],
+          "text": "영업현금흐름 $168.3 billion 최근 12개월 기준 전년 동기 대비 29% 증가."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "12"
+          ],
+          "text": "잉여현금흐름 an outflow of $42.4 billion 최근 12개월 기준 유출을 기록."
+        }
+      ],
+      "callPoints": {
+        "title": "컨퍼런스콜 핵심",
+        "basis": "news-report",
+        "speaker": "Andy Jassy",
+        "points": [
+          {
+            "text": "더 넓은 상품 선택과 빠른 배송으로 소매 시장 점유율을 확대하고 있으며, 마진도 개선되고 있다고 강조했다.",
+            "url": "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx"
+          }
+        ],
+        "attempts": 1,
+        "done": true,
+        "searchedAt": "2026-10-29T23:38:56.951Z",
+        "dropped": [
+          {
+            "reason": "number-not-in-source",
+            "numbers": [
+              "1840"
+            ],
+            "text": "AWS 매출은 전년 동기 대비 39.3% 증가해 연환산 매출 1,840억 달러를 기록했으며, 회사는 기능과 인프라 투자가 성장을 뒷받침한다고 설명했다."
+          },
+          {
+            "reason": "number-not-in-source",
+            "numbers": [
+              "2200"
+            ],
+            "text": "2026년 현금 자본지출을 약 2,200억 달러로 예상한다고 밝혔다."
+          },
+          {
+            "reason": "number-not-in-source",
+            "numbers": [
+              "2400",
+              "2470",
+              "285",
+              "335"
+            ],
+            "text": "4분기 매출 가이던스는 2,400억~2,470억 달러, 영업이익 가이던스는 285억~335억 달러다. 광고 매출 성장률은 4분기에 높은 10%대일 것으로 예상했다."
+          }
+        ]
+      }
+    },
     {
       "id": "earnings-NOW-0001373715-26-000092",
       "kind": "earnings",
