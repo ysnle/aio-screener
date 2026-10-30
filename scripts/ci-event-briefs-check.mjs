@@ -265,6 +265,22 @@ check('v59.44 the producer records the price after the report', () => {
   same([brief.reasons?.done, brief.reasons?.basis, brief.reasons?.dropped?.map((drop) => drop.reason).sort()], [true, 'news-report', ['number-not-in-source', 'url-not-allowed']]);
   eq(brief.reasons?.direction, 1);
 });
+const { REACTION_REPORT_DOMAINS, isNoReasonText } = await import('../src/domain/briefing/event-briefs.js');
+check('v59.44 live run: English release titles and raw thousands are rebuilt; "not found" is not a reason', () => {
+  const figures = [{ metric: 'revenue', label: '매출', value: '$11.0 billion' }];
+  eq(briefHeadline('샌디스크, Fiscal First Quarter 2027 실적 발표', { nameKo: '샌디스크', figures }), '샌디스크 실적: 매출 $11.0 billion');
+  eq(briefHeadline('디지털리얼티, 3분기 매출 $1,902,418천 보고', { nameKo: '디지털리얼티', figures }), '디지털리얼티 실적: 매출 $11.0 billion');
+  eq(briefHeadline('마이크로소프트, Azure 성장 39%', { nameKo: '마이크로소프트', figures }), '마이크로소프트, Azure 성장 39%', 'one English word stays');
+  eq(isNoReasonText('기대와의 차이가 하락을 이끌었다고 확인할 근거는 찾지 못했습니다.'), true);
+  eq(isNoReasonText('4분기 매출 전망이 기대에 못 미쳤다는 보도'), false);
+  ok(REACTION_REPORT_DOMAINS.length <= 10 && !REACTION_REPORT_DOMAINS.some((domain) => /aboutamazon|intc|ir\./.test(domain)), 'ten open domains, no company IR');
+});
+const junkStored = { ...withPrices, briefs: withPrices.briefs.map((row) => (row.id === msft.id ? { ...row, reasons: { ...row.reasons, points: [{ text: '이유를 확인할 근거는 찾지 못했습니다.', url: 'https://www.cnbc.com/x' }], done: true } } : row)) };
+const junkCleaned = await buildEventBriefs({ ...base, previous: junkStored, nowMs: nowMs + 2 * 3600000 });
+check('v59.44 a stored "not found" line is dropped and the reasons are searched again', () => {
+  const brief = junkCleaned.briefs.find((row) => row.id === msft.id);
+  same([brief.reasons.points.map((point) => point.text), brief.reasons.attempts], [['Azure 성장이 기대에 못 미쳤다는 보도'], 2]);
+});
 // After hours up, first session down: the reasons are searched once more for the move now shown.
 sources.manifest.prices = { MSFT: { bars: [{ date: '2026-10-27', close: 500 }, { date: '2026-10-28', close: 510 }, { date: '2026-10-29', close: 495 }] } };
 const reversedRun = await buildEventBriefs({ ...base, previous: withPrices, nowMs: Date.parse('2026-10-29T22:00:00Z') });

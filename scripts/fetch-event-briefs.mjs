@@ -26,7 +26,7 @@ import { createSecClient, requireSecUserAgent, filingIndexUrl } from './lib/sec-
 import { SEC_TICKERS_URL, submissionsUrl, submissionTextUrl, tickerCikMap, filingRowsWithItems, isResultsFiling, resultsExhibit, looksLikeQuarterlyResults, htmlToText } from './lib/sec-results-filings.mjs';
 import { SHARED_AI_MODEL, resolveSharedAiConfig, extractCompletedResponseText, buildSharedWebSearchBody } from './lib/ai-shared-analysis.mjs';
 import {
-  EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
+  EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, surprisePct, estimateAiCostUsd, AI_RATE_CARD,
   MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct
 } from '../src/domain/briefing/event-briefs.js';
@@ -290,7 +290,7 @@ export const REASONS_SCHEMA = { type: 'object', additionalProperties: false, req
 export function reasonsPrompt(brief) {
   const move = reactionPct(brief);
   const direction = move == null ? '움직인' : move < 0 ? '하락한' : '상승한';
-  return `${brief.nameKo}(${brief.symbol}) 주가가 ${brief.eventDate} 실적 발표 뒤 ${direction} 이유로 보도된 내용(가이던스와 시장 기대의 차이, 마진, 설비투자·현금흐름, 수요 설명, 경영진 발언)을 보도와 회사 자료에서 찾아 한국어 한 줄씩 2~4개로 정리하라. 각 줄에 근거 기사 url을 붙인다. 숫자는 쓰지 않는다(수치는 따로 싣는다). 보도에 없는 추측이나 매매 지시는 쓰지 않는다.`;
+  return `${brief.nameKo}(${brief.symbol}) 주가가 ${brief.eventDate} 실적 발표 뒤 ${direction} 이유로 보도된 내용(가이던스와 시장 기대의 차이, 마진, 설비투자·현금흐름, 수요 설명, 경영진 발언)을 보도와 회사 자료에서 찾아 한국어 한 줄씩 2~4개로 정리하라. 각 줄에 근거 기사 url을 붙인다. 숫자는 쓰지 않는다(수치는 따로 싣는다). 보도에 없는 추측이나 매매 지시는 쓰지 않는다. 회사 보도자료만으로 주가 반응을 설명하지 말고, 이유를 다룬 보도를 찾지 못하면 빈 배열을 돌려준다.`;
 }
 
 /** A calendar row that already carries actuals, shown before the filing is summarised (basis 'provider'). */
@@ -600,16 +600,23 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
   // A move that reverses after the search (after-hours down, first session up) is searched once more, so the reasons
   // never explain the opposite of the price beside them.
   const sign = (brief) => Math.sign(reactionPct(brief) ?? 0);
-  for (const [id, brief] of briefs) {
+  for (const [id, stored] of briefs) {
+    // A stored line that only says nothing was found is dropped; with none left the brief is searched once more.
+    const cleanPoints = (stored.reasons?.points || []).filter((point) => !isNoReasonText(point.text));
+    const brief = stored.reasons && cleanPoints.length !== stored.reasons.points.length
+      ? { ...stored, reasons: { ...stored.reasons, points: cleanPoints, done: cleanPoints.length > 0 } } : stored;
+    if (brief !== stored) briefs.set(id, brief);
     const reversed = !!brief.reasons?.done && !brief.reasons.redone && Number.isFinite(brief.reasons.direction) && sign(brief) !== 0 && sign(brief) !== brief.reasons.direction;
     if (brief.kind !== 'earnings' || brief.status === 'pending' || !brief.reaction || (!reversed && (brief.reasons?.done || (brief.reasons?.attempts || 0) >= MAX_SEARCH_ATTEMPTS))) continue;
     const published = Date.parse(brief.publishedAt) || 0;
     if (nowMs - published > 4 * DAY || nowMs < published + 3600000) continue;
     const mover = listed.get(brief.symbol) || MOVER_BY_SYMBOL[brief.symbol] || { irDomains: [] };
-    const domains = [...(mover.irDomains || []), ...NEWS_REPORT_DOMAINS];
+    const domains = REACTION_REPORT_DOMAINS;
     const known = [brief.checkText || '', ...['figures', 'details', 'guidance'].flatMap((key) => (brief[key] || []).map((item) => `${item.label || ''} ${item.value || ''} ${item.text || ''} ${item.quote || ''}`))].join('\n');
-    const result = await runAi(buildSharedWebSearchBody(reasonsPrompt(brief), { allowedDomains: domains, schemaName: 'earnings_reasons', schema: REASONS_SCHEMA, maxToolCalls: 1, maxOutputTokens: 1200 }), `reasons-${brief.symbol}`);
-    const accepted = result.json ? acceptPoints({ points: result.json.reasons }, { sourceText: known, domains }) : { points: [], dropped: [] };
+    const result = await runAi(buildSharedWebSearchBody(reasonsPrompt(brief), { allowedDomains: domains, schemaName: 'earnings_reasons', schema: REASONS_SCHEMA, maxToolCalls: 2, maxOutputTokens: 1200 }), `reasons-${brief.symbol}`);
+    const checked = result.json ? acceptPoints({ points: result.json.reasons }, { sourceText: known, domains }) : { points: [], dropped: [] };
+    const accepted = { points: checked.points.filter((point) => !isNoReasonText(point.text)),
+      dropped: [...checked.dropped, ...checked.points.filter((point) => isNoReasonText(point.text)).map((point) => ({ reason: 'no-reason-found', text: point.text }))] };
     briefs.set(id, { ...brief, reasons: { basis: 'news-report', points: accepted.points.slice(0, 4), done: accepted.points.length > 0 || reversed, attempts: (brief.reasons?.attempts || 0) + 1, searchedAt: nowIso, dropped: accepted.dropped,
       direction: sign(brief), ...(reversed || brief.reasons?.redone ? { redone: true } : {}) },
       ai: [...(brief.ai || []), ...(result.usage ? [aiLedger(`reasons-${brief.symbol}`, result.usage)] : [])] });

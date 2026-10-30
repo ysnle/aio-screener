@@ -37,6 +37,13 @@ export function briefTier(brief) {
 // Wires and business news allowed beside the issuer's own pages when a call or press conference is summarised from
 // reports (the transcript comes later or never as free text).
 export const NEWS_REPORT_DOMAINS = Object.freeze(['reuters.com', 'apnews.com', 'cnbc.com', 'bloomberg.com', 'wsj.com', 'ft.com', 'marketwatch.com', 'yna.co.kr']);
+// v59.44 (first live run: 3 of 4 searches found nothing behind the paywalled wires): why a stock moved is also read
+// from open market desks and the Korean economic press (ten domains, the search body's limit). Company IR is left out:
+// a release does not report the reaction.
+export const REACTION_REPORT_DOMAINS = Object.freeze(['reuters.com', 'apnews.com', 'cnbc.com', 'marketwatch.com', 'finance.yahoo.com', 'investing.com',
+  'barrons.com', 'yna.co.kr', 'hankyung.com', 'mk.co.kr']);
+// A line that only says the reason was not found is not a reason.
+export const isNoReasonText = (text) => /(찾지 못|확인하지 못|확인할 근거|뒷받침되지 않|확인되지 않|알 수 없|정리할 수 없|근거가 없)/.test(String(text || ''));
 
 // ---- the number check ---------------------------------------------------------------------------------------------
 // A figure counts as present when its digits (commas dropped) stand as a whole number in the source. Quarter ordinals
@@ -263,7 +270,11 @@ export function reactionText(reaction) {
 export function briefHeadline(text, { nameKo, figures = [], sourceNumbers = null } = {}) {
   const value = String(text || '').trim();
   const generic = `${nameKo} 실적 발표`;
-  if (value && /[가-힣]/.test(value) && value !== generic && (!sourceNumbers || !unverifiedNumbers(value, sourceNumbers).length)) return value;
+  // v59.44 (first live run): a release title left in English inside a Korean line ("Fiscal First Quarter 2027 실적
+  // 발표") or an amount kept in the filing's thousands ("$1,902,418천") is rebuilt from the figures as well.
+  const english = /[A-Za-z]{2,}(?:[\s-]+[A-Za-z]{2,}){2,}/.test(value);
+  const rawUnit = /\$[\d,]+\s*천/.test(value);
+  if (value && /[가-힣]/.test(value) && value !== generic && !english && !rawUnit && (!sourceNumbers || !unverifiedNumbers(value, sourceNumbers).length)) return value;
   const lead = figures.find((figure) => figure?.metric === 'revenue') || figures[0];
   return lead?.value ? `${nameKo} 실적: ${String(lead.label || '').trim()} ${lead.value}`.replace(/\s+/g, ' ').trim() : generic;
 }
