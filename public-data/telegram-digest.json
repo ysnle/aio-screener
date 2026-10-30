@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-30T00:21:39.332Z",
-  "attemptedAt": "2026-10-30T00:21:39.332Z",
-  "lastSuccessfulAt": "2026-10-30T00:21:39.332Z",
+  "generatedAt": "2026-10-30T00:25:56.220Z",
+  "attemptedAt": "2026-10-30T00:25:56.220Z",
+  "lastSuccessfulAt": "2026-10-30T00:25:56.220Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-16T00:21:33.241Z",
-  "until": "2026-10-30T00:21:33.241Z",
+  "since": "2026-10-16T00:25:51.338Z",
+  "until": "2026-10-30T00:25:51.338Z",
   "current24hWindow": {
     "start": "2026-10-28T23:00:00.000Z",
     "end": "2026-10-29T23:00:00.000Z",
@@ -92,20 +92,20 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1364,
+      "count": 1365,
       "freshCount": 40,
-      "eligibleTextCount": 1305,
+      "eligibleTextCount": 1306,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67840
+      "lastPostId": 67841
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 231,
-      "freshCount": 39,
+      "freshCount": 19,
       "eligibleTextCount": 231,
       "selectedCount": 108,
       "error": null,
@@ -116,26 +116,26 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 683,
+      "count": 681,
       "freshCount": 20,
-      "eligibleTextCount": 683,
+      "eligibleTextCount": 681,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 71246
     }
   ],
-  "count": 2438,
-  "retainedItemCount": 462,
+  "count": 2437,
+  "retainedItemCount": 456,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2438,
-    "eligibleTextCount": 2368,
+    "observedCount": 2437,
+    "eligibleTextCount": 2367,
     "mediaOnlyCount": 70,
     "highSignalCount": 443,
-    "broadSignalCount": 968,
+    "broadSignalCount": 967,
     "selectedRawCount": 407,
     "selectedEligibleCount": 407,
     "selectedRawCoveragePct": 17.2,
@@ -143,36 +143,37 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "geo": 402,
+    "semi": 549,
+    "power": 301,
+    "earnings": 491,
     "credit": 125,
     "japan": 115,
-    "geo": 402,
     "crypto": 5,
-    "earnings": 491,
-    "semi": 549,
     "kr-market": 146,
     "equity": 170,
-    "power": 301,
     "market-note": 876,
     "healthcare": 128,
     "ai-policy": 137,
-    "macro": 389,
+    "macro": 388,
     "flows": 103,
     "optical": 39,
     "media-only": 70,
     "insider": 3
   },
   "tickerCounts": {
+    "INTC": 2,
     "SNDK": 10,
     "COIN": 1,
     "AMZN": 73,
-    "NVDA": 173,
+    "NVDA": 172,
     "TSM": 57,
     "GOOG": 131,
     "ABBV": 1,
     "CAT": 3,
     "SBUX": 1,
     "AAPL": 14,
-    "MSFT": 73,
+    "MSFT": 72,
     "PLTR": 7,
     "GOOGL": 5,
     "LLY": 2,
@@ -197,7 +198,7 @@
     "HOOD": 1,
     "005940.KS": 2,
     "285A.T": 2,
-    "CRWV": 16,
+    "CRWV": 15,
     "MS": 4,
     "MRNA": 1,
     "RDDT": 2,
@@ -213,7 +214,6 @@
     "SHOP": 5,
     "DB": 3,
     "T": 7,
-    "INTC": 1,
     "PANW": 1,
     "EQIX": 1,
     "FCEL": 1,
@@ -255,7 +255,7 @@
     "Semiconductors/Memory (549 posts in 14-day research window): 2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”...",
     "Earnings/Corporate (491 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (402 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
-    "Macro/Rates (389 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
+    "Macro/Rates (388 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
     "AI Power/Grid (301 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (170 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "Korea Market (146 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
@@ -263,7 +263,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 173,
+      "count": 172,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전..."
     },
     {
@@ -288,7 +288,7 @@
     },
     {
       "key": "MSFT",
-      "count": 73,
+      "count": 72,
       "text": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     },
     {
@@ -319,7 +319,7 @@
     {
       "key": "AMD",
       "count": 22,
-      "text": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이 지연되면서 당초 예상보다 낮게 집행. 전체 CapEx의 약 75%는 내용연수가 짧은 자산에 투자 . 주로..."
+      "text": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이..."
     }
   ],
   "categories": [
@@ -329,7 +329,7 @@
       "topics": [
         "macro"
       ],
-      "count": 389,
+      "count": 388,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -429,7 +429,7 @@
         "healthcare"
       ],
       "count": 128,
-      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Absci · Addus HomeCare · Amgen · Bausch + Lomb · Bausch Health Companies · CeriBell · Charles River Laboratories International · Eli Lilly..."
+      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amgen · Amneal Pharmaceuticals · AtriCure · Bausch + Lomb · Biogen..."
     },
     {
       "id": "japan",
@@ -870,19 +870,16 @@
       "datetime": "2026-10-28T23:19:57.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT"
-      ],
-      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이..."
+      ]
     },
     {
       "id": "insidertracking/67676",
@@ -994,21 +991,17 @@
       "datetime": "2026-10-28T20:18:38.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "earnings",
-        "macro",
-        "geo",
-        "ai-policy"
+        "earnings"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:..."
+      ]
     },
     {
       "id": "insidertracking/67649",
@@ -1062,18 +1055,16 @@
       "localDateKst": "2026-10-28",
       "tags": [
         "earnings",
-        "semi",
-        "macro",
-        "power"
+        "semi"
       ],
-      "lead": 2,
       "score": 100,
       "hasText": true,
+      "summary": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% •...",
+      "lead": 2,
       "tickers": [
         "285A.T",
         "000660.KS"
-      ],
-      "summary": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% •..."
+      ]
     },
     {
       "id": "insidertracking/67553",
@@ -1669,6 +1660,25 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/67841",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67841",
+      "datetime": "2026-10-30T00:23:06.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "geo",
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "score": 79,
+      "hasText": true,
+      "tickers": [
+        "INTC"
+      ],
+      "summary": "인텔(INTC) Q3 2026 어닝콜 요약 > 긍정 요인: • 실적 예상치 상회. 3분기 매출은 165억달러, 비GAAP 매출총이익률은 44.1%, EPS는 0.52달러로 모두 가이던스 상회. 비용 통제와..."
+    },
+    {
       "id": "bornlupin/20893",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20893",
@@ -1953,10 +1963,11 @@
       "datetime": "2026-10-29T20:51:06.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "healthcare"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Absci · Addus HomeCare · Amgen · Bausch + Lomb · Bausch Health Companies ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -1979,8 +1990,7 @@
         "TD",
         "BNS",
         "LNG"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Absci · Addus HomeCare · Amgen · Bausch + Lomb · Bausch Health Companies ·..."
+      ]
     },
     {
       "id": "insidertracking/67800",
@@ -2997,19 +3007,16 @@
       "datetime": "2026-10-28T23:19:57.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT"
-      ],
-      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이..."
+      ]
     },
     {
       "id": "HANAchina/71184",
@@ -3122,17 +3129,15 @@
       "localDateKst": "2026-10-29",
       "tags": [
         "semi",
-        "optical",
-        "power"
+        "optical"
       ],
-      "lead": 2,
       "score": 68,
       "hasText": true,
+      "summary": "블룸버그 독점) 마벨(Marvell), AI 관련 초대형 거래로 루멘텀(Lumentum) 인수 임박 ​ 마벨 테크놀로지(Marvell Technology Inc.)가 인공지능(AI) 부문의 규모 확장 경쟁...",
       "tickers": [
         "MRVL",
         "LITE"
-      ],
-      "summary": "블룸버그 독점) 마벨(Marvell), AI 관련 초대형 거래로 루멘텀(Lumentum) 인수 임박 ​ 마벨 테크놀로지(Marvell Technology Inc.)가 인공지능(AI) 부문의 규모 확장 경쟁..."
+      ]
     },
     {
       "id": "insidertracking/67693",
@@ -3163,11 +3168,11 @@
       ],
       "score": 63,
       "hasText": true,
+      "summary": "마벨 테크놀로지(Marvell), 루멘텀 홀딩스(Lumentum) 인수를 위한 막바지 협상을 진행 중인 것으로 알려짐.",
       "tickers": [
         "MRVL",
         "LITE"
-      ],
-      "summary": "마벨 테크놀로지(Marvell), 루멘텀 홀딩스(Lumentum) 인수를 위한 막바지 협상을 진행 중인 것으로 알려짐."
+      ]
     },
     {
       "id": "insidertracking/67681",
@@ -3456,21 +3461,17 @@
       "datetime": "2026-10-28T20:18:38.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "earnings",
-        "macro",
-        "geo",
-        "ai-policy"
+        "earnings"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:...",
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "알파벳(GOOGL) 2026년 3분기 실적 (시간외 -7.7%) 주당순이익(EPS): 2.12달러 매출: 1,276억 달러 (예상 1,282.2억 달러 하회), 전년 대비 25% 증가 구글 클라우드 매출:..."
+      ]
     },
     {
       "id": "bornlupin/20868",
@@ -3479,17 +3480,15 @@
       "datetime": "2026-10-28T20:10:02.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "earnings",
-        "ai-policy",
-        "kr-market"
+        "earnings"
       ],
-      "lead": 1,
       "score": 75,
       "hasText": true,
+      "summary": "마이크로소프트(MSFT) 2027 회계연도 1분기 실적 (시간외 +4.6%) 1. 주요 실적: 시장 예상치 상회 매출 923억 달러(예상 906.9억 달러), 전년 대비 19% 증가. 조정 EPS...",
+      "lead": 1,
       "tickers": [
         "MSFT"
-      ],
-      "summary": "마이크로소프트(MSFT) 2027 회계연도 1분기 실적 (시간외 +4.6%) 1. 주요 실적: 시장 예상치 상회 매출 923억 달러(예상 906.9억 달러), 전년 대비 19% 증가. 조정 EPS..."
+      ]
     },
     {
       "id": "HANAchina/71172",
@@ -3530,16 +3529,15 @@
       "tags": [
         "semi",
         "equity",
-        "kr-market",
         "earnings"
       ],
-      "lead": 2,
       "score": 99,
       "hasText": true,
+      "summary": "씨티(Citi), SK하이닉스, 투자의견 매수(Buy), 목표주가 300만원 1. 3분기 실적: 메모리 가격 상승과 고부가 제품 확대 영업이익 83.3조원(+38% QoQ, +632% YoY) 영업이익률...",
+      "lead": 2,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "씨티(Citi), SK하이닉스, 투자의견 매수(Buy), 목표주가 300만원 1. 3분기 실적: 메모리 가격 상승과 고부가 제품 확대 영업이익 83.3조원(+38% QoQ, +632% YoY) 영업이익률..."
+      ]
     },
     {
       "id": "bornlupin/20866",
@@ -3548,18 +3546,15 @@
       "datetime": "2026-10-28T12:41:53.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "earnings",
-        "geo",
-        "semi",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 79,
       "hasText": true,
+      "summary": "버티브( $VRT ) 2026년 3분기 실적 (장전 +15.3%) 1. 3분기 실적: 시장 예상 대폭 상회 매출 43.13억 달러, 전년 대비 61% 증가(예상 37.6억 달러). 조정 EPS 2.21달러,...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "버티브( $VRT ) 2026년 3분기 실적 (장전 +15.3%) 1. 3분기 실적: 시장 예상 대폭 상회 매출 43.13억 달러, 전년 대비 61% 증가(예상 37.6억 달러). 조정 EPS 2.21달러,..."
+      ]
     },
     {
       "id": "insidertracking/67651",
@@ -3656,18 +3651,16 @@
       "datetime": "2026-10-28T12:28:03.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "kr-market",
         "earnings",
-        "flows"
+        "semi"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
+      "summary": "JP모건, SK하이닉스, 투자의견 비중확대(Overweight), 목표주가 275만원 3Q26 실적 분석 1. 3분기 실적: 시장 예상 상회 • 매출 104.6조원(+32% QoQ, +328% YoY)....",
+      "lead": 2,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "JP모건, SK하이닉스, 투자의견 비중확대(Overweight), 목표주가 275만원 3Q26 실적 분석 1. 3분기 실적: 시장 예상 상회 • 매출 104.6조원(+32% QoQ, +328% YoY)...."
+      ]
     },
     {
       "id": "HANAchina/71162",
@@ -3927,19 +3920,18 @@
       "datetime": "2026-10-28T06:18:40.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 73,
       "hasText": true,
+      "summary": "중국 CXMT, 낮은 수율에도 첨단 AI 메모리 생산 착수 예정 — 소식통 1. CXMT, HBM3E 수율 20~30%에도 생산 추진 - 중국 최대 DRAM 제조업체 CXMT(창신메모리)가 첨단 AI용...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "MU",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "중국 CXMT, 낮은 수율에도 첨단 AI 메모리 생산 착수 예정 — 소식통 1. CXMT, HBM3E 수율 20~30%에도 생산 추진 - 중국 최대 DRAM 제조업체 CXMT(창신메모리)가 첨단 AI용..."
+      ]
     },
     {
       "id": "bornlupin/20862",
@@ -3950,11 +3942,10 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "실제 GPU 임대 가격 동향: 온디맨드 계약은 장기 계약 대비 상당한 프리미엄 형성 전문가 의견에 따르면, B200/B300 GPU 임대 가격은 2026년 2분기 대비 최소 20%, 약 25% 상승한 것으로..."
+      "summary": "실제 GPU 임대 가격 동향: 온디맨드 계약은 장기 계약 대비 상당한 프리미엄 형성 전문가 의견에 따르면, B200/B300 GPU 임대 가격은 2026년 2분기 대비 최소 20%, 약 25% 상승한 것으로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71145",
@@ -4104,16 +4095,15 @@
       "tags": [
         "earnings",
         "semi",
-        "kr-market",
-        "flows"
+        "kr-market"
       ],
-      "lead": 3,
       "score": 77,
       "hasText": true,
+      "summary": "GF Securities - SK하이닉스(SK Hynix) 2026년 3분기 실적 1. 3분기 실적 예상 상회 매출액: 104.62조 원 QoQ +32%, YoY +328% 시장 예상치 98.96조 원 상회...",
+      "lead": 3,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "GF Securities - SK하이닉스(SK Hynix) 2026년 3분기 실적 1. 3분기 실적 예상 상회 매출액: 104.62조 원 QoQ +32%, YoY +328% 시장 예상치 98.96조 원 상회..."
+      ]
     },
     {
       "id": "insidertracking/67606",
@@ -4335,13 +4325,12 @@
       "datetime": "2026-10-28T00:17:55.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "geo",
-        "earnings"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "\"지니언스, 금융권 보안 규제 강화 수혜 기대돼\"-한국 한국투자증권은 28일 지니언스에 대해 금융당국의 보안 점검 확대와 개인정보 유출 처벌 강화 조치로 주력 제품의 추가 수주가 본격화될 것으로 전망했다 ...."
+      "summary": "\"지니언스, 금융권 보안 규제 강화 수혜 기대돼\"-한국 한국투자증권은 28일 지니언스에 대해 금융당국의 보안 점검 확대와 개인정보 유출 처벌 강화 조치로 주력 제품의 추가 수주가 본격화될 것으로 전망했다 ....",
+      "tickers": []
     },
     {
       "id": "bornlupin/20857",
@@ -4354,11 +4343,11 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "2026.10.28 08:47:10 기업명: SK하이닉스(시가총액: 979조 5,903억) A000660 보고서명: 주요사항보고서(자기주식취득결정) * 보통주 취득수량 :...",
       "tickers": [
         "000660.KS",
         "005940.KS"
-      ],
-      "summary": "2026.10.28 08:47:10 기업명: SK하이닉스(시가총액: 979조 5,903억) A000660 보고서명: 주요사항보고서(자기주식취득결정) * 보통주 취득수량 :..."
+      ]
     },
     {
       "id": "insidertracking/67575",
@@ -4399,18 +4388,16 @@
       "localDateKst": "2026-10-28",
       "tags": [
         "earnings",
-        "semi",
-        "macro",
-        "power"
+        "semi"
       ],
-      "lead": 2,
       "score": 100,
       "hasText": true,
+      "summary": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% •...",
+      "lead": 2,
       "tickers": [
         "285A.T",
         "000660.KS"
-      ],
-      "summary": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% •..."
+      ]
     },
     {
       "id": "HANAchina/71118",
@@ -4442,10 +4429,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "속보) SK하이닉스, 주주환원 100조...배당 30조·자사주 소각 60조",
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "속보) SK하이닉스, 주주환원 100조...배당 30조·자사주 소각 60조"
+      ]
     },
     {
       "id": "HANAchina/71117",
@@ -5955,24 +5942,6 @@
       "summary": ">>미 연준 10월 회의 전망: 이번 주 금리 동결 유력, 워시의 소통 능력 시험대…시장은 12월에 주목 •FedWatch에 따르면 이번 주 연준이 금리를 동결할 확률은 90%. 시장은 워시의 발언에 주목....",
       "lead": 1,
       "tickers": []
-    },
-    {
-      "id": "insidertracking/67428",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67428",
-      "datetime": "2026-10-26T20:49:43.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "equity"
-      ],
-      "score": 74,
-      "hasText": true,
-      "summary": "10월 27일 미주인 브리핑 • 브라질 증시 장중 17.34% 폭락 · 거래 일시 중단 • 나스닥 0.82% 상승 · S&P500 0.70% 상승 • 앤트로픽 IPO 추진 · AI 컴퓨팅 약정 2,656억...",
-      "tickers": [
-        "NVDA",
-        "AVGO",
-        "MU"
-      ]
     },
     {
       "id": "aetherjapanresearch/26057",
@@ -8726,10 +8695,11 @@
       "datetime": "2026-10-29T20:51:06.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "healthcare"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Absci · Addus HomeCare · Amgen · Bausch + Lomb · Bausch Health Companies ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -8752,8 +8722,7 @@
         "TD",
         "BNS",
         "LNG"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Absci · Addus HomeCare · Amgen · Bausch + Lomb · Bausch Health Companies ·..."
+      ]
     },
     {
       "id": "insidertracking/67800",
@@ -9756,19 +9725,16 @@
       "datetime": "2026-10-28T23:19:57.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이...",
       "tickers": [
         "NVDA",
         "AMD",
         "MSFT"
-      ],
-      "summary": "마이크로소프트(MSFT) FY27 1분기 어닝콜 중 CapEx 및 AI 인프라 관련 1. 1분기 설비투자(CapEx) CapEx 452억 달러. 1분기에 예상했던 일부 외부 업체(3P)의 컴퓨팅 용량 공급이..."
+      ]
     },
     {
       "id": "HANAchina/71184",
