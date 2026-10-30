@@ -1,0 +1,207 @@
+{
+  "symbol": "CEVA",
+  "name": "Ceva, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (calendar year)",
+  "oneLine": "Ceva는 칩을 직접 만들지 않고 블루투스·와이파이·셀룰러 통신과 엣지 AI(NPU) 설계도를 칩 회사에 빌려주고 라이선스료와 개당 로열티를 받는 회사로, 매출 규모는 작지만 2026년 2분기 대형 AI 플랫폼 회사가 NPU를 채택하며 기기 속 AI로 사업을 넓히는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Ceva, Inc. Announces Second Quarter 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001173489/000143774926026648/ex_1001319.htm", "publisher": "Ceva / SEC EDGAR", "date": "2026-08-10" },
+    { "id": "s2", "kind": "10-Q", "title": "Ceva Form 10-Q for quarter ended 2026-06-30 (revenue by region and use case, cash flow)", "url": "https://www.sec.gov/Archives/edgar/data/0001173489/000143774926026774/ceva20260630_10q.htm", "publisher": "Ceva / SEC EDGAR", "date": "2026-08" },
+    { "id": "s3", "kind": "10-K", "title": "Ceva Form 10-K for fiscal year ended 2025-12-31 (filing date per AIO SEC snapshot)", "url": "https://www.sec.gov/Archives/edgar/data/1173489/000143774926006091/ceva20251231_10k.htm", "publisher": "Ceva / SEC EDGAR", "date": "2026-02-27" },
+    { "id": "s4", "kind": "call-transcript", "title": "Ceva Q2 2026 earnings call summary (unit shipments, Q3 and FY2026 guidance; read through search summaries of call coverage)", "url": "https://quartr.com/events/ceva-inc-ceva-q2-2026_3eIkgCqZ", "publisher": "Quartr", "date": "2026-08-10" }
+  ],
+
+  "moat": {
+    "sources": [
+      "블루투스·와이파이·UWB·셀룰러 IoT·5G 기저대역 IP 포트폴리오 - 칩 회사가 직접 개발하기엔 비용이 큰 무선 설계 (10-K)",
+      "2003년 이후 누적 200억 개 넘는 기기에 탑재된 출하 이력과 검증된 호환성 (10-K)",
+      "NeuPro-Nano·NeuPro-M NPU와 SensPro DSP - 저전력 엣지 AI 연산 IP (10-K)",
+      "상위 10개 MCU 업체 중 7곳이 쓰는 IP 고객 기반 (10-K)"
+    ],
+    "text": "Ceva의 힘은 칩 회사가 처음부터 만들기 번거로운 무선 통신과 신호 처리 설계를 미리 검증된 형태로 빌려준다는 데 있다. 2003년 이후 누적 200억 개 넘는 기기에 Ceva IP가 들어갔고, 상위 10개 MCU 업체 중 7곳이 고객이다. 한 번 칩에 들어간 IP는 그 칩이 팔리는 동안 로열티를 낳기 때문에 고객이 쉽게 바꾸지 않는다.",
+    "src": ["s3"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 내놓는 것은 세 묶음이다. 연결(Connect)은 블루투스·와이파이·UWB·셀룰러 IoT·5G 기저대역 IP, 감지(Sense)는 SensPro DSP·모션 센서 퓨전·공간 음향 소프트웨어, 추론(Infer)은 NeuPro-Nano·NeuPro-M NPU와 개발 도구다. 재무제표에서는 매출을 라이선스·관련 매출과 로열티로 나누고, 용도별로는 'Connect'와 'Sense & Infer'로 보고한다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "제조 협력사 없음 - IP(설계도)와 소프트웨어를 라이선스",
+      "고객 칩 회사가 각자 파운드리에서 칩을 생산"
+    ],
+    "text": "Ceva는 칩을 생산하지 않는다. 설계도(IP)와 소프트웨어를 고객 칩 회사에 넘기면, 고객이 자기 칩에 넣어 각자 파운드리에서 만든다. 그래서 공장이나 재고 부담이 없고 총마진이 87% 수준으로 높지만, 매출은 고객 칩의 출하량에 달려 있다.",
+    "src": ["s3", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "반도체 회사 - 무선·MCU·스마트폰·자동차 칩 업체 (UNISOC가 FY2025 매출의 15%, 10-K)",
+      "OEM - 2분기 계약 10건 중 2건이 OEM 직접 계약",
+      "대형 글로벌 AI·컴퓨팅 플랫폼 회사 - 차세대 맞춤형 AI 칩에 NeuPro-M NPU 채택 (이름 미공개)",
+      "로열티 상위 2개 고객이 FY2025 로열티 매출의 39% (10-K)"
+    ],
+    "channel": "고객과 직접 라이선스 계약(일시 라이선스료) 후, 고객 칩 출하에 따라 로열티를 받음",
+    "concentration": "FY2025 UNISOC 15%, 로열티 상위 2개 고객 합계 39%. 지역별로는 FY2025 중국이 매출의 62% (FY2024 49%) (10-K, 일부는 검색 요약으로 확인).",
+    "text": "이 IP는 수백 곳의 칩 회사와 OEM에 라이선스된다. 다만 중국 고객 비중이 FY2025 매출의 62%로 높고, UNISOC 한 곳이 15%를 차지할 만큼 집중돼 있다. 2분기에는 대형 AI 플랫폼 회사가 NPU를 채택하며 칩과 운영체제를 모두 가진 새 유형의 고객이 생겼다.",
+    "src": ["s3", "s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "소비자·기업", "to": "스마트폰·이어폰·IoT·자동차 OEM", "what": "무선·AI 기능이 들어간 기기 구매" },
+      { "from": "OEM", "to": "고객 칩 회사 (UNISOC 등)", "what": "Ceva IP가 들어간 칩 구매" },
+      { "from": "고객 칩 회사·OEM", "to": "Ceva", "what": "설계 시작 때 IP 라이선스·지원료 (Q2 1,822만 달러)" },
+      { "from": "고객 칩 회사", "to": "Ceva", "what": "칩 출하 개수 또는 판매액 비율로 내는 로열티 (Q2 1,081만 달러, 기기 5.67억 대)" }
+    ],
+    "pricing": "설계를 시작할 때 받는 일시 라이선스료와, 고객 칩이 팔릴 때마다 출하량 또는 판매액 비율로 받는 로열티의 두 단계.",
+    "text": "돈은 두 번에 나눠 들어온다. 칩 회사가 새 칩 설계를 시작할 때 라이선스료를 내고, 몇 년 뒤 그 칩이 기기에 실려 팔리면 개당 로열티를 낸다. 그래서 오늘의 라이선스 계약은 2~3년 뒤 로열티의 선행 지표가 된다.",
+    "src": ["s3", "s1", "s4"]
+  },
+
+  "earnings": {
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "revenue": { "value": 29.0, "unit": "USD mn", "yoy": 13.0 },
+    "grossMargin": 87,
+    "operatingMargin": -7.2,
+    "netMargin": -10.0,
+    "operatingCashFlow": { "value": null, "unit": "USD mn" },
+    "freeCashFlow": { "value": null, "unit": "USD mn" },
+    "segments": [
+      { "name": "Licensing and related revenue", "revenue": 18.221, "unit": "USD mn", "share": 62.8, "yoy": 21.3, "operatingMargin": null, "src": ["s1", "s2"] },
+      { "name": "Royalties", "revenue": 10.812, "unit": "USD mn", "share": 37.2, "yoy": 1.5, "operatingMargin": null, "src": ["s1", "s2"] }
+    ],
+    "industryMetric": [
+      { "name": "용도별 매출 (Q2 2026)", "value": "Connect 2,268만 달러, Sense & Infer 635만 달러 (전년 940만 달러에서 감소)", "src": ["s2"] },
+      { "name": "로열티 기기 출하 (Q2 2026)", "value": "5.67억 대(+16%): 블루투스 2.95억 대, 와이파이 8,000만 대(+28%), 셀룰러 IoT 6,800만 대(분기 최대) (콜 요약)", "src": ["s4", "s1"] },
+      { "name": "Non-GAAP 이익", "value": "Q2 2026 영업이익 310만 달러(마진 11%, 전년 3%), EPS 0.08달러", "src": ["s1"] },
+      { "name": "2026년 상반기", "value": "매출 5,606만 달러(전년 4,990만), 영업현금흐름 94만 달러", "src": ["s1", "s2"] },
+      { "name": "FY2025 연간", "value": "매출 1.096억 달러, 순손실 1,064만 달러", "src": ["s3"] }
+    ],
+    "text": "이 구조가 2분기에 매출 2,900만 달러(+13%)로 나타났고, 라이선스가 1,822만 달러(+21%)로 3년 만에 최대였다. 로열티는 1,081만 달러로 전년과 거의 같았다. 총마진은 87%로 높지만 매출 규모가 작아 R&D를 감당하고 나면 GAAP로는 210만 달러 영업손실이었고, non-GAAP로는 영업이익률 11%였다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "H1 2026 (six months ended 2026-06-30)",
+    "items": [
+      { "use": "R&D", "value": 39.169, "unit": "USD mn", "src": ["s1", "s2"] },
+      { "use": "capex", "value": 2.949, "unit": "USD mn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0, "unit": "USD mn", "src": ["s2"] }
+    ],
+    "text": "상반기 돈의 거의 전부는 R&D(3,917만 달러, 매출의 약 70%, 계산값)에 들어갔고 설비투자는 295만 달러에 그쳤다. 상반기 자사주 매입은 없었다(2025년 상반기에는 616만 달러). 현금·유가증권은 6월 말 약 2.21억 달러(계산값)로 부채 없이 R&D를 버틸 여력이 있다.",
+    "src": ["s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "데이터센터가 아니라 이어폰·IoT·자동차 같은 기기 속 칩에 들어가는 무선 통신·엣지 AI(NPU) 설계도 공급자. AI 데이터센터 투자와는 거의 연결되지 않는다.",
+    "dependsOn": ["고객 칩 회사의 설계 채택과 출하", "중국 스마트폰·IoT 시장 (FY2025 매출의 62%)"],
+    "sellsTo": ["chips-compute·무선 칩 회사 (UNISOC 등)", "devices (OEM 직접 계약)", "대형 AI·컴퓨팅 플랫폼 회사 (맞춤형 AI 칩용 NPU)"],
+    "aiRevenue": null,
+    "upside": "기기 안에서 AI를 돌리는 '피지컬 AI'·엣지 AI가 늘면 저전력 NPU IP 라이선스가 늘고, 그 칩이 양산되면 2~3년 뒤 로열티로 이어진다. 2분기 대형 AI 플랫폼 회사의 NeuPro-M 채택이 첫 큰 사례다.",
+    "risk": "AI 관련 매출로 볼 수 있는 Sense & Infer는 2분기 635만 달러로 전년보다 줄었다. 고객이 Arm Ethos 같은 대형 IP나 자체 NPU를 쓰면 기회가 작아지고, 중국 매출 비중이 커 미·중 규제나 중국 스마트폰 경기에 흔들린다.",
+    "text": "그래서 AI 가치사슬에서 Ceva는 데이터센터가 아니라 '기기' 쪽 끝에 있다. 지금 매출의 대부분은 블루투스·와이파이 같은 연결 IP에서 나오고, AI는 NPU 라이선스로 막 넓혀 가는 단계다. AI 투자가 이 회사 손익계산서에 닿는 길은 기기 속 AI 칩 설계 채택과 몇 년 뒤의 로열티다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "DSP·프로세서 IP", "rivals": ["Arm", "Cadence", "Imagination Technologies", "VeriSilicon", "Andes Technology", "SiFive"], "position": "niche", "share": null, "src": ["s3"] },
+      { "arena": "엣지 AI 가속기(NPU) IP", "rivals": ["Arm Ethos", "Cambricon", "Ambarella", "NVIDIA NVDLA (오픈소스)", "Expedera", "Quadric"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "무선 연결 IP (블루투스·와이파이·셀룰러)", "rivals": ["Mindtree", "대형 칩 회사 자체 설계팀"], "position": "leader", "share": null, "src": ["s3"] }
+    ],
+    "edge": "블루투스·와이파이·셀룰러 IoT를 한 회사에서 묶어 주는 연결 IP 폭과 누적 출하 이력, 연결 IP 고객에게 NPU를 함께 파는 교차 판매.",
+    "threats": "Arm처럼 CPU와 NPU를 묶어 파는 대형 IP 회사, 자체 NPU를 만드는 대형 칩 회사, RISC-V 기반 대안. 무선에서는 대형 칩 회사가 자체 설계로 돌아서는 것.",
+    "text": "이 회사의 경쟁은 영역마다 다르다. 무선 연결 IP에서는 독립 공급자로서 강한 자리를 지키지만, AI NPU에서는 Arm Ethos·Cambricon·Ambarella 같은 회사와 맞서는 도전자다. 회사의 승부수는 이미 연결 IP를 쓰는 수백 고객에게 NPU를 함께 넣게 하는 것이다.",
+    "src": ["s3", "s1"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출을 전년 대비 13~15% 늘리고(기존 12%에서 상향), non-GAAP 영업이익을 약 70% 늘린다 (콜 요약).",
+    "roadmap": [
+      { "when": "Q3 2026", "what": "매출 3,050만~3,450만 달러, 총마진 GAAP 약 87%·non-GAAP 약 88% 가이던스", "src": ["s4"] },
+      { "when": "2026 말", "what": "블루투스 HDT(고속 데이터 전송) 양산 램프 시작", "src": ["s4"] },
+      { "when": "2027 ~ 2028", "what": "블루투스 HDT 본격 램프", "src": ["s4"] },
+      { "when": "중장기", "what": "NeuPro-M을 채택한 대형 AI 플랫폼 회사의 맞춤형 AI 칩 양산 시 로열티 발생 (시점 미공개)", "src": ["s1"] }
+    ],
+    "vision": "기기 안에서 AI가 돌아가는 '피지컬 AI' 시대에, 기기를 연결하고(Connect) 감지하고(Sense) 추론하는(Infer) 데 필요한 설계를 모두 Ceva IP로 채운다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 연결 IP 고객 기반 위에 AI NPU를 얹는 길을 택했다. 2분기 대형 AI 플랫폼 회사의 NPU 채택과 OEM 직접 계약 2건이 그 신호다. 다만 라이선스가 로열티로 바뀌기까지 몇 년이 걸려, 단기 실적은 블루투스 HDT 같은 연결 제품 램프에 더 기댄다.",
+    "src": ["s1", "s4"]
+  },
+
+  "governance": {
+    "line": "Amir Panush CEO가 이끄는 지배주주 없는 회사로, 배당은 없고 2026년 상반기에는 자사주도 사지 않았다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "3,050만~3,450만 달러", "givenOn": "2026-08-10", "src": ["s4"] },
+      { "period": "Q3 2026", "metric": "gross margin", "value": "GAAP 약 87%, non-GAAP 약 88%", "givenOn": "2026-08-10", "src": ["s4"] },
+      { "period": "FY2026", "metric": "revenue growth", "value": "전년 대비 13~15% (기존 12%에서 상향); non-GAAP 영업이익 약 +70%, 순이익 약 +50%", "givenOn": "2026-08-10", "src": ["s4"] }
+    ],
+    "style": "quarterly",
+    "track": "2분기 non-GAAP EPS 0.08달러는 보도된 컨센서스 0.07달러를 웃돌았고, 회사는 연간 성장률 전망을 12%에서 13~15%로 올렸다(2차 보도). 발표 당일 장 시작 전 거래에서 주가가 약 3% 내렸다는 보도가 있다.",
+    "src": ["s4", "s1"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "Q3 매출이 3,050만~3,450만 달러 범위 상단에 닿음",
+      "라이선스 매출이 계속 전년 대비 늘고 NPU 계약 건수 증가",
+      "로열티 매출이 다시 전년 대비 성장으로 전환",
+      "블루투스 HDT 양산 램프가 2026년 말 예정대로 시작",
+      "대형 AI 플랫폼 회사 외 추가 NPU 대형 채택 발표"
+    ],
+    "breaks": [
+      "라이선스 매출 둔화로 연간 13~15% 성장 전망 하향",
+      "Sense & Infer 매출 감소 지속",
+      "중국 고객·UNISOC 매출 급감 또는 규제 영향",
+      "와이파이·블루투스 출하 감소 지속",
+      "GAAP 손실 확대"
+    ],
+    "keyNumbers": [
+      { "name": "라이선스 매출과 계약 건수", "why": "2~3년 뒤 로열티의 선행 지표" },
+      { "name": "로열티 매출과 출하 대수", "why": "이미 채택된 칩이 얼마나 팔리는지" },
+      { "name": "Sense & Infer 매출", "why": "AI 쪽 성장이 숫자로 보이는지" },
+      { "name": "중국 매출 비중", "why": "지역 집중 위험" },
+      { "name": "non-GAAP 영업이익률", "why": "규모의 경제가 생기는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 (날짜 미확인)", "event": "Q3 2026 실적과 Q4 전망", "src": [] },
+      { "date": "2026 말", "event": "블루투스 HDT 양산 램프 시작 예정", "src": ["s4"] }
+    ],
+    "reaction": "시가총액과 매출이 작아 라이선스 계약 한두 건과 연간 전망 변화에 주가가 크게 흔들린다. 2분기에는 예상보다 좋은 실적에도 발표 직후 주가가 내렸다는 보도가 있다(2차 보도).",
+    "conditions": [
+      "라이선스 매출과 로열티 매출이 각각 전년 대비 늘었는지",
+      "연간 성장률 전망 13~15%가 유지되는지",
+      "NPU 관련 신규 계약 건수와 고객 유형",
+      "로열티 출하 대수의 블루투스·와이파이·셀룰러 구성 변화",
+      "중국 매출 비중 변화"
+    ]
+  },
+
+  "unverified": [
+    "AI 관련 매출 금액 (회사 미공시; Sense & Infer는 AI 외 센서·음향도 포함)",
+    "로열티 기기 출하 대수(5.67억 대 제외)와 Q3·연간 가이던스는 콜 관련 2차 요약 기준이며 원문 transcript 미확인",
+    "Q2 2026 단독 영업현금흐름 (10-Q는 상반기 합계만 확인)",
+    "UNISOC 15%와 로열티 상위 2개 고객 39%는 10-K 문구를 검색 요약으로 확인",
+    "NeuPro-M을 채택한 대형 AI 플랫폼 회사의 이름과 양산 시점",
+    "다음 실적 발표일 (회사 공지 미확인)",
+    "컨센서스 추정치 (AIO 로컬 스냅샷에 CEVA 없음)",
+    "엣지 AI NPU IP 시장 점유율"
+  ],
+  "confidence": "medium - 2분기 손익·용도별 매출·현금흐름은 8-K·10-Q 원문에서 읽었지만, 출하 대수와 가이던스는 콜 요약에 의존하고 AI 매출 규모는 공시되지 않는다."
+}

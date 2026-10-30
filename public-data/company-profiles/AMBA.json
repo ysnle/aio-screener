@@ -1,0 +1,208 @@
+{
+  "symbol": "AMBA",
+  "name": "Ambarella, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "January 31 (FY2027 ends 2027-01-31)",
+  "oneLine": "Ambarella는 보안 카메라·액션캠·자동차 카메라 안에서 영상을 처리하고 AI로 사물을 알아보는 저전력 칩(SoC)을 설계하는 회사로, 2026년 2분기(FY2027 Q2) 엣지 AI 매출이 사상 최대였지만 아직 GAAP 적자이고 매출의 약 70%가 대만 유통사 한 곳을 거친다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Ambarella, Inc. Announces Second Quarter Fiscal Year 2027 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001280263/000119312526381923/d88952dex991.htm", "publisher": "Ambarella / SEC EDGAR", "date": "2026-09-03" },
+    { "id": "s2", "kind": "10-Q", "title": "Ambarella Form 10-Q for quarter ended 2026-07-31 (cash flow statement)", "url": "https://www.sec.gov/Archives/edgar/data/1280263/000119312526383365/amba-20260731.htm", "publisher": "Ambarella / SEC EDGAR", "date": "2026-09-04" },
+    { "id": "s3", "kind": "10-K", "title": "Ambarella Form 10-K for fiscal year ended 2026-01-31", "url": "https://www.sec.gov/Archives/edgar/data/1280263/000119312526119321/amba-20260131.htm", "publisher": "Ambarella / SEC EDGAR", "date": "2026-03-23" },
+    { "id": "s4", "kind": "news", "title": "Ambarella Shares Sink After Q2 Print: What to Know (Benzinga)", "url": "https://www.itiger.com/news/2664041088", "publisher": "Benzinga via Tiger Brokers", "date": "2026-09-04" },
+    { "id": "s5", "kind": "other", "title": "SEC EDGAR filing list for Ambarella 10-Q (prior-year Q3 10-Q filed 2025-12-04; accessed date)", "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1280263&type=10-Q", "publisher": "SEC EDGAR", "date": "2026-10-30" }
+  ],
+
+  "moat": {
+    "sources": [
+      "영상 처리(ISP)와 AI 비전 연산(CVflow)을 한 칩에 묶은 저전력 SoC 설계 - CV7(CV72·CV75)·CV3·N1 계열 (10-K, 8-K)",
+      "5nm·4nm 양산과 2nm 첫 칩 테이프아웃 - 첨단 공정에서 전력당 성능 확보 (10-K)",
+      "카메라 SoC 시장에서 쌓은 ODM·OEM 고객 관계 - 최대 최종 고객은 Insta360 (10-K)",
+      "레이더 소프트웨어와 첫 단독 AI 가속기(X7)까지 넓힌 제품군 (10-K, 8-K)"
+    ],
+    "text": "Ambarella의 출발점은 카메라 영상을 적은 전력으로 깨끗하게 처리하는 칩 기술이다. 그 위에 사물을 알아보는 AI 연산 엔진(CVflow)을 같은 칩에 넣어, 보안 카메라나 자동차 카메라가 영상을 클라우드로 보내지 않고 기기 안에서 판단하게 만든다. 5nm·4nm 칩을 양산하고 2nm 칩을 테이프아웃한 공정 경험이 저전력 경쟁력의 바탕이다.",
+    "src": ["s3", "s1"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 설계하는 것은 엣지 AI 비전 SoC(CV7 계열 CV72·CV75, CV5, CV2), 자동차용 중앙 연산 SoC(CV3 계열, CV3-AD685), 생성형 AI용 N1 계열, 그리고 첫 단독 AI 가속기 X7이다. 레이더 소프트웨어와 차량용 B8 SerDes 칩도 있다. 회사는 자동차와 IoT 두 시장을 말하지만 시장별 매출은 공시하지 않는다.",
+    "src": ["s3", "s1"]
+  },
+
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "Samsung - SoC 대부분을 미국 텍사스 오스틴과 한국 공장에서 생산 (파운드리, 10nm·5nm·4nm)",
+      "Signetics·STATS ChipPAC - Samsung 하청 조립·초기 테스트",
+      "ASE - 테스트된 다이 구매분 조립",
+      "Sigurd·King Yuan Electronics - 최종 테스트"
+    ],
+    "text": "설계한 칩의 대부분은 Samsung 파운드리가 미국 오스틴과 한국에서 만든다. 조립·테스트는 Signetics·STATS ChipPAC·ASE가, 최종 테스트는 대만의 Sigurd와 King Yuan이 맡는다. 생산이 Samsung 한 곳에 크게 기대는 것이 공급 쪽의 가장 큰 집중 위험이다.",
+    "src": ["s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "WT Microelectronics - 일본 외 아시아 판매·물류 대행 유통사, FY2026 매출의 약 70% (10-K)",
+      "Arashi Vision (Insta360) - 최대 최종 고객, WT 경유 (10-K)",
+      "보안 카메라·로봇·드론 등 IoT ODM·OEM",
+      "자동차 OEM·Tier-1 부품사",
+      "Macnica·Capgemini - 7년 계약으로 새 간접 판매 채널 구축 (8-K)"
+    ],
+    "channel": "직접 영업과 유통사를 통해 주로 ODM·OEM에 판매, 자동차는 Tier-1이 관여. 아시아 매출 비중 FY2026 약 88%.",
+    "concentration": "WT 한 곳이 FY2026 매출의 약 70% (FY2025 63%, FY2024 53%), 상위 10개 최종 고객 약 67% (10-K).",
+    "text": "이렇게 만든 칩은 대부분 대만 유통사 WT Microelectronics를 거쳐 아시아의 카메라·기기 제조사로 간다. WT 비중은 FY2024 53%에서 FY2026 약 70%로 올랐고, 최대 최종 고객은 액션캠 업체 Insta360이다. 2분기에는 Macnica·Capgemini와 7년 계약을 맺어 산업·기업용 AI 고객에 닿는 간접 채널을 새로 만들고 있다.",
+    "src": ["s3", "s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "소비자·기업·자동차 구매자", "to": "카메라·기기·자동차 OEM (Insta360 등)", "what": "보안 카메라·액션캠·로봇·차량 구매" },
+      { "from": "카메라·기기 ODM·OEM", "to": "WT Microelectronics 등 유통사", "what": "AI 비전 SoC 주문" },
+      { "from": "WT Microelectronics 등 유통사", "to": "Ambarella", "what": "SoC 대금 (개당, 매출의 약 70%)" },
+      { "from": "자동차 OEM·Tier-1", "to": "Ambarella", "what": "차량용 AI SoC 대금 (개당)" },
+      { "from": "Ambarella", "to": "Samsung 파운드리·조립·테스트 협력사", "what": "웨이퍼·조립·테스트 대금" }
+    ],
+    "pricing": "칩 개당 판매. AI 연산이 많은 고급 칩(CV7·CV3·N1)일수록 단가가 높아, 회사는 '더 높은 가치의 신제품'으로 평균 단가를 올리려 한다.",
+    "text": "돈은 소비자와 기업이 카메라·로봇·차량을 살 때 시작해, 기기 회사가 유통사를 거쳐 Ambarella 칩을 사면서 들어온다. 회사는 칩을 개당 팔기 때문에, AI 기능이 많은 비싼 칩의 비중이 늘수록 매출이 커진다. 2분기 CEO가 5nm CV75·CV72의 강한 성장을 언급한 것이 이 흐름이다.",
+    "src": ["s1", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q2 FY2027 (quarter ended 2026-07-31)",
+    "revenue": { "value": 108.1, "unit": "USD mn", "yoy": 13.2 },
+    "grossMargin": 57.7,
+    "operatingMargin": -7.5,
+    "netMargin": -6.2,
+    "operatingCashFlow": { "value": null, "unit": "USD mn" },
+    "freeCashFlow": { "value": null, "unit": "USD mn" },
+    "segments": [],
+    "industryMetric": [
+      { "name": "Non-GAAP 이익", "value": "Q2 FY2027 총마진 59.3%(전년 60.5%), 순이익 820만 달러, EPS 0.18달러", "src": ["s1"] },
+      { "name": "일회성 항목", "value": "개발 프로젝트 종료로 예치 부채를 털어 GAAP R&D 900만 달러 감소 (non-GAAP에서는 제외)", "src": ["s1"] },
+      { "name": "FY2027 상반기", "value": "매출 2.085억 달러(+14.9%), GAAP 순손실 2,480만 달러, 영업현금흐름 -2,589만 달러", "src": ["s1", "s2"] },
+      { "name": "현금", "value": "2026-07-31 현금·유가증권 2.723억 달러 (전분기 2.778억)", "src": ["s1"] },
+      { "name": "FY2026 연간", "value": "매출 3.907억 달러, GAAP 순손실 7,587만 달러, R&D 2.385억 달러", "src": ["s3"] }
+    ],
+    "text": "이 흐름이 2분기 매출 1.081억 달러(+13%)로 나타났고, CEO는 엣지 AI 매출이 사상 최대였다고 밝혔다. 그러나 매출의 절반에 가까운 R&D(GAAP 5,060만 달러, 일회성 900만 달러 감소 포함) 때문에 GAAP로는 810만 달러 영업손실이었다. 총마진도 전년보다 1%p가량 내려, 성장의 대가로 단가 압박이 있다는 점이 보인다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "H1 FY2027 (six months ended 2026-07-31)",
+    "items": [
+      { "use": "R&D", "value": 108.7, "unit": "USD mn", "src": ["s1"] },
+      { "use": "capex", "value": 10.779, "unit": "USD mn", "src": ["s2"] },
+      { "use": "buybacks", "value": 2.441, "unit": "USD mn", "src": ["s2"] }
+    ],
+    "text": "상반기 돈의 대부분은 R&D(1.087억 달러, 매출의 약 52%, 계산값)에 들어갔고, 영업현금흐름은 오히려 2,589만 달러 마이너스였다. 설비·무형자산 투자는 1,078만 달러, 자사주 매입은 244만 달러로 작았다. 부채 없이 2.72억 달러 현금으로 R&D를 버티며 첨단 공정 신제품에 돈을 거는 구조다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "devices",
+    "position": "데이터센터가 아니라 카메라·로봇·자동차 같은 기기 안에서 AI 추론을 돌리는 엣지 AI 칩 공급자. 클라우드 GPU 대신 기기 안에서 영상을 판단하게 해 주는 자리다.",
+    "dependsOn": ["semicap-foundry (Samsung 파운드리 5nm·4nm·2nm)", "WT Microelectronics 등 아시아 유통", "카메라·자동차 OEM의 신제품 주기"],
+    "sellsTo": ["devices (보안 카메라·액션캠·로봇·드론 제조사)", "자동차 OEM·Tier-1", "ai-adopter (Macnica·Capgemini 채널을 통한 산업·기업 고객)"],
+    "aiRevenue": "엣지 AI 매출이 Q2 FY2027 사상 최대라고 CEO가 밝혔으나 금액·비중은 공시하지 않음 (2026-09-03).",
+    "upside": "기기 안에서 AI를 돌리는 수요가 늘면 AI 연산이 많은 고급 칩(CV7·CV3·N1·X7) 비중이 커져 개당 단가가 오른다. 회사는 엣지 AI와 피지컬 AI의 5년 서비스 가능 시장 전망을 높였다고 밝혔다.",
+    "risk": "NVIDIA·Qualcomm 같은 큰 회사가 엣지 AI로 내려오고, 중국 HiSilicon·Novatek·Horizon Robotics가 가격으로 맞선다. WT 한 곳에 매출 70%가 몰리고 아시아 비중이 88%라 지정학·관세 위험이 크며, Samsung 파운드리 의존도 공급 위험이다.",
+    "text": "그래서 AI 가치사슬에서 Ambarella는 데이터센터 반대편, '기기' 끝에 있다. 데이터센터 AI 투자가 직접 매출로 오지는 않지만, AI 모델이 작아져 카메라·로봇·차량 안에서 돌기 시작하면 이 회사 칩이 그 자리를 노린다. 아직 엣지 AI 매출 규모를 공시하지 않아, 실적으로는 전체 매출 성장률과 총마진이 가장 가까운 지표다.",
+    "src": ["s1", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "IoT 엣지 AI 비전 SoC (보안 카메라·로봇 등)", "rivals": ["HiSilicon (Huawei)", "Novatek", "NVIDIA", "Qualcomm", "Sigmastar"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "자동차 카메라·AI SoC", "rivals": ["Mobileye", "NVIDIA", "Qualcomm", "Horizon Robotics", "Renesas", "Texas Instruments", "Novatek"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "영상 처리와 AI 연산을 한 칩에 넣은 전력 효율, 5nm·4nm 양산 경험, 카메라 고객과 오래 쌓은 관계.",
+    "threats": "자동차에서는 Mobileye·NVIDIA·Qualcomm이 규모와 소프트웨어 생태계에서 앞서고, IoT에서는 중국 칩 회사들이 가격으로 경쟁한다. 엣지 AI NPU에서 Ceva 같은 IP 회사를 쓰는 칩 회사들도 잠재 경쟁자다.",
+    "text": "이 회사의 경쟁은 두 시장 모두 쉽지 않다. 자동차에서는 Mobileye·NVIDIA·Qualcomm·Horizon Robotics와, IoT에서는 HiSilicon·Novatek·Qualcomm과 맞서는 도전자다. 회사가 내세우는 무기는 같은 성능을 더 적은 전력으로 내는 칩이며, 첨단 공정 신제품으로 그 차이를 유지하려 한다.",
+    "src": ["s3", "s1"]
+  },
+
+  "strategy": {
+    "goal": "엣지 AI·피지컬 AI로 시장을 넓히고, 더 높은 가치의 신제품과 새 판매 채널(Macnica·Capgemini)로 매출과 단가를 함께 올린다 (8-K).",
+    "roadmap": [
+      { "when": "Q2 FY2027", "what": "첫 단독 AI 가속기 X7 공개, Macnica·Capgemini와 7년 간접 채널 계약", "src": ["s1"] },
+      { "when": "Q3 FY2027 (2026-08~10)", "what": "매출 1.15억~1.24억 달러, non-GAAP 총마진 59~60% 가이던스", "src": ["s1"] },
+      { "when": "다음 세대", "what": "2nm 공정 첫 SoC 테이프아웃 완료 (출시 시점 미공개)", "src": ["s3"] }
+    ],
+    "vision": "카메라에서 시작해 로봇·드론·차량까지, 기기 안에서 AI가 영상을 보고 판단하는 모든 곳에 Ambarella의 저전력 AI 칩이 들어간다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 칩 단가를 올리는 신제품과 판매 채널 확대를 동시에 밀고 있다. 2분기 첫 단독 AI 가속기 X7을 내놓았고, Macnica·Capgemini를 통해 직접 닿기 어려운 산업·기업 고객으로 넓히려 한다. 3분기 가이던스 중간값(1.195억 달러)은 전분기보다 약 10% 높다(계산값).",
+    "src": ["s1", "s3"]
+  },
+
+  "governance": {
+    "line": "공동창업자 Fermi Wang CEO가 이끌며, 배당 없이 2026-05-27 승인된 자사주 매입 프로그램으로 소규모 매입을 하고 있다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027 (ending 2026-10-31)", "metric": "revenue", "value": "1.15억~1.24억 달러", "givenOn": "2026-09-03", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "non-GAAP gross margin", "value": "59.0~60.0%", "givenOn": "2026-09-03", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "non-GAAP operating expenses", "value": "5,650만~5,950만 달러", "givenOn": "2026-09-03", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "2분기 매출 1.081억 달러·조정 EPS 0.18달러는 보도된 컨센서스(1.078억 달러·0.17달러)를 소폭 넘었지만, 발표 직후 시간외 주가는 약 5% 내렸다(2차 보도).",
+    "src": ["s4", "s1"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "Q3 FY2027 매출이 1.15억~1.24억 달러 범위 상단에 닿음",
+      "non-GAAP 총마진이 59~60% 범위를 지킴",
+      "엣지 AI 매출 사상 최대 흐름이 이어지고 회사가 비중을 공개",
+      "X7·N1 등 신제품의 첫 양산 고객 발표",
+      "WT 외 채널(Macnica·Capgemini) 매출이 보이기 시작"
+    ],
+    "breaks": [
+      "매출 가이던스 미달 또는 총마진 하락 가속",
+      "영업현금흐름 마이너스 지속으로 현금 감소",
+      "WT·Insta360 등 주요 고객 주문 감소",
+      "자동차 설계 수주 상실이나 출시 지연",
+      "미·중 관세·수출 규제로 아시아 매출 타격"
+    ],
+    "keyNumbers": [
+      { "name": "분기 매출과 전분기 대비 증가율", "why": "엣지 AI 칩 수요의 가장 직접적인 숫자" },
+      { "name": "non-GAAP 총마진", "why": "고급 칩 믹스와 단가 압박" },
+      { "name": "영업현금흐름과 현금 잔액", "why": "적자 속 R&D를 얼마나 버틸 수 있는지" },
+      { "name": "WT 매출 비중", "why": "유통 집중 위험" },
+      { "name": "GAAP 영업손익", "why": "흑자 전환에 가까워지는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-12 초 (추정, 회사 미확정; 전년 3분기 10-Q는 2025-12-04 제출)", "event": "Q3 FY2027 실적과 Q4 가이던스", "src": ["s5"] },
+      { "date": "2026-10-31", "event": "Q3 FY2027 분기 마감", "src": ["s1"] }
+    ],
+    "reaction": "주가 변동성이 크고, 실적이 컨센서스를 조금 넘는 것만으로는 부족하다는 반응이 반복됐다. 2분기에도 소폭 상회에도 시간외 약 5% 하락했다(2차 보도). 시장은 다음 분기 가이던스와 AI 관련 코멘트에 더 민감하다.",
+    "conditions": [
+      "Q4 가이던스 중간값이 Q3 실제 매출보다 높은지",
+      "non-GAAP 총마진이 59% 아래로 내려가는지",
+      "엣지 AI·자동차 관련 신규 수주 코멘트",
+      "영업현금흐름 부호와 현금 잔액 변화",
+      "WT 매출 비중 변화"
+    ]
+  },
+
+  "unverified": [
+    "엣지 AI 매출 금액·비중 (회사 미공시)",
+    "자동차·IoT 시장별 매출 (회사 미공시; segments 비워 둠)",
+    "Q2 FY2027 단독 영업현금흐름 (10-Q는 상반기 합계 -2,589만 달러만 확인)",
+    "2026-05-27 자사주 매입 프로그램 규모 (2차 요약상 5,000만 달러, 원문 미확인)",
+    "X7 가속기 출시·양산 시점과 Macnica·Capgemini 계약 금액",
+    "2nm 칩 출시 시점",
+    "엣지 AI·자동차 SoC 시장 점유율",
+    "다음 실적 발표일 (전년 패턴 기반 추정)",
+    "컨센서스 추정치 (AIO 로컬 스냅샷에 AMBA 없음; 2분기 컨센서스는 2차 보도)"
+  ],
+  "confidence": "medium - 2분기 손익·가이던스·현금흐름과 고객·공급 구조는 8-K·10-Q·10-K 원문에서 읽었지만, 회사가 시장별·AI 매출을 공시하지 않아 AI 연결 고리의 크기는 확인할 수 없다."
+}

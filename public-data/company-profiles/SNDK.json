@@ -1,25 +1,131 @@
 {
   "symbol": "SNDK",
   "name": "Sandisk Corporation",
-  "researchedAt": "2026-10-28",
+  "researchedAt": "2026-10-30",
   "fiscalYearEnd": "Friday nearest June 30 (FY2026 ended 2026-07-03)",
-  "oneLine": "Sandisk는 Kioxia와 함께 일본 공장에서 찍은 NAND 플래시로 SSD·메모리카드를 파는 회사로, AI 데이터센터의 저장장치 수요와 NAND 가격 급등 덕에 FY2026 매출이 2.75배로 뛰었고 내일(2026-10-29) 첫 FY2027 분기 실적을 낸다.",
+  "oneLine": "Sandisk는 Kioxia와 함께 일본 공장에서 찍은 NAND 플래시로 SSD·메모리카드를 파는 회사로, AI 데이터센터의 저장장치 수요와 NAND 가격 급등 덕에 FY2027 첫 분기 매출이 전년의 4.8배인 110억 달러가 됐고 그중 44%가 데이터센터에서 나왔다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Sandisk Fiscal 4Q26 and FY26 Financial Results (company release repost with editorial notes; tables are images)", "url": "https://www.storagenewsletter.com/2026/08/06/sandisk-fiscal-4q26-and-fy26-financial-results/", "publisher": "StorageNewsletter (Sandisk release text)", "date": "2026-08-06" },
-    { "id": "s2", "kind": "news", "title": "Sandisk: Datacenter Revenue More Than Doubles Sequentially To $2.98 Billion As Consumer Sales Fall 32% (reads release tables; article date not checked, date = accessed)", "url": "https://pulse2.com/sandisk-datacenter-revenue-more-than-doubles-sequentially-to-2-98-billion-as-consumer-sales-fall-32/", "publisher": "Pulse 2.0", "date": "2026-10-28" },
-    { "id": "s3", "kind": "call-transcript", "title": "Sandisk (SNDK) Q4 2026 earnings summary (AI-generated call summary; publisher asks to verify)", "url": "https://quartr.com/events/sandisk-corporation-sndk-q4-2026_F6lVtauF", "publisher": "Quartr", "date": "2026-08-05" },
-    { "id": "s4", "kind": "news", "title": "Sandisk and Kioxia plan to invest over $31 billion in Japanese NAND plants through 2032 (Motley Fool article, Webull repost)", "url": "https://www.webull.ca/news-detail/15488364129821696", "publisher": "The Motley Fool via Webull", "date": "2026-08-29" },
-    { "id": "s5", "kind": "other", "title": "What Sandisk's FY2026 10-K says: 8 signals (10-K filed 2026-08-17; page data as of date)", "url": "https://www.autobound.ai/companies/sandisk/10-k", "publisher": "Autobound (10-K summary)", "date": "2026-10-27" },
-    { "id": "s6", "kind": "10-K", "title": "Sandisk 10-K FY2026 (accession 0001628280-26-057406) via SEC companyfacts in AIO public-data/sec-fundamentals.json: revenue 20,248M, net income 11,433M, equity 15,736M", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002023554.json", "publisher": "SEC EDGAR companyfacts via AIO", "date": "2026-08-17" },
-    { "id": "s7", "kind": "ir-site", "title": "Sandisk to Report First Quarter Fiscal Year 2027 Results on October 29, 2026 (read from search summary)", "url": "https://www.sandisk.com/company/newsroom/press-releases/2026/2026-09-29-sandisk-to-report-first-quarter-fiscal-year-2027-results-on-october-29-2026", "publisher": "Sandisk", "date": "2026-09-29" },
-    { "id": "s8", "kind": "other", "title": "Top five NAND flash brands post 77% revenue surge in Q2 (TrendForce 2Q26 ranking; read from search summary)", "url": "https://evertiq.com/news/2026-08-18-top-five-nand-flash-brands-post-77-revenue-surge-in-q2", "publisher": "Evertiq (TrendForce data)", "date": "2026-08-18" },
-    { "id": "s9", "kind": "news", "title": "Memory giants Sandisk, SK hynix unite for HBF standard with samples expected in 2H26 (read from search summary)", "url": "https://www.trendforce.com/news/2025/08/07/news-memory-giants-sandisk-sk-hynix-unite-for-hbf-standard-with-samples-expected-in-2h26/", "publisher": "TrendForce", "date": "2025-08-07" },
-    { "id": "s10", "kind": "news", "title": "Sandisk tapes out its first HBF memory die, targets 2027 for inference product samples (headline only; body not opened; date = accessed)", "url": "https://www.storagereview.com/news/sandisk-tapes-out-its-first-hbf-memory-die-targets-2027-for-inference-product-samples", "publisher": "StorageReview", "date": "2026-10-28" },
-    { "id": "s11", "kind": "news", "title": "Sandisk Showcases UltraQLC Technology Platform with Milestone Enterprise SSD Capacity at FMS 2025 (read from search summary)", "url": "https://www.businesswire.com/news/home/20250805490958/en/Sandisk-Showcases-UltraQLC-Technology-Platform-with-Milestone-Enterprise-SSD-Capacity-at-FMS-2025", "publisher": "Sandisk via Business Wire", "date": "2025-08-05" },
-    { "id": "s12", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/sndk/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
-    { "id": "s13", "kind": "news", "title": "High Bandwidth Flash gets its first spec: 512GB stacks at up to 3TB/s (OCP publication; read from search summary; date = accessed)", "url": "https://hwbusters.com/news/high-bandwidth-flash-gets-its-first-spec-512gb-stacks-at-up-to-3tb-s/", "publisher": "Hardware Busters", "date": "2026-10-28" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Sandisk Fiscal 4Q26 and FY26 Financial Results (company release repost with editorial notes; tables are images)",
+      "url": "https://www.storagenewsletter.com/2026/08/06/sandisk-fiscal-4q26-and-fy26-financial-results/",
+      "publisher": "StorageNewsletter (Sandisk release text)",
+      "date": "2026-08-06"
+    },
+    {
+      "id": "s2",
+      "kind": "news",
+      "title": "Sandisk: Datacenter Revenue More Than Doubles Sequentially To $2.98 Billion As Consumer Sales Fall 32% (reads release tables; article date not checked, date = accessed)",
+      "url": "https://pulse2.com/sandisk-datacenter-revenue-more-than-doubles-sequentially-to-2-98-billion-as-consumer-sales-fall-32/",
+      "publisher": "Pulse 2.0",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s3",
+      "kind": "call-transcript",
+      "title": "Sandisk (SNDK) Q4 2026 earnings summary (AI-generated call summary; publisher asks to verify)",
+      "url": "https://quartr.com/events/sandisk-corporation-sndk-q4-2026_F6lVtauF",
+      "publisher": "Quartr",
+      "date": "2026-08-05"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "Sandisk and Kioxia plan to invest over $31 billion in Japanese NAND plants through 2032 (Motley Fool article, Webull repost)",
+      "url": "https://www.webull.ca/news-detail/15488364129821696",
+      "publisher": "The Motley Fool via Webull",
+      "date": "2026-08-29"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "What Sandisk's FY2026 10-K says: 8 signals (10-K filed 2026-08-17; page data as of date)",
+      "url": "https://www.autobound.ai/companies/sandisk/10-k",
+      "publisher": "Autobound (10-K summary)",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s6",
+      "kind": "10-K",
+      "title": "Sandisk 10-K FY2026 (accession 0001628280-26-057406) via SEC companyfacts in AIO public-data/sec-fundamentals.json: revenue 20,248M, net income 11,433M, equity 15,736M",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0002023554.json",
+      "publisher": "SEC EDGAR companyfacts via AIO",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "s7",
+      "kind": "ir-site",
+      "title": "Sandisk to Report First Quarter Fiscal Year 2027 Results on October 29, 2026 (read from search summary)",
+      "url": "https://www.sandisk.com/company/newsroom/press-releases/2026/2026-09-29-sandisk-to-report-first-quarter-fiscal-year-2027-results-on-october-29-2026",
+      "publisher": "Sandisk",
+      "date": "2026-09-29"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "Top five NAND flash brands post 77% revenue surge in Q2 (TrendForce 2Q26 ranking; read from search summary)",
+      "url": "https://evertiq.com/news/2026-08-18-top-five-nand-flash-brands-post-77-revenue-surge-in-q2",
+      "publisher": "Evertiq (TrendForce data)",
+      "date": "2026-08-18"
+    },
+    {
+      "id": "s9",
+      "kind": "news",
+      "title": "Memory giants Sandisk, SK hynix unite for HBF standard with samples expected in 2H26 (read from search summary)",
+      "url": "https://www.trendforce.com/news/2025/08/07/news-memory-giants-sandisk-sk-hynix-unite-for-hbf-standard-with-samples-expected-in-2h26/",
+      "publisher": "TrendForce",
+      "date": "2025-08-07"
+    },
+    {
+      "id": "s10",
+      "kind": "news",
+      "title": "Sandisk tapes out its first HBF memory die, targets 2027 for inference product samples (headline only; body not opened; date = accessed)",
+      "url": "https://www.storagereview.com/news/sandisk-tapes-out-its-first-hbf-memory-die-targets-2027-for-inference-product-samples",
+      "publisher": "StorageReview",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s11",
+      "kind": "news",
+      "title": "Sandisk Showcases UltraQLC Technology Platform with Milestone Enterprise SSD Capacity at FMS 2025 (read from search summary)",
+      "url": "https://www.businesswire.com/news/home/20250805490958/en/Sandisk-Showcases-UltraQLC-Technology-Platform-with-Milestone-Enterprise-SSD-Capacity-at-FMS-2025",
+      "publisher": "Sandisk via Business Wire",
+      "date": "2025-08-05"
+    },
+    {
+      "id": "s12",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/sndk/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s13",
+      "kind": "news",
+      "title": "High Bandwidth Flash gets its first spec: 512GB stacks at up to 3TB/s (OCP publication; read from search summary; date = accessed)",
+      "url": "https://hwbusters.com/news/high-bandwidth-flash-gets-its-first-spec-512gb-stacks-at-up-to-3tb-s/",
+      "publisher": "Hardware Busters",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s14",
+      "kind": "earnings-release",
+      "title": "Sandisk Reports Fiscal First Quarter 2027 Financial Results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0002023554/000162828026068243/sndkq1-27ex991xpressrelease.htm",
+      "publisher": "Sandisk / SEC EDGAR",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s15",
+      "kind": "call-transcript",
+      "title": "Earnings call transcript: Sandisk beats Q1 2027 estimates, shares fall",
+      "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-sandisk-beats-q1-2027-estimates-shares-fall-93CH-4985403",
+      "publisher": "Investing.com",
+      "date": "2026-10-29"
+    }
   ],
-
   "moat": {
     "sources": [
       "Kioxia와의 합작 Flash Ventures - 일본 8개 공장(요카이치 6, 기타카미 2)의 생산을 약 절반씩 나누고 BiCS 기술을 공동 개발 (10-K)",
@@ -28,11 +134,22 @@
       "SK hynix와 함께 표준화하는 HBF(고대역폭 플래시) - 2026-08 OCP를 통해 첫 사양 공개"
     ],
     "text": "NAND는 규격이 정해진 범용품이라 Sandisk의 힘은 브랜드보다 원가와 공급 규모에서 나온다. 그 바탕은 Kioxia와 반씩 나눠 쓰는 일본 8개 공장으로, 두 회사가 BiCS 공정을 함께 개발해 혼자서는 감당하기 어려운 설비투자를 나눈다. 여기에 최근에는 대형 고객과 최소 가격을 보장받는 다년 계약(NBM)을 맺어, 가격이 출렁이는 메모리 사업에 계약 물량이라는 두 번째 뿌리를 더하고 있다.",
-    "src": ["s5", "s4", "s3", "s11", "s13"]
+    "src": [
+      "s5",
+      "s4",
+      "s3",
+      "s11",
+      "s13"
+    ]
   },
   "design": {
     "text": "이 공장에서 나온 웨이퍼로 회사는 세 시장용 제품을 설계해 보고한다. Datacenter는 클라우드·AI용 엔터프라이즈 SSD(UltraQLC 등), Edge는 PC·스마트폰·자동차·로봇에 들어가는 내장 저장장치와 클라이언트 SSD, Consumer는 메모리카드·USB·휴대용 SSD 같은 소매 제품이다. 차세대로는 GPU 옆에서 HBM을 보완하는 HBF를 SK hynix와 함께 개발 중이다.",
-    "src": ["s2", "s1", "s11", "s9"]
+    "src": [
+      "s2",
+      "s1",
+      "s11",
+      "s9"
+    ]
   },
   "make": {
     "model": "mixed",
@@ -43,7 +160,10 @@
       "조립·테스트 업체·공장 위치 - 이번 조사에서 1차 문서로 확인하지 못함"
     ],
     "text": "Sandisk는 공장을 혼자 갖지 않고 Kioxia 합작사에서 웨이퍼를 받아 SSD·카드로 완성하는 혼합형이다. 합작사 고정비의 50%를 주문량과 상관없이 내야 하고 승인된 설비투자의 49.9~50%를 분담하므로, 불황기에는 공장 가동률 부담이 그대로 돌아온다. 두 회사는 정부 지원을 전제로 2032년까지 일본 공장에 310억 달러 이상을 넣는 계획을 내놨고, 요카이치 합작 계약은 2034년 12월까지 연장됐다.",
-    "src": ["s5", "s4"]
+    "src": [
+      "s5",
+      "s4"
+    ]
   },
   "sell": {
     "customers": [
@@ -54,160 +174,492 @@
     "channel": "Datacenter·Edge는 OEM·클라우드 고객에 직접 공급하고 Consumer는 소매 유통을 거친다(채널별 비중은 미공시).",
     "concentration": "10-K 요약 기준 상위 10개 고객이 매출의 40% (개별 10% 이상 고객 없음) - FY2026 수치인지 2차 요약에서 확인하지 못함. NBM 8개 고객이 FY2027 비트의 50% 이상.",
     "text": "만든 제품은 한 해 전만 해도 PC·스마트폰 쪽(Edge)이 중심이었지만, FY2026 말에는 데이터센터가 출하 비트의 38%(1년 전 12%)까지 올라왔다. 데이터센터 고객 8곳과는 장기계약을 맺어 FY2027 비트의 절반 이상을 미리 묶었고, Q4에만 약 19억 달러의 선급금·보증금을 받았다. 반대로 Consumer 매출은 Q4에 전분기 대비 32% 줄어, 가격이 오를수록 소비자 수요는 밀려나는 모습이다.",
-    "src": ["s1", "s2", "s3", "s4"]
+    "src": [
+      "s1",
+      "s2",
+      "s3",
+      "s4"
+    ]
   },
   "moneyFlow": {
     "steps": [
-      { "from": "AI 서비스 이용자·기업", "to": "하이퍼스케일러·AI 클라우드", "what": "AI·클라우드 이용료" },
-      { "from": "하이퍼스케일러·AI 클라우드 (NBM 고객 8곳)", "to": "Sandisk", "what": "엔터프라이즈 SSD 대금 - 다년 계약, 최소 보장가격, 선급금·보증금" },
-      { "from": "PC·스마트폰·자동차 OEM", "to": "Sandisk", "what": "내장 저장장치·클라이언트 SSD 대금 (개당·비트당)" },
-      { "from": "소비자", "to": "소매 유통 → Sandisk", "what": "메모리카드·USB·휴대용 SSD 판매 대금" },
-      { "from": "Sandisk", "to": "Kioxia / Flash Ventures", "what": "웨이퍼 원가, 합작사 고정비 50%, 설비투자 49.9~50% 분담, 2026~2029년 제조 서비스 12억 달러" }
+      {
+        "from": "AI 서비스 이용자·기업",
+        "to": "하이퍼스케일러·AI 클라우드",
+        "what": "AI·클라우드 이용료"
+      },
+      {
+        "from": "하이퍼스케일러·AI 클라우드 (NBM 고객 8곳)",
+        "to": "Sandisk",
+        "what": "엔터프라이즈 SSD 대금 - 다년 계약, 최소 보장가격, 선급금·보증금"
+      },
+      {
+        "from": "PC·스마트폰·자동차 OEM",
+        "to": "Sandisk",
+        "what": "내장 저장장치·클라이언트 SSD 대금 (개당·비트당)"
+      },
+      {
+        "from": "소비자",
+        "to": "소매 유통 → Sandisk",
+        "what": "메모리카드·USB·휴대용 SSD 판매 대금"
+      },
+      {
+        "from": "Sandisk",
+        "to": "Kioxia / Flash Ventures",
+        "what": "웨이퍼 원가, 합작사 고정비 50%, 설비투자 49.9~50% 분담, 2026~2029년 제조 서비스 12억 달러"
+      }
     ],
     "pricing": "제품 개당·비트당 판매. NBM은 다년 계약에 최소 보장가격과 선급금이 붙는다(계약 존속 기간 가치 939억 달러, 재무 보증 165억 달러). Q4 FY2026 전분기 대비 매출 증가의 약 3분의 2가 가격, 3분의 1이 물량에서 나왔다.",
     "text": "돈은 클라우드가 AI 서비스 이용료로 번 돈으로 SSD를 사면서 Sandisk에 들어오고, 그중 상당 부분은 이제 최소 가격을 정한 장기계약으로 묶여 있다. 다만 최근 매출 증가의 3분의 2가 가격 인상에서 나왔다는 점은 이익이 물량보다 NAND 가격에 더 기대고 있다는 뜻이다. 벌어들인 돈의 일부는 다시 Kioxia 합작사의 고정비와 설비투자로 나간다.",
-    "src": ["s1", "s3", "s4", "s5"]
+    "src": [
+      "s1",
+      "s3",
+      "s4",
+      "s5"
+    ]
   },
   "earnings": {
-    "period": "FY2026 (ended 2026-07-03)",
-    "revenue": { "value": 20.25, "unit": "USD bn", "yoy": 175 },
-    "grossMargin": 71.5,
-    "operatingMargin": 61.2,
-    "netMargin": 56.5,
-    "operatingCashFlow": { "value": null, "unit": "USD bn" },
-    "freeCashFlow": { "value": 11.49, "unit": "USD bn" },
+    "period": "Q1 FY2027 (ended 2026-10-02)",
+    "revenue": {
+      "value": 11.031,
+      "unit": "USD bn",
+      "yoy": 378
+    },
+    "grossMargin": 85,
+    "operatingMargin": 79.6,
+    "netMargin": 73.4,
+    "operatingCashFlow": {
+      "value": 6.363,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 5.696,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Datacenter", "revenue": 5.153, "unit": "USD bn", "share": 25.4, "yoy": 437, "operatingMargin": null, "src": ["s2", "s1"] },
-      { "name": "Edge", "revenue": 12.16, "unit": "USD bn", "share": 60.1, "yoy": 195, "operatingMargin": null, "src": ["s2", "s1"] },
-      { "name": "Consumer (총매출에서 두 부문을 뺀 계산값; 회사 발표 증가율 +29%와 일치)", "revenue": 2.94, "unit": "USD bn", "share": 14.5, "yoy": 29, "operatingMargin": null, "src": ["s2", "s1"] }
+      {
+        "name": "Datacenter",
+        "revenue": 4.802,
+        "unit": "USD bn",
+        "share": 43.5,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "name": "Edge",
+        "revenue": 5.832,
+        "unit": "USD bn",
+        "share": 52.9,
+        "yoy": 320,
+        "operatingMargin": null,
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "name": "Consumer",
+        "revenue": 0.397,
+        "unit": "USD bn",
+        "share": 3.6,
+        "yoy": -39,
+        "operatingMargin": null,
+        "src": [
+          "s14"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "최근 분기 (Q4 FY2026) 매출·마진", "value": "매출 89.7억 달러(전년 대비 +372%, 전분기 대비 +51%), 총마진 84.6%, 영업이익 70.4억 달러", "src": ["s2", "s1"] },
-      { "name": "Q4 FY2026 부문별 매출", "value": "Datacenter 약 29.8억(전분기 대비 +103%), Edge 54.3억(+48%), Consumer 5.56억 달러(-32%)", "src": ["s2"] },
-      { "name": "데이터센터 비트 비중", "value": "FY2026 말 38% (1년 전 12%)", "src": ["s1"] },
-      { "name": "NBM 장기계약", "value": "고객 8곳, FY2027 비트 50% 이상·FY2028 3분의 2 커버, 계약 존속 가치 939억 달러, 재무 보증 165억 달러, 계약부채 12.4억 달러", "src": ["s3", "s4", "s2"] },
-      { "name": "회사가 보는 NAND 시장 규모", "value": "2026년 3,000억 달러 이상, 2027년 약 5,000억 달러", "src": ["s1", "s3"] }
+      {
+        "name": "전분기 대비 (Q1 FY27 vs Q4 FY26)",
+        "value": "매출 +23%, Datacenter +61%(전년 동기 2.69억 달러), Edge +7%, Consumer -29%",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "name": "성장 구성",
+        "value": "분기 매출 증가분의 약 60%는 물량, 40%는 가격 (Q4 FY26은 물량 3분의 1·가격 3분의 2)",
+        "src": [
+          "s15",
+          "s1"
+        ]
+      },
+      {
+        "name": "NBM 장기계약",
+        "value": "FY2027 비트 약 50%, FY2028 약 3분의 2 커버, 분기 중 2건 추가 체결, 상대방 95%가 투자등급; 선급금 영향으로 조정 FCF 4.65억 달러 감소",
+        "src": [
+          "s14",
+          "s15"
+        ]
+      },
+      {
+        "name": "공급 계획",
+        "value": "비트 성장 10%대 중후반 유지, 공정 전환 가속 계획 없음, TLC:QLC 약 70:30",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "name": "지분증권 평가이익",
+        "value": "분기 5.13억 달러 (주로 Kioxia 지분), non-GAAP에서 제외",
+        "src": [
+          "s15"
+        ]
+      }
     ],
-    "text": "가격과 데이터센터 비중이 함께 오르면서 FY2026 매출은 202.5억 달러, 영업이익률은 약 61%(FY2025 영업손실에서 전환)가 됐다. 이익은 분기가 갈수록 가팔라져 Q4에는 총마진 84.6%, 영업이익 70억 달러를 냈다. 순이익 114억 달러에는 지분증권 평가이익(Q4 8억 달러)도 들어 있고, 회사가 계약 선급금 등을 조정한 잉여현금흐름은 FY2026 87.4억 달러로 보고 기준(114.9억)보다 작다.",
-    "src": ["s2", "s1", "s6", "s3"]
+    "text": "Q1 FY2027 매출은 110.3억 달러로 전분기보다 23%, 전년보다 378% 늘었고, GAAP 총마진 85.0%·영업이익률 약 80%로 이익률이 한 번 더 올랐다. 성장의 중심은 데이터센터로, 48억 달러(+61% 전분기 대비)가 되며 매출 비중이 44%까지 커졌다. 영업현금흐름 63.6억 달러에서 장기계약 선급금 효과 등을 조정한 회사 기준 잉여현금흐름은 57.0억 달러였다.",
+    "src": [
+      "s14",
+      "s15"
+    ]
   },
   "useOfCash": {
-    "period": "FY2026 (ended 2026-07-03)",
+    "period": "Q1 FY2027 (ended 2026-10-02)",
     "items": [
-      { "use": "capex", "value": 0.177, "unit": "USD bn", "src": ["s4"] },
-      { "use": "other", "label": "Flash Ventures 합작사 순투자", "value": 0.275, "unit": "USD bn", "src": ["s4"] },
-      { "use": "debt repayment", "value": 1.83, "unit": "USD bn", "src": ["s2"] },
-      { "use": "buybacks", "value": 4.54, "unit": "USD bn", "src": ["s2", "s3"] },
-      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] }
+      {
+        "use": "buybacks",
+        "value": 5,
+        "unit": "USD bn",
+        "src": [
+          "s14",
+          "s15"
+        ]
+      },
+      {
+        "use": "R&D",
+        "value": 0.384,
+        "unit": "USD bn",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.054,
+        "unit": "USD bn",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "use": "debt repayment",
+        "value": 0,
+        "unit": "USD bn",
+        "src": [
+          "s14"
+        ]
+      }
     ],
-    "text": "벌어들인 현금은 먼저 빚을 갚는 데 쓰여 장기부채 18.3억 달러가 0이 됐고, 이어 Q4에 약 45억 달러의 자사주를 샀다(연말 자기주식 45.4억 달러). 공장이 합작사에 있어 자체 설비투자는 1.8억 달러, 합작사 순투자는 2.8억 달러에 그쳤고, 회사는 FY2027 설비투자를 매출의 약 6%로 잡았다. 이사회는 자사주 매입 한도를 140억 달러 늘려 잔여 한도가 155억 달러다.",
-    "src": ["s2", "s3", "s4", "s1"]
+    "text": "빚이 없어진 뒤 현금의 가장 큰 쓰임은 자사주 매입으로, Q1에 약 320만 주를 50억 달러에 샀고 두 분기 합계로 발행주식의 약 4%를 줄였다. 회사는 남는 현금 100%를 주주에게 돌리고 무차입을 유지한다는 원칙을 밝혔다. 공장이 합작사에 있어 자체 유형자산 취득은 0.5억 달러에 그쳤지만, 콜에서 말한 총 설비투자는 3.8억 달러(매출의 3.4%)였고 연간으로는 매출의 한 자릿수 중반%까지 늘린다고 했다.",
+    "src": [
+      "s14",
+      "s15"
+    ]
   },
   "aiChain": {
     "layer": "memory",
     "position": "AI 데이터센터의 저장 계층에 대용량 엔터프라이즈 SSD를 공급하고, GPU 옆 메모리 계층을 겨냥한 HBF를 개발 중인 NAND 공급자.",
-    "dependsOn": ["Kioxia / Flash Ventures (웨이퍼 생산)", "semicap-foundry (합작사 공장 장비)", "SK hynix (HBF 표준 파트너)"],
-    "sellsTo": ["cloud-infrastructure (하이퍼스케일러·AI 클라우드)", "devices (PC·스마트폰·자동차 OEM)", "소매 소비자"],
-    "aiRevenue": "Datacenter 매출 FY2026 51.5억 달러(총매출의 약 25%), Q4 FY2026 약 29.8억 달러(약 33%) - AI 비중 자체는 미공시",
+    "dependsOn": [
+      "Kioxia / Flash Ventures (웨이퍼 생산)",
+      "semicap-foundry (합작사 공장 장비)",
+      "SK hynix (HBF 표준 파트너)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (하이퍼스케일러·AI 클라우드)",
+      "devices (PC·스마트폰·자동차 OEM)",
+      "소매 소비자"
+    ],
+    "aiRevenue": "Datacenter 매출 Q1 FY2027 48.0억 달러(총매출의 약 44%, 전분기 대비 +61%), FY2026 51.5억 달러 - AI 비중 자체는 미공시",
     "upside": "AI 학습·추론 데이터가 늘수록 엔터프라이즈 SSD 수요와 NAND 가격이 오르고, 장기계약이 물량을 고정한다. HBF가 상용화되면 GPU 메모리 계층으로 시장이 넓어진다.",
     "risk": "NAND 가격이 꺾이면 이익이 빠르게 줄어든다(최근 성장의 3분의 2가 가격). 클라우드 설비투자 축소, Edge 기기 수요 둔화, 경쟁사 증설, HBF 일정 지연이 위험이다.",
     "text": "그래서 AI 가치사슬에서 Sandisk는 연산 칩 바로 옆이 아니라 데이터를 쌓아 두는 저장 계층에 있다. 데이터센터가 이미 매출의 3분의 1을 차지할 만큼 커졌지만, 이익을 끌어올린 힘의 상당 부분은 AI 서버가 NAND를 빨아들이며 생긴 가격 상승이다. 다음 단계로 노리는 HBF는 아직 표준 사양이 막 나온 단계라 실적 기여는 2027년 이후로 봐야 한다.",
-    "src": ["s2", "s1", "s9", "s10", "s13"]
+    "src": [
+      "s2",
+      "s1",
+      "s9",
+      "s10",
+      "s13"
+    ]
   },
   "competition": {
     "arenas": [
-      { "arena": "NAND 플래시 전체", "rivals": ["Samsung", "SK hynix (Solidigm 포함)", "Micron", "Kioxia (합작 파트너이자 판매 경쟁자)"], "position": "follower", "share": "2Q26 NAND 매출 5위 (약 89.7억 달러, 전분기 대비 +50.7%로 상위 5사 중 가장 낮은 증가). Samsung 29.3%, Kioxia 13.6% - TrendForce, 2026-08-18", "src": ["s8"] },
-      { "arena": "엔터프라이즈 SSD (AI 데이터센터)", "rivals": ["Samsung", "SK hynix·Solidigm", "Micron", "Kioxia"], "position": "challenger", "share": null, "src": ["s8", "s11"] },
-      { "arena": "AI 추론용 고대역폭 메모리 계층 (HBF)", "rivals": ["HBM 진영 (SK hynix·Samsung·Micron)이 대체재"], "position": "niche", "share": null, "src": ["s9", "s13"] }
+      {
+        "arena": "NAND 플래시 전체",
+        "rivals": [
+          "Samsung",
+          "SK hynix (Solidigm 포함)",
+          "Micron",
+          "Kioxia (합작 파트너이자 판매 경쟁자)"
+        ],
+        "position": "follower",
+        "share": "2Q26 NAND 매출 5위 (약 89.7억 달러, 전분기 대비 +50.7%로 상위 5사 중 가장 낮은 증가). Samsung 29.3%, Kioxia 13.6% - TrendForce, 2026-08-18",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "arena": "엔터프라이즈 SSD (AI 데이터센터)",
+        "rivals": [
+          "Samsung",
+          "SK hynix·Solidigm",
+          "Micron",
+          "Kioxia"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s8",
+          "s11"
+        ]
+      },
+      {
+        "arena": "AI 추론용 고대역폭 메모리 계층 (HBF)",
+        "rivals": [
+          "HBM 진영 (SK hynix·Samsung·Micron)이 대체재"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": [
+          "s9",
+          "s13"
+        ]
+      }
     ],
     "edge": "Kioxia와 나눈 원가 구조, 데이터센터 고객과의 최소 가격 보장 장기계약, 증설보다 공정 전환으로 공급을 늘리는 보수적 투자.",
     "threats": "매출 규모 5위로 Samsung·SK hynix보다 작고, 2Q26에는 보수적 비트 출하로 경쟁사보다 성장이 느렸다. 경쟁사가 엔터프라이즈 SSD 물량을 늘리면 데이터센터 비중 확대 속도가 둔해질 수 있다.",
     "text": "이 저장 계층을 두고 Samsung·SK hynix·Micron·Kioxia가 같은 엔터프라이즈 SSD 고객을 노린다. TrendForce 기준 2Q26 Sandisk는 NAND 매출 5위였고, 비트 출하를 보수적으로 가져가면서 성장률도 상위 5사 중 가장 낮았다. 회사는 물량 경쟁 대신 장기계약과 원가로 이기겠다는 쪽이라, 가격이 강할 때는 유리하지만 점유율은 내줄 수 있는 전략이다.",
-    "src": ["s8", "s3", "s4"]
+    "src": [
+      "s8",
+      "s3",
+      "s4"
+    ]
   },
   "strategy": {
     "goal": "데이터센터를 핵심 성장축으로 세우고, NBM 장기계약으로 매출과 현금흐름의 예측 가능성을 높이며, 웨이퍼 증설 없이 공정 전환으로 연간 비트 성장을 10%대 중후반에 맞춘다는 방침.",
     "roadmap": [
-      { "when": "2026-10-29", "what": "Q1 FY2027 실적 발표 (가이던스 매출 103~108억 달러)", "src": ["s7", "s1"] },
-      { "when": "FY2027", "what": "설비투자 매출의 약 6%, 비트 성장 10%대 중후반", "src": ["s3", "s4"] },
-      { "when": "2026 H2 → 2027", "what": "HBF 샘플: 2025년 발표는 2026 하반기, 최근 보도는 추론 제품 샘플 2027년 목표", "src": ["s9", "s10"] },
-      { "when": "~2032", "what": "Kioxia와 일본 공장 310억 달러 이상 투자 계획 (정부 지원 전제)", "src": ["s4"] },
-      { "when": "2034-12", "what": "요카이치 합작 계약 연장 만료 시점", "src": ["s4", "s5"] }
+      {
+        "when": "2026-11-19~20",
+        "what": "8대1 주식 분할 (11-09 기준 주주, 11-20부터 분할 기준 거래)",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "when": "Q2 FY2027",
+        "what": "매출 122억~126억 달러, non-GAAP 총마진 84.5~85.5% 가이던스",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "설비투자 매출의 한 자릿수 중반%, 비트 성장 10%대 중후반, NBM 비트 비중 약 50%",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "when": "2027 (역년)",
+        "what": "HBF 첫 제품 샘플 (Q1 FY27에 첫 HBF 다이 테이프아웃, 장기 재무모델에는 미포함)",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "when": "FY2028",
+        "what": "NBM 장기계약으로 비트의 약 3분의 2 커버",
+        "src": [
+          "s15",
+          "s1"
+        ]
+      },
+      {
+        "when": "~2032",
+        "what": "Kioxia와 일본 공장 310억 달러 이상 투자 계획 (정부 지원 전제)",
+        "src": [
+          "s4"
+        ]
+      }
     ],
     "vision": "AI 데이터 경제에서 NAND 시장이 2027년 약 5,000억 달러로 커진다고 보고, 데이터센터 저장장치와 GPU 옆 메모리 계층(HBF)까지 플래시의 역할을 넓히겠다는 그림.",
-    "text": "경쟁에서 회사가 고른 길은 공급을 아끼고 계약으로 묶는 것이다. FY2027 비트 성장은 공정 전환 중심의 10%대 중후반, 설비투자는 매출의 6% 정도로 묶어 가격을 지키고, 장기계약 고객을 늘려 FY2028 비트의 3분의 2까지 덮겠다고 했다. 그 다음 성장판으로는 HBF를 내세우지만, 샘플 일정이 2027년으로 밀렸다는 보도도 있어 아직은 선택지에 가깝다.",
-    "src": ["s3", "s4", "s9", "s10", "s1"]
+    "text": "경쟁에서 회사가 고른 길은 공급을 아끼고 계약으로 묶는 것이다. 비트 성장은 공정 전환 중심의 10%대 중후반에 묶어 가격을 지키고, 장기계약을 FY2027 비트의 절반, FY2028의 3분의 2까지 늘리며 비중을 더 키울 수 있다고 했다. 다음 성장판인 HBF는 이번 분기 첫 다이를 테이프아웃해 2027년 샘플을 목표로 하지만, 회사도 아직 장기 재무모델에는 넣지 않았다.",
+    "src": [
+      "s15",
+      "s14"
+    ]
   },
   "governance": {
     "line": "2025-02-21 Western Digital에서 분사한 독립 상장사로 David Goeckeler CEO가 이끌며, 부채를 0으로 만든 뒤 잔여 155억 달러 한도의 자사주 매입으로 현금을 돌려주는 쪽이다.",
-    "src": ["s5", "s1", "s2"]
+    "src": [
+      "s5",
+      "s1",
+      "s2"
+    ]
   },
   "guidance": {
     "latest": [
-      { "period": "Q1 FY2027", "metric": "revenue", "value": "103억~108억 달러", "givenOn": "2026-08-05", "src": ["s1"] },
-      { "period": "Q1 FY2027", "metric": "non-GAAP gross margin", "value": "83~85%", "givenOn": "2026-08-05", "src": ["s3"] },
-      { "period": "Q1 FY2027", "metric": "non-GAAP diluted EPS", "value": "44.00~46.00달러", "givenOn": "2026-08-05", "src": ["s1"] },
-      { "period": "FY2027", "metric": "capex", "value": "매출의 약 6%", "givenOn": "2026-08-05", "src": ["s3", "s4"] }
+      {
+        "period": "Q2 FY2027",
+        "metric": "revenue",
+        "value": "122억~126억 달러",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "gross margin",
+        "value": "GAAP 84.4~85.4%, non-GAAP 84.5~85.5% (동일 제품 기준 소폭 가격 인상 포함)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s14",
+          "s15"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "operating expenses",
+        "value": "GAAP 6.77억~7.45억, non-GAAP 5.40억~5.60억 달러",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "non-GAAP diluted EPS",
+        "value": "55.00~57.00달러 (분할 전 기준; 분할 후 약 6.88~7.13달러)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s14",
+          "s15"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "capex",
+        "value": "매출의 한 자릿수 중반% (Q1 3.4%)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s15"
+        ]
+      }
     ],
     "style": "quarterly",
-    "track": "Q4 FY2026 가이던스와 실제 결과의 비교는 이번 조사에서 확인하지 못했다. Q1 FY2027 가이던스 중간값(105.5억 달러)은 Q4 대비 약 18% 증가다.",
-    "src": ["s1", "s3"]
+    "track": "Q1 FY2027 매출 110.3억 달러는 가이던스(103억~108억) 상단을 넘었고, non-GAAP 총마진 85.1%는 가이던스(83~85%) 상단, non-GAAP EPS 49.51달러는 가이던스(44~46달러)를 넘었다. Q2 가이던스 중간값(124억 달러)은 Q1 대비 약 12% 증가다.",
+    "src": [
+      "s14",
+      "s1",
+      "s3"
+    ]
   },
   "estimates": {
-    "text": "2026-10-28 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 206.24달러(범위 191.84~213.86), 직전 4개 분기 실적 합 68.77달러. 최근 4주 상향·하향 0건으로 발표 직전 추정치가 멈춰 있다.",
-    "src": ["s12"]
+    "text": "발표 전 Q1 FY27 컨센서스는 조정 EPS 47.15달러·매출 107억 달러로 보도됐고(실제 49.51달러·110.3억 달러), 발표 전 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기 EPS 합계는 206.24달러였다. 발표 후 컨센서스와 분할 후 기준 수치는 이번 조사에서 확인하지 않았다.",
+    "src": [
+      "s15",
+      "s12"
+    ]
   },
   "watch": {
     "confirms": [
-      "Q1 FY2027 매출이 가이던스(103~108억 달러) 안이나 위에서 나오고 Q2 가이던스가 더 오름",
-      "Datacenter 매출·비트 비중이 계속 늘어남 (FY2026 말 38%)",
-      "NBM 장기계약 고객 수·커버 비율 확대",
-      "총마진이 가이던스 83~85% 범위를 지킴",
-      "TrendForce 등 NAND 계약가격이 계속 오름"
+      "Q2 FY2027 매출이 가이던스(122억~126억 달러) 안이나 위에서 나오고 다음 가이던스가 더 오름",
+      "Datacenter 매출 비중이 44%에서 계속 늘어남",
+      "NBM 장기계약 커버 비율이 FY2027 50%, FY2028 3분의 2를 넘어섬",
+      "총마진이 85% 근처를 지킴",
+      "HBF 샘플이 2027년 일정대로 나옴"
     ],
     "breaks": [
       "다음 분기 가이던스가 가격 하락이나 물량 정체로 꺾임",
       "Edge·Consumer 수요 약화가 데이터센터 성장보다 커짐",
       "경쟁사 증설로 NAND 가격 상승세가 멈춤",
-      "Kioxia 합작사 고정비 부담이 커지거나 일본 투자 계획의 정부 지원이 무산됨",
-      "HBF 일정이 2027년보다 더 밀림"
+      "NBM 계약 상대방의 주문 축소나 선급금 감소",
+      "Kioxia 합작사 고정비 부담이 커지거나 일본 투자 계획의 정부 지원이 무산됨"
     ],
     "keyNumbers": [
-      { "name": "분기 매출 가이던스 vs 컨센서스", "why": "주가가 가장 먼저 반응하는 숫자" },
-      { "name": "총마진", "why": "NAND 가격이 이익으로 얼마나 넘어오는지" },
-      { "name": "Datacenter 매출·비트 비중", "why": "AI 수요로의 체질 변화 속도" },
-      { "name": "가격 vs 물량 기여", "why": "성장의 질 (현재 가격 3분의 2)" },
-      { "name": "NBM 계약 커버 비율·선급금", "why": "가격 하락기 완충 장치의 크기" }
+      {
+        "name": "분기 매출 가이던스 vs 컨센서스",
+        "why": "주가가 가장 먼저 반응하는 숫자"
+      },
+      {
+        "name": "총마진",
+        "why": "NAND 가격이 이익으로 얼마나 넘어오는지"
+      },
+      {
+        "name": "Datacenter 매출·비중",
+        "why": "AI 수요로의 체질 변화 속도"
+      },
+      {
+        "name": "가격 vs 물량 기여",
+        "why": "성장의 질 (Q1 물량 60%·가격 40%)"
+      },
+      {
+        "name": "NBM 계약 커버 비율·선급금",
+        "why": "가격 하락기 완충 장치의 크기"
+      }
     ]
   },
   "trading": {
     "calendar": [
-      { "date": "2026-10-29 (미국 장 마감 후, 콜 오후 1:30 PT)", "event": "Q1 FY2027 실적 발표와 Q2 가이던스", "src": ["s7"] },
-      { "date": "매월·매 분기", "event": "TrendForce NAND 계약가격·공급사 순위 발표", "src": ["s8"] },
-      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "클라우드 설비투자 전망 - 엔터프라이즈 SSD 수요 신호", "src": ["s1"] },
-      { "date": "2026 H2~2027", "event": "HBF 샘플 출하 여부", "src": ["s9", "s10"] }
+      {
+        "date": "2026-11-20 (회사 공지)",
+        "event": "8대1 분할 기준 거래 시작 - 주당 수치(EPS·주가) 단위가 바뀜",
+        "src": [
+          "s14"
+        ]
+      },
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q2 FY2027 실적 발표와 Q3 가이던스 (회사는 회계 3분기가 보통 가장 약하다고 언급)",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "date": "매월·매 분기",
+        "event": "TrendForce NAND 계약가격·공급사 순위 발표",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "date": "매 분기 (하이퍼스케일러 실적 시즌)",
+        "event": "클라우드 설비투자 전망 - 엔터프라이즈 SSD 수요 신호",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027 (역년)",
+        "event": "HBF 샘플 출하 여부",
+        "src": [
+          "s15"
+        ]
+      }
     ],
-    "reaction": "메모리 가격 사이클 종목이라 주가는 분기 실적보다 다음 분기 가이던스와 NAND 가격 방향에 크게 반응한다. 2026-08 말에는 FY2026 결과가 좋았는데도 주가가 6월 고점 대비 37% 낮은 약 1,485달러, 선행이익 약 7배에 거래됐다(Motley Fool, 2026-08-29) - 시장이 이익의 지속성을 의심하는 구간이었다는 뜻이다.",
+    "reaction": "메모리 가격 사이클 종목이라 주가는 분기 실적보다 다음 분기 가이던스와 NAND 가격 방향에 크게 반응한다. Q1 FY2027에는 매출·EPS가 컨센서스를 넘고 주식 분할까지 발표했지만 정규장 약 5%, 시간외 약 2.6% 더 떨어졌다는 보도가 나와, 시장이 이익의 지속성을 여전히 의심하는 구간임을 보여줬다.",
     "conditions": [
-      "실적 발표 때 다음 분기 매출·총마진 가이던스와 컨센서스의 차이",
+      "다음 분기 매출·총마진 가이던스와 컨센서스의 차이",
       "가격과 물량 각각의 매출 기여 설명",
-      "Datacenter 비트 비중과 NBM 신규 계약 수",
+      "Datacenter 비중과 NBM 신규 계약 수",
       "NAND 계약가격 추이와 경쟁사(Samsung·SK hynix·Micron·Kioxia) 증설 발언",
-      "컨센서스 EPS 상향·하향 건수 추이"
+      "분할 후 기준으로 바뀐 컨센서스 EPS 상향·하향 건수 추이"
     ]
   },
   "unverified": [
-    "FY2026 영업현금흐름 (보도자료 표가 이미지라 확인 못함; 잉여현금흐름 114.9억·조정 87.4억은 Pulse 2.0 기사 기준)",
-    "FY2026 GAAP 총마진 71.5%와 영업이익 123.9억 달러는 Pulse 2.0 기사 수치 (회사 표 원문 미대조); 영업이익률 61.2%는 이를 매출로 나눈 계산값",
-    "FY2026 R&D 총액 (Q4만 3.48억 달러 확인)",
-    "FY2026 자사주 매입액 - 연말 자기주식 45.4억 달러와 Q4 매입 약 45억 달러로 추정, 현금흐름표 미대조",
-    "Consumer FY2026 매출은 총매출에서 Datacenter·Edge를 뺀 계산값",
-    "상위 10개 고객 40% 수치가 FY2026 기준인지 (2차 요약에서 '2025'로 표기)",
+    "Datacenter 전년 대비 증가율 (회사는 의미 없음으로 표기; 전년 동기 2.69억 달러)",
+    "설비투자: 보도자료 유형자산 취득 0.54억 달러와 콜의 총 설비투자 3.78억 달러(합작사 투자 포함으로 추정) 차이 설명",
+    "가격·물량 기여 60:40, NBM 비중, 상대방 95% 투자등급, 2027 시장 전망(데이터센터 55% 초과·비트 수요 +40%)은 Investing.com 녹취록 기준",
+    "분기 비트 출하 증가율과 평균 판매가격 변화율 (수치 미공개)",
+    "자사주 매입 잔여 한도 (새 한도 미공개)",
     "NBM 고객 이름, 계약 존속 가치 939억 달러(Motley Fool)와 재무 보증 165억 달러(Quartr AI 요약)의 1차 문서 대조",
+    "상위 10개 고객 40% 수치가 FY2026 기준인지",
     "조립·테스트 공장 위치와 업체명",
-    "HBF 샘플 일정 - 2026 하반기(2025 발표)와 2027년(StorageReview 제목) 충돌, 본문 미확인",
-    "Q4 FY2026 가이던스 대비 실제 결과",
-    "Sandisk의 NAND 매출 점유율 수치 (TrendForce 표가 깨져 순위와 매출만 사용)"
+    "Sandisk의 NAND 매출 점유율 수치 (TrendForce 표가 깨져 순위와 매출만 사용)",
+    "Q2 FY2027 실적 발표일"
   ],
-  "confidence": "medium - 매출·부문·가이던스는 회사 보도자료 재게시본과 SEC 수치로 맞췄지만, sandisk.com·투자자 사이트가 막혀 현금흐름과 마진 일부는 언론·AI 요약에서 왔다."
+  "confidence": "medium - Q1 FY27 실적·부문·현금흐름·가이던스는 회사 8-K 보도자료에서 왔지만, 장기계약·공급·가격 구성은 언론 녹취록 기준이고 점유율·고객 집중은 2차 자료에 기댄다."
 }

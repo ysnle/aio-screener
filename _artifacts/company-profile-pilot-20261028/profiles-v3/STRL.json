@@ -1,0 +1,212 @@
+{
+  "symbol": "STRL",
+  "name": "Sterling Infrastructure, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Sterling Infrastructure는 대형 데이터센터·반도체 공장 부지를 다지고(토목 부지 조성) 전기 설비까지 까는 미국 건설 회사로, 2026년 3분기 매출의 83%가 이 'E-Infrastructure' 부문에서 나왔다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Sterling Reports Record Third Quarter Results and Raises Full Year 2026 Guidance", "url": "https://www.strlco.com/news/sterling-reports-record-third-quarter-results-and-raises-full-year-2026-guidance/", "publisher": "Sterling Infrastructure", "date": "2026-10-28" },
+    { "id": "s2", "kind": "earnings-release", "title": "Sterling Reports Record Second Quarter Results and Raises Full Year 2026 Guidance (8-K Ex.99.1)", "url": "https://www.strlco.com/wp-content/uploads/2026/08/2026.08.03-8-K-Ex-99.1-Earnings-Release.pdf", "publisher": "Sterling Infrastructure", "date": "2026-08-03" },
+    { "id": "s3", "kind": "other", "title": "Sterling Infrastructure (STRL) Q3 2026 earnings review (segment share, guidance change, buyback remaining, headcount)", "url": "https://finsee.ai/earnings/strl/2026/q3/en/", "publisher": "Finsee", "date": "2026-10-28" },
+    { "id": "s4", "kind": "news", "title": "Sterling's fourth guidance raise meets a stock down 20% and a feared backlog dip (Q3 2026 preview; consensus, Q2 call commentary)", "url": "https://finviz.com/news/405196/sterlings-fourth-guidance-raise-meets-a-stock-down-20-and-a-feared-backlog-dip", "publisher": "Earnings Whispers via Finviz", "date": "2026-10-20" }
+  ],
+
+  "moat": {
+    "sources": [
+      "대형 부지 조성 능력 - 수백 에이커 규모 데이터센터·반도체 공장 부지의 토공·기초·배수를 빠르게 끝내는 장비와 인력 (회사 설명)",
+      "CEC 인수로 더한 미션크리티컬 전기 공사 - 부지 조성에서 전기 설비까지 이어 맡음 (보도자료)",
+      "같은 캠퍼스의 다음 단계 공사로 이어지는 반복 수주 - 서명 잔고·미서명 수주·다음 단계 기회 합계 약 70억 달러 (보도자료)"
+    ],
+    "text": "Sterling의 힘은 거대한 부지를 짧은 기간에 공사 가능한 땅으로 만드는 능력에 있다. 데이터센터 캠퍼스는 여러 단계로 나눠 지어지기 때문에 첫 단계를 잘 끝낸 회사가 다음 단계를 이어받기 쉽다. 2025년 9월 전기 공사 회사 CEC를 사들이면서 땅을 다지는 일에 전기 설비 공사까지 더해, 한 고객에게서 더 많은 몫을 가져갈 수 있게 됐다.",
+    "src": ["s2", "s1"]
+  },
+
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. E-Infrastructure는 데이터센터·반도체 공장·제조·물류·발전소용 대규모 부지 조성과 미션크리티컬 전기 공사를, Transportation은 고속도로·교량·공항·항만 같은 공공 인프라를, Building은 주택 기초와 상업용 건물 공사를 맡는다. 회사는 인력과 장비를 의도적으로 교통 공사에서 E-Infrastructure로 옮기고 있다.",
+    "src": ["s2", "s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "자체 현장 인력과 중장비 - 토공·기초·부지 조성 (지역 자회사)",
+      "CEC - 미션크리티컬 전기 공사 자회사 (2025-09-01 인수)",
+      "Stone Ridge - 2026년 인수 (세부 미공시)",
+      "자재·장비 공급사 - 이름 미공시"
+    ],
+    "text": "공사는 대부분 자기 인력과 장비로 직접 한다. 미국 남부·북동부·중부대서양·로키산맥 지역 자회사들이 현장을 맡고, 전기 공사는 CEC가 맡는다. 2026년 3분기 말 인원은 약 7,000명으로 늘었다(2차 요약).",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "데이터센터 개발사·하이퍼스케일러 (이름 미공시) - E-Infrastructure 기회의 약 95%가 데이터센터 캠퍼스 등 미션크리티컬 (보도자료)",
+      "반도체 공장 - 북동부 반도체 팹 공사 진행 (2차)",
+      "주 교통당국 등 공공 발주처 - Transportation",
+      "주택 건설사 - Building (텍사스·애리조나 등, 세부 미확인)"
+    ],
+    "channel": "발주처와 직접 공사 계약. 데이터센터는 캠퍼스 단계별로 계약이 이어진다.",
+    "concentration": "고객별 비중은 이번에 확인하지 못함. 부문 기준으로는 E-Infrastructure가 2026년 3분기 매출의 83%.",
+    "text": "이 능력은 이제 거의 데이터센터 쪽으로 팔린다. 2026년 2분기 E-Infrastructure 잔고의 92%가 미션크리티컬 프로젝트였고, 3분기에는 이 부문 기회의 약 95%가 데이터센터 캠퍼스 등 미션크리티컬이라고 밝혔다. 고객 이름은 공개하지 않는다.",
+    "src": ["s2", "s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "하이퍼스케일러·AI 기업", "to": "데이터센터 개발사·캠퍼스 소유자", "what": "데이터센터 캠퍼스 건설 발주" },
+      { "from": "개발사·캠퍼스 소유자", "to": "Sterling (E-Infrastructure)", "what": "부지 조성 공사 계약금 (단계별 계약, 공정률에 따라 매출 인식)" },
+      { "from": "개발사·시공사", "to": "Sterling (CEC)", "what": "미션크리티컬 전기 공사 대금" },
+      { "from": "주 교통당국·주택 건설사", "to": "Sterling (Transportation·Building)", "what": "공공 인프라·주택 기초 공사 대금" }
+    ],
+    "pricing": "프로젝트별 공사 계약으로 공정률에 따라 매출을 인식한다. 서명 잔고 외에 아직 계약서에 서명하지 않은 수주(미서명 수주)와 같은 캠퍼스의 다음 단계 기회를 따로 공시한다.",
+    "text": "돈은 AI 기업의 데이터센터 투자가 캠퍼스 건설 발주로 바뀌는 첫 단계에서 Sterling에 들어온다. 땅을 다지는 공사는 건물을 올리기 전에 끝나야 하므로 데이터센터 공사 흐름의 가장 앞쪽에 있다. 전기 공사까지 맡으면서 같은 캠퍼스에서 더 오래 돈을 받는 구조가 됐다.",
+    "src": ["s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (quarter ended 2026-09-30)",
+    "revenue": { "value": 1.564, "unit": "USD bn", "yoy": 127 },
+    "grossMargin": 24.1,
+    "operatingMargin": 19.6,
+    "netMargin": 13.7,
+    "operatingCashFlow": { "value": null, "unit": "USD bn" },
+    "freeCashFlow": { "value": null, "unit": "USD bn" },
+    "segments": [
+      { "name": "E-Infrastructure Solutions", "revenue": 1.303, "unit": "USD bn", "share": 83.3, "yoy": 212, "operatingMargin": 22.6, "src": ["s1"] },
+      { "name": "Transportation Solutions", "revenue": 0.165, "unit": "USD bn", "share": 10.6, "yoy": -3.1, "operatingMargin": 18.3, "src": ["s1"] },
+      { "name": "Building Solutions", "revenue": 0.096, "unit": "USD bn", "share": 6.1, "yoy": -5.4, "operatingMargin": 5.9, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "잔고 (backlog)", "value": "2026-09-30 서명 잔고 41.4억 달러(+61%), 미서명 수주 20.0억, 합산 잔고 61.4억 달러(+78%). 3분기 book-to-burn 서명 0.9배, 합산 1.4배", "src": ["s1"] },
+      { "name": "E-Infrastructure 기회 풀", "value": "서명 잔고·미서명 수주·다음 설계 단계 합계 약 70억 달러(+130% 이상), 약 95%가 데이터센터 캠퍼스 등 미션크리티컬", "src": ["s1"] },
+      { "name": "CEC 전기 공사", "value": "2026년 3분기 매출 4.256억 달러 (전년 부분 분기 0.414억)", "src": ["s1"] },
+      { "name": "9개월 누적 (2026)", "value": "매출 35.58억 달러, 영업이익률 18.7%, 영업현금흐름 4.271억, 설비투자 1.155억 달러", "src": ["s1"] }
+    ],
+    "text": "이 흐름이 2026년 3분기 매출 15.6억 달러(+127%), 영업이익률 19.6%, 순이익 2.15억 달러로 나타났다. E-Infrastructure 매출이 세 배(+212%)가 되며 전체의 83%를 차지했고, 교통·주택 부문은 줄었다. 분기 영업현금흐름은 공시되지 않았고, 9개월 누적은 4.27억 달러로 순이익 4.67억 달러보다 작았다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "9M 2026 (ended 2026-09-30)",
+    "items": [
+      { "use": "capex", "value": 0.1155, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 0.165, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.1073, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "2026년 9개월 동안 영업현금흐름 4.27억 달러 가운데 설비투자에 1.16억, 인수(Stone Ridge 등)에 1.65억, 자사주에 1.07억 달러를 썼다. 배당은 하지 않는다. 현금은 2.17억 달러, 총부채는 약 0.95억 달러로 빚이 적은 구조이며, 남은 자사주 매입 한도는 약 2.67억 달러(2027년 11월까지, 2차 요약)다.",
+    "src": ["s1", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "cooling-electrical",
+    "position": "데이터센터 캠퍼스 공사의 가장 앞 단계인 부지 조성(토공·기초·배수)과, CEC를 통한 미션크리티컬 전기 공사를 맡는 시공사. 장비를 만들지 않고 땅과 전기 인프라를 준비한다.",
+    "dependsOn": ["중장비·숙련 전기 인력", "data-center-real-estate (개발사의 부지 확보와 인허가)", "power-energy (전력 연결 일정)"],
+    "sellsTo": ["data-center-real-estate (데이터센터 개발사·캠퍼스 소유자)", "cloud-infrastructure (하이퍼스케일러 캠퍼스)", "ai-exposed (반도체·제조 공장)"],
+    "aiRevenue": "AI·데이터센터 매출은 따로 공시하지 않는다. E-Infrastructure가 2026년 3분기 매출 13.0억 달러(전체의 83%)이고, 이 부문 기회의 약 95%가 데이터센터 캠퍼스 등 미션크리티컬.",
+    "upside": "데이터센터 캠퍼스 착공이 늘면 가장 먼저 부지 조성 계약이 생기고, 같은 캠퍼스의 다음 단계와 전기 공사로 이어진다. 교통 공사에서 옮겨 온 인력이 더 높은 마진의 일을 맡는다.",
+    "risk": "데이터센터 착공이 늦춰지면 가장 앞단계인 만큼 가장 먼저 수주가 줄어든다. 서명 잔고가 3분기에 직전 분기보다 줄어든 것처럼 수주 시점이 들쭉날쭉하고, 매출이 사실상 한 업종에 몰려 있다.",
+    "text": "그래서 AI 가치사슬에서 Sterling은 건물과 설비보다 먼저 움직이는 '땅과 전기 기반' 자리에 있다. 하이퍼스케일러가 새 캠퍼스를 정하면 첫 삽을 뜨는 회사라, 설비투자 계획이 가장 빨리 수주로 나타나고 가장 빨리 꺾일 수도 있다. 매출의 83%가 이 부문이니 데이터센터 착공 속도가 곧 실적이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "대형 데이터센터·반도체 부지 조성", "rivals": ["지역 토목·부지 조성 업체", "대형 종합건설사의 토목 조직"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "미션크리티컬 전기 공사", "rivals": ["EMCOR", "Comfort Systems USA (전기 부문)", "지역 전기 시공사"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "공공 교통 인프라", "rivals": ["지역 도로·교량 시공사"], "position": "niche", "share": null, "src": ["s2"] }
+    ],
+    "edge": "거대 부지를 빠르게 끝내는 장비·인력 규모, 같은 캠퍼스 다음 단계로 이어지는 관계, CEC로 더한 전기 공사.",
+    "threats": "부지 조성은 진입장벽이 상대적으로 낮아 지역 업체와의 가격 경쟁이 생길 수 있고, 전기 공사에서는 더 큰 전문 시공사와 맞선다. 숙련 전기 인력 부족도 제약이다.",
+    "text": "이 자리의 경쟁은 지역별 토목 업체와 전기 시공사들과의 싸움이다. 부지 조성 자체는 특별한 기술이 아니어서, Sterling은 규모와 속도, 그리고 같은 고객의 다음 공사를 이어받는 관계로 차이를 만든다. 전기 공사에서는 EMCOR·Comfort Systems 같은 더 큰 회사와 맞서며, 회사는 전기 인력이 부족해 일을 거절하고 있다고 말했다(2차).",
+    "src": ["s2", "s1", "s4"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 46.3~47.3억 달러, 조정 EPS 21.70~21.96달러, 조정 EBITDA 9.70~9.81억 달러 (2026-10-28 상향).",
+    "roadmap": [
+      { "when": "2025-09", "what": "CEC 인수로 미션크리티컬 전기 공사 진출", "src": ["s1"] },
+      { "when": "2026", "what": "Stone Ridge 인수, 교통 공사 인력을 E-Infrastructure로 빠르게 재배치", "src": ["s2"] },
+      { "when": "2026", "what": "CEC 연매출 10억 달러 초과 가능성 언급", "src": ["s1"] },
+      { "when": "2027-11", "what": "자사주 매입 프로그램 만료 (잔여 약 2.67억 달러, 2차)", "src": ["s3"] }
+    ],
+    "vision": "교통·주택 중심의 지역 건설사에서, 데이터센터·반도체 같은 미션크리티컬 시설의 부지와 전기 기반을 맡는 회사로 바뀌는 그림이다.",
+    "text": "이 경쟁에서 회사가 택한 길은 사업 구성을 통째로 바꾸는 것이다. 마진이 낮은 교통 공사를 일부러 줄이고 인력을 데이터센터 부지로 옮겼으며, CEC를 사서 전기 공사까지 넓혔다. 그 결과 2026년 매출 전망을 8월 40.0~41.5억에서 10월 46.3~47.3억 달러로 크게 올렸다.",
+    "src": ["s1", "s2"]
+  },
+
+  "governance": {
+    "line": "CEO Joe Cutillo가 이끌고, 배당 없이 인수와 자사주 매입에 현금을 쓰며 부채를 낮게 유지하는 회사다.",
+    "src": ["s2", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "46.3~47.3억 달러 (8월 40.0~41.5억에서 상향)", "givenOn": "2026-10-28", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "adjusted diluted EPS", "value": "21.70~21.96달러 (8월 19.70~20.30달러에서 상향)", "givenOn": "2026-10-28", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "diluted EPS (GAAP)", "value": "19.16~19.42달러 (8월 17.25~17.85달러)", "givenOn": "2026-10-28", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA", "value": "9.70~9.81억 달러 (8월 8.91~9.16억 달러)", "givenOn": "2026-10-28", "src": ["s1", "s2"] }
+    ],
+    "style": "annual",
+    "track": "2026년 들어 분기마다 연간 전망을 올렸다. 3분기 매출 15.6억 달러는 컨센서스 11.7억 달러를, 조정 EPS 7.58달러는 컨센서스 5.80달러를 크게 넘었다(컨센서스는 2차). 회사가 예고한 대로 서명 잔고는 직전 분기 43.3억에서 41.4억 달러로 줄었다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "estimates": {
+    "text": "실적 전 컨센서스는 2026년 3분기 EPS 5.80달러·매출 11.7억 달러, 2026년 연간 EPS 18.87달러·매출 39.6억 달러였다(Earnings Whispers, 2026-10-20). 실적 후 컨센서스는 이번에 확인하지 않았다.",
+    "src": ["s4"]
+  },
+
+  "watch": {
+    "confirms": [
+      "서명 잔고가 41억 달러 근처에서 다시 늘고 미서명 수주가 서명으로 전환",
+      "E-Infrastructure 영업이익률이 22~23%대 유지",
+      "CEC 매출이 연 10억 달러를 넘고 마진 개선",
+      "데이터센터 캠퍼스의 다음 단계 수주 발표",
+      "영업현금흐름이 순이익을 따라잡음"
+    ],
+    "breaks": [
+      "서명 잔고와 합산 잔고가 함께 두 분기 이상 감소",
+      "E-Infrastructure 마진 하락 (2025년 3분기 25.6% → 2026년 3분기 22.6% 흐름이 계속)",
+      "주요 데이터센터 캠퍼스 착공 지연",
+      "전기 인력 부족으로 공기 지연·비용 증가",
+      "교통 부문 축소 속도보다 데이터센터 수주가 느려짐"
+    ],
+    "keyNumbers": [
+      { "name": "서명·미서명·합산 잔고", "why": "앞으로의 공사량" },
+      { "name": "E-Infrastructure 매출과 영업이익률", "why": "실적의 대부분" },
+      { "name": "CEC 매출", "why": "부지에서 전기로의 확장 속도" },
+      { "name": "book-to-burn 배율", "why": "수주가 매출 소진을 따라가는지" },
+      { "name": "9개월 영업현금흐름 대 순이익", "why": "공사 대금 회수 속도" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 하순 (추정, 회사 미공지)", "event": "2026년 4분기·연간 실적과 2027년 첫 전망", "src": [] },
+      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "Microsoft·Alphabet·Amazon·Meta의 설비투자와 신규 캠퍼스 발표", "src": [] },
+      { "date": "2027-11", "event": "자사주 매입 프로그램 만료", "src": ["s3"] }
+    ],
+    "reaction": "주가는 잔고 증감에 민감하다. 2026-08 실적 후에는 전망 상향에도 크게 하락했고, 3분기 실적 전에는 200일 이동평균보다 크게 낮은 수준에서 잔고 감소 우려가 거론됐다(2차 보도).",
+    "conditions": [
+      "서명 잔고와 합산 잔고의 분기 증감",
+      "연간 전망 상향 폭과 컨센서스의 차이",
+      "E-Infrastructure 영업이익률 방향",
+      "CEC 매출과 마진",
+      "다음 해 첫 전망의 성장률"
+    ]
+  },
+
+  "unverified": [
+    "분기 영업현금흐름과 잉여현금흐름 (보도자료는 9개월 누적만 공시)",
+    "데이터센터만 따로 본 매출·잔고 비중 (회사는 '미션크리티컬'로 묶어 공시)",
+    "고객 이름과 고객별 비중",
+    "Stone Ridge 인수 내용과 금액",
+    "인원 약 7,000명, 3분기 자사주 0.72억 달러, 잔여 한도 2.67억 달러는 2차 요약(s3) 기준",
+    "전기 인력 부족으로 일을 거절한다는 발언과 반도체 팹 일정은 2차 보도(s4)의 2분기 콜 요약",
+    "3분기 콜 녹취록 원문은 열지 못함",
+    "경쟁사 이름(EMCOR, Comfort Systems 등)과 'leader' 판단은 일반적 업계 구도이며 회사 자료에서 확인하지 않음; 시장 점유율 미확인",
+    "AI 층은 부지 조성 중심 시공사라 목록에 딱 맞는 값이 없어 냉각·전기 설비(cooling-electrical)로 분류",
+    "4분기 실적 발표일 (회사 미공지)"
+  ],
+  "confidence": "medium - 실적·잔고·전망은 회사 보도자료에서 왔지만, 콜 발언과 자사주 한도, 컨센서스는 2차 요약에 기대고 고객 정보가 거의 공개되지 않는다."
+}

@@ -141,6 +141,164 @@ check('v59.42 KR weights: common stocks at the previous close', () => {
   eq(out.asOf, '2026-10-29');
 });
 
+// v59.44 (owner 2026-10-29): news by weight — tiers, the price after the report, Samsung's 조원 table, Korean headlines.
+const { homeBriefTiers, briefTier, releaseSession, earningsReaction, reactionText, briefHeadline, parseDartPreliminaryResults, formatKrw } = await import('../src/domain/briefing/event-briefs.js');
+const { extendedMovers } = await import('./fetch-event-briefs.mjs');
+check('v59.44 tiers: FOMC and the core movers in full, others one line, the rest folded', () => {
+  eq(briefTier({ kind: 'fomc' }), 1);
+  eq(briefTier({ kind: 'earnings', symbol: 'AMZN' }), 1);
+  eq(briefTier({ kind: 'earnings', symbol: 'NOW' }), 2);
+  eq(briefTier({ kind: 'earnings', symbol: 'INTC', tier: 2 }), 2);
+  const at = (hours) => new Date(nowMs - hours * 3600000).toISOString();
+  const art = { schemaVersion: EVENT_BRIEFS_SCHEMA, briefs: [
+    { id: 'a', kind: 'earnings', symbol: 'AMZN', status: 'complete', publishedAt: at(2) },
+    { id: 'i', kind: 'earnings', symbol: 'INTC', tier: 2, status: 'complete', publishedAt: at(3) },
+    { id: 'p', kind: 'earnings', symbol: 'PLTR', tier: 2, status: 'pending', publishedAt: at(3) },
+    { id: 'm', kind: 'earnings', symbol: 'META', status: 'complete', publishedAt: at(24 * 8) },
+    { id: 'o', kind: 'earnings', symbol: 'ORCL', status: 'complete', publishedAt: at(24 * 40) }] };
+  const tiers = homeBriefTiers(art, { nowMs });
+  same([tiers.core.map((b) => b.id), tiers.notable.map((b) => b.id), tiers.rest.map((b) => b.id), tiers.restTotal], [['a'], ['i'], ['m'], 1]);
+  const busy = homeBriefTiers(art, { nowMs, coreLimit: 0 });
+  same(busy.notable.map((b) => b.id), ['a', 'i'], 'a tier-1 report past the card limit stays on the face ahead of tier 2');
+});
+check('v59.44 the session a report trades in', () => {
+  same(releaseSession('2026-10-28T20:04:44Z'), { releaseDate: '2026-10-28', afterClose: true });
+  same(releaseSession('2026-10-29T11:00:00Z'), { releaseDate: '2026-10-29', afterClose: false });
+  same(releaseSession('2026-10-28T00:00:00+09:00', { market: 'KR', dateOnly: true }), { releaseDate: '2026-10-28', afterClose: false });
+});
+check('v59.44 closes after the report, and the latest trade until a session has closed on it', () => {
+  const bars = [{ date: '2026-10-27', close: 100 }, { date: '2026-10-28', close: 110 }, { date: '2026-10-29', close: 99 }, { date: '2026-10-30', close: 104.5 }];
+  const after = earningsReaction(bars, { releaseDate: '2026-10-28', afterClose: true });
+  same([after.baseClose, after.firstPct, after.latestPct, after.sessions, after.settled], [110, -10, -5, 2, false]);
+  eq(reactionText(after), '발표 후 첫 거래일 -10.0%, 2거래일 누적 -5.0%');
+  const before = earningsReaction(bars, { releaseDate: '2026-10-28', afterClose: false });
+  eq(before.firstPct, 10, 'a pre-market report trades the same day');
+  const release = Date.parse('2026-10-29T20:05:00Z');
+  const ext = earningsReaction(bars.slice(0, 3), { releaseDate: '2026-10-29', afterClose: true }, { extended: { price: 78.21, atMs: release + 3600000 }, releaseMs: release });
+  same([ext.basis, ext.extendedPct, ext.sessions], ['latest-trade', -21, 0]);
+  eq(reactionText(ext), '발표 후 최근 체결가 -21.0%(직전 종가 대비)');
+  eq(earningsReaction(bars.slice(0, 3), { releaseDate: '2026-10-29', afterClose: true }, { extended: { price: 80, atMs: release - 60000 }, releaseMs: release }), null, 'a trade from before the release is not its reaction');
+});
+check('v59.44 Samsung files its table in 조원 with decimals (P2136)', () => {
+  const text = '1. 연결실적내용 단위 : 조원, % 구분 당기실적 전기실적 전기대비 전년동기실적 전년동기대비 (26.3Q) (26.2Q) 증감율(%) 흑자적자전환여부 (25.3Q) 증감율(%) 흑자적자전환여부 매출액 당해실적 195.25 171.50 13.85 - 86.06 126.88 - 누계실적 500.63 - - - 239.77 108.80 - 영업이익 당해실적 107.44 89.49 20.06 - 12.17 783.11 - 실적기간 당기실적 2026-07-01 ~ 2026-09-30';
+  const parsed = parseDartPreliminaryResults(text);
+  same([parsed.unitLabel, parsed.quarter, parsed.accounts.revenue.current, parsed.accounts.operatingIncome.yoyPct], ['조원', '2026년 3분기', 195.25, 783.11]);
+  eq(formatKrw(parsed.accounts.revenue.current, parsed.unit), '195.25조원');
+});
+check('v59.44 a headline is Korean and not the bare label (P2137)', () => {
+  const figures = [{ metric: 'revenue', label: '매출', value: '$127.6 billion' }];
+  eq(briefHeadline('Alphabet Announces Third Quarter 2026 Results', { nameKo: '알파벳', figures }), '알파벳 실적: 매출 $127.6 billion');
+  eq(briefHeadline('마이크로소프트 실적 발표', { nameKo: '마이크로소프트', figures }), '마이크로소프트 실적: 매출 $127.6 billion');
+  eq(briefHeadline('클라우드 성장 가속', { nameKo: '아마존', figures }), '클라우드 성장 가속');
+  eq(briefHeadline('', { nameKo: '아마존', figures: [] }), '아마존 실적 발표');
+});
+check('v59.44 the story names join as tier-2 movers with their Korean names', () => {
+  const index = { profiles: [{ symbol: 'INTC', name: 'Intel Corporation' }, { symbol: 'MSFT', name: 'Microsoft' }, { symbol: '005930.KS', name: '삼성전자' }, { symbol: 'CRDO', name: 'Credo Technology Group Holding Ltd' }] };
+  const movers = extendedMovers(index, "    'INTC':  { en: 'Intel',            kr: '인텔',         alt: ['intel'] },");
+  same(movers.map((m) => [m.sym, m.nameKo, m.tier, m.extended]), [['INTC', '인텔', 2, true], ['CRDO', 'Credo Technology', 2, true]]);
+});
+const { recentMacroReleases } = await import('../src/domain/briefing/macro-releases.js');
+check('v59.44 a monthly release of the last two days leads 오늘', () => {
+  const macro = { pce: 3.6, _asOf_pce: '2026-09-01', _freshness_pce: 'observed', pceDelta: 0.2, corePce: 3.1, _asOf_corePce: '2026-09-01', _freshness_corePce: 'observed', cpi: 3.7, _asOf_cpi: '2026-09-01', _freshness_cpi: 'observed' };
+  const schedules = { 'us-pce': ['2026-09-30', '2026-10-29', '2026-11-25'], 'us-cpi': ['2026-10-14', '2026-11-10'] };
+  const rows = recentMacroReleases({ macro, schedules }, { nowMs: Date.parse('2026-10-30T01:00:00Z') });
+  same(rows.map((row) => [row.id, row.date, row.next, row.items.map((item) => item.valueText)]), [['us-pce', '2026-10-29', '2026-11-25', ['3.6%', '3.1%']]]);
+  eq(recentMacroReleases({ macro, schedules }, { nowMs: Date.parse('2026-11-02T01:00:00Z') }).length, 0, 'two days later the release has moved to 거시');
+});
+const { isGaapOnlyFigure } = await import('./fetch-event-briefs.mjs');
+check('P2138 a GAAP-labelled EPS is not compared with the adjusted consensus', () => {
+  eq(isGaapOnlyFigure({ label: '희석 주당순이익, GAAP', text: '3분기 GAAP 희석 주당순이익.' }), true);
+  eq(isGaapOnlyFigure({ label: '희석 주당순이익, non-GAAP', text: '' }), false);
+  eq(isGaapOnlyFigure({ label: '희석 EPS', text: '보통주 주주 귀속 순이익 기준' }), false);
+  eq(isGaapOnlyFigure({ label: '희석 주당순이익, GAAP', text: '조정 전 기준' }), true, "'조정 전' is the unadjusted figure");
+});
+const storyMover = [{ sym: 'INTC', tier: 2, extended: true, nameKo: '인텔', irDomains: [] }];
+const watched = await buildEventBriefs({ ...base, previous: null, nowMs, earningsRows: [{ symbol: 'INTC', date: sources.manifest.now.slice(0, 10) }], extended: storyMover });
+const rolled = await buildEventBriefs({ ...base, previous: watched, nowMs: nowMs + 2 * 86400000, earningsRows: [], extended: storyMover });
+check('v59.44 a story name stays watched after the calendar rolls to the next week', () => {
+  ok(watched.reportWatch?.INTC, JSON.stringify(watched.reportWatch));
+  eq(rolled.reportWatch?.INTC, watched.reportWatch.INTC);
+});
+const gaapStored = { schemaVersion: EVENT_BRIEFS_SCHEMA, briefs: [{ id: 'n', kind: 'earnings', symbol: 'NOW', nameKo: '서비스나우', status: 'complete', publishedAt: new Date(nowMs).toISOString(), headline: '서비스나우, 구독 매출 성장',
+  figures: [{ metric: 'eps_diluted', label: '희석 주당순이익, GAAP', value: '$0.27', text: '', estimate: { surprisePct: -73.9 } }] }] };
+const gaapRepaired = (await buildEventBriefs({ ...base, previous: gaapStored, nowMs })).briefs.find((row) => row.id === 'n');
+check('P2138 a stored GAAP comparison is removed on the next run', () => eq(gaapRepaired.figures[0].estimate, undefined));
+check('v59.44 weight from the AI chain and the move, not the index weight', () => {
+  const at = { kind: 'earnings', tier: 2, layer: 'chips-compute' };
+  eq(briefTier({ ...at, symbol: 'INTC', reaction: { basis: 'latest-trade', extendedPct: -21 } }), 1, 'an AI-chain name that moved 8% or more is a card');
+  eq(briefTier({ ...at, symbol: 'SNDK', layer: 'memory', reaction: { basis: 'close', firstPct: -5.3 } }), 2);
+  eq(briefTier({ ...at, symbol: 'JPM', layer: 'ai-adopter', reaction: { basis: 'close', firstPct: -9 } }), 3, 'outside the AI chain the report is folded');
+  eq(briefTier({ kind: 'earnings', symbol: 'MU', reaction: { basis: 'close', firstPct: 9 } }), 1, 'a listed mover moves up the same way');
+});
+const { provisionalBrief } = await import('./fetch-event-briefs.mjs');
+const intcRow = { symbol: 'INTC', date: sources.manifest.now.slice(0, 10), hour: 'amc', epsEstimate: 0.3996, revenueEstimate: 16781909631, epsActual: 0.52, revenueActual: 16513000000 };
+const withProvisional = await buildEventBriefs({ ...base, previous: null, nowMs: nowMs + 2 * 3600000, earningsRows: [...base.earningsRows, intcRow], extended: storyMover });
+check('v59.44 a reported name shows from the calendar before its filing is summarised', () => {
+  const brief = withProvisional.briefs.find((row) => row.symbol === 'INTC');
+  same([brief?.status, brief?.basis, brief?.figures?.map((figure) => [figure.value, figure.estimate?.surprisePct])], ['provisional', 'provider', [['$16.51 billion', -1.6], ['$0.52', 30.1]]]);
+  ok(!withProvisional.briefs.some((row) => row.id.startsWith('calendar-MSFT')), 'a name with a summarised filing gets no provisional entry');
+  eq(provisionalBrief({ ...intcRow, hour: 'bmo' }, storyMover[0]).publishedAt.slice(11, 16), '11:00', 'before the open is 07:00 ET');
+});
+const { recentMacroReleases: macroDue } = await import('../src/domain/briefing/macro-releases.js');
+check('v59.44 a release day is listed even before the figures arrive', () => {
+  const rows = macroDue({ macro: { cpi: 3.7, _asOf_cpi: '2026-09-01', _freshness_cpi: 'observed' }, schedules: { 'us-cpi': ['2026-10-14', '2026-11-10'] } }, { nowMs: Date.parse('2026-11-10T14:30:00Z') });
+  same(rows.map((row) => [row.id, row.date, !!row.pending]), [['us-cpi', '2026-11-10', true]]);
+  eq(macroDue({ macro: {}, schedules: { 'us-cpi': ['2026-11-10'] } }, { nowMs: Date.parse('2026-11-10T12:00:00Z') }).length, 0, 'not before 08:30 ET');
+});
+const { aiChainFlow } = await import('../src/domain/briefing/ai-chain-flow.js');
+check('v59.44 the AI chain by group: US members, median, weakest first', () => {
+  const themes = [{ id: 'semiconductor', subThemes: [{ name: '메모리', tickers: ['MU', 'SNDK', 'WDC', '000660.KS'] }, { name: '두 종목', tickers: ['A', 'B'] }] }, { id: 'ai_infra', subThemes: [{ name: '네오클라우드', tickers: ['CRWV', 'NBIS', 'IREN'] }] }, { id: 'staples', subThemes: [{ name: '음료', tickers: ['KO', 'PEP', 'MNST'] }] }];
+  const r = (sym, ret1d, ret1m) => ({ sym, ret1d, ret1m });
+  const flow = aiChainFlow({ themes, rows: [r('MU', -5, -12), r('SNDK', -5.3, -23.6), r('WDC', -1, -8), r('000660.KS', 13, 40), r('CRWV', -5, -30), r('NBIS', -5.7, -27), r('IREN', -4, -20), r('KO', 1, 3), r('PEP', 1, 3), r('MNST', 1, 3), r('A', 1, 1), r('B', 1, 1)] });
+  same(flow.groups.map((group) => [group.name, group.ret1d, group.ret1m]), [['네오클라우드', -5, -27], ['메모리', -5, -12]]);
+  like(flow.reading, /2개 묶음 중 2개가 지난 거래일에 내렸고, 한 달로 보면 2개가 내렸습니다/);
+});
+sources.manifest.ai['reasons-MSFT'] = { status: 'completed', model: 'gpt-6-luna', usage: { input_tokens: 3000, output_tokens: 200 }, output: [{ type: 'web_search_call', status: 'completed' }, { type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: JSON.stringify({ reasons: [
+  { text: 'Azure 성장이 기대에 못 미쳤다는 보도', url: 'https://www.cnbc.com/msft-q1' }, { text: '설비투자 $150 billion 전망', url: 'https://www.cnbc.com/msft-capex' }, { text: '블로그 추측', url: 'https://example.com/x' }] }) }] }] };
+sources.manifest.prices = { MSFT: { bars: [{ date: '2026-10-27', close: 500 }, { date: '2026-10-28', close: 510 }], extended: { price: 525.3, atMs: Date.parse('2026-10-28T21:30:00Z') } } };
+const withPrices = await buildEventBriefs({ ...base, previous: first, nowMs: nowMs + 3600000 });
+check('v59.44 the producer records the price after the report', () => {
+  const brief = withPrices.briefs.find((row) => row.id === msft.id);
+  same([brief.reaction?.basis, brief.reaction?.extendedPct, brief.tier], ['latest-trade', 3, 1]);
+  // Why it moved: reported reasons on allowed sources only, without unchecked numbers.
+  same(brief.reasons?.points?.map((point) => point.text), ['Azure 성장이 기대에 못 미쳤다는 보도']);
+  same([brief.reasons?.done, brief.reasons?.basis, brief.reasons?.dropped?.map((drop) => drop.reason).sort()], [true, 'news-report', ['number-not-in-source', 'url-not-allowed']]);
+  eq(brief.reasons?.direction, 1);
+});
+// After hours up, first session down: the reasons are searched once more for the move now shown.
+sources.manifest.prices = { MSFT: { bars: [{ date: '2026-10-27', close: 500 }, { date: '2026-10-28', close: 510 }, { date: '2026-10-29', close: 495 }] } };
+const reversedRun = await buildEventBriefs({ ...base, previous: withPrices, nowMs: Date.parse('2026-10-29T22:00:00Z') });
+const reversedAgain = await buildEventBriefs({ ...base, previous: reversedRun, nowMs: Date.parse('2026-10-29T22:30:00Z') });
+check('v59.44 a reversed move gets its reasons searched once more, not every run', () => {
+  const brief = reversedRun.briefs.find((row) => row.id === msft.id);
+  same([brief.reaction?.basis, brief.reaction?.firstPct, brief.reasons?.direction, brief.reasons?.redone, brief.reasons?.attempts], ['close', -2.9, -1, true, 2]);
+  eq(reversedAgain.briefs.find((row) => row.id === msft.id).reasons.attempts, 2);
+});
+// A provisional stored by an earlier run is replaced when the filing is summarised (one report, one entry).
+const storedProvisional = { ...first, briefs: [...first.briefs.filter((row) => row.symbol !== 'MSFT'), provisionalBrief({ symbol: 'MSFT', date: '2026-10-28', hour: 'amc', revenueActual: 1e11, revenueEstimate: 1e11 }, { sym: 'MSFT', tier: 1, nameKo: '마이크로소프트' })] };
+const replaced = await buildEventBriefs({ ...base, previous: storedProvisional, nowMs });
+check('v59.44 a stored provisional gives way to the summarised filing', () => {
+  same(replaced.briefs.filter((row) => row.symbol === 'MSFT').map((row) => row.id), [msft.id]);
+});
+sources.manifest.prices = { INTC: { bars: [{ date: '2026-10-27', close: 40 }, { date: '2026-10-28', close: 36.8 }] } };
+const noHour = await buildEventBriefs({ ...base, previous: null, nowMs: nowMs + 2 * 3600000, earningsRows: [...base.earningsRows, { ...intcRow, hour: '' }], extended: storyMover });
+check('v59.44 a report with no hour is not timed against a session', () => {
+  eq(provisionalBrief({ ...intcRow, hour: null }, storyMover[0]).timing, 'unknown');
+  eq(provisionalBrief(intcRow, storyMover[0]).timing, undefined);
+  const brief = noHour.briefs.find((row) => row.symbol === 'INTC');
+  same([brief?.status, brief?.reaction], ['provisional', undefined]);
+});
+// A story name that files on 6-K (ASML): its results 6-K is summarised; another 6-K is skipped.
+Object.assign(sources.manifest.secTickers, { ASML: 937966 });
+sources.manifest.secFilings['937966'] = [{ accession: 'asml-6k-results', form: '6-K', items: '', filingDate: '2026-10-28', acceptedAt: '2026-10-28T05:00:00.000Z' },
+  { accession: 'asml-6k-other', form: '6-K', items: '', filingDate: '2026-10-27', acceptedAt: '2026-10-27T05:00:00.000Z' }];
+Object.assign(sources.manifest.secExhibits, { 'asml-6k-results': 'msft-ex991.synthetic.txt', 'asml-6k-other': 'fed-statement-20261028.synthetic.txt' });
+sources.manifest.ai['earnings-ASML'] = sources.manifest.ai['earnings-MSFT'];
+const foreign = await buildEventBriefs({ ...base, previous: null, nowMs, earningsRows: [{ symbol: 'ASML', date: '2026-10-28' }], extended: [{ sym: 'ASML', tier: 2, extended: true, layer: 'semicap-foundry', nameKo: 'ASML', irDomains: [] }] });
+check('v59.44 a story name filing on 6-K is matched on its results 6-K only', () => {
+  same(foreign.briefs.filter((row) => row.symbol === 'ASML').map((row) => [row.id, row.source?.title]), [['earnings-ASML-asml-6k-results', 'SEC 6-K EX-99.1']]);
+});
+
 if (failures.length) {
   console.error(`[event-briefs] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);

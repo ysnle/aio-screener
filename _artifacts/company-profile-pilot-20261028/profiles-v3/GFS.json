@@ -1,0 +1,210 @@
+{
+  "symbol": "GFS",
+  "name": "GLOBALFOUNDRIES Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "GlobalFoundries는 미국·독일·싱가포르 공장에서 RF·저전력·실리콘 포토닉스 같은 특화 공정으로 남의 칩을 만들어 주는 파운드리로, 데이터센터·광통신 매출이 2026년 Q2에 62% 늘었고 일본 자금으로 뉴욕에 새 공장 2곳을 짓기로 했다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "GlobalFoundries reports second quarter 2026 financial results (6-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1709048/000170904826000218/globalfoundries2q2026earni.htm", "publisher": "GlobalFoundries / SEC EDGAR", "date": "2026-08-05" },
+    { "id": "s2", "kind": "other", "title": "GlobalFoundries interim report and condensed consolidated financial statements for the period ended 2026-06-30 (6-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1709048/000170904826000219/gfs-20260630_d2.htm", "publisher": "GlobalFoundries / SEC EDGAR", "date": "2026-08-05" },
+    { "id": "s3", "kind": "other", "title": "GlobalFoundries Form 20-F for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1709048/000170904826000022/gfs-20251231.htm", "publisher": "GlobalFoundries / SEC EDGAR", "date": "2026-02-27" },
+    { "id": "s4", "kind": "other", "title": "GF selected as technology provider and operator for two new Japan-funded fabs in Malta, New York (6-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1709048/000170904826000252/gfpressreleasefinal.htm", "publisher": "GlobalFoundries / SEC EDGAR", "date": "2026-10-14" },
+    { "id": "s5", "kind": "news", "title": "GlobalFoundries announces conference call to review third quarter 2026 financial results (company announcement)", "url": "https://finviz.com/news/396893/globalfoundries-announces-conference-call-to-review-third-quarter-2026-financial-results", "publisher": "Finviz (company press release)", "date": "2026-09-30" },
+    { "id": "s6", "kind": "other", "title": "Tower Semiconductor unaudited condensed interim financial statements as of 2026-06-30, Note 3 (GlobalFoundries litigation) (6-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000928876/000117891326004158/exhibit_99-1.htm", "publisher": "Tower Semiconductor / SEC EDGAR", "date": "2026-08" }
+  ],
+  "moat": {
+    "sources": [
+      "특화 공정 플랫폼 - FD-SOI(FDX), RF-SOI, SiGe, 실리콘 포토닉스, GaN, 고전압 BCD, FinFET(12/14nm)",
+      "미국(뉴욕 Malta·버몬트 Burlington)·독일 Dresden·싱가포르에 나뉜 생산 거점 - 중국·대만 밖 공급을 원하는 고객에게 대안",
+      "미국 CHIPS Act 직접 지원 최대 15억 달러와 뉴욕주 5.7억 달러, 2026년 일본 자금 최대 210억 달러로 짓는 신규 공장 운영권",
+      "약 8,500건의 특허와 MIPS·Synopsys ARC 인수로 얻은 RISC-V 프로세서 IP"
+    ],
+    "text": "GF의 힘은 최첨단 미세 공정이 아니라 RF·저전력·광통신용 특화 공정과 생산 지역에 있다. 스마트폰 RF 칩, 자동차 칩, 광통신 칩처럼 특수한 공정이 필요한 칩을 미국·유럽·싱가포르에서 만들 수 있어, 대만·중국 집중을 피하려는 고객과 정부의 지원을 함께 받는다. 2025~2026년에는 프로세서 IP까지 인수해 공정과 설계 자산을 묶어 판다.",
+    "src": ["s3", "s4", "s2"]
+  },
+  "design": {
+    "text": "GF는 칩을 직접 설계해 팔지 않고 고객 칩을 만드는 공정을 제공하며, 매출은 웨이퍼 생산(Manufacturing Services)과 기술 서비스(Technology Services)로 나뉜다. 공정은 FinFET, FD-SOI, RF-SOI, SiGe, RF·전력 GaN, BCD, 실리콘 포토닉스, 첨단 패키징이고, 2025년 MIPS, 2026년 6월 Synopsys의 ARC 프로세서 IP 사업을 인수해 RISC-V 프로세서 IP와 소프트웨어 도구도 제공한다. 2025년 11월에는 실리콘 포토닉스 업체 Advanced Micro Foundry와 데이터센터 광연결 칩 업체 InfiniLink도 인수했다.",
+    "src": ["s2", "s3"]
+  },
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 공장 - 미국 뉴욕 Malta(Fab 8), 버몬트 Burlington(Fab 9), 독일 Dresden, 싱가포르",
+      "Soitec - 2025년 SOI 웨이퍼 구매액의 약 71%",
+      "일본 정부 자금 - Malta 신규 300mm 공장 2곳(각 약 100억 달러, 첫 공장 2029년 가동 목표)에 최대 210억 달러, GF는 기술 제공·운영",
+      "미국 상무부 - CHIPS 지원 수정으로 9.55억 달러를 실리콘 포토닉스·SiGe·패키징 확장에 재배정, 대가로 GF 지분 약 4%",
+      "중국 현지 파운드리 협력사 - 중국 수요용 생산 (업체명 미기재)"
+    ],
+    "text": "GF는 자기 공장 4곳에서 직접 만들며, 미국 두 곳에 10년 넘게 160억 달러 이상을 투자할 계획이다. 2026년 10월에는 일본이 최대 210억 달러를 대고 GF가 기술과 운영을 맡는 신규 공장 2곳(공장당 연 약 90만 장)을 Malta에 짓기로 해, GF가 자기 돈을 많이 쓰지 않고 생산 능력을 늘리는 구조가 생겼다. 중국 수요는 중국 현지 파운드리와 협력해 대응한다.",
+    "src": ["s3", "s4"]
+  },
+  "sell": {
+    "customers": [
+      "스마트폰 칩 회사 - Smart Mobile Devices (Q2 2026 매출의 36.1%)",
+      "자동차 칩 회사 (18.6%)",
+      "가전·산업용 IoT 칩 회사 (18.5%)",
+      "통신 인프라·데이터센터 - 광통신·네트워크 칩 (15.5%)",
+      "기술 서비스 - IP 라이선스·설계 지원 등 (11.3%)"
+    ],
+    "channel": "고객과 직접 계약하는 웨이퍼 위탁 생산과 장기 공급 계약, 기술 서비스.",
+    "concentration": "상위 10개 고객이 2025년 웨이퍼 출하량의 약 63% (2024년 65%, 2023년 72%). 최대 고객 이름·비중은 읽은 범위에서 확인하지 못함.",
+    "text": "GF가 만든 웨이퍼는 스마트폰·자동차·IoT·데이터센터 칩 회사로 가고, 상위 10개 고객이 출하량의 63%를 차지한다. 2026년 Q2에는 스마트폰이 여전히 가장 크지만 줄고 있고, 늘어난 매출은 대부분 데이터센터·광통신(+62%)과 기술 서비스(+21%)에서 나왔다. 고객 구성이 스마트폰에서 데이터센터 쪽으로 옮겨 가는 중이다.",
+    "src": ["s3", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "스마트폰·자동차·하이퍼스케일러 데이터센터", "to": "RF·자동차·광통신 칩 회사", "what": "완성 칩·광모듈 구매 대금" },
+      { "from": "칩 회사 (상위 10곳이 출하량의 약 63%)", "to": "GF", "what": "웨이퍼 장당 위탁 생산 대금 (장기 공급 계약 포함)" },
+      { "from": "칩 설계 고객", "to": "GF", "what": "MIPS·ARC 프로세서 IP 라이선스·설계 지원 (기술 서비스)" },
+      { "from": "미국·뉴욕주·일본 정부", "to": "GF", "what": "CHIPS 지원금·세액공제와 신규 공장 투자 자금" }
+    ],
+    "pricing": "웨이퍼 장당 가격과 장기 공급 계약. 기술 서비스는 IP 라이선스·설계 지원 대가. 이익은 가동률·제품 구성·감가상각이 정한다.",
+    "text": "돈은 스마트폰·자동차·데이터센터 수요에서 출발해 칩 회사가 GF에 웨이퍼를 주문할 때 들어오고, 프로세서 IP 라이선스가 두 번째 통로로 커지고 있다. 여기에 미국·일본 정부 자금이 설비 투자 부담을 덜어 준다. 공장 고정비가 커서 출하가 늘면 마진이 오르는데, 2026년 Q2 웨이퍼 출하가 8% 늘며 총마진이 28.3%로 올라왔다.",
+    "src": ["s1", "s2", "s4"]
+  },
+  "earnings": {
+    "period": "Q2 2026 (ended 2026-06-30)",
+    "revenue": { "value": 1.786, "unit": "USD bn", "yoy": 5.8 },
+    "grossMargin": 28.3,
+    "operatingMargin": 9.7,
+    "netMargin": 9.4,
+    "operatingCashFlow": { "value": 0.405, "unit": "USD bn" },
+    "freeCashFlow": { "value": -0.003, "unit": "USD bn" },
+    "segments": [
+      { "name": "Smart Mobile Devices", "revenue": 644, "unit": "USD mn", "share": 36.1, "yoy": -5.7, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Automotive", "revenue": 333, "unit": "USD mn", "share": 18.6, "yoy": -9.5, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Home and Industrial IoT", "revenue": 331, "unit": "USD mn", "share": 18.5, "yoy": 10.3, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Communications Infrastructure & Datacenter", "revenue": 277, "unit": "USD mn", "share": 15.5, "yoy": 62.0, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Technology Services", "revenue": 201, "unit": "USD mn", "share": 11.3, "yoy": 21.1, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "웨이퍼 출하 (300mm 환산)", "value": "Q2 2026 62.5만 장, 전년·전 분기 대비 각각 +8%", "src": ["s1"] },
+      { "name": "Non-IFRS 마진·EPS (Q2 2026)", "value": "총마진 29.9%, 영업이익률 16.7%, 희석 EPS 0.46달러 (IFRS 0.30달러)", "src": ["s1"] },
+      { "name": "2026년 상반기", "value": "매출 34.20억 달러, 영업현금흐름 9.47억, 설비 투자 7.23억", "src": ["s2"] },
+      { "name": "FY2025 매출·최종 시장", "value": "매출 67.91억 달러(+0.6%); 스마트폰 39%, 자동차 21%, IoT 18%, 통신 인프라·데이터센터 11%, 비웨이퍼 11%", "src": ["s3"] },
+      { "name": "현금·유가증권 (2026-06-30)", "value": "33억 달러 (현금성 자산 10.87억 포함)", "src": ["s1"] }
+    ],
+    "text": "그 결과 2026년 Q2 매출은 17.86억 달러로 1년 전보다 6% 늘었고, 데이터센터·광통신 부문(2.77억, +62%)이 성장을 이끌었으며 스마트폰·자동차는 줄었다. IFRS 총마진은 28.3%로 1년 전보다 4.1%p 올랐지만 영업이익률은 9.7%로 낮아졌고, 설비 투자 4.08억 달러가 영업현금흐름 4.05억 달러를 다 써 조정 잉여현금흐름은 -0.03억 달러였다.",
+    "src": ["s1", "s2"]
+  },
+  "useOfCash": {
+    "period": "2026 상반기 (2026-01-01~06-30)",
+    "items": [
+      { "use": "capex", "value": 0.723, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 0.440, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0.400, "unit": "USD bn", "src": ["s2"] },
+      { "use": "R&D", "value": 0.306, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 0.066, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "2026년 상반기에는 영업현금흐름 9.47억 달러 가운데 설비 투자에 7.23억 달러를 썼고, Synopsys ARC 사업 인수에 현금 4.40억 달러, 자사주 4억 달러(그중 3억은 대주주 Mubadala 계열 MTIC에서 매입)를 썼다. 2026년 처음으로 분기 배당(주당 0.12달러)을 시작해, 이전의 '배당 계획 없음'에서 주주 환원 쪽으로 방향을 틀었다. 회사는 MIPS·ARC 통합으로 매출 대비 R&D 비율이 높아질 것으로 본다.",
+    "src": ["s2", "s1", "s3"]
+  },
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "AI 연산 칩을 만드는 최첨단 파운드리가 아니라, AI 데이터센터의 광모듈·광연결용 실리콘 포토닉스와 SiGe 칩, 네트워크 칩을 만드는 특화 파운드리. 엣지 AI용 RISC-V 프로세서 IP도 판다.",
+    "dependsOn": [
+      "Soitec (SOI 웨이퍼)",
+      "장비·소재 공급사",
+      "미국·일본 정부 지원 (신규 공장·CHIPS)"
+    ],
+    "sellsTo": [
+      "networking (광모듈·광연결 칩 회사)",
+      "chips-compute (엣지 AI 칩 설계사 - IP)",
+      "devices (스마트폰 RF·자동차 칩 회사)"
+    ],
+    "aiRevenue": "AI 전용 매출 공시 없음. AI 데이터센터 수요를 담은 Communications Infrastructure & Datacenter가 Q2 2026 2.77억 달러(매출의 15.5%, 전년 대비 +62%), FY2025 7.45억 달러(11%)",
+    "upside": "AI 클러스터가 커질수록 GPU 사이를 잇는 광모듈이 늘고, 그 안의 실리콘 포토닉스·SiGe 칩을 GF 공장에서 만든다. 미국 상무부 재배정 자금 9.55억 달러로 실리콘 포토닉스·SiGe·패키징 생산을 늘리고, AMF·InfiniLink 인수로 광통신 기술을 보강했다.",
+    "risk": "AI 관련 부문이 아직 매출의 15% 정도라, 줄고 있는 스마트폰(36%)·자동차 수요가 실적을 더 크게 흔든다. 실리콘 포토닉스에서는 TSMC와 Tower Semiconductor가 같은 고객을 놓고 경쟁하고, GF는 2026년 3월 Tower를 상대로 미국 ITC·법원과 중국에서 소송을 냈다.",
+    "text": "AI 가치사슬에서 GF는 연산 칩이 아니라 연산 칩 사이를 빛으로 잇는 광연결 부품 쪽에 자리 잡았고, 그 부문이 2026년 Q2에 62% 늘었다. 다만 회사 전체로 보면 AI는 아직 일부이고, 스마트폰 RF 칩 감소를 데이터센터 성장이 얼마나 빨리 메우느냐가 실적의 방향을 정한다.",
+    "src": ["s2", "s3", "s4", "s6"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "특화 공정 파운드리 (RF-SOI·FD-SOI·BCD)", "rivals": ["TSMC", "UMC", "Tower Semiconductor", "X-FAB", "Vanguard", "Powerchip"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "실리콘 포토닉스·SiGe (AI 광연결)", "rivals": ["TSMC", "Tower Semiconductor"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "성숙 공정 (중국 수요 포함)", "rivals": ["SMIC", "HuaHong Group", "UMC", "Samsung", "Texas Instruments", "Intel"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "RF·저전력·광통신 특화 공정의 폭, 미국·유럽·싱가포르 생산 거점과 정부 지원, 공정과 프로세서 IP를 묶은 제공.",
+    "threats": "중국 SMIC·HuaHong의 성숙 공정 가격 경쟁, 실리콘 포토닉스에서 TSMC·Tower의 증설, 스마트폰 RF 시장의 정체.",
+    "text": "20-F는 파운드리 경쟁사로 TSMC, UMC, SMIC, HuaHong, X-FAB, Tower, Vanguard, Powerchip을, 종합반도체 경쟁사로 TI, Samsung, Intel을 든다. GF는 최첨단 공정을 포기한 대신 특화 공정과 '중국·대만 밖 생산'을 무기로 삼고, 중국 수요는 현지 협력사로 대응한다. AI 광연결에서는 TSMC·Tower와 같은 고객을 두고 경쟁하는 도전자다.",
+    "src": ["s3"]
+  },
+  "strategy": {
+    "goal": "세 기둥 - 차별화된 필수 칩 기술, 지역적으로 분산된 생산, 고객·생태계 협력 - 로 AI(특히 데이터센터 광연결과 '피지컬 AI')·자동차·IoT 수요를 잡는 것.",
+    "roadmap": [
+      { "when": "Q3 2026", "what": "매출 18.85억 달러 ±0.25억, IFRS 총마진 29.5% ±1%p, IFRS 희석 EPS 0.37달러 ±0.05 가이던스", "src": ["s1"] },
+      { "when": "2026 하반기", "what": "Malta 신규 공장 1호 착공 (일본 자금, 약 100억 달러)", "src": ["s4"] },
+      { "when": "2026~", "what": "CHIPS 재배정 9.55억 달러로 Malta·Burlington의 실리콘 포토닉스·SiGe·패키징 확장", "src": ["s4"] },
+      { "when": "2029", "what": "Malta 신규 300mm 공장 1호 가동 목표 (공장당 연 약 90만 장)", "src": ["s4"] }
+    ],
+    "vision": "미국·유럽·아시아에 걸친 생산으로 AI·자동차·통신에 꼭 필요한 특화 칩을 안정적으로 공급하는, 최첨단 경쟁과 다른 길의 파운드리.",
+    "text": "그래서 GF는 스마트폰 의존을 줄이고 데이터센터 광연결과 프로세서 IP로 성장의 중심을 옮기고 있다. 생산 능력은 일본 자금과 미국 CHIPS 지원으로 늘려 자기 현금 부담을 줄이고, 그 사이 배당과 자사주로 주주 환원을 시작했다.",
+    "src": ["s3", "s4", "s2"]
+  },
+  "governance": {
+    "line": "CEO Tim Breen이 이끌고 아부다비 국부펀드 Mubadala가 지분 약 81%를 가진 지배주주 회사이며(20-F 기준, 이후 MTIC 지분 일부를 자사주로 매입), 2026년 첫 분기 배당을 시작했고 미국 상무부가 약 4% 지분을 받게 된다.",
+    "src": ["s3", "s1", "s2", "s4"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "18.85억 달러 ±0.25억", "givenOn": "2026-08-05", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "IFRS gross margin", "value": "29.5% ±1%p (Non-IFRS 30.5% ±1%p)", "givenOn": "2026-08-05", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "IFRS diluted EPS", "value": "0.37달러 ±0.05 (Non-IFRS 0.51달러 ±0.05)", "givenOn": "2026-08-05", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q2 2026 실적과 직전(Q1 발표 때) 가이던스 비교는 확인하지 않았다.",
+    "src": ["s1"]
+  },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+  "watch": {
+    "confirms": [
+      "Communications Infrastructure & Datacenter 매출이 계속 두 자릿수 성장",
+      "Q3 매출 18.6억~19.1억 달러 범위 안이나 위, 총마진 29.5% 안팎",
+      "웨이퍼 출하 증가와 조정 잉여현금흐름이 플러스로 회복",
+      "Malta 신규 공장 착공과 실리콘 포토닉스 증설이 일정대로 진행"
+    ],
+    "breaks": [
+      "스마트폰·자동차 매출 감소가 데이터센터 성장보다 커짐",
+      "총마진이 다시 25% 아래로",
+      "실리콘 포토닉스 고객을 TSMC·Tower에 빼앗긴다는 신호",
+      "Mubadala 대규모 지분 매각에 따른 물량 부담"
+    ],
+    "keyNumbers": [
+      { "name": "Communications Infrastructure & Datacenter 매출", "why": "AI 광연결 수요가 나타나는 부문" },
+      { "name": "웨이퍼 출하량", "why": "가동률과 고정비 흡수의 바탕" },
+      { "name": "IFRS 총마진", "why": "가동률·구성·감가상각의 결과" },
+      { "name": "조정 잉여현금흐름", "why": "설비 투자와 주주 환원 여력" },
+      { "name": "Smart Mobile Devices 매출", "why": "가장 큰 부문이 얼마나 줄고 있는지" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-04 (콜 08:30 ET)", "event": "Q3 2026 실적 발표와 Q4 가이던스", "src": ["s5"] },
+      { "date": "2026 하반기", "event": "Malta 일본 자금 신규 공장 1호 착공", "src": ["s4"] }
+    ],
+    "reaction": "GF 주가는 분기 실적보다 다음 분기 매출·총마진 가이던스와 데이터센터·실리콘 포토닉스 관련 발언에 크게 반응하는 경향이 있다. 정부 지원·신규 공장 같은 정책 뉴스와 대주주 Mubadala의 지분 매각 소식도 주가를 움직인다.",
+    "conditions": [
+      "다음 분기 매출·EPS 가이던스와 컨센서스의 차이",
+      "데이터센터 부문 성장률과 실리콘 포토닉스 고객 발언",
+      "총마진과 웨이퍼 출하량 방향",
+      "조정 잉여현금흐름과 설비 투자 계획",
+      "Mubadala 지분 변동 공시"
+    ]
+  },
+  "unverified": [
+    "FY2025 총마진·영업이익·순이익·영업현금흐름 - 20-F에서 읽은 부분에 없음 (그래서 earnings는 Q2 2026 기준)",
+    "최대 고객 이름·비중과 지역별 매출 - 20-F Note 31 등을 읽지 못함",
+    "AI 전용 매출 - 공시 없음",
+    "중국 협력 파운드리 이름 - 20-F에 업체명 미기재",
+    "Mubadala 지분 81%는 20-F 시점 수치이며 2026년 MTIC 지분 매입·상무부 지분 배정 뒤 현재 비율은 확인하지 않음",
+    "Q2 2026 사업부 share·yoy는 중간보고서 금액으로 계산한 값",
+    "Q3 2026 실적 - 2026-11-04 발표 예정이라 이 이야기에 반영되지 않음",
+    "경쟁 영역별 경쟁사 배치와 position 판단은 20-F 경쟁사 목록을 영역에 나눠 적은 것",
+    "시장 점유율 - 확인한 출처 없음",
+    "컨센서스 추정치 - 확인하지 않음"
+  ],
+  "confidence": "medium - Q2 실적·최종 시장·현금 쓰임·신규 공장 계획은 회사 6-K와 20-F에서 왔지만, FY2025 손익과 고객 집중도 일부는 읽지 못했고 Q3 실적은 아직 나오지 않았다."
+}

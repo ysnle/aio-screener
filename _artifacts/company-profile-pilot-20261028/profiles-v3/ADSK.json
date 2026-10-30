@@ -1,0 +1,229 @@
+{
+  "symbol": "ADSK",
+  "name": "Autodesk, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "January 31 (FY2026 ended 2026-01-31; FY2027 Q2 ended 2026-07-31)",
+  "oneLine": "Autodesk는 AutoCAD·Revit·Fusion으로 건물·공장·제품의 설계 도면과 3D 데이터를 만드는 소프트웨어를 구독으로 파는 회사로, 이 설계 데이터 위에 AI를 얹어 '물리 세계의 AI' 플랫폼이 되겠다고 나섰다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Autodesk, Inc. Announces Fiscal 2027 Second Quarter Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/769397/000076939726000059/q227pressrelease.htm", "publisher": "Autodesk / SEC EDGAR", "date": "2026-08-27" },
+    { "id": "s2", "kind": "10-Q", "title": "Autodesk Form 10-Q for quarter ended 2026-07-31", "url": "https://www.sec.gov/Archives/edgar/data/769397/000076939726000061/adsk-20260731.htm", "publisher": "Autodesk / SEC EDGAR", "date": "2026-08-28" },
+    { "id": "s3", "kind": "10-K", "title": "Autodesk Form 10-K for fiscal year ended 2026-01-31", "url": "https://www.sec.gov/Archives/edgar/data/769397/000076939726000015/adsk-20260131.htm", "publisher": "Autodesk / SEC EDGAR", "date": "2026-03-03" },
+    { "id": "s4", "kind": "earnings-release", "title": "Autodesk Fiscal 2027 First Quarter Results; to acquire MaintainX (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/769397/000076939726000041/q127pressrelease.htm", "publisher": "Autodesk / SEC EDGAR", "date": "2026-05-28" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/adsk/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s6", "kind": "other", "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - ADSK 2026-11-24, not company-confirmed", "url": "https://finnhub.io/docs/api/earnings-calendar", "publisher": "Finnhub via AIO", "date": "2026-10-29" },
+    { "id": "s7", "kind": "8-K", "title": "Autodesk 8-K Item 2.02 for Q3 FY2026 results (prior-year timing pattern)", "url": "https://www.sec.gov/Archives/edgar/data/769397/000076939725000126/", "publisher": "Autodesk / SEC EDGAR", "date": "2025-11-25" }
+  ],
+
+  "moat": {
+    "sources": [
+      "AutoCAD·Revit·Inventor·Fusion이 건축·엔지니어링·제조 현장의 표준 설계 도구이고 그 파일·데이터 형식 (10-K)",
+      "설계부터 시공·운영까지 이어지는 고객 프로젝트 데이터와 맥락 - CEO가 AI의 희소 자원으로 꼽음 (Q1·Q2 FY2027 발표)",
+      "AI 결과를 실제 물리 제약에 맞춰 검증할 수 있는 파라메트릭·물리 기반 3D 기술 (Q1 FY2027 발표)",
+      "약 1,170개 리셀러·유통사와 Solution Provider, 교육기관·학생으로 이어진 생태계 (10-K)"
+    ],
+    "text": "Autodesk의 힘은 건물·공장·제품을 설계하는 사람들이 수십 년간 이 회사 도구로 도면과 3D 모델을 만들어 왔다는 데서 나온다. 회사는 AI 시대에 진짜 부족한 것이 데이터·맥락·전문성이고, 자신이 이 셋을 모두 대규모로 가졌다고 주장한다. 특히 AI가 만든 설계를 실제 물리 조건에 맞는지 기존 3D 기술로 검증할 수 있다는 점을 범용 AI와의 차이로 내세운다.",
+    "src": ["s3", "s4", "s1"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 파는 것은 네 제품군으로 나뉜다. 건축·엔지니어링·건설·운영(AECO: Revit, AEC Collection, Forma), AutoCAD·AutoCAD LT, 제조(MFG: Inventor, Fusion), 미디어·엔터테인먼트(M&E: Maya, 3ds Max 등)다. 2026-08-03에는 설비 유지보수 소프트웨어 MaintainX를 약 35.3억 달러(순현금 기준)에 사서 '운영' 단계까지 범위를 넓혔다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "Amazon Web Services와 일부 다른 클라우드 - 클라우드 제품 호스팅, 자체 코로케이션 시설 병행 (10-K)",
+      "외부 개발업체·계약자 - 일부 제품 개발 (10-K)",
+      "외부 프런티어 AI 모델 - Autodesk 어시스턴트·MCP 인프라가 이를 제어 (Q1 FY2027 발표, 모델 공급사 이름 미공시)",
+      "자체 3D 파운데이션 모델 - 형상·물리 관계를 다루는 AI 엔진 (Q1 FY2027 발표)"
+    ],
+    "text": "만드는 방식은 소프트웨어 개발과 클라우드 운영이다. 개발은 주로 미국·캐나다·인도에서 하고, 클라우드 제품은 자체 호스팅 시설과 점점 더 많이 AWS를 쓴다. AI는 외부 대형 모델을 그대로 쓰기보다 자체 3D 파운데이션 모델과 어시스턴트·MCP 서버로 감싸 설계 업무에 맞게 제어하는 구조를 택했다.",
+    "src": ["s3", "s4", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "건축가·엔지니어·건설사·설비 운영자 (AECO, FY2026 매출의 약 50%) (10-K)",
+      "제조업 설계·생산 엔지니어 (MFG, 약 19%) (10-K)",
+      "AutoCAD를 쓰는 범용 설계·제도 인력 (약 25%) (10-K)",
+      "영화·게임 제작사 (M&E, 약 5%) (10-K)",
+      "학생·교육기관 (생태계 확대용)"
+    ],
+    "channel": "대형 고객은 직접 영업, 그 외는 온라인 스토어와 '새 거래 모델'(Solution Provider가 견적만 내고 거래는 Autodesk와 고객이 직접)로 직접 거래 비중을 늘리는 중. FY2026 매출의 약 37%는 여전히 유통사·리셀러 경유 (10-K).",
+    "concentration": "최대 유통사 TD Synnex 경유 매출이 FY2026 14% (FY2025 33%, FY2024 39%) - 새 거래 모델로 크게 낮아짐. 그 밖에 10% 넘는 고객 없음 (10-K).",
+    "text": "이렇게 만든 도구는 전 세계 건축·건설·제조 현장의 설계 인력에게 구독으로 팔린다. 회사는 유통사 대신 고객과 직접 거래하는 '새 거래 모델'로 바꾸는 중이라, 최대 유통사 TD Synnex 비중이 3년 만에 39%에서 14%로 내려왔다. 직접 거래가 늘면 가격과 고객 데이터를 회사가 더 쥐게 되지만, 그 대가로 판매 수수료가 영업비로 잡히며 회계상 숫자가 일시적으로 흔들린다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "건축·건설·제조 기업 설계 인력", "to": "Autodesk", "what": "제품·Industry Collection 구독료(사용자별, 주로 연 단위 청구)" },
+      { "from": "대기업", "to": "Autodesk", "what": "다년 기업 계약(EBA) - 4분기에 몰림" },
+      { "from": "Solution Provider·리셀러", "to": "Autodesk", "what": "새 거래 모델에서는 고객이 직접 지불, Autodesk가 파트너에 수수료 지급" },
+      { "from": "프로젝트 단위 사용자", "to": "Autodesk (Flex·APS)", "what": "사용량 기반 토큰·API 과금" },
+      { "from": "설비 운영 조직", "to": "Autodesk (MaintainX)", "what": "유지보수·작업지시 클라우드 구독 (2026-08부터 연결)" }
+    ],
+    "pricing": "구독(사용자별 기간 구독, Industry Collection 묶음), 다년 기업 계약, Flex 사용량 과금. 다년 계약도 매년 나눠 청구하도록 바꿔 청구액(billings)과 현금 흐름 시점이 달라졌다. Q2 FY2027 매출의 97%가 반복 매출.",
+    "text": "그래서 돈은 사용자별 구독료로 꾸준히 들어온다. 매출의 97%가 반복 매출이고, 기존 고객의 지출 증가율(NR3)은 100~110% 범위의 상단 수준이다. 다만 회사가 다년 할인을 줄이고 매년 청구로 바꾸는 중이라, 남은 계약 잔고(RPO)는 74.3억 달러로 전년 대비 2%만 늘어 매출 증가율(16%)보다 크게 낮다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "revenue": { "value": 7.206, "unit": "USD bn", "yoy": 18 },
+    "grossMargin": 91.0,
+    "operatingMargin": 21.9,
+    "netMargin": 15.6,
+    "operatingCashFlow": { "value": 2.452, "unit": "USD bn" },
+    "freeCashFlow": { "value": 2.409, "unit": "USD bn" },
+    "segments": [
+      { "name": "AECO (건축·엔지니어링·건설·운영)", "revenue": 3.583, "unit": "USD bn", "share": 49.7, "yoy": 22, "operatingMargin": null, "src": ["s3"] },
+      { "name": "AutoCAD and AutoCAD LT", "revenue": 1.787, "unit": "USD bn", "share": 24.8, "yoy": 14, "operatingMargin": null, "src": ["s3"] },
+      { "name": "MFG (제조)", "revenue": 1.379, "unit": "USD bn", "share": 19.1, "yoy": 16, "operatingMargin": null, "src": ["s3"] },
+      { "name": "M&E (미디어·엔터테인먼트)", "revenue": 0.332, "unit": "USD bn", "share": 4.6, "yoy": 5, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Other", "revenue": 0.125, "unit": "USD bn", "share": 1.7, "yoy": 6, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q2 FY2027) 매출·이익", "value": "매출 20.46억 달러(+16%, 고정환율 +14%, 새 거래 모델 효과 약 2%p), GAAP 영업이익률 29%, non-GAAP 41%", "src": ["s1"] },
+      { "name": "청구액 (Billings)", "value": "Q2 FY2027 18.54억 달러(+10%)", "src": ["s1"] },
+      { "name": "잔여 계약 잔고", "value": "RPO 74.33억 달러(+2%), 현재 RPO 52.45억 달러(+12%)", "src": ["s1"] },
+      { "name": "순매출 유지율 (NR3)", "value": "100~110% 범위의 상단 수준 (고정환율, 2026-07-31)", "src": ["s2"] },
+      { "name": "Q2 FY2027 잉여현금흐름", "value": "5.61억 달러(+24%)", "src": ["s1"] }
+    ],
+    "text": "이 구독 구조가 FY2026에 매출 72억 달러(+18%), 총마진 91%, GAAP 영업이익률 약 22%, 영업현금흐름 24.5억 달러를 만들었다. 매출의 절반이 건축·건설(AECO)에서 나오고 이 부문이 22%로 가장 빨리 컸다. FY2027 Q2에도 매출이 16% 늘고 GAAP 영업이익률이 29%로 4%p 올라, 영업 조직 개편 효과가 이익률에 나타나기 시작했다.",
+    "src": ["s3", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "items": [
+      { "use": "R&D", "value": 1.643, "unit": "USD bn", "src": ["s3"] },
+      { "use": "capex", "value": 0.043, "unit": "USD bn", "src": ["s3"] },
+      { "use": "acquisitions", "value": 0, "unit": "USD bn", "src": ["s3"] },
+      { "use": "other", "label": "전략적 지분 투자", "value": 0.216, "unit": "USD bn", "src": ["s3"] },
+      { "use": "buybacks", "value": 1.402, "unit": "USD bn", "src": ["s3"] },
+      { "use": "debt repayment", "value": 0.3, "unit": "USD bn", "src": ["s3"] }
+    ],
+    "text": "FY2026 잉여현금 24억 달러 중 14억 달러를 자사주 매입에 썼고, 배당은 하지 않는다. FY2027에는 방향이 바뀌어 MaintainX를 약 35.3억 달러에 사면서 1년 만기 대출 10억 달러와 기업어음을 끌어 썼다. 그래도 상반기 자사주 매입 9억 달러를 이어 갔고, 2026-07-31 기준 남은 매입 한도는 약 65.8억 달러다.",
+    "src": ["s3", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 가치사슬의 맨 끝에서 건축·건설·제조라는 물리 산업의 설계·시공·운영 소프트웨어를 공급하는 층. 외부 AI 모델과 자체 3D 모델을 설계 데이터와 묶어 '산업 AI'로 파는 것이 목표다. 데이터센터를 짓는 건설사·설계사도 이 회사 도구를 쓰는 고객이다.",
+    "dependsOn": [
+      "cloud-infrastructure (Amazon Web Services 등)",
+      "models-platforms (외부 프런티어 모델 - 공급사 이름 미공시)",
+      "자체 3D 파운데이션 모델·Autodesk AI"
+    ],
+    "sellsTo": [
+      "건축·엔지니어링·건설사 (데이터센터·공장 건설 포함)",
+      "제조업 설계·생산 조직",
+      "영화·게임 제작사"
+    ],
+    "aiRevenue": "AI 관련 매출을 따로 공시하지 않음 (2026-08-27 Q2 FY2027 발표 기준).",
+    "upside": "AI가 설계 반복 작업을 줄이고 시공·운영 데이터까지 연결하면 고객당 구독 범위(Collection·Forma·MaintainX)가 넓어지고 사용량 과금이 늘 수 있다. AI 데이터센터·공장 건설 붐은 고객사의 설계·시공 업무량을 늘린다.",
+    "risk": "설계 인력이 줄면 사용자별 구독 수가 줄 수 있다(좌석 기반 과금의 약점). 회사 스스로 '인공지능에 의한 시장 혼란에 대한 시장 반응'을 위험 요인으로 적었다. 범용 AI가 도면·3D를 직접 만들게 되면 진입장벽이 낮아진다.",
+    "text": "그래서 AI 가치사슬에서 Autodesk는 클라우드와 모델을 사 쓰는 맨 끝 응용 소프트웨어 층, 그중에서도 물리 세계를 다루는 자리에 있다. AI 매출은 따로 나오지 않아 지금 실적은 기존 설계 구독이 지탱하고, AI는 아직 '앞으로의 무기'다. AI가 설계 인력의 생산성을 높여 더 많은 프로젝트를 이 회사 도구로 끌어오면 기회지만, 사용자 수 자체를 줄이면 좌석 기반 과금이 압박받는다.",
+    "src": ["s3", "s4", "s1", "s2"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "건축·엔지니어링·건설 설계·시공 소프트웨어", "rivals": ["Bentley Systems", "Nemetschek", "Trimble", "Procore", "Oracle", "Hexagon (Intergraph)"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "제조 설계·PLM (CAD/CAM)", "rivals": ["Dassault Systemes (SolidWorks)", "Siemens PLM", "PTC", "MSC Software", "3D Systems"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "범용 2D/3D 제도 (AutoCAD)", "rivals": ["대형·소형 소프트웨어 회사와 신생 업체 (10-K)"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "미디어·엔터테인먼트 3D", "rivals": ["Adobe", "기타 3D 툴 업체"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "설비 유지보수·운영 (MaintainX)", "rivals": ["설비관리 소프트웨어 업체 (이름 미공시)"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "현장 표준 도구와 설계 데이터, 설계·시공·운영을 잇는 플랫폼, 물리 기반 3D 기술로 AI 결과를 검증하는 능력, 넓은 판매·교육 생태계.",
+    "threats": "제조 PLM에서는 Dassault·Siemens·PTC가 강하고, 소프트웨어 진입장벽이 낮다고 회사가 스스로 적었다. 범용 AI가 도면 작성을 대체하는 흐름과 설계 인력 감소에 따른 좌석 축소 위험.",
+    "text": "이 시장의 경쟁자는 분야마다 다르다. 건설에서는 Bentley·Nemetschek·Trimble·Procore와, 제조에서는 Dassault·Siemens·PTC와 맞붙는데, 제조 쪽은 대형 기업 시장에서 이들이 더 강하다. Autodesk는 설계에서 시공·운영까지 한 데이터로 잇는 플랫폼과 AI로 맞서고 있고, MaintainX 인수는 경쟁사보다 먼저 '운영' 단계를 차지하려는 수다.",
+    "src": ["s3", "s2"]
+  },
+
+  "strategy": {
+    "goal": "설계(design)·제작(make)·운영(operate)을 하나의 데이터 흐름으로 잇는 'Design and Make Platform'과 그 위의 에이전트형 산업 AI를 만들겠다는 것이 목표다. FY2027 매출 82.95~83.45억 달러, non-GAAP 영업이익률 39%를 제시했다.",
+    "roadmap": [
+      { "when": "FY2027 (2026-02~2027-01)", "what": "영업·마케팅 최적화 마무리 - 직원 약 7%(약 1,000명) 감축, 구조조정비 1.35~1.60억 달러, 연말까지 완료", "src": ["s3", "s2"] },
+      { "when": "2026-08-03", "what": "MaintainX 인수 완료 - 설비 유지보수·운영으로 확장 (FY2027 가이던스에 약 6개월분 포함)", "src": ["s2", "s1"] },
+      { "when": "진행 중", "what": "Autodesk Platform Services에 MCP 서버 통합 - 외부 AI·파트너 앱 연결", "src": ["s2"] },
+      { "when": "진행 중", "what": "Autodesk Construction Cloud를 Forma로 통합해 설계-시공-운영 일관 플랫폼 구축", "src": ["s2"] }
+    ],
+    "vision": "AI가 물리 세계에서 정확하려면 데이터와 맥락이 필요하고, 자산의 전 생애주기 데이터를 가진 신뢰할 수 있는 플랫폼이 '건설 세계의 AI'를 차지한다고 말한다.",
+    "text": "경쟁에 대한 회사의 답은 설계 도구 회사에서 자산의 전 생애주기 플랫폼으로 넓히는 것이다. 영업 조직을 줄이고 직접 거래로 바꿔 이익률을 끌어올리고, 그 돈으로 MaintainX 같은 운영 단계 회사를 사며, 외부 AI가 자기 데이터에 접속하는 표준 통로(MCP)를 깔고 있다. CEO는 물리 세계의 AI는 가장 풍부한 맥락을 가진 플랫폼이 가져간다고 말하지만, 그것이 매출로 확인된 단계는 아직 아니다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "governance": {
+    "line": "CEO Andrew Anagnost와 CFO Janesh Moorjani가 이끌며, 배당 없이 자사주 매입으로 환원하되 FY2027에는 MaintainX 인수(약 35.3억 달러)에 차입을 써 재무 여력의 상당 부분을 인수에 돌렸다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "revenue", "value": "21.25~21.40억 달러", "givenOn": "2026-08-27", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "EPS", "value": "GAAP 1.57~1.87달러, non-GAAP 3.04~3.09달러", "givenOn": "2026-08-27", "src": ["s1"] },
+      { "period": "FY2027", "metric": "billings / revenue", "value": "청구액 85.75~86.50억, 매출 82.95~83.45억 달러 (Q1 때 85.05~85.80억·81.55~82.15억에서 상향, MaintainX 포함)", "givenOn": "2026-08-27", "src": ["s1", "s4"] },
+      { "period": "FY2027", "metric": "operating margin / EPS / FCF", "value": "GAAP 영업이익률 25~27%, non-GAAP 39%(유지), non-GAAP EPS 12.52~12.60달러, 잉여현금흐름 27.25~27.50억 달러", "givenOn": "2026-08-27", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q2 FY2027 매출 20.46억 달러와 non-GAAP EPS 3.30달러는 Q1 때 제시한 Q2 범위(20.05~20.15억, 3.10~3.14달러)의 상단을 넘었다. 연간 매출 목표는 Q1·Q2 연속 올렸지만, Q2 상향분에는 MaintainX 편입이 섞여 있다.",
+    "src": ["s1", "s4"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 9.73달러(범위 9.05~10.24, 10개 추정), 직전 4개 분기 실적 합 8.62달러. 최근 4주 상향·하향 모두 0건.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "MaintainX를 뺀 기존 사업 매출이 두 자릿수 성장을 유지",
+      "청구액과 현재 RPO가 매출만큼 늘기 시작 (청구 방식 전환 효과가 끝남)",
+      "구조조정 뒤 non-GAAP 영업이익률이 39% 이상으로 개선",
+      "AI 기능(어시스턴트·3D 모델) 유료화나 사용량 과금 지표 공개",
+      "NR3가 100~110% 상단 이상 유지"
+    ],
+    "breaks": [
+      "사용자(좌석) 수나 NR3가 떨어짐 - AI로 설계 인력이 줄어드는 신호",
+      "건설·제조 경기 둔화로 AECO·MFG 성장 둔화",
+      "MaintainX 통합 비용이나 차입 부담이 이익을 깎음",
+      "새 거래 모델 전환 중 파트너 이탈로 매출 차질",
+      "연간 가이던스 하향"
+    ],
+    "keyNumbers": [
+      { "name": "청구액(Billings)", "why": "구독 회사의 미래 매출 선행 지표" },
+      { "name": "현재 RPO", "why": "12개월 안에 들어올 매출 잔고" },
+      { "name": "AECO 매출 성장률", "why": "매출 절반을 차지하는 핵심 축" },
+      { "name": "NR3", "why": "기존 고객이 더 쓰는지, 좌석이 줄어드는지" },
+      { "name": "non-GAAP 영업이익률", "why": "조직 개편 효과와 MaintainX 희석의 결과" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-24 (외부 일정표, 회사 미확정; 전년 Q3는 2025-11-25 발표)", "event": "Q3 FY2027 실적과 연간 가이던스 갱신", "src": ["s6", "s7"] },
+      { "date": "2027-01-31", "event": "FY2027 종료 - 기업 계약(EBA)이 몰리는 4분기", "src": ["s3"] }
+    ],
+    "reaction": "매출보다 청구액·RPO와 다음 분기·연간 가이던스, 영업이익률 가이던스에 주가가 크게 반응한다. 분기 평균 자사주 매입 단가가 1년 전보다 크게 낮아(Q2 FY2027 211.89달러, 1년 전 297.59달러), AI가 소프트웨어를 대체한다는 우려 속 업종 전체 투자심리의 영향을 크게 받은 것으로 보인다.",
+    "conditions": [
+      "MaintainX를 뺀 기존 사업 성장률을 회사가 따로 밝히는지",
+      "청구액·현재 RPO 증가율이 매출 증가율에 가까워지는지",
+      "연간 non-GAAP 영업이익률 가이던스 39%가 유지되는지",
+      "AI 소프트웨어 업종 전체의 투자심리 방향"
+    ]
+  },
+
+  "unverified": [
+    "Design·Make 매출 구분 공시를 중단한다는 내용은 2차 보도(Nasdaq 콜 요약 검색 결과)로만 봤고, 1차 문서에서 확인하지 못했다. Q2 FY2027 발표에는 Design 17.08억·Make 2.44억·Other 0.94억 달러가 아직 나온다.",
+    "AI 관련 매출과 AI 모델 공급사 이름은 공시되지 않았다.",
+    "총마진·이익률·잉여현금흐름(영업현금흐름 - 설비투자)은 10-K 수치로 계산했다.",
+    "MaintainX 매수가 약 35.3억 달러는 순현금 기준 잠정치다(구매가격배분 진행 중).",
+    "다음 실적 발표일 2026-11-24는 외부 일정표 값이며 회사 공지를 확인하지 못했다.",
+    "경쟁사별 점유율은 확인하지 못해 null로 뒀다.",
+    "주가 하락이 AI 우려 때문이라는 해석은 자사주 매입 단가 차이에서 추론한 것이며, 원인을 직접 확인한 자료는 없다."
+  ],
+  "confidence": "medium - 재무·채널·경쟁사 명단은 SEC 원문으로 확인했지만, AI의 매출 기여와 콜 세부는 공시가 없거나 확인하지 못했다"
+}

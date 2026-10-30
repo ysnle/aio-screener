@@ -1,0 +1,209 @@
+{
+  "symbol": "PWR",
+  "name": "Quanta Services, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Quanta Services는 미국 전력회사의 송배전·변전소를 짓고 데이터센터의 전력 연결까지 맡는 최대 전력 인프라 시공사로, AI가 전기를 더 많이 먹을수록 수주잔고가 쌓이는 '전력망 증설 체인'의 핵심 기업이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Quanta Services Reports Third Quarter 2026 Results (8-K exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001050915/000119312526436949/d77812dex991.htm", "publisher": "Quanta Services / SEC EDGAR", "date": "2026-10-29" },
+    { "id": "s2", "kind": "10-Q", "title": "Quanta Services Form 10-Q for quarter ended 2026-09-30 (contract types, acquisitions, RPO timing, risks)", "url": "https://www.sec.gov/Archives/edgar/data/0001050915/000105091526000041/pwr-20260930.htm", "publisher": "Quanta Services / SEC EDGAR", "date": "2026-10-29" },
+    { "id": "s3", "kind": "earnings-release", "title": "Quanta Services Reports Second Quarter 2026 Results (8-K exhibit 99.1; prior FY2026 guidance)", "url": "https://www.sec.gov/Archives/edgar/data/0001050915/000119312526324855/d56853dex991.htm", "publisher": "Quanta Services / SEC EDGAR", "date": "2026-07-30" },
+    { "id": "s4", "kind": "10-K", "title": "Quanta Services Form 10-K for fiscal year ended 2025-12-31 (business, customers, workforce, acquisitions)", "url": "https://www.sec.gov/Archives/edgar/data/1050915/000105091526000006/pwr-20251231.htm", "publisher": "Quanta Services / SEC EDGAR", "date": "2026-02-19" },
+    { "id": "s5", "kind": "10-K", "title": "EMCOR Form 10-K FY2025 competitor list (names Quanta, MasTec, MYR Group as electrical construction competitors)", "url": "https://www.sec.gov/Archives/edgar/data/105634/000010563426000025/eme-20251231.htm", "publisher": "EMCOR / SEC EDGAR", "date": "2026-02-26" }
+  ],
+
+  "moat": {
+    "sources": [
+      "약 69,500명 인력(약 36% 노조)과 자체 교육기관(Northwest Lineman College, Quanta Advanced Training Center) - 송전선 기술자를 직접 길러 냄",
+      "약 80,000대 장비와 대형 헬리콥터 편대 - 고압 송전 공사와 재해 복구를 직접 수행(자가 시공)",
+      "변압기·철탑 등 일부 핵심 부품의 국내 자체 제조",
+      "전력회사와의 다년 기본계약(MSA) - 반복 발주 기반"
+    ],
+    "text": "Quanta의 힘은 고압 송전선을 다룰 수 있는 숙련 인력을 스스로 길러 내고, 그 인력을 직접 고용해 일을 남에게 넘기지 않는다는 데 있다. 자체 교육기관과 약 80,000대의 장비·헬리콥터가 있어 대형 송전선 공사와 태풍 뒤 복구를 동시에 맡을 수 있다. 여기에 변압기 같은 부족 부품을 일부 직접 만들어 '사람과 자재'라는 두 병목을 함께 쥐고 있다.",
+    "src": ["s4", "s1"]
+  },
+
+  "design": {
+    "text": "그래서 회사가 제공하는 것은 전력망을 짓고 고치는 공사와 설계다. 전기(Electric) 부문은 송배전·변전소·재생에너지 발전 EPC·배터리 저장·재해 복구, 그리고 데이터센터 같은 대형 부하 시설의 전기 시스템을 맡는다. 지하·인프라(Underground and Infrastructure) 부문은 가스 배관·산업 정비·토목과 대형 부하 시설의 기계·배관 공사를 한다.",
+    "src": ["s4", "s2"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "자가 시공 인력 - 약 69,500명 (2025-12-31), IBEW/NECA 노조 견습 프로그램 활용",
+      "자체 제조 - 고·저압 전력 변압기, 2026년 10월 미국 강관주(스틸 모노폴) 제조사 인수",
+      "Cupertino Electric (2024-07 인수) - 데이터센터 등 기술 고객 전기 시공",
+      "Dynamic Systems (2025-07 인수) - 기술·반도체 시설 기계·배관 시공"
+    ],
+    "text": "Quanta는 일을 하도급에 넘기기보다 자기 인력으로 직접 수행하는 것을 원칙으로 한다. 데이터센터 전기 시공은 2024년 인수한 Cupertino Electric, 기계·배관은 2025년 인수한 Dynamic Systems가 맡아 전력망 바깥에서 건물 안까지 영역을 넓혔다. 2026년에도 9개월 동안 5건을 인수하고 10월에 강관주 제조사를 더해, 인력과 자재를 사들여 공급 능력을 늘리고 있다.",
+    "src": ["s4", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "전력·발전 회사 - 2025년 매출의 70% (AEP, National Grid, CenterPoint, NextEra, Duke Energy, Exelon, Xcel Energy 등)",
+      "에너지·기타 - 17% (Williams 등 가스·중류)",
+      "기술·제조·통신 - 13% (데이터센터·반도체 공장 포함, 2023년 6%에서 상승)",
+      "지역 - 2026년 9개월 매출의 94.8%가 미국"
+    ],
+    "channel": "전력회사와의 다년 기본계약(MSA)·정비 계약과 프로젝트별 고정가·단가 계약으로 직접 수주한다.",
+    "concentration": "2025년 최대 고객 8%, 상위 10개 고객 30%. 2026년 3분기·9개월에는 10% 이상 고객 없음.",
+    "text": "이 공사를 사는 쪽은 주로 미국 전력회사이며, 2025년 매출의 70%가 전력·발전 고객에서 나왔다. AI와의 연결은 두 갈래다. 데이터센터가 전기를 더 쓰면 전력회사가 송전선·변전소 투자를 늘려 Quanta에 발주하고, 동시에 기술 고객이 직접 맡기는 데이터센터 전기 공사 비중도 2023년 6%에서 2025년 13%로 커졌다.",
+    "src": ["s4", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 데이터센터·공장 등 대형 전력 수요", "to": "미국 전력회사", "what": "전력 사용료와 계통 연결 요청" },
+      { "from": "전력회사 (요금 기반 투자)", "to": "Quanta 전기 부문", "what": "송배전·변전소 공사 대금 - 다년 MSA·단가·고정가 계약" },
+      { "from": "하이퍼스케일러·데이터센터 개발사", "to": "Quanta (Cupertino Electric 등)", "what": "데이터센터 전기·기계 시공 대금" },
+      { "from": "발전·가스·산업 고객", "to": "Quanta", "what": "발전소 EPC·배관·산업 정비 대금" }
+    ],
+    "pricing": "2026년 3분기 매출의 68.1%가 고정가, 15.3%가 단가, 16.6%가 원가 가산 계약이다. 고정가 비중이 높아 원가 관리가 이익을 좌우한다.",
+    "text": "돈의 출발점은 AI 데이터센터가 늘린 전력 수요다. 전력회사가 이 수요를 맞추려 송전선·변전소에 돈을 쓰면 그 공사 대금이 Quanta 전기 부문 매출이 되고, 데이터센터 발주처가 직접 맡기는 건물 내 전기 공사가 두 번째 흐름이 된다. 3분기 매출의 68%가 고정가 계약이라, 일감이 넘칠 때는 실행만 잘하면 마진이 올라가지만 원가가 견적을 넘으면 손실도 직접 떠안는다.",
+    "src": ["s2", "s4"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 12.01, "unit": "USD bn", "yoy": 57.4 },
+    "grossMargin": 16.7,
+    "operatingMargin": 8.5,
+    "netMargin": 5.8,
+    "operatingCashFlow": { "value": 1.45, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.20, "unit": "USD bn" },
+    "segments": [
+      { "name": "Electric Infrastructure Solutions", "revenue": 9.80, "unit": "USD bn", "share": 81.6, "yoy": 58.8, "operatingMargin": 12.6, "src": ["s1"] },
+      { "name": "Underground Utility and Infrastructure Solutions", "revenue": 2.215, "unit": "USD bn", "share": 18.4, "yoy": 51.8, "operatingMargin": 9.4, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "총 수주잔고 (2026-09-30)", "value": "637.3억 달러 (2025-12-31 439.8억, 2025-09-30 391.7억 대비 +62.7%), 전기 518.9억·지하·인프라 118.5억", "src": ["s1"] },
+      { "name": "잔여 이행의무(RPO)", "value": "417.5억 달러, 약 67%가 12개월 내 매출 인식 예정 (2026-09-30)", "src": ["s1", "s2"] },
+      { "name": "조정 지표 Q3 2026", "value": "조정 EPS 6.06달러(전년 3.33), 조정 EBITDA 14.49억 달러", "src": ["s1"] },
+      { "name": "계약 유형 Q3 2026", "value": "고정가 68.1%, 단가 15.3%, 원가 가산 16.6%", "src": ["s2"] }
+    ],
+    "text": "이 구조가 2026년 3분기 매출 120.1억 달러(+57.4%), 영업이익률 8.5%, FCF 12.0억 달러로 나타났다. 매출의 82%와 이익 대부분이 전기 부문에서 나왔고, 전기 부문 이익률은 12.6%로 1년 전 11.4%보다 올랐다. 총 수주잔고는 637.3억 달러로 1년 새 63% 늘어, 매출보다 일감이 훨씬 빨리 쌓이고 있다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "9M 2026 (ended 2026-09-30)",
+    "items": [
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "capex", "value": 0.719, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 1.096, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0.0, "unit": "USD bn", "src": ["s2"] },
+      { "use": "dividends", "value": 0.051, "unit": "USD bn", "src": ["s2"] },
+      { "use": "debt repayment", "value": 0.619, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "9개월 동안 번 영업현금 29.4억 달러는 인수 11.0억, 설비투자 7.2억, 정기대출 조기상환 6.2억 달러에 주로 쓰였고, 자사주 매입은 없었으며 배당은 0.5억 달러였다. 장비·인력·제조 능력을 사들이는 쪽이 주주환원보다 앞선다는 뜻이다. 8월에는 20억 달러 회사채를 새로 발행해 재원을 넓혔다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "power-energy",
+    "position": "AI 데이터센터에 전기를 대는 전력망(송전선·변전소·계통 연결)과 발전 설비를 짓고, 데이터센터 건물 안 전기·기계 시공까지 맡는 전력 인프라 시공사다.",
+    "dependsOn": ["전력회사의 요금 기반 투자 승인", "숙련 송전 인력(노조)", "변압기·철탑·전선 등 자재 공급"],
+    "sellsTo": ["전력회사 (AEP·NextEra·Duke 등)", "cloud-infrastructure (하이퍼스케일러 데이터센터)", "data-center-real-estate (데이터센터 개발사)", "발전 사업자"],
+    "aiRevenue": "AI 매출을 따로 공시하지 않음. 기술·제조·통신 고객이 2025년 매출의 13%(2023년 6%). 2026년 분기 자료에는 데이터센터 매출·잔고 금액이 따로 없다.",
+    "upside": "데이터센터 전력 수요가 늘수록 전력회사의 송배전·변전소 투자와 발전 투자가 늘어 잔고가 쌓이고, 데이터센터 내부 시공 매출도 직접 늘어난다.",
+    "risk": "데이터센터 건설 둔화로 전력회사가 투자를 늦추거나, 규제기관이 요금 인상을 막는 경우, 고정가 공사 손실, 숙련 인력 부족, 산불 등 사고 책임.",
+    "text": "그래서 AI 가치사슬에서 Quanta는 칩이나 냉각보다 한 단계 위, 데이터센터까지 전기를 실어 나르는 '전력·에너지' 층에 있다. AI 데이터센터가 늘수록 전력회사의 전력망 투자와 데이터센터 내부 시공이 함께 늘어 두 방향으로 매출이 들어온다. 다만 매출의 70%는 여전히 전력회사에서 나와, 규제기관의 요금 승인과 전력회사의 투자 계획이 AI 수요와 Quanta 매출 사이의 관문이 된다.",
+    "src": ["s4", "s1", "s2"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "송배전·변전소 시공", "rivals": ["MasTec", "MYR Group", "전력회사 자체 시공 조직"], "position": "leader", "share": null, "src": ["s4", "s5"] },
+      { "arena": "데이터센터 등 대형 부하 시설 전기·기계 시공", "rivals": ["EMCOR", "Comfort Systems USA", "IES Holdings"], "position": "challenger", "share": null, "src": ["s5", "s4"] },
+      { "arena": "지하 배관·산업 서비스", "rivals": ["MasTec", "지역 하도급 시공사"], "position": "challenger", "share": null, "src": ["s4"] }
+    ],
+    "edge": "자체 교육으로 길러 낸 대규모 직고용 인력, 송전선·헬리콥터 등 장비, 변압기 등 자체 제조, 전력망부터 건물 안까지 한 번에 맡는 범위.",
+    "threats": "진입 장벽이 낮은 일부 공사에서 지역 시공사·하도급이 경쟁자로 바뀌고, 전력회사가 내부 시공을 늘릴 수 있다. 데이터센터 내부 시공에서는 EMCOR 등 기존 설비 시공사와 인력을 두고 경쟁한다.",
+    "text": "10-K는 경쟁사 이름 대신 대형 경쟁사, 낮은 진입 장벽, 전력회사 자체 조직을 위협으로 적는다. 업계 자료(EMCOR 10-K)는 Quanta·MasTec·MYR Group을 같은 전기 시공 경쟁군으로 묶는다. 점유율 수치는 확인하지 못했지만, 매출과 잔고 규모로는 송배전 시공에서 가장 큰 회사이며, 데이터센터 내부 시공에서는 후발 주자로서 인수로 자리를 넓혀 왔다.",
+    "src": ["s4", "s5", "s1"]
+  },
+
+  "strategy": {
+    "goal": "CEO는 2026 투자자의 날 성장 목표를 앞서가고 있으며 2027년에도 '강한 두 자릿수' 조정 EPS 성장 기회가 있다고 말했다(2026-10-29). 투자자의 날 목표 수치 자체는 이번 조사에서 읽지 못했다.",
+    "roadmap": [
+      { "when": "2026 Q4", "what": "연간 매출 413억~416억, 조정 EPS 17.90~18.30달러 가이던스", "src": ["s1"] },
+      { "when": "2026-09~10", "what": "인수 2건 발표(총 약 2.45억 달러, 현금 0.96억 + 주식 1.49억), 미국 강관주 제조사 인수", "src": ["s1", "s2"] },
+      { "when": "2027-09 까지", "what": "RPO 417.5억 달러의 약 67% 매출 인식 예정", "src": ["s2"] },
+      { "when": "2027", "what": "'강한 두 자릿수' 조정 EPS 성장 기회 (경영진 발언)", "src": ["s1"] }
+    ],
+    "vision": "전력회사·발전·산업·기술 고객에게 설계부터 자재·시공까지 한 번에 제공하는 '솔루션 기반' 인프라 회사가 되겠다는 그림이다. CEO는 수요가 전력회사·발전·산업·기술 고객으로 넓어지고 있다고 말했다.",
+    "text": "경쟁에서 이기기 위해 회사가 택한 길은 범위를 넓히는 것이다. 인수로 데이터센터 내부 시공, 엔지니어링, 철탑·변압기 제조까지 들여와 전력망부터 건물 안까지 한 회사가 맡는 구조를 만들고 있다. 경영진은 이 잔고를 근거로 2027년에도 강한 두 자릿수 이익 성장을 말하지만, 그 전제는 인력 확보와 고정가 공사의 실행이다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "governance": {
+    "line": "Duke Austin이 CEO로 이끄는 지배주주 없는 회사로, 분기 배당은 주당 0.11달러로 작고 2026년 9개월 동안 자사주 매입 없이 인수와 설비에 현금을 우선 쓴다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "413억~416억 달러 (7월 393억~397억에서 상향)", "givenOn": "2026-10-29", "src": ["s1", "s3"] },
+      { "period": "FY2026", "metric": "adjusted diluted EPS", "value": "17.90~18.30달러 (7월 16.45~16.95달러에서 상향)", "givenOn": "2026-10-29", "src": ["s1", "s3"] },
+      { "period": "FY2026", "metric": "GAAP diluted EPS", "value": "12.57~12.97달러 (7월 11.41~11.92달러)", "givenOn": "2026-10-29", "src": ["s1", "s3"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA", "value": "44.0억~44.9억 달러 (7월 40.9억~42.1억)", "givenOn": "2026-10-29", "src": ["s1", "s3"] },
+      { "period": "FY2026", "metric": "free cash flow", "value": "25억~30억 달러 (7월 20억~25억)", "givenOn": "2026-10-29", "src": ["s1", "s3"] }
+    ],
+    "style": "annual",
+    "track": "7월에 이어 10월에도 매출·EPS·EBITDA·FCF 가이던스를 모두 올렸다. 3분기 조정 EPS 6.06달러는 전년 3.33달러의 약 1.8배였다.",
+    "src": ["s1", "s3"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "총 수주잔고가 637억 달러에서 계속 늘어남",
+      "전기 부문 이익률이 12% 이상 유지",
+      "2027년 가이던스가 경영진의 '강한 두 자릿수 EPS 성장' 발언에 맞게 나옴",
+      "전력회사들이 송배전 투자 계획을 상향"
+    ],
+    "breaks": [
+      "잔고 감소 또는 대형 송전·데이터센터 프로젝트 취소",
+      "고정가 공사 손실로 부문 이익률 하락",
+      "규제기관이 전력회사 투자·요금 인상을 제한",
+      "인수 대가로 남은 조건부 지급금(약 8.4억 달러) 관련 부담 확대"
+    ],
+    "keyNumbers": [
+      { "name": "총 수주잔고·RPO", "why": "1~2년 뒤 매출을 미리 보여 준다" },
+      { "name": "전기 부문 영업이익률", "why": "이익의 대부분이 이 부문에서 나온다" },
+      { "name": "FCF", "why": "고정가 공사 현금 회수와 인수 여력" },
+      { "name": "기술 고객 매출 비중", "why": "AI 데이터센터에 직접 노출된 몫" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 (추정, 전년 10-K 2026-02-19 제출)", "event": "Q4·FY2026 실적과 2027년 첫 연간 가이던스", "src": ["s4"] },
+      { "date": "매 분기 (전력회사 실적 시즌)", "event": "AEP·NextEra·Duke 등 전력회사 설비투자 계획 갱신", "src": [] }
+    ],
+    "reaction": "이번 조사에서 3분기 발표 당일 주가 반응은 원문으로 확인하지 못했다. 이 종목은 분기 이익보다 잔고 증가 속도와 연간 가이던스 상향 폭에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "총 수주잔고와 12개월 내 RPO 증감",
+      "연간 가이던스 상향 폭",
+      "전기 부문 이익률 방향",
+      "전력회사 설비투자 계획과 규제 승인 뉴스"
+    ]
+  },
+
+  "unverified": [
+    "데이터센터·기술 고객의 2026년 매출·잔고 금액 (분기 자료에 미공시, 2025년 13%만 확인)",
+    "Q3 2026 실적 발표 콜 내용과 주가 반응 (녹취록 미확인)",
+    "2026 투자자의 날 목표 수치",
+    "경쟁사별 점유율",
+    "2026년 인수 기업명 (10-Q는 유형만 기재)",
+    "컨센서스 추정치",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "high - 실적·잔고·가이던스 변화·계약 유형은 2026-10-29 회사 8-K와 10-Q, 고객 구성은 10-K에서 직접 읽었고, 데이터센터 매출 금액과 콜 내용만 확인하지 못했다."
+}

@@ -1,0 +1,223 @@
+{
+  "symbol": "PEGA",
+  "name": "Pegasystems Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Pegasystems는 은행·보험·정부의 고객 응대와 핵심 업무 절차를 AI 의사결정·워크플로 엔진으로 자동화하는 기업용 소프트웨어 회사로, Claude·GPT·Gemini 같은 모델을 통제된 업무 흐름 안에서 쓰게 해 준다는 전략을 내세우지만 2026년 계약 성장(ACV)이 15% 목표에서 한 자릿수로 꺾이며 'AI가 기회인가 위협인가'를 시험받고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Pega Cloud ACV Grows 20% in Q3 2026 (8-K Ex.99.1, Q3 2026 results)", "url": "https://www.sec.gov/Archives/edgar/data/1013857/000101385726000057/q32026_ex-991.htm", "publisher": "Pegasystems / SEC EDGAR", "date": "2026-10-20" },
+    { "id": "s2", "kind": "10-Q", "title": "Pegasystems Form 10-Q for the quarter ended 2026-09-30", "url": "https://www.sec.gov/Archives/edgar/data/1013857/000101385726000058/pega-20260930.htm", "publisher": "Pegasystems / SEC EDGAR", "date": "2026-10-20" },
+    { "id": "s3", "kind": "10-K", "title": "Pegasystems Form 10-K for the fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1013857/000101385726000017/pega-20251231.htm", "publisher": "Pegasystems / SEC EDGAR", "date": "2026-02-10" },
+    { "id": "s4", "kind": "8-K", "title": "Innovation Accelerates Pega's Q4 2025 Growth (8-K Ex.99.1, FY2025 results and 2026 guidance)", "url": "https://www.sec.gov/Archives/edgar/data/1013857/000101385726000015/q42025_ex-991.htm", "publisher": "Pegasystems / SEC EDGAR", "date": "2026-02-10" },
+    { "id": "s5", "kind": "8-K", "title": "Pega Drives Cash Flow and Releases AI Innovation in Q2 2026 (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1013857/000101385726000049/q22026_ex-991.htm", "publisher": "Pegasystems / SEC EDGAR", "date": "2026-07-21" },
+    { "id": "s6", "kind": "news", "title": "Pegasystems misses badly and abandons its 15% ACV target as best bookings quarter of 2026 arrives too late (call summary, secondary)", "url": "https://finviz.com/news/405548/pegasystems-misses-badly-and-abandons-its-15-acv-target-as-best-bookings-quarter-of-2026-arrives-too-late", "publisher": "Earnings Whispers via Finviz", "date": "2026-10-21" },
+    { "id": "s7", "kind": "10-Q", "title": "Appian Form 10-Q for the quarter ended 2026-06-30 (litigation note: retrial set for 2027-01-11; D. Mass. trial scheduled 2026-11)", "url": "https://www.sec.gov/Archives/edgar/data/1441683/000144168326000053/appn-20260630.htm", "publisher": "Appian / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/pega/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "특허받은 워크플로 엔진과 실시간 AI 의사결정 엔진(Customer Decision Hub의 '다음 최선 행동') (10-K)",
+      "Blueprint - 생성형 AI로 기존 시스템과 요구사항을 분석해 업무 앱 초안을 만드는 설계 도구 (10-K)",
+      "금융·보험·의료·정부 핵심 업무(KYC·대출·청구·민원)에 깊이 박힌 설치 기반과 업종 앱 (10-K)",
+      "Accenture·Capgemini·Cognizant·EY·Infosys·TCS 등 대형 통합사 파트너망 (10-K)"
+    ],
+    "text": "Pega의 힘은 은행·보험사·정부가 '이 고객에게 지금 무엇을 제안할지', '이 청구를 어떻게 처리할지'를 정하는 핵심 판단과 절차를 수십 년간 맡아 왔다는 데서 나온다. 회사는 LLM이 앱을 설계하고 Pega의 특허 워크플로 엔진이 실행 전에 규칙과 통제를 씌우는 조합을 차별점으로 내세운다. 한번 핵심 업무에 깔리면 교체 비용이 크다는 점이 해자의 바탕이다.",
+    "src": ["s3", "s1"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 내놓는 것은 Pega Infinity 플랫폼과 그 위의 앱들이다. 고객 응대 쪽에는 실시간 AI 의사결정 엔진(Customer Decision Hub)과 Pega Customer Service가, 운영 쪽에는 AI 워크플로 자동화(Pega Platform)와 노후 시스템 교체용 Legacy Transformation이 있고, Blueprint와 'Predictable AI' 에이전트가 이들을 잇는다. 매출은 Pega Cloud, 유지보수, 구독 라이선스, 컨설팅으로 보고된다.",
+    "src": ["s3", "s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "제3자 호스팅 사업자 - Pega Cloud 운영 (10-K, 업체명 미기재)",
+      "Anthropic Claude·OpenAI GPT·Google Gemini 등 외부 LLM - 회사가 실적 발표에서 활용 모델로 언급",
+      "Accenture, Capgemini, Cognizant, EY, HCLTech, Infosys, LTIMindtree, TCS, Virtusa 등 - 판매 기회 발굴과 구축 (10-K)"
+    ],
+    "text": "만드는 방식은 소프트웨어 회사답게 자체 개발이며, Pega Cloud는 제3자 호스팅 시설에서 돌린다. AI 기능은 Claude·GPT·Gemini 같은 외부 모델을 Pega 엔진이 감싸서 쓰는 구조라, 모델 자체를 만들지는 않는다. 구축의 상당 부분은 대형 시스템 통합사가 맡는다.",
+    "src": ["s3", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "금융 서비스 - 고객 참여, 온보딩·KYC, 대출, 결제 예외, 금융범죄 관리 (10-K)",
+      "정부기관 - 시스템 현대화, 인허가, 수사 사례 관리, 보조금, 민원 (10-K)",
+      "보험·의료·통신 등 대기업 (10-K)",
+      "지역별 9개월 매출: 미국 48%, 영국 13%, 영국 외 유럽·중동·아프리카 17%, 아시아태평양 14%, 기타 미주 8% (2026)"
+    ],
+    "channel": "직접 영업에 대형 시스템 통합사·기술 컨설팅사·SW·HW 업체가 판매 기회를 공급하는 구조. 일부는 제3자 유통.",
+    "concentration": "주요 고객 비중은 이번에 확인하지 못함. 미국 매출 비중이 2025년 9개월 54%에서 2026년 9개월 48%로 낮아짐.",
+    "text": "이 제품은 주로 은행·보험사·정부처럼 규제가 세고 업무가 복잡한 대형 조직에 팔린다. 직접 영업이 중심이지만 Accenture·TCS 같은 통합사가 프로젝트를 끌어오고 구축을 맡는다. 2026년에는 미국 매출이 줄고 아시아태평양·기타 미주가 늘어 지역 구성이 바뀌고 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "은행·보험·정부 등 대형 고객", "to": "Pegasystems", "what": "Pega Cloud 구독료 (기간에 걸쳐 인식, ACV 9.76억 달러)" },
+      { "from": "자체 서버 운영 고객", "to": "Pegasystems", "what": "구독(기간) 라이선스 - 인도 시점에 매출 일시 인식" },
+      { "from": "라이선스 고객", "to": "Pegasystems", "what": "유지보수·지원료 (클라우드 전환으로 감소 중)" },
+      { "from": "고객", "to": "Pegasystems 컨설팅", "what": "구축·교육 용역비 (일부는 파트너가 직접 수행)" },
+      { "from": "Pegasystems", "to": "호스팅 사업자·LLM 제공사", "what": "Pega Cloud 호스팅과 모델 사용료" }
+    ],
+    "pricing": "Pega Cloud는 구독, 온프레미스는 기간 라이선스 + 유지보수로 판매한다. 회사는 연간 계약가치(ACV)를 핵심 지표로 쓰며, 기간 라이선스는 계약 시점에 한꺼번에 인식돼 분기 매출이 크게 출렁인다.",
+    "text": "돈은 대형 고객이 Pega Cloud를 구독하거나 라이선스를 사고 유지보수를 낼 때 들어온다. 고객이 자체 서버 라이선스에서 클라우드로 옮기면서 라이선스·유지보수는 줄고 Pega Cloud가 늘어나는 이동이 진행 중이며, Pega Cloud가 이미 전체 ACV의 59%다. AI 지출은 고객이 AI 의사결정·에이전트를 핵심 업무에 넣으며 ACV를 늘릴 때 이 흐름으로 들어온다.",
+    "src": ["s1", "s3"]
+  },
+
+  "earnings": {
+    "period": "9M 2026 (nine months ended 2026-09-30)",
+    "revenue": { "value": 1244.048, "unit": "USD mn", "yoy": 0.2 },
+    "grossMargin": 74.4,
+    "operatingMargin": 5.5,
+    "netMargin": 4.8,
+    "operatingCashFlow": { "value": 304.299, "unit": "USD mn" },
+    "freeCashFlow": { "value": 289.825, "unit": "USD mn" },
+    "segments": [
+      { "name": "Pega Cloud", "revenue": 637.890, "unit": "USD mn", "share": 51.3, "yoy": 27.0, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Maintenance", "revenue": 222.498, "unit": "USD mn", "share": 17.9, "yoy": -5.0, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Subscription license", "revenue": 232.458, "unit": "USD mn", "share": 18.7, "yoy": -29.0, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Consulting", "revenue": 151.202, "unit": "USD mn", "share": 12.2, "yoy": -13.0, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "총 ACV (2026-09-30)", "value": "16.53억 달러, +6% (고정환율 +7%); Pega Cloud ACV 9.76억 달러(+20%), 전체의 59%", "src": ["s1"] },
+      { "name": "3Q 2026 분기 실적", "value": "매출 3.93억 달러(+3%), GAAP 영업이익 1,490만 달러, GAAP 순이익 1,410만 달러(-68%), non-GAAP EPS 0.35달러(+17%)", "src": ["s1"] },
+      { "name": "백로그 (2026-09-30)", "value": "20.09억 달러(+15%), 그중 Pega Cloud 15.97억 달러(+24%); 1년 내 인식 49%", "src": ["s1"] },
+      { "name": "3Q 일회성 비용", "value": "소송 합의 1,600만 달러, 소송 관련 법률비용 1,330만 달러", "src": ["s1", "s2"] },
+      { "name": "FY2025 연간", "value": "매출 17.46억 달러(+17%), ACV 16.08억 달러(+17%)", "src": ["s4"] }
+    ],
+    "text": "이 흐름이 2026년 9개월 매출 12.44억 달러로 나타났는데, 전년과 거의 같다(+0.2%). Pega Cloud가 27% 늘었지만 일시 인식되는 구독 라이선스가 29% 줄어 상쇄했고, GAAP 영업이익률은 소송 합의·법률비용까지 겹쳐 5.5%에 그쳤다. 그래도 현금은 꾸준해 9개월 잉여현금흐름이 2.90억 달러였고, 이익의 원천은 반복 매출인 Pega Cloud와 유지보수다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "9M 2026 (nine months ended 2026-09-30)",
+    "items": [
+      { "use": "R&D", "value": 240.526, "unit": "USD mn", "src": ["s1"] },
+      { "use": "capex", "value": 14.474, "unit": "USD mn", "src": ["s1", "s2"] },
+      { "use": "buybacks", "value": 432.700, "unit": "USD mn", "src": ["s2"] },
+      { "use": "dividends", "value": 15.104, "unit": "USD mn", "src": ["s2"] },
+      { "use": "other", "label": "주식보상 순정산 세금 원천징수용 자사주 취득", "value": 3.726, "unit": "USD mn", "src": ["s2"] }
+    ],
+    "text": "9개월 잉여현금흐름 2.90억 달러를 넘는 4.33억 달러가 자사주 매입에 쓰여, 현금·유가증권이 연초 4.26억에서 3.10억 달러로 줄었다. 배당은 분기 주당 0.03달러로 작고, 설비투자도 1,450만 달러뿐이다. 2026-02 매입 한도를 10억 달러 늘리고 기한을 2027-06-30으로 연장했으며 9월 말 잔여 한도는 8.10억 달러다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "외부 LLM(Claude·GPT·Gemini)을 은행·보험·정부의 핵심 업무 흐름과 실시간 의사결정 안에서 '예측 가능하게' 쓰도록 감싸는 응용 소프트웨어 층. 모델·칩·클라우드는 사서 쓴다.",
+    "dependsOn": ["models-platforms (Anthropic Claude, OpenAI GPT, Google Gemini - 회사 언급)", "cloud-infrastructure (Pega Cloud 제3자 호스팅, 업체명 미공시)", "대형 시스템 통합사 (구축)"],
+    "sellsTo": ["ai-adopter (금융·보험·의료·통신 대기업, 정부기관)"],
+    "aiRevenue": null,
+    "upside": "기업이 AI를 핵심 업무에 넣을 때 통제·감사·비용 예측이 가능한 실행층이 필요해지면 Pega Cloud ACV와 백로그가 늘어난다. 회사는 Infinity 26 채택 속도가 이전 버전의 두 배 이상이라고 밝혔다(콜, 2차).",
+    "risk": "회사 스스로 'AI가 업계를 흔들면서 고객이 대형 기술 투자를 더 따져 보고 구매를 미룬다'고 공시했다. LLM이 직접 앱과 워크플로를 만들면 Pega 같은 플랫폼의 필요가 줄 수 있고, 대형 플랫폼이 AI를 묶어 팔며 경쟁이 거세진다.",
+    "text": "그래서 AI 가치사슬에서 Pega는 칩·클라우드·모델 위의 '응용 소프트웨어' 층, AI를 규제 산업의 핵심 업무에 넣는 마지막 단계에 있다. AI 매출은 따로 공시하지 않으며, 2026년에는 오히려 AI가 고객의 구매를 늦추는 요인으로 공시됐다. AI가 이 회사에 기회가 되는지는 Pega Cloud ACV 성장률이 20%를 유지하면서 전체 ACV 성장이 다시 올라오는지로 보인다.",
+    "src": ["s1", "s5", "s6"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "워크플로 자동화·BOAT (BPM·사례 관리·저코드·RPA)", "rivals": ["Appian (영업비밀 소송 상대)", "ServiceNow", "Microsoft", "IBM"], "position": "leader", "share": null, "src": ["s3", "s6", "s2"] },
+      { "arena": "CRM 고객 응대·고객 서비스", "rivals": ["Salesforce", "Microsoft", "Oracle", "SAP"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "AI 실시간 의사결정·인터랙션 관리", "rivals": ["대형 CRM·마케팅 SW 업체 (10-K 범주)"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "산업별 앱·맞춤 개발", "rivals": ["금융·의료·보험 특화 SW 업체", "고객 IT 부서 자체 개발", "자체 제품을 만드는 컨설팅사"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "Blueprint와 통합 Pega Platform으로 LLM이 설계하고 특허 워크플로 엔진이 통제를 씌우는 조합, 그리고 규제 산업 핵심 업무의 설치 기반. Gartner BOAT 매직 쿼드런트와 Forrester AI 플랫폼 평가에서 리더로 분류됐다(콜 요약, 2차).",
+    "threats": "10-K는 IBM·Microsoft·Oracle·Salesforce·SAP·ServiceNow를 자원이 훨씬 큰 경쟁사로 꼽는다. Appian과는 영업비밀 재심(2027-01-11 시작)과 매사추세츠 소송이 진행 중이다.",
+    "text": "이 자리의 경쟁은 두 겹이다. 업무 자동화에서는 Appian·ServiceNow·Microsoft와, 고객 응대에서는 Salesforce·Oracle·SAP와 맞서는데, 10-K가 스스로 인정하듯 상대 대부분이 훨씬 크다. 여기에 Appian이 제기한 영업비밀 소송 재심에서 Appian은 최대 16억 달러대(2.85억 + 13.6억 달러) 로열티 손해배상을 청구할 수 있게 돼, 경쟁이 법정 위험으로도 이어져 있다.",
+    "src": ["s3", "s2", "s7"]
+  },
+
+  "strategy": {
+    "goal": "2028년 잉여현금흐름 7억 달러 이상을 목표로 유지한다 (3Q 실적 발표). 연초에 낸 2026년 ACV +15%·잉여현금흐름 5.75억 달러 가이드는 사실상 철회됐다(2차 보도).",
+    "roadmap": [
+      { "when": "2026-10~2027 Q1", "what": "지역 중심 영업 조직 개편, 마케팅 통합, AI 도입을 돕는 현장 배치 엔지니어 팀('Lighthouse') 구성, 인력을 약 5,000명으로 축소 (콜 요약, 2차)", "src": ["s6"] },
+      { "when": "2026", "what": "Pega Infinity 26과 Predictable AI 에이전트 확산 - Blueprint에서 설계, 워크플로가 실행 통제", "src": ["s3", "s6"] },
+      { "when": "2027", "what": "잉여현금흐름 6억 달러 초과 (콜 요약, 2차)", "src": ["s6"] },
+      { "when": "2028", "what": "잉여현금흐름 7억 달러 이상", "src": ["s1"] }
+    ],
+    "vision": "기업이 Claude·GPT·Gemini 같은 모델을 쓰되, 결과와 비용이 예측 가능하고 거버넌스·보안·통제가 유지되는 방식으로 핵심 업무를 돌리게 해 주는 '미션 크리티컬 업무용 엔터프라이즈 AI 회사'가 된다는 그림이다 (3Q 실적 발표).",
+    "text": "이 경쟁을 이기기 위해 회사는 성장 둔화의 원인을 영업 실행 문제로 보고 조직을 다시 짜고 있다. 지역 중심 영업과 현장 배치 엔지니어로 AI 도입을 직접 밀어 주겠다는 것이며, 3분기 ACV 순증이 올해 가장 컸다는 점을 근거로 든다. 다만 연간 목표는 내렸고 2028년 현금흐름 목표만 남겨, 앞으로 몇 분기의 ACV가 계획의 신뢰도를 정한다.",
+    "src": ["s1", "s6"]
+  },
+
+  "governance": {
+    "line": "창업자 Alan Trefler가 CEO로 이끌며 발행주식의 약 45%(2025년 말)를 가진 지배주주이고, 소액 배당과 대규모 자사주 매입(잔여 한도 8.10억 달러, 2027-06-30까지)으로 환원한다.",
+    "src": ["s3", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "ACV growth", "value": "연초 +15% → 현재 약 7%와 10% 사이로 하향 (콜 요약, 2차; 3Q 보도자료에는 연간 가이던스 표 없음)", "givenOn": "2026-10-21", "src": ["s4", "s6"] },
+      { "period": "FY2026", "metric": "free cash flow", "value": "연초 5.75억 달러 → 미달 예상, 새 수치 미제시 (콜 요약, 2차)", "givenOn": "2026-10-21", "src": ["s4", "s6"] },
+      { "period": "FY2027", "metric": "free cash flow", "value": "6억 달러 초과 (콜 요약, 2차)", "givenOn": "2026-10-21", "src": ["s6"] },
+      { "period": "FY2028", "metric": "free cash flow", "value": "7억 달러 이상", "givenOn": "2026-10-20", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "2026년 2월 ACV +15%, 영업현금흐름 5.95억, 잉여현금흐름 5.75억 달러를 가이드했지만, 2분기 보도자료부터 'AI 시장 변화로 고객 구매가 지연돼 ACV 성장이 크게 둔화했다'고 밝혔고 9월 말 ACV는 +6%에 그쳤다. 3분기 non-GAAP EPS 0.35달러는 컨센서스 0.45달러에 못 미쳤다는 보도가 있다(2차).",
+    "src": ["s4", "s5", "s1", "s6"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 1.71달러(범위 1.59~1.81, 최소 2명), 직전 4개 분기 1.27달러. 최근 4주 상향 1건·하향 4건으로 하향이 우세하다. 이 데이터의 3Q 실제치(0.22)는 회사 non-GAAP EPS(0.35)와 기준이 달라 직접 비교하지 않는다.",
+    "src": ["s8", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "4분기 ACV 순증이 3분기에 이어 커지며 연간 ACV 성장이 7~10% 범위 상단에 도달",
+      "Pega Cloud ACV 성장이 20% 안팎을 유지하고 비중이 59%에서 계속 상승",
+      "Pega Cloud 백로그 +24% 흐름이 이어짐",
+      "조직 개편 뒤 영업 생산성 개선을 보여 주는 대형 계약",
+      "Appian 재심에서 Pega에 유리한 결과"
+    ],
+    "breaks": [
+      "Pega Cloud ACV 성장률이 10%대로 둔화",
+      "2027년 잉여현금흐름 6억 달러 초과 전망이나 2028년 7억 달러 목표 하향",
+      "AI 때문에 구매가 지연된다는 공시 문구가 계속되거나 강해짐",
+      "Appian 재심에서 대규모 손해배상 평결",
+      "인력 축소 뒤 고객 이탈·유지보수 감소 가속"
+    ],
+    "keyNumbers": [
+      { "name": "총 ACV와 Pega Cloud ACV 성장률", "why": "회사가 스스로 쓰는 성장의 기준" },
+      { "name": "Pega Cloud 백로그", "why": "앞으로 인식될 반복 매출의 크기" },
+      { "name": "구독 라이선스 매출", "why": "일시 인식으로 분기 실적을 흔드는 줄" },
+      { "name": "잉여현금흐름", "why": "2027~2028 현금 목표와 자사주 매입 여력" },
+      { "name": "소송 비용과 판결", "why": "수억~십수억 달러 단위의 우발 부담" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11", "event": "Pegasystems v. Appian (명예훼손·랜햄법, 매사추세츠 연방법원) 배심 재판 예정", "src": ["s7", "s2"] },
+      { "date": "2026-11-06, 2026-12-18", "event": "버지니아 재심 사건의 Pega 측 사전 심리 기일", "src": ["s2"] },
+      { "date": "2027-01-11", "event": "Appian v. Pegasystems 영업비밀 소송 재심 시작", "src": ["s7"] },
+      { "date": "2027-02 (추정, 회사 미확정; 전년은 2026-02-10 발표)", "event": "4Q·FY2026 실적과 2027 가이던스", "src": ["s4"] },
+      { "date": "2027-06-30", "event": "자사주 매입 한도 만료 (잔여 8.10억 달러, 2026-09-30 기준)", "src": ["s2"] }
+    ],
+    "reaction": "주가는 ACV 성장률과 연간 가이드 변화에 크게 반응해 왔다. 2분기 실적 뒤 25달러대에서 3분기 발표 전 36달러대까지 올랐다가, 3분기에 EPS가 예상에 못 미치고 연간 ACV 목표를 내리자 약세를 보였다는 보도가 있다(2차). Appian 소송 판결도 별도의 큰 변수다.",
+    "conditions": [
+      "분기 ACV 순증과 Pega Cloud ACV 성장률",
+      "연간 ACV·잉여현금흐름 전망의 변경 폭",
+      "구독 라이선스 매출 변동이 컨센서스와의 차이를 만든 정도",
+      "Appian 관련 재판 일정과 판결 내용",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "2026년 ACV 가이드 하향(7~10%), FCF 5.75억 미달, 2027년 FCF 6억 초과, 인력 약 5,000명 축소는 Earnings Whispers 콜 요약(2차) 기준이며 회사 원문 미확인",
+    "AI 관련 매출·ACV (회사 미공시); Infinity 26 채택 속도 두 배는 2차",
+    "Pega Cloud 호스팅 사업자 이름",
+    "주요 고객 매출 비중",
+    "경쟁 시장 점유율",
+    "3Q 소송 합의 1,600만 달러의 대상 사건",
+    "3Q EPS 컨센서스 0.45달러 대비 미달과 주가 흐름은 2차 보도",
+    "4Q 2026 실적 발표일",
+    "Gartner BOAT·Forrester 리더 분류는 2차 보도"
+  ],
+  "confidence": "medium - 재무·ACV·백로그·자사주·소송은 8-K·10-Q·10-K 원문이지만, 하향된 연간 가이드와 조직 개편 세부는 콜 요약(2차)에서만 확인했다."
+}

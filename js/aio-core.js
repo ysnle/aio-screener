@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.43';
+const APP_VERSION = 'v59.44';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -5889,7 +5889,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'LITE':  { en: 'Lumentum',         kr: '루멘텀',       alt: ['lumentum', 'lite'] },
     'COHR':  { en: 'Coherent',         kr: '코히어런트',   alt: ['coherent', 'cohr'] },
     'CIEN':  { en: 'Ciena',            kr: '시에나',       alt: ['ciena', 'cien'] },
-    'AAOI':  { en: 'Applied Optoelectronics', kr: 'AAOI', alt: ['applied optoelectronics', 'aaoi'] },
+    'AAOI':  { en: 'Applied Optoelectronics', kr: '어플라이드옵토', alt: ['applied optoelectronics', 'aaoi'] },
     'GLW':   { en: 'Corning',          kr: '코닝',         alt: ['corning', 'glw'] },
     'ANET':  { en: 'Arista Networks',  kr: '아리스타네트워크', alt: ['arista', 'anet'] },
     'POET':  { en: 'POET Technologies', kr: 'POET테크',    alt: ['poet'] },
@@ -6269,7 +6269,7 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'EADSY': { en: 'Airbus',                kr: '에어버스',      alt: ['airbus', 'eadsy'] },
 
     // ── 신흥국/중남미 (10) ──
-    'EME':   { en: 'EMCOR Group',           kr: 'EMCOR',         alt: ['emcor', 'eme'] },
+    'EME':   { en: 'EMCOR Group',           kr: '엠코',          alt: ['emcor', 'eme'] },
     'MOD':   { en: 'Modine',                kr: '모딘',          alt: ['modine', 'mod'] },
     'ACLS':  { en: 'Axcelis',               kr: '액셀리스',      alt: ['axcelis', 'acls'] },
     'ENTG':  { en: 'Entegris',              kr: '인테그리스',    alt: ['entegris', 'entg'] },
@@ -6407,7 +6407,60 @@ window.AIO_TICKER_NAME_REGISTRY = {
     'OKLO':  { en: 'Oklo',                  kr: '오클로',        alt: ['oklo'] },
     'SMR':   { en: 'NuScale Power',         kr: '뉴스케일',      alt: ['nuscale', 'smr'] },
     'NTDOY': { en: 'Nintendo',              kr: '닌텐도',        alt: ['nintendo', 'ntdoy'] },
-    'SONY':  { en: 'Sony Group',            kr: '소니그룹',      alt: ['sony', 'sony group'] }
+    'SONY':  { en: 'Sony Group',            kr: '소니그룹',      alt: ['sony', 'sony group'] },
+
+    // ── v59.44 AI 공급망 확장 (owner 2026-10-30): 실적 요약·회사 이야기 종목의 한글 이름. 흔한 영어 단어인 티커는 alt에서 뺀다 ──
+    'TXN':   { en: 'Texas Instruments',     kr: '텍사스인스트루먼트', alt: ['texas instruments', 'txn'] },
+    'ACN':   { en: 'Accenture',             kr: '액센츄어',      alt: ['accenture', 'acn'] },
+    'BRO':   { en: 'Brown & Brown',         kr: '브라운앤드브라운', alt: ['brown & brown'] },
+    'PRCT':  { en: 'PROCEPT BioRobotics',   kr: '프로셉트',      alt: ['procept', 'prct'] },
+    'IRM':   { en: 'Iron Mountain',         kr: '아이언마운틴',  alt: ['iron mountain', 'irm'] },
+    'NTAP':  { en: 'NetApp',                kr: '넷앱',          alt: ['netapp', 'ntap'] },
+    'SIMO':  { en: 'Silicon Motion',        kr: '실리콘모션',    alt: ['silicon motion', 'simo'] },
+    'MKSI':  { en: 'MKS',                   kr: 'MKS',           alt: ['mks instruments', 'mksi'] },
+    'PLAB':  { en: 'Photronics',            kr: '포트로닉스',    alt: ['photronics', 'plab'] },
+    'AEIS':  { en: 'Advanced Energy',       kr: '어드밴스드에너지', alt: ['advanced energy', 'aeis'] },
+    'ICHR':  { en: 'Ichor',                 kr: '아이코',        alt: ['ichor', 'ichr'] },
+    'CAMT':  { en: 'Camtek',                kr: '캠텍',          alt: ['camtek', 'camt'] },
+    'NVMI':  { en: 'Nova',                  kr: '노바',          alt: ['nova measuring', 'nvmi'] },
+    'ACMR':  { en: 'ACM Research',          kr: 'ACM리서치',     alt: ['acm research', 'acmr'] },
+    'AMKR':  { en: 'Amkor Technology',      kr: '앰코테크놀로지', alt: ['amkor', 'amkr'] },
+    'FORM':  { en: 'FormFactor',            kr: '폼팩터',        alt: ['formfactor'] },
+    'COHU':  { en: 'Cohu',                  kr: '코후',          alt: ['cohu'] },
+    'KLIC':  { en: 'Kulicke and Soffa',     kr: '쿨리케앤소파',  alt: ['kulicke', 'klic'] },
+    'ASX':   { en: 'ASE Technology',        kr: 'ASE테크놀로지', alt: ['ase technology', 'ase group'] },
+    'NXPI':  { en: 'NXP Semiconductors',    kr: 'NXP반도체',     alt: ['nxp', 'nxpi'] },
+    'MPWR':  { en: 'Monolithic Power',      kr: '모놀리식파워',  alt: ['monolithic power', 'mpwr'] },
+    'VSH':   { en: 'Vishay Intertechnology', kr: '비샤이',       alt: ['vishay', 'vsh'] },
+    'TSEM':  { en: 'Tower Semiconductor',   kr: '타워세미컨덕터', alt: ['tower semiconductor', 'tsem'] },
+    'RMBS':  { en: 'Rambus',                kr: '램버스',        alt: ['rambus', 'rmbs'] },
+    'LSCC':  { en: 'Lattice Semiconductor', kr: '래티스반도체',  alt: ['lattice semiconductor', 'lscc'] },
+    'SITM':  { en: 'SiTime',                kr: '사이타임',      alt: ['sitime', 'sitm'] },
+    'CEVA':  { en: 'CEVA',                  kr: '세바',          alt: ['ceva'] },
+    'AMBA':  { en: 'Ambarella',             kr: '암바렐라',      alt: ['ambarella', 'amba'] },
+    'TEAM':  { en: 'Atlassian',             kr: '아틀라시안',    alt: ['atlassian'] },
+    'RBRK':  { en: 'Rubrik',                kr: '루브릭',        alt: ['rubrik', 'rbrk'] },
+    'ADSK':  { en: 'Autodesk',              kr: '오토데스크',    alt: ['autodesk', 'adsk'] },
+    'APPN':  { en: 'Appian',                kr: '아피안',        alt: ['appian', 'appn'] },
+    'PEGA':  { en: 'Pegasystems',           kr: '페가시스템즈',  alt: ['pegasystems'] },
+    'FN':    { en: 'Fabrinet',              kr: '파브리넷',      alt: ['fabrinet'] },
+    'AXTI':  { en: 'AXT',                   kr: 'AXT',           alt: ['axt inc', 'axti'] },
+    'FLEX':  { en: 'Flex',                  kr: '플렉스',        alt: ['flex ltd'] },
+    'JBL':   { en: 'Jabil',                 kr: '자빌',          alt: ['jabil', 'jbl'] },
+    'SANM':  { en: 'Sanmina',               kr: '산미나',        alt: ['sanmina', 'sanm'] },
+    'MTSI':  { en: 'MACOM',                 kr: '메이컴',        alt: ['macom', 'mtsi'] },
+    'SMTC':  { en: 'Semtech',               kr: '셈텍',          alt: ['semtech', 'smtc'] },
+    'APH':   { en: 'Amphenol',              kr: '암페놀',        alt: ['amphenol', 'aph'] },
+    'HUBB':  { en: 'Hubbell',               kr: '허벨',          alt: ['hubbell', 'hubb'] },
+    'FIX':   { en: 'Comfort Systems USA',   kr: '컴포트시스템즈', alt: ['comfort systems'] },
+    'STRL':  { en: 'Sterling Infrastructure', kr: '스털링인프라', alt: ['sterling infrastructure', 'strl'] },
+    'JCI':   { en: 'Johnson Controls',      kr: '존슨컨트롤즈',  alt: ['johnson controls', 'jci'] },
+    'TT':    { en: 'Trane Technologies',    kr: '트레인테크놀로지스', alt: ['trane'] },
+    'CARR':  { en: 'Carrier Global',        kr: '캐리어글로벌',  alt: ['carrier global'] },
+    'APLD':  { en: 'Applied Digital',       kr: '어플라이드디지털', alt: ['applied digital', 'apld'] },
+    'HUT':   { en: 'Hut 8',                 kr: '헛8',           alt: ['hut 8'] },
+    'BTDR':  { en: 'Bitdeer',               kr: '비트디어',      alt: ['bitdeer', 'btdr'] },
+    'GLXY':  { en: 'Galaxy Digital',        kr: '갤럭시디지털',  alt: ['galaxy digital', 'glxy'] }
   }
 };
 

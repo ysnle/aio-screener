@@ -133,7 +133,7 @@ export function renderCompanyStory(doc, host, { profile, earnings = [], peers = 
   const meta = [ai.layer && layerLabel(ai.layer) ? `AI 밸류체인: ${layerLabel(ai.layer)}` : null,
     freshness.researchedAt ? `${mdOf(freshness.researchedAt)} 조사` : null, e.period ? `${e.period} 실적 기준` : null].filter(Boolean).join(', ');
   if (meta) nodes.push(el(doc, 'p', meta, 'company-story-meta'));
-  if (freshness.state === 'stale') nodes.push(el(doc, 'p', `${mdOf(freshness.newReport)} 새 실적이 나왔고, 아래 내용은 그 전 보고서 기준입니다.`, 'company-story-stale'));
+  if (freshness.state === 'stale') nodes.push(el(doc, 'p', `${mdOf(freshness.newReport)} 새 실적이 나왔습니다. 사업 구조·경쟁 설명은 그대로 쓰되, 실적·가이던스 숫자는 그 전 보고서 기준이니 새 숫자는 '최근 실적 발표 요약'에서 보세요.`, 'company-story-stale'));
 
   const flow = moneyFlow(doc, profile);
   if (flow) nodes.push(el(doc, 'h3', '돈이 들어오는 길', 'company-story-h3'), flow);

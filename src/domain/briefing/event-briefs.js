@@ -6,29 +6,33 @@
 
 export const EVENT_BRIEFS_SCHEMA = 'event-briefs.v1';
 
-// The fixed list (owner 2026-10-28). `newsNames` are the exact names a headline uses (src/domain/market/move-attribution.js
-// matches them by the shared keyword rule). `irDomains` limit the call-summary search to the company's own pages plus wires.
-// CIKs are not listed: the producer resolves them from SEC company_tickers.json by exact ticker. Korean names resolve
-// through DART by corp code, and the producer checks the filing names the same company before using it.
-export const MARKET_MOVERS = Object.freeze([
-  { sym: 'MSFT', nameKo: '마이크로소프트', newsNames: ['Microsoft'], irDomains: ['microsoft.com'] },
-  { sym: 'GOOGL', nameKo: '알파벳', newsNames: ['Alphabet', 'Google'], irDomains: ['abc.xyz'] },
-  { sym: 'AMZN', nameKo: '아마존', newsNames: ['Amazon'], irDomains: ['aboutamazon.com', 'amazon.com'] },
-  { sym: 'META', nameKo: '메타', newsNames: ['Meta Platforms', 'Meta'], irDomains: ['atmeta.com', 'meta.com'] },
-  { sym: 'AAPL', nameKo: '애플', newsNames: ['Apple'], irDomains: ['apple.com'] },
-  { sym: 'NVDA', nameKo: '엔비디아', newsNames: ['Nvidia'], irDomains: ['nvidia.com'] },
-  { sym: 'AVGO', nameKo: '브로드컴', newsNames: ['Broadcom'], irDomains: ['broadcom.com'] },
-  { sym: 'TSM', nameKo: 'TSMC', newsNames: ['TSMC'], irDomains: ['tsmc.com'], foreignIssuer: true },
-  { sym: 'ORCL', nameKo: '오라클', newsNames: ['Oracle'], irDomains: ['oracle.com'] },
-  { sym: 'TSLA', nameKo: '테슬라', newsNames: ['Tesla'], irDomains: ['tesla.com'] },
-  { sym: 'MU', nameKo: '마이크론', newsNames: ['Micron'], irDomains: ['micron.com'] },
-  // v59.43 (owner 2026-10-29): ServiceNow's report moves enterprise-software names the same way the hyperscalers move AI hardware.
-  { sym: 'NOW', nameKo: '서비스나우', newsNames: ['ServiceNow'], irDomains: ['servicenow.com'] },
-  { sym: '000660.KS', nameKo: 'SK하이닉스', market: 'KR', dartCorpCode: '00164779', dartName: 'SK하이닉스', newsNames: ['SK Hynix', 'SK하이닉스', '하이닉스'], irDomains: ['skhynix.com'] },
-  { sym: '005930.KS', nameKo: '삼성전자', market: 'KR', dartCorpCode: '00126380', dartName: '삼성전자', newsNames: ['Samsung Electronics', '삼성전자'], irDomains: ['samsung.com'] }
-].map(Object.freeze));
+import { MARKET_MOVERS, MOVER_BY_SYMBOL } from './market-movers.js';
 
-export const MOVER_BY_SYMBOL = Object.freeze(Object.fromEntries(MARKET_MOVERS.map((row) => [row.sym, row])));
+export { MARKET_MOVERS, MOVER_BY_SYMBOL };
+
+/** 1 = shown in full on 오늘 (FOMC, the core movers); 2 = one line (other movers and the story names). */
+// v59.44 (owner 2026-10-30, "현재 AI 시장에서 중요한 종목"): weight comes from where a name sits on the AI chain and how
+// hard the market took its report, not from its index weight. The company-story layers outside the chain are folded.
+export const NON_AI_LAYERS = Object.freeze(['ai-adopter', 'ai-exposed', 'limited']);
+export const MARKET_MOVING_PCT = 8; // a post-report move this large puts an AI-chain name on the face as a card
+
+/** The move after the report: the latest trade before any session closed on it, else the first session's close. */
+export function reactionPct(brief) {
+  const reaction = brief?.reaction;
+  const value = reaction?.basis === 'latest-trade' ? reaction.extendedPct : reaction?.firstPct;
+  return Number.isFinite(value) ? value : null;
+}
+
+/**
+ * 1 = a card (FOMC, the core movers, an AI-chain name that moved MARKET_MOVING_PCT or more); 2 = a line with its summary
+ * folded (the other AI-chain names and listed movers); 3 = only in the 30-day fold (story names outside the AI chain).
+ */
+export function briefTier(brief) {
+  if (brief?.kind === 'fomc') return 1;
+  if (Number(brief?.tier) === 1 || MOVER_BY_SYMBOL[brief?.symbol]?.tier === 1) return 1;
+  if (!MOVER_BY_SYMBOL[brief?.symbol] && NON_AI_LAYERS.includes(brief?.layer)) return 3;
+  return Math.abs(reactionPct(brief) ?? 0) >= MARKET_MOVING_PCT ? 1 : 2;
+}
 
 // Wires and business news allowed beside the issuer's own pages when a call or press conference is summarised from
 // reports (the transcript comes later or never as free text).
@@ -107,19 +111,23 @@ export function verifyFreeText(points, sourceText) {
 // The filing is a fixed form: unit line ("단위 : 백만원, %"), then per account a 당해실적 row with current, previous
 // quarter, QoQ %, (turn flag), year-ago, YoY %. Parsed directly — no AI touches these numbers.
 const DART_ACCOUNTS = Object.freeze([['revenue', '매출액'], ['operatingIncome', '영업이익'], ['pretaxIncome', '법인세비용차감전계속사업이익'], ['netIncome', '당기순이익']]);
-const DART_UNITS = Object.freeze({ '원': 1, '천원': 1e3, '백만원': 1e6, '십억원': 1e9, '억원': 1e8 });
+// Samsung files in 조원 with decimals ("195.25"); the table was read as integers in 백만원 only (P2136).
+const DART_UNITS = Object.freeze({ '원': 1, '천원': 1e3, '백만원': 1e6, '십억원': 1e9, '억원': 1e8, '조원': 1e12 });
+const DART_AMOUNT = '-?[\\d,]+(?:\\.\\d+)?';
 
 export function parseDartPreliminaryResults(text) {
   const t = normalizeSourceText(text);
-  const unitLabel = (t.match(/단위\s*:\s*(백만원|천원|십억원|억원|원)/) || [])[1] || null;
+  const unitLabel = (t.match(/단위\s*:\s*(백만원|천원|십억원|조원|억원|원)/) || [])[1] || null;
   const period = t.match(/당기실적\s*(\d{4}-\d{2}-\d{2})\s*~\s*(\d{4}-\d{2}-\d{2})/);
-  const quarterLabel = (t.match(/\((\d{4})년\s*([1-4])분기\)/) || []).slice(1);
+  // Samsung heads the columns "(26.3Q) (26.2Q)": the first is the current quarter.
+  const short = t.match(/\(\s*'?(\d{2})\.([1-4])Q\s*\)/);
+  const quarterLabel = short ? [`20${short[1]}`, short[2]] : (t.match(/\((\d{4})년\s*([1-4])분기\)/) || []).slice(1);
   if (!unitLabel || !period) return null;
   const num = (value) => (value == null || value === '-' ? null : Number(String(value).replace(/,/g, '')));
   const accounts = {};
   for (const [key, name] of DART_ACCOUNTS) {
     // "매출액 당해실적 104,615,483 79,318,746 31.9 - 24,448,929 327.9 -"
-    const re = new RegExp(`(?:^|\\s)${name}\\s+당해실적\\s+(-?[\\d,]+)\\s+(-?[\\d,]+|-)\\s+(-?[\\d.]+|-)\\s+(\\S+)\\s+(-?[\\d,]+|-)\\s+(-?[\\d.]+|-)`);
+    const re = new RegExp(`(?:^|\\s)${name}\\s+당해실적\\s+(${DART_AMOUNT})\\s+(${DART_AMOUNT}|-)\\s+(-?[\\d.]+|-)\\s+(\\S+)\\s+(${DART_AMOUNT}|-)\\s+(-?[\\d.]+|-)`);
     const m = t.match(re);
     if (!m) continue;
     accounts[key] = { label: name, current: num(m[1]), previous: num(m[2]), qoqPct: num(m[3]), yearAgo: num(m[5]), yoyPct: num(m[6]), raw: m[0].trim() };
@@ -179,9 +187,91 @@ export function latestBriefFor(artifact, symbol, { nowMs = Date.now(), days = 10
     .sort((a, b) => publishedMs(b) - publishedMs(a))[0] || null;
 }
 
+/**
+ * v59.44: 오늘 by weight. `core` = tier 1 of the last three days, in full; `notable` = tier 2 of the last five days, one line
+ * each; `rest` = every other brief of the last 30 days, folded, so nothing published is out of reach.
+ */
+export function homeBriefTiers(artifact, { nowMs = Date.now(), coreLimit = 4, notableLimit = 6, restLimit = 24 } = {}) {
+  const live = briefsOf(artifact).filter((brief) => brief.status !== 'pending' && publishedMs(brief) <= nowMs + 3600000)
+    .sort((a, b) => publishedMs(b) - publishedMs(a));
+  const within = (brief, days) => nowMs - publishedMs(brief) <= days * DAY;
+  const tier1 = live.filter((brief) => briefTier(brief) === 1 && within(brief, 3));
+  const core = tier1.slice(0, coreLimit);
+  // A tier-1 report past the card limit stays on the face as a line, ahead of tier 2, not in the fold.
+  const notable = [...tier1.slice(coreLimit), ...live.filter((brief) => briefTier(brief) === 2 && within(brief, 5)).slice(0, notableLimit)];
+  const shown = new Set([...core, ...notable]);
+  const rest = live.filter((brief) => !shown.has(brief) && within(brief, 30));
+  return { core, notable, rest: rest.slice(0, restLimit), restTotal: rest.length };
+}
+
+// ---- the price after the report ----------------------------------------------------------------------------------
+const EXCHANGE_ZONE = Object.freeze({ US: ['America/New_York', 16], KR: ['Asia/Seoul', 15.5] });
+
+/** The exchange date of a release and whether it came after that day's close (a date-only filing counts as before). */
+export function releaseSession(publishedAt, { market = 'US', dateOnly = false } = {}) {
+  const ms = Date.parse(publishedAt || '');
+  if (!Number.isFinite(ms)) return null;
+  const [zone, closeHour] = EXCHANGE_ZONE[market] || EXCHANGE_ZONE.US;
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+    .formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
+  const hour = Number(parts.hour) + Number(parts.minute) / 60;
+  return { releaseDate: `${parts.year}-${parts.month}-${parts.day}`, afterClose: !dateOnly && hour >= closeHour };
+}
+
+const pctOf = (close, base) => Math.round((close / base - 1) * 1000) / 10;
+
+/**
+ * Closes around a report: the last close before it, the first session that could trade on it, and the latest close.
+ * `bars` are daily [{ date: 'YYYY-MM-DD', close }] in exchange dates. Settled once five sessions have traded on it.
+ */
+export function earningsReaction(bars, session, { settleSessions = 5, extended = null, releaseMs = null } = {}) {
+  if (!session?.releaseDate) return null;
+  const rows = (Array.isArray(bars) ? bars : []).filter((row) => /^\d{4}-\d{2}-\d{2}$/.test(row?.date || '') && Number(row.close) > 0)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const beforeOrOn = (row) => (session.afterClose ? row.date <= session.releaseDate : row.date < session.releaseDate);
+  const base = rows.filter(beforeOrOn).at(-1);
+  const after = rows.filter((row) => !beforeOrOn(row));
+  if (!base) return null;
+  // Until a regular session after the report has closed, the latest trade (extended hours or a session still open) is all
+  // there is (owner 2026-10-30).
+  if (!after.length) {
+    const atMs = Number(extended?.atMs);
+    if (!(Number(extended?.price) > 0) || !Number.isFinite(atMs) || (Number.isFinite(releaseMs) && atMs < releaseMs)) return null;
+    return { basis: 'latest-trade', baseDate: base.date, baseClose: base.close, extendedPct: pctOf(extended.price, base.close), extendedAt: new Date(atMs).toISOString(), sessions: 0, settled: false };
+  }
+  const first = after[0];
+  const latest = after.at(-1);
+  return { basis: 'close', baseDate: base.date, baseClose: base.close, firstDate: first.date, firstPct: pctOf(first.close, base.close),
+    latestDate: latest.date, latestPct: pctOf(latest.close, base.close), sessions: after.length, settled: after.length >= settleSessions };
+}
+
+/** "발표 후 첫 거래일 -7.9%, 3거래일 누적 -5.1%" or "발표 후 최근 체결가 -21.0%(직전 종가 대비)" — prices only. */
+export function reactionText(reaction) {
+  const signedPct = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+  if (reaction?.basis === 'latest-trade' && Number.isFinite(reaction.extendedPct)) return `발표 후 최근 체결가 ${signedPct(reaction.extendedPct)}(직전 종가 대비)`;
+  if (!reaction || !Number.isFinite(reaction.firstPct)) return null;
+  const first = `발표 후 첫 거래일 ${signedPct(reaction.firstPct)}`;
+  return reaction.sessions > 1 ? `${first}, ${reaction.sessions}거래일 누적 ${signedPct(reaction.latestPct)}` : first;
+}
+
+// ---- headline --------------------------------------------------------------------------------------------------------
+/**
+ * A Korean headline, or one built from the first checked figure. An English title copied from the release, or a line
+ * with a figure the source does not hold, is replaced (P2137: GOOGL showed its English press-release title and MSFT the
+ * bare "실적 발표").
+ */
+export function briefHeadline(text, { nameKo, figures = [], sourceNumbers = null } = {}) {
+  const value = String(text || '').trim();
+  const generic = `${nameKo} 실적 발표`;
+  if (value && /[가-힣]/.test(value) && value !== generic && (!sourceNumbers || !unverifiedNumbers(value, sourceNumbers).length)) return value;
+  const lead = figures.find((figure) => figure?.metric === 'revenue') || figures[0];
+  return lead?.value ? `${nameKo} 실적: ${String(lead.label || '').trim()} ${lead.value}`.replace(/\s+/g, ' ').trim() : generic;
+}
+
 export const BRIEF_BASIS_WORDS = Object.freeze({
   'primary-source': '원문 공시 기준',
   'news-report': '보도 기준(녹취록 확인 전)',
   'transcript': '녹취록 기준',
-  'pending': '아직 정리 전'
+  'pending': '아직 정리 전',
+  'provider': '제공처 집계, 원문 확인 전'
 });

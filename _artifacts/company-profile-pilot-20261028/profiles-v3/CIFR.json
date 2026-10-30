@@ -1,0 +1,195 @@
+{
+  "symbol": "CIFR",
+  "name": "Cipher Digital Inc. (formerly Cipher Mining)",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Cipher Digital은 텍사스 전력 부지에 AI 데이터센터를 지어 AWS와 Google 보증 Fluidstack 등 하이퍼스케일러에 10~15년 임대하는 회사로, 계약 매출 약 114억 달러의 임대가 2026년 하반기부터 막 시작되는 단계다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Cipher Digital Provides Second Quarter 2026 Business Update (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001819989/000181998926000038/q226_earningsxprxdraftxvf.htm", "publisher": "Cipher Digital / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s2", "kind": "investor-day", "title": "Cipher Digital Q2 2026 business update presentation (8-K exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/0001819989/000181998926000038/cipherdigital_businessup.htm", "publisher": "Cipher Digital / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s3", "kind": "10-Q", "title": "Cipher Digital Form 10-Q for the quarter ended 2026-06-30", "url": "https://www.sec.gov/Archives/edgar/data/0001819989/000181998926000041/cifr-20260630.htm", "publisher": "Cipher Digital / SEC EDGAR", "date": "2026-08" },
+    { "id": "s4", "kind": "investor-day", "title": "Cipher Mining Q3 2025 business update presentation (AWS lease, Fluidstack/Google terms; 8-K Exhibit 99.2)", "url": "https://www.sec.gov/Archives/edgar/data/0001819989/000181998925000110/ciphermining_businessupd.htm", "publisher": "Cipher Mining / SEC EDGAR", "date": "2025-11-03" },
+    { "id": "s5", "kind": "proxy", "title": "Cipher Digital 2026 Proxy Statement (DEF 14A)", "url": "https://www.sec.gov/Archives/edgar/data/0001819989/000181998926000016/cifr-20260420.htm", "publisher": "Cipher Digital / SEC EDGAR", "date": "2026-04-20" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/cifr/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s7", "kind": "other", "title": "AIO local earnings calendar snapshot, public-data/earnings-calendar.json (CIFR 2026-11-02 bmo; not company-confirmed in this session)", "url": "https://www.nasdaq.com/market-activity/earnings", "publisher": "AIO earnings calendar", "date": "2026-10-29" }
+  ],
+  "moat": {
+    "sources": [
+      "텍사스 전력 부지 - 가동·계약 907MW, 2030년 이후 11개 부지 약 5.3GW 목표 (ERCOT 일괄 심사 대상 포함)",
+      "투자등급 하이퍼스케일러 임차인 - AWS(Black Pearl), Google 보증 Fluidstack(Barber Lake), 2026년 3월 추가 하이퍼스케일러",
+      "전력 조달부터 설계·조달·건설·운영까지 직접 하는 수직 통합",
+      "프로젝트별 담보 채권으로 낮은 금리 조달 (6.0~7.1%)"
+    ],
+    "text": "Cipher의 출발점은 전력이 들어오는 텍사스 부지다. 채굴용으로 모은 부지를 하이퍼스케일러용 데이터센터로 바꾸면서, 임차인 신용을 담보로 프로젝트별 채권을 6%대 금리로 발행했다. 땅·전력·건설을 직접 하는 구조라 부지를 빨리 공간으로 바꾸는 속도가 경쟁력이다.",
+    "src": ["s2", "s3"]
+  },
+  "design": {
+    "text": "회사가 파는 것은 전력과 냉각을 갖춘 데이터센터 공간을 통째로 빌려주는 '턴키 임대'다. Barber Lake(Fluidstack), Black Pearl(AWS), Stingray(1H 2027) 세 캠퍼스가 계약돼 있고, Odessa 207MW에서는 비트코인 채굴을 계속한다. 2분기까지 매출은 전부 채굴이었고, 임대 매출은 8월 Black Pearl부터 시작됐다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "자체 개발 조직 - 전력 조달·설계·조달·건설·운영",
+      "Luminant - Odessa 고정가 전력 구매 계약",
+      "Black Pearl Compute 담보 채권 20억 달러(6.125%), Cipher Compute 17.33억 달러(7.125%), Stingray Compute 8.1억 달러(6.000%)",
+      "전환사채 13억 달러(0%, 2031) + 1.73억 달러(1.75%, 2030)"
+    ],
+    "text": "Cipher는 건물·전력 설비를 소유하고 서버는 임차인이 들이는 구조다. 건설비는 캠퍼스별 자회사가 발행한 담보 채권으로 대는데, 세 건 합계가 약 45억 달러이고 전체 차입은 약 60억 달러다. 대부분이 프로젝트 계좌에 묶여 있어 6월 말 제한 현금이 37억 달러, 본사 현금이 8.3억 달러였다.",
+    "src": ["s2"]
+  },
+  "sell": {
+    "customers": [
+      "Amazon Web Services - Black Pearl 약 300MW(총), 15년, 약 55억 달러 (2025-11 계약)",
+      "Fluidstack(Google 보증) - Barber Lake 168MW(IT), 10년+5년 연장 2회, 최소 약 30억 달러",
+      "투자등급 하이퍼스케일러 - 2026년 3월 기존 텍사스 부지 추가 시설 15년 임대, 2027년부터 단계 인도",
+      "비트코인 네트워크 - Odessa 채굴 (Q2 약 346 BTC)"
+    ],
+    "channel": "직접 계약. 하이퍼스케일러와 10~15년 기본 임대를 맺는다.",
+    "concentration": "임대 매출이 막 시작돼 2026 Q2까지 매출은 100% 채굴. 계약 기준으로는 AWS와 Fluidstack 두 곳이 대부분.",
+    "text": "이 공간은 AWS, Fluidstack, 그리고 이름을 밝히지 않은 또 하나의 하이퍼스케일러가 빌린다. Fluidstack의 임대료는 Google이 일부 보증하고, 그 대가로 Google은 Cipher 주식 약 2,418만 주를 살 수 있는 워런트를 받았다. 세 고객과의 계약 매출은 Barber Lake 기본 임대 기간 끝까지 약 114억 달러다.",
+    "src": ["s2", "s3", "s4"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "클라우드·AI 이용자", "to": "AWS·Fluidstack·하이퍼스케일러", "what": "클라우드·GPU 이용료" },
+      { "from": "AWS·Fluidstack·하이퍼스케일러", "to": "Cipher Digital", "what": "턴키 데이터센터 장기 임대료 (10~15년)" },
+      { "from": "Google", "to": "Cipher Digital (Fluidstack 불이행 시)", "what": "Fluidstack 임대료 보증" },
+      { "from": "채권·전환사채 투자자", "to": "Cipher Digital", "what": "캠퍼스별 담보 채권으로 건설 자금 조달" },
+      { "from": "비트코인 네트워크", "to": "Cipher Digital", "what": "Odessa 채굴 보상 (Q2 2,480만 달러)" }
+    ],
+    "pricing": "전력·냉각·건물을 갖춘 공간을 장기 고정 임대한다. 회사는 계약 기준 연평균 순영업이익(NOI) 약 7.93억 달러를 제시한다.",
+    "text": "AI 돈은 AWS와 Fluidstack이 내는 장기 임대료로 들어오고, 그 임대료가 캠퍼스별 채권 이자와 원금을 갚는다. Cipher Compute 채권은 Google 보증 임대료에 맞춰 상환되도록 짜여 있다. 계약 NOI는 2026년 9,700만 달러에서 2027년 6.86억 달러로 뛰도록 설계돼 있어, 2027년이 실적의 분기점이다.",
+    "src": ["s2"]
+  },
+  "earnings": {
+    "period": "Q2 2026 (ended 2026-06-30)",
+    "revenue": { "value": 24.8, "unit": "USD mn", "yoy": -43.0 },
+    "grossMargin": null,
+    "operatingMargin": -316.2,
+    "netMargin": null,
+    "operatingCashFlow": { "value": null, "unit": "USD mn" },
+    "freeCashFlow": { "value": null, "unit": "USD mn" },
+    "segments": [
+      { "name": "Bitcoin mining", "revenue": 24.8, "unit": "USD mn", "share": 100, "yoy": -43.0, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "계약 매출 / 연평균 NOI", "value": "약 114억 달러 / 약 7.93억 달러 (2026-10~2036-09 Barber Lake 기본 임대 기간 기준)", "src": ["s2"] },
+      { "name": "가동·계약 용량", "value": "907MW (HPC 계약 700MW + Odessa 채굴 207MW); 그리드 파이프라인 약 4.4GW", "src": ["s2"] },
+      { "name": "조정 EBITDA", "value": "Q2 -2,999만 달러 (전년 +3,234만 달러)", "src": ["s1"] },
+      { "name": "차입·순차입", "value": "총차입 60.16억 달러, 순차입 14.56억 달러 (2026-06-30)", "src": ["s2"] },
+      { "name": "채굴 지표", "value": "약 11.6 EH/s, 17.2 J/TH, 전력비 약 2.8센트/kWh", "src": ["s2"] }
+    ],
+    "text": "2분기 매출 2,480만 달러는 모두 비트코인 채굴이었고, 채굴 부지를 매각·전환하면서 1년 새 43% 줄었다. 이자 비용 6,670만 달러와 워런트 평가 손실 1.5억 달러 탓에 순손실은 2.68억 달러였다. 상반기 영업현금흐름은 -1.52억 달러로, 임대가 시작되기 전까지는 손익이 의미 있게 나아지기 어렵다.",
+    "src": ["s1", "s3"]
+  },
+  "useOfCash": {
+    "period": "2026년 상반기",
+    "items": [
+      { "use": "capex", "value": 0.964, "unit": "USD bn", "src": ["s3"] }
+    ],
+    "text": "상반기 설비투자 9.6억 달러는 대부분 Barber Lake와 Black Pearl 공사에 들어갔다. 배당을 낸 적이 없고 자사주 매입 프로그램도 없다. 남는 돈과 빌린 돈은 모두 다음 캠퍼스 건설로 간다.",
+    "src": ["s3", "s5"]
+  },
+  "aiChain": {
+    "layer": "data-center-real-estate",
+    "position": "텍사스 전력 부지 위에 하이퍼스케일러용 턴키 데이터센터를 짓고 장기 임대하는 개발·운영사.",
+    "dependsOn": ["power-energy (ERCOT 전력망, Luminant PPA)", "프로젝트 채권 시장", "cooling-electrical (장비 확보율 Barber Lake 100%, Black Pearl 약 96%, Stingray 약 75%)"],
+    "sellsTo": ["cloud-infrastructure (AWS, Fluidstack, 투자등급 하이퍼스케일러)"],
+    "aiRevenue": "계약 매출 약 114억 달러(AWS 약 55억, Fluidstack 최소 약 30억 등). 임대 매출은 2026-08 Black Pearl부터 시작, 2026 Q2까지 0.",
+    "upside": "계약 NOI가 2027년 6.86억 달러로 오르도록 짜여 있고, Odessa·Reveille·Ulysses 등 협상 중인 부지와 4.4GW 파이프라인이 추가 임대로 바뀌면 규모가 더 커진다.",
+    "risk": "공사 지연과 장비 확보 실패, 고객 두세 곳 집중, 높은 차입. ERCOT 일괄 심사가 늦어지면 2028년 이후 대형 부지(Colchis 1GW 등) 일정이 밀린다.",
+    "text": "AI 가치사슬에서 Cipher는 '데이터센터 부동산' 층이다. GPU 위험은 임차인이 지고 Cipher는 고정 임대료를 받지만, 그만큼 공사를 제때 끝내는 실행이 전부다. 2026년 하반기 Barber Lake와 Black Pearl이 임대를 시작하면서 채굴 회사에서 임대 회사로 넘어간다.",
+    "src": ["s2", "s4"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "AI 데이터센터 임대 (채굴사 전환)", "rivals": ["TeraWulf", "Core Scientific", "Applied Digital", "IREN", "Hut 8"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "텍사스 대형 전력 부지 개발", "rivals": ["Crusoe", "하이퍼스케일러 자체 개발", "대형 데이터센터 리츠"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "비트코인 채굴", "rivals": ["MARA", "Riot Platforms", "CleanSpark"], "position": "niche", "share": null, "src": [] }
+    ],
+    "edge": "텍사스에 집중된 대형 전력 파이프라인, AWS·Google 보증 Fluidstack 같은 강한 임차인, 6%대 프로젝트 채권 조달.",
+    "threats": "전력 부지를 가진 다른 채굴사와 Crusoe 같은 개발사, ERCOT 대형 부하 심사 지연.",
+    "text": "Cipher는 AI 임대로 바꾸는 다른 채굴사, 그리고 텍사스에서 전력을 찾는 개발사들과 경쟁한다. 투자등급 하이퍼스케일러를 직접 임차인으로 확보해 6%대 금리로 돈을 빌릴 수 있다는 점이 차별점이다. 경쟁사 목록은 회사 공시가 아닌 업계 일반 구분이라 출처가 비어 있다.",
+    "src": ["s2"]
+  },
+  "strategy": {
+    "goal": "2030년 이후 11개 부지 약 5.3GW 포트폴리오, 하이퍼스케일 HPC 개발 플랫폼이 되는 것.",
+    "roadmap": [
+      { "when": "2026-08", "what": "Black Pearl 첫 용량 인도(예정보다 2개월 빠름), 임대 시작", "src": ["s1", "s2"] },
+      { "when": "2026-09~10", "what": "Barber Lake 인도, 2026-10 임대 시작 예정 (임차인 부분 사용 개시)", "src": ["s1", "s2"] },
+      { "when": "1H 2027", "what": "Stingray 인도 (자금 조달 완료)", "src": ["s2"] },
+      { "when": "2027 Q3~Q4", "what": "Reveille 70MW·Ulysses 200MW 전력 연결 목표, HPC 임대 협상 중", "src": ["s2"] },
+      { "when": "2028", "what": "Colchis 1GW·Mikeska 500MW·McLennan 500MW 전력 연결 목표 (ERCOT 일괄 심사 조건)", "src": ["s2"] }
+    ],
+    "vision": "전력 조달부터 건설·운영까지 직접 하는 하이퍼스케일러 전용 데이터센터 개발 플랫폼. 비트코인 채굴은 Odessa 한 곳으로 줄이고 그 부지도 임대 전환을 협상한다.",
+    "text": "다음 단계는 계약된 세 캠퍼스를 제때 넘기고, 협상 중인 부지에서 새 임대를 따내는 것이다. 회사는 Black Pearl을 두 달 앞당겨 넘겨 실행력을 보여 줬고, 900MW 규모의 Apollo 부지 옵션도 새로 확보했다. 2028년 이후 대형 부지는 ERCOT 심사 일정에 달려 있다.",
+    "src": ["s1", "s2"]
+  },
+  "governance": {
+    "line": "Tyler Page가 CEO, 독립이사 James Newsome이 이사회 의장을 맡고(시차 임기 이사회), 배당을 낸 적 없이 프로젝트 채권과 전환사채로 성장 자금을 댄다.",
+    "src": ["s5", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "2026-10", "metric": "Barber Lake 임대 시작", "value": "2026-09 인도, 2026-10 임대 시작 예정", "givenOn": "2026-08-04", "src": ["s2"] },
+      { "period": "1H 2027", "metric": "Stingray 인도", "value": "2027 상반기", "givenOn": "2026-08-04", "src": ["s2"] },
+      { "period": "2026~2035", "metric": "계약 NOI", "value": "2026년 9,700만 → 2027년 6.86억 → 2028년 7.27억 달러", "givenOn": "2026-08-04", "src": ["s2"] }
+    ],
+    "style": "none",
+    "track": "매출·이익 가이던스는 없고 인도 일정과 계약 NOI를 제시한다. Black Pearl은 처음 일정(2026-07 인도 시작, 08 임대)보다 두 달 빨리 인도됐다고 회사는 밝혔다.",
+    "src": ["s1", "s2", "s4"]
+  },
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 -0.48달러(범위 -0.62~-0.30, 최소 2명), 직전 4개 분기 실적 합 -2.86달러. 최근 4주 수정 없음. 커버리지가 얇다.",
+    "src": ["s6"]
+  },
+  "watch": {
+    "confirms": [
+      "Barber Lake 임대가 10월에 시작돼 3·4분기 임대 매출이 잡힘",
+      "Black Pearl 나머지 단계가 2026 Q4에 인도됨",
+      "Odessa·Reveille·Ulysses 중 새 HPC 임대 체결",
+      "Stingray가 2027 상반기 일정 유지",
+      "조정 EBITDA 흑자 전환"
+    ],
+    "breaks": [
+      "캠퍼스 인도 지연이나 장비 부족",
+      "임차인 계약 조건 변경",
+      "프로젝트 밖 본사 차원의 대규모 희석성 조달",
+      "ERCOT 심사 지연으로 대형 부지 일정이 밀림",
+      "비트코인 가격 급락으로 전환 기간 현금 부족"
+    ],
+    "keyNumbers": [
+      { "name": "분기 임대 매출과 NOI", "why": "계약이 실제 돈이 되는 속도" },
+      { "name": "인도된 MW", "why": "일정 대비 실행" },
+      { "name": "신규 임대 계약 MW", "why": "파이프라인 전환" },
+      { "name": "순차입금", "why": "재무 여력" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-02 장 시작 전 (AIO 캘린더 기준, 회사 공지 미확인)", "event": "Q3 2026 business update와 실적", "src": ["s7"] },
+      { "date": "2026-10", "event": "Barber Lake 임대 시작 예정", "src": ["s2"] },
+      { "date": "1H 2027", "event": "Stingray 인도 목표", "src": ["s2"] }
+    ],
+    "reaction": "주가는 분기 손익보다 새 하이퍼스케일러 임대, 인도 일정, 자금 조달 소식에 크게 움직이는 편이다. 2025년 11월 AWS 계약 발표 때처럼 대형 계약 공개가 가장 큰 재료였다.",
+    "conditions": [
+      "3분기 보고에서 임대 매출이 처음 잡혔는지",
+      "Barber Lake·Black Pearl 인도 진행률",
+      "새 임대 계약의 MW·기간·임차인 신용",
+      "신규 채권·전환사채 발행 규모와 금리",
+      "Odessa 채굴 매출과 비트코인 가격"
+    ]
+  },
+  "unverified": [
+    "총이익률·순이익률 - 매출이 채굴뿐이고 순손실 대부분이 워런트 평가 손실이라 비움(매출원가 1,505만 달러)",
+    "2분기 단독 영업현금흐름·잉여현금흐름 - 10-Q는 상반기 누계만(영업 -1.52억, 설비 -9.64억 달러)",
+    "AWS를 Black Pearl 임차인으로 연결한 것은 2025-11 발표와 10-Q의 '15년·약 300MW' 조건 일치로 판단; 2026년 자료는 '투자등급 하이퍼스케일러'로만 표기",
+    "2026년 3월 세 번째 하이퍼스케일러 임대의 임차인 이름·MW·금액, 그리고 Stingray와 같은 시설인지",
+    "Google 보증 총액 - 2025년 발표 14억 달러, 10-Q는 보증 자산 5.445억 달러만 표시; 이후 증액 여부 미확인",
+    "Cipher Mining → Cipher Digital 사명 변경 날짜",
+    "Q3 2026 발표일 - AIO 캘린더(2026-11-02)만 확인, 회사 공지 미확인",
+    "경쟁사 목록과 점유율 - 출처 없음"
+  ],
+  "confidence": "medium - 실적·계약·차입은 회사 공시와 발표 자료에서 왔지만, 임대 매출이 아직 손익에 잡히지 않아 실제 수익성은 확인하지 못했다."
+}

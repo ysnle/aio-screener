@@ -1,0 +1,209 @@
+{
+  "symbol": "DDOG",
+  "name": "Datadog, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Datadog은 기업의 클라우드 서버·앱·로그·보안 상태를 한 화면에서 감시하는 사용량 과금형 관측(observability) 소프트웨어 회사로, AI 기업들이 클라우드를 크게 쓰면서 성장이 다시 빨라졌다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Datadog Announces Second Quarter 2026 Financial Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026053829/ex-991x20260630x8k.htm", "publisher": "Datadog / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s2", "kind": "8-K", "title": "Datadog Announces Fourth Quarter and Fiscal Year 2025 Financial Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026006645/ex-991x20251231x8k.htm", "publisher": "Datadog / SEC EDGAR", "date": "2026-02-10" },
+    { "id": "s3", "kind": "10-K", "title": "Datadog Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026008819/ddog-20251231.htm", "publisher": "Datadog / SEC EDGAR", "date": "2026-02-18" },
+    { "id": "s4", "kind": "10-Q", "title": "Datadog Form 10-Q for the quarter ended 2026-06-30", "url": "https://www.sec.gov/Archives/edgar/data/1561550/000162828026054458/ddog-20260630.htm", "publisher": "Datadog / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/ddog/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s6", "kind": "other", "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - DDOG 2026-11-04 before open, not company-confirmed in this research", "url": "https://finnhub.io/docs/api/earnings-calendar", "publisher": "Finnhub via AIO", "date": "2026-10-30" }
+  ],
+  "moat": {
+    "sources": [
+      "하나의 에이전트·데이터 플랫폼 위에 인프라·APM·로그·보안·사용자 경험·AI 관측 제품을 얹는 구조 - 1,000개 이상 기본 연동",
+      "쓸수록 커지는 사용량 과금 - 금액 기준 순매출유지율 약 120% (2025-12-31)",
+      "대형 고객 쏠림 - ARR 10만 달러 이상 고객 약 4,310곳이 ARR의 90% (2025-12-31)",
+      "연 400개 이상 신기능을 내는 제품 속도와 AI 에이전트(Bits AI SRE 등)"
+    ],
+    "text": "Datadog의 힘은 개발자와 운영팀이 서버·앱·로그·보안 데이터를 한 플랫폼에서 보도록 만든 데 있다. 한 제품으로 들어온 고객이 다른 제품을 계속 더하고 사용량도 늘어, 기존 고객의 지출이 1년 새 약 20% 늘어나는(순매출유지율 약 120%) 구조가 만들어졌다. 1,000개 넘는 연동과 매년 수백 개의 신기능이 고객을 다른 도구로 옮기기 어렵게 만든다.",
+    "src": ["s3", "s2"]
+  },
+  "design": {
+    "text": "이 플랫폼에서 회사가 파는 것은 여러 갈래다. 인프라 모니터링·네트워크·클라우드 비용 관리, 애플리케이션 성능 관리(APM)·데이터베이스 모니터링, 로그 관리, 클라우드 보안·SIEM, 사용자 경험(Synthetics·RUM), 그리고 LLM Observability와 AI 운영 에이전트 Bits AI다. 2026년에는 Bits Code·Bits Chat·Bits Agent Builder와 AI Guard를 내놨고, 매출은 부문을 나누지 않고 한 줄로 보고한다.",
+    "src": ["s3", "s1"]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "제3자 클라우드 호스팅 - 인프라 거의 전부를 외부 클라우드에 맡김 (10-K는 호스팅 업체명을 밝히지 않음)",
+      "AWS - 협력 확대 (AI·관측·보안 기능, FY2025 발표)",
+      "Adaptive ML (2026 인수) - 강화학습 운영 플랫폼, AI 연구용",
+      "리셀러·시스템 통합업체·MSP 파트너와 Datadog Marketplace 파트너 제품"
+    ],
+    "text": "제품은 공장 없이 소프트웨어로 만들고, 서버 인프라는 거의 전부 외부 클라우드에 맡긴다. 그래서 클라우드·소프트웨어 서비스에 대한 해지 불가 구매 약정이 2025년 말 14억 달러에 이르고, 고객 사용량이 늘수록 이 비용도 함께 늘어난다. Q2 2026 총마진은 약 78.6%로 전년 약 79.9%보다 조금 내려왔다.",
+    "src": ["s3", "s4", "s2", "s1"]
+  },
+  "sell": {
+    "customers": [
+      "클라우드에서 소프트웨어를 운영하는 기업 - 약 32,700곳, 160여 개국 (2025-12-31)",
+      "ARR 10만 달러 이상 고객 약 4,720곳 (2026-06-30, +23%), 100만 달러 이상 고객 603곳 (2025-12-31)",
+      "AI 네이티브 기업 - 최대 고객 포함, Q4 2025 전년 대비 매출 성장의 약 7%포인트 기여"
+    ],
+    "channel": "엔터프라이즈 직접 영업·내부 영업·고객 성공팀에 무료 체험과 셀프서비스 확장을 섞고, 리셀러·시스템 통합업체·MSP 파트너와 클라우드 마켓플레이스도 쓴다.",
+    "concentration": "최대 고객은 AI 네이티브 그룹에 속하며 이름·비중은 공시되지 않음. AI 네이티브 그룹이 Q4 2025 매출 성장률의 약 7%포인트를 차지. 2025년 매출의 29%가 북미 밖.",
+    "text": "이 제품은 직접 영업과 셀프서비스를 함께 써서 3만 곳이 넘는 기업에 팔리는데, 매출은 큰 고객에 몰려 있어 연 10만 달러 이상 고객이 ARR의 90%를 낸다. 최근 성장을 끌어올린 것은 AI 네이티브 기업들로, 이 그룹에 최대 고객이 포함되며 Q4 2025 성장률의 약 7%포인트를 혼자 만들었다. 그만큼 소수 AI 기업의 사용량 변화가 실적을 흔들 수 있다.",
+    "src": ["s3", "s1", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "최종 사용자·기업 고객", "to": "클라우드 앱을 운영하는 기업 (AI 기업 포함)", "what": "앱·AI 서비스 이용료" },
+      { "from": "앱을 운영하는 기업의 개발·운영팀", "to": "Datadog (직접·셀프서비스·마켓플레이스·리셀러)", "what": "감시하는 호스트 수·데이터량·이벤트 수에 따른 구독·사용료 (월간·연간·다년 약정)" },
+      { "from": "약정 고객", "to": "Datadog", "what": "약정 사용량 초과분 온디맨드 요금" },
+      { "from": "Datadog", "to": "제3자 클라우드 호스팅 업체", "what": "데이터 수집·저장·분석 인프라 비용 (해지 불가 약정 14억 달러)" }
+    ],
+    "pricing": "제품별 사용량 기준(호스트 수·데이터량 등) 구독. 계약은 주로 월간·연간이며 일부 분기·반기·다년 약정. 고객은 호스트나 데이터량을 늘리는 방식으로 셀프서비스 확장이 가능하다.",
+    "text": "돈은 고객이 감시하는 서버 수와 보내는 데이터 양만큼 내는 사용료로 들어온다. 고객의 클라우드 사용이 늘면 별도 영업 없이도 Datadog 매출이 따라 늘고, 반대로 고객이 비용을 줄이면 바로 줄어드는 구조다. 받은 돈의 상당 부분은 데이터를 저장·분석하는 클라우드 비용으로 다시 나간다.",
+    "src": ["s3"]
+  },
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 3.427, "unit": "USD bn", "yoy": 27.7 },
+    "grossMargin": 80.0,
+    "operatingMargin": -1.3,
+    "netMargin": 3.1,
+    "operatingCashFlow": { "value": 1.05, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.915, "unit": "USD bn" },
+    "segments": [
+      { "name": "North America (지역, 계산값)", "revenue": 2.433, "unit": "USD bn", "share": 71, "yoy": null, "operatingMargin": null, "src": ["s3", "s2"] },
+      { "name": "International (북미 밖, 계산값)", "revenue": 0.994, "unit": "USD bn", "share": 29, "yoy": null, "operatingMargin": null, "src": ["s3", "s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q2 2026)", "value": "매출 11.21억 달러(+36%), GAAP 영업이익 550만 달러(0%), non-GAAP 영업이익률 23%, 영업현금흐름 3.16억·잉여현금흐름 2.79억 달러", "src": ["s1"] },
+      { "name": "금액 기준 순매출유지율", "value": "약 120% (2025-12-31, 전년 110%대 후반)", "src": ["s3"] },
+      { "name": "대형 고객", "value": "ARR 10만 달러 이상 약 4,720곳 (2026-06-30, +23%); 100만 달러 이상 603곳 (2025-12-31, +31%)", "src": ["s1", "s2"] },
+      { "name": "잔여이행의무 (RPO)", "value": "34.71억 달러 (2026-06-30), 대부분 24개월 내 인식", "src": ["s4"] },
+      { "name": "non-GAAP 영업이익률", "value": "FY2025 22%, Q2 2026 23%", "src": ["s2", "s1"] }
+    ],
+    "text": "이 구조에서 FY2025 매출은 34.3억 달러로 28% 늘었지만, 주식보상비 때문에 GAAP 영업이익은 -4,400만 달러로 소폭 적자였다. 반면 현금은 잘 벌어 잉여현금흐름이 9.15억 달러(매출의 27%)였고, 회사가 쓰는 non-GAAP 영업이익률은 22%다. 2026년 들어 성장이 빨라져 Q2 매출이 36% 늘었다.",
+    "src": ["s2", "s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 1.548, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.135, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 0.118, "unit": "USD bn", "src": ["s2"] },
+      { "use": "debt repayment", "value": 0.636, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "번 돈의 가장 큰 쓰임은 매출의 45%에 이르는 R&D(15.5억 달러)이고, 2025년에는 만기 전환사채 6.36억 달러를 갚고 인수에 1.18억 달러를 썼다. 자사주 매입과 배당은 없다. 2026년 상반기에도 인수 현금 1.12억 달러(Adaptive ML 등 3건, 총 1.915억 달러)를 쓰면서 현금·유가증권을 50억 달러로 쌓아, 돈을 주주환원보다 제품과 AI 인재에 쓰는 회사다.",
+    "src": ["s2", "s1", "s4"]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "클라우드와 AI 서비스를 운영하는 기업에 서버·앱·LLM 사용 상태를 감시하는 도구를 파는 관측 소프트웨어 공급자. AI 기업의 클라우드 사용량이 늘수록 감시할 데이터가 늘어 매출이 따라온다.",
+    "dependsOn": [
+      "cloud-infrastructure (제3자 클라우드 호스팅, AWS 협력)",
+      "models-platforms (Bits AI 에이전트가 쓰는 AI 모델; Adaptive ML 인수)"
+    ],
+    "sellsTo": [
+      "models-platforms (AI 네이티브 기업 - 최대 고객 포함)",
+      "cloud-infrastructure 사용 기업 전반",
+      "ai-adopter (LLM 앱을 운영하는 기업)"
+    ],
+    "aiRevenue": "AI 네이티브 고객 그룹이 Q4 2025 전년 대비 매출 성장률의 약 7%포인트 기여 (2026-02-18 10-K). 그룹 매출 비중은 이번 조사에서 미확인.",
+    "upside": "AI 기업이 모델 서비스·에이전트를 클라우드에서 크게 돌릴수록 감시할 서버·로그·LLM 호출이 늘어 사용량 과금 매출이 바로 커진다. 일반 기업이 LLM 앱을 운영하기 시작하면 LLM Observability와 AI Guard가 새 판매 품목이 된다.",
+    "risk": "소수 AI 네이티브 고객(특히 최대 고객)이 비용을 줄이거나 자체 도구로 옮기면 성장이 급히 꺾인다. AI 코딩·운영 에이전트가 관측 도구의 역할을 대신하거나, 클라우드 사업자의 기본 감시 도구가 좋아질 수도 있다.",
+    "text": "그래서 AI 가치사슬에서 Datadog은 클라우드 위에서 AI 서비스를 돌리는 회사들에 운영 도구를 파는 '소프트웨어·응용' 층에 있다. 사용량 과금이라 AI 기업들의 클라우드 사용 증가가 거의 그대로 매출로 들어오고, 실제로 AI 네이티브 그룹이 Q4 2025 성장률 약 7%포인트를 만들었다. 반대로 이 그룹의 최대 고객이 지출을 줄이면 같은 경로로 바로 타격을 받는다.",
+    "src": ["s3", "s1", "s2"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "애플리케이션 성능 관리 (APM)", "rivals": ["Cisco Systems", "New Relic", "Dynatrace"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "로그 관리", "rivals": ["Cisco Systems", "Elastic"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "클라우드 모니터링", "rivals": ["AWS", "Microsoft Azure", "Google Cloud Platform"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "온프레미스 인프라 모니터링", "rivals": ["IBM", "Microsoft", "SolarWinds"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "클라우드 보안·SIEM", "rivals": ["보안 전문 업체와 클라우드 사업자 자체 도구"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "여러 관측 기능을 한 플랫폼에 묶은 범위, 빠른 신제품 출시, 셀프서비스로 시작해 대형 계약으로 넓히는 영업, Gartner 관측 플랫폼 매직 쿼드런트 6년 연속 리더(2026).",
+    "threats": "클라우드 사업자가 자체 감시 도구를 기본으로 제공하고, Cisco·Dynatrace가 같은 통합 플랫폼을 내세운다. 고객이 비용 절감을 위해 데이터 보존량을 줄이거나 더 싼 대안으로 옮길 수 있다.",
+    "text": "이 자리를 두고 경쟁은 분야마다 다르다. APM에서는 Dynatrace·New Relic·Cisco, 로그에서는 Cisco와 Elastic, 클라우드 모니터링에서는 AWS·Azure·Google Cloud 자체 도구가 맞수다. Datadog은 이 모든 것을 한 플랫폼으로 묶어 고객이 도구를 하나로 합치게 만드는 방식으로 이기고 있지만, 공개 점유율 자료는 이번 조사에서 확인하지 못했다.",
+    "src": ["s3", "s1"]
+  },
+  "strategy": {
+    "goal": "클라우드·AI 시대의 관측·보안 통합 플랫폼을 목표로 하며, 2026년 매출 가이던스를 44.5~44.7억 달러(2월 첫 가이던스 40.6~41.0억에서 상향), non-GAAP 영업이익 10.1~10.3억 달러로 제시했다.",
+    "roadmap": [
+      { "when": "Q3 2026", "what": "매출 11.35~11.45억 달러, non-GAAP 영업이익 2.6~2.7억 달러 가이던스", "src": ["s1"] },
+      { "when": "2026 (DASH 2026 발표)", "what": "완전 자율 Bits AI, AI Guard, Bring Your Own Cloud, Bits Agent Builder 등 100개 이상 신기능", "src": ["s1"] },
+      { "when": "FY2026", "what": "매출 44.5~44.7억 달러, non-GAAP EPS 2.50~2.54달러", "src": ["s1"] },
+      { "when": "2029", "what": "2029년 만기 전환사채 (2024년 발행, 순조달 9.79억 달러)", "src": ["s2"] }
+    ],
+    "vision": "사람이 대시보드를 보는 대신 AI 에이전트가 장애를 조사하고 고치는 자율 운영으로 옮겨 가며, 기업의 AI 앱까지 감시·보호하는 플랫폼이 되겠다고 말한다.",
+    "text": "앞으로의 방향은 관측 도구를 AI 에이전트로 바꾸는 것이다. Bits AI SRE가 장애 알림을 스스로 조사하고, 2026년에는 코드 수정·대화·에이전트 제작 도구까지 일반 출시했으며, 강화학습 회사 Adaptive ML을 사서 자체 AI 연구를 키운다. 매출 가이던스를 2월 대비 약 4억 달러 올린 것은 이 방향과 AI 고객 수요가 실제 숫자로 이어지고 있다는 회사의 주장이다.",
+    "src": ["s1", "s2"]
+  },
+  "governance": {
+    "line": "공동창업자 Olivier Pomel(CEO)과 Alexis Lê-Quôc(CTO)이 이끌고, 2025-12-31 기준 주당 10표인 Class B 주식이 의결권의 약 43%를 가지며, 자사주 매입·배당 없이 현금을 R&D와 인수에 쓴다.",
+    "src": ["s3"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "11.35~11.45억 달러", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "non-GAAP operating income", "value": "2.6~2.7억 달러", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "FY2026", "metric": "revenue", "value": "44.5~44.7억 달러 (2월 첫 가이던스 40.6~41.0억에서 상향)", "givenOn": "2026-08-06", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "non-GAAP operating income", "value": "10.1~10.3억 달러 (2월 8.4~8.8억에서 상향)", "givenOn": "2026-08-06", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "non-GAAP EPS", "value": "2.50~2.54달러 (2월 2.08~2.16달러에서 상향)", "givenOn": "2026-08-06", "src": ["s1", "s2"] }
+    ],
+    "style": "quarterly",
+    "track": "Q2 2026 매출 11.21억 달러로 성장률 36%를 냈고, 연간 매출 가이던스를 2월 첫 제시 대비 약 4억 달러 올렸다. Q1 2026 가이던스는 9.51~9.61억 달러였다(실적은 이번 조사에서 별도 확인하지 않음).",
+    "src": ["s1", "s2"]
+  },
+  "estimates": {
+    "text": "2026-10-29 기준 Nasdaq/Zacks 컨센서스 EPS 향후 4개 분기 합계 0.76달러(범위 0.60~0.87, 10개 추정), 최근 4주 상향·하향 0건. 회사 non-GAAP EPS 가이던스(연 2.50~2.54달러)와 기준이 달라 보인다.",
+    "src": ["s5"]
+  },
+  "watch": {
+    "confirms": [
+      "분기 매출 성장률 30%대 유지와 연간 가이던스 추가 상향",
+      "AI 네이티브 그룹 외 일반 기업 고객의 성장 가속",
+      "순매출유지율 120% 안팎 유지",
+      "10만 달러 이상 고객 수 20% 이상 증가",
+      "LLM Observability·Bits AI 등 AI 제품 채택 수치 공개"
+    ],
+    "breaks": [
+      "최대 고객 또는 AI 네이티브 고객의 사용량 축소·재계약 할인",
+      "총마진이 클라우드 비용 증가로 계속 하락",
+      "순매출유지율 하락 (고객 비용 최적화 재개)",
+      "클라우드 사업자 자체 도구로의 이탈 언급",
+      "다음 분기 가이던스가 컨센서스를 밑돎"
+    ],
+    "keyNumbers": [
+      { "name": "매출 성장률과 다음 분기 가이던스", "why": "사용량 과금이라 수요 변화가 바로 보인다" },
+      { "name": "AI 네이티브 고객 기여도", "why": "성장 가속의 원천이자 집중 위험" },
+      { "name": "순매출유지율", "why": "기존 고객 지출 확대 속도" },
+      { "name": "총마진", "why": "클라우드 비용 부담" },
+      { "name": "잉여현금흐름 마진", "why": "GAAP 적자와 달리 실제 현금 창출력" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-04 개장 전 (추정, 회사 확인 안 함)", "event": "Q3 2026 실적 발표와 Q4·연간 가이던스", "src": ["s6"] },
+      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "AWS·Azure·Google Cloud 성장률 - 고객 클라우드 사용량의 선행 신호", "src": ["s3"] }
+    ],
+    "reaction": "주가는 분기 매출 성장률과 다음 분기·연간 매출 가이던스, 그리고 AI 네이티브 고객 관련 언급에 크게 반응하는 경향이 있다. 사용량 과금이라 고객의 비용 절감 신호가 나오면 가이던스가 먼저 흔들린다.",
+    "conditions": [
+      "실적 발표 때 매출 성장률과 연간 가이던스 변화 폭",
+      "AI 네이티브 그룹·최대 고객 관련 언급",
+      "순매출유지율과 대형 고객 수 추이",
+      "총마진과 클라우드 비용 언급",
+      "하이퍼스케일러 클라우드 성장률 변화",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+  "unverified": [
+    "AI 네이티브 고객 그룹의 매출 비중과 최대 고객 매출 비중 - 이번 조사에서 확인한 것은 Q4 2025 성장 기여 약 7%포인트뿐",
+    "Q2 2026 순매출유지율 - 10-Q MD&A 부분을 읽지 못함",
+    "FY2025 북미·해외 매출 금액은 10-K의 '북미 밖 29%'로 계산한 값",
+    "클라우드 호스팅 업체별 약정 금액 - 10-K는 업체명을 밝히지 않음",
+    "Adaptive ML 인수 금액 - 2026년 인수 3건 합계 1.915억 달러만 확인",
+    "관측 시장 점유율 - 공개 자료 미확인",
+    "Class B 의결권 약 43%는 2025-12-31 기준; 이후 전환 여부 미확인",
+    "Q3 2026 실적 발표일 (Finnhub 기준, 회사 공지 미확인)",
+    "Q2 2026 총마진 78.6%는 보도자료 손익계산서로 계산한 값",
+    "컨센서스 EPS 기준이 회사 non-GAAP EPS와 다른 이유"
+  ],
+  "confidence": "high - 실적·가이던스·현금흐름은 SEC 8-K·10-K·10-Q 원문에서 왔고, AI 고객 비중과 점유율은 공개 수치가 부족해 판단을 제한했다."
+}

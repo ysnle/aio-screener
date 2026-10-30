@@ -1,0 +1,201 @@
+{
+  "symbol": "SMTC",
+  "name": "Semtech Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "late January (FY2027 ends 2027-01)",
+  "oneLine": "Semtech는 AI 데이터센터의 광모듈과 구리 케이블 안에서 고속 신호를 살려 주는 아날로그 칩(Signal Integrity)과 저전력 무선 LoRa 칩을 만드는 회사로, 1.6T 전환을 타고 데이터센터 매출이 다음 분기 전년 대비 160% 늘 것으로 회사가 본다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Semtech Announces Second Quarter of Fiscal Year 2027 Results", "url": "https://www.semtech.com/company/press/semtech-announces-second-quarter-of-fiscal-year-2027-results", "publisher": "Semtech", "date": "2026-08-25" },
+    { "id": "s2", "kind": "other", "title": "Semtech (SMTC) Q2 2027 earnings summary (AI-generated summary of release and call)", "url": "https://quartr.com/events/semtech-corporation-smtc-q2-2027_3PPTtePD", "publisher": "Quartr", "date": "2026-08-30" },
+    { "id": "s3", "kind": "investor-day", "title": "Semtech Outlines Data Center Growth Strategy at Analyst Day", "url": "https://www.semtech.com/company/press/semtech-outlines-data-center-growth-strategy-at-analyst-day", "publisher": "Semtech", "date": "2026-10-15" },
+    { "id": "s4", "kind": "news", "title": "Semtech's Q2 Earnings Surpass Estimates, Revenues Increase Y/Y (Zacks; seen via search excerpt, page timed out; accessed date)", "url": "https://www.nasdaq.com/articles/semtechs-q2-earnings-surpass-estimates-revenues-increase-y-y", "publisher": "Zacks via Nasdaq", "date": "2026-10-30" },
+    { "id": "s5", "kind": "ir-site", "title": "Semtech press release list (2026-09 product releases: 224G optical, XPO interconnects; 2026-10 Analyst Day)", "url": "https://www.semtech.com/company/press", "publisher": "Semtech", "date": "2026-10-30" }
+  ],
+
+  "moat": {
+    "sources": [
+      "고속 아날로그 신호 처리 설계 - 광모듈용 드라이버·TIA, 구리 케이블용 리드라이버 (제품 페이지·보도자료 목록)",
+      "AI 연결의 전력 효율 - 회사는 전력이 AI 확장의 큰 제약이 됐다고 보고 저전력 연결을 내세운다 (Analyst Day)",
+      "LoRa 저전력 무선 기술 - 산업 IoT 수요 (실적 요약)"
+    ],
+    "text": "Semtech의 힘은 아주 빠른 신호가 케이블과 광모듈을 지나며 약해지는 것을 적은 전력으로 되살리는 아날로그 회로 설계에 있다. AI 클러스터는 연결 수가 많고 전력이 빠듯해서, DSP 없이 신호를 정리하는 저전력 방식이 점점 중요해진다. 여기에 LoRa라는 자체 무선 기술이 산업 IoT에서 별도 수익원을 만든다.",
+    "src": ["s3", "s2"]
+  },
+
+  "design": {
+    "text": "회사는 세 제품군으로 보고한다. Signal Integrity는 데이터센터 광모듈·구리 케이블·통신망용 고속 칩으로 2분기 매출의 37%, Analog Mixed Signal & Wireless는 보호 소자와 LoRa 무선 칩으로 34%, IoT Systems & Connectivity는 Sierra Wireless 인수로 들어온 모듈·서비스로 29%를 차지했다. 이 중 셀룰러 모듈 사업은 6,200만 달러에 매각하기로 했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "외부 파운드리·후공정 업체 - 웨이퍼와 패키징 위탁 (업체명 미확인)",
+      "광소자(photonics) 인수와 클린룸 확장으로 일부 자체 역량 추가 (실적 요약)"
+    ],
+    "text": "Semtech는 칩을 설계하고 생산은 외부에 맡기는 쪽에 가깝다. 다만 데이터센터 광연결 비중이 커지자 광소자 회사를 사들이고 클린룸 공간을 넓혀 광 관련 역량을 직접 키우고 있다. 분기 설비투자가 750만 달러에 불과해 생산 설비 부담은 작다.",
+    "src": ["s1", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "하이퍼스케일러와 광모듈 제조사 - 로드맵을 함께 맞춘다 (Analyst Day, 이름 미공개)",
+      "통신 장비 업체 (5G·PON)",
+      "산업 IoT 업체 (LoRa), 소비자 기기 업체 (보호 소자)"
+    ],
+    "channel": "모듈·장비 제조사 직접 판매와 유통사 판매 (비중 미확인)",
+    "concentration": null,
+    "text": "데이터센터 칩은 광모듈과 구리 케이블을 만드는 회사가 사고, 그 제품이 하이퍼스케일러 데이터센터로 간다. 회사는 하이퍼스케일러·모듈 업체와 더 깊이 협력해 다음 세대 제품에 미리 자리를 잡겠다고 했다. 고객 이름과 집중도는 이번 조사에서 확인하지 못했다.",
+    "src": ["s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "하이퍼스케일러", "what": "클라우드·AI 사용료" },
+      { "from": "하이퍼스케일러", "to": "광모듈·구리 케이블 제조사", "what": "800G·1.6T 광모듈과 능동 구리 케이블 구매" },
+      { "from": "광모듈·구리 케이블 제조사", "to": "Semtech", "what": "드라이버·TIA·리드라이버 칩을 개당 가격으로 구매" },
+      { "from": "산업 IoT·통신·소비자 기기 업체", "to": "Semtech", "what": "LoRa 칩·보호 소자·모듈 구매 (AI 외 매출)" }
+    ],
+    "pricing": "칩 개당 판매. 모듈 속도가 오르면 모듈 한 개에 들어가는 칩 가치가 커지고, 회사는 광모듈에서 10배 이상 콘텐츠를 노린다고 했다.",
+    "text": "돈은 하이퍼스케일러가 광모듈과 구리 케이블을 사고, 그 제조사가 Semtech 칩을 사는 순서로 들어온다. 회사는 광모듈 하나에서 가져갈 수 있는 칩 가치를 지금의 10배 이상으로 키울 수 있다고 본다. 데이터센터 외 매출은 LoRa와 보호 소자, IoT 모듈에서 나온다.",
+    "src": ["s3"]
+  },
+
+  "earnings": {
+    "period": "Q2 FY2027 (ended 2026-07-26)",
+    "revenue": { "value": 341.9, "unit": "USD mn", "yoy": 33 },
+    "grossMargin": 53.8,
+    "operatingMargin": 16.3,
+    "netMargin": 46.8,
+    "operatingCashFlow": { "value": 68.9, "unit": "USD mn" },
+    "freeCashFlow": { "value": 61.4, "unit": "USD mn" },
+    "segments": [
+      { "name": "Signal Integrity", "revenue": 126.2, "unit": "USD mn", "share": 36.9, "yoy": 64, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Analog Mixed Signal & Wireless", "revenue": 117.4, "unit": "USD mn", "share": 34.3, "yoy": 28, "operatingMargin": null, "src": ["s1"] },
+      { "name": "IoT Systems & Connectivity", "revenue": 98.3, "unit": "USD mn", "share": 28.8, "yoy": 11, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "데이터센터 매출 (Q2 FY2027)", "value": "약 1억 달러, 전분기 대비 +39%, 전년 대비 +91% (2차 보도)", "src": ["s4"] },
+      { "name": "데이터센터 매출 전망 (Q3 FY2027)", "value": "전분기 대비 +45%, 전년 대비 +160%", "src": ["s2"] },
+      { "name": "조정 매출총이익률 / 조정 영업이익률", "value": "Q2 54.5% / 24.4%; Q3 가이던스 58.3% / 약 31%", "src": ["s1", "s2"] },
+      { "name": "부채", "value": "원금 5.03억 달러, 순레버리지 1.1배; 현금 2.04억 달러 (2026-07-26)", "src": ["s2", "s1"] }
+    ],
+    "text": "그 결과 FY2027 2분기 매출은 3억 4,190만 달러로 전년보다 33% 늘었고, 성장은 데이터센터 칩이 속한 Signal Integrity(+64%)에 몰렸다. GAAP 영업이익률은 16.3%이고, 순이익률 47%는 1억 1,240만 달러의 일회성 세금 혜택 때문이라 본래 수익력은 조정 EPS 0.71달러 쪽에 가깝다. 분기 잉여현금흐름은 6,140만 달러였다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "Q2 FY2027",
+    "items": [
+      { "use": "capex", "value": 7.5, "unit": "USD mn", "src": ["s1"] }
+    ],
+    "text": "Semtech는 설비투자가 분기 750만 달러로 작아 번 현금 대부분이 남는다. 이 돈은 Sierra Wireless 인수로 생긴 빚(원금 5억 300만 달러)을 줄이고, 광소자 인수와 클린룸 확장에 쓰이고 있다. 셀룰러 모듈 매각 대금 6,200만 달러도 들어올 예정이다(각 금액의 분기 집행액은 이번 조사에서 확인하지 못함).",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 데이터센터의 광모듈과 능동 구리 케이블 안에서 고속 신호를 증폭·정리하는 아날로그 칩을 모듈·케이블 제조사에 공급한다.",
+    "dependsOn": ["semicap-foundry (외부 파운드리·후공정)", "networking (광모듈·케이블 업체의 수주)"],
+    "sellsTo": ["networking (광모듈·능동 구리 케이블 제조사)", "cloud-infrastructure (하이퍼스케일러)"],
+    "aiRevenue": "Q2 FY2027 데이터센터 매출 약 1억 달러(+91% YoY, 2차 보도). Q3 FY2027 데이터센터 +45% QoQ, +160% YoY 전망 (2026-08-25 발표).",
+    "upside": "AI 클러스터가 1.6T 연결로 넘어가면서 모듈·케이블 한 개에 들어가는 Semtech 칩이 늘고, 전력 효율이 중요해질수록 DSP 없는 저전력 방식의 수요가 커진다. 이 성장이 Signal Integrity 매출과 이익률을 함께 끌어올린다.",
+    "risk": "1.6T 세대에서 자리를 못 잡거나, DSP를 쓰는 방식·광 일체형 패키징(CPO)이 주류가 되면 기회가 줄어든다. 데이터센터 비중이 아직 30% 안팎이라 IoT·소비자 부문이 약하면 전체 성장이 희석된다.",
+    "text": "그래서 AI 밸류체인에서 Semtech는 GPU를 잇는 광모듈·구리 케이블 안의 신호 칩 자리에 있다. AI 투자가 모듈 수요로, 모듈 수요가 Semtech 데이터센터 매출로 이어지며, 회사는 다음 분기 이 매출이 1년 전의 2.6배가 될 것으로 본다. 다만 아직 전체 매출의 큰 몫은 AI 밖에 있다.",
+    "src": ["s2", "s3", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "광모듈용 드라이버·TIA (1.6T)", "rivals": ["MACOM", "Broadcom", "Marvell"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "랙 내부 구리 연결 (능동 구리 케이블 vs 능동 전기 케이블)", "rivals": ["Credo (AEC)", "Marvell", "Broadcom"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "저전력 광역 무선 (IoT)", "rivals": ["다른 저전력 무선 칩 업체"], "position": "leader", "share": null, "src": [] }
+    ],
+    "edge": "저전력 아날로그 신호 처리, 광·구리 양쪽 제품, 하이퍼스케일러·모듈 업체와의 로드맵 협력.",
+    "threats": "DSP와 아날로그를 묶어 파는 Broadcom·Marvell, 능동 전기 케이블로 앞서가는 Credo, 같은 광모듈 칩을 노리는 MACOM.",
+    "text": "광모듈 칩에서는 MACOM·Broadcom·Marvell이, 랙 안 구리 연결에서는 Credo의 능동 전기 케이블이 같은 자리를 노린다. Semtech는 다음 세대 시스템에서 점유율을 늘리겠다고 했지만 구체적인 점유율은 밝히지 않았다. 경쟁사와 점유율은 이번 조사에서 출처를 확인하지 못했다.",
+    "src": ["s3"]
+  },
+
+  "strategy": {
+    "goal": "AI 데이터센터를 여러 해에 걸친 성장 기회로 보고, 광모듈에서 10배 이상 콘텐츠 확대를 노리며 2030 회계연도 재무 목표를 Analyst Day에서 제시했다(구체 수치는 보도자료에 없음).",
+    "roadmap": [
+      { "when": "Q3 FY2027", "what": "매출 4억 1,000만 달러(±500만), 조정 EPS 1.05달러(±0.03), 데이터센터 +45% QoQ 가이던스", "src": ["s1", "s2"] },
+      { "when": "2026-09", "what": "224G 광연결, XPO용 차세대 광연결, 10G PON 칩셋 발표", "src": ["s5"] },
+      { "when": "12개월 내", "what": "셀룰러 모듈 사업 6,200만 달러 매각 완료 예정", "src": ["s2"] },
+      { "when": "FY2030", "what": "Analyst Day 재무 목표 (수치 미확인)", "src": ["s3"] }
+    ],
+    "vision": "AI가 더 많은 데이터를 더 빨리, 더 적은 전력으로 옮기게 만드는 연결 칩 회사로 바뀌고, IoT 모듈 같은 저마진 사업은 정리하겠다는 그림이다.",
+    "text": "앞으로 회사는 저마진 셀룰러 모듈을 팔고 데이터센터 연결에 집중한다. 매각을 빼면 다음 분기 조정 매출총이익률이 63.9%로 올라, 사업 구성이 바뀌는 효과가 크다. 224G·XPO 같은 다음 세대 광연결 제품으로 1.6T 이후에도 자리를 지키는 것이 과제다.",
+    "src": ["s2", "s3", "s5"]
+  },
+
+  "governance": { "line": "Hong Hou CEO가 이끌며, 배당 없이 인수로 생긴 빚을 줄이고 저마진 사업을 매각해 데이터센터 중심으로 재편하는 중이다.", "src": ["s1", "s2", "s3"] },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "net sales", "value": "4억 1,000만 달러 ± 500만 (전분기 +20%, 전년 +54%)", "givenOn": "2026-08-25", "src": ["s1", "s2"] },
+      { "period": "Q3 FY2027", "metric": "adjusted gross margin", "value": "58.3% ± 1%p (셀룰러 모듈 제외 63.9%)", "givenOn": "2026-08-25", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "adjusted diluted EPS", "value": "1.05달러 ± 0.03", "givenOn": "2026-08-25", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "data center net sales", "value": "전분기 대비 +45%, 전년 대비 +160%", "givenOn": "2026-08-25", "src": ["s2"] }
+    ],
+    "style": "quarterly",
+    "track": "2분기 매출은 사상 최대였고 회사는 수주 가속과 사상 최대 수주잔고를 강조했다. 직전 분기에 준 2분기 가이던스와의 비교는 이번 조사에서 확인하지 못했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "Q3 FY2027 매출이 4억 1,000만 달러 근처나 위",
+      "데이터센터 매출이 전분기 대비 45% 안팎 늘어남",
+      "조정 매출총이익률이 58% 이상으로 개선",
+      "셀룰러 모듈 매각 완료와 부채 감소",
+      "1.6T 제품 비중 확대"
+    ],
+    "breaks": [
+      "데이터센터 성장 가이던스 하향이나 수주 둔화",
+      "1.6T 세대 고객 수주 실패나 광모듈 업체 재고 조정",
+      "매각 지연과 레버리지 상승",
+      "IoT·소비자 부문 역성장이 데이터센터 성장을 상쇄"
+    ],
+    "keyNumbers": [
+      { "name": "데이터센터 매출", "why": "AI 연결 수요의 직접 반영" },
+      { "name": "Signal Integrity 매출", "why": "공시되는 데이터센터 성장의 대용치" },
+      { "name": "조정 매출총이익률", "why": "사업 구성 변화 효과" },
+      { "name": "부채 원금과 순레버리지", "why": "재무 부담 감소 여부" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 하순~12 초 (추정, 회사 미확정)", "event": "Q3 FY2027 실적 발표", "src": [] },
+      { "date": "2027-08 이전", "event": "셀룰러 모듈 사업 매각 완료 예정 (발표 후 12개월 내)", "src": ["s2"] }
+    ],
+    "reaction": "주가는 데이터센터 매출 전망과 다음 분기 가이던스에 크게 반응해 왔다(과거 반응 데이터는 이번 조사에서 확인하지 않음).",
+    "conditions": [
+      "다음 분기 매출 가이던스가 직전 분기 실적보다 높은지",
+      "데이터센터 매출 성장률과 1.6T 비중 언급",
+      "조정 매출총이익률 방향",
+      "부채 감소와 매각 진행",
+      "하이퍼스케일러·광모듈 업체 수요 언급"
+    ]
+  },
+
+  "unverified": [
+    "Q2 FY2027 데이터센터 매출 약 1억 달러(+91%)는 Zacks 2차 보도의 검색 발췌로만 확인 (회사 보도자료에 시장별 매출 없음, 원문 페이지 미열람)",
+    "회사가 데이터센터 매출을 공시 수치로 제시하는지 여부 (콜 녹취록 미확인)",
+    "Analyst Day FY2030 재무 목표 수치 (보도자료에 없음)",
+    "셀룰러 모듈 매각의 인수자 이름",
+    "광소자 인수 대상과 금액",
+    "고객 이름과 집중도",
+    "파운드리·후공정 협력사 이름",
+    "R&D 지출액",
+    "경쟁사와 점유율은 이번 조사에서 출처 미확인",
+    "Q3 FY2027 실적 발표일 (회사 공지 미확인)",
+    "Quartr 요약(s2)은 AI 생성 요약",
+    "IoT Systems & Connectivity가 Sierra Wireless 인수에서 왔고 부채가 그 인수로 생겼다는 설명은 이번에 읽은 자료에 직접 나오지 않음 (사업 구성 서술 근거 미확인)"
+  ],
+  "confidence": "low - 매출·제품군·가이던스는 회사 보도자료로 확인했지만, 이 이야기의 핵심인 데이터센터 매출 규모가 2차 보도에만 있고 콜 녹취록을 읽지 못했다."
+}

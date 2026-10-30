@@ -1,0 +1,208 @@
+{
+  "symbol": "MPWR",
+  "name": "Monolithic Power Systems, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "Monolithic Power Systems(MPS)는 서버·AI 가속기·자동차에 전기를 정밀하게 나눠 주는 전원 칩을 자체 공정으로 설계하고 외부 공장에 맡겨 만드는 회사로, AI 서버 전원 수요 덕분에 2026년 Q3 매출이 1년 전보다 63% 늘었다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "MPS Q3'26 Earnings Commentary (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001280452/000162828026068202/mpwr-20260930xexx991.htm", "publisher": "Monolithic Power Systems / SEC EDGAR", "date": "2026-10-29" },
+    { "id": "s2", "kind": "10-K", "title": "Monolithic Power Systems Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1280452/000143774926006113/mpwr20251231_10k.htm", "publisher": "Monolithic Power Systems / SEC EDGAR", "date": "2026-02-27" },
+    { "id": "s3", "kind": "8-K", "title": "MPS Q2'26 Earnings Commentary (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001280452/000162828026051029/mpwr-20260630xexx991.htm", "publisher": "Monolithic Power Systems / SEC EDGAR", "date": "2026-07-30" },
+    { "id": "s4", "kind": "10-Q", "title": "SEC XBRL company concept: PaymentsToAcquirePropertyPlantAndEquipment (10-K FY2025, 10-Q Q1/Q2 2026 year-to-date)", "url": "https://data.sec.gov/api/xbrl/companyconcept/CIK0001280452/us-gaap/PaymentsToAcquirePropertyPlantAndEquipment.json", "publisher": "SEC EDGAR XBRL API", "date": "2026-08-05" },
+    { "id": "s5", "kind": "10-Q", "title": "SEC XBRL company concept: PaymentsOfDividends (10-K FY2025, 10-Q Q1/Q2 2026 year-to-date)", "url": "https://data.sec.gov/api/xbrl/companyconcept/CIK0001280452/us-gaap/PaymentsOfDividends.json", "publisher": "SEC EDGAR XBRL API", "date": "2026-08-05" }
+  ],
+  "moat": {
+    "sources": [
+      "자체 개발한 공정·패키징 기술 - 외부 파운드리에 맡기되 공정은 MPS 것이라 작은 단일 칩 전원 솔루션을 만든다 (10-K)",
+      "특허 2,231건(출원 포함, 미국 등록 654건) - 2025-12-31 기준",
+      "칩 단품에서 모듈·전원 시스템까지 묶어 파는 '풀 서비스 솔루션' 공급 능력",
+      "연 매출 60억 달러를 넘는 생산 능력을 미리 확보해 수요 급증기에 물량을 대는 공급망"
+    ],
+    "text": "MPS의 힘은 공장이 아니라 공정 기술에 있다. 공장은 외부에 맡기지만 전원 칩을 만드는 공정과 패키징을 스스로 개발해, 같은 전력을 더 작은 칩 하나로 처리한다. 이 기술로 서버·자동차 고객의 까다로운 전원 설계를 따내고, 미리 늘려 둔 생산 능력으로 주문이 몰릴 때도 물량을 댄다.",
+    "src": ["s2", "s1"]
+  },
+  "design": {
+    "text": "이 공정으로 만드는 제품은 DC-DC 변환기, AC-DC 변환기, 드라이버 MOSFET, 전원 관리 IC, 전류 제한 스위치, 조명 제어 칩이다. 회사는 제품군이 아니라 최종 시장 6곳(Enterprise Data, Storage & Computing, Communications, Automotive, Industrial, Consumer)으로 매출을 보고한다. 최근에는 800V 데이터센터용 고전압 제품, 고속 메모리용 칩, 데이터 변환기로 영역을 넓히고 있다.",
+    "src": ["s2", "s1"]
+  },
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "외부 파운드리 - 중국·대만·한국·싱가포르에서 웨이퍼 생산 (업체명 미기재)",
+      "독립 조립·패키징 업체 - 중국·대만·말레이시아·한국",
+      "자체 테스트 시설 - 최대 테스트 시설은 중국 청두",
+      "웨이퍼 소팅·최종 테스트 - 중국·대만·싱가포르·말레이시아·한국"
+    ],
+    "text": "설계한 칩은 외부 파운드리가 중국·대만·한국·싱가포르에서 MPS 공정으로 웨이퍼를 만들고, 독립 업체가 조립·패키징한다. 최종 테스트의 가장 큰 거점은 중국 청두에 있는 자체 시설이다. 회사는 연 매출 60억 달러를 넘는 생산 능력을 갖췄고, 2027년 하반기까지 80억 달러, 이어 100억 달러를 목표로 공급망을 넓히고 나눠 두고 있다.",
+    "src": ["s2", "s1"]
+  },
+  "sell": {
+    "customers": [
+      "Enterprise Data - AI·클라우드·온프레미스 서버 전원 (Q3 2026 매출의 42.1%)",
+      "Storage & Computing - 메모리·스토리지·노트북·그래픽카드 (16.0%)",
+      "Communications - 광모듈·스위치·라우터 (15.6%)",
+      "Automotive - ADAS·인포테인먼트·48V (15.0%)",
+      "Industrial (6.0%), Consumer (5.3%)"
+    ],
+    "channel": "대부분 제3자 유통사와 부가가치 재판매업체를 거쳐 판매.",
+    "concentration": "2025년 유통사 3곳이 각각 매출의 26%·18%·10%(상위 3곳 합 54%). 10%를 넘는 직접 고객은 없음. 2025년 매출의 92%가 아시아 고객에게서 나옴.",
+    "text": "만든 칩은 대부분 유통사를 거쳐 서버·자동차·통신 장비 제조사로 간다. 상위 유통사 3곳이 2025년 매출의 54%를 차지해 유통 재고 변화가 숫자에 바로 나타나고, 매출의 92%가 아시아에서 나온다. 실제 사용처를 보면 2026년 Q3에는 AI 서버를 포함한 Enterprise Data가 매출의 42%로 가장 커졌다.",
+    "src": ["s2", "s1"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "하이퍼스케일러·기업 고객", "to": "AI 서버·스위치·자동차 제조사", "what": "AI 서버·광모듈·차량 구매 대금" },
+      { "from": "서버·장비·자동차 제조사 (EMS 포함)", "to": "유통사·부가가치 재판매업체", "what": "전원 칩·모듈 주문 대금" },
+      { "from": "유통사 (상위 3곳이 2025 매출의 54%)", "to": "MPS", "what": "칩·모듈 개당 대금" },
+      { "from": "MPS", "to": "외부 파운드리·조립 업체", "what": "웨이퍼·패키징 위탁 비용" }
+    ],
+    "pricing": "칩·모듈 개당 판매. 고객 보드 설계에 한 번 들어가면 해당 제품 수명 동안 반복 주문이 이어진다. 총마진은 55% 안팎으로 분기마다 크게 움직이지 않는다.",
+    "text": "돈은 데이터센터와 자동차 투자에서 출발해 장비 제조사가 MPS 칩을 주문할 때 주로 유통사를 거쳐 들어온다. 총마진이 55% 안팎에서 거의 변하지 않아, 매출이 늘면 영업이익이 매출보다 빠르게 는다. 외부 공장을 쓰기 때문에 MPS가 직접 짊어지는 설비 투자는 매출에 비해 작다.",
+    "src": ["s1", "s2", "s4"]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 1.2024, "unit": "USD bn", "yoy": 63.1 },
+    "grossMargin": 55.4,
+    "operatingMargin": 29.7,
+    "netMargin": 22.5,
+    "operatingCashFlow": { "value": 0.2899, "unit": "USD bn" },
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "Enterprise Data", "revenue": 506.7, "unit": "USD mn", "share": 42.1, "yoy": 164.6, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Storage & Computing", "revenue": 192.2, "unit": "USD mn", "share": 16.0, "yoy": 3.0, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Communications", "revenue": 187.4, "unit": "USD mn", "share": 15.6, "yoy": 134.7, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Automotive", "revenue": 180.7, "unit": "USD mn", "share": 15.0, "yoy": 19.2, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Industrial", "revenue": 71.4, "unit": "USD mn", "share": 6.0, "yoy": 29.0, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Consumer", "revenue": 64.0, "unit": "USD mn", "share": 5.3, "yoy": -11.6, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "Q3 2026 전 분기 대비", "value": "매출 +22.6%, Enterprise Data +33.2%, Communications +42.5%, Storage & Computing -3.8%", "src": ["s1"] },
+      { "name": "Non-GAAP 영업이익률·EPS (Q3 2026)", "value": "영업이익률 38.6%, 희석 EPS 8.19달러 (GAAP 5.51달러)", "src": ["s1"] },
+      { "name": "2026년 1~9월 누적", "value": "매출 29.87억 달러 (전년 20.39억 대비 약 +46%, 계산), GAAP 순이익 7.22억 달러", "src": ["s1"] },
+      { "name": "FY2025 실적", "value": "매출 27.90억 달러(+26.4%), 총마진 55.2%, 영업이익률 26.1%, 영업현금흐름 8.38억 달러", "src": ["s2"] },
+      { "name": "재고 (2026-09-30)", "value": "내부 재고 7.65억 달러, 재고일수 130일(당분기 매출 기준)", "src": ["s1"] },
+      { "name": "생산 능력", "value": "연 매출 기준 60억 달러 초과, 2027년 하반기 80억 달러 목표", "src": ["s1"] }
+    ],
+    "text": "그 결과 2026년 Q3 매출은 12.0억 달러로 1년 전보다 63% 늘었고, 늘어난 매출의 대부분이 AI 서버 전원을 담은 Enterprise Data(5.07억 달러, +165%)와 광모듈·스위치용 Communications(+135%)에서 나왔다. 총마진은 55.4%로 그대로였지만 주식 보상비가 두 배로 늘어 GAAP 영업이익률은 29.7%에 그쳤고, Non-GAAP 기준으로는 38.6%였다. 분기 영업현금흐름은 2.9억 달러다.",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 0.382, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.172, "unit": "USD bn", "src": ["s4"] },
+      { "use": "dividends", "value": 0.285, "unit": "USD bn", "src": ["s5"] },
+      { "use": "buybacks", "value": 0.0066, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "FY2025에는 영업현금흐름 8.38억 달러 가운데 연구개발 3.82억 달러, 배당 2.85억 달러를 쓰고 설비 투자는 1.72억 달러에 그쳤다. 2026년에는 분기 배당을 주당 1.56달러에서 2.00달러로 올렸고(상반기 배당 1.79억, 설비 투자 1.53억), Q3에 자사주를 4.53억 달러어치 사들인 뒤 10월에 5억 달러를 추가 승인해 남은 한도가 10억 달러가 됐다. 그 결과 현금·단기투자는 2분기 말 14.1억에서 Q3 말 10.9억 달러로 줄었다.",
+    "src": ["s2", "s4", "s5", "s1"]
+  },
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "AI 가속기와 서버 CPU 바로 옆에서 전압을 낮춰 전류를 공급하는 전원 칩·모듈 공급자. 연산을 하는 칩이 아니라 연산 칩이 쓸 전기를 보드 위에서 만드는 부품으로, AI 서버(Enterprise Data)와 광모듈·스위치(Communications), 고속 메모리용 전원에 들어간다.",
+    "dependsOn": [
+      "semicap-foundry (중국·대만·한국·싱가포르 외부 파운드리)",
+      "외부 조립·패키징 업체"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (유통사·서버 제조사를 통한 AI·클라우드 서버)",
+      "networking (광모듈·스위치 제조사)",
+      "memory (고속 메모리 모듈)",
+      "devices (자동차·소비자 기기)"
+    ],
+    "aiRevenue": "AI 전용 매출은 별도 공시 없음. AI·클라우드 서버 전원을 담은 Enterprise Data가 Q3 2026 5.07억 달러(매출의 42.1%, 전년 대비 +164.6%), FY2025 7.02억 달러(25.2%)",
+    "upside": "AI 서버 한 대에 들어가는 전력이 커질수록 보드 위 전원 칩 수와 단가가 늘고, 800V 데이터센터 전원 구조(GaN·SiC 고전압 제품 샘플 공급 중), 고속 메모리 전원, 광모듈 전원으로 같은 AI 투자에서 받는 몫이 넓어진다. 회사는 기존 고객의 강한 수요가 2027년까지 이어질 것으로 본다.",
+    "risk": "Enterprise Data는 FY2025에 전년 대비 -2.0%를 기록한 적이 있을 만큼 특정 AI 플랫폼의 세대 교체와 고객 설계 채택에 따라 출렁인다. 매출이 유통사 3곳에 몰려 있고 생산이 중국·아시아에 집중돼 있어 AI 관련 수출 규제나 무역 분쟁이 판매와 공급을 함께 흔들 수 있다.",
+    "text": "AI 가치사슬에서 MPS는 GPU·가속기 자체가 아니라 그 칩이 쓸 전기를 공급하는 자리에 있고, 2026년 Q3에는 이 서버 전원이 회사 매출의 42%가 됐다. 그래서 하이퍼스케일러의 AI 서버 투자가 늘면 MPS 매출이 가장 직접적으로 따라 오르지만, FY2025처럼 고객 플랫폼 교체기에는 같은 부문이 줄어들 수도 있다.",
+    "src": ["s1", "s2", "s3"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "데이터센터·AI 서버 전원", "rivals": ["Infineon Technologies", "Renesas Electronics", "Texas Instruments", "Analog Devices"], "position": "challenger", "share": null, "src": ["s2"] },
+      { "arena": "자동차 전원 (ADAS·48V·존 아키텍처)", "rivals": ["Texas Instruments", "Infineon Technologies", "NXP Semiconductors", "ON Semiconductor", "STMicroelectronics", "ROHM Semiconductor"], "position": "challenger", "share": null, "src": ["s2", "s1"] },
+      { "arena": "범용 전원 관리 IC (통신·산업·소비자)", "rivals": ["Analog Devices", "Texas Instruments", "Power Integrations", "Semtech", "Renesas Electronics"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "자체 공정 기술로 만든 작은 고효율 전원 칩, 칩에서 모듈까지 묶은 솔루션, 미리 확보한 생산 능력.",
+    "threats": "대형 아날로그 회사(TI·Infineon·ADI)의 가격·공급 경쟁, AI 플랫폼 세대마다 다시 열리는 설계 경쟁, 중국 생산 집중에 따른 규제 위험.",
+    "text": "10-K는 경쟁사로 Analog Devices, Infineon, NXP, ON Semiconductor, Power Integrations, Renesas, ROHM, Semtech, STMicroelectronics, Texas Instruments를 든다. 이들 대부분은 자체 공장과 훨씬 넓은 제품군을 가진 대형사라, MPS는 공정 기술로 만든 전력 밀도와 빠른 설계 대응으로 서버·자동차의 새 설계를 따내는 방식으로 싸운다. 시장별 점유율은 회사가 공개하지 않는다.",
+    "src": ["s2"]
+  },
+  "strategy": {
+    "goal": "칩만 파는 회사에서 '풀 서비스 솔루션 공급자'로 바꾸고, 특정 시장에 기대지 않는 다변화 성장을 이어 가는 것. CEO는 '다변화 성장 전략이 성과를 내고 있다'고 말했다.",
+    "roadmap": [
+      { "when": "2026 Q4", "what": "매출 13.15억~13.85억 달러, GAAP 총마진 55.2~55.8% 가이던스", "src": ["s1"] },
+      { "when": "2026~", "what": "800V 데이터센터용 고전압 제품 - SiC 기반에 더해 GaN 기반 솔루션 샘플 공급 시작", "src": ["s1", "s3"] },
+      { "when": "2027", "what": "첫 대형 데이터 변환기 설계 수주 양산, 자동차 48V·존 아키텍처 설계 수주가 성장 동력", "src": ["s1"] },
+      { "when": "2027 H2", "what": "생산 능력을 연 매출 기준 80억 달러로 확대 (이후 100억 달러)", "src": ["s1"] }
+    ],
+    "vision": "데이터센터·자동차·통신·산업·로봇까지 전기가 쓰이는 곳마다 칩·모듈·시스템 단위 전원 솔루션을 공급하는 회사.",
+    "text": "그래서 MPS는 AI 서버 하나에 기대지 않으려고 800V 고전압, 고속 메모리, 데이터 변환기, 자동차 48V, 로봇용 센서·모터 제어로 제품을 넓히고 있다. 동시에 생산 능력을 2027년 하반기 연 80억 달러 규모까지 미리 늘려, 주문이 몰릴 때 공급이 막히지 않게 준비한다.",
+    "src": ["s1", "s3"]
+  },
+  "governance": {
+    "line": "창업자 Michael Hsing이 CEO를 맡아 이끌며, 2026년 분기 배당을 주당 2.00달러로 올렸고 Q3에 4.53억 달러 자사주를 산 뒤 매입 한도를 10억 달러로 다시 채웠다; 2024년 재무제표 재작성과 연관된 내부통제 중대한 취약점이 2025-12-31 기준 남아 있다.",
+    "src": ["s1", "s2"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "revenue", "value": "13.15억~13.85억 달러", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "GAAP gross margin", "value": "55.2%~55.8% (Non-GAAP 55.5%~56.1%)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "GAAP operating expenses", "value": "3.34억~3.42억 달러 (Non-GAAP 2.168억~2.208억)", "givenOn": "2026-10-29", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q3 2026 매출 12.02억 달러는 7월 가이던스 11.4억~11.6억 달러 상단을 넘었고, GAAP 총마진 55.4%는 가이던스 55.2~55.8% 범위 안이었다.",
+    "src": ["s3", "s1"]
+  },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+  "watch": {
+    "confirms": [
+      "Enterprise Data 매출이 분기마다 계속 늘고 매출 비중 40% 안팎을 유지",
+      "Q4 매출이 가이던스 13.15억~13.85억 달러 범위 안이나 위에 들어옴",
+      "총마진이 55% 안팎을 유지",
+      "800V 고전압·데이터 변환기·자동차 48V 제품이 2027년 실제 매출로 이어짐"
+    ],
+    "breaks": [
+      "Enterprise Data가 FY2025처럼 감소로 돌아섬",
+      "재고일수(130일)가 계속 늘거나 유통사 재고가 쌓인다는 신호",
+      "총마진이 55% 아래로 떨어짐 (가격 경쟁)",
+      "AI 관련 수출 규제나 중국 생산 차질"
+    ],
+    "keyNumbers": [
+      { "name": "Enterprise Data 매출", "why": "AI 서버 전원 수요가 가장 먼저 나타나는 줄이다" },
+      { "name": "Communications 매출", "why": "광모듈·스위치 등 AI 네트워크 투자의 두 번째 통로" },
+      { "name": "총마진", "why": "가격 경쟁이 붙었는지 보여 준다" },
+      { "name": "재고일수", "why": "공급 과잉을 미리 알려 준다" },
+      { "name": "다음 분기 매출 가이던스", "why": "회사가 보는 주문 흐름" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 (추정, 회사 미공지 - 2025년 10-K는 2026-02-27 제출)", "event": "Q4 2026·FY2026 실적 발표와 Q1 2027 가이던스", "src": ["s2"] },
+      { "date": "수시", "event": "AI 플랫폼 세대 교체 일정과 미중 수출 규제", "src": ["s2"] }
+    ],
+    "reaction": "MPS 주가는 AI 서버 전원 기대가 크게 반영돼 있어, 분기 실적 자체보다 Enterprise Data 성장률과 다음 분기 매출 가이던스에 크게 반응하는 경향이 있다. 실적이 가이던스를 넘어도 기대에 못 미치면 하락할 수 있다.",
+    "conditions": [
+      "다음 분기 매출 가이던스 중간값과 컨센서스의 차이",
+      "Enterprise Data 전 분기 대비 성장률",
+      "총마진이 55% 안팎인지",
+      "재고일수와 유통사 재고 언급",
+      "Non-GAAP와 GAAP 영업이익률 격차(주식 보상비)"
+    ]
+  },
+  "unverified": [
+    "Q3 2026 설비 투자와 잉여현금흐름 - 실적 자료에 없음 (Q3 10-Q 미확인), 그래서 freeCashFlow는 null",
+    "FY2025 배당·설비 투자 금액은 SEC XBRL 데이터(s4·s5)에서 읽었으며 10-K 현금흐름표 원문과 대조하지 않음",
+    "Q3 2026 실적 발표 콜 녹취록 - 읽지 못함; 경영진 발언은 회사 실적 자료(Earnings Commentary)에만 기반",
+    "외부 파운드리 업체명 - 10-K에 미기재",
+    "시장별 점유율 - 공개 출처 없음",
+    "AI 전용 매출 - 공시 없음 (Enterprise Data에 AI 외 일반 서버 포함)",
+    "경쟁 영역별 경쟁사 배치는 10-K 경쟁사 목록을 영역에 나눠 적은 것이며 영역별 배치는 회사가 공시하지 않음",
+    "컨센서스 추정치 - 확인하지 않음",
+    "다음 실적 발표일 - 회사 미공지"
+  ],
+  "confidence": "high - 실적·시장별 매출·가이던스·생산 구조는 회사 8-K 실적 자료와 10-K에서 왔다. Q3 현금 쓰임 일부와 콜 발언만 확인하지 못했다."
+}

@@ -1,0 +1,205 @@
+{
+  "symbol": "SANM",
+  "name": "Sanmina Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "late September / early October (FY2026 ends 2026-10-03, 53 weeks)",
+  "oneLine": "Sanmina는 남의 설계로 전자 장비를 만들어 주는 위탁생산(EMS) 회사로, 2025년 10월 AMD에서 ZT Systems 데이터센터 공장을 사들인 뒤 AI 서버 랙 조립이 매출의 큰 축이 되면서 클라우드·AI 인프라 매출이 1년 새 2.7배가 됐다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Sanmina Reports Third Quarter Fiscal 2026 Financial Results (IR PDF)", "url": "https://s201.q4cdn.com/209924174/files/doc_financials/2026/q3/SANM-Q326-Earnings-Release-7_27_26-FINAL.pdf", "publisher": "Sanmina", "date": "2026-07-27" },
+    { "id": "s2", "kind": "earnings-release", "title": "Sanmina Q3 Fiscal 2026 Financial Results presentation (IR PDF)", "url": "https://s201.q4cdn.com/209924174/files/doc_financials/2026/q3/SANM-Q326-Earnings-Presentation-7_27_26-FINAL.pdf", "publisher": "Sanmina", "date": "2026-07-27" },
+    { "id": "s3", "kind": "10-Q", "title": "Sanmina Form 10-Q for the quarter ended 2025-12-27 (customer concentration, ZT acquisition note)", "url": "https://www.sec.gov/Archives/edgar/data/897723/000089772326000015/sanm-20251227.htm", "publisher": "Sanmina / SEC EDGAR", "date": "2026-02" },
+    { "id": "s4", "kind": "ir-site", "title": "Sanmina Completes Acquisition of ZT Systems Data Center Infrastructure Manufacturing Business from AMD (IR PDF; read via search excerpt)", "url": "https://s201.q4cdn.com/209924174/files/doc_news/SANMINA-COMPLETES-ACQUISITION-OF-ZT-SYSTEMS-DATA-CENTER-INFRASTRUCTURE-MANUFACTURING-BUSINESS-FROM-AMD-2025.pdf", "publisher": "Sanmina", "date": "2025-10-27" },
+    { "id": "s5", "kind": "ir-site", "title": "Sanmina Corporation Invites You to Join Its Fourth Quarter and Fiscal Year 2026 Earnings Conference Call (IR PDF; read via search excerpt)", "url": "https://s201.q4cdn.com/209924174/files/doc_news/SANMINA-CORPORATION-INVITES-YOU-TO-JOIN-ITS-FOURTH-QUARTER-AND-FISCAL-YEAR-2026-EARNINGS-CONFERENCE-CALL-2026.pdf", "publisher": "Sanmina", "date": "2026-10-19" }
+  ],
+
+  "moat": {
+    "sources": [
+      "ZT Systems 공장 - 대용량 전력과 액체냉각 설비를 갖춘 뉴저지·텍사스 AI 랙 조립 공장 (인수 발표)",
+      "AMD의 미국 내 '우선 신제품 생산(NPI) 파트너' 지위 - AMD 랙·클러스터 규모 AI 시스템 (인수 발표)",
+      "부품(CPS)부터 완제품 조립까지 직접 하는 수직계열화 - 회로기판·기구·광부품 등을 자체 공급 (실적 자료)",
+      "미국·멕시코·유럽·아시아 40여 곳 생산 거점 (실적 자료)"
+    ],
+    "text": "위탁생산은 원래 이익률이 낮고 차별화가 어려운 사업이다. Sanmina가 다른 점은 ZT Systems 인수로 AI 랙을 통째로 조립·시험할 수 있는 전력·액체냉각 설비를 미국 안에 확보했고, AMD의 우선 생산 파트너가 됐다는 것이다. 여기에 회로기판·기구 같은 부품을 자체 공급해 랙 한 대에서 가져가는 몫을 늘리는 수직계열화가 두 번째 축이다.",
+    "src": ["s4", "s2"]
+  },
+
+  "design": {
+    "text": "회사는 IMS(통합 제조 서비스: 기판 조립·시험, 완제품 조립, 직배송)를 유일한 보고 부문으로 두고, ZT Systems도 여기에 들어간다. 부품·제품·서비스(CPS)는 회로기판, 기구물, 광·RF 부품 등으로 일부는 IMS에 내부 공급된다. 시장으로는 통신망·클라우드/AI 인프라와 산업·에너지·의료·방산·자동차로 나눠 공개한다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "ZT Systems 공장 - 뉴저지·텍사스(휴스턴 등) AI 랙 조립, 네덜란드 거점 (인수 발표)",
+      "멕시코(과달라하라·후아레스·몬테레이·레이노사), 미국 각지, 말레이시아·싱가포르·태국·인도·중국·유럽 공장 (실적 자료)",
+      "GPU·CPU·메모리 등 핵심 부품은 고객이 지정하거나 공급 - 공급사 이름 미공시"
+    ],
+    "text": "Sanmina는 설계는 고객이 하고, 만드는 일은 자기 공장에서 직접 한다. 3분기에는 ZT 공장에 전력·액체냉각·시험 설비를 추가로 투자했고, 그 결과 분기 설비투자가 1년 전의 세 배인 1억 달러가 됐다. 공장은 미국·멕시코 비중이 커서 미국 내 생산을 원하는 AI 고객에게 유리하다.",
+    "src": ["s4", "s2", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "하이퍼스케일러와 서버 OEM - 차세대 가속 컴퓨팅(AI 랙) 신규 수주 (실적 자료, 이름 미공개)",
+      "AMD - 랙·클러스터 규모 AI 시스템의 우선 NPI 파트너 (인수 발표)",
+      "통신 장비 업체, 산업·에너지·의료·방산·자동차 OEM"
+    ],
+    "channel": "OEM·하이퍼스케일러와 직접 다년 제조 계약",
+    "concentration": "2025-12-27 분기 상위 10개 고객이 매출의 66%(전년 50%), 10% 이상 고객 1곳 (10-Q).",
+    "text": "이렇게 만든 장비는 하이퍼스케일러, 서버 OEM, 그리고 AMD 같은 칩 회사의 AI 랙 사업에 납품된다. ZT 인수 뒤 고객 집중도가 크게 올라 상위 10개 고객 비중이 50%에서 66%로 뛰었고, 매출 10% 이상 고객도 한 곳 생겼다. 고객 이름은 공개하지 않는다.",
+    "src": ["s3", "s2", "s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "하이퍼스케일러", "what": "클라우드·AI 사용료" },
+      { "from": "하이퍼스케일러", "to": "AMD 등 칩·시스템 회사와 서버 OEM", "what": "AI 랙 시스템 구매" },
+      { "from": "칩·시스템 회사와 서버 OEM (또는 하이퍼스케일러 직접)", "to": "Sanmina", "what": "랙 조립·시험 위탁 대금, 부품을 포함한 완제품 가격으로 청구" },
+      { "from": "Sanmina", "to": "부품 공급사", "what": "고객 지정 부품 구매 (매출의 약 90%가 매출원가)" }
+    ],
+    "pricing": "제조 위탁 계약: 부품 원가에 조립·시험 마진을 얹은 완제품 단가. 부품값이 매출에 그대로 들어가 매출은 크지만 이익률은 낮다.",
+    "text": "돈은 하이퍼스케일러가 AI 랙을 사면, 그 랙을 조립한 Sanmina에 완제품 값으로 들어온다. 문제는 GPU 같은 비싼 부품값까지 매출에 들어가 매출의 약 90%가 원가로 나간다는 점이다. 그래서 이 회사는 매출 규모보다 조립·시험·자체 부품에서 남기는 몇 %p의 이익률이 더 중요하다.",
+    "src": ["s1"]
+  },
+
+  "earnings": {
+    "period": "Q3 FY2026 (ended 2026-06-27)",
+    "revenue": { "value": 3.464, "unit": "USD bn", "yoy": 69.7 },
+    "grossMargin": 10.5,
+    "operatingMargin": 6.4,
+    "netMargin": 3.4,
+    "operatingCashFlow": { "value": 0.1245, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.0237, "unit": "USD bn" },
+    "segments": [
+      { "name": "Communications Networks + Cloud & AI Infrastructure", "revenue": 2.148, "unit": "USD bn", "share": 62.0, "yoy": 173.2, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Industrial & Energy, Medical, Defense & Aerospace, Automotive & Transportation", "revenue": 1.316, "unit": "USD bn", "share": 38.0, "yoy": 4.8, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "Core Sanmina vs ZT Systems 매출 (Q3 FY2026)", "value": "Core 약 24억 달러(+17%), ZT Systems 약 11억 달러 (가이던스 중간값)", "src": ["s2"] },
+      { "name": "Non-GAAP 영업이익률", "value": "Q3 FY2026 8.0% (전년 5.7%, 가이던스 6.4~6.9%)", "src": ["s1", "s2"] },
+      { "name": "부문 매출 (내부 거래 포함)", "value": "IMS 29.6억 달러(Non-GAAP 매출총이익률 10.2%), CPS 5.5억 달러(+29.2%, 12.8%)", "src": ["s2"] },
+      { "name": "Non-GAAP ROIC / 순차입 배율", "value": "39.1% / 0.29배 (2026-06-27)", "src": ["s2"] },
+      { "name": "재고 (2026-06-27)", "value": "31.5억 달러 (2025-09-27 19.9억 달러)", "src": ["s1"] }
+    ],
+    "text": "그 결과 FY2026 3분기 매출은 34.6억 달러로 전년보다 70% 늘었고, 늘어난 몫은 거의 다 통신·클라우드/AI 인프라(+173%)에서 나왔다. 매출총이익률은 10.5%, GAAP 영업이익률은 6.4%(Non-GAAP 8.0%)로 위탁생산 회사로서는 높아졌지만, 재고를 늘리고 설비를 깔면서 분기 잉여현금흐름은 2,400만 달러에 그쳤다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 1~3분기 (9개월, 2026-06-27까지)",
+    "items": [
+      { "use": "acquisitions", "value": 1.1142, "unit": "USD bn", "src": ["s1"] },
+      { "use": "debt repayment", "value": 0.3019, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.2442, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.2392, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "주식보상 원천징수세 대납", "value": 0.0596, "unit": "USD bn", "src": ["s1"] },
+      { "use": "R&D", "value": 0.0249, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "9개월 동안 가장 큰 돈은 ZT Systems 인수 대금(순 11.1억 달러)에 들어갔고, 이를 위해 22억 달러를 새로 빌렸다. 설비투자는 2.4억 달러로 전년 같은 기간의 세 배로 늘었고, 자사주도 2.4억 달러 샀다. R&D는 2,500만 달러로 미미해, 이 회사의 경쟁력이 기술 개발보다 공장과 설비에 있다는 점을 보여 준다.",
+    "src": ["s1"]
+  },
+
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "GPU·CPU·네트워크 칩을 받아 AI 서버 랙으로 조립·시험해 칩 회사, 서버 OEM, 하이퍼스케일러에 넘기는 시스템 조립 단계에 있다.",
+    "dependsOn": ["chips-compute (AMD 등 GPU·CPU, 고객 지정 부품)", "memory·networking 부품", "power-energy·cooling-electrical (공장의 전력과 액체냉각 설비)"],
+    "sellsTo": ["chips-compute (AMD 등 칩 회사의 랙 사업, 서버 OEM)", "cloud-infrastructure (하이퍼스케일러)"],
+    "aiRevenue": "AI 매출을 따로 공시하지 않음. Q3 FY2026 통신망+클라우드/AI 인프라 매출 21.5억 달러(+173%), 이 중 ZT Systems 약 11억 달러 (2026-07-27 실적 자료).",
+    "upside": "하이퍼스케일러가 AI 랙을 더 많이 사면 조립 물량이 바로 매출이 된다. 회사는 차세대 가속 컴퓨팅 사업을 하이퍼스케일러·OEM 고객에게서 새로 수주했고, FY2027 매출 160억 달러 이상을 자신한다고 밝혔다.",
+    "risk": "고객 몇 곳에 매출이 몰려 있어 한 프로그램이 늦거나 빠지면 분기 실적이 크게 흔들린다. 실제로 4분기 ZT 매출 전망은 일부 기존 프로그램 시점 때문에 8~10억 달러로 3분기보다 낮다. 이익률이 얇아 부품값 변동이나 관세도 부담이다.",
+    "text": "그래서 AI 밸류체인에서 Sanmina는 칩을 랙으로 바꾸는 조립 공장 자리에 있다. AI 수요가 커질수록 물량은 늘지만, 남는 몫은 부품값을 뺀 조립·시험 마진이라 칩 회사만큼 버는 구조는 아니다. 이 자리의 성패는 차세대 랙 프로그램을 얼마나 많은 고객에게서 따내고 제때 생산하느냐에 달려 있다.",
+    "src": ["s2", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "AI 랙·서버 위탁 조립", "rivals": ["Foxconn (Hon Hai)", "Quanta", "Wiwynn", "Celestica", "Jabil"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "통신·산업·의료·방산 EMS", "rivals": ["Jabil", "Flex", "Celestica", "Plexus", "Benchmark"], "position": "follower", "share": null, "src": [] }
+    ],
+    "edge": "미국 내 전력·액체냉각 랙 공장, AMD 우선 생산 파트너 지위, 부품 수직계열화.",
+    "threats": "대만 ODM(Foxconn·Quanta·Wiwynn)의 규모와 가격, 그리고 고객이 공급사를 바꾸거나 나눠 맡기는 것.",
+    "text": "AI 랙 조립 시장은 Foxconn·Quanta·Wiwynn 같은 대만 ODM이 규모로 앞서 있고, Celestica·Jabil도 같은 고객을 노린다. Sanmina는 ZT 인수로 이 시장에 늦게 뛰어든 도전자로, 미국 내 생산과 AMD와의 관계를 내세운다. 경쟁사와 점유율은 회사 자료에 없어 일반적인 구도로 적었다.",
+    "src": []
+  },
+
+  "strategy": {
+    "goal": "FY2027 매출 160억 달러 이상을 자신하며, FY2027 내내, FY2028까지 성장이 가속된다고 밝혔다 (실적 자료).",
+    "roadmap": [
+      { "when": "Q4 FY2026", "what": "매출 33~36억 달러(Core 25~26억, ZT 8~10억), Non-GAAP 영업이익률 7.5~8.0% 가이던스 (추가 1주 포함)", "src": ["s2"] },
+      { "when": "FY2026", "what": "매출 140~143억 달러(Core 91~92억, ZT 11개월 48~50억), Non-GAAP EPS 11.90~12.20달러", "src": ["s2"] },
+      { "when": "FY2027", "what": "차세대 가속 컴퓨팅 랙 양산 시작(시생산 진행, 고객 생산 일정 확정 중), 매출 160억 달러 이상", "src": ["s2"] },
+      { "when": "FY2028", "what": "성장 지속 전망", "src": ["s1"] }
+    ],
+    "vision": "단순 조립을 넘어 설계 지원, 부품, 랙 통합·시험까지 한 번에 맡는 'AI 인프라 제조 파트너'가 되겠다는 그림이다.",
+    "text": "앞으로 회사는 현세대 랙 출하에서 차세대 랙 양산으로 넘어가는 단계에 있다. 시생산을 하며 고객 생산 일정을 확정하는 중이고, 수직계열화로 자체 부품을 더 끼워 넣어 이익률을 높이려 한다. FY2027 매출 160억 달러 이상이라는 목표가 이 전환이 제때 이뤄지는지의 기준이다.",
+    "src": ["s2", "s1"]
+  },
+
+  "governance": { "line": "Jure Sola 회장 겸 CEO가 이끌며, AMD가 ZT 인수 대가로 받은 약 115만 주(3년 분할 락업)를 보유하고, 회사는 자사주 매입을 병행한다.", "src": ["s1", "s3"] },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 FY2026", "metric": "revenue", "value": "33~36억 달러 (Core 25~26억, ZT 8~10억)", "givenOn": "2026-07-27", "src": ["s1", "s2"] },
+      { "period": "Q4 FY2026", "metric": "non-GAAP operating margin / EPS", "value": "7.5~8.0% / 3.05~3.35달러", "givenOn": "2026-07-27", "src": ["s1"] },
+      { "period": "FY2026", "metric": "revenue / non-GAAP operating margin / EPS", "value": "140~143억 달러 / 6.85~7.25% / 11.90~12.20달러 (기존 137~143억, 6.3~6.6%, 10.75~11.35달러에서 상향)", "givenOn": "2026-07-27", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue", "value": "160억 달러 이상 자신", "givenOn": "2026-07-27", "src": ["s2"] }
+    ],
+    "style": "quarterly",
+    "track": "3분기 매출 34.6억 달러는 가이던스(32~35억 달러) 상단, Non-GAAP 영업이익률 8.0%와 EPS 3.31달러는 가이던스(6.4~6.9%, 2.55~2.85달러)를 넘었다.",
+    "src": ["s2"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "Q4 FY2026 매출이 33~36억 달러 가이던스 안, ZT 매출이 8~10억 달러 이상",
+      "FY2027 가이던스가 160억 달러 이상으로 제시됨",
+      "차세대 가속 컴퓨팅 랙의 양산 시작과 고객 추가",
+      "Non-GAAP 영업이익률이 7.5% 이상 유지",
+      "재고가 매출 증가에 맞춰 현금으로 돌아오며 잉여현금흐름 회복"
+    ],
+    "breaks": [
+      "ZT 프로그램 지연이나 고객 이탈로 ZT 매출이 계속 줄어듦",
+      "상위 고객 비중이 더 커지는데 새 고객이 늘지 않음",
+      "재고·운전자본이 늘면서 잉여현금흐름이 마이너스로",
+      "이익률 하락(부품값·관세·가격 경쟁)"
+    ],
+    "keyNumbers": [
+      { "name": "ZT Systems 분기 매출", "why": "AI 랙 사업의 실제 규모" },
+      { "name": "클라우드·AI 인프라 매출 증가율", "why": "AI 수요가 물량으로 바뀌는 속도" },
+      { "name": "Non-GAAP 영업이익률", "why": "얇은 마진을 지키는지" },
+      { "name": "재고와 잉여현금흐름", "why": "선투자가 현금으로 회수되는지" },
+      { "name": "상위 10개 고객 비중", "why": "집중 위험의 크기" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-09", "event": "Q4·FY2026 실적 발표와 콘퍼런스콜 (오후 5시 ET)", "src": ["s5"] },
+      { "date": "FY2027 (2026-10 ~ 2027-09)", "event": "차세대 가속 컴퓨팅 랙 양산 진입", "src": ["s2"] },
+      { "date": "2026-10-27 이후 매년", "event": "AMD 보유 ZT 대가 주식 1/3씩 락업 해제", "src": ["s3"] }
+    ],
+    "reaction": "주가는 ZT 매출 전망과 다음 해 매출 목표에 크게 반응해 왔다(과거 반응 데이터는 이번 조사에서 확인하지 않음).",
+    "conditions": [
+      "ZT 매출 가이던스가 직전 분기보다 높은지",
+      "FY2027 매출 전망이 160억 달러를 넘는지",
+      "Non-GAAP 영업이익률 가이던스 방향",
+      "잉여현금흐름과 재고 추이",
+      "새 하이퍼스케일러·OEM 고객 언급"
+    ]
+  },
+
+  "unverified": [
+    "고객 이름과 최대 고객 비중 (10% 이상 고객 1곳만 공시; 2026-06 분기 집중도는 미확인)",
+    "AMD가 실제 고객으로서 차지하는 비중",
+    "ZT Systems의 이익률 (Core와 분리 공시 없음)",
+    "Q3 FY2026 시장별 매출 세부 분해(통신망과 클라우드/AI를 따로) - 회사는 합쳐서만 공개",
+    "경쟁사와 점유율은 이번 조사에서 출처 미확인",
+    "s4(ZT 인수 완료 발표)와 s5(Q4 실적 콜 일정)는 IR PDF 원문을 열지 않고 검색 발췌로 읽음",
+    "10-Q(s3) 제출일은 월 단위만 확인",
+    "ZT 인수 대가 16.2억 달러(현금 13.56억+주식 1.55억, 최대 4.5억 달러 조건부 대가)는 10-Q 기준"
+  ],
+  "confidence": "medium - 실적·현금흐름·가이던스는 회사 보도자료·발표자료 원문으로 확인했지만, 고객 이름과 ZT 이익률이 비공개라 AI 랙 사업의 수익성은 추정할 수 없다."
+}

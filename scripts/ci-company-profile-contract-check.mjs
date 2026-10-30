@@ -11,7 +11,10 @@ import { fileURLToPath } from 'node:url';
 import { AI_LAYERS, STORY_UNITS, moneyText, storyFreshness, isCompanyStory } from '../src/domain/entity/company-story.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const dir = join(root, 'public-data', 'company-profiles');
+// v59.44: `--dir <folder>` checks researched stories in a staging folder (no index there) before they are synced in.
+const dirArg = process.argv.indexOf('--dir');
+const staging = dirArg > 0 ? resolve(process.argv[dirArg + 1] || '') : null;
+const dir = staging || join(root, 'public-data', 'company-profiles');
 const failures = [];
 const fail = (message) => failures.push(message);
 
@@ -20,9 +23,9 @@ const STEPS = ['oneLine', 'moat', 'design', 'make', 'sell', 'moneyFlow', 'earnin
 // A price, size or timing order. '목표가' alone is usually 목표 + subject particle, so only a number after it counts.
 const ORDER = /(매수하세요|매도하세요|사세요|파세요|진입가|손절가|손절\s*라인|목표\s*주가|목표가\s*[:：]?\s*\$?\d|비중을?\s*(늘리|줄이)세요|buy at|sell at|stop[- ]loss at|price target of)/i;
 
-const index = JSON.parse(readFileSync(join(dir, 'index.json'), 'utf8'));
+const index = staging ? null : JSON.parse(readFileSync(join(dir, 'index.json'), 'utf8'));
 const files = readdirSync(dir).filter((name) => name.endsWith('.json') && name !== 'index.json').sort();
-if (index.schemaVersion !== 'company-profiles-index.v1') fail(`index schemaVersion ${index.schemaVersion}`);
+if (index && index.schemaVersion !== 'company-profiles-index.v1') fail(`index schemaVersion ${index.schemaVersion}`);
 const rows = [];
 for (const file of files) {
   const story = JSON.parse(readFileSync(join(dir, file), 'utf8'));
@@ -53,7 +56,7 @@ for (const file of files) {
   if (/전문가가 보는/.test(text)) fail(`${file}: labels "전문가가 보는"`);
 }
 const revision = createHash('sha256').update(JSON.stringify(rows)).digest('hex').slice(0, 16);
-if (index.revision !== revision || index.count !== rows.length || JSON.stringify(index.profiles) !== JSON.stringify(rows)) fail('index.json is out of date: run node scripts/sync-company-profiles.mjs');
+if (index && (index.revision !== revision || index.count !== rows.length || JSON.stringify(index.profiles) !== JSON.stringify(rows))) fail('index.json is out of date: run node scripts/sync-company-profiles.mjs');
 
 // Reader helpers on fixed cases.
 for (const [value, unit, text] of [[215.9, 'USD bn', '2,159억 달러'], [1234, 'USD bn', '1.23조 달러'], [-1.68, 'USD bn', '-16.8억 달러'], [850, 'USD mn', '8.5억 달러'], [104.62, 'KRW tn', '104.62조 원'], [830, 'KRW bn', '8,300억 원'], [1494.24, 'TWD bn', '1.49조 대만달러'], [32.667, 'EUR bn', '327억 유로'], [5, 'XYZ bn', '5 XYZ bn'], [null, 'USD bn', null]]) {

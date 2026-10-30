@@ -1,10 +1,37 @@
 ---
-last_verified: 2026-10-29
+last_verified: 2026-10-30
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
 
+
+## P2138 - v59.44 - GAAP 주당순이익을 조정 기준 컨센서스와 비교해 큰 미달처럼 보임 (2026-10-30)
+
+- symptom/reproduction: 서비스나우 요약이 '희석 주당순이익, GAAP $0.27 · 예상 대비 -73.9%'로 나왔다. 컨센서스는 조정(non-GAAP) 기준이라 같은 잣대가 아니다.
+- root_cause: scripts/fetch-event-briefs.mjs assembleEarningsSections가 eps_diluted 수치를 GAAP·조정 구분 없이 제공처 EPS 예상치와 비교했다.
+- fix: 라벨·설명에 GAAP만 있고 non-GAAP·조정 표기가 없는 EPS는 예상치와 비교하지 않는다. 이미 저장된 비교도 다음 실행에서 지운다.
+- violated_rule: R618: 비교는 같은 기준끼리만 한다.
+- prevention: scripts/ci-event-briefs-check.mjs P2138 검사: GAAP 라벨 EPS는 비교 대상이 아니고, 저장된 비교는 다음 실행에서 제거된다.
+- verification/residual: node scripts/ci-event-briefs-check.mjs PASS
+
+## P2137 - v59.44 - 실적 요약 제목이 영어 보도자료 제목이거나 '실적 발표'뿐임 (2026-10-30)
+
+- symptom/reproduction: 홈 주요 발표 요약에서 알파벳은 'Alphabet Announces Third Quarter 2026 Results', 마이크로소프트는 '마이크로소프트 실적 발표'만 제목으로 나왔다.
+- root_cause: scripts/fetch-event-briefs.mjs safeHeadline이 원문에 없는 숫자만 걸렀다. AI가 영어 제목을 그대로 옮기면 통과했고, 숫자 검사에 걸리면 이름만 있는 고정 문구로 바뀌었다.
+- fix: src/domain/briefing/event-briefs.js briefHeadline: 한글이 없거나 고정 문구인 제목은 확인된 첫 수치(매출 우선)로 '회사 실적: 매출 $X'를 만든다. 이미 저장된 요약도 다음 실행에서 고친다(AI 호출 없음).
+- violated_rule: R618: 화면 문장은 한국어 계약을 생산 단계에서 검사한다.
+- prevention: scripts/ci-event-briefs-check.mjs P2137 검사: 영어 제목·고정 문구가 수치 제목으로 바뀌고 한국어 제목은 그대로다.
+- verification/residual: node scripts/ci-event-briefs-check.mjs PASS
+
+## P2136 - v59.44 - 삼성전자 실적 공시를 읽지 못해 주요 발표 요약에서 빠짐 (2026-10-30)
+
+- symptom/reproduction: 10/29 삼성전자 연결재무제표기준영업(잠정)실적(공정공시) 정정(rcpNo 20261029800099)이 event-briefs 오류 'dart 005930.KS: ... not parsed'로 남고 홈 주요 발표 요약에 삼성전자가 없었다. 소유자가 직접 물은 발표였다.
+- root_cause: src/domain/briefing/event-briefs.js parseDartPreliminaryResults가 단위로 원·천원·백만원·십억원·억원만 알고 금액을 정수로만 읽었다. 삼성전자는 '단위 : 조원'에 195.25처럼 소수로 공시하고, 분기를 '(26.3Q)'로 적는다.
+- fix: 조원(1e12) 단위와 소수 금액을 읽고, '(26.3Q)' 표기를 '2026년 3분기'로 읽는다. 다음 실행에서 같은 공시가 다시 처리된다.
+- violated_rule: R618: 원천 형식 가정은 실제 공시 표본으로 검사한다.
+- prevention: scripts/ci-event-briefs-check.mjs P2136 검사: 삼성전자 공시 표 발췌(조원·소수·(26.3Q))가 195.25조원·2026년 3분기로 읽힌다.
+- verification/residual: 삼성전자 공시 원문(dart.fss.or.kr rcpNo 20261029800099)을 내려받아 파서에 넣어 매출 195.25조원·영업이익 107.44조원 확인; node scripts/ci-event-briefs-check.mjs PASS
 
 ## P2135 - v59.43 - 10/28 FOMC 결과가 수기 레지스트리에 없어 시장 데이터 갱신이 13시간 넘게 게시 차단 (2026-10-29)
 

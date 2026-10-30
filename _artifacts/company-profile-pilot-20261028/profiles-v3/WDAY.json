@@ -1,0 +1,209 @@
+{
+  "symbol": "WDAY",
+  "name": "Workday, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "January 31 (FY2027 ends 2027-01-31; Q2 FY2027 ended 2026-07-31)",
+  "oneLine": "Workday는 대기업의 인사(HCM)·재무 업무를 클라우드 구독으로 운영해 주는 회사로, 그 위에 AI 에이전트를 얹어 신규 계약의 25% 이상을 AI가 이끌고 있지만, 직원 수에 맞춰 받는 요금 구조라 AI가 고객의 인력을 줄이면 매출 기반도 줄 수 있다는 질문을 함께 받는다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Workday Announces Fiscal 2027 Second Quarter Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1327811/000132781126000042/wday-07312026x991.htm", "publisher": "Workday / SEC EDGAR", "date": "2026-08-27" },
+    { "id": "s2", "kind": "10-K", "title": "Workday Form 10-K for fiscal year ended 2026-01-31", "url": "https://www.sec.gov/Archives/edgar/data/1327811/000132781126000014/wday-20260131.htm", "publisher": "Workday / SEC EDGAR", "date": "2026-03-04" },
+    { "id": "s3", "kind": "8-K", "title": "Workday to Acquire C1.ai (8-K Ex.99.1, announced at Workday Rising 2026)", "url": "https://www.sec.gov/Archives/edgar/data/1327811/000132781126000051/wday-10122026x991.htm", "publisher": "Workday / SEC EDGAR", "date": "2026-10-13" },
+    { "id": "s4", "kind": "8-K", "title": "Workday 8-K: issuance of $2.5 billion senior notes due 2029/2031/2033/2036", "url": "https://www.sec.gov/Archives/edgar/data/1327811/000110465926118496/tm2626731d6_8k.htm", "publisher": "Workday / SEC EDGAR", "date": "2026-10-23" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus and earnings-calendar snapshots (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json and earnings-calendar.json", "url": "https://www.nasdaq.com/market-activity/stocks/wday/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "인사·급여·재무 데이터를 하나의 데이터 모델에 담은 시스템 - 한번 바꾸면 되돌리기 어려운 핵심 업무 기록 시스템 (10-K)",
+      "11,500곳 이상 고객, Fortune 500의 65% 이상 - 대기업 인사 데이터의 대표 보관소 (8-K)",
+      "3년 이상 다년 구독 계약과 높은 갱신 - 총 구독 백로그 274억 달러 (8-K, 10-K)",
+      "AWS·Google Cloud 파트너십과 자체 AI 에이전트(인사·재무 업무 자동화) (8-K)"
+    ],
+    "text": "Workday의 힘은 대기업의 직원·급여·재무 기록이 이 회사 시스템 안에 들어 있다는 데서 나온다. 인사와 재무는 한번 옮기면 다시 바꾸기 어려운 핵심 기록이라 계약이 대개 3년 이상이고, 7월 말 기준 앞으로 받을 구독 백로그만 274억 달러다. AI 시대에는 이 데이터가 곧 인사·재무 AI 에이전트를 돌리는 원료가 된다는 것이 회사의 주장이다.",
+    "src": ["s2", "s1"]
+  },
+
+  "design": {
+    "text": "이 데이터 위에서 회사가 파는 것은 인사(HCM), 재무 관리, 지출 관리, 계획(Planning) 애플리케이션이고, 여기에 Workday AI와 목적별 AI 에이전트, 개발 도구 Workday Build가 붙는다. FY2026에 Flowise·Paradox·Sana·Pipedream을 사들여 채용 자동화·학습·에이전트 개발 기능을 넣었고, 2분기에 Sana 기반 Workday Learning을 정식 출시했다.",
+    "src": ["s2", "s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "제3자가 운영하는 미국 등 코로케이션 데이터센터 - 서비스 호스팅 (10-K)",
+      "Amazon Web Services·Google Cloud - 전략적 퍼블릭 클라우드 파트너 (10-K, 8-K)",
+      "Workday Services Partners - 도입·구축 서비스 (10-K)"
+    ],
+    "text": "만드는 방식은 공장이 아니라 소프트웨어 운영이다. 애플리케이션은 제3자가 운영하는 코로케이션 데이터센터와 AWS·Google Cloud 위에서 돌아가고, 도입 작업은 Workday와 협력 컨설팅사가 나눠 맡는다. 그래서 원가의 중심은 인건비와 호스팅 비용이고, AI 기능이 늘수록 클라우드 연산 비용이 새 원가로 붙는다.",
+    "src": ["s2", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "대기업·중견기업·공공기관 11,500곳 이상, Fortune 500의 65% 이상 (8-K)",
+      "AI 에이전트를 하나 이상 쓰는 고객 5,500곳 이상, 직전 분기 대비 +35% 이상 (8-K)"
+    ],
+    "channel": "지역·산업·규모별 직접 영업 조직이 중심이고, 추천·공동 영업 파트너·리셀러·Workday Marketplace를 함께 쓴다 (10-K).",
+    "concentration": "단일 고객 집중 미공시 (10-K에서 확인 못함)",
+    "text": "이렇게 만든 서비스는 주로 Workday 영업 조직이 대기업에 직접 판다. 고객은 11,500곳 이상이고 Fortune 500의 65% 이상이 쓰며, 2분기에는 AI 에이전트를 쓰는 고객이 5,500곳을 넘었다. 신규 판매의 큰 흐름은 기존 고객에게 재무·AI 기능을 더 얹는 것이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업·공공기관 인사·재무 부서", "to": "Workday", "what": "다년 구독료 (대체로 고객의 직원 수 규모에 맞춰 책정, 3년 이상 계약)" },
+      { "from": "AI 기능을 쓰는 고객", "to": "Workday", "what": "Flex Credits 방식의 AI 사용 요금 (새 과금 모델)" },
+      { "from": "도입 고객", "to": "Workday·Services Partners", "what": "구축·컨설팅 대가 (전문 서비스 매출)" },
+      { "from": "Workday", "to": "코로케이션 데이터센터·AWS·Google Cloud", "what": "호스팅·연산 비용" }
+    ],
+    "pricing": "구독료는 대체로 고객의 직원 수 규모를 기준으로 정해지고 3년 이상 기간에 걸쳐 매출로 인식된다(10-K). 일부 AI 기능에는 Flex Credits라는 새 구독형 과금을 도입했고, 회사는 이 가격 모델에 불확실성이 있다고 밝혔다.",
+    "text": "돈은 고객이 직원 수에 맞춘 다년 구독료를 내면서 들어오고, 이것이 매출의 93%다. 문제는 고객이 감원하면 구독 기반도 줄 수 있다는 점으로, 회사도 대규모 감원이 구독 매출에 영향을 줬다고 10-K에 적었다. 그래서 회사는 AI에는 사용량에 가까운 Flex Credits 과금을 붙여 인원 대신 일의 양으로 돈을 받는 길을 시험 중이다.",
+    "src": ["s2", "s1"]
+  },
+
+  "earnings": {
+    "period": "Q2 FY2027 (ended 2026-07-31)",
+    "revenue": { "value": 2.649, "unit": "USD bn", "yoy": 12.8 },
+    "grossMargin": 75.4,
+    "operatingMargin": 11.8,
+    "netMargin": 23.9,
+    "operatingCashFlow": { "value": 520, "unit": "USD mn" },
+    "freeCashFlow": { "value": 460, "unit": "USD mn" },
+    "segments": [
+      { "name": "Subscription services", "revenue": 2471, "unit": "USD mn", "share": 93.3, "yoy": 13.9, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Professional services", "revenue": 178, "unit": "USD mn", "share": 6.7, "yoy": -0.6, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "12개월 구독 백로그 (cRPO에 해당)", "value": "90.34억 달러, 전년 대비 +14.2% (2026-07-31)", "src": ["s1"] },
+      { "name": "총 구독 백로그", "value": "274.03억 달러, 전년 대비 +8.0%", "src": ["s1"] },
+      { "name": "non-GAAP 영업이익률", "value": "Q2 FY2027 31.1% (8.24억 달러)", "src": ["s1"] },
+      { "name": "AI 비중", "value": "AI가 신규 ACV의 25% 이상을 이끔; AI 에이전트 사용 고객 5,500곳 이상", "src": ["s1"] }
+    ],
+    "text": "이 구조가 2분기에 매출 26.49억 달러(+12.8%), 구독 매출 24.71억 달러(+13.9%)로 나타났다. GAAP 영업이익률은 11.8%지만 주식보상 등을 뺀 non-GAAP 기준은 31.1%이고, 순이익 6.32억 달러에는 지식재산 이전에 따른 일회성 세금 효과(주당 1.52달러)가 들어 있다. 앞으로 1년 치 구독 백로그가 14.2% 늘어 매출 성장률보다 조금 빠르다는 것이 다음 분기들을 받친다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2027 상반기 (2026-02-01~2026-07-31)",
+    "items": [
+      { "use": "buybacks", "value": 2924, "unit": "USD mn", "src": ["s1"] },
+      { "use": "capex", "value": 139, "unit": "USD mn", "src": ["s1"] }
+    ],
+    "text": "상반기 현금의 가장 큰 쓰임은 자사주 매입으로 29.24억 달러를 썼고, 2분기에만 약 980만 주를 13억 달러에 샀다. 설비투자는 1.39억 달러로 작고, 대신 제품 개발비가 2분기 한 분기에 7.47억 달러로 매출의 약 28%다. 10월에는 25억 달러 회사채를 발행해 2027년 4월 만기 10억 달러 채권을 갚을 계획이고, C1.ai 인수도 4분기에 마무리할 예정이다.",
+    "src": ["s1", "s4", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 모델을 만들지 않고, 대기업 인사·재무 데이터 위에서 외부 모델로 채용·급여·결산 같은 업무를 처리하는 AI 에이전트를 파는 응용 소프트웨어 층. 에이전트 등록·접근 관리(Agent System of Record, C1.ai 인수)까지 넓히고 있다.",
+    "dependsOn": ["cloud-infrastructure (AWS·Google Cloud, 코로케이션 데이터센터)", "models-platforms (Gemini Enterprise 등 외부 모델·에이전트 플랫폼)"],
+    "sellsTo": ["ai-adopter (인사·재무 업무에 AI를 쓰는 대기업·공공기관)"],
+    "aiRevenue": "AI가 신규 ACV의 25% 이상 (Q2 FY2027, 2026-08-27 발표). AI 매출 금액·ARR은 미공시.",
+    "upside": "AI 에이전트를 기존 인사·재무 고객에게 추가로 팔고, Flex Credits 같은 사용량 과금으로 직원 수와 무관한 매출을 만든다. 에이전트가 늘수록 이를 등록·통제하는 관리 도구(C1.ai) 수요도 생긴다.",
+    "risk": "구독료가 직원 수에 묶여 있어 AI로 고객 인력이 줄면 매출 기반이 줄 수 있다. AI 네이티브 업체나 범용 에이전트 플랫폼이 인사·재무 업무를 직접 처리하면 기록 시스템의 값이 낮아질 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Workday는 AI를 직접 만들지 않고 기업 업무 데이터 위에서 AI를 파는 소프트웨어 층이다. AI는 이미 신규 계약의 25% 이상을 이끌지만, 요금이 직원 수에 묶여 있다는 점이 양날이다. 결국 AI 에이전트 판매와 새 과금이 인력 감소의 효과를 넘어설 수 있느냐가 이 회사 이야기의 핵심 질문이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "대기업 인사(HCM) 클라우드", "rivals": ["SAP", "Oracle", "ADP", "Dayforce", "UKG"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "재무·지출·계획", "rivals": ["Oracle (NetSuite 포함)", "SAP", "Anaplan", "Coupa Software", "Microsoft"], "position": "challenger", "share": null, "src": ["s2"] },
+      { "arena": "기업용 AI 에이전트·업무 자동화", "rivals": ["ServiceNow", "Microsoft", "AI 네이티브 업체"], "position": "challenger", "share": null, "src": ["s2", "s1"] }
+    ],
+    "edge": "대기업 인사 데이터의 대표 보관소라는 위치와 Fortune 500의 65% 이상 고객 기반, 그리고 그 데이터에 붙는 자체 에이전트.",
+    "threats": "10-K는 Oracle과 SAP를 주요 경쟁자로 꼽는다. AI 에이전트 영역에서는 ServiceNow·Microsoft가 같은 기업 업무를 노리고, 고객 감원과 새 AI 과금 모델의 가격 저항이 매출을 흔들 수 있다.",
+    "text": "인사 클라우드에서는 Workday가 SAP·Oracle과 맞서는 선두권이고, 재무와 계획에서는 Oracle·SAP를 쫓는 쪽이다. AI 시대의 새 경쟁은 ServiceNow·Microsoft처럼 여러 업무를 묶는 에이전트 플랫폼과의 싸움인데, Workday는 Google Gemini Enterprise 안에 자기 에이전트를 넣는 등 협력과 경쟁을 함께 택했다.",
+    "src": ["s2", "s1"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 구독 매출 99.4억~99.5억 달러(+13%), non-GAAP 영업이익률 31.0%를 제시했다 (8-K).",
+    "roadmap": [
+      { "when": "Q2 FY2027", "what": "Sana 기반 Workday Learning 정식 출시; AWS(Workday Data Cloud)·Google Cloud(Gemini Enterprise 내 Workday 에이전트) 협력 발표", "src": ["s1"] },
+      { "when": "Q3 FY2027", "what": "구독 매출 25.15억 달러(+12%), non-GAAP 영업이익률 30.0% 가이드", "src": ["s1"] },
+      { "when": "Q4 FY2027", "what": "C1.ai(사람·AI 에이전트 접근 권한 관리) 인수 완료 예정", "src": ["s3"] },
+      { "when": "2027-04", "what": "새 회사채 자금으로 3.5% 10억 달러 채권 상환·재매입 계획", "src": ["s4"] }
+    ],
+    "vision": "사람과 AI 에이전트가 함께 일하는 회사에서, 직원과 에이전트를 모두 등록·관리하는 기록 시스템이 되겠다는 그림이다 (Agent System of Record).",
+    "text": "회사가 이기려는 길은 인사 데이터의 주인이라는 자리를 'AI 에이전트의 인사 기록'으로 넓히는 것이다. Workday Rising에서 발표한 C1.ai 인수는 직원과 에이전트의 접근 권한을 입사부터 퇴사까지 관리하게 해 준다. 동시에 대규모 자사주 매입과 30%대 이익률로 성장 둔화 구간의 주당 가치를 지키려 한다.",
+    "src": ["s3", "s1"]
+  },
+
+  "governance": {
+    "line": "공동 창업자 Aneel Bhusri가 CEO 겸 의장으로 이끌고, 주당 10표인 Class B를 가진 공동 창업자(David Duffield·Bhusri)가 주요 의결을 통제하며, 자사주 매입 40억 달러 추가 승인으로 현금을 환원한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "subscription revenue", "value": "25.15억 달러 (+12%)", "givenOn": "2026-08-27", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "non-GAAP operating margin", "value": "30.0%", "givenOn": "2026-08-27", "src": ["s1"] },
+      { "period": "FY2027", "metric": "subscription revenue", "value": "99.4억~99.5억 달러 (+13%)", "givenOn": "2026-08-27", "src": ["s1"] },
+      { "period": "FY2027", "metric": "non-GAAP operating margin", "value": "31.0%", "givenOn": "2026-08-27", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "2분기 구독 매출 24.71억 달러(+13.9%)를 냈다. 이전 분기 가이드와의 비교는 이번에 확인하지 못했다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) 합계 6.00달러(범위 4.88~7.15, 추정 9건), 직전 4개 분기 6.12달러. 최근 4주 상향 4건·하향 0건. 데이터의 2분기 실제치(2.58)는 일회성 세금 효과가 든 GAAP에 가까워 회사 non-GAAP EPS(2.75)와 기준이 다르다.",
+    "src": ["s5", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "12개월 구독 백로그 성장이 매출 성장보다 빠르게 유지 (2분기 +14.2%)",
+      "AI가 이끄는 신규 ACV 비중과 에이전트 사용 고객 수 증가",
+      "Flex Credits 등 AI 과금이 별도 매출로 확인됨",
+      "non-GAAP 영업이익률 30% 이상 유지",
+      "C1.ai 인수가 4분기에 마무리되고 에이전트 관리 상품으로 이어짐"
+    ],
+    "breaks": [
+      "고객 감원으로 갱신 시 구독 규모가 줄었다는 언급",
+      "구독 매출 가이던스 하향 또는 백로그 성장 둔화",
+      "AI 과금 모델에 대한 고객 저항이 공개됨",
+      "SAP·Oracle·ServiceNow로의 대형 고객 이탈",
+      "자사주 매입을 위해 차입이 계속 늘어남"
+    ],
+    "keyNumbers": [
+      { "name": "12개월 구독 백로그", "why": "다음 1년 구독 매출의 선행 지표" },
+      { "name": "구독 매출 성장률", "why": "감원 영향과 AI 추가 판매의 순효과" },
+      { "name": "AI의 신규 ACV 기여 비중", "why": "AI가 실제 계약으로 이어지는지" },
+      { "name": "non-GAAP 영업이익률", "why": "AI 원가와 비용 통제" },
+      { "name": "자사주 매입과 순부채", "why": "주당 가치 방어 여력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-23 (장 마감 후, AIO 실적 캘린더 기준)", "event": "Q3 FY2027 실적과 연간 가이던스 갱신", "src": ["s5"] },
+      { "date": "FY2027 Q4 (2026-11~2027-01)", "event": "C1.ai 인수 완료 예정", "src": ["s3"] },
+      { "date": "2027-04-01", "event": "3.5% 10억 달러 채권 만기 (새 회사채로 상환 예정)", "src": ["s4"] }
+    ],
+    "reaction": "주가는 구독 매출 성장률과 12개월 백로그, 그리고 AI가 성장을 다시 끌어올릴 수 있는지에 대한 설명에 반응하는 편이다. 이번 조사에서는 실적 직후 주가 반응을 확인하지 않았다.",
+    "conditions": [
+      "구독 매출 가이던스와 컨센서스의 차이",
+      "12개월 구독 백로그 성장률",
+      "AI가 이끈 신규 ACV 비중과 AI 과금 매출 공개 여부",
+      "고객 감원·갱신 규모에 대한 회사 언급",
+      "non-GAAP 영업이익률 가이드",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "AI 매출·ARR 금액 (신규 ACV 25% 이상만 공시)",
+    "GAAP 총마진 75.4%는 매출에서 구독·전문 서비스 원가를 빼 계산한 값",
+    "전문 서비스 매출 성장률 -0.6%는 전년 1.79억 달러로 계산한 값",
+    "FY2026 인수(Paradox·Sana·Flowise·Pipedream) 금액과 C1.ai 인수 가격",
+    "남은 자사주 매입 한도 총액 (40억 달러 추가 승인만 확인)",
+    "상반기 R&D(제품 개발비) 합계 (2분기 7.47억 달러만 확인)",
+    "분야별 시장 점유율",
+    "Q3 가이드 대비 실적 추이와 실적 직후 주가 반응",
+    "다음 실적 발표일은 AIO 캘린더 기준이며 회사 공지 미확인"
+  ],
+  "confidence": "medium - 실적·가이던스·인수·회사채는 SEC 8-K와 10-K 원문에서 왔지만, 콜 녹취를 읽지 못해 AI 사업의 세부와 경영진 설명은 보도자료 범위에 그친다."
+}

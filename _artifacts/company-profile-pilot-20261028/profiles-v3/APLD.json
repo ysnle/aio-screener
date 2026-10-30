@@ -1,0 +1,191 @@
+{
+  "symbol": "APLD",
+  "name": "Applied Digital Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "May 31 (FY2027 ends 2027-05-31)",
+  "oneLine": "Applied Digital은 노스다코타 등 추운 지역에 AI 전용 데이터센터 캠퍼스를 지어 CoreWeave와 투자등급 하이퍼스케일러에 15년 안팎 임대하는 회사로, 임대 용량 약 1.41GW와 기본 계약 매출 약 360억 달러를 확보해 매출이 1년 새 4배로 커졌다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Applied Digital Reports Fiscal First Quarter 2027 Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001144879/000114487926000057/apldq127earningsrelease.htm", "publisher": "Applied Digital / SEC EDGAR", "date": "2026-10-07" },
+    { "id": "s2", "kind": "news", "title": "Applied Digital Finalizes Additional 150MW Lease with CoreWeave in North Dakota (press release text)", "url": "https://finviz.com/news/153275/applied-digital-finalizes-additional-150mw-lease-with-coreweave-in-north-dakota", "publisher": "Finviz (press release text)", "date": "2025-08-29" },
+    { "id": "s3", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/apld/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+  "moat": {
+    "sources": [
+      "노스다코타·루이지애나·앨라배마의 대형 전력 부지와 추운 기후(냉각 효율) - 5개 캠퍼스",
+      "CoreWeave·투자등급 하이퍼스케일러와 맺은 약 15년 장기 임대 - 임대 약 1.41GW",
+      "고밀도 액체냉각 AI 전용 건물을 반복 설계·시공하는 경험 (Polaris Forge 1 1·2동 인도)",
+      "Base Electron 약 1,200MW 가스발전 전력 구매 계약과 지분 약 10%"
+    ],
+    "text": "Applied Digital의 강점은 전력이 남는 추운 지역에 AI 전용 건물을 빠르게 짓는 능력이다. 노스다코타 Polaris Forge 1에서 1동(100MW)과 2동(150MW)을 차례로 넘기며 실적을 쌓았고, 이 실적이 투자등급 하이퍼스케일러 계약으로 이어졌다. 최근에는 가스발전소 전력 계약으로 전력 확보를 한 단계 더 넓혔다.",
+    "src": ["s1", "s2"]
+  },
+  "design": {
+    "text": "회사는 세 갈래로 매출을 낸다. 핵심인 HPC 호스팅은 AI 고객에게 데이터센터를 임대하고 내부 공사(테넌트 설비)를 대신 해 주는 사업이고, 데이터센터 호스팅은 Jamestown·Ellendale의 비트코인 채굴 고객용 시설이다. 약 96%를 가진 상장 자회사 ChronoScale(CHRN)은 GPU 클라우드를 운영한다.",
+    "src": ["s1"]
+  },
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "자체 개발·시공 관리 - Polaris Forge 1·2·3, Delta Forge 1·2",
+      "Base Electron - 노스다코타 약 1,200MW 가스발전 전력·용량 구매 계약, 지분 약 10%",
+      "APLD ComputeCo 3 - 15.9억 달러 7.000% 담보 채권(2031) 등 프로젝트 금융",
+      "핀란드 - 최대 약 1GW 잠재 전력 확보 (분기 이후)"
+    ],
+    "text": "Applied Digital은 땅과 건물을 소유하고, 임차인이 GPU를 들인다. 건설비는 캠퍼스별 자회사가 발행한 담보 채권 등으로 대며, 8월 말 총차입이 약 64억 달러, 현금과 제한 현금이 약 37억 달러였다. 전력은 전력망과 함께 Base Electron 가스발전 계약으로 늘린다.",
+    "src": ["s1"]
+  },
+  "sell": {
+    "customers": [
+      "CoreWeave - Polaris Forge 1 (총 400MW, 계약 약 110억 달러)",
+      "투자등급 하이퍼스케일러 - Polaris Forge 2",
+      "1등급 투자등급 하이퍼스케일러(이름 미공개) - Delta Forge 1, Polaris Forge 3, Delta Forge 2(210MW, 15년, 약 52억 달러)",
+      "Microsoft - ChronoScale 50MW GB300 NVL72 배치 계획",
+      "비트코인 채굴 고객 - Jamestown 106MW·Ellendale 180MW 호스팅"
+    ],
+    "channel": "직접 계약. 캠퍼스·건물 단위로 약 15년 장기 임대를 맺는다.",
+    "concentration": "현재 가동 용량(Polaris Forge 1)은 전부 CoreWeave. 고객별 매출 비율은 공시에서 확인하지 못함.",
+    "text": "지금 임대료를 내는 곳은 Polaris Forge 1의 CoreWeave이고, 나머지 네 캠퍼스는 투자등급 하이퍼스케일러가 빌려 두고 공사 중이다. 1분기에는 앨라배마 Delta Forge 2(210MW, 15년, 약 52억 달러)를 새로 계약했다. 기본 계약 매출은 약 360억 달러, 연장 옵션을 모두 쓰면 약 860억 달러다.",
+    "src": ["s1", "s2"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자", "to": "CoreWeave·하이퍼스케일러", "what": "클라우드·GPU 이용료" },
+      { "from": "CoreWeave·하이퍼스케일러", "to": "Applied Digital", "what": "기본 임대료 (Q1 6,580만 달러)와 전력 등 실비 회수 (1,330만 달러)" },
+      { "from": "CoreWeave·하이퍼스케일러", "to": "Applied Digital", "what": "테넌트 내부 설비 공사 대금 (Q1 1.835억 달러, 마진 낮음)" },
+      { "from": "채권 투자자·금융기관", "to": "Applied Digital", "what": "캠퍼스별 담보 채권·프로젝트 금융" },
+      { "from": "Applied Digital", "to": "시공사·장비 공급사", "what": "데이터센터 건설 (Q1 설비투자 20.7억 달러)" }
+    ],
+    "pricing": "MW 단위 장기 임대료(약 15년, 연장 옵션)와 전력 등 실비 회수, 그리고 임차인 내부 설비 공사 대금으로 받는다. 임대 부분 순영업이익률은 89%다.",
+    "text": "임차인이 내는 돈은 세 갈래다. 이익의 중심은 기본 임대료로 순영업이익률이 89%에 이르고, 공사 대금은 매출을 키우지만 마진이 얇다. 그래서 1분기 매출 3.4억 달러 중 절반 이상이 공사 대금이었다는 점을 함께 봐야 한다.",
+    "src": ["s1"]
+  },
+  "earnings": {
+    "period": "FY2027 Q1 (ended 2026-08-31)",
+    "revenue": { "value": 341.9, "unit": "USD mn", "yoy": 322 },
+    "grossMargin": null,
+    "operatingMargin": -18.3,
+    "netMargin": -53.8,
+    "operatingCashFlow": { "value": 63.9, "unit": "USD mn" },
+    "freeCashFlow": { "value": -2010.8, "unit": "USD mn" },
+    "segments": [
+      { "name": "HPC Hosting (base rent + tenant fit-out + recoveries)", "revenue": 262.6, "unit": "USD mn", "share": 76.8, "yoy": null, "operatingMargin": 12.7, "src": ["s1"] },
+      { "name": "Data Center Hosting (bitcoin hosting)", "revenue": 37.8, "unit": "USD mn", "share": 11.1, "yoy": -0.3, "operatingMargin": 35.2, "src": ["s1"] },
+      { "name": "ChronoScale (GPU cloud, ~96% owned)", "revenue": 41.5, "unit": "USD mn", "share": 12.1, "yoy": 148.5, "operatingMargin": -61.2, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "임대 용량 / 계약 매출", "value": "약 1.41GW(IT), 5개 캠퍼스 / 기본 약 360억 달러, 연장 포함 약 860억 달러", "src": ["s1"] },
+      { "name": "가동 용량", "value": "Polaris Forge 1 250MW (2026-10-01 기준); 2026년 말 노스다코타 300MW 목표", "src": ["s1"] },
+      { "name": "NOI", "value": "Q1 5,880만 달러, 마진 89%", "src": ["s1"] },
+      { "name": "조정 EBITDA (ChronoScale 제외)", "value": "Q1 6,440만 달러 (전년 50만 달러)", "src": ["s1"] },
+      { "name": "현금 / 차입", "value": "현금·제한 현금 약 36.8억 달러 / 총차입 약 63.8억 달러 (2026-08-31)", "src": ["s1"] }
+    ],
+    "text": "1분기 매출은 3.42억 달러로 1년 새 4배가 됐지만, 그중 1.84억 달러는 임차인 공사 대금이고 순수 임대료는 6,580만 달러였다. 이자 비용 7,740만 달러와 파생상품 평가 손실이 겹쳐 순손실은 1.84억 달러였다. 영업현금흐름은 흑자(6,390만 달러)로 돌아섰지만 설비투자 20.7억 달러가 훨씬 커서, 성장 자금은 계속 빌린 돈에 기댄다.",
+    "src": ["s1"]
+  },
+  "useOfCash": {
+    "period": "FY2027 Q1 (ended 2026-08-31)",
+    "items": [
+      { "use": "capex", "value": 2.075, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "한 분기에만 20.7억 달러를 캠퍼스 건설에 썼고, 같은 기간 재무활동으로 15.4억 달러를 조달했다. 배당과 자사주 매입은 없다. 돈의 우선순위는 계약된 1.41GW를 짓는 데 있다.",
+    "src": ["s1"]
+  },
+  "aiChain": {
+    "layer": "data-center-real-estate",
+    "position": "AI 전용 고밀도 데이터센터 캠퍼스를 짓고 CoreWeave·하이퍼스케일러에 장기 임대하는 개발·운영사. 자회사 ChronoScale로 GPU 클라우드도 일부 한다.",
+    "dependsOn": ["power-energy (노스다코타 전력망, Base Electron 가스발전)", "cooling-electrical (액체냉각·전기 설비)", "채권·프로젝트 금융"],
+    "sellsTo": ["cloud-infrastructure (CoreWeave, 투자등급 하이퍼스케일러, Microsoft via ChronoScale)"],
+    "aiRevenue": "FY2027 Q1 HPC 호스팅 매출 2.626억 달러(매출의 77%; 기본 임대료 6,580만 달러). 기본 계약 매출 약 360억 달러.",
+    "upside": "Polaris Forge 1 3동과 Polaris Forge 2·3, Delta Forge 1·2가 차례로 가동되면 높은 마진의 임대료가 계단식으로 늘어난다. 핀란드 1GW 등 새 부지가 추가 계약으로 바뀔 여지도 있다.",
+    "risk": "공사 지연과 비용 초과, CoreWeave 의존, 큰 차입(약 64억 달러)과 이자 부담. AI 투자가 줄어 하이퍼스케일러가 확장 옵션을 쓰지 않으면 성장 그림이 작아진다.",
+    "text": "AI 가치사슬에서 Applied Digital은 '데이터센터 부동산' 층에 있다. 하이퍼스케일러가 GPU를 사서 넣을 건물과 전력을 빌려주고 15년 임대료를 받는 구조라, GPU 가격 위험은 임차인이 진다. 대신 1.41GW를 짓는 동안 막대한 차입이 쌓이므로 일정과 자금 조달이 핵심이다.",
+    "src": ["s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "AI 데이터센터 개발·임대", "rivals": ["Core Scientific", "Cipher Digital", "TeraWulf", "IREN", "Crusoe"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "대형 데이터센터 리츠·개발사", "rivals": ["Digital Realty", "Equinix", "QTS", "하이퍼스케일러 자체 건설"], "position": "niche", "share": null, "src": [] },
+      { "arena": "GPU 클라우드 (ChronoScale)", "rivals": ["CoreWeave", "Nebius", "Lambda"], "position": "niche", "share": null, "src": [] }
+    ],
+    "edge": "채굴 출신이 아닌 AI 전용 캠퍼스 개발 실적, 투자등급 하이퍼스케일러 3곳 이상과의 장기 계약, 추운 지역의 냉각 효율.",
+    "threats": "전력 부지를 가진 채굴 전환사와 대형 리츠, 하이퍼스케일러의 직접 건설.",
+    "text": "Applied Digital은 채굴 전환 회사들과 같은 AI 임대 시장에 있지만, 처음부터 AI 전용 건물을 반복해 지어 하이퍼스케일러 신뢰를 얻은 점이 다르다. 대형 리츠보다 작지만 전력이 있는 외곽 부지를 빨리 여는 쪽을 택했다. 경쟁사 목록은 회사 공시가 아닌 업계 일반 구분이라 출처가 비어 있다.",
+    "src": ["s1"]
+  },
+  "strategy": {
+    "goal": "임대한 약 1.41GW를 차례로 가동하고, 2026년 말까지 노스다코타 캠퍼스 인도 용량 300MW를 달성하는 것. Polaris Forge 1은 장기적으로 1GW 이상으로 키울 수 있다고 본다.",
+    "roadmap": [
+      { "when": "2026-10-01", "what": "Polaris Forge 1 2동 두 번째 75MW 인도, 캠퍼스 가동 250MW", "src": ["s1"] },
+      { "when": "2026 말", "what": "Polaris Forge 2 첫 가동으로 노스다코타 인도 용량 300MW", "src": ["s1"] },
+      { "when": "공사 중", "what": "Polaris Forge 1 3동(150MW), Polaris Forge 3, Delta Forge 1(루이지애나), Delta Forge 2(앨라배마 210MW)", "src": ["s1"] },
+      { "when": "분기 이후", "what": "핀란드 최대 약 1GW 잠재 전력 확보, Base Electron 1,200MW 가스발전 전력 계약", "src": ["s1"] },
+      { "when": "2028~2030", "what": "송전망 확충 시 Polaris Forge 1 1GW 이상 확장 가능성", "src": ["s2"] }
+    ],
+    "vision": "AI 학습·추론을 위한 고밀도 데이터센터 캠퍼스를 전력이 있는 곳에 빠르게 지어 하이퍼스케일러에 장기 임대하는 플랫폼.",
+    "text": "앞으로는 계약된 다섯 캠퍼스를 일정대로 여는 것이 전부다. 연말 Polaris Forge 2가 가동되면 두 번째 투자등급 하이퍼스케일러 임대료가 들어오기 시작하고, Delta Forge 1·2가 뒤를 잇는다. 그동안 공사 대금 비중이 큰 매출과 큰 설비투자가 함께 보일 것이다.",
+    "src": ["s1"]
+  },
+  "governance": {
+    "line": "Wes Cummins가 회장 겸 CEO를 맡고, GPU 클라우드 자회사 ChronoScale(CHRN) 지분 약 96%를 보유하며, 배당·자사주 매입 없이 프로젝트 채권으로 건설 자금을 댄다.",
+    "src": ["s2", "s1"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "2026 말", "metric": "노스다코타 인도 IT 용량", "value": "300MW (Polaris Forge 2 첫 가동 포함)", "givenOn": "2026-10-07", "src": ["s1"] }
+    ],
+    "style": "none",
+    "track": "매출·이익 가이던스는 없다. Polaris Forge 1 2동은 2026-07-01과 2026-10-01에 75MW씩 나눠 인도됐다. 그 이전 목표 대비 이력은 이번 조사에서 확인하지 못했다.",
+    "src": ["s1"]
+  },
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기(2026-11~2027-08) 합계 -1.86달러(범위 -2.42~-0.89, 최소 3명), 직전 4개 분기 실적 합 -1.62달러. 최근 4주 상향 2건, 하향 6건.",
+    "src": ["s3"]
+  },
+  "watch": {
+    "confirms": [
+      "Polaris Forge 2가 2026년 말 첫 가동해 노스다코타 300MW 달성",
+      "기본 임대료(공사 대금 제외)가 분기마다 늘어남",
+      "새 투자등급 하이퍼스케일러 임대나 핀란드 부지 계약",
+      "NOI 마진 80%대 후반 유지",
+      "프로젝트 채권 금리가 7% 안팎에서 유지되거나 내려감"
+    ],
+    "breaks": [
+      "캠퍼스 인도 지연이나 비용 초과",
+      "CoreWeave 등 임차인 계약 변경",
+      "본사 차원의 대규모 신주 발행",
+      "하이퍼스케일러가 확장 옵션을 쓰지 않음",
+      "이자 비용이 임대 NOI를 계속 앞섬"
+    ],
+    "keyNumbers": [
+      { "name": "기본 임대료와 NOI", "why": "이익의 실제 원천" },
+      { "name": "가동 IT MW", "why": "일정 대비 실행" },
+      { "name": "계약 매출·임대 GW", "why": "장기 성장의 바닥" },
+      { "name": "총차입과 이자 비용", "why": "재무 부담" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 (예상 창, 회사 미확정)", "event": "FY2027 Q2(2026-11-30 마감) 실적", "src": [] },
+      { "date": "2026 말", "event": "Polaris Forge 2 첫 가동, 노스다코타 300MW 목표", "src": ["s1"] }
+    ],
+    "reaction": "주가는 분기 손익보다 새 하이퍼스케일러 임대 계약과 캠퍼스 인도 소식에 크게 반응하는 편이다. 매출에 섞인 공사 대금 때문에 헤드라인 매출 성장률이 실제 임대 성장보다 크게 보일 수 있다.",
+    "conditions": [
+      "실적 발표에서 기본 임대료와 공사 대금의 비중",
+      "Polaris Forge 2 가동 일정 유지 여부",
+      "새 임대 계약의 MW·기간·임차인 신용",
+      "신규 채권 발행 규모와 금리",
+      "ChronoScale 손실 규모"
+    ]
+  },
+  "unverified": [
+    "총이익률 - 서비스·임대 매출원가(2.457억+0.439억 달러)로 계산하면 약 15%지만 감가상각 포함 여부를 확인하지 못해 비움",
+    "잉여현금흐름 -20.1억 달러는 영업현금흐름 6,390만 달러에서 설비투자 20.747억 달러를 뺀 계산",
+    "HPC 호스팅 부문 전년 대비 증가율 - 전년 부문 매출을 확인하지 못함",
+    "세 부문 합(2.626+0.378+0.415=3.419억 달러)은 총매출과 맞지만, ChronoScale은 회사 보고상 부문이 아니라 비GAAP 조정 항목으로 표시돼 있어 부문 구분은 보도자료 구성에서 재구성함",
+    "CoreWeave 400MW 약 110억 달러는 2025-08 보도자료 기준이며 이후 조건 변경 여부 미확인",
+    "하이퍼스케일러 임차인 이름",
+    "다음 실적 발표일(2027년 1월 예상) - 회사 공지 전",
+    "경쟁사 목록과 점유율 - 출처 없음"
+  ],
+  "confidence": "medium - 최신 분기 실적과 계약 지표는 회사 보도자료에서 왔지만, 임차인 이름과 지배구조 세부는 2차 자료나 이전 발표에 기댄다."
+}

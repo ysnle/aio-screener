@@ -1,0 +1,217 @@
+{
+  "symbol": "HUT",
+  "name": "Hut 8 Corp.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (latest reported quarter Q2 2026, ended 2026-06-30)",
+  "oneLine": "Hut 8은 비트코인 채굴에서 출발해 전력을 확보한 부지에 AI 데이터센터를 짓고 15년 장기 임대하는 회사로, 2026년 중반까지 949MW를 계약해 기본 계약가치 약 266억 달러를 쌓았지만 첫 데이터 홀 인도는 2027년이다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Hut 8 Reports Second Quarter 2026 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1964789/000110465926090041/tm2621890d1_ex99-1.htm", "publisher": "Hut 8 / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s2", "kind": "10-Q", "title": "Hut 8 Form 10-Q Q2 2026 - Condensed Consolidated Statements of Cash Flows (XBRL R6)", "url": "https://www.sec.gov/Archives/edgar/data/1964789/000110465926090025/R6.htm", "publisher": "Hut 8 / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s3", "kind": "10-Q", "title": "Hut 8 Form 10-Q Q2 2026 - Segment information (XBRL R10)", "url": "https://www.sec.gov/Archives/edgar/data/1964789/000110465926090025/R10.htm", "publisher": "Hut 8 / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s4", "kind": "10-Q", "title": "Hut 8 Form 10-Q Q2 2026 - Concentrations (XBRL R22)", "url": "https://www.sec.gov/Archives/edgar/data/1964789/000110465926090025/R22.htm", "publisher": "Hut 8 / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s5", "kind": "ir-site", "title": "Hut 8 Signs 15-Year, 245 MW AI Data Center Lease at River Bend Campus with Total Contract Value of $7.0 Billion", "url": "https://www.hut8.com/news-insights/press-releases/hut-8-signs-15-year-245-mw-ai-data-center-lease-at-river-bend-campus-with-total-contract-value", "publisher": "Hut 8", "date": "2025-12-17" },
+    { "id": "s6", "kind": "ir-site", "title": "Hut 8 Announces AI Infrastructure Partnership with Anthropic and Fluidstack (headline only; body not loaded)", "url": "https://www.hut8.com/news-insights/press-releases/hut-8-announces-ai-infrastructure-partnership-with-anthropic-and-fluidstack", "publisher": "Hut 8", "date": "2025-12-17" },
+    { "id": "s7", "kind": "ir-site", "title": "Hut 8 Fully Commercializes 1 GW Beacon Point AI Data Center Campus with Second 352 MW IT Lease", "url": "https://www.hut8.com/news-insights/press-releases/hut-8-fully-commercializes-1-gw-beacon-point-ai-data-center-campus-with-second-352-mw-it-lease", "publisher": "Hut 8", "date": "2026-07-20" },
+    { "id": "s8", "kind": "8-K", "title": "Hut 8 8-K: $1.07 billion senior secured revolving credit facility (JPMorgan, agent)", "url": "https://www.sec.gov/Archives/edgar/data/1964789/000110465926111154/tm2625691d1_8k.htm", "publisher": "Hut 8 / SEC EDGAR", "date": "2026-09-28" },
+    { "id": "s9", "kind": "ir-site", "title": "Hut 8 press release list (incl. 'Schedules Third Quarter 2026 Earnings Release' 2026-10-08 and Texas governor directive statement 2026-08-10; accessed date)", "url": "https://www.hut8.com/news-insights/press-releases", "publisher": "Hut 8", "date": "2026-10-30" }
+  ],
+
+  "moat": {
+    "sources": [
+      "전력 우선 확보 - 개발 파이프라인 약 8,660MW, 그중 1,330MW 건설 중 (2026-06-30)",
+      "투자등급 임차인 또는 보증이 붙은 15년 장기 임대 - 계약 IT 949MW (보도자료)",
+      "프로젝트 단위 투자등급 무소송 담보부 채권 75억 달러 조달 능력 (Beacon Point 1단계 Baa2)",
+      "Entergy·J.P. Morgan·Goldman Sachs·Vertiv·Jacobs와 짠 실행 체계 (River Bend)"
+    ],
+    "text": "Hut 8의 힘은 데이터센터보다 먼저 전력을 잡는 데서 나온다. AI 데이터센터의 가장 큰 병목이 송전망에 연결된 전력이라, 채굴로 쌓은 전력 협상 경험을 살려 8.6GW 규모 파이프라인을 만들었다. 그리고 그 전력을 투자등급 임차인과의 15년 임대로 바꾼 뒤, 그 계약을 담보로 투자등급 채권을 찍어 건설비를 마련하는 순서를 반복한다.",
+    "src": ["s1", "s5"]
+  },
+
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. 전력(Power)은 발전·전력 관리, 디지털 인프라(Digital Infrastructure)는 데이터센터 개발·운영, 컴퓨트(Compute)는 자회사 American Bitcoin을 통한 비트코인 채굴 등이다. 지금 매출의 97%는 컴퓨트, 즉 채굴에서 나오고, AI 데이터센터 임대 매출은 2027년 첫 인도 뒤부터 잡힌다.",
+    "src": ["s1", "s3", "s4"]
+  },
+
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "Entergy - River Bend(루이지애나) 전력 공급",
+      "Vertiv - 전력·냉각 설비, Jacobs - 설계·엔지니어링 (River Bend)",
+      "J.P. Morgan·Goldman Sachs - 금융, JPMorgan은 10.7억 달러 회전신용 대리은행",
+      "채굴 풀 운영사 2곳 - 비트코인 채굴 보상 수취 (10-Q)"
+    ],
+    "text": "Hut 8은 부지·전력·건물을 소유하고 임차인이 그 안에 GPU를 넣는 구조로 데이터센터를 만든다. 건설은 Vertiv·Jacobs 같은 설비·엔지니어링 회사와, 전력은 지역 전력회사와 함께 한다. 상반기에만 설비 구매에 6.16억 달러를 썼고, 77억 달러 채권 발행으로 받은 돈 대부분은 건설용 제한 현금(67.9억 달러)으로 묶여 있다.",
+    "src": ["s5", "s8", "s2", "s4"]
+  },
+
+  "sell": {
+    "customers": [
+      "River Bend 245MW - 15년 임대, Google이 기본 임대기간 의무를 재무 보증 (같은 날 Anthropic·Fluidstack 파트너십 발표)",
+      "Beacon Point 704MW (352MW 2건) - 이름 미공개 '높은 투자등급' 임차인",
+      "Fluidstack - River Bend 추가 1,000MW 우선협상권(ROFO) 보유 (보도자료 각주)",
+      "비트코인 네트워크 - 채굴 보상 (컴퓨트 부문 ASIC 매출 100%가 비트코인)"
+    ],
+    "channel": "데이터센터는 임차인과 직접 15년 트리플넷·take-or-pay 임대, 채굴은 채굴 풀 경유",
+    "concentration": "계약 IT 949MW 전부가 투자등급 상대방이 임차하거나 보증한 임대 (회사 표현). 임차인 수는 사실상 2곳.",
+    "text": "이렇게 지을 데이터센터는 이미 두 캠퍼스 모두 임대가 끝났다. River Bend는 Google이 15년 임대료를 보증하고, 같은 날 Anthropic·Fluidstack과의 파트너십을 발표했으며, Beacon Point 1GW는 이름을 밝히지 않은 투자등급 임차인 한 곳이 두 번에 나눠 모두 빌렸다. 고객 수가 적은 대신 신용도가 높은 구조다.",
+    "src": ["s1", "s5", "s6", "s7"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자", "to": "Anthropic 등 AI 연구소·하이퍼스케일러", "what": "AI 구독료·API 사용료" },
+      { "from": "River Bend 임차인 (Google 보증)", "to": "Hut 8", "what": "245MW 15년 임대료, 기본 계약가치 70억 달러" },
+      { "from": "Beacon Point 투자등급 임차인", "to": "Hut 8", "what": "704MW 15년 임대료, 기본 계약가치 196억 달러" },
+      { "from": "비트코인 네트워크", "to": "Hut 8 (American Bitcoin)", "what": "채굴 보상 - 현재 매출의 97%" },
+      { "from": "Hut 8", "to": "건설사·설비 업체·채권 투자자", "what": "건설비(상반기 설비 구매 6.16억 달러)와 75억 달러 담보부 채권 이자" }
+    ],
+    "pricing": "데이터센터는 MW당 고정 임대료를 받는 15년 트리플넷·take-or-pay 임대(임차인이 운영비 부담, 사용 여부와 무관하게 지불). 회사는 계약 전체의 연평균 순영업이익(NOI)을 17.5억 달러 초과로 예상한다. 채굴은 비트코인 가격과 채굴 난이도에 따라 바뀐다.",
+    "text": "돈은 AI 연구소의 컴퓨트 수요가 임차인의 임대료로, 다시 Hut 8의 장기 매출로 이어진다. 임대료는 계약으로 고정돼 비트코인 가격과 무관하지만, 2027년 데이터 홀이 인도되기 전까지는 한 푼도 들어오지 않는다. 그 사이 매출은 비트코인 채굴이 메우고, 건설비는 임대 계약을 담보로 한 채권이 댄다.",
+    "src": ["s1", "s5", "s7", "s2"]
+  },
+
+  "earnings": {
+    "period": "Q2 2026 (ended 2026-06-30)",
+    "revenue": { "value": 74.9, "unit": "USD mn", "yoy": 81.4 },
+    "grossMargin": 64.1,
+    "operatingMargin": -275.4,
+    "netMargin": -236.4,
+    "operatingCashFlow": { "value": null, "unit": "USD mn" },
+    "freeCashFlow": { "value": null, "unit": "USD mn" },
+    "segments": [
+      { "name": "Compute (비트코인 채굴 등)", "revenue": 72.5, "unit": "USD mn", "share": 96.7, "yoy": 111.3, "operatingMargin": null, "src": ["s1", "s3"] },
+      { "name": "Digital Infrastructure", "revenue": 1.3, "unit": "USD mn", "share": 1.7, "yoy": -15.0, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Power", "revenue": 1.2, "unit": "USD mn", "share": 1.6, "yoy": -78.6, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "계약 IT 용량과 계약가치", "value": "949MW, 기본 계약가치 약 266억 달러, 연평균 NOI 17.5억 달러 초과 예상 (2026-08-04 기준)", "src": ["s1", "s7"] },
+      { "name": "개발 파이프라인", "value": "약 8,660MW - 건설 중 1,330MW(River Bend 330·Beacon Point 1,000), 실사 5,400MW, 독점협상 1,880MW (2026-06-30)", "src": ["s1"] },
+      { "name": "조정 EBITDA", "value": "Q2 2026 0.104억 달러, 가상자산 평가 포함 시 -0.946억 달러 (정의 변경)", "src": ["s1"] },
+      { "name": "현금·제한 현금·비트코인", "value": "약 81억 달러, 그중 American Bitcoin 귀속 4.97억 달러 (2026-06-30)", "src": ["s1"] },
+      { "name": "상반기 현금흐름", "value": "영업활동 -0.328억 달러, 설비 구매 -6.16억 달러, 차입 77억 달러 (2026년 1~6월)", "src": ["s2"] }
+    ],
+    "text": "이 흐름이 Q2 2026 숫자에는 아직 채굴 회사의 모습으로 나타났다. 매출 0.75억 달러 중 97%가 채굴이었고, 감가상각 전 매출총이익률은 약 64%였지만, 보유 비트코인 평가 손실 등으로 영업손실 2.06억 달러를 냈다. 계약된 266억 달러 임대 매출은 2027년부터 들어오므로, 지금 손익계산서는 앞으로의 회사를 거의 보여 주지 않는다.",
+    "src": ["s1", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "2026년 상반기 (1~6월)",
+    "items": [
+      { "use": "capex", "value": 616.2, "unit": "USD mn", "src": ["s2"] }
+    ],
+    "text": "번 돈이 아니라 빌린 돈이 건설을 끌고 간다. 상반기 영업활동 현금은 -0.33억 달러였지만, River Bend 32.5억·Beacon Point 42.5억 달러 채권으로 77억 달러를 조달해 설비 구매에 6.16억 달러를 썼고, 나머지는 건설용 제한 현금으로 남겨 두었다. 9월에는 JPMorgan 주관 10.7억 달러 회전신용을 열어 본사 유동성을 더했다.",
+    "src": ["s2", "s1", "s8"]
+  },
+
+  "aiChain": {
+    "layer": "data-center-real-estate",
+    "position": "AI 연구소·하이퍼스케일러에 전력이 붙은 데이터센터 건물을 15년 임대하는 집주인. GPU는 임차인이 넣고 Hut 8은 전력·건물·냉각을 공급한다.",
+    "dependsOn": ["power-energy (Entergy 등 지역 전력회사, 송전망 연결)", "cooling-electrical (Vertiv 전력·냉각 설비)", "채권 시장 (프로젝트 금융)"],
+    "sellsTo": ["models-platforms (Anthropic·Fluidstack과 파트너십)", "cloud-infrastructure (Google 보증, Beacon Point 투자등급 임차인)"],
+    "aiRevenue": "AI 임대 매출은 아직 없음. 계약 IT 949MW, 기본 계약가치 약 266억 달러, 첫 데이터 홀 인도 2027년 (2026-08-04 발표).",
+    "upside": "2027년부터 River Bend와 Beacon Point가 차례로 인도되면 연 17.5억 달러 넘는 NOI가 계단식으로 들어오고, 실사·협상 중인 7GW 이상 파이프라인 일부가 새 임대로 바뀌면 다시 커진다. Fluidstack의 1,000MW 우선협상권도 확장 후보다.",
+    "risk": "인도 전까지 매출이 없어 건설 지연·비용 초과가 곧 위험이다. 임차인이 사실상 두 곳이라 한 곳의 계획 변경이 크고, 텍사스 주지사의 데이터센터 관련 지시처럼 전력 규제가 바뀔 수 있다. 채굴 부문은 비트코인 가격에 그대로 노출된다.",
+    "text": "그래서 AI 가치사슬에서 Hut 8은 칩이나 모델이 아니라 전력과 건물을 공급하는 자리다. Anthropic 같은 AI 연구소의 컴퓨트 계획이 15년 임대 계약으로 묶여 들어오고, Google 보증과 투자등급 임차인 덕분에 신용 위험은 낮게 설계됐다. 남은 질문은 계약이 아니라 2027년 인도 일정을 지키느냐다.",
+    "src": ["s1", "s5", "s6", "s9"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "AI 데이터센터 임대 (채굴 부지 전환)", "rivals": ["Galaxy Digital (Helios)", "IREN", "Cipher Mining", "TeraWulf", "Applied Digital", "Core Scientific"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "전력 확보·개발", "rivals": ["하이퍼스케일러 자체 부지 개발", "전통 데이터센터 리츠 (Equinix·Digital Realty)"], "position": "challenger", "share": null, "src": ["s1"] },
+      { "arena": "비트코인 채굴", "rivals": ["MARA", "CleanSpark", "Riot", "Bitdeer"], "position": "follower", "share": null, "src": ["s4"] }
+    ],
+    "edge": "두 캠퍼스 모두 임대를 끝냈고, 투자등급 채권으로 건설비를 이미 조달했다는 점. 8.6GW 파이프라인 규모도 같은 처지 경쟁사 중 큰 편이다.",
+    "threats": "다른 채굴 출신 업체와 하이퍼스케일러 자체 개발이 같은 전력·임차인을 노린다. 인도 실적이 아직 없어 첫 인도가 늦어지면 다음 임대 협상력이 약해진다.",
+    "text": "이 자리의 경쟁은 '전력이 붙은 부지를 누가 먼저 임대와 금융으로 바꾸느냐'다. Hut 8은 계약·금융 단계에서는 앞서 있지만, Galaxy처럼 이미 임대료를 받기 시작한 경쟁사와 달리 실제 인도 경험은 2027년에야 생긴다. 채굴에서는 American Bitcoin으로 분리해 대형 채굴사를 따라가는 쪽이다.",
+    "src": ["s1", "s5", "s7"]
+  },
+
+  "strategy": {
+    "goal": "전력을 먼저 확보하고 투자등급 임차인과 장기 임대를 맺은 뒤 프로젝트 금융으로 짓는 방식을 캠퍼스마다 반복하는 것. 경영진은 '이제 인도가 최우선'이라고 밝혔다 (2026-08-04).",
+    "roadmap": [
+      { "when": "Q1 2027", "what": "Beacon Point 첫 전력 공급 목표", "src": ["s1"] },
+      { "when": "Q2 2027", "what": "River Bend 첫 데이터 홀 인도 목표", "src": ["s1"] },
+      { "when": "Q3 2027", "what": "Beacon Point 첫 데이터 홀 인도 목표", "src": ["s1"] },
+      { "when": "미정", "what": "Beacon Point 2단계 금융 검토, Fluidstack River Bend 1,000MW 우선협상권", "src": ["s1"] },
+      { "when": "2030-09", "what": "10.7억 달러 회전신용 만기 (2027년 1분기부터 분기별 최소 유동성 테스트)", "src": ["s8"] }
+    ],
+    "vision": "전력과 부지를 쥔 '에너지 인프라 플랫폼'으로서 AI 컴퓨트 수요를 장기 임대 현금흐름으로 바꾸는 회사가 되겠다는 그림이다.",
+    "text": "이 경쟁에서 이기기 위해 회사는 계약 단계에서 실행 단계로 무게를 옮겼다. 2027년 1~3분기에 두 캠퍼스의 첫 전력과 첫 데이터 홀을 차례로 인도하는 것이 다음 1년의 전부이고, 그동안 파이프라인의 나머지 7GW 이상을 새 임대로 바꾸는 작업을 병행한다.",
+    "src": ["s1", "s8"]
+  },
+
+  "governance": {
+    "line": "Asher Genoot CEO가 이끄는 회사로 비트코인 채굴은 비지배지분이 있는 자회사 American Bitcoin에 두고, 본사 차원의 일반 소구 부채는 없다고 밝히며 배당 없이 데이터센터 건설에 자본을 쓴다.",
+    "src": ["s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q1-Q3 2027", "metric": "data center delivery", "value": "Beacon Point 첫 전력 Q1 2027, River Bend 첫 데이터 홀 Q2 2027, Beacon Point 첫 데이터 홀 Q3 2027", "givenOn": "2026-08-04", "src": ["s1"] },
+      { "period": "15-year base terms", "metric": "contracted leases", "value": "기본 계약가치 약 266억 달러, 연평균 NOI 17.5억 달러 초과 예상", "givenOn": "2026-08-04", "src": ["s1"] }
+    ],
+    "style": "none",
+    "track": "재무 가이던스는 내지 않고 인도 일정만 제시한다. 아직 인도 이력이 없어 일정 준수 기록은 없다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "Beacon Point 첫 전력 공급(2027년 1분기)과 River Bend 첫 데이터 홀(2027년 2분기)이 일정대로 진행",
+      "파이프라인 중 실사·협상 단계 용량이 새 투자등급 임대로 전환",
+      "Beacon Point 2단계와 Fluidstack 확장분의 금융·계약 확정",
+      "건설비가 채권 조달 범위 안에서 집행됨"
+    ],
+    "breaks": [
+      "인도 일정 지연 공시나 건설비 초과",
+      "임차인 계획 변경이나 Google 보증 조건 변화",
+      "텍사스 등 주 정부의 대형 데이터센터 전력 규제 강화",
+      "회전신용 최소 유동성 조건 압박",
+      "비트코인 가격 급락에 따른 채굴 부문 손실 확대"
+    ],
+    "keyNumbers": [
+      { "name": "계약 IT MW와 계약가치", "why": "미래 매출의 크기" },
+      { "name": "건설 중·인도된 MW", "why": "계약이 실제 매출로 바뀌는 속도" },
+      { "name": "제한 현금과 설비 구매액", "why": "건설 자금 소진 속도" },
+      { "name": "파이프라인 단계별 MW", "why": "다음 임대 후보의 크기" },
+      { "name": "채굴 매출과 비트코인 평가 손익", "why": "인도 전 손익을 흔드는 요인" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 초 (회사가 2026-10-08에 일정 공지, 정확한 날짜는 이번에 읽지 못함)", "event": "Q3 2026 실적과 컨퍼런스콜", "src": ["s9"] },
+      { "date": "Q1 2027", "event": "Beacon Point 첫 전력 공급 목표, 회전신용 첫 유동성 테스트 분기", "src": ["s1", "s8"] },
+      { "date": "Q2 2027", "event": "River Bend 첫 데이터 홀 인도 목표", "src": ["s1"] },
+      { "date": "Q3 2027", "event": "Beacon Point 첫 데이터 홀 인도 목표", "src": ["s1"] }
+    ],
+    "reaction": "주가는 새 임대 계약 발표(MW·계약가치·임차인 신용)와 금융 조달 소식에 크게 반응해 왔다고 볼 수 있고, 인도 전까지 분기 실적 숫자 자체의 영향은 작다. 개별 반응 폭은 이번에 확인한 자료가 없다.",
+    "conditions": [
+      "새 임대 계약 발표 여부와 MW당 계약가치",
+      "인도 일정 변경 공시",
+      "파이프라인 단계별 MW 변화",
+      "건설비 집행과 제한 현금 잔액",
+      "주 정부 전력·데이터센터 규제 뉴스",
+      "비트코인 가격과 American Bitcoin 지분 가치"
+    ]
+  },
+
+  "unverified": [
+    "River Bend 임차인 이름 (Google 보증은 확인, Anthropic·Fluidstack은 같은 날 파트너십 보도자료 제목과 ROFO 각주로만 확인)",
+    "Beacon Point 임차인 이름과 위치 (회사 미공개)",
+    "분기 영업현금흐름 (상반기 누계만 확인)",
+    "American Bitcoin 지분율과 컴퓨트 부문 내 채굴·GPU 매출 구분",
+    "보유 비트코인 수량",
+    "Q3 2026 실적 발표 정확한 날짜",
+    "경쟁사 목록은 회사 자료가 아닌 일반 분류 기준",
+    "컨센서스 추정치 (AIO 스냅샷에 없음)",
+    "텍사스 주지사 지시의 내용 (보도자료 제목만 확인)"
+  ],
+  "confidence": "medium - 실적·현금흐름·계약 MW와 계약가치는 8-K·10-Q·회사 보도자료에서 확인했지만, 핵심 임차인 이름과 인도 실적이 아직 없어 이야기의 절반이 미래 일정에 달려 있다."
+}

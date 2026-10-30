@@ -1,0 +1,198 @@
+{
+  "symbol": "APH",
+  "name": "Amphenol Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Amphenol은 AI 서버 랙 안팎을 잇는 고속 커넥터·케이블·안테나를 만드는 세계 최대급 연결 부품 회사로, 2026년 3분기 매출이 전년보다 65% 늘며 'IT 데이터통신' 수요가 성장의 중심이 됐다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Amphenol Reports Record Third Quarter 2026 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000820313/000110465926119421/aph-ex99d1.htm", "publisher": "Amphenol / SEC EDGAR", "date": "2026-10-28" },
+    { "id": "s2", "kind": "news", "title": "Amphenol übertrifft Q2-Erwartungen: Q3-Ausblick (Q3 2026 guidance as reported; seen via search summary only, not opened)", "url": "https://goldesel.de/aktien/news/amphenol-ubertrifft-q2-erwartungen-adjusted-eps-135-usd-umsatz-88-mrd-usd-q3-ausblick-uberzeugt", "publisher": "Goldesel", "date": "2026-07-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "커넥터·케이블·센서를 수천 종 갖춘 제품 폭 - 서버, 통신망, 자동차, 방산, 산업 등 여러 시장에 같은 기술을 판다 (보도자료 회사 소개)",
+      "인수로 키우는 구조 - 2026년 1분기 CommScope의 CCS(연결·케이블) 사업을 인수했고, 3분기에도 4건을 추가 발표했다 (보도자료)",
+      "높은 이익률을 유지하는 분권형 운영 - 2026년 3분기 조정 영업이익률 29.7% (보도자료)"
+    ],
+    "text": "Amphenol의 힘은 한 제품이 아니라 '연결'이 필요한 거의 모든 곳에 부품을 대는 폭에서 나온다. 고객이 새 서버나 통신 장비를 설계할 때 고속 커넥터와 케이블을 함께 맞춰 줄 수 있어, 설계 단계부터 자리를 잡는다. 여기에 매년 여러 회사를 사들여 제품을 넓히면서도 영업이익률을 30% 가까이 유지하는 운영 방식이 두 번째 축이다.",
+    "src": ["s1"]
+  },
+
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. Communications Solutions는 IT 데이터통신·통신망·모바일용 고속 커넥터·케이블·안테나로, CommScope CCS도 여기에 들어가며 3분기 매출의 약 64%를 차지했다. Harsh Environment Solutions는 방산·항공·산업용 고내구 커넥터, Interconnect and Sensor Systems는 자동차·산업용 연결 부품과 센서를 담는다.",
+    "src": ["s1"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 공장 - 커넥터·케이블 조립을 직접 생산 (공장 수·위치는 이번 보도자료에 없음)",
+      "인수 회사 공장 - CommScope CCS(2026년 1분기 완료), Empire Electronics(2026년 9월 완료) 생산시설 편입",
+      "AdvancedPCB 인수 예정(2026년 4분기) - 인쇄회로기판 제조 능력 추가"
+    ],
+    "text": "설계한 부품은 대부분 자기 공장에서 직접 만든다. 그래서 수요가 몰릴 때 생산능력을 늘리는 데 돈이 들어가며, 2026년 1~9월 설비투자는 11억 달러로 매출의 4% 수준이었다. 부족한 능력은 인수로 채우는데, 3분기에 발표한 AdvancedPCB 인수는 회로기판 제조를 직접 품는 쪽으로 한 걸음 더 나간 것이다.",
+    "src": ["s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "IT 데이터통신 - 서버·스위치·AI 가속기 시스템 업체와 데이터센터 운영사 (고객명 미공개)",
+      "통신망 사업자와 장비 업체 (CommScope CCS 편입)",
+      "자동차·상업 항공·방산·산업·모바일 기기 업체"
+    ],
+    "channel": "장비 제조사(OEM)와 위탁생산(EMS) 업체에 직접 판매하는 비중이 크고, 일부는 유통사를 거친다 (비중은 이번 보도자료에 없음).",
+    "concentration": null,
+    "text": "이렇게 만든 부품은 서버·통신 장비를 만드는 회사에 팔린다. 회사가 3분기에 '예외적인' 성장이라고 짚은 시장은 IT 데이터통신, 즉 AI 서버와 데이터센터 장비다. 다만 고객 이름과 고객별 비중은 이번 보도자료에 없다.",
+    "src": ["s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "하이퍼스케일러·클라우드 회사", "what": "클라우드·AI 사용료" },
+      { "from": "하이퍼스케일러·클라우드 회사", "to": "서버·네트워크 장비 업체와 위탁생산 업체", "what": "AI 서버 랙·스위치 구매" },
+      { "from": "서버·네트워크 장비 업체와 위탁생산 업체", "to": "Amphenol", "what": "고속 커넥터·케이블·안테나를 부품 단위로 구매" },
+      { "from": "통신·자동차·방산·산업 고객", "to": "Amphenol", "what": "같은 방식의 부품 구매 (AI 외 매출)" }
+    ],
+    "pricing": "부품 단가 × 수량. 신호 속도가 빨라질수록 장비 한 대에 들어가는 고속 부품 가치가 커지는 구조다.",
+    "text": "돈은 AI 서비스 사용료가 클라우드 회사의 서버 구매로 바뀌고, 그 서버를 만드는 회사가 Amphenol 부품을 사는 순서로 들어온다. 회사는 부품 하나하나를 팔지만, 서버 한 대에 들어가는 고속 연결 부품이 늘수록 같은 장비에서 받는 돈이 커진다. 2026년 3분기 수주 122억 달러로 수주/매출 비율 1.19를 기록해 앞으로 들어올 돈도 매출보다 많았다.",
+    "src": ["s1"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 10.2297, "unit": "USD bn", "yoy": 65.1 },
+    "grossMargin": null,
+    "operatingMargin": 29.5,
+    "netMargin": 19.9,
+    "operatingCashFlow": { "value": 2.0785, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.6227, "unit": "USD bn" },
+    "segments": [
+      { "name": "Communications Solutions", "revenue": 6.583, "unit": "USD bn", "share": 64.4, "yoy": 99, "operatingMargin": 33.1, "src": ["s1"] },
+      { "name": "Harsh Environment Solutions", "revenue": 2.0421, "unit": "USD bn", "share": 20.0, "yoy": 35, "operatingMargin": 30.1, "src": ["s1"] },
+      { "name": "Interconnect and Sensor Systems", "revenue": 1.6046, "unit": "USD bn", "share": 15.7, "yoy": 17, "operatingMargin": 20.0, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "수주 / 수주-매출 비율 (Q3 2026)", "value": "수주 약 122억 달러, book-to-bill 1.19", "src": ["s1"] },
+      { "name": "유기적 성장률 (Q3 2026)", "value": "전체 +37% (인수 효과 +28%p 제외); Communications Solutions 유기적 +51%", "src": ["s1"] },
+      { "name": "조정 영업이익률", "value": "Q3 2026 29.7% (전년 27.5%)", "src": ["s1"] },
+      { "name": "2026년 1~9월 누계", "value": "매출 266.1억 달러(+60%, 유기적 +34%), 조정 EPS 2.01달러 (2026-09-03 2대1 주식분할 반영)", "src": ["s1"] }
+    ],
+    "text": "그 결과 2026년 3분기 매출은 102.3억 달러로 전년보다 65% 늘었고, 인수 효과를 빼도 37% 성장했다. 성장과 이익은 Communications Solutions에 몰려 있어, 이 부문 매출이 두 배(+99%)가 되면서 영업이익률도 33%로 가장 높았다. 분기 잉여현금흐름은 16.2억 달러였다(GAAP 매출총이익률은 이번 확인 범위에 없음).",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "2026년 1~9월",
+    "items": [
+      { "use": "acquisitions", "value": 11.0558, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 1.1043, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 0.922, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.6306, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "번 돈의 대부분은 인수에 들어갔다. 1~9월 인수 지출 110.6억 달러는 같은 기간 잉여현금흐름 36.6억 달러의 세 배로, CommScope CCS 인수 대금이 대부분이며 그만큼 빚(9월 말 총차입 178.7억 달러)이 늘었다. 배당은 분기 0.15달러로 20% 올렸고, 2027년부터 3년간 40억 달러 자사주 매입 한도를 새로 열었다.",
+    "src": ["s1"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "GPU·스위치·서버 보드를 서로 잇는 고속 커넥터와 구리·광 케이블 조립품을 서버·네트워크 장비 업체에 공급한다. 칩도 시스템도 아닌, 그 사이의 '배선' 자리다.",
+    "dependsOn": ["구리·플라스틱·귀금속 등 원자재", "chips-compute (NVIDIA·AMD·맞춤형 칩의 신호 속도 로드맵이 부품 규격을 정함)", "자체 공장 증설과 인수"],
+    "sellsTo": ["chips-compute (AI 서버·랙 시스템 업체와 위탁생산 업체)", "networking 장비 업체", "cloud-infrastructure (데이터센터 운영사)"],
+    "aiRevenue": null,
+    "upside": "AI 서버 랙은 일반 서버보다 고속 연결 부품이 훨씬 많이 들어가고, 신호 속도가 올라갈 때마다 부품을 새 규격으로 바꿔야 한다. 하이퍼스케일러의 서버 구매가 늘면 Communications Solutions 매출이 곧바로 커지는 구조이며, 3분기 이 부문 유기적 성장 51%가 그 예다.",
+    "risk": "AI 서버 주문이 줄면 가장 크게 오른 부문이 가장 먼저 꺾인다. 칩 회사가 연결 방식을 광학 일체형(칩 옆 광 엔진)으로 바꾸면 구리 커넥터·케이블 수요가 줄 수 있고, 인수로 늘어난 빚도 부담이 된다.",
+    "text": "그래서 AI 밸류체인에서 Amphenol은 칩과 서버 사이를 잇는 배선 부품 자리에 있다. 회사는 AI 매출을 따로 밝히지 않지만, IT 데이터통신이 3분기 성장의 중심이었다고 말한다. 위로는 칩 회사의 신호 속도 로드맵에 맞춰야 하고, 아래로는 하이퍼스케일러의 서버 구매 속도에 매출이 묶여 있다.",
+    "src": ["s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "데이터센터 고속 커넥터·케이블", "rivals": ["TE Connectivity", "Molex (Koch 계열)", "대만·중국 커넥터 업체"], "position": "leader", "share": null, "src": [] },
+      { "arena": "AI 랙 내부 연결 방식 (구리 vs 광)", "rivals": ["Broadcom·NVIDIA 등 칩 회사의 광 일체형 패키징(CPO)", "Credo (능동 전기 케이블)", "광트랜시버 업체"], "position": "challenger", "share": null, "src": [] },
+      { "arena": "방산·산업·자동차 커넥터", "rivals": ["TE Connectivity", "Molex"], "position": "leader", "share": null, "src": [] }
+    ],
+    "edge": "가장 넓은 제품군, 설계 단계부터 같이 들어가는 관계, 인수로 빠르게 품목을 늘리는 능력.",
+    "threats": "연결 방식이 구리에서 칩 옆 광학으로 넘어가는 속도, 그리고 같은 랙을 노리는 TE Connectivity·Molex의 가격 경쟁.",
+    "text": "이 자리를 두고 TE Connectivity와 Molex가 같은 제품으로 맞붙는다. 더 큰 위협은 연결 방식 자체가 바뀌는 것으로, 칩 회사가 광 엔진을 칩 옆에 붙이면 랙 안 구리 케이블 일부가 사라진다. 경쟁사 이름과 점유율은 회사 자료에 없어 여기서는 일반적인 구도만 적었다(이번 조사에서 출처 미확인).",
+    "src": []
+  },
+
+  "strategy": {
+    "goal": "회사는 '전자 혁명이 가속된다'고 보고, 여러 시장에 걸친 유기적 성장과 인수를 함께 밀어 2026년 매출 약 370억 달러(+60%)를 내다본다.",
+    "roadmap": [
+      { "when": "2026 Q4", "what": "AdvancedPCB(연매출 약 2.7억 달러), Humanetics Sensors(약 0.7억 달러) 인수 완료 예정", "src": ["s1"] },
+      { "when": "2026 Q4", "what": "매출 103~105억 달러, 조정 EPS 0.81~0.83달러 가이던스", "src": ["s1"] },
+      { "when": "2027 Q1", "what": "Dexgreen(연매출 약 0.9억 달러) 인수 완료 예정, 3년 40억 달러 자사주 매입 한도 시작", "src": ["s1"] }
+    ],
+    "vision": "자동차·방산·통신·데이터센터 어디서든 전자 부품이 늘어나는 흐름에서, 연결이 필요한 모든 곳에 부품을 대는 회사로 남겠다는 그림이다.",
+    "text": "앞으로도 방식은 같다. 성장하는 시장에서 부품을 더 팔고, 빈 품목은 인수로 채운다. 3분기에 발표한 4건 인수(합계 약 16억 달러)는 회로기판·센서·통신 부품을 넓히는 것이고, CommScope CCS의 올해 매출 전망도 46억에서 51억 달러로 올렸다.",
+    "src": ["s1"]
+  },
+
+  "governance": { "line": "R. Adam Norwitt 회장 겸 CEO가 이끌며, 분기 배당을 20% 올리고 2027년부터 3년 40억 달러 자사주 매입 한도를 두는 등 인수와 주주환원을 함께 한다.", "src": ["s1"] },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "sales", "value": "103~105억 달러 (전년 대비 약 +60%)", "givenOn": "2026-10-28", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "adjusted diluted EPS", "value": "0.81~0.83달러 (+65~69%)", "givenOn": "2026-10-28", "src": ["s1"] },
+      { "period": "FY2026", "metric": "sales / adjusted EPS", "value": "369~371억 달러 / 2.82~2.84달러 (미완료 인수 3건 제외)", "givenOn": "2026-10-28", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "3분기 실제 매출 102.3억 달러는 직전 가이던스 93~94억 달러(2차 보도 기준)를 크게 넘었다. 회사는 3분기 매출과 조정 EPS가 모두 사상 최대라고 밝혔다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "Communications Solutions 유기적 성장률이 높게 유지됨",
+      "수주/매출 비율이 1 이상을 유지",
+      "4분기 매출이 103~105억 달러 가이던스를 맞추거나 넘음",
+      "인수 후에도 조정 영업이익률이 30% 근처를 지킴"
+    ],
+    "breaks": [
+      "수주/매출 비율이 1 아래로 내려감",
+      "회사가 IT 데이터통신 성장 둔화를 언급",
+      "인수 통합 비용으로 영업이익률이 뚜렷하게 하락",
+      "AI 랙 설계가 구리 케이블 대신 칩 옆 광학으로 빠르게 넘어감"
+    ],
+    "keyNumbers": [
+      { "name": "Communications Solutions 유기적 성장률", "why": "AI 서버 수요가 가장 먼저 드러나는 곳" },
+      { "name": "수주와 book-to-bill", "why": "다음 분기 매출의 선행 신호" },
+      { "name": "조정 영업이익률", "why": "인수 확대 속 수익성 유지 여부" },
+      { "name": "총차입과 인수 지출", "why": "인수 중심 성장의 재무 부담" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026 Q4", "event": "AdvancedPCB·Humanetics Sensors 인수 완료 예정", "src": ["s1"] },
+      { "date": "2026-12-22", "event": "분기 배당 0.15달러 기준일 (지급 2027-01-13)", "src": ["s1"] },
+      { "date": "2027-01 하순 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027년 1분기 가이던스", "src": [] },
+      { "date": "2027 Q1", "event": "Dexgreen 인수 완료 예정, 40억 달러 자사주 매입 한도 시작", "src": ["s1"] }
+    ],
+    "reaction": "주가는 실제 실적보다 다음 분기 가이던스와 IT 데이터통신 수요에 대한 경영진 언급에 크게 반응해 왔다(과거 반응 데이터는 이번 조사에서 확인하지 않음).",
+    "conditions": [
+      "다음 분기 매출 가이던스가 직전 분기 실적보다 높은지",
+      "book-to-bill이 1 이상인지",
+      "유기적 성장률과 인수 효과의 비중",
+      "조정 영업이익률이 전년보다 높은지",
+      "하이퍼스케일러 설비투자 발표의 방향"
+    ]
+  },
+
+  "unverified": [
+    "AI·데이터센터 관련 매출 금액이나 비중 (회사 미공시)",
+    "Q3 2026 GAAP 매출총이익률 (보도자료 손익계산서에서 확인하지 못함)",
+    "고객명과 고객 집중도, 유통사 비중",
+    "CommScope CCS 인수 가격 (이번 보도자료에 없음; 1~9월 인수 지출 110.6억 달러에 포함)",
+    "인수 4건의 개별 가격 (합계 약 16억 달러만 공개)",
+    "경쟁 구도(TE Connectivity·Molex·CPO)와 점유율은 이번 조사에서 출처 미확인",
+    "Q3 직전 가이던스 93~94억 달러는 2차 보도 검색 요약으로만 확인 (원문 미열람)",
+    "Q4 2026 실적 발표일 (회사 미공지)",
+    "R&D 지출액 (보도자료에 없음)"
+  ],
+  "confidence": "medium - 실적·현금흐름·가이던스는 2026-10-28 8-K 원문으로 확인했지만, 경쟁 구도와 AI 매출 비중은 공시가 없어 서술이 일반적이다."
+}

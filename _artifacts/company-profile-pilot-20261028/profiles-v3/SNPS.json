@@ -1,0 +1,543 @@
+{
+  "symbol": "SNPS",
+  "name": "Synopsys, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "late October (FY2026 ends 2026-10-31; Q3 FY2026 ended 2026-07-31)",
+  "oneLine": "Synopsys는 AI 칩 설계에 쓰이는 설계 소프트웨어(EDA)·검증 하드웨어·인터페이스 IP 1위 업체이자 2025년 Ansys를 인수해 물리 시뮬레이션까지 갖춘 회사로, NVIDIA가 20억 달러를 투자한 설계 도구 공급자다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "8-K",
+      "title": "Synopsys Posts Financial Results for Third Quarter Fiscal Year 2026 (8-K Ex.99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000883241/000119312526368620/d157153dex991.htm",
+      "publisher": "Synopsys / SEC EDGAR",
+      "date": "2026-08-26"
+    },
+    {
+      "id": "s2",
+      "kind": "call-transcript",
+      "title": "Synopsys (SNPS) Q3 2026 Earnings Call Transcript (machine-generated)",
+      "url": "https://www.webull.com/news/15497781661541376",
+      "publisher": "Webull",
+      "date": "2026-08-26"
+    },
+    {
+      "id": "s3",
+      "kind": "investor-day",
+      "title": "Synopsys Details Growth Strategy and Long-Term Financial Model at 2026 Investor Day (PR Newswire)",
+      "url": "https://finviz.com/news/397287/synopsys-details-growth-strategy-and-long-term-financial-model-at-2026-investor-day",
+      "publisher": "Synopsys via PR Newswire / Finviz",
+      "date": "2026-09-30"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "NVIDIA Invests $2B and Partners with Synopsys",
+      "url": "https://www.futuriom.com/articles/news/nvidia-invests-2b-and-partners-with-synopsys/2025/12",
+      "publisher": "Futuriom",
+      "date": "2025-12-01"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/snps/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-29"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "칩 설계·검증 전 과정을 덮는 EDA 소프트웨어 - 고객 설계 흐름에 오래 박혀 있어 교체 비용이 큼",
+      "인터페이스 IP(PCIe·USB·LPDDR·다이 간 연결) - PCIe 7 수주율 95% 초과, USB IP 누적 수주 20억 달러 초과 (콜)",
+      "ZeBu·HAPS 하드웨어 검증 - Q3 FY2026 최대 분기, 신규 12곳·재구매 66곳 (콜)",
+      "Ansys 물리 시뮬레이션 - 칩에서 패키지·시스템까지 열·전력·구조 해석을 한 회사가 제공"
+    ],
+    "text": "Synopsys의 힘은 칩 설계 툴, 검증 장비, 그리고 칩마다 들어가는 인터페이스 IP를 동시에 가진 데서 나온다. AI 칩은 메모리와 다른 칩을 잇는 고속 연결이 핵심인데, 이 연결 회로(IP)를 사서 쓰는 설계사가 많아 Synopsys가 사실상 표준 공급자 역할을 한다. 여기에 Ansys를 더해 칩이 실제 서버 안에서 열과 전력을 어떻게 견디는지까지 시뮬레이션한다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "회사가 파는 것은 두 부문으로 보고된다. 설계 자동화(Design Automation)는 EDA 소프트웨어, ZeBu·HAPS 하드웨어, Ansys 시뮬레이션을 담아 Q3 FY2026 매출의 81%였고, 설계 IP(Design IP)가 19%였다. 2026년에는 프로세서 IP, Optical Solutions, PowerArtist 사업을 팔아 IP를 인터페이스·고객 맞춤 실리콘 쪽으로 좁혔다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "소프트웨어·IP - 자체 개발, 라이선스 형태로 공급",
+      "ZeBu·HAPS 검증 하드웨어 - 자체 설계 장비, 생산 협력사 이름은 이번에 확인하지 못함",
+      "NVIDIA - CUDA-X 라이브러리로 Synopsys 툴 가속, 비독점 협력 (2025-12-01)",
+      "Microsoft·AMD - Microsoft Discovery 위 자율 EDA 워크플로 공동 발표 (콜)"
+    ],
+    "text": "만드는 것은 대부분 소프트웨어와 IP라 공장이 필요 없고, 엔지니어 인력이 곧 생산능력이다. 검증 하드웨어는 실물 장비라 납품 시점에 매출이 몰린다. 툴을 빠르게 돌리기 위해 NVIDIA GPU 가속을 붙이는 작업을 NVIDIA와 함께 하고 있다.",
+    "src": [
+      "s2",
+      "s4"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "AI 칩 설계사 - NVIDIA가 Multiphysics Fusion 초기 고객으로 언급 (콜)",
+      "하이퍼스케일러·반도체 설계사 - 인터페이스 IP와 다이 간 연결 IP 수요 (콜)",
+      "자동차·항공·산업 기업 - Ansys 시뮬레이션 고객",
+      "NVIDIA - 고객이자 2025-12 20억 달러 지분 투자자 (주당 414.79달러)"
+    ],
+    "channel": "고객과 직접 다년 라이선스 계약, IP는 라이선스(일부 로열티), 하드웨어는 직접 판매",
+    "concentration": null,
+    "text": "이렇게 만든 툴과 IP는 칩을 설계하는 거의 모든 회사와 Ansys를 쓰던 제조업체에 직접 팔린다. 가장 상징적인 고객은 NVIDIA로, 툴을 쓰는 동시에 20억 달러어치 주식을 사 들였다. 다만 두 회사 모두 이 협력이 독점이 아니라고 밝혀, NVIDIA는 Cadence와도 계속 일한다.",
+    "src": [
+      "s2",
+      "s4"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "AI 서비스·클라우드 수요",
+        "to": "NVIDIA·AMD·하이퍼스케일러 칩 조직",
+        "what": "더 크고 많은 AI 칩 설계 프로젝트"
+      },
+      {
+        "from": "칩·시스템 설계 기업",
+        "to": "Synopsys",
+        "what": "EDA·Ansys 소프트웨어 다년 라이선스 (구독·사용량·혼합 과금 검토 중)"
+      },
+      {
+        "from": "AI 칩 설계 기업",
+        "to": "Synopsys",
+        "what": "ZeBu·HAPS 검증 하드웨어 대금 (납품 시점)"
+      },
+      {
+        "from": "칩 설계사·맞춤 실리콘 고객",
+        "to": "Synopsys",
+        "what": "인터페이스 IP 라이선스 + 일부 로열티 ('Factory 2' 모델)"
+      },
+      {
+        "from": "Synopsys",
+        "to": "엔지니어·부채 상환",
+        "what": "R&D 인건비와 Ansys 인수 차입금 상환 (9개월 34.6억 달러)"
+      }
+    ],
+    "pricing": "소프트웨어는 다년 기간제 라이선스, IP는 라이선스에 로열티를 붙이는 방향(Factory 2), 하드웨어는 대당 판매. AI 에이전트 과금은 구독·사용량·혼합 모델을 검토 중이라고 했다 (콜).",
+    "text": "돈은 AI 수요가 칩 설계 건수로 바뀔 때 라이선스·장비·IP 대금으로 들어온다. IP에서는 한 번 받는 라이선스에 칩 판매량에 따른 로열티를 더하는 쪽으로 바꾸고 있어, 고객 칩이 많이 팔릴수록 Synopsys 몫도 커지는 구조로 옮겨 간다. 들어온 현금의 상당 부분은 Ansys 인수 때 진 빚을 갚는 데 쓰였다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 FY2026 (ended 2026-07-31)",
+    "revenue": {
+      "value": 2.477,
+      "unit": "USD bn",
+      "yoy": 42.4
+    },
+    "grossMargin": 72.6,
+    "operatingMargin": 14.4,
+    "netMargin": 22,
+    "operatingCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 0.746,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Design Automation",
+        "revenue": 2.003,
+        "unit": "USD bn",
+        "share": 80.9,
+        "yoy": 52.7,
+        "operatingMargin": 45.2,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Design IP",
+        "revenue": 0.474,
+        "unit": "USD bn",
+        "share": 19.1,
+        "yoy": 10.8,
+        "operatingMargin": 26.5,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "백로그",
+        "value": "109억 달러, 프로세서 IP 매각으로 전 분기 대비 소폭 감소 (콜)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "Ansys 매출 기여",
+        "value": "Q3 FY2026 약 7.11억 달러, FY2026 약 29.8억 달러 예상",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "EDA 자체 성장률",
+        "value": "Q3 FY2026 +8.5% (전년 +16% 기저), 4분기·연간 두 자릿수로 가속 예상 (콜)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "non-GAAP 영업이익률",
+        "value": "Q3 FY2026 41.6%",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "9개월 영업현금흐름",
+        "value": "22.99억 달러, 설비투자 1.56억 달러 (FY2026 1~3분기)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "이 흐름이 Q3 FY2026에 매출 24.77억 달러(+42%)로 나타났는데, 성장의 대부분은 Ansys가 한 분기를 온전히 채운 효과(약 7.1억 달러)다. Ansys를 빼면 EDA는 8.5%, IP는 10.8% 자랐다. GAAP 영업이익률은 인수 상각 탓에 14.4%지만 조정 기준으로는 41.6%이고, 이익은 설계 자동화(조정 영업이익률 45.2%)에 몰려 있다. 순이익률이 영업이익률보다 높은 것은 프로세서 IP 매각 이익이 들어갔기 때문이다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2026 1~3분기 (9개월, 2026-07-31까지)",
+    "items": [
+      {
+        "use": "debt repayment",
+        "value": 3.464,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 0.3,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 0.156,
+        "unit": "USD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "9개월 영업현금흐름 23억 달러와 사업 매각 대금 4.4억 달러는 대부분 Ansys 인수 차입금을 갚는 데(34.6억 달러) 쓰였고, 총차입은 135억에서 100억 달러로 줄었다. 자사주는 3억 달러에 그쳤지만, 9월 투자자의 날에 앞으로 몇 달간 약 10억 달러를 사고 잉여현금흐름의 최대 50%를 돌려주겠다고 밝혀 부채 축소에서 주주환원으로 무게가 옮겨 간다.",
+    "src": [
+      "s1",
+      "s3",
+      "s2"
+    ]
+  },
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "AI 칩이 파운드리에 들어가기 전 단계의 설계·검증 도구와 칩 안에 들어가는 인터페이스 회로(IP) 공급자. GPU·맞춤형 가속기 설계사와 하이퍼스케일러가 핵심 고객이다.",
+    "dependsOn": [
+      "자체 엔지니어 인력",
+      "파운드리 공정용 IP 인증",
+      "NVIDIA GPU 가속 (CUDA-X)"
+    ],
+    "sellsTo": [
+      "chips-compute (NVIDIA·AMD 등 AI 칩 설계사)",
+      "cloud-infrastructure (하이퍼스케일러 자체 칩·맞춤 실리콘)",
+      "memory·networking 칩 설계사",
+      "자동차·산업 (Ansys 시뮬레이션)"
+    ],
+    "aiRevenue": null,
+    "upside": "AI 칩 설계 건수와 칩 간 연결 수요가 늘면 라이선스·검증 장비·인터페이스 IP가 함께 팔린다. 다이 간 연결 IP 매출이 올해 두 배 속도이고, IP에 로열티를 붙이면 고객 칩 판매량이 Synopsys 매출로 이어진다.",
+    "risk": "범용 AI 모델이 설계 작업을 대신해 라이선스 수가 줄 수 있다는 우려, 하이퍼스케일러 설비투자 둔화, 중국 수출 규제, 그리고 고객이 IP를 직접 개발하는 경우.",
+    "text": "그래서 AI 가치사슬에서 Synopsys는 칩을 만들지 않고 칩 설계 도구와 칩 안의 연결 부품을 파는 자리다. AI 매출을 따로 공시하지 않지만, AI 칩이 커지고 여러 칩을 묶을수록 설계·검증·연결 IP 수요가 늘어난다. 회사는 AI가 툴 수요를 줄이기보다 '더 많은 라이선스'를 필요하게 만든다고 주장한다.",
+    "src": [
+      "s2",
+      "s4"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "칩 설계 소프트웨어 (EDA)",
+        "rivals": [
+          "Cadence",
+          "Siemens EDA"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "하드웨어 검증 (에뮬레이션·프로토타이핑)",
+        "rivals": [
+          "Cadence (Palladium·Protium)",
+          "Siemens (Veloce)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "인터페이스 설계 IP",
+        "rivals": [
+          "Cadence",
+          "Rambus",
+          "Alphawave",
+          "고객 자체 개발"
+        ],
+        "position": "leader",
+        "share": "PCIe 7 수주율 95% 초과 (회사 발표, 콜)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "물리 시뮬레이션 (Ansys)",
+        "rivals": [
+          "Siemens",
+          "Dassault Systèmes",
+          "Cadence (BETA CAE·Hexagon D&E)"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "edge": "EDA·IP·시뮬레이션을 한 회사가 묶어 파는 범위, 인터페이스 IP의 높은 수주율, NVIDIA와의 공동 개발. 첫 Synopsys-Ansys 공동 제품 Multiphysics Fusion은 NVIDIA 등 초기 고객이 설계 마감이 최대 10배 빨라졌다고 했다.",
+    "threats": "Cadence가 에뮬레이션 하드웨어와 시스템 해석을 빠르게 키우고 있고, 2026년 Q3 EDA 자체 성장률(8.5%)이 Cadence Core EDA(+20%)보다 낮았다. IP 부문은 2025년 부진 뒤 회복 중이다.",
+    "text": "이 자리의 경쟁은 Cadence와의 양강 구도다. Synopsys는 IP와 Ansys 시뮬레이션에서 앞서고, Cadence는 에뮬레이션 하드웨어와 최근 성장 속도에서 앞선다. 승부는 AI 에이전트를 누가 먼저 돈이 되는 과금으로 바꾸느냐와, 인수한 시뮬레이션을 칩 설계 흐름에 누가 더 잘 묶느냐로 옮겨 가고 있다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "FY2026~FY2030 매출 연 약 15% 성장, FY2030 non-GAAP 영업이익률 약 50%, 잉여현금흐름·EPS 연 20% 중반 성장 (2026-09-30 투자자의 날).",
+    "roadmap": [
+      {
+        "when": "Q4 FY2026",
+        "what": "매출 25.3억~25.8억 달러 가이드, EDA 성장 두 자릿수로 가속 예상",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "when": "FY2026 이후 수개월",
+        "what": "약 10억 달러 자사주 매입 계획, 잉여현금흐름 최대 50% 환원",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "when": "FY2027",
+        "what": "매출 111억~112억 달러(약 +15%), non-GAAP 영업이익률 약 44%, 잉여현금흐름 약 31억 달러; Multiphysics Fusion 매출 기여 시작",
+        "src": [
+          "s3",
+          "s2"
+        ]
+      },
+      {
+        "when": "Ansys 인수 4년차",
+        "what": "비용 시너지 4억 달러 목표 유지",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "FY2030",
+        "what": "non-GAAP 영업이익률 약 50%",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "vision": "AI가 설계를 더 복잡하게 만들수록 칩부터 시스템까지 설계·검증·시뮬레이션을 한 번에 공급하는 회사가 이긴다는 그림이다. IP는 라이선스에 로열티를 더해 고객 칩 판매에 함께 올라타는 쪽으로 간다.",
+    "text": "이 경쟁에서 이기기 위해 회사는 범위를 넓히고 곁가지를 덜어 냈다. Ansys를 더하고 프로세서 IP·광학 사업을 팔았으며, 차입금을 빠르게 갚은 뒤 주주환원을 늘리기로 했다. 투자자의 날에는 2030년 영업이익률 약 50%라는 숫자를 내걸어, 매출 성장과 함께 이익률을 올리겠다고 약속했다.",
+    "src": [
+      "s3",
+      "s1",
+      "s2"
+    ]
+  },
+  "governance": {
+    "line": "Sassine Ghazi CEO가 이끌고 배당 없이 자사주로 환원하는 회사로, Ansys 인수 차입금을 갚은 뒤 잉여현금흐름의 최대 50%를 자사주 매입에 쓰겠다고 밝혔으며 NVIDIA가 3% 미만 지분을 보유한다.",
+    "src": [
+      "s1",
+      "s3",
+      "s4"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q4 FY2026",
+        "metric": "revenue / non-GAAP EPS",
+        "value": "25.3억~25.8억 달러 / 4.10~4.16달러",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "revenue / non-GAAP EPS",
+        "value": "96.9억~97.4억 달러 (중간값 0.5억 상향) / 15.04~15.10달러",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "operating cash flow / free cash flow",
+        "value": "약 28억 / 약 26억 달러 (각각 5억·6억 상향)",
+        "givenOn": "2026-08-26",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "revenue / non-GAAP EPS / FCF",
+        "value": "111억~112억 달러 / 19.04~19.12달러 / 약 31억 달러, non-GAAP 영업이익률 약 44%",
+        "givenOn": "2026-09-30",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "period": "FY2030",
+        "metric": "non-GAAP operating margin",
+        "value": "약 50%, FY26~30 매출 약 15% 연평균 성장",
+        "givenOn": "2026-09-30",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "8월에 연간 매출·EPS·현금흐름 전망을 모두 올렸다. 매출 전망에는 사업 매각으로 빠진 약 1.5억 달러가 반영돼 있다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(Zacks via Nasdaq, 조정 EPS) 향후 4개 분기 합계 13.51달러(범위 12.26~14.48), 직전 4개 분기 9.84달러, 최근 4주 상향 13건·하향 0건. 이 데이터의 Q3 실적 EPS(2.85)는 회사 non-GAAP EPS(3.91)와 기준이 달라 직접 비교하지 않는다.",
+    "src": [
+      "s5",
+      "s1"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Q4 FY2026에 EDA 성장률이 두 자릿수로 올라섬",
+      "FY2027 매출 가이드 111억~112억 달러가 유지되거나 상향",
+      "IP 성장률이 10%대 중후반으로 회복하고 로열티 수주가 늘어남",
+      "Ansys 비용 시너지가 일정보다 빠르게 쌓이고 영업이익률이 오름",
+      "약 10억 달러 자사주 매입이 실제로 집행됨"
+    ],
+    "breaks": [
+      "EDA 성장률이 한 자릿수에 머무르거나 백로그가 줄어듦",
+      "IP 부문 수주 부진 재발",
+      "중국 수출 규제 강화",
+      "범용 AI 모델이 설계 툴 라이선스 수를 줄인다는 고객 사례",
+      "FY2027 영업이익률 목표 하향"
+    ],
+    "keyNumbers": [
+      {
+        "name": "EDA 자체 성장률 (Ansys 제외)",
+        "why": "AI 칩 설계 수요의 직접 신호"
+      },
+      {
+        "name": "Design IP 매출·이익률",
+        "why": "회복과 로열티 모델 전환 확인"
+      },
+      {
+        "name": "백로그",
+        "why": "향후 매출의 바닥"
+      },
+      {
+        "name": "non-GAAP 영업이익률",
+        "why": "2030년 50% 목표 경로"
+      },
+      {
+        "name": "총차입과 자사주 매입액",
+        "why": "부채 축소에서 환원으로 넘어가는 속도"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-12 (추정, 회사 미공지)",
+        "event": "Q4 FY2026 실적과 FY2027 가이던스 재확인",
+        "src": []
+      },
+      {
+        "date": "2026-10 ~ 2027 상반기",
+        "event": "약 10억 달러 자사주 매입 진행",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "date": "매 분기 (Cadence·AI 칩 실적 시즌)",
+        "event": "Cadence 가이던스와 AI 칩 설계 투자 동향",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "reaction": "주가는 EDA 자체 성장률, IP 부문 회복, 연간 가이던스 변화에 반응해 왔다고 볼 수 있다. 개별 실적일 반응 폭은 이번에 확인한 1차 자료가 없다.",
+    "conditions": [
+      "Ansys를 뺀 EDA 성장률",
+      "Design IP 매출 성장률과 이익률",
+      "다음 해 가이던스와 컨센서스의 차이",
+      "백로그 변화",
+      "Cadence 실적과의 성장률 비교",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+  "unverified": [
+    "분기 영업현금흐름 (9개월 누계만 확인, 분기 잉여현금흐름 7.46억 달러는 콜 기준)",
+    "고객 집중도와 지역별 매출 (10-Q 미확인)",
+    "AI 관련 매출 비중 (회사 미공시)",
+    "EDA·검증 하드웨어 시장 점유율",
+    "검증 하드웨어 생산 협력사 이름",
+    "투자자의 날 부문별 성장 목표(EDA·IP·시뮬레이션)는 표가 깨져 읽혀 제외",
+    "9개월 R&D 비용",
+    "Q4 FY2026 실적 발표일",
+    "NVIDIA 지분율 3% 미만은 2차 보도 기준",
+    "경쟁사 목록은 회사 자료가 아닌 일반 분류 기준"
+  ],
+  "confidence": "high - 매출·부문·현금·가이던스는 8-K와 투자자의 날 보도자료에서 확인했고, 백로그·Ansys 기여·AI 사례는 기계 녹취 기준이라 medium 수준이다."
+}

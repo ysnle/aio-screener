@@ -552,14 +552,15 @@ var THEME_MAP = [
       { name:'정유', tickers:['MPC','PSX','VLO','DK'] }
     ] },
   { id:'semiconductor', nameKr:'반도체', emoji:'', color:'var(--data-purple)', etf:'SMH', etfName:'VanEck Semiconductor',
-    leaders:['NVDA','AVGO','MU','AMD','INTC','AMAT','LRCX','ARM','TXN','KLAC','MRVL','SNDK','ADI','QCOM','TSM','STX','WDC','ASML','TER','NXPI','MCHP','ON','UMC','GFS','ENTG','ACLS','UCTT','ONTO','AMKR','MPWR','FORM','COHU','KLIC'], leaderHighlight:['NVDA','AVGO','MU','AMD'],
+    leaders:['NVDA','AVGO','MU','AMD','INTC','AMAT','LRCX','ARM','TXN','KLAC','MRVL','SNDK','ADI','QCOM','TSM','STX','WDC','ASML','TER','NXPI','MCHP','ON','UMC','GFS','ENTG','ACLS','UCTT','ONTO','AMKR','MPWR','FORM','COHU','KLIC','NTAP','SIMO','MKSI','PLAB','AEIS','ICHR','CAMT','NVMI','ACMR','ASX','VSH','TSEM','RMBS','LSCC','SITM','CEVA','AMBA'], leaderHighlight:['NVDA','AVGO','MU','AMD'],
     subThemes:[
       { name:'AI 칩/커스텀 ASIC', tickers:['NVDA','AVGO','AMD','MRVL','ARM'] },
-      { name:'메모리/스토리지', tickers:['MU','SNDK','WDC','STX'] },
-      { name:'장비/소재', tickers:['ASML','AMAT','LRCX','KLAC','ENTG','ACLS','UCTT','ONTO'] },
-      { name:'테스트/패키징', tickers:['TER','AMKR','FORM','COHU','KLIC'] },
-      { name:'아날로그/전원 IC·MCU/RF', tickers:['TXN','ADI','QCOM','NXPI','MCHP','ON','MPWR'] },
-      { name:'파운드리', tickers:['TSM','INTC','GFS','UMC'] }
+      { name:'메모리/스토리지', tickers:['MU','SNDK','WDC','STX','NTAP','SIMO'] },
+      { name:'장비/소재', tickers:['ASML','AMAT','LRCX','KLAC','ENTG','ACLS','UCTT','ONTO','MKSI','PLAB','AEIS','ICHR','CAMT','NVMI','ACMR'] },
+      { name:'테스트/패키징', tickers:['TER','AMKR','FORM','COHU','KLIC','ASX'] },
+      { name:'아날로그/전원 IC·MCU/RF', tickers:['TXN','ADI','QCOM','NXPI','MCHP','ON','MPWR','VSH'] },
+      { name:'파운드리', tickers:['TSM','INTC','GFS','UMC','TSEM'] },
+      { name:'IP·인터페이스/FPGA·타이밍', tickers:['RMBS','LSCC','SITM','CEVA','AMBA'] }
     ] },
   { id:'software', nameKr:'소프트웨어/클라우드', emoji:'', color:'#b54548', etf:'IGV', etfName:'iShares Software',
     leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S','RBRK','PATH','APPN','PEGA'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
@@ -636,9 +637,9 @@ var THEME_MAP = [
       { name:'게임', tickers:['NTES','TTWO','RBLX'] }
     ] },
   { id:'photonics', nameKr:'광통신/포토닉스', emoji:'', color:'#978365', etf:null, etfName:'(커스텀 합산)', isComposite: true,
-    leaders:['AVGO','ANET','MRVL','LITE','GLW','CIEN','COHR','ALAB','AAOI','VIAV','FN'], leaderHighlight:['AVGO','ANET','MRVL','LITE'],
+    leaders:['AVGO','ANET','MRVL','LITE','GLW','CIEN','COHR','ALAB','AAOI','VIAV','FN','AXTI'], leaderHighlight:['AVGO','ANET','MRVL','LITE'],
     subThemes:[
-      { name:'광부품/모듈', tickers:['LITE','COHR','AAOI','VIAV','FN'] },
+      { name:'광부품/모듈', tickers:['LITE','COHR','AAOI','VIAV','FN','AXTI'] },
       { name:'광섬유/광네트워크', tickers:['CIEN','GLW','ANET'] },
       { name:'광전자 플랫폼', tickers:['AVGO','MRVL','ALAB'] }
     ] },
@@ -650,13 +651,14 @@ var THEME_MAP = [
       { name:'BTC 보유/ETF', tickers:['MSTR','IBIT','BITO'] }
     ] },
   { id:'ai_infra', nameKr:'AI 인프라/데이터센터', emoji:'', color:'var(--data-purple)', etf:null, etfName:'(커스텀 합산)', isComposite: true,
-    leaders:['NVDA','AVGO','AMD','CSCO','INTC','ORCL','ARM','GEV','ANET','MRVL','DELL','ETN','NBIS','APH','PWR','HPE','VRT','CRWV','ALAB','IREN','CLS','CRDO','EME','SMCI','CORZ','WULF','CIFR','APLD','NVT'], leaderHighlight:['NVDA','AVGO','AMD','CSCO'],
+    leaders:['NVDA','AVGO','AMD','CSCO','INTC','ORCL','ARM','GEV','ANET','MRVL','DELL','ETN','NBIS','APH','PWR','HPE','VRT','CRWV','ALAB','IREN','CLS','CRDO','EME','SMCI','CORZ','WULF','CIFR','APLD','NVT','FLEX','JBL','SANM','MTSI','SMTC','POWL','HUBB','FIX','STRL','MOD','JCI','TT','CARR','HUT','BTDR','GLXY'], leaderHighlight:['NVDA','AVGO','AMD','CSCO'],
     subThemes:[
       { name:'AI 칩/CPU', tickers:['NVDA','AVGO','AMD','ARM','INTC'] },
-      { name:'서버/HW', tickers:['DELL','SMCI','HPE','CLS'] },
-      { name:'네트워킹/인터커넥트', tickers:['ANET','CSCO','ALAB','CRDO','MRVL'] },
-      { name:'DC 전력/냉각/건설', tickers:['VRT','ETN','GEV','APH','EME','PWR','NVT'] },
-      { name:'GPU 클라우드/AI 호스팅', tickers:['CRWV','NBIS','ORCL','IREN','WULF','CIFR','APLD','CORZ'] }
+      { name:'서버/HW', tickers:['DELL','SMCI','HPE','CLS','FLEX','JBL','SANM'] },
+      { name:'네트워킹/인터커넥트', tickers:['ANET','CSCO','ALAB','CRDO','MRVL','MTSI','SMTC'] },
+      { name:'DC 전력/냉각/건설', tickers:['VRT','ETN','GEV','APH','EME','PWR','NVT','POWL','HUBB','FIX','STRL'] },
+      { name:'DC 냉각/공조', tickers:['MOD','JCI','TT','CARR'] },
+      { name:'GPU 클라우드/AI 호스팅', tickers:['CRWV','NBIS','ORCL','IREN','WULF','CIFR','APLD','CORZ','HUT','BTDR','GLXY'] }
     ] },
   { id:'robotics', nameKr:'로보틱스/자동화', emoji:'', color:'#1b1a17', etf:'BOTZ', etfName:'Global Robotics',
     leaders:['TSLA','ISRG','EMR','KEYS','TER','ROK','SYM','PRCT','GMED'], leaderHighlight:['TSLA','ISRG','EMR','KEYS'],

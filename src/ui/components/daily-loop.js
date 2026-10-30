@@ -20,6 +20,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { moveNewsList, moveNewsRows } from './market-timeline.js';
 import { newsImpactChain, todayChecks } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
+import { recentMacroReleases } from '../../domain/briefing/macro-releases.js';
 function call(root, name, arg, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn(arg) ?? fallback) : fallback; } catch (_) { return fallback; }
 }
@@ -631,10 +632,15 @@ export function renderDailyLoop({ documentRef: doc, root, store, regime = null }
   if (parts.news) renderMyNews(doc, parts.news, root, store, names?.names || []);
   renderOvernight(doc, host, root, store); // v58.75 (persona review)
   // v59.42: FOMC and mover earnings briefs (a lazy chunk: the block and its artifact are not part of the boot set).
+  // v59.44: the macro releases are read here, in the boot set where the macro board already is, so the lazy chunk does
+  // not pull indicators.js into a new shared chunk.
+  const macro = () => recentMacroReleases({ macro: root?._aioServerMacro || null, releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {} }, { nowMs: Date.now() });
   import('./event-briefs.js').then(({ paintHomeBriefs }) => {
-    const repaint = () => { if (doc.getElementById('page-home')?.classList?.contains('active')) paintHomeBriefs(doc, root, host, null); };
-    paintHomeBriefs(doc, root, host, repaint);
+    const repaint = () => { if (doc.getElementById('page-home')?.classList?.contains('active')) paintHomeBriefs(doc, root, host, null, macro()); };
+    paintHomeBriefs(doc, root, host, repaint, macro());
   }).catch(() => {});
+  // v59.44: the AI supply chain by group (a lazy chunk), ahead of the release summaries.
+  import('./ai-chain-flow.js').then(({ paintHomeAiChain }) => paintHomeAiChain(doc, root, host)).catch(() => {});
   renderTodayChecks(doc, host, root, regime || readMarketRegime(root), schedule); // v58.75 ('고르는 법' E4)
   host.dataset.aioDailyLoopRenderer = 'native';
   return { changes, names };

@@ -1,0 +1,215 @@
+{
+  "symbol": "AAOI",
+  "name": "Applied Optoelectronics, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Applied Optoelectronics는 레이저 칩부터 직접 만들어 데이터센터용 800G 광 트랜시버와 케이블TV 장비를 파는 회사로, AI 데이터센터 주문이 몰리며 2026년 2분기 데이터센터 매출이 140% 늘었지만 아직 영업적자와 대규모 설비투자 단계에 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Applied Optoelectronics Reports Second Quarter 2026 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001158114/000168316826006055/aaoi_ex9901.htm", "publisher": "Applied Optoelectronics / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s2", "kind": "10-Q", "title": "Applied Optoelectronics Form 10-Q for the quarter ended 2026-06-30 (filing day not checked; cover share count dated 2026-08-03)", "url": "https://www.sec.gov/Archives/edgar/data/0001158114/000143774926026278/aaoi20260630_10q.htm", "publisher": "Applied Optoelectronics / SEC EDGAR", "date": "2026-08" },
+    { "id": "s3", "kind": "10-K", "title": "Applied Optoelectronics Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1158114/000143774926005875/aaoi20251231_10k.htm", "publisher": "Applied Optoelectronics / SEC EDGAR", "date": "2026-02-26" },
+    { "id": "s4", "kind": "news", "title": "Applied Optoelectronics Announces Date of Third Quarter 2026 Financial Results Conference Call (company release via Finviz)", "url": "https://finviz.com/news/403299/applied-optoelectronics-announces-date-of-third-quarter-2026-financial-results-conference-call", "publisher": "PR Newswire via Finviz", "date": "2026-10-15" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/aaoi/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "레이저 칩을 텍사스 Sugar Land에서 MBE·MOCVD 공정으로 직접 만드는 수직 계열화 (10-K)",
+      "미국(텍사스)·대만·중국 세 곳에 나뉜 생산 거점 - 미국 내 레이저·트랜시버 생산이 가능한 몇 안 되는 업체 (10-Q)",
+      "800G·1.6T 데이터센터 트랜시버와 1.8GHz CATV 장비를 함께 내는 제품 폭 (8-K)",
+      "Amazon과 맺은 최대 40억 달러 구매 연동 워런트 계약 (10-Q)"
+    ],
+    "text": "AAOI의 힘은 트랜시버 안에서 빛을 내는 레이저 칩을 남에게 사지 않고 텍사스 공장에서 직접 만든다는 데 있다. 레이저가 공급 병목일 때 자체 칩이 있으면 물량을 더 빨리 늘릴 수 있고, 미국 안 생산이라는 점이 중국산 부품을 꺼리는 고객에게 장점이 된다. Amazon이 최대 40억 달러 구매에 연동된 워런트를 받은 것도 이 공급 능력을 사려는 계약으로 읽힌다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "design": {
+    "text": "이 레이저로 회사가 만드는 것은 세 시장으로 보고된다. 데이터센터용 광 트랜시버(800G 이상, 1.6T 준비 중), 케이블TV(CATV)용 증폭기·송신기·노드 같은 광대역 장비, 그리고 통신사용 광부품이다. 2026년 2분기 매출의 56%가 데이터센터, 42%가 CATV였다.",
+    "src": ["s3", "s1"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Sugar Land, 텍사스 - 레이저·레이저 부품과 일부 데이터센터 트랜시버 생산, R&D (10-Q)",
+      "Taipei, 대만 (Prime World 지점) - 일부 데이터센터 트랜시버와 CATV 장비 생산 (10-Q)",
+      "Ningbo, 중국 (Global Technology) - 트랜시버 서브어셈블리와 CATV 장비 생산 (10-Q)"
+    ],
+    "text": "생산은 거의 모두 자체 공장에서 한다: 레이저는 텍사스, 트랜시버와 CATV 장비는 대만·중국·텍사스에서 조립한다. 2026년 상반기에만 설비투자로 3.35억 달러를 쓰며 생산능력을 키우고 있고, CFO는 월 약 20만 개인 생산능력이 2026년 말 800G·1.6T 기준 월 약 65만 개로 늘 것이라고 했다. 이 설비 확장이 매출보다 먼저 비용으로 잡혀 영업적자가 이어지고 있다.",
+    "src": ["s2", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "Microsoft - 최대 인터넷 데이터센터 고객, 2025년 매출의 28.8% (10-K)",
+      "Digicomm International - 핵심 CATV 고객(유통), 2025년 매출의 53.1% (10-K); 2026-06-30 매출채권 3.14억 중 2.11억 달러",
+      "Amazon - 워런트 계약 상대 (매출 비중 미공시)",
+      "2026년 상반기 이름 없는 상위 3개 고객 43%·26%·24%, 상위 10개 99% (10-Q)"
+    ],
+    "channel": "데이터센터 트랜시버는 하이퍼스케일러에 직접, CATV 장비는 Digicomm 같은 유통사를 거쳐 케이블 사업자에게 판매.",
+    "concentration": "2026년 상반기 상위 3개 고객 43%·26%·24%, 상위 10개 99% (10-Q). 2025년 Digicomm 53.1%, Microsoft 28.8% (10-K).",
+    "text": "이렇게 만든 제품은 극소수 고객에게 팔린다. 상위 10개 고객이 매출의 99%이고 상위 3곳만으로 93%라, 한 고객의 주문 변화가 곧 실적이다. 데이터센터 쪽은 Microsoft와 Amazon이, CATV 쪽은 유통사 Digicomm(최종 고객은 케이블 사업자)이 축이다.",
+    "src": ["s2", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "Microsoft·Amazon 등 하이퍼스케일러", "what": "클라우드·AI 사용료" },
+      { "from": "하이퍼스케일러", "to": "AAOI", "what": "800G·1.6T 광 트랜시버 대금 (개당, Amazon은 누적 구매액에 따라 워런트 행사분 확정)" },
+      { "from": "케이블 사업자 (DOCSIS 4.0 업그레이드)", "to": "Digicomm (유통)", "what": "CATV 증폭기·노드 구매" },
+      { "from": "Digicomm", "to": "AAOI", "what": "CATV 장비 대금" },
+      { "from": "AAOI", "to": "장비 공급사·건설 (텍사스·대만 증설)", "what": "설비투자 (2026년 상반기 3.35억 달러)" }
+    ],
+    "pricing": "트랜시버와 CATV 장비 모두 개당 판매. Amazon 워런트 비용은 매출에서 차감(2026년 상반기 약 210만 달러).",
+    "text": "돈은 하이퍼스케일러가 AI 클러스터를 늘릴 때 트랜시버 대금으로, 케이블 사업자가 망을 업그레이드할 때 Digicomm을 거쳐 CATV 장비 대금으로 들어온다. 들어온 돈보다 나가는 돈이 커서, 상반기 설비투자 3.35억 달러는 주식 발행 10.28억 달러로 메웠다. 지금은 매출이 늘수록 증설 비용도 함께 커지는 구간이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q2 2026 (ended 2026-06-30)",
+    "revenue": { "value": 191.9, "unit": "USD mn", "yoy": 86.3 },
+    "grossMargin": 27.7,
+    "operatingMargin": -12.9,
+    "netMargin": -11.9,
+    "operatingCashFlow": { "value": null, "unit": "USD mn" },
+    "freeCashFlow": { "value": null, "unit": "USD mn" },
+    "segments": [
+      { "name": "Datacenter (datacom)", "revenue": 107.7, "unit": "USD mn", "share": 56.1, "yoy": 140, "operatingMargin": null, "src": ["s1"] },
+      { "name": "CATV (broadband)", "revenue": 80.6, "unit": "USD mn", "share": 42.0, "yoy": 44, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Telecom", "revenue": 3.4, "unit": "USD mn", "share": 1.8, "yoy": 76, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "non-GAAP 실적", "value": "총마진 29.8%(전년 30.4%), 순이익 550만 달러(주당 0.06달러), 조정 EBITDA -50만 달러", "src": ["s1"] },
+      { "name": "800G 물량", "value": "2분기 800G 출하가 전분기 대비 두 배 넘게 증가 (CEO)", "src": ["s1"] },
+      { "name": "생산능력", "value": "현재 월 약 20만 개, 2026년 말 800G·1.6T 월 약 65만 개 목표 (CFO)", "src": ["s1"] },
+      { "name": "상반기 현금흐름", "value": "영업현금 -7,380만, 설비투자 -3.351억 달러, 주식 발행 순유입 10.282억 달러 (2026년 1~6월)", "src": ["s2"] },
+      { "name": "현금·부채", "value": "2026-06-30 현금(제한 현금 포함) 5.088억 달러; 차입 5,730만 달러와 전환사채 1.291억 달러", "src": ["s1"] }
+    ],
+    "text": "이 흐름이 2026년 2분기 매출 1.92억 달러(+86%)로 나타났지만, GAAP 영업손실 2,470만 달러로 아직 적자다. 성장은 데이터센터(+140%)가 끌었고 CATV도 44% 늘었다. 총마진이 30%를 밑도는 것은 증설 초기 비용과 램프 비용 때문이며, 회사는 수요가 2027년 중반까지 생산능력을 웃돌 것으로 본다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "1H 2026 (Jan-Jun 2026)",
+    "items": [
+      { "use": "R&D", "value": 60.5, "unit": "USD mn", "src": ["s2"] },
+      { "use": "capex", "value": 335.1, "unit": "USD mn", "src": ["s2"] },
+      { "use": "debt repayment", "value": 94.0, "unit": "USD mn", "src": ["s2"] }
+    ],
+    "text": "돈은 거의 전부 공장으로 간다: 상반기 설비투자 3.35억 달러가 R&D(6,050만 달러)의 다섯 배를 넘는다. 영업에서 현금이 빠져나가는 상황이라 이 투자는 10.28억 달러 규모 주식 발행으로 마련했고, 일부는 단기 차입 9,400만 달러 상환에 썼다(신용한도 2,470만·은행인수어음 6,920만 등, 합계는 계산값). 배당과 자사주 매입은 없으며, 주주는 지분 희석을 감수하고 증설에 베팅하는 구조다.",
+    "src": ["s2"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 클러스터의 GPU·스위치를 광섬유로 잇는 800G·1.6T 광 트랜시버 공급자. 레이저 칩부터 모듈까지 직접 만들어 하이퍼스케일러에 낸다.",
+    "dependsOn": ["반도체 원자재·장비 (MBE·MOCVD 레이저 공정)", "DSP 칩 공급사 (업체명 미공시)", "자본시장 (증설 자금을 주식 발행으로 조달)"],
+    "sellsTo": ["cloud-infrastructure (Microsoft, Amazon)", "케이블 사업자 (Digicomm 경유 CATV)", "통신사 (소량)"],
+    "aiRevenue": "직접 공시 없음. AI 데이터센터가 중심인 데이터센터 매출이 2026년 2분기 1.077억 달러로 전체의 56.1% (2026-08-06 발표).",
+    "upside": "AI 클러스터가 커질수록 GPU당 필요한 광 트랜시버 수와 속도(800G→1.6T)가 함께 오른다. 생산능력을 월 20만 개에서 65만 개로 늘리는 계획이 그대로 수주로 채워지면 매출과 이익률이 동시에 뛸 수 있다.",
+    "risk": "고객 2~3곳 의존이 극단적이라 한 하이퍼스케일러의 주문 축소나 공급사 교체가 곧 매출 급감이다. InnoLight·Eoptolink 같은 중국 대형 업체와 가격 경쟁을 하고, 증설 비용이 먼저 들어가 수요가 꺾이면 고정비가 그대로 남는다. 코패키지드 옵틱스(CPO)처럼 플러그형 트랜시버를 줄이는 기술 변화도 장기 위험이다.",
+    "text": "그래서 AI 가치사슬에서 AAOI는 네트워크 층의 광 트랜시버 자리에 있다. 데이터센터 매출의 대부분이 하이퍼스케일러 AI 증설에서 나오므로 Microsoft·Amazon의 설비투자가 곧 수요다. 이 회사의 차이는 레이저를 직접 만든다는 점이지만, 그만큼 공장 증설 부담과 고객 집중 위험도 직접 진다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "데이터센터 광 트랜시버", "rivals": ["InnoLight Technology (Suzhou)", "Eoptolink Technology", "Coherent", "Lumentum", "Foxconn Interconnect Technology", "Source Photonics"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "레이저·광부품", "rivals": ["Coherent", "Lumentum", "Mitsubishi", "Sumitomo Electric Industries"], "position": "niche", "share": null, "src": ["s3"] },
+      { "arena": "CATV 광대역 장비", "rivals": ["10-K는 CATV 경쟁사를 따로 나눠 적지 않음"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "자체 레이저 칩, 미국 내 생산 거점, 그리고 Amazon 워런트로 묶인 대형 고객 관계.",
+    "threats": "규모가 훨씬 큰 InnoLight·Eoptolink·Coherent와의 가격·물량 경쟁, 그리고 상위 고객이 공급사를 늘리거나 바꿀 위험.",
+    "text": "이 자리의 경쟁자는 10-K가 꼽듯 InnoLight·Eoptolink·Coherent·Lumentum 같은 대형 트랜시버 업체다. AAOI는 규모로는 도전자이지만, 레이저 자체 생산과 미국 생산을 무기로 '공급 다변화'를 원하는 하이퍼스케일러의 두 번째·세 번째 공급사 자리를 노린다. 승부는 약속한 생산능력을 제때 채우고 수율을 올리는 데 달려 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "strategy": {
+    "goal": "2026년 말까지 800G·1.6T 생산능력을 월 약 65만 개로 늘리고, 수요가 2027년 중반까지 생산능력을 웃돌 것으로 본다 (2026-08-06 발표).",
+    "roadmap": [
+      { "when": "Q3 2026", "what": "매출 2.55~2.90억 달러, non-GAAP 총마진 29~30.5% 가이드", "src": ["s1"] },
+      { "when": "2026 말", "what": "800G·1.6T 생산능력 월 약 65만 개 (CFO)", "src": ["s1"] },
+      { "when": "2026~2027", "what": "1.6T 트랜시버 고객 참여 확대, 1.8GHz CATV 대량 채택", "src": ["s1"] },
+      { "when": "2027 중반", "what": "수요가 생산능력을 웃도는 상태가 이어질 것이라는 회사 전망", "src": ["s1"] }
+    ],
+    "vision": "수직 계열화된 미국·대만 생산 기반으로 AI 데이터센터와 케이블 망 업그레이드 양쪽에 광 연결 부품을 공급한다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 먼저 생산능력을 세 배 넘게 늘리는 길을 택했다. 증설 자금은 주식 발행으로 마련해 재무 위험은 낮췄지만 지분 희석이 따른다. 3분기 가이드가 실제 매출로 이어지는지가 첫 확인 지점이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "governance": {
+    "line": "창업자 Thompson Lin 박사가 CEO로 이끄는 회사로, 배당 없이 증설 자금을 2026년 상반기 10.28억 달러 주식 발행으로 조달했고 Amazon에 최대 794만여 주 워런트를 부여했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "2.55~2.90억 달러", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "gross margin (non-GAAP)", "value": "29~30.5%", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "net income (non-GAAP)", "value": "1,010만~2,400만 달러, 주당 0.11~0.26달러 (약 9,280만 주)", "givenOn": "2026-08-06", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "2분기 실제치와 직전 가이드 범위의 비교는 이번에 원문으로 확인하지 못했다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(Zacks via Nasdaq, 추정치 2건) 향후 4개 분기(2026-09~2027-06) EPS 합계 2.02달러(범위 1.70~2.35), 직전 4개 분기 -0.30달러, 최근 4주 상향·하향 0건. 추정 애널리스트 수가 적어 신뢰도가 낮다.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q3 2026 매출이 2.55~2.90억 달러 가이드 안에 들고 non-GAAP 흑자 확대",
+      "800G 출하 증가와 1.6T 첫 양산 매출 확인",
+      "생산능력이 2026년 말 월 65만 개 계획대로 늘어남",
+      "총마진이 30%를 넘어 회복",
+      "새 하이퍼스케일러 고객 추가로 상위 고객 비중이 낮아짐"
+    ],
+    "breaks": [
+      "상위 데이터센터 고객의 주문 축소나 다른 공급사로의 이전",
+      "증설 지연 또는 수율 문제로 가이드 미달",
+      "추가 대규모 주식 발행",
+      "Digicomm 매출채권 회수 지연 (매출채권의 67%가 한 곳)",
+      "CPO 등 기술 전환으로 플러그형 트랜시버 수요 둔화"
+    ],
+    "keyNumbers": [
+      { "name": "데이터센터 매출과 800G·1.6T 비중", "why": "AI 수요가 매출로 들어오는 통로" },
+      { "name": "총마진 (non-GAAP)", "why": "증설 비용 흡수와 가격 경쟁 정도" },
+      { "name": "설비투자와 영업현금흐름", "why": "추가 자금 조달 필요성" },
+      { "name": "상위 3개 고객 비중", "why": "집중 위험의 크기" },
+      { "name": "월 생산능력", "why": "회사가 약속한 램프의 진척" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-05 (장 마감 후, 16:30 ET 콜)", "event": "Q3 2026 실적과 Q4 가이던스", "src": ["s4"] },
+      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "Microsoft·Amazon 설비투자 전망", "src": ["s3"] },
+      { "date": "수시", "event": "InnoLight·Eoptolink·Coherent 등 경쟁사 실적과 수주 소식", "src": ["s3"] }
+    ],
+    "reaction": "주가는 다음 분기 매출 가이드, 생산능력 증설 진척, 그리고 대형 고객 관련 소식에 크게 반응하는 경향이 있다(구체적 주가 반응은 이번에 확인하지 않음).",
+    "conditions": [
+      "다음 분기 매출 가이드와 컨센서스의 차이",
+      "데이터센터 매출 성장률과 800G·1.6T 언급",
+      "non-GAAP 총마진 방향",
+      "설비투자 규모와 추가 증자 여부",
+      "상위 고객 비중과 신규 고객 언급",
+      "컨센서스 EPS 상향·하향 건수 (추정치 수가 적다는 점 감안)"
+    ]
+  },
+
+  "unverified": [
+    "2분기 단독 영업현금흐름과 잉여현금흐름 (상반기 합계만 확인, earnings 값은 null)",
+    "2026년 상반기 상위 3개 고객의 이름 (10-Q는 Customer 1·2·3로만 표기)",
+    "Amazon 관련 매출 비중",
+    "부문 합계 1.917억 달러가 총매출 1.919억 달러와 약 20만 달러 차이 (FTTH·기타 추정)",
+    "DSP 등 핵심 부품 공급사 이름",
+    "경쟁 점유율 수치",
+    "2분기 실적과 직전 가이드 비교",
+    "10-Q 정확한 제출일",
+    "차입 상환 합계 9,400만 달러는 항목 합산 계산값",
+    "영업이익률·순이익률은 계산값"
+  ],
+  "confidence": "medium - 실적·고객 집중·현금흐름은 8-K·10-Q·10-K 원문에서 왔지만 상반기 고객 이름과 AI 매출 금액이 공시되지 않고, 3분기 실적은 11월 5일 발표 전이다."
+}

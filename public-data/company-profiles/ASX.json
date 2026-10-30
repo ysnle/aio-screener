@@ -1,0 +1,515 @@
+{
+  "symbol": "ASX",
+  "name": "ASE Technology Holding Co., Ltd.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (Q3 2026 ended 2026-09-30; reports in NT$ under Taiwan-IFRS, files 20-F/6-K)",
+  "oneLine": "ASE는 남이 설계·생산한 칩을 포장(패키징)·테스트해 주는 대만의 세계 최대급 후공정(OSAT) 회사로, AI 칩 패키징·테스트 수요에 Q3 2026 매출이 45% 늘었고 이를 받기 위해 분기에 21억 달러씩 장비를 사들이고 있다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "ASE Technology Holding Third Quarter 2026 Earnings Release (6-K, unaudited, Taiwan-IFRS)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1122411/000095010326016324/dp255760_6k.htm",
+      "publisher": "ASE / SEC EDGAR",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s2",
+      "kind": "investor-day",
+      "title": "ASE 3Q26 earnings presentation incl. 4Q26 outlook (6-K)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1122411/000095010326016323/dp255782_6k.htm",
+      "publisher": "ASE / SEC EDGAR",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "ASE Form 20-F for fiscal year 2025 - operating segments detail (XBRL R222)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1122411/000119312526135585/R222.htm",
+      "publisher": "ASE / SEC EDGAR",
+      "date": "2026-04-01"
+    },
+    {
+      "id": "s4",
+      "kind": "10-K",
+      "title": "ASE Form 20-F for fiscal year 2025 - major customer detail (XBRL R225)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1122411/000119312526135585/R225.htm",
+      "publisher": "ASE / SEC EDGAR",
+      "date": "2026-04-01"
+    },
+    {
+      "id": "s5",
+      "kind": "10-K",
+      "title": "ASE Form 20-F for fiscal year 2025 - revenue by customer location (XBRL R224)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1122411/000119312526135585/R224.htm",
+      "publisher": "ASE / SEC EDGAR",
+      "date": "2026-04-01"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "SEC EDGAR 6-K filing list for ASE (prior Q4 results 6-K filed 2026-02-05; accessed date)",
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001122411&type=6-K&dateb=&owner=include&count=40",
+      "publisher": "SEC EDGAR",
+      "date": "2026-10-30"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus, per ADS), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/asx/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-29"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "패키징·테스트·EMS를 한 그룹에서 제공하는 규모 - 2025년 매출 NT$6,454억(약 206억 달러) (20-F)",
+      "플립칩·범핑·WLP·SiP 등 첨단 패키징이 ATM 매출의 51% (Q3 2026 실적 발표)",
+      "분기 21억 달러 수준의 장비 투자를 감당하는 현금창출력 - Q3 2026 EBITDA NT$580억 (실적 발표)",
+      "미국 고객 중심의 오랜 거래 관계 - 2025년 매출의 57%가 미국 소재 고객 (20-F)"
+    ],
+    "text": "ASE의 힘은 '규모'다. 칩 회사가 직접 하기엔 돈이 많이 드는 포장·테스트 공정을 세계 최대급 설비로 대신 해주고, 전자기기 조립(EMS)까지 한 그룹 안에서 처리한다. 경쟁사보다 크게, 먼저 장비를 깔 수 있다는 점이 AI 칩처럼 갑자기 수요가 몰리는 국면에서 고객이 ASE를 찾는 이유가 된다.",
+    "src": [
+      "s3",
+      "s5",
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "ASE는 칩을 설계하지 않고 서비스를 판다. 사업은 ATM(패키징·테스트·소재)과 EMS(전자기기 조립) 두 부문으로 나뉘며, Q3 2026 ATM 매출은 범핑·플립칩·WLP·SiP 51%, 와이어본딩 24%, 테스트 17%, 기타 패키징 6%, 소재 2%로 구성됐다. ATM 응용처는 통신 38%, 컴퓨팅 34%, 자동차·소비자·기타 28%로, 컴퓨팅 비중이 1년 전 25%에서 크게 올라왔다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "자체 패키징·테스트 공장 (위치별 내역은 이번에 확인 못 함)",
+      "장비 공급사 - 패키징·테스트 장비 (Q3 2026 장비 투자 21.04억 달러, 업체명 미공개) (실적 발표)",
+      "원자재 공급사 - 원자재가 Q3 2026 매출의 48% (실적 발표)"
+    ],
+    "text": "ASE는 고객이 맡긴 웨이퍼를 자기 공장에서 패키징·테스트하는 서비스 회사라, 생산능력은 곧 장비 투자다. Q3 2026 장비 투자는 21.04억 달러(패키징 9.91억, 테스트 10.67억)로 1년 전 7.36억 달러의 세 배 가까이 됐다. 원가에서는 원자재가 매출의 48%, 인건비가 10%를 차지해 소재 가격에도 민감하다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "미국 칩 설계사·기기 회사 - 2025년 매출의 56.7%가 미국 소재 고객 (20-F)",
+      "최대 고객 1곳 - 2025년 패키징·EMS 매출 NT$1,613억, 전체 매출의 약 25% (20-F 수치로 계산; 고객명 미공개)",
+      "대만 고객 18.0%, 기타 아시아 15.2%, 유럽 10.1% (2025, 20-F)"
+    ],
+    "channel": "칩 설계사(팹리스)·IDM·기기 회사와 직접 계약하는 위탁 서비스",
+    "concentration": "최대 고객 1곳이 2025년 매출의 약 25%(2024년 약 29%) - 20-F의 패키징·EMS 부문 고객 매출로 계산 (20-F 표의 '10%' 표기와 다름)",
+    "text": "ASE의 고객은 주로 미국 칩 설계사와 기기 회사로, 2025년 매출의 57%가 미국 소재 고객에서 나왔다. 한 고객이 패키징과 EMS를 합쳐 매출의 약 4분의 1을 차지해 집중도가 높다. 따라서 ASE 실적은 소수 대형 고객의 신제품 주기와 AI 칩 출하 일정에 크게 좌우된다.",
+    "src": [
+      "s5",
+      "s4"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "하이퍼스케일러·기기 구매자",
+        "to": "AI 칩·스마트폰 칩 설계사",
+        "what": "칩·기기 구매"
+      },
+      {
+        "from": "칩 설계사",
+        "to": "파운드리 (웨이퍼 생산)",
+        "what": "웨이퍼 위탁 생산 대금"
+      },
+      {
+        "from": "칩 설계사·파운드리",
+        "to": "ASE (ATM)",
+        "what": "개당 패키징·테스트 서비스 대금 (Q3 2026 NT$1,515억)"
+      },
+      {
+        "from": "기기 회사",
+        "to": "ASE (EMS)",
+        "what": "모듈·기기 조립 대금 (Q3 2026 NT$935억)"
+      },
+      {
+        "from": "ASE",
+        "to": "장비·원자재 공급사",
+        "what": "장비 투자(Q3 2026 21.04억 달러)와 기판·소재 구매"
+      }
+    ],
+    "pricing": "칩·모듈 개당 서비스 요금. 첨단 패키징·테스트는 단가와 마진이 높고(ATM 총마진 30.6%), EMS는 조립 마진이 낮다(총마진 8.3%) (실적 발표).",
+    "text": "돈은 AI 칩과 기기를 사는 쪽에서 출발해, 칩 설계사가 파운드리에 웨이퍼를 맡긴 뒤 ASE에 포장·테스트를 맡기면서 들어온다. 같은 매출이라도 ATM이 EMS보다 마진이 네 배 가까이 높아, 회사 이익은 거의 ATM에서 나온다. 받은 돈의 상당 부분은 다시 장비 공급사로 나가 다음 분기 생산능력이 된다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": {
+      "value": 244.161,
+      "unit": "TWD bn",
+      "yoy": 44.8
+    },
+    "grossMargin": 22.1,
+    "operatingMargin": 13.6,
+    "netMargin": 11.1,
+    "operatingCashFlow": {
+      "value": null,
+      "unit": "TWD bn"
+    },
+    "freeCashFlow": {
+      "value": null,
+      "unit": "TWD bn"
+    },
+    "segments": [
+      {
+        "name": "ATM (Assembly, Testing & Material)",
+        "revenue": 151.485,
+        "unit": "TWD bn",
+        "share": 62,
+        "yoy": 51,
+        "operatingMargin": 20,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "EMS (Electronic Manufacturing Services)",
+        "revenue": 93.469,
+        "unit": "TWD bn",
+        "share": 38.3,
+        "yoy": 35.4,
+        "operatingMargin": 3.3,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "ATM 총마진 (Q3 2026)",
+        "value": "30.6% (Q2 27.3%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "ATM 응용처 중 컴퓨팅 비중",
+        "value": "34% (Q2 30%, 1년 전 25%)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "장비 투자 (Q3 2026)",
+        "value": "21.04억 달러 - ATM 20.63억(Q2 16.46억, 1년 전 7.36억), EMS 0.41억",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "2026년 1~9월 영업현금·설비 지출",
+        "value": "영업현금 NT$1,338.6억, 유형자산 순지출 NT$2,497.9억",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "EBITDA (Q3 2026)",
+        "value": "NT$579.6억 (1년 전 NT$326.1억)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "순부채/자본",
+        "value": "0.66 (6월 말 0.47)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "Q3 2026 매출은 NT$2,442억으로 전 분기보다 28%, 1년 전보다 45% 늘었고 영업이익률은 13.6%로 올랐다. 이익은 ATM이 거의 다 만든다: ATM 영업이익 NT$302억(이익률 20.0%)에 비해 EMS는 NT$31억(3.3%)이다. ATM 안에서 컴퓨팅 비중이 1년 새 25%에서 34%로 올라, AI·서버 칩이 성장을 이끈 것으로 읽힌다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "2026년 1~9월 (배당은 3분기 지급분)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 249.792,
+        "unit": "TWD bn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 28.958,
+        "unit": "TWD bn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "번 돈보다 쓰는 돈이 더 많다. 2026년 1~9월 영업현금은 NT$1,339억인데 유형자산 순지출은 NT$2,498억으로, 차액은 차입으로 메웠다. 장기차입금은 6월 말 NT$2,096억에서 9월 말 NT$2,766억, 사채는 NT$150억에서 NT$422억으로 늘었고 순부채/자본은 0.47에서 0.66으로 올라갔다. 그래도 3분기에 배당 NT$290억을 지급해, 증설과 배당을 함께 하려고 빚을 늘리는 구조다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "파운드리가 만든 AI·서버 칩을 패키징(범핑·플립칩·첨단 패키징)하고 테스트하는 후공정 위탁 층. 파운드리와 칩 설계사 사이에서 '칩을 제품으로 완성하는' 단계다.",
+    "dependsOn": [
+      "semicap-foundry (파운드리 웨이퍼, 패키징·테스트 장비 공급사)",
+      "기판·소재 공급사"
+    ],
+    "sellsTo": [
+      "chips-compute (AI·서버 칩 설계사)",
+      "devices (스마트폰·기기 회사 - EMS 포함)"
+    ],
+    "aiRevenue": "AI 관련 매출 금액은 미공개. Q3 2026 ATM 매출의 34%가 컴퓨팅 응용(1년 전 25%), 이 비중의 상승이 AI·서버 수요를 반영 (2026-10-29 실적 발표).",
+    "upside": "AI 칩은 일반 칩보다 패키징이 복잡하고 테스트 시간이 길어 칩당 서비스 단가가 높다. 4분기 ATM 매출을 전 분기 대비 11~13% 더 늘리고 ATM 총마진을 1~2%포인트 올리겠다는 가이드가 이 흐름을 보여준다.",
+    "risk": "분기 21억 달러 수준의 장비 투자를 차입으로 메우고 있어, AI 칩 수요가 꺾이면 빈 설비와 늘어난 빚이 함께 남는다. 최대 고객 집중도(약 25%)가 높고, 파운드리가 첨단 패키징을 직접 하면 일감을 가져갈 수 있다.",
+    "text": "그래서 AI 가치사슬에서 ASE는 '장비·파운드리' 층의 후공정 위탁 회사다. AI 투자는 서버·AI 칩의 패키징·테스트 물량을 통해 ATM 매출로 들어오고, 컴퓨팅 비중이 1년 새 9%포인트 오른 것이 그 증거다. 회사는 이 기회를 잡으려고 빚을 늘려 가며 장비를 사고 있어, 수요가 이어지는지가 핵심이다.",
+    "src": [
+      "s1",
+      "s2",
+      "s4"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "OSAT 패키징·테스트 (전체)",
+        "rivals": [
+          "Amkor Technology",
+          "JCET",
+          "Powertech Technology"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "AI 칩 첨단 패키징 (2.5D·CoWoS급)",
+        "rivals": [
+          "TSMC (자체 첨단 패키징)",
+          "Amkor Technology"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "반도체 테스트",
+        "rivals": [
+          "KYEC",
+          "Amkor Technology"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "EMS (전자기기 조립)",
+        "rivals": [
+          "Foxconn",
+          "Luxshare"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "업계 최대급 설비와 투자 여력, 패키징·테스트·EMS를 한 번에 제공하는 범위, 그리고 이번 분기처럼 테스트 장비(10.67억 달러)까지 대규모로 늘릴 수 있는 자금력.",
+    "threats": "TSMC 같은 파운드리가 AI 칩 첨단 패키징을 직접 하는 구조, 중국 OSAT의 성장, 대형 고객의 일감 분산.",
+    "text": "후공정 위탁 시장에서 ASE는 규모 1위권이지만, AI 칩의 가장 비싼 첨단 패키징은 파운드리가 직접 하는 경우가 많아 그 영역에서는 도전자다. 회사는 범핑·플립칩과 테스트 설비를 크게 늘려 파운드리 주변 공정과 넘치는 물량을 받는 전략을 쓰고 있다. 점유율 수치는 이번에 확인하지 못했다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "AI·서버 칩 패키징·테스트 수요를 받기 위한 대규모 증설과 ATM 마진 상승 (Q4 2026 ATM 총마진 전 분기 대비 +1~2%p 가이드).",
+    "roadmap": [
+      {
+        "when": "Q4 2026",
+        "what": "연결 매출 전 분기 대비 +6~8%(NT$ 기준), 총마진 23~24%, 영업이익률 14.5~15.5%",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "Q4 2026",
+        "what": "ATM 매출 +11~13%, ATM 총마진 +1~2%p; EMS 매출 보합, 영업이익률 약 2%",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2026 (진행 중)",
+        "what": "분기 20억 달러대 장비 투자 지속 - Q2 16.46억 → Q3 20.63억 달러 (ATM)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "vision": "AI 시대에 '칩을 완성하는' 후공정 플랫폼으로서, 파운드리 바깥에서 가장 큰 첨단 패키징·테스트 능력을 갖추겠다는 그림이다 (이번에 읽은 문서는 수치 위주로 장기 비전 문구는 확인 못 함).",
+    "text": "이 경쟁에서 회사가 택한 길은 먼저 크게 투자해 물량을 선점하는 것이다. 4분기에도 ATM 매출을 11~13% 더 늘리고 마진도 올리겠다고 했으며, 장비 투자는 분기 20억 달러대로 이어지고 있다. 투자 회수 속도가 차입 증가 속도를 따라잡는지가 이 전략의 성패를 가른다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "대만 상장 지주회사로 미국에는 ADS(ASX)로 상장돼 있으며, 차입을 늘려 증설하면서도 3분기에 NT$290억 배당을 지급하는 투자·배당 병행 기조다 (경영진·지배구조 세부는 이번에 확인 못 함).",
+    "src": [
+      "s1"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q4 2026",
+        "metric": "consolidated revenue",
+        "value": "전 분기 대비 +6~8% (NT$ 기준, US$1=NT$31.9 가정)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "consolidated margins",
+        "value": "총마진 23~24%, 영업이익률 14.5~15.5%",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "ATM",
+        "value": "매출 전 분기 대비 +11~13%, 총마진 +100~200bp",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "EMS",
+        "value": "매출 대체로 보합, 영업이익률 약 2%",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "Q3 2026 실적이 직전 가이드 대비 어땠는지는 이번에 직전 분기 가이드를 확인하지 못해 판단하지 않는다. 연결 매출은 전 분기 대비 28% 늘었다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(ADS당 조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 1.58달러(추정치 1건), 직전 4개 분기 0.86달러. 최근 4주 상향·하향 0건. Q3 2026 실제 기본 EPS는 ADS당 0.384달러.",
+    "src": [
+      "s7",
+      "s1"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Q4 2026 ATM 매출 +11~13%, ATM 총마진 상승 가이드 달성",
+      "ATM 응용처 중 컴퓨팅 비중이 계속 상승",
+      "장비 투자 증가 속도만큼 EBITDA가 늘어 순부채/자본이 안정",
+      "테스트 매출 비중 회복 (Q3 17%로 Q2 19%에서 하락)"
+    ],
+    "breaks": [
+      "ATM 총마진이 30% 아래로 다시 내려감",
+      "순부채/자본이 0.66에서 계속 오름",
+      "AI 칩 고객의 출하 조정이나 파운드리 자체 패키징 확대로 물량 감소",
+      "최대 고객의 신제품 부진으로 EMS·패키징 동반 감소",
+      "대만 달러 강세로 NT$ 기준 매출·마진 압박"
+    ],
+    "keyNumbers": [
+      {
+        "name": "ATM 매출과 총마진",
+        "why": "이익의 거의 전부를 만드는 부문"
+      },
+      {
+        "name": "ATM 컴퓨팅 비중",
+        "why": "AI·서버 수요가 들어오는 줄"
+      },
+      {
+        "name": "분기 장비 투자",
+        "why": "수요 확신의 크기이자 차입 부담"
+      },
+      {
+        "name": "순부채/자본",
+        "why": "증설을 빚으로 하는 정도"
+      },
+      {
+        "name": "NT$/US$ 환율",
+        "why": "달러로 받고 NT$로 보고하는 구조"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-02 초 (추정, 회사 미확정; 전년 Q4 실적 6-K는 2026-02-05)",
+        "event": "Q4 2026 실적과 Q1 2027 전망",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "date": "매월 (과거 6-K 제출 패턴)",
+        "event": "월별 매출 공시",
+        "src": [
+          "s6"
+        ]
+      },
+      {
+        "date": "매 분기",
+        "event": "TSMC 실적·첨단 패키징 증설 발언, AI 칩 회사 실적",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "reaction": "주가는 다음 분기 ATM 매출·마진 전망과 장비 투자 규모에 반응한다. 대만 상장 본주와 미국 ADS가 함께 움직이며, 월별 매출 공시와 TSMC·AI 칩 회사 발표가 분기 사이에 주가를 움직이는 신호가 된다.",
+    "conditions": [
+      "다음 분기 ATM 매출·총마진 가이드 방향",
+      "월별 매출의 전년 대비 증가율",
+      "장비 투자와 순부채/자본 변화",
+      "ATM 컴퓨팅 비중",
+      "NT$/US$ 환율 변화",
+      "TSMC 첨단 패키징 증설 발언"
+    ]
+  },
+  "unverified": [
+    "Q3 2026 분기 영업현금흐름·잉여현금흐름 (실적 발표는 1~9월 누계만 제시; 1~9월 영업현금 NT$1,338.6억 - 유형자산 순지출 NT$2,497.9억 = 약 -NT$1,159억)",
+    "세그먼트 합(ATM 1,514.9억 + EMS 934.7억 = NT$2,449.5억)이 연결 매출 NT$2,441.6억보다 큼 - 부문 간 거래 제거 차이로 보이며, EMS 매출은 손익계산서 표(NT$929.97억)와 부문 표(NT$934.69억)가 다름",
+    "LEAP(첨단 패키징·테스트) 매출 금액과 연간 목표 (이번 문서에 없음)",
+    "AI 관련 매출 금액 (회사 미공개)",
+    "최대 고객 이름과 정확한 비중 (20-F 표의 10.00% 표기와 계산값 약 25%가 다름)",
+    "경쟁사 이름과 점유율: 20-F 본문(Item 4)은 파일 크기 때문에 읽지 못해, competition.arenas의 rivals는 업계 일반 구도로 적은 것이라 출처 문서에서 확인되지 않음",
+    "공장 위치, 경영진 이름, 지배구조 세부 (20-F 본문 미열람)",
+    "Q4 2026 실적 발표일 (회사 미공지)",
+    "연간 장비 투자 가이던스 (발표 자료에 수치 없음)",
+    "\"세계 최대급 OSAT\"·\"규모 1위권\" 위치와 월별 매출 공시(매월 6-K 내용)는 이번에 읽은 문서에서 직접 확인하지 않음"
+  ],
+  "confidence": "medium - Q3 2026 실적·Q4 가이드는 회사 6-K에서 왔지만, 20-F 본문(사업·경쟁·고객명)을 읽지 못해 경쟁 구도와 첨단 패키징(LEAP) 규모가 비어 있다."
+}

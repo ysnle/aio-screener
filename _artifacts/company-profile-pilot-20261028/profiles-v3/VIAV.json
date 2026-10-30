@@ -1,0 +1,214 @@
+{
+  "symbol": "VIAV",
+  "name": "Viavi Solutions Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "late June / early July (FY2026 ended 2026-06-27; Q1 FY2027 ends 2026-10-03, a 14-week quarter)",
+  "oneLine": "VIAVI는 광 트랜시버·네트워크 장비가 제대로 작동하는지 시험하는 계측 장비와 위폐 방지·3D 센싱용 광학 소재를 파는 회사로, AI 데이터센터용 광부품 개발·생산 시험 수요와 국방 수요가 겹치며 FY2026 매출이 40% 늘었다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "VIAVI Announces Fiscal Fourth Quarter and Fiscal Year 2026 Results (8-K Ex.99.1, preliminary)", "url": "https://www.sec.gov/Archives/edgar/data/0000912093/000162828026053381/viavq4fy268-kex991.htm", "publisher": "VIAVI / SEC EDGAR", "date": "2026-08-05" },
+    { "id": "s2", "kind": "investor-day", "title": "VIAVI Fiscal Q4 2026 Earnings Call Supplementary Slides (incl. Q1 FY2027 segment outlook, capital allocation)", "url": "https://s201.q4cdn.com/299643651/files/doc_financials/2026/q4/FQ426EarningsSlides.pdf", "publisher": "VIAVI", "date": "2026-08-05" },
+    { "id": "s3", "kind": "10-K", "title": "VIAVI Form 10-K for fiscal year ended 2026-06-27", "url": "https://www.sec.gov/Archives/edgar/data/912093/000162828026056765/viav-20260627.htm", "publisher": "VIAVI / SEC EDGAR", "date": "2026-08-13" },
+    { "id": "s4", "kind": "news", "title": "Viavi Solutions Q4 Earnings Call Highlights (call summary; article date not checked, accessed date)", "url": "https://www.dailypolitical.com/?p=10454070", "publisher": "DailyPolitical (MarketBeat syndication)", "date": "2026-10-30" },
+    { "id": "s5", "kind": "news", "title": "VIAVI Announces Date for Fiscal First Quarter 2027 Financial Results (company release via Finviz; article date not checked, accessed date)", "url": "https://finviz.com/news/402702/viavi-announces-date-for-fiscal-first-quarter-2027-financial-results", "publisher": "PR Newswire via Finviz", "date": "2026-10-30" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/viav/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "광부품·네트워크 장비 개발(랩)과 양산(생산 라인) 시험용 계측 장비 - 부품사·장비사가 출하 전 반드시 거치는 단계 (8-K·슬라이드)",
+      "Spirent의 고속 이더넷·네트워크 보안·채널 에뮬레이션 시험 사업 인수로 넓힌 데이터센터 시험 포트폴리오 (10-K)",
+      "100개국 넘는 지폐에 쓰이는 위폐 방지 안료와 3D 센싱용 광학 필터 (10-K)"
+    ],
+    "text": "VIAVI의 힘은 새 광 트랜시버나 스위치가 시장에 나오기 전에 거쳐야 하는 '시험' 단계를 잡고 있다는 데 있다. 부품사와 장비사는 개발 단계에서 VIAVI 장비로 성능을 검증하고, 양산 라인에서도 같은 장비로 불량을 걸러 낸다. Spirent 사업 인수로 고속 이더넷 시험까지 넓혔고, 지폐 위폐 방지 안료라는 별도의 고마진 사업이 두 번째 기둥이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 내놓는 것은 두 부문으로 보고된다. NSE(네트워크·서비스 인에이블먼트)는 랩·생산 시험 장비, 현장 기술자용 계측기, 광섬유·무선·항공우주·국방 시험, 보안 시험과 위치·항법·시각(PNT) 솔루션이다. OSP(광학 보안·성능 제품)는 지폐 위폐 방지 안료·잉크와 3D 센싱 카메라용 광학 필터 등을 만든다.",
+    "src": ["s3"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "자체 공장 - 미국·프랑스·독일·영국·중국 (두 부문 공용, 10-K)",
+      "위탁 생산 파트너 - 중국·태국 소재 (10-K, 업체명 미공시)"
+    ],
+    "text": "제품은 미국·유럽·중국의 자체 공장과 중국·태국의 위탁 생산 파트너가 나눠 만든다. 계측 장비는 소프트웨어와 정밀 광학이 가치의 중심이라 생산 물량보다 설계·검증 역량이 이익을 정한다. FY2026 설비투자가 3,110만 달러에 그친 것도 이 구조 때문이다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "NSE - AMD, Ciena, Cisco, Ericsson, Nokia 같은 반도체·장비사와 AT&T, Verizon, Deutsche Telekom, Lumen, América Movil, BT Openreach 같은 통신사 (10-K)",
+      "NSE 고객 구성 - 데이터센터 생태계 약 50%, 항공우주·국방 약 17%, 나머지 통신사 (콜 요약, 2차)",
+      "OSP - SICPA(지폐 보안), Lockheed Martin, Seiko Epson (10-K)"
+    ],
+    "channel": "NSE는 직판 영업과 전 세계 채널 파트너, OSP는 직판 위주에 일부 지역·제품은 유통사·대리인 (10-K).",
+    "concentration": "10% 이상 단일 고객은 10-K 발췌에서 확인 못함. 지역은 FY2026 미주 45.0%, 아시아태평양 30.9%, EMEA 24.1% (8-K).",
+    "text": "이렇게 만든 장비는 광부품·네트워크 장비를 만드는 회사와 통신사, 국방 업체에 팔린다. 회사는 NSE 매출의 절반가량이 이제 데이터센터 생태계에서 나온다고 밝혀, 예전의 '통신사 계측 회사'에서 무게가 옮겨 갔다. 고객이 많이 흩어져 있어 단일 고객 의존은 낮은 편이다.",
+    "src": ["s3", "s4", "s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "하이퍼스케일러 (AI 클러스터 증설)", "to": "광 트랜시버·네트워크 장비 업체", "what": "800G·1.6T 광모듈과 스위치 구매" },
+      { "from": "광 트랜시버·장비 업체 (Cisco·Ciena 등)", "to": "VIAVI", "what": "개발·양산용 시험 장비 대금 (장비 1대당, 라인 증설에 비례)" },
+      { "from": "통신사·국방 업체", "to": "VIAVI", "what": "현장 계측기·PNT·보안 시험 장비와 소프트웨어 대금" },
+      { "from": "중앙은행·조폐기관 (SICPA 경유)", "to": "VIAVI", "what": "위폐 방지 안료 대금" }
+    ],
+    "pricing": "계측 장비는 대당 판매에 소프트웨어·서비스가 붙는 구조, 안료와 광학 필터는 물량 단위 판매. 랩 제품 총마진은 70% 후반대, 일부 현장 계측기는 60% 초반대 (콜 요약).",
+    "text": "돈은 하이퍼스케일러가 광부품을 더 많이, 더 빠른 속도로 사들일 때 부품사들이 시험 장비를 늘리면서 VIAVI로 흘러온다. 즉 VIAVI는 AI 서버를 직접 팔지 않고, AI용 광부품을 만드는 공장들의 '시험 라인 증설'에서 돈을 번다. 통신사·국방과 위폐 방지 안료 매출은 이와 별개로 들어오는 흐름이다.",
+    "src": ["s1", "s3", "s4"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-06-27)",
+    "revenue": { "value": 1.5183, "unit": "USD bn", "yoy": 40.0 },
+    "grossMargin": 57.7,
+    "operatingMargin": 6.9,
+    "netMargin": -2.0,
+    "operatingCashFlow": { "value": 0.1139, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.0828, "unit": "USD bn" },
+    "segments": [
+      { "name": "Network and Service Enablement (NSE)", "revenue": 1.1829, "unit": "USD bn", "share": 77.9, "yoy": 52.3, "operatingMargin": 16.1, "src": ["s1"] },
+      { "name": "Optical Security and Performance Products (OSP)", "revenue": 0.3354, "unit": "USD bn", "share": 22.1, "yoy": 9.0, "operatingMargin": 36.6, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q4 FY2026)", "value": "매출 4.431억 달러(+52.5%), NSE 3.539억(+69.2%)·OSP 0.892억(+9.6%); non-GAAP 영업이익률 24.0%(+960bp)", "src": ["s1", "s2"] },
+      { "name": "non-GAAP 연간 실적", "value": "FY2026 총마진 61.7%, 영업이익 3.129억 달러(20.6%), EPS 1.00달러", "src": ["s1", "s2"] },
+      { "name": "NSE 내 데이터센터·국방 비중", "value": "데이터센터 약 50%, 항공우주·국방 약 17% (콜 요약, 2차)", "src": ["s4"] },
+      { "name": "인수 기여", "value": "Spirent 인수 사업 FY2026 매출 약 1.45억 달러(콜 요약, 2차); Inertial Labs 8,610만 달러(10-K)", "src": ["s4", "s3"] },
+      { "name": "부채", "value": "2026-06-27 단기 2.448억(2031 전환사채)·장기 3.971억 달러(2029 고금리채), 현금 등 6.567억 달러", "src": ["s2"] }
+    ],
+    "text": "이 흐름이 FY2026에 매출 15.18억 달러(+40%)로 나타났고, 그중 78%인 NSE가 52% 늘며 성장을 끌었다. GAAP로는 인수 무형자산 상각과 부채 조기상환 손실(5,670만 달러) 때문에 3,040만 달러 순손실이었지만, non-GAAP 영업이익률은 20.6%로 6.3%p 올랐다. 이익률이 가장 높은 곳은 위폐 방지 안료가 있는 OSP(36.6%)이고, 성장은 데이터센터 시험이 담당한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-06-27)",
+    "items": [
+      { "use": "R&D", "value": 0.2627, "unit": "USD bn", "src": ["s3"] },
+      { "use": "capex", "value": 0.0311, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 0.3993, "unit": "USD bn", "src": ["s3"] },
+      { "use": "debt repayment", "value": 0.45, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0.03, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "FY2026 돈의 가장 큰 쓰임은 Spirent 시험 사업 인수(3.99억 달러)와 Term Loan B 4.5억 달러 상환이었다. 상환 자금은 주당 45달러에 약 1,278만 주를 새로 발행해 조달한 5.75억 달러에서 나왔다. R&D(2.63억 달러, 매출의 17.3%)가 설비투자(3,110만 달러)의 여덟 배가 넘어 기술 중심 구조가 드러나며, 자사주 매입은 전환사채 교환 때 3,000만 달러에 그쳤다.",
+    "src": ["s3", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 데이터센터의 광 트랜시버·스위치를 만드는 회사들에 개발·양산 시험 장비를 파는 '네트워크 층의 계측 공급자'. AI 클러스터 장비를 직접 공급하지 않고, 그 장비가 만들어지는 과정에 들어간다.",
+    "dependsOn": ["자체·위탁 생산 (중국·태국 파트너)", "networking 고객사의 신제품 개발·증설 주기"],
+    "sellsTo": ["networking (광 트랜시버·스위치 업체, Cisco·Ciena·Nokia 등)", "chips-compute (AMD 등 반도체 회사)", "통신사 (AT&T·Verizon 등)", "항공우주·국방 (Lockheed Martin 등)"],
+    "aiRevenue": "직접 공시 없음. NSE 매출의 약 50%가 데이터센터 생태계라는 CEO 발언(2026-08-05 콜, 2차 요약) - FY2026 NSE 11.83억 달러 기준 대략 6억 달러 안팎으로 추정되나 확인되지 않음.",
+    "upside": "광부품 속도가 800G에서 1.6T로 올라갈 때마다 부품사들이 새 시험 장비를 사야 하고, AI 수요로 양산 라인을 늘릴 때도 시험 장비가 함께 늘어난다. 회사는 데이터센터와 항공우주·국방이 앞으로 몇 분기 계속 성장을 이끌 것으로 본다(콜 요약).",
+    "risk": "시험 장비 수요는 고객의 신제품·증설 주기를 따라 출렁여서, 광부품 업체의 투자가 쉬면 주문도 바로 준다. Keysight 같은 대형 계측 업체와 경쟁하고, GAAP 기준으로는 아직 이익이 얇아 인수 상각 부담이 남아 있다.",
+    "text": "그래서 AI 가치사슬에서 VIAVI는 네트워크 층의 '곡괭이와 삽' 자리다. AI용 광부품을 누가 만들든 시험은 거쳐야 하므로 특정 고객의 승패에 덜 묶이지만, 반대로 부품 업계 전체의 투자 주기에는 그대로 노출된다. 데이터센터가 NSE의 절반이 된 지금, 광부품 업체들의 증설 계획이 곧 이 회사의 선행 지표다.",
+    "src": ["s1", "s3", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "네트워크 시험·계측 (랩·생산·현장)", "rivals": ["Keysight", "Anritsu", "EXFO", "Rohde & Schwarz", "VeEX"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "서비스 보증·네트워크 모니터링", "rivals": ["NetScout", "Riverbed"], "position": "niche", "share": null, "src": ["s3"] },
+      { "arena": "위폐 방지 안료·보안 소재", "rivals": ["Giesecke & Devrient", "Crane NXT", "GNMI Group", "FYOTEC"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "3D 센싱·광학 필터", "rivals": ["Materion", "Zhejiang Crystal-Optech", "Platinum Optics Technology", "Coherent"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "광섬유·광부품 시험에 오래 쌓은 제품군에 Spirent 고속 이더넷 시험을 더해 데이터센터 시험을 한 곳에서 제공하는 폭, 그리고 지폐 보안 안료라는 고마진 현금원.",
+    "threats": "Keysight 같은 대형 계측 업체와의 정면 경쟁, 광학 필터에서 중국·대만 업체의 가격 경쟁.",
+    "text": "이 자리의 경쟁은 부문마다 다르다. 데이터센터 시험에서는 Keysight·Anritsu·EXFO 같은 계측 전문 업체와 맞서고, Spirent 인수로 고속 이더넷 시험에서 빈칸을 메웠다. OSP의 위폐 방지 안료는 100개국 넘는 지폐에 쓰이는 강자 자리여서, 데이터센터 경기와 무관한 현금을 댄다.",
+    "src": ["s3"]
+  },
+
+  "strategy": {
+    "goal": "데이터센터 생태계와 항공우주·국방으로의 다각화가 FY2026 성장의 핵심이었고(CEO), 이 두 시장이 앞으로 몇 분기 성장을 이끌 것으로 본다 (콜 요약).",
+    "roadmap": [
+      { "when": "FY2026 Q2 (2025-10)", "what": "Spirent 고속 이더넷·네트워크 보안·채널 에뮬레이션 시험 사업 인수", "src": ["s3"] },
+      { "when": "FY2026 Q4", "what": "5.75억 달러 유상증자로 Term Loan B 4.5억 달러 전액 상환", "src": ["s2"] },
+      { "when": "Q1 FY2027 (14주, 2026-10-03 종료)", "what": "매출 4.5~4.6억 달러, NSE 3.6~3.68억·OSP 0.9~0.92억 달러, non-GAAP 영업이익률 27.1% 가이드", "src": ["s2"] },
+      { "when": "2026-11-04", "what": "Q1 FY2027 실적 발표", "src": ["s5"] }
+    ],
+    "vision": "통신사 계측 회사에서 데이터센터·국방·보안까지 네트워크가 있는 모든 곳의 시험과 보증을 맡는 회사로 바뀐다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 인수로 데이터센터 시험의 빈칸을 메우고, 증자로 빚을 줄여 다음 인수 여력을 만들었다. Q1 FY2027 가이드는 영업이익률을 27%대로 올려 잡았는데, 14주 분기와 관세 환급 효과(약 1%p)가 들어 있다. 이 이익률이 13주 분기로 돌아와서도 유지되는지가 다음 확인 지점이다.",
+    "src": ["s2", "s3", "s4"]
+  },
+
+  "governance": {
+    "line": "Oleg Khaykin CEO가 이끄는 회사로, 배당 없이 인수와 부채 축소를 우선하며 2026년 주당 45달러 유상증자로 대출을 갚았고 2022년 자사주 매입 한도 잔여는 1.684억 달러다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q1 FY2027 (14주)", "metric": "revenue", "value": "4.5~4.6억 달러 (NSE 3.6~3.68억, OSP 0.9~0.92억)", "givenOn": "2026-08-05", "src": ["s1", "s2"] },
+      { "period": "Q1 FY2027", "metric": "operating margin (non-GAAP)", "value": "27.1% ±0.4%p (NSE 23.1%, OSP 43.2%)", "givenOn": "2026-08-05", "src": ["s2"] },
+      { "period": "Q1 FY2027", "metric": "EPS (non-GAAP)", "value": "0.40~0.42달러, 관세 환급 약 1,100만 달러 반영(약 1%p·2센트)", "givenOn": "2026-08-05", "src": ["s1", "s2"] }
+    ],
+    "style": "quarterly",
+    "track": "Q4 FY2026 매출 4.431억 달러로 가이드(4.27~4.37억) 상단을 넘었고, NSE(가이드 3.40~3.48억 → 3.539억)와 영업이익률도 상단을 넘었다.",
+    "src": ["s2"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 1.42달러(범위 1.23~1.51), 직전 4개 분기 0.77달러, 최근 4주 상향·하향 0건. 이 데이터의 2026-06 분기 실적값(0.29)은 회사 non-GAAP EPS(0.34)와 기준이 달라 직접 비교하지 않는다.",
+    "src": ["s6", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q1 FY2027 매출이 4.5~4.6억 달러 가이드를 충족·상회",
+      "NSE 영업이익률이 20%대를 유지",
+      "데이터센터 시험 수요가 1.6T 전환과 함께 이어진다는 언급",
+      "항공우주·국방 매출 성장 지속",
+      "GAAP 흑자가 분기마다 쌓임"
+    ],
+    "breaks": [
+      "광부품 업체들의 시험 장비 주문 둔화 언급",
+      "14주 효과와 관세 환급을 뺀 영업이익률이 크게 낮아짐",
+      "NSE 성장률 급감",
+      "추가 대형 인수로 부채가 다시 늘어남",
+      "OSP 3D 센싱 필터 고객 수요 약화"
+    ],
+    "keyNumbers": [
+      { "name": "NSE 매출과 영업이익률", "why": "데이터센터 시험이 이익으로 이어지는지" },
+      { "name": "NSE 내 데이터센터 비중", "why": "AI 노출의 크기" },
+      { "name": "OSP 매출·이익률", "why": "경기와 무관한 현금원 유지" },
+      { "name": "GAAP 순이익", "why": "인수 상각을 넘어 실제 흑자 전환" },
+      { "name": "순부채", "why": "다음 인수 여력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-04 (장 마감 후)", "event": "Q1 FY2027 실적 (2026-10-03 종료 분기)과 Q2 가이던스", "src": ["s5"] },
+      { "date": "수시", "event": "광 트랜시버·장비 업체(Coherent·Lumentum·Cisco 등)의 증설·신제품 발표", "src": ["s3"] },
+      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "AI 데이터센터 설비투자 전망", "src": ["s4"] }
+    ],
+    "reaction": "주가는 다음 분기 가이드, 특히 NSE 매출과 영업이익률 가이드에 반응하는 경향이 있다(구체적 주가 반응은 이번에 확인하지 않음).",
+    "conditions": [
+      "다음 분기 매출·영업이익률 가이드와 컨센서스의 차이",
+      "14주 분기·관세 환급 같은 일회성 효과를 뺀 이익률",
+      "NSE 내 데이터센터·국방 비중 언급",
+      "OSP 성장률",
+      "부채·현금 변화와 인수 소식",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+
+  "unverified": [
+    "NSE 내 데이터센터 약 50%·국방 약 17%, Spirent FY2026 매출 1.45억 달러, 랩·현장 제품 총마진 범위는 콜 요약(2차) 기반",
+    "AI·데이터센터 관련 매출 금액 (회사 미공시, 6억 달러 안팎은 추정)",
+    "10% 이상 단일 고객 여부",
+    "위탁 생산 파트너 이름",
+    "경쟁 점유율 수치",
+    "Term Loan B 4.5억 달러 상환은 슬라이드 기준이며 현금흐름표 원문으로 금액을 확인하지 않음",
+    "부문 영업이익률은 non-GAAP(회사가 상각 등을 부문에 배분하지 않음)",
+    "순이익률 -2.0%는 계산값",
+    "Q4 FY2026 전체 매출 가이드 범위 4.27~4.37억 달러는 검색 요약 기준(NSE 범위는 슬라이드 원문)",
+    "Q1 FY2027 실적 발표일 출처는 회사 보도자료를 실은 Finviz 페이지 (회사 IR 원문 미확인)"
+  ],
+  "confidence": "medium - 실적·가이던스·현금 사용은 8-K·슬라이드·10-K 원문에서 왔지만, AI 노출 크기(데이터센터 비중)는 콜 요약 2차 자료에만 근거한다."
+}

@@ -1,0 +1,212 @@
+{
+  "symbol": "POWL",
+  "name": "Powell Industries, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "September 30",
+  "oneLine": "Powell은 휴스턴에서 대형 스위치기어와 전기실(E-House)을 맞춤 제작하는 회사로, LNG·석유화학 중심이던 일감에 4억 달러 넘는 데이터센터 현장 발전용 주문이 더해지며 'AI 전력 설비 체인'에 새로 들어온 공급자다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Powell Industries Announces Third Quarter Fiscal 2026 Results (8-K exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000080420/000008042026000103/ex991-powlq3xfy2026earning.htm", "publisher": "Powell Industries / SEC EDGAR", "date": "2026-08-03" },
+    { "id": "s2", "kind": "10-Q", "title": "Powell Industries Form 10-Q for quarter ended 2026-06-30 (market-sector and geographic revenue, cash flow, RPO, revolver)", "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000107/powl-20260630.htm", "publisher": "Powell Industries / SEC EDGAR", "date": "2026-08-04" },
+    { "id": "s3", "kind": "10-K", "title": "Powell Industries Form 10-K for fiscal year ended 2025-09-30 (products, facilities, markets, competitors, backlog, employees)", "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042025000152/powl-20250930.htm", "publisher": "Powell Industries / SEC EDGAR", "date": "2025-11-19" },
+    { "id": "s4", "kind": "8-K", "title": "Powell Industries 8-K Item 5.02 - special RSU award to CEO Brett A. Cope", "url": "https://www.sec.gov/Archives/edgar/data/80420/000008042026000095/powl-20260701.htm", "publisher": "Powell Industries / SEC EDGAR", "date": "2026-07-06" },
+    { "id": "s5", "kind": "news", "title": "POWL Q3 Earnings Call Highlights Record Orders and Capacity Push (read from search summary only)", "url": "https://www.zacks.com/stock/news/2968663/powl-q3-earnings-call-highlights-record-orders-and-capacity-push", "publisher": "Zacks", "date": "2026-08-05" }
+  ],
+
+  "moat": {
+    "sources": [
+      "아크 내성 스위치기어·중압 차단기·전기실(E-House)·전력 제어실(PCR)을 프로젝트마다 맞춤 설계·제작하는 엔지니어링 능력",
+      "LNG·석유화학·전력회사 대형 프로젝트 납품 이력",
+      "휴스턴(본사·Jacintoport 제작장) 대형 모듈 제작 시설",
+      "무차입 재무와 현금·단기투자 6.34억 달러(2026-06-30)"
+    ],
+    "text": "Powell의 힘은 공장에서 스위치기어와 차단기, 제어반을 한 덩어리 전기실(E-House)로 조립해 현장에 통째로 보내는 맞춤 엔지니어링 능력이다. LNG 터미널과 석유화학 공장처럼 까다로운 현장에서 쌓은 납품 이력이 있어, 큰 전기 설비를 정해진 일정에 맞춰야 하는 고객이 찾는다. 빚이 없고 현금이 6억 달러가 넘어 대형 주문의 보증과 증설 투자도 스스로 감당한다.",
+    "src": ["s3", "s2"]
+  },
+
+  "design": {
+    "text": "그래서 회사가 설계·제작하는 것은 전기를 받고 나누고 끊는 중·고압 설비다. 전력 제어실·전기실(E-House), 일반·아크 내성 스위치기어, 중압 차단기, 모터 제어반, 버스덕트, 감시·제어 시스템을 만들고, 현장 설치·시운전·정비 서비스를 붙인다. 2025-08에 영국 Remsdaq을 인수해 원격 감시·제어 기술을 더했다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "휴스턴 본사·전기 제품 공장 (FY2025 증설 완료)",
+      "휴스턴 Jacintoport 제작장 - FY2026 말까지 확장 완료 후 증산",
+      "캐나다·영국 거점 (Remsdaq 포함)",
+      "인력 3,143명 정규직 + 315명 계약직 (2025-09-30)"
+    ],
+    "text": "제품은 휴스턴과 캐나다·영국의 자체 공장에서 만든다. 주문이 크게 늘자 Jacintoport 제작장 확장을 FY2026 말까지 끝내고, 회사는 FY2025 말보다 전체 시설 면적을 20% 넘게 늘린다고 말했다(콜 요약). 휴스턴·오하이오 임차 공간 외에 새 부지 증설도 검토하지만, CEO는 FY2027~2028에 숙련 인력 확보가 과제가 될 것이라고 봤다.",
+    "src": ["s1", "s3", "s5"]
+  },
+
+  "sell": {
+    "customers": [
+      "석유·가스 (LNG 포함) - FY2025 매출의 37%",
+      "전력회사 - 25%",
+      "상업·기타 산업 (데이터센터 포함) - 16%",
+      "석유화학 - 14%, 경전철 견인 전력 4%, 기타 4%",
+      "2026 회계 3분기: 4억 달러 넘는 데이터센터 현장 발전용 주문 (북미 최소 5개 시설)"
+    ],
+    "channel": "발주처·EPC 업체와 프로젝트별 직접 계약. FY2025 매출의 약 20%가 미국 밖(영국·캐나다 등).",
+    "concentration": "FY2025·FY2024에 매출 10% 이상 고객 없음. 다만 10-Q는 매출이 소수 고객에 집중될 수 있다고 적는다.",
+    "text": "이 설비를 사는 쪽은 원래 LNG·석유화학·전력회사였고, FY2025에는 데이터센터가 들어 있는 '상업·기타 산업'이 매출의 16%에 그쳤다. 2026 회계 3분기에는 이 분야 매출이 54% 늘었고, 회사 역사상 최대인 4억 달러 넘는 데이터센터 주문을 받았다. 이 주문은 전력망 대신 현장에서 직접 전기를 만드는 '비하인드 더 미터' 발전 설비용으로, AI 데이터센터가 전력망 연결을 기다리지 않으려는 흐름과 맞닿아 있다.",
+    "src": ["s3", "s1", "s2", "s5"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 데이터센터 개발사·하이퍼스케일러", "to": "현장 발전 설비 프로젝트", "what": "전력망 대신 현장에서 전기를 만드는 '비하인드 더 미터' 투자" },
+      { "from": "발전 프로젝트 발주처·EPC", "to": "Powell", "what": "스위치기어·전기실 등 맞춤 설비 대금 - 프로젝트별 계약, 진행률로 매출 인식" },
+      { "from": "LNG·석유화학·전력회사", "to": "Powell", "what": "전기실·스위치기어·차단기 대금" },
+      { "from": "설치 기반 고객", "to": "Powell 서비스", "what": "현장 설치·시운전·정비·개보수 대금" }
+    ],
+    "pricing": "프로젝트별 맞춤 계약이며 수주잔고(24억 달러) 가운데 약 13억 달러가 12개월 안에 매출이 된다(2026-06-30). 대형 주문은 2~2.5년에 걸쳐 실행된다.",
+    "text": "돈은 데이터센터·LNG·전력회사의 대형 설비 예산 가운데 전기 설비 몫이 프로젝트 계약으로 Powell에 들어오는 구조다. 주문은 한 번에 크게 들어오고 매출은 진행률에 따라 2~3년에 걸쳐 나뉘어 잡히므로, 3분기처럼 주문이 매출의 3배가 되면 잔고가 먼저 커지고 매출은 뒤따른다. 4억 달러 데이터센터 주문도 약 2~2.5년에 걸쳐 실행된다(콜 요약).",
+    "src": ["s1", "s2", "s5"]
+  },
+
+  "earnings": {
+    "period": "Q3 FY2026 (ended 2026-06-30)",
+    "revenue": { "value": 311.7, "unit": "USD mn", "yoy": 8.9 },
+    "grossMargin": 30.6,
+    "operatingMargin": 20.6,
+    "netMargin": 16.7,
+    "operatingCashFlow": { "value": null, "unit": "USD mn" },
+    "freeCashFlow": { "value": null, "unit": "USD mn" },
+    "segments": [
+      { "name": "Oil and gas (excl. petrochemical)", "revenue": 106.3, "unit": "USD mn", "share": 34.1, "yoy": 0.8, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Electric utility", "revenue": 88.6, "unit": "USD mn", "share": 28.4, "yoy": 18.3, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Commercial and other industrial (incl. data centers)", "revenue": 76.3, "unit": "USD mn", "share": 24.5, "yoy": 54.1, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Petrochemical", "revenue": 18.5, "unit": "USD mn", "share": 5.9, "yoy": -49.0, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Light rail traction power", "revenue": 8.0, "unit": "USD mn", "share": 2.6, "yoy": -5.9, "operatingMargin": null, "src": ["s2"] },
+      { "name": "All others", "revenue": 14.1, "unit": "USD mn", "share": 4.5, "yoy": 22.6, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "신규 주문·북투빌 Q3 FY2026", "value": "9.34억 달러(+158%, 역대 최대), 북투빌 약 3.0배", "src": ["s1"] },
+      { "name": "수주잔고", "value": "24억 달러 (2026-06-30, 전년 대비 +69%, 3월 말 18억 대비 +35%), 12개월 내 약 13억", "src": ["s1", "s2"] },
+      { "name": "대형 주문 Q3 FY2026", "value": "데이터센터 현장 발전 4억 달러 초과(역대 최대), 석유화학(비료) 약 7,500만, LNG 약 6,000만 달러", "src": ["s1"] },
+      { "name": "9개월 누적 FY2026", "value": "매출 8.60억(+6.6%), 총마진 29.6%, 순이익 1.39억, 영업현금흐름 1.95억 달러", "src": ["s1", "s2"] },
+      { "name": "현금·단기투자", "value": "6.34억 달러, 1.5억 달러 리볼버 차입 없음 (2026-06-30)", "src": ["s1", "s2"] }
+    ],
+    "text": "이 구조가 2026 회계 3분기 매출 3.1억 달러(+9%), 총마진 30.6%, 영업이익률 20.6%로 나타났다. 석유화학 매출이 절반으로 줄었지만 데이터센터가 들어 있는 상업·산업(+54%)과 전력회사(+18%)가 메웠다. 숫자보다 중요한 변화는 주문으로, 한 분기 주문이 9.3억 달러로 매출의 3배가 되며 잔고가 24억 달러로 커졌다. 9월 말로 끝난 4분기 실적은 아직 발표되지 않았다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "9M FY2026 (ended 2026-06-30)",
+    "items": [
+      { "use": "R&D", "value": null, "unit": "USD mn", "src": [] },
+      { "use": "capex", "value": 10.4, "unit": "USD mn", "src": ["s1", "s2"] },
+      { "use": "acquisitions", "value": 0.0, "unit": "USD mn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0.0, "unit": "USD mn", "src": ["s2"] },
+      { "use": "dividends", "value": 9.8, "unit": "USD mn", "src": ["s1", "s2"] }
+    ],
+    "text": "9개월 동안 번 영업현금 1.95억 달러 가운데 설비투자는 1,040만, 배당은 980만 달러에 그쳐 대부분이 현금으로 쌓였다. 그 결과 현금·단기투자가 2025년 9월 말 4.76억에서 6.34억 달러로 늘었고, 자사주 매입과 인수는 없었다. 대형 주문을 받으려면 보증·신용장(리볼버에서 1.04억 달러 사용)과 증설 여력이 필요해, 현금을 쌓아 두는 쪽을 택하고 있다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "cooling-electrical",
+    "position": "AI 데이터센터와 현장 발전 설비에 들어가는 중·고압 스위치기어·전기실(E-House)을 맞춤 제작해, 발전기·전력망에서 받은 전기를 나누고 보호하는 설비를 공급한다.",
+    "dependsOn": ["power-energy (현장 발전·전력망 프로젝트 발주)", "구리·철강·전력 부품 공급", "휴스턴 제작 시설과 숙련 인력"],
+    "sellsTo": ["data-center-real-estate·cloud-infrastructure (현장 발전 데이터센터 프로젝트)", "전력회사", "LNG·석유화학 등 에너지 산업"],
+    "aiRevenue": "AI 매출 따로 공시하지 않음. 데이터센터 현장 발전 주문 4억 달러 초과(2026 회계 3분기 수주), 데이터센터가 포함된 상업·기타 산업 매출 Q3 FY2026 7,630만 달러(+54%).",
+    "upside": "AI 데이터센터가 전력망 연결을 기다리지 않고 현장 발전을 택할수록 발전 설비용 스위치기어·전기실 수요가 늘고, 첫 4억 달러 주문의 후속 단계가 비슷한 규모로 이어질 수 있다고 회사는 본다(콜 요약).",
+    "risk": "데이터센터 대형 주문 한두 건에 집중, 주문 취소·변경으로 잔고가 매출로 바뀌지 않을 위험, 숙련 인력 부족, LNG·석유화학 사이클 둔화.",
+    "text": "그래서 AI 가치사슬에서 Powell은 데이터센터에 들어갈 전기를 나누고 보호하는 '냉각·전기 설비' 층, 그 가운데 중·고압 설비에 있다. 아직 매출의 대부분은 석유·가스와 전력회사에서 나오지만, 4억 달러 데이터센터 주문 하나가 잔고 성격을 바꾸기 시작했다. 앞으로 AI 노출은 이 주문의 후속 단계가 실제로 이어지는지에 달려 있다.",
+    "src": ["s1", "s2", "s5"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "중·고압 스위치기어·전기실(E-House)", "rivals": ["ABB", "Eaton", "Schneider Electric", "Siemens"], "position": "niche", "share": null, "src": ["s3"] },
+      { "arena": "데이터센터·현장 발전 전기 설비", "rivals": ["ABB", "Eaton", "Schneider Electric", "Siemens"], "position": "challenger", "share": null, "src": ["s3", "s1"] }
+    ],
+    "edge": "대형 맞춤 전기실을 공장에서 통째로 조립하는 엔지니어링, LNG·석유화학 납품 이력, 빚 없는 재무.",
+    "threats": "ABB·Eaton·Schneider·Siemens는 규모와 제품군이 훨씬 크고 데이터센터 고객과 이미 관계가 깊다. Powell의 데이터센터 실적은 아직 소수 주문에 의존한다.",
+    "text": "10-K가 꼽는 경쟁사는 ABB·Eaton·Schneider·Siemens로, 모두 Powell보다 훨씬 큰 글로벌 전기 장비 회사다. Powell은 범용 제품이 아니라 대형 맞춤 전기실과 까다로운 에너지 현장 실적으로 틈새를 지켜 왔다. 데이터센터에서는 현장 발전이라는 새 분야에서 첫 대형 주문을 땄지만, 점유율 숫자는 확인할 수 없고 대형사와의 경쟁은 이제 시작이다.",
+    "src": ["s3", "s1"]
+  },
+
+  "strategy": {
+    "goal": "회사는 수치 가이던스를 내지 않고, FY2026이 또 한 번 매우 강한 해가 될 것이며 총마진은 최근 12개월과 비슷할 것이라고만 말했다(2026-08-03).",
+    "roadmap": [
+      { "when": "FY2026 말 (2026-09)", "what": "Jacintoport 제작장 확장 완료 후 생산 증대", "src": ["s1"] },
+      { "when": "FY2026 말", "what": "전체 시설 면적 FY2025 말 대비 20% 이상 확대 (콜 요약)", "src": ["s5"] },
+      { "when": "2026~2028", "what": "4억 달러 데이터센터 주문 약 2~2.5년에 걸쳐 실행, 후속 단계 가능성 (콜 요약)", "src": ["s5"] },
+      { "when": "2027 이후", "what": "휴스턴·오하이오 임차 공간 외 신규 부지 증설 검토", "src": ["s1"] }
+    ],
+    "vision": "LNG·석유화학·전력회사 중심에서 데이터센터·발전 등 전력 수요 증가 시장으로 고객을 넓혀, 맞춤 전기 설비의 대형 공급자가 되겠다는 그림이다.",
+    "text": "경쟁에서 이기기 위해 회사가 택한 길은 늘어난 잔고에 맞춰 생산 능력을 먼저 늘리는 것이다. Jacintoport 확장과 시설 20% 증설로 24억 달러 잔고를 소화하고, 데이터센터 현장 발전 주문의 후속 단계를 노린다. 수치 목표를 내지 않는 회사라, 성장은 분기 주문과 잔고로만 확인할 수 있다.",
+    "src": ["s1", "s5"]
+  },
+
+  "governance": {
+    "line": "Brett Cope가 회장·사장·CEO로 이끌며, 이사회는 2026-07 그가 60세 은퇴 자격 뒤에도 남도록 2029년까지 나눠 받는 특별 RSU를 주었고, 회사는 무차입으로 배당만 하며 자사주 매입은 하지 않는다.",
+    "src": ["s4", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "qualitative outlook", "value": "'또 한 번 매우 강한 실적의 해', FY2027도 기대", "givenOn": "2026-08-03", "src": ["s1"] },
+      { "period": "near term", "metric": "gross margin", "value": "최근 12개월과 비슷한 수준", "givenOn": "2026-08-03", "src": ["s1"] }
+    ],
+    "style": "none",
+    "track": "수치 가이던스가 없다. 2026 회계 3분기 매출(3.12억 달러)과 EPS(1.42달러)는 Zacks 컨센서스(3.18억 달러, 1.49달러)를 밑돌았다(검색 요약 기준).",
+    "src": ["s1", "s5"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "4분기(9월 말) 주문이 매출보다 많아 잔고가 24억 달러 위에서 유지·증가",
+      "데이터센터 현장 발전 주문의 후속 단계 수주",
+      "Jacintoport 확장 후 매출 증가 속도 상승",
+      "총마진 30% 안팎 유지"
+    ],
+    "breaks": [
+      "대형 주문 취소·변경으로 잔고 감소",
+      "새 데이터센터 주문 없이 잔고가 석유·가스 쪽으로만 채워짐",
+      "숙련 인력 부족으로 납기 지연",
+      "총마진 하락"
+    ],
+    "keyNumbers": [
+      { "name": "분기 신규 주문과 북투빌", "why": "대형 주문이 이어지는지 보여 준다" },
+      { "name": "수주잔고", "why": "2~3년 매출을 미리 보여 준다" },
+      { "name": "상업·기타 산업 매출", "why": "데이터센터 노출이 매출로 나타나는 곳" },
+      { "name": "총마진", "why": "맞춤 설비의 가격 결정력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 중순 (추정, 전년 10-K 2025-11-19 제출)", "event": "Q4·FY2026 실적 (9월 말 회계연도 종료)", "src": ["s3"] },
+      { "date": "FY2026 말 이후", "event": "Jacintoport 확장 시설 생산 시작", "src": ["s1"] }
+    ],
+    "reaction": "이번 조사에서 실적 발표일 주가 반응은 원문으로 확인하지 못했다. 직전 분기는 매출·EPS가 예상을 밑돌았지만 역대 최대 주문이 함께 나왔다(검색 요약 기준). 이 종목은 분기 매출보다 대형 주문과 잔고 발표에 크게 반응할 수 있다.",
+    "conditions": [
+      "분기 신규 주문과 북투빌이 1배를 넘는지",
+      "데이터센터 관련 대형 주문 공개 여부",
+      "총마진이 최근 12개월 수준인지",
+      "증설 일정과 인력 코멘트"
+    ]
+  },
+
+  "unverified": [
+    "Q4 FY2026(2026-09-30 종료) 실적과 발표일 - 아직 발표 전",
+    "Q3 FY2026 단독 영업현금흐름 (9개월 누적만 확인)",
+    "데이터센터 주문의 고객명, 실행 기간(2~2.5년)·5개 시설·후속 단계 발언은 콜 요약(Zacks 검색 요약) 기준",
+    "시설 면적 20% 이상 확대는 콜 요약 기준",
+    "데이터센터 매출 금액 자체 (상업·기타 산업에 다른 산업 포함)",
+    "경쟁사별 점유율",
+    "R&D 비용",
+    "Q3 컨센서스 대비 미달은 Zacks 검색 요약 기준",
+    "시장별 매출 합계 3.118억 달러로 보고 매출 3.117억과 반올림 차이 0.1백만 달러"
+  ],
+  "confidence": "medium - 실적·시장별 매출·주문·잔고·현금은 회사 8-K·10-Q에서 직접 읽었지만, 9월 말 분기는 아직 발표 전이고 데이터센터 주문의 세부 조건은 콜 요약에 기댄다."
+}

@@ -1,0 +1,527 @@
+{
+  "symbol": "GLXY",
+  "name": "Galaxy Digital Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (Q3 2026 ended 2026-09-30)",
+  "oneLine": "Galaxy는 가상자산 트레이딩·대출·운용 회사이면서 서부 텍사스 Helios 캠퍼스를 CoreWeave에 15년 임대하는 AI 데이터센터 사업을 키우는 회사로, 2026년 3분기에 첫 임대료가 온전히 들어오기 시작했다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Galaxy Announces Third Quarter 2026 Financial Results (8-K Ex.99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1859392/000185939226000108/glxy-20260930xpressrelease.htm",
+      "publisher": "Galaxy Digital / SEC EDGAR",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s2",
+      "kind": "8-K",
+      "title": "Galaxy Q3 2026 Overview presentation (8-K Ex.99.2)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1859392/000185939226000108/exhibit992-glxyq32026ove.htm",
+      "publisher": "Galaxy Digital / SEC EDGAR",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s3",
+      "kind": "earnings-release",
+      "title": "Galaxy Announces Third Quarter 2026 Financial Results (wire copy with CEO quotes)",
+      "url": "https://finviz.com/news/408549/galaxy-announces-third-quarter-2026-financial-results",
+      "publisher": "Galaxy via Finviz",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s4",
+      "kind": "news",
+      "title": "Galaxy Digital reports $323 million Q3 net income as data center operations expand",
+      "url": "https://finviz.com/news/408923/galaxy-digital-reports-323-million-q3-net-income-as-data-center-operations-expand",
+      "publisher": "InvestorsHub via Finviz",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s5",
+      "kind": "8-K",
+      "title": "Galaxy Digital 8-K Item 5.02: Chief Accounting Officer change (signed by CFO Anthony Paquette)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1859392/000185939226000105/glxy-20260922.htm",
+      "publisher": "Galaxy Digital / SEC EDGAR",
+      "date": "2026-09-23"
+    },
+    {
+      "id": "s6",
+      "kind": "other",
+      "title": "AIO local earnings calendar snapshot (estimates vs actuals), public-data/earnings-calendar.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/glxy/earnings",
+      "publisher": "AIO earnings calendar",
+      "date": "2026-10-29"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "승인받은 대규모 전력 - Helios 캠퍼스 승인 전력 1,630MW, 잠재 전력 3,600MW 이상, 텍사스 전체 파이프라인 5,730MW (투자자료)",
+      "투자등급 수준 장기 임차인 - CoreWeave와 15년 기본 임대, 연장 포함 최대 25년 (투자자료)",
+      "가상자산 기관 영업망 - 거래 상대방 1,763곳, 평균 대출 잔고 18억 달러, 운용·스테이킹 자산 104억 달러 (투자자료·보도자료)"
+    ],
+    "text": "Galaxy의 데이터센터 경쟁력은 칩이 아니라 전력에서 나온다. 미국에서 AI 데이터센터를 지을 때 가장 부족한 것이 송전망에 연결된 승인 전력인데, Galaxy는 원래 비트코인 채굴용으로 확보한 서부 텍사스 부지에서 1.6GW 넘는 승인을 받아 두었다. 여기에 기관 고객과 쌓은 가상자산 트레이딩·대출·운용 영업망이 두 번째 기둥이다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. 가상자산(Digital Assets)은 트레이딩·대출(Global Markets)과 ETF·대체투자·스테이킹(Asset Management & Infrastructure Solutions)을, 데이터센터(Data Centers)는 Helios 캠퍼스 임대를, 재무·본사(Treasury & Corporate)는 회사 자체 보유 가상자산과 투자 지분을 담는다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "make": {
+    "model": "asset-owner",
+    "partners": [
+      "CoreWeave - Helios I 임차인 (1~3단계 계약 IT 부하 526MW)",
+      "선순위 담보부 채권 투자자 - Helios I 2단계 건설 자금 35억 달러",
+      "BNY - 디지털 자산 수탁 플랫폼 스테이킹·인프라 설계 협력 (다년 계약)",
+      "건설사·전력 장비 공급사 - 이름은 이번에 확인하지 못함"
+    ],
+    "text": "데이터센터는 Galaxy가 부지·전력·건물을 소유하고 CoreWeave가 그 안에 GPU를 넣는 구조다. 1단계 133MW를 18억 달러 들여 지어 2026년 2분기에 넘겼고, 2단계 260MW는 약 40억 달러가 들 것으로 보며 35억 달러 채권으로 자금을 마련했다. 가상자산 사업은 자체 트레이딩 데스크와 대차대조표로 돌아간다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "CoreWeave - Helios I 유일한 공개 임차인",
+      "가상자산 기관 투자자·거래소·채굴사 - 트레이딩·대출 상대방 1,763곳",
+      "ETF·펀드 투자자 - ETF 25억, 대체투자 33억 달러 운용",
+      "BNY 등 금융기관 - 스테이킹·인프라 서비스"
+    ],
+    "channel": "데이터센터는 임차인과 직접 15년 임대 계약, 가상자산은 기관 직접 영업과 ETF 상품",
+    "concentration": "데이터센터 임대 매출은 현재 CoreWeave 한 곳에서 나온다. Helios II의 승인 전력 830MW는 아직 임차인이 없다 (2026-09-30).",
+    "text": "이렇게 지은 데이터센터는 아직 CoreWeave 한 곳에만 임대돼 있어, 데이터센터 매출은 사실상 한 고객의 신용과 수요에 달려 있다. Helios II 830MW는 임차인과 협상 중이라고 밝혔다. 가상자산 쪽은 고객이 넓게 퍼져 있지만 시장 가격과 거래량에 따라 이익이 크게 흔들린다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "AI 연구소·기업 (CoreWeave 고객)",
+        "to": "CoreWeave",
+        "what": "GPU 클라우드 사용료"
+      },
+      {
+        "from": "CoreWeave",
+        "to": "Galaxy (Helios)",
+        "what": "15년 데이터센터 임대료 (1단계 연 기본 매출 3.15억 달러, 3단계 합산 연평균 10억 달러 초과 예상)"
+      },
+      {
+        "from": "가상자산 기관 고객",
+        "to": "Galaxy (Global Markets)",
+        "what": "트레이딩 스프레드·대출 이자"
+      },
+      {
+        "from": "ETF·펀드 투자자",
+        "to": "Galaxy (Asset Management)",
+        "what": "운용·스테이킹 수수료"
+      },
+      {
+        "from": "Galaxy",
+        "to": "건설·채권 투자자",
+        "what": "Helios 건설비(3분기 7.57억 달러)와 담보부 채권 이자"
+      }
+    ],
+    "pricing": "데이터센터는 MW당 고정 임대료를 받는 장기 임대(기본 15년, 5년 연장 2회). 회사는 3단계 합산 임대 단위 조정 EBITDA 마진을 평균 90% 이상으로 예상한다. 가상자산은 스프레드·이자·운용 수수료이며, 보고 매출은 가상자산 매매 대금이 총액으로 잡혀 매우 크게 보인다.",
+    "text": "돈은 AI 수요가 CoreWeave의 GPU 임대 수요로, 다시 Galaxy의 데이터센터 임대료로 이어진다. 임대료는 계약으로 정해져 있어 가상자산 가격과 상관없이 매 분기 들어오고, 2027년 2단계가 열리면 연 6.75억 달러가 더해진다. 반면 가상자산 사업과 회사 자체 보유 자산은 시장 가격에 따라 분기마다 손익이 크게 바뀐다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": {
+      "value": 8.688,
+      "unit": "USD bn",
+      "yoy": null
+    },
+    "grossMargin": null,
+    "operatingMargin": null,
+    "netMargin": null,
+    "operatingCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Treasury & Corporate (조정 매출총이익)",
+        "revenue": 418.9,
+        "unit": "USD mn",
+        "share": 73.6,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "Data Centers (조정 매출총이익)",
+        "revenue": 79.1,
+        "unit": "USD mn",
+        "share": 13.9,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "Digital Assets (조정 매출총이익)",
+        "revenue": 71.3,
+        "unit": "USD mn",
+        "share": 12.5,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1",
+          "s3"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "순이익 / 조정 EBITDA",
+        "value": "순이익 3.228억 달러(직전 분기 -0.853억, 전년 동기 5.051억), 조정 EBITDA 4.547억 달러(직전 분기 -0.773억)",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "데이터센터 임대 매출",
+        "value": "Q3 2026 0.791억 달러 (9개월 0.979억), 부문 조정 EBITDA 0.687억 달러",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "Helios 계약 현황",
+        "value": "CoreWeave 계약 IT 부하 526MW (1단계 133MW 가동, 2단계 260MW 2027년 2분기, 3단계 133MW 2028년), Helios II 830MW 미임대",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "name": "운용·스테이킹 자산",
+        "value": "104억 달러 (전 분기 대비 +46%), 평균 대출 잔고 18억 달러 (+27%)",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "현금·스테이블코인·미국 국채",
+        "value": "49억 달러 (2026-09-30)",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "text": "이 흐름이 Q3 2026에 순이익 3.23억 달러, 조정 EBITDA 4.55억 달러로 나타났다. 다만 조정 매출총이익 5.69억 달러 중 74%는 회사가 보유한 가상자산·투자 지분의 평가 이익(재무·본사 부문)이라, 반복되는 본업 이익은 데이터센터 0.79억과 가상자산 0.71억 달러 정도다. 보고 매출 86.9억 달러는 가상자산 매매 대금을 총액으로 잡은 숫자라 이익률 계산에 쓰지 않는다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "useOfCash": {
+    "period": "Q3 2026 (자사주는 2026-02 발표 프로그램 합계)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 757,
+        "unit": "USD mn",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 200,
+        "unit": "USD mn",
+        "src": [
+          "s1",
+          "s3"
+        ]
+      }
+    ],
+    "text": "돈은 압도적으로 Helios 건설에 들어간다. 3분기 데이터센터 설비투자는 7.57억 달러로 2분기(4.48억)보다 69% 늘었고, 2단계 건설을 위해 35억 달러 담보부 채권을 발행했다. 그러면서도 2월에 발표한 2억 달러 자사주 매입을 10월 15일에 끝내고(약 980만 주), 10월 26일 2억 달러를 새로 승인했다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "aiChain": {
+    "layer": "data-center-real-estate",
+    "position": "AI 클라우드 업체에 전력이 연결된 데이터센터 건물을 장기 임대하는 집주인. GPU를 직접 사지 않고 CoreWeave가 GPU를 넣을 공간과 전력을 공급한다.",
+    "dependsOn": [
+      "power-energy (ERCOT 송전망 연결·승인 전력)",
+      "cooling-electrical (변전소·냉각·전기 설비)",
+      "채권 시장 (건설 자금)"
+    ],
+    "sellsTo": [
+      "cloud-infrastructure (CoreWeave)",
+      "향후 Helios II 임차인 (미정)"
+    ],
+    "aiRevenue": "Q3 2026 데이터센터 임대 매출 0.791억 달러, 조정 매출총이익의 약 14% (2026-10-27 발표, 비율은 계산값). CoreWeave 3단계 합산 연평균 10억 달러 초과 예상.",
+    "upside": "Helios I 2단계(2027년 2분기, 연 6.75억 달러)와 3단계(2028년)가 열리면 임대 매출이 계단식으로 늘고, Helios II 830MW에 새 임차인이 들어오면 한 번 더 커진다. 임대 마진은 90% 이상으로 예상돼 매출이 거의 그대로 이익이 된다.",
+    "risk": "임차인이 CoreWeave 한 곳이라 그 회사의 자금 사정이 곧 Galaxy의 위험이다. 건설 지연·비용 초과, 텍사스 전력 규제 변화, Helios II 임차 지연, 그리고 AI 설비투자 둔화로 신규 임대 수요가 줄어드는 경우.",
+    "text": "그래서 AI 가치사슬에서 Galaxy는 칩이나 모델이 아니라 전력과 건물을 파는 자리다. AI 연구소의 GPU 수요가 CoreWeave를 거쳐 Galaxy의 15년 임대료로 들어오기 때문에, 계약이 유지되는 한 매출은 가상자산 가격과 무관하게 쌓인다. 대신 고객 한 곳과 텍사스 전력망이라는 두 개의 단일 의존이 있다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "AI 데이터센터 임대 (채굴 부지 전환)",
+        "rivals": [
+          "IREN",
+          "Cipher Mining",
+          "TeraWulf",
+          "Hut 8",
+          "Applied Digital",
+          "Core Scientific"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "가상자산 기관 트레이딩·대출",
+        "rivals": [
+          "Coinbase (기관)",
+          "Cumberland (DRW)",
+          "Wintermute"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "가상자산 ETF·스테이킹",
+        "rivals": [
+          "BlackRock",
+          "Fidelity",
+          "Coinbase",
+          "Figment"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "한 캠퍼스에 1.6GW 넘는 승인 전력과 3.6GW 이상 잠재 전력을 가진 규모, 이미 가동 중인 CoreWeave 임대 실적, 투자등급 수준 채권으로 건설 자금을 조달한 경험.",
+    "threats": "다른 채굴사 출신 업체들도 같은 AI 임차인을 두고 경쟁하고, 하이퍼스케일러가 직접 부지를 확보할 수 있다. 가상자산 쪽은 대형 거래소와 운용사가 같은 기관 고객을 노린다.",
+    "text": "이 자리의 경쟁은 '전력이 붙은 부지를 누가 먼저 임대로 바꾸느냐'다. Galaxy는 한 캠퍼스 규모와 가동 실적에서 앞서지만, 임차인이 한 곳이고 Helios II는 아직 비어 있어 같은 처지의 채굴 출신 경쟁사와 임차인을 두고 다툰다. 가상자산 사업에서는 대형 거래소·운용사 사이의 틈새를 기관 대출과 스테이킹으로 파고든다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "수 GW 규모 전력 파이프라인을 AI·HPC 임대로 바꾸고 Helios를 데이터센터 플랫폼의 기반으로 삼으며, 가상자산 트레이딩·대출·운용을 함께 키우는 것 (투자자료).",
+    "roadmap": [
+      {
+        "when": "Q2 2026",
+        "what": "Helios I 1단계 133MW CoreWeave 인도 완료",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "when": "Q2 2027",
+        "what": "Helios I 2단계 260MW 임대료 개시 예정 (연 기본 매출 6.75억 달러)",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "when": "2028",
+        "what": "Helios I 3단계 133MW 임대료 개시 예정",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "미정",
+        "what": "Helios II 승인 전력 830MW 임차인 확보 (협상 중)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2030 이후",
+        "what": "텍사스 전체 5,730MW 파이프라인 (Helios I~IV, Merlin, Selene, Caspian)",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "vision": "미국 전력 부족 속에서 승인 전력을 가진 회사가 AI 인프라의 병목을 쥔다는 그림이다. 회사는 Helios를 '더 넓은 데이터센터 플랫폼의 기반'이라고 부른다.",
+    "text": "이 경쟁에서 이기기 위해 회사는 이미 받은 전력 승인을 빠르게 임대 계약으로 바꾸는 데 집중한다. CoreWeave 3단계가 끝나는 2028년까지는 매출 경로가 계약으로 정해져 있고, 그다음 성장은 Helios II와 다른 텍사스 부지에 새 임차인을 들이는 데 달려 있다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "창업자 Mike Novogratz가 CEO로 이끌고 Anthony Paquette가 CFO를 맡으며, 2026년 2억 달러 자사주 매입을 마친 뒤 2억 달러를 새로 승인했다.",
+    "src": [
+      "s3",
+      "s5",
+      "s1"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q2 2027",
+        "metric": "Helios I Phase II rent commencement",
+        "value": "260MW, 연 기본 매출 6.75억 달러, 건설비 약 40억 달러",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "period": "15-year base term",
+        "metric": "CoreWeave lease revenue / margin",
+        "value": "3단계 합산 연평균 10억 달러 초과, 임대 단위 조정 EBITDA 마진 평균 90% 이상, 연장 포함 잠재 계약가치 300억 달러 초과",
+        "givenOn": "2026-10-27",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "style": "none",
+    "track": "분기 실적 가이던스는 내지 않고 데이터센터 단계별 일정만 제시한다. 1단계는 2026년 2분기 인도 일정을 지켰다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": "AIO 실적 캘린더 기준 Q3 2026 EPS 예상 -0.14달러 대비 실제 0.83달러(조정 EPS). 같은 데이터의 매출 예상·실적은 가상자산 총액 매출 기준이라 비교에 쓰지 않는다. 향후 분기 컨센서스는 확인하지 못했다.",
+    "src": [
+      "s6",
+      "s1"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Helios I 2단계 260MW가 2027년 2분기 일정대로 인도되고 임대료가 시작됨",
+      "Helios II 830MW에 새 투자등급 임차인과 장기 임대 체결",
+      "데이터센터 부문 조정 EBITDA가 분기마다 늘어남",
+      "가상자산 부문이 시장 가격과 무관하게 흑자를 유지"
+    ],
+    "breaks": [
+      "CoreWeave의 자금 사정 악화나 임대 조건 변경",
+      "Helios 2·3단계 건설 지연 또는 비용 초과",
+      "텍사스 전력 규제 변화로 대형 부하 연결이 늦어짐",
+      "Helios II 임차 협상 장기 지연",
+      "가상자산 가격 급락으로 재무·본사 부문 대규모 평가 손실"
+    ],
+    "keyNumbers": [
+      {
+        "name": "데이터센터 임대 매출·조정 EBITDA",
+        "why": "반복되는 본업 이익의 크기"
+      },
+      {
+        "name": "계약 IT 부하 MW와 미임대 MW",
+        "why": "다음 성장 단계의 크기"
+      },
+      {
+        "name": "분기 데이터센터 설비투자",
+        "why": "건설 진척과 자금 소요"
+      },
+      {
+        "name": "현금·스테이블코인·국채와 담보부 채권",
+        "why": "건설 자금 여력과 부채 부담"
+      },
+      {
+        "name": "재무·본사 부문 손익",
+        "why": "가상자산 가격이 분기 손익을 얼마나 흔드는지"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027 초 (추정, 회사 미공지)",
+        "event": "Q4 2026 실적",
+        "src": []
+      },
+      {
+        "date": "Q2 2027",
+        "event": "Helios I 2단계 데이터 홀 인도·임대료 개시 예정",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "date": "수시",
+        "event": "Helios II 임차인 발표 여부",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "매 분기 (CoreWeave 실적)",
+        "event": "CoreWeave 자금 조달·백로그 변화",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "reaction": "주가는 데이터센터 임대 소식(새 임차인·단계 인도)과 비트코인 등 가상자산 가격에 함께 반응한다. 분기 순이익은 보유 자산 평가로 크게 흔들려, 시장은 데이터센터 부문 숫자를 따로 본다고 볼 수 있다.",
+    "conditions": [
+      "Helios II 임차 계약 발표 여부와 임차인 신용등급",
+      "데이터센터 부문 조정 EBITDA 추이",
+      "2단계 건설 일정 변경 공시",
+      "CoreWeave 신용·자금 조달 뉴스",
+      "비트코인·이더리움 가격 변화가 재무·본사 부문에 주는 영향",
+      "자사주 매입 집행 속도"
+    ]
+  },
+  "unverified": [
+    "전년 동기 대비 매출·EBITDA 증감 (보도자료에 Q3 2025 순이익 5.051억 달러만 확인)",
+    "분기 영업현금흐름·잉여현금흐름 (보도자료에 현금흐름표 없음)",
+    "부문 값은 매출이 아닌 조정 매출총이익이며 합계 5.693억 달러는 보고 매출 86.9억 달러와 맞지 않음 (매출은 가상자산 총액 기준)",
+    "Helios II 임차인 협상을 접었다는 2차 보도 헤드라인 (Blockspace 2026-10-28, 본문 미확인)",
+    "Novogratz의 지분·의결권 구조",
+    "AI 데이터센터·가상자산 시장 점유율",
+    "건설사·전력 장비 공급사 이름",
+    "3분기만의 자사주 매입액 (프로그램 합계 2억 달러만 확인)",
+    "Q4 2026 실적 발표일과 향후 컨센서스",
+    "경쟁사 목록은 회사 자료가 아닌 일반 분류 기준"
+  ],
+  "confidence": "medium - 실적과 Helios 단계별 계약 수치는 8-K 보도자료와 투자자료에서 확인했지만, 분기 손익의 대부분이 보유 자산 평가에서 나와 본업 이익의 지속성은 판단하기 어렵고 현금흐름표를 보지 못했다."
+}

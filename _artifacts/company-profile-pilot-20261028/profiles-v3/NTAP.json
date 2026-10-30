@@ -1,0 +1,220 @@
+{
+  "symbol": "NTAP",
+  "name": "NetApp, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "late April (FY2026 ended 2026-04-24; Q1 FY2027 ended 2026-07-31)",
+  "oneLine": "NetApp은 기업과 클라우드의 데이터를 담는 올플래시 스토리지 시스템과 데이터 관리 소프트웨어(ONTAP)를 파는 회사로, 기업이 AI용 데이터를 정리·저장하는 수요가 붙으면서 2026년 7월 분기 매출이 30% 늘었다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "NetApp Reports First Quarter of Fiscal Year 2027 Results (IR PDF, incl. supplemental data)", "url": "https://s21.q4cdn.com/371534297/files/doc_earnings/2027/q1/earnings-result/NetApp_First-Quarter.pdf", "publisher": "NetApp", "date": "2026-09-02" },
+    { "id": "s2", "kind": "10-Q", "title": "NetApp Form 10-Q for the quarter ended 2026-07-31 (DataPelago purchase price, debt)", "url": "https://www.sec.gov/Archives/edgar/data/1002047/000119312526380207/ntap-20260731.htm", "publisher": "NetApp / SEC EDGAR", "date": "2026-09-02" },
+    { "id": "s3", "kind": "10-K", "title": "NetApp Form 10-K for fiscal year ended 2026-04-24", "url": "https://www.sec.gov/Archives/edgar/data/1002047/000119312526259683/ntap-20260424.htm", "publisher": "NetApp / SEC EDGAR", "date": "2026-06-05" },
+    { "id": "s4", "kind": "news", "title": "NetApp Q1 Earnings Call Highlights Durable AI-Led Demand (call summary; article date not checked, accessed date)", "url": "https://www.nasdaq.com/articles/netapp-q1-earnings-call-highlights-durable-ai-led-demand", "publisher": "Nasdaq", "date": "2026-10-30" },
+    { "id": "s5", "kind": "news", "title": "IDC's latest enterprise storage tracker shows booming storage market growth (Q2 2026)", "url": "https://www.blocksandfiles.com/flash/2026/09/23/idcs-latest-enterprise-storage-tracker-shows-booming-storage-market-growth/5298577", "publisher": "Blocks & Files (IDC data)", "date": "2026-09-23" },
+    { "id": "s6", "kind": "news", "title": "IDC ranks Dell, NetApp, Everpure, Huawei and HPE in external storage systems market (Q1 2026)", "url": "https://www.blocksandfiles.com/flash/2026/06/16/idc-ranks-dell-netapp-everpure-huawei-and-hpe-in-external-storage-systems-market/5256070", "publisher": "Blocks & Files (IDC data)", "date": "2026-06-16" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/ntap/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "ONTAP 데이터 관리 운영체제 하나로 사내 장비와 AWS·Azure·Google Cloud를 같은 방식으로 다루는 하이브리드 구조 (10-K)",
+      "AWS·Microsoft Azure·Google Cloud에 네이티브로 들어간 1자 스토리지 서비스(Azure NetApp Files 등) - Public Cloud 부문 총마진 86.4% (Q1 FY2027)",
+      "설치 기반에서 나오는 지원 매출 - Q1 FY2027 지원 매출 7.2억 달러, 총마진 93.2%, 이연매출 48.5억 달러",
+      "IDC 외장 스토리지 상위권(2026년 1분기 Dell에 이은 2위)의 규모와 채널망"
+    ],
+    "text": "NetApp의 힘은 디스크를 많이 파는 데서가 아니라, ONTAP이라는 데이터 관리 소프트웨어 하나로 회사 안 장비와 3대 퍼블릭 클라우드를 같은 방식으로 묶어 준다는 데서 나온다. 한 번 ONTAP 위에 데이터를 쌓은 기업은 백업·복제·보안 정책을 통째로 옮기기 어렵다. 그래서 장비를 판 뒤에도 총마진 93%대의 지원 매출과 48.5억 달러의 이연매출이 해마다 다시 들어온다.",
+    "src": ["s3", "s1", "s6"]
+  },
+
+  "design": {
+    "text": "이 소프트웨어를 담아 회사가 내놓는 것은 두 부문으로 보고된다. Hybrid Cloud 부문은 올플래시(AFF·AFX)와 하이브리드 플래시 스토리지 장비, 그 장비의 지원·전문 서비스이며, Q1 FY2027 기준 이 부문 매출의 72%가 올플래시였다. Public Cloud 부문은 Azure NetApp Files 같은 클라우드 내 스토리지 서비스와 Instaclustr 관리형 데이터 서비스, 그리고 AI용 데이터 정리 기능(AI Data Engine)을 담는다.",
+    "src": ["s1", "s3"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "외부 위탁 생산 - 미국 Fremont·San Jose(캘리포니아)·Laredo(텍사스), 멕시코 Guadalajara, 네덜란드 Helmond, 헝가리 Tiszaujvaros, 대만 Taoyuan, 싱가포르 (10-K, 업체명 미공시)",
+      "NAND 플래시·SSD 등 부품 - 소수 공급사 의존 (10-K, 업체명 미공시)",
+      "AWS·Microsoft Azure·Google Cloud - Public Cloud 서비스가 돌아가는 인프라 파트너"
+    ],
+    "text": "설계와 소프트웨어는 회사가 직접 하고, 장비 조립은 미국·멕시코·유럽·아시아의 위탁 생산 공장에 맡긴다. 핵심 원가는 SSD에 들어가는 NAND라서, 10-K는 FY2026 하반기부터 메모리 부품 값이 올라 총마진을 눌렀고 NAND 공급이 수요보다 빠듯하다고 적었다. 회사는 FY2026 4분기에 판매가를 올렸고 앞으로도 가격을 조정하겠다고 밝혔다.",
+    "src": ["s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "대기업·공공기관 IT 부서 - Q1 FY2027 매출의 미주 48%(미국 공공 11% 포함), EMEA 33%, 아시아태평양 19%",
+      "클라우드 사업자 경유 고객 - AWS·Azure·Google Cloud 마켓 안에서 NetApp 스토리지 서비스를 쓰는 기업",
+      "유통사·리셀러 - FY2026 상위 고객 2곳이 매출의 43% (10-K, 이름은 본문 발췌에서 미확인)"
+    ],
+    "channel": "직판 영업과 파트너(유통사·리셀러·시스템통합사·클라우드 사업자). FY2026 매출의 대부분이 간접 채널에서 나왔다 (10-K).",
+    "concentration": "FY2026 고객 2곳 합계 매출의 43% (10-K). 이 두 곳은 유통사로 보이지만 이번에 이름을 원문에서 확인하지 못했다.",
+    "text": "이렇게 만든 장비와 서비스는 대부분 유통사와 리셀러를 거쳐 기업과 공공기관에 팔린다. 매출의 43%가 상위 2개 거래처(대형 유통사로 추정)에서 나오지만, 실제 최종 고객은 수많은 기업으로 흩어져 있다. 클라우드 쪽에서는 AWS·Azure·Google Cloud가 판매 창구 역할을 하며, 고객은 클라우드 청구서로 NetApp 서비스 값을 낸다.",
+    "src": ["s3", "s1"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업·공공기관 (AI·데이터 현대화 프로젝트)", "to": "유통사·리셀러", "what": "스토리지 장비와 다년 지원 계약 구매" },
+      { "from": "유통사·리셀러", "to": "NetApp", "what": "올플래시·하이브리드 장비 대금(대당) + 지원 계약 대금(선수금, 이연매출로 인식)" },
+      { "from": "AWS·Azure·Google Cloud 이용 기업", "to": "클라우드 사업자 → NetApp", "what": "클라우드 스토리지 서비스 사용료 (Public Cloud 부문)" },
+      { "from": "NetApp", "to": "위탁 생산 공장·NAND/SSD 공급사", "what": "장비 조립비와 플래시 부품 대금" }
+    ],
+    "pricing": "장비는 대당 판매, 지원은 다년 계약으로 먼저 받고 기간에 걸쳐 인식(이연매출 48.5억 달러), Keystone은 구독형, Public Cloud는 용량·사용량 기준 과금. 부품값 상승분은 판매가 인상으로 넘기고 있다.",
+    "text": "돈은 기업이 AI와 데이터 정리 프로젝트에 예산을 쓰는 데서 출발해 유통사를 거쳐 NetApp의 장비·지원 매출이 된다. 지원 계약은 미리 받아 두고 나눠 인식하기 때문에 실적이 출렁여도 매출 바닥이 단단하다. 클라우드 고객의 돈은 클라우드 사업자를 거쳐 들어오며, 나가는 돈의 큰 몫은 SSD에 들어가는 NAND 값이다.",
+    "src": ["s1", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q1 FY2027 (ended 2026-07-31)",
+    "revenue": { "value": 2.025, "unit": "USD bn", "yoy": 29.9 },
+    "grossMargin": 70.1,
+    "operatingMargin": 23.9,
+    "netMargin": 18.5,
+    "operatingCashFlow": { "value": 0.503, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.401, "unit": "USD bn" },
+    "segments": [
+      { "name": "Hybrid Cloud", "revenue": 1.819, "unit": "USD bn", "share": 89.8, "yoy": 30.1, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Public Cloud", "revenue": 0.206, "unit": "USD bn", "share": 10.2, "yoy": 28.0, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "올플래시 어레이 매출", "value": "Q1 FY2027 13.09억 달러, 전년 8.93억 대비 +47% (Hybrid Cloud 매출의 약 72%, 계산값)", "src": ["s1"] },
+      { "name": "빌링(billings)", "value": "Q1 FY2027 20.57억 달러, +36%", "src": ["s1"] },
+      { "name": "부문 총마진", "value": "Hybrid Cloud 68.8%(전년 70.0%), Public Cloud 86.4%(전년 80.1%); 제품 54.6%, 지원 93.2% (non-GAAP 부문 기준)", "src": ["s1"] },
+      { "name": "이연매출", "value": "2026-07-31 48.46억 달러 (전년 45.26억)", "src": ["s1"] },
+      { "name": "재고", "value": "2026-07-31 3.75억 달러, 2026-04-24 1.98억에서 거의 두 배 (재고회전 14회 → 6회)", "src": ["s1"] },
+      { "name": "AI 관련 수주", "value": "분기 중 AI·데이터레이크 현대화 계약 약 350건 (콜 요약, 2차)", "src": ["s4"] }
+    ],
+    "text": "이 흐름이 Q1 FY2027에 매출 20.25억 달러(+30%), GAAP 영업이익률 23.9%(non-GAAP 31.9%)로 나타났다. 성장은 올플래시 장비(+47%)가 끌었고, 이익률이 가장 높은 곳은 총마진 86%대의 Public Cloud와 93%대의 지원 매출이다. 다만 영업현금흐름은 5.03억 달러로 25% 줄었는데, 재고가 1.98억에서 3.75억 달러로 늘어난 영향이 컸다. 이 분기에는 한 주가 더 들어 있어 성장률을 일부 부풀렸다(콜 요약).",
+    "src": ["s1", "s4"]
+  },
+
+  "useOfCash": {
+    "period": "Q1 FY2027 (ended 2026-07-31)",
+    "items": [
+      { "use": "R&D", "value": 0.274, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.102, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 0.078, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.2, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 0.102, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "임직원 주식보상 세금 납부용 주식 순결제", "value": 0.074, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "벌어들인 현금(분기 잉여현금흐름 4.01억 달러)은 자사주 2억 달러와 배당 1.02억 달러로 대부분 주주에게 돌아갔다. 인수에는 AI 데이터 처리 회사 DataPelago를 샀는데, 총대가 1.93억 달러 중 8,700만 달러를 현금으로 냈고 1.06억 달러는 조건부 대가로 남았다. R&D는 분기 2.74억 달러(FY2026 연간 9.91억 달러)로, AI용 데이터 기능에 돈을 쓰면서도 주주환원 기조는 유지하는 모습이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "memory",
+    "position": "AI 학습·추론에 쓸 기업 데이터를 저장·정리하는 엔터프라이즈 스토리지 층. GPU 클러스터 바로 옆 고성능 스토리지(AFX)와, 흩어진 사내 데이터를 AI가 읽을 수 있게 만드는 데이터 관리 소프트웨어를 함께 판다.",
+    "dependsOn": ["memory (NAND 플래시·SSD 공급사, 업체명 미공시)", "위탁 생산 공장 (미국·멕시코·유럽·아시아)", "cloud-infrastructure (AWS·Azure·Google Cloud의 1자 서비스 파트너십)"],
+    "sellsTo": ["ai-adopter (AI 프로젝트를 하는 대기업·공공기관)", "cloud-infrastructure (클라우드 마켓 경유 고객)", "Cisco(FlexPod)·SK Telecom 등 파트너 AI 인프라"],
+    "aiRevenue": null,
+    "upside": "기업 AI가 시범 단계에서 실제 운영으로 넘어가면 학습·추론용 데이터를 담을 올플래시 용량과 데이터 정리 소프트웨어 수요가 함께 늘어난다. Q1 FY2027에 AI·데이터레이크 현대화 계약 약 350건이 나왔고 계약 규모도 커지고 있다고 회사가 밝혔다(콜 요약).",
+    "risk": "NAND 값 상승이 장비 총마진을 누르고(Hybrid Cloud 총마진 70.0% → 68.8%), 하이퍼스케일러의 초대형 AI 클러스터는 NetApp 대신 자체 설계 스토리지나 플래시 전문 업체를 쓸 수 있다(10-K는 플래시 전문 신생 상장사를 경쟁자로 꼽는다). 분기 성장 일부가 부품값 인상 전 선구매라는 설명도 있어 다음 분기에 되돌려질 수 있다.",
+    "text": "그래서 AI 가치사슬에서 NetApp은 GPU 옆에서 데이터를 공급하는 저장 층에 있지만, 고객은 하이퍼스케일러보다 AI를 도입하는 일반 기업이다. AI 매출을 따로 공시하지 않으므로 올플래시 성장률과 AI 계약 건수로 간접 확인해야 한다. 위로는 NAND 공급과 가격이 마진을 정하고, 아래로는 기업 IT 예산이 수요를 정한다.",
+    "src": ["s1", "s3", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "외장 엔터프라이즈 스토리지 (올플래시 포함)", "rivals": ["Dell", "Everpure(구 Pure Storage)", "Huawei", "HPE"], "position": "leader", "share": "IDC 2026년 1분기 외장 스토리지 매출 순위 Dell 1위, NetApp 2위 (점유율 수치 미확인); 2026년 2분기 NetApp 매출 +35.7%로 상위 업체 중 세 번째로 빠른 성장", "src": ["s6", "s5"] },
+      { "arena": "퍼블릭 클라우드 내 파일 스토리지", "rivals": ["AWS·Azure·Google 자체 스토리지 서비스"], "position": "niche", "share": null, "src": ["s1", "s3"] },
+      { "arena": "AI 학습용 고성능 스토리지", "rivals": ["Everpure(구 Pure Storage)", "Dell", "전용 AI 스토리지 업체 (10-K는 '플래시 전문 신생 상장사'로만 표현)"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "사내와 3대 클라우드를 잇는 단일 데이터 관리 체계(ONTAP), 클라우드 1자 서비스 지위, 두터운 설치 기반과 지원 매출.",
+    "threats": "Dell이 서버와 묶어 파는 AI 팩토리 번들, Everpure의 빠른 점유율 확대, 그리고 하이퍼스케일러의 자체 스토리지 서비스. 10-K는 경쟁사 이름을 특정하지 않는다.",
+    "text": "이 자리의 경쟁은 주로 Dell·Everpure(구 Pure Storage)·HPE·Huawei와의 외장 스토리지 싸움이다. IDC 기준 NetApp은 Dell 다음 2위권이지만, 2026년 2분기에는 Dell과 Everpure가 NetApp보다 빠르게 컸다. NetApp은 장비 성능보다 '사내와 클라우드를 한 체계로'라는 데이터 관리 쪽 차별점으로 버틴다.",
+    "src": ["s5", "s6", "s3"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 매출 79.75~82.25억 달러, non-GAAP EPS 9.73~10.03달러로 가이던스를 크게 올렸다 (2026-09-02). AI와 하이브리드 멀티클라우드를 'NetApp Platform'으로 묶는 것이 회사가 밝힌 방향이다.",
+    "roadmap": [
+      { "when": "2026-07 (Q1 FY2027)", "what": "DataPelago 인수 - 데이터를 저장된 자리에서 바로 처리하는 AI 데이터 엔진(Nucleus) 확보", "src": ["s1", "s2", "s4"] },
+      { "when": "Q1 FY2027", "what": "StorageGRID 12.1, Instaclustr MCP Gateway, Azure NetApp Files Object REST API 등 AI 데이터 파이프라인 기능 출시", "src": ["s1"] },
+      { "when": "Q1 FY2027", "what": "Cisco와 AI 인프라 공동 솔루션 확대, SK Telecom AI 클라우드에서 AFX 검증 완료", "src": ["s1"] },
+      { "when": "Q2 FY2027", "what": "매출 20.25~21.75억 달러, non-GAAP 영업이익률 30.9~31.9% 가이드", "src": ["s1"] }
+    ],
+    "vision": "기업의 모든 데이터가 어디에 있든 하나의 지능형 데이터 인프라 위에서 관리되고, 그 데이터를 AI가 바로 쓸 수 있게 만든다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 장비 판매에서 'AI가 바로 쓰는 데이터'로 무게를 옮기고 있다. DataPelago 인수와 AI Data Engine은 데이터를 옮기지 않고 저장된 곳에서 처리하게 하려는 시도다. 가이던스를 올린 FY2027은 이 전략이 장비 매출 증가로 이어지는지 확인하는 해다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "governance": {
+    "line": "George Kurian CEO가 이끄는 단일 상장 구조로, 분기 배당 0.52달러를 유지하고 2026-05-21 10억 달러 자사주 매입 한도를 추가(2026-04-24 기존 잔여 5.02억 달러)했다.",
+    "src": ["s3", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q2 FY2027", "metric": "revenue", "value": "20.25~21.75억 달러", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "gross margin / operating margin (non-GAAP)", "value": "총마진 67.0~68.0%, 영업이익률 30.9~31.9%", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "EPS (non-GAAP)", "value": "2.54~2.64달러 (GAAP 1.97~2.07달러)", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue / EPS (non-GAAP)", "value": "79.75~82.25억 달러 / 9.73~10.03달러, 상향 조정 ('significantly raised')", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "FY2027", "metric": "operating margin (non-GAAP)", "value": "30.3~31.3% (총마진 68.1~69.1%)", "givenOn": "2026-09-02", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q1 FY2027은 회사 표현으로 '모든 지표에서 가이던스를 넘었다'. 이전 FY2027 가이던스 범위는 이번에 원문으로 확인하지 못했다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(Zacks via Nasdaq) 향후 4개 분기(2026-10~2027-07) EPS 합계 8.21달러(범위 7.31~9.56), 직전 4개 분기 7.43달러, 최근 4주 상향·하향 0건. 이 데이터의 2026-07 분기 실적값(2.09)은 회사 non-GAAP EPS(2.58)와 기준이 달라 회사 가이던스와 직접 비교하지 않는다.",
+    "src": ["s7", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "올플래시 매출 성장률이 30% 이상 유지",
+      "Q2 FY2027 매출이 20.25~21.75억 달러 가이드 안 상단",
+      "NAND 값이 올라도 Hybrid Cloud 총마진이 68%대 근처에서 버팀",
+      "AI 관련 계약 건수와 계약 규모가 계속 늘었다는 언급",
+      "Public Cloud 매출 성장이 추가 주 효과를 빼고도 두 자릿수"
+    ],
+    "breaks": [
+      "1분기 매출 일부가 부품값 인상 전 선구매였다는 것이 다음 분기 둔화로 드러남",
+      "재고가 계속 늘고 영업현금흐름이 회복되지 않음",
+      "FY2027 가이던스 하향",
+      "IDC 집계에서 Dell·Everpure 대비 점유율 하락이 이어짐",
+      "NAND 공급 부족으로 출하가 막힘"
+    ],
+    "keyNumbers": [
+      { "name": "올플래시 매출과 성장률", "why": "AI·현대화 수요가 장비로 들어오는 직접 통로" },
+      { "name": "Hybrid Cloud 제품 총마진", "why": "NAND 원가를 가격으로 넘기는지" },
+      { "name": "빌링과 이연매출", "why": "앞으로 인식될 매출의 바닥" },
+      { "name": "Public Cloud 매출", "why": "클라우드 1자 서비스 성장" },
+      { "name": "재고와 영업현금흐름", "why": "선구매·부품 비축의 되돌림 여부" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 하순 (추정, 회사 미공지)", "event": "Q2 FY2027 실적 (분기 종료 2026-10 말)", "src": ["s1"] },
+      { "date": "분기마다 (IDC 트래커 발표)", "event": "IDC 외장 스토리지 순위·성장률", "src": ["s5"] },
+      { "date": "수시", "event": "NAND·SSD 가격 동향 (Micron·SanDisk·Samsung 발표)", "src": ["s3"] }
+    ],
+    "reaction": "주가는 올플래시 성장률, 다음 분기 가이드, 그리고 부품값 상승 속 총마진 방어 여부에 반응해 왔다. 이번 분기처럼 가이던스를 크게 올리면 긍정적이지만, 선구매 효과에 대한 의문이 함께 따라붙는다(구체적 주가 반응은 이번에 확인하지 않음).",
+    "conditions": [
+      "다음 분기 매출 가이드 중간값과 컨센서스의 차이",
+      "올플래시 매출 성장률과 Hybrid Cloud 총마진 방향",
+      "재고 증감과 영업현금흐름 회복 여부",
+      "AI 계약 건수·규모에 대한 경영진 언급",
+      "IDC 분기 순위에서 Dell·Everpure 대비 성장률",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "AI 관련 매출 금액 (회사 미공시)",
+    "FY2026 상위 2개 고객(43%)의 이름과 각각의 비중 - 10-K 발췌에서 확인 못함",
+    "위탁 생산 업체명과 NAND/SSD 공급사 이름",
+    "AI 계약 약 350건, 추가 주 효과(약 6,500만 달러 추정 보도 포함), 선구매 언급은 콜 요약(2차) 기반",
+    "IDC 점유율 수치 (순위와 성장률만 2차 보도로 확인)",
+    "이전 FY2027 가이던스 범위와 상향 폭",
+    "Q2 FY2027 실적 발표일 (회사 미공지)",
+    "JetStream Software 인수 대가",
+    "올플래시 비중 72%는 계산값",
+    "부문 영업이익률 (부문 총마진만 공시)"
+  ],
+  "confidence": "medium - 실적·가이던스·현금 사용은 회사 실적 자료와 10-Q·10-K에서 왔지만, AI 수요 크기와 경쟁 점유율은 콜 요약과 IDC 2차 보도에 기대고 있다."
+}

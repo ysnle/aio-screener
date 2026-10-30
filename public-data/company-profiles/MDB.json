@@ -1,0 +1,211 @@
+{
+  "symbol": "MDB",
+  "name": "MongoDB, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "January 31 (FY2026 ended 2026-01-31)",
+  "oneLine": "MongoDB는 개발자가 앱 데이터를 문서 형태로 저장하는 데이터베이스를 클라우드 사용량 과금(Atlas)으로 파는 회사로, AI 앱과 에이전트가 쓸 데이터·벡터 검색 저장소 자리를 노리고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "MongoDB, Inc. Announces Second Quarter Fiscal 2027 Financial Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1441816/000162828026059794/mdb-073126xex991xrelease.htm", "publisher": "MongoDB / SEC EDGAR", "date": "2026-09-01" },
+    { "id": "s2", "kind": "8-K", "title": "MongoDB, Inc. Announces Fourth Quarter and Full Year Fiscal 2026 Financial Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1441816/000162828026013199/mdb-13126xex991xrelease.htm", "publisher": "MongoDB / SEC EDGAR", "date": "2026-03-02" },
+    { "id": "s3", "kind": "10-K", "title": "MongoDB Form 10-K for fiscal year ended 2026-01-31", "url": "https://www.sec.gov/Archives/edgar/data/1441816/000162828026016799/mdb-20260131.htm", "publisher": "MongoDB / SEC EDGAR", "date": "2026-03-11" },
+    { "id": "s4", "kind": "investor-day", "title": "MongoDB Investor Day 2026 presentation (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1441816/000162828026063850/publishablecopy-mongodbi.htm", "publisher": "MongoDB / SEC EDGAR", "date": "2026-09-29" },
+    { "id": "s5", "kind": "8-K", "title": "MongoDB 8-K: additional $1.0 billion share repurchase authorization (Item 8.01)", "url": "https://www.sec.gov/Archives/edgar/data/1441816/000162828026063850/mdb-20260925.htm", "publisher": "MongoDB / SEC EDGAR", "date": "2026-09-29" },
+    { "id": "s6", "kind": "8-K", "title": "MongoDB press release: CJ Desai steps down, Dev Ittycheria named interim President and CEO (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1441816/000162828026063657/pressreleasedatedseptemb.htm", "publisher": "MongoDB / SEC EDGAR", "date": "2026-09-28" },
+    { "id": "s7", "kind": "8-K", "title": "MongoDB 8-K: interim CEO employment agreement and CFO retention award (Item 5.02)", "url": "https://www.sec.gov/Archives/edgar/data/1441816/000162828026065934/mdb-20261012.htm", "publisher": "MongoDB / SEC EDGAR", "date": "2026-10-15" },
+    { "id": "s8", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/mdb/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s9", "kind": "other", "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - MDB 2026-11-30, not company-confirmed", "url": "https://finnhub.io/docs/api/earnings-calendar", "publisher": "Finnhub via AIO", "date": "2026-10-30" }
+  ],
+  "moat": {
+    "sources": [
+      "문서(JSON) 모델 데이터베이스 - 개발자가 앱 객체 그대로 저장, 무료 Community Server·무료 Atlas로 넓은 개발자 기반 확보",
+      "AWS·Google Cloud·Azure 130개 이상 리전에서 같은 Atlas를 쓰는 멀티클라우드",
+      "검색·벡터 검색·스트림 처리·임베딩(Voyage AI)을 데이터베이스 안에 통합",
+      "순 ARR 확장률 121% (Q4 FY2026) - 한 번 데이터를 담은 앱은 사용량이 계속 늘고 옮기기 어려움"
+    ],
+    "text": "MongoDB의 뿌리는 개발자가 앱의 데이터를 표 대신 문서 형태로 그대로 저장하게 한 데이터베이스와, 이를 무료로 써 본 수많은 개발자다. 같은 서비스(Atlas)를 AWS·Google Cloud·Azure 어디서든 쓸 수 있고, 검색·벡터 검색·임베딩까지 데이터베이스 안에 넣어 따로 도구를 붙일 필요를 줄였다. 앱이 한 번 데이터를 쌓으면 바꾸기 어려워, 기존 고객의 지출이 1년 새 약 21% 늘어나는(순 ARR 확장률 121%) 구조다.",
+    "src": ["s3", "s4"]
+  },
+  "design": {
+    "text": "이 기반 위에서 회사가 파는 것은 크게 세 가지다. 클라우드에서 관리해 주는 Atlas(검색·벡터 검색·스트림 처리 포함)가 매출의 약 73%이고, 고객이 직접 설치해 쓰는 Enterprise Advanced가 약 20%, 나머지가 전문 서비스다. 2026년에는 MongoDB 9.0, 저장·연산을 분리한 Atlas Infinite, AI 에이전트를 만들고 돌리는 Atlas Agent Engine(공개 미리보기), 코딩 에이전트를 데이터에 연결하는 Managed MCP Server를 내놨다.",
+    "src": ["s3", "s1", "s4"]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "AWS·Google Cloud·Microsoft Azure - Atlas가 돌아가는 퍼블릭 클라우드 (130개 이상 리전)",
+      "Alibaba Cloud·Tencent Cloud - 중국 내 MongoDB 서비스 제휴",
+      "Voyage AI (2025-02 인수) - 임베딩·리랭킹 AI 모델",
+      "글로벌 시스템 통합업체·리셀러·ISV - 판매·구축 파트너"
+    ],
+    "text": "제품은 소프트웨어로 만들고, Atlas는 AWS·Google Cloud·Azure의 서버를 빌려 고객 대신 운영한다. 그래서 Atlas가 커질수록 클라우드 사용료가 원가로 붙어 GAAP 총마진은 FY2026 약 72%에 머물렀고, Q2 FY2027에 74%로 올라왔다. AI 검색 품질은 2025-02에 산 Voyage AI의 임베딩 모델로 보강한다.",
+    "src": ["s3", "s2", "s1"]
+  },
+  "sell": {
+    "customers": [
+      "앱을 만드는 기업·스타트업 개발팀 - 고객 70,600곳 이상, Atlas 고객 69,300곳 이상 (2026-07-31)",
+      "ARR 10만 달러 이상 대형 고객 2,999곳 (2026-07-31)",
+      "AI 네이티브 기업 2,200곳 이상 - 이들의 Atlas 매출 +165%, 아직 Atlas 매출의 한 자릿수 초반 %"
+    ],
+    "channel": "직접 영업(내부·현장 영업)과 무료 제품에서 유료로 넘어오는 셀프서비스를 함께 쓰고, 글로벌 시스템 통합업체·리셀러·ISV가 보조한다.",
+    "concentration": "FY2026 매출 10% 이상 고객 없음. 매출의 46%가 해외 (FY2024~FY2026 동일).",
+    "text": "이 데이터베이스는 무료로 써 본 개발자가 회사 앱에 넣으면서 유료가 되고, 커지면 직접 영업이 대형 계약으로 키우는 방식으로 팔린다. 고객이 7만 곳이 넘고 매출 10% 이상인 고객이 없어 고객 집중 위험은 낮다. AI 네이티브 고객은 2,200곳을 넘었지만, 매출 비중은 아직 Atlas의 한 자릿수 초반에 그친다.",
+    "src": ["s3", "s1", "s4"]
+  },
+  "moneyFlow": {
+    "steps": [
+      { "from": "앱 이용자·기업 고객", "to": "앱을 운영하는 기업 (AI 기업 포함)", "what": "앱·AI 서비스 이용료" },
+      { "from": "앱을 운영하는 기업", "to": "MongoDB (직접·셀프서비스·파트너)", "what": "Atlas 사용량 기반 요금 (쓴 만큼 과금)" },
+      { "from": "자체 데이터센터 고객", "to": "MongoDB", "what": "Enterprise Advanced 구독 (상용 라이선스 포함, 다년 계약은 기간 라이선스)" },
+      { "from": "MongoDB", "to": "AWS·Google Cloud·Azure", "what": "Atlas를 돌리는 클라우드 인프라 비용" }
+    ],
+    "pricing": "Atlas는 사용량(consumption) 기준으로 매출이 잡혀 고객 사용에 따라 변한다. Enterprise Advanced는 기간 라이선스가 포함된 구독이라, 다년 계약 시 라이선스 몫이 앞당겨 인식돼 분기 매출이 출렁일 수 있다.",
+    "text": "돈은 Atlas에서 고객 앱이 쓴 만큼 매달 들어오고, 일부는 다시 AWS·Google Cloud·Azure 사용료로 나간다. 자체 설치형 Enterprise Advanced는 계약 시점에 라이선스 매출이 크게 잡히는 특성이 있어, 회사는 Q3 매출 가이던스(7.56~7.61억 달러)를 Q2 실적(7.72억 달러)보다 낮게 냈다. 그래서 분기 매출보다 Atlas 성장률이 수요의 진짜 신호다.",
+    "src": ["s3", "s1"]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "revenue": { "value": 2463.8, "unit": "USD mn", "yoy": 22.8 },
+    "grossMargin": 71.7,
+    "operatingMargin": -5.6,
+    "netMargin": -2.9,
+    "operatingCashFlow": { "value": 505.1, "unit": "USD mn" },
+    "freeCashFlow": { "value": 492.6, "unit": "USD mn" },
+    "segments": [
+      { "name": "Atlas-related", "revenue": 1807.9, "unit": "USD mn", "share": 73.4, "yoy": 29, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Enterprise Advanced 및 기타 구독 (계산값)", "revenue": 578.1, "unit": "USD mn", "share": 23.5, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Services", "revenue": 77.8, "unit": "USD mn", "share": 3.2, "yoy": 24.3, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q2 FY2027)", "value": "매출 7.718억 달러(+30%), Atlas 5.659억 달러(+29%, 매출의 73%), GAAP 영업이익 2,840만 달러, non-GAAP 영업이익률 24%, 잉여현금흐름 1.376억 달러", "src": ["s1"] },
+      { "name": "잔여이행의무 (RPO)", "value": "15.19억 달러(+91%), 현재 RPO 7.97억 달러(+73%) (2026-07-31)", "src": ["s1"] },
+      { "name": "순 ARR 확장률", "value": "121% (Q4 FY2026)", "src": ["s3"] },
+      { "name": "고객 수", "value": "전체 70,600곳+, 10만 달러 이상 2,999곳 (2026-07-31); FY2026 말 65,200곳+, 2,799곳", "src": ["s1", "s2"] },
+      { "name": "AI 네이티브 고객", "value": "2,200곳+, 이들의 Atlas 매출 +165%, Atlas 매출의 한 자릿수 초반 % (Investor Day 2026-09-29)", "src": ["s4"] }
+    ],
+    "text": "이 구조에서 FY2026 매출은 24.6억 달러로 23% 늘었고 Atlas가 29% 성장하며 이끌었지만, GAAP 영업이익률은 -5.6%로 아직 적자였다. 그런데 FY2027 들어 Q2에 GAAP 영업이익 2,840만 달러로 흑자를 냈고, 회사는 FY2027을 GAAP 흑자 첫해로 내세운다. 현금은 이미 잘 벌어 FY2026 잉여현금흐름이 4.93억 달러(매출의 20%)였다.",
+    "src": ["s2", "s1", "s4"]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "items": [
+      { "use": "R&D", "value": 716.3, "unit": "USD mn", "src": ["s2"] },
+      { "use": "capex", "value": 5.0, "unit": "USD mn", "src": ["s2"] },
+      { "use": "acquisitions", "value": 2.0, "unit": "USD mn", "src": ["s2"] },
+      { "use": "buybacks", "value": 400.3, "unit": "USD mn", "src": ["s2"] }
+    ],
+    "text": "번 돈은 R&D(FY2026 7.16억 달러, 매출의 29%)와 자사주 매입(4.0억 달러)에 가장 많이 쓰였고, 설비투자는 클라우드를 빌려 쓰는 구조라 500만 달러에 그친다. FY2027 상반기에도 자사주 2.0억 달러를 샀고, 2026-09-25에는 매입 한도를 10억 달러 늘려 총 20억 달러(남은 한도 13.54억 달러)로 키웠다. 성장 투자와 함께 주주환원을 본격적으로 늘리는 단계로 넘어왔다는 신호다.",
+    "src": ["s2", "s1", "s5"]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 앱과 에이전트가 쓰는 운영 데이터·벡터 검색·임베딩을 한 데이터베이스에 담아 주는 데이터 인프라 소프트웨어 공급자. AI 앱이 늘어 데이터가 쌓이고 조회가 늘수록 Atlas 사용료가 커진다.",
+    "dependsOn": [
+      "cloud-infrastructure (AWS·Google Cloud·Azure 위에서 Atlas 운영)",
+      "models-platforms (Voyage AI 임베딩 모델, 코딩 에이전트와 MCP 연동)"
+    ],
+    "sellsTo": [
+      "models-platforms (AI 네이티브 기업 2,200곳 이상)",
+      "ai-adopter (AI 기능을 넣는 일반 기업 앱)",
+      "software-applications (ISV)"
+    ],
+    "aiRevenue": "AI 네이티브 고객 2,200곳 이상, 이들의 Atlas 매출 전년 대비 +165%, Atlas 매출의 한 자릿수 초반 % (2026-09-29 Investor Day). Atlas Agent Engine 매출은 FY2028부터 기대.",
+    "upside": "AI 에이전트와 AI 기능이 들어간 앱이 늘면 저장·검색할 데이터와 벡터 검색 사용이 늘어 Atlas 사용량 매출이 커진다. 회사는 레거시 데이터베이스를 AI로 빠르게 옮기는 시장도 약 100억 달러로 본다.",
+    "risk": "AI 개발이 PostgreSQL 같은 범용 데이터베이스나 클라우드 사업자 자체 서비스로 몰리면 몫이 줄 수 있다. AI 코딩 도구가 데이터베이스 선택을 바꾸거나, 벡터 검색이 다른 데이터베이스의 기본 기능이 되면 차별점이 약해진다.",
+    "text": "그래서 AI 가치사슬에서 MongoDB는 AI 앱이 쓰는 데이터를 담는 '소프트웨어·응용' 층의 데이터 인프라에 있다. AI 네이티브 고객의 Atlas 매출이 165% 늘었지만 아직 Atlas의 몇 %에 불과해, 지금 성장의 대부분은 일반 앱의 클라우드 이전에서 나온다. AI가 진짜 실적 동력이 되려면 Atlas Agent Engine이 매출을 내기 시작하는 FY2028 이후를 봐야 한다.",
+    "src": ["s4", "s3", "s1"]
+  },
+  "competition": {
+    "arenas": [
+      { "arena": "기업용 운영 데이터베이스 (레거시)", "rivals": ["Oracle", "IBM", "Microsoft"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "클라우드 관리형 데이터베이스", "rivals": ["AWS", "Google Cloud", "Microsoft Azure"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "AI 앱용 검색·벡터 검색", "rivals": ["다른 데이터베이스 소프트웨어 업체와 클라우드 사업자 자체 기능"], "position": "challenger", "share": null, "src": ["s3", "s1"] }
+    ],
+    "edge": "개발자 친화적인 문서 모델과 넓은 무료 사용자 기반, 세 클라우드 어디서든 같은 서비스, 데이터베이스 안에 넣은 검색·벡터 검색·임베딩, Forrester 멀티모델 데이터 플랫폼 리더 선정(Q2 2026).",
+    "threats": "Oracle·Microsoft 같은 레거시 강자와, Atlas가 올라가 있는 바로 그 AWS·Google Cloud·Azure가 자체 데이터베이스로 경쟁한다. 회사는 IDC 기준 데이터베이스 시장을 2026년 1,230억 달러로 보지만 점유율은 밝히지 않는다.",
+    "text": "이 자리를 두고 경쟁은 두 방향에서 온다. 한쪽은 Oracle·IBM·Microsoft의 오래된 데이터베이스로 MongoDB는 이들을 대체하는 쪽이고, 다른 쪽은 Atlas를 올려 주는 동시에 자체 데이터베이스를 파는 AWS·Google Cloud·Azure다. 회사는 개발자가 고르는 데이터베이스라는 점과 멀티클라우드를 무기로 1,230억 달러 시장(IDC, 2026년)에서 점유율을 넓히겠다고 하지만, 점유율 수치는 공개하지 않는다.",
+    "src": ["s3", "s4"]
+  },
+  "strategy": {
+    "goal": "2026-09-29 Investor Day에서 향후 약 3년 목표를 매출 성장 20% 이상(기존 10%대 후반), Atlas 성장 20% 이상, non-GAAP 영업이익률 연평균 1~2%포인트 개선, 잉여현금흐름 전환율 80~100%, FY2027부터 GAAP 흑자로 올렸다. 데이터베이스 시장은 2026년 1,230억 달러에서 2030년 1,930억 달러로 본다(IDC).",
+    "roadmap": [
+      { "when": "Q3 FY2027 (2026-08~10)", "what": "매출 7.56~7.61억 달러, non-GAAP 영업이익 1.52~1.56억 달러 가이던스 (2026-09-28 재확인)", "src": ["s1", "s6"] },
+      { "when": "FY2027 (2027-01 종료)", "what": "매출 29.9~30.3억 달러, non-GAAP 영업이익 6.163~6.363억 달러, GAAP 흑자 원년 목표", "src": ["s1", "s4"] },
+      { "when": "2026 (공개 미리보기)", "what": "Atlas Infinite(저장·연산 분리), Atlas Agent Engine", "src": ["s4"] },
+      { "when": "FY2028~FY2029", "what": "Atlas Agent Engine 첫 매출(FY2028)과 의미 있는 기여(FY2029 이후) 기대", "src": ["s4"] },
+      { "when": "미정", "what": "정식 CEO 선임 (임시 CEO Dev Ittycheria, 외부 서치 진행)", "src": ["s6", "s7"] }
+    ],
+    "vision": "모든 앱과 AI 에이전트가 쓰는 '현대 데이터 플랫폼'이 되어, 레거시 데이터베이스를 대체하고 에이전트를 만들고 운영하는 기반까지 제공하겠다고 말한다.",
+    "text": "앞으로 회사는 성장 목표를 오히려 높였다: Investor Day에서 3년 매출 성장 목표를 10%대 후반에서 20% 이상으로 올리고 GAAP 흑자와 이익률 개선을 함께 약속했다. 수단은 Atlas 확대, 레거시 데이터베이스 이전, 그리고 AI 에이전트용 Agent Engine이다. 다만 Investor Day 바로 전날 CEO CJ Desai가 Meta로 떠나며 전임 CEO Dev Ittycheria가 임시로 돌아와, 새 목표를 실행할 리더십이 아직 확정되지 않았다.",
+    "src": ["s4", "s6", "s7"]
+  },
+  "governance": {
+    "line": "2026-09-28 CJ Desai CEO가 Meta로 떠나 2014~2025년 CEO였던 Dev Ittycheria가 임시 CEO로 복귀했고(정식 CEO 서치 중, CFO Michael Berry에게 1,000만 달러 유지 보상), 보통주 단일 구조에 자사주 매입 한도를 총 20억 달러로 늘렸다.",
+    "src": ["s6", "s7", "s5", "s3"]
+  },
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "revenue", "value": "7.56~7.61억 달러", "givenOn": "2026-09-01", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "non-GAAP operating income / GAAP operating income", "value": "1.52~1.56억 달러 / -1,450만~-1,050만 달러", "givenOn": "2026-09-01", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue", "value": "29.9~30.3억 달러 (3월 첫 가이던스 28.6~29.0억에서 상향; 2026-09-28 재확인)", "givenOn": "2026-09-01", "src": ["s1", "s2", "s6"] },
+      { "period": "FY2027", "metric": "non-GAAP operating income", "value": "6.163~6.363억 달러 (3월 5.45~5.65억에서 상향)", "givenOn": "2026-09-01", "src": ["s1", "s2"] },
+      { "period": "FY2027", "metric": "non-GAAP EPS / GAAP EPS", "value": "6.39~6.58달러 (3월 5.75~5.93) / 0.53~0.77달러 (3월 -0.73~-0.49)", "givenOn": "2026-09-01", "src": ["s1", "s2"] }
+    ],
+    "style": "quarterly",
+    "track": "3월 첫 연간 매출 가이던스 28.6~29.0억 달러를 9월에 29.9~30.3억 달러로 올렸고, 하반기 상향분은 주로 Atlas 덕이라고 밝혔다. CEO 교체 발표 때도 가이던스를 그대로 재확인했다.",
+    "src": ["s1", "s2", "s6"]
+  },
+  "estimates": {
+    "text": "2026-10-29 기준 Nasdaq/Zacks 컨센서스 EPS 향후 4개 분기 합계 0.69달러(범위 0~1.47, 8개 추정), 최근 4주 상향 3건·하향 0건으로 상향 쪽. 회사 non-GAAP EPS 가이던스(연 6.39~6.58달러)와 기준이 달라 GAAP 기준으로 보인다.",
+    "src": ["s8"]
+  },
+  "watch": {
+    "confirms": [
+      "Atlas 매출 성장률 25% 이상 유지",
+      "FY2027 GAAP 영업이익 흑자 달성",
+      "AI 네이티브 고객 매출 비중 확대와 Agent Engine 상용화 일정 유지",
+      "정식 CEO 선임 후에도 Investor Day 목표 유지",
+      "RPO·현재 RPO의 높은 증가율 지속"
+    ],
+    "breaks": [
+      "Atlas 성장률이 20% 아래로 둔화",
+      "CEO 공백 장기화나 영업 조직 이탈",
+      "클라우드 사업자 데이터베이스·PostgreSQL 계열로의 이탈 언급",
+      "Enterprise Advanced 다년 계약 감소로 매출 변동 확대",
+      "순 ARR 확장률 하락"
+    ],
+    "keyNumbers": [
+      { "name": "Atlas 매출 성장률", "why": "매출의 73%이자 사용량 수요의 직접 신호" },
+      { "name": "GAAP·non-GAAP 영업이익률", "why": "흑자 전환 약속의 이행" },
+      { "name": "순 ARR 확장률", "why": "기존 고객 지출 확대 속도" },
+      { "name": "AI 네이티브 고객 매출 비중", "why": "AI 순풍의 실제 크기" },
+      { "name": "RPO·현재 RPO", "why": "다년 계약으로 쌓인 미래 매출" }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-30 (추정, 회사 미확정)", "event": "Q3 FY2027 실적 발표와 Q4·연간 가이던스", "src": ["s9"] },
+      { "date": "미정", "event": "정식 CEO 선임 발표", "src": ["s6"] }
+    ],
+    "reaction": "주가는 총매출보다 Atlas 성장률과 연간 가이던스 변화에 크게 반응하는 경향이 있다. 이번에는 CEO 교체 직후 첫 실적이라, 리더십 공백 속에서 Investor Day 목표를 유지하는지가 함께 읽힌다.",
+    "conditions": [
+      "실적 발표 때 Atlas 성장률과 연간 매출 가이던스 변화",
+      "GAAP 영업이익 흑자 여부",
+      "AI 네이티브 고객·Agent Engine 관련 수치",
+      "CEO 선임 진행 상황",
+      "자사주 매입 집행 속도",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+  "unverified": [
+    "Enterprise Advanced 및 기타 구독 매출 5.781억 달러는 구독 매출에서 Atlas 매출을 빼서 계산; 10-K는 EA를 매출의 약 20%로만 표기해 '기타 구독' 약 3%의 내용은 미확인",
+    "Enterprise Advanced 및 기타의 FY2026 성장률 미산출",
+    "AI 네이티브 고객 매출 금액 - 'Atlas 매출의 한 자릿수 초반 %'로만 공개",
+    "데이터베이스 시장 점유율 - 회사·제3자 수치 미확인",
+    "클라우드 호스팅 구매 약정 금액 - 10-K 해당 부분 미독",
+    "Voyage AI 인수 금액 - FY2026 현금 지급은 200만 달러만 확인 (주식 대가 여부 미확인)",
+    "Investor Day 이전 장기 Atlas 성장 목표 (슬라이드 판독 불명확)",
+    "Q3 FY2027 실적 발표일 (Finnhub 추정)",
+    "컨센서스 EPS 기준이 회사 non-GAAP EPS와 다른 이유"
+  ],
+  "confidence": "high - 실적·가이던스·자사주·경영진 교체는 SEC 8-K·10-K 원문에서 왔고, AI 고객 비중과 장기 목표는 회사 Investor Day 자료에 기대며 점유율 자료는 없다."
+}

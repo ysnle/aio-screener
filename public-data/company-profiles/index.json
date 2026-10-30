@@ -1,7 +1,7 @@
 {
  "schemaVersion": "company-profiles-index.v1",
- "revision": "76d790465f0f35c8",
- "count": 105,
+ "revision": "2b010fd5fcebda05",
+ "count": 188,
  "schema": "_artifacts/company-profile-pilot-20261028/SCHEMA-v2.md",
  "cadence": "researched once per quarterly report; a story older than the company's latest report is shown as stale",
  "profiles": [
@@ -86,6 +86,14 @@
    "layer": "memory"
   },
   {
+   "symbol": "AAOI",
+   "name": "Applied Optoelectronics, Inc.",
+   "file": "AAOI.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "networking"
+  },
+  {
    "symbol": "AAPL",
    "name": "Apple Inc.",
    "file": "AAPL.json",
@@ -102,11 +110,35 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "ACLS",
+   "name": "Axcelis Technologies, Inc.",
+   "file": "ACLS.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "ACMR",
+   "name": "ACM Research, Inc.",
+   "file": "ACMR.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30; Q3 full results due 2026-11-05)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "ACN",
    "name": "Accenture plc",
    "file": "ACN.json",
    "researchedAt": "2026-10-28",
    "period": "FY2026 (ended 2026-08-31)",
+   "layer": "software-applications"
+  },
+  {
+   "symbol": "ADBE",
+   "name": "Adobe Inc.",
+   "file": "ADBE.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2025 (ended 2025-11-28)",
    "layer": "software-applications"
   },
   {
@@ -116,6 +148,30 @@
    "researchedAt": "2026-10-29",
    "period": "FY2025 (ended 2025-11-01)",
    "layer": "ai-exposed"
+  },
+  {
+   "symbol": "ADSK",
+   "name": "Autodesk, Inc.",
+   "file": "ADSK.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-01-31)",
+   "layer": "software-applications"
+  },
+  {
+   "symbol": "AEIS",
+   "name": "Advanced Energy Industries, Inc.",
+   "file": "AEIS.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (quarter ended 2026-06-30)",
+   "layer": "power-energy"
+  },
+  {
+   "symbol": "AI",
+   "name": "C3.ai, Inc.",
+   "file": "AI.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-04-30)",
+   "layer": "software-applications"
   },
   {
    "symbol": "ALAB",
@@ -134,6 +190,14 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "AMBA",
+   "name": "Ambarella, Inc.",
+   "file": "AMBA.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 FY2027 (quarter ended 2026-07-31)",
+   "layer": "devices"
+  },
+  {
    "symbol": "AMD",
    "name": "Advanced Micro Devices, Inc.",
    "file": "AMD.json",
@@ -150,11 +214,19 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "AMKR",
+   "name": "Amkor Technology, Inc.",
+   "file": "AMKR.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "AMZN",
    "name": "Amazon.com, Inc.",
    "file": "AMZN.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "cloud-infrastructure"
   },
   {
@@ -166,11 +238,35 @@
    "layer": "networking"
   },
   {
+   "symbol": "APH",
+   "name": "Amphenol Corporation",
+   "file": "APH.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "networking"
+  },
+  {
+   "symbol": "APLD",
+   "name": "Applied Digital Corporation",
+   "file": "APLD.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2027 Q1 (ended 2026-08-31)",
+   "layer": "data-center-real-estate"
+  },
+  {
    "symbol": "APP",
    "name": "AppLovin Corporation",
    "file": "APP.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31)",
+   "layer": "software-applications"
+  },
+  {
+   "symbol": "APPN",
+   "name": "Appian Corporation",
+   "file": "APPN.json",
+   "researchedAt": "2026-10-30",
+   "period": "1H 2026 (six months ended 2026-06-30)",
    "layer": "software-applications"
   },
   {
@@ -190,12 +286,28 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "ASX",
+   "name": "ASE Technology Holding Co., Ltd.",
+   "file": "ASX.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "AVGO",
    "name": "Broadcom Inc.",
    "file": "AVGO.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-11-02)",
    "layer": "chips-compute"
+  },
+  {
+   "symbol": "AXTI",
+   "name": "AXT, Inc.",
+   "file": "AXTI.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "semicap-foundry"
   },
   {
    "symbol": "BA",
@@ -246,6 +358,14 @@
    "layer": "ai-exposed"
   },
   {
+   "symbol": "BTDR",
+   "name": "Bitdeer Technologies Group",
+   "file": "BTDR.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "data-center-real-estate"
+  },
+  {
    "symbol": "C",
    "name": "Citigroup Inc.",
    "file": "C.json",
@@ -254,12 +374,68 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "CAMT",
+   "name": "Camtek Ltd.",
+   "file": "CAMT.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (quarter ended 2026-06-30)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "CARR",
+   "name": "Carrier Global Corporation",
+   "file": "CARR.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "cooling-electrical"
+  },
+  {
    "symbol": "CAT",
    "name": "Caterpillar Inc.",
    "file": "CAT.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "power-energy"
+  },
+  {
+   "symbol": "CDNS",
+   "name": "Cadence Design Systems, Inc.",
+   "file": "CDNS.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "CEVA",
+   "name": "Ceva, Inc.",
+   "file": "CEVA.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (quarter ended 2026-06-30)",
+   "layer": "chips-compute"
+  },
+  {
+   "symbol": "CIEN",
+   "name": "Ciena Corporation",
+   "file": "CIEN.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 FY2026 (ended 2026-08-01)",
+   "layer": "networking"
+  },
+  {
+   "symbol": "CIFR",
+   "name": "Cipher Digital Inc. (formerly Cipher Mining)",
+   "file": "CIFR.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "data-center-real-estate"
+  },
+  {
+   "symbol": "CLS",
+   "name": "Celestica Inc.",
+   "file": "CLS.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "networking"
   },
   {
    "symbol": "COHR",
@@ -270,12 +446,28 @@
    "layer": "networking"
   },
   {
+   "symbol": "COHU",
+   "name": "Cohu, Inc.",
+   "file": "COHU.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-26)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "COIN",
    "name": "Coinbase Global, Inc.",
    "file": "COIN.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-exposed"
+  },
+  {
+   "symbol": "CORZ",
+   "name": "Core Scientific, Inc.",
+   "file": "CORZ.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "data-center-real-estate"
   },
   {
    "symbol": "COST",
@@ -334,6 +526,14 @@
    "layer": "power-energy"
   },
   {
+   "symbol": "DDOG",
+   "name": "Datadog, Inc.",
+   "file": "DDOG.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2025 (ended 2025-12-31)",
+   "layer": "software-applications"
+  },
+  {
    "symbol": "DELL",
    "name": "Dell Technologies Inc.",
    "file": "DELL.json",
@@ -342,12 +542,84 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "EME",
+   "name": "EMCOR Group, Inc.",
+   "file": "EME.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "ENTG",
+   "name": "Entegris, Inc.",
+   "file": "ENTG.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-26)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "EQIX",
    "name": "Equinix, Inc.",
    "file": "EQIX.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "data-center-real-estate"
+  },
+  {
+   "symbol": "ESTC",
+   "name": "Elastic N.V.",
+   "file": "ESTC.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-04-30)",
+   "layer": "software-applications"
+  },
+  {
+   "symbol": "ETN",
+   "name": "Eaton Corporation plc",
+   "file": "ETN.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "FIX",
+   "name": "Comfort Systems USA, Inc.",
+   "file": "FIX.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "FLEX",
+   "name": "Flex Ltd.",
+   "file": "FLEX.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 FY2027 (ended 2026-09-25)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "FN",
+   "name": "Fabrinet",
+   "file": "FN.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-06-26)",
+   "layer": "networking"
+  },
+  {
+   "symbol": "FORM",
+   "name": "FormFactor, Inc.",
+   "file": "FORM.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-26)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "FTNT",
+   "name": "Fortinet, Inc.",
+   "file": "FTNT.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "software-applications"
   },
   {
    "symbol": "GE",
@@ -361,9 +633,17 @@
    "symbol": "GEV",
    "name": "GE Vernova Inc.",
    "file": "GEV.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "power-energy"
+  },
+  {
+   "symbol": "GFS",
+   "name": "GLOBALFOUNDRIES Inc.",
+   "file": "GFS.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "semicap-foundry"
   },
   {
    "symbol": "GLW",
@@ -372,6 +652,14 @@
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "networking"
+  },
+  {
+   "symbol": "GLXY",
+   "name": "Galaxy Digital Inc.",
+   "file": "GLXY.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "data-center-real-estate"
   },
   {
    "symbol": "GOOGL",
@@ -414,6 +702,22 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "HUBB",
+   "name": "Hubbell Incorporated",
+   "file": "HUBB.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "power-energy"
+  },
+  {
+   "symbol": "HUT",
+   "name": "Hut 8 Corp.",
+   "file": "HUT.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "data-center-real-estate"
+  },
+  {
    "symbol": "IBM",
    "name": "International Business Machines Corporation",
    "file": "IBM.json",
@@ -422,12 +726,28 @@
    "layer": "software-applications"
   },
   {
+   "symbol": "ICHR",
+   "name": "Ichor Holdings, Ltd.",
+   "file": "ICHR.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (quarter ended 2026-06-26)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "INTC",
    "name": "Intel Corporation",
    "file": "INTC.json",
-   "researchedAt": "2026-10-29",
-   "period": "FY2025 (ended 2025-12-27)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (2026-09 말 종료)",
    "layer": "chips-compute"
+  },
+  {
+   "symbol": "INTU",
+   "name": "Intuit Inc.",
+   "file": "INTU.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-07-31)",
+   "layer": "software-applications"
   },
   {
    "symbol": "IREN",
@@ -436,6 +756,22 @@
    "researchedAt": "2026-10-29",
    "period": "FY2026 (ended 2026-06-30)",
    "layer": "cloud-infrastructure"
+  },
+  {
+   "symbol": "JBL",
+   "name": "Jabil Inc.",
+   "file": "JBL.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-08-31)",
+   "layer": "chips-compute"
+  },
+  {
+   "symbol": "JCI",
+   "name": "Johnson Controls International plc",
+   "file": "JCI.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-09-30)",
+   "layer": "cooling-electrical"
   },
   {
    "symbol": "JNJ",
@@ -462,6 +798,14 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "KLIC",
+   "name": "Kulicke and Soffa Industries, Inc.",
+   "file": "KLIC.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 FY2026 (ended 2026-07-04)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "KO",
    "name": "The Coca-Cola Company",
    "file": "KO.json",
@@ -481,8 +825,8 @@
    "symbol": "LLY",
    "name": "Eli Lilly and Company",
    "file": "LLY.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-adopter"
   },
   {
@@ -494,11 +838,19 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "LSCC",
+   "name": "Lattice Semiconductor Corporation",
+   "file": "LSCC.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (quarter ended 2026-07-04)",
+   "layer": "chips-compute"
+  },
+  {
    "symbol": "MA",
    "name": "Mastercard Incorporated",
    "file": "MA.json",
-   "researchedAt": "2026-10-29",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-exposed"
   },
   {
@@ -508,6 +860,22 @@
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "ai-adopter"
+  },
+  {
+   "symbol": "MCHP",
+   "name": "Microchip Technology Incorporated",
+   "file": "MCHP.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q1 FY2027 (ended 2026-06-30)",
+   "layer": "ai-exposed"
+  },
+  {
+   "symbol": "MDB",
+   "name": "MongoDB, Inc.",
+   "file": "MDB.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-01-31)",
+   "layer": "software-applications"
   },
   {
    "symbol": "MDT",
@@ -526,11 +894,35 @@
    "layer": "models-platforms"
   },
   {
+   "symbol": "MKSI",
+   "name": "MKS Inc.",
+   "file": "MKSI.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "MOD",
+   "name": "Modine Manufacturing Company",
+   "file": "MOD.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-03-31)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "MPWR",
+   "name": "Monolithic Power Systems, Inc.",
+   "file": "MPWR.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "chips-compute"
+  },
+  {
    "symbol": "MRK",
    "name": "Merck & Co., Inc.",
    "file": "MRK.json",
-   "researchedAt": "2026-10-29",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "ai-adopter"
   },
   {
@@ -553,17 +945,25 @@
    "symbol": "MSFT",
    "name": "Microsoft Corporation",
    "file": "MSFT.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2026 (ended 2026-06-30)",
+   "researchedAt": "2026-10-30",
+   "period": "Q1 FY2027 (ended 2026-09-30)",
    "layer": "cloud-infrastructure"
   },
   {
    "symbol": "MSTR",
    "name": "Strategy Inc (formerly MicroStrategy)",
    "file": "MSTR.json",
-   "researchedAt": "2026-10-29",
-   "period": "H1 2026 (six months ended 2026-06-30)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "limited"
+  },
+  {
+   "symbol": "MTSI",
+   "name": "MACOM Technology Solutions Holdings, Inc.",
+   "file": "MTSI.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 FY2026 (ended 2026-07-03)",
+   "layer": "networking"
   },
   {
    "symbol": "MU",
@@ -590,6 +990,14 @@
    "layer": "power-energy"
   },
   {
+   "symbol": "NET",
+   "name": "Cloudflare, Inc.",
+   "file": "NET.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "cloud-infrastructure"
+  },
+  {
    "symbol": "NFLX",
    "name": "Netflix, Inc.",
    "file": "NFLX.json",
@@ -609,9 +1017,17 @@
    "symbol": "NOW",
    "name": "ServiceNow, Inc.",
    "file": "NOW.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "software-applications"
+  },
+  {
+   "symbol": "NTAP",
+   "name": "NetApp, Inc.",
+   "file": "NTAP.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q1 FY2027 (ended 2026-07-31)",
+   "layer": "memory"
   },
   {
    "symbol": "NU",
@@ -630,6 +1046,46 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "NVMI",
+   "name": "Nova Ltd.",
+   "file": "NVMI.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (quarter ended 2026-06-30)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "NVT",
+   "name": "nVent Electric plc",
+   "file": "NVT.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "NXPI",
+   "name": "NXP Semiconductors N.V.",
+   "file": "NXPI.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-27)",
+   "layer": "ai-exposed"
+  },
+  {
+   "symbol": "ON",
+   "name": "ON Semiconductor Corporation (onsemi)",
+   "file": "ON.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-07-03)",
+   "layer": "ai-exposed"
+  },
+  {
+   "symbol": "ONTO",
+   "name": "Onto Innovation Inc.",
+   "file": "ONTO.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2025 (ended 2026-01-03)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "ORCL",
    "name": "Oracle Corporation",
    "file": "ORCL.json",
@@ -643,6 +1099,22 @@
    "file": "PANW.json",
    "researchedAt": "2026-10-28",
    "period": "FY2026 (ended 2026-07-31)",
+   "layer": "software-applications"
+  },
+  {
+   "symbol": "PATH",
+   "name": "UiPath, Inc.",
+   "file": "PATH.json",
+   "researchedAt": "2026-10-30",
+   "period": "1H FY2027 (six months ended 2026-07-31)",
+   "layer": "software-applications"
+  },
+  {
+   "symbol": "PEGA",
+   "name": "Pegasystems Inc.",
+   "file": "PEGA.json",
+   "researchedAt": "2026-10-30",
+   "period": "9M 2026 (nine months ended 2026-09-30)",
    "layer": "software-applications"
   },
   {
@@ -662,12 +1134,28 @@
    "layer": "limited"
   },
   {
+   "symbol": "PLAB",
+   "name": "Photronics, Inc.",
+   "file": "PLAB.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 FY2026 (quarter ended 2026-08-02)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "PLTR",
    "name": "Palantir Technologies Inc.",
    "file": "PLTR.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "software-applications"
+  },
+  {
+   "symbol": "POWL",
+   "name": "Powell Industries, Inc.",
+   "file": "POWL.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 FY2026 (ended 2026-06-30)",
+   "layer": "cooling-electrical"
   },
   {
    "symbol": "PRCT",
@@ -678,12 +1166,28 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "PWR",
+   "name": "Quanta Services, Inc.",
+   "file": "PWR.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "power-energy"
+  },
+  {
    "symbol": "QCOM",
    "name": "QUALCOMM Incorporated",
    "file": "QCOM.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-09-28)",
    "layer": "devices"
+  },
+  {
+   "symbol": "RBRK",
+   "name": "Rubrik, Inc.",
+   "file": "RBRK.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-01-31)",
+   "layer": "software-applications"
   },
   {
    "symbol": "RKLB",
@@ -694,12 +1198,52 @@
    "layer": "limited"
   },
   {
+   "symbol": "RMBS",
+   "name": "Rambus Inc.",
+   "file": "RMBS.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "memory"
+  },
+  {
+   "symbol": "S",
+   "name": "SentinelOne, Inc.",
+   "file": "S.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-01-31)",
+   "layer": "software-applications"
+  },
+  {
+   "symbol": "SANM",
+   "name": "Sanmina Corporation",
+   "file": "SANM.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 FY2026 (ended 2026-06-27)",
+   "layer": "chips-compute"
+  },
+  {
    "symbol": "SHOP",
    "name": "Shopify Inc.",
    "file": "SHOP.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "software-applications"
+  },
+  {
+   "symbol": "SIMO",
+   "name": "Silicon Motion Technology Corporation",
+   "file": "SIMO.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
+   "layer": "memory"
+  },
+  {
+   "symbol": "SITM",
+   "name": "SiTime Corporation",
+   "file": "SITM.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (quarter ended 2026-06-30; before the Renesas TPD closing on 2026-07-01)",
+   "layer": "networking"
   },
   {
    "symbol": "SMCI",
@@ -710,11 +1254,19 @@
    "layer": "chips-compute"
   },
   {
+   "symbol": "SMTC",
+   "name": "Semtech Corporation",
+   "file": "SMTC.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 FY2027 (ended 2026-07-26)",
+   "layer": "networking"
+  },
+  {
    "symbol": "SNDK",
    "name": "Sandisk Corporation",
    "file": "SNDK.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2026 (ended 2026-07-03)",
+   "researchedAt": "2026-10-30",
+   "period": "Q1 FY2027 (ended 2026-10-02)",
    "layer": "memory"
   },
   {
@@ -726,12 +1278,28 @@
    "layer": "software-applications"
   },
   {
+   "symbol": "SNPS",
+   "name": "Synopsys, Inc.",
+   "file": "SNPS.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 FY2026 (ended 2026-07-31)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "SPCX",
    "name": "Space Exploration Technologies Corp. (SpaceX)",
    "file": "SPCX.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31, S-1 figures via secondary summaries)",
    "layer": "cloud-infrastructure"
+  },
+  {
+   "symbol": "STRL",
+   "name": "Sterling Infrastructure, Inc.",
+   "file": "STRL.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "cooling-electrical"
   },
   {
    "symbol": "STX",
@@ -742,12 +1310,36 @@
    "layer": "memory"
   },
   {
+   "symbol": "TEAM",
+   "name": "Atlassian Corporation",
+   "file": "TEAM.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-06-30)",
+   "layer": "software-applications"
+  },
+  {
+   "symbol": "TER",
+   "name": "Teradyne, Inc.",
+   "file": "TER.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-27)",
+   "layer": "semicap-foundry"
+  },
+  {
    "symbol": "TMO",
    "name": "Thermo Fisher Scientific Inc.",
    "file": "TMO.json",
    "researchedAt": "2026-10-29",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "ai-adopter"
+  },
+  {
+   "symbol": "TSEM",
+   "name": "Tower Semiconductor Ltd.",
+   "file": "TSEM.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "semicap-foundry"
   },
   {
    "symbol": "TSLA",
@@ -766,12 +1358,44 @@
    "layer": "semicap-foundry"
   },
   {
+   "symbol": "TT",
+   "name": "Trane Technologies plc",
+   "file": "TT.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (quarter ended 2026-09-30)",
+   "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "TTD",
+   "name": "The Trade Desk, Inc.",
+   "file": "TTD.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2025 (ended 2025-12-31)",
+   "layer": "software-applications"
+  },
+  {
    "symbol": "TXN",
    "name": "Texas Instruments Incorporated",
    "file": "TXN.json",
    "researchedAt": "2026-10-29",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "ai-exposed"
+  },
+  {
+   "symbol": "UCTT",
+   "name": "Ultra Clean Holdings, Inc.",
+   "file": "UCTT.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-25)",
+   "layer": "semicap-foundry"
+  },
+  {
+   "symbol": "UMC",
+   "name": "United Microelectronics Corporation",
+   "file": "UMC.json",
+   "researchedAt": "2026-10-30",
+   "period": "3Q26 (ended 2026-09-30)",
+   "layer": "semicap-foundry"
   },
   {
    "symbol": "UNH",
@@ -790,6 +1414,14 @@
    "layer": "ai-exposed"
   },
   {
+   "symbol": "VIAV",
+   "name": "Viavi Solutions Inc.",
+   "file": "VIAV.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-06-27)",
+   "layer": "networking"
+  },
+  {
    "symbol": "VLO",
    "name": "Valero Energy Corporation",
    "file": "VLO.json",
@@ -801,9 +1433,17 @@
    "symbol": "VRT",
    "name": "Vertiv Holdings Co",
    "file": "VRT.json",
-   "researchedAt": "2026-10-28",
-   "period": "FY2025 (ended 2025-12-31)",
+   "researchedAt": "2026-10-30",
+   "period": "Q3 2026 (ended 2026-09-30)",
    "layer": "cooling-electrical"
+  },
+  {
+   "symbol": "VSH",
+   "name": "Vishay Intertechnology, Inc.",
+   "file": "VSH.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-07-04)",
+   "layer": "ai-exposed"
   },
   {
    "symbol": "VZ",
@@ -812,6 +1452,14 @@
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "networking"
+  },
+  {
+   "symbol": "WDAY",
+   "name": "Workday, Inc.",
+   "file": "WDAY.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 FY2027 (ended 2026-07-31)",
+   "layer": "software-applications"
   },
   {
    "symbol": "WDC",
@@ -838,12 +1486,28 @@
    "layer": "ai-adopter"
   },
   {
+   "symbol": "WULF",
+   "name": "TeraWulf Inc.",
+   "file": "WULF.json",
+   "researchedAt": "2026-10-30",
+   "period": "Q2 2026 (ended 2026-06-30)",
+   "layer": "data-center-real-estate"
+  },
+  {
    "symbol": "XOM",
    "name": "Exxon Mobil Corporation (2026-07-01부터 상장 모회사는 ExxonMobil Holdings Corporation)",
    "file": "XOM.json",
    "researchedAt": "2026-10-28",
    "period": "FY2025 (ended 2025-12-31)",
    "layer": "power-energy"
+  },
+  {
+   "symbol": "ZS",
+   "name": "Zscaler, Inc.",
+   "file": "ZS.json",
+   "researchedAt": "2026-10-30",
+   "period": "FY2026 (ended 2026-07-31)",
+   "layer": "software-applications"
   }
  ]
 }

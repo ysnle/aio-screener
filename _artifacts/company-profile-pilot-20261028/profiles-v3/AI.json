@@ -1,0 +1,219 @@
+{
+  "symbol": "AI",
+  "name": "C3.ai, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "April 30 (FY2026 ended 2026-04-30; FY2027 Q1 ended 2026-07-31)",
+  "oneLine": "C3.ai는 기업과 미국 국방·정부 기관에 설비 고장 예측·공급망·조달 같은 산업용 AI 앱과 그 개발 플랫폼을 파는 회사로, 이름은 'AI'지만 FY2026 매출이 36% 줄어 창업자 Tom Siebel이 CEO로 복귀해 회생을 이끄는 중이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "C3 AI Announces Fiscal First Quarter 2027 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1577526/000157752626000119/ex991-fy27xq1earnings.htm", "publisher": "C3.ai / SEC EDGAR", "date": "2026-09-02" },
+    { "id": "s2", "kind": "10-Q", "title": "C3.ai Form 10-Q for quarter ended 2026-07-31", "url": "https://www.sec.gov/Archives/edgar/data/1577526/000157752626000126/ai-20260731.htm", "publisher": "C3.ai / SEC EDGAR", "date": "2026-09-09" },
+    { "id": "s3", "kind": "10-K", "title": "C3.ai Form 10-K for fiscal year ended 2026-04-30", "url": "https://www.sec.gov/Archives/edgar/data/1577526/000157752626000078/ai-20260430.htm", "publisher": "C3.ai / SEC EDGAR", "date": "2026-06-24" },
+    { "id": "s4", "kind": "earnings-release", "title": "C3 AI Announces Fiscal Fourth Quarter and Full Fiscal Year 2026 Results; Thomas M. Siebel Resumes Role of CEO (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1577526/000157752626000056/ex991-fy26xq4earnings.htm", "publisher": "C3.ai / SEC EDGAR", "date": "2026-06-03" },
+    { "id": "s5", "kind": "8-K", "title": "C3.ai 8-K Item 5.02: John C. Dwyer appointed to the board", "url": "https://www.sec.gov/Archives/edgar/data/1577526/000157752626000103/ai-20260825.htm", "publisher": "C3.ai / SEC EDGAR", "date": "2026-08-27" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/ai/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s7", "kind": "other", "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - AI 2026-12-03, not company-confirmed", "url": "https://finnhub.io/docs/api/earnings-calendar", "publisher": "Finnhub via AIO", "date": "2026-10-29" },
+    { "id": "s8", "kind": "8-K", "title": "C3.ai 8-K Item 2.02 for Q2 FY2026 results (prior-year timing pattern)", "url": "https://www.sec.gov/Archives/edgar/data/1577526/000157752625000052/", "publisher": "C3.ai / SEC EDGAR", "date": "2025-12-03" }
+  ],
+
+  "moat": {
+    "sources": [
+      "모델 기반 아키텍처 - 수만 개의 미리 만든 산업 개념 모델로 기업 AI 앱을 적은 인력으로 만들 수 있게 하는 C3 Agentic AI Platform (10-K)",
+      "설비 성능·공급망·조달 등 산업별 완성형 AI 앱 묶음 (10-K)",
+      "Microsoft·AWS·Google Cloud·Baker Hughes·McKinsey와의 공동 판매 제휴 (10-K)",
+      "미국 국방·정보·정부 기관 납품 이력 - 국방부·해병대·국방물류청 계약 (Q1 FY2027 발표)"
+    ],
+    "text": "C3.ai의 강점은 기업이 AI 앱을 처음부터 짜지 않아도 되도록, 설비·자재·공정 같은 산업 개념을 미리 모델로 만들어 둔 플랫폼에 있다고 회사는 설명한다. 여기에 Microsoft·AWS·Google Cloud와 석유가스 장비사 Baker Hughes가 대신 팔아 주는 제휴망과, 미국 국방·정부 기관에 납품한 이력이 더해진다. 다만 매출이 크게 줄어든 지금은 이 강점이 실제 계약으로 이어지는지가 먼저 증명돼야 하는 단계다.",
+    "src": ["s3", "s1"]
+  },
+
+  "design": {
+    "text": "이 플랫폼 위에서 회사가 파는 것은 세 가지다. 기업 AI 앱을 만들고 운영하는 C3 Agentic AI Platform, 설비 성능·공급망·조달·에너지 관리 같은 산업별 C3 AI 앱, 그리고 산업 특화 생성형 AI 제품군 C3 Generative AI다. 2026-02 구조조정 뒤에는 개발 자원을 에너지·제조·헬스케어·공공(국방·정보 포함)의 설비 성능·공급망·조달 분야로 좁혔다.",
+    "src": ["s1", "s3", "s2"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "Microsoft Azure, AWS, Google Cloud - 제품을 각 클라우드 위에서 실행·마켓플레이스 판매 (10-K)",
+      "Baker Hughes - 석유가스 업종 리셀러, 다른 업종 비독점 리셀러 (10-K)",
+      "McKinsey & Company - 공동 판매 제휴 (10-K)",
+      "Snowflake·Oracle·Databricks 등 - 고객 데이터 연결 대상 (10-K)"
+    ],
+    "text": "만드는 방식은 자체 소프트웨어를 고객이 고른 클라우드(Azure·AWS·Google Cloud)나 고객 자체 서버에서 돌리는 것이다. 판매도 상당 부분을 이 클라우드 회사들과 Baker Hughes 같은 제휴사에 기대는 구조다. FY2026 말 직원은 764명으로, 2026-02 구조조정에서 약 26%(약 280명)를 줄였다.",
+    "src": ["s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국 연방 기관 - 국방부, 해병대, 국방물류청, 농무부 등 (Q1 FY2027 발표)",
+      "제조·에너지·소재 대기업 - Heidelberg Materials, Ford, Johnson & Johnson, Holcim, Seaspan 등 (Q1 FY2027 발표)",
+      "Baker Hughes를 통한 석유가스 고객 (10-K)",
+      "북미 외 고객 매출 비중 Q1 FY2027 19% (10-Q)"
+    ],
+    "channel": "자체 영업 조직(지역·업종별)과 Microsoft·AWS·Google Cloud·Baker Hughes·McKinsey 제휴 공동 판매. 작은 초기 계약(성과 검증·초기 도입)으로 시작해 사용량에 따라 확대하는 방식 (10-K, 10-Q).",
+    "concentration": "최대 고객 1곳(최종 모회사 기준)이 FY2026 매출의 14%, Q1 FY2027 매출의 15%. FY2025에는 2곳이 19%·12% (10-K, 10-Q).",
+    "text": "이렇게 만든 소프트웨어는 미국 국방·정부 기관과 제조·에너지 대기업에 팔린다. 고객 수가 적고 계약 단위가 커서, 큰 고객 하나가 매출의 15%를 차지하고 계약 시점에 따라 분기 매출이 크게 흔들린다. 회사는 영업 방식을 '전사적 대형 전환 계약' 중심으로 바꾸고 Q1 FY2027에 22건을 계약해 수주액이 전 분기보다 73% 늘었다고 밝혔다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업·정부 기관", "to": "C3.ai (직접 또는 Azure·AWS·Google Cloud 마켓플레이스)", "what": "구독·소프트웨어 라이선스 계약" },
+      { "from": "기업·정부 기관", "to": "C3.ai", "what": "실제 운영 시 vCPU·vGPU 사용 시간에 따른 런타임 사용료" },
+      { "from": "석유가스 고객", "to": "Baker Hughes → C3.ai", "what": "리셀러 경유 구독료" },
+      { "from": "고객", "to": "C3.ai", "what": "기능 개발을 앞당기는 우선 개발 서비스 요금과 컨설팅 수수료" }
+    ],
+    "pricing": "기간 구독(계약 기간에 나눠 인식)과 vCPU·vGPU 사용 시간 기반 사용량 과금, 소프트웨어 라이선스, 우선 개발 서비스 요금이 섞여 있다. Q1 FY2027 매출의 94%가 구독.",
+    "text": "그래서 돈은 구독 계약과 실제 사용량 요금으로 들어온다. 회사는 작은 초기 계약으로 시작해 사용량에 따라 키우는 방식을 써 왔는데, 남은 계약 잔고(RPO)는 2026-07-31 기준 2.0억 달러로 그중 1.33억 달러가 12개월 안에 매출이 된다. 사용량 요금은 RPO에 잡히지 않아, 잔고만으로 다음 해 매출을 다 알 수는 없다.",
+    "src": ["s2", "s3", "s1"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-04-30)",
+    "revenue": { "value": 250.3, "unit": "USD mn", "yoy": -36 },
+    "grossMargin": 30.9,
+    "operatingMargin": -199.2,
+    "netMargin": -187.9,
+    "operatingCashFlow": { "value": -190.2, "unit": "USD mn" },
+    "freeCashFlow": { "value": -192.1, "unit": "USD mn" },
+    "segments": [
+      { "name": "Subscription", "revenue": 227.1, "unit": "USD mn", "share": 90.7, "yoy": -31, "operatingMargin": null, "src": ["s3"] },
+      { "name": "Professional services", "revenue": 23.2, "unit": "USD mn", "share": 9.3, "yoy": -62, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q1 FY2027) 매출·이익", "value": "매출 5,240만 달러(전년 7,030만 달러 대비 약 -25%), GAAP 총마진 32%·non-GAAP 50%, non-GAAP 영업손실 3,620만 달러(전 분기 대비 33% 개선)", "src": ["s1", "s2"] },
+      { "name": "잉여현금흐름 (Q1 FY2027)", "value": "+210만 달러 (FY2026 연간 -1.92억 달러)", "src": ["s1", "s3"] },
+      { "name": "현금·유가증권", "value": "6.511억 달러 (2026-07-31), 전 분기 대비 +7,600만 달러", "src": ["s1"] },
+      { "name": "수주 (Bookings)", "value": "Q1 FY2027 전 분기 대비 +73% (금액 미공시), 22건 계약", "src": ["s1"] },
+      { "name": "잔여 계약 잔고 (RPO)", "value": "2.0억 달러 (12개월 내 1.33억), 2026-04-30 2.031억 달러", "src": ["s2"] }
+    ],
+    "text": "그 결과 FY2026은 매출 2.5억 달러로 36% 줄었고, 구독 원가는 오히려 늘어 GAAP 총마진이 61%에서 31%로 떨어졌으며 영업손실은 4.98억 달러로 매출의 두 배에 달했다. Q1 FY2027 매출도 5,240만 달러로 전년 같은 분기보다 약 25% 적지만, 직전 분기(5,160만 달러)보다는 조금 늘어 하락이 멈춘 모습이다. 구조조정과 비용 통제로 분기 잉여현금흐름이 210만 달러 흑자로 돌아섰다.",
+    "src": ["s3", "s1", "s4"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-04-30)",
+    "items": [
+      { "use": "R&D", "value": 229.1, "unit": "USD mn", "src": ["s3"] },
+      { "use": "capex", "value": 1.9, "unit": "USD mn", "src": ["s3"] },
+      { "use": "other", "label": "구조조정 비용", "value": 10.8, "unit": "USD mn", "src": ["s3"] }
+    ],
+    "text": "벌어들이는 현금이 없어 FY2026에는 영업에서만 1.9억 달러가 빠져나갔고, 연구개발비 2.29억 달러가 매출(2.5억 달러)과 맞먹는다. 자사주 매입·배당·인수는 없고, 오히려 2026-06에 Siebel이 1주 11.16달러에 617만 주를 사들여 현금을 보탰다. 6.5억 달러의 현금은 회생 기간을 버틸 완충판이며, 회사는 지출을 들어오는 현금에 맞추겠다고 밝혔다.",
+    "src": ["s3", "s4", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 가치사슬의 맨 끝에서 클라우드와 모델을 빌려 기업·정부용 산업 AI 앱을 만들어 파는 응용 소프트웨어 층. 칩·클라우드에 대한 AI 투자 붐의 직접 수혜 자리가 아니라, 기업이 AI를 실제 업무에 쓰기로 할 때만 돈을 버는 자리다.",
+    "dependsOn": [
+      "cloud-infrastructure (Microsoft Azure, AWS, Google Cloud)",
+      "models-platforms (생성형 AI 모델 - 공급사 이름 미공시)",
+      "고객 데이터 플랫폼 (Snowflake, Oracle, Databricks 등)"
+    ],
+    "sellsTo": [
+      "미국 국방·정보·정부 기관",
+      "제조·에너지·소재 대기업",
+      "Baker Hughes 경유 석유가스 기업"
+    ],
+    "aiRevenue": "전 매출이 기업 AI 소프트웨어 매출이다: FY2026 2.503억 달러(-36%), Q1 FY2027 5,240만 달러.",
+    "upside": "기업이 AI 시범 사업에서 전사 도입으로 넘어가면 대형 계약과 사용량 요금이 함께 늘어난다. 국방·정부의 AI 도입 예산이 커지면 기존 납품 이력이 유리하다.",
+    "risk": "10-K는 주요 경쟁 상대를 기업 IT 조직이 AWS·Azure·Google Cloud 부품과 오픈소스로 직접 만드는 자체 AI라고 적었다. 클라우드 회사와 대형 모델 회사가 기업용 에이전트를 직접 팔수록 중간의 앱 플랫폼이 설 자리가 좁아진다. 소수 대형 고객과 정부 예산(셧다운 포함)에 대한 의존도 높다.",
+    "text": "그래서 C3.ai는 AI 가치사슬에서 칩·클라우드 투자 붐과 떨어진 맨 끝 응용 층에 있고, 이름과 달리 AI 설비투자 증가가 곧바로 실적이 되지 않는다. 회사의 매출은 기업과 정부가 C3의 앱을 골라 실제 운영에 쓰기로 할 때만 생기며, FY2026에는 그 결정이 줄면서 매출이 3분의 1 넘게 빠졌다. 경쟁 상대가 다른 앱 회사보다 고객 스스로 클라우드 부품으로 만드는 방식이라는 점이 가장 큰 구조적 위험이다.",
+    "src": ["s3", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "기업 AI 플랫폼 (개발·운영)", "rivals": ["기업 IT 조직의 자체 구축 (AWS·Azure·Google Cloud 부품 + 오픈소스)", "독립 소프트웨어 업체의 단품 솔루션", "전문 서비스 회사의 구축 프로젝트"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "산업용 AI 앱 (설비 성능·공급망·조달)", "rivals": ["단품 솔루션 업체 (10-K는 이름 미공시)"], "position": "niche", "share": null, "src": ["s3", "s2"] },
+      { "arena": "국방·정부 AI 소프트웨어", "rivals": ["정부 대상 AI 소프트웨어 업체 (이름 미공시)"], "position": "niche", "share": null, "src": ["s3", "s1"] }
+    ],
+    "edge": "미리 만든 산업 모델로 개발 기간을 줄이는 플랫폼, 클라우드 3사 위 어디서나 돌아가는 중립성, 국방·정부 납품 이력, Forrester의 기업 AI 리더 평가(회사 발표).",
+    "threats": "고객의 자체 구축, 클라우드·모델 회사가 직접 파는 기업용 에이전트, 소수 대형 고객 이탈, 영업 조직 재편 과정의 실행 차질.",
+    "text": "회사 스스로 꼽은 가장 큰 경쟁자는 다른 소프트웨어 회사가 아니라 고객의 IT 조직이 클라우드 부품과 오픈소스로 직접 만드는 AI다. C3.ai는 미리 만든 산업 모델로 '직접 만드는 것보다 빠르고 싸다'는 점을 내세우지만, FY2026의 매출 급감은 그 설득이 최근 먹히지 않았음을 보여준다. 회사가 국방·에너지·제조 몇 분야로 집중한 것도 넓게 싸우기보다 이길 수 있는 틈새를 고른 선택이다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "strategy": {
+    "goal": "매출 성장, 현금 창출, non-GAAP 흑자 전환을 회생의 세 목표로 내걸었다. FY2027 매출 2.10~2.40억 달러, non-GAAP 영업손실 1.23~1.55억 달러를 제시했다.",
+    "roadmap": [
+      { "when": "2026-02-24", "what": "구조조정 승인 - 인력 약 26%(약 280명) 감축, 영업 조직 단순화, 개발 우선순위 재설정", "src": ["s3"] },
+      { "when": "2026-05-08", "what": "창업자 Thomas M. Siebel CEO 복귀, Stephen Ehikian은 사장으로", "src": ["s3", "s4"] },
+      { "when": "Q2 FY2027 (2026-08~10)", "what": "구조조정 실행 마무리 예정", "src": ["s2"] },
+      { "when": "FY2027 (2026-05~2027-04)", "what": "매출 2.10~2.40억 달러, non-GAAP 영업손실 1.23~1.55억 달러", "src": ["s1"] }
+    ],
+    "vision": "기업용 AI 응용 소프트웨어의 대표 회사로서, 에이전트형 AI로 산업 현장의 설비·공급망·조달을 자동화하는 플랫폼이 되겠다고 말한다.",
+    "text": "회생을 위해 회사가 택한 길은 줄이고, 좁히고, 창업자가 직접 챙기는 것이다. 인력을 4분의 1 넘게 줄였고, 개발은 네 개 산업의 세 가지 문제로 좁혔으며, Siebel은 이전 분기 영업 성과를 '용납할 수 없는 수준'이라 부르며 CEO로 돌아왔다. Q1의 수주 증가와 현금흐름 흑자는 첫 신호지만, FY2027 매출 가이던스(2.10~2.40억 달러)는 여전히 FY2026보다 낮거나 비슷한 수준이다.",
+    "src": ["s3", "s4", "s1"]
+  },
+
+  "governance": {
+    "line": "창업자 Thomas M. Siebel이 의장 겸 CEO로 1주당 50표인 Class B 주식을 통해 의결권 약 49.6%(2026-06-10 기준)를 가진 사실상 창업자 지배 회사이며, 배당·자사주 매입은 없고 2026-06에 Siebel이 약 6,900만 달러어치 신주를 직접 샀다.",
+    "src": ["s3", "s4"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q2 FY2027", "metric": "revenue", "value": "5,100만~5,500만 달러", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "non-GAAP loss from operations", "value": "3,450만~4,250만 달러 손실", "givenOn": "2026-09-02", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue", "value": "2.10~2.40억 달러 (유지)", "givenOn": "2026-09-02", "src": ["s1", "s4"] },
+      { "period": "FY2027", "metric": "non-GAAP loss from operations", "value": "1.23~1.55억 달러 손실 (2026-06 때 1.28~1.60억에서 축소)", "givenOn": "2026-09-02", "src": ["s1", "s4"] }
+    ],
+    "style": "quarterly",
+    "track": "Q1 FY2027 매출 5,240만 달러는 2026-06에 제시한 Q1 범위(5,000만~5,400만 달러) 안에 들었고, non-GAAP 영업손실 3,620만 달러는 제시 범위(4,050만~4,850만 달러)보다 작았다.",
+    "src": ["s1", "s4"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 -2.09달러(범위 -2.46~-1.49, 5개 추정), 직전 4개 분기 실적 합 -3.01달러. 최근 4주 상향·하향 0건. 직전 분기 기록 -0.60달러는 회사 GAAP 수치와 같아, 이 값의 기준이 non-GAAP(-0.20달러)와 다를 수 있다.",
+    "src": ["s6", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "분기 매출이 전 분기 대비 계속 늘고 전년 대비 감소폭이 줄어듦",
+      "수주와 RPO가 늘어남 (전사 대형 계약 전환이 통하는 신호)",
+      "잉여현금흐름 흑자가 이어지고 현금이 줄지 않음",
+      "non-GAAP 영업손실이 가이던스보다 빠르게 축소",
+      "국방·정부 대형 계약 추가"
+    ],
+    "breaks": [
+      "분기 매출이 다시 5,000만 달러 아래로 떨어짐",
+      "최대 고객(매출 15%) 이탈이나 계약 축소",
+      "현금 소진 재개",
+      "FY2027 매출 가이던스 하향",
+      "추가 경영진 교체나 영업 조직 재혼란"
+    ],
+    "keyNumbers": [
+      { "name": "분기 매출 (전 분기 대비)", "why": "하락이 멈췄는지 보여주는 첫 숫자" },
+      { "name": "수주와 RPO", "why": "회사가 공개하는 다음 매출의 선행 지표" },
+      { "name": "잉여현금흐름과 현금 잔고", "why": "회생 기간을 버틸 체력" },
+      { "name": "GAAP 총마진", "why": "구독 원가 증가로 31%까지 내려간 수익성의 회복 여부" },
+      { "name": "최대 고객 비중", "why": "소수 고객 의존 위험" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-12-03 (외부 일정표, 회사 미확정; 전년 Q2는 2025-12-03 발표)", "event": "Q2 FY2027 실적과 가이던스", "src": ["s7", "s8"] }
+    ],
+    "reaction": "매출 가이던스와 수주·현금흐름 같은 회생 신호에 주가가 크게 반응한다. 회사 이름과 종목코드(AI) 때문에 AI 테마 전체의 투자심리에 함께 휩쓸리는 경우가 많아, 실적과 무관한 큰 등락이 생길 수 있다.",
+    "conditions": [
+      "Q2 매출이 가이던스 5,100만~5,500만 달러 범위 상단에 가까운지",
+      "수주 금액이나 RPO가 처음으로 늘어나는지",
+      "잉여현금흐름이 두 분기 연속 흑자인지",
+      "AI 소프트웨어 업종 전체의 투자심리"
+    ]
+  },
+
+  "unverified": [
+    "다음 실적 발표일 2026-12-03은 외부 일정표 값이며 회사 공지를 확인하지 못했다.",
+    "수주(Bookings) 증가율 73%는 회사 발표이며 금액은 공개되지 않았다.",
+    "최대 고객의 이름은 공시되지 않았다.",
+    "총마진·영업이익률·순이익률은 10-K 수치로 계산했다(손실 4.98억·순손실 4.70억 달러).",
+    "생성형 AI 모델 공급사 이름은 확인하지 못했다.",
+    "경쟁사 이름과 점유율은 10-K에 구체적으로 없어 null로 뒀다.",
+    "Q1 발표 뒤 주가 반응과 콜 발언은 이번 조사에서 1차 자료로 확인하지 못했다(Q2 가이던스가 시장 예상보다 낮았다는 2차 보도만 봤다)."
+  ],
+  "confidence": "medium - 재무·지배구조·구조조정은 SEC 원문으로 확인했지만, 회생의 실제 진척(수주 금액, 고객 이름)은 공시가 적어 판단 근거가 얇다"
+}

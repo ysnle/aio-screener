@@ -5,7 +5,7 @@
 // company by the shared keyword rule. A contribution is an arithmetic share of the index move, not a cause; the item is
 // what was published around that session, not proof it moved the price.
 import { keywordHit } from '../news/keyword-match.js';
-import { MOVER_BY_SYMBOL } from '../briefing/event-briefs.js';
+import { MOVER_BY_SYMBOL } from '../briefing/market-movers.js';
 import { withObjectParticle } from '../content/korean-particle.js';
 
 const HOUR = 3600000;

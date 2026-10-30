@@ -1,0 +1,213 @@
+{
+  "symbol": "FN",
+  "name": "Fabrinet",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "late June (FY2026 ended 2026-06-26; Q1 FY2027 ended 2026-09-25)",
+  "oneLine": "Fabrinet은 NVIDIA·Cisco·Amazon 같은 고객이 설계한 광 트랜시버와 광통신 장비를 태국 공장에서 대신 조립·패키징하는 위탁 생산 전문 회사로, AI 데이터센터 물량이 몰리며 FY2026 매출이 36% 늘었다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Fabrinet Announces Fourth Quarter and Fiscal Year 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001408710/000140871026000026/fn-2026811xex991q426.htm", "publisher": "Fabrinet / SEC EDGAR", "date": "2026-08-17" },
+    { "id": "s2", "kind": "10-K", "title": "Fabrinet Form 10-K for fiscal year ended 2026-06-26", "url": "https://www.sec.gov/Archives/edgar/data/1408710/000140871026000028/fn-20260626.htm", "publisher": "Fabrinet / SEC EDGAR", "date": "2026-08-18" },
+    { "id": "s3", "kind": "call-transcript", "title": "Transcript: Fabrinet Q4 2026 Earnings Conference Call (machine-generated)", "url": "https://www.webull.com/news/15420495044125696", "publisher": "Webull", "date": "2026-08-17" },
+    { "id": "s4", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/fn/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "광 패키징과 정밀 광학·전기기계 조립에 특화된 위탁 생산 역량 - 범용 전자 조립보다 공정이 까다로운 영역 (10-K)",
+      "태국 Chonburi 대형 캠퍼스 중심의 생산능력 - Building 10 완공 시 매출 능력 30~35억 달러 추가 (콜)",
+      "고객 기술을 비독점·무상 라이선스로만 받아 생산만 하는 구조 - 고객과 경쟁하지 않는 중립성 (10-K)",
+      "직원 약 2.15만 명, 그중 약 2.1만 명이 생산 인력 (10-K)"
+    ],
+    "text": "Fabrinet의 힘은 자기 제품이 없다는 데서 나온다. 광 트랜시버처럼 미세한 광학 정렬이 필요한 제품을 고객 설계대로 대신 만들어 주고, 고객과 경쟁하지 않으니 NVIDIA·Cisco·Amazon이 안심하고 물량을 맡긴다. 태국에 집중된 대형 캠퍼스와 2만 명이 넘는 숙련 생산 인력이 이 역할을 받치는 두 번째 기둥이다.",
+    "src": ["s2", "s3"]
+  },
+
+  "design": {
+    "text": "이 역량으로 회사가 만드는 것은 FY2026부터 세 범주로 보고된다. 데이터센터(트랜시버, 데이터센터 간 연결 DCI, 고성능 컴퓨팅 HPC 부품), 통신 인프라(통신 시스템·위성통신·통신 부품, 예: ROADM·광증폭기·트랜스폰더), 자동차·산업·기타(EV 충전 제품, LiDAR, 산업용 레이저, 센서)다. 설계는 고객이 하고, Fabrinet은 맞춤 광학·유리 부품 일부만 직접 설계해 판다.",
+    "src": ["s2", "s3"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "태국 자체 캠퍼스 - Chonburi(Building 10 2027년 초 완공 목표, 약 200만 평방피트), Pinehurst, Navanakorn (콜)",
+      "중국 Fuzhou - 광학 부품 가공 (10-K)",
+      "미국 - New Jersey Mountain Lakes 광학 가공, Santa Clara 캠퍼스 인수, Nevada 공장; 실리콘밸리·이스라엘 신제품 도입(NPI) 센터 (10-K·콜)",
+      "부품 - 표준 구매주문으로 조달, 장기 공급계약 없음 (10-K)"
+    ],
+    "text": "생산은 모두 자기 공장에서 하며, 중심은 태국이다. 회사는 Building 10이 2027년 초 완공되면 매출 능력이 30~35억 달러 늘고, 전체적으로 현재 연 약 53억 달러 수준에서 125~140억 달러까지 키울 여지가 있다고 했다(콜). 이 확장이 FY2026 설비투자 2.53억 달러로 나타나, 영업현금 대부분을 잡아먹었다.",
+    "src": ["s2", "s3", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "Cisco - FY2026 매출의 19.9% (10-K)",
+      "NVIDIA - 16.3% (FY2025 27.6%에서 하락, 10-K)",
+      "Nokia - 10.7% (10-K)",
+      "Amazon - 10.5% (10-K)",
+      "기타 광통신·레이저·자동차 OEM"
+    ],
+    "channel": "OEM 고객과 직접 거래, 장기 계약 없이 개별 구매주문(PO) 단위 (10-K).",
+    "concentration": "FY2026 10% 이상 고객 4곳 합계 57.4% (FY2025에는 NVIDIA 27.6%·Cisco 18.2% 두 곳) (10-K).",
+    "text": "이렇게 만든 제품은 대부분 대형 OEM 몇 곳에 돌아간다. FY2026에는 Cisco·NVIDIA·Nokia·Amazon 네 곳이 매출의 57%였는데, NVIDIA 비중이 28%에서 16%로 줄고 Amazon이 새로 10%를 넘어 고객이 넓어졌다. 장기 계약 없이 구매주문으로 움직이므로 고객의 물량 배분이 곧 분기 실적이다.",
+    "src": ["s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "하이퍼스케일러 (Amazon 등)", "what": "클라우드·AI 사용료" },
+      { "from": "하이퍼스케일러", "to": "NVIDIA·Cisco 등 장비·부품 브랜드", "what": "GPU 시스템·스위치·광모듈 구매" },
+      { "from": "NVIDIA·Cisco·Nokia·Amazon 등 OEM", "to": "Fabrinet", "what": "위탁 생산 대금 (구매주문 단위, 부품 원가 포함 개당 가격)" },
+      { "from": "Fabrinet", "to": "부품 공급사·태국 공장 투자", "what": "광학·전자 부품 대금과 Building 10 등 설비투자" }
+    ],
+    "pricing": "고객 설계 제품을 구매주문 단위로 생산해 개당 가격으로 받으며, 부품 원가가 매출에 포함돼 총마진이 12% 안팎으로 낮다. 대신 영업비용이 매출의 1%대라 영업이익률은 약 11%를 남긴다.",
+    "text": "돈은 하이퍼스케일러가 AI 장비를 살 때 NVIDIA·Cisco 같은 브랜드를 거쳐, 그 브랜드가 Fabrinet에 생산을 맡기면서 들어온다. 부품값까지 매출에 잡히는 구조라 총마진은 12%로 낮지만, 영업비용이 매출의 1.3%에 불과해 영업이익률 약 11%가 남는다. Amazon처럼 하이퍼스케일러가 직접 맡기는 물량이 늘면서 중간 단계가 하나 줄어드는 흐름도 생겼다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-06-26)",
+    "revenue": { "value": 4.64, "unit": "USD bn", "yoy": 35.7 },
+    "grossMargin": 12.0,
+    "operatingMargin": 10.0,
+    "netMargin": 10.2,
+    "operatingCashFlow": { "value": 0.2567, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.0042, "unit": "USD bn" },
+    "segments": [
+      { "name": "Data center", "revenue": 2.2226, "unit": "USD bn", "share": 47.9, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Communications infrastructure", "revenue": 1.5451, "unit": "USD bn", "share": 33.3, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Automotive, industrial and other", "revenue": 0.8723, "unit": "USD bn", "share": 18.8, "yoy": null, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "최근 분기 (Q4 FY2026) 범주별 매출", "value": "총 13.158억 달러(+45%); 데이터센터 6.69억(+68%, 51%), 통신 인프라 4.13억(+40%, 31%), 자동차·산업·기타 2.34억(+8%, 18%) (콜)", "src": ["s1", "s3"] },
+      { "name": "non-GAAP 실적", "value": "FY2026 총마진 12.2%, 영업이익률 10.8%, EPS 14.09달러(+39%); Q4 영업이익률 10.9%로 3년 최고 (콜)", "src": ["s1", "s3"] },
+      { "name": "데이터센터 내 사업별 연환산 매출", "value": "DCI 약 10억 달러, PCI(트랜시버 등) 10억 달러 초과 (콜)", "src": ["s3"] },
+      { "name": "매출 능력", "value": "Q4 연환산 약 53억 달러 → Building 10으로 30~35억 추가, 장기 125~140억 달러 (콜)", "src": ["s3"] },
+      { "name": "현금", "value": "2026-06-26 현금 3.467억 + 단기 투자 5.283억 달러", "src": ["s1"] }
+    ],
+    "text": "이 흐름이 FY2026에 매출 46.4억 달러(+36%), GAAP 영업이익률 10.0%로 나타났다. 4분기에는 데이터센터가 6.69억 달러(+68%)로 처음 매출의 절반을 넘었다. 다만 설비투자(2.53억 달러)가 영업현금(2.57억 달러)과 거의 같아 연간 잉여현금흐름은 420만 달러에 그쳤고, 성장의 대가를 현금으로 치르는 단계다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-06-26)",
+    "items": [
+      { "use": "capex", "value": 0.2525, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.0052, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "벌어들인 영업현금 2.57억 달러는 거의 전부 공장으로 갔다: 설비투자 2.53억 달러, 자사주 매입은 520만 달러뿐이다. 회사는 Santa Clara 캠퍼스와 Navanakorn 부지를 사들이고 Pinehurst 사무동을 생산동으로 바꾸는 등 생산능력 확보를 가장 앞에 두고 있다(콜). 자사주 매입 한도는 약 1.69억 달러가 남아 있다(콜).",
+    "src": ["s1", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 데이터센터의 광 트랜시버·DCI 장비·HPC 부품을 브랜드 고객 대신 만드는 광 전문 위탁 생산 층. NVIDIA·Cisco·Amazon의 설계가 Fabrinet 태국 공장에서 실제 제품이 된다.",
+    "dependsOn": ["광학·전자 부품 공급사 (장기 계약 없이 구매주문 조달)", "태국 생산 기반 (인력·부지·전력)", "고객 설계 (NVIDIA·Cisco·Amazon 등)"],
+    "sellsTo": ["chips-compute (NVIDIA - GPU 시스템용 광 부품)", "networking (Cisco, Nokia)", "cloud-infrastructure (Amazon - HPC·직접 위탁 물량)"],
+    "aiRevenue": "직접 공시 없음. AI 데이터센터가 중심인 데이터센터 범주가 FY2026 매출의 47.9%(약 22.2억 달러, 계산값), Q4 FY2026 6.69억 달러로 51% (2026-08-17 콜).",
+    "upside": "AI 클러스터가 커지면 광 트랜시버·DCI 물량이 늘고, 브랜드 고객은 생산을 외부에 맡기므로 Fabrinet 물량이 함께 는다. 하이퍼스케일러 직접 프로그램과 상용(merchant) 트랜시버 프로그램이 이번 분기부터 2027년 초까지 차례로 램프할 예정이다(콜).",
+    "risk": "고객이 생산을 다른 위탁 업체나 InnoLight·Eoptolink 같은 트랜시버 업체로 옮기면 바로 매출이 빠진다(NVIDIA 비중은 이미 28%에서 16%로 낮아졌다). 생산이 태국에 몰려 있어 현지 정치·세금(Pillar Two 추가 세금 5,740만 달러)·자연재해 위험을 함께 진다. 코패키지드 옵틱스(CPO)는 기회이지만 아직 대량 생산 전이다.",
+    "text": "그래서 AI 가치사슬에서 Fabrinet은 네트워크 층의 '생산 대행' 자리다. 어떤 브랜드의 광부품이 이기든 생산을 맡는 한 물량을 받지만, 이익률은 위탁 생산답게 10% 안팎에 머문다. 이 회사의 성장은 결국 공장을 얼마나 빨리 짓고 채우느냐에 달려 있다.",
+    "src": ["s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "광·정밀 위탁 생산 (EMS)", "rivals": ["Jabil", "Celestica", "Sanmina", "Benchmark Electronics", "Venture Corporation"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "광 트랜시버 생산", "rivals": ["InnoLight Technology (Suzhou)", "Eoptolink Technology"], "position": "challenger", "share": null, "src": ["s2"] },
+      { "arena": "맞춤 광학·유리 부품", "rivals": ["CASTECH", "Excelitas Technologies", "Photop Technologies (Coherent 자회사)"], "position": "niche", "share": null, "src": ["s2"] }
+    ],
+    "edge": "광 패키징 전문성, 고객과 경쟁하지 않는 중립성, 그리고 Building 10처럼 미리 확보한 대형 생산능력.",
+    "threats": "자체 브랜드로 트랜시버를 파는 InnoLight·Eoptolink가 같은 고객을 놓고 경쟁하고, 대형 EMS 업체가 광 영역으로 들어올 수 있다. 콜에서는 미국의 중국산 트랜시버 금지 제안이 언급됐는데, 이는 태국 생산인 Fabrinet에 유리하게 작용할 수 있다.",
+    "text": "이 자리의 경쟁은 두 방향이다. 범용 위탁 생산에서는 Jabil·Celestica 같은 대형 EMS와, 트랜시버에서는 자체 브랜드를 가진 중국 InnoLight·Eoptolink와 맞선다. Fabrinet은 브랜드 고객과 경쟁하지 않는 중립 생산자라는 점, 그리고 중국 밖 생산 거점이라는 점으로 차별화한다.",
+    "src": ["s2", "s3"]
+  },
+
+  "strategy": {
+    "goal": "매출 능력을 현재 연 약 53억 달러에서 장기 125~140억 달러로 늘리는 생산능력 확장 (콜).",
+    "roadmap": [
+      { "when": "Q1 FY2027 (2026-09-25 종료)", "what": "매출 13.75~14.25억 달러, non-GAAP EPS 4.10~4.25달러 가이드; 하이퍼스케일러 직접 트랜시버 프로그램 램프 시작", "src": ["s1", "s3"] },
+      { "when": "Q2 FY2027 (2026-12 분기)", "what": "상용(merchant) 트랜시버 프로그램 램프 시작 (콜)", "src": ["s3"] },
+      { "when": "2027 초", "what": "Building 10 완공 (약 200만 평방피트, 매출 능력 30~35억 달러) 및 추가 트랜시버 프로그램 시작", "src": ["s3"] },
+      { "when": "장기 (시기 미제시)", "what": "Chonburi에 공장 2동 추가 여지 (각 약 120만 평방피트, 매출 능력 18~21억 달러)", "src": ["s3"] }
+    ],
+    "vision": "AI 데이터센터·통신·위성·자동차의 정밀 광학 제품을 고객 대신 만드는 가장 큰 중립 생산 기지가 된다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 수요보다 먼저 공장을 짓는 길을 택했다. 하이퍼스케일러 직접 프로그램, 상용 트랜시버, 2027년 초 추가 프로그램이 Building 10 완공 시기와 맞물려 있다. 다만 회사는 고객의 장기 예측이 확정 주문은 아니라고 선을 그었다(콜).",
+    "src": ["s3", "s1"]
+  },
+
+  "governance": {
+    "line": "Seamus Grady CEO가 이끄는 회사로 생산은 태국에 집중돼 있고, FY2026 Pillar Two 추가 세금 5,740만 달러를 반영했으며 자사주 매입 한도 약 1.69억 달러가 남아 있다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q1 FY2027", "metric": "revenue", "value": "13.75~14.25억 달러 (중간값 기준 약 +43%)", "givenOn": "2026-08-17", "src": ["s1", "s3"] },
+      { "period": "Q1 FY2027", "metric": "EPS", "value": "GAAP 3.39~3.54달러, non-GAAP 4.10~4.25달러", "givenOn": "2026-08-17", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "mix / margin (정성)", "value": "데이터센터 전 영역 성장, 통신 인프라 견조, 계절적 1분기 비용으로 일시적 마진 부담 (콜)", "givenOn": "2026-08-17", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "track": "Q4 FY2026 매출 13.158억 달러로 회사 가이드 상단을 넘었다 (CEO 발언, 가이드 범위 숫자는 이번에 확인 못함).",
+    "src": ["s1", "s3"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 17.51달러(범위 16.77~18.16), 직전 4개 분기 13.19달러, 최근 4주 상향·하향 0건. 이 데이터의 2026-06 분기 실적값(3.92)은 회사 non-GAAP EPS(4.10)와 기준이 달라 직접 비교하지 않는다.",
+    "src": ["s4", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q1 FY2027 매출이 13.75~14.25억 달러 가이드를 충족·상회",
+      "데이터센터 범주 성장률 유지와 하이퍼스케일러 직접 프로그램 램프 확인",
+      "상용 트랜시버 프로그램이 12월 분기에 시작",
+      "Building 10이 2027년 초 일정대로 가동",
+      "영업이익률 약 11% 유지 속 잉여현금흐름 회복"
+    ],
+    "breaks": [
+      "주요 고객(Cisco·NVIDIA·Amazon)의 물량 이전 또는 내재화",
+      "새 트랜시버 프로그램 램프 지연",
+      "설비투자가 계속 영업현금을 넘어서 현금이 줄어듦",
+      "태국 세제·정치 변화로 비용 급증",
+      "자동차·산업 범주의 지속 감소"
+    ],
+    "keyNumbers": [
+      { "name": "데이터센터 범주 매출", "why": "AI 수요가 들어오는 직접 통로" },
+      { "name": "10% 이상 고객 비중 변화", "why": "고객 다변화와 이탈 위험" },
+      { "name": "non-GAAP 영업이익률", "why": "위탁 생산의 가격 결정력" },
+      { "name": "설비투자와 잉여현금흐름", "why": "증설 부담의 크기" },
+      { "name": "매출 능력(생산능력) 진척", "why": "장기 성장의 상한" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11 초 (추정, 회사 일정 이번에 미확인)", "event": "Q1 FY2027 실적 (2026-09-25 종료 분기)과 Q2 가이던스", "src": ["s1"] },
+      { "date": "매 분기 (하이퍼스케일러·NVIDIA 실적 시즌)", "event": "AI 데이터센터 설비투자와 광 연결 수요 전망", "src": ["s3"] },
+      { "date": "2027 초", "event": "Building 10 완공 예정", "src": ["s3"] }
+    ],
+    "reaction": "주가는 데이터센터 매출 성장과 다음 분기 가이드, 그리고 NVIDIA 등 큰 고객 물량에 대한 언급에 크게 반응해 왔다(구체적 주가 반응은 이번에 확인하지 않음).",
+    "conditions": [
+      "다음 분기 매출 가이드와 컨센서스의 차이",
+      "데이터센터 범주 성장률과 새 트랜시버 프로그램 램프 언급",
+      "10% 이상 고객 비중 변화 (10-K·10-Q)",
+      "설비투자 대비 영업현금흐름",
+      "non-GAAP 영업이익률 방향",
+      "컨센서스 EPS 상향·하향 건수"
+    ]
+  },
+
+  "unverified": [
+    "FY2026 범주별 매출 금액은 10-K 비중(47.9/33.3/18.8%)에 총매출 46.4억 달러를 곱한 계산값, 범주별 연간 성장률 미확인",
+    "Q4 범주별 금액·사업별 연환산 매출·생산능력 목표·자사주 한도 잔액은 기계 생성 녹취록 기준",
+    "AI 관련 매출 금액 (회사 미공시)",
+    "R&D 금액과 배당 정책 (10-K 발췌에서 확인 못함)",
+    "Q1 FY2027 실적 발표일 (회사 공지 미확인)",
+    "Q4 FY2026 가이드 범위 숫자",
+    "경쟁 점유율 수치",
+    "순이익률 10.2%는 계산값",
+    "FY2026 매출 46.4억 달러는 보도자료의 반올림 값"
+  ],
+  "confidence": "medium - 실적·고객 비중·현금흐름은 8-K와 10-K 원문에서 왔지만, 범주별 분기 금액과 생산능력 계획은 기계 생성 녹취록 기준이고 Q1 FY2027 실적은 아직 발표 전이다."
+}

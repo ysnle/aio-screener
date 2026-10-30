@@ -535,4 +535,38 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .event-brief__note, .event-brief__source { margin: 4px 0 0; font-size: 12px; color: var(--text-secondary); }
 .event-brief__more summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); }
 .event-briefs--ticker { margin: 16px 0 0; }
+/* v59.44: the price after a report; tier-2 reports as one line each, quieter than the cards above. */
+.event-brief__reaction { margin: 0 0 4px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.event-brief__reaction[data-direction="up"], .event-brief-row__move[data-direction="up"] { color: var(--dir-up); }
+.event-brief__reaction[data-direction="down"], .event-brief-row__move[data-direction="down"] { color: var(--dir-down); }
+.event-briefs__tier2 { margin: 10px 0 2px; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.event-brief-rows { list-style: none; margin: 0; padding: 0; }
+.event-brief-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 5px 0; border-top: 0.5px solid var(--border-subtle); font-size: 12px; }
+.event-brief-row__name { font: inherit; font-weight: 600; color: var(--text-primary); background: none; border: 0; padding: 0; min-height: 24px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.event-brief-row__move { font-variant-numeric: tabular-nums; font-weight: 600; }
+.event-brief-row__headline { flex-basis: 100%; color: var(--text-secondary); }
+.event-brief__reasons { margin: 0 0 4px; padding-left: 18px; font-size: 12px; color: var(--text-primary); }
+.event-brief__basis { font-size: 12px; color: var(--text-secondary); }
+.event-brief-row__reason { flex-basis: 100%; color: var(--text-primary); }
+.event-brief-row__fold { flex-basis: 100%; }
+.event-brief-row__fold summary { cursor: pointer; color: var(--text-secondary); min-height: 24px; }
+.event-brief-row__fold .event-brief { padding: 4px 0 0; border-top: 0; }
+.event-briefs__all { margin-top: 8px; }
+/* v59.44: AI supply chain by group — one-month median bar, last session beside it. */
+.ai-chain__reading { margin: 0 0 6px; font-size: 13px; color: var(--text-primary); }
+.ai-chain__scale { margin: 0 0 4px; font-size: 12px; color: var(--text-secondary); text-align: right; }
+.ai-chain__bars { list-style: none; margin: 0; padding: 0; }
+.ai-chain__row { display: grid; grid-template-columns: minmax(0, 11em) minmax(32px, 1fr) auto auto; align-items: center; gap: 6px; padding: 3px 0; font-size: 12px; font-variant-numeric: tabular-nums; }
+.ai-chain__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); }
+.ai-chain__track { position: relative; height: 8px; border-radius: 4px; background: var(--border-subtle); overflow: hidden; }
+.ai-chain__bar { position: absolute; top: 0; bottom: 0; right: 0; width: var(--w, 0%); border-radius: 4px; background: var(--dir-down); }
+.ai-chain__bar[data-direction="up"] { left: 0; right: auto; background: var(--dir-up); }
+.ai-chain__month, .ai-chain__day { text-align: right; min-width: 3.6em; }
+.ai-chain__month { font-weight: 600; }
+.ai-chain__month[data-direction="down"], .ai-chain__day[data-direction="down"] { color: var(--dir-down); }
+.ai-chain__month[data-direction="up"], .ai-chain__day[data-direction="up"] { color: var(--dir-up); }
+.ai-chain__members { margin-top: 6px; }
+.ai-chain__members summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); min-height: 24px; }
+.ai-chain__member-list { margin: 0 0 4px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.event-briefs__all summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); min-height: 24px; }
 .event-brief__source a { color: var(--text-primary); text-decoration: underline; }

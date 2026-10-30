@@ -1,0 +1,211 @@
+{
+  "symbol": "NVT",
+  "name": "nVent Electric plc",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "nVent는 전기 장비를 담는 함체와 GPU 랙용 액체냉각 장비, 전기 커넥터를 만드는 회사로, 2026년 데이터센터 매출이 20억 달러를 넘을 것이라고 밝힌 'AI 랙 냉각·전기 보호 체인'의 빠르게 크는 공급자다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "nVent Delivers Record Sales and EPS in Q2 2026 (8-K exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1720635/000162828026051203/q22026nvtpressrelease.htm", "publisher": "nVent / SEC EDGAR", "date": "2026-07-31" },
+    { "id": "s2", "kind": "10-Q", "title": "nVent Form 10-Q for quarter ended 2026-06-30 (sales by vertical, RPO, debt, repurchase authorization)", "url": "https://www.sec.gov/Archives/edgar/data/1720635/000162828026051428/nvt-20260630.htm", "publisher": "nVent / SEC EDGAR", "date": "2026-07-31" },
+    { "id": "s3", "kind": "10-K", "title": "nVent Form 10-K for fiscal year ended 2025-12-31 (segments, brands, channels, customer concentration, backlog, acquisitions)", "url": "https://www.sec.gov/Archives/edgar/data/1720635/000162828026008608/nvt-20251231.htm", "publisher": "nVent / SEC EDGAR", "date": "2026-02-17" },
+    { "id": "s4", "kind": "call-transcript", "title": "nVent Electric (NVT) Q2 2026 Earnings Call Transcript (call 2026-07-31; page carried embedded instructions that were ignored)", "url": "https://www.fool.com/earnings/call-transcripts/2026/08/04/nvent-electric-nvt-q2-2026-earnings-call-transcript/", "publisher": "The Motley Fool", "date": "2026-08-04" },
+    { "id": "s5", "kind": "news", "title": "nVent Electric (NVT) Set to Release Quarterly Earnings on Friday (Q3 2026 release date; read from search summary only)", "url": "https://www.marketbeat.com/instant-alerts/upcoming-nvent-electric-nvt-set-to-release-quarterly-earnings-on-friday-2026-10-23/", "publisher": "MarketBeat", "date": "2026-10-23" },
+    { "id": "s6", "kind": "other", "title": "SEC EDGAR nVent filing list (no Q3 2026 results 8-K at research time; accessed date)", "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001720635&type=8-K", "publisher": "SEC EDGAR", "date": "2026-10-30" }
+  ],
+
+  "moat": {
+    "sources": [
+      "HOFFMAN·SCHROFF·TRACHTE(함체)와 CADDY·ERICO·ILSCO(커넥터·접지) 등 오래된 산업 브랜드",
+      "액체냉각(CDU 등) 제품과 NVIDIA와의 2030년까지 열관리 로드맵 협업 (Q2 2026 콜)",
+      "신제품 비중 - 신제품이 Q2 2026 매출 성장에 30%p 이상 기여",
+      "전기 유통사·OEM 채널"
+    ],
+    "text": "nVent의 뿌리는 전기·전자 장비를 먼지·열·충격에서 지키는 함체와 랙, 그리고 전기를 안전하게 잇는 커넥터·접지 부품의 오래된 브랜드다. AI 시대에는 이 함체·랙 기술이 GPU 랙의 액체냉각 장비로 이어졌고, 회사는 NVIDIA와 2030년까지의 열관리 로드맵을 함께 보고 있다고 말한다. 신제품이 2분기 성장의 30%p 이상을 만들 만큼 제품 교체 속도가 빠르다.",
+    "src": ["s3", "s4", "s1"]
+  },
+
+  "design": {
+    "text": "그래서 회사 제품은 두 부문으로 나뉜다. 시스템 보호(Systems Protection) 부문은 함체·랙·액체냉각 장비와 전력회사용 제품(2025년 인수한 Electrical Products Group)을, 전기 연결(Electrical Connections) 부문은 고정구·커넥터·접지 부품을 판다. 2분기 기준 시스템 보호가 매출의 73%이며, 회사는 2026년 가을 모듈형 액체냉각 플랫폼을 내놓는다고 밝혔다.",
+    "src": ["s3", "s2", "s4"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 공장 - 미네소타 Blaine 1 액체냉각 공장(가동·2027년까지 증산), Blaine 2 2027년 상반기 개소 예정",
+      "멕시코·중국 등에서 일부 원자재·완제품 조달 (10-K)",
+      "약 12,000명 직원, 약 48%가 미국 (2025-12-31)"
+    ],
+    "text": "제품은 대부분 자기 공장에서 만들고, 일부 원자재와 완제품은 멕시코·중국 등에서 들여온다. 데이터센터 주문이 몰리자 미네소타에 액체냉각 공장 Blaine 1을 약 100일 만에 열었고, 세 번째 공장 Blaine 2를 2027년 상반기에 연다. 2026년 설비투자를 약 1.3억 달러(+40%)로 늘린 것도 이 증설 때문이며, 관세 비용은 약 1억 달러로 예상한다.",
+    "src": ["s3", "s4"]
+  },
+
+  "sell": {
+    "customers": [
+      "하이퍼스케일러 데이터센터 프로그램 (액체냉각 주문의 중심, 고객명 미공시)",
+      "전력회사 (Electrical Products Group 제품)",
+      "산업·상업·주거 건설의 전기 시공사",
+      "OEM (장비 제조사)"
+    ],
+    "channel": "전기 유통사, 소매, 시공사, OEM을 통해 판매한다(10-K). 데이터센터 대형 주문은 하이퍼스케일러 프로그램 단위로 들어온다.",
+    "concentration": "최대 고객이 2025년 순매출의 약 11%, 그 외 10% 이상 고객 없음. 해외 매출 약 24%.",
+    "text": "이 제품을 사는 쪽은 넓지만, 지금 성장을 끄는 것은 하이퍼스케일러 데이터센터다. 2분기 '인프라' 매출(데이터센터·전력회사)이 8.8억 달러로 전년의 두 배를 넘어 매출의 60%가 됐고, 분사 당시 12%였던 인프라 비중이 크게 뛰었다. 최대 고객 한 곳이 2025년 매출의 약 11%라 대형 데이터센터 주문이 분기 실적을 흔든다.",
+    "src": ["s2", "s3", "s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "하이퍼스케일러", "what": "클라우드·AI 이용료" },
+      { "from": "하이퍼스케일러 데이터센터 프로그램", "to": "nVent 시스템 보호 부문", "what": "액체냉각 장비·랙·함체 대금 - 프로그램 단위 대형 주문" },
+      { "from": "전력회사·전기 시공사", "to": "전기 유통사", "what": "커넥터·접지·전력회사용 부품 구매" },
+      { "from": "전기 유통사·OEM", "to": "nVent", "what": "부품·함체 대금 - 개당·주문 단위" }
+    ],
+    "pricing": "장비·부품 단위 판매. 데이터센터 액체냉각은 하이퍼스케일러 프로그램별 대형 주문으로 들어와 들쭉날쭉하고, 수주잔고 대부분이 12개월 안에 매출이 된다.",
+    "text": "돈은 AI 이용료가 하이퍼스케일러의 데이터센터 투자가 되고, 그 가운데 GPU 랙을 식히는 액체냉각과 랙·함체 몫이 nVent 시스템 보호 매출로 들어오는 길이 가장 크다. 전기 연결 부품은 유통사를 거쳐 꾸준히 팔리는 두 번째 흐름이다. 데이터센터 주문은 크고 불규칙해 수주잔고가 2분기에 25억 달러로 소폭 줄었다가 다시 늘 수 있다.",
+    "src": ["s2", "s4", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q2 2026 (ended 2026-06-30)",
+    "revenue": { "value": 1.471, "unit": "USD bn", "yoy": 52.8 },
+    "grossMargin": 37.9,
+    "operatingMargin": 20.4,
+    "netMargin": 14.7,
+    "operatingCashFlow": { "value": 0.189, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.167, "unit": "USD bn" },
+    "segments": [
+      { "name": "Systems Protection", "revenue": 1.072, "unit": "USD bn", "share": 72.9, "yoy": 69.6, "operatingMargin": 23.2, "src": ["s1", "s2"] },
+      { "name": "Electrical Connections", "revenue": 0.399, "unit": "USD bn", "share": 27.1, "yoy": 20.6, "operatingMargin": 27.3, "src": ["s1", "s2"] }
+    ],
+    "industryMetric": [
+      { "name": "버티컬별 매출 Q2 2026", "value": "인프라 8.83억(+116%, 매출의 60%), 산업 3.30억(+4%), 상업·주거 2.59억 달러(+9%)", "src": ["s2"] },
+      { "name": "수주잔고(RPO)", "value": "약 25억 달러, 대부분 12개월 내 인식 (2026-06-30), 2025-12-31 23.5억", "src": ["s2", "s3"] },
+      { "name": "유기적 성장 Q2 2026", "value": "매출 +47%, 주문 두 자릿수 초반 증가", "src": ["s1", "s4"] },
+      { "name": "데이터센터 매출 전망", "value": "2026년 20억 달러 초과, 2025년의 두 배 이상 (경영진 발언)", "src": ["s4"] },
+      { "name": "조정 지표 Q2 2026", "value": "조정 영업이익률 21.9%, 조정 EPS 1.45달러(+69%)", "src": ["s1"] }
+    ],
+    "text": "이 구조가 2026년 2분기 매출 14.7억 달러(+53%, 유기적 +47%), 영업이익률 20.4%, FCF 1.7억 달러로 나타났다. 시스템 보호 부문이 매출 첫 10억 달러를 넘기며 +70% 성장했고, 전기 연결 부문은 +21%였지만 물가·제품 구성 탓에 이익률이 1.4%p 내려갔다. 2026-10-30 발표 예정이던 3분기 실적은 조사 시점에 공시를 찾지 못해 반영하지 못했다.",
+    "src": ["s1", "s4", "s6"]
+  },
+
+  "useOfCash": {
+    "period": "6M 2026 (ended 2026-06-30)",
+    "items": [
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "capex", "value": 0.058, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 0.0, "unit": "USD bn", "src": ["s1", "s2"] },
+      { "use": "buybacks", "value": 0.050, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 0.068, "unit": "USD bn", "src": ["s1"] },
+      { "use": "debt repayment", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "상반기에 번 영업현금 2.8억 달러는 배당 0.7억, 자사주 0.5억, 설비투자 0.6억 달러로 나갔고 인수는 없었다. 연간 설비투자는 약 1.3억 달러로 늘려 액체냉각 공장 증설에 쓰고, 정기대출 약 7,000만 달러를 미리 갚았다(콜 발언). 순레버리지가 1.2배로 목표(2~2.5배)보다 낮아, 회사는 인수 여력이 크다고 말한다.",
+    "src": ["s1", "s4"]
+  },
+
+  "aiChain": {
+    "layer": "cooling-electrical",
+    "position": "AI 데이터센터 GPU 랙의 액체냉각 장비(CDU 등)와 랙·함체, 전력회사·데이터센터용 전기 부품을 공급하는 '냉각·전기 설비' 공급자다.",
+    "dependsOn": ["chips-compute (NVIDIA 등 GPU 랙 열 사양)", "원자재·부품 공급 (멕시코·중국 조달 포함)", "공장 증설과 인력"],
+    "sellsTo": ["cloud-infrastructure (하이퍼스케일러 데이터센터 프로그램)", "전력회사", "ai-adopter (산업·상업 건물)"],
+    "aiRevenue": "2026년 데이터센터 매출 20억 달러 초과 전망(2026-07-31 콜). 2분기 인프라 버티컬 매출 8.83억 달러(데이터센터+전력회사, 매출의 60%).",
+    "upside": "GPU 랙 전력·발열이 커질수록 공랭으로는 부족해 액체냉각 장비 수요가 늘고, CEO는 액체냉각이 아직 데이터센터 냉각의 10~15%에 불과하다고 말했다.",
+    "risk": "하이퍼스케일러 투자 둔화나 프로그램 교체, 최대 고객 집중, GPU 업체·하이퍼스케일러의 자체 설계나 경쟁사 채택, 신규 공장 증산 지연, 관세.",
+    "text": "그래서 AI 가치사슬에서 nVent는 Vertiv처럼 칩 바깥에서 열과 전기를 다루는 '냉각·전기 설비' 층에 있지만, 그 안에서 랙 단위 액체냉각과 함체에 집중한다. GPU 세대가 바뀌며 랙 발열이 커질수록 액체냉각 침투율이 올라가는 것이 성장 논리다. 반대로 매출의 60%가 인프라로 쏠리고 최대 고객이 11%여서, 하이퍼스케일러 주문이 줄면 성장률이 빠르게 꺾일 수 있다.",
+    "src": ["s4", "s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "데이터센터 액체냉각 (CDU·매니폴드)", "rivals": [], "position": "challenger", "share": null, "src": ["s4"] },
+      { "arena": "전기 함체·랙", "rivals": [], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "전기 고정구·커넥터·접지", "rivals": [], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "함체·랙에서 이어진 액체냉각 제품, NVIDIA 로드맵 협업, 빠른 공장 증설(Blaine 1 약 100일), 높은 부문 이익률(시스템 보호 조정 23.2%).",
+    "threats": "대형 데이터센터 주문이 들쭉날쭉하고, 냉각 표준이 바뀌는 시기에 다른 장비사나 고객 자체 설계로 넘어갈 수 있다.",
+    "text": "회사 10-K와 이번에 읽은 자료에는 경쟁사 이름이 나오지 않아, 분야별 경쟁 구도와 점유율은 회사 자료로 확인하지 못했다. 회사가 내세우는 무기는 오래된 함체 기술에서 이어진 액체냉각 제품과 NVIDIA 로드맵 협업, 빠른 증설 능력이다. 데이터센터 주문이 크고 불규칙하다는 점은 경영진 스스로 위험으로 꼽는다.",
+    "src": ["s3", "s4"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 37~39%(유기적 32~34%) 성장, 조정 EPS 5.00~5.10달러, 데이터센터 매출 20억 달러 초과를 제시했고, 중기 증분 이익률 20%대 중반을 목표로 한다.",
+    "roadmap": [
+      { "when": "2026 가을", "what": "모듈형 액체냉각 플랫폼 출시", "src": ["s4"] },
+      { "when": "2026~2027", "what": "Blaine 1 액체냉각 공장 증산", "src": ["s4"] },
+      { "when": "2027 H1", "what": "세 번째 미네소타 공장 Blaine 2 개소", "src": ["s4"] },
+      { "when": "~2030", "what": "NVIDIA와 열관리 로드맵 협업", "src": ["s4"] }
+    ],
+    "vision": "전기 함체·커넥터 회사에서 데이터센터·전력망 같은 고성장 인프라 중심 회사로 바뀌겠다는 그림이며, 인프라 비중을 분사 때 12%에서 60%까지 끌어올렸다.",
+    "text": "경쟁에서 이기기 위해 회사가 택한 길은 데이터센터 액체냉각에 생산 능력과 신제품을 먼저 까는 것이다. 2026년 가을 모듈형 플랫폼을 내고 2027년 상반기 Blaine 2를 열어, 액체냉각 침투율이 10~15%에서 올라가는 흐름을 받겠다는 계획이다. 전제는 하이퍼스케일러 주문이 계속 이어지고 새 공장이 제때 증산하는 것이다.",
+    "src": ["s4", "s1"]
+  },
+
+  "governance": {
+    "line": "Beth Wozniak이 회장 겸 CEO로 이끄는 아일랜드 법인으로, 분기 배당 0.21달러(5% 인상)와 새 5억 달러 자사주 한도(2026-07-23~2029-07-22)를 두고 순레버리지 1.2배의 낮은 부채를 유지한다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "sales growth", "value": "보고·유기적 모두 +32~35%", "givenOn": "2026-07-31", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "adjusted EPS", "value": "1.35~1.38달러 (GAAP 1.18~1.21달러)", "givenOn": "2026-07-31", "src": ["s1"] },
+      { "period": "FY2026", "metric": "sales growth", "value": "보고 +37~39%(이전 26~28%), 유기적 +32~34%(이전 21~23%)", "givenOn": "2026-07-31", "src": ["s1"] },
+      { "period": "FY2026", "metric": "adjusted EPS", "value": "5.00~5.10달러 (이전 4.45~4.55달러), GAAP 4.29~4.39달러", "givenOn": "2026-07-31", "src": ["s1"] },
+      { "period": "FY2026", "metric": "capex / FCF conversion", "value": "설비투자 약 1.3억 달러, FCF 전환율 90~95%", "givenOn": "2026-07-31", "src": ["s4"] }
+    ],
+    "style": "quarterly",
+    "track": "7월에 연간 매출 성장 가이던스를 11%p, 조정 EPS 중간값을 0.55달러 올렸다. 2026-10-30 3분기 발표에서 가이던스가 어떻게 바뀌었는지는 확인하지 못했다.",
+    "src": ["s1", "s6"]
+  },
+
+  "estimates": {
+    "text": "3분기 발표 전 분석가 예상은 EPS 1.40달러, 매출 14.3억 달러로 회사 가이던스(1.35~1.38달러)보다 높았다(2026-10-23 MarketBeat, 검색 요약 기준).",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "3분기 매출 성장이 가이던스(+32~35%) 상단 이상",
+      "수주잔고가 25억 달러에서 다시 늘고 하이퍼스케일러 대형 주문 공개",
+      "2026년 데이터센터 매출 20억 달러 초과 확인",
+      "Blaine 2가 2027년 상반기에 예정대로 개소"
+    ],
+    "breaks": [
+      "수주잔고 연속 감소나 주문 역성장",
+      "최대 고객 주문 축소",
+      "전기 연결 부문 이익률 하락 지속",
+      "관세 비용이 가격 인상으로 넘기지 못하는 수준으로 확대"
+    ],
+    "keyNumbers": [
+      { "name": "인프라 버티컬 매출", "why": "데이터센터 수요가 직접 보이는 숫자" },
+      { "name": "수주잔고와 주문 증가율", "why": "불규칙한 대형 주문의 방향" },
+      { "name": "시스템 보호 조정 이익률", "why": "증설 비용 속에서 가격 결정력 확인" },
+      { "name": "연간 가이던스", "why": "분기마다 크게 바뀌어 온 지점" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-10-30 (장 시작 전, 09:00 ET 콜)", "event": "Q3 2026 실적 발표 - 조사 시점에 결과 미확인", "src": ["s5", "s6"] },
+      { "date": "2027-02 (추정, 전년 10-K 2026-02-17 제출)", "event": "Q4·FY2026 실적과 2027년 가이던스", "src": ["s3"] },
+      { "date": "2027 H1", "event": "Blaine 2 액체냉각 공장 개소", "src": ["s4"] }
+    ],
+    "reaction": "이번 조사에서 실적 발표일 주가 반응은 원문으로 확인하지 못했다. 데이터센터 주문이 크고 불규칙해, 이 종목은 수주잔고·주문 코멘트와 연간 가이던스 변화에 크게 반응할 수 있다.",
+    "conditions": [
+      "3분기 매출·EPS가 가이던스와 분석가 예상(EPS 1.40달러) 대비 어디인지",
+      "수주잔고와 주문 증감, 하이퍼스케일러 대형 주문 언급",
+      "연간 가이던스 상향 또는 하향",
+      "데이터센터 매출 20억 달러 전망 유지 여부"
+    ]
+  },
+
+  "unverified": [
+    "Q3 2026 실적(2026-10-30 발표 예정) - 조사 시점 EDGAR·회사 IR에서 찾지 못함",
+    "데이터센터 매출 금액 자체 (인프라 버티컬에는 전력회사 포함, 20억 달러는 전망)",
+    "액체냉각 제품명(CDU·매니폴드)과 고객명 - 10-K·10-Q에 없음",
+    "분야별 경쟁사 이름과 점유율",
+    "최대 고객 이름",
+    "R&D 비용, 상반기 부채 상환액",
+    "3분기 분석가 예상은 검색 요약 기준"
+  ],
+  "confidence": "medium - 2분기 실적·버티컬·잔고·가이던스는 회사 8-K·10-Q에서 직접 읽었지만, 오늘 발표된 3분기 결과를 반영하지 못했고 데이터센터 관련 발언은 콜 녹취록에 기대며 경쟁 구도는 확인하지 못했다."
+}

@@ -1,0 +1,207 @@
+{
+  "symbol": "EME",
+  "name": "EMCOR Group, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "EMCOR는 미국 최대급 전기·기계 설비 시공사로, AI 데이터센터 안에 전력 배선과 냉각 배관을 직접 깔아 주는 일이 3분기 매출의 약 37%까지 커진 '데이터센터 시공 체인'의 대표 기업이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "EMCOR Group Q3 2026 results (8-K exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000105634/000010563426000132/eme-ex991_2026930xq3.htm", "publisher": "EMCOR / SEC EDGAR", "date": "2026-10-29" },
+    { "id": "s2", "kind": "10-Q", "title": "EMCOR Form 10-Q for quarter ended 2026-09-30 (market-sector revenue, RPO by segment, 2026 acquisitions)", "url": "https://www.sec.gov/Archives/edgar/data/105634/000010563426000130/eme-20260930.htm", "publisher": "EMCOR / SEC EDGAR", "date": "2026-10-29" },
+    { "id": "s3", "kind": "10-K", "title": "EMCOR Form 10-K for fiscal year ended 2025-12-31 (Item 1 business, workforce, competitors)", "url": "https://www.sec.gov/Archives/edgar/data/105634/000010563426000025/eme-20251231.htm", "publisher": "EMCOR / SEC EDGAR", "date": "2026-02-26" },
+    { "id": "s4", "kind": "earnings-release", "title": "EMCOR Group Q2 2026 results (8-K exhibit 99.1; RPO 17.14bn at 2026-06-30, prior guidance)", "url": "https://www.sec.gov/Archives/edgar/data/0000105634/000010563426000112/eme-ex991_2026630xq2.htm", "publisher": "EMCOR / SEC EDGAR", "date": "2026-07-30" },
+    { "id": "s5", "kind": "news", "title": "EMCOR Stock Down 10% Post Q3 Results: Should You Buy the Dip? (headline only; page timed out, accessed date)", "url": "https://www.nasdaq.com/articles/emcor-stock-down-10-post-q3-results-should-you-buy-dip", "publisher": "Nasdaq / Zacks", "date": "2026-10-30" }
+  ],
+
+  "moat": {
+    "sources": [
+      "약 44,000명 현장 인력(약 62% 노조원)과 약 100개 운영 자회사 - 숙련 전기·배관공을 대규모로 동원할 수 있는 능력",
+      "보증(본드)·은행 신용을 받쳐 주는 재무 체력으로 대형 프로젝트 입찰 자격 확보",
+      "프리팹(공장 사전 제작)·VDC·BIM 등 설계·시공 기술",
+      "업계 평균(2.4)보다 약 60% 낮은 안전 사고율(TRIR 1.0 미만, 2025)"
+    ],
+    "text": "EMCOR의 힘은 기술 특허가 아니라 사람과 실행력이다. 2025년 말 약 44,000명의 미국 현장 인력과 약 100개 자회사를 거느려, 데이터센터처럼 짧은 기간에 전기공·배관공을 수백 명씩 투입해야 하는 현장을 맡을 수 있다. 여기에 큰 공사의 보증을 받쳐 주는 재무 체력, 공장에서 미리 조립해 현장 시간을 줄이는 프리팹, 낮은 사고율이 더해져 대형 발주처가 믿고 맡기는 시공사가 된다.",
+    "src": ["s3"]
+  },
+
+  "design": {
+    "text": "그래서 회사가 파는 것은 장비가 아니라 '설치와 운영' 서비스다. 미국 전기 시공(전력 계통·저전압·통신 배선), 미국 기계 시공(HVAC·냉각 배관·소방·공정 배관), 빌딩 서비스(유지보수·개보수·시설관리), 산업 서비스(정유·석유화학 정비) 네 부문으로 보고한다. 영국 빌딩 서비스는 2025-12-01 매각해 지금은 미국 사업만 남았다.",
+    "src": ["s3", "s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "자체 인력 - 약 44,000명, 약 450개 지역 노조 협약 (2025-12-31)",
+      "장비 공급사 - 스위치기어·UPS·냉각 장비는 발주처나 장비사가 공급하고 EMCOR는 설치를 맡는 구조 (업체명 공시 없음)",
+      "2026년 인수 9건 - 서부 기계·판금, 텍사스·중서부·남동부 전기 시공사 등 (선지급 8.1억 달러)"
+    ],
+    "text": "NVIDIA나 Vertiv처럼 물건을 만드는 회사가 아니라, 남이 만든 전력·냉각 장비를 현장에 연결하고 배선·배관을 까는 회사다. 그래서 생산 능력은 공장이 아니라 숙련 인력의 수이고, 회사는 2026년에만 9개 시공사를 선지급 8.1억 달러에 사들여 인력과 지역을 넓혔다. 인력이 곧 생산 능력이라 노동력 부족과 임금 상승이 가장 직접적인 제약이 된다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "기업·개발사·건물주 (데이터센터 개발사·하이퍼스케일러 포함, 이름은 공시하지 않음)",
+      "종합건설사(GC)의 하도급",
+      "연방·주·지방 정부, 병원·학교 등 기관",
+      "정유·석유화학 공장 (산업 서비스)"
+    ],
+    "channel": "대부분 경쟁 입찰로 수주하며, 발주처 직접 계약과 종합건설사 하도급이 섞여 있다. 1,000만 달러 이상 대형 프로젝트가 전기·기계 시공 매출의 약 58%(2025).",
+    "concentration": "10-Q는 '여러 산업의 다양한 고객'과 계약한다고만 쓰며 10% 이상 고객이나 고객명을 공시하지 않는다.",
+    "text": "이 서비스를 사는 쪽은 건물을 짓거나 운영하는 모든 발주처지만, 지금 성장을 이끄는 것은 데이터센터다. 10-Q의 '네트워크·통신' 분야(주로 데이터센터) 매출은 2026년 3분기 전기·기계 시공을 합쳐 20.3억 달러로 전년 같은 분기의 약 1.9배가 됐다. 발주처 이름은 밝히지 않으므로 수요는 하이퍼스케일러 설비투자와 데이터센터 착공으로 간접 확인해야 한다.",
+    "src": ["s2", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 서비스 이용자·기업", "to": "하이퍼스케일러·데이터센터 개발사", "what": "클라우드·AI 이용료" },
+      { "from": "하이퍼스케일러·개발사", "to": "데이터센터 건설 프로젝트", "what": "착공 예산 - 전력 배선·냉각 배관 등 '설비(MEP)' 시공 몫 포함" },
+      { "from": "발주처 또는 종합건설사", "to": "EMCOR 전기·기계 시공 부문", "what": "고정가·단가 계약 대금, 공정률(원가 투입 비율)에 따라 매출 인식" },
+      { "from": "완공 건물 운영자", "to": "EMCOR 빌딩 서비스", "what": "유지보수·개보수·시설관리 계약 대금" }
+    ],
+    "pricing": "고정가 공사는 원가 투입 비율로 매출을 인식하고, 단가·시간·자재 계약은 실제 수행량으로 인식한다. 이익은 견적 대비 원가 관리에서 갈린다.",
+    "text": "돈은 AI 이용료가 데이터센터 착공 예산이 되고, 그 예산 가운데 전기·기계 설비 시공 몫이 EMCOR의 공사 대금으로 들어오는 순서로 흐른다. 고정가 공사가 많아 원가가 견적을 넘으면 이익이 줄고, 반대로 현장 실행이 좋으면 마진이 오른다. 건물이 완공된 뒤에는 빌딩 서비스 부문이 정비 계약으로 두 번째 수입을 만든다.",
+    "src": ["s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 5.54, "unit": "USD bn", "yoy": 28.8 },
+    "grossMargin": 20.0,
+    "operatingMargin": 9.8,
+    "netMargin": 7.2,
+    "operatingCashFlow": { "value": null, "unit": "USD bn" },
+    "freeCashFlow": { "value": null, "unit": "USD bn" },
+    "segments": [
+      { "name": "US electrical construction & facilities", "revenue": 1.855, "unit": "USD bn", "share": 33.5, "yoy": 44.3, "operatingMargin": 13.3, "src": ["s1"] },
+      { "name": "US mechanical construction & facilities", "revenue": 2.547, "unit": "USD bn", "share": 46.0, "yoy": 43.1, "operatingMargin": 12.1, "src": ["s1"] },
+      { "name": "US building services", "revenue": 0.852, "unit": "USD bn", "share": 15.4, "yoy": 4.7, "operatingMargin": 7.8, "src": ["s1"] },
+      { "name": "US industrial services", "revenue": 0.288, "unit": "USD bn", "share": 5.2, "yoy": 0.2, "operatingMargin": 1.8, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "잔여 이행의무(RPO, 수주잔고)", "value": "185.7억 달러 (2026-09-30, 전년 126.1억 대비 +47.2%, 2026-06-30 171.4억), 이 중 1년 내 143.6억", "src": ["s1", "s2", "s4"] },
+      { "name": "RPO 부문별 (2026-09-30)", "value": "기계 98.6억(53%), 전기 72.4억(39%), 빌딩 서비스 13.4억, 산업 1.3억 달러", "src": ["s2"] },
+      { "name": "네트워크·통신(데이터센터) 매출 Q3 2026", "value": "전기 10.47억 + 기계 9.85억 = 20.3억 달러, 매출의 약 36.7%, 전년 10.5억 대비 약 +93% (계산값)", "src": ["s2"] },
+      { "name": "9개월 누적 (2026)", "value": "매출 153.2억(+22.9%, 유기적 +20.8%), 영업현금흐름 10.87억 달러", "src": ["s1"] },
+      { "name": "조정(Non-GAAP) 지표 Q3 2026", "value": "조정 영업이익률 10.5%, 조정 EPS 9.60달러(+46.1%), 무형자산 손상 0.34억 달러 제외", "src": ["s1"] }
+    ],
+    "text": "이 구조가 2026년 3분기 매출 55.4억 달러(+28.8%, 유기적 +25.5%), 영업이익률 9.8%로 나타났다. 성장의 중심은 데이터센터가 몰린 전기(+44%)와 기계(+43%) 시공이었고, 전기 부문 이익률은 13.3%로 1년 전보다 2%p 올랐지만 기계 부문은 12.1%로 0.8%p 내려갔다. 수주잔고는 185.7억 달러로 1년 새 47% 늘어 매출 약 1년치를 쌓아 두었다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "9M 2026 (ended 2026-09-30)",
+    "items": [
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] },
+      { "use": "capex", "value": 0.097, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 0.797, "unit": "USD bn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.457, "unit": "USD bn", "src": ["s1", "s2"] },
+      { "use": "dividends", "value": 0.053, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "9개월 동안 번 영업현금 10.9억 달러는 인수 8.0억, 자사주 매입 4.6억, 배당 0.5억 달러로 나갔고 설비투자는 1.0억 달러에 그쳤다. 공장이 필요 없는 서비스 회사라 현금이 남고, 그 현금을 시공사 인수로 인력을 사들이는 데 가장 많이 쓴다. 3분기에는 자사주 매입 한도를 5억 달러 늘렸고 분기 배당은 0.25달러에서 0.40달러로 올라 있었다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "cooling-electrical",
+    "position": "AI 데이터센터 건물 안의 전기(배전·저전압·통신 배선)와 기계(냉각 배관·HVAC) 설비를 시공하는 하도급·직도급 시공사다. 장비를 만들지 않고 Vertiv·Schneider 등이 만든 장비를 현장에 연결한다.",
+    "dependsOn": ["cooling-electrical (Vertiv·Schneider·Eaton 등 장비 공급사)", "숙련 노조 인력", "data-center-real-estate·cloud-infrastructure (발주처의 착공 결정)"],
+    "sellsTo": ["cloud-infrastructure (하이퍼스케일러)", "data-center-real-estate (코로케이션·개발사)", "ai-adopter (기업·병원·제조 공장)"],
+    "aiRevenue": "AI 매출을 따로 공시하지 않음. '네트워크·통신' 분야(주로 데이터센터) 매출 Q3 2026 20.3억 달러(매출의 약 36.7%, 계산값), RPO 증가의 가장 큰 몫이 이 분야(2026-09-30).",
+    "upside": "데이터센터 1곳의 전기·냉각 설비 공사 물량이 커질수록 전기·기계 시공 매출과 잔고가 늘고, 랙 밀도가 높아져 배선·배관이 복잡해질수록 숙련 시공사의 협상력이 커진다.",
+    "risk": "하이퍼스케일러 착공 지연·취소, 고정가 공사의 원가 초과, 숙련 인력 부족·임금 상승, 데이터센터 비중이 커지며 한 산업 사이클에 묶이는 위험.",
+    "text": "그래서 AI 가치사슬에서 EMCOR는 '냉각·전기 설비' 층 가운데 장비가 아니라 시공을 맡는 자리에 있다. GPU 서버가 들어갈 건물에 전기와 냉각수를 끌어오는 일이 늘수록 매출이 커지며, 3분기에는 데이터센터 중심 분야가 매출의 3분의 1을 넘었다. 반대로 데이터센터 착공이 멈추면 가장 먼저 새 수주가 줄어드는 위치이기도 하다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "전기·기계 설비 시공", "rivals": ["Comfort Systems USA", "IES Holdings", "APi Group", "MasTec", "MYR Group", "Quanta Services", "Dycom", "Tutor Perini"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "빌딩 서비스·시설관리", "rivals": ["Carrier", "Trane", "CBRE", "Jones Lang LaSalle", "Cushman & Wakefield", "ABM", "Service Logic"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "산업 서비스 (정유·석유화학)", "rivals": ["Team Inc.", "Turner Industries", "Universal Plant Services", "JVIC"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "인력 규모와 전국 자회사망, 대형 공사 보증 능력, 프리팹·VDC 기술, 낮은 사고율. 전기 부문 이익률이 Q3 2026 13.3%로 오른 것은 현장 실행력을 보여 준다.",
+    "threats": "Comfort Systems·IES 같은 데이터센터 특화 경쟁사가 같은 인력을 두고 경쟁하고, 시장 진입 장벽이 인력과 보증뿐이라 호황기에 지역 시공사가 늘어날 수 있다.",
+    "text": "10-K는 전기·기계 시공에서 Comfort Systems·IES·APi·MasTec·MYR·Quanta 등을, 빌딩 서비스에서 Carrier·Trane·CBRE 등을 경쟁사로 적는다. 점유율 숫자는 공시하지 않아 순위는 확인할 수 없지만, 매출 규모와 인력으로는 시공사 가운데 최상위권이다. 승부는 기술보다 인력 확보와 견적 정확도에서 갈리므로, 인수로 인력을 늘리고 프리팹으로 현장 시간을 줄이는 것이 회사의 대응이다.",
+    "src": ["s3", "s1", "s2"]
+  },
+
+  "strategy": {
+    "goal": "회사는 수치 장기 목표를 이번 자료에서 제시하지 않았다. 2026년 매출 206억~210억 달러, 조정 영업이익률 약 10%를 연간 목표로 내놓고, 비주거 건설 시장보다 빠르게 크겠다고 말한다.",
+    "roadmap": [
+      { "when": "2026 Q4", "what": "연간 매출 206억~210억 달러, 조정 EPS 34.50~35.50달러 가이던스 달성", "src": ["s1"] },
+      { "when": "2026", "what": "시공사 9건 인수(선지급 8.1억 달러)로 전기·기계 인력과 지역 확대", "src": ["s2"] },
+      { "when": "2027", "what": "1년 내 인식 예정 RPO 143.6억 달러 소화 - 데이터센터·병원·수처리 공사 진행", "src": ["s2"] }
+    ],
+    "vision": "데이터센터·병원·제조 공장처럼 기술적으로 복잡한 건물의 전기·기계 설비를 가장 잘 짓고 운영하는 시공사로 남겠다는 그림이며, 여유 현금은 인수와 주주환원에 나눠 쓴다.",
+    "text": "경쟁에서 이기기 위해 회사가 택한 길은 인수로 인력과 지역을 넓히고, 데이터센터처럼 복잡한 공사에 집중하는 것이다. 10월 가이던스 상향은 이미 확보한 잔고를 근거로 했고, 1년 안에 인식할 잔고만 143.6억 달러다. 다만 회사는 장기 수치 목표를 내놓지 않아, 다음 성장은 분기마다 잔고가 늘어나는지로 확인해야 한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "governance": {
+    "line": "Tony Guzzi가 회장 겸 CEO로 이끄는 지배주주 없는 회사로, 인수와 자사주 매입(2026년 3분기 한도 5억 달러 추가)을 함께 쓰고 분기 배당은 0.40달러다.",
+    "src": ["s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "206억~210억 달러 (7월 200억~205억에서 상향)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "non-GAAP operating margin", "value": "약 10% (7월 9.5~9.8%에서 상향)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "non-GAAP diluted EPS", "value": "34.50~35.50달러 (7월 32.00~33.25달러에서 상향)", "givenOn": "2026-10-29", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "분기마다 연간 가이던스를 올려 왔고, 10월에는 매출·이익률·EPS를 모두 상향했다. 회사는 상향 근거로 연초 이후 실적과 가까운 기간의 가시성을 들었다.",
+    "src": ["s1", "s4"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "RPO가 185.7억 달러에서 계속 늘고 네트워크·통신 분야가 증가를 이끔",
+      "기계 부문 이익률이 12% 위에서 다시 오름",
+      "2026년 연간 가이던스 상단 도달",
+      "인수한 시공사가 이익률을 깎지 않고 매출을 보탬"
+    ],
+    "breaks": [
+      "RPO 감소 또는 데이터센터 공사 취소·연기 공시",
+      "고정가 공사 원가 초과로 부문 이익률 하락",
+      "노동력 부족으로 공정 지연",
+      "추가 무형자산 손상"
+    ],
+    "keyNumbers": [
+      { "name": "RPO와 1년 내 인식분", "why": "이미 따 놓은 일감이 다음 해 매출을 정한다" },
+      { "name": "네트워크·통신 매출 비중", "why": "데이터센터 의존도와 성장의 원천" },
+      { "name": "전기·기계 부문 영업이익률", "why": "견적·현장 실행력의 결과" },
+      { "name": "유기적 성장률", "why": "인수 효과를 뺀 실제 수요" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 하순 (추정, 전년 10-K 2026-02-26 제출)", "event": "Q4·FY2026 실적과 2027년 연간 가이던스", "src": ["s3"] },
+      { "date": "매 분기 (하이퍼스케일러 실적 시즌)", "event": "Microsoft·Alphabet·Amazon·Meta 설비투자 전망 - 데이터센터 착공 수요의 선행 신호", "src": [] }
+    ],
+    "reaction": "2026-10-29 3분기 발표 후에는 가이던스를 올렸는데도 주가가 약 10% 내렸다는 보도가 나왔다(보도 제목 기준, 원문 미열람). 이 종목은 분기 숫자보다 RPO 증가 속도와 부문 이익률 방향에 크게 반응하는 경향이 있다.",
+    "conditions": [
+      "RPO 증감과 네트워크·통신 분야 코멘트",
+      "기계·전기 부문 영업이익률이 전년보다 높은지",
+      "연간 가이던스 상향 폭이 실적 상회 폭보다 큰지",
+      "하이퍼스케일러 설비투자 전망 변화"
+    ]
+  },
+
+  "unverified": [
+    "Q3 2026 단독 영업현금흐름·FCF (보도자료는 9개월 누적만 공시)",
+    "RPO의 시장 분야별 금액 (네트워크·통신 RPO 금액 미확인)",
+    "3분기 무형자산 손상 0.34억 달러의 원인",
+    "2026년 인수 기업명",
+    "3분기 발표 후 주가 하락폭과 이유 (Nasdaq 기사 제목만 확인)",
+    "컨센서스 추정치",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "high - 실적·부문·시장 분야·RPO·가이던스는 모두 2026-10-29 회사 8-K와 10-Q에서 직접 읽었고, 주가 반응과 점유율만 확인하지 못했다."
+}

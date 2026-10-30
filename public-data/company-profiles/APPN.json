@@ -1,0 +1,219 @@
+{
+  "symbol": "APPN",
+  "name": "Appian Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Appian은 대기업과 정부가 복잡한 업무 절차(인허가·대출 심사·조달 등)를 코드 없이 짜서 자동화하는 저코드 프로세스 자동화 플랫폼으로, AI 에이전트를 기존 데이터와 절차 안에 안전하게 넣는 도구로 클라우드 구독이 20%대로 자라고 있고, 경쟁사 Pegasystems와의 20억 달러대 영업비밀 소송 재심이 2027-01에 열린다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Appian Announces Second Quarter 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1441683/000144168326000050/appnex991earningsrelease-6.htm", "publisher": "Appian / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s2", "kind": "10-Q", "title": "Appian Form 10-Q for the quarter ended 2026-06-30", "url": "https://www.sec.gov/Archives/edgar/data/1441683/000144168326000053/appn-20260630.htm", "publisher": "Appian / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s3", "kind": "10-K", "title": "Appian Form 10-K for the fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1441683/000144168326000013/appn-20251231.htm", "publisher": "Appian / SEC EDGAR", "date": "2026-02-19" },
+    { "id": "s4", "kind": "8-K", "title": "Appian Announces First Quarter 2026 Financial Results (8-K Ex.99.1, Q2 and prior full-year guidance)", "url": "https://www.sec.gov/Archives/edgar/data/1441683/000144168326000029/appnex991earningsrelease-3.htm", "publisher": "Appian / SEC EDGAR", "date": "2026-05-07" },
+    { "id": "s5", "kind": "news", "title": "Appian to Announce Third Quarter 2026 Financial Results on November 5, 2026 (company release via Finviz; headline and search summary, page not opened)", "url": "https://finviz.com/news/403285/appian-to-announce-third-quarter-2026-financial-results-on-november-5-2026", "publisher": "Finviz", "date": "2026-10" },
+    { "id": "s6", "kind": "10-Q", "title": "Pegasystems Form 10-Q for the quarter ended 2026-09-30 (litigation note: Appian v. Pegasystems retrial scheduling, D. Mass. case)", "url": "https://www.sec.gov/Archives/edgar/data/1013857/000101385726000058/pega-20260930.htm", "publisher": "Pegasystems / SEC EDGAR", "date": "2026-10-20" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/appn/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s8", "kind": "news", "title": "Appian (NASDAQ:APPN) shares up 14.2% on strong earnings (headline only, article not opened)", "url": "https://www.marketbeat.com/instant-alerts/appian-nasdaqappn-shares-up-142-on-strong-earnings-2026-08-07/", "publisher": "MarketBeat", "date": "2026-08-07" }
+  ],
+
+  "moat": {
+    "sources": [
+      "25년 넘게 대기업·정부의 핵심 업무 절차를 자동화해 온 신뢰성과 규모 (10-K)",
+      "특허받은 데이터 패브릭 - 데이터를 옮기지 않고 여러 시스템의 데이터를 한 층으로 묶어 사람·시스템·AI 에이전트에 맥락을 제공 (10-K, 특허 28건·출원 21건)",
+      "정부·금융·생명과학·보험·제조 5개 업종 전문성 - 2025년 구독 매출의 약 80% (10-K)",
+      "Accenture·Deloitte·KPMG·PwC·Capgemini 등 대형 컨설팅사의 추천·구축 생태계 (10-K)"
+    ],
+    "text": "Appian의 힘은 한 번 깔리면 몇 년씩 돌아가는 정부·금융기관의 핵심 업무 절차를 맡아 왔다는 데서 나온다. 특히 여러 시스템에 흩어진 데이터를 옮기지 않고 한 층으로 묶는 '데이터 패브릭'이 AI 시대의 무기가 됐는데, AI 에이전트가 정확히 일하려면 바로 그 맥락과 접근 권한이 필요하기 때문이다. 업종 전문성과 대형 컨설팅사 생태계가 이 고객들을 붙잡아 둔다.",
+    "src": ["s3"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 내놓는 것은 하나의 Appian Platform이다. 업무 절차를 끌어다 놓기 식으로 설계하는 저코드 개발 도구, 절차를 실행·조율하는 프로세스 오케스트레이션, 데이터 패브릭, 프로세스 마이닝, 문서 처리부터 자율 에이전트까지 이어지는 AI 기능이 한 플랫폼에 들어 있다. 매출은 클라우드 구독, 기타 구독(기간 라이선스와 유지보수), 전문 서비스로 보고된다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "AWS - Appian Cloud 운영 인프라 (10-K 위험요인에 명시)",
+      "제3자 대형언어모델 제공사 - AI 기능의 기반 모델 (10-K, 업체명 미기재)",
+      "Accenture, Capgemini, Deloitte, Indra Group, KPMG, PwC - 고객 추천과 구축 서비스 (10-K)"
+    ],
+    "text": "만드는 방식은 순수 소프트웨어다. 제품은 자체 개발하고, 클라우드 버전은 AWS 위에서 돌리며, AI 기능은 외부 LLM 위에 얹는다. 그래서 AWS 장애나 비용, LLM 제공사의 조건이 이 회사의 원가와 서비스 품질에 직접 닿는다.",
+    "src": ["s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "직원 2,000명·매출 20억 달러 이상의 대기업과 정부기관 (10-K 영업 목표)",
+      "정부·금융·생명과학·보험·제조 - 2025년 구독 매출의 약 80% (10-K)",
+      "연간 반복 매출 100만 달러 이상 고객 140곳 (2025년 말, 전년 115곳)",
+      "단일 고객 매출 비중 10% 초과 없음 (2023~2025)"
+    ],
+    "channel": "직접 영업(대기업 영업 담당·솔루션 컨설턴트·전문 서비스)과 글로벌 시스템 통합사·기술 파트너 생태계. 컨설팅사는 고객을 추천하고 구축 용역을 직접 제공.",
+    "concentration": "단일 고객 10% 초과 없음(10-K). 지역별로는 2026 상반기 미국 매출 2.52억 달러(62%), 해외 1.54억 달러(38%).",
+    "text": "이 플랫폼은 주로 큰 조직, 그중에서도 정부와 금융기관에 팔린다. 한 고객이 전체 매출의 10%를 넘지 않아 집중 위험은 낮지만, 미국 정부 예산과 규제 산업의 IT 지출 흐름에는 민감하다. 대형 컨설팅사가 고객을 데려오고 구축을 맡는 구조라, 이들의 추천이 영업의 한 축이다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "정부기관·금융·보험·생명과학 기업", "to": "Appian", "what": "클라우드 구독료 (사용자 수, 단일 애플리케이션, 또는 사용량 기준; 1~3년 계약)" },
+      { "from": "자체 서버 운영 고객", "to": "Appian", "what": "기간 라이선스와 유지보수·지원료" },
+      { "from": "Accenture·Deloitte·KPMG·PwC 등 파트너", "to": "Appian", "what": "추천 고객의 소프트웨어 구독 (구축 용역은 파트너가 직접 청구)" },
+      { "from": "고객", "to": "Appian 전문 서비스", "what": "구축·AI 도입 지원 용역비" },
+      { "from": "Appian", "to": "AWS·LLM 제공사", "what": "클라우드 호스팅과 모델 사용료" }
+    ],
+    "pricing": "구독은 플랫폼에서 만든 앱을 쓰는 사용자 수, 사용자와 무관한 단일 애플리케이션 라이선스, 또는 사용량 기준으로 가격을 매기며 계약 기간은 대체로 1~3년이다 (10-K).",
+    "text": "돈은 정부와 대기업이 업무 절차를 이 플랫폼에 올리고 매년 구독료를 낼 때 들어온다. 기존 고객의 클라우드 매출이 1년 전보다 15% 늘어나는 구조(클라우드 순 ARR 확장률 115%)라 한 번 들어간 고객이 계속 키워 준다. AI 지출은 고객이 에이전트와 문서 AI를 기존 절차에 붙이면서 사용자·앱·사용량이 늘 때 이 구독료로 들어온다.",
+    "src": ["s3", "s1"]
+  },
+
+  "earnings": {
+    "period": "1H 2026 (six months ended 2026-06-30)",
+    "revenue": { "value": 405.436, "unit": "USD mn", "yoy": 20.3 },
+    "grossMargin": 72.1,
+    "operatingMargin": -0.6,
+    "netMargin": -3.3,
+    "operatingCashFlow": { "value": 60.909, "unit": "USD mn" },
+    "freeCashFlow": { "value": 58.418, "unit": "USD mn" },
+    "segments": [
+      { "name": "Cloud subscriptions", "revenue": 256.178, "unit": "USD mn", "share": 63.2, "yoy": 23.9, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Other subscriptions (term license, maintenance and support)", "revenue": 61.815, "unit": "USD mn", "share": 15.2, "yoy": 2.6, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Professional services", "revenue": 87.443, "unit": "USD mn", "share": 21.6, "yoy": 24.8, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "2Q 2026 분기 실적", "value": "매출 2.03억 달러(+19%), 클라우드 구독 1.32억 달러(+23%), 전체 구독 1.58억 달러(+19%); GAAP 영업손실 540만 달러, non-GAAP 영업이익 1,360만 달러, 조정 EBITDA 1,620만 달러", "src": ["s1"] },
+      { "name": "클라우드 순 ARR 확장률", "value": "115% (2026-06-30)", "src": ["s1"] },
+      { "name": "FY2025 연간", "value": "매출 7.27억 달러(+17.8%), 클라우드 구독 4.37억 달러", "src": ["s3"] },
+      { "name": "100만 달러 이상 반복 매출 고객", "value": "140곳 (2025년 말, 전년 115곳)", "src": ["s3"] },
+      { "name": "현금과 부채", "value": "현금·단기투자 1.68억 달러, 부채 2.36억 달러 (2026-06-30, 유동 960만 + 장기 2.26억)", "src": ["s1"] }
+    ],
+    "text": "이 흐름이 2026 상반기 매출 4.05억 달러(+20%)로 나타났고, 그중 63%인 클라우드 구독이 +24%로 성장을 끌었다. 회계상 영업이익은 아직 손익분기 부근(-230만 달러)이지만 소송 비용·주식보상을 뺀 non-GAAP로는 흑자이고, 상반기 영업현금흐름은 6,100만 달러로 늘었다. 총마진 72%는 원가가 큰 전문 서비스(매출의 22%)가 깎아 먹은 결과로, 이익은 클라우드 구독에 몰려 있다.",
+    "src": ["s2", "s1"]
+  },
+
+  "useOfCash": {
+    "period": "1H 2026 (six months ended 2026-06-30)",
+    "items": [
+      { "use": "R&D", "value": 93.629, "unit": "USD mn", "src": ["s2"] },
+      { "use": "capex", "value": 2.491, "unit": "USD mn", "src": ["s1"] },
+      { "use": "buybacks", "value": 65.736, "unit": "USD mn", "src": ["s1"] },
+      { "use": "debt repayment", "value": 5.0, "unit": "USD mn", "src": ["s1"] },
+      { "use": "other", "label": "임직원 주식보상 순정산 세금 납부", "value": 6.395, "unit": "USD mn", "src": ["s1"] }
+    ],
+    "text": "상반기 잉여현금흐름 5,800만 달러보다 많은 6,600만 달러를 자사주 매입에 썼고, 빚은 500만 달러만 갚았다. 설비투자는 250만 달러로 미미하고 R&D가 매출의 약 23%를 차지해, 돈은 제품 개발과 주주환원으로 간다. 다만 부채 2.36억 달러가 현금·단기투자 1.68억 달러보다 많고 자본이 마이너스라, 매입 여력은 현금흐름 개선 속도에 달려 있다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "외부 LLM을 쓰는 AI 에이전트와 문서 AI를 정부·금융기관의 기존 업무 절차와 데이터 안에 넣고 실행을 통제하는 응용 소프트웨어 층. 모델·칩·클라우드는 사서 쓴다.",
+    "dependsOn": ["cloud-infrastructure (AWS)", "models-platforms (외부 LLM 제공사, 업체명 미공시)", "고객의 기존 시스템과 데이터 (데이터 패브릭으로 연결)"],
+    "sellsTo": ["ai-adopter (정부기관, 금융·보험·생명과학·제조 대기업)", "Accenture·Deloitte·KPMG·PwC 등 구축 파트너의 고객"],
+    "aiRevenue": null,
+    "upside": "고객이 AI를 실제 업무에 적용하려 할수록 데이터 접근 권한과 절차 통제를 갖춘 플랫폼이 필요해지고, 이는 사용자·앱·사용량 증가로 클라우드 구독과 순 ARR 확장률에 반영된다. 회사는 AI 도입 지원을 전문 서비스로도 판다.",
+    "risk": "10-K는 LLM을 외부에 의존해 AI 기능 차별화가 어렵고, 자원이 큰 대형 기술 기업이 더 빨리 AI 제품을 낼 수 있다고 적었다. LLM이 직접 앱을 만들어 저코드 도구의 필요를 줄이면 개발 플랫폼 가치가 약해질 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Appian은 칩·클라우드·모델 위에 얹힌 '응용 소프트웨어' 층, 그중 AI를 규제가 센 조직의 업무에 넣는 마지막 단계에 있다. AI 매출은 따로 공시하지 않으며, AI 지출은 클라우드 구독 성장률과 순 ARR 확장률을 통해 간접적으로만 보인다. 위쪽에서는 AWS와 LLM 제공사가 원가와 기능의 상한을 정한다.",
+    "src": ["s3", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "프로세스 자동화·저코드 플랫폼", "rivals": ["Pegasystems (영업비밀 소송 상대)", "개발 플랫폼 제공사 (10-K 범주)"], "position": "challenger", "share": null, "src": ["s3", "s2"] },
+      { "arena": "BPM·사례 관리·프로세스 마이닝·RPA", "rivals": ["자동화 기술 제공사 (10-K 범주)"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "맞춤형 소프트웨어 개발", "rivals": ["맞춤 소프트웨어 업체·컨설팅사 (10-K 범주)", "고객 IT 부서 자체 개발"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "데이터 패브릭과 정부·규제 산업에서의 신뢰성, 업종별 전문성, 그리고 회사가 말하는 낮은 총소유비용. 10-K는 기능·보안·성능·통합 용이성에서 동종 업체와 유리하게 경쟁한다고 밝혔다.",
+    "threats": "시장이 커지면 전문 업체와 대형 업체가 들어와 제품을 묶어 팔 수 있고(10-K), LLM 기반 개발 도구가 맞춤 개발 비용을 낮춰 저코드의 장점을 줄일 수 있다.",
+    "text": "이 자리의 가장 직접적인 경쟁자는 같은 대기업 업무 자동화 예산을 노리는 Pegasystems이고, 두 회사는 법정에서도 맞서 있다. Appian이 2022년 받아 낸 20.36억 달러 배심 평결은 항소심에서 뒤집혔고, 버지니아 대법원도 2026-01 이를 확정해 재심이 2027-01-11로 잡혔다. 그 밖에는 BPM·RPA 같은 자동화 도구와 고객 자체 개발이 경쟁 상대이며, 10-K는 경쟁사 이름과 점유율을 밝히지 않는다.",
+    "src": ["s2", "s3", "s6"]
+  },
+
+  "strategy": {
+    "goal": "대기업·정부 고객 기반 확대, 5대 업종 매출 확대, AI 도입 가속을 성장 전략으로 내걸고(10-K), 2026년 클라우드 구독 5.25~5.29억 달러(+20~21%)와 조정 EBITDA 1.04~1.10억 달러를 가이드했다.",
+    "roadmap": [
+      { "when": "2026 하반기", "what": "연간 가이드를 5월 매출 8.19~8.31억에서 8월 8.45~8.53억 달러로 상향", "src": ["s4", "s1"] },
+      { "when": "3Q 2026", "what": "클라우드 구독 1.33~1.35억, 매출 2.14~2.18억 달러, 조정 EBITDA 0.30~0.33억 달러 가이드", "src": ["s1"] },
+      { "when": "2026-11", "what": "Pegasystems의 명예훼손·랜햄법 소송과 Appian 반소 배심 재판 예정 (매사추세츠 연방법원)", "src": ["s2", "s6"] },
+      { "when": "2027-01-11", "what": "Appian v. Pegasystems 영업비밀 소송 재심 시작 (버지니아 페어팩스 순회법원)", "src": ["s2"] }
+    ],
+    "vision": "모든 직원·시스템·에이전트가 필요한 데이터 맥락을 갖고, 대기업과 정부의 핵심 업무 절차를 설계·자동화·최적화하는 플랫폼이 된다는 그림이다 (10-K).",
+    "text": "이 경쟁을 이기기 위해 회사는 데이터 패브릭을 AI 에이전트의 맥락 공급원으로 내세우고, 5대 업종에 영업을 집중한다. 2026년에는 분기마다 가이드를 넘어서며 연간 전망을 올렸고, 소송 결과는 회사 가치에 별도의 큰 변수로 남아 있다. 재심에서 Appian은 기존에 막혔던 합리적 로열티 기준 손해배상(영업·마케팅 관련 2.85억 달러, Pega Platform 개정 관련 13.6억 달러 청구)을 주장할 수 있게 됐다(2026-10-16 결정).",
+    "src": ["s3", "s1", "s4", "s6"]
+  },
+
+  "governance": {
+    "line": "창업자 Matt Calkins가 CEO로 이끌며 차등의결권으로 본인과 특수관계인이 의결권의 약 77%(2025년 말)를 가지고, 배당 없이 자사주 매입을 늘리는 중이다.",
+    "src": ["s3", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "3Q 2026", "metric": "cloud subscriptions revenue", "value": "1.33~1.35억 달러 (+17~19%)", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "3Q 2026", "metric": "total revenue / adjusted EBITDA / non-GAAP EPS", "value": "매출 2.14~2.18억 달러(+14~17%), 조정 EBITDA 0.30~0.33억 달러, EPS 0.31~0.35달러", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "FY2026", "metric": "cloud subscriptions / total revenue", "value": "클라우드 구독 5.25~5.29억 달러(+20~21%), 매출 8.45~8.53억 달러(+16~17%)", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "FY2026", "metric": "adjusted EBITDA / non-GAAP EPS", "value": "1.04~1.10억 달러, 1.04~1.12달러", "givenOn": "2026-08-06", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "2분기는 가이드를 크게 넘었다: 5월 가이드 클라우드 구독 1.26~1.28억·매출 1.91~1.95억·조정 EBITDA 0.05~0.08억 → 실제 1.32억·2.03억·0.16억 달러. 연간 매출 가이드도 8.19~8.31억에서 8.45~8.53억 달러로 올렸다.",
+    "src": ["s4", "s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 0.64달러(범위 0.54~0.74, 최소 2명), 직전 4개 분기 0.30달러. 최근 4주 상향·하향 0건. 이 데이터의 2026-06 분기 실제치(-0.01)는 회사 non-GAAP EPS(0.13)와 기준이 달라 직접 비교하지 않는다.",
+    "src": ["s7", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "3Q 2026 클라우드 구독이 1.33~1.35억 달러 가이드를 충족·상회",
+      "클라우드 순 ARR 확장률이 115% 근처 이상 유지",
+      "100만 달러 이상 고객 수 증가와 정부·금융 대형 계약",
+      "non-GAAP 흑자와 영업현금흐름 개선이 이어져 GAAP 영업이익도 흑자 전환",
+      "Pegasystems 재심에서 Appian에 유리한 판결"
+    ],
+    "breaks": [
+      "클라우드 구독 성장률이 10%대 중반 아래로 둔화",
+      "순 ARR 확장률 하락",
+      "미국 정부 예산 축소·지연으로 공공 계약 감소",
+      "재심 패소나 매사추세츠 소송에서 손해배상 부담 발생",
+      "AWS·LLM 비용 상승으로 구독 총마진 하락"
+    ],
+    "keyNumbers": [
+      { "name": "클라우드 구독 매출 성장률", "why": "매출의 63%이자 성장의 대부분" },
+      { "name": "클라우드 순 ARR 확장률", "why": "기존 고객이 AI 기능으로 사용을 늘리는지" },
+      { "name": "조정 EBITDA와 영업현금흐름", "why": "흑자 전환과 자사주 매입 여력" },
+      { "name": "전문 서비스 매출 비중과 총마진", "why": "원가 큰 용역이 이익률을 깎는 정도" },
+      { "name": "소송 일정과 판결", "why": "수억~수십억 달러 단위의 일회성 변수" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-05 (장 시작 전)", "event": "3Q 2026 실적과 4분기·연간 가이던스", "src": ["s5"] },
+      { "date": "2026-11", "event": "Pegasystems v. Appian (명예훼손·랜햄법, 매사추세츠 연방법원) 배심 재판 예정", "src": ["s2", "s6"] },
+      { "date": "2027-01-11", "event": "Appian v. Pegasystems 영업비밀 소송 재심 시작", "src": ["s2"] },
+      { "date": "2027-02 (추정, 회사 미확정)", "event": "4Q·FY2026 실적과 FY2027 첫 가이던스", "src": ["s3"] }
+    ],
+    "reaction": "주가는 클라우드 구독 성장률과 가이드 상향 폭에 반응해 왔다. 2026-08 2분기 실적 뒤에는 가이드를 크게 넘고 연간 전망을 올리면서 주가가 14.2% 올랐다는 보도가 있다(2차 보도 제목 기준). 소송 판결 소식도 별도로 주가를 움직이는 변수다.",
+    "conditions": [
+      "클라우드 구독 실적과 가이드 대비 차이",
+      "연간 매출·조정 EBITDA 가이드 변경 폭",
+      "클라우드 순 ARR 확장률 추이",
+      "Pegasystems 관련 소송의 재판 일정과 판결",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "AI 관련 매출·고객 수 (회사 미공시)",
+    "LLM 제공사 이름",
+    "경쟁사 이름과 점유율 (10-K는 범주만 제시; Pegasystems는 소송 문서로만 경쟁 관계 확인)",
+    "자사주 매입 승인 한도와 잔여액",
+    "3Q 2026 실적 발표일 11-05는 Finviz 재게시 제목·검색 요약 기준 (회사 IR 원문 미확인)",
+    "2분기 실적 뒤 주가 14.2% 상승은 보도 제목만 확인",
+    "2026년 매사추세츠 재판 정확한 날짜 (Appian 10-Q는 2026-11로만 기재)",
+    "4Q 2026 실적 발표 시기"
+  ],
+  "confidence": "high - 재무·가이던스·소송 일정은 8-K·10-Q·10-K와 상대방(Pegasystems) 10-Q 원문에서 교차 확인했고, AI 기여와 경쟁 점유율만 공시가 없어 정성 서술이다."
+}

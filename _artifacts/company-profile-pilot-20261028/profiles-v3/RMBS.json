@@ -1,0 +1,214 @@
+{
+  "symbol": "RMBS",
+  "name": "Rambus Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (calendar year)",
+  "oneLine": "Rambus는 서버 메모리 모듈(DDR5 RDIMM)에 반드시 들어가는 버퍼·전력 칩과 메모리 특허·IP를 파는 회사로, AI 서버가 늘수록 CPU 옆 메인 메모리가 커지면서 2026년 3분기 제품 매출이 사상 최대를 기록했다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Rambus Reports Third Quarter 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000917273/000119312526431918/rmbs-ex99_1.htm", "publisher": "Rambus / SEC EDGAR", "date": "2026-10-26" },
+    { "id": "s2", "kind": "call-transcript", "title": "Rambus Q3 2026 earnings call highlights (summary of the call, not a full transcript)", "url": "https://www.marketbeat.com/instant-alerts/transcript-rambus-q3-earnings-call-highlights-2026-10-26/", "publisher": "MarketBeat", "date": "2026-10-26" },
+    { "id": "s3", "kind": "10-K", "title": "Rambus Form 10-K for fiscal year ended 2025-12-31 (filing date per AIO SEC snapshot)", "url": "https://www.sec.gov/Archives/edgar/data/917273/000119312526057101/rmbs-20251231.htm", "publisher": "Rambus / SEC EDGAR", "date": "2026-02-18" },
+    { "id": "s4", "kind": "call-transcript", "title": "Rambus (RMBS) Q4 2025 earnings call transcript (DDR5 RCD share comment; read through a search summary)", "url": "https://www.fool.com/earnings/call-transcripts/2026/02/02/rambus-rmbs-q4-2025-earnings-call-transcript/", "publisher": "The Motley Fool", "date": "2026-02-02" },
+    { "id": "s5", "kind": "other", "title": "AIO local earnings calendar snapshot (Finnhub calendar/earnings), public-data/earnings-calendar.json: Q3 2026 estimate vs actual", "url": "https://finnhub.io/docs/api", "publisher": "Finnhub via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "30년 넘게 쌓은 메모리 인터페이스 특허 - SK hynix·Samsung·Micron·NVIDIA 등 20여 곳이 라이선시 (10-K)",
+      "DDR5 서버 모듈의 핵심 버퍼 칩(RCD) 1군 공급자 - 2025년 말 점유율 40% 중반이라고 회사가 밝힘 (콜)",
+      "RCD 옆에 붙는 PMIC·SPD 허브·온도센서까지 한 번에 내는 칩셋 구성 - 모듈 업체가 호환성을 중시 (콜)",
+      "HBM·PCIe·CXL 컨트롤러와 하드웨어 보안(Root of Trust) IP - AI 칩 설계사에 라이선스 (10-K, 8-K)"
+    ],
+    "text": "Rambus의 출발점은 메모리와 프로세서 사이 고속 신호 기술 특허다. 이 기술을 바탕으로 서버용 DDR5 메모리 모듈에서 신호를 정리해 주는 버퍼 칩(RCD)을 직접 만들어 팔게 됐고, 회사는 2025년 말 이 시장 점유율이 40% 중반이라고 밝혔다. 모듈 한 장에 들어가는 전력 칩(PMIC)·SPD 허브·온도센서를 함께 공급할 수 있다는 점이 두 번째 기둥이다.",
+    "src": ["s3", "s4"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 내놓는 것은 세 갈래로 보고된다. 제품(Product)은 DDR5 RCD, MRDIMM용 MRCD·MDB, 클라이언트용 CKD, PMIC·SPD 허브·온도센서 같은 메모리 인터페이스 칩이다. 로열티(Royalties)는 메모리·칩 회사들이 내는 특허 사용료이고, 계약·기타(Contract and other)는 HBM·GDDR·PCIe·CXL 컨트롤러와 보안 IP 라이선스다.",
+    "src": ["s3", "s1"]
+  },
+
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "외부 파운드리 - 칩 웨이퍼 생산 (업체명 미공시)",
+      "외부 조립·테스트(OSAT) 업체 - 패키징·테스트 (업체명 미공시)"
+    ],
+    "text": "설계한 칩은 외부 파운드리와 조립·테스트 업체가 만든다(10-K는 업체 이름을 밝히지 않는다). 3분기에 회사는 공급사 리드타임이 길어졌다고 했지만, 3분기 실적과 4분기 가이던스에는 공급 제약 영향이 없었다고 밝혔다. 다가올 신제품 램프에 대비해 3분기 재고를 1,200만 달러 늘렸다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "DRAM 모듈 제조사 - RCD·PMIC 등 칩을 사서 서버용 DDR5 RDIMM에 탑재 (고객 이름 미공시)",
+      "특허 라이선시 - AMD, Broadcom, IBM, Kioxia, Marvell, MediaTek, Micron, NVIDIA, Qualcomm, Samsung, SK hynix 등 (10-K)",
+      "AI·데이터센터 칩 설계사 - HBM·PCIe·CXL·보안 IP 라이선스"
+    ],
+    "channel": "칩은 모듈 제조사에 직접 판매, 특허는 장기(최대 약 10년) 라이선스 계약, IP는 설계사에 라이선스",
+    "concentration": "FY2025 상위 5개 고객이 매출의 약 66% (FY2024 62%), 미국 외 본사 고객 82% (10-K). 10% 넘는 개별 고객 이름은 확인하지 못함.",
+    "text": "칩은 서버용 메모리 모듈을 만드는 소수의 DRAM 회사에 팔리고, 특허는 거의 모든 대형 메모리·칩 회사가 사용료를 낸다. 그래서 상위 5개 고객이 FY2025 매출의 약 66%를 차지할 만큼 집중도가 높다. 고객이 백로그 주문을 더 일찍 넣고 있어 수요 가시성은 좋아졌다고 회사는 말했다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "하이퍼스케일러·클라우드 기업", "to": "서버 OEM·ODM", "what": "AI·범용 서버 구매 (CPU 옆 메인 메모리 포함)" },
+      { "from": "서버 OEM·ODM", "to": "DRAM 모듈 제조사", "what": "DDR5 RDIMM·MRDIMM 메모리 모듈 구매" },
+      { "from": "DRAM 모듈 제조사", "to": "Rambus", "what": "RCD·PMIC·SPD 허브·온도센서 칩 대금 (개당, Q3 제품 매출 1.143억 달러)" },
+      { "from": "메모리·칩 회사 라이선시", "to": "Rambus", "what": "특허 로열티 (고정·변동·혼합, Q3 7,700만 달러)" },
+      { "from": "AI·데이터센터 칩 설계사", "to": "Rambus", "what": "HBM·PCIe·CXL 컨트롤러·보안 IP 라이선스 (Q3 계약·기타 2,700만 달러)" },
+      { "from": "Rambus", "to": "외부 파운드리·OSAT", "what": "웨이퍼·패키징·테스트 대금" }
+    ],
+    "pricing": "칩은 개당 판매(모듈 한 장에 RCD 1개와 여러 보조 칩), 특허는 고정 또는 판매량 연동 로열티를 최대 약 10년 계약으로 받고 일부는 일시불(paid-up)로 전환, IP는 건별 라이선스 수수료.",
+    "text": "돈은 클라우드 기업이 서버를 살 때 시작해, 서버 회사가 메모리 모듈을 사고, 모듈 회사가 Rambus 칩을 사는 순서로 들어온다. 특허 로열티와 IP 라이선스는 이와 별개로 칩 회사들이 꾸준히 내는 돈이다. 3분기 기준으로 칩 판매가 매출의 절반을 넘었고, 성장도 칩이 이끈다.",
+    "src": ["s1", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (quarter ended 2026-09-30)",
+    "revenue": { "value": 218.3, "unit": "USD mn", "yoy": 22.3 },
+    "grossMargin": 78.3,
+    "operatingMargin": 38.3,
+    "netMargin": 34.2,
+    "operatingCashFlow": { "value": 102.5, "unit": "USD mn" },
+    "freeCashFlow": { "value": 91.3, "unit": "USD mn" },
+    "segments": [
+      { "name": "Product (memory interface chips)", "revenue": 114.3, "unit": "USD mn", "share": 52.4, "yoy": 22.5, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Royalties", "revenue": 77.0, "unit": "USD mn", "share": 35.3, "yoy": 18.3, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Contract and other (silicon IP)", "revenue": 27.0, "unit": "USD mn", "share": 12.4, "yoy": 34.3, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "제품 매출 (사상 최대)", "value": "Q3 2026 1.143억 달러, 전년 대비 +22%, 전분기 대비 +15%", "src": ["s1", "s2"] },
+      { "name": "Non-GAAP 영업이익률·EPS", "value": "Q3 2026 영업이익 1.022억 달러(47%), EPS 0.84달러(+35%)", "src": ["s1"] },
+      { "name": "2026년 9개월 누적", "value": "매출 6.059억 달러(전년 5.174억), 제품 3.015억, 로열티 2.309억, 계약·기타 0.735억 달러", "src": ["s1"] },
+      { "name": "보조 칩(companion chip) 비중", "value": "연초 제품 매출의 10% 초반, 이후 매 분기 증가 (콜, 금액 미공시)", "src": ["s2"] },
+      { "name": "FY2025 연간", "value": "매출 7.076억 달러, 제품 3.478억(+41%), 영업현금흐름 3.6억 달러", "src": ["s3"] }
+    ],
+    "text": "이 구조가 3분기에 매출 2.183억 달러(+22%), GAAP 영업이익률 38%, 영업현금흐름 1.025억 달러(사상 최대)로 나타났다. 잉여현금흐름은 설비투자 1,120만 달러를 뺀 약 9,130만 달러(계산값)다. 이익은 원가가 거의 없는 로열티와 IP가 받치고, 성장은 칩 판매가 맡는 구조여서 칩 비중이 커질수록 총마진은 조금씩 내려간다(전년 79.5% → 78.3%, 계산값).",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "Q3 2026 (quarter ended 2026-09-30)",
+    "items": [
+      { "use": "R&D", "value": 49.4, "unit": "USD mn", "src": ["s1"] },
+      { "use": "capex", "value": 11.2, "unit": "USD mn", "src": ["s1"] },
+      { "use": "buybacks", "value": 135.4, "unit": "USD mn", "src": ["s1", "s2"] }
+    ],
+    "text": "3분기에 번 현금(영업현금흐름 1.025억 달러)보다 많은 1.354억 달러를 자사주 매입에 썼고, 그중 1억 달러는 가속형 자사주 매입(ASR)이었다. 그 결과 현금·유가증권은 7.769억 달러로 한 분기 새 4,800만 달러 줄었다. 회사는 장기적으로 잉여현금흐름의 40~50%를 주주에게 돌려준다는 방침을 밝혔고, 배당은 발표에 없다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "memory",
+    "position": "AI 서버의 CPU 옆 메인 메모리(DDR5 RDIMM·MRDIMM) 모듈마다 들어가는 버퍼·전력·관리 칩 공급자이자, HBM·PCIe·CXL 컨트롤러 IP를 AI 칩 설계사에 파는 자리. GPU 옆 HBM 자체를 만들지는 않는다.",
+    "dependsOn": ["semicap-foundry (외부 파운드리·OSAT, 업체명 미공시)", "memory (DRAM 모듈 제조사의 DDR5 출하량)", "chips-compute (Intel·AMD 서버 CPU 세대 전환과 메모리 채널 수)"],
+    "sellsTo": ["memory (DRAM 모듈 제조사)", "chips-compute (HBM·PCIe·CXL·보안 IP를 쓰는 AI 칩 설계사)", "cloud-infrastructure (최종 수요: 하이퍼스케일러 서버)"],
+    "aiRevenue": null,
+    "upside": "AI 학습·추론과 에이전트형 AI가 상시 돌아가면서 GPU 대비 CPU 비율과 메인 메모리 대역폭·용량 수요가 함께 늘고 있다고 회사는 설명했다. 서버당 모듈 수가 늘고, MRDIMM(회사 추정 총 6억 달러 기회)과 더 빠른 DDR5 세대로 넘어갈수록 모듈당 칩 단가와 보조 칩 수가 늘어나는 구조다.",
+    "risk": "AI 투자가 GPU·HBM 쪽에만 몰리고 범용 서버 교체가 늦어지면 RCD 수요가 둔화한다. Montage·Renesas가 점유율을 가져가거나 메모리 업체가 가격을 누르면 칩 매출이 흔들리고, SOCAMM처럼 다른 모듈 형식이 늘어나는 변화도 변수다(회사는 SOCAMM이 AI 인프라의 작은 부분이라고 봄).",
+    "text": "그래서 AI 가치사슬에서 Rambus는 '메모리' 층 안에서도 GPU 옆 HBM이 아니라 CPU 옆 서버 메모리 모듈에 붙어 있다. 회사는 AI 매출을 따로 공시하지 않지만, AI 데이터센터가 서버와 메모리 모듈을 더 많이 사는 만큼 칩 매출이 늘어난다. HBM·PCIe 컨트롤러 IP는 AI 칩 설계사에 직접 닿는 두 번째 연결고리다.",
+    "src": ["s2", "s3", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "DDR5 메모리 인터페이스 칩 (RCD·보조 칩)", "rivals": ["Montage Technology", "Renesas", "Monolithic Power Systems (PMIC)", "Texas Instruments (PMIC 등)"], "position": "leader", "share": "회사 발표 DDR5 RCD 점유율 2025년 말 40% 중반 (2024년 40% 초반), 장기 목표 40~50%", "src": ["s3", "s4"] },
+      { "arena": "실리콘 IP (HBM·PCIe·CXL 컨트롤러, 보안)", "rivals": ["Cadence", "Synopsys", "고객 자체 설계팀"], "position": "niche", "share": null, "src": ["s3"] },
+      { "arena": "메모리 인터페이스 특허 라이선스", "rivals": [], "position": "leader", "share": null, "src": ["s3"] }
+    ],
+    "edge": "RCD 다세대 공급 이력, RCD와 PMIC·SPD 허브·온도센서를 묶은 칩셋 호환성, 특허 포트폴리오에서 나오는 높은 이익률의 현금.",
+    "threats": "중국의 Montage가 같은 RCD 시장의 큰 경쟁자이고, PMIC는 MPS·TI 같은 전력 반도체 강자와 맞붙는다. IP 시장에서는 Cadence·Synopsys가 규모에서 앞선다.",
+    "text": "이 자리의 경쟁은 칩과 IP 두 곳에서 벌어진다. RCD에서는 Rambus·Montage·Renesas가 사실상 시장을 나누고 있고, 회사는 자기 점유율이 40% 중반으로 올라왔다고 말한다. 반면 PMIC와 IP에서는 더 큰 회사들과 맞서야 하므로, RCD에서 얻은 고객 관계를 보조 칩으로 넓히는 것이 회사의 승부수다.",
+    "src": ["s3", "s4", "s2"]
+  },
+
+  "strategy": {
+    "goal": "DDR5 RCD 점유율 40~50% 유지, 보조 칩과 MRDIMM으로 모듈당 매출을 늘리고, 잉여현금흐름의 40~50%를 주주에게 환원 (콜).",
+    "roadmap": [
+      { "when": "Q4 2026", "what": "제품 매출 1.27억~1.33억 달러 가이던스 (중간값 기준 전년 대비 +34%)", "src": ["s1", "s2"] },
+      { "when": "2026 H2", "what": "6세대 DDR5 9600 RCD 고객 샘플링 확대", "src": ["s2"] },
+      { "when": "2027", "what": "수요 강화·공급 타이트 지속 예상, 상·하반기 계절성 유지 (콜)", "src": ["s2"] },
+      { "when": "2028 무렵", "what": "LPDDR6 SOCAMM2 모듈용 PMIC 시장 진입 예상", "src": ["s2", "s1"] },
+      { "when": "장기", "what": "MRDIMM 칩셋 총 6억 달러 기회 (현재는 인증·양산 전 단계 소량 출하)", "src": ["s2"] }
+    ],
+    "vision": "AI 데이터센터에서 메모리 대역폭이 병목이 될수록 메모리 모듈 안의 칩과 메모리 연결 IP의 가치가 커지며, Rambus가 그 접점마다 칩·IP·특허를 공급한다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 RCD 한 개에서 모듈 칩셋 전체로 넓히는 길을 택했다. 3분기에 LPDDR6 SOCAMM2용 PMIC와 AI용 하드웨어 보안 IP를 내놓았고, 6세대 RCD를 샘플링 중이다. MRDIMM은 아직 소량이지만 회사는 총 6억 달러 기회로 본다.",
+    "src": ["s2", "s1"]
+  },
+
+  "governance": {
+    "line": "Luc Seraphin CEO가 이끄는 지배주주 없는 회사로, 배당 없이 잉여현금흐름의 40~50%를 자사주 매입 위주로 돌려준다는 방침을 갖고 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "revenue", "value": "2.27억~2.33억 달러", "givenOn": "2026-10-26", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "product / royalties / contract and other", "value": "제품 1.27억~1.33억, 로열티 0.68억~0.74억, 계약·기타 0.26억~0.32억 달러", "givenOn": "2026-10-26", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "non-GAAP EPS", "value": "0.84~0.92달러 (세율 16%, 희석주식 1.09억 주)", "givenOn": "2026-10-26", "src": ["s1"] },
+      { "period": "FY2026 (implied)", "metric": "growth", "value": "중간값 기준 매출 약 +18%, 제품 약 +24%, non-GAAP EPS 약 +24% (콜)", "givenOn": "2026-10-26", "src": ["s2"] }
+    ],
+    "style": "quarterly",
+    "track": "3분기 매출은 회사 가이던스를 넘었다고 밝혔고(가이던스 범위는 확인하지 못함), Finnhub 추정치(매출 2.174억, EPS 0.80달러)도 웃돌았다(실제 2.183억, 0.84달러). 1분기에는 외부 OSAT 문제로 구형 RCD 매출이 일시적으로 줄었다.",
+    "src": ["s1", "s5", "s4"]
+  },
+
+  "estimates": {
+    "text": "AIO 로컬 컨센서스 스냅샷(2026-10-29)에는 RMBS 다분기 추정치가 없다. Finnhub 캘린더 기준 3분기 추정은 EPS 0.80달러·매출 2.174억 달러였고 실제가 소폭 웃돌았다.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q4 2026 제품 매출이 1.27억~1.33억 달러 범위 상단에 닿음",
+      "보조 칩(PMIC 등) 비중이 계속 오르고 회사가 금액을 공개",
+      "MRDIMM이 인증 단계를 넘어 양산 출하로 전환",
+      "DDR5 RCD 점유율 40% 중반 유지 또는 상승 언급",
+      "공급 리드타임이 길어져도 출하 차질 없이 가이던스 달성"
+    ],
+    "breaks": [
+      "제품 매출 가이던스 미달 또는 점유율 하락 언급",
+      "공급 제약이 실제 출하·가이던스에 반영됨",
+      "서버 CPU 세대 전환 지연이나 범용 서버 수요 둔화",
+      "Montage 등 경쟁사의 가격 공세로 총마진 하락 가속",
+      "주요 특허 라이선스 만료·재계약 조건 악화"
+    ],
+    "keyNumbers": [
+      { "name": "제품 매출과 전분기 대비 증가율", "why": "AI 서버 메모리 수요가 이 회사에 닿는 직접 통로" },
+      { "name": "보조 칩 비중", "why": "모듈당 매출이 늘고 있는지" },
+      { "name": "로열티 매출", "why": "이익률을 받치는 바닥 현금" },
+      { "name": "영업현금흐름과 자사주 매입", "why": "현금 환원 방침이 지켜지는지" },
+      { "name": "재고와 공급 리드타임", "why": "공급 병목이 실적으로 번지는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 초 (추정, 회사 미확정; 전년 4분기 실적은 2026-02-02)", "event": "Q4·FY2026 실적과 Q1 2027 가이던스", "src": ["s4"] },
+      { "date": "수시", "event": "Intel·AMD 서버 CPU 세대 출시와 DDR5 속도 전환 일정", "src": ["s2"] },
+      { "date": "수시", "event": "SK hynix·Samsung·Micron 실적의 서버 DRAM 출하 코멘트", "src": ["s3"] }
+    ],
+    "reaction": "주가는 제품 매출 가이던스와 점유율 코멘트에 크게 반응해 왔다. 로열티는 계약 구조상 분기 변동이 작아서, 시장은 칩 매출 성장률과 보조 칩 진척을 더 본다.",
+    "conditions": [
+      "다음 분기 제품 매출 가이던스가 전분기 대비 늘었는지",
+      "회사가 공급 제약이 가이던스에 영향을 주는지 언급하는지",
+      "RCD 점유율과 보조 칩 비중 코멘트 변화",
+      "총마진이 제품 비중 증가 속도보다 빨리 내려가는지",
+      "분기 자사주 매입 규모가 현금흐름 대비 유지되는지"
+    ]
+  },
+
+  "unverified": [
+    "AI 관련 매출 비중 (회사 미공시)",
+    "10% 넘는 개별 고객 이름과 비중 (10-K 주석 미확인)",
+    "파운드리·OSAT 업체 이름 (10-K 미공시)",
+    "Q3 2026 원래 가이던스 범위 (보도상 '가이던스 상회'만 확인)",
+    "DDR5 RCD 점유율 40% 중반은 회사 발언을 검색 요약으로 확인했으며 원문 transcript는 직접 읽지 못함",
+    "보조 칩·MRDIMM 관련 수치와 2027 전망은 콜 요약(MarketBeat) 기준, 원문 transcript 미확인",
+    "FY2025 설비투자·자사주 매입 총액 (10-K에서 찾지 못함)",
+    "다음 실적 발표일 (회사 미확정, 전년 패턴 기반 추정)",
+    "Q3 2026 10-Q는 존재만 확인하고 직접 읽지 않음"
+  ],
+  "confidence": "medium - 매출·이익·현금흐름·가이던스는 8-K 원문에서 읽었지만, 점유율과 보조 칩·MRDIMM 진척은 콜 요약과 검색 요약에 의존한다."
+}

@@ -1,0 +1,216 @@
+{
+  "symbol": "AEIS",
+  "name": "Advanced Energy Industries, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (Q2 2026 ended 2026-06-30)",
+  "oneLine": "Advanced Energy는 반도체 식각·증착 장비에 들어가는 플라즈마 전원과 AI 서버 랙의 전원 장치를 만드는 전력 변환 회사로, AI 투자가 장비 주문과 데이터센터 랙 양쪽에서 동시에 매출로 들어온다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Advanced Energy Reports Second Quarter 2026 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000927003/000092700326000030/aeis-20260803xex99d1.htm", "publisher": "Advanced Energy / SEC EDGAR", "date": "2026-08-03" },
+    { "id": "s2", "kind": "10-Q", "title": "Advanced Energy Form 10-Q for quarter ended 2026-06-30", "url": "https://www.sec.gov/Archives/edgar/data/927003/000092700326000032/aeis-20260630x10q.htm", "publisher": "Advanced Energy / SEC EDGAR", "date": "2026-08-03" },
+    { "id": "s3", "kind": "10-K", "title": "Advanced Energy Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/927003/000110465926014731/aeis-20251231x10k.htm", "publisher": "Advanced Energy / SEC EDGAR", "date": "2026-02-13" },
+    { "id": "s4", "kind": "call-transcript", "title": "Advanced Energy Q2 2026 earnings call - call summary (secondary, AI-assisted summary of the call)", "url": "https://vectorshift.ai/research/companies/advanced-energy-industries/earnings/2026-q2", "publisher": "VectorShift", "date": "2026-08-03" },
+    { "id": "s5", "kind": "news", "title": "Advanced Energy Announces Third Quarter 2026 Earnings Date on November 2 (headline read from search result; page not fetched; date = accessed)", "url": "https://finviz.com/news/403769/advanced-energy-announces-third-quarter-2026-earnings-date-on-november-2", "publisher": "Finviz (Business Wire release)", "date": "2026-10-30" }
+  ],
+
+  "moat": {
+    "sources": [
+      "식각·증착 장비용 RF·DC 플라즈마 전원(eVerest·eVoS 플랫폼) - 장비 안에 설계 단계부터 들어가는 정밀 전력 기술 (10-K·콜)",
+      "클라우드 회사의 맞춤형 서버 랙·전원 선반(power shelf)에 들어가는 고효율·고전력 전원 설계 실적 (10-Q)",
+      "필리핀·말레이시아·멕시코 공장과 새 태국 공장 - 태국까지 다 채우면 연 약 50억 달러 매출을 낼 생산능력 (콜 요약)",
+      "연 R&D 2.324억 달러(2025)로 매출의 12~14%를 쓰는 신제품 투자 (10-K)"
+    ],
+    "text": "반도체 장비와 AI 서버는 모두 '전기를 정밀하게, 손실 없이 바꿔 주는 장치'가 있어야 돌아간다. Advanced Energy의 힘은 식각·증착 장비 안에서 플라즈마를 일으키는 정밀 전원과, 데이터센터 랙에 들어가는 고효율 전원을 같은 전력 변환 기술로 만든다는 데서 나온다. 장비 회사·클라우드 회사의 설계 단계부터 들어가야 채택되기 때문에, 한 번 설계에 들어가면 그 제품 세대 동안 매출이 이어진다.",
+    "src": ["s3", "s2", "s4"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 파는 것은 네 시장으로 나뉜다. 반도체 장비(플라즈마 전원·고전압·시스템 전원·센서), 데이터센터 컴퓨팅(AI·일반 서버와 스토리지용 전원, 클라우드 회사의 맞춤 랙·전원 선반), 산업·의료(정밀 저잡음 전원), 통신·네트워킹이다. Q2 2026 매출의 약 82%가 앞의 두 시장, 즉 반도체 장비와 데이터센터에서 나왔다.",
+    "src": ["s3", "s1"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 주력 공장 - 필리핀, 말레이시아, 멕시코 (증설 중), 미국·영국·유럽 소규모 특수 생산 (10-K·콜 요약)",
+      "태국 신공장 - 2026년 4분기 첫 생산 매출 예정, 대형 데이터센터·반도체 고객 인증 중 (콜 요약)",
+      "중국 중산 공장 - 2025년 2분기 생산 중단, 2026년 폐쇄 완료 예정 (10-K)",
+      "부품 공급사·일부 위탁 생산 부품 (이름 미기재)"
+    ],
+    "text": "Advanced Energy는 전원 장치를 직접 조립·생산하는 제조사다. 중국 공장을 닫고 필리핀·말레이시아·멕시코를 늘리는 한편 태국에 새 공장을 지어, 관세·지정학 위험을 줄이면서 생산능력을 키우고 있다. 회사는 3분기 가이드만으로 이미 연 26억 달러 이상을 쓰고 있고, 태국까지 채우면 연 약 50억 달러 매출을 감당할 수 있다고 말했다.",
+    "src": ["s3", "s4"]
+  },
+
+  "sell": {
+    "customers": [
+      "반도체 장비 회사 (식각·증착 장비에 플라즈마 전원 탑재; 이름은 공시하지 않음)",
+      "하이퍼스케일러·클라우드 회사와 그 파트너 (맞춤 서버 랙·전원 선반) - 회사는 하이퍼스케일 고객 4곳을 언급 (콜 요약)",
+      "서버·스토리지 OEM, 산업·의료 OEM, 통신 장비 회사, 유통사"
+    ],
+    "channel": "주로 OEM·클라우드 회사에 직접 판매하며 일부는 유통사를 거친다.",
+    "concentration": "2025년 3개 고객이 매출의 23%·19%·12% (이름 미공개); 미국 외 매출 70% (10-K).",
+    "text": "이렇게 만든 전원은 소수 대형 고객에게 몰려 팔린다. 2025년 상위 3개 고객이 매출의 54%였는데, 회사는 이들의 이름도 반도체 장비 쪽인지 클라우드 쪽인지도 밝히지 않는다. 데이터센터 쪽은 하이퍼스케일러 4곳에 집중하면서, 대형 클라우드 밖의 '2차 물결' 고객이 2027년부터 의미 있게 기여할 것으로 본다.",
+    "src": ["s3", "s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "반도체 제조사 (파운드리·메모리)", "to": "반도체 장비 회사", "what": "식각·증착 장비 구매 (AI 칩·HBM 증설)" },
+      { "from": "반도체 장비 회사", "to": "Advanced Energy", "what": "플라즈마 전원·시스템 전원 대금, 장비 한 대당 탑재 (Q2 2.783억 달러)" },
+      { "from": "하이퍼스케일러·클라우드 파트너", "to": "Advanced Energy", "what": "AI 서버 랙·전원 선반용 전원 대금 (Q2 1.915억 달러)" },
+      { "from": "산업·의료·통신 OEM", "to": "Advanced Energy", "what": "정밀 전원 대금 (Q2 합계 1.043억 달러)" },
+      { "from": "Advanced Energy", "to": "공장 설비·부품 공급사", "what": "설비투자 (2026년 1.8억~1.95억 달러 예상)" }
+    ],
+    "pricing": "제품 단위 판매(설계 채택 후 고객 장비·랙 생산량에 비례). 반도체 쪽은 서비스가 플라즈마 매출의 약 10%대 후반~20%를 차지한다 (콜 요약). 장기 물량 계약은 공시되지 않았다.",
+    "text": "돈은 두 갈래로 들어온다. 하나는 반도체 회사가 AI 칩 증설을 위해 장비를 사면 장비 회사가 그 안에 넣을 전원을 Advanced Energy에서 사는 길이고, 다른 하나는 클라우드 회사가 AI 서버 랙을 만들며 전원 장치를 직접 사는 길이다. 어느 쪽이든 먼저 설계에 채택돼야 하고, 그 뒤에는 고객의 생산량만큼 매출이 따라온다.",
+    "src": ["s1", "s3", "s4"]
+  },
+
+  "earnings": {
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "revenue": { "value": 574.1, "unit": "USD mn", "yoy": 30.0 },
+    "grossMargin": 41.1,
+    "operatingMargin": 16.6,
+    "netMargin": 9.4,
+    "operatingCashFlow": { "value": 86, "unit": "USD mn" },
+    "freeCashFlow": null,
+    "segments": [
+      { "name": "Semiconductor Equipment (반도체 장비)", "revenue": 278.3, "unit": "USD mn", "share": 48.5, "yoy": 32.8, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Data Center Computing (데이터센터)", "revenue": 191.5, "unit": "USD mn", "share": 33.4, "yoy": 35.2, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Industrial and Medical (산업·의료)", "revenue": 80.0, "unit": "USD mn", "share": 13.9, "yoy": 16.6, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Telecom and Networking (통신·네트워킹)", "revenue": 24.3, "unit": "USD mn", "share": 4.2, "yoy": 11.5, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "Non-GAAP 총마진·영업이익", "value": "총마진 41.9%(관세 환급 제외 40.7%), 영업이익 1.255억 달러(매출의 21.9%)", "src": ["s1", "s4"] },
+      { "name": "EPS", "value": "GAAP 1.29달러(전환사채 조기 전환 유도 비용 주당 0.75달러 포함), non-GAAP 2.74달러 - 둘 다 가이드 상단 초과", "src": ["s1"] },
+      { "name": "상반기 누적 (2026 H1)", "value": "매출 10.851억 달러, 영업현금흐름 7,900만 달러, 설비투자 8,610만 달러", "src": ["s1", "s2"] },
+      { "name": "재무구조 (2026-06-30)", "value": "현금 13.965억 달러, 총부채 12.642억 달러 (2031년 만기 0% 전환사채 11.5억 발행, 2028년 만기 2.5% 사채 상환)", "src": ["s1", "s4"] }
+    ],
+    "text": "두 갈래 수요가 함께 커지면서 Q2 2026 매출은 5.741억 달러로 전년보다 30% 늘어 사상 최대였다. 반도체 장비가 33%, 데이터센터가 35% 늘었고, 데이터센터는 전분기 대비로는 1% 줄었지만 고객 쪽 병목이 풀리며 수요가 개선됐다. GAAP 순이익률이 9.4%로 낮아 보이는 것은 전환사채를 바꾸며 생긴 일회성 비용(3,180만 달러) 때문이고, non-GAAP 영업이익률은 약 22%다.",
+    "src": ["s1", "s4"]
+  },
+
+  "useOfCash": {
+    "period": "H1 2026 (six months ended 2026-06-30)",
+    "items": [
+      { "use": "R&D", "value": 127.4, "unit": "USD mn", "src": ["s1"] },
+      { "use": "capex", "value": 86.1, "unit": "USD mn", "src": ["s1", "s2"] },
+      { "use": "debt repayment", "value": 440.5, "unit": "USD mn", "src": ["s1"] },
+      { "use": "other", "label": "새 전환사채 캡드콜(희석 방지 옵션) 매입 프리미엄", "value": 69.0, "unit": "USD mn", "src": ["s1"] },
+      { "use": "dividends", "value": 7.9, "unit": "USD mn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0.5, "unit": "USD mn", "src": ["s1"] }
+    ],
+    "text": "번 돈은 신제품과 공장에 먼저 간다. 상반기 R&D 1.274억 달러와 설비투자 8,610만 달러가 영업현금흐름(7,900만 달러)보다 크고, 올해 설비투자는 1.8억~1.95억 달러로 태국 공장과 기존 공장 증설에 쓰인다. 5월에는 0% 금리 전환사채 11.5억 달러를 새로 발행해 2.5% 금리 사채 4.4억 달러를 갚았으며, 배당·자사주는 합쳐 840만 달러로 작고 인수 기회를 계속 찾는다고 밝혔다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "aiChain": {
+    "layer": "power-energy",
+    "position": "AI 데이터센터의 서버 랙 안에서 전기를 GPU·서버가 쓸 수 있게 바꾸는 전원 장치(랙 전원·전원 선반)와, AI 칩을 만드는 식각·증착 장비 안의 플라즈마 전원을 함께 공급하는 자리.",
+    "dependsOn": ["전력 반도체·자성 부품 공급사", "필리핀·말레이시아·멕시코·태국 생산 거점", "반도체 장비 회사의 장비 출하 (WFE 사이클)"],
+    "sellsTo": ["cloud-infrastructure (하이퍼스케일러 4곳과 2차 클라우드 고객 - 랙 전원)", "semicap-foundry (식각·증착 장비 회사 - 플라즈마 전원)", "산업·의료·통신 OEM"],
+    "aiRevenue": "AI 매출 금액은 미공개. 데이터센터 컴퓨팅 Q2 2026 1.915억 달러(매출의 33%), 회사는 2026년 데이터센터 매출 성장을 50% 이상으로 상향 (2025년은 2배 이상 성장).",
+    "upside": "AI 서버 랙의 전력이 커질수록 고효율·고전력 전원이 더 필요하고, 같은 AI 수요가 식각·증착 장비 주문을 늘려 플라즈마 전원 매출도 함께 오른다. 회사는 800V급 차세대 전원을 2027년 말 첫 양산 매출, 2028년 대량 생산으로 계획한다.",
+    "risk": "데이터센터 매출이 소수 하이퍼스케일러에 몰려 있어, 한 고객의 설계 변경이나 AI 설비투자 축소가 바로 실적에 닿는다. 랙 전원은 Delta·Lite-On 같은 대만 대형 전원 업체와 경쟁하고, 800V 같은 새 전력 구조에서 다른 방식이 채택되면 기존 설계 우위가 약해질 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Advanced Energy는 '전력' 층, 그중에서도 발전소가 아니라 랙 안의 전력 변환을 맡는 자리에 있고, 동시에 '장비' 층의 부품 공급사이기도 하다. AI 투자가 늘면 랙 전원과 장비 전원 두 쪽이 함께 팔리는 구조라 한쪽만 걸친 회사보다 노출이 넓다. 다만 데이터센터 쪽은 고객 수가 적고 설계 세대가 바뀔 때마다 다시 경쟁해야 한다.",
+    "src": ["s2", "s4", "s1", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "반도체 장비용 플라즈마 전원", "rivals": ["MKS Instruments", "COMET", "Daihen", "TRUMPF Hüttinger"], "position": "leader", "share": null, "src": ["s3", "s4"] },
+      { "arena": "데이터센터 서버 랙·전원 선반", "rivals": ["Delta Electronics", "Lite-On Technology", "Flex"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "산업·의료 전원", "rivals": ["TDK-Lambda", "Delta Electronics", "MEAN WELL", "XP Power", "Cosel"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "eVerest·eVoS 플라즈마 플랫폼과 시스템 전원으로 반도체 장비 점유율을 늘리고 있고(회사는 2024년 12월 투자자의 날 계획보다 앞서 있다고 밝힘), 데이터센터에서는 고효율·고전력 랙 전원 설계 채택 실적이 있다.",
+    "threats": "랙 전원에서 규모가 큰 대만 전원 업체들의 가격 경쟁, 중국 고객의 현지 경쟁사 전환(10-K 위험 요인), 그리고 데이터센터 고객 집중.",
+    "text": "경쟁은 시장마다 상대가 다르다. 반도체 장비 전원에서는 MKS·COMET 등과 겨루며 신제품으로 점유율을 넓히는 중이고, 회사는 3~5년 동안 점유율 상승이 이어질 것으로 본다. 데이터센터 랙 전원에서는 Delta·Lite-On 같은 대형 업체와 맞서 하이퍼스케일러 설계 채택을 따내야 하는 도전자 위치이며, 2차 클라우드 고객을 넓혀 고객 집중을 낮추려 한다.",
+    "src": ["s3", "s4"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 30%대 초중반 성장(기존 20%대 초중반에서 상향), 장기 총마진 43% 이상, 2027년에도 20% 이상 성장 가능 (콜 요약).",
+    "roadmap": [
+      { "when": "Q3 2026", "what": "매출 6.4억 달러 ±2천만, 총마진 41~41.5% 가이드 (관세 환급 제외)", "src": ["s1", "s4"] },
+      { "when": "Q4 2026", "what": "태국 공장 첫 생산 매출, 총마진 42% 수준 예상", "src": ["s4"] },
+      { "when": "2027", "what": "대형 클라우드 밖 2차 데이터센터 고객이 의미 있게 기여; 반도체 신제품 매출 가속", "src": ["s4"] },
+      { "when": "2027 말 / 2028", "what": "800V 차세대 데이터센터 전원 첫 양산 매출 / 대량 생산", "src": ["s4"] },
+      { "when": "2030", "what": "시스템 전원 사업 4천만 달러 성장 목표", "src": ["s4"] }
+    ],
+    "vision": "반도체 장비와 AI 데이터센터라는 두 성장 시장에서 정밀 전력 변환의 표준 공급사가 되고, 신제품으로 시장보다 빠르게 크겠다는 그림이다.",
+    "text": "이 경쟁에서 회사가 택한 길은 신제품과 생산능력을 동시에 키우는 것이다. 반도체 쪽은 새 플라즈마 플랫폼으로 점유율을 더 가져오고, 데이터센터 쪽은 2027년 2차 고객과 2027년 말 800V 전원으로 다음 세대 랙을 노린다. 태국 공장은 이 성장을 받칠 생산능력이자 관세·지정학 위험을 나누는 장치다.",
+    "src": ["s4", "s1"]
+  },
+
+  "governance": {
+    "line": "Steve Kelley 사장 겸 CEO가 이끌며, 분기 배당 소액 외에는 현금을 신제품·공장·인수와 전환사채 재조달에 쓰는 성장 우선 기조다.",
+    "src": ["s1", "s4"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "6.4억 달러 ±2천만", "givenOn": "2026-08-03", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "EPS", "value": "GAAP 2.38달러 ±0.25, non-GAAP 3.00달러 ±0.25", "givenOn": "2026-08-03", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "gross margin", "value": "41~41.5% (일회성 관세 환급 제외, 콜 발언)", "givenOn": "2026-08-03", "src": ["s4"] },
+      { "period": "FY2026", "metric": "revenue growth", "value": "30%대 초중반 (기존 20%대 초중반), 데이터센터는 50% 이상", "givenOn": "2026-08-03", "src": ["s4"] },
+      { "period": "FY2026", "metric": "capex", "value": "1.8억~1.95억 달러", "givenOn": "2026-08-03", "src": ["s4"] }
+    ],
+    "style": "quarterly",
+    "track": "Q2 2026 매출과 EPS 모두 회사 가이드 상단을 넘었다 (s1). 연간 성장 전망은 이번 분기에 한 단계 올렸다.",
+    "src": ["s1", "s4"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "Q3 매출이 6.4억 달러 가이드 이상, 데이터센터 매출이 전분기 대비 다시 증가",
+      "총마진이 41~42%대로 오르며 43% 장기 목표에 접근",
+      "태국 공장이 4분기 첫 생산 매출을 예정대로 냄",
+      "2차 데이터센터 고객 설계 채택 발표",
+      "반도체 장비 매출이 하반기 전년 대비 약 50% 성장 경로 유지"
+    ],
+    "breaks": [
+      "데이터센터 매출이 두 분기 이상 정체 또는 감소",
+      "상위 고객의 설계 변경·발주 축소 언급",
+      "WFE(반도체 장비 투자) 전망 하향",
+      "관세·중국 규제로 총마진 하락",
+      "800V 전원 일정 지연"
+    ],
+    "keyNumbers": [
+      { "name": "데이터센터 컴퓨팅 매출", "why": "AI 랙 전원 수요의 직접 지표" },
+      { "name": "반도체 장비 매출", "why": "AI 칩·메모리 증설이 장비 주문으로 오는지" },
+      { "name": "non-GAAP 총마진", "why": "신제품·공장 이전 효과가 수익성으로 바뀌는지" },
+      { "name": "상위 3개 고객 비중", "why": "고객 집중 위험의 크기" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-02 (장 마감 후)", "event": "Q3 2026 실적과 Q4 가이던스", "src": ["s5"] },
+      { "date": "Q4 2026", "event": "태국 공장 첫 생산 매출 (회사 일정)", "src": ["s4"] },
+      { "date": "매 분기", "event": "주요 식각·증착 장비 회사 실적과 하이퍼스케일러 설비투자 발표", "src": ["s3", "s2"] }
+    ],
+    "reaction": "주가는 분기 실적보다 다음 분기 가이드, 특히 데이터센터 매출 방향과 연간 성장 전망 조정에 반응한다. 데이터센터 고객이 소수라 한 분기 정체에도 'AI 수요 둔화'로 읽히기 쉽고, 반도체 장비 업황 뉴스에도 함께 움직인다.",
+    "conditions": [
+      "다음 분기 매출·EPS 가이드와 시장 기대의 차이",
+      "데이터센터 매출의 전분기 대비 방향",
+      "연간 성장 전망 상향·하향 여부",
+      "총마진 가이드 (42%대 진입 여부)",
+      "하이퍼스케일러 설비투자 계획 변화"
+    ]
+  },
+
+  "unverified": [
+    "상위 3개 고객(23%·19%·12%)의 이름과 반도체·데이터센터 구분",
+    "AI 관련 매출 금액 (회사 미공시)",
+    "Q2 2026 분기 설비투자 (콜 요약은 5,000만 달러) - 그래서 Q2 잉여현금흐름은 비움",
+    "콜 내용(s4)은 2차 AI 요약이라 성장 전망·생산능력·800V 일정은 원문 대조 필요",
+    "Q3 실적 발표일 2026-11-02는 검색 결과 제목에서 확인, 회사 원문 미확인",
+    "시장별 점유율 수치",
+    "컨센서스 추정치 (AIO 로컬 스냅샷에 없음)"
+  ],
+  "confidence": "medium - 실적·시장별 매출·현금흐름은 8-K·10-Q 원문이지만, 연간 전망·생산능력·신제품 일정은 2차 콜 요약에 기대고 있다."
+}

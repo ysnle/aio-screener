@@ -1,0 +1,215 @@
+{
+  "symbol": "ACMR",
+  "name": "ACM Research, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "ACM Research는 미국에 상장했지만 매출의 99% 이상을 중국 반도체 공장에서 버는 웨이퍼 세정·도금 장비 회사로, 중국의 반도체 자급 투자 덕에 Q3 2026 매출이 35% 안팎 늘 것으로 예비 집계됐지만 AI와의 연결은 간접적이고 미국 수출 규제 대상 자회사를 안고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "ACM Research Reports Second Quarter 2026 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1680062/000162828026054581/acmr-q22026xearningsreleas.htm", "publisher": "ACM Research / SEC EDGAR", "date": "2026-08-07" },
+    { "id": "s2", "kind": "10-Q", "title": "ACM Research Form 10-Q for the quarter ended 2026-06-30", "url": "https://www.sec.gov/Archives/edgar/data/1680062/000162828026054832/acmr-20260630.htm", "publisher": "ACM Research / SEC EDGAR", "date": "2026-08-07" },
+    { "id": "s3", "kind": "10-Q", "title": "ACM Research Form 10-Q for the quarter ended 2026-03-31 (Q1 cash flow, used to derive Q2)", "url": "https://www.sec.gov/Archives/edgar/data/1680062/000162828026032842/acmr-20260331.htm", "publisher": "ACM Research / SEC EDGAR", "date": "2026-05-08" },
+    { "id": "s4", "kind": "10-K", "title": "ACM Research Form 10-K for fiscal year 2025", "url": "https://www.sec.gov/Archives/edgar/data/1680062/000162828026013231/acmr-20251231.htm", "publisher": "ACM Research / SEC EDGAR", "date": "2026-03-02" },
+    { "id": "s5", "kind": "8-K", "title": "ACM Research Announces Preliminary Unaudited Revenue and Shipments for the Third Quarter 2026 (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1680062/000162828026067734/a1028_acmrq32026prelimreva.htm", "publisher": "ACM Research / SEC EDGAR", "date": "2026-10-28" },
+    { "id": "s6", "kind": "8-K", "title": "ACM Research's Operating Subsidiary ACM Research (Shanghai) Provides Backlog Data (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1680062/000162828026063896/acmr-acmshbacklogdata_9302.htm", "publisher": "ACM Research / SEC EDGAR", "date": "2026-09-30" }
+  ],
+
+  "moat": {
+    "sources": [
+      "SAPS·TEBO·Tahoe 같은 자체 세정 기술 - 미세 패턴을 손상시키지 않고 입자를 제거 (10-K)",
+      "세정에서 전기도금(ECP)·퍼니스·트랙·PECVD·패키징 장비로 넓힌 제품군 - ECP 챔버 누적 2,000개 출하 (8-K)",
+      "중국 내 생산·서비스 기반과 중국 고객과의 장기 관계 - 2025년 매출의 99.6%가 중국 본토 (10-K)",
+      "'데모 투 세일즈' 방식 - 평가용 첫 장비를 고객 공장에 넣어 검증 후 판매 (10-K)"
+    ],
+    "text": "반도체 웨이퍼는 수백 번의 공정 사이마다 씻어 내야 하고, 패턴이 미세해질수록 패턴을 망가뜨리지 않고 먼지만 빼내는 세정이 어려워진다. ACM은 자체 개발한 세정 기술로 출발해 중국 반도체 공장에 자리 잡았고, 그 관계를 발판으로 도금·퍼니스·트랙 같은 다른 장비로 넓혀 왔다. 이 회사의 진짜 해자는 기술 하나보다 중국 고객 바로 옆에서 장비를 만들고 고쳐 주는 위치에 있다.",
+    "src": ["s4", "s1"]
+  },
+
+  "design": {
+    "text": "그 위치에서 회사가 파는 장비는 세 묶음으로 보고된다. 단일 웨이퍼 세정·Tahoe·준핵심 세정 장비, ECP(전공정·패키징)·퍼니스 등 기타 기술, 그리고 첨단 패키징 장비(ECP 제외)와 서비스·부품이다. 2026년에는 SPM 세정, 트랙, PECVD, 패널 레벨 도금 같은 신제품의 고객 평가와 램프가 몰려 있어 회사는 올해를 신제품의 '빅 이어'라고 불렀다.",
+    "src": ["s1", "s4"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 공장 - 중국 상하이(링강 신규 R&D·생산 거점 포함) (10-K)",
+      "미국 오리건 힐스버러 시설 - 클린룸 포함 건물 매입, 미국 R&D·생산·데모 확장 중 (10-K, 8-K)",
+      "부품 공급사 - 미국 수출 규제(Entity List)로 미국산 부품·기술 공급에 허가 필요 (10-Q)"
+    ],
+    "text": "ACM은 장비를 주로 중국 상하이 자체 공장에서 만든다. 다만 핵심 운영 자회사인 ACM Shanghai와 ACM Korea가 2024년 12월 미국 Entity List에 올라, 미국 규제 대상 부품·소프트웨어·기술을 받으려면 허가가 필요해졌다. 회사는 미국 오리건에 클린룸이 딸린 시설을 사들여 중국 밖 고객을 위한 거점을 만들고 있다.",
+    "src": ["s4", "s2", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "중국 본토 반도체 제조사 - 2025년 매출 8.98억 달러, 전체의 99.6% (10-K, 고객명 미공개)",
+      "중국 본토 첨단 패키징 고객 - 510×515mm 패널 도금 장비 첫 양산 주문 (8-K)",
+      "아시아 패널 제조사(신규) - 310×310mm 평가용 장비 주문 (8-K)",
+      "북미·유럽·동남아 신규 고객 개척 중 (10-K)"
+    ],
+    "channel": "반도체 제조사에 직접 판매하며, 평가용 첫 장비를 넣고 고객 승인 뒤 매출로 인식하는 방식을 함께 쓴다.",
+    "concentration": "Q2 2026 상위 3개 고객이 매출의 43.5% (전년 같은 분기 4개 고객 66.5%). 상반기 기준 10% 넘는 고객은 1곳(12.7%) (10-Q).",
+    "text": "이렇게 만든 장비는 거의 전부 중국 반도체 공장으로 간다. 2025년 매출 9.01억 달러 중 8.98억 달러가 중국 본토였고, 2026년 2분기에도 상위 3개 고객이 매출의 43.5%였다. 회사는 중국 밖 고객을 늘리겠다고 말하지만, 지금 실적은 중국의 반도체 설비투자 속도에 거의 그대로 묶여 있다.",
+    "src": ["s4", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "중국 내 칩 수요 (AI 서버·스마트폰·자동차·산업)", "to": "중국 파운드리·메모리·패키징 업체", "what": "칩 구매와 자급화 투자" },
+      { "from": "중국 파운드리·메모리·패키징 업체", "to": "ACM Shanghai", "what": "세정·도금·퍼니스·패키징 장비 대금(대당), 첫 장비는 고객 승인 후 매출 인식" },
+      { "from": "설치 기반 고객", "to": "ACM Shanghai", "what": "서비스·부품 대금" },
+      { "from": "ACM Shanghai (ACM이 73.2% 보유, 상하이 증시 상장)", "to": "ACM Research (미국 상장사)", "what": "연결 이익; 배당은 다른 주주와 비례해야 해 미국 쪽으로 현금 이동이 어려움" }
+    ],
+    "pricing": "장비를 대당 판매하고, 평가용 '첫 장비'는 출하 후 고객 승인이 나야 매출이 된다. 그래서 출하액과 매출액이 분기마다 다르고, 백로그에는 출하됐지만 아직 인식 안 된 주문도 들어 있다.",
+    "text": "돈은 중국 칩 수요와 자급화 투자에서 출발해 상하이 증시에 상장된 자회사 ACM Shanghai에 장비 대금으로 들어온다. 미국 상장사 ACM Research는 이 자회사의 73.2%를 보유해 이익을 연결하지만, 10-K는 중국 자회사의 현금을 미국 모회사로 배당받기가 쉽지 않다고 밝힌다. 투자자는 사실상 중국 장비 자회사의 지분을 미국 시장에서 들고 있는 셈이다.",
+    "src": ["s4", "s5", "s1"]
+  },
+
+  "earnings": {
+    "period": "Q2 2026 (ended 2026-06-30; Q3 full results due 2026-11-05)",
+    "revenue": { "value": 292.9, "unit": "USD mn", "yoy": 36.0 },
+    "grossMargin": 46.0,
+    "operatingMargin": 17.0,
+    "netMargin": 30.4,
+    "operatingCashFlow": { "value": -6.4, "unit": "USD mn" },
+    "freeCashFlow": { "value": -75.8, "unit": "USD mn" },
+    "segments": [
+      { "name": "단일 웨이퍼 세정·Tahoe·준핵심 세정", "revenue": 133.0, "unit": "USD mn", "share": 45.4, "yoy": -14.2, "operatingMargin": null, "src": ["s1"] },
+      { "name": "ECP(전공정·패키징)·퍼니스·기타 기술", "revenue": 128.5, "unit": "USD mn", "share": 43.9, "yoy": 167.7, "operatingMargin": null, "src": ["s1"] },
+      { "name": "첨단 패키징(ECP 제외)·서비스·부품", "revenue": 31.4, "unit": "USD mn", "share": 10.7, "yoy": 153.3, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "Q3 2026 예비 매출", "value": "3.60억~3.65억 달러 (전년 대비 +34~36%), 출하 3.35억~3.40억 달러 (+27~29%)", "src": ["s5"] },
+      { "name": "ACM Shanghai 백로그 (2026-09-29)", "value": "171억 위안(약 25억 달러), 전년 대비 +88.2%", "src": ["s6"] },
+      { "name": "Q2 2026 출하", "value": "2.815억 달러, 전년 대비 +36.4%", "src": ["s1"] },
+      { "name": "Non-GAAP 순이익 (Q2 2026)", "value": "4,450만 달러 - GAAP 순이익 8,900만 달러에는 단기투자 평가이익 6,960만 달러 포함", "src": ["s1"] },
+      { "name": "Q2 분기 현금흐름 산출", "value": "상반기(10-Q Q2)에서 1분기(10-Q Q1)를 뺀 값; FCF는 회사 정의(장기투자 매입 포함)", "src": ["s2", "s3"] }
+    ],
+    "text": "그 결과 Q2 매출은 2.93억 달러로 36% 늘었고, 예비 집계로 Q3에는 3.6억 달러대로 더 커졌다. 성장은 주력이던 세정(-14%)이 아니라 도금·퍼니스(+168%)와 패키징(+153%)이 이끌어, 제품군 확장이 실제로 매출을 바꾸고 있다. 다만 GAAP 순이익의 상당 부분은 투자 평가이익이고, 재고가 늘면서 분기 영업현금흐름은 소폭 마이너스였다.",
+    "src": ["s1", "s5", "s2", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "H1 2026 (Jan-Jun)",
+    "items": [
+      { "use": "capex", "value": 87.3, "unit": "USD mn", "src": ["s2"] },
+      { "use": "R&D", "value": 78.8, "unit": "USD mn", "src": ["s1"] },
+      { "use": "other", "label": "ACM Shanghai 소수주주 몫 배당", "value": 11.8, "unit": "USD mn", "src": ["s2"] }
+    ],
+    "text": "번 돈은 공장과 연구개발로 간다. 상반기 설비투자는 8,730만 달러로 1년 전의 세 배 가까이 됐고 R&D는 7,880만 달러였다. 반대로 같은 기간 미국 모회사 신주 발행(1.48억 달러)과 ACM Shanghai 지분 매각(1.10억 달러)으로 돈을 끌어와, 6월 말 순현금은 10억 달러에 이르렀다. 회사는 당분간 배당 계획이 없다고 밝혔다.",
+    "src": ["s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "중국 파운드리·메모리·패키징 공장에 세정·도금·퍼니스·패키징 장비를 대는 전공정·후공정 장비 층. AI와는 중국 내 첨단 로직·메모리·HBM·3D 패키징 투자를 통해 간접적으로 연결된다.",
+    "dependsOn": ["미국 수출 허가 (Entity List에 오른 ACM Shanghai·ACM Korea)", "부품 공급망", "중국 정부·고객의 반도체 설비투자"],
+    "sellsTo": ["중국 파운드리·로직 공장", "memory (중국 DRAM·NAND 제조사)", "중국 첨단 패키징 업체", "패널 레벨 패키징 업체 (아시아)"],
+    "aiRevenue": null,
+    "upside": "AI 칩과 HBM에 필요한 첨단 로직·메모리·3D 패키징을 중국이 자체적으로 늘릴수록 세정·도금 공정 수가 늘어 장비 주문이 커진다. 회사는 고온 SPM 세정을 GAA 로직·DRAM·HBM용으로, ECP와 패널 도금을 3D 패키징용으로 내세운다.",
+    "risk": "AI 관련 매출이 공개되지 않아 AI 효과를 직접 확인할 수 없다. 미국 수출 규제가 더 강해지거나 중국 설비투자가 둔화하면 매출 대부분이 한꺼번에 흔들리고, 중국 현지 장비 업체와의 경쟁도 거세지고 있다.",
+    "text": "그래서 AI 가치사슬에서 ACM은 '장비·파운드리' 층에 있지만, 글로벌 AI 공급망이 아니라 중국 안의 공급망에 속한다. 중국이 AI 칩과 HBM을 스스로 만들려고 설비를 늘리는 만큼 혜택을 보지만, AI 매출은 따로 공개되지 않는다. 이 회사의 AI 이야기는 '중국 반도체 자급'이라는 더 큰 이야기의 한 부분으로 읽는 편이 정확하다.",
+    "src": ["s1", "s4", "s2"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "웨이퍼 세정", "rivals": ["SCREEN Holdings", "Tokyo Electron", "Lam Research", "SEMES", "NAURA"], "position": "challenger", "share": null, "src": ["s4"] },
+      { "arena": "전기도금(ECP)·퍼니스", "rivals": ["Lam Research", "Kokusai Semiconductor Equipment", "Tokyo Electron", "NAURA"], "position": "challenger", "share": null, "src": ["s4"] },
+      { "arena": "PECVD·트랙", "rivals": ["Lam Research", "Applied Materials", "Tokyo Electron", "Suzhou Jingtuo Semiconductor"], "position": "follower", "share": null, "src": ["s4"] },
+      { "arena": "패널 레벨 패키징 도금", "rivals": ["이름 미확인"], "position": "niche", "share": null, "src": ["s1"] }
+    ],
+    "edge": "중국 고객 옆에서 만들고 고치는 현지 생산·서비스, 자체 세정 기술, 평가용 장비로 빠르게 검증받는 영업 방식, 넓어지는 제품군.",
+    "threats": "NAURA 등 중국 현지 장비 업체의 빠른 추격, 미국 수출 규제 강화, 글로벌 대형 장비사의 기술·규모 우위.",
+    "text": "이 층의 경쟁자는 10-K가 이름을 든 Lam·Tokyo Electron·SCREEN·SEMES 같은 글로벌 장비사와 NAURA 같은 중국 업체다. 미국·일본 장비의 중국 판매가 제한될수록 ACM 같은 현지 생산 업체가 빈자리를 채울 기회가 생기지만, 같은 이유로 중국 현지 경쟁사도 빠르게 커지고 있다. 회사는 점유율을 공개하지 않으며, 신제품 평가 통과와 출하 증가로 경쟁력을 보여준다.",
+    "src": ["s4", "s1"]
+  },
+
+  "strategy": {
+    "goal": "장기 매출 목표 40억 달러, 장기 총마진 목표 42~48% (8-K). 2026년 매출 25~30% 성장 전망.",
+    "roadmap": [
+      { "when": "FY2026", "what": "매출 11.25억~11.75억 달러 가이드 (8월 상향), SPM 세정·트랙·PECVD·패널 도금 신제품 평가·램프", "src": ["s1"] },
+      { "when": "Q4 2026", "what": "아시아 신규 패널 제조사에 310×310mm 평가용 ECP 장비 납품", "src": ["s1"] },
+      { "when": "2027 상반기", "what": "중국 패키징 고객에 510×515mm 패널 도금 장비 첫 양산 납품", "src": ["s1"] },
+      { "when": "진행 중", "what": "미국 오리건 시설에서 미국 R&D·생산·데모 역량 확장", "src": ["s1", "s4"] }
+    ],
+    "vision": "세정 전문 회사에서 여러 공정 장비를 갖춘 종합 장비 회사로 커지고, 중국 밖 고객까지 넓혀 매출 40억 달러 규모가 되겠다는 그림이다.",
+    "text": "이 경쟁에서 회사가 택한 길은 제품을 늘리는 것이다. 2026년에 SPM 세정·트랙·PECVD·패널 도금이 동시에 고객 평가와 램프를 밟고, 패널 도금은 2027년 상반기 첫 양산 납품을 앞두고 있다. 장기 목표는 매출 40억 달러로, 2026년 가이드의 3.5배쯤이다.",
+    "src": ["s1"]
+  },
+
+  "governance": {
+    "line": "창업자 David Wang 박사가 CEO로 이끌며, 20배 의결권 Class B 주식 보유자(임원·직원·이사 중심)가 의결권 62.3%를 쥐고, 핵심 자산인 ACM Shanghai는 73.2%만 보유한 상하이 상장 자회사이며 배당 계획은 없다.",
+    "src": ["s1", "s4", "s5", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "FY2026", "metric": "revenue", "value": "11.25억~11.75억 달러 (이전 10.8억~11.75억)", "givenOn": "2026-08-07", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "preliminary revenue", "value": "3.60억~3.65억 달러 (예비, 미감사)", "givenOn": "2026-10-28", "src": ["s5"] },
+      { "period": "Q3 2026", "metric": "preliminary shipments", "value": "3.35억~3.40억 달러", "givenOn": "2026-10-28", "src": ["s5"] },
+      { "period": "long term", "metric": "gross margin model", "value": "42~48%", "givenOn": "2026-08-07", "src": ["s1"] }
+    ],
+    "style": "annual",
+    "track": "8월에 연간 가이드 하단을 10.8억에서 11.25억 달러로 올렸다. 상반기 매출 5.24억에 Q3 예비 3.6억 달러대를 더하면 9개월 약 8.8억 달러로, 연간 가이드 달성에는 Q4에 약 2.4억~2.9억 달러가 필요하다(단순 계산).",
+    "src": ["s1", "s5"]
+  },
+
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+
+  "watch": {
+    "confirms": [
+      "11월 5일 Q3 확정 실적이 예비치(3.60억~3.65억 달러)와 맞고 연간 가이드 유지·상향",
+      "ACM Shanghai 백로그가 계속 늘어남 (9월 말 171억 위안)",
+      "SPM 세정·트랙·PECVD 신제품이 고객 승인을 받아 매출로 전환",
+      "패널 도금 장비 추가 주문",
+      "중국 밖 고객 매출 발생"
+    ],
+    "breaks": [
+      "미국 수출 규제 강화나 부품 조달 차질",
+      "중국 반도체 설비투자 둔화",
+      "총마진이 장기 목표 하단(42%) 아래로 하락",
+      "평가용 장비의 고객 승인 지연으로 출하와 매출 격차 확대",
+      "중국 현지 경쟁사의 세정·도금 점유율 확대"
+    ],
+    "keyNumbers": [
+      { "name": "출하액과 매출액", "why": "평가 장비 승인 속도와 다음 분기 매출의 선행 신호" },
+      { "name": "ACM Shanghai 백로그", "why": "중국 고객 주문 흐름" },
+      { "name": "제품군별 매출 (세정 vs 도금·퍼니스·패키징)", "why": "제품 확장이 성장을 이끄는지" },
+      { "name": "총마진", "why": "신제품 초기 원가와 가격 경쟁의 결과" },
+      { "name": "영업현금흐름", "why": "재고 증가가 현금으로 돌아오는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-05", "event": "Q3 2026 확정 실적 발표와 콜 (미 동부 오전 8시), 연말 매출 전망", "src": ["s5"] },
+      { "date": "분기마다", "event": "ACM Shanghai의 상하이 증시 실적·백로그 공시 (미국 발표보다 먼저 나옴)", "src": ["s5", "s6"] },
+      { "date": "수시", "event": "미국 수출 규제(Entity List 등) 변경", "src": ["s2"] }
+    ],
+    "reaction": "주가는 실적 자체보다 미국·중국 무역·수출 규제 뉴스와 연간 가이드 변화에 크게 반응한다. ACM Shanghai가 상하이 증시에 실적·백로그를 먼저 공시하고 미국 예비 발표가 같은 날 나오기 때문에, 확정 실적 발표 때는 숫자보다 전망과 신제품 발언이 더 중요해진다.",
+    "conditions": [
+      "Q3 확정 실적과 예비치의 차이, 연간 가이드 변화",
+      "출하액과 매출액의 격차",
+      "ACM Shanghai 백로그 방향",
+      "미국 수출 규제 관련 발표",
+      "중국 반도체 설비투자 관련 뉴스"
+    ]
+  },
+
+  "unverified": [
+    "AI 관련 매출 금액·비중 (회사 미공개)",
+    "주요 고객 이름 (10-K·10-Q 미공개)",
+    "세정·도금 장비 시장 점유율 (출처 미확인)",
+    "Q3 2026 확정 실적·이익률·현금흐름 (2026-11-05 발표 예정; 이번에는 예비 매출·출하만 반영)",
+    "Q2 분기 영업현금흐름·FCF는 상반기에서 1분기를 빼 산출한 값",
+    "Q2 순이익률 30.4%는 단기투자 평가이익이 포함된 GAAP 기준",
+    "백로그는 ACM Shanghai 중국 회계 기준이며 달러 환산은 9월 29일 환율 기준 참고치",
+    "컨센서스 추정치 (AIO 스냅샷에 없음)",
+    "실적 콜 녹취록 (확인하지 못함)"
+  ],
+  "confidence": "medium - 숫자는 모두 8-K·10-Q·10-K에서 왔지만 Q3 확정 실적이 11월 5일에야 나오고, AI 노출이 공개되지 않아 AI 사슬 설명은 회사 제품 설명에 기대고 있다."
+}

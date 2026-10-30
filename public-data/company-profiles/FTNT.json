@@ -1,0 +1,212 @@
+{
+  "symbol": "FTNT",
+  "name": "Fortinet, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (Q3 2026 ended 2026-09-30)",
+  "oneLine": "Fortinet은 자체 설계 보안 칩(FortiASIC)을 넣은 방화벽 장비 FortiGate와 그 위에 얹는 보안 구독 서비스를 파는 회사로, AI가 새 공격 경로를 만들면서 방화벽 교체 수요가 커져 2026년 청구액(billings) 가이던스를 세 번째 올렸다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Fortinet Reports Strong Third Quarter 2026 Financial Results (full release text with tables; company IR copy returned 403)", "url": "https://investingnews.com/fortinet-reports-strong-third-quarter-2026-financial-results/", "publisher": "Fortinet via Investing News Network", "date": "2026-10-28" },
+    { "id": "s2", "kind": "call-transcript", "title": "Fortinet (FTNT) Q3 2026 Earnings Call Transcript", "url": "https://www.fool.com/earnings/call-transcripts/2026/10/29/fortinet-ftnt-q3-2026-earnings-call-transcript/", "publisher": "The Motley Fool", "date": "2026-10-28" },
+    { "id": "s3", "kind": "10-K", "title": "Fortinet Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1262039/000126203926000007/ftnt-20251231.htm", "publisher": "Fortinet / SEC EDGAR", "date": "2026-02-25" },
+    { "id": "s4", "kind": "other", "title": "Fortinet business description summarising FY2025 10-K customer concentration (secondary; accessed date)", "url": "https://vectorshift.ai/research/companies/fortinet", "publisher": "VectorShift", "date": "2026-10-30" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/ftnt/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "자체 설계 보안 전용 칩(FortiASIC) - 범용 CPU 장비보다 같은 가격에 더 많은 트래픽을 검사하도록 설계 (10-K)",
+      "하나의 운영체제(FortiOS) 위에 방화벽·SD-WAN·SASE·OT 보안을 묶은 단일 플랫폼 (10-K, 콜)",
+      "설치된 FortiGate 장비 기반 - 장비 교체 주기와 보안 구독 갱신이 반복 매출을 만든다 (콜)",
+      "유통사·리셀러·MSSP로 이어지는 2단계 채널과 전 세계 중견·대기업 고객 기반 (10-K)"
+    ],
+    "text": "Fortinet의 출발점은 보안 검사용 칩을 직접 설계한다는 점이다. 범용 칩에 소프트웨어만 얹은 경쟁 장비보다 같은 값에 더 많은 트래픽을 처리할 수 있다는 것이 FortiGate 방화벽의 가격 경쟁력이고, 그 위에 하나의 운영체제로 SD-WAN·SASE·OT 보안까지 묶는다. 장비가 한 번 깔리면 위협 정보 구독과 지원 서비스가 해마다 갱신되기 때문에, 설치 기반 자체가 해자가 된다.",
+    "src": ["s3", "s2"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 내놓는 것은 매출 보고 기준으로 제품과 서비스 두 갈래다. 제품은 FortiGate 방화벽 장비와 스위치·무선 AP 등 하드웨어, 그리고 소프트웨어 라이선스이고, 서비스는 FortiGuard 위협 정보·보안 구독, 기술 지원, SASE·SecOps 같은 클라우드 서비스다. 2026년 3분기에는 AI 앱과 에이전트를 검사하는 FortiGuard Inline AI Security 서비스를 새로 냈다.",
+    "src": ["s1", "s3"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "Toshiba America Electronic Components·Renesas Electronics America - FortiASIC 칩 위탁 생산 (파운드리는 TSMC 또는 해당 업체 자체, 대만·일본)",
+      "Accton·IBASE·Micro-Star·Senao·Wistron 등 - FortiGate 등 장비 조립 위탁 생산",
+      "하드웨어의 약 87%가 대만에서 생산 (10-K)"
+    ],
+    "text": "칩 설계와 소프트웨어는 직접 하고, 실물 생산은 맡긴다. FortiASIC은 Toshiba·Renesas가 TSMC나 자체 공장에서 만들고, 장비 조립은 Accton·Wistron 같은 대만 업체가 맡아 하드웨어의 약 87%가 대만에서 나온다. 그래서 부품 값과 리드타임이 바로 원가에 들어오는데, 회사는 3분기에 부품 원가 상승과 리드타임 증가를 언급했고 재고는 2025년 말 3.995억 달러에서 5.912억 달러로 늘었다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "중견·대기업, 통신사·서비스 사업자, 정부·공공 (10-K)",
+      "유통사 Arrow Electronics·Exclusive·Ingram Micro·TD Synnex 경유 (10-K)",
+      "100만 달러 이상 대형 거래 금액이 Q3 2026에 전년 대비 +51% (콜)"
+    ],
+    "channel": "2단계 유통: Fortinet → 유통사 → 리셀러·서비스 사업자·MSSP → 최종 고객. 일부 대형 서비스 사업자·시스템 통합사·대형 고객에는 직접 판매 (10-K).",
+    "concentration": "FY2025 유통사 3곳이 각각 매출의 10% 이상 - 28%·15%·12% (2차 요약 인용, 10-K 원문 미확인). 지역별 매출은 미주 40%, EMEA 42%, 아시아태평양 18% (10-K).",
+    "text": "이렇게 만든 장비와 구독은 거의 전부 유통사를 거쳐 팔린다. 회사가 Arrow·Exclusive·Ingram Micro·TD Synnex 같은 유통사에 넘기면, 리셀러와 통신사·MSSP가 최종 고객에게 설치해 준다. 매출의 42%가 EMEA, 40%가 미주로 지역이 고르게 퍼져 있고, 대신 유통사 몇 곳에 매출이 몰리는 구조다.",
+    "src": ["s3", "s4", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "기업·통신사·정부 등 최종 고객", "to": "리셀러·서비스 사업자·MSSP", "what": "방화벽 장비와 보안 구독 구매, 설치·운영 대가" },
+      { "from": "리셀러·MSSP", "to": "유통사 (Arrow·Exclusive·Ingram Micro·TD Synnex)", "what": "장비·라이선스·구독 주문 대금" },
+      { "from": "유통사", "to": "Fortinet", "what": "제품 대금(장비 출하 시 인식)과 서비스 대금(계약 기간에 걸쳐 인식)" },
+      { "from": "Fortinet", "to": "Toshiba·Renesas·대만 조립 업체", "what": "FortiASIC 칩과 장비 위탁 생산 대금" }
+    ],
+    "pricing": "장비는 대당 판매해 출하 시 제품 매출로 잡고, FortiGuard 보안 구독·기술 지원·클라우드 서비스는 다년 계약으로 미리 청구한 뒤 기간에 걸쳐 서비스 매출로 인식한다. 그래서 청구액(billings)과 이연 매출이 앞으로의 서비스 매출을 먼저 보여 준다. 3분기 청구액 성장 29% 중 약 10%포인트는 가격 인상 효과였다.",
+    "text": "돈은 최종 고객이 리셀러를 통해 장비와 구독을 사면서 유통사를 거쳐 Fortinet에 들어온다. 장비 대금은 바로 매출이 되지만, 구독은 먼저 청구해 이연 매출(9월 말 단기 39.6억·장기 39.7억 달러)로 쌓아 두었다가 몇 년에 걸쳐 매출로 바뀐다. 그래서 이 회사는 매출보다 청구액이 먼저 움직이고, 시장도 청구액 가이던스를 가장 먼저 본다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 2.0784, "unit": "USD bn", "yoy": 20 },
+    "grossMargin": 79.0,
+    "operatingMargin": 33.9,
+    "netMargin": 30.6,
+    "operatingCashFlow": { "value": 946.0, "unit": "USD mn" },
+    "freeCashFlow": { "value": 864.8, "unit": "USD mn" },
+    "segments": [
+      { "name": "Product (장비·라이선스)", "revenue": 765.0, "unit": "USD mn", "share": 36.8, "yoy": 37, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Service (보안 구독·지원·클라우드)", "revenue": 1313.4, "unit": "USD mn", "share": 63.2, "yoy": 12.7, "operatingMargin": null, "src": ["s1", "s2"] }
+    ],
+    "industryMetric": [
+      { "name": "청구액 (billings)", "value": "Q3 2026 23.363억 달러, 전년 대비 +29%; 서비스 청구액 +26%", "src": ["s1", "s2"] },
+      { "name": "이연 매출 (2026-09-30)", "value": "단기 39.61억, 장기 39.734억 달러; 단기 이연 매출 +14.5% (콜)", "src": ["s1", "s2"] },
+      { "name": "분야별 청구액 성장 (Q3 2026)", "value": "SASE 방화벽 +31%, OT 약 +40%, AI 기반 SecOps +15%, 100만 달러 이상 거래 금액 +51% (콜)", "src": ["s2"] },
+      { "name": "non-GAAP 영업이익률", "value": "Q3 2026 38.2% (3분기 기준 사상 최고, +130bp)", "src": ["s1", "s2"] },
+      { "name": "연간 실적 (FY2025)", "value": "매출 67.996억 달러, 제품 22.184억·서비스 45.812억; 총마진 80.5%, 영업이익률 30.7%, 잉여현금흐름 22.118억 달러", "src": ["s3"] }
+    ],
+    "text": "이 흐름이 2026년 3분기에 매출 20.78억 달러(+20%)로 나타났는데, 장비 매출이 37% 늘어 서비스(+13%)보다 훨씬 빨랐다. 영업이익률은 GAAP 33.9%, non-GAAP 38.2%로 높고 잉여현금흐름이 8.65억 달러로 52% 늘었다. 이익은 마진이 높은 서비스 구독에서 주로 나오지만, 지금 성장을 끄는 것은 방화벽 교체 수요가 몰린 장비 쪽이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "2026년 1~9월 (9개월)",
+    "items": [
+      { "use": "buybacks", "value": 972.8, "unit": "USD mn", "src": ["s1"] },
+      { "use": "capex", "value": 212.8, "unit": "USD mn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 9.8, "unit": "USD mn", "src": ["s1"] }
+    ],
+    "text": "2026년 9개월 동안 영업현금흐름 30.67억 달러를 벌어 자사주 매입에 9.73억 달러, 설비투자에 2.13억 달러를 썼고 인수는 1천만 달러 수준에 그쳤다. R&D 비용은 3분기 한 분기 2.134억 달러(FY2025 연간 8.155억 달러)로, 칩과 소프트웨어 개발이 주된 투자다. 이사회는 3분기에 자사주 매입 한도를 약 12억 달러 늘려 남은 한도가 약 20억 달러이고, 현금은 9월 말 37.5억 달러다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 인프라를 직접 만들지 않고, AI를 도입하는 기업의 네트워크 경계에서 트래픽과 AI 앱·에이전트 접속을 검사하는 보안 장비와 구독을 판다. AI 데이터센터 안팎을 지키는 방화벽 공급자이기도 하다.",
+    "dependsOn": ["semicap-foundry (TSMC 등에서 만드는 FortiASIC)", "memory·부품 (장비용 메모리·부품 원가와 리드타임)", "대만 위탁 조립 업체 (Accton·Wistron 등)"],
+    "sellsTo": ["ai-adopter (AI를 도입하는 기업·정부)", "cloud-infrastructure (Oracle OCI·Microsoft 소버린 클라우드 파트너십)", "통신사·MSSP"],
+    "aiRevenue": null,
+    "upside": "AI 앱과 에이전트가 늘면 검사할 트래픽과 접속 경로가 늘어 방화벽 증설·교체와 AI 보안 구독(FortiGuard Inline AI Security, FortiAIGate)이 함께 팔린다. 회사는 AI 보안과 방화벽 업그레이드가 교체 주기를 이끈다고 말했고, NVIDIA·Oracle·Microsoft와 AI 보안 협력을 발표했다.",
+    "risk": "AI 수요로 부품 값이 오르면 장비 원가가 올라 제품 마진이 눌린다(회사는 부품 원가 상승을 언급했지만 원인을 특정하지 않았다). 보안 검사가 클라우드 SASE나 AI 플랫폼 안으로 옮겨 가면 장비 중심 모델의 몫이 줄 수 있다.",
+    "text": "그래서 AI 가치사슬에서 Fortinet은 AI를 '쓰는' 기업 옆에 서는 보안 소프트웨어·장비 층이다. AI 매출을 따로 공시하지는 않지만, AI가 새 공격 경로를 만든다는 논리로 방화벽 교체와 AI 보안 구독을 함께 판다. 위쪽에서는 칩 위탁 생산과 부품 원가가, 아래쪽에서는 기업의 보안 예산과 교체 주기가 실적을 정한다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "네트워크 방화벽 (장비)", "rivals": ["Palo Alto Networks", "Cisco", "Check Point", "Huawei", "SonicWall", "Sophos"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "SASE·클라우드 보안 접속", "rivals": ["Zscaler", "Palo Alto Networks", "Netskope", "Cisco"], "position": "challenger", "share": null, "src": ["s3", "s2"] },
+      { "arena": "보안 운영 (SecOps·엔드포인트)", "rivals": ["CrowdStrike", "Microsoft", "Palo Alto Networks"], "position": "follower", "share": null, "src": ["s3", "s2"] },
+      { "arena": "OT(산업 설비) 보안", "rivals": ["Cisco", "Palo Alto Networks"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "자체 칩으로 낮춘 장비 원가와 하나의 운영체제로 여러 기능을 묶는 범위, 그리고 넓은 설치 기반. 3분기 SASE 방화벽 +31%, OT 약 +40%로 장비 강점이 인접 분야로 넘어가고 있다.",
+    "threats": "클라우드 기반 SASE에서는 Zscaler·Netskope가, SecOps에서는 CrowdStrike·Microsoft가 앞서 있다. 장비 비중이 높아 부품 원가와 교체 주기에 실적이 흔들리고, 일부 소매 고객은 장비 사용 기간을 늘리고 있다(콜).",
+    "text": "경쟁은 분야마다 자리가 다르다. 방화벽 장비에서는 Palo Alto·Cisco·Check Point와 맞서는 선두권이지만, 클라우드 SASE와 보안 운영에서는 Zscaler·CrowdStrike를 쫓는 쪽이다. 회사의 전략은 방화벽 설치 기반 위에 SASE·OT·AI 보안을 같은 운영체제로 얹어 고객이 한 곳에서 사게 만드는 것이다.",
+    "src": ["s3", "s2"]
+  },
+
+  "strategy": {
+    "goal": "2027년에도 청구액과 매출 성장이 보안 시장 성장보다 빠르고, 서비스 매출 성장률이 2026년보다 높아질 것으로 본다 (콜, 공식 장기 목표는 없음).",
+    "roadmap": [
+      { "when": "Q4 2026", "what": "청구액 27.75억~29.25억, 매출 21.55억~22.45억 달러 가이드", "src": ["s1"] },
+      { "when": "2026 H2", "what": "FortiGuard Inline AI Security 출시, NVIDIA OpenShell AI 보안 레퍼런스 파트너, Oracle OCI와 FortiAIGate 협력, Microsoft 소버린 파트너 생태계 참여", "src": ["s1"] },
+      { "when": "2027", "what": "대형 거래의 서비스 개시가 늦어진 몫이 매출로 들어오며 서비스 매출 성장 가속 기대 (회사 설명)", "src": ["s2"] }
+    ],
+    "vision": "네트워크 보안이 AI 보안의 기반이라는 그림이다. 방화벽에서 출발해 SASE·OT·보안 운영·AI 보안까지 하나의 플랫폼으로 묶는다.",
+    "text": "회사가 이기려는 방식은 지금 몰린 방화벽 교체 수요를 서비스 구독으로 바꾸는 것이다. 3분기 서비스 매출이 13%에 그친 것은 대형 거래의 서비스 개시가 늦어진 시점 문제라고 설명하며, 2027년 서비스 성장 가속을 예고했다. AI 쪽에서는 NVIDIA·Oracle·Microsoft와의 협력으로 AI 앱·에이전트 보안 자리를 넓히려 한다.",
+    "src": ["s1", "s2"]
+  },
+
+  "governance": {
+    "line": "창업자 Ken Xie가 회장 겸 CEO로 이끌고(CFO Christiane Ohlgart), 주주 환원은 자사주 매입 중심으로 2026년 9개월 9.73억 달러를 샀고 남은 한도는 약 20억 달러다.",
+    "src": ["s1", "s2"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "billings / revenue", "value": "청구액 27.75억~29.25억 달러(중간값 약 +20%), 매출 21.55억~22.45억 달러(약 +15%)", "givenOn": "2026-10-28", "src": ["s1", "s2"] },
+      { "period": "Q4 2026", "metric": "non-GAAP margins / EPS", "value": "총마진 78.0~80.0%, 영업이익률 35.5~37.5%, EPS 0.93~0.95달러", "givenOn": "2026-10-28", "src": ["s1"] },
+      { "period": "FY2026", "metric": "billings / revenue / service revenue", "value": "청구액 95.68억~97.18억(약 +28%), 매출 81.25억~82.15억(약 +20%), 서비스 매출 51.5억~51.7억 달러(약 +13%)", "givenOn": "2026-10-28", "src": ["s1", "s2"] },
+      { "period": "FY2026", "metric": "non-GAAP margins / EPS", "value": "총마진 79.7~80.3%, 영업이익률 36.5~37.5%, EPS 3.54~3.58달러", "givenOn": "2026-10-28", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "2026년 들어 청구액 가이던스를 세 번 올렸고, 2월 대비 청구액 11.4억·매출 5.7억 달러를 높였다(콜). 3분기 non-GAAP 영업이익률 38.2%는 3분기 기준 사상 최고였다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) 합계 3.24달러(범위 3.00~3.46), 직전 4개 분기 3.11달러, 최근 4주 상향·하향 0건. 3분기 실제 0.86(데이터 기준)·추정 0.77로, 회사 non-GAAP EPS(0.91)와 기준이 달라 직접 비교하지 않는다.",
+    "src": ["s5", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q4 청구액이 27.75억~29.25억 달러 가이드를 충족·상회",
+      "서비스 매출 성장률이 3분기 13%에서 다시 올라감 (회사가 말한 2027년 가속)",
+      "단기 이연 매출 성장(3분기 +14.5%)이 계속 빨라짐",
+      "부품 원가 상승에도 non-GAAP 총마진이 약 80% 근처 유지",
+      "SASE·OT·AI 보안 청구액 성장이 유지"
+    ],
+    "breaks": [
+      "청구액 가이던스 하향 또는 장비 교체 수요 둔화 언급",
+      "서비스 매출 둔화가 '시점 문제'가 아니라 서비스 부착률 하락으로 굳어짐",
+      "부품 원가·리드타임 문제로 제품 총마진이나 출하가 크게 줄어듦",
+      "가격 인상 효과(청구액 성장의 약 10%포인트)가 빠지며 청구액 성장 급감",
+      "대형 유통사 거래 조건 변화나 재고 증가 지속"
+    ],
+    "keyNumbers": [
+      { "name": "청구액 (총·서비스)", "why": "미래 서비스 매출의 선행 지표" },
+      { "name": "제품 vs 서비스 매출 성장", "why": "교체 수요가 구독으로 이어지는지" },
+      { "name": "단기 이연 매출", "why": "다음 12개월 서비스 매출의 바닥" },
+      { "name": "non-GAAP 총마진", "why": "부품 원가 상승의 영향" },
+      { "name": "재고", "why": "부품 선확보와 출하 속도" },
+      { "name": "잉여현금흐름과 자사주 매입", "why": "주주 환원 여력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 2027년 가이던스", "src": ["s1"] },
+      { "date": "매 분기", "event": "Palo Alto·Zscaler·CrowdStrike 실적의 방화벽·SASE 수요 언급", "src": ["s3"] }
+    ],
+    "reaction": "주가는 매출보다 청구액 가이던스와 서비스 매출 흐름에 반응해 왔다. 2026-10-28 실적은 예상을 넘었고 가이던스도 올렸지만, 서비스 매출 둔화와 4분기 매출 성장 둔화가 부각되며 다음 날 주가가 크게 떨어졌다(하락 폭은 출처마다 달라 미확인).",
+    "conditions": [
+      "청구액 가이던스와 컨센서스의 차이",
+      "서비스 매출 성장률의 바닥 통과 여부",
+      "non-GAAP 총마진 가이드와 부품 원가 언급",
+      "가격 인상 효과가 청구액 성장에서 차지하는 비중",
+      "경쟁사 실적의 방화벽 교체 수요 언급",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "AI 관련 매출·청구액 (회사 미공시; AI 기반 SecOps 청구액 성장률 15%만 공시)",
+    "FY2025 유통사별 매출 비중 28%·15%·12%는 10-K 원문이 아닌 2차 요약",
+    "분야별(방화벽·SASE·SecOps) 시장 점유율",
+    "2026년 9개월 R&D 합계 (3분기 2.134억 달러만 확인)",
+    "3분기 단독 자사주 매입액 (9개월 합계만 확인)",
+    "서비스 매출 전년 대비 성장률 12.7%는 전년 11.656억 달러로 계산한 값 (콜은 13%)",
+    "부품 원가 상승의 원인과 규모 (회사가 특정하지 않음)",
+    "실적 다음 날 주가 하락 폭 (출처 간 차이)",
+    "Q4 2026 실적 발표일"
+  ],
+  "confidence": "high - 매출·현금흐름·가이던스는 회사 보도자료 전문(재게재본)과 10-K에서 왔고, 분야별 청구액과 서비스 지연 설명은 콜 녹취 기준이며 유통사 비중은 2차 요약이다."
+}

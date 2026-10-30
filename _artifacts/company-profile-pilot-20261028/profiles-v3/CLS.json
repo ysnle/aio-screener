@@ -1,0 +1,208 @@
+{
+  "symbol": "CLS",
+  "name": "Celestica Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Celestica는 하이퍼스케일러가 쓰는 AI 네트워크 스위치와 맞춤형 AI 서버·랙을 함께 설계하고 조립하는 캐나다 제조사로, Q3 2026 매출이 83% 늘었고 2027년 매출 400억 달러(약 90% 증가)를 제시했다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Celestica Announces Third Quarter 2026 Financial Results (8-K exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/0001030894/000103089426000049/cls-20260930prcondensedfs.htm", "publisher": "Celestica / SEC EDGAR", "date": "2026-10-26" },
+    { "id": "s2", "kind": "10-Q", "title": "Celestica Form 10-Q for quarter ended 2026-09-30 (date = period end)", "url": "https://www.sec.gov/Archives/edgar/data/0001030894/000103089426000050/cls-20260930.htm", "publisher": "Celestica / SEC EDGAR", "date": "2026-09-30" },
+    { "id": "s3", "kind": "call-transcript", "title": "What Celestica (CLS) Said on Its Q3 Earnings Call (call and 2026 Investor and Analyst Day summary)", "url": "https://finance.yahoo.com/markets/stocks/articles/celestica-cls-said-q3-earnings-190422370.html", "publisher": "Yahoo Finance", "date": "2026-10-27" },
+    { "id": "s4", "kind": "10-K", "title": "Celestica Form 10-K for fiscal year 2025 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/1030894/000103089426000011/cls-20251231.htm", "publisher": "Celestica / SEC EDGAR", "date": "2025-12-31" },
+    { "id": "s5", "kind": "news", "title": "Why Celestica Stock Jumped Today (title read from search result only)", "url": "https://www.fool.com/investing/2026/10/27/why-celestica-stock-jumped-today/", "publisher": "The Motley Fool", "date": "2026-10-27" }
+  ],
+
+  "moat": {
+    "sources": [
+      "HPS(Hardware Platform Solutions) - 고객과 함께 또는 단독으로 스위치·서버·랙을 설계하는 ODM 역량, 엔지니어 1,600명 이상 (10-K·콜)",
+      "800G·1.6T 이더넷 스위치를 여러 하이퍼스케일러에 동시에 공급하는 양산 실적 (콜)",
+      "태국·말레이시아·멕시코·미국 텍사스·일본에 걸친 생산 거점과 수냉 AI 랙 조립 능력 (10-K·콜)"
+    ],
+    "text": "일반 위탁 생산(EMS)은 도면대로 조립해 낮은 이익을 받지만, Celestica의 HPS는 스위치·서버·랙 설계부터 맡아 고객이 쉽게 바꾸기 어렵다. 이 능력으로 800G·1.6T 스위치를 여러 하이퍼스케일러에 공급하고 있고, 설계를 맡은 제품은 다음 세대 주문으로 이어지기 쉽다. 결국 해자는 '설계 엔지니어 + 대량 양산 공장'을 한 회사에 묶은 데서 나온다.",
+    "src": ["s4", "s3"]
+  },
+
+  "design": {
+    "text": "이 역량으로 Celestica는 두 부문을 운영한다. CCS(Connectivity & Cloud Solutions)는 네트워크 스위치·광 시스템·데이터센터 랙·서버·스토리지를 만들며 그 안의 HPS가 자체 설계 제품이다. ATS(Advanced Technology Solutions)는 항공·방산, 산업, 헬스테크, 반도체 장비 고객의 위탁 생산이다. 최근에는 Google TPU 플랫폼과 OpenAI 'Jalapeño' 같은 맞춤형 AI 연산 시스템이 새 축이 됐다.",
+    "src": ["s4", "s3"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 공장 - 2025년 매출의 약 75%를 아시아, 약 20%를 북미에서 생산 (10-K)",
+      "증설 거점 - 텍사스·멕시코·태국·일본·말레이시아 (콜)",
+      "부품 공급사 - 대부분 아시아산 전자 부품 (이름 미확인)"
+    ],
+    "text": "Celestica는 설계한 제품을 자기 공장에서 직접 만든다. 2025년 매출의 약 75%가 아시아, 약 20%가 북미 공장에서 나왔고, 2027년 주문을 맞추려 텍사스·멕시코·태국·일본·말레이시아를 늘리며 2027년 설비투자를 15~20억 달러로 잡았다. 3분기 말 재고가 45억 달러로 한 분기 새 11억 달러 늘어, 성장의 대가로 운전자본이 크게 묶이고 있다.",
+    "src": ["s4", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "하이퍼스케일러 - 10-K가 이름을 든 CCS 고객: Amazon, Meta, Google (10-K)",
+      "통신·장비 회사 - Ciena, Dell, HPE, IBM (10-K)",
+      "프런티어 AI 연구소 - OpenAI Jalapeño 플랫폼 2027년 양산 예정 (콜)",
+      "항공·방산·산업·헬스테크·반도체 장비 고객 (ATS)"
+    ],
+    "channel": "대형 OEM·하이퍼스케일러와 프로그램 단위로 직접 계약하는 B2B 판매.",
+    "concentration": "Q3 2026 10% 이상 고객 3곳이 35%·17%·14% (모두 CCS, 이름 미공시) (10-Q). 2025년 상위 10개 고객 79% (10-K).",
+    "text": "이렇게 만든 장비의 주 구매자는 소수 하이퍼스케일러다. Q3에 세 고객이 각각 35%·17%·14%로 합계 66%를 차지했고, 10-K는 CCS 고객으로 Amazon·Meta·Google 등을 이름으로 든다. 몇 개 프로그램의 세대 교체가 곧 실적이라, 고객 한 곳의 설계 변경이 큰 변수다.",
+    "src": ["s2", "s4", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 연구소·클라우드 이용자", "to": "하이퍼스케일러 (Google·Meta·Amazon 등)", "what": "AI 연산·클라우드 이용료" },
+      { "from": "하이퍼스케일러", "to": "Celestica CCS (네트워킹)", "what": "800G·1.6T 이더넷 스위치 등 HPS 제품 구매, 대당 가격" },
+      { "from": "하이퍼스케일러·AI 연구소", "to": "Celestica CCS (컴퓨트·스토리지)", "what": "맞춤형 AI 서버·랙(TPU 플랫폼 등) 조립 대금" },
+      { "from": "항공·산업·의료·장비 회사", "to": "Celestica ATS", "what": "위탁 생산 대금" },
+      { "from": "Celestica", "to": "칩·부품 공급사", "what": "스위치 칩·메모리·전자 부품 구매 (매출원가의 대부분)" }
+    ],
+    "pricing": "프로그램별 제품 단가로 판매하며, 부품값이 매출에 그대로 실리는 구조라 매출총이익률은 11% 안팎으로 낮다 (Q3 GAAP 11.0%). 자체 설계 HPS가 이익률을 끌어올린다.",
+    "text": "돈은 AI 연산을 파는 하이퍼스케일러에서 출발해 스위치 대금과 AI 서버·랙 조립 대금으로 Celestica에 들어온다. 매출에는 고객이 지정한 비싼 칩과 부품 값이 함께 실리기 때문에, 매출은 크지만 남는 몫(영업이익률 8.5%)은 한 자릿수다. 그래서 설계까지 맡는 HPS 비중이 커질수록 이익률이 오른다.",
+    "src": ["s1", "s3", "s2"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 5.8297, "unit": "USD bn", "yoy": 82.5 },
+    "grossMargin": 11.0,
+    "operatingMargin": 8.5,
+    "netMargin": 6.8,
+    "operatingCashFlow": { "value": 0.3897, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.1275, "unit": "USD bn" },
+    "segments": [
+      { "name": "CCS - Networking", "revenue": 3.2632, "unit": "USD bn", "share": 56.0, "yoy": 68.0, "operatingMargin": null, "src": ["s2"] },
+      { "name": "CCS - Compute & Storage", "revenue": 1.6091, "unit": "USD bn", "share": 27.6, "yoy": 242.3, "operatingMargin": null, "src": ["s2"] },
+      { "name": "ATS (Advanced Technology Solutions)", "revenue": 0.9574, "unit": "USD bn", "share": 16.4, "yoy": 22.6, "operatingMargin": 6.6, "src": ["s2", "s1"] }
+    ],
+    "industryMetric": [
+      { "name": "CCS 부문 이익률", "value": "Q3 8.9% (전년 8.3%), CCS 매출 48.7억 달러 +102%", "src": ["s1"] },
+      { "name": "HPS 매출", "value": "Q3 약 23억 달러, +70%", "src": ["s1"] },
+      { "name": "조정 EPS", "value": "Q3 3.30달러 (전년 1.58달러), GAAP 3.26달러", "src": ["s1"] },
+      { "name": "재고", "value": "Q3 말 45억 달러, 전분기 대비 +11억", "src": ["s3"] }
+    ],
+    "text": "그 결과 Q3 2026 매출은 58.3억 달러로 83% 늘었고, 컴퓨트·스토리지가 3.4배로 가장 빨리 컸다. 조정 영업이익률은 8.5%로 사상 최고였지만 GAAP 매출총이익률은 11.0%로 1년 전(13.0%)보다 낮았다. 순이익은 3.97억 달러, 다만 설비와 재고에 돈이 들어가 잉여현금흐름은 1.28억 달러였다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "9M 2026 (ended 2026-09-30)",
+    "items": [
+      { "use": "capex", "value": 0.7674, "unit": "USD bn", "src": ["s2"] },
+      { "use": "R&D", "value": 0.1387, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0.020, "unit": "USD bn", "src": ["s2"] },
+      { "use": "other", "label": "주식보상 지급용 자사주 취득", "value": 0.0376, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "번 돈과 새로 조달한 돈은 거의 증설로 간다. 9개월 설비투자가 7.67억 달러로 1년 전의 7배를 넘었고, 8월에는 주당 310달러에 1,110만 주를 팔아 순 33.9억 달러를 조달했다. 자사주 매입은 2,000만 달러로 작고, 회사는 2027년에 현금이 순유출되다 2028년에 플러스로 돌아온다고 밝혀 지금은 성장 투자가 우선이다.",
+    "src": ["s2", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "하이퍼스케일러 AI 클러스터 안의 이더넷 스위치(800G·1.6T)를 설계·생산하고, Google TPU·OpenAI 등 맞춤형 AI 연산 서버·랙을 조립하는 '설계형 제조' 자리.",
+    "dependsOn": ["chips-compute·networking (스위치 칩·가속기 공급사)", "memory (서버 메모리)", "공장 증설과 전력 (텍사스·멕시코·태국 등)"],
+    "sellsTo": ["cloud-infrastructure (Google·Meta·Amazon 등 하이퍼스케일러)", "models-platforms (OpenAI 등 프런티어 AI 연구소)", "통신·장비 회사 (Ciena·Dell·HPE 등)"],
+    "aiRevenue": "AI 매출을 따로 공시하지 않음. Q3 2026 CCS 매출 48.7억 달러(+102%)와 HPS 약 23억 달러(+70%)가 AI 네트워킹·연산 수요를 대표 (8-K).",
+    "upside": "AI 클러스터가 커질수록 GPU·TPU를 잇는 스위치 수와 속도가 늘고, 하이퍼스케일러가 자체 칩(TPU 등)으로 서버를 만들 때 설계·조립을 맡길 곳이 필요하다. 회사는 2027년 1.6T 네트워킹 매출이 800G를 넘을 것으로 본다.",
+    "risk": "상위 3개 고객이 매출의 66%라 한 곳의 투자 축소나 공급사 변경이 바로 실적을 흔든다. 대만 ODM(Quanta·Wiwynn·Accton)이 가격으로 경쟁하고, 대규모 재고·설비 투자가 수요 꺾임 때 부담이 된다.",
+    "text": "AI 가치사슬에서 Celestica는 칩 회사와 하이퍼스케일러 사이, 칩을 받아 실제 스위치와 AI 서버·랙으로 만드는 단계에 있다. 매출의 절반 이상이 AI 클러스터의 네트워크 스위치이고, 맞춤형 AI 연산 시스템이 빠르게 그 뒤를 따른다. 칩을 누가 만들든 조립·설계 몫을 받는 구조라 NVIDIA 밖의 자체 칩(TPU 등) 확산에서도 수혜를 본다.",
+    "src": ["s1", "s3", "s2"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "데이터센터 스위치·서버 ODM", "rivals": ["Quanta Computer", "Wiwynn", "Accton Technology"], "position": "challenger", "share": null, "src": ["s4"] },
+      { "arena": "전자 위탁 생산(EMS)", "rivals": ["Hon Hai (Foxconn)", "Jabil", "Flex", "Sanmina", "Benchmark Electronics", "Plexus"], "position": "challenger", "share": null, "src": ["s4"] }
+    ],
+    "edge": "여러 하이퍼스케일러에 동시에 납품하는 800G·1.6T 스위치 설계·양산 실적, 맞춤형 AI 연산(TPU·OpenAI) 프로그램 수주, 북미 생산 거점.",
+    "threats": "대만 ODM은 규모와 원가에서 강하고, Foxconn은 AI 서버 랙 조립에서 훨씬 크다. 10-K도 '일부 경쟁사는 더 큰 규모와 더 넓은 서비스'를 가졌다고 적는다.",
+    "text": "경쟁은 두 무대에서 벌어진다. 스위치·서버 설계형 제조에서는 Quanta·Wiwynn·Accton 같은 대만 ODM과, 일반 위탁 생산에서는 Foxconn·Jabil·Flex 등과 겨룬다. Celestica는 스위치 분야의 설계 실적과 북미 생산으로 하이퍼스케일러의 '두 번째 공급선' 이상을 노리지만, 규모로는 대만 업체들이 앞서 있다.",
+    "src": ["s4"]
+  },
+
+  "strategy": {
+    "goal": "2027년 매출 약 400억 달러(+90%), 조정 영업이익률 9.0%, 조정 EPS 21.50달러. CCS 약 110%, ATS 약 10% 성장 가정 (8-K·Investor Day).",
+    "roadmap": [
+      { "when": "Q4 2026", "what": "매출 62.75~65.75억 달러, 조정 EPS 3.37~3.57달러 가이드", "src": ["s1"] },
+      { "when": "2026", "what": "매출 약 210억 달러, 조정 EPS 11.55달러, 잉여현금흐름 4.6억 달러 (상향·하향 혼재)", "src": ["s1"] },
+      { "when": "2027", "what": "매출 400억 달러, 설비투자 15~20억 달러, R&D 3억 달러 초과, HPS 엔지니어 2,000명 이상, 1.6T가 800G 매출 추월, OpenAI Jalapeño 양산", "src": ["s1", "s3"] },
+      { "when": "2028", "what": "잉여현금흐름 플러스 복귀 목표, 고객 수요 예측은 2027보다 '의미 있게 높다'", "src": ["s3"] }
+    ],
+    "vision": "회사는 'AI 인프라 슈퍼사이클'에서 선도 하이퍼스케일러와 프런티어 AI 연구소의 설계·제조 파트너가 되겠다고 말한다.",
+    "text": "이 경쟁에서 Celestica의 다음 수는 2027년에 매출을 거의 두 배로 키우는 것이다. 이를 위해 설비투자·R&D·엔지니어를 크게 늘리고, 1.6T 스위치와 맞춤형 AI 연산 프로그램을 양산한다. 대신 2026년 잉여현금흐름 전망을 6억에서 4.6억 달러로 낮추고 2027년엔 현금 순유출을 예고해, 계획이 틀리면 재고와 설비가 짐이 된다.",
+    "src": ["s1", "s3"]
+  },
+
+  "governance": {
+    "line": "온타리오 법인으로 NYSE에 상장돼 있고 Rob Mionis 회장 겸 CEO가 이끌며, 8월 34.5억 달러 증자를 하고 자사주 매입(NCIB)은 소규모로 유지하는 성장 투자 우선 기조다.",
+    "src": ["s4", "s3", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "revenue", "value": "62.75~65.75억 달러", "givenOn": "2026-10-26", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "adjusted EPS / operating margin", "value": "3.37~3.57달러, 조정 영업이익률 중간값 8.7%", "givenOn": "2026-10-26", "src": ["s1"] },
+      { "period": "2026", "metric": "revenue / adjusted EPS / FCF", "value": "약 210억 달러(종전 205억), 11.55달러(종전 11.30), 잉여현금흐름 4.6억 달러(종전 6억)", "givenOn": "2026-10-26", "src": ["s1"] },
+      { "period": "2027", "metric": "revenue / adjusted EPS / margin", "value": "약 400억 달러, 21.50달러, 조정 영업이익률 9.0%, 설비투자 15~20억 달러", "givenOn": "2026-10-26", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "Q3 매출과 조정 EPS 모두 가이드 상단을 넘었고, 연간 전망을 다시 올렸다 (8-K).",
+    "src": ["s1"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "Q4 매출이 가이드(62.75~65.75억 달러) 상단 쪽으로 나오는지",
+      "1.6T 스위치 프로그램이 여러 하이퍼스케일러에서 늘어나는지",
+      "Google TPU·OpenAI 등 맞춤형 AI 연산 프로그램이 일정대로 양산되는지",
+      "CCS 부문 이익률이 9% 안팎으로 오르는지",
+      "2027년 400억 달러 전망이 유지·상향되는지"
+    ],
+    "breaks": [
+      "상위 3개 고객 중 한 곳의 투자 축소나 공급사 변경",
+      "재고가 계속 쌓이는데 매출 전환이 늦어짐",
+      "대만 ODM과의 가격 경쟁으로 CCS 이익률 하락",
+      "2027년 설비투자·현금 유출이 계획보다 커짐",
+      "관세·무역 갈등으로 생산 거점 비용 상승"
+    ],
+    "keyNumbers": [
+      { "name": "CCS 매출 증가율", "why": "AI 네트워킹·연산 수요가 들어오는 통로" },
+      { "name": "CCS 부문 이익률", "why": "설계형 HPS 비중과 가격 결정력" },
+      { "name": "HPS 매출", "why": "자체 설계 제품의 성장" },
+      { "name": "상위 고객 비중", "why": "집중 위험의 크기" },
+      { "name": "재고·잉여현금흐름", "why": "성장 투자가 현금을 얼마나 묶는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 말 (추정, 회사 미확정)", "event": "Q4·FY2026 실적", "src": [] },
+      { "date": "2026 Q4", "event": "새 자사주 매입(NCIB) 신청 예정 - 기존 프로그램 2026-11-02 만료", "src": ["s1"] },
+      { "date": "분기마다", "event": "하이퍼스케일러 설비투자 가이던스, Broadcom·NVIDIA 네트워킹 실적", "src": ["s3"] }
+    ],
+    "reaction": "분기 실적보다 다음 해 전망과 고객 수요 발언에 크게 반응한다. Q3 발표와 2027년 400억 달러 전망이 나온 날 주가가 뛰었다는 보도가 있다 (Motley Fool, 2026-10-27 기사 제목).",
+    "conditions": [
+      "다음 분기·다음 해 매출 전망 변화",
+      "CCS 이익률과 HPS 성장률",
+      "상위 고객 비중과 신규 프로그램 수주 발언",
+      "재고·잉여현금흐름 추이",
+      "하이퍼스케일러 설비투자 계획 변화"
+    ]
+  },
+
+  "unverified": [
+    "10% 이상 고객 3곳의 이름 (10-K가 이름을 든 고객과의 대응 관계 미확인)",
+    "Networking·Compute & Storage 부문별 이익률 (CCS 합산 8.9%만 공시)",
+    "GAAP 영업이익률 - earnings.operatingMargin 8.5%는 조정(non-GAAP) 수치",
+    "AI 관련 매출 금액",
+    "8월 증자 대금의 구체적 사용처 (공시에 미기재)",
+    "생산 거점별 생산능력과 공장 목록",
+    "Q4 2026 실적 발표일",
+    "주가 반응 서술은 검색 결과 제목 기준"
+  ],
+  "confidence": "medium - 매출·부문·고객 집중·현금흐름은 8-K와 10-Q로 확인했고, 2027 세부 계획·고객 프로그램은 콜 요약 2차 출처에 기댄다."
+}

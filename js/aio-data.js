@@ -1187,6 +1187,25 @@ var SCREENER_DB = [
   { sym:'KLIC', name:'Kulicke and Soffa Industries', sector:'Technology', index:'RUSSELL2000' },
   { sym:'APPN', name:'Appian', sector:'Technology', index:'RUSSELL2000' },
   { sym:'PRCT', name:'PROCEPT BioRobotics', sector:'Healthcare', index:'RUSSELL2000' },
+  // v59.44 (owner 2026-10-30, "AI/반도체/DC 관련 종목들 대폭 확장"): AI-chain names already in the extended universe,
+  // promoted so the 테마 groups and the AI-chain block on 오늘 read their closes. Names and exchanges are the Nasdaq Trader
+  // listing rows of the US listings artifact (each with its SEC CIK); index is the listing exchange.
+  { sym:'RMBS', name:'Rambus', sector:'Technology', index:'NASDAQ' },
+  { sym:'AEIS', name:'Advanced Energy Industries', sector:'Technology', index:'NASDAQ' },
+  { sym:'ICHR', name:'Ichor Holdings', sector:'Technology', index:'NASDAQ' },
+  { sym:'CAMT', name:'Camtek', sector:'Technology', index:'NASDAQ' },
+  { sym:'NVMI', name:'Nova', sector:'Technology', index:'NASDAQ' },
+  { sym:'ACMR', name:'ACM Research', sector:'Technology', index:'NASDAQ' },
+  { sym:'TSEM', name:'Tower Semiconductor', sector:'Technology', index:'NASDAQ' },
+  { sym:'AXTI', name:'AXT', sector:'Technology', index:'NASDAQ' },
+  { sym:'CEVA', name:'CEVA', sector:'Technology', index:'NASDAQ' },
+  { sym:'AMBA', name:'Ambarella', sector:'Technology', index:'NASDAQ' },
+  { sym:'VSH', name:'Vishay Intertechnology', sector:'Technology', index:'NYSE' },
+  { sym:'SANM', name:'Sanmina', sector:'Technology', index:'NASDAQ' },
+  { sym:'STRL', name:'Sterling Infrastructure', sector:'Industrials', index:'NASDAQ' },
+  { sym:'HUT', name:'Hut 8', sector:'Technology', index:'NASDAQ' },
+  { sym:'BTDR', name:'Bitdeer Technologies', sector:'Technology', index:'NASDAQ' },
+  { sym:'GLXY', name:'Galaxy Digital', sector:'Financials', index:'NASDAQ' },
   // KOSDAQ150 weight top 40 not yet in the universe (KODEX KOSDAQ150 PDF 2026-10-08), then KOSPI200 top 20
   // (KODEX 200 PDF 2026-10-08). Names are the PDF names; 131970.KQ is 두산테스나, the real 테크윙 is 089030.KQ.
   { sym:'222800.KQ', name:'심텍', sector:'Technology', index:'KOSDAQ' },

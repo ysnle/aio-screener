@@ -1,24 +1,107 @@
 {
   "symbol": "MA",
   "name": "Mastercard Incorporated",
-  "researchedAt": "2026-10-29",
+  "researchedAt": "2026-10-30",
   "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
   "oneLine": "Mastercard는 38억 장의 카드와 전 세계 가맹점을 잇는 결제 네트워크를 운영하며 거래가 일어날 때마다 수수료를 받는 회사로, 대출 위험 없이 매출의 약 58%를 영업이익으로 남기고 이제 AI 에이전트가 대신 결제하는 시대의 결제망 자리를 노린다.",
   "sources": [
-    { "id": "s1", "kind": "earnings-release", "title": "Mastercard Incorporated Reports Fourth Quarter and Full Year 2025 Financial Results (incl. statements of operations and cash flows)", "url": "https://s25.q4cdn.com/479285134/files/doc_financials/2025/q4/4Q25-Mastercard-Earnings-Release.pdf", "publisher": "Mastercard IR", "date": "2026-01-29" },
-    { "id": "s2", "kind": "10-K", "title": "Mastercard 2025 Form 10-K (business, Agent Pay, competitors, employees, revenue outside U.S., Regulation II litigation, 2025 repurchases)", "url": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000013/ma-20251231.htm", "publisher": "Mastercard / SEC EDGAR", "date": "2026-02-11" },
-    { "id": "s3", "kind": "10-K", "title": "Mastercard 2025 Form 10-K XBRL R61: Revenue - Disaggregation of Revenues (Details)", "url": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000013/R61.htm", "publisher": "Mastercard / SEC EDGAR", "date": "2026-02-11" },
-    { "id": "s4", "kind": "8-K", "title": "Mastercard Second Quarter 2026 Financial Results (8-K Exhibit 99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001141391/000114139126000081/ma06302026-exx991xearnings.htm", "publisher": "Mastercard / SEC EDGAR", "date": "2026-07-30" },
-    { "id": "s5", "kind": "other", "title": "Mastercard (MA) Q2 2026 earnings summary (FY2026 and Q3 outlook; summary page dated 2026-08-03)", "url": "https://quartr.com/events/mastercard-inc-ma-q2-2026_3eAiWHPe", "publisher": "Quartr", "date": "2026-08-03" },
-    { "id": "s6", "kind": "news", "title": "Mastercard Near All-Time Highs: 3 Crucial Metrics That Will Make or Break Q3 Earnings on Oct. 29 (consensus, BVNK, CFO change)", "url": "https://247wallst.com/investing/2026/10/25/mastercard-near-all-time-highs-3-crucial-metrics-that-will-make-or-break-q3-earnings-on-oct-29/", "publisher": "24/7 Wall St.", "date": "2026-10-25" },
-    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/ma/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-28" },
-    { "id": "s8", "kind": "earnings-release", "title": "Mastercard Incorporated Reports Third Quarter 2026 Financial Results (statements of operations, balance sheet, 9M cash flows, return of capital)", "url": "https://s25.q4cdn.com/479285134/files/content_files/3Q26-Mastercard-Earnings-Release.pdf", "publisher": "Mastercard IR", "date": "2026-10-29" },
-    { "id": "s9", "kind": "earnings-release", "title": "Mastercard Third Quarter 2026 Financial Results Conference Call presentation (net revenue by category, rebates, GDV, cards, business update through Oct 21)", "url": "https://s25.q4cdn.com/479285134/files/content_files/3Q26-Mastercard-Earnings-Presentation.pdf", "publisher": "Mastercard IR", "date": "2026-10-29" },
-    { "id": "s10", "kind": "ir-site", "title": "Mastercard completes acquisition of BVNK to advance global stablecoin capabilities", "url": "https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-completes-acquisition-of-BVNK-to-advance-global-stablecoin-capabilities-2026.pdf", "publisher": "Mastercard IR (Business Wire)", "date": "2026-08-03" },
-    { "id": "s11", "kind": "ir-site", "title": "Mastercard Advances Agentic Commerce With New Trust and Intelligence Services (Agent Pay Trust Framework, Cloudflare, Skyfire)", "url": "https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-Advances-Agentic-Commerce-With-New-Trust-and-Intelligence-Services-2026.pdf", "publisher": "Mastercard IR (Business Wire)", "date": "2026-09-30" },
-    { "id": "s12", "kind": "ir-site", "title": "Mastercard Board of Directors Announces Quarterly Dividend (87 cents, payable 2026-11-09)", "url": "https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-Board-of-Directors-Announces-Quarterly-Dividend-d3ed32e33-2026.pdf", "publisher": "Mastercard IR (Business Wire)", "date": "2026-09-29" }
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Mastercard Incorporated Reports Fourth Quarter and Full Year 2025 Financial Results (incl. statements of operations and cash flows)",
+      "url": "https://s25.q4cdn.com/479285134/files/doc_financials/2025/q4/4Q25-Mastercard-Earnings-Release.pdf",
+      "publisher": "Mastercard IR",
+      "date": "2026-01-29"
+    },
+    {
+      "id": "s2",
+      "kind": "10-K",
+      "title": "Mastercard 2025 Form 10-K (business, Agent Pay, competitors, employees, revenue outside U.S., Regulation II litigation, 2025 repurchases)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000013/ma-20251231.htm",
+      "publisher": "Mastercard / SEC EDGAR",
+      "date": "2026-02-11"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "Mastercard 2025 Form 10-K XBRL R61: Revenue - Disaggregation of Revenues (Details)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000013/R61.htm",
+      "publisher": "Mastercard / SEC EDGAR",
+      "date": "2026-02-11"
+    },
+    {
+      "id": "s4",
+      "kind": "8-K",
+      "title": "Mastercard Second Quarter 2026 Financial Results (8-K Exhibit 99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0001141391/000114139126000081/ma06302026-exx991xearnings.htm",
+      "publisher": "Mastercard / SEC EDGAR",
+      "date": "2026-07-30"
+    },
+    {
+      "id": "s5",
+      "kind": "other",
+      "title": "Mastercard (MA) Q2 2026 earnings summary (FY2026 and Q3 outlook; summary page dated 2026-08-03)",
+      "url": "https://quartr.com/events/mastercard-inc-ma-q2-2026_3eAiWHPe",
+      "publisher": "Quartr",
+      "date": "2026-08-03"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "Mastercard Near All-Time Highs: 3 Crucial Metrics That Will Make or Break Q3 Earnings on Oct. 29 (consensus, BVNK, CFO change)",
+      "url": "https://247wallst.com/investing/2026/10/25/mastercard-near-all-time-highs-3-crucial-metrics-that-will-make-or-break-q3-earnings-on-oct-29/",
+      "publisher": "24/7 Wall St.",
+      "date": "2026-10-25"
+    },
+    {
+      "id": "s7",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/ma/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s8",
+      "kind": "earnings-release",
+      "title": "Mastercard Incorporated Reports Third Quarter 2026 Financial Results (statements of operations, balance sheet, 9M cash flows, return of capital)",
+      "url": "https://s25.q4cdn.com/479285134/files/content_files/3Q26-Mastercard-Earnings-Release.pdf",
+      "publisher": "Mastercard IR",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s9",
+      "kind": "earnings-release",
+      "title": "Mastercard Third Quarter 2026 Financial Results Conference Call presentation (net revenue by category, rebates, GDV, cards, business update through Oct 21)",
+      "url": "https://s25.q4cdn.com/479285134/files/content_files/3Q26-Mastercard-Earnings-Presentation.pdf",
+      "publisher": "Mastercard IR",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s10",
+      "kind": "ir-site",
+      "title": "Mastercard completes acquisition of BVNK to advance global stablecoin capabilities",
+      "url": "https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-completes-acquisition-of-BVNK-to-advance-global-stablecoin-capabilities-2026.pdf",
+      "publisher": "Mastercard IR (Business Wire)",
+      "date": "2026-08-03"
+    },
+    {
+      "id": "s11",
+      "kind": "ir-site",
+      "title": "Mastercard Advances Agentic Commerce With New Trust and Intelligence Services (Agent Pay Trust Framework, Cloudflare, Skyfire)",
+      "url": "https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-Advances-Agentic-Commerce-With-New-Trust-and-Intelligence-Services-2026.pdf",
+      "publisher": "Mastercard IR (Business Wire)",
+      "date": "2026-09-30"
+    },
+    {
+      "id": "s12",
+      "kind": "ir-site",
+      "title": "Mastercard Board of Directors Announces Quarterly Dividend (87 cents, payable 2026-11-09)",
+      "url": "https://s25.q4cdn.com/479285134/files/doc_news/Mastercard-Board-of-Directors-Announces-Quarterly-Dividend-d3ed32e33-2026.pdf",
+      "publisher": "Mastercard IR (Business Wire)",
+      "date": "2026-09-29"
+    }
   ],
-
   "moat": {
     "sources": [
       "양면 네트워크 효과 - 카드 38억 장(2026-09말, 전년 대비 +5%)과 전 세계 가맹점이 서로를 끌어들임",
@@ -27,14 +110,19 @@
       "대출 위험이 없는 수수료 모델 - 2025 영업이익률 57.6%"
     ],
     "text": "Mastercard의 힘은 카드를 가진 사람이 많을수록 가맹점이 받아야 하고, 받는 가맹점이 많을수록 카드가 더 쓸모 있어지는 양면 네트워크에서 나온다. 38억 장 카드와 연 10.6조 달러 결제 규모가 이 고리를 지킨다. 회사는 돈을 빌려주지 않고 결제를 연결하는 값만 받기 때문에, 이 규모가 곧 57.6%(2025)라는 높은 영업이익률이 된다.",
-    "src": ["s1", "s3", "s9"]
+    "src": [
+      "s1",
+      "s3",
+      "s9"
+    ]
   },
-
   "design": {
     "text": "회사가 파는 것은 두 묶음으로 보고된다. Payment network는 카드 결제의 승인·청산·정산을 처리하는 네트워크 자체이고, Value-added services and solutions(VAS)는 사기 탐지·보안, 디지털 인증, 데이터 분석과 마케팅 서비스, 계좌 간 결제 보호 등 네트워크 위에 얹는 서비스다. 2025년에는 AI 에이전트가 소비자 대신 결제하도록 하는 Agent Pay와 Commerce Media, Merchant Cloud 등을 내놨다.",
-    "src": ["s2", "s3"]
+    "src": [
+      "s2",
+      "s3"
+    ]
   },
-
   "make": {
     "model": "service",
     "partners": [
@@ -45,9 +133,13 @@
       "직원 약 39,800명 (2025말, 70%가 미국 밖)"
     ],
     "text": "Mastercard는 공장이 아니라 소프트웨어와 네트워크로 '만든다'. 결제를 처리하는 자체 네트워크와 데이터를 기반으로, 인수한 Recorded Future의 위협 정보 같은 보안 역량을 더해 부가 서비스를 만든다. 2025년 설비·소프트웨어 투자는 12.2억 달러로 매출의 4%도 안 돼, 만드는 비용이 매우 가볍다. 2026년 8월에는 BVNK 인수를 마쳐 스테이블코인 결제 인프라를 직접 갖게 됐다.",
-    "src": ["s2", "s1", "s10", "s11"]
+    "src": [
+      "s2",
+      "s1",
+      "s10",
+      "s11"
+    ]
   },
-
   "sell": {
     "customers": [
       "카드 발급 은행(issuer) - 예: Apple Card 프로그램 (CEO가 2025년 대표 승리 사례로 언급)",
@@ -57,128 +149,428 @@
     "channel": "은행·핀테크에 직접 계약으로 판매하고, 소비자와 가맹점에는 그 은행들을 통해 도달한다.",
     "concentration": "매출의 상당 부분이 상위 5개 고객에 집중돼 있다고 공시 (비율 미공시). 매출의 약 71%가 미국 밖에서 발생 (2025).",
     "text": "이 네트워크는 소비자에게 직접 팔지 않는다. 카드를 내주는 은행과 가맹점 대금을 받아 주는 은행이 Mastercard와 계약하고, 그 은행들이 소비자와 가맹점에 카드와 단말을 준다. 그래서 대형 발급사의 브랜드 선택이 매출을 크게 좌우하는데, 회사는 상위 5개 고객 집중을 위험으로 공시하고 있으며 매출의 71%는 미국 밖에서 나온다.",
-    "src": ["s2", "s1"]
+    "src": [
+      "s2",
+      "s1"
+    ]
   },
-
   "moneyFlow": {
     "steps": [
-      { "from": "카드 소지자", "to": "가맹점", "what": "물건·서비스 대금을 카드로 결제 (2025 GDV 10.6조 달러)" },
-      { "from": "가맹점", "to": "매입 은행(acquirer)", "what": "가맹점 수수료를 떼고 대금을 받음 (수수료 배분 비율은 이번 조사에서 미확인)" },
-      { "from": "발급·매입 은행", "to": "Mastercard Payment network", "what": "결제 규모·건수·국경 간 거래에 비례한 네트워크 수수료, 리베이트·인센티브 차감 후 (2025 194.8억 달러)" },
-      { "from": "은행·가맹점·정부·핀테크", "to": "Mastercard VAS", "what": "사기 탐지·인증·데이터 분석·마케팅 서비스 이용료 (2025 133.2억 달러)" },
-      { "from": "Mastercard", "to": "발급 은행 등 고객", "what": "물량 계약에 따른 리베이트·인센티브 지급 (2025 +16%)" }
+      {
+        "from": "카드 소지자",
+        "to": "가맹점",
+        "what": "물건·서비스 대금을 카드로 결제 (2025 GDV 10.6조 달러)"
+      },
+      {
+        "from": "가맹점",
+        "to": "매입 은행(acquirer)",
+        "what": "가맹점 수수료를 떼고 대금을 받음 (수수료 배분 비율은 이번 조사에서 미확인)"
+      },
+      {
+        "from": "발급·매입 은행",
+        "to": "Mastercard Payment network",
+        "what": "결제 규모·건수·국경 간 거래에 비례한 네트워크 수수료, 리베이트·인센티브 차감 후 (2025 194.8억 달러)"
+      },
+      {
+        "from": "은행·가맹점·정부·핀테크",
+        "to": "Mastercard VAS",
+        "what": "사기 탐지·인증·데이터 분석·마케팅 서비스 이용료 (2025 133.2억 달러)"
+      },
+      {
+        "from": "Mastercard",
+        "to": "발급 은행 등 고객",
+        "what": "물량 계약에 따른 리베이트·인센티브 지급 (2025 +16%)"
+      }
     ],
     "pricing": "결제 금액(GDV)·건수(switched transactions)·국경 간 거래에 비례한 네트워크 수수료가 중심이고, 대형 고객에게는 리베이트·인센티브로 일부를 돌려준다. 부가 서비스는 사용량·구독 방식이다.",
     "text": "돈은 사람들이 카드를 긁을 때마다 아주 작게, 아주 많이 들어온다. 결제 금액과 건수, 특히 수수료가 높은 국경 간 결제에 비례해 네트워크 수수료가 쌓이고, 발급 은행을 붙잡기 위한 리베이트를 뺀 순매출로 잡힌다. 여기에 사기 탐지·데이터 같은 부가 서비스가 23%씩 자라며 두 번째 엔진이 됐다.",
-    "src": ["s1", "s3"]
+    "src": [
+      "s1",
+      "s3"
+    ]
   },
-
   "earnings": {
-    "period": "FY2025 (ended 2025-12-31)",
-    "revenue": { "value": 32.791, "unit": "USD bn", "yoy": 16.4 },
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": {
+      "value": 9.807,
+      "unit": "USD bn",
+      "yoy": 14
+    },
     "grossMargin": null,
-    "operatingMargin": 57.6,
-    "netMargin": 45.6,
-    "operatingCashFlow": { "value": 17.648, "unit": "USD bn" },
-    "freeCashFlow": { "value": 16.433, "unit": "USD bn" },
+    "operatingMargin": 59.8,
+    "netMargin": 47.2,
+    "operatingCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": null,
+      "unit": "USD bn"
+    },
     "segments": [
-      { "name": "Payment network", "revenue": 19.476, "unit": "USD bn", "share": 59.4, "yoy": 12.3, "operatingMargin": null, "src": ["s3"] },
-      { "name": "Value-added services and solutions", "revenue": 13.315, "unit": "USD bn", "share": 40.6, "yoy": 22.9, "operatingMargin": null, "src": ["s3"] }
+      {
+        "name": "Payment network",
+        "revenue": 5.749,
+        "unit": "USD bn",
+        "share": 58.6,
+        "yoy": 11,
+        "operatingMargin": null,
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "name": "Value-added services and solutions",
+        "revenue": 4.058,
+        "unit": "USD bn",
+        "share": 41.4,
+        "yoy": 19,
+        "operatingMargin": null,
+        "src": [
+          "s9"
+        ]
+      }
     ],
     "industryMetric": [
-      { "name": "Gross dollar volume (GDV)", "value": "FY2025 10.6조 달러(현지통화 +9%); Q2 2026 2.9조 달러(+8%); Q3 2026 2.95조 달러(+7%, 미국 +6%, 미국 외 +8%)", "src": ["s1", "s4", "s8", "s9"] },
-      { "name": "국경 간 결제 규모 증가율", "value": "FY2025 +15%; Q2 2026 +12%; Q3 2026 +11%; 10월 1~21일 +10%", "src": ["s1", "s4", "s8", "s9"] },
-      { "name": "처리 건수(switched transactions) 증가율", "value": "FY2025 +10%; Q2 2026 +9%; Q3 2026 +9% (493억 건)", "src": ["s1", "s4", "s8", "s9"] },
-      { "name": "리베이트·인센티브 증가율", "value": "FY2025 +16%; Q2 2026 +22%; Q3 2026 +18% (63.7억 달러)", "src": ["s1", "s4", "s8", "s9"] },
-      { "name": "지역별 순매출 (FY2025)", "value": "Americas 140.4억, AP/EMEA 187.5억 달러", "src": ["s3"] },
-      { "name": "Q2 2026", "value": "순매출 92.8억 달러(+14%, 환율 제외 +12%), 조정 영업이익률 61.1%, 조정 EPS 5.04달러", "src": ["s4"] },
-      { "name": "최근 분기 (Q3 2026, 2026-10-29 발표)", "value": "순매출 98.07억 달러(+14%, 환율 제외 +14%) = Payment network 57.49억(+11%) + VAS 40.58억(+19%); 영업이익률 59.8%(조정 60.5%); 순이익 46.3억; EPS 5.28(조정 5.31)달러", "src": ["s8", "s9"] },
-      { "name": "2026 1~3분기 누적", "value": "순매출 274.8억 달러(+15%, 환율 제외 +13%), 순이익 129.0억, 영업현금흐름 118.6억 달러", "src": ["s8"] },
-      { "name": "발급 카드 수", "value": "37억 장 (2025말) → 38.07억 장 (2026-09말, +5%)", "src": ["s1", "s9"] }
+      {
+        "name": "Gross dollar volume (GDV)",
+        "value": "FY2025 10.6조 달러(현지통화 +9%); Q2 2026 2.9조 달러(+8%); Q3 2026 2.95조 달러(+7%, 미국 +6%, 미국 외 +8%)",
+        "src": [
+          "s1",
+          "s4",
+          "s8",
+          "s9"
+        ]
+      },
+      {
+        "name": "국경 간 결제 규모 증가율",
+        "value": "FY2025 +15%; Q2 2026 +12%; Q3 2026 +11%; 10월 1~21일 +10%",
+        "src": [
+          "s1",
+          "s4",
+          "s8",
+          "s9"
+        ]
+      },
+      {
+        "name": "처리 건수(switched transactions) 증가율",
+        "value": "FY2025 +10%; Q2 2026 +9%; Q3 2026 +9% (493억 건)",
+        "src": [
+          "s1",
+          "s4",
+          "s8",
+          "s9"
+        ]
+      },
+      {
+        "name": "리베이트·인센티브 증가율",
+        "value": "FY2025 +16%; Q2 2026 +22%; Q3 2026 +18% (63.7억 달러)",
+        "src": [
+          "s1",
+          "s4",
+          "s8",
+          "s9"
+        ]
+      },
+      {
+        "name": "지역별 순매출 (FY2025)",
+        "value": "Americas 140.4억, AP/EMEA 187.5억 달러",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "2026 1~3분기 누적",
+        "value": "순매출 274.8억 달러(+15%, 환율 제외 +13%), 순이익 129.0억, 영업현금흐름 118.6억 달러",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "name": "발급 카드 수",
+        "value": "37억 장 (2025말) → 38.07억 장 (2026-09말, +5%)",
+        "src": [
+          "s1",
+          "s9"
+        ]
+      },
+      {
+        "name": "Q3 2026 이익",
+        "value": "영업이익 58.62억 달러(영업이익률 59.8%, 조정 60.5%), 순이익 46억 달러대, EPS 5.28(조정 5.31)달러, 조정 EPS +21%",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "name": "Q3 2026 네트워크 수수료 구성",
+        "value": "국내 수수료 32.11억(+14%), 국경 간 38.41억(+16%), 처리 수수료 47.81억(+14%), 기타 2.85억(+10%) 달러 - 리베이트·인센티브 63.69억 달러 차감 전",
+        "src": [
+          "s9"
+        ]
+      }
     ],
-    "text": "그 결과 2025년 순매출 327.9억 달러(+16%) 가운데 189억 달러가 영업이익(57.6%), 150억 달러가 순이익(45.6%)으로 남았다. 영업현금흐름 176.5억 달러에서 설비·소프트웨어 투자 12.2억을 빼면 잉여현금흐름이 약 164억 달러로, 순이익보다 많다. 성장의 무게는 부가 서비스로 옮겨 가고 있어, 2026-10-29 발표한 Q3에도 순매출 98.1억 달러(+14%) 중 VAS가 19%, 네트워크가 11% 늘었고 영업이익률은 59.8%였다.",
-    "src": ["s1", "s3", "s8", "s9"]
+    "text": "그 결과 2026년 3분기 순매출 98.07억 달러(+14%, 환율 제외 +14%) 가운데 58.6억 달러가 영업이익(59.8%)으로 남았다. 성장의 무게는 부가 서비스로 옮겨 가는 중이라, 네트워크 매출이 57.5억 달러로 11% 늘 때 부가 서비스는 40.6억 달러로 19% 늘었다. 국경 간 수수료가 16% 늘어 가장 빨랐지만, 발급사에 돌려주는 리베이트·인센티브도 18% 늘어 네트워크 순매출 증가를 깎았다.",
+    "src": [
+      "s8",
+      "s9"
+    ]
   },
-
   "useOfCash": {
-    "period": "FY2025 (ended 2025-12-31)",
+    "period": "9M 2026 (2026-01-01 ~ 2026-09-30)",
     "items": [
-      { "use": "buybacks", "value": 11.727, "unit": "USD bn", "src": ["s1", "s2"] },
-      { "use": "dividends", "value": 2.756, "unit": "USD bn", "src": ["s1"] },
-      { "use": "capex", "value": 1.215, "unit": "USD bn", "src": ["s1"] },
-      { "use": "acquisitions", "value": 0, "unit": "USD bn", "src": ["s1"] }
+      {
+        "use": "buybacks",
+        "value": 11.893,
+        "unit": "USD bn",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 2.311,
+        "unit": "USD bn",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 1.141,
+        "unit": "USD bn",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 1.372,
+        "unit": "USD bn",
+        "src": [
+          "s8",
+          "s10"
+        ]
+      }
     ],
-    "text": "돈을 만드는 데 거의 돈이 들지 않으니, 현금 대부분이 주주에게 간다. 2025년 자사주 117.3억 달러(2,110만 주)와 배당 27.6억 달러로 잉여현금흐름의 약 88%를 돌려줬고, 설비·소프트웨어 투자는 12.2억 달러, 현금 인수는 없었다. 2026년 1~3분기에는 자사주 118.9억, 배당 23.1억 달러(현금흐름표 기준)에 더해 인수 13.7억 달러(BVNK 완료 시기와 겹침)를 썼고, 10월 26일 기준 남은 매입 한도는 49억 달러다. 영업현금흐름 118.6억을 넘는 환원은 차입 순증 약 50억 달러로 메웠다.",
-    "src": ["s1", "s2", "s8", "s10"]
+    "text": "돈을 만드는 데 거의 돈이 들지 않으니 현금 대부분이 주주에게 간다. 2026년 1~9월 영업현금흐름 118.6억 달러에 대해 자사주 118.9억, 배당 23.1억 달러를 썼고, 설비·자본화 소프트웨어는 11.4억 달러였다. 인수에 13.7억 달러(BVNK 완료 시기와 겹침)를 쓰고 영업현금흐름을 넘는 환원은 차입으로 메웠으며, 3분기에만 자사주 30억·배당 7.6억 달러, 10월 26일까지 6억 달러를 더 사서 남은 매입 한도는 49억 달러다.",
+    "src": [
+      "s8",
+      "s10"
+    ]
   },
-
   "aiChain": {
     "layer": "ai-exposed",
     "position": "AI 칩이나 모델을 만들지 않지만, AI 에이전트가 사람 대신 물건을 사는 '에이전트 커머스'에서 결제와 신뢰를 제공하는 망으로 자리를 잡으려 한다. 10-K는 Agent Pay를 에이전트 커머스의 안전한 결제 틀로 소개하고, 2026-09-30에는 거래가 AI 에이전트에서 시작됐을 확률 점수 등 Agent Pay 신뢰·정보 서비스를 내놨다(미국 시험 운영).",
-    "dependsOn": ["models-platforms (AI 에이전트·쇼핑 플랫폼 - 결제 제휴사명 미확인)", "Cloudflare (웹 쪽 AI 에이전트 활동 신호), Skyfire (Know Your Agent 에이전트 신원 확인)", "software-applications (가맹점·핀테크 결제 소프트웨어)"],
-    "sellsTo": ["AI 에이전트를 통해 결제하는 소비자·가맹점 (발급·매입 은행 경유)", "사기 탐지·인증 서비스를 쓰는 은행"],
+    "dependsOn": [
+      "models-platforms (AI 에이전트·쇼핑 플랫폼 - 결제 제휴사명 미확인)",
+      "Cloudflare (웹 쪽 AI 에이전트 활동 신호), Skyfire (Know Your Agent 에이전트 신원 확인)",
+      "software-applications (가맹점·핀테크 결제 소프트웨어)"
+    ],
+    "sellsTo": [
+      "AI 에이전트를 통해 결제하는 소비자·가맹점 (발급·매입 은행 경유)",
+      "사기 탐지·인증 서비스를 쓰는 은행"
+    ],
     "aiRevenue": null,
     "upside": "AI 에이전트가 결제를 늘리면 GDV와 건수가 늘어 네트워크 수수료가 커지고, 에이전트 결제에 필요한 인증·사기 탐지 같은 부가 서비스(2025년 +23%) 수요도 커진다.",
     "risk": "에이전트 결제가 계좌 간 이체나 스테이블코인 같은 다른 경로로 흐르면 카드망을 우회할 수 있다. 회사는 2026-08 완료한 스테이블코인 인프라 BVNK 인수로 대응하고 있다. AI를 이용한 사기 고도화도 비용 요인이다.",
     "text": "그래서 AI 가치사슬에서 Mastercard는 AI를 만드는 쪽이 아니라 AI가 바꾸는 상거래에 노출된 결제망이다. 지금 AI 매출을 따로 공시하지 않지만, Agent Pay로 에이전트 결제의 기본 레일이 되고 '이 거래를 AI가 했는가'를 판별하는 신뢰 서비스를 파는 것이 노림수다. 반대로 결제가 카드망 밖으로 새는 것이 가장 큰 AI 위험이다.",
-    "src": ["s2", "s3", "s10", "s11"]
+    "src": [
+      "s2",
+      "s3",
+      "s10",
+      "s11"
+    ]
   },
-
   "competition": {
     "arenas": [
-      { "arena": "글로벌 카드 결제 네트워크", "rivals": ["Visa", "American Express", "JCB", "China UnionPay", "Discover"], "position": "challenger", "share": null, "src": ["s2"] },
-      { "arena": "계좌 간 결제·실시간 결제", "rivals": ["각국 실시간 결제망", "은행 컨소시엄", "핀테크"], "position": "niche", "share": null, "src": ["s2"] },
-      { "arena": "스테이블코인·디지털 자산 결제", "rivals": ["Visa", "스테이블코인 발행사·결제 업체"], "position": "challenger", "share": null, "src": ["s10"] },
-      { "arena": "결제 보안·데이터 서비스 (VAS)", "rivals": ["Visa", "사이버 보안·사기 탐지 전문 업체", "데이터 분석 업체"], "position": "leader", "share": null, "src": ["s3", "s2"] }
+      {
+        "arena": "글로벌 카드 결제 네트워크",
+        "rivals": [
+          "Visa",
+          "American Express",
+          "JCB",
+          "China UnionPay",
+          "Discover"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "계좌 간 결제·실시간 결제",
+        "rivals": [
+          "각국 실시간 결제망",
+          "은행 컨소시엄",
+          "핀테크"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "스테이블코인·디지털 자산 결제",
+        "rivals": [
+          "Visa",
+          "스테이블코인 발행사·결제 업체"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "arena": "결제 보안·데이터 서비스 (VAS)",
+        "rivals": [
+          "Visa",
+          "사이버 보안·사기 탐지 전문 업체",
+          "데이터 분석 업체"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3",
+          "s2"
+        ]
+      }
     ],
     "edge": "양면 네트워크 규모, 국경 간 결제 처리망, 빠르게 크는 부가 서비스, 대출 위험 없는 높은 마진.",
     "threats": "Visa와의 발급사 계약 경쟁(리베이트 상승), 실시간 결제·스테이블코인의 우회, 미국 Regulation II 수수료 상한 소송과 가맹점 소송, 각국 수수료 규제.",
     "text": "카드망에서는 Visa가 가장 큰 경쟁자이고, 10-K는 American Express, JCB, China UnionPay, Discover도 경쟁사로 든다. 경쟁은 발급 은행을 붙잡는 계약에서 일어나서, 2025년 리베이트·인센티브가 16%, Q3 2026에도 18% 늘며 그 비용이 커졌다. 회사는 부가 서비스와 BVNK 같은 새 결제 경로를 더해 '카드만의 회사'에서 벗어나는 방식으로 맞선다.",
-    "src": ["s2", "s1", "s8", "s10"]
+    "src": [
+      "s2",
+      "s1",
+      "s8",
+      "s10"
+    ]
   },
-
   "strategy": {
     "goal": "2026년 순매출을 환율·인수 효과 제외 '두 자릿수 초반의 상단'으로 키우고 영업비용 증가는 두 자릿수 초반에 묶겠다고 했다(Q2 2026 콜 요약).",
     "roadmap": [
-      { "when": "2025", "what": "Agent Pay(에이전트 커머스), Commerce Media, Merchant Cloud, Account-to-Account Protect 출시", "src": ["s2"] },
-      { "when": "2026-08-03", "what": "스테이블코인 인프라 BVNK 인수 완료, 같은 날 Ling Hai CFO 취임", "src": ["s10", "s6"] },
-      { "when": "2026-09-30", "what": "Agent Pay 신뢰·정보 서비스(AI 시작 거래 확률 점수) 미국 시험 운영 시작", "src": ["s11"] },
-      { "when": "2026-10", "what": "BVNK와 Global Money Platform 출시 (법정화폐·스테이블코인 간 결제)", "src": ["s8"] },
-      { "when": "FY2026", "what": "순매출 두 자릿수 초반 상단 성장, 비조정 세율 20~21%(하반기)", "src": ["s5"] },
-      { "when": "2027-01 말 (추정)", "what": "FY2026 실적과 2027 전망", "src": [] }
+      {
+        "when": "2025",
+        "what": "Agent Pay(에이전트 커머스), Commerce Media, Merchant Cloud, Account-to-Account Protect 출시",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "2026-08-03",
+        "what": "스테이블코인 인프라 BVNK 인수 완료, 같은 날 Ling Hai CFO 취임",
+        "src": [
+          "s10",
+          "s6"
+        ]
+      },
+      {
+        "when": "2026-09-30",
+        "what": "Agent Pay 신뢰·정보 서비스(AI 시작 거래 확률 점수) 미국 시험 운영 시작",
+        "src": [
+          "s11"
+        ]
+      },
+      {
+        "when": "2026-10",
+        "what": "BVNK와 Global Money Platform 출시 (법정화폐·스테이블코인 간 결제)",
+        "src": [
+          "s8"
+        ]
+      },
+      {
+        "when": "FY2026",
+        "what": "순매출 두 자릿수 초반 상단 성장, 비조정 세율 20~21%(하반기)",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "when": "2027-01 말 (추정)",
+        "what": "FY2026 실적과 2027 전망",
+        "src": []
+      }
     ],
     "vision": "Miebach는 신뢰받는 기술, 끊임없는 혁신, 깊은 파트너십을 성과의 원천으로 들며, 카드·계좌 간 결제·디지털 자산·에이전트 커머스를 모두 아우르는 결제와 서비스 회사를 그린다.",
     "text": "앞으로의 계획은 결제가 어디로 흐르든 그 길 위에 있는 것이다. 카드망을 지키면서 부가 서비스를 키우고, Agent Pay로 AI 에이전트 결제를, BVNK로 스테이블코인 결제를 받아들이겠다는 그림이다. 2026년에는 순매출을 두 자릿수 초반 상단으로 키우겠다는 전망을 Q2 콜에서 높였고, 1~3분기 누적 환율 제외 성장률은 13%였다.",
-    "src": ["s2", "s10", "s5", "s8"]
+    "src": [
+      "s2",
+      "s10",
+      "s5",
+      "s8"
+    ]
   },
-
   "governance": {
     "line": "Michael Miebach CEO가 이끄는 지분 분산 회사로, 2026-08 Ling Hai가 새 CFO가 됐고 승계 계획은 확인하지 못했으며 잉여현금흐름 대부분을 자사주와 배당으로 돌려준다.",
-    "src": ["s1", "s6"]
+    "src": [
+      "s1",
+      "s6"
+    ]
   },
-
   "guidance": {
     "latest": [
-      { "period": "FY2026", "metric": "net revenue growth (currency-neutral, ex acquisitions)", "value": "두 자릿수 초반의 상단 (이전보다 높임), 환율 +1%p 순풍", "givenOn": "2026-07-30", "src": ["s5"] },
-      { "period": "FY2026", "metric": "operating expense growth", "value": "두 자릿수 초반, 환율 0.5~1%p 역풍", "givenOn": "2026-07-30", "src": ["s5"] },
-      { "period": "Q3 2026", "metric": "net revenue growth (currency-neutral, ex acquisitions)", "value": "두 자릿수 초반의 상단, 환율 0.5%p 역풍", "givenOn": "2026-07-30", "src": ["s5"] },
-      { "period": "Q3·Q4 2026", "metric": "non-GAAP tax rate", "value": "20~21%", "givenOn": "2026-07-30", "src": ["s5"] }
+      {
+        "period": "FY2026",
+        "metric": "net revenue growth (non-GAAP, currency-neutral, ex acquisitions)",
+        "value": "두 자릿수 초반의 상단 (7월과 같음); GAAP 기준 10% 초반(low teens)",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "period": "FY2026",
+        "metric": "operating expense growth",
+        "value": "non-GAAP 두 자릿수 초반의 상단, 환율 제외·인수 제외 두 자릿수 초반; GAAP 기준은 7월 \"한 자릿수 후반 상단\"에서 \"두 자릿수 초반 하단\"으로 바뀜",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "net revenue growth (non-GAAP, currency-neutral, ex acquisitions)",
+        "value": "두 자릿수 초반의 상단, 환율 영향 약 1%p",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s9"
+        ]
+      },
+      {
+        "period": "Q4 2026",
+        "metric": "operating expense growth",
+        "value": "non-GAAP 10% 초반(low teens), 환율 제외·인수 제외 두 자릿수 초반의 상단",
+        "givenOn": "2026-10-29",
+        "src": [
+          "s9"
+        ]
+      }
     ],
     "style": "annual",
-    "track": "보도 기준 Q2 2026까지 여섯 분기 연속 조정 EPS가 컨센서스를 넘었다(Q2 5.04달러 vs 4.77달러). Q3 2026은 Q2 콜에서 제시한 '환율 제외 두 자릿수 초반 상단'보다 높은 환율 제외 +14%를 냈고, 조정 EPS 5.31달러와 순매출 98.1억 달러는 발표 전 컨센서스(5.15달러, 96.4억 달러)를 넘었다.",
-    "src": ["s6", "s4", "s5", "s8"]
+    "track": "보도 기준 Q2 2026까지 여섯 분기 연속 조정 EPS가 컨센서스를 넘었다. Q3 2026은 Q2 콜에서 제시한 \"환율 제외 두 자릿수 초반 상단\"보다 높은 환율 제외 +14%를 냈고, 조정 EPS 5.31달러와 순매출 98.1억 달러는 발표 전 컨센서스(5.15달러, 96.4억 달러)를 넘었다. 연간 순매출 전망 문구는 그대로 두었다.",
+    "src": [
+      "s4",
+      "s5",
+      "s6",
+      "s8",
+      "s9"
+    ]
   },
-
   "estimates": {
-    "text": "Q3 2026 발표 전 컨센서스(2026-10-25 보도)는 정규화 EPS 5.15달러, 매출 96.4억 달러(+12.0%)였고 실제는 5.31달러, 98.1억 달러였다. AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) EPS 합계 21.14달러(범위 20.52~21.80), 직전 4개 분기 18.78달러이며, 최근 4주 상향 9건·하향 0건으로 상향 일색이었다. 발표 후 컨센서스 변화는 아직 반영하지 못했다.",
-    "src": ["s6", "s7", "s8"]
+    "text": "Q3 2026 발표 전 컨센서스(2026-10-25 보도)는 정규화 EPS 5.15달러, 매출 96.4억 달러(+12.0%)였고 실제는 5.31달러, 98.1억 달러였다. AIO 로컬 스냅샷(2026-10-28, Zacks via Nasdaq) 향후 4개 분기 EPS 합계 21.14달러(범위 20.52~21.80), 최근 4주 상향 9건·하향 0건. 발표 후 컨센서스 변화는 확인하지 않았다.",
+    "src": [
+      "s6",
+      "s7",
+      "s8"
+    ]
   },
-
   "watch": {
     "confirms": [
       "부가 서비스 매출이 20% 안팎 성장을 유지",
-      "국경 간 결제 증가율이 두 자릿수를 유지",
-      "순매출 성장이 연간 전망(두 자릿수 초반 상단) 안에 들어옴",
+      "국경 간 결제 증가율이 두 자릿수를 유지 (Q3 +11%, 10월 1~21일 +10%)",
+      "4분기 순매출 성장이 전망(환율 제외 두 자릿수 초반 상단) 안에 들어옴",
       "조정 영업이익률이 60% 안팎을 유지",
       "Agent Pay·BVNK 관련 고객·거래 수치가 공개되고 늘어남"
     ],
@@ -190,45 +582,76 @@
       "에이전트 결제가 카드망 밖으로 흐른다는 증거"
     ],
     "keyNumbers": [
-      { "name": "순매출 증가율(환율 제외)", "why": "연간 전망 대비 위치" },
-      { "name": "국경 간 결제 증가율", "why": "가장 수수료가 높은 거래" },
-      { "name": "부가 서비스(VAS) 증가율", "why": "두 번째 성장 엔진" },
-      { "name": "GDV·처리 건수 증가율", "why": "네트워크 수수료의 기초 물량" },
-      { "name": "리베이트·인센티브 증가율", "why": "발급사 경쟁의 비용" },
-      { "name": "조정 영업이익률", "why": "투자와 마진의 균형" }
+      {
+        "name": "순매출 증가율(환율 제외)",
+        "why": "연간 전망 대비 위치"
+      },
+      {
+        "name": "국경 간 결제 증가율",
+        "why": "가장 수수료가 높은 거래"
+      },
+      {
+        "name": "부가 서비스(VAS) 증가율",
+        "why": "두 번째 성장 엔진"
+      },
+      {
+        "name": "GDV·처리 건수 증가율",
+        "why": "네트워크 수수료의 기초 물량"
+      },
+      {
+        "name": "리베이트·인센티브 증가율",
+        "why": "발급사 경쟁의 비용"
+      },
+      {
+        "name": "조정 영업이익률",
+        "why": "투자와 마진의 균형"
+      }
     ]
   },
-
   "trading": {
     "calendar": [
-      { "date": "2026-10-29", "event": "Q3 2026 실적 발표 완료 (새 CFO 첫 실적, 4분기 전망은 콜에서 제시)", "src": ["s8"] },
-      { "date": "2026-11-09", "event": "분기 배당 주당 0.87달러 지급", "src": ["s12"] },
-      { "date": "2027-01 말 (추정, 회사 미확정)", "event": "4Q26·FY2026 실적과 2027 전망", "src": [] },
-      { "date": "수시", "event": "Regulation II 수수료 상한 소송 판결, 미국 카드 수수료 관련 입법, 연준 금리 결정", "src": ["s2"] }
+      {
+        "date": "2026-11-09",
+        "event": "분기 배당 주당 0.87달러 지급",
+        "src": [
+          "s12"
+        ]
+      },
+      {
+        "date": "2027-01 말 (추정, 회사 미확정)",
+        "event": "4Q26·FY2026 실적과 2027 전망",
+        "src": []
+      },
+      {
+        "date": "수시",
+        "event": "Regulation II 수수료 상한 소송 판결, 미국 카드 수수료 관련 입법, 연준 금리 결정",
+        "src": [
+          "s2"
+        ]
+      }
     ],
     "reaction": "주가는 EPS 자체보다 국경 간 결제와 부가 서비스 증가율, 다음 분기 매출 전망에 반응하는 경향이 있다. 보도에 따르면 2026년 Q1에는 EPS가 컨센서스를 4% 넘었는데도 주가가 그날 4% 넘게 내렸고, 10월 말 주가는 사상 최고가 부근에서 2026년 예상 EPS의 약 31배였다.",
     "conditions": [
-      "순매출 증가율과 회사 전망 범위의 비교",
+      "4분기 순매출 증가율과 회사 전망 범위의 비교",
       "국경 간 결제·부가 서비스 증가율의 방향",
       "리베이트·인센티브 증가율 대비 순매출 증가율",
-      "다음 분기·연간 전망 문구의 변화",
+      "2027년 첫 전망 문구",
       "카드 수수료 관련 소송·입법 뉴스",
       "컨센서스 EPS 상향·하향 건수 추이"
     ]
   },
-
   "unverified": [
-    "잉여현금흐름 164.3억 달러는 영업현금흐름 176.5억 - 설비 4.9억 - 자본화 소프트웨어 7.3억으로 계산한 값 (회사는 FCF를 공시하지 않음)",
+    "Q3 2026 단독 영업현금흐름 (보도자료는 9개월 누적 118.6억 달러만 제공)",
+    "Q3 순이익은 보도자료 표지의 \"46억 달러\"와 기존 자료의 46.3억 달러 기준, 순이익률 47.2%는 계산값",
+    "Q3 콜 원문(새 CFO 발언, AI·에이전트 결제 수치)과 발표 당일 주가 반응은 확인하지 않음",
     "총마진은 결제 네트워크 특성상 의미가 없어 null",
     "상위 5개 고객 매출 비중 (공시 비율 없음)",
     "Visa 대비 시장 점유율 ('challenger'·'leader'·'niche'는 판단)",
     "BVNK 인수 금액 (완료 보도자료에 금액 없음); 2026 1~3분기 인수 현금 13.7억 달러가 전부 BVNK인지 미확인",
     "Agent Pay 사용 규모·결제 제휴 AI 플랫폼명, AI 관련 매출",
-    "FY2026 전망 세부는 Quartr 요약 기준, 회사 콜 원문 미확인",
-    "Q3 2026 콜(2026-10-29 오전 9시 ET)에서 나온 4분기·연간 전망 갱신과 발표 당일 주가 반응은 아직 반영하지 못함",
     "Q1 2026 실적 당일 주가 반응과 PER 31배는 24/7 Wall St. 기사 기준",
     "Recorded Future 인수 시점 (10-K XBRL상 2024년으로 보임)",
     "Miebach 승계 계획"
   ],
-  "confidence": "high - 매출 구성·이익·현금흐름·환원은 10-K와 2026-10-29 Q3 실적 자료(회사 IR 원문)에서 왔다. 2026 연간 전망 세부와 주가 반응은 요약·보도 기준이라 medium 수준이며, Q3 콜의 4분기 전망은 아직 반영하지 않았다."
+  "confidence": "high - 매출 구성·이익·현금 사용·4분기와 연간 전망은 2026-10-29 회사 실적 보도자료와 발표 자료에서 왔다. 콜 원문과 주가 반응은 반영하지 않았다."
 }

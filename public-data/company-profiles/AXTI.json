@@ -1,0 +1,209 @@
+{
+  "symbol": "AXTI",
+  "name": "AXT, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "AXT는 AI 데이터센터 광트랜시버 레이저의 바탕 재료인 인화인듐(InP) 웨이퍼를 중국 공장에서 만드는 소수 공급사 중 하나로, Q3 2026 매출이 1년 새 2.6배가 됐지만 중국 수출 허가가 출하 속도를 정한다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "AXT, Inc. Announces Third Quarter 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001051627/000143774926033941/ex_1013304.htm", "publisher": "AXT / SEC EDGAR", "date": "2026-10-29" },
+    { "id": "s2", "kind": "call-transcript", "title": "AXT (AXTI) Q3 2026 Earnings Call Transcript and Summary (auto-generated, publisher warns of transcription errors)", "url": "https://gloom.sh/stocks/axti/transcripts/q3-2026", "publisher": "gloom.sh", "date": "2026-10-29" },
+    { "id": "s3", "kind": "call-transcript", "title": "Earnings call transcript: AXT tops Q3 2026 estimates, but shares fall", "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-axt-tops-q3-2026-estimates-but-shares-fall-93CH-4985374", "publisher": "Investing.com", "date": "2026-10-29" },
+    { "id": "s4", "kind": "10-K", "title": "AXT Form 10-K for fiscal year 2025 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/1051627/000143774926008612/axti20251231_10k.htm", "publisher": "AXT / SEC EDGAR", "date": "2025-12-31" },
+    { "id": "s5", "kind": "earnings-release", "title": "AXT Inc. Announces Fourth Quarter and Fiscal Year 2025 Financial Results (read from search summary)", "url": "https://www.businesswire.com/news/home/20260219561660/en/AXT-Inc.-Announces-Fourth-Quarter-and-Fiscal-Year-2025-Financial-Results", "publisher": "Business Wire (company release)", "date": "2026-02-19" }
+  ],
+
+  "moat": {
+    "sources": [
+      "InP 기판 시장의 '주요 공급사 3곳' 중 하나 - 나머지 두 곳은 주 생산이 독일·일본 (10-K)",
+      "VGF 결정 성장 공정과 2~6인치 대구경 InP 생산 능력, 6인치는 파일럿 생산 진입 (10-K·콜)",
+      "갈륨 정제·InP 원료·pBN 도가니를 만드는 중국 내 원재료 자회사로 이어진 수직 계열 (10-K)"
+    ],
+    "text": "광통신 레이저와 수광 소자는 InP 웨이퍼 위에서만 만들 수 있고, 이 웨이퍼를 대량으로 내놓는 회사는 AXT를 포함해 세 곳 정도다. AXT의 힘은 결정 성장 노하우와 대구경(4·6인치) 웨이퍼를 뽑는 능력, 그리고 갈륨·InP 원료를 직접 정제하는 중국 내 자회사에서 나온다. 공급사가 적은 시장이라, 수요가 몰리면 증설 속도가 곧 점유율이 된다.",
+    "src": ["s4", "s2"]
+  },
+
+  "design": {
+    "text": "이 기술로 AXT가 내놓는 것은 세 가지 기판과 원재료다. InP(2~6인치)는 데이터센터 광연결·5G·PON·실리콘 포토닉스용, 갈륨비소(GaAs, 1~8인치)는 무선·LED·레이저용, 게르마늄(Ge)은 위성 태양전지·적외선용이다. 2025년에는 기판이 매출의 67%, 원재료가 33%였고, 2026년 들어 AI 광트랜시버용 InP가 매출 대부분을 차지하게 됐다.",
+    "src": ["s4", "s1"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "Beijing Tongmei Xtal Technology (통메이) - 중국 내 기판 생산 자회사, InP 라인은 베이징 본사 부지, GaAs는 퉁저우로 이전 (10-K)",
+      "중국 내 연결 원재료 자회사 - 6N·7N 고순도 갈륨, InP 원료, pBN 도가니 생산 (10-K)",
+      "인접 건물 추가 매입 - InP 생산 전환 공사 예정 (콜)"
+    ],
+    "text": "AXT는 미국 프리몬트에 본사를 두지만 제품은 전부 중국 자회사·합작사 공장에서 만든다. 그래서 2025-02-04 중국이 InP 기판을 수출 통제 목록에 넣은 뒤로는 해외 고객에게 보내는 물량마다 상무부 허가가 필요하다. 회사는 2026년 8월에 InP 생산능력 2배 목표를 넘겼고, 연말에는 2025년 말의 약 2.75~3배, 2027년에는 다시 2배로 늘리겠다고 했다.",
+    "src": ["s4", "s2", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "광트랜시버·레이저 제조사 - 800G·1.6T 트랜시버, 고속 수광 소자, scale-up 레이저 (콜)",
+      "Lumentum - Q3에 장기 공급 계약(LTSA) 체결, 선수금 4,350만 달러 (콜)",
+      "중국 내 고객 - 수출 허가 불필요, 전부 물량 배정(allocation) 상태 (콜)",
+      "무선·LED(GaAs), 위성 태양전지(Ge) 고객"
+    ],
+    "channel": "웨이퍼를 소자·트랜시버 제조사에 직접 판매하며, LTSA·12개월 미만 계약·현물 주문이 섞여 있다.",
+    "concentration": "Q3 2026 상위 5개 고객 약 35%, 10% 이상 고객 1곳 (콜). 2025년은 10% 이상 고객 없음, 상위 5개 29% (10-K).",
+    "text": "이 웨이퍼를 사는 쪽은 AI 데이터센터용 광트랜시버와 레이저를 만드는 회사들이다. Q3에 Lumentum과 장기 계약을 맺고 선수금 4,350만 달러를 받았으며, 상위 5개 고객이 매출의 약 35%다. 2025년 북미 매출 비중은 약 2%에 그쳐, 미국 관세와 중국 수출 통제가 판매 지도를 이미 바꿔 놓았다.",
+    "src": ["s2", "s3", "s4"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "하이퍼스케일러 (AI 클러스터 구축)", "to": "광트랜시버 제조사", "what": "800G·1.6T 광트랜시버 구매" },
+      { "from": "광트랜시버 제조사", "to": "레이저·수광 소자 제조사 (Lumentum 등)", "what": "InP 레이저·포토다이오드 칩 구매" },
+      { "from": "레이저·수광 소자 제조사", "to": "AXT", "what": "InP 웨이퍼 대금 (장당 판매, 일부 LTSA 선수금)" },
+      { "from": "갈륨·화합물 소재 고객", "to": "AXT 원재료 자회사", "what": "고순도 갈륨·pBN 도가니 등 원재료 대금" },
+      { "from": "AXT", "to": "중국 상무부 수출 허가", "what": "해외 출하 건별 허가 - 매출 인식 시점을 결정" }
+    ],
+    "pricing": "웨이퍼 장당 판매. 수요 초과로 내년 평균 판매가(ASP) 상승을 예상하며 (콜), LTSA는 선수금을 받고 출하 때 매출로 바꾼다.",
+    "text": "돈은 AI 클러스터의 광연결에서 출발해 트랜시버 회사와 레이저 칩 회사를 거쳐 AXT의 웨이퍼 매출로 들어온다. 단가는 웨이퍼 장당이고, 지금은 공급이 모자라 중국 고객까지 물량을 배정받는다. 다만 해외 고객분은 수출 허가가 나와야 출하되므로, 주문보다 허가가 분기 매출을 정한다.",
+    "src": ["s2", "s3", "s4"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 73.41, "unit": "USD mn", "yoy": 162.6 },
+    "grossMargin": 56.0,
+    "operatingMargin": 38.7,
+    "netMargin": 35.0,
+    "operatingCashFlow": { "value": null, "unit": "USD mn" },
+    "freeCashFlow": { "value": null, "unit": "USD mn" },
+    "segments": [
+      { "name": "인화인듐(InP) 기판", "revenue": 54.3, "unit": "USD mn", "share": 74.0, "yoy": null, "operatingMargin": null, "src": ["s3", "s2"] },
+      { "name": "갈륨비소(GaAs) 기판", "revenue": 9.1, "unit": "USD mn", "share": 12.4, "yoy": null, "operatingMargin": null, "src": ["s3", "s2"] },
+      { "name": "게르마늄(Ge) 기판", "revenue": 0.344, "unit": "USD mn", "share": 0.5, "yoy": null, "operatingMargin": null, "src": ["s3", "s2"] },
+      { "name": "연결 원재료 자회사", "revenue": 9.7, "unit": "USD mn", "share": 13.2, "yoy": null, "operatingMargin": null, "src": ["s3", "s2"] }
+    ],
+    "industryMetric": [
+      { "name": "InP 수주잔고", "value": "5억 달러 초과 (LTSA·12개월 미만 계약·현물 포함, 대부분 비LTSA 정규 주문)", "src": ["s2", "s3"] },
+      { "name": "분기 매출 흐름 (2026)", "value": "Q1 2,692만 → Q2 4,759만 → Q3 7,341만 달러", "src": ["s1"] },
+      { "name": "GAAP 매출총이익률", "value": "Q3 2025 22.3% → Q2 2026 44.9% → Q3 2026 56.0%", "src": ["s1"] },
+      { "name": "InP 생산능력", "value": "2026년 말 2025년 말 대비 약 2.75~3배, 2027년 다시 2배 목표", "src": ["s2", "s3"] }
+    ],
+    "text": "그 결과 Q3 2026 매출은 7,341만 달러로 1년 전의 2.6배, 직전 분기보다 54% 늘었고, 늘어난 몫은 거의 InP에서 나왔다. 물량이 공장을 채우면서 GAAP 매출총이익률이 22.3%에서 56.0%로, 영업이익률은 38.7%로 뛰었다. 순이익은 2,570만 달러(희석 EPS 0.39달러)로 1년 전 적자에서 흑자로 돌아섰다.",
+    "src": ["s1", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (R&D) / 2026-09-30 잔액",
+    "items": [
+      { "use": "R&D", "value": 9.0, "unit": "USD mn", "src": ["s4"] },
+      { "use": "capex", "value": null, "unit": "USD mn", "src": [] },
+      { "use": "other", "label": "현금·투자자산 적립 (2026-09-30 잔액, 제한현금 포함)", "value": 825.9, "unit": "USD mn", "src": ["s3", "s1"] }
+    ],
+    "text": "번 돈과 조달한 돈은 InP 증설에 들어간다. 2025년 12월 나스닥 유상증자(총 약 1억 달러) 등을 거쳐 9월 말 현금·투자자산이 약 8.26억 달러로 불어났고, 2025년 R&D는 900만 달러였다. 자회사 통메이는 증설과 홍콩 상장을 위해 자체 지분 투자(최대 545백만, 통화 표기 불일치)를 받기로 해 AXT 지분율이 약 73.4%로 낮아질 예정이며, 배당·자사주 매입은 없다.",
+    "src": ["s4", "s3", "s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "AI 광연결 공급망의 맨 아래 소재 단계. 광트랜시버 안의 레이저·수광 소자 칩이 자라는 InP 웨이퍼를 공급한다.",
+    "dependsOn": ["갈륨·인듐·비소 등 원재료 (중국 내 자회사 정제)", "중국 상무부 수출 허가", "결정 성장로 증설 (6인치 수율)"],
+    "sellsTo": ["networking (Lumentum 등 레이저·광소자 제조사 → 광트랜시버 회사)", "중국 내 광소자 고객", "무선·위성 소자 회사 (GaAs·Ge)"],
+    "aiRevenue": "AI 매출을 따로 공시하지 않음. Q3 2026 InP 매출 5,430만 달러(매출의 74%)가 '주로 데이터센터 용도' (콜).",
+    "upside": "GPU 클러스터가 커질수록 GPU 사이 광연결 수와 속도(800G→1.6T)가 늘고, 트랜시버마다 InP 레이저가 들어가 웨이퍼 수요가 커진다. 앞으로 co-packaged optics와 scale-up 광연결이 오면 레이저 수가 더 늘 수 있다고 회사는 본다.",
+    "risk": "생산이 모두 중국에 있어 수출 허가 지연·미국 관세가 출하를 막을 수 있고, 미·중 갈등이 커지면 고객이 일본·독일 공급사로 옮길 수 있다. AI 광트랜시버 주문이 꺾이거나 경쟁사·중국 신규 업체가 증설하면 지금의 가격·물량 배정 구조가 풀린다.",
+    "text": "그래서 AI 가치사슬에서 AXT는 네트워크 장비보다 두 단계 아래, 광소자가 자라는 '기판' 자리에 있다. GPU 사이를 잇는 광트랜시버가 늘면 레이저 칩이 늘고, 그 칩의 바탕인 InP 웨이퍼가 늘어나는 구조다. 다만 공장과 원료가 모두 중국에 있어, AI 수요보다 수출 허가와 무역 정책이 먼저 실적을 가르는 독특한 위치다.",
+    "src": ["s2", "s4"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "InP 기판", "rivals": ["Sumitomo Electric", "JX (Japan Energy)", "중국 신규 업체"], "position": "challenger", "share": null, "src": ["s4", "s2"] },
+      { "arena": "GaAs 기판", "rivals": ["Freiberger Compound Materials", "Sumitomo Electric", "China Crystal Technology", "Vital Materials"], "position": "niche", "share": null, "src": ["s4"] },
+      { "arena": "게르마늄 기판·원재료", "rivals": ["Umicore", "Vital Materials"], "position": "niche", "share": null, "src": ["s4"] }
+    ],
+    "edge": "6인치 InP에서 '회사 S'와 대등하고 3위는 크게 뒤처져 있다는 회사 설명, 빠른 증설과 원료 수직 계열, 중국 내 고객에게는 허가 없이 출하 가능.",
+    "threats": "일본(Sumitomo)·독일 생산 경쟁사는 수출 통제 부담이 없어 서방 고객이 공급선을 옮길 유인이 있고, 중국 신규 업체가 증설 중이다. 6인치 초기 수율이 낮다.",
+    "text": "경쟁은 공급사가 몇 안 되는 과점 안에서 벌어진다. 10-K는 InP 주요 공급사를 AXT 포함 3곳으로 보고, 경쟁사로 Sumitomo Electric·JX 등을 든다. AXT는 증설 속도와 6인치 대구경으로 앞서려 하지만, 일본·독일 경쟁사는 중국 수출 허가라는 짐이 없어 서방 고객에게는 '안전한 대안'이 된다.",
+    "src": ["s4", "s2"]
+  },
+
+  "strategy": {
+    "goal": "InP 생산능력을 2026년 말 2025년 말의 약 2.75~3배로, 2027년에 다시 2배로 늘리고 6인치를 2027년 주력으로 키운다 (콜). 수치 TAM 목표는 제시하지 않았다.",
+    "roadmap": [
+      { "when": "Q4 2026", "what": "매출 약 9,000만 달러 (허가 확보·불필요 물량만), non-GAAP EPS 0.57~0.59달러 가이드", "src": ["s3", "s2"] },
+      { "when": "2026 말", "what": "InP 생산능력 2025년 말 대비 약 2.75~3배", "src": ["s2", "s3"] },
+      { "when": "2027", "what": "InP 생산능력 재차 2배, 6인치 매출 본격 기여, 3·4인치 물량 비슷해짐 (2027 말)", "src": ["s2"] },
+      { "when": "미정", "what": "자회사 통메이 지분 투자 유치와 홍콩 상장 추진 (기존 STAR 마켓 신청은 CSRC 심사 중이었음)", "src": ["s2", "s4"] }
+    ],
+    "vision": "AI 광연결이 커지는 동안 InP 웨이퍼의 핵심 공급사로 자리 잡고, 대구경 웨이퍼로 원가와 점유율을 함께 끌어올리겠다는 그림이다.",
+    "text": "앞으로의 계획은 결국 '더 많이, 더 큰 웨이퍼'다. 2027년 생산능력을 다시 두 배로 늘리고 6인치를 주력으로 올리면서, 자회사 통메이는 외부 투자와 홍콩 상장으로 증설 자금을 따로 마련한다. 회사는 2027~28년 계획 생산능력보다 수요가 크다고 말했지만, 그 물량이 얼마나 빨리 허가를 받아 나가느냐가 계획의 실현 속도를 정한다.",
+    "src": ["s2", "s3"]
+  },
+
+  "governance": {
+    "line": "Morris Young CEO와 Gary Fischer CFO가 이끌며, 사업은 중국 자회사 통메이(외부 투자 후 지분율 약 73.4% 예정)를 통해 운영하고 배당·자사주 매입 없이 증설에 현금을 쓴다.",
+    "src": ["s2", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "revenue", "value": "약 9,000만 달러 (허가 확보·불필요 물량 기준)", "givenOn": "2026-10-29", "src": ["s3", "s2"] },
+      { "period": "Q4 2026", "metric": "EPS", "value": "non-GAAP 0.57~0.59달러, GAAP 0.56~0.58달러 (주식 수 약 6,610만)", "givenOn": "2026-10-29", "src": ["s2"] },
+      { "period": "Q4 2026", "metric": "operating expenses", "value": "non-GAAP 약 1,300만, GAAP 약 1,400만 달러", "givenOn": "2026-10-29", "src": ["s3"] },
+      { "period": "Q4 2026", "metric": "gross margin", "value": "수치 미제시, 추가 개선 예상 ('6으로 시작할 수 있으나 높은 6은 아님')", "givenOn": "2026-10-29", "src": ["s2", "s3"] }
+    ],
+    "style": "quarterly",
+    "track": "Q3는 7월 가이드(EPS 0.30~0.32달러)를 넘어 non-GAAP EPS 0.41달러, 매출 7,341만 달러(컨센서스 약 6,600만)를 냈다. 가이드는 허가 확보 물량만 넣는 보수적 방식이다.",
+    "src": ["s3", "s1"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "Q4 매출이 가이드(약 9,000만 달러)대로 InP 증가로 나오는지",
+      "InP 수주잔고(5억 달러 초과)가 2027년까지 계속 늘어나는지",
+      "해외 고객용 InP 수출 허가가 꾸준히 나오는지",
+      "6인치 라인 수율 개선과 2027년 생산능력 2배 진행",
+      "매출총이익률이 60% 안팎으로 올라서는지"
+    ],
+    "breaks": [
+      "중국 수출 허가 중단·지연으로 분기 매출이 가이드에 못 미침",
+      "미국 관세·제재 강화 또는 미·중 갈등으로 서방 고객 이탈",
+      "광트랜시버 주문 둔화로 수주잔고 감소",
+      "일본·중국 경쟁사의 대규모 증설로 물량 배정 해소와 가격 하락",
+      "통메이 지분 투자·상장 지연이나 소수주주 관련 부담"
+    ],
+    "keyNumbers": [
+      { "name": "InP 분기 매출", "why": "AI 광연결 수요가 실제로 출하되는 정도" },
+      { "name": "InP 수주잔고", "why": "다음 분기들의 매출 가시성" },
+      { "name": "매출총이익률", "why": "가격·가동률이 함께 오르는지 보여주는 숫자" },
+      { "name": "수출 허가 진행", "why": "주문이 매출로 바뀌는 속도를 정하는 병목" },
+      { "name": "InP 생산능력 배수", "why": "점유율과 2027년 성장의 상한" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-02 (추정, 회사 미확정; 전년 Q4 발표는 2026-02-19)", "event": "Q4·FY2026 실적과 Q1 2027 가이던스", "src": ["s5"] },
+      { "date": "수시", "event": "중국 상무부 InP 수출 허가, 미국 관세·수출 통제 발표", "src": ["s4"] },
+      { "date": "수시", "event": "통메이 지분 투자 마감·홍콩 상장 진행", "src": ["s2"] },
+      { "date": "분기마다", "event": "Lumentum·Coherent 등 광소자 회사 실적 (InP 수요 확인)", "src": ["s2"] }
+    ],
+    "reaction": "실적 자체보다 다음 분기 가이드와 수출 허가 발언에 크게 움직인다. Q3는 예상을 넘었지만 발표 당일 종가가 5.4% 내렸고 시간외에서도 하락했다 (Investing.com). 52주 범위가 6.83~143.16달러일 만큼 변동성이 크다.",
+    "conditions": [
+      "다음 분기 매출 가이드와 그중 허가 대기 물량의 크기",
+      "InP 수주잔고 증감",
+      "중국 수출 통제·미국 관세 뉴스 흐름",
+      "광트랜시버·레이저 회사의 수요 발언",
+      "6인치 수율과 증설 일정 지연 여부"
+    ]
+  },
+
+  "unverified": [
+    "Q3 2026 영업현금흐름·잉여현금흐름·설비투자 (보도자료 발췌에서 미확인)",
+    "Q4 가이던스는 녹취록·요약(s2·s3) 기준 - 회사 보도자료에는 가이던스가 없었다",
+    "제품별 매출(InP 5,430만 등)은 콜 녹취록 기준이며 합계가 총매출과 반올림 차이로 약 3만 달러 어긋난다",
+    "통메이 지분 투자 규모 '545백만'의 통화 (s2는 달러, s3는 위안으로 표기)",
+    "InP 시장 점유율 수치 (공시 없음)",
+    "10% 이상 고객의 이름과 비중",
+    "Q4 2026 실적 발표일 (회사 미발표)"
+  ],
+  "confidence": "medium - 매출·이익률은 8-K로 확인했지만 제품별 매출·가이던스·수주잔고는 자동 생성 녹취록 두 곳에 기대고, 현금흐름은 확인하지 못했다."
+}

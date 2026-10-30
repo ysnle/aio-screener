@@ -1,0 +1,207 @@
+{
+  "symbol": "FLEX",
+  "name": "Flex Ltd.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "March 31",
+  "oneLine": "Flex는 전 세계 공장에서 남의 제품을 만들어 주는 대형 위탁 제조사인데, AI 데이터센터용 전력·냉각·랙 사업(CPI)이 54% 커지며 이익을 끌고 있고 이 사업을 2027년 초 'Axiom'으로 분사할 예정이다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Flex Reports Second Quarter Fiscal 2027 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000866374/000086637426000039/flexex991-9252026.htm", "publisher": "Flex / SEC EDGAR", "date": "2026-10-28" },
+    { "id": "s2", "kind": "call-transcript", "title": "Flex (FLEX) Q2 2027 Earnings Call Transcript and Summary (auto-generated, publisher warns of errors)", "url": "https://gloom.sh/stocks/flex/transcripts/q2-2027", "publisher": "gloom.sh", "date": "2026-10-28" },
+    { "id": "s3", "kind": "10-K", "title": "Flex Form 10-K for fiscal year ended 2026-03-31 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0000866374/000086637426000012/flex-20260331.htm", "publisher": "Flex / SEC EDGAR", "date": "2026-03-31" },
+    { "id": "s4", "kind": "10-K", "title": "Celestica Form 10-K FY2025 - competitor list naming Flex, Jabil, Hon Hai, Sanmina, Plexus, Benchmark (read via search summary; date = period end)", "url": "https://www.sec.gov/Archives/edgar/data/1030894/000103089426000011/cls-20251231.htm", "publisher": "Celestica / SEC EDGAR", "date": "2025-12-31" },
+    { "id": "s5", "kind": "news", "title": "Flex Cashes In On AI Data Center Gold Rush, Stock Jumps 10% (title read from search result only)", "url": "https://www.benzinga.com/markets/earnings/26/10/62665414/flex-cashes-in-on-ai-data-center-gold-rush-stock-jumps-10", "publisher": "Benzinga", "date": "2026-10-28" }
+  ],
+
+  "moat": {
+    "sources": [
+      "약 30개국 100개 이상 공장, 약 15만 명 인력의 글로벌 생산 규모와 공급망 (10-K)",
+      "랙·보드 단위 전력 시스템부터 시설 단위 전기 설비까지 갖춘 전력 제품군 - 회사는 연산·전력에서 점유율 선두라고 주장 (10-K·콜)",
+      "고밀도 랙용 수냉과 사전 제작 AI 모듈 - OCP에서 공개, AI 공장 구축 속도 최대 50% 단축 주장 (10-K·콜)"
+    ],
+    "text": "Flex의 기본 힘은 30개국에 흩어진 공장과 공급망으로, 고객이 지역을 골라 생산을 옮길 수 있게 해 주는 규모다. 그 위에서 AI 시대에 새로 커진 것이 데이터센터용 전력 제품과 랙 통합 능력이다. 회사는 전력과 연산 랙 조립에서 점유율 선두라고 말하며, 냉각은 아직 '초기' 단계라고 인정한다.",
+    "src": ["s3", "s2"]
+  },
+
+  "design": {
+    "text": "이 기반 위에서 Flex는 세 부문을 운영한다. CPI(Cloud and Power Infrastructure)는 고밀도 랙용 연산 시스템 조립과 수냉, 시설 단위 전기 설비와 랙·보드 단위 전력 장치를 만든다. RMS(Regulated Manufacturing Solutions)는 의료·자동차·산업처럼 규제가 엄격한 제품, ITS(Integrated Technology Solutions)는 통신·소비자 기기 등의 위탁 생산이다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 공장 - 100곳 이상, 약 30개국 (10-K)",
+      "EPC Power - 2026-10-14 인수 완료, 올해 약 8억 달러 매출 추가 예상 (콜)",
+      "부품 공급사 (이름 미확인)"
+    ],
+    "text": "Flex는 설계 일부와 생산을 자기 공장에서 한다. AI 전력 수요를 겨냥해 10월 EPC Power를 인수했고, 이 인수에 약 44억 달러 부채를 썼다. FY2027 설비투자 15~16억 달러 중 약 3분의 2가 CPI 몫이라, 회사의 생산 투자가 AI 데이터센터 쪽으로 기울었다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "하이퍼스케일러 - CPI의 주 고객이자 증설 자금 상당 부분을 부담 (콜, 이름 미공시)",
+      "의료기기·자동차·산업 고객 (RMS)",
+      "통신·소비자 기기 고객 (ITS)"
+    ],
+    "channel": "브랜드 고객·하이퍼스케일러와 프로그램 단위로 직접 계약하는 B2B 위탁 생산과 자체 전력 제품 판매.",
+    "concentration": "FY2026 10% 이상 고객 없음, 상위 10개 고객 45% (10-K). 지역별 매출: 북미 44%, 중국 16%, 유럽 20%, 기타 20%.",
+    "text": "이렇게 만든 제품의 구매자는 넓게 흩어져 있다. FY2026에 10% 이상 고객이 없었고 상위 10곳이 45%라, 같은 업종의 다른 회사보다 집중 위험은 낮다. 다만 가장 빨리 크는 CPI는 하이퍼스케일러가 주 고객이어서, AI 성장분만 보면 소수 고객 의존이 커지고 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 연구소·클라우드 이용자", "to": "하이퍼스케일러", "what": "AI 연산·클라우드 이용료" },
+      { "from": "하이퍼스케일러·데이터센터 운영사", "to": "Flex CPI", "what": "랙·보드 전력 장치, 시설 전기 설비, 수냉·랙 통합 대금" },
+      { "from": "의료·자동차·산업 브랜드", "to": "Flex RMS", "what": "규제 제품 위탁 생산 대금" },
+      { "from": "통신·소비자 기기 브랜드", "to": "Flex ITS", "what": "위탁 생산 대금" },
+      { "from": "Flex", "to": "부품 공급사·인수 대상(EPC Power)", "what": "부품 구매와 인수 대금 (부채 약 44억 달러 조달)" }
+    ],
+    "pricing": "위탁 생산은 프로그램별 단가(부품값 포함)로 받고, 전력 제품은 자체 제품 판매가로 받는다. 자체 제품이 많은 CPI의 이익률(10.7%)이 나머지 부문(5~6%)보다 높다.",
+    "text": "돈은 세 갈래로 들어오지만, 지금 가장 빨리 늘어나는 것은 하이퍼스케일러가 내는 전력·랙 대금이다. 위탁 생산은 부품값이 매출에 실려 남는 몫이 얇은 반면, 자체 전력 제품은 더 높은 이익률을 남긴다. 그래서 CPI 비중이 커질수록 회사 전체 이익률이 올라간다.",
+    "src": ["s2", "s1"]
+  },
+
+  "earnings": {
+    "period": "Q2 FY2027 (ended 2026-09-25)",
+    "revenue": { "value": 8.491, "unit": "USD bn", "yoy": 24.8 },
+    "grossMargin": 9.6,
+    "operatingMargin": 4.9,
+    "netMargin": 3.1,
+    "operatingCashFlow": { "value": 0.501, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.261, "unit": "USD bn" },
+    "segments": [
+      { "name": "RMS (Regulated Manufacturing Solutions)", "revenue": 2.7, "unit": "USD bn", "share": 31.8, "yoy": 9, "operatingMargin": 6.4, "src": ["s2"] },
+      { "name": "ITS (Integrated Technology Solutions)", "revenue": 3.3, "unit": "USD bn", "share": 38.9, "yoy": 22, "operatingMargin": 5.5, "src": ["s2"] },
+      { "name": "CPI (Cloud and Power Infrastructure)", "revenue": 2.49, "unit": "USD bn", "share": 29.3, "yoy": 54, "operatingMargin": 10.7, "src": ["s2", "s1"] }
+    ],
+    "industryMetric": [
+      { "name": "조정 영업이익률", "value": "Q2 7.1% (전년 6.0%), 조정 영업이익 6.07억 달러", "src": ["s1"] },
+      { "name": "조정 EPS", "value": "Q2 1.18달러 (전년 0.79달러, 사상 최고), GAAP 0.70달러", "src": ["s1"] },
+      { "name": "CPI 전력 사업 이익률", "value": "약 16% (+5.5%p)", "src": ["s2"] },
+      { "name": "조정 매출총이익률", "value": "9.9% (+0.6%p)", "src": ["s2"] }
+    ],
+    "text": "그 결과 Q2 FY2027 매출은 84.9억 달러로 25% 늘었고, CPI가 54% 커지며 성장을 이끌었다. CPI 조정 영업이익률이 10.7%로 2.4%p 오르면서 회사 조정 영업이익률도 7.1%로 1.1%p 높아졌다. 다만 설비투자가 늘어 잉여현금흐름은 2.61억 달러로 1년 전(3.05억)보다 줄었다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "6M FY2027 (ended 2026-09-25)",
+    "items": [
+      { "use": "capex", "value": 0.477, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": null, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 0, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "번 돈은 지금 설비와 인수로 간다. 6개월 설비투자가 4.77억 달러로 1년 전(2.83억)보다 크게 늘었고, 10월에는 EPC Power를 약 44억 달러 부채로 인수했다(인수가는 미공시). 1년 전 6개월에 5.44억 달러였던 자사주 매입은 이번 6개월 동안 없었고, Axiom 전환우선주 20억 달러 매각으로 부채 절반가량을 갚을 계획이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "cooling-electrical",
+    "position": "AI 데이터센터의 전기가 들어오는 시설 설비부터 랙·보드 전력 장치, 수냉, 연산 랙 조립까지 '전력·냉각·랙 통합'을 하이퍼스케일러에 공급한다(CPI). 나머지 3분의 2는 AI와 거리가 있는 위탁 생산이다.",
+    "dependsOn": ["전력 반도체·부품 공급사", "chips-compute (랙에 들어가는 서버·가속기)", "공장 증설 자금 (FY2027 설비투자 15~16억 달러)"],
+    "sellsTo": ["cloud-infrastructure (하이퍼스케일러)", "데이터센터 운영사", "의료·자동차·산업·통신 브랜드 (비AI 부문)"],
+    "aiRevenue": "AI 매출을 따로 공시하지 않음. CPI 매출 Q2 FY2027 약 24.9억 달러(+54%, 총매출에서 RMS·ITS를 뺀 계산값), FY2027 CPI 매출 75~85% 성장 가이드 (8-K·콜).",
+    "upside": "AI 랙의 전력 밀도가 올라갈수록 랙당 전력 장치·배전 설비·냉각 값이 커지고, Flex는 그 장치를 직접 만들어 판다. Q3 CPI 성장률을 105~115%로 제시해, AI 전력 수요가 바로 매출로 이어지고 있다.",
+    "risk": "하이퍼스케일러가 데이터센터 투자를 늦추면 CPI 성장이 꺾이고, 분사 뒤 남는 Flex는 AI 노출이 크게 줄어든다. 랙 조립에서는 Foxconn·Jabil·Celestica와 같은 고객을 놓고 경쟁한다.",
+    "text": "AI 가치사슬에서 Flex의 AI 몫은 칩이 아니라 칩을 돌리는 전기와 냉각에 있다. 전력 밀도가 높은 AI 랙일수록 전력 장치와 배전 설비가 더 필요해 CPI가 빠르게 크고 있다. 다만 이 사업은 2027년 초 Axiom으로 분사될 예정이라, 투자자는 AI 노출을 어느 회사로 가져갈지 정해야 하는 구조다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "데이터센터 전력·냉각 (CPI)", "rivals": ["전력·냉각 전문 장비 회사 (공시에 이름 없음)"], "position": "challenger", "share": null, "src": ["s3", "s2"] },
+      { "arena": "AI 랙 조립·전자 위탁 생산", "rivals": ["Hon Hai (Foxconn)", "Jabil", "Celestica", "Sanmina", "Benchmark Electronics", "Plexus"], "position": "challenger", "share": null, "src": ["s4", "s3"] }
+    ],
+    "edge": "전력 장치와 랙 조립을 한 회사가 함께 공급하는 통합 능력, 30개국 생산 거점, EPC Power 인수로 넓힌 전력 제품군.",
+    "threats": "AI 랙 조립에서는 Foxconn 같은 더 큰 회사와 Jabil·Celestica가 같은 하이퍼스케일러를 놓고 경쟁하고, 냉각은 회사 스스로 초기 단계라고 인정한다. 전력·냉각 전문 장비 회사와의 경쟁 구도는 공시로 확인하지 못했다.",
+    "text": "경쟁 구도는 부문마다 다르다. 위탁 생산과 랙 조립에서는 Foxconn·Jabil·Celestica·Sanmina 등과 겨루고(Celestica 10-K의 경쟁사 목록), CPI 전력·냉각 제품은 전문 장비 회사들과도 맞선다. Flex는 '전력 장치 + 랙 조립'을 묶어 구축 속도를 줄여 주는 것으로 차별화하려 하며, 자사 10-K는 경쟁사 이름 없이 '수많은 국내외 제조 서비스 업체'라고만 적는다.",
+    "src": ["s4", "s3", "s2"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 매출 349~359억 달러(+27% 중간값), 조정 영업이익률 7.6~7.8%, 조정 EPS 4.84~5.16달러; CPI 매출 75~85% 성장, 이익률 11.5~11.7% (8-K).",
+    "roadmap": [
+      { "when": "Q3 FY2027", "what": "매출 88.7~91.7억 달러, 조정 EPS 1.19~1.25달러, CPI 105~115% 성장 가이드", "src": ["s1", "s2"] },
+      { "when": "2026-11-10", "what": "Innovation Day", "src": ["s2"] },
+      { "when": "2027 초 (calendar Q1 목표)", "what": "CPI를 Axiom으로 분사 - Form 10 제출, 이사회·주주·싱가포르 고등법원 승인 필요", "src": ["s2", "s3"] },
+      { "when": "분사 후", "what": "Flex(RMS·ITS)는 Michael Hartung CEO, 설비투자 매출의 약 2% 이하", "src": ["s2"] }
+    ],
+    "vision": "AI 데이터센터의 전력·냉각·랙을 맡는 독립 회사(Axiom)와, 안정적인 위탁 생산 회사(Flex)로 나눠 각자 평가받겠다는 그림이다.",
+    "text": "그래서 Flex의 다음 단계는 회사를 둘로 나누는 것이다. 빠르게 크는 CPI를 2027년 초 Axiom으로 떼어 내고, 남는 Flex는 의료·자동차·산업·통신 위탁 생산에 집중한다. 그 전에 회사는 FY2027 매출 전망을 9.5억 달러가량 올렸고, CPI는 EPC Power 인수로 전력 제품을 더 넓혔다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "governance": {
+    "line": "Revathi Advaithi CEO가 이끌고 분사 뒤 Flex는 Michael Hartung CEO·Amy Schwetz CFO가 맡을 예정이며, 지금은 자사주 매입보다 인수·증설과 부채 상환을 우선한다.",
+    "src": ["s2", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 FY2027", "metric": "revenue", "value": "88.7~91.7억 달러 (중간값 +28%)", "givenOn": "2026-10-28", "src": ["s1"] },
+      { "period": "Q3 FY2027", "metric": "adjusted operating income / EPS", "value": "6.85~7.15억 달러, 조정 EPS 1.19~1.25달러 (주식 수 약 3.75억)", "givenOn": "2026-10-28", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue / margin / EPS", "value": "349~359억 달러(종전 337~352억), 조정 영업이익률 7.6~7.8%(종전 7.0~7.2%), 조정 EPS 4.84~5.16달러(종전 4.42~4.74) - 분사 제외", "givenOn": "2026-10-28", "src": ["s1"] },
+      { "period": "FY2027", "metric": "segment", "value": "CPI 매출 +75~85%·이익률 11.5~11.7%; RMS+ITS 매출 +8~11%·이익률 5.9~6.1%", "givenOn": "2026-10-28", "src": ["s1", "s2"] }
+    ],
+    "style": "quarterly",
+    "track": "Q2 매출 84.9억 달러는 7월 가이드(79.5~82.5억)를 넘었고 조정 EPS 1.18달러도 가이드(1.00~1.07)를 넘어, 연간 전망을 두 분기 연속 올렸다.",
+    "src": ["s1"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "Q3 CPI 성장률이 가이드(105~115%) 안에 드는지",
+      "CPI 이익률이 11.5% 이상으로 오르는지",
+      "EPC Power 통합과 부채 상환 계획 진행",
+      "Axiom 분사가 2027년 초 일정대로 진행되는지",
+      "수냉 신제품이 6개월 안에 출시되는지"
+    ],
+    "breaks": [
+      "하이퍼스케일러 투자 둔화로 CPI 성장 가이드 하향",
+      "분사 일정 지연이나 승인 문제",
+      "인수 부채 부담으로 이자 비용 증가가 이익을 잠식",
+      "RMS·ITS 부문의 소비자·자동차 수요 약세",
+      "전력·냉각 전문 회사와의 가격 경쟁"
+    ],
+    "keyNumbers": [
+      { "name": "CPI 매출 증가율", "why": "AI 전력·랙 수요가 들어오는 통로" },
+      { "name": "CPI 조정 영업이익률", "why": "자체 제품의 가격 결정력" },
+      { "name": "회사 조정 영업이익률", "why": "부문 구성 변화의 결과" },
+      { "name": "잉여현금흐름", "why": "증설·인수 부담 확인" },
+      { "name": "순부채", "why": "EPC Power 인수 뒤 재무 여력" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-10", "event": "Innovation Day", "src": ["s2"] },
+      { "date": "2027-01 말 (추정, 회사 미확정)", "event": "Q3 FY2027 실적", "src": [] },
+      { "date": "2027 초 (calendar Q1 목표)", "event": "CPI(Axiom) 분사 완료 목표", "src": ["s2", "s3"] }
+    ],
+    "reaction": "CPI 성장률과 연간 전망 상향에 크게 반응한다. Q2 발표일에 주가가 약 10% 올랐다는 보도가 있다 (Benzinga 2026-10-28 기사 제목).",
+    "conditions": [
+      "CPI 성장률과 이익률 가이드 변화",
+      "분사 일정·조건 발표",
+      "연간 매출·EPS 전망 변화",
+      "인수 부채와 상환 진행",
+      "하이퍼스케일러 설비투자 발언"
+    ]
+  },
+
+  "unverified": [
+    "부문별 매출·이익률은 자동 생성 녹취록(s2) 기준 - 보도자료에는 부문 표가 없었다",
+    "CPI 매출 24.9억 달러는 총매출에서 RMS(27억)·ITS(33억)를 뺀 계산값 (녹취록의 CPI 수치가 깨져 있음)",
+    "부문 매출 합계는 반올림 때문에 총매출과 근사로만 맞는다",
+    "EPC Power 인수가",
+    "매출총이익률 9.6%는 GAAP 매출총이익 8.12억 ÷ 매출로 계산",
+    "CPI 전력·냉각 분야 경쟁사 이름과 점유율 (공시 없음)", "EMS 경쟁사 목록은 Celestica 10-K(s4)의 검색 요약 기준",
+    "AI·데이터센터 매출 금액과 하이퍼스케일러 고객 이름",
+    "Q3 FY2027 실적 발표일",
+    "주가 반응(+10%)은 Benzinga 기사 제목 기준"
+  ],
+  "confidence": "medium - 매출·이익·현금흐름·가이던스는 8-K로 확인했지만 부문 수치와 분사·인수 세부는 자동 생성 녹취록에 기댄다."
+}

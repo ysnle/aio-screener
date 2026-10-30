@@ -1,0 +1,209 @@
+{
+  "symbol": "JBL",
+  "name": "Jabil Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "August 31",
+  "oneLine": "Jabil은 30개국 공장에서 다른 회사의 제품을 만들어 주는 미국 위탁 제조사로, 하이퍼스케일러용 클라우드·데이터센터 장비가 매출의 절반이 되며 FY2027 AI 관련 매출이 약 221억 달러(+54%)로 늘 것이라고 본다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Jabil Q4 and Fiscal Year 2026 results (8-K Ex.99.1, preliminary unaudited)", "url": "https://www.sec.gov/Archives/edgar/data/0000898293/000162828026063890/jbl-20260930ex991.htm", "publisher": "Jabil / SEC EDGAR", "date": "2026-09-30" },
+    { "id": "s2", "kind": "10-K", "title": "Jabil Form 10-K for fiscal year ended 2026-08-31 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0000898293/000162828026067038/jbl-20260831.htm", "publisher": "Jabil / SEC EDGAR", "date": "2026-08-31" },
+    { "id": "s3", "kind": "call-transcript", "title": "What Jabil (JBL) Said on Its Q4 Earnings Call (summary of the call; date = call date)", "url": "https://finance.yahoo.com/markets/stocks/articles/jabil-jbl-said-q4-earnings-160247830.html", "publisher": "Yahoo Finance", "date": "2026-09-30" },
+    { "id": "s4", "kind": "news", "title": "Jabil (JBL) stock drops 3% after strong earnings beat (read from search summary only)", "url": "https://parameter.io/jabil-jbl-stock-drops-3-after-strong-earnings-beat-what-investors-missed/", "publisher": "parameter.io", "date": "2026-09-30" },
+    { "id": "s5", "kind": "10-K", "title": "Celestica Form 10-K FY2025 - EMS competitor list naming Jabil, Flex, Hon Hai, Sanmina, Plexus, Benchmark (read via search summary; date = period end)", "url": "https://www.sec.gov/Archives/edgar/data/1030894/000103089426000011/cls-20251231.htm", "publisher": "Celestica / SEC EDGAR", "date": "2025-12-31" }
+  ],
+
+  "moat": {
+    "sources": [
+      "약 30개국 120곳, 약 14만 명 인력의 생산 거점 - 고객이 지역을 골라 생산할 수 있는 규모 (10-K)",
+      "76개 고객이 매출의 약 90%인 장기 대형 고객 관계와 연 10억 달러 이상 AI 고객 4곳 (10-K·콜)",
+      "광학·실리콘 포토닉스·첨단 소재 등 공정 기술과 전력(Hanley Energy) 역량 (10-K·콜)"
+    ],
+    "text": "위탁 제조는 원래 차별화가 어려운 사업이라, Jabil의 힘은 거대한 생산 거점과 오래된 대형 고객 관계에서 나온다. 고객은 관세·공급망 위험에 따라 지역을 옮기고 싶어 하고, 30개국 120곳 공장이 그 선택지를 준다. 최근에는 데이터센터 전력 회사 Hanley Energy를 인수하며 단순 조립에서 전력·인프라 쪽 부가가치를 넓히고 있다.",
+    "src": ["s2", "s3"]
+  },
+
+  "design": {
+    "text": "이 기반으로 Jabil은 세 부문을 운영한다. Intelligent Infrastructure는 AI 인프라·클라우드·데이터센터 장비, 네트워크·통신, 반도체 장비를 만들고, Regulated Industries는 자동차·의료·포장·재생에너지 설비를 맡는다. 세 번째 부문은 2026-09-01부터 Intelligent Devices and Robotics(구 Connected Living and Digital Commerce)로 이름을 바꿔 소비자 기기·창고 자동화·로봇을 다룬다.",
+    "src": ["s2"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 공장 - 약 120곳, 30개국 (중국·말레이시아·멕시코·미국 등) (10-K)",
+      "증설 - 약 400만 제곱피트 추가, 멕시코 하이퍼스케일러 2차 생산 확대, 크로아티아 공장 FY2027 가동 (콜)",
+      "Hanley Energy - 인수한 데이터센터 전력 사업 (10-K·콜)"
+    ],
+    "text": "Jabil은 고객이 설계한 제품을 자기 공장에서 만든다. 인력 14만 명 중 7.2만 명이 아시아, 5.2만 명이 미주에 있고, AI 수요에 맞춰 약 400만 제곱피트를 늘리고 멕시코에서 두 번째 하이퍼스케일러 생산을 키우고 있다. 공장을 직접 짓는 구조라 설비투자는 매출의 1.5~2% 수준(FY2027 순 기준 예상)으로 꾸준히 든다.",
+    "src": ["s2", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "고객 A - FY2026 매출의 20% (전년 16%), 주로 Intelligent Infrastructure (10-K, 이름 미공시)",
+      "하이퍼스케일러 - FY2026 3분기에 세 번째 하이퍼스케일러 고객 추가 (콜)",
+      "연 10억 달러 이상 AI 관련 고객 4곳, FY2027 5곳 예상 (콜)",
+      "자동차·의료·소비자 기기·창고 자동화 고객"
+    ],
+    "channel": "브랜드 기업·하이퍼스케일러와 프로그램 단위로 직접 계약하는 B2B 위탁 제조.",
+    "concentration": "FY2026 상위 5개 고객 약 37%, 76개 고객 약 90%, 고객 A 20% (10-K).",
+    "text": "이 공장에서 만든 장비의 가장 큰 구매자는 이제 데이터센터 쪽이다. 고객 A 한 곳이 매출의 20%로 1년 새 4%p 커졌고 주로 Intelligent Infrastructure에 속하며, 세 번째 하이퍼스케일러 고객도 새로 들어왔다. 한때 큰 비중이던 소비자 기기 고객(구 고객 B, FY2024 11%)은 10% 아래로 내려가, 고객 구성이 AI 쪽으로 옮겨 가고 있다.",
+    "src": ["s2", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 연구소·클라우드 이용자", "to": "하이퍼스케일러", "what": "AI 연산·클라우드 이용료" },
+      { "from": "하이퍼스케일러", "to": "Jabil Intelligent Infrastructure", "what": "클라우드·데이터센터 장비, 네트워크 장비, 전력 설비 위탁 제조 대금" },
+      { "from": "반도체 장비 회사", "to": "Jabil Intelligent Infrastructure", "what": "장비 모듈 위탁 제조 대금 (capital equipment)" },
+      { "from": "자동차·의료·에너지 기업", "to": "Jabil Regulated Industries", "what": "규제 제품 위탁 제조 대금" },
+      { "from": "Jabil", "to": "부품 공급사", "what": "전자 부품 구매 (매출원가의 대부분)" }
+    ],
+    "pricing": "프로그램별 단가로 받으며 부품값이 매출에 함께 실려, FY2026 매출총이익률은 9.2%, 핵심(core) 영업이익률은 5.8%에 그친다.",
+    "text": "돈은 AI 연산을 파는 하이퍼스케일러에서 출발해 데이터센터 장비 조립 대금으로 Jabil에 들어온다. 부품값이 매출에 그대로 실리는 구조라 매출은 크지만 남는 몫은 매출의 6% 안팎이다. 그래서 Jabil의 성장은 이익률보다 물량, 즉 AI 고객이 얼마나 많은 장비를 맡기느냐에 달려 있다.",
+    "src": ["s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-08-31)",
+    "revenue": { "value": 35.954, "unit": "USD bn", "yoy": 20.6 },
+    "grossMargin": 9.2,
+    "operatingMargin": 4.7,
+    "netMargin": 2.9,
+    "operatingCashFlow": { "value": 2.002, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.532, "unit": "USD bn" },
+    "segments": [
+      { "name": "Intelligent Infrastructure", "revenue": 17.98, "unit": "USD bn", "share": 50, "yoy": 47.1, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Regulated Industries", "revenue": 12.58, "unit": "USD bn", "share": 35, "yoy": 5.6, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Connected Living and Digital Commerce (현 Intelligent Devices and Robotics)", "revenue": 5.39, "unit": "USD bn", "share": 15, "yoy": -4.8, "operatingMargin": null, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "핵심(core) 영업이익률", "value": "FY2026 5.8% (핵심 영업이익 20.7억 달러), Q4 6.4%", "src": ["s1"] },
+      { "name": "핵심 EPS", "value": "FY2026 13.09달러, Q4 4.40달러 (+34%); GAAP FY2026 9.75달러", "src": ["s1"] },
+      { "name": "AI 관련 매출 증가율", "value": "FY2026 +60%, FY2027 예상 약 221억 달러 (+54%)", "src": ["s3"] },
+      { "name": "Q4 부문 매출", "value": "Intelligent Infrastructure 약 58억 달러 (+56%, 핵심 이익률 6.5%), Regulated Industries 34억 달러 (+9%)", "src": ["s3"] }
+    ],
+    "text": "그 결과 FY2026 매출은 359.5억 달러로 21% 늘었고, 늘어난 몫 대부분이 Intelligent Infrastructure(약 180억 달러, +47% 추정)에서 나왔다. GAAP 영업이익률은 4.7%, 핵심 영업이익률은 5.8%로 얇지만, 영업현금흐름 20억 달러와 조정 잉여현금흐름 15.3억 달러로 현금은 꾸준히 남겼다. 4분기만 보면 매출이 29% 늘어 AI 수요가 연말로 갈수록 빨라졌다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-08-31)",
+    "items": [
+      { "use": "buybacks", "value": 1.060, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.470, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 0.035, "unit": "USD bn", "src": ["s1"] },
+      { "use": "R&D", "value": 0.030, "unit": "USD bn", "src": ["s2"] },
+      { "use": "acquisitions", "value": null, "unit": "USD bn", "src": ["s2"] }
+    ],
+    "text": "번 현금의 가장 큰 몫은 자사주 매입으로 돌아갔다. FY2026에 10.6억 달러를 사들였고(조정 잉여현금흐름의 약 70%), 순 설비투자 4.7억 달러, 배당 3,500만 달러를 썼다. 회사는 장기적으로 조정 잉여현금흐름의 80% 이상을 돌려주겠다는 틀을 두고 2027년용 15억 달러 매입 프로그램을 새로 승인해, 증설과 주주 환원을 함께 하는 편이다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "aiChain": {
+    "layer": "chips-compute",
+    "position": "하이퍼스케일러의 클라우드·데이터센터 장비(서버·스토리지·네트워크·전력 설비)를 대량으로 위탁 제조하는 조립 단계. 반도체 장비 모듈도 만들어 AI 칩 공급망 뒤쪽에도 걸쳐 있다.",
+    "dependsOn": ["chips-compute·memory (고객이 지정한 칩·메모리)", "전자 부품 공급사", "공장 증설 (멕시코·미국·크로아티아 등)"],
+    "sellsTo": ["cloud-infrastructure (하이퍼스케일러 3곳 이상)", "semicap-foundry (반도체 장비 회사)", "자동차·의료·소비자 기기 기업"],
+    "aiRevenue": "FY2026 AI 관련 매출 +60% (금액 미확인), FY2027 약 221억 달러(+54%) 예상; FY2027 클라우드·데이터센터 약 175억 달러(+52%) (콜).",
+    "upside": "하이퍼스케일러가 데이터센터를 늘리면 장비를 맡길 대형 제조사가 필요하고, Jabil은 그 물량을 받아 매출을 키운다. 연 10억 달러 이상 AI 고객이 4곳에서 5곳으로 늘 것으로 보며, 반도체 장비 모듈(FY2027 약 42억 달러, +40%)로 칩 증설 수요도 받는다.",
+    "risk": "고객 A 한 곳이 매출의 20%라 그 고객의 투자 축소나 공급사 변경이 바로 실적을 흔든다. 부품값이 실리는 구조라 이익률이 얇고, Foxconn·Celestica 등과의 가격 경쟁이 몫을 줄일 수 있다.",
+    "text": "AI 가치사슬에서 Jabil은 칩을 받아 하이퍼스케일러가 쓸 장비로 만드는 조립 단계에 있다. 칩 회사처럼 큰 이익률은 없지만 AI 장비 물량이 늘면 매출이 같이 커지고, FY2027에는 AI 관련 매출이 회사 전체의 절반 가까이(약 221억/445억 달러) 될 것으로 본다. 대신 소수 하이퍼스케일러 투자 일정에 실적이 묶인다.",
+    "src": ["s3", "s2"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "클라우드·데이터센터 장비 위탁 제조", "rivals": ["Hon Hai (Foxconn)", "Celestica", "Flex", "Sanmina"], "position": "challenger", "share": null, "src": ["s5", "s2"] },
+      { "arena": "의료·자동차 등 규제 제품 위탁 제조", "rivals": ["Flex", "Sanmina", "Plexus", "Benchmark Electronics"], "position": "challenger", "share": null, "src": ["s5", "s2"] },
+      { "arena": "고객 자체 생산", "rivals": ["고객의 사내 제조"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "30개국 120곳의 거점, 하이퍼스케일러 3곳 이상과의 양산 관계, 반도체 장비·전력·의료까지 넓은 사업 분산.",
+    "threats": "AI 서버·랙 조립에서는 Foxconn과 대만 ODM의 규모가 크고, Celestica처럼 설계까지 맡는 회사는 더 높은 이익률을 가져간다. 고객이 생산을 자체로 돌리는 것도 위험이다.",
+    "text": "경쟁은 다른 대형 위탁 제조사, 그리고 고객의 자체 생산과 벌어진다. Jabil 10-K는 경쟁사 이름 없이 EMS·다각화 제조 서비스·설계 회사와 고객 사내 제조를 들고, 경쟁사 Celestica의 10-K는 Jabil·Flex·Foxconn·Sanmina 등을 같은 EMS 경쟁 무리로 꼽는다. Jabil은 사업 분산과 거점 규모로 안정성을 내세우지만, AI 장비에서는 설계형 경쟁사보다 이익률이 낮다.",
+    "src": ["s2", "s5"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 매출 445억 달러(+24%), 핵심 영업이익률 6.1%(+0.3%p), 핵심 EPS 17.55달러(+34%), 조정 잉여현금흐름 약 16억 달러 (8-K).",
+    "roadmap": [
+      { "when": "Q1 FY2027", "what": "매출 106~114억 달러, 핵심 EPS 3.80~4.20달러 가이드", "src": ["s1"] },
+      { "when": "FY2027", "what": "Intelligent Infrastructure 약 256억 달러(+43%), Regulated Industries 약 136억(+7%), Intelligent Devices and Robotics 약 53억(-2%)", "src": ["s3"] },
+      { "when": "FY2027", "what": "AI 관련 매출 약 221억 달러, 연 10억 달러 이상 AI 고객 5곳, 크로아티아 공장 가동", "src": ["s3"] },
+      { "when": "장기", "what": "조정 잉여현금흐름의 80% 이상 주주 환원, 2027년 15억 달러 자사주 프로그램", "src": ["s3", "s2"] }
+    ],
+    "vision": "회사는 AI 수요 가속과 함께 자동차·의료·에너지 인프라·방산·창고 자동화까지 여러 성장 축을 가진 제조 파트너가 되겠다고 말한다.",
+    "text": "Jabil의 다음 단계는 AI 물량을 더 크게 받으면서 이익률을 조금씩 올리는 것이다. FY2027에 Intelligent Infrastructure를 43% 키우고 핵심 영업이익률을 6.1%로 높이며, 자사주 매입으로 EPS를 더 끌어올린다. 반대로 소비자 기기 쪽(Connected Living)은 15% 줄 것으로 봐, 회사의 무게중심이 AI로 더 옮겨 간다.",
+    "src": ["s1", "s3"]
+  },
+
+  "governance": {
+    "line": "2024년 5월부터 Mike Dastoor CEO가 이끌고 Greg Hebard CFO가 재무를 맡으며, 조정 잉여현금흐름의 80% 이상을 주로 자사주 매입으로 돌려주는 주주 환원 중심 기조다.",
+    "src": ["s2", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q1 FY2027", "metric": "revenue", "value": "106~114억 달러", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "core EPS / core operating income", "value": "3.80~4.20달러, 핵심 영업이익 5.92~6.52억 달러 (GAAP EPS 2.78~3.18달러)", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue / core margin / core EPS", "value": "445억 달러(+24%), 6.1%, 17.55달러(+34%), 조정 잉여현금흐름 약 16억 달러", "givenOn": "2026-09-30", "src": ["s1"] },
+      { "period": "FY2027", "metric": "AI-related revenue", "value": "약 221억 달러 (+54%)", "givenOn": "2026-09-30", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "track": "Q4 Intelligent Infrastructure 매출이 6월 전망보다 약 9억 달러 많았고, Q4 핵심 EPS 4.40달러는 컨센서스(약 4.07달러)를 넘었다 (콜·보도).",
+    "src": ["s3", "s4"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "Q1 FY2027 매출이 가이드(106~114억 달러) 상단 쪽으로 나오는지",
+      "Intelligent Infrastructure 성장률이 FY2027 전망(+43%)을 따라가는지",
+      "연 10억 달러 이상 AI 고객이 5곳으로 늘어나는지",
+      "핵심 영업이익률이 6.1%를 향해 오르는지",
+      "반도체 장비 모듈 매출 회복(+40% 전망)"
+    ],
+    "breaks": [
+      "고객 A(매출 20%)의 주문 축소나 공급사 변경",
+      "하이퍼스케일러 설비투자 둔화로 클라우드·데이터센터 전망 하향",
+      "의료·포장 자동화 장비 지연 같은 비AI 부문 부진 확대",
+      "Foxconn·Celestica 등과의 가격 경쟁으로 이익률 하락",
+      "관세·무역 정책 변화로 생산 비용 상승"
+    ],
+    "keyNumbers": [
+      { "name": "Intelligent Infrastructure 매출", "why": "AI 물량이 들어오는 주 통로" },
+      { "name": "AI 관련 매출", "why": "회사가 직접 밝히는 AI 노출" },
+      { "name": "핵심 영업이익률", "why": "얇은 이익률이 오르는지" },
+      { "name": "조정 잉여현금흐름", "why": "자사주 매입 여력" },
+      { "name": "고객 A 비중", "why": "집중 위험의 크기" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-12 중순 (추정, 회사 미확정)", "event": "Q1 FY2027 실적", "src": [] },
+      { "date": "분기마다", "event": "하이퍼스케일러 설비투자 가이던스", "src": ["s3"] }
+    ],
+    "reaction": "예상을 넘어도 부문별 약점과 다음 분기 가이드에 따라 반응이 갈린다. Q4는 매출·EPS가 예상을 넘었지만 의료·포장 부진이 지적되며 주가가 약 3% 내렸다는 보도가 있다 (parameter.io).",
+    "conditions": [
+      "다음 분기 매출·핵심 EPS 가이드와 컨센서스 차이",
+      "Intelligent Infrastructure 성장률과 AI 관련 매출 전망 변화",
+      "핵심 영업이익률 추세",
+      "자사주 매입 속도",
+      "하이퍼스케일러 설비투자 발언"
+    ]
+  },
+
+  "unverified": [
+    "부문별 FY2026 매출 금액과 증가율은 10-K의 비중(50%·35%·15%)을 총매출에 곱한 계산값 - 합계는 총매출과 맞지만 부문 금액 자체는 공시값이 아니다",
+    "부문별 영업이익·이익률 (Q4 Intelligent Infrastructure 6.5%만 콜에서 확인)",
+    "AI 관련 매출 FY2026 금액 (콜 요약의 +60%와 FY2027 221억 달러는 2차 출처)",
+    "고객 A의 이름",
+    "경쟁사 이름은 Jabil 10-K가 아니라 Celestica 10-K(s5) 검색 요약 기준, 시장 점유율 없음",
+    "Hanley Energy 등 인수 금액",
+    "Q1 FY2027 실적 발표일",
+    "FY2026 실적은 보도자료 기준 예비·미감사 수치 (10-K 총매출 359.54억 달러로 일치 확인)"
+  ],
+  "confidence": "medium - 연간 실적·현금 사용은 8-K와 10-K로 확인했지만 부문 전망·AI 매출은 콜 요약 2차 출처에 기댄다."
+}

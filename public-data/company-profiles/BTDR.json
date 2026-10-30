@@ -1,0 +1,538 @@
+{
+  "symbol": "BTDR",
+  "name": "Bitdeer Technologies Group",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (Singapore-based foreign private issuer, 20-F/6-K filer; latest reported quarter Q2 2026, ended 2026-06-30)",
+  "oneLine": "Bitdeer는 자체 설계 채굴기(SEALMINER)로 비트코인을 캐는 싱가포르 회사로, 노르웨이·말레이시아 등에서 채굴 전력을 AI 데이터센터와 GPU 클라우드로 돌리기 시작해 2026년 10월 AI 클라우드 수주잔고가 약 29억 달러로 늘었다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "6-K",
+      "title": "Bitdeer Announces Unaudited Financial Results for the Second Quarter Ended June 30, 2026 (6-K Ex.99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1899123/000121390026086938/ea030131301ex99-1.htm",
+      "publisher": "Bitdeer / SEC EDGAR",
+      "date": "2026-08-10"
+    },
+    {
+      "id": "s2",
+      "kind": "6-K",
+      "title": "Bitdeer Announces September 2026 Production and Operations Update (6-K Ex.99.1)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1899123/000121390026110703/ea030767901ex99-1.htm",
+      "publisher": "Bitdeer / SEC EDGAR",
+      "date": "2026-10-19"
+    },
+    {
+      "id": "s3",
+      "kind": "other",
+      "title": "Bitdeer SEC EDGAR filing list (F-3ASR automatic shelf registration and 424B5 prospectus supplement filed 2026-08-10)",
+      "url": "https://data.sec.gov/submissions/CIK0001899123.json",
+      "publisher": "SEC EDGAR",
+      "date": "2026-10-30"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "자체 설계 채굴기 SEALMINER - 평균 채굴기 효율 15.8 J/TH (전년 25.7), Q2 2026 (보도자료)",
+      "싸고 큰 자체 전력 - 전 세계 전력 2,980MW(가동 1,752MW), 평균 전기료 44달러/MWh (보도자료)",
+      "전력·하드웨어·인프라를 모두 가진 수직 계열화 - CFO가 '완전 통합 수직 스택의 이점'이라고 표현"
+    ],
+    "text": "Bitdeer의 힘은 채굴기 칩을 직접 설계하고, 그 채굴기를 돌릴 싼 전력과 부지를 직접 가진 데서 나온다. 자체 채굴기로 바꾸면서 같은 전력으로 훨씬 많은 해시를 내게 됐고, 텍사스·오하이오·부탄·노르웨이 등에 1.7GW 넘는 가동 전력을 확보했다. 이 전력과 부지가 이제 AI 데이터센터로 옮겨 가는 밑천이다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "design": {
+    "text": "회사가 파는 것은 세 갈래다. 비트코인 채굴(자체 채굴·공동 채굴·클라우드 해시레이트), 외부 채굴사의 기계를 맡아 돌리는 호스팅, 그리고 NVIDIA GPU(H100~GB300)를 빌려주는 AI 클라우드다. 자체 설계 채굴기 SEALMINER는 외부 판매도 하지만 2026년에는 대부분 자기 채굴장에 넣었다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "SEALMINER 채굴기 - 자체 설계·양산 (칩 위탁 생산 파운드리 이름은 이번에 확인하지 못함)",
+      "NVIDIA - AI 클라우드용 GPU (H100·H200·B200·B300·GB200·GB300)",
+      "Volta - 노르웨이 Tydal AI/HPC 데이터센터 16년 임차인",
+      "채굴장·데이터센터 - 텍사스 Rockdale, 오하이오 Massillon·Clarington, 부탄 Jigmeling·Gedu, 에티오피아, 노르웨이 Tydal 등 자체 부지"
+    ],
+    "text": "Bitdeer는 채굴기를 직접 만들고 부지와 전력도 직접 소유하는 드문 구조다. 2분기 설비투자 2.66억 달러 중 1.5억 달러가 SEALMINER 생산에, 1.16억 달러가 데이터센터 건설과 GPU 구매에 들어갔다. AI 쪽은 GPU를 사서 직접 빌려주는 클라우드와, 건물만 지어 임차인에게 넘기는 임대를 함께 한다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "비트코인 네트워크 - 자체 채굴 보상 (Q2 2026 매출의 74%)",
+      "공동 채굴·호스팅 고객 - 외부 채굴사",
+      "AI 클라우드 구독 고객 - GPU 4,007대 외부 구독, 가동률 95% (2026-09, 고객명 미공개)",
+      "Volta - Tydal 121 IT MW를 '선도 AI 연구소'용 NVIDIA GPU로 운영",
+      "말레이시아 A201·A901·A103 오프테이크·데이터 서비스 계약 상대방 (이름 미공개)"
+    ],
+    "channel": "채굴은 채굴 풀 경유, AI 클라우드는 직접 구독·오프테이크 계약, 데이터센터는 임차인과 직접 장기 임대",
+    "concentration": null,
+    "text": "지금 매출은 대부분 비트코인 채굴에서 나오지만, 새로 늘어나는 계약은 AI 쪽이다. 노르웨이 Tydal은 Volta가 16년 빌려 선도 AI 연구소용 GPU를 돌리고, 말레이시아 시설들은 오프테이크·데이터 서비스 계약으로 채워지고 있다. AI 고객 이름은 대부분 공개하지 않았다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "비트코인 네트워크",
+        "to": "Bitdeer",
+        "what": "자체 채굴 보상 (Q2 2026 1.68억 달러, 2,694 BTC)"
+      },
+      {
+        "from": "AI 연구소·기업",
+        "to": "Bitdeer (AI Cloud)",
+        "what": "GPU 클라우드 구독료 (연환산 매출 약 8,600만 달러, 2026-09)"
+      },
+      {
+        "from": "선도 AI 연구소",
+        "to": "Volta",
+        "what": "Tydal GPU 컴퓨트 사용료"
+      },
+      {
+        "from": "Volta",
+        "to": "Bitdeer",
+        "what": "16년 데이터센터 임대료 (기본 기간 약 47억 달러)"
+      },
+      {
+        "from": "외부 채굴사",
+        "to": "Bitdeer",
+        "what": "공동 채굴·호스팅 수수료"
+      },
+      {
+        "from": "Bitdeer",
+        "to": "NVIDIA·칩 생산·건설",
+        "what": "GPU 구매, SEALMINER 생산, 데이터센터 건설비"
+      }
+    ],
+    "pricing": "채굴은 비트코인 가격·채굴 난이도에 따라 변동, AI 클라우드는 GPU 시간당·기간 구독, 데이터센터는 장기 고정 임대(Tydal 16년, 8년 1회 연장 시 약 80억 달러), 호스팅은 전력·관리 수수료.",
+    "text": "돈은 아직 대부분 비트코인 채굴 보상으로 들어온다. AI 수요는 두 길로 들어오는데, GPU를 직접 빌려주는 클라우드 구독료와, 건물을 지어 Volta 같은 임차인에게 넘기는 장기 임대료다. 9월 기준 AI 클라우드 수주잔고가 한 달 만에 9억에서 29억 달러로 늘어, 이 두 번째·세 번째 흐름이 커지기 시작했다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "earnings": {
+    "period": "Q2 2026 (ended 2026-06-30)",
+    "revenue": {
+      "value": 228.8,
+      "unit": "USD mn",
+      "yoy": 47
+    },
+    "grossMargin": -3.7,
+    "operatingMargin": -44.4,
+    "netMargin": -40.3,
+    "operatingCashFlow": {
+      "value": -158.5,
+      "unit": "USD mn"
+    },
+    "freeCashFlow": {
+      "value": -424.5,
+      "unit": "USD mn"
+    },
+    "segments": [
+      {
+        "name": "Self-mining",
+        "revenue": 168.4,
+        "unit": "USD mn",
+        "share": 73.6,
+        "yoy": 184,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Co-mining",
+        "revenue": 25,
+        "unit": "USD mn",
+        "share": 10.9,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "AI Cloud",
+        "revenue": 14,
+        "unit": "USD mn",
+        "share": 6.1,
+        "yoy": 976.9,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Membership hosting",
+        "revenue": 12.8,
+        "unit": "USD mn",
+        "share": 5.6,
+        "yoy": -12.3,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "Cloud hash rate",
+        "revenue": 3.7,
+        "unit": "USD mn",
+        "share": 1.6,
+        "yoy": null,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "General hosting",
+        "revenue": 2.8,
+        "unit": "USD mn",
+        "share": 1.2,
+        "yoy": -69.9,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "SEALMINER sales and accessories",
+        "revenue": 0.4,
+        "unit": "USD mn",
+        "share": 0.2,
+        "yoy": -99.4,
+        "operatingMargin": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "해시레이트",
+        "value": "Q2 말 관리 해시레이트 86.1 EH/s (자체 73.0); 2026-09 자체 채굴 82.3 EH/s, 공동 채굴 28.7 EH/s",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "채굴량·보유 BTC",
+        "value": "Q2 2026 2,694 BTC 채굴, 6월 말 보유 150 BTC; 2026-09 월 1,355 BTC 채굴, 보유 47 BTC",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "name": "채굴 원가 지표",
+        "value": "평균 전기료 44달러/MWh, 평균 채굴기 효율 15.8 J/TH (Q2 2026)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "AI 클라우드",
+        "value": "GPU 4,328대, 외부 구독 4,007대, 가동률 95%, 연환산 매출 약 8,600만 달러, 수주잔고 약 29억 달러, 파이프라인 333.5 IT MW (2026-09)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "name": "조정 EBITDA·차입",
+        "value": "Q2 2026 조정 EBITDA 0.311억 달러; 총차입 약 18억 달러, 현금·제한 현금 4.963억 달러 (2026-06-30)",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "이 흐름이 Q2 2026에 매출 2.29억 달러(+47%)로 나타났지만, 매출원가가 매출보다 커 매출총이익이 -850만 달러였고 순손실은 9,230만 달러였다. 매출의 74%가 자체 채굴이라 이익은 비트코인 가격과 채굴 난이도에 그대로 묶여 있고, AI 클라우드는 1,400만 달러(6%)로 아직 작다. 영업현금흐름 -1.59억 달러에 설비투자 2.66억 달러가 더해져 현금이 빠르게 나가는 단계다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "Q2 2026",
+    "items": [
+      {
+        "use": "other",
+        "label": "SEALMINER 채굴기 자체 생산",
+        "value": 150,
+        "unit": "USD mn",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 116,
+        "unit": "USD mn",
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "text": "2분기에 쓴 돈 2.66억 달러 중 1.5억 달러는 자기 채굴장에 넣을 SEALMINER 생산에, 1.16억 달러는 데이터센터 건설·GPU 구매·운송에 들어갔다. 영업현금흐름이 마이너스라 이 돈은 차입(총 약 18억 달러)과 보유 비트코인 매도로 채웠고, 보유 BTC는 1년 새 1,502개에서 150개로 줄었다. 돈의 무게중심이 채굴기에서 AI 인프라로 옮겨 가는지가 다음 분기에 볼 점이다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "aiChain": {
+    "layer": "data-center-real-estate",
+    "position": "비트코인 채굴용으로 확보한 전력·부지를 AI 데이터센터로 바꿔 임차인에게 장기 임대하고, 일부는 직접 NVIDIA GPU를 사서 클라우드로 빌려주는 자리. 임대(Tydal)와 GPU 클라우드(말레이시아·AI Cloud)를 함께 한다.",
+    "dependsOn": [
+      "power-energy (자체 전력 계약, 노르웨이 재생에너지)",
+      "chips-compute (NVIDIA GPU)",
+      "채권·주식 시장 (건설·GPU 자금)"
+    ],
+    "sellsTo": [
+      "models-platforms (Volta를 통한 선도 AI 연구소)",
+      "cloud-infrastructure·ai-adopter (AI 클라우드 구독·오프테이크 고객, 이름 미공개)"
+    ],
+    "aiRevenue": "Q2 2026 AI Cloud 매출 1,400만 달러(매출의 6.1%); 2026-09 AI 클라우드 연환산 매출 약 8,600만 달러, 수주잔고 약 29억 달러; Tydal 임대 기본 기간 약 47억 달러 (2026-08-10, 2026-10-19 발표)",
+    "upside": "Tydal 1단계(2026년 4분기)·2단계(2027년 1분기), 말레이시아 A201(2027년 4월)·A901(2027년 2분기)·A103(2028년 1분기)이 차례로 열리면 고정 임대료와 GPU 구독료가 채굴 매출 옆에 쌓인다. 텍사스 Rockdale 563MW도 AI 전환을 검토 중이다.",
+    "risk": "AI 쪽은 아직 계약 단계라 건설 지연·GPU 가격·고객 신용이 위험이고, GPU를 직접 사는 클라우드는 GPU 가치 하락 위험을 회사가 진다. 그동안 이익은 비트코인 가격에 묶여 있고, 오하이오 Clarington 570MW는 인근 회사의 소송으로 일정이 미정이다.",
+    "text": "그래서 AI 가치사슬에서 Bitdeer는 전력과 건물을 공급하는 집주인이면서 작은 GPU 클라우드 사업자이기도 하다. AI 연구소의 컴퓨트 수요가 Volta 임대와 GPU 구독을 거쳐 들어오는데, 수주잔고가 29억 달러로 늘었지만 실제 매출은 아직 분기 1,400만 달러 수준이다. 2027년까지는 채굴 회사의 손익과 AI 인프라 회사의 투자가 겹쳐 보이는 시기다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "AI 데이터센터·GPU 클라우드 (채굴 부지 전환)",
+        "rivals": [
+          "IREN",
+          "Hut 8",
+          "Galaxy Digital",
+          "Cipher Mining",
+          "TeraWulf",
+          "CoreWeave·Nebius (GPU 클라우드)"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "arena": "비트코인 채굴",
+        "rivals": [
+          "MARA",
+          "CleanSpark",
+          "Riot",
+          "Cango"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "arena": "비트코인 채굴기 (ASIC)",
+        "rivals": [
+          "Bitmain",
+          "MicroBT",
+          "Canaan"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s1"
+        ]
+      }
+    ],
+    "edge": "채굴기·전력·부지를 모두 가진 수직 계열화, 싼 전기료(44달러/MWh), 그리고 노르웨이 재생에너지(PUE 약 1.1) 같은 AI 친화 부지.",
+    "threats": "AI 쪽에서는 먼저 인도 실적을 쌓은 경쟁사와 대형 GPU 클라우드 업체가 같은 고객을 두고 다툰다. 채굴기 시장은 Bitmain이 강하고, 채굴 자체는 비트코인 가격과 난이도에 좌우된다.",
+    "text": "이 자리의 경쟁은 세 겹이다. 채굴기에서는 Bitmain에 맞서는 도전자이고, 채굴에서는 대형 상장 채굴사와 해시레이트를 겨룬다. 가장 중요한 AI 쪽에서는 다른 채굴 출신 업체들과 함께 '전력이 붙은 부지'를 AI 임대로 바꾸는 경쟁을 하는데, Bitdeer는 임대와 GPU 클라우드를 둘 다 하는 점이 다르다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "strategy": {
+    "goal": "전력·하드웨어·인프라를 모두 가진 수직 계열 구조로 채굴을 키우면서, 확보한 전력을 AI/HPC 데이터센터와 GPU 클라우드로 전환하는 것 (보도자료).",
+    "roadmap": [
+      {
+        "when": "Q4 2026",
+        "what": "노르웨이 Tydal 1단계 66.5MW (코로케이션)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "Q1 2027",
+        "what": "Tydal 2단계 66.5MW",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2027-04",
+        "what": "말레이시아 A201(약 21.7MW, GB300 NVL72 128대) 전면 가동 목표, 5년간 17억 달러 초과 예상",
+        "src": [
+          "s2",
+          "s1"
+        ]
+      },
+      {
+        "when": "Q2 2027",
+        "what": "말레이시아 A901 67MW 인도",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "when": "Q3-Q4 2027",
+        "what": "테네시 Knoxville 완공(Q3), Tydal 3단계 47MW(H2), 앨버타 Fox Creek 101MW 전력 공급(Q4)",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "Q1 2028",
+        "what": "말레이시아 A103 60MW 인도",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "vision": "채굴로 쌓은 전력·부지·하드웨어 능력을 AI 인프라로 옮겨, 채굴과 AI 컴퓨트를 함께 운영하는 통합 인프라 회사가 되겠다는 그림이다.",
+    "text": "이 경쟁에서 이기기 위해 회사는 전 세계 부지를 하나씩 AI용으로 바꾸고 있다. 2026년 4분기 노르웨이를 시작으로 2028년 초 말레이시아까지 단계별 인도 일정을 공개했고, 인프라 진행 상황은 이제 분기 실적과 함께 알리겠다고 했다. 그 사이 채굴 확장은 자체 채굴기로 계속한다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "governance": {
+    "line": "싱가포르에 본사를 둔 외국 사적 발행인(20-F·6-K 제출)으로 Michael G. Potter가 CFO를 맡고, 배당 없이 차입과 주식 발행(2026-08 자동 유효 등록신고서 제출)으로 채굴기와 데이터센터 투자를 조달한다.",
+    "src": [
+      "s1",
+      "s3"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q4 2026 - Q1 2028",
+        "metric": "AI/HPC capacity delivery",
+        "value": "Tydal 1단계 Q4 2026, A201 2027-04, A901 Q2 2027, A103 Q1 2028 등 단계별 일정",
+        "givenOn": "2026-10-19",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      }
+    ],
+    "style": "none",
+    "track": "수치 가이던스는 내지 않는다. Knoxville(2027년 3분기)·Fox Creek(2027년 4분기)은 일정이 뒤로 밀렸고, Clarington은 소송으로 일정이 미정이 됐다.",
+    "src": [
+      "s1"
+    ]
+  },
+  "estimates": {
+    "text": null,
+    "src": []
+  },
+  "watch": {
+    "confirms": [
+      "Tydal 1단계가 2026년 4분기에 인도되고 임대료가 시작됨",
+      "AI 클라우드 연환산 매출과 수주잔고가 계속 늘고 고객 이름이 공개됨",
+      "매출총이익이 흑자로 돌아서고 영업현금흐름 적자가 줄어듦",
+      "Rockdale 563MW의 AI 전환 결정과 임차인 확보"
+    ],
+    "breaks": [
+      "AI 시설 인도 일정 추가 지연",
+      "비트코인 가격 하락이나 채굴 난이도 상승으로 채굴 손실 확대",
+      "차입 증가와 주식 발행으로 인한 희석 확대",
+      "Clarington 소송 장기화",
+      "GPU 클라우드 가동률·단가 하락"
+    ],
+    "keyNumbers": [
+      {
+        "name": "AI 클라우드 연환산 매출·수주잔고",
+        "why": "AI 전환이 숫자로 쌓이는 속도"
+      },
+      {
+        "name": "매출총이익률",
+        "why": "채굴이 원가를 감당하는지"
+      },
+      {
+        "name": "자체 채굴 해시레이트와 월 채굴량",
+        "why": "현재 매출의 엔진"
+      },
+      {
+        "name": "설비투자 중 SEALMINER vs 데이터센터·GPU 비중",
+        "why": "돈이 어느 사업으로 가는지"
+      },
+      {
+        "name": "총차입과 현금",
+        "why": "투자 단계를 버틸 자금 여력"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-11 (추정, 회사 미공지)",
+        "event": "Q3 2026 실적과 분기 인프라 업데이트 (인프라 업데이트를 실적 발표와 함께 하기로 함)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "date": "매월 중순",
+        "event": "월간 채굴·운영 업데이트 (6-K)",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "date": "Q4 2026",
+        "event": "Tydal 1단계 66.5MW 인도 예정",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "date": "2027-04",
+        "event": "말레이시아 A201 전면 가동 목표",
+        "src": [
+          "s2"
+        ]
+      }
+    ],
+    "reaction": "주가는 비트코인 가격, 월간 채굴량, 그리고 AI 임대·오프테이크 계약 발표에 함께 반응한다고 볼 수 있다. 개별 발표일 반응 폭은 이번에 확인한 자료가 없다.",
+    "conditions": [
+      "월간 업데이트의 자체 해시레이트·채굴량·보유 BTC 변화",
+      "AI 클라우드 연환산 매출·수주잔고·가동률",
+      "새 AI 임대·오프테이크 계약의 규모와 상대방",
+      "분기 매출총이익률과 영업현금흐름",
+      "차입·주식 발행 공시",
+      "비트코인 가격과 네트워크 난이도"
+    ]
+  },
+  "unverified": [
+    "부문 합계 2.271억 달러가 총매출 2.288억 달러와 약 170만 달러 차이 (보도자료에 기타 항목 없음)",
+    "잉여현금흐름 -4.245억 달러는 영업현금흐름에서 설비투자를 뺀 계산값",
+    "SEALMINER 칩 위탁 생산 파운드리와 공정",
+    "AI 클라우드·오프테이크 고객과 Tydal 최종 AI 연구소 이름",
+    "창업자 지분·의결권 구조와 CEO (20-F 미확인)",
+    "고객 집중도",
+    "Q3 2026 실적 발표일",
+    "경쟁사 목록은 회사 자료가 아닌 일반 분류 기준",
+    "컨센서스 추정치 (AIO 스냅샷에 없음)",
+    "총차입 약 18억 달러의 전환사채 구성"
+  ],
+  "confidence": "medium - 실적·채굴 지표·AI 수주잔고·부지 일정은 회사 6-K에서 확인했지만, 지배구조와 칩 생산 구조는 20-F를 읽지 못해 비어 있고 AI 사업은 아직 대부분 계약 단계다."
+}

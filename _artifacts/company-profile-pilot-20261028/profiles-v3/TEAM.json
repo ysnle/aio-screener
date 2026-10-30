@@ -1,0 +1,214 @@
+{
+  "symbol": "TEAM",
+  "name": "Atlassian Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "June 30 (FY2026 ended 2026-06-30)",
+  "oneLine": "Atlassian은 개발·IT 팀이 일을 관리하는 Jira·Confluence를 사용자당 구독으로 파는 회사로, 설치형(Data Center) 고객을 클라우드로 옮기며 그 위에 AI 에이전트 Rovo를 얹고 있지만, AI가 개발자 수를 줄이면 좌석 기반 요금이 흔들릴 수 있다는 질문을 함께 받는다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Atlassian Announces Fourth Quarter and Fiscal Year 2026 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1650372/000165037226000031/ex991q4fy26.htm", "publisher": "Atlassian / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s2", "kind": "8-K", "title": "Atlassian Q4 FY2026 Shareholder Letter (8-K exhibit)", "url": "https://www.sec.gov/Archives/edgar/data/1650372/000165037226000031/teamq42026shareholderlet.htm", "publisher": "Atlassian / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s3", "kind": "10-K", "title": "Atlassian Form 10-K for fiscal year ended 2026-06-30", "url": "https://www.sec.gov/Archives/edgar/data/1650372/000165037226000036/team-20260630.htm", "publisher": "Atlassian / SEC EDGAR", "date": "2026-08-14" },
+    { "id": "s4", "kind": "other", "title": "AIO local consensus and earnings-calendar snapshots (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json and earnings-calendar.json", "url": "https://www.nasdaq.com/market-activity/stocks/team/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "Jira·Confluence가 개발·IT 팀의 일과 문서를 담는 기록 시스템 - 35만 곳 이상 고객, Fortune 500의 85% 이상 (10-K)",
+      "셀프서브 웹 판매 플라이휠 - 하루 수천 건의 거래로 작은 팀부터 들어간다 (10-K)",
+      "Teamwork Graph - 고객의 업무·문서 연결 데이터를 AI 에이전트의 맥락으로 쓴다 (주주서한)",
+      "Atlassian Marketplace의 앱 생태계 (10-K)"
+    ],
+    "text": "Atlassian의 힘은 개발·IT 팀이 매일 일하는 기록, 즉 어떤 작업이 누구에게 있고 어떤 문서와 연결되는지가 Jira·Confluence에 쌓여 있다는 데서 나온다. 작은 팀이 웹에서 직접 사서 들어가고 회사 전체로 퍼지는 셀프서브 방식이 영업비를 낮춘다. AI 시대에 회사는 이 연결 데이터(Teamwork Graph)를 '맥락'이라 부르며, 에이전트가 더 적은 토큰으로 더 정확한 답을 내게 하는 해자라고 주장한다.",
+    "src": ["s3", "s2"]
+  },
+
+  "design": {
+    "text": "이 기반 위에서 회사가 파는 것은 Jira, Confluence, Jira Service Management, Loom, Bitbucket, Compass 같은 협업 소프트웨어와 AI 에이전트 Rovo이며, 이를 Software·Service·Strategy·Product·Teamwork Collection 같은 묶음으로 판다. 배포 방식으로는 클라우드, 고객 서버에 설치하는 Data Center, Marketplace 앱으로 나눠 보고한다. FY2026에 The Browser Company와 개발 생산성 플랫폼 DX를 인수했다.",
+    "src": ["s3", "s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "제3자 클라우드 인프라 제공업체 - 클라우드 제품 호스팅 (10-K, 업체명 미기재)",
+      "Solution Partners·채널 파트너 - 대기업 도입·재판매 (10-K)",
+      "Marketplace 앱 개발사 - 확장 앱 공급 (10-K)"
+    ],
+    "text": "생산은 소프트웨어 개발과 운영이고, 직원 13,301명 중 절반 이상이 R&D 인력이다. 클라우드 제품은 제3자 클라우드 인프라 위에서 돌아가며, 고객이 클라우드로 옮길수록 호스팅 비용이 늘어 총마진이 낮아진다고 회사가 밝혔다. FY2026 제3자 호스팅 비용은 8,700만 달러 늘었다.",
+    "src": ["s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "35만 곳 이상 조직, Fortune 500의 85% 이상 (10-K)",
+      "클라우드 ARR 1만 달러 이상 고객 57,334곳 - 클라우드 ARR의 85% 이상 (주주서한)",
+      "ARR 100만 달러 이상 고객 700곳 이상; 300만 달러 이상 고객 +50% 이상, 500만 달러 이상 +70% 이상 (주주서한)"
+    ],
+    "channel": "셀프서브 웹 판매로 신규 고객을 들이고, 직접 영업 조직이 대기업 확장을 맡으며 Solution Partners·채널 파트너가 이를 돕는다 (10-K).",
+    "concentration": "FY2026 단일 고객 매출 비중 5% 미만 (10-K). 지역별 매출은 미주 31.664억, EMEA 26.926억, 아시아태평양 7.134억 달러 (10-K).",
+    "text": "판매는 두 단계로 이뤄진다. 작은 팀이 웹에서 직접 사서 쓰기 시작하면, 영업 조직과 파트너가 이를 회사 전체 계약으로 키운다. 최근에는 대기업 쪽이 빨라 ARR 300만 달러 이상 고객이 50% 넘게 늘었고, 회사 사상 최대 계약도 이번 분기에 나왔다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "개발·IT·업무 팀 (셀프서브)", "to": "Atlassian", "what": "사용자당 월·연 구독료 (Standard·Premium·Enterprise 등급)" },
+      { "from": "대기업 (직접 영업·파트너)", "to": "Atlassian", "what": "다년 클라우드 구독 또는 Data Center 기간 라이선스, Collection 묶음" },
+      { "from": "Rovo·AI 사용 고객", "to": "Atlassian", "what": "등급에 포함된 Rovo와 Teamwork Collection의 풀링된 AI 크레딧" },
+      { "from": "고객", "to": "Marketplace 앱 개발사 (Atlassian 경유)", "what": "확장 앱 대금 (Atlassian이 수수료 몫을 가져감, 수수료율은 미확인)" },
+      { "from": "Atlassian", "to": "제3자 클라우드 인프라 제공업체", "what": "호스팅 비용" }
+    ],
+    "pricing": "라이선스·구독 단위(주로 사용자 수) 과금에 Standard·Premium·Enterprise 등급이 있다. Rovo는 일부 등급에 추가 비용 없이 포함되고 Teamwork Collection에는 풀링된 Rovo 크레딧이 들어간다(10-K). Data Center는 기간 라이선스라 매출이 앞당겨 인식되기도 한다.",
+    "text": "돈은 대부분 사용자 수에 맞춘 구독료로 들어온다. 지금 가장 큰 흐름은 Data Center 고객이 클라우드로 옮기는 것으로, 회사는 2028년 3월 Data Center 신규·확장 판매를 멈추고 2029년 3월 지원을 끝낸다. AI는 아직 별도 요금보다 상위 등급과 묶음에 포함되는 방식이라, AI가 매출로 바로 드러나기보다 업셀과 이탈 방어로 나타난다.",
+    "src": ["s3", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-06-30)",
+    "revenue": { "value": 6.572, "unit": "USD bn", "yoy": 26 },
+    "grossMargin": 85,
+    "operatingMargin": 0.2,
+    "netMargin": -0.8,
+    "operatingCashFlow": { "value": 1.353, "unit": "USD bn" },
+    "freeCashFlow": { "value": 1.319, "unit": "USD bn" },
+    "segments": [
+      { "name": "Cloud", "revenue": 4.411, "unit": "USD bn", "share": 67.1, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Data Center", "revenue": 1.831, "unit": "USD bn", "share": 27.9, "yoy": null, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Marketplace and other", "revenue": 0.331, "unit": "USD bn", "share": 5.0, "yoy": null, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "Q4 FY2026 매출", "value": "17.66억 달러(+28%); 클라우드 12.135억(+31%), Data Center 4.619억(+21%, 기간 라이선스 선인식 영향)", "src": ["s1", "s2"] },
+      { "name": "구독 ARR", "value": "66억 달러, 전년 대비 +23% (FY2026 말)", "src": ["s2"] },
+      { "name": "RPO / cRPO", "value": "RPO 48.17억 달러 +44%, cRPO +27%", "src": ["s1", "s2"] },
+      { "name": "non-GAAP 영업이익률", "value": "FY2026 30%, Q4 36%", "src": ["s1"] },
+      { "name": "AI 사용 지표", "value": "Rovo 지원 작업 +50% 이상(전 분기 대비), MCP 서버·Teamwork Graph CLI 월 사용자 100만 명 이상(한 분기 두 배 이상), Fortune 500의 80% 이상이 Rovo 사용", "src": ["s2"] }
+    ],
+    "text": "이 흐름이 FY2026에 매출 65.72억 달러(+26%), 그중 클라우드 44.11억 달러로 나타났다. 총마진은 85%로 높지만 주식보상·구조조정이 커서 GAAP 영업이익률은 0.2%에 그쳤고, 이를 뺀 non-GAAP 기준은 30%다. 반면 잉여현금흐름은 13.19억 달러(매출의 20%)로, 현금 창출력은 회계상 이익보다 훨씬 크다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-06-30)",
+    "items": [
+      { "use": "R&D", "value": 3.269, "unit": "USD bn", "src": ["s3"] },
+      { "use": "buybacks", "value": 1.801, "unit": "USD bn", "src": ["s1"] },
+      { "use": "acquisitions", "value": 1.229, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.034, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "가장 큰 지출은 R&D로 32.69억 달러, 매출의 절반에 가깝다. 남은 현금으로 자사주 18억 달러(1,910만 주, 발행주식 약 4% 감소)를 사고, The Browser Company와 DX 인수에 순 12.29억 달러를 썼다. 설비투자는 3,400만 달러에 그쳐 돈이 거의 전부 사람과 인수에 들어가는 구조다.",
+    "src": ["s3", "s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 모델을 만들지 않고, 개발·IT 팀의 업무 기록(Jira·Confluence)과 그 연결 데이터(Teamwork Graph)를 AI 에이전트의 맥락으로 제공하는 응용 소프트웨어 층. 자체 에이전트 Rovo와, 외부 AI가 이 데이터에 접속하는 MCP 서버를 함께 판다.",
+    "dependsOn": ["cloud-infrastructure (제3자 클라우드 호스팅)", "models-platforms (Rovo가 쓰는 외부 AI 모델)"],
+    "sellsTo": ["ai-adopter (개발·IT·업무 팀을 가진 기업)", "models-platforms (MCP로 Atlassian 데이터를 쓰는 외부 AI 에이전트)"],
+    "aiRevenue": null,
+    "upside": "Rovo를 쓰는 고객이 그렇지 않은 고객보다 ARR을 두 배 이상 빠르게 키운다고 회사는 밝혔다. AI가 상위 등급·Collection 업셀을 이끌고, AI 크레딧 사용이 늘면 사용량 매출의 길이 열린다.",
+    "risk": "요금이 주로 사용자 수에 묶여 있어, AI 코딩 도구로 개발자 수가 줄면 좌석이 줄 수 있다. 10-K는 AI가 일하는 방식을 바꿔 시장 기회를 줄이거나, 고객이 내부 도구를 직접 만들어 수요를 줄일 수 있다고 적었다.",
+    "text": "그래서 AI 가치사슬에서 Atlassian은 AI를 '쓰는' 팀의 업무 기록을 쥔 소프트웨어 층이다. 회사는 AI 에이전트도 일을 하려면 누가 무엇을 하는지라는 맥락이 필요하고, 그 맥락이 Jira·Confluence에 있다고 본다. 다만 AI 매출을 따로 공시하지 않고 좌석 과금이 그대로라, AI가 좌석을 늘리는지 줄이는지가 아직 숫자로 확인되지 않았다.",
+    "src": ["s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "개발팀 업무·프로젝트 관리", "rivals": ["대형 기술 기업 (10-K, 이름 미특정)", "AI 네이티브 스타트업"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "IT 서비스 관리 (Jira Service Management)", "rivals": ["기업 서비스 관리를 노리는 클라우드 업체", "레거시 서비스 데스크 업체"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "업무용 AI 에이전트", "rivals": ["AI 네이티브 스타트업", "대형 기술 기업"], "position": "challenger", "share": null, "src": ["s3", "s2"] }
+    ],
+    "edge": "개발·IT 팀의 업무 기록과 그 연결 데이터, 셀프서브로 넓게 퍼진 고객 기반, 그리고 클라우드 전환으로 늘어나는 대기업 계약.",
+    "threats": "AI 코딩·업무 도구가 일하는 방식을 바꿔 좌석 수를 줄이거나, AI 네이티브 업체와 대형 기술 기업이 같은 업무를 에이전트로 처리할 수 있다. 10-K는 경쟁자를 이름 대신 범주로만 적었다.",
+    "text": "개발팀 업무 관리에서는 Jira가 기본값에 가까운 선두이고, IT 서비스 관리에서는 기존 서비스 데스크 강자를 쫓는 쪽이다. 새 경쟁은 AI 에이전트 영역으로, 회사는 맥락 데이터를 쥔 쪽이 이긴다는 논리로 MCP를 열어 외부 AI도 자기 데이터를 쓰게 하는 길을 택했다.",
+    "src": ["s3", "s2"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 매출 약 +13%, 클라우드 약 +25.5%, 구독 ARR 약 +18%, non-GAAP 영업이익률 약 25%를 제시했고, FY2028에 매출 성장이 다시 빨라질 것으로 본다 (주주서한).",
+    "roadmap": [
+      { "when": "Q1 FY2027", "what": "매출 17.05억~17.15억 달러, 클라우드 약 +28.5%, Data Center 약 -4% 가이드", "src": ["s1"] },
+      { "when": "FY2027", "what": "Data Center 매출 약 -17%; 클라우드 이전이 클라우드 성장에 중후반 한 자릿수 %포인트 기여; 현금 보상 전환으로 non-GAAP 영업이익률 약 3%포인트 하락", "src": ["s2"] },
+      { "when": "2028-03", "what": "Data Center 기간 라이선스 신규·확장 판매 종료", "src": ["s3"] },
+      { "when": "2029-03", "what": "Data Center 유지보수·지원 종료", "src": ["s3", "s2"] }
+    ],
+    "vision": "AI 시대에는 맥락이 경쟁력이고, 사람과 AI 에이전트가 함께 일하는 업무 기록과 연결 데이터를 Atlassian이 쥐겠다는 그림이다.",
+    "text": "회사가 이기려는 길은 두 갈래다. 하나는 Data Center 종료 일정을 정해 고객을 클라우드로 옮기고, 그 과정에서 상위 등급과 AI 묶음을 파는 것이다. 다른 하나는 Rovo와 MCP로 AI 에이전트가 Atlassian 데이터를 쓰게 만드는 것으로, FY2027은 Data Center 감소로 성장률이 13%로 내려가는 전환의 해라고 회사 스스로 밝혔다.",
+    "src": ["s2", "s3", "s1"]
+  },
+
+  "governance": {
+    "line": "공동 창업자 Mike Cannon-Brookes가 CEO로 이끌고(CFO James Chuong), 배당 대신 자사주 매입으로 FY2026에 18억 달러를 환원했으며 남은 한도는 약 18.7억 달러다.",
+    "src": ["s2", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q1 FY2027", "metric": "revenue", "value": "17.05억~17.15억 달러; 클라우드 약 +28.5%, Data Center 약 -4%", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "operating margin", "value": "GAAP 약 6.5%, non-GAAP 약 28.5%", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue / cloud / Data Center", "value": "매출 약 +13%, 클라우드 약 +25.5%, Data Center 약 -17%, Marketplace 약 +12%", "givenOn": "2026-08-06", "src": ["s1", "s2"] },
+      { "period": "FY2027", "metric": "margins / ARR", "value": "non-GAAP 총마진 86.5%, non-GAAP 영업이익률 약 25%, 구독 ARR 약 +18%, 주식 수 최소 보합", "givenOn": "2026-08-06", "src": ["s1", "s2"] }
+    ],
+    "style": "quarterly",
+    "track": "FY2026 매출은 +26%로 마감했다. 직전 가이드와의 비교는 이번에 확인하지 못했다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 0.69달러(범위 0.25~1.10, 추정 6건), 직전 4개 분기 1.00달러, 최근 4주 상향·하향 0건. 이 데이터는 GAAP에 가까운 기준으로 보여 회사 non-GAAP 수치와 직접 비교하지 않는다.",
+    "src": ["s4"]
+  },
+
+  "watch": {
+    "confirms": [
+      "클라우드 성장이 가이드(1분기 약 +28.5%, 연간 약 +25.5%)를 충족·상회",
+      "cRPO와 구독 ARR 성장이 유지 (FY2026 말 cRPO +27%, ARR +23%)",
+      "Rovo·MCP 사용 지표가 계속 늘고 AI 크레딧 매출이 공개됨",
+      "대형 고객(ARR 100만 달러 이상) 수 증가",
+      "Data Center 고객의 클라우드 이전 속도 유지"
+    ],
+    "breaks": [
+      "좌석 수 감소나 순증 둔화를 회사가 언급",
+      "클라우드 성장 가이던스 하향",
+      "Data Center 종료 과정에서 고객 이탈이 늘어남",
+      "non-GAAP 영업이익률이 25% 가이드 아래로 내려감",
+      "AI 네이티브 업체로의 대형 고객 이전"
+    ],
+    "keyNumbers": [
+      { "name": "클라우드 매출 성장률", "why": "전환과 신규·업셀의 합" },
+      { "name": "cRPO·구독 ARR", "why": "다음 1년 매출의 선행 지표" },
+      { "name": "Data Center 매출 감소 폭", "why": "전환 속도와 이탈 위험" },
+      { "name": "Rovo·MCP 사용 지표", "why": "AI가 실제로 쓰이는지" },
+      { "name": "잉여현금흐름과 자사주 매입", "why": "주식보상 희석을 상쇄하는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-05 (AIO 실적 캘린더 기준, 시각 미기재)", "event": "Q1 FY2027 실적과 가이던스", "src": ["s4"] },
+      { "date": "2028-03", "event": "Data Center 신규·확장 판매 종료", "src": ["s3"] },
+      { "date": "2029-03", "event": "Data Center 지원 종료", "src": ["s3"] }
+    ],
+    "reaction": "주가는 클라우드 성장률과 다음 해 가이던스, 그리고 AI가 좌석 기반 모델을 해치는지에 대한 설명에 반응하는 편이다. 이번 조사에서는 실적 직후 주가 반응을 확인하지 않았다.",
+    "conditions": [
+      "클라우드 성장 가이던스와 컨센서스의 차이",
+      "cRPO·구독 ARR 성장률",
+      "좌석 수와 AI 크레딧 사용에 대한 회사 언급",
+      "Data Center 매출 감소 폭",
+      "non-GAAP 영업이익률 가이드",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+
+  "unverified": [
+    "AI 관련 매출 (회사 미공시, 사용 지표만 공시)",
+    "FY2026 부문별 전년 대비 성장률 (Q4 클라우드 +31%·Data Center +21%만 확인)",
+    "The Browser Company·DX 개별 인수 가격 (합계 순 12.29억 달러만 확인)",
+    "클라우드 호스팅 업체 이름 (10-K 미기재)",
+    "분야별 시장 점유율과 이름 붙은 경쟁사 (10-K는 범주로만 기재)",
+    "GAAP 영업이익률 0.2%는 추출 요약값이며 보도자료 표에는 '—%'(0에 가까움)로 표시됨",
+    "순이익률 -0.8%는 순손실 0.538억 달러로 계산한 값",
+    "직전 가이드 대비 실적 추이와 실적 직후 주가 반응",
+    "다음 실적 발표일은 AIO 캘린더 기준이며 회사 공지 미확인"
+  ],
+  "confidence": "medium - 실적·가이던스·Data Center 종료 일정은 SEC 8-K·주주서한·10-K 원문에서 왔지만, 콜 녹취를 읽지 못했고 AI 효과는 회사가 고른 사용 지표에 의존한다."
+}

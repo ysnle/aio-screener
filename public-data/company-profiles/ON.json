@@ -1,0 +1,218 @@
+{
+  "symbol": "ON",
+  "name": "ON Semiconductor Corporation (onsemi)",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (Q2 2026 ended 2026-07-03)",
+  "oneLine": "onsemi는 전기차·산업용 전력 반도체(실리콘카바이드 포함)와 이미지 센서를 직접 만드는 미국 회사로, 매출 절반은 자동차지만 AI 데이터센터 전원 칩이 2026년 두 배 이상 늘며 가장 빠른 성장 사업이 됐다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "onsemi Reports Second Quarter 2026 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001097864/000114036126030989/ef20079200_ex99-1.htm", "publisher": "onsemi / SEC EDGAR", "date": "2026-08-03" },
+    { "id": "s2", "kind": "call-transcript", "title": "onsemi (ON) Q2 2026 Earnings Call Transcript", "url": "https://earningswhispers.com/transcript/ON/Q22026", "publisher": "Earnings Whispers", "date": "2026-08-03" },
+    { "id": "s3", "kind": "10-K", "title": "onsemi Form 10-K for fiscal year 2025 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/1097864/000109786426000006/on-20251231.htm", "publisher": "onsemi / SEC EDGAR", "date": "2025-12-31" },
+    { "id": "s4", "kind": "8-K", "title": "onsemi and Synaptics Announce Revised Merger Agreement (Synaptics 8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000817720/000114036126038301/ef20083029_ex99-1.htm", "publisher": "Synaptics / SEC EDGAR", "date": "2026-10-01" },
+    { "id": "s5", "kind": "news", "title": "TrendForce: STMicroelectronics Leads Global SiC Power Device Market (2023 supplier shares; year only, article day not checked)", "url": "https://www.eetasia.com/trendforce-stmicroelectronics-leads-global-sic-power-device-market/", "publisher": "EE Times Asia / TrendForce", "date": "2024" },
+    { "id": "s6", "kind": "other", "title": "AIO local earnings calendar row for ON (2026-11-02 after close, actuals not yet posted), public-data/earnings-calendar.json", "url": "https://www.nasdaq.com/market-activity/stocks/on/earnings", "publisher": "AIO earnings calendar", "date": "2026-10-29" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/on/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "실리콘카바이드(SiC) 결정 성장(뉴햄프셔 Hudson)부터 웨이퍼·소자·모듈까지 직접 하는 수직계열화 (10-K)",
+      "자동차 고객과 쌓은 전력 반도체 설계 채택 - 2025년 매출의 51%가 자동차 (10-K)",
+      "IGBT·MOSFET·SiC·GaN을 모두 갖춘 전압대별 전력 포트폴리오 (실적 발표·콜)",
+      "자동차·산업용 CMOS 이미지 센서 (ISG) (10-K)"
+    ],
+    "text": "onsemi의 힘은 전기를 효율적으로 바꾸고 끊는 전력 반도체를 원재료부터 직접 만든다는 데 있다. 특히 실리콘카바이드는 결정 성장부터 소자까지 한 회사 안에서 하기 때문에, 공급이 빠듯할 때 고객이 물량을 믿고 설계에 넣을 수 있다. 이렇게 쌓은 자동차 설계 채택이 매출의 절반을 받친다.",
+    "src": ["s3"]
+  },
+
+  "design": {
+    "text": "회사는 세 부문으로 보고한다. 전력 솔루션(PSG)은 SiC·개별 소자·전력 모듈, 아날로그·혼성신호(AMG)는 전원 관리·센서 인터페이스 같은 아날로그 칩, 지능형 센싱(ISG)은 CMOS 이미지 센서와 신호처리 칩이다. AI 데이터센터에는 전원 공급장치(PSU)와 배터리 백업용 전력 칩, 그리고 800V 직류 배전용 고전압 소자를 설계해 판다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "in-house manufacturing",
+    "partners": [
+      "자체 전공정 팹 - 미국(East Fishkill·Gresham·Mountaintop·Nampa·Hudson), 체코, 일본, 한국 부천, 말레이시아 (10-K)",
+      "SiC 결정 - 뉴햄프셔 Hudson; SiC·실리콘 웨이퍼 - 체코·한국 부천 (10-K)",
+      "자체 후공정 - 캐나다·중국·말레이시아·필리핀·베트남·미국, 중국 Leshan 합작(지분 80%) (10-K)",
+      "외부 위탁 생산 (업체 미공개) - 원가 상승으로 2차 가격 인상의 이유 (콜)"
+    ],
+    "text": "onsemi는 대부분을 자체 팹에서 만드는 회사라, 이익은 공장 가동률에 크게 좌우된다. 2025년 수요 부진 때 '제조 재편'으로 약 2,400명을 줄이고 4.96억 달러를 손상 처리했지만, 2026년 2분기 가동률은 83%(1분기 77%)로 올라왔다. 회사는 가동률 1%포인트마다 총마진이 0.25~0.30%포인트 움직인다고 설명했다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "자동차 - 전기차·전장 고객 (중국 Geely·Zeekr·Xiaomi 콘텐츠 증가 언급) (콜)",
+      "산업 - 에너지 저장(ESS), 공장 자동화, 의료 (콜)",
+      "AI 데이터센터 - NVIDIA MGX 생태계, Great Wall(전원 공급장치), AWS(전원·배터리 백업 설계 채택) (실적 발표·콜)",
+      "이미지 센서 - 자동차·산업 카메라 (10-K)"
+    ],
+    "channel": "2025년 매출의 약 54%가 유통, 46%가 직판 (10-K)",
+    "concentration": "한 유통사가 2025년 매출의 약 11% (2024년 10%). 직판 고객 이름·비중은 미공개 (10-K)",
+    "text": "2025년 최종시장은 자동차 51%, 산업 28%, AI 데이터센터를 포함한 기타 21%였다. 2026년 2분기에는 자동차 7.81억 달러, 산업 4.23억 달러, 기타 4.00억 달러로 기타가 전 분기보다 34% 늘었다. 회사는 공급이 빠듯해지자 단기적으로 AI 데이터센터 주문을 자동차·산업보다 먼저 처리하고 있다고 말했다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "전기차 구매자·공장·클라우드", "to": "완성차·산업기기·서버 제조사", "what": "차량·설비·AI 서버 구매" },
+      { "from": "완성차·전원 공급장치 업체(Great Wall 등)·하이퍼스케일러(AWS)", "to": "유통사 또는 onsemi 직판", "what": "전력 칩·모듈·이미지 센서 주문 (유통 54%)" },
+      { "from": "유통사·직판 고객", "to": "onsemi", "what": "개당 칩·모듈 대금 (2026년 2차 가격 인상 진행 중)" },
+      { "from": "onsemi", "to": "자체 팹·외부 위탁 생산업체", "what": "가동률을 올리는 생산비와 외부 위탁 비용" }
+    ],
+    "pricing": "칩·모듈 개당 판매. 원재료·외부 위탁 비용 상승을 넘기기 위한 2차 가격 인상이 진행 중이며 효과는 여러 분기에 걸쳐 나타난다고 회사가 설명했다 (콜).",
+    "text": "돈은 전기차와 AI 서버를 사는 쪽에서 출발해 부품 제조사와 유통사를 거쳐 onsemi에 들어온다. 리드타임이 평균 약 27주에서 32주로 늘어날 만큼 공급이 빠듯해지면서, 회사는 가격을 두 차례 올리고 있다. 들어온 돈의 효율은 자체 팹 가동률이 결정한다.",
+    "src": ["s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q2 2026 (ended 2026-07-03)",
+    "revenue": { "value": 1.6035, "unit": "USD bn", "yoy": 9.2 },
+    "grossMargin": 38.4,
+    "operatingMargin": 16.1,
+    "netMargin": 14.1,
+    "operatingCashFlow": { "value": 0.4597, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.4254, "unit": "USD bn" },
+    "segments": [
+      { "name": "Power Solutions Group (PSG)", "revenue": 0.829, "unit": "USD bn", "share": 51.7, "yoy": 18.7, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Analog & Mixed-Signal Group (AMG)", "revenue": 0.5457, "unit": "USD bn", "share": 34.0, "yoy": -1.8, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Intelligent Sensing Group (ISG)", "revenue": 0.2288, "unit": "USD bn", "share": 14.3, "yoy": 6.6, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "최종시장별 매출 (Q2 2026)", "value": "자동차 7.81억 달러(+7%), 산업 4.23억 달러(+4%), 기타(AI 데이터센터 포함) 4.00억 달러(전 분기 대비 +34%)", "src": ["s2"] },
+      { "name": "공장 가동률", "value": "83% (Q1 77%), Q3 보합~상승 예상", "src": ["s2"] },
+      { "name": "Non-GAAP 총마진", "value": "39.3% (전 분기 대비 +0.8%p)", "src": ["s1"] },
+      { "name": "AI 데이터센터 매출 전망", "value": "2026년 2025년의 두 배 이상, 데이터센터용 SiC 매출 약 60% 증가 (금액 미공개)", "src": ["s1", "s2"] },
+      { "name": "평균 리드타임", "value": "약 27주 → 약 32주", "src": ["s2"] }
+    ],
+    "text": "Q2 2026 매출은 16.04억 달러로 1년 전보다 9% 늘었고, GAAP 영업이익률은 16.1%로 높아졌다. 성장은 SiC와 데이터센터 전력 칩이 들어간 PSG(+19%)가 이끌었고, 아날로그(AMG)는 제자리였다. 총마진이 38~39%로 아직 과거 고점보다 낮은 것은 가동률이 회복 중이기 때문이며, 회사는 3분기 총마진을 40~42%로 제시했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "2026년 상반기",
+    "items": [
+      { "use": "buybacks", "value": 0.6905, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.0562, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "번 돈의 대부분은 자사주 매입에 쓰였다. 상반기 자사주 매입은 6.9억 달러로 잉여현금흐름 6.43억 달러보다 많았고(회사는 연초 이후 잉여현금의 약 105% 환원이라고 표현), 설비투자는 0.56억 달러로 낮았다. 그러나 Synaptics를 주당 123달러 현금, 총 약 57억 달러에 사기로 계약을 바꾸면서, 2027년 중반 인수가 끝나면 현금과 Morgan Stanley의 인수 금융이 이쪽으로 들어간다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI 서버 랙의 전원 공급장치(PSU)·배터리 백업·800V 직류 배전에 들어가는 전력 반도체(SiC·GaN·실리콘 MOSFET)를 공급한다. 연산 칩이 아니라 전기를 칩까지 효율적으로 보내는 부품이다.",
+    "dependsOn": ["자체 SiC 결정·웨이퍼 공급 (Hudson, 부천, 체코)", "외부 위탁 생산", "semicap-foundry (장비)"],
+    "sellsTo": ["power-energy·cooling-electrical (Great Wall 등 전원 공급장치 업체)", "cloud-infrastructure (AWS 등 하이퍼스케일러, NVIDIA MGX 생태계)", "devices (전기차·산업기기)"],
+    "aiRevenue": "AI 데이터센터 매출 금액은 미공개. 2026년 매출이 2025년의 두 배 이상 될 것, 데이터센터용 SiC는 약 60% 증가 (2026-08-03 실적 발표·콜). Q2 2026 '기타' 최종시장 4.00억 달러에 포함.",
+    "upside": "랙 전력이 커질수록 랙당 전력 반도체 콘텐츠가 늘어나고, 회사는 현재 약 1.5만 달러에서 800V 직류 구조로 가면 약 11.5만 달러까지 커진다고 설명했다. 데이터센터 주문을 우선 처리할 만큼 수요가 강해 가동률과 가격을 함께 끌어올린다.",
+    "risk": "AI 데이터센터는 아직 '기타' 최종시장(매출의 약 4분의 1) 안의 일부라 본업인 전기차 수요가 꺾이면 메우기 어렵다. 전원 공급장치 시장에는 Infineon·ST·TI 등 경쟁자가 많고, GaN 같은 새 소재로 경쟁 구도가 바뀔 수 있다.",
+    "text": "그래서 AI 가치사슬에서 onsemi는 'AI 영향권'에 있는 전력 부품 회사다. AI 투자는 전원 공급장치 업체와 하이퍼스케일러가 사는 전력 칩을 통해 들어오며, 2026년 이 매출이 두 배 이상 늘 것으로 회사는 본다. 다만 회사 전체 실적은 여전히 매출 절반인 자동차, 특히 전기차용 SiC가 정한다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "SiC 전력 소자", "rivals": ["STMicroelectronics", "Infineon", "Wolfspeed", "ROHM"], "position": "challenger", "share": "2023년 매출 기준 23.6%로 2위, ST 32.6%, Infineon 16.5% (TrendForce via EE Times Asia, 2024)", "src": ["s5"] },
+      { "arena": "전력 반도체 (실리콘 MOSFET·IGBT·모듈)", "rivals": ["Infineon", "STMicroelectronics", "Nexperia", "ROHM"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "아날로그·혼성신호", "rivals": ["Texas Instruments", "Analog Devices", "Infineon", "Renesas", "Monolithic Power Systems", "NXP"], "position": "follower", "share": null, "src": ["s3"] },
+      { "arena": "CMOS 이미지 센서", "rivals": ["Sony", "Samsung", "OmniVision"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "SiC 결정부터 모듈까지 수직계열화, 자동차 설계 채택, 그리고 40~650V GaN 포트폴리오(GaNEXUS)와 SiC를 함께 갖춰 데이터센터 전압대별 수요를 모두 받을 수 있다.",
+    "threats": "SiC는 ST가 1위이고 중국 업체 증설로 가격 압력이 생길 수 있다. 아날로그에서는 TI·ADI 같은 대형사에 밀리는 추격자 위치다.",
+    "text": "경쟁은 전력과 아날로그에서 다르게 흘러간다. SiC에서는 2023년 기준 ST에 이은 2위로 자동차에서 쌓은 자리가 단단하지만, 아날로그에서는 TI·ADI 등 큰 회사를 쫓는 위치다. 회사는 데이터센터 전력에서 SiC·GaN·실리콘을 모두 파는 '한 회사 공급'으로 차별화를 노린다.",
+    "src": ["s5", "s3", "s1"]
+  },
+
+  "strategy": {
+    "goal": "AI 데이터센터·에너지 저장·중국 전기차 SiC를 성장축으로 삼고, Synaptics 인수로 '연결형 연산(커넥티드 컴퓨트)'을 더해 피지컬 AI 시스템 공급사가 되겠다는 것. 인수 시너지 연 2억 달러 이상, 인수 즉시 non-GAAP EPS 증가 예상 (회사 발표).",
+    "roadmap": [
+      { "when": "Q3 2026", "what": "매출 16.5~17.5억 달러, non-GAAP 총마진 40~42% 가이드", "src": ["s1"] },
+      { "when": "2026", "what": "AI 데이터센터 매출 2배 이상, ESS 매출 약 40% 증가, 중국 자동차 SiC 60~70% 증가 (콜)", "src": ["s2"] },
+      { "when": "2027 중반", "what": "Synaptics 인수 완료 목표 (주당 123달러 현금, 약 57억 달러; 미국 FTC 승인, 다른 지역 심사 중)", "src": ["s4"] },
+      { "when": "인수 후 18개월 이후", "what": "Synaptics 생산 일부 내재화와 매출 시너지", "src": ["s4"] }
+    ],
+    "vision": "전기를 효율적으로 다루는 전력 칩과 센서·연결 칩을 묶어, 차·로봇·데이터센터의 '지능형 전력·감지' 플랫폼이 되겠다는 그림이다.",
+    "text": "이 경쟁에서 회사가 택한 길은 전력 반도체 위에 감지·연결·연산을 얹는 것이다. 6월에 주식 교환으로 발표한 Synaptics 인수는 경쟁 제안이 들어온 뒤 10월에 전액 현금(약 57억 달러)으로 바뀌었고, 2027년 중반 완료가 목표다. 그 사이 본업에서는 데이터센터 우선 공급과 가격 인상으로 가동률과 마진을 회복시키려 한다.",
+    "src": ["s4", "s1", "s2"]
+  },
+
+  "governance": {
+    "line": "2020년 12월부터 Hassane El-Khoury가 CEO로 이끌며, 잉여현금 이상을 자사주 매입에 쓰다가 약 57억 달러 Synaptics 현금 인수로 차입을 늘리는 국면에 들어섰다.",
+    "src": ["s3", "s2", "s4"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "16.5억~17.5억 달러", "givenOn": "2026-08-03", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "gross margin", "value": "GAAP 39.9~41.9%, non-GAAP 40.0~42.0%", "givenOn": "2026-08-03", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "operating expenses", "value": "GAAP 3.18억~3.33억, non-GAAP 3.03억~3.18억 달러", "givenOn": "2026-08-03", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "diluted EPS", "value": "GAAP 0.79~0.91달러, non-GAAP 0.81~0.93달러", "givenOn": "2026-08-03", "src": ["s1"] },
+      { "period": "Q3 2026", "metric": "end markets / capex", "value": "자동차 소폭 증가, 산업 보합, 기타(AI 데이터센터) 10%대 후반 증가; 설비투자 0.4억~0.5억 달러, 2026년 매출의 5% 미만 (콜)", "givenOn": "2026-08-03", "src": ["s2"] }
+    ],
+    "style": "quarterly",
+    "track": "Q2 2026 매출·non-GAAP 총마진·EPS가 모두 가이드 중간값을 넘었다고 회사가 밝혔다 (매출 16.04억 달러, 총마진 39.3%, EPS 0.74달러).",
+    "src": ["s2", "s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 3.89달러(범위 3.75~4.16), 직전 4개 분기 2.65달러. 최근 4주 상향 4건·하향 0건. Q3 2026 컨센서스는 EPS 0.90달러, 매출 17.54억 달러.",
+    "src": ["s7", "s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q3 2026 매출·총마진이 가이드(16.5~17.5억 달러, 40~42%) 상단에 근접",
+      "가동률이 83%에서 더 올라가고 총마진이 40%대로 회복",
+      "AI 데이터센터 매출 '2배 이상' 전망 유지·상향",
+      "가격 인상이 총마진에 반영되기 시작",
+      "Synaptics 인수가 남은 지역 승인을 받아 2027년 중반 일정 유지"
+    ],
+    "breaks": [
+      "전기차 생산 둔화로 자동차 매출 감소",
+      "가동률이 다시 80% 아래로 내려감",
+      "데이터센터 우선 공급으로 자동차·산업 고객 이탈 신호",
+      "Synaptics 인수 지연·조건 변경 또는 인수 금융 부담 확대",
+      "SiC 가격 하락이나 중국 업체 증설 가속"
+    ],
+    "keyNumbers": [
+      { "name": "non-GAAP 총마진", "why": "가동률 회복과 가격 인상이 이익으로 바뀌는지" },
+      { "name": "공장 가동률", "why": "1%포인트당 총마진 0.25~0.30%포인트" },
+      { "name": "'기타' 최종시장 매출", "why": "AI 데이터센터가 들어오는 줄" },
+      { "name": "자동차 매출 (특히 중국 SiC)", "why": "매출 절반을 차지하는 본업" },
+      { "name": "리드타임", "why": "공급 부족이 이어지는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-02 (장 마감 후)", "event": "Q3 2026 실적과 Q4 가이던스", "src": ["s6"] },
+      { "date": "2027 중반 (회사 목표)", "event": "Synaptics 인수 완료", "src": ["s4"] },
+      { "date": "매 분기", "event": "STMicro·Infineon·Wolfspeed 실적과 SiC 가격·전기차 수요 발언", "src": ["s3"] }
+    ],
+    "reaction": "주가는 다음 분기 매출·총마진 가이드와 가동률 발언에 반응한다. 지금은 'AI 데이터센터 성장'과 '전기차 회복 속도'가 함께 읽히며, Synaptics 인수 조건 변화처럼 자본 배분 소식도 크게 작용한다.",
+    "conditions": [
+      "다음 분기 매출·총마진 가이드와 컨센서스의 차이",
+      "가동률과 가격 인상 효과 언급",
+      "AI 데이터센터 매출 전망 변화",
+      "자동차·산업 수요의 전 분기 대비 방향",
+      "Synaptics 인수 승인 진행",
+      "컨센서스 EPS 상향·하향 건수 추이 (현재 상향 4건)"
+    ]
+  },
+
+  "unverified": [
+    "2025·2026년 AI 데이터센터 매출 금액 (회사 미공개, 콜에서 애널리스트가 언급한 5억 달러 목표는 회사 확인 아님)",
+    "AMG 전년 대비 증감: 실적 발표 표는 -2%, 콜 녹취록 요약은 +2%로 엇갈림 (이 문서는 실적 발표 수치 사용)",
+    "Q2 자사주 매입: 본문 3.32억 달러 vs 현금흐름표 3.448억 달러 차이 미설명",
+    "상반기 R&D 합계 (Q2만 1.408억 달러 확인)",
+    "SiC 점유율은 2023년 자료 (2025년 수치 미확인), s5 기사 일자 미확인",
+    "10% 이상 유통사 이름과 직판 최대 고객",
+    "Synaptics 인수 후 순부채·이자비용 규모",
+    "랙당 콘텐츠(1.5만→11.5만 달러) 수치는 녹취록에서만 확인",
+    "10-K 제출일 (s3 날짜는 회계연도 말)"
+  ],
+  "confidence": "medium - Q2 실적·가이던스·인수 조건은 SEC 문서에서 왔지만, 2026-11-02 Q3 실적 발표가 곧 나와 내용이 바로 바뀔 수 있고 AI 데이터센터 금액은 미공개다."
+}

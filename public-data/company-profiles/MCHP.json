@@ -1,0 +1,211 @@
+{
+  "symbol": "MCHP",
+  "name": "Microchip Technology Incorporated",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "March 31 (Q1 FY2027 ended 2026-06-30)",
+  "oneLine": "Microchip은 산업·자동차·방산용 마이크로컨트롤러와 아날로그 칩을 수십만 종 파는 미국 회사로, 재고 조정에서 빠져나오며 매출이 38% 반등했고 데이터센터용 PCIe 스위치·주변 칩이 2026년 약 10억 달러로 커지고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Microchip Technology Announces Financial Results for First Quarter of Fiscal Year 2027 (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000827054/000082705426000037/exhibit991q1fy27.htm", "publisher": "Microchip / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s2", "kind": "10-K", "title": "Microchip Form 10-K for fiscal year ended 2026-03-31 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0000827054/000082705426000016/mchp-20260331.htm", "publisher": "Microchip / SEC EDGAR", "date": "2026-03-31" },
+    { "id": "s3", "kind": "news", "title": "Microchip Q1 FY 2027 Earnings Beat as Data Center Exposure Nears $1 Billion (analyst summary of the call; secondary)", "url": "https://futurumgroup.com/insights/microchip-q1-fy-2027-earnings-beat-as-data-center-exposure-nears-1-billion/", "publisher": "Futurum Group", "date": "2026-08-14" },
+    { "id": "s4", "kind": "ir-site", "title": "Microchip IR calendar: Q2FY27 Financial Results Conference Call (accessed date)", "url": "https://ir.microchip.com/news-events/ir-calendar", "publisher": "Microchip Investor Relations", "date": "2026-10-30" },
+    { "id": "s5", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/mchp/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "수십만 종의 MCU·아날로그 카탈로그 - 한번 설계에 들어가면 바꾸기 어려운 긴 제품 수명 (10-K)",
+      "하드웨어·소프트웨어·서비스를 묶은 'Total System Solution' (10-K)",
+      "방산·항공우주 등 인증이 까다로운 시장 - Q1 FY27 매출의 16.7% (애널리스트 요약)",
+      "미국 자체 팹(Oregon Gresham·Colorado Springs)과 내부 후공정으로 만든 공급 통제 (10-K)"
+    ],
+    "text": "Microchip의 힘은 최신 공정이 아니라 '작고 많은' 칩에서 나온다. 수십만 종의 MCU와 아날로그 칩이 공장 설비·자동차·방산 장비에 들어가 수년~수십 년 쓰이기 때문에, 고객은 한번 고른 칩을 쉽게 바꾸지 않는다. 회사는 여기에 소프트웨어·개발 도구를 묶어 '시스템 단위'로 파는 방식으로 고객을 붙잡는다.",
+    "src": ["s2", "s3"]
+  },
+
+  "design": {
+    "text": "회사는 제품을 혼성신호 마이크로컨트롤러, 아날로그, 기타(FPGA·연결·메모리·라이선스 등) 세 줄로 보고하며, FY2026 매출의 50.0%·28.2%·21.8%였다. 데이터센터용으로는 전담 사업부가 PCIe Gen6 스위치·리타이머를, 카탈로그 쪽이 전원 관리·메모리·보안 칩을 판다. PCIe Gen6 설계 채택은 분기 중 6건에서 12건으로, 콜 시점에는 14건으로 늘었다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "자체 웨이퍼 팹 - Fab 4(오리건 Gresham, 8인치), Fab 5(콜로라도 Colorado Springs, 6인치 개별·특수 소자) (10-K)",
+      "외부 파운드리 - FY2026 매출의 약 65%가 외부 웨이퍼로 만든 제품 (업체명 미공개) (10-K)",
+      "자체 후공정 - 태국·필리핀; 조립의 약 67%, 테스트의 약 69%를 내부 처리 (10-K)",
+      "Fab 2 - 2024-12 폐쇄 발표, 2025-05 완료 (10-K)"
+    ],
+    "text": "Microchip은 매출의 약 35%를 미국 자체 팹에서, 약 65%를 외부 파운드리 웨이퍼로 만드는 혼합 모델이다. 재고가 넘치던 2025년에는 Fab 2를 닫고 가동률을 낮춰 FY2026에만 2.01억 달러의 미가동 비용을 떠안았다. 이제 수요가 돌아오며 미가동 비용이 분기마다 약 800만 달러씩 줄고 있지만, 기판·후공정·일부 파운드리 공정의 리드타임이 늘어나는 새 병목이 생겼다.",
+    "src": ["s2", "s3"]
+  },
+
+  "sell": {
+    "customers": [
+      "산업 - 가장 큰 최종시장, Q1 FY27 전년 대비 +24.3% (애널리스트 요약)",
+      "데이터센터 - Q1 FY27 매출의 17.1%, 전년 대비 +97.8% (실적 발표·애널리스트 요약)",
+      "방산·항공우주 - 매출의 16.7%, +45.6% (애널리스트 요약)",
+      "자동차·통신·가전 (10-K)"
+    ],
+    "channel": "FY2026 매출의 47%가 유통, 53%가 직판. 최대 유통사 Arrow Electronics 12% (10-K)",
+    "concentration": "Arrow 12% 외에 10% 이상 고객 없음. 상위 10개 직판 고객 합계 약 11% (10-K)",
+    "text": "고객이 수만 곳으로 흩어져 있어 한 고객의 영향은 작다. 상위 10개 직판 고객을 합쳐도 매출의 약 11%이고, 유통사 Arrow가 12%로 가장 크다. 대신 매출의 75%가 해외(중국 18%, 대만 15%)라 무역·관세 환경에 민감하다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "공장·방산·자동차·클라우드 최종 고객", "to": "산업기기·방산·전장·서버 제조사", "what": "장비·차량·서버 구매" },
+      { "from": "제조사", "to": "Arrow 등 유통사 또는 Microchip 직판", "what": "MCU·아날로그·PCIe 칩 주문 (유통 47%)" },
+      { "from": "유통사·직판 고객", "to": "Microchip", "what": "개당 칩 대금 (2026-08 중순 약 10만 품목 가격 인상)" },
+      { "from": "Microchip", "to": "외부 파운드리·후공정 업체", "what": "외부 웨이퍼(매출의 약 65%)와 일부 조립·테스트 비용" }
+    ],
+    "pricing": "칩 개당 판매. 2026년 8월 중순부터 약 10만 품목(SKU)에 제품·고객별로 다른 가격 인상을 적용했고, 효과는 12월 분기에 온전히 반영된다 (애널리스트 요약).",
+    "text": "돈은 수많은 제조사가 유통사나 직판으로 칩을 사면서 Microchip에 들어온다. 유통 재고가 25일로 역사적 하단에 있는 데다 유통 판매(sell-through)가 전 분기보다 17% 늘어, 이제는 쌓인 재고를 소진하는 단계가 아니라 새 주문이 실제 매출로 이어지는 단계다. 공급이 빠듯해지자 회사는 폭넓은 가격 인상으로 마진을 더 끌어올리고 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "earnings": {
+    "period": "Q1 FY2027 (ended 2026-06-30)",
+    "revenue": { "value": 1.4847, "unit": "USD bn", "yoy": 38.0 },
+    "grossMargin": 63.2,
+    "operatingMargin": 22.7,
+    "netMargin": 15.5,
+    "operatingCashFlow": { "value": 0.5115, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.4976, "unit": "USD bn" },
+    "segments": [],
+    "industryMetric": [
+      { "name": "Non-GAAP 총마진·영업이익률 (Q1 FY27)", "value": "63.8%, 35.1% (전년 54.3%, 20.7%)", "src": ["s1"] },
+      { "name": "데이터센터 매출 비중", "value": "Q1 FY27 17.1%, 전년 대비 +97.8%", "src": ["s1", "s3"] },
+      { "name": "데이터센터 매출 (CY2025 → CY2026 전망)", "value": "5.91억 달러(전담 사업부 3.03억 + 카탈로그 약 2.88억) → 약 10억 달러 (애널리스트 요약)", "src": ["s3"] },
+      { "name": "재고일수 / 유통 재고", "value": "자사 175일(3월 185일), 유통 재고 25일", "src": ["s1", "s3"] },
+      { "name": "FY2026 제품군별 매출", "value": "MCU 23.55억(50.0%), 아날로그 13.29억(28.2%), 기타 10.29억(21.8%) 달러, 합계 47.13억", "src": ["s2"] }
+    ],
+    "text": "Q1 FY2027 매출은 14.85억 달러로 1년 전보다 38% 늘었고, GAAP 총마진은 63.2%로 10%포인트 가까이 올라갔다. 재고 조정이 끝나며 공장 가동이 회복되자 고정비 부담이 빠르게 줄었고, non-GAAP 영업이익률은 20.7%에서 35.1%로 뛰었다. 성장의 큰 몫은 데이터센터(+98%)와 방산(+46%)에서 나왔다.",
+    "src": ["s1", "s3"]
+  },
+
+  "useOfCash": {
+    "period": "Q1 FY2027 (2026-04~06)",
+    "items": [
+      { "use": "R&D", "value": 0.3089, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 0.2469, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.0139, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "번 돈은 배당(2.47억 달러)을 먼저 내고 나머지로 빚을 갚는 데 쓰인다. 분기 중 순부채가 약 1.7억 달러 줄었고, 회사는 배당을 넘는 잉여현금은 자사주 매입이나 배당 인상이 아니라 부채 상환에 쓰겠다고 다시 밝혔다. FY2026에는 자사주를 전혀 사지 않았고 일부 분기에는 차입으로 배당을 냈을 만큼, 지금은 재무구조 회복이 우선이다.",
+    "src": ["s1", "s3", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "ai-exposed",
+    "position": "AI 서버 안에서 GPU·CPU와 저장장치를 잇는 PCIe 스위치·리타이머, 그리고 서버 보드의 전원 관리·보안·메모리 칩을 공급한다. 연산 칩이 아니라 연결·관리용 부품이다.",
+    "dependsOn": ["semicap-foundry (외부 파운드리 웨이퍼, 매출의 약 65%)", "기판·후공정 업체 (리드타임 증가)"],
+    "sellsTo": ["cloud-infrastructure (서버·스토리지 제조사, 하이퍼스케일러 - 이름 미공개)", "networking (스위치·스토리지 장비)"],
+    "aiRevenue": "데이터센터 매출 CY2025 5.91억 달러, CY2026 약 10억 달러 전망 (애널리스트 요약, 2026-08-14). Q1 FY27 매출의 17.1%, 전년 대비 +97.8% (실적 발표). AI만 따로 떼어낸 금액은 미공개.",
+    "upside": "AI 서버가 늘수록 GPU와 저장장치를 잇는 PCIe Gen6 스위치·리타이머 수요가 커지고, 설계 채택 14건이 양산으로 넘어가면 데이터센터 비중이 더 올라간다. 서버 보드마다 들어가는 전원·보안 칩도 함께 팔린다.",
+    "risk": "PCIe 스위치 시장에는 Broadcom이라는 강한 선두가 있고, PCIe Gen6 제품은 아직 양산 전이다. AI 수요가 공유 생산능력을 잡아먹어 다른 제품 공급이 늦어질 수 있다는 점도 회사가 언급했다.",
+    "text": "그래서 AI 가치사슬에서 Microchip은 'AI 영향권'에 있는 연결·관리 칩 회사다. AI 투자는 데이터센터 매출을 통해 들어오며, 이 매출은 2025년 5.9억 달러에서 2026년 약 10억 달러로 커질 것으로 보인다. 다만 매출의 대부분은 여전히 산업·방산·자동차용 MCU와 아날로그다.",
+    "src": ["s3", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "MCU (8·16·32비트)", "rivals": ["STMicroelectronics", "NXP", "Renesas", "Infineon", "Texas Instruments"], "position": "challenger", "share": null, "src": ["s2"] },
+      { "arena": "아날로그·전원 관리", "rivals": ["Texas Instruments", "Analog Devices", "Infineon", "onsemi"], "position": "follower", "share": null, "src": ["s2"] },
+      { "arena": "데이터센터 PCIe 스위치·리타이머", "rivals": ["Broadcom", "Astera Labs"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "방산·항공우주 반도체", "rivals": ["Analog Devices", "Texas Instruments"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "넓은 카탈로그와 긴 제품 수명, 방산 인증, 유통 재고가 바닥인 상태에서의 빠른 회복, 그리고 PCIe Gen6 설계 채택 증가.",
+    "threats": "중국·대만 업체의 모방 제품과 현지화(회사가 10-K에서 직접 언급), PCIe에서 Broadcom·Astera Labs의 선점, 경쟁사 가격 정책.",
+    "text": "MCU와 아날로그에서는 ST·NXP·Renesas·TI 같은 대형사와 비슷한 고객을 두고 다투는데, Microchip은 카탈로그 폭과 고객 수로 버틴다. 회사는 10-K에서 경쟁사 이름 대신 '중국·대만 업체의 모방'을 위협으로 꼽았다. 데이터센터 연결 칩에서는 Broadcom·Astera Labs를 쫓는 도전자로, PCIe Gen6 양산이 승부처다.",
+    "src": ["s2", "s3"]
+  },
+
+  "strategy": {
+    "goal": "장기 총마진 65% 목표(이번 분기 가이드 66~67%로 이미 상회), 순부채/EBITDA를 2.85배에서 2.5배 아래로 낮추기, 데이터센터·방산을 성장축으로 (애널리스트 요약).",
+    "roadmap": [
+      { "when": "Q2 FY2027 (2026-07~09)", "what": "매출 15.89억~16.18억 달러, non-GAAP 총마진 66~67% 가이드", "src": ["s1"] },
+      { "when": "2026-08 중순~12월 분기", "what": "약 10만 품목 가격 인상이 12월 분기에 온전히 반영", "src": ["s3"] },
+      { "when": "FY2027", "what": "설비투자 약 1억 달러, 미가동 비용 계속 감소", "src": ["s3"] },
+      { "when": "CY2026", "what": "데이터센터 매출 약 10억 달러, PCIe Gen6 스위치·리타이머 양산 진입", "src": ["s3"] }
+    ],
+    "vision": "산업·자동차·방산·데이터센터의 '임베디드 제어'를 하드웨어와 소프트웨어로 통째 공급하는 회사가 되겠다는 그림이다.",
+    "text": "이 경쟁에서 회사가 택한 길은 회복기에 마진과 재무구조를 먼저 다지는 것이다. 가격 인상과 가동률 회복으로 총마진을 장기 목표 65% 위로 올리고, 남는 현금은 빚을 갚아 레버리지를 2.5배 아래로 낮춘다. 성장 쪽에서는 데이터센터 PCIe Gen6와 방산 수요에 기대고 있다.",
+    "src": ["s3", "s1"]
+  },
+
+  "governance": {
+    "line": "Steve Sanghi가 2024-11 임시 CEO, 2025-07 정식 CEO로 복귀해 회장을 겸하며, 분기 배당 45.5센트를 유지하되 남는 현금은 자사주보다 부채 상환에 쓰는 기조다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q2 FY2027 (2026-09 분기)", "metric": "revenue", "value": "15.89억~16.18억 달러 (전 분기 대비 +7~9%)", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "gross margin", "value": "GAAP 65.4~66.3%, non-GAAP 66.0~67.0%", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "operating margin", "value": "GAAP 28.1~28.9%, non-GAAP 38.5~39.5%", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "Q2 FY2027", "metric": "diluted EPS", "value": "GAAP 0.53~0.54달러, non-GAAP 0.91~0.95달러", "givenOn": "2026-08-06", "src": ["s1"] },
+      { "period": "FY2027", "metric": "capex", "value": "약 1억 달러 (9월 분기 0.2억~0.25억)", "givenOn": "2026-08-06", "src": ["s3"] }
+    ],
+    "style": "quarterly",
+    "track": "Q1 FY2027 매출 14.85억 달러는 컨센서스 14.6억 달러를 넘었고, non-GAAP 총마진은 전 분기보다 2.2%포인트 올랐다.",
+    "src": ["s3", "s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기(2026-09~2027-06) 합계 3.50달러(범위 3.23~3.81), 직전 4개 분기 1.64달러. 최근 4주 상향 4건·하향 0건.",
+    "src": ["s5"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q2 FY2027 매출·총마진이 가이드(15.89억~16.18억 달러, 66~67%) 충족·상회",
+      "가격 인상 효과로 12월 분기 총마진이 더 오름",
+      "유통 판매(sell-through) 증가가 이어지고 유통 재고가 낮게 유지",
+      "PCIe Gen6 설계 채택이 양산 매출로 전환",
+      "순부채/EBITDA가 2.5배 아래로 내려감"
+    ],
+    "breaks": [
+      "산업 수요 회복이 한두 분기 반짝에 그침",
+      "가격 인상 뒤 고객 주문 축소나 경쟁사 저가 공세",
+      "기판·후공정 병목으로 출하 지연",
+      "자사 재고일수가 다시 늘어남",
+      "중국 매출(18%) 관련 무역 규제·현지화 가속"
+    ],
+    "keyNumbers": [
+      { "name": "non-GAAP 총마진", "why": "가동률 회복과 가격 인상이 이익으로 바뀌는지" },
+      { "name": "데이터센터 매출 비중", "why": "AI 수요가 들어오는 줄" },
+      { "name": "유통 재고일수와 sell-through", "why": "실수요 회복인지 재고 쌓기인지" },
+      { "name": "순부채/EBITDA", "why": "부채 상환 우선 정책의 진행" },
+      { "name": "미가동 비용", "why": "자체 팹 가동률 회복 정도" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-05 (미국 동부 17:00)", "event": "Q2 FY2027 실적 발표·컨퍼런스 콜", "src": ["s4"] },
+      { "date": "매 분기", "event": "TI·NXP·STMicro·onsemi 실적과 산업·자동차 수요 발언", "src": ["s2"] }
+    ],
+    "reaction": "주가는 다음 분기 매출 가이드와 총마진 방향, 그리고 재고 사이클이 바닥을 지났다는 신호(유통 재고·sell-through)에 반응한다. 회복 초기 국면이라 가이드가 전 분기 대비 얼마나 늘어나는지가 숫자 자체보다 크게 읽힌다.",
+    "conditions": [
+      "다음 분기 매출·총마진 가이드와 컨센서스의 차이",
+      "가격 인상 효과와 고객 반응 언급",
+      "유통 재고일수·sell-through 변화",
+      "데이터센터·방산 성장률",
+      "순부채 감소 속도",
+      "컨센서스 EPS 상향·하향 건수 추이 (현재 상향 4건)"
+    ]
+  },
+
+  "unverified": [
+    "Q1 FY2027 제품군·최종시장별 매출 금액 (실적 발표 미공개; 비중 수치는 Futurum 요약에서만 확인)",
+    "데이터센터 매출 CY2025 5.91억 달러·CY2026 약 10억 달러 전망은 콜 원문이 아닌 2차 요약(s3)에서만 확인",
+    "Q1 FY2027 실제 부채 상환액 (순부채 약 1.7억 달러 감소만 확인)",
+    "netMargin 15.5%는 순이익 2.298억 달러 기준, 보통주 귀속(2.02억 달러, 13.6%)과 다름 - 차이는 전환우선주 배당",
+    "MCU·아날로그·PCIe 시장 점유율",
+    "경쟁사 이름: 10-K는 경쟁사를 특정하지 않으며(중국·대만 모방 업체만 언급), competition.arenas의 rivals는 업계 일반 구도로 적은 것이라 출처 문서에서 확인되지 않음",
+    "외부 파운드리 업체명",
+    "10-K 제출일 (s2 날짜는 회계연도 말)"
+  ],
+  "confidence": "medium - 실적·가이던스는 8-K와 10-K에서 왔지만 최종시장 비중·데이터센터 금액·가격 인상은 콜 원문이 아닌 애널리스트 요약에서 왔고, 2026-11-05 새 실적이 곧 나온다."
+}

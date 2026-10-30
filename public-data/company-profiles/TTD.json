@@ -1,0 +1,222 @@
+{
+  "symbol": "TTD",
+  "name": "The Trade Desk, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (FY2025 ended 2025-12-31)",
+  "oneLine": "The Trade Desk는 광고주와 대행사가 Google·Amazon 바깥의 '열린 인터넷'과 스트리밍 TV 광고를 AI로 사들이는 플랫폼으로, 2026년 성장이 급격히 꺾이고 Q3에는 매출 감소를 예고해 AI 광고 경쟁에서 독립 플랫폼이 살아남을지가 시험대에 올랐다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "The Trade Desk Reports Second Quarter 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001671933/000167193326000085/ttd-20260806x8kexx991.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s2", "kind": "10-Q", "title": "The Trade Desk Form 10-Q for quarter ended 2026-06-30", "url": "https://www.sec.gov/Archives/edgar/data/0001671933/000167193326000086/ttd-20260630.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2026-08-06" },
+    { "id": "s3", "kind": "10-K", "title": "The Trade Desk Form 10-K for fiscal year ended 2025-12-31", "url": "https://www.sec.gov/Archives/edgar/data/1671933/000167193326000014/ttd-20251231.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2026-02-27" },
+    { "id": "s4", "kind": "8-K", "title": "The Trade Desk 8-K Item 2.05: organizational realignment, ~15% workforce reduction, $39-51 million charges", "url": "https://www.sec.gov/Archives/edgar/data/1671933/000119312526382690/d118889d8k.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2026-09-04" },
+    { "id": "s5", "kind": "8-K", "title": "The Trade Desk 8-K Item 5.02: CEO Jeff Green performance option, exercise price $14.97, price targets $18-$105", "url": "https://www.sec.gov/Archives/edgar/data/1671933/000167193326000099/ttd-20260914.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2026-09-15" },
+    { "id": "s6", "kind": "8-K", "title": "The Trade Desk 8-K Item 5.07: special meeting approves stock option repricing (441.1M for, 232.5M against votes)", "url": "https://www.sec.gov/Archives/edgar/data/1671933/000167193326000108/ttd-20261019.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2026-10-20" },
+    { "id": "s7", "kind": "proxy", "title": "The Trade Desk definitive proxy for 2026 special meeting (option repricing)", "url": "https://www.sec.gov/Archives/edgar/data/1671933/000167193326000102/a2026specialmeetingdefinit.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2026-09-18" },
+    { "id": "s8", "kind": "10-Q", "title": "The Trade Desk Form 10-Q for quarter ended 2025-09-30 (Q3 2025 revenue base)", "url": "https://www.sec.gov/Archives/edgar/data/1671933/000167193325000144/ttd-20250930.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2025-11-06" },
+    { "id": "s9", "kind": "8-K", "title": "The Trade Desk 8-K Items 3.01/5.02: two directors resign; Nasdaq committee-composition noncompliance notice", "url": "https://www.sec.gov/Archives/edgar/data/1671933/000167193326000025/ttd-20260319.htm", "publisher": "The Trade Desk / SEC EDGAR", "date": "2026-03-25" },
+    { "id": "s10", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/ttd/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s11", "kind": "other", "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - TTD 2026-11-09 after close, not company-confirmed", "url": "https://finnhub.io/docs/api/earnings-calendar", "publisher": "Finnhub via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "광고 매체를 소유하지 않는 '구매자 편' 독립 플랫폼 - 자사 매체를 밀어줄 이해충돌이 없다는 신뢰 (10-K)",
+      "초당 수백만 건 입찰을 처리하는 자체 입찰 엔진과 AI 기반 최적화 플랫폼 Kokai (10-K)",
+      "스트리밍 TV(CTV)·리테일 데이터·매체사 직접 연결(OpenPath)을 묶은 공급 생태계 - Netflix·Samsung Ads 등 (10-K, Q2 2026 발표)",
+      "쿠키 이후 광고 식별 표준으로 밀고 있는 오픈소스 Unified ID 2.0 (10-K)",
+      "10년 넘게 95% 이상인 고객 유지율 (Q2 2026 발표)"
+    ],
+    "text": "The Trade Desk의 힘은 스스로 광고 매체를 갖지 않고 광고를 사는 쪽만 돕는다는 '독립성'에서 나온다. Google·Amazon처럼 자기 매체를 함께 파는 회사와 달리 어느 매체에서 사든 중립적이라는 점을 대행사들이 믿고 예산을 맡겨 왔다. 여기에 스트리밍 TV·리테일 데이터·매체사 직접 연결을 넓혀 Netflix 같은 대형 매체까지 자동 구매 대상으로 끌어들였다.",
+    "src": ["s3", "s1"]
+  },
+
+  "design": {
+    "text": "이 독립성 위에서 회사가 만드는 것은 하나의 셀프서비스 광고 구매 플랫폼(DSP)이다. 광고주와 대행사는 이 플랫폼에서 스트리밍 TV·동영상·모바일·오디오·디스플레이 광고를 한 화면으로 계획·집행·측정하고, Kokai의 AI가 입찰 가격과 대상을 정한다. 회사는 에이전트형 코파일럿으로 데이터 구매를 단순화하는 Audience Unlimited 같은 기능을 개발 중이라고 밝혔다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "전 세계 데이터센터 - 플랫폼 호스팅 (10-K, 운영사 이름 미공시)",
+      "매체 공급사·SSP·매체사 - 광고 지면 공급 (Netflix, Samsung Ads 등) (Q2 2026 발표)",
+      "데이터 공급사 - 리테일·여행 데이터 (Booking.com, Uber, United Airlines 등 통합) (Q2 2026 발표)",
+      "Databricks·Adobe - 1차 데이터·에이전트 AI 연결 파트너 (Q2 2026 발표)"
+    ],
+    "text": "만드는 방식은 자체 소프트웨어를 전 세계 데이터센터에서 돌리는 것이다. 광고 지면은 매체사와 공급 플랫폼에서, 타깃팅 데이터는 리테일·여행 회사에서 받아 플랫폼에 연결하고, 2026년 2분기에는 Databricks·Adobe와 1차 데이터 연동을 넓혔다. 회사는 AI·머신러닝 확대로 호스팅 비용이 늘고 데이터센터 부품 가격이 오르고 있다고 밝혔다.",
+    "src": ["s3", "s1", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "광고대행사와 그 지주회사 - 지주회사 단위로 묶으면 2곳이 각각 2025년 총 청구액의 10% 초과 (10-K)",
+      "직접 거래 광고주와 대행사 서비스 회사 (10-K)",
+      "지역별 2025년 매출: 미국 24.77억, 해외 4.20억 달러 (10-K)"
+    ],
+    "channel": "대행사·광고주와 기본 서비스 계약(MSA)을 맺고 셀프서비스 플랫폼과 API로 직접 사용하게 한다 (10-K).",
+    "concentration": "대행사 지주회사 단위로 합산하면 2곳이 각각 2025년 총 청구액의 10% 초과 (10-K). 개별 계약은 대행사·지점 단위로 나뉜다.",
+    "text": "이 플랫폼을 쓰는 고객은 대부분 광고대행사이고, 이들이 광고주의 예산을 들고 와 집행한다. 그래서 대행사 지주회사 몇 곳의 결정이 매출을 크게 좌우하며, 2025년에는 지주회사 2곳이 각각 청구액의 10%를 넘었다. 2026년 2분기 매출 증가는 신규 고객 덕분이었고 기존 고객의 집행액은 오히려 줄었다고 회사가 공시했다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "광고주", "to": "광고대행사", "what": "광고 예산 집행 위임" },
+      { "from": "광고대행사", "to": "The Trade Desk", "what": "광고 지면·데이터 구매 대금 + 집행액의 일정 비율 플랫폼 수수료" },
+      { "from": "The Trade Desk", "to": "매체사·공급 플랫폼 (Netflix, Samsung Ads 등)", "what": "낙찰된 광고 지면 대금 전달" },
+      { "from": "The Trade Desk", "to": "데이터 공급사", "what": "타깃팅 데이터 사용료 전달" }
+    ],
+    "pricing": "고객의 플랫폼 총 집행액(gross spend)의 일정 비율을 플랫폼 수수료로 받고, 데이터·측정 같은 부가 서비스 요금을 더한다. 매출은 수수료 순액 기준이다.",
+    "text": "그래서 돈은 광고주 예산이 대행사를 거쳐 이 플랫폼으로 들어오고, 대부분은 매체사와 데이터 회사로 넘어가며 회사는 그중 수수료만 매출로 잡는다. 2025년 총 집행액은 133.9억 달러(+11%)였고 매출은 29.0억 달러로, 집행액의 약 22%가 회사 몫이다. 2026년에는 공동 사업계획에 따른 물량 할인이 매출을 깎았다고 회사가 밝혔다.",
+    "src": ["s3", "s2"]
+  },
+
+  "earnings": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "revenue": { "value": 2.896, "unit": "USD bn", "yoy": 18 },
+    "grossMargin": null,
+    "operatingMargin": 20.3,
+    "netMargin": 15.3,
+    "operatingCashFlow": { "value": 0.993, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.783, "unit": "USD bn" },
+    "segments": [
+      { "name": "United States", "revenue": 2.477, "unit": "USD bn", "share": 85.5, "yoy": 16, "operatingMargin": null, "src": ["s3"] },
+      { "name": "International", "revenue": 0.42, "unit": "USD bn", "share": 14.5, "yoy": 35, "operatingMargin": null, "src": ["s3"] }
+    ],
+    "industryMetric": [
+      { "name": "총 집행액 (gross spend)", "value": "2025년 133.9억 달러(+11%)", "src": ["s3"] },
+      { "name": "Adjusted EBITDA", "value": "2025년 11.96억 달러(+18%), 이익률 약 41%", "src": ["s3"] },
+      { "name": "최근 분기 (Q2 2026)", "value": "매출 7.15억 달러(+3%), 순이익 0.64억 달러, Adjusted EBITDA 2.41억 달러(이익률 34%, 전년 39%)", "src": ["s1"] },
+      { "name": "고객 유지율", "value": "Q2 2026 95% 초과 (10년 넘게 유지)", "src": ["s1"] },
+      { "name": "Q3 2026 매출 가이던스 vs 전년", "value": "6.50억 달러 이상 vs Q3 2025 7.39억 달러 - 약 12% 감소", "src": ["s1", "s8"] }
+    ],
+    "text": "이 수수료 구조가 2025년에 매출 29억 달러(+18%), 영업이익률 약 20%, 영업현금흐름 9.9억 달러를 만들었다. 그런데 2026년 들어 성장이 급격히 꺾여 Q2 매출은 3% 늘어나는 데 그쳤고 EBITDA 이익률도 39%에서 34%로 내려갔다. 회사는 Q3 매출을 6.5억 달러 이상으로 제시했는데, 이는 전년 같은 분기 7.39억 달러보다 약 12% 적어 전년 대비 매출 감소를 예고한 셈이다.",
+    "src": ["s3", "s1", "s8"]
+  },
+
+  "useOfCash": {
+    "period": "FY2025 (ended 2025-12-31)",
+    "items": [
+      { "use": "R&D", "value": 0.525, "unit": "USD bn", "src": ["s3"] },
+      { "use": "capex", "value": 0.21, "unit": "USD bn", "src": ["s3"] },
+      { "use": "buybacks", "value": 1.38, "unit": "USD bn", "src": ["s3"] }
+    ],
+    "text": "2025년에는 잉여현금 7.8억 달러보다 많은 13.8억 달러를 자사주 매입에 썼고, 배당·인수는 없었다. 2026년에는 상반기 매입이 2.4억 달러로 줄었고 6월 말 남은 매입 한도는 2.69억 달러다. 설비투자(서버·장비) 2.1억 달러는 전년의 두 배로, AI·머신러닝용 호스팅 확대 때문에 늘고 있다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 가치사슬의 맨 끝에서 AI로 광고 입찰·타깃팅을 자동화하는 광고 구매 소프트웨어 층. AI 인프라를 파는 쪽이 아니라 AI를 써서 광고주의 돈을 더 효율적으로 쓰게 해 주는 쪽이며, AI가 광고 시장 구조를 바꾸면 그 영향을 직접 받는다.",
+    "dependsOn": [
+      "데이터센터·호스팅 (자체 운영, 부품 가격 상승 영향)",
+      "매체사·공급 플랫폼 (Netflix, Samsung Ads 등 광고 지면)",
+      "데이터 공급사 (리테일·여행 데이터), Databricks·Adobe 1차 데이터 연동"
+    ],
+    "sellsTo": [
+      "광고대행사와 그 지주회사",
+      "직접 거래 광고주",
+      "대행사 서비스 회사"
+    ],
+    "aiRevenue": "AI 관련 매출을 따로 공시하지 않음. Kokai 등 플랫폼 개선과 부가 서비스 가격 인상이 매출을 늘렸다고 설명 (Q2 2026 10-Q).",
+    "upside": "AI가 입찰·측정을 개선해 광고주의 성과가 오르면 집행액과 부가 서비스 요금이 늘어난다. 회사는 AI의 등장으로 새로 생길 수 있는 광고 지면도 기회로 꼽았다.",
+    "risk": "Google·Amazon처럼 매체와 AI를 함께 가진 회사가 광고 구매까지 묶어 가져가면 독립 플랫폼의 몫이 줄어든다. AI 검색·챗봇이 열린 인터넷의 방문자를 줄이면 회사가 살 수 있는 광고 지면 자체가 줄 수 있다(회사 공시에 직접 쓰인 인과는 아님). AI 연산 확대는 호스팅 비용을 키운다.",
+    "text": "그래서 AI 가치사슬에서 The Trade Desk는 칩이나 클라우드가 아니라, AI를 써서 광고를 사 주는 맨 끝 소프트웨어 층에 있다. AI는 입찰을 더 똑똑하게 만드는 무기지만, 같은 무기를 자기 매체·데이터와 함께 가진 거대 플랫폼과의 경쟁이 2026년 성장 둔화로 나타나고 있다. 결국 '독립 플랫폼 + AI'가 '매체 소유자 + AI'를 이길 수 있는지가 이 회사의 AI 이야기다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "광고 구매 플랫폼 (DSP)", "rivals": ["Google (대형 기업 사업부)", "Amazon (대형 기업 사업부)", "소규모 비상장 DSP"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "스트리밍 TV(CTV) 광고 구매", "rivals": ["Amazon", "Google", "매체사 자체 판매"], "position": "leader", "share": null, "src": ["s3", "s1"] },
+      { "arena": "광고 식별·측정 표준", "rivals": ["Google (Chrome 쿠키·광고 정책)", "기기 운영체제 사업자"], "position": "challenger", "share": null, "src": ["s3"] }
+    ],
+    "edge": "매체를 소유하지 않는 독립성과 투명성, 열린 인터넷과 CTV를 한 플랫폼에서 사는 범위, 10년 넘게 95%를 넘는 고객 유지율.",
+    "threats": "Google·Amazon 등 매체·데이터·AI를 함께 가진 대형 플랫폼, 대행사가 매체사와 직접 거래하는 흐름, 기존 고객의 집행액 감소(2026 Q2 공시), 대형 지주회사 의존.",
+    "text": "이 시장의 가장 큰 경쟁자는 10-K가 직접 이름을 댄 Google과 Amazon이다. The Trade Desk는 '자기 매체를 팔지 않는 중립 플랫폼'이라는 점으로 맞서 왔지만, 2026년 2분기에는 기존 고객의 집행액이 줄고 물량 할인까지 해야 했다. 고객 유지율 95%는 고객이 떠나지는 않는다는 뜻이지만, 같은 고객이 예산을 다른 플랫폼으로 나눠 쓰고 있다는 신호도 함께 나왔다.",
+    "src": ["s3", "s2", "s1"]
+  },
+
+  "strategy": {
+    "goal": "열린 인터넷과 스트리밍 TV에서 광고 구매의 기본 플랫폼이 되는 것이 목표이며, 회사는 글로벌 확장, CTV 등 전 채널 지면, 데이터·측정, 리테일 데이터, AI 도입을 핵심 기회로 꼽는다. 2026년에는 실행력 강화와 플랫폼 업그레이드, 우선순위 집중을 내세웠다.",
+    "roadmap": [
+      { "when": "2026 상반기", "what": "CFO(Nate Olmstead)·CMO·CCO 등 경영진 교체와 이사 2명 신규 선임", "src": ["s1"] },
+      { "when": "2026 Q3", "what": "전 직원의 약 15% 감원과 조직 재편, 현금 비용 0.39~0.51억 달러를 Q3에 인식", "src": ["s4"] },
+      { "when": "2026-10-19", "what": "직원 스톡옵션 행사가 재조정(리프라이싱) 주주 승인", "src": ["s6", "s7"] },
+      { "when": "개발 중", "what": "에이전트형 코파일럿으로 데이터 구매를 단순화하는 Audience Unlimited", "src": ["s3"] }
+    ],
+    "vision": "광고 매체를 소유하지 않는 객관적인 구매자 편 플랫폼으로, 디지털화와 시청자 분산이 커질수록 데이터 기반 의사결정과 AI의 가치가 커진다고 본다.",
+    "text": "성장 둔화에 대한 회사의 답은 조직을 줄이고 다시 집중하는 것이다. 상반기에 재무·마케팅·영업 책임자를 바꾸고, 9월에는 직원 15%를 줄였으며, 주가 하락으로 가치를 잃은 직원 스톡옵션을 재조정해 인재 유출을 막으려 한다. CEO Jeff Green은 실적이 '스스로 세운 기준에 못 미쳤다'고 인정하면서도 AI와 측정의 가치가 커지는 방향은 맞다고 말했다.",
+    "src": ["s1", "s4", "s6", "s7"]
+  },
+
+  "governance": {
+    "line": "공동창업자 Jeff Green이 CEO로 1주당 10표인 Class B 주식 구조 위에서 회사를 이끌며, 2026-09 행사가 14.97달러·주가 달성 조건 18~105달러의 성과형 옵션 700만 주를 받았고, 2026-03에는 이사 2명 사임으로 Nasdaq 위원회 구성 미달 통지를 받기도 했다.",
+    "src": ["s3", "s5", "s9"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q3 2026", "metric": "revenue", "value": "6.50억 달러 이상 (Q3 2025 7.39억 달러 대비 약 -12%)", "givenOn": "2026-08-06", "src": ["s1", "s8"] },
+      { "period": "Q3 2026", "metric": "adjusted EBITDA", "value": "약 1.60억 달러", "givenOn": "2026-08-06", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "CEO가 Q2 2026 실적이 '스스로 세운 기준에 못 미쳤다'고 밝혔다. 회사는 연간 가이던스를 내지 않고 다음 분기 매출 하한과 EBITDA만 제시한다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 0.38달러(범위 -0.20~0.73, 5개 추정), 직전 4개 분기 실적 합 0.84달러. 최근 4주 상향·하향 0건. 이 값의 EPS 기준이 회사 non-GAAP EPS(Q2 0.34달러)와 달라 보인다(직전 분기 0.14달러로 기록, GAAP 수치와 같음).",
+    "src": ["s10", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q3 매출이 하한 6.5억 달러를 넘고 Q4 가이던스에서 감소폭이 줄어듦",
+      "기존 고객의 집행액이 다시 늘어남",
+      "구조조정 뒤 EBITDA 이익률이 회복",
+      "CTV·리테일 데이터 신규 파트너(Netflix 등)가 집행액으로 이어짐",
+      "고객 유지율 95% 이상 유지"
+    ],
+    "breaks": [
+      "Q4 가이던스가 다시 감소를 예고",
+      "대형 대행사 지주회사가 예산을 Google·Amazon 등으로 옮겼다는 공시나 보도",
+      "고객 유지율이 95% 아래로 떨어짐",
+      "물량 할인 확대로 수수료율(매출/집행액) 하락",
+      "추가 경영진 이탈"
+    ],
+    "keyNumbers": [
+      { "name": "다음 분기 매출 가이던스", "why": "감소가 일시적인지 판단하는 가장 직접적인 숫자" },
+      { "name": "총 집행액(gross spend) 성장률", "why": "시장 점유율과 고객 예산의 방향" },
+      { "name": "Adjusted EBITDA 이익률", "why": "구조조정 효과와 할인 압력의 결과" },
+      { "name": "고객 유지율", "why": "독립 플랫폼 신뢰가 유지되는지" },
+      { "name": "CTV 비중과 신규 매체 파트너", "why": "성장 축이 살아 있는지" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-09 장 마감 후 (외부 일정표, 회사 미확정)", "event": "Q3 2026 실적과 Q4 가이던스 - 전년 대비 매출 감소 폭 확인", "src": ["s11"] },
+      { "date": "2026 Q4 (10~12월)", "event": "연중 광고 예산이 가장 많이 몰리는 분기", "src": ["s3"] }
+    ],
+    "reaction": "다음 분기 매출 가이던스에 주가가 크게 반응한다. CEO 성과형 옵션의 행사가가 14.97달러로 정해진 점은 2026-09 무렵 주가가 이 수준이었음을 보여준다(2차 보도는 Q2 발표 뒤 하루 약 24% 하락을 전했으나 1차 확인 못 함).",
+    "conditions": [
+      "Q3 실적이 매출 하한 6.5억·EBITDA 1.6억 달러를 넘는지",
+      "Q4 가이던스가 전년 대비 감소인지 증가인지",
+      "구조조정 비용 0.39~0.51억 달러 외에 추가 비용이 있는지",
+      "광고 시장 전체와 대형 플랫폼(Google·Amazon) 광고 매출 흐름"
+    ]
+  },
+
+  "unverified": [
+    "다음 실적 발표일 2026-11-09는 외부 일정표 값이며 회사 공지를 확인하지 못했다.",
+    "총마진은 회사가 매출총이익을 따로 보고하지 않아 null로 뒀다(매출에서 플랫폼 운영비를 빼면 2025년 약 79%).",
+    "영업이익률·순이익률·잉여현금흐름(영업현금흐름 - 설비투자 1.97억 - 자본화 소프트웨어 0.13억)은 10-K 수치로 계산했다.",
+    "Q2 발표 뒤 주가 하락폭(약 24%)은 2차 보도(ppc.land 검색 결과)로만 봤다.",
+    "성장 둔화의 원인(어느 대행사·어느 경쟁사로 예산이 옮겨 갔는지)은 1차 자료에 나오지 않는다. 콜 발언은 이번 조사에서 확인하지 못했다.",
+    "CTV가 집행액에서 차지하는 비중과 경쟁사별 점유율은 확인하지 못했다.",
+    "AI 검색이 열린 인터넷 광고 지면을 줄인다는 위험은 일반적 해석이며 회사 공시에 그대로 쓰인 문장은 아니다.",
+    "컨센서스 EPS의 기준이 회사 non-GAAP EPS와 다르게 보인다(직전 분기 0.14달러는 GAAP 수치와 같음)."
+  ],
+  "confidence": "medium - 재무·지배구조 사건은 SEC 원문으로 확인했지만, 성장 둔화의 원인과 콜 내용은 1차 자료로 확인하지 못했다"
+}

@@ -1,0 +1,716 @@
+{
+  "symbol": "MSFT",
+  "name": "Microsoft Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "June 30 (FY2026 ended 2026-06-30)",
+  "oneLine": "Microsoft는 기업이 매일 쓰는 업무 소프트웨어(Microsoft 365)와 클라우드(Azure)를 구독·사용량으로 파는 회사로, 지금은 OpenAI·Anthropic 모델을 돌리는 AI 클라우드에 분기 450억 달러 넘는 설비투자를 쏟아부으며 Azure를 48% 키우는 중이다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "Microsoft FY26 Fourth Quarter press release (quarter and fiscal year ended 2026-06-30)",
+      "url": "https://www.microsoft.com/en-us/investor/earnings/FY-2026-Q4/press-release-webcast",
+      "publisher": "Microsoft Investor Relations",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "s2",
+      "kind": "8-K",
+      "title": "Microsoft 8-K Exhibit 99.1 - FY27 segments and investor metrics presentation (FY26 recast, FY27 Q1 outlook; published September 2026, day not checked - date shown is month start)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000789019/000119312526380280/d291965dex991.htm",
+      "publisher": "Microsoft / SEC EDGAR",
+      "date": "2026-09-01"
+    },
+    {
+      "id": "s3",
+      "kind": "10-K",
+      "title": "Microsoft Form 10-K for fiscal year ended 2026-06-30 (filed date from AIO sec-fundamentals filedAt)",
+      "url": "https://www.sec.gov/Archives/edgar/data/0000789019/000119312526323660/msft-20260630.htm",
+      "publisher": "Microsoft / SEC EDGAR",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "s4",
+      "kind": "call-transcript",
+      "title": "Microsoft (MSFT) Q4 2026 Earnings Call Transcript (call held 2026-07-29)",
+      "url": "https://www.fool.com/earnings/call-transcripts/2026/08/07/microsoft-msft-q4-2026-earnings-call-transcript/",
+      "publisher": "The Motley Fool",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "s5",
+      "kind": "news",
+      "title": "Microsoft Q4 FY2026 call coverage: capacity constraints, capex acceleration, 30M Copilot seats",
+      "url": "https://www.directionsonmicrosoft.com/microsoft-expect-capacity-constraints-capex-acceleration-to-continue/",
+      "publisher": "Directions on Microsoft",
+      "date": "2026-07-30"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "Microsoft announces quarterly earnings release date (FY27 Q1 results after market close 2026-10-28; accessed date)",
+      "url": "https://finviz.com/news/400058/microsoft-announces-quarterly-earnings-release-date",
+      "publisher": "Finviz (company release text)",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s7",
+      "kind": "ir-site",
+      "title": "Microsoft announces quarterly dividend ($0.91 per share, payable 2026-09-10)",
+      "url": "https://news.microsoft.com/source/2026/06/10/microsoft-announces-quarterly-dividend-29/",
+      "publisher": "Microsoft",
+      "date": "2026-06-10"
+    },
+    {
+      "id": "s8",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/msft/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-27"
+    },
+    {
+      "id": "s9",
+      "kind": "news",
+      "title": "Microsoft retains 27% stake in OpenAI valued at $135 bn in new deal ($250B Azure commitment, IP rights to 2032, no right of first refusal)",
+      "url": "https://www.business-standard.com/world-news/microsoft-retains-27pc-stake-in-openai-valued-at-135-bn-new-deal-125102801567_1.html",
+      "publisher": "Business Standard",
+      "date": "2025-10-28"
+    },
+    {
+      "id": "s10",
+      "kind": "other",
+      "title": "Q2 Cloud Market Passes $143 Billion; Highest Growth Rate in Eight Years (share figures read from search summary)",
+      "url": "https://www.srgresearch.com/articles/q2-cloud-market-passes-143-billion-highest-growth-rate-in-eight-years",
+      "publisher": "Synergy Research Group",
+      "date": "2026-07-30"
+    },
+    {
+      "id": "s11",
+      "kind": "news",
+      "title": "Anthropic, Microsoft Azure, Nvidia ink $30 billion compute pact (Microsoft to invest up to $5B in Anthropic)",
+      "url": "https://www.constellationr.com/insights/news/anthropic-microsoft-azure-nvidia-ink-30-billion-compute-pact",
+      "publisher": "Constellation Research",
+      "date": "2025-11-18"
+    },
+    {
+      "id": "s12",
+      "kind": "news",
+      "title": "Microsoft announces new 'faster and more cost-efficient' AI chip (Maia 200, TSMC 3nm, inference)",
+      "url": "https://finance.yahoo.com/news/microsoft-announces-faster-more-cost-165819818.html",
+      "publisher": "Yahoo Finance (dpa)",
+      "date": "2026-01-27"
+    },
+    {
+      "id": "s13",
+      "kind": "other",
+      "title": "Microsoft earnings date fiscal Q1 2027: report time, estimates and expected move (preview; consensus figures differ by source)",
+      "url": "https://www.cmelitegroup.com/knowledge-hub/microsoft-earnings-date-fiscal-q1-2027-report-time-estimates-and-expected-move/",
+      "publisher": "CME Lite Group",
+      "date": "2026-10-08"
+    },
+    {
+      "id": "s14",
+      "kind": "ir-site",
+      "title": "Amazon will share its Q3 2026 earnings on October 29",
+      "url": "https://www.aboutamazon.com/md/news/company-news/amazon-earnings-q3-2026-report",
+      "publisher": "Amazon",
+      "date": "2026-10-15"
+    },
+    {
+      "id": "s15",
+      "kind": "earnings-release",
+      "title": "Microsoft FY27 First Quarter press release (quarter ended 2026-09-30)",
+      "url": "https://www.microsoft.com/en-us/investor/earnings/FY-2027-Q1/press-release-webcast",
+      "publisher": "Microsoft Investor Relations",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s16",
+      "kind": "earnings-release",
+      "title": "Microsoft FY27 Q1 cash flows and income statements (investor relations financial statements)",
+      "url": "https://www.microsoft.com/en-us/investor/earnings/FY-2027-Q1/cash-flows",
+      "publisher": "Microsoft Investor Relations",
+      "date": "2026-10-28"
+    },
+    {
+      "id": "s17",
+      "kind": "call-transcript",
+      "title": "Microsoft (MSFT) Q1 2027 Earnings Call Transcript (call held 2026-10-28)",
+      "url": "https://stockanalysis.com/stocks/msft/transcripts/718712-q1-2027/",
+      "publisher": "StockAnalysis",
+      "date": "2026-10-28"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "기업 IT 표준에 묶인 고객 기반 - Microsoft 365·Windows·보안·개발도구(GitHub 사용자 2억 2,500만 명)를 한 계약으로 묶어 파는 번들",
+      "세계 2위 클라우드(Azure) 규모 - FY2026 Azure 매출 1,019억 달러, 2026년 2분기 시장 점유율 약 20%",
+      "OpenAI 지분 약 27%와 2032년까지의 모델·지식재산 사용권, 여기에 Anthropic·Mistral·xAI 모델까지 올린 Foundry 카탈로그",
+      "6,780억 달러의 계약 잔고(상업 RPO)로 미리 확보된 수요"
+    ],
+    "text": "Microsoft의 힘은 기업이 이미 쓰고 있는 Office·Windows·보안·GitHub 위에 새 제품을 한 계약으로 얹어 팔 수 있다는 데서 나온다. 같은 기업 고객이 Azure 클라우드와 Copilot까지 사게 되면서, FY2026 Azure 매출은 1,019억 달러로 처음 1,000억 달러를 넘었다. 여기에 OpenAI 지분 약 27%와 2032년까지의 모델 사용권이 더해져, 최신 AI 모델을 자기 제품과 클라우드에 가장 먼저 넣을 수 있는 자리를 갖고 있다.",
+    "src": [
+      "s2",
+      "s4",
+      "s9",
+      "s10"
+    ]
+  },
+  "design": {
+    "text": "이 고객 기반에 회사가 내놓는 제품은 FY2027부터 두 부문으로 보고된다. Agents and Infra에는 Azure 클라우드·AI 플랫폼(Foundry), Microsoft 365 상업 클라우드와 Copilot, GitHub, Dynamics 365·LinkedIn 같은 업무 앱, 서버 라이선스가 들어가고, Devices and Consumer에는 Windows·Surface, Xbox, 검색·광고(Bing)가 들어간다. 클라우드 안쪽에서는 자체 AI 추론 칩 Maia 200과 자체 MAI 모델도 직접 설계한다.",
+    "src": [
+      "s2",
+      "s4",
+      "s12"
+    ]
+  },
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "NVIDIA - Azure AI 데이터센터의 GPU 시스템 (Vera Rubin 랙 배치 계획)",
+      "AMD - Helios 랙 규모 GPU 인프라 배치 계획",
+      "TSMC - 자체 AI 추론 칩 Maia 200 생산 (3나노)",
+      "데이터센터 부지·전력·리스 사업자 - FY2027부터 일부 데이터센터 계약을 금융리스에서 운용리스로 전환",
+      "OpenAI - 모델과 지식재산을 공급받는 파트너 (2032년까지 사용권)",
+      "PC OEM - Windows가 설치된 PC를 만들어 판매"
+    ],
+    "text": "소프트웨어는 직접 만들지만, 그 소프트웨어를 돌리는 데이터센터는 NVIDIA·AMD의 GPU와 TSMC가 생산하는 자체 칩 Maia 200을 섞어서 짓는다. 회사는 Maia 200이 기존 장비보다 달러당 성능이 약 30% 낫다고 밝혔고, Q4 FY2026에만 데이터센터 31곳·약 1GW를 추가해 2년 안에 전체 용량을 두 배로 늘리는 중이다. 건물과 전력은 상당 부분 리스로 확보하기 때문에, 설비투자 수치에는 리스 방식 변화가 함께 섞여 있다.",
+    "src": [
+      "s4",
+      "s12",
+      "s5"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "대기업·정부·중소기업 - Microsoft 365, Azure, Dynamics 365, 보안",
+      "AI 연구소 - OpenAI(Azure 2,500억 달러 구매 약정), Anthropic(Azure 300억 달러 구매 약정)",
+      "개발자 - GitHub(사용자 2억 2,500만 명), GitHub Copilot(5,000만 명), Foundry(고객 10만 곳)",
+      "PC OEM과 개인 소비자 - Windows, Xbox, Microsoft 365 개인용, Bing 광고주"
+    ],
+    "channel": "대기업은 직접 영업과 다년 엔터프라이즈 계약, 중소기업은 리셀러·클라우드 솔루션 파트너, PC는 OEM 사전 설치, 소비자와 게임은 온라인 스토어로 판다.",
+    "concentration": "10% 이상 단일 고객 공시는 확인 못함. 다만 상업 RPO 6,780억 달러는 전년 대비 84% 늘었지만 OpenAI를 빼면 25% 증가에 그쳐, 미래 매출 잔고에서 OpenAI 비중이 크다.",
+    "text": "만든 제품은 주로 이미 거래 중인 기업에 다년 계약으로 팔리고, 이제 OpenAI·Anthropic 같은 AI 연구소가 가장 큰 새 구매자가 됐다. OpenAI는 Azure를 2,500억 달러어치 사겠다고 약정했고, Anthropic도 300억 달러 약정을 맺었다. 그래서 계약 잔고(RPO)는 84% 늘었지만 OpenAI를 빼면 25% 증가라, 한 고객에 쏠린 정도가 이 회사의 새 위험이 됐다.",
+    "src": [
+      "s1",
+      "s4",
+      "s9",
+      "s11"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "기업 직원 (좌석)",
+        "to": "Microsoft",
+        "what": "Microsoft 365·Copilot 좌석당 월 구독료 (다년 계약)"
+      },
+      {
+        "from": "기업·개발자·스타트업",
+        "to": "Microsoft (Azure)",
+        "what": "연산·저장·AI 모델 호출 사용량 과금, 일부는 약정 할인 계약"
+      },
+      {
+        "from": "OpenAI·Anthropic",
+        "to": "Microsoft (Azure)",
+        "what": "AI 학습·추론 연산 용량 장기 구매 약정 (OpenAI 2,500억, Anthropic 300억 달러)"
+      },
+      {
+        "from": "PC 구매자 → PC OEM",
+        "to": "Microsoft",
+        "what": "Windows 라이선스료 (PC 한 대당)"
+      },
+      {
+        "from": "Microsoft",
+        "to": "NVIDIA·AMD·TSMC·데이터센터 리스 사업자",
+        "what": "GPU·자체 칩 생산·건물·전력 대금 (FY2026 유형자산 취득 1,159억 달러)"
+      },
+      {
+        "from": "Microsoft",
+        "to": "OpenAI·Anthropic",
+        "what": "지분 투자 (OpenAI 약 27% 보유, Anthropic 최대 50억 달러 투자 약정)"
+      }
+    ],
+    "pricing": "Microsoft 365·Copilot은 좌석당 구독, Azure는 사용량 과금과 장기 용량 약정, GitHub Copilot은 2026-06부터 사용량 기반 과금으로 바뀐 뒤 매출이 전분기 대비 60% 넘게 늘었다. Windows는 PC당 라이선스, Bing은 광고 클릭 과금이다.",
+    "text": "돈은 크게 두 줄기로 들어온다. 기업 직원 수만큼 받는 좌석 구독료가 안정적인 바닥을 깔고, AI 연구소와 기업이 쓴 만큼 내는 Azure 사용료가 성장 속도를 만든다. 들어온 돈은 다시 NVIDIA·AMD GPU와 데이터센터로 나가고, 일부는 OpenAI·Anthropic 지분으로 들어가 그 회사들이 다시 Azure를 사는 순환 구조를 이룬다.",
+    "src": [
+      "s1",
+      "s4",
+      "s9",
+      "s11"
+    ]
+  },
+  "earnings": {
+    "period": "Q1 FY2027 (ended 2026-09-30)",
+    "revenue": {
+      "value": 92.279,
+      "unit": "USD bn",
+      "yoy": 19
+    },
+    "grossMargin": 67.8,
+    "operatingMargin": 49.8,
+    "netMargin": 39.7,
+    "operatingCashFlow": {
+      "value": 58,
+      "unit": "USD bn"
+    },
+    "freeCashFlow": {
+      "value": 18.633,
+      "unit": "USD bn"
+    },
+    "segments": [
+      {
+        "name": "Agents and Infra",
+        "revenue": 76.795,
+        "unit": "USD bn",
+        "share": 83.2,
+        "yoy": 25,
+        "operatingMargin": 52.8,
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "name": "Devices and Consumer",
+        "revenue": 15.484,
+        "unit": "USD bn",
+        "share": 16.8,
+        "yoy": -3,
+        "operatingMargin": 34.6,
+        "src": [
+          "s15"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "Azure 매출 (Q1 FY27, 첫 별도 공시)",
+        "value": "331.65억 달러, +48% (가이던스 고정환율 44~45%)",
+        "src": [
+          "s15"
+        ]
+      },
+      {
+        "name": "상업 잔여이행의무 (RPO)",
+        "value": "6,770억 달러, +73%, 가중 평균 잔존기간 2.3년, 약 30%가 12개월 안에 인식 (OpenAI 제외 증가율은 이번 분기 미공개)",
+        "src": [
+          "s15",
+          "s17"
+        ]
+      },
+      {
+        "name": "Microsoft Cloud 매출·총마진",
+        "value": "639억 달러(+30%), 클라우드 총마진 66% (Azure 비중 확대로 전년보다 하락)",
+        "src": [
+          "s15",
+          "s17"
+        ]
+      },
+      {
+        "name": "설비투자 (금융리스 포함)",
+        "value": "452억 달러 (금융리스 74억 포함, 현금 유형자산 취득 394억), 약 4분의 3이 GPU·CPU 등 수명이 짧은 장비",
+        "src": [
+          "s16",
+          "s17"
+        ]
+      },
+      {
+        "name": "상업 예약(bookings)",
+        "value": "전년 대비 -12% (전년의 대형 Azure 약정 기저)",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "name": "AI 제품 지표 (Q1 FY27)",
+        "value": "Foundry 고객 12만 곳 이상(매출 3배 이상), Copilot 일간 사용자 전분기 대비 약 50% 증가, 5만 좌석 이상 Copilot 고객 수 8배 이상 (유료 좌석 수는 갱신 안 함)",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "name": "OpenAI 지분법 영향",
+        "value": "Q1 FY27 순이익 2.07억 달러 (전년 동기 31억 달러 손실); non-GAAP 순이익 364.2억 달러(+18%)",
+        "src": [
+          "s15"
+        ]
+      }
+    ],
+    "text": "새 두 부문으로 처음 보고한 Q1 FY2027에 매출은 922.8억 달러(+19%), 영업이익률은 약 50%로 가이던스 상단(909.5억 달러)을 넘었다. 성장은 Azure가 있는 Agents and Infra(+25%)가 거의 다 만들었고, PC·게임이 있는 Devices and Consumer는 Windows OEM 매출 -22% 탓에 3% 줄었다. 영업현금흐름 580억 달러 중 394억 달러가 현금 설비투자로 나가 분기 잉여현금흐름은 약 186억 달러(계산값)였다.",
+    "src": [
+      "s15",
+      "s16",
+      "s17"
+    ]
+  },
+  "useOfCash": {
+    "period": "Q1 FY2027 (ended 2026-09-30)",
+    "items": [
+      {
+        "use": "capex",
+        "value": 39.367,
+        "unit": "USD bn",
+        "src": [
+          "s16"
+        ]
+      },
+      {
+        "use": "R&D",
+        "value": 9.047,
+        "unit": "USD bn",
+        "src": [
+          "s16"
+        ]
+      },
+      {
+        "use": "dividends",
+        "value": 6.757,
+        "unit": "USD bn",
+        "src": [
+          "s16"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 4.379,
+        "unit": "USD bn",
+        "src": [
+          "s16"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 0.397,
+        "unit": "USD bn",
+        "src": [
+          "s16"
+        ]
+      }
+    ],
+    "text": "분기 현금의 가장 큰 쓰임은 여전히 데이터센터로, 현금 설비투자 394억 달러(금융리스 포함 452억)는 배당 68억과 자사주 매입 44억 달러를 합친 것의 세 배를 넘는다. 회사는 Q2 설비투자도 500억 달러 넘게 잡았고, 일부 외부 임대 용량 인도가 하반기로 밀려 하반기에 투자가 더 빨라진다고 했다. 인수는 4억 달러에 그쳐, 돈은 자체 용량과 AI 연구소 지분에 몰린다는 우선순위가 그대로다.",
+    "src": [
+      "s16",
+      "s17"
+    ]
+  },
+  "aiChain": {
+    "layer": "cloud-infrastructure",
+    "position": "GPU·자체 칩을 사서 데이터센터를 짓고 그 연산 능력을 AI 연구소(OpenAI·Anthropic)와 기업에 빌려주는 클라우드 층에 있으면서, 그 위의 모델 플랫폼(Foundry)과 AI 앱(Copilot)까지 직접 판다. 가치사슬의 중간과 끝을 함께 가진 셈이다.",
+    "dependsOn": [
+      "chips-compute (NVIDIA, AMD, 자체 Maia - TSMC 생산)",
+      "power-energy·data-center-real-estate (부지·전력·리스)",
+      "models-platforms (OpenAI 모델·지식재산, Anthropic·Mistral·xAI 모델)"
+    ],
+    "sellsTo": [
+      "models-platforms (OpenAI, Anthropic의 연산 구매)",
+      "software-applications·ai-adopter (기업의 Azure·Copilot·GitHub Copilot 사용)",
+      "개인 소비자 (Copilot, Windows)"
+    ],
+    "aiRevenue": "AI 매출 총액은 공시하지 않음. 대리 지표: Q1 FY27 Azure 331.65억 달러(+48%), Foundry 매출 전년 대비 3배 이상·고객 12만 곳 이상, 상업 RPO 6,770억 달러(+73%) (2026-10-28 발표).",
+    "upside": "OpenAI 2,500억·Anthropic 300억 달러 약정과 6,780억 달러 RPO가 데이터센터 완공 속도에 맞춰 Azure 매출로 바뀌고, Copilot 좌석이 늘면 같은 고객에게서 받는 구독료가 커진다.",
+    "risk": "OpenAI에 대한 우선 공급권이 사라져 OpenAI가 다른 클라우드로도 연산을 나눠 살 수 있게 됐고, 설비투자가 매출보다 앞서 감가상각이 마진을 누를 수 있다. AI 연구소의 자금 사정이 나빠지면 약정이 흔들린다.",
+    "text": "그래서 AI 가치사슬에서 Microsoft는 칩을 사서 연산을 파는 클라우드 층이 본업이고, 그 위에서 모델과 앱까지 판다. 칩 회사(NVIDIA)의 최대 고객 중 하나이자 AI 연구소의 집주인이라, AI 수요가 늘면 Azure 성장률로 바로 보이지만 그만큼 설비투자도 먼저 나간다. 성패는 미리 깔아 둔 데이터센터가 약정 매출로 얼마나 빨리 채워지느냐에 달려 있다.",
+    "src": [
+      "s2",
+      "s4",
+      "s9",
+      "s11"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "클라우드 인프라 (IaaS·PaaS)",
+        "rivals": [
+          "AWS",
+          "Google Cloud",
+          "Oracle OCI",
+          "CoreWeave 등 AI 전용 클라우드"
+        ],
+        "position": "challenger",
+        "share": "2026년 2분기 세계 점유율 약 20% (AWS 28%, Google 15%) - Synergy Research, 2026-07-30",
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "arena": "AI 모델 플랫폼 (기업용 모델 API·에이전트)",
+        "rivals": [
+          "AWS Bedrock",
+          "Google Vertex AI·Gemini",
+          "OpenAI 직접 판매"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s4",
+          "s9"
+        ]
+      },
+      {
+        "arena": "업무 소프트웨어·AI 비서",
+        "rivals": [
+          "Google Workspace",
+          "Salesforce",
+          "ServiceNow"
+        ],
+        "position": "leader",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "arena": "AI 칩 자체 설계",
+        "rivals": [
+          "AWS Trainium",
+          "Google TPU"
+        ],
+        "position": "follower",
+        "share": null,
+        "src": [
+          "s12"
+        ]
+      },
+      {
+        "arena": "PC 운영체제·게임·검색 광고",
+        "rivals": [
+          "Apple",
+          "Google 검색",
+          "Sony"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "edge": "같은 기업 고객에게 클라우드·업무 앱·보안·개발도구를 한 계약으로 묶어 파는 능력, OpenAI 모델 사용권, 그리고 여러 회사 모델을 한 곳에서 쓰게 하는 Foundry.",
+    "threats": "2025-10 새 계약으로 Microsoft가 OpenAI 연산 공급의 우선권을 잃어 OpenAI가 다른 클라우드도 쓸 수 있게 됐고, Google Cloud는 2026년 2분기 점유율을 15%로 2%p 늘렸다. Azure 점유율은 약 20%로 제자리다.",
+    "text": "이 자리를 두고 가장 큰 싸움은 클라우드에서 벌어진다. Synergy 집계로 2026년 2분기 Azure는 약 20%로 AWS(28%)에 이은 2위이고, Google(15%)이 빠르게 따라오는 사이 점유율이 제자리다. Microsoft는 이미 가진 업무 소프트웨어 고객에게 Copilot과 Azure를 묶어 팔고, OpenAI 외에 Anthropic·Mistral·xAI 모델까지 올려 '모델을 고르는 곳'이 되는 방식으로 맞서고 있다.",
+    "src": [
+      "s10",
+      "s4",
+      "s9"
+    ]
+  },
+  "strategy": {
+    "goal": "Q2 FY2027 Azure 성장률 49~50%(고정환율) 가이던스, FY2027 잉여현금흐름 플러스 유지, Microsoft Cloud 총마진 약 65%를 제시했다.",
+    "roadmap": [
+      {
+        "when": "Q2 FY2027 (2026-10~12)",
+        "what": "매출 960억~971억 달러, Azure +49~50%(고정환율), 설비투자 500억 달러 초과",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "when": "FY2027 하반기",
+        "what": "외부 임대 GPU 용량 인도 지연분 반영으로 설비투자 가속; 연간 설비투자 약 1,700억 달러(녹취록 요약, 회계연도·역년 구분 미확인)",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "when": "2026-07 기준 2년 내",
+        "what": "전체 데이터센터 용량 약 2배 (Q1 FY27 데이터센터 24곳 추가)",
+        "src": [
+          "s4",
+          "s17"
+        ]
+      },
+      {
+        "when": "향후 배치",
+        "what": "Maia 200 확대, 차세대 Maia 300은 선도 GPU 시스템 대비 와트당 토큰 40% 개선 목표 (회사 발언)",
+        "src": [
+          "s17",
+          "s12"
+        ]
+      },
+      {
+        "when": "2032년까지",
+        "what": "OpenAI 모델·지식재산 사용권 유지",
+        "src": [
+          "s9"
+        ]
+      }
+    ],
+    "vision": "회사를 'Agents and Infra' 중심으로 다시 짜서, 기업 안에서 AI 에이전트가 일하는 플랫폼(Copilot·Agent 365·Foundry)과 그 밑의 인프라를 함께 공급하겠다는 그림이다.",
+    "text": "경쟁에서 이기기 위해 회사가 택한 길은 공급 확대와 제품 재편이다. Q1 FY2027에만 데이터센터 24곳을 더했지만 경영진은 여전히 수요가 공급을 넘는다고 했고, 외부 임대 GPU 일부가 하반기로 밀리면서 Q2 Azure 가이던스를 49~50%로 더 높였다. 다음 몇 분기는 늘어난 설비투자가 그만큼 빨리 Azure 매출로 바뀌는지가 이 계획의 시험대다.",
+    "src": [
+      "s17",
+      "s2",
+      "s4"
+    ]
+  },
+  "governance": {
+    "line": "2014년부터 Satya Nadella가 CEO(2021년부터 의장 겸임)로 이끄는 단일 주식 구조의 분산 소유 회사로, FY2026에 배당 264억·자사주 매입 223억 달러를 지급했고 2026-06-10 분기 배당 주당 0.91달러를 선언했다.",
+    "src": [
+      "s3",
+      "s1",
+      "s7"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q2 FY2027",
+        "metric": "revenue",
+        "value": "960억~971억 달러 (+18~19%)",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "segment revenue",
+        "value": "Agents and Infra 801억~807억 달러(+24~25%), Devices and Consumer 159억~164억 달러",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "Azure growth (constant currency)",
+        "value": "49~50%",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "COGS / opex / capex",
+        "value": "매출원가 327억~329억(+26~27%), 영업비용 185억~186억(+9%), 설비투자 500억 달러 초과, 세율 약 20%",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "period": "Q2 FY2027",
+        "metric": "Microsoft Cloud gross margin",
+        "value": "약 65%",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "free cash flow / capex",
+        "value": "잉여현금흐름 플러스 유지; 연간 설비투자 약 1,700억 달러(외부 용량 지연 반영, 하반기 가속)",
+        "givenOn": "2026-10-28",
+        "src": [
+          "s17"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "Q1 FY2027 매출 922.8억 달러는 가이던스(898.5억~909.5억) 상단을 넘었고, Azure +48%도 가이던스(고정환율 44~45%)를 웃돌았다. 다음 분기 Azure 가이던스는 49~50%로 한 번 더 높였다.",
+    "src": [
+      "s15",
+      "s17",
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": "발표 전 스냅샷(2026-10-27, Zacks via Nasdaq) 향후 4개 분기 조정 EPS 합계 19.56달러, 최근 4주 상향 7건·하향 2건. Q1 FY27 non-GAAP EPS 4.89달러가 나온 뒤의 컨센서스 변화는 이번 조사에서 확인하지 않았다.",
+    "src": [
+      "s8",
+      "s15"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "Q2 FY27 Azure 성장률이 49~50% 가이던스 이상",
+      "RPO 중 12개월 안에 인식될 부분의 증가율(Q1 +29%)이 유지되거나 오름",
+      "설비투자가 늘어도 Microsoft Cloud 총마진이 65% 근처를 지킴",
+      "외부 GPU 용량 인도가 하반기에 계획대로 들어옴",
+      "Copilot 유료 좌석 수 공개 재개와 증가"
+    ],
+    "breaks": [
+      "Azure 성장률이 가이던스를 밑돌거나 공급 제약이 아닌 수요 둔화를 언급",
+      "OpenAI 계약 축소·변경 또는 RPO 증가율 급락",
+      "설비투자를 더 올리는데 Azure 가속이 따르지 않음",
+      "잉여현금흐름이 마이너스로 전환",
+      "Windows OEM 등 Devices and Consumer 감소 폭 확대"
+    ],
+    "keyNumbers": [
+      {
+        "name": "Azure 성장률",
+        "why": "주가가 가장 크게 반응하는 단일 숫자"
+      },
+      {
+        "name": "상업 RPO와 12개월 내 인식분",
+        "why": "미래 매출 잔고와 고객 집중도"
+      },
+      {
+        "name": "분기 설비투자 (금융리스 포함)",
+        "why": "투자 속도와 감가상각 부담"
+      },
+      {
+        "name": "Microsoft Cloud 총마진",
+        "why": "AI 인프라 비용이 마진을 누르는 속도"
+      },
+      {
+        "name": "잉여현금흐름",
+        "why": "투자 후에도 주주환원 여력이 남는지"
+      },
+      {
+        "name": "Foundry 고객·Copilot 사용 지표",
+        "why": "AI 앱 수익화의 직접 증거"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2027-01 하순 (추정, 회사 미확정)",
+        "event": "Q2 FY2027 실적 발표와 Q3 가이던스 - Azure 49~50% 가이던스 달성 여부",
+        "src": []
+      },
+      {
+        "date": "2027 상반기 (회사 발언, 날짜 미정)",
+        "event": "지연된 외부 GPU 용량 인도와 설비투자 가속",
+        "src": [
+          "s17"
+        ]
+      },
+      {
+        "date": "수시",
+        "event": "OpenAI·Anthropic 계약·지분 관련 발표, 대형 AI 고객 계약",
+        "src": [
+          "s9",
+          "s11"
+        ]
+      }
+    ],
+    "reaction": "주가는 헤드라인 매출보다 Azure 성장률이 가이던스를 넘었는지, 다음 분기 Azure 가이던스, 그리고 설비투자 규모에 반응하는 경향이 있다. Q1 FY2027에는 Azure +48%와 다음 분기 49~50% 가이던스가 나왔고, 다음 시험은 지연된 외부 용량이 들어와 투자가 다시 빨라지는 하반기다.",
+    "conditions": [
+      "Azure 성장률 실적 vs 49~50% 가이던스",
+      "분기 설비투자(금융리스 포함)와 연간 전망 변경 여부",
+      "상업 RPO 증가율과 OpenAI 비중 언급",
+      "Microsoft Cloud 총마진이 65% 근처인지",
+      "같은 주 AWS·Google Cloud 성장률과의 격차",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "AI 관련 매출 총액 (회사 공시 없음)",
+    "상업 RPO 중 OpenAI 금액·비중 (Q1 FY27에는 OpenAI 제외 증가율 미공개; 콜에서 애널리스트가 언급한 11%는 회사 미확인)",
+    "연간 설비투자 약 1,700억 달러가 회계연도(FY2027) 기준인지 역년 기준인지 - 녹취록 요약 기준",
+    "보도자료의 주주환원 102억 달러와 현금흐름표 배당+자사주 111억 달러의 차이 설명",
+    "잉여현금흐름 186억 달러는 영업현금흐름-현금 유형자산 취득 계산값 (회사 미공시)",
+    "Copilot 유료 좌석 수 (이번 분기 미갱신)",
+    "Anthropic에 실제 투자된 금액 (최대 50억 달러 약정만 확인)",
+    "업무 소프트웨어·검색·게임·PC OS 시장 점유율",
+    "Synergy 점유율 수치는 검색 요약에서 읽었고 원문 페이지는 직접 열지 않음",
+    "Q2 FY2027 실적 발표일"
+  ],
+  "confidence": "high - Q1 FY27 실적·부문·Azure·현금흐름은 회사 보도자료와 재무제표에서 왔다. Q2 가이던스·설비투자 세부·AI 지표는 녹취록(StockAnalysis) 기준이고, OpenAI·Anthropic 계약 조건과 점유율은 언론·Synergy 기준이라 medium 수준이다."
+}

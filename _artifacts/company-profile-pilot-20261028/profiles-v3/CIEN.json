@@ -1,0 +1,209 @@
+{
+  "symbol": "CIEN",
+  "name": "Ciena Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "Saturday nearest October 31 (FY2025 ended 2025-11-01)",
+  "oneLine": "Ciena는 데이터센터와 도시를 빛으로 잇는 광전송 장비와 코히어런트 모뎀을 만드는 회사로, AI 클러스터끼리 잇는 수요 덕에 수주잔고가 85억 달러로 쌓였고 매출의 약 절반이 하이퍼스케일러 직거래다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Ciena Reports Fiscal Third Quarter 2026 Financial Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000936395/000162828026060245/ex9912026q3earningspressre.htm", "publisher": "Ciena / SEC EDGAR", "date": "2026-09-03" },
+    { "id": "s2", "kind": "call-transcript", "title": "Ciena Corp (CIEN) (Q3 2026) Earnings Call Highlights: Record Revenue and Backlog Surge (summary of the call)", "url": "https://finance.yahoo.com/markets/stocks/articles/ciena-corp-cien-q3-2026-210126576.html", "publisher": "GuruFocus via Yahoo Finance", "date": "2026-09-03" },
+    { "id": "s3", "kind": "10-K", "title": "Ciena Form 10-K for fiscal year ended 2025-11-01 (date = period end; filing date not checked)", "url": "https://www.sec.gov/Archives/edgar/data/936395/000162828025056698/cien-20251101.htm", "publisher": "Ciena / SEC EDGAR", "date": "2025-11-01" },
+    { "id": "s4", "kind": "news", "title": "Earnings call transcript: Ciena tops Q3 2026 forecasts but shares fall (title read from search result only)", "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-ciena-tops-q3-2026-forecasts-but-shares-fall-93CH-4888077", "publisher": "Investing.com", "date": "2026-09-03" }
+  ],
+
+  "moat": {
+    "sources": [
+      "자체 설계 코히어런트 광 DSP(WaveLogic) - WaveLogic 6 Extreme은 회사 설명으로 시장 유일의 1.6Tb 고성능 모뎀 (콜)",
+      "광회선(RLS)·Waveserver·6500 플랫폼과 Navigator·Blue Planet 소프트웨어를 묶은 전송망 전체 제품군 (10-K)",
+      "통신사·하이퍼스케일러에 깔린 대규모 설치 기반과 장기 부품 공급 계약(2029년까지) (10-K·콜)"
+    ],
+    "text": "광전송은 빛 신호에 더 많은 데이터를 싣고 더 멀리 보내는 경쟁이고, 그 핵심은 코히어런트 모뎀 칩(DSP)이다. Ciena는 이 칩(WaveLogic)을 직접 설계하며, 최신 WaveLogic 6 Extreme은 회사 설명상 1.6Tb급 고성능 모뎀으로 유일하다. 여기에 광회선 장비와 망 관리 소프트웨어까지 한 회사가 공급해, 이미 깔린 망을 쓰는 고객은 다음 세대도 Ciena로 넓히기 쉽다.",
+    "src": ["s2", "s3"]
+  },
+
+  "design": {
+    "text": "이 기술로 Ciena가 파는 것은 회사 보고 기준 다섯 묶음이다. 광네트워킹(WaveLogic 모뎀, Waveserver, RLS·6500, 코히어런트 플러거블), 라우팅·스위칭, 플랫폼 소프트웨어·서비스, Blue Planet 자동화 소프트웨어, 그리고 설치·유지보수 서비스다. 2025년 10월에는 데이터센터 내부 연결 기술을 가진 Nubis Communications를 인수해 데이터센터 안쪽 제품도 넓히고 있다.",
+    "src": ["s1", "s3"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "제3자 위탁 생산업체 - 캐나다·멕시코·태국·베트남·미국 (이름은 10-K 발췌에서 미확인)",
+      "광·전자 핵심 부품 공급사 - 2029년까지 장기 공급 계약 (콜)",
+      "자체 설계 - WaveLogic DSP·광 엔진, 시스템 소프트웨어"
+    ],
+    "text": "Ciena는 칩과 시스템은 직접 설계하지만 조립은 캐나다·멕시코·태국·베트남·미국의 위탁 생산업체에 맡긴다. 그래서 지금처럼 주문이 몰리면 부품 공급이 매출의 상한이 되고, 회사는 핵심 부품을 2029년까지 장기 계약으로 묶어 두었다. 경영진은 수요와 공급이 2028년 전에는 균형을 찾지 못할 것으로 본다.",
+    "src": ["s3", "s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "클라우드 사업자(하이퍼스케일러) - 직거래가 사업의 약 50%, Q3 직거래 매출 전년 대비 80% 이상 증가 (콜)",
+      "통신 사업자 - AT&T가 10-K에서 집중 위험 고객으로 표시",
+      "케이블·MSO, 정부, 연구·교육망, 기업 (10-K)"
+    ],
+    "channel": "통신사·클라우드 사업자에 직접 판매가 중심이며, 일부 고객에게는 WaveLogic Extreme을 맞춤형 소비(사용량) 모델로 공급한다.",
+    "concentration": "Q3 FY2026 10% 이상 고객 2곳이 합계 매출의 41.7% (8-K). 이름은 보도자료에 없음.",
+    "text": "이 장비를 사는 쪽은 예전에는 통신사가 중심이었지만, 이제 사업의 약 절반이 하이퍼스케일러 직거래다. Q3에 클라우드 사업자 직거래 매출은 80% 넘게 늘었고, 10% 이상 고객 두 곳이 매출의 41.7%를 차지했다. 소수 대형 고객의 데이터센터 투자 계획이 곧 Ciena의 분기 실적이 되는 구조다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "AI 연구소·클라우드 이용자", "to": "하이퍼스케일러", "what": "AI 연산·클라우드 이용료" },
+      { "from": "하이퍼스케일러", "to": "Ciena", "what": "데이터센터 간(DCI)·장거리 광전송 장비와 800ZR 플러거블 구매, 일부는 사용량 기반 계약" },
+      { "from": "통신·케이블 사업자", "to": "Ciena", "what": "광전송·라우팅 장비와 소프트웨어 라이선스" },
+      { "from": "장비 고객", "to": "Ciena Global Services", "what": "설치·유지보수·교육 서비스 대금" },
+      { "from": "Ciena", "to": "위탁 생산업체·부품 공급사", "what": "조립 비용과 광·전자 부품 대금 (2029년까지 장기 계약)" }
+    ],
+    "pricing": "장비는 주로 대당(시스템·모듈) 판매, 소프트웨어는 라이선스·구독, 서비스는 계약 단위. 회사는 제품군별로 한 자릿수 후반에서 20% 안팎까지 가격을 올렸다 (콜).",
+    "text": "돈은 AI 연산을 파는 하이퍼스케일러에서 출발해, 데이터센터끼리 잇는 광장비 대금으로 Ciena에 들어온다. 통신사 장비와 서비스·소프트웨어가 나머지를 채우고, Ciena는 받은 돈의 상당 부분을 위탁 생산과 부품에 다시 지불한다. 공급이 모자란 지금은 가격 인상이 매출총이익률을 받쳐 준다.",
+    "src": ["s2", "s3"]
+  },
+
+  "earnings": {
+    "period": "Q3 FY2026 (ended 2026-08-01)",
+    "revenue": { "value": 1.6711, "unit": "USD bn", "yoy": 37.0 },
+    "grossMargin": 45.4,
+    "operatingMargin": 18.0,
+    "netMargin": 15.9,
+    "operatingCashFlow": { "value": null, "unit": "USD bn" },
+    "freeCashFlow": { "value": 0.116, "unit": "USD bn" },
+    "segments": [
+      { "name": "Optical Networking", "revenue": 1.1913, "unit": "USD bn", "share": 71.3, "yoy": 46.1, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Routing and Switching", "revenue": 0.1644, "unit": "USD bn", "share": 9.8, "yoy": 30.6, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Platform Software and Services", "revenue": 0.0986, "unit": "USD bn", "share": 5.9, "yoy": 9.6, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Blue Planet Automation Software and Services", "revenue": 0.0232, "unit": "USD bn", "share": 1.4, "yoy": -16.5, "operatingMargin": null, "src": ["s1"] },
+      { "name": "Global Services", "revenue": 0.1936, "unit": "USD bn", "share": 11.6, "yoy": 20.8, "operatingMargin": null, "src": ["s1"] }
+    ],
+    "industryMetric": [
+      { "name": "수주잔고", "value": "Q3 말 85억 달러 (분기 중 8억 증가), FY2026 말 100억 달러 초과 예상, 대부분 FY2027 납기 요청", "src": ["s2"] },
+      { "name": "조정 영업이익률", "value": "Q3 22.5% (전년 10.7%), 조정 매출총이익률 46.4% (관세 환급 약 0.7%p 포함)", "src": ["s1", "s2"] },
+      { "name": "데이터센터 관련 매출", "value": "데이터센터 안팎 매출 연초 대비 약 4배, 인터커넥트 매출 전년 대비 2배 이상, 800ZR 플러거블 출하 전분기 대비 2배 이상", "src": ["s2"] },
+      { "name": "9개월 누적 영업현금흐름", "value": "6.836억 달러 (전년 4.350억)", "src": ["s1"] }
+    ],
+    "text": "그래서 Q3 FY2026 매출은 16.7억 달러로 37% 늘었고, 그중 71%가 광네트워킹이었다. 물량과 가격 인상이 겹쳐 GAAP 영업이익률이 6.1%에서 18.0%로 뛰었고, 순이익은 2.66억 달러로 1년 전의 5배를 넘었다. 수주잔고가 85억 달러까지 쌓여, 지금 매출은 부품을 얼마나 빨리 확보하느냐에 달려 있다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "9M FY2026 (ended 2026-08-01)",
+    "items": [
+      { "use": "buybacks", "value": 0.3379, "unit": "USD bn", "src": ["s1"] },
+      { "use": "other", "label": "주식보상 원천징수용 자사주 취득", "value": 0.2783, "unit": "USD bn", "src": ["s1"] },
+      { "use": "capex", "value": 0.1949, "unit": "USD bn", "src": ["s1"] },
+      { "use": "R&D", "value": null, "unit": "USD bn", "src": [] }
+    ],
+    "text": "번 돈은 주로 주주 환원과 설비로 간다. 9개월 동안 10억 달러 자사주 프로그램으로 3.38억 달러를 매입했고, 주식보상 세금 원천징수용으로 2.78억 달러, 설비에 1.95억 달러를 썼다. 다만 회사는 수요를 맞추려 재고 등 운전자본에 돈을 넣고 있어 Q4 영업현금흐름은 줄어들 것이라고 했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "aiChain": {
+    "layer": "networking",
+    "position": "AI 데이터센터끼리, 그리고 데이터센터와 도시를 잇는 광전송(DCI·장거리) 장비와 코히어런트 모뎀·플러거블을 공급하고, Nubis 인수로 데이터센터 내부 연결로도 넓히는 중.",
+    "dependsOn": ["광·전자 부품 공급사 (장기 계약)", "위탁 생산업체 (캐나다·멕시코·태국·베트남·미국)", "자체 WaveLogic DSP 설계"],
+    "sellsTo": ["cloud-infrastructure (하이퍼스케일러 - 사업의 약 50%)", "통신 사업자 (AT&T 등)", "케이블·정부·기업망"],
+    "aiRevenue": "AI 매출 금액 미공시. Q3 FY2026 클라우드 사업자 직거래 매출 80% 이상 증가, 데이터센터 안팎 매출 연초 대비 약 4배 (콜).",
+    "upside": "AI 학습이 한 건물에 다 들어가지 않으면서 여러 데이터센터를 묶는 연결(scale-across)이 필요해지고, 그 대역폭이 Ciena의 광장비·플러거블 수요가 된다. 회사는 수요가 2024→2025년에 2배, 2025→2026년에 다시 50% 늘었다고 했다.",
+    "risk": "하이퍼스케일러가 직접 설계한 장비나 저가 플러거블로 옮기거나, AI 투자 속도를 늦추면 소수 고객 의존이 그대로 실적 변동이 된다. 부품 부족이 매출을 막고, 일회성 관세 환급이 빠지면 이익률이 낮아진다.",
+    "text": "AI 가치사슬에서 Ciena는 GPU 서버 밖, 데이터센터와 데이터센터를 잇는 '네트워크' 층에 있다. AI 클러스터가 여러 건물·지역으로 퍼질수록 그 사이를 흐르는 데이터가 늘어, 광전송 장비와 모뎀이 더 필요해진다. 반대로 매출의 절반이 하이퍼스케일러라, 그들의 투자 일정이 흔들리면 Ciena가 가장 먼저 영향을 받는다.",
+    "src": ["s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "광전송·DCI 장비", "rivals": ["Nokia (Infinera 인수)", "Huawei", "Cisco", "ZTE"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "라우팅·스위칭", "rivals": ["Cisco", "Nokia", "Hewlett Packard Enterprise", "Huawei"], "position": "challenger", "share": null, "src": ["s3"] },
+      { "arena": "망 자동화 소프트웨어 (Blue Planet)", "rivals": ["Cisco", "Nokia", "Amdocs", "ServiceNow", "Netcracker", "Ericsson"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "1.6Tb급 WaveLogic 6 Extreme의 성능 우위와 이전 세대보다 빠른 채택, 하이퍼스케일러 직거래 관계, 2029년까지 묶은 부품 공급.",
+    "threats": "Nokia가 Infinera를 품어 규모를 키웠고, 하이퍼스케일러 한 곳은 WaveLogic 6e 기술을 자체 플랫폼에 넣어 쓰는 등 고객의 자체 설계가 늘고 있다. 짧은 거리 연결에서는 칩 회사들의 플러거블과 경쟁한다.",
+    "text": "경쟁은 Nokia·Huawei·Cisco·ZTE 같은 대형 네트워크 회사들과 벌어지며, 10-K는 이 시장을 '소수 대형 다국적사가 지배'한다고 적는다. Ciena는 가장 빠른 모뎀과 하이퍼스케일러 직거래로 앞서 있고, 회사 전략은 이 우위를 데이터센터 내부 연결로 넓히는 것이다. 다만 Huawei는 중국 등에서 강하고, 고객의 자체 설계 장비가 늘면 장비 판매 몫이 줄 수 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "strategy": {
+    "goal": "FY2027 매출을 최소 30% 늘려 83~84억 달러(회사는 '바닥'이라고 표현), 조정 영업이익률 25~27%를 내고, 데이터센터 내부 연결로 시장을 넓힌다 (콜).",
+    "roadmap": [
+      { "when": "Q4 FY2026", "what": "매출 17.5억 달러 ±0.5억, 조정 영업이익률 약 20% 가이드; FY2026 매출 64.2억 달러 ±0.5억 (전년 대비 약 35%)", "src": ["s1"] },
+      { "when": "FY2026 말", "what": "수주잔고 100억 달러 초과", "src": ["s2"] },
+      { "when": "2026 말 (calendar)", "what": "RLS Hyper-Rail 표준화, FY2027에 수억 달러 규모로 확대", "src": ["s2"] },
+      { "when": "FY2027", "what": "매출 83~84억 달러, 매출총이익률 45~46%, 조정 영업이익률 25~27%, 운영비 약 1억 달러 추가 투자", "src": ["s2"] }
+    ],
+    "vision": "회사는 스스로를 '유일한 순수 광시스템·인터커넥트 회사'로 부르며, AI가 만드는 연쇄적인 망 투자 물결에서 데이터센터 안팎 연결을 모두 맡겠다는 그림이다.",
+    "text": "이 경쟁 구도에서 Ciena의 다음 수는 수주잔고를 매출로 빠르게 바꾸는 것이다. FY2027 매출 83~84억 달러를 바닥으로 제시했고, Hyper-Rail 같은 신제품과 데이터센터 내부 연결 제품을 키운다. 회사는 부품을 확보하면 수주잔고가 FY2028까지 이어진다고 말해, 실행의 열쇠는 공급망이다.",
+    "src": ["s1", "s2"]
+  },
+
+  "governance": {
+    "line": "Gary Smith CEO와 Marc Graff CFO가 이끌며, 10억 달러 자사주 프로그램으로 분기마다 매입을 이어가는 주주 환원 기조다.",
+    "src": ["s2", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 FY2026", "metric": "revenue", "value": "17.5억 달러 ±0.5억", "givenOn": "2026-09-03", "src": ["s1"] },
+      { "period": "Q4 FY2026", "metric": "adjusted gross / operating margin", "value": "매출총이익률 45% ±0.5%p, 영업이익률 20% ±0.5%p, 조정 운영비 4.15억 ±0.1억 달러", "givenOn": "2026-09-03", "src": ["s1"] },
+      { "period": "FY2026", "metric": "revenue", "value": "64.2억 달러 ±0.5억 (상향, 중간값 기준 전년 대비 35%)", "givenOn": "2026-09-03", "src": ["s1"] },
+      { "period": "FY2027 (예비)", "metric": "revenue / margin", "value": "매출 83~84억 달러 이상, 매출총이익률 45~46%, 조정 영업이익률 25~27%", "givenOn": "2026-09-03", "src": ["s2"] }
+    ],
+    "style": "quarterly",
+    "track": "1년 전 FY2026 성장률을 17%로 제시했다가 약 35%까지 올렸고, Q3 매출은 가이드 상단이었다 (콜).",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": { "text": null, "src": [] },
+
+  "watch": {
+    "confirms": [
+      "FY2026 말 수주잔고가 100억 달러를 넘는지",
+      "Q4 매출이 17.5억 달러 가이드 안팎으로 나오는지",
+      "FY2027 가이드(83~84억 달러)가 유지되거나 올라가는지",
+      "클라우드 사업자 직거래·데이터센터 안팎 매출의 고성장 지속",
+      "부품 공급이 늘어 수주잔고가 매출로 빠르게 바뀌는지"
+    ],
+    "breaks": [
+      "하이퍼스케일러의 망 투자 지연 또는 주문 감소",
+      "부품 부족으로 매출 가이드 하향",
+      "가격 인상 효과·관세 환급이 빠지며 매출총이익률 하락",
+      "고객의 자체 설계 장비 전환이나 Nokia·Huawei의 대형 수주",
+      "10% 이상 고객 2곳의 주문 변동"
+    ],
+    "keyNumbers": [
+      { "name": "수주잔고", "why": "다음 1~2년 매출의 가시성" },
+      { "name": "클라우드 사업자 매출 증가율", "why": "AI 투자가 직접 들어오는 통로" },
+      { "name": "조정 매출총이익률", "why": "가격 결정력과 부품 비용의 균형" },
+      { "name": "조정 영업이익률", "why": "FY2027 25~27% 목표 진행" },
+      { "name": "영업현금흐름", "why": "운전자본 투자 부담 확인" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-12 초 (추정, 회사 미확정)", "event": "Q4·FY2026 실적과 FY2027 가이던스 확정", "src": [] },
+      { "date": "분기마다", "event": "하이퍼스케일러 실적·설비투자 가이던스", "src": ["s2"] },
+      { "date": "2026 말 (calendar)", "event": "RLS Hyper-Rail 표준화 목표", "src": ["s2"] }
+    ],
+    "reaction": "실적이 예상을 넘어도 수주잔고·다음 해 가이드·이익률 지속성에 따라 반응이 갈린다. Q3는 예상을 넘었지만 발표 후 주가가 내렸다는 보도가 있다 (Investing.com 녹취록 제목).",
+    "conditions": [
+      "수주잔고 증감과 납기 구성",
+      "다음 분기·다음 회계연도 가이드 변화",
+      "조정 매출총이익률 추세 (일회성 환급 제외)",
+      "하이퍼스케일러 설비투자 발언",
+      "부품 공급 제약 발언의 변화"
+    ]
+  },
+
+  "unverified": [
+    "Q3 단독 영업현금흐름·설비투자 (보도자료는 9개월 누적만 공시)",
+    "잉여현금흐름 1.16억 달러와 수주잔고·FY2027 예비 가이드는 콜 요약(s2, 2차 출처) 기준",
+    "R&D 금액",
+    "10% 이상 고객 2곳의 이름과 각 비중 (AT&T는 10-K 집중 위험 태그로만 확인)",
+    "위탁 생산업체 이름",
+    "광전송 시장 점유율 수치",
+    "Nubis 인수 금액",
+    "Q4 FY2026 실적 발표일"
+  ],
+  "confidence": "medium - 매출·이익·부문은 8-K로 확인했지만 AI 관련 수치·수주잔고·FY2027 전망은 콜 요약 2차 출처에 기댄다."
+}

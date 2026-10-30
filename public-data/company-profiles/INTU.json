@@ -1,0 +1,228 @@
+{
+  "symbol": "INTU",
+  "name": "Intuit Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "July 31 (FY2026 ended 2026-07-31)",
+  "oneLine": "Intuit은 TurboTax·QuickBooks·Credit Karma로 미국 개인과 중소기업의 세금·장부·돈 관리를 쥐고 있는 소프트웨어 회사로, 이 데이터 위에 AI 에이전트를 얹어 '일을 대신 해 주는' 플랫폼으로 바꾸는 중이지만, 범용 AI가 같은 일을 하게 되는지가 주가의 핵심 쟁점이다.",
+  "sources": [
+    { "id": "s1", "kind": "earnings-release", "title": "Intuit Reports Fourth Quarter and Full Year Fiscal 2026 Results; Sets Fiscal 2027 Guidance (8-K Ex.99.01)", "url": "https://www.sec.gov/Archives/edgar/data/0000896878/000089687826000029/fy26q4earningspressrelease.htm", "publisher": "Intuit / SEC EDGAR", "date": "2026-08-25" },
+    { "id": "s2", "kind": "10-K", "title": "Intuit Form 10-K for fiscal year ended 2026-07-31", "url": "https://www.sec.gov/Archives/edgar/data/0000896878/000089687826000037/intu-20260731.htm", "publisher": "Intuit / SEC EDGAR", "date": "2026-09-09" },
+    { "id": "s3", "kind": "news", "title": "Transcript: Intuit Q4 earnings call highlights (summary of the 2026-08-25 call, not a full transcript)", "url": "https://www.marketbeat.com/instant-alerts/transcript-intuit-q4-earnings-call-highlights-2026-08-25/", "publisher": "MarketBeat", "date": "2026-08-25" },
+    { "id": "s4", "kind": "8-K", "title": "Intuit 8-K Item 7.01: executives terminate 10b5-1 sale plans; repurchases to be accelerated", "url": "https://www.sec.gov/Archives/edgar/data/896878/000089687826000017/intu-20260316.htm", "publisher": "Intuit / SEC EDGAR", "date": "2026-03-16" },
+    { "id": "s5", "kind": "8-K", "title": "Intuit 8-K Item 5.02: Small Business Group leadership change (Ashley Still leads Mid-Market and Small Business)", "url": "https://www.sec.gov/Archives/edgar/data/896878/000089687826000020/intu-20260428.htm", "publisher": "Intuit / SEC EDGAR", "date": "2026-04-28" },
+    { "id": "s6", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/intu/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s7", "kind": "other", "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - INTU 2026-11-18, not company-confirmed", "url": "https://finnhub.io/docs/api/earnings-calendar", "publisher": "Finnhub via AIO", "date": "2026-10-29" },
+    { "id": "s8", "kind": "8-K", "title": "Intuit 8-K Item 2.02 for Q1 FY2026 results (prior-year timing pattern)", "url": "https://www.sec.gov/Archives/edgar/data/896878/000089687825000046/", "publisher": "Intuit / SEC EDGAR", "date": "2025-11-20" }
+  ],
+
+  "moat": {
+    "sources": [
+      "약 9,300만 명의 소비자·중소기업·세무사가 쓰는 세금·장부·신용 데이터의 규모 (10-K)",
+      "40년간 쌓은 세법·회계 정확성과 보안에 대한 신뢰 - 틀리면 벌금이 나오는 영역이라 바꾸기 어렵다 (10-K)",
+      "AI를 쓰는 수천 명의 세무·회계 전문가 네트워크 - AI가 못 하는 부분을 사람이 마무리 (10-K)",
+      "QuickBooks를 중심으로 결제·급여·대출·세무사 도구가 한 장부에 묶인 구조 (10-K)"
+    ],
+    "text": "Intuit의 힘은 세금과 장부라는 '틀리면 안 되는' 일을 수천만 명이 이미 이 회사 소프트웨어로 하고 있다는 데서 나온다. 회사는 이 규모의 고유 데이터, 금융 특화 AI 플랫폼, AI를 쓰는 전문가 네트워크를 핵심 경쟁우위로 꼽는다. 장부·결제·급여·세무사가 QuickBooks 한 곳에 연결돼 있어 고객이 하나만 떼어 내 다른 회사로 옮기기 어렵다.",
+    "src": ["s2"]
+  },
+
+  "design": {
+    "text": "이 기반 위에서 회사가 만드는 것은 두 부문으로 보고된다. Global Business Solutions는 QuickBooks Online·Desktop, 중견기업용 Intuit Enterprise Suite, 세무사용 Accountant Suite, Mailchimp 마케팅, 결제·급여·대출을 담고, Consumer는 TurboTax, Credit Karma, 세무 전문가용 ProTax로 이뤄진다. 2026-08-01부터 Mailchimp는 별도 보고 부문이 되며 FY2027부터 따로 공시된다.",
+    "src": ["s2", "s1"]
+  },
+
+  "make": {
+    "model": "service",
+    "partners": [
+      "Amazon Web Services, Google Cloud Platform - 온라인 서비스 대부분의 서버·네트워크·DB 운영 (10-K)",
+      "자체 생성형 AI 운영체제 GenOS - 사내 개발자용 AI 개발 기반 (10-K)",
+      "FDIC 가입 제휴 은행 - Credit Karma Money·QuickBooks Checking 계좌 제공 (10-K)",
+      "외부 위탁 고객지원 인력 - 주로 미국·필리핀, 세금 시즌에 확대 (10-K)",
+      "대출 원천 제휴 은행 - QuickBooks Capital 대출 실행 (10-K)"
+    ],
+    "text": "만드는 방식은 공장이 아니라 클라우드 서비스다. 온라인 제품 대부분은 AWS와 Google Cloud 위에서 돌아가고, AI 기능은 자체 생성형 AI 운영체제(GenOS)로 개발한다. 계좌·대출처럼 은행 면허가 필요한 부분은 제휴 은행을 통해 제공하고, 세금 시즌에는 평균 약 1만 2,300명의 계절 인력과 외부 위탁 상담원을 더 쓴다.",
+    "src": ["s2"]
+  },
+
+  "sell": {
+    "customers": [
+      "미국·캐나다 개인 납세자 - TurboTax 직접 신고·전문가 대행 (10-K)",
+      "소규모·중견기업 - QuickBooks Online 계열, Intuit Enterprise Suite (10-K)",
+      "세무사·회계사 - ProTax, Accountant Suite, ProAdvisor 회원 (10-K)",
+      "금융회사 - Credit Karma에 카드·대출·보험 상품을 노출하고 수수료를 내는 파트너 (10-K)",
+      "해외 매출은 FY2026 전체의 약 8% (10-K)"
+    ],
+    "channel": "웹사이트·앱·내부 영업으로 직접 판매가 중심이고, 세무사·부기 담당자·리셀러가 고객을 데려오며, TurboTax는 수천 개 금융회사·온라인 상점 웹사이트와 소매점에서도 판다. 10-K는 마케팅 수단으로 'AI 플랫폼 제공사와의 전략적 제휴'를 새로 적었다.",
+    "concentration": "단일 고객 집중 공시 없음. 매출은 소비자 세금 시즌(11~4월)에 몰린다 (10-K).",
+    "text": "이렇게 만든 서비스는 대부분 회사 웹사이트와 앱에서 개인과 소규모 사업자에게 직접 팔린다. 세무사와 부기 담당자는 고객을 QuickBooks로 끌어오는 유통망 역할을 하고, Credit Karma 쪽에서는 카드사·대출사가 사실상 광고주다. 회사는 앞으로 TurboTax를 대형 언어모델(LLM) 서비스 안에서도 유통하겠다고 밝혀, AI 챗봇이 새 판매 창구가 될 수 있다.",
+    "src": ["s2", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "개인 납세자", "to": "Intuit (TurboTax)", "what": "신고 건별 요금 또는 전문가 대행 수수료, 환급 선지급 등 금융 서비스" },
+      { "from": "소규모·중견기업", "to": "Intuit (QuickBooks·Enterprise Suite)", "what": "월·연 구독료 + 결제 처리 수수료 + 급여·대출 이자" },
+      { "from": "카드사·대출사·보험사", "to": "Intuit (Credit Karma)", "what": "카드 발급·대출 실행 건당 수수료(CPA), 클릭(CPC)·리드(CPL) 수수료" },
+      { "from": "세무사·회계법인", "to": "Intuit (ProTax·ProAdvisor)", "what": "전문가용 세무 소프트웨어 사용료·회원비" },
+      { "from": "Intuit", "to": "AWS·Google Cloud", "what": "온라인 서비스 운영 클라우드 비용" }
+    ],
+    "pricing": "구독(QuickBooks·Desktop 구독), 신고 건별·등급별 요금(TurboTax), 결제·거래 수수료, 금융회사로부터의 성과형 수수료(Credit Karma)가 섞여 있다.",
+    "text": "그래서 돈은 네 갈래로 들어온다. 개인은 세금 신고 때 TurboTax에 한 번 내고, 사업자는 QuickBooks 구독료와 결제·급여 수수료를 매달 낸다. Credit Karma는 사용자가 아니라 카드사·대출사가 '발급·실행된 건'마다 수수료를 내는 구조라 소비자 신용 경기에 민감하다.",
+    "src": ["s2"]
+  },
+
+  "earnings": {
+    "period": "FY2026 (ended 2026-07-31)",
+    "revenue": { "value": 21.448, "unit": "USD bn", "yoy": 14 },
+    "grossMargin": 80.2,
+    "operatingMargin": 27.4,
+    "netMargin": 21.3,
+    "operatingCashFlow": { "value": 8.838, "unit": "USD bn" },
+    "freeCashFlow": { "value": 8.617, "unit": "USD bn" },
+    "segments": [
+      { "name": "Global Business Solutions", "revenue": 12.864, "unit": "USD bn", "share": 60.0, "yoy": 16, "operatingMargin": 76.9, "src": ["s2"] },
+      { "name": "Consumer (TurboTax 5.296 · Credit Karma 2.641 · ProTax 0.647)", "revenue": 8.584, "unit": "USD bn", "share": 40.0, "yoy": 11, "operatingMargin": 73.5, "src": ["s2"] }
+    ],
+    "industryMetric": [
+      { "name": "Online Ecosystem 매출 (FY2026)", "value": "99.18억 달러, +19% (Mailchimp 제외 +23%)", "src": ["s1", "s2"] },
+      { "name": "Big Bets (전문가 대행 세금·머니·중견기업)", "value": "FY2026 +34%, 전사 매출의 30%", "src": ["s1"] },
+      { "name": "Intuit Enterprise Suite 연환산 매출", "value": "Q4 FY2026 1.45억 달러 초과, 전년의 4배", "src": ["s3"] },
+      { "name": "온라인 유료 고객 수", "value": "FY2026 말 +3% (전년보다 약 2%p 둔화)", "src": ["s3"] },
+      { "name": "최근 분기 (Q4 FY2026)", "value": "매출 43.54억 달러(+14%), GAAP 영업이익 4.75억 달러(구조조정비 2.93억 포함)", "src": ["s1"] }
+    ],
+    "text": "이 구조가 FY2026에 매출 214억 달러(+14%), GAAP 영업이익률 약 27%, 영업현금흐름 88억 달러라는 결과로 이어졌다. 이익의 중심은 장부·결제를 담은 Global Business Solutions(매출 60%, +16%)이고, 소비자 쪽은 TurboTax 성장이 7%에 그쳐 Credit Karma(+20%)가 성장을 끌었다. 부문 이익률이 70%대로 높아 보이지만 연구개발·고객지원·주식보상 등 약 103억 달러가 부문 밖 공통비로 빠져 있어, 회사 전체 이익률은 그보다 훨씬 낮다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-07-31)",
+    "items": [
+      { "use": "R&D", "value": 3.376, "unit": "USD bn", "src": ["s2"] },
+      { "use": "capex", "value": 0.221, "unit": "USD bn", "src": ["s1", "s2"] },
+      { "use": "acquisitions", "value": 0, "unit": "USD bn", "src": ["s2"] },
+      { "use": "buybacks", "value": 5.412, "unit": "USD bn", "src": ["s1"] },
+      { "use": "dividends", "value": 1.347, "unit": "USD bn", "src": ["s1"] }
+    ],
+    "text": "벌어들인 잉여현금 약 86억 달러 중 54억 달러를 자사주 매입에, 13억 달러를 배당에 썼고, 인수는 하지 않았다. 매입액은 전년보다 96% 늘었는데, 2026-03에 경영진이 예정된 주식 매도 계획을 모두 철회하고 매입을 앞당기겠다고 밝힌 뒤의 일이다. 연구개발비 34억 달러(매출의 16%)가 AI 에이전트 개발의 실제 투자이고, 설비투자는 클라우드를 빌려 쓰는 구조라 2억 달러 수준에 그친다.",
+    "src": ["s1", "s2", "s4"]
+  },
+
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "AI 가치사슬의 맨 끝, 클라우드와 모델을 빌려 개인·중소기업의 세금·장부·돈 관리 업무를 대신 처리하는 응용 소프트웨어 층. AI가 직접 매출을 만드는 것이 아니라, 기존 구독·수수료 상품의 가치와 가격을 끌어올리는 방식이다.",
+    "dependsOn": [
+      "cloud-infrastructure (Amazon Web Services, Google Cloud Platform)",
+      "models-platforms (자체 GenOS 위에서 외부 모델 사용 - 공급사 이름 미공시)",
+      "제휴 은행·신용평가사 (계좌·대출·신용 데이터)"
+    ],
+    "sellsTo": [
+      "미국·캐나다 개인 납세자",
+      "소규모·중견기업과 그 세무사",
+      "카드·대출·보험 금융회사 (Credit Karma 광고주)"
+    ],
+    "aiRevenue": "AI 매출을 따로 공시하지 않음. Intuit Enterprise Suite 고객의 75% 이상이 매달 AI 에이전트를 쓰고, 고객이 대금을 4일 빨리 받고 수작업이 30% 줄었다고 회사가 밝혔다 (2026-08-25 콜 요약).",
+    "upside": "AI 에이전트가 장부 정리·청구·급여를 대신 해 주면 고객당 매출(상위 요금제·결제·대출)과 유지율이 오른다. 회사는 AI로 유지율과 고객 생애가치를 높이겠다고 했고, Global Business Solutions의 향후 3년 연 10~15% 성장을 목표로 제시했다.",
+    "risk": "10-K가 경쟁자로 '범용 AI 기술 제공사와 플랫폼 기업'을 직접 꼽았다. AI가 진입장벽을 낮춰 저가 신고 서비스나 챗봇이 TurboTax·QuickBooks의 기본 기능을 대체하면 가격이 무너질 수 있다. 회사도 저가 경쟁사에 DIY 고객을 잃었다고 인정하고 FY2027 TurboTax 성장을 2~3%로 낮췄다.",
+    "text": "그래서 AI 가치사슬에서 Intuit는 칩이나 클라우드를 파는 쪽이 아니라, 그것을 빌려 쓰는 맨 끝의 응용 소프트웨어 층에 있다. AI는 Intuit에 비용이자 무기인데, 에이전트로 일을 대신 처리해 고객을 더 비싼 요금제로 올리는 데 성공하면 이익이 커진다. 반대로 범용 AI가 같은 일을 싸게 하게 되면 가장 먼저 압박받는 자리이기도 하다.",
+    "src": ["s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "소비자 세금 신고", "rivals": ["저가 온라인 신고 서비스 (회사가 이름 미공시)", "대면 세무 대행 회사", "IRS Free File 등 정부 무료 신고"], "position": "leader", "share": null, "src": ["s2", "s3"] },
+      { "arena": "중소기업 회계·장부 소프트웨어", "rivals": ["다른 업무용 소프트웨어 회사 (10-K는 이름 미공시)", "회계·컨설팅 회사"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "중견기업 ERP·재무관리", "rivals": ["중견기업용 ERP 공급사 (10-K는 이름 미공시)"], "position": "challenger", "share": null, "src": ["s2", "s3"] },
+      { "arena": "소비자 금융상품 마켓플레이스 (Credit Karma)", "rivals": ["금융상품 비교 플랫폼", "은행·신용평가사"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "범용 AI 비서", "rivals": ["범용 AI 기술 제공사·플랫폼 기업 (10-K 표현, 이름 미공시)"], "position": "challenger", "share": null, "src": ["s2"] }
+    ],
+    "edge": "세금·장부 데이터의 규모, 정확성과 보안에 대한 신뢰, AI를 쓰는 사람 전문가가 마무리해 주는 구조, 여러 제품이 한 장부에 연결된 묶음.",
+    "threats": "저가 신고 서비스로의 DIY 고객 이탈(회사 인정), 정부 무료 신고 확대 가능성, 범용 AI가 기본 기능을 대체할 가능성. 온라인 유료 고객 증가율이 3%로 둔화했다.",
+    "text": "이 자리를 위협하는 경쟁은 세 방향에서 온다. 세금 신고에서는 가격이 이탈 사유 1위라고 회사가 인정할 만큼 저가 서비스의 압박이 커졌고, 정부 무료 신고는 중단됐지만 재개 요구가 계속된다. 장기적으로 더 큰 변수는 범용 AI로, Intuit는 '사람 전문가 + 정확성 보증'을 붙인 AI로 맞서고 있지만 유료 고객 증가율 3%는 아직 방어가 쉽지 않다는 신호다.",
+    "src": ["s2", "s3"]
+  },
+
+  "strategy": {
+    "goal": "'AI 기반 전문가 플랫폼'으로 고객 일을 대신 하는 금융 지능 시스템을 만들겠다는 것이 목표다. 장기적으로 두 자릿수 매출 성장, 향후 3년 Global Business Solutions 연 10~15%·Consumer 연 4~8% 성장, 영업이익률 확대와 주주환원 증가를 제시했다. 중견기업 시장 규모를 약 900억 달러로 본다.",
+    "roadmap": [
+      { "when": "FY2027 (2026-08~2027-07)", "what": "Mailchimp 별도 부문 보고, 비GAAP 지표에 주식보상비 포함으로 기준 변경", "src": ["s1"] },
+      { "when": "FY2027 세금 시즌 (2027-01~04)", "what": "TurboTax 기본 요금 인하로 신규 고객 확보, AI 기능 확대와 LLM 서비스 안 유통", "src": ["s3"] },
+      { "when": "FY2027", "what": "중견기업용 Intuit Enterprise Suite 확대 (건설 등 업종판), 신규 고객 확보 중심으로 전환", "src": ["s3", "s5"] },
+      { "when": "향후 3년", "what": "Global Business Solutions 연 10~15%, Consumer 연 4~8% 성장 목표", "src": ["s3"] }
+    ],
+    "vision": "AI 에이전트와 사람 전문가가 한 팀이 돼, 사업자에게는 영업부터 수금까지, 개인에게는 신용 쌓기부터 자산 불리기까지 일을 대신 해 주는 단일 플랫폼이 되겠다고 말한다.",
+    "text": "경쟁에 맞서는 회사의 답은 가격을 내려서라도 고객을 늘리고, 그 고객을 AI로 더 오래, 더 비싸게 붙잡는 것이다. FY2027에는 TurboTax 기본 요금을 낮추고 중견기업용 Enterprise Suite를 키우며, 중소기업 조직도 Ashley Still 한 사람 아래로 합쳤다. 회사는 이를 '고객 확보 중심 전환'이라고 부르지만, 그 대가로 FY2027 매출 성장 가이던스가 9~10%로 FY2026의 14%보다 낮다.",
+    "src": ["s1", "s3", "s5"]
+  },
+
+  "governance": {
+    "line": "2019년부터 CEO, 2026-01부터 이사회 의장을 겸하는 Sasan Goodarzi가 이끌고 CFO는 Sandeep Aujla이며, FY2026 자사주 54억 달러 매입·분기 배당 1.38달러(+15%)로 환원을 늘리고 있다.",
+    "src": ["s2", "s1"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q1 FY2027", "metric": "revenue", "value": "42.94~43.13억 달러 (+11%)", "givenOn": "2026-08-25", "src": ["s1"] },
+      { "period": "Q1 FY2027", "metric": "diluted EPS", "value": "GAAP 1.71~1.75달러, non-GAAP 2.44~2.48달러 (새 기준: 주식보상비 포함)", "givenOn": "2026-08-25", "src": ["s1"] },
+      { "period": "FY2027", "metric": "revenue", "value": "232.79~235.12억 달러 (+9~10%)", "givenOn": "2026-08-25", "src": ["s1"] },
+      { "period": "FY2027", "metric": "segment revenue", "value": "Global Business Solutions +13~14%, Consumer +4~6% (TurboTax +2~3%, Credit Karma +11~13%), Mailchimp -1~0%", "givenOn": "2026-08-25", "src": ["s1"] },
+      { "period": "FY2027", "metric": "operating income / EPS", "value": "GAAP 영업이익 74.08~74.90억 달러, GAAP EPS 20.12~20.36달러, non-GAAP EPS 22.88~23.12달러", "givenOn": "2026-08-25", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "FY2026 연간 매출은 +14%로 마감했다. FY2027 가이던스(+9~10%)는 성장 둔화를 예고했고, non-GAAP 기준이 주식보상비 포함으로 바뀌어 과거 수치와 직접 비교하면 안 된다.",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 23.09달러(범위 21.65~24.29, 9개 추정), 직전 4개 분기 실적 합 18.31달러. 최근 4주 상향 3건·하향 0건. 회사의 새 non-GAAP 기준(주식보상비 포함)과 컨센서스 기준이 같은지는 확인하지 못했다.",
+    "src": ["s6"]
+  },
+
+  "watch": {
+    "confirms": [
+      "온라인 유료 고객 증가율이 3%에서 다시 올라감 (요금 인하가 신규 고객으로 이어짐)",
+      "Intuit Enterprise Suite 연환산 매출과 중견기업 고객이 계속 빠르게 늘어남",
+      "2027 세금 시즌 TurboTax 신고 건수가 늘어남 (FY2026에는 연방 신고 건수 감소)",
+      "Credit Karma가 두 자릿수 성장을 유지",
+      "새 기준 영업이익률이 가이던스대로 확대"
+    ],
+    "breaks": [
+      "요금 인하에도 TurboTax 신고 건수가 계속 줄어듦",
+      "범용 AI 서비스가 세금 신고·장부를 직접 처리하며 고객을 빼감",
+      "정부 무료 신고 프로그램 재개·확대",
+      "소비자 신용 경기 악화로 Credit Karma 수수료 급감",
+      "FY2027 가이던스 하향"
+    ],
+    "keyNumbers": [
+      { "name": "Online Ecosystem 매출 성장률", "why": "QuickBooks 중심 사업의 성장 엔진" },
+      { "name": "온라인 유료 고객 수 증가율", "why": "AI 시대에 고객 기반이 넓어지는지 보여준다" },
+      { "name": "TurboTax 매출·신고 건수", "why": "저가 경쟁과 AI 대체 압력의 직접 지표" },
+      { "name": "Credit Karma 매출", "why": "소비자 신용 경기에 민감한 고성장 축" },
+      { "name": "다음 분기·연간 매출 가이던스", "why": "주가가 가장 크게 반응하는 숫자" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-18 (외부 일정표, 회사 미확정; 전년 Q1은 2025-11-20 발표)", "event": "Q1 FY2027 실적 발표와 가이던스", "src": ["s7", "s8"] },
+      { "date": "2027-01~04", "event": "미국 세금 신고 시즌 - TurboTax 요금 인하 효과 확인 (Q2·Q3 FY2027 실적에 반영)", "src": ["s2", "s3"] }
+    ],
+    "reaction": "매출의 큰 부분이 세금 시즌에 몰려 분기 실적보다 연간·다음 분기 가이던스와 세금 시즌 중간 점검 수치에 주가가 크게 반응한다. AI가 소프트웨어를 대체할 수 있다는 우려가 커질 때는 실적과 무관하게 업종 전체와 함께 움직이기도 한다.",
+    "conditions": [
+      "다음 분기 매출 가이던스가 회사 이전 범위·컨센서스와 비교해 어떤지",
+      "Online Ecosystem 성장률이 20% 안팎을 유지하는지",
+      "온라인 유료 고객 증가율이 반등하는지",
+      "AI 관련 소프트웨어 업종 전체의 투자심리가 어느 방향인지"
+    ]
+  },
+
+  "unverified": [
+    "다음 실적 발표일 2026-11-18은 외부 일정표(Finnhub) 값이며 회사 공지는 확인하지 못했다.",
+    "콜 내용(Enterprise Suite 연환산 1.45억 달러, 유료 고객 +3%, 향후 3년 부문 성장 목표, LLM 안 TurboTax 유통)은 MarketBeat 요약(2차 출처)으로만 확인했다.",
+    "총마진 80.2%는 10-K의 매출·매출원가로 계산한 값이다. 부문 영업이익률(76.9%·73.5%)은 공통비 약 103억 달러를 뺀 기준이라 회사 전체 이익률과 다르다.",
+    "AI 모델 공급사(외부 LLM 제공사)와 'AI 플랫폼 제공사와의 전략적 제휴' 상대는 10-K에 이름이 없다.",
+    "경쟁사 이름과 시장 점유율은 10-K에 없어 null로 뒀다.",
+    "컨센서스 EPS의 기준이 회사의 새 non-GAAP(주식보상비 포함)와 같은지 확인하지 못했다.",
+    "FY2026 결과 발표 뒤 주가 반응은 이번 조사에서 확인하지 못했다."
+  ],
+  "confidence": "medium - 재무와 사업 구조는 10-K·실적 발표로 확인했지만, 콜 세부와 경쟁 구도는 2차 요약이나 이름 없는 공시에 의존한다"
+}

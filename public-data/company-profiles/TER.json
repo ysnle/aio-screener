@@ -1,0 +1,219 @@
+{
+  "symbol": "TER",
+  "name": "Teradyne, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31",
+  "oneLine": "Teradyne은 공장에서 칩이 제대로 작동하는지 검사하는 반도체 테스트 장비(ATE)를 만드는 미국 회사로, AI 관련 매출이 전체의 60%를 넘으면서 Q3 2026 매출이 전년보다 70% 늘었지만 SoC 테스터 1위 자리는 일본 Advantest가 쥐고 있다.",
+  "sources": [
+    { "id": "s1", "kind": "8-K", "title": "Teradyne Reports Third Quarter 2026 Results (8-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0000097210/000119312526434981/ter-ex99_1.htm", "publisher": "Teradyne / SEC EDGAR", "date": "2026-10-27" },
+    { "id": "s2", "kind": "call-transcript", "title": "Teradyne (TER) Q3 2026 Earnings Call Transcript", "url": "https://www.fool.com/earnings/call-transcripts/2026/10/28/teradyne-ter-q3-2026-earnings-call-transcript/", "publisher": "The Motley Fool", "date": "2026-10-28" },
+    { "id": "s3", "kind": "10-K", "title": "Teradyne Form 10-K for fiscal year 2025", "url": "https://www.sec.gov/Archives/edgar/data/97210/000119312526059002/ter-20251231.htm", "publisher": "Teradyne / SEC EDGAR", "date": "2026-02-19" },
+    { "id": "s4", "kind": "8-K", "title": "FormFactor and Teradyne Announce Strategic Collaboration (FormFactor 8-K Item 3.02 and Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/1039399/000103939926000037/ex-991.htm", "publisher": "FormFactor / SEC EDGAR", "date": "2026-10-12" },
+    { "id": "s5", "kind": "other", "title": "The Chip Testing Bottleneck (cites Advantest SoC tester share estimates)", "url": "https://wing.vc/content/the-chip-testing-bottleneck", "publisher": "Wing Venture Capital", "date": "2026-05" },
+    { "id": "s6", "kind": "8-K", "title": "Teradyne 8-K: $1.0 billion senior secured revolving credit facility with PNC Bank", "url": "https://www.sec.gov/Archives/edgar/data/97210/000119312526342367/ter-20260807.htm", "publisher": "Teradyne / SEC EDGAR", "date": "2026-08-07" },
+    { "id": "s7", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/ter/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" }
+  ],
+
+  "moat": {
+    "sources": [
+      "SoC 테스터 시장을 Advantest와 둘이 나눠 갖는 과점 구조 - 한 번 공장·OSAT에 인증되면 테스터를 바꾸기 어렵다 (s5)",
+      "UltraFLEXplus(SoC)·Magnum(메모리)·J750·ETS로 이어지는 플랫폼과 그 위에 고객이 쌓은 테스트 프로그램 (10-K)",
+      "메모리·HDD·고속 인터커넥트·광학까지 넓은 테스트 포트폴리오와 FormFactor와의 프로브 협업 (s1, s4)"
+    ],
+    "text": "칩은 설계와 생산이 끝나도 출하 전에 모두 전기적 검사를 거쳐야 하고, 이 검사를 하는 장비를 만드는 회사는 사실상 Advantest와 Teradyne 둘뿐이다. 고객은 테스터 위에 수년간 테스트 프로그램을 쌓기 때문에 한 번 인증된 장비를 잘 바꾸지 않는다. Teradyne의 힘은 이 전환 비용과, SoC·메모리·저장장치를 아우르는 플랫폼 폭에서 나온다.",
+    "src": ["s5", "s3", "s1"]
+  },
+
+  "design": {
+    "text": "그 플랫폼 위에서 회사는 세 사업을 한다. Semiconductor Test는 GPU·CPU·맞춤형 ASIC 같은 SoC 테스터, DRAM·HBM용 메모리 테스터, HDD 등을 검사하는 IST(Integrated Systems Test)로 나뉘고, Product Test는 회로기판·무선·광집적회로·방산 장비 검사, Robotics는 Universal Robots 협동로봇과 MiR 자율이동로봇이다. 매출의 대부분과 AI 노출은 Semiconductor Test에 몰려 있다.",
+    "src": ["s3", "s2"]
+  },
+
+  "make": {
+    "model": "mixed",
+    "partners": [
+      "외부 위탁 생산업체·하청업체 - 테스트 장비 생산, 말레이시아에 큰 거점 (10-K, 업체명 미공개)",
+      "자체 공장 - 로봇은 덴마크·미국 시설에서 주로 생산 (10-K)",
+      "FormFactor - 프로브·인터페이스 공동 개발, Teradyne이 3억 달러 지분 투자 (4분기 종결 예정)"
+    ],
+    "text": "Teradyne은 장비를 설계하지만 테스트 장비 조립은 주로 말레이시아의 외부 위탁 생산업체에 맡기고, 로봇만 덴마크·미국 자체 시설에서 만든다. 수요가 갑자기 늘면 부품 리드타임이 길어지는 구조라, Q3에 재고가 5.75억 달러로 늘었는데 회사는 그 절반은 수요, 절반은 긴 부품 조달 기간 때문이라고 설명했다. 칩과 테스터를 잇는 프로브 쪽은 FormFactor와 손을 잡아 보완한다.",
+    "src": ["s3", "s2", "s4"]
+  },
+
+  "sell": {
+    "customers": [
+      "칩 설계사(팹리스)·종합반도체(IDM)·파운드리·후공정(OSAT) 업체 (10-K)",
+      "하이퍼스케일러 맞춤형 칩 - 듀얼 벤더 전략으로 점유율 확대, 첫 하이퍼스케일러 다음 대형 램프는 2027 중반 (콜)",
+      "상용 GPU 고객 - '빠른 추격자' 단계 (콜)",
+      "메모리 제조사 - HBM·DRAM 테스트 (콜)"
+    ],
+    "channel": "주로 칩 회사·OSAT에 직접 판매하며, 장비를 실제로 사는 회사(OSAT 등)와 장비를 지정하는 회사(칩 설계사)가 다를 수 있다.",
+    "concentration": "2025년 상위 5개 직접 고객이 매출의 44% (2024년 36%). 직접 구매 고객 1곳이 19%, 장비를 지정한 고객 2곳이 각각 12%·10% (10-K).",
+    "text": "이렇게 만든 테스터는 칩 설계사가 '이 장비로 검사하라'고 지정하고 OSAT나 파운드리가 실제로 사는 경우가 많다. 그래서 고객 집중도가 높아, 2025년 상위 5개 직접 고객이 매출의 44%였고 한 고객이 19%를 차지했다. AI 쪽에서는 하이퍼스케일러들이 장비 공급사를 둘로 나누는 전략을 쓰면서 Teradyne의 연산 칩 테스트 점유율이 오르고 있다고 회사는 말했다.",
+    "src": ["s3", "s2"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "하이퍼스케일러·AI 연구소", "to": "GPU·맞춤형 칩 설계사, 메모리 회사", "what": "AI 가속기·HBM 구매" },
+      { "from": "칩 설계사·메모리 회사", "to": "파운드리·OSAT 테스트 라인", "what": "테스트 장비 지정과 테스트 용량 주문" },
+      { "from": "OSAT·파운드리·IDM", "to": "Teradyne", "what": "테스터 시스템 구매(대당), 계측기·업그레이드·서비스" },
+      { "from": "Teradyne", "to": "말레이시아 위탁 생산업체, FormFactor 등 파트너", "what": "장비 위탁 생산비, 프로브 협업 지분 투자 3억 달러" }
+    ],
+    "pricing": "테스터 시스템을 대당 판매하고, 계측기 추가·업그레이드·서비스로 설치 기반에서 추가 매출을 얻는다. 칩이 복잡해지고 검사 시간이 늘수록 필요한 테스터 대수가 늘어난다.",
+    "text": "돈은 AI 칩을 사는 클라우드에서 출발해, 칩 설계사가 지정한 테스트 라인을 거쳐 Teradyne에 장비 대금으로 들어온다. 칩이 커지고 HBM 적층이 늘수록 칩 하나당 검사 시간이 길어져 같은 생산량에도 더 많은 테스터가 필요하다. 다만 주문은 고객의 램프 일정에 따라 몰렸다 빠지기를 반복해, 회사도 분기별 '덩어리' 매출을 위험으로 꼽는다.",
+    "src": ["s2", "s1"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-27)",
+    "revenue": { "value": 1306, "unit": "USD mn", "yoy": 69.8 },
+    "grossMargin": 59.1,
+    "operatingMargin": 30.8,
+    "netMargin": 26.2,
+    "operatingCashFlow": { "value": 313.6, "unit": "USD mn" },
+    "freeCashFlow": { "value": 227.3, "unit": "USD mn" },
+    "segments": [
+      { "name": "Semiconductor Test - SoC", "revenue": 676, "unit": "USD mn", "share": 51.8, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Semiconductor Test - Memory", "revenue": 301, "unit": "USD mn", "share": 23.0, "yoy": null, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Semiconductor Test - IST (HDD 등)", "revenue": 95, "unit": "USD mn", "share": 7.3, "yoy": 150, "operatingMargin": null, "src": ["s2"] },
+      { "name": "Product Test", "revenue": 138, "unit": "USD mn", "share": 10.6, "yoy": 56, "operatingMargin": null, "src": ["s1", "s2"] },
+      { "name": "Robotics", "revenue": 96, "unit": "USD mn", "share": 7.4, "yoy": 28, "operatingMargin": null, "src": ["s1", "s2"] }
+    ],
+    "industryMetric": [
+      { "name": "AI 관련 매출 비중", "value": "Q3 2026 전체 매출의 60% 이상 (콜)", "src": ["s2"] },
+      { "name": "Semiconductor Test 매출", "value": "10.72억 달러, 전년 대비 +77%; 연산(compute) 매출 약 +50% (콜)", "src": ["s1", "s2"] },
+      { "name": "메모리 테스트", "value": "3.01억 달러 사상 최대, 4개 분기 연속 2억 달러 초과 (콜)", "src": ["s2"] },
+      { "name": "Product Test 수주 대비 출하 비율(B/B)", "value": "1.4배 (콜)", "src": ["s2"] },
+      { "name": "Non-GAAP 영업이익률", "value": "31.6% (4.13억 달러)", "src": ["s1"] }
+    ],
+    "text": "그 결과 Q3 매출은 13.06억 달러로 전년보다 70% 늘었고, 세 분기 연속 13억 달러 안팎을 유지했다. 이익은 Semiconductor Test에 집중되며, 그 안에서 SoC가 6.76억 달러, 메모리가 사상 최대인 3.01억 달러였다. 총마진 59.1%는 전 분기보다 0.7%p 낮아졌는데 회사는 제품 구성 때문이라고 설명했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "useOfCash": {
+    "period": "Q3 2026",
+    "items": [
+      { "use": "R&D", "value": 163.1, "unit": "USD mn", "src": ["s1"] },
+      { "use": "capex", "value": 86.3, "unit": "USD mn", "src": ["s1"] },
+      { "use": "buybacks", "value": 99.3, "unit": "USD mn", "src": ["s1"] },
+      { "use": "dividends", "value": 20.3, "unit": "USD mn", "src": ["s1"] }
+    ],
+    "text": "번 돈의 가장 큰 쓰임은 연구개발로, Q3에 1.63억 달러를 썼고 2026년 연간 R&D와 설비투자를 합쳐 10억 달러 가까이 쓴다고 했다. 남은 현금으로 자사주 0.99억 달러와 배당 0.2억 달러를 돌려줬다. 여기에 FormFactor 지분 3억 달러 투자가 4분기에 나가고, 8월에는 아직 쓰지 않은 10억 달러 한도의 신용공여를 열어 두어 투자 여력을 넓혔다.",
+    "src": ["s1", "s2", "s4", "s6"]
+  },
+
+  "aiChain": {
+    "layer": "semicap-foundry",
+    "position": "AI 가속기·맞춤형 ASIC·HBM·네트워크 칩이 출하되기 전에 반드시 거치는 검사 단계에 테스터를 공급한다. 칩이 커지고 HBM 적층이 늘어날수록 칩당 검사 시간과 테스터 수요가 함께 커지는 자리다.",
+    "dependsOn": ["말레이시아 외부 위탁 생산업체", "부품 공급망 (리드타임 장기화)", "FormFactor 등 프로브·인터페이스 파트너"],
+    "sellsTo": ["chips-compute (GPU·맞춤형 ASIC 설계사, 하이퍼스케일러)", "memory (DRAM·HBM 제조사)", "OSAT·파운드리 테스트 라인", "저장장치(HDD) 업체"],
+    "aiRevenue": "Q3 2026 매출의 60% 이상이 AI 관련 (콜). 금액 기준 AI 매출은 미공개.",
+    "upside": "AI 칩과 HBM 생산량이 늘고 칩당 검사 시간이 길어질수록 테스터·계측기 주문이 늘어 매출과 이익률이 함께 오른다. 하이퍼스케일러의 공급사 이원화는 2위 업체인 Teradyne에 점유율 기회가 된다.",
+    "risk": "SoC 테스터 1위 Advantest가 점유율을 더 넓히거나, 핵심 하이퍼스케일러·GPU 고객의 램프가 늦어지면 분기 매출이 크게 흔들린다. 회사도 연산 시장이 너무 빨리 커져 자기 점유율이 희석됐다고 인정했다.",
+    "text": "그래서 AI 가치사슬에서 Teradyne은 칩을 만드는 파운드리·OSAT 옆의 '장비' 층, 그중 검사 단계에 있다. AI 칩과 HBM이 팔릴수록 테스터가 같이 팔리지만, 이 단계의 주도권은 SoC 점유율 66%로 추정되는 Advantest가 쥐고 있다. Teradyne은 메모리·HDD·고속 인터커넥트처럼 AI가 끌어올린 주변 영역까지 넓게 걸쳐, 연산 칩 한 곳에 덜 의존하는 구조로 대응하고 있다.",
+    "src": ["s2", "s5", "s1"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "SoC 테스터 (GPU·CPU·ASIC)", "rivals": ["Advantest", "SPEA", "Cohu"], "position": "challenger", "share": "Advantest가 CY2025 SoC 테스터 점유율을 56%에서 66%로 올렸다는 추정 (Wing VC 2026-05, Advantest 자료 인용). Teradyne 점유율 수치는 미공개", "src": ["s5", "s3"] },
+      { "arena": "메모리 테스터 (DRAM·HBM)", "rivals": ["Advantest"], "position": "challenger", "share": null, "src": ["s2", "s3"] },
+      { "arena": "협동로봇", "rivals": ["FANUC", "ABB", "KUKA", "Yaskawa", "Staubli"], "position": "leader", "share": null, "src": ["s3"] },
+      { "arena": "기판·무선·광학 제품 테스트", "rivals": ["Keysight", "Rohde & Schwarz", "Anritsu", "National Instruments", "Test Research"], "position": "niche", "share": null, "src": ["s3"] }
+    ],
+    "edge": "하이퍼스케일러의 공급사 이원화로 연산 칩 점유율이 오르고 있고, 메모리·HDD·고속 인터커넥트·광학까지 AI 주변 검사를 넓게 덮는다. FormFactor와의 협업으로 프로브부터 테스터까지 묶은 해법을 낼 수 있다.",
+    "threats": "Advantest가 CY2025 한 해에만 SoC 점유율을 10%p 끌어올린 것으로 추정되고, 상용 GPU 고객에서 Teradyne은 아직 '빠른 추격자' 단계다. 모바일 매출은 회사 모델보다 부진하다.",
+    "text": "이 층의 경쟁은 사실상 Advantest와의 양자 대결이다. GPU 테스트에서는 Advantest가 앞서 있고 2025년에 점유율을 더 넓힌 것으로 추정되며, Teradyne은 하이퍼스케일러 맞춤형 칩에서 두 번째 공급사로 자리를 늘리는 방식으로 따라붙고 있다. 메모리 테스트에서는 HBM 덕에 사상 최대 매출을 내며 존재감을 키웠다.",
+    "src": ["s5", "s2", "s3"]
+  },
+
+  "strategy": {
+    "goal": "2026년 매출 약 52억 달러, 2027년에는 매 분기 전년 대비 성장 (콜). 기존 목표 모델은 ATE 시장 120억~140억 달러를 가정했으며, 회사는 시장이 이미 '크게' 커졌다며 1월 Q4 발표 때 새 목표 모델을 내겠다고 했다.",
+    "roadmap": [
+      { "when": "Q4 2026", "what": "매출 12.5억~13.5억 달러, 총마진 57.5~58.5% 가이드; FormFactor 지분 투자 종결 예정", "src": ["s1", "s2", "s4"] },
+      { "when": "2027 (연간)", "what": "HBM 주도로 메모리 테스트 큰 폭 성장, 연산 칩은 하반기 집중 (콜)", "src": ["s2"] },
+      { "when": "2027 중반", "what": "첫 하이퍼스케일러 고객의 다음 대형 칩 램프 (콜)", "src": ["s2"] },
+      { "when": "2028까지", "what": "광-전 공동패키징(CPO) 테스트 기회 3억~7억 달러로 회사 추정, 시점은 불확실 (콜)", "src": ["s2"] }
+    ],
+    "vision": "칩 하나가 아니라 메모리·저장장치·네트워크·광학까지 AI 시스템 전체의 검사를 맡는 테스트 회사, 그리고 프로브 파트너까지 묶은 열린 테스트 생태계를 그린다.",
+    "text": "이 경쟁에서 회사가 택한 길은 범위를 넓히는 것이다. 2027년에는 HBM이 이끄는 메모리 테스트를 키우고, 연산 칩은 2027년 중반 하이퍼스케일러의 다음 램프에 맞추며, 2028년까지 CPO 같은 광학 테스트 기회를 노린다. 새 목표 모델은 1월 실적 발표 때 나온다.",
+    "src": ["s2", "s4"]
+  },
+
+  "governance": {
+    "line": "Greg Smith CEO와 Michelle Turner CFO가 이끌며, 분기 배당 0.13달러와 분기 1억 달러 안팎의 자사주 매입을 이어가는 동시에 FormFactor 지분 투자와 10억 달러 신용한도로 투자 여력을 확보하는 기조다.",
+    "src": ["s1", "s2", "s6"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "revenue", "value": "12.5억~13.5억 달러", "givenOn": "2026-10-27", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "gross margin", "value": "57.5~58.5%", "givenOn": "2026-10-28", "src": ["s2"] },
+      { "period": "Q4 2026", "metric": "diluted EPS", "value": "GAAP 1.88~2.18달러, non-GAAP 1.95~2.25달러", "givenOn": "2026-10-27", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "non-GAAP operating margin", "value": "28~30% (영업비용 매출의 28.5~29.5%)", "givenOn": "2026-10-28", "src": ["s2"] },
+      { "period": "FY2026", "metric": "revenue", "value": "약 52억 달러", "givenOn": "2026-10-28", "src": ["s2"] }
+    ],
+    "style": "quarterly",
+    "track": "Q3 2026은 매출·이익 모두 회사 가이드 상단을 넘었다고 밝혔다. Q4 가이드 중간값(13억 달러)은 Q3와 비슷한 수준이며, 총마진은 제품 구성 탓에 낮아질 것으로 제시했다.",
+    "src": ["s1", "s2"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(조정 EPS, Zacks via Nasdaq) 향후 4개 분기 합계 10.69달러(범위 9.00~12.18), 직전 4개 분기 실적 9.12달러. 최근 4주 상향 4건·하향 0건.",
+    "src": ["s7"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q4 매출이 가이드 범위(12.5억~13.5억 달러) 안에서 중간값 이상",
+      "1월 새 목표 모델이 기존 ATE 시장 가정(120억~140억 달러)보다 크게 올라감",
+      "HBM 테스트 주문이 2027년에도 늘어 메모리 매출이 분기 2억 달러 이상 유지",
+      "하이퍼스케일러 2027 중반 램프와 상용 GPU 고객에서 생산 주문 확대",
+      "AI 관련 매출 비중 60% 이상 유지"
+    ],
+    "breaks": [
+      "핵심 하이퍼스케일러·GPU 고객의 램프 지연이나 주문 공백",
+      "Advantest의 SoC 점유율 추가 확대 보도",
+      "총마진이 가이드 하단(57.5%) 아래로 내려감",
+      "재고가 계속 늘고 매출로 이어지지 않음",
+      "상위 고객 1곳(2025년 19%)의 주문 감소"
+    ],
+    "keyNumbers": [
+      { "name": "Semiconductor Test 매출 (SoC·메모리 분리)", "why": "AI 칩과 HBM 수요가 실제 장비 주문으로 오는지" },
+      { "name": "AI 관련 매출 비중", "why": "AI 의존도와 그 변화 방향" },
+      { "name": "총마진", "why": "제품 구성과 신제품 출시 비용의 영향" },
+      { "name": "다음 분기 매출 가이드", "why": "덩어리 주문의 다음 분기 공백 여부" },
+      { "name": "재고", "why": "수요 대비 생산·부품 조달의 균형" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2027-01 (회사 미확정)", "event": "Q4 2026 실적, 2027 전망과 새 목표 모델 발표 예고", "src": ["s2"] },
+      { "date": "2026 Q4 중 (종결 예정)", "event": "FormFactor 지분 3억 달러 투자 종결", "src": ["s4"] },
+      { "date": "매 분기", "event": "Advantest 실적과 SoC·메모리 테스터 시장 전망 (경쟁사 발언이 먼저 나올 때 많음)", "src": ["s5"] },
+      { "date": "2027 중반", "event": "첫 하이퍼스케일러 고객의 다음 대형 칩 램프 (회사 발언)", "src": ["s2"] }
+    ],
+    "reaction": "주가는 분기 실적보다 다음 분기 가이드와 AI 고객 램프 시점 발언에 반응한다. Q3처럼 가이드 상단을 넘겨도 다음 분기 가이드가 평탄하면 약세로 반응할 수 있고, Advantest 실적·전망이 먼저 나오면 그 내용이 선반영되기도 한다.",
+    "conditions": [
+      "다음 분기 매출·EPS 가이드와 컨센서스의 차이",
+      "AI 관련 매출 비중과 SoC·메모리 매출 방향",
+      "하이퍼스케일러·GPU 고객 램프 시점 발언",
+      "Advantest의 점유율·시장 전망 발언",
+      "총마진 가이드 방향",
+      "컨센서스 EPS 상향·하향 건수 추이 (현재 상향 4건, 하향 0건)"
+    ]
+  },
+
+  "unverified": [
+    "Teradyne의 SoC·메모리 테스터 점유율 수치 (회사 미공개; Advantest 66%는 Wing VC가 Advantest 자료를 인용한 2차 출처)",
+    "SoC·메모리 부문 매출의 전년 대비 증가율 (콜 요약에서 확인 못함)",
+    "AI 관련 매출 금액 (비중 60% 이상만 공개)",
+    "테스트 장비 위탁 생산업체 이름 (10-K 미공개)",
+    "Q3 2026 이전 분기 가이드 수치 (가이드 상단 초과는 회사 표현만 확인)",
+    "Q4 2026 실적 발표일 (회사 미공지)",
+    "녹취록(s2)은 Motley Fool 게재본으로 원문 대조 필요; SoC·메모리·IST 금액과 AI 비중, Q4 총마진 가이드는 녹취록에서만 확인"
+  ],
+  "confidence": "high - 실적·현금 사용·가이던스는 8-K 보도자료와 콜에서 왔고, 경쟁 점유율만 2차 출처라 medium 수준이다."
+}

@@ -1,0 +1,630 @@
+{
+  "symbol": "S",
+  "name": "SentinelOne, Inc.",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "January 31 (FY2026 ended 2026-01-31)",
+  "oneLine": "SentinelOne은 PC·서버·클라우드에 심은 AI 에이전트로 해킹을 막고 보안 데이터를 분석하는 구독형 보안 회사로, 기업이 AI를 들일수록 'AI를 지키는 보안'과 'AI로 하는 보안' 양쪽 수요를 노린다.",
+  "sources": [
+    {
+      "id": "s1",
+      "kind": "earnings-release",
+      "title": "SentinelOne Announces Second Quarter Fiscal Year 2027 Financial Results (Exhibit 99.1 PDF)",
+      "url": "https://s28.q4cdn.com/399982429/files/doc_financials/2027/q2/SentinelOne-Q2-27-Earnings-Press-Release.pdf",
+      "publisher": "SentinelOne IR",
+      "date": "2026-08-27"
+    },
+    {
+      "id": "s2",
+      "kind": "earnings-release",
+      "title": "SentinelOne Announces Fourth Quarter and Fiscal Year 2026 Financial Results (Exhibit 99.1 PDF)",
+      "url": "https://s28.q4cdn.com/399982429/files/doc_financials/2026/q4/SentinelOne-Q4-26-PR-3-12.pdf",
+      "publisher": "SentinelOne IR",
+      "date": "2026-03-12"
+    },
+    {
+      "id": "s3",
+      "kind": "ir-site",
+      "title": "SentinelOne Q2 FY2027 Earnings Presentation",
+      "url": "https://s28.q4cdn.com/399982429/files/doc_financials/2027/q2/S-Q2-FY27-Earnings-Presentation.pdf",
+      "publisher": "SentinelOne IR",
+      "date": "2026-08-27"
+    },
+    {
+      "id": "s4",
+      "kind": "10-Q",
+      "title": "SentinelOne Form 10-Q for the quarter ended 2026-07-31 (IR-hosted copy)",
+      "url": "https://s28.q4cdn.com/399982429/files/content_files/SentinelOne-Inc-Q2-27-10Q_filed.pdf",
+      "publisher": "SentinelOne IR",
+      "date": "2026-08"
+    },
+    {
+      "id": "s5",
+      "kind": "10-K",
+      "title": "SentinelOne Form 10-K for fiscal year ended 2026-01-31 (IR-hosted copy)",
+      "url": "https://s28.q4cdn.com/399982429/files/doc_financials/2026/q4/SentinelOne-Inc-Q4-26-10K_Filed.pdf",
+      "publisher": "SentinelOne IR",
+      "date": "2026-03-19"
+    },
+    {
+      "id": "s6",
+      "kind": "news",
+      "title": "SentinelOne Announces Pricing of Offering of $1.25 Billion of 0.00% Convertible Senior Notes Due 2031",
+      "url": "https://investors.sentinelone.com/press-releases/news-details/2026/SentinelOne-Announces-Pricing-of-Offering-of-1-25-Billion-of-0-00-Convertible-Senior-Notes-Due-2031/default.aspx",
+      "publisher": "SentinelOne IR",
+      "date": "2026-10-14"
+    },
+    {
+      "id": "s7",
+      "kind": "ir-site",
+      "title": "SentinelOne press release list (Singularity Agentic Detection and Response 2026-10-21, Wayfinder Frontier AI Services with Claude Mythos 5.1 2026-10-29, Google Cloud collaboration 2026-03-25, Amazon Bedrock AgentCore integration 2026-06-17)",
+      "url": "https://investors.sentinelone.com/press-releases/default.aspx",
+      "publisher": "SentinelOne IR",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s8",
+      "kind": "call-transcript",
+      "title": "S 2Q27 earnings call summary (partial; full transcript behind sign-up)",
+      "url": "https://transcripts.platformaeronaut.com/summaries/S-2Q27-AI-Summary",
+      "publisher": "PlatformAeronaut",
+      "date": "2026-08-27"
+    },
+    {
+      "id": "s9",
+      "kind": "other",
+      "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json",
+      "url": "https://www.nasdaq.com/market-activity/stocks/s/earnings",
+      "publisher": "Nasdaq / Zacks via AIO",
+      "date": "2026-10-29"
+    },
+    {
+      "id": "s10",
+      "kind": "other",
+      "title": "AIO local earnings calendar (Finnhub calendar/earnings), public-data/earnings-calendar.json - next S report date, not company-confirmed",
+      "url": "https://finnhub.io/docs/api/earnings-calendar",
+      "publisher": "Finnhub via AIO",
+      "date": "2026-10-30"
+    }
+  ],
+  "moat": {
+    "sources": [
+      "기기 안에서 AI가 직접 판단하는 Singularity 에이전트 - 클라우드에 묻지 않고 단말에서 막고 되돌리는(롤백) 구조",
+      "엔드포인트·클라우드·ID·데이터(AI SIEM)·AI 보안을 한 데이터 레이크 위에 묶은 플랫폼 - 비엔드포인트 비중이 ARR의 50% 이상 (Q2 FY2027)",
+      "생성형 AI 보안 분석가 Purple AI와 AI 사용 보안 Prompt Security - 두 제품 ARR이 전년 대비 약 3배 (Q2 FY2027)",
+      "MSSP·리셀러·하이퍼스케일러를 아우르는 채널 생태계 - 매출 대부분이 채널을 통해 체결"
+    ],
+    "text": "SentinelOne의 출발점은 기기 안에서 AI가 직접 공격을 판단하고 막는 엔드포인트 보안이다. 그 위에 클라우드·계정·보안 로그 분석(AI SIEM)·AI 사용 보안을 한 데이터 레이크로 묶어, Q2 FY2027에는 엔드포인트가 아닌 제품이 ARR의 절반을 넘었다. 다만 엔드포인트 시장 1위가 아니어서, 이 강점은 '더 넓은 플랫폼을 더 싸고 빠르게' 쓰게 하는 데서 나온다.",
+    "src": [
+      "s3",
+      "s5"
+    ]
+  },
+  "design": {
+    "text": "이 플랫폼에서 회사가 파는 것은 다섯 갈래다. 엔드포인트(EPP·EDR·XDR), 클라우드(CNAPP·CWP), ID 보호, 데이터(AI SIEM·Observo AI 데이터 파이프라인·로그 관리), 그리고 AI 보안(Prompt Security)과 AI 보안 분석가 Purple AI다. 여기에 사람이 함께 대응하는 Wayfinder 위협 서비스가 붙고, 2026-10에는 악성 AI 에이전트를 잡는 Agentic Detection and Response를 내놨다. 매출은 부문을 나누지 않고 한 줄로 보고한다.",
+    "src": [
+      "s3",
+      "s5",
+      "s7"
+    ]
+  },
+  "make": {
+    "model": "service",
+    "partners": [
+      "AWS - Singularity 플랫폼의 주 호스팅 클라우드",
+      "Google Cloud - 대체 호스팅과 공동 판매 협력 (2026-03-25 협력 확대)",
+      "Observo AI (2025-09 인수) - AI용 보안 데이터 파이프라인",
+      "Prompt Security (2025-09 인수) - 생성형·에이전트 AI 보안",
+      "Anthropic·OpenAI 모델 - Wayfinder Frontier AI 서비스에 탑재 (2026-09·10 발표)"
+    ],
+    "text": "제품은 공장 없이 소프트웨어로 만들고, 플랫폼은 주로 AWS에, 일부는 Google Cloud와 고객 자체 데이터센터에 올린다. AI 기능은 2025-09에 산 Prompt Security와 Observo AI, 그리고 외부 프런티어 모델을 붙이는 방식으로 넓히고 있다. 원가의 대부분이 클라우드 운영비라 GAAP 총마진은 FY2026 74%에서 Q2 FY2027 72%로 조금 내려왔다.",
+    "src": [
+      "s5",
+      "s4",
+      "s7",
+      "s1",
+      "s2"
+    ]
+  },
+  "sell": {
+    "customers": [
+      "기업·정부 보안 조직 - ARR 10만 달러 이상 고객 1,715곳 (2026-07-31, +13%)",
+      "MSSP·MSP를 통해 보안을 사는 중견·중소기업",
+      "미국 연방 기관 (FedRAMP High 인증 제품군)",
+      "프런티어 AI 모델 개발사 (회사는 이들을 보호한다고 언급, 이름은 미공시)"
+    ],
+    "channel": "거의 모든 판매가 리셀러·유통사·MSP·MSSP·사고대응 업체 같은 채널 파트너를 통해 체결되고, 직접 영업팀이 고객 관계를 맡는다. 하이퍼스케일러 마켓플레이스와 OEM도 쓴다.",
+    "concentration": "주요 고객 집중 공시 없음. 매출의 61%가 미국, 39%가 해외 (Q2 FY2027).",
+    "text": "이 제품은 직접 영업이 고객을 만나고, 계약 체결은 거의 전부 리셀러·MSSP 같은 채널이 맡는 구조로 팔린다. 그래서 대기업만이 아니라 MSSP를 통해 중견·중소기업까지 넓게 닿고, 연간 10만 달러 이상 내는 고객이 1년 새 200곳 넘게 늘었다. 매출의 61%는 미국에서 나온다.",
+    "src": [
+      "s5",
+      "s4",
+      "s1",
+      "s3",
+      "s2"
+    ]
+  },
+  "moneyFlow": {
+    "steps": [
+      {
+        "from": "기업·정부 보안 조직",
+        "to": "리셀러·유통사·MSSP",
+        "what": "보안 플랫폼 구매 (연간·다년 계약)"
+      },
+      {
+        "from": "리셀러·유통사·MSSP",
+        "to": "SentinelOne",
+        "what": "모듈별 구독료 (기기·사용자·데이터량 기준), Flex 약정형 구매"
+      },
+      {
+        "from": "AI를 도입하는 기업",
+        "to": "SentinelOne",
+        "what": "Purple AI·Prompt Security 등 AI 보안 구독"
+      },
+      {
+        "from": "사고를 겪은 고객",
+        "to": "SentinelOne Wayfinder",
+        "what": "위협 대응·관리형 탐지 서비스 수수료"
+      },
+      {
+        "from": "SentinelOne",
+        "to": "AWS·Google Cloud",
+        "what": "플랫폼 호스팅과 데이터 처리 비용"
+      }
+    ],
+    "pricing": "구독·사용량 기반 반복 매출이 중심이며 회사는 ARR(구독·사용량 연환산 매출)로 성장을 잰다. 약정 금액 안에서 제품을 골라 쓰는 SentinelOne Flex가 ARR의 10%를 넘었다 (Q2 FY2027).",
+    "text": "돈은 고객이 채널 파트너에게 내는 구독료로 들어와, 파트너 몫을 뺀 금액이 SentinelOne 매출이 된다. 계약이 다년이라 미래 매출인 잔여이행의무(RPO)가 2026-07-31 기준 17억 달러로 연 매출보다 크고, 이 중 79%가 24개월 안에 매출로 잡힌다. 들어온 돈의 일부는 다시 AWS·Google Cloud 운영비로 나간다.",
+    "src": [
+      "s3",
+      "s4",
+      "s5"
+    ]
+  },
+  "earnings": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "revenue": {
+      "value": 1001.3,
+      "unit": "USD mn",
+      "yoy": 21.9
+    },
+    "grossMargin": 74.1,
+    "operatingMargin": -32.1,
+    "netMargin": -45,
+    "operatingCashFlow": {
+      "value": 76.6,
+      "unit": "USD mn"
+    },
+    "freeCashFlow": {
+      "value": 51.9,
+      "unit": "USD mn"
+    },
+    "segments": [
+      {
+        "name": "United States (지역)",
+        "revenue": 610,
+        "unit": "USD mn",
+        "share": 60.9,
+        "yoy": 17.3,
+        "operatingMargin": null,
+        "src": [
+          "s5",
+          "s2"
+        ]
+      },
+      {
+        "name": "International (지역)",
+        "revenue": 391.3,
+        "unit": "USD mn",
+        "share": 39.1,
+        "yoy": 29.8,
+        "operatingMargin": null,
+        "src": [
+          "s5"
+        ]
+      }
+    ],
+    "industryMetric": [
+      {
+        "name": "ARR / 순증 ARR",
+        "value": "FY2026 말 ARR 11.191억 달러(+22%); Q2 FY2027 말 12.18억 달러(+22%), 분기 순증 ARR 5,600만 달러(+4%, Q2 기준 최대)",
+        "src": [
+          "s2",
+          "s1",
+          "s3"
+        ]
+      },
+      {
+        "name": "최근 분기 (Q2 FY2027)",
+        "value": "매출 2.92억 달러(+21%), GAAP 총마진 72%(non-GAAP 77%), GAAP 영업이익률 -31%, non-GAAP 영업이익률 10%, 잉여현금흐름 -1,320만 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "name": "잔여이행의무 (RPO)",
+        "value": "17억 달러, 79%가 24개월 내 인식 (2026-07-31)",
+        "src": [
+          "s4"
+        ]
+      },
+      {
+        "name": "AI 제품 ARR",
+        "value": "Purple AI·Prompt Security ARR 전년 대비 약 3배 (금액 미공시, Q2 FY2027)",
+        "src": [
+          "s3"
+        ]
+      },
+      {
+        "name": "비엔드포인트 ARR 비중",
+        "value": "50% 이상 (Q2 FY2027)",
+        "src": [
+          "s3"
+        ]
+      }
+    ],
+    "text": "이렇게 들어온 돈이 FY2026에 매출 10억 달러(+22%)를 만들었지만, GAAP 기준으로는 영업이익률 -32%, 순이익률 -45%로 아직 적자다(순손실에는 세금 1.71억 달러가 크게 반영). 회사가 말하는 흑자는 주식보상비를 뺀 non-GAAP 기준으로, Q2 FY2027 non-GAAP 영업이익률은 10%까지 올라왔다. 현금흐름은 FY2026 잉여현금흐름 5,190만 달러로 플러스지만 분기별로는 들쭉날쭉하다.",
+    "src": [
+      "s2",
+      "s1"
+    ]
+  },
+  "useOfCash": {
+    "period": "FY2026 (ended 2026-01-31)",
+    "items": [
+      {
+        "use": "R&D",
+        "value": 323.9,
+        "unit": "USD mn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "capex",
+        "value": 24.7,
+        "unit": "USD mn",
+        "src": [
+          "s2"
+        ]
+      },
+      {
+        "use": "acquisitions",
+        "value": 249,
+        "unit": "USD mn",
+        "src": [
+          "s2",
+          "s5"
+        ]
+      },
+      {
+        "use": "buybacks",
+        "value": 200,
+        "unit": "USD mn",
+        "src": [
+          "s2",
+          "s5"
+        ]
+      },
+      {
+        "use": "other",
+        "label": "Knight JV 전략 지분 투자 (FY2027 상반기)",
+        "value": 100,
+        "unit": "USD mn",
+        "src": [
+          "s4"
+        ]
+      }
+    ],
+    "text": "돈을 가장 많이 쓰는 곳은 R&D(FY2026 3.24억 달러, 매출의 32%)이고, 같은 해 Prompt Security·Observo AI 인수에 현금 2.49억 달러, 자사주 매입에 2억 달러(1,220만 주, 평균 16.39달러)를 썼다. FY2027 상반기에는 Knight JV에 1억 달러를 투자했고, 2026-10에는 12.5억 달러 무이자 전환사채를 발행해 1.5억 달러 자사주 매입과 1.316억 달러 캡드콜에 쓰기로 했다. 인수와 차입을 함께 늘리는 방향이라, 플랫폼 확장에 돈을 거는 단계로 읽힌다.",
+    "src": [
+      "s2",
+      "s5",
+      "s4",
+      "s6"
+    ]
+  },
+  "aiChain": {
+    "layer": "software-applications",
+    "position": "기업이 쓰는 PC·서버·클라우드·AI 앱과 AI 에이전트를 지키는 보안 소프트웨어 공급자. AI 인프라를 짓는 쪽이 아니라 AI를 쓰는 기업의 보안 예산에서 매출이 나온다.",
+    "dependsOn": [
+      "cloud-infrastructure (AWS 주 호스팅, Google Cloud)",
+      "models-platforms (Anthropic·OpenAI 모델을 Wayfinder 서비스에 탑재)"
+    ],
+    "sellsTo": [
+      "ai-adopter (AI를 도입하는 기업·정부 보안 조직)",
+      "models-platforms (프런티어 AI 모델 개발사 보호 언급)"
+    ],
+    "aiRevenue": "Purple AI·Prompt Security ARR이 전년 대비 약 3배 (금액 미공시, Q2 FY2027, 2026-08-27 발표)",
+    "upside": "기업이 AI 에이전트와 생성형 AI 앱을 늘릴수록 지켜야 할 대상과 보안 로그가 늘어, AI 보안·AI SIEM 구독이 ARR로 붙는다. AI가 보안 분석가 일을 대신하면 Purple AI 같은 유료 기능의 판매 근거가 된다.",
+    "risk": "Microsoft·CrowdStrike·Palo Alto Networks가 같은 AI 보안 기능을 번들로 얹으면 가격 압박을 받는다. AI 공격 도구가 탐지를 앞지르거나, AI 데이터 처리 비용이 늘어 총마진이 더 내려갈 수 있다.",
+    "text": "그래서 AI 가치사슬에서 SentinelOne은 칩이나 클라우드가 아니라, AI를 쓰는 기업의 보안 예산을 받는 '소프트웨어·응용' 층에 있다. AI 제품 ARR이 3배로 늘었다고 했지만 금액을 밝히지 않아, 전체 ARR 12억 달러 중 비중은 아직 작을 가능성이 크다. AI 확산은 보안 대상을 늘리는 순풍이지만, 같은 기능을 대형 플랫폼이 묶어 팔면 가격 경쟁이 된다.",
+    "src": [
+      "s3",
+      "s5",
+      "s7"
+    ]
+  },
+  "competition": {
+    "arenas": [
+      {
+        "arena": "엔드포인트 보안 (EDR·XDR)",
+        "rivals": [
+          "CrowdStrike",
+          "Microsoft Defender",
+          "Broadcom (Carbon Black·Symantec)",
+          "Trellix"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s5",
+          "s3"
+        ]
+      },
+      {
+        "arena": "보안 플랫폼 통합",
+        "rivals": [
+          "Palo Alto Networks",
+          "CrowdStrike",
+          "Microsoft"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "arena": "SIEM·보안 데이터",
+        "rivals": [
+          "Cisco (Splunk)",
+          "Elastic",
+          "Microsoft Sentinel",
+          "CrowdStrike Next-Gen SIEM"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s5",
+          "s3"
+        ]
+      },
+      {
+        "arena": "클라우드 보안 (CNAPP)",
+        "rivals": [
+          "Wiz (Google Cloud)",
+          "Palo Alto Networks",
+          "CrowdStrike"
+        ],
+        "position": "niche",
+        "share": null,
+        "src": [
+          "s5",
+          "s3"
+        ]
+      },
+      {
+        "arena": "AI 보안 (AI 사용·에이전트 보호)",
+        "rivals": [
+          "CrowdStrike (Falcon AIDR)",
+          "Palo Alto Networks",
+          "Microsoft"
+        ],
+        "position": "challenger",
+        "share": null,
+        "src": [
+          "s5",
+          "s7"
+        ]
+      }
+    ],
+    "edge": "단말에서 AI가 직접 막는 구조, 한 데이터 레이크에 묶은 SIEM·클라우드·AI 보안, MSSP 채널의 넓은 도달, Gartner 엔드포인트 보호 매직 쿼드런트 6년 연속 리더 선정.",
+    "threats": "CrowdStrike가 더 큰 설치 기반에서 같은 모듈 확장 전략을 쓰고, Microsoft는 기업용 라이선스에 보안을 묶어 판다. Google의 Wiz 인수로 클라우드 보안 경쟁도 커졌다.",
+    "text": "이 자리를 두고 경쟁은 매 분야에서 더 큰 상대와 붙는 모양이다. 엔드포인트에서는 CrowdStrike와 Microsoft, SIEM에서는 Splunk를 산 Cisco와 Elastic, 클라우드에서는 Google이 산 Wiz가 맞수다. SentinelOne은 여러 제품을 한 데이터 위에 묶고 채널로 넓게 파는 방식으로 맞서지만, 공개된 점유율 자료가 없어 실제 위치는 ARR 성장률(22%)을 경쟁사와 비교해 가늠할 수밖에 없다.",
+    "src": [
+      "s5",
+      "s3",
+      "s1"
+    ]
+  },
+  "strategy": {
+    "goal": "AI 보안('Security for AI')과 AI 기반 보안('AI for Security') 모두의 리더를 목표로 하며, 회사는 데이터·보안·AI가 겹치는 시장을 1,000억 달러 이상(IDC·회사 추정)으로 본다. 성장률과 이익률의 합 40%('Rule of 40')에 다가가는 것을 진척 지표로 쓴다.",
+    "roadmap": [
+      {
+        "when": "Q3 FY2027 (2026-08~10)",
+        "what": "매출 3.09~3.11억 달러, non-GAAP 영업이익 3,800~4,000만 달러 가이던스",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2026-10",
+        "what": "Singularity Agentic Detection and Response·Singularity ASOC 출시, Wayfinder에 Claude Mythos 5.1 탑재 예정",
+        "src": [
+          "s7"
+        ]
+      },
+      {
+        "when": "FY2027 (2027-01 종료)",
+        "what": "매출 12.02~12.07억 달러, non-GAAP 영업이익 1.24~1.28억 달러",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "when": "2031",
+        "what": "12.5억 달러 무이자 전환사채 만기 (전환가 약 31.21달러)",
+        "src": [
+          "s6"
+        ]
+      }
+    ],
+    "vision": "사람이 기술을 돕는 보안에서, AI가 탐지·조사·대응을 스스로 해내는 '자율 보안 플랫폼'으로 옮겨 가겠다고 말한다.",
+    "text": "경쟁에서 이기기 위해 회사가 택한 길은 AI가 보안 운영을 대신하는 방향이다. Purple AI 조사 기능을 전 고객에게 열고, 2026-10에는 악성 AI 에이전트 탐지와 AI 보안관제(ASOC)를 내놓으며 외부 프런티어 모델까지 서비스에 붙였다. 동시에 non-GAAP 이익률을 올려 FY2027 영업이익 가이던스를 높였는데, 이 속도가 유지되는지가 'Rule of 40' 목표의 시험대다.",
+    "src": [
+      "s3",
+      "s7",
+      "s1"
+    ]
+  },
+  "governance": {
+    "line": "공동창업자 Tomer Weingarten이 CEO 겸 이사회 의장으로 이끌고, 주당 20표인 Class B 주식 보유자가 의결권의 약 28%를 가지며(2026-01-31), FY2026에 2억 달러 자사주를 산 데 이어 2026-10 전환사채 자금으로 1.5억 달러를 더 사기로 했다.",
+    "src": [
+      "s5",
+      "s6"
+    ]
+  },
+  "guidance": {
+    "latest": [
+      {
+        "period": "Q3 FY2027",
+        "metric": "revenue",
+        "value": "3.09~3.11억 달러",
+        "givenOn": "2026-08-27",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "Q3 FY2027",
+        "metric": "non-GAAP operating income",
+        "value": "3,800~4,000만 달러",
+        "givenOn": "2026-08-27",
+        "src": [
+          "s1"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "revenue",
+        "value": "12.02~12.07억 달러 (3월 첫 가이던스 11.95~12.05억에서 상향)",
+        "givenOn": "2026-08-27",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "non-GAAP operating income",
+        "value": "1.24~1.28억 달러 (3월 1.10~1.20억에서 상향)",
+        "givenOn": "2026-08-27",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "period": "FY2027",
+        "metric": "non-GAAP diluted EPS",
+        "value": "0.30~0.32달러 (3월 0.32~0.38달러보다 낮아짐; 희석 주식 수 가정 3.52억→3.61억 주)",
+        "givenOn": "2026-08-27",
+        "src": [
+          "s1",
+          "s2"
+        ]
+      }
+    ],
+    "style": "quarterly",
+    "track": "Q2 FY2027 매출 2.92억 달러가 가이던스를 넘었다고 회사가 밝혔고, 연간 매출·영업이익 가이던스를 3월 대비 올렸다. 다만 연간 non-GAAP EPS 가이던스 범위는 3월보다 낮아졌다.",
+    "src": [
+      "s1",
+      "s2"
+    ]
+  },
+  "estimates": {
+    "text": "2026-10-29 기준 Nasdaq/Zacks 컨센서스 EPS 향후 4개 분기 합계 -0.41달러(범위 -0.50~-0.27, 10개 추정), 최근 4주 상향 0건·하향 0건으로 방향 변화 없음. 이 EPS는 회사 non-GAAP EPS 가이던스(플러스)와 기준이 달라 보인다.",
+    "src": [
+      "s9"
+    ]
+  },
+  "watch": {
+    "confirms": [
+      "분기 순증 ARR이 전년 대비 계속 늘어 ARR 성장률 20% 이상 유지",
+      "AI 제품(Purple AI·Prompt Security) ARR 금액 공개와 비중 확대",
+      "non-GAAP 영업이익률이 Q3 가이던스(약 13%) 수준으로 오름",
+      "RPO 증가율이 ARR 증가율보다 높게 유지",
+      "ARR 10만 달러 이상 고객 수 증가"
+    ],
+    "breaks": [
+      "순증 ARR이 전년 대비 감소로 돌아섬",
+      "총마진이 계속 내려가 AI 데이터 처리 비용이 이익을 잠식",
+      "CrowdStrike·Microsoft 번들 경쟁으로 대형 계약 이탈이나 할인 확대 언급",
+      "인수·전략 투자(Knight JV 등)에서 손상 인식",
+      "잉여현금흐름이 연간 기준 마이너스로 전환"
+    ],
+    "keyNumbers": [
+      {
+        "name": "순증 ARR",
+        "why": "미래 매출 성장의 가장 빠른 신호"
+      },
+      {
+        "name": "non-GAAP 영업이익률",
+        "why": "흑자 전환 속도와 가이던스 신뢰도"
+      },
+      {
+        "name": "GAAP 총마진",
+        "why": "클라우드·AI 운영비 부담"
+      },
+      {
+        "name": "RPO",
+        "why": "다년 계약으로 쌓인 미래 매출"
+      },
+      {
+        "name": "AI 제품 ARR",
+        "why": "AI 순풍이 실제 매출로 오는지"
+      },
+      {
+        "name": "주식 수·희석",
+        "why": "전환사채·주식보상으로 주당 가치가 얼마나 희석되는지"
+      }
+    ]
+  },
+  "trading": {
+    "calendar": [
+      {
+        "date": "2026-12-02 (추정, 회사 미확정)",
+        "event": "Q3 FY2027 실적 발표와 Q4·연간 가이던스",
+        "src": [
+          "s10"
+        ]
+      },
+      {
+        "date": "2026-11 중순 (추정)",
+        "event": "CrowdStrike·Palo Alto Networks 분기 실적 - 보안 수요·가격 경쟁 비교",
+        "src": [
+          "s5"
+        ]
+      },
+      {
+        "date": "2031",
+        "event": "전환사채 12.5억 달러 만기",
+        "src": [
+          "s6"
+        ]
+      }
+    ],
+    "reaction": "주가는 분기 매출보다 순증 ARR과 다음 분기·연간 가이던스 변화에 더 크게 반응하는 경향이 있다. 2026-10 전환사채 발행 당시 종가는 24.01달러였고 전환가는 약 31.21달러로 정해졌다.",
+    "conditions": [
+      "실적 발표 때 순증 ARR의 전년 대비 증감",
+      "연간 매출·영업이익 가이던스 상향 여부와 폭",
+      "AI 제품 ARR 금액 공개 여부",
+      "총마진 방향과 클라우드 비용 언급",
+      "CrowdStrike·Microsoft 대비 경쟁 언급과 대형 계약 사례",
+      "컨센서스 EPS 상향·하향 건수 추이"
+    ]
+  },
+  "unverified": [
+    "AI 제품(Purple AI·Prompt Security) ARR 금액 - 회사는 '약 3배'만 공개",
+    "FY2026 미국 지역 매출 6.10억 달러는 총매출에서 해외 매출(10-K)을 빼서 계산; 미국 성장률 17.3%도 같은 방식으로 계산",
+    "부문별 매출·이익 - 회사는 단일 부문으로 보고",
+    "엔드포인트·SIEM·클라우드 보안 시장 점유율 - 신뢰할 공개 자료 미확인",
+    "Knight JV, LLC 투자 대상의 성격 - 10-Q에 금액(1억 달러)만 확인",
+    "FY2026 capex 24.7백만 달러는 유형자산 구매 0.7과 내부 사용 소프트웨어 자본화 24.0을 합한 값",
+    "Q2 FY2027 국제 매출 39%는 10-Q에서 확인, 콜 요약(s8)과 일치",
+    "10-Q 제출일 (s4 날짜는 2026-08로만 표기)",
+    "Q3 FY2027 실적 발표일 (Finnhub 추정, 회사 미공지)",
+    "컨센서스 EPS 기준(GAAP 여부)이 회사 non-GAAP 가이던스와 다른 이유",
+    "전환사채 초과배정 옵션(1.875억 달러) 행사 여부"
+  ],
+  "confidence": "high - 실적·가이던스·현금 사용은 회사 보도자료·10-K·10-Q 원문(IR 호스팅 PDF)에서 직접 읽었고, 경쟁 구도는 10-K 기재 경쟁사 목록에 기대며 점유율 자료는 없다."
+}

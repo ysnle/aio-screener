@@ -20,13 +20,15 @@ import { createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { loadThemeMaps } from './build-scenario-state.mjs';
 import { pdfText, readableEnglish } from './lib/pdf-text.mjs';
 import { createSecClient, requireSecUserAgent, filingIndexUrl } from './lib/sec-edgar.mjs';
 import { SEC_TICKERS_URL, submissionsUrl, submissionTextUrl, tickerCikMap, filingRowsWithItems, isResultsFiling, resultsExhibit, looksLikeQuarterlyResults, htmlToText } from './lib/sec-results-filings.mjs';
 import { SHARED_AI_MODEL, resolveSharedAiConfig, extractCompletedResponseText, buildSharedWebSearchBody } from './lib/ai-shared-analysis.mjs';
 import {
   EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
-  parseDartPreliminaryResults, formatKrw, parseUsdAmount, surprisePct, estimateAiCostUsd, AI_RATE_CARD
+  parseDartPreliminaryResults, formatKrw, parseUsdAmount, surprisePct, estimateAiCostUsd, AI_RATE_CARD,
+  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct
 } from '../src/domain/briefing/event-briefs.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,6 +42,42 @@ const CALL_SEARCH_AFTER_MS = 2 * 3600000; // the call starts ~1.5 h after an aft
 const PRESSER_AFTER_MS = 105 * 60000; // 14:30 ET start, about an hour long
 const MAX_SEARCH_ATTEMPTS = 2;
 const FED = 'https://www.federalreserve.gov';
+
+const REACTION_DAYS = 12; // closes are followed until five sessions have traded on the report
+const YAHOO = 'https://query1.finance.yahoo.com/v8/finance/chart';
+
+// v59.44 (owner 2026-10-30, "AI/반도체/DC 관련 종목들 대폭 확장"): every US member of the 테마 screen's AI-chain themes,
+// and these AI-power and data-center groups of other themes, has its report summarised beside the story names.
+export const AI_EARNINGS_THEMES = Object.freeze(['semiconductor', 'ai_infra', 'photonics', 'software']);
+export const AI_EARNINGS_SUBTHEMES = Object.freeze(['원전/독립발전', '원전 연료/설비', '수소/연료전지/ESS', '데이터센터', '채굴/AI 호스팅']);
+
+/**
+ * v59.44 (owner 2026-10-29/30): the researched company-story names (US) and the AI-chain theme members outside
+ * MARKET_MOVERS, as movers whose release is summarised without a call search. The Korean name comes from the shared
+ * ticker-name table in js/aio-core.js (AIO_TICKER_NAME_REGISTRY), else the filed English name; a theme-only member
+ * carries the layer 'ai-chain'.
+ */
+export function extendedMovers(index, coreText = '', { themes = [], universe = [] } = {}) {
+  const kr = {};
+  for (const m of String(coreText).matchAll(/'([A-Z0-9.-]+)':\s*\{ en: '[^']+',\s*kr: '([^']+)'/g)) kr[m[1]] ||= m[2];
+  const nameOf = Object.fromEntries((Array.isArray(universe) ? universe : []).filter((row) => row?.sym).map((row) => [row.sym, row.name]));
+  const short = (name) => String(name || '').replace(/,?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Holdings?( Co)?|Group Holding Ltd|Ltd\.?|plc|N\.V\.|Co\.?)$/i, '').trim();
+  const out = new Map();
+  for (const row of Array.isArray(index?.profiles) ? index.profiles : []) {
+    if (row?.symbol && !/\.K[SQ]$/.test(row.symbol) && !MOVER_BY_SYMBOL[row.symbol]) out.set(row.symbol, { sym: row.symbol, layer: row.layer || null, name: row.name });
+  }
+  for (const theme of Array.isArray(themes) ? themes : []) {
+    for (const sub of theme?.subThemes || []) {
+      if (!AI_EARNINGS_THEMES.includes(theme.id) && !AI_EARNINGS_SUBTHEMES.includes(sub.name)) continue;
+      for (const sym of sub.tickers || []) {
+        // Theme lists hold ETFs (IBIT, BITO) and foreign lines; only a universe stock with a name joins.
+        if (out.has(sym) || MOVER_BY_SYMBOL[sym] || /\.K[SQ]$/.test(sym) || !nameOf[sym]) continue;
+        out.set(sym, { sym, layer: 'ai-chain', name: nameOf[sym] });
+      }
+    }
+  }
+  return [...out.values()].map((row) => Object.freeze({ sym: row.sym, tier: 2, extended: true, layer: row.layer, nameKo: kr[row.sym] || short(row.name || row.sym), irDomains: [] }));
+}
 
 const sha256 = (text) => createHash('sha256').update(String(text)).digest('hex');
 const ymdOf = (date) => String(date).replace(/-/g, '');
@@ -117,6 +155,31 @@ function liveSources({ env, fetchImpl = fetch }) {
       const html = await get(`https://dart.fss.or.kr/report/viewer.do?rcpNo=${view[1]}&dcmNo=${view[2]}&eleId=${view[3]}&offset=${view[4]}&length=${view[5]}&dtd=${view[6]}`, { decode: 'euc-kr' });
       return html ? { url: `https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${rcpNo}`, text: htmlToText(html) } : null;
     },
+    // Daily closes in exchange dates, and the latest trade (extended hours included) while no session has closed since.
+    async prices(symbol, { extended = false } = {}) {
+      const read = async (query) => {
+        const text = await get(`${YAHOO}/${encodeURIComponent(symbol)}?${query}`);
+        return text ? JSON.parse(text)?.chart?.result?.[0] || null : null;
+      };
+      const daily = await read('range=1mo&interval=1d&includePrePost=false');
+      if (!daily) return null;
+      const zone = daily.meta?.exchangeTimezoneName || 'America/New_York';
+      const dateOf = (sec) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(sec * 1000));
+      const closes = daily.indicators?.quote?.[0]?.close || [];
+      // While the regular session is open, its daily bar is a live price, not a close: it is left out.
+      const regular = daily.meta?.currentTradingPeriod?.regular;
+      const nowSec = Date.now() / 1000;
+      const openDay = regular && nowSec >= regular.start && nowSec < regular.end ? dateOf(regular.start) : null;
+      const bars = (daily.timestamp || []).map((sec, i) => ({ date: dateOf(sec), close: closes[i] })).filter((row) => Number(row.close) > 0 && row.date !== openDay);
+      let last = null;
+      if (extended) {
+        const intraday = await read('range=1d&interval=5m&includePrePost=true');
+        const times = intraday?.timestamp || [];
+        const prices = intraday?.indicators?.quote?.[0]?.close || [];
+        for (let i = times.length - 1; i >= 0; i -= 1) if (Number(prices[i]) > 0) { last = { price: prices[i], atMs: times[i] * 1000 }; break; }
+      }
+      return { bars, extended: last };
+    },
     async ai(body, purpose) {
       const config = resolveSharedAiConfig(env);
       if (!config) return { reason: 'shared-ai-not-configured' };
@@ -152,6 +215,7 @@ export async function fixtureSources(dir) {
     async secExhibit(cik, accession) { const name = manifest.secExhibits?.[accession]; return name ? { type: 'EX-99.1', url: filingIndexUrl(cik, accession), text: await file(name) } : null; },
     async dartList(corpCode) { return manifest.dartLists?.[corpCode] || []; },
     async dartDocument(rcpNo) { const name = manifest.dartDocs?.[rcpNo]; return name ? { url: `https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${rcpNo}`, text: await file(name) } : null; },
+    async prices(symbol) { return manifest.prices?.[symbol] || null; },
     async ai(_body, purpose) { const payload = manifest.ai?.[purpose]; return payload ? parseAiPayload(payload) : { reason: 'fixture-missing' }; }
   };
 }
@@ -219,6 +283,37 @@ export function callPrompt(mover, eventDate) {
   return `${mover.nameKo}(${mover.sym})의 ${eventDate} 실적 발표 컨퍼런스콜에서 경영진이 강조한 점(수요, 투자, 마진, 가이던스 설명, 질의응답 쟁점)을 회사 자료와 보도에서 찾아 한국어 한 줄씩 3~6개로 정리하라. 각 줄에 근거 url을 붙인다. speaker에는 발언한 경영진을 쓴다(모르면 빈 문자열). 숫자는 자료에 그대로 있는 것만 쓴다. 매매 지시는 쓰지 않는다.`;
 }
 
+// v59.44 (owner 2026-10-30, "왜 빠졌는지 알아야 대응이라도"): why the stock moved after the report, as reported. The
+// figures are on the brief already, so the reasons are written without numbers (a line with an unchecked number drops).
+export const REASONS_SCHEMA = { type: 'object', additionalProperties: false, required: ['reasons'], properties: {
+  reasons: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['text', 'url'], properties: { text: STR, url: STR } } } } };
+export function reasonsPrompt(brief) {
+  const move = reactionPct(brief);
+  const direction = move == null ? '움직인' : move < 0 ? '하락한' : '상승한';
+  return `${brief.nameKo}(${brief.symbol}) 주가가 ${brief.eventDate} 실적 발표 뒤 ${direction} 이유로 보도된 내용(가이던스와 시장 기대의 차이, 마진, 설비투자·현금흐름, 수요 설명, 경영진 발언)을 보도와 회사 자료에서 찾아 한국어 한 줄씩 2~4개로 정리하라. 각 줄에 근거 기사 url을 붙인다. 숫자는 쓰지 않는다(수치는 따로 싣는다). 보도에 없는 추측이나 매매 지시는 쓰지 않는다.`;
+}
+
+/** A calendar row that already carries actuals, shown before the filing is summarised (basis 'provider'). */
+export function provisionalBrief(row, mover, { source = null, sourceUrl = null } = {}) {
+  const at = row.hour === 'bmo' ? etWallClockMs(row.date, 7, 0) : row.hour === 'amc' ? etWallClockMs(row.date, 16, 5) : etWallClockMs(row.date, 12, 0);
+  const figures = [];
+  const vs = (actual, estimate) => (Number.isFinite(actual) && Number.isFinite(estimate) && estimate !== 0 ? { value: estimate, surprisePct: surprisePct(actual, estimate), source: source || 'Finnhub', basis: 'provider-consensus-reference' } : null);
+  if (Number.isFinite(row.revenueActual)) {
+    const estimate = vs(row.revenueActual, row.revenueEstimate);
+    figures.push({ metric: 'revenue', label: '매출', value: `$${(row.revenueActual / 1e9).toFixed(2)} billion`, text: '', ...(estimate ? { estimate } : {}) });
+  }
+  if (Number.isFinite(row.epsActual)) {
+    const estimate = vs(row.epsActual, row.epsEstimate);
+    figures.push({ metric: 'eps_diluted', label: '주당순이익(제공처 기준)', value: `$${row.epsActual}`, text: '', ...(estimate ? { estimate } : {}) });
+  }
+  return { id: `calendar-${mover.sym}-${row.date}`, kind: 'earnings', status: 'provisional', basis: 'provider', symbol: mover.sym, nameKo: mover.nameKo, tier: mover.tier,
+    ...(mover.layer ? { layer: mover.layer } : {}), eventDate: row.date, publishedAt: new Date(at).toISOString(),
+    // No report hour: before or after the close is unknown, so no session can be named for the price (reviewer, v59.44).
+    ...(row.hour === 'bmo' || row.hour === 'amc' ? {} : { timing: 'unknown' }),
+    headline: `${mover.nameKo} 실적 발표: 원문 요약 정리 중`, figures, details: [], guidance: [], watch: [], dropped: [], ai: [],
+    source: { kind: 'PROVIDER', title: `${source || 'Finnhub'} 실적 집계`, url: sourceUrl } };
+}
+
 // ---- brief assembly ------------------------------------------------------------------------------------------------
 let ledgerAt = null;
 function aiLedger(purpose, usage) {
@@ -247,6 +342,13 @@ function safeHeadline(text, sourceText, fallback) {
   return value && !unverifiedNumbers(value, sourceNumberSet(sourceText)).length ? value : fallback;
 }
 
+// P2138: the provider's EPS consensus is on the adjusted basis, so a figure labelled GAAP is not compared with it
+// (ServiceNow's GAAP $0.27 read "예상 대비 -73.9%").
+export function isGaapOnlyFigure(figure) {
+  const text = `${figure?.label || ''} ${figure?.text || ''}`;
+  return /GAAP/i.test(text) && !/non-?GAAP|비\s*GAAP|조정(?!\s*전)|adjusted/i.test(text);
+}
+
 /** The AI earnings extraction, checked. `estimate` is the provider calendar row (reference). */
 export function assembleEarningsSections(json, sourceText, estimate = null) {
   const figures = verifyQuotedItems(json?.figures, sourceText);
@@ -260,7 +362,7 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
       const pct = surprisePct(actual, Number(estimate.revenueEstimate));
       if (pct != null) return { ...figure, estimate: { value: Number(estimate.revenueEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference' } };
     }
-    if (figure.metric === 'eps_diluted' && Number.isFinite(Number(estimate.epsEstimate))) {
+    if (figure.metric === 'eps_diluted' && Number.isFinite(Number(estimate.epsEstimate)) && !isGaapOnlyFigure(figure)) {
       const m = String(figure.value).match(/\$?\s*(-?\d+(?:\.\d+)?)/);
       const pct = m ? surprisePct(Number(m[1]), Number(estimate.epsEstimate)) : null;
       if (pct != null) return { ...figure, estimate: { value: Number(estimate.epsEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference' } };
@@ -292,7 +394,7 @@ function previousDecision(decisions, date) {
 }
 
 // ---- the run -------------------------------------------------------------------------------------------------------
-export async function buildEventBriefs({ previous = null, sources, nowMs = Date.now(), fomcDecisions = [], earningsRows = [], earningsSource = null } = {}) {
+export async function buildEventBriefs({ previous = null, sources, nowMs = Date.now(), fomcDecisions = [], earningsRows = [], earningsSource = null, earningsSourceUrl = null, extended = [] } = {}) {
   const briefs = new Map((previous?.schemaVersion === EVENT_BRIEFS_SCHEMA && Array.isArray(previous.briefs) ? previous.briefs : []).map((brief) => [brief.id, brief]));
   const skipped = new Set(Array.isArray(previous?.skippedFilings) ? previous.skippedFilings : []);
   const firstRun = !previous?.generatedAt;
@@ -375,7 +477,19 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
   }
 
   // US movers on EDGAR
-  const us = MARKET_MOVERS.filter((mover) => mover.market !== 'KR');
+  // A story name is looked up on EDGAR only when the earnings calendar has its report in the window (or its brief is
+  // still pending), so ~90 extra names do not each cost a submissions request every 20 minutes. A name stays watched for
+  // the lookback after its calendar day (the artifact keeps the list), so a Friday report is still found after the
+  // calendar has rolled to the next week.
+  const watch = Object.fromEntries(Object.entries(previous?.reportWatch || {}).filter(([, until]) => Date.parse(until) >= nowMs));
+  for (const row of earningsRows) {
+    const day = Date.parse(row?.date || '');
+    if (!row?.symbol || !Number.isFinite(day) || Math.abs(day - nowMs) > lookbackMs + DAY) continue;
+    const until = new Date(day + LOOKBACK_DAYS * DAY + DAY).toISOString();
+    if (!watch[row.symbol] || watch[row.symbol] < until) watch[row.symbol] = until;
+  }
+  const dueSymbols = new Set([...Object.keys(watch), ...[...briefs.values()].filter((brief) => brief.status === 'pending').map((brief) => brief.symbol)]);
+  const us = [...MARKET_MOVERS.filter((mover) => mover.market !== 'KR'), ...extended.filter((mover) => dueSymbols.has(mover.sym))];
   let ciks = null;
   if (sources.secReason) status.sec = sources.secReason;
   else {
@@ -383,30 +497,33 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
   }
   for (const mover of ciks ? us : []) {
     const cik = ciks.get(mover.sym);
-    if (!cik) { errors.push(`sec: no CIK for ${mover.sym}`); continue; }
+    if (!cik) { if (!mover.extended) errors.push(`sec: no CIK for ${mover.sym}`); continue; }
     try {
       const filings = (await sources.secFilings(cik)).filter((row) => Date.parse(row.acceptedAt || row.filingDate || '') >= nowMs - lookbackMs
-        && (mover.foreignIssuer ? row.form === '6-K' : isResultsFiling(row)));
+        // v59.44: a story name may be a foreign filer (ASML, ARM, CAMT) with no 8-K; its 6-K counts once it reads like results.
+        && (mover.foreignIssuer ? row.form === '6-K' : isResultsFiling(row) || (mover.extended && row.form === '6-K')));
       for (const filing of filings) {
         const id = `earnings-${mover.sym}-${filing.accession}`;
         if (skipped.has(filing.accession)) continue;
         let brief = briefs.get(id);
         if (!brief || brief.status === 'pending') {
           const exhibit = await sources.secExhibit(cik, filing.accession);
-          if (!exhibit?.text || (mover.foreignIssuer && !looksLikeQuarterlyResults(exhibit.text))) { skipped.add(filing.accession); continue; }
+          if (!exhibit?.text || (filing.form === '6-K' && !looksLikeQuarterlyResults(exhibit.text))) { skipped.add(filing.accession); continue; }
           const estimate = earningsRows.find((row) => row?.symbol === mover.sym && Math.abs(Date.parse(row.date) - Date.parse(filing.filingDate)) <= 3 * DAY) || null;
           const result = await runAi(jsonBody(earningsPrompt(mover, { kind: `SEC ${filing.form} ${exhibit.type}`, text: exhibit.text }), 'earnings_release', EARNINGS_SCHEMA), `earnings-${mover.sym}`);
           const sourceText = capText(exhibit.text);
-          const base = { id, kind: 'earnings', symbol: mover.sym, nameKo: mover.nameKo, eventDate: filing.filingDate, publishedAt: filing.acceptedAt || `${filing.filingDate}T00:00:00Z`,
+          const base = { id, kind: 'earnings', symbol: mover.sym, nameKo: mover.nameKo, tier: mover.tier, ...(mover.extended ? { scope: 'release', layer: mover.layer } : {}), eventDate: filing.filingDate, publishedAt: filing.acceptedAt || `${filing.filingDate}T00:00:00Z`,
             source: { kind: 'T1_OFFICIAL', title: `SEC ${filing.form} ${exhibit.type}`, url: exhibit.url, accession: filing.accession, fetchedAt: nowIso, sha256: sha256(exhibit.text) },
             ai: [...(brief?.ai || []), ...(result.usage ? [aiLedger(`earnings-${mover.sym}`, result.usage)] : [])] };
           if (!result.json) { briefs.set(id, { ...base, status: 'pending', aiReason: result.reason }); continue; }
           const sections = assembleEarningsSections(result.json, sourceText, estimate ? { ...estimate, source: earningsSource } : null);
-          brief = { ...base, status: 'partial', basis: 'primary-source', headline: safeHeadline(result.json.headline, sourceText, `${mover.nameKo} 실적 발표`),
+          brief = { ...base, status: 'partial', basis: 'primary-source', headline: briefHeadline(result.json.headline, { nameKo: mover.nameKo, figures: sections.figures, sourceNumbers: sourceNumberSet(sourceText) }),
             figures: sections.figures, details: sections.segments, detailTitle: '사업부문', guidance: sections.guidance, watch: sections.watch, dropped: sections.dropped,
             checkText: sourceText };
         }
-        brief = await withCallPoints(brief, { mover, nowMs, nowIso, sourceText: brief.checkText, sources, runAi });
+        // A story name's release is summarised without a call search (tier 2, owner 2026-10-29).
+        if (mover.extended) brief = brief.status === 'pending' ? brief : { ...brief, status: 'complete' };
+        else brief = await withCallPoints(brief, { mover, nowMs, nowIso, sourceText: brief.checkText, sources, runAi });
         briefs.set(id, brief);
       }
     } catch (error) { errors.push(`sec ${mover.sym}: ${String(error.message || error).slice(0, 120)}`); status.sec = 'partial-error'; }
@@ -428,7 +545,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
         if (!parsed || !normalizeSourceText(doc.text).includes(mover.dartName)) { errors.push(`dart ${mover.sym}: ${filing.rcpNo} not parsed`); continue; }
         const figures = dartFigures(parsed);
         const op = figures.find((figure) => figure.metric === 'operating_income');
-        brief = { id, kind: 'earnings', symbol: mover.sym, nameKo: mover.nameKo, eventDate: filing.date, publishedAt: `${filing.date}T00:00:00+09:00`, publishedDateOnly: true,
+        brief = { id, kind: 'earnings', symbol: mover.sym, nameKo: mover.nameKo, tier: mover.tier, eventDate: filing.date, publishedAt: `${filing.date}T00:00:00+09:00`, publishedDateOnly: true,
           source: { kind: 'T1_OFFICIAL', title: `DART ${filing.title}`, url: doc.url, rcpNo: filing.rcpNo, fetchedAt: nowIso, sha256: sha256(doc.text) },
           status: 'partial', basis: 'primary-source', period: parsed.quarter,
           headline: `${parsed.quarter || ''} 잠정 실적${op ? `: 영업이익 ${op.value}(${op.text})` : ''}`.replace(/\s+/g, ' ').trim(),
@@ -438,6 +555,64 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
       brief = await withCallPoints(brief, { mover, nowMs, nowIso, sourceText: brief.checkText, sources, runAi });
       briefs.set(id, brief);
     } catch (error) { errors.push(`dart ${mover.sym}: ${String(error.message || error).slice(0, 120)}`); status.dart = 'partial-error'; }
+  }
+
+  // v59.44 (owner 2026-10-30, "근거를 못 찾아서 걍 빠지면 이것도 문제"): a report the calendar already shows with actuals is
+  // on 오늘 before its filing is summarised (basis 'provider'); the filing's brief replaces it and keeps its price and reasons.
+  const listed = new Map([...MARKET_MOVERS.filter((mover) => mover.market !== 'KR'), ...extended].map((mover) => [mover.sym, mover]));
+  const summaryOf = (sym, date) => [...briefs.values()].find((brief) => brief.symbol === sym && brief.status !== 'provisional' && brief.status !== 'pending'
+    && Math.abs((Date.parse(brief.publishedAt) || 0) - Date.parse(date)) <= 4 * DAY);
+  for (const [id, brief] of briefs) {
+    const real = brief.status === 'provisional' ? summaryOf(brief.symbol, brief.eventDate) : null;
+    if (!real) continue;
+    briefs.delete(id);
+    briefs.set(real.id, { ...real, reaction: real.reaction || brief.reaction, reasons: real.reasons || brief.reasons });
+  }
+  for (const row of earningsRows) {
+    const mover = listed.get(row?.symbol);
+    if (!mover || (row.epsActual == null && row.revenueActual == null) || nowMs - Date.parse(row.date) > lookbackMs + DAY || summaryOf(row.symbol, row.date)) continue;
+    const id = `calendar-${mover.sym}-${row.date}`;
+    if (!briefs.has(id)) briefs.set(id, provisionalBrief(row, mover, { source: earningsSource, sourceUrl: earningsSourceUrl }));
+  }
+
+  // P2137: a headline copied in English from the release, or the bare "실적 발표", is rebuilt from the checked figures.
+  for (const [id, brief] of briefs) {
+    if (brief.kind !== 'earnings' || !brief.headline || brief.publishedDateOnly) continue;
+    const headline = briefHeadline(brief.headline, { nameKo: brief.nameKo, figures: brief.figures || [] });
+    const figures = (brief.figures || []).map((figure) => (figure.estimate && figure.metric === 'eps_diluted' && isGaapOnlyFigure(figure) ? (({ estimate, ...rest }) => rest)(figure) : figure));
+    if (headline !== brief.headline || figures.some((figure, i) => figure !== brief.figures[i])) briefs.set(id, { ...brief, headline, figures });
+  }
+
+  // v59.44: closes around each recent report (and the latest trade until a session has closed on it), until settled.
+  status.prices = 'idle';
+  for (const [id, brief] of briefs) {
+    if (brief.kind !== 'earnings' || brief.status === 'pending' || brief.timing === 'unknown' || brief.reaction?.settled || nowMs - (Date.parse(brief.publishedAt) || 0) > REACTION_DAYS * DAY || typeof sources.prices !== 'function') continue;
+    const market = /\.K[SQ]$/.test(brief.symbol) ? 'KR' : 'US';
+    const session = releaseSession(brief.publishedAt, { market, dateOnly: !!brief.publishedDateOnly });
+    try {
+      const quote = await sources.prices(brief.symbol, { extended: market === 'US' && !(brief.reaction?.sessions > 0) });
+      const reaction = quote ? earningsReaction(quote.bars, session, { extended: quote.extended, releaseMs: Date.parse(brief.publishedAt) }) : null;
+      if (reaction) { briefs.set(id, { ...brief, reaction: { ...reaction, checkedAt: nowIso } }); if (status.prices !== 'partial-error') status.prices = 'ok'; }
+    } catch (error) { errors.push(`prices ${brief.symbol}: ${String(error.message || error).slice(0, 120)}`); status.prices = 'partial-error'; }
+  }
+
+  // v59.44: why it moved, once the price has answered (one search per brief, at most two tries, an hour after release).
+  // A move that reverses after the search (after-hours down, first session up) is searched once more, so the reasons
+  // never explain the opposite of the price beside them.
+  const sign = (brief) => Math.sign(reactionPct(brief) ?? 0);
+  for (const [id, brief] of briefs) {
+    const reversed = !!brief.reasons?.done && !brief.reasons.redone && Number.isFinite(brief.reasons.direction) && sign(brief) !== 0 && sign(brief) !== brief.reasons.direction;
+    if (brief.kind !== 'earnings' || brief.status === 'pending' || !brief.reaction || (!reversed && (brief.reasons?.done || (brief.reasons?.attempts || 0) >= MAX_SEARCH_ATTEMPTS))) continue;
+    const published = Date.parse(brief.publishedAt) || 0;
+    if (nowMs - published > 4 * DAY || nowMs < published + 3600000) continue;
+    const mover = listed.get(brief.symbol) || MOVER_BY_SYMBOL[brief.symbol] || { irDomains: [] };
+    const domains = [...(mover.irDomains || []), ...NEWS_REPORT_DOMAINS];
+    const known = [brief.checkText || '', ...['figures', 'details', 'guidance'].flatMap((key) => (brief[key] || []).map((item) => `${item.label || ''} ${item.value || ''} ${item.text || ''} ${item.quote || ''}`))].join('\n');
+    const result = await runAi(buildSharedWebSearchBody(reasonsPrompt(brief), { allowedDomains: domains, schemaName: 'earnings_reasons', schema: REASONS_SCHEMA, maxToolCalls: 1, maxOutputTokens: 1200 }), `reasons-${brief.symbol}`);
+    const accepted = result.json ? acceptPoints({ points: result.json.reasons }, { sourceText: known, domains }) : { points: [], dropped: [] };
+    briefs.set(id, { ...brief, reasons: { basis: 'news-report', points: accepted.points.slice(0, 4), done: accepted.points.length > 0 || reversed, attempts: (brief.reasons?.attempts || 0) + 1, searchedAt: nowIso, dropped: accepted.dropped,
+      direction: sign(brief), ...(reversed || brief.reasons?.redone ? { redone: true } : {}) },
+      ai: [...(brief.ai || []), ...(result.usage ? [aiLedger(`reasons-${brief.symbol}`, result.usage)] : [])] });
   }
 
   // Keep the window; newest first.
@@ -457,8 +632,10 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     costLedger: { month, requests: monthEntries.length, estimatedUsd: Math.round(monthEntries.reduce((sum, entry) => sum + (entry.estimatedUsd || 0), 0) * 1e4) / 1e4,
       rateCard: AI_RATE_CARD, perBriefEstimateUsd: { withoutSearch: 0.003, withOneSearch: 0.018 } },
     skippedFilings: [...skipped].slice(-200),
+    reportWatch: Object.fromEntries(Object.entries(watch).filter(([sym]) => extended.some((mover) => mover.sym === sym))),
     // The release text stays only while a call summary is still to be checked against it.
-    briefs: kept.map(({ checkText, ...brief }) => ({ ...brief, ...(checkText && brief.status !== 'pending' && !brief.callPoints?.done && (brief.callPoints?.attempts || 0) < MAX_SEARCH_ATTEMPTS ? { checkText } : {}) }))
+    // A release-only brief (story names) has no call summary to check, so its release text is not kept.
+    briefs: kept.map(({ checkText, ...brief }) => ({ ...brief, ...(checkText && brief.status !== 'pending' && brief.scope !== 'release' && !brief.callPoints?.done && (brief.callPoints?.attempts || 0) < MAX_SEARCH_ATTEMPTS ? { checkText } : {}) }))
   };
 }
 
@@ -498,7 +675,10 @@ async function main() {
   const macro = sources.manifest?.macroCalendar ? { schedules: sources.manifest.macroCalendar } : await readJson(resolve(ROOT, 'public-data/macro-calendar.json'));
   const calendar = sources.manifest?.earnings ? { earnings: sources.manifest.earnings, source: 'Finnhub (fixture)' } : await readJson(resolve(ROOT, 'public-data/earnings-calendar.json'));
   const previous = fixtureDir ? (sources.manifest.previous || null) : await readJson(OUT);
-  const artifact = await buildEventBriefs({ previous, sources, nowMs, fomcDecisions: macro?.schedules?.['us-fomc'] || [], earningsRows: calendar?.earnings || [], earningsSource: calendar?.source || null });
+  const extended = sources.manifest ? extendedMovers(sources.manifest.companyProfiles || null, sources.manifest.coreText || '')
+    : extendedMovers(await readJson(resolve(ROOT, 'public-data/company-profiles/index.json')), await readFile(resolve(ROOT, 'js/aio-core.js'), 'utf8').catch(() => ''),
+      { themes: loadThemeMaps(ROOT).usThemes, universe: (await readJson(resolve(ROOT, 'public-data/screener-universe.json')))?.universe || [] });
+  const artifact = await buildEventBriefs({ previous, sources, nowMs, fomcDecisions: macro?.schedules?.['us-fomc'] || [], earningsRows: calendar?.earnings || [], earningsSource: calendar?.source || null, earningsSourceUrl: calendar?.sourceUrl || null, extended });
   await atomicWriteFile(outPath, `${JSON.stringify(artifact, null, 2)}\n`);
   console.log(`[event-briefs] ${artifact.briefs.length} briefs; status ${JSON.stringify(artifact.status)}; month AI ~$${artifact.costLedger.estimatedUsd}${artifact.errors.length ? `; errors: ${artifact.errors.join(' | ')}` : ''}`);
 }

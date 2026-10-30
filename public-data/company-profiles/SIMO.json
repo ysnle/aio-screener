@@ -1,0 +1,215 @@
+{
+  "symbol": "SIMO",
+  "name": "Silicon Motion Technology Corporation",
+  "researchedAt": "2026-10-30",
+  "fiscalYearEnd": "December 31 (foreign private issuer: 20-F annual, 6-K quarterly; ADS = 4 ordinary shares)",
+  "oneLine": "Silicon Motion은 SSD와 스마트폰 저장장치 안에서 NAND 플래시를 제어하는 컨트롤러 칩을 설계하는 대만계 팹리스로, AI 서버용 기업 SSD 컨트롤러(MonTitan)와 부트 드라이브가 커지며 2026년 3분기 매출이 전년보다 131% 늘었다.",
+  "sources": [
+    { "id": "s1", "kind": "6-K", "title": "Silicon Motion Announces Results for the Period Ended September 30, 2026 (6-K Ex.99.1)", "url": "https://www.sec.gov/Archives/edgar/data/0001329394/000119312526436478/d135156dex991.htm", "publisher": "Silicon Motion / SEC EDGAR", "date": "2026-10-29" },
+    { "id": "s2", "kind": "20-F", "title": "Silicon Motion Form 20-F for fiscal year ended 2025-12-31 (annual report of a foreign private issuer; filing month per EDGAR accession, day not checked)", "url": "https://www.sec.gov/Archives/edgar/data/0001329394/000119312526197184/d17718d20f.htm", "publisher": "Silicon Motion / SEC EDGAR", "date": "2026-04" },
+    { "id": "s3", "kind": "news", "title": "Silicon Motion's enterprise pivot faces a margin test as shares lag a record run (pre-Q3 preview; article date not checked, accessed date)", "url": "https://finviz.com/news/405197/silicon-motions-enterprise-pivot-faces-a-margin-test-as-shares-lag-a-record-run", "publisher": "Earnings Whispers via Finviz", "date": "2026-10-30" },
+    { "id": "s4", "kind": "other", "title": "AIO local consensus snapshot (Nasdaq earnings forecast / Zacks consensus), public-data/consensus-estimates.json", "url": "https://www.nasdaq.com/market-activity/stocks/simo/earnings", "publisher": "Nasdaq / Zacks via AIO", "date": "2026-10-29" },
+    { "id": "s5", "kind": "ir-site", "title": "Silicon Motion Files Notice of Arbitration Claim Against MaxLinear", "url": "https://siliconmotiontechnologycorporation.gcs-web.com/news-releases/news-release-details/silicon-motion-files-notice-arbitration-claim-against-maxlinear", "publisher": "Silicon Motion", "date": "2023-10" }
+  ],
+
+  "moat": {
+    "sources": [
+      "NAND 제조사가 바뀌어도 맞춰 쓰는 독립 컨트롤러 설계 역량 - 2025년 Kioxia·Micron 등 NAND 제조사와 모듈사가 10% 이상 고객 (20-F)",
+      "첨단 공정 컨트롤러 라인업 - 4nm PCIe Gen6 MonTitan 기업용, 6nm PCIe Gen5 엣지 SSD 컨트롤러 (6-K)",
+      "컨트롤러에 펌웨어·NAND를 묶어 완제품으로 파는 Ferri(산업·차량·엣지 AI)와 서버 부트 드라이브 (6-K)"
+    ],
+    "text": "Silicon Motion의 힘은 NAND 플래시를 만드는 회사가 아니면서도, 그 NAND를 읽고 쓰고 오류를 고치는 '두뇌' 칩을 여러 제조사에 맞춰 공급한다는 데 있다. Kioxia·Micron 같은 NAND 제조사도 직접 만들기보다 이 회사 컨트롤러를 사 쓰며, 2025년 10% 이상 고객 4곳 중 2곳이 NAND 제조사였다. 여기에 4nm·6nm 첨단 공정 설계와, 컨트롤러에 NAND까지 얹어 완제품으로 파는 Ferri·부트 드라이브가 두 번째 기둥이다.",
+    "src": ["s2", "s1"]
+  },
+
+  "design": {
+    "text": "이 기술로 회사가 설계하는 것은 세 갈래로 보고된다. SSD 컨트롤러(PC용 클라이언트와 MonTitan 기업·AI 서버용), 스마트폰·기기용 eMMC·UFS 컨트롤러, 그리고 Ferri 산업·차량용 SSD와 서버 부트 드라이브 같은 완제품 솔루션이다. 2026년 3분기 회사는 MonTitan 기업·AI 컨트롤러가 본격 출하 단계에 들어섰다고 밝혔다.",
+    "src": ["s1", "s2"]
+  },
+
+  "make": {
+    "model": "fabless",
+    "partners": [
+      "TSMC - 주 파운드리 (20-F)",
+      "SMIC - 보조 파운드리 (20-F)",
+      "조립·테스트 외주 업체 (20-F, 업체명 미공시)",
+      "NAND 플래시 공급사 - Ferri·부트 드라이브 완제품용 (업체명 미공시)"
+    ],
+    "text": "설계한 칩은 TSMC(주력)와 SMIC(보조)에서 만들고, 조립·테스트도 외부에 맡긴다. 완제품 솔루션은 NAND를 직접 사서 얹기 때문에 NAND 값과 수급이 원가와 재고를 크게 흔든다. 2026-09-30 재고는 8.71억 달러로, 분기 매출(5.6억 달러)보다 크다.",
+    "src": ["s2", "s1"]
+  },
+
+  "sell": {
+    "customers": [
+      "NAND 제조사 - Kioxia, Micron (2025년 각각 매출 10% 이상, 20-F)",
+      "SSD·모듈 업체 - PHISEMI, AFASTOR (2025년 각각 매출 10% 이상, 20-F)",
+      "기업·AI 서버 SSD 고객 - MonTitan은 1급 고객 2곳 상용 출하, 하반기 5곳 추가 예정 (2차 프리뷰)",
+      "산업·차량·엣지 AI 기기 업체 - Ferri 솔루션"
+    ],
+    "channel": "주문서(PO) 단위로 NAND 제조사·모듈사·OEM에 판매. 주요 시장은 중국·일본·싱가포르·대만 (20-F).",
+    "concentration": "2025년 상위 5개 고객이 매출의 약 66%, 10% 이상 고객 4곳 합계 58% (20-F).",
+    "text": "이렇게 만든 컨트롤러는 대부분 NAND 제조사와 SSD 모듈 업체에 팔려, 그들의 SSD·스마트폰 저장장치 안으로 들어간다. 상위 5개 고객이 매출의 66%를 차지할 만큼 집중도가 높다. 회사는 기업과 Ferri 고객이 '가격보다 공급 확보를 우선'하고 있다고 밝혀, AI 서버용 NAND 부족이 오히려 협상력을 높이고 있다.",
+    "src": ["s2", "s1", "s3"]
+  },
+
+  "moneyFlow": {
+    "steps": [
+      { "from": "하이퍼스케일러·AI 서버 업체", "to": "NAND 제조사·SSD 업체 (Kioxia·Micron 등)", "what": "기업용 SSD·부트 드라이브 구매" },
+      { "from": "NAND 제조사·SSD 모듈 업체", "to": "Silicon Motion", "what": "SSD·eMMC·UFS 컨트롤러 대금 (개당, 주문서 단위)" },
+      { "from": "산업·차량·엣지 AI 기기 업체", "to": "Silicon Motion", "what": "Ferri SSD·부트 드라이브 완제품 대금 (NAND 포함 가격)" },
+      { "from": "Silicon Motion", "to": "TSMC·SMIC·조립테스트 업체·NAND 공급사", "what": "웨이퍼·패키징·NAND 대금" }
+    ],
+    "pricing": "컨트롤러는 개당 판매, Ferri·부트 드라이브는 NAND를 포함한 완제품 가격. NAND 값이 오르면 완제품 매출은 커지지만 재고 부담도 함께 커진다.",
+    "text": "돈은 AI 서버가 저장장치를 사는 데서 출발해 NAND 제조사와 SSD 업체를 거쳐 컨트롤러 대금으로 들어온다. 완제품 솔루션은 NAND 값까지 매출에 잡혀, Ferri·부트 드라이브 매출이 전년보다 26배 가까이 커진 것이 3분기 급성장의 큰 몫이었다. 나가는 돈은 파운드리 웨이퍼와 미리 사 둔 NAND다.",
+    "src": ["s1", "s2"]
+  },
+
+  "earnings": {
+    "period": "Q3 2026 (ended 2026-09-30)",
+    "revenue": { "value": 560.2, "unit": "USD mn", "yoy": 131 },
+    "grossMargin": 53.6,
+    "operatingMargin": 29.0,
+    "netMargin": 11.7,
+    "operatingCashFlow": { "value": -256.1, "unit": "USD mn" },
+    "freeCashFlow": { "value": -279.1, "unit": "USD mn" },
+    "segments": [],
+    "industryMetric": [
+      { "name": "제품군별 성장 (3분기)", "value": "SSD 컨트롤러 전분기 +20~25%·전년 +55~60%; eMMC+UFS 컨트롤러 전분기 -10~15%·전년 +35~40%; Ferri·부트 드라이브 전분기 +75~80%·전년 +2,580~2,585% (금액 비중 미공시)", "src": ["s1"] },
+      { "name": "non-GAAP 이익률", "value": "총마진 53.7%, 영업이익률 32.1%, 순이익 1.49억 달러(ADS당 4.35달러)", "src": ["s1"] },
+      { "name": "GAAP 순이익 차이", "value": "GAAP 순이익 6,530만 달러 - 장기 투자 처분·평가손 7,797만 달러가 반영됨", "src": ["s1"] },
+      { "name": "재고", "value": "2026-09-30 8.71억 달러", "src": ["s1"] },
+      { "name": "9개월 매출", "value": "2026년 1~9월 13.53억 달러; 회사는 2026년 연간 매출이 전년 대비 100% 넘게 늘 것으로 예상", "src": ["s1"] }
+    ],
+    "text": "이 흐름이 2026년 3분기 매출 5.6억 달러(+131%), GAAP 영업이익률 29.0%로 나타났다. 다만 GAAP 순이익은 장기 투자 평가손 약 7,800만 달러 때문에 6,530만 달러로 줄었고, 영업현금흐름은 재고(8.71억 달러)를 쌓느라 -2.56억 달러였다. 이익은 늘고 있지만 현금은 NAND 재고에 묶여 있다는 것이 이번 분기의 핵심이다.",
+    "src": ["s1"]
+  },
+
+  "useOfCash": {
+    "period": "9M 2026 (Jan-Sep 2026)",
+    "items": [
+      { "use": "R&D", "value": 306.7, "unit": "USD mn", "src": ["s1"] },
+      { "use": "capex", "value": 48.9, "unit": "USD mn", "src": ["s1"] },
+      { "use": "dividends", "value": 50.8, "unit": "USD mn", "src": ["s1"] },
+      { "use": "buybacks", "value": 0, "unit": "USD mn", "src": ["s1"] },
+      { "use": "debt repayment", "value": 59.2, "unit": "USD mn", "src": ["s1"] }
+    ],
+    "text": "가장 큰 지출은 R&D(9개월 3.07억 달러)로, 4nm·6nm 컨트롤러와 PCIe Gen6 제품에 돈을 쓰고 있다. 재고를 쌓느라 영업현금이 빠져나가자 회사는 무이자 전환사채 11.5억 달러(2031년 만기)를 발행해 3분기에 은행 대출 5,920만 달러를 갚았다. 자사주 매입은 올해 없었지만 연 배당을 ADS당 2.30달러로 올려, 주주환원 의지는 유지했다.",
+    "src": ["s1"]
+  },
+
+  "aiChain": {
+    "layer": "memory",
+    "position": "AI 서버의 저장장치(기업용 SSD·부트 드라이브) 안에서 NAND를 제어하는 컨트롤러 공급자. NAND 제조사와 SSD 업체에 두뇌 칩을 대고, 일부는 NAND를 얹은 완제품으로 판다.",
+    "dependsOn": ["semicap-foundry (TSMC 4nm·6nm, SMIC)", "memory (NAND 플래시 공급과 가격)", "조립·테스트 외주"],
+    "sellsTo": ["memory (Kioxia·Micron 등 NAND 제조사, SSD 모듈 업체)", "cloud-infrastructure (하이퍼스케일러 데이터센터 - 맞춤형 SSD)", "devices (스마트폰 UFS·eMMC)", "엣지 AI·차량 기기 업체 (Ferri)"],
+    "aiRevenue": null,
+    "upside": "AI 학습·추론 데이터가 늘면 고용량 기업 SSD와 서버 부트 드라이브 수요가 커지고, 그 안에 들어가는 컨트롤러와 Ferri 솔루션 매출이 함께 늘어난다. 회사는 NAND 제조사가 고용량 기업 SSD에 공급을 몰아주는 흐름이 자사 제품 수요를 키운다고 밝혔다.",
+    "risk": "NAND 제조사가 기업용 컨트롤러를 직접 만들거나(20-F가 꼽은 내재화 위험), Phison·Microchip 같은 경쟁사가 서버 프로그램을 가져갈 수 있다. NAND 값이 꺾이면 쌓아 둔 8.7억 달러 재고와 완제품 매출이 동시에 타격을 받는다. 2Tb QLC NAND 지연으로 고용량 MonTitan 제품이 2028년으로 밀렸다는 보도도 있다.",
+    "text": "그래서 AI 가치사슬에서 Silicon Motion은 메모리 층 안의 '컨트롤러' 자리다. AI 매출을 따로 공시하지 않지만, 회사가 꼽은 성장 동력(MonTitan 기업·AI 컨트롤러, 부트 드라이브)이 모두 AI 서버로 향한다. 위로는 TSMC 공정과 NAND 공급이, 아래로는 NAND 제조사의 자체 설계 여부가 이 회사의 몫을 정한다.",
+    "src": ["s1", "s2", "s3"]
+  },
+
+  "competition": {
+    "arenas": [
+      { "arena": "독립 NAND 컨트롤러 (클라이언트 SSD·UFS)", "rivals": ["Phison", "Microchip", "중국 소형 컨트롤러 업체"], "position": "leader", "share": null, "src": ["s2"] },
+      { "arena": "기업·AI 서버용 SSD 컨트롤러", "rivals": ["Microchip", "Phison", "NAND 제조사 자체 컨트롤러"], "position": "challenger", "share": null, "src": ["s2", "s3"] },
+      { "arena": "산업·차량·부트 드라이브 완제품 SSD", "rivals": ["Phison", "NAND 제조사·모듈 업체"], "position": "challenger", "share": null, "src": ["s2", "s1"] }
+    ],
+    "edge": "여러 NAND 제조사에 맞추는 독립성, 첨단 공정 설계, 그리고 공급 부족기에 '공급 확보'를 원하는 고객을 붙잡는 완제품 라인.",
+    "threats": "20-F는 플래시 고객이 컨트롤러를 내재화할 위험과 Phison·Microchip·중국 업체와의 경쟁을 꼽는다. 기업용에서는 아직 고객 수가 적어 프로그램 하나의 성패가 크다.",
+    "text": "이 자리의 경쟁은 두 겹이다. 소비자용 컨트롤러에서는 Phison과 맞서는 오랜 강자이고, 기업·AI 서버용에서는 MonTitan으로 뒤늦게 들어선 도전자다. 가장 큰 위협은 경쟁사보다 고객이다 - NAND 제조사가 컨트롤러를 직접 만들기로 하면 매출이 통째로 빠질 수 있다.",
+    "src": ["s2", "s3"]
+  },
+
+  "strategy": {
+    "goal": "소비자용 NAND 컨트롤러 회사에서 기업·AI 데이터센터, 엣지 AI, 피지컬 AI까지 아우르는 저장장치 솔루션 회사로 바뀌는 것 (6-K CEO 발언). 2026년 사상 최대 매출(전년 대비 100% 초과 성장)을 예상한다.",
+    "roadmap": [
+      { "when": "2026 H2", "what": "MonTitan 1급 고객 2곳 상용 출하에 이어 5곳 추가 램프 예정 (2차 프리뷰)", "src": ["s3"] },
+      { "when": "Q4 2026", "what": "매출 5.88~6.16억 달러 가이드 (전분기 +5~10%, 전년 +111~121%)", "src": ["s1"] },
+      { "when": "2026-11-19", "what": "연 2.30달러(분기 0.575달러) 배당 첫 지급 (기준일 2026-11-05)", "src": ["s1"] },
+      { "when": "2028 (보도)", "what": "2Tb QLC NAND 지연으로 고용량 MonTitan 웜 스토리지 제품이 2028년으로 밀렸다는 보도", "src": ["s3"] }
+    ],
+    "vision": "AI 데이터센터부터 엣지 AI·차량까지 데이터가 저장되는 모든 곳에 컨트롤러와 저장 솔루션을 공급한다는 그림이다.",
+    "text": "이 경쟁을 이기기 위해 회사는 기업용 MonTitan과 완제품 솔루션 쪽으로 무게를 옮기고 있다. 11.5억 달러 전환사채로 재고와 차입을 감당할 체력을 확보했고, 4분기에도 성장이 이어질 것이라고 했다. 관건은 MonTitan 고객이 2곳에서 7곳으로 실제 늘어나는지다.",
+    "src": ["s1", "s3"]
+  },
+
+  "governance": {
+    "line": "Wallace Kou CEO가 이끄는 케이맨 법인(주된 사무소 홍콩)으로 ADS 1주가 보통주 4주이며, 연 배당을 ADS당 2.30달러로 올렸고 MaxLinear를 상대로 한 1.6억 달러 해지 수수료 중재는 판정 대기 중이다.",
+    "src": ["s1", "s2", "s5"]
+  },
+
+  "guidance": {
+    "latest": [
+      { "period": "Q4 2026", "metric": "revenue", "value": "5.88~6.16억 달러 (전분기 +5~10%, 전년 +111~121%)", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "gross margin", "value": "GAAP 53.8~54.8%, non-GAAP 54.0~55.0%", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "Q4 2026", "metric": "operating margin", "value": "GAAP 29.9~31.4%, non-GAAP 36.0~37.0%", "givenOn": "2026-10-29", "src": ["s1"] },
+      { "period": "FY2026", "metric": "revenue", "value": "사상 최대, 전년 대비 100% 넘는 성장 예상 (정성 발언)", "givenOn": "2026-10-29", "src": ["s1"] }
+    ],
+    "style": "quarterly",
+    "track": "3분기 매출 5.6억 달러로 회사 가이드(5.19~5.41억 달러) 상단을 넘었다 (2차 검색 요약 기준 가이드 범위).",
+    "src": ["s1"]
+  },
+
+  "estimates": {
+    "text": "2026-10-29 기준 컨센서스(Zacks via Nasdaq) 향후 4개 분기(2026-12~2027-09) EPS 합계 15.37달러(범위 12.83~18.74), 직전 4개 분기 9.28달러, 최근 4주 상향·하향 0건. 이 데이터의 2026-09 분기 실적값(1.91)은 GAAP 기준이라 회사 non-GAAP EPS(4.35)와 다르다.",
+    "src": ["s4", "s1"]
+  },
+
+  "watch": {
+    "confirms": [
+      "Q4 2026 매출이 5.88~6.16억 달러 가이드를 충족",
+      "MonTitan 상용 고객 수가 늘었다는 회사 확인",
+      "재고가 매출로 돌아서며 영업현금흐름이 플러스로 전환",
+      "총마진이 54% 안팎에서 유지",
+      "MaxLinear 중재 판정이 회사에 유리하게 나오고 실제 회수"
+    ],
+    "breaks": [
+      "NAND 제조사 고객의 컨트롤러 내재화 발표",
+      "NAND 값 하락으로 재고 평가손 또는 완제품 매출 급감",
+      "eMMC·UFS 감소가 이어지고 SSD 성장도 둔화",
+      "MonTitan 고객 램프 지연",
+      "MaxLinear 반소(사기·중대한 부정적 변화 주장)가 받아들여짐"
+    ],
+    "keyNumbers": [
+      { "name": "제품군별 성장률 (SSD·UFS·Ferri)", "why": "AI 서버용과 소비자용의 무게 이동" },
+      { "name": "재고와 영업현금흐름", "why": "NAND 비축이 현금을 얼마나 묶는지" },
+      { "name": "총마진", "why": "완제품 비중이 늘어도 수익성 유지 여부" },
+      { "name": "MonTitan 고객 수", "why": "기업용 전환의 실제 진척" },
+      { "name": "GAAP와 non-GAAP 순이익 차이", "why": "투자 평가손·분쟁 비용 같은 일회성 크기" }
+    ]
+  },
+
+  "trading": {
+    "calendar": [
+      { "date": "2026-11-05 / 2026-11-19", "event": "새 분기 배당(ADS당 0.575달러) 기준일 / 지급일", "src": ["s1"] },
+      { "date": "2027-01~02 (추정, 회사 미공지)", "event": "Q4 2026 실적과 2027년 1분기 가이던스", "src": ["s1"] },
+      { "date": "미정 (2026 H2 예상 보도)", "event": "MaxLinear 중재 최종 판정", "src": ["s2"] },
+      { "date": "수시", "event": "NAND 제조사(Kioxia·Micron 등) 실적과 NAND 가격 동향", "src": ["s2"] }
+    ],
+    "reaction": "주가는 다음 분기 가이드와 기업용 전환 속도, 그리고 NAND 가격 방향에 반응해 왔다. 실적 직전 프리뷰는 기록적 성장에도 주가가 뒤처져 있고 마진이 시험대라고 평가했다(2차).",
+    "conditions": [
+      "다음 분기 매출 가이드와 컨센서스의 차이",
+      "SSD·UFS·Ferri 성장률의 방향",
+      "재고 증감과 영업현금흐름 부호",
+      "총마진 가이드 범위",
+      "MonTitan 고객 수와 하이퍼스케일러 프로그램 언급",
+      "MaxLinear 중재 판정 소식"
+    ]
+  },
+
+  "unverified": [
+    "제품군별 매출 금액과 비중 (회사는 성장률만 공시, 부문 표는 비워 둠)",
+    "AI 관련 매출 금액 (회사 미공시)",
+    "MonTitan 1급 고객 2곳·추가 5곳, 2Tb QLC 지연으로 2028년 이동은 2차 프리뷰 기반",
+    "3분기 콜 녹취록은 찾지 못해 콜 발언은 반영하지 않음",
+    "3분기 가이드 범위 5.19~5.41억 달러는 검색 요약 기준 (원문 6-K 미확인)",
+    "경쟁 점유율 수치",
+    "조립·테스트 외주 업체명과 NAND 공급사 이름",
+    "20-F 정확한 제출일 (2026-04로 표기)",
+    "MaxLinear 중재 판정 여부 (20-F 기준 판정 대기, 이후 소식 미확인)",
+    "잉여현금흐름 -2.79억 달러는 영업현금흐름에서 설비투자를 뺀 계산값",
+    "순이익률 11.7%는 계산값"
+  ],
+  "confidence": "medium - 실적·가이던스·현금 흐름은 10월 29일 6-K 원문에서 왔지만 제품군 금액이 공시되지 않고, 기업용 고객 진척은 2차 프리뷰에 기대고 있다."
+}
