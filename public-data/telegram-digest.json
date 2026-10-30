@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-30T01:51:37.734Z",
-  "attemptedAt": "2026-10-30T01:51:37.734Z",
-  "lastSuccessfulAt": "2026-10-30T01:51:37.734Z",
+  "generatedAt": "2026-10-30T02:21:31.307Z",
+  "attemptedAt": "2026-10-30T02:21:31.307Z",
+  "lastSuccessfulAt": "2026-10-30T02:21:31.307Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-16T01:51:31.791Z",
-  "until": "2026-10-30T01:51:31.791Z",
+  "since": "2026-10-16T02:21:25.808Z",
+  "until": "2026-10-30T02:21:25.808Z",
   "current24hWindow": {
     "start": "2026-10-28T23:00:00.000Z",
     "end": "2026-10-29T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1362,
+      "count": 1364,
       "freshCount": 40,
-      "eligibleTextCount": 1301,
-      "selectedCount": 120,
+      "eligibleTextCount": 1302,
+      "selectedCount": 121,
       "error": null,
-      "lastPostId": 67849
+      "lastPostId": 67852
     },
     {
       "channel": "bornlupin",
@@ -116,38 +116,38 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 681,
+      "count": 683,
       "freshCount": 40,
-      "eligibleTextCount": 681,
+      "eligibleTextCount": 683,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71249
+      "lastPostId": 71253
     }
   ],
-  "count": 2431,
+  "count": 2435,
   "retainedItemCount": 475,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2431,
-    "eligibleTextCount": 2359,
-    "mediaOnlyCount": 72,
+    "observedCount": 2435,
+    "eligibleTextCount": 2362,
+    "mediaOnlyCount": 73,
     "highSignalCount": 443,
-    "broadSignalCount": 968,
-    "selectedRawCount": 407,
-    "selectedEligibleCount": 407,
+    "broadSignalCount": 969,
+    "selectedRawCount": 408,
+    "selectedEligibleCount": 408,
     "selectedRawCoveragePct": 17.3,
-    "selectedOfObservedPct": 16.7,
+    "selectedOfObservedPct": 16.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "media-only": 72,
-    "market-note": 870,
-    "credit": 126,
+    "market-note": 872,
+    "geo": 401,
+    "media-only": 73,
     "semi": 549,
-    "geo": 400,
+    "credit": 126,
     "power": 301,
     "earnings": 491,
     "japan": 115,
@@ -162,13 +162,13 @@
     "insider": 3
   },
   "tickerCounts": {
+    "SNDK": 11,
     "NVDA": 173,
     "GOOG": 132,
     "AMZN": 74,
     "INTC": 2,
-    "SNDK": 10,
     "COIN": 1,
-    "TSM": 57,
+    "TSM": 56,
     "ABBV": 1,
     "CAT": 3,
     "SBUX": 1,
@@ -189,7 +189,7 @@
     "ORCL": 12,
     "CMG": 1,
     "AMD": 22,
-    "TSLA": 84,
+    "TSLA": 83,
     "STX": 9,
     "ETSY": 2,
     "BABA": 2,
@@ -251,10 +251,10 @@
     "NBIS": 1
   },
   "themes": [
-    "Market Notes (870 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
+    "Market Notes (872 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
     "Semiconductors/Memory (549 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
     "Earnings/Corporate (491 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (400 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
+    "Geopolitics (401 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
     "Macro/Rates (388 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
     "AI Power/Grid (301 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (170 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
@@ -273,7 +273,7 @@
     },
     {
       "key": "TSLA",
-      "count": 84,
+      "count": 83,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -293,7 +293,7 @@
     },
     {
       "key": "TSM",
-      "count": 57,
+      "count": 56,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "geo"
       ],
-      "count": 400,
+      "count": 401,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전..."
     },
     {
@@ -464,7 +464,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 870,
+      "count": 872,
       "focus": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     }
   ],
@@ -1658,6 +1658,38 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/67852",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67852",
+      "datetime": "2026-10-30T02:08:50.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "geo"
+      ],
+      "lead": 1,
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "워싱턴포스트에 따르면 밴스 부통령이 이란 최고위 강경파 지도자에게 서한을 보내 전쟁을 협상을 통해 종식하는 방안을 논의하기 위해 직접 만날 의향이 있다는 입장을 전달. 10월 30일 보도에 따르면 협상 상황에..."
+    },
+    {
+      "id": "HANAchina/71251",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71251",
+      "datetime": "2026-10-30T01:58:17.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "SNDK"
+      ],
+      "summary": ">>SanDisk 컨퍼런스콜 “고객들이 NAND 수요를 과소평가”…장기 공급계약 2030년까지 확보, PC 시장 바닥 통과 조짐 •SanDisk는 AI 추론수요가 NAND 시장 구조를 바꾸고 있다고 평가...."
+    },
+    {
       "id": "insidertracking/67847",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67847",
@@ -2658,14 +2690,14 @@
       "datetime": "2026-10-29T05:01:37.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%"
+      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/71208",
@@ -2674,15 +2706,13 @@
       "datetime": "2026-10-29T04:18:31.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "kr-market",
-        "earnings",
-        "flows"
+        "kr-market"
       ],
-      "lead": 1,
       "score": 58,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화..."
+      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20885",
@@ -5463,22 +5493,6 @@
       ]
     },
     {
-      "id": "insidertracking/67458",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67458",
-      "datetime": "2026-10-27T04:49:56.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 27일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 법무부는 제임스 코미 전 FBI 국장 관련 사건에 대해 공소시효 만료를 막기 위해 사건을 접수했으며,...",
-      "tickers": [
-        "AVGO"
-      ]
-    },
-    {
       "id": "HANAchina/71079",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71079",
@@ -7273,22 +7287,6 @@
       "score": 85,
       "hasText": true,
       "summary": "Citi) 일본 FX – 제2차 타카이치 내각 하에서의 일본은행 정책 변화와 엔화에 미치는 영향 Citi는 일본은행(BoJ)이 다음 주 회의에서 정책금리를 1.25%로 동결할 것으로 예상하며, FOMC와...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/70945",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70945",
-      "datetime": "2026-10-24T05:55:07.000Z",
-      "localDateKst": "2026-10-24",
-      "tags": [
-        "earnings",
-        "semi"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>38달러, DeepSeek가 계산한 수익성 •DeepSeek가 최근 공개한 충격적인 수치에 따르면 GPU 한 대는 시간당 38달러의 과금 매출을 창출할 수 있으며, 연환산 기준으로 33만 달러를 넘어섬....",
-      "lead": 2,
       "tickers": []
     },
     {
@@ -9346,14 +9344,14 @@
       "datetime": "2026-10-29T05:01:37.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%"
+      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/71208",
@@ -9362,15 +9360,13 @@
       "datetime": "2026-10-29T04:18:31.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "kr-market",
-        "earnings",
-        "flows"
+        "kr-market"
       ],
-      "lead": 1,
       "score": 58,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화..."
+      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20885",
