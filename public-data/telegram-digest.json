@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-29T23:51:58.670Z",
-  "attemptedAt": "2026-10-29T23:51:58.670Z",
-  "lastSuccessfulAt": "2026-10-29T23:51:58.670Z",
+  "generatedAt": "2026-10-30T00:21:39.332Z",
+  "attemptedAt": "2026-10-30T00:21:39.332Z",
+  "lastSuccessfulAt": "2026-10-30T00:21:39.332Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-15T23:51:51.865Z",
-  "until": "2026-10-29T23:51:51.865Z",
+  "since": "2026-10-16T00:21:33.241Z",
+  "until": "2026-10-30T00:21:33.241Z",
   "current24hWindow": {
     "start": "2026-10-28T23:00:00.000Z",
     "end": "2026-10-29T23:00:00.000Z",
@@ -80,10 +80,10 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 162,
+      "count": 160,
       "freshCount": 0,
-      "eligibleTextCount": 151,
-      "selectedCount": 58,
+      "eligibleTextCount": 149,
+      "selectedCount": 57,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1360,
+      "count": 1364,
       "freshCount": 40,
-      "eligibleTextCount": 1301,
+      "eligibleTextCount": 1305,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 67835
+      "lastPostId": 67840
     },
     {
       "channel": "bornlupin",
@@ -107,25 +107,25 @@
       "count": 231,
       "freshCount": 39,
       "eligibleTextCount": 231,
-      "selectedCount": 107,
+      "selectedCount": 108,
       "error": null,
-      "lastPostId": 20891
+      "lastPostId": 20893
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 685,
-      "freshCount": 40,
-      "eligibleTextCount": 685,
+      "count": 683,
+      "freshCount": 20,
+      "eligibleTextCount": 683,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 71246
     }
   ],
   "count": 2438,
-  "retainedItemCount": 472,
+  "retainedItemCount": 462,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,8 +134,8 @@
     "observedCount": 2438,
     "eligibleTextCount": 2368,
     "mediaOnlyCount": 70,
-    "highSignalCount": 444,
-    "broadSignalCount": 970,
+    "highSignalCount": 443,
+    "broadSignalCount": 968,
     "selectedRawCount": 407,
     "selectedEligibleCount": 407,
     "selectedRawCoveragePct": 17.2,
@@ -143,41 +143,42 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "semi": 550,
-    "power": 304,
+    "credit": 125,
+    "japan": 115,
+    "geo": 402,
+    "crypto": 5,
     "earnings": 491,
-    "market-note": 879,
-    "healthcare": 130,
+    "semi": 549,
+    "kr-market": 146,
+    "equity": 170,
+    "power": 301,
+    "market-note": 876,
+    "healthcare": 128,
     "ai-policy": 137,
     "macro": 389,
-    "japan": 114,
-    "geo": 401,
-    "equity": 169,
     "flows": 103,
     "optical": 39,
-    "kr-market": 145,
-    "credit": 124,
     "media-only": 70,
-    "crypto": 4,
     "insider": 3
   },
   "tickerCounts": {
-    "AMZN": 72,
-    "NVDA": 175,
+    "SNDK": 10,
+    "COIN": 1,
+    "AMZN": 73,
+    "NVDA": 173,
     "TSM": 57,
-    "SNDK": 9,
-    "GOOG": 133,
+    "GOOG": 131,
     "ABBV": 1,
     "CAT": 3,
     "SBUX": 1,
-    "AAPL": 16,
+    "AAPL": 14,
     "MSFT": 73,
     "PLTR": 7,
     "GOOGL": 5,
     "LLY": 2,
     "MRK": 2,
-    "MU": 55,
-    "000660.KS": 80,
+    "MU": 53,
+    "000660.KS": 78,
     "006800.KS": 1,
     "AVGO": 25,
     "005930.KS": 51,
@@ -197,7 +198,7 @@
     "005940.KS": 2,
     "285A.T": 2,
     "CRWV": 16,
-    "MS": 5,
+    "MS": 4,
     "MRNA": 1,
     "RDDT": 2,
     "FDX": 1,
@@ -250,24 +251,24 @@
     "NBIS": 1
   },
   "themes": [
-    "Market Notes (879 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
-    "Semiconductors/Memory (550 posts in 14-day research window): 2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”...",
+    "Market Notes (876 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
+    "Semiconductors/Memory (549 posts in 14-day research window): 2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”...",
     "Earnings/Corporate (491 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (401 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
+    "Geopolitics (402 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
     "Macro/Rates (389 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
-    "AI Power/Grid (304 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (169 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "Korea Market (145 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
+    "AI Power/Grid (301 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (170 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "Korea Market (146 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 175,
+      "count": 173,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전..."
     },
     {
       "key": "GOOG",
-      "count": 133,
+      "count": 131,
       "text": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     },
     {
@@ -277,17 +278,17 @@
     },
     {
       "key": "000660.KS",
-      "count": 80,
+      "count": 78,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
-      "key": "MSFT",
+      "key": "AMZN",
       "count": 73,
       "text": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     },
     {
-      "key": "AMZN",
-      "count": 72,
+      "key": "MSFT",
+      "count": 73,
       "text": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     },
     {
@@ -297,7 +298,7 @@
     },
     {
       "key": "MU",
-      "count": 55,
+      "count": 53,
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -337,7 +338,7 @@
       "topics": [
         "geo"
       ],
-      "count": 401,
+      "count": 402,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전..."
     },
     {
@@ -346,7 +347,7 @@
       "topics": [
         "credit"
       ],
-      "count": 124,
+      "count": 125,
       "focus": "미즈호증권(Mizuho), 루멘텀( $LITE ) 마벨 ( $MRVL )의 인수 가능성 — 주가 1,260달러 이상 상승 여력 목표주가: $1,140 잠재적 인수가격: $1,260 이상 현재 주가 대비 잠재 상승 여력: 약 38% 1. 마벨(MRVL)의 루멘텀(LITE) 인수 가능성 블룸버그는 10월 28일 장..."
     },
     {
@@ -355,7 +356,7 @@
       "topics": [
         "semi"
       ],
-      "count": 550,
+      "count": 549,
       "focus": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
@@ -373,7 +374,7 @@
       "topics": [
         "power"
       ],
-      "count": 304,
+      "count": 301,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -391,7 +392,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 145,
+      "count": 146,
       "focus": "Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
     },
     {
@@ -400,7 +401,7 @@
       "topics": [
         "equity"
       ],
-      "count": 169,
+      "count": 170,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -409,8 +410,8 @@
       "topics": [
         "crypto"
       ],
-      "count": 4,
-      "focus": "No retained full-text sample; 4 observed posts in the 14-day research window."
+      "count": 5,
+      "focus": "코인베이스(COIN) Q3 2026 어닝콜 요약 > 긍정 요인: • 예측시장 및 파생상품 성장. 예측시장 매출은 연환산 2억달러에 도달했으며 파생상품과 합산해 전체 거래 매출의 약 25% 차지. 현물 거래량 10% 감소에도 전체 매출은 전분기 수준 유지. • 수익구조 다각화. 서비스 매출이 전체 순매출의 약..."
     },
     {
       "id": "earnings",
@@ -427,7 +428,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 130,
+      "count": 128,
       "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · AbbVie · Absci · Addus HomeCare · Amgen · Bausch + Lomb · Bausch Health Companies · CeriBell · Charles River Laboratories International · Eli Lilly..."
     },
     {
@@ -436,7 +437,7 @@
       "topics": [
         "japan"
       ],
-      "count": 114,
+      "count": 115,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -463,7 +464,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 879,
+      "count": 876,
       "focus": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     }
   ],
@@ -1668,6 +1669,41 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/20893",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20893",
+      "datetime": "2026-10-30T00:17:10.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "credit"
+      ],
+      "score": 76,
+      "hasText": true,
+      "tickers": [
+        "SNDK"
+      ],
+      "summary": "샌디스크(SNDK) FY27 1분기 어닝콜 Q&A 중 Q. [BofA) / 왐시 모한] 발표 자료에서 선도적인 AI 기업들과의 협의가 추가적인 수요 증가 가능성을 시사한다고 언급했습니다. 여기서 말하는 AI..."
+    },
+    {
+      "id": "insidertracking/67837",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67837",
+      "datetime": "2026-10-29T23:59:26.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "semi",
+        "kr-market",
+        "equity",
+        "earnings"
+      ],
+      "score": 77,
+      "hasText": true,
+      "tickers": [
+        "AMZN"
+      ],
+      "summary": "아마존(AMZN) Q3 2026 어닝콜 요약 > 긍정 요인: • 사상 최고 수익성 달성. 3분기 매출은 2,019억달러로 전년 대비 12% 증가. 영업이익은 281억달러로 61% 급증했으며 영업이익률은..."
+    },
+    {
       "id": "bornlupin/20891",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20891",
@@ -1953,16 +1989,15 @@
       "datetime": "2026-10-29T20:50:16.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings",
-        "kr-market"
+        "kr-market",
+        "earnings"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
+      "summary": "Starbucks 2026년 4분기 실적 요약 실적 • 매출 $91.41억, YoY -4.5%, 환율 제외 -3.9% • 직영 매장 매출 $74.30억, YoY -5.5% • 라이선스 매장 매출...",
       "tickers": [
         "SBUX"
-      ],
-      "summary": "Starbucks 2026년 4분기 실적 요약 실적 • 매출 $91.41억, YoY -4.5%, 환율 제외 -3.9% • 직영 매장 매출 $74.30억, YoY -5.5% • 라이선스 매장 매출..."
+      ]
     },
     {
       "id": "insidertracking/67799",
@@ -1971,13 +2006,11 @@
       "datetime": "2026-10-29T20:48:10.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "equity"
+        "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "Intel 2026년 3분기 실적 요약 실적 • 매출 $165.13억, YoY +21% • GAAP 매출총이익 $70.96억, 전년 $52.18억 • GAAP 매출총이익률 43.0%, YoY +480bps •...",
       "tickers": [],
       "listTickers": [
         "AMD",
@@ -1986,8 +2019,7 @@
         "ORCL",
         "INTC",
         "LRCX"
-      ],
-      "summary": "Intel 2026년 3분기 실적 요약 실적 • 매출 $165.13억, YoY +21% • GAAP 매출총이익 $70.96억, 전년 $52.18억 • GAAP 매출총이익률 43.0%, YoY +480bps •..."
+      ]
     },
     {
       "id": "insidertracking/67798",
@@ -1996,17 +2028,15 @@
       "datetime": "2026-10-29T20:46:09.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings",
         "equity",
-        "ai-policy"
+        "earnings"
       ],
-      "lead": 2,
       "score": 79,
       "hasText": true,
+      "summary": "Amazon 2026년 3분기 실적 요약 실적 • 매출 $2,019억, YoY +12%, 예상 $2,023억 소폭 하회 • EPS $1.89, 예상 $1.96 하회 • 영업이익 $281억, 예상 $262억...",
       "tickers": [
         "AMZN"
-      ],
-      "summary": "Amazon 2026년 3분기 실적 요약 실적 • 매출 $2,019억, YoY +12%, 예상 $2,023억 소폭 하회 • EPS $1.89, 예상 $1.96 하회 • 영업이익 $281억, 예상 $262억..."
+      ]
     },
     {
       "id": "insidertracking/67797",
@@ -2015,16 +2045,14 @@
       "datetime": "2026-10-29T20:45:36.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": "Sandisk 2027년 1분기 실적 요약 실적 • 매출 $110.3억, YoY +378%, QoQ +23%, 예상 $106.4억 상회 • 조정 EPS $49.51, QoQ +26%, 예상 $46.22 상회...",
       "tickers": [
         "SNDK"
-      ],
-      "summary": "Sandisk 2027년 1분기 실적 요약 실적 • 매출 $110.3억, YoY +378%, QoQ +23%, 예상 $106.4억 상회 • 조정 EPS $49.51, QoQ +26%, 예상 $46.22 상회..."
+      ]
     },
     {
       "id": "insidertracking/67796",
@@ -2033,19 +2061,16 @@
       "datetime": "2026-10-29T20:44:45.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "healthcare"
+        "credit"
       ],
       "score": 99,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — AI 인프라 투자 등을 위한 자금 조달 목적으로 최소 250억 달러 규모의 미국 회사채 발행을...",
       "tickers": [
         "CAT",
         "AAPL",
         "MSFT"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — AI 인프라 투자 등을 위한 자금 조달 목적으로 최소 250억 달러 규모의 미국 회사채 발행을..."
+      ]
     },
     {
       "id": "insidertracking/67795",
@@ -2433,11 +2458,11 @@
       ],
       "score": 73,
       "hasText": true,
+      "summary": "•JPMorgan: Alphabet 목표주가를 425달러에서 375달러로 하향 조정",
       "tickers": [
         "GOOG",
         "GOOGL"
-      ],
-      "summary": "•JPMorgan: Alphabet 목표주가를 425달러에서 375달러로 하향 조정"
+      ]
     },
     {
       "id": "insidertracking/67752",
@@ -2465,19 +2490,16 @@
       "datetime": "2026-10-29T08:11:49.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
         "earnings"
       ],
       "score": 89,
       "hasText": true,
+      "summary": "중화권 마감 시황 (26.10.29, 목) 🇨🇳 중국 본토 증시는 알파벳의 3분기 실적 부진으로 글로벌 AI 인프라 투자 회의론이 재부각되면서 기술주를 중심으로 급락세를 연출, 창업판지수와 과창50지수는...",
       "tickers": [
         "GOOG",
         "MU",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.10.29, 목) 🇨🇳 중국 본토 증시는 알파벳의 3분기 실적 부진으로 글로벌 AI 인프라 투자 회의론이 재부각되면서 기술주를 중심으로 급락세를 연출, 창업판지수와 과창50지수는..."
+      ]
     },
     {
       "id": "insidertracking/67751",
@@ -2532,15 +2554,13 @@
       "datetime": "2026-10-29T06:36:21.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "macro",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI 반도체 수요 폭발, 원화 분기 절상률 1998년 이후 최고 (중국언론) •반도체 열풍에 힘입어 대규모 달러 자금이 유입되면서 원화 가치가 3분기에 13% 상승. 한국은행의 비둘기파 성향 위원인..."
+      "summary": ">>AI 반도체 수요 폭발, 원화 분기 절상률 1998년 이후 최고 (중국언론) •반도체 열풍에 힘입어 대규모 달러 자금이 유입되면서 원화 가치가 3분기에 13% 상승. 한국은행의 비둘기파 성향 위원인...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20886",
@@ -2601,14 +2621,14 @@
       "datetime": "2026-10-29T05:01:37.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%"
+      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/71208",
@@ -2617,15 +2637,13 @@
       "datetime": "2026-10-29T04:18:31.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "kr-market",
-        "earnings",
-        "flows"
+        "kr-market"
       ],
-      "lead": 1,
       "score": 58,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화..."
+      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20885",
@@ -2655,14 +2673,14 @@
       "datetime": "2026-10-29T02:57:23.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "ai-policy",
-        "earnings"
+        "earnings",
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>ChatGPT 모멘트가 도래하기 전까지 수익화 서두르지 않는 Unitree Robotics •Unitree Robotics의 3분기 매출은 전년 동기 대비 약 70% 증가, G1 휴머노이드 로봇은 이미..."
+      "summary": ">>ChatGPT 모멘트가 도래하기 전까지 수익화 서두르지 않는 Unitree Robotics •Unitree Robotics의 3분기 매출은 전년 동기 대비 약 70% 증가, G1 휴머노이드 로봇은 이미...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67720",
@@ -4516,19 +4534,17 @@
       "datetime": "2026-10-27T23:01:06.000Z",
       "localDateKst": "2026-10-28",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": "CXMT, 중국 내 고객 우선 공급설… 대만 업체들 DRAM 공급 부족 수혜 애플의 저가 구매 요구 거절 1. 창신메모리(CXMT), 애플·대만 업체 공급 요청 거절 - 중국 메모리 업체...",
+      "lead": 1,
       "tickers": [
         "MU",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "CXMT, 중국 내 고객 우선 공급설… 대만 업체들 DRAM 공급 부족 수혜 애플의 저가 구매 요구 거절 1. 창신메모리(CXMT), 애플·대만 업체 공급 요청 거절 - 중국 메모리 업체..."
+      ]
     },
     {
       "id": "HANAchina/71115",
@@ -5957,20 +5973,6 @@
         "AVGO",
         "MU"
       ]
-    },
-    {
-      "id": "insidertracking/67423",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67423",
-      "datetime": "2026-10-26T20:32:09.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "market-note"
-      ],
-      "score": 58,
-      "hasText": true,
-      "summary": "블룸버그에 따르면 유럽의 천연가스 저장시설 충전율이 75%에 그치며, 관련 기록이 시작된 2009년 이후 같은 시기 기준 최저 수준 기록. 독일의 상황은 더욱 심각해 천연가스 비축률이 61%를 소폭 웃도는...",
-      "tickers": []
     },
     {
       "id": "aetherjapanresearch/26057",
@@ -8504,23 +8506,6 @@
         "MU",
         "009150.KS"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/25965",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25965",
-      "datetime": "2026-10-21T10:39:43.000Z",
-      "localDateKst": "2026-10-21",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "score": 66,
-      "hasText": true,
-      "summary": "엔비디아, 신규 휴머노이드 로봇을 포함한 아이작(Isaac) 로보틱스 플랫폼의 대대적인 확장을 발표 \"로보틱스 분야의 ChatGPT 모먼트가 빠르게 다가오고 있습니다.\" GTC 베를린에서 엔비디아는 범용 로봇...",
-      "tickers": [
-        "NVDA"
-      ]
     }
   ],
   "current24hItems": [
@@ -8777,16 +8762,15 @@
       "datetime": "2026-10-29T20:50:16.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings",
-        "kr-market"
+        "kr-market",
+        "earnings"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
+      "summary": "Starbucks 2026년 4분기 실적 요약 실적 • 매출 $91.41억, YoY -4.5%, 환율 제외 -3.9% • 직영 매장 매출 $74.30억, YoY -5.5% • 라이선스 매장 매출...",
       "tickers": [
         "SBUX"
-      ],
-      "summary": "Starbucks 2026년 4분기 실적 요약 실적 • 매출 $91.41억, YoY -4.5%, 환율 제외 -3.9% • 직영 매장 매출 $74.30억, YoY -5.5% • 라이선스 매장 매출..."
+      ]
     },
     {
       "id": "insidertracking/67799",
@@ -8795,13 +8779,11 @@
       "datetime": "2026-10-29T20:48:10.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "equity"
+        "earnings"
       ],
       "score": 97,
       "hasText": true,
+      "summary": "Intel 2026년 3분기 실적 요약 실적 • 매출 $165.13억, YoY +21% • GAAP 매출총이익 $70.96억, 전년 $52.18억 • GAAP 매출총이익률 43.0%, YoY +480bps •...",
       "tickers": [],
       "listTickers": [
         "AMD",
@@ -8810,8 +8792,7 @@
         "ORCL",
         "INTC",
         "LRCX"
-      ],
-      "summary": "Intel 2026년 3분기 실적 요약 실적 • 매출 $165.13억, YoY +21% • GAAP 매출총이익 $70.96억, 전년 $52.18억 • GAAP 매출총이익률 43.0%, YoY +480bps •..."
+      ]
     },
     {
       "id": "insidertracking/67798",
@@ -8820,17 +8801,15 @@
       "datetime": "2026-10-29T20:46:09.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings",
         "equity",
-        "ai-policy"
+        "earnings"
       ],
-      "lead": 2,
       "score": 79,
       "hasText": true,
+      "summary": "Amazon 2026년 3분기 실적 요약 실적 • 매출 $2,019억, YoY +12%, 예상 $2,023억 소폭 하회 • EPS $1.89, 예상 $1.96 하회 • 영업이익 $281억, 예상 $262억...",
       "tickers": [
         "AMZN"
-      ],
-      "summary": "Amazon 2026년 3분기 실적 요약 실적 • 매출 $2,019억, YoY +12%, 예상 $2,023억 소폭 하회 • EPS $1.89, 예상 $1.96 하회 • 영업이익 $281억, 예상 $262억..."
+      ]
     },
     {
       "id": "insidertracking/67797",
@@ -8839,16 +8818,14 @@
       "datetime": "2026-10-29T20:45:36.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": "Sandisk 2027년 1분기 실적 요약 실적 • 매출 $110.3억, YoY +378%, QoQ +23%, 예상 $106.4억 상회 • 조정 EPS $49.51, QoQ +26%, 예상 $46.22 상회...",
       "tickers": [
         "SNDK"
-      ],
-      "summary": "Sandisk 2027년 1분기 실적 요약 실적 • 매출 $110.3억, YoY +378%, QoQ +23%, 예상 $106.4억 상회 • 조정 EPS $49.51, QoQ +26%, 예상 $46.22 상회..."
+      ]
     },
     {
       "id": "insidertracking/67796",
@@ -8857,19 +8834,16 @@
       "datetime": "2026-10-29T20:44:45.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "credit",
-        "semi",
-        "power",
-        "healthcare"
+        "credit"
       ],
       "score": 99,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — AI 인프라 투자 등을 위한 자금 조달 목적으로 최소 250억 달러 규모의 미국 회사채 발행을...",
       "tickers": [
         "CAT",
         "AAPL",
         "MSFT"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — AI 인프라 투자 등을 위한 자금 조달 목적으로 최소 250억 달러 규모의 미국 회사채 발행을..."
+      ]
     },
     {
       "id": "insidertracking/67795",
@@ -9243,11 +9217,11 @@
       ],
       "score": 73,
       "hasText": true,
+      "summary": "•JPMorgan: Alphabet 목표주가를 425달러에서 375달러로 하향 조정",
       "tickers": [
         "GOOG",
         "GOOGL"
-      ],
-      "summary": "•JPMorgan: Alphabet 목표주가를 425달러에서 375달러로 하향 조정"
+      ]
     },
     {
       "id": "insidertracking/67752",
@@ -9275,19 +9249,16 @@
       "datetime": "2026-10-29T08:11:49.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
         "earnings"
       ],
       "score": 89,
       "hasText": true,
+      "summary": "중화권 마감 시황 (26.10.29, 목) 🇨🇳 중국 본토 증시는 알파벳의 3분기 실적 부진으로 글로벌 AI 인프라 투자 회의론이 재부각되면서 기술주를 중심으로 급락세를 연출, 창업판지수와 과창50지수는...",
       "tickers": [
         "GOOG",
         "MU",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.10.29, 목) 🇨🇳 중국 본토 증시는 알파벳의 3분기 실적 부진으로 글로벌 AI 인프라 투자 회의론이 재부각되면서 기술주를 중심으로 급락세를 연출, 창업판지수와 과창50지수는..."
+      ]
     },
     {
       "id": "insidertracking/67751",
@@ -9342,15 +9313,13 @@
       "datetime": "2026-10-29T06:36:21.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "macro",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI 반도체 수요 폭발, 원화 분기 절상률 1998년 이후 최고 (중국언론) •반도체 열풍에 힘입어 대규모 달러 자금이 유입되면서 원화 가치가 3분기에 13% 상승. 한국은행의 비둘기파 성향 위원인..."
+      "summary": ">>AI 반도체 수요 폭발, 원화 분기 절상률 1998년 이후 최고 (중국언론) •반도체 열풍에 힘입어 대규모 달러 자금이 유입되면서 원화 가치가 3분기에 13% 상승. 한국은행의 비둘기파 성향 위원인...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20886",
@@ -9411,14 +9380,14 @@
       "datetime": "2026-10-29T05:01:37.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%"
+      "summary": "•중국 오전 반도체 과창50지수 -4.2% •10월 실적 시즌, 로컬 기관은 여전히 높은 테크 포지션 비중 청산과 반대매매 악순환 •CXMT -1.6%",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/71208",
@@ -9427,15 +9396,13 @@
       "datetime": "2026-10-29T04:18:31.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "kr-market",
-        "earnings",
-        "flows"
+        "kr-market"
       ],
-      "lead": 1,
       "score": 58,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화..."
+      "summary": ">>UBS, 한국 증시 목표치 재차 하향… 환율과 이익 전망 부담, 2027년 회복 기대 •UBS는 올해 들어 두 번째로 한국 KOSPI 목표치를 기존 8,000pt에서 7,500pt로 하향 조정함. 원화...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/20885",
@@ -9465,14 +9432,14 @@
       "datetime": "2026-10-29T02:57:23.000Z",
       "localDateKst": "2026-10-29",
       "tags": [
-        "ai-policy",
-        "earnings"
+        "earnings",
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>ChatGPT 모멘트가 도래하기 전까지 수익화 서두르지 않는 Unitree Robotics •Unitree Robotics의 3분기 매출은 전년 동기 대비 약 70% 증가, G1 휴머노이드 로봇은 이미..."
+      "summary": ">>ChatGPT 모멘트가 도래하기 전까지 수익화 서두르지 않는 Unitree Robotics •Unitree Robotics의 3분기 매출은 전년 동기 대비 약 70% 증가, G1 휴머노이드 로봇은 이미...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/67720",
