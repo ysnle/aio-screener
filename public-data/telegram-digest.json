@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-30T14:29:45.246Z",
-  "attemptedAt": "2026-10-30T14:29:45.246Z",
-  "lastSuccessfulAt": "2026-10-30T14:29:45.246Z",
+  "generatedAt": "2026-10-30T15:22:23.302Z",
+  "attemptedAt": "2026-10-30T15:22:23.302Z",
+  "lastSuccessfulAt": "2026-10-30T15:22:23.302Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-16T14:29:39.676Z",
-  "until": "2026-10-30T14:29:39.676Z",
+  "since": "2026-10-16T15:22:18.525Z",
+  "until": "2026-10-30T15:22:18.525Z",
   "current24hWindow": {
     "start": "2026-10-28T23:00:00.000Z",
     "end": "2026-10-29T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 148,
+      "count": 147,
       "freshCount": 0,
-      "eligibleTextCount": 139,
+      "eligibleTextCount": 138,
       "selectedCount": 57,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -124,15 +124,15 @@
       "lastPostId": 71273
     }
   ],
-  "count": 2435,
+  "count": 2434,
   "retainedItemCount": 444,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2435,
-    "eligibleTextCount": 2360,
+    "observedCount": 2434,
+    "eligibleTextCount": 2359,
     "mediaOnlyCount": 75,
     "highSignalCount": 438,
     "broadSignalCount": 960,
@@ -148,7 +148,7 @@
     "geo": 414,
     "power": 300,
     "healthcare": 126,
-    "market-note": 862,
+    "market-note": 861,
     "kr-market": 139,
     "flows": 99,
     "semi": 541,
@@ -253,7 +253,7 @@
     "NBIS": 1
   },
   "themes": [
-    "Market Notes (862 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
+    "Market Notes (861 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
     "Semiconductors/Memory (541 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
     "Earnings/Corporate (494 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (414 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 862,
+      "count": 861,
       "focus": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     }
   ],
@@ -9696,10 +9696,10 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 72,
-    "earnings": 52,
+    "pt": 66,
+    "earnings": 51,
     "macro": 2,
-    "retail": 9
+    "retail": 8
   },
   "signals": [
     {
@@ -10627,90 +10627,6 @@
       "post": "insidertracking/66473"
     },
     {
-      "kind": "pt",
-      "key": "pt|MSFT|-|2026-10-16",
-      "ticker": "MSFT",
-      "broker": null,
-      "ptFrom": 450,
-      "ptTo": 600,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-16",
-      "post": "insidertracking/66455"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|CRWV|JP Morgan|2026-10-16",
-      "ticker": "CRWV",
-      "broker": "JP Morgan",
-      "ptFrom": null,
-      "ptTo": 125,
-      "currency": "USD",
-      "direction": "hold",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-16",
-      "post": "insidertracking/66455"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|KTOS|Macquarie|2026-10-16",
-      "ticker": "KTOS",
-      "broker": "Macquarie",
-      "ptFrom": null,
-      "ptTo": 70,
-      "currency": "USD",
-      "direction": "initiate",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-16",
-      "post": "insidertracking/66455"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|ELF|UBS|2026-10-16",
-      "ticker": "ELF",
-      "broker": "UBS",
-      "ptFrom": 89,
-      "ptTo": 116,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": null,
-      "ratingAction": null,
-      "date": "2026-10-16",
-      "post": "bornlupin/20660"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|ELF|Morgan Stanley|2026-10-16",
-      "ticker": "ELF",
-      "broker": "Morgan Stanley",
-      "ptFrom": 90,
-      "ptTo": 103,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": null,
-      "ratingAction": null,
-      "date": "2026-10-16",
-      "post": "bornlupin/20660"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|ELF|Citi|2026-10-16",
-      "ticker": "ELF",
-      "broker": "Citi",
-      "ptFrom": 118,
-      "ptTo": 130,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": null,
-      "ratingAction": null,
-      "date": "2026-10-16",
-      "post": "bornlupin/20660"
-    },
-    {
       "kind": "earnings",
       "key": "earnings|SNDK|2026-10-30",
       "ticker": "SNDK",
@@ -11321,18 +11237,6 @@
       "guidance": null,
       "date": "2026-10-19",
       "post": "insidertracking/66704"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|슈나이더 일렉트릭|2026-10-16",
-      "ticker": null,
-      "name": "슈나이더 일렉트릭",
-      "quarter": "2026Q3",
-      "revenue": "beat",
-      "eps": null,
-      "guidance": null,
-      "date": "2026-10-16",
-      "post": "bornlupin/20668"
     },
     {
       "kind": "macro",
@@ -12015,88 +11919,6 @@
       "inverseShare": 0,
       "top10Share": 90.12,
       "post": "insidertracking/66724"
-    },
-    {
-      "kind": "retail",
-      "key": "retail|순매수|2026-10-16",
-      "side": "buy",
-      "date": "2026-10-16",
-      "top": [
-        {
-          "rank": 1,
-          "name": "DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF",
-          "share": 67.12,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 2,
-          "name": "IONQ INC",
-          "share": 6.12,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 3,
-          "name": "SPACE EXPLORATION TECHN-CL A",
-          "share": 2.86,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 4,
-          "name": "DIREXION SHARES ETF TRUST DAILY MSCI SOUTH KOREA BULL",
-          "share": 2.57,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 5,
-          "name": "PROSHARES ULTRAPRO QQQ ETF",
-          "share": 2.2,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 6,
-          "name": "PEPSICO INC",
-          "share": 2.05,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 7,
-          "name": "IRIS ENERGY LTD",
-          "share": 1.69,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 8,
-          "name": "INVESCO NASDAQ 100 ETF",
-          "share": 1.35,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 9,
-          "name": "PROSHARES ULTRA QQQ ETF",
-          "share": 1.05,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 10,
-          "name": "MicroSectors Gold Miners 3X Leveraged ETN",
-          "share": 1.02,
-          "leveraged": true,
-          "inverse": false
-        }
-      ],
-      "leveragedLongShare": 75.39,
-      "inverseShare": 0.1,
-      "top10Share": 88.03,
-      "post": "insidertracking/66480"
     }
   ]
 }
