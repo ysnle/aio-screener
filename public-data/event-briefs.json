@@ -1,6 +1,6 @@
 {
   "schemaVersion": "event-briefs.v1",
-  "generatedAt": "2026-10-30T02:08:41.075Z",
+  "generatedAt": "2026-10-30T02:59:15.981Z",
   "producer": "scripts/fetch-event-briefs.mjs",
   "cadence": "every 20 minutes (.github/workflows/event-briefs.yml); AI runs only for a new source document or a pending call summary",
   "sourceKind": "T1_OFFICIAL",
@@ -17,8 +17,8 @@
   "errors": [],
   "costLedger": {
     "month": "2026-10",
-    "requests": 109,
-    "estimatedUsd": 1.032,
+    "requests": 153,
+    "estimatedUsd": 1.9011,
     "rateCard": {
       "inputUsdPerToken": 1.375e-7,
       "outputUsdPerToken": 5.5e-7,
@@ -127,11 +127,19 @@
           "outputTokens": 110,
           "searchCalls": 1,
           "estimatedUsd": 0.01285
+        },
+        {
+          "purpose": "reasons-DLR",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 19454,
+          "outputTokens": 244,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02481
         }
       ],
       "status": "complete",
       "basis": "primary-source",
-      "headline": "디지털리얼티, 3분기 매출 $1,902,418천·희석 EPS $0.48 보고; 연간 Core FFO 가이던스 상향",
+      "headline": "디지털리얼티 실적: 총 영업수익 $1,902,418",
       "figures": [
         {
           "label": "총 영업수익",
@@ -252,14 +260,14 @@
         "extendedAt": "2026-10-29T22:11:37.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -298,6 +306,14 @@
           "outputTokens": 91,
           "searchCalls": 1,
           "estimatedUsd": 0.01279
+        },
+        {
+          "purpose": "reasons-AXTI",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21056,
+          "outputTokens": 240,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02503
         }
       ],
       "status": "complete",
@@ -377,14 +393,14 @@
         "extendedAt": "2026-10-29T23:58:56.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -423,11 +439,19 @@
           "outputTokens": 325,
           "searchCalls": 1,
           "estimatedUsd": 0.01292
+        },
+        {
+          "purpose": "reasons-SNDK",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13072,
+          "outputTokens": 206,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02391
         }
       ],
       "status": "complete",
       "basis": "primary-source",
-      "headline": "샌디스크, Fiscal First Quarter 2027 실적 발표",
+      "headline": "샌디스크 실적 발표",
       "figures": [],
       "details": [],
       "detailTitle": "사업부문",
@@ -548,20 +572,15 @@
         "extendedAt": "2026-10-29T23:59:43.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
-          {
-            "reason": "url-not-allowed",
-            "text": "요청하신 실적 발표 뒤 하락 이유를 뒷받침하는 보도나 회사 자료를 허용된 출처에서 확인하지 못해, 내용을 정리할 수 없습니다."
-          }
-        ],
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": -1
       }
     },
@@ -599,6 +618,14 @@
           "outputTokens": 114,
           "searchCalls": 1,
           "estimatedUsd": 0.01286
+        },
+        {
+          "purpose": "reasons-COIN",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13089,
+          "outputTokens": 248,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01294
         }
       ],
       "status": "complete",
@@ -728,14 +755,14 @@
         "extendedAt": "2026-10-29T23:59:14.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -774,6 +801,14 @@
           "outputTokens": 308,
           "searchCalls": 1,
           "estimatedUsd": 0.01235
+        },
+        {
+          "purpose": "reasons-INTC",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21029,
+          "outputTokens": 521,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02518
         }
       ],
       "status": "complete",
@@ -918,14 +953,31 @@
         "extendedAt": "2026-10-29T23:59:58.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "3분기 실적은 예상보다 나았지만, 다음 분기 매출·이익 전망이 시장 예상에 못 미쳐 실적 개선 흐름이 이어질지 우려를 키웠다.",
+            "url": "https://www.investing.com/news/stock-market-news/intel-signals-slower-growth-as-pc-market-remains-under-pressure-4984967"
+          },
+          {
+            "text": "PC 수요 둔화가 메모리 가격 부담과 맞물려 내년 상반기까지 이어질 것이라는 회사 설명과 PC 칩 부문의 부진이 성장 전망을 압박했다.",
+            "url": "https://www.investing.com/news/stock-market-news/intel-signals-slower-growth-as-pc-market-remains-under-pressure-4984967"
+          },
+          {
+            "text": "이스라엘 공장 가동 중단은 매출 전망뿐 아니라 총마진에도 부담을 줄 것으로 회사가 밝혔고, 보도는 이를 단기 실적 악화 요인으로 전했다.",
+            "url": "https://www.investing.com/news/stock-market-news/intel-signals-slower-growth-as-pc-market-remains-under-pressure-4984967"
+          },
+          {
+            "text": "설비투자 확대와 현금 소진 우려가 함께 부각됐다. 경영진은 생산능력 확충을 위한 투자를 계속하겠다고 했으며, 보도는 대규모 투자 재원과 현금흐름 부담에 대한 투자자 우려를 짚었다.",
+            "url": "https://www.investing.com/news/stock-market-news/intel-signals-slower-growth-as-pc-market-remains-under-pressure-4984967"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -1158,19 +1210,11 @@
         "extendedAt": "2026-10-29T23:59:59.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [
-          {
-            "text": "회사 실적자료는 시장 컨센서스와 향후 가이던스를 비교하지 않아, 기대와의 차이가 주가 하락을 이끌었다고 확인할 근거는 여기서 찾지 못했습니다.",
-            "url": "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx"
-          },
-          {
-            "text": "회사는 영업이익률이 사상 최고라고 밝혔습니다. 따라서 마진 악화가 하락 이유였다는 설명은 회사 자료로 뒷받침되지 않습니다.",
-            "url": "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx"
-          },
           {
             "text": "회사는 인공지능 투자에 따른 설비투자 증가를 잉여현금흐름 감소의 주된 이유로 들었습니다.",
             "url": "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx"
@@ -1221,6 +1265,14 @@
           "outputTokens": 341,
           "searchCalls": 1,
           "estimatedUsd": 0.0124
+        },
+        {
+          "purpose": "reasons-MSTR",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 19291,
+          "outputTokens": 377,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02486
         }
       ],
       "status": "complete",
@@ -1334,20 +1386,24 @@
         "extendedAt": "2026-10-29T23:59:59.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
+        "points": [
           {
-            "reason": "url-not-allowed",
-            "text": "2026년 10월 29일 실적 발표 뒤 주가 하락의 원인을 설명하는 보도나 회사 자료를 허용된 출처에서 확인하지 못해, 가이던스·마진·설비투자·현금흐름·수요·경영진 발언에 관한 사유를 근거 없이 정리하지 않습니다."
+            "text": "매출이 시장 기대에 못 미쳤고, 비트코인 평가이익이 이끈 큰 순이익과 달리 전통적인 분기·연간 실적 가이던스를 제시하지 않아 실적의 지속성에 의문이 제기됐다.",
+            "url": "https://finance.yahoo.com/news/live-microstrategy-q3-2026-earnings-232225227.html"
+          },
+          {
+            "text": "경영진은 주당 비트코인 보유량이 전년보다 줄었다고 인정하며, 자본구조의 신용도를 강화하는 과정이 그 배경이라고 설명했다.",
+            "url": "https://finance.yahoo.com/news/live-microstrategy-q3-2026-earnings-232225227.html"
           }
         ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": -1
       }
     },
@@ -1385,6 +1441,14 @@
           "outputTokens": 112,
           "searchCalls": 1,
           "estimatedUsd": 0.01278
+        },
+        {
+          "purpose": "reasons-MPWR",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21391,
+          "outputTokens": 230,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02507
         }
       ],
       "status": "complete",
@@ -1541,14 +1605,14 @@
         "extendedAt": "2026-10-29T23:49:15.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -1587,6 +1651,14 @@
           "outputTokens": 260,
           "searchCalls": 1,
           "estimatedUsd": 0.01274
+        },
+        {
+          "purpose": "reasons-EME",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13002,
+          "outputTokens": 454,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01304
         }
       ],
       "status": "complete",
@@ -1739,14 +1811,27 @@
         "latestPct": 1.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "분기 실적이 시장 예상치를 웃돌았고, 연간 매출·조정이익 가이던스도 올려 시장 전망을 상회한 점이 주가 상승 이유로 보도됐다.",
+            "url": "https://www.investing.com/news/earnings/emcor-group-stock-rises-2-on-earnings-beat-raised-guidance-93CH-4983114"
+          },
+          {
+            "text": "매출 성장과 현장 실행, 판관비 레버리지 개선에 힘입어 영업이익률이 확대됐다는 경영진 설명이 함께 전해졌다.",
+            "url": "https://www.investing.com/news/earnings/emcor-group-stock-rises-2-on-earnings-beat-raised-guidance-93CH-4983114"
+          },
+          {
+            "text": "네트워크·통신 인프라 수요가 잔여수행의무 증가를 이끌었고, 경영진은 강한 영업현금흐름도 성과의 배경으로 언급했다.",
+            "url": "https://www.investing.com/news/earnings/emcor-group-stock-rises-2-on-earnings-beat-raised-guidance-93CH-4983114"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -1785,6 +1870,14 @@
           "outputTokens": 104,
           "searchCalls": 1,
           "estimatedUsd": 0.01283
+        },
+        {
+          "purpose": "reasons-MA",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 8867,
+          "outputTokens": 91,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01227
         }
       ],
       "status": "complete",
@@ -1888,14 +1981,14 @@
         "latestPct": 4.2,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -1934,6 +2027,14 @@
           "outputTokens": 246,
           "searchCalls": 1,
           "estimatedUsd": 0.01291
+        },
+        {
+          "purpose": "reasons-CARR",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13021,
+          "outputTokens": 553,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01309
         }
       ],
       "status": "complete",
@@ -2085,14 +2186,27 @@
         "latestPct": -1.3,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "회사는 연간 매출 전망을 높였지만 이익 전망은 유지했고, 이익 전망의 중간값이 시장 기대에 못 미쳐 실적 호조에도 눈높이를 충족하지 못했다는 해석이 나왔다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-carrier-global-stock-sliding-today-93CH-2767336"
+          },
+          {
+            "text": "주거용 제품의 가격 인상분 반영이 예상보다 더디고 관세·원자재 등 투입비용 부담이 이어져, 가격 전가와 마진 개선에 대한 우려가 보도됐다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-carrier-beats-q3-2026-estimates-but-shares-fall-premarket-93CH-4983571"
+          },
+          {
+            "text": "데이터센터 사업의 낮은 마진과 생산능력 확대 계획이 향후 마진에 부담이 될 수 있다는 분석이 소개됐다. 보도는 분기 현금흐름이 강했다고도 전해, 이를 주가 하락 원인으로 단정하진 않았다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-carrier-global-stock-sliding-today-93CH-2767336"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -2131,6 +2245,14 @@
           "outputTokens": 308,
           "searchCalls": 1,
           "estimatedUsd": 0.01296
+        },
+        {
+          "purpose": "reasons-LLY",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12989,
+          "outputTokens": 568,
+          "searchCalls": 1,
+          "estimatedUsd": 0.0131
         }
       ],
       "status": "complete",
@@ -2274,15 +2396,29 @@
         "latestPct": 6.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [],
+        "points": [
+          {
+            "text": "분기 매출과 조정이익이 시장 예상치를 웃돌았고, 연간 매출 전망도 시장 예상보다 높게 상향돼 실적·가이던스가 주가 상승 배경으로 보도됐다.",
+            "url": "https://www.investing.com/news/stock-market-news/lillys-obesity-drug-strength-fuels-record-rally-wall-street-optimism-4984761"
+          },
+          {
+            "text": "비만·당뇨 치료제 수요가 강했고, 경영진은 성장 동력으로 전 세계적인 Mounjaro·Zepbound 수요와 비만 치료 접근성 확대를 들었다.",
+            "url": "https://www.investing.com/news/stock-market-news/eli-lilly-lifts-revenue-outlook-on-weightloss-drug-sales-trims-profit-view-on-deal-charges-4982615"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [
+          {
+            "reason": "no-reason-found",
+            "text": "매출총이익률 개선도 실적 호조에 보탬이 됐지만, 보도는 인수 관련 연구개발 비용 때문에 연간 조정이익 전망은 낮아졌다고 함께 전했다. 설비투자·현금흐름을 주가 상승 이유로 다룬 보도는 확인되지 않았다."
+          }
+        ],
         "direction": 1
       }
     },
@@ -2320,6 +2456,14 @@
           "outputTokens": 98,
           "searchCalls": 2,
           "estimatedUsd": 0.02329
+        },
+        {
+          "purpose": "reasons-ENTG",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12947,
+          "outputTokens": 111,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01284
         }
       ],
       "status": "complete",
@@ -2450,14 +2594,14 @@
         "latestPct": 0.4,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -2496,6 +2640,14 @@
           "outputTokens": 111,
           "searchCalls": 1,
           "estimatedUsd": 0.01284
+        },
+        {
+          "purpose": "reasons-PWR",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 18530,
+          "outputTokens": 561,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02486
         }
       ],
       "status": "complete",
@@ -2654,14 +2806,27 @@
         "latestPct": 4.7,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "회사가 연간 전망을 높였고, 새 전망이 시장 예상보다 높아 실적 호조와 함께 긍정적으로 받아들여졌다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/quanta-nyse-pwr-beats-expectations-110254356.html"
+          },
+          {
+            "text": "영업 실적 개선과 현금흐름 호조, 사상 최대 수주잔고가 실적 전망 상향의 근거로 보도됐다.",
+            "url": "https://in.investing.com/news/stock-market-news/td-cowen-raises-quanta-services-stock-price-target-on-strong-quarter-93CH-5665961"
+          },
+          {
+            "text": "유틸리티·데이터센터·대형 전력 수요처의 지속적인 수요가 뒷받침 요인으로 언급됐다.",
+            "url": "https://in.investing.com/news/stock-market-news/td-cowen-raises-quanta-services-stock-price-target-on-strong-quarter-93CH-5665961"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -2700,6 +2865,14 @@
           "outputTokens": 365,
           "searchCalls": 1,
           "estimatedUsd": 0.01298
+        },
+        {
+          "purpose": "reasons-MRK",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13032,
+          "outputTokens": 468,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01305
         }
       ],
       "status": "complete",
@@ -2851,14 +3024,27 @@
         "latestPct": 3.8,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "분기 매출과 조정이익이 시장 전망을 웃돌았고, 회사가 연간 이익 전망을 높여 시장 기대를 넘어선 점이 상승 배경으로 보도됐다.",
+            "url": "https://sg.finance.yahoo.com/news/merck-shares-rise-q3-beat-112156322.html"
+          },
+          {
+            "text": "키트루다와 키트루다 큐렉스의 글로벌 수요 증가, 윈리베어의 성장 등이 매출을 뒷받침한 것으로 전해졌다.",
+            "url": "https://ca.finance.yahoo.com/news/eli-lilly-merck-third-quarter-133556075.html"
+          },
+          {
+            "text": "최고경영자는 종양학 분야의 임상 진전이 후기 개발 단계 파이프라인의 위험을 낮춘다고 강조했다.",
+            "url": "https://sg.finance.yahoo.com/news/merck-shares-rise-q3-beat-112156322.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -2897,6 +3083,14 @@
           "outputTokens": 93,
           "searchCalls": 2,
           "estimatedUsd": 0.0238
+        },
+        {
+          "purpose": "reasons-TT",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21013,
+          "outputTokens": 218,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02501
         }
       ],
       "status": "complete",
@@ -3026,14 +3220,14 @@
         "latestPct": -3.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -3072,6 +3266,14 @@
           "outputTokens": 339,
           "searchCalls": 1,
           "estimatedUsd": 0.01239
+        },
+        {
+          "purpose": "reasons-CAT",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12905,
+          "outputTokens": 578,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01309
         }
       ],
       "status": "complete",
@@ -3187,20 +3389,32 @@
         "latestPct": -9.3,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
+        "points": [
           {
-            "reason": "url-not-allowed",
-            "text": "확인 가능한 지정 보도 매체에서 2026년 10월 29일 캐터필러 실적 발표와 주가 하락 원인을 다룬 기사를 찾지 못해, 가이던스·마진·설비투자 및 현금흐름·수요·경영진 발언을 근거로 요약할 수 없습니다."
+            "text": "경영진이 4분기 매출 증가를 ‘완만한 수준’으로 제시해 시장의 더 높은 기대에 못 미쳤고, 매출도 시장 예상에 약간 못 미쳤다는 보도가 나왔다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/caterpillar-sinks-12-despite-q3-125501108.html"
+          },
+          {
+            "text": "실적 호조에도 관세 환급 효과가 전 분기보다 줄어 마진 개선의 지속성에 대한 우려가 부각됐다고 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/article/caterpillar-the-dows-best-stock-of-2026-is-unraveling--and-an-earnings-beat-couldnt-stop-it-143227286.html"
+          },
+          {
+            "text": "경영진은 강한 주문과 기록적인 수주잔고를 언급했지만, 일부 사업의 생산능력 제약이 성장 확대를 제한한다는 설명도 나왔다.",
+            "url": "https://ng.investing.com/news/stock-market-news/earnings-call-transcript-caterpillar-tops-q3-2026-estimates-shares-drop-93CH-2768582"
+          },
+          {
+            "text": "데이터센터 관련 수요가 성장 동력인 가운데, AI 인프라 투자와 자금 조달의 지속 가능성에 대한 우려가 주가 하락 배경으로 보도됐다.",
+            "url": "https://au.investing.com/news/earnings/caterpillar-earnings-beat-estimates-amid-rapid-ai-buildout-4725144"
           }
         ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": -1
       }
     },
@@ -3238,6 +3452,14 @@
           "outputTokens": 272,
           "searchCalls": 1,
           "estimatedUsd": 0.01235
+        },
+        {
+          "purpose": "reasons-SIMO",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 19412,
+          "outputTokens": 231,
+          "searchCalls": 2,
+          "estimatedUsd": 0.0248
         }
       ],
       "status": "complete",
@@ -3367,20 +3589,15 @@
         "latestPct": 3.7,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
-          {
-            "reason": "url-not-allowed",
-            "text": "허용된 보도 출처에서 해당 실적 발표와 주가 반응을 확인할 수 없어, 보도된 상승 이유를 검증해 정리할 수 없습니다. 추측이나 미확인 내용을 제시하지 않습니다."
-          }
-        ],
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": 1
       }
     },
@@ -3418,6 +3635,14 @@
           "outputTokens": 258,
           "searchCalls": 1,
           "estimatedUsd": 0.01288
+        },
+        {
+          "purpose": "reasons-STRL",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13048,
+          "outputTokens": 209,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01291
         }
       ],
       "status": "complete",
@@ -3584,20 +3809,15 @@
         "latestPct": -3.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
-          {
-            "reason": "url-not-allowed",
-            "text": "확인 가능한 허용 매체의 보도나 회사 자료를 찾지 못해, 하락 이유를 근거 있게 정리할 수 없습니다."
-          }
-        ],
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": -1
       }
     },
@@ -3805,7 +4025,7 @@
         "latestPct": -26.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3860,6 +4080,14 @@
           "outputTokens": 114,
           "searchCalls": 2,
           "estimatedUsd": 0.02331
+        },
+        {
+          "purpose": "reasons-EQIX",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12871,
+          "outputTokens": 229,
+          "searchCalls": 1,
+          "estimatedUsd": 0.0129
         }
       ],
       "status": "complete",
@@ -4013,14 +4241,14 @@
         "latestPct": 2.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -4059,6 +4287,14 @@
           "outputTokens": 112,
           "searchCalls": 1,
           "estimatedUsd": 0.01283
+        },
+        {
+          "purpose": "reasons-FTNT",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21410,
+          "outputTokens": 573,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02526
         }
       ],
       "status": "complete",
@@ -4220,14 +4456,31 @@
         "latestPct": -20.1,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "실적과 연간 매출 전망은 시장 예상보다 좋았지만, 투자자들이 주목한 서비스 매출 전망은 낮아져 가이던스가 기대에 못 미쳤다는 평가가 주가를 압박했다.",
+            "url": "https://ca.finance.yahoo.com/news/fortinet-drags-down-cybersecurity-stocks-as-the-companys-service-revenue-forecast-misses-estimates-124146969.html"
+          },
+          {
+            "text": "제품 매출 증가세가 앞선 분기보다 둔화했고, 시장이 기대한 성장 속도에도 못 미쳐 하드웨어 교체 수요가 정점에 가까워졌다는 우려가 나왔다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/first-f5-now-fortinet-wall-110250088.html"
+          },
+          {
+            "text": "서비스 매출은 대형 고객의 단계적 서비스 개통 때문에 약했고, 경영진은 이를 시기상의 문제라고 설명했지만 일부 애널리스트는 서비스 부가판매율과 향후 성장 지속성에 의문을 제기했다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/fortinet-tumbles-20-revenue-forecast-141017155.html"
+          },
+          {
+            "text": "경영진은 광범위한 수요와 청구액 증가를 강조했지만, CEO는 가격 인상 효과가 사라지기 시작했다고 밝혔고 저가 재고 효과 약화와 매출총이익률 하락도 투자자 우려로 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/first-f5-now-fortinet-wall-110250088.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -4266,6 +4519,14 @@
           "outputTokens": 105,
           "searchCalls": 2,
           "estimatedUsd": 0.02388
+        },
+        {
+          "purpose": "reasons-COHU",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21205,
+          "outputTokens": 609,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02525
         }
       ],
       "status": "complete",
@@ -4354,14 +4615,31 @@
         "latestPct": 0.5,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "조정 주당순이익과 매출이 시장 예상치를 웃돌았고, 회사가 다음 분기 매출 전망도 계절적 약세를 감안한 예상보다 높게 제시했다는 보도가 나왔다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-cohu-beats-q3-2026-estimates-shares-jump-8-93CH-4980995"
+          },
+          {
+            "text": "총마진이 회사 가이던스를 상회해 제조 비용 레버리지가 개선된 점이 호재로 거론됐다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-cohu-beats-q3-2026-estimates-shares-jump-8-93CH-4980995"
+          },
+          {
+            "text": "고성능컴퓨팅용 Eclipse 열 솔루션 채택이 시스템 수요를 이끌고, 주문 증가와 AI 컴퓨팅 기회 파이프라인 확대가 강한 수요 신호로 보도됐다.",
+            "url": "https://in.investing.com/news/stock-market-news/cohu-beats-third-quarter-estimates-on-strong-ai-demand-93CH-5661571"
+          },
+          {
+            "text": "경영진은 고성능컴퓨팅 매출 전망을 높이고, 향후 고객 생산 확대에 대응하기 위해 제조능력과 공급업체 협력을 강화한다고 밝혔다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/cohu-reports-third-quarter-2026-200000459.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -4400,6 +4678,14 @@
           "outputTokens": 107,
           "searchCalls": 2,
           "estimatedUsd": 0.02329
+        },
+        {
+          "purpose": "reasons-KLAC",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13115,
+          "outputTokens": 479,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01307
         }
       ],
       "status": "complete",
@@ -4527,14 +4813,31 @@
         "latestPct": 5.5,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "분기 매출과 이익이 시장 전망을 웃돌았고, 다음 분기 매출·이익 가이던스도 컨센서스를 상회해 성장세가 이어질 것이란 기대를 키웠다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-kla-stock-surging-today-93CH-4984221"
+          },
+          {
+            "text": "영업이익률이 사상 최고 수준으로 개선됐고, 매출총이익률도 회사가 제시한 범위의 중간값을 소폭 웃돌아 수익성 호조가 부각됐다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-kla-tops-q1-2026-estimates-as-stock-rises-after-hours-93CH-4981092"
+          },
+          {
+            "text": "AI 인프라, 첨단 패키징, 선단 로직과 메모리 투자가 검사·공정제어 장비 수요를 뒷받침한다고 경영진이 설명했고, 다음 해 웨이퍼 장비 시장 전망도 상향했다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-kla-stock-surging-today-93CH-4984221"
+          },
+          {
+            "text": "경영진은 하반기 가속 성장을 예상해 왔으며, 실제 분기 실적이 주요 지표에서 가이던스 중간값을 넘어섰다고 밝혔다. 영업현금흐름과 잉여현금흐름도 강한 분기 현금 창출을 보여줬다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-kla-tops-q1-2026-estimates-as-stock-rises-after-hours-93CH-4981092"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -4578,6 +4881,14 @@
           "outputTokens": 178,
           "searchCalls": 2,
           "estimatedUsd": 0.02389
+        },
+        {
+          "purpose": "reasons-MSFT",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12950,
+          "outputTokens": 116,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01284
         }
       ],
       "status": "complete",
@@ -4687,25 +4998,15 @@
         "latestPct": -0.2,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
-          {
-            "reason": "number-not-in-source",
-            "numbers": [
-              "2026",
-              "10",
-              "28"
-            ],
-            "text": "허용된 보도 출처에서 2026년 10월 28일 실적 발표 뒤 주가 하락의 원인을 확인할 수 있는 기사를 찾지 못해, 가이던스·마진·설비투자·현금흐름·수요·경영진 발언을 이유로 정리하지 않습니다."
-          }
-        ],
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": -1
       }
     },
@@ -4743,6 +5044,14 @@
           "outputTokens": 107,
           "searchCalls": 2,
           "estimatedUsd": 0.02385
+        },
+        {
+          "purpose": "reasons-FORM",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21065,
+          "outputTokens": 263,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02504
         }
       ],
       "status": "complete",
@@ -4855,14 +5164,14 @@
         "latestPct": -11.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -5047,7 +5356,7 @@
         "latestPct": -12.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5258,7 +5567,7 @@
         "latestPct": -4.1,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5314,6 +5623,14 @@
           "outputTokens": 93,
           "searchCalls": 1,
           "estimatedUsd": 0.01277
+        },
+        {
+          "purpose": "reasons-APH",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 20980,
+          "outputTokens": 630,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02523
         }
       ],
       "status": "complete",
@@ -5458,14 +5775,31 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "분기 실적과 다음 분기·연간 전망이 애널리스트 예상치를 모두 웃돌아, 시장 기대를 넘어선 가이던스가 상승 배경으로 보도됐다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-amphenol-tops-q3-2026-estimates-as-ai-demand-surges-93CH-4980430"
+          },
+          {
+            "text": "AI·데이터센터 관련 수요가 강했고 주문이 사상 최고를 기록했으며, 경영진은 여러 최종시장에서도 수요가 견조하다고 설명했다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-amphenol-tops-q3-2026-estimates-as-ai-demand-surges-93CH-4980430"
+          },
+          {
+            "text": "영업이익률은 전년보다 개선됐고 영업현금흐름과 잉여현금흐름도 컸지만, 마진은 관세 환급 축소 영향으로 직전 분기보다 소폭 낮아졌다는 분석도 나왔다.",
+            "url": "https://www.investing.com/news/stock-market-news/amphenol-earnings-analysis-questions-answered-and-next-catalysts-93CH-4980500"
+          },
+          {
+            "text": "경영진은 인수한 CommScope 사업의 연간 전망을 상향했고, 회사는 신규 자사주 매입 계획과 배당 인상도 발표했다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/amphenol-soars-7-record-10-172052432.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -5504,6 +5838,14 @@
           "outputTokens": 105,
           "searchCalls": 2,
           "estimatedUsd": 0.02388
+        },
+        {
+          "purpose": "reasons-FLEX",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12635,
+          "outputTokens": 544,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01304
         }
       ],
       "status": "complete",
@@ -5646,14 +5988,27 @@
         "latestPct": 11.7,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "조정 주당이익과 매출이 시장 예상치를 웃돌았고, 연간 매출·이익 전망도 상향돼 실적과 향후 전망이 모두 기대를 넘어선 점이 주가 상승 배경으로 보도됐다.",
+            "url": "https://au.investing.com/news/stock-market-news/flex-beats-stock-rises-nearly-9-as-strong-demand-drives-25-revenue-surge-93CH-4720999"
+          },
+          {
+            "text": "클라우드·전력 인프라 부문의 성장과 생산성 개선, 유리한 제품 구성, 물량 증가 효과가 수익성 개선을 이끌었다는 설명이 나왔다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-flex-tops-q2-2026-estimates-and-lifts-outlook-93CH-4979640"
+          },
+          {
+            "text": "AI 데이터센터 관련 클라우드·전력 인프라 수요가 강세 요인으로 거론됐다. 경영진은 AI 인프라가 칩뿐 아니라 전력·냉각·컴퓨팅과 이를 대규모로 구축·운영하는 역량에도 달려 있다고 말했다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-flex-tops-q2-2026-estimates-and-lifts-outlook-93CH-4979640"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -5692,6 +6047,14 @@
           "outputTokens": 91,
           "searchCalls": 2,
           "estimatedUsd": 0.02329
+        },
+        {
+          "purpose": "reasons-GEV",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21356,
+          "outputTokens": 234,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02507
         }
       ],
       "status": "complete",
@@ -5817,14 +6180,14 @@
         "latestPct": -0.8,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -5863,6 +6226,14 @@
           "outputTokens": 87,
           "searchCalls": 2,
           "estimatedUsd": 0.02386
+        },
+        {
+          "purpose": "reasons-VRT",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12911,
+          "outputTokens": 500,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01305
         }
       ],
       "status": "complete",
@@ -6055,14 +6426,27 @@
         "latestPct": 17.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "실적이 시장 예상치를 웃돌고 연간 매출·이익 전망도 상향돼, 새 전망이 애널리스트 기대를 넘어섰다는 점이 상승 배경으로 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/vertiv-stock-surges-as-orders-double-amid-ai-build-out-evolving-faster-than-ever-122018206.html"
+          },
+          {
+            "text": "매출 증가에 힘입어 조정 영업이익률이 개선된 점도 실적의 질을 뒷받침한 요인으로 다뤄졌다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/vertiv-ceo-says-largest-infrastructure-121215365.html"
+          },
+          {
+            "text": "주문이 급증하고 현금흐름도 개선됐으며, 경영진은 데이터센터 인프라 수요가 가속화되고 있다고 설명했다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/vertiv-ceo-says-largest-infrastructure-121215365.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -6101,6 +6485,14 @@
           "outputTokens": 215,
           "searchCalls": 1,
           "estimatedUsd": 0.01233
+        },
+        {
+          "purpose": "reasons-TER",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13019,
+          "outputTokens": 484,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01306
         }
       ],
       "status": "complete",
@@ -6227,14 +6619,27 @@
         "latestPct": -8.5,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "3분기 실적은 시장 예상치를 웃돌았지만, 4분기 이익 전망이 직전 분기보다 낮아져 실적 개선세가 둔화될 수 있다는 점이 주가 부담으로 거론됐다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-teradyne-stock-sliding-today-93CH-4979589"
+          },
+          {
+            "text": "경영진이 4분기 매출총이익률이 기록적이었던 3분기보다 낮아질 것으로 예상해, 마진 압박 우려가 제기됐다.",
+            "url": "https://www.investing.com/news/transcripts/earnings-call-transcript-teradyne-beats-q3-2026-estimates-but-shares-fall-93CH-4979648"
+          },
+          {
+            "text": "경영진은 AI 관련 수요가 메모리·하드디스크 테스트부터 고속 인터커넥트와 로보틱스까지 이어졌다고 설명했지만, 보도는 강한 실적에도 4분기 이익 둔화 전망이 투자자 반응에 영향을 줬다고 전했다.",
+            "url": "https://www.investing.com/news/earnings/teradyne-falls-6-despite-strongerthanexpected-q3-print-guidance-93CH-4977003"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -6418,17 +6823,13 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [
           {
             "text": "회사가 제시한 다음 분기 매출 전망이 애널리스트 기대에 못 미쳐, 실적 회복 속도가 시장 기대보다 약하다는 우려가 주가 하락 이유로 보도됐다.",
-            "url": "https://www.bloomberg.com/news/articles/2026-10-27/nxp-shares-slide-after-chipmaker-gives-tepid-revenue-forecast"
-          },
-          {
-            "text": "전망은 자동차 수요 회복이 둔화될 수 있다는 우려를 키웠다고 보도됐다. 허용된 보도 출처에서 마진·설비투자·현금흐름과 경영진 발언에 관한 근거는 확인하지 못했으며, 회사 자료도 허용 출처에 포함할 수 없어 해당 내용은 덧붙이지 않았다.",
             "url": "https://www.bloomberg.com/news/articles/2026-10-27/nxp-shares-slide-after-chipmaker-gives-tepid-revenue-forecast"
           }
         ],
@@ -6473,6 +6874,14 @@
           "outputTokens": 312,
           "searchCalls": 1,
           "estimatedUsd": 0.01294
+        },
+        {
+          "purpose": "reasons-STX",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21353,
+          "outputTokens": 247,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02507
         }
       ],
       "status": "complete",
@@ -6575,20 +6984,15 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
-          {
-            "reason": "url-not-allowed",
-            "text": "요청하신 실적 발표와 주가 반응을 뒷받침하는 허용된 보도 출처를 확인하지 못해, 가이던스·마진·현금흐름·수요·경영진 발언을 근거로 요약할 수 없습니다."
-          }
-        ],
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": 1
       }
     },
@@ -6626,6 +7030,14 @@
           "outputTokens": 255,
           "searchCalls": 1,
           "estimatedUsd": 0.0129
+        },
+        {
+          "purpose": "reasons-UCTT",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21392,
+          "outputTokens": 671,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02531
         }
       ],
       "status": "complete",
@@ -6738,14 +7150,31 @@
         "latestPct": 6.3,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "분기 매출과 조정 주당이익이 시장 예상치를 웃돌았고, 다음 분기 매출·이익 전망도 컨센서스보다 높게 제시돼 실적과 가이던스가 모두 기대를 넘어섰다는 보도가 나왔다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/ultra-clean-holdings-soars-11-212357537.html"
+          },
+          {
+            "text": "반도체 장비 수요, 특히 게이트올어라운드와 고대역폭 메모리 관련 식각·증착 제품 주문이 매출 성장을 이끌었으며, 경영진은 고객 수요가 가속 중이라고 설명했다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/ultra-clean-uctt-said-q3-230417457.html"
+          },
+          {
+            "text": "높은 생산량과 고마진 제품 비중 확대에 힘입어 매출총이익률과 영업이익률이 개선됐다는 분석이 실적 호조의 배경으로 제시됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/uctt-q3-earnings-beat-estimates-140800910.html"
+          },
+          {
+            "text": "경영진은 고객 수요에 맞춘 생산능력 확충과 공급망 대비를 강조했으며, 설비투자는 단계적으로 진행한다고 설명했다. 다만 재고 확대로 영업현금흐름이 마이너스였다는 보도도 있어 이를 주가 상승의 직접 요인으로 단정하지는 않았다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/ultra-clean-uctt-said-q3-230417457.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -6784,6 +7213,14 @@
           "outputTokens": 345,
           "searchCalls": 1,
           "estimatedUsd": 0.01298
+        },
+        {
+          "purpose": "reasons-HOOD",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 15894,
+          "outputTokens": 521,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02447
         }
       ],
       "status": "complete",
@@ -6888,20 +7325,28 @@
         "latestPct": -3.1,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
+        "points": [
           {
-            "reason": "url-not-allowed",
-            "text": "요청하신 2026년 10월 27일 실적 발표 뒤 주가 하락의 원인을 뒷받침하는 보도나 회사 자료를 허용된 출처에서 확인하지 못해, 보도되지 않은 내용을 추측해 정리하지 않겠습니다."
+            "text": "매출이 시장 기대에 못 미쳤고, 조정 주당이익이 예상보다 낮아 호실적 기대를 채우지 못했다.",
+            "url": "https://finance.yahoo.com/markets/article/robinhood-stock-falls-on-earnings-miss-despite-record-trading-volumes-204041177.html"
+          },
+          {
+            "text": "암호화폐 거래 둔화로 관련 수익이 크게 줄어든 가운데, 영업비용 증가는 이익과 마진에 부담을 줬다.",
+            "url": "https://finance.yahoo.com/markets/article/robinhood-stock-falls-on-earnings-miss-despite-record-trading-volumes-204041177.html"
+          },
+          {
+            "text": "경영진은 시장 변동성이 낮고 기업공개가 줄어 수요 요청도 감소했다고 설명했으며, 이 발언은 향후 거래 여건에 대한 우려를 키웠다.",
+            "url": "https://finance.yahoo.com/markets/article/robinhood-stock-falls-on-earnings-miss-despite-record-trading-volumes-204041177.html"
           }
         ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": -1
       }
     },
@@ -6939,6 +7384,14 @@
           "outputTokens": 272,
           "searchCalls": 1,
           "estimatedUsd": 0.01269
+        },
+        {
+          "purpose": "reasons-V",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 19259,
+          "outputTokens": 466,
+          "searchCalls": 2,
+          "estimatedUsd": 0.0249
         }
       ],
       "status": "complete",
@@ -7071,14 +7524,27 @@
         "latestPct": 2.2,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "분기 실적은 시장 예상보다 조금 나았지만, 다음 회계연도 이익 성장 전망이 전년보다 둔화하는 것으로 제시돼 기대에 못 미쳤다는 평가가 나왔다.",
+            "url": "https://sg.finance.yahoo.com/news/visa-shares-fall-weak-2027-204231023.html"
+          },
+          {
+            "text": "실적 발표 뒤 주가 하락을 다룬 보도는 고객 인센티브 증가와 영업비용 상승을 비용 부담으로 짚었다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/visa-stock-inches-lower-despite-115043099.html"
+          },
+          {
+            "text": "경영진은 소비 지출이 견조하다고 설명했지만, 월드컵 관련 지출 효과가 사라지며 다음 분기 매출 성장률이 낮아질 것으로 예상했고 경제 전망의 불확실성도 언급했다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/visa-says-u-consumer-isn-162752109.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -7151,6 +7617,14 @@
           "outputTokens": 692,
           "searchCalls": 1,
           "estimatedUsd": 0.01317
+        },
+        {
+          "purpose": "reasons-000660.KS",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21404,
+          "outputTokens": 540,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02524
         }
       ],
       "callPoints": {
@@ -7205,37 +7679,28 @@
         "latestPct": 13.8,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
+        "points": [
           {
-            "reason": "number-not-in-source",
-            "numbers": [
-              "20261028008052320"
-            ],
-            "text": "시장의 순이익 기대에는 못 미쳤지만, 인공지능 메모리 수요에 힘입은 분기 사상 최대 매출·영업이익과 추가 주주환원 발표가 주가 상승 배경으로 보도됐다. https://en.yna.co.kr/view/AEN202610"
+            "text": "실적 발표와 함께 공개한 대규모 추가 주주환원 계획이 주가 상승의 직접적인 재료로 보도됐다.",
+            "url": "https://www.mk.co.kr/news/stock/12188694"
           },
           {
-            "reason": "number-not-in-source",
-            "numbers": [
-              "2026"
-            ],
-            "text": "회사는 높은 수익성과 견조한 메모리 수요를 바탕으로 성장을 이어가겠다고 밝혔고, 잉여현금흐름을 주주와 나누겠다는 방침도 제시했다. https://news.skhynix.com/en/q3-2026-business-re"
+            "text": "시장 기대를 웃도는 호실적과 주주환원책이 함께 부각되며 반도체 투자심리가 개선됐다고 보도됐다.",
+            "url": "https://www.mk.co.kr/news/stock/12188694"
           },
           {
-            "reason": "number-not-in-source",
-            "numbers": [
-              "2026"
-            ],
-            "text": "고대역폭 메모리와 서버용 고부가 제품 판매 확대, 차세대 제품의 주력화 전망 및 장기 공급계약이 수요와 수익성에 대한 기대를 뒷받침하는 내용으로 회사 자료에 담겼다. https://news.skhynix.com/en"
+            "text": "글로벌 인공지능 인프라 투자 확대 소식도 반도체 종목 전반의 상승 분위기에 힘을 보탰다고 보도됐다.",
+            "url": "https://www.mk.co.kr/news/stock/12188694"
           }
         ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": 1
       }
     },
@@ -7273,6 +7738,14 @@
           "outputTokens": 108,
           "searchCalls": 1,
           "estimatedUsd": 0.01283
+        },
+        {
+          "purpose": "reasons-HUBB",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13310,
+          "outputTokens": 405,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02405
         }
       ],
       "status": "complete",
@@ -7382,18 +7855,27 @@
         "baseClose": 459.3999938964844,
         "firstDate": "2026-10-27",
         "firstPct": -5.5,
-        "latestDate": "2026-10-28",
-        "latestPct": -4.8,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -4.6,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "연간 이익 전망을 높였지만 새 전망의 중간값이 이미 시장 예상과 대체로 같아, 기대를 더 끌어올릴 만한 상향 폭은 아니었다는 보도가 나왔다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/hubbell-sinks-6-despite-q3-191302387.html"
+          },
+          {
+            "text": "경영진은 다음 분기 마진에 물가 상승과 생산능력 확충 지출, 신제품 투자, 관세 반영 시점이 부담이 될 수 있다고 설명했다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/hubbell-hubb-stock-falls-q3-030943787.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -7537,15 +8019,11 @@
         "latestPct": -8.3,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [
-          {
-            "text": "2026년 10월 27일 실적 발표 뒤 주가가 하락한 것은 확인되지만, 확인 가능한 보도는 손실이 애널리스트 예상보다 컸다는 점만 전합니다. 요청하신 가이던스·마진·설비투자·현금흐름·수요 설명과 경영진 발언의 구체적인 하락 요인은 확인되지 않아 추가로 적지 않았습니다.",
-            "url": "https://apnews.com/article/e11a2240fc3283c4507d44b9833f30a2"
-          },
           {
             "text": "해당 날짜의 시장 마감 보도 역시 보잉 주가 하락을 언급하지만, 하락 배경에 대한 세부 설명은 담고 있지 않습니다.",
             "url": "https://apnews.com/article/eae2932c0c253be1039e1545909656a8"
@@ -7592,6 +8070,14 @@
           "outputTokens": 92,
           "searchCalls": 2,
           "estimatedUsd": 0.0238
+        },
+        {
+          "purpose": "reasons-GLXY",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21148,
+          "outputTokens": 487,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02518
         }
       ],
       "status": "complete",
@@ -7721,14 +8207,31 @@
         "latestPct": 15.6,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "조정 주당순이익이 시장 예상치를 웃돌아, 실적이 기대보다 강했다는 보도가 주가 상승 배경으로 제시됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/galaxy-digital-stock-surges-quarterly-145656761.html"
+          },
+          {
+            "text": "헬리오스 데이터센터가 첫 온전한 임대수익 분기를 기록했고 데이터센터 부문 이익이 늘어난 점이 상승 요인으로 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/galaxy-digital-stock-surges-quarterly-145656761.html"
+          },
+          {
+            "text": "디지털자산 거래량이 늘고 대출 잔액도 확대되는 등 관련 사업의 고객 활동이 견조했다고 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/galaxy-digital-stock-surges-quarterly-145656761.html"
+          },
+          {
+            "text": "노보그라츠 CEO는 투자 포트폴리오 가치 상승과 디지털자산 사업의 강세, 데이터센터 사업의 기여 확대를 분기 성과의 배경으로 들었다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/galaxy-swings-323-million-third-145300533.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -7767,6 +8270,14 @@
           "outputTokens": 118,
           "searchCalls": 1,
           "estimatedUsd": 0.01274
+        },
+        {
+          "purpose": "reasons-GLW",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21492,
+          "outputTokens": 524,
+          "searchCalls": 3,
+          "estimatedUsd": 0.03624
         }
       ],
       "status": "complete",
@@ -7898,14 +8409,27 @@
         "latestPct": 0.9,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "실적과 다음 분기 이익 전망은 컨센서스를 웃돌았지만, 분기 매출은 시장 예상에 못 미쳐 매출 측면의 실망이 남았다는 보도가 있었다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/corning-nyse-glw-misses-q3-113653328.html"
+          },
+          {
+            "text": "태양광 사업의 매출이 직전 분기보다 줄고 손실이 이어진 점이 부진한 사업 부문으로 거론됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/why-shares-corning-tumbling-lower-191736449.html"
+          },
+          {
+            "text": "AI 데이터센터 광통신 수요는 강했지만, 디스플레이 등 일부 사업의 약세와 대규모 증설 계획이 투자자들의 우려 요인으로 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/corning-glw-said-q3-earnings-200423502.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -7944,6 +8468,14 @@
           "outputTokens": 96,
           "searchCalls": 1,
           "estimatedUsd": 0.01284
+        },
+        {
+          "purpose": "reasons-KO",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12685,
+          "outputTokens": 400,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01296
         }
       ],
       "status": "complete",
@@ -8126,14 +8658,23 @@
         "latestPct": 0.1,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "실적과 연간 전망을 높였지만, 북미 수요 둔화와 투입·운영비 부담이 부각됐다는 보도가 나왔다.",
+            "url": "https://finance.yahoo.com/markets/stocks/article/coca-cola-raises-earnings-outlook-as-north-america-business-slows-115001447.html"
+          },
+          {
+            "text": "실적이 시장 예상치를 웃돌았어도, 주가가 이미 강하게 오른 상황에서 투자자들이 향후 성장과 마진 지속성을 더 따졌다는 분석이 제기됐다.",
+            "url": "https://www.investing.com/news/stock-market-news/cocacola-earnings-analysis-questions-answered-and-next-catalysts-93CH-4976527"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -8172,6 +8713,14 @@
           "outputTokens": 205,
           "searchCalls": 1,
           "estimatedUsd": 0.01233
+        },
+        {
+          "purpose": "reasons-JCI",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13061,
+          "outputTokens": 155,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01288
         }
       ],
       "status": "complete",
@@ -8344,14 +8893,14 @@
         "latestPct": 7.3,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -8390,6 +8939,14 @@
           "outputTokens": 173,
           "searchCalls": 1,
           "estimatedUsd": 0.01232
+        },
+        {
+          "purpose": "reasons-BRO",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13047,
+          "outputTokens": 521,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01308
         }
       ],
       "status": "complete",
@@ -8499,14 +9056,31 @@
         "latestPct": -4.6,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "매출과 조정 이익이 시장 예상에 못 미쳐, 실적이 기대에 못 미친 점이 주가 하락 배경으로 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/brown-brown-sinks-5-q3-163946896.html"
+          },
+          {
+            "text": "유기적 성장 둔화와 조정 영업마진 축소가 실적 부담 요인으로 꼽혔다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/why-brown-brown-bro-stock-224647216.html"
+          },
+          {
+            "text": "보험료율 둔화와 일부 특수보험 시장의 부진이 기존 사업의 성장을 제약했고, 인수로 늘어난 매출과 대조를 이뤘다고 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/bro-q3-earnings-miss-estimates-141100706.html"
+          },
+          {
+            "text": "경영진은 특수보험 부문에서 인수보험사의 경쟁 심화와 가격 압박, 사업 개시 지연을 설명했다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/what-brown-brown-bro-said-q3-180454739.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -8545,6 +9119,14 @@
           "outputTokens": 111,
           "searchCalls": 2,
           "estimatedUsd": 0.02387
+        },
+        {
+          "purpose": "reasons-RMBS",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 19047,
+          "outputTokens": 265,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02476
         }
       ],
       "status": "complete",
@@ -8716,14 +9298,14 @@
         "latestPct": 0.7,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [],
         "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": -1
       }
@@ -8762,6 +9344,14 @@
           "outputTokens": 348,
           "searchCalls": 1,
           "estimatedUsd": 0.0124
+        },
+        {
+          "purpose": "reasons-AMKR",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 21310,
+          "outputTokens": 551,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02523
         }
       ],
       "status": "complete",
@@ -8904,20 +9494,28 @@
         "latestPct": 12,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
+        "points": [
           {
-            "reason": "url-not-allowed",
-            "text": "허용된 보도 매체에서 해당 실적 발표와 주가 상승 이유를 확인할 수 있는 기사를 찾지 못해, 보도에 근거한 요약을 제시할 수 없습니다."
+            "text": "실적과 다음 분기 가이던스가 애널리스트 기대를 밑돌았지만, 보도는 시장이 예상보다 견조한 수익성과 마진 개선에 주목해 시간외 주가가 반등했다고 전했다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-amkor-technology-stock-rallying-today-93CH-4973666"
+          },
+          {
+            "text": "첨단 패키징 비중 확대와 실행 개선이 마진 상승을 이끌었고, 컴퓨팅 및 자동차·산업 부문이 기록적인 매출을 냈다는 점이 긍정 요인으로 보도됐다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-amkor-technology-stock-rallying-today-93CH-4973666"
+          },
+          {
+            "text": "엔비디아와의 장기 생산능력 약정 확대가 대규모 설비투자 사이클의 위험을 낮춘다는 분석도 주가 반등 배경으로 제시됐다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-amkor-technology-stock-rallying-today-93CH-4973666"
           }
         ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": 1
       }
     },
@@ -8955,6 +9553,14 @@
           "outputTokens": 112,
           "searchCalls": 1,
           "estimatedUsd": 0.01284
+        },
+        {
+          "purpose": "reasons-CDNS",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 12921,
+          "outputTokens": 575,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01309
         }
       ],
       "status": "complete",
@@ -9132,14 +9738,27 @@
         "latestPct": 6.4,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "points": [
+          {
+            "text": "분기 실적이 시장 예상치를 웃돌고 연간 매출·이익 전망도 상향돼 주가 상승의 직접 배경으로 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/cadence-stock-rises-q3-earnings-123140816.html"
+          },
+          {
+            "text": "인공지능 반도체 설계 수요와 기록적인 수주잔고, 제품군 전반의 성장세가 실적 전망 개선을 뒷받침한 요인으로 소개됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/cadence-design-systems-nasdaq-cdns-111627979.html"
+          },
+          {
+            "text": "경영진은 고객 수요가 제품군 전반으로 넓어지고 있다고 설명했으며, 복잡해지는 인공지능·고성능컴퓨팅 칩 설계가 검증 제품 수요를 키운다고 밝혔다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/what-cadence-design-systems-cdns-said-000415491.html"
+          }
+        ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
         "dropped": [],
         "direction": 1
       }
@@ -9178,6 +9797,14 @@
           "outputTokens": 269,
           "searchCalls": 1,
           "estimatedUsd": 0.01293
+        },
+        {
+          "purpose": "reasons-VZ",
+          "at": "2026-10-30T02:59:15.981Z",
+          "inputTokens": 13048,
+          "outputTokens": 427,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01303
         }
       ],
       "status": "complete",
@@ -9336,20 +9963,28 @@
         "latestPct": -2.2,
         "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-30T02:08:41.075Z"
+        "checkedAt": "2026-10-30T02:59:15.981Z"
       },
       "reasons": {
         "basis": "news-report",
-        "points": [],
-        "done": false,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
-        "dropped": [
+        "points": [
           {
-            "reason": "url-not-allowed",
-            "text": "요청하신 날짜의 버라이즌 실적 발표 후 주가 하락 원인을 뒷받침하는 보도를 확인하지 못해, 확인되지 않은 이유를 추정해 정리할 수 없습니다."
+            "text": "주당순이익과 연간 전망은 시장 기대를 웃돌았지만, 분기 매출이 애널리스트 전망에 못 미쳐 호재를 가렸다는 보도가 나왔다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-verizon-stock-sliding-today-93CH-4973002"
+          },
+          {
+            "text": "매출 부진은 고객의 휴대전화 교체 감소와 버라이즌의 기기 보조금 축소로 기기 매출이 약해진 데 따른 것으로 보도됐다.",
+            "url": "https://www.investing.com/news/stock-market-news/verizon-lifts-annual-forecasts-signs-more-than-2-billion-ai-infrastructure-deal-with-aws-4972134"
+          },
+          {
+            "text": "회사는 보조금 축소에 따른 기기 교체 감소 흐름이 다음 분기에도 이어질 것으로 예상한다고 밝혔다.",
+            "url": "https://www.investing.com/news/stock-market-news/verizon-lifts-annual-forecasts-signs-more-than-2-billion-ai-infrastructure-deal-with-aws-4972134"
           }
         ],
+        "done": true,
+        "attempts": 2,
+        "searchedAt": "2026-10-30T02:59:15.981Z",
+        "dropped": [],
         "direction": -1
       }
     },
