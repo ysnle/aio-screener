@@ -1,6 +1,6 @@
 {
   "schemaVersion": "event-briefs.v1",
-  "generatedAt": "2026-10-30T09:54:01.689Z",
+  "generatedAt": "2026-10-30T16:40:15.918Z",
   "producer": "scripts/fetch-event-briefs.mjs",
   "cadence": "every 20 minutes (.github/workflows/event-briefs.yml); AI runs only for a new source document or a pending call summary",
   "sourceKind": "T1_OFFICIAL",
@@ -17,8 +17,8 @@
   "errors": [],
   "costLedger": {
     "month": "2026-10",
-    "requests": 154,
-    "estimatedUsd": 1.9254,
+    "requests": 167,
+    "estimatedUsd": 2.1115,
     "rateCard": {
       "inputUsdPerToken": 1.375e-7,
       "outputUsdPerToken": 5.5e-7,
@@ -93,6 +93,892 @@
     "TSEM": "2026-11-07T00:00:00.000Z"
   },
   "briefs": [
+    {
+      "id": "earnings-ABBV-0001551152-26-000033",
+      "kind": "earnings",
+      "symbol": "ABBV",
+      "nameKo": "애브비",
+      "tier": 2,
+      "scope": "release",
+      "layer": "ai-adopter",
+      "eventDate": "2026-10-30",
+      "publishedAt": "2026-10-30T11:51:51.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1551152/000155115226000033/0001551152-26-000033-index.html",
+        "accession": "0001551152-26-000033",
+        "fetchedAt": "2026-10-30T16:40:15.918Z",
+        "sha256": "7e31a850e3a0b38933f71bd42d176e56a68ceffac4764ea28a7728c445e61da9"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-ABBV",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 10455,
+          "outputTokens": 1560,
+          "searchCalls": 0,
+          "estimatedUsd": 0.0023
+        },
+        {
+          "purpose": "reasons-ABBV",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 21308,
+          "outputTokens": 194,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02504
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "애브비, 3분기 매출·이익 발표 및 연간 조정 EPS 가이던스 상향",
+      "figures": [
+        {
+          "label": "3분기 순매출",
+          "value": "$17.404 billion",
+          "text": "보고 기준 증가율은 10.3 percent, 운영 기준 증가율은 10.5 percent.",
+          "metric": "revenue",
+          "quote": "Worldwide net revenues were $17.404 billion, an increase of 10.3 percent on a reported basis, or 10.5 percent on an operational basis.",
+          "estimate": {
+            "value": 17664390304,
+            "surprisePct": -1.5,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "3분기 희석 EPS(GAAP)",
+          "value": "$2.37",
+          "text": "GAAP 기준 희석 주당순이익.",
+          "metric": "eps_diluted",
+          "quote": "Diluted earnings per share (EPS) in the third quarter was $2.37 on a GAAP basis."
+        },
+        {
+          "label": "3분기 조정 희석 EPS",
+          "value": "$3.82",
+          "text": "지정 항목 제외 기준.",
+          "metric": "eps_diluted",
+          "quote": "Adjusted diluted EPS, excluding specified items, was $3.82.",
+          "estimate": {
+            "value": 3.8259,
+            "surprisePct": -0.2,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "3분기 영업이익",
+          "value": "$6,267 million",
+          "text": "연결 손익계산서 기준 영업이익.",
+          "metric": "operating_income",
+          "quote": "Operating earnings 6,267 1,904 16,689 10,531"
+        },
+        {
+          "label": "3분기 순이익",
+          "value": "$4,220 million",
+          "text": "연결 기준 순이익.",
+          "metric": "net_income",
+          "quote": "Net earnings 4,220 188 8,533 2,418"
+        },
+        {
+          "label": "3분기 AbbVie 귀속 순이익",
+          "value": "$4,218 million",
+          "text": "비지배지분 제외 기준.",
+          "metric": "net_income",
+          "quote": "Net earnings attributable to AbbVie Inc. $ 4,218 $ 186 $ 8,526 $ 2,410"
+        }
+      ],
+      "details": [],
+      "detailTitle": "사업부문",
+      "guidance": [
+        {
+          "label": "2026년 조정 희석 EPS",
+          "value": "$13.95 - $13.99",
+          "text": "기존 $13.76 - $13.96에서 상향. 연초부터 3분기까지 발생한 인수 IPR&D 및 마일스톤 비용의 주당 $0.69 불리한 영향을 포함.",
+          "quote": "AbbVie is raising its adjusted diluted EPS guidance for the full year 2026 from $13.76 - $13.96 to $13.95 - $13.99, which includes an unfavorable impact of $0.69 per share related to acquired IPR&D and milestones expense incurred year-to-date through the third quarter 2026."
+        }
+      ],
+      "watch": [
+        "다음 실적 발표에서 매출과 희석 EPS 추이를 확인",
+        "면역학 포트폴리오 주요 제품의 성장 흐름 확인",
+        "2026년 조정 희석 EPS 가이던스 달성 여부 확인",
+        "인수 IPR&D 및 마일스톤 비용의 추가 발생 여부 확인"
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "5.776",
+            "2.706",
+            "683"
+          ],
+          "text": "면역학 $9.165 billion 보고 기준 16.3 percent, 운영 기준 16.6 percent 증가. Skyrizi $5.776 billion, Rinvoq $2.706 billion, Humira $683"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "1.068",
+            "1.080",
+            "286"
+          ],
+          "text": "신경과학 $3.389 billion 보고 기준 19.4 percent, 운영 기준 19.5 percent 증가. Vraylar $1.068 billion, Botox Therapeutic $1.080 billion,"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "803",
+            "522",
+            "224"
+          ],
+          "text": "종양학 $1.696 billion 보고 기준 0.8 percent, 운영 기준 0.9 percent 증가. Venclexta $803 million, Imbruvica $522 million, Elahere $224"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "669",
+            "222"
+          ],
+          "text": "에스테틱 $1.176 billion 보고 기준 1.4 percent 감소, 운영 기준 1.8 percent 감소. Botox Cosmetic $669 million, Juvederm $222 million."
+        }
+      ],
+      "reaction": {
+        "basis": "latest-trade",
+        "baseDate": "2026-10-29",
+        "baseClose": 290.7900085449219,
+        "extendedPct": 1.8,
+        "extendedAt": "2026-10-30T16:38:43.000Z",
+        "sessions": 0,
+        "settled": false,
+        "checkedAt": "2026-10-30T16:40:15.918Z"
+      },
+      "reasons": {
+        "basis": "news-report",
+        "points": [],
+        "done": false,
+        "attempts": 1,
+        "searchedAt": "2026-10-30T16:40:15.918Z",
+        "dropped": [],
+        "direction": 1
+      }
+    },
+    {
+      "id": "earnings-CCJ-0001193125-26-439858",
+      "kind": "earnings",
+      "symbol": "CCJ",
+      "nameKo": "카메코",
+      "tier": 2,
+      "scope": "release",
+      "layer": "ai-chain",
+      "eventDate": "2026-10-30",
+      "publishedAt": "2026-10-30T10:57:37.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 6-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1009001/000119312526439858/0001193125-26-439858-index.html",
+        "accession": "0001193125-26-439858",
+        "fetchedAt": "2026-10-30T16:40:15.918Z",
+        "sha256": "d259a5214664f3f17d208706421297af45237658179210090596369c7a56c3e0"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-CCJ",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 10567,
+          "outputTokens": 1884,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00249
+        },
+        {
+          "purpose": "reasons-CCJ",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 21373,
+          "outputTokens": 265,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02508
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "카메코 3분기 실적 발표: 연초 이후 성과는 예상대로",
+      "figures": [
+        {
+          "label": "3분기 매출",
+          "value": "$619 million",
+          "text": "전년 동기 $615 million.",
+          "metric": "revenue",
+          "quote": "Revenue 619 615 1 % 2,278 2,281 -",
+          "estimate": {
+            "value": 725149094,
+            "surprisePct": -14.6,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "3분기 희석 주당순이익",
+          "value": "0.10",
+          "text": "전년 동기는 원문에 대시로 표시.",
+          "metric": "eps_diluted",
+          "quote": "$ per common share (diluted) 0.10 - >100 % 0.46 0.90 (49 )%",
+          "estimate": {
+            "value": 0.3191,
+            "surprisePct": -68.7,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "3분기 순이익",
+          "value": "$43 million",
+          "text": "조정 순손실은 $2 million.",
+          "metric": "net_income",
+          "quote": "Consolidated performance: Third quarter results included net earnings of $43 million, adjusted net loss of $2 million, and adjusted EBITDA of $267 million while results for the first nine months of the year included net earnings of $199 million, adjusted net earnings of $279 million and adjusted EBITDA of $1.2 billion."
+        },
+        {
+          "label": "3분기 조정 EBITDA",
+          "value": "$267 million",
+          "text": "전년 동기 $310 million.",
+          "metric": "other",
+          "quote": "Adjusted EBITDA (non-IFRS, see page 5) 267 310 (14 )% 1,166 1,338 (13 )%"
+        },
+        {
+          "label": "3분기 영업이익",
+          "value": "미보고",
+          "text": "대신 우라늄 부문 세전이익은 $175 million.",
+          "metric": "other",
+          "quote": "In our core uranium segment, third quarter earnings before taxes were $175 million and adjusted EBITDA was $179 million compared to $172 million and $220 million, respectively, in 2025, due to our normal quarterly variations in deliveries and our lower planned 2026 sales delivery volumes resulting from our contracting discipline."
+        }
+      ],
+      "details": [],
+      "detailTitle": "사업부문",
+      "guidance": [
+        {
+          "label": "2026 우라늄 생산",
+          "value": "19.5 million~20.5 million pounds U 3 O 8",
+          "text": "카메코 지분 기준 생산 전망 범위를 좁힘.",
+          "quote": "We have narrowed our guidance for our expected share of production of U 3 O 8 to be between 19.5 million and 20.5 million pounds (previously 19.5 million to 21.5 million pounds) for 2026, reflecting greater certainty in the timing of uranium production as we approach the end of the year."
+        },
+        {
+          "label": "JV Inkai 2026 생산",
+          "value": "10.4 million pounds U 3 O 8",
+          "text": "100% 기준 생산 전망이며, 카메코 구매 배정량은 4.2 million pounds.",
+          "quote": "JV Inkai remains on track to produce 10.4 million pounds of U 3 O 8 (100% basis) in 2026, of which our purchase allocation is expected to be 4.2 million pounds of U 3 O 8 ."
+        },
+        {
+          "label": "2026 연간 배당",
+          "value": "$0.24 per common share",
+          "text": "지급일은 December 15, 2026.",
+          "quote": "Our board of directors declared a 2026 annual dividend of $0.24 per common share, payable on December 15, 2026, to shareholders of record on November 30, 2026."
+        }
+      ],
+      "watch": [
+        "Key Lake 정비 종료와 신규 설비 시운전 진행 상황",
+        "우라늄 생산·판매 인도 전망 및 JV Inkai 잔여 물량 도착 여부",
+        "평균 단위 판매원가·직접 관리비·자본지출 세부 가이던스",
+        "다음 실적 발표와 Westinghouse 사업 진행 상황"
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "9"
+          ],
+          "text": "3분기 영업활동 현금흐름 $3 million 첫 9개월은 $112 million."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "518",
+            "175",
+            "179",
+            "3.5",
+            "5.6"
+          ],
+          "text": "우라늄 매출 $518 million; 세전이익 $175 million; 조정 EBITDA $179 million 생산 3.5 million lb, 판매 5.6 million lb. 계획된 정비로 생산량 감소 및 비용"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "95",
+            "24"
+          ],
+          "text": "연료 서비스 매출 $95 million; 세전이익 $13 million; 조정 EBITDA $24 million 연간 생산 전망은 13 million~14 million kgU."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "143",
+            "124"
+          ],
+          "text": "Westinghouse 카메코 지분 기준 조정 EBITDA $143 million; 순손실 $24 million 전년 동기 조정 EBITDA는 $124 million, 순손실은 $32 million."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "2026"
+          ],
+          "text": "2026 우라늄 판매·인도 29.5 million~30.5 million pounds 연간 판매·인도 전망 범위를 좁힘."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "2026"
+          ],
+          "text": "2026 설비투자·비용 전망 수치 미제시 평균 단위 판매원가, 직접 관리비, 자본지출 가이던스를 갱신했으며 세부 내용은 MD&A를 참조하도록 안내."
+        }
+      ],
+      "reaction": {
+        "basis": "latest-trade",
+        "baseDate": "2026-10-29",
+        "baseClose": 83.48999786376953,
+        "extendedPct": -10.1,
+        "extendedAt": "2026-10-30T16:38:13.000Z",
+        "sessions": 0,
+        "settled": false,
+        "checkedAt": "2026-10-30T16:40:15.918Z"
+      },
+      "reasons": {
+        "basis": "news-report",
+        "points": [],
+        "done": false,
+        "attempts": 1,
+        "searchedAt": "2026-10-30T16:40:15.918Z",
+        "dropped": [],
+        "direction": -1
+      }
+    },
+    {
+      "id": "earnings-NVT-0001628280-26-068391",
+      "kind": "earnings",
+      "symbol": "NVT",
+      "nameKo": "엔벤트",
+      "tier": 2,
+      "scope": "release",
+      "layer": "cooling-electrical",
+      "eventDate": "2026-10-30",
+      "publishedAt": "2026-10-30T10:47:30.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/1720635/000162828026068391/0001628280-26-068391-index.html",
+        "accession": "0001628280-26-068391",
+        "fetchedAt": "2026-10-30T16:40:15.918Z",
+        "sha256": "f75d042c4496e6e8f5e141b6b1f2e6e418dd41fc629bc5831be8b4e79f94b42d"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-NVT",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 7288,
+          "outputTokens": 1450,
+          "searchCalls": 0,
+          "estimatedUsd": 0.0018
+        },
+        {
+          "purpose": "reasons-NVT",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 19204,
+          "outputTokens": 200,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02475
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "엔벤트, 2026년 3분기 매출·주문 기록 경신",
+      "figures": [
+        {
+          "label": "매출",
+          "value": "$1.5 billion",
+          "text": "보고 매출과 유기적 매출 모두 44% 증가했다.",
+          "metric": "revenue",
+          "quote": "Reported sales of $1.5 billion, both reported and organic sales up 44%",
+          "estimate": {
+            "value": 1437718900,
+            "surprisePct": 4.3,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "희석 EPS",
+          "value": "$1.23",
+          "text": "전년 대비 68% 증가. 조정 EPS는 $1.52로 67% 증가했다.",
+          "metric": "eps_diluted",
+          "quote": "Reported EPS of $1.23 up 68%; Adjusted EPS of $1.52 up 67%",
+          "estimate": {
+            "value": 1.3839,
+            "surprisePct": -11.1,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "영업이익",
+          "value": "$282 million",
+          "text": "전년 동기 $166 million에서 증가했다.",
+          "metric": "operating_income",
+          "quote": "Third quarter 2026 operating income was $282 million, up 70 percent, compared to $166 million in the third quarter of 2025."
+        },
+        {
+          "label": "조정 영업이익",
+          "value": "$335 million",
+          "text": "전년 동기 $213 million에서 증가했다.",
+          "metric": "operating_income",
+          "quote": "Adjusted operating income was $335 million, up 57 percent, compared to $213 million in the third quarter of 2025."
+        },
+        {
+          "label": "영업현금흐름",
+          "value": "$303.2 million",
+          "text": "계속사업 기준 3분기 영업활동 현금흐름이다.",
+          "metric": "operating_cash_flow",
+          "quote": "Net cash provided by (used for) operating activities of continuing operations $ 303.2 $ 271.7 $ 581.9 $ 426.6"
+        },
+        {
+          "label": "설비투자",
+          "value": "(37.0) million",
+          "text": "3분기 자본적 지출이다.",
+          "metric": "capex",
+          "quote": "Capital expenditures (37.0) (18.6) (94.6) (56.6)"
+        }
+      ],
+      "details": [
+        {
+          "label": "Systems Protection",
+          "value": "$1,098 million",
+          "text": "매출은 53% 증가, 유기적 매출은 54% 증가했다. 조정 ROS는 23.0%였다.",
+          "quote": "Net Sales $1,098 $716 53% Organic 54% Adjusted ROS 23.0% 20.4% 260 bps"
+        },
+        {
+          "label": "Electrical Connections",
+          "value": "$417 million",
+          "text": "매출과 유기적 매출은 각각 23% 증가했다. 조정 ROS는 28.2%였다.",
+          "quote": "Net Sales $417 $338 23% Organic 23% Adjusted ROS 28.2% 30.0% -180 bps"
+        }
+      ],
+      "detailTitle": "사업부문",
+      "guidance": [
+        {
+          "label": "2026년 4분기 매출 성장률",
+          "value": "45 to 48 percent",
+          "text": "유기적 매출 성장률 전망은 26 to 29 percent다.",
+          "quote": "The company estimates fourth quarter 2026 reported sales growth of 45 to 48 percent and organic sales growth of 26 to 29 percent."
+        },
+        {
+          "label": "2026년 4분기 EPS",
+          "value": "$1.13 to $1.16",
+          "text": "GAAP 희석 EPS 전망이다. 조정 EPS는 $1.30 to $1.33이다.",
+          "quote": "The company estimates fourth quarter 2026 EPS on a GAAP basis of $1.13 to $1.16 and adjusted EPS of $1.30 to $1.33."
+        },
+        {
+          "label": "2026년 연간 매출 성장률",
+          "value": "48 to 49 percent",
+          "text": "유기적 매출 성장률 전망은 38 to 39 percent다.",
+          "quote": "The company now estimates reported sales growth for full-year 2026 of 48 to 49 percent versus prior guidance of 37 to 39 percent. This new guidance range reflects 38 to 39 percent organic sales growth versus prior guidance of 32 to 34 percent."
+        },
+        {
+          "label": "2026년 연간 EPS",
+          "value": "$4.54 to $4.57",
+          "text": "GAAP EPS 전망이다. 조정 EPS는 $5.36 to $5.39다.",
+          "quote": "The company now expects full-year 2026 EPS of $4.54 to $4.57 on a GAAP basis and adjusted EPS of $5.36 to $5.39, versus prior guidance of $4.29 to $4.39 on a GAAP basis and adjusted EPS of $5.00 to $5.10."
+        }
+      ],
+      "watch": [
+        "다음 실적 발표에서 분기 매출과 EPS가 가이던스 범위에 부합하는지 확인한다.",
+        "유기적 매출 성장과 부문별 수익성 추이를 살핀다.",
+        "영업현금흐름과 잉여현금흐름의 흐름을 확인한다.",
+        "Maverick Power 인수 통합과 데이터센터 관련 사업 확대를 점검한다."
+      ],
+      "dropped": [
+        {
+          "reason": "quote-not-in-source",
+          "text": "순이익 $202.4 million 계속사업 기준 3분기 순이익이다."
+        }
+      ],
+      "reaction": {
+        "basis": "latest-trade",
+        "baseDate": "2026-10-29",
+        "baseClose": 138.14999389648438,
+        "extendedPct": -8.2,
+        "extendedAt": "2026-10-30T16:38:04.000Z",
+        "sessions": 0,
+        "settled": false,
+        "checkedAt": "2026-10-30T16:40:15.918Z"
+      },
+      "reasons": {
+        "basis": "news-report",
+        "points": [],
+        "done": false,
+        "attempts": 1,
+        "searchedAt": "2026-10-30T16:40:15.918Z",
+        "dropped": [],
+        "direction": -1
+      }
+    },
+    {
+      "id": "earnings-XOM-0002115436-26-000018",
+      "kind": "earnings",
+      "symbol": "XOM",
+      "nameKo": "엑손모빌",
+      "tier": 2,
+      "scope": "release",
+      "layer": "power-energy",
+      "eventDate": "2026-10-30",
+      "publishedAt": "2026-10-30T10:32:50.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/2115436/000211543626000018/0002115436-26-000018-index.html",
+        "accession": "0002115436-26-000018",
+        "fetchedAt": "2026-10-30T16:40:15.918Z",
+        "sha256": "acf5fc6c9b64240605d4fa7d0d49f4a10b485b0b5feb90c08634eb418069285b"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-XOM",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 8151,
+          "outputTokens": 1599,
+          "searchCalls": 0,
+          "estimatedUsd": 0.002
+        },
+        {
+          "purpose": "reasons-XOM",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 21238,
+          "outputTokens": 491,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02519
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "엑손모빌, 3분기 실적 발표",
+      "figures": [
+        {
+          "label": "순이익(미국 GAAP)",
+          "value": "$15.4 billion",
+          "text": "3분기 순이익은 15.4 billion 달러였다.",
+          "metric": "net_income",
+          "quote": "SPRING, Texas - October 30, 2026 - ExxonMobil Holdings Corporation today announced third -quarter 2026 earnings of $15.4 billion , or $3.72 per share."
+        },
+        {
+          "label": "조정 순이익",
+          "value": "$17.5 billion",
+          "text": "조정 순이익은 17.5 billion 달러였다.",
+          "metric": "net_income",
+          "quote": "Adjusted earnings were $17.5 billion , or $4.23 per share."
+        },
+        {
+          "label": "주당순이익(희석, GAAP)",
+          "value": "$3.72",
+          "text": "GAAP 주당순이익은 $3.72였다.",
+          "metric": "eps_diluted",
+          "quote": "SPRING, Texas - October 30, 2026 - ExxonMobil Holdings Corporation today announced third -quarter 2026 earnings of $15.4 billion , or $3.72 per share."
+        },
+        {
+          "label": "조정 주당순이익",
+          "value": "$4.23",
+          "text": "조정 주당순이익은 $4.23이었다.",
+          "metric": "eps_diluted",
+          "quote": "Adjusted earnings were $17.5 billion , or $4.23 per share.",
+          "estimate": {
+            "value": 4.1205,
+            "surprisePct": 2.7,
+            "source": "Finnhub calendar/earnings + calendar/ipo",
+            "basis": "provider-consensus-reference"
+          }
+        },
+        {
+          "label": "영업현금흐름",
+          "value": "$25.7 billion",
+          "text": "영업활동 현금흐름은 25.7 billion 달러였다.",
+          "metric": "operating_cash_flow",
+          "quote": "Cash flow from operating activities was $25.7 billion and free cash flow was $19.1 billion ."
+        },
+        {
+          "label": "잉여현금흐름",
+          "value": "$19.1 billion",
+          "text": "잉여현금흐름은 19.1 billion 달러였다.",
+          "metric": "free_cash_flow",
+          "quote": "Cash flow from operating activities was $25.7 billion and free cash flow was $19.1 billion ."
+        }
+      ],
+      "details": [],
+      "detailTitle": "사업부문",
+      "guidance": [
+        {
+          "label": "주식 환매",
+          "value": "$20 billion",
+          "text": "회사는 2027년 주식 환매액을 발표했다.",
+          "quote": "Reached 44 consecutive years of increases in annual dividends per share, longer streak than 95% of S&P 500 companies, and announced 2027 share repurchases of $20 billion 4"
+        },
+        {
+          "label": "배당",
+          "value": "$1.07 per share",
+          "text": "4분기 배당을 주당 $1.07로 선언했다.",
+          "quote": "Declared a fourth-quarter dividend of $1.07 per share, payable on December 10, 2026, to shareholders of record of common stock at the close of business on November 16, 2026"
+        }
+      ],
+      "watch": [
+        "다음 실적 발표에서 현금흐름과 설비투자 추이를 확인",
+        "업스트림 생산과 가이아나 생산배분 영향을 확인",
+        "에너지 제품 마진과 정기보수 영향을 확인",
+        "회사가 제시한 주식 환매 및 배당 계획의 이행을 확인"
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "7088"
+          ],
+          "text": "업스트림 7,088 3분기 GAAP 이익은 7,088 million 달러. 전분기보다 낮았으며 가격 하락과 가이아나 생산배분 영향이 원인이었다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "7169"
+          ],
+          "text": "에너지 제품 7,169 3분기 GAAP 이익은 7,169 million 달러. 마진 개선과 운영 성과가 이익 증가를 이끌었다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "735"
+          ],
+          "text": "화학 제품 735 3분기 GAAP 이익은 735 million 달러. 마진 하락으로 전분기보다 감소했다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "1285"
+          ],
+          "text": "특수 제품 1,285 3분기 GAAP 이익은 1,285 million 달러. 기초유 마진 상승으로 전분기보다 개선됐다."
+        }
+      ],
+      "reaction": {
+        "basis": "latest-trade",
+        "baseDate": "2026-10-29",
+        "baseClose": 183.2899932861328,
+        "extendedPct": 1.3,
+        "extendedAt": "2026-10-30T16:37:47.000Z",
+        "sessions": 0,
+        "settled": false,
+        "checkedAt": "2026-10-30T16:40:15.918Z"
+      },
+      "reasons": {
+        "basis": "news-report",
+        "points": [
+          {
+            "text": "조정 이익이 애널리스트 예상치를 웃돌아 실적 서프라이즈가 나타났고, 회사 주가는 장중 상승했다.",
+            "url": "https://apnews.com/article/852851049c1ede6811516fe92700dcbe"
+          },
+          {
+            "text": "이란·우크라이나 전쟁에 따른 공급 차질로 정제마진이 뛰었으며, 걸프 연안 정유시설의 높은 가동과 디젤 생산도 실적을 뒷받침했다.",
+            "url": "https://apnews.com/article/852851049c1ede6811516fe92700dcbe"
+          },
+          {
+            "text": "경영진은 정유시설 확장 투자가 증류제품 생산 증가에 기여했다고 설명했다.",
+            "url": "https://apnews.com/article/852851049c1ede6811516fe92700dcbe"
+          }
+        ],
+        "done": true,
+        "attempts": 1,
+        "searchedAt": "2026-10-30T16:40:15.918Z",
+        "dropped": [
+          {
+            "reason": "no-reason-found",
+            "text": "가이던스·설비투자·현금흐름 변화가 주가 상승 이유였다고 직접 다룬 허용된 보도는 확인되지 않았다."
+          }
+        ],
+        "direction": 1
+      }
+    },
+    {
+      "id": "earnings-CVX-0000093410-26-000196",
+      "kind": "earnings",
+      "symbol": "CVX",
+      "nameKo": "셰브론",
+      "tier": 2,
+      "scope": "release",
+      "layer": "power-energy",
+      "eventDate": "2026-10-30",
+      "publishedAt": "2026-10-30T10:16:00.000Z",
+      "source": {
+        "kind": "T1_OFFICIAL",
+        "title": "SEC 8-K EX-99.1",
+        "url": "https://www.sec.gov/Archives/edgar/data/93410/000009341026000196/0000093410-26-000196-index.html",
+        "accession": "0000093410-26-000196",
+        "fetchedAt": "2026-10-30T16:40:15.918Z",
+        "sha256": "1e13069d6a5dab2b02f50de5f84949d5afeb4f256d888ba34be24ed6a819bf43"
+      },
+      "ai": [
+        {
+          "purpose": "earnings-CVX",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 8993,
+          "outputTokens": 1425,
+          "searchCalls": 0,
+          "estimatedUsd": 0.00202
+        },
+        {
+          "purpose": "reasons-CVX",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 12944,
+          "outputTokens": 465,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02404
+        }
+      ],
+      "status": "complete",
+      "basis": "primary-source",
+      "headline": "셰브론 3Q 2026 순이익 $9.9 billion, 희석 EPS $5.06",
+      "figures": [],
+      "details": [],
+      "detailTitle": "사업부문",
+      "guidance": [],
+      "watch": [
+        "다음 분기 및 연간 가이던스의 별도 수치가 발표되는지 확인",
+        "다음 실적 발표에서 생산량과 정제마진 흐름 확인",
+        "베네수엘라 합작사업 투자 계획의 진행 상황 확인",
+        "Bakken 미드스트림 비용 절감 계획의 실행 상황 확인"
+      ],
+      "dropped": [
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026"
+          ],
+          "text": "매출(영업수익), 3개월 $ 65,237 million 3Q 2026 sales and other operating revenues"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026"
+          ],
+          "text": "순이익, 3Q 2026 $ 9,924 million 셰브론 귀속 순이익"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026"
+          ],
+          "text": "희석 EPS, 3Q 2026 $ 5.06 희석 주당순이익"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026",
+            "5.28"
+          ],
+          "text": "조정 순이익, 3Q 2026 $ 10,361 million 조정 희석 EPS는 $ 5.28"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026",
+            "16014"
+          ],
+          "text": "영업현금흐름, 3Q 2026 $ 16.0 billion 현금흐름표 기준 $ 16,014 million"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026",
+            "4011"
+          ],
+          "text": "설비투자, 3Q 2026 $ 4.0 billion 현금흐름표 기준 $ 4,011 million"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026",
+            "12003"
+          ],
+          "text": "잉여현금흐름, 3Q 2026 $ 12.0 billion 현금흐름표 기준 $ 12,003 million"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026"
+          ],
+          "text": "ROCE, 3Q 2026 17.7 % 자본수익률"
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026",
+            "5698",
+            "3293",
+            "2405",
+            "2043"
+          ],
+          "text": "Upstream, 3Q 2026 $ 5,698 million 미국 $ 3,293 million, 국제 $ 2,405 million. 미국 생산은 2,043 MBOED, 국제 생산은 1,937 MBOED."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026",
+            "4931",
+            "3585",
+            "1346",
+            "1093"
+          ],
+          "text": "Downstream, 3Q 2026 $ 4,931 million 미국 $ 3,585 million, 국제 $ 1,346 million. 미국 정제 원유 투입량은 1,093 MBD로 기록을 세웠다."
+        },
+        {
+          "reason": "number-not-in-source",
+          "numbers": [
+            "3",
+            "2026",
+            "705"
+          ],
+          "text": "All Other, 3Q 2026 $ (705) million 순비용"
+        }
+      ],
+      "reaction": {
+        "basis": "latest-trade",
+        "baseDate": "2026-10-29",
+        "baseClose": 231.4600067138672,
+        "extendedPct": 1.4,
+        "extendedAt": "2026-10-30T16:38:07.000Z",
+        "sessions": 0,
+        "settled": false,
+        "checkedAt": "2026-10-30T16:40:15.918Z"
+      },
+      "reasons": {
+        "basis": "news-report",
+        "points": [
+          {
+            "text": "실적이 시장 예상치를 웃돌았고, 정유 부문의 높은 마진과 원유 가격 상승이 호실적 배경으로 보도됐다.",
+            "url": "https://sg.finance.yahoo.com/news/chevron-beats-estimates-refining-margins-105702545.html"
+          },
+          {
+            "text": "미국 정유소 가동률이 높고 처리량이 기록적 수준을 보인 점이 정유 부문 실적을 뒷받침했다.",
+            "url": "https://apnews.com/article/852851049c1ede6811516fe92700dcbe"
+          },
+          {
+            "text": "설비투자는 전년 동기보다 줄었으며, 경영진은 바켄 지역의 미드스트림 비용 절감 합의가 해당 자산의 경쟁력을 높인다고 설명했다.",
+            "url": "https://apnews.com/article/852851049c1ede6811516fe92700dcbe"
+          }
+        ],
+        "done": true,
+        "attempts": 1,
+        "searchedAt": "2026-10-30T16:40:15.918Z",
+        "dropped": [],
+        "direction": 1
+      }
+    },
     {
       "id": "earnings-DLR-0001104659-26-120212",
       "kind": "earnings",
@@ -256,11 +1142,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 182.91000366210938,
-        "extendedPct": 1.1,
-        "extendedAt": "2026-10-29T22:11:37.000Z",
+        "extendedPct": -1.8,
+        "extendedAt": "2026-10-30T16:36:48.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -389,11 +1275,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 60.880001068115234,
-        "extendedPct": -6.4,
-        "extendedAt": "2026-10-30T09:53:16.000Z",
+        "extendedPct": -14,
+        "extendedAt": "2026-10-30T16:38:22.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -568,11 +1454,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 1330.050048828125,
-        "extendedPct": -8,
-        "extendedAt": "2026-10-30T09:54:16.000Z",
+        "extendedPct": -12.4,
+        "extendedAt": "2026-10-30T16:37:29.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -751,11 +1637,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 160.58999633789062,
-        "extendedPct": -5.1,
-        "extendedAt": "2026-10-30T09:47:04.000Z",
+        "extendedPct": -12.5,
+        "extendedAt": "2026-10-30T16:38:03.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -949,11 +1835,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 92.06999969482422,
-        "extendedPct": -25.8,
-        "extendedAt": "2026-10-30T09:54:19.000Z",
+        "extendedPct": -29.6,
+        "extendedAt": "2026-10-30T16:38:10.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1021,6 +1907,14 @@
           "outputTokens": 677,
           "searchCalls": 1,
           "estimatedUsd": 0.01316
+        },
+        {
+          "purpose": "reasons-AMZN",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 21379,
+          "outputTokens": 561,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02525
         }
       ],
       "status": "complete",
@@ -1206,27 +2100,31 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 243.7899932861328,
-        "extendedPct": -7.2,
-        "extendedAt": "2026-10-30T09:53:25.000Z",
+        "extendedPct": -1.4,
+        "extendedAt": "2026-10-30T16:38:42.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [
           {
-            "text": "회사는 인공지능 투자에 따른 설비투자 증가를 잉여현금흐름 감소의 주된 이유로 들었습니다.",
-            "url": "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx"
+            "text": "연말 쇼핑철을 포함하는 분기 매출 전망이 시장 예상보다 신중해, 성수기 수요에 대한 우려를 키웠다.",
+            "url": "https://apnews.com/article/amazon-q3-earnings-amazon-web-services-2de72b65d63006a7ce85eab441e2d6b7"
           },
           {
-            "text": "회사는 프라임데이 시점 변경이 소매 매출 성장률에 영향을 줬다고 설명했고, 재스 CEO는 AWS 투자와 성장세를 강조했습니다. 이것만으로 주가 하락 원인이라고 단정할 수는 없습니다.",
-            "url": "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx"
+            "text": "실적이 시장 기대에 못 미친 가운데, 투자자들은 현금흐름 적자와 인공지능 데이터센터 구축을 위한 대규모 투자를 부담 요인으로 봤다.",
+            "url": "https://apnews.com/article/amazon-q3-earnings-amazon-web-services-2de72b65d63006a7ce85eab441e2d6b7"
+          },
+          {
+            "text": "경영진은 인공지능 인프라 투자를 계속하고 클라우드 사업의 성장을 낙관했지만, 이런 설명이 투자 회수 우려를 잠재우지는 못했다.",
+            "url": "https://apnews.com/article/amazon-q3-earnings-amazon-web-services-2de72b65d63006a7ce85eab441e2d6b7"
           }
         ],
         "done": true,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T16:40:15.918Z",
         "dropped": [],
         "direction": -1
       }
@@ -1382,11 +2280,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 141.6199951171875,
-        "extendedPct": -6.4,
-        "extendedAt": "2026-10-30T09:54:18.000Z",
+        "extendedPct": -5.3,
+        "extendedAt": "2026-10-30T16:38:57.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1601,11 +2499,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 1198.81005859375,
-        "extendedPct": -0.8,
-        "extendedAt": "2026-10-30T08:55:00.000Z",
+        "extendedPct": 0.5,
+        "extendedAt": "2026-10-30T16:39:11.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1811,7 +2709,7 @@
         "latestPct": 1.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1981,7 +2879,7 @@
         "latestPct": 4.2,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2186,7 +3084,7 @@
         "latestPct": -1.3,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2396,7 +3294,7 @@
         "latestPct": 6.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2594,7 +3492,7 @@
         "latestPct": 0.4,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2806,7 +3704,7 @@
         "latestPct": 4.7,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3024,7 +3922,7 @@
         "latestPct": 3.8,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3220,7 +4118,7 @@
         "latestPct": -3.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3389,7 +4287,7 @@
         "latestPct": -9.3,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3589,7 +4487,7 @@
         "latestPct": 3.7,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3809,7 +4707,7 @@
         "latestPct": -3.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3860,6 +4758,14 @@
           "outputTokens": 429,
           "searchCalls": 2,
           "estimatedUsd": 0.02405
+        },
+        {
+          "purpose": "reasons-NOW",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 13126,
+          "outputTokens": 468,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01306
         }
       ],
       "status": "complete",
@@ -4025,23 +4931,27 @@
         "latestPct": -26.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [
           {
-            "text": "회사 자료는 분기 실적이 가이던스를 웃돌았고 연간 구독 매출·잉여현금흐름 전망을 상향했다고 밝혀, 가이던스 미달이 하락 원인이었다고 확인해 주지는 않습니다.",
-            "url": "https://investor.servicenow.com/news/news-details/2026/ServiceNow-Reports-Third-Quarter-2026-Financial-Results/default.aspx"
+            "text": "다음 분기 매출 가이던스가 시장 예상에 못 미쳐, 매출 성장 전망이 기대보다 약하다는 우려를 키웠다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/why-servicenow-stock-falling-18-120449323.html"
           },
           {
-            "text": "회사는 설비투자를 줄이고 잉여현금흐름 마진 전망을 높였다고 설명했습니다. 이 자료만으로는 마진, 현금흐름 또는 수요 우려가 주가 하락을 일으켰다고 단정할 수 없습니다.",
-            "url": "https://investor.servicenow.com/news/news-details/2026/ServiceNow-Reports-Third-Quarter-2026-Financial-Results/default.aspx"
+            "text": "향후 매출을 가늠하는 계약잔고 성장세가 둔화될 전망이었고, 경영진은 일부 계약 갱신이 앞당겨 체결된 점을 이유로 들었다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/now-stock-declines-double-digits-001255316.html"
+          },
+          {
+            "text": "조정 주당이익이 시장 예상에 못 미쳤으며, 인수 관련 비용과 이자수익 감소가 실적 부담 요인으로 보도됐다.",
+            "url": "https://finance.yahoo.com/markets/stocks/articles/why-servicenow-stock-falling-18-120449323.html"
           }
         ],
         "done": true,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T16:40:15.918Z",
         "dropped": [],
         "direction": -1
       }
@@ -4241,7 +5151,7 @@
         "latestPct": 2.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4456,7 +5366,7 @@
         "latestPct": -20.1,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4615,7 +5525,7 @@
         "latestPct": 0.5,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4813,7 +5723,7 @@
         "latestPct": 5.5,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4998,7 +5908,7 @@
         "latestPct": -0.2,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5164,7 +6074,7 @@
         "latestPct": -11.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5356,7 +6266,7 @@
         "latestPct": -12.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5571,11 +6481,11 @@
         "baseClose": 242000,
         "firstDate": "2026-10-29",
         "firstPct": -4.1,
-        "latestDate": "2026-10-30",
-        "latestPct": -7,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -4.1,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5820,7 +6730,7 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6033,7 +6943,7 @@
         "latestPct": 11.7,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6225,7 +7135,7 @@
         "latestPct": -0.8,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6471,7 +7381,7 @@
         "latestPct": 17.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6664,7 +7574,7 @@
         "latestPct": -8.5,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6723,6 +7633,14 @@
           "outputTokens": 458,
           "searchCalls": 1,
           "estimatedUsd": 0.01244
+        },
+        {
+          "purpose": "reasons-NXPI",
+          "at": "2026-10-30T16:40:15.918Z",
+          "inputTokens": 13112,
+          "outputTokens": 496,
+          "searchCalls": 1,
+          "estimatedUsd": 0.01308
         }
       ],
       "status": "complete",
@@ -6868,19 +7786,23 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
         "points": [
           {
-            "text": "회사가 제시한 다음 분기 매출 전망이 애널리스트 기대에 못 미쳐, 실적 회복 속도가 시장 기대보다 약하다는 우려가 주가 하락 이유로 보도됐다.",
-            "url": "https://www.bloomberg.com/news/articles/2026-10-27/nxp-shares-slide-after-chipmaker-gives-tepid-revenue-forecast"
+            "text": "분기 실적은 시장 예상보다 좋았지만, 다음 분기 매출 전망이 시장 기대에 못 미쳐 주가 하락의 주된 이유로 보도됐다.",
+            "url": "https://www.investing.com/news/stock-market-news/why-is-nxp-semiconductors-stock-sliding-today-93CH-4978572"
+          },
+          {
+            "text": "경영진은 광범위한 고객 재고 보충은 아직 없다고 설명했고, 자동차 부문 회복 강도에 대한 시장의 눈높이가 높다는 분석도 나왔다.",
+            "url": "https://www.investing.com/news/stock-market-news/nxp-semiconductors-earnings-analysis-questions-answered-and-next-catalysts-93CH-4980292"
           }
         ],
         "done": true,
-        "attempts": 1,
-        "searchedAt": "2026-10-30T02:08:41.075Z",
+        "attempts": 2,
+        "searchedAt": "2026-10-30T16:40:15.918Z",
         "dropped": [],
         "direction": -1
       }
@@ -7029,7 +7951,7 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7195,7 +8117,7 @@
         "latestPct": 6.3,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7370,7 +8292,7 @@
         "latestPct": -3.1,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7569,7 +8491,7 @@
         "latestPct": 2.2,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7720,11 +8642,11 @@
         "baseClose": 1341000,
         "firstDate": "2026-10-28",
         "firstPct": 10.9,
-        "latestDate": "2026-10-30",
-        "latestPct": 5.7,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": 13.8,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7904,7 +8826,7 @@
         "latestPct": -4.6,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8064,7 +8986,7 @@
         "latestPct": -8.3,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8252,7 +9174,7 @@
         "latestPct": 15.6,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8454,7 +9376,7 @@
         "latestPct": 0.9,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8703,7 +9625,7 @@
         "latestPct": 0.1,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8938,7 +9860,7 @@
         "latestPct": 7.3,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9101,7 +10023,7 @@
         "latestPct": -4.6,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9343,7 +10265,7 @@
         "latestPct": 0.7,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9539,7 +10461,7 @@
         "latestPct": 12,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9783,7 +10705,7 @@
         "latestPct": 6.4,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10008,7 +10930,7 @@
         "latestPct": -2.2,
         "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-30T09:54:01.689Z"
+        "checkedAt": "2026-10-30T16:40:15.918Z"
       },
       "reasons": {
         "basis": "news-report",
