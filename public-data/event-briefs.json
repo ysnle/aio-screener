@@ -1,6 +1,6 @@
 {
   "schemaVersion": "event-briefs.v1",
-  "generatedAt": "2026-10-30T02:59:15.981Z",
+  "generatedAt": "2026-10-30T09:54:01.689Z",
   "producer": "scripts/fetch-event-briefs.mjs",
   "cadence": "every 20 minutes (.github/workflows/event-briefs.yml); AI runs only for a new source document or a pending call summary",
   "sourceKind": "T1_OFFICIAL",
@@ -17,8 +17,8 @@
   "errors": [],
   "costLedger": {
     "month": "2026-10",
-    "requests": 153,
-    "estimatedUsd": 1.9011,
+    "requests": 154,
+    "estimatedUsd": 1.9254,
     "rateCard": {
       "inputUsdPerToken": 1.375e-7,
       "outputUsdPerToken": 5.5e-7,
@@ -389,11 +389,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 60.880001068115234,
-        "extendedPct": -6.9,
-        "extendedAt": "2026-10-29T23:58:56.000Z",
+        "extendedPct": -6.4,
+        "extendedAt": "2026-10-30T09:53:16.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -568,11 +568,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 1330.050048828125,
-        "extendedPct": -3.8,
-        "extendedAt": "2026-10-29T23:59:43.000Z",
+        "extendedPct": -8,
+        "extendedAt": "2026-10-30T09:54:16.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -751,11 +751,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 160.58999633789062,
-        "extendedPct": -4.7,
-        "extendedAt": "2026-10-29T23:59:14.000Z",
+        "extendedPct": -5.1,
+        "extendedAt": "2026-10-30T09:47:04.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -949,11 +949,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 92.06999969482422,
-        "extendedPct": -23,
-        "extendedAt": "2026-10-29T23:59:58.000Z",
+        "extendedPct": -25.8,
+        "extendedAt": "2026-10-30T09:54:19.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1206,11 +1206,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 243.7899932861328,
-        "extendedPct": -7.3,
-        "extendedAt": "2026-10-29T23:59:59.000Z",
+        "extendedPct": -7.2,
+        "extendedAt": "2026-10-30T09:53:25.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1382,11 +1382,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 141.6199951171875,
-        "extendedPct": -5.8,
-        "extendedAt": "2026-10-29T23:59:59.000Z",
+        "extendedPct": -6.4,
+        "extendedAt": "2026-10-30T09:54:18.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1601,11 +1601,11 @@
         "basis": "latest-trade",
         "baseDate": "2026-10-29",
         "baseClose": 1198.81005859375,
-        "extendedPct": -1.7,
-        "extendedAt": "2026-10-29T23:49:15.000Z",
+        "extendedPct": -0.8,
+        "extendedAt": "2026-10-30T08:55:00.000Z",
         "sessions": 0,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1811,7 +1811,7 @@
         "latestPct": 1.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -1981,7 +1981,7 @@
         "latestPct": 4.2,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2186,7 +2186,7 @@
         "latestPct": -1.3,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2396,7 +2396,7 @@
         "latestPct": 6.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2594,7 +2594,7 @@
         "latestPct": 0.4,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2806,7 +2806,7 @@
         "latestPct": 4.7,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3024,7 +3024,7 @@
         "latestPct": 3.8,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3220,7 +3220,7 @@
         "latestPct": -3.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3389,7 +3389,7 @@
         "latestPct": -9.3,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3589,7 +3589,7 @@
         "latestPct": 3.7,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3809,7 +3809,7 @@
         "latestPct": -3.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4025,7 +4025,7 @@
         "latestPct": -26.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4241,7 +4241,7 @@
         "latestPct": 2.9,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4456,7 +4456,7 @@
         "latestPct": -20.1,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4615,7 +4615,7 @@
         "latestPct": 0.5,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4813,7 +4813,7 @@
         "latestPct": 5.5,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4998,7 +4998,7 @@
         "latestPct": -0.2,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5164,7 +5164,7 @@
         "latestPct": -11.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5356,7 +5356,7 @@
         "latestPct": -12.6,
         "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5519,7 +5519,7 @@
         "fetchedAt": "2026-10-30T02:08:41.075Z",
         "sha256": "24f7ca6c62174235a70f8c81bdec0e5da0600c660a4fe838a3b6c0c67c033680"
       },
-      "status": "partial",
+      "status": "complete",
       "basis": "primary-source",
       "period": "2026년 3분기",
       "headline": "2026년 3분기 잠정 실적: 영업이익 107.44조원(전분기 대비 +20.06%, 전년 대비 +783.11%)",
@@ -5555,6 +5555,14 @@
           "outputTokens": 581,
           "searchCalls": 2,
           "estimatedUsd": 0.02412
+        },
+        {
+          "purpose": "call-005930.KS",
+          "at": "2026-10-30T09:54:01.689Z",
+          "inputTokens": 12984,
+          "outputTokens": 819,
+          "searchCalls": 2,
+          "estimatedUsd": 0.02424
         }
       ],
       "reaction": {
@@ -5563,11 +5571,11 @@
         "baseClose": 242000,
         "firstDate": "2026-10-29",
         "firstPct": -4.1,
-        "latestDate": "2026-10-29",
-        "latestPct": -4.1,
-        "sessions": 1,
+        "latestDate": "2026-10-30",
+        "latestPct": -7,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5587,7 +5595,44 @@
         "dropped": [],
         "direction": -1
       },
-      "checkText": "삼성전자/연결재무제표기준영업(잠정)실적(공정공시)/(2026.10.29)연결재무제표기준영업(잠정)실적(공정공시)\n정정신고(보고)\n정정일자\n2026-10-29\n1. 정정관련 공시서류\n연결재무제표기준영업(잠정)실적(공정공시)\n2. 정정관련 공시서류제출일\n2026년 10월 08일\n3. 정정사유\n2026년 3분기 연결재무제표기준영업(잠정)실적(공정공시) 내용 정정\n4. 정정사항\n정정항목\n정정전\n정정후\n1. 연결실적내용 ·당기실적('26.3Q) - 매출액(당해실적) - 매출액(누계실적) - 영업이익(당해실적) - 영업이익(누계실적)\n195.00 500.37 107.40 254.13\n195.25 500.63 107.44 254.17\n·전기대비증감율(%) - 매출액(당해실적) - 영업이익(당해실적)\n13.70 20.01\n13.85 20.06\n·전년동기대비증감율(%) - 매출액(당해실적) - 매출액(누계실적) - 영업이익(당해실적) - 영업이익(누계실적)\n126.59 108.69 782.50 980.03\n126.88 108.80 783.11 980.30\n4. 기타 투자판단과 관련한 중요사항\n- 한국채택국제회계기준에 따라 작성된 연결기준의 잠정 영업실적입니다. - 상기 잠정 영업실적은 삼성전자 본사, 자회사 및 관계사 등에 대한 외부감사인의 회계감사가 완료되지 않은 상태에서 투자자들의 편의를 위해 제공되는 정보로서, 실제 실적과는 차이가 발생할 수 있음을 양지하시기 바랍니다. - 2026년 3분기 실적 관련 이사회 승인시점에 관련 내용을 재공시할 예정입니다.\n- 한국채택국제회계기준에 따라 작성된 연결기준의 잠정 영업실적입니다. - 상기 잠정 영업실적은 삼성전자 본사, 자회사 및 관계사 등에 대한 외부감사인의 회계감사가 완료되지 않은 상태에서 투자자들의 편의를 위해 제공되는 정보로서, 실제 실적과는 차이가 발생할 수 있음을 양지하시기 바랍니다. (삭제)\n※ 관련공시\n-\n2026-10-08 연결재무제표기준영업(잠정)실적(공정공시)\n-\n연결재무제표 기준 영업(잠정)실적(공정공시)\n실적기간\n당기실적\n2026-07-01\n~\n2026-09-30\n전기실적\n2026-04-01\n~\n2026-06-30\n전년동기실적\n2025-07-01\n~\n2025-09-30\n당기누계실적\n2026-01-01\n~\n2026-09-30\n전년동기누적실적\n2025-01-01\n~\n2025-09-30\n※ 동 정보는 잠정치로서 향후 확정치와는 다를 수 있음.\n1. 연결실적내용\n단위 : 조원, %\n구분\n당기실적\n전기실적\n전기대비\n전년동기실적\n전년동기대비\n(26.3Q)\n(26.2Q)\n증감율(%)\n흑자적자전환여부\n(25.3Q)\n증감율(%)\n흑자적자전환여부\n매출액\n당해실적\n195.25\n171.50\n13.85\n-\n86.06\n126.88\n-\n누계실적\n500.63\n-\n-\n-\n239.77\n108.80\n-\n영업이익\n당해실적\n107.44\n89.49\n20.06\n-\n12.17\n783.11\n-\n누계실적\n254.17\n-\n-\n-\n23.53\n980.30\n-\n법인세비용차감전계속사업이익\n당해실적\n-\n-\n-\n-\n-\n-\n-\n누계실적\n-\n-\n-\n-\n-\n-\n-\n당기순이익\n당해실적\n-\n-\n-\n-\n-\n-\n-\n누계실적\n-\n-\n-\n-\n-\n-\n-\n지배기업 소유주지분 순이익\n당해실적\n-\n-\n-\n-\n-\n-\n-\n누계실적\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n-\n2. 정보제공내역\n정보제공자\nIR팀\n정보제공대상자\n국내외 투자자 및 언론 등\n정보제공(예정)일자\n-\n정보제공(예정)시간\n-\n행사명(장소)\n-\n3. 연락처\n관련부서\nIR팀\n전화번호\n02-2255-9000\n4. 기타 투자판단과 관련한 중요사항\n- 한국채택국제회계기준에 따라 작성된 연결기준의 잠정 영업실적입니다. - 상기 잠정 영업실적은 삼성전자 본사, 자회사 및 관계사 등에 대한 외부감사인의\n회계감사가 완료되지 않은 상태에서 투자자들의 편의를 위해 제공되는 정보로서,\n실제 실적과는 차이가 발생할 수 있음을 양지하시기 바랍니다.\n※ 관련공시\n2026-10-08 연결재무제표기준영업(잠정)실적(공정공시)\n195.25조원 전분기 대비 +13.85%, 전년 대비 +126.88%\n107.44조원 전분기 대비 +20.06%, 전년 대비 +783.11%"
+      "callPoints": {
+        "title": "컨퍼런스콜 핵심",
+        "basis": "news-report",
+        "speaker": null,
+        "points": [
+          {
+            "text": "메모리 수요는 AI 인프라 투자와 서버 제품 수요에 힘입어 강세가 이어질 것으로 전망했고, HBM4와 서버용 SSD 판매 확대를 강조했다.",
+            "url": "https://news.samsung.com/kr/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-2026%EB%85%84-3%EB%B6%84%EA%B8%B0-%EC%8B%A4%EC%A0%81-%EB%B0%9C%ED%91%9C"
+          },
+          {
+            "text": "환율 하락과 부품 원가 상승 등이 수익성 부담으로 언급됐고, DX는 프리미엄 제품 비중 확대와 비용 효율화로 수익성을 방어하겠다고 밝혔다.",
+            "url": "https://news.samsung.com/kr/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-2026%EB%85%84-3%EB%B6%84%EA%B8%B0-%EC%8B%A4%EC%A0%81-%EB%B0%9C%ED%91%9C"
+          },
+          {
+            "text": "공식 실적 자료에서 컨퍼런스콜 질의응답의 개별 쟁점이나 발언자를 확인할 수 없어, Q&A 내용은 별도로 단정하지 않았다.",
+            "url": "https://www.samsung.com/global/ir/ir-events-presentations/events/"
+          }
+        ],
+        "attempts": 1,
+        "done": true,
+        "searchedAt": "2026-10-30T09:54:01.689Z",
+        "dropped": [
+          {
+            "reason": "number-not-in-source",
+            "numbers": [
+              "84.4"
+            ],
+            "text": "2026년 시설투자는 84.4조원 규모로 집행할 계획이며, DS부문은 메모리 신규 팹 인프라와 미국 테일러 파운드리 팹 중심 투자를 제시했다."
+          },
+          {
+            "reason": "number-not-in-source",
+            "numbers": [
+              "2027"
+            ],
+            "text": "4분기에는 반도체 호실적 지속과 전사 실적 성장을 전망했으며, 2027년에는 AI 수요가 공급을 크게 웃돌 것으로 내다봤다."
+          }
+        ]
+      }
     },
     {
       "id": "earnings-APH-0001104659-26-119421",
@@ -5775,7 +5820,7 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5988,7 +6033,7 @@
         "latestPct": 11.7,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6180,7 +6225,7 @@
         "latestPct": -0.8,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6426,7 +6471,7 @@
         "latestPct": 17.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6619,7 +6664,7 @@
         "latestPct": -8.5,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6823,7 +6868,7 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6984,7 +7029,7 @@
         "latestPct": 4.9,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7150,7 +7195,7 @@
         "latestPct": 6.3,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7325,7 +7370,7 @@
         "latestPct": -3.1,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7524,7 +7569,7 @@
         "latestPct": 2.2,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7675,11 +7720,11 @@
         "baseClose": 1341000,
         "firstDate": "2026-10-28",
         "firstPct": 10.9,
-        "latestDate": "2026-10-29",
-        "latestPct": 13.8,
-        "sessions": 2,
+        "latestDate": "2026-10-30",
+        "latestPct": 5.7,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7859,7 +7904,7 @@
         "latestPct": -4.6,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8019,7 +8064,7 @@
         "latestPct": -8.3,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8207,7 +8252,7 @@
         "latestPct": 15.6,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8409,7 +8454,7 @@
         "latestPct": 0.9,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8658,7 +8703,7 @@
         "latestPct": 0.1,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8893,7 +8938,7 @@
         "latestPct": 7.3,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9056,7 +9101,7 @@
         "latestPct": -4.6,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9298,7 +9343,7 @@
         "latestPct": 0.7,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9494,7 +9539,7 @@
         "latestPct": 12,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9738,7 +9783,7 @@
         "latestPct": 6.4,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9963,7 +10008,7 @@
         "latestPct": -2.2,
         "sessions": 4,
         "settled": false,
-        "checkedAt": "2026-10-30T02:59:15.981Z"
+        "checkedAt": "2026-10-30T09:54:01.689Z"
       },
       "reasons": {
         "basis": "news-report",
