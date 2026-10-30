@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-30T10:21:33.478Z",
-  "attemptedAt": "2026-10-30T10:21:33.478Z",
-  "lastSuccessfulAt": "2026-10-30T10:21:33.478Z",
+  "generatedAt": "2026-10-30T10:51:48.079Z",
+  "attemptedAt": "2026-10-30T10:51:48.079Z",
+  "lastSuccessfulAt": "2026-10-30T10:51:48.079Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-16T10:21:27.827Z",
-  "until": "2026-10-30T10:21:27.827Z",
+  "since": "2026-10-16T10:51:43.246Z",
+  "until": "2026-10-30T10:51:43.246Z",
   "current24hWindow": {
     "start": "2026-10-28T23:00:00.000Z",
     "end": "2026-10-29T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 155,
+      "count": 154,
       "freshCount": 0,
-      "eligibleTextCount": 145,
+      "eligibleTextCount": 144,
       "selectedCount": 57,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1381,
+      "count": 1384,
       "freshCount": 40,
-      "eligibleTextCount": 1315,
+      "eligibleTextCount": 1318,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 67892
+      "lastPostId": 67895
     },
     {
       "channel": "bornlupin",
@@ -113,46 +113,46 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 677,
-      "freshCount": 19,
-      "eligibleTextCount": 677,
+      "count": 679,
+      "freshCount": 39,
+      "eligibleTextCount": 679,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71265
+      "lastPostId": 71268
     }
   ],
-  "count": 2441,
-  "retainedItemCount": 463,
+  "count": 2445,
+  "retainedItemCount": 478,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2441,
-    "eligibleTextCount": 2365,
+    "observedCount": 2445,
+    "eligibleTextCount": 2369,
     "mediaOnlyCount": 76,
     "highSignalCount": 441,
-    "broadSignalCount": 963,
+    "broadSignalCount": 967,
     "selectedRawCount": 409,
     "selectedEligibleCount": 409,
     "selectedRawCoveragePct": 17.3,
-    "selectedOfObservedPct": 16.8,
+    "selectedOfObservedPct": 16.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "earnings": 495,
-    "market-note": 868,
+    "earnings": 500,
+    "macro": 386,
+    "semi": 550,
+    "power": 302,
+    "market-note": 866,
     "geo": 411,
     "media-only": 76,
-    "semi": 547,
     "japan": 116,
     "kr-market": 142,
     "flows": 101,
-    "power": 301,
-    "macro": 385,
     "healthcare": 127,
     "equity": 170,
     "credit": 124,
@@ -162,8 +162,9 @@
     "insider": 3
   },
   "tickerCounts": {
+    "285A.T": 3,
     "005930.KS": 51,
-    "GOOG": 133,
+    "GOOG": 132,
     "AMZN": 79,
     "MU": 54,
     "TSM": 54,
@@ -199,7 +200,6 @@
     "V": 2,
     "HOOD": 1,
     "005940.KS": 2,
-    "285A.T": 2,
     "CRWV": 15,
     "MS": 4,
     "MRNA": 1,
@@ -253,12 +253,12 @@
     "NBIS": 1
   },
   "themes": [
-    "Market Notes (868 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
-    "Semiconductors/Memory (547 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
-    "Earnings/Corporate (495 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Market Notes (866 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
+    "Semiconductors/Memory (550 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
+    "Earnings/Corporate (500 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (411 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
-    "Macro/Rates (385 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
-    "AI Power/Grid (301 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Macro/Rates (386 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
+    "AI Power/Grid (302 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (170 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "Korea Market (142 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
   ],
@@ -270,7 +270,7 @@
     },
     {
       "key": "GOOG",
-      "count": 133,
+      "count": 132,
       "text": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     },
     {
@@ -331,7 +331,7 @@
       "topics": [
         "macro"
       ],
-      "count": 385,
+      "count": 386,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -358,7 +358,7 @@
       "topics": [
         "semi"
       ],
-      "count": 547,
+      "count": 550,
       "focus": "2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144..."
     },
     {
@@ -376,7 +376,7 @@
       "topics": [
         "power"
       ],
-      "count": 301,
+      "count": 302,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -421,7 +421,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 495,
+      "count": 500,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 868,
+      "count": 866,
       "focus": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     }
   ],
@@ -1657,6 +1657,72 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71267",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71267",
+      "datetime": "2026-10-30T10:38:06.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "earnings",
+        "semi",
+        "power"
+      ],
+      "lead": 1,
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "285A.T"
+      ],
+      "summary": ">>Kioxia, 3분기 영업이익 QoQ+57.1% 급증…설비투자는 예상 하회, 4분기 이익 전망도 시장 기대 밑돌아 •3분기 실적은 AI 데이터센터 수요 급증에 따른 NAND 가격 상승과 출하량 증가로..."
+    },
+    {
+      "id": "insidertracking/67894",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67894",
+      "datetime": "2026-10-30T10:34:59.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 53,
+      "hasText": true,
+      "tickers": [],
+      "summary": "엑슨모빌의 2026년 3분기 조정 주당순이익(EPS)은 4.23달러로 시장 예상치 4.08달러 상회. 조정 순이익은 175억 달러 기록. > 주요 실적 • 조정 주당순이익(EPS): 4.23달러, 시장 예상치..."
+    },
+    {
+      "id": "HANAchina/71266",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71266",
+      "datetime": "2026-10-30T10:33:39.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "earnings",
+        "semi"
+      ],
+      "lead": 1,
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "**매출과 순이익은 기존 속보치의 상단 >>(확정) CXMT, 3분기 순이익 544억 위안…1-3분기 누적 순이익 1,320억 위안, 최대 20억 위안 자사주 매입 추진 •3분기 실적 : 매출 1,187억..."
+    },
+    {
+      "id": "insidertracking/67893",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/67893",
+      "datetime": "2026-10-30T10:26:44.000Z",
+      "localDateKst": "2026-10-30",
+      "tags": [
+        "earnings",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "창신메모리테크놀로지(CXMT)의 2026년 3분기 실적 발표. • 매출액: 1,187억 위안, 전년 동기 대비 613.18% 증가 • 10억~20억 위안 규모의 자사주 매입 계획 발표."
+    },
+    {
       "id": "insidertracking/67888",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/67888",
@@ -1861,11 +1927,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "워싱턴포스트에 따르면 밴스 부통령이 이란 최고위 강경파 지도자에게 서한을 보내 전쟁을 협상을 통해 종식하는 방안을 논의하기 위해 직접 만날 의향이 있다는 입장을 전달. 10월 30일 보도에 따르면 협상 상황에..."
+      "summary": "워싱턴포스트에 따르면 밴스 부통령이 이란 최고위 강경파 지도자에게 서한을 보내 전쟁을 협상을 통해 종식하는 방안을 논의하기 위해 직접 만날 의향이 있다는 입장을 전달. 10월 30일 보도에 따르면 협상 상황에...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71251",
@@ -2004,15 +2070,16 @@
       "localDateKst": "2026-10-30",
       "tags": [
         "semi",
-        "ai-policy"
+        "ai-policy",
+        "power"
       ],
+      "lead": 2,
       "score": 69,
       "hasText": true,
-      "summary": "•Nvidia가 Nscale과 Anthropic의 거래에 신용 지원을 제공하는 방안을 협의 중이라는 보도 •관계자에 따르면 Nvidia는 클라우드 서비스 제공업체 Nscale과 부채에 대한 수십억 달러 규모의...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "•Nvidia가 Nscale과 Anthropic의 거래에 신용 지원을 제공하는 방안을 협의 중이라는 보도 •관계자에 따르면 Nvidia는 클라우드 서비스 제공업체 Nscale과 부채에 대한 수십억 달러 규모의..."
     },
     {
       "id": "HANAchina/71238",
@@ -2023,11 +2090,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "• 대만 중앙은행은 29일 올해 3분기 이사회 및 감사위원회 연석회의 의사록 요약본을 공개. 금리 결정과 관련해 대다수 위원은 기준금리 동결에 찬성했으나, 두 명의 위원은 향후 인플레이션 압력과 통화정책...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "• 대만 중앙은행은 29일 올해 3분기 이사회 및 감사위원회 연석회의 의사록 요약본을 공개. 금리 결정과 관련해 대다수 위원은 기준금리 동결에 찬성했으나, 두 명의 위원은 향후 인플레이션 압력과 통화정책..."
     },
     {
       "id": "insidertracking/67828",
@@ -2054,13 +2121,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "• AUO는 중부과학단지 내 L7 공장(7.5세대)과 L5C 공장(5세대)을 TSMC에 388억 대만달러에 매각할 계획이며, 예상 처분이익은 약 185억 대만달러. 이번 거래를 끝으로 자산 유동화 작업을...",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "• AUO는 중부과학단지 내 L7 공장(7.5세대)과 L5C 공장(5세대)을 TSMC에 388억 대만달러에 매각할 계획이며, 예상 처분이익은 약 185억 대만달러. 이번 거래를 끝으로 자산 유동화 작업을..."
     },
     {
       "id": "HANAchina/71236",
@@ -2070,15 +2137,16 @@
       "localDateKst": "2026-10-30",
       "tags": [
         "earnings",
-        "power"
+        "power",
+        "semi"
       ],
+      "lead": 2,
       "score": 64,
       "hasText": true,
-      "summary": ">>SanDisk, 2027회계연도 1분기 매출 전년비 378% 급증…2분기 매출 전망도 예상 상회, 데이터센터가 내년 성장 핵심 •SanDisk의 2027회계연도 1분기 매출은 110억 3,100만 달러로...",
-      "lead": 2,
       "tickers": [
         "SNDK"
-      ]
+      ],
+      "summary": ">>SanDisk, 2027회계연도 1분기 매출 전년비 378% 급증…2분기 매출 전망도 예상 상회, 데이터센터가 내년 성장 핵심 •SanDisk의 2027회계연도 1분기 매출은 110억 3,100만 달러로..."
     },
     {
       "id": "insidertracking/67822",
@@ -2428,18 +2496,19 @@
       "localDateKst": "2026-10-30",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "equity"
       ],
+      "lead": 1,
       "score": 76,
       "hasText": true,
-      "summary": ">>20년간 가격 인하 압박을 받아온 메모리 업체들, AI를 통해 Apple에 ‘복수’ •AI 데이터센터 수요 급증으로 메모리 가격이 상승하면서 Apple과 공급업체 간 협상력이 역전되고 있음. 과거...",
-      "lead": 2,
       "tickers": [
         "AAPL",
         "MSFT",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": ">>20년간 가격 인하 압박을 받아온 메모리 업체들, AI를 통해 Apple에 ‘복수’ •AI 데이터센터 수요 급증으로 메모리 가격이 상승하면서 Apple과 공급업체 간 협상력이 역전되고 있음. 과거..."
     },
     {
       "id": "HANAchina/71229",
@@ -2452,9 +2521,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>닉 티미라오스 “근원 상품 가격이 계속 상승한다면 서비스 가격은 더 큰 폭으로 둔화해야” •닉 티미라오스는 9월 주거비를 제외한 근원 PCE 서비스 가격이 0.37% 상승하면서 12개월 기준 상승률이...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>닉 티미라오스 “근원 상품 가격이 계속 상승한다면 서비스 가격은 더 큰 폭으로 둔화해야” •닉 티미라오스는 9월 주거비를 제외한 근원 PCE 서비스 가격이 0.37% 상승하면서 12개월 기준 상승률이..."
     },
     {
       "id": "insidertracking/67788",
@@ -5285,36 +5353,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/67491",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67491",
-      "datetime": "2026-10-27T10:03:57.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "earnings"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": "UPS(유나이티드 파슬 서비스), 2026년 3분기 매출과 조정 주당순이익(EPS) 모두 시장 예상치 상회. 연간 실적 가이던스도 상향 조정. • 조정 EPS: 1.69달러(예상 1.62달러)로 시장 예상치...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/67490",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/67490",
-      "datetime": "2026-10-27T10:03:03.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "earnings"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": "힐튼, 2026년 3분기 실적 발표. 매출은 시장 예상치를 하회했으나 조정 주당순이익(EPS)은 예상치 상회. 2026년 3분기 주요 실적 • 매출: 33억 달러(예상 33억 7,000만 달러)로 시장 예상치...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20851",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20851",
@@ -7110,20 +7148,6 @@
       ]
     },
     {
-      "id": "HANAchina/70961",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70961",
-      "datetime": "2026-10-25T02:05:26.000Z",
-      "localDateKst": "2026-10-25",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": ">>석유 생산량 사상 최고치, 저장 탱크는 거의 비어… UAE의 ‘기적적인 회복’인가? •UAE의 9월 석유 공급량은 하루 530만 배럴로 사상 최고치를 기록, 에너지 시스템은 아직 전쟁의 충격에서 벗어나지...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20800",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20800",
@@ -7173,25 +7197,6 @@
       "lead": 1,
       "tickers": [
         "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/70960",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70960",
-      "datetime": "2026-10-25T01:17:39.000Z",
-      "localDateKst": "2026-10-25",
-      "tags": [
-        "semi"
-      ],
-      "score": 72,
-      "hasText": true,
-      "summary": ">>대만증시 조정 경고…TSMC 목표가 3,875대만달러, “2,500대만달러 이하면 매수” (대만공상시보) •대만 유명투자자 리융녠은 대만증시의 신용융자 잔액이 높은 수준이라며, 과열된 매물을 정리하기 위한...",
-      "lead": 1,
-      "tickers": [
-        "MSFT",
-        "GOOG",
-        "TSM"
       ]
     },
     {
@@ -8463,15 +8468,16 @@
       "localDateKst": "2026-10-30",
       "tags": [
         "semi",
-        "ai-policy"
+        "ai-policy",
+        "power"
       ],
+      "lead": 2,
       "score": 69,
       "hasText": true,
-      "summary": "•Nvidia가 Nscale과 Anthropic의 거래에 신용 지원을 제공하는 방안을 협의 중이라는 보도 •관계자에 따르면 Nvidia는 클라우드 서비스 제공업체 Nscale과 부채에 대한 수십억 달러 규모의...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "•Nvidia가 Nscale과 Anthropic의 거래에 신용 지원을 제공하는 방안을 협의 중이라는 보도 •관계자에 따르면 Nvidia는 클라우드 서비스 제공업체 Nscale과 부채에 대한 수십억 달러 규모의..."
     },
     {
       "id": "HANAchina/71238",
@@ -8482,11 +8488,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "• 대만 중앙은행은 29일 올해 3분기 이사회 및 감사위원회 연석회의 의사록 요약본을 공개. 금리 결정과 관련해 대다수 위원은 기준금리 동결에 찬성했으나, 두 명의 위원은 향후 인플레이션 압력과 통화정책...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "• 대만 중앙은행은 29일 올해 3분기 이사회 및 감사위원회 연석회의 의사록 요약본을 공개. 금리 결정과 관련해 대다수 위원은 기준금리 동결에 찬성했으나, 두 명의 위원은 향후 인플레이션 압력과 통화정책..."
     },
     {
       "id": "insidertracking/67828",
@@ -8513,13 +8519,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "• AUO는 중부과학단지 내 L7 공장(7.5세대)과 L5C 공장(5세대)을 TSMC에 388억 대만달러에 매각할 계획이며, 예상 처분이익은 약 185억 대만달러. 이번 거래를 끝으로 자산 유동화 작업을...",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "• AUO는 중부과학단지 내 L7 공장(7.5세대)과 L5C 공장(5세대)을 TSMC에 388억 대만달러에 매각할 계획이며, 예상 처분이익은 약 185억 대만달러. 이번 거래를 끝으로 자산 유동화 작업을..."
     },
     {
       "id": "HANAchina/71236",
@@ -8529,15 +8535,16 @@
       "localDateKst": "2026-10-30",
       "tags": [
         "earnings",
-        "power"
+        "power",
+        "semi"
       ],
+      "lead": 2,
       "score": 64,
       "hasText": true,
-      "summary": ">>SanDisk, 2027회계연도 1분기 매출 전년비 378% 급증…2분기 매출 전망도 예상 상회, 데이터센터가 내년 성장 핵심 •SanDisk의 2027회계연도 1분기 매출은 110억 3,100만 달러로...",
-      "lead": 2,
       "tickers": [
         "SNDK"
-      ]
+      ],
+      "summary": ">>SanDisk, 2027회계연도 1분기 매출 전년비 378% 급증…2분기 매출 전망도 예상 상회, 데이터센터가 내년 성장 핵심 •SanDisk의 2027회계연도 1분기 매출은 110억 3,100만 달러로..."
     },
     {
       "id": "insidertracking/67822",
@@ -8887,18 +8894,19 @@
       "localDateKst": "2026-10-30",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "equity"
       ],
+      "lead": 1,
       "score": 76,
       "hasText": true,
-      "summary": ">>20년간 가격 인하 압박을 받아온 메모리 업체들, AI를 통해 Apple에 ‘복수’ •AI 데이터센터 수요 급증으로 메모리 가격이 상승하면서 Apple과 공급업체 간 협상력이 역전되고 있음. 과거...",
-      "lead": 2,
       "tickers": [
         "AAPL",
         "MSFT",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": ">>20년간 가격 인하 압박을 받아온 메모리 업체들, AI를 통해 Apple에 ‘복수’ •AI 데이터센터 수요 급증으로 메모리 가격이 상승하면서 Apple과 공급업체 간 협상력이 역전되고 있음. 과거..."
     },
     {
       "id": "HANAchina/71229",
@@ -8911,9 +8919,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>닉 티미라오스 “근원 상품 가격이 계속 상승한다면 서비스 가격은 더 큰 폭으로 둔화해야” •닉 티미라오스는 9월 주거비를 제외한 근원 PCE 서비스 가격이 0.37% 상승하면서 12개월 기준 상승률이...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>닉 티미라오스 “근원 상품 가격이 계속 상승한다면 서비스 가격은 더 큰 폭으로 둔화해야” •닉 티미라오스는 9월 주거비를 제외한 근원 PCE 서비스 가격이 0.37% 상승하면서 12개월 기준 상승률이..."
     },
     {
       "id": "insidertracking/67786",
