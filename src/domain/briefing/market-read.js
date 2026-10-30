@@ -1548,10 +1548,15 @@ export function buildMarketRegime(input = {}) {
   const basisLag = latest && basis && latest > basis ? sessionsBetween(basis, latest) : 0;
   const staleBasis = basisLag > 2 ? { basis, latest, lag: basisLag } : null;
   const enough = known.length >= MIN_KNOWN_AXES && !staleBasis;
-  const overall = !enough ? '판정 보류'
+  const axesOverall = !enough ? '판정 보류'
     // v57.84 review: the label is symmetric — 1·2·3 read '부담 우세' while its mirror 3·2·1 read only '다소 양호'.
     : burden >= 4 && favorable <= 1 ? '부담 우세' : favorable >= 4 && burden <= 1 ? '양호 우세'
       : (burden >= 3 && favorable <= 1) || (burden >= 2 && favorable === 0) ? '다소 부담' : (favorable >= 3 && burden <= 1) || (favorable >= 2 && burden === 0) ? '다소 양호' : '혼조';
+  // v59.44 (owner 2026-10-30, reverses v58.68's "the leaders do not change the count"): AI·semiconductors are the market
+  // its users hold. With the leaders weak or broken, a favourable six-axis count reads '혼조' — the index axes are fine,
+  // the leaders are not — instead of '양호 우세' over a falling AI chain. The six-axis label stays as axesOverall.
+  const leadershipCap = enough && (leadership.state === 'weak' || !!leadership.break) && (axesOverall === '양호 우세' || axesOverall === '다소 양호');
+  const overall = leadershipCap ? '혼조' : axesOverall;
   // Codex review 2026-10-05: '방어적 환경' read like a validated stance. The label now names only how the
   // six conventional axes split (counts beside it); it is a description, not an allocation call.
   const byId = Object.fromEntries(axes.map((row) => [row.id, row]));
@@ -1594,7 +1599,9 @@ export function buildMarketRegime(input = {}) {
     // v58.56 (re-audit #2): the 오늘 hero sentence — one plain line from the first conflict, or from the overall split
     // when no two axes disagree; null while the verdict is on hold (the hold reason is shown instead).
     // v58.56 review: '혼조' is the fall-through label, so a mostly-neutral split names that instead of "서로 다른 방향".
-    heroLine: !enough ? null : conflictLines[0]
+    axesOverall,
+    leadershipCap,
+    heroLine: !enough ? null : (leadershipCap ? '지수 쪽 지표는 우호적이지만 AI·반도체 주도주가 약해 시장이 갈려 있습니다.' : null) || conflictLines[0]
       || (overall === '혼조' && count('neutral') * 2 > known.length ? '대부분 지표가 중립입니다.' : OVERALL_LINE[overall]) || null,
     // v57.81: the leadership-break test and the trend cap travel with the regime (scenario rules, outlook, AI context).
     leadership,

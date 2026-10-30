@@ -20,7 +20,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { moveNewsList, moveNewsRows } from './market-timeline.js';
 import { newsImpactChain, todayChecks } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
-import { recentMacroReleases } from '../../domain/briefing/macro-releases.js';
+import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 function call(root, name, arg, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn(arg) ?? fallback) : fallback; } catch (_) { return fallback; }
 }
@@ -440,8 +440,9 @@ function renderTodayChecks(doc, loop, root, regime, schedule) {
     host = el(doc, 'section', null, 'daily-block');
     host.id = 'home-checks';
     host.setAttribute('aria-labelledby', 'home-checks-title');
-    const overnight = doc.getElementById('home-overnight');
-    if (overnight) overnight.after(host); else loop.prepend(host);
+    // v59.44 (owner 2026-10-30): after the schedule (and the AI-chain block when it is painted), before 내 종목.
+    const anchor = doc.getElementById('home-ai-chain') || doc.getElementById('home-schedule');
+    if (anchor?.parentElement === loop) anchor.after(host); else loop.append(host);
   }
   host.hidden = false;
   const head = frameHead(doc, { title: `오늘 확인할 ${rows.length}가지`, titleId: 'home-checks-title', titleClass: 'briefing-h2' });
@@ -634,7 +635,7 @@ export function renderDailyLoop({ documentRef: doc, root, store, regime = null }
   // v59.42: FOMC and mover earnings briefs (a lazy chunk: the block and its artifact are not part of the boot set).
   // v59.44: the macro releases are read here, in the boot set where the macro board already is, so the lazy chunk does
   // not pull indicators.js into a new shared chunk.
-  const macro = () => recentMacroReleases({ macro: root?._aioServerMacro || null, releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {} }, { nowMs: Date.now() });
+  const macro = () => macroReleasesFor(root);
   import('./event-briefs.js').then(({ paintHomeBriefs }) => {
     const repaint = () => { if (doc.getElementById('page-home')?.classList?.contains('active')) paintHomeBriefs(doc, root, host, null, macro()); };
     paintHomeBriefs(doc, root, host, repaint, macro());

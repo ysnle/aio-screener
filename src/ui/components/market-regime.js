@@ -453,7 +453,9 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   // v58.68: the leadership break is told by its own line (regime-leaders) below the headline.
   set('regime-shape', !regime.leadershipBreak && breadthRow?.narrow ? '좁은 장세, 소수 종목이 지수를 받침' : '');
   const read = interpretation.marketRead;
-  set('regime-headline', read?.headline ? `${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : '');
+  // v59.44 (owner 2026-10-30): a '혼조' held there by weak AI·semiconductor leaders over a favourable count says so first.
+  const capLine = regime.leadershipCap && regime.heroLine ? `${regime.heroLine} ` : '';
+  set('regime-headline', read?.headline ? `${capLine}${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : capLine.trim());
   paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow);
   // v58.75 (persona review): the distribution-day strip is a lazy chunk (not first-paint critical; boot budget).
   if (regime.available) import('./distribution-strip.js').then(({ distributionStrip }) => {

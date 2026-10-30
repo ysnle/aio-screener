@@ -2248,6 +2248,22 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet28.PACKET_20261028_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.43 x-bookmarks 2026-10-28 frames must be lessons on a path, cite unique listed sources, reach the claim ledger, add up and stay out of rank/score');
     if (top('풋콜 비율이 높으면 하락 대비 수요야') !== 'supplied-material:claim-20261028-put-flow-direction' || top('장기 공급 계약 기간이 PER 배수를 바꾸나') !== 'supplied-material:claim-20261028-contract-duration-multiple'
       || top('하이퍼스케일러 실적에서 설비투자 늘리면 왜 주가가 빠져') !== 'supplied-material:claim-20261028-hyperscaler-capex-grid') fail('v59.43 x-bookmarks 2026-10-28 chat retrieval must reach the new frames');
+    // v59.44 x-bookmarks 2026-10-30: the same contract, and every source carries its timeline and four grades (owner
+    // 2026-10-30, "시간과 시계열 · 퀄리티 · 커버리지 · 로직 · 관점").
+    const packet30 = await load('src/domain/research/packet-20261030-x-bookmarks.js');
+    const ids28set = new Set(packet28.PACKET_20261028_SOURCES.map((row) => row.id));
+    const ids30 = new Set(packet30.PACKET_20261030_SOURCES.map((row) => row.id));
+    const audit30 = packet30.PACKET_20261030_AUDIT;
+    const grades = (q) => q && ['data', 'coverage', 'logic', 'insight'].every((key) => ['A', 'B', 'C'].includes(q[key]));
+    if (packet30.PACKET_20261030_FRAMES.length !== audit30.framesAdded
+      || packet30.PACKET_20261030_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id) || frame.sourceRefs.some((id) => !ids30.has(id)) || !claimIds.has(`claim-20261030-${frame.id}`))
+      || ids30.size !== packet30.PACKET_20261030_SOURCES.length || [...ids30].some((id) => ids16.has(id) || ids18.has(id) || ids28set.has(id))
+      || audit30.inScope + audit30.agentPractice + audit30.unrelated !== audit30.newSinceLedger || Object.values(audit30.repoState).reduce((a, b) => a + b, 0) !== audit30.newSinceLedger
+      || packet30.PACKET_20261030_SOURCES.some((row) => !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(row.timeline?.postedAtUtc || '') || !row.timeline.laterOutcome || !grades(row.quality))
+      || packet30.PACKET_20261030_SOURCES.flatMap((row) => row.checks).some((row) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(row.state) || !row.basis)
+      || packet30.PACKET_20261030_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.44 x-bookmarks 2026-10-30 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
+    if (top('AI 수요 때문에 메모리 부족이 PC 휴대폰 비용이 되나') !== 'supplied-material:claim-20261030-ai-demand-cost-squeeze' || top('AI 검색 이용은 느는데 단위 수익이 줄면') !== 'supplied-material:claim-20261030-usage-up-yield-down'
+      || top('연산 약정을 부채처럼 현재가치로') !== 'supplied-material:claim-20261030-commitment-present-value' || top('실적 급락 뒤 사흘 경로') !== 'supplied-material:claim-20261030-post-report-path') fail('v59.44 x-bookmarks 2026-10-30 chat retrieval must reach the new frames');
   }
 
   // S12: the Korean filing button opens a receipt only when one is published; otherwise the DART search.
@@ -6183,6 +6199,24 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const row = { rsi: 28, ret3m: 21 };
   const read = (r, field) => r[field];
   if (evaluateCondition({ id: 'rsi-max', value: 30 }, row, read) !== true && evaluateCondition({ id: 'rsi-max', value: 30 }, row, read)?.pass !== true) fail('v58.80 rsi-max keeps RSI 28');
+}
+
+// v59.44 (X bookmarks 10/30, "the market is pricing cash"): FCF margin and capex ÷ revenue from the latest filed fiscal
+// year; financials and a year past the filing budget are left out; the sentences parse to the two conditions.
+{
+  const { cashMetrics } = await load('src/domain/fundamental/cash-metrics.js');
+  const { parseConditionText } = await load('src/domain/screener/condition-text-parser.js');
+  const { evaluateCondition } = await load('src/domain/screener/custom-conditions.js');
+  const nowMs = Date.parse('2026-10-30T00:00:00Z');
+  const years = [{ periodEnd: '2024-12-31', revenue: 350018e6, operatingCashFlow: 125299e6, capex: 52535e6 }, { periodEnd: '2025-12-31', revenue: 402836e6, operatingCashFlow: 164713e6, capex: 91447e6 }];
+  const read = cashMetrics(years, { sic: 7370, nowMs });
+  if (read?.fcfMargin !== 18.2 || read?.capexIntensity !== 22.7 || read?.periodEnd !== '2025-12-31') fail(`v59.44 cash metrics read the latest year (${JSON.stringify(read)})`);
+  if (cashMetrics(years, { sic: 6022, nowMs }) !== null) fail('v59.44 cash metrics leave banks out');
+  if (cashMetrics(years.slice(0, 1), { nowMs }) !== null) fail('v59.44 cash metrics refuse a year past the filing budget');
+  const ids = (text) => parseConditionText(text).conditions.map((c) => `${c.id}:${c.value}`).join(',');
+  if (ids('FCF 마진 10% 이상') !== 'fcf-margin-min:10' || ids('설비투자 매출의 15% 이하') !== 'capex-intensity-max:15' || ids('순이익률 10% 이상') !== 'margin-min:10') fail(`v59.44 cash sentences parse (${ids('FCF 마진 10% 이상')} / ${ids('설비투자 매출의 15% 이하')})`);
+  const pick = (r, field) => r[field];
+  if (evaluateCondition({ id: 'fcf-margin-min', value: 10 }, read, pick) !== true || evaluateCondition({ id: 'capex-intensity-max', value: 15 }, read, pick) !== false) fail('v59.44 cash conditions judge the read');
 }
 
 // v58.80 (first-users F07): the cost-comparison words have one owner, read by the screens and the AI prompts alike.

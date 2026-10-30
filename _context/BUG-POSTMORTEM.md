@@ -6,6 +6,24 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2140 - v59.44 - 예전 출처의 '왜 움직였나' 문장이 남아 회사 IR·유료 매체 근거와 이유 없는 문장이 보임 (2026-10-30)
+
+- symptom/reproduction: 10/30 09:54Z event-briefs에서 NOW의 이유가 회사 IR 페이지를 근거로 '회사 자료는 … 가이던스 미달이 하락 원인이었다고 확인해 주지는 않습니다'였고, AMZN은 회사 보도자료, NXPI는 유료 매체를 근거로 실었다.
+- root_cause: v59.44에서 이유 검색 출처를 공개 보도 10곳으로 바꿨지만, 그 전에 저장된 이유는 '찾지 못했다' 문장만 지우고 출처는 다시 보지 않았다. '확인해 주지는' 같은 표현도 이유 없음 판정에 없었다.
+- fix: 저장된 이유는 현재 출처 목록(REACTION_REPORT_DOMAINS)의 주소일 때만 남기고, '확인해 주지' 표현도 이유 없음으로 본다. 남은 이유가 없으면 발표 4일 안에서 한 번 더 찾는다.
+- violated_rule: R618: 원천 형식 가정은 실제 표본으로 검사한다.
+- prevention: scripts/ci-event-briefs-check.mjs P2140 검사: 회사 IR·목록 밖 매체 주소의 저장된 이유와 '확인해 주지는' 문장이 지워지고 목록 안 보도만 남는다.
+- verification/residual: node scripts/ci-event-briefs-check.mjs PASS. 실데이터 정리는 push 뒤 다음 event-briefs 실행에서 확인.
+
+## P2139 - v59.44 - AI 질문이 첫 질문 뒤로 계속 실패함 (2026-10-30)
+
+- symptom/reproduction: AI 종목 질문에서 첫 질문은 답하지만 두 번째 질문부터 'AI 요청에 실패했습니다'가 반복되고, 대화를 이어 갈수록 계속 막힌다는 소유자 보고(2026-10-30).
+- root_cause: js/aio-chat.js callSharedAi는 요청을 글자 수(90K자)로만 줄였고, 공용 Worker는 UTF-8 바이트로 200 KiB를 넘는 본문을 거절한다(worker/openai-budget.mjs). 한국어는 한 글자가 3바이트라 종목 참고 자료에 첫 답변이 더해지는 두 번째 질문에서 한도를 넘고, 대화 기록이 계속 늘어 그 뒤 질문도 모두 거절된다.
+- fix: 보내기 직전 본문을 UTF-8 바이트로 재서 180,000바이트 안으로 맞춘다. 마지막이 아닌 긴 이전 답변은 앞 6,000자만 남기고, 참고 자료 블록을 하한까지 줄이고, 그래도 넘으면 가장 오래된 대화부터 뺀다.
+- violated_rule: R596: 바이트 계약은 바이트로 잰다.
+- prevention: scripts/ci-ai-chat-reliability-contract-check.mjs P2139 검사: callSharedAi의 줄이기 구간을 그대로 실행해 한국어 종목 후속 질문(참고 자료 6만 자 + 3만 자 답변)이 200 KiB 안에 들고 세 턴을 유지하며, 긴 대화도 한도 안에 든다.
+- verification/residual: 한국어 모의 본문으로 줄이기 구간을 실행해 모든 경우 178.5KB 이하, 직전 턴 유지 확인; node scripts/ci-ai-chat-reliability-contract-check.mjs PASS. 로컬은 공용 AI 경로가 연결되지 않아 실제 두 번째 질문은 배포 뒤 확인.
+
 ## P2138 - v59.44 - GAAP 주당순이익을 조정 기준 컨센서스와 비교해 큰 미달처럼 보임 (2026-10-30)
 
 - symptom/reproduction: 서비스나우 요약이 '희석 주당순이익, GAAP $0.27 · 예상 대비 -73.9%'로 나왔다. 컨센서스는 조정(non-GAAP) 기준이라 같은 잣대가 아니다.

@@ -635,8 +635,17 @@ export function forwardPe(row) { return consensusView(row, consensusRowFor(conse
 const FILING_KEYS = new Set(['pe', 'pb', 'roe', 'margin', 'revGrowth']);
 const FILING_STATUSES = new Set(['CURRENT', 'DELAYED', 'INFERRED', 'STALE', 'LAST_GOOD']);
 const FIELD_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.map((definition) => [definition.rowKey, definition.fieldId]));
+// v59.44 (X bookmarks 10/30): FCF margin and capex ÷ revenue (src/ui/components/screener-cash.js, a lazy chunk loaded when a
+// cash condition is chosen). Until the SEC fiscal history lands the condition counts no rows.
+const CASH_CONDITION_IDS = ['fcf-margin-min', 'capex-intensity-max'];
+function requestCashMetrics(root, onReady) {
+  if (root?._aioScreenerCash || root?._aioScreenerCashRequested) return;
+  root._aioScreenerCashRequested = true;
+  import('../components/screener-cash.js').then((mod) => mod.requestCashMetrics(root, onReady)).catch(() => {}).finally(() => { root._aioScreenerCashRequested = false; });
+}
 export function customRead(row, key) {
   if (key === 'fwdPe') return forwardPe(row);
+  if (key === 'fcfMargin' || key === 'capexIntensity') return consensusRoot?._aioScreenerCash?.map.get(String(row?.sym || row?.symbol || '').toUpperCase())?.[key] ?? null;
   if (CHANNEL_SIGNAL_KEYS.includes(key)) return channelSignalValue(consensusRoot?.AIO_TELEGRAM_SIGNALS, row, key); // v58.71 (js/aio-data.js sets it)
   const fieldId = FIELD_BY_ROW_KEY.get(key);
   // Annual filing figures (PER·PBR·ROE·이익률·성장률) share the rank's 456-day budget (2026-10-16); a filter labelled
@@ -2212,7 +2221,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
   // Forward PER loads on demand, so it stays offered for 미국 even before the estimates arrive.
   if (availableCache.rows !== scopeRows.length || availableCache.market !== listingMarket || availableCache.source !== rows || availableCache.signals !== root?.AIO_TELEGRAM_SIGNALS) {
     availableCache = { rows: scopeRows.length, market: listingMarket, source: rows, signals: root?.AIO_TELEGRAM_SIGNALS, ids: availableConditionIds(scopeRows, customRead) };
-    if (listingMarket === 'US') availableCache.ids.add('fwdpe-max');
+    if (listingMarket === 'US') { availableCache.ids.add('fwdpe-max'); CASH_CONDITION_IDS.forEach((id) => availableCache.ids.add(id)); }
   }
   const coverageCounts = conditionCoverage(scopeRows, custom, customRead);
   customPanel?.update(coverageCounts, filtered.length, availableCache.ids);
@@ -2226,6 +2235,7 @@ function render({ documentRef, root = globalThis, store, readLiveData, readWatch
     if (clear) clear.hidden = !sectorValue;
   }
   if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe' || custom.some((item) => item.id === 'fwdpe-max')) requestConsensusEstimates(root, onDataChange);
+  if (custom.some((item) => CASH_CONDITION_IDS.includes(item.id))) requestCashMetrics(root, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
   // v58.56 (4b): the phone's one-line rows apply to the default columns only (screener-quality.css).

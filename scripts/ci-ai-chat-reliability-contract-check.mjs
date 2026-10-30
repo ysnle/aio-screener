@@ -384,6 +384,17 @@ assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wr
   assert(/modelOpts\.webSearch = true;/.test(unifiedChat) && /callSharedAi\(sysPrompt, state\.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object\.assign\(\{\}, modelOpts, \{ signal: _uniSignal, requestId: _uniRequestId \}\)\)/.test(unifiedChat), 'P1756 first attempts keep automatic web search (modelOpts carries it)');
   const stream = section('async function callSharedAi(', 'function _pushWebCite(');
   assert(/\n\s*if \(_streamState\) \{[^\n]*\n\s*_streamState\.citations\.length = 0;/.test(stream), 'P1756 each attempt resets its citation collector');
+  // v59.44 (owner 2026-10-30, "두 번째 질문부터 막힘"): the body stays under the Worker's 200 KiB UTF-8 limit with Korean
+  // text — earlier answers shortened, reference blocks cut to a floor, then the oldest turns — and the follow-up keeps them.
+  const trimAt = stream.indexOf('var _bodyBytes = function'), trimEnd = stream.indexOf("console.log('[AIO] callSharedAi", trimAt);
+  assert(trimAt > 0 && trimEnd > trimAt, 'v59.44 callSharedAi trims the request by UTF-8 bytes');
+  const trim = new Function('system', '_trimmedMessages', `${stream.slice(trimAt, trimEnd)}; return { bytes: _bodyBytes(system, _trimmedMessages), turns: _trimmedMessages.length };`);
+  const ko = (n) => '가'.repeat(n);
+  const turns = (...sizes) => sizes.map((n, i) => ({ role: i % 2 ? 'assistant' : 'user', content: ko(n) }));
+  const followUp = trim(ko(60000), turns(100, 30000, 100));
+  assert(followUp.bytes <= 200 * 1024 && followUp.turns === 3, `v59.44 a stock follow-up fits the Worker limit and keeps the previous turn (${followUp.bytes} bytes, ${followUp.turns} turns)`);
+  const longChat = trim(ko(40000), turns(100, 30000, 100, 30000, 100, 30000, 100));
+  assert(longChat.bytes <= 200 * 1024, `v59.44 a long Korean conversation fits the Worker limit (${longChat.bytes} bytes)`);
 }
 console.log('Chat resilience PASS: shared cancellation/epochs on the unified chat path (per-page retired v57.62), retry, route/quota fail-closed, modal liveness, empty+timeout search fallback, evidence objects, source spoofing, safe links, deduplication and shared knowledge retry/cancellation (offline).');
 }],

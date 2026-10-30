@@ -34,3 +34,8 @@ export function recentMacroReleases(input, { nowMs = Date.now(), days = 2 } = {}
   }
   return [...byRelease.values()].sort((a, b) => b.date.localeCompare(a.date));
 }
+
+/** The same read from the page globals 오늘, 뉴스 and 거시 share (the server macro cut, the calendar, the official schedules). */
+export function macroReleasesFor(root, options = {}) {
+  return recentMacroReleases({ macro: root?._aioServerMacro || null, releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {} }, { nowMs: Date.now(), ...options });
+}

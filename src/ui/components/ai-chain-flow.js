@@ -3,7 +3,7 @@
 // A lazy chunk like the release summaries; the rows and themes are the screener's and the 테마 screen's, already loaded.
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { aiChainFlow } from '../../domain/briefing/ai-chain-flow.js';
+import { aiChainFlow, defensiveContrast } from '../../domain/briefing/ai-chain-flow.js';
 
 // Rounded first, so a move under 0.05% reads 0.0% and is flat, never "+0.0%" or "-0.0%".
 const tenth = (value) => (value == null ? null : Math.round(value * 10) / 10 || 0);
@@ -18,21 +18,39 @@ function sessionLabel(root) {
 
 export function paintHomeAiChain(doc, root, loop) {
   if (!doc || !loop) return null;
+  return paintAiChain(doc, root, { id: 'home-ai-chain', frame: 'home.ai-chain', className: 'daily-block ai-chain', more: true, place: (host) => {
+    host.id = 'home-ai-chain';
+    // v59.44 (owner 2026-10-30): after 다가오는 일정 (news, release summaries and the schedule come first).
+    const anchor = doc.getElementById('home-schedule');
+    if (anchor?.parentElement === loop) anchor.insertAdjacentElement('afterend', host); else loop.append(host);
+  } });
+}
+
+/** 테마: the same block opens the page, above 섹터 회전 (owner 2026-10-30, each screen carries the AI-chain read). */
+export function paintThemesAiChain(doc, root) {
+  const page = doc?.getElementById('page-themes');
+  if (!page) return null;
+  return paintAiChain(doc, root, { id: 'themes-ai-chain', frame: 'themes.ai-chain', className: 'aio-section ai-chain', more: false, place: (host) => {
+    host.id = 'themes-ai-chain';
+    const head = page.querySelector(':scope > .page-head');
+    if (head) head.insertAdjacentElement('afterend', host); else page.prepend(host);
+  } });
+}
+
+function paintAiChain(doc, root, { id, frame, className, more: withLink, place }) {
   const rows = root?.AIO_ARCH?.getScreenerState?.('rows') || [];
   const flow = aiChainFlow({ themes: root?.THEME_MAP || [], rows });
-  let host = doc.getElementById('home-ai-chain');
+  let host = doc.getElementById(id);
   if (!flow.groups.length) { if (host) host.hidden = true; return flow; }
   if (!host) {
-    host = el(doc, 'section', null, 'daily-block ai-chain');
-    host.id = 'home-ai-chain';
-    host.setAttribute('aria-labelledby', 'home-ai-chain-title');
-    const anchor = doc.getElementById('home-event-briefs') || doc.getElementById('home-overnight');
-    if (anchor?.parentElement === loop) anchor.insertAdjacentElement(anchor.id === 'home-event-briefs' ? 'beforebegin' : 'afterend', host); else loop.prepend(host);
+    host = el(doc, 'section', null, className);
+    host.setAttribute('aria-labelledby', `${id}-title`);
+    place(host);
   }
-  const head = frameHead(doc, { title: 'AI 공급망 흐름', titleId: 'home-ai-chain-title', titleClass: 'briefing-h2' });
+  const head = frameHead(doc, { title: 'AI 공급망 흐름', titleId: `${id}-title`, titleClass: 'briefing-h2' });
   head.classList.add('daily-card-head');
   head.title = '테마 화면의 반도체·AI 인프라·광통신 묶음별 미국 종목 중앙값입니다. 막대는 한 달, 숫자는 지난 거래일';
-  markFrame(host, 'home.ai-chain');
+  markFrame(host, frame);
   const scale = Math.max(...flow.groups.map((group) => Math.abs(group.ret1m || 0)), 1);
   const chart = el(doc, 'ul', null, 'ai-chain__bars');
   chart.setAttribute('aria-label', `묶음별 한 달 중앙값, ${sessionLabel(root)}`);
@@ -61,7 +79,8 @@ export function paintHomeAiChain(doc, root, loop) {
   more.type = 'button';
   more.dataset.action = 'showPage';
   more.dataset.arg = 'themes';
-  host.replaceChildren(head, el(doc, 'p', flow.reading, 'ai-chain__reading'), legend, chart, fold, more);
+  const contrast = defensiveContrast(root?._serverDataMeta?.rotationHistory || null);
+  host.replaceChildren(head, el(doc, 'p', contrast ? `${flow.reading} ${contrast}` : flow.reading, 'ai-chain__reading'), legend, chart, fold, ...(withLink ? [more] : []));
   host.hidden = false;
   return flow;
 }

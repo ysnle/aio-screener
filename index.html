@@ -3828,6 +3828,55 @@ button[data-filter-active="true"] {
   <!-- Owner 2026-10-25: the four index ETFs' last regular session (5-minute candles) open the page, before any reading
        (src/ui/components/home-index-strip.js). -->
   <section id="home-index-strip" class="home-index-strip" aria-label="지수 하루 흐름"></section>
+  <!-- Codex review 2026-10-05 → v57.76: live quotes labelled as such under one heading; the change note on the
+       close comparison above says the two use different periods. -->
+  <h2 class="briefing-h2 home-quote-title" id="home-quote-basis">지금 시세</h2>
+  <!-- v58.53 개편 v2 (2b): four KPI tiles (value 26px, change, 20-session line, "20거래일" foot). data-live-price/chg hooks kept. -->
+  <div id="home-kpi-strip" class="home-kpi-strip">
+    <div class="is-interactive sh-home-kpi-strip-box" data-action="aioOpenMarketChart" data-arg="SPY" role="button" tabindex="0" title="S&P 500 선물(ES, CME) — 거의 24시간 거래, 현물 종가는 아래 줄">
+      <div class="kpi-label sh-muted-text-mb8">S&amp;P 500 선물</div>
+      <div class="kpi-fallback" id="home-kpi-es-fallback" hidden></div>
+      <div class="kpi-value sh-ink-stat"><span data-live-price="ES=F">—</span></div>
+      <div class="sh-figure" data-live-chg="ES=F" data-chg-unit="abs">—</div>
+      <div class="kpi-spot sh-muted-text-mt6">현물 <span data-live-price="^GSPC">—</span> <span data-live-chg="^GSPC">—</span></div>
+    </div>
+    <div class="is-interactive sh-home-kpi-strip-box-clickable" data-action="aioOpenMarketChart" data-arg="QQQ" role="button" tabindex="0" title="나스닥 100 선물(NQ, CME), 현물은 Nasdaq-100(NDX), 증권앱과 비교할 때 월물·시각 확인">
+      <div class="kpi-label sh-muted-text-mb8">나스닥 100 선물</div>
+      <div class="kpi-fallback" id="home-kpi-nq-fallback" hidden></div>
+      <div class="kpi-value sh-ink-stat"><span data-live-price="NQ=F">—</span></div>
+      <div class="sh-figure" data-live-chg="NQ=F" data-chg-unit="abs">—</div>
+      <div class="kpi-spot sh-muted-text-mt6">나스닥 100 현물 <span data-live-price="^NDX">—</span> <span data-live-chg="^NDX">—</span></div>
+    </div>
+    <!-- 2026-10-01 owner review: rates and oil are headline drivers; VIX/F&G move to the sentiment row below -->
+    <div class="is-interactive sh-home-kpi-strip-box-clickable" data-close-measure="tnx" data-action="showPage" data-arg="fxbond" role="button" tabindex="0" title="미국 10년 국채 수익률, 현물 금리, 미국 채권시장 마감(15시 ET) 후 고정">
+      <div class="sh-muted-text-mb8">미 10년물 금리(%)</div>
+      <div class="kpi-value sh-ink-stat"><span data-live-price="^TNX">—</span></div>
+      <div class="sh-figure" data-live-chg="^TNX" data-chg-unit="bp">—</div>
+    </div>
+    <div class="is-interactive sh-home-kpi-strip-box-pad18" data-close-measure="wti" data-action="showPage" data-arg="macro" role="button" tabindex="0" title="WTI 원유 선물">
+      <div class="sh-muted-text-mb8">WTI 원유 선물($)</div>
+      <div class="kpi-value sh-ink-stat"><span data-live-price="CL=F">—</span></div>
+      <div class="sh-figure" data-live-chg="CL=F" data-chg-unit="abs">—</div>
+    </div>
+  </div>
+
+  <!-- v52.65 아이보리 리디자인 1b: quiet indices — pill 배경 제거, 시안처럼 baseline inline 나열 -->
+  <div id="home-cross-assets" class="home-cross-assets">
+    <span class="is-interactive sh-baseline-row" data-close-measure="vix" data-action="showPage" data-arg="sentiment" title="VIX, 변동성 지수 (투자 심리에서 자세히)"><span class="sh-muted-text">VIX</span><b id="home-vix-value" class="sh-ink-figure" data-live-price="^VIX">—</b><span class="sh-semi-figure" data-live-chg="^VIX">—</span><span id="home-vix-status" class="sh-soft-text">—</span></span>
+    <span class="is-interactive sh-baseline-row" data-close-measure="fg" data-action="showPage" data-arg="sentiment" title="Fear &amp; Greed, 시장 심리 종합 (투자 심리에서 자세히)"><span class="sh-muted-text">공포·탐욕</span><b id="home-fg-score" class="sh-ink-figure">—</b><span id="home-fg-label" class="sh-soft-text">갱신 대기</span><span id="home-fg-delta" class="is-flat" style="display:none;font-size:12px;color:var(--text-muted);font-family:var(--font-mono);"></span></span>
+    <span class="is-interactive sh-baseline-row" data-close-measure="dxy" data-action="showPage" data-arg="fxbond" title="달러 인덱스(DXY) — 주요 6개 통화 대비 달러 가치"><span class="sh-muted-text">달러 지수</span><b class="sh-ink-figure" data-live-price="DX-Y.NYB">—</b><span class="sh-semi-figure" data-live-chg="DX-Y.NYB">—</span></span>
+    <span class="is-interactive sh-baseline-row" data-action="showPage" data-arg="macro" title="금 가격"><span class="sh-muted-text">금</span><b class="sh-ink-figure" data-live-price="GC=F">—</b><span class="sh-semi-figure" data-live-chg="GC=F">—</span></span>
+    <span class="is-interactive sh-baseline-row" id="home-kospi-chip" data-action="showPage" data-arg="signal" title="코스피 시세 확인 중" hidden><span id="home-kospi-label" class="sh-muted-text">코스피</span><b id="home-kospi-value" class="sh-ink-figure">—</b><span id="home-kospi-chg" class="sh-semi-figure"></span></span>
+    <span title="비트코인 — 24시간 거래 자산이라 미국 정규장 종가 개념이 없습니다, 연결된 분석 화면 없음" class="sh-home-cross-assets-row"><span class="sh-muted-text">BTC</span><b class="sh-ink-figure" data-live-price="BTC-USD">—</b><span class="sh-semi-figure" data-live-chg="BTC-USD">—</span></span>
+  </div>
+
+  <!-- P1432: 하루 루프. v59.44 (owner 2026-10-30, "직관적인 내용을 먼저"): the loop opens the page under the quotes —
+       밤사이 핵심 → 주요 발표 요약(지표 발표 포함) → 다가오는 일정 → AI 공급망 흐름 → 오늘 확인할 것 → 내 종목; the text verdict follows. -->
+  <div id="home-daily-loop" class="daily-loop">
+    <section class="daily-block" id="home-schedule" aria-label="다가오는 일정"></section>
+    <section class="daily-block" id="home-my-names" aria-label="내 종목"></section>
+    <section class="daily-block" id="home-my-news" aria-label="내 종목 뉴스" hidden></section>
+  </div>
   <div id="home-operator-note" style="display:none;"></div>
 
   <!-- v51.65: 파이프라인 상태 배너 — AI/FMP/FRED 이슈 있을 때만 표시 (R234: 기본 hidden)
@@ -3886,54 +3935,6 @@ button[data-filter-active="true"] {
        renderDailyLoop fills it by id. The live/delayed quotes follow under one heading. -->
   <section class="daily-block sh-home-daily-changes-box" id="home-daily-changes" aria-label="지난 마감 이후 변화"></section>
 
-  <!-- Codex review 2026-10-05 → v57.76: live quotes labelled as such under one heading; the change note on the
-       close comparison above says the two use different periods. -->
-  <h2 class="briefing-h2 home-quote-title" id="home-quote-basis">지금 시세</h2>
-  <!-- v58.53 개편 v2 (2b): four KPI tiles (value 26px, change, 20-session line, "20거래일" foot). data-live-price/chg hooks kept. -->
-  <div id="home-kpi-strip" class="home-kpi-strip">
-    <div class="is-interactive sh-home-kpi-strip-box" data-action="aioOpenMarketChart" data-arg="SPY" role="button" tabindex="0" title="S&P 500 선물(ES, CME) — 거의 24시간 거래, 현물 종가는 아래 줄">
-      <div class="kpi-label sh-muted-text-mb8">S&amp;P 500 선물</div>
-      <div class="kpi-fallback" id="home-kpi-es-fallback" hidden></div>
-      <div class="kpi-value sh-ink-stat"><span data-live-price="ES=F">—</span></div>
-      <div class="sh-figure" data-live-chg="ES=F" data-chg-unit="abs">—</div>
-      <div class="kpi-spot sh-muted-text-mt6">현물 <span data-live-price="^GSPC">—</span> <span data-live-chg="^GSPC">—</span></div>
-    </div>
-    <div class="is-interactive sh-home-kpi-strip-box-clickable" data-action="aioOpenMarketChart" data-arg="QQQ" role="button" tabindex="0" title="나스닥 100 선물(NQ, CME), 현물은 Nasdaq-100(NDX), 증권앱과 비교할 때 월물·시각 확인">
-      <div class="kpi-label sh-muted-text-mb8">나스닥 100 선물</div>
-      <div class="kpi-fallback" id="home-kpi-nq-fallback" hidden></div>
-      <div class="kpi-value sh-ink-stat"><span data-live-price="NQ=F">—</span></div>
-      <div class="sh-figure" data-live-chg="NQ=F" data-chg-unit="abs">—</div>
-      <div class="kpi-spot sh-muted-text-mt6">나스닥 100 현물 <span data-live-price="^NDX">—</span> <span data-live-chg="^NDX">—</span></div>
-    </div>
-    <!-- 2026-10-01 owner review: rates and oil are headline drivers; VIX/F&G move to the sentiment row below -->
-    <div class="is-interactive sh-home-kpi-strip-box-clickable" data-close-measure="tnx" data-action="showPage" data-arg="fxbond" role="button" tabindex="0" title="미국 10년 국채 수익률, 현물 금리, 미국 채권시장 마감(15시 ET) 후 고정">
-      <div class="sh-muted-text-mb8">미 10년물 금리(%)</div>
-      <div class="kpi-value sh-ink-stat"><span data-live-price="^TNX">—</span></div>
-      <div class="sh-figure" data-live-chg="^TNX" data-chg-unit="bp">—</div>
-    </div>
-    <div class="is-interactive sh-home-kpi-strip-box-pad18" data-close-measure="wti" data-action="showPage" data-arg="macro" role="button" tabindex="0" title="WTI 원유 선물">
-      <div class="sh-muted-text-mb8">WTI 원유 선물($)</div>
-      <div class="kpi-value sh-ink-stat"><span data-live-price="CL=F">—</span></div>
-      <div class="sh-figure" data-live-chg="CL=F" data-chg-unit="abs">—</div>
-    </div>
-  </div>
-
-  <!-- v52.65 아이보리 리디자인 1b: quiet indices — pill 배경 제거, 시안처럼 baseline inline 나열 -->
-  <div id="home-cross-assets" class="home-cross-assets">
-    <span class="is-interactive sh-baseline-row" data-close-measure="vix" data-action="showPage" data-arg="sentiment" title="VIX, 변동성 지수 (투자 심리에서 자세히)"><span class="sh-muted-text">VIX</span><b id="home-vix-value" class="sh-ink-figure" data-live-price="^VIX">—</b><span class="sh-semi-figure" data-live-chg="^VIX">—</span><span id="home-vix-status" class="sh-soft-text">—</span></span>
-    <span class="is-interactive sh-baseline-row" data-close-measure="fg" data-action="showPage" data-arg="sentiment" title="Fear &amp; Greed, 시장 심리 종합 (투자 심리에서 자세히)"><span class="sh-muted-text">공포·탐욕</span><b id="home-fg-score" class="sh-ink-figure">—</b><span id="home-fg-label" class="sh-soft-text">갱신 대기</span><span id="home-fg-delta" class="is-flat" style="display:none;font-size:12px;color:var(--text-muted);font-family:var(--font-mono);"></span></span>
-    <span class="is-interactive sh-baseline-row" data-close-measure="dxy" data-action="showPage" data-arg="fxbond" title="달러 인덱스(DXY) — 주요 6개 통화 대비 달러 가치"><span class="sh-muted-text">달러 지수</span><b class="sh-ink-figure" data-live-price="DX-Y.NYB">—</b><span class="sh-semi-figure" data-live-chg="DX-Y.NYB">—</span></span>
-    <span class="is-interactive sh-baseline-row" data-action="showPage" data-arg="macro" title="금 가격"><span class="sh-muted-text">금</span><b class="sh-ink-figure" data-live-price="GC=F">—</b><span class="sh-semi-figure" data-live-chg="GC=F">—</span></span>
-    <span class="is-interactive sh-baseline-row" id="home-kospi-chip" data-action="showPage" data-arg="signal" title="코스피 시세 확인 중" hidden><span id="home-kospi-label" class="sh-muted-text">코스피</span><b id="home-kospi-value" class="sh-ink-figure">—</b><span id="home-kospi-chg" class="sh-semi-figure"></span></span>
-    <span title="비트코인 — 24시간 거래 자산이라 미국 정규장 종가 개념이 없습니다, 연결된 분석 화면 없음" class="sh-home-cross-assets-row"><span class="sh-muted-text">BTC</span><b class="sh-ink-figure" data-live-price="BTC-USD">—</b><span class="sh-semi-figure" data-live-chg="BTC-USD">—</span></span>
-  </div>
-
-  <!-- P1432: 하루 루프 — 내 종목 → 다가오는 일정 → 내 종목 뉴스 (v57.76: 직전 종가 대비 변화는 판정 바로 아래로 이동) -->
-  <div id="home-daily-loop" class="daily-loop">
-    <section class="daily-block" id="home-my-names" aria-label="내 종목"></section>
-    <section class="daily-block" id="home-schedule" aria-label="다가오는 일정"></section>
-    <section class="daily-block" id="home-my-news" aria-label="내 종목 뉴스" hidden></section>
-  </div>
 
   <!-- v58.53 개편 v2 (2b): depth after the 30-second summary — the index/participation chart card with its link rows
        (home-kpi-trend.js), then one fold holding the forward scenarios and today's guide (market-regime.js renders

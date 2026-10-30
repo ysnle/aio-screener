@@ -160,6 +160,12 @@ check('v59.44 tiers: FOMC and the core movers in full, others one line, the rest
   same([tiers.core.map((b) => b.id), tiers.notable.map((b) => b.id), tiers.rest.map((b) => b.id), tiers.restTotal], [['a'], ['i'], ['m'], 1]);
   const busy = homeBriefTiers(art, { nowMs, coreLimit: 0 });
   same(busy.notable.map((b) => b.id), ['a', 'i'], 'a tier-1 report past the card limit stays on the face ahead of tier 2');
+  // v59.44 (first live earnings week): FOMC, then core names and 15%+ moves newest first, then the bigger move; 8 lines.
+  const mv = (id, symbol, pct, hours) => ({ id, kind: 'earnings', symbol, tier: 2, layer: 'chips-compute', status: 'complete', publishedAt: at(hours), reaction: { basis: 'close', firstPct: pct } });
+  const week = { schemaVersion: EVENT_BRIEFS_SCHEMA, briefs: [mv('x1', 'XA', -9, 1), mv('x3', 'XC', -12, 3), mv('x2', 'XB', -21, 5), { id: 'am', kind: 'earnings', symbol: 'AMZN', status: 'complete', publishedAt: at(30) },
+    { id: 'fo', kind: 'fomc', status: 'complete', publishedAt: at(40) }, ...Array.from({ length: 12 }, (_, i) => mv(`s${i}`, `S${i}`, 2, 2 + i))] };
+  const ranked = homeBriefTiers(week, { nowMs, coreLimit: 3 });
+  same([ranked.core.map((b) => b.id), ranked.notable.length, ranked.notable.slice(0, 2).map((b) => b.id), ranked.restTotal], [['fo', 'x2', 'am'], 8, ['x3', 'x1'], 6]);
 });
 check('v59.44 the session a report trades in', () => {
   same(releaseSession('2026-10-28T20:04:44Z'), { releaseDate: '2026-10-28', afterClose: true });
@@ -178,6 +184,22 @@ check('v59.44 closes after the report, and the latest trade until a session has 
   same([ext.basis, ext.extendedPct, ext.sessions], ['latest-trade', -21, 0]);
   eq(reactionText(ext), '발표 후 최근 체결가 -21.0%(직전 종가 대비)');
   eq(earningsReaction(bars.slice(0, 3), { releaseDate: '2026-10-29', afterClose: true }, { extended: { price: 80, atMs: release - 60000 }, releaseMs: release }), null, 'a trade from before the release is not its reaction');
+});
+check('v59.44 the path after the first day from the third session (X bookmarks 10/30, 3-day rule)', () => {
+  eq(reactionText({ basis: 'close', firstPct: -12.6, latestPct: -16.0, sessions: 3 }), '발표 후 첫 거래일 -12.6%, 3거래일 누적 -16.0%, 첫날 뒤에도 더 내림');
+  eq(reactionText({ basis: 'close', firstPct: -12.6, latestPct: -8.0, sessions: 4 }), '발표 후 첫 거래일 -12.6%, 4거래일 누적 -8.0%, 첫날 낙폭 일부 되돌림');
+  eq(reactionText({ basis: 'close', firstPct: 9.0, latestPct: 9.5, sessions: 3 }), '발표 후 첫 거래일 +9.0%, 3거래일 누적 +9.5%', 'under a point of change says nothing');
+  eq(reactionText({ basis: 'close', firstPct: -12.6, latestPct: -16.0, sessions: 2 }), '발표 후 첫 거래일 -12.6%, 2거래일 누적 -16.0%', 'two sessions are too early');
+});
+const { assembleEarningsSections, EARNINGS_SCHEMA } = await import('./fetch-event-briefs.mjs');
+check('v59.44 capex and free cash flow survive the cap of six figures (X bookmarks 10/30, the market priced cash)', () => {
+  const lines = ['Revenue $10 billion', 'EPS $1.10', 'Operating income $3 billion', 'Net income $2 billion', 'Operating margin 30%', 'Gross margin 60%', 'Capital expenditures $5 billion', 'Free cash flow $-1 billion'];
+  const metrics = ['revenue', 'eps_diluted', 'operating_income', 'net_income', 'margin', 'margin', 'capex', 'free_cash_flow'];
+  const figures = lines.map((line, i) => ({ metric: metrics[i], label: line.split(' $')[0].split(' 3')[0], value: (line.match(/-?\$?-?[\d.]+%?(?: billion)?/) || [''])[0], text: '', quote: line }));
+  const out = assembleEarningsSections({ figures, segments: [], guidance: [], watch: [] }, lines.join('. '));
+  eq(out.figures.length, 6);
+  same(out.figures.slice(-2).map((figure) => figure.metric), ['capex', 'free_cash_flow']);
+  ok(EARNINGS_SCHEMA.properties.figures.items.properties.metric.enum.includes('free_cash_flow'), 'the schema names the cash metrics');
 });
 check('v59.44 Samsung files its table in 조원 with decimals (P2136)', () => {
   const text = '1. 연결실적내용 단위 : 조원, % 구분 당기실적 전기실적 전기대비 전년동기실적 전년동기대비 (26.3Q) (26.2Q) 증감율(%) 흑자적자전환여부 (25.3Q) 증감율(%) 흑자적자전환여부 매출액 당해실적 195.25 171.50 13.85 - 86.06 126.88 - 누계실적 500.63 - - - 239.77 108.80 - 영업이익 당해실적 107.44 89.49 20.06 - 12.17 783.11 - 실적기간 당기실적 2026-07-01 ~ 2026-09-30';
@@ -265,7 +287,7 @@ check('v59.44 the producer records the price after the report', () => {
   same([brief.reasons?.done, brief.reasons?.basis, brief.reasons?.dropped?.map((drop) => drop.reason).sort()], [true, 'news-report', ['number-not-in-source', 'url-not-allowed']]);
   eq(brief.reasons?.direction, 1);
 });
-const { REACTION_REPORT_DOMAINS, isNoReasonText } = await import('../src/domain/briefing/event-briefs.js');
+const { REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain } = await import('../src/domain/briefing/event-briefs.js');
 check('v59.44 live run: English release titles and raw thousands are rebuilt; "not found" is not a reason', () => {
   const figures = [{ metric: 'revenue', label: '매출', value: '$11.0 billion' }];
   eq(briefHeadline('샌디스크, Fiscal First Quarter 2027 실적 발표', { nameKo: '샌디스크', figures }), '샌디스크 실적: 매출 $11.0 billion');
@@ -280,6 +302,13 @@ const junkCleaned = await buildEventBriefs({ ...base, previous: junkStored, nowM
 check('v59.44 a stored "not found" line is dropped and the reasons are searched again', () => {
   const brief = junkCleaned.briefs.find((row) => row.id === msft.id);
   same([brief.reasons.points.map((point) => point.text), brief.reasons.attempts], [['Azure 성장이 기대에 못 미쳤다는 보도'], 2]);
+});
+const irStored = { ...withPrices, briefs: withPrices.briefs.map((row) => (row.id === msft.id ? { ...row, reasons: { ...row.reasons, points: [{ text: '회사 자료는 가이던스 미달이 하락 원인이었다고 확인해 주지는 않습니다.', url: 'https://investor.example.com/q3' }, { text: '클라우드 매출 성장이 둔화했다는 보도', url: 'https://www.bloomberg.com/x' }], done: true } } : row)) };
+const irCleaned = await buildEventBriefs({ ...base, previous: irStored, nowMs: nowMs + 2 * 3600000 });
+check('v59.44 (P2140) a stored reason from a company IR page or an outlet off the list is dropped and searched again', () => {
+  eq(isNoReasonText('회사 자료는 가이던스 미달이 하락 원인이었다고 확인해 주지는 않습니다.'), true);
+  ok(onReportDomain('https://finance.yahoo.com/markets/x') && onReportDomain('https://sg.finance.yahoo.com/news/x') && !onReportDomain('https://ir.aboutamazon.com/x') && !onReportDomain('https://www.bloomberg.com/x') && !onReportDomain('not a url'));
+  same(irCleaned.briefs.find((row) => row.id === msft.id).reasons.points.map((point) => point.text), ['Azure 성장이 기대에 못 미쳤다는 보도']);
 });
 // After hours up, first session down: the reasons are searched once more for the move now shown.
 sources.manifest.prices = { MSFT: { bars: [{ date: '2026-10-27', close: 500 }, { date: '2026-10-28', close: 510 }, { date: '2026-10-29', close: 495 }] } };

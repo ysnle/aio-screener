@@ -26,7 +26,7 @@ import { createSecClient, requireSecUserAgent, filingIndexUrl } from './lib/sec-
 import { SEC_TICKERS_URL, submissionsUrl, submissionTextUrl, tickerCikMap, filingRowsWithItems, isResultsFiling, resultsExhibit, looksLikeQuarterlyResults, htmlToText } from './lib/sec-results-filings.mjs';
 import { SHARED_AI_MODEL, resolveSharedAiConfig, extractCompletedResponseText, buildSharedWebSearchBody } from './lib/ai-shared-analysis.mjs';
 import {
-  EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
+  EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, surprisePct, estimateAiCostUsd, AI_RATE_CARD,
   MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct
 } from '../src/domain/briefing/event-briefs.js';
@@ -233,7 +233,7 @@ const STR = { type: 'string' };
 const quoted = (extra = {}) => ({ type: 'array', items: { type: 'object', additionalProperties: false, required: ['label', 'value', 'text', 'quote', ...Object.keys(extra)], properties: { label: STR, value: STR, text: STR, quote: STR, ...extra } } });
 export const EARNINGS_SCHEMA = { type: 'object', additionalProperties: false, required: ['headline', 'figures', 'segments', 'guidance', 'watch'], properties: {
   headline: STR,
-  figures: quoted({ metric: { type: 'string', enum: ['revenue', 'eps_diluted', 'operating_income', 'net_income', 'margin', 'other'] } }),
+  figures: quoted({ metric: { type: 'string', enum: ['revenue', 'eps_diluted', 'operating_income', 'net_income', 'margin', 'capex', 'free_cash_flow', 'operating_cash_flow', 'other'] } }),
   segments: quoted(), guidance: quoted(), watch: { type: 'array', items: STR } } };
 export const FOMC_SCHEMA = { type: 'object', additionalProperties: false, required: ['headline', 'figures', 'changes', 'dissents', 'watch'], properties: {
   headline: STR, figures: quoted({ metric: { type: 'string', enum: ['policy_rate_range', 'vote', 'balance_sheet', 'other'] } }), changes: quoted(), dissents: quoted(), watch: { type: 'array', items: STR } } };
@@ -256,7 +256,9 @@ const capText = (text) => normalizeSourceText(text).slice(0, SOURCE_CHAR_CAP);
 
 export function earningsPrompt(mover, source) {
   return [`아래는 ${mover.nameKo}(${mover.sym})의 실적 발표 원문(${source.kind})이다.`,
-    '보고한 핵심 수치(매출, 주당순이익, 영업이익 등), 사업부문별 내용, 회사가 낸 다음 분기·연간 가이던스를 뽑아라.', RULES,
+    '보고한 핵심 수치(매출, 주당순이익, 영업이익 등), 사업부문별 내용, 회사가 낸 다음 분기·연간 가이던스를 뽑아라.',
+    // v59.44 (X bookmarks 10/30: GOOGL fell on negative free cash flow, AMZN on capex): the cash lines, when stated.
+    '원문에 설비투자(capex, 유형자산 취득), 잉여현금흐름, 영업현금흐름이 있으면 figures에 각각 capex·free_cash_flow·operating_cash_flow로 넣어라.', RULES,
     '', '--- 원문 시작 ---', capText(source.text), '--- 원문 끝 ---'].join('\n');
 }
 
@@ -349,6 +351,8 @@ export function isGaapOnlyFigure(figure) {
   return /GAAP/i.test(text) && !/non-?GAAP|비\s*GAAP|조정(?!\s*전)|adjusted/i.test(text);
 }
 
+export const CASH_METRICS = Object.freeze(['capex', 'free_cash_flow', 'operating_cash_flow']);
+
 /** The AI earnings extraction, checked. `estimate` is the provider calendar row (reference). */
 export function assembleEarningsSections(json, sourceText, estimate = null) {
   const figures = verifyQuotedItems(json?.figures, sourceText);
@@ -369,8 +373,10 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
     }
     return figure;
   });
+  // The cash lines (at most two) survive the cap of six, so a capex-heavy quarter keeps what the market priced.
+  const cash = outFigures.filter((figure) => CASH_METRICS.includes(figure.metric)).slice(0, 2);
   return {
-    figures: outFigures.slice(0, 6), segments: segments.kept.map(strip).slice(0, 6), guidance: guidance.kept.map(strip).slice(0, 4),
+    figures: [...outFigures.filter((figure) => !CASH_METRICS.includes(figure.metric)).slice(0, 6 - cash.length), ...cash], segments: segments.kept.map(strip).slice(0, 6), guidance: guidance.kept.map(strip).slice(0, 4),
     watch: safeWatch(json?.watch, sourceText),
     dropped: [...figures.dropped, ...segments.dropped, ...guidance.dropped]
   };
@@ -601,8 +607,9 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
   // never explain the opposite of the price beside them.
   const sign = (brief) => Math.sign(reactionPct(brief) ?? 0);
   for (const [id, stored] of briefs) {
-    // A stored line that only says nothing was found is dropped; with none left the brief is searched once more.
-    const cleanPoints = (stored.reasons?.points || []).filter((point) => !isNoReasonText(point.text));
+    // A stored line that only says nothing was found, or that came from outside the current outlets, is dropped; with none
+    // left the brief is searched once more.
+    const cleanPoints = (stored.reasons?.points || []).filter((point) => !isNoReasonText(point.text) && onReportDomain(point.url));
     const brief = stored.reasons && cleanPoints.length !== stored.reasons.points.length
       ? { ...stored, reasons: { ...stored.reasons, points: cleanPoints, done: cleanPoints.length > 0 } } : stored;
     if (brief !== stored) briefs.set(id, brief);

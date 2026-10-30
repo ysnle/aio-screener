@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 80,
+    "frame": 84,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -1788,6 +1788,86 @@
         "params": {
           "mode": "frames",
           "node": "risk-weight-vs-cap-weight"
+        }
+      }
+    },
+    {
+      "id": "frame:ai-demand-cost-squeeze",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "AI 서버가 메모리를 흡수하면 메모리 업체 이익은 늘지만, 같은 메모리를 사는 PC·휴대폰 쪽은 원가가 올라 수요가 줄어드는 연결",
+      "text": "AI 수요는 공급망 안에서 누군가의 매출이면서 다른 누군가의 비용입니다. 메모리가 AI 서버로 몰리면 메모리 업체의 가격과 이익이 오르지만, 같은 메모리를 사서 PC·휴대폰을 만드는 회사는 원가가 오르고 소비자 가격이 올라 판매가 줄 수 있습니다. 그래서 반도체 안에…",
+      "group": "산업별 수익 모델",
+      "keys": [
+        "AI 수요가 남의 비용이 될 때: 메모리 부족과 PC·휴대폰",
+        "pass-through",
+        "elasticity"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "ai-demand-cost-squeeze"
+        }
+      }
+    },
+    {
+      "id": "frame:usage-up-yield-down",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "AI가 이용량을 늘려도 이용 한 건당 수익이 낮은 화면으로 옮겨 가면 매출 성장이 둔화하는 구조와, AI 도입 속 소프트웨어 성장 재평가",
+      "text": "AI로 이용이 늘었다는 말과 돈을 더 번다는 말은 다릅니다. 검색이 AI 모드로 옮겨 가면 질문 수는 늘어도 한 번의 검색에서 버는 광고 수익이 아직 낮아 매출 성장이 둔화할 수 있습니다. 좌석 수로 돈을 버는 소프트웨어도 AI가 사람의 일을 대신하면 고객이 늘어도 …",
+      "group": "기업 수익 구조",
+      "keys": [
+        "이용은 늘고 단위 수익은 줄 때: AI 검색과 소프트웨어",
+        "elasticity",
+        "competition-moat"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "usage-up-yield-down"
+        }
+      }
+    },
+    {
+      "id": "frame:commitment-present-value",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "연산·구매 약정이 대차대조표의 부채가 아니어도 해지하기 어려우면 부채처럼 할인해 현재가치로 더해 보는 방법",
+      "text": "데이터센터·연산 계약처럼 몇 년에 걸쳐 반드시 내야 하는 돈은 장부의 부채가 아니어도 부채처럼 작동합니다. 연도별 지급액을 그 회사가 돈을 빌릴 때의 금리로 할인해 더하면 오늘 기준 부담이 나오고, 이를 현금·매출과 비교하면 투자 규모가 감당할 만한지 볼 수 있습니다…",
+      "group": "기업 수익 구조",
+      "keys": [
+        "약정은 부채처럼 읽기: 계약 의무의 현재가치",
+        "present-value",
+        "fcf-vs-funding"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "commitment-present-value"
+        }
+      }
+    },
+    {
+      "id": "frame:post-report-path",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "실적 발표 뒤 크게 빠진 종목에서 첫날 숫자보다 그 뒤 며칠의 경로와 거래량으로 매도가 끝나 가는지를 읽는 방법",
+      "text": "실적 뒤 크게 빠진 첫날은 반응의 시작일 수 있습니다. 많은 주식을 가진 기관은 하루에 다 팔 수 없어 둘째·셋째 날에도 매도가 이어지고 새 저점이 나오기도 합니다. 그래서 첫날 수익률만 보지 말고, 사흘 정도 지나 저점이 지켜지는지, 매도 거래량이 줄어드는지, 하락…",
+      "group": "차트·셋업 읽기",
+      "keys": [
+        "실적 급락 뒤 사흘: 첫날 반응과 그다음 경로",
+        "base-rate",
+        "expected-value"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "post-report-path"
         }
       }
     },

@@ -1797,6 +1797,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderKrThemeArtifact({ documentRef, root, store });
           renderDetail();
            renderThemeStrength({ documentRef, root, store }); // P1417
+          // v59.44 (owner 2026-10-30): the AI supply chain by group opens 테마 as it does 오늘 (a lazy chunk).
+          if (route === 'themes') import('../components/ai-chain-flow.js').then(({ paintThemesAiChain }) => paintThemesAiChain(documentRef, root)).catch(() => {});
            try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); if (detailPanel?.style.display === 'block') renderThemeDetailTeach({ documentRef, root, store }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743; v58.75 the teach block reads the playbook just built
            try { renderSectorMap({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map
            try { renderIndexEarnings({ documentRef, root, store }); } catch (_) { /* the index earnings read never takes the themes route down */ } // 2026-10-19 expertise review

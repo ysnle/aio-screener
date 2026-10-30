@@ -39,6 +39,9 @@ const PARSE_RULES = [
   [new RegExp(`pbr\\s*${NUM}\\s*배?\\s*(?:이하|미만|아래)?`, 'i'), (m) => ({ id: 'pb-max', value: +m[1] })],
   [new RegExp(`roe\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는)?`, 'i'), (m) => ({ id: 'roe-min', value: +m[1] })],
   [new RegExp(`(?:매출\\s*)?성장(?:률)?\\s*${NUM}\\s*%?\\s*(?:이상|초과|넘는)?`), (m) => ({ id: 'growth-min', value: +m[1] })],
+  // v59.44: the cash conditions, ahead of 마진 so "FCF 마진 10%" is not read as the net margin.
+  [new RegExp(`(?:잉여\\s*현금\\s*흐름|fcf)\\s*(?:마진|비율)?\\s*${NUM}\\s*%?\\s*(?:이상|초과)?`, 'i'), (m) => ({ id: 'fcf-margin-min', value: +m[1] })],
+  [new RegExp(`(?:설비\\s*투자|capex)\\s*(?:비중|비율|강도)?\\s*(?:매출(?:의|\\s*대비)?\\s*)?${NUM}\\s*%?\\s*(?:이하|미만)?`, 'i'), (m) => ({ id: 'capex-intensity-max', value: +m[1] })],
   [new RegExp(`(?:순?이익률|마진)\\s*${NUM}\\s*%?\\s*(?:이상|초과)?`), (m) => ({ id: 'margin-min', value: +m[1] })],
   [new RegExp(`거래대금\\s*\\$?${NUM}\\s*(?:백만|m)?\\s*(?:달러)?\\s*(?:이상)?`, 'i'), (m) => ({ id: 'liquidity-min', value: +m[1] })],
   [new RegExp(`거래량\\s*${NUM}\\s*배\\s*(?:이상)?`), (m) => ({ id: 'rvol', value: +m[1] })],

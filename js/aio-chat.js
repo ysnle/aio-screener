@@ -1179,6 +1179,32 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     }
     _aioLog('warn', 'fetch', '프롬프트 자동 트리밍: ' + messages.length + '→' + _trimmedMessages.length + '턴, ' + Math.round(_totalChars/1000) + 'K자');
   }
+  // v59.44 (owner 2026-10-30, "두 번째 질문부터 막힘"): the Worker refuses a body over 200 KiB of UTF-8 JSON
+  // (worker/openai-budget.mjs), and Korean is three bytes a character, so the 90K-character trim above let a stock
+  // question with one long earlier answer through at ~250 KB, and every later question failed the same way.
+  // Earlier answers go back shortened, the oldest turns drop first, and the system prompt is cut last.
+  var _bodyBytes = function(sys, msgs) {
+    var text = JSON.stringify({ instructions: sys || '', input: msgs });
+    try { return new TextEncoder().encode(text).length; } catch (_) { return text.length * 3; }
+  };
+  var _AI_BODY_BYTES = 180000;
+  _trimmedMessages = _trimmedMessages.map(function(m, i) {
+    var c = String(m.content || '');
+    return m.role === 'assistant' && i < _trimmedMessages.length - 1 && c.length > 6000
+      ? { role: m.role, content: c.slice(0, 6000) + '\n…(이전 답변 뒷부분 생략)' } : m;
+  });
+  // A follow-up needs the previous answer, so the reference blocks give way to a floor before any turn is dropped.
+  var _cutSystem = function(floor) {
+    for (var _cut = 0; _cut < 8 && _bodyBytes(system, _trimmedMessages) > _AI_BODY_BYTES; _cut++) {
+      var _sys = String(system || '');
+      if (_sys.length <= floor) return;
+      var _over = _bodyBytes(system, _trimmedMessages) - _AI_BODY_BYTES;
+      system = _sys.slice(0, Math.max(floor, _sys.length - Math.ceil(_over / 3) - 500)) + '\n…(참고 자료 일부 생략)';
+    }
+  };
+  _cutSystem(30000);
+  while (_trimmedMessages.length > 1 && _bodyBytes(system, _trimmedMessages) > _AI_BODY_BYTES) _trimmedMessages.shift();
+  _cutSystem(8000);
   console.log('[AIO] callSharedAi: system=' + Math.round(_sysLen/1000) + 'K + msgs=' + Math.round((_totalChars-_sysLen)/1000) + 'K = ' + Math.round(_totalChars/1000) + 'K자 (' + modelCfg.label + ')');
 
   // v30.5: AbortController — 연결 30초 + 청크 간 15초 타임아웃

@@ -247,6 +247,8 @@ for (const [w, window] of WINDOWS.entries()) {
     const hero = read.regime.heroLine || '';
     check(hero && hero.length <= 45 && !/[()]|\d/.test(hero) && (hero.match(/[.?!]/g) || []).length === 1, `${date}: 오늘 한 줄이 한 문장이 아님 (${hero})`);
     if (date === '2026-07-29') check(read.states.trend !== 'favorable', `${date}: S&P 500 50일선 -2.0%인데 추세 양호`);
+    // v59.44 (owner 2026-10-30): with the leaders weak or broken the headline is never favourable.
+    check(!['양호 우세', '다소 양호'].includes(read.regime.overall) && (!read.regime.leadershipCap || read.regime.overall === '혼조'), `v59.44 ${date}: 주도주 약세인데 전체 판정 ${read.regime.overall}`);
     summary.push(line(read, ` ndx/high:${read.leadership.offHigh?.toFixed(1)}%`));
   }
   // v57.94: with the 5-session confirmation window the July break read from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승

@@ -43,7 +43,14 @@ export const NEWS_REPORT_DOMAINS = Object.freeze(['reuters.com', 'apnews.com', '
 export const REACTION_REPORT_DOMAINS = Object.freeze(['reuters.com', 'apnews.com', 'cnbc.com', 'marketwatch.com', 'finance.yahoo.com', 'investing.com',
   'barrons.com', 'yna.co.kr', 'hankyung.com', 'mk.co.kr']);
 // A line that only says the reason was not found is not a reason.
-export const isNoReasonText = (text) => /(찾지 못|확인하지 못|확인할 근거|뒷받침되지 않|확인되지 않|알 수 없|정리할 수 없|근거가 없)/.test(String(text || ''));
+export const isNoReasonText = (text) => /(찾지 못|확인하지 못|확인할 근거|뒷받침되지 않|확인되지 않|알 수 없|정리할 수 없|근거가 없|확인해 ?주지)/.test(String(text || ''));
+// v59.44 (10/30 live data): a reason stored before the outlet list changed can point at the company's own IR page or a
+// paywalled outlet ("회사 자료는 … 확인해 주지는 않습니다"); a stored reason is kept only from the current outlets.
+export function onReportDomain(url, domains = REACTION_REPORT_DOMAINS) {
+  let host = '';
+  try { host = new URL(String(url || '')).hostname.toLowerCase(); } catch { return false; }
+  return domains.some((domain) => host === domain || host.endsWith(`.${domain}`));
+}
 
 // ---- the number check ---------------------------------------------------------------------------------------------
 // A figure counts as present when its digits (commas dropped) stand as a whole number in the source. Quarter ordinals
@@ -198,14 +205,19 @@ export function latestBriefFor(artifact, symbol, { nowMs = Date.now(), days = 10
  * v59.44: 오늘 by weight. `core` = tier 1 of the last three days, in full; `notable` = tier 2 of the last five days, one line
  * each; `rest` = every other brief of the last 30 days, folded, so nothing published is out of reach.
  */
-export function homeBriefTiers(artifact, { nowMs = Date.now(), coreLimit = 4, notableLimit = 6, restLimit = 24 } = {}) {
+export function homeBriefTiers(artifact, { nowMs = Date.now(), coreLimit = 4, notableLimit = 8, restLimit = 24 } = {}) {
   const live = briefsOf(artifact).filter((brief) => brief.status !== 'pending' && publishedMs(brief) <= nowMs + 3600000)
     .sort((a, b) => publishedMs(b) - publishedMs(a));
   const within = (brief, days) => nowMs - publishedMs(brief) <= days * DAY;
-  const tier1 = live.filter((brief) => briefTier(brief) === 1 && within(brief, 3));
+  // v59.44 (first live earnings week: 17 tier-1 lines): FOMC first; then the listed core names and moves of 15% or more,
+  // newest first (INTC -23% after hours ahead of a two-day-old GOOGL); then the other tier-1 reports by the size of the move.
+  const rank = (brief) => (brief.kind === 'fomc' ? 0
+    : Number(brief.tier) === 1 || MOVER_BY_SYMBOL[brief.symbol]?.tier === 1 || Math.abs(reactionPct(brief) ?? 0) >= 15 ? 1 : 2);
+  const tier1 = live.filter((brief) => briefTier(brief) === 1 && within(brief, 3))
+    .sort((a, b) => (rank(a) - rank(b)) || (rank(a) === 2 ? Math.abs(reactionPct(b) ?? 0) - Math.abs(reactionPct(a) ?? 0) : 0) || (publishedMs(b) - publishedMs(a)));
   const core = tier1.slice(0, coreLimit);
-  // A tier-1 report past the card limit stays on the face as a line, ahead of tier 2, not in the fold.
-  const notable = [...tier1.slice(coreLimit), ...live.filter((brief) => briefTier(brief) === 2 && within(brief, 5)).slice(0, notableLimit)];
+  // A tier-1 report past the card limit stays on the face as a line, ahead of tier 2; the face holds notableLimit lines.
+  const notable = [...tier1.slice(coreLimit), ...live.filter((brief) => briefTier(brief) === 2 && within(brief, 5))].slice(0, notableLimit);
   const shown = new Set([...core, ...notable]);
   const rest = live.filter((brief) => !shown.has(brief) && within(brief, 30));
   return { core, notable, rest: rest.slice(0, restLimit), restTotal: rest.length };
@@ -258,7 +270,13 @@ export function reactionText(reaction) {
   if (reaction?.basis === 'latest-trade' && Number.isFinite(reaction.extendedPct)) return `발표 후 최근 체결가 ${signedPct(reaction.extendedPct)}(직전 종가 대비)`;
   if (!reaction || !Number.isFinite(reaction.firstPct)) return null;
   const first = `발표 후 첫 거래일 ${signedPct(reaction.firstPct)}`;
-  return reaction.sessions > 1 ? `${first}, ${reaction.sessions}거래일 누적 ${signedPct(reaction.latestPct)}` : first;
+  if (!(reaction.sessions > 1)) return first;
+  // v59.44 (X bookmarks 10/30, "3-day rule"): from the third session on, whether the move kept going after the first day
+  // or gave part of it back — the path, not a buy or sell signal.
+  const gap = reaction.latestPct - reaction.firstPct;
+  const path = reaction.sessions >= 3 && Math.abs(reaction.firstPct) >= 3 && Math.abs(gap) >= 1
+    ? (Math.sign(gap) === Math.sign(reaction.firstPct) ? `, 첫날 뒤에도 더 ${reaction.firstPct < 0 ? '내림' : '오름'}` : `, 첫날 ${reaction.firstPct < 0 ? '낙폭' : '상승'} 일부 되돌림`) : '';
+  return `${first}, ${reaction.sessions}거래일 누적 ${signedPct(reaction.latestPct)}${path}`;
 }
 
 // ---- headline --------------------------------------------------------------------------------------------------------

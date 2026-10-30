@@ -8,6 +8,7 @@ import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bri
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { signedText } from '../../domain/shared/number.js';
 import { renderMacroNextRelease, renderKrMacroFreshnessBadges } from '../components/macro-next-release.js';
+import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 
 function finite(value) {
   if (value == null || value === '' || typeof value === 'boolean') return null;
@@ -300,6 +301,9 @@ function renderMacro(documentRef, root, page) {
   renderMacroBoard({ documentRef, root });
   renderMacroNextRelease({ documentRef, root });
   renderKrMacroFreshnessBadges({ documentRef, root }); // v53.7 (P725): the 한국 거시 fold's 기준일 badges
+  // v59.44 (owner 2026-10-30, "each screen too"): the latest PCE·CPI·jobs·retail release as cards above the board (a lazy
+  // chunk shared with 오늘's release summaries), so 거시 opens with what came out and when the next one is.
+  import('../components/event-briefs.js').then(({ paintMacroReleaseCards }) => paintMacroReleaseCards(documentRef, page, macroReleasesFor(root, { days: 35 }))).catch(() => {});
   // P875: the release registry and the server snapshot load on separate lanes; the aio:serverDataLoaded re-render below
   // replays the header once the shared cut lands (the retired legacy aio:sharedMarketCut listener sat on document while
   // the event is dispatched on window, so it never ran).

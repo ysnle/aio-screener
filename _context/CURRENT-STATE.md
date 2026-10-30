@@ -14,15 +14,15 @@ last_verified: 2026-10-30
 - Version: `v59.44`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 19 (source: `architecture/route-owners.json`)
-- App shell: 6,864 lines / 491,239 bytes
+- App shell: 6,865 lines / 491,398 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 6,864 | 491,239 |
+| `index.html` | 6,865 | 491,398 |
 | `js/aio-core.js` | 17,279 | 1,048,407 |
 | `js/aio-data.js` | 8,171 | 516,959 |
 | `js/aio-ui.js` | 3,381 | 192,314 |
-| `js/aio-chat.js` | 4,662 | 356,261 |
+| `js/aio-chat.js` | 4,688 | 357,950 |
 | `js/aio-tests.js` | 8,883 | 713,742 |
 | `js/aio-glossary.js` | 417 | 114,404 |
 
@@ -31,7 +31,7 @@ last_verified: 2026-10-30
 - Context documents: 78; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 9; command wrappers: 19; agent profiles: 4.
 - Workflows: 16; CI scripts: 156.
-- Ledgers: latest rule R731; latest postmortem P2138; open QA 83 unique IDs (83 rows, 0 explicitly superseded).
+- Ledgers: latest rule R731; latest postmortem P2140; open QA 83 unique IDs (83 rows, 0 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary

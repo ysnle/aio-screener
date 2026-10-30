@@ -59,7 +59,9 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   if (reasons.length) {
     box.append(el(doc, 'p', '왜 움직였나(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));
   }
-  const figures = (brief.figures || []).slice(0, 3);
+  // v59.44: three headline figures, then capex and cash flow when the release gave them (the market priced cash).
+  const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
+  const figures = [...(brief.figures || []).filter((figure) => !cashFigure(figure)).slice(0, 3), ...(brief.figures || []).filter(cashFigure).slice(0, 2)];
   if (figures.length) {
     const ul = list(doc, figures.map(figureText), 'event-brief__figures');
     // Sources stay off the face (owner 2026-10-06): the estimate's provider is on the row's hover.
@@ -115,7 +117,7 @@ function ensureArtifact(root, rerender) {
 const shortDay = (iso) => { const [, m, d] = String(iso || '').slice(0, 10).split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 
 /** A monthly release as a card: what came out, for which month, and when the next one is. */
-function macroNode(doc, release) {
+export function macroNode(doc, release) {
   const box = el(doc, 'article', null, 'event-brief');
   box.dataset.kind = 'macro';
   const head = el(doc, 'p', null, 'event-brief__head');
@@ -168,23 +170,39 @@ function rowList(doc, root, briefs) {
 /** 오늘: macro releases and core briefs in full, other reports one line each, the rest folded. */
 export function paintHomeBriefs(doc, root, loop, rerender, macro = []) {
   if (!doc || !loop) return [];
+  return paintBriefs(doc, root, { rerender, macro, id: 'home-event-briefs', frame: 'home.event-briefs', className: 'daily-block event-briefs', place: (host) => {
+    host.id = 'home-event-briefs';
+    // v59.44 (owner 2026-10-30): straight after 밤사이 핵심, ahead of the schedule and the AI-chain block.
+    const overnight = doc.getElementById('home-overnight');
+    if (overnight?.parentElement === loop) overnight.insertAdjacentElement('afterend', host); else loop.prepend(host);
+  } });
+}
+
+/** 뉴스: the same tiers open the page, above 중요 뉴스, with a longer line list (owner 2026-10-30, each screen carries it). */
+export function paintNewsBriefs(doc, root, rerender, macro = []) {
+  const anchor = doc?.getElementById('news-important');
+  if (!anchor) return [];
+  return paintBriefs(doc, root, { rerender, macro, id: 'news-event-briefs', frame: 'market-news.event-briefs', className: 'briefing-block event-briefs', limits: { notableLimit: 16 }, place: (host) => {
+    host.id = 'news-event-briefs';
+    anchor.insertAdjacentElement('beforebegin', host);
+  } });
+}
+
+function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits = {}, place }) {
   const nowMs = Date.now();
-  const tiers = homeBriefTiers(ensureArtifact(root, rerender), { nowMs });
+  const tiers = homeBriefTiers(ensureArtifact(root, rerender), { nowMs, ...limits });
   const briefs = [...tiers.core, ...tiers.notable];
-  let host = doc.getElementById('home-event-briefs');
+  let host = doc.getElementById(id);
   if (!briefs.length && !macro.length && !tiers.rest.length) { if (host) host.hidden = true; return briefs; }
   if (!host) {
-    host = el(doc, 'section', null, 'daily-block event-briefs');
-    host.id = 'home-event-briefs';
-    host.setAttribute('aria-labelledby', 'home-event-briefs-title');
-    // After the AI-chain block when it is already painted (both are lazy chunks; either may land first).
-    const overnight = doc.getElementById('home-ai-chain') || doc.getElementById('home-overnight');
-    if (overnight?.parentElement === loop) overnight.insertAdjacentElement('afterend', host); else loop.prepend(host);
+    host = el(doc, 'section', null, className);
+    host.setAttribute('aria-labelledby', `${id}-title`);
+    place(host);
   }
-  const head = frameHead(doc, { title: '주요 발표 요약', titleId: 'home-event-briefs-title', titleClass: 'briefing-h2' });
+  const head = frameHead(doc, { title: '주요 발표 요약', titleId: `${id}-title`, titleClass: 'briefing-h2' });
   head.classList.add('daily-card-head');
   head.title = '시장 전체를 움직이는 발표(물가·고용 지표, FOMC, 대형주 실적)는 크게, 그 밖의 실적은 한 줄로 보여 줍니다. 원문 공시 기준, 시각은 한국 시간';
-  markFrame(host, 'home.event-briefs');
+  markFrame(host, frame);
   const parts = [head, ...macro.map((release) => macroNode(doc, release)), ...tiers.core.map((brief) => briefNode(doc, brief))];
   if (tiers.notable.length) parts.push(el(doc, 'h3', '그 밖의 실적', 'event-briefs__tier2'), rowList(doc, root, tiers.notable));
   if (tiers.restTotal) {
@@ -196,6 +214,25 @@ export function paintHomeBriefs(doc, root, loop, rerender, macro = []) {
   host.replaceChildren(...parts);
   host.hidden = false;
   return briefs;
+}
+
+/** 거시: the latest official release of each monthly indicator (about a month), as cards under the page head. */
+export function paintMacroReleaseCards(doc, page, releases = []) {
+  let host = doc?.getElementById('macro-recent-releases');
+  if (!releases.length) { if (host) host.hidden = true; return releases; }
+  if (!host) {
+    host = el(doc, 'section', null, 'briefing-block macro-section event-briefs');
+    host.id = 'macro-recent-releases';
+    host.setAttribute('aria-labelledby', 'macro-recent-releases-title');
+    const head = page?.querySelector(':scope > .page-head');
+    if (head) head.insertAdjacentElement('afterend', host); else page?.prepend(host);
+  }
+  const head = frameHead(doc, { title: '최근 공식 발표', titleId: 'macro-recent-releases-title', titleClass: 'briefing-h2' });
+  head.title = '물가·고용·소비 월간 지표의 가장 최근 발표값과 다음 발표일입니다. 아래 경제 지표판과 같은 공식 수치';
+  markFrame(host, 'macro.recent-releases');
+  host.replaceChildren(head, ...releases.map((release) => macroNode(doc, release)));
+  host.hidden = false;
+  return releases;
 }
 
 /** 종목: the latest brief of this symbol (about one quarter), under the company summary. */

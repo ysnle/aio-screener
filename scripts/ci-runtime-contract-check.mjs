@@ -898,8 +898,10 @@ const screenerAt = html.indexOf('id="page-screener"');
 // v57.76: the close comparison (#home-daily-changes) moves directly under the verdict, the live strip follows under
 // one "지금 시세" heading, and the "오늘의 시장" banner is gone (the daily loop closes the page).
 // v58.56 (re-audit #5): 오늘의 한 문장 (#home-operator-note) follows the page head (#home-date-label) and leads the hero.
-const homeOrder = ['home-date-label', 'home-operator-note', 'home-score-hero', 'home-daily-changes', 'home-quote-basis', 'home-kpi-strip', 'home-cross-assets', 'home-daily-loop'].map((id) => html.indexOf(`id="${id}"`));
-check('v57.76 home leads with the close verdict and close changes, then labelled live numbers and the daily loop in static order with no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
+// v59.44 (owner 2026-10-30, "직관적인 내용을 먼저 보고 싶어할 것"): the order reverses — the index strip, the labelled
+// live numbers and the daily loop (밤사이 핵심, 주요 발표 요약, 일정) open the page; the text verdict and close changes follow.
+const homeOrder = ['home-date-label', 'home-index-strip', 'home-quote-basis', 'home-kpi-strip', 'home-cross-assets', 'home-daily-loop', 'home-schedule', 'home-my-names', 'home-operator-note', 'home-score-hero', 'home-daily-changes'].map((id) => html.indexOf(`id="${id}"`));
+check('v59.44 home opens with quotes and the daily loop (schedule before 내 종목), then the close verdict and close changes, in static order with no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
 // v57.77: the screener reads, then filters, then shows the table; the ranking validation lives once inside the
 // 과거 검증 tab, and the weight-profile and data-status folds sit below the tab panels.
 const screenerOrder = ['screener-read', 'screener-workbench', 'scr-tab-ranking', 'screener-results-table', 'scr-tab-backtest', 'screener-validation', 'scr-tab-evidence', 'scr-weight-profiles', 'scr-data-status', 'screener-next'].map((id) => html.indexOf(`id="${id}"`));

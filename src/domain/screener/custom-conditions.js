@@ -69,6 +69,12 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ margin }, n) => margin >= n },
   { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 회계연도, 미국)', value: 10, unit: '%', fields: ['revGrowth'],
     test: ({ revGrowth }, n) => revGrowth >= n },
+  // v59.44 (X bookmarks 10/30, "the market is pricing cash"): the latest filed fiscal year's cash after capex, and capex
+  // against revenue (src/domain/fundamental/cash-metrics.js; financials are left out).
+  { id: 'fcf-margin-min', group: '수익성·성장', label: '잉여현금흐름 마진 {n}% 이상 (영업현금흐름 − 설비투자, 최근 회계연도, 미국)', value: 10, unit: '%', fields: ['fcfMargin'],
+    test: ({ fcfMargin }, n) => fcfMargin >= n },
+  { id: 'capex-intensity-max', group: '수익성·성장', label: '설비투자 매출의 {n}% 이하 (최근 회계연도, 미국)', value: 15, unit: '%', fields: ['capexIntensity'],
+    test: ({ capexIntensity }, n) => capexIntensity <= n },
   { id: 'liquidity-min', group: '거래', label: '하루 거래대금 ${n}백만 이상 (30일 평균)', value: 20, unit: '$M', fields: ['dollarVolume30d'],
     test: ({ dollarVolume30d: a }, n) => a >= n * 1e6 },
   // v58.80 (first-users F34): "RSI 30 이하" and "3개월 수익률 20% 이상" were not understood. The same RSI(14) and
@@ -104,6 +110,7 @@ export const CONDITION_BOUNDS = Object.freeze({
   tight: ['adrPct', 'max'], 'adr-min': ['adrPct', 'min'], rvol: ['rvol20', 'min'], 'few-heavy-down': ['heavyDownDays25', 'max'],
   'early-base': ['baseCount', 'max'], 'down-day-hold': ['downDayHoldPct', 'min'], 'pe-max': ['pe', 'max'], 'fwdpe-max': ['fwdPe', 'max'],
   'pb-max': ['pb', 'max'], 'roe-min': ['roe', 'min'], 'margin-min': ['margin', 'min'], 'growth-min': ['revGrowth', 'min'],
+  'fcf-margin-min': ['fcfMargin', 'min'], 'capex-intensity-max': ['capexIntensity', 'max'],
   'liquidity-min': ['dollarVolume30d', 'min', 1e6],
   'rsi-max': ['rsi', 'max'], 'rsi-min': ['rsi', 'min'], 'ret1m-min': ['ret1m', 'min'], 'ret1m-max': ['ret1m', 'max'],
   'ret3m-min': ['ret3m', 'min'], 'ret3m-max': ['ret3m', 'max']
@@ -117,6 +124,7 @@ export const CUSTOM_RECIPES = Object.freeze([
   ['거래량 실린 신고가', [{ id: 'new-high' }, { id: 'rvol', value: 1.5 }]],
   ['이익 대비 싼 우량주', [{ id: 'pe-max', value: 20 }, { id: 'roe-min', value: 15 }]],
   ['성장 + 적정 Forward PER', [{ id: 'growth-min', value: 15 }, { id: 'fwdpe-max', value: 30 }]],
+  ['현금이 남는 성장', [{ id: 'growth-min', value: 15 }, { id: 'fcf-margin-min', value: 10 }]],
   ['초기 베이스의 수축', [{ id: 'vcp' }, { id: 'early-base', value: 2 }]],
   ['지수 하락일에 버틴 추세주', [{ id: 'down-day-hold', value: 60 }, { id: 'ma-long' }]],
   ['포켓 피벗 + 확장 전', [{ id: 'pocket-pivot' }, { id: 'not-extended', value: 4 }, { id: 'no-climax' }]]

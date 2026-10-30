@@ -16,6 +16,7 @@ import { pickImportantNews } from '../../domain/briefing/news-picks.js'; // v58.
 import { newsImpactChain } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
 import { symbolNames } from '../components/market-timeline.js';
+import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -756,6 +757,12 @@ function render({ documentRef, root, store, route }) {
   }
   syncNewsControlState(documentRef, controls);
   ensureReadingGuide(documentRef);
+  // v59.44 (owner 2026-10-30, "each screen too"): the release summaries in the same tiers as 오늘 (a lazy chunk), with the
+  // monthly releases of the last week, ahead of 중요 뉴스 — what came out and why the price moved, then the coverage.
+  import('../components/event-briefs.js').then(({ paintNewsBriefs }) => {
+    const repaint = () => { if (documentRef.getElementById('page-market-news')?.classList?.contains('active')) paintNewsBriefs(documentRef, root, null, macroReleasesFor(root, { days: 7 })); };
+    paintNewsBriefs(documentRef, root, repaint, macroReleasesFor(root, { days: 7 }));
+  }).catch(() => {});
   // P1428 (Codex review): the important list follows the same country/topic filter as the feed — a 한국
   // filter that emptied the feed still showed overseas stories above it.
   const importantModel = mineModel(root, focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() }), tickerFocus), mineOnly ? mine : new Set());
