@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-31T05:21:31.908Z",
-  "attemptedAt": "2026-10-31T05:21:31.908Z",
-  "lastSuccessfulAt": "2026-10-31T05:21:31.908Z",
+  "generatedAt": "2026-10-31T06:22:00.805Z",
+  "attemptedAt": "2026-10-31T06:22:00.805Z",
+  "lastSuccessfulAt": "2026-10-31T06:22:00.805Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-17T05:21:27.223Z",
-  "until": "2026-10-31T05:21:27.223Z",
+  "since": "2026-10-17T06:21:53.924Z",
+  "until": "2026-10-31T06:21:53.924Z",
   "current24hWindow": {
     "start": "2026-10-29T23:00:00.000Z",
     "end": "2026-10-30T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1357,
+      "count": 1359,
       "freshCount": 39,
-      "eligibleTextCount": 1294,
+      "eligibleTextCount": 1296,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 67939
+      "lastPostId": 67942
     },
     {
       "channel": "bornlupin",
@@ -113,46 +113,46 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 673,
-      "freshCount": 20,
-      "eligibleTextCount": 673,
+      "count": 674,
+      "freshCount": 37,
+      "eligibleTextCount": 674,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71293
+      "lastPostId": 71295
     }
   ],
-  "count": 2401,
-  "retainedItemCount": 454,
+  "count": 2404,
+  "retainedItemCount": 465,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2401,
-    "eligibleTextCount": 2330,
+    "observedCount": 2404,
+    "eligibleTextCount": 2333,
     "mediaOnlyCount": 71,
     "highSignalCount": 438,
-    "broadSignalCount": 948,
+    "broadSignalCount": 947,
     "selectedRawCount": 412,
     "selectedEligibleCount": 412,
     "selectedRawCoveragePct": 17.7,
-    "selectedOfObservedPct": 17.2,
+    "selectedOfObservedPct": 17.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 852,
-    "ai-policy": 135,
-    "equity": 171,
-    "credit": 126,
-    "geo": 416,
-    "japan": 113,
-    "macro": 376,
+    "credit": 127,
     "semi": 533,
-    "power": 298,
-    "earnings": 487,
+    "equity": 171,
+    "market-note": 855,
+    "japan": 114,
+    "ai-policy": 135,
+    "geo": 416,
+    "macro": 374,
+    "power": 297,
+    "earnings": 486,
     "optical": 40,
     "healthcare": 122,
     "flows": 94,
@@ -162,14 +162,15 @@
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 159,
+    "GOOG": 130,
+    "AVGO": 22,
+    "AMZN": 80,
     "BX": 1,
     "2454.TW": 3,
-    "NVDA": 159,
     "AAPL": 14,
-    "GOOG": 129,
-    "AMZN": 79,
     "INTC": 4,
-    "AMD": 26,
+    "AMD": 25,
     "PLTR": 10,
     "LLY": 3,
     "TEM": 1,
@@ -179,7 +180,6 @@
     "ABBV": 2,
     "285A.T": 3,
     "005930.KS": 51,
-    "MU": 53,
     "TSM": 51,
     "000660.KS": 78,
     "AZN": 1,
@@ -192,8 +192,8 @@
     "MSFT": 67,
     "GOOGL": 5,
     "MRK": 2,
+    "MU": 51,
     "006800.KS": 1,
-    "AVGO": 22,
     "006400.KS": 4,
     "ORCL": 12,
     "CMG": 1,
@@ -253,12 +253,12 @@
     "010130.KS": 1
   },
   "themes": [
-    "Market Notes (852 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
+    "Market Notes (855 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
     "Semiconductors/Memory (533 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
-    "Earnings/Corporate (487 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Earnings/Corporate (486 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
     "Geopolitics (416 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
-    "Macro/Rates (376 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
-    "AI Power/Grid (298 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Macro/Rates (374 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
+    "AI Power/Grid (297 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
     "Equity/Analyst (171 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
     "AI Policy/Export Controls (135 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
@@ -270,12 +270,12 @@
     },
     {
       "key": "GOOG",
-      "count": 129,
+      "count": 130,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로 보도됨. • 알파벳 (GOOGL) — 순다르 피차이 CEO는 Project Suncatcher의 궤도..."
     },
     {
       "key": "AMZN",
-      "count": 79,
+      "count": 80,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로 보도됨. • 알파벳 (GOOGL) — 순다르 피차이 CEO는 Project Suncatcher의 궤도..."
     },
     {
@@ -294,11 +294,6 @@
       "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
     },
     {
-      "key": "MU",
-      "count": 53,
-      "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
-    },
-    {
       "key": "005930.KS",
       "count": 51,
       "text": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
@@ -309,13 +304,18 @@
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
     },
     {
+      "key": "MU",
+      "count": 51,
+      "text": "2026년 10월 29일 미국 레딧 베스트 게시물 분석 > NVDA / MU / VRT / ETN / GEV - AI Trade가 물리 인프라로 확장 · 장문 DD 핵심은 “AI가 싸지면 물리 자원이 병목”..."
+    },
+    {
       "key": "BE",
       "count": 31,
       "text": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
       "key": "AMD",
-      "count": 26,
+      "count": 25,
       "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%, 나스닥 -2.86%, 다우 -1.09%, 러셀 2000 -1.66% 기록. 나스닥100은 장중 4% 이상..."
     },
     {
@@ -331,7 +331,7 @@
       "topics": [
         "macro"
       ],
-      "count": 376,
+      "count": 374,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -349,7 +349,7 @@
       "topics": [
         "credit"
       ],
-      "count": 126,
+      "count": 127,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로 보도됨. • 알파벳 (GOOGL) — 순다르 피차이 CEO는 Project Suncatcher의 궤도..."
     },
     {
@@ -376,7 +376,7 @@
       "topics": [
         "power"
       ],
-      "count": 298,
+      "count": 297,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -421,7 +421,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 487,
+      "count": 486,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -439,7 +439,7 @@
       "topics": [
         "japan"
       ],
-      "count": 113,
+      "count": 114,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 852,
+      "count": 855,
       "focus": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     }
   ],
@@ -1690,6 +1690,27 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71295",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71295",
+      "datetime": "2026-10-31T06:12:45.000Z",
+      "localDateKst": "2026-10-31",
+      "tags": [
+        "credit",
+        "semi",
+        "equity"
+      ],
+      "score": 90,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "GOOG",
+        "AVGO",
+        "AMZN"
+      ],
+      "summary": ">>2008년 재현 - 월가에서 가장 주목받는 거래: AI CDS (바클레이스) •AI 빅테크의 막대한 자금을 투입하며 공격적으로 사업을 확장하는 가운데, 신용시장에서 경고음. Broadcom, Nvidia..."
+    },
+    {
       "id": "HANAchina/71292",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71292",
@@ -2240,13 +2261,14 @@
       "datetime": "2026-10-30T13:47:51.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "credit"
+        "credit",
+        "macro",
+        "geo"
       ],
       "score": 89,
       "hasText": true,
-      "summary": ">>BofA Hartnett: AI와 ABB의 모순 심화…기술주의 본격적인 부담 완화는 2027년 상반기 •BofA는 대형 클라우드 업체들의 회사채 발행이 급증하면서 ABB(Anything but...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>BofA Hartnett: AI와 ABB의 모순 심화…기술주의 본격적인 부담 완화는 2027년 상반기 •BofA는 대형 클라우드 업체들의 회사채 발행이 급증하면서 ABB(Anything but..."
     },
     {
       "id": "HANAchina/71271",
@@ -2255,12 +2277,13 @@
       "datetime": "2026-10-30T12:56:47.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
+        "macro",
         "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>브렌트유, 반년 만에 최고치 기록…미국 중간선거 이후 걸프 지역 긴장 고조 가능성에 시장 경계 •브렌트유 1월물 선물 가격이 금요일 배럴당 118달러까지 상승하며 6개월 만에 최고치를 기록. 호르무즈...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>브렌트유, 반년 만에 최고치 기록…미국 중간선거 이후 걸프 지역 긴장 고조 가능성에 시장 경계 •브렌트유 1월물 선물 가격이 금요일 배럴당 118달러까지 상승하며 6개월 만에 최고치를 기록. 호르무즈..."
     },
     {
       "id": "HANAchina/71269",
@@ -2269,13 +2292,14 @@
       "datetime": "2026-10-30T12:04:45.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
+        "macro",
         "kr-market",
         "flows"
       ],
       "score": 55,
       "hasText": true,
-      "summary": ">>AI 관련 가장 위험한 거래는 기술주가 아니라 달러에 있을 수 있음 •Deutsche Bank는 AI 버블이 붕괴할 경우 충격이 미국 주식시장에서 달러로 확산될 수 있다고 경고했음. 외국인 투자자들이...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 관련 가장 위험한 거래는 기술주가 아니라 달러에 있을 수 있음 •Deutsche Bank는 AI 버블이 붕괴할 경우 충격이 미국 주식시장에서 달러로 확산될 수 있다고 경고했음. 외국인 투자자들이..."
     },
     {
       "id": "insidertracking/67901",
@@ -2284,17 +2308,14 @@
       "datetime": "2026-10-30T11:59:00.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "semi",
-        "power",
-        "healthcare",
-        "japan"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 스포티파이 (SPOT) — 프리미엄 가입자가 기존 곡의 커버·리믹스를 AI로 제작할 수 있는 신규 서비스를 2027년 1분기...",
       "tickers": [
         "GOOG"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 스포티파이 (SPOT) — 프리미엄 가입자가 기존 곡의 커버·리믹스를 AI로 제작할 수 있는 신규 서비스를 2027년 1분기..."
+      ]
     },
     {
       "id": "insidertracking/67900",
@@ -2303,15 +2324,12 @@
       "datetime": "2026-10-30T11:56:53.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "macro",
-        "geo",
-        "ai-policy",
-        "japan"
+        "geo"
       ],
       "score": 77,
       "hasText": true,
-      "tickers": [],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 30일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 전쟁이 어떤 방식으로든 조만간 종료될 것이라고 전망. 이란은 반드시 합의에 나서야..."
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 30일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 전쟁이 어떤 방식으로든 조만간 종료될 것이라고 전망. 이란은 반드시 합의에 나서야...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67899",
@@ -2340,13 +2358,13 @@
         "semi",
         "power"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": ">>Kioxia, 3분기 영업이익 QoQ+57.1% 급증…설비투자는 예상 하회, 4분기 이익 전망도 시장 기대 밑돌아 •3분기 실적은 AI 데이터센터 수요 급증에 따른 NAND 가격 상승과 출하량 증가로...",
-      "lead": 3,
       "tickers": [
         "285A.T"
-      ]
+      ],
+      "summary": ">>Kioxia, 3분기 영업이익 QoQ+57.1% 급증…설비투자는 예상 하회, 4분기 이익 전망도 시장 기대 밑돌아 •3분기 실적은 AI 데이터센터 수요 급증에 따른 NAND 가격 상승과 출하량 증가로..."
     },
     {
       "id": "insidertracking/67894",
@@ -2370,12 +2388,14 @@
       "datetime": "2026-10-30T10:33:39.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": "**매출과 순이익은 기존 속보치의 상단 >>(확정) CXMT, 3분기 순이익 544억 위안…1-3분기 누적 순이익 1,320억 위안, 최대 20억 위안 자사주 매입 추진 •3분기 실적 : 매출 1,187억...",
-      "tickers": []
+      "tickers": [],
+      "summary": "**매출과 순이익은 기존 속보치의 상단 >>(확정) CXMT, 3분기 순이익 544억 위안…1-3분기 누적 순이익 1,320억 위안, 최대 20억 위안 자사주 매입 추진 •3분기 실적 : 매출 1,187억..."
     },
     {
       "id": "insidertracking/67893",
@@ -2417,17 +2437,18 @@
       "datetime": "2026-10-30T08:14:07.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings"
+        "semi",
+        "kr-market",
+        "earnings",
+        "flows"
       ],
-      "score": 85,
+      "score": 81,
       "hasText": true,
-      "summary": "중화권 마감 시황 (26.10.30, 금) 🇨🇳 중국 본토 증시는 아마존·인텔의 실적 실망감에 따른 글로벌 AI 투자 비용 공포가 지속되며 급락세로 마감. 양대 시장 거래대금은 투매가 쏟아지며 1조...",
-      "lead": 1,
       "tickers": [
         "AMZN",
-        "MU",
         "TSM"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.10.30, 금) 🇨🇳 중국 본토 증시는 아마존·인텔의 실적 실망감에 따른 글로벌 AI 투자 비용 공포가 지속되며 급락세로 마감. 양대 시장 거래대금은 투매가 쏟아지며 1조..."
     },
     {
       "id": "insidertracking/67879",
@@ -2506,12 +2527,15 @@
       "datetime": "2026-10-30T06:48:51.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "earnings",
+        "flows"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [2027년 중국 주식시장 전망] 중국, 축소와 수렴의 기회 자료: [2027년 숙제] 성장 간극과 신용 축소 완화, 주체별...",
-      "tickers": []
+      "tickers": [],
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [2027년 중국 주식시장 전망] 중국, 축소와 수렴의 기회 자료: [2027년 숙제] 성장 간극과 신용 축소 완화, 주체별..."
     },
     {
       "id": "HANAchina/71258",
@@ -2524,8 +2548,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "•중국 A주 3대 지수 낙폭 축소 •A500, CSI500, CSI300 추종 다수 ETF 거래대금 큰폭 증가. 홍콩 항셍은 +1.9% 상승 •한편, 중국 30년물 국채 선물 -0.76% 급락, 3월 9일...",
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 A주 3대 지수 낙폭 축소 •A500, CSI500, CSI300 추종 다수 ETF 거래대금 큰폭 증가. 홍콩 항셍은 +1.9% 상승 •한편, 중국 30년물 국채 선물 -0.76% 급락, 3월 9일..."
     },
     {
       "id": "insidertracking/67864",
@@ -6857,23 +6881,6 @@
       ]
     },
     {
-      "id": "HANAchina/71005",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71005",
-      "datetime": "2026-10-26T02:11:27.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>애플 폴더블폰 iPhone Duo 공급 부족, 주문량 30% 추가에 폭스콘·TSMC 등 공급망 수혜 •애플의 첫 폴더블폰 iPhone Duo가 출시 직후 전 모델 품절됐으며, 리셀러 가격은 30% 넘게...",
-      "lead": 1,
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
       "id": "bornlupin/20818",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20818",
@@ -8772,13 +8779,14 @@
       "datetime": "2026-10-30T13:47:51.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "credit"
+        "credit",
+        "macro",
+        "geo"
       ],
       "score": 89,
       "hasText": true,
-      "summary": ">>BofA Hartnett: AI와 ABB의 모순 심화…기술주의 본격적인 부담 완화는 2027년 상반기 •BofA는 대형 클라우드 업체들의 회사채 발행이 급증하면서 ABB(Anything but...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>BofA Hartnett: AI와 ABB의 모순 심화…기술주의 본격적인 부담 완화는 2027년 상반기 •BofA는 대형 클라우드 업체들의 회사채 발행이 급증하면서 ABB(Anything but..."
     },
     {
       "id": "HANAchina/71271",
@@ -8787,12 +8795,13 @@
       "datetime": "2026-10-30T12:56:47.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
+        "macro",
         "geo"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>브렌트유, 반년 만에 최고치 기록…미국 중간선거 이후 걸프 지역 긴장 고조 가능성에 시장 경계 •브렌트유 1월물 선물 가격이 금요일 배럴당 118달러까지 상승하며 6개월 만에 최고치를 기록. 호르무즈...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>브렌트유, 반년 만에 최고치 기록…미국 중간선거 이후 걸프 지역 긴장 고조 가능성에 시장 경계 •브렌트유 1월물 선물 가격이 금요일 배럴당 118달러까지 상승하며 6개월 만에 최고치를 기록. 호르무즈..."
     },
     {
       "id": "HANAchina/71269",
@@ -8801,13 +8810,14 @@
       "datetime": "2026-10-30T12:04:45.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
+        "macro",
         "kr-market",
         "flows"
       ],
       "score": 55,
       "hasText": true,
-      "summary": ">>AI 관련 가장 위험한 거래는 기술주가 아니라 달러에 있을 수 있음 •Deutsche Bank는 AI 버블이 붕괴할 경우 충격이 미국 주식시장에서 달러로 확산될 수 있다고 경고했음. 외국인 투자자들이...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 관련 가장 위험한 거래는 기술주가 아니라 달러에 있을 수 있음 •Deutsche Bank는 AI 버블이 붕괴할 경우 충격이 미국 주식시장에서 달러로 확산될 수 있다고 경고했음. 외국인 투자자들이..."
     },
     {
       "id": "insidertracking/67901",
@@ -8816,17 +8826,14 @@
       "datetime": "2026-10-30T11:59:00.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "semi",
-        "power",
-        "healthcare",
-        "japan"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 스포티파이 (SPOT) — 프리미엄 가입자가 기존 곡의 커버·리믹스를 AI로 제작할 수 있는 신규 서비스를 2027년 1분기...",
       "tickers": [
         "GOOG"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 스포티파이 (SPOT) — 프리미엄 가입자가 기존 곡의 커버·리믹스를 AI로 제작할 수 있는 신규 서비스를 2027년 1분기..."
+      ]
     },
     {
       "id": "insidertracking/67900",
@@ -8835,15 +8842,12 @@
       "datetime": "2026-10-30T11:56:53.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "macro",
-        "geo",
-        "ai-policy",
-        "japan"
+        "geo"
       ],
       "score": 77,
       "hasText": true,
-      "tickers": [],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 30일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 전쟁이 어떤 방식으로든 조만간 종료될 것이라고 전망. 이란은 반드시 합의에 나서야..."
+      "summary": "글로벌 뉴스 브리핑 - 2026년 10월 30일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 전쟁이 어떤 방식으로든 조만간 종료될 것이라고 전망. 이란은 반드시 합의에 나서야...",
+      "tickers": []
     },
     {
       "id": "insidertracking/67899",
@@ -8872,13 +8876,13 @@
         "semi",
         "power"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": ">>Kioxia, 3분기 영업이익 QoQ+57.1% 급증…설비투자는 예상 하회, 4분기 이익 전망도 시장 기대 밑돌아 •3분기 실적은 AI 데이터센터 수요 급증에 따른 NAND 가격 상승과 출하량 증가로...",
-      "lead": 3,
       "tickers": [
         "285A.T"
-      ]
+      ],
+      "summary": ">>Kioxia, 3분기 영업이익 QoQ+57.1% 급증…설비투자는 예상 하회, 4분기 이익 전망도 시장 기대 밑돌아 •3분기 실적은 AI 데이터센터 수요 급증에 따른 NAND 가격 상승과 출하량 증가로..."
     },
     {
       "id": "insidertracking/67894",
@@ -8902,12 +8906,14 @@
       "datetime": "2026-10-30T10:33:39.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": "**매출과 순이익은 기존 속보치의 상단 >>(확정) CXMT, 3분기 순이익 544억 위안…1-3분기 누적 순이익 1,320억 위안, 최대 20억 위안 자사주 매입 추진 •3분기 실적 : 매출 1,187억...",
-      "tickers": []
+      "tickers": [],
+      "summary": "**매출과 순이익은 기존 속보치의 상단 >>(확정) CXMT, 3분기 순이익 544억 위안…1-3분기 누적 순이익 1,320억 위안, 최대 20억 위안 자사주 매입 추진 •3분기 실적 : 매출 1,187억..."
     },
     {
       "id": "insidertracking/67893",
@@ -8949,17 +8955,18 @@
       "datetime": "2026-10-30T08:14:07.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "earnings"
+        "semi",
+        "kr-market",
+        "earnings",
+        "flows"
       ],
-      "score": 85,
+      "score": 81,
       "hasText": true,
-      "summary": "중화권 마감 시황 (26.10.30, 금) 🇨🇳 중국 본토 증시는 아마존·인텔의 실적 실망감에 따른 글로벌 AI 투자 비용 공포가 지속되며 급락세로 마감. 양대 시장 거래대금은 투매가 쏟아지며 1조...",
-      "lead": 1,
       "tickers": [
         "AMZN",
-        "MU",
         "TSM"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.10.30, 금) 🇨🇳 중국 본토 증시는 아마존·인텔의 실적 실망감에 따른 글로벌 AI 투자 비용 공포가 지속되며 급락세로 마감. 양대 시장 거래대금은 투매가 쏟아지며 1조..."
     },
     {
       "id": "insidertracking/67879",
@@ -9038,12 +9045,15 @@
       "datetime": "2026-10-30T06:48:51.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "earnings",
+        "flows"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [2027년 중국 주식시장 전망] 중국, 축소와 수렴의 기회 자료: [2027년 숙제] 성장 간극과 신용 축소 완화, 주체별...",
-      "tickers": []
+      "tickers": [],
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [2027년 중국 주식시장 전망] 중국, 축소와 수렴의 기회 자료: [2027년 숙제] 성장 간극과 신용 축소 완화, 주체별..."
     },
     {
       "id": "HANAchina/71258",
@@ -9056,8 +9066,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "•중국 A주 3대 지수 낙폭 축소 •A500, CSI500, CSI300 추종 다수 ETF 거래대금 큰폭 증가. 홍콩 항셍은 +1.9% 상승 •한편, 중국 30년물 국채 선물 -0.76% 급락, 3월 9일...",
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 A주 3대 지수 낙폭 축소 •A500, CSI500, CSI300 추종 다수 ETF 거래대금 큰폭 증가. 홍콩 항셍은 +1.9% 상승 •한편, 중국 30년물 국채 선물 -0.76% 급락, 3월 9일..."
     },
     {
       "id": "insidertracking/67864",
