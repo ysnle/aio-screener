@@ -1,6 +1,6 @@
 {
   "schemaVersion": "event-briefs.v1",
-  "generatedAt": "2026-10-30T21:06:08.349Z",
+  "generatedAt": "2026-10-31T00:43:25.369Z",
   "producer": "scripts/fetch-event-briefs.mjs",
   "cadence": "every 20 minutes (.github/workflows/event-briefs.yml); AI runs only for a new source document or a pending call summary",
   "sourceKind": "T1_OFFICIAL",
@@ -10,7 +10,7 @@
     "fomc": "statement-ok",
     "sec": "ok",
     "dart": "ok",
-    "ai": "ok",
+    "ai": "idle",
     "prices": "ok"
   },
   "aiReason": null,
@@ -33,11 +33,6 @@
     "0001046179-26-000728"
   ],
   "reportWatch": {
-    "AMKR": "2026-10-31T00:00:00.000Z",
-    "BRO": "2026-10-31T00:00:00.000Z",
-    "CDNS": "2026-10-31T00:00:00.000Z",
-    "RMBS": "2026-10-31T00:00:00.000Z",
-    "VZ": "2026-10-31T00:00:00.000Z",
     "BA": "2026-11-01T00:00:00.000Z",
     "GLW": "2026-11-01T00:00:00.000Z",
     "GLXY": "2026-11-01T00:00:00.000Z",
@@ -2786,11 +2781,11 @@
         "baseClose": 678.5499877929688,
         "firstDate": "2026-10-29",
         "firstPct": 1.6,
-        "latestDate": "2026-10-30",
-        "latestPct": 0.1,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 1.6,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -2956,11 +2951,11 @@
         "baseClose": 610.3099975585938,
         "firstDate": "2026-10-29",
         "firstPct": 4.2,
-        "latestDate": "2026-10-30",
-        "latestPct": 4.5,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 4.2,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3161,11 +3156,11 @@
         "baseClose": 56.27000045776367,
         "firstDate": "2026-10-29",
         "firstPct": -1.3,
-        "latestDate": "2026-10-30",
-        "latestPct": -4.7,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -1.3,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3371,11 +3366,11 @@
         "baseClose": 1288.300048828125,
         "firstDate": "2026-10-29",
         "firstPct": 6.6,
-        "latestDate": "2026-10-30",
-        "latestPct": 10,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 6.6,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3569,11 +3564,11 @@
         "baseClose": 159.32000732421875,
         "firstDate": "2026-10-29",
         "firstPct": 0.4,
-        "latestDate": "2026-10-30",
-        "latestPct": -3.1,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 0.4,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3781,11 +3776,11 @@
         "baseClose": 606.8900146484375,
         "firstDate": "2026-10-29",
         "firstPct": 4.7,
-        "latestDate": "2026-10-30",
-        "latestPct": 2.3,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 4.7,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -3999,11 +3994,11 @@
         "baseClose": 140.92999267578125,
         "firstDate": "2026-10-29",
         "firstPct": 3.8,
-        "latestDate": "2026-10-30",
-        "latestPct": 6.1,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 3.8,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4195,11 +4190,11 @@
         "baseClose": 448.4700012207031,
         "firstDate": "2026-10-29",
         "firstPct": -3.9,
-        "latestDate": "2026-10-30",
-        "latestPct": -8.6,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -3.9,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4364,11 +4359,11 @@
         "baseClose": 713.3800048828125,
         "firstDate": "2026-10-29",
         "firstPct": -9.3,
-        "latestDate": "2026-10-30",
-        "latestPct": -12.7,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -9.3,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4564,11 +4559,11 @@
         "baseClose": 219.61000061035156,
         "firstDate": "2026-10-29",
         "firstPct": 3.7,
-        "latestDate": "2026-10-30",
-        "latestPct": -5,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 3.7,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -4784,11 +4779,11 @@
         "baseClose": 388.8699951171875,
         "firstDate": "2026-10-29",
         "firstPct": -3.9,
-        "latestDate": "2026-10-30",
-        "latestPct": -11,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -3.9,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5008,11 +5003,11 @@
         "baseClose": 150.1300048828125,
         "firstDate": "2026-10-29",
         "firstPct": -26.9,
-        "latestDate": "2026-10-30",
-        "latestPct": -30,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -26.9,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5228,11 +5223,11 @@
         "baseClose": 1007.6599731445312,
         "firstDate": "2026-10-29",
         "firstPct": 2.9,
-        "latestDate": "2026-10-30",
-        "latestPct": 0.6,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 2.9,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5443,11 +5438,11 @@
         "baseClose": 174.0800018310547,
         "firstDate": "2026-10-29",
         "firstPct": -20.1,
-        "latestDate": "2026-10-30",
-        "latestPct": -21.8,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -20.1,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5602,11 +5597,11 @@
         "baseClose": 53.13999938964844,
         "firstDate": "2026-10-29",
         "firstPct": 0.5,
-        "latestDate": "2026-10-30",
-        "latestPct": -4.4,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 0.5,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5800,11 +5795,11 @@
         "baseClose": 158.77000427246094,
         "firstDate": "2026-10-29",
         "firstPct": 5.5,
-        "latestDate": "2026-10-30",
-        "latestPct": -0.5,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": 5.5,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -5985,11 +5980,11 @@
         "baseClose": 531.010009765625,
         "firstDate": "2026-10-29",
         "firstPct": -0.2,
-        "latestDate": "2026-10-30",
-        "latestPct": -1.7,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -0.2,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6151,11 +6146,11 @@
         "baseClose": 110.30999755859375,
         "firstDate": "2026-10-29",
         "firstPct": -11.6,
-        "latestDate": "2026-10-30",
-        "latestPct": -20.7,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -11.6,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6343,11 +6338,11 @@
         "baseClose": 324.8900146484375,
         "firstDate": "2026-10-29",
         "firstPct": -12.6,
-        "latestDate": "2026-10-30",
-        "latestPct": -13.9,
-        "sessions": 2,
+        "latestDate": "2026-10-29",
+        "latestPct": -12.6,
+        "sessions": 1,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6566,7 +6561,7 @@
         "latestPct": -7,
         "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -6807,11 +6802,11 @@
         "baseClose": 78.20999908447266,
         "firstDate": "2026-10-28",
         "firstPct": 3.5,
-        "latestDate": "2026-10-30",
-        "latestPct": 1.4,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": 4.9,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7020,11 +7015,11 @@
         "baseClose": 83.3499984741211,
         "firstDate": "2026-10-28",
         "firstPct": 11.6,
-        "latestDate": "2026-10-30",
-        "latestPct": 3.8,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": 11.7,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7212,11 +7207,11 @@
         "baseClose": 895.0800170898438,
         "firstDate": "2026-10-28",
         "firstPct": -1.9,
-        "latestDate": "2026-10-30",
-        "latestPct": -4.2,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": -0.8,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7458,11 +7453,11 @@
         "baseClose": 208.55999755859375,
         "firstDate": "2026-10-28",
         "firstPct": 16.5,
-        "latestDate": "2026-10-30",
-        "latestPct": 11.5,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": 17.9,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7651,11 +7646,11 @@
         "baseClose": 323.67999267578125,
         "firstDate": "2026-10-28",
         "firstPct": -3.2,
-        "latestDate": "2026-10-30",
-        "latestPct": -15.2,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": -8.5,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -7863,11 +7858,11 @@
         "baseClose": 253.5,
         "firstDate": "2026-10-28",
         "firstPct": -0.7,
-        "latestDate": "2026-10-30",
-        "latestPct": 2.4,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": 4.9,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8028,11 +8023,11 @@
         "baseClose": 667.8499755859375,
         "firstDate": "2026-10-28",
         "firstPct": 4.5,
-        "latestDate": "2026-10-30",
-        "latestPct": -3.5,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": 4.9,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8194,11 +8189,11 @@
         "baseClose": 51.47999954223633,
         "firstDate": "2026-10-28",
         "firstPct": 8.5,
-        "latestDate": "2026-10-30",
-        "latestPct": -3.4,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": 6.3,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8369,11 +8364,11 @@
         "baseClose": 94.55999755859375,
         "firstDate": "2026-10-28",
         "firstPct": -3.3,
-        "latestDate": "2026-10-30",
-        "latestPct": -10.1,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": -3.1,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8568,11 +8563,11 @@
         "baseClose": 401.8599853515625,
         "firstDate": "2026-10-28",
         "firstPct": -0.3,
-        "latestDate": "2026-10-30",
-        "latestPct": 2.9,
-        "sessions": 3,
+        "latestDate": "2026-10-29",
+        "latestPct": 2.2,
+        "sessions": 2,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8727,7 +8722,7 @@
         "latestPct": 5.7,
         "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -8903,11 +8898,11 @@
         "baseClose": 459.3999938964844,
         "firstDate": "2026-10-27",
         "firstPct": -5.5,
-        "latestDate": "2026-10-30",
-        "latestPct": -8,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": -4.6,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9063,11 +9058,11 @@
         "baseClose": 188.30999755859375,
         "firstDate": "2026-10-27",
         "firstPct": -10.7,
-        "latestDate": "2026-10-30",
-        "latestPct": -8.9,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": -8.3,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9251,11 +9246,11 @@
         "baseClose": 15.680000305175781,
         "firstDate": "2026-10-27",
         "firstPct": 9.6,
-        "latestDate": "2026-10-30",
-        "latestPct": 2,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": 15.6,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9453,11 +9448,11 @@
         "baseClose": 127.73999786376953,
         "firstDate": "2026-10-27",
         "firstPct": -1.1,
-        "latestDate": "2026-10-30",
-        "latestPct": -3.5,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": 0.9,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9702,11 +9697,11 @@
         "baseClose": 92.69999694824219,
         "firstDate": "2026-10-27",
         "firstPct": -1.6,
-        "latestDate": "2026-10-30",
-        "latestPct": 1.5,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": 0.1,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -9937,11 +9932,11 @@
         "baseClose": 147.5,
         "firstDate": "2026-10-27",
         "firstPct": 5.7,
-        "latestDate": "2026-10-30",
-        "latestPct": 1,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": 7.3,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10100,11 +10095,11 @@
         "baseClose": 71.08000183105469,
         "firstDate": "2026-10-27",
         "firstPct": -5,
-        "latestDate": "2026-10-30",
-        "latestPct": -1.9,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": -4.6,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10342,11 +10337,11 @@
         "baseClose": 90.31999969482422,
         "firstDate": "2026-10-27",
         "firstPct": -1.6,
-        "latestDate": "2026-10-30",
-        "latestPct": -6.3,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": 0.7,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10538,11 +10533,11 @@
         "baseClose": 36.810001373291016,
         "firstDate": "2026-10-27",
         "firstPct": 8.5,
-        "latestDate": "2026-10-30",
-        "latestPct": 7.3,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": 12,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
@@ -10782,11 +10777,11 @@
         "baseClose": 322.1700134277344,
         "firstDate": "2026-10-27",
         "firstPct": 6.5,
-        "latestDate": "2026-10-30",
-        "latestPct": 1.8,
-        "sessions": 4,
+        "latestDate": "2026-10-29",
+        "latestPct": 6.4,
+        "sessions": 3,
         "settled": false,
-        "checkedAt": "2026-10-30T21:06:08.349Z"
+        "checkedAt": "2026-10-31T00:43:25.369Z"
       },
       "reasons": {
         "basis": "news-report",
