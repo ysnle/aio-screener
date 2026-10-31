@@ -21,7 +21,7 @@ Preconditions:
 - Doctor OK; `public-data/` has briefing and news snapshots.
 
 - **Open.** Click sidebar `오늘`. `page-home` active; hub tabs exactly `요약,브리핑,뉴스`.
-- **First-screen order (P2089).** `window._aioTodayVerdict` is a pending request for `public-data/today-verdict.json`; `<head>` preloads `responsive.css` and holds no legacy `js/aio-*` script or script preload.
+- **First-screen order (P2089).** `window._aioTodayVerdict` is a pending request for `public-data/today-verdict.json`; the served `index.html` `<head>` preloads `responsive.css` and holds no legacy `js/aio-*` script or script preload. The live `document.head` is the wrong place to look, because `aio-chat.js` (idle, or at once under webdriver) and `aio-qa-audits.js` are appended there after boot.
 - **Verdict.** `#home-hero-headline` matches `/종가 기준.*6개 축/` (the placeholder `종가 기록을 불러오는 중입니다.` never counts).
 - **Briefing.** Tab `브리핑` → `page-briefing`; `#briefing-date-line` non-empty.
 - **News.** Tab `뉴스` → `page-market-news`; `#news-window-label` matches `/KST|직전 수집본/`, `#news-24h-count` has a digit, `#news-24h-sources` matches `/개 출처/`, `#market-news-count` non-empty.

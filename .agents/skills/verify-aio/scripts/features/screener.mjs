@@ -3,13 +3,20 @@ import { openFromNav, expectText, expectCount, visibleText } from '../lib/drive.
 
 const ROW = '#screener-results-body tr[data-aio-screener-ticker]';
 const tickers = (p) => p.$$eval(ROW, (r) => r.map((x) => x.dataset.aioScreenerTicker));
+// Phone keeps the filters (market, search) in a bottom sheet behind 필터; desktop and tablet show them inline.
+const inFilters = async (p, act) => {
+  const sheet = await p.isVisible('#scr-filter-open');
+  if (sheet) await p.click('#scr-filter-open');
+  await act();
+  if (sheet) await p.click('#scr-filter-sheet .scr-filter-close');
+};
 
 export default {
   title: '스크리너 (시장 선택 · 퍼널 · 검색 · 더 보기 · 설명 서랍 → 종목)',
   steps: [
     ['nav 스크리너', (p) => openFromNav(p, '스크리너', 'page-screener')],
     ['상장 시장 US + 순위 행', async (p) => {
-      await p.selectOption('#scr-listing-market', 'US');
+      await inFilters(p, () => p.selectOption('#scr-listing-market', 'US'));
       return expectCount(p, ROW, 1, 30000).catch(async (error) => {
         // P1673: name the environment cause instead of a bare "0 rows" when the local artifact is stale.
         const empty = await p.evaluate(() => document.querySelector('#screener-results-body tr')?.textContent || '');
@@ -17,16 +24,23 @@ export default {
         throw error;
       });
     }],
-    ['결과 범위 펼치기 → 퍼널 수치', async (p) => ({
-      ...(await (async () => { const d = p.locator('#page-screener details:has(#scr-funnel-universe) > summary'); if (!(await p.evaluate(() => document.getElementById('scr-funnel-universe')?.closest('details')?.open))) await d.click(); return {}; })()), ...(await expectText(p, '#scr-funnel-universe', { pattern: /\d/ })), ...(await expectText(p, '#scr-funnel-passed', { pattern: /\d/ })) })],
+    // The fold lives in #screener-workbench, shown only in the 맞춤 조건 view, which in turn hides the ranking table.
+    ['맞춤 조건 → 결과 범위 펼치기 → 퍼널 수치 → 순위 복귀', async (p) => {
+      await p.click('#scr-view-button-custom');
+      if (!(await p.evaluate(() => document.getElementById('scr-funnel-universe')?.closest('details')?.open))) await p.click('#scr-workbench-advanced > summary');
+      const funnel = { ...(await expectText(p, '#scr-funnel-universe', { pattern: /\d/ })), ...(await expectText(p, '#scr-funnel-passed', { pattern: /\d/ })) };
+      await p.click('#scr-tab-button-ranking');
+      await expectCount(p, ROW, 1, 10000);
+      return funnel;
+    }],
     ['텍스트 검색 → 행 축소 → 지우면 복원', async (p) => {
       const before = await tickers(p);
-      await p.fill('#scr-text-search', before[0]);
+      await inFilters(p, () => p.fill('#scr-text-search', before[0]));
       await p.waitForFunction(({ s, n }) => { const r = document.querySelectorAll(s); return r.length > 0 && r.length < n; }, { s: ROW, n: before.length }, { timeout: 10000 }).catch(() => {});
       const after = await tickers(p);
       if (!after.includes(before[0])) throw new Error(`search "${before[0]}" lost its own row`);
       if (before.length > 1 && after.length >= before.length) throw new Error(`search did not narrow rows (${before.length} → ${after.length})`);
-      await p.fill('#scr-text-search', '');
+      await inFilters(p, () => p.fill('#scr-text-search', ''));
       await p.waitForFunction(({ s, n }) => document.querySelectorAll(s).length === n, { s: ROW, n: before.length }, { timeout: 10000 });
       return { query: before[0], before: before.length, after: after.length, restored: before.length };
     }],

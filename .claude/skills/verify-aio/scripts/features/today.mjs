@@ -14,13 +14,17 @@ export default {
       chips: await p.locator('#home-hero-components > *').count()
     })],
     // v58.80 F01 (P2089): the static shell requests the produced verdict first, preloads its one stylesheet, and leaves the
-    // legacy scripts to the end of body (no script preloads in <head>; the automation-only QA audit script is injected there), so the page and stylesheet win the first seconds.
+    // legacy scripts to the end of body, so the page and stylesheet win the first seconds. The served <head> is parsed, not the
+    // live one: lazy chunks (aio-chat.js on idle or under webdriver, aio-qa-audits.js) are appended to document.head after boot.
     ['첫 화면 순서 (판정 요청 · 스타일 먼저 · 스크립트 뒤)', async (p) => {
-      const shell = await p.evaluate(() => ({
-        verdictRequested: typeof window._aioTodayVerdict?.then === 'function',
-        stylePreload: !!document.head.querySelector('link[rel="preload"][as="style"][href$="responsive.css"]'),
-        headScripts: document.head.querySelectorAll('script[src*="/js/aio-"]:not([src*="aio-qa-audits"]), link[rel="preload"][as="script"]').length
-      }));
+      const shell = await p.evaluate(async () => {
+        const served = new DOMParser().parseFromString(await (await fetch('./index.html', { cache: 'no-store' })).text(), 'text/html');
+        return {
+          verdictRequested: typeof window._aioTodayVerdict?.then === 'function',
+          stylePreload: !!served.head.querySelector('link[rel="preload"][as="style"][href$="responsive.css"]'),
+          headScripts: served.head.querySelectorAll('script[src*="js/aio-"], link[rel="preload"][as="script"]').length
+        };
+      });
       if (!shell.verdictRequested || !shell.stylePreload || shell.headScripts) throw new Error(`first-screen order: ${JSON.stringify(shell)}`);
       return shell;
     }],

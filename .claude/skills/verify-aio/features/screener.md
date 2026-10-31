@@ -24,7 +24,7 @@ Preconditions:
 
 - **Open.** Click sidebar `스크리너`. `page-screener` active.
 - **Market + rows.** Select `US` in `#scr-listing-market`; ≥1 ranked row.
-- **Funnel.** Open the fold `조건 직접 조합 · 결과 범위 · 실행 기록` (its `<summary>`); `#scr-funnel-universe` and `#scr-funnel-passed` show digits.
+- **Funnel.** Click the view tab `맞춤 조건` (`#scr-view-button-custom`), open the fold `조건 직접 조합, 결과 범위, 실행 기록` (`#scr-workbench-advanced > summary`); `#scr-funnel-universe` and `#scr-funnel-passed` show digits. Click `순위` (`#scr-tab-button-ranking`) to bring the table back.
 - **Search.** Fill the first row's ticker: rows shrink and keep it; clearing restores the exact count.
 - **More.** If `더 보기` is visible, clicking it adds rows; otherwise the step records `skipped` with the row count.
 - **Why → 종목.** Click the first row's cell: drawer opens titled with the ticker. Click `open-ticker`: `page-ticker` names it.
@@ -34,6 +34,7 @@ Preconditions:
 
 - `순위 자료를 불러오는 중입니다.` is the loading row; wait for `data-aio-screener-ticker` rows.
 - Producers run only in GitHub Actions. Once a newer US session has closed, a local `public-data/screener.json` marks every US row STALE and the table shows `… 최신 거래일 기준이 아니어서 순위 판정을 보류했습니다` (P1673) — an environment state, not a regression; refresh public-data from origin's data commits before treating it as a failure.
-- The funnel lives in a closed `<details>`; its numbers are in the DOM but not rendered until the user opens the fold.
+- The funnel lives in a closed `<details>` inside `#screener-workbench`, which is `hidden` unless the view is `맞춤 조건`; its numbers are in the DOM but not rendered until the user switches view and opens the fold. The `맞춤 조건` view hides the ranking table (`VIEW_PANELS.custom` is empty), so return to `순위` before any row step.
 - 12 rows is the page size, not the snapshot size.
+- On phone the market select and text search sit in a bottom sheet: open `#scr-filter-open` (`필터`), act, close with `#scr-filter-sheet .scr-filter-close`. Desktop and tablet show them inline and hide `필터`.
 - A row click opens the drawer, not 종목; the drawer button does that.

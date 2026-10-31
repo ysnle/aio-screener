@@ -10,7 +10,8 @@ export default {
   steps: [
     ['nav 포트폴리오 (빈 상태)', async (p) => {
       const r = await openFromNav(p, '포트폴리오', 'page-portfolio');
-      if (!/포트폴리오가 비어 있습니다/.test(await holdings(p))) throw new Error('fresh context is not empty');
+      await p.waitForFunction(() => /포트폴리오가 비어 있습니다/.test(document.querySelector('#pf-holdings-table-section')?.innerText || ''), null, { timeout: 10000 })
+        .catch(async () => { throw new Error(`fresh context is not empty: ${(await holdings(p)).slice(0, 120)}`); });
       return r;
     }],
     ['종목 추가 → 입력 폼', async (p) => {
@@ -51,8 +52,11 @@ export default {
       await p.waitForFunction(() => /MSFT/.test(document.querySelector('#pf-holdings-table-section')?.innerText || ''), null, { timeout: 10000 });
       return { persisted: true };
     }],
-    ['삭제 → 확인 모달 → 빈 상태 복귀', async (p) => {
-      await p.click('#pf-holdings-table-section button[data-action="_aioRemovePosition"][data-arg="MSFT"]');
+    ['상세 → 삭제 → 확인 모달 → 빈 상태 복귀', async (p) => {
+      // The table row and the card layout both render a 삭제 for the symbol; only one has a box at a given width.
+      const more = p.locator('#pf-holdings-table-section button[aria-label="MSFT 수량·단가·관리 보기"]:visible');
+      if (await more.count()) await more.first().click();
+      await p.click('#pf-holdings-table-section button[data-action="_aioRemovePosition"][data-arg="MSFT"]:visible');
       await p.waitForSelector('#aio-confirm-modal', { state: 'visible', timeout: 5000 });
       const title = (await p.textContent('#aio-confirm-title')).trim();
       await p.click('#aio-confirm-ok');
