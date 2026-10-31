@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-31T01:51:42.467Z",
-  "attemptedAt": "2026-10-31T01:51:42.467Z",
-  "lastSuccessfulAt": "2026-10-31T01:51:42.467Z",
+  "generatedAt": "2026-10-31T02:51:30.417Z",
+  "attemptedAt": "2026-10-31T02:51:30.417Z",
+  "lastSuccessfulAt": "2026-10-31T02:51:30.417Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-17T01:51:37.457Z",
-  "until": "2026-10-31T01:51:37.457Z",
+  "since": "2026-10-17T02:51:24.565Z",
+  "until": "2026-10-31T02:51:24.565Z",
   "current24hWindow": {
     "start": "2026-10-29T23:00:00.000Z",
     "end": "2026-10-30T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1363,
+      "count": 1360,
       "freshCount": 39,
-      "eligibleTextCount": 1299,
+      "eligibleTextCount": 1296,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 67933
+      "lastPostId": 67935
     },
     {
       "channel": "bornlupin",
@@ -116,26 +116,26 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 669,
+      "count": 674,
       "freshCount": 39,
-      "eligibleTextCount": 669,
+      "eligibleTextCount": 674,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 71285
+      "lastPostId": 71290
     }
   ],
-  "count": 2403,
-  "retainedItemCount": 469,
+  "count": 2405,
+  "retainedItemCount": 468,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2403,
-    "eligibleTextCount": 2331,
+    "observedCount": 2405,
+    "eligibleTextCount": 2333,
     "mediaOnlyCount": 72,
-    "highSignalCount": 435,
-    "broadSignalCount": 946,
+    "highSignalCount": 436,
+    "broadSignalCount": 950,
     "selectedRawCount": 412,
     "selectedEligibleCount": 412,
     "selectedRawCoveragePct": 17.7,
@@ -143,36 +143,37 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 854,
-    "macro": 376,
-    "earnings": 487,
-    "ai-policy": 133,
-    "equity": 168,
-    "semi": 531,
-    "power": 298,
-    "geo": 416,
+    "semi": 533,
+    "power": 299,
+    "earnings": 488,
+    "japan": 112,
+    "geo": 417,
+    "market-note": 852,
+    "credit": 124,
+    "ai-policy": 134,
+    "equity": 169,
+    "macro": 377,
     "optical": 40,
     "healthcare": 122,
-    "japan": 111,
     "flows": 94,
     "kr-market": 134,
-    "credit": 123,
     "media-only": 72,
     "crypto": 5,
     "insider": 2
   },
   "tickerCounts": {
+    "2454.TW": 3,
+    "NVDA": 159,
+    "AAPL": 14,
+    "GOOG": 129,
+    "AMZN": 79,
+    "INTC": 4,
     "AMD": 26,
     "PLTR": 10,
     "LLY": 3,
-    "INTC": 3,
     "TEM": 1,
-    "GOOG": 128,
-    "AMZN": 78,
     "MRVL": 8,
     "LITE": 12,
-    "NVDA": 158,
-    "AAPL": 13,
     "JD": 1,
     "ABBV": 2,
     "285A.T": 3,
@@ -241,7 +242,6 @@
     "SMCI": 4,
     "DELL": 1,
     "ADBE": 1,
-    "2454.TW": 2,
     "UMC": 1,
     "025560.KS": 1,
     "LRCX": 1,
@@ -252,29 +252,29 @@
     "010130.KS": 1
   },
   "themes": [
-    "Market Notes (854 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
-    "Semiconductors/Memory (531 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
-    "Earnings/Corporate (487 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
-    "Geopolitics (416 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
-    "Macro/Rates (376 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
-    "AI Power/Grid (298 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
-    "Equity/Analyst (168 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
-    "Korea Market (134 posts in 14-day research window): Alphabet 2026년 3분기 실적 요약 실적 • 매출 $1,275.8억, YoY +25%, QoQ +6% • 환율 영향 제외 매출 성장률 YoY +25%, QoQ +7% • 영업이익 $405.8억,..."
+    "Market Notes (852 posts in 14-day research window): 2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀...",
+    "Semiconductors/Memory (533 posts in 14-day research window): 2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144...",
+    "Earnings/Corporate (488 posts in 14-day research window): 마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장....",
+    "Geopolitics (417 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전...",
+    "Macro/Rates (377 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인...",
+    "AI Power/Grid (299 posts in 14-day research window): Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을...",
+    "Equity/Analyst (169 posts in 14-day research window): [시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가...",
+    "AI Policy/Export Controls (134 posts in 14-day research window): 2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 158,
+      "count": 159,
       "text": "2026년 10월 31일 미국 증시 브리핑 미국 증시는 AI 투자 수익성 우려와 반도체 업종 급락, 연준의 추가 긴축 가능성이 맞물리며 10월 마지막 거래일 큰 폭 하락 마감. S&P 500 -1.82%, 나스닥 -2.86%, 다우 -1.09%, 러셀 2000 -1.66% 기록. 나스닥100은 장중 4% 이상..."
     },
     {
       "key": "GOOG",
-      "count": 128,
+      "count": 129,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로 보도됨. • 알파벳 (GOOGL) — 순다르 피차이 CEO는 Project Suncatcher의 궤도..."
     },
     {
       "key": "AMZN",
-      "count": 78,
+      "count": 79,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로 보도됨. • 알파벳 (GOOGL) — 순다르 피차이 CEO는 Project Suncatcher의 궤도..."
     },
     {
@@ -330,7 +330,7 @@
       "topics": [
         "macro"
       ],
-      "count": 376,
+      "count": 377,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 미국 연준은 기준금리를 3.75~4.00%로 동결하기로 결정. 12월 금리 결정에 대해서는 구체적인..."
     },
     {
@@ -339,7 +339,7 @@
       "topics": [
         "geo"
       ],
-      "count": 416,
+      "count": 417,
       "focus": "글로벌 뉴스 브리핑 - 2026년 10월 29일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 행정부는 이란과 임시 평화협정을 위한 협상을 진행 중인 가운데, 중간선거 이후 이란에 대한 군사작전..."
     },
     {
@@ -348,7 +348,7 @@
       "topics": [
         "credit"
       ],
-      "count": 123,
+      "count": 124,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AI 인프라 투자 자금 조달을 위해 약 800억 달러 규모의 공급업체 대출 프로그램을 활용할 계획인 것으로 보도됨. • 알파벳 (GOOGL) — 순다르 피차이 CEO는 Project Suncatcher의 궤도..."
     },
     {
@@ -357,7 +357,7 @@
       "topics": [
         "semi"
       ],
-      "count": 531,
+      "count": 533,
       "focus": "2026년 10월 29일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (15.96%) 2위: LUMENTUM HOLDINGS INC SOFF 39520207144..."
     },
     {
@@ -375,7 +375,7 @@
       "topics": [
         "power"
       ],
-      "count": 298,
+      "count": 299,
       "focus": "Citi) Bloom Energy Corp (BE.N); 좋은 분기, 붐비는 트레이드, 거친 반응. 중립, TP $281 씨티의 견해 BE는 견조한 실적을 발표했습니다. 3분기 매출과 이익 모두 예상을..."
     },
     {
@@ -384,7 +384,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 133,
+      "count": 134,
       "focus": "2026년 10월 28일 미국 레딧 베스트 게시물 분석 > Anthropic / AI - IPO Roast가 더 세짐 · Anthropic S-1 직접 파헤치는 글 계속 등장 · “rawdogging..."
     },
     {
@@ -402,7 +402,7 @@
       "topics": [
         "equity"
       ],
-      "count": 168,
+      "count": 169,
       "focus": "[시그널랩 리서치] 10/23 오늘의 목표주가 상향 및 신규 커버 리포트 요약 <삼성E&A[028050] 반복되는 서프라이즈, 그리고 훌륭한 주주환원> iM증권 배세호 ㆍ 투자의견 Buy 유지 목표주가..."
     },
     {
@@ -420,7 +420,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 487,
+      "count": 488,
       "focus": "마이크로소프트(MSFT) Q1 2027 어닝콜 요약 > 긍정 요인: • 강력한 매출 성장 및 수익성 개선. 2027 회계연도 1분기 매출은 923억달러로 전년 대비 19% 증가했으며 영업이익은 21% 성장...."
     },
     {
@@ -438,7 +438,7 @@
       "topics": [
         "japan"
       ],
-      "count": 111,
+      "count": 112,
       "focus": "JPM) 일본 퀀트 전략; 바닥은 닛케이평균 62,000선이나 핵심 분기점은 60,980 – 사이버 관련 헤드라인과 AI 피로감이 선별적 퀄리티 그로스에 다시 불을 지피다 내용 요약 10월 22일 닛케이평균은..."
     },
     {
@@ -465,7 +465,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 854,
+      "count": 852,
       "focus": "2026년 10월 30일 미국 증시 브리핑 미국 증시는 대형 기술주와 AI 관련주 급락으로 3대 지수 동반 하락 마감. S&P 500 -0.30%, 다우 -0.25%, 나스닥 -1.38%를 기록한 반면 러셀..."
     }
   ],
@@ -1689,6 +1689,78 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71290",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71290",
+      "datetime": "2026-10-31T02:49:13.000Z",
+      "localDateKst": "2026-10-31",
+      "tags": [
+        "semi",
+        "power",
+        "earnings",
+        "japan"
+      ],
+      "lead": 1,
+      "score": 59,
+      "hasText": true,
+      "tickers": [
+        "2454.TW"
+      ],
+      "summary": ">>MediaTek 2세대 ASIC, 2028년 1분기 양산 예정 (대만공상시보) •MediaTek CEO는 2세대 AI ASIC이 계획대로 2028년 1분기 양산에 들어갈 예정이며, 두 번째 고객사도 확보해..."
+    },
+    {
+      "id": "HANAchina/71289",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71289",
+      "datetime": "2026-10-31T02:46:58.000Z",
+      "localDateKst": "2026-10-31",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>Nvidia의 PTFE 도입 추진…중국 업체 선점, 대만 업체는 신중 (대만공상시보) •Nvidia가 AI 데이터 전송 성능을 높이기 위해 서버용 PCB에 PTFE(테프론) 소재 도입을 검토. PTFE는..."
+    },
+    {
+      "id": "HANAchina/71287",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71287",
+      "datetime": "2026-10-31T02:27:11.000Z",
+      "localDateKst": "2026-10-31",
+      "tags": [
+        "credit",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "score": 79,
+      "hasText": true,
+      "tickers": [
+        "GOOG",
+        "AMZN",
+        "INTC"
+      ],
+      "summary": ">>기술주, AI 투자 현실 직시…수익성과 자금 조달 부담 부각 (중국언론) •Google, Amazon, Intel 등 빅테크 실적을 통해 AI 투자에 따른 수익성 및 현금흐름 문제 부각. Alphabet은..."
+    },
+    {
+      "id": "HANAchina/71286",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71286",
+      "datetime": "2026-10-31T02:22:17.000Z",
+      "localDateKst": "2026-10-31",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>중국 자동차 기업, 2030년 유럽 판매량 270만 대 전망…37%는 현지 생산 •2030년 중국 자동차 기업의 유럽 판매량이 270만대, 이중 37%는 현지 생산으로 충당할 전망. 생산능력은 신규 공장..."
+    },
+    {
       "id": "HANAchina/71283",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71283",
@@ -2614,13 +2686,13 @@
       "datetime": "2026-10-29T23:31:06.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 국가발전위원회(NDC)의 9월 경기대책신호 종합점수가 41점을 기록하며 10개월 연속 '적색(호황)'을 이어가 1984년 이후 42년 만에 최장 연속 기록을 경신 • 첨단 공정 경쟁력을 갖춘 반도체를..."
+      "summary": "• 대만 국가발전위원회(NDC)의 9월 경기대책신호 종합점수가 41점을 기록하며 10개월 연속 '적색(호황)'을 이어가 1984년 이후 42년 만에 최장 연속 기록을 경신 • 첨단 공정 경쟁력을 갖춘 반도체를...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71239",
@@ -6973,21 +7045,6 @@
       ]
     },
     {
-      "id": "HANAchina/70991",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70991",
-      "datetime": "2026-10-25T23:10:32.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "semi"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "• AI 및 HPC(고성능 컴퓨팅) 수요 급증으로 대만 반도체·ICT 수출과 수주가 사상 최고치를 경신하며, 올해 연간 경제성장률이 12%를 돌파할 가능성이 확대 • 대만 주계총처(통계청)는 연간 성장률을...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20811",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20811",
@@ -7003,22 +7060,6 @@
         "NVDA",
         "MU",
         "009150.KS"
-      ]
-    },
-    {
-      "id": "HANAchina/70990",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70990",
-      "datetime": "2026-10-25T22:49:06.000Z",
-      "localDateKst": "2026-10-26",
-      "tags": [
-        "market-note"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "• 애플의 첫 폴더블폰 '아이폰 듀오'가 출시 직후 전 모델 완판되었으며, 리셀 프리미엄이 33%까지 붙는 등 품귀 현상으로 인해 2차 출하 일정이 2027년 1월로 연기 • 애플은 공급망에 긴급 증산을...",
-      "tickers": [
-        "TSM"
       ]
     },
     {
@@ -7069,21 +7110,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/70987",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70987",
-      "datetime": "2026-10-25T12:53:33.000Z",
-      "localDateKst": "2026-10-25",
-      "tags": [
-        "semi"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>메모리 가격 급등으로 PC 시장 위축, 3분기 글로벌 출하량 21% 급감 •AI 수요 증가에 따른 최근 메모리 가격 급등으로 PC 수요가 뚜렷하게 감소. 시장조사기관 Counterpoint에 따르면, 올해...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "aetherjapanresearch/26031",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26031",
@@ -7116,21 +7142,6 @@
         "NVDA",
         "APO"
       ]
-    },
-    {
-      "id": "HANAchina/70985",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/70985",
-      "datetime": "2026-10-25T10:37:14.000Z",
-      "localDateKst": "2026-10-25",
-      "tags": [
-        "kr-market"
-      ],
-      "score": 53,
-      "hasText": true,
-      "summary": ">>골드만삭스, AI 트레이딩 우려 심화로 한국 코스피 12개월 목표치 25% 하향 •AI 관련 투자에 대한 우려가 커지면서 골드만삭스 전략이 한국 코스피 목표치를 25% 하향 조정. 올해 여러 차례 목표치를...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20807",
@@ -9252,13 +9263,13 @@
       "datetime": "2026-10-29T23:31:06.000Z",
       "localDateKst": "2026-10-30",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 국가발전위원회(NDC)의 9월 경기대책신호 종합점수가 41점을 기록하며 10개월 연속 '적색(호황)'을 이어가 1984년 이후 42년 만에 최장 연속 기록을 경신 • 첨단 공정 경쟁력을 갖춘 반도체를..."
+      "summary": "• 대만 국가발전위원회(NDC)의 9월 경기대책신호 종합점수가 41점을 기록하며 10개월 연속 '적색(호황)'을 이어가 1984년 이후 42년 만에 최장 연속 기록을 경신 • 첨단 공정 경쟁력을 갖춘 반도체를...",
+      "lead": 1,
+      "tickers": []
     }
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
