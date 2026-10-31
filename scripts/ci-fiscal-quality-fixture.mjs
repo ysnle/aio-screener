@@ -2,7 +2,6 @@
 // Does not import or execute the data producer, fetch a provider, or write artifacts.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import vm from 'node:vm';
 import { parseFiscalHistory, renderFiscalRead, fiscalBarGeometry, formatFiscalAmount, formatFiscalCompact } from '../src/ui/components/fiscal-read.js';
 import { buildFiscalRead, reconcileFiscalHistory } from '../src/domain/fundamental/fiscal-read.js';
 import { fiscalMetrics, buildPeerRead } from '../src/domain/fundamental/peer-read.js';
@@ -59,25 +58,21 @@ assert.ok(financialPeers.rows.filter(row => row.id !== 'fcfMargin').every(row =>
 const industrialPeers = buildPeerRead({ symbol: 'OWN', sector: 'Industrials', peers: ['P1', 'P2', 'P3', 'P4', 'P5'], seriesFor: () => cashSeries });
 assert.equal(industrialPeers.rows.find(row => row.id === 'fcfMargin').percentile, 50, 'P1627 industrial FCF peer percentiles must remain available');
 
-// Extract only the actual pure producer function; the producer has top-level file writes.
-const producer = readFileSync(new URL('./build-sec-runtime-projection.mjs', import.meta.url), 'utf8');
-const compactFunction = producer.match(/export function compactFiscalMillions\(value\) \{[\s\S]*?\n\}/)?.[0];
-assert.ok(compactFunction, 'P1627 producer must expose a bounded pure precision contract');
-const sandbox = {}; vm.createContext(sandbox);
-vm.runInContext(compactFunction.replace('export ', '') + '\nthis.convert = compactFiscalMillions;', sandbox);
+// The producer's pure series builders (scripts/lib/sec-fiscal-history.mjs) are the code build-sec-runtime-projection.mjs
+// runs; the producer itself has top-level file writes and is not imported.
+const { compactFiscalMillions, fiscalHistory, quarterlyHistory } = await import('./lib/sec-fiscal-history.mjs');
+const sandbox = { convert: compactFiscalMillions, fiscal: fiscalHistory };
 assert.equal(sandbox.convert(50001000), 50.001, 'P1627 producer must retain USD thousands in revenue');
 assert.equal(sandbox.convert(-7126000), -7.126, 'P1627 producer must retain signed USD thousands in income');
 assert.equal(sandbox.convert(400000), 0.4, 'P1627 a sub-million profit must not disappear into zero');
 assert.equal(sandbox.convert(null), '', 'P1627 producer must not turn missing into zero');
-assert.equal((producer.match(/const m = compactFiscalMillions;/g) || []).length, 2, 'P1627 annual and quarterly history must use the same precision');
-const fiscalSourceStart = producer.indexOf('const FY_FIELDS =');
-const fiscalSourceEnd = producer.indexOf('// P1449: the page projection', fiscalSourceStart);
-assert.ok(fiscalSourceStart >= 0 && fiscalSourceEnd > fiscalSourceStart, 'P1627 pure fiscal projection boundary must be identifiable without running the producer');
-// P1708: fiscal history picks revenue with the shared domain rule; the sandbox receives the same import.
-sandbox.bestRevenueRowsByPeriod = (await import('../src/domain/fundamental/sec-report.js')).bestRevenueRowsByPeriod;
-// P1910 (v57.99, audit D6): one concept per series — the same shared anchor the producer imports.
-Object.assign(sandbox, await import('../src/domain/fundamental/sec-earnings.js'));
-vm.runInContext(producer.slice(fiscalSourceStart, fiscalSourceEnd).replace(/^export /gm, '') + '\nthis.fiscal = fiscalHistory;', sandbox);
+{
+  // P1627: annual and quarterly history use the same precision (USD thousands inside USD-million fields).
+  const quarter = (end, start, fiscalPeriod, value) => ({ form: '10-Q', periodStart: start, periodEnd: end, fiscalPeriod, filedAt: `${end.slice(0, 4)}-12-01`, value });
+  const quarters = quarterlyHistory({ revenueQ: [quarter('2025-03-31', '2025-01-01', 'Q1', 20001000), quarter('2025-06-30', '2025-04-01', 'Q2', 20400000)],
+    netIncomeQ: [quarter('2025-03-31', '2025-01-01', 'Q1', -7126000), quarter('2025-06-30', '2025-04-01', 'Q2', 400000)] });
+  assert.equal(quarters, '2025-03-31:20.001:-7.126:r;2025-06-30:20.4:0.4:r', 'P1627 annual and quarterly history must use the same precision');
+}
 for (const form of ['10-K', '20-F', '40-F', '20-F/A']) {
   const year = { form, periodStart: '2025-01-01', periodEnd: '2025-12-31', fiscalPeriod: 'FY', filedAt: '2026-03-01' };
   assert.ok(sandbox.fiscal({ revenue: [{ ...year, value: 50001000 }], netIncome: [{ ...year, value: -7126000 }] }).includes('50.001:-7.126'), 'P1627 every supported annual filing form must preserve its signed precise history');

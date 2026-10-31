@@ -847,6 +847,8 @@ export function newsSelectionAudit(items, env = {}) {
     marketNewsEligible: 0,
     scoreReasons: {},
   };
+  const marketNewsContract = NEWS_SURFACE_CONTRACTS['market-news'];
+  const marketNewsCycle = newsCycleWindow(marketNewsContract, {}, env);
   sourceItems.forEach((item) => {
     let score = Number(item && item.score);
     if (!isFinite(score)) {
@@ -855,9 +857,9 @@ export function newsSelectionAudit(items, env = {}) {
     const topic = item && (item.topic || classifyTopic(item)) || 'general';
     const source = String(item && item.source || 'unknown');
     const tier = String(newsSourceTier(item));
-    // v59.42: the row's age against the 뉴스 page window (it was passed none, so every row counted as stale).
-    const ageHours = (nowMs - newsPubMs(item)) / 3600000;
-    const status = newsVerificationStatus(item, ageHours, NEWS_SURFACE_CONTRACTS['market-news']);
+    // v59.49: the same row rule the 뉴스 page uses, so a row of the latest completed 08:00 cycle counts as current
+    // until the next cut (raw age called it stale once it passed 24 h, 06-08 KST for every row, while the page showed it).
+    const status = normalizeNewsItem('market-news', item, marketNewsContract, nowMs, marketNewsCycle, env).verificationStatus;
     const reasons = Array.isArray(item && item._scoreReasons) ? item._scoreReasons : [];
     if (score >= 90) audit.scoreBuckets.gte90++;
     else if (score >= 70) audit.scoreBuckets.gte70++;

@@ -176,7 +176,11 @@ async function observeOnce() {
         const selfObservation = mode === 'watchdog' && id === 'watchdog';
         // Release mode: only the attested CI run stays an error. A previous cancelled/failed Pages run must
         // not fail a successful deploy; pages-exact-expected-sha and provenance checks stay errors below.
-        const severity = (mode === 'release' && id !== 'ci') || selfObservation ? 'warning' : 'error';
+        // v59.48: every other watched workflow owns its own failure issue (operations-alert.yml: reopen, recovery, escalation
+        // threshold). As errors here they made the watchdog repeat those failures: 322 of 349 red watchdog runs in 8 days
+        // (10-23~31). The watchdog still names them, and stays red for what only it sees: the live site, deploy and Workers.
+        const ownedElsewhere = mode === 'watchdog' && id !== 'watchdog';
+        const severity = (mode === 'release' && id !== 'ci') || selfObservation || ownedElsewhere ? 'warning' : 'error';
         check(`github-${id}-latest-completed`, run?.conclusion === 'success' || isCurrentReleaseRun, run ? `conclusion=${run.conclusion} run=${run.html_url}${latest?.status === 'in_progress' ? ` active=${latest.html_url}` : ''}` : (isCurrentReleaseRun ? `current release=${latest.html_url}` : 'no completed workflow run'), severity);
       });
       if (result.pages?.sourceSha && result.pages?.attestationRunId) {

@@ -39,8 +39,10 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
   // v59.42: the AI question keyword cues (src/ai/intent/question-cues.js, read by the panel's answer policy and the chat
   // data profile through root._aioQuestionCues) load with the panel, outside the boot set; the replay waits for them.
   const loadCues = () => import('../ai/intent/question-cues.js').then((cues) => { root._aioQuestionCues = cues; }).catch(() => {});
+  // v59.48: the chat-only AIO helpers (market facts, answer mode and principles) install from their own chunk too.
+  const loadChatGlobals = () => import('./chat-globals.js').then((module) => { module.installChatGlobals(root); }).catch(() => {});
   const load = () => pending || (pending = new Promise((resolve, reject) => {
-    const cuesReady = loadCues();
+    const cuesReady = Promise.all([loadCues(), loadChatGlobals()]);
     const script = doc.createElement('script');
     script.src = './js/aio-chat.js?v=' + scriptVersion(doc);
     script.onload = () => { cuesReady.then(() => { replay(); resolve(true); }); };

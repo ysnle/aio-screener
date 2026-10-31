@@ -80,7 +80,9 @@ export function renderHomeQuoteHeading({ documentRef: doc, root, nowMs = Date.no
   if (heading) {
     const state = HOME_QUOTE_HEADINGS[usWeekendClosed(nowMs) ? 'weekend' : 'open'];
     // v58.80 (first-users run-4): the weekend chip names the close the tiles hold (the skeptic found no date on them).
-    const lastClose = usWeekendClosed(nowMs) ? [...(Array.isArray(root?._aioHistory) ? root._aioHistory : [])].reverse().find((row) => Number(row?.spx) > 0)?.date : null;
+    // v59.48: the S&P 500 close series (sessions only), as the index strip — history also holds a weekend snapshot row
+    // dated Saturday with Friday's value, which the chip read as a Saturday close.
+    const lastClose = usWeekendClosed(nowMs) ? buildCloseSeries(Array.isArray(root?._aioHistory) ? root._aioHistory : [], 'spx').at(-1)?.date || null : null;
     // v58.80 run-5 (skeptic #1/#2): on a weekday the live tiles carried no time beside 시장 상태's dated closes; the chip
     // names the newest quote's KST observation time.
     // A cell holds a futures and an index price and CSS shows one (or a fallback close); only a price on screen counts.

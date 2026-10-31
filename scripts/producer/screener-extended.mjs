@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
 import { factorScopesByMarket } from '../../src/domain/market/session-time.js';
 import { round } from '../lib/producer-math.mjs';
-import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeShardRows, isValidShard } from '../../src/data/screener-extended.js';
+import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeShardRows, expandShardRows, isValidShard } from '../../src/data/screener-extended.js';
 import { REPO_ROOT } from './paths.mjs';
 import { SCREENER_OUT, screenerAssetType, getScreenerUniverse, enrichSecFundamentals, _enrichPriceFactors, mergeSecIntoFactorRows } from './screener.mjs';
 
@@ -29,6 +29,10 @@ export function extendedRefreshDue({ previousShard = null, coreScreener = null, 
   const previousSession = previousShard.factorSessionDateByMarket?.US || null;
   const coreSession = coreScreener?.factorSessionDateByMarket?.US || null;
   if (coreSession && (!previousSession || previousSession < coreSession)) return { due: true, reason: `core-session-advanced:${previousSession || 'none'}->${coreSession}` };
+  // v59.49: a core universe expansion (10-30 06:37Z, 1,142 -> 1,158) moved 16 shard symbols into the core within one
+  // session, so the shard kept them until a manual run an hour later and every gate in between failed on the overlap.
+  const coreData = coreScreener?.data && typeof coreScreener.data === 'object' ? coreScreener.data : null;
+  if (coreData && Object.keys(expandShardRows(previousShard)).some((sym) => Object.prototype.hasOwnProperty.call(coreData, sym))) return { due: true, reason: 'core-universe-overlap' };
   const ageMs = nowMs - Date.parse(previousShard.asOf);
   if (!(ageMs < EXTENDED_REFRESH_MAX_AGE_MS)) return { due: true, reason: 'age-backstop' };
   return { due: false, reason: `shard-current:${previousSession || 'unknown'}` };

@@ -8,7 +8,7 @@
 import { el } from './dom.js';
 import { directionOf } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS } from '../../domain/briefing/event-briefs.js';
+import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, epsComparisonBasis, koreanReleaseText, surprisePct } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
 
@@ -22,12 +22,29 @@ function whenText(brief) {
 }
 
 const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
-function figureText(figure) {
-  const parts = [`${figure.label} ${figure.value}`.trim()];
-  if (figure.text) parts.push(figure.text);
-  if (figure.estimate?.surprisePct != null) parts.push(`예상 대비 ${signed(figure.estimate.surprisePct)}`);
-  return parts.join(' · ');
+// v59.48: an EPS line is compared on the basis epsComparisonBasis names (the adjusted line, or the adjusted amount its
+// note gives, or the reported basis for GAAP-only issuers) — re-read here so a brief published before the rule reads it.
+function comparison(figure, figures, provisional) {
+  const estimate = figure.estimate;
+  if (estimate?.surprisePct == null) return null;
+  if (provisional || figure.metric !== 'eps_diluted' || (estimate.basis && estimate.basis !== 'provider-consensus-reference')) return { pct: estimate.surprisePct, note: '' };
+  const basis = epsComparisonBasis(figure, figures);
+  const pct = basis ? surprisePct(basis.actual, Number(estimate.value)) : null;
+  if (pct == null) return null;
+  return { pct, note: basis.basis === 'adjusted-in-note' ? `(조정 ${basis.amount} 기준)` : basis.basis === 'reported' ? '(보고 기준)' : '' };
 }
+function figureText(figure, figures = [], provisional = false) {
+  const parts = [koreanReleaseText(`${figure.label} ${figure.value}`.trim())];
+  const head = parts[0].slice(String(figure.label || '').length).trim();
+  const text = figure.text ? koreanReleaseText(figure.text) : '';
+  // A note that only restates the value ("표결 10대 2 · 성명은 10대 2 표결로 승인됐다") adds nothing; one with another number stays.
+  if (text && !(head && text.includes(head) && !/\d/.test(text.replace(head, '')))) parts.push(text);
+  const compared = comparison(figure, figures, provisional);
+  if (compared) parts.push(`예상 대비 ${signed(compared.pct)}${compared.note ? ` ${compared.note}` : ''}`);
+  // A sentence-final period inside a joined line read "증가. · 예상 대비"; only the line's own end keeps one.
+  return parts.map((part, i) => (i < parts.length - 1 ? part.replace(/[.。]\s*$/, '') : part)).join(' · ');
+}
+const releaseLine = (item) => koreanReleaseText([item.label, item.value, item.text].filter(Boolean).join(' · '));
 
 function list(doc, items, className = 'event-brief__list') {
   const ul = el(doc, 'ul', null, className);
@@ -48,7 +65,7 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   head.append(el(doc, 'span', whenText(brief), 'event-brief__when'));
   if (brief.status === 'provisional') head.append(doc.createTextNode(' '), el(doc, 'span', BRIEF_BASIS_WORDS.provider, 'event-brief__basis'));
   box.append(head);
-  if (brief.headline) box.append(el(doc, 'p', brief.headline, 'event-brief__headline'));
+  if (brief.headline) box.append(el(doc, 'p', koreanReleaseText(brief.headline), 'event-brief__headline'));
   const reaction = reactionText(brief.reaction);
   if (reaction) {
     const line = el(doc, 'p', reaction, 'event-brief__reaction');
@@ -64,7 +81,7 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
   const figures = [...(brief.figures || []).filter((figure) => !cashFigure(figure)).slice(0, 3), ...(brief.figures || []).filter(cashFigure).slice(0, 2)];
   if (figures.length) {
-    const ul = list(doc, figures.map(figureText), 'event-brief__figures');
+    const ul = list(doc, figures.map((figure) => figureText(figure, brief.figures || [], brief.status === 'provisional')), 'event-brief__figures');
     // Sources stay off the face (owner 2026-10-06): the estimate's provider is on the row's hover.
     figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
     box.append(ul);
@@ -72,9 +89,9 @@ export function briefNode(doc, brief, { showName = true } = {}) {
   const more = el(doc, 'details', null, 'event-brief__more');
   more.append(el(doc, 'summary', brief.kind === 'fomc' ? '바뀐 문구·기자회견·다음에 볼 것' : '부문·가이던스·콜 핵심·다음에 볼 것'));
   const section = (title, items) => { if (items.length) more.append(el(doc, 'p', title, 'event-brief__sub'), list(doc, items)); };
-  section(brief.detailTitle || '세부', (brief.details || []).map((item) => [item.label, item.value, item.text].filter(Boolean).join(' · ')));
+  section(brief.detailTitle || '세부', (brief.details || []).map(releaseLine));
   section('반대 의견', (brief.dissents || []).map((item) => item.text || item.label));
-  section('가이던스', (brief.guidance || []).map((item) => [item.label, item.value, item.text].filter(Boolean).join(' · ')));
+  section('가이던스', (brief.guidance || []).map(releaseLine));
   const points = brief.callPoints;
   if (points?.points?.length) section(`${points.title} (${basisWord(points)}${points.speaker ? `, ${points.speaker}` : ''})`, points.points.map((point) => point.text));
   else if (brief.status === 'provisional') { /* the source line says the figures await the filing */ }
@@ -161,7 +178,7 @@ function briefRow(doc, root, brief) {
     move.dataset.direction = directionOf(brief.reaction.extendedPct ?? brief.reaction.latestPct, 1) || 'flat'; // v59.45 (R1-05): 0.0% is flat
     li.append(move);
   }
-  if (brief.headline) li.append(el(doc, 'span', brief.headline, 'event-brief-row__headline'));
+  if (brief.headline) li.append(el(doc, 'span', koreanReleaseText(brief.headline), 'event-brief-row__headline'));
   const reason = brief.reasons?.points?.[0]?.text;
   if (reason) li.append(el(doc, 'span', `이유: ${reason}`, 'event-brief-row__reason'));
   // The line is quieter, not thinner: the full summary (figures, guidance, reasons, source) opens in place.

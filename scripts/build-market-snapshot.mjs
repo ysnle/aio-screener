@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { createMarketSnapshot, EVIDENCE_TIER_INSTRUMENTS, TIER_0_INSTRUMENTS, tier0Coverage, validateMarketSnapshot } from '../src/data/contracts/market-snapshot.js';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { isLatestUsRegularClose, latestCompletedKrSession } from '../src/ai/time/market-session.js';
+import { isLatestUsRegularClose, latestCompletedKrSession, latestCompletedUsSession, nyParts } from '../src/ai/time/market-session.js';
 import { dateInTimezone, resolveMarketCalendarSession } from '../src/domain/market/market-calendar.js';
 
 export const MARKET_SNAPSHOT_OUT = new URL('../public-data/market-snapshot.json', import.meta.url);
@@ -89,7 +89,13 @@ function scheduledSession(symbol, observedMs, nowMs) {
   const asia = ASIA_VENUE_SESSIONS[symbol] || null;
   if (isContinuousInstrument(symbol)) {
     const nowUtc = zoneParts(nowMs, 'UTC');
-    if (nowUtc && !isWeekday(nowUtc.weekday)) return 'MARKET_CLOSED';
+    // v59.49 (refresh-data 10-25 21:20-23:50Z, 9 runs): FX reopens 17:00 ET and CME futures 18:00 ET on Sunday, still a
+    // UTC weekend day. The new week's prints were labelled MARKET_CLOSED, so the snapshot called a live print the
+    // completed close and the history gate (holding Friday's close) refused every refresh until Monday UTC. A Sunday
+    // print taken after 17:00 ET is the new week's session; the provider timestamp, not a fixed hour, says it reopened.
+    const observedNy = zoneParts(observedMs, 'America/New_York');
+    const reopened = observedNy?.weekday === 'Sun' && minuteOfDay(observedNy) >= 17 * 60 && nowMs - observedMs <= 24 * 3600000;
+    if (nowUtc && !isWeekday(nowUtc.weekday) && !reopened) return 'MARKET_CLOSED';
     // v58.74 (refresh-data 10/23 23:50Z): FX and CME futures close for the week at 17:00 ET Friday. A Friday-evening
     // read (still a UTC weekday) was labelled DELAYED_IN_SESSION, so the history check compared the completed close
     // with the previous day's and refused the refresh.
@@ -135,6 +141,14 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   const ageMs = Math.max(0, nowMs - observedMs);
   const provider = String(providerSession || '').toUpperCase();
   if (isLatestUsRegularClose({ instrumentId: symbol, observedAt, now: nowMs })) return 'MARKET_CLOSED';
+  // v59.49 (session sweep): once a session opens, a delayed cash-index feed still holds the previous session's final print
+  // (^RUT, 15 minutes). After a weekend that print is 65 h old and the 24 h leash below called it STALE_UNEXPECTED on
+  // Monday 09:30-09:45 ET; the previous completed session's close is exactly the expected previous close.
+  if (/^\^(GSPC|IXIC|DJI|RUT)$/.test(symbol)) {
+    const last = latestCompletedUsSession(nowMs, { requirePrevious: false });
+    const observed = nyParts(observedMs);
+    if (last?.inSession && observed.date === last.date && observed.minute >= nyParts(last.closeMs).minute - 5) return 'PREVIOUS_CLOSE_EXPECTED';
+  }
   // Evidence tier (SMH, Tokyo, Hong Kong): the chart meta keeps the regular-session price and flags PRE/POST outside
   // the session, so the venue schedule — not the extended-hours flag — decides whether it is a completed close.
   if ((symbol === 'SMH' || ASIA_VENUE_SESSIONS[symbol]) && ['PREPRE', 'PRE', 'POST', 'POSTPOST'].includes(provider)) {
@@ -149,11 +163,15 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   // commentary prompt disagreed. A US index observation outside its regular window that is not the latest regular
   // close is an extended-hours print, not a completed close.
   // P1738: ^TNX/^IRX print before the cash open too (10/13 09:05 ET 5.206 beside the 5.24 completed close).
+  // v59.49 (refresh-data 10-30 13:36Z): a cash index has no extended hours, and Yahoo stamps ^RUT's close at 16:30 ET.
+  // Once the next session opened, that close was read as an after-hours print (until the delayed feed caught up) and
+  // the history gate wanted the close before it. A post-close cash-index print stays the completed close.
   if (/^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)$/.test(symbol)) {
     const observedLocal = zoneParts(observedMs, 'America/New_York');
     const minute = minuteOfDay(observedLocal);
     const closeMinute = /^\^VIX/.test(symbol) ? 16 * 60 + 15 : 16 * 60;
-    if (observedLocal && isWeekday(observedLocal.weekday) && minute != null && (minute < 9 * 60 + 30 || minute > closeMinute + 5) && ageMs <= 24 * 60 * 60 * 1000) return 'AFTER_HOURS';
+    const postClosePrintIsExtended = !/^\^(GSPC|IXIC|DJI|RUT)$/.test(symbol);
+    if (observedLocal && isWeekday(observedLocal.weekday) && minute != null && (minute < 9 * 60 + 30 || (postClosePrintIsExtended && minute > closeMinute + 5)) && ageMs <= 24 * 60 * 60 * 1000) return 'AFTER_HOURS';
   }
   if (provider === 'REGULAR') {
     // Yahoo can retain REGULAR after the venue has closed (especially across
@@ -244,7 +262,9 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       && (isLatestUsRegularClose({ instrumentId: instrument.instrumentId, observedAt, now })
         || observedAtOrAfterLastKrSessionClose(instrument.instrumentId, Date.parse(observedAt), now))
       ? 'CLOSED_CURRENT' : quoteQuality({ ...raw, observedAt }, now, session);
-    const providerPreviousValue = Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
+    // v59.49 (review): a provider field sent as null is missing, not zero (Number(null) === 0 published previousValue 0).
+    const present = (value) => (value == null || value === '' ? NaN : Number(value));
+    const providerPreviousValue = present(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
     const hasProviderPreviousValue = Number.isFinite(providerPreviousValue);
     return {
       evidenceId: `${instrument.metricId}:${stableHash({ value, observedAt, source })}`,
@@ -254,8 +274,8 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       previousValue: hasProviderPreviousValue
         ? providerPreviousValue
         : null,
-      changePct: Number.isFinite(Number(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct))
-        ? Number(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct)
+      changePct: Number.isFinite(present(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct))
+        ? present(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct)
         : null,
       unit: instrument.unit,
       // W03-C/P1183: identity fields come from the registry the validator checks

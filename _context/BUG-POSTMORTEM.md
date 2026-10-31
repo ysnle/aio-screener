@@ -6,6 +6,96 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 
 
+## P2166 - v59.49 - 국채 2s10s가 다른 날짜의 FRED 스프레드를 같은 날짜 스프레드로 표시할 수 있고, 장기 거시 카드가 월간 값을 '월평균'이라 부름 (2026-10-31)
+
+- symptom/reproduction: 재현 조건: 미 재무부 자료가 10/30 2년·10년물을 같은 cut으로 주고 t10y2y를 빠뜨린 날. 이때 FRED 10/29 스프레드 0.30이 '동일자 스프레드'로 표시됐다(두 금리로 계산하면 0.38). 장기 거시 카드는 실업률·근원 CPI 전년비 같은 월간 조사값에도 '월평균'을 붙였다.
+- root_cause: 스프레드에 자기 cut id가 없을 때 두 금리의 cut이 같으면 날짜를 보지 않고 비교 가능으로 판정했다. 장기 카드는 계열 구분 없이 같은 단어를 썼다.
+- fix: src/domain/macro/treasury-curve.js: cut id가 없는 공식 스프레드는 날짜(일 단위)가 금리와 다르면 '혼합 cut 참고값'으로 내린다. src/domain/macro/long-history.js: 일별 자료의 평균 계열과 FEDFUNDS만 '월평균'이고 나머지는 '값'이다. 주석이 말하던 존재하지 않는 macro-long-history.json 경로도 바로잡았다.
+- violated_rule: 없음(다른 시점 값을 같은 날짜로 표시하는 반복 클래스).
+- prevention: 검토 재현 스크립트(tc.mjs) 재실행: mixed-cut-reference, spread null. 실제 data.json 경로는 t10y2y가 같은 cut으로 오므로 영향이 없다.
+- verification/residual: tc.mjs 재실행 결과 spread=null, mode=mixed-cut-reference. esm-core 통과.
+
+## P2165 - v59.49 - 종목 화면 차트 도구가 손절·목표 가격을 계산하고, 비교표·손익 색·차트 전환이 사실과 다르게 보임 (2026-10-31)
+
+- symptom/reproduction: 다섯 가지가 사실과 다르게 보였다. - '전문가는 이렇게 정한다' 접힘 칸이 종가−ATR 손절 가격과 피벗+베이스 깊이 목표 가격을 계산해 보였다. - 비교표의 기간 수익률이 종목마다 다른 달력 구간을 셌다(추석 휴장이 있는 한국 종목 +4.77%와 SPY +3.51%의 시작일이 다름). - 오래된 캐시 종목도 날짜 표시 없이 현재처럼 보였다. - 손실인 손익에도 상승 색이 칠해졌다. - 다른 종목으로 바꾸면 새 제목 아래 이전 종목의 캔들과 셋업 배지가 남았다. 테마 단계표의 '최근 3거래일 바뀜'은 기록이 빠진 날(미국 테마 18개가 빠진 10-19·10-21·10-30)이 있으면 3세션보다 먼 변화를 보였다.
+- root_cause: - 차트 코치는 v58.75 설계대로 이 종목의 숫자로 방법을 설명했는데, P2151 결정(이 종목 가격은 수준 지도에만 둔다) 뒤에도 더한 가격을 남겼다. - 비교표는 각 시계열 자신의 세션 수로 셌고, 차트 선만 날짜로 맞췄다. 캐시는 만료가 없었다. - 손익 클래스는 null 여부만 봤다. - 느린 경로는 이전 인스턴스가 있으면 비우지 않았다. - 테마 '최근' 창은 기록된 항목 4개를 셌다.
+- fix: - stock-chart-coach.js: ATR·베이스 깊이를 거리(%)로만 보이고, 피벗·스윙 저점·저항은 지도 위 레벨로 남긴다. - chart-compare.js alignedPeriodReturns: 비교 종목을 이 종목의 날짜에 맞춘 뒤 수익률을 계산한다. 끝 날짜가 맞지 않으면 '—'. - stock-chart-compare.js: 이 종목의 마지막 날짜보다 오래된 캐시는 다시 받는다. - entity.js: 손익 부호로 pos/neg/neutral을 정한다. 통화가 없는 시세는 상장 통화로 보완한다(포트폴리오와 같음). - stock-chart.js: 다른 종목이 그려져 있으면 바로 숨기고 배지를 지운다. 같은 종목의 재그리기는 유지한다. - theme-playbook-view.js recentStageChange: 세션 위치로 창을 센다. stageRun은 v58.78 설계대로 기록된 세션만 세는 보수적 하한이다.
+- violated_rule: R724(차트 코치), 고정 개수 창 반복 클래스(비교표·테마 창), 현재처럼 보이는 오래된 값(캐시).
+- prevention: esm-core v59.49 recentStageChange 세션 창 케이스. 검토 재현 스크립트(cmp.mjs·tp.mjs)를 수정 후 다시 돌렸다. 같은 경로의 두 시계열은 비교표 값이 정확히 같다.
+- verification/residual: alignedPeriodReturns: 휴장일이 다른 같은 경로 시계열이 미국 시계열과 같은 수익률(3개월 9.31%, 6개월 19.24%). recentStageChange: 10-01 변화와 빈 이틀 뒤 10-30은 null, 10-27 변화는 유지. esm-core 통과. 브라우저 확인은 전체 QA 브라우저 그룹으로 한다.
+
+## P2164 - v59.49 - AI 시황 검증기가 부분 문자열·지수 이름의 숫자·결측 등락률로 맞는 문장을 막고 틀린 문장을 통과시킴 (2026-10-31)
+
+- symptom/reproduction: 신용 축이 '부담'인 날 "신용 시장이 불안정한 모습이다"는 막혔고, '양호'인 날 같은 문장은 통과했다. "신용 스트레스가 완화됐다", 한국 신용융자 문장, "하이일드 스프레드와 달리 변동성은 안정됐다"도 신용 축 모순으로 막혔다. "코스피는 S&P 500과 달리 반등했다"처럼 수치가 없는 문장도 두 시장 날짜가 없다며 막혔다(10-30 시도 2건이 이 두 사유로 차단). 등락률이 null인 행은 0%로 비교됐다.
+- root_cause: 신용 패턴이 단어가 아닌 부분 문자열로 맞췄다. 그래서 '불안정' 안의 '안정'을 찾았고, 완화 동사를 몰랐으며, 신용융자를 신용 축으로 읽었고, 14자 간격이 다른 축의 절까지 넘어갔다. 날짜 검사의 '숫자 있음' 조건은 'S&P 500'의 500을 숫자로 봤다. 등락률 지도는 Number(null)=0을 유효한 값으로 넣었다. 같은 null→0이 스냅숏 생산자의 previousValue·changePct에도 있었다.
+- fix: scripts/lib/market-analysis-validate.mjs: - 신용 패턴은 신용융자·잔고·거래를 빼고, 다른 축이나 대조어(달리·반면)에서 간격을 멈춘다. '불안정'은 부담으로 읽는다. - 상태어 뒤의 완화·축소·해소는 주장으로 보지 않는다. - 숫자 검사 전에 지수 이름(S&P 500·코스피200·나스닥100·다우30)을 지운다. 날짜는 10/03 같은 두 자리 표기도 인정한다. - 등락률 null은 결측이다. scripts/build-market-snapshot.mjs: 제공처의 null 필드를 0이 아닌 결측으로 읽는다.
+- violated_rule: 없음(부분 문자열·결측→0 반복 클래스, BUG-POSTMORTEM 반복 클래스 표).
+- prevention: 검토 재현 9문장(scratchpad axis.mjs)을 수정 후 다시 돌려 기대대로 나왔다. 기존 시황 검증 게이트(ci-market-analysis 계열)를 전체 QA로 확인한다.
+- verification/residual: 수정 후 재현: - 부담인 날 '불안정' 문장 통과, 양호인 날 '불안정' 문장 차단. - 완화·신용융자·'달리' 문장 통과. - 'S&P 500과 달리' 통과, 두 날짜를 쓴 수치 비교 문장 통과.
+
+## P2163 - v59.49 - 데이터 전용 커밋의 CI가 자료 내용·생산자 순서·벽시계에 따라 실패해 데이터 반영이 멈춤 (2026-10-31)
+
+- symptom/reproduction: 7일 동안 데이터 갱신의 UNATTESTED_REVISION 실패가 52건이었다. 이를 낳은 CI 실패를 따라가면 다음과 같다. - esm-core가 06~08 KST에만 실패했다(10건). - scenario-guidance가 그날 모든 테마가 판정 보류이면 실패했다(5건). - screener-extended는 핵심 종목이 1,142개에서 1,158개로 늘어난 뒤 확장 묶음이 갱신되기 전 한 시간 동안 실패했다(4건). - 행사 브리프 커밋의 전체 브라우저 CI가 홈 보조 텍스트 예산에서 실패했다(10-30 02:23Z·16:43Z). - CI 디스패치 한 번이 GitHub 500으로 실패했다.
+- root_cause: 검사 결과가 코드가 아니라 바깥 상태에 따라 갈렸다. - 뉴스 점검은 행의 원시 나이를 썼는데, 화면은 완료 주기 규칙을 쓴다. - 시나리오 픽스처는 실제 자료에 단계가 있는 테마가 있다고 가정했다. - 확장 묶음의 갱신 판정은 세션이 바뀔 때만 참이라 핵심 종목 확장을 몰랐고, CI는 일시적 겹침을 계약 위반으로 막았다(화면은 핵심 종목을 이미 확장 목록에서 뺀다). - event-briefs는 CI를 origin=event-briefs로 불렀는데, CI의 데이터 출처 목록에 이 값이 없었다. - 수렴 스크립트는 5xx를 재시도하지 않았다.
+- fix: - 뉴스 점검(newsSelectionAudit)은 화면과 같은 normalizeNewsItem 규칙으로 행을 판정한다. 최신 완료 주기의 행은 다음 08:00 수집까지 현재 행이다. - scenario-guidance 픽스처는 단계가 하나도 없으면 첫 테마에 단계를 준 기준선으로 비교한다. - extendedRefreshDue는 핵심 종목과 겹치면 core-universe-overlap으로 갱신을 판정한다. 커밋본 CI 검사는 겹침을 안내로 보고, 생산자 커밋 전 검사는 그대로 실패로 둔다. - ci.yml은 event-briefs를 데이터 출처로 다룬다. 브라우저 생략, core·data 계약, 전체 CI를 통과한 소스 위인지 확인하는 증명 단계가 같다. - ensure-live-convergence는 5xx를 한 번 재시도한다.
+- violated_rule: R733(이번 버전): 시간·자료 경계를 다루는 게이트는 고정 시계·고정 입력으로 증명한다. R721: 데이터 전용 커밋은 데이터 검사로 인증한다.
+- prevention: esm-core 뉴스 점검을 12:00·07:00 KST 고정 시계로 검사(07:00은 수정 전 실패 시각). screener-extended 계약 v59.49 겹침 케이스(안내·생산자 실패·갱신 판정). qa-pipeline 계약이 event-briefs 데이터 출처를 고정.
+- verification/residual: 10-30 06:37Z 상태(core 1,158·shard 3,874)를 재생하면 갱신 판정이 due=true core-universe-overlap. 뉴스 점검은 07:00 KST에 stale 3에서 0으로 바뀌고, 요약 없는 행은 화면과 같이 headline-only다. esm-core·screener-extended·scenario-guidance·qa-pipeline·codex-structure 통과.
+
+## P2162 - v59.49 - 시세 세션 분류가 RUT 16:30 종가·일요일 재개장·월요일 개장 직후를 잘못 분류해 데이터 갱신이 반복 실패함 (2026-10-31)
+
+- symptom/reproduction: 최근 7일 Actions 실패 145건을 원인별로 분류하니 history-time 게이트 실패 9건이 두 경계에 몰렸다. 평일 09:30~09:45 ET(10-27 13:30Z, 10-30 13:36Z)에는 RUT 이력 행이 전전일 종가를 정답으로 요구받았고, 일요일 17:00~24:00 UTC(10-25 21:20~23:50Z, 7회)에는 FX·선물 재개장 시세가 '주말 마감'으로 분류됐다. 실패한 동안 시장 데이터가 갱신되지 않았다.
+- root_cause: 야후는 ^RUT 종가를 16:30 ET로 찍고 시세가 15분 지연된다. 다음 세션이 열리면 isLatestUsRegularClose가 거짓이 되고, 16:05 ET 이후 출력은 시간외라는 규칙이 이 종가를 AFTER_HOURS로 바꿨다(현금 지수에는 시간외 거래가 없다). 연속 상품은 UTC 기준 주말이면 무조건 MARKET_CLOSED라서, 일요일 17:00/18:00 ET 재개장 뒤의 새 주 시세를 완료 종가로 불렀다. 시간표 전수 검사로 세 번째 경계도 찾았다. 월요일 09:30~09:45 ET에 RUT 최신 출력은 65시간 전 금요일 종가인데, 24시간 제한 때문에 STALE_UNEXPECTED가 됐다.
+- fix: scripts/build-market-snapshot.mjs deriveMarketSession: 현금 지수(GSPC·IXIC·DJI·RUT)의 마감 후 출력은 시간외 규칙에서 뺐다(VIX GTH·TNX 장전은 유지). 세션 중 직전 완료 세션의 종가 창 출력은 PREVIOUS_CLOSE_EXPECTED다. 연속 상품은 일요일 17:00 ET 이후에 찍힌 출력이면 새 주 세션으로 본다(고정 시각이 아니라 제공처 시각으로 판정). 일주일 단위 예시 대신 scripts/lib/market-session-sweep.mjs가 2주(11-01 서머타임 종료 포함)를 10분 간격으로 훑는다. 시간표에서 유도한 출력이 완료 종가 집합인지 장중 집합인지를 분류기와 비교하며, 시세 스냅숏 게이트가 이를 실행한다.
+- violated_rule: R733(신규): 시간 경계 코드는 고정 시계와 시간표 전수 검사로 증명한다.
+- prevention: ci-market-snapshot-contract-check 시간표 전수 검사(16,970개 시점, 수정 전 코드에서 96건 불일치 재현)와 세션 예시 9건(RUT·GSPC 개장 직후, VIX GTH, 일요일 재개장·금요일 출력·토요일).
+- verification/residual: 수정 전 HEAD 분류기로 전수 검사 96건 불일치(일요일 재개장 76, RUT 시간외 16, RUT 월요일 오래됨 4), 수정 후 0건. 10-26 첫 월요일 커밋의 스냅숏 직전값(WTI 103.27·금 4007.9)이 이력 행과 같아 일요일 장중 분류에서 게이트가 맞는다. ci-market-snapshot·ci-history-field-time 통과.
+
+## P2161 - v59.48 - 데이터 감시(watchdog)가 다른 워크플로의 실패를 다시 빨간불로 올려 자기 신호를 잃음 (2026-10-31)
+
+- symptom/reproduction: 10/23~31 watchdog 571회 중 349회가 실패였고, 그중 322회는 CI·Pages·시장·스크리너 워크플로의 마지막 실행 실패를 오류로 올린 것이었다. 각 워크플로는 이미 자기 운영 경보 이슈(재개·회복·임계)를 갖고 있어 같은 실패가 두 번 알려졌고, watchdog만 볼 수 있는 라이브 사이트·배포·Worker 문제는 상시 빨간불에 묻혔다.
+- root_cause: external-pipeline 게이트가 watchdog 모드에서도 다른 워크플로의 latest-completed를 오류로 판정했다. P1665는 자기 실패만 경고로 내렸다.
+- fix: watchdog 모드에서 다른 워크플로의 실패는 경고로 남기고(이름은 계속 보고), 오류는 라이브 사이트·배포·Worker처럼 watchdog만 보는 평면에 둔다. 릴리스 모드와 observe 모드는 그대로다.
+- violated_rule: 없음(신호 중복 설계 결함): 한 신호에 소유자가 둘이었다.
+- prevention: 8일치 실행 기록 시뮬레이션: 엄격 판정이 실제 실패 322/349를 설명했다. 기존 P1665 고정(ci-codex-structure-regression-fixture) 유지.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs OK. 첫 실증은 push 뒤 watchdog 실행.
+
+## P2160 - v59.48 - 실적 브리프 파일이 크기 상한 없이 자라 다음 용량 장애로 가던 중 (2026-10-31)
+
+- symptom/reproduction: event-briefs.json이 10/29 70 KB → 10/31 477 KB로 늘었다. 화면 상한은 1 MiB이고 보관은 120일이라, 2~3주 안에 상한을 넘어 홈 브리프와 스크리너 레인(헤드룸 게이트 공유)이 함께 멈출 수 있었다.
+- root_cause: 생산자가 보관 일수만 두고 바이트 상한을 두지 않았고, 들여쓰기 2칸 JSON으로 써서 파일의 36%가 공백이었다. SEC 투영(P2156)과 같은 '자연 증가 → 상한 충돌' 계보다.
+- fix: compact JSON으로 쓰고(약 36% 감소), pruneBriefsToBudget이 640 KiB를 넘으면 오래된 브리프부터 뺀다. 조회 범위(12일) 안의 브리프는 다시 받아 요약하게 되므로, 이번 달 AI 비용이 있는 브리프는 월 비용 장부가 줄기 때문에 빼지 않는다.
+- violated_rule: 없음(용량 설계 결함): 보관 기간만 있고 크기 상한이 없었다.
+- prevention: pipeline-semantics briefing EB-BUDGET-01; 헤드룸 게이트가 event-briefs와 sec-fundamentals-summary를 90%에서 경고한다.
+- verification/residual: 현재 파일 compact 직렬화 474,747 → 302,006 B; ci-event-briefs-check PASS.
+
+## P2159 - v59.48 - 주말 홈 시세 칩이 토요일 스냅숏 행을 마감일로 읽음 (2026-10-31)
+
+- symptom/reproduction: 주말 홈 시세 머리 칩이 금요일 마감이 아닌 토요일 날짜를 마감 값으로 적을 수 있었다.
+- root_cause: history에는 금요일 값을 담은 토요일 스냅숏 행이 있는데, 칩은 spx 값이 있는 마지막 행을 마감으로 읽었다. 지수 띠는 세션만 담은 종가 시리즈를 쓰고 있었다.
+- fix: 칩도 buildCloseSeries(history, 'spx')의 마지막 세션 날짜를 쓴다.
+- violated_rule: 없음(같은 사실을 두 경로로 읽은 결함)
+- prevention: 지수 띠와 같은 종가 시리즈 함수 하나를 공유한다.
+- verification/residual: 브라우저 홈 주말: '주말 휴장, 10/30 마감 값'.
+
+## P2158 - v59.48 - 실적 브리프가 공시 영문 단위와 문장을 그대로 보여 주고 라벨과 값이 붙어 읽힘 (2026-10-31)
+
+- symptom/reproduction: 홈 실적 브리프에 "$16.5 billion", "up 21%", "per diluted share", "3-3/4 to 4 percent"가 그대로 나왔고, 한국어로 바꾸는 첫 시도에서는 "매출165억 달러"처럼 띄어쓰기가 사라졌으며 "증가. · 예상 대비"처럼 마침표와 구분점이 겹쳤다. FOMC 카드는 "표결 10 - 2 · 성명은 10 - 2 표결로 승인됐다"처럼 같은 값을 두 번 적었다.
+- root_cause: AI 요약이 원문 수치를 원문 표기로 옮기고, 화면은 저장 문자열을 그대로 붙였다. 단위 변환 정규식이 $ 앞 공백까지 먹었고, 줄을 잇는 쪽이 각 부분의 마침표를 지우지 않았다.
+- fix: koreanReleaseText(표시 전용, 멱등)가 금액을 억/조/만 달러로, 증감·%p·분수 범위를 한국어로 바꾼다. 저장 값은 원문 그대로 두어 파서와 게이트가 읽는다. 화면 줄은 마지막 부분만 마침표를 남긴다. FOMC 표결은 "10대 2"로 읽고, 값만 되풀이하고 다른 숫자가 없는 설명은 줄에서 뺀다.
+- violated_rule: 없음(표시 언어 결함): 한국어 UI에 영문 단위가 노출됐다.
+- prevention: pipeline-semantics briefing EB-KO-UNITS-01(라벨-값 공백, %p, 괄호 음수, 멱등).
+- verification/residual: 브라우저 홈: 영문 단위 토큰 0개, '매출 165억 달러 · 전년 동기 대비 21% 증가 · 예상 대비 -1.7%', '. · ' 0회. FOMC 카드: "표결 10대 2".
+
+## P2157 - v59.48 - 실적 브리프의 EPS 서프라이즈가 GAAP 실적을 조정(비GAAP) 컨센서스와 비교함 (2026-10-31)
+
+- symptom/reproduction: 홈 실적 브리프가 인텔 +50.2%, 허블 -15.8%, 브라운앤브라운 -39%처럼 실제와 크게 다른 예상 대비를 보였다. 조정 EPS 줄이 따로 있는 EME·LLY·VRT·VZ는 GAAP 줄과 조정 줄 둘 다 예상과 비교했다.
+- root_cause: 제공처 EPS 컨센서스는 조정 기준인데, 비교는 줄의 기준을 보지 않고 희석 EPS 값과 그대로 나눴다. 조정 금액이 줄 설명에만 적힌 경우("비GAAP 희석 EPS는 $0.52")도 읽지 않았다.
+- fix: src/domain/briefing/event-briefs.js epsComparisonBasis 하나가 비교 기준을 정한다. 조정 라벨이면 자기 값, 다른 조정 EPS 줄이 있으면 비교하지 않음, 설명·인용문에 다른 조정 금액이 있으면 그 금액, GAAP만 밝힌 줄은 비교하지 않음, 기준 표시가 없으면 보고 값. 생산자(assembleEarningsSections와 재비교)와 화면이 같은 함수를 쓰고, 화면은 (조정 $X 기준)/(보고 기준)을 붙인다.
+- violated_rule: 없음(비교 기준 불일치 결함): 서로 다른 회계 기준의 값을 비교했다.
+- prevention: pipeline-semantics briefing EB-EPS-BASIS-01(인텔·허블·아마존 형태)과 기존 P21-EPS-01(인용문 GAAP).
+- verification/residual: 실제 event-briefs.json 재계산: INTC 50.2→30.1, NVT -11.1→9.8, TT -1.6→-0.2, HUBB -15.8→0.7, BRO -39→-2.5, STX 1.3→2.5; EME·LLY·VRT·VZ GAAP 중복 비교 제거. 브라우저 홈에서 '예상 대비 +30.1% (조정 $0.52 기준)' 확인.
+
 ## P2156 - v59.47 - SEC 런타임 투영이 1 MiB 상한을 다시 넘어 스크리너·SEC 갱신이 하루 넘게 멈춤 (2026-10-31)
 
 - symptom/reproduction: 10/30 22:25Z 이후 스크리너 갱신 3회가 연속 실패했다(ci-sec-runtime-projection-check: runtime projection exceeds 1 MiB: 1,052,459). 미국 스크리너 자료가 10/29 종가에 멈췄는데, 4일 기준이라 화면은 현재로 표시했다.

@@ -1,0 +1,26 @@
+{
+  "version": "v59.48",
+  "date": "2026-10-31",
+  "r": null,
+  "p": {
+    "title": "데이터 감시(watchdog)가 다른 워크플로의 실패를 다시 빨간불로 올려 자기 신호를 잃음",
+    "symptom": "10/23~31 watchdog 571회 중 349회가 실패였고, 그중 322회는 CI·Pages·시장·스크리너 워크플로의 마지막 실행 실패를 오류로 올린 것이었다. 각 워크플로는 이미 자기 운영 경보 이슈(재개·회복·임계)를 갖고 있어 같은 실패가 두 번 알려졌고, watchdog만 볼 수 있는 라이브 사이트·배포·Worker 문제는 상시 빨간불에 묻혔다.",
+    "root_cause": "external-pipeline 게이트가 watchdog 모드에서도 다른 워크플로의 latest-completed를 오류로 판정했다. P1665는 자기 실패만 경고로 내렸다.",
+    "fix": "watchdog 모드에서 다른 워크플로의 실패는 경고로 남기고(이름은 계속 보고), 오류는 라이브 사이트·배포·Worker처럼 watchdog만 보는 평면에 둔다. 릴리스 모드와 observe 모드는 그대로다.",
+    "violated_rule": "없음(신호 중복 설계 결함): 한 신호에 소유자가 둘이었다.",
+    "prevention": "8일치 실행 기록 시뮬레이션: 엄격 판정이 실제 실패 322/349를 설명했다. 기존 P1665 고정(ci-codex-structure-regression-fixture) 유지.",
+    "verification": "node scripts/ci-codex-structure-regression-fixture.mjs OK. 첫 실증은 push 뒤 watchdog 실행."
+  },
+  "changelog": [
+    "**watchdog 신호 정리 ({P}):** 다른 워크플로 실패는 그 워크플로의 경보 이슈가 맡고, watchdog은 라이브 사이트·배포·Worker 문제로만 빨간불이 된다."
+  ],
+  "qa": [
+    {
+      "id": "QA-WATCHDOG-OWNER-LIVE-01",
+      "text": "v59.48 push 뒤 생산자 하나가 실패한 동안 watchdog 실행이 그 실패를 경고로만 적고, 라이브 평면이 정상이면 성공하는지 확인",
+      "verify_by": "live"
+    }
+  ],
+  "qa_section": "운영 감시",
+  "note": "v59.48: watchdog은 자기만 보는 평면으로만 실패"
+}

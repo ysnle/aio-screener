@@ -84,6 +84,7 @@ check('all static aio script cachebusters match version.json', staticBusters.len
 
 const compatRoot = { addEventListener() {} /* v59.22: the proxy registry listens for aio:publicConfig */, _aioGetCanonicalScreenerRows: () => [{ sym: 'AAA', name: 'Alpha', sector: 'Energy', rank: 1, rsi: 20, signal: 'BUY' }] };
 (await import('../src/app/compatibility-globals.js')).installCompatibilityGlobals(compatRoot);
+(await import('../src/app/chat-globals.js')).installChatGlobals(compatRoot); // src/app/chat-loader.js installs it with the chat
 const callableRefs = [...new Set([...chat.matchAll(/\b(_aio[A-Za-z0-9_]+)\s*\(/g)].map((m) => m[1]))]
   .filter((name) => !['_aioSafeMD', '_aioAskAiFromPageDecision'].includes(name));
 for (const name of callableRefs) {
@@ -349,7 +350,7 @@ check('E2/S-C/P1241 screener row resolution has one owner and a declared intent'
   && /export function resolveScreenerRows\(root, intent/.test(read('src/data/screener-row-policy.js'))
   && /function screenerNativePublished\(/.test(read('src/data/screener-row-policy.js')));
 // E2/S-E/P1239: one helper owns the screener AI context for both chats.
-check('E2/S-E/P1239 the chat consumes one screener AI context helper', /window\._aioBuildScreenerAiContext = \(query, messages, logger\) => buildScreenerAiContext\(/.test(read('src/app/compatibility-globals.js')) && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
+check('E2/S-E/P1239 the chat consumes one screener AI context helper', /root\._aioBuildScreenerAiContext = \(query, messages, logger\) => buildScreenerAiContext\(/.test(read('src/app/chat-globals.js')) /* v59.49: installs with the chat */ && /_aioBuildScreenerAiContext\(q, state\.messages/.test(chat) && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat)); // v57.62: per-page chatSend retired
 // E2/S-F/P1238: the news cache DB is news-scoped and migrates the legacy name without deleting it.
 check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy name', /_AIO_IDB_NAME = 'AIOScreenerNewsCache'/.test(data) && /_AIO_IDB_LEGACY_NAME = 'AIOScreenerDB'/.test(data) && /function _idbMigrateLegacyNews\(/.test(data) && /store-not-empty/.test(data));
 // P1753: the retired US deep-analysis renderer carried its own MA-stack and volume-profile copy; the shared

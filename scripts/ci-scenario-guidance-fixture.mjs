@@ -383,14 +383,17 @@ console.log('scenario guidance fixture (basis card): PASS');
   const state2 = buildScenarioState({ data, history: rows, macroHistory, calendar, screener, themeMaps: maps, previous: state1, nowMs: now + 3600000 });
   assert.equal(state2.transitions.length, state1.transitions.length, 'P1743: an unchanged market adds no transitions');
   assert.equal(state2.eventOutcomes.length, state1.eventOutcomes.length, 'P1743: releases are not re-scored');
-  const moved = JSON.parse(JSON.stringify(state1));
-  moved.crossroads.leadId = moved.crossroads.items.find((item) => item.id !== state1.crossroads.leadId).id;
   // Live 2026-10-21: a held theme (state null, 판정 보류) is not a stage move by design, and the first live theme was one;
-  // the fixture moves the first theme that has a stage.
+  // the fixture moves the first theme that has a stage. v59.49 (CI 10-30 07:37Z): on a day every live theme was held there
+  // was none and the gate failed on the market, so the baseline gives the first theme a stage when none has one.
+  const baseline = JSON.parse(JSON.stringify(state1));
+  assert.ok(baseline.themes.length > 0, 'P1743: the state carries theme rows');
+  if (!baseline.themes.some((row) => row.state)) baseline.themes[0].state = 'leading';
+  const moved = JSON.parse(JSON.stringify(baseline));
+  moved.crossroads.leadId = moved.crossroads.items.find((item) => item.id !== baseline.crossroads.leadId).id;
   const stagedTheme = moved.themes.find((row) => row.state);
-  assert.ok(stagedTheme, 'P1743: the live state has at least one staged theme');
   stagedTheme.state = stagedTheme.state === 'leading' ? 'weak' : 'leading';
-  const diffs = diffSnapshots(moved, state1, 'T');
+  const diffs = diffSnapshots(moved, baseline, 'T');
   assert.ok(diffs.some((row) => row.kind === 'lead') && diffs.some((row) => row.kind === 'theme'), 'P1743: lead and theme-stage changes are logged');
   const rotationNow = { rotation: { top: { strong: 'a', weak: 'b', scope: '미국' } } };
   assert.ok(!diffSnapshots({ rotation: { top: { strong: 'c', weak: 'b' } } }, rotationNow, 'T').some((row) => row.kind === 'rotation'), 'v57.54: a theme-scope change (all themes to US-only) is not logged as a rotation');

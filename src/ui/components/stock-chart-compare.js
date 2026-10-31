@@ -1,7 +1,7 @@
 // v58.79 (owner 2026-10-25, chart review): compare the stock with up to three other symbols on the same daily chart —
 // same-theme chips (smallest sub-theme first) or any ticker typed in — rebased to the stock's close at the start of the
 // last six months, plus a period-return table. The picks stay in memory for this page; nothing is stored.
-import { chartPeers, rebasedLine, periodReturns, COMPARE_PERIODS, COMPARE_MAX, COMPARE_WINDOW } from '../../domain/technical/chart-compare.js';
+import { chartPeers, rebasedLine, periodReturns, alignedPeriodReturns, COMPARE_PERIODS, COMPARE_MAX, COMPARE_WINDOW } from '../../domain/technical/chart-compare.js';
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { barsFromYahoo, completedBars } from './chart-bars.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -11,8 +11,11 @@ const COLORS = ['#3a7bd5', '#b5487a', '#5a9e6f'];
 const PICKS = new Map();
 const BARS = new Map();
 
-async function barsFor(root, sym) {
-  if (BARS.has(sym)) return BARS.get(sym);
+// v59.49: a cached series older than the stock's last completed day is fetched again (the cache never expired, so a
+// redraw for a new close kept the pick's old end).
+async function barsFor(root, sym, latest = null) {
+  const cached = BARS.get(sym);
+  if (cached && (!latest || cached.at(-1)?.time >= latest)) return cached;
   const payload = await Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, '2y', '1d')).catch(() => null);
   const { bars } = completedBars(barsFromYahoo(payload), payload);
   const out = bars.length >= 22 ? bars : null;
@@ -58,7 +61,7 @@ export function attachChartCompare({ doc, root, sym, instance, analysis }) {
   const renderTable = async () => {
     if (!picks.length) { table.replaceChildren(); return; }
     const rows = [[sym, bars, null]];
-    for (const pick of picks) rows.push([pick, await barsFor(root, pick), COLORS[picks.indexOf(pick) % COLORS.length]]);
+    for (const pick of picks) rows.push([pick, await barsFor(root, pick, bars.at(-1)?.time), COLORS[picks.indexOf(pick) % COLORS.length]]);
     const tableEl = el(doc, 'table', null, 'aio-table');
     const caption = el(doc, 'caption', '기간 수익률 비교 (완료 일봉 종가 기준)', 'sr-only');
     const head = el(doc, 'tr');
@@ -71,7 +74,7 @@ export function attachChartCompare({ doc, root, sym, instance, analysis }) {
       nameCell.scope = 'row';
       if (color) nameCell.style.borderLeft = `3px solid ${color}`;
       tr.append(nameCell);
-      const returns = list ? periodReturns(list) : {};
+      const returns = !list ? {} : list === bars ? periodReturns(list) : alignedPeriodReturns(bars, list);
       for (const [label] of COMPARE_PERIODS) { const td = el(doc, 'td', returns[label] == null ? '—' : signedText(returns[label], 1, '%')); td.style.fontVariantNumeric = 'tabular-nums'; tr.append(td); }
       body.append(tr);
     }
@@ -99,7 +102,7 @@ export function attachChartCompare({ doc, root, sym, instance, analysis }) {
     picks.push(pick);
     syncChips();
     status.hidden = false; status.textContent = `${pick} 일봉을 불러오는 중…`;
-    const list = await barsFor(root, pick);
+    const list = await barsFor(root, pick, bars.at(-1)?.time);
     if (!picks.includes(pick) || !doc.getElementById('stock-chart-compare')) return;
     if (!list || !draw(pick, list)) { picks.splice(picks.indexOf(pick), 1); status.textContent = `${pick}의 일봉을 받지 못해 비교하지 않았습니다`; syncChips(); return; }
     status.hidden = true;
@@ -137,7 +140,7 @@ export function attachChartCompare({ doc, root, sym, instance, analysis }) {
   anchor.insertAdjacentElement('afterend', box);
   // A redraw (same symbol) keeps the picks: draw them again from the cached bars.
   (async () => {
-    for (const pick of [...picks]) { const list = await barsFor(root, pick); if (!list || !draw(pick, list)) picks.splice(picks.indexOf(pick), 1); }
+    for (const pick of [...picks]) { const list = await barsFor(root, pick, bars.at(-1)?.time); if (!list || !draw(pick, list)) picks.splice(picks.indexOf(pick), 1); }
     syncChips();
     renderTable();
   })();

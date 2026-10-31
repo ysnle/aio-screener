@@ -286,6 +286,14 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (spec.id !== '1d') return renderIntervalChart({ doc, root, sym, spec, ticket: (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1) });
   set('stock-chart-status', '불러오는 중…');
   panel.replaceChildren(fullRow(emptyState(doc, { title: `${sym} 일봉을 불러오는 중입니다`, reason: '시세 제공처에서 일봉을 받아오는 중입니다.', compact: true })));
+  // v59.49 (review): another symbol's candles and setup badge stayed under the new title until the new bars arrived (and
+  // past the 4 s slow notice); they are hidden at once. A redraw of the same symbol keeps its chart, without a flicker.
+  const otherSymbolShown = !!root.__aioStockChartInstance && root.__aioStockChartDrawnSymbol !== sym;
+  if (otherSymbolShown) {
+    setChartEmpty(doc, true);
+    const staleBadge = doc.getElementById('stock-chart-state');
+    if (staleBadge) { staleBadge.textContent = ''; staleBadge.className = 'regime-state is-neutral'; }
+  }
   // A slower earlier request must not overwrite the symbol the user asked for last.
   const ticket = (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1);
   root.__aioStockChartAnalysis = null;
@@ -298,7 +306,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (ticket !== root.__aioStockChartTicket) return null;
   if (first === '__slow__') {
     set('stock-chart-status', `${sym} 시세 응답이 늦어 계속 시도 중입니다`);
-    if (!root.__aioStockChartInstance) setChartEmpty(doc, true);
+    if (!root.__aioStockChartInstance || otherSymbolShown) setChartEmpty(doc, true);
     panel.replaceChildren(emptyState(doc, { title: `${sym} 시세를 아직 받아오지 못했습니다`, reason: '시세 제공처나 중계 서버 응답이 늦어지고 있습니다.', next: '응답이 오면 차트가 나타납니다 — 기다리거나 다시 시도하세요.', action: { label: '다시 시도', onClick: () => renderStockChart({ documentRef: doc, root, symbol: sym }) } }));
   }
   const payload = await pending;
@@ -353,6 +361,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   await library;
   if (ticket !== root.__aioStockChartTicket) return null;
   root.__aioStockChartInstance = drawChart(root, host, analysis, root.__aioStockChartInstance, kr);
+  root.__aioStockChartDrawnSymbol = sym;
   attachChartDrawings({ doc, root, sym, instance: root.__aioStockChartInstance, analysis, levels, price: (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null) });
   attachChartCompare({ doc, root, sym, instance: root.__aioStockChartInstance, analysis });
   syncRsLegend(doc, !!(root.__aioStockChartInstance && rsLineSeries(analysis)), analysis.benchmarkLabel);
@@ -580,6 +589,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 130), to: bars.length + 3 });
   showRecent();
   (root.requestAnimationFrame || setTimeout)(showRecent);
+  root.__aioStockChartDrawnSymbol = sym;
   root.__aioStockChartInstance = { chart, applyTheme: (palette) => {
     chart.applyOptions({ layout: { textColor: palette.text }, grid: { vertLines: { color: palette.grid }, horzLines: { color: palette.grid } } });
     candles.applyOptions({ upColor: palette.up, downColor: palette.down, borderUpColor: palette.up, borderDownColor: palette.down, wickUpColor: palette.up, wickDownColor: palette.down });

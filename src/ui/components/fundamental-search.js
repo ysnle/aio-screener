@@ -166,6 +166,10 @@ export function createFundamentalSearch({ documentRef = globalThis.document, roo
       updateProgress(`SEC 공시: ${secFilings.name || ticker} | CIK: ${secFilings.cik || 'N/A'} | SIC: ${secFilings.sicDescription || 'N/A'}`);
       if (!collected.name || collected.name === ticker) collected.name = secFilings.name || ticker;
     } else { updateProgress('SEC 공시 시간 제한 — 부분 데이터로 분석'); }
+    if (secFin && root.AIO && typeof root.AIO.loadSecStatements === 'function' && typeof root.AIO.parseSecStatements !== 'function') {
+      await root.AIO.loadSecStatements().catch(() => null); // v59.48: the SEC statement parser loads on the first 재무 search
+      if (!isCurrent()) return;
+    }
     if (secFin) {
       const parsed = root.AIO && typeof root.AIO.parseSecStatements === 'function' ? root.AIO.parseSecStatements(secFin, { symbol: ticker, price: collected.price }) : null;
       if (parsed) {

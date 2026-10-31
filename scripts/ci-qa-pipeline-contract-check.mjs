@@ -590,12 +590,13 @@ check('v57.92 W06 default convergence branch propagates a settled CI failure',
 {
   // v58.70 (owner 2026-10-23): refresh commits are attested by the data/core/knowledge contracts; the browser shards
   // (apt mirror) run only for source pushes, and attest accepts a skipped browser job only for a refresh origin.
+  // v59.49: event-briefs is a refresh origin too (it commits public-data/event-briefs.json only).
   const browserJob = ciSource.slice(ciSource.indexOf('\n  browser:'), ciSource.indexOf('\n  attest:'));
   const attestHead = ciSource.slice(ciSource.indexOf('\n  attest:'), ciSource.indexOf('    steps:', ciSource.indexOf('\n  attest:')));
   check('v58.70 refresh-origin CI skips the browser shards and attest accepts that skip only for a refresh origin',
     /if: inputs\.origin != 'refresh-data' && inputs\.origin != 'refresh-screener'/.test(browserJob)
       && /needs\.preflight\.result == 'success' && needs\.contracts\.result == 'success'/.test(attestHead)
-      && /needs\.browser\.result == 'success' \|\| \(needs\.browser\.result == 'skipped' && \(inputs\.origin == 'refresh-data' \|\| inputs\.origin == 'refresh-screener'\)\)/.test(attestHead)
+      && /needs\.browser\.result == 'success' \|\| \(needs\.browser\.result == 'skipped' && \(inputs\.origin == 'refresh-data' \|\| inputs\.origin == 'refresh-screener' \|\| inputs\.origin == 'event-briefs'\)\)/.test(attestHead)
       && /github\.event_name != 'pull_request' && github\.ref_name == 'main'/.test(attestHead));
 }
 check('CI accepts exact refresh SHA and emits immutable attestation', /release_sha:/.test(ciSource) && /aio-release-attestation\.v1/.test(ciSource) && /actions\/upload-artifact@[0-9a-f]{40}/.test(ciSource));

@@ -3,7 +3,7 @@ import { deriveScreenerSetupProfile } from '../../domain/screener/setup-profile.
 import { calculationRow, createScreenDefinition, stableHash } from '../contracts/screener.js';
 import { runScreen, summarizeScreenReadiness, SCREEN_ENGINE_VERSION } from '../../domain/screener/screen-engine.js';
 import { SUPPLIED_MATERIALS_META, SUPPLIED_MATERIAL_CLAIM_IDS } from '../../domain/research/reference-index.js';
-import { NATHAN_PREVIOUS_THREADS_REFERENCE } from '../../domain/research/nathan-previous-threads.js';
+import { NATHAN_PREVIOUS_THREADS_FRAMEWORKS } from '../../domain/research/nathan-frameworks.js';
 import { NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_CONCEPTS } from '../../domain/knowledge/nathan-framework-pack.js';
 import { CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
@@ -119,7 +119,7 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       columns: ['identity.symbol', 'identity.name', 'rank', 'price.ret3m', 'price.rsi14'],
       referenceFrameworkIds: SCREENER_REFERENCE_FRAMEWORK_IDS,
       referenceConceptIds: NATHAN_KNOWLEDGE_CONCEPTS.map((concept) => concept.canonicalId),
-      referenceQuestionIds: NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks.flatMap((framework) => [`${framework.id}:confirmation`, `${framework.id}:invalidation`]),
+      referenceQuestionIds: NATHAN_PREVIOUS_THREADS_FRAMEWORKS.flatMap((framework) => [`${framework.id}:confirmation`, `${framework.id}:invalidation`]),
       referenceProcessingStages: NATHAN_ANALYSIS_PROTOCOL.stages,
       referenceTimeSeriesIds: SCREENER_RESEARCH_MAPPING.timeSeriesIds,
       referenceClaimIds: SUPPLIED_MATERIAL_CLAIM_IDS,

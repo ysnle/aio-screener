@@ -1,0 +1,19 @@
+{
+  "version": "v59.49",
+  "date": "2026-10-31",
+  "r": null,
+  "p": {
+    "title": "국채 2s10s가 다른 날짜의 FRED 스프레드를 같은 날짜 스프레드로 표시할 수 있고, 장기 거시 카드가 월간 값을 '월평균'이라 부름",
+    "symptom": "재현 조건: 미 재무부 자료가 10/30 2년·10년물을 같은 cut으로 주고 t10y2y를 빠뜨린 날. 이때 FRED 10/29 스프레드 0.30이 '동일자 스프레드'로 표시됐다(두 금리로 계산하면 0.38). 장기 거시 카드는 실업률·근원 CPI 전년비 같은 월간 조사값에도 '월평균'을 붙였다.",
+    "root_cause": "스프레드에 자기 cut id가 없을 때 두 금리의 cut이 같으면 날짜를 보지 않고 비교 가능으로 판정했다. 장기 카드는 계열 구분 없이 같은 단어를 썼다.",
+    "fix": "src/domain/macro/treasury-curve.js: cut id가 없는 공식 스프레드는 날짜(일 단위)가 금리와 다르면 '혼합 cut 참고값'으로 내린다. src/domain/macro/long-history.js: 일별 자료의 평균 계열과 FEDFUNDS만 '월평균'이고 나머지는 '값'이다. 주석이 말하던 존재하지 않는 macro-long-history.json 경로도 바로잡았다.",
+    "violated_rule": "없음(다른 시점 값을 같은 날짜로 표시하는 반복 클래스).",
+    "prevention": "검토 재현 스크립트(tc.mjs) 재실행: mixed-cut-reference, spread null. 실제 data.json 경로는 t10y2y가 같은 cut으로 오므로 영향이 없다.",
+    "verification": "tc.mjs 재실행 결과 spread=null, mode=mixed-cut-reference. esm-core 통과."
+  },
+  "changelog": [
+    "**국채 금리차·장기 거시 표기 ({P}):** 날짜가 다른 2s10s 스프레드를 같은 날짜 값으로 쓰지 않는다. 장기 거시 카드에서 실업률·근원 CPI는 '월평균'이 아니라 그 달의 값으로 적는다."
+  ],
+  "qa": [],
+  "note": "v59.49: 국채 금리차 날짜 검사, 장기 거시 표기"
+}

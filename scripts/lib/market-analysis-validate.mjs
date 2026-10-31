@@ -462,15 +462,18 @@ export function leadershipClaimIssues(body, { context = '', leadershipBreak = LE
 // word for an axis must match the axis state the packet (REGIME_CONTEXT "id: state — …" lines) carries; conditional and
 // quoted sentences are not claims. Only 양호/안정 and 부담 are checked — plain descriptions ("낮지만") are left alone.
 const AXIS_CLAIMS = Object.freeze([
-  ['credit', /(?:신용|스프레드|하이일드|HY)[^.。\n,]{0,14}?(부담|스트레스|안정|양호)/],
+  // v59.49 (review): 불안정 is a burden word, not 안정; 신용융자/잔고 is Korean margin debt, not the credit axis; the gap stops
+  // at another axis or a contrast, so "하이일드 스프레드와 달리 변동성은 안정" is not a credit claim.
+  ['credit', /(?:신용(?!\s?(?:융자|잔고|거래))|스프레드|하이일드|HY)(?:(?!변동성|추세|금리|시장\s?폭|달리|반면)[^.。\n,]){0,14}?(부담|스트레스|불안정|안정|양호)/],
   ['trend', /추세(?:는|가|도)?\s?(양호|부담)/],
   ['volatility', /변동성(?:은|이|도)?\s?(?:지표\s?)?(안정|양호|부담)/],
   ['rates', /(?:장기)?금리(?:는|가|도)?\s?(?:상승이\s?)?(양호|부담)/],
   ['breadth', /시장\s?폭(?:은|이|도)?\s?(양호|부담)/]
 ]);
-const CLAIM_STATE = Object.freeze({ 부담: 'burden', 스트레스: 'burden', 안정: 'favorable', 양호: 'favorable' });
+const CLAIM_STATE = Object.freeze({ 부담: 'burden', 스트레스: 'burden', 불안정: 'burden', 안정: 'favorable', 양호: 'favorable' });
 const CLAIM_CONDITIONAL = /(?:하면|한다면|할\s?경우|된다면|되면|는지|인지|수\s?있|지\s?않|아니)/;
-const CLAIM_NEGATED = /^\s?(?:조건\s?)?(?:은|는|이|가)?\s?(?:아직\s?)?(?:미충족|충족되지|충족 못|빠[짐져졌]|아님)/;
+// v59.49: an easing verb after the state word ("스트레스가 완화됐다") reports the state receding, not holding.
+const CLAIM_NEGATED = /^\s?(?:조건\s?)?(?:은|는|이|가)?\s?(?:아직\s?)?(?:미충족|충족되지|충족 못|빠[짐져졌]|아님|완화|줄|축소|해소|누그러)/;
 export function packetAxisStates(context = '') {
   const states = {};
   for (const match of String(context || '').matchAll(/^(trend|breadth|volatility|rates|credit|commodities|korea): (favorable|neutral|burden|unknown)\b/gm)) states[match[1]] = match[2];
@@ -501,12 +504,15 @@ const KR_MARKET = /코스피|코스닥|KOSPI|KOSDAQ|한국\s?증시/i;
 const US_MARKET = /S&P|에스앤피|나스닥|다우|미국\s?(?:증시|주식|지수|주가)|뉴욕\s?증시/i;
 const dateForms = (iso) => {
   const [, m, d] = String(iso || '').split('-').map(Number);
-  return m && d ? [`${m}/${d}`, `${m}월 ${d}일`, `${m}월${d}일`] : [];
+  const pad = (n) => String(n).padStart(2, '0');
+  return m && d ? [`${m}/${d}`, `${pad(m)}/${pad(d)}`, `${m}월 ${d}일`, `${m}월${d}일`] : [];
 };
 export function crossMarketDateIssues(body, { krDate = null, usDate = null } = {}) {
   if (!krDate || !usDate || krDate === usDate) return [];
   const asserted = String(body || '').replace(/\[[^\]]*\]/g, '');
-  const missing = asserted.split(/(?<=[.?!。])\s+|\n+/).some((sentence) => KR_MARKET.test(sentence) && US_MARKET.test(sentence) && /\d/.test(sentence)
+  const missing = asserted.split(/(?<=[.?!。])\s+|\n+/).some((sentence) => KR_MARKET.test(sentence) && US_MARKET.test(sentence)
+    // v59.49 (review): the digits of an index name (S&P 500, 코스피200, 나스닥100) are not a figure.
+    && /\d/.test(sentence.replace(/S&P\s?500|코스피\s?200|KOSPI\s?200|나스닥\s?100|NASDAQ\s?100|다우\s?30/gi, ''))
     && !(dateForms(krDate).some((form) => sentence.includes(form)) && dateForms(usDate).some((form) => sentence.includes(form))));
   return missing ? ['cross-market-session-dates-missing'] : [];
 }
@@ -569,7 +575,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   if (!body) issues.push('empty');
   if (PROMPT_SECTION_LABEL.test(body)) issues.push('prompt-label-leak');
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
-  const changes = new Map(snapshotEvidenceRows(snapshot).filter(row => row?.evidenceId && Number.isFinite(Number(row.changePct))).map(row => [row.evidenceId, Number(row.changePct)]));
+  const changes = new Map(snapshotEvidenceRows(snapshot).filter(row => row?.evidenceId && row.changePct != null && row.changePct !== '' && Number.isFinite(Number(row.changePct))) /* v59.49: null is missing, not 0 */.map(row => [row.evidenceId, Number(row.changePct)]));
   const closedBasis = buildCompletedCloseBasis(metricEvidence, history);
   const levelTolerance = (unit, value) => Math.max(unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(value)) * 0.02);
   issues.push(...validateAnalysisAdmission(body, { changes, context }));

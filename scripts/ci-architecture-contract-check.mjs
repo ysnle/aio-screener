@@ -18,7 +18,6 @@ const golden = JSON.parse(read('architecture/golden-routes.json'));
 const release = JSON.parse(read('architecture/release-manifest.json'));
 const executionPlan = read('_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md');
 const publicManifest = JSON.parse(read('public-artifact-manifest.json'));
-const serviceWorkerSource = read('sw.js');
 if (!Array.isArray(golden.routes) || golden.routes.length !== 19) fail('golden route count must be 19 (P1321 options retired)');
 for (const marker of ['## 2. 계층별 현재 상태와 목표', '## 5. 17 route 세부 전환 원장', '## 7. 세션 작업 카드', 'DELETE-LEDGER', 'nativeRendererOwner', '## 9. 전체 재구축 최종 인수 기준']) {
   if (!executionPlan.includes(marker)) fail(`architecture execution plan missing marker: ${marker}`);
@@ -26,8 +25,8 @@ for (const marker of ['## 2. 계층별 현재 상태와 목표', '## 5. 17 route
 if (golden.firstVerticalSlice !== 'sentiment') fail('first vertical slice must remain sentiment');
 if (!publicManifest.publicRootAllowlist.includes('src/**/*.js')) fail('Pages allowlist does not publish native ESM');
 const srcFiles = fs.readdirSync(path.join(root, 'src'), { recursive: true }).filter((file) => String(file).endsWith('.js'));
-if (!serviceWorkerSource.includes('RUNTIME_SHELL_PATH_RE') || !serviceWorkerSource.includes('isRuntimeShell')) fail('service worker must runtime-cache requested native ESM modules');
-if (!serviceWorkerSource.includes('cache.addAll(CRITICAL_SHELL_ASSETS)')) fail('service worker critical shell install must be atomic');
+// v59.48: sw.js runtime caching (RUNTIME_SHELL_PATH_RE/isRuntimeShell) and the atomic cache.addAll install are owned by
+// scripts/ci-service-worker-cache-policy-check.mjs, which asserts both on the install block itself.
 for (const field of ['appRevision', 'dataRevision', 'evidenceRevision']) {
   if (!release[field] || release[field] === 'unknown') fail(`release revision missing: ${field}`);
 }
@@ -238,14 +237,13 @@ for (const [name, source, markers] of [
 }
 // P770: news.js owns the primary market-news and briefing feed renderers; secondary AI digest
 // content remains a compatibility/narrative boundary.
-if (!newsPageSource.includes("page.dataset.aioArchitectureRenderer = 'native'")) fail('news.js native market-news renderer marker missing');
-if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fail('news.js native feed marker missing');
+// v59.48: the rendered markers (#page-market-news aioArchitectureRenderer, #live-news-feed aioNewsRenderer, #page-briefing
+// aioBriefingRenderer 'native-read', #page-macro/#page-fxbond/#page-breadth renderer markers, #home-fg-score
+// aioHomeFearGreedRenderer) are asserted in the live DOM by scripts/ci-architecture-browser-check.mjs.
 // P1399: since P1389 the briefing is a connected read owned by components/briefing-read.js (the
 // news screen owns the article feed); news.js routes to it and the retired feed helpers stay gone.
 {
-  const briefingReadSource = read('src/ui/components/briefing-read.js');
   if (!newsPageSource.includes("import { renderBriefingRead } from '../components/briefing-read.js'") || !newsPageSource.includes('renderBriefingRead({ documentRef, root, store })')) fail('news.js must route the briefing to the native briefing read owner');
-  if (!briefingReadSource.includes("page.dataset.aioBriefingRenderer = 'native-read'")) fail('briefing-read.js native briefing read marker missing');
   for (const retired of ['appendBriefingNews', 'getBriefingWindow']) if (newsPageSource.includes(retired)) fail(`news.js retired briefing feed helper returned: ${retired}`);
   // P1411: the hidden legacy digest (and its page-shown / live-quote hooks) must not come back.
   if (/_aioRenderBriefingDigest\s*=|briefing-digest'/.test(coreSource + dataSource)) fail('legacy briefing digest renderer returned');
@@ -265,7 +263,7 @@ for (const marker of ['isNewsAnalysisEligible', 'isNewsHeadlineOnly(item)', "lab
 // sinks they replaced (storyline, regime pill, thermometer, risk pill, 4-axis verdict, carry score,
 // curve bands) and their legacy writers stay retired. Live-quote and KR snapshot cells on the macro
 // page keep the native-element fence below.
-if (!marketPageSource.includes("page.dataset.aioMacroRenderer = 'native'") || !marketPageSource.includes("page.dataset.aioFxbondRenderer = 'native'") || !marketPageSource.includes('renderMacroBoard') || !marketPageSource.includes('renderRatesFxBoard') || !marketPageSource.includes('renderLiveQuotes') || !marketPageSource.includes('renderSnapshotMetrics')) fail('P1425 market.js must render the 거시 boards natively');
+if (!marketPageSource.includes('renderMacroBoard') || !marketPageSource.includes('renderRatesFxBoard') || !marketPageSource.includes('renderLiveQuotes') || !marketPageSource.includes('renderSnapshotMetrics')) fail('P1425 market.js must render the 거시 boards natively');
 {
   const macroBoardSource = read('src/ui/components/macro-board.js');
   for (const marker of ["getElementById('macro-board')", "getElementById('rates-yields')", "getElementById('rates-fx-grid')", 'buildMacroBoard', 'buildRatesFx', 'aioMacroBoardRenderer', 'aioRatesBoardRenderer']) {
@@ -297,7 +295,6 @@ if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.inc
 // P1133/R620 → v57.77: the legacy [data-snap] writer (updateRiskMonitor, incl. its fxbond MOVE fence) raced
 // renderSnapshotMetrics in src/ui/pages/market.js and was deleted; the native renderer owns those sinks.
 if (/function\s+updateRiskMonitor\s*\(|updateRiskMonitor\s*\(\s*\)/.test(pagesSource)) fail('v57.77 retired legacy [data-snap] writer updateRiskMonitor returned'); // text-pin-ok: retirement absence
-if (!marketPageSource.includes("page.dataset.aioBreadthRenderer = 'native'") || !marketPageSource.includes('renderBreadth')) fail('market.js native breadth primary renderer marker missing');
 // v57.60: the legacy breadth writers (updateBreadthBars/initBreadthPage/updateMcClellanUI/_aioBreadthCanvasRender) and their fence helper were deleted.
 if (/_aioIsNativeBreadthElement|function\s+(?:updateBreadthBars|initBreadthPage|updateMcClellanUI|calcMcClellan)\s*\(|_aioBreadthCanvasRender|bpChartInstances/.test(dataSource + uiSource + coreSource + pagesSource)) fail('v57.60 retired legacy breadth writer or fence returned');
 if (!read('src/domain/macro/treasury-curve.js').includes("TREASURY_CURVE_SPREAD_VERSION = 'treasury-curve-spread.v2'")) fail('Treasury curve v2 domain contract missing');
@@ -372,11 +369,9 @@ for (const marker of ['breadth-diag-signal', 'breadth-diag-text', 'aioBreadthDia
 }
 if (/aioBreadthDiagnosticRenderer/.test(uiSource)) fail('v57.60 retired legacy breadth diagnostic writer returned');
 // P1010 completes P820: one native owner for score and label.
-for (const marker of ['renderHomeFearGreed', 'home-fg-score', 'aioHomeFearGreedRenderer', 'selectSentimentValues']) {
-  if (!analysisPageSource.includes(marker)) fail(`native home Fear & Greed renderer marker missing: ${marker}`);
-}
+// v59.48: the native home Fear & Greed owner (store sentiment -> #home-fg-score/#home-fg-label) is mounted and checked by
+// scripts/ci-desktop-continuity-check.mjs; its live marker by scripts/ci-architecture-browser-check.mjs.
 if (dataSource.includes('[id="home-fg-score"]') || dataSource.includes("getElementById('home-fg-label')")) fail('retired home Fear & Greed writer returned');
-if (!analysisPageSource.includes("getElementById('home-fg-label')")) fail('native home Fear & Greed label missing');
 // P821: the home quality card must not reuse tradingScore under a different label. Native
 // owns the complete card and displays a fail-closed state until canonical quality inputs exist.
 // v57.79: the card left index.html (v57.50 I16), so its native writer is an orphan and is removed too (R705).

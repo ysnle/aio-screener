@@ -5,6 +5,7 @@ import { parseKnowledgeTargetContext } from '../../app/knowledge-route-state.js'
 import { selectEntityState } from '../../state/selectors/entity.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
+import { listingCurrency } from '../../domain/portfolio/fx.js';
 import { deriveSecReport, fundamentalValueFlags } from '../../domain/fundamental/sec-report.js';
 import { canonicalEpochMs } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -360,7 +361,9 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
   // First-users run 4: without a live quote the published close values the position, as the portfolio does.
   const close = livePrice == null && id ? lastPublishedClose(id, state, root) : null;
   const price = livePrice ?? (close ? close.value : null);
-  const currency = quote.currency || live.currency || live.quoteEnvelope?.currency || close?.currency || null;
+  // v59.49: a quote without a currency (fallback quotes) falls back to the listing currency, as the portfolio surface does;
+  // an unknown currency let a KRW cost be subtracted from a USD price.
+  const currency = quote.currency || live.currency || live.quoteEnvelope?.currency || close?.currency || (id ? listingCurrency(id) : null) || null;
   const holding = (Array.isArray(portfolioState?.holdings) ? portfolioState.holdings : [])
     .find((item) => String(item?.symbol || '').toUpperCase() === String(id || '').toUpperCase());
   const shares = finite(holding?.shares);
@@ -386,7 +389,8 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
     valueNode.setAttribute('data-operational-use', 'reference-only');
   }
   if (pnlNode) {
-    pnlNode.className = `pnl${pnl != null ? ' pos' : ''}`;
+    // v59.49: the direction class follows the sign (a loss carried the gain colour, 'pos', for any non-null P&L).
+    pnlNode.className = `pnl${pnl == null ? '' : pnl > 0 ? ' pos' : pnl < 0 ? ' neg' : ' neutral'}`;
     pnlNode.dataset.aioTickerPnlRenderer = 'native';
     pnlNode.setAttribute('data-source-kind', pnl == null ? 'unavailable' : 'portfolio-state');
     pnlNode.setAttribute('data-source-label', pnl == null ? 'portfolio P&L unavailable' : 'portfolio-state+entity-quote');

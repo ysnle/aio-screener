@@ -27,7 +27,7 @@ target_version: version.json
 
 | Ledger | Search key | Update trigger |
 |---|---|---|
-| `RULES.md` | 관련 R번호, 함수, 실패 클래스 | 반복 패턴을 규칙/게이트로 승격할 때 |
+| `RULES.md` | 맨 위 수신함 다음의 원칙 색인(C1~C18: 불변식·게이트) → 해당 원칙의 R번호·함수 | 새 결함을 어긴 원칙에 넣거나 규칙/게이트로 승격할 때 |
 | `BUG-POSTMORTEM.md` | 관련 P번호, 증상, producer/consumer | 버그 수정 시 |
 | `QA-CHECKLIST.md` | QA ID, 페이지, 게이트 | 새 회귀·미검증 경계 발생 시 |
 | `KNOWLEDGE-BASE.md` | 도메인 용어, source/evidence 상태 | 재사용 가능한 지식 또는 경계 변경 시 |

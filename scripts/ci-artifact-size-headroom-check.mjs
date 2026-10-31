@@ -43,6 +43,9 @@ const BUDGETS = [
   // columns on the latest two years + issuer SIC; src/ui/components/fiscal-read.js 1 MiB), the earnings calendar (six-week
   // universe map; fiscal-read.js EARNINGS_CALENDAR 512 KiB) and consensus estimates (surprise history; 1 MiB).
   { id: 'sec-fiscal-history', bytes: size('public-data/sec-fiscal-history.json'), budget: 1_048_576 },
+  // v59.48: the SEC runtime projection the screener and stock pages read; scripts/ci-sec-runtime-projection-check.mjs fails it
+  // above 1 MiB, and before this row nothing warned at 90% (it reached the bound with no notice before recordDefaults).
+  { id: 'sec-fundamentals-summary', bytes: size('public-data/sec-fundamentals-summary.json'), budget: 1_048_576 },
   { id: 'earnings-calendar', bytes: size('public-data/earnings-calendar.json'), budget: 524_288 },
   { id: 'consensus-estimates', bytes: size('public-data/consensus-estimates.json'), budget: 1_048_576 },
   // v59.42: ~120 days of FOMC and mover briefs (~3-5 KB each) plus a release text while its call summary is pending;

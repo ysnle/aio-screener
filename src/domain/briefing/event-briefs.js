@@ -220,6 +220,60 @@ export function surprisePct(actual, estimate) {
   return Math.round(((actual - estimate) / Math.abs(estimate)) * 1000) / 10;
 }
 
+// v59.48: which per-share amount the provider's EPS consensus (adjusted / non-GAAP by convention) is compared with.
+// The report's own "GAAP 기준" line beside an adjusted line printed two comparisons (LLY, EME), and a GAAP value whose
+// note named the adjusted amount was compared as is (INTC GAAP $0.60 read +50.2% against a $0.40 adjusted consensus;
+// the adjusted $0.52 is +30.1%). One rule: the brief's adjusted line if it has one (only that line is compared); else
+// an adjusted amount the line's own note names; a GAAP-labelled line alone is not compared; an unlabelled line (issuers
+// that report GAAP only, AMZN, GOOGL) is compared and says it is the reported basis. "조정 전" is the unadjusted figure.
+const ADJUSTED_RE = /non-?GAAP|비\s*GAAP|조정(?!\s*전)|adjusted/i;
+const GAAP_RE = /GAAP|보고 기준|reported|조정\s*전/i;
+const perShareValue = (value) => parseUsdPerShare(String(value ?? '').replace(/\s*per\s+(?:fully\s+)?(?:diluted\s+)?(?:common\s+)?share\b.*$/i, ''));
+const isAdjustedLine = (figure) => ADJUSTED_RE.test(figure?.label || '') || ADJUSTED_RE.test(String(figure?.text || '').split(/[.。]/)[0]) && !GAAP_RE.test(String(figure?.text || '').split(/[.。]/)[0].replace(/non-?GAAP|비\s*GAAP/gi, ' '));
+export function epsComparisonBasis(figure, figures = []) {
+  if (figure?.metric !== 'eps_diluted') return null;
+  const own = () => { const actual = perShareValue(figure.value); return actual == null ? null : { actual, basis: 'adjusted' }; };
+  if (ADJUSTED_RE.test(figure.label || '')) return own();
+  if (figures.some((other) => other !== figure && other?.metric === 'eps_diluted' && isAdjustedLine(other))) return null;
+  // The note's own adjusted amount first: "조정 희석 EPS는 $5.91" beside a $4.94 value (HUBB) names a different figure.
+  const note = `${figure.text || ''} ${figure.quote || ''}`;
+  const named = note.match(/(?:non-?GAAP|비\s*GAAP|조정(?!\s*전)|adjusted)[^$]{0,40}?(\$\s*\(?\s*-?\d+(?:\.\d+)?\s*\)?)/i);
+  if (named) { const actual = perShareValue(named[1]); if (actual != null && actual !== perShareValue(figure.value)) return { actual, basis: 'adjusted-in-note', amount: named[1].replace(/\s+/g, '') }; }
+  if (isAdjustedLine(figure)) return own();
+  if (GAAP_RE.test(`${figure.label || ''} ${note}`.replace(/non-?GAAP|비\s*GAAP/gi, ' '))) return null;
+  const actual = perShareValue(figure.value);
+  return actual == null ? null : { actual, basis: 'reported' };
+}
+
+// v59.48: release amounts and phrases copied in English ("$16.5 billion", "up 21%", "$1.89 per diluted share",
+// "3-3/4 to 4 percent") read in Korean units on screen. Display only — the stored figure keeps the source text the
+// parsers and gates read. Idempotent: a Korean string passes through unchanged.
+const trimZero = (text) => text.replace(/\.0$/, '');
+function usdKorean(usd) {
+  const eok = usd / 1e8;
+  if (eok >= 10000) return `${trimZero((eok / 10000).toFixed(1))}조 달러`;
+  if (eok >= 100) return `${Math.round(eok).toLocaleString('en-US')}억 달러`;
+  if (eok >= 1) return `${trimZero(eok.toFixed(1))}억 달러`;
+  return `${Math.round(usd / 1e4).toLocaleString('en-US')}만 달러`;
+}
+const USD_WORD_SCALE = { thousand: 1e3, million: 1e6, billion: 1e9, trillion: 1e12 };
+const fraction = (whole, num, den) => Number(whole) + Number(num) / Number(den);
+export function koreanReleaseText(text) {
+  return String(text ?? '')
+    .replace(/(\d+)-(\d)\/(\d)\s*(?:to|~|–|-)\s*(\d+)(?:-(\d)\/(\d))?\s*percent/gi, (m, a, b, c, d, e, f) => `${fraction(a, b, c)}~${e ? fraction(d, e, f) : Number(d)}%`)
+    .replace(/(\d+(?:\.\d+)?)\s*(?:to|~|–)\s*(\d+(?:\.\d+)?)\s*percent/gi, '$1~$2%')
+    .replace(/(-)?\$\s*(\d[\d,]*(?:\.\d+)?)\s*(thousand|million|billion|trillion)\b/gi, (m, sign, n, unit) => `${sign ? '-' : ''}${usdKorean(Number(n.replace(/,/g, '')) * USD_WORD_SCALE[unit.toLowerCase()])}`)
+    .replace(/\b(?:up|increased?|rose|grew)\s+(?:by\s+)?(\d+(?:\.\d+)?)\s*(?:%|percent)/gi, '$1% 증가')
+    .replace(/\b(?:down|decreased?|fell|declined?)\s+(?:by\s+)?(\d+(?:\.\d+)?)\s*(?:%|percent)/gi, '$1% 감소')
+    .replace(/\b(?:up|increased?|rose)\s+(\d+(?:\.\d+)?)\s*ppts?\b/gi, '$1%p 상승')
+    .replace(/\b(?:down|decreased?|fell)\s+(\d+(?:\.\d+)?)\s*ppts?\b/gi, '$1%p 하락')
+    .replace(/(\d+(?:\.\d+)?)\s*ppts?\b/gi, '$1%p')
+    .replace(/(\d+(?:\.\d+)?)\s*percent\b/gi, '$1%')
+    .replace(/\s*per\s+(?:fully\s+)?(?:diluted\s+)?(?:common\s+)?share\b/gi, '')
+    .replace(/\$\s+(\(?\d)/g, '$$$1')
+    .replace(/(표결\s*)(\d+)\s*-\s*(\d+)|(\d+)\s*-\s*(\d+)(?=\s*표결)/g, (m, pre, a, b, c, d) => (pre ? `${pre}${a}대 ${b}` : `${c}대 ${d}`)); // FOMC vote "10 - 2"
+}
+
 // ---- cost ------------------------------------------------------------------------------------------------------------
 // The shared Worker's rate card (worker/openai-budget.mjs): input $0.1375/M, output $0.55/M, $0.011 per search call.
 export const AI_RATE_CARD = Object.freeze({ inputUsdPerToken: 0.1375e-6, outputUsdPerToken: 0.55e-6, searchUsdPerCall: 0.011 });

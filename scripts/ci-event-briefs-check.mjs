@@ -227,12 +227,13 @@ check('v59.44 a monthly release of the last two days leads 오늘', () => {
   same(rows.map((row) => [row.id, row.date, row.next, row.items.map((item) => item.valueText)]), [['us-pce', '2026-10-29', '2026-11-25', ['3.6%', '3.1%']]]);
   eq(recentMacroReleases({ macro, schedules }, { nowMs: Date.parse('2026-11-02T01:00:00Z') }).length, 0, 'two days later the release has moved to 거시');
 });
-const { isGaapOnlyFigure } = await import('./fetch-event-briefs.mjs');
-check('P2138 a GAAP-labelled EPS is not compared with the adjusted consensus', () => {
-  eq(isGaapOnlyFigure({ label: '희석 주당순이익, GAAP', text: '3분기 GAAP 희석 주당순이익.' }), true);
-  eq(isGaapOnlyFigure({ label: '희석 주당순이익, non-GAAP', text: '' }), false);
-  eq(isGaapOnlyFigure({ label: '희석 EPS', text: '보통주 주주 귀속 순이익 기준' }), false);
-  eq(isGaapOnlyFigure({ label: '희석 주당순이익, GAAP', text: '조정 전 기준' }), true, "'조정 전' is the unadjusted figure");
+const { epsComparisonBasis } = await import('../src/domain/briefing/event-briefs.js');
+check('P2138 a GAAP-labelled EPS is not compared with the adjusted consensus (v59.48: epsComparisonBasis)', () => {
+  const eps = (label, text, value = '$1.00') => ({ metric: 'eps_diluted', label, text, value });
+  eq(epsComparisonBasis(eps('희석 주당순이익, GAAP', '3분기 GAAP 희석 주당순이익.')), null);
+  eq(epsComparisonBasis(eps('희석 주당순이익, non-GAAP', ''))?.basis, 'adjusted');
+  eq(epsComparisonBasis(eps('희석 EPS', '보통주 주주 귀속 순이익 기준'))?.basis, 'reported');
+  eq(epsComparisonBasis(eps('희석 주당순이익, GAAP', '조정 전 기준')), null, "'조정 전' is the unadjusted figure");
 });
 const storyMover = [{ sym: 'INTC', tier: 2, extended: true, nameKo: '인텔', irDomains: [] }];
 const watched = await buildEventBriefs({ ...base, previous: null, nowMs, earningsRows: [{ symbol: 'INTC', date: sources.manifest.now.slice(0, 10) }], extended: storyMover });

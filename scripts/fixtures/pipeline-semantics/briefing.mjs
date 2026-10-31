@@ -255,4 +255,39 @@ export const cases = [
       const relay = extractAnalystActions('$NVDA 목표가 $200 → $250 상향', { universe, date: '2026-10-30', postId: 'c/3' });
       assert.equal(mergeSignals([], [...a, ...relay]).length, 1, 'a relay of the same prices is one action');
   } },
+  // ---- v59.48: earnings brief comparison basis, Korean units, byte budget -----------------------------------------------
+  { id: 'EB-EPS-BASIS-01', name: '조정 EPS 예상치와는 조정 EPS만 비교하고, 조정 줄이 따로 있으면 보고 EPS는 비교하지 않는다', run: async ({ load }) => {
+      const { epsComparisonBasis } = await load('src/domain/briefing/event-briefs.js');
+      const gaap = { metric: 'eps_diluted', label: '희석 EPS', value: '$(0.38)', text: 'GAAP diluted loss per share' };
+      const adjusted = { metric: 'eps_diluted', label: '조정 EPS', value: '$0.52', text: 'Non-GAAP EPS' };
+      assert.equal(epsComparisonBasis(gaap, [gaap, adjusted]), null, 'GAAP line is not compared when an adjusted line exists (INTC)');
+      assert.equal(epsComparisonBasis(adjusted, [gaap, adjusted])?.basis, 'adjusted');
+      const noted = { metric: 'eps_diluted', label: '희석 EPS', value: '$1.10', text: 'GAAP diluted EPS; adjusted EPS of $1.50.' };
+      const fromNote = epsComparisonBasis(noted, [noted]);
+      assert.equal(fromNote?.basis, 'adjusted-in-note', 'an adjusted amount named in the note is the compared one (HUBB)');
+      const reported = { metric: 'eps_diluted', label: '희석 EPS', value: '$1.95', text: 'Diluted EPS' };
+      assert.equal(epsComparisonBasis(reported, [reported])?.basis, 'reported', 'with no adjusted figure the reported EPS is compared (AMZN)');
+      assert.equal(epsComparisonBasis({ metric: 'revenue', label: '매출', value: '$16.5 billion' }, []), null, 'only EPS lines carry a basis');
+  } },
+  { id: 'EB-KO-UNITS-01', name: '공시 영문 단위는 한국어 단위로 바뀌고 라벨과 값 사이 공백은 남는다', run: async ({ load }) => {
+      const { koreanReleaseText } = await load('src/domain/briefing/event-briefs.js');
+      assert.equal(koreanReleaseText('매출 $16.5 billion'), '매출 165억 달러');
+      assert.equal(koreanReleaseText('전년 동기 $683 million.'), '전년 동기 6.8억 달러.');
+      assert.equal(koreanReleaseText('up 10.3 ppts'), '10.3%p 상승');
+      assert.equal(koreanReleaseText('$ (3.16)'), '$(3.16)');
+      assert.equal(koreanReleaseText('165억 달러'), '165억 달러', 'already Korean text is unchanged');
+      assert.equal(koreanReleaseText('성명은 10 - 2 표결로 승인됐다.'), '성명은 10대 2 표결로 승인됐다.', 'an FOMC vote reads 10대 2');
+      assert.equal(koreanReleaseText('2025-2026 기간'), '2025-2026 기간', 'a year range is not a vote');
+  } },
+  { id: 'EB-BUDGET-01', name: '브리프 파일은 예산을 넘으면 오래된 것부터 줄이되 최근 조회 범위와 이번 달 AI 비용 브리프는 남긴다', run: async ({ load }) => {
+      const { pruneBriefsToBudget } = await load('scripts/fetch-event-briefs.mjs');
+      const now = Date.parse('2026-10-31T00:00:00Z');
+      const brief = (days, ai = []) => ({ id: `b${days}`, publishedAt: new Date(now - days * DAY).toISOString(), ai, pad: 'x'.repeat(1000) });
+      const kept = [brief(1), brief(20, [{ at: '2026-10-11T00:00:00Z' }]), brief(40), brief(60), brief(90)];
+      pruneBriefsToBudget(kept, { nowMs: now, month: '2026-10', budget: 2500 });
+      assert.deepEqual(kept.map((b) => b.id), ['b1', 'b20'], 'oldest go first; a this-month AI brief and a lookback brief stay');
+      const recent = [brief(1), brief(2), brief(3)];
+      pruneBriefsToBudget(recent, { nowMs: now, month: '2026-10', budget: 100 });
+      assert.equal(recent.length, 3, 'briefs inside the fetch lookback are never dropped');
+  } },
 ];

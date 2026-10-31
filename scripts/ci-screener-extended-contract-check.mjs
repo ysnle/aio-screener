@@ -170,9 +170,16 @@ const perRow = shardBytes / identityRows.length;
 console.log(`[screener-extended] size sample: ${identityRows.length} rows -> ${shardBytes.toLocaleString('en-US')} bytes (${Math.round(perRow)} B/row; core ${Math.round(Buffer.byteLength(JSON.stringify(core.data)) / Object.keys(core.data).length)} B/row) -> 4,200 rows ~ ${(perRow * 4200 / 1e6).toFixed(1)} MB`);
 check('v57.81 encoded extended rows fit the 15 MB shard budget at 4,200 rows (estimate from a real core sample)', perRow * 4200 < 15_000_000, `${Math.round(perRow)} B/row`);
 if (existsSync(join(root, 'public-data/screener-extended.json'))) {
-  const committed = validateExtendedShard(json('public-data/screener-extended.json'), { coreData: core.data, freshness: false });
+  const committed = validateExtendedShard(json('public-data/screener-extended.json'), { coreData: core.data, freshness: false, coreOverlap: 'note' });
   check('v57.81 committed extended shard keeps the contract', committed.ok, committed.errors.join(' | '));
+  for (const note of committed.notes) console.log(`[screener-extended] note: ${note} (the shard job drops them on its next due check)`);
 }
+// v59.49: a core expansion leaves the moved symbols in the shard; the committed check notes it and the due rule refreshes.
+const overlapShard = { ...shard, data: { ...shard.data, AAPL: shard.data[renamed[0].sym] }, ok: shard.ok + 1 };
+check('v59.49 core overlap: the committed-shard check notes it, the producer check still fails, and the shard is due',
+  validateExtendedShard(overlapShard, { coreData: core.data, freshness: false, coreOverlap: 'note' }).notes.some((note) => /duplicated/.test(note))
+  && validateExtendedShard(overlapShard, { coreData: core.data, freshness: false }).errors.some((error) => /duplicated/.test(error))
+  && extendedRefreshDue({ previousShard: { ...overlapShard, asOf: core.asOf, factorSessionDateByMarket: { US: '2026-10-15' } }, coreScreener: { data: core.data, factorSessionDateByMarket: { US: '2026-10-15' } }, nowMs: Date.parse(core.asOf) }).reason === 'core-universe-overlap');
 
 // ── 4. Producer due rule, SEC compact ledger, operations availability (v57.81) ───────────────────────────────────
 const nowMs = Date.parse('2026-10-15T22:30:00Z');

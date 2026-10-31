@@ -2,7 +2,7 @@
 // This is deliberately not a trading signal. It exposes the user's relative-strength
 // pullback and climax-top framework without inventing benchmark, volume, or intraday data.
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../research/reference-index.js';
-import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../research/nathan-previous-threads.js';
+import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../research/nathan-frameworks.js';
 import { NATHAN_ANALYSIS_PROTOCOL } from '../knowledge/nathan-framework-pack.js';
 import { RULES } from '../rules/thresholds.js';
 import { finiteNumber as finite } from '../shared/number.js';

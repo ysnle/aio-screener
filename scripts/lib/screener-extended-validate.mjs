@@ -9,8 +9,12 @@ export const EXTENDED_REQUIRED_ROW_KEYS = Object.freeze([
 ]);
 const FUNDAMENTAL_FIELDS = ['pe', 'pb', 'roe', 'margin', 'revGrowth'];
 
-export function validateExtendedShard(shard, { coreData = null, now = Date.now(), freshness = true, coverageFloor = 0.6 } = {}) {
+// coreOverlap 'note' (the committed-shard CI check): a core expansion lands one job before the shard drops the moved
+// symbols, and the provider already reads core symbols from the core (src/data/providers/screener.js), so the overlap
+// is reported, not failed. The producer's own pre-commit validation keeps 'error'.
+export function validateExtendedShard(shard, { coreData = null, now = Date.now(), freshness = true, coverageFloor = 0.6, coreOverlap = 'error' } = {}) {
   const errors = [];
+  const notes = [];
   if (!shard || typeof shard !== 'object') return { ok: false, errors: ['shard missing or not an object'], rows: 0 };
   if (shard.schemaVersion !== EXTENDED_SHARD_SCHEMA) errors.push(`schemaVersion must be ${EXTENDED_SHARD_SCHEMA}`);
   if (shard.rowEncoding !== EXTENDED_ROW_ENCODING) errors.push(`rowEncoding must be ${EXTENDED_ROW_ENCODING}`);
@@ -28,7 +32,7 @@ export function validateExtendedShard(shard, { coreData = null, now = Date.now()
   if (!unfetched || unfetched.length !== identity.length - symbols.length) errors.push('unfetchedSymbols must list every identity row without data');
   if (coreData && typeof coreData === 'object') {
     const duplicated = symbols.filter((sym) => Object.prototype.hasOwnProperty.call(coreData, sym));
-    if (duplicated.length) errors.push(`core symbols duplicated in the shard: ${duplicated.slice(0, 5).join(',')}`);
+    if (duplicated.length) (coreOverlap === 'note' ? notes : errors).push(`core symbols duplicated in the shard: ${duplicated.slice(0, 5).join(',')}`);
   }
   const membershipTags = new Set(['RUSSELL2000', 'NASDAQ']);
   const badMembership = identity.filter((row) => !Array.isArray(row.membership) || !row.membership.length || row.membership.some((tag) => !membershipTags.has(tag)));
@@ -60,5 +64,5 @@ export function validateExtendedShard(shard, { coreData = null, now = Date.now()
     const session = shard.factorSessionDateByMarket?.US;
     if (!session || now - Date.parse(`${session}T00:00:00Z`) > 5 * 86400000) errors.push('US factor session is older than 5 days');
   }
-  return { ok: errors.length === 0, errors, rows: symbols.length, universe, identity: identity.length };
+  return { ok: errors.length === 0, errors, notes, rows: symbols.length, universe, identity: identity.length };
 }

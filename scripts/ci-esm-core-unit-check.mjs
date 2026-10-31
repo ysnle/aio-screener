@@ -4495,13 +4495,24 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   // global that never existed and was always 0, so the page was held at SNAPSHOT however many articles it showed.
   const { installNewsSelection } = await load('src/app/news-selection-entry-points.js');
   const { briefingWindowKST } = await load('src/domain/news/scoring.js');
-  const nowIso = new Date(briefingWindowKST(Date.now()).end - 2 * 3600000).toISOString(); // inside the completed cycle
+  // v59.48: the audit ages rows against Date.now(), and the row sat 2 h before the completed cycle's end. At 06-08 KST
+  // (21-23Z) that end is the previous 08:00, so the row was ~25 h old and read stale (CI failed 10-29 22:39Z, 10-30 22:36Z).
+  // The block runs on fixed clocks, so the wall-clock hour no longer decides the result. v59.49: the audit now ages rows
+  // with the page's completed-cycle rule, so 07:00 KST (row ~25 h old, still the latest cycle) counts as current too.
   const host = { extractTickers: () => [], getDisplayTickers: () => [], getDisplayTitle: (item) => item.title, _serverDataMeta: {} };
   installNewsSelection(host);
-  const auditRows = ['Fed holds rates as inflation cools', 'Nvidia chips rally on AI demand', 'Treasury yields slip after jobs report']
-    .map((title, k) => ({ title, desc: '', source: 'Reuters', tier: 1, country: 'us', topic: 'macro', score: 80 - k, pubDate: nowIso, link: `https://e.test/${k}` }));
-  const newsAudit = host.AIO.getNewsSelectionAudit(auditRows);
-  if (!(newsAudit.marketNewsEligible > 0) || newsAudit.verification.stale === auditRows.length) fail(`v59.42 the news selection audit counts market-news eligibility and current rows: ${JSON.stringify({ eligible: newsAudit.marketNewsEligible, verification: newsAudit.verification })}`);
+  const realNow = Date.now;
+  for (const fixedNow of [Date.parse('2026-10-13T03:00:00Z'), Date.parse('2026-10-12T22:00:00Z')]) {
+    Date.now = () => fixedNow;
+    let newsAudit;
+    try {
+      const nowIso = new Date(briefingWindowKST(fixedNow).end - 2 * 3600000).toISOString(); // inside the completed cycle
+      const auditRows = ['Fed holds rates as inflation cools', 'Nvidia chips rally on AI demand', 'Treasury yields slip after jobs report']
+        .map((title, k) => ({ title, desc: '', source: 'Reuters', tier: 1, country: 'us', topic: 'macro', score: 80 - k, pubDate: nowIso, link: `https://e.test/${k}` }));
+      newsAudit = { rows: auditRows.length, ...host.AIO.getNewsSelectionAudit(auditRows) };
+    } finally { Date.now = realNow; }
+    if (!(newsAudit.marketNewsEligible > 0) || newsAudit.verification.stale !== 0 || newsAudit.verification['headline-only'] !== newsAudit.rows) fail(`v59.42 the news selection audit counts market-news eligibility and current rows (now ${new Date(fixedNow).toISOString()}): ${JSON.stringify({ eligible: newsAudit.marketNewsEligible, verification: newsAudit.verification })}`);
+  }
   if (!tg.isTelegramMsgRelevant('Lead time for chips shrinks as stock market earnings beat') || tg.isTelegramMsgRelevant('Join our ad channel for stock market tips')) fail('P2116 Telegram spam words match whole words: "lead " is kept, "ad " still drops');
 }
 
@@ -5895,6 +5906,11 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const day = (date, state) => ({ date, state, ret1m: 1 });
   const run = stageRun([day('2026-10-14', 'leading'), day('2026-10-15', 'leading'), day('2026-10-16', 'fading'), day('2026-10-17', undefined), day('2026-10-20', 'fading'), day('2026-10-21', 'fading')]);
   if (!run || run.state !== 'fading' || run.sessions !== 3 || run.from?.state !== 'leading' || run.from?.date !== '2026-10-15' || run.atLeast) fail(`v58.78 stageRun wrong: ${JSON.stringify(run)}`);
+  // v59.49: '최근 3거래일' counts session positions; unrecorded days inside the window no longer reach an older change.
+  const { recentStageChange } = await load('src/ui/components/theme-playbook-view.js');
+  const gapped = [day('2026-10-01', 'leading'), day('2026-10-27', 'fading'), day('2026-10-28', undefined), day('2026-10-29', undefined), day('2026-10-30', 'fading')];
+  const near = [day('2026-10-27', 'leading'), day('2026-10-28', undefined), day('2026-10-29', 'fading'), day('2026-10-30', 'fading')];
+  if (recentStageChange(gapped) !== null || recentStageChange(near)?.date !== '2026-10-27') fail(`v59.49 recentStageChange counts sessions, not records: ${JSON.stringify([recentStageChange(gapped), recentStageChange(near)])}`);
   const held = stageRun([day('2026-10-20', 'weak'), day('2026-10-21', 'weak')]);
   if (!held || held.sessions !== 2 || held.from !== null || !held.atLeast) fail('v58.78 a stage held through the whole record reads "이상 유지"');
   if (stageRun([]) !== null) fail('v58.78 no record, no run');

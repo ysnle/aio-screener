@@ -1,0 +1,30 @@
+{
+  "version": "v59.49",
+  "date": "2026-10-31",
+  "r": {
+    "title": "시간 경계를 다루는 분류기와 그 게이트는 벽시계·그날 자료가 아니라 고정 시계와 시간표 전수 검사로 증명한다",
+    "rule": "장 시작·마감·주말·재개장·서머타임 경계를 판정하는 코드(세션 분류, 뉴스 주기, 단계 창)와 그것을 검사하는 게이트는 실행 시각이나 그날의 공개 자료에 따라 결과가 달라지면 안 된다. 테스트는 고정 시계와 고정 입력으로 돌리고, 세션 분류기는 시장 시간표에서 따로 유도한 기대값과 일주일 이상을 10분 간격으로 전수 비교한다. 데이터 전용 커밋을 만드는 생산자는 CI를 데이터 출처(origin)로 호출해 자료 내용에 반응하는 브라우저 예산 게이트로 데이터 반영이 멈추지 않게 한다.",
+    "validation": "node scripts/ci-market-snapshot-contract-check.mjs(시간표 전수 검사, scripts/lib/market-session-sweep.mjs), node scripts/ci-esm-core-unit-check.mjs(뉴스 점검 07:00·12:00 KST 고정 시계), node scripts/ci-qa-pipeline-contract-check.mjs(event-briefs 데이터 출처)."
+  },
+  "p": {
+    "title": "시세 세션 분류가 RUT 16:30 종가·일요일 재개장·월요일 개장 직후를 잘못 분류해 데이터 갱신이 반복 실패함",
+    "symptom": "최근 7일 Actions 실패 145건을 원인별로 분류하니 history-time 게이트 실패 9건이 두 경계에 몰렸다. 평일 09:30~09:45 ET(10-27 13:30Z, 10-30 13:36Z)에는 RUT 이력 행이 전전일 종가를 정답으로 요구받았고, 일요일 17:00~24:00 UTC(10-25 21:20~23:50Z, 7회)에는 FX·선물 재개장 시세가 '주말 마감'으로 분류됐다. 실패한 동안 시장 데이터가 갱신되지 않았다.",
+    "root_cause": "야후는 ^RUT 종가를 16:30 ET로 찍고 시세가 15분 지연된다. 다음 세션이 열리면 isLatestUsRegularClose가 거짓이 되고, 16:05 ET 이후 출력은 시간외라는 규칙이 이 종가를 AFTER_HOURS로 바꿨다(현금 지수에는 시간외 거래가 없다). 연속 상품은 UTC 기준 주말이면 무조건 MARKET_CLOSED라서, 일요일 17:00/18:00 ET 재개장 뒤의 새 주 시세를 완료 종가로 불렀다. 시간표 전수 검사로 세 번째 경계도 찾았다. 월요일 09:30~09:45 ET에 RUT 최신 출력은 65시간 전 금요일 종가인데, 24시간 제한 때문에 STALE_UNEXPECTED가 됐다.",
+    "fix": "scripts/build-market-snapshot.mjs deriveMarketSession: 현금 지수(GSPC·IXIC·DJI·RUT)의 마감 후 출력은 시간외 규칙에서 뺐다(VIX GTH·TNX 장전은 유지). 세션 중 직전 완료 세션의 종가 창 출력은 PREVIOUS_CLOSE_EXPECTED다. 연속 상품은 일요일 17:00 ET 이후에 찍힌 출력이면 새 주 세션으로 본다(고정 시각이 아니라 제공처 시각으로 판정). 일주일 단위 예시 대신 scripts/lib/market-session-sweep.mjs가 2주(11-01 서머타임 종료 포함)를 10분 간격으로 훑는다. 시간표에서 유도한 출력이 완료 종가 집합인지 장중 집합인지를 분류기와 비교하며, 시세 스냅숏 게이트가 이를 실행한다.",
+    "violated_rule": "R733(신규): 시간 경계 코드는 고정 시계와 시간표 전수 검사로 증명한다.",
+    "prevention": "ci-market-snapshot-contract-check 시간표 전수 검사(16,970개 시점, 수정 전 코드에서 96건 불일치 재현)와 세션 예시 9건(RUT·GSPC 개장 직후, VIX GTH, 일요일 재개장·금요일 출력·토요일).",
+    "verification": "수정 전 HEAD 분류기로 전수 검사 96건 불일치(일요일 재개장 76, RUT 시간외 16, RUT 월요일 오래됨 4), 수정 후 0건. 10-26 첫 월요일 커밋의 스냅숏 직전값(WTI 103.27·금 4007.9)이 이력 행과 같아 일요일 장중 분류에서 게이트가 맞는다. ci-market-snapshot·ci-history-field-time 통과."
+  },
+  "changelog": [
+    "**시세 세션 분류 경계 ({P}):** RUT의 16:30 종가를 다음 장 개장 직후 시간외 시세로 읽던 문제, 일요일 저녁 FX·선물 재개장 시세를 주말 마감으로 읽던 문제, 월요일 개장 직후 RUT 금요일 종가를 오래된 값으로 읽던 문제를 고쳤다. 지난주 시장 데이터 갱신 실패 16건의 원인이다. 시세 스냅숏 게이트는 이제 2주를 10분 간격으로 훑어 모든 출력이 시간표대로 분류되는지 검사한다."
+  ],
+  "qa": [
+    {
+      "id": "QA-SESSION-SWEEP-LIVE-01",
+      "text": "v59.49 push 뒤 첫 일요일 22:00~24:00 UTC(서머타임 종료 뒤)와 월요일 09:30~09:50 ET 시장 데이터 갱신이 history-time·market-snapshot 게이트에서 실패하지 않는지 Actions에서 확인",
+      "verify_by": "live"
+    }
+  ],
+  "qa_section": "시세 세션",
+  "note": "v59.49: 시세 세션 경계 분류와 시간표 전수 검사"
+}

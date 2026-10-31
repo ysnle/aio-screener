@@ -5,6 +5,7 @@ import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateInstrumentRegistry, v
 import { createMarketSnapshotLoader } from '../src/data/market-snapshot-loader.js';
 import { buildMarketSnapshot, deriveMarketSession } from './build-market-snapshot.mjs';
 import { isLatestUsRegularClose } from '../src/ai/time/market-session.js';
+import { sweepMarketSessions } from './lib/market-session-sweep.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
@@ -41,14 +42,32 @@ const sessionFixtures = [
   // P1738: a ^TNX pre-open print (09:05 ET) is not the completed close; the 14:59 ET close still is.
   ['^TNX', '2026-10-13T13:05:25.000Z', '2026-10-13T13:20:35.555Z', 'AFTER_HOURS'],
   ['^TNX', '2026-10-09T18:59:00.000Z', '2026-10-09T21:00:00.000Z', 'MARKET_CLOSED'],
+  // v59.49 (refresh-data 10-30 13:36Z): Yahoo stamps the ^RUT close 16:30 ET; once the next session opens it is the
+  // previous completed close, not an after-hours print (a cash index has no extended hours). ^VIX GTH still is.
+  ['^RUT', '2026-10-29T20:30:05.000Z', '2026-10-30T13:37:00.000Z', 'PREVIOUS_CLOSE_EXPECTED', 'REGULAR'],
+  ['^GSPC', '2026-10-29T20:47:43.000Z', '2026-10-30T13:37:00.000Z', 'PREVIOUS_CLOSE_EXPECTED', 'REGULAR'],
+  ['^VIX', '2026-10-29T20:45:00.000Z', '2026-10-30T13:37:00.000Z', 'AFTER_HOURS', 'REGULAR'],
   // v58.74 (refresh-data 10/23 23:50Z): FX and CME futures are closed for the week after 17:00 ET Friday.
   ['KRW=X', '2026-10-23T22:59:00.000Z', '2026-10-23T23:50:00.000Z', 'MARKET_CLOSED', 'REGULAR'],
   ['CL=F', '2026-10-23T20:59:58.000Z', '2026-10-23T23:50:00.000Z', 'MARKET_CLOSED', 'REGULAR'],
-  ['KRW=X', '2026-10-23T19:55:00.000Z', '2026-10-23T20:00:00.000Z', 'CURRENT_SESSION', 'REGULAR']
+  ['KRW=X', '2026-10-23T19:55:00.000Z', '2026-10-23T20:00:00.000Z', 'CURRENT_SESSION', 'REGULAR'],
+  // v59.49 (refresh-data 10-25 21:20-23:50Z): a Sunday print after the 17:00 ET reopen is the new week's session; a
+  // Friday print read on Sunday, or a Saturday read, is still the closed week.
+  ['KRW=X', '2026-10-25T21:19:00.000Z', '2026-10-25T21:20:42.000Z', 'CURRENT_SESSION', 'REGULAR'],
+  ['CL=F', '2026-10-25T22:19:00.000Z', '2026-10-25T22:20:45.000Z', 'CURRENT_SESSION', 'REGULAR'],
+  ['CL=F', '2026-10-23T20:59:58.000Z', '2026-10-25T21:20:45.000Z', 'MARKET_CLOSED', 'REGULAR'],
+  ['KRW=X', '2026-10-24T10:00:00.000Z', '2026-10-24T12:00:00.000Z', 'MARKET_CLOSED', 'REGULAR']
 ];
 for (const [instrumentId, observedAt, now, expected, providerSession] of sessionFixtures) {
   const actual = deriveMarketSession({ instrumentId, observedAt, providerSession, now: Date.parse(now) });
   if (actual !== expected) fail(`${instrumentId} session fixture expected ${expected}, got ${actual}`);
+}
+// v59.49: two weeks (one with the 11-01 DST change) every 10 minutes; each print a provider holds must land in the
+// completed-close or in-session set the venue schedule gives it (scripts/lib/market-session-sweep.mjs). HEAD before
+// v59.49 failed 96 points: the Sunday reopen, RUT's 16:30 stamp after the open, and RUT on Monday 09:30-09:45 ET.
+{
+  const sweep = sweepMarketSessions(deriveMarketSession);
+  if (sweep.checked < 15000 || sweep.mismatches.length) fail(`market-session sweep: ${sweep.mismatches.length}/${sweep.checked} prints classified outside the schedule: ${JSON.stringify(sweep.mismatches.slice(0, 4))}`);
 }
 
 const attemptedAt = '2026-07-18T00:00:00.000Z';

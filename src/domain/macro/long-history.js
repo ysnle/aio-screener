@@ -2,7 +2,8 @@ import { finiteNumber as finite } from '../shared/number.js';
 /**
  * Decades of context for a few macro gauges (live review 4f, 2026-10-14).
  *
- * Reads public-data/macro-long-history.json (monthly FRED means since 1990) and says where the latest month sits in
+ * Reads the `long` block of public-data/macro-history.json (monthly FRED values since 1990; v59.49: the separate
+ * macro-long-history.json this named never existed) and says where the latest month sits in
  * that history: its percentile among all months, and the period's high and low with their months. It describes a
  * level against the past — not a direction, a signal or a forecast.
  */
@@ -57,7 +58,9 @@ export function longHistoryRows(artifact) {
       positionText: `${monthLabel(points[0].month)} 이후 ${points.length}개월 중 ${percentile}%가 ${monthLabel(last.month)} 값 이하, ${place}`,
       rangeText: `최고 ${fmt(max.value)}(${monthLabel(max.month)}), 최저 ${fmt(min.value)}(${monthLabel(min.month)})`,
       partialMonth: partial ? partial.month : null,
-      monthText: `${monthLabel(last.month)} 월평균${partial ? `, 진행 중인 ${monthLabel(partial.month)}은 빼고 비교` : ''}`
+      // v59.49 (review): unemployment and core CPI are the month's survey/year-on-year value, not a mean of daily data
+      // (FRED FEDFUNDS is published as the monthly average, so it keeps the word).
+      monthText: `${monthLabel(last.month)} ${DAILY_MEANS.has(field) || field === 'fedFunds' ? '월평균' : '값'}${partial ? `, 진행 중인 ${monthLabel(partial.month)}은 빼고 비교` : ''}`
     });
   }).filter(Boolean);
 }

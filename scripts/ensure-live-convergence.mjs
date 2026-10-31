@@ -76,7 +76,20 @@ function finish(status, exitCode = 0) {
 if (!TOKEN) finish('ERROR_MISSING_TOKEN', 1);
 if (!REPO) finish('ERROR_MISSING_REPOSITORY', 1);
 
-async function api(path, options = {}) {
+// v59.49 (refresh-data 10-30 14:23Z): one GitHub 500 on the CI dispatch failed a refresh whose data was already pushed.
+// A 5xx gets one retry; a duplicate dispatch is harmless (CI concurrency groups by release_sha).
+async function api(path, options = {}, attempt = 1) {
+  try {
+    return await apiOnce(path, options);
+  } catch (error) {
+    if (attempt >= 2 || !/ -> 5\d\d /.test(`${error.message} `)) throw error;
+    note(`retrying after ${error.message.slice(0, 80)}`);
+    await sleep(5000);
+    return api(path, options, attempt + 1);
+  }
+}
+
+async function apiOnce(path, options = {}) {
   const response = await fetch(`${API}${path}`, {
     ...options,
     headers: {

@@ -27,11 +27,7 @@ import { restoreSidebar, toggleSidebar } from '../ui/components/sidebar-toggle.j
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
-import { parseSecStatements } from '../domain/fundamental/sec-statements.js';
-import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
 import { chooseAnswerVisuals } from '../ai/response/answer-visual-choice.js';
-import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
-import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } from '../ai/response/answer-principles.js';
 import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
 import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
 import { portfolioRowsLine } from '../ai/context/portfolio-rows.js'; // v58.75: redacted holdings line (workbench + AI panel)
@@ -69,7 +65,6 @@ import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
 import { takeBootPrefetch } from '../data/boot-prefetch.js';
 import { applyServerMacro } from '../data/server-macro.js';
 import { verifyServerMarketAnalysis } from '../data/server-market-analysis.js';
-import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
   const window = root;
@@ -144,26 +139,32 @@ export function installCompatibilityGlobals(root = globalThis) {
     aliases: window.SCR_KEYWORD_ALIASES || {},
     rankAsOf: screenerFactorAsOf()
   });
-  window._aioRunScreenerQuery = (query, opts) => runScreenerQuery(query, { ...screenerQueryInput(), recentTickers: opts?.recentTickers || [] });
-  window._formatScreenerResultPrompt = (result) => formatScreenerResultPrompt(result, { rankAsOf: screenerFactorAsOf() });
-  window._aioBuildScreenerAiContext = (query, messages, logger) => buildScreenerAiContext(query, messages, { ...screenerQueryInput(), logger });
-  window._detectSectorQuery = (text) => detectSectorQuery(text, { rows: screenerQueryInput().rows });
+  // v59.49 (boot budget): the chat's screener query engine (src/ai/context/screener-query.js) binds _aioRunScreenerQuery,
+  // _formatScreenerResultPrompt, _aioBuildScreenerAiContext and _detectSectorQuery from src/app/chat-globals.js; only
+  // js/aio-chat.js calls them. The inputs stay here, beside the screener state they read.
   window.AIO = window.AIO || {};
+  window.AIO.screenerQueryInput = screenerQueryInput;
+  window.AIO.screenerFactorAsOf = screenerFactorAsOf;
   window.AIO.describeSharedConnection = describeSharedConnection;
   window._aioOpenFeedback = () => import('../ui/components/feedback-form.js').then((m) => m.openFeedbackDialog({ documentRef: document, windowRef: window, version: typeof APP_VERSION === 'string' ? APP_VERSION : '' })).catch(() => null); // roadmap 12
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
   // v58.71: research-channel numbers in the chat context; loaded after boot (the chat checks that it exists).
   import('../ai/context/channel-signals.js').then((module) => { window.AIO.formatChannelSignalEvidence = module.formatChannelSignalEvidence; }).catch(() => {});
-  window.AIO.parseSecStatements = parseSecStatements; // 2026-10-17 D8: replaces js/aio-chat.js _parseSECFinancials
-  window.AIO.buildMarketContentContext = buildMarketContentContext;
-  window.AIO.buildQuestionDomainContext = buildQuestionDomainContext;
+  // 2026-10-17 D8: replaces js/aio-chat.js _parseSECFinancials. v59.48 (boot budget): the parser (sec-statements.js with
+  // sec-normalize.js) is a lazy chunk; the 재무 search awaits AIO.loadSecStatements() before it reads AIO.parseSecStatements.
+  window.AIO.loadSecStatements = () => import('../domain/fundamental/sec-statements.js').then(({ parseSecStatements }) => {
+    window.AIO.parseSecStatements = parseSecStatements;
+    return parseSecStatements;
+  });
+  // v59.48 (boot budget): buildMarketContentContext, buildQuestionDomainContext and the answer mode/principle helpers
+  // install with the chat (src/app/chat-globals.js, loaded by src/app/chat-loader.js); only js/aio-chat.js reads them.
   // P1741: data-drawn figures under an AI answer. v58.80 (bundle 4): the builders load with the first answer (both are async).
   const answerVisuals = () => import('../ui/components/ai-answer-visuals.js');
   window.AIO.renderAnswerVisuals = (options) => answerVisuals().then((module) => module.renderAnswerVisuals(options));
   window.AIO.chooseAnswerVisuals = chooseAnswerVisuals;
   window.AIO.attachAnswerVisuals = (options) => answerVisuals().then((module) => module.attachAnswerVisuals(options));
 // P1740: chat prompt pieces moved out of js/aio-chat.js (answer shape, principles, policy lines, ticker resolver).
-Object.assign(window.AIO, { chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, buildChatPolicyLines, resolveChatTickers, portfolioRowsLine });
+Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioRowsLine });
   window.AIO.selectNativeSearch = selectNativeSearch;
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;

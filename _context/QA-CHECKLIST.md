@@ -4,6 +4,17 @@ last_verified: 2026-10-31
 confidence: medium
 ---
 
+## v59.49 시세 세션 (2026-10-31)
+
+- [x] QA-SESSION-SWEEP-LIVE-01: v59.49 push 뒤 첫 일요일 22:00~24:00 UTC(서머타임 종료 뒤)와 월요일 09:30~09:50 ET 시장 데이터 갱신이 history-time·market-snapshot 게이트에서 실패하지 않는지 Actions에서 확인. verify_by: live
+- [x] QA-DATA-CI-ORIGIN-LIVE-01: v59.49 push 뒤 행사 브리프 커밋의 CI가 브라우저 단계를 건너뛰고 증명(attest)까지 성공하는지, 06~08 KST 데이터 커밋 CI가 esm-core에서 실패하지 않는지 Actions에서 확인. verify_by: live
+
+## v59.48 실적 브리프 (2026-10-31)
+
+- [x] QA-EB-EPS-BASIS-LIVE-01: v59.48 push 뒤 새 실적 브리프에서 조정 EPS 줄이 따로 있는 회사는 GAAP 줄에 예상 대비가 없고, 비교 줄에 (조정 $X 기준) 또는 (보고 기준)이 붙는지 확인. verify_by: live
+- [x] QA-EB-BUDGET-LIVE-01: v59.48 push 뒤 event-briefs 갱신에서 public-data/event-briefs.json이 한 줄 compact JSON이고 크기가 이전보다 약 1/3 줄었는지 확인. verify_by: live
+- [x] QA-WATCHDOG-OWNER-LIVE-01: v59.48 push 뒤 생산자 하나가 실패한 동안 watchdog 실행이 그 실패를 경고로만 적고, 라이브 평면이 정상이면 성공하는지 확인. verify_by: live
+
 ## v59.47 데이터 경계 계약 (2026-10-31)
 
 - [x] QA-BC-SESSION-LIVE-01: v59.47 push 뒤 평일 미국 마감 후 다음 스크리너 갱신 전후로 스크리너 순위가 보류되지 않는지(한 세션 뒤 12시간 허용), 갱신이 12시간 넘게 멈추면 순위 보류 문구가 뜨는지 라이브에서 확인. verify_by: live

@@ -56,3 +56,18 @@ export function periodReturns(bars) {
   const last = closes.at(-1);
   return Object.fromEntries(COMPARE_PERIODS.map(([label, n]) => [label, closes.length > n && last > 0 ? (last / closes[closes.length - 1 - n] - 1) * 100 : null]));
 }
+
+/**
+ * v59.49: another symbol's period returns on the stock's dates (alignCloses), so every row of the table covers the same
+ * calendar span. Counting the other series' own sessions put a KR listing (Chuseok closures) and SPY on different
+ * start dates, and a cached series that ended days earlier was compared as if current; an unaligned end is null.
+ */
+export function alignedPeriodReturns(bars, otherBars) {
+  const list = Array.isArray(bars) ? bars : [];
+  const aligned = alignCloses(list, otherBars);
+  const last = aligned.at(-1);
+  return Object.fromEntries(COMPARE_PERIODS.map(([label, n]) => {
+    const start = aligned[list.length - 1 - n];
+    return [label, list.length > n && last > 0 && start > 0 ? (last / start - 1) * 100 : null];
+  }));
+}

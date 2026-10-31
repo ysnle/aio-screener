@@ -7,7 +7,7 @@ AIO Screener는 GitHub Pages의 하이브리드 정적 셸 + native ESM 투자 �
 1. `git status --short`와 `version.json`으로 작업 트리 경계를 확인한다. 기존 dirty 변경은 사용자 소유다. 수정 전 `node scripts/qa-runner.mjs session-start --session <task-id>`로 기준선을 잡는다.
 2. `CURRENT-STATE.md`는 시작 시 한 번 읽는다. `_context/INDEX.md`(위치 탐색)와 `_context/WORKFLOW-GOVERNANCE.md`(QA·권한 상세)는 필요할 때만, 읽은 문서는 반복 로드하지 않는다.
 3. 스킬은 트리거 체인이 아닌 참조 문서다. 도움이 될 때만 `SKILL.md`와 필요한 reference를 읽는다. 라우팅은 아래 Task routing 표만 따르고, 강제는 게이트 실행·보고 형식에만 둔다(R618).
-4. `RULES.md`(맨 앞 핵심 규칙 색인부터), `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 ID·키워드로 검색한 범위만 읽는다.
+4. `RULES.md`(핵심 규칙 색인 C1~C18부터), `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 ID·키워드로 검색한 범위만 읽는다.
 5. `index.html`은 `_context/CODE-MAP.md`에서 담당 구간을 찾아 그 범위만 수정한다.
 6. 문서(CODE-MAP·스킬·핸드오프·메모리)가 지금 코드와 어긋나면 코드 관례를 따르고 어긋난 곳을 최종 답변에 모두 적는다. 제품 결정·RULES 정책과 다른 코드는 결함이다(2026-10-25).
 

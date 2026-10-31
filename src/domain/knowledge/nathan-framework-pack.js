@@ -1,10 +1,11 @@
 // Nathan's supplied material is projected into reusable knowledge primitives.
 // The projection intentionally keeps mechanisms, observables, counter-scenarios,
 // and provenance boundaries; it does not copy post prose or promote dated claims.
-import { NATHAN_PREVIOUS_THREADS_REFERENCE } from '../research/nathan-previous-threads.js';
+// The frameworks come from the leaf nathan-frameworks.js; the thread catalogue (nathan-previous-threads.js) loads
+// with the research corpus on demand and stays out of the boot set.
+import { NATHAN_PREVIOUS_THREADS_IDENTITY, NATHAN_PREVIOUS_THREADS_FRAMEWORKS, NATHAN_FRAMEWORK_SOURCE_TITLES } from '../research/nathan-frameworks.js';
 import { compareStableText } from './order.js';
 
-const THREAD_BY_ID = new Map((NATHAN_PREVIOUS_THREADS_REFERENCE.threads || []).map((thread) => [thread.id, thread]));
 
 export const NATHAN_FRAMEWORK_PACK_VERSION = 'nathan-framework-pack.v1';
 
@@ -82,9 +83,7 @@ function frameworkRoutes(framework) {
   return unique((framework.allowedConsumers || []).map(routeFromConsumer));
 }
 
-const rawFrameworks = Array.isArray(NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks)
-  ? NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks
-  : [];
+const rawFrameworks = Array.isArray(NATHAN_PREVIOUS_THREADS_FRAMEWORKS) ? NATHAN_PREVIOUS_THREADS_FRAMEWORKS : [];
 
 export const NATHAN_FRAMEWORKS = Object.freeze(rawFrameworks.map((framework) => {
   const conceptId = `nathan-frameworks:${framework.id}`;
@@ -197,7 +196,7 @@ export const NATHAN_FRAMEWORK_ARTICLES = Object.freeze(NATHAN_FRAMEWORKS.map((fr
   conceptIds: Object.freeze([framework.conceptId]),
   authoringStatus: 'STRUCTURED_REFERENCE',
   publication: 'EDUCATIONAL_REFERENCE_ONLY',
-  reviewedAt: NATHAN_PREVIOUS_THREADS_REFERENCE.reviewedAt || '',
+  reviewedAt: NATHAN_PREVIOUS_THREADS_IDENTITY.reviewedAt || '',
   keywords: Object.freeze(framework.aliases),
   route: Object.freeze({
     routeId: framework.routeIds[0] || 'principles',
@@ -213,8 +212,8 @@ export const NATHAN_FRAMEWORK_ARTICLES = Object.freeze(NATHAN_FRAMEWORKS.map((fr
   // registry (Nathan Previous Threads) that publishes the canonical links.
   sources: Object.freeze((framework.sourceRefs || []).map((sourceRef) => Object.freeze({
     id: sourceRef,
-    publisher: NATHAN_PREVIOUS_THREADS_REFERENCE.author,
-    title: THREAD_BY_ID.get(sourceRef)?.title || '원문 게시물',
+    publisher: NATHAN_PREVIOUS_THREADS_IDENTITY.author,
+    title: NATHAN_FRAMEWORK_SOURCE_TITLES.get(sourceRef) || '원문 게시물',
     locator: 'nathan-previous-threads registry (canonical link by id)',
     url: '',
     allowedUse: 'REFERENCE_ONLY',
@@ -238,7 +237,7 @@ export const NATHAN_FRAMEWORK_ARTICLES = Object.freeze(NATHAN_FRAMEWORKS.map((fr
 
 export const NATHAN_FRAMEWORK_PACK = Object.freeze({
   schemaVersion: NATHAN_FRAMEWORK_PACK_VERSION,
-  sourceReferenceId: NATHAN_PREVIOUS_THREADS_REFERENCE.id,
+  sourceReferenceId: NATHAN_PREVIOUS_THREADS_IDENTITY.id,
   status: 'REFERENCE_ONLY',
   currentClaimsAllowed: false,
   rankingUse: 'none',

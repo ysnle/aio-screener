@@ -132,7 +132,8 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
 
 // v58.75 (owner decision 2026-10-24): '가격 레벨과 내 계획' — the level map (reading → ladder → table), the published ways
 // experts set stops and targets with this stock's own numbers, and a check of the user's own plan. The app never picks a
-// price: every number here is a mapped level or arithmetic on the numbers the user typed.
+// price: every number here is a mapped level or arithmetic on the numbers the user typed. v59.49 (P2151 rule): the methods
+// give distances (ATR, base depth) beside mapped levels; they no longer add them into a stop or target price.
 const kindsText = (level) => level.kinds.join('·');
 const sideWord = (level) => (level.side === 'above' ? '저항 후보' : '지지 후보');
 export function nearestLevels(levels) { return [...levels.above.slice(0, 2), ...levels.below.slice(0, 2)]; }
@@ -215,13 +216,13 @@ function expertMethods(doc, levels, price) {
   const contraction = levels.contractionLow && levels.contractionLow < close ? `, 마지막 수축 저점은 ${price(levels.contractionLow)}` : '';
   details.append(el(doc, 'h4', '손절을 정하는 세 가지 방법'));
   item('구조 기준 — 마지막 저점 아래', `${swing}${contraction}입니다. 이 방법을 쓰면 기준이 되는 레벨은 그 저점이며, 저점 아래에 둡니다.`, '가격 구조가 깨졌다는 뜻이 분명합니다.', '저점이 멀면 위험 폭이 커지고, 같은 저점을 보는 사람이 많아 잠깐 밑돌았다 돌아오기도 합니다.');
-  item('변동성 기준 — 하루 변동폭의 몇 배', levels.atr > 0 ? `일평균 변동폭 ${levels.adrPct.toFixed(1)}%, ATR(14) ${price(levels.atr)}입니다. 종가에서 ATR 1배 아래는 ${price(close - levels.atr)}, 2배 아래는 ${price(close - 2 * levels.atr)}입니다.` : `일평균 변동폭 ${levels.adrPct.toFixed(1)}%입니다.`, '종목마다 다른 흔들림 폭을 반영합니다.', '차트 구조와 관계없는 가격이 될 수 있습니다.');
+  item('변동성 기준 — 하루 변동폭의 몇 배', levels.atr > 0 ? `일평균 변동폭 ${levels.adrPct.toFixed(1)}%, ATR(14) ${price(levels.atr)}(종가의 ${(levels.atr / close * 100).toFixed(1)}%)입니다. 이 방법은 종가에서 ATR의 1~2배 거리를 손절 폭으로 씁니다.` : `일평균 변동폭 ${levels.adrPct.toFixed(1)}%입니다.`, '종목마다 다른 흔들림 폭을 반영합니다.', '차트 구조와 관계없는 가격이 될 수 있습니다.');
   item('시간 기준 — 정한 기간 안에 진행이 없으면', '진입 전에 기간(예: 5~10거래일)을 정하고, 그 안에 가격이 진행하지 않으면 계획을 다시 봅니다.', '움직이지 않는 자리에 돈이 묶이는 시간을 제한합니다.', '가격 기준이 없어 그 사이 낙폭은 다른 기준과 함께 막아야 합니다.');
   details.append(el(doc, 'h4', '목표를 정하는 세 가지 방법'));
   const next = levels.above[0];
   item('다음 저항 구간', next ? `가장 가까운 저항 후보는 ${price(next.price)}(${kindsText(next)}, ${signedText(next.pct, 1, '%')})입니다.` : '현재가 위에 지도 위 레벨이 없습니다(최근 고점 위 구간).', '실제로 매도가 나왔던 가격을 씁니다.', '강한 추세에서는 저항 후보를 그대로 지나치기도 합니다.');
   const anchor = levels.pivot ?? levels.base?.high;
-  item('측정 이동폭 — 베이스 깊이만큼', levels.base && anchor ? `베이스 깊이는 ${price(levels.base.depth)}(${levels.base.depthPct.toFixed(1)}%)입니다. 피벗 ${price(anchor)}에 더하면 ${price(anchor + levels.base.depth)}입니다.` : '유효한 베이스(차례로 얕아지는 수축)가 확인되지 않아 계산하지 않습니다.', '패턴 크기에 비례해 기계적으로 계산됩니다.', '같은 폭이 반복된다는 보장은 없습니다.');
+  item('측정 이동폭 — 베이스 깊이만큼', levels.base && anchor ? `베이스 깊이는 ${price(levels.base.depth)}(${levels.base.depthPct.toFixed(1)}%), 피벗은 ${price(anchor)}입니다. 이 방법은 피벗 위로 베이스 깊이만큼의 거리를 봅니다.` : '유효한 베이스(차례로 얕아지는 수축)가 확인되지 않아 계산하지 않습니다.', '패턴 크기에 비례해 기계적으로 계산됩니다.', '같은 폭이 반복된다는 보장은 없습니다.');
   item('위험 대비 배수(R)', '진입가~손절가 거리를 1R로 두고 2R·3R 지점을 봅니다. 아래 \'내 계획 점검\'에 손절가를 넣으면 배수가 계산됩니다.', '손익 비율을 진입 전에 정해 둡니다.', '차트의 실제 저항과 관계없는 가격일 수 있습니다.');
   details.append(el(doc, 'p', '앱은 가격을 고르지 않습니다. 방법을 고르고 숫자는 직접 정하세요.', 'xr-reading'));
   return details;

@@ -27,7 +27,7 @@ import { SEC_TICKERS_URL, submissionsUrl, submissionTextUrl, tickerCikMap, filin
 import { SHARED_AI_MODEL, resolveSharedAiConfig, extractCompletedResponseText, buildSharedWebSearchBody } from './lib/ai-shared-analysis.mjs';
 import {
   EVENT_BRIEFS_SCHEMA, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
-  parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, estimateAiCostUsd, AI_RATE_CARD,
+  parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
   MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS
 } from '../src/domain/briefing/event-briefs.js';
 
@@ -35,6 +35,10 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, 'public-data/event-briefs.json');
 const DAY = 86400000;
 const RETAIN_DAYS = 120;
+// The home screen reads the file whole (1 MiB client cap, src/data/event-artifacts.js). Past this budget the oldest briefs go
+// first, but never one inside the fetch lookback (it would be fetched and summarised again) or one with this month's AI cost
+// (the month ledger is summed from kept briefs) (artifact audit, v59.48).
+const BRIEF_BYTE_BUDGET = 640 * 1024;
 const FIRST_RUN_LOOKBACK_DAYS = 12; // the first run (2026-10-29) reaches back to 10/18, so META's 10/21 report is in
 const LOOKBACK_DAYS = 4;
 const SOURCE_CHAR_CAP = 60000;
@@ -347,18 +351,8 @@ function safeHeadline(text, sourceText, fallback) {
   return value && !unverifiedNumbers(value, sourceNumberSet(sourceText)).length ? value : fallback;
 }
 
-// P2138: the provider's EPS consensus is on the adjusted basis, so a figure labelled GAAP is not compared with it
-// (ServiceNow's GAAP $0.27 read "예상 대비 -73.9%").
-// v59.45 (pipeline review P21-EPS-01): when the label and text name no basis, the quote decides — a quote that names
-// GAAP (alone, or beside the non-GAAP figure so the line read is not certain) is not compared with the adjusted consensus.
-const NON_GAAP_RE = /non-?GAAP|비\s*GAAP|조정(?!\s*전)|adjusted/i;
-export function isGaapOnlyFigure(figure) {
-  const text = `${figure?.label || ''} ${figure?.text || ''}`;
-  if (/GAAP/i.test(text) && !NON_GAAP_RE.test(text)) return true;
-  if (NON_GAAP_RE.test(text)) return false;
-  return /\bGAAP\b/i.test(String(figure?.quote || '').replace(/non-?GAAP/gi, ' '));
-}
-
+// P2138 / v59.45 P21-EPS-01: the GAAP-only test moved into epsComparisonBasis (src/domain/briefing/event-briefs.js, v59.48),
+// which also reads an adjusted amount named in the note and skips a GAAP line when an adjusted line exists.
 export const CASH_METRICS = Object.freeze(['capex', 'free_cash_flow', 'operating_cash_flow']);
 
 /** The AI earnings extraction, checked. `estimate` is the provider calendar row (reference). */
@@ -374,11 +368,12 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
       const pct = surprisePct(actual, Number(estimate.revenueEstimate));
       if (pct != null) return { ...figure, estimate: { value: Number(estimate.revenueEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference' } };
     }
-    if (figure.metric === 'eps_diluted' && Number.isFinite(Number(estimate.epsEstimate)) && !isGaapOnlyFigure(figure)) {
+    if (figure.metric === 'eps_diluted' && Number.isFinite(Number(estimate.epsEstimate))) {
       // v59.45 (P21-AMOUNT-01): one per-share amount, its sign kept ("$(0.12)" is a loss), or no comparison.
-      const actual = parseUsdPerShare(figure.value);
-      const pct = actual != null ? surprisePct(actual, Number(estimate.epsEstimate)) : null;
-      if (pct != null) return { ...figure, estimate: { value: Number(estimate.epsEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference' } };
+      // v59.48: the amount the adjusted consensus is compared with (epsComparisonBasis), named on the estimate.
+      const comparison = epsComparisonBasis(figure, figures.kept);
+      const pct = comparison ? surprisePct(comparison.actual, Number(estimate.epsEstimate)) : null;
+      if (pct != null) return { ...figure, estimate: { value: Number(estimate.epsEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference', actualBasis: comparison.basis, ...(comparison.amount ? { comparedAmount: comparison.amount } : {}) } };
     }
     return figure;
   });
@@ -631,7 +626,14 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     const headline = briefHeadline(brief.headline, { nameKo: brief.nameKo, figures: brief.figures || [] });
     const figures = (brief.figures || []).map((figure) => {
       if (!figure.estimate || (figure.estimate.basis && figure.estimate.basis !== 'provider-consensus-reference') || brief.status === 'provisional') return figure;
-      if (figure.metric === 'eps_diluted') return isGaapOnlyFigure(figure) ? (({ estimate, ...rest }) => rest)(figure) : recompared(figure, parseUsdPerShare(figure.value));
+      if (figure.metric === 'eps_diluted') {
+        const comparison = epsComparisonBasis(figure, brief.figures || []);
+        if (!comparison) return (({ estimate, ...rest }) => rest)(figure);
+        const next = recompared(figure, comparison.actual);
+        if (!next.estimate) return next;
+        const named = { actualBasis: comparison.basis, ...(comparison.amount ? { comparedAmount: comparison.amount } : {}) };
+        return next.estimate.actualBasis === named.actualBasis && next.estimate.comparedAmount === named.comparedAmount ? next : { ...next, estimate: { ...next.estimate, ...named } };
+      }
       if (figure.metric === 'revenue') return recompared(figure, parseUsdAmount(figure.value));
       return figure;
     });
@@ -686,6 +688,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
   const kept = [...briefs.values()].filter((brief) => nowMs - (Date.parse(brief.publishedAt) || 0) <= RETAIN_DAYS * DAY)
     .sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0));
   const month = nowIso.slice(0, 7);
+  pruneBriefsToBudget(kept, { nowMs, month });
   const monthEntries = kept.flatMap((brief) => brief.ai || []).filter((entry) => entry.at ? entry.at.startsWith(month) : true);
   return {
     schemaVersion: EVENT_BRIEFS_SCHEMA,
@@ -721,6 +724,18 @@ async function withCallPoints(brief, { mover, nowMs, nowIso, sourceText, sources
   return { ...brief, callPoints, status: callPoints.done ? 'complete' : 'partial', ai: [...(brief.ai || []), ...(result.usage ? [aiLedger(`call-${mover.sym}`, result.usage)] : [])] };
 }
 
+// Drops the oldest briefs (newest-first list, in place) until the briefs fit the byte budget; see BRIEF_BYTE_BUDGET.
+export function pruneBriefsToBudget(kept, { nowMs, month, budget = BRIEF_BYTE_BUDGET }) {
+  let bytes = kept.reduce((sum, brief) => sum + JSON.stringify(brief).length, 0);
+  for (let i = kept.length - 1; i >= 0 && bytes > budget; i -= 1) {
+    const brief = kept[i];
+    if (nowMs - (Date.parse(brief.publishedAt) || 0) <= FIRST_RUN_LOOKBACK_DAYS * DAY || (brief.ai || []).some((entry) => !entry.at || entry.at.startsWith(month))) continue;
+    bytes -= JSON.stringify(brief).length;
+    kept.splice(i, 1);
+  }
+  return kept;
+}
+
 // ---- CLI -----------------------------------------------------------------------------------------------------------
 async function readJson(path) { try { return JSON.parse(await readFile(path, 'utf8')); } catch { return null; } }
 
@@ -746,7 +761,7 @@ async function main() {
     : extendedMovers(await readJson(resolve(ROOT, 'public-data/company-profiles/index.json')), await readFile(resolve(ROOT, 'js/aio-core.js'), 'utf8').catch(() => ''),
       { themes: loadThemeMaps(ROOT).usThemes, universe: (await readJson(resolve(ROOT, 'public-data/screener-universe.json')))?.universe || [] });
   const artifact = await buildEventBriefs({ previous, sources, nowMs, fomcDecisions: macro?.schedules?.['us-fomc'] || [], earningsRows: calendar?.earnings || [], earningsSource: calendar?.source || null, earningsSourceUrl: calendar?.sourceUrl || null, extended });
-  await atomicWriteFile(outPath, `${JSON.stringify(artifact, null, 2)}\n`);
+  await atomicWriteFile(outPath, `${JSON.stringify(artifact)}\n`); // compact: indentation was 36% of the file
   console.log(`[event-briefs] ${artifact.briefs.length} briefs; status ${JSON.stringify(artifact.status)}; month AI ~$${artifact.costLedger.estimatedUsd}${artifact.errors.length ? `; errors: ${artifact.errors.join(' | ')}` : ''}`);
 }
 

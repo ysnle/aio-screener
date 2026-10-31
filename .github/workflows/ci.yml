@@ -14,7 +14,7 @@ on:
         required: false
         type: string
       origin:
-        description: Validation scope owner (refresh-data or refresh-screener)
+        description: Validation scope owner (refresh-data, refresh-screener or event-briefs)
         required: false
         type: string
 
@@ -63,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: ${{ fromJSON(inputs.origin == 'refresh-data' && '["core","data","knowledge"]' || inputs.origin == 'refresh-screener' && '["core","data"]' || '["core","data","knowledge","workspace","cloudflare"]') }}
+        group: ${{ fromJSON(inputs.origin == 'refresh-data' && '["core","data","knowledge"]' || (inputs.origin == 'refresh-screener' || inputs.origin == 'event-briefs') && '["core","data"]' || '["core","data","knowledge","workspace","cloudflare"]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -106,7 +106,9 @@ jobs:
     # v58.70 (owner 2026-10-23): a refresh commit changes only generated data on top of source code that already passed
     # the full push CI (the attest guard below proves it), so it is attested by the data/core/knowledge contracts alone.
     # Its browser shards depended on the apt mirror and held 10/22 04:50Z-23:20Z of data off the live site.
-    if: inputs.origin != 'refresh-data' && inputs.origin != 'refresh-screener'
+    # v59.49: event-briefs commits only public-data too; its full browser run failed the home text budget on brief text
+    # (10-30 02:23Z, 16:43Z), so its releases were never attested.
+    if: inputs.origin != 'refresh-data' && inputs.origin != 'refresh-screener' && inputs.origin != 'event-briefs'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -212,7 +214,7 @@ jobs:
     if: >-
       !cancelled() && github.event_name != 'pull_request' && github.ref_name == 'main'
       && needs.preflight.result == 'success' && needs.contracts.result == 'success'
-      && (needs.browser.result == 'success' || (needs.browser.result == 'skipped' && (inputs.origin == 'refresh-data' || inputs.origin == 'refresh-screener')))
+      && (needs.browser.result == 'success' || (needs.browser.result == 'skipped' && (inputs.origin == 'refresh-data' || inputs.origin == 'refresh-screener' || inputs.origin == 'event-briefs')))
     needs: [preflight, contracts, browser]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -232,7 +234,7 @@ jobs:
       # paths must already have a successful full push CI; otherwise this release waits for that run to attest it.
       # First-parent history: push CI runs on the merge commit main received, not on the merged branch's own commits.
       - name: Reduced-scope release sits on a fully tested source commit
-        if: inputs.origin == 'refresh-data' || inputs.origin == 'refresh-screener'
+        if: inputs.origin == 'refresh-data' || inputs.origin == 'refresh-screener' || inputs.origin == 'event-briefs'
         env:
           EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
           GH_TOKEN: ${{ github.token }}

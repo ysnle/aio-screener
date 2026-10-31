@@ -245,11 +245,17 @@ export function recomputedNote(days) {
   return days.some((day) => day.recomputed) ? `${first ? `${first.date.slice(5).replace('-', '/')} 이전` : '이 기간'}은 지금 규칙과 지금 구성 종목으로 종가에서 소급 계산한 단계입니다(그날의 구성 종목·신용·중심 시나리오 조건은 다시 보지 않음).` : '';
 }
 /** The most recent session before the latest whose stage differs (within the strip), or null. */
+// v59.49: the window counts session positions in the strip, so a day the theme was not recorded (18 US themes on 10-19,
+// 10-21, 10-30) no longer stretches '최근 3거래일' back past three sessions.
 export function recentStageChange(days) {
-  const known = days.filter((day) => day.state !== undefined);
-  const now = known.at(-1);
-  if (!now) return null;
-  for (let i = known.length - 2; i >= Math.max(0, known.length - 4); i -= 1) if (known[i].state !== now.state) return { from: known[i].state, date: known[i].date, to: now.state, latest: i === known.length - 2 };
+  const list = Array.isArray(days) ? days : [];
+  const last = list.length - 1;
+  const now = list[last];
+  if (!now || now.state === undefined) return null;
+  for (let i = last - 1; i >= Math.max(0, last - 3); i -= 1) {
+    if (list[i].state === undefined) continue;
+    if (list[i].state !== now.state) return { from: list[i].state, date: list[i].date, to: now.state, latest: i === last - 1 };
+  }
   return null;
 }
 /** v58.78: the current stage, how many recorded sessions it has held, and the stage before it (within the strip). */
